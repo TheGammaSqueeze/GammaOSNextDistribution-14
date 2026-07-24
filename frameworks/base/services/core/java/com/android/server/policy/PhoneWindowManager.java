@@ -6568,23 +6568,28 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
         }
 
-        // GammaOS Nano: swallow the power key while the DRM cold-boot home owns
-        // it (the home nano grabs the power evdev node and drives sleep/wake
-        // itself). The swallow must NOT apply when the resident overlay is the
-        // visible menu (show_overlay=1, e.g. the post-game overlay-home): the
-        // overlay deliberately ignores KEY_POWER and PhoneWindowManager owns the
-        // whole gesture there (short press sleeps in powerPress, hold toggles in
-        // powerLongPress, and the wake path below must see the wake press).
-        // Without this exclusion the power button went fully dead in
-        // overlay-home: PWM consumed the key here and nothing else acted on it.
+        // GammaOS Nano: swallow the power key only while the DRM cold-boot home
+        // actually owns it, i.e. when nano grabs input exclusively
+        // (persist.gammaos.nano.grab_input). There the home nano grabs the power
+        // evdev node and drives sleep/wake itself, so PhoneWindowManager must keep
+        // hands off. The swallow must NOT apply (a) when the resident overlay is the
+        // visible menu (show_overlay=1, e.g. the post-game overlay-home), nor (b) on
+        // the overlay / SurfaceFlinger homes that do NOT grab input (e.g. the TV
+        // builds): there nano ignores KEY_POWER and PWM owns the whole gesture, so
+        // short-press-to-sleep, the power-hold global actions, and the wake press
+        // after an idle-timeout sleep must all reach PWM. Without the grab_input gate
+        // the power button went fully dead on those homes: PWM consumed the key here
+        // and nothing else acted on it (no sleep, and worse, no wake).
         if (keyCode == KeyEvent.KEYCODE_POWER
                 && android.os.SystemProperties.getBoolean(
                         "sys.gammaos.minimal_boot", false)
+                && android.os.SystemProperties.getBoolean(
+                        "persist.gammaos.nano.grab_input", false)
                 && !"1".equals(android.os.SystemProperties.get(
                         "sys.gammaos.nano.app_launched", "0"))
                 && !"1".equals(android.os.SystemProperties.get(
                         "sys.gammaos.nano.show_overlay", "0"))) {
-            return 0; // consume — don't queue, don't wake, don't sleep
+            return 0; // consume: don't queue, don't wake, don't sleep
         }
         // Keep an accurate "physical BACK" signal for combo logic
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -7051,14 +7056,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
 
             case KeyEvent.KEYCODE_POWER: {
-                // GammaOS Nano: in the DRM-home XMB (minimal_boot, no app, no overlay)
-                // the home nano owns the power button over evdev (short press = sleep,
-                // hold = shutdown), so swallow it here. But when an app is foreground
-                // OR the SurfaceFlinger overlay is up (in-game overlay or the post-game
-                // overlay launcher), let it through to the normal power path so PWM
-                // handles quick-press-to-sleep and the power-hold overlay toggle.
+                // GammaOS Nano: in the DRM-home XMB the home nano owns the power
+                // button over evdev (short press = sleep, hold = shutdown), but only
+                // when it grabs input exclusively (persist.gammaos.nano.grab_input),
+                // so swallow it here in that case only. When nano does NOT grab input
+                // (the overlay / SurfaceFlinger homes on the TV builds), or an app is
+                // foreground, or the SurfaceFlinger overlay is up (in-game overlay or
+                // the post-game overlay launcher), let it through to the normal power
+                // path so PWM handles quick-press-to-sleep, the power-hold global
+                // actions, and the wake press after an idle-timeout sleep.
                 if (android.os.SystemProperties.getBoolean(
                         "sys.gammaos.minimal_boot", false)
+                        && android.os.SystemProperties.getBoolean(
+                                "persist.gammaos.nano.grab_input", false)
                         && !"1".equals(android.os.SystemProperties.get(
                                 "sys.gammaos.nano.app_launched", "0"))
                         && !"1".equals(android.os.SystemProperties.get(
