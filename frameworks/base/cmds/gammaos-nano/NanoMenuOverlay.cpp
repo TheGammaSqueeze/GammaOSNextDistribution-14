@@ -1017,6 +1017,22 @@ bool NanoMenu::overlayLaunchPackage(const std::string& pkg) {
     return true;
 }
 
+// In-game (overlay) URL launch: start the chosen browser directly ON the URL with an
+// explicit ACTION_VIEW intent, instead of the plain LAUNCHER start overlayLaunchPackage
+// does (which would drop the URL and open the browser on its home page). Works for any
+// browser; GammaBrowser additionally reads sys.gammaos.nano.browser_url, already set by
+// launchUrl before this is called.
+bool NanoMenu::overlayLaunchUrl(const std::string& pkg, const std::string& comp,
+                                const std::string& url) {
+    if (pkg.empty() || url.empty()) return false;
+    std::string cmd = "am start -a android.intent.action.VIEW -d " + overlayShq(url);
+    if (!comp.empty()) cmd += " -n " + overlayShq(comp);
+    else               cmd += " " + overlayShq(pkg);
+    cmd += " 2>/dev/null";
+    overlayLaunchCommand(pkg, cmd);
+    return true;
+}
+
 // OSK-over-app bridge. An app that needs text entry (GammaBrowser web fields)
 // cannot rely on the framework leanback IME here: on this 1GB low-ram device it is
 // OOM-killed the instant it cold-starts under a heavy WebView. Instead the app asks

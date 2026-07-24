@@ -502,6 +502,10 @@ public final class SystemServer implements Dumpable {
     // live-refresh the Applications list on install / remove / update.
     private final java.util.concurrent.atomic.AtomicInteger mNanoAppsGeneration =
             new java.util.concurrent.atomic.AtomicInteger(0);
+    // GammaOS Nano: bumped after the installed-browser list is (re)written, so the native
+    // menu can live-refresh its "Default Browser" picker on install / remove / update.
+    private final java.util.concurrent.atomic.AtomicInteger mNanoBrowsersGeneration =
+            new java.util.concurrent.atomic.AtomicInteger(0);
     // GammaOS Nano: bumped after an on-demand app Information file is written, so the
     // native menu can watch its serial and swap "Loading..." for the real details.
     private final java.util.concurrent.atomic.AtomicInteger mNanoAppInfoGeneration =
@@ -4325,8 +4329,69 @@ public final class SystemServer implements Dumpable {
             SystemProperties.set("sys.gammaos.nano.apps_generation", Integer.toString(gen));
             Slog.i(TAG, "GammaOS Nano: wrote app cache (" + reason + "): "
                     + apps.size() + " apps, " + iconCount + " icons, gen=" + gen);
+            // The installed-browser list rides the same triggers (boot + package change).
+            writeNanoBrowserCache(pm, reason);
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: failed to write app label/icon cache", e);
+        }
+    }
+
+    /**
+     * GammaOS Nano: write the list of installed web browsers for the nano menu's
+     * "Default Browser" picker, as "pkg|Label|pkg/Activity" lines in
+     * /data/system/nano_browsers.txt.
+     *
+     * A browser is anything that handles ACTION_VIEW on an http/https URI, which is what
+     * every real browser declares. This deliberately does NOT reuse the app cache above:
+     * that one drops system apps and the com.android.* / com.gammaos.* prefixes, which
+     * would remove Chrome and the shipped GammaBrowser. The activity component is included
+     * because nano hands the launch an explicit VIEW intent, and the framework needs the
+     * component to resolve ActivityInfo (a package-only intent falls back to LAUNCHER and
+     * the URL would be dropped).
+     */
+    private void writeNanoBrowserCache(android.content.pm.PackageManager pm, String reason) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            java.util.HashSet<String> seen = new java.util.HashSet<>();
+            // The shipped browser is always offered first, even if the query below misses
+            // it, so the picker and the launch fallback are never empty.
+            sb.append("com.gammaos.browser|GammaBrowser|com.gammaos.browser/.MainActivity\n");
+            seen.add("com.gammaos.browser");
+            for (String scheme : new String[] {"https", "http"}) {
+                Intent probe = new Intent(Intent.ACTION_VIEW,
+                        android.net.Uri.parse(scheme + "://example.com"));
+                probe.addCategory(Intent.CATEGORY_BROWSABLE);
+                java.util.List<android.content.pm.ResolveInfo> ris =
+                        pm.queryIntentActivities(probe,
+                                android.content.pm.PackageManager.MATCH_ALL);
+                if (ris == null) continue;
+                for (android.content.pm.ResolveInfo ri : ris) {
+                    if (ri.activityInfo == null) continue;
+                    String pkg = ri.activityInfo.packageName;
+                    if (pkg == null || !seen.add(pkg)) continue;
+                    CharSequence label = ri.loadLabel(pm);
+                    String name = (label != null && label.length() > 0) ? label.toString() : pkg;
+                    // Keep the format parseable: labels are user-visible and could in
+                    // principle contain the delimiter or a newline.
+                    name = name.replace('|', ' ').replace('\n', ' ').trim();
+                    if (name.isEmpty()) name = pkg;
+                    sb.append(pkg).append('|').append(name).append('|')
+                      .append(pkg).append('/').append(ri.activityInfo.name).append('\n');
+                }
+            }
+            java.io.File dst = new java.io.File("/data/system/nano_browsers.txt");
+            java.io.File tmp = new java.io.File("/data/system/nano_browsers.txt.tmp");
+            java.io.FileWriter fw = new java.io.FileWriter(tmp);
+            fw.write(sb.toString());
+            fw.close();
+            tmp.setReadable(true, false);
+            tmp.renameTo(dst);   // atomic replace; nano never reads a partial list
+            int gen = mNanoBrowsersGeneration.incrementAndGet();
+            SystemProperties.set("sys.gammaos.nano.browsers_generation", Integer.toString(gen));
+            Slog.i(TAG, "GammaOS Nano: wrote browser list (" + reason + "): "
+                    + seen.size() + " browsers, gen=" + gen);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: failed to write browser list", e);
         }
     }
 

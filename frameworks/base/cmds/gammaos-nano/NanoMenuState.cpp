@@ -413,6 +413,80 @@ void NanoMenu::loadInstalledApps() {
     ALOGD("NanoMenu: loaded %zu installed apps from packages.list", mAppEntries.size());
 }
 
+// Load the installed-browser list the framework curated (SystemServer.writeNanoBrowserCache:
+// every ACTION_VIEW http/https handler). Format: "pkg|Label|pkg/Activity\n". Unlike
+// loadInstalledApps this does NOT filter com.android.* / com.gammaos.* / system apps, because
+// real browsers (Chrome, the shipped GammaBrowser) live under those prefixes. The component is
+// the flattened ACTION_VIEW activity so launchUrl can build a resolvable VIEW intent for ANY
+// browser. If the file is absent (first boot, before SystemServer writes it) seed the single
+// shipped GammaBrowser entry so the picker + launch always have a valid fallback.
+void NanoMenu::loadInstalledBrowsers() {
+    mBrowserEntries.clear();
+    mBrowsersLoaded = true;
+    const char* path = "/data/system/nano_browsers.txt";
+    int fd = open(path, O_RDONLY | O_CLOEXEC);
+    if (fd >= 0) {
+        struct stat st;
+        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 256 * 1024) {
+            std::string content(st.st_size, '\0');
+            ssize_t n = read(fd, &content[0], st.st_size);
+            if (n > 0) {
+                content.resize(n);
+                size_t pos = 0;
+                while (pos < content.size()) {
+                    size_t eol = content.find('\n', pos);
+                    if (eol == std::string::npos) eol = content.size();
+                    std::string line = content.substr(pos, eol - pos);
+                    pos = eol + 1;
+                    if (line.empty()) continue;
+                    size_t p1 = line.find('|');
+                    if (p1 == std::string::npos) continue;
+                    size_t p2 = line.find('|', p1 + 1);
+                    BrowserEntry b;
+                    b.packageName = line.substr(0, p1);
+                    if (p2 == std::string::npos) {
+                        b.label = line.substr(p1 + 1);
+                    } else {
+                        b.label = line.substr(p1 + 1, p2 - p1 - 1);
+                        b.component = line.substr(p2 + 1);
+                    }
+                    if (b.packageName.empty() || b.label.empty()) continue;
+                    mBrowserEntries.push_back(std::move(b));
+                }
+            }
+        }
+        close(fd);
+    }
+    if (mBrowserEntries.empty()) {
+        BrowserEntry b;
+        b.packageName = "com.gammaos.browser";
+        b.label = "GammaBrowser";
+        b.component = "com.gammaos.browser/.MainActivity";
+        mBrowserEntries.push_back(std::move(b));
+    }
+    ALOGD("NanoMenu: loaded %zu browsers from nano_browsers.txt", mBrowserEntries.size());
+}
+
+// Reload the browser list only when the framework bumps browsers_generation (rare: boot +
+// package add/remove), so the picker + launchUrl stay current without re-reading every call.
+void NanoMenu::ensureBrowserList() {
+    int gen = property_get_int32("sys.gammaos.nano.browsers_generation", 0);
+    if (!mBrowsersLoaded || gen != mBrowsersGen) {
+        mBrowsersGen = gen;
+        loadInstalledBrowsers();
+    }
+}
+
+// Human label for a browser package (the "Default Browser" row's value column). Falls back
+// to the bare package name, then "GammaBrowser" for the shipped default.
+std::string NanoMenu::browserLabelForPkg(const std::string& pkg) {
+    ensureBrowserList();
+    for (const auto& b : mBrowserEntries)
+        if (b.packageName == pkg) return b.label;
+    if (pkg == "com.gammaos.browser" || pkg.empty()) return "GammaBrowser";
+    return pkg;
+}
+
 // Read the on-demand app Information file the framework wrote for our request. The
 // first line must be "req|<nonce>" matching what we asked for (so a stale reply from
 // an earlier request is ignored); everything after the first newline is the body.

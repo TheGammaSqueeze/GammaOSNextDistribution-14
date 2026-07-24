@@ -320,6 +320,24 @@ private:
     void loadRecentPlaylist();
     void loadInstalledApps();
 
+    // Installed web browsers for the "Default Browser" picker. Unlike mAppEntries
+    // (which filters out com.android.* / com.gammaos.* / system apps), this list is
+    // curated by the framework (SystemServer.writeNanoBrowserCache -> ACTION_VIEW https
+    // handlers) and written to /data/system/nano_browsers.txt as "pkg|Label|component".
+    // component is the flattened ACTION_VIEW activity (pkg/Activity) so launchUrl can
+    // hand ANY browser a resolvable ACTION_VIEW intent, not just GammaBrowser.
+    struct BrowserEntry {
+        std::string packageName;
+        std::string label;
+        std::string component;   // flattened pkg/Activity for the ACTION_VIEW handler
+    };
+    std::vector<BrowserEntry> mBrowserEntries;
+    bool mBrowsersLoaded = false;
+    int  mBrowsersGen = -1;                 // last sys.gammaos.nano.browsers_generation seen
+    void loadInstalledBrowsers();           // parse /data/system/nano_browsers.txt
+    void ensureBrowserList();               // reload on browsers_generation change; seed if absent
+    std::string browserLabelForPkg(const std::string& pkg);  // human label for the value column
+
     // XMB mode
     void initXmbSystems();
     // Dynamic systems config (/data/system/nano_systems.json, DE storage).
@@ -787,6 +805,9 @@ private:
     void overlayResume();
     void overlayQuitToHome();
     bool overlayLaunchPackage(const std::string& pkg);
+    // In-game URL launch: start the chosen browser on the URL via ACTION_VIEW.
+    bool overlayLaunchUrl(const std::string& pkg, const std::string& comp,
+                          const std::string& url);
     // Shared overlay launch primitive: cleanly exit whatever is running (ESC +
     // save-state wait for RetroArch/DraStic, force-stop for other apps), then run
     // the prebuilt `am start ...` command for the new target. Tracks launch_app +
@@ -2014,6 +2035,7 @@ private:
     void buildFfDeviceSubmenu(Ps3Level& out);             // vibration-device single-select
     void buildSlideDeviceSubmenu(Ps3Level& out);          // Slide Behaviour: trigger-device single-select
     void buildSlideEventSubmenu(Ps3Level& out);           // Slide Behaviour: trigger event/code single-select
+    void buildDefaultBrowserSubmenu(Ps3Level& out);       // "Default Browser" single-select picker
     void buildBlacklistSubmenu(Ps3Level& out);            // passthrough-blacklist button multi-select
     void buildSlideActionSubmenu(Ps3Level& out, bool up); // Slide Behaviour: multi-select of slide-down/up actions
     void buildComboSubmenu(Ps3Level& out);                // combo_map list editor (add-flow state machine)

@@ -488,6 +488,7 @@ static const Ps3DataItem kNetworkItems[] = {
 #endif
   {"Internet Browser",40,"View Web pages on the Internet.",nullptr,0,nullptr,0},
   {"Internet Search",55,"Search the Internet.",nullptr,0,nullptr,0},
+  {"Default Browser",40,"Choose which browser app opens Web pages.",nullptr,0,nullptr,0},
 };
 
 // ---- Category table (Users / PSN / Friends excluded) --------------------

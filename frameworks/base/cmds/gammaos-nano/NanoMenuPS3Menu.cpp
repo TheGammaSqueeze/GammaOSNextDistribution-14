@@ -723,6 +723,7 @@ enum {
     QA_SLIDE_DEV_SET,    // set persist.gammaos.rotate.dev_name (it.value = name, "" = any)
     QA_SLIDE_EVENT_MENU, // Slide Behaviour: open the slide-trigger event/code chooser
     QA_SLIDE_EVENT_SET,  // set key_code (it.b) + key_type (it.value = "1"/"5")
+    QA_BROWSER_SET,      // set persist.gammaos.nano.browser_pkg (it.value = package)
     QA_BLACKLIST_MENU,   // open the passthrough-blacklist button multi-select
     QA_BLACKLIST_TOGGLE, // toggle a button code in blacklist_pass (it.b = code)
     QA_SLIDE_DOWN_TOGGLE,// Slide Behaviour: toggle an action name in down_action (it.value = name)
@@ -791,9 +792,11 @@ bool NanoMenu::ps3ItemOpensSubmenu(const Ps3Item& it) const {
            (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)) ||
            // Slide Behaviour: these data-leaf rows drill into a pushed picker (device /
            // event list, or the down/up action multi-select) rather than a side chooser.
+           // "Default Browser" likewise drills into the installed-browser picker.
            (it.kind == PS3_DATA_LEAF &&
             (it.label == "Slide Device" || it.label == "Slide Button Code" ||
-             it.label == "On Slide Down" || it.label == "On Slide Up"));
+             it.label == "On Slide Down" || it.label == "On Slide Up" ||
+             it.label == "Default Browser"));
 }
 
 // The currently-focused row (current level's selection) opens a submenu.
@@ -2218,6 +2221,24 @@ void NanoMenu::buildSlideEventSubmenu(Ps3Level& out) {
     if (out.items.empty()) row(curType, curCode);
 }
 
+// "Default Browser": single-select of the installed web browsers (from the framework's
+// nano_browsers.txt). Selecting a row writes persist.gammaos.nano.browser_pkg; launchUrl
+// then hands that browser the URL via an ACTION_VIEW intent. Mirrors buildSlideDeviceSubmenu.
+void NanoMenu::buildDefaultBrowserSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Default Browser";
+    ensureBrowserList();
+    std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.nano.browser_pkg",
+                                       "com.gammaos.browser");
+    for (const auto& b : mBrowserEntries) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_BROWSER_SET;
+        it.value = b.packageName; it.label = b.label;
+        it.iconTex = iconTexForIcon(40); it.nmapTex = nmapForIcon(40);
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+        if (b.packageName == cur) out.sel = (int)out.items.size() - 1;
+    }
+}
+
 // "Passthrough Blacklist": multi-select of buttons to suppress at runtime (comma list
 // of decimal codes).
 void NanoMenu::buildBlacklistSubmenu(Ps3Level& out) {
@@ -3142,15 +3163,49 @@ static std::string nanoSearchUrl(const std::string& query) {
 
 void NanoMenu::launchUrl(const std::string& url) {
     // nano owns the DRM display as home, so a launched activity is only visible once
-    // nano exits (releasing DRM) - the same handshake real app launches use. The URL
-    // is handed to the browser via a prop it reads on start (the LAUNCHER intent the
-    // framework fires on nano exit carries no data).
-    const char* pkg = "com.gammaos.browser";
+    // nano exits (releasing DRM) - the same handshake real app launches use.
+    //
+    // The browser is the user's choice (persist.gammaos.nano.browser_pkg, default the
+    // shipped GammaBrowser). A stale package (browser uninstalled) silently falls back
+    // to GammaBrowser rather than launching nothing.
+    ensureBrowserList();
+    std::string pkg = readSettingValue(SettingSource::kProp, "persist.gammaos.nano.browser_pkg",
+                                       "com.gammaos.browser");
+    std::string comp;
+    for (const auto& b : mBrowserEntries)
+        if (b.packageName == pkg) { comp = b.component; break; }
+    if (comp.empty() && pkg != "com.gammaos.browser") {
+        // Chosen browser is no longer installed / has no VIEW activity: fall back.
+        pkg = "com.gammaos.browser";
+        for (const auto& b : mBrowserEntries)
+            if (b.packageName == pkg) { comp = b.component; break; }
+    }
+    if (comp.empty()) comp = "com.gammaos.browser/.MainActivity";
+    if (pkg.empty()) pkg = "com.gammaos.browser";
+
+    // GammaBrowser also reads the URL straight off this prop (its fast path). Harmless
+    // to any other browser, which simply ignores it.
     property_set("sys.gammaos.nano.browser_url", url.c_str());
-    if (mOverlayMode) { overlayLaunchPackage(pkg); return; }   // in-game: replace the app
+
+    // Any browser (Chrome, Firefox, GammaBrowser) understands ACTION_VIEW with the URL as
+    // intent data, so hand the launch an explicit VIEW intent instead of the bare LAUNCHER
+    // intent the exit handshake would otherwise fire. The component MUST be included: the
+    // framework resolves ActivityInfo from it, and without it the launch falls back to
+    // LAUNCHER and the URL is dropped. Tab-delimited (parseAmIntent prefers tabs) so a URL
+    // can never be split on whitespace, and written to the intent file because a URL
+    // routinely exceeds the 92-byte property limit.
+    std::string intent = "-n\t" + comp + "\t-a\tandroid.intent.action.VIEW\t-d\t" + url;
+
+    if (mOverlayMode) { overlayLaunchUrl(pkg, comp, url); return; }   // in-game: replace the app
     if (!isLaunchReady()) { showLaunchBusyToast(); return; }
-    property_set("sys.gammaos.nano.launch_app", pkg);
-    property_set("sys.gammaos.nano.launched_pkg", pkg);
+    property_set("sys.gammaos.nano.launch_app", pkg.c_str());
+    property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
+    {
+        const char* f = "/data/system/nano_launch_intent.txt";
+        int ifd = open(f, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (ifd >= 0) { ssize_t w = write(ifd, intent.c_str(), intent.size()); (void)w; close(ifd); chmod(f, 0644); }
+        property_set("sys.gammaos.nano.launch_intent", ifd >= 0 ? "file" : "");
+    }
     setLaunchRomPath("");
     property_set("sys.gammaos.nano.launch_core", "");
     property_set("persist.gammaos.nano.qr_prepared", "0");
@@ -3632,6 +3687,16 @@ void NanoMenu::ps3XmbSelect() {
                 mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
                 return;
             }
+            // Network -> Default Browser: drills into the installed-browser picker (its
+            // kPs3Bindings @browser entry keeps the current pick resolving on the right).
+            if (it.label == "Default Browser") {
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildDefaultBrowserSubmenu(lvl); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
             // "On Slide Down" / "On Slide Up" drill into a multi-select of actions
             // (the framework reads down_action/up_action as comma lists), not the
             // single-select side chooser. Their kPs3Bindings entries remain so the
@@ -3765,6 +3830,18 @@ void NanoMenu::ps3XmbSelect() {
                         mPs3SubParentItems = ps3CurItems(); mPs3SubParentIdx = ps3CurSel();
                         mPs3SubDir = -1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 1.0f;
                         mPs3AnimItem = (float)ps3CurSel(); mPs3ItemAnimStart = -1.0f;
+                    }
+                    mDisplayDirty = true; return;
+                }
+                case QA_BROWSER_SET: {
+                    // Pick the browser that opens web pages. Rebuild the picker in place so
+                    // the selection moves to the chosen row, and drop the "Default Browser"
+                    // bind cache so its parent row re-reads the new package. launchUrl reads
+                    // the prop on the next Internet Browser / Search / Go to URL.
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.nano.browser_pkg", it.value);
+                    mPs3BindCache.erase("Default Browser");
+                    if (!mPs3Stack.empty()) {
+                        buildDefaultBrowserSubmenu(mPs3Stack.back());
                     }
                     mDisplayDirty = true; return;
                 }
@@ -6068,6 +6145,12 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "normal:Off,force_landscape:Force Landscape,force_portrait:Force Portrait"},
     // Slide Behaviour (the hardware swivel/slide sensor). All plain persist.gammaos.rotate.*
     // + pspclock props that PhoneWindowManager and nano already read; these bindings just let
+    // Network -> Default Browser: which app opens web pages (Internet Browser / Search /
+    // Go to URL all launch through it). "@browser" makes the row drill into
+    // buildDefaultBrowserSubmenu (the installed-browser list is per device, so it cannot be
+    // a static option list) and tells resolvePs3ItemValue to show the browser's label.
+    {"Default Browser", SettingSource::kProp, "persist.gammaos.nano.browser_pkg",
+     "com.gammaos.browser", "@browser"},
     // the XMB settings screen edit them. Matches the TvSettings "Slide behaviour" screen.
     {"Slide Enable", SettingSource::kProp, "persist.gammaos.rotate.enabled", "0", "0:Off,1:On"},
     {"Slide Device", SettingSource::kProp, "persist.gammaos.rotate.dev_name", "gpio-keys", "@device"},
@@ -6611,6 +6694,14 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
     // are normally intercepted by the label dispatch before this is reached; guard
     // here too so any future route (e.g. a Square-press chooser) still drills in
     // rather than opening an empty dialog with no options.
+    if (!strcmp(b->options, "@browser")) {
+        std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+        Ps3Level lvl; buildDefaultBrowserSubmenu(lvl); mPs3Stack.push_back(lvl);
+        mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+        mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+        mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+        return;
+    }
     if (!strcmp(b->options, "@device")) {
         std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
         Ps3Level lvl; buildSlideDeviceSubmenu(lvl); mPs3Stack.push_back(lvl);
@@ -6774,6 +6865,11 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
             if (cur.empty()) return std::string("-");
             int n = (int)cur.size(); if (n > 8) n = 8;   // never reveal the secret
             return std::string(n, '*');
+        }
+        // Default Browser row: show the chosen browser's human label (not its raw
+        // package). The row drills into buildDefaultBrowserSubmenu on activate.
+        if (!strcmp(b->options, "@browser")) {
+            return browserLabelForPkg(cur);
         }
         // Slide Behaviour trigger-device row: show the chosen device name, or
         // "Any device" when the filter is off (empty dev_name). The row drills
