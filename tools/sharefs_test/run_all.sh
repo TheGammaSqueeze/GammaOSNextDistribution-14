@@ -30,6 +30,27 @@ wait_for_mount() {
   return 1
 }
 
+# Start nano from a known screen.
+#
+# Every walk in ui_add_share.sh is relative to the XMB root, and "back" does not always get there:
+# if a previous session left nano inside Music > Search for Media Servers, six backs do not escape
+# it and the whole walk lands somewhere else entirely. That is not hypothetical - it happened, and
+# the run reported "the UI did not produce a share" after the field setter had retried three times
+# against the wrong screen.
+#
+# Restarting nano is the only way to guarantee the starting position, and it costs a few seconds.
+# The alternative, pressing back enough times to be sure, is a guess dressed up as a fix.
+echo "== restarting nano for a known starting screen =="
+adb shell "stop gammaos-nano" >/dev/null 2>&1
+sleep 2
+adb shell "start gammaos-nano" >/dev/null 2>&1
+for i in $(seq 1 30); do
+  [ "$(adb shell getprop init.svc.gammaos-nano 2>/dev/null | tr -d '\r')" = "running" ] && break
+  sleep 1
+done
+sleep 8   # let it finish its first render before driving it
+echo "  nano: $(adb shell getprop init.svc.gammaos-nano 2>/dev/null | tr -d '\r')"
+
 # Start from no shares at all.
 #
 # There are only kMaxShares (4) slots, so a share left over from an earlier run plus one per
