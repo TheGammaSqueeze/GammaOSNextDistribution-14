@@ -62,10 +62,29 @@ struct MountCtx {
 
 MountCtx* ctx() { return static_cast<MountCtx*>(fuse_get_context()->private_data); }
 
+// Present every entry with the same ownership and permissions no matter what the server said.
+//
+// The mode has to be forced here, not just the ownership. This mount carries default_permissions,
+// so the kernel checks these bits against the calling app rather than leaving the decision to the
+// daemon, and a server's own mode means nothing on this side: the NFS backend reports the export's
+// real mode, so a completely ordinary export of 0644 files would arrive group-read-only and leave
+// the share silently unwritable to every app, while 0600 files would be unreadable even though the
+// daemon reads them perfectly well. SMB, WebDAV and FTP have no comparable mode to report and were
+// already being normalised, so leaving NFS as it was also meant a share behaved differently
+// depending on which protocol happened to be behind it.
+//
+// 0770/0660 owned by root:everybody is exactly what /storage/emulated/0 presents, which is the
+// whole point: an app must not be able to tell a share from internal storage.
+//
+// Collapsing anything that is not a directory to a regular file is deliberate. The daemon registers
+// no readlink and no mknod, so a symlink or a device node reported by a server could never be
+// followed anyway, and presenting one would only produce an entry that stats as something this
+// filesystem cannot actually serve.
 void applyOwner(struct stat* st) {
     MountCtx* c = ctx();
     st->st_uid = c->uid;
     st->st_gid = c->gid;
+    st->st_mode = S_ISDIR(st->st_mode) ? (S_IFDIR | 0770) : (S_IFREG | 0660);
     if (c->readOnly) st->st_mode &= ~static_cast<mode_t>(0222);
 }
 
