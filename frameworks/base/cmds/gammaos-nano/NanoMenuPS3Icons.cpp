@@ -634,6 +634,20 @@ void NanoMenu::mpStartArtWorker() {
             r.album = job.album;
             r.isTrack = job.isTrack;
             r.ti = job.ti;
+            r.isPhoto = job.isPhoto;
+            r.photoIdx = job.photoIdx;
+            r.cacheFile = job.cacheFile;
+            if (job.isPhoto) {
+                // job.track holds the photo's path; decode to the cover size off-thread.
+                if (photoDecodeCoverPixels(job.track, kPhotoCoverPx, &r.px)) {
+                    r.w = kPhotoCoverPx; r.h = kPhotoCoverPx;
+                }
+                {
+                    std::lock_guard<std::mutex> lk(mMpArtLock);
+                    mMpArtDone.push_back(std::move(r));
+                }
+                continue;
+            }
             // A failure is still a result: it is what stops the album being asked for again every
             // frame. The render thread turns an empty pixel buffer into a cached 0.
             mpResolveArtPixels(job.track, 256, &r.w, &r.h, &r.px, job.isTrack);
@@ -682,6 +696,17 @@ void NanoMenu::mpDrainAlbumArt() {
         for (const auto& r : done) mMpArtPending.erase(r.album);
     }
     for (auto& r : done) {
+        if (r.isPhoto) {
+            GLuint ptex = 0;
+            if (r.w > 0 && r.h > 0 && !r.px.empty()) {
+                ptex = photoUploadCover(r.px.data(), r.w, r.h);
+                // Write the disk cache here rather than on the worker: it is cheap, local, and
+                // keeps all the cache bookkeeping on one thread.
+                if (!r.cacheFile.empty()) photoWriteCoverCache(r.cacheFile, r.px.data(), r.w, r.h);
+            }
+            mPhotoCoverCache[r.photoIdx] = ptex;   // 0 = tried, none
+            continue;
+        }
         GLuint tex = 0;
         if (r.w > 0 && r.h > 0 && !r.px.empty())
             tex = uploadRGBA(r.px.data(), r.w, r.h, /*wantMipmap=*/false);

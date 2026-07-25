@@ -2991,11 +2991,21 @@ private:
 
     // One job type for both the per-album cover and the per-track cover in Now-Playing: they do the
     // same filesystem work and must both stay off the render thread.
-    struct MpArtJob    { std::string album; std::string track; bool isTrack = false; int ti = -1; };
+    // Also carries photo-cover work: same shape (decode off-thread, upload on the render thread),
+    // so it shares the worker rather than starting a third one.
+    static constexpr int kPhotoCoverPx = 160;   // Photo column cover size
+    // Thin wrappers so the art worker (a different translation unit) can decode and upload a photo
+    // cover: the real helpers are file-static in NanoMenuPhotos.cpp.
+    static bool photoDecodeCoverPixels(const std::string& path, int s, std::vector<uint8_t>* out);
+    GLuint      photoUploadCover(const uint8_t* px, int w, int h);
+    void        photoWriteCoverCache(const std::string& file, const uint8_t* px, int w, int h);
+    struct MpArtJob    { std::string album; std::string track; bool isTrack = false; int ti = -1;
+                         bool isPhoto = false; int photoIdx = -1; std::string cacheFile; };
     // Pixels rather than a texture: GL calls belong to the render thread, so the worker decodes
     // and the render thread uploads.
     struct MpArtResult { std::string album; int w = 0; int h = 0; std::vector<uint8_t> px;
-                         bool isTrack = false; int ti = -1; };
+                         bool isTrack = false; int ti = -1;
+                         bool isPhoto = false; int photoIdx = -1; std::string cacheFile; };
 
     void mpRequestAlbumArt(const std::string& albumName);  // queue one album (idempotent)
     void mpDrainAlbumArt();                                // render thread: upload finished work

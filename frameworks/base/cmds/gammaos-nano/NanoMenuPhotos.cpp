@@ -1030,6 +1030,16 @@ void NanoMenu::photoFreeThumbs() {
 // Group-folder cover: a 160px centre-square crop of the group's first photo,
 // drawn as the column icon (mirrors the Music album art). Cached by photo index;
 // dropped on rescan since indices change.
+bool NanoMenu::photoDecodeCoverPixels(const std::string& path, int s, std::vector<uint8_t>* out) {
+    return photoDecodeCropRGBACpu(path, s, *out);
+}
+GLuint NanoMenu::photoUploadCover(const uint8_t* px, int w, int h) {
+    return uploadRGBATex(px, w, h);
+}
+void NanoMenu::photoWriteCoverCache(const std::string& file, const uint8_t* px, int w, int h) {
+    photoCacheWrite565(file, px, w, h);
+}
+
 GLuint NanoMenu::photoGroupCover(int photoIdx) {
     auto cit = mPhotoCoverCache.find(photoIdx);
     if (cit != mPhotoCoverCache.end()) return cit->second;
@@ -1038,14 +1048,32 @@ GLuint NanoMenu::photoGroupCover(int photoIdx) {
         const PhotoItem& p = mPhotos[photoIdx];
         const int S = 160;
         std::string cf = photoCacheFile(p.file, p.mtime, p.sz, 'c');
-        tex = photoCacheRead565(cf, nullptr);     // disk-cache fast path
-        if (!tex) {
-            std::vector<uint8_t> px;
-            if (photoDecodeCropRGBACpu(p.file, S, px)) {
-                tex = uploadRGBATex(px.data(), S, S);
-                photoCacheWrite565(cf, px.data(), S, S);
+        tex = photoCacheRead565(cf, nullptr);     // disk-cache fast path (local, always cheap)
+        if (tex) {
+            mPhotoCoverCache[photoIdx] = tex;
+            return tex;
+        }
+        // Cache miss: decode on the worker, not here. This runs from the Photo column draw, and
+        // decoding means reading the whole image - on a share that is a network read on the render
+        // thread, which the watchdog turns into an abort rather than a stutter. Returning 0 draws
+        // the placeholder until mpDrainAlbumArt() uploads the result. Nothing is written into
+        // mPhotoCoverCache yet, so the entry stays "unresolved"; the pending set below stops it
+        // being queued again on every frame.
+        mpStartArtWorker();
+        {
+            std::lock_guard<std::mutex> lk(mMpArtLock);
+            if (mMpArtPending.insert(p.file).second) {
+                MpArtJob job;
+                job.album = p.file;      // the pending-set key
+                job.track = p.file;      // the worker decodes this path
+                job.isPhoto = true;
+                job.photoIdx = photoIdx;
+                job.cacheFile = cf;
+                mMpArtQueue.push_back(std::move(job));
             }
         }
+        mMpArtCv.notify_one();
+        return 0;
     }
     mPhotoCoverCache[photoIdx] = tex;
     return tex;
