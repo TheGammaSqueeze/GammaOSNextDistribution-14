@@ -20,8 +20,10 @@
 #include <sys/mount.h>   // umount2, MNT_DETACH
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>   // usleep
 
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "sharefs.h"
@@ -40,6 +42,55 @@ bool isStaleFuseMount(const std::string& path) {
     struct stat st;
     if (stat(path.c_str(), &st) == 0) return false;   // responding, so something is serving it
     return errno == ECONNREFUSED || errno == ENOTCONN;
+}
+
+// Where the share is bind-mounted so apps can reach it by path.
+//
+// /storage is a bind of /mnt/user/0, so binding here is what makes the share turn up as
+// /storage/<name>. Binding into /mnt/user/0 rather than /storage directly is deliberate: the kernel
+// propagates it from there to /storage, /mnt/androidwritable/0 and /mnt/installer/0 on its own,
+// which is exactly the set of views an app might be handed.
+std::string userBindPath(const std::string& name) {
+    return "/mnt/user/0/" + name;
+}
+
+// Make a share reachable by path, not just through the Storage Access Framework.
+//
+// This is what lets an app that takes a filename - every emulator on this device, among others -
+// open a ROM or a video that lives on a NAS. Those apps cannot use a content:// URI, so a
+// DocumentsProvider alone would leave the feature unusable for the case it most exists for.
+//
+// The share content is labelled fuse:, and so is /storage/emulated on this device, so the existing
+// app policy covers it: an app reads a share through exactly the same rules it reads internal
+// storage with, and cannot tell them apart.
+void publishToStorage(const std::string& name, const std::string& source) {
+    const std::string target = userBindPath(name);
+    if (mkdir(target.c_str(), 0771) != 0 && errno != EEXIST) {
+        ALOGW("cannot create %s, the share will not appear under /storage: %s",
+              target.c_str(), strerror(errno));
+        return;
+    }
+    if (mount(source.c_str(), target.c_str(), nullptr, MS_BIND, nullptr) != 0) {
+        ALOGW("cannot bind %s to %s, the share will not appear under /storage: %s",
+              source.c_str(), target.c_str(), strerror(errno));
+        return;
+    }
+    // Share the bind so it reaches app mount namespaces rather than staying in this one.
+    if (mount(nullptr, target.c_str(), nullptr, MS_SHARED, nullptr) != 0) {
+        ALOGW("%s is mounted but not shared, apps started earlier may not see it: %s",
+              target.c_str(), strerror(errno));
+    }
+    ALOGI("share '%s' also available at /storage/%s", name.c_str(), name.c_str());
+}
+
+// Take the bind down. Called before the share itself is unmounted, so nothing is left pointing at
+// a mount that has gone.
+void unpublishFromStorage(const std::string& name) {
+    const std::string target = userBindPath(name);
+    struct stat st;
+    if (stat(target.c_str(), &st) != 0 && errno != ECONNREFUSED && errno != ENOTCONN) return;
+    umount2(target.c_str(), MNT_DETACH);
+    rmdir(target.c_str());
 }
 
 void forceUnmountStale(const std::string& path) {
@@ -88,6 +139,8 @@ int main(int argc, char** argv) {
         // share never comes back until someone unmounts it by hand. Since init restarting us IS the
         // recovery mechanism, that would turn any one-off crash into a permanently dead share.
         forceUnmountStale(mnt);
+        // A stale bind from a previous instance would otherwise shadow the new mount.
+        unpublishFromStorage(c.name);
         // init cannot create this because the share names are user-chosen, so make it here. 0771
         // with the media_rw group matches how removable storage is presented.
         if (mkdir("/mnt/shares", 0771) != 0 && errno != EEXIST) {
@@ -98,7 +151,27 @@ int main(int argc, char** argv) {
             ALOGE("cannot create %s: %s", mnt.c_str(), strerror(errno));
             return 1;
         }
-        return runMount(c, mnt, debug);
+        // Publishing has to happen after the FUSE mount exists, and runMount blocks for the life
+        // of the share, so do it from a helper thread that waits for the mount to appear. Binding
+        // an empty directory would give apps a permanently empty share.
+        std::thread([name = c.name, mnt]() {
+            for (int i = 0; i < 60; i++) {
+                struct stat st;
+                if (stat(mnt.c_str(), &st) == 0 && st.st_ino == 1) {
+                    // st_ino 1 is the FUSE root, so the daemon is serving it rather than this
+                    // being the bare directory it created earlier.
+                    publishToStorage(name, mnt);
+                    return;
+                }
+                usleep(250 * 1000);
+            }
+            ALOGW("share '%s' never became a live mount, not publishing it to /storage",
+                  name.c_str());
+        }).detach();
+
+        const int rc = runMount(c, mnt, debug);
+        unpublishFromStorage(c.name);
+        return rc;
     }
 
     ALOGE("no share named '%s' in the configuration", want.c_str());

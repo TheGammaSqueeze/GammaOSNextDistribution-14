@@ -178,7 +178,7 @@ public:
     int getAttr(const std::string& path, struct stat* out) override {
         memset(out, 0, sizeof(*out));
         if (path == "/" || path.empty()) {
-            out->st_mode = S_IFDIR | 0755;
+            out->st_mode = S_IFDIR | 0770;
             out->st_nlink = 2;
             return 0;
         }
@@ -195,7 +195,7 @@ public:
         if (rc != 0) return rc;
         for (const auto& e : entries) {
             if (e.name != leaf) continue;
-            out->st_mode = e.isDir ? (S_IFDIR | 0755) : (S_IFREG | 0644);
+            out->st_mode = e.isDir ? (S_IFDIR | 0770) : (S_IFREG | 0660);
             out->st_nlink = e.isDir ? 2 : 1;
             out->st_size = static_cast<off_t>(e.size);
             out->st_mtime = e.mtime;

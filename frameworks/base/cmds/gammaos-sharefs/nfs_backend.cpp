@@ -143,7 +143,7 @@ public:
         closeCachedLocked();
         struct nfsfh* fh = nullptr;
         // nfs_creat is the create-and-open call here; it takes the mode, not open flags.
-        if (nfs_creat(mNfs, path.c_str(), static_cast<int>(mode ? mode : 0644), &fh) < 0) {
+        if (nfs_creat(mNfs, path.c_str(), static_cast<int>(mode ? mode : 0660), &fh) < 0) {
             return mapError();
         }
         nfs_close(mNfs, fh);

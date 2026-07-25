@@ -58,3 +58,20 @@ allow bootanim fuse:filesystem getattr;
 # under /mnt/shares reaching it must not turn into a denial.
 allow system_server fuse:dir r_dir_perms;
 allow system_server fuse:file r_file_perms;
+
+# Apps need no rule here at all, which is the point.
+#
+# /storage/emulated is itself labelled fuse: on this device, so app.te already grants every
+# appdomain (which includes system_app, and therefore the GammaShares provider) create_dir_perms and
+# create_file_perms on fuse:. A share bind-mounted into /storage is the same label as internal
+# storage and reached by the same existing rules, so an app genuinely cannot tell the two apart -
+# no widening of app policy was needed to get there.
+
+# The bind that puts a share under /storage.
+#
+# /storage is a bind of /mnt/user/0, so mounting there is what makes a share visible to apps by
+# path. It has to be a bind rather than mounting the share at /storage directly, because the daemon
+# publishes one FUSE mount and both views have to stay live. zygote and gammaoscustomization hold
+# the same permission for the same reason.
+allow gammaos_sharefs mnt_user_file:dir { create_dir_perms mounton };
+allow gammaos_sharefs storage_file:dir { search mounton };

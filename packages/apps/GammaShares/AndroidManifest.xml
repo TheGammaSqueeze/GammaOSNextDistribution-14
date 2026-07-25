@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2026 GammaOS
+
+     Publishes mounted network shares to the Storage Access Framework, so an ordinary app can open
+     a file from a NAS through the system picker. The shares themselves are FUSE mounts under
+     /mnt/shares served by gammaos-sharefs; without a provider they are invisible to apps, which
+     are handed storage by SAF rather than by path.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gammaos.shares"
+    android:sharedUserId="android.uid.system">
+
+    <application
+        android:label="@string/app_label"
+        android:allowBackup="false"
+        android:supportsRtl="true">
+
+        <provider
+            android:name=".ShareDocumentsProvider"
+            android:label="@string/shares_root_label"
+            android:authorities="com.gammaos.shares.documents"
+            android:grantUriPermissions="true"
+            android:exported="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+    </application>
+</manifest>

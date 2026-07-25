@@ -1,0 +1,24 @@
+// GammaOS: exposes the network shares mounted at /mnt/shares to the Storage Access Framework.
+//
+// Runs in the system uid because it reads a FUSE mount that ordinary app domains have no SELinux
+// access to, and because MANAGE_DOCUMENTS is a signature permission. It is a provider only: no
+// activity, no launcher entry. Share configuration lives in Settings / TvSettings / the Nano menu.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "GammaShares",
+
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+
+    optimize: {
+        enabled: false,
+    },
+}

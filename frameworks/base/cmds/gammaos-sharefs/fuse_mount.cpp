@@ -42,6 +42,10 @@ constexpr double kEntryTimeoutSec = 3.0;  // ... and a name lookup
 // fsInit reports are identical, so both come from here rather than being written out twice.
 constexpr unsigned kMaxReadBytes = 131072;
 
+// AID_EVERYBODY. Every app process is in this group, which is how /storage/emulated/0 grants apps
+// access with mode 0770 rather than needing world bits.
+constexpr gid_t kEverybodyGid = 9997;
+
 struct MountCtx {
     Backend* backend = nullptr;
     uid_t    uid = 0;      // everything is presented as owned by this uid
@@ -129,7 +133,7 @@ int fsReaddir(const char* path, void* buf, fuse_fill_dir_t filler, off_t,
 
     for (const DirEntry& e : entries) {
         struct stat st = {};
-        st.st_mode = e.isDir ? (S_IFDIR | 0755) : (S_IFREG | 0644);
+        st.st_mode = e.isDir ? (S_IFDIR | 0770) : (S_IFREG | 0660);
         st.st_nlink = e.isDir ? 2 : 1;
         st.st_size = static_cast<off_t>(e.size);
         st.st_mtime = e.mtime;
@@ -311,10 +315,16 @@ int runMount(const ShareConfig& cfg, const std::string& mountPoint, bool debug) 
     MountCtx mctx;
     mctx.backend = backend.get();
     mctx.readOnly = cfg.readOnly;
-    // Present the files as owned by media_rw/everybody, which is what the rest of the system
-    // expects of removable storage, so the menu and any app can read them.
-    mctx.uid = 1023;   // AID_MEDIA_RW
-    mctx.gid = 1023;
+    // Present exactly what /storage/emulated/0 presents: owned by root, group "everybody", 0770.
+    //
+    // A share is bind-mounted under /storage so apps can reach it by path, and the point of that is
+    // that an app should not be able to tell it from internal storage. Ownership is where that
+    // would otherwise break: every app is in the everybody group, so 0770 root:everybody gives them
+    // read AND write, whereas the media_rw this used to report left apps on the "other" bits with
+    // read-only access. Same label, same filesystem type, same permissions - nothing left to tell
+    // the two apart.
+    mctx.uid = 0;                    // AID_ROOT, as /storage/emulated/0 reports
+    mctx.gid = kEverybodyGid;
 
     std::vector<std::string> args;
     args.push_back("gammaos-sharefs");

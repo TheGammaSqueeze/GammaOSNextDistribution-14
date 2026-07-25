@@ -75,7 +75,7 @@ public:
         }
         memset(out, 0, sizeof(*out));
         const bool isDir = (st.smb2_type == SMB2_TYPE_DIRECTORY);
-        out->st_mode = isDir ? (S_IFDIR | 0755) : (S_IFREG | (mCfg.readOnly ? 0444 : 0644));
+        out->st_mode = isDir ? (S_IFDIR | 0770) : (S_IFREG | (mCfg.readOnly ? 0440 : 0660));
         out->st_nlink = isDir ? 2 : 1;
         out->st_size = static_cast<off_t>(st.smb2_size);
         out->st_mtime = static_cast<time_t>(st.smb2_mtime);
@@ -218,7 +218,7 @@ private:
 
     void fillDirStat(struct stat* out) const {
         memset(out, 0, sizeof(*out));
-        out->st_mode = S_IFDIR | 0755;
+        out->st_mode = S_IFDIR | 0770;
         out->st_nlink = 2;
     }
 
