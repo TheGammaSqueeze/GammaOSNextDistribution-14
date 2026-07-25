@@ -214,6 +214,13 @@ private:
         // media_rw identity the mount is shown as, so what the menu can see it can also write.
         nfs_set_uid(mNfs, 1023);
         nfs_set_gid(mNfs, 1023);
+        // libnfs waits a full minute by default. That is far too long to sit in front of: the menu
+        // is single threaded over this mount, so an unreachable server would look like the whole UI
+        // had frozen. Ten seconds matches what the curl backends use to connect, and is long enough
+        // to ride out a brief wifi stall without giving up on a server that is merely slow.
+        nfs_set_timeout(mNfs, 10000);
+        // Let libnfs re-establish the session itself where it can, on top of our own reconnect.
+        nfs_set_autoreconnect(mNfs, 1);
 
         if (nfs_mount(mNfs, mCfg.host.c_str(), mCfg.path.c_str()) < 0) {
             // Being refused here almost always means the export does not list this device, which

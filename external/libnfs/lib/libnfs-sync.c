@@ -269,6 +269,20 @@ wait_for_nfs_reply(struct nfs_context *nfs, struct sync_cb_data *cb_data)
                 return;
         }
 #endif
+	/* GammaOS: honour nfs_set_timeout() here too.
+	 *
+	 * wait_for_reply() above applies rpc->timeout, but this loop - which is the one every actual
+	 * file operation goes through - had no timeout check at all, so nfs_set_timeout() had no
+	 * effect on reads, writes, stat or readdir. A server that stops answering without closing
+	 * the connection (asleep, or off the network) left this spinning until the TCP stack gave up,
+	 * measured here at over ten minutes for a single read. Worse, the caller is blocked inside a
+	 * FUSE request the whole time, so it sits in uninterruptible sleep and cannot even be killed.
+	 */
+	uint64_t nfs_timeout = 0;
+	if (nfs->rpc->timeout > 0) {
+		nfs_timeout = rpc_current_time() + nfs->rpc->timeout;
+	}
+
 	while (!cb_data->is_finished) {
 
 		pfd.fd = nfs_get_fd(nfs);
@@ -288,6 +302,14 @@ wait_for_nfs_reply(struct nfs_context *nfs, struct sync_cb_data *cb_data)
 				nfs_set_error(nfs, "nfs_service failed");
 			cb_data->status = -EIO;
                         rpc_error_all_pdus(nfs->rpc, "RPC ERROR: Failed to reconnect async");
+			break;
+		}
+
+		if (nfs_timeout > 0 && rpc_current_time() > nfs_timeout) {
+			nfs_set_error(nfs, "Timeout reached");
+			cb_data->status = -EIO;
+			cb_data->is_finished = 1;
+			rpc_error_all_pdus(nfs->rpc, "RPC ERROR: Timeout reached");
 			break;
 		}
 	}

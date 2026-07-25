@@ -235,6 +235,10 @@ private:
             return -ENOMEM;
         }
         smb2_set_security_mode(mSmb, SMB2_NEGOTIATE_SIGNING_ENABLED);
+        // Bound how long a call can sit waiting. Without this a server that stops answering
+        // without closing the socket (asleep, or dropped off the network) blocks the mount, and
+        // since the menu is single threaded over it that reads as the whole UI hanging.
+        smb2_set_timeout(mSmb, 10);
         if (!mCfg.domain.empty()) smb2_set_domain(mSmb, mCfg.domain.c_str());
         if (!mCfg.password.empty()) smb2_set_password(mSmb, mCfg.password.c_str());
 
