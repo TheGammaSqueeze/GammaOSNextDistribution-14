@@ -253,8 +253,12 @@ private:
         mCachedFlags = -1;
     }
 
-    // libnfs reports failures as a string. Map the ones worth telling apart; a lost connection
-    // also marks the backend dead so the next call reconnects.
+    // Map a libnfs failure to an errno, and decide whether the mount is still usable.
+    //
+    // Same reasoning as the SMB backend: not noticing a dropped connection is far worse than
+    // reconnecting when it was not necessary, because the mount then fails forever and the user has
+    // to re-add the share. So anything that is not a recognised NFS status about a file is taken as
+    // a lost connection.
     int mapError() {
         const char* e = mNfs ? nfs_get_error(mNfs) : "no context";
         if (!e) e = "";
@@ -266,13 +270,14 @@ private:
         if (strstr(e, "NFS3ERR_NOSPC") || strstr(e, "NFS3ERR_DQUOT")) return -ENOSPC;
         if (strstr(e, "NFS3ERR_ROFS")) return -EROFS;
         if (strstr(e, "NFS3ERR_NOTEMPTY")) return -ENOTEMPTY;
-        if (strstr(e, "NFS3ERR_STALE")) return -ESTALE;
-        if (strstr(e, "Connection") || strstr(e, "connect") || strstr(e, "timeout") ||
-            strstr(e, "reset")) {
+        if (strstr(e, "NFS3ERR_STALE")) {
+            // A stale handle after the server restarted: the export is fine, our handles are not.
             mDead = true;
-            return -EHOSTUNREACH;
+            return -ESTALE;
         }
-        ALOGW("NFS error on %s: %s", mCfg.name.c_str(), e);
+        ALOGW("NFS error on %s, dropping the mount to force a reconnect: %s",
+              mCfg.name.c_str(), e[0] ? e : "(no detail)");
+        mDead = true;
         return -EIO;
     }
 

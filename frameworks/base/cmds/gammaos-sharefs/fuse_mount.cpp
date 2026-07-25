@@ -104,6 +104,7 @@ int fsGetattr(const char* path, struct stat* st, struct fuse_file_info*) {
         return 0;
     }
     int rc = ctx()->backend->getAttr(path, st);
+    if (rc != 0 && ctx()->backend->isDead()) rc = ctx()->backend->getAttr(path, st);
     if (rc != 0) return rc;
     cacheStore(path, *st);
     applyOwner(st);
@@ -114,6 +115,10 @@ int fsReaddir(const char* path, void* buf, fuse_fill_dir_t filler, off_t,
               struct fuse_file_info*, enum fuse_readdir_flags) {
     std::vector<DirEntry> entries;
     int rc = ctx()->backend->readDir(path, &entries);
+    if (rc != 0 && ctx()->backend->isDead()) {
+        entries.clear();
+        rc = ctx()->backend->readDir(path, &entries);
+    }
     if (rc != 0) return rc;
 
     filler(buf, ".", nullptr, 0, static_cast<fuse_fill_dir_flags>(0));
@@ -152,7 +157,13 @@ int fsOpen(const char* path, struct fuse_file_info* fi) {
 }
 
 int fsRead(const char* path, char* buf, size_t size, off_t offset, struct fuse_file_info*) {
-    return ctx()->backend->readFile(path, buf, size, offset);
+    int rc = ctx()->backend->readFile(path, buf, size, offset);
+    // If the backend noticed its connection had died it will have marked itself for reconnect, so
+    // one retry turns "the NAS was asleep" into a pause rather than an error the user sees.
+    if (rc < 0 && ctx()->backend->isDead()) {
+        rc = ctx()->backend->readFile(path, buf, size, offset);
+    }
+    return rc;
 }
 
 int fsWrite(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info*) {

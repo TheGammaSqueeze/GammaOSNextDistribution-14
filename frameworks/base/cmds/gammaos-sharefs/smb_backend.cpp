@@ -282,25 +282,22 @@ private:
         mCachedFlags = -1;
     }
 
-    // Map a libsmb2 failure to an errno.
+    // Map a libsmb2 failure to an errno, and decide whether the session is still usable.
     //
-    // Prefer the call's own return value: libsmb2's synchronous wrappers already return a negative
-    // errno translated from the NT status, which is both more reliable and more specific than the
-    // error string. The string is only a fallback, and it can be empty or misleading - after a
-    // failed connect libsmb2 reads once more on the closed socket, so the last message is
-    // "Read from socket failed, errno:9" rather than the actual logon failure. Passing rc = 0 means
-    // "no return code available, use the string".
+    // The second part matters more than the first. If a dropped session is not noticed, ensureLocked
+    // keeps handing back the same dead context and every later call fails forever: a NAS that sleeps
+    // for a minute would leave the share broken until the device reboots. That was the behaviour
+    // when this only looked for the words "Connection"/"connect"/"timeout" - a real drop reported
+    // "smb2_service: POLLHUP, socket error", matched nothing, and the mount never recovered.
+    //
+    // So the test is inverted: a failure is assumed to have killed the session UNLESS it is one of
+    // the specific, semantic errors that a healthy server returns about a file. Being wrong in that
+    // direction is cheap (one needless reconnect); being wrong the other way strands the share.
     int mapError(int rc = 0) {
-        if (rc < 0 && rc != -1) {
-            // A real negative errno from the library. -1 is ambiguous (some paths use it as a bare
-            // failure flag), so that one falls through to the string.
-            if (rc == -ECONNRESET || rc == -EHOSTUNREACH || rc == -ENOTCONN || rc == -EPIPE) {
-                mDead = true;
-            }
-            return rc;
-        }
         const char* e = mSmb ? smb2_get_error(mSmb) : "no context";
         if (!e) e = "";
+
+        // Errors that say something about the file, not about the connection.
         if (strstr(e, "NO_SUCH_FILE") || strstr(e, "OBJECT_NAME_NOT_FOUND") ||
             strstr(e, "PATH_NOT_FOUND")) {
             return -ENOENT;
@@ -310,12 +307,23 @@ private:
         if (strstr(e, "FILE_IS_A_DIRECTORY")) return -EISDIR;
         if (strstr(e, "COLLISION") || strstr(e, "EXISTS")) return -EEXIST;
         if (strstr(e, "DISK_FULL")) return -ENOSPC;
-        if (strstr(e, "Connection") || strstr(e, "connect") || strstr(e, "timeout")) {
-            mDead = true;
-            return -EHOSTUNREACH;
+        if (strstr(e, "DIRECTORY_NOT_EMPTY")) return -ENOTEMPTY;
+
+        // The library's own return value, where it gave us one, is more precise than its message.
+        if (rc < 0 && rc != -1) {
+            switch (-rc) {
+                case ENOENT: case EACCES: case EEXIST: case ENOTDIR:
+                case EISDIR: case ENOSPC: case ENOTEMPTY:
+                    return rc;      // semantic, session is fine
+                default: break;     // anything else is treated as a lost session below
+            }
         }
-        ALOGW("SMB error on %s: %s", mCfg.name.c_str(), e);
-        return -EIO;
+
+        // Everything else: assume the session is gone so the next call reconnects.
+        ALOGW("SMB error on %s, dropping the session to force a reconnect: %s",
+              mCfg.name.c_str(), e[0] ? e : "(no detail)");
+        mDead = true;
+        return rc < 0 && rc != -1 ? rc : -EIO;
     }
 
     ShareConfig mCfg;
