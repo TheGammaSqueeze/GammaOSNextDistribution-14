@@ -393,6 +393,18 @@ private:
         // Without these the 401-then-retry that CURLAUTH_ANY performs uploads an empty body.
         curl_easy_setopt(mCurl, CURLOPT_SEEKFUNCTION, seekUpload);
         curl_easy_setopt(mCurl, CURLOPT_SEEKDATA, &up);
+        if (!mWebdav) {
+            // Upload on a connection of its own.
+            //
+            // prepare() calls curl_easy_reset() on a handle that may still hold a live FTP control
+            // connection, and reusing it across operations left curl's reply parsing out of step:
+            // an upload failed with "unknown PASV reply (code 250)", 250 being the reply to the CWD
+            // issued just before, so it was matching one command's response to another's request.
+            // A fresh connection per upload sidesteps the whole class of problem, and costs little
+            // because writes are staged and sent once per file rather than per chunk.
+            curl_easy_setopt(mCurl, CURLOPT_FRESH_CONNECT, 1L);
+            curl_easy_setopt(mCurl, CURLOPT_FORBID_REUSE, 1L);
+        }
         curl_easy_setopt(mCurl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(size));
         CURLcode rc = curl_easy_perform(mCurl);
         if (rc != CURLE_OK) return mapError(rc);
@@ -457,6 +469,17 @@ private:
             curl_easy_setopt(mCurl, CURLOPT_USERNAME, mCfg.user.c_str());
             curl_easy_setopt(mCurl, CURLOPT_PASSWORD, mCfg.password.c_str());
             if (mWebdav) curl_easy_setopt(mCurl, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+        }
+        if (!mWebdav) {
+            // Plain PASV rather than EPSV. Uploads here failed with CURLE_FTP_WEIRD_PASV_REPLY
+            // ("unknown PASV reply, code 229") when negotiating extended passive mode, while the
+            // same server and the same library handled downloads. PASV is understood by every FTP
+            // server that matters over IPv4, and a data connection that is established is worth
+            // more than one that is negotiated more elegantly.
+            curl_easy_setopt(mCurl, CURLOPT_FTP_USE_EPSV, 0L);
+            // Some servers report an unroutable address in the PASV reply (NAT, containers). Reuse
+            // the control connection's address for the data connection instead of trusting it.
+            curl_easy_setopt(mCurl, CURLOPT_FTP_SKIP_PASV_IP, 1L);
         }
         if (mCfg.useTls && !mWebdav) {
             // Explicit FTPS (AUTH TLS on the standard port), which is what servers offering "FTP
