@@ -42,6 +42,15 @@ CAP "${PROTO}_01_settings_column"
 # "Network Shares" is row 14 with the legacy rows hidden (NANO_XMB_HIDE_LEGACY=1):
 # System Update, Game, Video, Music, System, Developer, Theme, Date/Time, Power Save, Accessory,
 # Gamepad, Slide Behaviour, GammaOS Toolbox, File Explorer, Network Shares.
+#
+# Go to the top of the column first, because the row index has to be absolute. The XMB remembers
+# the selected row per column and "back" only leaves submenus, it does not return the column to its
+# first row: on the second and later protocols this screen opens with the previous run's row still
+# selected, so a bare DOWN 14 walks 14 rows past it and lands in the Internet settings. That is
+# exactly what happened before this UP was added, and because the slot readback below used to fall
+# back to the newest existing share, the suite went on to re-test the previous protocol's share and
+# reported it as a pass.
+UP 25
 DOWN 14
 CAP "${PROTO}_02_network_shares_row"
 NAV enter 1.5
@@ -52,6 +61,11 @@ echo "== $PROTO: Add Share =="
 # share already configured.
 EXISTING=$(adb shell 'for i in 1 2 3 4; do getprop persist.gammaos.share.$i.name; done' 2>/dev/null | tr -d '\r' | grep -c .)
 echo "    $EXISTING share(s) already configured, stepping past them"
+# Which slots are taken before the editor runs, so the new one can be identified positively
+# afterwards rather than guessed at.
+SLOTS_BEFORE=$(adb shell 'for i in 1 2 3 4; do n=$(getprop persist.gammaos.share.$i.name); [ -n "$n" ] && echo $i; done' 2>/dev/null | tr -d '\r' | tr '\n' ' ')
+# Absolute row again: the list reopens with the previously selected row still highlighted.
+UP 10
 DOWN "$EXISTING"
 CAP "${PROTO}_04_add_row"
 NAV enter 2.0
@@ -97,50 +111,102 @@ else
 fi
 sleep 0.5
 
-# --- Server (row 3) ---
+# Set one field and confirm it actually landed.
+#
+# Driving the menu through the nav property is a scripted channel, and a press occasionally does
+# not register: the first field edit after the editor opens was silently dropped, leaving Server
+# empty while every later field set fine. The share then correctly refused to enable ("Enter the
+# server address"), so the failure surfaced as a share that never mounted rather than as anything
+# pointing at the input. Reading the property back and retrying closes that loop. Retries are
+# logged rather than hidden, because a field that consistently needs two attempts is a real problem
+# with the screen and not something the harness should quietly absorb.
+#
+# The value is only ever entered through the on-screen keyboard; the property is read as evidence,
+# never written.
+SETFIELD() {
+  local label="$1" row="$2" prop="$3" value="$4"
+  local attempt got
+  for attempt in 1 2 3; do
+    UP 12; DOWN "$row"
+    NAV enter 1.2
+    TYPE "$value"
+    got=$(adb shell "getprop persist.gammaos.share.$SLOT_GUESS.$prop" 2>/dev/null | tr -d '\r')
+    if [ "$prop" = "pass" ]; then
+      [ -n "$got" ] && { echo "    $label set (attempt $attempt)"; return 0; }
+    else
+      [ "$got" = "$value" ] && { echo "    $label =$got (attempt $attempt)"; return 0; }
+    fi
+    echo "    RETRY $label: expected '$value', got '$got' after attempt $attempt"
+    sleep 1
+  done
+  echo "    ERROR: $label never took after 3 attempts"
+  return 1
+}
+
+# The editor writes into the first free slot, which is the one to read fields back from.
+SLOT_GUESS=$(adb shell 'for i in 1 2 3 4; do n=$(getprop persist.gammaos.share.$i.name); [ -n "$n" ] && echo $i; done' 2>/dev/null | tr -d '\r' | tail -1)
+[ -z "$SLOT_GUESS" ] && SLOT_GUESS=1
+
 echo "== $PROTO: server =$SERVER"
-UP 12; DOWN "$R_SERVER"
-NAV enter 1.2
-TYPE "$SERVER"
+SETFIELD "server" "$R_SERVER" host "$SERVER" || exit 1
 CAP "${PROTO}_08_server"
 
-# --- Port, where the protocol has one and we are not on its default ---
 if [ -n "$R_PORT" ] && [ -n "$PORT" ]; then
   echo "== $PROTO: port =$PORT"
-  UP 12; DOWN "$R_PORT"
-  NAV enter 1.2
-  TYPE "$PORT"
+  SETFIELD "port" "$R_PORT" port "$PORT" || exit 1
   CAP "${PROTO}_09_port"
 fi
 
-# --- Path / share name ---
 if [ -n "$PATHV" ]; then
   echo "== $PROTO: path =$PATHV"
-  UP 12; DOWN "$R_PATH"
-  NAV enter 1.2
-  TYPE "$PATHV"
+  SETFIELD "path" "$R_PATH" path "$PATHV" || exit 1
   CAP "${PROTO}_10_path"
 fi
 
-# --- Credentials, where the protocol uses them ---
 if [ -n "$R_USER" ] && [ -n "$USER" ]; then
   echo "== $PROTO: username =$USER"
-  UP 12; DOWN "$R_USER"
-  NAV enter 1.2
-  TYPE "$USER"
+  SETFIELD "username" "$R_USER" user "$USER" || exit 1
   CAP "${PROTO}_11_user"
 
   echo "== $PROTO: password"
-  UP 12; DOWN "$R_PASS"
-  NAV enter 1.2
-  TYPE "$PASS"
+  SETFIELD "password" "$R_PASS" pass "$PASS" || exit 1
   CAP "${PROTO}_12_pass"
 fi
 
 # --- What the UI wrote, as evidence ---
 echo "== $PROTO: properties the UI produced =="
-SLOT=$(adb shell 'for i in 1 2 3 4; do n=$(getprop persist.gammaos.share.$i.name); [ -n "$n" ] && echo $i; done' 2>/dev/null | tr -d '\r' | tail -1)
+# The slot has to be the one that appeared during this run, not simply the highest one in use.
+# Taking the newest existing slot meant that when the navigation missed the Add Share row entirely,
+# this quietly returned the previous protocol's share and the whole suite then tested that instead,
+# reporting a full set of passes for a protocol it had never touched.
+SLOTS_AFTER=$(adb shell 'for i in 1 2 3 4; do n=$(getprop persist.gammaos.share.$i.name); [ -n "$n" ] && echo $i; done' 2>/dev/null | tr -d '\r' | tr '\n' ' ')
+SLOT=""
+for s in $SLOTS_AFTER; do
+  case " $SLOTS_BEFORE " in
+    *" $s "*) ;;                 # already existed before this run
+    *) SLOT="$s" ;;
+  esac
+done
+if [ -z "$SLOT" ]; then
+  echo "    ERROR: the UI created no new share (slots before: '$SLOTS_BEFORE', after: '$SLOTS_AFTER')"
+  echo "    the navigation did not reach Add Share; see $SHOTDIR/${PROTO}_04_add_row.png"
+  rm -f /tmp/slot_${PROTO}.txt
+  exit 1
+fi
 adb shell "for f in name type host port path user domain tls ro enabled; do echo \"    \$f=\$(getprop persist.gammaos.share.$SLOT.\$f)\"; done" 2>/dev/null | tr -d '\r'
+
+# The share existing is not the same as the share being the protocol that was asked for. If the
+# type chooser was mis-navigated the editor happily produces a perfectly working share of the wrong
+# kind, and every test after this would pass while measuring the wrong backend.
+case "$PROTO" in dav) WANT_TYPE=webdav ;; *) WANT_TYPE="$PROTO" ;; esac
+GOT_TYPE=$(adb shell "getprop persist.gammaos.share.$SLOT.type" 2>/dev/null | tr -d '\r')
+if [ "$GOT_TYPE" != "$WANT_TYPE" ]; then
+  echo "    ERROR: asked for '$WANT_TYPE' but the UI produced type '$GOT_TYPE' in slot $SLOT"
+  echo "    the type chooser was mis-navigated; see $SHOTDIR/${PROTO}_07_type_set.png"
+  rm -f /tmp/slot_${PROTO}.txt
+  exit 1
+fi
+echo "    type confirmed: $GOT_TYPE"
 
 # --- Enable (row 0) ---
 echo "== $PROTO: enabling =="

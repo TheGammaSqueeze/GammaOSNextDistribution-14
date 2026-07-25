@@ -27,6 +27,10 @@ sleep 1.5
 # Walk to the Photo column: fully left, then right past Power, Settings.
 for _ in $(seq 1 8); do NAV left 0.3; done
 NAV right 0.5; NAV right 0.5
+# Absolute row: the XMB remembers the selected row per column and "back" does not reset it, so a
+# relative walk lands wherever the previous screen left off. This is the same bug that made the
+# File Explorer check below capture the Internet settings screen instead.
+for _ in $(seq 1 20); do NAV up 0.3; done
 sleep 1
 CAP "pick_00_photo_column"
 # "Search for Media Servers" is the first Photo row.
@@ -47,7 +51,8 @@ sleep 1.5
 for _ in $(seq 1 8); do NAV left 0.3; done
 NAV right 0.5
 sleep 1
-DOWN 13     # File Explorer sits one row above Network Shares
+for _ in $(seq 1 25); do NAV up 0.3; done
+DOWN 13     # File Explorer sits one row above Network Shares, counted from the top of the column
 CAP "pick_06_file_explorer_row"
 NAV enter 2.5
 CAP "pick_07_explorer_storage"

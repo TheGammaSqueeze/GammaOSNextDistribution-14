@@ -23,6 +23,19 @@ echo "=============================================================="
 echo " share reachability: '$NAME'"
 echo "=============================================================="
 
+# Prove the rig before testing the product.
+#
+# The device reaches the test servers only through adb reverse tunnels, and those are silently lost
+# whenever adbd restarts. When that happened, every check here failed with "No route to host" and
+# read exactly like the share had broken. Checking first means a dead rig is reported as a dead rig.
+TUNNELS=$(adb reverse --list 2>/dev/null | wc -l)
+if [ "${TUNNELS:-0}" -lt 5 ]; then
+    echo "  ABORT: only $TUNNELS adb reverse tunnels are up, so the device cannot reach the test"
+    echo "         servers. Re-run postflash.sh. This is the rig, not the share."
+    exit 99
+fi
+echo "  rig: $TUNNELS reverse tunnels up"
+
 echo "-- 1. the menu's view (/mnt/shares) --"
 D "mountpoint -q '/mnt/shares/$NAME' && echo y" | grep -q y \
     && ok "mounted at /mnt/shares/$NAME" || bad "mounted at /mnt/shares/$NAME" "not a mount point"
@@ -43,12 +56,45 @@ for attr in 'ls -Zd %s | cut -d" " -f1' 'stat -c %%U:%%G/%%a %s' 'stat -f -c %%T
     else bad "differs from internal storage" "emulated='$A' share='$B'"; fi
 done
 
+# The directory comparison above is weaker than it looks: the share's root is synthesised by the
+# daemon, so it says nothing about the entries inside. A backend that passes the server's own mode
+# through shows up only on a real file, and the mount carries default_permissions so those bits are
+# what the kernel enforces against an app.
+FMODE_INT=$(D "stat -c %a /storage/emulated/0/.sharefs_probe 2>/dev/null" )
+D "touch /storage/emulated/0/.sharefs_probe" >/dev/null
+FMODE_INT=$(D "stat -c %a /storage/emulated/0/.sharefs_probe")
+FMODE_SHR=$(D "stat -c %a '/storage/$NAME/media/medium.bin'")
+DMODE_SHR=$(D "stat -c %a '/storage/$NAME/media'")
+D "rm -f /storage/emulated/0/.sharefs_probe" >/dev/null
+[ "$FMODE_SHR" = "660" ] \
+    && ok "file mode on the share is 660, not the server's own (internal: $FMODE_INT)" \
+    || bad "file mode on the share" "got '$FMODE_SHR', expected 660 - a server mode is leaking through"
+[ "$DMODE_SHR" = "770" ] \
+    && ok "directory mode on the share is 770" \
+    || bad "directory mode on the share" "got '$DMODE_SHR', expected 770"
+
 # Writability through the app path, since read-only-but-looks-writable is the subtle failure.
 STAMP="saf$(date +%s)"
 D "touch '/storage/$NAME/writetest/$STAMP' 2>&1" >/dev/null
 D "ls '/storage/$NAME/writetest/$STAMP'" | grep -q "$STAMP" \
-    && { ok "writable via /storage"; D "rm -f '/storage/$NAME/writetest/$STAMP'" >/dev/null; } \
-    || bad "writable via /storage" "could not create a file"
+    && { ok "writable via /storage (as root)"; D "rm -f '/storage/$NAME/writetest/$STAMP'" >/dev/null; } \
+    || bad "writable via /storage (as root)" "could not create a file"
+
+# A root write proves the daemon works and says nothing about whether an app can use the share,
+# because root bypasses DAC entirely. The obvious way to fix that is `adb unroot`, and it is a trap
+# on this device twice over: adbd is configured to come back as root anyway (the check reported
+# "could not drop root"), and restarting adbd **drops every adb reverse tunnel**, which is how the
+# device reaches the test servers. That turned every later check in this suite and the whole
+# enforcing run into "No route to host" failures that looked like a product regression.
+#
+# So the app-level evidence is gathered two other ways instead, neither of which restarts adbd:
+#   - the mode and ownership assertions above, since 0660 root:everybody with the fuse: label is
+#     exactly what /storage/emulated/0 presents and what the kernel checks an app against; and
+#   - the SAF document read below, which is served by the GammaShares provider in its own app
+#     process rather than by this root shell.
+# What is still not covered is a write by a real 10xxx-uid app; that needs a test app, not a shell.
+printf "  ....  app-level access is covered by the mode assertions and the SAF read below,\n"
+printf "  ....  not by adb unroot: it cannot drop root here and it kills the reverse tunnels\n"
 
 echo "-- 3. the Storage Access Framework view --"
 PKG=$(D "pm list packages | grep -c gammaos.shares")
@@ -66,7 +112,23 @@ fi
 # what comes back rather than on particular names: the share's contents are whatever is on the
 # server, so requiring a specific directory makes the test fail when the data changes rather than
 # when the provider breaks.
-DOCS=$(D "content query --uri content://$AUTH/document/%2Fmnt%2Fshares%2F${NAME// /%20}/children 2>&1")
+# Retry a provider error.
+#
+# This device has 968MB of RAM, and under the memory pressure of a full test run lowmemorykiller
+# evicts the provider process mid-query:
+#   lowmemorykiller: Kill 'com.gammaos.shares' (24624), uid 1000, oom_score_adj 905
+#   ActivityManager: Process com.gammaos.shares has died: cch+5 CEM
+# `content query` reports that as "Error while accessing provider" and gives up, which looked like
+# an enforcing-mode failure the first time it happened. A real app never sees this, because the
+# framework restarts a provider on the next access; only this CLI treats it as fatal. So retry, and
+# say so when it happens rather than hiding it.
+DOCS=""
+for attempt in 1 2 3; do
+    DOCS=$(D "content query --uri content://$AUTH/document/%2Fmnt%2Fshares%2F${NAME// /%20}/children 2>&1")
+    echo "$DOCS" | grep -q "Error while accessing provider" || break
+    printf "  ....  provider was evicted (low memory), retrying (%d)\n" "$attempt"
+    sleep 3
+done
 NROWS=$(echo "$DOCS" | grep -c "^Row:")
 if [ "${NROWS:-0}" -gt 0 ] && echo "$DOCS" | grep -q "document_id=/mnt/shares/$NAME/"; then
     ok "SAF enumerates the share ($NROWS entries, ids rooted correctly)"

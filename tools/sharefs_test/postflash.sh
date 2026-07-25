@@ -7,7 +7,16 @@
 
 set -u
 echo "== re-establishing reverse tunnels =="
-for p in 445 2049 111 20048 2121 8088 30000 30001 30002 30003 30004 30005 30006 30007 30008 30009; do
+# 4450, NOT 445. adb here is the Windows adb.exe, so a reverse for 445 terminates on the Windows
+# side where Windows' own SMB server is listening (PID 4), and the device authenticates against
+# that instead of the test Samba - which correctly rejects an account it has never heard of. The
+# test Samba runs on 4450 for exactly this reason and the share config uses that port.
+#
+# 30000-30059 are the FTP passive data ports. Only the first ten were listed here, which is enough
+# for a handful of transfers and not enough for a soak: FTP opens a fresh data connection per read
+# window, so the range has to cover what the server is configured to hand out.
+PORTS="4450 2049 111 20048 2121 8088 $(seq 30000 30059)"
+for p in $PORTS; do
   adb reverse tcp:$p tcp:$p >/dev/null 2>&1 || echo "  FAILED to forward $p"
 done
 echo "  $(adb reverse --list | wc -l) tunnels up"
@@ -35,8 +44,11 @@ echo "  enforcing: $(adb shell getenforce 2>/dev/null | tr -d '\r')"
 # seinfo is not on the device, so check the label that file_contexts should have applied to the
 # daemon binary. If that came out as gammaos_sharefs_exec the policy made it into the image.
 echo "  daemon label: $(adb shell 'ls -Z /system/bin/gammaos-sharefs 2>/dev/null | awk "{print \$1}"' 2>/dev/null | tr -d '\r')"
-# Permissive means denials are logged but not enforced. That is the more useful mode for this pass:
-# every rule the policy is missing shows up in the log instead of silently killing a mount.
+# This device boots permissive (ro.boot.selinux=permissive, set by the bootloader and not
+# changeable from the system image), so denials are logged but never enforced. That is useful for
+# collecting missing rules in one pass, but it is NOT a test of the policy: "it works" and "the
+# policy is correct" are different claims, and only the first is being measured here. Run
+# enforcing.sh afterwards, which flips to enforcing at runtime and re-runs the checks for real.
 
 echo
 echo "== nano running? =="

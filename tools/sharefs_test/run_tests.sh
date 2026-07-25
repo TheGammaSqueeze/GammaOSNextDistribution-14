@@ -84,6 +84,26 @@ for f in "${!SIZES[@]}"; do
   [ "$got" = "${SIZES[$f]}" ] && ok "size $f" || bad "size $f" "expected ${SIZES[$f]} got $got"
 done
 
+# ---- 3b. presented permissions ----------------------------------------------
+# A share has to present one fixed set of modes whatever the server says, because the mount carries
+# default_permissions and those bits are what the kernel checks an app against. /srv/gammashare/modes
+# holds files deliberately set to 644 and 600: on a backend that passes the server's mode through,
+# 644 arrives group-read-only and the share is silently unwritable to apps, and 600 arrives
+# unreadable to them entirely, while the root daemon reads both perfectly well and every other test
+# here still passes. The rest of the fixture is 777, which is permissive enough to hide all of that.
+echo "-- presented permissions (server modes must not leak) --"
+for probe in "modes/ro644.bin:660" "modes/private600.bin:660" "modes/dir755:770" "modes/dir755/inside.txt:660"; do
+  p="${probe%%:*}"; want="${probe##*:}"
+  got=$(D "stat -c %a '$MNT/$p'" | tr -d '[:space:]')
+  [ "$got" = "$want" ] \
+    && ok "mode $p presented as $want" \
+    || bad "mode $p" "server mode leaked through: got $got, expected $want"
+done
+OWNER=$(D "stat -c %U:%G '$MNT/modes/ro644.bin'" | tr -d '[:space:]')
+[ "$OWNER" = "root:everybody" ] \
+  && ok "ownership presented as root:everybody" \
+  || bad "ownership" "got $OWNER, expected root:everybody"
+
 # ---- 4. read integrity -------------------------------------------------------
 echo "-- read integrity (byte-exact) --"
 for f in "${!SUMS[@]}"; do

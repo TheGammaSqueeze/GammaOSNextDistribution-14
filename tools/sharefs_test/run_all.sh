@@ -30,6 +30,29 @@ wait_for_mount() {
   return 1
 }
 
+# Start from no shares at all.
+#
+# There are only kMaxShares (4) slots, so a share left over from an earlier run plus one per
+# protocol does not fit and the last protocol would fail with "All 4 shares are in use" rather than
+# for any reason to do with the protocol. Clearing first makes the four fit exactly.
+#
+# This is the one place properties are written directly, and it is teardown rather than the thing
+# being tested: every share the suite goes on to measure is created, configured and enabled through
+# the real menu by ui_add_share.sh. Removal through the UI is covered separately at the end.
+echo "== clearing any existing shares =="
+for i in 1 2 3 4; do
+  adb shell "setprop persist.gammaos.share.$i.enabled 0" >/dev/null 2>&1
+done
+sleep 3
+for i in 1 2 3 4; do
+  for f in name type host port path user pass domain tls ro enabled; do
+    adb shell "setprop persist.gammaos.share.$i.$f ''" >/dev/null 2>&1
+  done
+done
+sleep 2
+LEFTOVER=$(adb shell "ls /mnt/shares/ 2>/dev/null | wc -l" 2>/dev/null | tr -d '\r')
+echo "  shares configured: $(adb shell 'for i in 1 2 3 4; do getprop persist.gammaos.share.$i.name; done' 2>/dev/null | tr -d '\r' | grep -c .), mount points left: ${LEFTOVER:-?}"
+
 for P in smb nfs dav ftp; do
   echo
   echo "################################################################"
@@ -63,6 +86,21 @@ echo "################################################################"
 echo "#  UI surfaces (folder picker + file explorer)"
 echo "################################################################"
 bash ./ui_verify_pickers.sh 2>&1 | tee $LOG/pickers.log
+
+echo
+echo "################################################################"
+echo "#  removing a share through the UI"
+echo "################################################################"
+# Whichever share ended up in the last slot; removing it has to stop the daemon and take both the
+# /mnt/shares mount and the /storage bind down with it.
+LAST=$(adb shell 'for i in 1 2 3 4; do n=$(getprop persist.gammaos.share.$i.name); [ -n "$n" ] && echo $n; done' 2>/dev/null | tr -d '\r' | tail -1)
+if [ -n "$LAST" ]; then
+  bash ./ui_remove_share.sh "$LAST" 2>&1 | tee $LOG/remove.log
+  grep -q '^  FAIL' $LOG/remove.log && echo "FAIL|ui|remove share|" >> $SUMMARY \
+                                    || echo "PASS|ui|remove share|" >> $SUMMARY
+else
+  echo "  no share left to remove"
+fi
 
 echo
 echo "################################################################"
