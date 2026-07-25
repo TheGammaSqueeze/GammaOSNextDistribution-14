@@ -224,11 +224,15 @@ public:
         if (!mCurl) return -EIO;
 
         const uint64_t want = static_cast<uint64_t>(offset);
-        if (mCachePath == path && want >= mCacheOff && want < mCacheOff + mCache.size()) {
-            const size_t avail = mCache.size() - static_cast<size_t>(want - mCacheOff);
-            const size_t n = std::min(size, avail);
-            memcpy(buf, mCache.data() + (want - mCacheOff), n);
-            return static_cast<int>(n);
+        // The window must cover the WHOLE request, not merely its start. Serving the tail of a
+        // window as a short read looks like end of file to the kernel, which silently truncates
+        // what the reader sees: the data is correct as far as it goes and simply stops early. A
+        // request that runs past the window falls through and fetches a new one anchored here, so
+        // the only short read ever returned is a genuine end of file.
+        if (mCachePath == path && want >= mCacheOff &&
+            want + size <= mCacheOff + mCache.size()) {
+            memcpy(buf, mCache.data() + (want - mCacheOff), size);
+            return static_cast<int>(size);
         }
 
         // Miss: pull a window starting where the caller asked. Anchoring on the request rather than
