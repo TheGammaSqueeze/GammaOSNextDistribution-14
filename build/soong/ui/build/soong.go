@@ -208,6 +208,25 @@ func (pb PrimaryBuilderFactory) primaryBuilderInvocation(config Config) bootstra
 
 	commonArgs = append(commonArgs, "-l", filepath.Join(pb.config.FileListDir(), "Android.bp.list"))
 	invocationEnv := make(map[string]string)
+
+	// GammaOS: let the build host cap soong_build's heap.
+	//
+	// soong_build is launched with "env -i", so nothing from the ambient environment reaches it and
+	// the Go runtime falls back to its default of growing the heap until the machine is full. On a
+	// host with less RAM than analysis wants, that ends in a GC death spiral: the heap cannot grow,
+	// so the collector runs continuously over a working set that is now partly in swap, and the
+	// build drops to a fraction of one core and effectively never finishes.
+	//
+	// Setting GOMEMLIMIT gives the collector a soft ceiling to aim for instead, so it does the extra
+	// GC work while still resident rather than after it has started swapping. GOGC is forwarded too
+	// for the same reason. Both are inert unless set, so this changes nothing on a host with enough
+	// memory, and neither affects build output.
+	for _, k := range []string{"GOMEMLIMIT", "GOGC"} {
+		if v := os.Getenv(k); v != "" {
+			invocationEnv[k] = v
+		}
+	}
+
 	if pb.debugPort != "" {
 		//debug mode
 		commonArgs = append(commonArgs, "--delve_listen", pb.debugPort,
