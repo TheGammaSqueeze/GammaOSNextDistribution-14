@@ -19,6 +19,7 @@ service gammaos-sharefs-1 /system/bin/gammaos-sharefs --share ${persist.gammaos.
     user root
     group root media_rw inet
     seclabel u:r:gammaos_sharefs:s0
+    gentle_kill
     disabled
 
 service gammaos-sharefs-2 /system/bin/gammaos-sharefs --share ${persist.gammaos.share.2.name}
@@ -26,6 +27,7 @@ service gammaos-sharefs-2 /system/bin/gammaos-sharefs --share ${persist.gammaos.
     user root
     group root media_rw inet
     seclabel u:r:gammaos_sharefs:s0
+    gentle_kill
     disabled
 
 service gammaos-sharefs-3 /system/bin/gammaos-sharefs --share ${persist.gammaos.share.3.name}
@@ -33,6 +35,7 @@ service gammaos-sharefs-3 /system/bin/gammaos-sharefs --share ${persist.gammaos.
     user root
     group root media_rw inet
     seclabel u:r:gammaos_sharefs:s0
+    gentle_kill
     disabled
 
 service gammaos-sharefs-4 /system/bin/gammaos-sharefs --share ${persist.gammaos.share.4.name}
@@ -40,25 +43,49 @@ service gammaos-sharefs-4 /system/bin/gammaos-sharefs --share ${persist.gammaos.
     user root
     group root media_rw inet
     seclabel u:r:gammaos_sharefs:s0
+    gentle_kill
     disabled
+
+# Switching a share off has to remove the mount as well as stop the daemon.
+#
+# init stops a service with SIGKILL, which the daemon cannot catch, so it never gets to unmount.
+# gentle_kill above gives it a 200ms window to exit cleanly; this oneshot then runs regardless and
+# force-detaches whatever is left, because that window is a courtesy rather than a guarantee.
+# Without it, a share turned off in the menu stayed behind as a broken /storage/<name> that failed
+# every access until the next reboot.
 
 # Mount / unmount follows the enabled flag, so toggling a share in any of the UIs is enough.
 on property:persist.gammaos.share.1.enabled=1
     start gammaos-sharefs-1
 on property:persist.gammaos.share.1.enabled=0
     stop gammaos-sharefs-1
+    start gammaos-sharefs-clean
 
 on property:persist.gammaos.share.2.enabled=1
     start gammaos-sharefs-2
 on property:persist.gammaos.share.2.enabled=0
     stop gammaos-sharefs-2
+    start gammaos-sharefs-clean
 
 on property:persist.gammaos.share.3.enabled=1
     start gammaos-sharefs-3
 on property:persist.gammaos.share.3.enabled=0
     stop gammaos-sharefs-3
+    start gammaos-sharefs-clean
 
 on property:persist.gammaos.share.4.enabled=1
     start gammaos-sharefs-4
 on property:persist.gammaos.share.4.enabled=0
     stop gammaos-sharefs-4
+    start gammaos-sharefs-clean
+
+service gammaos-sharefs-clean /system/bin/gammaos-sharefs --cleanup
+    class late_start
+    user root
+    group root media_rw
+    seclabel u:r:gammaos_sharefs:s0
+    oneshot
+    disabled
+
+
+

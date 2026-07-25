@@ -14,14 +14,19 @@
 
 #define LOG_TAG "gammaos-sharefs"
 
+#include <dirent.h>
 #include <errno.h>
 #include <log/log.h>
+#include <signal.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/mount.h>   // umount2, MNT_DETACH
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>   // usleep
+#include <sys/wait.h>
+#include <unistd.h>   // usleep, fork
 
+#include <algorithm>
 #include <string>
 #include <thread>
 #include <vector>
@@ -38,10 +43,32 @@ namespace {
 // tell them apart. What distinguishes them is that a dead FUSE mount fails every operation with
 // ECONNREFUSED (or ENOTCONN), which is exactly what libfuse trips over when it tries to mount
 // there again.
+//
+// The stat runs in a child process because it is the one call here that can block indefinitely. A
+// mount whose daemon is gone answers immediately, but one whose daemon is alive and waiting on a
+// NAS that has stopped responding does not answer at all, and doing this inline would hang the
+// caller on precisely the share it must not touch. A child can simply be killed and, since being
+// unable to decide means "leave it alone", timing out gives the safe answer rather than the
+// dangerous one: treating a live share as stale would unmount it out from under whatever is
+// using it.
 bool isStaleFuseMount(const std::string& path) {
-    struct stat st;
-    if (stat(path.c_str(), &st) == 0) return false;   // responding, so something is serving it
-    return errno == ECONNREFUSED || errno == ENOTCONN;
+    const pid_t pid = fork();
+    if (pid < 0) return false;
+    if (pid == 0) {
+        struct stat st;
+        if (stat(path.c_str(), &st) == 0) _exit(0);   // responding, so something is serving it
+        _exit(errno == ECONNREFUSED || errno == ENOTCONN ? 2 : 3);
+    }
+    for (int i = 0; i < 40; i++) {   // up to ~2s
+        int status = 0;
+        const pid_t r = waitpid(pid, &status, WNOHANG);
+        if (r == pid) return WIFEXITED(status) && WEXITSTATUS(status) == 2;
+        if (r < 0) return false;
+        usleep(50 * 1000);
+    }
+    kill(pid, SIGKILL);
+    waitpid(pid, nullptr, 0);
+    return false;   // it blocked, so something is still serving it
 }
 
 // Where the share is bind-mounted so apps can reach it by path.
@@ -93,6 +120,103 @@ void unpublishFromStorage(const std::string& name) {
     rmdir(target.c_str());
 }
 
+// A mount point as the kernel spells it, with mountinfo's octal escapes undone. Share names are
+// user-chosen and the defaults contain a space, so \040 has to be decoded or nothing matches.
+std::string unescapeMountPoint(const std::string& s) {
+    std::string out;
+    for (size_t i = 0; i < s.size(); i++) {
+        if (s[i] == '\\' && i + 3 < s.size() && s[i + 1] >= '0' && s[i + 1] <= '7') {
+            out.push_back(static_cast<char>((s[i + 1] - '0') * 64 + (s[i + 2] - '0') * 8 +
+                                            (s[i + 3] - '0')));
+            i += 3;
+        } else {
+            out.push_back(s[i]);
+        }
+    }
+    return out;
+}
+
+// Every share currently in the mount table, by name.
+std::vector<std::string> mountedShareNames() {
+    std::vector<std::string> names;
+    FILE* f = fopen("/proc/self/mountinfo", "re");
+    if (!f) return names;
+    char line[2048];
+    while (fgets(line, sizeof(line), f)) {
+        // Field 5 (1-based) is the mount point; the filesystem type follows the " - " separator.
+        int field = 0;
+        const char* p = line;
+        const char* mpStart = nullptr;
+        size_t mpLen = 0;
+        while (*p) {
+            const char* start = p;
+            while (*p && *p != ' ') p++;
+            if (++field == 5) { mpStart = start; mpLen = static_cast<size_t>(p - start); break; }
+            while (*p == ' ') p++;
+        }
+        if (!mpStart) continue;
+        if (!strstr(line, "fuse.gammaos-sharefs")) continue;
+        const std::string mp = unescapeMountPoint(std::string(mpStart, mpLen));
+        const std::string prefix = "/mnt/shares/";
+        if (mp.compare(0, prefix.size(), prefix) != 0) continue;
+        const std::string name = mp.substr(prefix.size());
+        // Only the share's own mount point, nothing nested below it.
+        if (name.empty() || name.find('/') != std::string::npos) continue;
+        if (std::find(names.begin(), names.end(), name) == names.end()) names.push_back(name);
+    }
+    fclose(f);
+    return names;
+}
+
+// Remove any share mount that no longer has a daemon behind it.
+//
+// This takes no share name on purpose. Passing one in looked simpler, but deleteShare() clears the
+// share's properties immediately after setting enabled=0, and init expands ${...name} for the
+// cleanup service asynchronously, so the name is racing against being wiped and the cleanup would
+// sometimes be handed an empty string. Reading the mount table instead cannot get the name wrong,
+// covers a daemon that crashed rather than being stopped, and tidies several shares at once.
+//
+// init stops a service with SIGKILL (Service::StopOrReset), which cannot be caught, so the daemon
+// does not get to run fuse_main's unmount when a share is switched off. Left alone, the FUSE mount
+// and its /storage bind stayed behind with nothing serving them and /storage/<name> remained
+// visible to apps as a directory that failed every access, which is worse than the share simply
+// being gone. gentle_kill in the .rc gives the daemon a chance to exit cleanly first; this is what
+// makes the outcome certain.
+//
+// The retry loop is because "stop" is asynchronous: the process may still be alive on the first
+// pass, and tearing down a mount that is about to be torn down cleanly is not something to rush.
+// Anything still being served is simply left alone, so running this while other shares are up is
+// harmless, which matters because one cleanup serves all four slots.
+void cleanupStaleShares() {
+    // A few passes rather than one, because "stop" is asynchronous and the daemon may still be
+    // alive on the first look. Quiet passes are counted rather than live shares: a share that is
+    // simply up is the normal case and must not keep this spinning, whereas a share that is on its
+    // way out shows up as stale a moment later. Two consecutive passes with nothing to do means
+    // the situation has settled.
+    int quiet = 0;
+    for (int attempt = 0; attempt < 6 && quiet < 2; attempt++) {
+        if (attempt > 0) usleep(500 * 1000);
+        const std::vector<std::string> names = mountedShareNames();
+        if (names.empty()) return;
+        bool removedAny = false;
+        for (const std::string& name : names) {
+            if (!isStaleFuseMount("/mnt/shares/" + name)) continue;   // still served, leave it
+            const std::string bind = userBindPath(name);
+            const std::string mnt = "/mnt/shares/" + name;
+            // MNT_DETACH rather than a plain unmount: there is no server left, so anything still
+            // holding a reference would make a normal unmount fail with EBUSY forever. The bind
+            // goes first so nothing is left pointing at a mount that has already gone.
+            umount2(bind.c_str(), MNT_DETACH);
+            rmdir(bind.c_str());
+            umount2(mnt.c_str(), MNT_DETACH);
+            rmdir(mnt.c_str());
+            ALOGI("removed the leftover mount for share '%s'", name.c_str());
+            removedAny = true;
+        }
+        quiet = removedAny ? 0 : quiet + 1;
+    }
+}
+
 void forceUnmountStale(const std::string& path) {
     if (!isStaleFuseMount(path)) return;
     ALOGW("%s is a stale mount from a previous instance, clearing it", path.c_str());
@@ -107,13 +231,22 @@ void forceUnmountStale(const std::string& path) {
 
 int main(int argc, char** argv) {
     std::string want;
+    bool cleanup = false;
     bool debug = false;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--share") && i + 1 < argc) want = argv[++i];
+        else if (!strcmp(argv[i], "--cleanup")) cleanup = true;
         else if (!strcmp(argv[i], "--debug")) debug = true;
     }
+
+    if (cleanup) {
+        cleanupStaleShares();
+        return 0;
+    }
+
     if (want.empty()) {
         ALOGE("usage: gammaos-sharefs --share <name> [--debug]");
+        ALOGE("       gammaos-sharefs --cleanup");
         return 1;
     }
 
