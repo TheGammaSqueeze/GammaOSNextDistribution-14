@@ -1177,6 +1177,10 @@ private:
         // ---- File Explorer (Settings > File Explorer; nano addition) ----
         PS3_FE_DIR,         // a directory row in the file explorer (payloadStr = full path) -> navigate into it
         PS3_FE_FILE,        // a file row in the file explorer (payloadStr = full path) -> X/Triangle for options
+        // ---- Network Shares (Settings > Network Shares; nano addition) ----
+        PS3_NS_SHARE,       // a configured share row in the shares list (a = slot 1..kMaxShares)
+        PS3_NS_ADD,         // "Add Share" row in the shares list
+        PS3_NS_FIELD,       // a field row in the per-share editor (a = NsField)
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -1186,7 +1190,7 @@ private:
                         MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
                         VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12,
                         FE_BROWSE = 13, APP_INFO = 14, APP_STORAGE = 15, APP_PERMS = 16,
-                        SHADER_BROWSE = 17 };
+                        SHADER_BROWSE = 17, NS_LIST = 18, NS_EDITOR = 19 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -2189,6 +2193,7 @@ private:
     void buildScanFoldersScreen(Ps3Level& out);// the system's scan-source list (+ Add Folder)
     void gsOpenScanFolders();                  // open the scan-folders screen for mGsEditIdx
     void buildFolderBrowser(const std::string& path, Ps3Level& out);  // raw-path browser
+    std::vector<std::string> mountedShareNames();  // names of the live /mnt/shares/<n> mounts
     void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
 
@@ -2219,6 +2224,38 @@ private:
     void feTick();                              // per-frame: reap a finished worker, refresh, result dialog
     void feShowInfo(const std::string& path);   // open the Information page for a file/folder
     void feInfoDialog(const std::string& title, const std::string& body);  // generic XMB info dialog (kind 0)
+
+    // ======================= Network Shares (Settings > Network Shares) =======================
+    // Add/edit SMB, NFS, WebDAV and FTP shares. The share itself is served by the gammaos-sharefs
+    // FUSE daemon at /mnt/shares/<name>; this is only the editor for the persist.gammaos.share.<n>.*
+    // properties it reads, via the shared share_config.cpp so a share added here is identical to
+    // one added in Settings or TvSettings. Implementation in NanoMenuShares.cpp.
+    //
+    // Field ids for the editor rows (Ps3Item.a on a PS3_NS_FIELD).
+    enum NsField {
+        NSF_ENABLED = 0, NSF_NAME, NSF_TYPE, NSF_HOST, NSF_PORT, NSF_PATH,
+        NSF_USER, NSF_PASS, NSF_DOMAIN, NSF_TLS, NSF_READONLY, NSF_STATUS, NSF_DELETE,
+    };
+    int  mNsEditSlot = 0;                       // slot being edited (1..kMaxShares), 0 = none
+    bool mNsEditIsNew = false;                  // editing a share that is not saved yet
+    // Mount-state follower. A share connects asynchronously (init starts the daemon, which then has
+    // to reach the server), so without this the row the user just switched on would sit on
+    // "Connecting..." until they left the screen and came back.
+    float       mNsNextPoll = 0.0f;             // mEffectTime at which to re-read the mount table
+    std::string mNsMountSig;                    // which shares were mounted at the last read
+    void nsTick();                              // per-frame: rebuild only when the mount set changed
+    void nsOpenList();                          // Settings leaf -> the shares list
+    void buildSharesList(Ps3Level& out);        // configured shares + "Add Share"
+    void nsOpenEditor(int slot, bool isNew);    // drill into one share
+    void buildShareEditor(Ps3Level& out);       // the field rows for mNsEditSlot
+    void nsEditField(int field);                // OSK / chooser / toggle for one field
+    void nsSetType(int typeIdx);                // apply the type chooser result
+    void nsToggleEnabled();                     // enable/disable the mount (validates first)
+    void nsAddShare();                          // create a share in the first free slot
+    void nsOpenRemoveConfirm();                 // confirm before clearing a slot
+    void nsRemoveShare();                       // clear mNsEditSlot and pop back to the list
+    void nsDiscardIfUnconfigured();             // Back out of a never-filled-in new share = drop it
+    void nsRefreshStackLevels();                // rebuild any shares screen still on the nav stack
 
     // ======================= Music player (PS3 XMB port) =======================
     // Library model (nano_music.json), folder import (reuses the folder picker via

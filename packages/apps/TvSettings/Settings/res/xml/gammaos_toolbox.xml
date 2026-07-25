@@ -35,6 +35,13 @@
         android:summary="@string/slide_behavior_summary"
         android:fragment="com.android.tv.settings.gammaos.SlideBehaviorFragment" />
 
+    <!-- Network shares: SMB / NFS / WebDAV / FTP, mounted by the gammaos-sharefs daemon -->
+    <Preference
+        android:key="network_shares"
+        android:title="@string/network_shares_title"
+        android:summary="@string/network_shares_summary"
+        android:fragment="com.android.tv.settings.gammaos.NetworkSharesFragment" />
+
     <!-- ==================== Display ==================== -->
     <PreferenceCategory
         android:key="category_display"

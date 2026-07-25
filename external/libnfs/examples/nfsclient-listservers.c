@@ -1,0 +1,56 @@
+/* 
+   Copyright (C) by Ronnie Sahlberg <ronniesahlberg@gmail.com> 2011
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, see <http://www.gnu.org/licenses/>.
+*/
+
+/* Example program showing sync interface to probe for all local servers
+ */
+#ifdef AROS
+#include "aros_compat.h"
+#endif
+
+#ifdef WIN32
+#include <win32/win32_compat.h>
+#pragma comment(lib, "ws2_32.lib")
+WSADATA wsaData;
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "libnfs.h"
+
+int main(int argc _U_, char *argv[] _U_)
+{
+	struct nfs_server_list *srvrs;
+	struct nfs_server_list *srv;
+
+#ifdef WIN32
+	if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0) {
+		printf("Failed to start Winsock2\n");
+		exit(10);
+	}
+#endif
+
+#ifdef AROS
+	aros_init_socket();
+#endif
+
+	srvrs = nfs_find_local_servers();	
+	for (srv=srvrs; srv; srv = srv->next) {
+		printf("NFS SERVER @ %s\n", srv->addr);
+	}
+	free_nfs_srvr_list(srvrs);
+	return 0;
+}

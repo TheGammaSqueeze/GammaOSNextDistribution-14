@@ -445,6 +445,7 @@ static const Ps3DataItem kSettingsItems[] = {
 #endif
   {"GammaOS Toolbox",1,"Adjusts GammaOS-specific tweaks and enhancements.",nullptr,0,PS3CH(kToolboxCh)},
   {"File Explorer",62,"Browse the file system and copy, move, rename or delete files and folders.",nullptr,0,nullptr,0},
+  {"Network Shares",6,"Connect to shared folders on your network over SMB, NFS, WebDAV or FTP. A connected share can be browsed in the File Explorer and added to your photo, music and video libraries.",nullptr,0,nullptr,0},
   {"GammaRGB",80,"Adjusts the RGB LED lighting effects.",nullptr,0,PS3CH(kGammaRgbCh)},
   {"GammaEQ",17,"Adjusts the audio equalizer and speaker enhancements.",nullptr,0,PS3CH(kGammaEqCh)},
 #if !NANO_XMB_HIDE_LEGACY

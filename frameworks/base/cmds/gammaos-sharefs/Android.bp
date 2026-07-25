@@ -1,0 +1,75 @@
+// GammaOS: the network-share FUSE daemon behind nano's Network Shares.
+//
+// One instance per share, started by init as gammaos-sharefs --share <name>. It speaks SMB2/3,
+// NFS, WebDAV or FTP in userspace and presents the result at /mnt/shares/<name>, because the
+// device kernels this runs on have no cifs or nfs and cannot be replaced.
+
+package {
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+// Where a share is stored and how its password is encoded. Split out so the nano menu links the
+// same code instead of reimplementing the property schema and the credential encoding, which have
+// to agree exactly or a share added in one UI fails to mount.
+cc_library_static {
+    name: "libgammaos_sharecfg",
+
+    srcs: ["share_config.cpp"],
+
+    export_include_dirs: ["."],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+cc_binary {
+    name: "gammaos-sharefs",
+
+    init_rc: ["gammaos-sharefs.rc"],
+
+    srcs: [
+        "main.cpp",
+        "fuse_mount.cpp",
+        "smb_backend.cpp",
+        "curl_backend.cpp",
+        "nfs_backend.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libcurl",
+        "libcutils",
+        "liblog",
+        "libnfs",
+        "libsmb2",
+    ],
+
+    static_libs: [
+        "libfuse",
+        // The property schema and credential encoding, shared with the nano menu.
+        "libgammaos_sharecfg",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        // libfuse's headers pick which API they expose from this. The tree ships 3.10, but 3.5 is
+        // asked for deliberately: it is the oldest level with the fuse_operations signatures used
+        // here, so nothing depends on a newer libfuse than strictly needed.
+        "-DFUSE_USE_VERSION=35",
+        "-D_FILE_OFFSET_BITS=64",
+    ],
+
+    // A share password lives in this process's memory, so keep it out of core dumps.
+    sanitize: {
+        misc_undefined: ["bounds"],
+    },
+}

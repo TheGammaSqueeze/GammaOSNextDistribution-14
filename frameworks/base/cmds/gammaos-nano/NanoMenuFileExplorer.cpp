@@ -185,7 +185,19 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
         it.iconTex = 0; it.nmapTex = fileNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
-    if (dirs.empty() && files.empty()) {
+    // Shortcut the mounted network shares onto the opening screen. They live at /mnt/shares and are
+    // reachable by climbing to "/" like anything else, but the whole point of the explorer here is
+    // copying between local and remote storage, so both ends should be one screen apart. Only on
+    // /storage: elsewhere the listing stays a faithful view of the directory.
+    if (cur == "/storage") {
+        for (const std::string& sn : mountedShareNames()) {
+            Ps3Item it; it.label = std::string("Share: ") + sn;
+            it.kind = PS3_FE_DIR; it.payloadStr = "/mnt/shares/" + sn;
+            it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+            out.items.push_back(it);
+        }
+    }
+    if (dirs.empty() && files.empty() && out.items.size() <= 1) {
         // Inert placeholder so an empty directory is not a blank screen. PS3_FE_FILE with an empty
         // payload is a no-op on Cross (the dispatch guards on a non-empty path) - do NOT use
         // PS3_GS_FIELD here, whose Cross handler calls gsEditField() (wrong context).

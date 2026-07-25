@@ -3428,6 +3428,9 @@ void NanoMenu::ps3XmbSelect() {
             if (!it.payloadStr.empty()) openXmbOpt();
             return;
         }
+        case PS3_NS_SHARE:  { nsOpenEditor(it.a, false); return; }  // Network Shares: edit one share
+        case PS3_NS_ADD:    { nsAddShare(); return; }               // Network Shares: create one
+        case PS3_NS_FIELD:  { nsEditField(it.a); return; }          // share editor: OSK / chooser / toggle
         case PS3_PHOTO_REFRESH: { photoRefresh(); return; }   // rescan the imported photo folders
         case PS3_PHOTO_FOLDER_ROW: { return; }   // a display row; removal is via the option (Y)
         case PS3_PHOTO_ALBUM: {   // a group-folder -> open its thumbnail grid
@@ -3578,6 +3581,8 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_DATA_LEAF: {
             // Settings: "File Explorer" opens the controller-first file manager.
             if (it.label == "File Explorer") { feOpen(); return; }
+            // Settings: "Network Shares" opens the SMB/NFS/WebDAV/FTP share editor.
+            if (it.label == "Network Shares") { nsOpenList(); return; }
             // Game Settings: re-read the ROM folders. The scan rebuilds each system's list from
             // disk, so deleted games disappear, and the Recently Played list is pruned with it.
             if (it.label == "Rescan Games") { gamesRefresh(); return; }
@@ -4147,6 +4152,9 @@ void NanoMenu::ps3XmbBack() {
     if (!mPs3DlgActive && ps3TopScreenKind() == PHOTO_GRID) { closePhotoGrid(); mPs3Stack.pop_back(); return; }
     // File Explorer: Back climbs up one directory; at the storage-roots list it falls through to pop.
     if (!mPs3DlgActive && ps3TopScreenKind() == FE_BROWSE) { if (feBack()) return; }
+    // Network Shares: backing out of a share that was just added and never filled in would leave a
+    // dead "Share N" row in the list, so drop it instead of saving a stub the user did not make.
+    if (!mPs3DlgActive && ps3TopScreenKind() == NS_EDITOR) nsDiscardIfUnconfigured();
     if (mPs3BrightSlider) { mPs3BrightSlider = false; mShowBrightnessBar = false; mBrightnessBarTimer = 0; return; }  // O dismisses the brightness slider
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
     if (mPs3LangActive) { closeLanguagePicker(false); return; }  // O: cancel (revert the live preview)
@@ -4189,6 +4197,7 @@ void NanoMenu::renderPs3Xmb() {
     musicTick();       // music player: auto-advance to the next track at end-of-stream
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
     feTick();          // File Explorer: reap a finished copy/move/delete worker, refresh + report
+    nsTick();          // Network Shares: follow a mount coming up or going away while the screen is open
     appInfoTick();     // App Information: async-refresh the level from the framework
     shaderMetaTick();  // GammaShader: pick up custom shader params once SF publishes them
     vidReapDying();    // free any async-released video decoders every frame (also after the player closes)
@@ -8412,6 +8421,14 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
                 for (auto& r : mPs3Stack.back().items)
                     if (r.kind == PS3_QUICK && r.a == QA_SECONDARY_DISPLAY) r.value = on ? "On" : "Off";
             mDisplayDirty = true;
+            break;
+        }
+        case 35: {  // Network Shares: share-type chooser (sel = index into the editor's type order)
+            nsSetType(sel);
+            break;
+        }
+        case 36: {  // Network Shares: remove confirm (sel 1 = forget the share)
+            if (sel == 1) nsRemoveShare();
             break;
         }
         case 40: {  // GammaShader: master shader-type selection (enable+type) + rebuild

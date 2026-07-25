@@ -906,5 +906,6 @@
 /system/bin/gammaos-swap\.sh     u:object_r:gammaoscustomization_exec:s0
 /system/bin/setup\.sh            u:object_r:gammaossetupwizard_exec:s0
 /system/bin/gammapad             u:object_r:gammapad_exec:s0
+/system/bin/gammaos-sharefs      u:object_r:gammaos_sharefs_exec:s0
 /system/bin/gammapad_restore     u:object_r:gammapad_exec:s0
 /system/bin/gammaos-ota      u:object_r:gammaosota_exec:s0

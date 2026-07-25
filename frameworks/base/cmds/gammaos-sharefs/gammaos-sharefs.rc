@@ -1,0 +1,64 @@
+# GammaOS: network share mounts.
+#
+# One service per share rather than a single multiplexing daemon: a share whose server has gone
+# away must not be able to stall or kill the others.
+#
+# Mounting is driven purely by properties. Whichever UI configured the share - the nano menu,
+# Settings or TvSettings - only has to set persist.gammaos.share.<n>.enabled, which every one of
+# them can already do; none of them needs permission to start a service directly, and a share
+# configured on one comes up the same way on the others.
+#
+# /mnt/shares is created up front with the media_rw group, matching how removable storage is
+# presented, so the menu and apps are already allowed to read what appears under it.
+
+on post-fs-data
+    mkdir /mnt/shares 0771 media_rw media_rw
+
+service gammaos-sharefs-1 /system/bin/gammaos-sharefs --share ${persist.gammaos.share.1.name}
+    class late_start
+    user root
+    group root media_rw inet
+    seclabel u:r:gammaos_sharefs:s0
+    disabled
+
+service gammaos-sharefs-2 /system/bin/gammaos-sharefs --share ${persist.gammaos.share.2.name}
+    class late_start
+    user root
+    group root media_rw inet
+    seclabel u:r:gammaos_sharefs:s0
+    disabled
+
+service gammaos-sharefs-3 /system/bin/gammaos-sharefs --share ${persist.gammaos.share.3.name}
+    class late_start
+    user root
+    group root media_rw inet
+    seclabel u:r:gammaos_sharefs:s0
+    disabled
+
+service gammaos-sharefs-4 /system/bin/gammaos-sharefs --share ${persist.gammaos.share.4.name}
+    class late_start
+    user root
+    group root media_rw inet
+    seclabel u:r:gammaos_sharefs:s0
+    disabled
+
+# Mount / unmount follows the enabled flag, so toggling a share in any of the UIs is enough.
+on property:persist.gammaos.share.1.enabled=1
+    start gammaos-sharefs-1
+on property:persist.gammaos.share.1.enabled=0
+    stop gammaos-sharefs-1
+
+on property:persist.gammaos.share.2.enabled=1
+    start gammaos-sharefs-2
+on property:persist.gammaos.share.2.enabled=0
+    stop gammaos-sharefs-2
+
+on property:persist.gammaos.share.3.enabled=1
+    start gammaos-sharefs-3
+on property:persist.gammaos.share.3.enabled=0
+    stop gammaos-sharefs-3
+
+on property:persist.gammaos.share.4.enabled=1
+    start gammaos-sharefs-4
+on property:persist.gammaos.share.4.enabled=0
+    stop gammaos-sharefs-4

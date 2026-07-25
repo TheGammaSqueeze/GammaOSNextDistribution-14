@@ -1,0 +1,60 @@
+# GammaOS: gammaos-sharefs, the userspace network-share FUSE daemon.
+#
+# One instance per configured share. It talks to the network, mounts a FUSE filesystem at
+# /mnt/shares/<name>, and serves it to the rest of the system. The device kernels this runs on have
+# no cifs or nfs and cannot be replaced, so speaking the protocol in userspace and presenting it
+# through FUSE is the only way a share can appear as a directory.
+
+type gammaos_sharefs, domain, coredomain;
+type gammaos_sharefs_exec, exec_type, system_file_type, file_type;
+
+init_daemon_domain(gammaos_sharefs)
+
+# Mount point management. Share names are chosen by the user, so /mnt/shares/<name> cannot be
+# pre-created by init and is made here; /mnt is tmpfs.
+allow gammaos_sharefs tmpfs:dir { create_dir_perms mounton };
+
+# FUSE itself: open /dev/fuse, hand the fd to mount(2), then serve the protocol on it.
+allow gammaos_sharefs fuse_device:chr_file rw_file_perms;
+allow gammaos_sharefs fuse:filesystem { mount unmount remount };
+allow gammaos_sharefs fuse:dir { create_dir_perms mounton };
+allow gammaos_sharefs fuse:file create_file_perms;
+
+# mount(2) needs sys_admin. The rest is because the daemon presents every file as owned by
+# media_rw whatever the server reports, so it has to act across ownership.
+allow gammaos_sharefs self:capability { sys_admin dac_override dac_read_search chown fowner fsetid };
+
+# Reach the server: SMB on 445, NFS on 2049 (plus the portmap and mount protocols on their own
+# ports), HTTP(S) for WebDAV, FTP on 21 and its data connections. net_domain covers the sockets,
+# node_bind and name_connect.
+net_domain(gammaos_sharefs)
+allow gammaos_sharefs fs_type:filesystem getattr;
+
+# Name resolution for a share addressed by hostname rather than by address.
+allow gammaos_sharefs net_dns_prop:file r_file_perms;
+
+# The CA store, for WebDAV over HTTPS.
+allow gammaos_sharefs system_security_cacerts_file:dir r_dir_perms;
+allow gammaos_sharefs system_security_cacerts_file:file r_file_perms;
+
+# The share list lives in persist.gammaos.share.<n>.*, written by whichever UI configured it. The
+# daemon only reads: init owns starting and stopping it, so it never has cause to write one back.
+get_prop(gammaos_sharefs, persist_gammaos_prop)
+
+# The key the stored password is obfuscated with is derived from the head of build.prop.
+allow gammaos_sharefs system_file:file r_file_perms;
+
+# The consumers of the mount. Everything that reads local storage today must be able to reach a
+# share too, or the feature is invisible to exactly the things it exists for.
+#
+# bootanim is the GammaOS Nano menu: it scans shares for photos, music and video, plays media
+# straight off them, and its File Explorer copies, moves, renames and deletes between local and
+# remote storage, so it needs to write and not only read.
+allow bootanim fuse:dir create_dir_perms;
+allow bootanim fuse:file create_file_perms;
+allow bootanim fuse:filesystem getattr;
+
+# system_server stats paths on behalf of callers (storage and package code both do), so a path
+# under /mnt/shares reaching it must not turn into a denial.
+allow system_server fuse:dir r_dir_perms;
+allow system_server fuse:file r_file_perms;

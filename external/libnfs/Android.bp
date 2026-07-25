@@ -1,0 +1,133 @@
+// GammaOS: libnfs is the userspace NFS client behind nano's network shares.
+//
+// Vendored from https://github.com/sahlberg/libnfs at a3e86449217fe5429c38e2b06c4f7e6b3cd3be32.
+//
+// The device kernel has no nfs support and cannot be replaced, but that only rules out
+// "mount -t nfs". This library speaks NFSv3/v4 (plus the portmap and mount protocols it needs) over
+// ordinary sockets, and gammaos-sharefs serves the result through FUSE, exactly as it does for SMB
+// with libsmb2. No kernel NFS is involved at any point.
+//
+// lib/ and include/ are LGPL-2.1 and the protocol sources generated from the .x files are BSD (see
+// COPYING); the library is linked dynamically, so that stays clean. The RPC sources are checked in
+// pre-generated upstream, so no rpcgen step is needed here.
+//
+// Kerberos is deliberately left out, as it is for libsmb2: NFS exports on home networks are
+// authorised by address, not by ticket.
+
+package {
+    default_applicable_licenses: ["external_libnfs_license"],
+}
+
+license {
+    name: "external_libnfs_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-LGPL-2.1",
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENCE-LGPL-2.1.txt",
+        "LICENCE-BSD.txt",
+    ],
+}
+
+cc_library_shared {
+    name: "libnfs",
+    host_supported: false,
+    vendor_available: false,
+
+    srcs: [
+        "lib/*.c",
+        "nfs/*.c",
+        "nfs4/*.c",
+        "portmap/*.c",
+        "mount/*.c",
+        "nlm/*.c",
+        "nsm/*.c",
+        "rquota/*.c",
+    ],
+
+    local_include_dirs: [
+        "include",
+        "include/nfsc",
+        // Each protocol's libnfs-raw-*.h sits next to its generated .c rather than in include/,
+        // and the sources include them unqualified, so every one of those directories has to be on
+        // the search path (upstream's Makefile.am does the same with -I per subdirectory).
+        "mount",
+        "nfs",
+        "nfs4",
+        "nlm",
+        "nsm",
+        "portmap",
+        "rquota",
+    ],
+    // "nfs" as well as "include": nfsdirent.type is documented in libnfs.h as needing
+    // libnfs-raw-nfs.h for its NF3DIR/NF3REG constants, and that header ships next to the
+    // generated NFSv3 sources rather than in include/.
+    export_include_dirs: [
+        "include",
+        "nfs",
+    ],
+
+    cflags: [
+        // libnfs marks unused parameters with _U_ and expects the build to define it, the same as
+        // libsmb2 (see lib/Makefile.am).
+        "-D_U_=__attribute__((unused))",
+
+        // Present in bionic.
+        "-DHAVE_ARPA_INET_H=1",
+        "-DHAVE_CLOCK_GETTIME=1",
+        "-DHAVE_GETPWNAM=1",
+        "-DHAVE_INTTYPES_H=1",
+        "-DHAVE_NETDB_H=1",
+        "-DHAVE_NETINET_IN_H=1",
+        "-DHAVE_NETINET_TCP_H=1",
+        "-DHAVE_NET_IF_H=1",
+        "-DHAVE_POLL_H=1",
+        "-DHAVE_PWD_H=1",
+        "-DHAVE_SIGNAL_H=1",
+        "-DHAVE_SOCKADDR_STORAGE=1",
+        "-DHAVE_SO_BINDTODEVICE=1",
+        "-DHAVE_STDATOMIC_H=1",
+        "-DHAVE_STDINT_H=1",
+        "-DHAVE_STDLIB_H=1",
+        "-DHAVE_STRINGS_H=1",
+        "-DHAVE_STRING_H=1",
+        "-DHAVE_STRUCT_STAT_ST_MTIM_TV_NSEC=1",
+        "-DHAVE_SYS_IOCTL_H=1",
+        "-DHAVE_SYS_SOCKET_H=1",
+        "-DHAVE_SYS_STATVFS_H=1",
+        "-DHAVE_SYS_STAT_H=1",
+        "-DHAVE_SYS_SYSMACROS_H=1",
+        "-DHAVE_SYS_TIME_H=1",
+        "-DHAVE_SYS_TYPES_H=1",
+        "-DHAVE_SYS_UIO_H=1",
+        "-DHAVE_SYS_VFS_H=1",
+        "-DHAVE_UNISTD_H=1",
+        "-DHAVE_UTIME_H=1",
+
+        // Deliberately NOT defined:
+        //   HAVE_CONFIG_H            - the defines here take the place of a generated config
+        //   HAVE_LIBKRB5             - no Kerberos, see the note above
+        //   HAVE_MULTITHREADING /
+        //   HAVE_PTHREAD / HAVE_TLS  - the daemon serialises on its own lock, so libnfs does not
+        //                              need its threading layer
+        //   HAVE_DISPATCH_DISPATCH_H,
+        //   HAVE_PTHREAD_THREADID_NP - Apple only
+        //   HAVE_SOCKADDR_LEN,
+        //   HAVE_SYS_FILIO_H,
+        //   HAVE_SYS_SOCKIO_H,
+        //   HAVE_SYS_UNISTD_H        - BSD-isms bionic does not provide
+        //   HAVE_FUSE_H              - only used by libnfs' own example fuse client, not by us
+
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-sign-compare",
+        "-Wno-missing-field-initializers",
+        "-Wno-pointer-arith",
+        "-Wno-implicit-fallthrough",
+        "-Wno-incompatible-pointer-types-discards-qualifiers",
+    ],
+
+    shared_libs: ["liblog"],
+}

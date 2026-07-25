@@ -39,6 +39,7 @@ PRODUCT_PACKAGES += \
     bmgr \
     bootanimation \
     gammaos-nano \
+    gammaos-sharefs \
     drastic-nano \
     bootstat \
     boringssl_self_test \

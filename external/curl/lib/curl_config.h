@@ -35,7 +35,14 @@
 /* #undef CURL_DISABLE_FORM_API */
 
 /* to disable FTP */
-#define CURL_DISABLE_FTP 1
+/* GammaOS: FTP is left enabled. gammaos-sharefs offers FTP as one of the network share types, and
+   it uses libcurl for it. Overriding this per-consumer is not possible: lib/curl_setup.h includes
+   "curl_config.h" from its own directory, so a config placed earlier on the include path is never
+   reached, and a command-line define cannot undo a #define. Building a second copy of curl for one
+   daemon costs far more than the ~50KB this adds, and it brings ftplistparser.c with it, which is
+   the part of FTP worth not reimplementing (LIST/MLSD replies differ between servers).
+   USE_OPENSSL is set below, so ftps:// works as well. */
+/* #undef CURL_DISABLE_FTP */
 
 /* to disable curl_easy_options */
 /* #undef CURL_DISABLE_GETOPTIONS */

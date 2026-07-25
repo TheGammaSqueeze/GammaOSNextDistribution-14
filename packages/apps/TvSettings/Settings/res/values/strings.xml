@@ -3077,6 +3077,46 @@
     <string name="gammaos_toolbox_title">GammaOS Toolbox</string>
     <string name="gammaos_toolbox_summary">Advanced system property overrides</string>
 
+    <!-- GammaOS network shares (SMB / NFS / WebDAV / FTP, served by the gammaos-sharefs daemon) -->
+    <string name="network_shares_title">Network shares</string>
+    <string name="network_shares_summary">Connect to shared folders over SMB, NFS, WebDAV or FTP</string>
+    <string name="network_shares_info">Shared folders on your network appear under /mnt/shares once connected, and can be browsed and played from there.</string>
+    <string name="network_shares_add">Add share</string>
+    <string name="network_shares_add_summary">Connect to a server on your network</string>
+    <string name="network_shares_default_name">Share %1$d</string>
+    <string name="network_shares_full">All %1$d shares are in use. Remove one before adding another.</string>
+    <string name="network_shares_enabled">Connect</string>
+    <string name="network_shares_name">Name</string>
+    <string name="network_shares_type">Type</string>
+    <string name="network_shares_server">Server</string>
+    <string name="network_shares_port">Port</string>
+    <string name="network_shares_port_default">Default (%1$d)</string>
+    <string name="network_shares_share_name">Share name</string>
+    <string name="network_shares_export_path">Export path</string>
+    <string name="network_shares_remote_folder">Remote folder</string>
+    <string name="network_shares_user">Username</string>
+    <string name="network_shares_password">Password</string>
+    <string name="network_shares_password_none">Not set</string>
+    <string name="network_shares_password_set">Saved</string>
+    <string name="network_shares_workgroup">Workgroup</string>
+    <string name="network_shares_access">Access</string>
+    <string name="network_shares_access_nfs">NFS servers grant access by device address rather than by account, so the export on the server must allow this device.</string>
+    <string name="network_shares_https">Use HTTPS</string>
+    <string name="network_shares_https_summary">Connect with https instead of http</string>
+    <string name="network_shares_ftps">Use FTPS</string>
+    <string name="network_shares_ftps_summary">Connect with FTP over TLS</string>
+    <string name="network_shares_readonly">Read only</string>
+    <string name="network_shares_readonly_summary">Never write to this server</string>
+    <string name="network_shares_remove">Remove</string>
+    <string name="network_shares_remove_title">Remove %1$s</string>
+    <string name="network_shares_remove_message">This disconnects the share and forgets its sign-in details. Nothing on the server is deleted.</string>
+    <string name="network_shares_unset">Not set</string>
+    <string name="network_shares_state_off">Not connected</string>
+    <string name="network_shares_state_connected">Connected</string>
+    <string name="network_shares_state_connecting">Connecting…</string>
+    <string name="network_shares_state_connecting_hint">Connecting… If this does not change, check the server address and sign-in details.</string>
+    <string name="network_shares_state_at">Connected. Available at %1$s</string>
+
     <!-- GammaOS slide (swivel) key behaviour -->
     <string name="slide_behavior_title">Slide behaviour</string>
     <string name="slide_behavior_summary">Swivel / slide key: input device, button and actions</string>

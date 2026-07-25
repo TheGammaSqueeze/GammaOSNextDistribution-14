@@ -1,0 +1,85 @@
+// GammaOS: libsmb2 is the userspace SMB2/SMB3 client behind nano's network shares.
+//
+// Vendored from https://github.com/sahlberg/libsmb2 at 6723c56fd6f5a597fc04cc091401349f50c00afc.
+//
+// The device kernel has no cifs support at all (only fuse), and it cannot be rebuilt, so a share
+// is served by a FUSE daemon that speaks SMB itself rather than by mounting cifs. curl's SMB is
+// SMB1-only and disabled in this build, which no current NAS accepts, hence this library.
+//
+// Only lib/ and include/ are built. Those are LGPL-2.1 (the examples and utils carry a different
+// licence, see COPYING), and the library is linked dynamically so that stays clean.
+//
+// Kerberos/GSSAPI is deliberately left out: it would pull in krb5, and home shares authenticate
+// with NTLM, which is built in.
+
+package {
+    default_applicable_licenses: ["external_libsmb2_license"],
+}
+
+license {
+    name: "external_libsmb2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-LGPL-2.1"],
+    license_text: ["LICENCE-LGPL-2.1.txt"],
+}
+
+cc_library_shared {
+    name: "libsmb2",
+    host_supported: false,
+    vendor_available: false,
+
+    srcs: ["lib/*.c"],
+    exclude_srcs: [
+        // Apple's CommonCrypto AES; the portable reference implementation is used instead.
+        "lib/aes_apple.c",
+    ],
+
+    local_include_dirs: [
+        "include",
+        "include/smb2",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+
+    cflags: [
+        // libsmb2 marks unused parameters with _U_ and expects the build system to define it;
+        // its own makefiles pass exactly this (see lib/Makefile.am and lib/CMakeLists.txt).
+        "-D_U_=__attribute__((unused))",
+        // bionic provides all of these; libsmb2 otherwise falls back to its own shims.
+        "-DHAVE_ARPA_INET_H=1",
+        "-DHAVE_ERRNO_H=1",
+        "-DHAVE_FCNTL_H=1",
+        "-DHAVE_NETDB_H=1",
+        "-DHAVE_NETINET_IN_H=1",
+        "-DHAVE_NETINET_TCP_H=1",
+        "-DHAVE_POLL_H=1",
+        "-DHAVE_STDINT_H=1",
+        "-DHAVE_STDIO_H=1",
+        "-DHAVE_STDLIB_H=1",
+        "-DHAVE_STRINGS_H=1",
+        "-DHAVE_STRING_H=1",
+        "-DHAVE_SYS_IOCTL_H=1",
+        "-DHAVE_SYS_SOCKET_H=1",
+        "-DHAVE_SYS_STAT_H=1",
+        "-DHAVE_SYS_TIME_H=1",
+        "-DHAVE_SYS_TYPES_H=1",
+        "-DHAVE_SYS_UIO_H=1",
+        "-DHAVE_TIME_H=1",
+        // Deliberately NOT defined: HAVE_CONFIG_H (there is no generated config here, the defines
+        // above take its place), HAVE_LIBKRB5 (no Kerberos, see the note at the top), and
+        // HAVE_SOCK_SIN_LEN / HAVE_SYS__IOVEC_H / HAVE_SYS_UNISTD_H, which are BSD-isms that
+        // bionic does not provide.
+        "-DHAVE_UNISTD_H=1",
+        "-DHAVE_LINGER=1",
+        // Upstream warnings that are not worth patching the vendored source for.
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-sign-compare",
+        "-Wno-missing-field-initializers",
+        "-Wno-pointer-arith",
+        "-Wno-implicit-fallthrough",
+    ],
+
+    shared_libs: ["liblog"],
+}

@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <stdlib.h>   // strtol, for the octal escapes in /proc/self/mountinfo
 #include <string.h>
 #include <strings.h>
 #include <algorithm>
@@ -218,11 +219,64 @@ void NanoMenu::gsRemoveScanSource(int srcIdx) {
     buildPs3Cats();
 }
 
+// Names of the network shares that are actually mounted right now.
+//
+// This reads the kernel's mount table rather than looking in /mnt/shares, for two reasons: the
+// share daemon creates its mount point before it connects, so an empty directory there does not
+// mean a usable share, and any stat of a mount point whose server has gone away can block until
+// FUSE times out. Reading /proc/self/mountinfo never touches the network.
+std::vector<std::string> NanoMenu::mountedShareNames() {
+    std::vector<std::string> out;
+    FILE* f = fopen("/proc/self/mountinfo", "re");
+    if (!f) return out;
+    char line[1024];
+    while (fgets(line, sizeof(line), f)) {
+        // Field 5 is the mount point; it is the field after the "major:minor root" pair.
+        int n = 0;
+        const char* p = line;
+        const char* mp = nullptr;
+        while (*p) {
+            if (n == 4) { mp = p; break; }
+            while (*p && *p != ' ') p++;
+            while (*p == ' ') p++;
+            n++;
+        }
+        if (!mp) continue;
+        const char* end = strchr(mp, ' ');
+        if (!end) continue;
+        std::string path(mp, end - mp);
+        if (path.compare(0, 12, "/mnt/shares/") != 0) continue;
+        std::string name = path.substr(12);
+        // Only the share's own mount point, not anything nested below it.
+        if (name.empty() || name.find('/') != std::string::npos) continue;
+        // mountinfo escapes spaces and friends as octal; undo that so the name matches the
+        // directory and the label reads properly.
+        std::string unesc;
+        for (size_t i = 0; i < name.size(); i++) {
+            if (name[i] == '\\' && i + 3 < name.size()) {
+                unesc += (char)strtol(name.substr(i + 1, 3).c_str(), nullptr, 8);
+                i += 3;
+            } else {
+                unesc += name[i];
+            }
+        }
+        out.push_back(unesc);
+    }
+    fclose(f);
+    std::sort(out.begin(), out.end(), [](const std::string& a, const std::string& b) {
+        return strcasecmp(a.c_str(), b.c_str()) < 0;
+    });
+    out.erase(std::unique(out.begin(), out.end()), out.end());
+    return out;
+}
+
 // Is this path one of the storage roots (its parent should be the roots list)?
 static bool isStorageRoot(const std::string& p) {
     if (p == "/storage/emulated/0") return true;
     if (p.compare(0, 9, "/storage/") == 0 && p.find('/', 9) == std::string::npos) return true;
     if (p.compare(0, 14, "/mnt/media_rw/") == 0 && p.find('/', 14) == std::string::npos) return true;
+    // A mounted network share is a root of its own: there is nothing above it to browse.
+    if (p.compare(0, 12, "/mnt/shares/") == 0 && p.find('/', 12) == std::string::npos) return true;
     return false;
 }
 
@@ -250,6 +304,11 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
             if (e->d_name[0] == '.') continue;
             addDir(std::string(trDyn("Removable: ")) + e->d_name, std::string("/mnt/media_rw/") + e->d_name);
         } closedir(d); }
+        // Mounted network shares, so a media folder can live on a NAS. Listing them here is what
+        // puts them behind "Search for Media Servers" in Photos/Music/Video as well, since all of
+        // those open this same browser.
+        for (const std::string& s : mountedShareNames())
+            addDir(std::string(trDyn("Share: ")) + s, std::string("/mnt/shares/") + s);
         return;
     }
     out.title = path;
