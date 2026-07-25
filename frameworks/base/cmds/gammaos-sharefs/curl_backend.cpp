@@ -175,6 +175,26 @@ public:
         freeLists();
     }
 
+    // Throw the easy handle away and start a new one. Caller must hold mLock.
+    //
+    // curl_easy_reset() puts the options back but does not reliably put an FTP handle's protocol
+    // state back, and a windowed read has to abort its data transfer to stop at the end of the
+    // window (the end of CURLOPT_RANGE is enforced by curl, not by the server, so a 4MB window of a
+    // 64MB file is a RETR that gets ABORed part way through - the server logged 14MB sent for a 4MB
+    // request). After that the handle is one reply out of step, and the next operation reads the
+    // previous command's response: PASV coming back with 250, which is the reply to the preceding
+    // CWD, or RETR coming back with 227, which is the reply to PASV. Reads then fail with EIO at
+    // random under sustained use. Uploads already avoided this with a fresh connection; a fresh
+    // connection is not enough for reads because the damage is in the handle, not the socket.
+    void resetHandleLocked() {
+        if (mCurl) curl_easy_cleanup(mCurl);
+        freeLists();
+        mCurl = curl_easy_init();
+        // If a new handle cannot be had, say the session is dead rather than leaving a null handle
+        // for the next call to trip over: the reconnect path already knows how to rebuild one.
+        if (!mCurl) mDead = true;
+    }
+
     int getAttr(const std::string& path, struct stat* out) override {
         memset(out, 0, sizeof(*out));
         if (path == "/" || path.empty()) {
@@ -255,11 +275,27 @@ public:
 
         // A short read at end of file, and the deliberate abort once the buffer is full, are both
         // successful reads as far as the caller is concerned.
-        if (rc != CURLE_OK && rc != CURLE_PARTIAL_FILE &&
-            !(rc == CURLE_WRITE_ERROR && b.got == b.cap)) {
+        const bool ok = rc == CURLE_OK || rc == CURLE_PARTIAL_FILE ||
+                        (rc == CURLE_WRITE_ERROR && b.got == b.cap);
+
+        // Work the error out first, while the handle that performed the transfer is still the one
+        // mCurl points at: mapError() reads CURLINFO_RESPONSE_CODE off it, and against a
+        // freshly-created handle that reads back as 0, quietly losing the 404 / 401 / 507 mappings
+        // and turning a "no such file" into a generic failure.
+        const int err = ok ? 0 : mapError(rc);
+
+        // On FTP, any transfer that did not run to completion leaves the handle out of step with
+        // the control connection, so it cannot be used again. That includes the successful cases:
+        // stopping at the end of the window is exactly the abort that causes the problem. Doing
+        // this on the way out costs one connection setup per window, which the readahead already
+        // amortises over megabytes, and it is the difference between FTP working under sustained
+        // reads and failing with EIO every few files.
+        if (!mWebdav && rc != CURLE_OK) resetHandleLocked();
+
+        if (!ok) {
             mCachePath.clear();
             mCache.clear();
-            return mapError(rc);
+            return err;
         }
 
         mCache.resize(b.got);
