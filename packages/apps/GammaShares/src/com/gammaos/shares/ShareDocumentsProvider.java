@@ -18,8 +18,7 @@ package com.gammaos.shares;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.os.CancellationSignal;
-import android.os.ParcelFileDescriptor;
+import android.os.Bundle;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsContract;
@@ -34,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -186,20 +186,24 @@ public class ShareDocumentsProvider extends FileSystemProvider {
 
     // ---- documents -----------------------------------------------------------
 
+    /**
+     * Search within one share.
+     *
+     * queryRoots advertises FLAG_SUPPORTS_SEARCH, and a capability advertised but not implemented
+     * makes the picker's search box fail rather than simply not appear. FileSystemProvider does the
+     * walking; all this has to do is turn a root id back into the directory to walk.
+     *
+     * <p>Note this walks the share over the network, so it is as slow as the server is. That is
+     * inherent rather than a defect: the alternative is an index that would be stale the moment
+     * another machine wrote to the share.
+     */
     @Override
-    public Cursor queryChildDocuments(String parentDocId, String[] projection, String sortOrder)
+    public Cursor querySearchDocuments(String rootId, String[] projection, Bundle queryArgs)
             throws FileNotFoundException {
-        // FileSystemProvider does the listing; this exists only to keep the projection default
-        // consistent with what onCreate registered.
-        return super.queryChildDocuments(parentDocId,
-                projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION, sortOrder);
+        final File parent = new File(SHARE_ROOT, rootId);
+        return querySearchDocuments(parent,
+                projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION,
+                Collections.emptySet(), queryArgs);
     }
 
-    @Override
-    public ParcelFileDescriptor openDocument(String docId, String mode, CancellationSignal signal)
-            throws FileNotFoundException {
-        // Straight through to the file. The FUSE mount is what makes this a network read, and the
-        // daemon's readahead is what makes it fast enough to stream from.
-        return super.openDocument(docId, mode, signal);
-    }
 }
