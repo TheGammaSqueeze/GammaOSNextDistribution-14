@@ -78,6 +78,27 @@ size_t readFromBuffer(char* ptr, size_t sz, size_t nm, void* user) {
     return n;
 }
 
+// Rewind the upload.
+//
+// curl replays a request more than once in normal operation: with CURLAUTH_ANY the first attempt
+// goes out unauthenticated, the server answers 401 with a challenge, and curl repeats it with
+// credentials. A redirect does the same. Without a way to rewind, the second attempt finds the read
+// callback already exhausted and sends an EMPTY body, so the file lands on the server at zero
+// length and the request comes back as an auth failure. This is what makes a PUT actually work.
+int seekUpload(void* user, curl_off_t offset, int origin) {
+    auto* u = static_cast<UploadCtx*>(user);
+    curl_off_t target;
+    switch (origin) {
+        case SEEK_SET: target = offset; break;
+        case SEEK_CUR: target = static_cast<curl_off_t>(u->sent) + offset; break;
+        case SEEK_END: target = static_cast<curl_off_t>(u->size) + offset; break;
+        default: return CURL_SEEKFUNC_CANTSEEK;
+    }
+    if (target < 0 || static_cast<size_t>(target) > u->size) return CURL_SEEKFUNC_FAIL;
+    u->sent = static_cast<size_t>(target);
+    return CURL_SEEKFUNC_OK;
+}
+
 // Percent-encode the parts of a path that would otherwise break a URL. Slashes are kept, since
 // they are the path structure.
 std::string urlEscapePath(const std::string& p) {
@@ -215,30 +236,56 @@ public:
         return mapError(rc);
     }
 
+    // Stage the chunk. Neither protocol can patch a file in the middle: WebDAV PUT and FTP STOR
+    // replace it whole. FUSE, though, delivers even a modest write as a run of chunks at
+    // increasing offsets, so writing each chunk straight out would leave only the last one. The
+    // chunks are collected here and sent as one body when the file is closed (flushFile).
     int writeFile(const std::string& path, const char* buf, size_t size, off_t offset) override {
         if (mCfg.readOnly) return -EROFS;
-        // Neither backend can patch a file in the middle: WebDAV PUT and FTP STOR replace it.
-        // Sequential writing from offset 0 (which is what a copy does) is supported; a random write
-        // is refused rather than silently corrupting the file.
-        if (offset != 0) return -ENOTSUP;
         std::lock_guard<std::mutex> lk(mLock);
-        if (!mCurl) return -EIO;
 
-        UploadCtx up{buf, size, 0};
-        prepare(url(path));
-        curl_easy_setopt(mCurl, CURLOPT_UPLOAD, 1L);
-        curl_easy_setopt(mCurl, CURLOPT_READFUNCTION, readFromBuffer);
-        curl_easy_setopt(mCurl, CURLOPT_READDATA, &up);
-        curl_easy_setopt(mCurl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(size));
-        CURLcode rc = curl_easy_perform(mCurl);
-        if (rc != CURLE_OK) return mapError(rc);
+        if (mStagePath != path) {
+            // A different file: whatever was staged belongs to the previous one and its writer
+            // never closed it. Push it out rather than silently dropping the data.
+            if (!mStagePath.empty()) flushStagedLocked();
+            mStagePath = path;
+            mStage.clear();
+        }
+        const size_t end = static_cast<size_t>(offset) + size;
+        // Bounded so a runaway or enormous copy cannot take the device down. 64MB covers the
+        // realistic case (a ROM, a photo, a song); past that the copy is refused with a clear
+        // error instead of the daemon being killed for memory halfway through.
+        if (end > kMaxStagedBytes) {
+            ALOGE("%s: refusing to stage %zu bytes for '%s' (limit %zu). WebDAV and FTP have to "
+                  "upload a file whole, so a larger file cannot be written to this share type.",
+                  mCfg.name.c_str(), end, path.c_str(), kMaxStagedBytes);
+            mStage.clear();
+            mStagePath.clear();
+            return -EFBIG;
+        }
+        if (mStage.size() < end) mStage.resize(end, 0);
+        memcpy(mStage.data() + offset, buf, size);
         return static_cast<int>(size);
+    }
+
+    // The writer closed the file, so the staged body is complete and can go out as one request.
+    int flushFile(const std::string& path) override {
+        std::lock_guard<std::mutex> lk(mLock);
+        if (mStagePath != path || mStagePath.empty()) return 0;   // nothing staged for this file
+        return flushStagedLocked();
     }
 
     int createFile(const std::string& path, mode_t) override {
         if (mCfg.readOnly) return -EROFS;
-        int rc = writeFile(path, "", 0, 0);
-        return rc < 0 ? rc : 0;
+        // Create it empty on the server now, so the file exists as soon as it is opened, and start
+        // a fresh staging buffer for the writes that follow.
+        {
+            std::lock_guard<std::mutex> lk(mLock);
+            if (!mStagePath.empty() && mStagePath != path) flushStagedLocked();
+            mStagePath = path;
+            mStage.clear();
+        }
+        return uploadLocked(path, nullptr, 0);
     }
 
     int truncateFile(const std::string&, off_t size) override {
@@ -280,6 +327,34 @@ public:
     bool isDead() const override { return mDead; }
 
 private:
+    // Send the staged body and forget it. Caller holds mLock.
+    int flushStagedLocked() {
+        const std::string path = mStagePath;
+        std::vector<char> body;
+        body.swap(mStage);
+        mStagePath.clear();
+        int rc = uploadLocked(path, body.data(), body.size());
+        if (rc != 0) ALOGE("upload of '%s' (%zu bytes) failed: %d", path.c_str(), body.size(), rc);
+        return rc;
+    }
+
+    // One PUT (WebDAV) or STOR (FTP) carrying the whole body. Caller holds mLock.
+    int uploadLocked(const std::string& path, const char* data, size_t size) {
+        if (!mCurl) return -EIO;
+        UploadCtx up{data, size, 0};
+        prepare(url(path));
+        curl_easy_setopt(mCurl, CURLOPT_UPLOAD, 1L);
+        curl_easy_setopt(mCurl, CURLOPT_READFUNCTION, readFromBuffer);
+        curl_easy_setopt(mCurl, CURLOPT_READDATA, &up);
+        // Without these the 401-then-retry that CURLAUTH_ANY performs uploads an empty body.
+        curl_easy_setopt(mCurl, CURLOPT_SEEKFUNCTION, seekUpload);
+        curl_easy_setopt(mCurl, CURLOPT_SEEKDATA, &up);
+        curl_easy_setopt(mCurl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(size));
+        CURLcode rc = curl_easy_perform(mCurl);
+        if (rc != CURLE_OK) return mapError(rc);
+        return 0;
+    }
+
     // ---- URL construction ----
 
     const char* scheme() const {
@@ -573,6 +648,13 @@ private:
     curl_slist* mQuote = nullptr;
     curl_slist* mHeaders = nullptr;
     bool        mDead = false;
+
+    // Staged body for the file currently being written. One at a time: a share being written by
+    // two writers at once is not a case worth the memory here, and the second one flushes the
+    // first rather than corrupting it.
+    static constexpr size_t kMaxStagedBytes = 64u * 1024 * 1024;
+    std::string       mStagePath;
+    std::vector<char> mStage;
 };
 
 }  // namespace

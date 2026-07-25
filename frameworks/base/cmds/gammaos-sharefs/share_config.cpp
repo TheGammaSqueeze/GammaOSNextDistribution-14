@@ -29,10 +29,13 @@
 
 #include <fcntl.h>
 #include <cutils/properties.h>
+#include <openssl/sha.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include <vector>
 
 namespace gammaos {
 namespace sharefs {
@@ -120,13 +123,41 @@ void setShareProp(int idx, const char* field, const std::string& val) {
 
 }  // namespace
 
+// The keystream the password is XORed against.
+//
+// Not the seed bytes directly. The seed starts with the fixed string "gammaos-sharefs", so XORing
+// against it byte-for-byte means a password of 15 characters or fewer never touches the
+// device-specific part at all: the stored value would be identical on every device, which is
+// exactly what this is supposed to avoid. Hashing the whole seed into each block makes every output
+// byte depend on all of it, whatever the password length.
+//
+// GammaShareConfig.java generates this identically; the two must agree byte for byte.
+static std::vector<unsigned char> keyStream(size_t bytes) {
+    const std::string seed = deviceKey();
+    std::vector<unsigned char> out;
+    out.reserve(bytes + SHA256_DIGEST_LENGTH);
+    for (uint32_t block = 0; out.size() < bytes; block++) {
+        // Block index appended big-endian so the Java side can reproduce it without ambiguity.
+        std::string input = seed;
+        input.push_back(static_cast<char>((block >> 24) & 0xFF));
+        input.push_back(static_cast<char>((block >> 16) & 0xFF));
+        input.push_back(static_cast<char>((block >> 8) & 0xFF));
+        input.push_back(static_cast<char>(block & 0xFF));
+        unsigned char digest[SHA256_DIGEST_LENGTH];
+        SHA256(reinterpret_cast<const unsigned char*>(input.data()), input.size(), digest);
+        out.insert(out.end(), digest, digest + SHA256_DIGEST_LENGTH);
+    }
+    out.resize(bytes);
+    return out;
+}
+
 std::string encryptSecret(const std::string& plain) {
-    const std::string key = deviceKey();
+    if (plain.empty()) return std::string();
+    const std::vector<unsigned char> key = keyStream(plain.size());
     std::string out;
     static const char* hex = "0123456789abcdef";
     for (size_t i = 0; i < plain.size(); i++) {
-        unsigned char c = static_cast<unsigned char>(plain[i]) ^
-                          static_cast<unsigned char>(key[i % key.size()]);
+        unsigned char c = static_cast<unsigned char>(plain[i]) ^ key[i];
         out.push_back(hex[c >> 4]);
         out.push_back(hex[c & 0xF]);
     }
@@ -134,12 +165,14 @@ std::string encryptSecret(const std::string& plain) {
 }
 
 std::string decryptSecret(const std::string& stored) {
-    const std::string key = deviceKey();
+    if (stored.size() < 2) return std::string();
+    const size_t n = stored.size() / 2;
+    const std::vector<unsigned char> key = keyStream(n);
     std::string out;
-    for (size_t i = 0; i + 1 < stored.size(); i += 2) {
-        unsigned char c =
-                static_cast<unsigned char>(strtol(stored.substr(i, 2).c_str(), nullptr, 16));
-        out.push_back(static_cast<char>(c ^ static_cast<unsigned char>(key[(i / 2) % key.size()])));
+    for (size_t i = 0; i < n; i++) {
+        unsigned char c = static_cast<unsigned char>(
+                strtol(stored.substr(i * 2, 2).c_str(), nullptr, 16));
+        out.push_back(static_cast<char>(c ^ key[i]));
     }
     return out;
 }

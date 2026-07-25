@@ -134,6 +134,7 @@ cc_binary {
     shared_libs: [
         "libbase",
         "libbinder",
+        "libcrypto",   // share password keystream, via libgammaos_sharecfg
         "libbinder_ndk",
         "libcutils",
         "liblog",

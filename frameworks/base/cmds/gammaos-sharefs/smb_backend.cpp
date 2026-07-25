@@ -70,8 +70,8 @@ public:
         }
 
         struct smb2_stat_64 st = {};
-        if (smb2_stat(mSmb, rel(path).c_str(), &st) < 0) {
-            return mapError();
+        if (int rc = smb2_stat(mSmb, rel(path).c_str(), &st); rc < 0) {
+            return mapError(rc);
         }
         memset(out, 0, sizeof(*out));
         const bool isDir = (st.smb2_type == SMB2_TYPE_DIRECTORY);
@@ -121,7 +121,7 @@ public:
             // A failed read usually means the handle went stale (server dropped the session), so
             // drop it and let the next call reopen rather than failing forever.
             closeCachedLocked();
-            return mapError();
+            return mapError(n);
         }
         return n;
     }
@@ -137,7 +137,7 @@ public:
                             static_cast<uint32_t>(size), static_cast<uint64_t>(offset));
         if (n < 0) {
             closeCachedLocked();
-            return mapError();
+            return mapError(n);
         }
         return n;
     }
@@ -158,8 +158,8 @@ public:
         std::lock_guard<std::mutex> lk(mLock);
         if (int rc = ensureLocked(); rc != 0) return rc;
         closeCachedLocked();
-        return smb2_truncate(mSmb, rel(path).c_str(), static_cast<uint64_t>(size)) < 0
-                       ? mapError() : 0;
+        int rc = smb2_truncate(mSmb, rel(path).c_str(), static_cast<uint64_t>(size));
+        return rc < 0 ? mapError(rc) : 0;
     }
 
     int unlinkFile(const std::string& path) override {
@@ -167,21 +167,24 @@ public:
         std::lock_guard<std::mutex> lk(mLock);
         if (int rc = ensureLocked(); rc != 0) return rc;
         closeCachedLocked();
-        return smb2_unlink(mSmb, rel(path).c_str()) < 0 ? mapError() : 0;
+        int rc = smb2_unlink(mSmb, rel(path).c_str());
+        return rc < 0 ? mapError(rc) : 0;
     }
 
     int makeDir(const std::string& path, mode_t /*mode*/) override {
         if (mCfg.readOnly) return -EROFS;
         std::lock_guard<std::mutex> lk(mLock);
         if (int rc = ensureLocked(); rc != 0) return rc;
-        return smb2_mkdir(mSmb, rel(path).c_str()) < 0 ? mapError() : 0;
+        int rc = smb2_mkdir(mSmb, rel(path).c_str());
+        return rc < 0 ? mapError(rc) : 0;
     }
 
     int removeDir(const std::string& path) override {
         if (mCfg.readOnly) return -EROFS;
         std::lock_guard<std::mutex> lk(mLock);
         if (int rc = ensureLocked(); rc != 0) return rc;
-        return smb2_rmdir(mSmb, rel(path).c_str()) < 0 ? mapError() : 0;
+        int rc = smb2_rmdir(mSmb, rel(path).c_str());
+        return rc < 0 ? mapError(rc) : 0;
     }
 
     int renamePath(const std::string& from, const std::string& to) override {
@@ -189,7 +192,8 @@ public:
         std::lock_guard<std::mutex> lk(mLock);
         if (int rc = ensureLocked(); rc != 0) return rc;
         closeCachedLocked();
-        return smb2_rename(mSmb, rel(from).c_str(), rel(to).c_str()) < 0 ? mapError() : 0;
+        int rc = smb2_rename(mSmb, rel(from).c_str(), rel(to).c_str());
+        return rc < 0 ? mapError(rc) : 0;
     }
 
     int statFs(uint64_t* totalBytes, uint64_t* freeBytes) override {
@@ -278,9 +282,23 @@ private:
         mCachedFlags = -1;
     }
 
-    // libsmb2 reports the failure as a string; map the ones worth distinguishing and treat the
-    // rest as EIO. A lost connection also marks the backend dead so the next call reconnects.
-    int mapError() {
+    // Map a libsmb2 failure to an errno.
+    //
+    // Prefer the call's own return value: libsmb2's synchronous wrappers already return a negative
+    // errno translated from the NT status, which is both more reliable and more specific than the
+    // error string. The string is only a fallback, and it can be empty or misleading - after a
+    // failed connect libsmb2 reads once more on the closed socket, so the last message is
+    // "Read from socket failed, errno:9" rather than the actual logon failure. Passing rc = 0 means
+    // "no return code available, use the string".
+    int mapError(int rc = 0) {
+        if (rc < 0 && rc != -1) {
+            // A real negative errno from the library. -1 is ambiguous (some paths use it as a bare
+            // failure flag), so that one falls through to the string.
+            if (rc == -ECONNRESET || rc == -EHOSTUNREACH || rc == -ENOTCONN || rc == -EPIPE) {
+                mDead = true;
+            }
+            return rc;
+        }
         const char* e = mSmb ? smb2_get_error(mSmb) : "no context";
         if (!e) e = "";
         if (strstr(e, "NO_SUCH_FILE") || strstr(e, "OBJECT_NAME_NOT_FOUND") ||

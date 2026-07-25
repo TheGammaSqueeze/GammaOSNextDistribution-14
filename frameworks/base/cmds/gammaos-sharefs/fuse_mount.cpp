@@ -38,6 +38,10 @@ namespace {
 constexpr double kAttrTimeoutSec = 3.0;   // how long the kernel may trust a stat
 constexpr double kEntryTimeoutSec = 3.0;  // ... and a name lookup
 
+// The largest read the kernel may hand us in one go. libfuse insists the mount option and what
+// fsInit reports are identical, so both come from here rather than being written out twice.
+constexpr unsigned kMaxReadBytes = 131072;
+
 struct MountCtx {
     Backend* backend = nullptr;
     uid_t    uid = 0;      // everything is presented as owned by this uid
@@ -208,8 +212,40 @@ int fsStatfs(const char*, struct statvfs* stv) {
     return 0;
 }
 
-// Nothing to flush: writes go straight out. Reporting success keeps callers that fsync happy.
-int fsFsync(const char*, int, struct fuse_file_info*) { return 0; }
+// libfuse cross-checks the max_read mount option against what the filesystem asks for here, and
+// aborts the session with EPROTO if they disagree. Passing max_read= on the command line is
+// therefore only half the job: without this the mount comes up and then dies immediately with
+// "init() and fuse_session_new() requested different maximum read size (0 vs 131072)".
+//
+// The large value is deliberate. Every read is a network round trip, so the difference between
+// 128KB and the 128KB-default-if-unset is the difference between one request and many for the same
+// data when a player streams a file.
+void* fsInit(struct fuse_conn_info* conn, struct fuse_config* cfg) {
+    conn->max_read = kMaxReadBytes;
+    // Let the kernel cache attributes for the same short window the backend cache uses, rather
+    // than asking the server again for data we just returned.
+    cfg->attr_timeout = kAttrTimeoutSec;
+    cfg->entry_timeout = kEntryTimeoutSec;
+    // Paths are what the backends address by, so keep them.
+    cfg->nullpath_ok = 0;
+    return fuse_get_context()->private_data;
+}
+
+// The writer is done with this file. WebDAV and FTP stage their writes and upload the whole body
+// here, because those protocols can only replace a file, not patch it. SMB and NFS wrote as they
+// went and have nothing left to do.
+int fsRelease(const char* path, struct fuse_file_info*) {
+    if (ctx()->readOnly) return 0;
+    cacheDrop(path);
+    return ctx()->backend->flushFile(path);
+}
+
+// fsync must push the staged body out too: a caller that fsyncs and then reads its file back has
+// every right to see what it wrote.
+int fsFsync(const char* path, int, struct fuse_file_info*) {
+    if (ctx()->readOnly) return 0;
+    return ctx()->backend->flushFile(path);
+}
 
 // Permission bits are synthesised, so accept the chmod/chown a copy tool will attempt rather than
 // failing the whole copy over metadata the server does not model anyway.
@@ -219,6 +255,7 @@ int fsUtimens(const char*, const struct timespec[2], struct fuse_file_info*) { r
 
 const struct fuse_operations kOps = [] {
     struct fuse_operations ops = {};
+    ops.init = fsInit;
     ops.getattr = fsGetattr;
     ops.readdir = fsReaddir;
     ops.open = fsOpen;
@@ -231,6 +268,7 @@ const struct fuse_operations kOps = [] {
     ops.rmdir = fsRmdir;
     ops.rename = fsRename;
     ops.statfs = fsStatfs;
+    ops.release = fsRelease;
     ops.fsync = fsFsync;
     ops.chmod = fsChmod;
     ops.chown = fsChown;
@@ -272,7 +310,9 @@ int runMount(const ShareConfig& cfg, const std::string& mountPoint, bool debug) 
     args.push_back(mountPoint);
     args.push_back("-f");                 // stay in the foreground; init owns the lifecycle
     args.push_back("-o");
-    args.push_back("allow_other,default_permissions,noatime,max_read=131072");
+    { char o[128];
+      snprintf(o, sizeof(o), "allow_other,default_permissions,noatime,max_read=%u", kMaxReadBytes);
+      args.push_back(o); }
     if (cfg.readOnly) { args.push_back("-o"); args.push_back("ro"); }
     if (debug) args.push_back("-d");
 

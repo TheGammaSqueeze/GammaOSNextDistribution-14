@@ -315,16 +315,53 @@ public final class GammaShareConfig {
 
     private static final char[] HEX = "0123456789abcdef".toCharArray();
 
+    /**
+     * The keystream the password is XORed against.
+     *
+     * <p>Not the seed bytes directly. The seed starts with the fixed string "gammaos-sharefs", so
+     * XORing against it byte-for-byte means a password of 15 characters or fewer never touches the
+     * device-specific part at all, and the stored value would be identical on every device, which
+     * is exactly what this is meant to avoid. Hashing the whole seed into each block makes every
+     * output byte depend on all of it, whatever the password length.
+     *
+     * <p>share_config.cpp generates this identically; the two must agree byte for byte.
+     */
+    private static byte[] keyStream(int len) {
+        byte[] seed = deviceKey();
+        byte[] out = new byte[len];
+        int filled = 0;
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            for (int block = 0; filled < len; block++) {
+                md.reset();
+                md.update(seed);
+                // Block index big-endian, matching the native side exactly.
+                md.update(new byte[] {
+                        (byte) (block >>> 24), (byte) (block >>> 16),
+                        (byte) (block >>> 8), (byte) block });
+                byte[] digest = md.digest();
+                int n = Math.min(digest.length, len - filled);
+                System.arraycopy(digest, 0, out, filled, n);
+                filled += n;
+            }
+        } catch (java.security.NoSuchAlgorithmException e) {
+            // SHA-256 is mandatory on every Android release; if it is genuinely missing there is
+            // nothing sensible to fall back to that would still match the daemon.
+            throw new IllegalStateException("SHA-256 unavailable", e);
+        }
+        return out;
+    }
+
     /** Encodes a password for storage. */
     public static String encryptSecret(String plain) {
         if (plain == null || plain.isEmpty()) return "";
-        byte[] key = deviceKey();
         // The native side XORs the raw bytes of the password, so encode to UTF-8 first rather than
         // XOR-ing chars, or anything non-ASCII would round-trip differently in the two languages.
         byte[] in = plain.getBytes(StandardCharsets.UTF_8);
+        byte[] key = keyStream(in.length);
         StringBuilder out = new StringBuilder(in.length * 2);
         for (int i = 0; i < in.length; i++) {
-            int c = (in[i] ^ key[i % key.length]) & 0xFF;
+            int c = (in[i] ^ key[i]) & 0xFF;
             out.append(HEX[c >> 4]).append(HEX[c & 0xF]);
         }
         return out.toString();
@@ -332,9 +369,9 @@ public final class GammaShareConfig {
 
     /** Decodes a stored password. */
     public static String decryptSecret(String stored) {
-        if (stored == null || stored.isEmpty()) return "";
-        byte[] key = deviceKey();
+        if (stored == null || stored.length() < 2) return "";
         int pairs = stored.length() / 2;
+        byte[] key = keyStream(pairs);
         byte[] out = new byte[pairs];
         for (int i = 0; i < pairs; i++) {
             int c;
@@ -343,7 +380,7 @@ public final class GammaShareConfig {
             } catch (NumberFormatException e) {
                 return "";   // not something we wrote; treat it as no password
             }
-            out[i] = (byte) (c ^ key[i % key.length]);
+            out[i] = (byte) (c ^ key[i]);
         }
         return new String(out, StandardCharsets.UTF_8);
     }

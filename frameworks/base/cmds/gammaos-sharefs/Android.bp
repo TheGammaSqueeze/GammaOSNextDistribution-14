@@ -19,6 +19,7 @@ cc_library_static {
     export_include_dirs: ["."],
 
     shared_libs: [
+        "libcrypto",
         "libcutils",
         "liblog",
     ],
@@ -44,6 +45,8 @@ cc_binary {
 
     shared_libs: [
         "libbase",
+        // The share password keystream is SHA-256 based (see share_config.cpp).
+        "libcrypto",
         "libcurl",
         "libcutils",
         "liblog",

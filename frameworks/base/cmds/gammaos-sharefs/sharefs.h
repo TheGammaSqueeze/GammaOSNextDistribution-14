@@ -64,6 +64,13 @@ public:
     // Write support is optional: a backend that cannot do it returns -EROFS and the share simply
     // behaves read-only, which is still useful for playing media off a NAS.
     virtual int writeFile(const std::string& path, const char* buf, size_t size, off_t offset) = 0;
+
+    // Called when a file the caller was writing is closed.
+    //
+    // WebDAV and FTP can only replace a file whole (PUT / STOR), but FUSE hands a write down in
+    // chunks at increasing offsets, so those backends stage the chunks and send the result here.
+    // Backends that can write at an offset directly, like SMB and NFS, have nothing to do.
+    virtual int flushFile(const std::string& /*path*/) { return 0; }
     virtual int createFile(const std::string& path, mode_t mode) = 0;
     virtual int truncateFile(const std::string& path, off_t size) = 0;
     virtual int unlinkFile(const std::string& path) = 0;
