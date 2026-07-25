@@ -405,7 +405,7 @@ void NanoMenu::applyEmulatorChoice(int catIdx) {
     // Extensions likely changed: invalidate + rescan (off the bg path).
     unlink(xmbCachePath(s).c_str());
     s.scanned = false;
-    if (!mBgScanThreadRunning) scanOneSystemAsync(idx);
+    if (!mBgScanThreadRunning) forceRescanAllSystems();
     saveSystemsConfig();
 
     if (adding) {

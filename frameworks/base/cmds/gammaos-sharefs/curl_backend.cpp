@@ -46,10 +46,21 @@ struct Buffer {
     size_t got = 0;
 };
 
+// Accumulate a response body, with a ceiling.
+//
+// This collects directory listings: a WebDAV PROPFIND document or an FTP LIST reply. Both are
+// sized by the server, and neither had any limit - a share with a very large flat directory, or a
+// server that simply keeps sending, grew this until the daemon was OOM-killed on a device with
+// under a gigabyte of RAM. Returning short aborts the transfer, which the caller reports as an
+// error rather than silently handing back a truncated listing.
+constexpr size_t kMaxListingBytes = 16u * 1024 * 1024;
+
 size_t writeToString(char* ptr, size_t sz, size_t nm, void* user) {
     auto* b = static_cast<Buffer*>(user);
-    b->data.append(ptr, sz * nm);
-    return sz * nm;
+    const size_t n = sz * nm;
+    if (b->data.size() + n > kMaxListingBytes) return 0;   // abort: listing is implausibly large
+    b->data.append(ptr, n);
+    return n;
 }
 
 size_t writeToBuffer(char* ptr, size_t sz, size_t nm, void* user) {
@@ -253,12 +264,23 @@ public:
         if (mCachePath == path && want >= mCacheOff &&
             want + size <= mCacheOff + mCache.size()) {
             memcpy(buf, mCache.data() + (want - mCacheOff), size);
+            mNextSeqOff = want + size;   // where a sequential reader would go next
             return static_cast<int>(size);
         }
 
-        // Miss: pull a window starting where the caller asked. Anchoring on the request rather than
-        // on a fixed grid keeps a seek to an arbitrary offset from fetching data ahead of it.
-        const size_t window = std::max(size, readAheadBytes());
+        // Grow the readahead only for a reader that is actually streaming.
+        //
+        // A fixed large window is the wrong default. Reading a few KB of ID3 tag from a 3.5MB track
+        // used to fetch a 4MB window, so scanning an album for metadata pulled essentially the whole
+        // album: the server logged 36 transfers, 133.8MB and nearly four minutes for 35 files, 27 of
+        // them aborted part way because the reader had long since got what it wanted. Playback and
+        // copying do read forward and do want a big window, so the size is earned rather than
+        // assumed - start small, and quadruple it each time a read continues exactly where the last
+        // one ended, up to the old maximum. A seek or a different file starts over.
+        const bool sequential = (mCachePath == path && want == mNextSeqOff);
+        if (sequential) mWindow = std::min(mWindow * 4, readAheadBytes());
+        else            mWindow = kMinWindowBytes;
+        const size_t window = std::max(size, mWindow);
         mCache.assign(window, 0);
         Buffer b;
         b.out = mCache.data();
@@ -302,6 +324,7 @@ public:
         mCache.resize(b.got);
         mCachePath = path;
         mCacheOff = want;
+        mNextSeqOff = want + std::min(size, b.got);
         const size_t n = std::min(size, b.got);
         if (n) memcpy(buf, mCache.data(), n);
         return static_cast<int>(n);
@@ -547,6 +570,8 @@ private:
             curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaders);
         }
         CURLcode rc = curl_easy_perform(mCurl);
+        // No handle reset here, unlike the FTP paths: HTTP carries no per-connection command
+        // state, so a failed verb leaves nothing out of step for the next request to trip over.
         return rc == CURLE_OK ? 0 : mapError(rc);
     }
 
@@ -562,7 +587,15 @@ private:
         for (const std::string& c : cmds) mQuote = curl_slist_append(mQuote, c.c_str());
         curl_easy_setopt(mCurl, CURLOPT_QUOTE, mQuote);
         CURLcode rc = curl_easy_perform(mCurl);
-        return rc == CURLE_OK ? 0 : mapError(rc);
+        if (rc == CURLE_OK) return 0;
+        // A failed QUOTE leaves the control connection out of step exactly as a failed LIST or a
+        // half-read RETR does, and this path carries DELE, MKD, RMD and the RNFR/RNTO pair - so a
+        // rename onto an existing name, or a delete on a full or read-only disk, would otherwise
+        // poison every operation that followed it. mapError() first: it reads the reply code off
+        // the handle that is about to be thrown away.
+        const int err = mapError(rc);
+        resetHandleLocked();   // FTP only: ftpQuote is never reached on the WebDAV path
+        return err;
     }
 
     int readDirLocked(const std::string& path, std::vector<DirEntry>* out) {
@@ -585,7 +618,15 @@ private:
             curl_easy_setopt(mCurl, CURLOPT_DIRLISTONLY, 0L);
         }
         CURLcode rc = curl_easy_perform(mCurl);
-        if (rc != CURLE_OK) return mapError(rc);
+        if (rc != CURLE_OK) {
+            // Same reasoning as readFile: a failed FTP LIST leaves the control connection one
+            // reply out of step, and the next operation reads the orphaned reply as its own. The
+            // error is worked out first, because mapError() reads the response code off the handle
+            // that performed the request.
+            const int err = mapError(rc);
+            if (!mWebdav) resetHandleLocked();
+            return err;
+        }
 
         if (mWebdav) parseWebdav(b.data, path, out);
         else         parseFtpList(b.data, out);
@@ -774,6 +815,11 @@ private:
     std::string       mCachePath;
     uint64_t          mCacheOff = 0;
     std::vector<char> mCache;
+    // Adaptive readahead: the window a streaming reader has earned, and the offset that would
+    // continue the last read. See readFile().
+    static constexpr size_t kMinWindowBytes = 256u * 1024;
+    size_t            mWindow = kMinWindowBytes;
+    uint64_t          mNextSeqOff = 0;
 };
 
 }  // namespace

@@ -2735,7 +2735,7 @@ void NanoMenu::gsEditField(int field) {
                 // new extensions safely.
                 unlink(xmbCachePath(s).c_str());
                 s.scanned = false;
-                if (!mBgScanThreadRunning) scanOneSystemAsync(idx);
+                if (!mBgScanThreadRunning) forceRescanAllSystems();
                 break;
             }
             default: break;

@@ -567,6 +567,10 @@ bool NanoMenu::photoStorageReady() const {
     std::vector<std::string> dirs = nanoMediaScanDirs(0, mPhotoFolders);
     if (dirs.empty()) return true;   // nothing to scan (worker guards against wiping)
     for (const auto& f : dirs) {
+        // A scan folder on a network share counts as ready without being stat-ed. This runs from
+        // the main loop every frame while a scan is pending, so probing a share here is a round
+        // trip to the server per frame - and the mount existing is already the answer.
+        if (f.rfind("/mnt/shares/", 0) == 0) return true;
         struct stat st;
         if (stat(f.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) return true;
     }

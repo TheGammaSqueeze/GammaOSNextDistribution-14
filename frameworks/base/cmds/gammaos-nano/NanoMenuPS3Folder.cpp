@@ -211,7 +211,7 @@ void NanoMenu::gsRemoveScanSource(int srcIdx) {
     s.scanSources.erase(s.scanSources.begin() + srcIdx);
     unlink(xmbCachePath(s).c_str());
     s.scanned = false;
-    if (!mBgScanThreadRunning) scanOneSystemAsync(mGsEditIdx);
+    if (!mBgScanThreadRunning) forceRescanAllSystems();
     saveSystemsConfig();
     gsRefreshStackLevels();
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDER)
@@ -456,7 +456,7 @@ void NanoMenu::gsFolderSelect(const std::string& path) {
     ALOGI("ps3menu: added scan folder %s to %s", path.c_str(), s.id.c_str());
     unlink(xmbCachePath(s).c_str());
     s.scanned = false;
-    if (!mBgScanThreadRunning) scanOneSystemAsync(mGsEditIdx);
+    if (!mBgScanThreadRunning) forceRescanAllSystems();
     saveSystemsConfig();
     // Pop the browser, refresh the scan-folders screen + the Game category.
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE) mPs3Stack.pop_back();

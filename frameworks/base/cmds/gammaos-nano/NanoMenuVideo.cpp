@@ -333,6 +333,10 @@ bool NanoMenu::videoStorageReady() const {
     std::vector<std::string> dirs = nanoMediaScanDirs(1, mVideoFolders);
     if (dirs.empty()) return true;   // nothing to scan (worker guards against wiping)
     for (const auto& f : dirs) {
+        // A scan folder on a network share counts as ready without being opened. This runs from the
+        // main loop every frame while a scan is pending, so probing a share here is a round trip to
+        // the server per frame - and the mount existing is already the answer the probe is after.
+        if (f.rfind("/mnt/shares/", 0) == 0) return true;
         DIR* d = opendir(f.c_str());
         if (d) { closedir(d); return true; }
     }
