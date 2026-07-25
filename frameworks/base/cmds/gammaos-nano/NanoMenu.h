@@ -3000,12 +3000,16 @@ private:
     GLuint      photoUploadCover(const uint8_t* px, int w, int h);
     void        photoWriteCoverCache(const std::string& file, const uint8_t* px, int w, int h);
     struct MpArtJob    { std::string album; std::string track; bool isTrack = false; int ti = -1;
-                         bool isPhoto = false; int photoIdx = -1; std::string cacheFile; };
+                         bool isPhoto = false; int photoIdx = -1; std::string cacheFile;
+                         // wpSlot 0 = top, 1 = bottom; -1 = not a wallpaper job.
+                         int wpSlot = -1; int decodePx = 0; };
     // Pixels rather than a texture: GL calls belong to the render thread, so the worker decodes
     // and the render thread uploads.
     struct MpArtResult { std::string album; int w = 0; int h = 0; std::vector<uint8_t> px;
                          bool isTrack = false; int ti = -1;
-                         bool isPhoto = false; int photoIdx = -1; std::string cacheFile; };
+                         bool isPhoto = false; int photoIdx = -1; std::string cacheFile;
+                         // wpSlot 0 = top, 1 = bottom; -1 = not a wallpaper job.
+                         int wpSlot = -1; int decodePx = 0; };
 
     void mpRequestAlbumArt(const std::string& albumName);  // queue one album (idempotent)
     void mpDrainAlbumArt();                                // render thread: upload finished work

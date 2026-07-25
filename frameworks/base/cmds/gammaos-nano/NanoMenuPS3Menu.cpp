@@ -5983,6 +5983,29 @@ void NanoMenu::loadWallpaperTextures() {
         if (tex) { glDeleteTextures(1, &tex); tex = 0; }
         w = 0; h = 0; curPath = np;
         if (!np.empty()) {
+            if (np.rfind("/mnt/shares/", 0) == 0) {
+                // A wallpaper on a network share is decoded on the worker. Inline it means a
+                // multi-megabyte read plus a 2048px decode on the render thread, and this function
+                // is re-entered whenever a path is set but its texture is not - so a share that is
+                // slow or asleep would re-run exactly that every couple of seconds, forever. The
+                // slot stays empty (the wave shows) until the result arrives. Local wallpapers keep
+                // the synchronous path: they are fast, and that is the common case.
+                const int slot = (&tex == &mWpTexTop) ? 0 : 1;
+                mpStartArtWorker();
+                {
+                    std::lock_guard<std::mutex> lk(mMpArtLock);
+                    if (mMpArtPending.insert("wp:" + np).second) {
+                        MpArtJob job;
+                        job.album = "wp:" + np;   // pending-set key
+                        job.track = np;           // what the worker decodes
+                        job.wpSlot = slot;
+                        job.decodePx = 2048;
+                        mMpArtQueue.push_back(std::move(job));
+                    }
+                }
+                mMpArtCv.notify_one();
+                return;
+            }
             tex = photoDecodeTex(np, 2048, &w, &h);
             if (!tex) curPath.clear();   // decode failed: fall back to the wave / DSi field
         }

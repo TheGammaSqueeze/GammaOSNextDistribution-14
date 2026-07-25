@@ -637,6 +637,17 @@ void NanoMenu::mpStartArtWorker() {
             r.isPhoto = job.isPhoto;
             r.photoIdx = job.photoIdx;
             r.cacheFile = job.cacheFile;
+            r.wpSlot = job.wpSlot;
+            if (job.wpSlot >= 0) {
+                // Wallpaper still on a share: decode to pixels here, upload on the render thread.
+                photoDecodeCoverPixels(job.track, job.decodePx, &r.px);
+                if (!r.px.empty()) { r.w = job.decodePx; r.h = job.decodePx; }
+                {
+                    std::lock_guard<std::mutex> lk(mMpArtLock);
+                    mMpArtDone.push_back(std::move(r));
+                }
+                continue;
+            }
             if (job.isPhoto) {
                 // job.track holds the photo's path; decode to the cover size off-thread.
                 if (photoDecodeCoverPixels(job.track, kPhotoCoverPx, &r.px)) {
@@ -696,6 +707,21 @@ void NanoMenu::mpDrainAlbumArt() {
         for (const auto& r : done) mMpArtPending.erase(r.album);
     }
     for (auto& r : done) {
+        if (r.wpSlot >= 0) {
+            GLuint wt = 0;
+            if (r.w > 0 && r.h > 0 && !r.px.empty()) wt = photoUploadCover(r.px.data(), r.w, r.h);
+            if (r.wpSlot == 0) {
+                if (mWpTexTop) glDeleteTextures(1, &mWpTexTop);
+                mWpTexTop = wt; mWpTopW = r.w; mWpTopH = r.h;
+                if (!wt) mWpPathTop.clear();       // failed: fall back to the wave
+            } else {
+                if (mWpTexBottom) glDeleteTextures(1, &mWpTexBottom);
+                mWpTexBottom = wt; mWpBottomW = r.w; mWpBottomH = r.h;
+                if (!wt) mWpPathBottom.clear();
+            }
+            mDisplayDirty = true;
+            continue;
+        }
         if (r.isPhoto) {
             GLuint ptex = 0;
             if (r.w > 0 && r.h > 0 && !r.px.empty()) {
