@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <log/log.h>
 #include <string.h>
+#include <time.h>
 
 #include <algorithm>
 #include <atomic>
@@ -673,6 +674,20 @@ private:
             if (ls != std::string::npos) {
                 e.size = strtoull(block.c_str() + ls + 17, nullptr, 10);
             }
+            // getlastmodified is an RFC 1123 date ("Tue, 15 Nov 1994 12:45:26 GMT"). Without it
+            // every entry reported 1970, so a media scanner saw the whole share as new on every
+            // pass and re-scanned all of it.
+            size_t ms = block.find("getlastmodified>");
+            if (ms != std::string::npos) {
+                ms += 16;
+                size_t me = block.find('<', ms);
+                if (me != std::string::npos) {
+                    struct tm t = {};
+                    if (strptime(block.substr(ms, me - ms).c_str(), "%a, %d %b %Y %H:%M:%S", &t)) {
+                        e.mtime = timegm(&t);   // the header is GMT by definition
+                    }
+                }
+            }
             out->push_back(std::move(e));
         }
     }
@@ -702,6 +717,70 @@ private:
         }
     }
 
+
+// Turn an FTP LIST date into a time_t.
+//
+// Without this every WebDAV and FTP entry reported mtime 0, i.e. 1970. That is not cosmetic: a media
+// scanner uses mtime to decide what has changed, so everything looked new on every pass and the
+// whole share was re-scanned each time - expensive on a protocol where one scan already moves tens
+// of megabytes. SMB and NFS both report a real mtime, so only these two were affected.
+//
+// Unix listings give "Mon DD HH:MM" for recent files and "Mon DD  YYYY" for older ones, with no
+// year in the first form and no time in the second. The missing year is assumed to be the most
+// recent one that does not put the date in the future, which is the same rule ls itself uses.
+static time_t ftpListTime(const std::string& mon, const std::string& day, const std::string& last) {
+    static const char* kMon[] = {"Jan","Feb","Mar","Apr","May","Jun",
+                                 "Jul","Aug","Sep","Oct","Nov","Dec"};
+    int m = -1;
+    for (int i = 0; i < 12; i++) if (mon == kMon[i]) { m = i; break; }
+    if (m < 0) return 0;
+    const int d = atoi(day.c_str());
+    if (d < 1 || d > 31) return 0;
+
+    const time_t now = time(nullptr);
+    struct tm nowtm = {};
+    localtime_r(&now, &nowtm);
+
+    struct tm t = {};
+    t.tm_mon = m;
+    t.tm_mday = d;
+    t.tm_isdst = -1;
+    if (last.find(':') != std::string::npos) {
+        t.tm_hour = atoi(last.c_str());
+        const size_t c = last.find(':');
+        t.tm_min = atoi(last.c_str() + c + 1);
+        t.tm_year = nowtm.tm_year;
+        time_t v = mktime(&t);
+        // No year in this form: if that lands in the future it belongs to last year.
+        if (v > now + 24 * 3600) { t.tm_year--; t.tm_isdst = -1; v = mktime(&t); }
+        return v;
+    }
+    t.tm_year = atoi(last.c_str()) - 1900;
+    if (t.tm_year < 70 || t.tm_year > 200) return 0;
+    return mktime(&t);
+}
+
+// "MM-DD-YY  HH:MMAM" as sent by IIS-style servers.
+static time_t dosListTime(const std::string& date, const std::string& tm) {
+    if (date.size() < 8 || tm.size() < 5) return 0;
+    struct tm t = {};
+    t.tm_mon  = atoi(date.substr(0, 2).c_str()) - 1;
+    t.tm_mday = atoi(date.substr(3, 2).c_str());
+    int yy = atoi(date.substr(6, 2).c_str());
+    t.tm_year = (yy < 70 ? yy + 100 : yy);          // 70..99 -> 1970s..1990s, 00..69 -> 2000s
+    int hh = atoi(tm.substr(0, 2).c_str());
+    const size_t c = tm.find(':');
+    if (c == std::string::npos) return 0;
+    t.tm_min = atoi(tm.c_str() + c + 1);
+    const bool pm = tm.find("PM") != std::string::npos || tm.find("pm") != std::string::npos;
+    if (pm && hh != 12) hh += 12;
+    if (!pm && hh == 12) hh = 0;
+    t.tm_hour = hh;
+    t.tm_isdst = -1;
+    if (t.tm_mon < 0 || t.tm_mon > 11 || t.tm_mday < 1 || t.tm_mday > 31) return 0;
+    return mktime(&t);
+}
+
     // "drwxr-xr-x  2 user group  4096 Jan  1 12:00 name with spaces"
     // Eight whitespace-separated fields, then the name, which may itself contain spaces.
     static bool parseUnixListLine(const std::string& line, DirEntry* e) {
@@ -724,6 +803,7 @@ private:
         e->name = name;
         e->isDir = (line[0] == 'd');
         e->size = strtoull(f[4].c_str(), nullptr, 10);
+        e->mtime = ftpListTime(f[5], f[6], f[7]);
         return true;
     }
 
@@ -745,6 +825,7 @@ private:
         e->name = name;
         e->isDir = (f[2] == "<DIR>");
         e->size = e->isDir ? 0 : strtoull(f[2].c_str(), nullptr, 10);
+        e->mtime = dosListTime(f[0], f[1]);
         return true;
     }
 
