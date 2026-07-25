@@ -855,6 +855,16 @@ void writeSettingValue(SettingSource src, const std::string& key,
     default:
         break;
     }
+    // Display saturation rides the display colour matrix, which has no persisted setting of its
+    // own, so applying it is an explicit call. nano re-applies the prop on boot.
+    if (src == SettingSource::kProp && key == "persist.gammaos.nano.display.saturation") {
+        int lvl = atoi(val.c_str());
+        if (lvl < 0) lvl = 0;
+        if (lvl > 100) lvl = 100;
+        char cmd[128];
+        snprintf(cmd, sizeof(cmd), "cmd color_display set-saturation %d 2>/dev/null", lvl);
+        (void)system(cmd);
+    }
     // GammaOS Nano orientation: the Screen Orientation setting is the SINGLE control
     // for accelerometer_rotation (there is no separate Auto-Rotate toggle). "auto"
     // enables the sensor; any fixed orientation disables it so the nano force

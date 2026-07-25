@@ -96,7 +96,6 @@ static const Ps3DataItem kSystemSettingsCh[] = {
   {"Add/Edit Term",22,nullptr,nullptr,1,nullptr,0},
   {"Delete Predictive Text Dictionary",22,"Deletes words that were added automatically to the dictionary when using the on-screen keyboard.",nullptr,1,nullptr,0},
 #endif
-  {"Notification Messages",22,nullptr,"Display",0,nullptr,0},
 #if !NANO_XMB_HIDE_LEGACY
   {"Trophy Notifications",22,nullptr,"Display",0,nullptr,0},
   {"Display [What's New]",22,nullptr,"On",0,nullptr,0},
@@ -109,11 +108,12 @@ static const Ps3DataItem kSystemSettingsCh[] = {
   {"List of Registered PS Vita Systems",22,nullptr,nullptr,1,nullptr,0},
   {"Delete PS Vita System's Backup Files",22,"Deletes backup files for the PS Vita system saved on this system.",nullptr,1,nullptr,0},
 #endif
-  {"Format Utility",22,nullptr,nullptr,1,nullptr,0},
-  {"Backup Utility",22,nullptr,nullptr,1,nullptr,0},
-  {"Data Transfer Utility",22,nullptr,nullptr,1,nullptr,0},
-  {"Restore Default Settings",22,nullptr,nullptr,1,nullptr,0},
-  {"Restore GammaOS System",22,nullptr,nullptr,1,nullptr,0},
+  // Format / Backup / Data Transfer / Restore GammaOS System were PS3 dialogs with no handler
+  // behind them: selecting "Format System Storage" or a restore did nothing at all, which is worse
+  // than not offering it. Only the reset below is real (it drives the same factory-reset path as
+  // the settings tree), alongside the live System Information page.
+  {"Storage",22,"Shows how much space is used and free on this system.",nullptr,1,nullptr,0},
+  {"Restore Default Settings",22,"Resets this system to its default settings. All apps, saves and settings on internal storage are erased.",nullptr,1,nullptr,0},
   {"System Information",22,nullptr,nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kThemeSettingsCh[] = {
@@ -144,7 +144,9 @@ static const Ps3DataItem kDateTimeCh[] = {
   {"Set Manually",22,nullptr,nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kPowerSaveCh[] = {
-  {"System Auto-Off",22,"Sets whether or not to automatically turn off this system. If you do not operate the system for a set amount of time, the system will turn off automatically.","Off",0,nullptr,0},
+  // "System Auto-Off" was an unbound PS3 row; the real control is the screen timeout, which lives
+  // in Display Settings and is bound there. Sleep-after-screen-off is the meaningful extra knob.
+  {"Sleep",22,"Sets how long the system waits after the screen turns off before going to sleep.","Immediately",1,nullptr,0},
 #if !NANO_XMB_HIDE_LEGACY
   {"Controller Auto-Off",22,"Sets whether or not to automatically turn off controllers. If you do not use a controller for a set amount of time, it will turn off automatically.","After 10 min.",0,nullptr,0},
   {"Power Indicator",22,nullptr,"Bright",0,nullptr,0},
@@ -158,7 +160,8 @@ static const Ps3DataItem kAccessoryCh[] = {
   {"Calibrate Motion Controller",22,"Calibrates the magnetic sensor of a motion controller. Use this setting when the motion controller does not control on-screen movement as expected.",nullptr,1,nullptr,0},
   {"Reassign Controllers",22,"Change the number assigned to the controller that is currently in use.",nullptr,1,nullptr,0},
 #endif
-  {"Controller Vibration Function",22,"Sets whether or not to use the vibration function. This setting will be applied to all controllers that support the vibration function.","On",0,nullptr,0},
+  // "Controller Vibration Function" was unbound here and duplicated the working PWM rumble rows in
+  // Gamepad Settings, so it is retired rather than shown twice.
 #if !NANO_XMB_HIDE_LEGACY
   {"BD Remote Control Registration",22,"Register the BD Remote Control.",nullptr,1,nullptr,0},
 #endif
@@ -176,32 +179,55 @@ static const Ps3DataItem kAccessoryCh[] = {
   {"Pointer Speed",22,"Sets the speed at which the mouse pointer moves. The mouse pointer is displayed in the Internet browser and in games and other software that support use of a mouse.","Normal",0,nullptr,0},
 #endif
 };
+// LiveDisplay (LineageSettings.System, applied live by LiveDisplayService). Only the features
+// this hardware actually reports are offered: colour temperature (via night display), RGB colour
+// calibration and reading mode. CABC, auto contrast, colour enhancement, picture adjustment,
+// anti-flicker, display modes and outdoor mode need a vendor HAL that is not present, so they are
+// deliberately NOT listed rather than shown as rows that do nothing. Saturation rides the AOSP
+// colour matrix (cmd color_display set-saturation) and is re-applied by nano on boot.
+// The panel calibration is stored by LiveDisplay as a single "R G B" string, so each channel gets
+// its own percentage row here and nano recomposes the three into that setting on any change
+// (see writeSettingValue). 100% is the untouched panel output.
+static const Ps3DataItem kColorCalCh[] = {
+  {"Red",16,"Red level of the panel.","100",0,nullptr,0},
+  {"Green",16,"Green level of the panel.","100",0,nullptr,0},
+  {"Blue",16,"Blue level of the panel.","100",0,nullptr,0},
+};
+static const Ps3DataItem kLiveDisplayCh[] = {
+  // Colour temperature is Night Light's job here, not LiveDisplay's: LiveDisplay switches its own
+  // temperature control off whenever the system provides night display
+  // (ColorTemperatureController: mUseTemperatureAdjustment = !mNightDisplayAvailable && ...),
+  // which this system does. Offering LiveDisplay's day/night temperature rows would therefore have
+  // shown settings that never apply.
+  {"Night Light",16,"Tints the screen warmer so it is easier on the eyes in the dark.","Off",0,nullptr,0},
+  {"Night Light Temperature",16,"How warm the screen becomes while Night Light is on. Lower is warmer.","2850",0,nullptr,0},
+  {"Colour Calibration",16,"Fine-tunes the red, green and blue levels of the panel.",nullptr,0,PS3CH(kColorCalCh)},
+  {"Saturation",16,"Adjusts how vivid colours are across the whole screen. 0 is greyscale, 100 is normal.","100",0,nullptr,0},
+  {"Reading Mode",16,"Drains the colour out of the screen for comfortable reading.","Off",0,nullptr,0},
+};
 static const Ps3DataItem kDisplayCh[] = {
-  {"Video Output Settings",22,"Configure video output settings according to your TV.",nullptr,1,nullptr,0},
-  {"Screen Saver",22,"Configure the screen saver settings.","After 20 Minutes",0,nullptr,0},
-  {"Cross Color Reduction Filter",22,"Reduces rainbow-effect artifacts. This setting is used when the system outputs composite signal to a VIDEO IN or SCART connector.","Off",0,nullptr,0},
-  {"50 Hz Video Output",22,"Sets the playback method for content recorded at 50 Hz. This setting is used when playing content saved on the system storage or storage media.","Auto",0,nullptr,0},
-  {"RGB Full Range (HDMI)",22,"Sets the range of RGB output signals for an HDMI connection.","Limited",0,nullptr,0},
-  {"Y Pb/Cb Pr/Cr Super-White (HDMI)",22,"Sets the output format of video content recorded in a wide color range. Set this option as necessary for the TV in use.","Off",0,nullptr,0},
-  {"Deep Color Output (HDMI)",22,"Outputs Deep Color video signal. If the video output is not clean or the colors do not look right, set this option to [Off].","Automatic",0,nullptr,0},
-  {"1080p 24 Hz Output (HDMI)",22,"Sets the playback method for content items recorded at 24 Hz (frames/second).","Auto",0,nullptr,0},
-  {"BD/DVD - Video Output Format (HDMI)",22,"Sets the output method for color signals when playing BDs or DVDs.","Auto",0,nullptr,0},
-  {"Control for HDMI",22,"The system and devices connected via HDMI can operate each other.","Off",0,nullptr,0},
+  // The PS3 firmware video-output rows (connector chooser, SCART cross-colour filter, 50 Hz,
+  // RGB range, Super-White, Deep Colour, 1080p24, BD/DVD colour format, HDMI control) were all
+  // unbound decoration: none of them touched anything on Android, and most describe hardware this
+  // system does not have. Replaced with the display settings that do work here.
+  // No Adaptive Brightness row: this hardware has no ambient light sensor, so it could never do
+  // anything. Brightness itself is nano's own backlight level (it drives the panel directly and
+  // only mirrors the value into Settings), so the row is bound to that rather than to
+  // Settings.System screen_brightness, which nano writes but never reads back.
+  {"Brightness",22,"Sets the screen brightness.","128",1,nullptr,0},
+  {"LiveDisplay",16,"Adjusts the colour of the screen: colour temperature, colour calibration, saturation and reading mode.",nullptr,0,PS3CH(kLiveDisplayCh)},
+  {"Screen Saver",22,"Shows a screen saver while the system is idle and charging.","On",1,nullptr,0},
   {"Screen Timeout",22,"Sets how long the screen stays on while idle.","1 minute",1,nullptr,0},
   {"Font Size",22,"Sets the size of text shown on the screen.","Default",1,nullptr,0},
   {"Dark Theme",22,"Use a dark colour scheme across the system.","On",1,nullptr,0},
   {"Screen Orientation",70,"Sets the orientation of the home menu and apps. Choose Auto to follow the accelerometer, or lock to a fixed orientation.","Landscape",1,nullptr,0},
   {"Force Orientation",22,"When on, every app is forced to this orientation and cannot override it. Off keeps each app's own orientation and any per-app override.","Off",1,nullptr,0},
 };
+// Sound: the PS3 firmware rows (connector chooser, multi-output, remote-play device, BD/DVD/HDD
+// audio languages, BD output format) were decorative leftovers of the 1:1 port - none of them was
+// bound to anything on Android, and the disc-format ones have no meaning on this hardware at all.
+// What remains is backed by real Android settings, plus the media volume nano already owns.
 static const Ps3DataItem kSoundCh[] = {
-  {"Audio Output Settings",22,"Configure audio output settings.",nullptr,1,nullptr,0},
-  {"Audio Multi-Output",22,"Sets to output audio through multiple connectors simultaneously. Audio output to connectors that are not selected in [Audio Output Settings] is downscaled to 2 Ch.","Off",0,nullptr,0},
-  {"Audio Output Device",22,"Sets the audio output device for use during remote play. To output audio from a PC or a mobile phone, select [Remote Play Device].","System Default",0,nullptr,0},
-  {"Key Tone",22,"Sets whether or not to use key tones in the menu.","On",0,nullptr,0},
-  {"BD Audio Language",22,"Set the default BD audio language.","Original",0,nullptr,0},
-  {"DVD Audio Language",22,"Set the default DVD audio language.","English",0,nullptr,0},
-  {"HDD Audio Language",22,"Set the default audio language for content on the HDD.","English",0,nullptr,0},
-  {"BD Audio Output Format (HDMI)",22,"Set the BD audio output format.","Linear PCM",0,nullptr,0},
   {"Touch Sounds",22,"Play a sound when you make a selection on the screen.","On",1,nullptr,0},
   {"Charging Sounds",22,"Play a sound when the charger is connected.","On",1,nullptr,0},
   {"Screen Lock Sounds",22,"Play a sound when the screen locks or unlocks.","On",1,nullptr,0},
@@ -228,7 +254,7 @@ static const Ps3DataItem kNetworkSettingsCh[] = {
   {"Internet Connection",22,"Sets whether or not to connect this system to the Internet. Select this option if you want to temporarily disable the Internet connection.","Enabled",0,nullptr,0},
   {"Internet Connection Settings",22,"Sets the method for connecting the system to the Internet. Select this option to connect to a wireless LAN or to change the settings.",nullptr,1,nullptr,0},
   {"Internet Connection Test",22,"Tests the Internet connection and displays the results.",nullptr,1,nullptr,0},
-  {"Media Server Connection",22,"Sets whether or not to connect to media servers.","Disabled",0,nullptr,0},
+  // "Media Server Connection" (DLNA discovery) was an unbound PS3 row with no backend here.
 };
 static const Ps3DataItem kDevOptionsCh[] = {
   {"USB Debugging",22,"Enable debug mode when a USB device is connected.","Off",1,nullptr,0},

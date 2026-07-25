@@ -4862,6 +4862,43 @@ if (sRingPrimedCount >= 2) {
                 }
             }
 
+            // GammaOS Nano: the Display Settings brightness row writes nano's own backlight level
+            // (persist.gammaos.nano.brightness), because nano drives the panel itself and only
+            // mirrors the level into Settings. Pick the change up here and apply it, so moving the
+            // slider actually dims the screen. applyBrightness writes the same value back, so once
+            // they agree this is a single integer compare and cannot loop.
+            {
+                int want = property_get_int32("persist.gammaos.nano.brightness", -1);
+                if (want > 0 && want <= 255 && want != mBrightness) {
+                    mBrightness = want;
+                    applyBrightness();
+                }
+            }
+
+            // GammaOS Nano: re-apply the chosen display saturation once per boot. It is applied
+            // through the display colour matrix (cmd color_display), which keeps no persisted
+            // state of its own, so without this the user's setting is lost on every reboot. Wait
+            // for boot_completed so the colour display service is actually up, and skip the work
+            // entirely at the default (100 = untouched).
+            {
+                static bool sSatApplied = false;
+                if (!sSatApplied) {
+                    char bc[PROPERTY_VALUE_MAX] = {};
+                    property_get("sys.boot_completed", bc, "0");
+                    if (bc[0] == '1') {
+                        sSatApplied = true;
+                        int lvl = property_get_int32("persist.gammaos.nano.display.saturation", 100);
+                        if (lvl >= 0 && lvl < 100) {
+                            char cmd[128];
+                            snprintf(cmd, sizeof(cmd),
+                                     "cmd color_display set-saturation %d 2>/dev/null", lvl);
+                            (void)system(cmd);
+                            ALOGI("GammaOS Nano: re-applied display saturation %d", lvl);
+                        }
+                    }
+                }
+            }
+
             // GammaOS Nano: live-refresh the Applications list on install / remove /
             // update. SystemServer's package receiver rewrites nano_app_icons/<pkg>.png
             // and nano_app_labels.txt, THEN bumps sys.gammaos.nano.apps_generation. We

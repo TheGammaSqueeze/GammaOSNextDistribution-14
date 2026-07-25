@@ -2882,6 +2882,21 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
+            // GammaOS Nano: ColorDisplayService must run in minimal boot too. It owns the display
+            // colour transform behind LiveDisplay's colour temperature (night display) and the
+            // nano menu's saturation control, so without it those rows would have nothing to talk
+            // to. Full boot starts it inside the !minimalBoot block below; add a minimal-boot copy
+            // here without disturbing the full-boot ordering (same pattern as TrustManager above).
+            if (minimalBoot) {
+                t.traceBegin("StartColorDisplay");
+                try {
+                    mSystemServiceManager.startService(ColorDisplayService.class);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: ColorDisplay failed", e);
+                }
+                t.traceEnd();
+            }
+
             if (!minimalBoot) { // GammaOS Nano: skip Serial through BackgroundInstall
             if (!isWatch) {
                 t.traceBegin("StartSerialService");
@@ -3394,7 +3409,13 @@ public final class SystemServer implements Dumpable {
         t.traceEnd();
         } // !minimalBoot: MediaProjection through TracingServiceProxy
 
-        if (!minimalBoot) {
+        // Lineage Services. In minimal boot (nano) these used to be skipped entirely, which left
+        // LiveDisplay with no service at all: nano could not offer colour calibration / reading
+        // mode, and LineageParts' LiveDisplay screen crashed on a null LiveDisplayConfig. The
+        // external server now runs in nano too, but LineageSystemServer itself starts only the
+        // display-related subset there (see its minimal-boot whitelist), so nano's boot does not
+        // pay for Profiles, Trust, Health and the rest.
+        {
         // Lineage Services
         String externalServer = context.getResources().getString(
                 org.lineageos.platform.internal.R.string.config_externalSystemServer);
@@ -4151,6 +4172,10 @@ public final class SystemServer implements Dumpable {
                 // Initial boot-time write (also establishes apps_generation=1).
                 writeNanoAppCache("boot");
 
+                // Carry the nano menu's LiveDisplay choices (colour calibration, reading mode)
+                // into the provider it cannot write itself, and re-apply them after this boot.
+                startNanoDisplayBridge(mSystemContext);
+
                 // Live refresh on package changes. We are past sys.boot_completed, so
                 // AMS/PMS are up and registerReceiver cannot race system-ready. A
                 // dedicated HandlerThread both dispatches the receiver and runs the
@@ -4334,6 +4359,67 @@ public final class SystemServer implements Dumpable {
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: failed to write app label/icon cache", e);
         }
+    }
+
+    /**
+     * GammaOS Nano: mirror the nano menu's display choices into LiveDisplay.
+     *
+     * nano is native and runs in the bootanim SELinux domain, where the "content" tool (the only
+     * shell route to the LineageSettings provider) cannot run, so it cannot write those settings
+     * itself. It therefore records the user's choice as a plain property and we translate here:
+     * the three per-channel calibration percentages become LiveDisplay's single "R G B" string,
+     * and the reading-mode toggle is passed straight through. LiveDisplayService observes the
+     * provider, so the panel follows immediately.
+     */
+    private void startNanoDisplayBridge(Context context) {
+        final android.content.ContentResolver cr = context.getContentResolver();
+        final String[] last = { null, null };
+        final Runnable sync = () -> {
+            try {
+                int r = SystemProperties.getInt("persist.gammaos.nano.display.cal_r", 100);
+                int g = SystemProperties.getInt("persist.gammaos.nano.display.cal_g", 100);
+                int b = SystemProperties.getInt("persist.gammaos.nano.display.cal_b", 100);
+                r = Math.max(0, Math.min(100, r));
+                g = Math.max(0, Math.min(100, g));
+                b = Math.max(0, Math.min(100, b));
+                String rgb = String.format(java.util.Locale.US, "%.3f %.3f %.3f",
+                        r / 100f, g / 100f, b / 100f);
+                if (!rgb.equals(last[0])) {
+                    last[0] = rgb;
+                    lineageos.providers.LineageSettings.System.putString(cr,
+                            lineageos.providers.LineageSettings.System.DISPLAY_COLOR_ADJUSTMENT,
+                            rgb);
+                }
+                String reading = SystemProperties.get("persist.gammaos.nano.display.reading", "0");
+                if (!reading.equals(last[1])) {
+                    last[1] = reading;
+                    lineageos.providers.LineageSettings.System.putInt(cr,
+                            lineageos.providers.LineageSettings.System.DISPLAY_READING_MODE,
+                            "1".equals(reading) ? 1 : 0);
+                }
+            } catch (Throwable e) {
+                Slog.w(TAG, "GammaOS Nano: display bridge sync failed", e);
+            }
+        };
+        // Poll rather than use SystemProperties.addChangeCallback: that callback did not fire for
+        // these writes on this build (verified on device - only the initial sync ran), and the
+        // menu needs the panel to follow the slider. Each pass is a handful of property reads and
+        // only touches the provider when one of our values actually moved, so an idle system does
+        // no work beyond the reads.
+        sync.run();
+        Thread t = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                sync.run();
+            }
+        }, "NanoDisplayBridge");
+        t.setDaemon(true);
+        t.start();
+        Slog.i(TAG, "GammaOS Nano: display bridge started");
     }
 
     /**

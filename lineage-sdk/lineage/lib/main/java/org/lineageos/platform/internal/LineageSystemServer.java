@@ -65,14 +65,31 @@ public class LineageSystemServer {
         }
     }
 
+    /**
+     * GammaOS Nano: services still worth starting during a minimal (nano) boot. The nano launcher
+     * offers LiveDisplay (colour calibration, colour temperature, reading mode) in its own menu, and
+     * LiveDisplayService needs the hardware service behind it. Everything else (profiles, trust,
+     * health, global actions) has no nano UI, so it stays skipped to keep the nano boot short.
+     */
+    private static boolean startsInMinimalBoot(String service) {
+        return service.endsWith(".LineageHardwareService")
+                || service.endsWith(".display.LiveDisplayService");
+    }
+
     private void startServices() {
         final Context context = mSystemContext;
         final SystemServiceManager ssm = LocalServices.getService(SystemServiceManager.class);
         String[] externalServices = context.getResources().getStringArray(
                 org.lineageos.platform.internal.R.array.config_externalLineageServices);
+        final boolean minimalBoot =
+                SystemProperties.getBoolean("sys.gammaos.minimal_boot", false);
 
         for (String service : externalServices) {
             try {
+                if (minimalBoot && !startsInMinimalBoot(service)) {
+                    Slog.i(TAG, "Not starting " + service + " - minimal (nano) boot");
+                    continue;
+                }
                 Slog.i(TAG, "Attempting to start service " + service);
                 LineageSystemService lineageSystemService =  mSystemServiceHelper.getServiceFor(service);
                 if (context.getPackageManager().hasSystemFeature(

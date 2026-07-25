@@ -6145,6 +6145,39 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "normal:Off,force_landscape:Force Landscape,force_portrait:Force Portrait"},
     // Slide Behaviour (the hardware swivel/slide sensor). All plain persist.gammaos.rotate.*
     // + pspclock props that PhoneWindowManager and nano already read; these bindings just let
+    // ---- Display ----------------------------------------------------------------------
+    // nano owns the backlight (applyBrightness drives every backlight node + the lights HAL and
+    // then mirrors the level into Settings.System screen_brightness). Binding the row to that
+    // mirror would do nothing, so it writes nano's own level and the render loop applies it.
+    {"Brightness", SettingSource::kProp, "persist.gammaos.nano.brightness", "128",
+     "slider:1:255:5:0"},
+    {"Screen Saver", SettingSource::kSecure, "screensaver_enabled", "1", "0:Off,1:On"},
+    // ---- Power Save -------------------------------------------------------------------
+    // How long after the screen turns off before the system suspends.
+    {"Sleep", SettingSource::kSecure, "sleep_timeout", "-1",
+     "-1:Never,15000:15 seconds,30000:30 seconds,60000:1 minute,300000:5 minutes,"
+     "600000:10 minutes,1800000:30 minutes"},
+    // ---- LiveDisplay ------------------------------------------------------------------
+    // Night Light is the system's own colour-temperature control (ColorDisplayService). The
+    // slider range is the platform's supported window, config_nightDisplayColorTemperature
+    // Min/Max = 2596..4082 K.
+    {"Night Light", SettingSource::kSecure, "night_display_activated", "0", "0:Off,1:On"},
+    {"Night Light Temperature", SettingSource::kSecure, "night_display_color_temperature",
+     "2850", "slider:2596:4082:50:0"},
+    // Reading mode is a LiveDisplay hardware feature (FEATURE_READING_ENHANCEMENT). nano cannot
+    // reach the LineageSettings provider from its SELinux domain, so it records the choice as a
+    // property and the framework bridge mirrors it into LiveDisplay.
+    {"Reading Mode", SettingSource::kProp, "persist.gammaos.nano.display.reading", "0",
+     "0:Off,1:On"},
+    // Colour calibration: one percentage row per channel. writeSettingValue recomposes the three
+    // into the single LiveDisplay "R G B" setting, so the panel updates as the slider moves.
+    {"Red", SettingSource::kProp, "persist.gammaos.nano.display.cal_r", "100", "slider:20:100:1:0"},
+    {"Green", SettingSource::kProp, "persist.gammaos.nano.display.cal_g", "100", "slider:20:100:1:0"},
+    {"Blue", SettingSource::kProp, "persist.gammaos.nano.display.cal_b", "100", "slider:20:100:1:0"},
+    // Saturation is applied through the display colour matrix (cmd color_display), not a settings
+    // write, so nano keeps the chosen level in its own prop and re-applies it on boot.
+    {"Saturation", SettingSource::kProp, "persist.gammaos.nano.display.saturation", "100",
+     "slider:0:100:5:0"},
     // Network -> Default Browser: which app opens web pages (Internet Browser / Search /
     // Go to URL all launch through it). "@browser" makes the row drill into
     // buildDefaultBrowserSubmenu (the installed-browser list is per device, so it cannot be

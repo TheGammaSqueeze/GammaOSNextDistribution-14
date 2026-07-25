@@ -38,6 +38,11 @@ enum class SettingSource {
     kGlobal,
     kSecure,
     kSystem,
+    // NOTE: there is deliberately no LineageSettings source here. That provider is only reachable
+    // through the "content" tool, which needs app_process, and nano runs in the bootanim SELinux
+    // domain where that does not work (verified on device: the write silently does nothing).
+    // LiveDisplay-backed settings are therefore stored by nano as plain properties and mirrored
+    // into LineageSettings by the framework (SystemServer.startNanoDisplayBridge).
 };
 
 struct SettingNode {
