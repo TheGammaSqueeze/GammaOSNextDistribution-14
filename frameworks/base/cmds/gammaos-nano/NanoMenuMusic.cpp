@@ -451,6 +451,12 @@ void NanoMenu::musicDrainScanResults() {
     for (auto& p : m3uPlaylists) merged.push_back(std::move(p));
     mMusicPlaylists = std::move(merged);
     saveMusicConfig();
+    // Drop the resolved album art along with the library it belonged to. The cache stores "tried
+    // and found nothing" as 0 so a missing cover is not re-searched every frame, but on a network
+    // share that 0 may only mean the server was unreachable at that moment; without this a single
+    // blip would leave an album permanently art-less until nano restarted. A rescan is the natural
+    // point to let it try again, and the albums are about to be rebuilt anyway.
+    mpClearAlbumArt();
     mMusicCatsStale = true;   // rebuild the Music column at the settled root
     musicRemapQueueAfterReload();
 }

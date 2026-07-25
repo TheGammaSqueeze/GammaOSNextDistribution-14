@@ -25,6 +25,7 @@
 #include <string.h>
 #include <sys/statvfs.h>   // nfs_statvfs fills a real struct statvfs; libnfs only forward-declares it
 
+#include <atomic>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -291,7 +292,9 @@ private:
     ShareConfig mCfg;
     std::mutex  mLock;
     struct nfs_context* mNfs = nullptr;
-    bool mDead = false;
+    // Atomic because isDead() is read by the FUSE threads without taking mLock (it is the
+    // cheap 'should I retry this operation' check), while every write happens under it.
+    std::atomic<bool> mDead {false};
 
     struct nfsfh* mCachedFh = nullptr;
     std::string   mCachedPath;

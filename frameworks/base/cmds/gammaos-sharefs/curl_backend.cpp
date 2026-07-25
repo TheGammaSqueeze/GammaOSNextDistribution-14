@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include <algorithm>
+#include <atomic>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -355,12 +356,16 @@ public:
         if (mCfg.readOnly) return -EROFS;
         // Create it empty on the server now, so the file exists as soon as it is opened, and start
         // a fresh staging buffer for the writes that follow.
-        {
-            std::lock_guard<std::mutex> lk(mLock);
-            if (!mStagePath.empty() && mStagePath != path) flushStagedLocked();
-            mStagePath = path;
-            mStage.clear();
-        }
+        //
+        // uploadLocked() must be called with mLock held, as its name says: it drives the one shared
+        // CURL* handle. It used to be called just after this scope closed, which left another FUSE
+        // thread free to run a read or a listing on the same handle at the same time - libfuse is
+        // multi-threaded, so that is an ordinary interleaving rather than a rare one, and curl's
+        // per-handle state does not survive it.
+        std::lock_guard<std::mutex> lk(mLock);
+        if (!mStagePath.empty() && mStagePath != path) flushStagedLocked();
+        mStagePath = path;
+        mStage.clear();
         return uploadLocked(path, nullptr, 0);
     }
 
@@ -750,7 +755,9 @@ private:
     CURL*       mCurl = nullptr;
     curl_slist* mQuote = nullptr;
     curl_slist* mHeaders = nullptr;
-    bool        mDead = false;
+    // Atomic because isDead() is read by the FUSE threads without taking mLock (it is the
+    // cheap 'should I retry this operation' check), while every write happens under it.
+    std::atomic<bool>        mDead {false};
 
     // Staged body for the file currently being written. One at a time: a share being written by
     // two writers at once is not a case worth the memory here, and the second one flushes the

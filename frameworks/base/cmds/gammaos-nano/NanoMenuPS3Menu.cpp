@@ -4195,6 +4195,8 @@ void NanoMenu::renderPs3Xmb() {
     if (!mPs3MenuBuilt) initPs3Menu();
     eqPreviewTick();   // retry the GammaEQ preview open if the audio HAL was not ready
     musicTick();       // music player: auto-advance to the next track at end-of-stream
+    mpDrainAlbumArt(); // album art resolved off-thread: upload whatever finished since last frame
+    fbTick();          // folder browser: adopt a directory listing the worker finished
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
     feTick();          // File Explorer: reap a finished copy/move/delete worker, refresh + report
     nsTick();          // Network Shares: follow a mount coming up or going away while the screen is open

@@ -20,6 +20,7 @@
 #include <log/log.h>
 #include <string.h>
 
+#include <atomic>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -333,7 +334,9 @@ private:
     ShareConfig mCfg;
     std::mutex  mLock;
     struct smb2_context* mSmb = nullptr;
-    bool mDead = false;
+    // Atomic because isDead() is read by the FUSE threads without taking mLock (it is the
+    // cheap 'should I retry this operation' check), while every write happens under it.
+    std::atomic<bool> mDead {false};
 
     struct smb2fh* mCachedFh = nullptr;
     std::string    mCachedPath;

@@ -324,23 +324,111 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
     // Parent ("..") - a storage root goes back to the roots list ("").
     if (isStorageRoot(path)) addDir("..", "");
     else { size_t sl = path.rfind('/'); addDir("..", sl == std::string::npos ? "" : path.substr(0, sl)); }
-    // Subdirectories (sorted).
-    std::vector<std::string> dirs;
-    DIR* d = opendir(path.c_str());
-    if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
-        if (e->d_name[0] == '.') continue;
-        std::string child = path + "/" + e->d_name;
-        struct stat st;
-        if (stat(child.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) dirs.push_back(e->d_name);
-    } closedir(d); }
-    std::sort(dirs.begin(), dirs.end(), [](const std::string& a, const std::string& b) {
-        return strcasecmp(a.c_str(), b.c_str()) < 0;
-    });
-    for (const auto& n : dirs) addDir(n, path + "/" + n);
+
+    // Subdirectories, from the worker rather than from a blocking opendir+stat here.
+    //
+    // This is the screen a user picks a media folder with, so it is routinely pointed at a network
+    // share. Listing one inline cost a round trip per entry with the render thread held throughout,
+    // which is what let the watchdog abort nano when a folder on an FTP share was opened. The
+    // listing is requested once and cached; until it arrives the screen shows "Loading..." and
+    // stays fully responsive, so Back still works if the server never answers.
+    if (mFbCacheValid && mFbCachePath == path) {
+        for (const auto& n : mFbCacheDirs) addDir(n, path + "/" + n);
+    } else {
+        fbRequestListing(path);
+        Ps3Item it; it.kind = PS3_DATA_LEAF; it.label = trDyn("Loading...");
+        it.desc = "Reading the folder.";
+        it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 0.55f;
+        out.items.push_back(it);
+    }
     // "Select this folder".
     { Ps3Item it; it.label = "Select This Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = path;
       it.iconTex = 0; it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
+}
+
+// Queue a directory listing for the folder browser. Render thread; never blocks.
+void NanoMenu::fbRequestListing(const std::string& path) {
+    if (!mFbStarted) {
+        mFbStarted = true;
+        mFbThread = std::thread([this]() {
+            for (;;) {
+                std::string p;
+                {
+                    std::unique_lock<std::mutex> lk(mFbLock);
+                    mFbCv.wait(lk, [this]{
+                        return mFbQuit.load(std::memory_order_relaxed) || !mFbQueue.empty();
+                    });
+                    if (mFbQuit.load(std::memory_order_relaxed)) return;
+                    p = mFbQueue.front();
+                    mFbQueue.pop_front();
+                }
+                FbResult r;
+                r.path = p;
+                if (DIR* d = opendir(p.c_str())) {
+                    while (struct dirent* e = readdir(d)) {
+                        if (e->d_name[0] == '.') continue;
+                        const std::string child = p + "/" + e->d_name;
+                        struct stat st;
+                        if (stat(child.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
+                            r.dirs.push_back(e->d_name);
+                    }
+                    closedir(d);
+                    r.ok = true;
+                }
+                std::sort(r.dirs.begin(), r.dirs.end(),
+                          [](const std::string& a, const std::string& b) {
+                              return strcasecmp(a.c_str(), b.c_str()) < 0;
+                          });
+                {
+                    std::lock_guard<std::mutex> lk(mFbLock);
+                    mFbDone.push_back(std::move(r));
+                }
+            }
+        });
+    }
+    {
+        std::lock_guard<std::mutex> lk(mFbLock);
+        if (!mFbPending.insert(path).second) return;   // already queued or in flight
+        mFbQueue.push_back(path);
+    }
+    mFbCv.notify_one();
+}
+
+// Render thread: adopt a finished listing and rebuild the screen showing it.
+void NanoMenu::fbTick() {
+    std::vector<FbResult> done;
+    {
+        std::lock_guard<std::mutex> lk(mFbLock);
+        if (mFbDone.empty()) return;
+        done.swap(mFbDone);
+        for (const auto& r : done) mFbPending.erase(r.path);
+    }
+    for (auto& r : done) {
+        // Cache even a failed listing, so an unreachable folder shows as empty instead of
+        // re-requesting forever; leaving the screen and coming back retries it.
+        mFbCachePath = r.path;
+        mFbCacheDirs = std::move(r.dirs);
+        mFbCacheValid = true;
+        // Only the screen currently showing this path needs rebuilding.
+        if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE &&
+            mGsFolderPath == r.path) {
+            int keep = mPs3Stack.back().sel;
+            buildFolderBrowser(r.path, mPs3Stack.back());
+            int n = (int)mPs3Stack.back().items.size();
+            if (keep >= n) keep = n - 1;
+            mPs3Stack.back().sel = keep < 0 ? 0 : keep;
+            mDisplayDirty = true;
+        }
+    }
+}
+
+void NanoMenu::fbStopWorker() {
+    if (!mFbStarted) return;
+    mFbQuit.store(true, std::memory_order_relaxed);
+    mFbCv.notify_all();
+    if (mFbThread.joinable()) mFbThread.join();
+    mFbStarted = false;
 }
 
 void NanoMenu::gsFolderSelect(const std::string& path) {

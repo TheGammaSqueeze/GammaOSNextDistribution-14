@@ -322,6 +322,12 @@ NanoMenu::~NanoMenu() {
     // codec first so the wedged worker unblocks and the join finishes), so this only turns a
     // spurious abort into a clean, if slightly slow, exit; it is never reset (we are exiting).
     mVidTeardownExempt.store(true, std::memory_order_relaxed);
+    // Stop the album-art worker before anything else it might be reading goes away. It only does
+    // filesystem work (no GL), so the join is bounded by one directory listing / tag read - except
+    // on a share whose server has stopped answering, which is exactly why the exemption above is
+    // already in force by this point.
+    mpStopArtWorker();
+    fbStopWorker();
     // Stop the PSP live-app capture worker (detached; join-free). Signal + bounded
     // wait so it is out of its binder call before the rest of teardown / stopProcess.
     // Bounded because the listener wait is bounded; can never deadlock.

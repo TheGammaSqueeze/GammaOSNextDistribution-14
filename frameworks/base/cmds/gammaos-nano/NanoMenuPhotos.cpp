@@ -331,6 +331,88 @@ static GLuint decodeBufferTex(const uint8_t* data, size_t len, int maxDim) {
     return tex;
 }
 
+// Decode an in-memory image to RGBA pixels rather than to a texture.
+//
+// Same work as decodeBufferTex minus the GL calls, because the album-art worker runs off the
+// render thread and a GL context belongs to exactly one thread. The worker produces pixels; the
+// render thread uploads them (mpDrainAlbumArt).
+static bool decodeBufferRGBA(const uint8_t* data, size_t len, int maxDim,
+                             int* outW, int* outH, std::vector<uint8_t>* out) {
+    AImageDecoder* dec = nullptr;
+    if (AImageDecoder_createFromBuffer(data, len, &dec) != ANDROID_IMAGE_DECODER_SUCCESS || !dec)
+        return false;
+    const AImageDecoderHeaderInfo* hi = AImageDecoder_getHeaderInfo(dec);
+    int sw = AImageDecoderHeaderInfo_getWidth(hi), sh = AImageDecoderHeaderInfo_getHeight(hi);
+    bool ok = false;
+    if (sw > 0 && sh > 0) {
+        AImageDecoder_setAndroidBitmapFormat(dec, ANDROID_BITMAP_FORMAT_RGBA_8888);
+        AImageDecoder_setUnpremultipliedRequired(dec, true);
+        int tw = sw, th = sh, longSide = sw > sh ? sw : sh;
+        if (maxDim > 0 && longSide > maxDim) {
+            float s = (float)maxDim / (float)longSide;
+            tw = (int)(sw * s + 0.5f); th = (int)(sh * s + 0.5f);
+            if (tw < 1) tw = 1; if (th < 1) th = 1;
+            AImageDecoder_setTargetSize(dec, tw, th);
+        }
+        size_t stride = AImageDecoder_getMinimumStride(dec);
+        std::vector<uint8_t> buf(stride * (size_t)th);
+        if (AImageDecoder_decodeImage(dec, buf.data(), stride, buf.size())
+                == ANDROID_IMAGE_DECODER_SUCCESS) {
+            out->resize((size_t)tw * th * 4);
+            for (int y = 0; y < th; y++)
+                memcpy(&(*out)[(size_t)y * tw * 4], &buf[(size_t)y * stride], (size_t)tw * 4);
+            *outW = tw; *outH = th;
+            ok = true;
+        }
+    }
+    AImageDecoder_delete(dec);
+    return ok;
+}
+
+// The ID3v2 APIC cover as pixels. Same parse as musicEmbeddedArt below; kept separate so the
+// worker can call it without a GL context.
+bool NanoMenu::musicEmbeddedArtPixels(const std::string& path, int maxDim,
+                                      int* outW, int* outH, std::vector<uint8_t>* out) {
+    int fd = open(path.c_str(), O_RDONLY);
+    if (fd < 0) return false;
+    unsigned char hdr[10];
+    if (read(fd, hdr, 10) != 10 || hdr[0] != 'I' || hdr[1] != 'D' || hdr[2] != '3') {
+        close(fd); return false;
+    }
+    int ver = hdr[3];
+    int tagSize = (hdr[6] << 21) | (hdr[7] << 14) | (hdr[8] << 7) | hdr[9];
+    // A tag is pulled over the network on a share, so cap it far tighter than the 30MB the
+    // texture path allowed: a cover worth showing at 256px is never megabytes.
+    if (tagSize <= 10 || tagSize > 4 * 1024 * 1024) { close(fd); return false; }
+    std::vector<unsigned char> tag(tagSize);
+    ssize_t got = read(fd, tag.data(), tagSize);
+    close(fd);
+    if (got != (ssize_t)tagSize) return false;
+    size_t i = 0;
+    while (i + 10 <= (size_t)tagSize) {
+        const unsigned char* f = &tag[i];
+        if (f[0] == 0) break;
+        char id[5] = {(char)f[0], (char)f[1], (char)f[2], (char)f[3], 0};
+        uint32_t fsize = (ver == 4) ? ((f[4] << 21) | (f[5] << 14) | (f[6] << 7) | f[7])
+                                    : ((f[4] << 24) | (f[5] << 16) | (f[6] << 8) | f[7]);
+        size_t fdata = i + 10;
+        if (fsize == 0 || fdata + fsize > (size_t)tagSize) break;
+        if (!strcmp(id, "APIC")) {
+            const unsigned char* d = &tag[fdata];
+            size_t n = fsize, p = 0;
+            unsigned char enc = (p < n) ? d[p++] : 0;
+            while (p < n && d[p] != 0) p++; if (p < n) p++;
+            if (p < n) p++;
+            if (enc == 1 || enc == 2) { while (p + 1 < n && !(d[p] == 0 && d[p + 1] == 0)) p += 2; p += 2; }
+            else { while (p < n && d[p] != 0) p++; if (p < n) p++; }
+            if (p < n) return decodeBufferRGBA(d + p, n - p, maxDim, outW, outH, out);
+            break;
+        }
+        i = fdata + fsize;
+    }
+    return false;
+}
+
 // Extract the embedded ID3v2 APIC cover from an MP3 (so music folders show the
 // album art even when there is no cover file beside the tracks).
 GLuint NanoMenu::musicEmbeddedArt(const std::string& path, int maxDim) {

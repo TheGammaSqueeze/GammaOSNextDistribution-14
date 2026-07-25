@@ -35,6 +35,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <dirent.h>
 #include <string.h>
 #include <vector>
 #include <string>
@@ -536,41 +537,152 @@ GLuint NanoMenu::mpTrackArt(int ti) {
 // from a representative track of the album and cache it by album name (small, 128px).
 // 0 means no folder art (column shows the generic folder icon). Like the web XMB
 // showing a thumbnail embedded in a photo folder.
+// Find an album's cover and decode it to RGBA. Runs on the art worker, never on the render thread.
+//
+// The old version probed up to 80 paths (10 candidate basenames x 8 extensions) with a decode
+// attempt each, then fell back to reading the first track's ID3v2 tag. On local storage those
+// misses cost microseconds. On a network share every miss is a round trip to the server, so a
+// single album could take tens of seconds - which is what made the draw path hang and got nano
+// killed by its own render watchdog.
+//
+// Two changes: this is off the render thread, and the probe is now ONE directory listing matched
+// in memory instead of dozens of speculative opens. That is both faster everywhere and, on a
+// share, the difference between one request and eighty.
+bool NanoMenu::mpResolveArtPixels(const std::string& firstTrackPath, int maxDim,
+                                  int* outW, int* outH, std::vector<uint8_t>* outPx) {
+    const size_t slash = firstTrackPath.find_last_of('/');
+    if (slash == std::string::npos) return false;
+    const std::string dir = firstTrackPath.substr(0, slash);
+    const size_t pslash = dir.find_last_of('/');
+    const std::string folderName = (pslash != std::string::npos) ? dir.substr(pslash + 1) : dir;
+
+    auto lower = [](std::string s) {
+        for (auto& c : s) if (c >= 'A' && c <= 'Z') c += 32;
+        return s;
+    };
+    // Accepted stems, lowercased once. The folder's own name is the strongest hint, so it is
+    // tried first; the rest are the conventional cover filenames.
+    std::vector<std::string> stems;
+    stems.push_back(lower(folderName));
+    for (const char* nm : {"cover", "folder", "front", "album", "albumart", "thumb"})
+        stems.push_back(nm);
+    auto isArtExt = [&](const std::string& lname) {
+        for (const char* e : {".jpg", ".jpeg", ".png", ".bmp", ".webp"}) {
+            const size_t n = strlen(e);
+            if (lname.size() > n && lname.compare(lname.size() - n, n, e) == 0) return true;
+        }
+        return false;
+    };
+
+    // One listing, then match in memory. Ranked so the folder-name cover wins over "cover.jpg".
+    std::string best;
+    int bestRank = 1 << 30;
+    if (DIR* d = opendir(dir.c_str())) {
+        while (struct dirent* e = readdir(d)) {
+            if (e->d_name[0] == '.') continue;
+            const std::string lname = lower(e->d_name);
+            if (!isArtExt(lname)) continue;
+            const size_t dot = lname.find_last_of('.');
+            const std::string stem = (dot == std::string::npos) ? lname : lname.substr(0, dot);
+            for (size_t i = 0; i < stems.size(); i++) {
+                if (stem == stems[i] && (int)i < bestRank) { bestRank = (int)i; best = e->d_name; }
+            }
+        }
+        closedir(d);
+    }
+    if (!best.empty() && decodeArtRGBA((dir + "/" + best).c_str(), maxDim, outW, outH, outPx))
+        return true;
+
+    // Fallback: the cover embedded in the first track's ID3v2 tag. Reading a tag means pulling the
+    // head of the file, which is why this too has to stay off the render thread.
+    return musicEmbeddedArtPixels(firstTrackPath, maxDim, outW, outH, outPx);
+}
+
+void NanoMenu::mpStartArtWorker() {
+    if (mMpArtStarted) return;
+    mMpArtStarted = true;
+    mMpArtThread = std::thread([this]() {
+        for (;;) {
+            MpArtJob job;
+            {
+                std::unique_lock<std::mutex> lk(mMpArtLock);
+                mMpArtCv.wait(lk, [this]{
+                    return mMpArtQuit.load(std::memory_order_relaxed) || !mMpArtQueue.empty();
+                });
+                if (mMpArtQuit.load(std::memory_order_relaxed)) return;
+                job = mMpArtQueue.front();
+                mMpArtQueue.pop_front();
+            }
+            MpArtResult r;
+            r.album = job.album;
+            // A failure is still a result: it is what stops the album being asked for again every
+            // frame. The render thread turns an empty pixel buffer into a cached 0.
+            mpResolveArtPixels(job.track, 256, &r.w, &r.h, &r.px);
+            {
+                std::lock_guard<std::mutex> lk(mMpArtLock);
+                mMpArtDone.push_back(std::move(r));
+            }
+        }
+    });
+}
+
+void NanoMenu::mpStopArtWorker() {
+    if (!mMpArtStarted) return;
+    mMpArtQuit.store(true, std::memory_order_relaxed);
+    mMpArtCv.notify_all();
+    if (mMpArtThread.joinable()) mMpArtThread.join();
+    mMpArtStarted = false;
+}
+
+void NanoMenu::mpRequestAlbumArt(const std::string& albumName) {
+    // Resolve the first track on the render thread: it is a pure in-memory lookup, and it keeps
+    // the worker from having to touch mMusicTracks (which the scanner rewrites under its own lock).
+    std::vector<int> tr = musicAlbumTrackIndices(albumName);
+    if (tr.empty() || tr[0] < 0 || tr[0] >= (int)mMusicTracks.size()) {
+        mMpAlbumArt[albumName] = 0;   // nothing to look at; do not ask again
+        return;
+    }
+    const std::string track = mMusicTracks[tr[0]].file;
+    mpStartArtWorker();
+    {
+        std::lock_guard<std::mutex> lk(mMpArtLock);
+        if (!mMpArtPending.insert(albumName).second) return;   // already queued or in flight
+        mMpArtQueue.push_back(MpArtJob{albumName, track});
+    }
+    mMpArtCv.notify_one();
+}
+
+// Render thread: take whatever the worker finished and turn it into textures. Called once a frame,
+// so a slow share costs a placeholder for a few frames rather than a dead menu.
+void NanoMenu::mpDrainAlbumArt() {
+    std::vector<MpArtResult> done;
+    {
+        std::lock_guard<std::mutex> lk(mMpArtLock);
+        if (mMpArtDone.empty()) return;
+        done.swap(mMpArtDone);
+        for (const auto& r : done) mMpArtPending.erase(r.album);
+    }
+    for (auto& r : done) {
+        GLuint tex = 0;
+        if (r.w > 0 && r.h > 0 && !r.px.empty())
+            tex = uploadRGBA(r.px.data(), r.w, r.h, /*wantMipmap=*/false);
+        mMpAlbumArt[r.album] = tex;   // 0 = tried, none found
+    }
+    mDisplayDirty = true;
+}
+
 GLuint NanoMenu::mpAlbumArt(const std::string& albumName) {
     auto cit = mMpAlbumArt.find(albumName);
-    if (cit != mMpAlbumArt.end()) return cit->second;
-    GLuint tex = 0;
-    std::vector<int> tr = musicAlbumTrackIndices(albumName);
-    if (!tr.empty() && tr[0] >= 0 && tr[0] < (int)mMusicTracks.size()) {
-        const std::string& file = mMusicTracks[tr[0]].file;
-        size_t slash = file.find_last_of('/');
-        if (slash != std::string::npos) {
-            std::string dir = file.substr(0, slash);
-            size_t pslash = dir.find_last_of('/');
-            std::string folderName = (pslash != std::string::npos) ? dir.substr(pslash + 1) : dir;
-            static const char* kExt[] = {".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG", ".bmp", ".webp"};
-            // Candidate cover basenames: the folder name + the common cover filenames.
-            static const char* kNames[] = {"cover", "folder", "front", "album", "albumart",
-                                           "AlbumArt", "Cover", "Folder", "thumb"};
-            std::vector<std::string> bases;
-            bases.push_back(dir + "/" + folderName);
-            for (const char* nm : kNames) bases.push_back(dir + "/" + nm);
-            for (const auto& base : bases) {
-                for (const char* e : kExt) {
-                    int w = 0, h = 0; std::vector<uint8_t> px;
-                    if (decodeArtRGBA((base + e).c_str(), 256, &w, &h, &px)) {
-                        tex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/false);
-                        break;
-                    }
-                }
-                if (tex) break;
-            }
-            // Fallback: the album art embedded in the first track's ID3v2 tag.
-            if (!tex) tex = musicEmbeddedArt(file, 256);
-        }
-    }
-    mMpAlbumArt[albumName] = tex;   // cache (0 = none/tried)
-    return tex;
+    if (cit != mMpAlbumArt.end()) return cit->second;   // resolved (0 = tried, none)
+    mpRequestAlbumArt(albumName);   // queue it and draw the placeholder until it lands
+    return 0;
+}
+
+// Free every resolved cover. Render thread only: these are GL textures, and keeping the GL calls in
+// this file means the music code does not have to pull in GLES headers to invalidate its own cache.
+void NanoMenu::mpClearAlbumArt() {
+    for (auto& kv : mMpAlbumArt) if (kv.second) glDeleteTextures(1, &kv.second);
+    mMpAlbumArt.clear();
 }
 
 // Boot-intro plate (logo_white.png / footer_white.png). Forced mono-white from

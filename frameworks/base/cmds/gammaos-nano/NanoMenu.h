@@ -2979,8 +2979,64 @@ private:
     void   mpFreeArt();               // free the cached art texture (on close / track change)
     // Per-album folder art for the XMB Music column (embedded in the album icon, like
     // the web photo folders). Cached by album name; 0 means "no art / tried".
-    std::map<std::string, GLuint> mMpAlbumArt;
-    GLuint mpAlbumArt(const std::string& albumName);
+    //
+    // Resolved on a WORKER, never in draw. Finding album art means probing candidate cover files
+    // and, failing that, reading the first track's ID3v2 tag. Both are ordinary-fast on local
+    // storage and take seconds per album on a network share, and mpAlbumArt() is called from the
+    // draw path - which blocked the render thread long enough for startRenderWatchdog() to abort
+    // nano outright the moment a user pointed Music at an FTP share. The render thread now only
+    // ever looks up an already-decoded result and uploads it; the filesystem work happens off it.
+    std::map<std::string, GLuint> mMpAlbumArt;   // render thread only: album -> texture (0 = none)
+    GLuint mpAlbumArt(const std::string& albumName);   // non-blocking: queues, returns 0 until ready
+
+    struct MpArtJob    { std::string album; std::string track; };
+    // Pixels rather than a texture: GL calls belong to the render thread, so the worker decodes
+    // and the render thread uploads.
+    struct MpArtResult { std::string album; int w = 0; int h = 0; std::vector<uint8_t> px; };
+
+    void mpRequestAlbumArt(const std::string& albumName);  // queue one album (idempotent)
+    void mpDrainAlbumArt();                                // render thread: upload finished work
+    void mpClearAlbumArt();                                // free the cached covers (on rescan)
+
+    // Folder browser listing, resolved off the render thread.
+    //
+    // buildFolderBrowser() used to opendir() the directory and stat() every entry inline, on the
+    // same thread that draws. That is the screen used to pick a media folder, so pointing it at a
+    // network share meant one round trip per entry with the render thread held the whole time -
+    // the watchdog kills nano at 8s. The listing now happens on a worker and the screen shows a
+    // "Loading..." row until it lands. Only the roots screen stays synchronous: it reads /storage,
+    // /mnt/media_rw and the mount table, none of which touch a server.
+    struct FbResult { std::string path; std::vector<std::string> dirs; bool ok = false; };
+    void fbRequestListing(const std::string& path);
+    void fbTick();                                         // render thread: swap in a finished listing
+    void fbStopWorker();
+
+    std::mutex               mFbLock;
+    std::condition_variable  mFbCv;
+    std::deque<std::string>  mFbQueue;      // guarded by mFbLock
+    std::vector<FbResult>    mFbDone;       // guarded by mFbLock
+    std::set<std::string>    mFbPending;    // guarded by mFbLock
+    std::thread              mFbThread;
+    std::atomic<bool>        mFbQuit{false};
+    bool                     mFbStarted = false;
+    // One-entry cache: the browser shows a single directory at a time, so this is all the memory
+    // it needs to avoid re-requesting the listing on every rebuild of the same screen.
+    std::string              mFbCachePath;
+    std::vector<std::string> mFbCacheDirs;
+    bool                     mFbCacheValid = false;
+    void mpStartArtWorker();
+    void mpStopArtWorker();
+    static bool mpResolveArtPixels(const std::string& firstTrackPath, int maxDim,
+                                   int* w, int* h, std::vector<uint8_t>* px);
+
+    std::mutex               mMpArtLock;
+    std::condition_variable  mMpArtCv;
+    std::deque<MpArtJob>     mMpArtQueue;     // guarded by mMpArtLock
+    std::vector<MpArtResult> mMpArtDone;      // guarded by mMpArtLock
+    std::set<std::string>    mMpArtPending;   // guarded by mMpArtLock: queued or in flight
+    std::thread              mMpArtThread;
+    std::atomic<bool>        mMpArtQuit{false};
+    bool                     mMpArtStarted = false;
     void renderMusicPlayer();         // the Now-Playing fullscreen draw
     void openMpOpt(bool byTouch = false);  // open the control panel
     float mpPanelUi();                // mpUiScale, enlarged when opened by touch
@@ -3126,6 +3182,9 @@ private:
     static bool photoProbeDims(const std::string& path, int* w, int* h, int64_t* sz);
     GLuint photoDecodeTex(const std::string& path, int maxDim, int* outW, int* outH);
     GLuint musicEmbeddedArt(const std::string& mp3path, int maxDim);   // ID3v2 APIC cover
+    // Same cover as pixels, for the art worker: GL belongs to the render thread.
+    static bool musicEmbeddedArtPixels(const std::string& mp3path, int maxDim,
+                                       int* outW, int* outH, std::vector<uint8_t>* out);
     // folder import (Search for Media Servers; mFolderPickTarget = 2)
     void photoOpenFolders();
     void buildPhotoFoldersScreen(Ps3Level& out);
