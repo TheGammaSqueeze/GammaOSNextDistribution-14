@@ -2193,7 +2193,11 @@ private:
     void buildScanFoldersScreen(Ps3Level& out);// the system's scan-source list (+ Add Folder)
     void gsOpenScanFolders();                  // open the scan-folders screen for mGsEditIdx
     void buildFolderBrowser(const std::string& path, Ps3Level& out);  // raw-path browser
-    std::vector<std::string> mountedShareNames();  // names of the live /mnt/shares/<n> mounts
+    // Names of the live /mnt/shares/<n> mounts. const because it only reads the kernel mount table,
+    // which lets the const media-root scanners call it to filter shares out of the /storage listing:
+    // shares are bind-mounted there so apps can open them by path, so they would otherwise be
+    // enumerated a second time and shown as memory cards.
+    std::vector<std::string> mountedShareNames() const;
     void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
 

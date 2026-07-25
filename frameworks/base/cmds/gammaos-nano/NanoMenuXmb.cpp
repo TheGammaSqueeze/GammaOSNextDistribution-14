@@ -696,6 +696,10 @@ std::vector<std::string> NanoMenu::buildScanCandidates(const XmbSystem& sys) {
         }
     };
     {
+        // A share is bind-mounted into /storage as well as /mnt/shares, so without this it gets
+        // scanned twice for the same ROMs. Over a network that is slow rather than merely
+        // redundant, and it produces duplicate entries; the share pass covers it once.
+        const std::vector<std::string> storageShareNames = mountedShareNames();
         DIR* storageDir = opendir("/storage");
         if (storageDir) {
             struct dirent* sEntry;
@@ -703,6 +707,8 @@ std::vector<std::string> NanoMenu::buildScanCandidates(const XmbSystem& sys) {
                 if (sEntry->d_name[0] == '.') continue;
                 if (!strcmp(sEntry->d_name, "emulated")) continue;
                 if (!strcmp(sEntry->d_name, "self")) continue;
+                if (std::find(storageShareNames.begin(), storageShareNames.end(),
+                              std::string(sEntry->d_name)) != storageShareNames.end()) continue;
                 addExternalVolume(std::string("/storage/") + sEntry->d_name);
             }
             closedir(storageDir);

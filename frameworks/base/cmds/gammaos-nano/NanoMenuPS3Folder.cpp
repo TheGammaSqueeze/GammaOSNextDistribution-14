@@ -225,7 +225,7 @@ void NanoMenu::gsRemoveScanSource(int srcIdx) {
 // share daemon creates its mount point before it connects, so an empty directory there does not
 // mean a usable share, and any stat of a mount point whose server has gone away can block until
 // FUSE times out. Reading /proc/self/mountinfo never touches the network.
-std::vector<std::string> NanoMenu::mountedShareNames() {
+std::vector<std::string> NanoMenu::mountedShareNames() const {
     std::vector<std::string> out;
     FILE* f = fopen("/proc/self/mountinfo", "re");
     if (!f) return out;
@@ -293,10 +293,19 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
         // Storage roots.
         out.title = "Storage";
         addDir("Internal storage", "/storage/emulated/0");
+        // Network shares are bind-mounted into /storage so apps can open them by path, which means
+        // they turn up in this scan too and would otherwise be listed twice: once here as "SD: name"
+        // and again below as "Share: name". Skip them here and let the share pass label them, since
+        // calling a NAS an SD card is worse than the duplication.
+        const std::vector<std::string> shareNames = mountedShareNames();
+        auto isShare = [&](const char* n) {
+            return std::find(shareNames.begin(), shareNames.end(), std::string(n)) != shareNames.end();
+        };
         DIR* d = opendir("/storage");
         if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
             if (e->d_name[0] == '.') continue;
             if (!strcmp(e->d_name, "emulated") || !strcmp(e->d_name, "self")) continue;
+            if (isShare(e->d_name)) continue;
             addDir(std::string(trDyn("SD: ")) + e->d_name, std::string("/storage/") + e->d_name);
         } closedir(d); }
         d = opendir("/mnt/media_rw");
@@ -307,7 +316,7 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
         // Mounted network shares, so a media folder can live on a NAS. Listing them here is what
         // puts them behind "Search for Media Servers" in Photos/Music/Video as well, since all of
         // those open this same browser.
-        for (const std::string& s : mountedShareNames())
+        for (const std::string& s : shareNames)
             addDir(std::string(trDyn("Share: ")) + s, std::string("/mnt/shares/") + s);
         return;
     }

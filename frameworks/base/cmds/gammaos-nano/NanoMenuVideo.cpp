@@ -291,6 +291,9 @@ std::vector<std::string> NanoMenu::nanoDefaultMediaDirs(int kind) const {
     // volume serial / UUID.
     std::vector<std::string> roots;
     roots.push_back("/storage/emulated/0");
+    // Network shares are bind-mounted into /storage as well, so they would be picked up here and
+    // again from /mnt/shares, and every video on a NAS would be listed twice.
+    const std::vector<std::string> shareNames = mountedShareNames();
     if (DIR* d = opendir("/storage")) {
         struct dirent* e;
         while ((e = readdir(d)) != nullptr) {
@@ -298,6 +301,7 @@ std::vector<std::string> NanoMenu::nanoDefaultMediaDirs(int kind) const {
             std::string n = e->d_name;
             if (n == "emulated" || n == "self") continue;
             if (n.rfind("00000000-0000-0000-0000-", 0) == 0) continue;   // synthetic/internal
+            if (std::find(shareNames.begin(), shareNames.end(), n) != shareNames.end()) continue;
             roots.push_back("/storage/" + n);
         }
         closedir(d);

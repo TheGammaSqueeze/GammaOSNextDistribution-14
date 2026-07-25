@@ -160,10 +160,19 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
         out.items.push_back(it);
     }
 
+    // On /storage, leave the shares out of the plain listing: they are bind-mounted there so apps
+    // can open them by path, so they really are in this directory, but the block below adds them
+    // again with a "Share:" label that says what they are. Without this each one appears twice, and
+    // the unlabelled copy is indistinguishable from a memory card.
+    const std::vector<std::string> shareNames =
+        (cur == "/storage") ? mountedShareNames() : std::vector<std::string>();
+
     std::vector<std::string> dirs, files;
     DIR* d = opendir(cur.c_str());
     if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
         if (e->d_name[0] == '.') continue;   // skip dotfiles
+        if (std::find(shareNames.begin(), shareNames.end(), std::string(e->d_name))
+            != shareNames.end()) continue;
         std::string child = base + "/" + e->d_name;
         struct stat st;
         if (stat(child.c_str(), &st) != 0) continue;
@@ -190,7 +199,7 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
     // copying between local and remote storage, so both ends should be one screen apart. Only on
     // /storage: elsewhere the listing stays a faithful view of the directory.
     if (cur == "/storage") {
-        for (const std::string& sn : mountedShareNames()) {
+        for (const std::string& sn : shareNames) {
             Ps3Item it; it.label = std::string("Share: ") + sn;
             it.kind = PS3_FE_DIR; it.payloadStr = "/mnt/shares/" + sn;
             it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
