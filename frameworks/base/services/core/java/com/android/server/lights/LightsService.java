@@ -448,14 +448,16 @@ public class LightsService extends SystemService {
                 brightnessMode = mLastBrightnessMode;
             }
 
-            // GammaOS Nano: sync backlight brightness to persist property so
-            // the nano boot menu can restore it on next boot.
-            if (mHwLight.id == 0 && color != mColor) {
-                // color for backlight = brightness in the low byte (0-255)
-                int brightness = color & 0xFF;
-                android.os.SystemProperties.set("persist.gammaos.nano.brightness",
-                        Integer.toString(brightness));
-            }
+            // GammaOS Nano: the backlight level nano restores on the next boot is deliberately
+            // NOT synced from here any more. This is the HAL level, which the framework also
+            // drives while the display dims and turns off, so persisting it stored the dim-ramp
+            // steps and the final 0 as though they were the user's chosen brightness. Letting the
+            // device idle out was worse than a power-button sleep, because only the idle path
+            // ramps down through the dim levels first. On a panel whose backlight does not light
+            // at all below a certain level, restoring one of those at boot looks like a dead
+            // device. The user's brightness is persisted where it is actually known:
+            // BrightnessSynchronizer (from Settings.System.SCREEN_BRIGHTNESS) and, for changes
+            // made in the menu itself, nano's own syncBrightnessToAndroid.
 
             if (!mInitialized || color != mColor || mode != mMode || onMS != mOnMS ||
                     offMS != mOffMS || mBrightnessMode != brightnessMode || mModesUpdate) {

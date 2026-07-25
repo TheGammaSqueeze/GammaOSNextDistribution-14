@@ -2209,12 +2209,21 @@ void NanoMenu::pollInput() {
                     mDisplayDirty = true;
                     continue;
                 }
-                // Overlay XMB: PhoneWindowManager OWNS the power button entirely -
-                // it detects nano mode and TOGGLES the overlay (show/hide) on a
-                // power-hold. nano must not act on power here (acting on the open,
-                // ungrabbed power fd would race PWM's gesture). Ignore it; dismiss
-                // is via PWM's toggle or the gamepad Back (overlayResume).
-                if (mOverlayMode) {
+                // PhoneWindowManager owns the power button unless nano grabs input.
+                //
+                // Overlay XMB: PWM detects nano mode and TOGGLES the overlay (show/hide)
+                // on a power-hold, so nano must not act on power there.
+                //
+                // The same applies to any home that does NOT grab input exclusively
+                // (persist.gammaos.nano.grab_input): PWM handles the whole gesture and
+                // PowerManager drives sleep and the backlight. If nano also acted on the
+                // open, ungrabbed power fd both would run: PWM would wake the panel and
+                // nano would immediately blank it again through enterDrmSleep, which is
+                // exactly the "backlight comes up for a second then shuts off, press
+                // twice to wake" behaviour. Only the input-grabbing DRM-direct home,
+                // where the framework never sees the key, drives sleep itself.
+                if (mOverlayMode ||
+                    !android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
                     continue;
                 }
                 if (ev.value == 1) {
