@@ -333,7 +333,8 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
     // listing is requested once and cached; until it arrives the screen shows "Loading..." and
     // stays fully responsive, so Back still works if the server never answers.
     if (mFbCacheValid && mFbCachePath == path) {
-        for (const auto& n : mFbCacheDirs) addDir(n, path + "/" + n);
+        for (const auto& e : mFbCacheEntries)
+            if (e.isDir) addDir(e.name, path + "/" + e.name);
     } else {
         fbRequestListing(path);
         Ps3Item it; it.kind = PS3_DATA_LEAF; it.label = trDyn("Loading...");
@@ -370,15 +371,24 @@ void NanoMenu::fbRequestListing(const std::string& path) {
                         if (e->d_name[0] == '.') continue;
                         const std::string child = p + "/" + e->d_name;
                         struct stat st;
-                        if (stat(child.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
-                            r.dirs.push_back(e->d_name);
+                        if (stat(child.c_str(), &st) != 0) continue;
+                        FbEntry fe;
+                        fe.name = e->d_name;
+                        fe.isDir = S_ISDIR(st.st_mode);
+                        fe.size = (long long)st.st_size;
+                        // Directories and regular files only: a socket or a device node in a share
+                        // is not something either browser can do anything with.
+                        if (fe.isDir || S_ISREG(st.st_mode)) r.entries.push_back(std::move(fe));
                     }
                     closedir(d);
                     r.ok = true;
                 }
-                std::sort(r.dirs.begin(), r.dirs.end(),
-                          [](const std::string& a, const std::string& b) {
-                              return strcasecmp(a.c_str(), b.c_str()) < 0;
+                // Directories first, then files, each case-insensitively by name - the order both
+                // browsers present.
+                std::sort(r.entries.begin(), r.entries.end(),
+                          [](const FbEntry& a, const FbEntry& b) {
+                              if (a.isDir != b.isDir) return a.isDir;
+                              return strcasecmp(a.name.c_str(), b.name.c_str()) < 0;
                           });
                 {
                     std::lock_guard<std::mutex> lk(mFbLock);
@@ -408,13 +418,16 @@ void NanoMenu::fbTick() {
         // Cache even a failed listing, so an unreachable folder shows as empty instead of
         // re-requesting forever; leaving the screen and coming back retries it.
         mFbCachePath = r.path;
-        mFbCacheDirs = std::move(r.dirs);
+        mFbCacheEntries = std::move(r.entries);
         mFbCacheValid = true;
         // Only the screen currently showing this path needs rebuilding.
-        if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE &&
-            mGsFolderPath == r.path) {
+        const int kind = mPs3Stack.empty() ? -1 : mPs3Stack.back().screenKind;
+        const bool isFolder = (kind == GS_FOLDERBROWSE && mGsFolderPath == r.path);
+        const bool isFile   = (kind == FE_BROWSE      && mFeBrowsePath  == r.path);
+        if (isFolder || isFile) {
             int keep = mPs3Stack.back().sel;
-            buildFolderBrowser(r.path, mPs3Stack.back());
+            if (isFolder) buildFolderBrowser(r.path, mPs3Stack.back());
+            else          buildFileBrowser(r.path, mPs3Stack.back());
             int n = (int)mPs3Stack.back().items.size();
             if (keep >= n) keep = n - 1;
             mPs3Stack.back().sel = keep < 0 ? 0 : keep;

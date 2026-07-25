@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <map>
 #include <memory>
 #include <thread>
 #include <utils/Log.h>
@@ -167,21 +168,23 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
     const std::vector<std::string> shareNames =
         (cur == "/storage") ? mountedShareNames() : std::vector<std::string>();
 
+    // The listing comes from the worker (see fbRequestListing), not from an inline opendir + a stat
+    // per entry. This browser exists to move files between local storage and a share, so it is
+    // pointed at a NAS by design - and doing that synchronously meant one round trip per entry with
+    // the render thread held, which nano's watchdog turns into an abort at 8s.
     std::vector<std::string> dirs, files;
-    DIR* d = opendir(cur.c_str());
-    if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
-        if (e->d_name[0] == '.') continue;   // skip dotfiles
-        if (std::find(shareNames.begin(), shareNames.end(), std::string(e->d_name))
-            != shareNames.end()) continue;
-        std::string child = base + "/" + e->d_name;
-        struct stat st;
-        if (stat(child.c_str(), &st) != 0) continue;
-        if (S_ISDIR(st.st_mode)) dirs.push_back(e->d_name);
-        else if (S_ISREG(st.st_mode)) files.push_back(e->d_name);
-    } closedir(d); }
-    auto ci = [](const std::string& a, const std::string& b) { return strcasecmp(a.c_str(), b.c_str()) < 0; };
-    std::sort(dirs.begin(), dirs.end(), ci);
-    std::sort(files.begin(), files.end(), ci);
+    std::map<std::string, long long> sizes;
+    bool listingReady = (mFbCacheValid && mFbCachePath == cur);
+    if (listingReady) {
+        for (const auto& e : mFbCacheEntries) {
+            if (std::find(shareNames.begin(), shareNames.end(), e.name) != shareNames.end())
+                continue;   // shown below with a "Share:" label instead
+            if (e.isDir) dirs.push_back(e.name);
+            else { files.push_back(e.name); sizes[e.name] = e.size; }
+        }
+    } else {
+        fbRequestListing(cur);
+    }
 
     for (const auto& n : dirs) {
         Ps3Item it; it.label = n; it.kind = PS3_FE_DIR; it.payloadStr = base + "/" + n;
@@ -190,8 +193,17 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
     }
     for (const auto& n : files) {
         Ps3Item it; it.label = n; it.kind = PS3_FE_FILE; it.payloadStr = base + "/" + n;
-        struct stat st; if (stat(it.payloadStr.c_str(), &st) == 0) it.value = feHumanSize((long long)st.st_size);
+        // Size comes from the worker's listing. Re-stat-ing here would put back exactly the
+        // per-entry round trip the worker exists to avoid.
+        auto sit = sizes.find(n);
+        if (sit != sizes.end()) it.value = feHumanSize(sit->second);
         it.iconTex = 0; it.nmapTex = fileNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+    if (!listingReady) {
+        Ps3Item it; it.kind = PS3_FE_FILE; it.payloadStr = "";   // inert: dispatch guards on a path
+        it.label = trDyn("Loading...");
+        it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 0.55f;
         out.items.push_back(it);
     }
     // Shortcut the mounted network shares onto the opening screen. They live at /mnt/shares and are
@@ -264,13 +276,26 @@ void NanoMenu::feShowInfo(const std::string& path) {
     row("Type", trDyn(isDir ? "Folder" : "File"));
     if (haveStat) {
         if (isDir) {
-            int count = 0;
-            DIR* d = opendir(path.c_str());
-            if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
-                if (e->d_name[0] == '.') continue; count++;
-            } closedir(d); }
-            char c[32]; snprintf(c, sizeof(c), "%d %s", count, trDyn(count == 1 ? "item" : "items"));
-            row("Contents", c);
+            // Counting the contents means a full listing, which on a network share is a request to
+            // the server for something that is only a nicety in an info dialog - and this runs on
+            // the render thread, so a big or slow directory would stall it. If the worker happens
+            // to have this directory cached (the user just browsed it) the count is free; otherwise
+            // it is left out rather than paid for.
+            if (path.rfind("/mnt/shares/", 0) == 0 && !(mFbCacheValid && mFbCachePath == path)) {
+                row("Contents", trDyn("(on a network share)"));
+            } else if (mFbCacheValid && mFbCachePath == path) {
+                const int count = (int)mFbCacheEntries.size();
+                char c[32]; snprintf(c, sizeof(c), "%d %s", count, trDyn(count == 1 ? "item" : "items"));
+                row("Contents", c);
+            } else {
+                int count = 0;
+                DIR* d = opendir(path.c_str());
+                if (d) { struct dirent* e; while ((e = readdir(d)) != nullptr) {
+                    if (e->d_name[0] == '.') continue; count++;
+                } closedir(d); }
+                char c[32]; snprintf(c, sizeof(c), "%d %s", count, trDyn(count == 1 ? "item" : "items"));
+                row("Contents", c);
+            }
         } else {
             row("Size", feHumanSize((long long)st.st_size));
         }

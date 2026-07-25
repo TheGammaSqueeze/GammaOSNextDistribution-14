@@ -516,21 +516,30 @@ GLuint NanoMenu::mpTrackArt(int ti) {
     size_t pslash = dir.find_last_of('/');
     std::string folderName = (pslash != std::string::npos) ? dir.substr(pslash + 1) : dir;
 
-    static const char* kExt[] = {".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG", ".bmp"};
-    // per-track art first (overrides), then per-folder album cover
-    std::string bases[2] = { dir + "/" + trackBase, dir + "/" + folderName };
-    for (int b = 0; b < 2; b++) {
-        for (const char* e : kExt) {
-            std::string p = bases[b] + e;
-            int w = 0, h = 0; std::vector<uint8_t> px;
-            if (decodeArtRGBA(p.c_str(), 256, &w, &h, &px)) {
-                mMpArtTex = uploadRGBA(px.data(), w, h, /*wantMipmap=*/false);
-                ALOGI("NanoMenu: album art %s (%dx%d)", p.c_str(), w, h);
-                return mMpArtTex;
-            }
+    // Resolved on the art worker, not here.
+    //
+    // This runs from the Now-Playing draw, and the probe it used to do inline (2 basenames x 7
+    // extensions, each a decode attempt) is one round trip per miss on a network share - enough on
+    // its own to hold the render thread past the watchdog and get the process killed. Returning 0
+    // draws the note placeholder for a few frames instead; mpDrainAlbumArt() fills mMpArtTex in
+    // when the worker is done, and discards the result if the track has changed since.
+    (void)trackBase; (void)folderName; (void)dir;
+    mpStartArtWorker();
+    {
+        std::lock_guard<std::mutex> lk(mMpArtLock);
+        // Keyed on the path, so re-entering the same track while the worker is still on it does
+        // not queue it twice.
+        if (mMpArtPending.insert(file).second) {
+            MpArtJob job;
+            job.album = file;     // not used for a track job; keeps the key and the job aligned
+            job.track = file;
+            job.isTrack = true;
+            job.ti = ti;
+            mMpArtQueue.push_back(std::move(job));
         }
     }
-    return 0;   // none -> caller falls back to the note placeholder
+    mMpArtCv.notify_one();
+    return 0;   // nothing yet -> caller falls back to the note placeholder
 }
 
 // Per-folder album cover for the XMB Music column: resolve <folder>/<foldername>.<img>
@@ -549,7 +558,8 @@ GLuint NanoMenu::mpTrackArt(int ti) {
 // in memory instead of dozens of speculative opens. That is both faster everywhere and, on a
 // share, the difference between one request and eighty.
 bool NanoMenu::mpResolveArtPixels(const std::string& firstTrackPath, int maxDim,
-                                  int* outW, int* outH, std::vector<uint8_t>* outPx) {
+                                  int* outW, int* outH, std::vector<uint8_t>* outPx,
+                                  bool preferTrackStem) {
     const size_t slash = firstTrackPath.find_last_of('/');
     if (slash == std::string::npos) return false;
     const std::string dir = firstTrackPath.substr(0, slash);
@@ -563,6 +573,13 @@ bool NanoMenu::mpResolveArtPixels(const std::string& firstTrackPath, int maxDim,
     // Accepted stems, lowercased once. The folder's own name is the strongest hint, so it is
     // tried first; the rest are the conventional cover filenames.
     std::vector<std::string> stems;
+    if (preferTrackStem) {
+        // A cover named after the track itself beats the album's, which is how a per-track
+        // override works in Now-Playing.
+        const std::string fname = firstTrackPath.substr(slash + 1);
+        const size_t dot = fname.find_last_of('.');
+        stems.push_back(lower(dot == std::string::npos ? fname : fname.substr(0, dot)));
+    }
     stems.push_back(lower(folderName));
     for (const char* nm : {"cover", "folder", "front", "album", "albumart", "thumb"})
         stems.push_back(nm);
@@ -615,9 +632,11 @@ void NanoMenu::mpStartArtWorker() {
             }
             MpArtResult r;
             r.album = job.album;
+            r.isTrack = job.isTrack;
+            r.ti = job.ti;
             // A failure is still a result: it is what stops the album being asked for again every
             // frame. The render thread turns an empty pixel buffer into a cached 0.
-            mpResolveArtPixels(job.track, 256, &r.w, &r.h, &r.px);
+            mpResolveArtPixels(job.track, 256, &r.w, &r.h, &r.px, job.isTrack);
             {
                 std::lock_guard<std::mutex> lk(mMpArtLock);
                 mMpArtDone.push_back(std::move(r));
@@ -666,7 +685,18 @@ void NanoMenu::mpDrainAlbumArt() {
         GLuint tex = 0;
         if (r.w > 0 && r.h > 0 && !r.px.empty())
             tex = uploadRGBA(r.px.data(), r.w, r.h, /*wantMipmap=*/false);
-        mMpAlbumArt[r.album] = tex;   // 0 = tried, none found
+        if (r.isTrack) {
+            // Drop it if the user has already moved on to another track: mMpArtTi is what the
+            // player is showing now, and uploading a stale cover over it would be worse than none.
+            if (r.ti == mMpArtTi) {
+                if (mMpArtTex) glDeleteTextures(1, &mMpArtTex);
+                mMpArtTex = tex;
+            } else if (tex) {
+                glDeleteTextures(1, &tex);
+            }
+        } else {
+            mMpAlbumArt[r.album] = tex;   // 0 = tried, none found
+        }
     }
     mDisplayDirty = true;
 }

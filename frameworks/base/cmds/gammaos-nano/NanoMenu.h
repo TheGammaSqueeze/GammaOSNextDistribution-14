@@ -2989,10 +2989,13 @@ private:
     std::map<std::string, GLuint> mMpAlbumArt;   // render thread only: album -> texture (0 = none)
     GLuint mpAlbumArt(const std::string& albumName);   // non-blocking: queues, returns 0 until ready
 
-    struct MpArtJob    { std::string album; std::string track; };
+    // One job type for both the per-album cover and the per-track cover in Now-Playing: they do the
+    // same filesystem work and must both stay off the render thread.
+    struct MpArtJob    { std::string album; std::string track; bool isTrack = false; int ti = -1; };
     // Pixels rather than a texture: GL calls belong to the render thread, so the worker decodes
     // and the render thread uploads.
-    struct MpArtResult { std::string album; int w = 0; int h = 0; std::vector<uint8_t> px; };
+    struct MpArtResult { std::string album; int w = 0; int h = 0; std::vector<uint8_t> px;
+                         bool isTrack = false; int ti = -1; };
 
     void mpRequestAlbumArt(const std::string& albumName);  // queue one album (idempotent)
     void mpDrainAlbumArt();                                // render thread: upload finished work
@@ -3006,7 +3009,8 @@ private:
     // the watchdog kills nano at 8s. The listing now happens on a worker and the screen shows a
     // "Loading..." row until it lands. Only the roots screen stays synchronous: it reads /storage,
     // /mnt/media_rw and the mount table, none of which touch a server.
-    struct FbResult { std::string path; std::vector<std::string> dirs; bool ok = false; };
+    struct FbEntry  { std::string name; bool isDir = false; long long size = 0; };
+    struct FbResult { std::string path; std::vector<FbEntry> entries; bool ok = false; };
     void fbRequestListing(const std::string& path);
     void fbTick();                                         // render thread: swap in a finished listing
     void fbStopWorker();
@@ -3022,12 +3026,15 @@ private:
     // One-entry cache: the browser shows a single directory at a time, so this is all the memory
     // it needs to avoid re-requesting the listing on every rebuild of the same screen.
     std::string              mFbCachePath;
-    std::vector<std::string> mFbCacheDirs;
+    std::vector<FbEntry>     mFbCacheEntries;
     bool                     mFbCacheValid = false;
     void mpStartArtWorker();
     void mpStopArtWorker();
+    // preferTrackStem: when set, the track's own basename is tried before the folder's, which is
+    // how a per-track cover overrides the album one.
     static bool mpResolveArtPixels(const std::string& firstTrackPath, int maxDim,
-                                   int* w, int* h, std::vector<uint8_t>* px);
+                                   int* w, int* h, std::vector<uint8_t>* px,
+                                   bool preferTrackStem = false);
 
     std::mutex               mMpArtLock;
     std::condition_variable  mMpArtCv;

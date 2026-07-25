@@ -1291,6 +1291,16 @@ void NanoMenu::saveXmbRecent() {
 bool NanoMenu::romFileExists(const std::string& romPath) {
     if (romPath.empty()) return false;
     if (romPath.rfind("content://", 0) == 0) return true;
+    // A ROM on a network share is assumed present rather than stat-ed.
+    //
+    // This is called per entry from pruneStaleRecentEntries() on the render thread, so a Recently
+    // Played list holding a few share-hosted games turns into that many round trips before a frame
+    // can be drawn - and nano's watchdog aborts the process at 8s. The check exists to drop paths
+    // that have genuinely gone from local storage; a share that is merely slow or briefly
+    // unreachable is not the same thing, and silently deleting the user's history because their NAS
+    // was asleep would be worse than the alternative. If the file really is gone, the launch fails
+    // and showRomMissingMsg() says so, which is where the user finds out either way.
+    if (romPath.rfind("/mnt/shares/", 0) == 0) return true;
     struct stat st;
     if (stat(romPath.c_str(), &st) != 0) return false;
     // A directory is not a ROM, and a zero-byte file is a failed copy rather than a game.
