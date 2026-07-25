@@ -21,8 +21,15 @@ allow gammaos_sharefs fuse:dir { create_dir_perms mounton };
 allow gammaos_sharefs fuse:file create_file_perms;
 
 # mount(2) needs sys_admin. The rest is because the daemon presents every file as owned by
-# media_rw whatever the server reports, so it has to act across ownership.
-allow gammaos_sharefs self:capability { sys_admin dac_override dac_read_search chown fowner fsetid };
+# root:everybody whatever the server reports, so it has to act across ownership.
+#
+# net_bind_service is for NFS specifically: an export marked "secure", which is the default on most
+# servers, only accepts clients calling from a source port below 1024, so libnfs binds a reserved
+# port. Without this the bind fails under enforcement and those exports refuse the mount. It showed
+# up only as a logged denial here because the device runs permissive.
+allow gammaos_sharefs self:capability {
+    sys_admin dac_override dac_read_search chown fowner fsetid net_bind_service
+};
 
 # Reach the server: SMB on 445, NFS on 2049 (plus the portmap and mount protocols on their own
 # ports), HTTP(S) for WebDAV, FTP on 21 and its data connections. net_domain covers the sockets,
@@ -73,5 +80,10 @@ allow system_server fuse:file r_file_perms;
 # path. It has to be a bind rather than mounting the share at /storage directly, because the daemon
 # publishes one FUSE mount and both views have to stay live. zygote and gammaoscustomization hold
 # the same permission for the same reason.
+#
+# The mnt_user_file rule is the one that does the work: because /storage is a bind of the
+# /mnt/user/0 tmpfs subtree and labels follow inodes rather than paths, the whole /storage tree
+# carries mnt_user_file and the /storage(/.*)? entry in file_contexts never applies here. The
+# storage_file rule is kept only for configurations where /storage is a mount in its own right.
 allow gammaos_sharefs mnt_user_file:dir { create_dir_perms mounton };
 allow gammaos_sharefs storage_file:dir { search mounton };

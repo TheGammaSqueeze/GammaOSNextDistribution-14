@@ -83,8 +83,18 @@ set_prop(bootanim, gammaosota_prop)
 # bootanim domain is permissive on current devices, but these explicit allow
 # rules keep the raw-path readdir/read correct in enforcing mode too.
 # /storage/... mountpoint traversal (primary emulated + removable SD)
+#
+# Two labels are needed here, and only the second one actually fires on this device. /storage is a
+# bind of the /mnt/user/0 tmpfs subtree, and a label follows the inode rather than the path, so
+# everything reached through /storage carries the mnt_user_file label that file_contexts gives
+# /mnt/user(/.*)? - the /storage(/.*)? entry never gets a chance to apply. The storage_file rules
+# are kept for configurations where /storage is a mount in its own right; without the mnt_user_file
+# ones, opendir("/storage") is denied and the menu silently finds no removable SD cards and no
+# network shares, which is how this was missed for as long as the domain stayed permissive.
 allow bootanim storage_file:dir { search getattr open read };
 allow bootanim storage_file:lnk_file { read getattr };
+allow bootanim mnt_user_file:dir { search getattr open read };
+allow bootanim mnt_user_file:lnk_file { read getattr };
 # Underlying removable/emulated filesystems (vfat/exfat/fuse/fuseblk/sdcardfs)
 allow bootanim sdcard_type:dir { search getattr open read };
 allow bootanim sdcard_type:file { read getattr open };
