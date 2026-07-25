@@ -1229,21 +1229,32 @@ void NanoMenu::overlayLaunchGame() {
     // RetroArch gets the libretro extras (direct FUSE ROM path, no DE-cache shuffle
     // since the system is fully up). overlayLaunchCommand() handles the clean exit
     // of any running game first.
-    std::string romPath, romDir, coreSo, launchPkg, launchIntent;
+    std::string romPath, romDir, coreSo, launchPkg, launchIntent, romName;
     bool standalone;
+    bool fromRecent = false;
     if (mXmbSystemIndex == -1) {                  // Recently Played
         if (mXmbGameIndex < 0 || mXmbGameIndex >= (int)mXmbRecent.size()) return;
         const XmbRecentEntry& re = mXmbRecent[mXmbGameIndex];
         romPath = re.romPath; romDir = re.romDir; coreSo = re.coreSo;
         launchPkg = re.launchPkg; launchIntent = re.launchIntent; standalone = re.standalone;
+        romName = re.displayName; fromRecent = true;
     } else {                                      // per-system ROM list
         if (mXmbSystemIndex < 0 || mXmbSystemIndex >= (int)mXmbSystems.size()) return;
         const XmbSystem& sys = mXmbSystems[mXmbSystemIndex];
         if (mXmbGameIndex < 0 || mXmbGameIndex >= (int)sys.roms.size()) return;
         romPath = sys.roms[mXmbGameIndex]; romDir = sys.romDir; coreSo = sys.coreSo;
         launchPkg = sys.launchPkg; launchIntent = sys.launchIntent; standalone = sys.isStandalone();
+        if (mXmbGameIndex < (int)sys.displayNames.size())
+            romName = sys.displayNames[mXmbGameIndex];
     }
     if (romPath.empty()) return;
+    // Same check as the home launcher: a game whose file is gone (deleted, or its card is not
+    // mounted) must say so instead of replacing the running app with an emulator that then dies.
+    if (!romFileExists(romPath)) {
+        showRomMissingMsg(romName);
+        if (fromRecent) pruneStaleRecentEntries();
+        return;
+    }
 
     // GammaOS: drastic-nano intercept for the resident overlay launcher. The
     // home XMB reroutes a DS ROM to the drastic-nano binary when

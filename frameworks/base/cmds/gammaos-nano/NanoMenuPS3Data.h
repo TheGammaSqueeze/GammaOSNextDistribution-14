@@ -71,6 +71,7 @@ static const Ps3DataItem kGameSettingsCh[] = {
   {"PS Upscaler",22,"Apply upscaling to PlayStation® format software.","Off",0,nullptr,0},
   {"PS/PS2 Smoothing",22,"Smooth out the rough edges of images of PlayStation® and PlayStation®2 format software.","Off",0,nullptr,0},
 #endif
+  {"Rescan Games",8,"Searches your ROM folders again and rebuilds the game list. Games you have deleted are removed, including from Recently Played.",nullptr,1,nullptr,0},
   {"Boxart Scraper",25,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
 };
 static const Ps3DataItem kVideoSettingsCh[] = {
@@ -144,9 +145,9 @@ static const Ps3DataItem kDateTimeCh[] = {
   {"Set Manually",22,nullptr,nullptr,1,nullptr,0},
 };
 static const Ps3DataItem kPowerSaveCh[] = {
-  // "System Auto-Off" was an unbound PS3 row; the real control is the screen timeout, which lives
-  // in Display Settings and is bound there. Sleep-after-screen-off is the meaningful extra knob.
-  {"Sleep",22,"Sets how long the system waits after the screen turns off before going to sleep.","Immediately",1,nullptr,0},
+  // "System Auto-Off" was an unbound PS3 row, and a sleep-after-screen-off row is deliberately
+  // not offered in its place: the platform folds that setting into the screen-off timeout, so it
+  // would silently override the Screen Timeout in Display Settings. That one is the real control.
 #if !NANO_XMB_HIDE_LEGACY
   {"Controller Auto-Off",22,"Sets whether or not to automatically turn off controllers. If you do not use a controller for a set amount of time, it will turn off automatically.","After 10 min.",0,nullptr,0},
   {"Power Indicator",22,nullptr,"Bright",0,nullptr,0},

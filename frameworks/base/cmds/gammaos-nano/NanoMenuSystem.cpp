@@ -294,9 +294,23 @@ bool NanoMenu::isLaunchReady() const {
 }
 
 void NanoMenu::showLaunchBusyToast() {
+    mBusyLine1.clear(); mBusyLine2.clear();   // fall back to the default "Booting up..." wording
     mShowLaunchBusy = true;
     mLaunchBusyTimer = 180; // ~3s at 60fps
     mLaunchPending = true;
+}
+
+// Show an arbitrary message in the same centred panel the launch toast uses. That panel is drawn
+// from the main render path, so it is actually visible on the home menu (unlike the photo viewer's
+// message helper, which only draws inside the viewer). mLaunchPending stays false so the fade-out
+// timer runs and the message clears itself.
+void NanoMenu::showXmbMessage(const std::string& line1, const std::string& line2, int frames) {
+    mBusyLine1 = line1;
+    mBusyLine2 = line2;
+    mShowLaunchBusy = true;
+    mLaunchPending = false;
+    mLaunchBusyTimer = frames > 0 ? frames : 180;
+    mDisplayDirty = true;
 }
 
 void NanoMenu::cancelPendingLaunch() {
@@ -323,8 +337,9 @@ void NanoMenu::renderLaunchBusyToast() {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
 
-    const char* line1 = trDyn("Booting up...");
-    const char* line2 = trDyn("Your game will launch shortly");
+    const char* line1 = mBusyLine1.empty() ? trDyn("Booting up...") : mBusyLine1.c_str();
+    const char* line2 = mBusyLine1.empty() ? trDyn("Your game will launch shortly")
+                                           : mBusyLine2.c_str();
     float scale1 = 2.5f * sf;
     float scale2 = 1.5f * sf;
 

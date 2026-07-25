@@ -3578,6 +3578,9 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_DATA_LEAF: {
             // Settings: "File Explorer" opens the controller-first file manager.
             if (it.label == "File Explorer") { feOpen(); return; }
+            // Game Settings: re-read the ROM folders. The scan rebuilds each system's list from
+            // disk, so deleted games disappear, and the Recently Played list is pruned with it.
+            if (it.label == "Rescan Games") { gamesRefresh(); return; }
             // Theme Settings: pick a custom wallpaper from the Photos album grid (top / bottom), or clear it.
             if (it.label == "Wallpaper Image")   { openWallpaperPicker(0); return; }
             if (it.label == "Bottom Wallpaper")  { openWallpaperPicker(1); return; }
@@ -6153,10 +6156,11 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "slider:1:255:5:0"},
     {"Screen Saver", SettingSource::kSecure, "screensaver_enabled", "1", "0:Off,1:On"},
     // ---- Power Save -------------------------------------------------------------------
-    // How long after the screen turns off before the system suspends.
-    {"Sleep", SettingSource::kSecure, "sleep_timeout", "-1",
-     "-1:Never,15000:15 seconds,30000:30 seconds,60000:1 minute,300000:5 minutes,"
-     "600000:10 minutes,1800000:30 minutes"},
+    // NOTE: deliberately no "Sleep" (Settings.Secure.sleep_timeout) row. That setting reads
+    // like "how long after the screen turns off before suspending", but PowerManagerService
+    // folds it into the screen-off timeout with a Math.min, so choosing a short sleep silently
+    // turns the SCREEN off that fast too and the Screen Timeout the user picked stops meaning
+    // anything. Screen Timeout in Display Settings is the honest control for this.
     // ---- LiveDisplay ------------------------------------------------------------------
     // Night Light is the system's own colour-temperature control (ColorDisplayService). The
     // slider range is the platform's supported window, config_nightDisplayColorTemperature

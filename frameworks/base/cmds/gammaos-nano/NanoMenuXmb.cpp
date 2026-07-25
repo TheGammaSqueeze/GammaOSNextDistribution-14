@@ -1275,6 +1275,65 @@ void NanoMenu::saveXmbRecent() {
     close(fd);
 }
 
+// True when a ROM is actually present and launchable. A game whose file has been deleted or
+// whose card is not mounted used to be handed to the emulator anyway, which then died on the
+// missing file and looked like a crashed launch, so every launch path checks this first.
+//
+// Only real filesystem paths are checked. A content:// URI is resolved by the framework's SAF
+// layer, not by us, and stat() on one always fails, so those are treated as present and left to
+// the launch itself. An empty path is not launchable either.
+bool NanoMenu::romFileExists(const std::string& romPath) {
+    if (romPath.empty()) return false;
+    if (romPath.rfind("content://", 0) == 0) return true;
+    struct stat st;
+    if (stat(romPath.c_str(), &st) != 0) return false;
+    // A directory is not a ROM, and a zero-byte file is a failed copy rather than a game.
+    return S_ISREG(st.st_mode) && st.st_size > 0;
+}
+
+// Tell the user why nothing launched. Kept in one place so every launch path says the same thing.
+void NanoMenu::showRomMissingMsg(const std::string& displayName) {
+    ALOGW("NanoMenu: refusing to launch, ROM missing (%s)", displayName.c_str());
+    showXmbMessage(displayName.empty() ? std::string("Game not found")
+                                       : (displayName + " not found"),
+                   "It may have been deleted, or its storage is not connected.", 260);
+}
+
+// Drop Recently Played entries whose ROM file is gone, so a rescan (or a deleted game) does not
+// leave rows that cannot launch. Only rewrites the list file when something actually changed.
+void NanoMenu::pruneStaleRecentEntries() {
+    size_t before = mXmbRecent.size();
+    for (auto it = mXmbRecent.begin(); it != mXmbRecent.end();) {
+        if (romFileExists(it->romPath)) ++it;
+        else it = mXmbRecent.erase(it);
+    }
+    if (mXmbRecent.size() != before) {
+        ALOGI("NanoMenu: pruned %zu stale Recently Played entries",
+              before - mXmbRecent.size());
+        saveXmbRecent();
+        if (mXmbGameIndex >= (int)mXmbRecent.size()) {
+            mXmbGameIndex = mXmbRecent.empty() ? 0 : (int)mXmbRecent.size() - 1;
+        }
+        mPs3CatsStale = true;   // the Recently Played submenu must be rebuilt
+        mDisplayDirty = true;
+    }
+}
+
+// User-triggered "Rescan Games": re-read every enabled system's ROM folders. The background scan
+// rebuilds each system's list from disk rather than merging, so games that have been deleted drop
+// out on their own; the Recently Played list is pruned when the results land (see the scan drain).
+void NanoMenu::gamesRefresh() {
+    if (mBgScanThreadRunning) {
+        showXmbMessage("Already scanning for games", "", 150);
+        return;
+    }
+    ALOGI("NanoMenu: user-triggered game rescan");
+    mRecentPrunePending = true;   // prune once the fresh scan results are applied
+    forceRescanAllSystems();
+    showXmbMessage("Scanning for games...", "Deleted games will be removed", 200);
+    mDisplayDirty = true;
+}
+
 void NanoMenu::addXmbRecent(int sysIdx, int gameIdx) {
     if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
     const auto& sys = mXmbSystems[sysIdx];
@@ -1419,6 +1478,14 @@ void NanoMenu::launchXmbGame() {
         if (mXmbGameIndex < 0 || mXmbGameIndex >= (int)mXmbRecent.size()) return;
         // Take a copy -- the vector reorder below invalidates references.
         XmbRecentEntry re = mXmbRecent[mXmbGameIndex];
+
+        // A recent entry outlives the file it points at (game deleted, card removed). Refuse the
+        // launch and drop the dead row rather than starting an emulator that cannot open it.
+        if (!romFileExists(re.romPath)) {
+            showRomMissingMsg(re.displayName);
+            pruneStaleRecentEntries();
+            return;
+        }
 
         // Move to front of recent list -- only on disk, not in-memory.
         // Modifying the vector causes a visible shuffle during the
@@ -1603,6 +1670,13 @@ void NanoMenu::launchXmbGame() {
     }
     if (romPath.find("/mnt/media_rw/") == 0) {
         romPath = "/storage/" + romPath.substr(14);
+    }
+    // The library can be out of date (game deleted, or its card is not mounted). Check before
+    // handing the path to an emulator, which would otherwise start and die on the missing file.
+    if (!romFileExists(romPath)) {
+        showRomMissingMsg(gameIdx < (int)sys.displayNames.size()
+                              ? sys.displayNames[gameIdx] : std::string());
+        return;
     }
 
     if (sys.isStandalone()) {

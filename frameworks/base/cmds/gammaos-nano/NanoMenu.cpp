@@ -880,7 +880,13 @@ status_t NanoMenu::readyToRun() {
             mBrightness = 128; // safe default (~50%)
         }
     }
-    if (mBrightness < 1) mBrightness = 1;
+    // Never start up on a level that looks like a dead panel. The stored value can be a
+    // leftover of the display dimming or turning off, and this hardware's backlight does not
+    // light at all at the bottom of the range, so restoring one of those at boot is
+    // indistinguishable from a broken device with no obvious way back. Anything below a
+    // visibly-lit floor falls back to the safe default. The user can still pick a genuinely
+    // dim level from the brightness control, which applies live rather than through here.
+    if (mBrightness < 24) mBrightness = 128;
     if (mBrightness > 255) mBrightness = 255;
     // Write to sysfs for instant backlight during early boot. The shared
     // enumerator scales per node max (the old fixed-path loop wrote one
@@ -5157,6 +5163,15 @@ if (sRingPrimedCount >= 2) {
                         mBgScanResultReady = false;
                         mXmbRomScanDone = true;
                     }
+                }
+                // A user-triggered rescan also clears out Recently Played rows whose ROM is gone.
+                // Done here, once the fresh scan results have been applied, so the recents match
+                // the library the user is now looking at. Only the explicit Rescan Games action
+                // arms this: a background scan on a card that is still mounting must not wipe
+                // recents just because the files are briefly unreachable.
+                if (mRecentPrunePending && mXmbRomScanDone && !mBgScanThreadRunning) {
+                    mRecentPrunePending = false;
+                    pruneStaleRecentEntries();
                 }
 
                 // Flush queued ROM-cache writes on a detached low-priority

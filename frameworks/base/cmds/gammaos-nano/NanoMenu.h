@@ -369,6 +369,19 @@ private:
     void loadXmbRecent();
     void saveXmbRecent();
     void addXmbRecent(int sysIdx, int gameIdx);
+    // True when the ROM is really there (content:// URIs are left to the framework's SAF layer).
+    // Every launch path checks this so a deleted game reports itself instead of dying as a
+    // "crashed" app launch.
+    bool romFileExists(const std::string& romPath);
+    void showRomMissingMsg(const std::string& displayName);
+    void pruneStaleRecentEntries();   // drop Recently Played rows whose ROM is gone
+    void gamesRefresh();              // Settings > Game Settings > Rescan Games
+    // Centred message on the home menu, reusing the launch toast's panel (which the main render
+    // path draws, so it is visible here - the photo viewer's message helper is not).
+    void showXmbMessage(const std::string& line1, const std::string& line2 = std::string(),
+                        int frames = 180);
+    std::string mBusyLine1, mBusyLine2;   // empty = the default "Booting up..." launch wording
+    bool mRecentPrunePending = false; // prune the recents once a rescan's results land
 
     // On-screen keyboard. Native reimplementation of the Leanback IME keyboard
     // extended into a multi-script input method. Runtime state is mOsk
