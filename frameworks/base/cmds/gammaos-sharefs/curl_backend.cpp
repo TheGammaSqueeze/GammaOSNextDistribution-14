@@ -210,16 +210,38 @@ public:
         return readDirLocked(path, out);
     }
 
+    // Read, with readahead.
+    //
+    // Every read here is a fresh ranged request, and for FTP that means a whole new data connection
+    // (PASV/EPSV plus the transfer). Measured on device, one 64KB read costs about 1.5 seconds, so
+    // serving FUSE's reads one at a time gives roughly 5 KB/s and a 64MB file would take twenty
+    // minutes. Fetching a larger window per round trip and serving the following sequential reads
+    // out of it is what makes these protocols usable: playback and copying are both strictly
+    // forward, so the window is nearly always hit.
     int readFile(const std::string& path, char* buf, size_t size, off_t offset) override {
         if (size == 0) return 0;
         std::lock_guard<std::mutex> lk(mLock);
         if (!mCurl) return -EIO;
+
+        const uint64_t want = static_cast<uint64_t>(offset);
+        if (mCachePath == path && want >= mCacheOff && want < mCacheOff + mCache.size()) {
+            const size_t avail = mCache.size() - static_cast<size_t>(want - mCacheOff);
+            const size_t n = std::min(size, avail);
+            memcpy(buf, mCache.data() + (want - mCacheOff), n);
+            return static_cast<int>(n);
+        }
+
+        // Miss: pull a window starting where the caller asked. Anchoring on the request rather than
+        // on a fixed grid keeps a seek to an arbitrary offset from fetching data ahead of it.
+        const size_t window = std::max(size, readAheadBytes());
+        mCache.assign(window, 0);
         Buffer b;
-        b.out = buf; b.cap = size;
+        b.out = mCache.data();
+        b.cap = window;
 
         char range[64];
-        snprintf(range, sizeof(range), "%lld-%lld", static_cast<long long>(offset),
-                 static_cast<long long>(offset) + static_cast<long long>(size) - 1);
+        snprintf(range, sizeof(range), "%llu-%llu", static_cast<unsigned long long>(want),
+                 static_cast<unsigned long long>(want + window - 1));
 
         prepare(url(path));
         curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeToBuffer);
@@ -229,11 +251,25 @@ public:
 
         // A short read at end of file, and the deliberate abort once the buffer is full, are both
         // successful reads as far as the caller is concerned.
-        if (rc == CURLE_OK || rc == CURLE_PARTIAL_FILE ||
-            (rc == CURLE_WRITE_ERROR && b.got == b.cap)) {
-            return static_cast<int>(b.got);
+        if (rc != CURLE_OK && rc != CURLE_PARTIAL_FILE &&
+            !(rc == CURLE_WRITE_ERROR && b.got == b.cap)) {
+            mCachePath.clear();
+            mCache.clear();
+            return mapError(rc);
         }
-        return mapError(rc);
+
+        mCache.resize(b.got);
+        mCachePath = path;
+        mCacheOff = want;
+        const size_t n = std::min(size, b.got);
+        if (n) memcpy(buf, mCache.data(), n);
+        return static_cast<int>(n);
+    }
+
+    // Anything that changes a file drops the window, or a reader would keep seeing what was there
+    // before the write.
+    void invalidateCacheLocked(const std::string& path) {
+        if (path.empty() || mCachePath == path) { mCachePath.clear(); mCache.clear(); }
     }
 
     // Stage the chunk. Neither protocol can patch a file in the middle: WebDAV PUT and FTP STOR
@@ -297,6 +333,7 @@ public:
     int unlinkFile(const std::string& path) override {
         if (mCfg.readOnly) return -EROFS;
         std::lock_guard<std::mutex> lk(mLock);
+        invalidateCacheLocked(path);
         if (mWebdav) return webdavVerb("DELETE", path, std::string());
         return ftpQuote({"DELE " + remotePath(path)});
     }
@@ -319,6 +356,8 @@ public:
     int renamePath(const std::string& from, const std::string& to) override {
         if (mCfg.readOnly) return -EROFS;
         std::lock_guard<std::mutex> lk(mLock);
+        invalidateCacheLocked(from);
+        invalidateCacheLocked(to);
         if (mWebdav) return webdavVerb("MOVE", from, "Destination: " + url(to));
         return ftpQuote({"RNFR " + remotePath(from), "RNTO " + remotePath(to)});
     }
@@ -330,6 +369,7 @@ private:
     // Send the staged body and forget it. Caller holds mLock.
     int flushStagedLocked() {
         const std::string path = mStagePath;
+        invalidateCacheLocked(path);
         std::vector<char> body;
         body.swap(mStage);
         mStagePath.clear();
@@ -655,6 +695,15 @@ private:
     static constexpr size_t kMaxStagedBytes = 64u * 1024 * 1024;
     std::string       mStagePath;
     std::vector<char> mStage;
+
+    // Readahead window, sized by what a round trip costs on each protocol. WebDAV rides an HTTP
+    // keep-alive connection, so a miss is one request and 1MB is plenty. FTP has to build a fresh
+    // data connection (PASV/EPSV, then the transfer) for every single range, measured at well over
+    // a second each here, so it pays to fetch far more per trip. One buffer per share either way.
+    size_t readAheadBytes() const { return mWebdav ? (1024u * 1024) : (4u * 1024 * 1024); }
+    std::string       mCachePath;
+    uint64_t          mCacheOff = 0;
+    std::vector<char> mCache;
 };
 
 }  // namespace
