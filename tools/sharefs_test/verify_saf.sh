@@ -19,6 +19,16 @@ D() { adb shell "$@" 2>&1 | tr -d '\r'; }
 
 MEDIUM=ec1407c3860bab86b16c866ab6b1d5094203967cd27ea52277632a9f4be5f5ed
 
+# Several checks below assert against the test fixture (media/medium.bin with a known checksum,
+# docs/tiny.txt at exactly 1024 bytes). Pointed at somebody's real share those files do not exist,
+# and the suite reported five failures that were nothing but the fixture being absent - which is the
+# mirror image of a test passing for the wrong reason, and just as misleading. Detect the fixture
+# once and skip those checks explicitly rather than failing them.
+HAVE_FIXTURE=no
+adb shell "[ -f '/mnt/shares/$NAME/media/medium.bin' ] && echo y" 2>/dev/null | tr -d '\r' | grep -q y \
+    && HAVE_FIXTURE=yes
+skip() { printf "  ....  SKIP  %s (share has no test fixture)\n" "$1"; }
+
 echo "=============================================================="
 echo " share reachability: '$NAME'"
 echo "=============================================================="
@@ -39,14 +49,18 @@ echo "  rig: $TUNNELS reverse tunnels up"
 echo "-- 1. the menu's view (/mnt/shares) --"
 D "mountpoint -q '/mnt/shares/$NAME' && echo y" | grep -q y \
     && ok "mounted at /mnt/shares/$NAME" || bad "mounted at /mnt/shares/$NAME" "not a mount point"
-[ "$(D "sha256sum '/mnt/shares/$NAME/media/medium.bin' 2>/dev/null | cut -d' ' -f1")" = "$MEDIUM" ] \
-    && ok "4MB read via /mnt/shares is byte-exact" || bad "4MB read via /mnt/shares" "checksum mismatch"
+if [ "$HAVE_FIXTURE" = yes ]; then
+  [ "$(D "sha256sum '/mnt/shares/$NAME/media/medium.bin' 2>/dev/null | cut -d' ' -f1")" = "$MEDIUM" ] \
+      && ok "4MB read via /mnt/shares is byte-exact" || bad "4MB read via /mnt/shares" "checksum mismatch"
+else skip "byte-exact read via /mnt/shares"; fi
 
 echo "-- 2. the app path view (/storage), which must match internal storage --"
 D "ls -d '/storage/$NAME'" | grep -q "$NAME" \
     && ok "visible at /storage/$NAME" || bad "visible at /storage/$NAME" "not present"
-[ "$(D "sha256sum '/storage/$NAME/media/medium.bin' 2>/dev/null | cut -d' ' -f1")" = "$MEDIUM" ] \
-    && ok "4MB read via /storage is byte-exact" || bad "4MB read via /storage" "checksum mismatch"
+if [ "$HAVE_FIXTURE" = yes ]; then
+  [ "$(D "sha256sum '/storage/$NAME/media/medium.bin' 2>/dev/null | cut -d' ' -f1")" = "$MEDIUM" ] \
+      && ok "4MB read via /storage is byte-exact" || bad "4MB read via /storage" "checksum mismatch"
+else skip "byte-exact read via /storage"; fi
 
 # The comparison that matters: anything differing here is something an app could notice.
 for attr in 'ls -Zd %s | cut -d" " -f1' 'stat -c %%U:%%G/%%a %s' 'stat -f -c %%T %s'; do
@@ -66,12 +80,14 @@ FMODE_INT=$(D "stat -c %a /storage/emulated/0/.sharefs_probe")
 FMODE_SHR=$(D "stat -c %a '/storage/$NAME/media/medium.bin'")
 DMODE_SHR=$(D "stat -c %a '/storage/$NAME/media'")
 D "rm -f /storage/emulated/0/.sharefs_probe" >/dev/null
+if [ "$HAVE_FIXTURE" != yes ]; then skip "presented file/dir modes"; else
 [ "$FMODE_SHR" = "660" ] \
     && ok "file mode on the share is 660, not the server's own (internal: $FMODE_INT)" \
     || bad "file mode on the share" "got '$FMODE_SHR', expected 660 - a server mode is leaking through"
 [ "$DMODE_SHR" = "770" ] \
     && ok "directory mode on the share is 770" \
     || bad "directory mode on the share" "got '$DMODE_SHR', expected 770"
+fi
 
 # Writability through the app path, since read-only-but-looks-writable is the subtle failure.
 STAMP="saf$(date +%s)"
@@ -138,10 +154,25 @@ else
 fi
 
 # Reading a document through SAF is the part an app actually depends on.
-SAFREAD=$(D "content read --uri content://$AUTH/document/%2Fmnt%2Fshares%2F${NAME// /%20}%2Fdocs%2Ftiny.txt 2>&1 | wc -c")
-[ "${SAFREAD:-0}" = "1024" ] \
-    && ok "SAF opens a document and reads all 1024 bytes" \
-    || bad "SAF opens a document" "read $SAFREAD bytes, expected 1024"
+if [ "$HAVE_FIXTURE" = yes ]; then
+  SAFREAD=$(D "content read --uri content://$AUTH/document/%2Fmnt%2Fshares%2F${NAME// /%20}%2Fdocs%2Ftiny.txt 2>&1 | wc -c")
+  [ "${SAFREAD:-0}" = "1024" ] \
+      && ok "SAF opens a document and reads all 1024 bytes" \
+      || bad "SAF opens a document" "read $SAFREAD bytes, expected 1024"
+else
+  # No fixture: prove the same path with whatever the share actually holds - open the first file
+  # the provider enumerated and check the bytes come back.
+  # Pick a FILE, not a directory: the first enumerated row is often a folder, and reading a folder
+  # as a document correctly returns 0 bytes - which looked like a provider failure the first time.
+  FIRST=$(echo "$DOCS" | grep -v 'mime_type=vnd.android.document/directory' \
+          | grep -m1 -oE 'document_id=[^,]+' | sed 's/document_id=//')
+  if [ -n "$FIRST" ]; then
+    ENC=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=''))" "$FIRST")
+    N=$(D "content read --uri content://$AUTH/document/$ENC 2>/dev/null | head -c 4096 | wc -c")
+    [ "${N:-0}" -gt 0 ] && ok "SAF opens a document from this share ($N bytes of '$(basename "$FIRST")')" \
+                        || bad "SAF opens a document" "read 0 bytes from $FIRST"
+  else skip "SAF document read"; fi
+fi
 
 echo
 echo "  $PASS passed, $FAIL failed"
