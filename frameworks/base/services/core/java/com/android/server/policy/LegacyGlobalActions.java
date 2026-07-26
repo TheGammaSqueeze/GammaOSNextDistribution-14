@@ -31,6 +31,7 @@ import android.content.res.Configuration;
 import android.content.res.ColorStateList;
 import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
+import android.hardware.usb.UsbManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
@@ -588,6 +589,7 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
             mBrightnessItemPosition = 0;
             mItems.add(getPerformanceAction());
             mItems.add(getControllerAction());
+            mItems.add(getUsbAction());
         } else {
             mBrightnessItemPosition = -1;
         }
@@ -1133,6 +1135,104 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
     private void bumpGamepadConfigVersion() {
         int ver = SystemProperties.getInt("persist.gammaos.gamepad.config_version", 0);
         SystemProperties.set("persist.gammaos.gamepad.config_version", Integer.toString(ver + 1));
+    }
+
+    private Action getUsbAction() {
+        return new SinglePressAction(R.drawable.ic_usb_48dp,
+                R.string.gammaos_usb_options) {
+
+            @Override
+            public void onPress() {
+                if (mDialog != null && mDialog.isShowing()) {
+                    mDialog.dismiss();
+                }
+                mHandler.post(() -> showUsbDialog());
+            }
+
+            @Override
+            public boolean showDuringKeyguard() {
+                return true;
+            }
+
+            @Override
+            public boolean showBeforeProvisioning() {
+                return true;
+            }
+        };
+    }
+
+    // USB device-mode switch for the ATV power menu. Single-choice because the USB functions are
+    // mutually exclusive; applied immediately through UsbManager (system_server holds MANAGE_USB).
+    // ADB, when enabled, is layered back on by the USB stack, so switching modes never drops adb.
+    private void showUsbDialog() {
+        final String[] labels = {
+                "Charging",
+                "MTP (Media Transfer Protocol)",
+                "PTP (Picture Transfer Protocol)",
+                "RNDIS (USB Ethernet)",
+        };
+        final long[] modes = {
+                UsbManager.FUNCTION_NONE,
+                UsbManager.FUNCTION_MTP,
+                UsbManager.FUNCTION_PTP,
+                UsbManager.FUNCTION_RNDIS,
+        };
+
+        final UsbManager usb = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
+        int current = 0;
+        if (usb != null) {
+            final long token = Binder.clearCallingIdentity();
+            try {
+                long fn = usb.getCurrentFunctions();
+                for (int i = 1; i < modes.length; i++) {
+                    if ((fn & modes[i]) != 0) {
+                        current = i;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "USB getCurrentFunctions failed", e);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        }
+
+        AlertDialog dialog = new AlertDialog.Builder(mContext, android.R.style.Theme_Material_Dialog)
+                .setTitle(R.string.gammaos_usb_options)
+                .setSingleChoiceItems(labels, current, (dlg, which) -> {
+                    if (usb != null) {
+                        final long token = Binder.clearCallingIdentity();
+                        try {
+                            usb.setCurrentFunctions(modes[which]);
+                        } catch (Exception e) {
+                            Log.e(TAG, "USB setCurrentFunctions failed", e);
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
+                    }
+                    Toast.makeText(mContext, labels[which], Toast.LENGTH_SHORT).show();
+                    dlg.dismiss();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+
+        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        dialog.show();
+        applyDarkDialogTheme(dialog);
+        ListView lv = dialog.getListView();
+        if (lv != null) {
+            lv.setBackgroundColor(Color.TRANSPARENT);
+            final Runnable whiten = () -> {
+                for (int i = 0; i < lv.getChildCount(); i++) {
+                    View child = lv.getChildAt(i);
+                    if (child instanceof android.widget.CheckedTextView) {
+                        ((android.widget.CheckedTextView) child).setTextColor(Color.WHITE);
+                    }
+                }
+            };
+            whiten.run();
+            lv.post(whiten);
+        }
     }
 
     private Action getKillForegroundAppAction() {

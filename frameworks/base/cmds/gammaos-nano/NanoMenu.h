@@ -2020,6 +2020,10 @@ private:
     void buildQuickPowerSubmenu(Ps3Level& out);
     // Overlay-only per-app Orientation submenu for the foreground app.
     void buildAppOrientSubmenu(Ps3Level& out);
+    // USB device-mode submenu (Charging/MTP/PTP/RNDIS) for a connected PC. forceActive
+    // overrides the live sys.usb.state read (used right after a switch, whose effect on
+    // sys.usb.state is asynchronous) so the "Active" marker lands on the chosen row.
+    void buildUsbSubmenu(Ps3Level& out, int forceActive = -1);
     // Quick Settings submenu (ported GammaOS QS tiles) + Notifications submenu.
     void buildQuickSettingsSubmenu(Ps3Level& out);
     void buildGamepadSubmenu(Ps3Level& out);         // top-level Gamepad Settings section list

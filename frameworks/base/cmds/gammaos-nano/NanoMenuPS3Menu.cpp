@@ -755,6 +755,10 @@ enum {
     QA_SHADER_OPT_SET,   // set a discrete option (it.value = "key=value")
     QA_SHADER_BROWSE,    // custom: browse into a directory (it.value = absolute path)
     QA_SHADER_PICK_FILE, // custom: select a preset file (it.value = absolute path)
+    // USB device-mode chooser: switch the gadget function so a connected PC sees the
+    // device as Charging/MTP/PTP/RNDIS. Mirrors the ATV power-menu USB Options.
+    QA_USB_MENU,         // open the USB Settings submenu
+    QA_USB_SET,          // apply a USB function (it.payloadStr = "" / "mtp" / "ptp" / "rndis")
 };
 
 // True for the QA_ action codes whose row drills into a deeper submenu list, so
@@ -773,6 +777,7 @@ static bool ps3QaOpensSubmenu(int qa) {
         case QA_COMBO_MENU:     case QA_AXISBTN_MENU:    case QA_BLACKLIST_MENU:
         case QA_APP_ORIENT_MENU: case QA_APP_STORAGE:    case QA_APP_PERMS:
         case QA_SHADER_MENU:    case QA_SHADER_PARAMS:   case QA_SHADER_BROWSE:
+        case QA_USB_MENU:
             return true;
         default: return false;
     }
@@ -843,6 +848,7 @@ void NanoMenu::buildPs3Cats() {
         qItem("Quick Settings",      QA_QUICK_SETTINGS, 74);
         qItem("Global Shaders",      QA_SHADER_MENU,    16);
         qItem("Notifications",       QA_NOTIFICATIONS,  71);
+        qItem("USB Settings",        QA_USB_MENU,       76);
         qItem("Close Current App",   QA_CLOSE_APP,     83);
         // Orientation: override the FOREGROUND app's orientation live. Only shown when
         // the overlay is raised over an actual app (launched_pkg set); never at the home
@@ -1065,6 +1071,49 @@ void NanoMenu::buildAppOrientSubmenu(Ps3Level& out) {
         it.a = QA_APP_ORIENT_SET; it.payloadStr = rows[i].token;
         it.iconTex = iconTexForIcon(rows[i].icon); it.nmapTex = nmapForIcon(rows[i].icon); it.iconR = it.iconG = it.iconB = 1.0f;
         if (cur == rows[i].token) out.sel = (int)i;
+        out.items.push_back(it);
+    }
+}
+
+// Quick Menu -> USB Settings submenu: switch the device-side USB gadget function so a
+// connected PC sees this device as an MTP/PTP/USB-Ethernet gadget (or plain charging).
+// Applied via `svc usb setFunctions <fn>` (UsbManager.setCurrentFunctions under the hood);
+// ADB, when enabled, is layered back on by the USB stack so switching never drops adb. The
+// currently-active function is read live from sys.usb.state and marked "Active" so the user
+// can see the current mode; QA_USB_SET rebuilds this level in place so the marker follows.
+void NanoMenu::buildUsbSubmenu(Ps3Level& out, int forceActive) {
+    out.items.clear(); out.sel = 0; out.title = "USB Settings";
+    int active = 0;                         // Charging by default
+    if (forceActive >= 0) {
+        active = forceActive;
+    } else {
+        // sys.usb.state is a comma list of the live gadget functions, e.g. "mtp,adb" /
+        // "ptp,adb" / "rndis,adb" / "adb" (charging with adb) / "charging" / "none".
+        // Charging = none of the transfer functions present. Substring match so a trailing
+        // ",adb" does not matter.
+        char st[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.usb.state", st, "");
+        std::string state(st);
+        auto has = [&](const char* fn){ return state.find(fn) != std::string::npos; };
+        if      (has("mtp"))   active = 1;
+        else if (has("ptp"))   active = 2;
+        else if (has("rndis")) active = 3;
+    }
+    struct { const char* label; const char* fn; int icon; } rows[] = {
+        {"Charging only",                   "",      77},   // power glyph
+        {"MTP (Media Transfer Protocol)",   "mtp",   62},   // folder glyph
+        {"PTP (Picture Transfer Protocol)", "ptp",   25},   // document glyph
+        {"RNDIS (USB Ethernet)",            "rndis", 85},   // network glyph
+    };
+    for (size_t i = 0; i < sizeof(rows) / sizeof(rows[0]); i++) {
+        Ps3Item it; it.label = rows[i].label; it.kind = PS3_QUICK;
+        // Carry the function token in payloadStr (not value) so it is not rendered in the
+        // right-hand value column - the label already names the mode. The value column is
+        // reserved for the live "Active" marker.
+        it.a = QA_USB_SET; it.payloadStr = rows[i].fn;
+        it.iconTex = iconTexForIcon(rows[i].icon); it.nmapTex = nmapForIcon(rows[i].icon);
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        if ((int)i == active) { out.sel = (int)i; it.value = "Active"; }
         out.items.push_back(it);
     }
 }
@@ -3733,6 +3782,7 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_RESUME_AUDIO: resumeMusicPlayer(); return;   // reopen Now-Playing on the live queue
                 case QA_POWER_SUBMENU: { Ps3Level lvl; buildQuickPowerSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_APP_ORIENT_MENU: { Ps3Level lvl; buildAppOrientSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_USB_MENU:        { Ps3Level lvl; buildUsbSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
                 case QA_QUICK_SETTINGS: { Ps3Level lvl; buildQuickSettingsSubmenu(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_SHADER_MENU:    { Ps3Level lvl; buildShaderSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
                 case QA_SHADER_PARAMS:  { Ps3Level lvl; buildShaderParamsSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
@@ -3894,6 +3944,30 @@ void NanoMenu::ps3XmbSelect() {
                         mPs3SubParentItems = ps3CurItems(); mPs3SubParentIdx = ps3CurSel();
                         mPs3SubDir = -1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 1.0f;
                         mPs3AnimItem = (float)ps3CurSel(); mPs3ItemAnimStart = -1.0f;
+                    }
+                    mDisplayDirty = true; return;
+                }
+                case QA_USB_SET: {
+                    // Apply the chosen USB gadget function. `svc usb setFunctions` with a
+                    // blank argument = charging; otherwise the mtp/ptp/rndis token. Run
+                    // detached so the (asynchronous) UsbManager round-trip never stalls the
+                    // render thread. ADB, when enabled, is re-added by the USB stack.
+                    std::string fn = it.payloadStr;
+                    std::string cmd = "svc usb setFunctions";
+                    if (!fn.empty()) cmd += " " + fn;
+                    cmd += " 2>/dev/null";
+                    std::thread([cmd]{ system(cmd.c_str()); }).detach();
+                    // Rebuild this level in place so the "Active" marker jumps to the chosen
+                    // row immediately (sys.usb.state updates asynchronously). Map the token to
+                    // its row index and force it, keeping the selection on that row.
+                    int chosen = 0;
+                    if      (fn == "mtp")   chosen = 1;
+                    else if (fn == "ptp")   chosen = 2;
+                    else if (fn == "rndis") chosen = 3;
+                    if (!mPs3Stack.empty()) {
+                        buildUsbSubmenu(mPs3Stack.back(), chosen);
+                        if (chosen >= 0 && chosen < (int)mPs3Stack.back().items.size())
+                            mPs3Stack.back().sel = chosen;
                     }
                     mDisplayDirty = true; return;
                 }
