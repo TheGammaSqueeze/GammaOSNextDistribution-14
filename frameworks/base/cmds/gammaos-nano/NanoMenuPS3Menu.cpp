@@ -11967,12 +11967,20 @@ void NanoMenu::renderNetWizard() {
     // hand the DRAW to the DSi painter and return before the XMB backdrop/layout below.
     // mWidth/mHeight are the bottom DS panel dims at the DSi dispatch sites (the caller
     // remapped them), so the painter fills the whole bottom touch screen.
-    if (mNdsTheme) { renderNdsNetWizardBody(0.0f, 0.0f, (float)mWidth, (float)mHeight); return; }
+    // Outside the first-run setup wizard, the DSi theme wears the DSi System Menu skin.
+    // DURING setup the WHOLE wizard is forced to the XMB chrome (the DSi steps are not
+    // fully themed), sitting on the DSi backdrop that renderSetupNdsBackdrop already drew,
+    // so fall through to the XMB net-wizard body in that case.
+    if (mNdsTheme && !mSetupWizardActive) { renderNdsNetWizardBody(0.0f, 0.0f, (float)mWidth, (float)mHeight); return; }
 
     bool oskUp = mOskActive;   // text screens render the OSK on top
 
+    // During DSi-theme setup the DSi field + dim/blue backdrop is already painted by
+    // renderSetupNdsBackdrop(); skip the XMB frosted-wave backdrop + dim so it shows through.
+    const bool ndsSetupBg = mNdsTheme && mSetupWizardActive;
+
     // ---- backdrop: blurred live wave + dim (same as the fullscreen dialogs) ----
-    {
+    if (!ndsSetupBg) {
         // While the OSK is up we re-capture the wave EVERY frame. The OSK draws its
         // own frosted panel via captureGlass(), which overwrites the SAME shared
         // blur texture (mGlassBlurTex) in FB orientation; at the normal 15fps
@@ -11994,8 +12002,9 @@ void NanoMenu::renderNetWizard() {
     }
     // In the in-game overlay (scrim mode) skip the extra wizard dim - the 90% scrim
     // already darkens the backdrop, so keep the live app at the same level as the
-    // top-level scrim instead of double-dimming it.
-    if (!mOverlayMode || mOverlayWallpaper)
+    // top-level scrim instead of double-dimming it. Also skip it during DSi setup: the
+    // DSi backdrop already carries its own dim + blue, so a second dim would crush it.
+    if (!ndsSetupBg && (!mOverlayMode || mOverlayWallpaper))
         drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, (oskUp ? 0.62f : 0.5f) * ap);
 
     // Layout (ui-independent base scale, 1080 design centred in the frame).

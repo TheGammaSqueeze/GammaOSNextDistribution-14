@@ -4682,7 +4682,16 @@ void NanoMenu::render() {
             // mWidth/mHeight, so map them to the secondary AHB dims for this pass, then restore.
             int sw = mWidth, sh = mHeight;
             mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
-            renderNdsCarousel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            if (mSetupWizardActive) {
+                // First-run setup: do NOT expose the home carousel on the bottom panel yet
+                // (the nano home must stay hidden until setup completes). Paint the same DSi
+                // setup backdrop (field + dim/blue) the top panel wears, so the bottom reads as
+                // "setup in progress"; the net wizard (WiFi/BT) + OSK still draw on this touch
+                // panel below.
+                renderSetupNdsBackdrop();
+            } else {
+                renderNdsCarousel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            }
             // The Internet Connection / Bluetooth setup wizard (mPs3WizActive, renderNetWizard) was
             // only dispatched from renderPs3Xmb (skipped in the DSi theme), so the WiFi/BT flow never
             // drew even though nav worked - draw it here on the BOTTOM touch panel (its password/PIN
@@ -5643,7 +5652,10 @@ if (sRingPrimedCount >= 2) {
         } else if (mNdsTheme && !mPs3BootActive) {
             // DSi theme dual-panel: a live secondary always shows the carousel (never the PS3
             // wave), independent of the primary's stacking mode (same resolution as primary).
-            renderNdsCarousel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            // During first-run setup, show the DSi setup backdrop instead of the home carousel
+            // so the bottom panel does not expose the home before setup completes.
+            if (mSetupWizardActive) renderSetupNdsBackdrop();
+            else                    renderNdsCarousel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
             if (i == 0 && mPs3WizActive) renderNetWizard();       // WiFi/BT setup wizard on the bottom panel
             if (i == 0 && mGSearchActive) renderGlobalSearch();   // global search results on the bottom panel
             if (i == 0) renderOsk();   // DSi keyboard/OSK on the bottom touch panel (self-gates on mOskActive)

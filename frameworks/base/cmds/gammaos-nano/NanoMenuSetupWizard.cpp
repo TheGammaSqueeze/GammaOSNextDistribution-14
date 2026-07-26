@@ -175,6 +175,17 @@ void NanoMenu::finishSetupWizard() {
     property_set("persist.gammaos.nano.xmb_mode", "1");
     mDisplayDirty = true;
 
+    // Refresh the Applications + Games lists now that setup is complete: first-boot
+    // provisioning may have installed/enabled apps (e.g. the Files app) after nano's
+    // initial load, and a WiFi connection made during setup can mount network shares
+    // with new ROMs. finishSetupWizard runs on the render/input thread (pollInput ->
+    // handleSetup*), so these are safe to call directly here - loadInstalledApps re-reads
+    // packages.list, mPs3CatsStale rebuilds the XMB columns at the settled root, and
+    // forceRescanAllSystems kicks a background ROM rescan (no-op if one is already running).
+    loadInstalledApps();
+    mPs3CatsStale = true;
+    forceRescanAllSystems();
+
     ALOGI("NanoMenu: setup wizard finished, device provisioned");
 }
 
@@ -626,8 +637,40 @@ void NanoMenu::renderSetupProgressDots() {
     }
 }
 
+void NanoMenu::renderSetupNdsBackdrop() {
+    // DSi theme setup wizard: the wizard steps are forced to the (complete, working) XMB
+    // chrome, but they must sit on the DSi background, not the PS3 wave. Draw the DSi home
+    // background field here (a custom panel wallpaper when set, else the light #f3f3f3
+    // dither field with #dbdbdb edge columns - identical to renderNdsCarousel), then a
+    // dim + blue tint over it so the XMB wizard's light chrome/text stays readable and
+    // reads like the XMB dialog backdrop (a blurred blue wave under a dark dim).
+    setUiBlend();
+    const float W = (float)mWidth, H = (float)mHeight;
+    if (wallpaperActive(mRenderingPanel)) {
+        drawWallpaperFill(mRenderingPanel);
+    } else {
+        drawQuad(0.0f, 0.0f, W, H, 0.953f, 0.953f, 0.953f, 1.0f);
+        float dl = H / 192.0f * 2.0f; if (dl < 2.0f) dl = 2.0f;
+        float lh = fmaxf(1.0f, H / 192.0f);
+        for (float y = 0.0f; y < H; y += dl) drawQuad(0.0f, y, W, lh, 0.922f, 0.922f, 0.922f, 1.0f);
+        float ec = fmaxf(1.0f, W / 256.0f);
+        drawQuad(0.0f, 0.0f, ec, H, 0.859f, 0.859f, 0.859f, 1.0f);
+        drawQuad(W - ec, 0.0f, ec, H, 0.859f, 0.859f, 0.859f, 1.0f);
+    }
+    // Dim + blue, like the XMB fullscreen dialogs (a dark dim over the blue frosted wave):
+    // a low blue cast then a black dim, so the light DSi field darkens to a readable blue-grey
+    // (~0.36 luma) that keeps the forced-XMB white chrome/text legible.
+    drawQuad(0.0f, 0.0f, W, H, 0.10f, 0.18f, 0.42f, 0.30f);   // blue tint
+    drawQuad(0.0f, 0.0f, W, H, 0.0f,  0.0f,  0.0f,  0.50f);   // dim
+}
+
 void NanoMenu::renderSetupWizard() {
     updateSetupTransition();
+    // DSi theme: paint the DSi background + dim/blue behind the whole wizard first, so every
+    // step (the XMB-forced Wi-Fi/Bluetooth net wizard, and the language/timezone/installing/
+    // finish steps below) sits on the DSi backdrop instead of the PS3 wave. The net-wizard
+    // steps early-return through renderNetWizard() below, so this must run before them.
+    if (mNdsTheme) renderSetupNdsBackdrop();
 
     // A "next" into the Wi-Fi step is deferred until the system finishes first-boot setup: the
     // Wi-Fi wizard runs a real scan/connect that cannot work before sys.boot_completed. While
@@ -694,8 +737,10 @@ void NanoMenu::renderSetupWizard() {
 
     // Light dim over wallpaper (skip on welcome for clean iOS-style look; skip on
     // the timezone step too - the 3D globe is its own opaque backdrop, matching
-    // the web tzglobe screen which draws no dim panel).
-    if (mSetupStep != SETUP_WELCOME && mSetupStep != SETUP_TIMEZONE) {
+    // the web tzglobe screen which draws no dim panel). Under the DSi theme the
+    // renderSetupNdsBackdrop() above already applied the dim + blue, so skip this
+    // one to avoid crushing the background to black.
+    if (!mNdsTheme && mSetupStep != SETUP_WELCOME && mSetupStep != SETUP_TIMEZONE) {
         drawQuad(0, 0, mWidth, mHeight, 0.0f, 0.0f, 0.0f, 0.4f);
     }
 

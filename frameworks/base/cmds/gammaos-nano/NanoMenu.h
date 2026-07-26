@@ -564,6 +564,10 @@ private:
     // Overlay a "Start: Skip" hint (top-right) on the Wireless / Bluetooth steps
     // so the user knows Start skips them. Drawn on top of the net/BT wizard.
     void drawSetupSkipHint();
+    // DSi theme: draw the DSi home background field (or the panel wallpaper) plus a
+    // dim + blue tint (matching the XMB dialog backdrop) behind the whole setup wizard,
+    // so the forced-XMB wizard chrome stays readable and reads as the DSi theme.
+    void renderSetupNdsBackdrop();
     void renderSetupWelcome();
     void renderSetupWifiStep();
     void renderSetupBluetoothStep();
