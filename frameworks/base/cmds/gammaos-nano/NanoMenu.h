@@ -2217,6 +2217,10 @@ private:
     std::string mFeDeleteTarget;                // path awaiting the delete confirm (dialog themeKey 30)
     std::string mNanoUninstallPkg;              // pkg awaiting the uninstall confirm (dialog themeKey 31)
     std::string mNanoUninstallPending;          // pkg being uninstalled: the "Uninstalling..." dialog stays up until it is gone
+    // Media option-menu real delete: files to unlink once the Cancel/Delete confirm (dialog themeKey 43)
+    // is accepted, plus which library to rescan afterwards. lib: 0=video, 1=photo, 2=music.
+    std::vector<std::string> mMediaDelPaths;
+    int mMediaDelLib = -1;
     // Async copy/move/delete: the worker holds its OWN shared_ptr to this result block and touches
     // ONLY the block + value-captured paths (never `this`), so a teardown mid-op cannot use-after-free.
     // feTick polls done and reaps. One op at a time (mFeOp non-null = busy).
@@ -2229,6 +2233,9 @@ private:
     bool feBack();                              // Circle: up one dir if not at root; true = handled, false = pop
     void feAction(const std::string& act);      // dispatch a side-menu action (fecopy/femove/...)
     void feStartOp(int kind, const std::string& src, const std::string& dst);  // spawn the async worker
+    bool nanoRemovePath(const std::string& p);  // real recursive delete (wraps feRemoveRecursive) for the media menus
+    void mediaDeleteConfirm(const std::string& title, const std::string& body);  // Cancel/Delete confirm (dialog themeKey 43)
+    void mediaCopyToClipboard(const std::string& name);  // stash to the FE clipboard, open the File Explorer, tell the user
     void feTick();                              // per-frame: reap a finished worker, refresh, result dialog
     void feShowInfo(const std::string& path);   // open the Information page for a file/folder
     void feInfoDialog(const std::string& title, const std::string& body);  // generic XMB info dialog (kind 0)

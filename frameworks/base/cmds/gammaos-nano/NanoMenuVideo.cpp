@@ -3422,7 +3422,19 @@ void NanoMenu::vidDlgActivate() {                  // Cross
     if (mVidDlgKind == 2) return;                  // busy: no button
     if (mVidDlgKind == 0) { mVidDlgActive = false; return; }   // info: OK dismisses
     if (mVidDlgSel == 0) {                          // confirm -> Yes
-        if (mVidDlgYesAct == 1) vidDlgInfo("Delete completed.");
+        if (mVidDlgYesAct == 1) {
+            // Real delete of the title being played. Unlinking is safe while the decoder still
+            // holds the file open (the inode frees when closeVideoPlayer releases it below); then
+            // leave the player and rescan so the row disappears. No-op for a live stream (no
+            // backing file), guarded by the empty-path check.
+            std::string f;
+            if (mVidIdx >= 0 && mVidIdx < (int)mVidList.size()) {
+                int vi = mVidList[mVidIdx];
+                if (vi >= 0 && vi < (int)mVideos.size()) f = mVideos[vi].file;
+            }
+            mVidDlgActive = false;
+            if (!f.empty()) { nanoRemovePath(f); closeVideoPlayer(); videoRefresh(); }
+        }
         else if (mVidDlgYesAct == 2) {              // Change Icon: busy -> result (web vidCreateIcon)
             mVidDlgActive = true; mVidDlgKind = 2; mVidDlgBody = "Creating icon...\nPlease wait.";
             mVidDlgBusyUntil = mEffectTime + 0.65f;

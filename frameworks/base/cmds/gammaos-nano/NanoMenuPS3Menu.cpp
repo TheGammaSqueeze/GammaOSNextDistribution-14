@@ -8548,6 +8548,24 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             if (sel == 1 && mShaderPendingTypeSel >= 0) shaderApplyType(mShaderPendingTypeSel);
             mShaderPendingTypeSel = -1;
             break;
+        case 43: {  // Media option-menu delete confirm (sel 1 = Delete): unlink each stashed
+                    // file for real, then rescan the affected library so the row disappears.
+            if (sel == 1 && !mMediaDelPaths.empty()) {
+                for (const std::string& p : mMediaDelPaths) nanoRemovePath(p);
+                if      (mMediaDelLib == 0) videoRefresh();
+                else if (mMediaDelLib == 2) musicRefresh();
+                else if (mMediaDelLib == 1) {
+                    photoRefresh();
+                    // The photo grid indexes the pre-rescan list; drop it so it rebuilds fresh
+                    // on reopen instead of showing a stale/removed thumbnail.
+                    if (ps3TopScreenKind() == PHOTO_GRID && !mPs3Stack.empty()) {
+                        closePhotoGrid(); mPs3Stack.pop_back();
+                    }
+                }
+            }
+            mMediaDelPaths.clear(); mMediaDelLib = -1;
+            break;
+        }
         case 41: {  // GammaShader: a discrete shader option (renderer / res_scale / orientation)
             if (sel >= 0 && sel < (int)mShaderOptVals.size()) {
                 const std::string& val = mShaderOptVals[sel].first;
@@ -9817,6 +9835,39 @@ void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
     }
 }
 
+// Show the Cancel/Delete confirmation for a media option-menu delete. The files to unlink and
+// the library to rescan are already stashed in mMediaDelPaths / mMediaDelLib; the actual delete
+// runs in applyThemeSetting case 43 when the user chooses Delete. The option menu has already
+// been closed by the caller, so the dialog draws over the home column.
+void NanoMenu::mediaDeleteConfirm(const std::string& title, const std::string& body) {
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgType = 0; mPs3DlgThemeKey = 43; mPs3DlgBinding = nullptr;
+    mPs3DlgIllust = 0; mPs3DlgNotice.clear(); mPs3DlgRomInfo = false;
+    mPs3DlgTitle = title; mPs3DlgBody = body;
+    mPs3DlgOptions.push_back("Cancel"); mPs3DlgSwatch.push_back(-1);
+    mPs3DlgOptions.push_back("Delete"); mPs3DlgSwatch.push_back(-1);
+    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;   // default focus = Cancel (destructive, so never Delete-by-default)
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
+// Media "Copy": stash the file on the same clipboard the File Manager uses, jump straight into
+// the File Explorer so the user can pick any destination, and tell them how to paste. The option
+// menu has already been closed by the caller.
+void NanoMenu::mediaCopyToClipboard(const std::string& name) {
+    feOpen();   // enter the File Explorer at the storage roots (mFeClipPath already set by the caller)
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+    mPs3DlgIllust = 0; mPs3DlgNotice.clear(); mPs3DlgRomInfo = false;
+    mPs3DlgTitle = "Copy";
+    mPs3DlgBody = std::string("Copied \"") + name +
+        "\".\nOpen the destination folder, press the Options button, and choose \"Paste Here\".";
+    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
 void NanoMenu::xmbOptAction(const std::string& act) {
     if (act.size() >= 2 && act[0] == 'f' && act[1] == 'e') { feAction(act); return; }   // File Explorer ops
     // Imported-media / scan-source folder removal (mPs3OptCtxA is the folder index).
@@ -10105,14 +10156,19 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         if (!s.url.empty()) vidOpenAddStreamChooser(s);
         return;
     }
-    if (act == "vcopy" || act == "vdelete") {   // simulated (web doOptAction no-op) -> result dialog
-        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
-        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
-        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
-        mPs3DlgTitle = ""; mPs3DlgBody = (act == "vdelete") ? "Delete completed." : "Copy completed.";
-        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
-        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
-        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+    if (act == "vcopy") {   // real: stash to the File Manager clipboard, then jump in so the user can Paste
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideos.size()) {
+            mFeClipPath = mVideos[mPs3OptCtxA].file; mFeClipMove = false;
+            mediaCopyToClipboard(mPs3OptCtxLabel);
+        }
+        return;
+    }
+    if (act == "vdelete") {   // real: Cancel/Delete confirm -> unlink + rescan (applyThemeSetting case 43)
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideos.size()) {
+            mMediaDelPaths.assign(1, mVideos[mPs3OptCtxA].file); mMediaDelLib = 0;
+            mediaDeleteConfirm(std::string("Delete ") + mPs3OptCtxLabel,
+                               "This permanently deletes the video file from storage.");
+        }
         return;
     }
     if (act == "vinfo") {   // video Information (7 firmware lines, web openContentInfo 13456-13464)
@@ -10181,8 +10237,21 @@ void NanoMenu::xmbOptAction(const std::string& act) {
     }
     if (act == "delmulti")  { photoMultiOpen(0); return; }   // Delete Multiple checkbox screen
     if (act == "copymulti") { photoMultiOpen(1); return; }   // Copy Multiple checkbox screen
-    if (act == "pgcopy")   { pvShowMsg("Copy completed.", 1100.0f); return; }    // grid photo (simulated)
-    if (act == "pgdelete") { pvShowMsg("Delete completed.", 1100.0f); return; }  // grid photo (simulated)
+    if (act == "pgcopy") {   // real: clipboard + open the File Explorer to Paste
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotos.size()) {
+            mFeClipPath = mPhotos[mPs3OptCtxA].file; mFeClipMove = false;
+            mediaCopyToClipboard(mPs3OptCtxLabel);
+        }
+        return;
+    }
+    if (act == "pgdelete") {   // real: Cancel/Delete confirm -> unlink + rescan (applyThemeSetting case 43)
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotos.size()) {
+            mMediaDelPaths.assign(1, mPhotos[mPs3OptCtxA].file); mMediaDelLib = 1;
+            mediaDeleteConfirm(std::string("Delete ") + mPs3OptCtxLabel,
+                               "This permanently deletes the photo from storage.");
+        }
+        return;
+    }
     if (act == "pgprint")  { return; }   // no printer in this environment (web closes too)
     if (act == "pcopyfolder" || act == "pdelfolder") {   // folder Copy/Delete -> result dialog over the column
         mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();

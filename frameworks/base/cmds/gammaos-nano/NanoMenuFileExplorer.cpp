@@ -230,6 +230,14 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
     for (auto& it : out.items) it.desc = cur;
 }
 
+// Public wrapper so the media option menus (video/photo/music Delete) can perform a real
+// delete through the exact recursive remove the file manager uses - handles a single file or
+// a directory tree, on the FUSE /storage mount or a raw /data/media path (nano runs as root).
+bool NanoMenu::nanoRemovePath(const std::string& p) {
+    if (p.empty()) return false;
+    return feRemoveRecursive(p);
+}
+
 void NanoMenu::feOpen() {
     // Open at /storage, reusing the standard submenu slide-in animation. ".." from there climbs to "/".
     std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();

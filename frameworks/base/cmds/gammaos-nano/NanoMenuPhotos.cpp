@@ -2331,9 +2331,20 @@ void NanoMenu::pvShowMsg(const std::string& text, float durMs) {
     mPvMsg = text; mPvMsgStart = mEffectTime; mPvMsgDur = durMs;
 }
 void NanoMenu::pvShowDeleteConfirm() {
-    // Simulated delete (the web does not unlink the real file either); show the
-    // same completion message style the music player uses.
-    pvShowMsg(trDyn("Delete completed."), 1100.0f);
+    // Real delete: capture the current photo, leave the viewer, and raise the shared Cancel/Delete
+    // confirm over the grid/menu. On Delete, applyThemeSetting case 43 unlinks the file and rescans
+    // the photo library. (The photo viewer has no yes/no dialog of its own, so we route through the
+    // XMB dialog which renders once the viewer is closed.)
+    std::string f, name;
+    if (mPvIdx >= 0 && mPvIdx < (int)mPvList.size()) {
+        int pi = mPvList[mPvIdx];
+        if (pi >= 0 && pi < (int)mPhotos.size()) { f = mPhotos[pi].file; name = mPhotos[pi].name; }
+    }
+    if (f.empty()) return;
+    closePhotoViewer();
+    mMediaDelPaths.assign(1, f); mMediaDelLib = 1;
+    mediaDeleteConfirm(std::string("Delete ") + name,
+                       "This permanently deletes the photo from storage.");
 }
 void NanoMenu::pvShow3D() {
     // 3D display cannot render here; report it the way the firmware fallback does.
