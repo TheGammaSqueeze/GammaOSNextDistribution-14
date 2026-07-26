@@ -1448,15 +1448,21 @@ void NanoMenu::drawMpOpt(float closeT) {
         // it is nearly invisible; on a light one it draws a soft contrasting edge. Plus a slightly
         // offset drop shadow for depth.
         auto stroke = [&](GLuint tex, int arIdx, float al) {
-            float r = ih * 0.03f, d = r * 0.7071f;
+            float r = ih * 0.045f, d = r * 0.7071f;
             glyph(tex, arIdx,  r, 0, 0, 0, 0, al); glyph(tex, arIdx, -r, 0, 0, 0, 0, al);
             glyph(tex, arIdx, 0,  r, 0, 0, 0, al); glyph(tex, arIdx, 0, -r, 0, 0, 0, al);
             glyph(tex, arIdx,  d, d, 0, 0, 0, al); glyph(tex, arIdx, -d, d, 0, 0, 0, al);
             glyph(tex, arIdx,  d,-d, 0, 0, 0, al); glyph(tex, arIdx, -d,-d, 0, 0, 0, al);
         };
+        // Layered soft drop shadow so the glyphs lift off bright content (near dark cast +
+        // wider low-alpha falloff), drawn under the stroke and glyph.
+        auto shadow = [&](GLuint tex, int arIdx) {
+            glyph(tex, arIdx, ih * 0.05f, ih * 0.075f, 0, 0, 0, 0.55f);   // near, dark
+            glyph(tex, arIdx, ih * 0.09f, ih * 0.130f, 0, 0, 0, 0.30f);   // wider soft falloff
+        };
         if (focus) {
-            stroke(gF, b.f, 0.22f);
-            glyph(gF, b.f, ih * 0.03f, ih * 0.05f, 0, 0, 0, 0.35f);   // drop shadow (depth)
+            shadow(gF, b.f);
+            stroke(gF, b.f, 0.55f);
             // breathing halo (faint enlarged focus glyph; no shadowBlur on GLES2) + crisp glyph
             if (gF) {
                 float hh = ih * ps * 1.18f, ww = hh * mpIconAR(b.f);
@@ -1464,8 +1470,8 @@ void NanoMenu::drawMpOpt(float closeT) {
             }
             glyph(gF, b.f, 0, 0, 1, 1, 1, 1.0f);
         } else {
-            stroke(gN, b.n, 0.22f);
-            glyph(gN, b.n, ih * 0.03f, ih * 0.05f, 0, 0, 0, 0.35f);   // drop shadow (depth)
+            shadow(gN, b.n);
+            stroke(gN, b.n, 0.55f);
             glyph(gN, b.n, 0, 0, 1, 1, 1, 0.9f);                       // dimmed glyph
         }
         if (flash > 0.0f) glyph(gF, b.f, 0, 0, 1, 1, 1, flash);        // activate brightness pop
@@ -1576,7 +1582,24 @@ void NanoMenu::mpTouchFrame() {
         if (fabsf(px - acx) <= r && fabsf(py - acy) <= r) { minimizeMusicPlayer(); return; }
     }
     if (mMpCpOpen) {
-        if (mMpVolSub) { mMpVolSub = false; return; }   // tap exits the volume submenu
+        if (mMpVolSub) {
+            // Volume bar is touch-friendly: tap a segment to set that level (matches
+            // drawMpVolMeter geometry); a tap off the bar closes the submenu.
+            MpLayout m = mpLayout(mWidth, mHeight);
+            float ih = m.ih, cx = m.cx;
+            float nameBaseY = m.labBaseY + ih * 0.5f, my = nameBaseY + ih * 0.25f;
+            float segW = ih * 0.42f, gap = ih * 0.14f, hh = ih * 0.5f;
+            float totalW = 9 * segW + 8 * gap, x0 = cx - totalW * 0.5f;
+            if (py >= my - hh * 0.5f && py <= my + hh * 1.5f && px >= x0 - segW && px <= x0 + totalW + segW) {
+                int seg = (int)((px - x0) / (segW + gap));
+                if (seg < 0) seg = 0; if (seg > 8) seg = 8;
+                mMpVolLevel = seg - 4;
+                mMusicPlayer.setVolume((mMpVolLevel + 4) / 8.0f);
+                mDisplayDirty = true;
+                return;
+            }
+            mMpVolSub = false; return;   // tap off the bar -> close
+        }
         // Hit-test the control-panel cells (SAME full-panel layout drawMpOpt renders).
         MpLayout m = mpLayout(mWidth, mHeight);
         float ox = m.ox, oy = m.oy, cellX = m.cellX, cellY = m.cellY;

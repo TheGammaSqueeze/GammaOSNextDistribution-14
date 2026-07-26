@@ -2748,6 +2748,32 @@ static VidLayout vidLayout(int W, int H) {
     v.labBaseY = v.y0 + (gyHi + 0.9f) * g.cellY;         // below the bottom (largest gy) row
     return v;
 }
+// Geometry for the in-player option submenu (Screen Mode / Repeat / Audio / Subtitle / CC),
+// shared by drawVideoPanel (render) and vidTouchFrame (hit-test) so the touch boxes match the
+// drawn rows exactly. The plate is sized to the widest option (mw, pre-measured by the caller),
+// then the whole block is UNIFORMLY scaled down if it would run past the panel width or bottom -
+// so a long audio/subtitle list on a small panel stays fully on screen with every row tappable
+// (no clipping, no scrolling). Row i centre = sy + i*lh + lh*0.3; plate top = sy - lh*0.5.
+struct VidSubGeom { float cx, sy, lh, fs, fpx, plateW, plateH; int n; };
+static VidSubGeom vidSubGeomCalc(const VidLayout& vl, int n, float mw, int W, int H) {
+    VidSubGeom g; g.n = n;
+    float ih = vl.sz;
+    g.cx  = vl.cx;
+    g.fs  = (ih * 0.5f) / 16.0f;
+    g.fpx = ps3::emPx(g.fs);
+    g.lh  = ih * 1.15f;
+    g.sy  = vl.labBaseY + vl.rowH * 0.75f;
+    g.plateW = mw + g.fpx * 1.6f;
+    // Uniform shrink so the block fits the panel width AND does not run off the bottom.
+    float kw = (g.plateW > (float)W * 0.94f && g.plateW > 1.0f) ? ((float)W * 0.94f) / g.plateW : 1.0f;
+    float budgetH = (float)H * 0.97f - g.sy;                 // space from sy to a bottom margin
+    float needH   = g.lh * (float)n + g.lh * 0.3f;           // full plate height
+    float kh = (needH > budgetH && budgetH > 0.0f) ? budgetH / needH : 1.0f;
+    float k = kw < kh ? kw : kh;
+    if (k < 1.0f) { g.fs *= k; g.fpx *= k; g.lh *= k; g.plateW *= k; }
+    g.plateH = g.lh * (float)n + g.lh * 0.3f;
+    return g;
+}
 static const char* kVidScreenModes[] = {"Normal", "Full Screen", "Original", "Zoom", "Double Scale"};
 static const char* kVidRepeatModes[] = {"Repeat Off", "Repeat On", "Title Repeat", "A-B Repeat", "Folder Repeat"};
 
@@ -3014,9 +3040,44 @@ void NanoMenu::vidTouchFrame() {
     }
 
     if (mVidCpOpen) {
-        // A submenu (Screen Mode / Repeat / Volume / AV) is drawn over the cells;
-        // a tap backs out of it rather than mis-hitting a main cell underneath.
-        if (mVidSubOpen) { mVidSubOpen = false; return; }
+        // A submenu (Screen Mode / Repeat / Volume / Audio / Subtitle) is drawn over the cells.
+        // Tap a row to select+apply it (touch-friendly); a tap off the plate backs out. Volume
+        // (kind 2) is a live segment bar with no rows, so any tap there just closes it.
+        if (mVidSubOpen) {
+            if (mVidSubKind == 2) {
+                // Volume bar: tap a segment to set that level live (matches the render geometry).
+                VidLayout vlp = vidLayout(mWidth, mHeight);
+                float ih = vlp.sz, cx = vlp.cx, ty = vlp.labBaseY + vlp.rowH * 0.75f, my = ty + ih * 0.25f;
+                float segW = ih * 0.42f, gp = ih * 0.14f, hh = ih * 0.5f;
+                float totalW = 9 * segW + 8 * gp, x0s = cx - totalW * 0.5f;
+                if (py >= my - hh * 0.5f && py <= my + hh * 1.5f && px >= x0s - segW && px <= x0s + totalW + segW) {
+                    int seg = (int)((px - x0s) / (segW + gp));
+                    if (seg < 0) seg = 0; if (seg > 8) seg = 8;
+                    mVidVolLevel = seg - 4;
+                    mVidVolume = (float)(mVidVolLevel + 4) / 8.0f;
+                    if (mVidHasAudio) mVidAudio.setVolume(mVidVolume);
+                    mDisplayDirty = true;
+                    return;
+                }
+                mVidSubOpen = false; return;
+            }
+            if (!mVidSubOpts.empty()) {
+                VidLayout vlp = vidLayout(mWidth, mHeight);
+                int n = (int)mVidSubOpts.size();
+                float baseFs = (vlp.sz * 0.5f) / 16.0f, mw = 0.0f;
+                for (int i = 0; i < n; i++) { float w = measureText(mVidSubOpts[i].c_str(), baseFs); if (w > mw) mw = w; }
+                VidSubGeom g = vidSubGeomCalc(vlp, n, mw, mWidth, mHeight);
+                if (px >= g.cx - g.plateW * 0.5f && px <= g.cx + g.plateW * 0.5f) {
+                    for (int i = 0; i < n; i++) {
+                        float oy = g.sy + i * g.lh + g.lh * 0.3f;
+                        if (py >= oy - g.lh * 0.5f && py <= oy + g.lh * 0.5f) {
+                            mVidSubSel = i; vidSubConfirm(); return;   // select + apply + close
+                        }
+                    }
+                }
+            }
+            mVidSubOpen = false; return;   // tap off the rows -> close
+        }
         // Hit-test the control-panel cells (SAME full-panel layout drawVideoPanel renders).
         VidLayout vl = vidLayout(mWidth, mHeight);
         float x0 = vl.x0, y0 = vl.y0, colW = vl.colW, rowH = vl.rowH;
@@ -3087,23 +3148,29 @@ void NanoMenu::drawVideoPanel(float closeT) {
             float hh = sz * scl, ww = hh * ar;
             drawIconTex(tex, cx - ww * 0.5f + dx, cy - hh * 0.5f + dy, ww, hh, r, g, bl, A * al);
         };
-        // Soft semi-transparent dark stroke (8-direction outline) so the silvery glyphs read on
-        // ANY backdrop (a bright video frame as well as the dark wave), plus a slight drop shadow.
+        // Strong dark stroke (8-direction outline) so the silvery glyphs read on ANY backdrop
+        // (a bright video frame as well as the dark wave), plus a layered drop shadow for depth.
         auto stroke = [&](float al) {
-            float r = sz * 0.03f, d = r * 0.7071f;
+            float r = sz * 0.045f, d = r * 0.7071f;
             glyph( r, 0, 0, 0, 0, al, ps); glyph(-r, 0, 0, 0, 0, al, ps);
             glyph(0,  r, 0, 0, 0, al, ps); glyph(0, -r, 0, 0, 0, al, ps);
             glyph( d, d, 0, 0, 0, al, ps); glyph(-d, d, 0, 0, 0, al, ps);
             glyph( d,-d, 0, 0, 0, al, ps); glyph(-d,-d, 0, 0, 0, al, ps);
         };
+        // Layered soft drop shadow: a near dark cast plus a wider low-alpha falloff, so the
+        // icons visibly lift off bright content instead of a single faint offset.
+        auto shadow = [&]() {
+            glyph(sz * 0.05f, sz * 0.075f, 0, 0, 0, 0.55f, ps);   // near, dark
+            glyph(sz * 0.09f, sz * 0.130f, 0, 0, 0, 0.30f, ps);   // wider soft falloff
+        };
         if (focus) {
-            stroke(0.22f);
-            glyph(sz * 0.03f, sz * 0.05f, 0, 0, 0, 0.35f, ps);                             // drop shadow (depth)
+            shadow();
+            stroke(0.55f);
             glyph(0, 0, 0.86f, 0.92f, 1.0f, (0.22f + 0.18f * pulse) * 0.6f, ps * 1.18f);  // breathing halo
             glyph(0, 0, 1, 1, 1, 1.0f, ps);                                               // crisp glyph
         } else {
-            stroke(0.22f);
-            glyph(sz * 0.03f, sz * 0.05f, 0, 0, 0, 0.35f, ps);   // drop shadow (depth)
+            shadow();
+            stroke(0.55f);
             glyph(0, 0, 1, 1, 1, 0.9f, ps);                      // dimmed glyph
         }
         if (flash > 0.0f) glyph(0, 0, 1, 1, 1, flash, ps);      // activate brightness pop
@@ -3150,24 +3217,23 @@ void NanoMenu::drawVideoPanel(float closeT) {
         drawText("+", x0s + totalW + em, ps3::baselineToTopY(my + hh * 0.9f, es), es, 1, 1, 1, A);
     }
 
-    // submenu plate + rows: sized to the widest option, centred under the label.
+    // submenu plate + rows: sized to the widest option and uniformly shrunk to fit the panel
+    // (see vidSubGeomCalc) so a long audio/subtitle list never spills off screen. vidTouchFrame
+    // uses the same geometry, so every visible row is a touch target.
     if (mVidSubOpen && !mVidSubOpts.empty()) {
-        float ih = sz, cx = vl.cx, sy = vl.labBaseY + rowH * 0.75f;
-        float fs = (ih * 0.5f) / 16.0f, fpx = ps3::emPx(fs);
-        float lh = ih * 1.15f;
         int n = (int)mVidSubOpts.size();
-        float mw = 0.0f;
-        for (int i = 0; i < n; i++) { float w = measureText(mVidSubOpts[i].c_str(), fs); if (w > mw) mw = w; }
-        float plateW = mw + fpx * 1.6f;
-        drawQuad(cx - plateW * 0.5f, sy - lh * 0.5f, plateW, lh * n + lh * 0.3f, 0, 0, 0, 0.55f * A);
+        float baseFs = (sz * 0.5f) / 16.0f, mw = 0.0f;
+        for (int i = 0; i < n; i++) { float w = measureText(mVidSubOpts[i].c_str(), baseFs); if (w > mw) mw = w; }
+        VidSubGeom g = vidSubGeomCalc(vl, n, mw, mWidth, mHeight);
+        drawQuad(g.cx - g.plateW * 0.5f, g.sy - g.lh * 0.5f, g.plateW, g.plateH, 0, 0, 0, 0.55f * A);
         for (int i = 0; i < n; i++) {
-            float oy = sy + i * lh + lh * 0.3f;   // row centre
+            float oy = g.sy + i * g.lh + g.lh * 0.3f;   // row centre
             bool sel = (i == mVidSubSel);
-            if (sel) drawQuad(cx - plateW * 0.46f, oy - lh * 0.45f, plateW * 0.92f, lh * 0.9f, 1, 1, 1, 0.20f * A);
+            if (sel) drawQuad(g.cx - g.plateW * 0.46f, oy - g.lh * 0.45f, g.plateW * 0.92f, g.lh * 0.9f, 1, 1, 1, 0.20f * A);
             float c = sel ? 1.0f : 0.88f;
-            float ow = measureText(mVidSubOpts[i].c_str(), fs);
-            drawText(mVidSubOpts[i].c_str(), cx - ow * 0.5f, ps3::baselineToTopY(oy + fpx * 0.35f, fs),
-                     fs, c, c, c, (sel ? 1.0f : 0.85f) * A);
+            float ow = measureText(mVidSubOpts[i].c_str(), g.fs);
+            drawText(mVidSubOpts[i].c_str(), g.cx - ow * 0.5f, ps3::baselineToTopY(oy + g.fpx * 0.35f, g.fs),
+                     g.fs, c, c, c, (sel ? 1.0f : 0.85f) * A);
         }
     }
 }

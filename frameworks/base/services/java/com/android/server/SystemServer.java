@@ -4295,12 +4295,17 @@ public final class SystemServer implements Dumpable {
                 boolean isSystem =
                         (info.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
                      || (info.flags & android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;
-                if (isSystem
+                // Exception: nano force-includes the Files app (com.android.documentsui) in its
+                // Applications grid, so its icon must be cached too - otherwise nano draws a blank
+                // grey tile for it. Render its icon despite the system / com.android. skips below.
+                boolean forceIcon = pkg.equals("com.android.documentsui");
+                if (!forceIcon
+                        && (isSystem
                         || pkg.startsWith("com.android.")
                         || pkg.startsWith("org.lineageos.")
                         || pkg.startsWith("com.gammaos.")
                         || pkg.startsWith("com.topjohnwu.")
-                        || pkg.startsWith("com.retroarch.aarch64")) {
+                        || pkg.startsWith("com.retroarch.aarch64"))) {
                     continue;
                 }
                 liveIcons.add(pkg + ".png");

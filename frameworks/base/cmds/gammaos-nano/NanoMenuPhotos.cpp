@@ -2264,23 +2264,28 @@ void NanoMenu::drawPvPanel(float closeT) {
         // Soft semi-transparent dark stroke (8-direction outline) so the silvery glyphs read on
         // ANY backdrop (a bright photo as well as the dark wave), plus a slight drop shadow.
         auto stroke = [&](GLuint tex, int arIdx, float al) {
-            float r = ih * 0.03f, d = r * 0.7071f;
+            float r = ih * 0.045f, d = r * 0.7071f;
             glyph(tex, arIdx,  r, 0, 0, 0, 0, al); glyph(tex, arIdx, -r, 0, 0, 0, 0, al);
             glyph(tex, arIdx, 0,  r, 0, 0, 0, al); glyph(tex, arIdx, 0, -r, 0, 0, 0, al);
             glyph(tex, arIdx,  d, d, 0, 0, 0, al); glyph(tex, arIdx, -d, d, 0, 0, 0, al);
             glyph(tex, arIdx,  d,-d, 0, 0, 0, al); glyph(tex, arIdx, -d,-d, 0, 0, 0, al);
         };
+        // Layered soft drop shadow (near dark cast + wider low-alpha falloff), under stroke+glyph.
+        auto shadow = [&](GLuint tex, int arIdx) {
+            glyph(tex, arIdx, ih * 0.05f, ih * 0.075f, 0, 0, 0, 0.55f);   // near, dark
+            glyph(tex, arIdx, ih * 0.09f, ih * 0.130f, 0, 0, 0, 0.30f);   // wider soft falloff
+        };
         if (focus) {
-            stroke(g, icn, 0.22f);
-            glyph(g, icn, ih * 0.03f, ih * 0.05f, 0, 0, 0, 0.35f);   // drop shadow (depth)
+            shadow(g, icn);
+            stroke(g, icn, 0.55f);
             if (g) {
                 float hh = ih * ps * 1.18f, ww = hh * pvIconAR(icn);
                 drawIconTex(g, cx - ww * 0.5f, cy - hh * 0.5f, ww, hh, 0.86f, 0.92f, 1.0f, t * (0.18f + 0.16f * pulse));
             }
             glyph(g, icn, 0, 0, 1, 1, 1, 1.0f);
         } else {
-            stroke(g, icn, 0.22f);
-            glyph(g, icn, ih * 0.03f, ih * 0.05f, 0, 0, 0, 0.35f);   // drop shadow (depth)
+            shadow(g, icn);
+            stroke(g, icn, 0.55f);
             glyph(g, icn, 0, 0, 1, 1, 1, 0.9f);
         }
         if (flash > 0.0f) glyph(g, icn, 0, 0, 1, 1, 1, flash);
