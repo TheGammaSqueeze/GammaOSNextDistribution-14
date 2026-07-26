@@ -22,7 +22,9 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Button;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -103,9 +105,20 @@ public class ConfirmFragment extends DialogFragment {
         builder.setNegativeButton(android.R.string.cancel,
                 (DialogInterface dialog, int id) -> pickResult.increaseActionCount());
 
-        Dialog dialog = builder.create();
+        final AlertDialog dialog = builder.create();
         if (SdkLevel.isAtLeastS()) {
             dialog.getWindow().setHideOverlayWindows(true);
+        }
+        if (mType == TYPE_OEPN_TREE) {
+            // Auto-confirm the folder-access grant so folder selection can be completed with just
+            // a gamepad. The overwrite confirmation deliberately keeps its normal OK/Cancel
+            // buttons as a safety net against silently replacing a file.
+            dialog.setOnShowListener((DialogInterface d) -> {
+                final Button positive = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                if (positive != null) {
+                    positive.performClick();
+                }
+            });
         }
         return dialog;
     }

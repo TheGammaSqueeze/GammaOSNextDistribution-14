@@ -548,6 +548,8 @@
     <string name="anonymous_application">Anonymous</string>
     <!-- Button text show on open document tree flow. [CHAR_LIMIT=48] -->
     <string name="open_tree_button">Use this folder</string>
+    <!-- Controller guidance shown above the confirm button in the folder-picker flow. -->
+    <string name="controller_hint_open_tree">Press L1 to switch storage, Y for a new folder, X to search, Start to confirm.</string>
     <!-- Confrim dialog title show on open document tree flow. [CHAR_LIMIT=80] -->
     <string name="open_tree_dialog_title">Allow <xliff:g id="appName" example="Drive">%1$s</xliff:g> to access files in <xliff:g id="directory" example="DCIM">%2$s</xliff:g>?</string>
     <!-- Confrim dialog message show on open document tree flow.-->

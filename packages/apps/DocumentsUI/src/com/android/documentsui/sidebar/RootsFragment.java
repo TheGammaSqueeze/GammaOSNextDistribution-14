@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.DragEvent;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -104,6 +105,8 @@ public class RootsFragment extends Fragment {
             final Item item = mAdapter.getItem(position);
             item.open();
 
+            // Keep the tapped/activated root visibly selected in the list.
+            mList.setItemChecked(position, true);
             getBaseActivity().setRootsDrawerOpen(false);
         }
     };
@@ -188,8 +191,46 @@ public class RootsFragment extends Fragment {
                         return false;
                     }
                 });
+        mList.setFocusable(true);
+        mList.setFocusableInTouchMode(true);
         mList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mList.setSelector(new ColorDrawable(Color.TRANSPARENT));
+
+        // Keep controller/d-pad navigation contained within the roots list: pressing up on the
+        // first item or down on the last item must not jump focus back onto the main content.
+        mList.setOnKeyListener((v, keyCode, event) -> {
+            // mAdapter is nulled out on loader reset while the list is still focusable.
+            if (mAdapter == null) {
+                return false;
+            }
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                final int selected = mList.getSelectedItemPosition();
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP && selected == 0) {
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN
+                        && selected == mAdapter.getCount() - 1) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // As focus moves between roots (controller/d-pad), mark the focused one checked so the
+        // existing activated-state highlight (root_list_selector) follows it. Reusing the themed
+        // selector keeps touch ripple and drag-hover feedback intact, unlike overwriting the row
+        // background.
+        mList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mList.setItemChecked(position, true);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
         return view;
     }
 

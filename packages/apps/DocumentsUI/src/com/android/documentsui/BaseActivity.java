@@ -156,6 +156,11 @@ public abstract class BaseActivity
 
     public abstract Injector<?> getInjector();
 
+    /** Opens the "create new folder" dialog. Used by the gamepad Y-button shortcut. */
+    public void newFolder() {
+        getInjector().actions.showCreateDirectoryDialog();
+    }
+
     @VisibleForTesting
     protected void initConfigStore() {
         mConfigStore = DocumentsApplication.getConfigStore();

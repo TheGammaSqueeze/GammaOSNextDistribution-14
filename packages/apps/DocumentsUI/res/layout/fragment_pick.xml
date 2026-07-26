@@ -17,44 +17,68 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:baselineAligned="false"
-    android:gravity="center_vertical|end"
-    android:paddingStart="@dimen/bottom_bar_padding"
-    android:paddingEnd="@dimen/bottom_bar_padding">
+    android:orientation="vertical">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@android:id/button2"
-        style="?attr/materialButtonOutlinedStyle"
-        app:cornerRadius="@dimen/button_corner_radius"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:text="@android:string/cancel" />
-
-    <FrameLayout
+    <!-- Controller guidance shown in the folder-picker flow so the gamepad controls are
+         discoverable on devices without a touchscreen. A wrapping TextView (not the action
+         button) so it never truncates on small panels. -->
+    <TextView
+        android:id="@+id/controller_hint"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="6dp"
+        android:paddingBottom="2dp"
+        android:paddingStart="@dimen/bottom_bar_padding"
+        android:paddingEnd="@dimen/bottom_bar_padding"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary"
+        android:text="@string/controller_hint_open_tree"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:gravity="center_vertical|end"
+        android:paddingStart="@dimen/bottom_bar_padding"
+        android:paddingEnd="@dimen/bottom_bar_padding">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@android:id/button1"
-            style="?attr/materialButtonStyle"
+            android:id="@android:id/button2"
+            style="?attr/materialButtonOutlinedStyle"
             app:cornerRadius="@dimen/button_corner_radius"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:backgroundTint="@color/fragment_pick_button_background_color"
-            android:textColor="@color/fragment_pick_button_text_color"
-            android:layout_marginEnd="4dp" />
+            android:layout_marginEnd="4dp"
+            android:text="@android:string/cancel" />
 
-        <!-- Handles touch events when button1 is disabled. -->
         <FrameLayout
-            android:id="@+id/pick_button_overlay"
-            android:importantForAccessibility="no"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-    </FrameLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@android:id/button1"
+                style="?attr/materialButtonStyle"
+                app:cornerRadius="@dimen/button_corner_radius"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:backgroundTint="@color/fragment_pick_button_background_color"
+                android:textColor="@color/fragment_pick_button_text_color"
+                android:layout_marginEnd="4dp" />
+
+            <!-- Handles touch events when button1 is disabled. -->
+            <FrameLayout
+                android:id="@+id/pick_button_overlay"
+                android:importantForAccessibility="no"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

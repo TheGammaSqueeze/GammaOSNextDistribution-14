@@ -530,6 +530,12 @@ public class DirectoryFragment extends Fragment implements SwipeRefreshLayout.On
 
         SpanSizeLookup lookup = mAdapter.createSpanSizeLookup();
         if (lookup != null) {
+            // Cache span index/group lookups so vertical (up/down) controller navigation, which
+            // queries getSpanGroupIndex/getSpanIndex, stays cheap on large folders instead of
+            // rescanning from position 0 on every key press. The caches self-invalidate on data
+            // changes.
+            lookup.setSpanIndexCacheEnabled(true);
+            lookup.setSpanGroupIndexCacheEnabled(true);
             mLayout.setSpanSizeLookup(lookup);
         }
         mRecView.setLayoutManager(mLayout);

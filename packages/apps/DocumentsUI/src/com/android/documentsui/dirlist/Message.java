@@ -176,15 +176,10 @@ abstract class Message {
             } else if (mEnv.getModel().info != null) {
                 update(null, mEnv.getModel().info, null,
                         mEnv.getContext().getDrawable(R.drawable.ic_dialog_info));
-            } else if (mEnv.getDisplayState().action == State.ACTION_OPEN_TREE
-                    && mEnv.getDisplayState().stack.peek() != null
-                    && mEnv.getDisplayState().stack.peek().isBlockedFromTree()
-                    && mEnv.getDisplayState().restrictScopeStorage) {
-                updateBlockFromTreeMessage();
-                mCallback = () -> {
-                    mEnv.getActionHandler().showCreateDirectoryDialog();
-                };
             }
+            // The "this folder can't be used" blocked-from-tree message is intentionally
+            // omitted: GammaOS lets folders be selected regardless of scoped-storage
+            // restrictions, so the confirm button is always available.
         }
 
         private void updateToAuthenticationExceptionHeader(Update event) {
@@ -203,13 +198,6 @@ abstract class Message {
             };
         }
 
-        private void updateBlockFromTreeMessage() {
-            mShouldKeep = true;
-            update(mEnv.getContext().getString(R.string.directory_blocked_header_title),
-                    mEnv.getContext().getString(R.string.directory_blocked_header_subtitle),
-                    mEnv.getContext().getString(R.string.create_new_folder_button),
-                    mEnv.getContext().getDrawable(R.drawable.ic_dialog_info));
-        }
     }
 
     final static class InflateMessage extends Message {

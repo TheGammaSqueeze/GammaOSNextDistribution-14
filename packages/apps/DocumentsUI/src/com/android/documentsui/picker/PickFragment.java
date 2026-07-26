@@ -88,6 +88,7 @@ public class PickFragment extends Fragment {
     private View mPickOverlay;
     private Button mPick;
     private Button mCancel;
+    private View mControllerHint;
 
     public static void show(FragmentManager fm) {
         // Fragment can be restored by FragmentManager automatically.
@@ -117,6 +118,8 @@ public class PickFragment extends Fragment {
 
         mCancel = (Button) mContainer.findViewById(android.R.id.button2);
         mCancel.setOnClickListener(mCancelListener);
+
+        mControllerHint = mContainer.findViewById(R.id.controller_hint);
 
         updateView();
         return mContainer;
@@ -181,13 +184,19 @@ public class PickFragment extends Fragment {
                 mPick.setText(getString(R.string.open_tree_button));
                 mPick.setWidth(Integer.MAX_VALUE);
                 mCancel.setVisibility(View.GONE);
-                mPick.setEnabled(!(mPickTarget.isBlockedFromTree() && mRestrictScopeStorage));
-                mPickOverlay.setVisibility(
-                        mPickTarget.isBlockedFromTree() && mRestrictScopeStorage
-                                ? View.VISIBLE
-                                : View.GONE);
+                // Folders are always selectable on GammaOS, regardless of scoped-storage
+                // warnings, so the confirm button stays enabled and the blocking overlay is
+                // never shown.
+                mPick.setEnabled(true);
+                mPickOverlay.setVisibility(View.GONE);
+                if (mControllerHint != null) {
+                    mControllerHint.setVisibility(View.VISIBLE);
+                }
                 break;
             case State.ACTION_PICK_COPY_DESTINATION:
+                if (mControllerHint != null) {
+                    mControllerHint.setVisibility(View.GONE);
+                }
                 int titleId;
                 switch (mCopyOperationSubType) {
                     case OPERATION_COPY:
@@ -212,5 +221,18 @@ public class PickFragment extends Fragment {
                 mContainer.setVisibility(View.GONE);
                 return;
         }
+    }
+
+    /**
+     * Performs the confirm/pick action if the confirm button is currently available. Used by the
+     * gamepad Start-button shortcut in {@link PickActivity}.
+     *
+     * @return {@code true} if the pick action was triggered.
+     */
+    public boolean triggerPick() {
+        if (mPick != null && mPick.isShown() && mPick.isEnabled()) {
+            return mPick.performClick();
+        }
+        return false;
     }
 }

@@ -91,9 +91,9 @@ public final class FocusManager extends FocusDelegate<String> implements FocusHa
 
     @Override
     public boolean advanceFocusArea() {
-        // This should only be called in pre-O devices.
-        // O has built-in keyboard navigation support.
-        assert(!mFeatures.isSystemKeyboardNavigationEnabled());
+        // Toggles focus between the roots (storage) sidebar and the directory list. Historically
+        // this was only used on pre-O devices (O+ has built-in keyboard navigation), but it is
+        // also driven directly by the gamepad L1 shortcut regardless of that feature flag.
         boolean focusChanged = false;
         if (mNavDrawerHasFocus) {
             mDrawer.setOpen(false);
@@ -260,58 +260,117 @@ public final class FocusManager extends FocusDelegate<String> implements FocusHa
                 return findPagedTargetPosition(view, keyCode, event);
         }
 
-        // Find a navigation target based on the arrow key that the user pressed.
-        int searchDir = -1;
+        // Directional navigation is computed deterministically from adapter positions and the
+        // grid's span layout, NOT from a geometric focus search. A geometric focusSearch can
+        // silently fail (returning nothing) whenever the destination view isn't currently laid
+        // out or when tiles differ in size - e.g. the tall image thumbnails shown for a folder of
+        // photos - which left focus "stuck", unable to move in some directions. Working from
+        // positions keeps all four directions reliable regardless of folder contents or scroll
+        // state; focusItem() then scrolls the destination into view if it isn't laid out yet.
+        int currentPosition = mScope.view.getChildAdapterPosition(view);
+        if (currentPosition == RecyclerView.NO_POSITION) {
+            return RecyclerView.NO_POSITION;
+        }
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_UP:
-                searchDir = View.FOCUS_UP;
-                break;
+                return findVerticalTargetPosition(currentPosition, false);
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                searchDir = View.FOCUS_DOWN;
-                break;
-        }
-
-        if (inGridMode()) {
-            int currentPosition = mScope.view.getChildAdapterPosition(view);
-            // Left and right arrow keys only work in grid mode.
-            switch (keyCode) {
-                case KeyEvent.KEYCODE_DPAD_LEFT:
-                    if (currentPosition > 0) {
-                        // Stop backward focus search at the first item, otherwise focus will wrap
-                        // around to the last visible item.
-                        searchDir = View.FOCUS_BACKWARD;
-                    }
-                    break;
-                case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    if (currentPosition < mScope.adapter.getItemCount() - 1) {
-                        // Stop forward focus search at the last item, otherwise focus will wrap
-                        // around to the first visible item.
-                        searchDir = View.FOCUS_FORWARD;
-                    }
-                    break;
-            }
-        }
-
-        if (searchDir != -1) {
-            // Focus search behaves badly if the parent RecyclerView is focused. However, focusable
-            // shouldn't be unset on RecyclerView, otherwise focus isn't properly restored after
-            // events that cause a UI rebuild (like rotating the device). Compromise: turn focusable
-            // off while performing the focus search.
-            // TODO: Revisit this when RV focus issues are resolved.
-            mScope.view.setFocusable(false);
-            View targetView = view.focusSearch(searchDir);
-            mScope.view.setFocusable(true);
-            // TargetView can be null, for example, if the user pressed <down> at the bottom
-            // of the list.
-            if (targetView != null) {
-                // Ignore navigation targets that aren't items in the RecyclerView.
-                if (targetView.getParent() == mScope.view) {
-                    return mScope.view.getChildAdapterPosition(targetView);
-                }
-            }
+                return findVerticalTargetPosition(currentPosition, true);
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                // Left/right only apply in grid mode; they step to the adjacent focusable item in
+                // linear order (snaking across rows), so every item stays reachable.
+                return inGridMode()
+                        ? findHorizontalTargetPosition(currentPosition, false)
+                        : RecyclerView.NO_POSITION;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                return inGridMode()
+                        ? findHorizontalTargetPosition(currentPosition, true)
+                        : RecyclerView.NO_POSITION;
         }
 
         return RecyclerView.NO_POSITION;
+    }
+
+    /**
+     * Computes the adapter position that horizontal (left/right) navigation should move focus to:
+     * the nearest focusable item before/after the current one in linear order, skipping
+     * non-focusable dividers. This snakes across row boundaries so every item is reachable, and
+     * unlike a geometric focus search it never gets stuck when the neighbour is off-screen or a
+     * different size (tall image tiles).
+     */
+    private int findHorizontalTargetPosition(int current, boolean forward) {
+        final int itemCount = mScope.adapter.getItemCount();
+        final int step = forward ? 1 : -1;
+        for (int pos = current + step; pos >= 0 && pos < itemCount; pos += step) {
+            if (isFocusablePosition(pos)) {
+                return pos;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
+    /**
+     * Computes the adapter position that vertical (up/down) navigation should move focus to.
+     *
+     * <p>The grid can contain full-width, non-focusable rows (section breaks, header/info
+     * messages) and, in photo-picking mode, tiles that span more than one column. To move
+     * predictably we reason in terms of span groups (visual rows) and span indices (columns)
+     * reported by the {@link GridLayoutManager.SpanSizeLookup}, skipping non-focusable items.
+     * This keeps up/down working regardless of folder contents or scroll state; the subsequent
+     * {@link #focusItem(int)} call scrolls the destination into view if it is not laid out yet.
+     * In list mode (span count 1) this degenerates to "previous/next focusable item".
+     *
+     * @param current The adapter position currently focused.
+     * @param down {@code true} for down navigation, {@code false} for up.
+     * @return The destination adapter position, or {@link RecyclerView#NO_POSITION} if there is
+     *         no focusable item in the requested direction.
+     */
+    private int findVerticalTargetPosition(int current, boolean down) {
+        final GridLayoutManager.SpanSizeLookup lookup = mScope.layout.getSpanSizeLookup();
+        final int spanCount = mScope.layout.getSpanCount();
+        final int itemCount = mScope.adapter.getItemCount();
+        final int currentRow = lookup.getSpanGroupIndex(current, spanCount);
+        final int currentColumn = lookup.getSpanIndex(current, spanCount);
+
+        int targetRow = -1;
+        int fallback = RecyclerView.NO_POSITION;
+
+        final int step = down ? 1 : -1;
+        for (int pos = current + step; pos >= 0 && pos < itemCount; pos += step) {
+            if (!isFocusablePosition(pos)) {
+                continue;
+            }
+            final int row = lookup.getSpanGroupIndex(pos, spanCount);
+            // Skip any item still on the current visual row (tiles further along the same row).
+            if (down ? (row <= currentRow) : (row >= currentRow)) {
+                continue;
+            }
+            if (targetRow == -1) {
+                // First focusable item in the row immediately adjacent in this direction.
+                targetRow = row;
+            } else if (row != targetRow) {
+                // Moved past the adjacent row; the best match is whatever we already recorded.
+                break;
+            }
+            fallback = pos;
+            final int column = lookup.getSpanIndex(pos, spanCount);
+            final int span = lookup.getSpanSize(pos);
+            if (currentColumn >= column && currentColumn < column + span) {
+                // Column-aligned item directly above/below the current one.
+                return pos;
+            }
+        }
+
+        // No column-aligned item (the adjacent row is shorter or has different spans); fall back
+        // to the nearest focusable item in that row, or NO_POSITION at the top/bottom edge.
+        return fallback;
+    }
+
+    /** @return whether the item at the given adapter position is a focusable document/directory. */
+    private boolean isFocusablePosition(int pos) {
+        final int type = mScope.adapter.getItemViewType(pos);
+        return type == DocumentsAdapter.ITEM_TYPE_DOCUMENT
+                || type == DocumentsAdapter.ITEM_TYPE_DIRECTORY;
     }
 
     /**

@@ -163,7 +163,8 @@ public class PickActivity extends BaseActivity implements ActionHandler.Addons {
                         this::popDir,
                         mInjector.features,
                         mDrawer,
-                        mInjector.searchManager::onSearchBarClicked);
+                        mInjector.searchManager::onSearchBarClicked,
+                        this);
         setupLayout(intent);
         mInjector.actions.initLocation(intent);
         Metrics.logPickerLaunchedFrom(Shared.getCallingPackageName(this));
@@ -461,6 +462,14 @@ public class PickActivity extends BaseActivity implements ActionHandler.Addons {
     @CallSuper
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Start confirms the current folder/file selection in the picker, so it can be driven
+        // with just a gamepad.
+        if (keyCode == KeyEvent.KEYCODE_BUTTON_START) {
+            final PickFragment pickFragment = PickFragment.get(getSupportFragmentManager());
+            if (pickFragment != null && pickFragment.triggerPick()) {
+                return true;
+            }
+        }
         return mSharedInputHandler.onKeyDown(keyCode, event)
                 || super.onKeyDown(keyCode, event);
     }
