@@ -8548,16 +8548,36 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             if (sel == 1 && mShaderPendingTypeSel >= 0) shaderApplyType(mShaderPendingTypeSel);
             mShaderPendingTypeSel = -1;
             break;
-        case 43: {  // Media option-menu delete confirm (sel 1 = Delete): unlink each stashed
-                    // file for real, then rescan the affected library so the row disappears.
+        case 43: {  // Media option-menu delete confirm (sel 1 = Delete): unlink each stashed file
+                    // for real, drop it from the in-memory library so the column reflects it, and
+                    // kick a rescan to reconcile the rest.
             if (sel == 1 && !mMediaDelPaths.empty()) {
                 for (const std::string& p : mMediaDelPaths) nanoRemovePath(p);
-                if      (mMediaDelLib == 0) videoRefresh();
-                else if (mMediaDelLib == 2) musicRefresh();
-                else if (mMediaDelLib == 1) {
-                    photoRefresh();
-                    // The photo grid indexes the pre-rescan list; drop it so it rebuilds fresh
-                    // on reopen instead of showing a stale/removed thumbnail.
+                // Remove the deleted paths from the in-memory library NOW. The async rescan only
+                // drains + rebuilds the columns at the fully-settled XMB root (NanoMenu.cpp), which
+                // a delete made from a submenu/player never reaches in time, so the row lingered.
+                // These vectors are only ever touched on this (main) thread, so no lock is needed.
+                auto inDelSet = [&](const std::string& f) {
+                    return std::find(mMediaDelPaths.begin(), mMediaDelPaths.end(), f) != mMediaDelPaths.end();
+                };
+                if (mMediaDelLib == 0) {
+                    mVideos.erase(std::remove_if(mVideos.begin(), mVideos.end(),
+                        [&](const VideoItem& v){ return inDelSet(v.file); }), mVideos.end());
+                    videoRefresh(); mVideoCatsStale = true;
+                } else if (mMediaDelLib == 2) {
+                    mMusicTracks.erase(std::remove_if(mMusicTracks.begin(), mMusicTracks.end(),
+                        [&](const MusicTrack& t){ return inDelSet(t.file); }), mMusicTracks.end());
+                    musicRemapQueueAfterReload();
+                    musicRefresh(); mMusicCatsStale = true;
+                    // The open album submenu is not rebuilt in place; return to the Music column so
+                    // the deletion is visible (the column rebuild fires once settled at the root).
+                    while (!mPs3Stack.empty()) mPs3Stack.pop_back();
+                } else if (mMediaDelLib == 1) {
+                    mPhotos.erase(std::remove_if(mPhotos.begin(), mPhotos.end(),
+                        [&](const PhotoItem& p){ return inDelSet(p.file); }), mPhotos.end());
+                    photoRefresh(); mPhotoCatsStale = true;
+                    // The photo grid indexes the pre-delete list; drop it so it rebuilds fresh
+                    // instead of showing a stale/removed thumbnail.
                     if (ps3TopScreenKind() == PHOTO_GRID && !mPs3Stack.empty()) {
                         closePhotoGrid(); mPs3Stack.pop_back();
                     }
