@@ -327,6 +327,18 @@ void NanoMenu::advanceSetupStep() {
     int next = (int)mSetupStep + 1;
     if (next >= SETUP_STEP_COUNT) return;
 
+    // Do not enter the Wi-Fi (Internet Connection) step until the system has finished booting.
+    // That step runs the real cmd-wifi scan/connect, which needs WifiService up, and that only
+    // happens at sys.boot_completed=1. Hold on the current step and auto-advance the moment boot
+    // completes (renderSetupWizard polls mSetupWifiWaitPending) so the user never lands on a
+    // Wi-Fi step that cannot scan.
+    if (next == SETUP_WIFI) {
+        char bd[PROPERTY_VALUE_MAX] = {0};
+        property_get("sys.boot_completed", bd, "0");
+        if (bd[0] != '1') { mSetupWifiWaitPending = true; return; }
+    }
+    mSetupWifiWaitPending = false;
+
     mSetupTransitioning = true;
     mSetupTransitionTarget = (SetupWizardStep)next;
     mSetupTransitionAlpha = 1.0f;
@@ -616,6 +628,24 @@ void NanoMenu::renderSetupProgressDots() {
 
 void NanoMenu::renderSetupWizard() {
     updateSetupTransition();
+
+    // A "next" into the Wi-Fi step is deferred until the system finishes first-boot setup: the
+    // Wi-Fi wizard runs a real scan/connect that cannot work before sys.boot_completed. While
+    // waiting, show an XMB-style "please wait" progress screen (reusing the net-wizard chrome), and
+    // auto-advance into Wi-Fi the instant boot completes, with no second press.
+    if (mSetupWifiWaitPending) {
+        char bd[PROPERTY_VALUE_MAX] = {0};
+        property_get("sys.boot_completed", bd, "0");
+        if (bd[0] == '1') {
+            mSetupWifiWaitPending = false;
+            mPs3WizActive = false;          // drop the wait screen
+            advanceSetupStep();             // now enters SETUP_WIFI and starts the real net wizard
+        } else {
+            if (!mPs3WizActive) startSetupBootWaitScreen();  // WK_PROGRESS net-wizard page (enum is file-local to NanoMenuPS3Menu.cpp)
+            renderNetWizard();
+            return;
+        }
+    }
 
     // Anti-alias the wizard text on every step AFTER the Hello/Welcome screen
     // (language, timezone, the Wi-Fi/Bluetooth net wizard, installing, finish).

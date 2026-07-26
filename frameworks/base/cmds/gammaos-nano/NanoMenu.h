@@ -3724,6 +3724,7 @@ private:
     int    mPs3WizExit = 0;               // on close: +1 completed/forward, -1 cancelled/back (for the setup step)
     bool   mSetupNetWizSeen = false;      // setup-wizard tracking of the network step's wizard
     bool   mSetupBtWizSeen = false;       // setup-wizard tracking of the Bluetooth step's wizard
+    bool   mSetupWifiWaitPending = false; // a "next" into the Wi-Fi step is deferred until sys.boot_completed=1
     int    mPs3WizId = 0;                 // current screen (WizScreen enum, file-local)
     std::vector<int> mPs3WizStack;        // back stack of screen ids
     int    mPs3WizSel = 0;                // chooser/list selection
@@ -3753,6 +3754,7 @@ private:
                                         // a new OSK from inside the old OSK's callback)
     // Wizard lifecycle + render (NanoMenuPS3Menu.cpp).
     void startNetWizard();
+    void startSetupBootWaitScreen();   // first-run: XMB "waiting for services" hold before the Wi-Fi step
     // Network: Internet Browser / Internet Search (launch the com.gammaos.browser app).
     void openInternetBrowser();
     void openInternetSearch();

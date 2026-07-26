@@ -10990,6 +10990,7 @@ namespace {
 enum WizScr {
     WS_NONE = 0,
     WS_INTRO, WS_METHOD, WS_CONN,
+    WS_SETUP_BOOTWAIT,   // first-run setup only: XMB "waiting for services" hold before the Wi-Fi step
     WS_EASY_WIRED_CHECK,                                  // Easy + Wired
     WS_WIRED_OPMODE, WS_WIRED_SPEED,                      // Custom + Wired
     WS_IP, WS_IP_ADDR, WS_IP_SUBNET, WS_IP_ROUTER, WS_IP_PDNS, WS_IP_SDNS,
@@ -11100,7 +11101,11 @@ static void wizDesc(int id, WizDesc& d) {
     case WS_METHOD: d.kind = WK_CHOOSER; d.body = "Select a setting method.";
         d.opts[0] = "Easy"; d.opts[1] = "Custom"; break;
     case WS_CONN: d.kind = WK_CHOOSER; d.body = "Select a connection method.";
-        d.opts[0] = "Wired Connection"; d.opts[1] = "Wireless"; break;
+        d.opts[0] = "Wireless"; d.opts[1] = "Wired Connection"; break;
+    case WS_SETUP_BOOTWAIT: d.kind = WK_PROGRESS; d.title = "Please Wait";
+        // First-run only: held on this screen until sys.boot_completed=1 (renderSetupWizard drives
+        // the poll + advance). autoMs stays 0 so the progress screen never times itself out.
+        d.body = "Waiting for first-time Android services and drivers to finish setting up.\nThis happens only once and can take a moment. Please wait..."; break;
 
     // ---- Wired connection (Easy: auto-detect; Custom: pick op-mode) ----
     case WS_EASY_WIRED_CHECK: d.kind = WK_PROGRESS;
@@ -11260,7 +11265,8 @@ void NanoMenu::startNetWizard() {
     mPs3WizExit = 0;
     mPs3WizStack.clear();
     mPs3WizSsid.clear(); mPs3WizKey.clear(); mPs3WizSecLabel.clear(); mPs3WizSecTok = 0;
-    mPs3WizMethod = mPs3WizConn = mPs3WizWlanMode = "";
+    mPs3WizConn = mPs3WizWlanMode = "";
+    mPs3WizMethod = "Easy";   // Easy/Custom chooser removed: the whole flow takes the Easy path
     mPs3WizIpMode = "Automatic"; mPs3WizDnsMode = "Automatic"; mPs3WizMtuMode = "Automatic";
     mPs3WizProxyMode = "Do Not Use"; mPs3WizUpnp = "Enable";
     mPs3WizIpAddr = mPs3WizSubnet = mPs3WizRouter = mPs3WizPdns = mPs3WizSdns = "";
@@ -11271,6 +11277,20 @@ void NanoMenu::startNetWizard() {
     mPs3WizAnim = 0.0f;
     mPs3WizPendingTextField = -1;
     wizEnter(WS_INTRO, 1);
+}
+
+// First-run setup only: bring up the XMB "waiting for services" progress screen (a WK_PROGRESS
+// net-wizard page) while the setup wizard holds before the Wi-Fi step until sys.boot_completed.
+// Lives here because the WizScr enum is file-local to this translation unit; the setup wizard
+// (a separate file) calls this rather than touching the enum. renderSetupWizard drives the poll
+// that closes it and advances into Wi-Fi once boot completes.
+void NanoMenu::startSetupBootWaitScreen() {
+    mPs3WizActive = true;
+    mPs3WizExit = 0;
+    mPs3WizStack.clear();
+    mPs3WizAnim = 0.0f;
+    mPs3WizPendingTextField = -1;
+    wizEnter(WS_SETUP_BOOTWAIT, 1);
 }
 
 // Launch the Date and Time wizard reusing the net-wizard UI machinery. mode 0 =
@@ -11753,13 +11773,13 @@ void NanoMenu::wizNav(int dir, bool /*horizontal*/) {
 int NanoMenu::wizNextScreen(int id, int sel) {
     auto afterAuth = [&]() { return (mPs3WizMethod == "Easy") ? WS_EASY_ADV : WS_IP; };
     switch (id) {
-    case WS_INTRO: return WS_METHOD;
-    case WS_METHOD: mPs3WizMethod = sel ? "Custom" : "Easy"; return WS_CONN;
+    case WS_INTRO: return WS_CONN;   // Easy/Custom step removed: default is Easy (set in startNetWizard)
+    case WS_METHOD: mPs3WizMethod = sel ? "Custom" : "Easy"; return WS_CONN;  // dead: WS_METHOD no longer in the flow
     case WS_CONN:
-        mPs3WizConn = sel ? "Wireless" : "Wired Connection";
-        if (sel == 0)   // Wired Connection
-            return (mPs3WizMethod == "Easy") ? WS_EASY_WIRED_CHECK : WS_WIRED_OPMODE;
-        return WS_WLAN; // Wireless (both Easy & Custom)
+        mPs3WizConn = sel ? "Wired Connection" : "Wireless";
+        if (sel == 0)   // Wireless (now the first option)
+            return WS_WLAN;
+        return WS_EASY_WIRED_CHECK; // Wired Connection (always the Easy path now Custom is gone)
 
     // ---- Wired ----
     case WS_WIRED_OPMODE:
