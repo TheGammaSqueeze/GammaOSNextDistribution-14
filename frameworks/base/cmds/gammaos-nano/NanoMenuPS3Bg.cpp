@@ -183,6 +183,19 @@ static int    sSeqCount = 0;
 static bool   sSeqReady = false;
 static double sSeqElapsed = 0.0;             // seconds of wave playback accumulated
 
+// Glitter-wave coupling LUT: a compact per-keyframe height profile of the silk surface so the
+// particle field can ride the REAL wave undulation (waveDisplacementAt) instead of a coarse
+// sinusoid. Built once from the flattened keyframes in loadWaveSeq (before the CPU copies are
+// freed). sWaveLut[kf*cols + b] = mean raw NDC-Y (y/w) of the sheet in screen-X bin b for
+// keyframe kf; sWaveLutMean[b] = that bin's temporal mean. Both are in the pre-transform NDC
+// space (uScaleX/uScaleY/uYFlip/uOffset are applied by the wave AND particle shaders alike), so
+// the displacement (current - mean) tracks the wave 1:1 once the shared transform is applied.
+static const int     kWaveLutCols = 96;
+static const float   kWaveLutXMin = -1.35f, kWaveLutXMax = 1.35f;
+static std::vector<float> sWaveLut;          // sSeqCount * kWaveLutCols
+static std::vector<float> sWaveLutMean;      // kWaveLutCols
+static int    sWaveLutCols = 0;              // 0 until built
+
 // scene/gradient FBOs
 static GLuint sGradFbo = 0, sGradTex = 0;
 static GLuint sWorkFbo = 0, sWorkTex = 0;
@@ -601,6 +614,44 @@ static void loadWaveSeq() {
             sSeqFrames[f][i * 4 + 1] = m + (sSeqFrames[f][i * 4 + 1] - m) * flat;
         }
 
+    // Build the glitter-wave coupling LUT from the (flattened) keyframes, BEFORE the CPU copies are
+    // freed below: for each keyframe, the mean raw NDC-Y (y/w) of the silk per screen-X bin. This lets
+    // the particle field sample the real surface undulation per column (waveDisplacementAt) so the
+    // glitter rides the silk instead of a coarse 2-sinusoid bob. ~96 floats/keyframe (tiny).
+    {
+        const int NC = kWaveLutCols;
+        sWaveLut.assign((size_t)frameCount * NC, 0.0f);
+        sWaveLutMean.assign(NC, 0.0f);
+        std::vector<int> cnt(NC, 0);
+        const float span = kWaveLutXMax - kWaveLutXMin;
+        for (uint32_t f = 0; f < frameCount; f++) {
+            float* row = &sWaveLut[(size_t)f * NC];
+            std::fill(cnt.begin(), cnt.end(), 0);
+            for (int i = 0; i < NV; i++) {
+                float w = sSeqFrames[f][i * 4 + 3];
+                if (w <= 1e-4f) continue;
+                float xr = sSeqFrames[f][i * 4 + 0] / w;
+                float yr = sSeqFrames[f][i * 4 + 1] / w;
+                int b = (int)((xr - kWaveLutXMin) / span * (float)NC);
+                if (b < 0 || b >= NC) continue;
+                row[b] += yr; cnt[b]++;
+            }
+            for (int b = 0; b < NC; b++) if (cnt[b] > 0) row[b] /= (float)cnt[b];
+            // Fill empty edge bins by nearest neighbour so a sample there is stable, not 0. Forward
+            // fills trailing empties from the left; backward then cascades the first filled value
+            // leftward through ALL leading empties (drop the cnt[b+1] guard so multiple consecutive
+            // leading empty bins are covered, not just the one adjacent to a filled bin).
+            for (int b = 1; b < NC; b++)      if (cnt[b] == 0) row[b] = row[b - 1];
+            for (int b = NC - 2; b >= 0; b--) if (cnt[b] == 0) row[b] = row[b + 1];
+        }
+        for (int b = 0; b < NC; b++) {
+            double s = 0.0;
+            for (uint32_t f = 0; f < frameCount; f++) s += sWaveLut[(size_t)f * NC + b];
+            sWaveLutMean[b] = (float)(s / (double)frameCount);
+        }
+        sWaveLutCols = NC;
+    }
+
     // Upload ALL keyframes to one static GPU buffer; the vertex shader now does
     // the Catmull-Rom interpolation, so this replaces the per-frame CPU interp +
     // dynamic VBO re-upload. Keyframe f occupies [f*NV*4 .. (f+1)*NV*4) floats.
@@ -774,6 +825,7 @@ void freeWaveSeq() {
     if (sWaveSeqVBO) { glDeleteBuffers(1, &sWaveSeqVBO); sWaveSeqVBO = 0; }
     sSeqReady = false;
     sSeqCount = 0;
+    sWaveLutCols = 0;   // the glitter LUT rebuilds when loadWaveSeq re-runs on the next live home frame
 }
 void invalidateScrimWave() { sScrimEpoch++; }
 
@@ -824,6 +876,7 @@ void shutdown() {
     sWaveSeqVBO = sWaveAttrVBO = sWaveIBO = sQuadVBO = 0;
     sSeqCount = 0;
     sSeqFrames.clear();
+    sWaveLut.clear(); sWaveLutMean.clear(); sWaveLutCols = 0;   // glitter-wave coupling LUT
     sReady = false; sTriedInit = false; sWaveGeoReady = false; sSeqReady = false;
     sGradDirty = true;
 }
@@ -881,6 +934,33 @@ static void animateWave(float dt) {
     sSeqI2  = (sSeqI1 + 1) % count;
     sSeqT   = (float)(pp - floor(pp));
     sSeqW   = (pp > count - XF) ? (float)((pp - (count - XF)) / XF) : 0.0f;
+}
+
+// Real silk-surface vertical displacement at a pre-transform NDC-X (see the header). Samples the
+// per-keyframe height LUT with the SAME Catmull-Rom + loop-seam crossfade the wave vertex shader
+// (VS_WAVECAP) uses on the live keyframe state, then subtracts the column's temporal mean -> the
+// local undulation the glitter rides. Returned in the shared pre-transform NDC-Y space, so the
+// particle shader's uYFlip*uScaleY scales it exactly like the wave. 0 before the sequence is ready.
+float waveDisplacementAt(float ndcX) {
+    if (!sSeqReady || sWaveLutCols < 2 || sSeqCount < 2) return 0.0f;
+    const int NC = sWaveLutCols;
+    float fx = (ndcX - kWaveLutXMin) / (kWaveLutXMax - kWaveLutXMin) * (float)NC;
+    if (fx < 0.0f) fx = 0.0f; else if (fx > (float)(NC - 1)) fx = (float)(NC - 1);
+    int b0 = (int)fx; int b1 = (b0 < NC - 1) ? b0 + 1 : b0; float bf = fx - (float)b0;
+    auto kf = [&](int f) -> float {
+        const float* r = &sWaveLut[(size_t)f * NC];
+        return r[b0] + (r[b1] - r[b0]) * bf;   // linear across screen-X bins
+    };
+    // Catmull-Rom over the 4 live keyframes at sSeqT (identical spline to VS_WAVECAP), then the
+    // loop-seam crossfade toward keyframe 0 at sSeqW.
+    float P0 = kf(sSeqIm1), A = kf(sSeqI0), B = kf(sSeqI1), P3 = kf(sSeqI2);
+    float t = sSeqT, t2 = t * t, t3 = t2 * t;
+    float m = 0.5f * (2.0f * A + (-P0 + B) * t
+                    + (2.0f * P0 - 5.0f * A + 4.0f * B - P3) * t2
+                    + (-P0 + 3.0f * A - 3.0f * B + P3) * t3);
+    float cur = m + (kf(0) - m) * sSeqW;
+    float mean = sWaveLutMean[b0] + (sWaveLutMean[b1] - sWaveLutMean[b0]) * bf;
+    return cur - mean;
 }
 
 // Frame gate for multi-display rendering. render() is called once per draw

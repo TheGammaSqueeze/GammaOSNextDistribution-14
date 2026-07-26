@@ -126,6 +126,14 @@ void setDayNightBlend(float b);
 // the particles; false hides them (Theme Settings -> Background -> Classic).
 void setParticlesEnabled(bool enabled);
 
+// Glitter-wave coupling: the real silk-surface vertical displacement (in the shared
+// pre-transform NDC-Y space, deviation from the surface's temporal mean) at a given
+// pre-transform NDC-X. The particle field adds this to each glint so the glitter rides
+// the ACTUAL keyframe wave undulation instead of a coarse sinusoid. Uses the live
+// keyframe-interpolation state (animateWave) + a compact per-keyframe height LUT built
+// at load. Returns 0 before the wave sequence is ready.
+float waveDisplacementAt(float ndcX);
+
 // XMB Wave on/off (Theme Settings). When off, render() composites only the per-month gradient (no cloth
 // wave, no glitter) - the clean base a custom wallpaper draws over, or a calm plain background. Default on.
 void setWaveEnabled(bool enabled);

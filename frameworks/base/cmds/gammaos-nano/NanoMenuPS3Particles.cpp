@@ -18,6 +18,7 @@
 
 #include "NanoMenuPS3Particles.h"
 #include "NanoMenuPS3ParticleCloud.h"
+#include "NanoMenuPS3Bg.h"   // ps3bg::waveDisplacementAt - couple the glitter to the real silk surface
 
 #include <math.h>
 #include <stdint.h>
@@ -42,6 +43,9 @@ static const float kSizeNear = 0.0772033f, kGlare = 0.159705f;
 static const float kSpinTimeScale = 2.74f, kDeltaTime = 0.0088883f;
 static const float kAgingSpeed = 0.00285223f, kAgingVar = 0.493003f;
 static const float kIridescentExp = 1.0f;
+// Glitter <-> wave coupling strength: 1.0 rides the silk 1:1 (the particle shader applies the same
+// uYFlip*uScaleY as the wave, so the vertical motion matches the surface exactly).
+static const float kWaveCouple = 1.0f;
 // normalized spot-light dir (eye space) from spotPos (4.16, 2.63, -7.6)
 static float sLx, sLy, sLz;
 
@@ -192,15 +196,8 @@ static void step() {
     if (sMvBlend > 0.0001f) for (Particle& p : sPartsExtra) stepOne(p);
 }
 
-// wave undulation Y offset (NDC) so the band rides the wave (index.html 2625)
-static inline float waveMotionDeltaY(float x, float t) {
-    float moving = 0.09f * cosf(x * 2.0f - t * 0.5f)
-                 + 0.25f * sinf(x * 0.306f + t * 0.075f);
-    // Web-exact coupling amplitude (index.html 2634): over-boosting this (the old
-    // *0.95) desyncs the band's vertical swing from the wave's own swing, which
-    // is what made the glitter drift off the crest. *0.6 keeps them in lockstep.
-    return -(moving * 0.5f) * 0.6f;
-}
+// (The old coarse 2-sinusoid waveMotionDeltaY was replaced by ps3bg::waveDisplacementAt, which
+// samples the real keyframe silk surface so the glitter follows the actual undulation.)
 
 // ---- public API -------------------------------------------------------------
 bool init() {
@@ -255,6 +252,7 @@ void update(float dt) {
 void render(float scaleX, float scaleY, float yFlip, float frameH,
             float nightBlend, float waveT,
             const float frameNdc[4], const float rotMat[4]) {
+    (void)waveT;   // superseded by ps3bg::waveDisplacementAt (real silk coupling); kept for ABI stability
     if (!sReady && !init()) return;
 
     float nb = nightBlend; if (nb < 0.0f) nb = 0.0f; if (nb > 1.0f) nb = 1.0f;
@@ -309,7 +307,11 @@ void render(float scaleX, float scaleY, float yFlip, float frameH,
         // sign and the x-phase, which is what stops the glitter mirroring the
         // wave; on 0 degrees it reduces to the old ndcY += D.
         float visualX = R[0] * ndcX + R[2] * ndcY;
-        float D = waveMotionDeltaY(visualX, waveT);
+        // Ride the REAL silk surface: sample the wave's per-column vertical displacement (from its
+        // temporal mean) at this screen column, so the glitter follows the actual keyframe undulation
+        // instead of a coarse sinusoid. Returned in the shared pre-transform NDC-Y space (the particle
+        // shader then applies the same uYFlip*uScaleY as the wave), so they move in lockstep.
+        float D = ps3bg::waveDisplacementAt(visualX) * kWaveCouple;
         ndcX += R[1] * D;
         ndcY += R[3] * D;
         if (fabsf(ndcX) > 1.15f || fabsf(ndcY) > 1.15f) { dst[3] = 0.0f; return; }
