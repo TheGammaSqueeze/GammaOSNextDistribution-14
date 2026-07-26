@@ -2183,21 +2183,15 @@ void NanoMenu::pvTouchFrame() {
         PvLayout vl = pvLayout(mWidth, mHeight, cp, cnt);   // SAME full-panel layout drawPvPanel renders
         float ih = vl.ih;
         if (mPvCpSub) {
-            // Change Effect / Slideshow Speed / Style submenu: tap a row to apply it
-            // (same layout drawPvPanel renders under the label).
+            // Change Effect / Slideshow Speed / Style submenu -> shared XMB-style dialog. Tap a
+            // row to apply it; tap inside the dialog (not a row) keeps it open; tap outside backs.
             if (!mPvCpSubOpts.empty()) {
-                float fs = (ih * 0.5f) / 16.0f, lh = ih * 1.15f, cx = vl.cx;
-                float mw = 0; for (auto& o : mPvCpSubOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
-                float sy = vl.labBaseY + vl.cellY * 0.7f;
-                for (int i = 0; i < (int)mPvCpSubOpts.size(); i++) {
-                    float oy2 = sy + i * lh;
-                    if (px >= cx - mw * 0.5f - ih * 0.5f && px <= cx + mw * 0.5f + ih * 0.5f &&
-                        py >= oy2 - lh * 0.5f && py <= oy2 + lh * 0.5f) {
-                        mPvCpSubSel = i; pvPanelActivate(); return;   // applies + closes the submenu
-                    }
-                }
+                const char* title = trDyn(cp[mPvCpSel].label);
+                int row = mediaOptDialogRowAt(title, mPvCpSubOpts, mPvCpSubSel, px, py);
+                if (row >= 0) { mPvCpSubSel = row; pvPanelActivate(); return; }   // applies + closes
+                if (row == -1) return;                                            // inside dialog, keep open
             }
-            pvPanelBack();   // tap off the submenu -> back to the panel
+            pvPanelBack();   // tap outside the dialog -> back to the panel
             return;
         }
         // Hit-test the control-panel cells (device space, nearest within a cell).
@@ -2271,12 +2265,12 @@ void NanoMenu::drawPvPanel(float closeT) {
             glyph(tex, arIdx,  d,-d, 0, 0, 0, al); glyph(tex, arIdx, -d,-d, 0, 0, 0, al);
         };
         // Layered soft drop shadow (near dark cast + wider low-alpha falloff), under stroke+glyph.
-        auto shadow = [&](GLuint tex, int arIdx) {
-            glyph(tex, arIdx, ih * 0.05f, ih * 0.075f, 0, 0, 0, 0.55f);   // near, dark
-            glyph(tex, arIdx, ih * 0.09f, ih * 0.130f, 0, 0, 0, 0.30f);   // wider soft falloff
+        auto shadow = [&](GLuint tex, int arIdx, float m) {
+            glyph(tex, arIdx, ih * 0.05f, ih * 0.075f, 0, 0, 0, 0.55f * m);   // near, dark
+            glyph(tex, arIdx, ih * 0.09f, ih * 0.130f, 0, 0, 0, 0.30f * m);   // wider soft falloff
         };
         if (focus) {
-            shadow(g, icn);
+            shadow(g, icn, 1.0f);
             stroke(g, icn, 0.55f);
             if (g) {
                 float hh = ih * ps * 1.18f, ww = hh * pvIconAR(icn);
@@ -2284,9 +2278,10 @@ void NanoMenu::drawPvPanel(float closeT) {
             }
             glyph(g, icn, 0, 0, 1, 1, 1, 1.0f);
         } else {
-            shadow(g, icn);
-            stroke(g, icn, 0.55f);
-            glyph(g, icn, 0, 0, 1, 1, 1, 0.9f);
+            // Unfocused icons render at half opacity so the focused one stands out.
+            shadow(g, icn, 0.5f);
+            stroke(g, icn, 0.28f);
+            glyph(g, icn, 0, 0, 1, 1, 1, 0.5f);
         }
         if (flash > 0.0f) glyph(g, icn, 0, 0, 1, 1, 1, flash);
     }
@@ -2303,21 +2298,11 @@ void NanoMenu::drawPvPanel(float closeT) {
         float ls = (ih * 0.42f) / 16.0f, lw = measureText(lab, ls);
         drawText(lab, vl.cx - lw * 0.5f, ps3::baselineToTopY(vl.labBaseY, ls), ls, 1.0f, 1.0f, 1.0f, 0.95f * t);
     }
-    // control submenu (Change Effect / Speed / Style), centred under the label
+    // control submenu (Change Effect / Speed / Style) -> the shared XMB-style modal dialog,
+    // centred over the icons; pvTouchFrame hit-tests the same geometry.
     if (mPvCpSub && !mPvCpSubOpts.empty()) {
-        float fs = (ih * 0.5f) / 16.0f, lh = ih * 1.15f, cx = vl.cx;
-        float sy = vl.labBaseY + cellY * 0.7f;
-        float mw = 0; for (auto& o : mPvCpSubOpts) mw = fmaxf(mw, measureText(o.c_str(), fs));
-        float plateW = mw + ih;
-        drawQuad(cx - plateW * 0.5f, sy - lh * 0.5f, plateW, lh * mPvCpSubOpts.size() + lh * 0.3f, 0, 0, 0, 0.55f * t);
-        for (int i = 0; i < (int)mPvCpSubOpts.size(); i++) {
-            float oy2 = sy + i * lh;
-            bool sel = (i == mPvCpSubSel);
-            if (sel) drawQuad(cx - plateW * 0.46f, oy2 - lh * 0.42f, plateW * 0.92f, lh * 0.86f, 1, 1, 1, 0.20f * t);
-            float ow = measureText(mPvCpSubOpts[i].c_str(), fs);
-            drawText(mPvCpSubOpts[i].c_str(), cx - ow * 0.5f, ps3::baselineToTopY(oy2 + lh * 0.18f, fs), fs,
-                     sel ? 1.0f : 0.88f, sel ? 1.0f : 0.88f, sel ? 1.0f : 0.90f, 0.95f * t);
-        }
+        const char* title = trDyn(cp[mPvCpSel].label);
+        drawMediaOptDialog(title, mPvCpSubOpts, mPvCpSubSel, t);
     }
 }
 

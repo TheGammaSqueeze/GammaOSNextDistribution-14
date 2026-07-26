@@ -2793,6 +2793,13 @@ private:
     void vidSubBuild(int kind);             // populate mVidSubOpts/Sel for a control
     void vidSubConfirm();                   // apply the highlighted submenu row
     void drawVideoPanel(float closeT);      // render the panel (closeT>=0 drives close anim)
+    // Shared XMB-style media option dialog (video + photo option lists): a solid dark
+    // rounded panel centred on screen with a title + touch-capable rows. One look/behaviour
+    // for every media list. Geometry (mediaOptDlgGeom) is shared by render + touch hit-test.
+    struct MediaOptDlg { float cx, cy, top, w, h, titleH, rowH, titleFs, rowFs, pad; int n, first, vis; };
+    MediaOptDlg mediaOptDlgGeom(const char* title, const std::vector<std::string>& opts, int sel);
+    void drawMediaOptDialog(const char* title, const std::vector<std::string>& opts, int sel, float alpha);
+    int  mediaOptDialogRowAt(const char* title, const std::vector<std::string>& opts, int sel, float px, float py);
     GLuint vidIcon(int n);                  // load+cache a videoplayer icon (NanoMenuPS3Icons.cpp)
     float  vidIconAR(int n);                // cached aspect ratio (w/h)
     std::map<int, GLuint> mVidIconCache;

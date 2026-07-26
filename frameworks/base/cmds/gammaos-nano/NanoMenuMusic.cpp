@@ -1456,12 +1456,12 @@ void NanoMenu::drawMpOpt(float closeT) {
         };
         // Layered soft drop shadow so the glyphs lift off bright content (near dark cast +
         // wider low-alpha falloff), drawn under the stroke and glyph.
-        auto shadow = [&](GLuint tex, int arIdx) {
-            glyph(tex, arIdx, ih * 0.05f, ih * 0.075f, 0, 0, 0, 0.55f);   // near, dark
-            glyph(tex, arIdx, ih * 0.09f, ih * 0.130f, 0, 0, 0, 0.30f);   // wider soft falloff
+        auto shadow = [&](GLuint tex, int arIdx, float m) {
+            glyph(tex, arIdx, ih * 0.05f, ih * 0.075f, 0, 0, 0, 0.55f * m);   // near, dark
+            glyph(tex, arIdx, ih * 0.09f, ih * 0.130f, 0, 0, 0, 0.30f * m);   // wider soft falloff
         };
         if (focus) {
-            shadow(gF, b.f);
+            shadow(gF, b.f, 1.0f);
             stroke(gF, b.f, 0.55f);
             // breathing halo (faint enlarged focus glyph; no shadowBlur on GLES2) + crisp glyph
             if (gF) {
@@ -1470,9 +1470,10 @@ void NanoMenu::drawMpOpt(float closeT) {
             }
             glyph(gF, b.f, 0, 0, 1, 1, 1, 1.0f);
         } else {
-            shadow(gN, b.n);
-            stroke(gN, b.n, 0.55f);
-            glyph(gN, b.n, 0, 0, 1, 1, 1, 0.9f);                       // dimmed glyph
+            // Unfocused icons render at half opacity so the focused one stands out.
+            shadow(gN, b.n, 0.5f);
+            stroke(gN, b.n, 0.28f);
+            glyph(gN, b.n, 0, 0, 1, 1, 1, 0.5f);                       // dimmed glyph (half opacity)
         }
         if (flash > 0.0f) glyph(gF, b.f, 0, 0, 1, 1, 1, flash);        // activate brightness pop
     }

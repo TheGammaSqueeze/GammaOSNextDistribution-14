@@ -2748,31 +2748,110 @@ static VidLayout vidLayout(int W, int H) {
     v.labBaseY = v.y0 + (gyHi + 0.9f) * g.cellY;         // below the bottom (largest gy) row
     return v;
 }
-// Geometry for the in-player option submenu (Screen Mode / Repeat / Audio / Subtitle / CC),
-// shared by drawVideoPanel (render) and vidTouchFrame (hit-test) so the touch boxes match the
-// drawn rows exactly. The plate is sized to the widest option (mw, pre-measured by the caller),
-// then the whole block is UNIFORMLY scaled down if it would run past the panel width or bottom -
-// so a long audio/subtitle list on a small panel stays fully on screen with every row tappable
-// (no clipping, no scrolling). Row i centre = sy + i*lh + lh*0.3; plate top = sy - lh*0.5.
-struct VidSubGeom { float cx, sy, lh, fs, fpx, plateW, plateH; int n; };
-static VidSubGeom vidSubGeomCalc(const VidLayout& vl, int n, float mw, int W, int H) {
-    VidSubGeom g; g.n = n;
-    float ih = vl.sz;
-    g.cx  = vl.cx;
-    g.fs  = (ih * 0.5f) / 16.0f;
-    g.fpx = ps3::emPx(g.fs);
-    g.lh  = ih * 1.15f;
-    g.sy  = vl.labBaseY + vl.rowH * 0.75f;
-    g.plateW = mw + g.fpx * 1.6f;
-    // Uniform shrink so the block fits the panel width AND does not run off the bottom.
-    float kw = (g.plateW > (float)W * 0.94f && g.plateW > 1.0f) ? ((float)W * 0.94f) / g.plateW : 1.0f;
-    float budgetH = (float)H * 0.97f - g.sy;                 // space from sy to a bottom margin
-    float needH   = g.lh * (float)n + g.lh * 0.3f;           // full plate height
-    float kh = (needH > budgetH && budgetH > 0.0f) ? budgetH / needH : 1.0f;
-    float k = kw < kh ? kw : kh;
-    if (k < 1.0f) { g.fs *= k; g.fpx *= k; g.lh *= k; g.plateW *= k; }
-    g.plateH = g.lh * (float)n + g.lh * 0.3f;
+// ---------------------------------------------------------------------------
+// Shared XMB-style media option dialog (video + photo option lists).
+// A solid, opaque dark rounded panel centred on screen, with a title, a divider,
+// and the option rows (the selected row highlighted XMB-blue + a soft glow). It
+// overlays the media control icons like a modal - not a translucent plate tacked to
+// the bottom - and is the SAME for every media list so they look and behave alike.
+// mediaOptDlgGeom() is the single geometry source used by both the render and the
+// touch hit-test, so every visible row is a finger target. Scrolls a window around
+// the selection when there are more options than fit.
+// ---------------------------------------------------------------------------
+NanoMenu::MediaOptDlg NanoMenu::mediaOptDlgGeom(const char* title,
+        const std::vector<std::string>& opts, int sel) {
+    MediaOptDlg g; g.n = (int)opts.size();
+    int W = mWidth, H = mHeight;
+    float base = (W < H ? W : H);
+    g.titleFs = (base * 0.052f) / 16.0f;
+    g.rowFs   = (base * 0.046f) / 16.0f;
+    g.rowH    = base * 0.082f;
+    g.pad     = base * 0.040f;
+    g.titleH  = base * 0.052f * 1.5f + g.pad * 0.5f;   // title text + gap to the divider
+    float mw = measureText(title, g.titleFs);
+    for (int i = 0; i < g.n; i++) { float w = measureText(opts[i].c_str(), g.rowFs); if (w > mw) mw = w; }
+    g.w = mw + g.pad * 2.0f;
+    if (g.w > (float)W * 0.86f) g.w = (float)W * 0.86f;
+    if (g.w < base * 0.44f)     g.w = base * 0.44f;
+    // Vertical: title block + rows fit within ~86% of the panel; scroll a window if too many.
+    float availRows = (float)H * 0.86f - (g.pad * 2.0f + g.titleH);
+    int maxVis = (int)(availRows / g.rowH);
+    if (maxVis < 1) maxVis = 1;
+    if (g.n <= maxVis) { g.first = 0; g.vis = g.n; }
+    else {
+        g.vis = maxVis;
+        int s = sel < 0 ? 0 : (sel > g.n - 1 ? g.n - 1 : sel);
+        g.first = s - maxVis / 2;
+        if (g.first < 0) g.first = 0;
+        if (g.first > g.n - maxVis) g.first = g.n - maxVis;
+    }
+    g.h  = g.pad * 2.0f + g.titleH + g.rowH * (float)g.vis;
+    g.cx = (float)W * 0.5f;
+    g.cy = (float)H * 0.5f;
+    g.top = g.cy - g.h * 0.5f;
     return g;
+}
+
+// Draw the shared XMB-style option dialog (solid dark panel, title, rows). alpha fades it with
+// the owning panel. Row layout MUST match mediaOptDialogRowAt (both use mediaOptDlgGeom).
+void NanoMenu::drawMediaOptDialog(const char* title,
+        const std::vector<std::string>& opts, int sel, float alpha) {
+    MediaOptDlg g = mediaOptDlgGeom(title, opts, sel);
+    float A = alpha; if (A <= 0.0f) return;
+    float base = (mWidth < mHeight ? mWidth : mHeight);
+    float x = g.cx - g.w * 0.5f, y = g.top, rad = base * 0.022f;
+    // Drop shadow, opaque dark body, subtle top highlight edge (XMB dialog look).
+    drawRoundedRect(x + base * 0.007f, y + base * 0.010f, g.w, g.h, rad, 0.0f, 0.0f, 0.0f, 0.55f * A);
+    drawRoundedRect(x, y, g.w, g.h, rad, 0.07f, 0.09f, 0.13f, 0.99f * A);                 // solid body
+    drawQuad(x + rad, y + base * 0.006f, g.w - rad * 2.0f, base * 0.004f, 0.55f, 0.62f, 0.72f, 0.30f * A);
+    // Title, centred, with the XMB active-label soft glow.
+    float titleBaseY = y + g.pad + base * 0.052f * 0.85f;
+    float tw = measureText(title, g.titleFs);
+    drawTextGlow(title, g.cx - tw * 0.5f, ps3::baselineToTopY(titleBaseY, g.titleFs),
+                 g.titleFs, ps3::devS(4.0f), ps3::devS(2.0f), 0.10f * A, 0.20f * A, A);
+    // Divider under the title.
+    float divY = y + g.pad + g.titleH - g.pad * 0.35f;
+    drawQuad(x + g.pad * 0.6f, divY, g.w - g.pad * 1.2f, base * 0.004f, 1, 1, 1, 0.30f * A);
+    // Rows.
+    float rowsTop = y + g.pad + g.titleH;
+    float emp = ps3::emPx(g.rowFs);
+    for (int vi = 0; vi < g.vis; vi++) {
+        int i = g.first + vi;
+        float ry = rowsTop + (float)vi * g.rowH;         // row top
+        float rmid = ry + g.rowH * 0.5f;
+        bool s = (i == sel);
+        if (s) drawRoundedRect(x + g.pad * 0.45f, ry + g.rowH * 0.12f, g.w - g.pad * 0.9f,
+                               g.rowH * 0.76f, rad * 0.45f, 0.20f, 0.46f, 0.86f, 0.60f * A);   // XMB-blue
+        float ow = measureText(opts[i].c_str(), g.rowFs);
+        float c = s ? 1.0f : 0.82f;
+        drawText(opts[i].c_str(), g.cx - ow * 0.5f, ps3::baselineToTopY(rmid + emp * 0.35f, g.rowFs),
+                 g.rowFs, c, c, c, (s ? 1.0f : 0.85f) * A);
+    }
+    // Scroll affordances (small triangles) when the list is windowed.
+    float aw = base * 0.018f;
+    if (g.first > 0) {
+        float ay = rowsTop - aw * 0.6f;
+        drawTriangle(g.cx, ay - aw * 0.5f, g.cx - aw, ay + aw * 0.5f, g.cx + aw, ay + aw * 0.5f, 1, 1, 1, 0.6f * A);   // up
+    }
+    if (g.first + g.vis < g.n) {
+        float ay = rowsTop + (float)g.vis * g.rowH + aw * 0.6f;
+        drawTriangle(g.cx, ay + aw * 0.5f, g.cx - aw, ay - aw * 0.5f, g.cx + aw, ay - aw * 0.5f, 1, 1, 1, 0.6f * A);   // down
+    }
+}
+
+// Hit-test the shared option dialog. Returns the option index for a tapped row, -1 for a tap
+// inside the panel but not on a row (keep open), or -2 for a tap outside (caller closes).
+int NanoMenu::mediaOptDialogRowAt(const char* title,
+        const std::vector<std::string>& opts, int sel, float px, float py) {
+    MediaOptDlg g = mediaOptDlgGeom(title, opts, sel);
+    float x = g.cx - g.w * 0.5f;
+    if (px < x || px > x + g.w || py < g.top || py > g.top + g.h) return -2;   // outside -> close
+    float rowsTop = g.top + g.pad + g.titleH;
+    for (int vi = 0; vi < g.vis; vi++) {
+        float ry = rowsTop + (float)vi * g.rowH;
+        if (py >= ry && py <= ry + g.rowH) return g.first + vi;
+    }
+    return -1;   // inside panel (title area / padding) but no row
 }
 static const char* kVidScreenModes[] = {"Normal", "Full Screen", "Original", "Zoom", "Double Scale"};
 static const char* kVidRepeatModes[] = {"Repeat Off", "Repeat On", "Title Repeat", "A-B Repeat", "Folder Repeat"};
@@ -3062,21 +3141,12 @@ void NanoMenu::vidTouchFrame() {
                 mVidSubOpen = false; return;
             }
             if (!mVidSubOpts.empty()) {
-                VidLayout vlp = vidLayout(mWidth, mHeight);
-                int n = (int)mVidSubOpts.size();
-                float baseFs = (vlp.sz * 0.5f) / 16.0f, mw = 0.0f;
-                for (int i = 0; i < n; i++) { float w = measureText(mVidSubOpts[i].c_str(), baseFs); if (w > mw) mw = w; }
-                VidSubGeom g = vidSubGeomCalc(vlp, n, mw, mWidth, mHeight);
-                if (px >= g.cx - g.plateW * 0.5f && px <= g.cx + g.plateW * 0.5f) {
-                    for (int i = 0; i < n; i++) {
-                        float oy = g.sy + i * g.lh + g.lh * 0.3f;
-                        if (py >= oy - g.lh * 0.5f && py <= oy + g.lh * 0.5f) {
-                            mVidSubSel = i; vidSubConfirm(); return;   // select + apply + close
-                        }
-                    }
-                }
+                const char* title = (mVidCpSel >= 0 && mVidCpSel < kVidCpCount) ? trDyn(kVidCp[mVidCpSel].label) : "";
+                int row = mediaOptDialogRowAt(title, mVidSubOpts, mVidSubSel, px, py);
+                if (row >= 0) { mVidSubSel = row; vidSubConfirm(); return; }   // tap a row -> select+apply+close
+                if (row == -1) return;                                        // tap inside the dialog (not a row) -> keep open
             }
-            mVidSubOpen = false; return;   // tap off the rows -> close
+            mVidSubOpen = false; return;   // tap outside the dialog -> close
         }
         // Hit-test the control-panel cells (SAME full-panel layout drawVideoPanel renders).
         VidLayout vl = vidLayout(mWidth, mHeight);
@@ -3159,19 +3229,20 @@ void NanoMenu::drawVideoPanel(float closeT) {
         };
         // Layered soft drop shadow: a near dark cast plus a wider low-alpha falloff, so the
         // icons visibly lift off bright content instead of a single faint offset.
-        auto shadow = [&]() {
-            glyph(sz * 0.05f, sz * 0.075f, 0, 0, 0, 0.55f, ps);   // near, dark
-            glyph(sz * 0.09f, sz * 0.130f, 0, 0, 0, 0.30f, ps);   // wider soft falloff
+        auto shadow = [&](float m) {
+            glyph(sz * 0.05f, sz * 0.075f, 0, 0, 0, 0.55f * m, ps);   // near, dark
+            glyph(sz * 0.09f, sz * 0.130f, 0, 0, 0, 0.30f * m, ps);   // wider soft falloff
         };
         if (focus) {
-            shadow();
+            shadow(1.0f);
             stroke(0.55f);
             glyph(0, 0, 0.86f, 0.92f, 1.0f, (0.22f + 0.18f * pulse) * 0.6f, ps * 1.18f);  // breathing halo
             glyph(0, 0, 1, 1, 1, 1.0f, ps);                                               // crisp glyph
         } else {
-            shadow();
-            stroke(0.55f);
-            glyph(0, 0, 1, 1, 1, 0.9f, ps);                      // dimmed glyph
+            // Unfocused icons render at half opacity so the focused one stands out.
+            shadow(0.5f);
+            stroke(0.28f);
+            glyph(0, 0, 1, 1, 1, 0.5f, ps);                      // dimmed glyph (half opacity)
         }
         if (flash > 0.0f) glyph(0, 0, 1, 1, 1, flash, ps);      // activate brightness pop
     }
@@ -3217,24 +3288,11 @@ void NanoMenu::drawVideoPanel(float closeT) {
         drawText("+", x0s + totalW + em, ps3::baselineToTopY(my + hh * 0.9f, es), es, 1, 1, 1, A);
     }
 
-    // submenu plate + rows: sized to the widest option and uniformly shrunk to fit the panel
-    // (see vidSubGeomCalc) so a long audio/subtitle list never spills off screen. vidTouchFrame
-    // uses the same geometry, so every visible row is a touch target.
+    // Option list -> the shared XMB-style modal dialog (Screen Mode / Repeat / Audio /
+    // Subtitle / CC), centred over the icons; vidTouchFrame hit-tests the same geometry.
     if (mVidSubOpen && !mVidSubOpts.empty()) {
-        int n = (int)mVidSubOpts.size();
-        float baseFs = (sz * 0.5f) / 16.0f, mw = 0.0f;
-        for (int i = 0; i < n; i++) { float w = measureText(mVidSubOpts[i].c_str(), baseFs); if (w > mw) mw = w; }
-        VidSubGeom g = vidSubGeomCalc(vl, n, mw, mWidth, mHeight);
-        drawQuad(g.cx - g.plateW * 0.5f, g.sy - g.lh * 0.5f, g.plateW, g.plateH, 0, 0, 0, 0.55f * A);
-        for (int i = 0; i < n; i++) {
-            float oy = g.sy + i * g.lh + g.lh * 0.3f;   // row centre
-            bool sel = (i == mVidSubSel);
-            if (sel) drawQuad(g.cx - g.plateW * 0.46f, oy - g.lh * 0.45f, g.plateW * 0.92f, g.lh * 0.9f, 1, 1, 1, 0.20f * A);
-            float c = sel ? 1.0f : 0.88f;
-            float ow = measureText(mVidSubOpts[i].c_str(), g.fs);
-            drawText(mVidSubOpts[i].c_str(), g.cx - ow * 0.5f, ps3::baselineToTopY(oy + g.fpx * 0.35f, g.fs),
-                     g.fs, c, c, c, (sel ? 1.0f : 0.85f) * A);
-        }
+        const char* title = (mVidCpSel >= 0 && mVidCpSel < kVidCpCount) ? trDyn(kVidCp[mVidCpSel].label) : "";
+        drawMediaOptDialog(title, mVidSubOpts, mVidSubSel, A);
     }
 }
 
