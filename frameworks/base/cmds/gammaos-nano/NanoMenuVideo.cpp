@@ -162,6 +162,7 @@ bool NanoMenu::loadVideoConfig() {
             it.sz = v.find("sz") ? (int64_t)v.find("sz")->asNumber(0) : 0;
             it.mtime = v.find("mtime") ? (int64_t)v.find("mtime")->asNumber(0) : 0;
             it.resumeSec = v.find("pos") ? v.find("pos")->asNumber(0) : 0;   // Resume position
+            it.hasIcon = v.getInt("icon", 0) != 0;                            // custom Change-Icon poster
             mVideos.push_back(std::move(it));
         }
 
@@ -206,6 +207,7 @@ void NanoMenu::saveVideoConfig() {
         v.set("sz") = njson::Value::makeNumber((double)it.sz);
         v.set("mtime") = njson::Value::makeNumber((double)it.mtime);
         if (it.resumeSec > 0.0) v.set("pos") = njson::Value::makeNumber((double)(int64_t)it.resumeSec);   // whole seconds
+        if (it.hasIcon) v.set("icon") = njson::Value::makeNumber(1);   // custom Change-Icon poster set
         vids.arr.push_back(std::move(v));
     }
     root.set("videos") = std::move(vids);
@@ -368,6 +370,11 @@ void NanoMenu::videoScanThreadFunc() {
     // when forceReprobe), so carry them by path unconditionally.
     std::map<std::string, double> resumeCarry;
     for (const auto& v : cacheVec) if (v.resumeSec > 0.0) resumeCarry[v.file] = v.resumeSec;
+    // A custom Change-Icon poster must likewise survive a re-probe (the cache is empty on a
+    // metaVersion bump), so carry the flag by path. The icon blob itself is keyed by path in
+    // the thumb cache, so it stays valid.
+    std::set<std::string> iconCarry;
+    for (const auto& v : cacheVec) if (v.hasIcon) iconCarry.insert(v.file);
 
     std::vector<std::string> files;
     for (const auto& f : folders) vScanDirRecursive(f, files, 0);
@@ -428,6 +435,7 @@ void NanoMenu::videoScanThreadFunc() {
         v.name = vStripExt(vBaseName(path));
         auto rc = resumeCarry.find(path);
         if (rc != resumeCarry.end()) v.resumeSec = rc->second;   // keep Resume across re-probe
+        if (iconCarry.count(path)) v.hasIcon = true;             // keep the custom icon across re-probe
         results.push_back(std::move(v));
     }
     {
@@ -520,8 +528,89 @@ void NanoMenu::buildVideoColumnItems(std::vector<Ps3Item>& out) {
         }
         it.value = sub;
         it.iconTex = 0; it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        if (v.hasIcon) {                        // custom Change-Icon poster -> flat full-colour icon (no film bevel)
+            GLuint t = videoIconTexCached(v.file);
+            if (t) { it.iconTex = t; it.nmapTex = 0; }
+        }
         out.push_back(it);
     }
+}
+
+// Memoise the per-video custom-icon load. A miss is cached as 0 too, so rebuilding the column does
+// not re-read the disk cache every time; videoIconGrabCurrentFrame drops the entry when it writes a
+// new icon so the fresh poster loads on the next rebuild.
+GLuint NanoMenu::videoIconTexCached(const std::string& videoPath) {
+    auto it = mVidCustomIconCache.find(videoPath);
+    if (it != mVidCustomIconCache.end()) return it->second;
+    GLuint t = videoIconRead(videoPath);
+    mVidCustomIconCache[videoPath] = t;
+    return t;
+}
+void NanoMenu::videoIconInvalidate(const std::string& videoPath) {
+    auto it = mVidCustomIconCache.find(videoPath);
+    if (it != mVidCustomIconCache.end()) {
+        if (it->second) glDeleteTextures(1, &it->second);
+        mVidCustomIconCache.erase(it);
+    }
+}
+
+// Render thread (GL context current), from renderVideoPlayer after updateFrame(): render the live
+// video frame into an offscreen square FBO, read it back, and store it as this video's custom icon
+// (RGB565 in the shared thumb cache, keyed by path). fitMode 1 crops the frame to a centred square;
+// rotMat is null because the FBO is not the panel. glReadPixels is bottom-left origin, so flip to the
+// top-left convention drawIconTex / the thumb cache expect.
+void NanoMenu::videoIconGrabCurrentFrame() {
+    mVidIconGrabPending = false;
+    const std::string path = mVidIconGrabPath; mVidIconGrabPath.clear();
+    if (!mVideoTest || path.empty()) return;
+    // Re-resolve the index by path: a background rescan may have replaced mVideos during the
+    // busy window, so the confirm-time index would point at the wrong (or a missing) video.
+    int vi = -1;
+    for (size_t i = 0; i < mVideos.size(); i++) if (mVideos[i].file == path) { vi = (int)i; break; }
+    if (vi < 0) return;   // the video was deleted / rescanned away - drop the grab
+    const int S = 256;
+    // Save every GL state this function touches (binding, viewport, texture, clear colour) so the
+    // on-screen mVideoTest->draw() that runs right after in renderVideoPlayer sees an untouched context.
+    GLint  prevFbo = 0;  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint  prevVp[4] = {0, 0, 0, 0}; glGetIntegerv(GL_VIEWPORT, prevVp);
+    GLint  prevTex = 0;  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTex);
+    GLfloat prevClear[4] = {0, 0, 0, 0}; glGetFloatv(GL_COLOR_CLEAR_VALUE, prevClear);
+    GLuint tex = 0, fbo = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, S, S, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+        glViewport(0, 0, S, S);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        mVideoTest->draw(S, S, 0.0f, 0.0f, (float)S, (float)S, 1.0f, /*fitMode=fill/crop*/1, nullptr);
+        std::vector<uint8_t> px((size_t)S * S * 4);
+        glReadPixels(0, 0, S, S, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+        std::vector<uint8_t> flip((size_t)S * S * 4);   // glReadPixels is bottom-left; the cache expects top-left
+        for (int y = 0; y < S; y++)
+            memcpy(&flip[(size_t)y * S * 4], &px[(size_t)(S - 1 - y) * S * 4], (size_t)S * 4);
+        if (videoIconWrite(path, flip.data(), S, S)) {
+            mVideos[vi].hasIcon = true;
+            saveVideoConfig();
+            videoIconInvalidate(path);      // drop the stale (miss) cache entry so the new icon loads
+            mVideoCatsStale = true;         // rebuild the Video column with the custom icon
+        }
+    }
+    // Restore all saved GL state (runs on both the complete and incomplete-FBO paths); unbind the
+    // scratch texture before deleting it so no live binding points at a freed name.
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    glBindTexture(GL_TEXTURE_2D, (GLuint)prevTex);
+    glClearColor(prevClear[0], prevClear[1], prevClear[2], prevClear[3]);
+    glDeleteFramebuffers(1, &fbo);
+    glDeleteTextures(1, &tex);
 }
 
 // ---------------------------------------------------------------------------
@@ -2496,6 +2585,8 @@ bool NanoMenu::renderVideoPlayer() {
     // the composed rotation+flip on a rotated DRM-direct panel.
     if (mVideoTest) {
         mVideoTest->updateFrame();
+        // Change Icon: a confirm is waiting for a live frame - grab it now (GL current, frame latched).
+        if (mVidIconGrabPending) videoIconGrabCurrentFrame();
         mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et,
                          mVidScreenMode, sDrmRotMat);
     }
@@ -3035,11 +3126,10 @@ void NanoMenu::vidPanelActivate() {
         vidDlgConfirm("The title that is currently playing will be deleted.\nAre you sure you want to continue?", 1);
     }
     else if (!strcmp(a, "chgicon")) {
-        double rem = mVideoTest ? (vidDuration() - mVideoTest->position()) : 0.0;
         vidPanelClose();
-        if (rem < 15.0) vidDlgInfo("You cannot create an icon less than 15 seconds in length.");
-        else vidDlgConfirm("15 seconds of video starting from this scene will be set as the icon.\n"
-                           "If an icon has already been set, it will be overwritten.\nDo you want to continue?", 2);
+        // Real: the current frame becomes the video's icon (grabbed on the next rendered frame).
+        vidDlgConfirm("The current frame will be set as this video's icon.\n"
+                      "If an icon has already been set, it will be overwritten.\nDo you want to continue?", 2);
     }
 }
 
@@ -3435,7 +3525,14 @@ void NanoMenu::vidDlgActivate() {                  // Cross
             mVidDlgActive = false;
             if (!f.empty()) { nanoRemovePath(f); closeVideoPlayer(); videoRefresh(); }
         }
-        else if (mVidDlgYesAct == 2) {              // Change Icon: busy -> result (web vidCreateIcon)
+        else if (mVidDlgYesAct == 2) {              // Change Icon: grab the live frame, then busy -> result
+            // The actual frame grab needs the GL context current, so defer it to the next
+            // rendered frame (renderVideoPlayer) via mVidIconGrabPending; the busy modal covers it.
+            // Capture the video PATH (not the index): a background rescan can replace mVideos
+            // during the 0.65s busy window, so the grab re-resolves the index by path.
+            int vi = (mVidIdx >= 0 && mVidIdx < (int)mVidList.size()) ? mVidList[mVidIdx] : -1;
+            mVidIconGrabPath = (vi >= 0 && vi < (int)mVideos.size()) ? mVideos[vi].file : std::string();
+            mVidIconGrabPending = !mVidIconGrabPath.empty();
             mVidDlgActive = true; mVidDlgKind = 2; mVidDlgBody = "Creating icon...\nPlease wait.";
             mVidDlgBusyUntil = mEffectTime + 0.65f;
         } else mVidDlgActive = false;

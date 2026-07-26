@@ -9004,7 +9004,6 @@ void NanoMenu::openXmbOpt() {
         if (mPhotoGridCursor < 0 || mPhotoGridCursor >= (int)mPhotoGridList.size()) return;
         int pIdx = mPhotoGridList[mPhotoGridCursor];
         add("Delete Multiple", "delmulti", false);
-        add("Copy Multiple", "copymulti", false);
         addSub("Sort By", false, photoSortSub(), photoSortDef());
         addSub("Slideshow", true, photoStyleSub(), (mPvSlideStyle >= 0 && mPvSlideStyle < 5) ? mPvSlideStyle : 0);
         addSep();
@@ -9103,7 +9102,6 @@ void NanoMenu::openXmbOpt() {
             addSub("Group Content", false, photoGroupSub(), mPhotoGroupIdx);
             addSep();
             addSub("Slideshow", true, photoStyleSub(), (mPvSlideStyle >= 0 && mPvSlideStyle < 5) ? mPvSlideStyle : 0);
-            add("Copy", "pcopyfolder", false);
             add("Delete", "pdelfolder", false);
             add("Information", "photofolderinfo", false); break;
         }
@@ -10255,8 +10253,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             pvOpenAddChooser(mPhotos[mPs3OptCtxA].file);
         return;
     }
-    if (act == "delmulti")  { photoMultiOpen(0); return; }   // Delete Multiple checkbox screen
-    if (act == "copymulti") { photoMultiOpen(1); return; }   // Copy Multiple checkbox screen
+    if (act == "delmulti")  { photoMultiOpen(0); return; }   // Delete Multiple checkbox screen (real; Copy Multiple dropped)
     if (act == "pgcopy") {   // real: clipboard + open the File Explorer to Paste
         if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotos.size()) {
             mFeClipPath = mPhotos[mPs3OptCtxA].file; mFeClipMove = false;
@@ -10273,14 +10270,24 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         return;
     }
     if (act == "pgprint")  { return; }   // no printer in this environment (web closes too)
-    if (act == "pcopyfolder" || act == "pdelfolder") {   // folder Copy/Delete -> result dialog over the column
-        mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
-        mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
-        mPs3DlgIllust = 0; mPs3DlgNotice.clear();
-        mPs3DlgTitle = ""; mPs3DlgBody = (act == "pdelfolder") ? "Delete completed." : "Copy completed.";
-        mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
-        mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
-        mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+    if (act == "pdelfolder") {   // real: one-shot delete of every photo in this virtual group (Cancel/Delete confirm -> unlink + rescan)
+        const std::vector<PhotoGroup> groups = photoGroups();
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)groups.size() && !groups[mPs3OptCtxA].idx.empty()) {
+            const PhotoGroup& g = groups[mPs3OptCtxA];
+            mMediaDelPaths.clear();
+            for (int pi : g.idx)
+                if (pi >= 0 && pi < (int)mPhotos.size()) mMediaDelPaths.push_back(mPhotos[pi].file);
+            if (!mMediaDelPaths.empty()) {
+                mMediaDelLib = 1;
+                char body[192];
+                snprintf(body, sizeof(body), "This permanently deletes %d photo%s from storage.",
+                         (int)mMediaDelPaths.size(), mMediaDelPaths.size() == 1 ? "" : "s");
+                std::string title = g.name.empty()
+                        ? std::string("Delete this folder")
+                        : (std::string("Delete \"") + g.name + "\"");
+                mediaDeleteConfirm(title, body);
+            }
+        }
         return;
     }
     if (act == "photoinfo") {   // photo Information (File / Date taken / Image size / Size)

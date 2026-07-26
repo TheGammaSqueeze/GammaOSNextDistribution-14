@@ -2529,6 +2529,7 @@ private:
         int64_t sz = 0;          // file size in bytes
         int64_t mtime = 0;       // for incremental rescan
         double resumeSec = 0.0;  // last-played position for Resume (0 = none / start fresh)
+        bool hasIcon = false;    // a custom Change-Icon poster was set (cached by path, kind 'v')
     };
     // A live stream reference (IPTV channel) carried by the player queue and stored in a
     // playlist alongside local files. Keeps the channel name so it survives an index refresh.
@@ -2568,6 +2569,16 @@ private:
     void videoFolderSelect(const std::string& path);
     void videoRemoveFolder(int idx);
     void buildVideoColumnItems(std::vector<Ps3Item>& out);   // scanned video files for the Video cat
+    // Video "Change Icon": grab the current playback frame into the shared thumb cache (keyed by
+    // path) and show it as the video's column icon instead of the film badge.
+    bool   videoIconWrite(const std::string& videoPath, const uint8_t* rgba, int w, int h);  // (def in NanoMenuPhotos.cpp: reaches the static cache helpers)
+    GLuint videoIconRead(const std::string& videoPath);                                       // (def in NanoMenuPhotos.cpp)
+    GLuint videoIconTexCached(const std::string& videoPath);   // memoised (caches misses as 0 too)
+    void   videoIconInvalidate(const std::string& videoPath);  // drop + free a cached icon texture
+    void   videoIconGrabCurrentFrame();                        // render thread, GL current: FBO grab of the live frame
+    std::map<std::string, GLuint> mVidCustomIconCache;         // custom Change-Icon poster: video path -> loaded tex (0 = miss)
+    bool mVidIconGrabPending = false;                          // a Change-Icon confirm is waiting for the next rendered frame
+    std::string mVidIconGrabPath;                              // video PATH whose icon to set (re-resolved at grab time; index would go stale on a rescan)
     // Video playlists (a nano addition; the web video section has none) - mirror music/photo.
     void buildVideoPlaylistsScreen(Ps3Level& out);
     void buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out);
@@ -3394,7 +3405,7 @@ private:
     void drawPvPlChooser();
     void pvSlideshowStart(const std::vector<int>& list, int idx, int style);
     void photoTick();                     // per-frame: viewer enter fade + slideshow + timers
-    // Multi-select (Delete Multiple / Copy Multiple) checkbox screen (web photoMulti):
+    // Multi-select (Delete Multiple) checkbox screen (web photoMulti):
     // checkbox + thumbnail + name + date rows, Select All / Clear All / OK buttons.
     bool mPhotoMultiActive = false;
     int  mPhotoMultiMode = 0;             // 0 = delete, 1 = copy

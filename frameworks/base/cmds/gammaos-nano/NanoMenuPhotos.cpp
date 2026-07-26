@@ -263,6 +263,17 @@ static GLuint photoCacheRead565(const std::string& file, float* outAR) {
     if (outAR) *outAR = (h > 0) ? (float)w / (float)h : 1.0f;
     return tex;
 }
+// --- Video custom icon cache (Change Icon). Reuses the photo thumb-cache dir + RGB565 blob
+// format, keyed on the video PATH only (kind 'v', mtime/sz 0) so a user-set icon survives an
+// mtime/size change. Defined here so they can reach the file-static photoCache* helpers. ---
+bool NanoMenu::videoIconWrite(const std::string& videoPath, const uint8_t* rgba, int w, int h) {
+    if (videoPath.empty()) return false;
+    return photoCacheWrite565(photoCacheFile(videoPath, 0, 0, 'v'), rgba, w, h);
+}
+GLuint NanoMenu::videoIconRead(const std::string& videoPath) {
+    if (videoPath.empty()) return 0;
+    return photoCacheRead565(photoCacheFile(videoPath, 0, 0, 'v'), nullptr);
+}
 // LRU-bound the cache dir to ~96 MB (oldest-mtime first). Runs on the scan thread.
 static void photoThumbCacheGc() {
     DIR* d = opendir(kThumbCacheDir); if (!d) return;
@@ -2592,7 +2603,7 @@ void NanoMenu::pvSlideshowStart(const std::vector<int>& list, int idx, int style
 }
 
 // ---------------------------------------------------------------------------
-// Multi-select (Delete Multiple / Copy Multiple) checkbox screen (web photoMulti).
+// Multi-select (Delete Multiple) checkbox screen (web photoMulti). Copy Multiple was dropped.
 // ---------------------------------------------------------------------------
 void NanoMenu::photoMultiOpen(int mode) {
     if (mPhotoGridList.empty()) return;
@@ -2621,10 +2632,28 @@ void NanoMenu::photoMultiActivate() {
     }
     if (mPhotoMultiBtn == 1) { mPhotoMultiChecked.clear(); return; }   // Clear All
     if (mPhotoMultiBtn == 2) {        // OK -> confirm
-        int n = (int)mPhotoMultiChecked.size();
-        bool del = (mPhotoMultiMode == 0);
+        // Real bulk delete of the checked photos. Copy Multiple was dropped, so only the
+        // delete mode reaches here; collect the checked file paths, close the checkbox
+        // screen, then run the shared Cancel/Delete confirm (applyThemeSetting case 43 ->
+        // unlink + rescan). mPhotoMultiChecked holds indices into mPhotoMultiItems, whose
+        // values are photo indices into mPhotos.
+        mMediaDelPaths.clear();
+        for (int i : mPhotoMultiChecked)
+            if (i >= 0 && i < (int)mPhotoMultiItems.size()) {
+                int pi = mPhotoMultiItems[i];
+                if (pi >= 0 && pi < (int)mPhotos.size()) mMediaDelPaths.push_back(mPhotos[pi].file);
+            }
+        int n = (int)mMediaDelPaths.size();
         photoMultiClose();
-        if (n > 0) pvShowMsg(del ? trDyn("Delete completed.") : trDyn("Copy completed."), 1100.0f);
+        if (n > 0) {
+            mMediaDelLib = 1;
+            char body[192];
+            snprintf(body, sizeof(body), "This permanently deletes %d photo%s from storage.",
+                     n, n == 1 ? "" : "s");
+            mediaDeleteConfirm(n == 1 ? std::string("Delete this photo")
+                                      : (std::string("Delete ") + std::to_string(n) + " photos"),
+                               body);
+        }
         return;
     }
     // toggle the focused row
@@ -2635,8 +2664,8 @@ void NanoMenu::renderPhotoMulti() {
     int W = mWidth, H = mHeight;
     drawQuad(0, 0, (float)W, (float)H, 0, 0, 0, 1.0f);
     float ts = fmaxf(1.0f, (float)H / 768.0f);
-    // header
-    const char* hdr = (mPhotoMultiMode == 0) ? "Select images to delete." : "Select images to copy.";
+    // header (only the delete mode is reachable now; Copy Multiple was dropped)
+    const char* hdr = "Select images to delete.";
     drawText(hdr, W * 0.10f, 44.0f * ts, 1.2f * ts, 1.0f, 1.0f, 1.0f, 1.0f);
     // scrolling list: checkbox + 16:9 thumb + name + date
     float rowH = 86.0f * ts, listTop = 110.0f * ts;
