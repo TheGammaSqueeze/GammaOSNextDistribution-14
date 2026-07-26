@@ -61,7 +61,6 @@ echo "Starting configuration of the GammaOS system..."
 	settings put --lineage system menu_wake_screen 0
 	settings put --lineage system navigation_bar_menu_arrow_keys 0
 	settings put --lineage system status_bar_am_pm 2
-	settings put --lineage system status_bar_brightness_control 1
 	settings put --lineage system status_bar_clock_auto_hide 0
 	settings put --lineage system status_bar_show_battery_percent 2
 	settings put secure immersive_mode_confirmations confirmed
