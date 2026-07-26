@@ -3847,6 +3847,16 @@ private:
     int   mTouchMinY = 0, mTouchMaxY = 0;   // digitizer Y range
     int   mTouchRawX = -1, mTouchRawY = -1; // last raw ABS_MT position (slot 0)
     bool  mTouchDown = false, mTouchWasDown = false;
+    // Mouse/keyboard support for the nano UI. The cursor is accumulated from EV_REL in
+    // logical-pixel space and drawn on top each frame; a left click is routed through the
+    // existing touch hit-test (touchMapRaw returns the cursor position when mTouchFromPointer).
+    float   mCursorX = 0.0f, mCursorY = 0.0f;   // logical-pixel cursor position
+    bool    mCursorVisible = false;             // shown while recently moved/clicked
+    int64_t mLastPointerMs = 0;                 // last pointer activity (auto-hide timer)
+    bool    mTouchFromPointer = false;          // current touch frame is a mouse click, not a finger
+    bool    mKbdShiftHeld = false;              // physical-keyboard shift state (for OSK typing)
+    void    drawPointerCursor();                // draw the mouse cursor overlay (NanoMenuRender.cpp)
+    int     kbdCodeToCp(int code, bool shift);  // USB-keyboard keycode -> printable codepoint (0 = none)
     // Multi-touch slot tracking (Type-B) for pinch-zoom: two contacts is enough.
     int   mTouchSlot = 0;                   // current ABS_MT_SLOT selector
     int   mTouchId[2]  = { -1, -1 };        // per-slot tracking id (-1 = no contact)

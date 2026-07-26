@@ -1703,6 +1703,46 @@ static bool slideActionHas(const char* list, const char* act) {
     return false;
 }
 
+// Map a Linux evdev keycode from a physical (USB/BT) keyboard to a printable ASCII
+// codepoint for on-screen-keyboard text entry, honouring Shift for a US layout. Returns
+// 0 for non-printable keys (arrows, Enter, function keys) so callers fall through to the
+// normal navigation handling.
+int NanoMenu::kbdCodeToCp(int code, bool shift) {
+    switch (code) {
+        case KEY_A: return shift ? 'A' : 'a';   case KEY_B: return shift ? 'B' : 'b';
+        case KEY_C: return shift ? 'C' : 'c';   case KEY_D: return shift ? 'D' : 'd';
+        case KEY_E: return shift ? 'E' : 'e';   case KEY_F: return shift ? 'F' : 'f';
+        case KEY_G: return shift ? 'G' : 'g';   case KEY_H: return shift ? 'H' : 'h';
+        case KEY_I: return shift ? 'I' : 'i';   case KEY_J: return shift ? 'J' : 'j';
+        case KEY_K: return shift ? 'K' : 'k';   case KEY_L: return shift ? 'L' : 'l';
+        case KEY_M: return shift ? 'M' : 'm';   case KEY_N: return shift ? 'N' : 'n';
+        case KEY_O: return shift ? 'O' : 'o';   case KEY_P: return shift ? 'P' : 'p';
+        case KEY_Q: return shift ? 'Q' : 'q';   case KEY_R: return shift ? 'R' : 'r';
+        case KEY_S: return shift ? 'S' : 's';   case KEY_T: return shift ? 'T' : 't';
+        case KEY_U: return shift ? 'U' : 'u';   case KEY_V: return shift ? 'V' : 'v';
+        case KEY_W: return shift ? 'W' : 'w';   case KEY_X: return shift ? 'X' : 'x';
+        case KEY_Y: return shift ? 'Y' : 'y';   case KEY_Z: return shift ? 'Z' : 'z';
+        case KEY_1: return shift ? '!' : '1';   case KEY_2: return shift ? '@' : '2';
+        case KEY_3: return shift ? '#' : '3';   case KEY_4: return shift ? '$' : '4';
+        case KEY_5: return shift ? '%' : '5';   case KEY_6: return shift ? '^' : '6';
+        case KEY_7: return shift ? '&' : '7';   case KEY_8: return shift ? '*' : '8';
+        case KEY_9: return shift ? '(' : '9';   case KEY_0: return shift ? ')' : '0';
+        case KEY_SPACE:      return ' ';
+        case KEY_MINUS:      return shift ? '_' : '-';
+        case KEY_EQUAL:      return shift ? '+' : '=';
+        case KEY_LEFTBRACE:  return shift ? '{' : '[';
+        case KEY_RIGHTBRACE: return shift ? '}' : ']';
+        case KEY_SEMICOLON:  return shift ? ':' : ';';
+        case KEY_APOSTROPHE: return shift ? '"' : '\'';
+        case KEY_GRAVE:      return shift ? '~' : '`';
+        case KEY_BACKSLASH:  return shift ? '|' : '\\';
+        case KEY_COMMA:      return shift ? '<' : ',';
+        case KEY_DOT:        return shift ? '>' : '.';
+        case KEY_SLASH:      return shift ? '?' : '/';
+        default:             return 0;
+    }
+}
+
 void NanoMenu::pollInput() {
     // Overlay launch transition: while a launch is pending (the overlay is held up
     // until the new app resumes), FREEZE the XMB - drain and ignore all input so the
@@ -2031,6 +2071,7 @@ void NanoMenu::pollInput() {
             // the OSK is up, so the touchscreen stays ignored elsewhere as before.
             if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
                 mTouchDown = (ev.value != 0);
+                mTouchFromPointer = false;   // a real finger now owns the touch, not the mouse
                 continue;
             }
             // Multi-touch slot select (Type-B). Slots >= 2 are tracked as "ignore":
@@ -2042,11 +2083,13 @@ void NanoMenu::pollInput() {
             }
             if (ev.type == EV_ABS && ev.code == ABS_MT_TRACKING_ID) {
                 if (mTouchSlot >= 0 && mTouchSlot < 2) mTouchId[mTouchSlot] = ev.value;
+                mTouchFromPointer = false;   // a real digitizer contact now owns the touch
                 continue;
             }
             if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_X) {
                 if (mTouchSlot >= 0 && mTouchSlot < 2) mTouchSX[mTouchSlot] = ev.value;
                 if (mTouchSlot <= 0) mTouchRawX = ev.value;   // slot 0 = primary finger
+                mTouchFromPointer = false;                    // a real finger now owns the touch
                 if (mTouchMaxX <= mTouchMinX) {
                     struct input_absinfo a{};
                     if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_X), &a) == 0 && a.maximum > a.minimum) {
@@ -2062,6 +2105,57 @@ void NanoMenu::pollInput() {
                     struct input_absinfo a{};
                     if (ioctl(fd, EVIOCGABS(ABS_MT_POSITION_Y), &a) == 0 && a.maximum > a.minimum) {
                         mTouchMinY = a.minimum; mTouchMaxY = a.maximum;
+                    }
+                }
+                continue;
+            }
+            // Mouse pointer: accumulate relative motion into a logical-pixel cursor, route the
+            // wheel to list scrolling, and turn clicks into taps through the existing touch
+            // hit-test. nano already opens+grabs any plugged-in mouse, so these events already
+            // arrive here; without this they fall through unhandled. Standard relative mice use
+            // EV_REL (absolute pointers report ABS_X/Y and go through the stick path).
+            if (ev.type == EV_REL) {
+                if (ev.code == REL_X || ev.code == REL_Y) {
+                    if (ev.code == REL_X) mCursorX += (float)ev.value;
+                    else                  mCursorY += (float)ev.value;
+                    if (mCursorX < 0) mCursorX = 0; else if (mCursorX > mWidth)  mCursorX = mWidth;
+                    if (mCursorY < 0) mCursorY = 0; else if (mCursorY > mHeight) mCursorY = mHeight;
+                    mCursorVisible = true;
+                    mLastPointerMs = mLastInputMs = android::uptimeMillis();
+                    continue;
+                }
+                if (ev.code == REL_WHEEL && ev.value != 0) {
+                    // One list step per detent, driven directly so a concurrently held d-pad
+                    // direction's auto-repeat is not disturbed. Respect the PSP-clock input block.
+                    if (!(mPspClockOn || mPspClockReveal > 0.0f)) {
+                        if (ev.value > 0) handleUp(); else handleDown();
+                    }
+                    mCursorVisible = true;
+                    mLastPointerMs = mLastInputMs = android::uptimeMillis();
+                    continue;
+                }
+                continue;   // ignore other relative axes (REL_HWHEEL etc.)
+            }
+            // Mouse buttons: left = a tap at the cursor (routed via touchMapRaw's pointer
+            // override on the next SYN_REPORT, so every per-screen tap hit-tester works), right
+            // = back, middle = the option menu. Caught before the gamepad/nav switches so the
+            // 0x110-0x112 codes are never misread as gamepad buttons.
+            if (ev.type == EV_KEY &&
+                (ev.code == BTN_LEFT || ev.code == BTN_RIGHT || ev.code == BTN_MIDDLE)) {
+                mCursorVisible = true;
+                mLastPointerMs = android::uptimeMillis();
+                if (ev.code == BTN_LEFT) {
+                    // The setup wizard is button-driven (no touch handler), so a click there must
+                    // not fall through to the hidden XMB home behind it.
+                    if (!mSetupWizardActive) {
+                        mTouchFromPointer = true;       // touchMapRaw hands back (mCursorX,mCursorY)
+                        mTouchDown = (ev.value != 0);   // the following SYN_REPORT flushes the tap
+                    }
+                } else if (ev.value == 1) {
+                    if (ev.code == BTN_RIGHT) {
+                        if (mSetupWizardActive) handleSetupBack(); else handleBack();
+                    } else if (mPs3Xmb && !mOskActive && !mSetupWizardActive) {
+                        openXmbOpt();   // middle = options
                     }
                 }
                 continue;
@@ -2299,6 +2393,7 @@ void NanoMenu::pollInput() {
                 case KEY_LEFT:  navRelease(NavDir::Left);  break;
                 case KEY_RIGHT: navRelease(NavDir::Right); break;
                 case BTN_SOUTH: if (mOskActive) oskARelease(); break;
+                case KEY_LEFTSHIFT: case KEY_RIGHTSHIFT: mKbdShiftHeld = false; break;
                 default: break;
                 }
             }
@@ -2313,6 +2408,20 @@ void NanoMenu::pollInput() {
                         adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
                     }
                     continue;
+                }
+                // Physical-keyboard shift state (drives OSK uppercase/symbols below).
+                if (ev.code == KEY_LEFTSHIFT || ev.code == KEY_RIGHTSHIFT) {
+                    mKbdShiftHeld = true; continue;
+                }
+                // Physical-keyboard text entry into the on-screen keyboard: type printable
+                // characters and Backspace directly (press + autorepeat), so a plugged-in USB
+                // keyboard can enter search queries, Wi-Fi passwords and folder names. Non-
+                // printable keys (arrows, Enter, Esc) fall through to the normal OSK nav below.
+                if (mOskActive) {
+                    if (ev.code == KEY_BACKSPACE) { oskBackspace(); continue; }
+                    if (ev.code == KEY_TAB) continue;   // Tab = options elsewhere; no-op in the OSK
+                    int cp = kbdCodeToCp(ev.code, mKbdShiftHeld);
+                    if (cp) { oskInsertCp((uint32_t)cp); continue; }
                 }
                 if (ev.value == 1) {
                     // Setup wizard intercepts all input when active.
@@ -2369,6 +2478,7 @@ void NanoMenu::pollInput() {
                     case BTN_SOUTH:
                         handleSelect(); break;
                     case KEY_ENTER:
+                    case KEY_KPENTER:
                         if (mOskActive) oskConfirm();
                         else handleSelect();
                         break;
@@ -2381,7 +2491,7 @@ void NanoMenu::pollInput() {
                         if (mOskActive) oskConfirm();
                         else if (mSetupWizardActive) handleSetupStart();
                         break;
-                    case BTN_EAST: case KEY_BACK:
+                    case BTN_EAST: case KEY_BACK: case KEY_ESC:
                         if (mSetupWizardActive) handleSetupBack();
                         else handleBack();
                         break;
@@ -2485,6 +2595,7 @@ void NanoMenu::pollInput() {
                         if (tryOpenSearchEngineChooser()) break;   // Square/X on Internet Search: pick the engine
                         break;
                     case BTN_NORTH: // X button (Nintendo layout: BTN_NORTH = X); PS3 Triangle in music
+                    case KEY_TAB:   // physical keyboard: Tab = Triangle / options menu
                         if (mOskActive) { oskBackspace(); break; }
                         if (mVidActive) { if (mVidOpenInProgress.load(std::memory_order_relaxed) || mVidGoToOpen || mVidSceneOpen || mVidResumeAsk) break; vidPanelToggle(); break; }   // Triangle: video control panel
                         if (mMpActive) { if (mMpCpOpen) closeMpOpt(); else openMpOpt(); break; }   // Triangle: control panel

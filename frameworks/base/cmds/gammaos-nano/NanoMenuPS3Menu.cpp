@@ -9113,6 +9113,14 @@ bool NanoMenu::xmbTouchLive() const {
 // (px,py) in the logical mWidth x mHeight space and returns false when no touch has
 // been seen yet. Reused by the XMB, dialog and media-player touch handlers.
 bool NanoMenu::touchMapRaw(int rawX, int rawY, float& px, float& py) {
+    // Mouse clicks arrive already in logical-pixel space (the cursor is accumulated from
+    // EV_REL), so bypass the digitizer range/rotation mapping and hand back the cursor
+    // position directly. This lets a left click reuse every existing per-screen touch
+    // hit-tester (XMB, options, dialogs, OSK, photo grid) unchanged.
+    if (mTouchFromPointer) {
+        px = mCursorX; py = mCursorY;
+        return true;
+    }
     if (mTouchMaxX <= mTouchMinX || mTouchMaxY <= mTouchMinY || rawX < 0) return false;
     float nx = (float)(rawX - mTouchMinX) / (float)(mTouchMaxX - mTouchMinX);
     float ny = (float)(rawY - mTouchMinY) / (float)(mTouchMaxY - mTouchMinY);

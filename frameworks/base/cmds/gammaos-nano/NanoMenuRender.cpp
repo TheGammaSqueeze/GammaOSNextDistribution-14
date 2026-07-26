@@ -673,6 +673,31 @@ void NanoMenu::drawTriangle(float x0, float y0, float x1, float y1,
     glDisableVertexAttribArray(mLocPosition);
 }
 
+// Mouse cursor overlay. A small white arrow with a dark halo drawn in logical-pixel space at
+// (mCursorX,mCursorY); like every other element it is authored pre-rotation so the shader's
+// rotation uniform keeps it aligned on rotated/flipped panels. The size adapts to the panel so
+// it works on every resolution. Self-hides a few seconds after the last pointer activity.
+void NanoMenu::drawPointerCursor() {
+    if (!mCursorVisible) return;
+    // Don't paint the cursor over a live app: the overlay instance scrims a running app unless
+    // it is showing the full PS3 wallpaper (the home). Only draw on actual nano-menu content.
+    if (mOverlayMode && !mOverlayWallpaper) return;
+    if ((int64_t)uptimeMillis() - mLastPointerMs > 4000) { mCursorVisible = false; return; }
+    const float x = mCursorX, y = mCursorY;
+    float s = (float)(mWidth < mHeight ? mWidth : mHeight) / 22.0f;
+    if (s < 14.0f) s = 14.0f;
+    // Dark outline arrow (slightly larger/offset), then the white arrow on top, so the cursor
+    // stays visible over any wallpaper, dialog or scrim.
+    drawTriangle(x - 1.5f,             y - 1.5f,
+                 x - 1.5f,             y + s + 2.0f,
+                 x + s * 0.72f + 1.5f, y + s * 0.72f + 1.0f,
+                 0.0f, 0.0f, 0.0f, 0.75f);
+    drawTriangle(x,             y,
+                 x,             y + s,
+                 x + s * 0.70f, y + s * 0.70f,
+                 1.0f, 1.0f, 1.0f, 1.0f);
+}
+
 // ===========================================================================
 // DSi System Menu theme (persist.gammaos.nano.ndstheme) - a 1:1 port of the
 // /work/nds launcher (nds-web). FIRST SCAFFOLD: the bottom-screen launcher
@@ -5266,6 +5291,11 @@ void NanoMenu::render() {
         }
     }
     } // close drasticActive-else wrapper
+
+    // Mouse cursor overlay: drawn last (over the XMB, dialogs, OSK and scrims) while blend is
+    // still enabled and before the screenshot capture, so it sits on top of everything and is
+    // captured in the sys.gammaos.nano.shot PPM. Self-hides after a few idle seconds.
+    drawPointerCursor();
 
     glDisable(GL_BLEND);
 
