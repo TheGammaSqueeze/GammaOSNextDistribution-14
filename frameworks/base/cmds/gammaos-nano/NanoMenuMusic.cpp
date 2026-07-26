@@ -1664,8 +1664,22 @@ void NanoMenu::mpOptActivate() {
     else if (!strcmp(a, "shuffle")) { mMpShuffle = !mMpShuffle; mpRebuildOrder(); }
     else if (!strcmp(a, "vis")) { mpCycleVis(); }
     else if (!strcmp(a, "disp")) { mMpFullInfo = !mMpFullInfo; }
-    else if (!strcmp(a, "del")) { if (mMpIsRadio) return;   // nothing to delete for a live station
-        mpShowMsg(trDyn("Deleting..."), 800.0f, 1); }
+    else if (!strcmp(a, "del")) {
+        if (mMpIsRadio) return;   // nothing to delete for a live station
+        // Real delete: capture the current track, leave the player, and raise the shared
+        // Cancel/Delete confirm over the XMB (applyThemeSetting case 43 unlinks the file and calls
+        // musicRefresh). The music player has no yes/no dialog of its own, so we route through the
+        // XMB dialog, mirroring the photo-viewer delete.
+        std::string f, name;
+        if (mMpIdx >= 0 && mMpIdx < (int)mMpQueueFiles.size()) f = mMpQueueFiles[mMpIdx];
+        int ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
+        if (ti >= 0 && ti < (int)mMusicTracks.size()) name = mMusicTracks[ti].title;
+        if (f.empty()) return;
+        closeMusicPlayer();
+        mMediaDelPaths.assign(1, f); mMediaDelLib = 2;
+        mediaDeleteConfirm(name.empty() ? std::string("Delete Track") : (std::string("Delete ") + name),
+                           "This permanently deletes the track from storage.");
+    }
     else if (!strcmp(a, "addpl")) {
         // Web mpOpenAddChooser: present an XMB-style chooser to add to an existing
         // playlist or create a new one (rather than jumping straight to the OSK).
