@@ -199,6 +199,9 @@ public class DirectoryFragment extends Fragment implements SwipeRefreshLayout.On
     private @ViewMode int mMode;
     private int mAppBarHeight;
     private int mSaveLayoutHeight;
+    // One-shot guard for the controller auto-focus (see ModelUpdateListener): fire only on the
+    // first non-empty load of this directory, never on later background reloads.
+    private boolean mDidInitialAutoFocus;
 
     private View mProgressBar;
 
@@ -1438,15 +1441,6 @@ public class DirectoryFragment extends Fragment implements SwipeRefreshLayout.On
         );
     }
 
-    /** @return whether focus is currently on a text input (e.g. the search field). */
-    private boolean isTypingInTextField() {
-        if (getActivity() == null) {
-            return false;
-        }
-        final View focused = getActivity().getCurrentFocus();
-        return focused instanceof android.widget.EditText;
-    }
-
     private final class ModelUpdateListener implements EventListener<Model.Update> {
 
         @Override
@@ -1515,20 +1509,25 @@ public class DirectoryFragment extends Fragment implements SwipeRefreshLayout.On
                     mActivity.updateHeaderTitle();
                 }
 
-                // GammaOS: once the directory has loaded, put focus on the first item so it is
-                // immediately navigable with a controller, without needing an initial d-pad
-                // press. Only skipped when the user is typing (search field) or the list already
-                // holds focus, so it never interrupts a search or fights existing navigation.
-                // Posted so the items are laid out before we focus.
-                if (mModel.getItemCount() > 0 && !mSelectionMgr.hasSelection()
-                        && !isTypingInTextField() && (mRecView == null || !mRecView.hasFocus())) {
-                    mRecView.post(() -> {
-                        if (isAdded() && !mSelectionMgr.hasSelection()
-                                && !isTypingInTextField()
-                                && mRecView != null && !mRecView.hasFocus()) {
-                            mFocusManager.focusDirectoryList();
-                        }
-                    });
+                // GammaOS: on the first non-empty load of this directory, put focus on the first
+                // item so it is immediately navigable with a controller, without an initial d-pad
+                // press. This is one-shot per directory (a new fragment is created per folder), and
+                // only fires when nothing else in the window already holds focus - so it never
+                // steals focus from the picker confirm button, the roots sidebar, a dialog, or the
+                // currently focused item during the frequent background reloads that content
+                // changes (e.g. streaming network shares) trigger. Posted so items are laid out.
+                if (!mDidInitialAutoFocus && mModel.getItemCount() > 0) {
+                    mDidInitialAutoFocus = true;
+                    if (!mSelectionMgr.hasSelection()
+                            && (getActivity() == null || getActivity().getCurrentFocus() == null)) {
+                        mRecView.post(() -> {
+                            if (isAdded() && !mSelectionMgr.hasSelection()
+                                    && (getActivity() == null
+                                            || getActivity().getCurrentFocus() == null)) {
+                                mFocusManager.focusDirectoryList();
+                            }
+                        });
+                    }
                 }
             }
         }
