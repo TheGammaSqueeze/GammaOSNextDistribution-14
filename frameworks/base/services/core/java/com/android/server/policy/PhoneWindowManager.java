@@ -779,6 +779,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // GammaOS Nano: 10-second BACK hold emergency exit — fires even if app is frozen
     private static final long NANO_BACK_EMERGENCY_MS = 10000;
     private final Runnable mNanoBackEmergencyRunnable = () -> {
+        // The timer fired, so it is no longer pending. Re-arm the flag now (not on the
+        // key-up) because the recovered home re-grabs input exclusively, so PWM never
+        // sees the BACK/MODE key-up - leaving the flag stuck true would block a second
+        // recovery. Harmless in the appLaunched branch (nanoKillAppAndRestart also clears
+        // it) and correct for the drop_input / dead-home branches.
+        mNanoBackEmergencyPending = false;
         if (!android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return;
         // Trigger if app is launched OR if drop_input is stuck (crash left it set)
         boolean appLaunched = "1".equals(android.os.SystemProperties.get(
@@ -786,7 +792,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         boolean dropStuck = "1".equals(android.os.SystemProperties.get(
                 "sys.gammaos.nano.drop_input", "0"));
         if (appLaunched || dropStuck) {
-            Slog.i(TAG, "GammaOS Nano: 10s BACK hold emergency exit triggered"
+            Slog.i(TAG, "GammaOS Nano: 10s BACK/MODE hold emergency exit triggered"
                     + " (appLaunched=" + appLaunched + " dropStuck=" + dropStuck + ")");
             // Clear drop_input unconditionally so nano menu can receive input
             android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
@@ -794,6 +800,29 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 nanoKillAppAndRestart();
             } else if (!nanoRaiseOverlayHome()) {
                 // Just restart nano menu (overlay-home raises the overlay instead)
+                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+            }
+        } else if (nanoHomeDead()) {
+            // The home process itself has died (crash or external stop) with no app up:
+            // the panel is dead and nothing will bring it back on its own. A crash may
+            // have left drop_input set, so clear it first.
+            android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+            if ("1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.nano.overlay_ran", "0"))) {
+                // The resident overlay was the home (a post-app session). Re-raise it;
+                // init also auto-respawns a dead overlay service. Never start the DRM
+                // home here - DRM-home XOR overlay must hold. (nanoRaiseOverlayHome is
+                // only correct once the overlay has actually run.)
+                Slog.i(TAG, "GammaOS Nano: 10s BACK/MODE hold - overlay home dead,"
+                        + " re-raising it");
+                nanoRaiseOverlayHome();
+            } else {
+                // The DRM cold-boot home died. Clear any stale show_overlay (a leftover
+                // 1 would park a fresh DRM home into an invisible "occluded" state) and
+                // restart it via the init property.
+                Slog.i(TAG, "GammaOS Nano: 10s BACK/MODE hold - DRM home dead,"
+                        + " restarting it");
+                android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "0");
                 android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
             }
         }
@@ -2467,6 +2496,53 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         // Clear guard after restart is triggered
         android.os.SystemProperties.set("sys.gammaos.nano.killing", "0");
+    }
+
+    // GammaOS Nano: true when no nano home process is on screen - neither the DRM cold-boot
+    // home (gammaos-nano) nor the resident overlay home (gammaos-nano-overlay) is running, and
+    // no app has been launched. This is the "home died" case (a crash or an external stop left
+    // the panel dead) that the emergency-recovery hold below can restart. init publishes
+    // init.svc.<name>=running while a service is alive and stopped/"" once it exits; the DRM
+    // home is oneshot, so it flips to stopped the instant it dies with nothing to bring it back.
+    private boolean nanoHomeDead() {
+        if (!android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return false;
+        }
+        if ("1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.nano.app_launched", "0"))) {
+            return false;   // an app is up; a frozen app is handled by the appLaunched branch
+        }
+        return !"running".equals(android.os.SystemProperties.get("init.svc.gammaos-nano", ""))
+                && !"running".equals(android.os.SystemProperties.get(
+                        "init.svc.gammaos-nano-overlay", ""));
+    }
+
+    // GammaOS Nano: schedule (on key-down) or cancel (on key-up) the 10s emergency-recovery
+    // hold. Shared by BACK and BTN_MODE so either can trigger it - the retro gamepad emits
+    // BTN_MODE (Generic.kl -> BUTTON_MODE), not a BACK keycode, so MODE is the reachable key
+    // there while BACK covers keyboards / devices that map it. Fires while an app is
+    // launched/frozen, when drop_input is stuck from a crash, or when the home process itself
+    // has died (nanoHomeDead); the runnable then restarts the right home.
+    private void nanoEmergencyHoldKey(boolean down) {
+        if (down) {
+            if (!mNanoBackEmergencyPending
+                    && android.os.SystemProperties.getBoolean(
+                            "sys.gammaos.minimal_boot", false)
+                    && ("1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.app_launched", "0"))
+                        || "1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.nano.drop_input", "0"))
+                        || nanoHomeDead())) {
+                mNanoBackEmergencyPending = true;
+                mHandler.postDelayed(mNanoBackEmergencyRunnable,
+                        NANO_BACK_EMERGENCY_MS);
+            }
+        } else {
+            if (mNanoBackEmergencyPending) {
+                mHandler.removeCallbacks(mNanoBackEmergencyRunnable);
+                mNanoBackEmergencyPending = false;
+            }
+        }
     }
 
     /**
@@ -6632,26 +6708,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.pending_exit", "1");
                 }
-                // GammaOS Nano: start 10s emergency exit timer when BACK is pressed
-                // while an app is running or drop_input is stuck from a crash.
-                if (!mNanoBackEmergencyPending
-                        && android.os.SystemProperties.getBoolean(
-                                "sys.gammaos.minimal_boot", false)
-                        && ("1".equals(android.os.SystemProperties.get(
-                                "sys.gammaos.nano.app_launched", "0"))
-                            || "1".equals(android.os.SystemProperties.get(
-                                "sys.gammaos.nano.drop_input", "0")))) {
-                    mNanoBackEmergencyPending = true;
-                    mHandler.postDelayed(mNanoBackEmergencyRunnable,
-                            NANO_BACK_EMERGENCY_MS);
-                }
-            } else {
-                // BACK released — cancel emergency timer
-                if (mNanoBackEmergencyPending) {
-                    mHandler.removeCallbacks(mNanoBackEmergencyRunnable);
-                    mNanoBackEmergencyPending = false;
-                }
             }
+        }
+        // GammaOS Nano: 10s emergency-recovery hold on BACK or BTN_MODE. Held for 10s it
+        // recovers a launched/frozen app, a stuck drop_input from a crash, or a dead home
+        // process (nanoHomeDead). MODE is included because the retro gamepad emits BTN_MODE
+        // (Generic.kl -> BUTTON_MODE), not a BACK keycode, so MODE is the reachable key there
+        // while BACK still works for keyboards / devices that map it.
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                || keyCode == KeyEvent.KEYCODE_BUTTON_MODE) {
+            nanoEmergencyHoldKey(down);
         }
         boolean isWakeKey = (policyFlags & WindowManagerPolicy.FLAG_WAKE) != 0
                 || event.isWakeKey();
