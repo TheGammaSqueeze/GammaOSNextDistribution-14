@@ -1250,9 +1250,11 @@ void NanoMenu::overlayLaunchGame() {
     if (romPath.empty()) return;
     // Same check as the home launcher: a game whose file is gone (deleted, or its card is not
     // mounted) must say so instead of replacing the running app with an emulator that then dies.
-    if (!romFileExists(romPath)) {
+    if (!romLaunchExists(romPath)) {
         showRomMissingMsg(romName);
-        if (fromRecent) pruneStaleRecentEntries();
+        // Prune the row only when its folder is reachable (genuinely deleted); an offline share/card
+        // keeps the row so a briefly-down NAS never wipes valid Recently Played history.
+        if (fromRecent && romParentDirReachable(romPath)) recentRemoveAt(mXmbGameIndex);
         return;
     }
 

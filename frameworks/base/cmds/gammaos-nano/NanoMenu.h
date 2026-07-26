@@ -373,6 +373,13 @@ private:
     // Every launch path checks this so a deleted game reports itself instead of dying as a
     // "crashed" app launch.
     bool romFileExists(const std::string& romPath);
+    // Launch-time existence check. Unlike romFileExists (which assumes a network share is present so
+    // the render-thread pruner never blocks on a sleeping NAS), this DOES stat a share path - it runs
+    // once, for the single game being launched, where a game deleted server-side must be caught before
+    // the emulator black-screens on it (see the Recently Played launch guards).
+    bool romLaunchExists(const std::string& romPath);
+    bool romParentDirReachable(const std::string& romPath);  // true if the file's folder is stat-able
+    void recentRemoveAt(int idx);     // drop one Recently Played row (a live stat proved it is gone)
     void showRomMissingMsg(const std::string& displayName);
     void pruneStaleRecentEntries();   // drop Recently Played rows whose ROM is gone
     void gamesRefresh();              // Settings > Game Settings > Rescan Games

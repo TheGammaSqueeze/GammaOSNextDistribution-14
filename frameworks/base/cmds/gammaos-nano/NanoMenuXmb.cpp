@@ -1307,6 +1307,46 @@ bool NanoMenu::romFileExists(const std::string& romPath) {
     return S_ISREG(st.st_mode) && st.st_size > 0;
 }
 
+// Launch-time existence check. romFileExists() assumes a /mnt/shares network path is present so the
+// per-frame pruner never blocks on a sleeping NAS, but that let a Recently Played row for a game
+// deleted server-side sail straight into the emulator, which then black-screened on the missing
+// file. At launch we can afford to actually stat the share: it runs once, for the one game being
+// started, and a server that removed the file answers "not found" quickly. A genuinely dead NAS
+// would fail the launch either way. content:// is left to the framework; an empty path is not
+// launchable.
+bool NanoMenu::romLaunchExists(const std::string& romPath) {
+    if (romPath.empty()) return false;
+    if (romPath.rfind("content://", 0) == 0) return true;
+    struct stat st;
+    if (stat(romPath.c_str(), &st) != 0) return false;
+    return S_ISREG(st.st_mode) && st.st_size > 0;
+}
+
+// True when the folder holding romPath is itself reachable. Used to tell a genuinely deleted file
+// (folder present, file gone) from a share/card that is simply offline (folder unreachable): the
+// former is safe to prune from Recently Played, the latter must be kept so a briefly-down NAS does
+// not wipe the user's history.
+bool NanoMenu::romParentDirReachable(const std::string& romPath) {
+    size_t slash = romPath.rfind('/');
+    if (slash == std::string::npos || slash == 0) return false;
+    std::string dir = romPath.substr(0, slash);
+    struct stat st;
+    return stat(dir.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+// Drop a single Recently Played row after a launch-time stat proved its file is gone. Unlike
+// pruneStaleRecentEntries() this removes a share-hosted entry too, because here we have positive
+// proof (a live stat, not the assume-present render-safe check) rather than a possibly-asleep NAS.
+void NanoMenu::recentRemoveAt(int idx) {
+    if (idx < 0 || idx >= (int)mXmbRecent.size()) return;
+    mXmbRecent.erase(mXmbRecent.begin() + idx);
+    saveXmbRecent();
+    if (mXmbGameIndex >= (int)mXmbRecent.size())
+        mXmbGameIndex = mXmbRecent.empty() ? 0 : (int)mXmbRecent.size() - 1;
+    mPs3CatsStale = true;
+    mDisplayDirty = true;
+}
+
 // Tell the user why nothing launched. Kept in one place so every launch path says the same thing.
 void NanoMenu::showRomMissingMsg(const std::string& displayName) {
     ALOGW("NanoMenu: refusing to launch, ROM missing (%s)", displayName.c_str());
@@ -1497,9 +1537,11 @@ void NanoMenu::launchXmbGame() {
 
         // A recent entry outlives the file it points at (game deleted, card removed). Refuse the
         // launch and drop the dead row rather than starting an emulator that cannot open it.
-        if (!romFileExists(re.romPath)) {
+        if (!romLaunchExists(re.romPath)) {
             showRomMissingMsg(re.displayName);
-            pruneStaleRecentEntries();
+            // Prune the row only when the folder is reachable (the file was genuinely deleted). If
+            // the whole share/card is offline, keep it so a briefly-down NAS never wipes history.
+            if (romParentDirReachable(re.romPath)) recentRemoveAt(mXmbGameIndex);
             return;
         }
 
@@ -1689,7 +1731,7 @@ void NanoMenu::launchXmbGame() {
     }
     // The library can be out of date (game deleted, or its card is not mounted). Check before
     // handing the path to an emulator, which would otherwise start and die on the missing file.
-    if (!romFileExists(romPath)) {
+    if (!romLaunchExists(romPath)) {
         showRomMissingMsg(gameIdx < (int)sys.displayNames.size()
                               ? sys.displayNames[gameIdx] : std::string());
         return;
