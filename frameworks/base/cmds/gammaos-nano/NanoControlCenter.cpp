@@ -51,7 +51,9 @@ struct CcStat {
     bool  charging = false;
     int   briTop = 0,  briTopMax = 255;
     int   briBot = 0,  briBotMax = 255;
-    int   volCur = 0,  volMax = 15,  volMin = 0;
+    int   volCur = 0,  volMax = 15,  volMin = 0;   // master (STREAM_MUSIC = max of per-display when multi-volume on)
+    int   volTop = 0,  volBot = 0;                 // per-display media volume (display 2 = top, display 0 = bottom)
+    bool  multiVol = false;                        // persist.gammaos.audio.multivolume && !dualstack.active
     int   fps = 60;
     int   hh = 0, mm = 0;
     bool  wifiOn = false;
@@ -64,6 +66,8 @@ struct CcStat {
     // render thread. The worker writes ONLY these staging fields; the render thread publishes them
     // to the live fields above, staying the single writer of the live values.
     int   sVolCur = 0, sVolMin = 0, sVolMax = 15;
+    int   sVolTop = 0, sVolBot = 0;
+    bool  sMultiVol = false;
     bool  sWifiOn = false;
     std::atomic<bool> volFresh{false};   // worker: staging ready; render: consume + clear
     std::atomic<bool> volBusy{false};    // a refresh is in flight (prevents overlapping workers)
@@ -241,6 +245,33 @@ void ccReadVolume() {
         break;
     }
     pclose(d);
+
+    // Multi-volume (per-display media volume): enabled when the vendor prop is on and dualstack is not
+    // active. When on, read the per-display map (Settings.Global "gammaos_audio_display_volume_map",
+    // format "displayId=vol;.."); display 0 = bottom screen, display 2 = top screen (0..15, same range as
+    // STREAM_MUSIC). STREAM_MUSIC (sVolCur, read above) already equals max(per-display) = the master.
+    bool mv = property_get_bool("persist.gammaos.audio.multivolume", false)
+              && !property_get_bool("sys.gammaos.dualstack.active", false);
+    sCc.sMultiVol = mv;
+    if (mv) {
+        int bot = sCc.sVolCur, top = sCc.sVolCur;   // fall back to the master until a map entry is seen
+        FILE* m = popen("settings get global gammaos_audio_display_volume_map 2>/dev/null", "r");
+        if (m) {
+            char s[256] = {};
+            if (fgets(s, sizeof(s), m)) {
+                for (char* tok = strtok(s, ";\r\n "); tok; tok = strtok(nullptr, ";\r\n ")) {
+                    int id = -1, v = -1;
+                    if (sscanf(tok, "%d=%d", &id, &v) == 2 && v >= 0 && v <= sCc.sVolMax) {
+                        if (id == 0) bot = v; else if (id == 2) top = v;   // reject an out-of-range/corrupt map entry
+                    }
+                }
+            }
+            pclose(m);
+        }
+        sCc.sVolBot = bot; sCc.sVolTop = top;
+    } else {
+        sCc.sVolBot = sCc.sVolCur; sCc.sVolTop = sCc.sVolCur;
+    }
 }
 
 void ccReadClock() {
@@ -302,7 +333,11 @@ void NanoMenu::pollControlCenterStats() {
     // when no slider is held, so a live drag is never clobbered; Wi-Fi always (the optimistic tile
     // toggle is idempotent with the real read). The release/acquire on volFresh orders the staging ints.
     if (sCc.volFresh.exchange(false, std::memory_order_acquire)) {
-        if (mCcHeldSlider < 0) { sCc.volCur = sCc.sVolCur; sCc.volMin = sCc.sVolMin; sCc.volMax = sCc.sVolMax; }
+        if (mCcHeldSlider < 0) {
+            sCc.volCur = sCc.sVolCur; sCc.volMin = sCc.sVolMin; sCc.volMax = sCc.sVolMax;
+            sCc.volTop = sCc.sVolTop; sCc.volBot = sCc.sVolBot;
+        }
+        sCc.multiVol = sCc.sMultiVol;   // safe to publish anytime (only gates draw + hit-test)
         sCc.wifiOn = sCc.sWifiOn;
     }
     sCc.primed = true;
@@ -558,18 +593,18 @@ void NanoMenu::renderCcPass(int pass) {
         textR(buf, 570, 8, 12.0f, 0.6f, 0.66f, 0.8f, 1.0f);
     }
 
-    // ==== LEFT: three vertical sliders (Volume, Top brightness, Bottom brightness) ====
+    // ==== LEFT: two vertical brightness sliders (Top screen, Bottom screen). Volume moved to the
+    //      per-screen VOLUME card (bottom-left) where the clock used to be. ====
     if (st) card(8, 30, 150, 202);
     {
-        if (st) header("OUTPUT", 22, 40);
+        if (st) header("BRIGHTNESS", 22, 40);
         float sy = 66, sh = 120, sw = 20;
-        float px[3] = { 34, 76, 118 };
-        float frac[3] = {
-            sCc.volMax > sCc.volMin ? (float)(sCc.volCur - sCc.volMin) / (sCc.volMax - sCc.volMin) : 0,
+        float px[2] = { 50, 100 };
+        float frac[2] = {
             sCc.briTopMax > 0 ? (float)sCc.briTop / sCc.briTopMax : 0,
             sCc.briBotMax > 0 ? (float)sCc.briBot / sCc.briBotMax : 0,
         };
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             float x = px[i] - sw*0.5f;
             if (st) drawRoundedRect(X(x), Y(sy), S(sw), S(sh), S(sw*0.5f), 0.16f, 0.17f, 0.21f, 1.0f);  // track
             if (dy) {
@@ -577,11 +612,12 @@ void NanoMenu::renderCcPass(int pass) {
                 if (fh > 0) drawRoundedRect(X(x), Y(sy + sh - fh), S(sw), S(fh), S(sw*0.5f), 0.85f, 0.90f, 1.0f, 1.0f);
             }
         }
-        // icons under each
+        // icons + labels under each (big sun = top screen, small sun = bottom screen)
         if (st) {
-            icoSpeaker(px[0], 208, 9, 0.7f, 0.75f, 0.85f, 1.0f);
-            icoSun(px[1], 208, 8, 0.7f, 0.75f, 0.85f, 1.0f);
-            icoSun(px[2], 208, 6.5f, 0.55f, 0.6f, 0.72f, 1.0f);
+            icoSun(px[0], 200, 8, 0.7f, 0.75f, 0.85f, 1.0f);
+            icoSun(px[1], 200, 6.5f, 0.55f, 0.6f, 0.72f, 1.0f);
+            textC("TOP", px[0], 216, 10.0f, 0.6f, 0.66f, 0.8f, 1.0f);
+            textC("BTM", px[1], 216, 10.0f, 0.55f, 0.6f, 0.72f, 1.0f);
         }
     }
 
@@ -624,52 +660,38 @@ void NanoMenu::renderCcPass(int pass) {
         }
     }
 
-    // ==== BOTTOM-LEFT: analog clock (PS3/PSP clock aesthetic) ====
+    // ==== BOTTOM-LEFT: per-screen VOLUME (Master / Top screen / Bottom screen) - replaces the clock ====
+    // Master = STREAM_MUSIC (= max of the per-display values when multi-volume is on). Top = display 2,
+    // Bottom = display 0. When multi-volume is off, only Master acts and Top/Bottom show dimmed + inert.
     if (st) card(8, 240, 210, 200);
     {
-        struct timespec ts; clock_gettime(CLOCK_REALTIME, &ts);
-        time_t tt = ts.tv_sec; struct tm lt; localtime_r(&tt, &lt);
-        float sub  = (float)ts.tv_nsec / 1e9f;
-        float sAng = ((lt.tm_sec + sub) / 60.0f)              * 2.0f*(float)M_PI - (float)M_PI*0.5f;
-        float mAng = ((lt.tm_min + lt.tm_sec/60.0f) / 60.0f)  * 2.0f*(float)M_PI - (float)M_PI*0.5f;
-        float hAng = (((lt.tm_hour%12) + lt.tm_min/60.0f)/12.0f)*2.0f*(float)M_PI - (float)M_PI*0.5f;
-        const float ccx = 113, ccy = 346, R = 72;
-        const float CX = X(ccx), CY = Y(ccy);
-        // flat disc face + hour ticks (STATIC)
-        if (st) {
-            disc(CX, CY, S(R), 0.09f, 0.11f, 0.17f, 0.72f);
-            for (int k = 0; k < 12; k++) {   // hour ticks (majors at 12/3/6/9)
-                float a = k/12.0f*2.0f*(float)M_PI - (float)M_PI*0.5f;
-                bool major = (k % 3 == 0);
-                float c = cosf(a), s = sinf(a);
-                float r0 = major ? R-12 : R-7, r1 = R-3;
-                float nx = -s*S(major?2.2f:1.1f), ny = c*S(major?2.2f:1.1f);
-                float axp = CX+c*S(r0), ayp = CY+s*S(r0), bxp = CX+c*S(r1), byp = CY+s*S(r1);
-                drawTriangle(axp+nx,ayp+ny, axp-nx,ayp-ny, bxp+nx,byp+ny, 0.85f,0.9f,1.0f, major?0.95f:0.55f);
-                drawTriangle(axp-nx,ayp-ny, bxp-nx,byp-ny, bxp+nx,byp+ny, 0.85f,0.9f,1.0f, major?0.95f:0.55f);
+        if (st) header("VOLUME", 22, 254);
+        const bool mv = sCc.multiVol;
+        const float sy = 282, sh = 100, sw = 22;
+        const float px[3] = { 48, 113, 178 };
+        int vmin = sCc.volMin, vmax = sCc.volMax > sCc.volMin ? sCc.volMax : 15;
+        float rng = (float)(vmax - vmin); if (rng < 1) rng = 1;
+        int master = mv ? (sCc.volTop > sCc.volBot ? sCc.volTop : sCc.volBot) : sCc.volCur;
+        int vals[3] = { master, sCc.volTop, sCc.volBot };
+        for (int i = 0; i < 3; i++) {
+            float x = px[i] - sw*0.5f;
+            if (st) drawRoundedRect(X(x), Y(sy), S(sw), S(sh), S(sw*0.5f), 0.16f, 0.17f, 0.21f, 1.0f);  // track
+            if (dy) {
+                bool active = (i == 0) || mv;                    // Top/Bottom inert without multi-volume
+                float frac = (float)(vals[i] - vmin) / rng; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+                float fh = sh * frac; if (fh < sw) fh = (frac > 0.01f) ? sw : 0;
+                float fr = active ? 0.85f : 0.28f, fg = active ? 0.90f : 0.30f, fb = active ? 1.0f : 0.36f;
+                if (fh > 0) drawRoundedRect(X(x), Y(sy + sh - fh), S(sw), S(fh), S(sw*0.5f), fr, fg, fb, 1.0f);
             }
         }
-        // hands + hub + date (DYNAMIC: they move / advance every frame; date paints OVER the hands so it
-        // must stay dynamic to preserve the exact painter order).
-        if (dy) {
-            // clean rectangle hand from a back tail to a tip
-            auto hand = [&](float ang, float len, float hw, float tail, float r, float g, float b, float a){
-                float c = cosf(ang), s = sinf(ang);
-                float nx = -s*S(hw), ny = c*S(hw);
-                float txp = CX+c*S(len), typ = CY+s*S(len), bxp = CX-c*S(tail), byp = CY-s*S(tail);
-                float p0x=bxp+nx,p0y=byp+ny, p1x=txp+nx,p1y=typ+ny, p2x=txp-nx,p2y=typ-ny, p3x=bxp-nx,p3y=byp-ny;
-                drawTriangle(p0x,p0y,p1x,p1y,p2x,p2y, r,g,b,a);
-                drawTriangle(p0x,p0y,p2x,p2y,p3x,p3y, r,g,b,a);
-            };
-            hand(hAng, R*0.50f, 2.6f, 9, 0.96f,0.97f,1.0f, 1.0f);   // hour
-            hand(mAng, R*0.72f, 1.9f, 9, 0.96f,0.97f,1.0f, 1.0f);   // minute
-            hand(sAng, R*0.80f, 0.9f, 15, 0.95f,0.35f,0.4f, 1.0f);  // second (red)
-            disc(CX, CY, S(3.6f), 0.96f,0.97f,1.0f, 1.0f);          // hub
-            disc(CX, CY, S(1.9f), 0.95f,0.35f,0.4f, 1.0f);
-            // date label (weekday + day), PSP-clock style
-            static const char* WD[7] = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
-            snprintf(buf, sizeof(buf), "%s %d", WD[lt.tm_wday % 7], lt.tm_mday);
-            textC(buf, ccx, ccy + 18, 11.0f, 0.6f, 0.66f, 0.8f, 1.0f);
+        // speaker icons + labels (static, neutral; the dimmed fill conveys the inert Top/Bottom state)
+        if (st) {
+            icoSpeaker(px[0], 392, 9,   0.7f, 0.75f, 0.85f, 1.0f);
+            icoSpeaker(px[1], 392, 7.5f, 0.7f, 0.75f, 0.85f, 1.0f);
+            icoSpeaker(px[2], 392, 7.5f, 0.7f, 0.75f, 0.85f, 1.0f);
+            textC("ALL", px[0], 410, 10.0f, 0.6f, 0.66f, 0.8f, 1.0f);
+            textC("TOP", px[1], 410, 10.0f, 0.6f, 0.66f, 0.8f, 1.0f);
+            textC("BTM", px[2], 410, 10.0f, 0.6f, 0.66f, 0.8f, 1.0f);
         }
     }
 
@@ -1304,19 +1326,24 @@ void NanoMenu::ccTouchFrame() {
                 if (ai >= 0 && ai < (int)mAppEntries.size()) ccLaunchBottomApp(mAppEntries[ai].packageName);
             }
         }
-        // Flush the final volume: the drag debounced the intermediate --set calls, so commit the value
-        // the finger ended on (guarded so it is skipped when the last debounced set already sent it).
-        if (mCcHeldSlider == 0 && sCc.volCur != mCcVolLastSet) ccSendVolume(sCc.volCur);
+        // Flush the final volume the finger ended on (the drag debounced the intermediate writes).
+        // Sliders: 2 = Master, 3 = Top screen, 4 = Bottom screen. When multi-volume is on, all volume
+        // changes go through the per-display map; the Master (2) with multi-volume off falls back to the
+        // single STREAM_MUSIC set.
+        if (mCcHeldSlider >= 2) {
+            if (sCc.multiVol) ccSetDisplayVolMap(sCc.volBot, sCc.volTop);
+            else if (sCc.volCur != mCcVolLastSet) ccSendVolume(sCc.volCur);
+        }
         // Persist a brightness change through the framework so it survives a device sleep/wake. The raw
         // backlight node ccApplySlider writes is VOLATILE: on wake the display framework re-applies the
         // stored brightness and clobbers it. In unified mode both panels follow system screen_brightness
         // (verified 1:1 on this panel); in split mode the top panel (slot d1) is driven+persisted through
         // the gammaos split override the display worker re-applies. Done on release only (one shell fork,
-        // never per drag frame). Slider 1 = top (backlight1/d1), slider 2 = bottom (backlight/slot0).
-        if (mCcHeldSlider == 1 || mCcHeldSlider == 2) {
-            int v = (mCcHeldSlider == 1) ? sCc.briTop : sCc.briBot;
+        // never per drag frame). Slider 0 = top (backlight1/d1), slider 1 = bottom (backlight/slot0).
+        if (mCcHeldSlider == 0 || mCcHeldSlider == 1) {
+            int v = (mCcHeldSlider == 0) ? sCc.briTop : sCc.briBot;
             char c[176];
-            if (mCcHeldSlider == 1 && property_get_bool("persist.gammaos.multidisplay.split_brightness", false)) {
+            if (mCcHeldSlider == 0 && property_get_bool("persist.gammaos.multidisplay.split_brightness", false)) {
                 snprintf(c, sizeof(c),
                     "setprop sys.gammaos.multidisplay.split_brightness.d1.override %d; "
                     "setprop persist.gammaos.multidisplay.split_brightness.d1.last %d", v, v);
@@ -1400,12 +1427,20 @@ void NanoMenu::ccOnTap(float px, float py) {
     }
 }
 
-// Which left-card slider (0=Volume, 1=Top brightness, 2=Bottom brightness) is under (px,py)?
+// Which slider is under (px,py)? 0-1 = brightness (top, bottom); 2-4 = volume (master, top, bottom).
 // A touch that lands here is "grabbed" so the finger can then drag it anywhere vertically.
 int NanoMenu::ccSliderAt(float px, float py) {
-    const float sy = 66, sh = 120; const float sx[3] = { 34, 76, 118 };
-    for (int i = 0; i < 3; i++)
-        if (px >= sx[i] - 20 && px <= sx[i] + 20 && py >= sy - 12 && py <= sy + sh + 12) return i;
+    // Brightness sliders (LEFT card): 0 = top screen, 1 = bottom screen.
+    { const float sy = 66, sh = 120; const float sx[2] = { 50, 100 };
+      for (int i = 0; i < 2; i++)
+          if (px >= sx[i]-20 && px <= sx[i]+20 && py >= sy-12 && py <= sy+sh+12) return i; }
+    // Volume sliders (VOLUME card): 2 = master, 3 = top screen, 4 = bottom screen. Top/bottom are only
+    // grabbable when multi-volume is enabled (otherwise there is one system volume, driven by master).
+    { const float sy = 282, sh = 100; const float sx[3] = { 48, 113, 178 };
+      for (int i = 0; i < 3; i++) {
+          if (i > 0 && !sCc.multiVol) continue;
+          if (px >= sx[i]-22 && px <= sx[i]+22 && py >= sy-12 && py <= sy+sh+12) return 2 + i;
+      } }
     return -1;
 }
 
@@ -1420,30 +1455,56 @@ void NanoMenu::ccSendVolume(int v) {
     mCcVolLastSet = v; mCcVolLastSetMs = nowMs();
 }
 
+// Write the per-display media volume map (Settings.Global "gammaos_audio_display_volume_map"), which
+// AudioService's ContentObserver applies live: display 0 = bottom screen, display 2 = top screen, each
+// 0..15 (same range as STREAM_MUSIC). Forky (a settings binder round-trip), so callers debounce during
+// a drag and flush the final value on release.
+void NanoMenu::ccSetDisplayVolMap(int bot, int top) {
+    if (bot < sCc.volMin) bot = sCc.volMin; if (bot > sCc.volMax) bot = sCc.volMax;
+    if (top < sCc.volMin) top = sCc.volMin; if (top > sCc.volMax) top = sCc.volMax;
+    char c[160];
+    snprintf(c, sizeof(c),
+             "settings put global gammaos_audio_display_volume_map '0=%d;2=%d' 2>/dev/null", bot, top);
+    shellCmd(c);
+    mCcMapLastBot = bot; mCcMapLastTop = top; mCcMapLastSetMs = nowMs();
+}
+
 // Apply a live value to a grabbed slider from the current touch Y (called on grab + every drag frame).
 // Volume updates the on-screen fill immediately but debounces the (expensive) media_session --set so a
 // drag never forks per frame; brightness writes straight to the backlight node so a drag tracks smoothly.
 void NanoMenu::ccApplySlider(int i, float py) {
-    const float sy = 66, sh = 120;
-    float frac = 1.0f - (py - sy) / sh;
-    if (frac < 0) frac = 0; if (frac > 1) frac = 1;
-    if (i == 0) {
-        int v = sCc.volMin + (int)lroundf(frac * (float)(sCc.volMax - sCc.volMin));
-        if (v < sCc.volMin) v = sCc.volMin;
-        if (v > sCc.volMax) v = sCc.volMax;
-        sCc.volCur = v;                                        // immediate on-screen fill (no fork here)
-        if (v != mCcVolLastSet && nowMs() - mCcVolLastSetMs >= 90)  // debounce: a fast sweep issues a
-            ccSendVolume(v);                                  // handful of sets, not one per frame
-    } else if (i == 1) {
-        int v = (int)lroundf(frac * sCc.briTopMax); if (v < 4) v = 4;
-        if (v != sCc.briTop) { writeSysfsInt(ccBlBri(false), v); sCc.briTop = v; }
-    } else {
-        int v = (int)lroundf(frac * sCc.briBotMax); if (v < 4) v = 4;
-        if (v != sCc.briBot) {
-            writeSysfsInt(ccBlBri(true), v);
-            sCc.briBot = v; mCcSleepFromBri = v;   // keep the sleep-restore value in sync
+    // Brightness sliders (LEFT card): 0 = top screen (backlight1), 1 = bottom screen (backlight).
+    if (i == 0 || i == 1) {
+        const float sy = 66, sh = 120;
+        float frac = 1.0f - (py - sy) / sh; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+        if (i == 0) {
+            int v = (int)lroundf(frac * sCc.briTopMax); if (v < 4) v = 4;
+            if (v != sCc.briTop) { writeSysfsInt(ccBlBri(false), v); sCc.briTop = v; }
+        } else {
+            int v = (int)lroundf(frac * sCc.briBotMax); if (v < 4) v = 4;
+            if (v != sCc.briBot) { writeSysfsInt(ccBlBri(true), v); sCc.briBot = v; mCcSleepFromBri = v; }
         }
+        return;
     }
+    // Volume sliders (VOLUME card): 2 = master, 3 = top screen, 4 = bottom screen.
+    const float sy = 282, sh = 100;
+    float frac = 1.0f - (py - sy) / sh; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
+    int v = sCc.volMin + (int)lroundf(frac * (float)(sCc.volMax - sCc.volMin));
+    if (v < sCc.volMin) v = sCc.volMin; if (v > sCc.volMax) v = sCc.volMax;
+    if (!sCc.multiVol) {
+        // Multi-volume off: only master acts, straight to STREAM_MUSIC (top/bottom aren't grabbable).
+        if (i == 2) {
+            sCc.volCur = v; sCc.volTop = v; sCc.volBot = v;                   // immediate on-screen fill
+            if (v != mCcVolLastSet && nowMs() - mCcVolLastSetMs >= 90) ccSendVolume(v);   // debounced fork
+        }
+        return;
+    }
+    if (i == 2)      { sCc.volTop = v; sCc.volBot = v; sCc.volCur = v; }                  // master: both screens together
+    else if (i == 3) { sCc.volTop = v; sCc.volCur = (v > sCc.volBot ? v : sCc.volBot); }  // top screen
+    else             { sCc.volBot = v; sCc.volCur = (v > sCc.volTop ? v : sCc.volTop); }  // bottom screen
+    // Debounce the (forky) settings write; the on-screen fill tracks sCc.* immediately.
+    if (nowMs() - mCcMapLastSetMs >= 90 && (sCc.volBot != mCcMapLastBot || sCc.volTop != mCcMapLastTop))
+        ccSetDisplayVolMap(sCc.volBot, sCc.volTop);
 }
 
 // Start the graceful bottom-screen dim-to-off. Shared by the Sleep tile tap and the 30s idle

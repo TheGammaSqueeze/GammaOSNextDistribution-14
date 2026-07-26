@@ -3463,6 +3463,7 @@ private:
     void  ccBeginSleep();                  // start the graceful dim-to-off (Sleep tile tap AND 30s idle auto-sleep)
     void  ccRestoreBacklightIfSlept();     // on CC teardown, restore the bottom backlight if it was slept/dimming
     void  ccSendVolume(int v);             // issue the media_session --set (forks a shell); debounced by callers
+    void  ccSetDisplayVolMap(int bot, int top);  // write the per-display volume map (Settings.Global); debounced by callers
     // CC touch + interactive state (render-thread only; no mutex).
     int   mCcRawX = 0, mCcRawY = 0;        // last bottom-digitizer raw coords (0..640 x 0..480)
     bool  mCcTouchDownRaw = false;         // BTN_TOUCH state
@@ -3471,6 +3472,8 @@ private:
     int   mCcHeldSlider = -1;              // slider grabbed by the current touch (-1 = none), for drag
     int   mCcVolLastSet = -1;              // last volume value actually pushed via media_session --set
     int64_t mCcVolLastSetMs = 0;           // when it was pushed (debounce the fork during a drag)
+    int   mCcMapLastBot = -1, mCcMapLastTop = -1;  // last per-display volume map values written (debounce)
+    int64_t mCcMapLastSetMs = 0;           // when the per-display volume map was last written (debounce the fork)
     bool  mCcSleeping = false;             // bottom screen slept (backlight1 ramping / at 0)
     int   mCcSleepFromBri = 128;           // backlight1 value to restore on wake
     float mCcSleepRamp = 1.0f;             // 1 = full brightness, 0 = off (eased)
