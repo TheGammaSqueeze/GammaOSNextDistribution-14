@@ -1438,6 +1438,15 @@ public class DirectoryFragment extends Fragment implements SwipeRefreshLayout.On
         );
     }
 
+    /** @return whether focus is currently on a text input (e.g. the search field). */
+    private boolean isTypingInTextField() {
+        if (getActivity() == null) {
+            return false;
+        }
+        final View focused = getActivity().getCurrentFocus();
+        return focused instanceof android.widget.EditText;
+    }
+
     private final class ModelUpdateListener implements EventListener<Model.Update> {
 
         @Override
@@ -1504,6 +1513,22 @@ public class DirectoryFragment extends Fragment implements SwipeRefreshLayout.On
                     mActivity.updateHeader(update.hasCrossProfileException());
                 } else {
                     mActivity.updateHeaderTitle();
+                }
+
+                // GammaOS: once the directory has loaded, put focus on the first item so it is
+                // immediately navigable with a controller, without needing an initial d-pad
+                // press. Only skipped when the user is typing (search field) or the list already
+                // holds focus, so it never interrupts a search or fights existing navigation.
+                // Posted so the items are laid out before we focus.
+                if (mModel.getItemCount() > 0 && !mSelectionMgr.hasSelection()
+                        && !isTypingInTextField() && (mRecView == null || !mRecView.hasFocus())) {
+                    mRecView.post(() -> {
+                        if (isAdded() && !mSelectionMgr.hasSelection()
+                                && !isTypingInTextField()
+                                && mRecView != null && !mRecView.hasFocus()) {
+                            mFocusManager.focusDirectoryList();
+                        }
+                    });
                 }
             }
         }

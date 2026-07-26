@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <errno.h>
 #include <fcntl.h>
@@ -332,20 +333,40 @@ void NanoMenu::loadInstalledApps() {
         pos = eol + 1;
         if (line.empty()) continue;
 
-        // Only include user-installed apps (installer = @null)
-        if (line.size() < 6 || line.substr(line.size() - 5) != "@null") continue;
-
         // Extract package name (first field, space-delimited)
         size_t space = line.find(' ');
         if (space == std::string::npos) continue;
         std::string pkgName = line.substr(0, space);
 
-        // Skip RetroArch, system-like, and internal packages
-        if (pkgName == "com.retroarch.aarch64") continue;
-        if (pkgName.find("com.android.") == 0) continue;
-        if (pkgName.find("org.lineageos.") == 0) continue;
-        if (pkgName.find("com.gammaos.") == 0) continue;
-        if (pkgName.find("com.topjohnwu.") == 0) continue;
+        // GammaOS: always surface the system Files app (DocumentsUI) so it is reachable with a
+        // controller from Applications, even though it is a system / com.android.* package that
+        // the filters below would otherwise skip. Its launcher is force-enabled in
+        // DocumentsUI PreBootReceiver so the launch handshake resolves.
+        const bool forceInclude = (pkgName == "com.android.documentsui");
+
+        if (forceInclude) {
+            // AOSP disables the Files launcher on S+, so selecting it in Applications would not
+            // resolve the LAUNCHER intent. Enable it once (backgrounded so it never blocks the
+            // menu); the enabled state persists, making this effectively a one-time fix.
+            static bool sEnsuredFilesLauncher = false;
+            if (!sEnsuredFilesLauncher) {
+                sEnsuredFilesLauncher = true;
+                system("pm enable com.android.documentsui/com.android.documentsui.LauncherActivity "
+                       ">/dev/null 2>&1 &");
+            }
+        }
+
+        if (!forceInclude) {
+            // Only include user-installed apps (installer = @null)
+            if (line.size() < 6 || line.substr(line.size() - 5) != "@null") continue;
+
+            // Skip RetroArch, system-like, and internal packages
+            if (pkgName == "com.retroarch.aarch64") continue;
+            if (pkgName.find("com.android.") == 0) continue;
+            if (pkgName.find("org.lineageos.") == 0) continue;
+            if (pkgName.find("com.gammaos.") == 0) continue;
+            if (pkgName.find("com.topjohnwu.") == 0) continue;
+        }
 
         // Build a human-readable label from the package name:
         // take the last segment and capitalize first letter
@@ -402,6 +423,13 @@ void NanoMenu::loadInstalledApps() {
             close(labelFd);
         } else {
             ALOGW("NanoMenu: label cache not available yet: %s", strerror(errno));
+        }
+    }
+
+    // GammaOS: the system Files app keeps a friendly label regardless of the label cache.
+    for (auto& app : mAppEntries) {
+        if (app.packageName == "com.android.documentsui") {
+            app.label = "Files";
         }
     }
 

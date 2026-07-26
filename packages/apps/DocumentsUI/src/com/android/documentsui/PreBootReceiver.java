@@ -55,6 +55,15 @@ public class PreBootReceiver extends BroadcastReceiver {
             return;
         }
 
+        // GammaOS: always keep the Files launcher activity enabled so DocumentsUI is reachable
+        // with a controller from the nano Applications list. AOSP disables this launcher on S+
+        // (see setComponentEnabledByConfigResources below); re-enable it unconditionally here,
+        // early, so it holds regardless of the RRO config or overlay state.
+        pm.setComponentEnabledSetting(
+                new ComponentName(context.getPackageName(), LAUNCHER_TARGET_CLASS),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
+
         final OverlayManager om = context.getSystemService(OverlayManager.class);
         if (om == null) {
             Log.w(TAG, "Can't obtain OverlayManager from System Service!");
@@ -83,8 +92,8 @@ public class PreBootReceiver extends BroadcastReceiver {
             return;
         }
 
-        setComponentEnabledByConfigResources(pm, packageName, LAUNCHER_TARGET_CLASS,
-                overlayPkg, overlayRes, CONFIG_IS_LAUNCHER_ENABLED);
+        // The Files launcher (LAUNCHER_TARGET_CLASS) is force-enabled above for GammaOS, so it
+        // is intentionally not driven by the RRO config here (which would disable it on S+).
         setComponentEnabledByConfigResources(pm, packageName, DOWNLOADS_TARGET_CLASS,
                 overlayPkg, overlayRes, CONFIG_HANDLE_VIEW_DOWNLOADS);
     }
