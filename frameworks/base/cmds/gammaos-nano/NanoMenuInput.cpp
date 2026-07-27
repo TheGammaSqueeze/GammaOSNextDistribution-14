@@ -888,8 +888,14 @@ bool NanoMenu::enterDrmSleep() {
     // codec/worker through standby just wastes power); tear it fully down before parking.
     videoHardFree();
     // The DSi home BGM (menu_ambiance) must NOT keep playing behind the blanked panel
-    // (user: suspend properly). Stop it before parking; the home restarts it on wake.
+    // (user: suspend properly). Fully release it (and the one-shot SFX player) before
+    // parking, not just stop() it: a stop() only pauses the AAudio stream and a
+    // post-sound SFX stream stays open, either of which keeps AudioFlinger's mixer
+    // thread out of standby so it holds the AudioMix wakelock and blocks the suspend
+    // below. They reopen on demand; the home restarts the ambiance on wake.
     if (mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
+    if (!mAmbianceOpening) mAmbiancePlayer.release();
+    if (!mSfxOpening.load()) mSfxPlayer.release();
     // If music is actively playing, keep it playing with the screen off: blank the
     // panel but do NOT drive a full system suspend (which would freeze the decoder
     // and AAudio threads), and hold a kernel wakelock so the SoC stays up. The

@@ -4669,15 +4669,20 @@ if (sRingPrimedCount >= 2) {
             char ss[PROPERTY_VALUE_MAX] = {};
             property_get("sys.screen.state", ss, "on");
             bool screenOff = !strcmp(ss, "off");
-            // The DSi home BGM (menu_ambiance) must NOT keep playing behind a dark screen
-            // (user: suspend properly). Stop it on screen-off; the idle-poll below never
-            // restarts it (ndsAmbianceTick only runs while rendering with the screen on).
-            if (screenOff && mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
             // Drop to the powersave governor while the panel is off and restore the
             // user's mode when it returns (the framework drives display standby for the
-            // overlay, but not the CPU clocks).
+            // overlay, but not the CPU clocks). Also fully close the home audio: the DSi
+            // menu_ambiance BGM must NOT keep playing behind a dark screen, and a merely
+            // paused (stop()) or post-sound SFX stream stays open, keeping AudioFlinger's
+            // mixer thread out of standby so it holds the AudioMix wakelock and blocks
+            // suspend. release() both (music player untouched); they reopen on demand.
             static bool sOvlPwrSave = false;
-            if (screenOff && !sOvlPwrSave) { nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sOvlPwrSave = true; }
+            if (screenOff && !sOvlPwrSave) {
+                if (mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
+                if (!mAmbianceOpening) mAmbiancePlayer.release();
+                if (!mSfxOpening.load()) mSfxPlayer.release();
+                nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sOvlPwrSave = true;
+            }
             else if (!screenOff && sOvlPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sOvlPwrSave = false; }
             // The framework drives suspend for the overlay; release the BT bluesleep
             // wakelock (BT off) so it is not blocked. Restored when the panel returns.
@@ -4741,10 +4746,21 @@ if (sRingPrimedCount >= 2) {
             char ss[PROPERTY_VALUE_MAX] = {};
             property_get("sys.screen.state", ss, "on");
             bool screenOff = !strcmp(ss, "off");
-            // Stop the DSi home BGM behind a dark screen (user: suspend properly).
-            if (screenOff && mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
             static bool sSfPwrSave = false;
-            if (screenOff && !sSfPwrSave) { nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true; }
+            if (screenOff && !sSfPwrSave) {
+                // Fully close nano's home audio behind the dark panel. Stopping the
+                // ambiance only PAUSES its AAudio stream (it stays open), and the one-shot
+                // SFX player leaves its stream active after the last sound - a still-open
+                // output stream keeps AudioFlinger's mixer thread out of standby, so it
+                // holds the AudioMix wakelock and blocks suspend. release() both (the music
+                // player is left alone) so the thread standbys and the device can suspend;
+                // they reopen on demand - the ambiance on wake via ndsAmbianceTick, the SFX
+                // player on its next sound.
+                if (mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
+                if (!mAmbianceOpening) mAmbiancePlayer.release();
+                if (!mSfxOpening.load()) mSfxPlayer.release();
+                nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true;
+            }
             else if (!screenOff && sSfPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false; }
             // Release the BT bluesleep wakelock (BT off) on framework-driven screen-off
             // so suspend-to-RAM is not blocked; restored when the panel returns.
