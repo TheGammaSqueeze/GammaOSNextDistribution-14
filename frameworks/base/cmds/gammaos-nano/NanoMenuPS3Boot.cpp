@@ -329,7 +329,7 @@ static NanoSfxPlayer     gPs3Sfx[PS3_SFX_COUNT];
 static std::atomic<bool> gPs3SfxOpening[PS3_SFX_COUNT] = {};
 
 void NanoMenu::ps3Sfx(int which) {
-    if (mNdsTheme) return;                              // PS3 XMB theme only (DSi uses ndsSfxPlay)
+    if (mNdsTheme || mMinimaTheme) return;              // PS3 XMB theme only (DSi=ndsSfxPlay, Minima=minimaSfx)
     if (which < 0 || which >= PS3_SFX_COUNT) return;
     static const char* kFiles[PS3_SFX_COUNT] = {
         "SE02_Cursor.wav", "SE03_Normal_OK.wav", "SE04_Back.wav",
@@ -341,6 +341,29 @@ void NanoMenu::ps3Sfx(int which) {
     std::thread([which, path]() {
         if (gPs3Sfx[which].load(path, 0.8f)) gPs3Sfx[which].trigger();
         gPs3SfxOpening[which].store(false);
+    }).detach();
+}
+
+// ---- Minima interactive SFX (soft/premium nav/select/back/drill/error blips) --------------------
+// Same file-static low-latency model as gNdsSfx / gPs3Sfx. Only in the Minima theme. The clips are
+// composed for Minima (NextUI itself is silent) and installed alongside the other sound sets in the
+// nano_xmb audio dir; they are triggered per-frame by state-diff from minimaSfxTick (NanoMenuMinima.cpp).
+static NanoSfxPlayer     gMinSfx[MIN_SFX_COUNT];
+static std::atomic<bool> gMinSfxOpening[MIN_SFX_COUNT] = {};
+
+void NanoMenu::minimaSfx(int which) {
+    if (!mMinimaTheme) return;                          // Minima theme only
+    if (which < 0 || which >= MIN_SFX_COUNT) return;
+    static const char* kFiles[MIN_SFX_COUNT] = {
+        "minima_cursor.wav", "minima_ok.wav", "minima_back.wav",
+        "minima_drill.wav", "minima_error.wav" };
+    if (earlySfxOneShot(kFiles[which], 0.6f)) return;   // pre-boot-complete: direct mixer
+    if (gMinSfx[which].loaded()) { gMinSfx[which].trigger(); return; }
+    if (gMinSfxOpening[which].exchange(true)) return;   // one decode in flight per clip
+    std::string path = dsiAudioPath(kFiles[which]);
+    std::thread([which, path]() {
+        if (gMinSfx[which].load(path, 0.6f)) gMinSfx[which].trigger();
+        gMinSfxOpening[which].store(false);
     }).detach();
 }
 

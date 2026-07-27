@@ -304,8 +304,8 @@ void NanoMenu::handleBack() {
     // Mirror handleSelect: route the setup-wizard WiFi/BT step's Back to
     // ps3XmbBack -> wizBack (mPs3Xmb is false during the setup wizard).
     if (mPs3Xmb || mPs3WizActive) {
-        // DSi stacked carousel: B walks up one level (pop submenu / leave the category).
-        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavBack();
+        // DSi carousel / Minima list: B walks up one level (pop submenu / leave the category).
+        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && !ndsInModal()) ndsNavBack();
         else ps3XmbBack();
         return;
     }
@@ -357,8 +357,11 @@ void NanoMenu::handleSelect() {
     // to ps3XmbSelect -> wizConfirm; otherwise it falls through to the legacy text
     // menu below and "selects" item 0 (RetroArch), wrongly launching it.
     if (mPs3Xmb || mPs3WizActive) {
-        // DSi stacked carousel: A enters/drills the focused card (root -> enter the category).
-        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavSelect(false);   // buttons navigate only; launch is touch-only
+        // DSi carousel: A enters/drills the focused card (buttons navigate only; launch is touch-only).
+        // Minima list: A OPENS the row - enters a category / drills a submenu / LAUNCHES a leaf, matching
+        // NextUI's "A OPEN" paradigm (a discrete button press, so stick drift is not a concern here).
+        if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavSelect(false);
+        else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavSelect(true);
         else ps3XmbSelect();
         return;
     }
@@ -538,6 +541,7 @@ void NanoMenu::handleUp() {
         // above the focused one). A modal keeps normal vertical list nav.
         // A settings LIST level moves the selection up a row; a carousel level walks up to the parent.
         if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavHoriz(-1); else ndsNavBack(); }
+        else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(-1);   // Minima: flat list, UP moves the selection up a row
         else ps3XmbUp();
         return;
     }
@@ -604,6 +608,7 @@ void NanoMenu::handleDown() {
             if (ndsCurLevelIsList()) ndsNavHoriz(+1);
             else if (mNdsAtRoot || ps3FocusOpensSubmenu()) ndsNavSelect(false);
         }
+        else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(+1);   // Minima: flat list, DOWN moves the selection down a row
         else ps3XmbDown();
         return;
     }

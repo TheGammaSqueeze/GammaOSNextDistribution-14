@@ -122,6 +122,11 @@ enum Ps3SfxId { PS3_SFX_CURSOR = 0, PS3_SFX_OK, PS3_SFX_BACK, PS3_SFX_CATEGORY, 
 enum NdsSfxId { NDS_SFX_NAV = 0, NDS_SFX_LAUNCH, NDS_SFX_SET_NAV, NDS_SFX_SET_BACK, NDS_SFX_SET_ENTER,
                 NDS_SFX_COUNT };
 
+// Minima (NextUI-inspired) interactive SFX ids: soft/premium nav/select/back/drill/error blips,
+// composed for the minimal list theme. At namespace scope for the same reason as the sets above.
+enum MinimaSfxId { MIN_SFX_CURSOR = 0, MIN_SFX_OK, MIN_SFX_BACK, MIN_SFX_DRILL, MIN_SFX_ERROR,
+                   MIN_SFX_COUNT };
+
 class NanoMenu : public Thread, public IBinder::DeathRecipient {
 public:
     NanoMenu();
@@ -1259,6 +1264,8 @@ private:
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)
+    bool mMinimaTheme = false;    // persist.gammaos.nano.minima (Minima list theme, NextUI-inspired; rides the XMB
+                                  // infrastructure like the DSi theme and swaps the home render/nav/sfx/boot)
     bool mPs3BottomClock = false; // persist.gammaos.nano.ps3xmb.bottomclock (PSP clock on the bottom panel, dual-screen XMB)
     bool mControlCenterEnabled = false; // persist.gammaos.nano.ps3xmb.controlcenter (bottom-screen dashboard over a single-screen app)
     // Bottom-panel PSP clock reveal (own scalar, independent of the F12 summon mPspClockReveal).
@@ -1285,6 +1292,22 @@ private:
     // panels get the carousel scaled to fit.
     void renderNds();             // DSi launcher home, aspect-adaptive; orchestrates the panel layout
     void ensureNdsAssets();       // one-shot: load the DSi sprites + read the stack prop
+
+    // ---- Minima theme (NextUI-inspired minimal list launcher; NanoMenuMinima.cpp) ----
+    void renderMinima();                                             // orchestrator: pick single/dual-panel layout
+    void renderMinimaList(float rx, float ry, float rw, float rh);   // the vertical list into a device-px rect
+    void minimaAccent(float& r, float& g, float& b) const;          // accent RGB from the shared Colour setting
+    void minimaSfx(int which);                                      // trigger a Minima SFX (MIN_SFX_* id, NanoMenuPS3Boot.cpp)
+    void minimaSfxTick();                                           // per-frame: fire nav/drill/back/launch by state diff
+    // Minima render/animation state (NextUI feel: pill glides between rows, list windows to keep sel visible).
+    float   mMinimaSelAnim   = 0.0f;   // eased selected-row index (pill glide, ~3-frame linear)
+    float   mMinimaScroll    = 0.0f;   // eased list scroll top (in rows)
+    float   mMinimaMarquee   = 0.0f;   // marquee offset (px) for a long selected label
+    int     mMinimaPrevDepth = -1;     // last nav depth (root/category/submenu) for the slide+fade transition
+    int     mMinimaTransDir  = 0;      // +1 drill / -1 back, for the horizontal slide direction
+    int64_t mMinimaTransStart= 0;      // uptimeMillis() when the level changed (drives the enter/back transition)
+    int     mMinimaSfxDepth  = -1;     // ndsNavDepth snapshot for minimaSfxTick state-diff
+    int     mMinimaSfxSel    = -1;     // ndsFocusSel snapshot for minimaSfxTick state-diff
     void renderNdsCarousel(float rx, float ry, float rw, float rh);  // DSi bottom screen into a device rect
     void renderNdsTop(float rx, float ry, float rw, float rh);       // DSi top screen (status bar + content)
     void drawNdsArrowBtn(float x0, float y0, float wpx, float hpx, int dir,

@@ -70,6 +70,7 @@ cc_binary {
         "NanoMenuFileExplorer.cpp",
         "NanoMenuShares.cpp",
         "NanoMenuPS3Menu.cpp",
+        "NanoMenuMinima.cpp",
         "NanoMenuPS3Clock.cpp",
         "NanoControlCenter.cpp",
         "NanoMenuPS3Globe.cpp",

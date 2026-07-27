@@ -1450,6 +1450,7 @@ void NanoMenu::handleLeft() {
         // the root, else the category/submenu cards). A modal (chooser/dialog) keeps XMB nav.
         // A settings LIST level: LEFT walks up to the parent (a vertical list has no horizontal move).
         if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavBack(); else ndsNavHoriz(-1); }
+        else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(-6);   // Minima: LEFT jumps up a page (clamped)
         else ps3XmbLeft();
         return;
     }
@@ -1486,6 +1487,7 @@ void NanoMenu::handleRight() {
         // (the ">" chevron rows); on a leaf (toggle / action) RIGHT does NOTHING, so a
         // drifting stick / temperamental d-pad diagonal cannot confirm it (confirm is X/A).
         if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) { if (ps3FocusOpensSubmenu()) ndsNavSelect(false); } else ndsNavHoriz(+1); }
+        else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(+6);   // Minima: RIGHT jumps down a page (clamped)
         else ps3XmbRight();
         return;
     }

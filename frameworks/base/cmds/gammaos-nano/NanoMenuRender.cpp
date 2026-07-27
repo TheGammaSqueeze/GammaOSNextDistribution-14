@@ -4993,6 +4993,16 @@ void NanoMenu::render() {
                 (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
             if (ndsDual) renderNdsTop(0.0f, 0.0f, (float)mWidth, (float)mHeight);
             else         renderNds();
+        } else if (mMinimaTheme && !mPs3BootActive && (ndsPlayerActive() || ndsInModal())) {
+            // Minima: media players + modals (options / dialogs / pickers / OSK) reuse the existing
+            // full-screen XMB chrome for now (Minima-skinning the modals is a later increment).
+            renderPs3Xmb();
+        } else if (mMinimaTheme && !mPs3BootActive) {
+            // Minima home (the NextUI-style list). renderPs3Xmb is skipped, so drive its lifecycle
+            // ticks here so game art + App Information still fill in, exactly like the DSi branch does.
+            scraperArtTick();
+            appInfoTick();
+            renderMinima();
         } else {
             renderPs3Xmb();
         }

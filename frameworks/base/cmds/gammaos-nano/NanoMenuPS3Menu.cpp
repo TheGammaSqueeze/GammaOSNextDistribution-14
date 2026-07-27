@@ -6568,6 +6568,19 @@ static const Ps3ColorOpt kPs3ColorOpts[] = {
 };
 static const int kPs3ColorCount = 21;
 
+// Minima accent colour: follows the shared "Colour" theme setting (mPs3ColorIdx) exactly like the
+// XMB, but defaults to NextUI's signature berry #9B2257 when the setting is left at "Original"
+// (index 0) or unset, so Minima reads as NextUI out of the box. Uses the saturated (sr,sg,sb) set
+// for a bold NextUI-style accent. Defined here because kPs3ColorOpts is file-static.
+void NanoMenu::minimaAccent(float& r, float& g, float& b) const {
+    int idx = mPs3ColorIdx;
+    if (idx <= 0 || idx >= kPs3ColorCount) {   // "Original" / unset -> berry
+        r = 0.6078f; g = 0.1333f; b = 0.3412f;  // #9B2257
+        return;
+    }
+    r = kPs3ColorOpts[idx].sr; g = kPs3ColorOpts[idx].sg; b = kPs3ColorOpts[idx].sb;
+}
+
 // Game Systems editor: icon-tint chooser (theme key 21). Defined here so it can
 // see the kPs3ColorOpts swatch table above. Applied on commit (applyThemeSetting
 // case 21); no live preview to keep cancel lossless for non-swatch built-in tints.
