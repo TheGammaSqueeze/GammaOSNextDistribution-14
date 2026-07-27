@@ -2105,6 +2105,7 @@ private:
     void buildActionPerAppMenu(Ps3Level& out);    // pick an app for per-app scope
     void actionCaptureOpen(int purpose);          // full-screen live "press a button" capture
     void renderGamepadCapture();                  // draw the capture prompt screen
+    void renderGamepadCaptureNds(float rx, float ry, float rw, float rh);  // DSi-themed capture chrome
     bool gpCaptureHandleKey(int code, int value); // latch the first press during capture
     void popToActionEdit();                       // pop pickers back to the edit level + rebuild
     std::string actScopePrefix();                 // prop prefix for the active scope

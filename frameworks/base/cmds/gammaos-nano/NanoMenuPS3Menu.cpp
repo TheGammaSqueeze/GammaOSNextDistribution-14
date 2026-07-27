@@ -2871,6 +2871,7 @@ void NanoMenu::popToActionEdit() {
 }
 
 void NanoMenu::renderGamepadCapture() {
+    if (mNdsTheme) { renderGamepadCaptureNds(0.0f, 0.0f, (float)mWidth, (float)mHeight); return; }
     setUiBlend();
     setGlyphAtlasAA(true);
     float ap = 1.0f;
@@ -2894,6 +2895,69 @@ void NanoMenu::renderGamepadCapture() {
     ps3DlgText(prompt, XC(ps3::VW * 0.5f), Y(500.0f), FS(30.0f), 1.0f, 1.0f, 1.0f, ap, 1);
     ps3DlgText("Hold SELECT to cancel", XC(ps3::VW * 0.5f), Y(566.0f), FS(22.0f),
                0.78f, 0.85f, 0.95f, 0.9f * ap, 1);
+}
+
+// DSi-themed press-to-capture prompt. The PS3 chrome (frosted wave + glass icon) would clash
+// with the DSi home, so mirror the DSi settings-list chrome (renderNdsPickerList): dark scanline
+// field, darker header band + title, the dashed rule, a centred prompt, and the Back hint bar.
+void NanoMenu::renderGamepadCaptureNds(float rx, float ry, float rw, float rh) {
+    setUiBlend();
+    ensureNdsAssets();
+    const bool ndsPrevFont = mNdsFontPref; mNdsFontPref = true;
+    const int ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // DSi text is flat
+    float ap = 1.0f;
+    { long el = (long)android::uptimeMillis() - mGpCaptureOpenMs;
+      if (el < 200) { float t = (float)el / 200.0f; ap = t * t * (3.0f - 2.0f * t); }
+      if (el < 200) mDisplayDirty = true; }
+
+    float scale = rh / 192.0f;
+    if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;
+    const float offY = ry + (rh - 192.0f * scale) * 0.5f;
+    const float cx = rx + rw * 0.5f;
+    auto Y = [&](float d){ return offY + d * scale; };
+    auto S = [&](float v){ return v * scale; };
+    auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
+    const float lh = fmaxf(1.0f, S(1.0f));
+
+    // dark scanline background + darker header band (identical to renderNdsPickerList).
+    drawQuad(rx, ry, rw, rh, 0.220f, 0.220f, 0.220f, 1.0f);
+    for (float yy = ry; yy < ry + rh; yy += S(2.0f)) drawQuad(rx, yy, rw, lh, 0.255f, 0.255f, 0.255f, 1.0f);
+    drawQuad(rx, ry, rw, Y(23.0f) - ry, 0.188f, 0.188f, 0.188f, 1.0f);
+    for (float yy = ry; yy < Y(23.0f); yy += S(2.0f)) drawQuad(rx, yy, rw, lh, 0.220f, 0.220f, 0.220f, 1.0f);
+    const char* title = (mGpCapturePurpose == 0) ? "Add Button Mapping" : "Choose Target Button";
+    { float fs = S(13.0f) / (float)FONT_CHAR_H; drawText(title, X(6.0f), Y(4.0f), fs, 0.984f, 0.984f, 0.984f, 1.0f); }
+    for (float xx = X(2.0f); xx < X(254.0f); xx += S(4.0f)) {   // web dashed rule
+        drawQuad(xx,           Y(21.0f), fmaxf(1.0f, S(1.0f)), lh, 0.510f, 0.510f, 0.510f, 1.0f);
+        drawQuad(xx + S(1.0f), Y(21.0f), fmaxf(1.0f, S(1.0f)), lh, 0.443f, 0.443f, 0.443f, 1.0f);
+    }
+
+    // centred prompt: a soft glossy plate behind the text (DSi presses use these), then a gentle
+    // pulse on the "waiting" prompt so it reads as live, and a quieter subtitle below.
+    float pulse = 0.85f + 0.15f * (0.5f + 0.5f * sinf((float)mEffectTime * 3.2f));
+    mDisplayDirty = true;                                   // keep the pulse animating
+    drawNdsGlossyBtn(X(28.0f), Y(74.0f), S(200.0f), S(44.0f), S(6.0f), false);
+    const char* prompt = (mGpCapturePurpose == 0)
+        ? "Press the button you want to map"
+        : "Press the button to use as the target";
+    { float fs = S(13.0f) / (float)FONT_CHAR_H, tw = measureText(prompt, fs);
+      float maxW = S(188.0f); if (tw > maxW) { fs *= maxW / tw; tw = measureText(prompt, fs); }
+      float c = 0.157f;   // DSi idle-row ink (#282828) over the light plate
+      drawText(prompt, cx - tw * 0.5f, Y(89.0f), fs, c, c, c, pulse * ap); }
+    { const char* sub = "Press SELECT to cancel";
+      float fs = S(10.0f) / (float)FONT_CHAR_H, tw = measureText(sub, fs);
+      drawText(sub, cx - tw * 0.5f, Y(132.0f), fs, 0.741f, 0.741f, 0.769f, ap); }
+
+    // bottom hint bar (Back only - the physical button press is the confirm here).
+    drawQuad(rx, Y(171.0f), rw, lh, 0.443f, 0.443f, 0.443f, 1.0f);
+    { const int NB = 14; float bandH = (Y(186.0f) - Y(172.0f)) / (float)NB;
+      for (int b = 0; b < NB; b++) { float t = (float)b / (float)(NB - 1); float c = 0.349f * (1.0f - t) + 0.188f * t;
+          drawQuad(rx, Y(172.0f) + (float)b * bandH, rw, bandH + 0.6f, c, c, c, 1.0f); }
+      drawQuad(rx, Y(186.0f), rw, Y(192.0f) - Y(186.0f), 0.188f, 0.188f, 0.188f, 1.0f); }
+    { float fs = S(11.0f) / (float)FONT_CHAR_H; drawText("Cancel", X(8.0f), Y(176.0f), fs, 0.898f, 0.898f, 0.898f, 1.0f); }
+
+    if (ap < 0.999f) drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f - ap);   // fade in from black
+    mTextOutlineMode = ndsPrevOutline;
+    mNdsFontPref = ndsPrevFont;
 }
 
 // --- Notifications submenu ---------------------------------------------------
