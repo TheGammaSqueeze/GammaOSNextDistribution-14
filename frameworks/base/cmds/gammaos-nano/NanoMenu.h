@@ -2123,6 +2123,11 @@ private:
     bool mGpCaptureActive = false;   // full-screen press-to-capture up
     int  mGpCapturePurpose = 0;      // 0 = source button, 1 = key target
     long mGpCaptureOpenMs = 0;
+    std::string mActionListFilter;   // live text filter for the target pickers
+    int  mActionListKind = 0;        // active picker: 0=key, 1=app, 2=activity
+    bool actionFilterMatch(const std::string& label);  // case-insensitive substring
+    void rebuildActionPicker();      // rebuild the active picker in place with the filter
+    void actAddSearchRow(Ps3Level& out, GLuint ic, GLuint nm);  // Search/Clear rows for a picker
     void buildNotificationsSubmenu(Ps3Level& out);   // re-reads the live list, then builds
     void buildNotificationsLevel(Ps3Level& out);     // builds rows from the current mNotifs (no read)
     // One active notification, parsed from `dumpsys notification --noredact` only

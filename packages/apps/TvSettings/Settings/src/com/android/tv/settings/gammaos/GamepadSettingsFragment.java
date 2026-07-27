@@ -169,17 +169,37 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
             new java.util.LinkedHashMap<>();
     static {
         ACTION_KEYS.put(158, "Back"); ACTION_KEYS.put(172, "Home");
-        ACTION_KEYS.put(139, "Menu"); ACTION_KEYS.put(217, "Search");
-        ACTION_KEYS.put(115, "Volume Up"); ACTION_KEYS.put(114, "Volume Down");
-        ACTION_KEYS.put(113, "Mute"); ACTION_KEYS.put(164, "Play / Pause");
-        ACTION_KEYS.put(163, "Next Track"); ACTION_KEYS.put(165, "Previous Track");
-        ACTION_KEYS.put(116, "Power"); ACTION_KEYS.put(142, "Sleep");
-        ACTION_KEYS.put(212, "Camera"); ACTION_KEYS.put(225, "Brightness Up");
-        ACTION_KEYS.put(224, "Brightness Down");
-        ACTION_KEYS.put(28, "Enter"); ACTION_KEYS.put(1, "Escape");
-        ACTION_KEYS.put(15, "Tab"); ACTION_KEYS.put(57, "Space"); ACTION_KEYS.put(14, "Backspace");
-        ACTION_KEYS.put(103, "Up"); ACTION_KEYS.put(108, "Down");
-        ACTION_KEYS.put(105, "Left"); ACTION_KEYS.put(106, "Right");
+        ACTION_KEYS.put(139, "Menu"); ACTION_KEYS.put(217, "Search"); ACTION_KEYS.put(171, "Settings");
+        ACTION_KEYS.put(116, "Power"); ACTION_KEYS.put(142, "Sleep"); ACTION_KEYS.put(143, "Wake");
+        ACTION_KEYS.put(212, "Camera"); ACTION_KEYS.put(582, "Voice Command"); ACTION_KEYS.put(583, "Assistant");
+        ACTION_KEYS.put(226, "Media Key");
+        ACTION_KEYS.put(115, "Volume Up"); ACTION_KEYS.put(114, "Volume Down"); ACTION_KEYS.put(113, "Mute");
+        ACTION_KEYS.put(225, "Brightness Up"); ACTION_KEYS.put(224, "Brightness Down");
+        ACTION_KEYS.put(164, "Play / Pause"); ACTION_KEYS.put(207, "Play"); ACTION_KEYS.put(119, "Pause");
+        ACTION_KEYS.put(128, "Stop"); ACTION_KEYS.put(163, "Next Track"); ACTION_KEYS.put(165, "Previous Track");
+        ACTION_KEYS.put(168, "Rewind"); ACTION_KEYS.put(208, "Fast Forward"); ACTION_KEYS.put(167, "Record");
+        ACTION_KEYS.put(161, "Eject");
+        ACTION_KEYS.put(238, "Wi-Fi"); ACTION_KEYS.put(237, "Bluetooth"); ACTION_KEYS.put(247, "Airplane Mode");
+        ACTION_KEYS.put(28, "Enter"); ACTION_KEYS.put(1, "Escape"); ACTION_KEYS.put(15, "Tab");
+        ACTION_KEYS.put(57, "Space"); ACTION_KEYS.put(14, "Backspace"); ACTION_KEYS.put(111, "Delete");
+        ACTION_KEYS.put(103, "Up"); ACTION_KEYS.put(108, "Down"); ACTION_KEYS.put(105, "Left"); ACTION_KEYS.put(106, "Right");
+        ACTION_KEYS.put(104, "Page Up"); ACTION_KEYS.put(109, "Page Down"); ACTION_KEYS.put(102, "Home Key");
+        ACTION_KEYS.put(107, "End"); ACTION_KEYS.put(110, "Insert");
+        ACTION_KEYS.put(133, "Copy"); ACTION_KEYS.put(135, "Paste"); ACTION_KEYS.put(137, "Cut");
+        ACTION_KEYS.put(59, "F1"); ACTION_KEYS.put(60, "F2"); ACTION_KEYS.put(61, "F3"); ACTION_KEYS.put(62, "F4");
+        ACTION_KEYS.put(63, "F5"); ACTION_KEYS.put(64, "F6"); ACTION_KEYS.put(65, "F7"); ACTION_KEYS.put(66, "F8");
+        ACTION_KEYS.put(67, "F9"); ACTION_KEYS.put(68, "F10"); ACTION_KEYS.put(87, "F11"); ACTION_KEYS.put(88, "F12");
+        ACTION_KEYS.put(155, "Email"); ACTION_KEYS.put(140, "Calculator"); ACTION_KEYS.put(144, "Files");
+        ACTION_KEYS.put(11, "0"); ACTION_KEYS.put(2, "1"); ACTION_KEYS.put(3, "2"); ACTION_KEYS.put(4, "3");
+        ACTION_KEYS.put(5, "4"); ACTION_KEYS.put(6, "5"); ACTION_KEYS.put(7, "6"); ACTION_KEYS.put(8, "7");
+        ACTION_KEYS.put(9, "8"); ACTION_KEYS.put(10, "9");
+        ACTION_KEYS.put(30, "A"); ACTION_KEYS.put(48, "B"); ACTION_KEYS.put(46, "C"); ACTION_KEYS.put(32, "D");
+        ACTION_KEYS.put(18, "E"); ACTION_KEYS.put(33, "F"); ACTION_KEYS.put(34, "G"); ACTION_KEYS.put(35, "H");
+        ACTION_KEYS.put(23, "I"); ACTION_KEYS.put(36, "J"); ACTION_KEYS.put(37, "K"); ACTION_KEYS.put(38, "L");
+        ACTION_KEYS.put(50, "M"); ACTION_KEYS.put(49, "N"); ACTION_KEYS.put(24, "O"); ACTION_KEYS.put(25, "P");
+        ACTION_KEYS.put(16, "Q"); ACTION_KEYS.put(19, "R"); ACTION_KEYS.put(31, "S"); ACTION_KEYS.put(20, "T");
+        ACTION_KEYS.put(22, "U"); ACTION_KEYS.put(47, "V"); ACTION_KEYS.put(17, "W"); ACTION_KEYS.put(45, "X");
+        ACTION_KEYS.put(21, "Y"); ACTION_KEYS.put(44, "Z");
     }
 
     // Axis code to name mapping (Linux ABS codes)

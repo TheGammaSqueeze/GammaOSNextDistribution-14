@@ -779,6 +779,8 @@ enum {
     QA_ACTION_SETKEY,    // (it.b = evdev code) set the active slot to key=<code>
     QA_ACTION_SETAPP,    // (it.value = pkg) set the active slot to app=<pkg>
     QA_ACTION_SETACT,    // (it.value = pkg/comp) set the active slot to act=<comp>
+    QA_ACTION_SEARCH,    // open the OSK to filter the active target picker
+    QA_ACTION_SEARCH_CLEAR, // clear the active picker's text filter
 };
 
 // True for the QA_ action codes whose row drills into a deeper submenu list, so
@@ -2533,12 +2535,36 @@ void actStoreRules(const std::string& prefix, const std::vector<NanoActRule>& ru
 // gamepad buttons; the daemon routes these through the companion keyboard.
 struct GpKey { int code; const char* name; };
 const GpKey kActionKeys[] = {
-    {158,"Back"}, {172,"Home"}, {139,"Menu"}, {217,"Search"},
+    // System / navigation
+    {158,"Back"}, {172,"Home"}, {139,"Menu"}, {217,"Search"}, {171,"Settings"},
+    {116,"Power"}, {142,"Sleep"}, {143,"Wake"}, {212,"Camera"},
+    {582,"Voice Command"}, {583,"Assistant"}, {226,"Media Key"},
+    // Volume / brightness
     {115,"Volume Up"}, {114,"Volume Down"}, {113,"Mute"},
-    {164,"Play / Pause"}, {163,"Next Track"}, {165,"Previous Track"},
-    {116,"Power"}, {142,"Sleep"}, {212,"Camera"}, {224,"Brightness Down"}, {225,"Brightness Up"},
-    {28,"Enter"}, {1,"Escape"}, {15,"Tab"}, {57,"Space"}, {14,"Backspace"},
+    {225,"Brightness Up"}, {224,"Brightness Down"},
+    // Media transport
+    {164,"Play / Pause"}, {207,"Play"}, {119,"Pause"}, {128,"Stop"},
+    {163,"Next Track"}, {165,"Previous Track"}, {168,"Rewind"}, {208,"Fast Forward"},
+    {167,"Record"}, {161,"Eject"},
+    // Radios
+    {238,"Wi-Fi"}, {237,"Bluetooth"}, {247,"Airplane Mode"},
+    // Editing / navigation keys
+    {28,"Enter"}, {1,"Escape"}, {15,"Tab"}, {57,"Space"}, {14,"Backspace"}, {111,"Delete"},
     {103,"Up"}, {108,"Down"}, {105,"Left"}, {106,"Right"},
+    {104,"Page Up"}, {109,"Page Down"}, {102,"Home Key"}, {107,"End"}, {110,"Insert"},
+    {133,"Copy"}, {135,"Paste"}, {137,"Cut"},
+    // Function keys
+    {59,"F1"}, {60,"F2"}, {61,"F3"}, {62,"F4"}, {63,"F5"}, {64,"F6"},
+    {65,"F7"}, {66,"F8"}, {67,"F9"}, {68,"F10"}, {87,"F11"}, {88,"F12"},
+    // Apps
+    {155,"Email"}, {140,"Calculator"}, {144,"Files"},
+    // Digits
+    {11,"0"}, {2,"1"}, {3,"2"}, {4,"3"}, {5,"4"}, {6,"5"}, {7,"6"}, {8,"7"}, {9,"8"}, {10,"9"},
+    // Letters
+    {30,"A"}, {48,"B"}, {46,"C"}, {32,"D"}, {18,"E"}, {33,"F"}, {34,"G"}, {35,"H"},
+    {23,"I"}, {36,"J"}, {37,"K"}, {38,"L"}, {50,"M"}, {49,"N"}, {24,"O"}, {25,"P"},
+    {16,"Q"}, {19,"R"}, {31,"S"}, {20,"T"}, {22,"U"}, {47,"V"}, {17,"W"}, {45,"X"},
+    {21,"Y"}, {44,"Z"},
 };
 } // namespace
 
@@ -2694,47 +2720,96 @@ void NanoMenu::buildActionTypeMenu(Ps3Level& out) {
     row("None (clear)", QA_ACTION_TYPE_NONE);
 }
 
+// Case-insensitive substring test against the active picker filter.
+bool NanoMenu::actionFilterMatch(const std::string& label) {
+    if (mActionListFilter.empty()) return true;
+    std::string a = label, b = mActionListFilter;
+    std::transform(a.begin(), a.end(), a.begin(), ::tolower);
+    std::transform(b.begin(), b.end(), b.begin(), ::tolower);
+    return a.find(b) != std::string::npos;
+}
+
+// Prepend a "Search..." row (and a "Clear search" row when a filter is set) to
+// a target picker, so the long/full lists are text-filterable. Member so it can
+// see the NanoMenu-nested Ps3Level/Ps3Item types.
+void NanoMenu::actAddSearchRow(Ps3Level& out, GLuint ic, GLuint nm) {
+    const std::string& filter = mActionListFilter;
+    Ps3Item s; s.kind = PS3_QUICK; s.a = QA_ACTION_SEARCH;
+    s.label = filter.empty() ? "Search..." : ("Search: " + filter);
+    s.iconTex = ic; s.nmapTex = nm; s.iconR = s.iconG = s.iconB = 0.8f;
+    out.items.push_back(s);
+    if (!filter.empty()) {
+        Ps3Item c; c.kind = PS3_QUICK; c.a = QA_ACTION_SEARCH_CLEAR; c.label = "Clear search";
+        c.iconTex = ic; c.nmapTex = nm; c.iconR = c.iconG = c.iconB = 0.8f;
+        out.items.push_back(c);
+    }
+}
+
 void NanoMenu::buildActionKeyList(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Choose Key / Button";
+    mActionListKind = 0;
+    GLuint ic = iconTexForIcon(74), nm = nmapForIcon(74);
     auto sect = [&](const std::string& s){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
-        it.label = s; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
-        it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
-    auto row = [&](const char* label, int code){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_SETKEY;
-        it.b = code; it.label = label; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
-        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); };
-    sect("Gamepad Buttons");
+        it.label = s; it.iconTex = ic; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
+    auto row = [&](const char* label, int code){ if (!actionFilterMatch(label)) return;
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_SETKEY; it.b = code; it.label = label;
+        it.iconTex = ic; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); };
+    actAddSearchRow(out, ic, nm);
+    size_t before = out.items.size(); sect("Gamepad Buttons");
     { int n; const GpCode* t = gpTable(false, n); for (int i = 0; i < n; i++) row(t[i].name, t[i].code); }
-    sect("Keys & Media");
+    if (out.items.size() == before + 1) out.items.pop_back();   // no matches -> drop the header
+    before = out.items.size(); sect("Keys & Media");
     for (const auto& k : kActionKeys) row(k.name, k.code);
-    out.sel = 1;
+    if (out.items.size() == before + 1) out.items.pop_back();
+    out.sel = mActionListFilter.empty() ? 1 : 0;
 }
 
 void NanoMenu::buildActionAppList(Ps3Level& out) {
     if (mAppEntries.empty()) loadInstalledApps();
     out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Launch App";
+    mActionListKind = 1;
+    GLuint ic = iconTexForIcon(74), nm = nmapForIcon(74);
+    actAddSearchRow(out, ic, nm);
+    size_t searchRows = out.items.size();
     for (const auto& a : mAppEntries) {
+        std::string label = a.label.empty() ? a.packageName : a.label;
+        if (!actionFilterMatch(label) && !actionFilterMatch(a.packageName)) continue;
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_SETAPP; it.value = a.packageName;
-        it.label = a.label.empty() ? a.packageName : a.label;
-        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
-        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+        it.label = label; it.iconTex = ic; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
     }
-    if (out.items.empty()) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP; it.label = "No apps installed";
-        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+    if (out.items.size() == searchRows) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
+        it.label = mAppEntries.empty() ? "No apps installed" : "No matches"; it.iconTex = ic; it.nmapTex = nm;
         it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); }
+    out.sel = mActionListFilter.empty() ? (int)searchRows : 0;
 }
 
 void NanoMenu::buildActionActivityList(Ps3Level& out) {
     ensureActivityList();
     out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Launch Activity";
+    mActionListKind = 2;
+    GLuint ic = iconTexForIcon(74), nm = nmapForIcon(74);
+    actAddSearchRow(out, ic, nm);
+    size_t searchRows = out.items.size();
     for (const auto& a : mActivityEntries) {
+        if (!actionFilterMatch(a.label) && !actionFilterMatch(a.packageName)) continue;
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_SETACT; it.value = a.component;
-        it.label = a.label;
-        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
-        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+        it.label = a.label; it.iconTex = ic; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
     }
-    if (out.items.empty()) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP; it.label = "No activities found";
-        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+    if (out.items.size() == searchRows) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
+        it.label = mActivityEntries.empty() ? "No activities found" : "No matches"; it.iconTex = ic; it.nmapTex = nm;
         it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); }
+    out.sel = mActionListFilter.empty() ? (int)searchRows : 0;
+}
+
+void NanoMenu::rebuildActionPicker() {
+    if (mPs3Stack.empty()) return;
+    switch (mActionListKind) {
+        case 0: buildActionKeyList(mPs3Stack.back()); break;
+        case 1: buildActionAppList(mPs3Stack.back()); break;
+        case 2: buildActionActivityList(mPs3Stack.back()); break;
+        default: break;
+    }
+    mDisplayDirty = true;
 }
 
 void NanoMenu::buildActionPerAppMenu(Ps3Level& out) {
@@ -4250,10 +4325,19 @@ void NanoMenu::ps3XmbSelect() {
                         if (sel >= 0 && sel < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = sel; }
                     mDisplayDirty = true; return;
                 }
-                case QA_ACTION_TYPE_KEYLIST: { Ps3Level lvl; buildActionKeyList(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_ACTION_TYPE_KEYLIST: { mActionListFilter.clear(); Ps3Level lvl; buildActionKeyList(lvl); mPs3Stack.push_back(lvl); break; }
                 case QA_ACTION_TYPE_KEYCAP: actionCaptureOpen(1); break;
-                case QA_ACTION_TYPE_APP: { Ps3Level lvl; buildActionAppList(lvl); mPs3Stack.push_back(lvl); break; }
-                case QA_ACTION_TYPE_ACT: { Ps3Level lvl; buildActionActivityList(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_ACTION_TYPE_APP: { mActionListFilter.clear(); Ps3Level lvl; buildActionAppList(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_ACTION_TYPE_ACT: { mActionListFilter.clear(); Ps3Level lvl; buildActionActivityList(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_ACTION_SEARCH: {
+                    openOskForPassword("Filter list", [this](const std::string& q) {
+                        mActionListFilter = q; rebuildActionPicker();
+                    });
+                    mOskPasswordMode = false; mOskPlaintext = true;
+                    return;
+                }
+                case QA_ACTION_SEARCH_CLEAR:
+                    mActionListFilter.clear(); rebuildActionPicker(); return;
                 case QA_ACTION_TYPE_PROP: {
                     openOskForPassword("Property to set (name=value)",
                         [this](const std::string& v) {
