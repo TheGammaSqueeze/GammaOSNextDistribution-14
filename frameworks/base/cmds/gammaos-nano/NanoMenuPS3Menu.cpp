@@ -2495,7 +2495,12 @@ std::vector<NanoActRule> actLoadRules(const std::string& prefix) {
 }
 
 void actStoreRules(const std::string& prefix, const std::vector<NanoActRule>& rules) {
-    char key[96];
+    char key[96], val[PROPERTY_VALUE_MAX];
+    // Read the previous count so we can clear orphaned actN_* props when the
+    // rule list shrinks (otherwise stale higher-index props linger).
+    snprintf(key, sizeof(key), "%sact_count", prefix.c_str());
+    property_get(key, val, "0");
+    int oldN = atoi(val);
     int n = (int)rules.size(); if (n > 64) n = 64;
     for (int i = 0; i < n; i++) {
         snprintf(key, sizeof(key), "%sact%d_code", prefix.c_str(), i);
@@ -2506,6 +2511,14 @@ void actStoreRules(const std::string& prefix, const std::vector<NanoActRule>& ru
         property_set(key, rules[i].s.c_str());
         snprintf(key, sizeof(key), "%sact%d_l", prefix.c_str(), i);
         property_set(key, rules[i].l.c_str());
+    }
+    // Clear orphaned trailing rules (n .. oldN-1) so the daemon and a later
+    // reload never see stale specs beyond the current count.
+    for (int i = n; i < oldN && i < 64; i++) {
+        snprintf(key, sizeof(key), "%sact%d_code", prefix.c_str(), i); property_set(key, "");
+        snprintf(key, sizeof(key), "%sact%d_hold", prefix.c_str(), i); property_set(key, "");
+        snprintf(key, sizeof(key), "%sact%d_s", prefix.c_str(), i); property_set(key, "");
+        snprintf(key, sizeof(key), "%sact%d_l", prefix.c_str(), i); property_set(key, "");
     }
     snprintf(key, sizeof(key), "%sact_count", prefix.c_str());
     property_set(key, std::to_string(n).c_str());
@@ -2561,6 +2574,10 @@ void NanoMenu::actReadRule(int code, int& hold, std::string& s, std::string& l) 
 }
 
 void NanoMenu::actSetSlot(int code, int slot, const std::string& spec) {
+    // A system property value caps at PROPERTY_VALUE_MAX; reject an over-long
+    // spec rather than let property_set silently drop it and corrupt the rule.
+    // (Long shell commands should use the "sh <script>" escape hatch.)
+    if ((int)spec.size() >= PROPERTY_VALUE_MAX - 1) return;
     std::string prefix = actScopePrefix();
     std::vector<NanoActRule> rules = actLoadRules(prefix);
     NanoActRule* r = nullptr;
@@ -4194,8 +4211,15 @@ void NanoMenu::ps3XmbSelect() {
                     Ps3Level lvl; buildActionPerAppMenu(lvl); mPs3Stack.push_back(lvl); break;
                 }
                 case QA_ACTION_PERAPP_PICK: {
-                    mActionScopePkg = it.value;
-                    mActionScopePa = actProfileIndexForPkg(it.value, true);
+                    int pa = actProfileIndexForPkg(it.value, true);
+                    if (pa < 0) {
+                        // Per-app profile limit (20) reached. Do NOT fall back to
+                        // the global scope (that would silently edit global rules);
+                        // stay on the picker so the selection is a visible no-op.
+                        mActionScopePkg.clear(); mActionScopePa = -1;
+                        mDisplayDirty = true; return;
+                    }
+                    mActionScopePkg = it.value; mActionScopePa = pa;
                     Ps3Level lvl; buildActionMenu(lvl); mPs3Stack.push_back(lvl); break;
                 }
                 case QA_ACTION_ADD: actionCaptureOpen(0); break;

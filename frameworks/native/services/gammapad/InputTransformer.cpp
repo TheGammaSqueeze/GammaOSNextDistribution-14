@@ -38,7 +38,11 @@ void InputTransformer::loadConfig() {
     mAxisButtons.clear();
     mCombos.clear();
     mButtonActions.clear();
-    mActionPend.clear();
+    // NB: do NOT clear mActionPend here - a button physically held across a
+    // config reload keeps its in-flight hold state, so its release still fires
+    // the (surviving) short action instead of being silently swallowed. Stale
+    // entries for removed codes are inert (processButtonAction/checkActionTimeouts
+    // both re-resolve the rule and skip codes with no current action).
     mPhysicalHeld.clear();
     mDpadUpHeld = mDpadDownHeld = mDpadLeftHeld = mDpadRightHeld = false;
     mVirtualHeld.clear();

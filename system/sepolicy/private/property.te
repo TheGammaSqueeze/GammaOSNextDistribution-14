@@ -762,4 +762,8 @@ type persist_sys_spk_prop, property_type;
 type persist_sys_gammaeq_prop, property_type;
 type persist_gammaos_prop, property_type;
 type gammaosota_prop, property_type;
+# gammapad button-action config (feeds the daemon's shell/setprop/am executor):
+# a restricted type so untrusted apps cannot write it (persist_gammaos_prop is
+# app-writable). Only the settings surfaces + nano write it; gammapad reads it.
+type gammaos_gpaction_prop, property_type;
 type ctl_gammaosota_prop, property_type;

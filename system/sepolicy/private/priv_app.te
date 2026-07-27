@@ -5,6 +5,10 @@
 typeattribute priv_app coredomain;
 app_domain(priv_app)
 
+# TvSettings / LineageParts (privileged) write the gamepad button-action config
+# (restricted type so untrusted apps cannot reach the daemon's executor).
+set_prop(priv_app, gammaos_gpaction_prop)
+
 # Access the network.
 net_domain(priv_app)
 # Access bluetooth.

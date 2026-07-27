@@ -2660,17 +2660,33 @@ public class GamepadSettings extends SettingsPreferenceFragment
         return out;
     }
 
+    // SystemProperties values cap at ~91 bytes; a longer set() throws
+    // IllegalArgumentException, which would crash Settings.
+    private static final int ACT_SPEC_MAX = 91;
+
     private void actStore(List<ActRule> rules) {
+        int oldN = SystemProperties.getInt(PROP_ACT_COUNT, 0);
         int n = Math.min(rules.size(), 64);
-        for (int i = 0; i < n; i++) {
-            String p = "persist.gammaos.gamepad.act" + i;
-            ActRule r = rules.get(i);
-            SystemProperties.set(p + "_code", String.valueOf(r.code));
-            SystemProperties.set(p + "_hold", String.valueOf(r.hold));
-            SystemProperties.set(p + "_s", r.s == null ? "" : r.s);
-            SystemProperties.set(p + "_l", r.l == null ? "" : r.l);
+        try {
+            for (int i = 0; i < n; i++) {
+                String p = "persist.gammaos.gamepad.act" + i;
+                ActRule r = rules.get(i);
+                SystemProperties.set(p + "_code", String.valueOf(r.code));
+                SystemProperties.set(p + "_hold", String.valueOf(r.hold));
+                SystemProperties.set(p + "_s", r.s == null ? "" : r.s);
+                SystemProperties.set(p + "_l", r.l == null ? "" : r.l);
+            }
+            for (int i = n; i < oldN && i < 64; i++) {
+                String p = "persist.gammaos.gamepad.act" + i;
+                SystemProperties.set(p + "_code", "");
+                SystemProperties.set(p + "_hold", "");
+                SystemProperties.set(p + "_s", "");
+                SystemProperties.set(p + "_l", "");
+            }
+            SystemProperties.set(PROP_ACT_COUNT, String.valueOf(n));
+        } catch (RuntimeException e) {
+            // Never crash Settings on a property write.
         }
-        SystemProperties.set(PROP_ACT_COUNT, String.valueOf(n));
         bumpConfigVersion();
     }
 
@@ -2679,7 +2695,9 @@ public class GamepadSettings extends SettingsPreferenceFragment
         return null;
     }
 
-    private void actSetSlot(int code, int slot, String spec) {
+    // Returns false (without storing) if the spec is too long for a system property.
+    private boolean actSetSlot(int code, int slot, String spec) {
+        if (spec != null && spec.getBytes().length > ACT_SPEC_MAX) return false;
         List<ActRule> rules = actLoad();
         ActRule r = actFind(rules, code);
         if (r == null) { r = new ActRule(); r.code = code; r.hold = 500; rules.add(r); }
@@ -2688,6 +2706,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
         boolean le = (r.l == null || r.l.isEmpty());
         if (se && le) rules.remove(r);
         actStore(rules);
+        return true;
     }
 
     private void actSetHold(int code, int hold) {
@@ -2881,7 +2900,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
         new AlertDialog.Builder(context)
                 .setTitle(perActivity ? "Launch Activity" : "Launch App")
                 .setItems(labels.toArray(new String[0]), (d, which) -> {
-                    actSetSlot(code, slot, (perActivity ? "act=" : "app=") + values.get(which));
+                    if (!actSetSlot(code, slot, (perActivity ? "act=" : "app=") + values.get(which))) {
+                        Toast.makeText(context, "Component name too long",
+                                Toast.LENGTH_SHORT).show();
+                    }
                     showActionEditDialog(code);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
@@ -2903,7 +2925,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
                 .setView(layout)
                 .setPositiveButton(android.R.string.ok, (d, w) -> {
                     String v = input.getText().toString().trim();
-                    if (!v.isEmpty()) actSetSlot(code, slot, (isProp ? "prop=" : "sh=") + v);
+                    if (!v.isEmpty() && !actSetSlot(code, slot, (isProp ? "prop=" : "sh=") + v)) {
+                        Toast.makeText(context, "Too long (max ~88 characters)",
+                                Toast.LENGTH_SHORT).show();
+                    }
                     showActionEditDialog(code);
                 })
                 .setNegativeButton(android.R.string.cancel, null)

@@ -95,6 +95,11 @@ allow shell dex2oat_exec:lnk_file read;
 set_prop(shell, lpdumpd_prop);
 binder_call(shell, lpdumpd)
 
+# adb is an authenticated debug/config surface (not an untrusted app), so let it
+# configure the gammapad button-action props for testing and power use. Untrusted
+# apps still cannot (they lack gammaos_gpaction_prop).
+set_prop(shell, gammaos_gpaction_prop)
+
 # Allow shell to set and read value of properties used for CTS tests of
 # userspace reboot
 set_prop(shell, userspace_reboot_test_prop)

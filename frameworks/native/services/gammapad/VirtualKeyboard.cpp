@@ -21,7 +21,7 @@ VirtualKeyboard::~VirtualKeyboard() {
 }
 
 bool VirtualKeyboard::create() {
-    mFd = open("/dev/uinput", O_RDWR | O_NONBLOCK);
+    mFd = open("/dev/uinput", O_RDWR | O_NONBLOCK | O_CLOEXEC);
     if (mFd < 0) {
         LOG(ERROR) << "VirtualKeyboard: open /dev/uinput failed: " << strerror(errno);
         return false;

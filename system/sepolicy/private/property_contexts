@@ -1683,6 +1683,8 @@ persist.crashrecovery.enable_rescue u:object_r:crashrecovery_prop:s0 exact bool
 persist.crashrecovery.last_factory_reset u:object_r:crashrecovery_prop:s0 exact int
 
 # GammaOS properties
+persist.gammaos.gamepad.act    u:object_r:gammaos_gpaction_prop:s0  prefix
+persist.gammaos.gamepad.pa     u:object_r:gammaos_gpaction_prop:s0  prefix
 persist.gammaos.    u:object_r:persist_gammaos_prop:s0  prefix
 persist.gammargb.   u:object_r:persist_gammaos_prop:s0  prefix
 persist.gamma.      u:object_r:persist_gammaos_prop:s0  prefix

@@ -105,7 +105,7 @@ bool GamepadManager::init() {
     loadConfig();
 
     // Create epoll
-    mEpollFd = epoll_create1(0);
+    mEpollFd = epoll_create1(EPOLL_CLOEXEC);
     if (mEpollFd < 0) {
         LOG(ERROR) << "epoll_create1 failed: " << strerror(errno);
         return false;
@@ -165,7 +165,7 @@ bool GamepadManager::init() {
     });
 
     // Set up inotify for hotplug
-    mInotifyFd = inotify_init1(IN_NONBLOCK);
+    mInotifyFd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (mInotifyFd < 0) {
         LOG(ERROR) << "inotify_init1 failed: " << strerror(errno);
         return false;
@@ -409,7 +409,7 @@ bool GamepadManager::shouldGrabDevice(const std::string& name) {
 }
 
 bool GamepadManager::grabDevice(const std::string& path) {
-    int fd = open(path.c_str(), O_RDWR | O_NONBLOCK);
+    int fd = open(path.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
     if (fd < 0) {
         LOG(WARNING) << "Failed to open " << path << ": " << strerror(errno);
         return false;

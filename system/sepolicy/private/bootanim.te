@@ -48,6 +48,8 @@ set_prop(bootanim, ctl_bootanim_prop)
 
 # GammaOS Nano: set sys.gammaos.nano.launch_* properties for direct game launch
 set_prop(bootanim, persist_gammaos_prop)
+# nano writes the gamepad button-action config (restricted type)
+set_prop(bootanim, gammaos_gpaction_prop)
 
 # GammaOS Nano: read RetroArch playlist from /data/media/0/
 # Traverse /data/media/ directory (media_userdir_file)

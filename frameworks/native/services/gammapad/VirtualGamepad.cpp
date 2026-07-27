@@ -51,7 +51,7 @@ bool VirtualGamepad::create(const std::set<int>& buttons,
 }
 
 bool VirtualGamepad::createDevice(const std::set<int>& buttons, const std::set<int>& axes) {
-    mFd = open("/dev/uinput", O_RDWR | O_NONBLOCK);
+    mFd = open("/dev/uinput", O_RDWR | O_NONBLOCK | O_CLOEXEC);
     if (mFd < 0) {
         LOG(ERROR) << "Failed to open /dev/uinput: " << strerror(errno);
         return false;
@@ -102,7 +102,7 @@ bool VirtualGamepad::createDevice(const std::set<int>& buttons,
                                   const std::vector<AxisSetup>& axes,
                                   const std::string& name,
                                   uint16_t vendor, uint16_t product) {
-    mFd = open("/dev/uinput", O_RDWR | O_NONBLOCK);
+    mFd = open("/dev/uinput", O_RDWR | O_NONBLOCK | O_CLOEXEC);
     if (mFd < 0) {
         LOG(ERROR) << "Failed to open /dev/uinput: " << strerror(errno);
         return false;

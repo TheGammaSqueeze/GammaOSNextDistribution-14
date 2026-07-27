@@ -139,6 +139,8 @@ neverallow platform_app fuse_device:chr_file *;
 set_prop(platform_app, persist_sys_gammaeq_prop)
 get_prop(platform_app, persist_sys_gammaeq_prop)
 set_prop(platform_app, persist_gammaos_prop)
+# TvSettings / LineageParts write the gamepad button-action config (restricted type)
+set_prop(platform_app, gammaos_gpaction_prop)
 get_prop(platform_app, persist_gammaos_prop)
 
 # Allow platform apps (Updater) to start gammaos-ota and set OTA properties
