@@ -1131,11 +1131,15 @@ void NanoMenu::renderOsk() {
         drawFrostedGlass(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
                          0.50f, 0.54f, 0.64f, 1.0f, fade, true);
         drewGlass = true;
-    } else if (((mPs3WizActive && mPs3DlgBlurValid) || (mPs3Xmb && mPs3GlassValid)) && !mMpActive) {
+    } else if (((mPs3WizActive && mPs3DlgBlurValid) || (mPs3Xmb && mPs3GlassValid)) && !mMpActive && !mMinimaTheme) {
         // Wizard fields hold a fresh dialog blur; every other PS3-path OSK
         // (the Game Systems editor) opens over a submenu, whose full-screen
         // frost refreshes the same wave-space blur each frame. Reusing it is
         // free and keeps the panel content in lockstep with the backdrop.
+        // EXCLUDE Minima: its backdrop is the flat black/wallpaper secondary
+        // (renderMinimaSecondary), never the wave-space blur, so reusing that
+        // blur would frost the stale XMB wave behind the keyboard. Fall through
+        // to the capture path so the OSK frosts the actual Minima content.
         drawFrostedGlass(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
                          0.50f, 0.54f, 0.64f, 1.0f, fade, true);
         drewGlass = true;

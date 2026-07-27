@@ -76,6 +76,26 @@ namespace android {
 
 using ui::DisplayMode;
 
+// Alpha for the SECONDARY (bottom) panel clear. In an in-game overlay (an app is running,
+// no overlay wallpaper) the primary panel clears to a BLACK scrim baked into the alpha
+// (persist.gammaos.nano.overlay.dim, default 0.90) so SurfaceFlinger shows the live app at
+// (1-dim) through the translucent layer. The secondary panel must use the SAME scrim alpha,
+// otherwise it clears to opaque black and hides the app instead of dimming it (the DSi and
+// Minima bottom panels rely on this clear for their in-game scrim). Opaque (1.0) at the home
+// or over an overlay wallpaper.
+static float nanoSecondaryClearAlpha(bool overlayMode, bool overlayWallpaper) {
+    if (!overlayMode || overlayWallpaper) return 1.0f;
+    static float sSecDim = -1.0f;
+    if (sSecDim < 0.0f) {
+        char d[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.overlay.dim", d, "0.90");
+        sSecDim = (float)atof(d);
+        if (sSecDim < 0.0f) sSecDim = 0.0f;
+        if (sSecDim > 1.0f) sSecDim = 1.0f;
+    }
+    return sSecDim;
+}
+
 // ---------------------------------------------------------------------------
 // Icon texture rendering (monochrome 32x32 icons, tinted at draw time)
 // ---------------------------------------------------------------------------
@@ -4655,7 +4675,7 @@ void NanoMenu::render() {
         glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
         glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
         uploadRotationMatrices();
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, nanoSecondaryClearAlpha(mOverlayMode, mOverlayWallpaper));
         glClear(GL_COLOR_BUFFER_BIT);
         mRenderingPanel = 1;   // this whole pass targets the BOTTOM panel: pick the bottom wallpaper
         if (drasticActive) {
@@ -5025,20 +5045,27 @@ void NanoMenu::render() {
             // for now. renderPs3Xmb is skipped for the home, so drive its lifecycle ticks here.
             const bool minSidePanel = mPs3OptActive || mPs3OptClosing ||
                                       ((mPs3DlgActive || mPs3DlgClosing) && ndsDlgIsSidePanel());
-            const bool minDialog    = !minSidePanel && (mPs3DlgActive || mPs3DlgClosing);
+            // A game Information dialog carries a scraped cover + metadata + synopsis that the
+            // generic confirm dialog cannot show (it drew almost empty); route it to the dedicated
+            // Minima info page. mPs3DlgGameInfo is set for both the rich rom-info page and its
+            // plain-facts fallback, so it covers every Information dialog.
+            const bool minInfoPage  = !minSidePanel && (mPs3DlgActive || mPs3DlgClosing) &&
+                                      (mPs3DlgGameInfo || mPs3DlgRomInfo);
+            const bool minDialog    = !minSidePanel && !minInfoPage && (mPs3DlgActive || mPs3DlgClosing);
             const bool minSearch    = mGSearchActive;   // SELECT global search: Minima results over the home
             // The OSK renders on the bottom touch panel, so it must NOT force the top to XMB. Remaining
             // modals (tz/lang pickers, net wizard, photo grid) still use the XMB chrome for now.
-            const bool minOtherModal = ndsInModal() && !minSidePanel && !minDialog && !minSearch && !mOskActive;
+            const bool minOtherModal = ndsInModal() && !minSidePanel && !minInfoPage && !minDialog && !minSearch && !mOskActive;
             if (minOtherModal) {
                 renderPs3Xmb();
             } else {
                 scraperArtTick();
                 appInfoTick();
                 renderMinima();
-                if (minSidePanel)   renderMinimaSidePanel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
-                else if (minDialog) renderMinimaDialog(0.0f, 0.0f, (float)mWidth, (float)mHeight);
-                else if (minSearch) renderGlobalSearch();   // Minima-styled results overlay (see renderGlobalSearch)
+                if (minSidePanel)    renderMinimaSidePanel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+                else if (minInfoPage) renderMinimaInfoPage(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+                else if (minDialog)  renderMinimaDialog(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+                else if (minSearch)  renderGlobalSearch();   // Minima-styled results overlay (see renderGlobalSearch)
             }
         } else {
             renderPs3Xmb();
@@ -5690,7 +5717,7 @@ if (sRingPrimedCount >= 2) {
     for (size_t i = 0; !ndsSecondaryHidden && i < mSecondaryEglSurfaces.size(); i++) {
         eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[i], mSecondaryEglSurfaces[i], mContext);
         glViewport(0, 0, mWidth, mHeight); // secondary has same resolution
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, nanoSecondaryClearAlpha(mOverlayMode, mOverlayWallpaper));
         glClear(GL_COLOR_BUFFER_BIT);
         mRenderingPanel = 1;   // secondary/bottom panel: pick its own wallpaper (empty -> normal bg)
         if (drasticActive) {

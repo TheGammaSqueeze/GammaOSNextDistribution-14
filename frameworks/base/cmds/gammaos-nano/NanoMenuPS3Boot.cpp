@@ -248,9 +248,18 @@ static NanoSfxPlayer  gNdsSfx[NDS_SFX_COUNT];
 static std::atomic<bool> gNdsSfxOpening[NDS_SFX_COUNT] = {};   // per-clip open-in-flight guard
 
 void NanoMenu::dsiBootSound(DsiSfx which) {
-    const char* file = which == DsiSfx::Chime ? "boot_chime.wav"
-                     : which == DsiSfx::Touch ? "touch_continue.wav"
-                     : "menu_enter.wav";
+    const char* file;
+    if (mMinimaTheme) {
+        // Minima plays ONLY its own boot jingle at the chime; it does NOT play the DSi
+        // touch_continue / menu_enter theme on dismiss (that DSi menu-entry theme is the
+        // "NDS ambient music" the user heard briefly when leaving the warning screen).
+        if (which == DsiSfx::Chime) file = "minima_boot.wav";
+        else return;   // silent dismiss straight into the Minima home
+    } else {
+        file = which == DsiSfx::Chime ? "boot_chime.wav"
+             : which == DsiSfx::Touch ? "touch_continue.wav"
+             : "menu_enter.wav";
+    }
     // Pre-boot-complete: the audio server is not up, so go straight to the ALSA PCM (queued,
     // sequential). Any device with a card 0 playback node; falls back to AAudio if the open fails.
     if (nanoDirectAudioUsable() && !dsiBootCompleted()) {

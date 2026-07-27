@@ -6960,6 +6960,11 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
     {"XMB Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.wave", "1", "0:Off,1:On"},
+    // Minima solid background colour: the value is either "none" (default black) or a 6-digit
+    // hex RGB read live by minimaSolidBg() at render. A generic bound chooser (openBoundChooser)
+    // shows these presets as a Minima side panel; the hex has no ':'/',' so parseListOptions is safe.
+    {"Background Colour", SettingSource::kProp, "persist.gammaos.nano.minima.bg", "none",
+     "none:Black,20222b:Slate,3a3f4b:Graphite,ffffff:White,9b2257:Berry,1e3a5f:Navy,0d5c46:Teal,2e5d34:Forest,6a1b9a:Purple,b3122b:Crimson,d2691e:Amber,1a1a2e:Midnight"},
     {"Bottom Clock", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock", "1", "0:Off,1:On"},
     {"Bottom Clock FPS", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock.fps", "30", "30:30 FPS,60:60 FPS"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},

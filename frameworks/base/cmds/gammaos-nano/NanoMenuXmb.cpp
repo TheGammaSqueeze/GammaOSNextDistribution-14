@@ -1444,8 +1444,8 @@ void NanoMenu::handleLeft() {
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeLeft(); return; }
     if (mPs3Xmb || mPs3WizActive) {
-        // DSi game Information page / paginated info dialog: LEFT turns to the previous page.
-        if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(-1); return; }
+        // DSi / Minima game Information page / paginated info dialog: LEFT turns to the previous page.
+        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(-1); return; }
         // DSi stacked carousel: LEFT cycles the focused carousel back one card (categories at
         // the root, else the category/submenu cards). A modal (chooser/dialog) keeps XMB nav.
         // A settings LIST level: LEFT walks up to the parent (a vertical list has no horizontal move).
@@ -1480,8 +1480,8 @@ void NanoMenu::handleRight() {
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
     if (mMenuState == MENU_SETTINGS) { handleSettingsTreeRight(); return; }
     if (mPs3Xmb || mPs3WizActive) {
-        // DSi game Information page / paginated info dialog: RIGHT turns to the next page.
-        if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); return; }
+        // DSi / Minima game Information page / paginated info dialog: RIGHT turns to the next page.
+        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); return; }
         // DSi stacked carousel: RIGHT cycles the focused carousel forward one card.
         // A settings LIST level: RIGHT drills the focused row ONLY when it opens a submenu
         // (the ">" chevron rows); on a leaf (toggle / action) RIGHT does NOTHING, so a

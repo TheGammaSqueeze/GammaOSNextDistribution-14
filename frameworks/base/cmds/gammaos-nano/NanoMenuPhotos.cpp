@@ -1278,8 +1278,11 @@ void NanoMenu::renderPhotoGrid() {
     if (mPhotoGridAnim > 0.999f) mPhotoGridAnim = 1.0f;
     float a = mPhotoGridAnim;
     float slide = (1.0f - a) * 24.0f;
-    // dark scrim over the wave background
-    drawQuad(0, 0, (float)W, (float)H, 0.04f, 0.05f, 0.06f, 0.88f * a);
+    // dark scrim over the wave background. In the Minima theme the picker must not reveal the
+    // PS3 wave underneath (it renders over renderPs3Xmb via the "other modal" fallback), so lay
+    // down an OPAQUE black field - the flat NextUI canvas - instead of a translucent scrim.
+    if (mMinimaTheme) drawQuad(0, 0, (float)W, (float)H, 0.0f, 0.0f, 0.0f, 1.0f);
+    else              drawQuad(0, 0, (float)W, (float)H, 0.04f, 0.05f, 0.06f, 0.88f * a);
 
     float ts = fmaxf(1.0f, (float)H / 768.0f);
     float margin = W * 0.055f;
@@ -2466,6 +2469,8 @@ void NanoMenu::wallpaperApplyPick(const std::string& file) {
 void NanoMenu::openWallpaperPicker(int target) {
     mWpPickTarget = target;
     photoEnsureLoaded();
+    photoDrainScanResults();   // publish any already-finished scan now, so the grid is built from the
+                               // real library rather than the empty pre-scan list.
     std::vector<int> all;
     all.reserve(mPhotos.size());
     for (size_t i = 0; i < mPhotos.size(); i++) all.push_back((int)i);
@@ -2478,6 +2483,7 @@ void NanoMenu::openWallpaperPicker(int target) {
 void NanoMenu::openVideoWallpaperPicker() {
     mWpPickTarget = 0;   // video is top-only
     videoEnsureLoaded();
+    videoDrainScanResults();   // publish any already-finished video scan (see openWallpaperPicker)
     std::vector<int> all;                 // grid list = 0..N-1 (grid indices)
     mWpPickVidList.clear();               // parallel: grid index -> mVideos index
     for (size_t i = 0; i < mVideos.size(); i++) { all.push_back((int)mWpPickVidList.size()); mWpPickVidList.push_back((int)i); }

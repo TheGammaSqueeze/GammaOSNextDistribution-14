@@ -5281,11 +5281,21 @@ if (sRingPrimedCount >= 2) {
                 // heavy storage I/O that is invisible behind a player and competes
                 // with live playback (the ROM/video tree-walk under streaming
                 // pressure stalled the render thread and tripped the watchdog).
+                // The XMB scroll-animation flags (mPs3CatAnimActive / mPs3ItemAnimStart /
+                // mPs3SubAnimStart) gate this so a rescan never rebuilds the column mid-scroll in the
+                // PS3 XMB. The DSi and Minima themes SET those flags on nav (shared nav helpers) but
+                // their renderers never RESET them (only renderPs3Xmb does the completion reset), so
+                // they stay latched >=0 forever and this whole block - the photo/music/video/game
+                // library drains - never ran in those themes: the Photo category and the wallpaper
+                // picker stayed empty until the user flipped to XMB and back. Exempt DSi/Minima from
+                // the XMB anim gate (they rebuild via rebuildPs3CatsPreserveSel, position preserved).
+                const bool animSettledOrNonXmbTheme = mNdsTheme || mMinimaTheme ||
+                    (!mPs3CatAnimActive && mPs3ItemAnimStart < 0.0f && mPs3SubAnimStart < 0.0f);
                 if (mPs3Xmb && mPs3Stack.empty()
                     && !mVidActive && !mMpActive && !mPvActive
                     && !mPs3DlgActive && !mOskActive && !mPs3WizActive
-                    && !mPs3BootActive && !mPs3TzActive && !mPs3CatAnimActive
-                    && mPs3ItemAnimStart < 0.0f && mPs3SubAnimStart < 0.0f) {
+                    && !mPs3BootActive && !mPs3TzActive
+                    && animSettledOrNonXmbTheme) {
                     // The reload waits out a running scan thread (it reads
                     // mXmbSystems unlocked); the stamp stays unequal so the
                     // next tick retries. Pending scan results are dropped: they

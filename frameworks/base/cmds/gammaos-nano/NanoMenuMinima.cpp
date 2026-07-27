@@ -20,6 +20,7 @@
 #include "NanoMenuShaders.h"   // FONT_CHAR_H
 #include "NanoI18n.h"          // trDyn
 
+#include <cutils/properties.h> // property_get (Background Colour)
 #include <utils/SystemClock.h> // uptimeMillis
 #include <cmath>
 #include <cstdio>
@@ -59,6 +60,24 @@ void NanoMenu::minimaSfxTick() {
     mMinimaSfxDepth = depth; mMinimaSfxSel = sel;
 }
 
+// Solid background colour (Theme Settings > Background Colour). The prop holds either "none"
+// (default: pure-black NextUI canvas) or a 6-digit hex RGB. Returns true + the parsed colour when
+// a solid colour is set, so the Minima backdrop fills with it instead of black / the wave. Read
+// live each frame so a chooser change applies immediately (property_get is a cheap shmem read).
+bool NanoMenu::minimaSolidBg(float* r, float* g, float* b) {
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.minima.bg", v, "none");
+    if (v[0] == '\0' || !strcmp(v, "none") || !strcmp(v, "black") || !strcmp(v, "0")) return false;
+    unsigned int rr = 0, gg = 0, bb = 0;
+    if (strlen(v) >= 6 && sscanf(v, "%2x%2x%2x", &rr, &gg, &bb) == 3) {
+        if (r) *r = (float)rr / 255.0f;
+        if (g) *g = (float)gg / 255.0f;
+        if (b) *b = (float)bb / 255.0f;
+        return true;
+    }
+    return false;
+}
+
 void NanoMenu::renderMinima() {
     // Single interactive list, full panel. The dual-screen (RG DS) secondary panel is filled with
     // just the backdrop by the render() dispatch, so there is only ever one list to drive.
@@ -78,12 +97,15 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     // In an in-game overlay with no overlay wallpaper, nano's framebuffer clear already lays down the
     // dark app-dimming scrim (like the XMB/DSi overlay), so leave it and let the app show through.
     const bool inGameScrim = mOverlayMode && !mOverlayWallpaper;
+    float bgR, bgG, bgB;
     if (inGameScrim) {
         // leave the framebuffer's app-dimming scrim untouched; the white list draws over it
     } else if (wallpaperActive(mRenderingPanel)) {
         if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))   // looping video on top, else the still
             drawWallpaperFill(mRenderingPanel);
         drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.34f);        // readability scrim so the white list stays crisp
+    } else if (minimaSolidBg(&bgR, &bgG, &bgB)) {
+        drawQuad(rx, ry, rw, rh, bgR, bgG, bgB, 1.0f);            // user-chosen solid backdrop colour
     } else if (mXmbWave && mXmbWaveExplicit) {
         renderEffect();                                           // opt-in XMB wave / gradient background
         drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.34f);
@@ -293,9 +315,12 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
     const int minPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // flat text: no drop shadow
     const bool inGameScrim = mOverlayMode && !mOverlayWallpaper;
     bool drew = false;
+    float bgR, bgG, bgB;
     if (wallpaperActive(1)) { drawWallpaperFill(1); drew = true; }
-    if (drew)               drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.30f);   // readability scrim over a wallpaper
-    else if (!inGameScrim)  drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);    // pure-black backdrop (no app behind)
+    if (drew)                        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.30f);   // readability scrim over a wallpaper
+    else if (inGameScrim)            { /* leave the app-dim scrim clear; the category chrome draws over it */ }
+    else if (minimaSolidBg(&bgR, &bgG, &bgB)) drawQuad(rx, ry, rw, rh, bgR, bgG, bgB, 1.0f);   // solid backdrop colour
+    else                             drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);    // pure-black backdrop (no app behind)
 
     float ar, ag, ab; minimaAccent(ar, ag, ab);
     const float sc = rh / MIN_REF_H;
@@ -514,6 +539,143 @@ void NanoMenu::renderMinimaDialog(float rx, float ry, float rw, float rh) {
             drawText(o, xx + (ws[i] - tw) * 0.5f, ty, fs, 1.0f, 1.0f, 1.0f, ap);
             xx += ws[i] + gap;
         }
+    }
+    mTextOutlineMode = minPrevOutline;
+}
+
+// Game / app INFORMATION page in Minima's language. The shared info dialog carries the scraped
+// cover (mPs3DlgBoxTex), fan art (mPs3DlgFanTex), metadata (mPs3RomInfo*) and a paged synopsis
+// (mPs3RomInfoSyn, else the plain-facts mPs3DlgBody). Minima's generic dialog only draws a title +
+// body, so a rich info page came out almost empty - this renders the full page flat, mirroring the
+// DSi info page's content: a dimmed fan-art (screenshot) backdrop, the cover + metadata columns and
+// the paged description. Paged with L/R exactly like the DSi page (mNdsInfoPage / mNdsInfoPageCount).
+void NanoMenu::renderMinimaInfoPage(float rx, float ry, float rw, float rh) {
+    setUiBlend();
+    const int minPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;
+    float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+    mPs3DlgClosing = false;
+    mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-15.0f * dt));
+    if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f; else mDisplayDirty = true;
+    const float ap = mPs3DlgAnim;
+
+    float ar, ag, ab; minimaAccent(ar, ag, ab);
+    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc;
+    const float FCH = (float)FONT_CHAR_H;
+
+    // Backdrop: opaque black, with the fan art (a "screenshot"/background) cover-fit dim behind it.
+    drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, ap);
+    if (mPs3DlgFanTex && mPs3DlgFanW > 0 && mPs3DlgFanH > 0) {
+        float far = (float)mPs3DlgFanW / (float)mPs3DlgFanH, panelAr = rw / rh;
+        float fw = rw, fh = rh, fx = rx, fy = ry;
+        if (far > panelAr) { fw = rh * far; fx = rx - (fw - rw) * 0.5f; }
+        else               { fh = rw / far; fy = ry - (fh - rh) * 0.5f; }
+        drawIconTex(mPs3DlgFanTex, fx, fy, fw, fh, 1.0f, 1.0f, 1.0f, 0.30f * ap);
+        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.55f * ap);
+    }
+
+    // Header: "< Title" in the accent (matches the wallpaper picker chrome).
+    const char* chev = "\xE2\x80\xB9";   // U+2039
+    float chFs = (24.0f * sc) / FCH, chW = measureText(chev, chFs);
+    float hx = rx + pad, hy = ry + rh * 0.05f;
+    drawText(chev, hx, hy, chFs, ar, ag, ab, ap);
+    std::string title = mPs3DlgTitle.empty() ? std::string("Information") : mPs3DlgTitle;
+    float titleX = hx + chW + 12.0f * sc, titleFs = (20.0f * sc) / FCH;
+    float titleMaxW = (rx + rw - pad) - titleX, tw = measureText(title.c_str(), titleFs);
+    if (tw > titleMaxW && titleMaxW > 0.0f) titleFs *= titleMaxW / tw;
+    drawText(title.c_str(), titleX, hy, titleFs, ar, ag, ab, ap);
+
+    float descTop;
+    const float rowH = 15.0f * sc;
+    if (mPs3DlgRomInfo) {
+        // Cover (left column).
+        float colTop = ry + rh * 0.17f;
+        float coverW = rw * 0.26f, coverH = coverW * 1.4f;
+        if (coverH > rh * 0.40f) { coverH = rh * 0.40f; coverW = coverH / 1.4f; }
+        float coverX = rx + pad, coverY = colTop;
+        float metaX = coverX + coverW + rw * 0.05f;
+        if (mPs3DlgBoxTex && mPs3DlgBoxW > 0 && mPs3DlgBoxH > 0) {
+            float car = (float)mPs3DlgBoxW / (float)mPs3DlgBoxH;
+            float cw = coverW, ch = cw / car; if (ch > coverH) { ch = coverH; cw = ch * car; }
+            float cvx = coverX + (coverW - cw) * 0.5f, cvy = coverY + (coverH - ch) * 0.5f;
+            drawRoundedRect(cvx - 2.0f*sc, cvy - 2.0f*sc, cw + 4.0f*sc, ch + 4.0f*sc, 4.0f*sc, 1.0f, 1.0f, 1.0f, 0.9f*ap);
+            drawIconTex(mPs3DlgBoxTex, cvx, cvy, cw, ch, 1.0f, 1.0f, 1.0f, ap);
+        } else {
+            drawRoundedRect(coverX, coverY, coverW, coverH, 4.0f*sc, 0.12f, 0.12f, 0.14f, 0.8f*ap);   // placeholder while art loads
+        }
+        // Metadata rows (right of the cover).
+        float mLabelFs = (11.0f * sc) / FCH, mValFs = (12.0f * sc) / FCH;
+        float vy = colTop + 2.0f * sc;
+        float valX = metaX + rw * 0.17f, valMaxW = (rx + rw - pad) - valX;
+        auto mrow = [&](const char* label, const std::string& val) {
+            if (val.empty()) return;
+            drawText(label, metaX, vy, mLabelFs, ar, ag, ab, 0.9f * ap);
+            float f = mValFs, vw = measureText(val.c_str(), f);
+            if (vw > valMaxW && valMaxW > 0.0f) f *= valMaxW / vw;
+            drawText(val.c_str(), valX, vy, f, 1.0f, 1.0f, 1.0f, ap);
+            vy += rowH;
+        };
+        mrow("Genre",     mPs3RomInfoGenre);
+        mrow("Players",   mPs3RomInfoPlayers);
+        mrow("Rating",    mPs3RomInfoRating);
+        mrow("Released",  mPs3RomInfoDate);
+        mrow("Developer", mPs3RomInfoDev);
+        mrow("Publisher", mPs3RomInfoPub);
+        mrow(mPs3RomInfoCoreIsApp ? "App" : "Core", mPs3RomInfoCore);
+        mrow("System",    mPs3RomInfoSystem);
+        descTop = fmaxf(colTop + coverH, vy) + rh * 0.03f;
+    } else {
+        descTop = ry + rh * 0.18f;   // plain-facts fallback wraps from near the top
+    }
+
+    // ---- Description (paged, L/R) ----
+    std::string bodyText = mPs3DlgRomInfo ? mPs3RomInfoSyn : mPs3DlgBody;
+    float bodyFs = (13.0f * sc) / FCH, lineH = 17.0f * sc;
+    float bodyLeft = rx + pad, wrapW = rw - pad * 2.0f;
+    float capY = descTop, bodyTop = descTop + (mPs3DlgRomInfo ? rowH : 0.0f);
+    float bodyBot = ry + rh - rh * 0.10f;
+    std::vector<std::string> lines;
+    if (!bodyText.empty()) {
+        std::string line, word;
+        auto commit = [&]() {
+            if (word.empty()) return;
+            std::string trial = line.empty() ? word : line + " " + word;
+            if (!line.empty() && measureText(trial.c_str(), bodyFs) > wrapW) { lines.push_back(line); line = word; }
+            else line = trial;
+            word.clear();
+        };
+        for (const char* q = bodyText.c_str(); ; ++q) {
+            if (*q == ' ' || *q == '\n' || *q == '\0') { commit(); if (*q == '\n') lines.push_back(""); if (*q == '\0') break; }
+            else word.push_back(*q);
+        }
+        if (!line.empty()) lines.push_back(line);
+    }
+    int linesPerPage = (int)((bodyBot - bodyTop) / lineH); if (linesPerPage < 1) linesPerPage = 1;
+    int total = (int)lines.size();
+    int pages = (total + linesPerPage - 1) / linesPerPage; if (pages < 1) pages = 1;
+    mNdsInfoPageCount = pages;
+    if (mNdsInfoPage < 0) mNdsInfoPage = 0;
+    if (mNdsInfoPage > pages - 1) mNdsInfoPage = pages - 1;
+    if (mPs3DlgRomInfo && total > 0)
+        drawText("Description", bodyLeft, capY, (11.0f * sc) / FCH, ar, ag, ab, 0.9f * ap);
+    float ly = bodyTop;
+    int firstL = mNdsInfoPage * linesPerPage, lastL = firstL + linesPerPage; if (lastL > total) lastL = total;
+    for (int i = firstL; i < lastL; i++) {
+        if (!lines[i].empty()) drawText(lines[i].c_str(), bodyLeft, ly, bodyFs, 0.90f, 0.90f, 0.92f, ap);
+        ly += lineH;
+    }
+    // L/R pager (only with >1 page): centred count + accent corner pills.
+    if (pages > 1) {
+        float by = ry + rh - rh * 0.06f, pf = (11.0f * sc) / FCH;
+        char pg[24]; snprintf(pg, sizeof(pg), "%d / %d", mNdsInfoPage + 1, pages);
+        float pgw = measureText(pg, pf);
+        drawText(pg, rx + rw * 0.5f - pgw * 0.5f, by, pf, ar, ag, ab, ap);
+        auto pill = [&](float pcx, const char* g, bool on) {
+            float gw = measureText(g, pf), pw = gw + MIN_BTNPAD * sc * 2.0f;
+            drawRoundedRect(pcx - pw * 0.5f, by - 2.0f * sc, pw, rowH, rowH * 0.5f, ar, ag, ab, (on ? 1.0f : 0.35f) * ap);
+            drawText(g, pcx - gw * 0.5f, by, pf, 1.0f, 1.0f, 1.0f, (on ? 1.0f : 0.5f) * ap);
+        };
+        pill(rx + pad + rw * 0.05f,        "L", mNdsInfoPage > 0);
+        pill(rx + rw - pad - rw * 0.05f,   "R", mNdsInfoPage < pages - 1);
     }
     mTextOutlineMode = minPrevOutline;
 }

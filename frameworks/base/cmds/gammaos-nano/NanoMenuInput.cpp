@@ -2640,7 +2640,7 @@ void NanoMenu::pollInput() {
                         if (mPs3Xmb) { if (mPs3OptActive) closeXmbOpt(); else openXmbOpt(); }
                         break;
                     case BTN_TL: case KEY_L:
-                        if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(-1); break; }  // DSi: previous info page
+                        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(-1); break; }  // DSi/Minima: previous info page
                         if (mOskActive) {
                             oskToggleShift();
                             break;
@@ -2670,7 +2670,7 @@ void NanoMenu::pollInput() {
                         ALOGD("XMB Mode: %s", mXmbMode ? "ON" : "OFF");
                         break;
                     case BTN_TR: case KEY_R:
-                        if (mNdsTheme && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); break; }  // DSi: next info page
+                        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); break; }  // DSi/Minima: next info page
                         if (mOskActive) {
                             oskToggleSym();   // R1 toggles ABC <-> SYM inside the OSK
                             break;
