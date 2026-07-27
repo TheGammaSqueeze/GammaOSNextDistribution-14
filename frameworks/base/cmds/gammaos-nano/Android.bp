@@ -164,6 +164,7 @@ cc_binary {
     init_rc: ["gammaos-nano.rc"],
     required: [
         "nano-ce-unlock.sh",
+        "nano-pmdown.sh",
         "joypad_uevent_fixup.sh",
         "nano_xmb_fonts",
         "nano_xmb_wave",
@@ -270,6 +271,11 @@ cc_library_static {
 sh_binary {
     name: "nano-ce-unlock.sh",
     src: "nano-ce-unlock.sh",
+}
+
+sh_binary {
+    name: "nano-pmdown.sh",
+    src: "nano-pmdown.sh",
 }
 
 sh_binary {
