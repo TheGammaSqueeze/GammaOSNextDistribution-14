@@ -3687,6 +3687,9 @@ public final class PowerManagerService extends SystemService
         if (SystemProperties.getBoolean("persist.gammaos.nano.grab_input", false)) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"))) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.media_playing", "0"))) return true;
+        // The nano first-run setup wizard has an unattended "waiting for services" step; keep
+        // the panel on for the whole wizard so the framework timeout does not sleep it mid-setup.
+        if ("1".equals(SystemProperties.get("sys.gammaos.nano.setup_active", "0"))) return true;
         return false;
     }
 

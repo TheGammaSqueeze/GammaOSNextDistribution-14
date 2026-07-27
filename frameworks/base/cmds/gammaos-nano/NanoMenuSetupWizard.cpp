@@ -132,6 +132,11 @@ static const char* kSetupLogPath =
 
 void NanoMenu::startSetupWizard() {
     mSetupWizardActive = true;
+    // Keep the display forced on for the whole wizard. On a framework-owned home (the RG DS
+    // never grabs input) PowerManager idles the panel off on the normal timeout, and the
+    // "waiting for Android services" step takes no user input, so the device would sleep
+    // mid-setup. PowerManagerService.isNanoDisplayForcedOn honours this prop.
+    property_set("sys.gammaos.nano.setup_active", "1");
     mSetupStep = SETUP_WELCOME;
     mSetupTransitionAlpha = 1.0f;
     mSetupSlideOffset = 0.0f;
@@ -170,6 +175,7 @@ void NanoMenu::finishSetupWizard() {
     stopSetupLogThread();
 
     mSetupWizardActive = false;
+    property_set("sys.gammaos.nano.setup_active", "0");   // let the display idle off normally again
     mMenuState = MENU_MAIN;
     mXmbMode = true;
     property_set("persist.gammaos.nano.xmb_mode", "1");
