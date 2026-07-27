@@ -2539,6 +2539,8 @@ private:
     bool mDirectAmbiancePlaying = false;   // the direct-PCM carousel BGM loop is the active bed (pre-boot)
     bool mPs3DirectHolding = false;        // PS3 theme is holding card0 open through early boot (ps3EarlyAudioTick)
     bool mPs3ColdSoundPlayed = false;      // PS3 XMB cold-boot sound (coldboot_stereo.wav) fired this boot
+    bool mDirectHandedOff = false;         // the direct-PCM engine's card0 has been handed to the audio HAL (once, post-boot)
+    void nanoDirectHandoffTick();  // guaranteed direct-PCM -> HAL handoff even when the home ticks never run (setup wizard)
     void dsiPrewarmChime();        // open the boot chime early on a bg thread (no play)
     // Looping DSi home background ambiance (menu_ambiance.wav). Started once the boot enter
     // fanfare finishes (so it is not clipped), looped by restart-on-ended, stopped off-home.

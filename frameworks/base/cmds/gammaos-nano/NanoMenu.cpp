@@ -4533,6 +4533,10 @@ if (sRingPrimedCount >= 2) {
         }
         pollInput();
         checkInputHotplug();
+        // Guarantee the direct-PCM engine hands card0 to the audio HAL once boot completes,
+        // even on a first boot where the setup wizard render branch never runs the audio ticks.
+        // Without this, card0 can stay owned by our engine and all system audio dies after setup.
+        nanoDirectHandoffTick();
 
         // GammaOS Nano: re-fire a deferred game/app launch as soon as
         // the system is far enough through boot to accept it. The

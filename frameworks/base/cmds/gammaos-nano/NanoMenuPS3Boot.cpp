@@ -416,6 +416,7 @@ void NanoMenu::ndsAmbianceTick(bool wantOnHome) {
         nanoDirectStopLoop();
         nanoDirectShutdown();                 // bounded wait: the PCM is closed before AAudio opens (no EBUSY)
         mDirectAmbiancePlaying = false;
+        mDirectHandedOff = true;              // card0 handed to the HAL; the safety-net tick need not repeat it
         // fall through: mAmbiancePlaying is still false, so the AAudio block opens fresh.
     }
 
@@ -473,7 +474,25 @@ void NanoMenu::ps3EarlyAudioTick() {
         nanoDirectHoldOpen(false);
         nanoDirectShutdown();
         mPs3DirectHolding = false;
+        mDirectHandedOff = true;              // card0 handed to the HAL; the safety-net tick need not repeat it
     }
+}
+
+// Guaranteed direct-PCM -> audio-HAL handoff, called every frame from the main run loop
+// (NOT from render(), which skips the audio ticks while the first-boot setup wizard is up).
+// The home ambiance tick (ndsAmbianceTick) and the PS3 hold tick (ps3EarlyAudioTick) each
+// release card0 with a bounded wait (nanoDirectShutdown) at boot-complete, but only when
+// their own bed was up, and neither runs during the setup wizard. So on a first boot the
+// direct engine could keep owning card0 past boot_completed, and every later open by the
+// audio HAL / AudioFlinger would EBUSY -> all system audio dies after setup. Close the
+// engine here exactly once, after the home ticks have had their chance to hand off cleanly.
+void NanoMenu::nanoDirectHandoffTick() {
+    if (mDirectHandedOff || !dsiBootCompleted()) return;
+    // If a direct bed is still up, let its own tick do the smooth handoff (and set the flag);
+    // only step in for the case where nothing on the home ever ran (the setup wizard).
+    if (mDirectAmbiancePlaying || mPs3DirectHolding) return;
+    nanoDirectShutdown();                     // bounded wait: card0 is free before the HAL opens it
+    mDirectHandedOff = true;
 }
 
 // Test hook (nav-hook token "bootreplay"): re-run the whole cold-boot intro from
