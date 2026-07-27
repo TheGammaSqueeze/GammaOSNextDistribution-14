@@ -5026,7 +5026,10 @@ void NanoMenu::render() {
             const bool minSidePanel = mPs3OptActive || mPs3OptClosing ||
                                       ((mPs3DlgActive || mPs3DlgClosing) && ndsDlgIsSidePanel());
             const bool minDialog    = !minSidePanel && (mPs3DlgActive || mPs3DlgClosing);
-            const bool minOtherModal = ndsInModal() && !minSidePanel && !minDialog;
+            const bool minSearch    = mGSearchActive;   // SELECT global search: Minima results over the home
+            // The OSK renders on the bottom touch panel, so it must NOT force the top to XMB. Remaining
+            // modals (tz/lang pickers, net wizard, photo grid) still use the XMB chrome for now.
+            const bool minOtherModal = ndsInModal() && !minSidePanel && !minDialog && !minSearch && !mOskActive;
             if (minOtherModal) {
                 renderPs3Xmb();
             } else {
@@ -5035,6 +5038,7 @@ void NanoMenu::render() {
                 renderMinima();
                 if (minSidePanel)   renderMinimaSidePanel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
                 else if (minDialog) renderMinimaDialog(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+                else if (minSearch) renderGlobalSearch();   // Minima-styled results overlay (see renderGlobalSearch)
             }
         } else {
             renderPs3Xmb();
@@ -5599,8 +5603,13 @@ if (sRingPrimedCount >= 2) {
         // genuine 1-panel device (no secondary port).
         const bool xmbBottomClockLauncher = mPs3BottomClock && !mNdsTheme && mOverlayWallpaper &&
             property_get_bool("sys.gammaos.nano.show_overlay", false);
+        // Minima needs its own SF secondary surface while the overlay-home is displayed, so the
+        // bottom panel shows the Minima category+boxart view (renderMinimaSecondary) in overlay mode
+        // and after returning from an app, instead of the PS3 wave.
+        const bool minimaOverlayLauncher = mMinimaTheme &&
+            property_get_bool("sys.gammaos.nano.show_overlay", false);
         if (mSecondaryEglSurfaces.empty()
-                && (!mOverlayMode || ndsOverlayLauncher || xmbBottomClockLauncher)) {
+                && (!mOverlayMode || ndsOverlayLauncher || xmbBottomClockLauncher || minimaOverlayLauncher)) {
             setupSecondaryEglSurfaces();
         }
     }
@@ -5693,6 +5702,10 @@ if (sRingPrimedCount >= 2) {
             // DSi cold boot: the bottom panel shows the same white field (no logo/notice),
             // so both screens boot to white instead of one flashing the wave.
             renderNdsBootOverlay(/*primary=*/false);
+        } else if (mMinimaTheme && mPs3BootActive) {
+            // Minima cold boot on the SF secondary (the RG DS bottom): the Minima black-field intro,
+            // not the PS3 wave - mirrors the primary dispatch and the DRM secondary pass.
+            renderMinimaBootOverlay(/*primary=*/false);
         } else if (mNdsTheme && !mPs3BootActive) {
             // DSi theme dual-panel: a live secondary always shows the carousel (never the PS3
             // wave), independent of the primary's stacking mode (same resolution as primary).
@@ -5703,6 +5716,15 @@ if (sRingPrimedCount >= 2) {
             if (i == 0 && mPs3WizActive) renderNetWizard();       // WiFi/BT setup wizard on the bottom panel
             if (i == 0 && mGSearchActive) renderGlobalSearch();   // global search results on the bottom panel
             if (i == 0) renderOsk();   // DSi keyboard/OSK on the bottom touch panel (self-gates on mOskActive)
+        } else if (mMinimaTheme && !mPs3BootActive) {
+            // Minima live secondary (the RG DS bottom): the category + boxart panel, NOT the PS3 wave.
+            // This is the pass that runs in overlay mode and after returning from an app (the DRM
+            // secondary above is skipped once HWC owns the display), so it fixes the bottom showing
+            // the wave in those contexts too.
+            renderMinimaSecondary(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            if (i == 0 && mPs3WizActive) renderNetWizard();
+            if (i == 0 && mGSearchActive) renderGlobalSearch();
+            if (i == 0) renderOsk();
         } else {
             renderEffect();
             // Dual-screen XMB: static PSP clock on the bottom panel (opt-in), over the wave. No

@@ -72,19 +72,23 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     minimaSfxTick();
 
     // ---- background ----
-    // Black by default (the NextUI canvas), but the user can opt into the XMB wave / effects / a custom
-    // wallpaper or video via Theme Settings - then renderEffect() draws whatever they chose. In an
-    // in-game overlay with no overlay wallpaper, nano's framebuffer clear already lays down the dark
-    // app-dimming scrim (like the XMB/DSi overlay), so leave it and let the app show through dimmed.
-    const bool inGameScrim  = mOverlayMode && !mOverlayWallpaper;
-    const bool wantEffectBg = wallpaperActive(mRenderingPanel) || (mXmbWave && mXmbWaveExplicit);
+    // Black by default (the NextUI canvas). A custom photo / video wallpaper is drawn DIRECTLY when
+    // set (so it always shows, regardless of the XMB Wave toggle - renderEffect would otherwise paint
+    // the wave over it). Otherwise, the user can opt into the XMB wave / effects via Theme Settings.
+    // In an in-game overlay with no overlay wallpaper, nano's framebuffer clear already lays down the
+    // dark app-dimming scrim (like the XMB/DSi overlay), so leave it and let the app show through.
+    const bool inGameScrim = mOverlayMode && !mOverlayWallpaper;
     if (inGameScrim) {
         // leave the framebuffer's app-dimming scrim untouched; the white list draws over it
-    } else if (wantEffectBg) {
-        renderEffect();                                       // XMB wave / gradient / wallpaper / video per settings
-        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.34f);    // readability scrim so the white list stays crisp
+    } else if (wallpaperActive(mRenderingPanel)) {
+        if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))   // looping video on top, else the still
+            drawWallpaperFill(mRenderingPanel);
+        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.34f);        // readability scrim so the white list stays crisp
+    } else if (mXmbWave && mXmbWaveExplicit) {
+        renderEffect();                                           // opt-in XMB wave / gradient background
+        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.34f);
     } else {
-        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);     // pure-black NextUI canvas (default; black stays available)
+        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);         // pure-black NextUI canvas (default)
     }
     mTextOutlineMode = 2;   // re-assert flat text after renderEffect (which sets its own outline mode)
 

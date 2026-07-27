@@ -305,6 +305,60 @@ void NanoMenu::renderGlobalSearch() {
     float slide = (1.0f - a) * 24.0f;
     float ts = fmaxf(1.0f, (float)H / 768.0f);
 
+    // Minima theme: a flat black results list in the Minima language - the query in the accent + a
+    // result count, then each hit as a white row (selected in a white capsule) with its section/sub in
+    // the accent on the right. Nav stays on the shared gsearch* handlers (mGSearchSel).
+    if (mMinimaTheme) {
+        setUiBlend();
+        const int prevOutline = mTextOutlineMode; mTextOutlineMode = 2;
+        const float kF = 16.0f;
+        float ar, ag, ab; minimaAccent(ar, ag, ab);
+        const float rw = (float)W, rh = (float)H;
+        const float sc = rh / 336.0f;
+        const float pad = 10.0f * sc, rowH = 30.0f * sc, btnPad = 12.0f * sc;
+        drawQuad(0.0f, 0.0f, rw, rh, 0.0f, 0.0f, 0.0f, 0.96f * a);
+        std::string hdr = std::string("\"") + mGSearchQuery + "\"";
+        drawText(hdr.c_str(), pad + btnPad + slide, pad, (18.0f * sc) / kF, ar, ag, ab, a);
+        int nres = (int)mGSearchResults.size();
+        { char c[48]; snprintf(c, sizeof(c), "%d %s", nres, nres == 1 ? trDyn("result") : trDyn("results"));
+          float cfs = (13.0f * sc) / kF, cw = measureText(c, cfs);
+          drawText(c, rw - pad - cw, pad + 3.0f * sc, cfs, 0.6f, 0.6f, 0.65f, a); }
+        const float listTop = pad + rowH * 1.15f, listBot = rh - pad;
+        if (nres == 0) {
+            char msg[192]; snprintf(msg, sizeof(msg), "%s \"%s\"", trDyn("No results for"), mGSearchQuery.c_str());
+            float fs = (15.0f * sc) / kF, mw = measureText(msg, fs);
+            if (mw > rw * 0.9f && mw > 1.0f) { fs *= rw * 0.9f / mw; mw = measureText(msg, fs); }
+            drawText(msg, rw * 0.5f - mw * 0.5f, rh * 0.45f, fs, 0.6f, 0.6f, 0.6f, a);
+        } else {
+            int sel = mGSearchSel; if (sel < 0) sel = 0; if (sel >= nres) sel = nres - 1;
+            int visRows = (int)fmaxf(1.0f, floorf((listBot - listTop) / rowH));
+            int top = sel - visRows / 2; if (top > nres - visRows) top = nres - visRows; if (top < 0) top = 0;
+            const float fsR = (16.0f * sc) / kF;
+            for (int i = top; i < nres && i < top + visRows; i++) {
+                const auto& r = mGSearchResults[i];
+                float rowY = listTop + (float)(i - top) * rowH + slide;
+                float ty = rowY + (rowH - 16.0f * sc) * 0.5f;
+                std::string subv = r.sub.empty() ? std::string(trDyn(kSectionName[(r.section >= 0 && r.section < 5) ? r.section : 0]))
+                                                 : r.sub;
+                float subFs = fsR * 0.8f, subW = measureText(subv.c_str(), subFs);
+                float lblMaxW = rw - 2.0f * pad - btnPad * 2.0f - subW - 14.0f * sc;
+                std::string lbl = r.label;
+                float fs = fsR, tw = measureText(lbl.c_str(), fs);
+                if (tw > lblMaxW && lblMaxW > 0.0f) { fs *= lblMaxW / tw; tw = measureText(lbl.c_str(), fs); }
+                if (i == sel) {
+                    float pillH = rowH * 0.86f, pillW = fminf(tw + btnPad * 2.0f, rw - 2.0f * pad);
+                    drawRoundedRect(pad + slide, rowY + rowH * 0.07f, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, a);
+                    drawText(lbl.c_str(), pad + btnPad + slide, ty, fs, 0.0f, 0.0f, 0.0f, a);
+                } else {
+                    drawText(lbl.c_str(), pad + btnPad + slide, ty, fs, 1.0f, 1.0f, 1.0f, a);
+                }
+                drawText(subv.c_str(), rw - pad - subW, ty, subFs, ar, ag, ab, 0.85f * a);
+            }
+        }
+        mTextOutlineMode = prevOutline;
+        return;
+    }
+
     // DSi theme: render the results as the DSi System-Settings-style dark glossy list on the bottom
     // screen (matching renderNdsPickerList / renderNdsSidePanel) instead of the XMB dark overlay, so
     // search fits the DSi look when that theme is selected. Header band = query + result count; each
