@@ -570,6 +570,13 @@ void NanoMenu::refreshWifiList() {
     mDisplayDirty = true;
 }
 
+int NanoMenu::wifiRealApCount() {
+    std::lock_guard<std::mutex> lk(mWifiListMutex);
+    int n = 0;
+    for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") n++;
+    return n;
+}
+
 void NanoMenu::wifiScanThreadFunc() {
     // Show the saved/last-known list immediately so the UI doesn't
     // look empty during the scan window.
@@ -582,6 +589,26 @@ void NanoMenu::wifiScanThreadFunc() {
         usleep(100 * 1000);
     }
     if (mWifiScanInProgress) refreshWifiList();
+
+    // First-boot resilience. On a fresh wipe the Wi-Fi firmware/driver takes far
+    // longer than one scan window to return results (the first boot is saturated by
+    // the package scan + dexopt), so the single early scan above comes back empty and
+    // the setup wizard would strand the user on an empty AP list. Keep rescanning
+    // until real networks appear, bounded, but only while the radio is on and nothing
+    // has been found yet. Re-read list-scan-results every pass (cheap - it also picks
+    // up the framework's own periodic connectivity scans) and re-issue start-scan every
+    // few passes (spaced so the WifiManager scan throttle does not reject them). On a
+    // normal boot the first scan already returned results so this whole block is a
+    // no-op. Device-verified: the driver becomes ready on the SAME boot (no reboot),
+    // just several tens of seconds in. The list populates live while the user is on the
+    // AP list because it reads mWifiEntries, which each pass refreshes.
+    for (int pass = 0; pass < 30 && mWifiScanInProgress && wifiRealApCount() == 0; pass++) {
+        if ((pass % 5) == 0) (void)runCmd("cmd wifi start-scan");   // ~every 15s
+        for (int i = 0; i < 30 && mWifiScanInProgress; i++) {
+            usleep(100 * 1000);                                     // ~3s dwell per pass
+        }
+        if (mWifiScanInProgress) refreshWifiList();
+    }
     mWifiScanInProgress = false;
     mWifiLastScanMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
@@ -644,6 +671,11 @@ void NanoMenu::connectToSavedWifi(int savedNetId) {
     }).detach();
 }
 
+// Forward declaration: the wrong-password detector is defined further down (next to
+// wifiConnectWatch) but addAndConnectWifi's verify-and-retry needs it here to tell a
+// silent no-association (retry) apart from an auth failure (let the re-prompt handle it).
+static bool wifiDumpWrongPassword(const std::string& dump, const std::string& ssid);
+
 void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
                                  const std::string& password, bool force) {
     // cmd wifi connect-network SSID <security> <password>
@@ -663,7 +695,7 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
     }
     mWifiStatusMsg = trDyn("Connecting...");
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now().time_since_epoch()).count() + 12000;
+            std::chrono::steady_clock::now().time_since_epoch()).count() + 22000;
     mDisplayDirty = true;
     std::string ssidCapture = ssid;
     std::thread([this, cmdline, ssidCapture, force]() {
@@ -677,7 +709,33 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
         if (force || connectedSsidFromStatus(st) != ssidCapture) {
             (void)runCmd(cmdline);
         }
-        startWifiScanAsync();
+        // Verify the association instead of firing a scan right away. A scan kicked
+        // while the supplicant is still associating can abort the association on a
+        // flaky driver - exactly the first-boot setup-wizard window - which left the
+        // user "saved" but never actually connected (the wizard would still show
+        // "Save completed" and offer the connectivity test). Poll the live SSID for
+        // ~12s; if nothing associated and it was not a wrong-password failure
+        // (wifiConnectWatch owns that re-prompt), retry the connect once for the
+        // flaky first-boot case, then re-poll. Refresh from cached results at the end
+        // (no start-scan) so the (Connected) marker updates without disturbing the link.
+        bool connected = false;
+        for (int i = 0; i < 24; i++) {
+            usleep(500 * 1000);
+            std::string s = runCmd("cmd wifi status 2>/dev/null");
+            if (connectedSsidFromStatus(s) == ssidCapture) { connected = true; break; }
+        }
+        if (!connected && !force) {
+            std::string dump = runCmd("dumpsys wifi 2>/dev/null");
+            if (!wifiDumpWrongPassword(dump, ssidCapture)) {
+                (void)runCmd(cmdline);                      // silent no-association: one retry
+                for (int i = 0; i < 20; i++) {
+                    usleep(500 * 1000);
+                    std::string s = runCmd("cmd wifi status 2>/dev/null");
+                    if (connectedSsidFromStatus(s) == ssidCapture) break;
+                }
+            }
+        }
+        refreshWifiList();
     }).detach();
     // Watch the outcome so a wrong password produces a clear message + re-prompt
     // rather than an endless silent retry (secure networks only).

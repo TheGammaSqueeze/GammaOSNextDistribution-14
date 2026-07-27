@@ -12890,8 +12890,14 @@ void NanoMenu::renderNetWizard() {
         const float top = innerTop + 150.0f, pitch = 56.0f;
         int vis = (int)((innerBot - top - 20.0f) / pitch); if (vis < 3) vis = 3;
         int first = mPs3WizSel - vis / 2; if (first < 0) first = 0; if (n <= vis) first = 0; else if (first > n - vis) first = n - vis;
-        if (n == 0)
-            ps3DlgText(themeButtonText(trDyn("No networks found. Press Triangle to rescan.")).c_str(), bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
+        if (n == 0) {
+            // On a fresh wipe the driver can take tens of seconds to return results,
+            // and the background rescan keeps trying and fills this list live. Say so
+            // while a scan is running instead of the misleading "no networks" prompt.
+            const char* empt = mWifiScanInProgress ? trDyn("Searching for networks...")
+                                                   : trDyn("No networks found. Press Triangle to rescan.");
+            ps3DlgText(themeButtonText(empt).c_str(), bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
+        }
         for (int i = first; i < n && i < first + vis; i++) {
             float ry = Y(top + (i - first) * pitch);
             bool sel = (i == mPs3WizSel);
@@ -13292,7 +13298,7 @@ void NanoMenu::renderNdsNetWizardBody(float rx, float ry, float rw, float rh) {
     } else if (d.kind == WK_SCANLIST) {
         std::vector<WifiNetEntry> aps; { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
         if (d.body[0]) textCenter(trDyn(d.body), 30.0f, 12.0f, 0.93f, 0.93f, 0.93f);
-        if (aps.empty()) { textCenter(trDyn("No networks found. Press X to rescan."), 100.0f, 12.0f, 0.85f, 0.85f, 0.85f); }
+        if (aps.empty()) { textCenter(mWifiScanInProgress ? trDyn("Searching for networks...") : trDyn("No networks found. Press X to rescan."), 100.0f, 12.0f, 0.85f, 0.85f, 0.85f); }
         else {
             std::vector<std::string> labels; for (auto& e : aps) labels.push_back(e.ssid);
             drawGlossyList(labels, [&](int i, float rowDevY){

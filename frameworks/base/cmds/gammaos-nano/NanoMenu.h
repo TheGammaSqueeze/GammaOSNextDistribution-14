@@ -490,6 +490,7 @@ private:
     void refreshWifiList();              // blocking: list-networks + scan + list-scan-results
     void startWifiScanAsync();           // kick a background scan thread
     void wifiScanThreadFunc();
+    int  wifiRealApCount();              // count of real (non-toggle) Wi-Fi entries in the live list
     void renderWifiScreen();
     void handleWifiScreenSelect();
     void handleWifiScreenUp();
