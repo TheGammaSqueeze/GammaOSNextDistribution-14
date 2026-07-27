@@ -847,6 +847,15 @@ void setThemeColor(float r, float g, float b) {
 }
 void clearThemeColor() { sThemeStrTgt = 0.0f; sScrimEpoch++; }
 void setDayNightBlend(float b) { sDayNightTgt = b; sScrimEpoch++; }
+
+// The current month's "Original" hue, forced to a vivid saturation/value so it reads as an accent
+// (the raw per-month base is deliberately dim for a background). December carries hue 0 at zero
+// saturation in the table; forcing s here turns that into a warm red rather than a flat grey.
+void accentColor(float* rgb) {
+    time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
+    int m = lt.tm_mon; if (m < 0) m = 0; if (m > 11) m = 11;
+    hsvToRgb(kMonthH[m], 0.70f, 0.80f, rgb);
+}
 void setParticlesEnabled(bool e) { sParticlesEnabled = e; }
 void setWaveEnabled(bool e) { sWaveEnabled = e; }
 float backgroundLuma() { return sBgLumaEst; }

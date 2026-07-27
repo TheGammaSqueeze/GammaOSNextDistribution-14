@@ -6574,11 +6574,12 @@ static const int kPs3ColorCount = 21;
 // for a bold NextUI-style accent. Defined here because kPs3ColorOpts is file-static.
 void NanoMenu::minimaAccent(float& r, float& g, float& b) const {
     int idx = mPs3ColorIdx;
-    if (idx <= 0 || idx >= kPs3ColorCount) {   // "Original" / unset -> berry
-        r = 0.6078f; g = 0.1333f; b = 0.3412f;  // #9B2257
+    if (idx <= 0 || idx >= kPs3ColorCount) {   // "Original" -> the XMB's auto per-month hue (as a vivid accent)
+        float c[3]; ps3bg::accentColor(c);
+        r = c[0]; g = c[1]; b = c[2];
         return;
     }
-    r = kPs3ColorOpts[idx].sr; g = kPs3ColorOpts[idx].sg; b = kPs3ColorOpts[idx].sb;
+    r = kPs3ColorOpts[idx].sr; g = kPs3ColorOpts[idx].sg; b = kPs3ColorOpts[idx].sb;  // manual preset (saturated)
 }
 
 // Game Systems editor: icon-tint chooser (theme key 21). Defined here so it can

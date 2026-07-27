@@ -18,6 +18,7 @@
 
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"   // FONT_CHAR_H
+#include "NanoI18n.h"          // trDyn
 
 #include <utils/SystemClock.h> // uptimeMillis
 #include <cmath>
@@ -200,42 +201,68 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         drawText(lbl.c_str(), lx + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // COLOR_LIST_TEXT_SELECTED black
     }
 
-    // ---- status pill (top-right): accent capsule with the clock (+ battery when known) ----
+    // ---- status pill (top-right): real Wi-Fi / Bluetooth / battery icons + clock, in the accent pill ----
     {
-        char clockbuf[16] = {};
-        time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
-        strftime(clockbuf, sizeof(clockbuf), "%H:%M", &lt);
-        std::string status;
-        if (mBatteryPercent >= 0) { char b[8]; snprintf(b, sizeof(b), "%d%% ", mBatteryPercent); status += b; }
-        status += clockbuf;
-        float tw = measureText(status.c_str(), fsHint);
-        float ph = rowH;
-        float pw = tw + btnPad * 2.0f;
-        float px = rx + rw - pad - pw;
-        float py = ry + pad;
-        drawRoundedRect(px, py, pw, ph, ph * 0.5f, ar, ag, ab, 1.0f);   // accent status pill
-        float ty = py + (ph - MIN_FONT_S * sc) * 0.5f;
-        drawText(status.c_str(), px + btnPad, ty, fsHint, atc, atc, atc, 1.0f);   // legible on the accent
+        int wl, wb, bl;
+        { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; wb = mWifiBars; bl = mBtLevel; }
+        char clockbuf[12] = {};
+        time_t tt = time(nullptr); struct tm ltm; localtime_r(&tt, &ltm);
+        strftime(clockbuf, sizeof(clockbuf), "%H:%M", &ltm);
+
+        const float ph = rowH, gap = 6.0f * sc;
+        const float iconH = MIN_FONT_S * sc * 1.15f;
+        const float wifiSf = iconH / 18.0f, wifiW = 22.0f * wifiSf;
+        const float btSf   = iconH / 20.0f, btW = 14.0f * btSf;
+        const float battBW = iconH * 1.55f, battNub = 2.0f * sc, battW = battBW + battNub;
+        const bool showWifi = (wl != kWifiLevel_Off && wl != kWifiLevel_Unknown);
+        const bool showBt   = (bl != kBtLevel_Off && bl != kBtLevel_Unknown);
+        const bool showBatt = (mBatteryPercent >= 0);
+        const float clockW = measureText(clockbuf, fsHint);
+        float contentW = clockW;
+        if (showWifi) contentW += wifiW + gap;
+        if (showBt)   contentW += btW + gap;
+        if (showBatt) contentW += battW + gap;
+
+        const float pw = contentW + btnPad * 2.0f;
+        const float px = rx + rw - pad - pw, py = ry + pad;
+        drawRoundedRect(px, py, pw, ph, ph * 0.5f, ar, ag, ab, 1.0f);   // accent pill
+        float ix = px + btnPad;
+        const float iconY = py + (ph - iconH) * 0.5f;
+        if (showWifi) {
+            int bars = (wl == kWifiLevel_Connected) ? wb : 0;
+            drawWifiIcon(ix, iconY, wifiSf, bars, atc, atc, atc, 1.0f);
+            ix += wifiW + gap;
+        }
+        if (showBt) { drawBtIcon(ix, iconY, btSf, atc, atc, atc, 1.0f); ix += btW + gap; }
+        if (showBatt) {
+            float bh = iconH * 0.62f, by = py + (ph - bh) * 0.5f;
+            int pct = mBatteryPercent; if (pct < 0) pct = 0; if (pct > 100) pct = 100;
+            drawRoundedRect(ix, by, battBW, bh, 2.0f * sc, atc, atc, atc, 1.0f);                                  // body
+            drawRoundedRect(ix + 1.5f * sc, by + 1.5f * sc, battBW - 3.0f * sc, bh - 3.0f * sc, 1.5f * sc, ar, ag, ab, 1.0f);  // hollow
+            float fillW = (battBW - 4.0f * sc) * ((float)pct / 100.0f);
+            drawRoundedRect(ix + 2.0f * sc, by + 2.0f * sc, fillW, bh - 4.0f * sc, 1.0f * sc, atc, atc, atc, 1.0f);            // charge
+            drawQuad(ix + battBW, by + bh * 0.28f, battNub, bh * 0.44f, atc, atc, atc, 1.0f);                     // nub
+            ix += battW + gap;
+        }
+        drawText(clockbuf, ix, py + (ph - MIN_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
     }
 
-    // ---- bottom hint bar: accent pills with the button legend ("A Open / B Back") ----
+    // ---- bottom legend: a button glyph (A/B ring) + label, matching NextUI ----
     {
-        struct Hint { const char* btn; const char* act; };
-        // At root there is nothing to go back to (B exits to app/overlay); deeper, B walks up.
-        Hint right = { "A", mNdsAtRoot ? "Open" : "Open" };
-        Hint left  = { "B", mNdsAtRoot ? "Back" : "Back" };
-        float ph = rowH, py = hintTop;
-        auto drawHint = [&](const Hint& h, bool rightAlign) {
-            std::string txt = std::string(h.btn) + "  " + h.act;
-            float tw = measureText(txt.c_str(), fsHint);
-            float pw = tw + btnPad * 2.0f;
+        const float ph = rowH, py = hintTop, gap = 5.0f * sc;
+        const float glyphR = MIN_FONT_S * sc * 0.70f, lw = fmaxf(1.5f, 2.0f * sc);
+        auto drawLegend = [&](int role, const char* label, bool rightAlign) {
+            const char* lbl = trDyn(label);
+            float lblW = measureText(lbl, fsHint);
+            float pw = glyphR * 2.0f + gap + lblW + btnPad * 2.0f;
             float px = rightAlign ? (rx + rw - pad - pw) : (rx + pad);
             drawRoundedRect(px, py, pw, ph, ph * 0.5f, ar, ag, ab, 1.0f);
-            float ty = py + (ph - MIN_FONT_S * sc) * 0.5f;
-            drawText(txt.c_str(), px + btnPad, ty, fsHint, atc, atc, atc, 1.0f);
+            float gcx = px + btnPad + glyphR, gcy = py + ph * 0.5f;
+            drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f);   // A = role 0, B = role 1 (white ring + letter)
+            drawText(lbl, gcx + glyphR + gap, py + (ph - MIN_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
         };
-        drawHint(right, true);
-        drawHint(left, false);
+        drawLegend(0, "Open", true);    // A Open
+        drawLegend(1, "Back", false);   // B Back
     }
 
     // ---- level-change black-wash crossfade (paired with the horizontal slide above) ----
@@ -328,6 +355,161 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
         float maxW = rw * 0.90f;
         if (tw > maxW && maxW > 0.0f) { fsS *= maxW / tw; tw = measureText(sub.c_str(), fsS); }
         drawText(sub.c_str(), cx - tw * 0.5f, ry + rh * 0.82f, fsS, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    mTextOutlineMode = minPrevOutline;
+}
+
+// Option menu / list+slider chooser in Minima's language: a dark right-anchored panel that slides
+// in, with an accent left edge + title, the options as white rows (selected in a white capsule), or a
+// numeric slider. Reuses the shared option/dialog animation members so opening/closing clears cleanly.
+void NanoMenu::renderMinimaSidePanel(float rx, float ry, float rw, float rh) {
+    setUiBlend();
+    const int minPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;
+    float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+    const bool optSrc = (mPs3OptActive || mPs3OptClosing);
+    float ap;
+    if (optSrc) {
+        if (mPs3OptActive) { mPs3OptClosing = false; mPs3OptAnim += (1.0f - mPs3OptAnim) * (1.0f - expf(-14.0f * dt)); if (mPs3OptAnim > 0.999f) mPs3OptAnim = 1.0f; ap = mPs3OptAnim; }
+        else { mPs3OptCloseAnim -= mPs3OptCloseAnim * (1.0f - expf(-14.0f * dt)); if (mPs3OptCloseAnim < 0.02f) { mPs3OptCloseAnim = 0.0f; mPs3OptClosing = false; mTextOutlineMode = minPrevOutline; return; } ap = mPs3OptCloseAnim; }
+    } else {
+        if (mPs3DlgActive) { mPs3DlgClosing = false; mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-14.0f * dt)); if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f; ap = mPs3DlgAnim; }
+        else { mPs3DlgCloseAnim -= mPs3DlgCloseAnim * (1.0f - expf(-14.0f * dt)); if (mPs3DlgCloseAnim < 0.02f) { mPs3DlgCloseAnim = 0.0f; mPs3DlgClosing = false; mTextOutlineMode = minPrevOutline; return; } ap = mPs3DlgCloseAnim; }
+    }
+    if (ap < 0.999f) mDisplayDirty = true;
+
+    std::vector<std::string> rows; std::string title; int sel = 0; bool slider = false;
+    if (optSrc) {
+        const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size() && !mPs3OptSubRows[mPs3OptSel].empty();
+        if (subOpen) {
+            for (const auto& sr : mPs3OptSubRows[mPs3OptSel]) rows.push_back(trDyn(sr.label.c_str()));
+            sel = mPs3OptSubSel;
+            title = (mPs3OptSel < (int)mPs3OptLabels.size()) ? trDyn(mPs3OptLabels[mPs3OptSel].c_str()) : "Options";
+        } else {
+            int nn = (int)mPs3OptLabels.size();
+            for (int i = 0; i < nn; i++) { if (i < (int)mPs3OptSep.size() && mPs3OptSep[i]) continue; if (i == mPs3OptSel) sel = (int)rows.size(); rows.push_back(trDyn(mPs3OptLabels[i].c_str())); }
+            title = mPs3OptCtxLabel.empty() ? "Options" : trDyn(mPs3OptCtxLabel.c_str());
+        }
+    } else {
+        title = mPs3DlgTitle.empty() ? "Options" : trDyn(mPs3DlgTitle.c_str());
+        slider = mPs3DlgSlider && mPs3DlgOptions.empty();
+        for (const auto& o : mPs3DlgOptions) rows.push_back(trDyn(o.c_str()));
+        sel = mPs3DlgSel;
+    }
+    int n = (int)rows.size(); if (sel < 0) sel = 0; if (n > 0 && sel >= n) sel = n - 1;
+
+    drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.55f * ap);          // scrim over the home
+    float ar, ag, ab; minimaAccent(ar, ag, ab);
+    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
+    const float inset = 8.0f * sc;
+    float panelW = fminf(rw * 0.60f, rw - pad * 2.0f);
+    float px = rx + rw - panelW + (1.0f - ap) * panelW;             // slide in from the right
+    drawQuad(px, ry, panelW, rh, 0.05f, 0.05f, 0.06f, 0.98f * ap);  // dark panel
+    drawQuad(px, ry, fmaxf(2.0f, 3.0f * sc), rh, ar, ag, ab, ap);   // accent left edge
+    drawText(title.c_str(), px + pad + inset, ry + pad, (18.0f * sc) / (float)FONT_CHAR_H, ar, ag, ab, ap);
+    float listLeft = px + pad + inset;
+    float contentTop = ry + pad + rowH * 0.9f + 6.0f * sc;
+
+    if (slider) {
+        float mn = mPs3DlgSldMin, mx = mPs3DlgSldMax, v = mPs3DlgSldVal;
+        float t = (mx > mn) ? (v - mn) / (mx - mn) : 0.0f; if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
+        char buf[32];
+        if (mPs3DlgSldScale <= 0) snprintf(buf, sizeof(buf), "%d", (int)lroundf(v));
+        else snprintf(buf, sizeof(buf), "%.*f", mPs3DlgSldScale, v);
+        float fsV = (34.0f * sc) / (float)FONT_CHAR_H, tw = measureText(buf, fsV);
+        drawText(buf, px + panelW * 0.5f - tw * 0.5f, ry + rh * 0.38f, fsV, 1.0f, 1.0f, 1.0f, ap);
+        float bx = listLeft, bw = panelW - 2.0f * (pad + inset), by = ry + rh * 0.56f, bh = 8.0f * sc;
+        drawRoundedRect(bx, by, bw, bh, bh * 0.5f, 0.28f, 0.28f, 0.30f, ap);
+        drawRoundedRect(bx, by, bw * t, bh, bh * 0.5f, ar, ag, ab, ap);
+        drawRoundedRect(bx + bw * t - 5.0f * sc, by - 5.0f * sc, 10.0f * sc, bh + 10.0f * sc, 5.0f * sc, 1.0f, 1.0f, 1.0f, ap);
+    } else if (n > 0) {
+        float listBot = ry + rh - pad;
+        int visRows = (int)fmaxf(1.0f, floorf((listBot - contentTop) / rowH));
+        int top = sel - visRows / 2; if (top > n - visRows) top = n - visRows; if (top < 0) top = 0;
+        float textMaxW = px + panelW - pad - listLeft - btnPad;
+        for (int i = top; i < n && i < top + visRows; i++) {
+            float rowY = contentTop + (float)(i - top) * rowH;
+            float ty = rowY + (rowH - MIN_FONT * sc) * 0.5f;
+            float fs = (MIN_FONT * sc) / (float)FONT_CHAR_H, tw = measureText(rows[i].c_str(), fs);
+            if (tw > textMaxW && textMaxW > 0.0f) { fs *= textMaxW / tw; tw = measureText(rows[i].c_str(), fs); }
+            if (i == sel) {
+                float pillH = rowH * 0.86f, pillW = fminf(tw + btnPad * 2.0f, px + panelW - pad - listLeft);
+                drawRoundedRect(listLeft, rowY + rowH * 0.07f, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, ap);
+                drawText(rows[i].c_str(), listLeft + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, ap);
+            } else {
+                drawText(rows[i].c_str(), listLeft + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, ap);
+            }
+        }
+    }
+    mTextOutlineMode = minPrevOutline;
+}
+
+// Confirm / message dialog in Minima's language: a centred dark rounded panel with an accent top
+// rule, the title in the accent, a word-wrapped body, and the options (Yes/No/OK) as pills along the
+// bottom (the selected one filled with the accent).
+void NanoMenu::renderMinimaDialog(float rx, float ry, float rw, float rh) {
+    setUiBlend();
+    const int minPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;
+    float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
+    mPs3DlgClosing = false;
+    mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-15.0f * dt));
+    if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f; else mDisplayDirty = true;
+    float ap = mPs3DlgAnim, ease = ap * ap * (3.0f - 2.0f * ap);
+    float ar, ag, ab; minimaAccent(ar, ag, ab);
+    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
+
+    drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.55f * ap);   // scrim
+    float pw = fminf(rw * 0.74f, rw - pad * 2.0f), ph = fminf(rh * 0.64f, rh - pad * 2.0f);
+    float pxL = rx + (rw - pw) * 0.5f;
+    float pyTgt = ry + (rh - ph) * 0.5f, pyOff = pyTgt + rh * 0.12f;
+    float pyTop = pyOff + (pyTgt - pyOff) * ease;
+    drawRoundedRect(pxL, pyTop + 4.0f * sc, pw, ph, 12.0f * sc, 0.0f, 0.0f, 0.0f, 0.5f * ap);   // shadow
+    drawRoundedRect(pxL, pyTop, pw, ph, 12.0f * sc, 0.07f, 0.07f, 0.08f, ap);                   // body
+    drawRoundedRect(pxL, pyTop, pw, fmaxf(2.0f, 4.0f * sc), 2.0f * sc, ar, ag, ab, ap);          // accent top rule
+    float cxC = rx + rw * 0.5f;
+    float yy = pyTop + pad + 6.0f * sc;
+    if (!mPs3DlgTitle.empty()) {
+        const char* t = trDyn(mPs3DlgTitle.c_str());
+        float fs = (20.0f * sc) / (float)FONT_CHAR_H, tw = measureText(t, fs);
+        drawText(t, cxC - tw * 0.5f, yy, fs, ar, ag, ab, ap);
+        yy += rowH * 1.05f;
+    }
+    // word-wrapped body (centred), capped so it never runs into the button row
+    if (!mPs3DlgBody.empty()) {
+        std::string body = trDyn(mPs3DlgBody.c_str());
+        float fs = (15.0f * sc) / (float)FONT_CHAR_H;
+        float maxW = pw - pad * 2.0f, lineH = 18.0f * sc, bodyBot = pyTop + ph - rowH - pad * 1.5f;
+        std::string line;
+        size_t i = 0;
+        while (i < body.size() && yy < bodyBot) {
+            size_t sp = body.find(' ', i);
+            std::string word = body.substr(i, (sp == std::string::npos ? body.size() : sp) - i);
+            std::string cand = line.empty() ? word : line + " " + word;
+            if (measureText(cand.c_str(), fs) > maxW && !line.empty()) {
+                float tw = measureText(line.c_str(), fs);
+                drawText(line.c_str(), cxC - tw * 0.5f, yy, fs, 0.90f, 0.90f, 0.92f, ap);
+                yy += lineH; line = word;
+            } else line = cand;
+            if (sp == std::string::npos) break;
+            i = sp + 1;
+        }
+        if (!line.empty() && yy < bodyBot) { float tw = measureText(line.c_str(), fs); drawText(line.c_str(), cxC - tw * 0.5f, yy, fs, 0.90f, 0.90f, 0.92f, ap); }
+    }
+    // option pills (Yes / No / OK), selected filled with the accent
+    int n = (int)mPs3DlgOptions.size(), sel = mPs3DlgSel; if (sel < 0) sel = 0; if (n > 0 && sel >= n) sel = n - 1;
+    if (n > 0) {
+        float fs = (MIN_FONT_S * sc) / (float)FONT_CHAR_H, pillH = rowH, py = pyTop + ph - pad - pillH, gap = pad;
+        std::vector<float> ws; float total = 0.0f;
+        for (int i = 0; i < n; i++) { float w = measureText(trDyn(mPs3DlgOptions[i].c_str()), fs) + btnPad * 2.0f; ws.push_back(w); total += w; }
+        total += gap * (float)(n - 1);
+        float xx = cxC - total * 0.5f;
+        for (int i = 0; i < n; i++) {
+            const char* o = trDyn(mPs3DlgOptions[i].c_str());
+            bool s = (i == sel);
+            drawRoundedRect(xx, py, ws[i], pillH, pillH * 0.5f, s ? ar : 0.16f, s ? ag : 0.16f, s ? ab : 0.18f, ap);
+            float tw = measureText(o, fs), ty = py + (pillH - MIN_FONT_S * sc) * 0.5f;
+            drawText(o, xx + (ws[i] - tw) * 0.5f, ty, fs, 1.0f, 1.0f, 1.0f, ap);
+            xx += ws[i] + gap;
+        }
     }
     mTextOutlineMode = minPrevOutline;
 }

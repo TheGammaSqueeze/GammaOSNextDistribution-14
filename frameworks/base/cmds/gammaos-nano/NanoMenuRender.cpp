@@ -5004,16 +5004,27 @@ void NanoMenu::render() {
                 (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
             if (ndsDual) renderNdsTop(0.0f, 0.0f, (float)mWidth, (float)mHeight);
             else         renderNds();
-        } else if (mMinimaTheme && !mPs3BootActive && (ndsPlayerActive() || ndsInModal())) {
-            // Minima: media players + modals (options / dialogs / pickers / OSK) reuse the existing
-            // full-screen XMB chrome for now (Minima-skinning the modals is a later increment).
+        } else if (mMinimaTheme && !mPs3BootActive && ndsPlayerActive()) {
+            // Minima: media players show the existing full-screen XMB video / music / photo player.
             renderPs3Xmb();
         } else if (mMinimaTheme && !mPs3BootActive) {
-            // Minima home (the NextUI-style list). renderPs3Xmb is skipped, so drive its lifecycle
-            // ticks here so game art + App Information still fill in, exactly like the DSi branch does.
-            scraperArtTick();
-            appInfoTick();
-            renderMinima();
+            // Minima home + its own modals. The option menu / list+slider choosers render as a Minima
+            // side panel; confirm/message dialogs as a Minima dialog. Other modals (tz/lang pickers,
+            // net wizard, global search, game info / boxart page, photo grid) still use the XMB chrome
+            // for now. renderPs3Xmb is skipped for the home, so drive its lifecycle ticks here.
+            const bool minSidePanel = mPs3OptActive || mPs3OptClosing ||
+                                      ((mPs3DlgActive || mPs3DlgClosing) && ndsDlgIsSidePanel());
+            const bool minDialog    = !minSidePanel && (mPs3DlgActive || mPs3DlgClosing);
+            const bool minOtherModal = ndsInModal() && !minSidePanel && !minDialog;
+            if (minOtherModal) {
+                renderPs3Xmb();
+            } else {
+                scraperArtTick();
+                appInfoTick();
+                renderMinima();
+                if (minSidePanel)   renderMinimaSidePanel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+                else if (minDialog) renderMinimaDialog(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            }
         } else {
             renderPs3Xmb();
         }

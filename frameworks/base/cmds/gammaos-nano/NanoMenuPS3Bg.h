@@ -122,6 +122,11 @@ void setThemeColor(float r, float g, float b);
 void clearThemeColor();
 void setDayNightBlend(float b);
 
+// The current "Original" per-month hue rendered as a VIVID accent colour (fixed high saturation /
+// value, not the dim background tint). Used by the Minima theme so its accent tracks the XMB's auto
+// per-month colour when the shared Colour setting is left at "Original".
+void accentColor(float* rgb);
+
 // Background == Classic removes the glitter particle field. true (default) shows
 // the particles; false hides them (Theme Settings -> Background -> Classic).
 void setParticlesEnabled(bool enabled);
