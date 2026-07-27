@@ -13,8 +13,11 @@
 #include <sys/inotify.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
+#include <sys/wait.h>
+#include <signal.h>
 #include <unistd.h>
 
+#include <cctype>
 #include <chrono>
 #include <fstream>
 #include <sstream>
@@ -90,8 +93,14 @@ bool GamepadManager::init() {
     mTransformer = std::make_unique<InputTransformer>();
     mForceFeedback = std::make_unique<ForceFeedback>();
     mVirtualGamepad = std::make_unique<VirtualGamepad>();
+    mVirtualKeyboard = std::make_unique<VirtualKeyboard>();
     mMouseMode = std::make_unique<MouseMode>();
     mScreenMapMode = std::make_unique<ScreenMapMode>();
+
+    // Fire button actions (key emit / launch / setprop / shell) via this manager.
+    mTransformer->setActionCallback([this](int type, const std::string& arg) {
+        executeAction(type, arg);
+    });
 
     loadConfig();
 
@@ -117,6 +126,12 @@ bool GamepadManager::init() {
     if (epoll_ctl(mEpollFd, EPOLL_CTL_ADD, mVirtualGamepad->fd(), &ev) < 0) {
         LOG(ERROR) << "Failed to add uinput to epoll: " << strerror(errno);
         return false;
+    }
+
+    // Companion keyboard for keyboard/media KEY_* action emits (write-only, not
+    // epoll-monitored).  Non-fatal if it fails.
+    if (!mVirtualKeyboard->create()) {
+        LOG(WARNING) << "Virtual keyboard unavailable; keyboard action emits disabled";
     }
 
     // Initialize mouse mode (creates timerfd)
@@ -243,46 +258,11 @@ void GamepadManager::loadConfig() {
     if (mMouseMode) mMouseMode->loadConfig();
     if (mScreenMapMode) mScreenMapMode->loadConfig();
 
-    // Load per-app profiles
-    mPerAppProfiles.clear();
-    mPerAppComboCodes.clear();
-    int paCount = GetIntProperty("persist.gammaos.gamepad.pa_count", 0);
-    for (int i = 0; i < paCount && i < 20; i++) {
-        std::string prefix = "persist.gammaos.gamepad.pa" + std::to_string(i);
-        std::string pkg = GetProperty(prefix + "_pkg", "");
-        if (pkg.empty()) continue;
-
-        PerAppProfile profile;
-        profile.btnRemap = GetProperty(prefix + "_btn", "");
-        profile.comboMap = GetProperty(prefix + "_combo", "");
-        mPerAppProfiles[pkg] = profile;
-
-        // Collect combo emit codes for virtual device creation
-        if (!profile.comboMap.empty()) {
-            std::istringstream ss(profile.comboMap);
-            std::string entry;
-            while (std::getline(ss, entry, ',')) {
-                size_t eq = entry.find('=');
-                if (eq != std::string::npos) {
-                    int emit = std::atoi(entry.substr(eq + 1).c_str());
-                    if (emit > 0) mPerAppComboCodes.insert(emit);
-                }
-            }
-        }
-
-        LOG(INFO) << "Per-app profile: " << pkg
-                  << " btn=[" << profile.btnRemap << "]"
-                  << " combo=[" << profile.comboMap << "]";
-    }
+    // Load per-app profiles (btn/combo remaps + action rules)
+    loadPerAppProfiles();
 
     // Apply per-app overrides if a foreground app is already tracked
-    if (!mCurrentFgPkg.empty()) {
-        auto it = mPerAppProfiles.find(mCurrentFgPkg);
-        if (it != mPerAppProfiles.end()) {
-            mTransformer->applyPerAppOverrides(it->second.btnRemap,
-                                                it->second.comboMap);
-        }
-    }
+    if (!mCurrentFgPkg.empty()) applyPerAppProfile(mCurrentFgPkg);
 
     LOG(INFO) << "Config loaded: merge=" << mMerge
               << " devices=" << mDeviceNames.size()
@@ -297,8 +277,13 @@ void GamepadManager::run() {
     auto lastConfigCheck = std::chrono::steady_clock::now();
 
     while (mRunning) {
-        int nfds = epoll_wait(mEpollFd, events, MAX_EPOLL_EVENTS,
-                              CONFIG_CHECK_INTERVAL_MS);
+        // Shorten the wait when a long-press is pending so it fires crisply.
+        int timeout = CONFIG_CHECK_INTERVAL_MS;
+        if (mTransformer) {
+            int at = mTransformer->nextActionTimeoutMs();
+            if (at >= 0 && at < timeout) timeout = at;
+        }
+        int nfds = epoll_wait(mEpollFd, events, MAX_EPOLL_EVENTS, timeout);
 
         if (nfds < 0) {
             if (errno == EINTR) continue;
@@ -322,6 +307,10 @@ void GamepadManager::run() {
                 handleInputEvent(static_cast<int>(tag));
             }
         }
+
+        // Fire any long-press actions whose hold threshold has elapsed (covers
+        // both the timeout-expiry and event-arrival paths).
+        if (mTransformer) mTransformer->checkActionTimeouts();
 
         // Re-grab devices that were released due to ENODEV (firmware re-enumeration).
         // A replacement device at the same path may already exist but its inotify
@@ -920,6 +909,13 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
         buttons.insert(to);
     }
 
+    // Add action key-emit targets that are gamepad buttons so the virtual pad
+    // advertises them (keyboard-routed targets use the companion keyboard).
+    for (int c : mTransformer->getActionKeyCodes()) {
+        if (isGamepadButton(c)) buttons.insert(c);
+    }
+    buttons.insert(mPerAppActionKeyCodes.begin(), mPerAppActionKeyCodes.end());
+
     // Remove blacklisted buttons from virtual pad
     for (int code : mBlacklistVpad) {
         buttons.erase(code);
@@ -1225,14 +1221,32 @@ void GamepadManager::checkForegroundApp() {
     LOG(INFO) << "Foreground app changed: " << mCurrentFgPkg << " -> " << fgPkg;
     mCurrentFgPkg = fgPkg;
 
-    // Reload base config from properties (resets to global mappings)
+    // Reload base config from properties (resets to global mappings + actions)
     mTransformer->loadConfig();
 
-    // Also refresh per-app profiles from properties (in case they were
-    // changed via Settings since the last full loadConfig)
+    // Refresh per-app profiles (Settings may have changed them) and apply the
+    // profile for the new foreground package on top of the global config.
+    loadPerAppProfiles();
+    applyPerAppProfile(fgPkg);
+
+    // A per-app key-emit action target may need advertising on the keyboard.
+    refreshVirtualKeyboard();
+
+    // Notify screen map mode about foreground app change
+    if (mScreenMapMode) {
+        mScreenMapMode->checkForegroundApp(fgPkg);
+    }
+}
+
+void GamepadManager::loadPerAppProfiles() {
+    using android::base::GetProperty;
+    using android::base::GetIntProperty;
+
     mPerAppProfiles.clear();
     mPerAppComboCodes.clear();
-    int paCount = android::base::GetIntProperty("persist.gammaos.gamepad.pa_count", 0);
+    mPerAppActionKeyCodes.clear();
+
+    int paCount = GetIntProperty("persist.gammaos.gamepad.pa_count", 0);
     for (int i = 0; i < paCount && i < 20; i++) {
         std::string prefix = "persist.gammaos.gamepad.pa" + std::to_string(i);
         std::string pkg = GetProperty(prefix + "_pkg", "");
@@ -1241,8 +1255,32 @@ void GamepadManager::checkForegroundApp() {
         PerAppProfile profile;
         profile.btnRemap = GetProperty(prefix + "_btn", "");
         profile.comboMap = GetProperty(prefix + "_combo", "");
+
+        // Per-app action rules: paN_act_count + paN_actM_code/hold/s/l
+        int actCount = GetIntProperty(prefix + "_act_count", 0);
+        for (int m = 0; m < actCount && m < 64; m++) {
+            std::string ap = prefix + "_act" + std::to_string(m);
+            ActionRule rule;
+            rule.code = GetIntProperty(ap + "_code", 0);
+            if (rule.code <= 0) continue;
+            rule.hold = GetIntProperty(ap + "_hold", 0);
+            rule.shortSpec = GetProperty(ap + "_s", "");
+            rule.longSpec = GetProperty(ap + "_l", "");
+            profile.actions.push_back(rule);
+
+            // Collect gamepad-button ACT_KEY targets so the virtual gamepad
+            // advertises them (keyboard targets are always advertised).
+            for (const std::string* spec : {&rule.shortSpec, &rule.longSpec}) {
+                if (spec->rfind("key=", 0) == 0) {
+                    int c = std::atoi(spec->c_str() + 4);
+                    if (c > 0 && isGamepadButton(c)) mPerAppActionKeyCodes.insert(c);
+                }
+            }
+        }
+
         mPerAppProfiles[pkg] = profile;
 
+        // Collect combo emit codes for virtual device creation
         if (!profile.comboMap.empty()) {
             std::istringstream ss(profile.comboMap);
             std::string entry;
@@ -1254,26 +1292,28 @@ void GamepadManager::checkForegroundApp() {
                 }
             }
         }
-    }
 
-    // Apply per-app overrides if a profile exists for this package
-    if (!fgPkg.empty()) {
-        auto it = mPerAppProfiles.find(fgPkg);
-        if (it != mPerAppProfiles.end()) {
-            mTransformer->applyPerAppOverrides(it->second.btnRemap,
-                                                it->second.comboMap);
-            LOG(INFO) << "Applied per-app profile for: " << fgPkg
-                      << " btn=[" << it->second.btnRemap << "]"
-                      << " combo=[" << it->second.comboMap << "]";
-        } else {
-            LOG(INFO) << "No per-app profile for: " << fgPkg;
-        }
+        LOG(INFO) << "Per-app profile: " << pkg
+                  << " btn=[" << profile.btnRemap << "]"
+                  << " combo=[" << profile.comboMap << "]"
+                  << " actions=" << profile.actions.size();
     }
+}
 
-    // Notify screen map mode about foreground app change
-    if (mScreenMapMode) {
-        mScreenMapMode->checkForegroundApp(fgPkg);
+void GamepadManager::applyPerAppProfile(const std::string& pkg) {
+    if (pkg.empty()) return;
+    auto it = mPerAppProfiles.find(pkg);
+    if (it == mPerAppProfiles.end()) {
+        LOG(INFO) << "No per-app profile for: " << pkg;
+        return;
     }
+    mTransformer->applyPerAppOverrides(it->second.btnRemap, it->second.comboMap);
+    for (const auto& rule : it->second.actions) {
+        mTransformer->setButtonAction(rule.code, rule.hold,
+                                      rule.shortSpec, rule.longSpec);
+    }
+    LOG(INFO) << "Applied per-app profile for: " << pkg
+              << " (" << it->second.actions.size() << " actions)";
 }
 
 void GamepadManager::discoverDeviceKeys(int fd, std::set<int>& keys) {
@@ -1285,6 +1325,102 @@ void GamepadManager::discoverDeviceKeys(int fd, std::set<int>& keys) {
             keys.insert(i);
         }
     }
+}
+
+bool GamepadManager::isGamepadButton(int code) {
+    return (code >= BTN_JOYSTICK && code <= BTN_THUMBR) ||        // 0x120..0x13e
+           (code >= BTN_DPAD_UP && code <= BTN_DPAD_RIGHT) ||     // 0x220..0x223
+           (code >= BTN_TRIGGER_HAPPY1 && code <= BTN_TRIGGER_HAPPY40); // 0x2c0..0x2e7
+}
+
+// Validate an app/activity token to a safe charset so building a shell command
+// from it cannot inject.  Shell actions are intentionally exempt (run verbatim).
+static bool isSafeComponentToken(const std::string& s) {
+    if (s.empty() || s.size() > 512) return false;
+    for (char c : s) {
+        if (!(std::isalnum(static_cast<unsigned char>(c)) || c == '.' ||
+              c == '/' || c == '_' || c == '-')) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void GamepadManager::runShellDetached(const std::string& cmd) {
+    if (cmd.empty()) return;
+    pid_t pid = fork();
+    if (pid < 0) {
+        LOG(ERROR) << "runShellDetached: fork failed: " << strerror(errno);
+        return;
+    }
+    if (pid == 0) {
+        // Child: new session, then double-fork so the grandchild reparents to
+        // init (no zombies), then exec the shell.  Only async-signal-safe calls.
+        setsid();
+        pid_t g = fork();
+        if (g < 0) _exit(127);
+        if (g > 0) _exit(0);
+        execl("/system/bin/sh", "sh", "-c", cmd.c_str(), static_cast<char*>(nullptr));
+        _exit(127);
+    }
+    // Parent: reap the intermediate child so it doesn't linger as a zombie.
+    waitpid(pid, nullptr, 0);
+}
+
+void GamepadManager::executeAction(int type, const std::string& arg) {
+    switch (type) {
+        case ACT_KEY: {
+            int code = std::atoi(arg.c_str());
+            if (code <= 0) return;
+            if (isGamepadButton(code)) {
+                if (mVirtualGamepad && mVirtualGamepad->isValid()) {
+                    struct input_event e = {};
+                    e.type = EV_KEY; e.code = code; e.value = 1;
+                    mVirtualGamepad->writeEvent(e); mVirtualGamepad->writeSyn();
+                    e.value = 0;
+                    mVirtualGamepad->writeEvent(e); mVirtualGamepad->writeSyn();
+                }
+            } else if (mVirtualKeyboard && mVirtualKeyboard->isValid()) {
+                mVirtualKeyboard->tapKey(code);
+            }
+            break;
+        }
+        case ACT_APP:
+            if (isSafeComponentToken(arg)) {
+                runShellDetached("monkey -p " + arg +
+                                 " -c android.intent.category.LAUNCHER 1");
+            } else {
+                LOG(WARNING) << "Action app: unsafe package token, ignoring";
+            }
+            break;
+        case ACT_ACTIVITY:
+            if (isSafeComponentToken(arg)) {
+                runShellDetached("am start -n " + arg);
+            } else {
+                LOG(WARNING) << "Action activity: unsafe component token, ignoring";
+            }
+            break;
+        case ACT_PROP: {
+            size_t eq = arg.find('=');
+            if (eq == std::string::npos || eq == 0) {
+                LOG(WARNING) << "Action prop: expected name=value";
+                break;
+            }
+            android::base::SetProperty(arg.substr(0, eq), arg.substr(eq + 1));
+            break;
+        }
+        case ACT_SHELL:
+            runShellDetached(arg);
+            break;
+        default:
+            break;
+    }
+}
+
+void GamepadManager::refreshVirtualKeyboard() {
+    // The companion keyboard advertises a fixed broad KEY_* set, so new
+    // keyboard-routed action targets need no recreation.  Kept as a hook for
+    // symmetry with the gamepad recreation path.
 }
 
 std::pair<std::set<int>, std::set<int>> GamepadManager::computeRequiredCodes() const {
@@ -1310,6 +1446,13 @@ std::pair<std::set<int>, std::set<int>> GamepadManager::computeRequiredCodes() c
 
     // Add per-app combo emit buttons so the virtual device supports them
     buttons.insert(mPerAppComboCodes.begin(), mPerAppComboCodes.end());
+
+    // Add action key-emit targets that are gamepad buttons (keyboard targets
+    // are emitted through the companion keyboard, not this device)
+    for (int c : mTransformer->getActionKeyCodes()) {
+        if (isGamepadButton(c)) buttons.insert(c);
+    }
+    buttons.insert(mPerAppActionKeyCodes.begin(), mPerAppActionKeyCodes.end());
 
     // Add discovered axis final codes
     for (const auto& [sc, finalCode] : mAbsMap) {

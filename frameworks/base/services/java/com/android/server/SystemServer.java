@@ -506,6 +506,10 @@ public final class SystemServer implements Dumpable {
     // menu can live-refresh its "Default Browser" picker on install / remove / update.
     private final java.util.concurrent.atomic.AtomicInteger mNanoBrowsersGeneration =
             new java.util.concurrent.atomic.AtomicInteger(0);
+    // GammaOS Nano: bumped after the launchable-activity list is (re)written, so the
+    // native menu's gamepad "Launch Activity" action picker can live-refresh.
+    private final java.util.concurrent.atomic.AtomicInteger mNanoActivitiesGeneration =
+            new java.util.concurrent.atomic.AtomicInteger(0);
     // GammaOS Nano: bumped after an on-demand app Information file is written, so the
     // native menu can watch its serial and swap "Loading..." for the real details.
     private final java.util.concurrent.atomic.AtomicInteger mNanoAppInfoGeneration =
@@ -4361,6 +4365,9 @@ public final class SystemServer implements Dumpable {
                     + apps.size() + " apps, " + iconCount + " icons, gen=" + gen);
             // The installed-browser list rides the same triggers (boot + package change).
             writeNanoBrowserCache(pm, reason);
+            // The launchable-activity list (for the gamepad remap "Launch Activity"
+            // action) rides the same triggers too.
+            writeNanoActivityCache(pm, reason);
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: failed to write app label/icon cache", e);
         }
@@ -4483,6 +4490,68 @@ public final class SystemServer implements Dumpable {
                     + seen.size() + " browsers, gen=" + gen);
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: failed to write browser list", e);
+        }
+    }
+
+    /**
+     * GammaOS Nano: write the list of launchable activities for the nano menu's
+     * gamepad "Launch Activity" remap-action picker, as "pkg|Label|pkg/Activity"
+     * lines in /data/system/nano_activities.txt.
+     *
+     * Uses ACTION_MAIN + CATEGORY_LAUNCHER (the launcher-visible entry points),
+     * keeping one row per activity (not deduped by package like the browser
+     * cache) so the user can target a specific activity. nano launches it via an
+     * explicit "-n pkg/Activity" intent, which the framework resolves directly.
+     */
+    private void writeNanoActivityCache(android.content.pm.PackageManager pm, String reason) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            Intent probe = new Intent(Intent.ACTION_MAIN);
+            probe.addCategory(Intent.CATEGORY_LAUNCHER);
+            java.util.List<android.content.pm.ResolveInfo> ris =
+                    pm.queryIntentActivities(probe,
+                            android.content.pm.PackageManager.MATCH_ALL);
+            int count = 0;
+            if (ris != null) {
+                // Sort by visible label so the picker reads alphabetically.
+                java.util.Collections.sort(ris, new java.util.Comparator<
+                        android.content.pm.ResolveInfo>() {
+                    @Override
+                    public int compare(android.content.pm.ResolveInfo a,
+                                       android.content.pm.ResolveInfo b) {
+                        CharSequence la = a.loadLabel(pm), lb = b.loadLabel(pm);
+                        return String.valueOf(la).compareToIgnoreCase(String.valueOf(lb));
+                    }
+                });
+                for (android.content.pm.ResolveInfo ri : ris) {
+                    if (ri.activityInfo == null) continue;
+                    String pkg = ri.activityInfo.packageName;
+                    String cls = ri.activityInfo.name;
+                    if (pkg == null || cls == null) continue;
+                    CharSequence label = ri.loadLabel(pm);
+                    String name = (label != null && label.length() > 0)
+                            ? label.toString() : pkg;
+                    name = name.replace('|', ' ').replace('\n', ' ').trim();
+                    if (name.isEmpty()) name = pkg;
+                    sb.append(pkg).append('|').append(name).append('|')
+                      .append(pkg).append('/').append(cls).append('\n');
+                    count++;
+                }
+            }
+            java.io.File dst = new java.io.File("/data/system/nano_activities.txt");
+            java.io.File tmp = new java.io.File("/data/system/nano_activities.txt.tmp");
+            java.io.FileWriter fw = new java.io.FileWriter(tmp);
+            fw.write(sb.toString());
+            fw.close();
+            tmp.setReadable(true, false);
+            tmp.renameTo(dst);   // atomic replace; nano never reads a partial list
+            int gen = mNanoActivitiesGeneration.incrementAndGet();
+            SystemProperties.set("sys.gammaos.nano.activities_generation",
+                    Integer.toString(gen));
+            Slog.i(TAG, "GammaOS Nano: wrote activity list (" + reason + "): "
+                    + count + " activities, gen=" + gen);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: failed to write activity list", e);
         }
     }
 

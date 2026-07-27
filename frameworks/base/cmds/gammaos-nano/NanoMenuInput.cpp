@@ -2058,6 +2058,14 @@ void NanoMenu::pollInput() {
             // Test / Calibration screen: mirror every raw button/axis into the
             // live-state maps for the visualisation and swallow it so it does not
             // navigate the menu behind. gpScreenHandleKey drives the hold-to-exit.
+            // Custom button-action capture: latch the first press to bind a
+            // mapping. Same raw-evdev interception as the Test/Calib screens.
+            if (mGpCaptureActive &&
+                (ev.type == EV_KEY || ev.type == EV_ABS)) {
+                gpCaptureEvent(fd, ev.type, ev.code, ev.value);
+                if (ev.type == EV_KEY) gpCaptureHandleKey(ev.code, ev.value);
+                continue;
+            }
             if ((mGpTestActive || mGpCalibActive) &&
                 (ev.type == EV_KEY || ev.type == EV_ABS)) {
                 gpCaptureEvent(fd, ev.type, ev.code, ev.value);

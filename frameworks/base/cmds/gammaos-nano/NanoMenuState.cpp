@@ -505,6 +505,58 @@ void NanoMenu::ensureBrowserList() {
     }
 }
 
+// Launchable activities for the gamepad "Launch Activity" remap-action picker.
+// Parsed from /data/system/nano_activities.txt ("pkg|Label|pkg/Activity" per line),
+// written by SystemServer.writeNanoActivityCache. One row per activity (not deduped),
+// so the user can target a specific component; the daemon launches it via "-n".
+void NanoMenu::loadInstalledActivities() {
+    mActivityEntries.clear();
+    mActivitiesLoaded = true;
+    const char* path = "/data/system/nano_activities.txt";
+    int fd = open(path, O_RDONLY | O_CLOEXEC);
+    if (fd >= 0) {
+        struct stat st;
+        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 2 * 1024 * 1024) {
+            std::string content(st.st_size, '\0');
+            ssize_t n = read(fd, &content[0], st.st_size);
+            if (n > 0) {
+                content.resize(n);
+                size_t pos = 0;
+                while (pos < content.size()) {
+                    size_t eol = content.find('\n', pos);
+                    if (eol == std::string::npos) eol = content.size();
+                    std::string line = content.substr(pos, eol - pos);
+                    pos = eol + 1;
+                    if (line.empty()) continue;
+                    size_t p1 = line.find('|');
+                    if (p1 == std::string::npos) continue;
+                    size_t p2 = line.find('|', p1 + 1);
+                    if (p2 == std::string::npos) continue;
+                    ActivityEntry a;
+                    a.packageName = line.substr(0, p1);
+                    a.label = line.substr(p1 + 1, p2 - p1 - 1);
+                    a.component = line.substr(p2 + 1);
+                    if (a.packageName.empty() || a.component.empty()) continue;
+                    if (a.label.empty()) a.label = a.packageName;
+                    mActivityEntries.push_back(std::move(a));
+                }
+            }
+        }
+        close(fd);
+    }
+    ALOGD("NanoMenu: loaded %zu activities from nano_activities.txt", mActivityEntries.size());
+}
+
+// Reload the activity list only when the framework bumps activities_generation
+// (boot + package add/remove), so the picker stays current without re-reading.
+void NanoMenu::ensureActivityList() {
+    int gen = property_get_int32("sys.gammaos.nano.activities_generation", 0);
+    if (!mActivitiesLoaded || gen != mActivitiesGen) {
+        mActivitiesGen = gen;
+        loadInstalledActivities();
+    }
+}
+
 // Human label for a browser package (the "Default Browser" row's value column). Falls back
 // to the bare package name, then "GammaBrowser" for the shipped default.
 std::string NanoMenu::browserLabelForPkg(const std::string& pkg) {

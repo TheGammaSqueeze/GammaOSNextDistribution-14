@@ -100,6 +100,8 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
     private static final String KEY_GLOBAL_SENSITIVITY = "gamepad_global_sensitivity";
     private static final String KEY_TEST = "gamepad_test";
     private static final String KEY_COMBO_MAP = "gamepad_combo_map";
+    private static final String KEY_CUSTOM_ACTIONS = "gamepad_custom_actions";
+    private static final String PROP_ACT_COUNT = "persist.gammaos.gamepad.act_count";
     private static final String KEY_PERAPP_CATEGORY = "gamepad_perapp_category";
     private static final String KEY_PERAPP_ADD = "gamepad_perapp_add";
     private static final String KEY_MOUSE_ENABLE = "gamepad_mouse_enable";
@@ -159,6 +161,25 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
         BTN_NAMES.put(0x13a, "Select"); BTN_NAMES.put(0x13b, "Start");
         BTN_NAMES.put(0x13c, "Guide"); BTN_NAMES.put(0x13d, "L3");
         BTN_NAMES.put(0x13e, "R3");
+    }
+
+    // Common keyboard / media / system key targets (evdev) for the custom-action
+    // key picker. The daemon routes non-gamepad KEY_* through its virtual keyboard.
+    private static final java.util.LinkedHashMap<Integer, String> ACTION_KEYS =
+            new java.util.LinkedHashMap<>();
+    static {
+        ACTION_KEYS.put(158, "Back"); ACTION_KEYS.put(172, "Home");
+        ACTION_KEYS.put(139, "Menu"); ACTION_KEYS.put(217, "Search");
+        ACTION_KEYS.put(115, "Volume Up"); ACTION_KEYS.put(114, "Volume Down");
+        ACTION_KEYS.put(113, "Mute"); ACTION_KEYS.put(164, "Play / Pause");
+        ACTION_KEYS.put(163, "Next Track"); ACTION_KEYS.put(165, "Previous Track");
+        ACTION_KEYS.put(116, "Power"); ACTION_KEYS.put(142, "Sleep");
+        ACTION_KEYS.put(212, "Camera"); ACTION_KEYS.put(225, "Brightness Up");
+        ACTION_KEYS.put(224, "Brightness Down");
+        ACTION_KEYS.put(28, "Enter"); ACTION_KEYS.put(1, "Escape");
+        ACTION_KEYS.put(15, "Tab"); ACTION_KEYS.put(57, "Space"); ACTION_KEYS.put(14, "Backspace");
+        ACTION_KEYS.put(103, "Up"); ACTION_KEYS.put(108, "Down");
+        ACTION_KEYS.put(105, "Left"); ACTION_KEYS.put(106, "Right");
     }
 
     // Axis code to name mapping (Linux ABS codes)
@@ -309,6 +330,17 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
         setClickListener(KEY_BLACKLIST_VPAD);
         setClickListener(KEY_BLACKLIST_PASS);
         setClickListener(KEY_COMBO_MAP);
+        // Custom Button Actions: add a preference into the remap category
+        // programmatically (avoids a new string resource) and wire its click.
+        PreferenceCategory remapCat = findPreference("gamepad_remap_category");
+        if (remapCat != null && findPreference(KEY_CUSTOM_ACTIONS) == null) {
+            Preference caPref = new Preference(remapCat.getContext());
+            caPref.setKey(KEY_CUSTOM_ACTIONS);
+            caPref.setTitle("Custom Button Actions");
+            caPref.setSummary("Bind short / long press to a key, app, activity, prop or command");
+            caPref.setOnPreferenceClickListener(this);
+            remapCat.addPreference(caPref);
+        }
         setClickListener(KEY_CALIBRATION);
         setClickListener(KEY_CLEAR_CALIBRATION);
         setClickListener(KEY_FF_DEVICE);
@@ -1068,6 +1100,9 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
             case KEY_COMBO_MAP:
                 showComboMapDialog();
                 return true;
+            case KEY_CUSTOM_ACTIONS:
+                showActionListDialog();
+                return true;
             case KEY_CALIBRATION:
                 showCalibrationDialog();
                 return true;
@@ -1233,6 +1268,280 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
                         Toast.makeText(context, R.string.gamepad_remap_cleared,
                                 Toast.LENGTH_SHORT).show();
                     }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    // ===================== Custom Button Actions =====================
+    // Short/long-press action editor. Rules are stored as act_count + actN_*
+    // (name=value specs: key=<code>, app=<pkg>, act=<pkg/comp>, prop=<n=v>,
+    // sh=<cmd>) and consumed by the gammapad daemon. AlertDialog chain to match
+    // the other Leanback pickers here.
+
+    private static class ActRule { int code; int hold; String s = ""; String l = ""; }
+
+    private List<ActRule> actLoad() {
+        List<ActRule> out = new ArrayList<>();
+        int n = SystemProperties.getInt(PROP_ACT_COUNT, 0);
+        for (int i = 0; i < n && i < 64; i++) {
+            String p = "persist.gammaos.gamepad.act" + i;
+            int code = SystemProperties.getInt(p + "_code", 0);
+            if (code <= 0) continue;
+            ActRule r = new ActRule();
+            r.code = code;
+            r.hold = SystemProperties.getInt(p + "_hold", 0);
+            r.s = SystemProperties.get(p + "_s", "");
+            r.l = SystemProperties.get(p + "_l", "");
+            out.add(r);
+        }
+        return out;
+    }
+
+    private void actStore(List<ActRule> rules) {
+        int n = Math.min(rules.size(), 64);
+        for (int i = 0; i < n; i++) {
+            String p = "persist.gammaos.gamepad.act" + i;
+            ActRule r = rules.get(i);
+            SystemProperties.set(p + "_code", String.valueOf(r.code));
+            SystemProperties.set(p + "_hold", String.valueOf(r.hold));
+            SystemProperties.set(p + "_s", r.s == null ? "" : r.s);
+            SystemProperties.set(p + "_l", r.l == null ? "" : r.l);
+        }
+        SystemProperties.set(PROP_ACT_COUNT, String.valueOf(n));
+        bumpConfigVersion();
+    }
+
+    private ActRule actFind(List<ActRule> rules, int code) {
+        for (ActRule r : rules) if (r.code == code) return r;
+        return null;
+    }
+
+    private void actSetSlot(int code, int slot, String spec) {
+        List<ActRule> rules = actLoad();
+        ActRule r = actFind(rules, code);
+        if (r == null) { r = new ActRule(); r.code = code; r.hold = 500; rules.add(r); }
+        if (slot == 0) r.s = spec; else r.l = spec;
+        boolean se = (r.s == null || r.s.isEmpty());
+        boolean le = (r.l == null || r.l.isEmpty());
+        if (se && le) rules.remove(r);
+        actStore(rules);
+    }
+
+    private void actSetHold(int code, int hold) {
+        List<ActRule> rules = actLoad();
+        ActRule r = actFind(rules, code);
+        if (r == null) { r = new ActRule(); r.code = code; rules.add(r); }
+        r.hold = hold;
+        actStore(rules);
+    }
+
+    private void actRemove(int code) {
+        List<ActRule> rules = actLoad();
+        ActRule r = actFind(rules, code);
+        if (r != null) rules.remove(r);
+        actStore(rules);
+    }
+
+    private String actKeyName(int code) {
+        String n = BTN_NAMES.get(code);
+        if (n != null) return n;
+        n = ACTION_KEYS.get(code);
+        if (n != null) return n;
+        return "0x" + Integer.toHexString(code);
+    }
+
+    private String actSummary(String spec) {
+        if (spec == null || spec.isEmpty()) return "Not set";
+        int eq = spec.indexOf('=');
+        String t = eq < 0 ? spec : spec.substring(0, eq);
+        String a = eq < 0 ? "" : spec.substring(eq + 1);
+        switch (t) {
+            case "key":
+                try { return "Key: " + actKeyName(Integer.parseInt(a.trim())); }
+                catch (Exception e) { return "Key"; }
+            case "app": return "Launch " + a;
+            case "act": return "Open " + a;
+            case "prop": { int e2 = a.indexOf('='); return "Set " + (e2 < 0 ? a : a.substring(0, e2)); }
+            case "sh": return "Run: " + (a.length() > 20 ? a.substring(0, 18) + ".." : a);
+            default: return "Not set";
+        }
+    }
+
+    private void showActionListDialog() {
+        Context context = getContext();
+        if (context == null) return;
+        List<ActRule> rules = actLoad();
+        final List<ActRule> shown = new ArrayList<>();
+        for (ActRule r : rules) {
+            if (!(r.s == null || r.s.isEmpty()) || !(r.l == null || r.l.isEmpty())) shown.add(r);
+        }
+        List<String> labels = new ArrayList<>();
+        for (ActRule r : shown) {
+            String lbl = actKeyName(r.code) + "  -  " + actSummary(r.s);
+            if (!(r.l == null || r.l.isEmpty())) lbl += "  /  hold: " + actSummary(r.l);
+            labels.add(lbl);
+        }
+        labels.add("+ Add mapping...");
+        new AlertDialog.Builder(context)
+                .setTitle("Custom Button Actions")
+                .setItems(labels.toArray(new String[0]), (d, which) -> {
+                    if (which < shown.size()) showActionEditDialog(shown.get(which).code);
+                    else showActionSourcePick();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showActionSourcePick() {
+        Context context = getContext();
+        if (context == null) return;
+        final List<Integer> codes = new ArrayList<>(BTN_NAMES.keySet());
+        Collections.sort(codes);
+        String[] labels = new String[codes.size()];
+        for (int i = 0; i < codes.size(); i++) labels[i] = BTN_NAMES.get(codes.get(i));
+        new AlertDialog.Builder(context)
+                .setTitle("Pick the button to map")
+                .setItems(labels, (d, which) -> showActionEditDialog(codes.get(which)))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showActionEditDialog(int code) {
+        Context context = getContext();
+        if (context == null) return;
+        List<ActRule> rules = actLoad();
+        ActRule r = actFind(rules, code);
+        String s = r != null ? r.s : "";
+        String l = r != null ? r.l : "";
+        final int hold = (r != null && r.hold > 0) ? r.hold : 500;
+        String[] items = {
+            "Short Press:  " + actSummary(s),
+            "Long Press:  " + actSummary(l),
+            "Hold Time:  " + hold + " ms",
+            "Remove Mapping",
+        };
+        new AlertDialog.Builder(context)
+                .setTitle("Map: " + actKeyName(code))
+                .setItems(items, (d, which) -> {
+                    switch (which) {
+                        case 0: showActionTypeDialog(code, 0); break;
+                        case 1: showActionTypeDialog(code, 1); break;
+                        case 2: {
+                            int nh = (hold <= 300) ? 500 : (hold <= 500) ? 750 : (hold <= 750) ? 1000 : 300;
+                            actSetHold(code, nh);
+                            showActionEditDialog(code);
+                            break;
+                        }
+                        case 3: actRemove(code); showActionListDialog(); break;
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showActionTypeDialog(int code, int slot) {
+        Context context = getContext();
+        if (context == null) return;
+        String[] items = {
+            "Button / Key", "Launch App", "Launch Activity",
+            "Set Property", "Run Shell Command", "None (clear)",
+        };
+        new AlertDialog.Builder(context)
+                .setTitle((slot == 0 ? "Short" : "Long") + " Press Action")
+                .setItems(items, (d, which) -> {
+                    switch (which) {
+                        case 0: showActionKeyDialog(code, slot); break;
+                        case 1: showActionAppDialog(code, slot, false); break;
+                        case 2: showActionAppDialog(code, slot, true); break;
+                        case 3: showActionTextDialog(code, slot, true); break;
+                        case 4: showActionTextDialog(code, slot, false); break;
+                        case 5: actSetSlot(code, slot, ""); showActionEditDialog(code); break;
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showActionKeyDialog(int code, int slot) {
+        Context context = getContext();
+        if (context == null) return;
+        final List<Integer> codes = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        List<Integer> btns = new ArrayList<>(BTN_NAMES.keySet());
+        Collections.sort(btns);
+        for (int c : btns) { codes.add(c); labels.add("Button " + BTN_NAMES.get(c)); }
+        for (Map.Entry<Integer, String> e : ACTION_KEYS.entrySet()) { codes.add(e.getKey()); labels.add(e.getValue()); }
+        new AlertDialog.Builder(context)
+                .setTitle("Choose Key / Button")
+                .setItems(labels.toArray(new String[0]), (d, which) -> {
+                    actSetSlot(code, slot, "key=" + codes.get(which));
+                    showActionEditDialog(code);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showActionAppDialog(int code, int slot, boolean perActivity) {
+        Context context = getContext();
+        if (context == null) return;
+        PackageManager pm = context.getPackageManager();
+        Intent probe = new Intent(Intent.ACTION_MAIN);
+        probe.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> ris = pm.queryIntentActivities(probe, PackageManager.MATCH_ALL);
+        final List<String> labels = new ArrayList<>();
+        final List<String> values = new ArrayList<>();
+        java.util.HashSet<String> seen = new java.util.HashSet<>();
+        if (ris != null) {
+            ris.sort((a, b) -> String.valueOf(a.loadLabel(pm))
+                    .compareToIgnoreCase(String.valueOf(b.loadLabel(pm))));
+            for (ResolveInfo ri : ris) {
+                if (ri.activityInfo == null) continue;
+                String pkg = ri.activityInfo.packageName;
+                String cls = ri.activityInfo.name;
+                if (pkg == null || cls == null) continue;
+                String label = String.valueOf(ri.loadLabel(pm));
+                if (perActivity) {
+                    labels.add(label);
+                    values.add(pkg + "/" + cls);
+                } else {
+                    if (!seen.add(pkg)) continue;
+                    labels.add(label);
+                    values.add(pkg);
+                }
+            }
+        }
+        if (labels.isEmpty()) {
+            Toast.makeText(context, "No apps found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        new AlertDialog.Builder(context)
+                .setTitle(perActivity ? "Launch Activity" : "Launch App")
+                .setItems(labels.toArray(new String[0]), (d, which) -> {
+                    actSetSlot(code, slot, (perActivity ? "act=" : "app=") + values.get(which));
+                    showActionEditDialog(code);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showActionTextDialog(int code, int slot, boolean isProp) {
+        Context context = getContext();
+        if (context == null) return;
+        LinearLayout layout = new LinearLayout(context);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int pad = dp(16);
+        layout.setPadding(pad, pad, pad, 0);
+        final EditText input = new EditText(context);
+        input.setHint(isProp ? "name=value" : "shell command");
+        layout.addView(input);
+        new AlertDialog.Builder(context)
+                .setTitle(isProp ? "Set Property" : "Run Shell Command")
+                .setView(layout)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    String v = input.getText().toString().trim();
+                    if (!v.isEmpty()) actSetSlot(code, slot, (isProp ? "prop=" : "sh=") + v);
+                    showActionEditDialog(code);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();

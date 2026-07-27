@@ -4999,6 +4999,7 @@ void NanoMenu::render() {
         // Live controller Test / Calibration screens draw over the menu when open.
         if (mGpTestActive) renderGamepadTest();
         else if (mGpCalibActive) renderGamepadCalib();
+        else if (mGpCaptureActive) renderGamepadCapture();
         renderScrapeProgress();   // boxart-scraper progress / result modal, over the XMB
         // Dual-screen: the home OSK (search / Wi-Fi password / System Name) draws on the BOTTOM touch
         // panel via the secondary pass (oskOnSecondary hoisted above the setup-wizard branch); a

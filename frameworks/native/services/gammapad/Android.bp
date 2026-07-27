@@ -4,6 +4,7 @@ cc_binary {
         "main.cpp",
         "GamepadManager.cpp",
         "VirtualGamepad.cpp",
+        "VirtualKeyboard.cpp",
         "VirtualMouse.cpp",
         "VirtualTouchscreen.cpp",
         "InputTransformer.cpp",

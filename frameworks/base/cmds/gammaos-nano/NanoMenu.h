@@ -338,6 +338,20 @@ private:
     void ensureBrowserList();               // reload on browsers_generation change; seed if absent
     std::string browserLabelForPkg(const std::string& pkg);  // human label for the value column
 
+    // Launchable activities for the gamepad "Launch Activity" remap-action picker.
+    // Written by SystemServer.writeNanoActivityCache (ACTION_MAIN + LAUNCHER) to
+    // /data/system/nano_activities.txt as "pkg|Label|pkg/Activity" lines.
+    struct ActivityEntry {
+        std::string packageName;
+        std::string label;
+        std::string component;   // flattened pkg/Activity for the daemon's -n launch
+    };
+    std::vector<ActivityEntry> mActivityEntries;
+    bool mActivitiesLoaded = false;
+    int  mActivitiesGen = -1;
+    void loadInstalledActivities();   // parse /data/system/nano_activities.txt
+    void ensureActivityList();        // reload on activities_generation change
+
     // XMB mode
     void initXmbSystems();
     // Dynamic systems config (/data/system/nano_systems.json, DE storage).
@@ -2077,6 +2091,38 @@ private:
     std::string mRemapKey;        // remap prop being edited (remap_btn / remap_axis)
     bool mRemapAxis = false;      // axis (vs button) name table for the active remap picker
     int  mRemapSrc = 0;           // source code chosen, awaiting a target pick
+
+    // --- Custom button-action editor (short/long press -> key/app/activity/prop/shell) ---
+    // A polished capture-based flow: press the button to map, then bind its short
+    // and long press to an action. Writes act_count/actN_* (global) or paN_act*
+    // (per-app) which the gammapad daemon consumes.
+    void buildActionMenu(Ps3Level& out);          // rule list for the active scope + Add
+    void buildActionEdit(Ps3Level& out);          // short/long/hold/remove for mActionEditCode
+    void buildActionTypeMenu(Ps3Level& out);      // action-type chooser for the active slot
+    void buildActionKeyList(Ps3Level& out);       // pick a key/button target from the catalog
+    void buildActionAppList(Ps3Level& out);       // pick an app to launch
+    void buildActionActivityList(Ps3Level& out);  // pick an activity to launch
+    void buildActionPerAppMenu(Ps3Level& out);    // pick an app for per-app scope
+    void actionCaptureOpen(int purpose);          // full-screen live "press a button" capture
+    void renderGamepadCapture();                  // draw the capture prompt screen
+    bool gpCaptureHandleKey(int code, int value); // latch the first press during capture
+    void popToActionEdit();                       // pop pickers back to the edit level + rebuild
+    std::string actScopePrefix();                 // prop prefix for the active scope
+    int  actProfileIndexForPkg(const std::string& pkg, bool create);
+    void actReadRule(int code, int& hold, std::string& s, std::string& l);
+    void actSetSlot(int code, int slot, const std::string& spec);  // slot 0=short 1=long
+    void actSetHold(int code, int hold);
+    void actRemove(int code);
+    std::string actionSummary(const std::string& spec);   // human label for a "type=arg"
+    std::string actButtonName(int code);                  // human name for a source/target code
+    std::string actionAppLabel(const std::string& pkg);   // app label from mAppEntries
+    int  mActionScopePa = -1;        // per-app profile index, -1 = global scope
+    std::string mActionScopePkg;     // package for per-app scope ("" = global)
+    int  mActionEditCode = 0;        // source code being edited
+    int  mActionEditSlot = 0;        // 0 = short, 1 = long
+    bool mGpCaptureActive = false;   // full-screen press-to-capture up
+    int  mGpCapturePurpose = 0;      // 0 = source button, 1 = key target
+    long mGpCaptureOpenMs = 0;
     void buildNotificationsSubmenu(Ps3Level& out);   // re-reads the live list, then builds
     void buildNotificationsLevel(Ps3Level& out);     // builds rows from the current mNotifs (no read)
     // One active notification, parsed from `dumpsys notification --noredact` only

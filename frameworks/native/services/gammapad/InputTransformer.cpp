@@ -4,6 +4,7 @@
 
 #include <android-base/logging.h>
 #include <android-base/properties.h>
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <sstream>
@@ -36,6 +37,8 @@ void InputTransformer::loadConfig() {
     mCalibration.clear();
     mAxisButtons.clear();
     mCombos.clear();
+    mButtonActions.clear();
+    mActionPend.clear();
     mPhysicalHeld.clear();
     mDpadUpHeld = mDpadDownHeld = mDpadLeftHeld = mDpadRightHeld = false;
     mVirtualHeld.clear();
@@ -146,6 +149,20 @@ void InputTransformer::loadConfig() {
     std::string comboStr = GetProperty("persist.gammaos.gamepad.combo_map", "");
     parseCombos(comboStr);
 
+    // Parse per-button action rules: act_count + actN_code/hold/s/l.
+    // Each action spec is "type=arg": key=<evdev>, app=<pkg>, act=<pkg/comp>,
+    // prop=<name=value>, sh=<command>, or none.
+    int actCount = GetIntProperty("persist.gammaos.gamepad.act_count", 0);
+    for (int i = 0; i < actCount && i < 64; i++) {
+        std::string prefix = "persist.gammaos.gamepad.act" + std::to_string(i);
+        int code = GetIntProperty(prefix + "_code", 0);
+        if (code <= 0) continue;
+        int hold = GetIntProperty(prefix + "_hold", 0);
+        std::string shortStr = GetProperty(prefix + "_s", "");
+        std::string longStr = GetProperty(prefix + "_l", "");
+        setButtonAction(code, hold, shortStr, longStr);
+    }
+
     // Global quick-access toggles
     mAbxySwap = GetIntProperty("persist.gammaos.gamepad.abxy_swap", 0) != 0;
     mInvertLeft = GetIntProperty("persist.gammaos.gamepad.invert_left", 0) != 0;
@@ -228,6 +245,17 @@ bool InputTransformer::transform(struct input_event& ev,
         auto it = mButtonRemap.find(ev.code);
         if (it != mButtonRemap.end()) {
             ev.code = it->second;
+        }
+
+        // 2a. Per-button action rules (short/long press). A button that carries
+        //     a rule is repurposed: its normal passthrough is suppressed and its
+        //     short/long actions fire instead. processButtonAction returns true
+        //     when it consumed the event (drop); false means forward normally.
+        if (!mButtonActions.empty()) {
+            auto ait = mButtonActions.find(ev.code);
+            if (ait != mButtonActions.end()) {
+                return !processButtonAction(ev, ait->second);
+            }
         }
 
         // 3. Button combo processing (after all remapping, before blacklist)
@@ -721,6 +749,150 @@ void InputTransformer::applyPerAppOverrides(const std::string& btnRemapStr,
     LOG(INFO) << "Per-app overrides applied: "
               << mButtonRemap.size() << " total button remaps, "
               << mCombos.size() << " total combos";
+}
+
+// ---------------------------------------------------------------------------
+// Button-action model (short/long press -> key/app/activity/prop/shell)
+// ---------------------------------------------------------------------------
+
+int64_t InputTransformer::nowMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+ActionType InputTransformer::parseActionSpec(const std::string& spec, std::string& argOut) {
+    argOut.clear();
+    if (spec.empty()) return ACT_NONE;
+    size_t eq = spec.find('=');
+    std::string type = (eq == std::string::npos) ? spec : spec.substr(0, eq);
+    if (eq != std::string::npos) argOut = spec.substr(eq + 1);
+    if (type == "key")  return ACT_KEY;
+    if (type == "app")  return ACT_APP;
+    if (type == "act")  return ACT_ACTIVITY;
+    if (type == "prop") return ACT_PROP;
+    if (type == "sh")   return ACT_SHELL;
+    return ACT_NONE;
+}
+
+void InputTransformer::setButtonAction(int code, int holdMs,
+                                       const std::string& shortStr,
+                                       const std::string& longStr) {
+    if (code <= 0) return;
+    ButtonAction a;
+    a.shortType = parseActionSpec(shortStr, a.shortArg);
+    a.longType = parseActionSpec(longStr, a.longArg);
+    if (a.shortType == ACT_NONE && a.longType == ACT_NONE) {
+        mButtonActions.erase(code);
+        return;
+    }
+    a.holdMs = holdMs;
+    if (a.longType != ACT_NONE && a.holdMs <= 0) a.holdMs = 400;  // sane default
+    mButtonActions[code] = a;
+    LOG(INFO) << "Button action: code=" << code
+              << " short=" << (int)a.shortType << "[" << a.shortArg << "]"
+              << " long=" << (int)a.longType << "[" << a.longArg << "]"
+              << " hold=" << a.holdMs;
+}
+
+void InputTransformer::fireAction(ActionType type, const std::string& arg) {
+    if (type == ACT_NONE) return;
+    if (mActionCb) mActionCb((int)type, arg);
+}
+
+void InputTransformer::emitNormalTap(int code) {
+    struct input_event press = {};
+    press.type = EV_KEY; press.code = code; press.value = 1;
+    struct input_event syn = {};
+    syn.type = EV_SYN; syn.code = SYN_REPORT; syn.value = 0;
+    struct input_event rel = press; rel.value = 0;
+    mExtraEvents.push_back(press);
+    mExtraEvents.push_back(syn);
+    mExtraEvents.push_back(rel);
+    mExtraEvents.push_back(syn);
+}
+
+bool InputTransformer::processButtonAction(struct input_event& ev, const ButtonAction& a) {
+    int code = ev.code;
+    if (a.shortType == ACT_NONE && a.longType == ACT_NONE) return false; // no-op rule
+
+    bool deferred = (a.longType != ACT_NONE);
+
+    if (ev.value == 2) return true;  // suppress autorepeat for action buttons
+
+    if (ev.value == 1) {  // press
+        ActionPendState& st = mActionPend[code];
+        st.pending = true;
+        st.longFired = false;
+        st.pressTimeMs = nowMs();
+        if (!deferred) {
+            // No long action: fire short immediately on press.
+            if (a.shortType != ACT_NONE) fireAction(a.shortType, a.shortArg);
+            st.pending = false;
+        }
+        return true;  // consume press
+    }
+
+    if (ev.value == 0) {  // release
+        auto it = mActionPend.find(code);
+        if (it != mActionPend.end()) {
+            ActionPendState& st = it->second;
+            if (deferred && st.pending && !st.longFired) {
+                // Released before the hold threshold -> this was a tap.
+                if (a.shortType == ACT_NONE) emitNormalTap(code);
+                else fireAction(a.shortType, a.shortArg);
+            }
+            st.pending = false;
+            st.longFired = false;
+        }
+        return true;  // consume release
+    }
+    return true;
+}
+
+void InputTransformer::checkActionTimeouts() {
+    if (mActionPend.empty()) return;
+    int64_t now = nowMs();
+    for (auto& [code, st] : mActionPend) {
+        if (!st.pending || st.longFired) continue;
+        auto ait = mButtonActions.find(code);
+        if (ait == mButtonActions.end()) continue;
+        const ButtonAction& a = ait->second;
+        if (a.longType == ACT_NONE) continue;
+        if (now - st.pressTimeMs >= a.holdMs) {
+            fireAction(a.longType, a.longArg);
+            st.longFired = true;  // keep pending until release so short won't also fire
+        }
+    }
+}
+
+int InputTransformer::nextActionTimeoutMs() {
+    if (mActionPend.empty()) return -1;
+    int64_t now = nowMs();
+    int64_t best = -1;
+    for (auto& [code, st] : mActionPend) {
+        if (!st.pending || st.longFired) continue;
+        auto ait = mButtonActions.find(code);
+        if (ait == mButtonActions.end() || ait->second.longType == ACT_NONE) continue;
+        int64_t remain = ait->second.holdMs - (now - st.pressTimeMs);
+        if (remain < 0) remain = 0;
+        if (best < 0 || remain < best) best = remain;
+    }
+    return best < 0 ? -1 : static_cast<int>(best);
+}
+
+std::set<int> InputTransformer::getActionKeyCodes() const {
+    std::set<int> codes;
+    for (const auto& [code, a] : mButtonActions) {
+        if (a.shortType == ACT_KEY) {
+            int c = std::atoi(a.shortArg.c_str());
+            if (c > 0) codes.insert(c);
+        }
+        if (a.longType == ACT_KEY) {
+            int c = std::atoi(a.longArg.c_str());
+            if (c > 0) codes.insert(c);
+        }
+    }
+    return codes;
 }
 
 } // namespace gammapad

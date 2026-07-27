@@ -759,6 +759,26 @@ enum {
     // device as Charging/MTP/PTP/RNDIS. Mirrors the ATV power-menu USB Options.
     QA_USB_MENU,         // open the USB Settings submenu
     QA_USB_SET,          // apply a USB function (it.payloadStr = "" / "mtp" / "ptp" / "rndis")
+    // Custom button-action editor (short/long press -> key/app/activity/prop/shell).
+    QA_ACTION_MENU,      // open the custom button-action list (global scope)
+    QA_ACTION_PERAPP_MENU,// open the per-app scope picker
+    QA_ACTION_PERAPP_PICK,// (it.value = pkg) enter that app's action scope
+    QA_ACTION_ADD,       // capture a source button, then open its edit screen
+    QA_ACTION_EDIT,      // edit an existing rule (it.b = source code)
+    QA_ACTION_SLOT_SHORT,// choose the action for the short-press slot
+    QA_ACTION_SLOT_LONG, // choose the action for the long-press slot
+    QA_ACTION_HOLD,      // cycle the long-press hold time
+    QA_ACTION_REMOVE,    // delete the current rule
+    QA_ACTION_TYPE_KEYLIST,// pick a key/button target from the catalog
+    QA_ACTION_TYPE_KEYCAP, // press a button to use as the target
+    QA_ACTION_TYPE_APP,  // pick an app to launch
+    QA_ACTION_TYPE_ACT,  // pick an activity to launch
+    QA_ACTION_TYPE_PROP, // type a name=value property to set
+    QA_ACTION_TYPE_SH,   // type a shell command to run
+    QA_ACTION_TYPE_NONE, // clear the active slot
+    QA_ACTION_SETKEY,    // (it.b = evdev code) set the active slot to key=<code>
+    QA_ACTION_SETAPP,    // (it.value = pkg) set the active slot to app=<pkg>
+    QA_ACTION_SETACT,    // (it.value = pkg/comp) set the active slot to act=<comp>
 };
 
 // True for the QA_ action codes whose row drills into a deeper submenu list, so
@@ -774,6 +794,9 @@ static bool ps3QaOpensSubmenu(int qa) {
         case QA_DEV_CAPTURE_MENU: case QA_FF_DEVICE_MENU:
         case QA_SLIDE_DEV_MENU:   case QA_SLIDE_EVENT_MENU:
         case QA_REMAP_BTN_MENU: case QA_REMAP_AXIS_MENU: case QA_REMAP_SRC:
+        case QA_ACTION_MENU:    case QA_ACTION_PERAPP_MENU: case QA_ACTION_PERAPP_PICK:
+        case QA_ACTION_EDIT:    case QA_ACTION_SLOT_SHORT:  case QA_ACTION_SLOT_LONG:
+        case QA_ACTION_TYPE_KEYLIST: case QA_ACTION_TYPE_APP: case QA_ACTION_TYPE_ACT:
         case QA_COMBO_MENU:     case QA_AXISBTN_MENU:    case QA_BLACKLIST_MENU:
         case QA_APP_ORIENT_MENU: case QA_APP_STORAGE:    case QA_APP_PERMS:
         case QA_SHADER_MENU:    case QA_SHADER_PARAMS:   case QA_SHADER_BROWSE:
@@ -1313,6 +1336,8 @@ void NanoMenu::buildGpRumble(Ps3Level& out) {
 }
 void NanoMenu::buildGpMapping(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Button Mapping"; out.screenKind = 0;
+    gpAct(out, "Custom Button Actions", QA_ACTION_MENU, 74, nullptr);
+    gpAct(out, "Per-App Actions", QA_ACTION_PERAPP_MENU, 74, nullptr);
     gpAct(out, "Button Remap", QA_REMAP_BTN_MENU, 74, nullptr);
     gpAct(out, "Axis Remap", QA_REMAP_AXIS_MENU, 74, nullptr);
     gpAct(out, "Button Combo Map", QA_COMBO_MENU, 74, nullptr);
@@ -2438,6 +2463,345 @@ void NanoMenu::buildAxisBtnSubmenu(Ps3Level& out) {
     { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_AXISBTN_ADD; it.label = "Add Mapping...";
       it.iconTex = iconTexForIcon(16); it.nmapTex = nmapForIcon(16); it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
     out.sel = (int)out.items.size() - 1;
+}
+
+// --- Custom button-action editor -------------------------------------------
+// A capture-based flow (press the button, then bind its short/long press to an
+// action). Rules are stored as act_count + actN_code/hold/s/l (global scope) or
+// paN_act_count + paN_actM_* (per-app scope); the gammapad daemon consumes them.
+namespace {
+struct NanoActRule { int code = 0; int hold = 0; std::string s; std::string l; };
+
+std::vector<NanoActRule> actLoadRules(const std::string& prefix) {
+    std::vector<NanoActRule> out;
+    char key[96], val[PROPERTY_VALUE_MAX];
+    snprintf(key, sizeof(key), "%sact_count", prefix.c_str());
+    property_get(key, val, "0");
+    int n = atoi(val);
+    for (int i = 0; i < n && i < 64; i++) {
+        NanoActRule r;
+        snprintf(key, sizeof(key), "%sact%d_code", prefix.c_str(), i);
+        property_get(key, val, "0"); r.code = atoi(val);
+        if (r.code <= 0) continue;
+        snprintf(key, sizeof(key), "%sact%d_hold", prefix.c_str(), i);
+        property_get(key, val, "0"); r.hold = atoi(val);
+        snprintf(key, sizeof(key), "%sact%d_s", prefix.c_str(), i);
+        property_get(key, val, ""); r.s = val;
+        snprintf(key, sizeof(key), "%sact%d_l", prefix.c_str(), i);
+        property_get(key, val, ""); r.l = val;
+        out.push_back(r);
+    }
+    return out;
+}
+
+void actStoreRules(const std::string& prefix, const std::vector<NanoActRule>& rules) {
+    char key[96];
+    int n = (int)rules.size(); if (n > 64) n = 64;
+    for (int i = 0; i < n; i++) {
+        snprintf(key, sizeof(key), "%sact%d_code", prefix.c_str(), i);
+        property_set(key, std::to_string(rules[i].code).c_str());
+        snprintf(key, sizeof(key), "%sact%d_hold", prefix.c_str(), i);
+        property_set(key, std::to_string(rules[i].hold).c_str());
+        snprintf(key, sizeof(key), "%sact%d_s", prefix.c_str(), i);
+        property_set(key, rules[i].s.c_str());
+        snprintf(key, sizeof(key), "%sact%d_l", prefix.c_str(), i);
+        property_set(key, rules[i].l.c_str());
+    }
+    snprintf(key, sizeof(key), "%sact_count", prefix.c_str());
+    property_set(key, std::to_string(n).c_str());
+    // Bump config_version once so the daemon live-reloads (lightweight path).
+    char cv[PROPERTY_VALUE_MAX];
+    property_get("persist.gammaos.gamepad.config_version", cv, "0");
+    char nv[16]; snprintf(nv, sizeof(nv), "%d", atoi(cv) + 1);
+    property_set("persist.gammaos.gamepad.config_version", nv);
+}
+
+// Common keyboard / media / system key targets (evdev). Offered alongside the
+// gamepad buttons; the daemon routes these through the companion keyboard.
+struct GpKey { int code; const char* name; };
+const GpKey kActionKeys[] = {
+    {158,"Back"}, {172,"Home"}, {139,"Menu"}, {217,"Search"},
+    {115,"Volume Up"}, {114,"Volume Down"}, {113,"Mute"},
+    {164,"Play / Pause"}, {163,"Next Track"}, {165,"Previous Track"},
+    {116,"Power"}, {142,"Sleep"}, {212,"Camera"}, {224,"Brightness Down"}, {225,"Brightness Up"},
+    {28,"Enter"}, {1,"Escape"}, {15,"Tab"}, {57,"Space"}, {14,"Backspace"},
+    {103,"Up"}, {108,"Down"}, {105,"Left"}, {106,"Right"},
+};
+} // namespace
+
+std::string NanoMenu::actScopePrefix() {
+    if (mActionScopePkg.empty() || mActionScopePa < 0)
+        return "persist.gammaos.gamepad.";
+    return "persist.gammaos.gamepad.pa" + std::to_string(mActionScopePa) + "_";
+}
+
+int NanoMenu::actProfileIndexForPkg(const std::string& pkg, bool create) {
+    if (pkg.empty()) return -1;
+    char key[96], val[PROPERTY_VALUE_MAX];
+    property_get("persist.gammaos.gamepad.pa_count", val, "0");
+    int count = atoi(val);
+    for (int i = 0; i < count && i < 20; i++) {
+        snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_pkg", i);
+        property_get(key, val, "");
+        if (pkg == val) return i;
+    }
+    if (!create || count >= 20) return -1;
+    snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_pkg", count);
+    property_set(key, pkg.c_str());
+    property_set("persist.gammaos.gamepad.pa_count", std::to_string(count + 1).c_str());
+    property_get("persist.gammaos.gamepad.config_version", val, "0");
+    property_set("persist.gammaos.gamepad.config_version", std::to_string(atoi(val) + 1).c_str());
+    return count;
+}
+
+void NanoMenu::actReadRule(int code, int& hold, std::string& s, std::string& l) {
+    hold = 0; s.clear(); l.clear();
+    std::vector<NanoActRule> rules = actLoadRules(actScopePrefix());
+    for (auto& x : rules) if (x.code == code) { hold = x.hold; s = x.s; l = x.l; return; }
+}
+
+void NanoMenu::actSetSlot(int code, int slot, const std::string& spec) {
+    std::string prefix = actScopePrefix();
+    std::vector<NanoActRule> rules = actLoadRules(prefix);
+    NanoActRule* r = nullptr;
+    for (auto& x : rules) if (x.code == code) { r = &x; break; }
+    if (!r) { NanoActRule nr; nr.code = code; nr.hold = 500; rules.push_back(nr); r = &rules.back(); }
+    if (slot == 0) r->s = spec; else r->l = spec;
+    if (r->s.empty() && r->l.empty()) {
+        for (size_t i = 0; i < rules.size(); i++)
+            if (rules[i].code == code) { rules.erase(rules.begin() + i); break; }
+    }
+    actStoreRules(prefix, rules);
+}
+
+void NanoMenu::actSetHold(int code, int hold) {
+    std::string prefix = actScopePrefix();
+    std::vector<NanoActRule> rules = actLoadRules(prefix);
+    for (auto& x : rules) if (x.code == code) { x.hold = hold; actStoreRules(prefix, rules); return; }
+    NanoActRule nr; nr.code = code; nr.hold = hold; rules.push_back(nr);
+    actStoreRules(prefix, rules);
+}
+
+void NanoMenu::actRemove(int code) {
+    std::string prefix = actScopePrefix();
+    std::vector<NanoActRule> rules = actLoadRules(prefix);
+    for (size_t i = 0; i < rules.size(); i++)
+        if (rules[i].code == code) { rules.erase(rules.begin() + i); break; }
+    actStoreRules(prefix, rules);
+}
+
+std::string NanoMenu::actButtonName(int code) {
+    const char* n = gpCodeName(code, false);
+    if (n) return n;
+    for (const auto& k : kActionKeys) if (k.code == code) return k.name;
+    return "Code " + std::to_string(code);
+}
+
+std::string NanoMenu::actionAppLabel(const std::string& pkg) {
+    for (const auto& a : mAppEntries) if (a.packageName == pkg) return a.label.empty() ? pkg : a.label;
+    return pkg;
+}
+
+std::string NanoMenu::actionSummary(const std::string& spec) {
+    if (spec.empty()) return "Not set";
+    size_t eq = spec.find('=');
+    std::string type = (eq == std::string::npos) ? spec : spec.substr(0, eq);
+    std::string arg = (eq == std::string::npos) ? "" : spec.substr(eq + 1);
+    if (type == "key")  return "Key: " + actButtonName(atoi(arg.c_str()));
+    if (type == "app")  return "Launch " + actionAppLabel(arg);
+    if (type == "act") {
+        for (const auto& a : mActivityEntries) if (a.component == arg) return "Open " + a.label;
+        return "Open " + arg;
+    }
+    if (type == "prop") {
+        size_t e2 = arg.find('=');
+        return "Set " + (e2 == std::string::npos ? arg : arg.substr(0, e2));
+    }
+    if (type == "sh") {
+        std::string c = arg; if (c.size() > 22) c = c.substr(0, 20) + "..";
+        return "Run: " + c;
+    }
+    return "Not set";
+}
+
+void NanoMenu::buildActionMenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    out.title = mActionScopePkg.empty() ? "Custom Button Actions"
+                                        : ("Actions: " + actionAppLabel(mActionScopePkg));
+    auto info = [&](const std::string& s){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
+        it.label = s; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
+    std::vector<NanoActRule> rules = actLoadRules(actScopePrefix());
+    std::vector<NanoActRule> shown;
+    for (auto& r : rules) if (!r.s.empty() || !r.l.empty()) shown.push_back(r);
+    info(shown.empty() ? "No custom actions yet. Add one below:" : "Select a mapping to edit:");
+    for (auto& r : shown) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_EDIT; it.b = r.code;
+        std::string lbl = actButtonName(r.code) + "   -   " + actionSummary(r.s);
+        if (!r.l.empty()) lbl += "   /   hold: " + actionSummary(r.l);
+        it.label = lbl; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+    }
+    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_ADD; it.label = "Add Mapping...";
+      it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+      it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+    out.sel = (int)out.items.size() - 1;
+}
+
+void NanoMenu::buildActionEdit(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    out.title = "Map: " + actButtonName(mActionEditCode);
+    int hold; std::string s, l; actReadRule(mActionEditCode, hold, s, l);
+    if (hold <= 0) hold = 500;
+    auto row = [&](const std::string& label, int qa){ Ps3Item it; it.kind = PS3_QUICK; it.a = qa;
+        it.label = label; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); };
+    row("Short Press:   " + actionSummary(s), QA_ACTION_SLOT_SHORT);
+    row("Long Press:   " + actionSummary(l), QA_ACTION_SLOT_LONG);
+    row("Hold Time:   " + std::to_string(hold) + " ms", QA_ACTION_HOLD);
+    row("Remove Mapping", QA_ACTION_REMOVE);
+}
+
+void NanoMenu::buildActionTypeMenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    out.title = std::string(mActionEditSlot == 0 ? "Short" : "Long") + " Press Action";
+    auto row = [&](const std::string& label, int qa){ Ps3Item it; it.kind = PS3_QUICK; it.a = qa;
+        it.label = label; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); };
+    row("Button / Key (pick from list)", QA_ACTION_TYPE_KEYLIST);
+    row("Button / Key (press to set)", QA_ACTION_TYPE_KEYCAP);
+    row("Launch App", QA_ACTION_TYPE_APP);
+    row("Launch Activity", QA_ACTION_TYPE_ACT);
+    row("Set Property", QA_ACTION_TYPE_PROP);
+    row("Run Shell Command", QA_ACTION_TYPE_SH);
+    row("None (clear)", QA_ACTION_TYPE_NONE);
+}
+
+void NanoMenu::buildActionKeyList(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Choose Key / Button";
+    auto sect = [&](const std::string& s){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
+        it.label = s; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
+    auto row = [&](const char* label, int code){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_SETKEY;
+        it.b = code; it.label = label; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); };
+    sect("Gamepad Buttons");
+    { int n; const GpCode* t = gpTable(false, n); for (int i = 0; i < n; i++) row(t[i].name, t[i].code); }
+    sect("Keys & Media");
+    for (const auto& k : kActionKeys) row(k.name, k.code);
+    out.sel = 1;
+}
+
+void NanoMenu::buildActionAppList(Ps3Level& out) {
+    if (mAppEntries.empty()) loadInstalledApps();
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Launch App";
+    for (const auto& a : mAppEntries) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_SETAPP; it.value = a.packageName;
+        it.label = a.label.empty() ? a.packageName : a.label;
+        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+    }
+    if (out.items.empty()) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP; it.label = "No apps installed";
+        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); }
+}
+
+void NanoMenu::buildActionActivityList(Ps3Level& out) {
+    ensureActivityList();
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Launch Activity";
+    for (const auto& a : mActivityEntries) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_SETACT; it.value = a.component;
+        it.label = a.label;
+        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+    }
+    if (out.items.empty()) { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP; it.label = "No activities found";
+        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); }
+}
+
+void NanoMenu::buildActionPerAppMenu(Ps3Level& out) {
+    if (mAppEntries.empty()) loadInstalledApps();
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Per-App Actions";
+    auto info = [&](const std::string& s){ Ps3Item it; it.kind = PS3_QUICK; it.a = QA_NOOP;
+        it.label = s; it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 0.6f; out.items.push_back(it); };
+    info("Pick an app for per-app button actions:");
+    for (const auto& a : mAppEntries) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_ACTION_PERAPP_PICK; it.value = a.packageName;
+        it.label = a.label.empty() ? a.packageName : a.label;
+        it.iconTex = iconTexForIcon(74); it.nmapTex = nmapForIcon(74);
+        it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+    }
+    if ((int)out.items.size() <= 1) info("No user apps installed.");
+}
+
+// Full-screen "press a button" capture. Reuses the Test-screen raw-evdev
+// interception (pollInput routes here while mGpCaptureActive) and the dialog
+// chrome, latching the first press edge after a short opening-press debounce.
+void NanoMenu::actionCaptureOpen(int purpose) {
+    mGpBtn.clear(); mGpAxis.clear(); mGpAxisRange.clear();
+    mGpCapturePurpose = purpose;
+    mGpCaptureOpenMs = (long)android::uptimeMillis();
+    mPs3DlgBlurValid = false;   // fresh frosted-wave capture on open
+    mGpCaptureActive = true;
+    mDisplayDirty = true;
+}
+
+bool NanoMenu::gpCaptureHandleKey(int code, int value) {
+    if (!mGpCaptureActive) return false;
+    long now = (long)android::uptimeMillis();
+    if (now - mGpCaptureOpenMs < 350) return true;   // ignore the press that opened us
+    if (value != 1) return true;                      // latch on the press edge only
+    if (code == BTN_SELECT) { mGpCaptureActive = false; mDisplayDirty = true; return true; }  // cancel
+    int captured = code;
+    int purpose = mGpCapturePurpose;
+    mGpCaptureActive = false;
+    if (purpose == 0) {
+        mActionEditCode = captured;
+        Ps3Level lvl; buildActionEdit(lvl); mPs3Stack.push_back(lvl);
+    } else {
+        actSetSlot(mActionEditCode, mActionEditSlot, "key=" + std::to_string(captured));
+        popToActionEdit();
+    }
+    mDisplayDirty = true;
+    return true;
+}
+
+void NanoMenu::popToActionEdit() {
+    while (mPs3Stack.size() > 1 && mPs3Stack.back().title.rfind("Map: ", 0) != 0)
+        mPs3Stack.pop_back();
+    if (!mPs3Stack.empty() && mPs3Stack.back().title.rfind("Map: ", 0) == 0) {
+        int s = mPs3Stack.back().sel;
+        buildActionEdit(mPs3Stack.back());
+        if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s;
+    }
+}
+
+void NanoMenu::renderGamepadCapture() {
+    setUiBlend();
+    setGlyphAtlasAA(true);
+    float ap = 1.0f;
+    { long el = (long)android::uptimeMillis() - mGpCaptureOpenMs;
+      if (el < 200) { float t = (float)el / 200.0f; ap = t * t * (3.0f - 2.0f * t); } }
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    gpDialogBackdrop(ap);
+    const char* title = (mGpCapturePurpose == 0) ? "Add Button Mapping" : "Choose Target Button";
+    gpDialogHeader(title, 5, ap);
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const char* prompt = (mGpCapturePurpose == 0)
+        ? "Press the button you want to map"
+        : "Press the button to use as the target";
+    ps3DlgText(prompt, XC(ps3::VW * 0.5f), Y(500.0f), FS(30.0f), 1.0f, 1.0f, 1.0f, ap, 1);
+    ps3DlgText("Hold SELECT to cancel", XC(ps3::VW * 0.5f), Y(566.0f), FS(22.0f),
+               0.78f, 0.85f, 0.95f, 0.9f * ap, 1);
 }
 
 // --- Notifications submenu ---------------------------------------------------
@@ -3821,6 +4185,81 @@ void NanoMenu::ps3XmbSelect() {
                                           Ps3Level lvl; buildRemapSrcSubmenu(lvl, true);  mPs3Stack.push_back(lvl); break; }
                 case QA_REMAP_SRC:      { mRemapSrc = it.b;
                                           Ps3Level lvl; buildRemapTargetSubmenu(lvl);     mPs3Stack.push_back(lvl); break; }
+                // --- Custom button-action editor ---
+                case QA_ACTION_MENU: {
+                    mActionScopePkg.clear(); mActionScopePa = -1;
+                    Ps3Level lvl; buildActionMenu(lvl); mPs3Stack.push_back(lvl); break;
+                }
+                case QA_ACTION_PERAPP_MENU: {
+                    Ps3Level lvl; buildActionPerAppMenu(lvl); mPs3Stack.push_back(lvl); break;
+                }
+                case QA_ACTION_PERAPP_PICK: {
+                    mActionScopePkg = it.value;
+                    mActionScopePa = actProfileIndexForPkg(it.value, true);
+                    Ps3Level lvl; buildActionMenu(lvl); mPs3Stack.push_back(lvl); break;
+                }
+                case QA_ACTION_ADD: actionCaptureOpen(0); break;
+                case QA_ACTION_EDIT: {
+                    mActionEditCode = it.b;
+                    Ps3Level lvl; buildActionEdit(lvl); mPs3Stack.push_back(lvl); break;
+                }
+                case QA_ACTION_SLOT_SHORT: {
+                    mActionEditSlot = 0;
+                    Ps3Level lvl; buildActionTypeMenu(lvl); mPs3Stack.push_back(lvl); break;
+                }
+                case QA_ACTION_SLOT_LONG: {
+                    mActionEditSlot = 1;
+                    Ps3Level lvl; buildActionTypeMenu(lvl); mPs3Stack.push_back(lvl); break;
+                }
+                case QA_ACTION_HOLD: {
+                    int hold; std::string s, l; actReadRule(mActionEditCode, hold, s, l);
+                    int nh = (hold <= 300) ? 500 : (hold <= 500) ? 750 : (hold <= 750) ? 1000 : 300;
+                    actSetHold(mActionEditCode, nh);
+                    if (!mPs3Stack.empty()) { int sel = mPs3Stack.back().sel; buildActionEdit(mPs3Stack.back());
+                        if (sel >= 0 && sel < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = sel; }
+                    mDisplayDirty = true; return;
+                }
+                case QA_ACTION_REMOVE: {
+                    actRemove(mActionEditCode);
+                    if (!mPs3Stack.empty() && mPs3Stack.back().title.rfind("Map: ", 0) == 0) mPs3Stack.pop_back();
+                    if (!mPs3Stack.empty()) { int sel = mPs3Stack.back().sel; buildActionMenu(mPs3Stack.back());
+                        if (sel >= 0 && sel < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = sel; }
+                    mDisplayDirty = true; return;
+                }
+                case QA_ACTION_TYPE_KEYLIST: { Ps3Level lvl; buildActionKeyList(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_ACTION_TYPE_KEYCAP: actionCaptureOpen(1); break;
+                case QA_ACTION_TYPE_APP: { Ps3Level lvl; buildActionAppList(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_ACTION_TYPE_ACT: { Ps3Level lvl; buildActionActivityList(lvl); mPs3Stack.push_back(lvl); break; }
+                case QA_ACTION_TYPE_PROP: {
+                    openOskForPassword("Property to set (name=value)",
+                        [this](const std::string& v) {
+                            if (!v.empty()) actSetSlot(mActionEditCode, mActionEditSlot, "prop=" + v);
+                            popToActionEdit(); mDisplayDirty = true;
+                        });
+                    mOskPasswordMode = false; mOskPlaintext = true;
+                    return;
+                }
+                case QA_ACTION_TYPE_SH: {
+                    openOskForPassword("Shell command to run",
+                        [this](const std::string& v) {
+                            if (!v.empty()) actSetSlot(mActionEditCode, mActionEditSlot, "sh=" + v);
+                            popToActionEdit(); mDisplayDirty = true;
+                        });
+                    mOskPasswordMode = false; mOskPlaintext = true;
+                    return;
+                }
+                case QA_ACTION_TYPE_NONE:
+                    actSetSlot(mActionEditCode, mActionEditSlot, "");
+                    popToActionEdit(); mDisplayDirty = true; return;
+                case QA_ACTION_SETKEY:
+                    actSetSlot(mActionEditCode, mActionEditSlot, "key=" + std::to_string(it.b));
+                    popToActionEdit(); mDisplayDirty = true; return;
+                case QA_ACTION_SETAPP:
+                    actSetSlot(mActionEditCode, mActionEditSlot, "app=" + it.value);
+                    popToActionEdit(); mDisplayDirty = true; return;
+                case QA_ACTION_SETACT:
+                    actSetSlot(mActionEditCode, mActionEditSlot, "act=" + it.value);
+                    popToActionEdit(); mDisplayDirty = true; return;
                 case QA_NOOP: return;   // non-selectable info row
                 case QA_DEV_CAPTURE_MENU: { Ps3Level lvl; buildDevicesSubmenu(lvl);  mPs3Stack.push_back(lvl); break; }
                 case QA_FF_DEVICE_MENU:   { Ps3Level lvl; buildFfDeviceSubmenu(lvl); mPs3Stack.push_back(lvl); break; }

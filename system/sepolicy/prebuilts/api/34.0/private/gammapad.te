@@ -27,3 +27,14 @@ allow gammapad system_data_file:file { create write open read unlink getattr };
 
 # Basic system file access
 allow gammapad system_file:file { read open getattr execute execute_no_trans map };
+
+# --- Button-action executor (short/long press -> key/app/activity/prop/shell) ---
+allow gammapad shell_exec:file { read open getattr execute execute_no_trans map };
+allow gammapad toolbox_exec:file { read open getattr execute execute_no_trans map };
+set_prop(gammapad, system_prop)
+binder_use(gammapad)
+binder_call(gammapad, system_server)
+allow gammapad activity_service:service_manager find;
+allow gammapad package_service:service_manager find;
+allow gammapad settings_service:service_manager find;
+allow system_server gammapad:binder call;

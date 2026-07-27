@@ -27,3 +27,26 @@ allow gammapad system_data_file:file { create write open read unlink getattr };
 
 # Basic system file access
 allow gammapad system_file:file { read open getattr execute execute_no_trans map };
+
+# --- Button-action executor (short/long press -> key/app/activity/prop/shell) ---
+# Per the configured model, gammapad runs am/monkey/setprop and arbitrary shell
+# commands in-process.  gammapad is the global input trust boundary, so the
+# action-config parser is strictly bounds/length-checked to limit the added
+# attack surface.  These mirror the gammaoscustomization grants.
+
+# Run /system/bin/sh and toolbox applets (am, monkey, setprop) in-process.
+allow gammapad shell_exec:file { read open getattr execute execute_no_trans map };
+allow gammapad toolbox_exec:file { read open getattr execute execute_no_trans map };
+
+# "Set prop" action for arbitrary system properties (persist_gammaos_prop
+# already granted above).
+set_prop(gammapad, system_prop)
+
+# "Launch app / activity" actions: am/monkey talk to ActivityManager and
+# PackageManager over binder.
+binder_use(gammapad)
+binder_call(gammapad, system_server)
+allow gammapad activity_service:service_manager find;
+allow gammapad package_service:service_manager find;
+allow gammapad settings_service:service_manager find;
+allow system_server gammapad:binder call;

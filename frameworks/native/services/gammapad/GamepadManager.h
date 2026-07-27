@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VirtualGamepad.h"
+#include "VirtualKeyboard.h"
 #include "InputTransformer.h"
 #include "ForceFeedback.h"
 #include "KeyLayoutParser.h"
@@ -74,6 +75,22 @@ private:
     void checkForegroundApp();
     void drainMouseFlushEvents();
 
+    // Load per-app profiles (btn/combo remaps + action rules) from properties.
+    void loadPerAppProfiles();
+    // Apply the per-app profile (if any) for the given package on top of the
+    // current global config.
+    void applyPerAppProfile(const std::string& pkg);
+
+    // Execute a fired button action (called back from InputTransformer).
+    void executeAction(int type, const std::string& arg);
+    // Run a shell command fully detached (double-fork), never blocking the loop.
+    static void runShellDetached(const std::string& cmd);
+    // True if code is a gamepad button (routes ACT_KEY through the gamepad vs the
+    // companion keyboard device).
+    static bool isGamepadButton(int code);
+    // Recreate the virtual keyboard if the required key set changed.
+    void refreshVirtualKeyboard();
+
     bool shouldGrabDevice(const std::string& name);
 
     // Compute the set of button and axis codes required by the
@@ -110,17 +127,27 @@ private:
     std::set<int> mBlacklistVpad;
     bool mHideSourceNodes;
 
-    // Per-app profile: package -> {btnRemap, comboMap}
+    // Per-app profile: package -> {btnRemap, comboMap, action rules}
+    struct ActionRule {
+        int code = 0;
+        int hold = 0;
+        std::string shortSpec;
+        std::string longSpec;
+    };
     struct PerAppProfile {
         std::string btnRemap;
         std::string comboMap;
+        std::vector<ActionRule> actions;
     };
     std::unordered_map<std::string, PerAppProfile> mPerAppProfiles;
     std::string mCurrentFgPkg;  // currently active foreground package
     // All combo emit codes across all per-app profiles (for virtual device caps)
     std::set<int> mPerAppComboCodes;
+    // All ACT_KEY gamepad-button targets across all per-app profiles
+    std::set<int> mPerAppActionKeyCodes;
 
     std::unique_ptr<VirtualGamepad> mVirtualGamepad;
+    std::unique_ptr<VirtualKeyboard> mVirtualKeyboard;
     std::unique_ptr<InputTransformer> mTransformer;
     std::unique_ptr<ForceFeedback> mForceFeedback;
     std::unique_ptr<MouseMode> mMouseMode;
