@@ -1299,6 +1299,7 @@ private:
     void renderMinimaSecondary(float rx, float ry, float rw, float rh); // RG DS bottom panel: category + boxart
     void renderMinimaSidePanel(float rx, float ry, float rw, float rh); // option menu / list+slider choosers, Minima style
     void renderMinimaDialog(float rx, float ry, float rw, float rh);    // confirm / message dialog, Minima style
+    void renderMinimaBootOverlay(bool primary);                        // Minima cold-boot intro + GammaOS disclaimer (NanoMenuPS3Boot.cpp)
     void minimaAccent(float& r, float& g, float& b) const;          // accent RGB from the shared Colour setting
     void minimaSfx(int which);                                      // trigger a Minima SFX (MIN_SFX_* id, NanoMenuPS3Boot.cpp)
     void minimaSfxTick();                                           // per-frame: fire nav/drill/back/launch by state diff

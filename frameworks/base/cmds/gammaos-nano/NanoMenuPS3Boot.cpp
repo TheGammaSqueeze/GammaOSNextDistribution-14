@@ -183,7 +183,7 @@ void NanoMenu::ps3BootSkip() {
     // DSi 1:1 boot: a touch/button only acts during the WAIT phase, where it triggers
     // proceed() (touch sound -> enter transition). Ignored during the black/white/logo
     // build-up, exactly like boot.js proceed()'s `phase !== 'wait'` guard.
-    if (mNdsTheme) { if (mDsiBootPhase == DSI_WAIT) mDsiWantProceed = true; return; }
+    if (mNdsTheme || mMinimaTheme) { if (mDsiBootPhase == DSI_WAIT) mDsiWantProceed = true; return; }
     // PS3 boot: jump to the end of the sequence; the next update() snaps everything steady.
     mPs3BootElapsedMs = BOOT_SEQ_END_MS;
 }
@@ -538,10 +538,13 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
 
     // ---- DSi 1:1 boot state machine (mNdsTheme). Own 60fps frame clock, wait-for-touch;
     // the PS3 millisecond timeline below is skipped entirely for the DSi theme. ----
-    if (mNdsTheme) {
+    if (mNdsTheme || mMinimaTheme) {
         mDsiBootFrame += (double)dtSeconds * 60.0;   // frames @60fps == web boot.js this.frame
         double f = mDsiBootFrame;
-        ps3bg::setBootWaveBrightness(0.0f);          // the opaque white field covers the wave
+        // Minima reuses this exact frame-clock + phase machine (so the hand-off to its menu is
+        // identical), but its own black-field intro (renderMinimaBootOverlay) + jingle.
+        const char* bootChimeWav = mMinimaTheme ? "minima_boot.wav" : "boot_chime.wav";
+        ps3bg::setBootWaveBrightness(0.0f);          // the opaque field covers the wave
         mDisplayDirty = true;                        // keep the loop live through the WAIT hold (pulse + input)
         if (mDsiBootPhase == DSI_BOOT) {
             // Chime: the stream was pre-opened at boot start (dsiPrewarmChime). At the mark,
@@ -557,7 +560,7 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
                     // (dsiEarlyAudioGain, silent when muted), and never blocks the render thread. Any
                     // device with a card 0 playback node; falls back to AAudio below if the open fails.
                     if (!mDirectChimeInFlight.exchange(true))   // guard a bootreplay re-fire mid-play
-                        nanoDirectChimePlay(dsiAudioPath("boot_chime.wav"), 0, 0, dsiEarlyAudioGain(0.8f),
+                        nanoDirectChimePlay(dsiAudioPath(bootChimeWav), 0, 0, dsiEarlyAudioGain(0.8f),
                                             &mDirectChimeInFlight);
                     mChimeStarted = true;
                 } else if (!nanoDirectAudioUsable() && !dsiBootCompleted()) {
@@ -567,7 +570,7 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
                     // not the ~20s audioserver floor), falling back to the AAudio-late path inside the
                     // thread if the HAL is unreachable. Never blocks the render loop.
                     if (!mSfxOpening.exchange(true)) {
-                        std::string path = dsiAudioPath("boot_chime.wav");
+                        std::string path = dsiAudioPath(bootChimeWav);
                         float gain = dsiEarlyAudioGain(0.8f);
                         std::thread([this, path, gain]() {
                             if (!nanoHalChimePlay(path, gain)) {
@@ -836,6 +839,65 @@ void NanoMenu::renderPs3BootOverlay(bool primary) {
 // face). Reuses the shared boot clock (mPs3BootElapsedMs) + timeline so the
 // hand-off to the carousel intro cascade is identical to the PS3 path. primary =
 // the top panel (logo + notice); the bottom panel gets the white field only.
+// Minima cold-boot intro: a pure-black field throughout (never the DSi white or the PS3 wave), a
+// GammaOS wordmark in the theme accent that rises in, the photosensitivity IMPORTANT NOTICE, a
+// pulsing press-to-continue prompt during the WAIT hold, then a black cover that fades up as it hands
+// over. Driven by the SAME frame clock + phase machine as the DSi boot (ps3BootUpdate's shared
+// branch), so the hand-off into the Minima menu is identical and no XMB is ever shown.
+void NanoMenu::renderMinimaBootOverlay(bool primary) {
+    setUiBlend();
+    const int prevOutline = mTextOutlineMode; mTextOutlineMode = 2;
+    const double f = mDsiBootFrame;
+    const float rw = (float)mWidth, rh = (float)mHeight;
+    const float sc = rh / 336.0f;                       // Minima MIN_REF_H scale
+    const float cx = rw * 0.5f;
+    float ar, ag, ab; minimaAccent(ar, ag, ab);
+
+    drawQuad(0.0f, 0.0f, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);   // black canvas (opaque, hides the wave)
+
+    float a = (float)((f - DSI_WHITE_END) / DSI_HS_FADE);   // reuse the DSi content fade-in schedule
+    if (a < 0.0f) a = 0.0f; if (a > 1.0f) a = 1.0f;
+
+    if (f >= DSI_LOGO_START && a > 0.0f) {
+        float lf = (float)(f - DSI_LOGO_START);
+        float rise = 1.0f - expf(-lf / 12.0f);
+        const char* mark = "GammaOS";
+        float fsM = (44.0f * sc) / (float)FONT_CHAR_H, mw = measureText(mark, fsM);
+        drawText(mark, cx - mw * 0.5f, rh * 0.30f - (1.0f - rise) * 14.0f * sc, fsM, ar, ag, ab, a);   // accent wordmark
+        if (primary) {
+            const char* title = trDyn(kWarnTitle);
+            float fsT = (16.0f * sc) / (float)FONT_CHAR_H, tw = measureText(title, fsT);
+            drawText(title, cx - tw * 0.5f, rh * 0.46f, fsT, 0.95f, 0.95f, 0.97f, a);
+            std::string body = trDyn(kWarnBody);
+            float fs = (13.0f * sc) / (float)FONT_CHAR_H, maxW = rw * 0.82f, lineH = 17.0f * sc, yy = rh * 0.53f;
+            std::string line; size_t i = 0;
+            while (i < body.size() && yy < rh * 0.86f) {
+                size_t sp = body.find(' ', i);
+                std::string word = body.substr(i, (sp == std::string::npos ? body.size() : sp) - i);
+                std::string cand = line.empty() ? word : line + " " + word;
+                if (measureText(cand.c_str(), fs) > maxW && !line.empty()) {
+                    float lw2 = measureText(line.c_str(), fs);
+                    drawText(line.c_str(), cx - lw2 * 0.5f, yy, fs, 0.82f, 0.82f, 0.85f, a);
+                    yy += lineH; line = word;
+                } else line = cand;
+                if (sp == std::string::npos) break; i = sp + 1;
+            }
+            if (!line.empty()) { float lw2 = measureText(line.c_str(), fs); drawText(line.c_str(), cx - lw2 * 0.5f, yy, fs, 0.82f, 0.82f, 0.85f, a); }
+        }
+    }
+    if (mDsiBootPhase == DSI_WAIT && primary) {
+        float pulse = 0.55f + 0.45f * sinf((float)f * 0.12f);
+        const char* prompt = trDyn("Press A to continue");
+        float fs = (15.0f * sc) / (float)FONT_CHAR_H, tw = measureText(prompt, fs);
+        drawText(prompt, cx - tw * 0.5f, rh * 0.90f, fs, ar, ag, ab, pulse);
+    }
+    if (mDsiBootPhase == DSI_ENTERING) {
+        float t = (float)((f - mDsiEnterStart) / DSI_ENTER_END); if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
+        drawQuad(0.0f, 0.0f, rw, rh, 0.0f, 0.0f, 0.0f, t);   // fade up to black, then DSI_DONE hands to the menu
+    }
+    mTextOutlineMode = prevOutline;
+}
+
 void NanoMenu::renderNdsBootOverlay(bool primary) {
     setUiBlend();
     ensureNdsAssets();

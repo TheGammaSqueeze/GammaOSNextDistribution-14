@@ -4675,6 +4675,12 @@ void NanoMenu::render() {
             mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
             renderNdsBootOverlay(/*primary=*/false);
             mWidth = sw; mHeight = sh;
+        } else if (mMinimaTheme && mPs3BootActive) {
+            // Minima cold boot on the bottom panel: the Minima black-field intro, not the PS3 wave.
+            int sw = mWidth, sh = mHeight;
+            mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+            renderMinimaBootOverlay(/*primary=*/false);
+            mWidth = sw; mHeight = sh;
         } else if (mNdsTheme && !mPs3BootActive) {
             // DSi theme dual-panel: the carousel (bottom DS screen) renders onto the
             // secondary panel. A live secondary always shows DSi content (never the PS3 wave),
@@ -4983,6 +4989,11 @@ void NanoMenu::render() {
             // next frame) and render the DSi-styled white boot instead of the PS3 intro.
             ps3BootUpdate(mFrameDt);
             renderNdsBootOverlay(/*primary=*/true);
+        } else if (mMinimaTheme && mPs3BootActive) {
+            // Minima cold boot: the SAME shared boot clock/phase machine, but the Minima black-field
+            // intro + jingle, handing straight into the Minima menu - the PS3/XMB intro is never shown.
+            ps3BootUpdate(mFrameDt);
+            renderMinimaBootOverlay(/*primary=*/true);
         } else if (mNdsTheme && !mPs3BootActive && ndsPlayerActive()) {
             // A media player is up: show the existing full-screen XMB video / music / photo
             // player on the primary (top) screen (user: "show the XMB ones when actually
