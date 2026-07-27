@@ -4661,9 +4661,10 @@ if (sRingPrimedCount >= 2) {
         // the run loop would otherwise keep rendering the wave wallpaper at full
         // rate behind a dark screen - pegging a core with the display off. Skip
         // the frame and idle-poll while the screen is off; any wake flips
-        // sys.screen.state back to on and rendering resumes next pass. (The DRM
-        // home does not need this: it blanks via enterDrmSleep, which blocks the
-        // render thread itself.)
+        // sys.screen.state back to on and rendering resumes next pass. (A DRM
+        // home that GRABS input drives its own sleep via enterDrmSleep, which blocks
+        // the render thread itself; a DRM home that does NOT grab input is handled by
+        // the sys.screen.state branch below, same as an SF home.)
         if (mOverlayMode) {
             char ss[PROPERTY_VALUE_MAX] = {};
             property_get("sys.screen.state", ss, "on");
@@ -4720,20 +4721,23 @@ if (sRingPrimedCount >= 2) {
                 continue;
             }
         }
-        // Screen-off pause for the NON-overlay home on devices without a DRM-direct
-        // path (this Brick renders the home through SurfaceFlinger). There the framework
-        // owns the display + power button, so a display timeout / framework sleep blanks
-        // the panel via sys.screen.state=off WITHOUT nano ever running enterDrmSleep
-        // (which only fires on nano's own power handling, and on this device the
-        // framework can sleep us first). The cold-boot home would otherwise keep
-        // rendering the wave wallpaper at full rate behind a black screen, pegging a core
-        // (measured ~25% during sleep = battery drain). Mirror the overlay: drop to
-        // powersave, hold the music wakelock only while a track is actually playing, run
-        // the audio-only auto-advance, and idle-poll instead of rendering. pollInput()
-        // already ran above this point, so input stays live while parked; the framework
-        // owns wake and flips sys.screen.state back on. (DRM-direct homes keep using
-        // enterDrmSleep, which blocks the render thread itself, so this is gated off there.)
-        else if (!sDrmActive) {
+        // Screen-off pause for any NON-overlay home that nano does not sleep itself.
+        // This is either a home rendered through SurfaceFlinger (no DRM-direct path,
+        // e.g. the Brick) OR a DRM-direct home that does NOT grab input (e.g. the RG DS
+        // dual-screen DSi home). In both cases nano does not own the power key, so the
+        // framework owns the display timeout and blanks the panel via sys.screen.state=off
+        // WITHOUT nano ever running enterDrmSleep. Without this branch such a home keeps
+        // rendering the carousel at full rate AND looping the DSi menu_ambiance BGM behind
+        // a dark screen (user report: NDS music keeps playing while the screen is off),
+        // pegging a core (~25% during sleep = battery drain). Mirror the overlay: stop the
+        // ambiance, drop to powersave, hold the music wakelock only while a track is
+        // actually playing, run the audio-only auto-advance, and idle-poll instead of
+        // rendering. pollInput() already ran above this point, so input stays live while
+        // parked; the framework owns wake and flips sys.screen.state back on. Only a
+        // DRM-direct home that GRABS input drives its own sleep via enterDrmSleep (which
+        // blocks the render thread itself), so this is gated off there.
+        else if (!sDrmActive ||
+                 !android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
             char ss[PROPERTY_VALUE_MAX] = {};
             property_get("sys.screen.state", ss, "on");
             bool screenOff = !strcmp(ss, "off");
