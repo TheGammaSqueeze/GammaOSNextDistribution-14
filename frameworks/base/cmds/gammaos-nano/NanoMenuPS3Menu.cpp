@@ -2587,6 +2587,19 @@ int NanoMenu::actProfileIndexForPkg(const std::string& pkg, bool create) {
     if (!create || count >= 20) return -1;
     snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_pkg", count);
     property_set(key, pkg.c_str());
+    // A slot freed by a profile removal may still hold that profile's old action
+    // rules. Clear this fresh slot's actions so the new app does not inherit them.
+    snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_act_count", count);
+    property_get(key, val, "0");
+    int staleN = atoi(val);
+    for (int m = 0; m < staleN && m < 64; m++) {
+        snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_act%d_code", count, m); property_set(key, "");
+        snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_act%d_hold", count, m); property_set(key, "");
+        snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_act%d_s", count, m); property_set(key, "");
+        snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_act%d_l", count, m); property_set(key, "");
+    }
+    snprintf(key, sizeof(key), "persist.gammaos.gamepad.pa%d_act_count", count);
+    property_set(key, "0");
     property_set("persist.gammaos.gamepad.pa_count", std::to_string(count + 1).c_str());
     property_get("persist.gammaos.gamepad.config_version", val, "0");
     property_set("persist.gammaos.gamepad.config_version", std::to_string(atoi(val) + 1).c_str());

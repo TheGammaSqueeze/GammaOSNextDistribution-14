@@ -2256,6 +2256,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
             SystemProperties.set(prefix + "_pkg", pkg);
             SystemProperties.set(prefix + "_btn", "");
             SystemProperties.set(prefix + "_combo", "");
+            clearPerAppActions(prefix);   // don't inherit a removed profile's stale actions
             SystemProperties.set(PROP_PA_COUNT, String.valueOf(count + 1));
             bumpConfigVersion();
             populatePerAppProfiles();
@@ -2538,6 +2539,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
                     SystemProperties.get(srcPrefix + "_btn", ""));
             SystemProperties.set(dstPrefix + "_combo",
                     SystemProperties.get(srcPrefix + "_combo", ""));
+            // The nano editor also stores per-app ACTION rules under this profile
+            // (paN_act_count + paN_actM_*). Migrate them alongside the remap/combo,
+            // or removing an earlier profile silently strands the moved app's actions.
+            movePerAppActions(srcPrefix, dstPrefix);
         }
 
         // Clear the last slot
@@ -2545,6 +2550,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
         SystemProperties.set(lastPrefix + "_pkg", "");
         SystemProperties.set(lastPrefix + "_btn", "");
         SystemProperties.set(lastPrefix + "_combo", "");
+        clearPerAppActions(lastPrefix);
 
         SystemProperties.set(PROP_PA_COUNT, String.valueOf(count - 1));
         bumpConfigVersion();
@@ -2552,6 +2558,46 @@ public class GamepadSettings extends SettingsPreferenceFragment
 
         Toast.makeText(getContext(), R.string.gamepad_perapp_removed,
                 Toast.LENGTH_SHORT).show();
+    }
+
+    // Move a profile's per-app action rules (paN_act_count + paN_actM_code/hold/s/l)
+    // from srcPrefix to dstPrefix during a profile-list shift, clearing any dst rules
+    // left over beyond the moved count so no stale rule lingers. The daemon reads only
+    // up to _act_count, so the count must always match the rules actually present.
+    private void movePerAppActions(String srcPrefix, String dstPrefix) {
+        int srcCount = SystemProperties.getInt(srcPrefix + "_act_count", 0);
+        int dstCount = SystemProperties.getInt(dstPrefix + "_act_count", 0);
+        for (int m = 0; m < srcCount; m++) {
+            String s = srcPrefix + "_act" + m;
+            String d = dstPrefix + "_act" + m;
+            SystemProperties.set(d + "_code", SystemProperties.get(s + "_code", ""));
+            SystemProperties.set(d + "_hold", SystemProperties.get(s + "_hold", ""));
+            SystemProperties.set(d + "_s", SystemProperties.get(s + "_s", ""));
+            SystemProperties.set(d + "_l", SystemProperties.get(s + "_l", ""));
+        }
+        for (int m = srcCount; m < dstCount; m++) {
+            String d = dstPrefix + "_act" + m;
+            SystemProperties.set(d + "_code", "");
+            SystemProperties.set(d + "_hold", "");
+            SystemProperties.set(d + "_s", "");
+            SystemProperties.set(d + "_l", "");
+        }
+        SystemProperties.set(dstPrefix + "_act_count",
+                srcCount > 0 ? String.valueOf(srcCount) : "");
+    }
+
+    // Clear all per-app action rules on a profile slot (a freed last slot after a shift,
+    // or a slot being reused for a newly added profile).
+    private void clearPerAppActions(String prefix) {
+        int count = SystemProperties.getInt(prefix + "_act_count", 0);
+        for (int m = 0; m < count; m++) {
+            String d = prefix + "_act" + m;
+            SystemProperties.set(d + "_code", "");
+            SystemProperties.set(d + "_hold", "");
+            SystemProperties.set(d + "_s", "");
+            SystemProperties.set(d + "_l", "");
+        }
+        SystemProperties.set(prefix + "_act_count", "");
     }
 
     private void showPerAppAddRemapDialog(int profileIdx) {
