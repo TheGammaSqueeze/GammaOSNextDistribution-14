@@ -1296,6 +1296,7 @@ private:
     // ---- Minima theme (NextUI-inspired minimal list launcher; NanoMenuMinima.cpp) ----
     void renderMinima();                                             // orchestrator: pick single/dual-panel layout
     void renderMinimaList(float rx, float ry, float rw, float rh);   // the vertical list into a device-px rect
+    void renderMinimaSecondary(float rx, float ry, float rw, float rh); // RG DS bottom panel: Minima backdrop + big clock
     void minimaAccent(float& r, float& g, float& b) const;          // accent RGB from the shared Colour setting
     void minimaSfx(int which);                                      // trigger a Minima SFX (MIN_SFX_* id, NanoMenuPS3Boot.cpp)
     void minimaSfxTick();                                           // per-frame: fire nav/drill/back/launch by state diff

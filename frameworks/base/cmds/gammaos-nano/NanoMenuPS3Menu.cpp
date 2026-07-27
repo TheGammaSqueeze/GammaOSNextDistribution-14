@@ -7015,7 +7015,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // so applying restarts the main gammaos-nano home service - see the "Home Theme" hook in
     // closePs3Dialog. "0"/empty = GammaOS XMB, "1" = the DSi Menu theme.
     {"Home Theme", SettingSource::kProp, "persist.gammaos.nano.ndstheme", "0",
-     "0:GammaOS XMB,1:DSi Menu"},
+     "0:GammaOS XMB,1:DSi Menu,2:Minima"},
     // Gamepad free-text / mapping fields (edited via the OSK for now; Inc2/Inc3 readapt
     // these into native button/axis/device pickers). Formats match the gammapad daemon:
     //   devices/blacklist_pass: device-name patterns (';') / button codes (',')
@@ -9310,12 +9310,17 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     // overlay process (restarting gammaos-nano would not touch it). The persist
                     // prop was already written above, so the choice survives a reboot.
                     if (!strcmp(b->label, "Home Theme")) {
-                        bool wantDsi = (v == "1" || v == "true");
-                        if (wantDsi != mNdsTheme) {
+                        int  tv      = atoi(v.c_str());   // 0 = GammaOS XMB, 1 = DSi Menu, 2 = Minima
+                        bool wantDsi = (tv == 1);
+                        bool wantMin = (tv == 2);
+                        if (wantDsi != mNdsTheme || wantMin != mMinimaTheme) {
                             mNdsTheme = wantDsi;
+                            mMinimaTheme = wantMin;
                             if (wantDsi) ensureNdsAssets();
+                            // Keep the fallback bool in sync so a reboot lands on the same theme.
+                            property_set("persist.gammaos.nano.minima", wantMin ? "1" : "0");
                             // Reset to the home root so the new theme presents from a clean state
-                            // (both themes share mPs3Cats / mMenuState but lay it out differently).
+                            // (all themes share mPs3Cats / mMenuState but lay it out differently).
                             mMenuState = MENU_MAIN;
                             mPs3Stack.clear();
                             mPs3CatIdx = 0; mPs3ItemIdx = 0;
@@ -9323,6 +9328,9 @@ void NanoMenu::closePs3Dialog(bool apply) {
                             mNdsCamera = 0.0f; mNdsScrubbing = false; mNdsFlingVel = 0.0f;
                             mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
                             mPs3CatAnimActive = false; mPs3CatT = 1.0f; mPs3SubAnim = 0.0f;
+                            // Minima render state
+                            mMinimaScroll = 0.0f; mMinimaSelAnim = 0.0f; mMinimaPrevDepth = -1;
+                            mMinimaSfxDepth = -1; mMinimaSfxSel = -1; mMinimaTransStart = 0;
                         }
                     }
                     // XMB Wave on/off: apply live (the home is the resident overlay on the RG DS, so a

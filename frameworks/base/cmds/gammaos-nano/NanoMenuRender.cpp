@@ -4703,6 +4703,17 @@ void NanoMenu::render() {
             if (mGSearchActive) renderGlobalSearch();
             renderOsk();   // DSi keyboard/OSK on the bottom touch panel (self-gates on mOskActive)
             mWidth = sw; mHeight = sh;
+        } else if (mMinimaTheme && !mPs3BootActive) {
+            // Minima dual-panel: the interactive list is on the PRIMARY (top) panel; the secondary
+            // (bottom) panel wears the Minima backdrop + big clock, not the XMB wave. The setup
+            // wizard / global search / OSK still draw on this touch panel.
+            int sw = mWidth, sh = mHeight;
+            mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+            renderMinimaSecondary(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            if (mPs3WizActive) renderNetWizard();
+            if (mGSearchActive) renderGlobalSearch();
+            renderOsk();
+            mWidth = sw; mHeight = sh;
         } else {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

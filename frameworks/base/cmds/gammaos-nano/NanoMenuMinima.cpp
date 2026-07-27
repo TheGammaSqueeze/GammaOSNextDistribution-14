@@ -29,8 +29,10 @@
 
 namespace android {
 
-// NextUI unscaled reference constants (common/defines.h). Scaled by panelH/256 at render time.
-static constexpr float MIN_REF_H     = 256.0f;  // NextUI unscaled reference height (Brick 768 @ scale 3)
+// NextUI unscaled reference constants (common/defines.h). Scaled by panelH/MIN_REF_H at render time.
+// A larger reference height = smaller, more condensed UI (more rows on screen). 336 gives ~8-9 rows
+// on a 480-tall panel (NextUI's Brick reference is 256; the user asked for a tighter, smaller list).
+static constexpr float MIN_REF_H     = 336.0f;  // controls the whole-UI density (bigger = smaller/tighter)
 static constexpr float MIN_PILL      = 30.0f;   // PILL_SIZE (row height, capsule height)
 static constexpr float MIN_PAD       = 10.0f;   // PADDING (screen-edge inset)
 static constexpr float MIN_BTNMARGIN = 5.0f;    // BUTTON_MARGIN
@@ -64,18 +66,26 @@ void NanoMenu::renderMinima() {
 
 void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     setUiBlend();
+    const int minPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // Minima text is flat: no drop shadow / outline
     if (!mPs3MenuBuilt) initPs3Menu();   // build the shared XMB hierarchy that feeds the rows
     minimaSfxTick();
 
-    // ---- background: the user's wallpaper / looping video if set, else pure black ----
-    bool drewWp = false;
-    if (wallpaperActive(mRenderingPanel)) {
-        if (mRenderingPanel == 0 && drawTopVideoWallpaper()) drewWp = true;
-        else { drawWallpaperFill(mRenderingPanel); drewWp = true; }
+    // ---- background ----
+    // Black by default (the NextUI canvas), but the user can opt into the XMB wave / effects / a custom
+    // wallpaper or video via Theme Settings - then renderEffect() draws whatever they chose. In an
+    // in-game overlay with no overlay wallpaper, nano's framebuffer clear already lays down the dark
+    // app-dimming scrim (like the XMB/DSi overlay), so leave it and let the app show through dimmed.
+    const bool inGameScrim  = mOverlayMode && !mOverlayWallpaper;
+    const bool wantEffectBg = wallpaperActive(mRenderingPanel) || (mXmbWave && mXmbWaveExplicit);
+    if (inGameScrim) {
+        // leave the framebuffer's app-dimming scrim untouched; the white list draws over it
+    } else if (wantEffectBg) {
+        renderEffect();                                       // XMB wave / gradient / wallpaper / video per settings
+        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.34f);    // readability scrim so the white list stays crisp
+    } else {
+        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);     // pure-black NextUI canvas (default; black stays available)
     }
-    if (!drewWp) drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);   // NextUI canvas = #000000
-    // A subtle scrim over a wallpaper keeps the white list readable (NextUI draws on black).
-    if (drewWp) drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.30f);
+    mTextOutlineMode = 2;   // re-assert flat text after renderEffect (which sets its own outline mode)
 
     float ar, ag, ab; minimaAccent(ar, ag, ab);   // accent = the Colour setting (berry by default)
     // Accent-pill text: black on a light accent (Yellow/White/Lime...), white on a dark one (berry),
@@ -133,6 +143,33 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     if (fabsf(mMinimaScroll - targetScroll)  > 0.002f) mDisplayDirty = true; else mMinimaScroll = targetScroll;
     if (fabsf(mMinimaSelAnim - (float)sel)   > 0.002f) mDisplayDirty = true; else mMinimaSelAnim = (float)sel;
 
+    // ---- detect a level change (drill/back) to arm the slide + crossfade, and snap the window so
+    // the new level starts from a clean position (done before the draw so the motion is same-frame) ----
+    {
+        int depth = ndsNavDepth();
+        if (mMinimaPrevDepth < 0) mMinimaPrevDepth = depth;
+        else if (depth != mMinimaPrevDepth) {
+            mMinimaTransStart = (int64_t)uptimeMillis();
+            mMinimaTransDir = (depth > mMinimaPrevDepth) ? +1 : -1;
+            mMinimaPrevDepth = depth;
+            mMinimaScroll = targetScroll; mMinimaSelAnim = (float)sel;   // snap the window on a level change
+        }
+    }
+
+    // ---- horizontal slide on a level change (NextUI folder slide: drill enters from the right,
+    // back enters from the left, cubic ease-out over 150ms). The rows + pill share this x offset;
+    // the crossfade is the black wash stamped in the transition block below. ----
+    float slideX = 0.0f;
+    if (mMinimaTransStart > 0) {
+        float t = (float)((int64_t)uptimeMillis() - mMinimaTransStart) / 150.0f;
+        if (t < 1.0f) {
+            float ease = 1.0f - powf(1.0f - t, 3.0f);                    // NextUI TRANSITION_CURVE (1-(1-t)^3)
+            slideX = (float)mMinimaTransDir * (rw * 0.22f) * (1.0f - ease);
+            mDisplayDirty = true;
+        }
+    }
+    const float lx = listLeft + slideX;
+
     // ---- draw the rows (white text) then the gliding white capsule + inverted selected label ----
     if (n == 0) {
         const char* empty = "Empty";
@@ -146,7 +183,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         float ty = rowY + (rowH - MIN_FONT * sc) * 0.5f;
         float fs = fsRow, tw = measureText(rows[i].c_str(), fs);
         if (tw > textMaxW && textMaxW > 0.0f) { fs *= textMaxW / tw; }
-        drawText(rows[i].c_str(), listLeft + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);   // COLOR_LIST_TEXT white
+        drawText(rows[i].c_str(), lx + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);   // COLOR_LIST_TEXT white
     }
     // the capsule pill, hugging the selected label, glided to the eased position
     if (n > 0) {
@@ -158,9 +195,9 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         float pillW = tw + btnPad * 2.0f;
         float maxPillW = (rx + rw - pad) - listLeft;
         if (pillW > maxPillW) pillW = maxPillW;
-        drawRoundedRect(listLeft, pillY, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);   // white capsule
+        drawRoundedRect(lx, pillY, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);   // white capsule
         float ty = pillY + (pillH - MIN_FONT * sc) * 0.5f;
-        drawText(lbl.c_str(), listLeft + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // COLOR_LIST_TEXT_SELECTED black
+        drawText(lbl.c_str(), lx + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // COLOR_LIST_TEXT_SELECTED black
     }
 
     // ---- status pill (top-right): accent capsule with the clock (+ battery when known) ----
@@ -201,17 +238,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         drawHint(left, false);
     }
 
-    // ---- level-change fade: brighten the new level in from black on drill/back (transition v1) ----
-    {
-        int depth = ndsNavDepth();
-        if (mMinimaPrevDepth < 0) mMinimaPrevDepth = depth;
-        else if (depth != mMinimaPrevDepth) {
-            mMinimaTransStart = (int64_t)uptimeMillis();
-            mMinimaTransDir = (depth > mMinimaPrevDepth) ? +1 : -1;
-            mMinimaPrevDepth = depth;
-            mMinimaScroll = targetScroll; mMinimaSelAnim = (float)sel;   // snap the window on a level change
-        }
-    }
+    // ---- level-change black-wash crossfade (paired with the horizontal slide above) ----
     if (mMinimaTransStart > 0) {
         float a = 1.0f - (float)((int64_t)uptimeMillis() - mMinimaTransStart) / 150.0f;
         if (a > 0.0f) { drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, a); mDisplayDirty = true; }
@@ -223,6 +250,86 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         float fa = (lf - 3.0f) / 44.0f; if (fa < 0.0f) fa = 0.0f; if (fa > 1.0f) fa = 1.0f;
         if (fa > 0.0f) { drawQuad(rx, ry, rw, rh, 1.0f, 1.0f, 1.0f, fa); mDisplayDirty = true; }
     }
+    mTextOutlineMode = minPrevOutline;
+}
+
+// RG DS bottom panel. The interactive list lives on the primary (top) screen; the secondary panel
+// echoes the context in Minima's language (like the NDS top screen): the current category/level as an
+// accent header, the focused item's BOXART (async/cached) - or its icon - centred, and the item label
+// below, over the Minima backdrop (bottom wallpaper if set, else pure black).
+void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
+    setUiBlend();
+    const int minPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // flat text: no drop shadow
+    const bool inGameScrim = mOverlayMode && !mOverlayWallpaper;
+    bool drew = false;
+    if (wallpaperActive(1)) { drawWallpaperFill(1); drew = true; }
+    if (drew)               drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.30f);   // readability scrim over a wallpaper
+    else if (!inGameScrim)  drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);    // pure-black backdrop (no app behind)
+
+    float ar, ag, ab; minimaAccent(ar, ag, ab);
+    const float sc = rh / MIN_REF_H;
+    const float cx = rx + rw * 0.5f;
+
+    // Resolve the current level's title and the focused item, like the NDS top screen.
+    std::string head, sub; const Ps3Item* selItem = nullptr;
+    if (mNdsAtRoot) {
+        head = "GammaOS";
+        if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) sub = mPs3Cats[mPs3CatIdx].name;
+    } else if (!mPs3Stack.empty()) {
+        head = mPs3Stack.back().title;
+        const auto& its = mPs3Stack.back().items; int s = mPs3Stack.back().sel;
+        if (s >= 0 && s < (int)its.size()) { sub = its[s].label; selItem = &its[s]; }
+    } else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
+        head = mPs3Cats[mPs3CatIdx].name;
+        const auto& its = mPs3Cats[mPs3CatIdx].items; int s = mPs3ItemIdx;
+        if (s >= 0 && s < (int)its.size()) { sub = its[s].label; selItem = &its[s]; }
+    }
+    if (head.empty()) head = "GammaOS";
+
+    // Boxart for the focused game (async / cached, exactly like the XMB column + NDS top screen),
+    // else fall back to the item's own icon (or the category icon at root).
+    std::string romPath;
+    if (selItem) {
+        if (selItem->kind == PS3_ROM && selItem->a >= 0 && selItem->a < (int)mXmbSystems.size()
+            && selItem->b >= 0 && selItem->b < (int)mXmbSystems[selItem->a].roms.size())
+            romPath = mXmbSystems[selItem->a].roms[selItem->b];
+        else if (selItem->kind == PS3_RECENT && selItem->a >= 0 && selItem->a < (int)mXmbRecent.size())
+            romPath = mXmbRecent[selItem->a].romPath;
+    }
+    GLuint boxTex = 0; float boxAR = 1.0f;
+    if (!romPath.empty() && scraperBoxartEnabled()) boxTex = romBoxartTex(romPath, &boxAR);
+    GLuint iconTex = selItem ? selItem->iconTex
+                   : (mNdsAtRoot && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size() ? mPs3Cats[mPs3CatIdx].iconTex : 0);
+
+    // category header (accent, top)
+    {
+        float fsH = (22.0f * sc) / (float)FONT_CHAR_H;
+        float tw = measureText(head.c_str(), fsH);
+        drawText(head.c_str(), cx - tw * 0.5f, ry + rh * 0.08f, fsH, ar, ag, ab, 1.0f);
+    }
+    // boxart (or the item/category icon) centred
+    {
+        float artMaxH = rh * 0.50f, artMaxW = rw * 0.70f;
+        if (boxTex) {
+            float ah = artMaxH, aw = artMaxH * boxAR;
+            if (aw > artMaxW) { aw = artMaxW; ah = aw / (boxAR > 0.01f ? boxAR : 1.0f); }
+            float axx = cx - aw * 0.5f, ayy = ry + rh * 0.22f;
+            drawRoundedRect(axx - 4.0f * sc, ayy - 4.0f * sc, aw + 8.0f * sc, ah + 8.0f * sc, 8.0f * sc, 1.0f, 1.0f, 1.0f, 0.10f);
+            drawIconTex(boxTex, axx, ayy, aw, ah, 1.0f, 1.0f, 1.0f, 1.0f);
+        } else if (iconTex) {
+            float isz = rh * 0.34f;
+            drawIconTex(iconTex, cx - isz * 0.5f, ry + rh * 0.26f, isz, isz, 1.0f, 1.0f, 1.0f, 1.0f);
+        }
+    }
+    // focused item label (white, bottom)
+    if (!sub.empty()) {
+        float fsS = (20.0f * sc) / (float)FONT_CHAR_H;
+        float tw = measureText(sub.c_str(), fsS);
+        float maxW = rw * 0.90f;
+        if (tw > maxW && maxW > 0.0f) { fsS *= maxW / tw; tw = measureText(sub.c_str(), fsS); }
+        drawText(sub.c_str(), cx - tw * 0.5f, ry + rh * 0.82f, fsS, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    mTextOutlineMode = minPrevOutline;
 }
 
 } // namespace android

@@ -1463,15 +1463,17 @@ bool NanoMenu::threadLoop() {
             "persist.gammaos.nano.ps3xmb", true);   // default on when the prop is unset
     // DSi System Menu theme: an optional home theme that takes priority over the PS3
     // XMB when set (renders the DSi launcher carousel, plays the DSi boot animation).
-    mNdsTheme = android::base::GetBoolProperty(
-            "persist.gammaos.nano.ndstheme", false);
-    if (mNdsTheme) mPs3Xmb = true;   // reuse the PS3 XMB home infrastructure (boot, input, overlay), swap the render
-    // Minima home theme (NextUI-inspired minimal list launcher). Takes priority over both other themes.
-    // Like the DSi theme it rides on the XMB infrastructure (boot/input/overlay/OSK/modals) and only swaps
-    // the home render, top-level nav, nav sounds and boot animation.
-    mMinimaTheme = android::base::GetBoolProperty(
-            "persist.gammaos.nano.minima", false);
-    if (mMinimaTheme) { mPs3Xmb = true; mNdsTheme = false; }   // Minima wins; force XMB infra, drop DSi
+    // Home theme selector: persist.gammaos.nano.ndstheme is a 3-value enum now
+    // (0 = GammaOS XMB, 1 = DSi Menu, 2 = Minima). The two booleans are derived so the ~140 existing
+    // mNdsTheme references keep working, and both non-XMB themes ride the XMB infrastructure (boot /
+    // input / overlay / OSK / modals) and only swap the home render, nav, sounds and boot animation.
+    // The separate persist.gammaos.nano.minima bool is still honoured as a fallback so a device already
+    // toggled to Minima stays there across the enum migration.
+    int homeTheme = android::base::GetIntProperty("persist.gammaos.nano.ndstheme", 0);
+    mNdsTheme    = (homeTheme == 1);
+    mMinimaTheme = (homeTheme == 2) || android::base::GetBoolProperty("persist.gammaos.nano.minima", false);
+    if (mMinimaTheme) mNdsTheme = false;          // Minima wins over DSi
+    if (mNdsTheme || mMinimaTheme) mPs3Xmb = true;  // reuse the XMB home infrastructure, swap the render
     // Dual-screen XMB: render a static PSP clock on the bottom panel instead of a second wave.
     // Cached once (read on the render hot path otherwise); only meaningful in pure XMB (!mNdsTheme)
     // on a device with a secondary panel (the render call sites are gated accordingly).
