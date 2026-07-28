@@ -929,6 +929,19 @@ void NanoMenu::ndsNavBack() {
 // settings kinds means a media / app category is never misdetected as a list.
 bool NanoMenu::ndsCurLevelIsList() const {
     if (mNdsAtRoot) return false;
+    // Special-screen levels that are inherently vertical lists (the file browser, network-shares
+    // list + editor, shader-file browser) always render as the DSi glossy list, regardless of their
+    // row kinds. Without this they hold PS3_FE_*/PS3_NS_* rows the whitelist below rejects, so they
+    // fall through to the horizontal carousel - which cannot draw or navigate them, and where UP
+    // walks straight back out. (File Explorer looked broken on the DSi theme for exactly this.)
+    if (!mPs3Stack.empty()) {
+        switch (mPs3Stack.back().screenKind) {
+            case FE_BROWSE: case NS_LIST: case NS_EDITOR:
+            case SHADER_BROWSE: case GS_FOLDERBROWSE:
+                return true;
+            default: break;
+        }
+    }
     const std::vector<Ps3Item>* items = nullptr;
     if (!mPs3Stack.empty()) items = &mPs3Stack.back().items;
     else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) items = &mPs3Cats[mPs3CatIdx].items;
@@ -5032,6 +5045,11 @@ void NanoMenu::render() {
             appInfoTick();   // App Information submenu: renderPs3Xmb (which normally ticks it) is
                              // skipped in this theme, so drive the async framework fill here too -
                              // otherwise an app's Information hangs forever on "Loading...".
+            fbTick();        // File Explorer / folder browser: adopt a directory listing the worker
+                             // finished (same reason as appInfoTick - without this the browser is
+                             // stuck on "Loading..." forever in the DSi theme).
+            feTick();        // File Explorer: reap a finished copy / move / delete op + its result dialog.
+            nsTick();        // Network Shares: follow a mount coming up / going away while the list is open.
             ensureNdsAssets();
             bool ndsDual = !mNdsStack &&
                 (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
@@ -5063,6 +5081,11 @@ void NanoMenu::render() {
             } else {
                 scraperArtTick();
                 appInfoTick();
+                fbTick();    // File Explorer / folder browser: adopt a finished directory listing
+                             // (renderPs3Xmb, which normally ticks this, is skipped for the Minima
+                             // home - without it the browser is stuck on "Loading..." forever).
+                feTick();    // File Explorer: reap a finished copy / move / delete op + its result dialog.
+                nsTick();    // Network Shares: follow a mount coming up / going away while the list is open.
                 renderMinima();
                 if (minSidePanel)    renderMinimaSidePanel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
                 else if (minInfoPage) renderMinimaInfoPage(0.0f, 0.0f, (float)mWidth, (float)mHeight);
