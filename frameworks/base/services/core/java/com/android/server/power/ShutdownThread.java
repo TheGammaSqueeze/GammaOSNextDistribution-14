@@ -1178,6 +1178,17 @@ public final class ShutdownThread extends Thread {
                                         + "before reboot");
                                 SystemProperties.set(
                                         "sys.gammaos.nano.cache_ready", "0");
+                                // init runs `on property:cache_op=populate` only on
+                                // a value CHANGE. An XMB launch (launchXmbGame) leaves
+                                // cache_op already at "populate", so a plain set to
+                                // "populate" here would be a silent no-op that never
+                                // restarts nano_cache_populate. Force a transition
+                                // through a neutral value first (no init trigger
+                                // matches "idle") so the populate always re-fires.
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.cache_op", "idle");
+                                try { Thread.sleep(100); }
+                                catch (InterruptedException ie) {}
                                 SystemProperties.set(
                                         "sys.gammaos.nano.cache_op", "populate");
                                 // Give init a moment to (re)start the oneshot
@@ -1301,6 +1312,13 @@ public final class ShutdownThread extends Thread {
                                         + "before reboot");
                                 SystemProperties.set(
                                         "sys.gammaos.nano.cache_ready", "0");
+                                // Force a value change so init re-fires the trigger
+                                // even if cache_op was already set (init only runs
+                                // the action on a change); see the RetroArch path.
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.cache_op", "idle");
+                                try { Thread.sleep(100); }
+                                catch (InterruptedException ie) {}
                                 SystemProperties.set(
                                         "sys.gammaos.nano.cache_op",
                                         "populate_drastic");
