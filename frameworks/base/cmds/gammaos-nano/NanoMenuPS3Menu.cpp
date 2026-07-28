@@ -9588,6 +9588,50 @@ void NanoMenu::dualstackSet(const std::string& pkg, bool enable) {
     }
 }
 
+// Resolve the currently focused home item's ROM path (a game in a system submenu = PS3_ROM, or a
+// Recently Played entry = PS3_RECENT), or "" if the focus is not a launchable ROM. Shared by the
+// Y-to-Info shortcut and the Minima focused-art chrome (boxart / fanart / legend).
+std::string NanoMenu::focusedRomPath() {
+    std::vector<Ps3Item>& items = ps3CurItems();
+    int sel = ps3CurSel();
+    if (sel < 0 || sel >= (int)items.size()) return std::string();
+    const Ps3Item& it = items[sel];
+    if (it.kind == PS3_ROM && it.a >= 0 && it.a < (int)mXmbSystems.size()
+        && it.b >= 0 && it.b < (int)mXmbSystems[it.a].roms.size())
+        return mXmbSystems[it.a].roms[it.b];
+    if (it.kind == PS3_RECENT && it.a >= 0 && it.a < (int)mXmbRecent.size())
+        return mXmbRecent[it.a].romPath;
+    return std::string();
+}
+
+// The scrape entry for the focused ROM if it has any scraped art/metadata worth an Information page,
+// else nullptr. Drives the Y button, the Minima "Y Info" legend and the boxart/fanart chrome.
+const NanoMenu::ScrapeEntry* NanoMenu::focusedScrapeEntry() {
+    std::string rom = focusedRomPath();
+    if (rom.empty()) return nullptr;
+    const ScrapeEntry* e = scrapeEntryFor(rom);
+    if (!e || (e->box.empty() && e->fan.empty() && e->synopsis.empty()
+               && e->genre.empty() && e->developer.empty())) return nullptr;
+    return e;
+}
+
+// Open the Information page for the focused item WITHOUT going through the Triangle option menu (the
+// Y-button shortcut). Only fires for content that actually has scraped art; returns false otherwise so
+// the caller can fall through. Theme-agnostic (drives the same mPs3DlgGameInfo dialog every theme
+// renders). Mirrors openXmbOpt's context set, then runs the "info" action.
+bool NanoMenu::openInfoForFocusedItem() {
+    std::vector<Ps3Item>& items = ps3CurItems();
+    int sel = ps3CurSel();
+    if (sel < 0 || sel >= (int)items.size()) return false;
+    if (!focusedScrapeEntry()) return false;   // only content with scraped art
+    const Ps3Item& it = items[sel];
+    mPs3OptCtxKind = it.kind; mPs3OptCtxA = it.a; mPs3OptCtxB = it.b;
+    mPs3OptCtxLabel = it.label; mPs3OptCtxPayload = it.payloadStr; mPs3OptCtxDesc = it.desc;
+    mPs3OptCtxList = items; mPs3OptCtxSel = sel;
+    xmbOptAction("rominfo");   // the RICH game info page (cover + fanart + metadata), not the plain "info"
+    return true;
+}
+
 void NanoMenu::openXmbOpt() {
     if (mPs3OptActive) return;
     // Only over the live home column - never while another modal owns input, and

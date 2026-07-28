@@ -2606,6 +2606,12 @@ void NanoMenu::pollInput() {
                                 videoRemoveFolder(its[sel].a);
                             break;
                         }
+                        // Y on a focused game with scraped art (ANY theme, at the home, no modal / player):
+                        // open its Information page directly, without the Triangle option menu. Returns
+                        // false (falls through) when the focus has no scraped art.
+                        if (mPs3Xmb && !mOskActive && !mPs3OptActive && !mPs3DlgActive && !mPs3WizActive
+                            && !mPs3TzActive && !mMpActive && !mPvActive && !mVidActive
+                            && openInfoForFocusedItem()) break;
                         // Y-to-search was removed (it never worked): the PS3 XMB now
                         // uses Select for a categorical global search (gsearchOpen).
                         // Home PS3 XMB: Y (Square) is otherwise unused - the wallpaper

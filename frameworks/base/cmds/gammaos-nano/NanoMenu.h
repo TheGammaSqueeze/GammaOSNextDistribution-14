@@ -1309,6 +1309,8 @@ private:
     float   mMinimaSelAnim   = 0.0f;   // eased selected-row index (pill glide, ~3-frame linear)
     float   mMinimaScroll    = 0.0f;   // eased list scroll top (in rows)
     float   mMinimaMarquee   = 0.0f;   // marquee offset (px) for a long selected label
+    int     mMinimaMarqueeSel = -1;    // which row the marquee offset belongs to (reset on change)
+    int64_t mMinimaMarqueeStart = 0;   // uptimeMillis when the current long label settled (start-pause)
     int     mMinimaPrevDepth = -1;     // last nav depth (root/category/submenu) for the slide+fade transition
     int     mMinimaTransDir  = 0;      // +1 drill / -1 back, for the horizontal slide direction
     int64_t mMinimaTransStart= 0;      // uptimeMillis() when the level changed (drives the enter/back transition)
@@ -2454,6 +2456,9 @@ private:
     void loadScrapeIndex();
     void saveScrapeIndex();
     const ScrapeEntry* scrapeEntryFor(const std::string& romPath);
+    std::string focusedRomPath();                  // focused home item's ROM path (PS3_ROM / PS3_RECENT) or ""
+    const ScrapeEntry* focusedScrapeEntry();       // scrape entry for the focused ROM if it has art, else null
+    bool openInfoForFocusedItem();                 // Y shortcut: open Information for a focused scraped-art item
     bool scraperBoxartEnabled();           // persist.gammaos.scraper.boxart
     bool scraperFanartEnabled();           // persist.gammaos.scraper.fanart
     nanoscraper::Credentials scraperCredsFor(int sysIdx);   // global + per-system override

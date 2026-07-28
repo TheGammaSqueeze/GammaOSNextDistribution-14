@@ -115,6 +115,20 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     }
     mTextOutlineMode = 2;   // re-assert flat text after renderEffect (which sets its own outline mode)
 
+    // ---- scrolling fanart hover background for a focused scraped game (same as the XMB) ----
+    // A focused game with scraped fanart shows it as a slow Ken-Burns background under the list (a
+    // 50% scrim keeps the white rows legible). Empty fanFile when the focus is not a scraped game, so
+    // drawPs3CinfoBg fades it back out. mNdsAtRoot has no focused ROM, so focusedScrapeEntry returns null.
+    const ScrapeEntry* minSe = inGameScrim ? nullptr : focusedScrapeEntry();
+    if (!inGameScrim) {
+        std::string fanFile = (minSe && scraperFanartEnabled() && !minSe->fan.empty()) ? minSe->fan : std::string();
+        drawPs3CinfoBg("", fanFile);   // focusLabel is only used for the Photo Gallery cinfo (never a game)
+        mTextOutlineMode = 2;          // drawPs3CinfoBg touches GL state; re-assert flat text
+        // Minima only re-renders when dirty (no always-on wave), so keep the loop live while the fanart
+        // is on screen - otherwise its Ken-Burns pan + fade-out freeze on the last drawn frame.
+        if (mCinfoAlpha > 0.001f) mDisplayDirty = true;
+    }
+
     float ar, ag, ab; minimaAccent(ar, ag, ab);   // accent = the Colour setting (berry by default)
     // Accent-pill text: black on a light accent (Yellow/White/Lime...), white on a dark one (berry),
     // so the status/hint legends stay legible for every colour preset.
@@ -213,19 +227,36 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         if (tw > textMaxW && textMaxW > 0.0f) { fs *= textMaxW / tw; }
         drawText(rows[i].c_str(), lx + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);   // COLOR_LIST_TEXT white
     }
-    // the capsule pill, hugging the selected label, glided to the eased position
+    // The capsule pill, hugging the selected label, glided to the eased position. A label too long to
+    // fit MARQUEE-scrolls (NextUI: after a short pause, 2px/frame with a 30px gap, looping) inside a
+    // full-width pill, instead of shrinking to fit.
     if (n > 0) {
         const std::string& lbl = rows[sel < n ? sel : 0];
-        float fs = fsRow, tw = measureText(lbl.c_str(), fs);
-        if (tw > textMaxW && textMaxW > 0.0f) { fs *= textMaxW / tw; tw = measureText(lbl.c_str(), fs); }
-        float pillY = listTop + (mMinimaSelAnim - mMinimaScroll) * rowH + rowH * 0.07f;
-        float pillH = rowH * 0.86f;
-        float pillW = tw + btnPad * 2.0f;
-        float maxPillW = (rx + rw - pad) - listLeft;
-        if (pillW > maxPillW) pillW = maxPillW;
-        drawRoundedRect(lx, pillY, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);   // white capsule
-        float ty = pillY + (pillH - MIN_FONT * sc) * 0.5f;
-        drawText(lbl.c_str(), lx + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // COLOR_LIST_TEXT_SELECTED black
+        const float fs = fsRow, tw = measureText(lbl.c_str(), fs);
+        const float pillY = listTop + (mMinimaSelAnim - mMinimaScroll) * rowH + rowH * 0.07f;
+        const float pillH = rowH * 0.86f;
+        const float maxPillW = (rx + rw - pad) - listLeft;
+        const float maxTextW = maxPillW - btnPad * 2.0f;
+        const float ty = pillY + (pillH - MIN_FONT * sc) * 0.5f;
+        if (sel != mMinimaMarqueeSel) { mMinimaMarqueeSel = sel; mMinimaMarquee = 0.0f; mMinimaMarqueeStart = (int64_t)uptimeMillis(); }
+        if (tw <= maxTextW || maxTextW <= 0.0f) {
+            const float pillW = fminf(tw + btnPad * 2.0f, maxPillW);
+            drawRoundedRect(lx, pillY, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);   // white capsule
+            drawText(lbl.c_str(), lx + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // COLOR_LIST_TEXT_SELECTED black
+        } else {
+            drawRoundedRect(lx, pillY, maxPillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);   // full-width pill
+            const float gap = 30.0f * sc, loopW = tw + gap;
+            if ((int64_t)uptimeMillis() - mMinimaMarqueeStart > 700) {            // ~0.7s read pause, then scroll
+                mMinimaMarquee += 2.0f * sc * fmaxf(0.0f, fminf(3.0f, mFrameDt * 60.0f));   // 2px per 1/60s
+                if (mMinimaMarquee >= loopW) mMinimaMarquee -= loopW;
+            }
+            mDisplayDirty = true;
+            const float clipX = lx + btnPad, tx0 = clipX - mMinimaMarquee;
+            scissorLogicalRect(clipX, pillY, maxTextW, pillH);                    // clip to the pill's text area
+            drawText(lbl.c_str(), tx0,         ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);
+            drawText(lbl.c_str(), tx0 + loopW, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // wrap copy for a seamless loop
+            glDisable(GL_SCISSOR_TEST);
+        }
     }
 
     // ---- status pill (top-right): real Wi-Fi / Bluetooth / battery icons + clock, in the accent pill ----
@@ -274,22 +305,40 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         drawText(clockbuf, ix, py + (ph - MIN_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
     }
 
-    // ---- bottom legend: a button glyph (A/B ring) + label, matching NextUI ----
+    // ---- focused game boxart, bottom-right, above the A Open pill ----
+    if (minSe && scraperBoxartEnabled() && !minSe->box.empty()) {
+        float bar = 0.7f;
+        GLuint bt = romBoxartTex(focusedRomPath(), &bar);
+        if (bt) {
+            float bh = rh * 0.32f, bw = bh * (bar > 0.01f ? bar : 0.7f);
+            const float maxbw = rw * 0.30f;
+            if (bw > maxbw) { bw = maxbw; bh = bw / (bar > 0.01f ? bar : 0.7f); }
+            float bx = rx + rw - pad - bw, by = hintTop - btnMg - bh;
+            drawRoundedRect(bx - 4.0f * sc, by - 4.0f * sc, bw + 8.0f * sc, bh + 8.0f * sc, 6.0f * sc, 1.0f, 1.0f, 1.0f, 0.12f);
+            drawIconTex(bt, bx, by, bw, bh, 1.0f, 1.0f, 1.0f, 1.0f);
+        }
+    }
+
+    // ---- bottom legend: a button glyph + label, matching NextUI. B Back (left), A Open (right), and
+    // a centred Y Info between them for a focused game that has scraped info. ----
     {
         const float ph = rowH, py = hintTop, gap = 5.0f * sc;
         const float glyphR = MIN_FONT_S * sc * 0.70f, lw = fmaxf(1.5f, 2.0f * sc);
-        auto drawLegend = [&](int role, const char* label, bool rightAlign) {
+        auto drawLegend = [&](int role, const char* label, int align) {   // align: 0 left, 1 right, 2 centre
             const char* lbl = trDyn(label);
             float lblW = measureText(lbl, fsHint);
             float pw = glyphR * 2.0f + gap + lblW + btnPad * 2.0f;
-            float px = rightAlign ? (rx + rw - pad - pw) : (rx + pad);
+            float px = (align == 1) ? (rx + rw - pad - pw)
+                     : (align == 2) ? (rx + rw * 0.5f - pw * 0.5f)
+                                    : (rx + pad);
             drawRoundedRect(px, py, pw, ph, ph * 0.5f, ar, ag, ab, 1.0f);
             float gcx = px + btnPad + glyphR, gcy = py + ph * 0.5f;
-            drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f);   // A = role 0, B = role 1 (white ring + letter)
+            drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f);   // A=0, B=1, Y=2 (white ring + letter)
             drawText(lbl, gcx + glyphR + gap, py + (ph - MIN_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
         };
-        drawLegend(0, "Open", true);    // A Open
-        drawLegend(1, "Back", false);   // B Back
+        drawLegend(0, "Open", 1);    // A Open (right)
+        drawLegend(1, "Back", 0);    // B Back (left)
+        if (minSe) drawLegend(2, "Info", 2);   // Y Info (centre), only when the focus has scraped info
     }
 
     // ---- level-change black-wash crossfade (paired with the horizontal slide above) ----
