@@ -1050,7 +1050,11 @@ void NanoMenu::pspClockAppCaptureTick() {
 // Advances the reveal scalar and runs the enabled passes.
 // -----------------------------------------------------------------------------
 void NanoMenu::drawPspClock(float dtMs) {
-    if (!mPs3Xmb) return;                    // PS3 XMB mode only; never touch DSi
+    // PS3 XMB renders the clock inline every frame. DSi/Minima get it ONLY while it is actually
+    // summoned (slide-close): the render dispatch forces renderPs3Xmb for the summon's duration,
+    // so allow the clock to run here when it is open/animating, and stay a strict no-op in the
+    // non-XMB themes when it is not summoned (never touch DSi/Minima otherwise).
+    if (!mPs3Xmb && !(mPspClockOn || mPspClockReveal > 0.0f || mPspClockStandalone)) return;
     pspClockPollInput();
     // Gyro/accel parallax: sample the tilt while the clock is up (disables the sensor and
     // eases the offset back to centre once it is fully closed).

@@ -5018,6 +5018,12 @@ void NanoMenu::render() {
         // in the early menu (self-gates to !mNdsTheme; the DSi hold is ndsAmbianceTick above). Runs
         // every frame including the boot intro, so nano owns card0 before the audio HAL can grab it.
         ps3EarlyAudioTick();
+        // GammaOS: the PSP Go slide clock (drawPspClock) is normally rendered only by the XMB
+        // path. When it is summoned (slide-close, mPspClockOn / the framework's over-app
+        // pspclock_summon -> mPspClockStandalone) in a DSi/Minima theme, route the primary render
+        // through renderPs3Xmb for the duration of the summon so the clock draws over the theme.
+        const bool pspClockActive = !mPs3BootActive &&
+            (mPspClockStandalone || mPspClockOn || mPspClockReveal > 0.0f);
         if (mNdsTheme && mPs3BootActive) {
             // DSi cold boot: drive the shared boot clock (advances mPs3BootElapsedMs and
             // clears mPs3BootActive at the end -> the carousel intro cascade takes over the
@@ -5029,6 +5035,13 @@ void NanoMenu::render() {
             // intro + jingle, handing straight into the Minima menu - the PS3/XMB intro is never shown.
             ps3BootUpdate(mFrameDt);
             renderMinimaBootOverlay(/*primary=*/true);
+        } else if (!mPs3Xmb && pspClockActive) {
+            // GammaOS: PSP Go slide clock summoned (slide-close) in a non-XMB theme. Render via the
+            // XMB path for the summon's duration so drawPspClock (inside renderPs3Xmb, which also
+            // fills the wave FBO/workTex + rotation the clock's glass samples) runs; the full-screen
+            // clock covers the DSi/Minima menu. Reverts to the theme render the frame the clock
+            // finishes retracting (pspClockActive -> false at reveal 0).
+            renderPs3Xmb();
         } else if (mNdsTheme && !mPs3BootActive && ndsPlayerActive()) {
             // A media player is up: show the existing full-screen XMB video / music / photo
             // player on the primary (top) screen (user: "show the XMB ones when actually
