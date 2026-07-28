@@ -1140,7 +1140,12 @@ void NanoMenu::launchAndroidSettings() {
     }
     std::string pkg = comp.substr(0, comp.find('/'));
     ALOGI("NanoMenu: launching Settings via %s", comp.c_str());
-    if (mOverlayMode) { overlayLaunchPackage(pkg); return; }   // in-game overlay: replace the app
+    // In-game overlay: replace the running app with Settings. overlayLaunchPackage() launches a
+    // package via "monkey -c LAUNCHER", but a Settings app (e.g. TVSettings) has NO
+    // LAUNCHER-category activity - it is reached via ACTION_SETTINGS - so monkey finds nothing to
+    // start, the app never resumes, and the overlay dismisses ~12s later ("does not launch / hangs").
+    // Launch the RESOLVED COMPONENT explicitly instead.
+    if (mOverlayMode) { overlayLaunchCommand(pkg, "am start -n " + comp + " 2>/dev/null"); return; }
     if (!isLaunchReady()) { showLaunchBusyToast(); return; }
     std::string intent = "-n\t" + comp;   // unflattenFromString expands a relative ".Class"
     property_set("sys.gammaos.nano.launch_app", pkg.c_str());
