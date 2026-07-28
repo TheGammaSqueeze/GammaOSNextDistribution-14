@@ -1444,13 +1444,22 @@ bool NanoMenu::threadLoop() {
         if (strcmp(setupDone, "1") != 0) {
             char devProvisioned[PROPERTY_VALUE_MAX] = {};
             property_get("persist.sys.device_provisioned", devProvisioned, "");
-            if (strcmp(devProvisioned, "1") == 0) {
+            // device_provisioned=1 alone is NOT proof setup finished: nano sets it early
+            // during its OWN wizard (see the boot_completed handler) so framework services
+            // initialize. persist.gammaos.nano.dp_wizard=1 marks that in-progress case; if it
+            // is still set, the wizard was interrupted before finishSetupWizard() cleared it,
+            // so re-run the wizard rather than trust the half-written provisioning state.
+            char dpWizard[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.dp_wizard", dpWizard, "0");
+            if (strcmp(devProvisioned, "1") == 0 && strcmp(dpWizard, "1") != 0) {
                 property_set("persist.gammaos.nano.setup_done", "1");
                 ALOGI("NanoMenu: setup wizard skipped (already provisioned via "
                       "persist.sys.device_provisioned)");
             } else {
                 startSetupWizard();
-                ALOGI("NanoMenu: setup wizard active (persist.gammaos.nano.setup_done != 1)");
+                ALOGI("NanoMenu: setup wizard active (setup_done!=1%s)",
+                      strcmp(dpWizard, "1") == 0
+                          ? ", dp_wizard=1 - prior wizard interrupted" : "");
             }
         }
     }
@@ -4462,6 +4471,12 @@ if (sRingPrimedCount >= 2) {
                     // finishSetupWizard().
                     if (mSetupWizardActive && !mSetupBootWaited) {
                         mSetupBootWaited = true;
+                        // Mark that device_provisioned=1 is being set by nano's OWN
+                        // in-progress wizard (not a completed setup). finishSetupWizard()
+                        // clears this; if setup is interrupted before then, the boot check
+                        // sees the marker and re-runs the wizard instead of trusting the
+                        // half-written provisioning state.
+                        property_set("persist.gammaos.nano.dp_wizard", "1");
                         system("settings put global device_provisioned 1 "
                                "2>/dev/null &");
                         ALOGI("NanoMenu: setup wizard - set "

@@ -162,41 +162,40 @@ inline void setDrasticNanoRomPath(const std::string& romPath) {
 //    the ROM path is on external storage (/storage/<UUID>/...). vold
 //    defers external SD scanning until after the secure keyguard step,
 //    so this can take 3-5s after NanoMenu starts.
-inline bool isQrRomStorageReady() {
-    // Gate 0: the framework must confirm external storage is MOUNTED
-    // for user 0. The probes below run as root in nano's own mount
-    // namespace and can pass several seconds before the storage session
-    // APPS see is actually served -- on the RG Vita Pro that window let
-    // the handoff fire while RetroArch still resolved its storage paths
-    // to garbage ("<garbage>/saves") and hung on a black screen forever.
-    // The NanoRelaunchMonitor thread in SystemServer publishes this
-    // property the moment Environment.getExternalStorageState() reports
-    // "mounted", the same signal apps get. Every handoff this function
-    // gates needs the framework running anyway, so requiring its signal
-    // cannot deadlock a handoff that could otherwise succeed; the QR
-    // preview keeps rendering (and stays playable) until it flips.
+// Gate 0 + Gate 1 without the QR-ROM external-SD check: confirm the user's PRIMARY (emulated)
+// external storage is actually served by the FUSE daemon, not just vold's early empty tmpfs
+// placeholder at /storage/emulated/0. Any /sdcard write (e.g. the setup wizard's setup.sh)
+// depends only on this, so gates not tied to a specific external-SD ROM should use this.
+inline bool isPrimaryStorageReady() {
+    // Gate 0: the framework must confirm external storage is MOUNTED for user 0. The probes
+    // below run as root in nano's own mount namespace and can pass several seconds before the
+    // storage session APPS see is actually served. The NanoRelaunchMonitor thread in
+    // SystemServer publishes sys.gammaos.nano.ext_storage_ready the moment
+    // Environment.getExternalStorageState() reports "mounted", the same signal apps get.
     {
         char fw[PROPERTY_VALUE_MAX] = {};
         property_get("sys.gammaos.nano.ext_storage_ready", fw, "0");
         if (fw[0] != '1') return false;
     }
 
-    // Gate 1: emulated FUSE must be ACTUALLY MOUNTED, not just the
-    // tmpfs placeholder directory. /storage/emulated/0 exists as an
-    // empty tmpfs from very early boot (created by vold), so a plain
-    // stat() check passes prematurely and the handoff fires while
-    // FUSE is still mounting -- drastic then can't resolve content://
-    // URIs and falls back to its home menu instead of loading the
-    // game.
-    //
-    // Probe for /storage/emulated/0/Android: this directory is
-    // populated only after FUSE mounts on top of the placeholder
-    // and the user's /data/media/0 is visible through it.
+    // Gate 1: emulated FUSE must be ACTUALLY MOUNTED, not just the tmpfs placeholder directory.
+    // /storage/emulated/0 exists as an empty tmpfs from very early boot (created by vold), so a
+    // plain stat() passes prematurely. Probe /storage/emulated/0/Android: it is populated only
+    // after FUSE mounts on top of the placeholder and the user's /data/media/0 is visible.
     struct stat st;
     if (stat("/storage/emulated/0/Android", &st) != 0
             || !S_ISDIR(st.st_mode))
         return false;
+    return true;
+}
 
+inline bool isQrRomStorageReady() {
+    // Gate 0 + Gate 1: the primary emulated volume is actually served (see isPrimaryStorageReady).
+    // Every handoff this function gates needs the framework running anyway, so requiring its
+    // signal cannot deadlock a handoff that could otherwise succeed.
+    if (!isPrimaryStorageReady()) return false;
+
+    struct stat st;
     // Gate 2: if ROM is on external SD, its raw vold mount must exist.
     std::string qrRom = getQrRomPath();
     if (qrRom.empty()) return true;

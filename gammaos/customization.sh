@@ -40,9 +40,12 @@ if [ ! -d /data/setupcompleted ] && [ -z $(getprop persist.sys.device_provisione
     settings put global transition_animation_scale 1
     settings put global animator_duration_scale 1
     settings put system sound_effects_enabled 0
-    setprop persist.sys.enable_mem_clear 1
-    setprop persist.sys.disable_32bit_mode 1
-    setprop persist.sys.disable_webview 0
+    # DISABLED (see gammaos/setup.sh for the full rationale): setting disable_32bit_mode=1 with
+    # gamma_tweak_update=1 on a fresh wipe fires the vendor set_zygote_64 trigger, restarting zygote
+    # and aborting the emulated FUSE mount mid-setup (ENOTCONN on /sdcard). Leave the props unset.
+    #setprop persist.sys.enable_mem_clear 1
+    #setprop persist.sys.disable_32bit_mode 1
+    #setprop persist.sys.disable_webview 0
     setprop sys.gamma_tweak_update 1
     setprop persist.gammaos.retroarchoverride.backbutton 1
     settings put --lineage system enable_taskbar 1

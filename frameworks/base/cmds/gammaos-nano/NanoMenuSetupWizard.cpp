@@ -38,6 +38,7 @@
 #include "NanoMenuStrings.h"
 #include "NanoMenuPS3.h"   // ps3:: dialog layout for the PS3-styled language step
 #include "NanoI18n.h"      // trDyn() resource-file translations
+#include "NanoMenuUtils.h" // isQrRomStorageReady() - external-storage readiness gate
 
 namespace android {
 
@@ -170,6 +171,10 @@ void NanoMenu::finishSetupWizard() {
 
     // Fast-path property for next boot
     property_set("persist.gammaos.nano.setup_done", "1");
+    // Setup finished cleanly: clear the "device_provisioned set by an in-progress wizard"
+    // marker so a later nano boot trusts the now-complete provisioning (see the boot check
+    // in the main loop and where dp_wizard is set at boot_completed).
+    property_set("persist.gammaos.nano.dp_wizard", "0");
 
     // Stop log thread if still running
     stopSetupLogThread();
@@ -236,38 +241,31 @@ void NanoMenu::buildTimezoneList() {
 void NanoMenu::startSetupScript() {
     if (mSetupScriptRunning) return;
 
-    // The init trigger requires sys.boot_completed=1. Wait for it in the
-    // log tail thread if it hasn't fired yet. The UI shows "Waiting for
-    // system boot..." until the script actually starts.
-    char bootDone[PROPERTY_VALUE_MAX] = {};
-    property_get("sys.boot_completed", bootDone, "0");
-    bool booted = (strcmp(bootDone, "1") == 0);
-
-    // Reset state
+    // The setup.sh init service needs sys.boot_completed=1 AND real external storage.
+    // setup.sh does heavy /sdcard writes (tar of ROMs / RetroArch / emulator data). On some
+    // platforms (Allwinner ceres) the emulated FUSE volume mounts several seconds after
+    // boot_completed; firing setup.sh before that mount is served extracts into the empty
+    // tmpfs placeholder vold leaves at /storage/emulated/0 and corrupts the install with
+    // symlink / ENOENT errors. So the trigger (persist.gammaos.setupwizard_run=1) is deferred
+    // to the log-tail thread until isQrRomStorageReady() passes; the UI shows the
+    // "waiting for system" line until then.
     {
         std::lock_guard<std::mutex> lk(mSetupLogMutex);
         mSetupLogLines.clear();
-        if (booted) {
-            mSetupLogLines.push_back(tr(STR_SETUP_INSTALL_STARTING));
-        } else {
-            mSetupLogLines.push_back(tr(STR_SETUP_INSTALL_BOOT_WAIT));
-        }
+        mSetupLogLines.push_back(tr(STR_SETUP_INSTALL_BOOT_WAIT));
     }
     mSetupLogScrollTop = 0;
     mSetupScriptDone = false;
     mSetupScriptRunning = true;
     mSetupLogExitRequested = false;
 
-    // Clear previous run state and trigger. If boot hasn't completed,
-    // init will queue the service start until both properties match.
+    // Clear previous run state. The actual trigger fires from the log-tail thread once boot
+    // completion AND external-storage readiness are confirmed (see setupLogTailThreadFunc).
     property_set("persist.gammaos.setupwizard_done", "0");
     property_set("persist.gammaos.setupwizard_exit_code", "0");
     property_set("persist.gammaos.setupwizard_run", "0");
-    property_set("persist.gammaos.setupwizard_run", "1");
 
-    ALOGI("NanoMenu: setup script triggered (boot_completed=%s)", bootDone);
-
-    // Start log tail thread
+    // Start log tail thread (waits for storage, triggers setup.sh, then tails the log)
     mSetupLogThread = std::thread(&NanoMenu::setupLogTailThreadFunc, this);
 }
 
@@ -281,6 +279,39 @@ void NanoMenu::stopSetupLogThread() {
 
 void NanoMenu::setupLogTailThreadFunc() {
     long pos = 0;
+
+    // Gate the setup.sh trigger on real external-storage readiness before firing it (see
+    // startSetupScript). isPrimaryStorageReady() = the framework's ext_storage_ready signal +
+    // a /storage/emulated/0/Android probe that tells the real FUSE mount apart from vold's
+    // early tmpfs placeholder. (Deliberately not isQrRomStorageReady(): setup.sh only writes
+    // primary /sdcard, so it must not couple to a stale Quick-Resume external-SD ROM path.)
+    // Bounded so a storage failure still runs setup.sh (degraded) instead of hanging forever.
+    {
+        const int kStorageWaitMaxMs = 120000;   // 2 minute ceiling
+        int waited = 0;
+        for (;;) {
+            if (mSetupLogExitRequested) { mSetupScriptRunning = false; return; }
+            char bd[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.boot_completed", bd, "0");
+            if (strcmp(bd, "1") == 0 && isPrimaryStorageReady()) break;
+            if (waited >= kStorageWaitMaxMs) {
+                ALOGW("NanoMenu: external storage not ready after %d ms, "
+                      "running setup.sh anyway", waited);
+                break;
+            }
+            usleep(250 * 1000);
+            waited += 250;
+        }
+        {
+            std::lock_guard<std::mutex> lk(mSetupLogMutex);
+            mSetupLogLines.clear();
+            mSetupLogLines.push_back(tr(STR_SETUP_INSTALL_STARTING));
+        }
+        // Storage is served: fire the init service now (0->1 edge matches the init trigger).
+        property_set("persist.gammaos.setupwizard_run", "0");
+        property_set("persist.gammaos.setupwizard_run", "1");
+        ALOGI("NanoMenu: setup script triggered after storage-ready (waited %d ms)", waited);
+    }
 
     while (!mSetupLogExitRequested) {
         // Check if script is done

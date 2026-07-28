@@ -24,11 +24,28 @@ finish() {
     rc=$?
     trap - EXIT
     echo "setup.sh exited with ${rc}"
+    # Restore a sane screen-off timeout now that setup is done (see the pin below).
+    settings put system screen_off_timeout 240000 2>/dev/null || true
     setprop persist.gammaos.setupwizard_exit_code "${rc}"
     setprop persist.gammaos.setupwizard_done 1
     setprop persist.gammaos.setupwizard_run 0
 }
+# Arm the restore trap BEFORE pinning the timeout, so any exit that runs the trap restores it.
 trap finish EXIT
+
+# Keep the panel awake for the entire (partly unattended) install. The nano setup_active
+# display-hold does not reliably cover the multi-minute silent script window on all platforms,
+# so pin the screen-off timeout to effectively "never" here (finish() restores it on exit).
+# Runs before any heavy work so the display can never idle off mid-setup (the framework applies
+# the new timeout live via its settings observer).
+settings put system screen_off_timeout 2147483647 2>/dev/null || true
+
+# Idempotency guard: /data/setupcompleted is created near the end of a successful run, so its
+# presence means this is a RE-RUN. Skip the destructive default-ROM re-extract + save-state
+# cleanup on a re-run so a re-entry (e.g. an interrupted-then-recovered wizard, or a nano<->
+# Android mode switch) can never clobber user ROMs / save states.
+FRESH_SETUP=1
+[ -e /data/setupcompleted ] && FRESH_SETUP=0
 
 echo "Starting configuration of the GammaOS system..."
         settings put secure navigation_mode 0
@@ -69,9 +86,16 @@ echo "Starting configuration of the GammaOS system..."
 	settings put global transition_animation_scale 1
 	settings put global animator_duration_scale 1
 	settings put system sound_effects_enabled 0
-	setprop persist.sys.enable_mem_clear 1
-	setprop persist.sys.disable_32bit_mode 1
-	setprop persist.sys.disable_webview 0
+	# disable_32bit_mode + enable_mem_clear + disable_webview are DISABLED here: on a fresh wipe,
+	# setting persist.sys.disable_32bit_mode=1 together with sys.gamma_tweak_update=1 fires the
+	# vendor set_zygote_64 trigger (init.memclear.rc), which restarts zygote; zygote's onrestart
+	# action (vdc volume abort_fuse) tears down the emulated FUSE mount mid-setup, so every /sdcard
+	# write after that fails with ENOTCONN and the ROM/RetroArch install is silently lost. A reboot
+	# masks it because the props are already set and the trigger no longer re-fires. The other
+	# gamma_tweak-driven setprops are disabled alongside it as the user requested.
+	#setprop persist.sys.enable_mem_clear 1
+	#setprop persist.sys.disable_32bit_mode 1
+	#setprop persist.sys.disable_webview 0
 	setprop sys.gamma_tweak_update 1
         setprop persist.gammaos.retroarchoverride.backbutton 1
         settings put --lineage system key_back_long_press_action 11
@@ -189,9 +213,13 @@ cmd package set-home-activity com.magneticchen.daijishou/.app.HomeActivity
 pm set-home-activity com.magneticchen.daijishou/.app.HomeActivity -user --user 0
 
 echo "Extracting and setting up ROMs."
-tar -xJvf /system/etc/roms.tar.xz -P -C / && \
-find /sdcard/ROMs/ -type f \( -iname '*state.auto' -o -iname '*state.auto.png' \) -delete
-find /sdcard/ROMs/ -type f \( -iname '*state.auto' -o -iname '*state.auto.png' \) -exec rm -f {} \;
+if [ "$FRESH_SETUP" = 1 ]; then
+    tar -xJvf /system/etc/roms.tar.xz -P -C / && \
+    find /sdcard/ROMs/ -type f \( -iname '*state.auto' -o -iname '*state.auto.png' \) -delete
+    find /sdcard/ROMs/ -type f \( -iname '*state.auto' -o -iname '*state.auto.png' \) -exec rm -f {} \;
+else
+    echo "Re-run detected (/data/setupcompleted exists): keeping existing ROMs and save states."
+fi
 
 echo "Granting read/write permissions to RetroArch."
 pm grant com.retroarch.aarch64 android.permission.WRITE_EXTERNAL_STORAGE
@@ -199,7 +227,7 @@ pm grant com.retroarch.aarch64 android.permission.READ_EXTERNAL_STORAGE
 
 mkdir -p /data/setupcompleted
 sleep 4
-settings put system screen_off_timeout 240000
+# (screen_off_timeout is pinned at the top of this script and restored to 240000 in finish())
 rm /sdcard/RetroArch/config/global.slangp
 
 tar -xvf /system/etc/gboard.tar.gz -C /

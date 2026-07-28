@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemProperties;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -39,6 +40,11 @@ public class LineageSettingsActivity extends Activity {
     private static final String PROP_INVERT_RIGHT = "persist.gammaos.gamepad.invert_right";
     private static final String PROP_DEVICES = "persist.gammaos.gamepad.devices";
     private static final String PROP_CONFIG_VERSION = "persist.gammaos.gamepad.config_version";
+
+    // The controller / analog-calibration screen is suppressed by default; it is only shown
+    // when this prop is enabled ("1"/"true"). When hidden, the system-configuration step
+    // (setup.sh) still runs headlessly and the wizard advances as usual.
+    private static final String PROP_SHOW_CONTROLLER = "persist.gammaos.setup.show_controller";
 
     private static final int REQUEST_CALIBRATION = 1001;
 
@@ -100,6 +106,15 @@ public class LineageSettingsActivity extends Activity {
         headingTextView = findViewById(R.id.headingTextView);
         continueButton = findViewById(R.id.continue_button);
 
+        // GammaOS: the controller / analog-calibration screen is suppressed by default and is
+        // only shown when persist.gammaos.setup.show_controller is enabled. When hidden, run
+        // the system-configuration step (setup.sh) headlessly and advance the wizard, so the
+        // flow is unchanged for everyone who has not explicitly opted in.
+        if (!SystemProperties.getBoolean(PROP_SHOW_CONTROLLER, false)) {
+            runSetupScript();
+            return;
+        }
+
         // Controller chooser
         controllerList = findViewById(R.id.controller_list);
         populateControllerList();
@@ -121,20 +136,25 @@ public class LineageSettingsActivity extends Activity {
         });
 
         // Continue -> run setup.sh with root, stream output, then advance wizard
-        continueButton.setOnClickListener(v -> {
-            headingTextView.setText("Configuring GammaOS Next...");
-            controlScroll.setVisibility(View.GONE);
-            continueButton.setVisibility(View.GONE);
-            scrollView.setVisibility(View.VISIBLE);
+        continueButton.setOnClickListener(v -> runSetupScript());
+    }
 
-            outputTextView.setText("");
-            File logFile = new File(getFilesDir(), "gammaos_setup.log");
-            if (logFile.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                logFile.delete();
-            }
-            new RunSetupViaInitTask(logFile).execute();
-        });
+    // Hide the controller controls, show the config log, run setup.sh via init and advance the
+    // wizard on completion. Used both by the Continue button and by the headless path taken
+    // when the controller screen is suppressed (persist.gammaos.setup.show_controller off).
+    private void runSetupScript() {
+        headingTextView.setText("Configuring GammaOS Next...");
+        controlScroll.setVisibility(View.GONE);
+        continueButton.setVisibility(View.GONE);
+        scrollView.setVisibility(View.VISIBLE);
+
+        outputTextView.setText("");
+        File logFile = new File(getFilesDir(), "gammaos_setup.log");
+        if (logFile.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            logFile.delete();
+        }
+        new RunSetupViaInitTask(logFile).execute();
     }
 
     private void populateControllerList() {
@@ -383,11 +403,26 @@ public class LineageSettingsActivity extends Activity {
             SystemProperties.set(PROP_DONE, "0");
             SystemProperties.set(PROP_EXIT_CODE, "0");
             SystemProperties.set(PROP_RUN, "0");
-            SystemProperties.set(PROP_RUN, "1");
+            // The trigger (PROP_RUN=1) is fired from doInBackground once external storage is
+            // MOUNTED, so setup.sh never writes /sdcard before the emulated volume is served
+            // (mirrors the nano native wizard's storage gate).
         }
 
         @Override
         protected Integer doInBackground(Void... ignored) {
+            // Gate the setup.sh trigger on external storage being MOUNTED (not just vold's early
+            // tmpfs placeholder). setup.sh does heavy /sdcard writes; firing it before the
+            // emulated volume is served corrupts the install. Bounded (2 min) so a storage
+            // failure still runs setup.sh degraded rather than hanging the wizard.
+            long storageWaited = 0;
+            while (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                    && storageWaited < 120000) {
+                try { Thread.sleep(250); } catch (InterruptedException ignoredSleep) {}
+                storageWaited += 250;
+            }
+            SystemProperties.set(PROP_RUN, "0");
+            SystemProperties.set(PROP_RUN, "1");
+
             long pos = 0;
             try {
                 while (true) {
