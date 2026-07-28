@@ -1412,6 +1412,22 @@ void GamepadManager::executeAction(int type, const std::string& arg) {
         case ACT_SHELL:
             runShellDetached(arg);
             break;
+        case ACT_DPAD_SWAP: {
+            // Toggle the DPAD/Analog swap exactly like the SystemUI DPAD/Analog Swap
+            // tile: flip both analog_to_dpad and dpad_to_analog together, then bump
+            // config_version so the daemon reloads and applies the new state. Reading
+            // analog_to_dpad as the current state matches the tile's mEnabled.
+            bool on = android::base::GetIntProperty(
+                    "persist.gammaos.gamepad.analog_to_dpad", 0) != 0;
+            const char* val = on ? "0" : "1";
+            android::base::SetProperty("persist.gammaos.gamepad.analog_to_dpad", val);
+            android::base::SetProperty("persist.gammaos.gamepad.dpad_to_analog", val);
+            int cv = android::base::GetIntProperty(
+                    "persist.gammaos.gamepad.config_version", 0);
+            android::base::SetProperty("persist.gammaos.gamepad.config_version",
+                                       std::to_string(cv + 1));
+            break;
+        }
         default:
             break;
     }

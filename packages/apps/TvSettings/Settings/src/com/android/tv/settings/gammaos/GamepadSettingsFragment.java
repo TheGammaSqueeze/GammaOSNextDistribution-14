@@ -1404,6 +1404,7 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
             case "act": return "Open " + a;
             case "prop": { int e2 = a.indexOf('='); return "Set " + (e2 < 0 ? a : a.substring(0, e2)); }
             case "sh": return "Run: " + (a.length() > 20 ? a.substring(0, 18) + ".." : a);
+            case "dpadswap": return "DPAD/Analog Swap";
             default: return "Not set";
         }
     }
@@ -1485,7 +1486,7 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
         if (context == null) return;
         String[] items = {
             "Button / Key", "Launch App", "Launch Activity",
-            "Set Property", "Run Shell Command", "None (clear)",
+            "Set Property", "Run Shell Command", "DPAD/Analog Swap", "None (clear)",
         };
         new AlertDialog.Builder(context)
                 .setTitle((slot == 0 ? "Short" : "Long") + " Press Action")
@@ -1496,7 +1497,8 @@ public class GamepadSettingsFragment extends SettingsPreferenceFragment
                         case 2: showActionAppDialog(code, slot, true); break;
                         case 3: showActionTextDialog(code, slot, true); break;
                         case 4: showActionTextDialog(code, slot, false); break;
-                        case 5: actSetSlot(code, slot, ""); showActionEditDialog(code); break;
+                        case 5: actSetSlot(code, slot, "dpadswap="); showActionEditDialog(code); break;
+                        case 6: actSetSlot(code, slot, ""); showActionEditDialog(code); break;
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)

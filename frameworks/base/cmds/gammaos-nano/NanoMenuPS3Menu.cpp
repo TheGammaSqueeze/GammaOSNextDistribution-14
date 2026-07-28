@@ -776,6 +776,7 @@ enum {
     QA_ACTION_TYPE_PROP, // type a name=value property to set
     QA_ACTION_TYPE_SH,   // type a shell command to run
     QA_ACTION_TYPE_NONE, // clear the active slot
+    QA_ACTION_TYPE_DPADSWAP, // set the slot to the DPAD/Analog swap toggle (dpadswap=)
     QA_ACTION_SETKEY,    // (it.b = evdev code) set the active slot to key=<code>
     QA_ACTION_SETAPP,    // (it.value = pkg) set the active slot to app=<pkg>
     QA_ACTION_SETACT,    // (it.value = pkg/comp) set the active slot to act=<comp>
@@ -2768,6 +2769,7 @@ std::string NanoMenu::actionSummary(const std::string& spec) {
         std::string c = arg; if (c.size() > 22) c = c.substr(0, 20) + "..";
         return "Run: " + c;
     }
+    if (type == "dpadswap") return "DPAD/Analog Swap";
     return "Not set";
 }
 
@@ -2821,6 +2823,7 @@ void NanoMenu::buildActionTypeMenu(Ps3Level& out) {
     row("Launch Activity", QA_ACTION_TYPE_ACT);
     row("Set Property", QA_ACTION_TYPE_PROP);
     row("Run Shell Command", QA_ACTION_TYPE_SH);
+    row("DPAD/Analog Swap", QA_ACTION_TYPE_DPADSWAP);
     row("None (clear)", QA_ACTION_TYPE_NONE);
 }
 
@@ -4526,6 +4529,11 @@ void NanoMenu::ps3XmbSelect() {
                 }
                 case QA_ACTION_TYPE_NONE:
                     actSetSlot(mActionEditCode, mActionEditSlot, "");
+                    popToActionEdit(); mDisplayDirty = true; return;
+                case QA_ACTION_TYPE_DPADSWAP:
+                    // No arg needed: the daemon toggles both analog_to_dpad and
+                    // dpad_to_analog + bumps config_version when this fires.
+                    actSetSlot(mActionEditCode, mActionEditSlot, "dpadswap=");
                     popToActionEdit(); mDisplayDirty = true; return;
                 case QA_ACTION_SETKEY:
                     actSetSlot(mActionEditCode, mActionEditSlot, "key=" + std::to_string(it.b));

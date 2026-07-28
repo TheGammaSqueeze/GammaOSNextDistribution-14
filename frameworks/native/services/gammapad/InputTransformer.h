@@ -21,6 +21,8 @@ enum ActionType {
     ACT_ACTIVITY,  // arg = pkg/Component to launch
     ACT_PROP,      // arg = "name=value" to set
     ACT_SHELL,     // arg = shell command to run
+    ACT_DPAD_SWAP, // no arg; toggle the DPAD/Analog swap (both analog_to_dpad and
+                   // dpad_to_analog) + bump config_version, exactly like the QS tile
 };
 
 // Per-button action rule: what a short press and a long press do.

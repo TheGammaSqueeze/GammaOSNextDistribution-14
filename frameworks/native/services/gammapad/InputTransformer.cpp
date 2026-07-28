@@ -775,6 +775,7 @@ ActionType InputTransformer::parseActionSpec(const std::string& spec, std::strin
     if (type == "act")  return ACT_ACTIVITY;
     if (type == "prop") return ACT_PROP;
     if (type == "sh")   return ACT_SHELL;
+    if (type == "dpadswap") return ACT_DPAD_SWAP;
     return ACT_NONE;
 }
 
