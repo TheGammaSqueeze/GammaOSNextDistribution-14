@@ -1784,18 +1784,23 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     "sys.gammaos.nano.show_overlay", "0"));
             boolean appForeground = "1".equals(android.os.SystemProperties.get(
                     "sys.gammaos.nano.app_launched", "0"));
-            if (!shown) {
+            if (!appForeground) {
+                // No foreground app: the home menu is already on screen. Raising the in-game
+                // overlay here (show_overlay=1) would push nano into its overlay-over-app render
+                // path with NO app behind it, which parks the render/input loop and freezes the
+                // home (the "power hold on the visible home froze it, no menu" bug). So go straight
+                // to the Quick Menu Power submenu instead of toggling show_overlay. Must be checked
+                // BEFORE the !shown branch, because on the home show_overlay is 0.
+                android.os.SystemProperties.set("sys.gammaos.nano.nav", "powermenu");
+                Slog.d(TAG, "GammaOS Nano: power long press -> Quick Menu Power submenu (home visible)");
+            } else if (!shown) {
+                // An app is foreground and the overlay is hidden: raise the in-game overlay over it.
                 android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
                 Slog.d(TAG, "GammaOS Nano: power long press -> overlay XMB show");
-            } else if (appForeground) {
+            } else {
+                // An app is foreground and the overlay is up: hide it and resume the app.
                 android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "0");
                 Slog.d(TAG, "GammaOS Nano: power long press -> overlay XMB hide (resume app)");
-            } else {
-                // Overlay/wallpaper home is on screen with no foreground app (the menu is visible):
-                // open the Quick Menu Power submenu. nano owns the menu navigation, so ask it via the
-                // nav hook rather than toggling the overlay.
-                android.os.SystemProperties.set("sys.gammaos.nano.nav", "powermenu");
-                Slog.d(TAG, "GammaOS Nano: power long press -> Quick Menu Power submenu (overlay home visible)");
             }
             return;
         }

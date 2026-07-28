@@ -4571,8 +4571,32 @@ if (sRingPrimedCount >= 2) {
             if (sPcPi) { uint32_t s = __system_property_serial(sPcPi); if (s != sPcSer) { sPcSer = s; sPcVal = property_get_bool("persist.gammaos.nano.pspclock", false); } }
             else sPcVal = false;
             const bool pspClockSummonHome = sSoVal && !sAlVal && sPcVal;
+            // GammaOS overlay-home: the SAME self-park hazard as pspClockSummonHome above, but for
+            // the general overlay-home raise (pspclock disabled). On an SF-composited home
+            // (mOverlayMode=false) that is the SOLE nano instance - the case before the first app
+            // launch, since the resident `gammaos-nano --overlay` only starts on app_launched=1
+            // (gammaos-nano.rc) - the framework can raise sys.gammaos.nano.show_overlay=1 with
+            // app_launched=0 on a home resume (RootWindowContainer.nanoRaiseOverlay /
+            // PhoneWindowManager.nanoRaiseOverlayHome, gated on nanoOverlayHomeActive()), assuming a
+            // resident overlay is up to service it. With no overlay actually running (overlay_ran
+            // unset), this lone home then read show_overlay=1, concluded it was "occluded by a
+            // foreground app", and parked - freezing just after the first-run setup wizard
+            // (device-confirmed: threadLoop wedged in the usleep below, sys.gammaos.nano.nav and
+            // .shot never consumed, no watchdog abort because the heartbeat below keeps advancing).
+            // So when show_overlay is up but no app is running AND no resident overlay has ever
+            // initialized, THIS home is the visible surface: do not park - keep rendering + polling
+            // input - and clear the stray flag so DisplayRotation / RootWindowContainer stop treating
+            // the home as occluded (mirrors the leftover-flag clear in PhoneWindowManager's home
+            // recovery). overlay_ran is serial-cached like the props above (a pointer-deref/frame);
+            // the clear self-limits because next frame show_overlay re-reads as 0.
+            static const prop_info* sOrPi = nullptr; static uint32_t sOrSer = 0; static bool sOrVal = false;
+            if (!sOrPi) sOrPi = __system_property_find("sys.gammaos.nano.overlay_ran");
+            if (sOrPi) { uint32_t s = __system_property_serial(sOrPi); if (s != sOrSer) { sOrSer = s; sOrVal = property_get_bool("sys.gammaos.nano.overlay_ran", false); } }
+            else sOrVal = false;
+            const bool orphanOverlayRaiseHome = sSoVal && !sAlVal && !sOrVal;
+            if (orphanOverlayRaiseHome) property_set("sys.gammaos.nano.show_overlay", "0");
             if (!mOverlayMode && mLaunchFadeStart == 0 && !mWaitForRelease
-                    && (sAlVal || sSoVal) && !pspClockSummonHome) {
+                    && (sAlVal || sSoVal) && !pspClockSummonHome && !orphanOverlayRaiseHome) {
                 // Parked (occluded by the foreground app): render() is skipped, so
                 // keep the watchdog heartbeat alive or it aborts this process after 8s.
                 mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
