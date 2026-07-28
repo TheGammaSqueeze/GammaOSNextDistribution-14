@@ -173,6 +173,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.HwBinder;
 import android.os.IBinder;
 import android.os.Looper;
@@ -697,6 +698,20 @@ public class AudioService extends IAudioService.Stub
 
     // Broadcast receiver for device connections intent broadcasts
     private final BroadcastReceiver mReceiver = new AudioServiceBroadcastReceiver();
+
+    // GammaOS: mReceiver.onReceive() is dispatched on this dedicated background thread rather than
+    // the system_server main thread (see the registerReceiverAsUser call). onReceive makes
+    // synchronous audio-HAL calls (e.g. ACTION_USER_SWITCHED -> readAudioSettings ->
+    // readPersistedSettings, which pushes assistant-uid / rtt / surround config to the HAL). If the
+    // audio HAL is wedged or dead those calls block for tens of seconds; on Allwinner ceres the
+    // audio.primary HAL SIGABRTs under scudo and, being a oneshot service, is not restarted, so the
+    // calls hang ~65s. On the main thread that trips the system_server Watchdog -> system_server is
+    // killed -> zygote's onrestart "vdc volume abort_fuse" tears down the emulated FUSE mount, which
+    // then never recovers (the restarted system_server hits the same block: crash loop), leaving
+    // /sdcard unusable ("Transport endpoint is not connected") until reboot. Running onReceive on a
+    // dedicated thread that the Watchdog does not monitor contains any such stall to audio instead of
+    // taking down system_server (and with it storage). Single-threaded, so onReceive ordering is kept.
+    private final HandlerThread mReceiverThread = new HandlerThread("AudioService.Receiver");
 
     private IMediaProjectionManager mProjectionService; // to validate projection token
 
@@ -1521,8 +1536,12 @@ public class AudioService extends IAudioService.Stub
         intentFilter.addAction(ACTION_CHECK_MUSIC_ACTIVE);
         intentFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
 
-        mContext.registerReceiverAsUser(mReceiver, UserHandle.ALL, intentFilter, null, null,
-                Context.RECEIVER_EXPORTED);
+        // GammaOS: dispatch mReceiver on mReceiverThread (a dedicated, non-Watchdog-monitored
+        // background thread) instead of the main thread, so a stalled/dead audio HAL cannot wedge
+        // system_server and cascade to a FUSE teardown (see mReceiverThread for the full rationale).
+        mReceiverThread.start();
+        mContext.registerReceiverAsUser(mReceiver, UserHandle.ALL, intentFilter, null,
+                new Handler(mReceiverThread.getLooper()), Context.RECEIVER_EXPORTED);
 
         SubscriptionManager subscriptionManager = mContext.getSystemService(
                 SubscriptionManager.class);
