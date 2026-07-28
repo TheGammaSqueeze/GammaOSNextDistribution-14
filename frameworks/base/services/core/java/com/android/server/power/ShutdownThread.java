@@ -1148,6 +1148,74 @@ public final class ShutdownThread extends Thread {
                                 "persist.gammaos.nano.qr_prepared", "1");
                         Slog.i(TAG, "GammaOS Nano: Quick Resume saved ROM="
                                 + romPath + " CORE=" + corePath);
+                        // GammaOS Nano: guarantee the DE cache is fully staged for
+                        // the resume ROM before we reboot. The launch-time populate
+                        // (NanoMenuXmb.cpp) normally warms it during gameplay, but it
+                        // can be defeated by a concurrent clear_rom in the launch
+                        // handshake or by a session too short to finish the copy, and
+                        // the reactive resume-boot populate is too late (it blocks on
+                        // CE unlock, ~6s, after nano has already fallen back to the
+                        // blank "Quick Resuming" splash). Here, at power-off, CE is
+                        // unlocked and this is the last un-clobberable moment, so a
+                        // (delta-cheap) populate makes the FIRST resume a cache HIT
+                        // that renders the live preview instead of a blank fallback.
+                        // Only fire it when the ROM is not already staged, and bound
+                        // the wait so a large first-ever copy cannot hang shutdown. On
+                        // timeout qr_prepared stays 1 and the reactive resume-boot
+                        // populate re-tries as the safety net; if do_populate instead
+                        // definitively fails to stage the ROM it disarms QR
+                        // (qr_prepared=0) so the next boot is a clean XMB boot rather
+                        // than a doomed resume (intentional graceful degradation, and
+                        // it can only affect a resume that was already going to miss).
+                        try {
+                            String romBase = romPath.substring(
+                                    romPath.lastIndexOf('/') + 1);
+                            java.io.File cachedRom = new java.io.File(
+                                    "/data/system/nano_cache/rom/" + romBase);
+                            if (!cachedRom.exists() || cachedRom.length() == 0) {
+                                Slog.i(TAG, "GammaOS Nano: resume ROM not staged ("
+                                        + romBase + "), populating DE cache "
+                                        + "before reboot");
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.cache_ready", "0");
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.cache_op", "populate");
+                                // Give init a moment to (re)start the oneshot
+                                // service, then wait for populate to finish,
+                                // bounded to ~12s. Completion is signalled either
+                                // by cache_ready flipping 0->1 (set by do_populate
+                                // on success, the deterministic signal) or by the
+                                // service leaving "running" AFTER we have observed
+                                // it running (so a slow init that has not started
+                                // the service yet does not read as "already done").
+                                try { Thread.sleep(150); }
+                                catch (InterruptedException ie) {}
+                                boolean sawRunning = false;
+                                for (int i = 0; i < 120; i++) {
+                                    if ("1".equals(SystemProperties.get(
+                                            "sys.gammaos.nano.cache_ready", "0")))
+                                        break;
+                                    boolean running = "running".equals(
+                                            SystemProperties.get(
+                                            "init.svc.nano_cache_populate", ""));
+                                    if (running) sawRunning = true;
+                                    else if (sawRunning) break;
+                                    try { Thread.sleep(100); }
+                                    catch (InterruptedException ie) {}
+                                }
+                                Slog.i(TAG, "GammaOS Nano: DE cache populate "
+                                        + "complete (ready="
+                                        + SystemProperties.get(
+                                                "sys.gammaos.nano.cache_ready", "?")
+                                        + ")");
+                            } else {
+                                Slog.i(TAG, "GammaOS Nano: resume ROM already "
+                                        + "staged (" + romBase + ")");
+                            }
+                        } catch (Exception e) {
+                            Slog.w(TAG, "GammaOS Nano: pre-reboot populate "
+                                    + "failed: " + e);
+                        }
                     }
                 }
             } else {
@@ -1200,6 +1268,72 @@ public final class ShutdownThread extends Thread {
                             + "proceeding anyway");
                 } else {
                     Slog.i(TAG, "GammaOS: drastic-nano exited gracefully");
+                }
+                // GammaOS Nano: guarantee the DE drastic cache is staged for the DS
+                // resume ROM before reboot, mirroring the RetroArch path above but on
+                // the disjoint $CACHE/drastic tree via populate_drastic. The launch
+                // populate_drastic normally warms it during play, but a short session
+                // or a raced clear can leave it cold and the reactive resume-boot
+                // staging blocks on CE unlock; here CE is unlocked and drastic-nano
+                // has already exited, so a (delta-cheap) populate makes the first DS
+                // resume a cache HIT. Only fire if QR is armed and the ROM is missing.
+                if ("1".equals(SystemProperties.get(
+                        "persist.gammaos.nano.qr_prepared", "0"))
+                        && "drastic".equals(SystemProperties.get(
+                                "persist.gammaos.nano.qr_core", ""))) {
+                    try {
+                        String dnRom = "";
+                        java.io.File dnRomFile = new java.io.File(
+                                "/data/system/nano_drastic_nano_rom.txt");
+                        if (dnRomFile.exists()) {
+                            dnRom = new String(java.nio.file.Files.readAllBytes(
+                                    dnRomFile.toPath()),
+                                    java.nio.charset.StandardCharsets.UTF_8).trim();
+                        }
+                        if (!dnRom.isEmpty()) {
+                            String romBase = dnRom.substring(
+                                    dnRom.lastIndexOf('/') + 1);
+                            java.io.File cachedRom = new java.io.File(
+                                    "/data/system/nano_cache/drastic/rom/" + romBase);
+                            if (!cachedRom.exists() || cachedRom.length() == 0) {
+                                Slog.i(TAG, "GammaOS Nano: DS resume ROM not staged ("
+                                        + romBase + "), populating drastic DE cache "
+                                        + "before reboot");
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.cache_ready", "0");
+                                SystemProperties.set(
+                                        "sys.gammaos.nano.cache_op",
+                                        "populate_drastic");
+                                try { Thread.sleep(150); }
+                                catch (InterruptedException ie) {}
+                                boolean sawRunning = false;
+                                for (int i = 0; i < 150; i++) {
+                                    if ("1".equals(SystemProperties.get(
+                                            "sys.gammaos.nano.cache_ready", "0")))
+                                        break;
+                                    boolean running = "running".equals(
+                                            SystemProperties.get(
+                                            "init.svc.nano_cache_populate_drastic",
+                                            ""));
+                                    if (running) sawRunning = true;
+                                    else if (sawRunning) break;
+                                    try { Thread.sleep(100); }
+                                    catch (InterruptedException ie) {}
+                                }
+                                Slog.i(TAG, "GammaOS Nano: drastic DE cache "
+                                        + "populate complete (ready="
+                                        + SystemProperties.get(
+                                                "sys.gammaos.nano.cache_ready", "?")
+                                        + ")");
+                            } else {
+                                Slog.i(TAG, "GammaOS Nano: DS resume ROM already "
+                                        + "staged (" + romBase + ")");
+                            }
+                        }
+                    } catch (Exception e) {
+                        Slog.w(TAG, "GammaOS Nano: DS pre-reboot populate "
+                                + "failed: " + e);
+                    }
                 }
                 return;
             }

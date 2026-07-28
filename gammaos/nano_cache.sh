@@ -14,19 +14,34 @@ log_i() { log -t "$TAG" -p i "$1"; }
 log_w() { log -t "$TAG" -p w "$1"; }
 log_e() { log -t "$TAG" -p e "$1"; }
 
+# Atomic copy: write to a temp in the destination dir then rename into place, so
+# a concurrent reader (a resume-boot cache scan) or an interrupted copy (a short
+# game session powering off mid-populate) never observes a truncated destination.
+# rename() within the same filesystem is atomic. Falls back nowhere: on failure
+# the temp is removed and the previous destination (if any) is left intact.
+atomic_copy() {
+    local src="$1" dst="$2"
+    local tmp="${dst}.tmp.$$"
+    if cp -p "$src" "$tmp" 2>/dev/null && mv -f "$tmp" "$dst" 2>/dev/null; then
+        return 0
+    fi
+    rm -f "$tmp" 2>/dev/null
+    return 1
+}
+
 # Delta sync: copy file only if mtime or size differs
 delta_sync_file() {
     local src="$1" dst="$2"
     [ ! -f "$src" ] && return 0
     if [ ! -f "$dst" ]; then
-        cp -p "$src" "$dst" 2>/dev/null && return 0
+        atomic_copy "$src" "$dst" && return 0
         return 1
     fi
     local src_stat dst_stat
     src_stat=$(stat -c '%Y_%s' "$src" 2>/dev/null)
     dst_stat=$(stat -c '%Y_%s' "$dst" 2>/dev/null)
     if [ "$src_stat" != "$dst_stat" ]; then
-        cp -p "$src" "$dst" 2>/dev/null && return 0
+        atomic_copy "$src" "$dst" && return 0
         return 1
     fi
     return 0
@@ -216,7 +231,7 @@ do_populate() {
         # Different ROM — clear old ROM first
         rm -f "$CACHE/rom/"* 2>/dev/null
         log_i "populate: caching ROM $rom_file"
-        cp -p "$rom_raw" "$cached_rom"
+        atomic_copy "$rom_raw" "$cached_rom"
     else
         delta_sync_file "$rom_raw" "$cached_rom"
     fi
@@ -720,7 +735,7 @@ do_populate_drastic() {
             # files from cross-system QR primes (e.g. a GBA ROM cached
             # when the user switched from a libretro QR to drastic QR).
             rm -f "$dcache/rom/"* 2>/dev/null
-            cp -p "$rom_raw" "$dcache/rom/$rom_file" 2>/dev/null
+            atomic_copy "$rom_raw" "$dcache/rom/$rom_file"
             if [ -f "$dcache/rom/$rom_file" ]; then
                 log_i "populate_drastic: cached ROM $rom_file"
                 rom_staged=1

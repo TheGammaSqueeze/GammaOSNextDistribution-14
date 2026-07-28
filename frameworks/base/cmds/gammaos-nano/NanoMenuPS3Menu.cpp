@@ -6774,6 +6774,19 @@ bool NanoMenu::wallpaperActive(int panel) const {
 // Cover-fit blit of the panel's wallpaper still over the WHOLE panel (scale to cover, centre-crop the
 // overflow), drawn opaque. Save/restore GL_BLEND so the fill can never leak state into the icon/frost
 // passes that follow (a leaked glDisable(GL_BLEND) previously caused white-square icons - see memory).
+// Adjustable dimming scrim for a custom wallpaper (Theme Settings "Wallpaper Dimming",
+// persist.gammaos.nano.wp.scrim, 0..90 percent). Applied over the on-screen photo/video wallpaper in
+// every theme so a bright image does not wash out the XMB glass icons, the DSi tiles or the Minima list
+// text. Read live (cheap shmem read) so a change applies immediately. NOT applied to the offscreen work
+// texture the glass icons refract, so the icon material itself is unchanged.
+float NanoMenu::wallpaperScrimAlpha() const {
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.wp.scrim", v, "25");
+    int pct = atoi(v);
+    if (pct < 0) pct = 0; if (pct > 90) pct = 90;
+    return (float)pct / 100.0f;
+}
+
 void NanoMenu::drawWallpaperFill(int panel) {
     GLuint tex = (panel == 1) ? mWpTexBottom : mWpTexTop;
     int iw = (panel == 1) ? mWpBottomW : mWpTopW;
@@ -6787,6 +6800,8 @@ void NanoMenu::drawWallpaperFill(int panel) {
     glDisable(GL_BLEND);
     drawIconTex(tex, dx, dy, dw, dh, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, false);
     if (wasBlend) glEnable(GL_BLEND);
+    float sa = wallpaperScrimAlpha();
+    if (sa > 0.001f) { setUiBlend(); drawQuad(0.0f, 0.0f, pw, ph, 0.0f, 0.0f, 0.0f, sa); }
 }
 
 // Paint the active panel's custom wallpaper INTO ps3bg's work texture. The work texture is the LINEAR
@@ -6965,6 +6980,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // shows these presets as a Minima side panel; the hex has no ':'/',' so parseListOptions is safe.
     {"Background Colour", SettingSource::kProp, "persist.gammaos.nano.minima.bg", "none",
      "none:Black,20222b:Slate,3a3f4b:Graphite,ffffff:White,9b2257:Berry,1e3a5f:Navy,0d5c46:Teal,2e5d34:Forest,6a1b9a:Purple,b3122b:Crimson,d2691e:Amber,1a1a2e:Midnight"},
+    // Adjustable dimming over a custom wallpaper (read live by wallpaperScrimAlpha, applied in
+    // drawWallpaperFill / drawTopVideoWallpaper for every theme). Percent value, 0 = off.
+    {"Wallpaper Dimming", SettingSource::kProp, "persist.gammaos.nano.wp.scrim", "25",
+     "0:Off,10:10%,20:20%,25:25%,30:30%,40:40%,50:50%,60:60%,70:70%"},
     {"Bottom Clock", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock", "1", "0:Off,1:On"},
     {"Bottom Clock FPS", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock.fps", "30", "30:30 FPS,60:60 FPS"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},

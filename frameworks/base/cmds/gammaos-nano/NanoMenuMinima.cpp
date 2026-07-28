@@ -101,9 +101,10 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     if (inGameScrim) {
         // leave the framebuffer's app-dimming scrim untouched; the white list draws over it
     } else if (wallpaperActive(mRenderingPanel)) {
+        // drawWallpaperFill / drawTopVideoWallpaper already apply the adjustable "Wallpaper Dimming" scrim,
+        // which keeps the white list legible over a bright wallpaper (the user tunes it up for Minima).
         if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))   // looping video on top, else the still
             drawWallpaperFill(mRenderingPanel);
-        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.34f);        // readability scrim so the white list stays crisp
     } else if (minimaSolidBg(&bgR, &bgG, &bgB)) {
         drawQuad(rx, ry, rw, rh, bgR, bgG, bgB, 1.0f);            // user-chosen solid backdrop colour
     } else if (mXmbWave && mXmbWaveExplicit) {
@@ -316,8 +317,8 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
     const bool inGameScrim = mOverlayMode && !mOverlayWallpaper;
     bool drew = false;
     float bgR, bgG, bgB;
-    if (wallpaperActive(1)) { drawWallpaperFill(1); drew = true; }
-    if (drew)                        drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.30f);   // readability scrim over a wallpaper
+    if (wallpaperActive(1)) { drawWallpaperFill(1); drew = true; }   // applies the adjustable Wallpaper Dimming scrim
+    if (drew)                        { /* dimming handled inside drawWallpaperFill */ }
     else if (inGameScrim)            { /* leave the app-dim scrim clear; the category chrome draws over it */ }
     else if (minimaSolidBg(&bgR, &bgG, &bgB)) drawQuad(rx, ry, rw, rh, bgR, bgG, bgB, 1.0f);   // solid backdrop colour
     else                             drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);    // pure-black backdrop (no app behind)

@@ -343,6 +343,10 @@ NanoMenu::~NanoMenu() {
     pvStopDecodeWorker();
     // Stop the scraper-art async decode worker (join the thread; no GL in dtor).
     saStopArtWorker();
+    // Tear down the auto-thumbnail machine (joins its headless open worker; a joinable std::thread member
+    // would otherwise std::terminate at destruction). It async-frees the headless decoder into mVidDying,
+    // which the synchronous videoHardFree(true) below drains. Must run before videoHardFree.
+    videoThumbAbandon();
     // Tear down the video WALLPAPER first (joins its open worker; a joinable std::thread member would
     // otherwise std::terminate at destruction). It async-frees into mVidDying, which the synchronous
     // videoHardFree(true) below then drains. Watchdog already exempt above.
@@ -1868,7 +1872,7 @@ bool NanoMenu::threadLoop() {
                     // stayed stale and the overlay never showed on the RG DS.
                     glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
                     glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClearColor(0.05f, 0.05f, 0.10f, 1.0f);   // dark-blue QR backdrop, never pure black
                     glClear(GL_COLOR_BUFFER_BIT);
                     if (showingGame) previewDs->renderBottomScreen(dsSat, dsGrad);
                     drawSplashOverlay();
@@ -1876,7 +1880,7 @@ bool NanoMenu::threadLoop() {
                     drmFrameBegin();
                     if (sDrmGlRotation && sDrmZeroCopy) glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
                     else                                glViewport(0, 0, mWidth, mHeight);
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClearColor(0.05f, 0.05f, 0.10f, 1.0f);   // dark-blue QR backdrop, never pure black
                     glClear(GL_COLOR_BUFFER_BIT);
                     if (showingGame) previewDs->renderTopScreen(dsSat, dsGrad);
                     drawSplashOverlay();
@@ -1888,7 +1892,7 @@ bool NanoMenu::threadLoop() {
                     // the viewport to 0x0. See the note in NanoMenuRender.cpp render().
                     if (sDrmGlRotation && sDrmZeroCopy) glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
                     else                                glViewport(0, 0, mWidth, mHeight);
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);   // black behind the DS
+                    glClearColor(0.05f, 0.05f, 0.10f, 1.0f);   // dark-blue behind the DS, never pure black on a miss
                     glClear(GL_COLOR_BUFFER_BIT);
                     if (showingGame) {
                         previewDs->renderBothScreens(dsSat, dsGrad);   // DS quad -> present FBO
@@ -3246,7 +3250,8 @@ if (sRingPrimedCount >= 2) {
                                     name.find(".state") != std::string::npos ||
                                     name.find(".sav") != std::string::npos ||
                                     name.find(".brm") != std::string::npos ||
-                                    name.find(".png") != std::string::npos)
+                                    name.find(".png") != std::string::npos ||
+                                    name.find(".tmp.") != std::string::npos)
                                     continue;
                                 bool isZip = (name.size() > 4 &&
                                     (name.compare(name.size()-4, 4, ".zip") == 0 ||
@@ -3806,13 +3811,39 @@ if (sRingPrimedCount >= 2) {
                                                     (float)mHeight / 720.0f);
                             if (textScale < 0.5f) textScale = 0.5f;
                             float loadScale = 2.5f * textScale;
+                            // This fallback splash has no game quad behind the text
+                            // (the native preview fills the FBO; this branch clears and
+                            // draws text only). Defense-in-depth: re-prime the text
+                            // shader's uRotation here so that if a native LibretroRunner
+                            // attempt ran foreign GL and then failed (the cache-hit ->
+                            // core-init-crash fallback), the text is not left collapsed
+                            // to the origin. On the pure cache-MISS path the native
+                            // block never ran, so the prime at the top of the QR block
+                            // is already correct and this is idempotent - the guaranteed
+                            // never-black behaviour comes from the dark-blue clear below.
+                            // sDrmRotMat is identity on force-SF and the panel rotation
+                            // on DRM, so this is correct on every backend.
+                            {
+                                const GLuint progs[] = {mShaderProgram, mTextProgram};
+                                const GLint  locs[]  = {mLocRotation, mTextLocRotation};
+                                for (int i = 0; i < 2; i++) {
+                                    glUseProgram(progs[i]);
+                                    glUniformMatrix2fv(locs[i], 1, GL_FALSE,
+                                                       sDrmRotMat);
+                                }
+                            }
                             for (int frame = 0; frame < 1800; frame++) {
                                 mRenderHeartbeat.fetch_add(
                                         1, std::memory_order_relaxed);
                                 {
                                     char bc[PROPERTY_VALUE_MAX] = {};
                                     property_get("sys.boot_completed", bc, "0");
-                                    if (bc[0] == '1' && isQrRomStorageReady())
+                                    // Never hand off on frame 0: guarantee at least one
+                                    // drawn + swapped frame so a fast/warm resume (both
+                                    // conditions already true at entry) does not present
+                                    // an undefined (black) SF window buffer.
+                                    if (frame > 0 && bc[0] == '1'
+                                            && isQrRomStorageReady())
                                         break;
                                 }
                                 // Drain input; the splash is inert.
@@ -3823,7 +3854,12 @@ if (sRingPrimedCount >= 2) {
                                            (ssize_t)sizeof(iev)) { }
                                 }
                                 drmFrameBegin();
-                                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                                // Dark-blue loading backdrop (matches the exit
+                                // "Loading..." splash) instead of pure black, so a
+                                // cache-miss resume always reads as an intentional
+                                // Quick Resuming screen - never a bare black frame -
+                                // even in the edge case where the text does not draw.
+                                glClearColor(0.05f, 0.05f, 0.10f, 1.0f);
                                 glClear(GL_COLOR_BUFFER_BIT);
                                 if (sDrmGlRotation && sDrmZeroCopy) {
                                     glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);

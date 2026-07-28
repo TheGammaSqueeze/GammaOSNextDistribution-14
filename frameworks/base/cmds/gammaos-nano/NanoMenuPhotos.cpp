@@ -274,6 +274,13 @@ GLuint NanoMenu::videoIconRead(const std::string& videoPath) {
     if (videoPath.empty()) return 0;
     return photoCacheRead565(photoCacheFile(videoPath, 0, 0, 'v'), nullptr);
 }
+// True if this video already has a 'v' poster blob on disk. Defined here (with the rest of the video-icon
+// helpers) so it can reach the file-static photoCacheFile; the auto-thumbnail machine calls it to decide
+// which videos still need a one-off frame decode.
+bool NanoMenu::videoIconExists(const std::string& videoPath) {
+    if (videoPath.empty()) return false;
+    return access(photoCacheFile(videoPath, 0, 0, 'v').c_str(), F_OK) == 0;
+}
 // LRU-bound the cache dir to ~96 MB (oldest-mtime first). Runs on the scan thread.
 static void photoThumbCacheGc() {
     DIR* d = opendir(kThumbCacheDir); if (!d) return;
@@ -1349,19 +1356,34 @@ void NanoMenu::renderPhotoGrid() {
         float x = ccx - w * 0.5f, y = ccy - h * 0.5f;
         int pIdx = mPhotoGridList[idx];
         GLuint tex = 0;
-        if (!mWpVideoPick) {   // video cells have no photo thumbnail: skip the cache lookup + decode queue
+        if (!mWpVideoPick) {   // photo cell: memoised photo thumb, decoded in the budgeted batch below
             auto cit = mPhotoThumbCache.find(pIdx);
             if (cit != mPhotoThumbCache.end()) tex = cit->second;
             else need.push_back(pIdx);
+        } else {               // video cell: the auto-generated poster (kind 'v'), if it has been cached yet
+            int vi = (idx < (int)mWpPickVidList.size()) ? mWpPickVidList[idx] : -1;
+            if (vi >= 0 && vi < (int)mVideos.size()) tex = videoIconTexCached(mVideos[vi].file);   // 0 until generated
         }
         // opaque base (drop-shadow substitute): a dark card behind the thumb
         drawQuad(x - 2, y - 2, w + 4, h + 4, 0.0f, 0.0f, 0.0f, (sel ? 0.8f : 0.6f) * a);
-        if (tex) drawIconTex(tex, x, y, w, h, 1.0f, 1.0f, 1.0f, (sel ? 1.0f : 0.92f) * a);
+        // Video picker: the FOCUSED cell plays a live preview of the hovered video (vidPreviewTick owns
+        // the single HW decoder here). Falls back to the poster/placeholder until the first frame lands.
+        bool drewPreview = (mWpVideoPick && sel) ? drawVidPreviewInto(x, y, w, h) : false;
+        if (drewPreview) { /* the live frame fills the cell */ }
+        else if (tex) drawIconTex(tex, x, y, w, h, 1.0f, 1.0f, 1.0f, (sel ? 1.0f : 0.92f) * a);
         else     drawQuad(x, y, w, h, 0.10f, 0.11f, 0.13f, 0.9f * a);   // placeholder / video card base
-        if (mWpVideoPick) {   // film badge: a centred play triangle marks a video cell
-            float cxp = x + w * 0.5f, cyp = y + h * 0.5f, tr = fminf(w, h) * 0.20f;
-            drawTriangle(cxp - tr * 0.55f, cyp - tr, cxp - tr * 0.55f, cyp + tr, cxp + tr, cyp,
-                         1.0f, 1.0f, 1.0f, (sel ? 0.95f : 0.8f) * a);
+        if (mWpVideoPick) {   // film badge marks a video cell: centred play triangle when there is no poster
+            // yet, shrunk to a corner overlay once the generated frame (or live preview) fills the cell.
+            if (tex || drewPreview) {
+                float tr = fminf(w, h) * 0.11f, cxp = x + w - tr * 1.7f, cyp = y + h - tr * 1.3f;
+                drawQuad(cxp - tr * 1.1f, cyp - tr * 1.1f, tr * 2.6f, tr * 2.2f, 0.0f, 0.0f, 0.0f, 0.45f * a);
+                drawTriangle(cxp - tr * 0.55f, cyp - tr, cxp - tr * 0.55f, cyp + tr, cxp + tr, cyp,
+                             1.0f, 1.0f, 1.0f, (sel ? 0.95f : 0.85f) * a);
+            } else {
+                float cxp = x + w * 0.5f, cyp = y + h * 0.5f, tr = fminf(w, h) * 0.20f;
+                drawTriangle(cxp - tr * 0.55f, cyp - tr, cxp - tr * 0.55f, cyp + tr, cxp + tr, cyp,
+                             1.0f, 1.0f, 1.0f, (sel ? 0.95f : 0.8f) * a);
+            }
         }
         if (sel) {
             // crisp white frame + a soft breathing outline (two faint expanded frames)

@@ -1767,6 +1767,23 @@ private:
     void   wpVideoStop();                          // tear the video wallpaper down (join worker, free decoder)
     void   wpVideoTick();                          // per-frame: adopt a finished open, loop on end
     bool   drawTopVideoWallpaper();                // draw the current video frame cover-fit; true if it drew
+    // Live hover preview in the Video Wallpaper picker: decode the currently-focused video and draw it
+    // into its grid cell. Only ONE decoder runs at a time (the single HW decoder), so the tick stops the
+    // video wallpaper while previewing and lets wpVideoTick re-adopt it on leaving the picker. Mirrors
+    // the wpVideo* members/flow. A short focus-settle debounce avoids thrashing the decoder while scrolling.
+    NanoVideo* mVidPreviewDec = nullptr;          // the picker hover-preview decoder (separate from wallpaper/player)
+    std::string mVidPreviewPath;                  // the video currently loaded in the preview
+    std::string mVidPreviewWant;                  // the focused cell's video path (target); changes reset the settle timer
+    std::thread mVidPreviewThread;                // async open worker
+    std::atomic<bool> mVidPreviewOpenDone{false};
+    std::atomic<bool> mVidPreviewOpenOk{false};
+    bool   mVidPreviewAdopted = false;
+    double mVidPreviewSettleT = 0.0;              // mEffectTime when mVidPreviewWant last changed (debounce)
+    void   vidPreviewStart(const std::string& path);
+    void   vidPreviewStop();
+    void   vidPreviewTick();                       // per-frame (render thread): manage the focused-cell preview
+    bool   drawVidPreviewInto(float x, float y, float w, float h);  // draw the live preview frame into a cell
+    float  wallpaperScrimAlpha() const;           // adjustable wallpaper dimming (Theme Settings "Wallpaper Dimming")
     void   loadWallpaperTextures();               // (re)decode the wallpaper stills from the props (frees old)
     void   wallpaperRetryIfNeeded();              // retry the wallpaper load until it succeeds (cold-boot storage race)
     int64_t mWpRetryLastMs = 0;                   // throttle stamp for wallpaperRetryIfNeeded
@@ -2657,12 +2674,31 @@ private:
     // path) and show it as the video's column icon instead of the film badge.
     bool   videoIconWrite(const std::string& videoPath, const uint8_t* rgba, int w, int h);  // (def in NanoMenuPhotos.cpp: reaches the static cache helpers)
     GLuint videoIconRead(const std::string& videoPath);                                       // (def in NanoMenuPhotos.cpp)
+    bool   videoIconExists(const std::string& videoPath);   // 'v' poster present on disk? (def in NanoMenuPhotos.cpp)
     GLuint videoIconTexCached(const std::string& videoPath);   // memoised (caches misses as 0 too)
     void   videoIconInvalidate(const std::string& videoPath);  // drop + free a cached icon texture
     void   videoIconGrabCurrentFrame();                        // render thread, GL current: FBO grab of the live frame
     std::map<std::string, GLuint> mVidCustomIconCache;         // custom Change-Icon poster: video path -> loaded tex (0 = miss)
     bool mVidIconGrabPending = false;                          // a Change-Icon confirm is waiting for the next rendered frame
     std::string mVidIconGrabPath;                              // video PATH whose icon to set (re-resolved at grab time; index would go stale on a rescan)
+    // Auto thumbnail generation: one-off decode of a single frame per fresh video, cached to the
+    // shared 'v' thumb blob on disk (persists so it never regenerates for unchanged media). The
+    // frame is only reachable via NanoVideo's GL path, so this is an INCREMENTAL render-thread state
+    // machine driving a dedicated headless decoder (never mVideoTest) one video at a time across
+    // frames. Gated hard on "no live decoder" - the SoC has ONE HW video decoder (see wpVideoTick).
+    void videoThumbTick();                                     // render thread, GL current: advance the auto-thumb machine one step
+    void videoThumbEnqueueMissing();                           // after a drain: queue every fresh video with no 'v' poster on disk
+    void videoThumbAbandon();                                  // cancel + async-free the headless decoder + reset to IDLE (decoder contended)
+    enum VidThumbState { VT_IDLE = 0, VT_OPENING, VT_WAIT_FRAME, VT_CLOSE };
+    NanoVideo* mVidThumbDec = nullptr;                         // headless single-frame decoder (separate from mVideoTest / mWpVideoTop)
+    std::vector<std::string> mVidThumbQueue;                   // video paths still needing a poster (drained front to back)
+    size_t mVidThumbQIdx = 0;                                  // next queue entry to process (queue is append-only within a session)
+    int mVidThumbState = VT_IDLE;                              // VidThumbState
+    std::string mVidThumbPath;                                 // the path currently being decoded
+    double mVidThumbDeadline = 0.0;                            // mEffectTime past which the current decode is abandoned (bad/DRM/slow file)
+    std::thread mVidThumbOpenThread;                           // blocking openAsyncRun worker for the headless decoder
+    std::atomic<bool> mVidThumbOpenDone{false};               // worker published its result
+    std::atomic<bool> mVidThumbOpenOk{false};                // worker open succeeded
     // Video playlists (a nano addition; the web video section has none) - mirror music/photo.
     void buildVideoPlaylistsScreen(Ps3Level& out);
     void buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out);

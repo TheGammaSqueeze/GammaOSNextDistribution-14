@@ -129,6 +129,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Video Wallpaper",22,"Choose a video from your device to play as a live background on the top screen. Browse and pick from your videos.",nullptr,1,nullptr,0},
   {"Clear Wallpaper",22,"Removes the custom wallpaper (both screens) and brings the moving wave back.",nullptr,1,nullptr,0},
   {"Background Colour",22,"Fills the Minima home background with a solid colour instead of black. Overrides the wave; a photo or video wallpaper still takes priority.","Black",1,nullptr,0},
+  {"Wallpaper Dimming",22,"Darkens a custom photo or video wallpaper so a bright image does not wash out the icons or menu text. Higher = darker.","25%",1,nullptr,0},
   {"XMB Wave",22,"Shows the moving PS3 wave behind the home screen. Off by default when a custom wallpaper is set.","On",1,nullptr,0},
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},

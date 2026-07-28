@@ -458,6 +458,31 @@ void NanoMenu::videoDrainScanResults() {
     videoSortApply();
     saveVideoConfig();
     mVideoCatsStale = true;
+    videoThumbEnqueueMissing();   // fresh library -> queue a one-off poster decode for any video with no 'v' cache yet
+}
+
+// After a scan drains into mVideos, queue every video whose on-disk 'v' poster is missing AND whose live
+// poster isn't already set, so the auto-thumb machine (videoThumbTick) decodes one frame for it. Persisted
+// RGB565 blobs mean an unchanged library re-queues nothing on the next drain (the access() check passes),
+// so generation is genuinely one-off per fresh file. Skips paths already queued this session.
+void NanoMenu::videoThumbEnqueueMissing() {
+    bool anyIconAdopted = false;
+    for (auto& v : mVideos) {
+        if (v.file.empty()) continue;
+        if (v.hasIcon) continue;                                                    // custom / already-shown poster
+        if (videoIconExists(v.file)) {
+            // A poster already exists on disk (a prior session generated it, or Change Icon set one),
+            // but this VideoItem lost its hasIcon flag (a fresh metaVersion bump / config with no icon
+            // record). Adopt the cached poster so the XMB column draws it, without re-decoding a frame.
+            v.hasIcon = true;
+            anyIconAdopted = true;
+            continue;
+        }
+        bool queued = false;
+        for (const auto& q : mVidThumbQueue) if (q == v.file) { queued = true; break; }
+        if (!queued) mVidThumbQueue.push_back(v.file);
+    }
+    if (anyIconAdopted) saveVideoConfig();   // persist the adopted-poster flags so the next boot skips this pass
 }
 
 // ---------------------------------------------------------------------------
@@ -611,6 +636,163 @@ void NanoMenu::videoIconGrabCurrentFrame() {
     glClearColor(prevClear[0], prevClear[1], prevClear[2], prevClear[3]);
     glDeleteFramebuffers(1, &fbo);
     glDeleteTextures(1, &tex);
+}
+
+// Render thread (GL context current), once per frame from render(): advance the auto-thumbnail state
+// machine one step. Decodes a single frame per queued video with a dedicated HEADLESS NanoVideo (never
+// mVideoTest / mWpVideoTop) and writes it to the 'v' poster cache, so the XMB column + the Video Wallpaper
+// picker show a real frame with no user action. One-off: a written blob persists on disk, so a video is
+// enqueued only when its poster is missing (videoThumbEnqueueMissing) and processed once per session.
+//
+// GATE HARD: the SoC has ONE HW video decoder, so this must never run while the live player, a video
+// wallpaper, a photo/now-playing modal, an app launch/overlay, or the cold boot holds (or is about to
+// take) the decoder. It also waits for the previous codec teardown to fully release the HW decoder
+// (mVidPrevCodecFreed), exactly like the deferred player open in videoTick.
+void NanoMenu::videoThumbTick() {
+    // ---- hard gate: no work while anything else owns / contends the single HW decoder ----
+    // Any of these means the decoder is (or is about to be) held elsewhere; abandon an in-flight decode
+    // and bail. app_launched / launch-fade / overlay = an app; MpActive/PvActive = a media modal; the
+    // wallpaper + player members = the two other decoder owners; boot = the cold-boot intro.
+    const bool decoderContended =
+        mVidActive || mVideoTest || mVidOpenInProgress.load(std::memory_order_relaxed) || mVidOpenDeferred ||
+        mWpVideoTop || mWpVideoThread.joinable() || mWpTopIsVideo ||
+        mVidPreviewDec || mVidPreviewThread.joinable() || mWpVideoPick ||   // the picker hover preview owns the decoder
+        mMpActive || mPvActive ||
+        mOverlayMode || mOverlayLaunchPending || mLaunchFadeStart != 0 || mExitRequested ||
+        mPs3BootActive ||
+        property_get_bool("sys.gammaos.nano.app_launched", false);
+    if (decoderContended) { videoThumbAbandon(); return; }
+    if (!mVidPrevCodecFreed.load(std::memory_order_acquire))
+        return;                                         // a prior codec teardown is still releasing the HW decoder
+
+    switch (mVidThumbState) {
+    case VT_IDLE: {
+        // Pop the next path that still needs a poster (skip any that became cached / gained an icon
+        // since it was queued, e.g. the player's Change Icon wrote one).
+        while (mVidThumbQIdx < mVidThumbQueue.size()) {
+            const std::string& p = mVidThumbQueue[mVidThumbQIdx];
+            if (p.empty() || videoIconExists(p)) { mVidThumbQIdx++; continue; }
+            break;
+        }
+        if (mVidThumbQIdx >= mVidThumbQueue.size()) {   // queue drained: reset so a later enqueue re-runs from the front
+            if (!mVidThumbQueue.empty()) { mVidThumbQueue.clear(); mVidThumbQIdx = 0; }
+            return;
+        }
+        mVidThumbPath = mVidThumbQueue[mVidThumbQIdx++];
+        // GL allocation up front (openBegin, render thread), sized by a quick extractor probe; then run the
+        // blocking codec create/configure/start on a worker so the render thread never stalls (mirrors
+        // wpVideoStart). A probe failure still lets openBegin size by a default hint.
+        NanoVideo::Meta m; int wHint = 0, hHint = 0;
+        if (NanoVideo::probe(mVidThumbPath, m)) { wHint = m.width; hHint = m.height; }
+        NanoVideo* v = new NanoVideo();
+        if (!v->openBegin(wHint, hHint)) { delete v; mVidThumbPath.clear(); return; }   // GL alloc failed: skip this file
+        mVidThumbDec = v;
+        mVidThumbOpenDone.store(false, std::memory_order_relaxed);
+        mVidThumbOpenOk.store(false, std::memory_order_relaxed);
+        const std::string path = mVidThumbPath;
+        mVidThumbOpenThread = std::thread([this, v, path] {
+            bool ok = v->openAsyncRun(path);            // blocking; muted (no NanoAudioPlayer is created)
+            mVidThumbOpenOk.store(ok, std::memory_order_relaxed);
+            mVidThumbOpenDone.store(true, std::memory_order_release);
+        });
+        mVidThumbDeadline = mEffectTime + 4.0;          // abandon a slow/cold codec open after ~4s
+        mVidThumbState = VT_OPENING;
+        return;
+    }
+    case VT_OPENING: {
+        if (!mVidThumbOpenDone.load(std::memory_order_acquire)) {
+            if (mEffectTime > mVidThumbDeadline) { mVidThumbState = VT_CLOSE; }   // stuck open: drop it
+            return;
+        }
+        if (!mVidThumbOpenThread.joinable()) { mVidThumbState = VT_CLOSE; return; }
+        mVidThumbOpenThread.join();                     // worker done: fast, non-blocking join
+        if (!mVidThumbOpenOk.load(std::memory_order_relaxed)) { mVidThumbState = VT_CLOSE; return; }   // bad/DRM/unsupported
+        mVidThumbDeadline = mEffectTime + 4.0;          // now wait for the first decoded frame
+        mVidThumbState = VT_WAIT_FRAME;
+        return;
+    }
+    case VT_WAIT_FRAME: {
+        if (!mVidThumbDec) { mVidThumbState = VT_CLOSE; return; }
+        mVidThumbDec->updateFrame();                    // render thread: latch the newest decoded frame (if any)
+        if (!mVidThumbDec->firstFrameReady()) {
+            if (mEffectTime > mVidThumbDeadline) { mVidThumbState = VT_CLOSE; }   // no frame in time: skip (leave uncached this session)
+            return;
+        }
+        // GRAB: render the current frame into an offscreen square FBO and write it as this video's poster.
+        // Same FBO create / viewport / clear / draw / glReadPixels / flip / GL-state save-restore as
+        // videoIconGrabCurrentFrame, but driving the headless decoder instead of mVideoTest.
+        const std::string path = mVidThumbPath;
+        const int S = 256;
+        GLint  prevFbo = 0;  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+        GLint  prevVp[4] = {0, 0, 0, 0}; glGetIntegerv(GL_VIEWPORT, prevVp);
+        GLint  prevTex = 0;  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTex);
+        GLfloat prevClear[4] = {0, 0, 0, 0}; glGetFloatv(GL_COLOR_CLEAR_VALUE, prevClear);
+        GLuint tex = 0, fbo = 0;
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, S, S, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+            glViewport(0, 0, S, S);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            mVidThumbDec->draw(S, S, 0.0f, 0.0f, (float)S, (float)S, 1.0f, /*fitMode=fill/crop*/1, nullptr);
+            std::vector<uint8_t> px((size_t)S * S * 4);
+            glReadPixels(0, 0, S, S, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+            std::vector<uint8_t> flip((size_t)S * S * 4);   // glReadPixels is bottom-left; the cache expects top-left
+            for (int y = 0; y < S; y++)
+                memcpy(&flip[(size_t)y * S * 4], &px[(size_t)(S - 1 - y) * S * 4], (size_t)S * 4);
+            if (videoIconWrite(path, flip.data(), S, S)) {
+                // Reflect the new poster into the library so the XMB column draws it (it reads hasIcon).
+                for (auto& v : mVideos) if (v.file == path) { v.hasIcon = true; break; }
+                saveVideoConfig();
+                videoIconInvalidate(path);   // drop the stale (miss) memo so the new poster loads on next use (column + picker)
+                mVideoCatsStale = true;      // rebuild the Video column with the poster
+            }
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+        glBindTexture(GL_TEXTURE_2D, (GLuint)prevTex);
+        glClearColor(prevClear[0], prevClear[1], prevClear[2], prevClear[3]);
+        glDeleteFramebuffers(1, &fbo);
+        glDeleteTextures(1, &tex);
+        mVidThumbState = VT_CLOSE;
+        return;
+    }
+    case VT_CLOSE:
+        // Teardown is identical to the contended-abandon path: cancel + join the open worker (which may
+        // still be mid codec-init if we timed out in VT_OPENING) watchdog-exempt, then async-free the
+        // decoder through the shared mVidDying reaper (AMediaCodec_stop blocks for seconds off the render
+        // thread; mVidPrevCodecFreed stays false until the HW decoder is genuinely free). Resets to IDLE.
+        videoThumbAbandon();
+        return;
+    default:
+        mVidThumbState = VT_IDLE;
+        return;
+    }
+}
+
+// Something took (or is about to take) the single HW decoder mid-thumbnail. Abandon the in-flight decode
+// cleanly: cancel + join the open worker (watchdog-exempt, as a contended cold codec create can hold the
+// join past the render watchdog), async-free the headless decoder through the same mVidDying path the
+// player uses, and reset to IDLE so it resumes later when the decoder is free again. No-op when idle.
+void NanoMenu::videoThumbAbandon() {
+    if (mVidThumbState == VT_IDLE && !mVidThumbDec && !mVidThumbOpenThread.joinable()) return;
+    if (mVidThumbDec) mVidThumbDec->requestOpenCancel();
+    if (mVidThumbOpenThread.joinable()) {
+        bool prevExempt = mVidTeardownExempt.exchange(true, std::memory_order_relaxed);
+        mVidThumbOpenThread.join();
+        mVidTeardownExempt.store(prevExempt, std::memory_order_relaxed);
+    }
+    if (mVidThumbDec) { vidAsyncFree(mVidThumbDec); mVidThumbDec = nullptr; }
+    mVidThumbPath.clear();
+    mVidThumbState = VT_IDLE;
 }
 
 // ---------------------------------------------------------------------------
@@ -2089,7 +2271,10 @@ void NanoMenu::wpVideoTick() {
         // Re-open a video wallpaper that was torn down for the single HW decoder, once the home is showing
         // and the decoder is free again (player closed, its codec reaped). The wave gate is XMB-only (the DSi
         // theme has no wave); on the XMB theme skip the re-open while the wave is on (nothing would draw it).
+        // Do NOT re-open the wallpaper while the Video Wallpaper picker is up: the hover preview
+        // owns the single HW decoder there (vidPreviewTick stopped the wallpaper on purpose).
         if (mWpTopIsVideo && !mWpPathTop.empty() && (mNdsTheme || !mXmbWave) && !mVidActive
+                && !mWpVideoPick
                 && mVidPrevCodecFreed.load(std::memory_order_acquire))
             wpVideoStart(mWpPathTop);
         return;
@@ -2112,6 +2297,92 @@ bool NanoMenu::drawTopVideoWallpaper() {
     if (!mWpVideoTop->firstFrameReady()) return false;
     mWpVideoTop->updateFrame();
     mWpVideoTop->draw(mWidth, mHeight, 0.0f, 0.0f, (float)mWidth, (float)mHeight, 1.0f, /*cover=*/1, sDrmRotMat);
+    float sa = wallpaperScrimAlpha();   // same adjustable dimming as the still wallpaper (Wallpaper Dimming)
+    if (sa > 0.001f) { setUiBlend(); drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, sa); }
+    return true;
+}
+
+// ---- Video Wallpaper picker: live hover preview of the focused video ---------------------------
+// Mirrors the wpVideo* flow on a SEPARATE decoder so it never disturbs the video player. The single
+// HW decoder means only one thing may decode at a time, so vidPreviewTick stops the video wallpaper
+// while a preview is up and wpVideoTick re-adopts it on leaving the picker (its restart is gated on
+// !mWpVideoPick). Begin an async open (worker thread) so the render thread never blocks on codec init.
+void NanoMenu::vidPreviewStart(const std::string& path) {
+    vidPreviewStop();
+    if (path.empty()) return;
+    NanoVideo::Meta m;
+    int wHint = 0, hHint = 0;
+    if (NanoVideo::probe(path, m)) { wHint = m.width; hHint = m.height; }
+    NanoVideo* v = new NanoVideo();
+    if (!v->openBegin(wHint, hHint)) { delete v; return; }   // GL alloc failed: no preview (fall back to the poster/badge)
+    mVidPreviewDec = v;
+    mVidPreviewPath = path;
+    mVidPreviewAdopted = false;
+    mVidPreviewOpenDone.store(false, std::memory_order_relaxed);
+    mVidPreviewOpenOk.store(false, std::memory_order_relaxed);
+    mVidPreviewThread = std::thread([this, v, path] {
+        bool ok = v->openAsyncRun(path);   // blocking; muted (no audio player is created)
+        mVidPreviewOpenOk.store(ok, std::memory_order_relaxed);
+        mVidPreviewOpenDone.store(true, std::memory_order_release);
+    });
+}
+
+void NanoMenu::vidPreviewStop() {
+    if (mVidPreviewThread.joinable()) {
+        if (mVidPreviewDec) mVidPreviewDec->requestOpenCancel();
+        bool prevExempt = mVidTeardownExempt.exchange(true, std::memory_order_relaxed);
+        mVidPreviewThread.join();
+        mVidTeardownExempt.store(prevExempt, std::memory_order_relaxed);
+    }
+    if (mVidPreviewDec) { vidAsyncFree(mVidPreviewDec); mVidPreviewDec = nullptr; }
+    mVidPreviewAdopted = false;
+    mVidPreviewOpenDone.store(false, std::memory_order_relaxed);
+    mVidPreviewOpenOk.store(false, std::memory_order_relaxed);
+    mVidPreviewPath.clear();
+}
+
+void NanoMenu::vidPreviewTick() {
+    // Desired preview = the focused cell's video in the Video Wallpaper picker.
+    std::string want;
+    const bool inVidPicker = mWpVideoPick && !mPs3Stack.empty()
+        && mPs3Stack.back().screenKind == PHOTO_GRID;
+    if (inVidPicker) {
+        int idx = mPhotoGridCursor;
+        if (idx >= 0 && idx < (int)mPhotoGridList.size() && idx < (int)mWpPickVidList.size()) {
+            int vi = mWpPickVidList[idx];
+            if (vi >= 0 && vi < (int)mVideos.size()) want = mVideos[vi].file;
+        }
+    }
+    // Debounce: reset the settle timer whenever the target changes, so rapid scrolling does not
+    // repeatedly tear the decoder up and down (each open is a cold codec init on the HW decoder).
+    if (want != mVidPreviewWant) { mVidPreviewWant = want; mVidPreviewSettleT = mEffectTime; }
+
+    if (want.empty()) {                    // left the picker / non-video cell: drop the preview
+        if (mVidPreviewDec || !mVidPreviewPath.empty()) vidPreviewStop();
+        return;                            // wpVideoTick re-adopts the wallpaper once !mWpVideoPick
+    }
+    // A preview is wanted: hand the single HW decoder over from the wallpaper video first.
+    if (mWpVideoTop) wpVideoStop();
+    const bool settled = (mEffectTime - mVidPreviewSettleT) > 0.22;   // ~13 frames
+    if (settled && want != mVidPreviewPath) vidPreviewStart(want);
+
+    if (mVidPreviewDec && !mVidPreviewAdopted) {
+        if (mVidPreviewOpenDone.load(std::memory_order_acquire)) {
+            if (mVidPreviewThread.joinable()) mVidPreviewThread.join();
+            if (mVidPreviewOpenOk.load(std::memory_order_relaxed)) { mVidPreviewDec->play(); mVidPreviewAdopted = true; }
+            else vidPreviewStop();         // undecodable: give up (the cell falls back to the poster/badge)
+        }
+    } else if (mVidPreviewDec && mVidPreviewDec->ended()) {
+        mVidPreviewDec->seek(0.0); mVidPreviewDec->play();   // seamless loop
+    }
+}
+
+// Draw the current preview frame cover-fit into the cell rect. Returns false until the decoder has a
+// first frame, so the cell keeps showing the play badge during the brief warmup.
+bool NanoMenu::drawVidPreviewInto(float x, float y, float w, float h) {
+    if (!mVidPreviewDec || !mVidPreviewAdopted || !mVidPreviewDec->firstFrameReady()) return false;
+    mVidPreviewDec->updateFrame();
+    mVidPreviewDec->draw(mWidth, mHeight, x, y, w, h, 1.0f, /*cover=*/1, sDrmRotMat);
     return true;
 }
 
