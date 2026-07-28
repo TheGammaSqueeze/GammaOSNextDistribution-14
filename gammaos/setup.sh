@@ -146,6 +146,15 @@ pm install /system/etc/drastic_r2.6.0.4a.apk
 launcheruser=$( stat -c "%U" /data/data/com.dsemu.drastic)
 launchergroup=$( stat -c "%G" /data/data/com.dsemu.drastic)
 tar -xvf /system/etc/drastic.tar.gz -C /
+# The SMAA post-FX shader forces the desktop GLSL 1.30 / SMAA_GLSL_3 path (textureLod,
+# integer-offset fetches) which does not exist on GLES2, so it fails to compile on Mali
+# and drastic aborts when it is selected; Scanline is unwanted. They are already dropped
+# from drastic.tar.gz, but a tar extract only adds files, so prune any copies a previous
+# (older-archive) provisioning left behind.
+rm -f /data/data/com.dsemu.drastic/files/DraStic/shaders/SMAA.dfx \
+      /data/data/com.dsemu.drastic/files/DraStic/shaders/Scanline.dfx \
+      /data/data/com.dsemu.drastic/files/DraStic/shaders/scanline.dsd
+rm -rf /data/data/com.dsemu.drastic/files/DraStic/shaders/smaa
 chown -R $launcheruser:$launchergroup /data/data/com.dsemu.drastic
 pm grant com.dsemu.drastic android.permission.RECORD_AUDIO
 pm grant com.dsemu.drastic android.permission.BLUETOOTH_CONNECT
