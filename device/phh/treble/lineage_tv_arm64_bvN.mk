@@ -116,6 +116,7 @@ PRODUCT_COPY_FILES += \
     gammaos/emulators/mupen64plusae_3.0.335.apk:system/etc/mupen64plusae_3.0.335.apk \
     gammaos/emulators/ppsspp.tar.xz:system/etc/ppsspp.tar.xz \
     gammaos/emulators/ppsspp_1.20.3.apk:system/etc/ppsspp_1.20.3.apk \
+    gammaos/emulators/flycast.tar.xz:system/etc/flycast.tar.xz \
     gammaos/emulators/flycast-release.apk:system/etc/flycast-release.apk
 
 SELINUX_IGNORE_NEVERALLOWS := true
@@ -172,7 +173,10 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.setupwizard.mode=OPTIONAL \
     ro.control_privapp_permissions=log \
-    bluetooth.le.disable_apcf_extended_features=1
+    bluetooth.le.disable_apcf_extended_features=1 \
+    persist.gammaos.nano.drastic_nano=1 \
+    persist.gammaos.drastic_nano.layout_preset=2 \
+    persist.gammaos.drastic_nano.pip_alpha=80
 
 PRODUCT_PACKAGES += \
     NavigationBarMode2ButtonOverlay
