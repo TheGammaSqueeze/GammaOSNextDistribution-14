@@ -5506,6 +5506,11 @@ if (sRingPrimedCount >= 2) {
         for (int wait = 0; wait < 600; wait++) {
             property_get("sys.gammaos.nano.app_launched", launched, "0");
             if (!strcmp(launched, "1")) break;
+            // Keep the render-watchdog heartbeat alive during the app-launch wait: this loop
+            // can run past the watchdog's 8s when a heavy app is slow to draw (e.g. TVSettings
+            // just after the setup wizard). Without the bump the watchdog SIGABRTs nano mid-wait
+            // and the framework falls back to the launcher instead of showing the app.
+            mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
             usleep(16666);
         }
     } else {
@@ -5552,6 +5557,11 @@ if (sRingPrimedCount >= 2) {
                     ALOGD("NanoMenu: RetroArch launched, exiting");
                     break;
                 }
+                // Keep the render-watchdog heartbeat alive during the app-launch wait: this loop
+                // can run past the watchdog's 8s when a heavy app is slow to draw (e.g. TVSettings
+                // just after the setup wizard). Without the bump the watchdog SIGABRTs nano mid-wait
+                // and the framework falls back to the launcher instead of showing the app.
+                mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
                 usleep(16666);
             }
         }

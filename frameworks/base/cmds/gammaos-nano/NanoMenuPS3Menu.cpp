@@ -1106,7 +1106,11 @@ void NanoMenu::openQuickPowerMenu() {
 // can never stall the caller.
 static std::string nanoCaptureCmd(const std::string& cmdline) {
     std::string out;
-    std::string full = "timeout 3 " + cmdline;
+    // Hard timeout. toybox `timeout` sends only SIGTERM, which a process wedged in an
+    // in-progress synchronous binder transaction ignores, so a bare `timeout 3` can wait on
+    // the child indefinitely and stall the caller past nano's 8s render watchdog. `-k 1 -s
+    // KILL` escalates to SIGKILL ~1s after the SIGTERM, bounding the worst case to ~4s.
+    std::string full = "timeout -k 1 -s KILL 3 " + cmdline;
     FILE* p = popen(full.c_str(), "r");
     if (!p) return out;
     char buf[512]; size_t n;
@@ -1115,11 +1119,10 @@ static std::string nanoCaptureCmd(const std::string& cmdline) {
     return out;
 }
 
-// Quick Menu -> Settings: launch the device's own Settings app through the normal app-launch flow
-// (nano parks and hands off exactly like launching any app or the browser). The Settings package +
-// activity is RESOLVED at runtime from ACTION_SETTINGS, so it works for TVSettings on ATV, the
-// handheld Settings, or anything else that registers the action - we never assume a fixed package.
-void NanoMenu::launchAndroidSettings() {
+// Resolve the device's Settings component ("pkg/activity") from ACTION_SETTINGS. This runs a
+// synchronous binder popen (bounded by nanoCaptureCmd's hard timeout); callers on the render thread
+// MUST keep it off the frame path, where it could stall past the watchdog. Returns "" on failure.
+static std::string nanoResolveSettingsComp() {
     std::string res = nanoCaptureCmd("cmd package resolve-activity --brief -a android.settings.SETTINGS 2>/dev/null");
     // Pick the last line that looks like a "pkg/activity" component (skip the ResolveInfo header line).
     std::string comp;
@@ -1134,36 +1137,62 @@ void NanoMenu::launchAndroidSettings() {
         }
         if (nl == std::string::npos) break; i = nl + 1;
     }
-    if (comp.empty()) {   // resolve failed: fall back to a plain action launch
-        std::thread([]{ system("am start -a android.settings.SETTINGS 2>/dev/null"); }).detach();
+    return comp;
+}
+
+// Quick Menu -> Settings: launch the device's own Settings app through the normal app-launch flow
+// (nano parks and hands off exactly like launching any app or the browser). The Settings package +
+// activity is RESOLVED at runtime from ACTION_SETTINGS, so it works for TVSettings on ATV, the
+// handheld Settings, or anything else that registers the action - we never assume a fixed package.
+//
+// The resolve is a synchronous binder round-trip and must NOT run on the render thread: under
+// launch-time PackageManager contention it can outlast nano's 8s render watchdog (toybox `timeout`
+// only SIGTERMs a binder-wedged child) and SIGABRT the process, dropping the user back to the
+// launcher - the "Settings won't launch / crashes to Daijisho" failure. So the non-overlay path
+// enters the launch handshake up front and resolves on a detached worker while the release
+// fade/exit plays out. launchUrl never hit this: it resolves the browser from an in-memory cache.
+void NanoMenu::launchAndroidSettings() {
+    if (mOverlayMode) {
+        // In-game overlay: overlayLaunchCommand arms overlay state synchronously (it must run on the
+        // render thread), so keep this path here. overlayLaunchPackage() would use "monkey -c
+        // LAUNCHER", but a Settings app (e.g. TVSettings) has NO LAUNCHER activity, so launch the
+        // RESOLVED COMPONENT explicitly. The resolve is bounded by nanoCaptureCmd's hard timeout.
+        std::string comp = nanoResolveSettingsComp();
+        if (comp.empty()) {
+            std::thread([]{ system("am start -a android.settings.SETTINGS 2>/dev/null"); }).detach();
+            return;
+        }
+        std::string pkg = comp.substr(0, comp.find('/'));
+        ALOGI("NanoMenu: launching Settings via %s (overlay)", comp.c_str());
+        overlayLaunchCommand(pkg, "am start -n " + comp + " 2>/dev/null");
         return;
     }
-    std::string pkg = comp.substr(0, comp.find('/'));
-    ALOGI("NanoMenu: launching Settings via %s", comp.c_str());
-    // In-game overlay: replace the running app with Settings. overlayLaunchPackage() launches a
-    // package via "monkey -c LAUNCHER", but a Settings app (e.g. TVSettings) has NO
-    // LAUNCHER-category activity - it is reached via ACTION_SETTINGS - so monkey finds nothing to
-    // start, the app never resumes, and the overlay dismisses ~12s later ("does not launch / hangs").
-    // Launch the RESOLVED COMPONENT explicitly instead.
-    if (mOverlayMode) { overlayLaunchCommand(pkg, "am start -n " + comp + " 2>/dev/null"); return; }
     if (!isLaunchReady()) { showLaunchBusyToast(); return; }
-    std::string intent = "-n\t" + comp;   // unflattenFromString expands a relative ".Class"
-    property_set("sys.gammaos.nano.launch_app", pkg.c_str());
-    property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
-    {
-        const char* f = "/data/system/nano_launch_intent.txt";
-        int ifd = open(f, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-        if (ifd >= 0) { ssize_t w = write(ifd, intent.c_str(), intent.size()); (void)w; close(ifd); chmod(f, 0644); }
-        property_set("sys.gammaos.nano.launch_intent", ifd >= 0 ? "file" : "");
-    }
+    // Enter the launch handshake now (render thread) so the release fade -> mExitRequested -> hand-off
+    // runs; the detached worker resolves the component and writes the intent while that plays out.
     setLaunchRomPath("");
     property_set("sys.gammaos.nano.launch_core", "");
     property_set("persist.gammaos.nano.qr_prepared", "0");
     property_set("persist.gammaos.nano.qr_core", "");
     property_set("sys.gammaos.nano.return_apps", "1");
-    property_set("service.bootanim.nano_retroarch", "1");
     property_set("sys.gammaos.nano.drop_input", "1");
     mWaitForRelease = true;
+    std::thread([]{
+        std::string comp = nanoResolveSettingsComp();
+        if (comp.empty()) { system("am start -a android.settings.SETTINGS 2>/dev/null"); return; }
+        std::string pkg = comp.substr(0, comp.find('/'));
+        std::string intent = "-n\t" + comp;   // unflattenFromString expands a relative ".Class"
+        property_set("sys.gammaos.nano.launch_app", pkg.c_str());
+        property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
+        const char* f = "/data/system/nano_launch_intent.txt";
+        int ifd = open(f, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (ifd >= 0) { ssize_t w = write(ifd, intent.c_str(), intent.size()); (void)w; close(ifd); chmod(f, 0644); }
+        property_set("sys.gammaos.nano.launch_intent", ifd >= 0 ? "file" : "");
+        // Trigger LAST, once the intent file + target props are in place, so the framework hand-off
+        // never observes a half-written launch request.
+        property_set("service.bootanim.nano_retroarch", "1");
+        ALOGI("NanoMenu: launching Settings via %s", comp.c_str());
+    }).detach();
 }
 
 // Overlay-only per-app Orientation submenu: lets the user override the FOREGROUND
