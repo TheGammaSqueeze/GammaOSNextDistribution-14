@@ -7,7 +7,7 @@ endif
 # GammaOS version. Single source of truth for the user-facing version string
 # embedded in ro.lineage.version, ro.lineage.display.version, and the OTA
 # manifest compatibility check (ro.gammaos.build.version).
-GAMMAOS_VERSION := 1.3.2
+GAMMAOS_VERSION := 1.4
 
 # GammaOS variant: bgN (GApps-Go) = Full, anything else (bvN, bvS) = Lite
 ifneq (,$(findstring bgN,$(TARGET_PRODUCT)))
