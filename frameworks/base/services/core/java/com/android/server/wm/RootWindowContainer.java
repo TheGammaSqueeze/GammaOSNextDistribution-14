@@ -2250,24 +2250,30 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     String launchCore = android.os.SystemProperties.get(
                             "sys.gammaos.nano.launch_core", "");
 
-                    // GammaOS Nano: When DE cache is ready, use direct DE cache
-                    // paths instead of FUSE paths. This eliminates the ~3s FUSE
-                    // wait — game loads from /data/system/nano_cache/ directly.
-                    if (cacheReady && !launchRom.isEmpty()) {
-                        String cacheDir = "/data/system/nano_cache";
-                        String romFile = new java.io.File(launchRom).getName();
-                        String coreFile = !launchCore.isEmpty()
-                                ? new java.io.File(launchCore).getName() : "";
-                        configFile = cacheDir + "/config/retroarch.cfg";
-                        launchRom = cacheDir + "/rom/" + romFile;
-                        if (!coreFile.isEmpty()) {
-                            launchCore = cacheDir + "/cores/" + coreFile;
-                        }
-                        Slog.i(TAG, "GammaOS Nano: using DE cache paths"
-                                + " ROM=" + launchRom + " CORE=" + launchCore
-                                + " CONFIG=" + configFile);
+                    // GammaOS Nano: the RetroArch HANDOVER always loads the REAL
+                    // ROM / core / config from their normal locations - never the
+                    // DE cache. The DE cache exists only to drive nano's instant QR
+                    // preview; RetroArch itself must open the user's real file so
+                    // its saves / states / config stay canonical (nothing to sync
+                    // back) and so a stale or wrong-game cache can never be handed
+                    // to it. Cold-boot FUSE readiness is already gated upstream by
+                    // NanoMenu's isQrRomStorageReady() before do_launch fires, and
+                    // the preview covers that wait visually.
+                    //
+                    // RetroArch runs as an app UID and cannot read the raw
+                    // /data/media/0/ internal-storage path (SELinux + unix perms
+                    // block apps from /data/media; only the FUSE view
+                    // /storage/emulated/0/ is app-accessible). qr_rom /
+                    // content_history can carry a raw /data/media/0/ path, which
+                    // handed to RetroArch verbatim would hang it forever loading a
+                    // file it cannot open. Rewrite it to the equivalent FUSE path
+                    // (the same real file).
+                    if (launchRom.startsWith("/data/media/0/")) {
+                        launchRom = "/storage/emulated/0/"
+                                + launchRom.substring("/data/media/0/".length());
+                        Slog.i(TAG, "GammaOS Nano: rewrote raw media ROM path to "
+                                + "FUSE path for app access: " + launchRom);
                     }
-
                     Slog.i(TAG, "GammaOS Nano: CONFIGFILE=" + configFile);
                     homeIntent.putExtra("LIBRETRO", dataDir + "/cores/");
                     homeIntent.putExtra("CONFIGFILE", configFile);

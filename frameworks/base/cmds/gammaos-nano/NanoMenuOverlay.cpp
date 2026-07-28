@@ -1417,6 +1417,17 @@ void NanoMenu::overlayLaunchGame() {
         size_t dot = gameName.rfind('.');
         if (dot != std::string::npos) gameName.erase(dot);
         property_set("persist.gammaos.nano.qr_game_name", gameName.c_str());
+        // Stage the DE cache for the QR preview, mirroring the home-XMB launch
+        // (launchXmbGame, NanoMenuXmb.cpp:~1893). On a force-SF / overlay-home
+        // device (e.g. Unisoc, where nano composites via a SurfaceFlinger layer)
+        // the resident overlay IS the home after the first game, so every launch
+        // after that comes through here; without this the DE cache is never warmed
+        // and the next Quick Resume has no live preview (cache miss). do_populate
+        // resolves the ROM from nano_qr_rom.txt (setQrRomPath above) and the core
+        // from qr_core; the edge-trigger reset in nano_cache.sh makes the populate
+        // re-fire even if cache_op already held "populate".
+        property_set("sys.gammaos.nano.cache_ready", "0");
+        property_set("sys.gammaos.nano.cache_op", "populate");
         ALOGI("overlay: primed Quick Resume (qr_core=%s, rom=%s)",
               corePath.c_str(), romPath.c_str());
     } else {

@@ -789,3 +789,14 @@ case "$OP" in
         exit 1
         ;;
 esac
+
+# Reset cache_op to a neutral value now that this op has completed, so the NEXT
+# setprop of ANY op is guaranteed to be a value CHANGE. init runs
+# `on property:cache_op=<op>` only on a change, so without this a repeat of the
+# same op (e.g. a launch-time populate right after a boot-time populate, or a
+# second QR resume of the same core) would be a silent no-op that never restarts
+# this service, leaving the DE cache un-warmed (no preview) and the resume a
+# miss. "idle" matches no init trigger, so setting it starts nothing. This makes
+# every caller (nano launch/reactive/overlay, drastic, and the framework
+# shutdown populate) edge-trigger-safe from one place.
+setprop sys.gammaos.nano.cache_op idle
