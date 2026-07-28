@@ -43,12 +43,9 @@ static const float kSizeNear = 0.0772033f, kGlare = 0.159705f;
 static const float kSpinTimeScale = 2.74f, kDeltaTime = 0.0088883f;
 static const float kAgingSpeed = 0.00285223f, kAgingVar = 0.493003f;
 static const float kIridescentExp = 1.0f;
-// Glitter <-> wave coupling strength. NEGATIVE: the wave's clip-space Y (the LUT's raw y/w
-// deviation) is inverted relative to the particle projection's ndcY, so the surface displacement
-// must be negated for the glitter to ride the silk right-side-up (the old sinusoid coupling carried
-// the same negative sign). Magnitude 1.0 = ride the silk 1:1 (the particle shader applies the same
+// Glitter <-> wave coupling strength: 1.0 rides the silk 1:1 (the particle shader applies the same
 // uYFlip*uScaleY as the wave, so the vertical motion matches the surface exactly).
-static const float kWaveCouple = -1.0f;
+static const float kWaveCouple = 1.0f;
 // normalized spot-light dir (eye space) from spotPos (4.16, 2.63, -7.6)
 static float sLx, sLy, sLz;
 
