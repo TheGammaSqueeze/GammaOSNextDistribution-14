@@ -219,6 +219,15 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 PRODUCT_PRODUCT_PROPERTIES += \
 	ro.setupwizard.mode=OPTIONAL \
 
+# GammaOS: drastic-nano is the default DS emulator (no manual prop needed), with the
+# single-screen view defaulting to PiP Small at 80% inset opacity. In base.mk so ALL
+# variants get it (build.sh + buildtv.sh + buildtv_cc.sh); the user can still change
+# these from the drastic-nano overlay menu, and dual-screen devices ignore the preset.
+PRODUCT_PRODUCT_PROPERTIES += \
+    persist.gammaos.nano.drastic_nano=1 \
+    persist.gammaos.drastic_nano.layout_preset=2 \
+    persist.gammaos.drastic_nano.pip_alpha=80
+
 # AOSP overlays
 PRODUCT_PACKAGES += \
     NavigationBarMode2ButtonOverlay

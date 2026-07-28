@@ -173,10 +173,7 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.setupwizard.mode=OPTIONAL \
     ro.control_privapp_permissions=log \
-    bluetooth.le.disable_apcf_extended_features=1 \
-    persist.gammaos.nano.drastic_nano=1 \
-    persist.gammaos.drastic_nano.layout_preset=2 \
-    persist.gammaos.drastic_nano.pip_alpha=80
+    bluetooth.le.disable_apcf_extended_features=1
 
 PRODUCT_PACKAGES += \
     NavigationBarMode2ButtonOverlay
