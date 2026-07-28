@@ -1325,7 +1325,17 @@ public class DisplayRotation {
             // WALLPAPER/launcher (overlay_wallpaper=1), not a scrim over a running app.
             final boolean overlayWallpaper =
                     "1".equals(SystemProperties.get("sys.gammaos.nano.overlay_wallpaper", "0"));
-            final boolean nanoOnTop = !appForeground || (showOverlay && overlayWallpaper);
+            // GammaOS: this SurfaceFlinger ROTATION_0 pin only makes sense when nano is actually
+            // running to self-rotate its own render (minimal boot). In NORMAL Android nano is not
+            // up and sys.gammaos.nano.app_launched is never "1", so appForeground would be
+            // permanently false and this pin would silently swallow every slider rotation (the
+            // display would never rotate). Gate the pin on nano being live so normal Android lets
+            // SurfaceFlinger perform the real rotation; in nano mode the expression is unchanged.
+            // Not gated on TV/leanback, so it applies to TV and non-TV builds alike.
+            final boolean nanoRunning =
+                    "1".equals(SystemProperties.get("sys.gammaos.minimal_boot", "0"));
+            final boolean nanoOnTop = nanoRunning
+                    && (!appForeground || (showOverlay && overlayWallpaper));
             final int result = nanoOnTop ? Surface.ROTATION_0 : forced;
             Slog.d(TAG, "GammaOS rotate: nanoOnTop=" + nanoOnTop
                     + " showOverlay=" + showOverlay + " appForeground=" + appForeground
