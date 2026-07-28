@@ -5228,7 +5228,14 @@ if (sRingPrimedCount >= 2) {
                             // is partially mounted. Two checks:
                             // 1. Path count: if fewer source dirs, storage not ready
                             // 2. Time: never remove entries within 60s of boot_completed
-                            if (res.roms.size() < sys.roms.size() && sys.scanned) {
+                            // These guards protect AUTOMATIC boot/background scans from a partial
+                            // mount. A USER-triggered "Rescan Games" (mRecentPrunePending, set by
+                            // gamesRefresh) is explicit: the user wants disk state reflected now,
+                            // including pruning games whose source is genuinely gone (e.g. an ejected
+                            // SD card, whose path drops out of res.activePaths and would otherwise
+                            // trip the path guard). So skip the guards for a user rescan.
+                            if (res.roms.size() < sys.roms.size() && sys.scanned
+                                    && !mRecentPrunePending) {
                                 // Time guard: always block within 60s of boot
                                 static int64_t sBootCompletedTime = 0;
                                 if (sBootCompletedTime == 0)
