@@ -145,6 +145,9 @@ public final class MediaDrm implements AutoCloseable {
 
     private static final String TAG = "MediaDrm";
 
+    private static final UUID WIDEVINE_UUID =
+            new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
+
     private final AtomicBoolean mClosed = new AtomicBoolean();
     private final CloseGuard mCloseGuard = CloseGuard.get();
 
@@ -292,6 +295,17 @@ public final class MediaDrm implements AutoCloseable {
         mAppPackageName = ActivityThread.currentOpPackageName();
         native_setup(new WeakReference<MediaDrm>(this),
                 getByteArrayFromUUID(uuid), mAppPackageName);
+
+        if (WIDEVINE_UUID.equals(uuid)
+                && android.os.SystemProperties.getBoolean("persist.gammaos.drm.force_l3", true)) {
+            // Uncertified devices are rejected by some license servers (e.g. Disney+
+            // error 39) when the CDM offers L1; L3 requests are served generically.
+            try {
+                setPropertyString("securityLevel", "L3");
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to force Widevine L3", e);
+            }
+        }
 
         mCloseGuard.open("release");
     }

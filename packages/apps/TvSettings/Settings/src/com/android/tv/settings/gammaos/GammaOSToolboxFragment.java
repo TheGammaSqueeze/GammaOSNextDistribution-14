@@ -175,6 +175,7 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.launch.guard.enabled", "false");
         DEFAULTS.put("persist.gammaos.launch.guard.callers", "");
         DEFAULTS.put("persist.gammaos.launch.guard.targets", "");
+        DEFAULTS.put("persist.gammaos.drm.force_l3", "true");
         DEFAULTS.put("persist.gammaos.qs.blacklist", "");
         DEFAULTS.put("persist.gammaos.bg_process_limit", "");
         DEFAULTS.put("persist.gammaos.gesture_wake_ignore", "");

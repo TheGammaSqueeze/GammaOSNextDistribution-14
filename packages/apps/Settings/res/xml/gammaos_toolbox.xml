@@ -1183,6 +1183,12 @@
             android:selectable="false"
             android:summary="@string/gammaos_toolbox_category_system_description" />
 
+        <SwitchPreference
+            android:key="persist.gammaos.drm.force_l3"
+            android:title="@string/gammaos_toolbox_drm_force_l3_title"
+            android:summary="@string/gammaos_toolbox_drm_force_l3_summary"
+            android:defaultValue="true" />
+
         <EditTextPreference
             android:key="persist.gammaos.qs.blacklist"
             android:title="@string/gammaos_toolbox_qs_blacklist_title"

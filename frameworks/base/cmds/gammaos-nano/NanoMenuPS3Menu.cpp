@@ -7209,6 +7209,8 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // Fixed refresh rate (GetIntProperty, only honoured while Refresh Rate Lock is On).
     {"Refresh Rate", SettingSource::kProp, "persist.gammaos.refresh.rate", "0",
      "0:Automatic,60:60 Hz,90:90 Hz,120:120 Hz"},
+    {"Widevine L3 Compatibility Mode", SettingSource::kProp, "persist.gammaos.drm.force_l3", "true",
+     "false:Off,true:On"},
     {"Display Tweaks", SettingSource::kProp, "persist.gammaos.display.tweaks", "false", "false:Off,true:On"},
     {"Force Client Composition", SettingSource::kProp, "persist.gammaos.force_client_comp", "false", "false:Off,true:On"},
     {"Desktop Fullscreen", SettingSource::kProp, "persist.gammaos.desktop.fullscreen", "false", "false:Off,true:On"},

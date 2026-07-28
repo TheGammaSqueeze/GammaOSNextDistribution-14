@@ -331,6 +331,7 @@ static const Ps3DataItem kToolboxCh[] = {
   {"Dual-Stack Display",22,"Enable the dual-stack display compositor.","Off",1,nullptr,0},
   {"RGB LED",22,"Enable RGB LED lighting effects.","Off",1,nullptr,0},
   {"Launch Guard",22,"Guard against unintended application launches.","Off",1,nullptr,0},
+  {"Widevine L3 Compatibility Mode",22,"Request L3 DRM licenses so streaming apps that reject uncertified devices can play. Video quality may be limited.","On",1,nullptr,0},
 };
 
 // ---- GammaRGB (persist.gammaos.rgb.* + persist.gammargb.control) ---------

@@ -3412,6 +3412,8 @@
     <string name="gammaos_toolbox_launch_guard_targets_summary">Comma-separated list of package names that callers should be blocked from launching.</string>
     <string name="gammaos_toolbox_category_system">System</string>
     <string name="gammaos_toolbox_category_system_description">Miscellaneous system-level overrides including Quick Settings tile visibility, background process limits, wake gesture filtering, and performance mode selection.</string>
+    <string name="gammaos_toolbox_drm_force_l3_title">Widevine L3 compatibility mode</string>
+    <string name="gammaos_toolbox_drm_force_l3_summary">Request L3 DRM licenses so streaming apps that reject uncertified devices (for example Disney+ error 39) can play. Video quality may be limited to SD/720p. Restart the app after changing.</string>
     <string name="gammaos_toolbox_qs_blacklist_title">QS tiles blacklist</string>
     <string name="gammaos_toolbox_qs_blacklist_summary">Comma-separated list of Quick Settings tile names to hide from the tile picker.</string>
     <string name="gammaos_toolbox_bg_process_limit_title">Background process limit</string>

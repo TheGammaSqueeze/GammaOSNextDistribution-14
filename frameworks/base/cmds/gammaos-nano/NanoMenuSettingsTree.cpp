@@ -627,6 +627,8 @@ void NanoMenu::buildSettingsTree() {
 
       // -- System --
       b.beginCategory("gos_system", "System");
+        b.toggle("drm_force_l3", "Widevine L3 Compatibility Mode",
+                 SettingSource::kProp, "persist.gammaos.drm.force_l3", "true");
         b.text("qs_blacklist", "QS Blacklist",
                SettingSource::kProp, "persist.gammaos.qs.blacklist", "");
         b.text("bg_process_limit", "BG Process Limit",
