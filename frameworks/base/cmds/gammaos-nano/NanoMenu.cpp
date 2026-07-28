@@ -5480,8 +5480,18 @@ if (sRingPrimedCount >= 2) {
 
     // Transition: grab input devices. drop_input was already set in handleSelect()
     // to block InputDispatcher from the moment the user pressed A.
-    for (int fd : mInputFds) {
-        ioctl(fd, EVIOCGRAB, 1);
+    //
+    // ONLY the DRM home grabs here. The resident --overlay instance isolates a running app's
+    // input through the framework drop_input prop, NEVER EVIOCGRAB (see openInputDevices /
+    // NanoMenuInput.cpp). It also does not exit after a hand-off - it re-raises as the
+    // persistent launcher - so if it grabbed here (e.g. exiting the drastic Quick Resume
+    // preview loop, which sets mExitRequested and reaches this code) the exclusive grab would
+    // outlive the hand-off and starve InputReader, leaving the next app (a RetroArch game)
+    // with no input until the overlay is restarted. Gate the grab on the DRM-home instance.
+    if (!mOverlayMode) {
+        for (int fd : mInputFds) {
+            ioctl(fd, EVIOCGRAB, 1);
+        }
     }
     // Do NOT clear drop_input here. The A-DOWN may still be sitting in
     // InputDispatcher's queue waiting for a focused window. InputDispatcher
