@@ -68,8 +68,16 @@ public class ContextSingleton {
             String currentPackageName = ctx.getApplicationContext().getPackageName();
             // Uri cannot be null here as SliceManagerService calls notifyChange(uri, null) in
             // grantPermissionFromUser.
-            ctx.getSystemService(SliceManager.class).grantPermissionFromUser(
-                    uri, currentPackageName, true);
+            // GammaOS minimal boot may not run the Slice system service, so getSystemService()
+            // can return null; guard it (like the other grantFullAccess overload below already
+            // does) so a slice-backed preference no longer crashes TvSettings with an NPE when it
+            // is previewed (e.g. Bluetooth at the bottom of the list).
+            SliceManager sliceManager = ctx.getSystemService(SliceManager.class);
+            if (sliceManager == null) {
+                Log.w(TAG, "SliceManager unavailable; cannot grant slice access for " + uri);
+                return;
+            }
+            sliceManager.grantPermissionFromUser(uri, currentPackageName, true);
             mGivenFullSliceAccess = true;
         }
     }
