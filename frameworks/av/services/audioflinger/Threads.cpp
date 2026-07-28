@@ -4181,8 +4181,18 @@ ssize_t PlaybackThread::threadLoop_write()
                     break;
                 }
 
-                // If nothing is enabled, bail early.
-                if (!sPEQ.enabled && !sWide.enabled && !sCryst.enabled) {
+                // Global pre/post gain for headroom / loudness. Read BEFORE the bail gate:
+                // preamp / postgain (and the Bass Limiter / Mid Protector modules) are real,
+                // audible changes on their own, so a non-unity gain with every parametric band
+                // disabled must still engage the chain. The old gate only tested PEQ/Wide/Cryst,
+                // so a preamp-only or Bass-Limiter-only setup silently did nothing.
+                const float preamp  = getGlobalPreampLin();
+                const float postamp = getGlobalPostampLin();
+
+                // Bail only when the chain is a genuine no-op: no module on AND unity gain.
+                if (!sPEQ.enabled && !sWide.enabled && !sCryst.enabled
+                        && !sLBP.enabled && !sMP.enabled
+                        && preamp == 1.0f && postamp == 1.0f) {
                     break;
                 }
 
@@ -4195,10 +4205,6 @@ ssize_t PlaybackThread::threadLoop_write()
                 }
 
                 void* const buffer = (char *)mSinkBuffer + offset;
-
-                // Global pre/post gain for headroom / loudness
-                const float preamp  = getGlobalPreampLin();
-                const float postamp = getGlobalPostampLin();
 
                 switch (fmt) {
                 case AUDIO_FORMAT_PCM_16_BIT: {
@@ -4307,8 +4313,16 @@ ssize_t PlaybackThread::threadLoop_write()
             const bool spkOnly  = gammaeqSpeakerOnlyEnabled();
             if (!forceAll && spkOnly && !isSpeakerRoutedNow()) break;
 
-            // If nothing is enabled, do nothing at all.
-            if (!sPEQ.enabled && !sWide.enabled && !sCryst.enabled) break;
+            // Headroom before chain + optional makeup after chain. Read BEFORE the bail gate:
+            // preamp / postgain (and Bass Limiter / Mid Protector) engage the chain on their own,
+            // so a non-unity gain with every parametric band disabled is still applied.
+            const float preamp  = getGlobalPreampLin();
+            const float postamp = getGlobalPostampLin();
+
+            // Bail only when the chain is a genuine no-op: no module on AND unity gain.
+            if (!sPEQ.enabled && !sWide.enabled && !sCryst.enabled
+                    && !sLBP.enabled && !sMP.enabled
+                    && preamp == 1.0f && postamp == 1.0f) break;
 
             const audio_format_t fmt = mFormat;
             const int ch = mChannelCount;
@@ -4317,10 +4331,6 @@ ssize_t PlaybackThread::threadLoop_write()
             if (ch < 2 || frameCount == 0) break;
 
             void* const buffer = (char *)mSinkBuffer + offset;
-
-            // Headroom before chain + optional makeup after chain
-            const float preamp  = getGlobalPreampLin();
-            const float postamp = getGlobalPostampLin();
 
             switch (fmt) {
                 case AUDIO_FORMAT_PCM_16_BIT: {

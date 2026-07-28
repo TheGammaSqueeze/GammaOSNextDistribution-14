@@ -963,16 +963,21 @@ void FastMixer::onWork()
             const bool forceAll = gammaeqForceAllOutputs();
             const bool spkOnly  = gammaeqSpeakerOnlyEnabled();
             if (!forceAll && spkOnly && !isSpeakerRoutedNow()) break;
-            // If nothing is enabled, do nothing at all (A13 intent).
-            if (!sPEQ.enabled && !sWide.enabled && !sCryst.enabled) break;
+            // Headroom before chain + optional makeup after chain. Read BEFORE the bail gate:
+            // preamp / postgain (and the Bass Limiter / Mid Protector modules) are audible on
+            // their own, so a non-unity gain with every parametric band disabled must still
+            // engage the chain (matches Threads.cpp normal-path).
+            const float preamp  = getGlobalPreampLin();
+            const float postamp = getGlobalPostampLin();
+            // Bail only when the chain is a genuine no-op: no module on AND unity gain.
+            if (!sPEQ.enabled && !sWide.enabled && !sCryst.enabled
+                    && !sLBP.enabled && !sMP.enabled
+                    && preamp == 1.0f && postamp == 1.0f) break;
 
             const audio_format_t fmt = mFormat.mFormat;
             const int ch = mAudioChannelCount;
             const size_t sampCount = frameCount * (size_t)ch;
             if (ch < 2) break; // only stereo processing for now
-            // Headroom before chain + optional makeup after chain
-            const float preamp  = getGlobalPreampLin();
-            const float postamp = getGlobalPostampLin();
             switch (fmt) {
                 case AUDIO_FORMAT_PCM_16_BIT: {
                     static thread_local std::vector<float> tmp;
