@@ -317,6 +317,24 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
             drawRoundedRect(bx - 4.0f * sc, by - 4.0f * sc, bw + 8.0f * sc, bh + 8.0f * sc, 6.0f * sc, 1.0f, 1.0f, 1.0f, 0.12f);
             drawIconTex(bt, bx, by, bw, bh, 1.0f, 1.0f, 1.0f, 1.0f);
         }
+    } else if (!inGameScrim) {
+        // ---- focused APP logo, bottom-right (like boxart) - the Applications list ----
+        const Ps3Item* focItem = nullptr;
+        if (!mNdsAtRoot) {
+            if (!mPs3Stack.empty()) {
+                const auto& its = mPs3Stack.back().items; int s = mPs3Stack.back().sel;
+                if (s >= 0 && s < (int)its.size()) focItem = &its[s];
+            } else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
+                const auto& its = mPs3Cats[mPs3CatIdx].items;
+                if (mPs3ItemIdx >= 0 && mPs3ItemIdx < (int)its.size()) focItem = &its[mPs3ItemIdx];
+            }
+        }
+        if (focItem && focItem->kind == PS3_APP && focItem->iconTex) {
+            float isz = rh * 0.28f; const float maxsz = rw * 0.28f; if (isz > maxsz) isz = maxsz;
+            float bx = rx + rw - pad - isz, by = hintTop - btnMg - isz;   // square app icon
+            drawRoundedRect(bx - 4.0f * sc, by - 4.0f * sc, isz + 8.0f * sc, isz + 8.0f * sc, 8.0f * sc, 1.0f, 1.0f, 1.0f, 0.12f);
+            drawIconTex(focItem->iconTex, bx, by, isz, isz, 1.0f, 1.0f, 1.0f, 1.0f);
+        }
     }
 
     // ---- bottom legend: a button glyph + label, matching NextUI. B Back (left), A Open (right), and

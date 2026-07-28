@@ -1838,6 +1838,15 @@ void NanoMenu::pollInput() {
                 else if (mPvActive) { if (mPvPanel) closePvPanel(); else openPvPanel(); }
                 else if (mPs3Xmb) { if (mPs3OptActive) closeXmbOpt(); else openXmbOpt(); }
             }
+            // Power submenu shortcut: PhoneWindowManager sets this on a power-HOLD when the
+            // overlay / wallpaper home is visible (nano does not own the power key there), to open
+            // the Quick Menu Power submenu - the grabbing DRM home calls openQuickPowerMenu()
+            // directly from its own power path. Only meaningful when the menu is on screen.
+            else if (!strcmp(navbuf, "powermenu")) {
+                // PhoneWindowManager only fires this when the overlay/wallpaper home is on screen
+                // with no foreground app, so the menu is guaranteed visible here.
+                if (mPs3Xmb) openQuickPowerMenu();
+            }
             else if (!strcmp(navbuf, "sq")) {
                 if (mMpActive && !mOskActive) mpCycleVis();
                 else if (mPs3Xmb && !mOskActive && !mPvActive && !mPs3OptActive && !mPs3DlgActive
@@ -2351,9 +2360,10 @@ void NanoMenu::pollInput() {
                         if (!strcmp(ss, "off")) { mPowerPressTime = 0; continue; }
                     }
                     mPowerPressTime = android::uptimeMillis();
-                    // Immediately start polling for long press in a tight loop
-                    // so we can shutdown before the hardware cuts power
-                    bool shutdown = false;
+                    // Poll for a long press in a tight loop. The home menu is visible on a
+                    // grabbing DRM home here (we are past the overlay / non-grab bail above), so a
+                    // hold opens the Quick Menu Power submenu rather than shutting down outright.
+                    bool powerHold = false;
                     for (int poll = 0; poll < 40; poll++) { // 40 * 50ms = 2s
                         usleep(50000);
                         // Check if key was released
@@ -2369,15 +2379,17 @@ void NanoMenu::pollInput() {
                         }
                         if (released) break;
                         if (android::uptimeMillis() - mPowerPressTime > 1500) {
-                            // 1.5s hold: trigger shutdown before hardware kills us
-                            ALOGI("NanoMenu: power hold 1.5s, shutting down");
-                            shutdown = true;
+                            // 1.5s hold while the menu is visible -> open the Quick Menu Power
+                            // submenu (Restart / Power Off / Recovery / ...) so the user chooses,
+                            // rather than an instant shutdown.
+                            ALOGI("NanoMenu: power hold 1.5s -> Quick Menu Power submenu");
+                            powerHold = true;
                             break;
                         }
                     }
-                    if (shutdown) {
+                    if (powerHold) {
                         mPowerPressTime = 0;
-                        prepareShutdown("shutdown");
+                        openQuickPowerMenu();
                         continue;
                     }
                     // Key was released before 1.5s — short press = sleep.

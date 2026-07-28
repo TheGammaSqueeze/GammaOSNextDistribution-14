@@ -781,6 +781,7 @@ enum {
     QA_ACTION_SETACT,    // (it.value = pkg/comp) set the active slot to act=<comp>
     QA_ACTION_SEARCH,    // open the OSK to filter the active target picker
     QA_ACTION_SEARCH_CLEAR, // clear the active picker's text filter
+    QA_ANDROID_SETTINGS, // launch the device's own Settings app (ACTION_SETTINGS, resolved at runtime)
 };
 
 // True for the QA_ action codes whose row drills into a deeper submenu list, so
@@ -871,6 +872,8 @@ void NanoMenu::buildPs3Cats() {
         qItem("Screen Brightness",   QA_BRIGHTNESS,    73);
         qItem("Performance Mode",    QA_PERFORMANCE,   81);
         qItem("Quick Settings",      QA_QUICK_SETTINGS, 74);
+        // Android's own Settings app (TVSettings / handheld Settings, resolved at runtime).
+        qItem("System Settings",     QA_ANDROID_SETTINGS, 44);
         qItem("Global Shaders",      QA_SHADER_MENU,    16);
         qItem("Notifications",       QA_NOTIFICATIONS,  71);
         qItem("USB Settings",        QA_USB_MENU,       76);
@@ -1067,6 +1070,94 @@ void NanoMenu::buildQuickPowerSubmenu(Ps3Level& out) {
     q("Recovery",     QA_RECOVERY,     22);   // wrench
     q("Safe Mode",    QA_SAFEMODE,     18);   // wrench + lock
     q("Boot Android", QA_BOOT_ANDROID, 44);   // android robot
+}
+
+// Open the Quick Menu -> Power submenu directly. Triggered by a power-button HOLD while the home
+// menu is on screen: on a grabbing DRM home nano's own power path calls this; on the overlay /
+// wallpaper home PhoneWindowManager sets the "powermenu" nav hook (nano is not the power owner
+// there) and the nav dispatch calls this. Lands on the Quick Menu category in a clean top-level
+// state, then pushes the Power submenu - works for every theme (XMB / DSi / Minima; DSi and Minima
+// key off mNdsAtRoot + mPs3Stack, the XMB off mPs3CatIdx + mPs3Stack).
+void NanoMenu::openQuickPowerMenu() {
+    if (!mPs3MenuBuilt) initPs3Menu();
+    int quickIdx = (mPs3QuickCatIdx >= 0) ? mPs3QuickCatIdx : 0;
+    if (quickIdx < 0 || quickIdx >= (int)mPs3Cats.size()) return;
+    // Clean, top-level Quick Menu state (mirrors the overlay Quick-Menu raise).
+    mPs3Stack.clear();
+    mPs3DlgActive = false; mPs3OptActive = false; mPs3BrightSlider = false;
+    mMenuState = MENU_MAIN;
+    mPs3CatIdx  = quickIdx;
+    mPs3ItemIdx = 0;
+    mPs3CatItemSel[mPs3CatIdx] = 0;
+    mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f; mPs3SubAnimStart = -1.0f;
+    mPs3CatAnimActive = false; mPs3CatT = 1.0f; mPs3CatFromOffset = 0.0f;
+    mNdsAtRoot = false;   // DSi/Minima: drilled into the Quick Menu category, not the root list
+    // Push the Power submenu on top and sync the DSi/Minima camera to it.
+    Ps3Level lvl; buildQuickPowerSubmenu(lvl); mPs3Stack.push_back(lvl);
+    mNdsCamera = (float)ndsFocusSel(); mNdsScrubbing = false; mNdsFlingVel = 0.0f;
+    mDisplayDirty = true;
+    ALOGI("NanoMenu: opened Quick Menu Power submenu (power-hold)");
+}
+
+// Small bounded popen capture, local to this file. (NanoMenuSettings.cpp's runCmd lives in an
+// anonymous namespace, so it has internal linkage and cannot be shared across translation units.)
+// Used only to resolve the Settings component at runtime; `timeout` bounds it so a wedged binder
+// can never stall the caller.
+static std::string nanoCaptureCmd(const std::string& cmdline) {
+    std::string out;
+    std::string full = "timeout 3 " + cmdline;
+    FILE* p = popen(full.c_str(), "r");
+    if (!p) return out;
+    char buf[512]; size_t n;
+    while ((n = fread(buf, 1, sizeof(buf), p)) > 0) out.append(buf, n);
+    pclose(p);
+    return out;
+}
+
+// Quick Menu -> Settings: launch the device's own Settings app through the normal app-launch flow
+// (nano parks and hands off exactly like launching any app or the browser). The Settings package +
+// activity is RESOLVED at runtime from ACTION_SETTINGS, so it works for TVSettings on ATV, the
+// handheld Settings, or anything else that registers the action - we never assume a fixed package.
+void NanoMenu::launchAndroidSettings() {
+    std::string res = nanoCaptureCmd("cmd package resolve-activity --brief -a android.settings.SETTINGS 2>/dev/null");
+    // Pick the last line that looks like a "pkg/activity" component (skip the ResolveInfo header line).
+    std::string comp;
+    for (size_t i = 0; i < res.size(); ) {
+        size_t nl = res.find('\n', i);
+        std::string line = res.substr(i, (nl == std::string::npos ? res.size() : nl) - i);
+        size_t a = line.find_first_not_of(" \t\r"), b = line.find_last_not_of(" \t\r");
+        if (a != std::string::npos) {
+            std::string t = line.substr(a, b - a + 1);
+            if (t.find('/') != std::string::npos && t.find('.') != std::string::npos && t.find(' ') == std::string::npos)
+                comp = t;
+        }
+        if (nl == std::string::npos) break; i = nl + 1;
+    }
+    if (comp.empty()) {   // resolve failed: fall back to a plain action launch
+        std::thread([]{ system("am start -a android.settings.SETTINGS 2>/dev/null"); }).detach();
+        return;
+    }
+    std::string pkg = comp.substr(0, comp.find('/'));
+    ALOGI("NanoMenu: launching Settings via %s", comp.c_str());
+    if (mOverlayMode) { overlayLaunchPackage(pkg); return; }   // in-game overlay: replace the app
+    if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+    std::string intent = "-n\t" + comp;   // unflattenFromString expands a relative ".Class"
+    property_set("sys.gammaos.nano.launch_app", pkg.c_str());
+    property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
+    {
+        const char* f = "/data/system/nano_launch_intent.txt";
+        int ifd = open(f, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (ifd >= 0) { ssize_t w = write(ifd, intent.c_str(), intent.size()); (void)w; close(ifd); chmod(f, 0644); }
+        property_set("sys.gammaos.nano.launch_intent", ifd >= 0 ? "file" : "");
+    }
+    setLaunchRomPath("");
+    property_set("sys.gammaos.nano.launch_core", "");
+    property_set("persist.gammaos.nano.qr_prepared", "0");
+    property_set("persist.gammaos.nano.qr_core", "");
+    property_set("sys.gammaos.nano.return_apps", "1");
+    property_set("service.bootanim.nano_retroarch", "1");
+    property_set("sys.gammaos.nano.drop_input", "1");
+    mWaitForRelease = true;
 }
 
 // Overlay-only per-app Orientation submenu: lets the user override the FOREGROUND
@@ -4762,6 +4853,9 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_LAUNCH_REMAP:
                     std::thread([]{ system("am start -n org.lineageos.lineageparts/.input.GamepadSettings "
                                            "--es :settings:fragment_args_key gamepad_remap_buttons 2>/dev/null"); }).detach();
+                    return;
+                case QA_ANDROID_SETTINGS:
+                    launchAndroidSettings();   // parks nano + hands off, exactly like launching any app
                     return;
                 case QA_NOTIF_DISMISS: {
                     if (it.b >= 0 && it.b < (int)mNotifs.size()) {

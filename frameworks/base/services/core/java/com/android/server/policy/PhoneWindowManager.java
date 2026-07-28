@@ -1791,7 +1791,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "0");
                 Slog.d(TAG, "GammaOS Nano: power long press -> overlay XMB hide (resume app)");
             } else {
-                Slog.d(TAG, "GammaOS Nano: power long press -> overlay launcher (no-op)");
+                // Overlay/wallpaper home is on screen with no foreground app (the menu is visible):
+                // open the Quick Menu Power submenu. nano owns the menu navigation, so ask it via the
+                // nav hook rather than toggling the overlay.
+                android.os.SystemProperties.set("sys.gammaos.nano.nav", "powermenu");
+                Slog.d(TAG, "GammaOS Nano: power long press -> Quick Menu Power submenu (overlay home visible)");
             }
             return;
         }
@@ -7697,6 +7701,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+    // Publish the CURRENT music volume to the props the nano cold-boot chime reads
+    // (persist.gammaos.nano.volume / volmax) at boot, so the chime respects the system volume even
+    // when the user has not pressed the volume keys this session. nanoSyncAllStreamsVolume only
+    // publishes on a key change, so on a fresh device the props were empty and the chime played at
+    // full volume. These are persisted, so the chime picks up this value on the next cold boot.
+    void nanoPublishBootVolumeProps() {
+        try {
+            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            if (am == null) return;
+            int musMax = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+            android.os.SystemProperties.set("persist.gammaos.nano.volume", Integer.toString(cur));
+            android.os.SystemProperties.set("persist.gammaos.nano.volmax", Integer.toString(musMax));
+        } catch (Exception e) {
+            Log.e(TAG, "Nano: boot volume prop publish failed", e);
+        }
+    }
+
     // GammaOS Nano: minimal volume indicator overlay (no SystemUI volume panel)
     private void showNanoVolumeIndicator() {
         try {
@@ -8607,6 +8629,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     @Override
     public void systemBooted() {
         bindKeyguard();
+        // Seed the nano cold-boot chime volume props from the current system volume (AudioService is
+        // up by now), so the chime respects the system level on the next boot.
+        nanoPublishBootVolumeProps();
         synchronized (mLock) {
             mSystemBooted = true;
             if (mSystemReady) {

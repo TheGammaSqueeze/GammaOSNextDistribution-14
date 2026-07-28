@@ -854,57 +854,11 @@ void NanoMenu::renderPs3BootOverlay(bool primary) {
 // over. Driven by the SAME frame clock + phase machine as the DSi boot (ps3BootUpdate's shared
 // branch), so the hand-off into the Minima menu is identical and no XMB is ever shown.
 void NanoMenu::renderMinimaBootOverlay(bool primary) {
-    setUiBlend();
-    const int prevOutline = mTextOutlineMode; mTextOutlineMode = 2;
-    const double f = mDsiBootFrame;
-    const float rw = (float)mWidth, rh = (float)mHeight;
-    const float sc = rh / 336.0f;                       // Minima MIN_REF_H scale
-    const float cx = rw * 0.5f;
-    float ar, ag, ab; minimaAccent(ar, ag, ab);
-
-    drawQuad(0.0f, 0.0f, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);   // black canvas (opaque, hides the wave)
-
-    float a = (float)((f - DSI_WHITE_END) / DSI_HS_FADE);   // reuse the DSi content fade-in schedule
-    if (a < 0.0f) a = 0.0f; if (a > 1.0f) a = 1.0f;
-
-    if (f >= DSI_LOGO_START && a > 0.0f) {
-        float lf = (float)(f - DSI_LOGO_START);
-        float rise = 1.0f - expf(-lf / 12.0f);
-        const char* mark = "GammaOS";
-        float fsM = (44.0f * sc) / (float)FONT_CHAR_H, mw = measureText(mark, fsM);
-        drawText(mark, cx - mw * 0.5f, rh * 0.30f - (1.0f - rise) * 14.0f * sc, fsM, ar, ag, ab, a);   // accent wordmark
-        if (primary) {
-            const char* title = trDyn(kWarnTitle);
-            float fsT = (16.0f * sc) / (float)FONT_CHAR_H, tw = measureText(title, fsT);
-            drawText(title, cx - tw * 0.5f, rh * 0.46f, fsT, 0.95f, 0.95f, 0.97f, a);
-            std::string body = trDyn(kWarnBody);
-            float fs = (13.0f * sc) / (float)FONT_CHAR_H, maxW = rw * 0.82f, lineH = 17.0f * sc, yy = rh * 0.53f;
-            std::string line; size_t i = 0;
-            while (i < body.size() && yy < rh * 0.86f) {
-                size_t sp = body.find(' ', i);
-                std::string word = body.substr(i, (sp == std::string::npos ? body.size() : sp) - i);
-                std::string cand = line.empty() ? word : line + " " + word;
-                if (measureText(cand.c_str(), fs) > maxW && !line.empty()) {
-                    float lw2 = measureText(line.c_str(), fs);
-                    drawText(line.c_str(), cx - lw2 * 0.5f, yy, fs, 0.82f, 0.82f, 0.85f, a);
-                    yy += lineH; line = word;
-                } else line = cand;
-                if (sp == std::string::npos) break; i = sp + 1;
-            }
-            if (!line.empty()) { float lw2 = measureText(line.c_str(), fs); drawText(line.c_str(), cx - lw2 * 0.5f, yy, fs, 0.82f, 0.82f, 0.85f, a); }
-        }
-    }
-    if (mDsiBootPhase == DSI_WAIT && primary) {
-        float pulse = 0.55f + 0.45f * sinf((float)f * 0.12f);
-        const char* prompt = trDyn("Press A to continue");
-        float fs = (15.0f * sc) / (float)FONT_CHAR_H, tw = measureText(prompt, fs);
-        drawText(prompt, cx - tw * 0.5f, rh * 0.90f, fs, ar, ag, ab, pulse);
-    }
-    if (mDsiBootPhase == DSI_ENTERING) {
-        float t = (float)((f - mDsiEnterStart) / DSI_ENTER_END); if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
-        drawQuad(0.0f, 0.0f, rw, rh, 0.0f, 0.0f, 0.0f, t);   // fade up to black, then DSI_DONE hands to the menu
-    }
-    mTextOutlineMode = prevOutline;
+    // Minima reuses the DSi cold-boot animation verbatim, only with INVERTED colours (dark field,
+    // light content - see the inv / ink* handling in renderNdsBootOverlay, gated on mMinimaTheme).
+    // Boot audio stays Minima's own: dsiBootSound() plays only minima_boot.wav at the chime and is
+    // silent on Touch/Enter, so none of the DSi transition audio is used.
+    renderNdsBootOverlay(primary);
 }
 
 void NanoMenu::renderNdsBootOverlay(bool primary) {
@@ -927,11 +881,21 @@ void NanoMenu::renderNdsBootOverlay(bool primary) {
     auto Y = [&](float dy){ return offY + dy * scale; };
     auto S = [&](float v){ return v * scale; };
 
+    // Minima reuses this exact DSi boot animation with INVERTED colours (dark field, light
+    // content) - the DSi path (inv=false) keeps the original values unchanged.
+    const bool  inv    = mMinimaTheme;
+    const float bgHold = inv ? 0.0f   : 1.0f;    // 22..92 hold field  (white -> black)
+    const float bgHS   = inv ? 0.035f : 0.984f;  // health-notice field (near-white -> near-black)
+    const float ink    = inv ? 0.92f  : 0.16f;   // logo / title line-art tint
+    const float ink2   = inv ? 0.80f  : 0.255f;  // notice body text
+    const float ink3   = inv ? 0.72f  : 0.353f;  // pulsing prompt
+    const float coverC = inv ? 0.0f   : 1.0f;    // enter cross-fade cover (fades to menu colour)
+
     // (a) Background schedule (both panels), HARD cuts like the web: black (0..22),
-    // white hold (22..92), then the #fb health-notice field. Opaque - hides the wave.
+    // hold (22..92), then the health-notice field. Opaque - hides the wave.
     if      (f < DSI_BLACK_END)  drawQuad(0.0f, 0.0f, rw, rh, 0.0f,   0.0f,   0.0f,   1.0f);
-    else if (f < DSI_WHITE_END)  drawQuad(0.0f, 0.0f, rw, rh, 1.0f,   1.0f,   1.0f,   1.0f);
-    else                         drawQuad(0.0f, 0.0f, rw, rh, 0.984f, 0.984f, 0.984f, 1.0f);  // HS_BG rgb(251,251,251)
+    else if (f < DSI_WHITE_END)  drawQuad(0.0f, 0.0f, rw, rh, bgHold, bgHold, bgHold, 1.0f);
+    else                         drawQuad(0.0f, 0.0f, rw, rh, bgHS,   bgHS,   bgHS,   1.0f);
 
     // Static content fades in over 23 frames from whiteEnd (web `clamp((f-92)/23)`).
     float hsA = (float)((f - DSI_WHITE_END) / DSI_HS_FADE);
@@ -950,7 +914,7 @@ void NanoMenu::renderNdsBootOverlay(bool primary) {
         auto drawLogoAt = [&](GLuint tex, float sc, float cyOff, float al){
             if (!tex || al <= 0.004f) return;
             float w2 = baseW * sc, h2 = w2 * (350.0f / 700.0f);
-            drawIconTex(tex, cxp - w2 * 0.5f, logoCY + cyOff - h2 * 0.5f, w2, h2, 0.16f, 0.16f, 0.16f, al);
+            drawIconTex(tex, cxp - w2 * 0.5f, logoCY + cyOff - h2 * 0.5f, w2, h2, ink, ink, ink, al);
         };
         // A miniature GammaOS logo (the same mPs3BootLogoTex plate as the final mark),
         // centred at (sx,sy) with target WIDTH sz. Replaces the old plain "screen" squares:
@@ -1010,6 +974,21 @@ void NanoMenu::renderNdsBootOverlay(bool primary) {
         if (mPs3BootFooterTex) drawLogoAt(mPs3BootFooterTex, 1.0f, S(22.0f) + (1.0f - we) * S(4.0f), we);
     }
 
+    // Single-screen only: the pulsing touch/continue prompt normally lives on the bottom
+    // (health-notice) panel, which is never shown when nano renders to a single physical screen.
+    // Draw it at the bottom of the TOP (logo) screen instead, so single-screen devices still see how
+    // to proceed. On a dual-screen device the bottom panel below owns the prompt (so this is gated
+    // out to avoid a duplicate). Applies to both DSi and Minima (Minima routes through here).
+    if (primary && !hasSecondaryDisplay() && mDsiBootPhase >= DSI_WAIT && f >= DSI_TOUCH_PROMPT) {
+        double pp = fmod(f - DSI_TOUCH_PROMPT, DSI_PULSE_PERIOD);
+        float pulse = (float)(pp < 30.0 ? pp / 30.0 : (60.0 - pp) / 30.0);
+        if (pulse > 0.004f) {
+            const char* pr = trDyn("Press A to continue");
+            float fs = S(9.0f) / (float)FONT_CHAR_H, tw = measureText(pr, fs);
+            drawText(pr, cxp - tw * 0.5f, Y(182.0f), fs, ink3, ink3, ink3, pulse);
+        }
+    }
+
     // (c) BOTTOM panel: the DSi health-notice layout (the web puts the H&S on the bottom
     // touch screen) - caution triangle + title (block-centred), the GammaOS liability body
     // word-wrapped, and the pulsing touch-to-continue prompt. Web H&S baselines: title y28,
@@ -1026,7 +1005,7 @@ void NanoMenu::renderNdsBootOverlay(bool primary) {
         float rowTop = Y(20.0f);
         if (mDsiTriTex) drawIconTex(mDsiTriTex, blockLeft, rowTop, triW, triH, 1.0f, 1.0f, 1.0f, hsA);
         drawText(title, blockLeft + triW + gap, rowTop + (triH - titleFs * FONT_CHAR_H) * 0.5f,
-                 titleFs, 0.16f, 0.16f, 0.16f, hsA);
+                 titleFs, ink, ink, ink, hsA);
 
         // wrapped body, centred lines, filling the mid panel between the title and the prompt.
         float wrapW = S(216.0f);
@@ -1050,7 +1029,7 @@ void NanoMenu::renderNdsBootOverlay(bool primary) {
         float pitchDS = (bandBot - bandTop) / (float)nl; if (pitchDS > 18.0f) pitchDS = 18.0f;
         float y = Y(bandTop + (bandBot - bandTop - pitchDS * (nl - 1)) * 0.0f);   // top-anchored in the band
         for (auto& l : lines) { float tw = measureText(l.c_str(), bodyFs);
-            drawText(l.c_str(), cxp - tw * 0.5f, y, bodyFs, 0.255f, 0.255f, 0.255f, hsA); y += S(pitchDS); }
+            drawText(l.c_str(), cxp - tw * 0.5f, y, bodyFs, ink2, ink2, ink2, hsA); y += S(pitchDS); }
 
         // pulsing prompt - only from frame 180 (WAIT+). 60-frame linear triangle, grey rgb(90,90,90).
         if (mDsiBootPhase >= DSI_WAIT && f >= DSI_TOUCH_PROMPT) {
@@ -1059,7 +1038,7 @@ void NanoMenu::renderNdsBootOverlay(bool primary) {
             if (pulse > 0.004f) {
                 const char* pr = trDyn("Touch the screen to continue.");
                 float fs = S(8.0f) / (float)FONT_CHAR_H, tw = measureText(pr, fs);
-                drawText(pr, cxp - tw * 0.5f, Y(168.0f), fs, 0.353f, 0.353f, 0.353f, pulse);
+                drawText(pr, cxp - tw * 0.5f, Y(168.0f), fs, ink3, ink3, ink3, pulse);
             }
         }
     }
@@ -1070,7 +1049,7 @@ void NanoMenu::renderNdsBootOverlay(bool primary) {
     if (mDsiBootPhase == DSI_ENTERING || mDsiBootPhase == DSI_DONE) {
         float t = (float)((mDsiBootFrame - mDsiEnterStart) / 30.0);
         float a = t < 1.0f ? t : 1.0f;
-        drawQuad(0.0f, 0.0f, rw, rh, 1.0f, 1.0f, 1.0f, a);
+        drawQuad(0.0f, 0.0f, rw, rh, coverC, coverC, coverC, a);
     }
     mNdsFontPref = prevFont; mTextOutlineMode = prevOutline;
 }

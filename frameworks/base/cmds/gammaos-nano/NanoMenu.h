@@ -2092,6 +2092,8 @@ private:
     // Quick Menu (nano legacy global actions): the Power submenu builder, the
     // performance-mode side-panel chooser, and the kill-apps backend.
     void buildQuickPowerSubmenu(Ps3Level& out);
+    void openQuickPowerMenu();   // power-hold (menu visible) -> Quick Menu Power submenu, all themes
+    void launchAndroidSettings(); // Quick Menu -> launch the device's own Settings app (runtime-resolved)
     // Overlay-only per-app Orientation submenu for the foreground app.
     void buildAppOrientSubmenu(Ps3Level& out);
     // USB device-mode submenu (Charging/MTP/PTP/RNDIS) for a connected PC. forceActive
