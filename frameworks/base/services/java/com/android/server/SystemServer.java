@@ -2901,6 +2901,25 @@ public final class SystemServer implements Dumpable {
                 t.traceEnd();
             }
 
+            // GammaOS Nano: SliceManagerService must run in minimal boot too. TvSettings backs
+            // several preference screens (Accessories/Bluetooth, etc.) with Slices whose provider
+            // lives in TvSettings itself. Those screens call getSystemService(SliceManager.class)
+            // and pinSlice()/unpinSlice(); without this service getSystemService returns null and
+            // TvSettings crashes with an NPE (SliceFragment.onResume observing the slice live data).
+            // Full boot starts it inside the !minimalBoot block below, guarded on FEATURE_SLICES_DISABLED;
+            // add a minimal-boot copy here with the same guard, without disturbing the full-boot ordering
+            // (same pattern as TrustManager / ColorDisplay above).
+            if (minimalBoot
+                    && !mPackageManager.hasSystemFeature(PackageManager.FEATURE_SLICES_DISABLED)) {
+                t.traceBegin("StartSliceManagerService");
+                try {
+                    mSystemServiceManager.startService(SLICE_MANAGER_SERVICE_CLASS);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: SliceManagerService failed", e);
+                }
+                t.traceEnd();
+            }
+
             if (!minimalBoot) { // GammaOS Nano: skip Serial through BackgroundInstall
             if (!isWatch) {
                 t.traceBegin("StartSerialService");

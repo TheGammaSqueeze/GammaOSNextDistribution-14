@@ -95,8 +95,19 @@ public abstract class TemplateSliceBuilder {
         if (SliceProvider.getCurrentSpecs() != null) {
             return new ArrayList<>(SliceProvider.getCurrentSpecs());
         }
-        Set<SliceSpec> pinnedSpecs = SliceManager.getInstance(mContext).getPinnedSpecs(uri);
-        return new ArrayList<>(pinnedSpecs);
+        // GammaOS: the framework Slice system service can be absent on a minimal boot (or on a
+        // build with FEATURE_SLICES_DISABLED). getPinnedSpecs() then talks to a null service and
+        // throws, which would crash the slice provider. Degrade to an empty spec set instead so
+        // the slice still builds rather than taking down TvSettings.
+        try {
+            Set<SliceSpec> pinnedSpecs = SliceManager.getInstance(mContext).getPinnedSpecs(uri);
+            if (pinnedSpecs != null) {
+                return new ArrayList<>(pinnedSpecs);
+            }
+        } catch (Exception e) {
+            android.util.Log.w(TAG, "SliceManager unavailable; using empty specs for " + uri, e);
+        }
+        return new ArrayList<>();
     }
 
     protected Clock getClock() {
