@@ -68,6 +68,13 @@ std::string runCmd(const std::string& cmdline) {
     result.reserve(4096);
     std::string full = cmdline;
     if (full.find("2>") == std::string::npos) full += " 2>&1";
+    // Bound every command so a wedged service (e.g. a slow/hung `cmd wifi status` or `dumpsys wifi`
+    // when system_server is busy) cannot block popen while the global netHelperMutex is held.
+    // buildNetStatusBody() calls runCmd on the render/input thread, and an unbounded hang there (or
+    // in a background runCmd that holds the mutex) stalls the render thread past nano's 8s watchdog
+    // and SIGABRTs it. 3s keeps the worst-case render path (mutex wait + its two calls) under the
+    // watchdog; toybox `timeout` sends SIGTERM then the child is reaped. Normal commands run <1s.
+    full = "timeout 3 " + full;
     FILE* f = popen(full.c_str(), "r");
     if (!f) {
         ALOGE("NanoMenu runCmd popen failed for '%s': %s",
