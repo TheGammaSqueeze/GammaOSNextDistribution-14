@@ -23,7 +23,16 @@
     <!-- The maximum number of rows in the QuickSettings -->
     <integer name="quick_settings_max_rows">2</integer>
 
-    <integer name="quick_settings_num_columns">4</integer>
+    <!-- GammaOS: default landscape to 2 QS columns (not 4) and full-width notifications so a
+         narrow/square panel (e.g. the 720x720 RG Rotate, ~480dp available width) is not cramped.
+         Genuinely wide landscape screens (>=600dp available width: phones and wide handhelds in
+         landscape) restore the 4-column skinny layout via values-w600dp-land, which outranks this
+         bare -land bucket on those panels. Tablets keep their own values-sw600dp-land values. -->
+    <integer name="quick_settings_num_columns">2</integer>
+
+    <!-- GammaOS: full-width notifications on narrow/square landscape; wide landscape restores the
+         skinny (centered-column) notifications in values-w600dp-land. -->
+    <bool name="config_skinnyNotifsInLandscape">false</bool>
 
     <!-- The number of columns that the top level tiles span in the QuickSettings -->
     <integer name="quick_settings_user_time_settings_tile_span">2</integer>
