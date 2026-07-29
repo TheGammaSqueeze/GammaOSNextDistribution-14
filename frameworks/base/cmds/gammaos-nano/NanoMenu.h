@@ -1792,6 +1792,8 @@ private:
     void   drawWallpaperFill(int panel);          // cover-fit blit of the panel's wallpaper over the full panel
     void   compositeWallpaperIntoWorkTex(int panel);  // paint the panel's wallpaper into ps3bg's work texture so
                                                   // the frost backdrops, glass icons + PSP clock sample it, not the gradient
+    void   fillWorkTexSolid(float r, float g, float b);  // clear ps3bg's work texture to a flat colour (theme clock backdrop)
+    void   drawPspClockThemeBackdrop();           // DSi/Minima home slide clock: paint the theme backdrop to screen + workTex
     bool   wallpaperActive(int panel) const;      // true if this panel has a still (or video) wallpaper set
     int    mWpPickTarget = -1;                    // wallpaper picker in progress: -1 none, 0 top, 1 bottom
     void   openVideoWallpaperPicker();            // Theme Settings -> the video library as a wallpaper picker (top only)
@@ -1955,6 +1957,11 @@ private:
     // overlay when the clock finishes retracting. mPspClockRaisedOverlay = we raised it.
     bool  mPspClockStandalone = false;
     bool  mPspClockRaisedOverlay = false;
+    // PSP slide clock in a DSi/Minima HOME (no app): the surround + glass disc show the THEME home
+    // backdrop (Minima black/solid/wallpaper, DSi field/wallpaper), not the XMB wave. Set for the frame
+    // by drawPspClockThemeBackdrop(); tells pspClockLens/pspClockSampleGlow the work texture is display
+    // sRGB (skip the wave's LINEAR tonemap), matching the captured-app path.
+    bool  mPspClockThemeBackdrop = false;
     // Swipe-to-dismiss: while the clock is up a touch swipe drags the WHOLE clock up with the
     // finger and, past a threshold, flings it off the top + dismisses - all WITHOUT touching the
     // rotation, so the user can exit the clock but keep the device rotated. Released short, it

@@ -1765,8 +1765,10 @@ void NanoMenu::pspClockLens(float cr) {
     glUniform1f(mPspLensLocZoom, 1.35f);
     // The wave (workTex) is LINEAR and needs the exp2 tonemap; the captured app
     // frame is already display-space sRGB, so sample it with uTonemap 0 (the shader
-    // skips the exp2 when uTonemap <= 0).
-    glUniform1f(mPspLensLocTonemap, useApp ? 0.0f : 1.6846f);
+    // skips the exp2 when uTonemap <= 0). A DSi/Minima home theme backdrop fed into
+    // workTex (mPspClockThemeBackdrop) is likewise display-sRGB, so skip the tonemap too.
+    glUniform1f(mPspLensLocTonemap,
+                (useApp || mPspClockThemeBackdrop) ? 0.0f : 1.6846f);
     // uAppSrc carries the disc dim factor for the live app. Clock Live Backdrop OFF: dim the disc
     // hard too (0.16) so the game is not readable through the glass either - the whole clock reads
     // as a dark night-mode piece, matching the darkened surround.
@@ -1936,11 +1938,23 @@ void NanoMenu::pspClockSampleGlow() {
     float rS=0,gS=0,bS=0; int cnt=0;
     for (int i=0;i<GS*GS;i++){ int r=px[i*4],g=px[i*4+1],b=px[i*4+2];
         if (r+g+b < 24) continue; rS+=r; gS+=g; bS+=b; cnt++; }
-    if (cnt == 0) return;
+    if (cnt == 0) {
+        // A pure-black theme backdrop (the Minima default) has no colour to sample. Give the clock a
+        // soft neutral glow instead of holding the last wave/app colour (which would be a stale cyan /
+        // green). Other backdrops (solid / photo / video / the DSi field) have samplable colour and
+        // never reach here.
+        if (mPspClockThemeBackdrop) {
+            const float nr=190.0f, ng=200.0f, nb=215.0f;   // soft cool-white
+            if (!mPspGlowValid) { mPspGlow[0]=nr; mPspGlow[1]=ng; mPspGlow[2]=nb; mPspGlowValid=true; }
+            else { const float sm=0.06f; mPspGlow[0]+=(nr-mPspGlow[0])*sm; mPspGlow[1]+=(ng-mPspGlow[1])*sm; mPspGlow[2]+=(nb-mPspGlow[2])*sm; }
+        }
+        return;
+    }
     float ar=rS/cnt, ag=gS/cnt, ab=bS/cnt;
     // tonemap (the wave workTex is LINEAR) to display space, matching the lens/frost. The app tex is
-    // already display sRGB, so skip it there (double-tonemapping would wash the game colour out).
-    if (!useApp) {
+    // already display sRGB, so skip it there (double-tonemapping would wash the game colour out). A
+    // DSi/Minima theme backdrop fed into workTex (mPspClockThemeBackdrop) is also sRGB, so skip it too.
+    if (!useApp && !mPspClockThemeBackdrop) {
         ar = (1.0f - exp2f(-ar/255.0f*1.6846f))*255.0f;
         ag = (1.0f - exp2f(-ag/255.0f*1.6846f))*255.0f;
         ab = (1.0f - exp2f(-ab/255.0f*1.6846f))*255.0f;

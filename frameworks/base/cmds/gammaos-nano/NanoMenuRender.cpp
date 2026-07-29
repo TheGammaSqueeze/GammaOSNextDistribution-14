@@ -5024,6 +5024,7 @@ void NanoMenu::render() {
         // through renderPs3Xmb for the duration of the summon so the clock draws over the theme.
         const bool pspClockActive = !mPs3BootActive &&
             (mPspClockStandalone || mPspClockOn || mPspClockReveal > 0.0f);
+        mPspClockThemeBackdrop = false;   // reset each frame; drawPspClockThemeBackdrop() re-sets it below
         if (mNdsTheme && mPs3BootActive) {
             // DSi cold boot: drive the shared boot clock (advances mPs3BootElapsedMs and
             // clears mPs3BootActive at the end -> the carousel intro cascade takes over the
@@ -5046,6 +5047,12 @@ void NanoMenu::render() {
             // setup. The old "!mPs3Xmb" test was therefore always false in exactly these themes,
             // leaving this branch dead - the slide-shut summon fell through to the DSi/Minima home
             // render and the menu appeared over the app instead of the clock.
+            // Backdrop: renderPs3Xmb draws the XMB wave, which is wrong for the DSi/Minima HOME (Minima
+            // is black by default; both honour a custom photo/video wallpaper). Paint the THEME's own
+            // home backdrop to screen AND into the clock's work texture first, so the surround and the
+            // glass disc show it instead of the wave. Over a live app this no-ops (the captured app is
+            // used) - see drawPspClockThemeBackdrop.
+            drawPspClockThemeBackdrop();
             renderPs3Xmb();
         } else if (mNdsTheme && !mPs3BootActive && ndsPlayerActive()) {
             // A media player is up: show the existing full-screen XMB video / music / photo

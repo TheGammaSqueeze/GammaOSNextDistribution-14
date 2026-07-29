@@ -7015,6 +7015,59 @@ void NanoMenu::compositeWallpaperIntoWorkTex(int panel) {
     if (wasBlend) glEnable(GL_BLEND);
 }
 
+// Clear ps3bg's work texture (the offscreen scene the PSP clock lens/glow sample) to a flat opaque
+// colour. Used by the DSi/Minima home slide clock so the glass disc refracts the theme's flat backdrop
+// (Minima black / a solid colour / the DSi field) instead of the leftover XMB wave. Mirrors
+// compositeWallpaperIntoWorkTex's FBO/viewport save+restore; a plain glClear is enough for a flat fill.
+void NanoMenu::fillWorkTexSolid(float r, float g, float b) {
+    GLuint fbo = ps3bg::workFbo();
+    int fw = 0, fh = 0; ps3bg::workTexSize(&fw, &fh);
+    if (fbo == 0 || fw < 2 || fh < 2) return;
+    GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint vp[4]; glGetIntegerv(GL_VIEWPORT, vp);
+    GLfloat prevClear[4]; glGetFloatv(GL_COLOR_CLEAR_VALUE, prevClear);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glViewport(0, 0, fw, fh);
+    glClearColor(r, g, b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
+    glClearColor(prevClear[0], prevClear[1], prevClear[2], prevClear[3]);
+}
+
+// DSi/Minima HOME slide clock: paint the theme's OWN home backdrop (Minima: custom photo/video wallpaper,
+// else a user solid colour, else pure black; DSi: wallpaper/video, else its light field) both to the
+// primary panel (which the clock surround scrim then dims) AND into ps3bg's work texture (which the glass
+// disc + dominant-colour glow sample). Without this the DSi/Minima home clock sat over the leftover XMB
+// wave. Over a running app the surround/disc use the CAPTURED app (pspClockUseAppSource) instead, so this
+// no-ops there. Sets mPspClockThemeBackdrop so the lens/glow treat the sRGB work texture without the
+// wave's LINEAR tonemap. Called from the render() slide-clock branch BEFORE renderPs3Xmb, panel 0.
+void NanoMenu::drawPspClockThemeBackdrop() {
+    mPspClockThemeBackdrop = false;
+    // Over a live app the surround + disc show the captured app; leave that (already-correct) path alone.
+    if (mOverlayMode && !mOverlayWallpaper) return;
+    setUiBlend();
+    const float pw = (float)mWidth, ph = (float)mHeight;
+    if (wallpaperActive(0)) {
+        // Custom photo / looping video wallpaper (shared with the theme home): screen + work texture.
+        if (!drawTopVideoWallpaper()) drawWallpaperFill(0);   // video draws the live frame, else the still
+        compositeWallpaperIntoWorkTex(0);                     // same source into workTex (already sRGB)
+        mPspClockThemeBackdrop = true;
+        return;
+    }
+    float r = 0.0f, g = 0.0f, b = 0.0f;
+    if (mMinimaTheme && minimaSolidBg(&r, &g, &b)) {
+        // user-chosen Minima solid colour (r,g,b filled by minimaSolidBg)
+    } else if (mNdsTheme) {
+        r = g = b = 0.965f;   // DSi light canvas (matches renderNdsTop's #f6f6f6 field)
+    } else {
+        r = g = b = 0.0f;     // Minima default: the pure-black NextUI canvas
+    }
+    drawQuad(0.0f, 0.0f, pw, ph, r, g, b, 1.0f);
+    fillWorkTexSolid(r, g, b);
+    mPspClockThemeBackdrop = true;
+}
+
 // ---- Settings binding: data-driven leaf -> real backing setting -------------
 // Each entry maps a PS3-XMB settings leaf (by label) to a real Android setting.
 // options uses the parseListOptions "value:Label,..." format; a toggle is just a
