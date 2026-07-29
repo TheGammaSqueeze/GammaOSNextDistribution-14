@@ -489,6 +489,8 @@ const char* actionName(int a) {
     case 17: return "Fast Forward";
     case 20: return "Menu";
     case 28: return "Touch Cursor";
+    case 29: return "Save State";
+    case 30: return "Load State";
     default: {
         static thread_local char buf[16];
         snprintf(buf, sizeof(buf), "Action %d", a);

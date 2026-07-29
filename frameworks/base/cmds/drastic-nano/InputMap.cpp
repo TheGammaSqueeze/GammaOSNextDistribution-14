@@ -603,6 +603,12 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                             break;
                         // Edge-triggered (fire once on press only).
                         case 16: if (pressed) out->actSwapScreens = true; break;
+                        // Save State / Load State: quick-save to / quick-load
+                        // from slot 0. Edge actions (fire once on press). The
+                        // overlay's update() consumes these even while the menu
+                        // is closed, driving DrasticRunner save/loadStateSlot(0).
+                        case 29: if (pressed) out->actQuickSave = true; break;
+                        case 30: if (pressed) out->actQuickLoad = true; break;
                         // Menu action: SAME short-press-overlay /
                         // hold-exit semantics as the literal KEY_BACK
                         // button. The physical Back button on this

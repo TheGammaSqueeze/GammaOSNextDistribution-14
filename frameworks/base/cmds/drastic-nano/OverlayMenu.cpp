@@ -805,6 +805,18 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     // slot.
     if (mCaptureKey) {
         if (a.capturedAndroidKc != 0 && mCaptureActionIdx >= 0) {
+            // A physical button drives exactly one function: clear this
+            // keycode from any OTHER action slot before assigning it here.
+            // Without this, rebinding e.g. R3 (default Touch Cursor, slot 28)
+            // to Save State would leave both slots holding keycode 107, and
+            // the input layer's reverse map would resolve the button to
+            // whichever slot iterated last.
+            for (int s = 0; s < drastic_prefs::kNumActions; s++) {
+                if (s != mCaptureActionIdx &&
+                    mPrefs.keymap[0][s] == a.capturedAndroidKc) {
+                    mPrefs.keymap[0][s] = -1;
+                }
+            }
             mPrefs.keymap[0][mCaptureActionIdx] = a.capturedAndroidKc;
             mDirty = true;
             mCaptureKey = false;
@@ -2172,7 +2184,9 @@ void OverlayMenu::rebuildControls() {
             def[16] = 104;  // Screen Swap  <- BUTTON_L2 (BTN_TL2)
             def[17] = 105;  // Fast Forward <- BUTTON_R2 (BTN_TR2)
             def[20] = 4;    // Menu   <- KEYCODE_BACK
-            def[28] = 107;  // Stylus Touch <- BUTTON_THUMBR (R3)
+            def[28] = 107;  // Touch Cursor <- BUTTON_THUMBR (R3)
+            // Save State (29) / Load State (30) stay unmapped by default so
+            // the user can bind them (L3 is free by default for this).
             for (int a = 0; a < drastic_prefs::kNumActions; a++) {
                 mPrefs.keymap[0][a] = def[a];
             }
@@ -2263,7 +2277,8 @@ void OverlayMenu::rebuildControls() {
         12, 13, 14, 15,                // D-Pad Up Right Down Left
         16, 17,                        // Screen Swap / Fast Forward
         20,                            // Menu
-        28,                            // Stylus Touch
+        28,                            // Touch Cursor
+        29, 30,                        // Save State / Load State
     };
     for (int a : kKnownActionSlots) {
         RowAction r;

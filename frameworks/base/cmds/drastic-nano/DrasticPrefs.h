@@ -39,7 +39,13 @@ static constexpr int kNumPlayers = 3;
 //   20:     Menu
 //   21..27: reserved / unknown
 //   28:     Touch Cursor (toggles the virtual touch cursor; default R3)
-static constexpr int kNumActions = 29;
+//   29:     Save State (quick-save to slot 0; drastic-nano-local, unmapped by default)
+//   30:     Load State (quick-load from slot 0; drastic-nano-local, unmapped by default)
+// 29 and 30 are drastic-nano-local action slots (the real drastic app does
+// not use them), handled entirely inside drastic-nano via DrasticRunner's
+// saveStateSlot/loadStateSlot. They round-trip through the shared_prefs XML
+// as _KeyMapConfigs_0_29 / _0_30 so a bound button persists across launches.
+static constexpr int kNumActions = 31;
 
 struct Prefs {
     // Video filter: basename of the .dfx file (no path, no extension).
