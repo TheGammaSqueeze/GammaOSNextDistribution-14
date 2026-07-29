@@ -9923,6 +9923,14 @@ void NanoMenu::openXmbOpt() {
                 || p.rfind("com.gammaos.",   0) == 0
                 || p.rfind("com.topjohnwu.", 0) == 0;
             if (!excl) { addSep(); add("Uninstall", "app_uninstall", false); }
+            // List-level actions, reachable from any app's option menu: rescan the
+            // installed apps (pull fresh labels + real icons), and toggle listing every
+            // launchable app (Camera and other pre-installed apps) vs only user apps.
+            addSep();
+            add("Refresh Applications List", "app_refresh", false);
+            add(property_get_bool("persist.gammaos.nano.apps.showall", false)
+                    ? "Show All Apps  (On)" : "Show All Apps  (Off)",
+                "app_showall", false);
             break;
         }
         case PS3_LAUNCH_PKG:
@@ -10829,6 +10837,23 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
         mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+        return;
+    }
+    if (act == "app_refresh" || act == "app_showall") {
+        // "Show All Apps" flips the nano-side filter first (loadInstalledApps reads it).
+        if (act == "app_showall") {
+            bool on = property_get_bool("persist.gammaos.nano.apps.showall", false);
+            property_set("persist.gammaos.nano.apps.showall", on ? "0" : "1");
+        }
+        // Both force a full rescan in SystemServer (fresh labels + real icons for every
+        // launchable app, plus the launcher-activity list "Show All Apps" reads). The
+        // apps_generation bump then reloads and rebuilds the visible Applications grid in
+        // place (see the apps_generation handler in NanoMenu.cpp) with the new filter.
+        static unsigned sAppReqSeq = 0;
+        char nb[24]; snprintf(nb, sizeof(nb), "r%u", ++sAppReqSeq);
+        property_set("sys.gammaos.nano.apps_refresh_req", nb);
+        closeXmbOpt();
+        mDisplayDirty = true;
         return;
     }
     if (act == "app_uninstall") {

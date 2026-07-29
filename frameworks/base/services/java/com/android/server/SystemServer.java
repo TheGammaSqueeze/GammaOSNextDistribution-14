@@ -4263,12 +4263,20 @@ public final class SystemServer implements Dumpable {
                 // this (now long-lived) thread, mirroring the do_launch monitor above -
                 // the proven signalling pattern here. The work runs off the main thread;
                 // 150ms is imperceptible for a user-initiated menu action.
-                String lastInfoReq = "", lastUninstall = "", lastAction = "";
+                String lastInfoReq = "", lastUninstall = "", lastAction = "", lastRefresh = "";
                 while (true) {
                     try { Thread.sleep(150); } catch (InterruptedException ignored) {}
                     String req = SystemProperties.get("sys.gammaos.nano.appinfo_req", "");
                     if (!req.isEmpty() && !req.equals(lastInfoReq)) {
                         lastInfoReq = req; writeNanoAppInfo(req);
+                    }
+                    // nano's Applications "Refresh applications list" X-menu row sets
+                    // sys.gammaos.nano.apps_refresh_req=<nonce> to force a full re-scan
+                    // (labels + real icons + launcher-activity list), then reloads its grid
+                    // when apps_generation bumps. Same signalling as the requests above.
+                    String rf = SystemProperties.get("sys.gammaos.nano.apps_refresh_req", "");
+                    if (!rf.isEmpty() && !rf.equals(lastRefresh)) {
+                        lastRefresh = rf; writeNanoAppCache("nano-refresh");
                     }
                     String un = SystemProperties.get("sys.gammaos.nano.app_uninstall", "");
                     if (un.isEmpty()) {
@@ -4303,6 +4311,23 @@ public final class SystemServer implements Dumpable {
             android.content.pm.PackageManager pm = mSystemContext.getPackageManager();
             java.util.List<android.content.pm.ApplicationInfo> apps =
                     pm.getInstalledApplications(android.content.pm.PackageManager.MATCH_ALL);
+            // Packages that have a launcher activity (Camera and other pre-installed
+            // apps included). nano's "show all apps" mode lists these, so their icons
+            // must be cached too, not just the user-installed apps the default list
+            // shows - otherwise a launchable system app draws a blank grey tile.
+            java.util.HashSet<String> launchablePkgs = new java.util.HashSet<>();
+            {
+                android.content.Intent lp =
+                        new android.content.Intent(android.content.Intent.ACTION_MAIN);
+                lp.addCategory(android.content.Intent.CATEGORY_LAUNCHER);
+                java.util.List<android.content.pm.ResolveInfo> lris =
+                        pm.queryIntentActivities(lp,
+                                android.content.pm.PackageManager.MATCH_ALL);
+                if (lris != null) for (android.content.pm.ResolveInfo ri : lris) {
+                    if (ri.activityInfo != null)
+                        launchablePkgs.add(ri.activityInfo.packageName);
+                }
+            }
             java.io.File iconDir = new java.io.File("/data/system/nano_app_icons");
             iconDir.mkdirs();
             iconDir.setReadable(true, false);
@@ -4326,7 +4351,10 @@ public final class SystemServer implements Dumpable {
                 // Exception: nano force-includes the Files app (com.android.documentsui) in its
                 // Applications grid, so its icon must be cached too - otherwise nano draws a blank
                 // grey tile for it. Render its icon despite the system / com.android. skips below.
-                boolean forceIcon = pkg.equals("com.android.documentsui");
+                // Render an icon for the Files app, and for any app that has a launcher
+                // activity (so "show all apps" mode shows real icons for Camera etc.).
+                boolean forceIcon = pkg.equals("com.android.documentsui")
+                        || launchablePkgs.contains(pkg);
                 if (!forceIcon
                         && (isSystem
                         || pkg.startsWith("com.android.")

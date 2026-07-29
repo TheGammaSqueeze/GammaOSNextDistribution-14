@@ -303,6 +303,30 @@ void NanoMenu::loadRecentPlaylist() {
 void NanoMenu::loadInstalledApps() {
     mAppEntries.clear();
     mAppsLoaded = false;
+
+    // "Show all apps" mode: list every launchable app (like the normal launcher),
+    // including pre-installed system apps such as the Camera, sourced from the
+    // framework's launcher-activity cache (nano_activities.txt). The default mode
+    // below only lists user-installed apps. Toggled by the Applications X-menu row
+    // (persist.gammaos.nano.apps.showall). Dedup by package so each app is one tile;
+    // RetroArch is still launched through the games flow, not here.
+    if (property_get_bool("persist.gammaos.nano.apps.showall", false)) {
+        ensureActivityList();   // fills mActivityEntries from nano_activities.txt
+        for (const auto& a : mActivityEntries) {
+            if (a.packageName == "com.retroarch.aarch64") continue;
+            bool dup = false;
+            for (const auto& e : mAppEntries)
+                if (e.packageName == a.packageName) { dup = true; break; }
+            if (dup) continue;
+            AppEntry app;
+            app.packageName = a.packageName;
+            app.label = a.label;
+            mAppEntries.push_back(std::move(app));
+        }
+        mAppsLoaded = true;
+        return;
+    }
+
     // Parse /data/system/packages.list — the authoritative package database.
     // Format: <pkg> <uid> <debug> <dataDir> <seinfo> <gids> <prof> <ver> <hasCode> <installer>
     // User-installed apps have @null as the last field (no system partition).
