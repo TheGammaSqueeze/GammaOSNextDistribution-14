@@ -95,6 +95,24 @@ bool nanoHalChimePlay(const std::string& wavPath, float gain) {
     HcWav w = loadWav(wavPath);
     if (!w.ok) { NHC_W("halchime: unusable wav %s", wavPath.c_str()); return false; }
 
+    // GammaOS: on Unisoc/Spreadtrum boards the vendor audio HAL is flaky at boot and can crash
+    // when nano opens it directly here (racing audioserver's init). Opening it through libaudiohal
+    // (DevicesFactoryHalInterface below) installs a process-wide HalDeathHandler that calls _exit(1)
+    // on the WHOLE process when the HAL dies -- behaviour meant for audioserver (which init restarts;
+    // nano is a oneshot service and cannot be, so it just dies -> black screen on boot). Skip the
+    // direct-HAL chime on these SoCs and fall through to the AAudio path, which routes through
+    // audioserver and never installs a death handler in nano's process.
+    {
+        char platform[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.board.platform", platform, "");
+        if (strstr(platform, "ums") != nullptr || strstr(platform, "sc98") != nullptr ||
+            strstr(platform, "sc99") != nullptr || strstr(platform, "sharkl") != nullptr) {
+            NHC_W("halchime: Unisoc/Spreadtrum SoC (%s) - skipping direct HAL to avoid "
+                  "libaudiohal's _exit-on-HAL-death; using AAudio fallback", platform);
+            return false;
+        }
+    }
+
     // out->setVolume() is a no-op for the SPRD primary output stream (the HAL only honours
     // per-stream volume on its HIFI path), so the boot-chime loudness has to be baked into the
     // samples. Scale by the volume-model gain, saturating on overflow.
