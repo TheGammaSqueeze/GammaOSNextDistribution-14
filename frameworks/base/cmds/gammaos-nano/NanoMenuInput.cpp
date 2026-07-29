@@ -2039,6 +2039,17 @@ void NanoMenu::pollInput() {
                 // hashIconRnd. Only on the down transition, not key-repeat/close.
                 if (slideVal == 1 && !mPspClockOn) mPspIconSeed += 17;
                 mPspClockOn = (slideVal == 1);
+                // DSi/Minima have no XMB category rail or wave that legitimately sits behind the
+                // clock, so the slide clock is ALWAYS a standalone overlay there. This evdev
+                // handler runs for the home / wallpaper mode (nano is the live surface, not parked
+                // behind an app); without tagging standalone, renderPs3Xmb would run the full XMB
+                // entrance (the category icons fade in and the wave composites) to show the clock -
+                // i.e. it "switches to the XMB menu" instead of dropping the clock cleanly over the
+                // dimmed home wallpaper. Tag standalone on open so the XMB chrome is suppressed;
+                // drawPspClock's teardown clears it at reveal 0. The over-app summon already tags
+                // standalone via overlayShow, and pure XMB (both theme flags false) keeps its own
+                // chrome/wave as the real home behind the clock.
+                if (slideVal == 1 && (mNdsTheme || mMinimaTheme)) mPspClockStandalone = true;
                 // Ambient-glyph brighten/speed surge just after a toggle (web
                 // index.html:16476 sets this on togglePspClock). 1.0 on open, 0.6 on close.
                 mPspGlyphBurst = mPspClockOn ? 1.0f : 0.6f;
