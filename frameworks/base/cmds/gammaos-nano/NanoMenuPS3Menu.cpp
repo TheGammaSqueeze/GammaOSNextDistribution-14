@@ -5097,6 +5097,12 @@ void NanoMenu::renderPs3Xmb() {
     // see a huge frame-1-to-frame-2 gap and jump the eased reveal straight to 1.0,
     // skipping the animation. Clamping dt makes every rendered frame show a smooth
     // step regardless of a slow frame, so the transition plays even on first load.
+    // A standalone slide clock zeroes the XMB chrome reveal below for its full-screen suppression.
+    // Those multipliers PERSIST across frames (like the music-player cross-fade further down), so we
+    // must restore them at frame end - otherwise a later XMB home render (e.g. after the user switches
+    // back to the XMB theme once the clock has closed) would draw its category icons and labels at zero
+    // alpha, leaving only the wave. Captured here (before drawPspClock's teardown can clear the flag).
+    const bool clockChromeSuppressed = mPspClockStandalone;
     if (mPspClockStandalone) {
         // Standalone clock summon over a running app: the XMB "is not open", so keep the
         // master chrome reveal at 0 for the whole summon - no category bar, item list,
@@ -6122,6 +6128,11 @@ void NanoMenu::renderPs3Xmb() {
         mVidPlChooserAnim += (ct - mVidPlChooserAnim) * fminf(1.0f, d * 10.0f);
         if (mVidPlChooserActive || mVidPlChooserAnim > 0.004f) drawVidPlChooser();
     }
+
+    // Restore the XMB chrome reveal that the standalone slide clock zeroed at the top of this frame,
+    // so it does not persist to a later XMB home render (see the capture note above). All of this
+    // frame's chrome/clock has already drawn with the suppressed value; this only affects next frame.
+    if (clockChromeSuppressed) { mPs3BootIconReveal = 1.0f; mPs3BootLabelReveal = 1.0f; }
 }
 
 // ---------------------------------------------------------------------------
