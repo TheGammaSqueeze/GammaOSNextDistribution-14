@@ -762,6 +762,13 @@ void NanoMenu::oskAPress() {
     const OskKeyboard* kb = oskCurrentKb();
     clampFocus(kb, mOsk.focusRow, mOsk.focusCol);
     const OskKey& key = kb->rows[mOsk.focusRow].keys[mOsk.focusCol];
+    // Latch which key was under the cursor when A went down. Almost every letter
+    // is a deferred key (commits on RELEASE so a hold can open the accent popup),
+    // and fast typing interleaves the d-pad move toward the next key ahead of the
+    // current key's A-release; committing "the key at release time" then types the
+    // wrong or a stray extra letter. Commit the latched press-time key instead.
+    mOsk.aPressRow = mOsk.focusRow;
+    mOsk.aPressCol = mOsk.focusCol;
     bool deferred = (key.code > 0 && key.popupIndex >= 0 && key.glyph == GLYPH_NONE);
     if (deferred) {
         mOsk.aDownMs = nowMs();
@@ -769,26 +776,35 @@ void NanoMenu::oskAPress() {
     } else {
         oskActivateKey(key);
         mOsk.aDownMs = 0;
+        mOsk.aPressRow = -1; mOsk.aPressCol = -1;   // committed on press; no latch pending
     }
 }
 
 void NanoMenu::oskARelease() {
-    if (mOsk.aDownMs != 0 && !mOsk.aLongFired) {
-        // Short tap on a popup-bearing key: commit the base character.
+    if (mOsk.aDownMs != 0 && !mOsk.aLongFired && mOsk.aPressRow >= 0) {
+        // Short tap on a popup-bearing key: commit the base character of the key
+        // that was under the cursor when A was PRESSED (the latched position), not
+        // wherever the focus has since drifted -- see oskAPress.
         const OskKeyboard* kb = oskCurrentKb();
-        clampFocus(kb, mOsk.focusRow, mOsk.focusCol);
-        oskActivateKey(kb->rows[mOsk.focusRow].keys[mOsk.focusCol]);
+        clampFocus(kb, mOsk.aPressRow, mOsk.aPressCol);
+        oskActivateKey(kb->rows[mOsk.aPressRow].keys[mOsk.aPressCol]);
     }
     mOsk.aDownMs = 0;
     mOsk.aLongFired = false;
+    mOsk.aPressRow = -1; mOsk.aPressCol = -1;
 }
 
 void NanoMenu::oskTick() {
     if (!mOskActive) return;
-    if (mOsk.aDownMs != 0 && !mOsk.aLongFired && !mOsk.miniOpen) {
+    if (mOsk.aDownMs != 0 && !mOsk.aLongFired && !mOsk.miniOpen && mOsk.aPressRow >= 0) {
         if (nowMs() - mOsk.aDownMs > kLongPressMs) {
             const OskKeyboard* kb = oskCurrentKb();
-            clampFocus(kb, mOsk.focusRow, mOsk.focusCol);
+            // Open the popup for the key that was pressed (the latched position),
+            // snapping the cursor back to it if a drift moved the focus mid-hold,
+            // so the accent run appears over the intended key.
+            clampFocus(kb, mOsk.aPressRow, mOsk.aPressCol);
+            mOsk.focusRow = mOsk.aPressRow;
+            mOsk.focusCol = mOsk.aPressCol;
             const OskKey& key = kb->rows[mOsk.focusRow].keys[mOsk.focusCol];
             if (key.popupIndex >= 0) {
                 oskOpenPopup(key);

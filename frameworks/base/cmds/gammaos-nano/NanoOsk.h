@@ -143,6 +143,13 @@ struct NanoOskState {
     // --- Long-press (popup trigger) timing ---
     int64_t  aDownMs     = 0;                // when A pressed (0 = not held)
     bool     aLongFired  = false;            // popup already opened for this hold
+    // Latched focus at the moment A went down. Every letter key is "deferred"
+    // (it commits on release, not press, so a hold can open the accent popup),
+    // so the committed key MUST be the one under the cursor when A was pressed,
+    // NOT wherever the cursor drifted to by release. Fast typing interleaves the
+    // move-to-next-key d-pad event ahead of the current key's A-release, which
+    // otherwise commits the wrong (or a stray extra) letter. -1 = not latched.
+    int      aPressRow   = -1, aPressCol = -1;
 
     // --- Caret (byte offset into the committed buffer) ---
     int      caret       = 0;
@@ -174,6 +181,7 @@ struct NanoOskState {
         pressScale = 1.0f; pressStartMs = 0;
         miniOpen = false; miniPopupIndex = -1; miniFocus = 0;
         aDownMs = 0; aLongFired = false;
+        aPressRow = -1; aPressCol = -1;
         caret = 0;
         candidates.clear(); candFocus = -1; inCandidateBar = false;
         inAction = false;

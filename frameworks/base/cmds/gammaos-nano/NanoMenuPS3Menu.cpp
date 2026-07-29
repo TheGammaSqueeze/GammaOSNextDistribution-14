@@ -13554,7 +13554,10 @@ void NanoMenu::renderNdsNetWizardBody(float rx, float ry, float rw, float rh) {
         std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
         if (!d.mask && !composing.empty()) val += composing;
         float fs = fsFor(13.0f), vx = bxx + S(6.0f);
-        if (!val.empty()) { drawText(val.c_str(), vx, byy + S(17.0f), fs, 1.0f, 1.0f, 1.0f, 1.0f); vx += measureText(val.c_str(), fs); }
+        // drawText's y is the text TOP (baseline = y + 0.8*em), not a baseline like
+        // ps3DlgText. Using byy+17 pushed the text ~12px down, so it rendered UNDER the
+        // input box. Align the top with the caret (byy+5) so it sits inside the field.
+        if (!val.empty()) { drawText(val.c_str(), vx, byy + S(5.0f), fs, 1.0f, 1.0f, 1.0f, 1.0f); vx += measureText(val.c_str(), fs); }
         float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
         drawQuad(vx + S(1.0f), byy + S(5.0f), fmaxf(1.0f, S(1.5f)), S(15.0f), 1.0f, 1.0f, 1.0f, blink);
         if (!mPs3WizFieldError.empty()) textLeft(mPs3WizFieldError.c_str(), 24.0f, 92.0f, 11.0f, 1.0f, 0.46f, 0.42f);
