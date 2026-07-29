@@ -2385,22 +2385,54 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                 "sys.gammaos.nano.launch_intent", "");
                     }
                     if (homeIntent == null || aInfo == null) {
-                        // Fallback: use LAUNCHER query
-                        Intent launchIntent = new Intent(Intent.ACTION_MAIN);
-                        launchIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                        launchIntent.setPackage(nanoApp);
-                        java.util.List<android.content.pm.ResolveInfo> activities =
-                                mService.mContext.getPackageManager().queryIntentActivities(launchIntent,
-                                        android.content.pm.PackageManager.MATCH_ALL
-                                        | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
-                                        | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE);
-                        if (!activities.isEmpty()) {
-                            aInfo = activities.get(0).activityInfo;
-                            homeIntent = new Intent(Intent.ACTION_MAIN);
-                            homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                            homeIntent.setComponent(new ComponentName(
-                                    aInfo.applicationInfo.packageName, aInfo.name));
-                            homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        final android.content.pm.PackageManager pm =
+                                mService.mContext.getPackageManager();
+                        final int mflags = android.content.pm.PackageManager.MATCH_ALL
+                                | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
+                                | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE;
+                        // Deterministic resolution: if we parsed an intent carrying an explicit
+                        // action (e.g. android.settings.SETTINGS) or a component, resolve it by
+                        // intent-matching the way am/resolveActivity do. This launches Settings
+                        // - tv OR handheld, no hardcoding - like a normal app, instead of the
+                        // getActivityInfo home-launch path failing on a LEANBACK_LAUNCHER entry
+                        // (TvSettings' MainSettings) and leaving a blank screen.
+                        if (aInfo == null && homeIntent != null
+                                && (homeIntent.getAction() != null
+                                    || homeIntent.getComponent() != null)) {
+                            try {
+                                android.content.pm.ResolveInfo ri =
+                                        pm.resolveActivity(homeIntent, mflags);
+                                if (ri != null && ri.activityInfo != null
+                                        && ri.activityInfo.applicationInfo != null
+                                        && !"android".equals(ri.activityInfo.packageName)) {
+                                    aInfo = ri.activityInfo;
+                                    homeIntent.setComponent(new ComponentName(
+                                            aInfo.applicationInfo.packageName, aInfo.name));
+                                    homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                }
+                            } catch (Exception ignore) { }
+                        }
+                        // Package LAUNCHER fallback: try CATEGORY_LAUNCHER then
+                        // CATEGORY_LEANBACK_LAUNCHER (leanback apps such as TvSettings have no
+                        // plain LAUNCHER entry).
+                        if (aInfo == null) {
+                            for (String cat : new String[]{ Intent.CATEGORY_LAUNCHER,
+                                    Intent.CATEGORY_LEANBACK_LAUNCHER }) {
+                                Intent launchIntent = new Intent(Intent.ACTION_MAIN);
+                                launchIntent.addCategory(cat);
+                                launchIntent.setPackage(nanoApp);
+                                java.util.List<android.content.pm.ResolveInfo> activities =
+                                        pm.queryIntentActivities(launchIntent, mflags);
+                                if (!activities.isEmpty()) {
+                                    aInfo = activities.get(0).activityInfo;
+                                    homeIntent = new Intent(Intent.ACTION_MAIN);
+                                    homeIntent.addCategory(cat);
+                                    homeIntent.setComponent(new ComponentName(
+                                            aInfo.applicationInfo.packageName, aInfo.name));
+                                    homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    break;
+                                }
+                            }
                         }
                     }
                 }

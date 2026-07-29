@@ -322,6 +322,24 @@ NanoMenu::~NanoMenu() {
     // codec first so the wedged worker unblocks and the join finishes), so this only turns a
     // spurious abort into a clean, if slightly slow, exit; it is never reset (we are exiting).
     mVidTeardownExempt.store(true, std::memory_order_relaxed);
+    // Background workers that are only cleaned up "before the next operation" (a Wi-Fi
+    // rescan detaches the previous scan thread, a net test joins the previous one, etc.)
+    // are left JOINABLE for the rest of the session once used. This home instance exits
+    // on EVERY app hand-off (the SF-composited cold-boot home hands off to the resident
+    // --overlay instance), and a std::thread member that is still joinable when the object
+    // is destroyed calls std::terminate() -> SIGABRT. That is exactly the "System Settings
+    // crashes nano" report: opening the Wi-Fi screen earlier in the session left
+    // mWifiScanThread joinable, then the Quick Menu -> System Settings hand-off tore the
+    // object down and the still-joinable scan thread aborted the process mid-exit (tombstone
+    // ~NanoMenu -> std::thread::~thread -> std::terminate). Detach every such member here so
+    // the hand-off exit is always clean. Detach (not join): the process exits immediately
+    // after, these workers do filesystem/binder/network work (no GL state being torn down),
+    // and a slow net-test/BT-inquiry join would otherwise stall the app hand-off. This is the
+    // same detach the rescan paths already use, just also applied on the way out.
+    if (mWifiScanThread.joinable())     mWifiScanThread.detach();
+    if (mPs3NetTestThread.joinable())   mPs3NetTestThread.detach();
+    if (mBtScanThread.joinable())       mBtScanThread.detach();
+    if (mBtDiscoveryThread.joinable())  mBtDiscoveryThread.detach();
     // Stop the album-art worker before anything else it might be reading goes away. It only does
     // filesystem work (no GL), so the join is bounded by one directory listing / tag read - except
     // on a share whose server has stopped answering, which is exactly why the exemption above is

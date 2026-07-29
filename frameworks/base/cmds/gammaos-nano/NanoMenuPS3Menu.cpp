@@ -1181,7 +1181,13 @@ void NanoMenu::launchAndroidSettings() {
         std::string comp = nanoResolveSettingsComp();
         if (comp.empty()) { system("am start -a android.settings.SETTINGS 2>/dev/null"); return; }
         std::string pkg = comp.substr(0, comp.find('/'));
-        std::string intent = "-n\t" + comp;   // unflattenFromString expands a relative ".Class"
+        // Hand off the Settings ACTION, not the resolved component. The home-launch
+        // resolver (RootWindowContainer) fetches a component with getActivityInfo, which
+        // fails on a LEANBACK_LAUNCHER entry like TvSettings' MainSettings and left a blank
+        // screen. Resolving the action by intent-matching is deterministic on ANY device
+        // (tv Settings or the handheld Settings - no hardcoding) and launches it like a
+        // normal app. launch_app is still the resolved package so the hand-off tracks it.
+        std::string intent = "-a\tandroid.settings.SETTINGS";
         property_set("sys.gammaos.nano.launch_app", pkg.c_str());
         property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
         const char* f = "/data/system/nano_launch_intent.txt";
