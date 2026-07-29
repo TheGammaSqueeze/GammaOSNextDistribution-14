@@ -207,6 +207,10 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     private final boolean mChangeVolumeRowTintWhenInactive;
 
     private final Context mContext;
+    // GammaOS multi-display volume: kept so destroy() can unregister the per-display
+    // dumpable registered in the constructor (see the registerDumpable call).
+    private final DumpManager mDumpManager;
+    private final String mDumpableName;
     private final H mHandler;
     private final VolumeDialogController mController;
     private final DeviceProvisionedController mDeviceProvisionedController;
@@ -391,7 +395,18 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
         mSecureSettings = secureSettings;
         mDialogTimeoutMillis = DIALOG_TIMEOUT_MILLIS;
 
-        dumpManager.registerDumpable("VolumeDialogImpl", this);
+        // GammaOS multi-display volume: GammaMultiDisplayVolumeDialog creates one
+        // VolumeDialogImpl per physical display (e.g. the RG DS bottom + top screens).
+        // DumpManager.registerDumpable rejects a duplicate name, so the fixed
+        // "VolumeDialogImpl" made the SECOND display's instance throw
+        // IllegalArgumentException here in <init>, which crash-loops SystemUI and leaves
+        // normal-Android screens blank. Namespace the dumpable by display id (unique per
+        // concurrent instance, since only one dialog exists per display), and unregister
+        // it in destroy() so a refresh that recreates the dialog for the same display
+        // does not collide with the outgoing instance's still-live registration.
+        mDumpManager = dumpManager;
+        mDumpableName = "VolumeDialogImpl-" + mContext.getDisplayId();
+        mDumpManager.registerDumpable(mDumpableName, this);
 
         if (mUseBackgroundBlur) {
             final int dialogRowsViewColorAboveBlur = mContext.getColor(
@@ -477,6 +492,9 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     @Override
     public void destroy() {
         Log.d(TAG, "destroy() called");
+        // Release the per-display dumpable name so a later refresh can re-register a
+        // fresh dialog for this display without a duplicate-name collision.
+        mDumpManager.unregisterDumpable(mDumpableName);
         mController.removeCallback(mControllerCallbackH);
         mHandler.removeCallbacksAndMessages(null);
         mConfigurationController.removeCallback(this);
