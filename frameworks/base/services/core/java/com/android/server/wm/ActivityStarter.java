@@ -3367,6 +3367,15 @@ class ActivityStarter {
      *       "com.retroarch,com.flycast,org.mupen64plusae,org.ppsspp"
      */
     private boolean isGammaSecondaryDisplayForcedPackage(@NonNull String pkg) {
+        // GammaOS: in minimal_boot (nano owns the screens and decides which panel an app
+        // opens on, e.g. via its dual-stack menu options), the framework must NOT force an
+        // app onto the secondary display. That forced pinning fights nano's own placement
+        // and mis-lands nano-launched apps (even home launchers like Daijishou) on the wrong
+        // panel or under the control center. Leave screen placement entirely to nano here.
+        // (Dual-stack and per-screen volume are unaffected - they are not app pinning.)
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return false;
+        }
         // Global enable/disable switch.
         if (!SystemProperties.getBoolean(GAMMA_SECONDARY_DISPLAY_ENABLED_PROP, false)) {
             return false;
