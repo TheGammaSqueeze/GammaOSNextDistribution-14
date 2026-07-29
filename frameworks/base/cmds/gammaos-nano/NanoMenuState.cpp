@@ -308,12 +308,10 @@ void NanoMenu::loadInstalledApps() {
     // including pre-installed system apps such as the Camera, sourced from the
     // framework's launcher-activity cache (nano_activities.txt). The default mode
     // below only lists user-installed apps. Toggled by the Applications X-menu row
-    // (persist.gammaos.nano.apps.showall). Dedup by package so each app is one tile;
-    // RetroArch is still launched through the games flow, not here.
+    // (persist.gammaos.nano.apps.showall). Dedup by package so each app is one tile.
     if (property_get_bool("persist.gammaos.nano.apps.showall", false)) {
         ensureActivityList();   // fills mActivityEntries from nano_activities.txt
         for (const auto& a : mActivityEntries) {
-            if (a.packageName == "com.retroarch.aarch64") continue;
             bool dup = false;
             for (const auto& e : mAppEntries)
                 if (e.packageName == a.packageName) { dup = true; break; }
@@ -414,8 +412,7 @@ void NanoMenu::loadInstalledApps() {
             }
             if (installer == "@system" || installer == "@product") continue;
 
-            // Skip RetroArch, system-like, and internal packages
-            if (pkgName == "com.retroarch.aarch64") continue;
+            // Skip system-like and internal packages
             if (pkgName.find("com.android.") == 0) continue;
             if (pkgName.find("org.lineageos.") == 0) continue;
             if (pkgName.find("com.gammaos.") == 0) continue;
