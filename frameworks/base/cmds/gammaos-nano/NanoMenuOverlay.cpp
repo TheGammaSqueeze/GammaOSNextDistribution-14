@@ -991,7 +991,21 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
         if (!pkg.empty())
             property_set("sys.gammaos.nano.launch_app", pkg.c_str());
         property_set("sys.gammaos.nano.app_launched", "1");
-        system(amCmd.c_str());
+        // GammaOS dual-screen: once the resident overlay home is up (app_launched=1),
+        // app/game relaunches funnel through here instead of the framework home path,
+        // which has no display target - so without this they default to display 0 (the
+        // bottom, where the overlay home + Control Center live) and the TOP panel stays
+        // blank. Pin the launch to the top panel like the first launch does. The Control
+        // Center path sets its own --display (bottom for a secondary app), which we
+        // respect; commands that are not `am start` (rare) are left untouched.
+        {
+            int td = property_get_int32("persist.gammaos.nano.cc.topdisplay", 2);
+            std::string finalCmd = amCmd;
+            size_t sp = finalCmd.find("am start");
+            if (sp != std::string::npos && finalCmd.find("--display") == std::string::npos)
+                finalCmd.insert(sp + 8, " --display " + std::to_string(td));
+            system(finalCmd.c_str());
+        }
         ALOGI("overlay: launched %s", pkg.c_str());
 
         // Release the guard only once the new app is the resumed activity (or a
@@ -1010,9 +1024,16 @@ bool NanoMenu::overlayLaunchPackage(const std::string& pkg) {
     // Selecting the app that is ALREADY running = just resume it (one app per
     // package, unlike emulators). Games never take this path (see overlayLaunchGame).
     if (pkg == mOverlayPausedPkg) { overlayResume(); return true; }
-    // Plain app (Applications submenu): start its LAUNCHER activity.
-    std::string cmd = "monkey -p " + overlayShq(pkg)
-                    + " -c android.intent.category.LAUNCHER 1 2>/dev/null";
+    // Plain app (Applications submenu): start its LAUNCHER activity. Resolve the
+    // component and start it with `am start` rather than `monkey` - monkey cannot take
+    // a --display flag, which overlayLaunchCommand needs to pin the app to the top panel
+    // (otherwise a relaunch from the overlay home lands on the bottom display and the top
+    // stays blank). Mirrors the Control Center's resolve-then-am-start idiom.
+    std::string cmd =
+        "ACT=$(cmd package resolve-activity --brief -a android.intent.action.MAIN "
+        "-c android.intent.category.LAUNCHER " + overlayShq(pkg)
+        + " 2>/dev/null | tail -1); "
+        "case \"$ACT\" in */*) am start -n \"$ACT\" 2>/dev/null;; esac";
     overlayLaunchCommand(pkg, cmd);
     return true;
 }
