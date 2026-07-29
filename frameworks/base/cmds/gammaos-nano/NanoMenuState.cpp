@@ -329,7 +329,10 @@ void NanoMenu::loadInstalledApps() {
 
     // Parse /data/system/packages.list — the authoritative package database.
     // Format: <pkg> <uid> <debug> <dataDir> <seinfo> <gids> <prof> <ver> <hasCode> <installer>
-    // User-installed apps have @null as the last field (no system partition).
+    // The last field is the installer marker: "@system"/"@product" for preinstalled
+    // apps, "@null" for user apps with no installer, or the installer's package name for
+    // store-installed apps. User-installed apps are everything that is not "@system" or
+    // "@product" (see the filter below).
     const char* path = "/data/system/packages.list";
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
@@ -381,8 +384,35 @@ void NanoMenu::loadInstalledApps() {
         }
 
         if (!forceInclude) {
-            // Only include user-installed apps (installer = @null)
-            if (line.size() < 6 || line.substr(line.size() - 5) != "@null") continue;
+            // Include user-installed apps and exclude only preinstalled-partition apps.
+            // The last whitespace field of packages.list is the installer marker written
+            // by PackageManager (Settings.writePackageListLPr): "@system" if the app is a
+            // system app, else "@product" if it is a /product app, else the installer's
+            // package name when one is recorded, else "@null" only when there is no
+            // installer of record. So:
+            //   "@system" / "@product" -> preinstalled OS app (hide),
+            //   "@null"                -> user app with no installer (adb / plain
+            //                             `pm install` / sideload / restore) -> show,
+            //   "<pkg.name>"           -> user app installed by a store that records
+            //                             itself as installer (Aurora, Play, F-Droid,
+            //                             some MiXplorer sessions) -> show.
+            // The old check kept ONLY "@null", so any app installed through a store was
+            // wrongly hidden from the default list (e.g. Netflix via Aurora), yet still
+            // showed under "Show All". Exclude the two partition markers instead so every
+            // genuinely user-installed app appears, however it was installed. Both markers
+            // are needed: isSystem() (FLAG_SYSTEM) and isProduct() (PRIVATE_FLAG_PRODUCT)
+            // are independent, so a /product app that lacks FLAG_SYSTEM is written as
+            // "@product", not "@system".
+            size_t lastSpace = line.rfind(' ');
+            std::string installer =
+                    (lastSpace == std::string::npos) ? std::string()
+                                                     : line.substr(lastSpace + 1);
+            while (!installer.empty()
+                   && (installer.back() == '\r' || installer.back() == '\n'
+                       || installer.back() == ' ' || installer.back() == '\t')) {
+                installer.pop_back();
+            }
+            if (installer == "@system" || installer == "@product") continue;
 
             // Skip RetroArch, system-like, and internal packages
             if (pkgName == "com.retroarch.aarch64") continue;
