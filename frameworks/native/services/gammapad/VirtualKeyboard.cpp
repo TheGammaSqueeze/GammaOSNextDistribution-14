@@ -20,7 +20,12 @@ VirtualKeyboard::~VirtualKeyboard() {
     destroy();
 }
 
-bool VirtualKeyboard::create() {
+bool VirtualKeyboard::create(const std::set<int>& codes) {
+    if (codes.empty()) {
+        // Nothing to emit through a keyboard: do not create a phantom device
+        // (an idle full keyboard makes Android hide the on-screen IME).
+        return false;
+    }
     mFd = open("/dev/uinput", O_RDWR | O_NONBLOCK | O_CLOEXEC);
     if (mFd < 0) {
         LOG(ERROR) << "VirtualKeyboard: open /dev/uinput failed: " << strerror(errno);
@@ -35,16 +40,11 @@ bool VirtualKeyboard::create() {
         return false;
     }
 
-    // Advertise a broad, fixed KEY_* set so any keyboard-routed action target
-    // works without recreating the device.  Deliberately excludes the BTN_*
-    // ranges (0x100..0x15f) so this device is classified as a keyboard, not a
-    // pointer/gamepad.
-    //   [KEY_ESC .. KEY_MICMUTE]   1  .. 248   (keyboard, volume, media, nav)
-    //   [KEY_OK  .. 0x1ff]       0x160.. 0x1ff (consumer / TV / extended keys)
-    mCodes.clear();
-    for (int code = KEY_ESC; code <= 248; code++) mCodes.insert(code);
-    for (int code = 0x160; code <= 0x1ff; code++) mCodes.insert(code);
-
+    // Advertise ONLY the configured keyboard-routed action targets. This keeps the
+    // device off Android's "hardware keyboard present" detection unless the user has
+    // actually mapped a button to an alphabetic key (BTN_* gamepad codes are emitted
+    // through the virtual gamepad, never here).
+    mCodes = codes;
     for (int code : mCodes) {
         if (ioctl(mFd, UI_SET_KEYBIT, code) < 0) {
             LOG(WARNING) << "VirtualKeyboard: UI_SET_KEYBIT " << code

@@ -97,6 +97,12 @@ private:
     // current remap configuration (base set + remap targets + discovered).
     std::pair<std::set<int>, std::set<int>> computeRequiredCodes() const;
 
+    // Compute the KEY_* codes the companion keyboard must advertise: the
+    // keyboard-range (non-gamepad) key= action targets from the global config and
+    // every per-app profile. Empty when no button is mapped to a keyboard key, in
+    // which case the companion keyboard is not created at all.
+    std::set<int> computeKeyboardCodes() const;
+
     // Recreate the virtual gamepad with new button/axis sets.
     bool recreateVirtualGamepad(const std::set<int>& buttons, const std::set<int>& axes);
 
@@ -145,6 +151,8 @@ private:
     std::set<int> mPerAppComboCodes;
     // All ACT_KEY gamepad-button targets across all per-app profiles
     std::set<int> mPerAppActionKeyCodes;
+    // All ACT_KEY keyboard-range (non-gamepad) targets across all per-app profiles
+    std::set<int> mPerAppActionKbCodes;
 
     std::unique_ptr<VirtualGamepad> mVirtualGamepad;
     std::unique_ptr<VirtualKeyboard> mVirtualKeyboard;

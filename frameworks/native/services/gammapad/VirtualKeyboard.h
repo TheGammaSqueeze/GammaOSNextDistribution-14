@@ -15,12 +15,19 @@ public:
     VirtualKeyboard();
     ~VirtualKeyboard();
 
-    // Create the uinput keyboard advertising a broad, fixed KEY_* set so any
-    // keyboard-routed action target works without recreating the device.
-    bool create();
+    // Create the uinput keyboard advertising EXACTLY the given KEY_* codes (the
+    // keyboard-routed action targets actually configured). Advertising only what
+    // is needed keeps a device with no keyboard actions from ever existing, and a
+    // device with only e.g. media/nav targets from being misclassified as a full
+    // alphabetic keyboard (which makes Android hide the soft IME). Must be called
+    // with a NON-EMPTY set; the caller skips creation entirely when none apply.
+    bool create(const std::set<int>& codes);
     void destroy();
 
     bool isValid() const { return mFd >= 0; }
+
+    // The KEY_* codes this device currently advertises (for change detection).
+    const std::set<int>& codes() const { return mCodes; }
 
     // Emit a single key press or release (value 1 = down, 0 = up) followed by
     // a SYN_REPORT.  Returns false if the device is not valid.

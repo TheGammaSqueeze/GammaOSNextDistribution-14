@@ -129,9 +129,16 @@ bool GamepadManager::init() {
     }
 
     // Companion keyboard for keyboard/media KEY_* action emits (write-only, not
-    // epoll-monitored).  Non-fatal if it fails.
-    if (!mVirtualKeyboard->create()) {
-        LOG(WARNING) << "Virtual keyboard unavailable; keyboard action emits disabled";
+    // epoll-monitored). Created ONLY when a button is actually mapped to a
+    // keyboard-range key; otherwise it is left absent so it never registers as a
+    // phantom hardware keyboard (which would make Android hide the on-screen IME).
+    {
+        std::set<int> kbCodes = computeKeyboardCodes();
+        if (kbCodes.empty()) {
+            LOG(INFO) << "No keyboard-routed actions; companion keyboard not created";
+        } else if (!mVirtualKeyboard->create(kbCodes)) {
+            LOG(WARNING) << "Virtual keyboard unavailable; keyboard action emits disabled";
+        }
     }
 
     // Initialize mouse mode (creates timerfd)
@@ -1208,6 +1215,10 @@ void GamepadManager::checkConfigChange() {
             if (mScreenMapMode) mScreenMapMode->loadConfig();
         }
 
+        // Add/recreate/tear-down the companion keyboard to match the (possibly
+        // changed) set of keyboard-routed action targets.
+        refreshVirtualKeyboard();
+
         mConfigVersion = version;
     }
 }
@@ -1245,6 +1256,7 @@ void GamepadManager::loadPerAppProfiles() {
     mPerAppProfiles.clear();
     mPerAppComboCodes.clear();
     mPerAppActionKeyCodes.clear();
+    mPerAppActionKbCodes.clear();
 
     int paCount = GetIntProperty("persist.gammaos.gamepad.pa_count", 0);
     for (int i = 0; i < paCount && i < 20; i++) {
@@ -1268,12 +1280,16 @@ void GamepadManager::loadPerAppProfiles() {
             rule.longSpec = GetProperty(ap + "_l", "");
             profile.actions.push_back(rule);
 
-            // Collect gamepad-button ACT_KEY targets so the virtual gamepad
-            // advertises them (keyboard targets are always advertised).
+            // Split ACT_KEY targets: gamepad buttons feed the virtual gamepad's
+            // advertised set; keyboard-range codes feed the companion keyboard's, so
+            // it is only ever created when a per-app profile needs a keyboard key.
             for (const std::string* spec : {&rule.shortSpec, &rule.longSpec}) {
                 if (spec->rfind("key=", 0) == 0) {
                     int c = std::atoi(spec->c_str() + 4);
-                    if (c > 0 && isGamepadButton(c)) mPerAppActionKeyCodes.insert(c);
+                    if (c > 0) {
+                        if (isGamepadButton(c)) mPerAppActionKeyCodes.insert(c);
+                        else                    mPerAppActionKbCodes.insert(c);
+                    }
                 }
             }
         }
@@ -1433,10 +1449,39 @@ void GamepadManager::executeAction(int type, const std::string& arg) {
     }
 }
 
+std::set<int> GamepadManager::computeKeyboardCodes() const {
+    // Only KEY_* codes that a button-action actually emits through the keyboard:
+    // the non-gamepad targets from the global config plus every per-app profile.
+    std::set<int> codes;
+    for (int c : mTransformer->getActionKeyCodes()) {
+        if (!isGamepadButton(c)) codes.insert(c);
+    }
+    codes.insert(mPerAppActionKbCodes.begin(), mPerAppActionKbCodes.end());
+    return codes;
+}
+
 void GamepadManager::refreshVirtualKeyboard() {
-    // The companion keyboard advertises a fixed broad KEY_* set, so new
-    // keyboard-routed action targets need no recreation.  Kept as a hook for
-    // symmetry with the gamepad recreation path.
+    // Recreate the companion keyboard only when the set of keyboard-routed action
+    // targets actually changes, and tear it down entirely when it drops to empty,
+    // so a device with no keyboard actions never presents a phantom hardware
+    // keyboard (which would make Android hide the on-screen IME).
+    std::set<int> want = computeKeyboardCodes();
+    bool have = mVirtualKeyboard && mVirtualKeyboard->isValid();
+    if (want.empty()) {
+        if (have) {
+            mVirtualKeyboard->destroy();
+            LOG(INFO) << "Companion keyboard torn down (no keyboard-routed actions)";
+        }
+        return;
+    }
+    if (!have || want != mVirtualKeyboard->codes()) {
+        if (have) mVirtualKeyboard->destroy();
+        if (!mVirtualKeyboard->create(want)) {
+            LOG(WARNING) << "Virtual keyboard unavailable; keyboard action emits disabled";
+        } else {
+            LOG(INFO) << "Companion keyboard (re)created with " << want.size() << " keys";
+        }
+    }
 }
 
 std::pair<std::set<int>, std::set<int>> GamepadManager::computeRequiredCodes() const {
