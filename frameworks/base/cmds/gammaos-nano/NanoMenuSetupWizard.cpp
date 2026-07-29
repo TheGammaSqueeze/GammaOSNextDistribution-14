@@ -166,6 +166,17 @@ void NanoMenu::finishSetupWizard() {
     system("settings put secure user_setup_complete 1 2>/dev/null");
     system("settings put secure tv_user_setup_complete 1 2>/dev/null");
 
+    // GammaOS: the stock SetupWizard normally enables + selects the first soft
+    // keyboard; nano provisions the device itself and bypasses it, so normal
+    // Android would otherwise boot with NO IME enabled (default_input_method and
+    // enabled_input_methods empty) and never show a keyboard. Re-apply the
+    // framework's default-enabled IME here (LatinIME on non-TV, LeanbackIME on TV).
+    // Runs post-setup with the user unlocked, so the write persists. Also show the
+    // on-screen keyboard even when a controller is misdetected as a hardware
+    // keyboard (belt-and-suspenders alongside the gammapad companion-keyboard fix).
+    system("settings put secure show_ime_with_hard_keyboard 1 2>/dev/null");
+    system("ime reset 2>/dev/null");
+
     // Disable lockscreen (no swipe to unlock)
     system("locksettings clear --old \"\" 2>/dev/null");
 
