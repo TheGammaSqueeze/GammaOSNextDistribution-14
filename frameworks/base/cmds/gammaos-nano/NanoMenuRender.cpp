@@ -5035,12 +5035,17 @@ void NanoMenu::render() {
             // intro + jingle, handing straight into the Minima menu - the PS3/XMB intro is never shown.
             ps3BootUpdate(mFrameDt);
             renderMinimaBootOverlay(/*primary=*/true);
-        } else if (!mPs3Xmb && pspClockActive) {
+        } else if ((mNdsTheme || mMinimaTheme) && pspClockActive) {
             // GammaOS: PSP Go slide clock summoned (slide-close) in a non-XMB theme. Render via the
             // XMB path for the summon's duration so drawPspClock (inside renderPs3Xmb, which also
             // fills the wave FBO/workTex + rotation the clock's glass samples) runs; the full-screen
             // clock covers the DSi/Minima menu. Reverts to the theme render the frame the clock
             // finishes retracting (pspClockActive -> false at reveal 0).
+            // Gate on the visual theme (mNdsTheme / mMinimaTheme), NOT on !mPs3Xmb: DSi and Minima
+            // reuse the XMB home infrastructure, so mPs3Xmb is forced true for them in the theme
+            // setup. The old "!mPs3Xmb" test was therefore always false in exactly these themes,
+            // leaving this branch dead - the slide-shut summon fell through to the DSi/Minima home
+            // render and the menu appeared over the app instead of the clock.
             renderPs3Xmb();
         } else if (mNdsTheme && !mPs3BootActive && ndsPlayerActive()) {
             // A media player is up: show the existing full-screen XMB video / music / photo
