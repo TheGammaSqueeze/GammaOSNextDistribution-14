@@ -3679,14 +3679,30 @@ public final class PowerManagerService extends SystemService
     //  (c) nano is playing media itself (sys.gammaos.nano.media_playing): the in-process
     //      video / stream player has no framework window and receives no input while a
     //      clip plays, so it must pin the display or the home would idle off mid-video.
-    // The nano HOME on a non-grabbing build is otherwise NOT pinned here:
-    // PhoneWindowManager pokes user activity for home navigation, so the home stays lit
-    // while navigated and still idles off after the configured timeout when untouched.
+    //  (d) The nano menu itself is up (sys.gammaos.nano.menu_active): on a non-grabbing
+    //      build the framework does not reliably see the pad as user activity for a home
+    //      with no focused window, so the idle timeout fired and dimmed/slept the panel
+    //      while the user was actively navigating the menu. Keep the panel lit for the
+    //      whole time the menu is shown. This only overrides the idle timeout - a slide
+    //      close (or Power) still goes to sleep directly, so slide-to-sleep devices are
+    //      unaffected. nano only sets menu_active while the menu is actually visible (not
+    //      when parked behind a running app), so this does not keep the panel on in-game.
     private static boolean isNanoDisplayForcedOn() {
         if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return false;
         if (SystemProperties.getBoolean("persist.gammaos.nano.grab_input", false)) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"))) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.media_playing", "0"))) return true;
+        if ("1".equals(SystemProperties.get("sys.gammaos.nano.menu_active", "0"))) return true;
+        //  (e) The resident overlay home is the visible menu when it has been raised
+        //      (sys.gammaos.nano.show_overlay=1) with no app running
+        //      (sys.gammaos.nano.app_launched=0) - the daily-driver home after the first
+        //      app has launched and exited. It intentionally does not claim menu_active
+        //      (that stays owned by the DRM home so DualStack behaves), so keep the panel
+        //      lit for it here too.
+        if ("1".equals(SystemProperties.get("sys.gammaos.nano.show_overlay", "0"))
+                && !"1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"))) {
+            return true;
+        }
         // The nano first-run setup wizard has an unattended "waiting for services" step; keep
         // the panel on for the whole wizard so the framework timeout does not sleep it mid-setup.
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.setup_active", "0"))) return true;
