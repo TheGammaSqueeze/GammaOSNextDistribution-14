@@ -57,8 +57,13 @@
     <!-- Whether to show the bluetooth toggle. Please be very careful with this config as setting it
         to true would surface a toggle in Remotes & Accessories settings that allows the user to
         turn off Bluetooth. Without an IR remote or some other form of connection, the user may not
-        be able to turn it back on and have to perform FDR. -->
-    <bool name="show_bluetooth_toggle">false</bool>
+        be able to turn it back on and have to perform FDR.
+        GammaOS: true - these are handhelds with a physical gamepad + touchscreen (not a
+        BT-only remote), so turning Bluetooth off is always recoverable. Leaving this false made
+        "Bluetooth & Accessories" render as a blank/title-only slice whenever Bluetooth was off
+        (its default), with no on-screen way to enable it (updatePairingButton/updateConnectedDevices
+        only populate when BT is already on). The toggle keeps the screen usable in that state. -->
+    <bool name="show_bluetooth_toggle">true</bool>
 
     <!--  mDelayManualPairing  -->
     <integer name="config_delay_manual_pairing">5000</integer>
