@@ -1797,6 +1797,7 @@ void NanoMenu::pollInput() {
             if (pw.empty()) return;
             addAndConnectWifi(mWifiPendingSsid, mWifiPendingSecurity, pw, true);
         });
+        mOskPlaintext = true;   // show the key in the clear so a stray char is visible
     }
     // Test navigation hook: `setprop sys.gammaos.nano.nav <action>` injects one
     // nav action (left/right/up/down/enter/back) then clears the prop. The

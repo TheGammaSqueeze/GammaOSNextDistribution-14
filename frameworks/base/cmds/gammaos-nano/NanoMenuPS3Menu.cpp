@@ -12061,7 +12061,9 @@ static void wizDesc(int id, WizDesc& d) {
     case WS_SECURITY: d.kind = WK_CHOOSER; d.title = "WLAN Security Setting"; d.body = "Security";
         for (int i = 0; WIZ_SEC_OPTS[i]; i++) d.opts[i] = WIZ_SEC_OPTS[i]; break;
     case WS_WEP_KEY: d.kind = WK_TEXT; d.title = "WLAN Security Setting"; d.label = "WEP Key"; d.field = WF_WEP_KEY; break;
-    case WS_WPA_KEY: d.kind = WK_TEXT; d.title = "WLAN Security Setting"; d.label = "WPA Key"; d.field = WF_WPA_KEY; d.mask = true; break;
+    // WPA key shown in the clear: behind mask dots a mistyped/stray character is
+    // invisible and yields a "wrong password" that reads as a connect failure.
+    case WS_WPA_KEY: d.kind = WK_TEXT; d.title = "WLAN Security Setting"; d.label = "WPA Key"; d.field = WF_WPA_KEY; break;
     case WS_EAP_AUTH: d.kind = WK_CHOOSER; d.title = "Authentication Setting"; d.body = "Authentication";
         d.opts[0] = "EAP-MD5"; break;
     case WS_EAP_USER: d.kind = WK_TEXT; d.title = "EAP Authentication"; d.label = "User Name"; d.field = WF_EAP_USER; break;

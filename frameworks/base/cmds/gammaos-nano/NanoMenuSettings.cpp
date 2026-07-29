@@ -219,35 +219,43 @@ std::vector<NanoMenu::WifiNetEntry> parseScanResults(const std::string& text) {
             }
             // Allow parsing even without the header (some tools skip it).
         }
-        // Whitespace split into up to 6 columns.
-        std::vector<std::string> cols;
+        // The SSID column can contain spaces (real examples: "EE WiFi",
+        // "SkyBox-5-Downstairs", "The Wireless Signal is a Lie"). A naive
+        // whitespace column-split takes only the first word as the SSID, so
+        // nano stored (and tried to connect to) "The" -- an SSID no AP
+        // broadcasts, which fails with "network not found" and reads to the
+        // user as a wrong password. The output is fixed-width: the first four
+        // fields (BSSID, Frequency, RSSI, Age) are always single tokens, and
+        // the trailing Flags column always begins with '[' (e.g.
+        // "[WPA2-PSK-CCMP][ESS]"). So read the four leading tokens, then take
+        // everything up to the Flags as the space-preserving SSID.
         size_t i = 0;
-        while (i < line.size()) {
+        std::string toks[4];
+        bool haveTok = true;
+        for (int t = 0; t < 4 && haveTok; t++) {
             while (i < line.size() && isspace((unsigned char)line[i])) i++;
-            if (i >= line.size()) break;
+            if (i >= line.size()) { haveTok = false; break; }
             size_t j = i;
             while (j < line.size() && !isspace((unsigned char)line[j])) j++;
-            cols.push_back(line.substr(i, j - i));
+            toks[t] = line.substr(i, j - i);
             i = j;
         }
-        if (cols.size() < 6) continue;
-        // bssid, freq, rssi, age, ssid, flags
+        if (!haveTok) continue;
+        while (i < line.size() && isspace((unsigned char)line[i])) i++;
+        std::string rest = line.substr(i);          // "<SSID padding> <Flags>"
+        size_t fl = rest.find('[');                 // Flags always start with '['
+        if (fl == std::string::npos) continue;      // no flags column -> not a result row
+        std::string ssid  = rest.substr(0, fl);     // may be empty (hidden AP)
+        std::string flags = rest.substr(fl);
+        while (!ssid.empty() && isspace((unsigned char)ssid.back())) ssid.pop_back();
+        if (ssid.size() >= 2 && ssid.front() == '"' && ssid.back() == '"')
+            ssid = ssid.substr(1, ssid.size() - 2);  // strip quotes if the tool emitted them
+
         NanoMenu::WifiNetEntry e{};
-        e.bssid = cols[0];
-        e.rssi = atoi(cols[2].c_str());
+        e.bssid = toks[0];
+        e.rssi = atoi(toks[2].c_str());
         if (e.rssi >= 0 || e.rssi < -120) e.rssi = -127;
-        e.ssid = cols[4];
-        // Strip surrounding quotes
-        if (e.ssid.size() >= 2
-                && e.ssid.front() == '"' && e.ssid.back() == '"') {
-            e.ssid = e.ssid.substr(1, e.ssid.size() - 2);
-        }
-        // Flags is everything after ssid.
-        std::string flags;
-        for (size_t k = 5; k < cols.size(); k++) {
-            if (!flags.empty()) flags += ' ';
-            flags += cols[k];
-        }
+        e.ssid = ssid;
         e.security = securityFromFlags(flags);
         e.savedNetId = -1;
         e.connected = false;
@@ -893,6 +901,11 @@ void NanoMenu::handleWifiScreenSelect() {
             }
             addAndConnectWifi(mWifiPendingSsid, mWifiPendingSecurity, pw);
         });
+    // Show the Wi-Fi key in the clear: a mistyped/stray character is invisible
+    // behind mask dots and produces a "wrong password" that looks like a failure.
+    // (mOskPasswordMode stays true so the field keeps password semantics -- no
+    // search results -- it just is not visually masked.)
+    mOskPlaintext = true;
 }
 
 void NanoMenu::handleWifiScreenY() {
@@ -1052,6 +1065,7 @@ void NanoMenu::wifiManageActivate() {
             // force=true so it applies even if we are still associated.
             addAndConnectWifi(mWifiPendingSsid, mWifiPendingSecurity, pw, true);
         });
+        mOskPlaintext = true;   // show the key in the clear (see handleWifiScreenSelect)
         break; }
     case WMA_FORGET:
         if (netId >= 0) {
