@@ -1002,7 +1002,12 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
             int td = property_get_int32("persist.gammaos.nano.cc.topdisplay", 2);
             std::string finalCmd = amCmd;
             size_t sp = finalCmd.find("am start");
-            if (sp != std::string::npos && finalCmd.find("--display") == std::string::npos)
+            // Do NOT pin a dual-stack app to the top panel: it must launch on the
+            // default display (0), where DualStackController forces the tall 640x960
+            // canvas and mirrors it across both panels. Only ordinary apps get pinned
+            // to the top. (A caller that already set --display is respected either way.)
+            if (sp != std::string::npos && finalCmd.find("--display") == std::string::npos
+                    && !dualstackHas(pkg))
                 finalCmd.insert(sp + 8, " --display " + std::to_string(td));
             system(finalCmd.c_str());
         }
