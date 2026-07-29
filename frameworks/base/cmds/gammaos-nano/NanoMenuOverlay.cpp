@@ -999,6 +999,7 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
         // Center path sets its own --display (bottom for a secondary app), which we
         // respect; commands that are not `am start` (rare) are left untouched.
         {
+            int primaryPort = property_get_int32("persist.gammaos.nano.primary_display", 0);
             int td = property_get_int32("persist.gammaos.nano.cc.topdisplay", 2);
             std::string finalCmd = amCmd;
             size_t sp = finalCmd.find("am start");
@@ -1006,8 +1007,11 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
             // default display (0), where DualStackController forces the tall 640x960
             // canvas and mirrors it across both panels. Only ordinary apps get pinned
             // to the top. (A caller that already set --display is respected either way.)
+            // Only inject --display on multi-screen devices (primary_display > 0, i.e.
+            // a secondary port holds the XMB). Single-screen devices have only display 0
+            // and would black-screen if directed to a non-existent display 2.
             if (sp != std::string::npos && finalCmd.find("--display") == std::string::npos
-                    && !dualstackHas(pkg))
+                    && !dualstackHas(pkg) && primaryPort > 0)
                 finalCmd.insert(sp + 8, " --display " + std::to_string(td));
             system(finalCmd.c_str());
         }
