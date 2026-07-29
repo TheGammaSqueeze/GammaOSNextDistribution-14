@@ -66,7 +66,12 @@ public class ForceStopPreference extends AppActionPreference {
                 Context.DEVICE_POLICY_SERVICE);
         AppHibernationManager ahm = getContext().getSystemService(
                 AppHibernationManager.class);
-        boolean isPackageHibernated = ahm.isHibernatingForUser(mEntry.info.packageName);
+        // GammaOS: the AppHibernation service is not registered on this minimal build, so
+        // getSystemService returns null. Opening any app's management screen (e.g. to
+        // uninstall/force-stop) then crashed TvSettings with an NPE here. Treat a missing
+        // hibernation service as "not hibernating" so force-stop still renders correctly.
+        boolean isPackageHibernated =
+                ahm != null && ahm.isHibernatingForUser(mEntry.info.packageName);
         if (dpm.packageHasActiveAdmins(mEntry.info.packageName)) {
             // User can't force stop device admin.
             setVisible(false);

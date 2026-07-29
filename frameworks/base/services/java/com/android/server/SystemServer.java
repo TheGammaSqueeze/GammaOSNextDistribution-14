@@ -1967,11 +1967,16 @@ public final class SystemServer implements Dumpable {
         }
         t.traceEnd();
 
-        if (!minimalBoot) {
+        // GammaOS Nano: AppHibernationService must run even in minimal_boot. TvSettings'
+        // per-app management screen (ForceStopPreference) resolves AppHibernationManager and
+        // NPE-crashed when the service was absent in nano mode (e.g. uninstalling an app from
+        // the nano home). It is lightweight, so start it in both modes; the ForceStopPreference
+        // null-guard remains as defense.
         t.traceBegin("StartAppHibernationService");
         mSystemServiceManager.startService(APP_HIBERNATION_SERVICE_CLASS);
         t.traceEnd();
 
+        if (!minimalBoot) {
         t.traceBegin("ArtManagerLocal");
         DexOptHelper.initializeArtManagerLocal(context, mPackageManagerService);
         t.traceEnd();
