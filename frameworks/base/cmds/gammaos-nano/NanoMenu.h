@@ -1961,6 +1961,8 @@ private:
     std::vector<Ps3Level> mPs3Stack;   // empty = at category top level
     int mPs3CatIdx = -1;
     int mPs3QuickCatIdx = -1;     // runtime index of the Quick Menu category (-1 if absent)
+    int mPs3SettingsCatIdx = -1;  // runtime index of the Settings category (-1 if absent); used by the
+                                  // "Manage Game System" shortcut to jump into Game Settings from Game
     std::string mPs3PerfModeLabel = "Normal";  // cached persist.gammaos.performance_mode label (Quick Menu row value)
     std::string mPs3SystemName;                // cached System Name (persist.gammaos.nano.system_name, else ro.product.model)
     int mPs3ItemIdx = 0;          // selection in the top-level item list (per-category)

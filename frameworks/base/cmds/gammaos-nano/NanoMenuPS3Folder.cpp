@@ -164,25 +164,64 @@ void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {
         it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
     }
 
-    // Read-only: the paths nano actually found ROMs in this scan (default +
-    // user), with per-path counts, so the populated scan paths are visible.
+    // Normalise a path to one stable identity for de-duping AND display. /storage/emulated/0,
+    // /data/media/0 and /sdcard are three separate mount VIEWS of the same internal storage
+    // (realpath does NOT collapse the two FUSE mounts), so fold them all to the familiar
+    // /storage/emulated/0 form users recognise; realpath first resolves the /sdcard symlink and
+    // any case variants of an existing dir.
+    auto norm = [](const std::string& p) -> std::string {
+        char rp[4096]; std::string q = realpath(p.c_str(), rp) ? std::string(rp) : p;
+        if (q.rfind("/data/media/0/", 0) == 0)      q = "/storage/emulated/0/" + q.substr(14);
+        else if (q.rfind("/sdcard/", 0) == 0)       q = "/storage/emulated/0/" + q.substr(8);
+        else if (q == "/data/media/0")              q = "/storage/emulated/0";
+        return q;
+    };
+
+    // Read-only: the DEFAULT folders (built-in ROMs/<romDir> candidates across internal +
+    // SD/USB) that are ALREADY being scanned, so the user can see which default locations
+    // are in use and where to drop ROMs - even before any are found. Each is marked
+    // "Default" (with the game count when populated), inert (not removable; the user removes
+    // the folder itself or adds their own above). De-duped by normalised path against the
+    // user-added folders and each other. (Requested: show which default folders are in use.)
+    std::vector<std::string> shownNorm;
+    for (const auto& src : sys.scanSources) shownNorm.push_back(norm(src.value));
+    // Count ROMs found under each active scan path, keyed by normalised dir.
+    std::vector<std::pair<std::string, int>> activeCount;   // (normalised activePath, count)
     for (const auto& ap : sys.activePaths) {
-        bool isUser = false;
-        for (const auto& src : sys.scanSources) if (src.value == ap) { isUser = true; break; }
-        if (isUser) continue;
         int cnt = 0;
         for (const auto& r : sys.roms) {
             size_t sl = r.rfind('/');
             if (sl != std::string::npos && r.compare(0, sl, ap) == 0) cnt++;
         }
-        Ps3Item it; it.label = ap; it.kind = PS3_GS_FIELD; it.a = -1;   // inert (auto)
-        char v[24]; snprintf(v, sizeof(v), "%s%d", trDyn("auto: "), cnt); it.value = v;
+        activeCount.push_back({norm(ap), cnt});
+    }
+    int defaultShown = 0;
+    std::vector<std::string> cands = buildScanCandidates(sys);
+    for (const auto& cp : cands) {
+        struct stat st;
+        if (stat(cp.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) continue;   // only real, existing dirs
+        std::string c = norm(cp);
+        bool dup = false;
+        for (const auto& s : shownNorm) if (s == c) { dup = true; break; }
+        if (dup) continue;
+        shownNorm.push_back(c);
+        int cnt = 0;
+        for (const auto& ac : activeCount) if (ac.first == c) { cnt = ac.second; break; }
+        Ps3Item it; it.label = c; it.kind = PS3_GS_FIELD; it.a = -1;   // inert (default); show the normalised path
+        char v[40];
+        if (cnt > 0) snprintf(v, sizeof(v), "%s%d", trDyn("Default, "), cnt);   // "Default, 12"
+        else         snprintf(v, sizeof(v), "%s", trDyn("Default (empty)"));
+        it.value = v;
         it.iconTex = 0; it.nmapTex = nmapForIcon(62);
-        it.iconR = it.iconG = it.iconB = 0.62f;
+        float m = cnt > 0 ? 0.72f : 0.5f;   // brighter when populated, dimmer when empty
+        it.iconR = it.iconG = it.iconB = m;
         out.items.push_back(it);
+        defaultShown++;
     }
 
-    if (sys.scanSources.empty() && sys.activePaths.empty()) {
+    // Nothing at all to scan (no user folders, and not even a default dir exists yet):
+    // point the user at the default location so they know where to create it.
+    if (sys.scanSources.empty() && defaultShown == 0) {
         Ps3Item it; it.label = std::string(trDyn("No ROMs found in ROMs/")) + sys.romDir;
         it.kind = PS3_GS_FIELD; it.a = -1;
         it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 0.55f;

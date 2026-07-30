@@ -1004,6 +1004,7 @@ void NanoMenu::buildPs3Cats() {
     int photoCatRuntimeIdx = -1;
     int videoCatRuntimeIdx = -1;
     mPs3QuickCatIdx = -1;
+    mPs3SettingsCatIdx = -1;
 
     // ---- Quick Menu (GammaOS Nano legacy global actions) ----
     // Inserted BEFORE the web DATA categories so it is the FIRST (leftmost)
@@ -1112,6 +1113,7 @@ void NanoMenu::buildPs3Cats() {
         if (strcmp(dc.id, "music") == 0)    musicCatRuntimeIdx    = (int)mPs3Cats.size();
         if (strcmp(dc.id, "photo") == 0)    photoCatRuntimeIdx    = (int)mPs3Cats.size();
         if (strcmp(dc.id, "video") == 0)    videoCatRuntimeIdx    = (int)mPs3Cats.size();
+        if (strcmp(dc.id, "settings") == 0) mPs3SettingsCatIdx    = (int)mPs3Cats.size();
         mPs3Cats.push_back(c);
     }
 
@@ -10383,6 +10385,14 @@ void NanoMenu::openXmbOpt() {
         case PS3_VIDEO_FOLDER_ROW: add("Remove Folder", "rmvideofolder", true); break;
         case PS3_PHOTO_FOLDER_ROW: add("Remove Folder", "rmphotofolder", true); break;
         case PS3_GS_SCANSRC:       add("Remove Source", "rmscansrc",     true); break;
+        case PS3_SYSTEM:
+            // A game system row on the Game home. Shortcut straight into its editor under
+            // Settings > Game Settings > Game System, so the user can set the emulator,
+            // scan folders, icon, etc. without hunting through Settings. (All themes: the
+            // option menu is shared.)
+            add("Manage Game System", "managegs", true);
+            add("Information", "info", false);
+            break;
         default:
             add("Information", "info", false); break;
     }
@@ -11147,6 +11157,32 @@ void NanoMenu::xmbOptAction(const std::string& act) {
     if (act == "rmvideofolder") { videoRemoveFolder(mPs3OptCtxA); return; }
     if (act == "rmphotofolder") { photoRemoveFolder(mPs3OptCtxA); return; }
     if (act == "rmscansrc")     { gsRemoveScanSource(mPs3OptCtxA); return; }
+    if (act == "managegs") {
+        // Manage Game System: jump into Settings > Game Settings > Game System for the
+        // focused system (mPs3OptCtxA = mXmbSystems index), building the natural
+        // GS_LIST -> GS_EDITOR stack so Back returns to the systems list then Settings.
+        // Shared nav model, so this works in the XMB, DSi and Minima themes alike.
+        int sysIdx = mPs3OptCtxA;
+        if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
+        if (mPs3SettingsCatIdx < 0 || mPs3SettingsCatIdx >= (int)mPs3Cats.size()) return;
+        mPs3CatIdx = mPs3SettingsCatIdx;
+        mPs3ItemIdx = 0; mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+        mPs3Stack.clear();
+        mNdsAtRoot = false;   // DSi: inside a submenu, not the carousel root
+        mGsEditIdx = sysIdx;
+        Ps3Level listLvl; buildGameSystemsList(listLvl);
+        for (size_t i = 0; i < listLvl.items.size(); i++)
+            if (listLvl.items[i].kind == PS3_GS_SYSTEM_ROW && listLvl.items[i].a == sysIdx) {
+                listLvl.sel = (int)i; break;
+            }
+        mPs3Stack.push_back(listLvl);
+        Ps3Level edLvl; buildGameSystemEditor(sysIdx, edLvl); mPs3Stack.push_back(edLvl);
+        // Reset per-theme scroll/animation so the editor appears cleanly.
+        mMinimaScroll = 0.0f; mMinimaSelAnim = 0.0f; mMinimaPrevDepth = -1;
+        mNdsCamera = 0.0f; mNdsScrubbing = false; mNdsFlingVel = 0.0f;
+        mDisplayDirty = true;
+        return;
+    }
     if (act == "info") {
         // Fullscreen info page. For a music track, show the FULL tag set (probed
         // fresh so genre/year/track are included even if not stored in the library);
