@@ -70,6 +70,16 @@ struct NanoMenuSliderBackend {
     }
 };
 
+// Draws the shared procedural HUD icons (nano_slider::drawSun / drawSpeaker) in a fixed ink
+// colour instead of the hardcoded white, so a light DSi panel gets dark icons. Only rect() is
+// used by the icon drawers; the ink colour overrides whatever they pass.
+struct IconInkBackend {
+    NanoMenu* m; float ir, ig, ib, ia;
+    void rect(float x, float y, float w, float h, float, float, float, float) {
+        m->drawQuad(x, y, w, h, ir, ig, ib, ia);
+    }
+};
+
 // ---------------------------------------------------------------------------
 // Sysfs int helpers
 // ---------------------------------------------------------------------------
@@ -178,6 +188,58 @@ int NanoMenu::readAndroidBrightness() {
     return -1;
 }
 
+// DSi / Minima themed slider HUD. Reuses the shared NanoSliderHud geometry + procedural icons so
+// sizing/stacking match the XMB slider, but wraps them in the active theme's chrome: DSi = a light
+// glossy rounded panel with a favColour-blue bar and dark icon/label; Minima = a flat dark rounded
+// card with the Colour-accent bar and white icon/label. The XMB / in-app / drastic path keeps the
+// shared flat system slider unchanged (user 2026-07-30).
+void NanoMenu::renderThemedSliderHud(bool isVolume, int pct, int slot) {
+    using namespace nano_slider;
+    if (pct < 0) pct = 0; if (pct > 100) pct = 100;
+    const float vw = (float)mWidth, vh = (float)mHeight;
+    const float s = scaleFor(vw, vh);
+    const float padH = Spec::kPadH * s, padV = Spec::kPadV * s;
+    const float icon = Spec::kIcon * s, iconGap = Spec::kIconGap * s;
+    const float barW = Spec::kBarW * s, barH = Spec::kBarH * s, barGap = Spec::kBarGap * s;
+    const float textPx = Spec::kText * s, tscale = textPx / (float)FONT_CHAR_H;
+
+    char pctStr[8]; snprintf(pctStr, sizeof(pctStr), "%d%%", pct);
+    const float textW = measureText(pctStr, tscale);
+    const float bgH = icon + padV * 2.0f;
+    const float bgW = padH * 2.0f + icon + iconGap + barW + barGap + textW;
+    const float bgX = (vw - bgW) * 0.5f;
+    const float bgY = Spec::kTopMargin * s + (float)slot * (bgH + Spec::kStackGap * s);
+    const float rad = 8.0f * s;
+
+    float panR, panG, panB, panA, accR, accG, accB, inkR, inkG, inkB, trkR, trkG, trkB, trkA;
+    if (mMinimaTheme) {
+        minimaAccent(accR, accG, accB);
+        panR = 0.06f; panG = 0.07f; panB = 0.09f; panA = 0.92f;
+        inkR = inkG = inkB = 1.0f;                       // white icon/label on the dark card
+        trkR = trkG = trkB = 1.0f; trkA = 0.25f;         // dim white track
+    } else {                                             // DSi light glossy panel
+        panR = 0.96f; panG = 0.96f; panB = 0.97f; panA = 1.0f;
+        accR = 0.16f; accG = 0.42f; accB = 0.85f;        // favColour blue
+        inkR = 0.20f; inkG = 0.20f; inkB = 0.22f;        // dark icon/label on the light panel
+        trkR = 0.0f; trkG = 0.0f; trkB = 0.0f; trkA = 0.16f;  // faint dark track
+    }
+
+    drawRoundedRect(bgX, bgY + 2.0f * s, bgW, bgH, rad, 0.0f, 0.0f, 0.0f, 0.30f);   // soft shadow
+    drawRoundedRect(bgX, bgY, bgW, bgH, rad, panR, panG, panB, panA);               // panel
+
+    const float iconX = bgX + padH, iconY = bgY + (bgH - icon) * 0.5f;
+    IconInkBackend ib{this, inkR, inkG, inkB, 1.0f};
+    if (isVolume) drawSpeaker(ib, iconX, iconY, icon);
+    else          drawSun(ib, iconX, iconY, icon);
+
+    const float barX = iconX + icon + iconGap, barY = bgY + (bgH - barH) * 0.5f;
+    drawRoundedRect(barX, barY, barW, barH, barH * 0.5f, trkR, trkG, trkB, trkA);   // track
+    drawRoundedRect(barX, barY, barW * (float)pct / 100.0f, barH, barH * 0.5f, accR, accG, accB, 1.0f);  // fill
+
+    const float textX = barX + barW + barGap, textY = bgY + (bgH - textPx) * 0.5f;
+    drawText(pctStr, textX, textY, tscale, inkR, inkG, inkB, 1.0f);
+}
+
 void NanoMenu::renderBrightnessBar() {
     if (!mShowBrightnessBar) return;
     // While the Quick Menu brightness slider modal is open the HUD stays pinned up
@@ -188,6 +250,11 @@ void NanoMenu::renderBrightnessBar() {
         return;
     }
 
+    // DSi / Minima draw the themed HUD; XMB keeps the shared flat system slider (top slot).
+    if (mNdsTheme || mMinimaTheme) {
+        renderThemedSliderHud(false, mBrightness * 100 / 255, 0);
+        return;
+    }
     // Shared spec (see NanoSliderHud.h): brightness shows in the top slot.
     NanoMenuSliderBackend be{this};
     nano_slider::draw(be, (float)mWidth, (float)mHeight,
@@ -245,6 +312,11 @@ void NanoMenu::renderVolumeBar() {
     // Shared spec (see NanoSliderHud.h): stack below brightness if both show.
     int pct = (mMaxVolume > 0) ? (mVolume * 100 / mMaxVolume) : 0;
     int slot = mShowBrightnessBar ? 1 : 0;
+    // DSi / Minima draw the themed HUD; XMB keeps the shared flat system slider.
+    if (mNdsTheme || mMinimaTheme) {
+        renderThemedSliderHud(true, pct, slot);
+        return;
+    }
     NanoMenuSliderBackend be{this};
     nano_slider::draw(be, (float)mWidth, (float)mHeight,
                       nano_slider::kVolume, pct, slot);

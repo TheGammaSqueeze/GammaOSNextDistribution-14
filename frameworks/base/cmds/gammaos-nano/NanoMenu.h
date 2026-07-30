@@ -134,6 +134,9 @@ public:
 
     // Shared volume/brightness HUD adapter (see NanoSliderHud.h).
     friend struct NanoMenuSliderBackend;
+    // Recolouring adapter: draws the shared procedural HUD icons in a chosen ink colour
+    // (for the DSi light-panel themed slider, where the white default would be invisible).
+    friend struct IconInkBackend;
 
     sp<SurfaceComposerClient> session() const;
 
@@ -621,6 +624,9 @@ private:
     void syncBrightnessToAndroid();
     int readAndroidBrightness();
     void renderBrightnessBar();
+    // DSi / Minima themed volume+brightness HUD (the XMB / in-app / drastic path keeps the shared
+    // flat system slider from NanoSliderHud.h). isVolume picks the icon; slot stacks the panels.
+    void renderThemedSliderHud(bool isVolume, int pct, int slot);
 
     // Volume control
     void adjustVolume(int direction);
@@ -1261,6 +1267,8 @@ private:
         std::vector<Ps3Item> items;
         int sel;
         int screenKind = 0;   // 0 = normal submenu; GS_* for the Game Systems editor screens
+        int sysIdx = -1;      // >=0 only for a ROM list level (set by buildRomSubmenu); lets a
+                              // rescan rebuild the open ROM column in place. -1 for every other level.
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)

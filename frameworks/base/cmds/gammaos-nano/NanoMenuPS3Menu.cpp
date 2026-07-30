@@ -588,6 +588,7 @@ void NanoMenu::buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out) {
 
 void NanoMenu::buildRomSubmenu(int sysIdx, Ps3Level& out) {
     out.items.clear(); out.sel = 0;
+    out.sysIdx = sysIdx;   // tag the level so a rescan can rebuild this ROM column in place
     if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
     const XmbSystem& sys = mXmbSystems[sysIdx];
     out.title = sys.name;

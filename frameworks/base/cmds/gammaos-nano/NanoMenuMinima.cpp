@@ -145,16 +145,26 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     const float fsHint  = (MIN_FONT_S * sc) / (float)FONT_CHAR_H;
 
     // ---- resolve the current level's rows (categories at root, else the category/submenu items) ----
+    // vals holds the inline right-aligned value for value-bearing rows (else empty). Only the
+    // game-system rows (the GS_LIST On/Off list + the GS_EDITOR fields) expose their value so the
+    // enable state and per-system config read at a glance; generic settings rows stay value-less
+    // (enter to change), matching the DSi list decision.
     std::vector<std::string> rows;
+    std::vector<std::string> vals;
+    auto pushItem = [&](const Ps3Item& it) {
+        rows.push_back(it.label);
+        if (it.kind == PS3_GS_SYSTEM_ROW || it.kind == PS3_GS_FIELD) vals.push_back(it.value);
+        else vals.push_back(std::string());
+    };
     int sel = 0;
     if (mNdsAtRoot) {
-        for (auto& c : mPs3Cats) rows.push_back(c.name);
+        for (auto& c : mPs3Cats) { rows.push_back(c.name); vals.push_back(std::string()); }
         sel = mPs3CatIdx;
     } else if (!mPs3Stack.empty()) {
-        for (auto& it : mPs3Stack.back().items) rows.push_back(it.label);
+        for (auto& it : mPs3Stack.back().items) pushItem(it);
         sel = mPs3Stack.back().sel;
     } else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
-        for (auto& it : mPs3Cats[mPs3CatIdx].items) rows.push_back(it.label);
+        for (auto& it : mPs3Cats[mPs3CatIdx].items) pushItem(it);
         sel = mPs3ItemIdx;
     }
     const int n = (int)rows.size();
@@ -212,6 +222,26 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     }
     const float lx = listLeft + slideX;
 
+    // ---- status-pill band: a value-bearing row under the top-right status pill must inset its
+    // right-aligned value so it is not hidden behind the pill. Mirror of the pill geometry drawn
+    // below (keep in sync). statusPillLeft = pill's left x; statusBandBot = pill's bottom y. ----
+    float statusPillLeft, statusBandBot;
+    {
+        int wl, bl;
+        { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; bl = mBtLevel; }
+        char cb[12] = {}; time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
+        strftime(cb, sizeof(cb), "%H:%M", &lt);
+        const float ph = rowH, gp = 6.0f * sc, iconH = MIN_FONT_S * sc * 1.15f;
+        const float wifiW = 22.0f * (iconH / 18.0f), btW = 14.0f * (iconH / 20.0f);
+        const float battW = iconH * 1.55f + 2.0f * sc;
+        float contentW = measureText(cb, fsHint);
+        if (wl != kWifiLevel_Off && wl != kWifiLevel_Unknown) contentW += wifiW + gp;
+        if (bl != kBtLevel_Off && bl != kBtLevel_Unknown)     contentW += btW + gp;
+        if (mBatteryPercent >= 0)                              contentW += battW + gp;
+        statusPillLeft = rx + rw - pad - (contentW + btnPad * 2.0f);
+        statusBandBot  = ry + pad + ph;
+    }
+
     // ---- draw the rows (white text) then the gliding white capsule + inverted selected label ----
     if (n == 0) {
         const char* empty = "Empty";
@@ -223,15 +253,29 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         if (rowY + rowH < listTop - 1.0f || rowY > listBottom + 1.0f) continue;   // clip to the list band
         if (i == sel) continue;                                                    // selected drawn on the pill below
         float ty = rowY + (rowH - MIN_FONT * sc) * 0.5f;
+        // A value-bearing row draws its value right-aligned (dim white); the label is clipped to
+        // the space before it so the two never overlap. rowRight tracks slideX so the value slides
+        // with the row during a level-change transition, like the label does.
+        float rowRight = rx + rw - pad - btnPad + slideX;
+        if (rowY < statusBandBot && rowY + rowH > ry + pad)
+            rowRight = fminf(rowRight, statusPillLeft - 8.0f * sc);   // clear the status pill
+        float labelMaxW = textMaxW;
+        if (!vals[i].empty()) {
+            float vw = measureText(vals[i].c_str(), fsRow);
+            drawText(vals[i].c_str(), rowRight - vw, ty, fsRow, 1.0f, 1.0f, 1.0f, 0.70f);
+            labelMaxW = (rowRight - vw - 12.0f * sc) - (lx + btnPad);
+        }
         float fs = fsRow, tw = measureText(rows[i].c_str(), fs);
-        if (tw > textMaxW && textMaxW > 0.0f) { fs *= textMaxW / tw; }
+        if (tw > labelMaxW && labelMaxW > 0.0f) { fs *= labelMaxW / tw; }
         drawText(rows[i].c_str(), lx + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);   // COLOR_LIST_TEXT white
     }
     // The capsule pill, hugging the selected label, glided to the eased position. A label too long to
     // fit MARQUEE-scrolls (NextUI: after a short pause, 2px/frame with a 30px gap, looping) inside a
     // full-width pill, instead of shrinking to fit.
     if (n > 0) {
-        const std::string& lbl = rows[sel < n ? sel : 0];
+        const int si = sel < n ? sel : 0;
+        const std::string& lbl = rows[si];
+        const std::string& val = vals[si];
         const float fs = fsRow, tw = measureText(lbl.c_str(), fs);
         const float pillY = listTop + (mMinimaSelAnim - mMinimaScroll) * rowH + rowH * 0.07f;
         const float pillH = rowH * 0.86f;
@@ -239,7 +283,19 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         const float maxTextW = maxPillW - btnPad * 2.0f;
         const float ty = pillY + (pillH - MIN_FONT * sc) * 0.5f;
         if (sel != mMinimaMarqueeSel) { mMinimaMarqueeSel = sel; mMinimaMarquee = 0.0f; mMinimaMarqueeStart = (int64_t)uptimeMillis(); }
-        if (tw <= maxTextW || maxTextW <= 0.0f) {
+        if (!val.empty()) {
+            // value-bearing selected row: full-width capsule, label left + value right (both black)
+            drawRoundedRect(lx, pillY, maxPillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);
+            const float vw = measureText(val.c_str(), fs);
+            float valRight = lx + maxPillW - btnPad;
+            if (pillY < statusBandBot && pillY + pillH > ry + pad)
+                valRight = fminf(valRight, statusPillLeft - 8.0f * sc);   // clear the status pill
+            const float vx = valRight - vw;
+            drawText(val.c_str(), vx, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);
+            const float lblMax = (vx - 12.0f * sc) - (lx + btnPad);
+            float lfs = fs; if (tw > lblMax && lblMax > 0.0f) lfs *= lblMax / tw;
+            drawText(lbl.c_str(), lx + btnPad, ty, lfs, 0.0f, 0.0f, 0.0f, 1.0f);
+        } else if (tw <= maxTextW || maxTextW <= 0.0f) {
             const float pillW = fminf(tw + btnPad * 2.0f, maxPillW);
             drawRoundedRect(lx, pillY, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);   // white capsule
             drawText(lbl.c_str(), lx + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // COLOR_LIST_TEXT_SELECTED black
@@ -452,6 +508,14 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
         float maxW = rw * 0.90f;
         if (tw > maxW && maxW > 0.0f) { fsS *= maxW / tw; tw = measureText(sub.c_str(), fsS); }
         drawText(sub.c_str(), cx - tw * 0.5f, ry + rh * 0.82f, fsS, 1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    // game-system rows: echo the On/Off (or field value) in the accent colour under the label,
+    // so the enable state is visible on the bottom screen too.
+    if (selItem && (selItem->kind == PS3_GS_SYSTEM_ROW || selItem->kind == PS3_GS_FIELD)
+        && !selItem->value.empty()) {
+        float fsV = (18.0f * sc) / (float)FONT_CHAR_H;
+        float vw = measureText(selItem->value.c_str(), fsV);
+        drawText(selItem->value.c_str(), cx - vw * 0.5f, ry + rh * 0.90f, fsV, ar, ag, ab, 1.0f);
     }
     mTextOutlineMode = minPrevOutline;
 }

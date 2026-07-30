@@ -5284,7 +5284,22 @@ if (sRingPrimedCount >= 2) {
                                 // Game tiles show per-system ROM counts (and
                                 // appear/disappear with them): refresh the PS3
                                 // cats once the user is at the settled root.
-                                if (romsChanged) mPs3CatsStale = true;
+                                if (romsChanged) {
+                                    mPs3CatsStale = true;
+                                    // Rebuild an OPEN ROM column for this system in place so a
+                                    // rescan that added or (importantly) removed titles updates
+                                    // the visible list immediately, instead of showing stale
+                                    // entries until the user backs out and re-enters (user
+                                    // 2026-07-30). buildRomSubmenu tags a ROM level with sysIdx.
+                                    for (auto& lvl : mPs3Stack) {
+                                        if (lvl.sysIdx != i) continue;
+                                        int keep = lvl.sel;
+                                        buildRomSubmenu(i, lvl);
+                                        int nn = (int)lvl.items.size();
+                                        if (keep >= nn) keep = nn - 1;
+                                        lvl.sel = keep < 0 ? 0 : keep;
+                                    }
+                                }
                                 // Queue the cache write for the writer thread
                                 // below: the file I/O (mkdir/open/write/fsync
                                 // latency on f2fs) used to run right here ON

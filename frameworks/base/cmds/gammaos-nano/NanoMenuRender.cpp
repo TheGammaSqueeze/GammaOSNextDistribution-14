@@ -938,6 +938,10 @@ bool NanoMenu::ndsCurLevelIsList() const {
         switch (mPs3Stack.back().screenKind) {
             case FE_BROWSE: case NS_LIST: case NS_EDITOR:
             case SHADER_BROWSE: case GS_FOLDERBROWSE:
+            // Game system list and per-system editor hold GS-kind rows (PS3_GS_SYSTEM_ROW,
+            // PS3_GS_FIELD) which the item-kind whitelist below does not cover. Force list
+            // mode here so Enabled toggles and scraper rows are navigable in Minima/NDS.
+            case GS_LIST: case GS_EDITOR:
                 return true;
             default: break;
         }
@@ -1130,16 +1134,31 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         // Quick Menu items, and action rows that carry a real glyph (e.g. System Update = xmb_icon_008,
         // which the user confirmed the XMB shows). The ~219 leaf rows that share the generic settings
         // glyph (DATA icon index 22) stay text-only, matching the real DSi text list and avoiding a wall
-        // of identical icons. The row's current VALUE is NOT shown in the list: the user enters the row
-        // to see/change it (user 2026-07-11) - so a row is just [icon] label, or a centred label.
+        // of identical icons. Generic settings rows still HIDE their value (enter the row to change it,
+        // user 2026-07-11), but game-system rows (GS_LIST On/Off list + GS_EDITOR fields) DO show their
+        // value right-aligned so the enable state reads at a glance (user 2026-07-30).
         const int  iconIdx     = items[i].data ? items[i].data->icon : -1;   // -1 = Quick/dynamic (no DATA node)
         const bool genericIcon = (iconIdx == 22);                            // shared placeholder settings glyph
         const bool hasIcon     = items[i].iconTex && !genericIcon;
+        const bool showVal     = (items[i].kind == PS3_GS_SYSTEM_ROW || items[i].kind == PS3_GS_FIELD)
+                                 && !items[i].value.empty();
+        float rightEdge = X(bx + bw - 9.0f);
+        if (showVal) {
+            float vw = measureText(items[i].value.c_str(), fs);
+            drawText(items[i].value.c_str(), rightEdge - vw, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+            rightEdge = rightEdge - vw - S(10.0f);                           // label clipped before the value
+        }
         if (hasIcon) {
             float isz = S(18.0f);
             drawIconTex(items[i].iconTex, X(bx + 8.0f), Y(rowY + (bh - 18.0f) * 0.5f), isz, isz, ic, ic, ic, 1.0f);
             float labelLeft = X(bx + 32.0f);                                 // label left-aligned after the icon
-            float lmax = X(bx + bw - 9.0f) - labelLeft;
+            float lmax = rightEdge - labelLeft;
+            float lw = measureText(lbl.c_str(), fs);
+            if (lw > lmax && lmax > 0.0f) fs *= lmax / lw;
+            drawText(lbl.c_str(), labelLeft, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+        } else if (showVal) {
+            float labelLeft = X(bx + 12.0f);                                 // value row: label left, value right
+            float lmax = rightEdge - labelLeft;
             float lw = measureText(lbl.c_str(), fs);
             if (lw > lmax && lmax > 0.0f) fs *= lmax / lw;
             drawText(lbl.c_str(), labelLeft, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
@@ -5098,9 +5117,14 @@ void NanoMenu::render() {
                                       (mPs3DlgGameInfo || mPs3DlgRomInfo);
             const bool minDialog    = !minSidePanel && !minInfoPage && (mPs3DlgActive || mPs3DlgClosing);
             const bool minSearch    = mGSearchActive;   // SELECT global search: Minima results over the home
-            // The OSK renders on the bottom touch panel, so it must NOT force the top to XMB. Remaining
-            // modals (tz/lang pickers, net wizard, photo grid) still use the XMB chrome for now.
-            const bool minOtherModal = ndsInModal() && !minSidePanel && !minInfoPage && !minDialog && !minSearch && !mOskActive;
+            // The OSK renders on the bottom touch panel, so it must NOT force the top to XMB. The
+            // brightness/volume slider HUD and the boxart-scraper progress modal are now themed for
+            // Minima and render OVER the Minima home, so they must not fall into the XMB fallback
+            // either (user 2026-07-30). Remaining unskinned modals (tz/lang pickers, net wizard,
+            // photo grid) still use the XMB chrome for now.
+            const bool minOtherModal = ndsInModal() && !minSidePanel && !minInfoPage && !minDialog
+                                       && !minSearch && !mOskActive
+                                       && !mPs3BrightSlider && !mScrapeProgActive;
             if (minOtherModal) {
                 renderPs3Xmb();
             } else {

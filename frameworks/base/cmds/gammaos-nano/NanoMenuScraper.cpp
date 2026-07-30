@@ -607,11 +607,45 @@ void NanoMenu::renderScrapeProgress() {
         running = mScrapeRunning; status = mScrapeStatus; err = mScrapeError;
     }
 
-    drawQuad(0, 0, W, H, 0.0f, 0.0f, 0.0f, 0.55f);          // dim backdrop
+    // Theme the modal chrome to match the active home instead of always showing the XMB-style
+    // dark panel (user 2026-07-30): XMB = dark panel + blue accent; DSi = light message box +
+    // favColour blue; Minima = flat dark card + the Colour accent. Layout is shared.
+    float panR, panG, panB, panA;   // panel fill
+    float accR, accG, accB;         // accent (top edge + progress fill + title)
+    float t1R, t1G, t1B;            // primary text
+    float t2R, t2G, t2B;            // secondary text
+    float dimA, rad;                // backdrop dim, panel corner radius (0 = square)
+    if (mNdsTheme) {
+        panR = 0.97f; panG = 0.97f; panB = 0.98f; panA = 1.0f;
+        accR = 0.16f; accG = 0.42f; accB = 0.85f;               // DSi favColour blue
+        t1R = 0.20f; t1G = 0.20f; t1B = 0.22f;
+        t2R = 0.40f; t2G = 0.42f; t2B = 0.48f;
+        dimA = 0.42f; rad = 8.0f * sf;
+    } else if (mMinimaTheme) {
+        minimaAccent(accR, accG, accB);
+        panR = 0.06f; panG = 0.07f; panB = 0.09f; panA = 0.97f;
+        t1R = 1.0f; t1G = 1.0f; t1B = 1.0f;
+        t2R = 0.72f; t2G = 0.75f; t2B = 0.80f;
+        dimA = 0.55f; rad = 10.0f * sf;
+    } else {
+        panR = 0.07f; panG = 0.08f; panB = 0.10f; panA = 0.94f;
+        accR = 0.47f; accG = 0.78f; accB = 1.0f;
+        t1R = 1.0f; t1G = 1.0f; t1B = 1.0f;
+        t2R = 0.75f; t2G = 0.78f; t2B = 0.82f;
+        dimA = 0.55f; rad = 0.0f;
+    }
+
+    drawQuad(0, 0, W, H, 0.0f, 0.0f, 0.0f, dimA);           // dim backdrop
     float pw = W * 0.62f, ph = H * 0.30f;
     float px = (W - pw) * 0.5f, py = (H - ph) * 0.5f;
-    drawQuad(px, py, pw, ph, 0.07f, 0.08f, 0.10f, 0.94f);   // panel
-    drawQuad(px, py, pw, 3.0f * sf, 0.47f, 0.78f, 1.0f, 0.9f);  // accent top edge
+    if (rad > 0.0f) {
+        drawRoundedRect(px, py + 3.0f * sf, pw, ph, rad, 0.0f, 0.0f, 0.0f, 0.35f);   // soft shadow
+        drawRoundedRect(px, py, pw, ph, rad, panR, panG, panB, panA);                // panel
+        drawRoundedRect(px, py, pw, 3.0f * sf, rad, accR, accG, accB, 0.95f);        // accent top edge
+    } else {
+        drawQuad(px, py, pw, ph, panR, panG, panB, panA);                            // panel
+        drawQuad(px, py, pw, 3.0f * sf, accR, accG, accB, 0.9f);                     // accent top edge
+    }
 
     float cx = W * 0.5f;
     auto centered = [&](const char* s, float y, float scale, float r, float g, float b, float a) {
@@ -620,31 +654,37 @@ void NanoMenu::renderScrapeProgress() {
     };
 
     const char* title = trDyn("Boxart Scraper");
-    centered(title, py + ph * 0.20f, 1.7f * sf, 1.0f, 1.0f, 1.0f, 1.0f);
+    centered(title, py + ph * 0.18f, 1.7f * sf, accR, accG, accB, 1.0f);   // title in the theme accent
 
     char line[256];
     if (!running && mScrapeDoneFlag) {
         if (!err.empty() && hits == 0) {
-            centered(err.c_str(), py + ph * 0.52f, 1.0f * sf, 1.0f, 0.85f, 0.6f, 1.0f);
+            centered(err.c_str(), py + ph * 0.52f, 1.0f * sf, t1R, t1G, t1B, 1.0f);
         } else {
             snprintf(line, sizeof(line),
                      hits == 1 ? trDyn("Done. %d game with art, %d not found.")
                                : trDyn("Done. %d games with art, %d not found."),
                      hits, fail);
-            centered(line, py + ph * 0.50f, 1.15f * sf, 0.85f, 1.0f, 0.85f, 1.0f);
+            centered(line, py + ph * 0.50f, 1.15f * sf, t1R, t1G, t1B, 1.0f);
         }
-        centered(themeButtonText(trDyn("Press Cross or Circle to close")).c_str(), py + ph * 0.80f, 0.95f * sf, 0.75f, 0.78f, 0.82f, 0.9f);
+        centered(themeButtonText(trDyn("Press Cross or Circle to close")).c_str(), py + ph * 0.82f, 0.95f * sf, t2R, t2G, t2B, 0.95f);
     } else {
         snprintf(line, sizeof(line), trDyn("%d / %d   (%d found)"), done, total, hits);
-        centered(line, py + ph * 0.46f, 1.3f * sf, 1.0f, 1.0f, 1.0f, 1.0f);
+        centered(line, py + ph * 0.42f, 1.3f * sf, t1R, t1G, t1B, 1.0f);
+        // progress bar (accent fill on a dim track), in the theme accent
+        const float barW = pw * 0.72f, barH = 6.0f * sf;
+        const float barX = cx - barW * 0.5f, barY = py + ph * 0.56f;
+        drawRoundedRect(barX, barY, barW, barH, barH * 0.5f, t2R, t2G, t2B, 0.28f);
+        float frac = (total > 0) ? (float)done / (float)total : 0.0f;
+        if (frac > 0.0f) drawRoundedRect(barX, barY, barW * frac, barH, barH * 0.5f, accR, accG, accB, 1.0f);
         // current game (clipped)
         std::string s = status;
         if (measureText(s.c_str(), 0.95f * sf) > pw * 0.9f) {
             while (s.size() > 4 && measureText((s + "...").c_str(), 0.95f * sf) > pw * 0.9f) s.pop_back();
             s += "...";
         }
-        centered(s.c_str(), py + ph * 0.66f, 0.95f * sf, 0.78f, 0.82f, 0.88f, 1.0f);
-        centered(themeButtonText(trDyn("Press Circle to cancel")).c_str(), py + ph * 0.86f, 0.9f * sf, 0.7f, 0.72f, 0.76f, 0.85f);
+        centered(s.c_str(), py + ph * 0.72f, 0.95f * sf, t2R, t2G, t2B, 1.0f);
+        centered(themeButtonText(trDyn("Press Circle to cancel")).c_str(), py + ph * 0.88f, 0.9f * sf, t2R, t2G, t2B, 0.9f);
     }
 }
 
