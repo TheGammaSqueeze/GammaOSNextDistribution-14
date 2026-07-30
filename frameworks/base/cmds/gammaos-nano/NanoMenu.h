@@ -2151,6 +2151,7 @@ private:
     bool mPs3CatsStale = false;
     Ps3Item makeDataItem(const Ps3DataItem* d);   // runtime item from a DATA node
     void buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out);
+    bool themeSettingRowVisible(const char* name) const;   // hide theme-irrelevant appearance rows per active theme
     void buildRomSubmenu(int sysIdx, Ps3Level& out);
     // Quick Menu (nano legacy global actions): the Power submenu builder, the
     // performance-mode side-panel chooser, and the kill-apps backend.

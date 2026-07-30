@@ -581,13 +581,34 @@ void NanoMenu::initPs3Menu() {
     ndsRestoreReturnPath();
 }
 
+// Theme Settings appearance rows that only affect one home theme are hidden in the others,
+// so it is clear which setting applies to the active theme (user request). Only these named
+// rows are gated; every other data row is always shown. Named-based so it is inert in the
+// Date/Time / System / etc. submenus (which share buildDataSubmenu but have none of these names).
+bool NanoMenu::themeSettingRowVisible(const char* name) const {
+    if (!name) return true;
+    const bool xmb    = !mNdsTheme && !mMinimaTheme;
+    const bool minima = mMinimaTheme;
+    auto is = [&](const char* n) { return strcmp(name, n) == 0; };
+    // XMB-only appearance: the wave/particle Background + effect picker, the XMB font and the
+    // day/night lighting have no effect in the DSi or Minima home.
+    if (is("Background") || is("Wallpaper") || is("Font") || is("Day/Night")) return xmb;
+    // The wave exists on XMB and (opt-in) Minima, but never the DSi carousel.
+    if (is("XMB Wave")) return xmb || minima;
+    // The Minima solid background colour is meaningless on XMB / DSi.
+    if (is("Background Colour")) return minima;
+    return true;
+}
+
 // Build a submenu level from a static DATA node's children.
 void NanoMenu::buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out) {
     out.items.clear(); out.sel = 0;
     out.title = node ? node->name : "";
     if (!node || !node->children) return;
-    for (int i = 0; i < node->childCount; i++)
+    for (int i = 0; i < node->childCount; i++) {
+        if (!themeSettingRowVisible(node->children[i].name)) continue;
         out.items.push_back(makeDataItem(&node->children[i]));
+    }
 }
 
 void NanoMenu::buildRomSubmenu(int sysIdx, Ps3Level& out) {
@@ -7119,6 +7140,14 @@ void NanoMenu::loadPs3ThemeSettings() {
         } else {
             mXmbWave = (atoi(wb) != 0);
         }
+        // Minima is a black canvas by default and only shows the wave when the user has
+        // EXPLICITLY turned the XMB Wave toggle on (not the derived default materialised
+        // above), so it needs a separate persisted "the user chose this" flag - the wave
+        // prop alone cannot tell a user choice from the boot-time default. XMB reads
+        // mXmbWave directly and ignores this. Default off -> Minima stays black until opted in.
+        char we[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.ps3xmb.wave_explicit", we, "0");
+        mXmbWaveExplicit = (we[0] == '1');
     }
 }
 
@@ -9866,9 +9895,13 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     }
                     // XMB Wave on/off: apply live (the home is the resident overlay on the RG DS, so a
                     // property_set alone would not repaint). renderEffect reads mXmbWave every frame;
-                    // mDisplayDirty above forces the repaint.
-                    if (!strcmp(b->label, "XMB Wave"))
+                    // mDisplayDirty above forces the repaint. Toggling it is the EXPLICIT user choice
+                    // that lets the Minima theme opt into the wave (persisted so it survives a reboot).
+                    if (!strcmp(b->label, "XMB Wave")) {
                         mXmbWave = (v == "1" || v == "true");
+                        mXmbWaveExplicit = true;
+                        property_set("persist.gammaos.nano.ps3xmb.wave_explicit", "1");
+                    }
                     // Bottom Clock on/off: apply live. mPs3BottomClock is cached once at startup
                     // (NanoMenu.cpp constructor) and every render/reveal gate reads the MEMBER, not the
                     // prop, so writeSettingValue alone would not take effect until reboot. Flip the member
