@@ -5255,13 +5255,21 @@ if (sRingPrimedCount >= 2) {
                             // trip the path guard). So skip the guards for a user rescan.
                             if (res.roms.size() < sys.roms.size() && sys.scanned
                                     && !mRecentPrunePending) {
-                                // Time guard: always block within 60s of boot
-                                static int64_t sBootCompletedTime = 0;
-                                if (sBootCompletedTime == 0)
-                                    sBootCompletedTime = elapsedRealtime();
-                                if ((elapsedRealtime() - sBootCompletedTime) < 60000)
-                                    continue;
-                                // Path guard: block if fewer paths accessible
+                                // Partial-mount guard. An AUTOMATIC scan must not drop ROMs just
+                                // because storage was still mounting (an unready source card reads
+                                // as empty). Block the shrink ONLY when a source dir that held ROMs
+                                // is no longer accessible (fewer active paths = a real partial mount),
+                                // or when the very-first post-boot scan came back COMPLETELY empty for
+                                // a system that had ROMs (the classic mount race). When every source
+                                // dir is still present and the scan still found some ROMs, fewer ROMs
+                                // is a GENUINE deletion: reflect it now, even at boot, so a game removed
+                                // from disk disappears without needing a manual Rescan (user 2026-07-30,
+                                // backlog item 10). The old blanket "block any shrink within 60s of boot"
+                                // was what kept a deleted ROM (and its stale .list cache) around.
+                                // A user Rescan (mRecentPrunePending) skips this entirely and prunes verbatim.
+                                static int64_t sScanStart = 0;
+                                if (sScanStart == 0) sScanStart = elapsedRealtime();
+                                bool earlyBoot = (elapsedRealtime() - sScanStart) < 15000;
                                 size_t curPaths = sys.activePaths.size();
                                 if (curPaths == 0 && !sys.roms.empty()) {
                                     std::set<std::string> dirs;
@@ -5272,7 +5280,14 @@ if (sRingPrimedCount >= 2) {
                                     }
                                     curPaths = dirs.size();
                                 }
-                                if (res.activePaths.size() < curPaths) continue;
+                                bool fewerPaths = res.activePaths.size() < curPaths;
+                                // Block only a genuine partial mount: a source dir that held ROMs is
+                                // no longer accessible, or the very-first post-boot scan of a system
+                                // that had ROMs came back completely empty (the classic mount race).
+                                // The scan runs only after storage is mounted (mStorageReady), so a
+                                // non-empty result with every source dir present is trustworthy - a
+                                // smaller count is a real deletion and drops immediately, even at boot.
+                                if (fewerPaths || (earlyBoot && res.roms.empty())) continue;
                             }
                             bool romsChanged = (res.roms != sys.roms);
                             if (romsChanged || !sys.scanned) {

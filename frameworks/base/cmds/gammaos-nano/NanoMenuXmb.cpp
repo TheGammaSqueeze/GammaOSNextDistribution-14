@@ -1730,12 +1730,16 @@ void NanoMenu::pruneStaleRecentEntries() {
 // rebuilds each system's list from disk rather than merging, so games that have been deleted drop
 // out on their own; the Recently Played list is pruned when the results land (see the scan drain).
 void NanoMenu::gamesRefresh() {
+    // Prune deleted games verbatim when the results land, even if a scan is already mid-flight
+    // (so a rescan requested while the boot/periodic scan is running is not silently lost - the
+    // "had to refresh twice" report). The running scan's results then prune without the guard.
+    mRecentPrunePending = true;
     if (mBgScanThreadRunning) {
-        showXmbMessage("Already scanning for games", "", 150);
+        showXmbMessage("Scanning for games...", "Deleted games will be removed", 200);
+        mDisplayDirty = true;
         return;
     }
     ALOGI("NanoMenu: user-triggered game rescan");
-    mRecentPrunePending = true;   // prune once the fresh scan results are applied
     forceRescanAllSystems();
     showXmbMessage("Scanning for games...", "Deleted games will be removed", 200);
     mDisplayDirty = true;
