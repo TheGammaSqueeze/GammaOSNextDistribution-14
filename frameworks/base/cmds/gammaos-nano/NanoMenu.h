@@ -234,6 +234,14 @@ public:
         bool standalone;
     };
 
+    // A user Collection: a named group of games that can span systems (e.g. "TAC" holding
+    // FF Tactics + Fire Emblem). Stored as ROM paths; resolved to the live system/rom at
+    // display time so a collection game reuses the normal PS3_ROM launch/boxart/option menu.
+    struct XmbCollection {
+        std::string name;
+        std::vector<std::string> roms;   // full ROM paths
+    };
+
     enum MenuState {
         MENU_MAIN = 0,
         MENU_RECENT = 1,
@@ -1174,6 +1182,20 @@ private:
     float ps3DlgFontBoost() const;
     std::vector<XmbRecentEntry> mXmbRecent; // Recently played from XMB
     int mXmbRecentMax;                       // Max entries to keep
+    // User Collections (cross-system game groups). Persisted line-delimited to
+    // /data/system/nano_collections.txt. A collection's game-list level carries its index in
+    // Ps3Level.collectionIdx so a game's option menu there can offer Remove from Collection.
+    std::vector<XmbCollection> mXmbCollections;
+    void loadCollections();
+    void saveCollections();
+    // buildCollectionsSubmenu / buildCollectionSubmenu take Ps3Level& and MUST be declared after the
+    // Ps3Level struct (see the note by buildRecentSubmenu) - they are, below.
+    bool collectionResolveRom(const std::string& romPath, int* sysIdx, int* romIdx);
+    int  collectionCreate(const std::string& name);     // create empty, returns index (or existing match)
+    void collectionAddRom(int colIdx, const std::string& romPath);
+    void collectionRemoveRom(int colIdx, const std::string& romPath);
+    void openAddToCollectionDialog(const std::string& romPath);   // chooser: New + each collection
+    std::string mPendingCollectionRom;   // rom awaiting an Add-to-Collection choice / new-collection name
     std::vector<XmbSystem> mXmbSystems;
     int mXmbSystemIndex;       // Currently selected system
     int mXmbGameIndex;         // Currently selected game in current system
@@ -1199,6 +1221,9 @@ private:
         PS3_RECENT,       // a recent entry -> launch (a = recent idx)
         PS3_APP_LIST,     // "Applications" -> app submenu
         PS3_APP,          // an installed app -> launch (a = app idx)
+        PS3_COLLECTIONS_LIST, // "Collections" entry under Game -> the collections list
+        PS3_COLLECTION,   // a user collection -> its games submenu (a = collection idx)
+        PS3_COLLECTION_NEW,   // "New Collection..." row -> OSK name -> create an empty collection
         PS3_SETTING,      // a settings entry (a = action: 0 Wi-Fi, 1 Bluetooth, 2 settings tree)
         PS3_LAUNCH_PKG,   // launch a package (payloadStr = package name)
         PS3_DATA_SUBMENU, // a static DATA item with children -> submenu (data*)
@@ -1303,6 +1328,8 @@ private:
         int screenKind = 0;   // 0 = normal submenu; GS_* for the Game Systems editor screens
         int sysIdx = -1;      // >=0 only for a ROM list level (set by buildRomSubmenu); lets a
                               // rescan rebuild the open ROM column in place. -1 for every other level.
+        int collectionIdx = -1;  // >=0 only for a collection's game list (set by buildCollectionSubmenu);
+                                 // lets a game's option menu there offer Remove from Collection.
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)
@@ -2311,6 +2338,8 @@ private:
     void overlayKillAll();   // Quick Menu Kill All Apps (overlay): hard-stop every app incl the game, no relaunch
     void buildRecentSubmenu(Ps3Level& out);
     void buildAppSubmenu(Ps3Level& out);
+    void buildCollectionsSubmenu(Ps3Level& out);            // the list of collections + New Collection...
+    void buildCollectionSubmenu(int colIdx, Ps3Level& out); // one collection's games (resolved PS3_ROM rows)
     // Game Systems editor (dynamic systems config). The list screen shows every
     // configured system (enabled + disabled) with enable/disable + reorder; later
     // phases add the per-system editor, folder picker, and icon grid.

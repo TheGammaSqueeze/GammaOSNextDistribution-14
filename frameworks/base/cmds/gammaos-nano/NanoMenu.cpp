@@ -881,6 +881,7 @@ status_t NanoMenu::readyToRun() {
     if (!sDrasticQrFastPath) {
         initXmbSystems();
         loadXmbRecent();
+        loadCollections();
     }
     openInputDevices();
     if (!sDrasticQrFastPath) {

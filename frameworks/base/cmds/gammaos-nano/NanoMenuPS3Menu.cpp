@@ -1183,6 +1183,13 @@ void NanoMenu::buildPs3Cats() {
         { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
           it.iconTex = mIconTextures[18]; it.nmapTex = bevelForIconIdx(18);   // app-grid glyph (index 18), NOT the generic game cartridge (16)
           it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
+        // Collections: cross-system game groups. Shown once the user has made at least one (created
+        // via a game's "Add to Collection" option or the New Collection... row inside).
+        if (!mXmbCollections.empty()) {
+            Ps3Item it; it.label = "Collections"; it.kind = PS3_COLLECTIONS_LIST;
+            it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);
+            it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
+        }
         for (size_t s = 0; s < mXmbSystems.size(); s++) {
             const XmbSystem& sys = mXmbSystems[s];
             if (!sys.enabled) continue;
@@ -3783,6 +3790,22 @@ void NanoMenu::gsOpenLaunchTypeChooser() {
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
 }
 
+// "Add to Collection": a themed option dialog listing New Collection... plus every existing
+// collection. The chosen ROM is stashed in mPendingCollectionRom; applyThemeSetting case 44
+// either opens the OSK to name a new collection (then adds) or adds to the picked one.
+void NanoMenu::openAddToCollectionDialog(const std::string& romPath) {
+    mPendingCollectionRom = romPath;
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgType = 0; mPs3DlgThemeKey = 44; mPs3DlgBinding = nullptr;
+    mPs3DlgTitle = "Add to Collection"; mPs3DlgBody.clear();
+    mPs3DlgOptions.push_back("New Collection...");  mPs3DlgSwatch.push_back(-1);
+    for (const auto& c : mXmbCollections) { mPs3DlgOptions.push_back(c.name); mPs3DlgSwatch.push_back(-1); }
+    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
 // gsOpenTintChooser() is defined further down, next to the kPs3ColorOpts table.
 
 // Per-system scraper override chooser (Default = inherit the global Settings).
@@ -4372,6 +4395,23 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_SYSTEM:       { Ps3Level lvl; buildRomSubmenu(it.a, lvl);     mPs3Stack.push_back(lvl); break; }
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
+        case PS3_COLLECTIONS_LIST: { Ps3Level lvl; buildCollectionsSubmenu(lvl);      mPs3Stack.push_back(lvl); break; }
+        case PS3_COLLECTION:       { Ps3Level lvl; buildCollectionSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
+        case PS3_COLLECTION_NEW:
+            // Name a new (empty) collection, then refresh the open collections list so it appears.
+            openOskForPassword("New collection name", [this](const std::string& name) {
+                if (name.empty()) return;
+                collectionCreate(name);
+                buildPs3Cats();
+                if (!mPs3Stack.empty() && !mPs3Stack.back().items.empty()
+                    && mPs3Stack.back().items.back().kind == PS3_COLLECTION_NEW) {
+                    int keep = mPs3Stack.back().sel;
+                    buildCollectionsSubmenu(mPs3Stack.back());
+                    int n = (int)mPs3Stack.back().items.size();
+                    mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+                }
+            });
+            break;
         case PS3_DATA_SUBMENU: {
             if (it.label == "GammaEQ") warmEqPreview();   // preload the clip before the user reaches Audio Preview
             Ps3Level lvl;
@@ -9818,6 +9858,23 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             }
             break;
         }
+        case 44: {   // Add to Collection: sel 0 = New Collection... (OSK), else add to collection sel-1
+            std::string rom = mPendingCollectionRom;
+            if (rom.empty()) break;
+            if (sel == 0) {
+                openOskForPassword("New collection name", [this, rom](const std::string& name) {
+                    if (name.empty()) return;
+                    int ci = collectionCreate(name);
+                    if (ci >= 0) collectionAddRom(ci, rom);
+                    buildPs3Cats();   // the Collections entry appears once the first one exists
+                });
+            } else if (sel - 1 < (int)mXmbCollections.size()) {
+                collectionAddRom(sel - 1, rom);
+                buildPs3Cats();
+            }
+            mPendingCollectionRom.clear();
+            break;
+        }
         default: break;
     }
 }
@@ -10328,6 +10385,10 @@ void NanoMenu::openXmbOpt() {
                 const ScrapeEntry* be = scrapeEntryFor(boxRom);
                 if (be && !be->box.empty()) add("Reset Boxart", "resetboxart", false);
             }
+            // Collections: add this game to a collection, or remove it if we are inside one.
+            add("Add to Collection", "addcol", false);
+            if (!mPs3Stack.empty() && mPs3Stack.back().collectionIdx >= 0)
+                add("Remove from Collection", "rmcol", false);
             break;
         }
         case PS3_APP: {
@@ -10444,6 +10505,11 @@ void NanoMenu::openXmbOpt() {
             // option menu is shared.)
             add("Manage Game System", "managegs", true);
             add("Information", "info", false);
+            break;
+        case PS3_COLLECTION:
+            add("Open", "colopen", true);
+            add("Rename Collection", "colrename", false);
+            add("Delete Collection", "delcol", false);
             break;
         default:
             add("Information", "info", false); break;
@@ -11209,6 +11275,70 @@ void NanoMenu::xmbOptAction(const std::string& act) {
     if (act == "rmvideofolder") { videoRemoveFolder(mPs3OptCtxA); return; }
     if (act == "rmphotofolder") { photoRemoveFolder(mPs3OptCtxA); return; }
     if (act == "rmscansrc")     { gsRemoveScanSource(mPs3OptCtxA); return; }
+    if (act == "addcol" || act == "rmcol") {
+        // Resolve the focused game's ROM path from the option context (PS3_ROM = system+rom index,
+        // PS3_RECENT = the stored recent path).
+        std::string romPath;
+        if (mPs3OptCtxKind == PS3_ROM && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbSystems.size()
+            && mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)mXmbSystems[mPs3OptCtxA].roms.size())
+            romPath = mXmbSystems[mPs3OptCtxA].roms[mPs3OptCtxB];
+        else if (mPs3OptCtxKind == PS3_RECENT && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbRecent.size())
+            romPath = mXmbRecent[mPs3OptCtxA].romPath;
+        if (romPath.empty()) return;
+        if (act == "addcol") { openAddToCollectionDialog(romPath); return; }
+        // rmcol: remove from the collection whose game list we are viewing, then rebuild it in place.
+        if (!mPs3Stack.empty() && mPs3Stack.back().collectionIdx >= 0) {
+            int ci = mPs3Stack.back().collectionIdx;
+            collectionRemoveRom(ci, romPath);
+            int keep = mPs3Stack.back().sel;
+            buildCollectionSubmenu(ci, mPs3Stack.back());
+            int n = (int)mPs3Stack.back().items.size();
+            mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+            mDisplayDirty = true;
+        }
+        return;
+    }
+    if (act == "colopen") {   // Open a collection (same as A on it)
+        int ci = mPs3OptCtxA;
+        if (ci < 0 || ci >= (int)mXmbCollections.size()) return;
+        Ps3Level lvl; buildCollectionSubmenu(ci, lvl); mPs3Stack.push_back(lvl);
+        mDisplayDirty = true;
+        return;
+    }
+    if (act == "colrename") {
+        int ci = mPs3OptCtxA;
+        if (ci < 0 || ci >= (int)mXmbCollections.size()) return;
+        std::string cur = mXmbCollections[ci].name;
+        openOskForPassword("Rename collection", [this, ci](const std::string& name) {
+            if (name.empty() || ci >= (int)mXmbCollections.size()) return;
+            mXmbCollections[ci].name = name;
+            saveCollections();
+            if (!mPs3Stack.empty() && !mPs3Stack.back().items.empty()
+                && mPs3Stack.back().items.back().kind == PS3_COLLECTION_NEW) {
+                int keep = mPs3Stack.back().sel; buildCollectionsSubmenu(mPs3Stack.back());
+                int n = (int)mPs3Stack.back().items.size();
+                mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+            }
+        });
+        mOskPasswordMode = false; mOskPlaintext = true;   // prefill AFTER openOskForPassword clears it
+        mOskQuery = cur; mOsk.caret = (int)mOskQuery.size();
+        return;
+    }
+    if (act == "delcol") {
+        int ci = mPs3OptCtxA;
+        if (ci < 0 || ci >= (int)mXmbCollections.size()) return;
+        mXmbCollections.erase(mXmbCollections.begin() + ci);
+        saveCollections();
+        buildPs3Cats();   // the Game > Collections entry disappears if that was the last collection
+        if (!mPs3Stack.empty() && !mPs3Stack.back().items.empty()
+            && mPs3Stack.back().items.back().kind == PS3_COLLECTION_NEW) {
+            int keep = mPs3Stack.back().sel; buildCollectionsSubmenu(mPs3Stack.back());
+            int n = (int)mPs3Stack.back().items.size();
+            mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+        }
+        mDisplayDirty = true;
+        return;
+    }
     if (act == "managegs") {
         // Manage Game System: jump into Settings > Game Settings > Game System for the
         // focused system (mPs3OptCtxA = mXmbSystems index), building the natural

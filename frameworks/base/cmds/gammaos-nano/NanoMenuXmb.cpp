@@ -1509,6 +1509,129 @@ void NanoMenu::saveXmbRecent() {
     close(fd);
 }
 
+// ---- User Collections (cross-system game groups) --------------------------------------------
+static const char* kCollectionsFile = "/data/system/nano_collections.txt";
+
+void NanoMenu::loadCollections() {
+    mXmbCollections.clear();
+    FILE* f = fopen(kCollectionsFile, "r");
+    if (!f) return;
+    char line[4096];
+    XmbCollection cur; bool haveName = false;
+    while (fgets(line, sizeof(line), f)) {
+        size_t n = strlen(line);
+        while (n > 0 && (line[n - 1] == '\n' || line[n - 1] == '\r')) line[--n] = 0;
+        if (n == 0) {                                   // blank line terminates a collection
+            if (haveName) mXmbCollections.push_back(cur);
+            cur = XmbCollection(); haveName = false;
+            continue;
+        }
+        if (!haveName) { cur.name = line; haveName = true; }
+        else            cur.roms.push_back(line);
+    }
+    if (haveName) mXmbCollections.push_back(cur);        // last one with no trailing blank
+    fclose(f);
+}
+
+void NanoMenu::saveCollections() {
+    int fd = open(kCollectionsFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) return;
+    chmod(kCollectionsFile, 0644);
+    for (const auto& c : mXmbCollections) {
+        std::string block = c.name + "\n";
+        for (const auto& r : c.roms) block += r + "\n";
+        block += "\n";
+        ssize_t w = write(fd, block.c_str(), block.size()); (void)w;
+    }
+    close(fd);
+}
+
+// Resolve a stored ROM path to a live (system, rom) index so a collection game reuses the normal
+// PS3_ROM launch/boxart/option-menu path. Returns false if the game's system is gone or disabled.
+bool NanoMenu::collectionResolveRom(const std::string& romPath, int* sysIdx, int* romIdx) {
+    for (size_t s = 0; s < mXmbSystems.size(); s++) {
+        const XmbSystem& sys = mXmbSystems[s];
+        for (size_t r = 0; r < sys.roms.size(); r++) {
+            if (sys.roms[r] == romPath) {
+                if (sysIdx) *sysIdx = (int)s;
+                if (romIdx) *romIdx = (int)r;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void NanoMenu::buildCollectionsSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Collections";
+    for (size_t i = 0; i < mXmbCollections.size(); i++) {
+        int cnt = 0;
+        for (const auto& r : mXmbCollections[i].roms)
+            if (collectionResolveRom(r, nullptr, nullptr)) cnt++;
+        Ps3Item it;
+        it.label = mXmbCollections[i].name;
+        it.kind = PS3_COLLECTION; it.a = (int)i;
+        char v[16]; snprintf(v, sizeof(v), "%d", cnt); it.value = v;
+        it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+    Ps3Item it; it.label = "New Collection..."; it.kind = PS3_COLLECTION_NEW;
+    it.iconTex = mIconTextures[18]; it.nmapTex = bevelForIconIdx(18);
+    it.iconR = it.iconG = it.iconB = 1.0f;
+    out.items.push_back(it);
+}
+
+void NanoMenu::buildCollectionSubmenu(int colIdx, Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.collectionIdx = colIdx;
+    if (colIdx < 0 || colIdx >= (int)mXmbCollections.size()) return;
+    const XmbCollection& c = mXmbCollections[colIdx];
+    out.title = c.name;
+    for (const auto& romPath : c.roms) {
+        int s = -1, r = -1;
+        if (!collectionResolveRom(romPath, &s, &r)) continue;   // skip games whose system is gone/disabled
+        const XmbSystem& sys = mXmbSystems[s];
+        Ps3Item it;
+        it.label = (r >= 0 && r < (int)sys.displayNames.size()) ? sys.displayNames[r] : romPath;
+        it.kind = PS3_ROM; it.a = s; it.b = r;
+        GLuint tex = 0, nmap = 0; resolveSystemIcon(sys.iconRef, &tex, &nmap);
+        it.iconTex = tex; it.nmapTex = nmap;
+        it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
+        out.items.push_back(it);
+    }
+    if (out.items.empty()) {
+        Ps3Item it; it.label = "There are no titles"; it.kind = PS3_DATA_LEAF; it.action = 0;
+        it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+
+int NanoMenu::collectionCreate(const std::string& name) {
+    if (name.empty()) return -1;
+    for (size_t i = 0; i < mXmbCollections.size(); i++)
+        if (mXmbCollections[i].name == name) return (int)i;   // reuse an existing name
+    XmbCollection c; c.name = name;
+    mXmbCollections.push_back(c);
+    saveCollections();
+    return (int)mXmbCollections.size() - 1;
+}
+
+void NanoMenu::collectionAddRom(int colIdx, const std::string& romPath) {
+    if (colIdx < 0 || colIdx >= (int)mXmbCollections.size() || romPath.empty()) return;
+    auto& roms = mXmbCollections[colIdx].roms;
+    for (const auto& r : roms) if (r == romPath) return;   // already present
+    roms.push_back(romPath);
+    saveCollections();
+}
+
+void NanoMenu::collectionRemoveRom(int colIdx, const std::string& romPath) {
+    if (colIdx < 0 || colIdx >= (int)mXmbCollections.size()) return;
+    auto& roms = mXmbCollections[colIdx].roms;
+    for (size_t i = 0; i < roms.size(); i++)
+        if (roms[i] == romPath) { roms.erase(roms.begin() + i); break; }
+    saveCollections();
+}
+
 // True when a ROM is actually present and launchable. A game whose file has been deleted or
 // whose card is not mounted used to be handed to the emulator anyway, which then died on the
 // missing file and looked like a crashed launch, so every launch path checks this first.

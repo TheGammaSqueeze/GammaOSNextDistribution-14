@@ -459,6 +459,7 @@ void NanoMenu::overlayShow() {
     // in-memory list drifts and the submenu showed a stale top entry / wrong index.
     // Re-reading here makes the list always reflect the most recently launched game.
     loadXmbRecent();
+    loadCollections();
 
     // Isolate the running app's input via the FRAMEWORK drop_input path: while it
     // is set, InputDispatcher drops keys + motion to the app (POWER and BACK are
