@@ -7059,6 +7059,12 @@ void NanoMenu::ndsAccentRGB(float& r, float& g, float& b) const {
     r = kPs3ColorOpts[idx].sr; g = kPs3ColorOpts[idx].sg; b = kPs3ColorOpts[idx].sb;
 }
 
+// True when the Colour setting is "Original" - the DSi keeps its baked blue sprites (dialog frame)
+// verbatim; any other accent swaps them for accent-coloured procedural equivalents.
+bool NanoMenu::ndsAccentIsDefault() const {
+    return mPs3ColorIdx <= 0 || mPs3ColorIdx >= kPs3ColorCount;
+}
+
 // Game Systems editor: icon-tint chooser (theme key 21). Defined here so it can
 // see the kPs3ColorOpts swatch table above. Applied on commit (applyThemeSetting
 // case 21); no live preview to keep cancel lossless for non-swatch built-in tints.

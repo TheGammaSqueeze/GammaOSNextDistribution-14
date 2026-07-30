@@ -1345,6 +1345,7 @@ private:
     void renderMinimaBootOverlay(bool primary);                        // Minima cold-boot intro + GammaOS disclaimer (NanoMenuPS3Boot.cpp)
     void minimaAccent(float& r, float& g, float& b) const;          // accent RGB from the shared Colour setting
     void ndsAccentRGB(float& r, float& g, float& b) const;          // DSi accent RGB (reference azure at "Original")
+    bool ndsAccentIsDefault() const;                                // true = Colour "Original" (keep the baked blue sprites)
     void ndsRecolor(float& r, float& g, float& b) const;            // hue-rotate a DSi blue shade toward the accent
     void ndsAccentTint(float& tr, float& tg, float& tb) const;      // per-channel tint to recolor the blue frame sprite
     bool minimaSolidBg(float* r, float* g, float* b);               // Theme > Background Colour: solid backdrop (else black)

@@ -1570,11 +1570,15 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     // blue = the device default). Falls back to the flat rounded rects if the sprite is missing.
     static GLuint gDsiDialogTex = 0;
     if (!gDsiDialogTex) gDsiDialogTex = ndsLoadTex("dialog_box_blue");
-    if (gDsiDialogTex) {
-        drawIconTex(gDsiDialogTex, px, pyTop, pw, ph, 1.0f, 1.0f, 1.0f, ap);   // colour-preserving
+    if (gDsiDialogTex && ndsAccentIsDefault()) {
+        drawIconTex(gDsiDialogTex, px, pyTop, pw, ph, 1.0f, 1.0f, 1.0f, ap);   // colour-preserving blue sprite
     } else {
+        // Non-Original accent (or the sprite is missing): a procedural panel with an ACCENT-coloured
+        // border around the white body, so the dialog frame follows the Colour setting too. The
+        // sprite's own white body cannot be tinted without staining the body, hence the rebuild.
+        float br, bg, bb; ndsAccentRGB(br, bg, bb);
         drawRoundedRect(px, pyTop + S(3.0f), pw, ph, S(6.0f), 0.05f, 0.05f, 0.05f, 0.55f * ap);   // drop shadow
-        drawRoundedRect(px, pyTop, pw, ph, S(6.0f), 0.86f, 0.87f, 0.89f, ap);                     // outer frame
+        drawRoundedRect(px, pyTop, pw, ph, S(6.0f), br, bg, bb, ap);                              // accent border
         drawRoundedRect(px + S(2.0f), pyTop + S(2.0f), pw - S(4.0f), ph - S(4.0f), S(5.0f), 0.97f, 0.97f, 0.98f, ap);  // white body
     }
 
@@ -2342,6 +2346,17 @@ void NanoMenu::drawNdsPillGrad(float x0, float y0, float wpx, float hpx,
         {0.000f,0.220f,0.827f},{0.000f,0.286f,0.890f},{0.000f,0.286f,0.890f},  // p4 p5 p5
         {0.000f,0.349f,0.953f},{0.094f,0.443f,0.984f},{0.188f,0.510f,0.984f},  // p6 p7 p8
     };
+    // Recolour the favColour gradient toward the Colour accent (identity at "Original"); the flat
+    // grey-rim pass keeps its literal grey. Done once into a local copy, before the interpolation.
+    float gAcc[21][3];
+    const float (*gs)[3] = g;
+    if (!flat) {
+        for (int i = 0; i < 21; i++) {
+            gAcc[i][0] = g[i][0]; gAcc[i][1] = g[i][1]; gAcc[i][2] = g[i][2];
+            ndsRecolor(gAcc[i][0], gAcc[i][1], gAcc[i][2]);
+        }
+        gs = gAcc;
+    }
     // Interpolate the 21 stops across ~4x sub-rows for a SMOOTH gradient (the web uses a
     // real linear gradient; discrete 1-DS-px rows band visibly at panel scale). The corners
     // are a crisp 3-DS-px radius arc (launcher._rrPath ro=3) - NOT the old aggressive
@@ -2360,9 +2375,9 @@ void NanoMenu::drawNdsPillGrad(float x0, float y0, float wpx, float hpx,
     for (int r = 0; r < rows; r++) {
         float t = (float)r / (float)(rows - 1) * 20.0f;   // position across the 21 stops
         int i = (int)t; if (i > 19) i = 19; float f = t - (float)i;
-        float R = g[i][0] * (1.0f - f) + g[i + 1][0] * f;
-        float G = g[i][1] * (1.0f - f) + g[i + 1][1] * f;
-        float B = g[i][2] * (1.0f - f) + g[i + 1][2] * f;
+        float R = gs[i][0] * (1.0f - f) + gs[i + 1][0] * f;
+        float G = gs[i][1] * (1.0f - f) + gs[i + 1][1] * f;
+        float B = gs[i][2] * (1.0f - f) + gs[i + 1][2] * f;
         if (flat) { R = fr; G = fg; B = fb; }             // grey-rim / flat-fill mode
         float yc = ((float)r + 0.5f) * rowH;              // row centre from the top
         float insL = cornerInset(yc, radL);              // left  corner inset (outer=3 rounded, inner=1.5 square)
@@ -2404,7 +2419,8 @@ void NanoMenu::drawNdsArrowBtn(float x0, float y0, float wpx, float hpx, int dir
     float ymid = y0 + hpx * (10.0f / 21.0f);
     float ybot = y0 + hpx * (14.0f / 21.0f);
     drawTriangle(bx, ytop, bx, ymid, tx, ymid, 0.984f, 0.984f, 0.984f, 1.0f);   // white top face
-    drawTriangle(bx, ymid, bx, ybot, tx, ymid, 0.573f, 0.859f, 0.984f, 1.0f);   // accent shadow (p12)
+    { float ar = 0.573f, ag = 0.859f, ab = 0.984f; ndsRecolor(ar, ag, ab);      // accent shadow (p12) -> accent
+      drawTriangle(bx, ymid, bx, ybot, tx, ymid, ar, ag, ab, 1.0f); }
     if (lb) endSolidBatch();
 }
 
