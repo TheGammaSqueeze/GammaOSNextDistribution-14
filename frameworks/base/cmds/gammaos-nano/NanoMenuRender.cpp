@@ -977,9 +977,64 @@ bool NanoMenu::ndsCurLevelIsList() const {
     return true;
 }
 
+// ---- DSi accent recolour ----
+// Small local HSV helpers (the ones in NanoMenuPS3Bg.cpp are file-static).
+static void ndsRgb2Hsv(float r, float g, float b, float& h, float& s, float& v) {
+    float mx = fmaxf(r, fmaxf(g, b)), mn = fminf(r, fminf(g, b)), d = mx - mn;
+    v = mx; s = (mx <= 0.0f) ? 0.0f : d / mx;
+    if (d <= 1e-6f) { h = 0.0f; return; }
+    if (mx == r)      h = 60.0f * fmodf(((g - b) / d), 6.0f);
+    else if (mx == g) h = 60.0f * (((b - r) / d) + 2.0f);
+    else              h = 60.0f * (((r - g) / d) + 4.0f);
+    if (h < 0.0f) h += 360.0f;
+}
+static void ndsHsv2Rgb(float h, float s, float v, float& r, float& g, float& b) {
+    h = fmodf(h, 360.0f); if (h < 0.0f) h += 360.0f;
+    float c = v * s, x = c * (1.0f - fabsf(fmodf(h / 60.0f, 2.0f) - 1.0f)), m = v - c;
+    float rr, gg, bb;
+    if      (h <  60.0f) { rr = c; gg = x; bb = 0; }
+    else if (h < 120.0f) { rr = x; gg = c; bb = 0; }
+    else if (h < 180.0f) { rr = 0; gg = c; bb = x; }
+    else if (h < 240.0f) { rr = 0; gg = x; bb = c; }
+    else if (h < 300.0f) { rr = x; gg = 0; bb = c; }
+    else                 { rr = c; gg = 0; bb = x; }
+    r = rr + m; g = gg + m; b = bb + m;
+}
+
+// Recolour a DSi reference-blue shade (a stop of the favColour gloss gradient or a flat blue
+// accent) toward the user's Colour setting. The whole DSi palette is rotated by ONE hue delta
+// (accent hue - reference azure hue) and scaled by ONE saturation ratio, so every shade keeps
+// its relative gloss/brightness relationship - light stays light, deep stays deep - just in the
+// new hue. At "Original" the accent is the reference azure, so this is the identity and the DSi
+// stays its classic blue. Value (brightness) is preserved to keep the glossy look intact.
+void NanoMenu::ndsRecolor(float& r, float& g, float& b) const {
+    static const float kRefBlue[3] = {0.094f, 0.573f, 0.922f};   // reference DSi favColour azure
+    float ar, ag, ab; ndsAccentRGB(ar, ag, ab);
+    float refH, refS, refV;  ndsRgb2Hsv(kRefBlue[0], kRefBlue[1], kRefBlue[2], refH, refS, refV);
+    float accH, accS, accV;  ndsRgb2Hsv(ar, ag, ab, accH, accS, accV);
+    float dH = accH - refH;
+    float sScale = (refS > 1e-3f) ? (accS / refS) : 1.0f;
+    if (sScale > 1.15f) sScale = 1.15f;   // clamp so a very saturated accent does not over-boost the light stops
+    float h, s, v; ndsRgb2Hsv(r, g, b, h, s, v);
+    float ns = s * sScale; if (ns > 1.0f) ns = 1.0f;
+    ndsHsv2Rgb(h + dH, ns, v, r, g, b);
+}
+
+// Per-channel tint that shifts the baked-blue DSi sprites (the carousel selection frame) toward
+// the accent: accent / reference-azure. Multiplying a ~reference-azure texel by this lands it on
+// the accent; the glossy lighter/darker regions scale proportionally so the frame keeps its
+// sheen. At "Original" the accent IS the azure, so the tint is (1,1,1) and the sprite is untouched.
+// GL clamps the product at output, so an out-of-gamut ratio just saturates that channel.
+void NanoMenu::ndsAccentTint(float& tr, float& tg, float& tb) const {
+    static const float kRefBlue[3] = {0.094f, 0.573f, 0.922f};
+    float ar, ag, ab; ndsAccentRGB(ar, ag, ab);
+    tr = ar / kRefBlue[0]; tg = ag / kRefBlue[1]; tb = ab / kRefBlue[2];
+}
+
 // A DSi System Settings glossy list button (settings.js _glossyButtonVec + button_grads.json):
 // a dark drop-shadow rounded rect under a rounded rect filled with the exact 12-stop vertical
-// gradient - glossy grey when idle, glossy favColour-blue when selected. r/x/y/w/h in device px.
+// gradient - glossy grey when idle, glossy accent-coloured when selected (follows the Colour
+// setting via ndsRecolor). r/x/y/w/h in device px.
 void NanoMenu::drawNdsGlossyBtn(float x, float y, float w, float h, float r, bool sel) {
     // button_grads.json menu.idle (grey) and menu.blue, 12 vertical stops (0..1).
     static const float grey[12][3] = {
@@ -990,7 +1045,13 @@ void NanoMenu::drawNdsGlossyBtn(float x, float y, float w, float h, float r, boo
         {0.255f,0.667f,0.859f},{0.176f,0.651f,0.875f},{0.094f,0.635f,0.890f},{0.094f,0.604f,0.906f},
         {0.094f,0.573f,0.922f},{0.063f,0.541f,0.890f},{0.031f,0.510f,0.859f},{0.047f,0.463f,0.906f},
         {0.063f,0.412f,0.953f},{0.031f,0.380f,0.937f},{0.000f,0.349f,0.922f},{0.063f,0.412f,0.953f} };
-    const float (*g)[3] = sel ? blue : grey;
+    // Recolour the selected (blue) gradient toward the Colour accent once (identity at "Original").
+    float blueAcc[12][3];
+    for (int i = 0; i < 12; i++) {
+        blueAcc[i][0] = blue[i][0]; blueAcc[i][1] = blue[i][1]; blueAcc[i][2] = blue[i][2];
+        ndsRecolor(blueAcc[i][0], blueAcc[i][1], blueAcc[i][2]);
+    }
+    const float (*g)[3] = sel ? blueAcc : grey;
     float sh = fmaxf(1.0f, h * (2.0f / 24.0f));                       // shadow offset ~2 DS px
     drawRoundedRect(x, y + sh, w, h, r, 0.125f, 0.125f, 0.125f, 1.0f); // #202020 drop shadow
     // face gradient as horizontal bands with circular corner insets (radius r).
@@ -1049,8 +1110,9 @@ void NanoMenu::drawNdsListScrollbar(float cx, float offY, float scale,
     drawNdsGlossyBtn(X(sbx), Y(thumbY), S(sbw), S(thumbH), S(3.0f), true);
     float gpY = thumbY + thumbH * 0.5f - 3.5f;                                   // 11x7 grip pad centred in the thumb
     drawRoundedRect(X(sbx + 4.0f), Y(gpY), S(11.0f), S(7.0f), S(2.0f), 0.984f, 0.984f, 0.984f, 1.0f);
-    for (float gy = gpY + 1.0f; gy <= gpY + 5.0f; gy += 2.0f)                    // #1069f3 grip lines
-        drawQuad(X(sbx + 5.0f), Y(gy), S(9.0f), el, 0.063f, 0.412f, 0.953f, 1.0f);
+    { float gr = 0.063f, gg = 0.412f, gb = 0.953f; ndsRecolor(gr, gg, gb);       // #1069f3 grip lines -> accent
+      for (float gy = gpY + 1.0f; gy <= gpY + 5.0f; gy += 2.0f)
+          drawQuad(X(sbx + 5.0f), Y(gy), S(9.0f), el, gr, gg, gb, 1.0f); }
 }
 
 // DSi System Settings submenu screen (settings.js _renderBottom): a dark scanline background
@@ -1414,7 +1476,8 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
           drawText(buf, cx - tw * 0.5f, Y(74.0f), fs, 0.984f, 0.984f, 0.984f, 1.0f); }
         const float tX = X(40.0f), tW = X(216.0f) - X(40.0f), tY = Y(120.0f), tH = S(8.0f);
         drawRoundedRect(tX, tY, tW, tH, S(3.0f), 0.125f, 0.125f, 0.125f, 1.0f);
-        drawRoundedRect(tX, tY, tW * t, tH, S(3.0f), 0.094f, 0.573f, 0.922f, 1.0f);
+        { float sr = 0.094f, sg = 0.573f, sb = 0.922f; ndsRecolor(sr, sg, sb);   // slider fill -> accent
+          drawRoundedRect(tX, tY, tW * t, tH, S(3.0f), sr, sg, sb, 1.0f); }
         float thx = tX + tW * t; drawNdsGlossyBtn(thx - S(7.0f), tY - S(7.0f), S(14.0f), S(22.0f), S(4.0f), true);
     } else if (n > 0) {
         // glossy list buttons x34 w186 h24; centred when they fit, else scroll at pitch 32.
@@ -2113,13 +2176,16 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
       // border + START platform, transparent centre) over the centred tile that the loop
       // above already drew - the tile + its icon show through the frame's transparent window.
       // Firmware geometry: 64x80, top = selFrame.top(79) + 2 = 81, centred at cx.
+      float ftr, ftg, ftb; ndsAccentTint(ftr, ftg, ftb);   // recolor the blue frame toward the Colour accent
       if (mNdsFrameTex) {
           // settle squash: inset both sides + shrink the height a touch (web _drawCenterChrome).
           float fi = S(frameInset);
-          drawIconTex(mNdsFrameTex, cx - S(32) + fi, Y(81), S(64) - 2.0f * fi, S(80) - fi, 1.0f, 1.0f, 1.0f, cf);
+          drawIconTex(mNdsFrameTex, cx - S(32) + fi, Y(81), S(64) - 2.0f * fi, S(80) - fi, ftr, ftg, ftb, cf);
       } else {   // procedural fallback (bevel from the cell_00 palette) if the sprite is missing
-          drawRoundedRect(cx - S(37), Y(79), S(74), S(74), S(13), 0.000f, 0.157f, 0.729f, cf);
-          drawRoundedRect(cx - S(35), Y(81), S(70), S(70), S(11), 0.094f, 0.443f, 0.984f, cf);
+          float o0r = 0.000f, o0g = 0.157f, o0b = 0.729f; ndsRecolor(o0r, o0g, o0b);
+          float o1r = 0.094f, o1g = 0.443f, o1b = 0.984f; ndsRecolor(o1r, o1g, o1b);
+          drawRoundedRect(cx - S(37), Y(79), S(74), S(74), S(13), o0r, o0g, o0b, cf);
+          drawRoundedRect(cx - S(35), Y(81), S(70), S(70), S(11), o1r, o1g, o1b, cf);
           const Ps3Item* it = (nItems > 0 && centerSlot >= 0 && centerSlot < nItems) ? &(*items)[centerSlot] : nullptr;
           drawTile(cx, it, 0.0f);
       }

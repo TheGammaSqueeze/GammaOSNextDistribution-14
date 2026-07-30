@@ -1344,6 +1344,9 @@ private:
     void renderMinimaInfoPage(float rx, float ry, float rw, float rh);  // game/app Information page (cover+metadata+paged synopsis)
     void renderMinimaBootOverlay(bool primary);                        // Minima cold-boot intro + GammaOS disclaimer (NanoMenuPS3Boot.cpp)
     void minimaAccent(float& r, float& g, float& b) const;          // accent RGB from the shared Colour setting
+    void ndsAccentRGB(float& r, float& g, float& b) const;          // DSi accent RGB (reference azure at "Original")
+    void ndsRecolor(float& r, float& g, float& b) const;            // hue-rotate a DSi blue shade toward the accent
+    void ndsAccentTint(float& tr, float& tg, float& tb) const;      // per-channel tint to recolor the blue frame sprite
     bool minimaSolidBg(float* r, float* g, float* b);               // Theme > Background Colour: solid backdrop (else black)
     void minimaSfx(int which);                                      // trigger a Minima SFX (MIN_SFX_* id, NanoMenuPS3Boot.cpp)
     void minimaSfxTick();                                           // per-frame: fire nav/drill/back/launch by state diff

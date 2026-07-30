@@ -7046,6 +7046,19 @@ void NanoMenu::minimaAccent(float& r, float& g, float& b) const {
     r = kPs3ColorOpts[idx].sr; g = kPs3ColorOpts[idx].sg; b = kPs3ColorOpts[idx].sb;  // manual preset (saturated)
 }
 
+// DSi accent colour: the DSi chrome (glossy blue buttons, arrows, borders) follows the shared
+// Colour theme setting by hue-rotating its reference azure toward this accent (see ndsRecolor).
+// At "Original" (idx 0) the accent IS the reference DSi azure, so the DSi looks exactly as
+// before (identity rotation). Otherwise it is the chosen saturated preset.
+void NanoMenu::ndsAccentRGB(float& r, float& g, float& b) const {
+    int idx = mPs3ColorIdx;
+    if (idx <= 0 || idx >= kPs3ColorCount) {   // "Original" -> keep the DSi signature azure
+        r = 0.094f; g = 0.573f; b = 0.922f;
+        return;
+    }
+    r = kPs3ColorOpts[idx].sr; g = kPs3ColorOpts[idx].sg; b = kPs3ColorOpts[idx].sb;
+}
+
 // Game Systems editor: icon-tint chooser (theme key 21). Defined here so it can
 // see the kPs3ColorOpts swatch table above. Applied on commit (applyThemeSetting
 // case 21); no live preview to keep cancel lossless for non-swatch built-in tints.
