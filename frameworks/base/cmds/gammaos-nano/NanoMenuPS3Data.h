@@ -121,19 +121,19 @@ static const Ps3DataItem kThemeSettingsCh[] = {
 #if !NANO_XMB_HIDE_LEGACY
   {"Theme",22,"Sets for use of a preset combination of elements such as colour, background or icons.",nullptr,1,nullptr,0},
 #endif
-  {"Colour",22,"Sets the colour of the background and options menu.",nullptr,1,nullptr,0},
+  {"Colour",22,"Accent colour for the GammaOS XMB (wave and menus) and the Minima theme. The DSi Menu theme is always blue and ignores this.",nullptr,1,nullptr,0},
   {"Background",22,"Sets the background of the home screen.",nullptr,1,nullptr,0},
   {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the home screen.",nullptr,1,nullptr,0},
   {"Wallpaper Image",22,"Choose a photo from your device to use as the home background. Browse and pick from your images.",nullptr,1,nullptr,0},
   {"Bottom Wallpaper",22,"Choose a separate wallpaper for the bottom screen. Dual-screen devices only (e.g. the RG DS); no effect on a single-screen device.",nullptr,1,nullptr,0},
   {"Video Wallpaper",22,"Choose a video from your device to play as a live background on the top screen. Browse and pick from your videos.",nullptr,1,nullptr,0},
   {"Clear Wallpaper",22,"Removes the custom wallpaper (both screens) and brings the moving wave back.",nullptr,1,nullptr,0},
-  {"Background Colour",22,"Fills the Minima home background with a solid colour instead of black. Overrides the wave; a photo or video wallpaper still takes priority.","Black",1,nullptr,0},
+  {"Background Colour",22,"Minima theme only: fills the Minima home background with a solid colour instead of black. Overrides the wave; a photo or video wallpaper still takes priority.","Black",1,nullptr,0},
   {"Wallpaper Dimming",22,"Darkens a custom photo or video wallpaper so a bright image does not wash out the icons or menu text. Higher = darker.","25%",1,nullptr,0},
   {"XMB Wave",22,"Shows the moving PS3 wave behind the home screen. Off by default when a custom wallpaper is set.","On",1,nullptr,0},
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
-  {"Home Theme",22,"Switches the home screen between the GammaOS XMB and the DSi Menu. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},
+  {"Home Theme",22,"Switches the home screen between GammaOS XMB, DSi Menu and Minima. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},
   {"Bottom Clock",73,"Shows a PSP-style analog clock on the bottom screen. Dual-screen devices only (e.g. the RG DS); no effect on a single-screen device.","On",1,nullptr,0},
   {"Bottom Clock FPS",73,"Frame rate of the bottom-screen clock. 30 FPS saves power; 60 FPS is smoother.","30 FPS",1,nullptr,0},
 };
@@ -422,6 +422,7 @@ static const Ps3DataItem kGammaEqCh[] = {
 
 // ---- Settings top-level items -------------------------------------------
 static const Ps3DataItem kSettingsItems[] = {
+  {"User Guide",22,"How the launcher works: themes, accent colour, hiding game systems, box art scraping, multi-disc games and where saves go.",nullptr,1,nullptr,0},
   {"System Update",8,"Update the GammaOS system software.",nullptr,1,nullptr,0},
   {"Game Settings",5,"Adjusts settings for games.",nullptr,0,PS3CH(kGameSettingsCh)},
   // Boxart Scraper moved under Game Settings (kGameSettingsCh); the top-level entry is retired.

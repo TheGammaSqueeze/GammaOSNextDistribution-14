@@ -617,6 +617,45 @@ void NanoMenu::buildRomSubmenu(int sysIdx, Ps3Level& out) {
     }
 }
 
+// The in-launcher User Guide: a plain, scrollable help page opened from Settings > User Guide.
+// Reuses the game-info page infrastructure (mPs3DlgGameInfo) so DSi (renderNdsInfoPage) and Minima
+// (renderMinimaInfoPage) get their full-screen paged renderers with L/R paging, and XMB uses the
+// scrollable App-Information branch (Up/Down). Plain short sentences for non-native readers.
+void NanoMenu::openHelpPage() {
+    static const char* kHelpText =
+        "GammaOS Nano Quick Guide.\n\n"
+        "Themes. Home Theme (in Settings, Theme Settings) switches the home between GammaOS XMB, DSi "
+        "Menu and Minima. Applying restarts the home screen.\n\n"
+        "Accent colour. Colour (in Theme Settings) sets the accent for GammaOS XMB and Minima. The DSi "
+        "Menu theme is always blue. Minima also has its own solid Background Colour.\n\n"
+        "Hide game systems. Open Settings, Game Settings, Game Systems. Every system shows On or Off. "
+        "Press X to turn one Off and it leaves the Game list; turn it back On any time. You do not need "
+        "to delete the ROMs.\n\n"
+        "Box art. Settings, Game Settings, Boxart Scraper downloads cover art. Scrape All Systems does "
+        "the whole library. A free ScreenScraper account raises the daily download limit.\n\n"
+        "Multi-disc games. Put the discs in one folder with an .m3u playlist. The launcher shows one "
+        "entry per game and launches the .m3u. Subfolders are scanned automatically.\n\n"
+        "Saves. Each emulator handles its own saves, not the launcher. For DraStic DS games, the save "
+        "data and the firmware language come from the DraStic app's own settings.\n\n"
+        "Tip. Press Left or Right (Up or Down on XMB) to page through this guide. Press B or Circle to "
+        "close.";
+    if (mPs3DlgFanTex) { glDeleteTextures(1, &mPs3DlgFanTex); mPs3DlgFanTex = 0; }
+    if (mPs3DlgBoxTex) { glDeleteTextures(1, &mPs3DlgBoxTex); mPs3DlgBoxTex = 0; }
+    mPs3DlgFanW = mPs3DlgFanH = 0; mPs3DlgBoxW = mPs3DlgBoxH = 0;
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 0; mPs3DlgType = 0; mPs3DlgThemeKey = 0; mPs3DlgBinding = nullptr;
+    mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = 0; mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgRomInfo = false;
+    mPs3DlgTitle = "User Guide";
+    mPs3DlgBody = kHelpText;
+    // XMB scroll branch (Up/Down). Empty nonce so the async app-info reader never overwrites the body.
+    mPs3DlgAppInfo = true; mPs3DlgAppInfoPending = false; mPs3AppInfoScroll = 0; mPs3AppInfoNonce.clear();
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+    mPs3DlgGameInfo = true; mNdsInfoPage = 0;
+}
+
 void NanoMenu::buildRecentSubmenu(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Recently Played";
     for (size_t i = 0; i < mXmbRecent.size(); i++) {
@@ -4436,6 +4475,7 @@ void NanoMenu::ps3XmbSelect() {
                 return;
             }
             // Data-driven settings leaf -> bound side chooser (real backing setting).
+            if (it.label == "User Guide") { openHelpPage(); return; }
             if (it.label == "Scrape All Systems") { scrapeAllSystems(); return; }
             // Prefer the item's pre-resolved binding (Quick Settings leaves bind a
             // tile-named row to an existing setting), else match by label.

@@ -2483,6 +2483,7 @@ private:
     nanoscraper::Credentials scraperCredsFor(int sysIdx);   // global + per-system override
     nanoscraper::Engine scraperEngineFor(int sysIdx, const nanoscraper::Credentials& cred);
     void scrapeAllSystems();               // Settings action: scrape every enabled system
+    void openHelpPage();                    // Settings > User Guide: scrollable, themed help page
     void scrapeOneSystem(int sysIdx);      // Game Systems editor action
     // One ROM of work, fully snapshotted so the worker never touches mXmbSystems.
     struct ScrapeJob {
