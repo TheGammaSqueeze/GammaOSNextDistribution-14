@@ -209,6 +209,10 @@ bool readPrefs(const std::string& xmlPath, Prefs* out) {
             else if (e.name == "_FrameskipType") out->frameskipType  = parseInt(e.value, out->frameskipType);
             else if (e.name == "_FrameskipValue") out->frameskipValue = parseInt(e.value, out->frameskipValue);
             else if (e.name == "_AnalogStickMode") out->analogStickMode = parseInt(e.value, out->analogStickMode);
+            else if (e.name == "_FirmwareLanguage") out->firmwareLanguage = parseInt(e.value, out->firmwareLanguage);
+            else if (e.name == "_FirmwareColor")     out->firmwareColor     = parseInt(e.value, out->firmwareColor);
+            else if (e.name == "_FirmwareBdayMonth") out->firmwareBdayMonth = parseInt(e.value, out->firmwareBdayMonth);
+            else if (e.name == "_FirmwareBdayDay")   out->firmwareBdayDay   = parseInt(e.value, out->firmwareBdayDay);
             else {
                 int p, a;
                 if (parseKeymapName(e.name, &p, &a)) {
@@ -218,15 +222,18 @@ bool readPrefs(const std::string& xmlPath, Prefs* out) {
         } else if (e.tag == "string") {
             if (e.name == "_CurrentFx") {
                 if (!e.value.empty()) out->currentFx = e.value;
+            } else if (e.name == "_FirmwareNick") {
+                if (!e.value.empty()) out->firmwareNick = e.value;
             }
         } else if (e.tag == "float") {
             if (e.name == "_AnalogDeadzone") out->analogDeadzone = parseFloat(e.value, out->analogDeadzone);
         }
     });
     ALOGI("DrasticPrefs::readPrefs: %s ok (currentFx=%s volume=%d "
-          "hires3d=%d threaded3d=%d disableEdge=%d)",
+          "hires3d=%d threaded3d=%d disableEdge=%d fwLang=%d fwNick=%s)",
           xmlPath.c_str(), out->currentFx.c_str(), out->volume,
-          out->hires3d, out->threaded3d, out->disableEdge);
+          out->hires3d, out->threaded3d, out->disableEdge,
+          out->firmwareLanguage, out->firmwareNick.c_str());
     return true;
 }
 
@@ -288,6 +295,7 @@ std::vector<KV> buildManagedLines(const Prefs& p) {
         out.push_back({name, buf});
     };
     addString("_CurrentFx", p.currentFx);
+    addString("_FirmwareNick", p.firmwareNick);
     addBool("_Hires3D", p.hires3d);
     addBool("_Threaded3D", p.threaded3d);
     addBool("_DisableEdgeMarking", p.disableEdge);
@@ -303,6 +311,10 @@ std::vector<KV> buildManagedLines(const Prefs& p) {
     addInt("_FrameskipType", p.frameskipType);
     addInt("_FrameskipValue", p.frameskipValue);
     addInt("_AnalogStickMode", p.analogStickMode);
+    addInt("_FirmwareLanguage", p.firmwareLanguage);
+    addInt("_FirmwareColor", p.firmwareColor);
+    addInt("_FirmwareBdayMonth", p.firmwareBdayMonth);
+    addInt("_FirmwareBdayDay", p.firmwareBdayDay);
     addFloat("_AnalogDeadzone", p.analogDeadzone);
     for (int pl = 0; pl < kNumPlayers; pl++) {
         for (int a = 0; a < kNumActions; a++) {

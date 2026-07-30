@@ -56,6 +56,14 @@ public:
     // boot: >= 0 loads that slot (the drastic-android-mod auto-resume
     // uses slot 9, its autosave slot), < 0 boots fresh. Default 0
     // preserves the legacy callers.
+    // firmwareLanguage / firmwareColor / firmwareBdayMonth /
+    // firmwareBdayDay / firmwareNick carry the user's DS firmware
+    // userdata (from DrasticPrefs) so the emulated DS boots in the
+    // language the user set in the drastic app instead of the English
+    // factory default. When firmwareLanguage < 0 (the default, used by
+    // the gammaos-nano QR-preview / smoke-test callers that do not
+    // plumb prefs) init() keeps its legacy hardcoded userdata, so
+    // those callers are byte-for-byte unchanged.
     bool init(const std::string& cacheDir,
               const std::string& romPath,
               const std::string& libsDir = std::string(),
@@ -63,7 +71,12 @@ public:
               long configBitsOverride = 0,
               int autosaveIntervalSeconds = 0,
               const std::string& initialShader = std::string(),
-              int autoLoadSlot = 0);
+              int autoLoadSlot = 0,
+              int firmwareLanguage = -1,
+              int firmwareColor = -1,
+              int firmwareBdayMonth = -1,
+              int firmwareBdayDay = -1,
+              const std::string& firmwareNick = std::string());
 
     // Tear down. pauseSystem + quitSystem + dlclose.
     void shutdown();

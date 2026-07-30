@@ -260,7 +260,12 @@ bool DrasticRunner::init(const std::string& cacheDir,
                          long configBitsOverride,
                          int autosaveIntervalSeconds,
                          const std::string& initialShader,
-                         int autoLoadSlot) {
+                         int autoLoadSlot,
+                         int firmwareLanguage,
+                         int firmwareColor,
+                         int firmwareBdayMonth,
+                         int firmwareBdayDay,
+                         const std::string& firmwareNick) {
     maybeStartThreadTracer();
     mCacheDir = cacheDir;
     mAutoLoadSlot = autoLoadSlot;
@@ -599,13 +604,31 @@ bool DrasticRunner::init(const std::string& cacheDir,
         mSetAudioVolume(env, fakeCls, 40);
     }
     if (mSetFirmwareUserdata) {
-        jstring nick = env->NewStringUTF("GammaOS");
-        if (nick) {
-            // Packed firmware userdata: (bday_day << 24) | (bday_month << 16) | (color << 8) | language
+        // Packed firmware userdata: (bday_day << 24) | (bday_month << 16) |
+        // (color << 8) | language -- the same int the real drastic app
+        // hands to setFirmwareUserdata, built from its SharedPreferences.
+        // When the caller supplied prefs-derived values (firmwareLanguage
+        // >= 0) use them so the DS boots in the user's chosen language;
+        // otherwise fall back to the legacy hardcoded default so the
+        // gammaos-nano QR-preview / smoke-test callers are unchanged.
+        const bool fromPrefs = (firmwareLanguage >= 0);
+        const char* nickStr = fromPrefs ? firmwareNick.c_str() : "GammaOS";
+        int fwPacked;
+        if (fromPrefs) {
+            fwPacked = ((firmwareBdayDay   & 0xff) << 24)
+                     | ((firmwareBdayMonth & 0xff) << 16)
+                     | ((firmwareColor     & 0xff) << 8)
+                     | (firmwareLanguage   & 0xff);
+        } else {
             // Language: 1=English, Color: 0=grey, Birthday: Jan 1
-            const int fwPacked = (1 << 24) | (1 << 16) | (0 << 8) | 1; // 0x01010001
-            ALOGI("DrasticRunner: setFirmwareUserdata(\"GammaOS\", "
-                  "0x%08x)", fwPacked);
+            fwPacked = (1 << 24) | (1 << 16) | (0 << 8) | 1; // 0x01010001
+        }
+        jstring nick = env->NewStringUTF(nickStr);
+        if (nick) {
+            ALOGI("drastic: firmware userdata nick=%s packed=0x%08x lang=%d "
+                  "(%s)", nickStr, fwPacked,
+                  fromPrefs ? firmwareLanguage : 1,
+                  fromPrefs ? "prefs" : "default");
             mSetFirmwareUserdata(env, fakeCls, nick, fwPacked);
             ALOGI("DrasticRunner: setFirmwareUserdata returned");
         }

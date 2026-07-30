@@ -88,6 +88,19 @@ struct Prefs {
     // Video overlay if they prefer the phase-locked look.
     bool frameSync = false;
 
+    // DS firmware userdata. drastic packs these into a single int it
+    // hands to setFirmwareUserdata so the emulated DS boots with the
+    // user's chosen language / theme colour / birthday / nickname
+    // instead of the English factory default. The real drastic app
+    // stores them as these SharedPreferences keys; defaults match
+    // drastic's own f0/h defaults (lang English, colour 1, birthday
+    // June 6, nick "Dr Drastic").
+    int firmwareLanguage  = 1;   // _FirmwareLanguage (0..7)
+    int firmwareColor     = 1;   // _FirmwareColor
+    int firmwareBdayMonth = 6;   // _FirmwareBdayMonth (1..12)
+    int firmwareBdayDay   = 6;   // _FirmwareBdayDay (1..31)
+    std::string firmwareNick = "Dr Drastic";  // _FirmwareNick
+
     // Per-player action keymap. Each entry is an Android keycode, or
     // -1 for "unmapped". We read all 3 players but only use player 0
     // in drastic-nano (single-player device).

@@ -2870,7 +2870,12 @@ int main(int argc, char** argv) {
                  /*configBitsOverride=*/userBits,
                  /*autosaveIntervalSeconds=*/0,
                  /*initialShader=*/prefs.currentFx,
-                 /*autoLoadSlot=*/autoLoadSlot)) {
+                 /*autoLoadSlot=*/autoLoadSlot,
+                 /*firmwareLanguage=*/prefs.firmwareLanguage,
+                 /*firmwareColor=*/prefs.firmwareColor,
+                 /*firmwareBdayMonth=*/prefs.firmwareBdayMonth,
+                 /*firmwareBdayDay=*/prefs.firmwareBdayDay,
+                 /*firmwareNick=*/prefs.firmwareNick)) {
         ALOGE("drastic-nano: DrasticRunner::init failed");
         property_set(kSessionDoneProp, "1");
         return 7;
