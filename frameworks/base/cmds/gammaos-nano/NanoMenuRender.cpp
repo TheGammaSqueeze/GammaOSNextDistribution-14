@@ -2913,7 +2913,9 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
       clockRefreshMaybe();
       bool blinkOff = (lt.tm_sec & 1);
       char ds[16], ts[16];
-      snprintf(ds, sizeof(ds), "%02d/%02d", lt.tm_mon + 1, lt.tm_mday);
+      // Honor the Date Format setting (mPs3DateFormatIdx 2 = DD/MM, else MM/DD), same as the XMB clock.
+      if (mPs3DateFormatIdx == 2) snprintf(ds, sizeof(ds), "%02d/%02d", lt.tm_mday, lt.tm_mon + 1);
+      else                        snprintf(ds, sizeof(ds), "%02d/%02d", lt.tm_mon + 1, lt.tm_mday);
       int hr = lt.tm_hour;
       if (mClock12h.load()) { hr %= 12; if (hr == 0) hr = 12; }   // honor the 12/24-hour setting (fixed layout, no AM/PM)
       snprintf(ts, sizeof(ts), "%02d%c%02d", hr, blinkOff ? ' ' : ':', lt.tm_min);
