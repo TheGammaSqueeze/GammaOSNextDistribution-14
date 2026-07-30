@@ -9993,7 +9993,13 @@ void NanoMenu::openXmbOpt() {
         case PS3_ROM: case PS3_RECENT: {
             // ROMs get the rich scraped Information page (cover + fanart + metadata,
             // falling back to file path/size/core when nothing has been scraped).
-            add("Start", "start", true); add("Information", "rominfo", false);
+            add("Start", "start", true);
+            // Per-game title override + re-scrape. Rename sets the shown name everywhere
+            // (columns / recents / search / Info) and the scraper search query; Scrape
+            // This Game re-fetches just this ROM (forcing overwrite) using that query.
+            add("Rename / Edit Title", "romrename", false);
+            add("Scrape This Game", "romscrape", false);
+            add("Information", "rominfo", false);
             // Custom box art: pick any image as this game's cover. "Reset Boxart" only
             // appears once a cover exists. Resolve the focused ROM the same way the
             // "setboxart"/"resetboxart"/"rominfo" actions do.
@@ -11023,6 +11029,132 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         } else {
             resetBoxart(romPath);
         }
+        return;
+    }
+    if (act == "romrename") {
+        // Per-game title override. Resolve the focused ROM path + current display name
+        // exactly the way "rominfo" does, then open the OSK prefilled with the current
+        // title (plain text, not masked - mirrors ferename). The override becomes the
+        // shown name everywhere AND the scraper search query.
+        std::string romPath, name;
+        int sysIdx = -1;
+        if (mPs3OptCtxKind == PS3_ROM
+            && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbSystems.size()) {
+            sysIdx = mPs3OptCtxA;
+            const XmbSystem& s = mXmbSystems[mPs3OptCtxA];
+            if (mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)s.roms.size()) romPath = s.roms[mPs3OptCtxB];
+            if (mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)s.displayNames.size()) name = s.displayNames[mPs3OptCtxB];
+        } else if (mPs3OptCtxKind == PS3_RECENT
+                   && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbRecent.size()) {
+            const XmbRecentEntry& r = mXmbRecent[mPs3OptCtxA];
+            romPath = r.romPath; name = r.displayName;
+        }
+        if (name.empty()) name = mPs3OptCtxLabel;
+        if (romPath.empty()) return;
+        std::string cur = name;
+        openOskForPassword("Edit Title", [this, romPath, sysIdx](const std::string& typed) {
+            // Trim leading/trailing spaces. Empty = clear the override (revert to filename).
+            std::string nn = typed;
+            while (!nn.empty() && nn.front() == ' ') nn.erase(nn.begin());
+            while (!nn.empty() && nn.back() == ' ') nn.pop_back();
+            if (nn.empty()) clearRomNameOverride(romPath);
+            else            setRomNameOverride(romPath, nn);
+            saveRomNameOverrides();
+            // Re-derive the owning system's display names + the recents list so the new
+            // title shows immediately (columns / recents / search / Info).
+            int owner = sysIdx;
+            if (owner < 0 || owner >= (int)mXmbSystems.size()) {
+                for (size_t s = 0; s < mXmbSystems.size(); s++) {
+                    const XmbSystem& sy = mXmbSystems[s];
+                    bool hit = false;
+                    for (const auto& rp : sy.roms) if (rp == romPath) { hit = true; break; }
+                    if (hit) { owner = (int)s; break; }
+                }
+            }
+            if (owner >= 0 && owner < (int)mXmbSystems.size()) applyRomNameOverrides(mXmbSystems[owner]);
+            applyRomNameOverridesToRecents();
+            saveXmbRecent();   // persist the patched recents name so it survives a reboot
+            // Keep the scrape manifest title in sync if a scrape entry already exists, so
+            // the Information page reflects the override too.
+            auto mi = mScrapeIndex.find(romPath);
+            if (mi != mScrapeIndex.end()) {
+                if (nn.empty()) { /* leave the scraped title as-is on revert */ }
+                else mi->second.title = nn;
+                saveScrapeIndex();
+            }
+            // If the renamed game's ROM column is currently open, rebuild it in place so
+            // the new label shows immediately (mPs3CatsStale only rebuilds the category
+            // tops, not open stack levels). Mirrors the bg-scan publish (NanoMenu.cpp).
+            if (owner >= 0) {
+                for (auto& lvl : mPs3Stack) {
+                    if (lvl.sysIdx != owner) continue;
+                    int keep = lvl.sel;
+                    buildRomSubmenu(owner, lvl);
+                    int nn2 = (int)lvl.items.size();
+                    if (keep >= nn2) keep = nn2 - 1;
+                    lvl.sel = keep < 0 ? 0 : keep;
+                }
+            }
+            // Also rebuild an open Recently Played list in place (it is not sysIdx-tagged;
+            // identify it by its first item being a PS3_RECENT row).
+            for (auto& lvl : mPs3Stack) {
+                if (lvl.items.empty() || lvl.items[0].kind != PS3_RECENT) continue;
+                int keep = lvl.sel;
+                buildRecentSubmenu(lvl);
+                int nn2 = (int)lvl.items.size();
+                if (keep >= nn2) keep = nn2 - 1;
+                lvl.sel = keep < 0 ? 0 : keep;
+            }
+            mPs3CatsStale = true;
+            mDisplayDirty = true;
+        });
+        mOskPasswordMode = false; mOskPlaintext = true;   // plain text, not masked
+        mOskQuery = cur; mOsk.caret = (int)mOskQuery.size();   // prefill AFTER open (which clears it)
+        return;
+    }
+    if (act == "romscrape") {
+        // Re-scrape just this ROM (force overwrite, override title as the query). Resolve
+        // the sysIdx/romIdx from the option context. A PS3_RECENT entry is mapped back to
+        // its owning system/rom by path; if it cannot be resolved, tell the user.
+        int sysIdx = -1, romIdx = -1;
+        if (mPs3OptCtxKind == PS3_ROM) {
+            sysIdx = mPs3OptCtxA; romIdx = mPs3OptCtxB;
+        } else if (mPs3OptCtxKind == PS3_RECENT
+                   && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbRecent.size()) {
+            // Map the recent back to a live system/rom index. The recent's path may use a
+            // different storage alias than the scanner's roms[] (addXmbRecent rewrites
+            // /data/media/0 -> /sdcard etc.), so match by exact path first and fall back to
+            // basename within the same system (scoped so a basename collision is unlikely).
+            const XmbRecentEntry& re = mXmbRecent[mPs3OptCtxA];
+            const std::string& rp = re.romPath;
+            auto base = [](const std::string& p) {
+                size_t s = p.find_last_of('/');
+                return (s == std::string::npos) ? p : p.substr(s + 1);
+            };
+            std::string rpBase = base(rp);
+            for (size_t s = 0; s < mXmbSystems.size() && sysIdx < 0; s++) {
+                const XmbSystem& sy = mXmbSystems[s];
+                for (size_t i = 0; i < sy.roms.size(); i++)
+                    if (sy.roms[i] == rp) { sysIdx = (int)s; romIdx = (int)i; break; }
+            }
+            if (sysIdx < 0) {
+                // Restrict the basename fallback to the recent's owning system when known
+                // (matched by shortname / romDir, the same way buildRecentSubmenu does).
+                for (size_t s = 0; s < mXmbSystems.size() && sysIdx < 0; s++) {
+                    const XmbSystem& sy = mXmbSystems[s];
+                    bool sysMatch = (sy.shortname == re.systemName)
+                                    || (!re.romDir.empty() && sy.romDir == re.romDir);
+                    if (!sysMatch) continue;
+                    for (size_t i = 0; i < sy.roms.size(); i++)
+                        if (base(sy.roms[i]) == rpBase) { sysIdx = (int)s; romIdx = (int)i; break; }
+                }
+            }
+        }
+        if (sysIdx < 0 || romIdx < 0) {
+            feInfoDialog("Scrape This Game", "This game is not in a scannable system.");
+            return;
+        }
+        scrapeOneRom(sysIdx, romIdx);
         return;
     }
     if (act == "rominfo") {

@@ -40,6 +40,7 @@
 namespace android {
 
 static const char* kScrapeIndexPath = "/data/system/nano_scrape/index.json";
+static const char* kRomNamesPath    = "/data/system/nano_scrape/names.json";
 
 // ---------------------------------------------------------------------------
 // Manifest (index.json): romPath -> {box, fan, title, scraper, when}
@@ -150,6 +151,125 @@ const NanoMenu::ScrapeEntry* NanoMenu::scrapeEntryFor(const std::string& romPath
         }
     }
     return nullptr;
+}
+
+// ---------------------------------------------------------------------------
+// Per-game title override sidecar (names.json): romPath -> user-typed title.
+// The override is BOTH the shown display name (all themes + recents + search +
+// Info) and the scraper search query. Same atomic tmp+rename write + storage-alias
+// lookup as the scrape manifest above.
+// ---------------------------------------------------------------------------
+void NanoMenu::loadRomNameOverrides() {
+    mRomNameOverride.clear();
+    int fd = open(kRomNamesPath, O_RDONLY);
+    if (fd < 0) return;
+    std::string content;
+    struct stat st;
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 8 * 1024 * 1024) {
+        content.resize(st.st_size);
+        ssize_t rd = read(fd, &content[0], st.st_size);
+        if (rd > 0) content.resize(rd); else content.clear();
+    }
+    close(fd);
+    if (content.empty()) return;
+    njson::Value root;
+    if (!njson::parse(content, &root) || !root.isObject()) return;
+    const njson::Value* items = root.find("items");
+    if (!items || !items->isArray()) return;
+    for (const auto& it : items->arr) {
+        if (!it.isObject()) continue;
+        std::string rom = it.getString("rom");
+        std::string name = it.getString("name");
+        if (rom.empty() || name.empty()) continue;
+        mRomNameOverride[rom] = std::move(name);
+    }
+    ALOGD("scraper: loaded %zu name overrides", mRomNameOverride.size());
+}
+
+void NanoMenu::saveRomNameOverrides() {
+    njson::Value root = njson::Value::makeObject();
+    root.set("version") = njson::Value::makeNumber(1);
+    njson::Value items = njson::Value::makeArray();
+    for (const auto& kv : mRomNameOverride) {
+        if (kv.first.empty() || kv.second.empty()) continue;
+        // Prune entries whose ROM file no longer exists (skip network/content paths,
+        // which stat unreliably; keep those). A stale local path just wastes a line.
+        bool localPath = kv.first.rfind("content://", 0) != 0
+                         && kv.first.rfind("/mnt/shares/", 0) != 0;
+        if (localPath) {
+            struct stat pst;
+            if (stat(kv.first.c_str(), &pst) != 0) continue;
+        }
+        njson::Value o = njson::Value::makeObject();
+        o.set("rom")  = njson::Value::makeString(kv.first);
+        o.set("name") = njson::Value::makeString(kv.second);
+        items.arr.push_back(std::move(o));
+    }
+    root.set("items") = std::move(items);
+    std::string text = njson::serialize(root, true);
+    std::string tmp = std::string(kRomNamesPath) + ".tmp";
+    int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) { ALOGW("scraper: cannot write %s", tmp.c_str()); return; }
+    ssize_t wr = write(fd, text.data(), text.size());
+    close(fd);
+    if (wr == (ssize_t)text.size()) rename(tmp.c_str(), kRomNamesPath);
+    else                            unlink(tmp.c_str());
+}
+
+const std::string* NanoMenu::romNameOverrideFor(const std::string& romPath) {
+    if (!mRomNameOverrideLoaded) { mRomNameOverrideLoaded = true; loadRomNameOverrides(); }
+    if (romPath.empty()) return nullptr;
+    auto it = mRomNameOverride.find(romPath);
+    if (it != mRomNameOverride.end()) return &it->second;
+    // Storage-alias normalization: the same internal-storage ROM can be keyed under
+    // different prefixes by the scanner vs the Recently Played playlist (see
+    // scrapeEntryFor). Retry each equivalent prefix so a rename resolves for recents too.
+    static const char* const kAliases[] = {
+        "/storage/emulated/0", "/data/media/0", "/sdcard", "/storage/self/primary" };
+    std::string rest; size_t matchedLen = 0;
+    for (const char* a : kAliases) {
+        size_t al = strlen(a);
+        if (romPath.size() > al && romPath.compare(0, al, a) == 0 && romPath[al] == '/') {
+            rest = romPath.substr(al); matchedLen = al; break;
+        }
+    }
+    if (matchedLen > 0) {
+        for (const char* a : kAliases) {
+            std::string alt = std::string(a) + rest;
+            if (alt == romPath) continue;
+            auto it2 = mRomNameOverride.find(alt);
+            if (it2 != mRomNameOverride.end()) return &it2->second;
+        }
+    }
+    return nullptr;
+}
+
+void NanoMenu::setRomNameOverride(const std::string& romPath, const std::string& name) {
+    if (!mRomNameOverrideLoaded) { mRomNameOverrideLoaded = true; loadRomNameOverrides(); }
+    if (romPath.empty() || name.empty()) return;
+    mRomNameOverride[romPath] = name;
+}
+
+void NanoMenu::clearRomNameOverride(const std::string& romPath) {
+    if (!mRomNameOverrideLoaded) { mRomNameOverrideLoaded = true; loadRomNameOverrides(); }
+    if (romPath.empty()) return;
+    mRomNameOverride.erase(romPath);
+    // Also drop any entry stored under an equivalent storage-alias prefix, so a revert
+    // does not leave a stale override the alias-aware lookup would still resolve.
+    static const char* const kAliases[] = {
+        "/storage/emulated/0", "/data/media/0", "/sdcard", "/storage/self/primary" };
+    std::string rest; size_t matchedLen = 0;
+    for (const char* a : kAliases) {
+        size_t al = strlen(a);
+        if (romPath.size() > al && romPath.compare(0, al, a) == 0 && romPath[al] == '/') {
+            rest = romPath.substr(al); matchedLen = al; break;
+        }
+    }
+    if (matchedLen > 0)
+        for (const char* a : kAliases) {
+            std::string alt = std::string(a) + rest;
+            if (alt != romPath) mRomNameOverride.erase(alt);
+        }
 }
 
 // ---------------------------------------------------------------------------
@@ -570,6 +690,9 @@ void NanoMenu::scrapeSystemsAsync(const std::vector<int>& sysIdxs) {
             j.romPath = rom;
             j.displayName = (i < s.displayNames.size()) ? s.displayNames[i] : rom;
             j.sysName = s.name;
+            // A user title override drives the scraper search query so a corrected
+            // title can match; empty = query by filename as before.
+            if (const std::string* ov = romNameOverrideFor(rom)) j.queryName = *ov;
             j.engine = (int)eng;
             j.cred = cred;
             j.plat = plat;
@@ -613,6 +736,75 @@ void NanoMenu::scrapeOneSystem(int sysIdx) {
 }
 
 // ---------------------------------------------------------------------------
+// Re-scrape a single ROM (the per-game "Scrape This Game" option). Unlike
+// scrapeSystemsAsync this always forces overwrite (the user asked to re-fetch)
+// and uses the title override as the search query so a corrected name matches.
+// Builds a one-element job the same way scrapeSystemsAsync does and runs the
+// existing worker + progress modal.
+// ---------------------------------------------------------------------------
+void NanoMenu::scrapeOneRom(int sysIdx, int romIdx) {
+    if (mScrapeRunning) return;
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
+    scraperEnsureLoaded();
+    mkdir(mScrapeCacheDir.c_str(), 0700);
+
+    const XmbSystem& s = mXmbSystems[sysIdx];
+    if (romIdx < 0 || romIdx >= (int)s.roms.size()) return;
+
+    bool wantBox = scraperBoxartEnabled();
+    bool wantFan = scraperFanartEnabled();
+
+    std::vector<ScrapeJob> jobs;
+    bool anyConfigured = false;
+    if (s.enabled) {
+        nanoscraper::Credentials cred = scraperCredsFor(sysIdx);
+        nanoscraper::Engine eng = scraperEngineFor(sysIdx, cred);
+        if (eng != nanoscraper::ENGINE_OFF) {
+            bool haveCreds = (eng == nanoscraper::ENGINE_SCREENSCRAPER)
+                                 ? (!cred.ssDevId.empty() && !cred.ssDevPw.empty())
+                                 : !cred.tgdbKey.empty();
+            if (haveCreds) {
+                anyConfigured = true;
+                nanoscraper::PlatformIds plat =
+                    nanoscraper::platformForSystem(s.romDir, s.shortname, s.name, s.scrapePlatform);
+                const std::string& rom = s.roms[romIdx];
+                ScrapeJob j;
+                j.romPath = rom;
+                j.displayName = (romIdx < (int)s.displayNames.size()) ? s.displayNames[romIdx] : rom;
+                j.sysName = s.name;
+                if (const std::string* ov = romNameOverrideFor(rom)) j.queryName = *ov;
+                j.engine = (int)eng;
+                j.cred = cred;
+                j.plat = plat;
+                jobs.push_back(std::move(j));
+            }
+        }
+    }
+
+    // Show the modal regardless so the user gets feedback (incl. "set credentials").
+    mScrapeProgActive = true;
+    mScrapeDoneFlag = false;
+    mScrapeCancel = false;
+    mScrapeError.clear();
+    mScrapeStatus.clear();
+    mScrapeDone = 0; mScrapeHits = 0; mScrapeFail = 0;
+    mScrapeTotal = (int)jobs.size();
+    mDisplayDirty = true;
+
+    if (jobs.empty()) {
+        mScrapeError = anyConfigured ? trDyn("Scraping is disabled for this system.")
+                                     : trDyn("Set your scraper credentials in Settings first.");
+        mScrapeDoneFlag = true;
+        mScrapeBox = wantBox; mScrapeFan = wantFan;
+        return;
+    }
+
+    mScrapeBox = wantBox; mScrapeFan = wantFan;
+    mScrapeRunning = true;
+    std::thread(&NanoMenu::scrapeThreadFunc, this, std::move(jobs)).detach();
+}
+
+// ---------------------------------------------------------------------------
 // Worker thread: scrape each job, publishing finished art + progress under the
 // mutex. Never touches mXmbSystems (everything is snapshotted in the jobs).
 // ---------------------------------------------------------------------------
@@ -629,7 +821,7 @@ void NanoMenu::scrapeThreadFunc(std::vector<ScrapeJob> jobs) {
         snprintf(tag, sizeof(tag), "%d", idx++);
         nanoscraper::ScrapeOutcome r = nanoscraper::scrapeRom(
             (nanoscraper::Engine)j.engine, j.cred, j.romPath, j.displayName,
-            j.plat, wantBox, wantFan, mScrapeCacheDir, tag);
+            j.plat, wantBox, wantFan, mScrapeCacheDir, tag, j.queryName);
 
         ScrapeEntry e;
         e.box = r.boxFile; e.fan = r.fanFile; e.title = r.title;

@@ -2485,6 +2485,20 @@ private:
     void loadScrapeIndex();
     void saveScrapeIndex();
     const ScrapeEntry* scrapeEntryFor(const std::string& romPath);
+    // Per-game title override (Rename / Edit Title). A user-typed name that overrides
+    // the basename-minus-extension display name everywhere (columns / recents / search /
+    // Info) AND becomes the scraper search query so a corrected title can match. Stored
+    // in a sidecar (names.json) next to the scrape manifest, keyed by ROM path.
+    std::unordered_map<std::string, std::string> mRomNameOverride;
+    bool mRomNameOverrideLoaded = false;
+    void loadRomNameOverrides();
+    void saveRomNameOverrides();
+    const std::string* romNameOverrideFor(const std::string& romPath);   // lazy-load; alias-normalized
+    void setRomNameOverride(const std::string& romPath, const std::string& name);
+    void clearRomNameOverride(const std::string& romPath);
+    void applyRomNameOverrides(XmbSystem& sys);            // patch sys.displayNames from the map
+    void applyRomNameOverridesToRecents();                 // patch mXmbRecent[].displayName from the map
+    void scrapeOneRom(int sysIdx, int romIdx);             // re-scrape one ROM (force overwrite, override query)
     std::string focusedRomPath();                  // focused home item's ROM path (PS3_ROM / PS3_RECENT) or ""
     const ScrapeEntry* focusedScrapeEntry();       // scrape entry for the focused ROM if it has art, else null
     bool openInfoForFocusedItem();                 // Y shortcut: open Information for a focused scraped-art item
@@ -2500,6 +2514,7 @@ private:
         std::string romPath;
         std::string displayName;
         std::string sysName;
+        std::string queryName;             // user title override as the search query ("" = filename)
         int engine = 0;                    // nanoscraper::Engine
         nanoscraper::Credentials cred;
         nanoscraper::PlatformIds plat;

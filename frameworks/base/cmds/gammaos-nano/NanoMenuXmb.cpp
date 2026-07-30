@@ -271,6 +271,33 @@ void NanoMenu::loadRomCacheForSystem(XmbSystem& sys) {
     }
     // If cache had ROMs, mark as scanned so early boot does not clear them.
     if (!sys.roms.empty()) sys.scanned = true;
+    applyRomNameOverrides(sys);   // patch in any per-game title overrides
+}
+
+// Patch a system's display names from the per-game title override sidecar. Called at
+// the end of every render-thread display-name derivation site (cache load, sync scan,
+// async single-system scan, and the bg-scan publish) so a user-renamed game shows the
+// override everywhere (column labels / recents / search / Info) instead of the raw
+// filename. NOT called from the bg-scan worker (off the render thread); the render
+// thread applies it when it drains the published result.
+void NanoMenu::applyRomNameOverrides(XmbSystem& sys) {
+    if (sys.roms.empty() || sys.displayNames.empty()) return;
+    size_t n = sys.roms.size() < sys.displayNames.size() ? sys.roms.size() : sys.displayNames.size();
+    for (size_t i = 0; i < n; i++) {
+        const std::string* ov = romNameOverrideFor(sys.roms[i]);
+        if (ov && !ov->empty()) sys.displayNames[i] = *ov;
+    }
+}
+
+// Patch the Recently Played list's display names from the override sidecar. Recent
+// entries persist the name captured at launch time, so a game renamed afterwards would
+// keep the old name in Recently Played + search until it is played again; this re-derives
+// them from the override map. Called at load and after a rename.
+void NanoMenu::applyRomNameOverridesToRecents() {
+    for (auto& e : mXmbRecent) {
+        const std::string* ov = romNameOverrideFor(e.romPath);
+        if (ov && !ov->empty()) e.displayName = *ov;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -900,6 +927,7 @@ void NanoMenu::scanRomPaths() {
             if (d != std::string::npos) dn = dn.substr(0, d);
             sys.displayNames.push_back(std::move(dn));
         }
+        applyRomNameOverrides(sys);   // patch in any per-game title overrides
 
         ALOGD("NanoMenu: %s: %zu ROMs across %zu paths (primary: %s)",
               sys.name.c_str(), sys.roms.size(), sys.activePaths.size(),
@@ -1074,6 +1102,7 @@ bool NanoMenu::scanOneSystemAsync(int sysIdx) {
             if (d != std::string::npos) dn = dn.substr(0, d);
             sys.displayNames.push_back(std::move(dn));
         }
+        applyRomNameOverrides(sys);   // patch in any per-game title overrides
 
         // Update cache file (xmbCachePath keys on the stable id, matching the
         // loader and the bg-scan writer; romDir is NOT the cache key)
@@ -1267,6 +1296,7 @@ void NanoMenu::loadXmbRecent() {
         if (pos < content.size() && content[pos] == '\n') pos++;
         mXmbRecent.push_back(std::move(e));
     }
+    applyRomNameOverridesToRecents();   // patch in any per-game title overrides
     ALOGD("NanoMenu: loaded %zu recent XMB entries", mXmbRecent.size());
 }
 

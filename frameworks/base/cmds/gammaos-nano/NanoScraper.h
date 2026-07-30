@@ -84,11 +84,14 @@ struct ScrapeOutcome {
 
 // Scrape one ROM. Writes "<key>.box.png" / "<key>.fan.jpg" into cacheDir (key =
 // cacheKey(romPath)). tmpTag is a unique per-call scratch suffix so concurrent
-// callers do not clobber each other's response/temp files. curlPath = curl binary.
+// callers do not clobber each other's response/temp files. queryName, when non-empty,
+// is used as the search query (a user title override) instead of the ROM filename;
+// empty = query by filename as before. curlPath = curl binary.
 ScrapeOutcome scrapeRom(Engine engine, const Credentials& cred,
                         const std::string& romPath, const std::string& displayName,
                         const PlatformIds& plat, bool wantBox, bool wantFan,
                         const std::string& cacheDir, const std::string& tmpTag,
+                        const std::string& queryName = std::string(),
                         const char* curlPath = "/system/bin/curl");
 
 // Stable 64-bit FNV-1a hex key for a rom path (cache filename stem).

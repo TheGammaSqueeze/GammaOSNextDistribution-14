@@ -5277,6 +5277,7 @@ if (sRingPrimedCount >= 2) {
                             if (romsChanged || !sys.scanned) {
                                 sys.roms = std::move(res.roms);
                                 sys.displayNames = std::move(res.displayNames);
+                                applyRomNameOverrides(sys);   // patch in per-game title overrides (render thread)
                                 sys.activePaths = std::move(res.activePaths);
                                 sys.activePath = std::move(res.activePath);
                                 sys.pathExists = !sys.roms.empty();

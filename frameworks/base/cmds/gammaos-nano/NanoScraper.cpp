@@ -344,6 +344,7 @@ static ScrapeOutcome scrapeScreenScraper(const Credentials& cred,
                                          bool wantBox, bool wantFan,
                                          const std::string& cacheDir,
                                          const std::string& tmpTag,
+                                         const std::string& queryName,
                                          const char* curl) {
     ScrapeOutcome r;
     if (cred.ssDevId.empty() || cred.ssDevPw.empty()) {
@@ -353,13 +354,15 @@ static ScrapeOutcome scrapeScreenScraper(const Credentials& cred,
     }
     const std::string key   = cacheKey(romPath);
     const std::string resp  = cacheDir + "/.resp-" + tmpTag + ".json";
-    const std::string fname = baseName(romPath);
+    // A user title override drives romnom (crc + size still sent); otherwise the raw
+    // filename as before.
+    const std::string romnom = queryName.empty() ? baseName(romPath) : queryName;
 
     std::vector<std::pair<std::string, std::string>> q = {
         {"devid", cred.ssDevId}, {"devpassword", cred.ssDevPw},
         {"softname", cred.ssSoftname.empty() ? std::string("gammaos-nano") : cred.ssSoftname},
         {"output", "json"},
-        {"romnom", fname},
+        {"romnom", romnom},
     };
     if (!cred.ssUser.empty()) { q.push_back({"ssid", cred.ssUser}); q.push_back({"sspassword", cred.ssPass}); }
     if (plat.ss > 0) q.push_back({"systemeid", std::to_string(plat.ss)});
@@ -573,6 +576,7 @@ static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
                                       bool wantBox, bool wantFan,
                                       const std::string& cacheDir,
                                       const std::string& tmpTag,
+                                      const std::string& queryName,
                                       const char* curl) {
     ScrapeOutcome r;
     if (cred.tgdbKey.empty()) {
@@ -582,7 +586,11 @@ static ScrapeOutcome scrapeTheGamesDb(const Credentials& cred,
     }
     const std::string key   = cacheKey(romPath);
     const std::string resp  = cacheDir + "/.resp-" + tmpTag + ".json";
-    const std::string qname = cleanQueryName(stripExt(baseName(romPath)));
+    // A user title override drives the name query (still cleaned of region/version
+    // tags); otherwise the filename stem as before.
+    const std::string qname = queryName.empty()
+        ? cleanQueryName(stripExt(baseName(romPath)))
+        : cleanQueryName(queryName);
 
     // 1) ByGameName -> game id. fields includes "platform" so we can prefer a
     // result on the requested platform; filter[platform] also narrows server-side.
@@ -703,13 +711,14 @@ ScrapeOutcome scrapeRom(Engine engine, const Credentials& cred,
                         const std::string& romPath, const std::string& displayName,
                         const PlatformIds& plat, bool wantBox, bool wantFan,
                         const std::string& cacheDir, const std::string& tmpTag,
+                        const std::string& queryName,
                         const char* curlPath) {
     if (engine == ENGINE_OFF || (!wantBox && !wantFan)) {
         ScrapeOutcome r; r.error = "Scraping disabled"; return r;
     }
     if (engine == ENGINE_THEGAMESDB)
-        return scrapeTheGamesDb(cred, romPath, displayName, plat, wantBox, wantFan, cacheDir, tmpTag, curlPath);
-    return scrapeScreenScraper(cred, romPath, displayName, plat, wantBox, wantFan, cacheDir, tmpTag, curlPath);
+        return scrapeTheGamesDb(cred, romPath, displayName, plat, wantBox, wantFan, cacheDir, tmpTag, queryName, curlPath);
+    return scrapeScreenScraper(cred, romPath, displayName, plat, wantBox, wantFan, cacheDir, tmpTag, queryName, curlPath);
 }
 
 } // namespace nanoscraper
