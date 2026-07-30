@@ -751,10 +751,12 @@ void NanoMenu::tickNavRepeat() {
     // 50... This deliberate slow start is the "debounce" feel; using count (not
     // count-1) in the exponent skipped the 200ms step and burst to top speed a
     // step early.
-    // The DSi carousel/menu (mPs3Xmb under the DSi theme, no OSK/media player in front)
-    // uses the DSi's fixed 250ms/150ms cadence instead of the PS3 accelerating schedule,
-    // matching launcher.js exactly. OSK and the media players keep the accelerating feel.
-    const bool ndsCadence = mNdsTheme && mPs3Xmb &&
+    // The DSi TOP-LEVEL categories carousel (mPs3Xmb under the DSi theme, no OSK/media player in
+    // front) keeps the DSi's fixed 250ms/150ms cadence, matching launcher.js. Once DRILLED INTO a
+    // list - a system's game list, the app list, a settings screen - hold-to-scroll accelerates
+    // like the XMB so long lists are fast to page through (user request). OSK and the media players
+    // keep the accelerating feel. (Minima always accelerates; it never sets ndsCadence.)
+    const bool ndsCadence = mNdsTheme && mPs3Xmb && mNdsAtRoot &&
                             !mOskActive && !mVidActive && !mMpActive && !mPvActive;
     int64_t interval;
     if (ndsCadence) {
@@ -778,6 +780,20 @@ void NanoMenu::tickNavRepeat() {
     mLastInputMs     = now;   // a held direction is ongoing user activity
     mNavLastRepeatMs = now;
     mNavRepeatCount++;
+}
+
+// L1/R1 bumper page-skip through a drilled DSi / Minima list or game carousel: jump a page of
+// items at once (traditional fast list scrolling). Reuses the theme's own directional nav so the
+// scroll / animation / selection state stays consistent, and Minima's per-frame SFX diff collapses
+// the burst to a single cursor cue. Vertical for the Minima list and DSi settings lists, horizontal
+// for the DSi game / app carousel. dir < 0 = back a page, dir > 0 = forward a page.
+void NanoMenu::ndsBumperSkip(int dir) {
+    const int PAGE = 10;
+    bool vertical = mMinimaTheme || ndsCurLevelIsList();
+    for (int i = 0; i < PAGE; i++) {
+        if (vertical) { if (dir < 0) handleUp();   else handleDown(); }
+        else          { if (dir < 0) handleLeft(); else handleRight(); }
+    }
 }
 
 // Glide the Applications cursor to a freshly installed app "as if the nav button were
@@ -1887,6 +1903,13 @@ void NanoMenu::pollInput() {
                         else                            catOrderToggle(its[sel].a);
                     }
                 }
+                // DSi / Minima drilled game/media list: l1/r1 fast page-skip (bumper scrolling),
+                // mirroring the physical L1/R1. x has no effect here.
+                else if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && !mNdsAtRoot
+                         && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive) {
+                    if (!strcmp(navbuf, "l1"))      ndsBumperSkip(-1);
+                    else if (!strcmp(navbuf, "r1")) ndsBumperSkip(+1);
+                }
             }
             // Cold-boot intro replay: re-run the boot sequence from t=0 so it can be
             // verified 1:1 against the web without a real reboot.
@@ -2708,6 +2731,11 @@ void NanoMenu::pollInput() {
                                 catOrderReorder(its[sel].a, -1);
                             break;
                         }
+                        // DSi / Minima: L1 fast-skips a page back through a drilled game / media list.
+                        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && !mNdsAtRoot
+                            && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive) {
+                            ndsBumperSkip(-1); break;
+                        }
                         // Shut any open Settings sub-screen before leaving XMB
                         // so its scan thread exits instead of churning in bg.
                         if (mMenuState == MENU_WIFI) closeWifiScreen();
@@ -2744,6 +2772,11 @@ void NanoMenu::pollInput() {
                             if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_CATORDER_ROW)
                                 catOrderReorder(its[sel].a, +1);
                             break;
+                        }
+                        // DSi / Minima: R1 fast-skips a page forward through a drilled game / media list.
+                        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && !mNdsAtRoot
+                            && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive) {
+                            ndsBumperSkip(+1); break;
                         }
                         mQuickResumeEnabled = !mQuickResumeEnabled;
                         property_set("persist.gammaos.nano.quick_resume",

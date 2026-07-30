@@ -1395,6 +1395,7 @@ private:
     void  ndsNavSelect(bool allowLaunch = true);  // enter/drill the focused card; allowLaunch=false (D-pad/buttons) navigates the hierarchy but never launches a leaf (launch is touch-only)
     void  ndsNavBack();                    // walk up one level (pop submenu / leave category / at root: noop)
     bool  ndsCurLevelIsList() const;       // current drill level is a settings screen -> DSi vertical list, not the carousel
+    void  ndsBumperSkip(int dir);          // L1/R1 page-skip through a drilled DSi/Minima list (bumper scrolling)
     int   ndsNavDepth() const;             // 0 = root categories, 1 = a category, 2+ = submenu levels
     bool  ndsInModal() const;              // a chooser/dialog/OSK/player owns nav -> delegate to XMB handlers
     int   ndsFocusSel() const;             // current selection index of the focused carousel
