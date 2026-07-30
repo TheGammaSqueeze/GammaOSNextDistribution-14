@@ -31,6 +31,7 @@
 #include "NanoVideo.h"
 #include "NanoMenuPS3Globe.h"
 #include "NanoMenuPS3Data.h"
+#include "NanoJson.h"      // NanoJson reader/writer for nano_categories.json (home category order)
 #include "NanoMenuShaders.h" // kEffectNames/kActiveEffects/sActiveEffectIdx for the Wallpaper picker
 #include "NanoMenuDrm.h"   // sDrmGlRotation / sDrmRotationDeg for ticker scissor
 #include "NanoMenuUtils.h" // setLaunchRomPath for the Applications launch
@@ -49,6 +50,7 @@
 #include <time.h>
 #include <thread>
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/input.h>
@@ -472,6 +474,7 @@ void NanoMenu::initPs3Menu() {
     property_get("persist.gammaos.nano.ps3xmb.uiscale", usbuf, "1.12");
     mPs3UiScale = (float)atof(usbuf);
     if (mPs3UiScale < 0.5f || mPs3UiScale > 2.0f) mPs3UiScale = 1.12f;
+    loadCatOrder();   // home category order + visibility (before buildPs3Cats below)
     initGlassIcons();
     static const char* kCatIconFiles[6] = {
         "xmb_icon_001.png", "xmb_icon_002.png", "xmb_icon_003.png",
@@ -862,6 +865,7 @@ bool NanoMenu::ps3ItemOpensSubmenu(const Ps3Item& it) const {
     return it.kind == PS3_DATA_SUBMENU || it.kind == PS3_SYSTEM ||
            it.kind == PS3_RECENT_LIST || it.kind == PS3_APP_LIST ||
            it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW ||
+           it.kind == PS3_CATORDER_ROOT ||
            (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)) ||
            // Slide Behaviour: these data-leaf rows drill into a pushed picker (device /
            // event list, or the down/up action multi-select) rather than a side chooser.
@@ -877,6 +881,120 @@ bool NanoMenu::ps3FocusOpensSubmenu() {
     std::vector<Ps3Item>& items = ps3CurItems();
     int sel = ps3CurSel();
     return sel >= 0 && sel < (int)items.size() && ps3ItemOpensSubmenu(items[sel]);
+}
+
+// Nanosecond mtime stamp of nano_categories.json, or -1 when absent. Same
+// cross-process coherence contract as systemsConfigStamp: the overlay and the
+// DRM home poll the file and reload when the other process rewrote it.
+int64_t NanoMenu::catOrderConfigStamp() const {
+    struct stat st;
+    if (stat(catOrderPath().c_str(), &st) != 0) return -1;
+    return (int64_t)st.st_mtim.tv_sec * 1000000000LL + st.st_mtim.tv_nsec;
+}
+
+// Load the home-category order + visibility from nano_categories.json. Keeps
+// only ids that exist in kPs3DataCats, appends any kPs3DataCats id missing from
+// the file as visible (forward-compat when a future build adds a category), and
+// drops unknown ids. Absent / parse-fail seeds all-visible in source order.
+void NanoMenu::loadCatOrder() {
+    auto seedDefaults = [&]() {
+        mCatOrder.clear();
+        for (int i = 0; i < kPs3DataCatCount; i++)
+            mCatOrder.emplace_back(kPs3DataCats[i].id, true);
+    };
+    const std::string path = catOrderPath();
+    int fd = open(path.c_str(), O_RDONLY);
+    if (fd < 0) { seedDefaults(); mCatOrderCfgStamp = catOrderConfigStamp(); return; }
+    std::string content;
+    struct stat st;
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 256 * 1024) {
+        content.resize(st.st_size);
+        ssize_t rd = read(fd, &content[0], st.st_size);
+        if (rd > 0) content.resize(rd); else content.clear();
+    }
+    close(fd);
+
+    njson::Value root;
+    const njson::Value* cats = nullptr;
+    if (!content.empty() && njson::parse(content, &root) && root.isObject())
+        cats = root.find("categories");
+    if (!cats || !cats->isArray()) {
+        ALOGW("NanoMenu: nano_categories.json missing/invalid; seeding all-visible defaults");
+        seedDefaults();
+        mCatOrderCfgStamp = catOrderConfigStamp();
+        return;
+    }
+
+    std::vector<std::pair<std::string,bool>> parsed;
+    for (const auto& cv : cats->arr) {
+        if (!cv.isObject()) continue;
+        std::string id = cv.getString("id");
+        if (id.empty()) continue;
+        // Keep only ids that exist in kPs3DataCats (drop unknown / removed ids).
+        bool known = false;
+        for (int i = 0; i < kPs3DataCatCount; i++)
+            if (id == kPs3DataCats[i].id) { known = true; break; }
+        if (!known) continue;
+        // Skip duplicates (first occurrence wins).
+        bool dup = false;
+        for (const auto& p : parsed) if (p.first == id) { dup = true; break; }
+        if (dup) continue;
+        parsed.emplace_back(id, cv.getBool("visible", true));
+    }
+    // Append any kPs3DataCats id missing from the file as visible (forward-compat).
+    for (int i = 0; i < kPs3DataCatCount; i++) {
+        const char* id = kPs3DataCats[i].id;
+        bool present = false;
+        for (const auto& p : parsed) if (p.first == id) { present = true; break; }
+        if (!present) parsed.emplace_back(id, true);
+    }
+    if (parsed.empty()) { seedDefaults(); mCatOrderCfgStamp = catOrderConfigStamp(); return; }
+    mCatOrder = std::move(parsed);
+    mCatOrderCfgStamp = catOrderConfigStamp();
+    ALOGD("NanoMenu: loaded %zu home categories from nano_categories.json", mCatOrder.size());
+}
+
+// Persist mCatOrder atomically (temp file, fsync, rename), mirroring
+// saveSystemsConfig's cache hygiene (root:root 0644; nano holds CHOWN/FOWNER).
+void NanoMenu::saveCatOrder() {
+    njson::Value root = njson::Value::makeObject();
+    root.set("version") = njson::Value::makeNumber(1);
+    njson::Value cats = njson::Value::makeArray();
+    for (const auto& p : mCatOrder) {
+        njson::Value o = njson::Value::makeObject();
+        o.set("id") = njson::Value::makeString(p.first);
+        o.set("visible") = njson::Value::makeBool(p.second);
+        cats.arr.push_back(std::move(o));
+    }
+    root.set("categories") = std::move(cats);
+    std::string text = njson::serialize(root, true);
+
+    const std::string path = catOrderPath();
+    const std::string tmp = path + ".tmp";
+    int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) { ALOGW("NanoMenu: cannot write %s (errno %d)", tmp.c_str(), errno); return; }
+    size_t off = 0;
+    bool ok = true;
+    while (off < text.size()) {
+        ssize_t w = write(fd, text.c_str() + off, text.size() - off);
+        if (w <= 0) { ok = false; break; }
+        off += (size_t)w;
+    }
+    fsync(fd);
+    close(fd);
+    if (!ok) { unlink(tmp.c_str()); ALOGW("NanoMenu: write of nano_categories.json failed"); return; }
+    if (rename(tmp.c_str(), path.c_str()) != 0) {
+        ALOGW("NanoMenu: rename of nano_categories.json failed (errno %d)", errno);
+        unlink(tmp.c_str());
+        return;
+    }
+    (void)chown(path.c_str(), 0, 0);
+    (void)chmod(path.c_str(), 0644);
+    // Track our own write so the cross-process change poll does not see this
+    // process's saves as an external edit.
+    mCatOrderCfgStamp = catOrderConfigStamp();
+    ALOGD("NanoMenu: wrote %s (%zu categories, %zu bytes)", path.c_str(),
+          mCatOrder.size(), text.size());
 }
 
 void NanoMenu::buildPs3Cats() {
@@ -953,15 +1071,34 @@ void NanoMenu::buildPs3Cats() {
 
     // Categories straight from the web DATA tree (Users/PSN/Friends excluded by
     // the table). Each item is glass-rendered from its xmb_icon normal map.
-    for (int ci = 0; ci < kPs3DataCatCount; ci++) {
-        const Ps3DataCat& dc = kPs3DataCats[ci];
+    // Order + visibility come from mCatOrder (Theme Settings > Home Categories),
+    // NOT the source order, so the user can hide and reorder these six. mCatOrder
+    // is seeded all-visible in source order when the config is absent, so a fresh
+    // install is byte-for-byte identical to the old fixed layout.
+    if (mCatOrder.empty()) loadCatOrder();   // defensive: never iterate an empty order
+    // Anti-lockout: if the saved config would leave zero visible data categories
+    // there would be nowhere to launch games, so force the Game column visible.
+    bool anyVisibleData = false;
+    for (const auto& p : mCatOrder) if (p.second) { anyVisibleData = true; break; }
+    const bool iptvOn = property_get_bool("persist.gammaos.nano.iptv", true);
+    const bool radioOn = property_get_bool("persist.gammaos.nano.radio", true);
+    for (const auto& entry : mCatOrder) {
+        const std::string& id = entry.first;
+        bool visible = entry.second;
+        if (!anyVisibleData && id == "game") visible = true;   // guarantee a launch column
+        if (!visible) continue;
+        // Find the matching source-table entry (mCatOrder ids are pre-filtered to
+        // kPs3DataCats ids by loadCatOrder, so this always resolves).
+        const Ps3DataCat* dcp = nullptr;
+        for (int ci = 0; ci < kPs3DataCatCount; ci++)
+            if (id == kPs3DataCats[ci].id) { dcp = &kPs3DataCats[ci]; break; }
+        if (!dcp) continue;
+        const Ps3DataCat& dc = *dcp;
         Ps3Cat c;
         c.name = dc.name;
         int catIdx = (dc.icon >= 1 && dc.icon <= 6) ? dc.icon - 1 : 0;
         c.iconTex = mPs3CatTex[catIdx];
         c.nmapTex = mPs3CatNmap[catIdx];
-        bool iptvOn = property_get_bool("persist.gammaos.nano.iptv", true);
-        bool radioOn = property_get_bool("persist.gammaos.nano.radio", true);
         for (int ii = 0; ii < dc.itemCount; ii++) {
             // The IPTV row (Video category) is hidden when toggled off in Video Settings.
             if (strcmp(dc.id, "video") == 0 && !iptvOn && strcmp(dc.items[ii].name, "IPTV") == 0)
@@ -3335,6 +3472,105 @@ void NanoMenu::gsRefreshStackLevels() {
     }
 }
 
+// ---- Home Categories editor (Theme Settings > Home Categories) --------------
+// Mirrors the Game Systems editor: one row per data category (in the saved
+// order), X toggles Shown/Hidden, L1/R1 reorder. Quick Menu is never listed
+// (it is pinned first in buildPs3Cats and is not part of mCatOrder); Settings
+// can never be hidden (anti-lockout).
+void NanoMenu::buildCatOrderList(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Home Categories";
+    out.screenKind = CAT_ORDER;
+    for (size_t i = 0; i < mCatOrder.size(); i++) {
+        const std::string& id = mCatOrder[i].first;
+        bool visible = mCatOrder[i].second;
+        // Resolve the display name + category icon exactly as buildPs3Cats does.
+        const Ps3DataCat* dc = nullptr;
+        for (int ci = 0; ci < kPs3DataCatCount; ci++)
+            if (id == kPs3DataCats[ci].id) { dc = &kPs3DataCats[ci]; break; }
+        if (!dc) continue;
+        Ps3Item it;
+        it.label = dc->name;
+        it.kind = PS3_CATORDER_ROW; it.a = (int)i;
+        it.value = visible ? "Shown" : "Hidden";
+        int catIdx = (dc->icon >= 1 && dc->icon <= 6) ? dc->icon - 1 : 0;
+        it.iconTex = mPs3CatTex[catIdx];
+        it.nmapTex = mPs3CatNmap[catIdx];
+        // Dim a hidden row's icon so the state reads at a glance (matches the GS list).
+        float m = visible ? 1.0f : 0.45f;
+        it.iconR = it.iconG = it.iconB = m;
+        out.items.push_back(it);
+    }
+}
+
+// Rebuild the home categories after a category hide/reorder, keeping the home
+// carousel focus on the SAME category by name (buildPs3Cats clamps by position,
+// which would otherwise land on a different column once the vector shifts). The
+// Home Categories editor is on top of the stack here, so this only fixes where
+// the user lands once they back all the way out.
+void NanoMenu::catOrderRebuildCats() {
+    std::string focusName;
+    if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size())
+        focusName = mPs3Cats[mPs3CatIdx].name;
+    buildPs3Cats();
+    if (!focusName.empty()) {
+        for (size_t c = 0; c < mPs3Cats.size(); c++) {
+            if (mPs3Cats[c].name == focusName) {
+                mPs3CatIdx = (int)c;
+                int n = (int)mPs3Cats[c].items.size();
+                if (mPs3ItemIdx >= n) mPs3ItemIdx = n > 0 ? n - 1 : 0;
+                if (mPs3ItemIdx < 0) mPs3ItemIdx = 0;
+                mPs3AnimItem = (float)mPs3ItemIdx; mPs3ItemAnimStart = -1.0f;
+                break;
+            }
+        }
+    }
+}
+
+// X on a Home Categories row: flip its Shown/Hidden state. Blocked for
+// "settings" (anti-lockout) and blocked when it would hide the last remaining
+// visible category. Persists, refreshes the open editor level in place, and
+// rebuilds the home categories so the change applies live.
+void NanoMenu::catOrderToggle(int idx) {
+    if (idx < 0 || idx >= (int)mCatOrder.size()) return;
+    // Settings can never be hidden.
+    if (mCatOrder[idx].first == "settings" && mCatOrder[idx].second) return;
+    if (mCatOrder[idx].second) {
+        // About to hide it: refuse if it is the last visible category.
+        int visibleCount = 0;
+        for (const auto& p : mCatOrder) if (p.second) visibleCount++;
+        if (visibleCount <= 1) return;
+    }
+    mCatOrder[idx].second = !mCatOrder[idx].second;
+    saveCatOrder();
+    // Rebuild the open CAT_ORDER level(s) in place (preserve selection).
+    for (auto& lvl : mPs3Stack) {
+        if (lvl.screenKind != CAT_ORDER) continue;
+        int keep = lvl.sel;
+        buildCatOrderList(lvl);
+        int n = (int)lvl.items.size();
+        if (keep >= n) keep = n - 1;
+        lvl.sel = keep < 0 ? 0 : keep;
+    }
+    catOrderRebuildCats();
+}
+
+// L1/R1 on a Home Categories row: swap it with its neighbour (dir -1 up / +1
+// down), persist, follow the moved row, and rebuild the home categories.
+void NanoMenu::catOrderReorder(int idx, int dir) {
+    if (idx < 0 || idx >= (int)mCatOrder.size()) return;
+    int j = idx + dir;
+    if (j < 0 || j >= (int)mCatOrder.size()) return;
+    std::swap(mCatOrder[idx], mCatOrder[j]);
+    saveCatOrder();
+    // Rebuild the open CAT_ORDER level(s) in place, then follow the moved row.
+    for (auto& lvl : mPs3Stack) {
+        if (lvl.screenKind != CAT_ORDER) continue;
+        buildCatOrderList(lvl);
+        lvl.sel = j;
+    }
+    catOrderRebuildCats();
+}
+
 // ---- Per-system editor ----
 
 // Editor field ids (Ps3Item.a for PS3_GS_FIELD rows).
@@ -4130,12 +4366,22 @@ void NanoMenu::ps3XmbSelect() {
                     gs.iconR = gs.iconG = gs.iconB = 1.0f;
                     lvl.items.insert(lvl.items.begin(), gs);
                     lvl.sel = 0;
+                } else if (it.label == "Theme Settings") {
+                    // The Home Categories editor lives under Theme Settings; inject it as
+                    // the first row (a runtime PS3_CATORDER_ROOT item, not static data).
+                    Ps3Item co; co.label = "Home Categories"; co.kind = PS3_CATORDER_ROOT;
+                    co.iconTex = 0; co.nmapTex = nmapForIcon(79);
+                    co.iconR = co.iconG = co.iconB = 1.0f;
+                    lvl.items.insert(lvl.items.begin(), co);
+                    lvl.sel = 0;
                 }
             }
             mPs3Stack.push_back(lvl);
             break;
         }
         case PS3_GS_ROOT:      { Ps3Level lvl; buildGameSystemsList(lvl);      mPs3Stack.push_back(lvl); break; }
+        case PS3_CATORDER_ROOT: { Ps3Level lvl; buildCatOrderList(lvl);       mPs3Stack.push_back(lvl); break; }
+        case PS3_CATORDER_ROW:  return;   // A does nothing; Shown/Hidden is toggled with X only
         case PS3_GS_SYSTEM_ROW: { mGsEditIdx = it.a; Ps3Level lvl; buildGameSystemEditor(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_GS_FIELD:     { gsEditField(it.a); return; }   // open OSK / chooser / toggle
         case PS3_GS_EMUROW: {   // pick a catalog emulator/core -> apply to the system

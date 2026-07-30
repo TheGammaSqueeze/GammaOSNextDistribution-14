@@ -375,6 +375,22 @@ private:
     // nano (overlay vs DRM home) rewrote it.
     int64_t systemsConfigStamp() const;
     int64_t mSystemsCfgStamp = -1;
+    // Home category order + visibility (/data/system/nano_categories.json, DE
+    // storage). Each entry is a stable kPs3DataCats id ("settings","photo",...)
+    // paired with its shown/hidden flag. buildPs3Cats iterates this instead of
+    // the source order so the user can hide + reorder the six data categories
+    // (Quick Menu stays pinned first; Settings can never be hidden). Loaded once
+    // in initPs3Menu and re-polled cross-process like nano_systems.json.
+    std::vector<std::pair<std::string,bool>> mCatOrder;
+    int64_t mCatOrderCfgStamp = -1;
+    bool mCatOrderStale = false;
+    std::string catOrderPath() const { return "/data/system/nano_categories.json"; }
+    int64_t catOrderConfigStamp() const;
+    void loadCatOrder();
+    void saveCatOrder();
+    void catOrderToggle(int idx);               // X: flip shown/hidden (anti-lockout guarded)
+    void catOrderReorder(int idx, int dir);     // L1/R1: move a category up (-1) / down (+1)
+    void catOrderRebuildCats();                 // rebuild home cats, keep focus on the same column by name
     // Consolidated ROM scan candidate-path builder (replaces the duplicated
     // logic in scanRomPaths / scanOneSystemAsync / bgScanThreadFunc). Honors
     // scanSources when present, else reproduces the legacy default candidates.
@@ -1174,6 +1190,8 @@ private:
         PS3_DATA_LEAF,    // a static DATA leaf (dialog / value / info, no action)
         PS3_QUICK,        // Quick Menu action; a = action code (QA_* in NanoMenuPS3Menu.cpp)
         PS3_GS_ROOT,      // "Game Systems" entry -> open the systems-list editor screen
+        PS3_CATORDER_ROOT,// "Home Categories" entry -> open the category order/visibility editor
+        PS3_CATORDER_ROW, // a category row in the Home Categories editor (a = mCatOrder index)
         PS3_GS_SYSTEM_ROW,// a system row in the Game Systems list (a = mXmbSystems index)
         PS3_GS_FIELD,     // a field row in the per-system editor (a = field id)
         PS3_GS_ADD,       // "Add New System" row in the Game Systems list
@@ -1227,7 +1245,8 @@ private:
                         MUSIC_FOLDER = 7, PHOTO_FOLDER = 8, PHOTO_GRID = 9,
                         VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12,
                         FE_BROWSE = 13, APP_INFO = 14, APP_STORAGE = 15, APP_PERMS = 16,
-                        SHADER_BROWSE = 17, NS_LIST = 18, NS_EDITOR = 19 };
+                        SHADER_BROWSE = 17, NS_LIST = 18, NS_EDITOR = 19,
+                        CAT_ORDER = 20 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -2272,6 +2291,7 @@ private:
     // Game Systems editor (dynamic systems config). The list screen shows every
     // configured system (enabled + disabled) with enable/disable + reorder; later
     // phases add the per-system editor, folder picker, and icon grid.
+    void buildCatOrderList(Ps3Level& out);      // the "Home Categories" editor screen (declared here where Ps3Level is defined)
     void buildGameSystemsList(Ps3Level& out);
     void gsToggleSystem(int sysIdx);            // flip enabled, persist, rebuild
     void gsReorderSystem(int sysIdx, int dir);  // move a system up (-1) / down (+1)

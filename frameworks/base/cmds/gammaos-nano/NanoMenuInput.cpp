@@ -1877,6 +1877,16 @@ void NanoMenu::pollInput() {
                         else                            gsToggleSystem(its[sel].a);
                     }
                 }
+                // Home Categories editor: same interaction as the Game Systems list
+                // (l1/r1 reorder the selected category, x toggles Shown/Hidden).
+                else if (mPs3Xmb && ps3TopScreenKind() == CAT_ORDER && !mPs3Stack.empty()) {
+                    auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                    if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_CATORDER_ROW) {
+                        if (!strcmp(navbuf, "l1"))      catOrderReorder(its[sel].a, -1);
+                        else if (!strcmp(navbuf, "r1")) catOrderReorder(its[sel].a, +1);
+                        else                            catOrderToggle(its[sel].a);
+                    }
+                }
             }
             // Cold-boot intro replay: re-run the boot sequence from t=0 so it can be
             // verified 1:1 against the web without a real reboot.
@@ -2659,6 +2669,13 @@ void NanoMenu::pollInput() {
                                 gsToggleSystem(its[sel].a);
                             break;
                         }
+                        // Home Categories editor: X toggles the selected category Shown/Hidden.
+                        if (mPs3Xmb && ps3TopScreenKind() == CAT_ORDER) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_CATORDER_ROW)
+                                catOrderToggle(its[sel].a);
+                            break;
+                        }
                         // Triangle on the focused Internet Search item picks the engine
                         // (before the generic option menu).
                         if (tryOpenSearchEngineChooser()) break;
@@ -2682,6 +2699,13 @@ void NanoMenu::pollInput() {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
                             if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SYSTEM_ROW)
                                 gsReorderSystem(its[sel].a, -1);
+                            break;
+                        }
+                        // Home Categories editor: L1 moves the selected category up.
+                        if (mPs3Xmb && ps3TopScreenKind() == CAT_ORDER) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_CATORDER_ROW)
+                                catOrderReorder(its[sel].a, -1);
                             break;
                         }
                         // Shut any open Settings sub-screen before leaving XMB
@@ -2712,6 +2736,13 @@ void NanoMenu::pollInput() {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
                             if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SYSTEM_ROW)
                                 gsReorderSystem(its[sel].a, +1);
+                            break;
+                        }
+                        // Home Categories editor: R1 moves the selected category down.
+                        if (mPs3Xmb && ps3TopScreenKind() == CAT_ORDER) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_CATORDER_ROW)
+                                catOrderReorder(its[sel].a, +1);
                             break;
                         }
                         mQuickResumeEnabled = !mQuickResumeEnabled;

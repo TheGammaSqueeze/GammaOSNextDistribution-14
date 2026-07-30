@@ -5428,6 +5428,15 @@ if (sRingPrimedCount >= 2) {
                         mPs3CatsStale = true;
                         forceRescanAllSystems();
                     }
+                    // Home category order/visibility: reload nano_categories.json
+                    // if the OTHER nano process (overlay vs DRM home) edited it, so
+                    // a hide/reorder made in one applies live to the other.
+                    if (!mBgScanThreadRunning
+                        && catOrderConfigStamp() != mCatOrderCfgStamp) {
+                        loadCatOrder();
+                        mCatOrderCfgStamp = catOrderConfigStamp();
+                        mPs3CatsStale = true;
+                    }
                     // Music library: swap in finished scan results, and reload
                     // nano_music.json if the OTHER nano process edited it. Both set
                     // mMusicCatsStale so the Music column rebuilds below.

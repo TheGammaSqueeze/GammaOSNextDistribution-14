@@ -961,7 +961,8 @@ bool NanoMenu::ndsCurLevelIsList() const {
             // Game system list and per-system editor hold GS-kind rows (PS3_GS_SYSTEM_ROW,
             // PS3_GS_FIELD) which the item-kind whitelist below does not cover. Force list
             // mode here so Enabled toggles and scraper rows are navigable in Minima/NDS.
-            case GS_LIST: case GS_EDITOR:
+            // Home Categories (CAT_ORDER) holds PS3_CATORDER_ROW rows for the same reason.
+            case GS_LIST: case GS_EDITOR: case CAT_ORDER:
                 return true;
             default: break;
         }
@@ -1164,7 +1165,8 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         const int  iconIdx     = items[i].data ? items[i].data->icon : -1;   // -1 = Quick/dynamic (no DATA node)
         const bool genericIcon = (iconIdx == 22);                            // shared placeholder settings glyph
         const bool hasIcon     = items[i].iconTex && !genericIcon;
-        const bool showVal     = (items[i].kind == PS3_GS_SYSTEM_ROW || items[i].kind == PS3_GS_FIELD)
+        const bool showVal     = (items[i].kind == PS3_GS_SYSTEM_ROW || items[i].kind == PS3_GS_FIELD
+                                  || items[i].kind == PS3_CATORDER_ROW)
                                  && !items[i].value.empty();
         float rightEdge = X(bx + bw - 9.0f);
         if (showVal) {

@@ -153,7 +153,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     std::vector<std::string> vals;
     auto pushItem = [&](const Ps3Item& it) {
         rows.push_back(it.label);
-        if (it.kind == PS3_GS_SYSTEM_ROW || it.kind == PS3_GS_FIELD) vals.push_back(it.value);
+        if (it.kind == PS3_GS_SYSTEM_ROW || it.kind == PS3_GS_FIELD || it.kind == PS3_CATORDER_ROW) vals.push_back(it.value);
         else vals.push_back(std::string());
     };
     int sel = 0;
@@ -517,7 +517,8 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
     }
     // game-system rows: echo the On/Off (or field value) in the accent colour under the label,
     // so the enable state is visible on the bottom screen too.
-    if (selItem && (selItem->kind == PS3_GS_SYSTEM_ROW || selItem->kind == PS3_GS_FIELD)
+    if (selItem && (selItem->kind == PS3_GS_SYSTEM_ROW || selItem->kind == PS3_GS_FIELD
+                    || selItem->kind == PS3_CATORDER_ROW)
         && !selItem->value.empty()) {
         float fsV = (18.0f * sc) / (float)FONT_CHAR_H;
         float vw = measureText(selItem->value.c_str(), fsV);
