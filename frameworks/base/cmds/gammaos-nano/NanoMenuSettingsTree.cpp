@@ -657,6 +657,10 @@ void NanoMenu::buildSettingsTree() {
                  SettingSource::kProp, "persist.gammaos.retroarchoverride.backbutton", "0");
         b.toggle("startselectled", "Start+Select LED",
                  SettingSource::kProp, "persist.gammaos.startselectled", "0");
+        b.toggle("rom_recursive_scan", "Scan ROM Subfolders",
+                 SettingSource::kProp, "persist.gammaos.nano.rom.recursive", "0");
+        b.toggle("rom_m3u_group", "Group Multi-Disc (.m3u)",
+                 SettingSource::kProp, "persist.gammaos.nano.rom.m3u_group", "1");
       b.endCategory();
 
       // -- USB & Docking --
@@ -940,6 +944,12 @@ void NanoMenu::settingsToggleValue(int nodeIdx) {
         std::lock_guard<std::mutex> lk(mSettingsValueMutex);
         mSettingsValueCache[nodeIdx] = newVal;
     }
+    // ROM scan-behaviour toggles: re-scan the library (the recursion / .m3u
+    // grouping is baked into each system's cache; a stale cache would keep the old
+    // grouping). Same effect as the XMB-theme commit in closePs3Dialog.
+    if (n.key == "persist.gammaos.nano.rom.recursive" ||
+        n.key == "persist.gammaos.nano.rom.m3u_group")
+        romRescanFromSettings();
     mDisplayDirty = true;
 }
 

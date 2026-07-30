@@ -322,6 +322,8 @@ static const Ps3DataItem kToolboxCh[] = {
   {"Virtual Memory",22,"Set the swap file size used to extend RAM. Larger values let more apps stay open but use more storage.","Off",1,nullptr,0},
   {"RetroArch Back Button Override",22,"Override the back button behaviour inside RetroArch.","Off",1,nullptr,0},
   {"Start+Select LED",22,"Flash the LED when Start and Select are pressed together.","Off",1,nullptr,0},
+  {"Scan ROM Subfolders",22,"Also scan folders inside each system's ROM directory (recursively). Turn off to scan only the top level.","Off",1,nullptr,0},
+  {"Group Multi-Disc (.m3u)",22,"Show a single entry for multi-disc games listed in an .m3u playlist and hide the individual disc files.","On",1,nullptr,0},
   {"USB Controller Switch",22,"Switch the USB port between host and device mode for controllers.","Off",1,nullptr,0},
   {"DC Dimming Emulation",22,"Emulate DC dimming to reduce screen flicker at low brightness.","Off",1,nullptr,0},
   {"Phone Taskbar",22,"Show the phone-style taskbar.","On",1,nullptr,0},

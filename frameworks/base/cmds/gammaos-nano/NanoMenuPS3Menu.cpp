@@ -7583,6 +7583,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // The RG477V tile reads startselectled via getInt, so store 0/1 (a "false"/"true"
     // string parses to 0 = the LED never turns on). Label kept for the Settings leaf.
     {"Start+Select LED", SettingSource::kProp, "persist.gammaos.startselectled", "0", "0:Off,1:On"},
+    // ROM library scanning. Recursive subfolder scan + multi-disc .m3u grouping,
+    // both default ON. A change re-scans the whole ROM library (see closePs3Dialog).
+    {"Scan ROM Subfolders", SettingSource::kProp, "persist.gammaos.nano.rom.recursive", "0", "1:On,0:Off"},
+    {"Group Multi-Disc (.m3u)", SettingSource::kProp, "persist.gammaos.nano.rom.m3u_group", "1", "1:On,0:Off"},
     {"USB Controller Switch", SettingSource::kProp, "persist.gammaos.usbcontrollerswitch", "false", "false:Off,true:On"},
     {"DC Dimming Emulation", SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "0", "0:Off,1:On"},
     {"Phone Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.phone", "true", "false:Off,true:On"},
@@ -9910,6 +9914,12 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     // stay independent, so key on the label not the prop).
                     if (!strcmp(b->label, "DPAD/Analog Swap"))
                         writeSettingValue(SettingSource::kProp, "persist.gammaos.gamepad.dpad_to_analog", v);
+                    // ROM library scan-behaviour toggles: the recursion / .m3u grouping
+                    // is baked into each system's cached list, so a change must re-scan
+                    // the whole library (drops the caches + kicks a fresh bg scan).
+                    if (!strcmp(b->label, "Scan ROM Subfolders") ||
+                        !strcmp(b->label, "Group Multi-Disc (.m3u)"))
+                        romRescanFromSettings();
                     // Screen Map: mirror the volatile active flag and show/hide the
                     // cosmetic button-hint overlay service (functional effect is the
                     // two props, consumed by the gammapad daemon).

@@ -391,6 +391,10 @@ private:
     void catOrderToggle(int idx);               // X: flip shown/hidden (anti-lockout guarded)
     void catOrderReorder(int idx, int dir);     // L1/R1: move a category up (-1) / down (+1)
     void catOrderRebuildCats();                 // rebuild home cats, keep focus on the same column by name
+    // Max directory depth for recursive ROM subfolder scanning when the
+    // "Scan ROM Subfolders" toggle (persist.gammaos.nano.rom.recursive) is on.
+    // 0 = top level only (toggle off = the legacy one-level behavior).
+    // (kRomScanMaxDepth is a file-static const in NanoMenuXmb.cpp - only the scanners need it.)
     // Consolidated ROM scan candidate-path builder (replaces the duplicated
     // logic in scanRomPaths / scanOneSystemAsync / bgScanThreadFunc). Honors
     // scanSources when present, else reproduces the legacy default candidates.
@@ -401,6 +405,10 @@ private:
     }
     void scanRomPaths();
     void forceRescanAllSystems();
+    // Drop the ROM caches + scanned flags and kick a fresh library rescan. Called
+    // when the Scan ROM Subfolders / Group Multi-Disc (.m3u) toggles change so the
+    // grouping baked into the cache is re-derived with the new setting.
+    void romRescanFromSettings();
     bool scanOneSystemAsync(int sysIdx);
     void renderXmb();
     void launchXmbGame();

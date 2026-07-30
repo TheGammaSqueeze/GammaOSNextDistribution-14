@@ -873,29 +873,69 @@ static std::string overlayBuildContentUri(const std::string& romPath,
             default:   encFile += c;
         }
     }
-    std::string volumeId = "primary";
-    std::string relDir = "ROMs%2F" + romDir;
-    std::string work;
-    if (romPath.find("/mnt/media_rw/") == 0) work = romPath.substr(14);
-    else if (romPath.find("/storage/") == 0) work = romPath.substr(9);
-    if (!work.empty()) {
-        size_t sl1 = work.find('/');
-        if (sl1 != std::string::npos) {
-            std::string uuid = work.substr(0, sl1);
-            if (uuid != "emulated") {
-                size_t lastSl = work.rfind('/');
-                std::string subdir = work.substr(sl1 + 1, lastSl - sl1 - 1);
-                std::string encDir;
-                for (char c : subdir) {
-                    if (c == '/') encDir += "%2F";
-                    else if (c == ' ') encDir += "%20";
-                    else encDir += c;
-                }
-                volumeId = uuid;
-                relDir = encDir;
+    // Derive the volume + volume-root-relative directory from the true path, then
+    // percent-encode each directory segment (joined with %2F). This mirrors the
+    // home-mode buildSafTree: a top-level internal ROM reproduces the old
+    // "primary%3AROMs%2F<romDir>" tree byte-for-byte, while a ROM in a subfolder
+    // keeps its full relative path (the old code hardcoded ROMs%2F<romDir> for
+    // internal storage and dropped any subfolder, so those ROMs failed to open).
+    auto encodeSeg = [](const std::string& in) {
+        std::string o;
+        for (char c : in) {
+            switch (c) {
+                case ' ':  o += "%20"; break;
+                case '(':  o += "%28"; break;
+                case ')':  o += "%29"; break;
+                case '&':  o += "%26"; break;
+                case '+':  o += "%2B"; break;
+                case '!':  o += "%21"; break;
+                case '\'': o += "%27"; break;
+                default:   o += c;
             }
         }
+        return o;
+    };
+    std::string volumeId = "primary";
+    std::string relPath;                 // dir relative to the volume root
+    std::string work;
+    bool external = false;
+    if (romPath.rfind("/data/media/0/", 0) == 0) {
+        relPath = romPath.substr(strlen("/data/media/0/"));
+    } else if (romPath.rfind("/sdcard/", 0) == 0) {
+        relPath = romPath.substr(strlen("/sdcard/"));
+    } else if (romPath.rfind("/storage/emulated/0/", 0) == 0) {
+        relPath = romPath.substr(strlen("/storage/emulated/0/"));
+    } else if (romPath.rfind("/mnt/media_rw/", 0) == 0) {
+        work = romPath.substr(strlen("/mnt/media_rw/")); external = true;
+    } else if (romPath.rfind("/storage/", 0) == 0) {
+        work = romPath.substr(strlen("/storage/")); external = true;
+    } else {
+        // Unknown prefix: fall back to the ROMs/<romDir> tree so the URI is well-formed.
+        relPath = "ROMs/" + romDir + "/" + filename;
     }
+    if (external) {
+        size_t sl1 = work.find('/');
+        if (sl1 != std::string::npos) {
+            volumeId = work.substr(0, sl1);
+            size_t lastSl = work.rfind('/');
+            relPath = (lastSl > sl1) ? work.substr(sl1 + 1, lastSl - sl1 - 1) : "";
+        }
+    } else {
+        size_t lastSl = relPath.rfind('/');
+        relPath = (lastSl != std::string::npos) ? relPath.substr(0, lastSl) : "";
+    }
+    std::string relDir;
+    { size_t pos = 0;
+      while (pos <= relPath.size()) {
+          size_t sl = relPath.find('/', pos);
+          std::string seg = relPath.substr(pos, (sl == std::string::npos ? relPath.size() : sl) - pos);
+          if (!seg.empty()) {
+              if (!relDir.empty()) relDir += "%2F";
+              relDir += encodeSeg(seg);
+          }
+          if (sl == std::string::npos) break;
+          pos = sl + 1;
+      } }
     std::string treeRoot = volumeId + "%3A" + relDir;
     return "content://com.android.externalstorage.documents/tree/" + treeRoot
          + "/document/" + treeRoot + "%2F" + encFile;

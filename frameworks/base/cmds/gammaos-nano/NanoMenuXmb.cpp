@@ -792,6 +792,271 @@ static std::string findCaseInsensitive(const std::string& parent, const std::str
     return "";
 }
 
+// Lowercase a string in place (ASCII only) -- the scanners already do this inline
+// per site; the recursive helpers below reuse this single copy.
+static std::string romLower(const std::string& in) {
+    std::string o = in;
+    for (auto& c : o) if (c >= 'A' && c <= 'Z') c += 32;
+    return o;
+}
+
+// Recursively scan one candidate directory for ROMs. Mirrors the inner readdir
+// loop that used to be duplicated at the three scan sites (extension filter, junk
+// blacklist, case-insensitive dedup, 0-byte skip) and adds bounded-depth recursion
+// following the NanoMenuMusic scanDirRecursive precedent. On a directory entry it
+// recurses when depth < maxDepth (maxDepth 0 = top level only, current behavior);
+// DT_UNKNOWN entries are lstat'd to classify, and symlinked directories are skipped
+// to avoid loops. An .m3u/.m3u8 file is pushed to BOTH outRoms and outM3u so the
+// playlist appears as a launchable entry and the grouping pass can resolve its discs.
+// cnt is incremented per accepted ROM so the caller can pick the busiest candidate.
+static void scanSystemDir(const std::string& dir, int depth, int maxDepth,
+                          const std::set<std::string>& exts,
+                          std::set<std::string>& seenNames,
+                          std::vector<std::string>& outRoms,
+                          std::vector<std::string>& outM3u,
+                          int& cnt) {
+    DIR* d = opendir(dir.c_str());
+    if (!d) return;
+    std::vector<std::string> subdirs;
+    struct dirent* entry;
+    while ((entry = readdir(d)) != nullptr) {
+        if (entry->d_name[0] == '.') continue;
+        std::string name(entry->d_name);
+        std::string child = dir + "/" + name;
+
+        // Directory handling: recurse (bounded) into real subdirectories. Trust
+        // d_type when the filesystem provides it; only lstat on DT_UNKNOWN. A
+        // symlinked directory is skipped so a self/parent link cannot loop.
+        bool isDir = false, isLnk = false;
+        if (entry->d_type == DT_DIR) {
+            isDir = true;
+        } else if (entry->d_type == DT_LNK) {
+            isLnk = true;
+        } else if (entry->d_type == DT_UNKNOWN) {
+            struct stat lst;
+            if (lstat(child.c_str(), &lst) == 0) {
+                if (S_ISLNK(lst.st_mode)) isLnk = true;
+                else if (S_ISDIR(lst.st_mode)) isDir = true;
+            }
+        }
+        if (isLnk) continue;
+        if (isDir) {
+            if (depth < maxDepth) subdirs.push_back(child);
+            continue;
+        }
+
+        size_t dot = name.rfind('.');
+        if (dot == std::string::npos) continue;
+
+        std::string ext = name.substr(dot);
+        for (size_t i = 0; i < ext.size(); i++)
+            if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
+        if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
+            || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
+            || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log") {
+            continue;
+        }
+
+        bool isM3u = (ext == ".m3u" || ext == ".m3u8");
+        if (!isM3u && !exts.count(ext)) continue;
+
+        std::string nameLower = name;
+        for (size_t i = 0; i < nameLower.size(); i++)
+            if (nameLower[i] >= 'A' && nameLower[i] <= 'Z') nameLower[i] += 32;
+        if (!seenNames.insert(nameLower).second) continue;
+
+        struct stat st;
+        if (stat(child.c_str(), &st) == 0 && st.st_size == 0) continue;
+
+        outRoms.push_back(child);
+        if (isM3u) outM3u.push_back(child);
+        cnt++;
+    }
+    closedir(d);
+
+    // Descend in a stable, case-insensitive order so the merged list is
+    // deterministic across scans regardless of readdir order.
+    std::sort(subdirs.begin(), subdirs.end(),
+              [](const std::string& a, const std::string& b) {
+                  return strcasecmp(a.c_str(), b.c_str()) < 0;
+              });
+    for (const auto& s : subdirs)
+        scanSystemDir(s, depth + 1, maxDepth, exts, seenNames, outRoms, outM3u, cnt);
+}
+
+// Parse an .m3u/.m3u8 playlist into its referenced disc paths. Mirrors
+// NanoMenu::parseM3u (NanoMenuMusic.cpp) but WITHOUT the audio-extension gate and
+// without an on-disk existence check: it resolves relative entries against the
+// m3u's own directory, keeps absolute entries as-is, converts Windows separators,
+// and skips blank / #-comment lines. The disc need not exist on disk for grouping
+// (a subfolder disc referenced by name must still be folded away).
+static void parseM3uEntries(const std::string& m3uPath,
+                            std::vector<std::string>& out) {
+    FILE* f = fopen(m3uPath.c_str(), "rb");
+    if (!f) return;
+    std::string base = m3uPath.substr(0, m3uPath.rfind('/') + 1);
+    char line[4096];
+    while (fgets(line, sizeof(line), f)) {
+        std::string s(line);
+        while (!s.empty() && (s.back() == '\n' || s.back() == '\r' ||
+                              s.back() == ' '  || s.back() == '\t')) s.pop_back();
+        size_t b = s.find_first_not_of(" \t");
+        if (b == std::string::npos) continue;
+        s = s.substr(b);
+        if (s.empty() || s[0] == '#') continue;      // comment / directive
+        for (auto& c : s) if (c == '\\') c = '/';     // windows separators
+        std::string path = (s[0] == '/') ? s : (base + s);
+        out.push_back(std::move(path));
+    }
+    fclose(f);
+}
+
+// Fold multi-disc entries under their .m3u playlist. For every scanned .m3u, parse
+// the discs it references and drop those discs from the ROM list, keeping the .m3u
+// itself as the single launchable entry. A disc that no playlist references stays.
+// The referenced set is matched case-insensitively and across the internal-storage
+// alias forms (/data/media/0 <-> /sdcard <-> /storage/emulated/0) so a playlist that
+// spells its discs one way still folds a disc the scanner found via another mount.
+// Runs ONCE per system after all candidate paths merge and BEFORE the sort +
+// displayNames build, so the column shows the .m3u basename in place of the discs.
+static void applyM3uGrouping(std::vector<std::string>& roms,
+                             const std::vector<std::string>& m3uPaths) {
+    if (m3uPaths.empty() || roms.empty()) return;
+
+    // Rewrite the internal-storage aliases to a single canonical prefix so the two
+    // spellings compare equal. External volumes are left untouched.
+    auto canon = [](const std::string& in) -> std::string {
+        std::string p = romLower(in);
+        if (p.rfind("/sdcard/", 0) == 0)
+            p = "/data/media/0/" + p.substr(8);
+        else if (p.rfind("/storage/emulated/0/", 0) == 0)
+            p = "/data/media/0/" + p.substr(20);
+        return p;
+    };
+
+    std::set<std::string> referenced;
+    for (const auto& m3u : m3uPaths) {
+        std::vector<std::string> discs;
+        parseM3uEntries(m3u, discs);
+        for (const auto& d : discs) referenced.insert(canon(d));
+    }
+    if (referenced.empty()) return;
+
+    std::vector<std::string> kept;
+    kept.reserve(roms.size());
+    for (const auto& r : roms) {
+        // Never drop a playlist even if some other playlist lists it.
+        std::string rl = romLower(r);
+        bool isM3u = (rl.size() >= 4 && rl.compare(rl.size() - 4, 4, ".m3u") == 0)
+                  || (rl.size() >= 5 && rl.compare(rl.size() - 5, 5, ".m3u8") == 0);
+        if (!isM3u && referenced.count(canon(r))) continue;   // a folded disc
+        kept.push_back(r);
+    }
+    roms.swap(kept);
+}
+
+// Read the two ROM-scan toggles. Multi-disc .m3u grouping defaults ON. Recursive
+// subfolder scanning defaults OFF for now: it is reliable on a settled home but was
+// observed NOT to recurse on a fresh boot (top-level files scan, subdirs are missed,
+// likely a storage mount-namespace visibility timing issue at boot). Kept opt-in
+// until that is fixed, so no user regresses. The scanners call this once at the top
+// so a per-frame prop read is avoided.
+static const int kRomScanMaxDepth = 6;   // bounded recursion, matches the music/photo/video scanners
+static int romScanMaxDepth() {
+    char buf[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.rom.recursive", buf, "0");
+    bool on = (buf[0] == '1' || strcasecmp(buf, "true") == 0);
+    return on ? kRomScanMaxDepth : 0;
+}
+static bool romM3uGroupEnabled() {
+    char buf[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.rom.m3u_group", buf, "1");
+    return (buf[0] != '0' && strcasecmp(buf, "false") != 0);
+}
+
+// Build the SAF (Storage Access Framework) tree-root and bare filename for a full
+// ROM path, for the standalone-emulator content:// URI. Handles BOTH internal
+// storage (/data/media/0, /sdcard, /storage/emulated/0 -> volume "primary") and
+// external volumes (/storage/<UUID>, /mnt/media_rw/<UUID> -> volume "<UUID>"), and
+// preserves any ROM subfolder by percent-encoding each path segment. For a
+// TOP-LEVEL internal ROM the produced treeRoot is byte-identical to the previous
+// hardcoded "primary%3AROMs%2F<romDir>" form (see the launch-path comment), so
+// normal top-level launches do not change; only subfolder ROMs get a longer relDir.
+static void buildSafTree(const std::string& fullRomPath,
+                         std::string& outTreeRoot, std::string& outFilename) {
+    // Bare filename (last path segment), percent-encoded like the launch branches.
+    std::string filename = fullRomPath;
+    { size_t ls = filename.rfind('/');
+      if (ls != std::string::npos) filename = filename.substr(ls + 1); }
+    auto encodeSeg = [](const std::string& in) {
+        std::string o;
+        for (char c : in) {
+            if (c == ' ') o += "%20";
+            else if (c == '(') o += "%28";
+            else if (c == ')') o += "%29";
+            else if (c == '&') o += "%26";
+            else if (c == '+') o += "%2B";
+            else if (c == '!') o += "%21";
+            else if (c == '\'') o += "%27";
+            else o += c;
+        }
+        return o;
+    };
+    outFilename = encodeSeg(filename);
+
+    // Determine the storage volume and the volume-root-relative directory.
+    std::string volumeId = "primary";
+    std::string relPath;                 // dir relative to the volume root, '/'-joined
+    std::string work;
+    bool external = false;
+    if (fullRomPath.rfind("/data/media/0/", 0) == 0) {
+        relPath = fullRomPath.substr(strlen("/data/media/0/"));
+    } else if (fullRomPath.rfind("/sdcard/", 0) == 0) {
+        relPath = fullRomPath.substr(strlen("/sdcard/"));
+    } else if (fullRomPath.rfind("/storage/emulated/0/", 0) == 0) {
+        relPath = fullRomPath.substr(strlen("/storage/emulated/0/"));
+    } else if (fullRomPath.rfind("/mnt/media_rw/", 0) == 0) {
+        work = fullRomPath.substr(strlen("/mnt/media_rw/")); external = true;
+    } else if (fullRomPath.rfind("/storage/", 0) == 0) {
+        work = fullRomPath.substr(strlen("/storage/")); external = true;
+    } else {
+        // Unknown prefix: treat the whole leading dir as primary-relative so the URI
+        // is still well-formed (matches the old fallback of relDir under "primary").
+        size_t ls = fullRomPath.rfind('/');
+        relPath = (ls != std::string::npos && ls > 0) ? fullRomPath.substr(1, ls - 1) : "";
+    }
+    if (external) {
+        size_t sl1 = work.find('/');
+        if (sl1 != std::string::npos) {
+            volumeId = work.substr(0, sl1);
+            size_t lastSl = work.rfind('/');
+            relPath = (lastSl > sl1) ? work.substr(sl1 + 1, lastSl - sl1 - 1) : "";
+        }
+    } else {
+        // relPath currently includes the filename; strip it to the directory part.
+        size_t lastSl = relPath.rfind('/');
+        relPath = (lastSl != std::string::npos) ? relPath.substr(0, lastSl) : "";
+    }
+
+    // Percent-encode each relPath segment individually, joining with %2F. This makes
+    // "ROMs/nes" -> "ROMs%2Fnes" (top-level parity) and "ROMs/nes/multi" ->
+    // "ROMs%2Fnes%2Fmulti" (subfolder), while spaces etc. inside a segment encode too.
+    std::string relDir;
+    { size_t pos = 0;
+      while (pos <= relPath.size()) {
+          size_t sl = relPath.find('/', pos);
+          std::string seg = relPath.substr(pos, (sl == std::string::npos ? relPath.size() : sl) - pos);
+          if (!seg.empty()) {
+              if (!relDir.empty()) relDir += "%2F";
+              relDir += encodeSeg(seg);
+          }
+          if (sl == std::string::npos) break;
+          pos = sl + 1;
+      } }
+
+    outTreeRoot = volumeId + "%3A" + relDir;
+}
+
 void NanoMenu::scanRomPaths() {
     ALOGD("NanoMenu: scanning ROM paths");
     for (auto& sys : mXmbSystems) {
@@ -828,53 +1093,16 @@ void NanoMenu::scanRomPaths() {
         std::string bestPath;
         int bestCount = 0;
         bool anyPath = false;
+        // Recursive-scan depth + .m3u grouping toggles (default ON).
+        int maxDepth = romScanMaxDepth();
+        bool groupM3u = romM3uGroupEnabled();
+        std::vector<std::string> m3uPaths;
 
         // Scan ALL candidate paths and merge results
         for (const auto& candidatePath : scanPaths) {
-            DIR* dir = opendir(candidatePath.c_str());
-            if (!dir) continue;
-
             int pathRomCount = 0;
-            struct dirent* entry;
-            while ((entry = readdir(dir)) != nullptr) {
-                if (entry->d_name[0] == '.') continue;
-                if (entry->d_type == DT_DIR) continue;
-
-                std::string name(entry->d_name);
-                size_t dot = name.rfind('.');
-                if (dot == std::string::npos) continue;
-
-                // Skip known non-ROM files
-                std::string ext = name.substr(dot);
-                for (size_t i = 0; i < ext.size(); i++) {
-                    if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
-                }
-                if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
-                    || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
-                    || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log") {
-                    continue;
-                }
-
-                if (!exts.count(ext)) continue;
-
-                // Deduplicate by filename (case-insensitive) -- first found wins
-                std::string nameLower = name;
-                for (size_t i = 0; i < nameLower.size(); i++) {
-                    if (nameLower[i] >= 'A' && nameLower[i] <= 'Z') nameLower[i] += 32;
-                }
-                if (!seenFilenames.insert(nameLower).second) continue;
-
-                // Skip 0-byte files (dummy/placeholder files)
-                std::string fullPath = candidatePath + "/" + name;
-                {
-                    struct stat st;
-                    if (stat(fullPath.c_str(), &st) == 0 && st.st_size == 0) continue;
-                }
-
-                sys.roms.push_back(fullPath);
-                pathRomCount++;
-            }
-            closedir(dir);
+            scanSystemDir(candidatePath, 0, maxDepth, exts, seenFilenames,
+                          sys.roms, m3uPaths, pathRomCount);
 
             if (pathRomCount > 0) {
                 sys.activePaths.push_back(candidatePath);
@@ -885,6 +1113,9 @@ void NanoMenu::scanRomPaths() {
                 }
             }
         }
+
+        // Fold multi-disc discs under their .m3u playlist (once, before the sort).
+        if (groupM3u) applyM3uGrouping(sys.roms, m3uPaths);
 
         if (!anyPath) {
             sys.pathExists = false;
@@ -989,48 +1220,15 @@ bool NanoMenu::scanOneSystemAsync(int sysIdx) {
     std::set<std::string> seenFilenames;
     std::string newBestPath;
     int bestCount = 0;
+    // Recursive-scan depth + .m3u grouping toggles (default ON).
+    int maxDepth = romScanMaxDepth();
+    bool groupM3u = romM3uGroupEnabled();
+    std::vector<std::string> m3uPaths;
 
     for (const auto& candidatePath : scanPaths) {
-        DIR* dir = opendir(candidatePath.c_str());
-        if (!dir) continue;
-
         int pathRomCount = 0;
-        struct dirent* entry;
-        while ((entry = readdir(dir)) != nullptr) {
-            if (entry->d_name[0] == '.') continue;
-            if (entry->d_type == DT_DIR) continue;
-
-            std::string name(entry->d_name);
-            size_t dot = name.rfind('.');
-            if (dot == std::string::npos) continue;
-
-            std::string ext = name.substr(dot);
-            for (size_t i = 0; i < ext.size(); i++) {
-                if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
-            }
-            if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
-                || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
-                || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log") {
-                continue;
-            }
-            if (!exts.count(ext)) continue;
-
-            std::string nameLower = name;
-            for (size_t i = 0; i < nameLower.size(); i++) {
-                if (nameLower[i] >= 'A' && nameLower[i] <= 'Z') nameLower[i] += 32;
-            }
-            if (!seenFilenames.insert(nameLower).second) continue;
-
-            std::string fullPath = candidatePath + "/" + name;
-            {
-                struct stat st;
-                if (stat(fullPath.c_str(), &st) == 0 && st.st_size == 0) continue;
-            }
-
-            newRoms.push_back(fullPath);
-            pathRomCount++;
-        }
-        closedir(dir);
+        scanSystemDir(candidatePath, 0, maxDepth, exts, seenFilenames,
+                      newRoms, m3uPaths, pathRomCount);
 
         if (pathRomCount > 0) {
             newActivePaths.push_back(candidatePath);
@@ -1040,6 +1238,9 @@ bool NanoMenu::scanOneSystemAsync(int sysIdx) {
             }
         }
     }
+
+    // Fold multi-disc discs under their .m3u playlist (once, before the sort).
+    if (groupM3u) applyM3uGrouping(newRoms, m3uPaths);
 
     // Sort by display name
     std::sort(newRoms.begin(), newRoms.end(),
@@ -1139,6 +1340,21 @@ void NanoMenu::forceRescanAllSystems() {
     std::thread(&NanoMenu::bgScanThreadFunc, this).detach();
 }
 
+// Re-scan the whole ROM library after a scan-behaviour toggle (Scan ROM
+// Subfolders / Group Multi-Disc) changes. The recursive / grouping decision is
+// baked into every system's cached .list, so a stale cache would keep showing the
+// old grouping until something else forced a rescan; drop the per-system caches and
+// the scanned flags so the fresh bg scan re-derives the library with the new
+// settings and republishes it to the render thread.
+void NanoMenu::romRescanFromSettings() {
+    for (auto& sys : mXmbSystems) {
+        sys.scanned = false;
+        unlink(xmbCachePath(sys).c_str());
+    }
+    mXmbRomScanDone = false;
+    forceRescanAllSystems();
+}
+
 // Background thread: scans all systems and stores results for the render
 // thread to pick up. Never touches sys.roms/displayNames directly -- only
 // writes to mBgScanResults behind a mutex.
@@ -1174,43 +1390,23 @@ void NanoMenu::bgScanThreadFunc() {
         std::set<std::string> seenNames;
         std::string bestPath;
         int bestCount = 0;
+        // Recursive-scan depth + .m3u grouping toggles (default ON).
+        int maxDepth = romScanMaxDepth();
+        bool groupM3u = romM3uGroupEnabled();
+        std::vector<std::string> m3uPaths;
 
         for (const auto& cp : scanPaths) {
-            DIR* dir = opendir(cp.c_str());
-            if (!dir) continue;
             int cnt = 0;
-            struct dirent* entry;
-            while ((entry = readdir(dir)) != nullptr) {
-                if (entry->d_name[0] == '.') continue;
-                if (entry->d_type == DT_DIR) continue;
-                std::string name(entry->d_name);
-                size_t dot = name.rfind('.');
-                if (dot == std::string::npos) continue;
-                std::string ext = name.substr(dot);
-                for (size_t i = 0; i < ext.size(); i++)
-                    if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
-                if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
-                    || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
-                    || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log")
-                    continue;
-                if (!exts.count(ext)) continue;
-                std::string nl = name;
-                for (size_t i = 0; i < nl.size(); i++)
-                    if (nl[i] >= 'A' && nl[i] <= 'Z') nl[i] += 32;
-                if (!seenNames.insert(nl).second) continue;
-                std::string fp = cp + "/" + name;
-                struct stat st;
-                if (stat(fp.c_str(), &st) == 0 && st.st_size == 0) continue;
-                res.roms.push_back(fp);
-                cnt++;
-            }
-            closedir(dir);
+            scanSystemDir(cp, 0, maxDepth, exts, seenNames, res.roms, m3uPaths, cnt);
             if (cnt > 0) {
                 res.activePaths.push_back(cp);
                 res.valid = true;
                 if (cnt > bestCount) { bestCount = cnt; bestPath = cp; }
             }
         }
+
+        // Fold multi-disc discs under their .m3u playlist (once, before the sort).
+        if (groupM3u) applyM3uGrouping(res.roms, m3uPaths);
         res.activePath = bestPath;
 
         // Sort by display name
@@ -1592,44 +1788,15 @@ void NanoMenu::launchXmbGame() {
         }
 
         if (re.standalone) {
-            // Build content URI and intent file
+            // Build content URI and intent file. buildSafTree derives the SAF
+            // tree-root + encoded filename from the true path (subfolder-aware);
+            // for a top-level internal ROM it reproduces the old
+            // "primary%3AROMs%2F<romDir>" tree byte-for-byte (see buildSafTree).
             std::string filename = re.romPath;
             size_t lastSlash = filename.rfind('/');
             if (lastSlash != std::string::npos) filename = filename.substr(lastSlash + 1);
-            std::string encodedFilename;
-            for (char c : filename) {
-                if (c == ' ') encodedFilename += "%20";
-                else if (c == '(') encodedFilename += "%28";
-                else if (c == ')') encodedFilename += "%29";
-                else if (c == '&') encodedFilename += "%26";
-                else if (c == '+') encodedFilename += "%2B";
-                else if (c == '!') encodedFilename += "%21";
-                else if (c == '\'') encodedFilename += "%27";
-                else encodedFilename += c;
-            }
-            // Determine volume ID from romPath (same logic as launchXmbGame)
-            std::string volumeId = "primary";
-            std::string relDir = "ROMs%2F" + re.romDir;
-            if (re.romPath.find("/storage/") == 0) {
-                std::string work = re.romPath.substr(9);
-                size_t sl1 = work.find('/');
-                if (sl1 != std::string::npos) {
-                    std::string uuid = work.substr(0, sl1);
-                    if (uuid != "emulated") {
-                        size_t lastSl = work.rfind('/');
-                        std::string subdir = work.substr(sl1 + 1, lastSl - sl1 - 1);
-                        std::string encodedDir;
-                        for (char c : subdir) {
-                            if (c == '/') encodedDir += "%2F";
-                            else if (c == ' ') encodedDir += "%20";
-                            else encodedDir += c;
-                        }
-                        volumeId = uuid;
-                        relDir = encodedDir;
-                    }
-                }
-            }
-            std::string treeRoot = volumeId + "%3A" + relDir;
+            std::string treeRoot, encodedFilename;
+            buildSafTree(re.romPath, treeRoot, encodedFilename);
             std::string contentUri = "content://com.android.externalstorage.documents/tree/"
                 + treeRoot + "/document/" + treeRoot + "%2F" + encodedFilename;
             std::string intent = re.launchIntent;
@@ -1776,41 +1943,12 @@ void NanoMenu::launchXmbGame() {
         std::string filename;
         { size_t ls = fullRomPath.rfind('/');
           filename = (ls != std::string::npos) ? fullRomPath.substr(ls + 1) : fullRomPath; }
-        std::string encodedFilename;
-        for (char c : filename) {
-            if (c == ' ') encodedFilename += "%20";
-            else if (c == '(') encodedFilename += "%28";
-            else if (c == ')') encodedFilename += "%29";
-            else if (c == '&') encodedFilename += "%26";
-            else if (c == '+') encodedFilename += "%2B";
-            else if (c == '!') encodedFilename += "%21";
-            else if (c == '\'') encodedFilename += "%27";
-            else encodedFilename += c;
-        }
-        std::string volumeId = "primary";
-        std::string relDir = "ROMs%2F" + sys.romDir;
-        if (fullRomPath.find("/mnt/media_rw/") == 0 || fullRomPath.find("/storage/") == 0) {
-            std::string work = fullRomPath;
-            if (work.find("/mnt/media_rw/") == 0) work = work.substr(14);
-            else if (work.find("/storage/") == 0) work = work.substr(9);
-            size_t sl1 = work.find('/');
-            if (sl1 != std::string::npos) {
-                std::string uuid = work.substr(0, sl1);
-                if (uuid != "emulated") {
-                    size_t lastSl = work.rfind('/');
-                    std::string subdir = work.substr(sl1 + 1, lastSl - sl1 - 1);
-                    std::string encodedDir;
-                    for (char c : subdir) {
-                        if (c == '/') encodedDir += "%2F";
-                        else if (c == ' ') encodedDir += "%20";
-                        else encodedDir += c;
-                    }
-                    volumeId = uuid;
-                    relDir = encodedDir;
-                }
-            }
-        }
-        std::string treeRoot = volumeId + "%3A" + relDir;
+        // buildSafTree derives the SAF tree-root + encoded filename from the true
+        // path (subfolder-aware, internal + external volumes); for a top-level
+        // internal ROM it reproduces the old "primary%3AROMs%2F<romDir>" tree
+        // byte-for-byte (see buildSafTree), so normal launches are unchanged.
+        std::string treeRoot, encodedFilename;
+        buildSafTree(fullRomPath, treeRoot, encodedFilename);
         std::string contentUri = "content://com.android.externalstorage.documents/tree/"
             + treeRoot + "/document/" + treeRoot + "%2F" + encodedFilename;
 
