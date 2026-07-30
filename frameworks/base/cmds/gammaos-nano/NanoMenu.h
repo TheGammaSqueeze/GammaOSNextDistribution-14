@@ -1812,6 +1812,16 @@ private:
     void   openWallpaperPicker(int target);       // Theme Settings -> the Photos album grid in wallpaper-pick mode
     void   wallpaperApplyPick(const std::string& file);  // write the chosen file to the target prop + reload + live
     void   clearWallpaper();                      // clear the active theme's wallpaper (both screens) + wave back on
+    // Custom box art: a focused game's Triangle menu can pick any image (via the same Photos
+    // grid) and store it as that game's cover in the scrape cache, so every theme (XMB / DSi /
+    // Minima) shows it with no per-theme render change. mBoxartPick routes photoGridSelect the
+    // same way mWpVideoPick routes the video picker.
+    std::string mBoxartPickRom;                   // ROM path the boxart picker is targeting ("" = none)
+    std::string mBoxartPickName;                  // its display name (seeds the manifest title if empty)
+    bool   mBoxartPick = false;                   // the photo grid is picking a custom cover for a game
+    void   openBoxartPicker();                    // game Triangle menu -> the Photos grid in boxart-pick mode
+    void   boxartApplyPick(const std::string& srcFile);  // copy the picked image into the cover cache + refresh
+    void   resetBoxart(const std::string& romPath);      // remove a game's custom cover from the cache + manifest
     // Date and Time settings (functional). Date Format / Time Format are nano-
     // local display choices the clock honours; Daylight Saving reflects the real
     // current DST state (tm_isdst, refreshed each frame in drawPs3Clock) and the

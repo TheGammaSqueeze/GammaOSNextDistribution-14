@@ -152,6 +152,100 @@ const NanoMenu::ScrapeEntry* NanoMenu::scrapeEntryFor(const std::string& romPath
     return nullptr;
 }
 
+// ---------------------------------------------------------------------------
+// Custom box art: use any user-picked image as a game's cover. Stored in the same
+// cover cache + manifest the scraper writes, so every theme (XMB / DSi / Minima)
+// renders it through scrapeEntryFor/romBoxartTex with no per-theme change.
+// ---------------------------------------------------------------------------
+void NanoMenu::boxartApplyPick(const std::string& srcFile) {
+    scraperEnsureLoaded();
+    mkdir(mScrapeCacheDir.c_str(), 0700);
+    const std::string rom = mBoxartPickRom;
+    if (rom.empty() || srcFile.empty()) { mBoxartPickRom.clear(); mBoxartPickName.clear(); return; }
+
+    // Same filename the scraper uses for a cover, so the decoder path is identical (it
+    // content-sniffs, so a .png holding jpg bytes is fine). Copy src -> dest.tmp with a
+    // plain read/write loop (no stb_image_write; feCopyFile is file-static/O_EXCL), then
+    // fsync + atomic rename over any existing cover.
+    const std::string dest = mScrapeCacheDir + "/" + nanoscraper::cacheKey(rom) + ".box.png";
+    const std::string tmp  = dest + ".tmp";
+    int in = open(srcFile.c_str(), O_RDONLY);
+    if (in < 0) { ALOGW("boxart: cannot open source %s", srcFile.c_str());
+                  mBoxartPickRom.clear(); mBoxartPickName.clear(); return; }
+    int out = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (out < 0) { ALOGW("boxart: cannot write %s", tmp.c_str()); close(in);
+                   mBoxartPickRom.clear(); mBoxartPickName.clear(); return; }
+    char buf[64 * 1024];
+    bool ok = true;
+    for (;;) {
+        ssize_t rd = read(in, buf, sizeof(buf));
+        if (rd < 0) { ok = false; break; }
+        if (rd == 0) break;
+        ssize_t off = 0;
+        while (off < rd) {
+            ssize_t wr = write(out, buf + off, (size_t)(rd - off));
+            if (wr <= 0) { ok = false; break; }
+            off += wr;
+        }
+        if (!ok) break;
+    }
+    if (ok && fsync(out) != 0) ok = false;
+    close(in);
+    close(out);
+    if (!ok || rename(tmp.c_str(), dest.c_str()) != 0) {
+        ALOGW("boxart: copy/rename failed for %s", dest.c_str());
+        unlink(tmp.c_str());
+        mBoxartPickRom.clear(); mBoxartPickName.clear();
+        return;
+    }
+
+    // Merge the manifest: set/overwrite only the cover fields, leaving any scraped
+    // fanart + metadata untouched. A box-only entry is valid (saveScrapeIndex serializes
+    // only non-empty fields).
+    ScrapeEntry& e = mScrapeIndex[rom];
+    e.box     = dest;
+    e.scraper = "manual";
+    e.when    = (long long)time(nullptr);
+    if (e.title.empty()) e.title = mBoxartPickName;
+    saveScrapeIndex();
+
+    // Live refresh: drop any cached cover texture for this ROM so the new one loads.
+    auto it = mRomBoxartCache.find(rom);
+    if (it != mRomBoxartCache.end()) {
+        if (it->second.tex) glDeleteTextures(1, &it->second.tex);
+        mRomBoxartCache.erase(it);
+    }
+    mDisplayDirty = true;
+    mBoxartPickRom.clear();
+    mBoxartPickName.clear();
+}
+
+// Remove a game's custom (or scraped) cover: delete the cover file, drop it from the
+// manifest (erasing the whole entry only when nothing else is left), and free the live
+// texture so the generic cartridge icon returns immediately.
+void NanoMenu::resetBoxart(const std::string& romPath) {
+    if (romPath.empty()) return;
+    scraperEnsureLoaded();
+    unlink((mScrapeCacheDir + "/" + nanoscraper::cacheKey(romPath) + ".box.png").c_str());
+    auto mi = mScrapeIndex.find(romPath);
+    if (mi != mScrapeIndex.end()) {
+        ScrapeEntry& e = mi->second;
+        e.box.clear();
+        // Nothing else worth keeping (no fanart, no metadata) -> drop the entry entirely.
+        if (e.fan.empty() && e.synopsis.empty() && e.genre.empty() && e.players.empty()
+            && e.rating.empty() && e.releaseDate.empty() && e.developer.empty()
+            && e.publisher.empty())
+            mScrapeIndex.erase(mi);
+        saveScrapeIndex();
+    }
+    auto it = mRomBoxartCache.find(romPath);
+    if (it != mRomBoxartCache.end()) {
+        if (it->second.tex) glDeleteTextures(1, &it->second.tex);
+        mRomBoxartCache.erase(it);
+    }
+    mDisplayDirty = true;
+}
+
 bool NanoMenu::scraperBoxartEnabled() {
     return property_get_bool("persist.gammaos.scraper.boxart", true);
 }

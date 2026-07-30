@@ -25,6 +25,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoScraper.h"   // nanoscraper::cacheKey for the per-game custom boxart cache path
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
 #include "NanoVideo.h"
@@ -9989,10 +9990,26 @@ void NanoMenu::openXmbOpt() {
     if (items.empty() || sel < 0 || sel >= (int)items.size()) return;
     const Ps3Item& it = items[sel];
     switch (it.kind) {
-        case PS3_ROM: case PS3_RECENT:
+        case PS3_ROM: case PS3_RECENT: {
             // ROMs get the rich scraped Information page (cover + fanart + metadata,
             // falling back to file path/size/core when nothing has been scraped).
-            add("Start", "start", true); add("Information", "rominfo", false); break;
+            add("Start", "start", true); add("Information", "rominfo", false);
+            // Custom box art: pick any image as this game's cover. "Reset Boxart" only
+            // appears once a cover exists. Resolve the focused ROM the same way the
+            // "setboxart"/"resetboxart"/"rominfo" actions do.
+            std::string boxRom;
+            if (it.kind == PS3_ROM && it.a >= 0 && it.a < (int)mXmbSystems.size()
+                && it.b >= 0 && it.b < (int)mXmbSystems[it.a].roms.size())
+                boxRom = mXmbSystems[it.a].roms[it.b];
+            else if (it.kind == PS3_RECENT && it.a >= 0 && it.a < (int)mXmbRecent.size())
+                boxRom = mXmbRecent[it.a].romPath;
+            if (!boxRom.empty()) {
+                add("Set Boxart", "setboxart", false);
+                const ScrapeEntry* be = scrapeEntryFor(boxRom);
+                if (be && !be->box.empty()) add("Reset Boxart", "resetboxart", false);
+            }
+            break;
+        }
         case PS3_APP: {
             add("Start", "start", true); add("Information", "info", false);
             const std::string& p = it.payloadStr;   // package name (set at buildAppSubmenu)
@@ -10982,6 +10999,32 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
         return;
     }
+    if (act == "setboxart" || act == "resetboxart") {
+        // Custom box art. Resolve the focused ROM path (+ name for the manifest title)
+        // exactly the way the "rominfo" action does, so the same PS3_ROM / PS3_RECENT
+        // contexts (captured in mPs3OptCtx*) are honoured.
+        std::string romPath, name;
+        if (mPs3OptCtxKind == PS3_ROM
+            && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbSystems.size()) {
+            const XmbSystem& s = mXmbSystems[mPs3OptCtxA];
+            if (mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)s.roms.size()) romPath = s.roms[mPs3OptCtxB];
+            if (mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)s.displayNames.size()) name = s.displayNames[mPs3OptCtxB];
+        } else if (mPs3OptCtxKind == PS3_RECENT
+                   && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbRecent.size()) {
+            const XmbRecentEntry& r = mXmbRecent[mPs3OptCtxA];
+            romPath = r.romPath; name = r.displayName;
+        }
+        if (name.empty()) name = mPs3OptCtxLabel;
+        if (romPath.empty()) return;
+        if (act == "setboxart") {
+            // Stash the target BEFORE opening the picker (it pushes the grid onto mPs3Stack).
+            mBoxartPickRom = romPath; mBoxartPickName = name;
+            openBoxartPicker();
+        } else {
+            resetBoxart(romPath);
+        }
+        return;
+    }
     if (act == "rominfo") {
         // Rich game Information page. When the ROM has scraped data, show the cover,
         // a faint fanart backdrop and the scraped metadata (synopsis/genre/players/
@@ -11079,6 +11122,10 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             row("Size", sizeStr);
             row(isApp ? "App" : "Core", core);
             row("System", sysName);
+            // The exact drop-in path a custom cover lives at for this game (Set Boxart
+            // writes here; all themes read it back through scrapeEntryFor).
+            if (!romPath.empty())
+                row("Boxart", mScrapeCacheDir + "/" + nanoscraper::cacheKey(romPath) + ".box.png");
             if (body.empty()) body = "No information is available.";
             mPs3DlgBody = body;
         }

@@ -1134,6 +1134,7 @@ void NanoMenu::drawFolderIcon(float ix, float iy, float dsz, float alpha, GLuint
 
 void NanoMenu::openPhotoGrid(const std::vector<int>& list, const std::string& title, int fromPl) {
     mWpVideoPick = false;   // default to photo mode; openVideoWallpaperPicker re-sets it after this call
+    mBoxartPick  = false;   // default to a normal browse; openBoxartPicker re-sets it after this call
     mPhotoGridList = list;
     mPhotoGridCursor = 0;
     mPhotoGridTop = 0;
@@ -1154,6 +1155,7 @@ void NanoMenu::openPhotoGrid(const std::vector<int>& list, const std::string& ti
 void NanoMenu::closePhotoGrid() {
     photoFreeThumbs();
     mWpVideoPick = false;   // a back/abort out of the video picker leaves no dangling flag
+    mBoxartPick  = false;   // a back/abort out of the boxart picker leaves no dangling flag
 }
 
 void NanoMenu::photoGridNav(int dx, int dy) {
@@ -1206,6 +1208,17 @@ void NanoMenu::photoGridSelect() {
         mWpVideoPick = false; mWpPickTarget = -1;
         closePhotoGrid();
         if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == PHOTO_GRID) mPs3Stack.pop_back();
+        return;
+    }
+    // Custom boxart picker: no still viewer/crop - copy the chosen image straight into the game's
+    // cover cache (boxartApplyPick), then close the grid back to the option menu, like the video pick.
+    if (mBoxartPick) {
+        int pi = mPhotoGridList[mPhotoGridCursor];
+        if (pi >= 0 && pi < (int)mPhotos.size()) boxartApplyPick(mPhotos[pi].file);
+        mBoxartPick = false;
+        closePhotoGrid();
+        if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == PHOTO_GRID) mPs3Stack.pop_back();
+        mDisplayDirty = true;
         return;
     }
     openPhotoViewer(mPhotoGridList, mPhotoGridCursor);
@@ -2497,6 +2510,21 @@ void NanoMenu::openWallpaperPicker(int target) {
     all.reserve(mPhotos.size());
     for (size_t i = 0; i < mPhotos.size(); i++) all.push_back((int)i);
     openPhotoGrid(all, trDyn("Select Wallpaper"), -1);   // openPhotoGrid clears mWpVideoPick (photo mode)
+}
+
+// Game Triangle menu -> open the Photos album grid to pick a custom cover for the focused game (the
+// target ROM is already staged in mBoxartPickRom by xmbOptAction). Mirrors openWallpaperPicker, but a
+// pick short-circuits straight into boxartApplyPick (no crop/still viewer), like the video picker.
+void NanoMenu::openBoxartPicker() {
+    mWpPickTarget = -1;        // not a wallpaper pick
+    mWpVideoPick = false;      // not a video pick
+    photoEnsureLoaded();
+    photoDrainScanResults();   // publish any already-finished scan now (see openWallpaperPicker)
+    std::vector<int> all;
+    all.reserve(mPhotos.size());
+    for (size_t i = 0; i < mPhotos.size(); i++) all.push_back((int)i);
+    openPhotoGrid(all, trDyn("Select Boxart"), -1);   // openPhotoGrid clears mBoxartPick; set it AFTER
+    mBoxartPick = true;
 }
 
 // Theme Settings -> open the same album grid but listing the VIDEO library, to pick a video wallpaper for
