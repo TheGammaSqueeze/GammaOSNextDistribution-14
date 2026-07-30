@@ -751,8 +751,9 @@ void NanoMenu::ensureNdsAssets() {
     }
     char sk[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.ndstheme.stack", sk, "auto");
-    // 1/true/on -> force stacked; 0/false/off -> force off; anything else (incl "auto"/unset)
-    // -> auto (stack only on a single-screen device). Effective mNdsStack is set per frame.
+    // persist.gammaos.nano.ndstheme.stack: 1/true/on -> stack the DSi top screen ABOVE the carousel
+    // on a single-screen device; 0/false/off/auto/unset -> carousel-only (default). A real dual-panel
+    // device ignores this and always uses its two panels. Effective mNdsStack is set per frame.
     if (sk[0] == '1' || sk[0] == 't' || (sk[0] == 'o' && sk[1] == 'n')) mNdsStackMode = 1;
     else if (sk[0] == '0' || sk[0] == 'f' || (sk[0] == 'o' && sk[1] == 'f')) mNdsStackMode = 2;
     else mNdsStackMode = 0;
@@ -4759,9 +4760,13 @@ void NanoMenu::render() {
         // a handoff frame (boot -> carousel) which would otherwise briefly flip a dual device
         // into single-screen stacked mode and flash the wave on the second panel.
         if (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty()) mNdsHadSecondary = true;
-        mNdsStack = (mNdsStackMode == 1) ? true
-                  : (mNdsStackMode == 2) ? false
-                  : !mNdsHadSecondary;   // auto: stack only when there is no secondary panel
+        // A real dual-panel device (RG DS) always renders the two DSi screens on their own
+        // panels (the dual-panel split), never stacked. On a SINGLE-screen device the default
+        // is now carousel-only - just the bottom screen, letterboxed to the panel's aspect ratio
+        // (user request) - and the DSi top screen is only stacked above it when the user opts in
+        // via persist.gammaos.nano.ndstheme.stack = 1/on (mNdsStackMode == 1). Off/auto/unset all
+        // mean carousel-only.
+        mNdsStack = mNdsHadSecondary ? false : (mNdsStackMode == 1);
     }
 
     // Dual-screen bottom PSP clock: drive its own reveal (mPspBottomReveal), independent of the F12
