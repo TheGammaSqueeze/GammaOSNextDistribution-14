@@ -188,12 +188,18 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         if (targetScroll < 0.0f) targetScroll = 0.0f;
         if (targetScroll > maxScroll) targetScroll = maxScroll;
     }
-    // exponential approach tuned to settle in ~3 frames at 60fps (NextUI's 3-step linear glide feel)
-    const float k = 1.0f - powf(1.0f - 0.55f, dt * 60.0f);
-    mMinimaScroll  += (targetScroll - mMinimaScroll) * k;
-    mMinimaSelAnim += ((float)sel - mMinimaSelAnim) * k;
-    if (fabsf(mMinimaScroll - targetScroll)  > 0.002f) mDisplayDirty = true; else mMinimaScroll = targetScroll;
-    if (fabsf(mMinimaSelAnim - (float)sel)   > 0.002f) mDisplayDirty = true; else mMinimaSelAnim = (float)sel;
+    // A wrap-around jump (Up on the first row / Down on the last) snaps the window straight to the
+    // new end instead of gliding through the whole list.
+    if (mListWrapSnap) {
+        mMinimaScroll = targetScroll; mMinimaSelAnim = (float)sel; mListWrapSnap = false;
+    } else {
+        // exponential approach tuned to settle in ~3 frames at 60fps (NextUI's 3-step linear glide feel)
+        const float k = 1.0f - powf(1.0f - 0.55f, dt * 60.0f);
+        mMinimaScroll  += (targetScroll - mMinimaScroll) * k;
+        mMinimaSelAnim += ((float)sel - mMinimaSelAnim) * k;
+        if (fabsf(mMinimaScroll - targetScroll)  > 0.002f) mDisplayDirty = true; else mMinimaScroll = targetScroll;
+        if (fabsf(mMinimaSelAnim - (float)sel)   > 0.002f) mDisplayDirty = true; else mMinimaSelAnim = (float)sel;
+    }
 
     // ---- detect a level change (drill/back) to arm the slide + crossfade, and snap the window so
     // the new level starts from a clean position (done before the draw so the motion is same-frame) ----

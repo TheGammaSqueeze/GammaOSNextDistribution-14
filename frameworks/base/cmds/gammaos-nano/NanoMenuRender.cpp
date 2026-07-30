@@ -867,8 +867,28 @@ void NanoMenu::ndsNavHoriz(int dir) {
     else if (mPs3Stack.empty())  { sel = &mPs3ItemIdx; n = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) ? (int)mPs3Cats[mPs3CatIdx].items.size() : 0; }
     else                         { sel = &mPs3Stack.back().sel; n = (int)mPs3Stack.back().items.size(); }
     if (n <= 0) return;
-    int ni = *sel + dir; if (ni < 0) ni = 0; if (ni > n - 1) ni = n - 1;
-    if (ni != *sel) { *sel = ni; mDisplayDirty = true; }
+    // Wrap around the ends (user request): Up on the first row jumps to the last and Down on
+    // the last jumps to the first, in the DSi/Minima lists + the Minima root list (the pure XMB
+    // carousel uses its own handlers and is unaffected). On a wrap, snap the scroll/camera to the
+    // new end so it does not glide-scroll through the whole list.
+    int cur = *sel;
+    int ni = cur + dir;
+    bool wrapped = false;
+    if (dir == -1 || dir == 1) {                 // single-step Up/Down wraps around the ends
+        if (ni < 0)          { ni = n - 1; wrapped = (n > 1); }
+        else if (ni > n - 1) { ni = 0;     wrapped = (n > 1); }
+    } else {                                      // page jumps (Minima LEFT/RIGHT = +-6) clamp, never wrap
+        if (ni < 0) ni = 0;
+        if (ni > n - 1) ni = n - 1;
+    }
+    if (ni != cur) {
+        *sel = ni;
+        mDisplayDirty = true;
+        if (wrapped) {
+            mListWrapSnap = true;            // Minima list + DSi submenu snap their scroll to sel this frame
+            mNdsCamera = (float)ni;          // DSi root carousel camera jumps to the wrapped card
+        }
+    }
     // A carousel blocked at the first/last card plays no reject blip: the real firmware's
     // TWL_LAN_SE_SCROLL_INVALID could not be captured cleanly, so the source of truth dropped it.
 }
@@ -1109,10 +1129,14 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
             float targetScroll = (float)sel - (float)(fitRows / 2);
             if (targetScroll < 0.0f) targetScroll = 0.0f;
             if (targetScroll > maxScroll) targetScroll = maxScroll;
-            float k = 1.0f - powf(1.0f - 0.4f, dt * 60.0f);
-            mNdsSubScroll += (targetScroll - mNdsSubScroll) * k;
-            if (fabsf(mNdsSubScroll - targetScroll) < 0.01f) mNdsSubScroll = targetScroll;
-            else mDisplayDirty = true;
+            if (mListWrapSnap) {                            // a wrap jump: snap, do not scroll through the list
+                mNdsSubScroll = targetScroll; mListWrapSnap = false;
+            } else {
+                float k = 1.0f - powf(1.0f - 0.4f, dt * 60.0f);
+                mNdsSubScroll += (targetScroll - mNdsSubScroll) * k;
+                if (fabsf(mNdsSubScroll - targetScroll) < 0.01f) mNdsSubScroll = targetScroll;
+                else mDisplayDirty = true;
+            }
         }
         top0 = listTop;
     } else {
