@@ -4257,6 +4257,38 @@ public final class SystemServer implements Dumpable {
                 // Dispatch on the HandlerThread, not the main looper.
                 mSystemContext.registerReceiver(rcvr, f, null, h);
 
+                // GammaOS Nano: mirror the system 12/24-hour time format into a prop the
+                // nano menu can read. nano runs in the bootanim domain and cannot read
+                // Settings, so its themed clocks (PS3 XMB / DSi / Minima status pill)
+                // follow persist.gammaos.nano.clock12 (1 = 12-hour). Seed it from the
+                // current setting now, and keep it in sync when the format is changed from
+                // the Android Settings app (nano's own Time Format toggle already writes
+                // both the prop and the setting, so it needs no round-trip). DateFormat
+                // .is24HourFormat resolves TIME_12_24 with the correct locale fallback when
+                // the setting has never been set.
+                final Runnable syncClock12 = () -> {
+                    try {
+                        boolean is24 = android.text.format.DateFormat.is24HourFormat(mSystemContext);
+                        SystemProperties.set("persist.gammaos.nano.clock12", is24 ? "0" : "1");
+                    } catch (Exception e) {
+                        Slog.w(TAG, "GammaOS Nano: clock12 sync failed: " + e);
+                    }
+                };
+                syncClock12.run();   // boot seed
+                try {
+                    mSystemContext.getContentResolver().registerContentObserver(
+                            android.provider.Settings.System.getUriFor(
+                                    android.provider.Settings.System.TIME_12_24),
+                            false,
+                            new android.database.ContentObserver(h) {
+                                @Override public void onChange(boolean selfChange) {
+                                    syncClock12.run();
+                                }
+                            });
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: clock12 observer registration failed: " + e);
+                }
+
                 // Serve the nano menu's app Information + Uninstall requests. nano sets
                 // sys.gammaos.nano.appinfo_req=<pkg>#<nonce> to ask for an app's details
                 // and sys.gammaos.nano.app_uninstall=<pkg> to remove it. Poll for them on

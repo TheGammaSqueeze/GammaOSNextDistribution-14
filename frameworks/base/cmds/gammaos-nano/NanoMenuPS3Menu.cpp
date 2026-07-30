@@ -9520,6 +9520,10 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
         case 8:   // Time Format -> also push to the framework so apps agree
             property_set("persist.gammaos.nano.datetime.time_format", v);
             { bool h12 = (sel == 0);
+              // nano's themed clocks read this prop directly (it cannot read the setting from
+              // the bootanim domain); set it immediately so the clock updates without waiting
+              // on the SystemServer mirror. Also push to the framework so apps agree.
+              property_set("persist.gammaos.nano.clock12", h12 ? "1" : "0");
               std::thread([h12]{ system(h12 ? "settings put system time_12_24 12 2>/dev/null"
                                             : "settings put system time_12_24 24 2>/dev/null"); }).detach(); }
             previewThemeSetting(8, sel);

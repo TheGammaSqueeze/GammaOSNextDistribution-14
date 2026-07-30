@@ -235,8 +235,8 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     {
         int wl, bl;
         { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; bl = mBtLevel; }
-        char cb[12] = {}; time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
-        strftime(cb, sizeof(cb), "%H:%M", &lt);
+        char cb[24] = {}; time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
+        clockRefreshMaybe(); formatClockHM(cb, sizeof(cb), lt);   // honor the 12/24-hour setting
         const float ph = rowH, gp = 6.0f * sc, iconH = MIN_FONT_S * sc * 1.15f;
         const float wifiW = 22.0f * (iconH / 18.0f), btW = 14.0f * (iconH / 20.0f);
         const float battW = iconH * 1.55f + 2.0f * sc;
@@ -325,9 +325,9 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     {
         int wl, wb, bl;
         { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; wb = mWifiBars; bl = mBtLevel; }
-        char clockbuf[12] = {};
+        char clockbuf[24] = {};
         time_t tt = time(nullptr); struct tm ltm; localtime_r(&tt, &ltm);
-        strftime(clockbuf, sizeof(clockbuf), "%H:%M", &ltm);
+        clockRefreshMaybe(); formatClockHM(clockbuf, sizeof(clockbuf), ltm);   // honor the 12/24-hour setting
 
         const float ph = rowH, gap = 6.0f * sc;
         const float iconH = MIN_FONT_S * sc * 1.15f;

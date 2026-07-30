@@ -2910,10 +2910,13 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // '/' 5 DS px) so the 1 Hz colon blink never shifts the digits (the web reserves the same
     // 4px cell for ':' and ' '). Baseline y15 (cell-top y5 + Fonts.s baseline 10).
     { time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
+      clockRefreshMaybe();
       bool blinkOff = (lt.tm_sec & 1);
       char ds[16], ts[16];
       snprintf(ds, sizeof(ds), "%02d/%02d", lt.tm_mon + 1, lt.tm_mday);
-      snprintf(ts, sizeof(ts), "%02d%c%02d", lt.tm_hour, blinkOff ? ' ' : ':', lt.tm_min);
+      int hr = lt.tm_hour;
+      if (mClock12h.load()) { hr %= 12; if (hr == 0) hr = 12; }   // honor the 12/24-hour setting (fixed layout, no AM/PM)
+      snprintf(ts, sizeof(ts), "%02d%c%02d", hr, blinkOff ? ' ' : ':', lt.tm_min);
       float fs = S(9.0f) / (float)FONT_CHAR_H;
       // centre the date/time ink on the icon centre (DS y10.5), level with the battery/volume.
       float cy = Y(10.5f - 0.415f * 9.0f);

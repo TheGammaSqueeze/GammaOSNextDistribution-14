@@ -637,6 +637,13 @@ private:
     void renderSetupLanguage();
     void handleSetupLanguageSelect();
 
+    // 12/24-hour clock: nano (bootanim domain) cannot read Settings, so it follows the
+    // persist.gammaos.nano.clock12 prop mirror (SystemServer ContentObserver + nano's own
+    // Time Format toggle write it). property_get is a cheap shmem read, refreshed per frame.
+    std::atomic<bool> mClock12h{false};
+    void clockRefreshMaybe();                                     // re-read persist.gammaos.nano.clock12
+    void formatClockHM(char* buf, size_t n, const struct tm& t);  // "3:22 PM" (12h) or "15:22" (24h) per the setting
+
     // Quick Resume
     void prepareShutdown(const char* action);
     bool isRetroArchRunning();

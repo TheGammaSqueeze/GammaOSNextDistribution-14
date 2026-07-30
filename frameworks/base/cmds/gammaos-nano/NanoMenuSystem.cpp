@@ -240,6 +240,31 @@ void NanoMenu::renderThemedSliderHud(bool isVolume, int pct, int slot) {
     drawText(pctStr, textX, textY, tscale, inkR, inkG, inkB, 1.0f);
 }
 
+// Cache the 12/24-hour clock preference. nano runs in the bootanim SELinux domain, which
+// cannot run `settings get` (app_process in the bootstrap namespace) nor read the settings
+// store file (system_data_file), so it reads a prop mirror instead: SystemServer mirrors
+// Settings.System.TIME_12_24 to persist.gammaos.nano.clock12 (1 = 12-hour) via a
+// ContentObserver, and nano's own Time Format toggle sets the same prop. property_get is a
+// cheap shmem read, so this can run every frame.
+void NanoMenu::clockRefreshMaybe() {
+    char b[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.clock12", b, "0");
+    mClock12h.store(b[0] == '1');
+}
+
+// Format HH:MM per the 12/24-hour setting. 12h -> "3:22 PM" (leading zero stripped); 24h -> "15:22".
+void NanoMenu::formatClockHM(char* buf, size_t n, const struct tm& t) {
+    if (mClock12h.load()) {
+        char tmp[24];
+        strftime(tmp, sizeof(tmp), "%I:%M %p", &t);
+        const char* s = tmp;
+        if (s[0] == '0') s++;   // "03:22 PM" -> "3:22 PM"
+        snprintf(buf, n, "%s", s);
+    } else {
+        strftime(buf, n, "%H:%M", &t);
+    }
+}
+
 void NanoMenu::renderBrightnessBar() {
     if (!mShowBrightnessBar) return;
     // While the Quick Menu brightness slider modal is open the HUD stays pinned up
