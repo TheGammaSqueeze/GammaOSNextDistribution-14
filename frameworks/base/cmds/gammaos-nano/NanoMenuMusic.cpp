@@ -1143,6 +1143,7 @@ void NanoMenu::renderMusicPlayer() {
     const MusicTrack& t = *tp;
     float enter = mMpEnterT;
     bool panelUp = mMpCpOpen || mMpCpClosing;
+    mMpSeekBarW = 0.0f;   // recomputed below only when a touchable (local-track) seek bar is drawn
 
     // Canyon visualizer: drawn over the (wave) background and under the Now-Playing
     // bar, cross-faded in by mMpCanyonAlpha. The wave morph fades out as this fades
@@ -1163,6 +1164,15 @@ void NanoMenu::renderMusicPlayer() {
         ps3mpglobe::render(mWidth, mHeight, sDrmRotMat, mMpGlobeAlpha, mFrameDt, cb);
     }
 
+    // Scrim: darken a busy custom wallpaper so the Now-Playing art / text / controls read clearly
+    // (music players conventionally dim the background). Only over a custom wallpaper - the default
+    // wave keeps the clean 1:1 web look - and faded out as a full-screen visualizer takes over.
+    if (wallpaperActive(mRenderingPanel)) {
+        float visCov = fmaxf(mMpCanyonAlpha, mMpGlobeAlpha);
+        float scrimA = 0.5f * (1.0f - 0.8f * fminf(1.0f, visCov)) * enter;
+        if (scrimA > 0.01f) drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, scrimA);
+    }
+
     mTextOutlineMode = 1;
 
     // The Now-Playing bar (jacket / title / artist / seek cluster) renders at 1.5x on
@@ -1171,31 +1181,68 @@ void NanoMenu::renderMusicPlayer() {
     // bigger elapsed/total time strings do not overlap on the seek line.
     float mpUi = ((mWidth < mHeight ? mWidth : mHeight) <= 768) ? 1.5f : 1.0f;
 
-    // jacket cover: bottom edge fixed at 0.912 (the 1x web position) so the bar grows
-    // UPWARD when scaled. Title/artist baselines are taken relative to the jacket so
-    // their spacing scales too (exactly 0.866 / 0.900 at 1x).
-    float jsz = SZ(0.085f * mpUi), ax = DXP(0.066f), ay = DYP(0.912f) - jsz;
+    // PORTRAIT (tall) panels get a vertical, phone-style Now-Playing layout: a large centred
+    // album jacket in the upper area, the title + artist centred beneath it, then the seek /
+    // time cluster stacked full-width below. The PS3 web layout is a landscape BOTTOM BAR that
+    // crams into a strip and overlaps the elapsed/total time strings on a narrow 480-wide panel;
+    // landscape and square panels keep the exact 1:1 web bottom-bar layout (else branch).
+    const bool mpPortrait = (mHeight >= (int)(mWidth * 1.2f));
+
+    float jsz, ax, ay, tx, titleBaseY, artistBaseY, clX, clEnd, titleRight;
+    float lineTop, lineTime, seekY;
+    bool  mpCenter;                              // centre title/artist (portrait) vs left of jacket
+    if (mpPortrait) {
+        // The now-playing layout EASES between two forms as the control grid animates in/out (so it
+        // never jumps): SPREAD (large centred jacket, info down the panel) when no panel, and COMPACT
+        // (jacket + info compressed into the top) when the panel is up, freeing the lower half for the
+        // grid. panelT tracks the same 0.2s open/close animation drawMpOpt uses.
+        float panelT;
+        if (mMpCpOpen)         panelT = (mMpCpAnimStart >= 0.0f) ? fminf(1.0f, (mEffectTime - mMpCpAnimStart) / 0.2f) : 1.0f;
+        else if (mMpCpClosing) panelT = fmaxf(0.0f, 1.0f - (mEffectTime - mMpCpCloseStart) / 0.2f);
+        else                   panelT = 0.0f;
+        if (panelT > 0.001f && panelT < 0.999f) mDisplayDirty = true;   // keep animating the transition
+        const float pe = panelT * panelT * (3.0f - 2.0f * panelT);      // smoothstep ease
+        auto lp = [&](float spread, float compact) { return spread + (compact - spread) * pe; };
+        const float Hf = (float)mHeight;
+        jsz = lp(fminf((float)mWidth * 0.62f, Hf * 0.34f), fminf((float)mWidth * 0.38f, Hf * 0.19f));
+        ay  = lp(Hf * 0.150f, Hf * 0.090f);
+        titleBaseY  = ay + jsz     + lp(Hf * 0.060f, Hf * 0.045f);
+        artistBaseY = titleBaseY   + lp(Hf * 0.040f, Hf * 0.032f);
+        lineTop     = artistBaseY  + lp(Hf * 0.058f, Hf * 0.045f);   // codec (left) + counter (right)
+        seekY       = lineTop      + lp(Hf * 0.030f, Hf * 0.026f);   // full-width seek bar
+        lineTime    = seekY        + lp(Hf * 0.044f, Hf * 0.036f);   // elapsed / total under the bar
+        ax  = ((float)mWidth - jsz) * 0.5f;     // centred jacket
+        mpCenter = true;
+        tx = (float)mWidth * 0.5f;              // centre anchor for the centred text lines
+        clX = (float)mWidth * 0.10f; clEnd = (float)mWidth * 0.90f;   // full-width info band
+        titleRight = clEnd;
+    } else {
+        // jacket cover: bottom edge fixed at 0.912 (the 1x web position) so the bar grows
+        // UPWARD when scaled. Title/artist baselines are taken relative to the jacket so
+        // their spacing scales too (exactly 0.866 / 0.900 at 1x).
+        jsz = SZ(0.085f * mpUi); ax = DXP(0.066f); ay = DYP(0.912f) - jsz;
+        mpCenter = false;
+        tx = ax + jsz + DXD(0.013f * mpUi);
+        titleBaseY = ay + jsz * 0.46f;     // == devY(0.866) at 1x
+        artistBaseY = ay + jsz * 0.86f;    // == devY(0.900) at 1x
+        // Right info cluster geometry (used to clip the title): wider at the 1.5x bar so
+        // the larger elapsed/total time strings fit without overlapping.
+        clX = DXP(mpUi > 1.2f ? 0.62f : 0.738f); clEnd = DXP(0.940f);
+        titleRight = mMpFullInfo ? (clX - DXD(0.015f)) : DXP(0.955f);
+        lineTop  = ay + jsz * 0.22f;   // counter + codec
+        lineTime = ay + jsz * 0.60f;   // elapsed / total
+        seekY    = ay + jsz * 0.88f;   // seek bar
+    }
+
     // Album art: per-track image, else per-folder cover, else the note placeholder.
     // Internet Radio has no local file - always the note placeholder.
     GLuint jac = (ti >= 0) ? mpTrackArt(ti) : 0; if (!jac) jac = mpJacket();
     if (jac) drawIconTex(jac, ax, ay, jsz, jsz, 1.0f, 1.0f, 1.0f, enter);
 
-    float tx = ax + jsz + DXD(0.013f * mpUi);
-    float titleBaseY = ay + jsz * 0.46f;     // == devY(0.866) at 1x
-    float artistBaseY = ay + jsz * 0.86f;    // == devY(0.900) at 1x
-
-    // Right info cluster geometry (used to clip the title): wider at the 1.5x bar so
-    // the larger elapsed/total time strings fit without overlapping. Defined here so
-    // the title never runs into it.
-    float clX = DXP(mpUi > 1.2f ? 0.62f : 0.738f), clEnd = DXP(0.940f);
-
-    // The title AND the artist/album subtitle both clip to the band LEFT of the
-    // right info-cluster and MARQUEE-BOUNCE (smooth ping-pong) when wider than it,
-    // so neither spills into the time/codec/seek cluster (user: the subtitle was
-    // overlapping the seek bar with real, long metadata). 1:1 with the web title
-    // marquee, now applied to both lines.
-    float titleRight = mMpFullInfo ? (clX - DXD(0.015f)) : DXP(0.955f);
-    float bandW = titleRight - tx;
+    // Text band: portrait centres each line in the full-width content band and marquees when
+    // too wide; landscape clips to the band LEFT of the right info-cluster (1:1 web marquee) so
+    // neither line spills into the time/codec/seek cluster.
+    float bandW = mpCenter ? (clEnd - clX) : (titleRight - tx);
     // Smooth ping-pong offset for text wider than maxW (web HOLD/SPEED easing).
     auto marqueeOff = [&](float w, float maxW) -> float {
         if (w <= maxW || maxW <= 0) return 0.0f;
@@ -1218,24 +1265,29 @@ void NanoMenu::renderMusicPlayer() {
         scissorLogicalRect(bx, 0.0f, fmaxf(0.0f, bw), (float)mHeight);
     };
 
-    // title (marquee bounce when too wide), clipped to the band
-    float titleScale = FSZ(32.0f * mpUi);
-    float toff = marqueeOff(measureText(t.title.c_str(), titleScale), bandW);
-    clipBand(tx, bandW);
-    drawText(t.title.c_str(), tx - toff, ps3::baselineToTopY(titleBaseY, titleScale),
-             titleScale, 1.0f, 1.0f, 1.0f, 0.95f * enter);
-    glDisable(GL_SCISSOR_TEST);
+    // Draw one info line either LEFT-aligned at tx (landscape, beside the jacket) or CENTRED in
+    // the content band (portrait, under the jacket); either way clipped to the band and
+    // marquee-bounced when wider than it, so it never spills into the time/codec/seek cluster.
+    const float mpBandL = mpCenter ? clX : tx;
+    auto drawMpLine = [&](const char* s, float baseY, float fscale, float alpha) {
+        float w = measureText(s, fscale);
+        float off = marqueeOff(w, bandW);
+        clipBand(mpBandL, bandW);
+        float drawX = (w > bandW) ? (mpBandL - off)                     // too wide: marquee from band left
+                                  : (mpCenter ? tx - w * 0.5f : tx);    // fits: centre (portrait) / left (landscape)
+        drawText(s, drawX, ps3::baselineToTopY(baseY, fscale), fscale, 1.0f, 1.0f, 1.0f, alpha);
+        glDisable(GL_SCISSOR_TEST);
+    };
 
-    // artist / album (70%) - same marquee + clip so it never overlaps the seek bar.
-    // Internet Radio shows just the station group (no "/ album").
+    // title (marquee bounce when too wide)
+    float titleScale = FSZ(32.0f * mpUi);
+    drawMpLine(t.title.c_str(), titleBaseY, titleScale, 0.95f * enter);
+
+    // artist / album (70%). Internet Radio shows just the station group (no "/ album").
     std::string sub = live ? (t.artist.empty() ? "Internet Radio" : t.artist)
                            : (t.artist.empty() ? "-" : t.artist) + " / " + (t.album.empty() ? "-" : t.album);
     float subScale = FSZ(19.0f * mpUi);
-    float soff = marqueeOff(measureText(sub.c_str(), subScale), bandW);
-    clipBand(tx, bandW);
-    drawText(sub.c_str(), tx - soff, ps3::baselineToTopY(artistBaseY, subScale),
-             subScale, 1.0f, 1.0f, 1.0f, 0.70f * enter);
-    glDisable(GL_SCISSOR_TEST);
+    drawMpLine(sub.c_str(), artistBaseY, subScale, 0.70f * enter);
 
     // full-info cluster: counter + codec on a top line, elapsed (left) and total
     // (right) flanking a full-width seek bar - the HH:MM:SS strings never collide
@@ -1246,9 +1298,8 @@ void NanoMenu::renderMusicPlayer() {
         // While scrubbing, preview the pending target so the time + bar track the
         // press instantly (the real seek commits after input settles).
         double cur = mMpSeekPending ? mMpSeekTarget : mMusicPlayer.position();
-        float lineTop  = ay + jsz * 0.22f;   // counter + codec
-        float lineTime = ay + jsz * 0.60f;   // elapsed / total
-        float seekY    = ay + jsz * 0.88f;   // seek bar
+        // lineTop (counter + codec), seekY (bar) and lineTime (elapsed / total) were positioned
+        // above per orientation: relative to the jacket in landscape, stacked under the art in portrait.
         // counter N/M right-aligned at clEnd
         int qn = live ? (int)mMpRadioQueue.size() : (int)mMpQueue.size();
         char cnt[24]; snprintf(cnt, sizeof(cnt), "%d / %d", mMpIdx + 1, qn);
@@ -1288,6 +1339,8 @@ void NanoMenu::renderMusicPlayer() {
             drawQuad(sx, seekY, sw, fmaxf(1.0f, SZ(0.0015f * mpUi)), 150/255.0f, 150/255.0f, 150/255.0f, 0.85f * fa);
             float frac = dur > 0 ? (float)(cur / dur) : 0.0f; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
             if (frac > 0) drawQuad(sx, seekY, fmaxf(2.0f, sw * frac), shh, 245/255.0f, 245/255.0f, 245/255.0f, 0.95f * fa);
+            // Cache the bar rect for touch scrubbing (only for a real, seekable local track).
+            if (dur > 0.0 && fa > 0.5f) { mMpSeekBarX = sx; mMpSeekBarW = sw; mMpSeekBarY = seekY; mMpSeekBarH = shh; }
         }
     }
 
@@ -1362,9 +1415,22 @@ void NanoMenu::renderMusicPlayer() {
 // play-state / transport / repeat / shuffle row above the jacket (panel open).
 void NanoMenu::drawMpStatusRow(float ax, float fade) {
     float mpUi = ((mWidth < mHeight ? mWidth : mHeight) <= 768) ? 1.5f : 1.0f;  // match the 1.5x bar jacket
-    float jsz = SZ(0.085f * mpUi), ay = DYP(0.912f) - jsz;   // match the scaled jacket
-    float h = SZ(0.030f * mpUi);
-    float y = ay - jsz * 0.53f;   // centred just above the jacket (== 0.782 at 1x)
+    // Match renderMusicPlayer's jacket geometry (portrait = big centred art, else the web bottom bar)
+    // and place the status strip just above the jacket.
+    const bool mpPortrait = (mHeight >= (int)(mWidth * 1.2f));
+    float jsz, ay, h, y;
+    if (mpPortrait) {
+        // Match renderMusicPlayer's panel-open compact art (drawMpStatusRow only runs with the panel
+        // open) and sit the play-state strip in the top margin above it.
+        jsz = fminf((float)mWidth * 0.38f, (float)mHeight * 0.19f);
+        ay  = (float)mHeight * 0.090f;
+        h   = jsz * 0.24f;
+        y   = ay - h * 0.75f;   // top strip, just above the compact art
+    } else {
+        jsz = SZ(0.085f * mpUi); ay = DYP(0.912f) - jsz;   // match the scaled jacket
+        h   = SZ(0.030f * mpUi);
+        y   = ay - jsz * 0.53f;   // centred just above the jacket (== 0.782 at 1x)
+    }
     float x = ax + jsz * 0.5f - h * 0.5f;
     float a = 0.95f * fade;
     // native aspect (the repeat/shuffle/one glyphs are non-square pills) + a subtle
@@ -1403,6 +1469,9 @@ static MpLayout mpLayout(int W, int H) {
     ps3::MediaGrid g = ps3::mediaGrid(W, H, gxLo, gxHi, gyLo, gyHi);
     MpLayout m;
     m.ox = g.ox; m.oy = g.centerY; m.cellX = g.cellX; m.cellY = g.cellY; m.ih = g.icon;
+    // Portrait: the now-playing view compresses into the top half (renderMusicPlayer), so drop the
+    // grid into the lower half's free space instead of centring it over the album art.
+    if (H >= (int)(W * 1.2f)) m.oy = (float)H * 0.70f;
     m.cx = (float)W * 0.5f;                          // grid is centred horizontally
     m.labBaseY = m.oy + m.cellY + m.ih * 0.9f;       // below the bottom (gy==gyLo) row
     return m;
@@ -1556,6 +1625,28 @@ void NanoMenu::mpTouchFrame() {
     const int64_t TAPMS = 450;
     int64_t now = android::uptimeMillis();
     bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+
+    // Seek-bar scrub: tap or drag anywhere on the (local-track) seek bar to jump to that position.
+    // Works whether the control panel is open or closed. A generous touch band makes the thin bar
+    // easy to grab. The seek commits 0.22s after the last input (musicTick), so dragging previews
+    // (mMpSeekTarget) and release lands it.
+    if (mMpSeekBarW > 1.0f && !mMpIsRadio) {
+        double dur = mMusicPlayer.duration();
+        float pad = (float)mHeight * 0.030f;
+        bool onBar = (px >= mMpSeekBarX - pad && px <= mMpSeekBarX + mMpSeekBarW + pad &&
+                      py >= mMpSeekBarY - pad && py <= mMpSeekBarY + mMpSeekBarH + pad);
+        auto seekToX = [&](float x) {
+            if (dur <= 0.0) return;
+            float f = (x - mMpSeekBarX) / mMpSeekBarW; if (f < 0.0f) f = 0.0f; if (f > 1.0f) f = 1.0f;
+            mMpSeekTarget = (double)f * dur; mMpSeekPending = true; mMpSeekInputT = mEffectTime;
+            mLastInputMs = now; mDisplayDirty = true;
+        };
+        if (downEdge && onBar)          { mMpSeekDragging = true;  seekToX(px); mTouchWasDown = mTouchDown; return; }
+        if (down && mMpSeekDragging)    {                          seekToX(px); mTouchWasDown = mTouchDown; return; }
+        if (upEdge && mMpSeekDragging)  { mMpSeekDragging = false; seekToX(px); mTouchWasDown = mTouchDown; return; }
+    } else {
+        mMpSeekDragging = false;
+    }
 
     if (downEdge) {
         mXmbTouchTracking = true; mXmbTouchMoved = false;

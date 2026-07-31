@@ -3231,6 +3231,10 @@ private:
     bool   mMpSeekPending = false;
     double mMpSeekTarget = 0.0;        // desired position (seconds) while scrubbing
     float  mMpSeekInputT = 0.0f;       // mEffectTime of the last scrub press
+    // Seek-bar touch: rect cached from renderMusicPlayer (device px) so mpTouchFrame can tap/drag
+    // to seek. Width 0 = not touchable this frame (radio / full-info hidden / not yet drawn).
+    float  mMpSeekBarX = 0.0f, mMpSeekBarW = 0.0f, mMpSeekBarY = 0.0f, mMpSeekBarH = 0.0f;
+    bool   mMpSeekDragging = false;    // a finger is scrubbing the seek bar
     // Async audio-control worker: NanoAudio control ops (play/pause/stop/seek/open)
     // can block on the audio server / codec; running them on the render thread risks
     // a watchdog abort or a hang. The render thread enqueues a command (cheap) and a
