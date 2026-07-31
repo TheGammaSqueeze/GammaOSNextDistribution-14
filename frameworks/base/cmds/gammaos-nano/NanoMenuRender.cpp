@@ -1727,8 +1727,31 @@ void NanoMenu::renderNds() {
     ensureNdsAssets();
     const float W = (float)mWidth, H = (float)mHeight;
     if (mNdsStack) {
-        renderNdsTop(0.0f, 0.0f, W, H * 0.5f);
-        renderNdsCarousel(0.0f, H * 0.5f, W, H * 0.5f);
+        // Gap between the two stacked screens (the DS "hinge"): persist.gammaos.nano.ndstheme.gap
+        // is a percentage of the panel height (0..40, default 6). 0 = the screens meet in the
+        // middle; larger values push each screen toward its edge (top/bottom snap). Each screen
+        // contain-fits its band, so the DS 4:3 pair keeps its aspect on the tall portrait panel.
+        char gb[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.ndstheme.gap", gb, "6");
+        float gapPct = (float)atof(gb);
+        if (gapPct < 0.0f) gapPct = 0.0f; if (gapPct > 40.0f) gapPct = 40.0f;
+        const float gap = H * (gapPct / 100.0f);
+        const float half = (H - gap) * 0.5f;
+        // Fill the hinge gap with the SAME background the bottom screen uses (the light DSi field,
+        // or the custom wallpaper) so the two screens read as one continuous surface rather than the
+        // wave showing through. Skipped in an in-game scrim so the dimmed app shows through the gap.
+        if (gap > 0.5f && !(mOverlayMode && !mOverlayWallpaper)) {
+            if (wallpaperActive(mRenderingPanel)) {
+                drawWallpaperFill(mRenderingPanel);
+            } else {
+                drawQuad(0.0f, half, W, gap, 0.953f, 0.953f, 0.953f, 1.0f);       // #f3 light field
+                const float ec = 1.0f;
+                drawQuad(0.0f, half, ec, gap, 0.859f, 0.859f, 0.859f, 1.0f);      // #db edge columns
+                drawQuad(W - ec, half, ec, gap, 0.859f, 0.859f, 0.859f, 1.0f);
+            }
+        }
+        renderNdsTop(0.0f, 0.0f, W, half);
+        renderNdsCarousel(0.0f, half + gap, W, half, /*singleFull=*/false);
     } else {
         renderNdsCarousel(0.0f, 0.0f, W, H, /*singleFull=*/true);
     }
@@ -4820,6 +4843,12 @@ void NanoMenu::render() {
     // and keeps the dual-panel split on a two-screen device (RG DS). Computed here, before any
     // NDS branch reads mNdsStack. mNdsTexLoaded gate: mNdsStackMode is valid after first load.
     if (mNdsTheme) {
+        // Re-read the stack mode live so the Theme Settings "Dual Screen" chooser applies without a
+        // restart (ensureNdsAssets reads it once at load; this refreshes it every frame). Cheap.
+        { char sk[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.ndstheme.stack", sk, "auto");
+          if (sk[0] == '1' || sk[0] == 't' || (sk[0] == 'o' && sk[1] == 'n')) mNdsStackMode = 1;
+          else if (sk[0] == '0' || sk[0] == 'f' || (sk[0] == 'o' && sk[1] == 'f')) mNdsStackMode = 2;
+          else mNdsStackMode = 0; }
         // Latch: a secondary panel, once seen, stays seen for the session. glFbo can read 0 on
         // a handoff frame (boot -> carousel) which would otherwise briefly flip a dual device
         // into single-screen stacked mode and flash the wave on the second panel.
@@ -4828,9 +4857,14 @@ void NanoMenu::render() {
         // panels (the dual-panel split), never stacked. On a SINGLE-screen device the default
         // is now carousel-only - just the bottom screen, letterboxed to the panel's aspect ratio
         // (user request) - and the DSi top screen is only stacked above it when the user opts in
-        // via persist.gammaos.nano.ndstheme.stack = 1/on (mNdsStackMode == 1). Off/auto/unset all
-        // mean carousel-only.
-        mNdsStack = mNdsHadSecondary ? false : (mNdsStackMode == 1);
+        // via persist.gammaos.nano.ndstheme.stack. Mode 1 = force stack, mode 2 = force carousel-
+        // only, mode 0 = Auto: stack on a TALL single-screen PORTRAIT panel (e.g. 480x800), where
+        // the DS's native top+bottom layout fills the screen far better than a letterboxed single
+        // carousel, and carousel-only on 4:3/square/landscape where a stack would squash. A real
+        // dual-panel device (RG DS) never stacks - it uses its two physical panels.
+        const bool ndsTallSingle = (mHeight >= (int)(mWidth * 1.35f));
+        mNdsStack = mNdsHadSecondary ? false
+                  : (mNdsStackMode == 1 || (mNdsStackMode == 0 && ndsTallSingle));
     }
 
     // Dual-screen bottom PSP clock: drive its own reveal (mPspBottomReveal), independent of the F12

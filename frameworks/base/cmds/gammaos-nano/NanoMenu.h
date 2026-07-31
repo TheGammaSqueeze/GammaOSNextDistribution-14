@@ -1384,6 +1384,9 @@ private:
     // Minima render/animation state (NextUI feel: pill glides between rows, list windows to keep sel visible).
     float   mMinimaSelAnim   = 0.0f;   // eased selected-row index (pill glide, ~3-frame linear)
     float   mMinimaScroll    = 0.0f;   // eased list scroll top (in rows)
+    float   mMinimaListTop   = -1.0f;  // list top y from the last render (below the status pill on
+                                       // narrow panels); read by minimaListTouch for hit-testing
+
     bool    mListWrapSnap    = false;  // set by ndsNavHoriz on a wrap-around jump; the Minima list +
                                        // DSi submenu snap their scroll to the new end (no glide-through)
     float   mMinimaMarquee   = 0.0f;   // marquee offset (px) for a long selected label

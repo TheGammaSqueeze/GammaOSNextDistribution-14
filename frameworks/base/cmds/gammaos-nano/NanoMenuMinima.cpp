@@ -135,8 +135,11 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     const float accLum = 0.299f * ar + 0.587f * ag + 0.114f * ab;
     const float atc = (accLum > 0.62f) ? 0.0f : 1.0f;
 
-    // ---- adaptive scale (NextUI SCALE1 model): everything = unscaled * (panelH / 256) ----
-    const float sc      = rh / MIN_REF_H;
+    // ---- adaptive scale: NextUI scales purely by panel HEIGHT (it targets landscape handhelds).
+    // On a PORTRAIT panel that overshoots badly - the tall height inflates every row/font far beyond
+    // what the narrow width needs. Scale by the SHORT edge instead so density tracks the constrained
+    // dimension. On landscape the short edge IS the height, so this is byte-identical to before. ----
+    const float sc      = fminf(rw, rh) / MIN_REF_H;
     const float pad     = MIN_PAD * sc;
     const float rowH    = MIN_PILL * sc;
     const float btnPad  = MIN_BTNPAD * sc;
@@ -174,9 +177,36 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     const int n = (int)rows.size();
     if (sel < 0) sel = 0; if (n > 0 && sel >= n) sel = n - 1;
 
+    // ---- status-pill band geometry (top-right): computed up-front so the list can start BELOW the
+    // pill on a narrow/portrait panel where the wide clock+icons pill would otherwise crowd the first
+    // row's label into an unreadable sliver. statusPillLeft = pill's left x; statusBandBot = bottom y.
+    // The pill is drawn later from the same math (keep in sync). ----
+    float statusPillLeft, statusBandBot;
+    {
+        int wl, bl;
+        { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; bl = mBtLevel; }
+        char cb[24] = {}; time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
+        clockRefreshMaybe(); formatClockHM(cb, sizeof(cb), lt);   // honor the 12/24-hour setting
+        const float ph = rowH, gp = 6.0f * sc, iconH = MIN_FONT_S * sc * 1.15f;
+        const float wifiW = 22.0f * (iconH / 18.0f), btW = 14.0f * (iconH / 20.0f);
+        const float battW = iconH * 1.55f + 2.0f * sc;
+        float contentW = measureText(cb, fsHint);
+        if (wl != kWifiLevel_Off && wl != kWifiLevel_Unknown) contentW += wifiW + gp;
+        if (bl != kBtLevel_Off && bl != kBtLevel_Unknown)     contentW += btW + gp;
+        if (mBatteryPercent >= 0)                              contentW += battW + gp;
+        statusPillLeft = rx + rw - pad - (contentW + btnPad * 2.0f);
+        statusBandBot  = ry + pad + ph;
+    }
+
     // ---- list geometry: fills from the top inset down to above the hint bar ----
     const float listLeft   = rx + pad + btnMg;
-    const float listTop    = ry + pad;
+    // Start the list below the status pill when the pill is wide relative to the row (portrait panels):
+    // this stops the first row(s) being squeezed beside the pill and shrunk to an unreadable size. On a
+    // wide (landscape/TV) panel the pill is a small fraction of the row, so the list stays at the top.
+    const float rowContentW = (rx + rw - pad) - listLeft;
+    const float pillSpanW   = (rx + rw - pad) - statusPillLeft;
+    const float listTop     = (pillSpanW > rowContentW * 0.5f) ? (statusBandBot + 6.0f * sc) : (ry + pad);
+    mMinimaListTop = listTop;                                // cache for minimaListTouch hit-testing
     const float hintTop    = ry + rh - pad - rowH;          // hint bar occupies the bottom PILL_SIZE band
     const float listBottom = hintTop - btnMg;
     const int   visRows    = (int)fmaxf(1.0f, floorf((listBottom - listTop) / rowH));
@@ -232,25 +262,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     }
     const float lx = listLeft + slideX;
 
-    // ---- status-pill band: a value-bearing row under the top-right status pill must inset its
-    // right-aligned value so it is not hidden behind the pill. Mirror of the pill geometry drawn
-    // below (keep in sync). statusPillLeft = pill's left x; statusBandBot = pill's bottom y. ----
-    float statusPillLeft, statusBandBot;
-    {
-        int wl, bl;
-        { std::lock_guard<std::mutex> lk(mNetStateMutex); wl = mWifiLevel; bl = mBtLevel; }
-        char cb[24] = {}; time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
-        clockRefreshMaybe(); formatClockHM(cb, sizeof(cb), lt);   // honor the 12/24-hour setting
-        const float ph = rowH, gp = 6.0f * sc, iconH = MIN_FONT_S * sc * 1.15f;
-        const float wifiW = 22.0f * (iconH / 18.0f), btW = 14.0f * (iconH / 20.0f);
-        const float battW = iconH * 1.55f + 2.0f * sc;
-        float contentW = measureText(cb, fsHint);
-        if (wl != kWifiLevel_Off && wl != kWifiLevel_Unknown) contentW += wifiW + gp;
-        if (bl != kBtLevel_Off && bl != kBtLevel_Unknown)     contentW += btW + gp;
-        if (mBatteryPercent >= 0)                              contentW += battW + gp;
-        statusPillLeft = rx + rw - pad - (contentW + btnPad * 2.0f);
-        statusBandBot  = ry + pad + ph;
-    }
+    // (status-pill band geometry computed up-front, before listTop, so the list starts below it)
 
     // ---- draw the rows (white text) then the gliding white capsule + inverted selected label ----
     if (n == 0) {
@@ -304,7 +316,14 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         const float fs = fsRow, tw = measureText(lbl.c_str(), fs);
         const float pillY = listTop + (mMinimaSelAnim - mMinimaScroll) * rowH + rowH * 0.07f;
         const float pillH = rowH * 0.86f;
-        const float maxPillW = (rx + rw - pad) - listLeft;
+        // The selected capsule normally runs to the right list margin, but the FIRST row sits under
+        // the top-right status pill (portrait especially): cap the pill's right edge to statusPillLeft
+        // so a long selected label (e.g. "Internet Connection") is not overlapped by the pill. This
+        // mirrors the non-selected rowRight clip above and feeds all three branches via maxPillW.
+        float pillRightLimit = rx + rw - pad;
+        if (pillY < statusBandBot && pillY + pillH > ry + pad)
+            pillRightLimit = fminf(pillRightLimit, statusPillLeft - 8.0f * sc);
+        const float maxPillW = pillRightLimit - lx;
         const float maxTextW = maxPillW - btnPad * 2.0f;
         const float ty = pillY + (pillH - MIN_FONT * sc) * 0.5f;
         if (sel != mMinimaMarqueeSel) { mMinimaMarqueeSel = sel; mMinimaMarquee = 0.0f; mMinimaMarqueeStart = (int64_t)uptimeMillis(); }
@@ -472,7 +491,7 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
     else                             drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f);    // pure-black backdrop (no app behind)
 
     float ar, ag, ab; minimaAccent(ar, ag, ab);
-    const float sc = rh / MIN_REF_H;
+    const float sc = fminf(rw, rh) / MIN_REF_H;
     const float cx = rx + rw * 0.5f;
 
     // Resolve the current level's title and the focused item, like the NDS top screen.
@@ -586,7 +605,7 @@ void NanoMenu::renderMinimaSidePanel(float rx, float ry, float rw, float rh) {
 
     drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.55f * ap);          // scrim over the home
     float ar, ag, ab; minimaAccent(ar, ag, ab);
-    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
+    const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
     const float inset = 8.0f * sc;
     float panelW = fminf(rw * 0.60f, rw - pad * 2.0f);
     float px = rx + rw - panelW + (1.0f - ap) * panelW;             // slide in from the right
@@ -642,7 +661,7 @@ void NanoMenu::renderMinimaDialog(float rx, float ry, float rw, float rh) {
     if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f; else mDisplayDirty = true;
     float ap = mPs3DlgAnim, ease = ap * ap * (3.0f - 2.0f * ap);
     float ar, ag, ab; minimaAccent(ar, ag, ab);
-    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
+    const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
 
     drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.55f * ap);   // scrim
     float pw = fminf(rw * 0.74f, rw - pad * 2.0f), ph = fminf(rh * 0.64f, rh - pad * 2.0f);
@@ -744,8 +763,11 @@ void NanoMenu::minimaListTouch() {
     if (!selPtr || n <= 0) return;
 
     const float rw = (float)mWidth, rh = (float)mHeight;
-    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnMg = MIN_BTNMARGIN * sc;
-    const float listLeft = pad + btnMg, listTop = pad, hintTop = rh - pad - rowH, listBottom = hintTop - btnMg;
+    const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnMg = MIN_BTNMARGIN * sc;
+    // listTop mirrors renderMinimaList (pushed below the status pill on narrow panels); use the cached
+    // render value so touch hit-testing lines up with what is drawn. Fall back to pad before first render.
+    const float listTop = (mMinimaListTop >= 0.0f) ? mMinimaListTop : pad;
+    const float listLeft = pad + btnMg, hintTop = rh - pad - rowH, listBottom = hintTop - btnMg;
 
     if (!tap) {                                              // vertical swipe -> scroll the selection
         if (fabsf(ddy) > fabsf(ddx) && fabsf(ddy) > rowH * 0.5f) {
@@ -776,7 +798,7 @@ void NanoMenu::minimaSidePanelTouch() {
     if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
 
     const float rw = (float)mWidth, rh = (float)mHeight;
-    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc, inset = 8.0f * sc;
+    const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc, inset = 8.0f * sc;
     const float panelW = fminf(rw * 0.60f, rw - pad * 2.0f);
     const float pxl = rw - panelW;                          // settled panel left (slide-in done)
     const float listLeft = pxl + pad + inset, contentTop = pad + rowH * 0.9f + 6.0f * sc, listBot = rh - pad;
@@ -864,7 +886,7 @@ void NanoMenu::minimaDialogTouch() {
     if (mXmbTouchMoved || held > TAPMS || (dx * dx + dy * dy) > TAPMAX * TAPMAX) return;
 
     const float rw = (float)mWidth, rh = (float)mHeight;
-    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
+    const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
     const float pw = fminf(rw * 0.74f, rw - pad * 2.0f), ph = fminf(rh * 0.64f, rh - pad * 2.0f);
     const float pxL = (rw - pw) * 0.5f, pyTop = (rh - ph) * 0.5f, cxC = rw * 0.5f;
     const int n = (int)mPs3DlgOptions.size();
@@ -904,7 +926,7 @@ void NanoMenu::renderMinimaInfoPage(float rx, float ry, float rw, float rh) {
     const float ap = mPs3DlgAnim;
 
     float ar, ag, ab; minimaAccent(ar, ag, ab);
-    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc;
+    const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc;
     const float FCH = (float)FONT_CHAR_H;
 
     // Backdrop: opaque black, with the fan art (a "screenshot"/background) cover-fit dim behind it.

@@ -137,6 +137,8 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Home Theme",22,"Switches the home screen between GammaOS XMB, DSi Menu and Minima. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},
   {"Bottom Clock",73,"Shows a PSP-style analog clock on the bottom screen. Dual-screen devices only (e.g. the RG DS); no effect on a single-screen device.","On",1,nullptr,0},
   {"Bottom Clock FPS",73,"Frame rate of the bottom-screen clock. 30 FPS saves power; 60 FPS is smoother.","30 FPS",1,nullptr,0},
+  {"Dual Screen",73,"DSi theme only: on a tall single screen, show both DS screens stacked (top + bottom) or just the bottom launcher. Auto stacks on a tall (portrait) screen. Real dual-screen devices always use both panels.","Auto",1,nullptr,0},
+  {"Screen Gap",73,"DSi theme only: the gap between the stacked top and bottom screens (the DS hinge). Larger values push each screen toward its edge (snap to top/bottom).","Medium",1,nullptr,0},
 };
 static const Ps3DataItem kDateTimeCh[] = {
   {"Date and Time",22,"Sets the date and time for this system.",nullptr,1,nullptr,0},

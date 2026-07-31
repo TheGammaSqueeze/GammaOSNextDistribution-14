@@ -599,6 +599,8 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("Background Colour")) return minima;
     // Long-name shrink/scroll is a Minima-list behaviour (XMB/DSi handle long names their own way).
     if (is("Long Names")) return minima;
+    // The DSi dual-screen layout + hinge gap only affect the DSi carousel home.
+    if (is("Dual Screen") || is("Screen Gap")) return mNdsTheme;
     return true;
 }
 
@@ -7606,6 +7608,14 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "0:Off,10:10%,20:20%,25:25%,30:30%,40:40%,50:50%,60:60%,70:70%"},
     {"Bottom Clock", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock", "1", "0:Off,1:On"},
     {"Bottom Clock FPS", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.bottomclock.fps", "30", "30:30 FPS,60:60 FPS"},
+    // DSi theme dual-screen layout on a single tall panel. mNdsStackMode reads this live in
+    // renderNds: auto/unset = stack on a tall (portrait) panel, 1 = force stack, 0 = single
+    // carousel. A real dual-panel device (RG DS) ignores this and always uses both panels.
+    {"Dual Screen", SettingSource::kProp, "persist.gammaos.nano.ndstheme.stack", "auto",
+     "auto:Auto,1:Top + Bottom,0:Single Screen"},
+    // Gap (percent of panel height) between the stacked DS screens - read live by renderNds.
+    {"Screen Gap", SettingSource::kProp, "persist.gammaos.nano.ndstheme.gap", "6",
+     "0:None,3:Small,6:Medium,12:Large,20:Extra Large,30:Maximum"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},
     {"Parallax Calibration", SettingSource::kProp, "persist.gammaos.nano.pspclock.tilt.cal", "0.12,1,-1,-1", "@text"},
     // Developer Options
