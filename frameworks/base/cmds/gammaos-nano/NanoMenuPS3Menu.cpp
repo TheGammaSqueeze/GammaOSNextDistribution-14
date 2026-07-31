@@ -597,6 +597,8 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("XMB Wave")) return xmb || minima;
     // The Minima solid background colour is meaningless on XMB / DSi.
     if (is("Background Colour")) return minima;
+    // Long-name shrink/scroll is a Minima-list behaviour (XMB/DSi handle long names their own way).
+    if (is("Long Names")) return minima;
     return true;
 }
 
@@ -890,6 +892,11 @@ bool NanoMenu::ps3ItemOpensSubmenu(const Ps3Item& it) const {
            it.kind == PS3_RECENT_LIST || it.kind == PS3_APP_LIST ||
            it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW ||
            it.kind == PS3_CATORDER_ROOT ||
+           // IPTV / Internet Radio group + bucket rows drill into a pushed submenu
+           // (country/alpha bucket, then channels/stations), so a directional drill
+           // (XMB RIGHT, DSi DOWN) must open them like every other carousel/list group.
+           it.kind == PS3_IPTV_GROUP || it.kind == PS3_IPTV_COUNTRY ||
+           it.kind == PS3_RADIO_GROUP || it.kind == PS3_RADIO_BUCKET ||
            (it.kind == PS3_QUICK && ps3QaOpensSubmenu(it.a)) ||
            // Slide Behaviour: these data-leaf rows drill into a pushed picker (device /
            // event list, or the down/up action multi-select) rather than a side chooser.
@@ -973,6 +980,12 @@ void NanoMenu::loadCatOrder() {
         if (!present) parsed.emplace_back(id, true);
     }
     if (parsed.empty()) { seedDefaults(); mCatOrderCfgStamp = catOrderConfigStamp(); return; }
+    // Invariant the whole UI relies on: the Settings column can never be hidden
+    // (catOrderToggle refuses it), because Theme Settings > Home Categories - the only
+    // way to un-hide a column - lives inside it. A hand-edited / corrupted
+    // nano_categories.json marking settings:false would otherwise strand the user with
+    // no way back. Force it visible on load so that can never happen.
+    for (auto& p : parsed) if (p.first == "settings") p.second = true;
     mCatOrder = std::move(parsed);
     mCatOrderCfgStamp = catOrderConfigStamp();
     ALOGD("NanoMenu: loaded %zu home categories from nano_categories.json", mCatOrder.size());
@@ -2375,12 +2388,21 @@ void NanoMenu::buildAppInfoLevel(Ps3Level& out) {
     if (!mAppInfoLoaded) { noop("Loading..."); return; }
     for (auto& f : mAppInfoFacts) noop(f);
     int firstAction = (int)out.items.size();
-    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_STORAGE; it.label = "Storage";
-      it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
-      out.items.push_back(it); }
-    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_PERMS; it.label = "Permissions";
-      it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
-      out.items.push_back(it); }
+    // Only offer the Storage / Permissions drills when the framework actually reported actionable
+    // content. Protected packages (system / lineage / gammaos / magisk / retroarch) get facts-only
+    // from writeNanoAppInfo - no CACHE/DATA/PERM lines, because doNanoAppAction refuses to act on
+    // them - so their sizes + perm list are empty here and these rows would be dead drills (tap ->
+    // Clear Cache/Data or a permission toggle that silently does nothing). Omit them for facts-only.
+    if (!mAppInfoCacheSz.empty() || !mAppInfoDataSz.empty()) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_STORAGE; it.label = "Storage";
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+    if (!mAppInfoPerms.empty()) {
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_APP_PERMS; it.label = "Permissions";
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
     out.sel = (firstAction < (int)out.items.size()) ? firstAction : 0;
 }
 
@@ -4447,7 +4469,7 @@ void NanoMenu::ps3XmbSelect() {
         }
         case PS3_GS_ROOT:      { Ps3Level lvl; buildGameSystemsList(lvl);      mPs3Stack.push_back(lvl); break; }
         case PS3_CATORDER_ROOT: { Ps3Level lvl; buildCatOrderList(lvl);       mPs3Stack.push_back(lvl); break; }
-        case PS3_CATORDER_ROW:  return;   // A does nothing; Shown/Hidden is toggled with X only
+        case PS3_CATORDER_ROW:  catOrderToggle(it.a); return;   // A toggles Shown/Hidden (X also works); a category row has no submenu to open, so A is the natural toggle
         case PS3_GS_SYSTEM_ROW: { mGsEditIdx = it.a; Ps3Level lvl; buildGameSystemEditor(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_GS_FIELD:     { gsEditField(it.a); return; }   // open OSK / chooser / toggle
         case PS3_GS_EMUROW: {   // pick a catalog emulator/core -> apply to the system
@@ -7075,6 +7097,14 @@ static const Ps3ColorOpt kPs3ColorOpts[] = {
 };
 static const int kPs3ColorCount = 21;
 
+// Expose a swatch's RGB by index so the DSi/Minima renderers (in NanoMenuRender.cpp) can draw
+// real colour swatches - kPs3ColorOpts is static/file-local here.
+bool NanoMenu::ps3SwatchColor(int ci, float& r, float& g, float& b) const {
+    if (ci < 0 || ci >= kPs3ColorCount) return false;
+    r = kPs3ColorOpts[ci].sr; g = kPs3ColorOpts[ci].sg; b = kPs3ColorOpts[ci].sb;
+    return true;
+}
+
 // Minima accent colour: follows the shared "Colour" theme setting (mPs3ColorIdx) exactly like the
 // XMB, but defaults to NextUI's signature berry #9B2257 when the setting is left at "Original"
 // (index 0) or unset, so Minima reads as NextUI out of the box. Uses the saturated (sr,sg,sb) set
@@ -7478,7 +7508,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Internet Search", SettingSource::kProp, "persist.gammaos.nano.search_engine", "google",
      "google:Google,bing:Bing,duckduckgo:DuckDuckGo,brave:Brave,startpage:Startpage,ecosia:Ecosia"},
     {"Touch Sounds", SettingSource::kSystem, "sound_effects_enabled", "1", "0:Off,1:On"},
-    {"Charging Sounds", SettingSource::kGlobal, "charging_sounds_enabled", "1", "0:Off,1:On"},
+    {"Charging Sounds", SettingSource::kSecure, "charging_sounds_enabled", "1", "0:Off,1:On"},
     {"Screen Lock Sounds", SettingSource::kSystem, "lockscreen_sounds_enabled", "1", "0:Off,1:On"},
     {"Battery Percentage", SettingSource::kSystem, "status_bar_show_battery_percent", "0", "0:Off,1:On"},
     {"Battery Saver", SettingSource::kGlobal, "low_power", "0", "0:Off,1:On"},
@@ -7567,6 +7597,9 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // shows these presets as a Minima side panel; the hex has no ':'/',' so parseListOptions is safe.
     {"Background Colour", SettingSource::kProp, "persist.gammaos.nano.minima.bg", "none",
      "none:Black,20222b:Slate,3a3f4b:Graphite,ffffff:White,9b2257:Berry,1e3a5f:Navy,0d5c46:Teal,2e5d34:Forest,6a1b9a:Purple,b3122b:Crimson,d2691e:Amber,1a1a2e:Midnight"},
+    // Minima long-name handling: 0 = shrink the font so a long name fits (default), 1 = keep the
+    // font size and scroll the focused name (marquee) / clip the rest. Read live by renderMinimaList.
+    {"Long Names", SettingSource::kProp, "persist.gammaos.nano.minima.namescroll", "0", "0:Shrink to Fit,1:Scroll"},
     // Adjustable dimming over a custom wallpaper (read live by wallpaperScrimAlpha, applied in
     // drawWallpaperFill / drawTopVideoWallpaper for every theme). Percent value, 0 = off.
     {"Wallpaper Dimming", SettingSource::kProp, "persist.gammaos.nano.wp.scrim", "25",
@@ -9981,6 +10014,14 @@ void NanoMenu::closePs3Dialog(bool apply) {
                         mXmbWaveExplicit = true;
                         property_set("persist.gammaos.nano.ps3xmb.wave_explicit", "1");
                     }
+                    // Dark Theme: the write above mirrors Secure.ui_night_mode ("1"=off / "2"=on), but a
+                    // bare settings-write does NOT reconfigure the running apps / SystemUI. Drive the real
+                    // day/night switch through UiModeManager (which also persists the setting) off-thread.
+                    if (!strcmp(b->label, "Dark Theme")) {
+                        bool on = (v == "2");
+                        std::thread([on]{ system(on ? "cmd uimode night yes 2>/dev/null"
+                                                     : "cmd uimode night no 2>/dev/null"); }).detach();
+                    }
                     // Bottom Clock on/off: apply live. mPs3BottomClock is cached once at startup
                     // (NanoMenu.cpp constructor) and every render/reveal gate reads the MEMBER, not the
                     // prop, so writeSettingValue alone would not take effect until reboot. Flip the member
@@ -12082,8 +12123,38 @@ void NanoMenu::renderXmbOpt() {
         // parent kept a touch brighter for context.
         float baseA = subOpen ? (sel ? 0.9f : 0.40f) : (sel ? 1.0f : 0.82f);
         float a2 = baseA * ap;
-        drawText(txt, txDev + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.35f * ap * (subOpen ? 0.5f : 1.0f));
-        drawText(txt, txDev, ty, fs, 1.0f, 1.0f, 1.0f, a2);
+        // Text column = label x -> panel right edge minus a margin (and the ">" arrow column when
+        // this row opens a submenu). On a narrow (portrait) panel long labels ("Rename / Edit
+        // Title", "Add to Collection") exceed it and used to truncate at the screen edge. So the
+        // FOCUSED row marquee-scrolls (loop with a gap) and non-focused long rows clip cleanly.
+        const bool rowHasSub = (i < (int)mPs3OptHasSub.size() && mPs3OptHasSub[i]);
+        const float availW = (float)mWidth - txDev - ps3::devS(24.0f) - (rowHasSub ? ps3::devS(46.0f) : 0.0f);
+        const float lblWfull = measureText(txt, fs);
+        const float rowHDev = ps3::devS(SP_ITEM_PITCH);
+        auto drawShadowMain = [&]() {
+            drawText(txt, txDev + so[0], ty + so[1], fs, 0.0f, 0.0f, 0.0f, 0.35f * ap * (subOpen ? 0.5f : 1.0f));
+            drawText(txt, txDev, ty, fs, 1.0f, 1.0f, 1.0f, a2);
+        };
+        if (lblWfull <= availW || availW <= 0.0f) {
+            drawShadowMain();
+        } else if (sel) {                                   // focused + too long -> marquee (loop)
+            if (i != mPs3OptMarqueeSel) { mPs3OptMarqueeSel = i; mPs3OptMarquee = 0.0f; mPs3OptMarqueeStart = (int64_t)uptimeMillis(); }
+            const float gap = ps3::devS(48.0f), loopW = lblWfull + gap;
+            if ((int64_t)uptimeMillis() - mPs3OptMarqueeStart > 700) {   // ~0.7s read pause, then scroll
+                mPs3OptMarquee += 2.0f * fmaxf(0.0f, fminf(3.0f, mFrameDt * 60.0f));
+                if (mPs3OptMarquee >= loopW) mPs3OptMarquee -= loopW;
+            }
+            mDisplayDirty = true;
+            scissorLogicalRect(txDev, cyDev - rowHDev * 0.5f, availW, rowHDev);
+            const float tx0 = txDev - mPs3OptMarquee;
+            drawText(txt, tx0,          ty, fs, 1.0f, 1.0f, 1.0f, a2);
+            drawText(txt, tx0 + loopW,  ty, fs, 1.0f, 1.0f, 1.0f, a2);   // wrap copy for a seamless loop
+            glDisable(GL_SCISSOR_TEST);
+        } else {                                            // non-focused + too long -> clip cleanly
+            scissorLogicalRect(txDev, cyDev - rowHDev * 0.5f, availW, rowHDev);
+            drawShadowMain();
+            glDisable(GL_SCISSOR_TEST);
+        }
         // START pill on the primary action row.
         if (i < (int)mPs3OptStart.size() && mPs3OptStart[i]) {
             float lblW = measureText(txt, fs);
@@ -12380,7 +12451,7 @@ void NanoMenu::renderPs3Dialog() {
         auto FS = [&](float px) { return S * px * fb / 16.0f; };
         const float VW = ps3::VW;
         const float innerTop = 199.0f, innerBot = 880.0f;
-        const float maxW = DS((VW - 400.0f) * ps3::LAYOUT_FIT);   // body wrap width (device px)
+        float maxW = DS((VW - 400.0f) * ps3::LAYOUT_FIT);   // body wrap width (device px); narrowed to the actual column in the App Information branch below
 
         // Word-wrap helper (mirrors web wrapLines: split '\n', keep blank lines,
         // greedy word-wrap each paragraph to maxW).
@@ -12554,6 +12625,13 @@ void NanoMenu::renderPs3Dialog() {
             }
         } else if (mPs3DlgType == 0 && mPs3DlgAppInfo) {   // App Information: left, top-anchored, scrolls
             float fs = FS(22.0f), lh = DS(30.0f);
+            // Full-width text column: span the frame with a small side margin so the User Guide /
+            // help body uses the WHOLE screen width, left-anchored + scrolling. (The old narrow
+            // 600-virtual-px centred column read very narrow on a portrait panel.) This also keeps
+            // the text inside the panel on landscape - the wrap width tracks the actual frame.
+            const float sideMarginV = 90.0f;
+            const float bodyLeftDev = XC(sideMarginV);
+            maxW = XC(VW - sideMarginV) - bodyLeftDev;
             std::vector<std::string> lines = wrap(dlgBody, fs);
             int total = (int)lines.size();
             float topY = Y(innerTop + 96.0f);
@@ -12566,10 +12644,10 @@ void NanoMenu::renderPs3Dialog() {
             float ty = topY;
             for (int i = first; i < last; i++) {
                 if (!lines[i].empty())
-                    ps3DlgText(lines[i].c_str(), XC(VW * 0.5f - 300.0f), ty, fs, 0.92f, 0.92f, 0.92f, ap, 0);
+                    ps3DlgText(lines[i].c_str(), bodyLeftDev, ty, fs, 0.92f, 0.92f, 0.92f, ap, 0);
                 ty += lh;
             }
-            float chX = XC(VW * 0.5f + 300.0f);
+            float chX = XC(VW - sideMarginV);
             if (first > 0)    ps3DlgText("\xE2\x96\xB2", chX, topY, FS(15.0f), 0.85f, 0.88f, 0.92f, ap, 1);
             if (last < total) ps3DlgText("\xE2\x96\xBC", chX, botY, FS(15.0f), 0.85f, 0.88f, 0.92f, ap, 1);
         } else if (mPs3DlgType == 0) {          // info

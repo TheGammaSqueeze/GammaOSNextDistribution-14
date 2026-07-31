@@ -363,6 +363,76 @@ GLuint NanoMenu::ndsLoadTex(const char* name) {
     return uploadRGBA(px.data(), w, h);
 }
 
+// Value-preserving HSV helpers (file-local; the same maths renderer's ndsRecolor uses, applied
+// per texel here so a baked sprite can be hue-rotated without crushing its shadows).
+static void ndsPxRgb2Hsv(float r, float g, float b, float& h, float& s, float& v) {
+    float mx = fmaxf(r, fmaxf(g, b)), mn = fminf(r, fminf(g, b)), d = mx - mn;
+    v = mx; s = (mx <= 0.0f) ? 0.0f : d / mx;
+    if (d <= 1e-6f) { h = 0.0f; return; }
+    if (mx == r)      h = 60.0f * fmodf(((g - b) / d), 6.0f);
+    else if (mx == g) h = 60.0f * (((b - r) / d) + 2.0f);
+    else              h = 60.0f * (((r - g) / d) + 4.0f);
+    if (h < 0.0f) h += 360.0f;
+}
+static void ndsPxHsv2Rgb(float h, float s, float v, float& r, float& g, float& b) {
+    h = fmodf(h, 360.0f); if (h < 0.0f) h += 360.0f;
+    float c = v * s, x = c * (1.0f - fabsf(fmodf(h / 60.0f, 2.0f) - 1.0f)), m = v - c;
+    float rr, gg, bb;
+    if      (h <  60.0f) { rr = c; gg = x; bb = 0; }
+    else if (h < 120.0f) { rr = x; gg = c; bb = 0; }
+    else if (h < 180.0f) { rr = 0; gg = c; bb = x; }
+    else if (h < 240.0f) { rr = 0; gg = x; bb = c; }
+    else if (h < 300.0f) { rr = x; gg = 0; bb = c; }
+    else                 { rr = c; gg = 0; bb = x; }
+    r = rr + m; g = gg + m; b = bb + m;
+}
+
+// The iconic DSi selection-frame sprite (glossy blue border + START platform) recoloured to
+// follow the Colour accent while KEEPING its tonal structure - a per-texel value-preserving HSV
+// hue rotation (accent hue - reference azure hue, saturation scaled once), exactly like the
+// procedural chrome's ndsRecolor. The old path multiplied the sprite by accent/refBlue, which
+// crushed the deep-blue shadow texels to near-black on a warm accent (the "black shadows" the
+// user hit). Result is cached and only rebuilt when the Colour index changes; at "Original" the
+// untouched baked-blue sprite is returned. Falls back to the blue sprite if the base cannot load.
+GLuint NanoMenu::ndsFrameTexAccented() {
+    if (ndsAccentIsDefault()) return mNdsFrameTex;                  // Original: baked blue verbatim
+    if (mNdsFrameTexAccent && mNdsFrameAccentIdx == mPs3ColorIdx)   // cached for this accent
+        return mNdsFrameTexAccent;
+    // Decode the base sprite once and keep its pixels (cheap to re-tint on later accent changes).
+    if (mNdsFrameBasePx.empty()) {
+        char path[256]; int w = 0, h = 0; std::vector<uint8_t> px;
+        snprintf(path, sizeof(path), "/data/system/nano_xmb/nds/nds_frame.png");
+        if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) {
+            snprintf(path, sizeof(path), "/system/etc/nano_xmb/nds/nds_frame.png");
+            if (!decodeRGBA(path, nullptr, 0, &w, &h, &px, false)) return mNdsFrameTex;
+        }
+        if (w < 2 || h < 2) return mNdsFrameTex;
+        mNdsFrameBasePx.swap(px); mNdsFrameBaseW = w; mNdsFrameBaseH = h;
+    }
+    // One hue delta + saturation scale for the whole sprite (accent vs reference DSi azure).
+    static const float kRefBlue[3] = {0.094f, 0.573f, 0.922f};
+    float ar, ag, ab; ndsAccentRGB(ar, ag, ab);
+    float refH, refS, refV;  ndsPxRgb2Hsv(kRefBlue[0], kRefBlue[1], kRefBlue[2], refH, refS, refV);
+    float accH, accS, accV;  ndsPxRgb2Hsv(ar, ag, ab, accH, accS, accV);
+    float dH = accH - refH;
+    float sScale = (refS > 1e-3f) ? (accS / refS) : 1.0f;
+    if (sScale > 1.15f) sScale = 1.15f;                            // matches ndsRecolor's clamp
+    std::vector<uint8_t> out = mNdsFrameBasePx;
+    for (size_t p = 0; p + 3 < out.size(); p += 4) {
+        if (out[p + 3] == 0) continue;                            // skip fully-transparent texels
+        float r = out[p] / 255.0f, g = out[p + 1] / 255.0f, b = out[p + 2] / 255.0f;
+        float h, s, v; ndsPxRgb2Hsv(r, g, b, h, s, v);
+        float ns = s * sScale; if (ns > 1.0f) ns = 1.0f;
+        ndsPxHsv2Rgb(h + dH, ns, v, r, g, b);
+        r = fmaxf(0.0f, fminf(1.0f, r)); g = fmaxf(0.0f, fminf(1.0f, g)); b = fmaxf(0.0f, fminf(1.0f, b));
+        out[p] = (uint8_t)(r * 255.0f + 0.5f); out[p + 1] = (uint8_t)(g * 255.0f + 0.5f); out[p + 2] = (uint8_t)(b * 255.0f + 0.5f);
+    }
+    if (mNdsFrameTexAccent) { glDeleteTextures(1, &mNdsFrameTexAccent); mNdsFrameTexAccent = 0; }
+    mNdsFrameTexAccent = uploadRGBA(out.data(), mNdsFrameBaseW, mNdsFrameBaseH);
+    mNdsFrameAccentIdx = mPs3ColorIdx;
+    return mNdsFrameTexAccent ? mNdsFrameTexAccent : mNdsFrameTex;
+}
+
 // Decode a PNG embedded in the binary (no file dependency) -> RGBA texture. Used for the
 // status-bar glyphs so they never depend on /data or /system being readable at render time.
 GLuint NanoMenu::ndsLoadTexMem(const unsigned char* data, int len) {

@@ -2280,6 +2280,16 @@ void NanoMenu::pollInput() {
                 else if (mNdsTheme && mPs3Xmb && !ndsInModal())
                                      { if (ndsCurLevelIsList()) ndsSubmenuTouch();   // settings screens: DSi list touch
                                        else                     ndsTouchFrame(); }   // app/game levels: stacked carousel
+                // Minima theme (mMinimaTheme, also mPs3Xmb=true / mNdsTheme=false): its vertical-list
+                // layout differs from both the XMB carousel and the DSi 192px list, so it needs its own
+                // hit-testers - without these, taps fell to xmbTouchFrame's XMB geometry and hit the
+                // wrong rows. Mirror the DSi ordering: option menu, then dialog, then the home list.
+                else if (mMinimaTheme && mPs3Xmb && mPs3OptActive)
+                                     minimaSidePanelTouch();
+                else if (mMinimaTheme && mPs3Xmb && mPs3DlgActive)
+                                     { if (ndsDlgIsSidePanel()) minimaSidePanelTouch(); else minimaDialogTouch(); }
+                else if (mMinimaTheme && mPs3Xmb && !ndsInModal())
+                                     minimaListTouch();
                 else                 xmbTouchFrame();   // modals + XMB: option panel / dialog / self-guards
                 // GammaOS touch-launch handoff safety net. A launch triggered by a touch tap sets
                 // mWaitForRelease, but a touch has no physical select-key release, so the key-release

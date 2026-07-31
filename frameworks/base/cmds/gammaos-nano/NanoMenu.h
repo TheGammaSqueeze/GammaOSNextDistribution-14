@@ -1369,12 +1369,15 @@ private:
     void renderMinimaSidePanel(float rx, float ry, float rw, float rh); // option menu / list+slider choosers, Minima style
     void renderMinimaDialog(float rx, float ry, float rw, float rh);    // confirm / message dialog, Minima style
     void renderMinimaInfoPage(float rx, float ry, float rw, float rh);  // game/app Information page (cover+metadata+paged synopsis)
+    void minimaListTouch();        // Minima home/settings list touch: tap a row to select+activate, swipe to scroll
+    void minimaSidePanelTouch();   // Minima option-menu / list+slider chooser touch (mirrors renderMinimaSidePanel)
+    void minimaDialogTouch();      // Minima confirm/message dialog touch: tap a pill / scrim (mirrors renderMinimaDialog)
     void renderMinimaBootOverlay(bool primary);                        // Minima cold-boot intro + GammaOS disclaimer (NanoMenuPS3Boot.cpp)
     void minimaAccent(float& r, float& g, float& b) const;          // accent RGB from the shared Colour setting
     void ndsAccentRGB(float& r, float& g, float& b) const;          // DSi accent RGB (reference azure at "Original")
     bool ndsAccentIsDefault() const;                                // true = Colour "Original" (keep the baked blue sprites)
     void ndsRecolor(float& r, float& g, float& b) const;            // hue-rotate a DSi blue shade toward the accent
-    void ndsAccentTint(float& tr, float& tg, float& tb) const;      // per-channel tint to recolor the blue frame sprite
+    GLuint ndsFrameTexAccented();                                   // selection-frame sprite hue-rotated toward the accent (cached)
     bool minimaSolidBg(float* r, float* g, float* b);               // Theme > Background Colour: solid backdrop (else black)
     void minimaSfx(int which);                                      // trigger a Minima SFX (MIN_SFX_* id, NanoMenuPS3Boot.cpp)
     void minimaSfxTick();                                           // per-frame: fire nav/drill/back/launch by state diff
@@ -1391,8 +1394,9 @@ private:
     int64_t mMinimaTransStart= 0;      // uptimeMillis() when the level changed (drives the enter/back transition)
     int     mMinimaSfxDepth  = -1;     // ndsNavDepth snapshot for minimaSfxTick state-diff
     int     mMinimaSfxSel    = -1;     // ndsFocusSel snapshot for minimaSfxTick state-diff
-    void renderNdsCarousel(float rx, float ry, float rw, float rh);  // DSi bottom screen into a device rect
+    void renderNdsCarousel(float rx, float ry, float rw, float rh, bool singleFull = false);  // DSi bottom screen into a device rect (singleFull: lone panel -> status bar top, navbar bottom)
     void renderNdsTop(float rx, float ry, float rw, float rh);       // DSi top screen (status bar + content)
+    void drawNdsStatusBar(float cx, float offY, float scale);        // DSi status bar (radios + date/time + battery) at DS y2..17, shared by the top screen and the single-screen carousel top strip
     void drawNdsArrowBtn(float x0, float y0, float wpx, float hpx, int dir,
                          float outerDS = 3.0f, float innerDS = 1.5f);  // scrollbar L/R favColor pill; per-side corner radii (DS px)
     void drawNdsPillGrad(float x0, float y0, float wpx, float hpx,
@@ -1480,6 +1484,9 @@ private:
     void   ndsSidePanelTouch();            // tap/scroll the DSi side-panel list
     void   ndsDialogTouch();               // tap the DSi dialog buttons
     void   drawNdsGlossyBtn(float x, float y, float w, float h, float r, bool sel);
+    // Look up a colour-chooser swatch's RGB by index (the kPs3ColorOpts table is file-local to
+    // NanoMenuPS3Menu.cpp; this lets the DSi/Minima renderers draw real colour swatches too).
+    bool   ps3SwatchColor(int ci, float& r, float& g, float& b) const;
     // DSi scrolling-list scrollbar (settings.js _drawCountryBottom / _scrollArrowVec): a recessed
     // groove with a glossy favColor-blue up/down arrow button at each end and a glossy blue thumb
     // with a white grip. cx/offY/scale reconstruct the caller's DS->device mapping; trackTopDS..
@@ -1501,6 +1508,13 @@ private:
     bool   mNdsListScrub = false;    // finger owns mNdsSubScroll (active content drag)
     bool   mNdsListThumb = false;    // scrollbar thumb grabbed (1:1 follow, no fling)
     GLuint mNdsFrameTex = 0;      // cell_00_blue frame sprite (blue border + START platform)
+    // Accent-following copy of the selection frame: the blue sprite hue-rotated (value-preserving)
+    // toward the Colour accent so it keeps its gloss/shadows instead of the old flat multiply that
+    // crushed the shadows to black. Base pixels kept in memory for cheap re-tint on accent change.
+    std::vector<uint8_t> mNdsFrameBasePx;   // decoded RGBA of nds_frame (original blue), cached once
+    int    mNdsFrameBaseW = 0, mNdsFrameBaseH = 0;
+    GLuint mNdsFrameTexAccent = 0;          // uploaded hue-rotated frame; 0 = not built
+    int    mNdsFrameAccentIdx = -999;       // Colour idx mNdsFrameTexAccent was built for (-999 = none)
     GLuint mNdsTileTex  = 0;      // tile_white pillow sprite
     GLuint mNdsPhotoTex = 0;      // photo_U panel (grey/white bevel frame + mint field), top screen
     GLuint mNdsBattTex  = 0;      // spr_batt_full sprite (unknown-level fallback; the live battery is procedural + proportional)
@@ -1643,6 +1657,11 @@ private:
     std::vector<std::string> mPs3OptActs;     // parallel action ids
     std::vector<char>        mPs3OptStart;    // parallel: 1 = draw a START pill
     int    mPs3OptSel = 0;
+    // Option side-panel marquee: the focused row's label horizontally scrolls (loop with a gap)
+    // when it is too long for the panel's text column, instead of truncating at the screen edge.
+    float   mPs3OptMarquee = 0.0f;       // current scroll offset (device px)
+    int     mPs3OptMarqueeSel = -1;      // the row the offset belongs to (reset on selection change)
+    int64_t mPs3OptMarqueeStart = 0;     // uptimeMillis when the current row got focus (read pause)
     // Snapshot of the item the menu was opened on (the column may not change while
     // the modal is up, but snapshotting keeps the action self-contained).
     int    mPs3OptCtxKind = 0;
@@ -2955,7 +2974,7 @@ private:
     int    mVidRepeat = 0;                  // 0 off,1 on,2 title,3 A-B,4 folder
     double mVidAbA = -1.0, mVidAbB = -1.0;  // A-B repeat points (seconds; -1 = unset)
     float  mVidVolume = 1.0f;               // 0..1 (applied to the video's audio track)
-    int    mVidVolLevel = 0;                // Volume Control bar level -4..+4 (web v.volLevel); vol=(lvl+4)/8 on change
+    int    mVidVolLevel = 4;                // Volume Control bar level -4..+4 (web v.volLevel); vol=(lvl+4)/8 on change. Seeded to +4 so the bar (9/9 full) agrees with the default applied audio (mVidVolume=1.0); level 0 would show "Normal"/0.5 while audio played at 1.0.
     // The video file's audio track: a second HW audio engine (AMediaExtractor/AMediaCodec ->
     // AAudio) opened on the same file, the picture is the master clock and the audio resnaps
     // when it drifts > 0.3s (web vidSyncAux). Lazy: opened on play, released on leave.

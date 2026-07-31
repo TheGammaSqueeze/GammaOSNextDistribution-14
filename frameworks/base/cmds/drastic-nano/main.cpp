@@ -147,8 +147,15 @@ constexpr const char* kSessionDoneProp   = "sys.gammaos.drastic_nano.session_don
 // resolve to the real files drastic writes / reads on the app's own
 // runs. Any autosave or savestate produced during a drastic-nano
 // session is picked up by the real drastic app on its next launch.
-constexpr const char* kDrasticDataDir =
+//
+// "Match DraStic's own folder": if the user relocated their DraStic data folder (e.g. onto
+// shared storage) and points drastic-nano at it via persist.gammaos.drastic.data_dir, we
+// use that path instead, so backup/savestates/config all resolve to the SAME real folder the
+// standalone DraStic app uses and stay in sync. gDrasticDataDir is set once in main() from the
+// prop (default = this installed path, so an unset prop is byte-for-byte the old behaviour).
+static const char* kDrasticDataDirDefault =
         "/data/user/0/com.dsemu.drastic/files/DraStic";
+static std::string gDrasticDataDir = kDrasticDataDirDefault;
 
 constexpr int64_t     kBackHoldMs        = 2000;
 
@@ -272,7 +279,7 @@ void ensureDrasticWritableDirs(uid_t appUid, gid_t appGid) {
         "microphone", "input_record", "config", nullptr,
     };
     for (int i = 0; kDirs[i]; i++) {
-        std::string p = std::string(kDrasticDataDir) + "/" + kDirs[i];
+        std::string p = gDrasticDataDir + "/" + kDirs[i];
         if (mkdir(p.c_str(), 0770) == 0) {
             chown(p.c_str(), appUid, appGid);
             chmod(p.c_str(), 0770);
@@ -284,7 +291,7 @@ void ensureDrasticWritableDirs(uid_t appUid, gid_t appGid) {
 // top-level data dir. Returns true on success.
 bool lookupDrasticUid(uid_t* uid, gid_t* gid) {
     struct stat st;
-    if (stat(kDrasticDataDir, &st) != 0) return false;
+    if (stat(gDrasticDataDir.c_str(), &st) != 0) return false;
     *uid = st.st_uid;
     *gid = st.st_gid;
     return true;
@@ -2478,6 +2485,23 @@ int main(int argc, char** argv) {
     ALOGI("drastic-nano: starting (argc=%d)", argc);
     initDrasticLocale();
 
+    // "Match DraStic's own folder": read the optional data-dir override BEFORE anything touches the
+    // data dir (ensureDrasticWritableDirs / lookupDrasticUid / FakeJNI cache root all read
+    // gDrasticDataDir). An absolute path in persist.gammaos.drastic.data_dir points drastic-nano at
+    // a DraStic data folder the user relocated, so backup/savestates/config resolve to the SAME real
+    // folder the standalone DraStic app uses and stay in sync. It must be a COMPLETE DraStic folder
+    // (system/ holds the BIOS/firmware). Empty or relative keeps the installed app dir (unchanged).
+    {
+        char dd[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic.data_dir", dd, "");
+        if (dd[0] == '/') {
+            gDrasticDataDir = dd;
+            while (gDrasticDataDir.size() > 1 && gDrasticDataDir.back() == '/')
+                gDrasticDataDir.pop_back();   // trim trailing slash so "<dir>/savestates" joins clean
+            ALOGI("drastic-nano: data-dir override -> %s", gDrasticDataDir.c_str());
+        }
+    }
+
     // Render-thread scheduling: SCHED_FIFO prio 80 (+ nice -20 as a
     // fallback when RT is denied). Matches NanoMenu's QR fast-path
     // configuration and was what made the QR preview pacing smooth
@@ -2581,9 +2605,11 @@ int main(int argc, char** argv) {
     // never been launched by the user, the dir is missing and we
     // refuse to start -- without the BIOS + firmware files stored
     // there drastic cannot boot a ROM.
-    if (!exists(kDrasticDataDir)) {
+    if (!exists(gDrasticDataDir)) {
         ALOGE("drastic-nano: %s missing -- launch the real drastic "
-              "app at least once to seed BIOS / firmware", kDrasticDataDir);
+              "app at least once to seed BIOS / firmware (or point "
+              "persist.gammaos.drastic.data_dir at a complete DraStic folder)",
+              gDrasticDataDir.c_str());
         return 3;
     }
 
@@ -2755,10 +2781,8 @@ int main(int argc, char** argv) {
     // Runtime toggle from the overlay writes this variable too.
     android::sDrmFrameSync = prefs.frameSync;
     long userBits = android::drastic_prefs::applyConfigBitsFrom(prefs);
-    const std::string savestatesDir = std::string(kDrasticDataDir) +
-                                       "/savestates";
-    const std::string shadersDir    = std::string(kDrasticDataDir) +
-                                       "/shaders";
+    const std::string savestatesDir = gDrasticDataDir + "/savestates";
+    const std::string shadersDir    = gDrasticDataDir + "/shaders";
 
     DrasticRunner dr;
     // cacheDir = drastic's installed files dir so every open / write
@@ -2865,7 +2889,7 @@ int main(int argc, char** argv) {
     // home's QR preview never sets this, so it stays on the renderFrame path.
     // drastic-nano.rc clears it on session_done (clean exit and crash).
     property_set("sys.gammaos.drastic_nano.session", "1");
-    if (!dr.init(kDrasticDataDir, romPath, libsDir,
+    if (!dr.init(gDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
                  /*configBitsOverride=*/userBits,
                  /*autosaveIntervalSeconds=*/0,
@@ -2990,9 +3014,9 @@ int main(int argc, char** argv) {
         char cmd[256];
         snprintf(cmd, sizeof(cmd),
                  "chown -R %u:%u %s",
-                 appUid, appGid, kDrasticDataDir);
+                 appUid, appGid, gDrasticDataDir.c_str());
         system(cmd);
-        ALOGI("drastic-nano: restored ownership on %s", kDrasticDataDir);
+        ALOGI("drastic-nano: restored ownership on %s", gDrasticDataDir.c_str());
     }
 
     eglMakeCurrent(dpy.eglDpy, EGL_NO_SURFACE, EGL_NO_SURFACE,

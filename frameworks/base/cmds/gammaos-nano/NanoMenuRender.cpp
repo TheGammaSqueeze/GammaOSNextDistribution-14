@@ -1021,17 +1021,6 @@ void NanoMenu::ndsRecolor(float& r, float& g, float& b) const {
     ndsHsv2Rgb(h + dH, ns, v, r, g, b);
 }
 
-// Per-channel tint that shifts the baked-blue DSi sprites (the carousel selection frame) toward
-// the accent: accent / reference-azure. Multiplying a ~reference-azure texel by this lands it on
-// the accent; the glossy lighter/darker regions scale proportionally so the frame keeps its
-// sheen. At "Original" the accent IS the azure, so the tint is (1,1,1) and the sprite is untouched.
-// GL clamps the product at output, so an out-of-gamut ratio just saturates that channel.
-void NanoMenu::ndsAccentTint(float& tr, float& tg, float& tb) const {
-    static const float kRefBlue[3] = {0.094f, 0.573f, 0.922f};
-    float ar, ag, ab; ndsAccentRGB(ar, ag, ab);
-    tr = ar / kRefBlue[0]; tg = ag / kRefBlue[1]; tb = ab / kRefBlue[2];
-}
-
 // A DSi System Settings glossy list button (settings.js _glossyButtonVec + button_grads.json):
 // a dark drop-shadow rounded rect under a rounded rect filled with the exact 12-stop vertical
 // gradient - glossy grey when idle, glossy accent-coloured when selected (follows the Colour
@@ -1415,7 +1404,7 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
     if (ap < 0.999f) mDisplayDirty = true;
 
     // ---- gather the visible rows + title + selection from the active modal ----
-    struct Row { std::string label; bool hasSub; bool start; };
+    struct Row { std::string label; bool hasSub; bool start; int swatch = -1; };
     std::vector<Row> rows; std::string title; int sel = 0;
     bool slider = false;
     if (optSrc) {
@@ -1439,7 +1428,10 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
     } else {
         title = mPs3DlgTitle.empty() ? "Options" : trDyn(mPs3DlgTitle.c_str());
         slider = mPs3DlgSlider && mPs3DlgOptions.empty();
-        for (const auto& o : mPs3DlgOptions) rows.push_back({ trDyn(o.c_str()), false, false });
+        for (size_t oi = 0; oi < mPs3DlgOptions.size(); oi++) {
+            int sw = (oi < mPs3DlgSwatch.size()) ? mPs3DlgSwatch[oi] : -1;
+            rows.push_back({ trDyn(mPs3DlgOptions[oi].c_str()), false, false, sw });
+        }
         sel = mPs3DlgSel;
     }
     int n = (int)rows.size();
@@ -1499,6 +1491,21 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
         for (int i = 0; i < n; i++) {
             float rowY = top0 + ((float)i - mNdsSubScroll) * pitch;
             if (rowY + bh < listTop - 1.0f || rowY > listBot + 1.0f) continue;
+            float _sr, _sg, _sb;
+            if (rows[i].swatch >= 0 && ps3SwatchColor(rows[i].swatch, _sr, _sg, _sb)) {
+                // Colour-chooser swatch: fill the row with the actual colour (no grey glossy drop
+                // shadow), the name in luminance-contrasting ink, selected row gets a white ring.
+                float bx2 = X(bx), by2 = Y(rowY), bw2 = S(bw), bh2 = S(bh), rr = S(5.0f);
+                if (i == sel) drawRoundedRect(bx2 - S(2.5f), by2 - S(2.5f), bw2 + S(5.0f), bh2 + S(5.0f), rr + S(2.0f), 0.984f, 0.984f, 0.984f, 1.0f);
+                drawRoundedRect(bx2, by2, bw2, bh2, rr, _sr, _sg, _sb, 1.0f);
+                const std::string& lbl = rows[i].label;
+                float fs = S(13.0f) / (float)FONT_CHAR_H, tw = measureText(lbl.c_str(), fs);
+                float mw = S(bw - 16.0f); if (tw > mw) { fs *= mw / tw; tw = measureText(lbl.c_str(), fs); }
+                float lum = 0.299f * _sr + 0.587f * _sg + 0.114f * _sb;
+                float tc = (lum > 0.55f) ? 0.0f : 1.0f;
+                drawText(lbl.c_str(), cx - tw * 0.5f, Y(rowY + 6.0f), fs, tc, tc, tc, 1.0f);
+                continue;
+            }
             drawNdsGlossyBtn(X(bx), Y(rowY), S(bw), S(bh), S(5.0f), i == sel);
             const std::string& lbl = rows[i].label;
             float fs = S(13.0f) / (float)FONT_CHAR_H, tw = measureText(lbl.c_str(), fs);
@@ -1723,14 +1730,14 @@ void NanoMenu::renderNds() {
         renderNdsTop(0.0f, 0.0f, W, H * 0.5f);
         renderNdsCarousel(0.0f, H * 0.5f, W, H * 0.5f);
     } else {
-        renderNdsCarousel(0.0f, 0.0f, W, H);
+        renderNdsCarousel(0.0f, 0.0f, W, H, /*singleFull=*/true);
     }
 }
 
 // The DSi bottom screen (launcher carousel) drawn into a device-px rect. Contain-fit the
 // 256x192 design vertically and EXPAND horizontally to fill rw (no letterbox: the bg field,
 // name box and scrollbar span rw). rx/ry = top-left of the target rect.
-void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
+void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool singleFull) {
     setUiBlend();
     ensureNdsAssets();
     if (!mPs3MenuBuilt) initPs3Menu();   // the XMB hierarchy feeds the carousel tiles
@@ -1794,15 +1801,32 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
     const int ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // DSi menu text is flat (no drop shadow / outline)
     float scale = rh / 192.0f;
     if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;   // width-limited: don't overflow
-    const float offY = ry + (rh - 192.0f * scale) * 0.5f;
+    float offY = ry + (rh - 192.0f * scale) * 0.5f;
     const float cx = rx + rw * 0.5f;                        // carousel / chrome centre
     const float W = rw;                                     // "panel width" is the rect width here
-    auto Y = [&](float dy){ return offY + dy * scale; };   // DS y -> device px
+    auto Y = [&](float dy){ return offY + dy * scale; };   // DS y -> device px (offY may shift per band below)
     auto S = [&](float v){ return v * scale; };            // DS length -> device px
     // DS-x -> device px, centred: the 256-wide DSi chrome (name box, scrollbar track,
     // L/R buttons, per-slot ticks) sits centred. On the RG DS (4:3) this is edge to edge
     // (rw == 256*scale); on wider panels the bg field fills the side margins (like the web).
     auto X = [&](float dx){ return cx + (dx - 128.0f) * scale; };
+
+    // Single-screen (lone panel) redistribution: on a taller-than-4:3 panel the 4:3 carousel
+    // width-fits and leaves top+bottom letterbox. Put it to use - draw the DSi status bar
+    // (radios + date/time + battery) pinned to the TOP strip and the scrollbar/navbar pinned to
+    // the BOTTOM strip, and centre the name box + tiles in the band between. On a 4:3/wide panel
+    // there is no letterbox room, so this is inert and the classic centred layout stands. offY is
+    // shifted to the content band here; the scrollbar block temporarily swaps in ndsScrollOffY.
+    const bool ndsSingleBands = singleFull && (192.0f * scale < rh - 1.0f);
+    float ndsScrollOffY = offY;
+    if (ndsSingleBands) {
+        const float sbTopH = 17.0f * scale;                 // status-bar strip (DS y2..17)
+        const float sbBotH = 22.0f * scale;                 // scrollbar strip (DS y170..192)
+        const float midTop = ry + sbTopH, midBot = ry + rh - sbBotH;
+        const float contentH = (161.0f - 3.0f) * scale;     // name box top (y3) .. frame bottom (y161)
+        offY = midTop + ((midBot - midTop) - contentH) * 0.5f - 3.0f * scale;   // content centred in the mid band
+        ndsScrollOffY = (ry + rh) - 192.0f * scale;         // pin DS y192 (scrollbar foot) to the panel bottom
+    }
 
     // background field fills the rect (no black bars): #f3f3f3 + #ebebeb dither lines
     // + #dbdbdb edge columns at the rect edges. SKIP the opaque field while this is a translucent
@@ -1823,6 +1847,11 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
             drawQuad(rx + rw - ec, ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
         }
     }
+
+    // Single-screen: draw the DSi status bar pinned to the top strip (DS y2 mapped to the panel
+    // top). The dual/stacked layouts draw it on their own top panel, so this is single-only.
+    // Skipped in the in-game scrim so the darkened live app shows through the top strip too.
+    if (ndsSingleBands && !ndsInGameScrim) drawNdsStatusBar(cx, ry - 2.0f * scale, scale);
 
     // ---- carousel content from the XMB hierarchy. At the top level it is the current
     // category's items; inside a submenu it is the current stack level's items (so
@@ -1976,6 +2005,10 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
     // the per-card ticks redrawn on top so they read through the pill); and L/R arrow
     // buttons at the track ends. Exact DS coords via X()/Y()/S().
     {
+        // Single-screen: pin the scrollbar/navbar to the bottom strip (Y() reads offY by ref, so
+        // swap it to the bottom-pinned origin for this block only, then restore for the tiles).
+        float ndsSbSave = offY;
+        if (ndsSingleBands) offY = ndsScrollOffY;
         // FULL-WIDTH grey rail (launcher._drawScrollTrack fills x0..256), drawn BEHIND the L/R
         // arrow buttons so there is no white gap between the bar and the arrows (user report).
         float railX = X(0.0f), railW = X(256.0f) - X(0.0f);
@@ -2059,6 +2092,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
                 drawTick(i);
             }
         }
+        offY = ndsSbSave;   // restore the content-band origin for the tiles / name box below
     }
 
     // sliding tiles, centred on the panel centre (device px); the blue frame is a
@@ -2181,11 +2215,14 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh) {
       // border + START platform, transparent centre) over the centred tile that the loop
       // above already drew - the tile + its icon show through the frame's transparent window.
       // Firmware geometry: 64x80, top = selFrame.top(79) + 2 = 81, centred at cx.
-      float ftr, ftg, ftb; ndsAccentTint(ftr, ftg, ftb);   // recolor the blue frame toward the Colour accent
-      if (mNdsFrameTex) {
+      // Hue-rotate the blue frame sprite toward the Colour accent while keeping its gloss/shadows
+      // (value-preserving, like ndsRecolor); identity at "Original". Drawn with a neutral tint so
+      // the recoloured texels show verbatim, NOT the old accent/refBlue multiply that blackened them.
+      GLuint frameTex = ndsFrameTexAccented();
+      if (frameTex) {
           // settle squash: inset both sides + shrink the height a touch (web _drawCenterChrome).
           float fi = S(frameInset);
-          drawIconTex(mNdsFrameTex, cx - S(32) + fi, Y(81), S(64) - 2.0f * fi, S(80) - fi, ftr, ftg, ftb, cf);
+          drawIconTex(frameTex, cx - S(32) + fi, Y(81), S(64) - 2.0f * fi, S(80) - fi, 1.0f, 1.0f, 1.0f, cf);
       } else {   // procedural fallback (bevel from the cell_00 palette) if the sprite is missing
           float o0r = 0.000f, o0g = 0.157f, o0b = 0.729f; ndsRecolor(o0r, o0g, o0b);
           float o1r = 0.094f, o1g = 0.443f, o1b = 0.984f; ndsRecolor(o1r, o1g, o1b);
@@ -2591,6 +2628,182 @@ void NanoMenu::ndsInfoPage(int dir) {
     if (p > mNdsInfoPageCount - 1) p = mNdsInfoPageCount - 1;
     if (p != mNdsInfoPage) { mNdsInfoPage = p; mDisplayDirty = true; }
 }
+// DSi status bar (topscreen.js): radio/audio glyphs on the left, date/time + battery on
+// the right, at DS y2..17. Factored out of renderNdsTop so the single-screen carousel
+// can draw the same bar pinned to its top strip. cx/offY/scale map DS -> device px
+// exactly as the caller's X()/Y()/S().
+void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
+    auto X = [&](float dx){ return cx + (dx - 128.0f) * scale; };
+    auto Y = [&](float dy){ return offY + dy * scale; };
+    auto S = [&](float v){ return v * scale; };
+    // ---- status bar (DS y2..17): a row of four consistent indicator glyphs on the left
+    // (volume / wifi / bluetooth / audio), then date/time + battery on the right. Every
+    // glyph shares ONE centre line (cy) and ONE stroke weight, is drawn to the same ~9px
+    // box height, and its cell centre is evenly spaced (uniform pitch) so the row reads as
+    // a single tidy cluster. Radios/audio reflect the REAL state (pollNdsStatus). ----
+    { pollVolume();       // system volume -> arc count
+      pollNdsStatus();    // wifi / bluetooth / audio active
+      const float cy = 10.5f;          // shared icon centre line (DS)
+      const float lw = S(1.25f);       // shared stroke weight
+      const float on_r = 0.255f, on_g = 0.255f, on_b = 0.255f;   // #414141 active
+      const float of_r = 0.741f, of_g = 0.741f, of_b = 0.741f;   // #bdbdbd inactive
+      // Even cell centres (uniform pitch). Each glyph is built symmetric about its centre.
+      const float cVol = 12.0f, cWifi = 27.0f, cBt = 41.0f, cNote = 55.0f;
+
+      // Crisp framework SystemUI vector glyphs (rasterised to mono PNGs), tinted per state.
+      // Falls back to the procedural glyphs below if the PNGs did not load (first boot before
+      // the assets bundle, or a decode miss). User: the old hand-drawn icons were too low quality.
+      if (mNdsSbIconsLoaded) {
+          auto sbIcon = [&](GLuint tex, float cX, float sz, float r, float g, float b){
+              if (!tex) return;
+              drawIconTex(tex, X(cX) - S(sz) * 0.5f, Y(cy) - S(sz) * 0.5f, S(sz), S(sz), r, g, b, 1.0f);
+          };
+          // Volume speaker (mute variant when silenced); always the active ink.
+          sbIcon((mVolume <= 0) ? mNdsSbSpeakerMute : mNdsSbSpeaker, cVol, 13.5f, on_r, on_g, on_b);
+          // WiFi: dark when connected, a mid grey when on-not-associated, dimmed when off.
+          { int ws = mNdsWifiState; bool conn = ws >= 2, on = ws >= 1;
+            float r = conn ? on_r : (on ? 0.5f : of_r), g = conn ? on_g : (on ? 0.5f : of_g), b = conn ? on_b : (on ? 0.5f : of_b);
+            sbIcon(mNdsSbWifi, cWifi, 12.0f, r, g, b); }
+          // Bluetooth: dark when the radio is on, dimmed when off.
+          { float r = mNdsBtOn ? on_r : of_r, g = mNdsBtOn ? on_g : of_g, b = mNdsBtOn ? on_b : of_b;
+            sbIcon(mNdsSbBt, cBt, 12.5f, r, g, b); }
+          // Music note: dark when audio genuinely plays (nano's players, or a fg app over the overlay).
+          { bool musicOn = mMusicPlayer.isPlaying() || mVidAudio.isPlaying()
+                           || (mOverlayMode && !mOverlayWallpaper && mNdsAudioActive);
+            float r = musicOn ? on_r : of_r, g = musicOn ? on_g : of_g, b = musicOn ? on_b : of_b;
+            sbIcon(mNdsSbNote, cNote, 12.0f, r, g, b); }
+      } else {
+
+      // --- Volume: speaker (base box + cone) with 1..3 level arcs, mute = red slash. The
+      // arcs are capped to r5.4 so a loud level no longer balloons the icon far wider than
+      // its neighbours. Built symmetric about cVol.
+      { int vmax = (mMaxVolume > 0) ? mMaxVolume : 15;
+        float vratio = (float)mVolume / (float)vmax; if (vratio > 1.0f) vratio = 1.0f;
+        bool muted = (mVolume <= 0);
+        int arcs = muted ? 0 : (int)ceilf(vratio * 3.0f); if (arcs > 3) arcs = 3; if (!muted && arcs < 1) arcs = 1;
+        float ax = cVol - 1.0f;   // arc/cone origin x
+        bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
+        drawTriangle(X(ax - 2.5f), Y(cy - 1.5f), X(ax), Y(cy - 4.2f), X(ax), Y(cy + 4.2f), on_r, on_g, on_b, 1.0f); // cone
+        drawTriangle(X(ax - 2.5f), Y(cy - 1.5f), X(ax), Y(cy + 4.2f), X(ax - 2.5f), Y(cy + 1.5f), on_r, on_g, on_b, 1.0f);
+        if (lb) endSolidBatch();
+        drawQuad(X(ax - 4.5f), Y(cy - 1.5f), S(2.0f), S(3.0f), on_r, on_g, on_b, 1.0f);   // speaker base box
+        // Feather the speaker silhouette (drawTriangle/drawQuad are hard-edged): stroke the
+        // outline with the AA ps3ThickLine in the same ink so the slanted cone edges match
+        // the smoothness of the wifi/bt/note glyphs. A thin width keeps the shape unchanged.
+        { const float sw = S(1.0f); auto e = [&](float x0,float y0,float x1,float y1){ ps3ThickLine(X(x0),Y(y0),X(x1),Y(y1),sw,on_r,on_g,on_b,1.0f); };
+          e(ax - 2.5f, cy - 1.5f, ax, cy - 4.2f);   // cone slant top
+          e(ax, cy - 4.2f, ax, cy + 4.2f);          // cone mouth
+          e(ax, cy + 4.2f, ax - 2.5f, cy + 1.5f);   // cone slant bottom
+          e(ax - 2.5f, cy + 1.5f, ax - 4.5f, cy + 1.5f);   // base bottom
+          e(ax - 4.5f, cy + 1.5f, ax - 4.5f, cy - 1.5f);   // base left
+          e(ax - 4.5f, cy - 1.5f, ax - 2.5f, cy - 1.5f); } // base top
+        auto arc = [&](float r){
+            const int N = 6; const float a0 = -0.85f, a1 = 0.85f;
+            float px = X(ax + r * cosf(a0)), py = Y(cy + r * sinf(a0));
+            for (int i = 1; i <= N; i++) {
+                float a = a0 + (a1 - a0) * (float)i / (float)N;
+                float nx = X(ax + r * cosf(a)), ny = Y(cy + r * sinf(a));
+                ps3ThickLine(px, py, nx, ny, lw, on_r, on_g, on_b, 1.0f); px = nx; py = ny;
+            } };
+        if (muted) ps3ThickLine(X(ax + 1.0f), Y(cy - 3.8f), X(ax + 5.0f), Y(cy + 3.8f), lw, 0.85f, 0.25f, 0.25f, 1.0f);
+        else { if (arcs >= 1) arc(2.4f); if (arcs >= 2) arc(3.9f); if (arcs >= 3) arc(5.4f); }
+      }
+      // --- WiFi: a source dot with concentric arcs opening upward, symmetric about cWifi.
+      // State 2 = connected (dark), 1 = on-not-associated (inner arc only), 0 = off (dot).
+      { float wcy = cy + 3.2f; int ws = mNdsWifiState;
+        auto warc = [&](float rad, bool active){
+            float r = active ? on_r : of_r, g = active ? on_g : of_g, b = active ? on_b : of_b;
+            const int N = 8; const float a0 = -2.36f, a1 = -0.78f;   // ~90 deg upward fan
+            float px = X(cWifi + rad * cosf(a0)), py = Y(wcy + rad * sinf(a0));
+            for (int i = 1; i <= N; i++) {
+                float a = a0 + (a1 - a0) * (float)i / (float)N;
+                float nx = X(cWifi + rad * cosf(a)), ny = Y(wcy + rad * sinf(a));
+                ps3ThickLine(px, py, nx, ny, lw, r, g, b, 1.0f); px = nx; py = ny;
+            } };
+        warc(6.6f, ws >= 2);
+        warc(4.5f, ws >= 2);
+        warc(2.4f, ws >= 1);
+        bool srcOn = ws >= 1;
+        ps3FillCircle(X(cWifi), Y(wcy), S(1.2f), srcOn ? on_r : of_r, srcOn ? on_g : of_g, srcOn ? on_b : of_b, 1.0f);
+      }
+      // --- Bluetooth rune: vertical staff, two right knuckles, two crossing diagonals whose
+      // tips poke left. Symmetric about cBt. Dark when the radio is on, dimmed when off.
+      { float hh = 4.3f, xr = cBt + 2.7f, xl = cBt - 2.7f;
+        float y0 = cy - hh, y1 = cy + hh, yq = cy - hh * 0.5f, yl = cy + hh * 0.5f;
+        float r = mNdsBtOn ? on_r : of_r, g = mNdsBtOn ? on_g : of_g, b = mNdsBtOn ? on_b : of_b;
+        auto seg = [&](float ax, float ay, float bx2, float by2){ ps3ThickLine(X(ax), Y(ay), X(bx2), Y(by2), lw, r, g, b, 1.0f); };
+        seg(cBt, y0, cBt, y1);   // staff
+        seg(cBt, y0, xr,  yq);   // top -> upper-right knuckle
+        seg(xr,  yq, xl,  yl);   // upper-right -> lower-left (crosses staff)
+        seg(xl,  yq, xr,  yl);   // upper-left  -> lower-right (crosses staff)
+        seg(xr,  yl, cBt, y1);   // lower-right -> bottom
+      }
+      // --- Music note (eighth note): filled head, vertical stem, flag; symmetric about cNote.
+      // Dark when audio is genuinely playing (nano's own players, or a foreground app while
+      // nano overlays it); dimmed when silent. Ambiance-only home audio is not counted.
+      { bool musicOn = mMusicPlayer.isPlaying() || mVidAudio.isPlaying()
+                       || (mOverlayMode && !mOverlayWallpaper && mNdsAudioActive);
+        float r = musicOn ? on_r : of_r, g = musicOn ? on_g : of_g, b = musicOn ? on_b : of_b;
+        float hx = cNote - 1.8f, hy = cy + 3.4f, sx = cNote + 0.4f;
+        ps3ThickLine(X(sx), Y(hy), X(sx), Y(cy - 4.3f), lw, r, g, b, 1.0f);            // stem
+        ps3ThickLine(X(sx), Y(cy - 4.3f), X(sx + 2.8f), Y(cy - 1.6f), lw, r, g, b, 1.0f); // flag
+        ps3FillCircle(X(hx), Y(hy), S(1.8f), r, g, b, 1.0f);                            // note head
+      } }
+    }  // end procedural status-glyph fallback (else of mNdsSbIconsLoaded)
+    // date/time (topscreen.js): the SMALL font, two right-aligned fields (date, 5px gap, time)
+    // ending 6px before the battery. Drawn with FIXED per-glyph advances (digit 7, ':'/space 4,
+    // '/' 5 DS px) so the 1 Hz colon blink never shifts the digits (the web reserves the same
+    // 4px cell for ':' and ' '). Baseline y15 (cell-top y5 + Fonts.s baseline 10).
+    { time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
+      clockRefreshMaybe();
+      bool blinkOff = (lt.tm_sec & 1);
+      char ds[16], ts[16];
+      // Honor the Date Format setting (mPs3DateFormatIdx 2 = DD/MM, else MM/DD), same as the XMB clock.
+      if (mPs3DateFormatIdx == 2) snprintf(ds, sizeof(ds), "%02d/%02d", lt.tm_mday, lt.tm_mon + 1);
+      else                        snprintf(ds, sizeof(ds), "%02d/%02d", lt.tm_mon + 1, lt.tm_mday);
+      int hr = lt.tm_hour;
+      if (mClock12h.load()) { hr %= 12; if (hr == 0) hr = 12; }   // honor the 12/24-hour setting (fixed layout, no AM/PM)
+      snprintf(ts, sizeof(ts), "%02d%c%02d", hr, blinkOff ? ' ' : ':', lt.tm_min);
+      float fs = S(9.0f) / (float)FONT_CHAR_H;
+      // centre the date/time ink on the icon centre (DS y10.5), level with the battery/volume.
+      float cy = Y(10.5f - 0.415f * 9.0f);
+      auto adv = [](char c){ return (c == ':' || c == ' ') ? 4.0f : (c == '/') ? 5.0f : 7.0f; };
+      auto fieldW = [&](const char* s){ float w = 0.0f; for (const char* p = s; *p; ++p) w += adv(*p); return w; };
+      auto drawField = [&](const char* s, float rightXpx){
+          float x = rightXpx - S(fieldW(s));
+          for (const char* p = s; *p; ++p) {
+              float cellPx = S(adv(*p));
+              if (*p != ' ') { char buf[2] = { *p, 0 }; float gw = measureText(buf, fs);
+                  drawText(buf, x + (cellPx - gw) * 0.5f, cy, fs, 0.255f, 0.255f, 0.255f, 1.0f); }   // centre in the fixed cell
+              x += cellPx;
+          } };
+      float clockRight = X(231.0f);                          // battInkX(237) - 6
+      drawField(ts, clockRight);
+      drawField(ds, clockRight - S(fieldW(ts)) - S(5.0f));
+      // battery: a DSi-styled indicator with a PROPORTIONAL fill so it reflects the real
+      // charge level, not just full/low/charge states (user request). Dark frame + terminal
+      // nub, light empty track, fill width = level%, coloured by state (green while charging,
+      // red <=15%, DSi orange otherwise). Real host battery via pollBattery (HAL/sysfs).
+      pollBattery();
+      { int pct = mBatteryPercent;
+        if (pct < 0) {                                   // unknown: static full sprite fallback
+            if (mNdsBattTex) drawIconTex(mNdsBattTex, X(235.0f), Y(5.0f), S(17.0f), S(11.0f), 1.0f, 1.0f, 1.0f, 1.0f);
+        } else {
+            if (pct > 100) pct = 100;
+            float bx = X(236.0f), by = Y(6.0f), bw = S(12.5f), bh = S(9.0f);
+            drawRoundedRect(bx, by, bw, bh, S(1.5f), 0.255f, 0.255f, 0.255f, 1.0f);               // dark frame
+            drawQuad(bx + bw, by + S(2.0f), S(2.0f), bh - S(4.0f), 0.255f, 0.255f, 0.255f, 1.0f); // terminal nub
+            float ix = bx + S(1.5f), iy = by + S(1.5f), iw = bw - S(3.0f), ih = bh - S(3.0f);
+            drawQuad(ix, iy, iw, ih, 0.902f, 0.902f, 0.902f, 1.0f);                               // empty track
+            float fr, fg, fb;
+            if (mBatteryCharging)   { fr = 0.30f; fg = 0.78f; fb = 0.36f; }   // charging -> green
+            else if (pct <= 15)     { fr = 0.93f; fg = 0.26f; fb = 0.20f; }   // low -> red
+            else                    { fr = 1.00f; fg = 0.55f; fb = 0.16f; }   // DSi orange
+            float fw = iw * ((float)pct / 100.0f);
+            if (fw > 0.5f) drawQuad(ix, iy, fw, ih, fr, fg, fb, 1.0f);                             // proportional fill
+        } } }
+}
+
 
 // The DSi top screen drawn into a device-px rect: the light upper-screen background, the
 // status bar (username left, date + time and battery right, per topscreen.js) and a content
@@ -2874,172 +3087,7 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
         }
     }
 
-    // ---- status bar (DS y2..17): a row of four consistent indicator glyphs on the left
-    // (volume / wifi / bluetooth / audio), then date/time + battery on the right. Every
-    // glyph shares ONE centre line (cy) and ONE stroke weight, is drawn to the same ~9px
-    // box height, and its cell centre is evenly spaced (uniform pitch) so the row reads as
-    // a single tidy cluster. Radios/audio reflect the REAL state (pollNdsStatus). ----
-    { pollVolume();       // system volume -> arc count
-      pollNdsStatus();    // wifi / bluetooth / audio active
-      const float cy = 10.5f;          // shared icon centre line (DS)
-      const float lw = S(1.25f);       // shared stroke weight
-      const float on_r = 0.255f, on_g = 0.255f, on_b = 0.255f;   // #414141 active
-      const float of_r = 0.741f, of_g = 0.741f, of_b = 0.741f;   // #bdbdbd inactive
-      // Even cell centres (uniform pitch). Each glyph is built symmetric about its centre.
-      const float cVol = 12.0f, cWifi = 27.0f, cBt = 41.0f, cNote = 55.0f;
-
-      // Crisp framework SystemUI vector glyphs (rasterised to mono PNGs), tinted per state.
-      // Falls back to the procedural glyphs below if the PNGs did not load (first boot before
-      // the assets bundle, or a decode miss). User: the old hand-drawn icons were too low quality.
-      if (mNdsSbIconsLoaded) {
-          auto sbIcon = [&](GLuint tex, float cX, float sz, float r, float g, float b){
-              if (!tex) return;
-              drawIconTex(tex, X(cX) - S(sz) * 0.5f, Y(cy) - S(sz) * 0.5f, S(sz), S(sz), r, g, b, 1.0f);
-          };
-          // Volume speaker (mute variant when silenced); always the active ink.
-          sbIcon((mVolume <= 0) ? mNdsSbSpeakerMute : mNdsSbSpeaker, cVol, 13.5f, on_r, on_g, on_b);
-          // WiFi: dark when connected, a mid grey when on-not-associated, dimmed when off.
-          { int ws = mNdsWifiState; bool conn = ws >= 2, on = ws >= 1;
-            float r = conn ? on_r : (on ? 0.5f : of_r), g = conn ? on_g : (on ? 0.5f : of_g), b = conn ? on_b : (on ? 0.5f : of_b);
-            sbIcon(mNdsSbWifi, cWifi, 12.0f, r, g, b); }
-          // Bluetooth: dark when the radio is on, dimmed when off.
-          { float r = mNdsBtOn ? on_r : of_r, g = mNdsBtOn ? on_g : of_g, b = mNdsBtOn ? on_b : of_b;
-            sbIcon(mNdsSbBt, cBt, 12.5f, r, g, b); }
-          // Music note: dark when audio genuinely plays (nano's players, or a fg app over the overlay).
-          { bool musicOn = mMusicPlayer.isPlaying() || mVidAudio.isPlaying()
-                           || (mOverlayMode && !mOverlayWallpaper && mNdsAudioActive);
-            float r = musicOn ? on_r : of_r, g = musicOn ? on_g : of_g, b = musicOn ? on_b : of_b;
-            sbIcon(mNdsSbNote, cNote, 12.0f, r, g, b); }
-      } else {
-
-      // --- Volume: speaker (base box + cone) with 1..3 level arcs, mute = red slash. The
-      // arcs are capped to r5.4 so a loud level no longer balloons the icon far wider than
-      // its neighbours. Built symmetric about cVol.
-      { int vmax = (mMaxVolume > 0) ? mMaxVolume : 15;
-        float vratio = (float)mVolume / (float)vmax; if (vratio > 1.0f) vratio = 1.0f;
-        bool muted = (mVolume <= 0);
-        int arcs = muted ? 0 : (int)ceilf(vratio * 3.0f); if (arcs > 3) arcs = 3; if (!muted && arcs < 1) arcs = 1;
-        float ax = cVol - 1.0f;   // arc/cone origin x
-        bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
-        drawTriangle(X(ax - 2.5f), Y(cy - 1.5f), X(ax), Y(cy - 4.2f), X(ax), Y(cy + 4.2f), on_r, on_g, on_b, 1.0f); // cone
-        drawTriangle(X(ax - 2.5f), Y(cy - 1.5f), X(ax), Y(cy + 4.2f), X(ax - 2.5f), Y(cy + 1.5f), on_r, on_g, on_b, 1.0f);
-        if (lb) endSolidBatch();
-        drawQuad(X(ax - 4.5f), Y(cy - 1.5f), S(2.0f), S(3.0f), on_r, on_g, on_b, 1.0f);   // speaker base box
-        // Feather the speaker silhouette (drawTriangle/drawQuad are hard-edged): stroke the
-        // outline with the AA ps3ThickLine in the same ink so the slanted cone edges match
-        // the smoothness of the wifi/bt/note glyphs. A thin width keeps the shape unchanged.
-        { const float sw = S(1.0f); auto e = [&](float x0,float y0,float x1,float y1){ ps3ThickLine(X(x0),Y(y0),X(x1),Y(y1),sw,on_r,on_g,on_b,1.0f); };
-          e(ax - 2.5f, cy - 1.5f, ax, cy - 4.2f);   // cone slant top
-          e(ax, cy - 4.2f, ax, cy + 4.2f);          // cone mouth
-          e(ax, cy + 4.2f, ax - 2.5f, cy + 1.5f);   // cone slant bottom
-          e(ax - 2.5f, cy + 1.5f, ax - 4.5f, cy + 1.5f);   // base bottom
-          e(ax - 4.5f, cy + 1.5f, ax - 4.5f, cy - 1.5f);   // base left
-          e(ax - 4.5f, cy - 1.5f, ax - 2.5f, cy - 1.5f); } // base top
-        auto arc = [&](float r){
-            const int N = 6; const float a0 = -0.85f, a1 = 0.85f;
-            float px = X(ax + r * cosf(a0)), py = Y(cy + r * sinf(a0));
-            for (int i = 1; i <= N; i++) {
-                float a = a0 + (a1 - a0) * (float)i / (float)N;
-                float nx = X(ax + r * cosf(a)), ny = Y(cy + r * sinf(a));
-                ps3ThickLine(px, py, nx, ny, lw, on_r, on_g, on_b, 1.0f); px = nx; py = ny;
-            } };
-        if (muted) ps3ThickLine(X(ax + 1.0f), Y(cy - 3.8f), X(ax + 5.0f), Y(cy + 3.8f), lw, 0.85f, 0.25f, 0.25f, 1.0f);
-        else { if (arcs >= 1) arc(2.4f); if (arcs >= 2) arc(3.9f); if (arcs >= 3) arc(5.4f); }
-      }
-      // --- WiFi: a source dot with concentric arcs opening upward, symmetric about cWifi.
-      // State 2 = connected (dark), 1 = on-not-associated (inner arc only), 0 = off (dot).
-      { float wcy = cy + 3.2f; int ws = mNdsWifiState;
-        auto warc = [&](float rad, bool active){
-            float r = active ? on_r : of_r, g = active ? on_g : of_g, b = active ? on_b : of_b;
-            const int N = 8; const float a0 = -2.36f, a1 = -0.78f;   // ~90 deg upward fan
-            float px = X(cWifi + rad * cosf(a0)), py = Y(wcy + rad * sinf(a0));
-            for (int i = 1; i <= N; i++) {
-                float a = a0 + (a1 - a0) * (float)i / (float)N;
-                float nx = X(cWifi + rad * cosf(a)), ny = Y(wcy + rad * sinf(a));
-                ps3ThickLine(px, py, nx, ny, lw, r, g, b, 1.0f); px = nx; py = ny;
-            } };
-        warc(6.6f, ws >= 2);
-        warc(4.5f, ws >= 2);
-        warc(2.4f, ws >= 1);
-        bool srcOn = ws >= 1;
-        ps3FillCircle(X(cWifi), Y(wcy), S(1.2f), srcOn ? on_r : of_r, srcOn ? on_g : of_g, srcOn ? on_b : of_b, 1.0f);
-      }
-      // --- Bluetooth rune: vertical staff, two right knuckles, two crossing diagonals whose
-      // tips poke left. Symmetric about cBt. Dark when the radio is on, dimmed when off.
-      { float hh = 4.3f, xr = cBt + 2.7f, xl = cBt - 2.7f;
-        float y0 = cy - hh, y1 = cy + hh, yq = cy - hh * 0.5f, yl = cy + hh * 0.5f;
-        float r = mNdsBtOn ? on_r : of_r, g = mNdsBtOn ? on_g : of_g, b = mNdsBtOn ? on_b : of_b;
-        auto seg = [&](float ax, float ay, float bx2, float by2){ ps3ThickLine(X(ax), Y(ay), X(bx2), Y(by2), lw, r, g, b, 1.0f); };
-        seg(cBt, y0, cBt, y1);   // staff
-        seg(cBt, y0, xr,  yq);   // top -> upper-right knuckle
-        seg(xr,  yq, xl,  yl);   // upper-right -> lower-left (crosses staff)
-        seg(xl,  yq, xr,  yl);   // upper-left  -> lower-right (crosses staff)
-        seg(xr,  yl, cBt, y1);   // lower-right -> bottom
-      }
-      // --- Music note (eighth note): filled head, vertical stem, flag; symmetric about cNote.
-      // Dark when audio is genuinely playing (nano's own players, or a foreground app while
-      // nano overlays it); dimmed when silent. Ambiance-only home audio is not counted.
-      { bool musicOn = mMusicPlayer.isPlaying() || mVidAudio.isPlaying()
-                       || (mOverlayMode && !mOverlayWallpaper && mNdsAudioActive);
-        float r = musicOn ? on_r : of_r, g = musicOn ? on_g : of_g, b = musicOn ? on_b : of_b;
-        float hx = cNote - 1.8f, hy = cy + 3.4f, sx = cNote + 0.4f;
-        ps3ThickLine(X(sx), Y(hy), X(sx), Y(cy - 4.3f), lw, r, g, b, 1.0f);            // stem
-        ps3ThickLine(X(sx), Y(cy - 4.3f), X(sx + 2.8f), Y(cy - 1.6f), lw, r, g, b, 1.0f); // flag
-        ps3FillCircle(X(hx), Y(hy), S(1.8f), r, g, b, 1.0f);                            // note head
-      } }
-    }  // end procedural status-glyph fallback (else of mNdsSbIconsLoaded)
-    // date/time (topscreen.js): the SMALL font, two right-aligned fields (date, 5px gap, time)
-    // ending 6px before the battery. Drawn with FIXED per-glyph advances (digit 7, ':'/space 4,
-    // '/' 5 DS px) so the 1 Hz colon blink never shifts the digits (the web reserves the same
-    // 4px cell for ':' and ' '). Baseline y15 (cell-top y5 + Fonts.s baseline 10).
-    { time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
-      clockRefreshMaybe();
-      bool blinkOff = (lt.tm_sec & 1);
-      char ds[16], ts[16];
-      // Honor the Date Format setting (mPs3DateFormatIdx 2 = DD/MM, else MM/DD), same as the XMB clock.
-      if (mPs3DateFormatIdx == 2) snprintf(ds, sizeof(ds), "%02d/%02d", lt.tm_mday, lt.tm_mon + 1);
-      else                        snprintf(ds, sizeof(ds), "%02d/%02d", lt.tm_mon + 1, lt.tm_mday);
-      int hr = lt.tm_hour;
-      if (mClock12h.load()) { hr %= 12; if (hr == 0) hr = 12; }   // honor the 12/24-hour setting (fixed layout, no AM/PM)
-      snprintf(ts, sizeof(ts), "%02d%c%02d", hr, blinkOff ? ' ' : ':', lt.tm_min);
-      float fs = S(9.0f) / (float)FONT_CHAR_H;
-      // centre the date/time ink on the icon centre (DS y10.5), level with the battery/volume.
-      float cy = Y(10.5f - 0.415f * 9.0f);
-      auto adv = [](char c){ return (c == ':' || c == ' ') ? 4.0f : (c == '/') ? 5.0f : 7.0f; };
-      auto fieldW = [&](const char* s){ float w = 0.0f; for (const char* p = s; *p; ++p) w += adv(*p); return w; };
-      auto drawField = [&](const char* s, float rightXpx){
-          float x = rightXpx - S(fieldW(s));
-          for (const char* p = s; *p; ++p) {
-              float cellPx = S(adv(*p));
-              if (*p != ' ') { char buf[2] = { *p, 0 }; float gw = measureText(buf, fs);
-                  drawText(buf, x + (cellPx - gw) * 0.5f, cy, fs, 0.255f, 0.255f, 0.255f, 1.0f); }   // centre in the fixed cell
-              x += cellPx;
-          } };
-      float clockRight = X(231.0f);                          // battInkX(237) - 6
-      drawField(ts, clockRight);
-      drawField(ds, clockRight - S(fieldW(ts)) - S(5.0f));
-      // battery: a DSi-styled indicator with a PROPORTIONAL fill so it reflects the real
-      // charge level, not just full/low/charge states (user request). Dark frame + terminal
-      // nub, light empty track, fill width = level%, coloured by state (green while charging,
-      // red <=15%, DSi orange otherwise). Real host battery via pollBattery (HAL/sysfs).
-      pollBattery();
-      { int pct = mBatteryPercent;
-        if (pct < 0) {                                   // unknown: static full sprite fallback
-            if (mNdsBattTex) drawIconTex(mNdsBattTex, X(235.0f), Y(5.0f), S(17.0f), S(11.0f), 1.0f, 1.0f, 1.0f, 1.0f);
-        } else {
-            if (pct > 100) pct = 100;
-            float bx = X(236.0f), by = Y(6.0f), bw = S(12.5f), bh = S(9.0f);
-            drawRoundedRect(bx, by, bw, bh, S(1.5f), 0.255f, 0.255f, 0.255f, 1.0f);               // dark frame
-            drawQuad(bx + bw, by + S(2.0f), S(2.0f), bh - S(4.0f), 0.255f, 0.255f, 0.255f, 1.0f); // terminal nub
-            float ix = bx + S(1.5f), iy = by + S(1.5f), iw = bw - S(3.0f), ih = bh - S(3.0f);
-            drawQuad(ix, iy, iw, ih, 0.902f, 0.902f, 0.902f, 1.0f);                               // empty track
-            float fr, fg, fb;
-            if (mBatteryCharging)   { fr = 0.30f; fg = 0.78f; fb = 0.36f; }   // charging -> green
-            else if (pct <= 15)     { fr = 0.93f; fg = 0.26f; fb = 0.20f; }   // low -> red
-            else                    { fr = 1.00f; fg = 0.55f; fb = 0.16f; }   // DSi orange
-            float fw = iw * ((float)pct / 100.0f);
-            if (fw > 0.5f) drawQuad(ix, iy, fw, ih, fr, fg, fb, 1.0f);                             // proportional fill
-        } } }
+    drawNdsStatusBar(cx, offY, scale);
 
     // (The DSi camera-scrim L/R shoulder bar is intentionally omitted: the L/R buttons only
     // surface where they DO something - the game Information page's page turn. Showing them on

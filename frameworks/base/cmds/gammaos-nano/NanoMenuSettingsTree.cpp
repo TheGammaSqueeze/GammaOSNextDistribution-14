@@ -254,7 +254,7 @@ void NanoMenu::buildSettingsTree() {
       b.toggle("touch_sounds", "Touch Sounds",
                SettingSource::kSystem, "sound_effects_enabled", "1");
       b.toggle("charging_sounds", "Charging Sounds",
-               SettingSource::kGlobal, "charging_sounds_enabled", "1");
+               SettingSource::kSecure, "charging_sounds_enabled", "1");
       b.toggle("lock_sounds", "Screen Lock Sounds",
                SettingSource::kSystem, "lockscreen_sounds_enabled", "1");
     b.endCategory();

@@ -143,6 +143,10 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     const float btnMg   = MIN_BTNMARGIN * sc;
     const float fsRow   = (MIN_FONT * sc) / (float)FONT_CHAR_H;
     const float fsHint  = (MIN_FONT_S * sc) / (float)FONT_CHAR_H;
+    // Theme Settings > Long Names: 0 = shrink a too-long name to fit (default), 1 = keep the font
+    // size and scroll the focused name / clip the rest. Read live so a chooser change applies at once.
+    char nsv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.minima.namescroll", nsv, "0");
+    const bool minNameScroll = (nsv[0] == '1' || nsv[0] == 't' || nsv[0] == 'o');
 
     // ---- resolve the current level's rows (categories at root, else the category/submenu items) ----
     // vals holds the inline right-aligned value for value-bearing rows (else empty). Only the
@@ -266,13 +270,28 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         if (rowY < statusBandBot && rowY + rowH > ry + pad)
             rowRight = fminf(rowRight, statusPillLeft - 8.0f * sc);   // clear the status pill
         float labelMaxW = textMaxW;
+        // Keep the label clear of the top-right status pill (mirror the value-column clip above):
+        // in portrait a long first-row label (e.g. "Quick Menu") otherwise runs under the pill.
+        if (rowY < statusBandBot && rowY + rowH > ry + pad)
+            labelMaxW = fminf(labelMaxW, (statusPillLeft - 8.0f * sc) - (lx + btnPad));
         if (!vals[i].empty()) {
             float vw = measureText(vals[i].c_str(), fsRow);
             drawText(vals[i].c_str(), rowRight - vw, ty, fsRow, 1.0f, 1.0f, 1.0f, 0.70f);
             labelMaxW = (rowRight - vw - 12.0f * sc) - (lx + btnPad);
         }
         float fs = fsRow, tw = measureText(rows[i].c_str(), fs);
-        if (tw > labelMaxW && labelMaxW > 0.0f) { fs *= labelMaxW / tw; }
+        if (tw > labelMaxW && labelMaxW > 0.0f) {
+            if (minNameScroll) {
+                // "Scroll" mode (Theme Settings > Long Names): keep the font size and CLIP the label
+                // to its column instead of shrinking. The focused row marquee-scrolls (below); a
+                // non-focused long name just truncates at the column edge, at full size.
+                scissorLogicalRect(lx + btnPad, rowY, labelMaxW, rowH);
+                drawText(rows[i].c_str(), lx + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);
+                glDisable(GL_SCISSOR_TEST);
+                continue;
+            }
+            fs *= labelMaxW / tw;   // default "Shrink to Fit": scale the font down so it all fits
+        }
         drawText(rows[i].c_str(), lx + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);   // COLOR_LIST_TEXT white
     }
     // The capsule pill, hugging the selected label, glided to the eased position. A label too long to
@@ -680,6 +699,193 @@ void NanoMenu::renderMinimaDialog(float rx, float ry, float rw, float rh) {
         }
     }
     mTextOutlineMode = minPrevOutline;
+}
+
+// ---- Minima touch input -----------------------------------------------------------------
+// Minima rides the shared XMB state machine with mPs3Xmb=true / mNdsTheme=false, so it matched
+// none of the DSi touch branches in the SYN_REPORT dispatch and fell to xmbTouchFrame's XMB-
+// carousel geometry - taps landed on the wrong row (or nothing). These three handlers hit-test
+// Minima's own vertical-list / right side-panel / centred-dialog geometry (mirroring
+// renderMinimaList / renderMinimaSidePanel / renderMinimaDialog) and drive the SAME shared
+// confirm the Minima D-pad uses (ndsNavSelect / xmbOptEnter / ps3XmbSelect / ps3XmbBack). Device
+// px throughout (touchLogicalPx), full-screen rect (rx=ry=0, rw=mWidth, rh=mHeight).
+
+// Home / settings list: tap a visible row to select + activate; a vertical swipe moves the
+// selection (Minima's scroll window follows the selection, so that scrolls the list).
+void NanoMenu::minimaListTouch() {
+    if (mPs3BootActive || mPs3OptActive || mPs3DlgActive) { mTouchWasDown = mTouchDown; return; }
+    if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }   // frozen during launch
+    float px, py;
+    if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
+    const float SLOP = 16.0f, TAPMAX = 24.0f; const int64_t TAPMS = 450;
+    int64_t now = uptimeMillis();
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+    if (downEdge) {
+        mXmbTouchTracking = true; mXmbTouchMoved = false; mXmbTouchDownMs = now;
+        mXmbTouchDownPX = px; mXmbTouchDownPY = py; mLastInputMs = now;
+        mTouchWasDown = mTouchDown; return;
+    }
+    if (down && mXmbTouchTracking) {
+        float ddx = px - mXmbTouchDownPX, ddy = py - mXmbTouchDownPY;
+        if (!mXmbTouchMoved && ddx * ddx + ddy * ddy >= SLOP * SLOP) mXmbTouchMoved = true;
+        mLastInputMs = now; mTouchWasDown = mTouchDown; return;
+    }
+    if (!(upEdge && mXmbTouchTracking)) { mTouchWasDown = mTouchDown; return; }
+    mXmbTouchTracking = false; mLastInputMs = now; mTouchWasDown = mTouchDown;
+    float ddx = px - mXmbTouchDownPX, ddy = py - mXmbTouchDownPY;
+    int64_t held = now - mXmbTouchDownMs;
+    bool tap = !mXmbTouchMoved && held <= TAPMS && (ddx * ddx + ddy * ddy) <= TAPMAX * TAPMAX;
+
+    // Resolve the current level's rows + the LIVE selection pointer (mirror renderMinimaList).
+    int n = 0; int* selPtr = nullptr;
+    if (mNdsAtRoot) { n = (int)mPs3Cats.size(); selPtr = &mPs3CatIdx; }
+    else if (!mPs3Stack.empty()) { n = (int)mPs3Stack.back().items.size(); selPtr = &mPs3Stack.back().sel; }
+    else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) { n = (int)mPs3Cats[mPs3CatIdx].items.size(); selPtr = &mPs3ItemIdx; }
+    if (!selPtr || n <= 0) return;
+
+    const float rw = (float)mWidth, rh = (float)mHeight;
+    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnMg = MIN_BTNMARGIN * sc;
+    const float listLeft = pad + btnMg, listTop = pad, hintTop = rh - pad - rowH, listBottom = hintTop - btnMg;
+
+    if (!tap) {                                              // vertical swipe -> scroll the selection
+        if (fabsf(ddy) > fabsf(ddx) && fabsf(ddy) > rowH * 0.5f) {
+            int step = (int)(-ddy / rowH);                  // content follows finger (drag down reveals earlier rows)
+            if (step != 0) { int ns = *selPtr + step; if (ns < 0) ns = 0; if (ns > n - 1) ns = n - 1;
+                             if (ns != *selPtr) { *selPtr = ns; mDisplayDirty = true; } }
+        }
+        return;
+    }
+    // TAP: hit-test the visible row under the finger (rowY = listTop + (i - mMinimaScroll)*rowH).
+    if (mXmbTouchDownPY < listTop || mXmbTouchDownPY > listBottom ||
+        mXmbTouchDownPX < listLeft - pad || mXmbTouchDownPX > rw - pad) return;
+    int i = (int)floorf((mXmbTouchDownPY - listTop) / rowH + mMinimaScroll);
+    float rowY = listTop + ((float)i - mMinimaScroll) * rowH;
+    if (i >= 0 && i < n && mXmbTouchDownPY >= rowY && mXmbTouchDownPY <= rowY + rowH) {
+        *selPtr = i; mDisplayDirty = true;
+        ndsNavSelect(true);                                 // activate (root/category/stack aware, same as A)
+        if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+    }
+}
+
+// Option menu / list+slider chooser (right side panel). Tap a row to select + activate; tap the
+// slider track to set the value; tap left of the panel (the scrim) to dismiss.
+void NanoMenu::minimaSidePanelTouch() {
+    if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
+    if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }
+    float px, py;
+    if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
+
+    const float rw = (float)mWidth, rh = (float)mHeight;
+    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc, inset = 8.0f * sc;
+    const float panelW = fminf(rw * 0.60f, rw - pad * 2.0f);
+    const float pxl = rw - panelW;                          // settled panel left (slide-in done)
+    const float listLeft = pxl + pad + inset, contentTop = pad + rowH * 0.9f + 6.0f * sc, listBot = rh - pad;
+
+    // Rebuild the visible-row -> real-index map exactly as renderMinimaSidePanel / ndsSidePanelTouch.
+    const bool optSrc = (mPs3OptActive || mPs3OptClosing);
+    bool subOpen = false, slider = false;
+    std::vector<int> realIdx; int n = 0, selVis = 0;
+    if (optSrc) {
+        subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size() && !mPs3OptSubRows[mPs3OptSel].empty();
+        if (subOpen) { n = (int)mPs3OptSubRows[mPs3OptSel].size(); for (int j = 0; j < n; j++) realIdx.push_back(j); selVis = mPs3OptSubSel; }
+        else {
+            int m = (int)mPs3OptLabels.size();
+            for (int i = 0; i < m; i++) { if (i < (int)mPs3OptSep.size() && mPs3OptSep[i]) continue; if (i == mPs3OptSel) selVis = (int)realIdx.size(); realIdx.push_back(i); }
+            n = (int)realIdx.size();
+        }
+    } else {
+        slider = mPs3DlgSlider && mPs3DlgOptions.empty();
+        n = (int)mPs3DlgOptions.size(); for (int i = 0; i < n; i++) realIdx.push_back(i);
+        selVis = mPs3DlgSel;
+    }
+    if (selVis < 0) selVis = 0; if (n > 0 && selVis >= n) selVis = n - 1;
+
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+
+    if (slider) {                                           // drag/tap the value track (mirror render geometry)
+        const float bx = listLeft, bw = panelW - 2.0f * (pad + inset), by = rh * 0.56f;
+        if (down && px >= pxl && py >= by - 22.0f * sc && py <= by + 30.0f * sc && bw > 0.0f) {
+            float t = (px - bx) / bw; if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
+            float v = mPs3DlgSldMin + t * (mPs3DlgSldMax - mPs3DlgSldMin);
+            float steps = roundf((v - mPs3DlgSldMin) / mPs3DlgSldStep);
+            v = mPs3DlgSldMin + steps * mPs3DlgSldStep;
+            if (v < mPs3DlgSldMin) v = mPs3DlgSldMin; if (v > mPs3DlgSldMax) v = mPs3DlgSldMax;
+            if (v != mPs3DlgSldVal) {
+                mPs3DlgSldVal = v; mDisplayDirty = true;
+                if (mShaderParamEdit >= 0 && mShaderParamEdit < (int)mShaderParams.size()) {
+                    mShaderParams[mShaderParamEdit].cur = v; shaderApplyParamLive(mShaderParamEdit);
+                }
+            }
+        }
+        mTouchWasDown = mTouchDown; return;
+    }
+
+    const float SLOP = 16.0f, TAPMAX = 24.0f; const int64_t TAPMS = 450;
+    int64_t now = uptimeMillis();
+    if (downEdge) { mXmbTouchTracking = true; mXmbTouchMoved = false; mXmbTouchDownMs = now; mXmbTouchDownPX = px; mXmbTouchDownPY = py; mLastInputMs = now; mTouchWasDown = mTouchDown; return; }
+    if (down && mXmbTouchTracking) { float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY; if (!mXmbTouchMoved && dx * dx + dy * dy >= SLOP * SLOP) mXmbTouchMoved = true; mLastInputMs = now; mTouchWasDown = mTouchDown; return; }
+    if (!(upEdge && mXmbTouchTracking)) { mTouchWasDown = mTouchDown; return; }
+    mXmbTouchTracking = false; mLastInputMs = now; mTouchWasDown = mTouchDown;
+    float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY; int64_t held = now - mXmbTouchDownMs;
+    bool tap = !mXmbTouchMoved && held <= TAPMS && (dx * dx + dy * dy) <= TAPMAX * TAPMAX;
+    if (!tap) return;
+
+    if (mXmbTouchDownPX < pxl) { ps3XmbBack(); return; }    // tapped the scrim (left of the panel) -> dismiss/back
+    if (n <= 0) return;
+    int visRows = (int)fmaxf(1.0f, floorf((listBot - contentTop) / rowH));
+    int top = selVis - visRows / 2; if (top > n - visRows) top = n - visRows; if (top < 0) top = 0;
+    if (mXmbTouchDownPY < contentTop || mXmbTouchDownPY > listBot) return;
+    int vis = (int)floorf((mXmbTouchDownPY - contentTop) / rowH);
+    int i = top + vis;
+    float rowY = contentTop + (float)vis * rowH;
+    if (i >= 0 && i < n && mXmbTouchDownPY >= rowY && mXmbTouchDownPY <= rowY + rowH) {
+        if (optSrc && !subOpen) { mPs3OptSel = realIdx[i]; xmbOptEnter(); }
+        else if (optSrc && subOpen) { mPs3OptSubSel = i; xmbOptEnter(); }
+        else { mPs3DlgSel = i; ps3XmbSelect(); }
+        if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+        mDisplayDirty = true;
+    }
+}
+
+// Confirm / message dialog: tap an option pill (Yes/No/OK), or tap the scrim to cancel.
+void NanoMenu::minimaDialogTouch() {
+    if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
+    if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }
+    float px, py;
+    if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
+    const float SLOP = 16.0f, TAPMAX = 24.0f; const int64_t TAPMS = 450;
+    int64_t now = uptimeMillis();
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+    if (downEdge) { mXmbTouchTracking = true; mXmbTouchMoved = false; mXmbTouchDownMs = now; mXmbTouchDownPX = px; mXmbTouchDownPY = py; mLastInputMs = now; mTouchWasDown = mTouchDown; return; }
+    if (down && mXmbTouchTracking) { float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY; if (!mXmbTouchMoved && dx * dx + dy * dy >= SLOP * SLOP) mXmbTouchMoved = true; mLastInputMs = now; mTouchWasDown = mTouchDown; return; }
+    if (!(upEdge && mXmbTouchTracking)) { mTouchWasDown = mTouchDown; return; }
+    mXmbTouchTracking = false; mLastInputMs = now; mTouchWasDown = mTouchDown;
+    float dx = px - mXmbTouchDownPX, dy = py - mXmbTouchDownPY; int64_t held = now - mXmbTouchDownMs;
+    if (mXmbTouchMoved || held > TAPMS || (dx * dx + dy * dy) > TAPMAX * TAPMAX) return;
+
+    const float rw = (float)mWidth, rh = (float)mHeight;
+    const float sc = rh / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
+    const float pw = fminf(rw * 0.74f, rw - pad * 2.0f), ph = fminf(rh * 0.64f, rh - pad * 2.0f);
+    const float pxL = (rw - pw) * 0.5f, pyTop = (rh - ph) * 0.5f, cxC = rw * 0.5f;
+    const int n = (int)mPs3DlgOptions.size();
+    const bool inPanel = (px >= pxL && px <= pxL + pw && py >= pyTop && py <= pyTop + ph);
+    if (n > 0) {
+        const float fs = (MIN_FONT_S * sc) / (float)FONT_CHAR_H, pillH = rowH, pyB = pyTop + ph - pad - pillH, gap = pad;
+        std::vector<float> ws; float total = 0.0f;
+        for (int i = 0; i < n; i++) { float w = measureText(trDyn(mPs3DlgOptions[i].c_str()), fs) + btnPad * 2.0f; ws.push_back(w); total += w; }
+        total += gap * (float)(n - 1);
+        float xx = cxC - total * 0.5f;
+        for (int i = 0; i < n; i++) {
+            if (px >= xx && px <= xx + ws[i] && py >= pyB && py <= pyB + pillH) {
+                mPs3DlgSel = i; ps3XmbSelect(); mDisplayDirty = true;
+                if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+                return;
+            }
+            xx += ws[i] + gap;
+        }
+    }
+    if (inPanel && n <= 1) { if (n == 1) mPs3DlgSel = 0; ps3XmbSelect(); return; }   // message dialog: any panel tap = OK
+    if (!inPanel) ps3XmbBack();                                                       // scrim tap = cancel
 }
 
 // Game / app INFORMATION page in Minima's language. The shared info dialog carries the scraped

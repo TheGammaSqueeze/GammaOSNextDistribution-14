@@ -149,9 +149,11 @@ void layoutCompute(const LayoutParams& P) {
         // Zoom in past a plain width-fit; park the focus row at 44% height so a
         // long item list runs below it. (index.html 1949-1973)
         const float PORTRAIT_ZOOM = 1.3f;
-        const float pZoom = (P.simW > 0)
-            ? fmaxf(PORTRAIT_ZOOM, fminf(2.0f, 960.0f / fw))
-            : PORTRAIT_ZOOM;
+        // Small portrait panels (e.g. a 480-wide handheld) render the XMB far too small at the base
+        // 1.3 zoom - the icons/text need to be roughly 2x bigger to read. Scale the zoom up as the
+        // frame narrows (fw ~480 -> ~2.2, i.e. ~1.7x the base), clamped so a large portrait panel
+        // (tablet) is not over-zoomed. Applies to the native panel too, not just a simulated res.
+        const float pZoom = fmaxf(PORTRAIT_ZOOM, fminf(2.2f, 1050.0f / fw));
         baseScale = (fw / VW) * pZoom;
         LAYOUT_FIT = (fw / baseScale) / VW;
         LAYOUT_XC = 1.0f - (1.0f - LAYOUT_FIT) * 0.56f;
