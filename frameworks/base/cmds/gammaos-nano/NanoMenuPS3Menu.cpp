@@ -6165,8 +6165,12 @@ void NanoMenu::renderPs3Xmb() {
             // only X clips) keeps the text inside its bounds.
             float lx = tx;
             bool scissorOn = false;
-            if (isActive && labelW > availW + 1.0f) {
-                lx = tx - tickerOff(labelW - availW);
+            if (labelW > availW + 1.0f) {
+                // The focused row ticker-scrolls its long label; a NON-focused long label is simply
+                // clipped to its window so it never overflows into the value / chevron. On a narrow
+                // (portrait) panel a long filename + its detail value used to collide, e.g. the video
+                // list showing "video_landscape_640x480x480" (name over the "640x480" resolution).
+                if (isActive) lx = tx - tickerOff(labelW - availW);
                 scissorBand(tx, availW);
                 scissorOn = true;
             }
