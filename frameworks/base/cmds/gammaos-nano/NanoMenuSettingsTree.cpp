@@ -667,6 +667,13 @@ void NanoMenu::buildSettingsTree() {
       b.beginCategory("gos_usb", "USB & Docking");
         b.toggle("usb_controller_switch", "USB Controller Switch",
                  SettingSource::kProp, "persist.gammaos.usbcontrollerswitch", "false");
+        // In nano mode nothing switches the USB gadget into MTP, so the desktop only ever
+        // sees the boot default (adb / charge-only). These match how normal Android does it:
+        // "svc usb setFunctions mtp" goes through UsbManager -> UsbDeviceManager (the same
+        // path SystemUI's File Transfer notification uses), links mtp.gs0, rebinds the UDC and
+        // starts MtpService. Non-persistent: resets to charge-only on unplug/reboot, as stock.
+        b.action("usb_mtp",    "File Transfer (MTP)");
+        b.action("usb_charge", "Charge Only");
         b.toggle("dc_dimming", "DC Dimming Emulation",
                  SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "0");
       b.endCategory();
@@ -1040,6 +1047,12 @@ void NanoMenu::handleSettingsTreeSelect() {
             (void)system("cmd bluetooth_manager enable 2>/dev/null");
         } else if (node.id == "factory_reset") {
             property_set("sys.gammaos.nano.factory_reset", "1");
+        } else if (node.id == "usb_mtp") {
+            // Switch the USB gadget into MTP so a desktop can transfer files (nano never did
+            // this, so it stayed on the boot default). Same path as SystemUI's File Transfer.
+            (void)system("svc usb setFunctions mtp 2>/dev/null");
+        } else if (node.id == "usb_charge") {
+            (void)system("svc usb setFunctions 2>/dev/null");   // back to charge-only
         }
         break;
     case SettingNodeType::kInfo:
