@@ -4697,22 +4697,34 @@ public final class SystemServer implements Dumpable {
             sb.append("F|Min SDK|").append(ai.minSdkVersion).append('\n');
             sb.append("F|Installed|").append(df.format(new java.util.Date(pi.firstInstallTime))).append('\n');
             sb.append("F|Updated|").append(df.format(new java.util.Date(pi.lastUpdateTime))).append('\n');
-            sb.append("CACHE|").append(cacheBytes >= 0 ? nanoSize(cacheBytes) : "").append('\n');
-            sb.append("DATA|").append(dataBytes >= 0 ? nanoSize(dataBytes) : "").append('\n');
-            if (pi.requestedPermissions != null) {
-                for (int i = 0; i < pi.requestedPermissions.length; i++) {
-                    String p = pi.requestedPermissions[i];
-                    try {
-                        android.content.pm.PermissionInfo info = pm.getPermissionInfo(p, 0);
-                        if (info.getProtection()
-                                != android.content.pm.PermissionInfo.PROTECTION_DANGEROUS) continue;
-                        boolean granted = (pi.requestedPermissionsFlags[i]
-                                & android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0;
-                        CharSequence lbl = info.loadLabel(pm);
-                        String name = (lbl != null ? lbl.toString() : p).replace('|', ' ');
-                        sb.append("PERM|").append(p).append('|').append(name)
-                          .append('|').append(granted ? '1' : '0').append('\n');
-                    } catch (Exception ignored) {}
+            // Protected packages (core system / lineage / gammaos / magisk / retroarch): doNanoAppAction
+            // REFUSES grant/revoke/clearcache/cleardata on these (the identical prefix guard at
+            // doNanoAppAction below), so emitting the Clear Cache/Data sizes and the permission toggles
+            // makes nano render interactive rows whose actions are then silently dropped - dead rows the
+            // user can tap with no effect. Show facts only for these packages: omit CACHE|/DATA|/PERM|
+            // so nano's Storage/Permissions drills degrade to non-actionable (nano gates the Storage row
+            // on a non-empty size and already renders "no adjustable permissions" for an empty perm set).
+            boolean protectedPkg = pkg.startsWith("com.android.") || pkg.startsWith("org.lineageos.")
+                    || pkg.startsWith("com.gammaos.") || pkg.startsWith("com.topjohnwu.")
+                    || pkg.startsWith("com.retroarch.aarch64");
+            if (!protectedPkg) {
+                sb.append("CACHE|").append(cacheBytes >= 0 ? nanoSize(cacheBytes) : "").append('\n');
+                sb.append("DATA|").append(dataBytes >= 0 ? nanoSize(dataBytes) : "").append('\n');
+                if (pi.requestedPermissions != null) {
+                    for (int i = 0; i < pi.requestedPermissions.length; i++) {
+                        String p = pi.requestedPermissions[i];
+                        try {
+                            android.content.pm.PermissionInfo info = pm.getPermissionInfo(p, 0);
+                            if (info.getProtection()
+                                    != android.content.pm.PermissionInfo.PROTECTION_DANGEROUS) continue;
+                            boolean granted = (pi.requestedPermissionsFlags[i]
+                                    & android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0;
+                            CharSequence lbl = info.loadLabel(pm);
+                            String name = (lbl != null ? lbl.toString() : p).replace('|', ' ');
+                            sb.append("PERM|").append(p).append('|').append(name)
+                              .append('|').append(granted ? '1' : '0').append('\n');
+                        } catch (Exception ignored) {}
+                    }
                 }
             }
         } catch (Exception e) {

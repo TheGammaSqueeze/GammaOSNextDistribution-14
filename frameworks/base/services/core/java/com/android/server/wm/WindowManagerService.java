@@ -4530,6 +4530,17 @@ public class WindowManagerService extends IWindowManager.Stub
                 if (nanoSo != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return nanoSo;
                 return requestedOrientation;
             }
+            // force_orientation is a sys. token nano only publishes while it is the active
+            // publisher (its home / in-game overlay). Back in normal Android - the stock launcher,
+            // Settings, or an app launched outside nano - it is empty, and hardcoding LANDSCAPE here
+            // dropped a portrait handheld back to landscape "regardless of props". Fall back to the
+            // PERSISTENT per-device orientation preference (persist.gammaos.nano.orientation, the same
+            // prop nano's overlay publishes from) so the forced layout holds across all of Android,
+            // not just nano. Default "landscape" keeps every existing ATV device landscape - a
+            // byte-for-byte no-op unless a device opts into portrait via that prop.
+            final int persistSo = nanoScreenOrientation(
+                    android.os.SystemProperties.get("persist.gammaos.nano.orientation", "landscape"));
+            if (persistSo != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) return persistSo;
             return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         }
 
