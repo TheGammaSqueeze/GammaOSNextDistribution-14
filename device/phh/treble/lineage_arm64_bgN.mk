@@ -14,7 +14,10 @@ PRODUCT_MODEL := GammaOS Next Full
 # Overwrite the inherited "emulator" characteristics
 PRODUCT_CHARACTERISTICS := device
 
-PRODUCT_PACKAGES += 
+# GammaOS: include the GammaOS browser (parity with the TV build's GammaBrowser). It is not
+# pulled in by the shared lineage.mk, so the non-TV Full images shipped with no browser.
+PRODUCT_PACKAGES += \
+    GammaBrowser
 
 # Force CC with read barriers (concurrent-copying=true). Our GSI does not bundle
 # a kernel, so without this the AOSP build probe falls back to "<unknown-kernel>"
