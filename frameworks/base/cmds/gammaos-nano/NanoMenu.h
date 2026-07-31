@@ -1398,6 +1398,8 @@ private:
     int     mMinimaSfxDepth  = -1;     // ndsNavDepth snapshot for minimaSfxTick state-diff
     int     mMinimaSfxSel    = -1;     // ndsFocusSel snapshot for minimaSfxTick state-diff
     void renderNdsCarousel(float rx, float ry, float rw, float rh, bool singleFull = false);  // DSi bottom screen into a device rect (singleFull: lone panel -> status bar top, navbar bottom)
+    void ndsCarouselRect(float& rx, float& ry, float& rw, float& rh);  // device rect the DSi carousel/list/panel renders into: bottom band when stacked, whole panel otherwise (single source of truth for render + touch)
+    bool ndsMapTouchDs(float& dsX, float& dsY);                      // map the current raw touch into DS 256x192 coords using ndsCarouselRect; returns whether touchMapRaw resolved
     void renderNdsTop(float rx, float ry, float rw, float rh);       // DSi top screen (status bar + content)
     void drawNdsStatusBar(float cx, float offY, float scale);        // DSi status bar (radios + date/time + battery) at DS y2..17, shared by the top screen and the single-screen carousel top strip
     void drawNdsArrowBtn(float x0, float y0, float wpx, float hpx, int dir,

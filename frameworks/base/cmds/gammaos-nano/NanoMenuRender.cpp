@@ -1723,20 +1723,31 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
 // render() dispatch drives renderNdsTop (primary panel) and renderNdsCarousel
 // (secondary panel) directly, bypassing this. Both of those are self-contained
 // (blend + assets + DSVec font pref), so this only picks the single-panel layout.
+// The device rect the DSi carousel/list/side-panel renders into: in the single-panel STACKED
+// layout it is the BOTTOM band (the top band holds the DS top screen), otherwise the whole panel.
+// Single source of truth so touch (ndsMapTouchDs) maps into exactly what renderNds draws.
+void NanoMenu::ndsCarouselRect(float& rx, float& ry, float& rw, float& rh) {
+    rx = 0.0f; ry = 0.0f; rw = (float)mWidth; rh = (float)mHeight;
+    if (!mNdsStack) return;
+    // Gap between the two stacked screens (the DS "hinge"): persist.gammaos.nano.ndstheme.gap is a
+    // percentage of the panel height (0..40, default 6). 0 = the screens meet in the middle; larger
+    // values push each screen toward its edge (top/bottom snap).
+    char gb[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.ndstheme.gap", gb, "6");
+    float gapPct = (float)atof(gb);
+    if (gapPct < 0.0f) gapPct = 0.0f; if (gapPct > 40.0f) gapPct = 40.0f;
+    const float gap  = (float)mHeight * (gapPct / 100.0f);
+    const float half = ((float)mHeight - gap) * 0.5f;
+    ry = half + gap; rh = half;
+}
+
 void NanoMenu::renderNds() {
     ensureNdsAssets();
     const float W = (float)mWidth, H = (float)mHeight;
     if (mNdsStack) {
-        // Gap between the two stacked screens (the DS "hinge"): persist.gammaos.nano.ndstheme.gap
-        // is a percentage of the panel height (0..40, default 6). 0 = the screens meet in the
-        // middle; larger values push each screen toward its edge (top/bottom snap). Each screen
-        // contain-fits its band, so the DS 4:3 pair keeps its aspect on the tall portrait panel.
-        char gb[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.ndstheme.gap", gb, "6");
-        float gapPct = (float)atof(gb);
-        if (gapPct < 0.0f) gapPct = 0.0f; if (gapPct > 40.0f) gapPct = 40.0f;
-        const float gap = H * (gapPct / 100.0f);
-        const float half = (H - gap) * 0.5f;
+        float crx, cry, crw, crh; ndsCarouselRect(crx, cry, crw, crh);   // bottom carousel band
+        const float half = crh;          // the top screen and carousel band are equal height
+        const float gap  = cry - crh;    // the DS "hinge" gap between them
         // Fill the hinge gap with the SAME background the bottom screen uses (the light DSi field,
         // or the custom wallpaper) so the two screens read as one continuous surface rather than the
         // wave showing through. Skipped in an in-game scrim so the dimmed app shows through the gap.
@@ -1751,7 +1762,7 @@ void NanoMenu::renderNds() {
             }
         }
         renderNdsTop(0.0f, 0.0f, W, half);
-        renderNdsCarousel(0.0f, half + gap, W, half, /*singleFull=*/false);
+        renderNdsCarousel(crx, cry, crw, crh, /*singleFull=*/false);
     } else {
         renderNdsCarousel(0.0f, 0.0f, W, H, /*singleFull=*/true);
     }

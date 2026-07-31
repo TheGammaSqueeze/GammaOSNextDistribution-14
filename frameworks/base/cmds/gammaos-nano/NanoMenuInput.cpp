@@ -1255,16 +1255,29 @@ bool NanoMenu::selectKeyHeld() const {
 // (camera = (x-33)/5), the L/R arrows step, a blank-track press jumps, and a tap on the
 // centred tile launches while a tap on a side tile selects it. The camera physics + snap
 // live in renderNdsCarousel; this only sets the owner state (scrub / fling / thumb).
+
+// Map the current raw touch into DS 256x192 coordinates using the SAME device rect the DSi
+// carousel/list/side-panel is rendered into (ndsCarouselRect): the bottom band in the stacked
+// single-panel layout, the whole panel otherwise. This keeps every DSi touch handler aligned
+// with what is drawn (fixes taps landing in the wrong row / on the top screen when stacked).
+// Returns whether touchMapRaw resolved; dsX/dsY fall back to the last down position when not.
+bool NanoMenu::ndsMapTouchDs(float& dsX, float& dsY) {
+    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
+    float crx, cry, crw, crh; ndsCarouselRect(crx, cry, crw, crh);
+    float scale = crh / 192.0f;
+    if (256.0f * scale > crw + 0.5f) scale = crw / 256.0f;   // width-limited: don't overflow
+    if (scale < 1e-3f) { dsX = mNdsTouchDownX; dsY = mNdsTouchDownY; return false; }
+    const float offY = cry + (crh - 192.0f * scale) * 0.5f;
+    const float cx   = crx + crw * 0.5f;                     // 256-wide DS chrome centred in the rect
+    dsX = mapped ? 128.0f + (px - cx) / scale : mNdsTouchDownX;
+    dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+    return mapped;
+}
+
 void NanoMenu::ndsTouchFrame() {
     if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
     if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }  // frozen during launch
-    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
-    float scale = (float)mHeight / 192.0f;
-    if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
-    if (scale < 1e-3f) { mTouchWasDown = mTouchDown; return; }
-    float offY = ((float)mHeight - 192.0f * scale) * 0.5f;
-    float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
-    float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+    float dsX, dsY; const bool mapped = ndsMapTouchDs(dsX, dsY);   // maps into the DSi carousel rect (bottom band when stacked)
 
     // Focused carousel level (stacked nav): categories at the root, else the category/submenu.
     int nItems = ndsFocusCount();
@@ -1392,13 +1405,7 @@ void NanoMenu::ndsSubmenuTouch() {
     else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) { itemsP = &mPs3Cats[mPs3CatIdx].items; selPtr = &mPs3ItemIdx; }
     if (!itemsP) { mTouchWasDown = mTouchDown; return; }
     std::vector<Ps3Item>& lvlItems = *itemsP;
-    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
-    float scale = (float)mHeight / 192.0f;
-    if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
-    if (scale < 1e-3f) { mTouchWasDown = mTouchDown; return; }
-    float offY = ((float)mHeight - 192.0f * scale) * 0.5f;
-    float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
-    float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+    float dsX, dsY; const bool mapped = ndsMapTouchDs(dsX, dsY);   // maps into the DSi carousel rect (bottom band when stacked)
 
     int n = (int)lvlItems.size();
     bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
@@ -1500,13 +1507,7 @@ void NanoMenu::ndsPickerTouch() {
     else if (mPs3LangActive) { selPtr = &mLangSelected; n = LOCALE_COUNT; }
     if (!selPtr || n <= 0) { mTouchWasDown = mTouchDown; return; }
 
-    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
-    float scale = (float)mHeight / 192.0f;
-    if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
-    if (scale < 1e-3f) { mTouchWasDown = mTouchDown; return; }
-    float offY = ((float)mHeight - 192.0f * scale) * 0.5f;
-    float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
-    float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+    float dsX, dsY; const bool mapped = ndsMapTouchDs(dsX, dsY);   // maps into the DSi carousel rect (bottom band when stacked)
 
     bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
     const float listTop = 30.0f, listBot = 168.0f, bh = 24.0f, pitch = 26.0f;
@@ -1549,13 +1550,7 @@ void NanoMenu::ndsPickerTouch() {
 void NanoMenu::ndsSidePanelTouch() {
     if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
     if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }  // frozen during launch
-    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
-    float scale = (float)mHeight / 192.0f;
-    if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
-    if (scale < 1e-3f) { mTouchWasDown = mTouchDown; return; }
-    float offY = ((float)mHeight - 192.0f * scale) * 0.5f;
-    float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
-    float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+    float dsX, dsY; const bool mapped = ndsMapTouchDs(dsX, dsY);   // maps into the DSi carousel rect (bottom band when stacked)
 
     // Rebuild the visible-row -> real-index map exactly as renderNdsSidePanel does.
     const bool optSrc = (mPs3OptActive || mPs3OptClosing);
@@ -1654,13 +1649,7 @@ void NanoMenu::ndsSidePanelTouch() {
 void NanoMenu::ndsDialogTouch() {
     if (mPs3BootActive) { mTouchWasDown = mTouchDown; return; }
     if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }  // frozen during launch
-    float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
-    float scale = (float)mHeight / 192.0f;
-    if (256.0f * scale > (float)mWidth + 0.5f) scale = (float)mWidth / 256.0f;
-    if (scale < 1e-3f) { mTouchWasDown = mTouchDown; return; }
-    float offY = ((float)mHeight - 192.0f * scale) * 0.5f;
-    float dsX = mapped ? 128.0f + (px - (float)mWidth * 0.5f) / scale : mNdsTouchDownX;
-    float dsY = mapped ? (py - offY) / scale : mNdsTouchDownY;
+    float dsX, dsY; const bool mapped = ndsMapTouchDs(dsX, dsY);   // maps into the DSi carousel rect (bottom band when stacked)
 
     bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
     if (downEdge && mapped) { mNdsTouchDownX = dsX; mNdsTouchDownY = dsY; mNdsTouchMoved = false; }
