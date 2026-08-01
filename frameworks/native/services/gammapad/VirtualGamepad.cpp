@@ -62,6 +62,7 @@ bool VirtualGamepad::createDevice(const std::set<int>& buttons, const std::set<i
         mFd = -1;
         return false;
     }
+    setupSwitches();   // re-advertise SW_TABLET_MODE so a controller-shared hardware switch survives the grab
 
     // Set up device identity (Xbox controller compatible)
     struct uinput_setup setup = {};
@@ -113,6 +114,7 @@ bool VirtualGamepad::createDevice(const std::set<int>& buttons,
         mFd = -1;
         return false;
     }
+    setupSwitches();   // re-advertise SW_TABLET_MODE so a controller-shared hardware switch survives the grab
 
     // Set up device identity with custom name/VID/PID
     struct uinput_setup setup = {};
@@ -263,6 +265,16 @@ bool VirtualGamepad::setupAxes(const std::vector<AxisSetup>& axes) {
 bool VirtualGamepad::setupForceFeedback() {
     if (ioctl(mFd, UI_SET_EVBIT, EV_FF) < 0) return false;
     if (ioctl(mFd, UI_SET_FFBIT, FF_RUMBLE) < 0) return false;
+    return true;
+}
+
+bool VirtualGamepad::setupSwitches() {
+    // SW_TABLET_MODE: some handhelds (TrimUI Brick) emit a hardware toggle from the SAME evdev node
+    // as the gamepad. We grab that node, so re-advertise the switch here and forward its EV_SW events
+    // (InputTransformer passes EV_SW through unchanged) so the framework still sees the toggle. Best
+    // effort - failure to add the switch bit must not fail device creation.
+    if (ioctl(mFd, UI_SET_EVBIT, EV_SW) < 0) return true;
+    ioctl(mFd, UI_SET_SWBIT, SW_TABLET_MODE);
     return true;
 }
 

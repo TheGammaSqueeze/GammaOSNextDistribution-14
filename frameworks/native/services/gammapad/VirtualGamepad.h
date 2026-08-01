@@ -56,6 +56,11 @@ private:
     bool setupAxes(const std::set<int>& axes);
     bool setupAxes(const std::vector<AxisSetup>& axes);
     bool setupForceFeedback();
+    // Advertise the switch(es) that share a grabbed controller device (e.g. the TrimUI Brick's
+    // SW_TABLET_MODE toggle is emitted by the same evdev node as the gamepad). The daemon grabs
+    // the physical node, so without re-advertising these on the virtual device the kernel drops the
+    // forwarded EV_SW events and the switch becomes invisible to the framework.
+    bool setupSwitches();
     bool createDevice(const std::set<int>& buttons, const std::set<int>& axes);
     bool createDevice(const std::set<int>& buttons,
                       const std::vector<AxisSetup>& axes,
