@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  GammaOS: screen orientation for NORMAL Android mode (mirrors nano's Settings > Display >
+  Screen Orientation). "Screen orientation" is the single owner of accelerometer_rotation
+  (Auto -> on, a fixed choice -> off) and publishes persist.gammaos.nano.orientation, which
+  WindowManagerService.mapOrientationRequest forces when auto-rotate is off. "Force orientation"
+  publishes persist.gammaos.nano.orient_mode to clamp every app regardless of its own request.
+  Rotation support itself is config_supportAutoRotation (true); Auto only rotates on a device
+  that actually has an accelerometer.
+-->
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="display_orientation_screen"
+    android:title="@string/display_orientation_title">
+
+    <Preference
+        android:key="display_orientation_info"
+        android:selectable="false"
+        android:icon="@android:drawable/ic_dialog_info"
+        android:summary="@string/display_orientation_info" />
+
+    <ListPreference
+        android:key="persist.gammaos.nano.orientation"
+        android:title="@string/display_orientation_mode_title"
+        android:summary="%s"
+        android:dialogTitle="@string/display_orientation_mode_title"
+        android:entries="@array/display_orientation_entries"
+        android:entryValues="@array/display_orientation_values"
+        android:defaultValue="landscape" />
+
+    <ListPreference
+        android:key="persist.gammaos.nano.orient_mode"
+        android:title="@string/display_orientation_force_title"
+        android:summary="%s"
+        android:dialogTitle="@string/display_orientation_force_title"
+        android:entries="@array/display_force_orientation_entries"
+        android:entryValues="@array/display_force_orientation_values"
+        android:defaultValue="normal" />
+
+</PreferenceScreen>

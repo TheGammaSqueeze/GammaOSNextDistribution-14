@@ -451,6 +451,33 @@
         <item>40</item>
     </string-array>
 
+    <!-- GammaOS screen orientation. Values MUST match nano's Screen Orientation table
+         (persist.gammaos.nano.orientation) so the two surfaces stay in sync. -->
+    <string-array name="display_orientation_entries">
+        <item>Auto (sensor)</item>
+        <item>Landscape</item>
+        <item>Landscape (reverse)</item>
+        <item>Portrait</item>
+        <item>Portrait (reverse)</item>
+    </string-array>
+    <string-array name="display_orientation_values" translatable="false">
+        <item>auto</item>
+        <item>landscape</item>
+        <item>rev_landscape</item>
+        <item>portrait</item>
+        <item>rev_portrait</item>
+    </string-array>
+    <string-array name="display_force_orientation_entries">
+        <item>Off</item>
+        <item>Force landscape</item>
+        <item>Force portrait</item>
+    </string-array>
+    <string-array name="display_force_orientation_values" translatable="false">
+        <item>normal</item>
+        <item>force_landscape</item>
+        <item>force_portrait</item>
+    </string-array>
+
     <!-- GammaOS slide (swivel) key: actions for the down / up events. -->
     <string-array name="slide_behavior_action_entries">
         <item>@string/slide_behavior_action_none</item>

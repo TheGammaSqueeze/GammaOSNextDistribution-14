@@ -3117,6 +3117,13 @@
     <string name="network_shares_state_connecting_hint">Connecting… If this does not change, check the server address and sign-in details.</string>
     <string name="network_shares_state_at">Connected. Available at %1$s</string>
 
+    <!-- GammaOS screen orientation (normal Android) -->
+    <string name="display_orientation_title">Screen orientation</string>
+    <string name="display_orientation_summary">Auto-rotate, or lock the screen to landscape or portrait</string>
+    <string name="display_orientation_info">Controls how apps are oriented. Auto rotates with the device (only on hardware that has an orientation sensor); a fixed choice locks the screen and turns auto-rotate off. This matches nano\'s Screen Orientation setting.</string>
+    <string name="display_orientation_mode_title">Screen orientation</string>
+    <string name="display_orientation_force_title">Force orientation</string>
+
     <!-- GammaOS slide (swivel) key behaviour -->
     <string name="slide_behavior_title">Slide behaviour</string>
     <string name="slide_behavior_summary">Swivel / slide key: input device, button and actions</string>

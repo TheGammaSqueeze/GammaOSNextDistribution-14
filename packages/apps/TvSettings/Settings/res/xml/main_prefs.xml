@@ -72,6 +72,12 @@
             android:summary="@string/gammaos_toolbox_summary"
             android:fragment="com.android.tv.settings.gammaos.GammaOSToolboxFragment" />
         <Preference
+            android:icon="@drawable/ic_photo_size_select_actual"
+            android:key="display_orientation"
+            android:title="@string/display_orientation_title"
+            android:summary="@string/display_orientation_summary"
+            android:fragment="com.android.tv.settings.gammaos.DisplayOrientationFragment" />
+        <Preference
             android:icon="@drawable/ic_applications"
             android:key="applications"
             android:title="@string/applications_category_title"
