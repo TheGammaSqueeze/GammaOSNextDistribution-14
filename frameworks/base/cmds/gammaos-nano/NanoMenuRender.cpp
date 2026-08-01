@@ -5356,9 +5356,12 @@ void NanoMenu::render() {
             renderPs3Xmb();
         }
         // Live controller Test / Calibration screens draw over the menu when open.
+        // The HSV colour picker draws here too (after every theme branch) so it is available
+        // and looks identical in the XMB, DSi and Minima homes.
         if (mGpTestActive) renderGamepadTest();
         else if (mGpCalibActive) renderGamepadCalib();
         else if (mGpCaptureActive) renderGamepadCapture();
+        else if (mCpActive) renderColorPicker();
         renderScrapeProgress();   // boxart-scraper progress / result modal, over the XMB
         // Dual-screen: the home OSK (search / Wi-Fi password / System Name) draws on the BOTTOM touch
         // panel via the secondary pass (oskOnSecondary hoisted above the setup-wizard branch); a

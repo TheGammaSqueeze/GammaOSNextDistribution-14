@@ -1820,6 +1820,242 @@ bool NanoMenu::gpScreenHandleKey(int code, int value) {
     return true;   // every other controller button is consumed by the test/calib screen
 }
 
+// ===================== Full-screen HSV colour picker =====================
+// Lets the user dial in any LED colour with the d-pad: Hue on X, Brightness (Value) on Y in
+// a live 2D field, Saturation on L1/R1. Shares the gamepad-test dialog chrome (frosted-wave
+// backdrop + header + footer hints) so it renders natively in the XMB, DSi and Minima themes
+// alike. Opened from the "Custom..." row of the @rgbcolor swatch chooser; A confirms, B or a
+// held SELECT cancels. The theme HSV helpers elsewhere are static to their own translation
+// units, so the picker carries its own small copies here.
+static void cpHsv2Rgb(float h, float s, float v, int& R, int& G, int& B) {
+    h = fmodf(fmodf(h, 360.0f) + 360.0f, 360.0f);
+    if (s < 0.0f) s = 0.0f; if (s > 1.0f) s = 1.0f;
+    if (v < 0.0f) v = 0.0f; if (v > 1.0f) v = 1.0f;
+    float c = v * s, x = c * (1.0f - fabsf(fmodf(h / 60.0f, 2.0f) - 1.0f)), m = v - c;
+    float r, g, b;
+    if      (h <  60.0f) { r = c; g = x; b = 0; }
+    else if (h < 120.0f) { r = x; g = c; b = 0; }
+    else if (h < 180.0f) { r = 0; g = c; b = x; }
+    else if (h < 240.0f) { r = 0; g = x; b = c; }
+    else if (h < 300.0f) { r = x; g = 0; b = c; }
+    else                 { r = c; g = 0; b = x; }
+    auto q = [](float f){ int n = (int)(f * 255.0f + 0.5f); return n < 0 ? 0 : (n > 255 ? 255 : n); };
+    R = q(r + m); G = q(g + m); B = q(b + m);
+}
+static void cpRgb2Hsv(int R, int G, int B, float& h, float& s, float& v) {
+    float r = R / 255.0f, g = G / 255.0f, b = B / 255.0f;
+    float mx = fmaxf(r, fmaxf(g, b)), mn = fminf(r, fminf(g, b)), d = mx - mn;
+    v = mx; s = (mx <= 1e-6f) ? 0.0f : d / mx;
+    if (d < 1e-6f) { h = 0.0f; return; }
+    float hh;
+    if (mx == r)      hh = fmodf((g - b) / d, 6.0f);
+    else if (mx == g) hh = (b - r) / d + 2.0f;
+    else              hh = (r - g) / d + 4.0f;
+    hh *= 60.0f; if (hh < 0.0f) hh += 360.0f; h = hh;
+}
+static std::string cpHex(float h, float s, float v) {
+    int R, G, B; cpHsv2Rgb(h, s, v, R, G, B);
+    char buf[8]; snprintf(buf, sizeof(buf), "#%02X%02X%02X", R, G, B);
+    return std::string(buf);
+}
+
+void NanoMenu::colorPickerOpen(const Ps3SettingBinding* b, const std::string& curHex) {
+    mCpBinding = b;
+    mCpTitle = b ? b->label : std::string("Colour");
+    std::string h = curHex; if (!h.empty() && h[0] == '#') h = h.substr(1);
+    if (h.size() >= 6) {
+        long v = strtol(h.substr(0, 6).c_str(), nullptr, 16);
+        cpRgb2Hsv((int)((v >> 16) & 0xFF), (int)((v >> 8) & 0xFF), (int)(v & 0xFF),
+                  mCpHue, mCpSat, mCpVal);
+        if (mCpSat < 0.02f) mCpSat = 1.0f;   // a grey seed would strand the hue axis: open saturated
+        if (mCpVal < 0.04f) mCpVal = 1.0f;
+    } else { mCpHue = 210.0f; mCpSat = 1.0f; mCpVal = 1.0f; }
+    mGpBtn.clear(); mGpAxis.clear();   // no stale held-direction state -> the cursor never drifts on open
+    mCpOpenMs = (long)android::uptimeMillis();
+    mGpSelectDownMs = 0;
+    mPs3DlgBlurValid = false;   // fresh frosted-wave capture on open
+    mCpActive = true;
+    mDisplayDirty = true;
+}
+
+void NanoMenu::colorPickerApply() {
+    if (!mCpBinding) return;
+    applyRgbSolidColor(cpHex(mCpHue, mCpSat, mCpVal), mCpBinding);
+}
+
+// Shared "apply a solid LED colour" logic, used by both the picker and the preset swatches.
+// Writes the colour to the row's *_hex_custom prop (+ the primary rgb_hex mirror), then puts the
+// daemon into a WYSIWYG solid-colour state so the LEDs show exactly the chosen colour:
+//   - effect=none + control=on + enable=1  -> solid-colour mode, running (else Follow/animation
+//     would override the manual colour, and Off would keep it dark).
+//   - scale_with_brightness=0              -> the vendor daemon does NOT dim by the panel
+//     brightness (that is what washed manual colours out at low screen brightness).
+//   - led_brightness=255                   -> no master dimming, so the colour renders at the
+//     intensity chosen in the picker (the picker's Brightness axis is baked into the hex). The
+//     LED Brightness slider stays meaningful for the Follow / animation effect modes.
+void NanoMenu::applyRgbSolidColor(const std::string& hex, const Ps3SettingBinding* b) {
+    if (!b) return;
+    writeSettingValue(b->source, b->key, hex);
+    if (!strcmp(b->key, "persist.gammaos.primary.rgb_hex_custom"))
+        writeSettingValue(SettingSource::kProp, "persist.gammaos.primary.rgb_hex", hex);
+    writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.effect", "none");
+    writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "on");
+    writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.enable", "1");
+    writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "0");
+    writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.led_brightness", "255");
+    mPs3BindCache[b->label] = hex;
+    mPs3BindCache.erase("Effect");
+    mPs3BindCache.erase("RGB LED");
+    mPs3BindCache.erase("Scale with Brightness");
+    mPs3BindCache.erase("LED Brightness");
+    mDisplayDirty = true;
+}
+
+// Press-edge handling: confirm / cancel / saturation nudge / hold-SELECT exit. The continuous
+// hue/brightness cursor movement is driven from the held state in colorPickerTick.
+bool NanoMenu::colorPickerHandleKey(int code, int value) {
+    if (!mCpActive) return false;
+    long now = (long)android::uptimeMillis();
+    if (now - mCpOpenMs < 350) return true;   // ignore the press that opened the picker
+    if (code == BTN_SELECT) {                  // hold ~1s to exit (cancel), like the test screens
+        mGpSelectDownMs = value ? now : 0;
+        return true;
+    }
+    if (value != 1) return true;               // act on press edges only
+    if (code == BTN_SOUTH || code == KEY_ENTER) {          // A / Enter -> confirm + apply
+        colorPickerApply();
+        mCpActive = false; mCpBinding = nullptr; mGpSelectDownMs = 0; mDisplayDirty = true;
+    } else if (code == BTN_EAST || code == KEY_BACK) {      // B / Back -> cancel
+        mCpActive = false; mCpBinding = nullptr; mGpSelectDownMs = 0; mDisplayDirty = true;
+    } else if (code == BTN_TL) {               // L1 -> less saturation
+        mCpSat -= 0.08f; if (mCpSat < 0.0f) mCpSat = 0.0f; mDisplayDirty = true;
+    } else if (code == BTN_TR) {               // R1 -> more saturation
+        mCpSat += 0.08f; if (mCpSat > 1.0f) mCpSat = 1.0f; mDisplayDirty = true;
+    }
+    return true;   // consume every button so nothing leaks to the menu behind
+}
+
+// Per-frame continuous cursor movement from the held d-pad buttons, hat, and left stick.
+void NanoMenu::colorPickerTick() {
+    float dt = mFrameDt; if (dt <= 0.0f) dt = 1.0f / 60.0f; if (dt > 0.1f) dt = 0.1f;
+    auto held = [&](int c){ auto it = mGpBtn.find(c); return it != mGpBtn.end() && it->second; };
+    float dx = 0.0f, dy = 0.0f;
+    if (held(BTN_DPAD_LEFT))  dx -= 1.0f;
+    if (held(BTN_DPAD_RIGHT)) dx += 1.0f;
+    if (held(BTN_DPAD_UP))    dy -= 1.0f;
+    if (held(BTN_DPAD_DOWN))  dy += 1.0f;
+    float hx = gpAxisNorm(ABS_HAT0X), hy = gpAxisNorm(ABS_HAT0Y);
+    if (fabsf(hx) > 0.5f) dx += (hx < 0.0f ? -1.0f : 1.0f);
+    if (fabsf(hy) > 0.5f) dy += (hy < 0.0f ? -1.0f : 1.0f);
+    float sx = gpAxisNorm(ABS_X), sy = gpAxisNorm(ABS_Y);
+    if (fabsf(sx) > 0.25f) dx += sx;
+    if (fabsf(sy) > 0.25f) dy += sy;
+    if (dx < -1.0f) dx = -1.0f; if (dx > 1.0f) dx = 1.0f;
+    if (dy < -1.0f) dy = -1.0f; if (dy > 1.0f) dy = 1.0f;
+    // Hue sweeps a full circle in ~2.6s; brightness a full range in ~1.6s. Up = brighter.
+    if (dx != 0.0f) { mCpHue += dx * (360.0f / 2.6f) * dt;
+                      mCpHue = fmodf(fmodf(mCpHue, 360.0f) + 360.0f, 360.0f); }
+    if (dy != 0.0f) { mCpVal += -dy * (1.0f / 1.6f) * dt;
+                      if (mCpVal < 0.0f) mCpVal = 0.0f; if (mCpVal > 1.0f) mCpVal = 1.0f; }
+    mDisplayDirty = true;
+}
+
+// Draw the picker: a preview bar + hex, the Hue x Brightness field with a cursor, a saturation
+// bar, and footer hints. Laid out in the 1080 virtual design space so it centres and scales on
+// any panel/aspect, exactly like renderGamepadTest.
+void NanoMenu::renderColorPicker() {
+    setUiBlend();
+    setGlyphAtlasAA(true);
+    float ap = 1.0f;
+    { long el = (long)android::uptimeMillis() - mCpOpenMs;
+      if (el < 200) { float t = (float)el / 200.0f; ap = t * t * (3.0f - 2.0f * t); mDisplayDirty = true; } }
+
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    gpDialogBackdrop(ap);
+    gpDialogHeader(mCpTitle.empty() ? "LED Colour" : mCpTitle.c_str(), -1, ap);
+
+    float ui = mPs3UiScale; if (ui < 0.5f) ui = 0.5f; if (ui > 2.0f) ui = 2.0f;
+    const float S = ps3::gScale / ui;
+    const float offX = ps3::gFrameX + (ps3::gFrameW - S * ps3::XCF(ps3::VW)) * 0.5f;
+    const float offY = ps3::gFrameY + ps3::gFrameH * 0.5f - S * (ps3::VH * 0.5f);
+    auto XC = [&](float vx) { return S * ps3::XCF(vx) + offX; };
+    auto Y  = [&](float vy) { return S * vy + offY; };
+    auto DS = [&](float v)  { return S * v; };
+    const float fb = ps3DlgFontBoost();
+    auto FS = [&](float px) { return S * px * fb / 16.0f; };
+    const float VW = ps3::VW;
+
+    const float fieldX0 = XC(VW * 0.26f), fieldX1 = XC(VW * 0.74f);
+    const float fieldY0 = Y(300.0f),      fieldY1 = Y(700.0f);
+    const float fw = fieldX1 - fieldX0, fh = fieldY1 - fieldY0;
+
+    int PR, PG, PB; cpHsv2Rgb(mCpHue, mCpSat, mCpVal, PR, PG, PB);
+    const std::string hx = cpHex(mCpHue, mCpSat, mCpVal);
+
+    // Preview bar + live hex readout (ink contrasts with the swatch luminance).
+    { float pvY = Y(226.0f), pvH = DS(50.0f);
+      drawRoundedRect(fieldX0 - DS(2.0f), pvY - DS(2.0f), fw + DS(4.0f), pvH + DS(4.0f), DS(10.0f), 1.0f, 1.0f, 1.0f, 0.45f * ap);
+      drawRoundedRect(fieldX0, pvY, fw, pvH, DS(8.0f), PR / 255.0f, PG / 255.0f, PB / 255.0f, ap);
+      float lum = 0.299f * PR / 255.0f + 0.587f * PG / 255.0f + 0.114f * PB / 255.0f;
+      float tc = (lum > 0.55f) ? 0.0f : 1.0f;
+      ps3DlgText(hx.c_str(), (fieldX0 + fieldX1) * 0.5f, pvY + pvH * 0.5f + DS(9.0f), FS(26.0f), tc, tc, tc, ap, 1); }
+
+    // Hue (X) x Brightness (Y) field, drawn as a grid of quads (top = bright, bottom = dark).
+    const int NCOL = 48, NROW = 16;
+    for (int c = 0; c < NCOL; c++) {
+        float hue = 360.0f * ((float)c + 0.5f) / (float)NCOL;
+        float qx = fieldX0 + fw * (float)c / (float)NCOL;
+        float qw = fw / (float)NCOL + 1.0f;
+        for (int r = 0; r < NROW; r++) {
+            float val = 1.0f - ((float)r + 0.5f) / (float)NROW;
+            int R, G, B; cpHsv2Rgb(hue, mCpSat, val, R, G, B);
+            float qy = fieldY0 + fh * (float)r / (float)NROW;
+            float qh = fh / (float)NROW + 1.0f;
+            drawQuad(qx, qy, qw, qh, R / 255.0f, G / 255.0f, B / 255.0f, ap);
+        }
+    }
+    // Thin frame around the field.
+    { float bw = DS(2.0f);
+      drawQuad(fieldX0 - bw, fieldY0 - bw, fw + 2.0f * bw, bw, 1.0f, 1.0f, 1.0f, 0.6f * ap);
+      drawQuad(fieldX0 - bw, fieldY1,      fw + 2.0f * bw, bw, 1.0f, 1.0f, 1.0f, 0.6f * ap);
+      drawQuad(fieldX0 - bw, fieldY0, bw, fh, 1.0f, 1.0f, 1.0f, 0.6f * ap);
+      drawQuad(fieldX1,      fieldY0, bw, fh, 1.0f, 1.0f, 1.0f, 0.6f * ap); }
+    // Cursor ring at (hue, value): dark outer + white inner for contrast on any colour.
+    { float cxp = fieldX0 + fw * (mCpHue / 360.0f);
+      float cyp = fieldY0 + fh * (1.0f - mCpVal);
+      float cr = DS(15.0f);
+      ps3StrokeRing(cxp, cyp, cr, cr, DS(4.0f), 0.0f, 0.0f, 0.0f, 0.85f * ap);
+      ps3StrokeRing(cxp, cyp, cr, cr, DS(2.0f), 1.0f, 1.0f, 1.0f, ap); }
+    ps3DlgText(trDyn("Hue"), (fieldX0 + fieldX1) * 0.5f, fieldY1 + DS(30.0f), FS(18.0f), 1.0f, 1.0f, 1.0f, 0.8f * ap, 1);
+
+    // Saturation bar (grey -> full sat at the current hue/value) with a marker.
+    { float satY = fieldY1 + DS(70.0f), satH = DS(26.0f), satW = fw;
+      const int NS = 40;
+      for (int i = 0; i < NS; i++) {
+          float sv = ((float)i + 0.5f) / (float)NS;
+          int R, G, B; cpHsv2Rgb(mCpHue, sv, mCpVal, R, G, B);
+          drawQuad(fieldX0 + satW * (float)i / (float)NS, satY, satW / (float)NS + 1.0f, satH,
+                   R / 255.0f, G / 255.0f, B / 255.0f, ap);
+      }
+      float smx = fieldX0 + satW * mCpSat;
+      drawQuad(smx - DS(2.0f), satY - DS(4.0f), DS(4.0f), satH + DS(8.0f), 1.0f, 1.0f, 1.0f, ap);
+      ps3DlgText(trDyn("Saturation  (L1 / R1)"), (fieldX0 + fieldX1) * 0.5f, satY - DS(12.0f), FS(17.0f), 1.0f, 1.0f, 1.0f, 0.8f * ap, 1); }
+
+    // Footer: confirm / cancel glyph hints + the hold-SELECT exit prompt & progress.
+    float hintY = Y(905.0f);
+    ps3DlgHint(XC(VW * 0.40f), true,  trDyn("Select"), hintY, S, ap);
+    ps3DlgHint(XC(VW * 0.60f), false, trDyn("Back"),   hintY, S, ap);
+    ps3DlgText(trDyn("Hold SELECT to exit"), XC(VW * 0.5f), Y(955.0f), FS(18.0f), 1.0f, 1.0f, 1.0f, 0.8f * ap, 1);
+    if (mGpSelectDownMs) {
+        float held = (float)((long)android::uptimeMillis() - mGpSelectDownMs) / 1000.0f;
+        if (held < 0.0f) held = 0.0f; if (held > 1.0f) held = 1.0f;
+        float bwd = DS(220.0f), bhd = DS(6.0f);
+        float bx = XC(VW * 0.5f) - bwd * 0.5f, by = Y(972.0f);
+        drawQuad(bx, by, bwd, bhd, 1.0f, 1.0f, 1.0f, 0.22f * ap);
+        drawQuad(bx, by, bwd * held, bhd, 0.20f, 0.85f, 1.0f, 0.95f * ap);
+    }
+}
+
 // Live controller diagram, drawn with the System Update dialog chrome (blurred
 // XMB wave + dim, glass icon, title, dividers, footer hint). Sticks show a dot at
 // the analog position, buttons and the D-pad light up when pressed, triggers fill
@@ -7603,6 +7839,9 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
     {"XMB Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.wave", "1", "0:Off,1:On"},
+    // Interactive UI/menu sound effects (cursor/select/back/launch) - gated in ps3Sfx/ndsSfxPlay/
+    // minimaSfx (navSoundsOn), so it silences navigation sounds in every theme. Boot jingle unaffected.
+    {"Navigation Sounds", SettingSource::kProp, "persist.gammaos.nano.nav_sounds", "1", "0:Off,1:On"},
     // Minima solid background colour: the value is either "none" (default black) or a 6-digit
     // hex RGB read live by minimaSolidBg() at render. A generic bound chooser (openBoundChooser)
     // shows these presets as a Minima side panel; the hex has no ':'/',' so parseListOptions is safe.
@@ -7739,10 +7978,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Black Frame Insertion", SettingSource::kProp, "persist.gammaos.bfi.enable", "false", "false:Off,true:On"},
     {"CRT Shader", SettingSource::kProp, "persist.gammaos.shader.enable", "0", "0:Off,1:On"},
     {"Dual-Stack Display", SettingSource::kProp, "persist.gammaos.dualstack.enabled", "false", "false:Off,true:On"},
-    // MUST be 0/1, not true/false: the vendor init.gammargb.rc triggers on
-    // persist.gammaos.rgb.enable=1 (start gammargb) / =0 (stop + run led_off, which zeros every
-    // sunxi_led). "true"/"false" never matches those triggers, so the LEDs never actually turn off.
-    {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "0", "0:Off,1:On"},
+    // Master power. Must be 0/1: the vendor init.gammargb.rc only triggers on
+    // persist.gammaos.rgb.enable=1 (start gammargb) / =0 (stop gammargb + run led_off). Writing
+    // "true"/"false" never matches those triggers, so Off never actually stopped the daemon.
+    {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "1", "0:Off,1:On"},
     {"Launch Guard", SettingSource::kProp, "persist.gammaos.launch.guard.enabled", "false", "false:Off,true:On"},
     // Multi-display (persist.gammaos.multidisplay.* - read live by WMS / split-backlight).
     {"Dual Focus Mode", SettingSource::kProp, "persist.gammaos.multidisplay.dual_focus", "false", "false:Off,true:On"},
@@ -7767,9 +8006,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Effect", SettingSource::kProp, "persist.gammargb.control", "on", "@rgbeffect"},
     {"LED Colour", SettingSource::kProp, "persist.gammaos.primary.rgb_hex_custom", "", "@rgbcolor"},
     {"LED Brightness", SettingSource::kProp, "persist.gammaos.rgb.led_brightness", "255", "slider:0:255:5:0"},
-    // Default OFF: with this on, the vendor daemon scales a manual/solid colour by the panel
-    // brightness, so a chosen colour looks weak / washed out. Off = full-intensity manual colours.
-    {"Scale with Brightness", SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "0", "0:Off,1:On"},
+    {"Scale with Brightness", SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "1", "0:Off,1:On"},
     {"Effect Speed", SettingSource::kProp, "persist.gammaos.rgb.effect_speed", "10", "slider:0:255:5:0"},
     {"Saturation Boost", SettingSource::kProp, "persist.gammaos.rgb.saturation_boost", "1.4", "slider:0.5:2.0:0.1:1"},
     {"Fade Enable", SettingSource::kProp, "persist.gammaos.rgb.fade.enable", "1", "0:Off,1:On"},
@@ -8234,11 +8471,15 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
         return;
     }
-    // GammaRGB LED Colour: a swatch chooser (kPs3ColorOpts), preselect nearest hex.
+    // GammaRGB LED Colour: a swatch chooser (kPs3ColorOpts). A "Custom..." row (swatch
+    // sentinel -2) at the top opens the full-screen d-pad HSV picker; the rest are presets.
+    // Preselect the nearest preset to the current hex (offset +1 for the prepended row).
     if (!strcmp(b->options, "@rgbcolor")) {
         mPs3DlgSlider = false;
+        mPs3DlgOptions.push_back(trDyn("Custom...")); mPs3DlgSwatch.push_back(-2);
         for (int i = 0; i < kPs3ColorCount; i++) { mPs3DlgOptions.push_back(kPs3ColorOpts[i].name); mPs3DlgSwatch.push_back(i); }
-        int sel = ps3NearestSwatch(cur); if (sel < 0) sel = 0;
+        int near = ps3NearestSwatch(cur);
+        int sel = (near < 0) ? 0 : near + 1;
         mPs3DlgSel = sel; mPs3DlgOrigSel = sel;
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
         return;
@@ -9970,41 +10211,32 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     const std::string& code = list[mPs3DlgSel].second;
                     if (code == "off") {
                         writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "off");
-                        // The vendor gammargb daemon only turns the LEDs fully off on
-                        // persist.gammaos.rgb.enable=0 (init.gammargb.rc stops it and runs led_off,
-                        // which zeros every sunxi_led). control=off alone leaves the daemon running on
-                        // the last colour, so the LEDs stayed lit. Drive the enable prop too.
-                        writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.enable", "0");
                     } else {
-                        writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.enable", "1");
                         writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "on");
                         writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.effect", code);
-                        // Solid Colour: force full-intensity (don't scale by panel brightness) so the
-                        // chosen colour is vivid, not washed out.
-                        if (code == "none") {
-                            writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "0");
+                        // Follow Screen tracks the panel brightness, so (re-)enable brightness
+                        // scaling - a prior solid-colour pick turns it off for a vivid colour.
+                        if (code == "follow") {
+                            writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "1");
                             mPs3BindCache.erase("Scale with Brightness");
                         }
                     }
                     mPs3BindCache.erase("Effect");   // cached control value -> re-read next draw
-                    mPs3BindCache.erase("RGB LED");   // the enable toggle we just changed
                     mDisplayDirty = true;
                 }
             } else if (!strcmp(b->options, "@rgbcolor")) {
-                // Write the chosen swatch hex to this colour channel's *_hex_custom
-                // (primary / left / right), like the JoystickLedPicker. The primary
-                // channel also has a live rgb_hex mirror the sampler overwrites.
-                if (mPs3DlgSel >= 0 && mPs3DlgSel < kPs3ColorCount) {
-                    std::string hex = ps3SwatchHex(mPs3DlgSel);
-                    writeSettingValue(b->source, b->key, hex);
-                    if (!strcmp(b->key, "persist.gammaos.primary.rgb_hex_custom"))
-                        writeSettingValue(SettingSource::kProp, "persist.gammaos.primary.rgb_hex", hex);
-                    // A chosen colour should be vivid: don't scale it by panel brightness.
-                    writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "0");
-                    mPs3BindCache.erase("Scale with Brightness");
-                    mPs3BindCache[b->label] = hex;
-                    mDisplayDirty = true;
+                // "Custom..." (swatch sentinel -2) opens the full-screen d-pad HSV picker seeded
+                // from the current colour; a preset applies immediately. Both go through
+                // applyRgbSolidColor so the chosen colour renders vivid (solid mode + no
+                // brightness scaling) instead of washed out or overridden by Follow.
+                int sw = (mPs3DlgSel >= 0 && mPs3DlgSel < (int)mPs3DlgSwatch.size())
+                             ? mPs3DlgSwatch[mPs3DlgSel] : -1;
+                if (sw == -2) {
+                    colorPickerOpen(b, ps3BoundValue(b));
+                } else if (sw >= 0 && sw < kPs3ColorCount) {
+                    applyRgbSolidColor(ps3SwatchHex(sw), b);
                 }
+                mDisplayDirty = true;
             } else if (mPs3DlgSlider) {
                 std::string v = ps3FormatNum(mPs3DlgSldVal, mPs3DlgSldScale);
                 writeSettingValue(b->source, b->key, v);

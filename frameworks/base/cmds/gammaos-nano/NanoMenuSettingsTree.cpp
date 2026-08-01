@@ -593,8 +593,11 @@ void NanoMenu::buildSettingsTree() {
 
       // -- RGB LED --
       b.beginCategory("gos_rgb", "RGB LED");
+        // "1"/"0" (not the true/false default): the vendor init.gammargb.rc only starts/stops
+        // gammargb on persist.gammaos.rgb.enable=1 / =0, so a "true"/"false" value never turns
+        // the LEDs off. The "1" default also makes settingsToggleValue emit 0/1.
         b.toggle("rgb_enable", "Enable",
-                 SettingSource::kProp, "persist.gammaos.rgb.enable", "false");
+                 SettingSource::kProp, "persist.gammaos.rgb.enable", "1");
         b.text("rgb_fps", "FPS",
                SettingSource::kProp, "persist.gammaos.rgb.fps", "6");
         b.text("rgb_brightness", "LED Brightness",

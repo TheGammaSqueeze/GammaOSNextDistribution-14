@@ -270,8 +270,9 @@ void NanoMenu::checkInputHotplug() {
 void NanoMenu::handleBack() {
     // Live controller Test / Calibration screen: back closes it and returns to
     // the Calibrate & Test list (does not pop the menu behind).
-    if (mGpTestActive || mGpCalibActive) {
-        mGpTestActive = false; mGpCalibActive = false; mGpSelectDownMs = 0;
+    if (mGpTestActive || mGpCalibActive || mCpActive) {
+        mGpTestActive = false; mGpCalibActive = false;
+        mCpActive = false; mCpBinding = nullptr; mGpSelectDownMs = 0;
         mDisplayDirty = true;
         return;
     }
@@ -1991,6 +1992,17 @@ void NanoMenu::pollInput() {
         }
     }
 
+    // Colour picker: keep redrawing (live cursor), move the cursor from held input, and exit
+    // (cancel) on a ~1s SELECT hold - the same hold-to-exit as the Test/Calibration screens.
+    if (mCpActive) {
+        mDisplayDirty = true;
+        if (mGpSelectDownMs && (long)android::uptimeMillis() - mGpSelectDownMs > 1000) {
+            mCpActive = false; mCpBinding = nullptr; mGpSelectDownMs = 0;
+        } else {
+            colorPickerTick();
+        }
+    }
+
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
@@ -2124,6 +2136,14 @@ void NanoMenu::pollInput() {
                 (ev.type == EV_KEY || ev.type == EV_ABS)) {
                 gpCaptureEvent(fd, ev.type, ev.code, ev.value);
                 if (ev.type == EV_KEY) gpScreenHandleKey(ev.code, ev.value);
+                continue;
+            }
+            // Colour picker: mirror raw button/axis into the live-state maps (colorPickerTick
+            // reads them for smooth hue/brightness movement) and consume the event so it does
+            // not navigate the menu behind. Press edges (confirm/cancel/sat) go to handleKey.
+            if (mCpActive && (ev.type == EV_KEY || ev.type == EV_ABS)) {
+                gpCaptureEvent(fd, ev.type, ev.code, ev.value);
+                if (ev.type == EV_KEY) colorPickerHandleKey(ev.code, ev.value);
                 continue;
             }
             // Touchscreen -> OSK. Read straight from the shared evdev stream:

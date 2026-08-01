@@ -1079,6 +1079,19 @@ private:
     std::map<int,int> mGpBtn;                       // evdev button code -> value (0/1)
     std::map<int,int> mGpAxis;                      // ABS code -> latest raw value
     std::map<int,std::pair<int,int>> mGpAxisRange;  // ABS code -> (min,max) from EVIOCGABS
+
+    // ---- Full-screen d-pad HSV colour picker (LED / Left / Right Colour, all themes) ----
+    // A theme-independent modal (shares the gamepad-test dialog chrome) opened from the
+    // "Custom..." row of the @rgbcolor swatch chooser. D-pad drives Hue (X) + Brightness (Y),
+    // L1/R1 adjust Saturation, A confirms, B cancels. Reuses mGpBtn/mGpAxis (via gpCaptureEvent)
+    // for held-direction reads and mGpSelectDownMs for the hold-SELECT exit.
+    bool  mCpActive = false;       // colour picker modal up
+    long  mCpOpenMs = 0;           // open time (debounce the opening confirm press)
+    float mCpHue = 210.0f;         // 0..360
+    float mCpSat = 1.0f;           // 0..1
+    float mCpVal = 1.0f;           // 0..1
+    const Ps3SettingBinding* mCpBinding = nullptr;  // colour prop to write on confirm
+    std::string mCpTitle;          // header label (the colour row name)
     // Calibration wizard (port of LineageParts GamepadCalibrationDialogFragment).
     // Steps: 0 centre, 1 left-stick range, 2 right-stick range, 3 triggers,
     // 4 deadzone, 5 sensitivity, 6 done.
@@ -2242,6 +2255,13 @@ private:
     void gpDialogBackdrop(float ap);                 // frosted-wave + dim, System-Update dialog chrome
     void gpDialogHeader(const char* title, int iconIdx, float ap); // icon + title + top/bottom dividers
     float gpAxisNorm(int absCode);                   // latest axis value normalised to [-1,1]
+    // Full-screen HSV colour picker (all themes) - see the mCp* state block above.
+    void colorPickerOpen(const Ps3SettingBinding* b, const std::string& curHex); // enter the picker
+    void renderColorPicker();                        // draw the Hue/Brightness field + preview + hints
+    bool colorPickerHandleKey(int code, int value);  // confirm / cancel / saturation / hold-exit (press edges)
+    void colorPickerTick();                          // per-frame cursor move from held d-pad / stick / hat
+    void colorPickerApply();                         // write the chosen colour via applyRgbSolidColor
+    void applyRgbSolidColor(const std::string& hex, const Ps3SettingBinding* b); // shared vivid solid-colour apply
     void gpCalibTick();                              // per-frame min/max capture for range steps
     void gpCalibNext(int dir);                       // advance/adjust the wizard (A / left / right)
     void gpCalibSave();                              // write cal_axis props + bump config_version

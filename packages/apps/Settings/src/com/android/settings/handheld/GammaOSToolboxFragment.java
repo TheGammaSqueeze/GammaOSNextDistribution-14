@@ -228,7 +228,9 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.gamepad.mouse_scroll_speed", "4");
 
         // RGB
-        DEFAULTS.put("persist.gammaos.rgb.enable", "false");
+        // "1" (int style), not "false": the vendor init.gammargb.rc only starts/stops gammargb on
+        // persist.gammaos.rgb.enable=1 / =0, so a "true"/"false" value never turns the LEDs off.
+        DEFAULTS.put("persist.gammaos.rgb.enable", "1");
         DEFAULTS.put("persist.gammaos.rgb.fps", "6");
         DEFAULTS.put("persist.gammaos.rgb.led_brightness", "255");
         DEFAULTS.put("persist.gammaos.rgb.scale_with_brightness", "false");

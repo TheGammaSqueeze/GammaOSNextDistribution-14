@@ -307,8 +307,19 @@ bool NanoMenu::earlySfxOneShot(const char* wavName, float master) {
     return true;
 }
 
+// User setting (persist.gammaos.nano.nav_sounds, default on): when off, silence the interactive
+// navigation / UI sound effects (cursor, ok, back, drill, launch, error) across ALL themes. Read
+// live so the toggle applies immediately. The boot jingle (nanoDirectChimePlay) is a separate path
+// and stays audible. Gating the three theme SFX dispatchers covers every nav/UI call site.
+static bool navSoundsOn() {
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.nav_sounds", v, "1");
+    return !(v[0] == '0' || v[0] == 'f' || v[0] == 'F');
+}
+
 void NanoMenu::ndsSfxPlay(int which) {
     if (!mNdsTheme) return;
+    if (!navSoundsOn()) return;
     if (which < 0 || which >= NDS_SFX_COUNT) return;
     static const char* kFiles[NDS_SFX_COUNT] = {
         "nav_blip.wav", "app_launch.wav", "settings_nav.wav", "settings_back.wav", "settings_enter.wav" };
@@ -339,6 +350,7 @@ static std::atomic<bool> gPs3SfxOpening[PS3_SFX_COUNT] = {};
 
 void NanoMenu::ps3Sfx(int which) {
     if (mNdsTheme || mMinimaTheme) return;              // PS3 XMB theme only (DSi=ndsSfxPlay, Minima=minimaSfx)
+    if (!navSoundsOn()) return;
     if (which < 0 || which >= PS3_SFX_COUNT) return;
     static const char* kFiles[PS3_SFX_COUNT] = {
         "SE02_Cursor.wav", "SE03_Normal_OK.wav", "SE04_Back.wav",
@@ -362,6 +374,7 @@ static std::atomic<bool> gMinSfxOpening[MIN_SFX_COUNT] = {};
 
 void NanoMenu::minimaSfx(int which) {
     if (!mMinimaTheme) return;                          // Minima theme only
+    if (!navSoundsOn()) return;
     if (which < 0 || which >= MIN_SFX_COUNT) return;
     static const char* kFiles[MIN_SFX_COUNT] = {
         "minima_cursor.wav", "minima_ok.wav", "minima_back.wav",
