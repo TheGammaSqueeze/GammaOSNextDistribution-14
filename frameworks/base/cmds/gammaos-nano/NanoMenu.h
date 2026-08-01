@@ -3395,6 +3395,20 @@ private:
     void mpPlChooserCancel();         // dismiss without adding
     void drawMpPlChooser();           // render the modal list
 
+    // In-player Delete confirm: deleting a track keeps the Now-Playing screen up (removes it from
+    // the queue and advances to the next), instead of dropping back to the XMB. A small vertical
+    // Delete/Cancel modal over the player, driven by the same nav keys as the playlist chooser.
+    bool  mMpDelConfirmActive = false;
+    int   mMpDelConfirmSel = 0;                  // 0 = Cancel (default), 1 = Delete
+    float mMpDelConfirmAnim = 0.0f;              // open fade
+    std::string mMpDelConfirmName;               // track title shown in the prompt
+    void mpDelConfirmOpen();          // open the confirm for the current track
+    void mpDelConfirmMove(int dir);   // toggle Delete / Cancel
+    void mpDelConfirmSelect();        // act on the highlighted choice
+    void mpDelConfirmCancel();        // dismiss without deleting
+    void mpDeleteCurrent();           // unlink the current track, drop it from the queue, advance
+    void drawMpDelConfirm();          // render the confirm modal
+
     // ======================= Photo viewer (PS3 XMB port) =======================
     // Library model (nano_photo.json), folder import (reuses the folder picker via
     // mFolderPickTarget = 2), the scanner, the Photo-column groups + thumbnail grid,

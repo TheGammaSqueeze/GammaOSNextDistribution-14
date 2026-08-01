@@ -4133,7 +4133,8 @@ void NanoMenu::ps3XmbUp() {
         return;
     }
     if (mPs3OptActive) { xmbOptMove(-1); return; }
-    if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
+    if (mMpActive) { if (mMpDelConfirmActive) { mpDelConfirmMove(-1); return; }
+                     if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
                      if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
     if (mPvPlChooserActive) { pvPlChooserMove(-1); return; }
     if (mVidPlChooserActive) { vidPlChooserMove(-1); return; }
@@ -4165,7 +4166,8 @@ void NanoMenu::ps3XmbDown() {
         return;
     }
     if (mPs3OptActive) { xmbOptMove(+1); return; }
-    if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
+    if (mMpActive) { if (mMpDelConfirmActive) { mpDelConfirmMove(+1); return; }
+                     if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
                      if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
     if (mPvPlChooserActive) { pvPlChooserMove(+1); return; }
     if (mVidPlChooserActive) { vidPlChooserMove(+1); return; }
@@ -4349,7 +4351,8 @@ void NanoMenu::ps3XmbSelect() {
         return;
     }
     if (mPs3OptActive) { xmbOptEnter(); return; }   // option menu: activate the highlighted action
-    if (mMpActive) {   // X: chooser select, panel control, or toggle play/pause with no panel up
+    if (mMpActive) {   // X: confirm/chooser select, panel control, or toggle play/pause with no panel up
+        if (mMpDelConfirmActive) { mpDelConfirmSelect(); return; }
         if (mMpPlChooserActive) { mpPlChooserSelect(); return; }
         if (mMpCpOpen) mpOptActivate();
         else mpAudioCmd(mMusicPlayer.isPlaying() ? MpAudioCmd::Pause : MpAudioCmd::Play);
@@ -5351,7 +5354,8 @@ void NanoMenu::ps3XmbBack() {
         closeVideoPlayer(); return;
     }
     if (mPs3OptActive) { if (mPs3OptSubOpen) xmbOptCloseSub(); else closeXmbOpt(); return; }   // O: back out of a submenu, else dismiss
-    if (mMpActive) { if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
+    if (mMpActive) { if (mMpDelConfirmActive) { mpDelConfirmCancel(); return; }
+                     if (mMpPlChooserActive) { mpPlChooserCancel(); return; }
                      if (mMpCpOpen) mpOptBack();
                      else if (mpIsOpening()) closeMusicPlayer();   // abort a slow/stuck open (loading spinner up)
                      else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)

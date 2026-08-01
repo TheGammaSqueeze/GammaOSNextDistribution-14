@@ -1391,6 +1391,8 @@ void NanoMenu::renderMusicPlayer() {
     }
     // Add-to-Playlist chooser modal (drawn on top of everything in the player).
     if (mMpPlChooserActive || mMpPlChooserAnim > 0.004f) drawMpPlChooser();
+    // Delete confirm modal (in-player; keeps the player alive on delete).
+    if (mMpDelConfirmActive || mMpDelConfirmAnim > 0.004f) drawMpDelConfirm();
 
     // Loading spinner while a slow open is in flight (radio / HLS streams). Local files
     // start playing within a frame, and the ~300ms delay-before-show keeps the spinner
@@ -1618,7 +1620,7 @@ void NanoMenu::mpOptBack() {
 // ---------------------------------------------------------------------------
 void NanoMenu::mpTouchFrame() {
     if (!mMpActive) { mXmbTouchTracking = false; mTouchWasDown = mTouchDown; return; }
-    if (mMpPlChooserActive || mpIsOpening()) { mTouchWasDown = mTouchDown; return; }   // modal/opening -> D-pad
+    if (mMpPlChooserActive || mMpDelConfirmActive || mpIsOpening()) { mTouchWasDown = mTouchDown; return; }   // modal/opening -> D-pad
     float px, py;
     if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
     const float SLOP = 16.0f, TAPMAX = 24.0f;
@@ -1757,19 +1759,10 @@ void NanoMenu::mpOptActivate() {
     else if (!strcmp(a, "disp")) { mMpFullInfo = !mMpFullInfo; }
     else if (!strcmp(a, "del")) {
         if (mMpIsRadio) return;   // nothing to delete for a live station
-        // Real delete: capture the current track, leave the player, and raise the shared
-        // Cancel/Delete confirm over the XMB (applyThemeSetting case 43 unlinks the file and calls
-        // musicRefresh). The music player has no yes/no dialog of its own, so we route through the
-        // XMB dialog, mirroring the photo-viewer delete.
-        std::string f, name;
-        if (mMpIdx >= 0 && mMpIdx < (int)mMpQueueFiles.size()) f = mMpQueueFiles[mMpIdx];
-        int ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
-        if (ti >= 0 && ti < (int)mMusicTracks.size()) name = mMusicTracks[ti].title;
-        if (f.empty()) return;
-        closeMusicPlayer();
-        mMediaDelPaths.assign(1, f); mMediaDelLib = 2;
-        mediaDeleteConfirm(name.empty() ? std::string("Delete Track") : (std::string("Delete ") + name),
-                           "This permanently deletes the track from storage.");
+        // Deleting keeps the player alive: open an in-player Delete/Cancel confirm that, on Delete,
+        // unlinks the file, drops it from the queue and advances to the next track (mpDeleteCurrent),
+        // instead of tearing the player down and dropping back to the XMB.
+        mpDelConfirmOpen();
     }
     else if (!strcmp(a, "addpl")) {
         // Web mpOpenAddChooser: present an XMB-style chooser to add to an existing
@@ -1861,6 +1854,114 @@ void NanoMenu::drawMpPlChooser() {
         float c = seld ? 1.0f : 0.85f;
         drawText(mMpPlChooserOpts[i].c_str(), px + padX,
                  ps3::baselineToTopY(ry + rowH * 0.64f, os), os,
+                 c, c, c, (seld ? 1.0f : 0.80f) * a);
+        ry += rowH;
+    }
+    mTextOutlineMode = 0;
+}
+
+// ---------------------------------------------------------------------------
+// In-player Delete confirm - deleting a track keeps the Now-Playing screen up.
+// ---------------------------------------------------------------------------
+void NanoMenu::mpDelConfirmOpen() {
+    if (mMpIsRadio || mMpQueue.empty()) return;
+    if (mMpIdx < 0 || mMpIdx >= (int)mMpQueue.size()) return;
+    int ti = mMpQueue[mMpIdx];
+    mMpDelConfirmName = (ti >= 0 && ti < (int)mMusicTracks.size()) ? mMusicTracks[ti].title : std::string();
+    mMpDelConfirmSel = 0;             // default to Cancel (this is destructive)
+    mMpDelConfirmActive = true;
+    mDisplayDirty = true;
+}
+
+void NanoMenu::mpDelConfirmMove(int dir) {
+    if (!mMpDelConfirmActive) return;
+    mMpDelConfirmSel = (mMpDelConfirmSel + dir) & 1;   // toggle Cancel(0) / Delete(1)
+    mDisplayDirty = true;
+}
+
+void NanoMenu::mpDelConfirmCancel() { mMpDelConfirmActive = false; mDisplayDirty = true; }
+
+void NanoMenu::mpDelConfirmSelect() {
+    if (!mMpDelConfirmActive) return;
+    bool doDelete = (mMpDelConfirmSel == 1);
+    mMpDelConfirmActive = false;
+    if (doDelete) mpDeleteCurrent();
+    mDisplayDirty = true;
+}
+
+// Unlink the current track, drop it from the live queue AND the in-memory library (fixing up the
+// remaining queue's track indices), then advance to the next track - so the player stays alive.
+// Deleting from the library in place avoids a rescan that would reindex mMusicTracks under the
+// still-open player.
+void NanoMenu::mpDeleteCurrent() {
+    if (mMpIsRadio) return;
+    int cur = mMpIdx;
+    if (cur < 0 || cur >= (int)mMpQueueFiles.size()) return;
+    std::string f = mMpQueueFiles[cur];
+    int ti = (cur < (int)mMpQueue.size()) ? mMpQueue[cur] : -1;
+    if (!f.empty()) nanoRemovePath(f);   // permanent delete from storage
+    // drop from the live queue (keep mMpQueue / mMpQueueFiles parallel)
+    mMpQueueFiles.erase(mMpQueueFiles.begin() + cur);
+    if (cur < (int)mMpQueue.size()) mMpQueue.erase(mMpQueue.begin() + cur);
+    // drop from the in-memory library and shift the remaining queue indices, so no rescan is needed
+    if (ti >= 0 && ti < (int)mMusicTracks.size()) {
+        mMusicTracks.erase(mMusicTracks.begin() + ti);
+        for (auto& q : mMpQueue) if (q > ti) --q;
+        saveMusicConfig();           // persist the updated library (drops it from nano_music.json)
+        mMusicCatsStale = true;      // rebuild the Music column (behind the player) on the next settle
+    }
+    int n = (int)mMpQueue.size();
+    if (n == 0) { closeMusicPlayer(); return; }   // nothing left -> leave the player
+    // the next track shifted into `cur`; wrap to the first if we deleted the last
+    mMpIdx = (cur < n) ? cur : 0;
+    mpRebuildOrder();
+    mpPlayCurrent();
+    mMpMsg.clear(); mMpMsgStart = -1.0f; mMpMsgThen = 0;   // no leftover Deleting.../Delete-completed chain
+    mpShowMsg(trDyn("Track deleted"), 900.0f, 0);
+}
+
+// Centered Delete / Cancel confirm over the Now-Playing screen (vertical, like the playlist chooser).
+void NanoMenu::drawMpDelConfirm() {
+    float target = mMpDelConfirmActive ? 1.0f : 0.0f;
+    float dt = (mFrameDt > 0.0f && mFrameDt < 0.2f) ? mFrameDt : 0.016f;
+    mMpDelConfirmAnim += (target - mMpDelConfirmAnim) * fminf(1.0f, dt * 12.0f);
+    float a = mMpDelConfirmAnim;
+    if (a <= 0.004f) return;
+    float ui = ((mWidth < mHeight ? mWidth : mHeight) <= 768) ? 1.5f : 1.0f;
+    mTextOutlineMode = 1;
+    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.55f * a);   // dim backdrop
+    const char* opts[2] = { "Cancel", "Delete" };
+    float rowH   = SZ(0.052f * ui);
+    float titleH = SZ(0.072f * ui);
+    float msgH   = SZ(0.050f * ui);
+    float padX   = DXD(0.018f);
+    float panelW = DXD(0.50f);
+    float panelH = titleH + msgH + 2.0f * rowH + SZ(0.026f);
+    float px = DXP(0.5f) - panelW * 0.5f;
+    float py = DYP(0.5f) - panelH * 0.5f;
+    drawQuad(px, py, panelW, panelH, 0.10f, 0.12f, 0.16f, 0.92f * a);
+    float ts = FSZ(24.0f * ui);
+    drawText(trDyn("Delete track?"), px + padX, ps3::baselineToTopY(py + titleH * 0.62f, ts),
+             ts, 1.0f, 1.0f, 1.0f, 0.95f * a);
+    drawQuad(px + padX, py + titleH - SZ(0.004f), panelW - 2.0f * padX,
+             fmaxf(1.0f, SZ(0.0015f)), 1.0f, 1.0f, 1.0f, 0.25f * a);
+    // track name (clipped to the panel width)
+    float ms = FSZ(17.0f * ui);
+    std::string nm = mMpDelConfirmName.empty() ? std::string(trDyn("This track")) : mMpDelConfirmName;
+    scissorLogicalRect(px + padX, py + titleH, panelW - 2.0f * padX, msgH);
+    drawText(nm.c_str(), px + padX, ps3::baselineToTopY(py + titleH + msgH * 0.58f, ms),
+             ms, 1.0f, 1.0f, 1.0f, 0.70f * a);
+    glDisable(GL_SCISSOR_TEST);
+    float os = FSZ(19.0f * ui);
+    float ry = py + titleH + msgH;
+    for (int i = 0; i < 2; i++) {
+        bool seld = (i == mMpDelConfirmSel);
+        if (seld) {   // Delete highlighted in red, Cancel in blue
+            if (i == 1) drawQuad(px + SZ(0.006f), ry, panelW - SZ(0.012f), rowH, 0.85f, 0.25f, 0.25f, 0.60f * a);
+            else        drawQuad(px + SZ(0.006f), ry, panelW - SZ(0.012f), rowH, 0.30f, 0.52f, 0.96f, 0.55f * a);
+        }
+        float c = seld ? 1.0f : 0.85f;
+        drawText(trDyn(opts[i]), px + padX, ps3::baselineToTopY(ry + rowH * 0.64f, os), os,
                  c, c, c, (seld ? 1.0f : 0.80f) * a);
         ry += rowH;
     }
