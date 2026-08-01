@@ -276,9 +276,102 @@ static void ensureParentDirs(const std::string& path) {
     }
 }
 
+// -------- FUSE storage -> direct backing-filesystem redirect --------
+//
+// A ROM opened through a FUSE storage view (/storage/emulated/<n>/... , the
+// /sdcard symlink, or a physical volume /storage/<uuid>/...) mmaps very badly:
+// MAP_PRIVATE pages of a /dev/fuse file are backed by unreclaimable anonymous
+// memory (one private copy per faulted page), so lazily faulting in a large ROM
+// balloons RSS and drives the device into swap thrash. On the TrimUI Brick a
+// 512 MB DSi ROM (Pokemon White 2) took the process to ~700 MB RSS with the
+// panel frozen, while the stock DraStic app plays the same ROM at ~190 MB RSS.
+//
+// The reason stock DraStic is fine: it mmaps a lower-filesystem fd handed to it
+// by MediaProvider (SAF openFileDescriptor().detachFd()), i.e. the file's real
+// ext4 path under /data/media/<n>/, whose pages are clean and file-backed
+// (reclaimable). We can reach the same backing file directly: drastic-nano /
+// gammaos-nano run as root in the bootanim domain (groups media_rw /
+// external_storage, cap DAC_OVERRIDE; bootanim.te already grants
+// media_rw_data_file read), so opening the lower path succeeds.
+//
+// Mappings (all lower filesystems are direct, not /dev/fuse):
+//   /storage/emulated/<n>/REST -> /data/media/<n>/REST        (internal, ext4)
+//   /sdcard/REST               -> /data/media/0/REST          (internal, ext4)
+//   /storage/<uuid>/REST       -> /mnt/media_rw/<uuid>/REST   (physical SD, vfat/exfat)
+//
+// For read-only opens only, rewrite the FUSE view to the direct path when it
+// resolves to a readable regular file of the same size. Writes are never
+// rewritten, so save/scan semantics and the media scanner are unaffected.
+static std::string redirectFuseToDirect(const std::string& path) {
+    const char* p = path.c_str();
+    static const char* kEmu = "/storage/emulated/";
+    static const char* kSd  = "/sdcard/";
+    static const char* kSt  = "/storage/";
+    static const size_t kEmuLen = strlen(kEmu);
+    static const size_t kSdLen  = strlen(kSd);
+    static const size_t kStLen  = strlen(kSt);
+
+    std::string direct;
+    if (strncmp(p, kEmu, kEmuLen) == 0) {
+        // /storage/emulated/<n>/REST -> /data/media/<n>/REST
+        const char* after = p + kEmuLen;          // "<n>/REST"
+        const char* slash = strchr(after, '/');
+        if (!slash || slash == after) return path;
+        std::string user(after, slash - after);
+        for (char c : user) if (c < '0' || c > '9') return path;
+        std::string rest = slash + 1;
+        if (rest.empty()) return path;
+        direct = "/data/media/" + user + "/" + rest;
+    } else if (strncmp(p, kSd, kSdLen) == 0) {
+        // /sdcard/REST -> /data/media/0/REST
+        std::string rest = p + kSdLen;
+        if (rest.empty()) return path;
+        direct = "/data/media/0/" + rest;
+    } else if (strncmp(p, kSt, kStLen) == 0) {
+        // /storage/<vol>/REST -> /mnt/media_rw/<vol>/REST for a physical volume.
+        // "emulated" is handled above; "self" is a symlink to the primary and is
+        // never a real volume dir, so skip both.
+        const char* after = p + kStLen;           // "<vol>/REST"
+        const char* slash = strchr(after, '/');
+        if (!slash || slash == after) return path;
+        std::string vol(after, slash - after);
+        if (vol == "emulated" || vol == "self") return path;
+        std::string rest = slash + 1;
+        if (rest.empty()) return path;
+        direct = "/mnt/media_rw/" + vol + "/" + rest;
+    } else {
+        return path;                              // not a FUSE storage view
+    }
+
+    struct stat sf = {}, sd = {};
+    // Require the direct path to stat, be a regular file, and match the FUSE
+    // view's size -- a cheap "same file, different mount" guard so we never
+    // silently open the wrong thing if the mapping does not hold on some device.
+    if (stat(direct.c_str(), &sd) != 0 || !S_ISREG(sd.st_mode)) return path;
+    if (access(direct.c_str(), R_OK) != 0) return path;
+    if (stat(path.c_str(), &sf) == 0 && S_ISREG(sf.st_mode) &&
+        sf.st_size != sd.st_size) {
+        return path;                              // size mismatch -> not the same file
+    }
+    return direct;
+}
+
 static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
     std::string realPath = translateVirtualPath(vpath);
     int flags = translateOpenMode(mode);
+
+    // Read-only opens through a FUSE storage view are redirected to the direct
+    // backing path (ext4 for internal, vfat/exfat for physical SD) so large-ROM
+    // mmaps stay file-backed (reclaimable) instead of ballooning anonymous RSS.
+    // See redirectFuseToDirect. Pure O_RDONLY only; writes are never rewritten.
+    if ((flags & O_ACCMODE) == O_RDONLY && !(flags & O_CREAT)) {
+        std::string direct = redirectFuseToDirect(realPath);
+        if (direct != realPath) {
+            ALOGI("FakeJNI: read-only open redirected to direct fs: \"%s\" -> \"%s\"",
+                  realPath.c_str(), direct.c_str());
+            realPath = direct;
+        }
+    }
 
     // If opening for write, make sure the parent directory exists --
     // drastic's error handling calls fclose(NULL) on open failures

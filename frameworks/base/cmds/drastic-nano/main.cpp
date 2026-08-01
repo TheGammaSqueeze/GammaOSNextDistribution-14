@@ -2538,13 +2538,24 @@ int main(int argc, char** argv) {
         // leaks into children.
     }
 
-    // Lock current + future pages into RAM so no access faults into
-    // demand-paged I/O mid-frame. Pairs with IPC_LOCK +
-    // SYS_RESOURCE + rlimit memlock in drastic-nano.rc. Costs ~50 ms
-    // of up-front fault work at startup for predictable per-frame
-    // timing thereafter.
-    if (mlockall(MCL_CURRENT | MCL_FUTURE) == 0) {
-        ALOGI("drastic-nano: mlockall done");
+    // Lock the launcher's current pages into RAM (MCL_CURRENT only) so its own
+    // hot code/data does not demand-page mid-frame. We deliberately DROP
+    // MCL_FUTURE: it would pin every page subsequently faulted from the DS ROM
+    // mmap (up to 512 MB for a DSi-enhanced title like Pokemon White/Black 2)
+    // and DraStic's large drastic_mapped_memory.dat ashmem as UNEVICTABLE. On a
+    // low-RAM device (e.g. the 968 MB TrimUI Brick) that pins the whole ROM
+    // working set: the kernel can neither reclaim the clean file pages nor swap
+    // them out, so loading such a ROM exhausts RAM (RssFile balloons past
+    // 500 MB with hundreds of MB of swap left unused) and the OOM killer takes
+    // system_server -> DeadSystemException -> whole-device freeze. Since this
+    // runs before libdrastic is even dlopened, MCL_FUTURE was locking the ROM,
+    // the ashmem and the DS working set alike; dropping it lets the huge cold
+    // ROM pages stay reclaimable (they page back in on demand) while the hot DS
+    // RAM / JIT / framebuffers remain resident naturally because they are
+    // touched every frame. Pairs with IPC_LOCK + SYS_RESOURCE + rlimit memlock
+    // in drastic-nano.rc.
+    if (mlockall(MCL_CURRENT) == 0) {
+        ALOGI("drastic-nano: mlockall(MCL_CURRENT) done");
     } else {
         ALOGW("drastic-nano: mlockall failed: %s", strerror(errno));
     }
@@ -2775,6 +2786,21 @@ int main(int argc, char** argv) {
     prefs.frameskipType  = 0;
     prefs.frameskipValue = 0;
     prefs.frameskipSafe  = false;
+    // Analog Stick -> Stylus and Analog Deadzone: drastic-nano OVERRIDES the DraStic app's own
+    // config for these two (applied AFTER readPrefs so nano wins), because the app's defaults
+    // (stylus mapping on / deadzone 0.15) make the left stick drive the DS touch/stylus and cause
+    // the "analog-up stops d-pad-up" input trouble in NDS games. drastic-nano keeps its OWN choice
+    // in separate props so it is independent of standalone DraStic: default stylus OFF and deadzone
+    // 0.50, and the user can retune via the props without touching DraStic's XML.
+    prefs.analogTouch = property_get_bool("persist.gammaos.drastic_nano.analog_touch", false);
+    {
+        char dz[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.analog_deadzone", dz, "0.50");
+        float v = strtof(dz, nullptr);
+        if (!(v >= 0.0f)) v = 0.50f;        // NaN / bad value -> default
+        if (v > 1.0f) v = 1.0f;
+        prefs.analogDeadzone = v;
+    }
     // Carry the frame-sync flag into the DRM flip path. Read at session
     // start rather than per-iter so the ring-depth assumption (enabled
     // adds one hold-slot to the working set) holds for the whole run.

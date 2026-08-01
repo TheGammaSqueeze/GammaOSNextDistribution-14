@@ -14,6 +14,13 @@ service drastic-nano /system/bin/drastic-nano
     rlimit rtprio 99 99
     rlimit memlock 536870912 536870912
     task_profiles MaxPerformance
+    # Safety net: keep drastic-nano KILLABLE (foreground-app bucket) rather than
+    # inheriting init's -1000 (unkillable). If a huge ROM ever exhausts RAM, the
+    # low-memory killer must take the game (recoverable: the home restarts), NOT
+    # system_server -- which at -1000 was the observed failure (DeadSystemException
+    # -> whole-device freeze needing a power-cycle). system_server sits at -900, so
+    # 0 makes drastic-nano the last-resort victim above it while never touching it.
+    oom_score_adjust 0
 
 # drastic-nano start trigger. gammaos-nano writes the ROM path to
 # /data/system/nano_drastic_nano_rom.txt, then sets this property to 1.
