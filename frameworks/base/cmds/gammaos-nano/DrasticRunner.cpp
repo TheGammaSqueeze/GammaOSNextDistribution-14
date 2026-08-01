@@ -253,6 +253,56 @@ static void maybeStartThreadTracer() {
     }).detach();
 }
 
+// Un-pin the large DS ROM mmap (and DraStic's big drastic_mapped_memory.dat
+// ashmem) from a detached thread once libdrastic has mapped them.
+//
+// The gammaos-nano HOME process locks mlockall(MCL_CURRENT | MCL_FUTURE) and
+// MUST keep it -- MCL_FUTURE is what keeps its fonts / glyph atlases / textures
+// resident so on-screen-keyboard glyph pages never demand-fault back off the
+// lz4-compressed EROFS image (which thrashes/OOMs). But that same MCL_FUTURE
+// pins EVERY page a Quick Resume drastic PREVIEW faults from the ROM: a large
+// DSi ROM (up to 512 MB, e.g. Pokemon White/Black 2) would balloon the home's
+// unevictable RSS and OOM the launcher, exactly like the standalone drastic-nano
+// freeze (which we fixed by dropping MCL_FUTURE there -- the home cannot).
+//
+// So instead of unlocking everything, we munlock ONLY the two huge drastic
+// regions: the ROM (matched by ".nds" in /proc/self/maps -- after the FakeJNI
+// FUSE->/data/media redirect it maps under /data/media, still ".nds") and the
+// mapped-memory ashmem. munlock clears VM_LOCKED on those VMAs so their clean
+// file / shmem pages become reclaimable again; MCL_FUTURE does not re-lock an
+// existing VMA on later faults, so one pass per region suffices (we loop a short
+// while because the ROM VMA appears a beat after startGame begins, and re-munlock
+// is idempotent). The home's UI assets stay locked. Harmless no-op in the
+// standalone drastic-nano process (MCL_CURRENT: the ROM was never locked).
+static void unlockLargeDrasticMappingsAsync() {
+    std::thread([]() {
+        pthread_setname_np(pthread_self(), "dn-rom-munlock");
+        bool romDone = false, ashmemDone = false;
+        for (int iter = 0; iter < 120 && !(romDone && ashmemDone); iter++) {
+            FILE* f = fopen("/proc/self/maps", "r");
+            if (f) {
+                char line[512];
+                while (fgets(line, sizeof(line), f)) {
+                    bool isRom    = strstr(line, ".nds") != nullptr;
+                    bool isAshmem = strstr(line, "drastic_mapped_memory") != nullptr;
+                    if (!isRom && !isAshmem) continue;
+                    unsigned long s = 0, e = 0;
+                    if (sscanf(line, "%lx-%lx", &s, &e) == 2 && e > s) {
+                        if (munlock((void*)s, (size_t)(e - s)) == 0) {
+                            if (isRom)    romDone = true;
+                            if (isAshmem) ashmemDone = true;
+                        }
+                    }
+                }
+                fclose(f);
+            }
+            usleep(100000);  // 100 ms
+        }
+        ALOGI("DrasticRunner: ROM/ashmem munlock pass done (rom=%d ashmem=%d)",
+              romDone ? 1 : 0, ashmemDone ? 1 : 0);
+    }).detach();
+}
+
 bool DrasticRunner::init(const std::string& cacheDir,
                          const std::string& romPath,
                          const std::string& libsDir,
@@ -779,6 +829,12 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // cores) doesn't starve drastic. See drasticBoostThread comment.
     drasticBoostThread(mStartGameThread.native_handle(), "startGame");
     mStartGameThread.detach();
+
+    // Un-pin the huge ROM mmap + mapped-memory ashmem so the home's
+    // mlockall(MCL_FUTURE) does not OOM the launcher on a large Quick Resume
+    // preview. No-op in the standalone drastic-nano process. See
+    // unlockLargeDrasticMappingsAsync.
+    unlockLargeDrasticMappingsAsync();
 
     // ---- Post-startGame master-state patch ----
     //
