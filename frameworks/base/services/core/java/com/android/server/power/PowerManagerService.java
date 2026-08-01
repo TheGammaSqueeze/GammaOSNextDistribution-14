@@ -3692,6 +3692,13 @@ public final class PowerManagerService extends SystemService
         if (SystemProperties.getBoolean("persist.gammaos.nano.grab_input", false)) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"))) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.media_playing", "0"))) return true;
+        //  (f) A drastic-nano DS game session is active
+        //      (sys.gammaos.drastic_nano.session=1, set at session start in
+        //      drastic-nano/main.cpp and cleared on .session_done). A running DS game must
+        //      NEVER auto-sleep, in EITHER DRM or SF mode -- this is the definitive
+        //      "drastic-nano is foreground" signal for the whole run, so it holds even in any
+        //      window where app_launched (SF) or grab_input (DRM) is not yet/again asserted.
+        if ("1".equals(SystemProperties.get("sys.gammaos.drastic_nano.session", "0"))) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.menu_active", "0"))) return true;
         //  (e) The resident overlay home is the visible menu when it has been raised
         //      (sys.gammaos.nano.show_overlay=1) with no app running

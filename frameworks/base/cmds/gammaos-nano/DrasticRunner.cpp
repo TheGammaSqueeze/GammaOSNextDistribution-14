@@ -23,6 +23,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <cstring>
+#include <cstdlib>
 #include <chrono>
 #include <thread>
 #include <atomic>
@@ -1146,6 +1147,50 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
     mOffscreenW = viewportW;
     mOffscreenH = dualDisplay ? viewportH * 2 : viewportH;
 
+    // PERF: cap the fx-pipeline render resolution independently of the panel.
+    // drastic's whole per-fragment fx pass (prescale/LCD/blit) renders INTO this
+    // offscreen FBO, so sizing it to the full panel (e.g. 1024x768 on the TrimUI
+    // Brick) makes every filter pass pay panel-sized fill even though the DS
+    // source is only 256x192/screen -- up to ~16x wasted work on a weak Mali,
+    // which is the frame-pacing / frameskip gap vs standalone DraStic (standalone
+    // renders low and lets the HW compositor upscale). We do the same: render the
+    // fx at panel/scale and let the final drawDsQuad upscale the offscreen texture
+    // to the real panel (see mOffscreenTex GL_LINEAR below). Confirmed by hand:
+    // `wm size 512x384` (scale 2 on a 1024x768 panel) restored smooth pacing.
+    //
+    // Scale = persist.gammaos.nano.drastic_render_scale. DEFAULT 1 (full-panel
+    // fx) so shader detail is unchanged from today: drastic's prescale/LCD grid
+    // uniforms are tied to the on-screen pixel size, so a value > 1 renders those
+    // shaders at panel/scale and nearest-upscales -> a coarser LCD/scanline grid.
+    // It is therefore an OPT-IN perf knob (2 = quarter the fx fill, sharp
+    // integer nearest upscale, softer grid shaders) rather than the default.
+    // Clamped so the offscreen never drops below the DS content resolution.
+    {
+        int rscale = 1;
+        char rs[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.drastic_render_scale", rs, "");
+        if (rs[0]) { int v = atoi(rs); if (v >= 1 && v <= 8) rscale = v; }
+        if (rscale > 1) {
+            int scaledW = mOffscreenW / rscale;
+            int scaledH = mOffscreenH / rscale;
+            // Clamp to >= DS content (per-screen width; both screens stacked in H).
+            int dsW = 0, dsH = 0;
+            dsTexDims(dsHiresEnabled(), &dsW, &dsH);
+            int minW = dsW;
+            int minH = dsH * 2;   // top + bottom stacked in the offscreen
+            if (scaledW < minW) scaledW = minW;
+            if (scaledH < minH) scaledH = minH;
+            if (scaledW < mOffscreenW || scaledH < mOffscreenH) {
+                ALOGI("DrasticRunner: fx render scale %d -> offscreen %dx%d "
+                      "(panel %dx%d), upscaled at blit",
+                      rscale, scaledW, scaledH, mOffscreenW,
+                      dualDisplay ? viewportH * 2 : viewportH);
+                mOffscreenW = scaledW;
+                mOffscreenH = scaledH;
+            }
+        }
+    }
+
     // Call fxSetup with the offscreen dimensions. This initializes
     // drastic's internal shader pipeline, texture pool, and viewport
     // for the renderFrame path. The vertex data drastic creates will
@@ -1222,6 +1267,10 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
         // renderFrame draws into this FBO, then we blit halves to
         // the display FBOs.
         glGenTextures(1, &mOffscreenTex);
+        // Keep GL_NEAREST (setupTex default): with an integer render-scale the
+        // offscreen upscales to the panel by an exact NxN pixel block, so
+        // nearest-neighbour gives a sharp, pixel-perfect image (no bilinear
+        // softening) -- the intended retro look.
         setupTex(mOffscreenTex, mOffscreenW, mOffscreenH);
         glGenFramebuffers(1, &mOffscreenFbo);
         glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);

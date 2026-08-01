@@ -18,10 +18,13 @@
 
 #include <stdint.h>
 #include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <jni.h>
 #include <pthread.h>
 #include <sys/ioctl.h>
@@ -443,6 +446,47 @@ static void runDrasticInitIfNeeded() {
             return;
         }
         ALOGI("%s: rom=%s", tag, romPath.c_str());
+    }
+
+    // QR live-preview memory guard. runDrasticInitIfNeeded loads and RUNS the DS
+    // ROM in THIS process -- the gammaos-nano home -- which is oom_score_adj -1000
+    // (unkillable) and mlockall(MCL_CURRENT|MCL_FUTURE)-pinned. Loading a large
+    // ROM here at boot exhausts RAM and, because the home can never be OOM-killed,
+    // the kernel takes system_server instead -> DeadSystemException -> whole-device
+    // freeze that RE-FIRES every boot (a QR boot-loop; hit on the 968MB TrimUI
+    // Brick with the 512MB Pokemon White/Black 2). So skip the in-home LIVE preview
+    // when the ROM is large relative to RAM: the QR splash then falls back to the
+    // text-only "Quick Resuming..." overlay (previewDs stays uninitialized ->
+    // haveCore=false in NanoMenu.cpp) and the actual resume still happens in the
+    // KILLABLE drastic-nano binary handoff. Cap = persist.gammaos.nano.qr_preview_max_mb
+    // MB when set (0 = no limit, always preview), else MemTotal/4.
+    {
+        struct stat rst = {};
+        long romMb = (stat(romPath.c_str(), &rst) == 0)
+                         ? (long)(rst.st_size >> 20) : 0;
+        long capMb = -1;
+        char capProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.qr_preview_max_mb", capProp, "");
+        if (capProp[0]) {
+            capMb = strtol(capProp, nullptr, 10);   // explicit; 0 = no limit
+        } else {
+            FILE* mf = fopen("/proc/meminfo", "r");
+            long memTotalKb = 0;
+            if (mf) {
+                char l[128];
+                while (fgets(l, sizeof(l), mf)) {
+                    if (sscanf(l, "MemTotal: %ld kB", &memTotalKb) == 1) break;
+                }
+                fclose(mf);
+            }
+            if (memTotalKb > 0) capMb = (memTotalKb / 1024) / 4;
+        }
+        if (capMb > 0 && romMb > capMb) {
+            ALOGW("%s: ROM %ldMB > in-home QR-preview cap %ldMB -- skipping the "
+                  "live preview (text splash + killable drastic-nano resume) so "
+                  "the unkillable home is not OOM'd at boot", tag, romMb, capMb);
+            return;
+        }
     }
 
     // Heap-allocate the runner so the background threads drastic

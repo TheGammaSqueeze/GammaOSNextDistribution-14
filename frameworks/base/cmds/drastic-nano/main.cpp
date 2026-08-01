@@ -2538,24 +2538,22 @@ int main(int argc, char** argv) {
         // leaks into children.
     }
 
-    // Lock the launcher's current pages into RAM (MCL_CURRENT only) so its own
-    // hot code/data does not demand-page mid-frame. We deliberately DROP
-    // MCL_FUTURE: it would pin every page subsequently faulted from the DS ROM
-    // mmap (up to 512 MB for a DSi-enhanced title like Pokemon White/Black 2)
-    // and DraStic's large drastic_mapped_memory.dat ashmem as UNEVICTABLE. On a
-    // low-RAM device (e.g. the 968 MB TrimUI Brick) that pins the whole ROM
-    // working set: the kernel can neither reclaim the clean file pages nor swap
-    // them out, so loading such a ROM exhausts RAM (RssFile balloons past
-    // 500 MB with hundreds of MB of swap left unused) and the OOM killer takes
-    // system_server -> DeadSystemException -> whole-device freeze. Since this
-    // runs before libdrastic is even dlopened, MCL_FUTURE was locking the ROM,
-    // the ashmem and the DS working set alike; dropping it lets the huge cold
-    // ROM pages stay reclaimable (they page back in on demand) while the hot DS
-    // RAM / JIT / framebuffers remain resident naturally because they are
-    // touched every frame. Pairs with IPC_LOCK + SYS_RESOURCE + rlimit memlock
-    // in drastic-nano.rc.
+    // Lock only the launcher's CURRENT pages (MCL_CURRENT), NOT future
+    // allocations. We deliberately do NOT use MCL_FUTURE: it would pin every
+    // page faulted from the DS ROM mmap (up to 512 MB) and DraStic's
+    // drastic_mapped_memory.dat ashmem as UNEVICTABLE, which on a low-RAM device
+    // (968 MB TrimUI Brick) exhausted RAM and OOM'd system_server -> whole-device
+    // freeze / QR boot-loop on a large ROM (Pokemon White/Black 2). That was the
+    // fix's whole point, and it is verified: White 2 loads at ~140 MB RSS with
+    // MCL_CURRENT, the cold ROM pages staying reclaimable. Frame pacing is NOT
+    // restored by re-pinning here (a decompile of standalone DraStic showed the
+    // pacing gap is the redundant full-panel blit pass + forced-off frameskip +
+    // 32-bit framebuffers, none of which is the mlock); those are fixed
+    // separately without pinning, so large-ROM loading can never regress. Pairs
+    // with IPC_LOCK + SYS_RESOURCE + rlimit memlock in drastic-nano.rc, and
+    // oom_score_adjust 0 (any residual OOM kills the game, not the system).
     if (mlockall(MCL_CURRENT) == 0) {
-        ALOGI("drastic-nano: mlockall(MCL_CURRENT) done");
+        ALOGI("drastic-nano: mlockall(MCL_CURRENT) done (ROM stays reclaimable)");
     } else {
         ALOGW("drastic-nano: mlockall failed: %s", strerror(errno));
     }
@@ -2778,14 +2776,34 @@ int main(int argc, char** argv) {
         }
     }
     android::drastic_prefs::readPrefs(prefsPath, &prefs);
-    // Force frameskip off for the drastic-nano session. The real drastic
-    // app's _FrameskipType may be 1 (auto) or a fixed value > 0; neither
-    // is what we want on nano where the render loop is already RT-paced
-    // and frameskipping produces visible judder rather than hiding it.
-    // Change is session-local: we don't persist it back to the XML.
-    prefs.frameskipType  = 0;
-    prefs.frameskipValue = 0;
-    prefs.frameskipSafe  = false;
+    // Frameskip. We USED to hard-force it off here on the theory that nano's
+    // RT-paced render loop never needs to skip. But on a weak GPU that cannot
+    // render every frame at full panel resolution (e.g. a 512MB DSi ROM on the
+    // TrimUI Brick, 1024x768), forcing skip OFF means nano fully renders every
+    // frame and ACCUMULATES lag when it falls behind instead of shedding a frame
+    // -- which is exactly the "worse frame pacing / effective frameskip" the user
+    // sees vs standalone DraStic (which runs auto-frameskip and stays smooth).
+    // So default to HONORING the user's DraStic XML frameskip (readPrefs already
+    // loaded it -- same behaviour as standalone), with a nano prop override:
+    //   persist.gammaos.drastic_nano.frameskip = "-1"/unset -> honor XML (default)
+    //                                            "0" -> force off (legacy)
+    //                                            "N>0" -> manual skip N (safe)
+    // Session-local: never persisted back to the XML.
+    {
+        char fs[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.frameskip", fs, "-1");
+        int fsv = atoi(fs);
+        if (fsv == 0) {
+            prefs.frameskipType  = 0;
+            prefs.frameskipValue = 0;
+            prefs.frameskipSafe  = false;
+        } else if (fsv > 0) {
+            prefs.frameskipType  = 0;     // manual (fixed) skip
+            prefs.frameskipValue = fsv;
+            prefs.frameskipSafe  = true;
+        }
+        // fsv < 0: leave prefs.frameskip* as loaded from the XML (honor user).
+    }
     // Analog Stick -> Stylus and Analog Deadzone: drastic-nano OVERRIDES the DraStic app's own
     // config for these two (applied AFTER readPrefs so nano wins), because the app's defaults
     // (stylus mapping on / deadzone 0.15) make the left stick drive the DS touch/stylus and cause
