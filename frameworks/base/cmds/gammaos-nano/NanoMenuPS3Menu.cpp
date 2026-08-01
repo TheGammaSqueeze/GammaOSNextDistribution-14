@@ -4441,6 +4441,7 @@ void NanoMenu::ps3XmbSelect() {
                     mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
                 }
             });
+            mOskPasswordMode = false; mOskPlaintext = true;   // a collection name is plain text, not masked (#378)
             break;
         case PS3_DATA_SUBMENU: {
             if (it.label == "GammaEQ") warmEqPreview();   // preload the clip before the user reaches Audio Preview
@@ -7738,7 +7739,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Black Frame Insertion", SettingSource::kProp, "persist.gammaos.bfi.enable", "false", "false:Off,true:On"},
     {"CRT Shader", SettingSource::kProp, "persist.gammaos.shader.enable", "0", "0:Off,1:On"},
     {"Dual-Stack Display", SettingSource::kProp, "persist.gammaos.dualstack.enabled", "false", "false:Off,true:On"},
-    {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "false", "false:Off,true:On"},
+    // MUST be 0/1, not true/false: the vendor init.gammargb.rc triggers on
+    // persist.gammaos.rgb.enable=1 (start gammargb) / =0 (stop + run led_off, which zeros every
+    // sunxi_led). "true"/"false" never matches those triggers, so the LEDs never actually turn off.
+    {"RGB LED", SettingSource::kProp, "persist.gammaos.rgb.enable", "0", "0:Off,1:On"},
     {"Launch Guard", SettingSource::kProp, "persist.gammaos.launch.guard.enabled", "false", "false:Off,true:On"},
     // Multi-display (persist.gammaos.multidisplay.* - read live by WMS / split-backlight).
     {"Dual Focus Mode", SettingSource::kProp, "persist.gammaos.multidisplay.dual_focus", "false", "false:Off,true:On"},
@@ -7763,7 +7767,9 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Effect", SettingSource::kProp, "persist.gammargb.control", "on", "@rgbeffect"},
     {"LED Colour", SettingSource::kProp, "persist.gammaos.primary.rgb_hex_custom", "", "@rgbcolor"},
     {"LED Brightness", SettingSource::kProp, "persist.gammaos.rgb.led_brightness", "255", "slider:0:255:5:0"},
-    {"Scale with Brightness", SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "1", "0:Off,1:On"},
+    // Default OFF: with this on, the vendor daemon scales a manual/solid colour by the panel
+    // brightness, so a chosen colour looks weak / washed out. Off = full-intensity manual colours.
+    {"Scale with Brightness", SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "0", "0:Off,1:On"},
     {"Effect Speed", SettingSource::kProp, "persist.gammaos.rgb.effect_speed", "10", "slider:0:255:5:0"},
     {"Saturation Boost", SettingSource::kProp, "persist.gammaos.rgb.saturation_boost", "1.4", "slider:0.5:2.0:0.1:1"},
     {"Fade Enable", SettingSource::kProp, "persist.gammaos.rgb.fade.enable", "1", "0:Off,1:On"},
@@ -9922,6 +9928,7 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
                     if (ci >= 0) collectionAddRom(ci, rom);
                     buildPs3Cats();   // the Collections entry appears once the first one exists
                 });
+                mOskPasswordMode = false; mOskPlaintext = true;   // a collection name is plain text, not masked (#378)
             } else if (sel - 1 < (int)mXmbCollections.size()) {
                 collectionAddRom(sel - 1, rom);
                 buildPs3Cats();
@@ -9963,11 +9970,24 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     const std::string& code = list[mPs3DlgSel].second;
                     if (code == "off") {
                         writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "off");
+                        // The vendor gammargb daemon only turns the LEDs fully off on
+                        // persist.gammaos.rgb.enable=0 (init.gammargb.rc stops it and runs led_off,
+                        // which zeros every sunxi_led). control=off alone leaves the daemon running on
+                        // the last colour, so the LEDs stayed lit. Drive the enable prop too.
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.enable", "0");
                     } else {
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.enable", "1");
                         writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "on");
                         writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.effect", code);
+                        // Solid Colour: force full-intensity (don't scale by panel brightness) so the
+                        // chosen colour is vivid, not washed out.
+                        if (code == "none") {
+                            writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "0");
+                            mPs3BindCache.erase("Scale with Brightness");
+                        }
                     }
                     mPs3BindCache.erase("Effect");   // cached control value -> re-read next draw
+                    mPs3BindCache.erase("RGB LED");   // the enable toggle we just changed
                     mDisplayDirty = true;
                 }
             } else if (!strcmp(b->options, "@rgbcolor")) {
@@ -9979,6 +9999,9 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     writeSettingValue(b->source, b->key, hex);
                     if (!strcmp(b->key, "persist.gammaos.primary.rgb_hex_custom"))
                         writeSettingValue(SettingSource::kProp, "persist.gammaos.primary.rgb_hex", hex);
+                    // A chosen colour should be vivid: don't scale it by panel brightness.
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.scale_with_brightness", "0");
+                    mPs3BindCache.erase("Scale with Brightness");
                     mPs3BindCache[b->label] = hex;
                     mDisplayDirty = true;
                 }
