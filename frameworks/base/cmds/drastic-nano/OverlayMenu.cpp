@@ -1982,6 +1982,24 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     }
+    {
+        // Half Resolution: render the game at half the panel size and NEAREST-
+        // upscale it, quartering the fill cost for a big speed-up on fill-bound
+        // panels (softer image). SurfaceFlinger path only; inert on the DRM path.
+        // Applies live from the next frame; default off.
+        RowAction r;
+        r.label = "Half Resolution";
+        r.value = property_get_bool("persist.gammaos.drastic_nano.sf_half_res", false)
+                          ? "On" : "Off";
+        auto flip = []() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.sf_half_res", false);
+            property_set("persist.gammaos.drastic_nano.sf_half_res", cur ? "0" : "1");
+        };
+        r.onAccept = flip;
+        r.onAdjust = [flip](int) { flip(); };
+        mRows.push_back(std::move(r));
+    }
     auto addBool = [&](const char* label, bool& field,
                        bool requiresRestart) {
         RowAction r;

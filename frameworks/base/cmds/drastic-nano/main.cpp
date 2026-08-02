@@ -1931,6 +1931,10 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // user-chosen rotation on top.
     int   sfRot  = 0;            // current display_rotate
     int   sfLogW = W, sfLogH = H;
+    // Render size = logical size / render scale. The layout offscreen is allocated
+    // at this size; the blit NEAREST-upscales it to the panel. Half-res (scale 2)
+    // quarters the fill/shader cost for a big fill-bound speed-up.
+    int   sfRenderW = W, sfRenderH = H;
     // Blit matrix = rotate(sfRot) composed with the texture-sampling Y-flip
     // ([1,0,0,-1] at 0deg, validated). Recomputed by applySfRotation.
     float sfBlitMat[4] = {1.0f, 0.0f, 0.0f, -1.0f};
@@ -1940,20 +1944,61 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         int r = atoi(v);
         return ((r % 360) + 360) % 360;
     };
+    // Half-resolution render (SF path only). When on, the layout offscreen is
+    // allocated at half the logical size and NEAREST-upscaled to the panel by the
+    // existing blit, quartering the per-frame fill/shader cost (the "wm size at
+    // half res" trick) for a big speed-up on fill-bound panels, at the cost of a
+    // softer pixel-doubled image. Toggled live from the overlay menu; default off.
+    // DRM is untouched.
+    auto sfReadRenderScale = []() -> int {
+        return property_get_int32("persist.gammaos.drastic_nano.sf_half_res", 0)
+                       != 0
+                       ? 2
+                       : 1;
+    };
+    int   sfRenderScale = sfReadRenderScale();
     if (backend->composeMode() == drastic_nano::ComposeMode::kLayoutPreset) {
         glGenTextures(1, &sfLayoutTex);
         glGenFramebuffers(1, &sfLayoutFbo);
     }
+    // 16-bit (RGB565) layout offscreen: the fx final pass writes this every frame
+    // and blitFullTexture reads it back, so a 565 target halves that per-frame
+    // bandwidth on the SF path (the DS frame has no alpha and NEAREST scaling, so
+    // 565 is visually close). Gated so it can be A/B'd or disabled if a panel bands
+    // badly. SF path only; the DRM layout tex is untouched.
+    const bool sfFb16 =
+            property_get_int32("persist.gammaos.drastic_nano.sf_fb16", 0) != 0;
+    // GPU profiling (gated behind the existing fx debug prop): glFinish around the
+    // full-panel blit and around the whole frame to attribute the SF frame time to
+    // the layout->window copy vs everything else, so the next optimisation targets
+    // the real cost. Off by default (glFinish would otherwise serialise the pipe).
+    const bool sfProfile =
+            property_get_int32("persist.gammaos.drastic_nano.fxdebug", 0) != 0;
+    int64_t profBlitNs = 0, profFrameNs = 0;
+    int     profFrames = 0;
+    int64_t profWindowStartMs = android::elapsedRealtime();
     // (Re)allocate the offscreen for the logical dims of `rot` and set the blit
     // matrix. Called once up front and again whenever display_rotate changes.
     auto applySfRotation = [&](int rot) {
         sfRot  = rot;
         sfLogW = (rot == 90 || rot == 270) ? H : W;
         sfLogH = (rot == 90 || rot == 270) ? W : H;
+        // Render size = logical / scale (clamped so the DS content never shrinks
+        // below its native footprint). The blit upscales this back to the panel.
+        int sc = sfRenderScale < 1 ? 1 : sfRenderScale;
+        sfRenderW = sfLogW / sc;
+        sfRenderH = sfLogH / sc;
+        if (sfRenderW < 256) sfRenderW = sfLogW;   // too small: fall back to full
+        if (sfRenderH < 192) sfRenderH = sfLogH;
         if (sfLayoutTex) {
             glBindTexture(GL_TEXTURE_2D, sfLayoutTex);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sfLogW, sfLogH, 0, GL_RGBA,
-                         GL_UNSIGNED_BYTE, nullptr);
+            if (sfFb16) {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sfRenderW, sfRenderH, 0,
+                             GL_RGB, GL_UNSIGNED_SHORT_5_6_5, nullptr);
+            } else {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sfRenderW, sfRenderH, 0,
+                             GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            }
             // NEAREST: the offscreen->window blit is 1:1 (or a quarter turn), so
             // bilinear only smears the integer-scaled DS pixels (the "blurry at
             // 2x" the user saw). NEAREST keeps integer scaling crisp.
@@ -2290,23 +2335,32 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             // computed at the logical dims (so a quarter turn lays the screens out
             // for portrait), rendered into the offscreen, then blitted to the window
             // turned by the matrix.
-            { int wantRot = sfReadRotate(); if (wantRot != sfRot) applySfRotation(wantRot); }
+            // Live re-read of display_rotate AND the half-res toggle; either one
+            // changing re-sizes the layout offscreen (applySfRotation reads
+            // sfRenderScale). Half-res is SF-only and applies from the next frame.
+            { int wantRot = sfReadRotate(); int wantScale = sfReadRenderScale();
+              if (wantRot != sfRot || wantScale != sfRenderScale) {
+                  sfRenderScale = wantScale; applySfRotation(wantRot); } }
 
+            // The layout plan is computed at the RENDER size so the slot rects land
+            // in the (possibly half-res) offscreen; the blit NEAREST-upscales the
+            // whole offscreen to the panel. Layout config (orientation/aspect) is
+            // read at the logical size, unchanged by the uniform half-res scale.
             drastic_nano::LayoutConfig frameCfg = readSfLayoutConfig(sfLogW, sfLogH);
             frameCfg.swap = frameCfg.swap ^ screensSwapped;
             drastic_nano::LayoutPlan plan =
-                    drastic_nano::compute(frameCfg, (uint32_t)sfLogW, (uint32_t)sfLogH);
+                    drastic_nano::compute(frameCfg, (uint32_t)sfRenderW, (uint32_t)sfRenderH);
 
             glBindFramebuffer(GL_FRAMEBUFFER, sfLayoutFbo);
             glDisable(GL_SCISSOR_TEST);
-            glViewport(0, 0, sfLogW, sfLogH);
+            glViewport(0, 0, sfRenderW, sfRenderH);
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             bool sharedOffscreenFilled = false;
             for (int i = 0; i < plan.count; i++) {
                 const drastic_nano::SlotPlan& s = plan.slots[i];
                 const int vx = (int)s.rect.x;
-                const int vy = sfLogH - (int)(s.rect.y + s.rect.h);  // top-left -> GL bottom-left
+                const int vy = sfRenderH - (int)(s.rect.y + s.rect.h);  // top-left -> GL bottom-left
                 const int vw = (int)s.rect.w;
                 const int vh = (int)s.rect.h;
                 const int which =
@@ -2350,7 +2404,10 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             glViewport(0, 0, W, H);
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
+            int64_t _blit0 = 0;
+            if (sfProfile) { glFinish(); _blit0 = android::elapsedRealtimeNano(); }
             dr->blitFullTexture(sfLayoutTex, sfBlitMat);
+            if (sfProfile) { glFinish(); profBlitNs += android::elapsedRealtimeNano() - _blit0; }
         }
 
         // Overlay over the whole primary window.
@@ -2437,6 +2494,23 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         if (!firstPresented) {
             firstPresented = true;
             property_set("sys.gammaos.drastic_nano.rendering", "1");
+        }
+
+        if (sfProfile) {
+            glFinish();
+            profFrameNs += android::elapsedRealtimeNano() - _frameStartNs;
+            profFrames++;
+            const int64_t nowMs = android::elapsedRealtime();
+            if (nowMs - profWindowStartMs >= 2000 && profFrames > 0) {
+                ALOGI("drastic-nano: SF profile frame=%.2fms blit=%.2fms "
+                      "(blit %.0f%% of frame) over %d frames",
+                      profFrameNs / 1e6 / profFrames,
+                      profBlitNs / 1e6 / profFrames,
+                      profFrameNs > 0 ? (100.0 * profBlitNs / profFrameNs) : 0.0,
+                      profFrames);
+                profFrameNs = 0; profBlitNs = 0; profFrames = 0;
+                profWindowStartMs = nowMs;
+            }
         }
 
         fpsFrameCount++;
