@@ -1052,8 +1052,11 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
             // Only inject --display on multi-screen devices (primary_display > 0, i.e.
             // a secondary port holds the XMB). Single-screen devices have only display 0
             // and would black-screen if directed to a non-existent display 2.
+            // Also skip the top-pin for a dual-SCREEN "run on primary" app (e.g. cocoonshell): it
+            // must launch on the default display (0/bottom) so its main lands there and it can open
+            // its own second activity on the top panel, matching the cold-launch routing.
             if (sp != std::string::npos && finalCmd.find("--display") == std::string::npos
-                    && !dualstackHas(pkg) && primaryPort > 0)
+                    && !dualstackHas(pkg) && !primaryScreenHas(pkg) && primaryPort > 0)
                 finalCmd.insert(sp + 8, " --display " + std::to_string(td));
             system(finalCmd.c_str());
         }

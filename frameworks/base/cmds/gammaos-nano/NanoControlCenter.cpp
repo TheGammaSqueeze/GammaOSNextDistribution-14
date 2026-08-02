@@ -1560,7 +1560,11 @@ bool NanoMenu::controlCenterActive() {
     if (mCcForceVisible) return true;
     char pkg[PROPERTY_VALUE_MAX] = {};
     property_get("sys.gammaos.nano.launch_app", pkg, "");
-    if (pkg[0] && dualstackHas(pkg)) return false;
+    // A dual-STACK app spans both panels via one tall canvas; a dual-SCREEN "run on primary"
+    // app (e.g. cocoonshell) puts a real activity on EACH physical panel - its main lands on the
+    // bottom (display 0) via getNanoTargetDisplayId. Either way the app owns the bottom, so the CC
+    // must not render there and hide it. Exclude both.
+    if (pkg[0] && (dualstackHas(pkg) || primaryScreenHas(pkg))) return false;
     return true;
 }
 

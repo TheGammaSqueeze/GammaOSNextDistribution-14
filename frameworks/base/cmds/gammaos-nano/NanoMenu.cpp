@@ -4047,7 +4047,8 @@ if (sRingPrimedCount >= 2) {
                     } else {
                         char la[PROPERTY_VALUE_MAX] = {};
                         property_get("sys.gammaos.nano.launch_app", la, "");
-                        bool appOwnsBottom = !mCcBottomApp.empty() || (la[0] && dualstackHas(la));
+                        bool appOwnsBottom = !mCcBottomApp.empty()
+                                || (la[0] && (dualstackHas(la) || primaryScreenHas(la)));
                         property_set("sys.gammaos.nano.drop_input", appOwnsBottom ? "0" : "1");
                         // If the force-visible CC had dimmed/slept the bottom panel, restore its backlight so
                         // the app it hands the panel back to is not left dark. Idempotent when already awake.
@@ -4203,7 +4204,7 @@ if (sRingPrimedCount >= 2) {
                         // has a bottom-panel window to isolate; a top-only single app does not.
                         char la[PROPERTY_VALUE_MAX] = {};
                         property_get("sys.gammaos.nano.launch_app", la, "");
-                        if (la[0] && dualstackHas(la)) ccOccludesBottomApp = true;
+                        if (la[0] && (dualstackHas(la) || primaryScreenHas(la))) ccOccludesBottomApp = true;
                     }
                     int wantDrop = ccOccludesBottomApp ? 1 : 0;
                     if (property_get_int32("sys.gammaos.nano.drop_input", 0) != wantDrop)
