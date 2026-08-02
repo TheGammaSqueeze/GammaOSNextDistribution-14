@@ -2894,6 +2894,19 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         .isPackageWhitelisted(nanoAppPkg)) {
             return DEFAULT_DISPLAY;
         }
+        // GammaOS Nano: per-app "Run on primary screen". A dual-SCREEN app (one that opens a second
+        // activity on the other physical display itself, e.g. rip.moth.cocoonshell) must have its
+        // MAIN activity on the primary/bottom display (DEFAULT_DISPLAY), even when
+        // persist.gammaos.nano.primary_display routes normal launches to the top panel. Otherwise
+        // its main lands on top and its own second screen ends up on the bottom (inverted), and any
+        // child activity it starts (e.g. the SAF folder picker) inherits the secondary display and
+        // is torn down. Forcing DEFAULT_DISPLAY here mirrors what the Control Center's bottom-app
+        // launch already does (am start --display 0).
+        if (nanoAppPkg != null && !nanoAppPkg.isEmpty()
+                && com.android.server.dualstack.DualStackPropertyUtils
+                        .isRunOnPrimaryScreen(nanoAppPkg)) {
+            return DEFAULT_DISPLAY;
+        }
         final int wantPort = SystemProperties.getInt(
                 "persist.gammaos.nano.primary_display", 0);
         if (wantPort <= 0) {

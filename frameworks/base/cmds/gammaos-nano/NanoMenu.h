@@ -876,6 +876,13 @@ private:
     // toggle on dual-screen devices (see openXmbOpt), mirroring the per-app Screen Orientation.
     bool dualstackHas(const std::string& pkg);
     void dualstackSet(const std::string& pkg, bool enable);
+    bool primaryScreenHas(const std::string& pkg);   // per-app "Run on primary screen" allowlist
+    void primaryScreenSet(const std::string& pkg, bool enable);
+    // Dual-SCREEN detect prompt: system_server publishes sys.gammaos.nano.dualscreen_detected when
+    // an app is seen spanning both physical panels. On the home we offer to enable "Run on primary
+    // screen" for it; "Don't ask again" adds it to persist.gammaos.nano.dualscreen_dismissed.
+    void openDualScreenPrompt(const std::string& pkg);
+    void pollDualScreenDetect();
     // True on a physical dual-screen device (e.g. RG DS): physical display count > 1, cached.
     bool hasSecondaryDisplay();
     std::string mLastOrientToken;                 // last force_orientation we wrote
@@ -1705,13 +1712,14 @@ private:
     // level only. The vectors are populated only while the menu is open (no idle cost).
     struct Ps3OptSub {
         std::string label;
-        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style, 3 = per-app orientation, 4 = dual-stack
+        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style, 3 = per-app orientation, 4 = dual-stack, 5 = run-on-primary-screen
         int field = 0;     // sort: 0 = film date, 1 = import date, 2 = name
         int dir = 1;       // sort: 0 = desc, 1 = asc
         int groupIdx = 0;  // group-content mode index
         int sstyle = 0;    // slideshow style 0..4
         std::string orient; // per-app orientation value ("" = default/none, else landscape/portrait/rev_*)
         bool dsEnable = false; // dual-stack toggle: true = add the package to the whitelist, false = remove
+        bool psEnable = false; // run-on-primary-screen toggle: true = add to persist.gammaos.nano.primary_pkgs
     };
     std::vector<char> mPs3OptSep;                       // parallel: 1 = separator row (skipped in nav)
     std::vector<char> mPs3OptHasSub;                    // parallel: 1 = row opens a submenu
@@ -1827,6 +1835,11 @@ private:
     // bumps sys.gammaos.nano.appinfo_gen, and we swap the "Loading..." body for it.
     bool        mPs3DlgAppInfo        = false;
     bool        mPs3DlgAppInfoPending = false;
+    // Dual-SCREEN detect prompt (kind-0 confirm dialog): true while the "run on primary screen?"
+    // offer is up; the target package is kept so closePs3Dialog can act on the chosen option.
+    bool        mPs3DlgDualScreen     = false;
+    std::string mPs3DlgDualScreenPkg;      // package the dual-screen prompt acts on
+    std::string mDualScreenPromptedPkg;    // last pkg we opened the prompt for this session (de-dupe)
     std::string mPs3AppInfoNonce;         // "<pkg>#<n>" we asked for; must match the file's req| line
     int         mPs3AppInfoScroll     = 0;
     int         mPs3AppInfoWaitFrames = 0;

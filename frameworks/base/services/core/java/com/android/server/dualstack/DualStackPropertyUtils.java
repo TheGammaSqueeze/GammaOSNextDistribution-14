@@ -36,6 +36,17 @@ public final class DualStackPropertyUtils {
     /** Base property used for Dual-Stack package allowlisting (comma-separated). */
     public static final String PROP_DUALSTACK_PKGS = "persist.gammaos.dualstack.pkgs";
 
+    /**
+     * Base property used for the nano "Run on primary screen" per-app allowlist (comma-separated,
+     * with {@code _#} continuations). Packages here are launched on the primary/bottom display
+     * (DEFAULT_DISPLAY) even when {@code persist.gammaos.nano.primary_display} routes normal
+     * launches to a different panel - so a dual-SCREEN app (one that opens a second activity on the
+     * other physical display, e.g. rip.moth.cocoonshell) gets its main activity on the bottom and
+     * spans both screens. This is distinct from Dual-STACK (tall single canvas): a dual-screen app
+     * must keep seeing the secondary display, which Dual-Stack deliberately hides.
+     */
+    public static final String PROP_NANO_PRIMARY_PKGS = "persist.gammaos.nano.primary_pkgs";
+
     private DualStackPropertyUtils() {}
 
     /**
@@ -59,16 +70,32 @@ public final class DualStackPropertyUtils {
     }
 
     /**
-     * Returns true if {@code packageName} is present in any of the allowlist properties.
+     * Returns true if {@code packageName} is present in any of the Dual-Stack allowlist properties.
      */
     public static boolean isPackageWhitelisted(String packageName) {
+        return isPackageInList(PROP_DUALSTACK_PKGS, packageName);
+    }
+
+    /**
+     * Returns true if {@code packageName} is in the nano "Run on primary screen" allowlist
+     * ({@link #PROP_NANO_PRIMARY_PKGS} and its {@code _#} continuations).
+     */
+    public static boolean isRunOnPrimaryScreen(String packageName) {
+        return isPackageInList(PROP_NANO_PRIMARY_PKGS, packageName);
+    }
+
+    /**
+     * Returns true if {@code packageName} is present in {@code baseProp} or any of its sequential
+     * {@code baseProp_#} continuation properties (comma-separated lists, sanitized).
+     */
+    public static boolean isPackageInList(String baseProp, String packageName) {
         if (packageName == null || packageName.isEmpty()) return false;
 
-        if (containsPackageInRaw(packageName, SystemProperties.get(PROP_DUALSTACK_PKGS, ""))) {
+        if (containsPackageInRaw(packageName, SystemProperties.get(baseProp, ""))) {
             return true;
         }
         for (int i = 1; ; i++) {
-            final String raw = SystemProperties.get(PROP_DUALSTACK_PKGS + "_" + i, "");
+            final String raw = SystemProperties.get(baseProp + "_" + i, "");
             if (raw == null || raw.isEmpty()) {
                 break;
             }

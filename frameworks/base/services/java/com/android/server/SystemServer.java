@@ -4209,6 +4209,10 @@ public final class SystemServer implements Dumpable {
                 // clipboard (the native launcher can't call ClipboardManager).
                 startNanoClipboardBridge(mClipboardService);
 
+                // Detect dual-SCREEN apps (activities visible on both physical panels at
+                // once) so nano can offer to route them to the primary/bottom display.
+                startNanoDualScreenBridge(mSystemContext);
+
                 // Live refresh on package changes. We are past sys.boot_completed, so
                 // AMS/PMS are up and registerReceiver cannot race system-ready. A
                 // dedicated HandlerThread both dispatches the receiver and runs the
@@ -4583,6 +4587,119 @@ public final class SystemServer implements Dumpable {
         t.setDaemon(true);
         t.start();
         Slog.i(TAG, "GammaOS Nano: clipboard bridge started");
+    }
+
+    /**
+     * GammaOS Nano: detect dual-SCREEN apps and signal nano so it can offer the
+     * "Run on primary screen" toggle for them.
+     *
+     * <p>A dual-SCREEN app (e.g. rip.moth.cocoonshell) draws real activities on BOTH physical
+     * panels at once. On a device like the RG DS this only actually happens when the app's main
+     * activity lands on the default/bottom display (its own display group can reach the top
+     * presentation display) - when nano routes it to the top panel instead
+     * ({@code persist.gammaos.nano.primary_display=1}) it can never open its second screen and just
+     * runs single-panel on top. The unambiguous runtime signal that a package IS such an app is
+     * therefore "it has visible tasks on two or more distinct physical displays at the same time",
+     * which the user reaches by launching it from the bottom Control Center. Dual-STACK apps render
+     * a single tall canvas on one display (the secondary is hidden from them), so they never trip
+     * this and are correctly ignored.
+     *
+     * <p>When such a package is seen - and it is not already on the "run on primary" allowlist nor
+     * on the user's "don't ask again" list - we publish its name to
+     * {@code sys.gammaos.nano.dualscreen_detected}. nano consumes it the next time it is the
+     * foreground home and prompts the user; nano clears the property when it shows the prompt.
+     * This runs entirely off any WindowManager hot path (a lightweight ~1.5s poll), so it cannot
+     * affect display placement or input.
+     */
+    private void startNanoDualScreenBridge(Context context) {
+        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return; // only relevant to the nano home
+        }
+        final android.hardware.display.DisplayManager dm =
+                context.getSystemService(android.hardware.display.DisplayManager.class);
+        if (dm == null) {
+            Slog.w(TAG, "GammaOS Nano: dual-screen bridge not started (no DisplayManager)");
+            return;
+        }
+        Thread t = new Thread(() -> {
+            // Wait until the system is up so ActivityTaskManager can answer getTasks().
+            while (!"1".equals(SystemProperties.get("sys.boot_completed"))) {
+                try { Thread.sleep(500); } catch (InterruptedException e) { return; }
+            }
+            String lastDetected = "";
+            while (true) {
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                try {
+                    // Count real (non-virtual) physical panels. Nothing can span two of them on a
+                    // single-panel handheld, so skip the query entirely there.
+                    int physical = 0;
+                    for (android.view.Display d : dm.getDisplays()) {
+                        if (d != null && d.getType() != android.view.Display.TYPE_VIRTUAL) physical++;
+                    }
+                    if (physical < 2) {
+                        continue;
+                    }
+                    java.util.List<android.app.ActivityManager.RunningTaskInfo> tasks =
+                            android.app.ActivityTaskManager.getService().getTasks(
+                                    50, false /* filterOnlyVisibleRecents */,
+                                    false /* keepIntentExtra */,
+                                    android.view.Display.INVALID_DISPLAY);
+                    // package -> set of distinct physical display ids it has a VISIBLE task on
+                    java.util.HashMap<String, java.util.HashSet<Integer>> spans =
+                            new java.util.HashMap<>();
+                    for (android.app.ActivityManager.RunningTaskInfo ti : tasks) {
+                        if (ti == null || !ti.isVisible()) continue;
+                        android.view.Display d = dm.getDisplay(ti.displayId);
+                        if (d == null || d.getType() == android.view.Display.TYPE_VIRTUAL) continue;
+                        String pkg = null;
+                        if (ti.topActivity != null) pkg = ti.topActivity.getPackageName();
+                        else if (ti.baseActivity != null) pkg = ti.baseActivity.getPackageName();
+                        if (pkg == null || pkg.isEmpty()) continue;
+                        java.util.HashSet<Integer> set = spans.get(pkg);
+                        if (set == null) { set = new java.util.HashSet<>(); spans.put(pkg, set); }
+                        set.add(ti.displayId);
+                    }
+                    String detected = "";
+                    for (java.util.Map.Entry<String, java.util.HashSet<Integer>> e
+                            : spans.entrySet()) {
+                        if (e.getValue().size() < 2) continue;
+                        final String pkg = e.getKey();
+                        // Already routed to primary, or the user asked us to stop asking, or it is a
+                        // dual-STACK app: do not prompt.
+                        if (com.android.server.dualstack.DualStackPropertyUtils
+                                .isRunOnPrimaryScreen(pkg)) continue;
+                        if (com.android.server.dualstack.DualStackPropertyUtils
+                                .isPackageInList("persist.gammaos.nano.dualscreen_dismissed", pkg))
+                            continue;
+                        if (com.android.server.dualstack.DualStackPropertyUtils
+                                .isPackageWhitelisted(pkg)) continue;
+                        detected = pkg;
+                        break;
+                    }
+                    if (!detected.isEmpty()) {
+                        if (!detected.equals(lastDetected)) {
+                            lastDetected = detected;
+                            SystemProperties.set("sys.gammaos.nano.dualscreen_detected", detected);
+                            Slog.i(TAG, "GammaOS Nano: dual-screen app detected: " + detected);
+                        }
+                    } else {
+                        // The app is no longer spanning both panels (exited / backgrounded). Allow a
+                        // fresh detection next time; leave the last published value for nano to
+                        // consume when it returns to the home.
+                        lastDetected = "";
+                    }
+                } catch (Throwable e) {
+                    // Never let a transient ATM/binder hiccup kill the bridge.
+                }
+            }
+        }, "NanoDualScreenBridge");
+        t.setDaemon(true);
+        t.start();
+        Slog.i(TAG, "GammaOS Nano: dual-screen bridge started");
     }
 
     /**

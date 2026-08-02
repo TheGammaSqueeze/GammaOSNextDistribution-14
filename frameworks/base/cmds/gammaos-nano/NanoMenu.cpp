@@ -4636,6 +4636,9 @@ if (sRingPrimedCount >= 2) {
         }
         pollInput();
         checkInputHotplug();
+        // Offer the "Run on primary screen" prompt when system_server has flagged a dual-screen
+        // app. Self-guards to the home root with no other modal up and no app foreground.
+        pollDualScreenDetect();
         // Guarantee the direct-PCM engine hands card0 to the audio HAL once boot completes,
         // even on a first boot where the setup wizard render branch never runs the audio ticks.
         // Without this, card0 can stay owned by our engine and all system audio dies after setup.

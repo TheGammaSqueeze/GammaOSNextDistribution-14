@@ -77,6 +77,12 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 
 namespace android {
 
+// Forward declarations for the per-app sysprop-list helpers (defined lower in this file). The
+// dual-screen detect prompt (ps3XmbSelect / pollDualScreenDetect, higher up) reads and writes the
+// "don't ask again" list before the definitions appear.
+static bool nanoPkgListHas(const char* baseProp, const std::string& pkg);
+static void nanoPkgListSet(const char* baseProp, const std::string& pkg, bool enable);
+
 // Clock drop-shadow offset: a single device-y offset. The caller passes a signed
 // magnitude (devS(..) * mPs3ShadowDir) where mPs3ShadowDir is the device-y sign of
 // panel-down derived from the orientation (sDrmRotMat), so the shadow always falls
@@ -4650,6 +4656,22 @@ void NanoMenu::ps3XmbSelect() {
             if (sel == 0) { property_set("persist.gammaos.nano.radio.agreed", "1"); radioOpen(); }
             return;
         }
+        // Dual-SCREEN detect prompt: option 0 = Enable (add to the run-on-primary allowlist),
+        // 1 = Not now (leave it, offer again later), 2 = Don't ask again (dismiss the package).
+        if (mPs3DlgDualScreen) {
+            int sel = mPs3DlgSel;
+            std::string pkg = mPs3DlgDualScreenPkg;
+            mPs3DlgDualScreen = false; mPs3DlgDualScreenPkg.clear();
+            mPs3DlgActive = false; mPs3DlgBlurValid = false;
+            // Consume the framework signal either way so the prompt does not re-open immediately.
+            property_set("sys.gammaos.nano.dualscreen_detected", "");
+            if (sel == 0) {
+                primaryScreenSet(pkg, true);
+            } else if (sel == 2) {
+                nanoPkgListSet("persist.gammaos.nano.dualscreen_dismissed", pkg, true);
+            }
+            return;
+        }
         // X commits a chooser (theme leaf, settings-bound leaf, or a GammaShader
         // parameter slider); on a plain message dialog it just dismisses.
         closePs3Dialog(mPs3DlgThemeKey > 0 || mPs3DlgBinding != nullptr || mShaderParamEdit >= 0); return;
@@ -5626,6 +5648,14 @@ void NanoMenu::ps3XmbBack() {
     if (mPs3TzActive) { closeTimezoneGlobe(false); return; }   // O: cancel (keep current zone)
     if (mPs3LangActive) { closeLanguagePicker(false); return; }  // O: cancel (revert the live preview)
     if (mPs3WizActive) { wizBack(); return; }   // O: step back through the network setup wizard
+    // Dual-SCREEN detect prompt: O = Not now. Consume the signal so it does not re-open at once,
+    // but leave the package eligible for a future prompt (unlike "Don't ask again").
+    if (mPs3DlgActive && mPs3DlgDualScreen) {
+        mPs3DlgDualScreen = false; mPs3DlgDualScreenPkg.clear();
+        mPs3DlgActive = false; mPs3DlgBlurValid = false;
+        property_set("sys.gammaos.nano.dualscreen_detected", "");
+        return;
+    }
     if (mPs3DlgActive) { closePs3Dialog(false); return; }   // O: cancel the dialog/chooser
     // Overlay XMB: Back at the top level RESUMES the running game (dismiss + thaw).
     if (overlayAtTopLevel()) { overlayResume(); return; }
@@ -9273,6 +9303,67 @@ void NanoMenu::openOnOffChooser(const char* title, int iconIdx, bool currentOn, 
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
 }
 
+// ---------------------------------------------------------------------------
+// Dual-SCREEN app detect prompt. system_server's NanoDualScreenBridge publishes
+// sys.gammaos.nano.dualscreen_detected=<pkg> when it sees an app with visible
+// activities on BOTH physical panels at once (a real dual-screen app, e.g.
+// rip.moth.cocoonshell). While nano is the foreground home we offer to route that
+// app to the primary/bottom display so it opens across both screens when launched
+// from the menu too (getNanoTargetDisplayId honours the "run on primary" allowlist).
+// ---------------------------------------------------------------------------
+void NanoMenu::openDualScreenPrompt(const std::string& pkg) {
+    // Best-effort friendly name (fall back to the package id).
+    std::string name = pkg;
+    for (const auto& a : mAppEntries) {
+        if (a.packageName == pkg && !a.label.empty()) { name = a.label; break; }
+    }
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgBinding = nullptr; mPs3DlgThemeKey = 0; mShaderParamEdit = -1;
+    mPs3DlgKind = 0; mPs3DlgType = 1;   // fullscreen chooser: body + selectable option list
+    mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+    mPs3DlgRomInfo = false; mPs3DlgGameInfo = false; mPs3DlgAppInfo = false;
+    mPs3DlgTitle = "Dual-Screen App";
+    mPs3DlgBody = name + " appears to use both screens.\n\n"
+                  "Run it on the primary screen so it opens across the top and bottom "
+                  "panels when launched from the menu?";
+    mPs3DlgOptions.push_back("Run on Primary Screen");
+    mPs3DlgOptions.push_back("Not Now");
+    mPs3DlgOptions.push_back("Don't Ask Again");
+    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(16);   // external-display glyph
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgDualScreen = true; mPs3DlgDualScreenPkg = pkg;
+    mDualScreenPromptedPkg = pkg;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
+// Called once per home frame: consume the dual-screen detect signal and raise the
+// prompt when nano owns the screen at the home root and nothing else is up.
+void NanoMenu::pollDualScreenDetect() {
+    if (!mPs3Xmb) return;
+    if (mPs3DlgActive || mPs3DlgClosing || mPs3OptActive || mOskActive || mPvActive
+            || mMpActive || mGSearchActive || mPs3WizActive || mSetupWizardActive) return;
+    if (!mPs3Stack.empty()) return;   // only at the home root, not inside a submenu
+    if (property_get_bool("sys.gammaos.nano.app_launched", false)) return;
+    static const prop_info* sDsPi = nullptr; static uint32_t sDsSer = 0;
+    if (!sDsPi) sDsPi = __system_property_find("sys.gammaos.nano.dualscreen_detected");
+    if (!sDsPi) return;
+    uint32_t s = __system_property_serial(sDsPi);
+    if (s == sDsSer) return;    // unchanged since last read
+    sDsSer = s;
+    char val[PROPERTY_VALUE_MAX] = {0};
+    property_get("sys.gammaos.nano.dualscreen_detected", val, "");
+    std::string pkg(val);
+    if (pkg.empty()) return;
+    // Already routed to primary, or the user dismissed it: consume + ignore.
+    if (primaryScreenHas(pkg) ||
+        nanoPkgListHas("persist.gammaos.nano.dualscreen_dismissed", pkg)) {
+        property_set("sys.gammaos.nano.dualscreen_detected", "");
+        return;
+    }
+    openDualScreenPrompt(pkg);
+}
+
 void NanoMenu::openPerformanceChooser() {
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgThemeKey = 10; mPs3DlgTitle = "Performance Mode"; mPs3DlgBody.clear();
@@ -10470,12 +10561,13 @@ void NanoMenu::closePs3Dialog(bool apply) {
 // short list of real per-item actions over the focused column item. A separate
 // modal from the theme chooser so Information can open a dialog cleanly.
 // ---------------------------------------------------------------------------
-// -- Dual-Stack per-app allowlist helpers ------------------------------------------------
-// The framework DualStackController reads persist.gammaos.dualstack.pkgs plus any sequential
-// .pkgs_1/.pkgs_2/... continuations (comma-separated, split to beat the ~91-char sysprop value
-// cap; see DualStackPropertyUtils.java). These read/write that exact format so nano can toggle a
-// package in or out of the allowlist from the XMB option menu.
-static std::vector<std::string> dualstackReadPkgs() {
+// -- Per-app allowlist helpers (comma-separated sysprop lists with _1/_2/... continuations) -----
+// Generic read/write for a base prop plus any sequential base_1/base_2/... continuations
+// (comma-separated, split to beat the ~91-char sysprop value cap). Used for both the framework
+// Dual-Stack allowlist (persist.gammaos.dualstack.pkgs, read by DualStackPropertyUtils.java) and
+// the nano "Run on primary screen" allowlist (persist.gammaos.nano.primary_pkgs, read by the same
+// util). nano toggles a package in/out from the XMB option menu.
+static std::vector<std::string> nanoPkgListRead(const char* baseProp) {
     std::vector<std::string> out;
     auto addFrom = [&](const char* raw) {
         std::string s(raw);
@@ -10495,11 +10587,11 @@ static std::vector<std::string> dualstackReadPkgs() {
         }
     };
     char v[PROPERTY_VALUE_MAX];
-    property_get("persist.gammaos.dualstack.pkgs", v, "");
+    property_get(baseProp, v, "");
     addFrom(v);
     for (int i = 1; ; i++) {
-        char key[64];
-        snprintf(key, sizeof key, "persist.gammaos.dualstack.pkgs_%d", i);
+        char key[96];
+        snprintf(key, sizeof key, "%s_%d", baseProp, i);
         property_get(key, v, "");
         if (v[0] == '\0') break;   // first empty continuation ends the list (matches the framework reader)
         addFrom(v);
@@ -10507,16 +10599,16 @@ static std::vector<std::string> dualstackReadPkgs() {
     return out;
 }
 
-bool NanoMenu::dualstackHas(const std::string& pkg) {
+static bool nanoPkgListHas(const char* baseProp, const std::string& pkg) {
     if (pkg.empty()) return false;
-    for (const auto& p : dualstackReadPkgs())
+    for (const auto& p : nanoPkgListRead(baseProp))
         if (p == pkg) return true;
     return false;
 }
 
-void NanoMenu::dualstackSet(const std::string& pkg, bool enable) {
+static void nanoPkgListSet(const char* baseProp, const std::string& pkg, bool enable) {
     if (pkg.empty()) return;
-    std::vector<std::string> pkgs = dualstackReadPkgs();
+    std::vector<std::string> pkgs = nanoPkgListRead(baseProp);
     bool present = false;
     for (const auto& p : pkgs)
         if (p == pkg) { present = true; break; }
@@ -10524,8 +10616,8 @@ void NanoMenu::dualstackSet(const std::string& pkg, bool enable) {
     if (enable) pkgs.push_back(pkg);
     else pkgs.erase(std::remove(pkgs.begin(), pkgs.end(), pkg), pkgs.end());
 
-    // Re-pack the list comma-joined into the base prop + .pkgs_1/.pkgs_2/..., keeping each value
-    // within the sysprop cap (PROPERTY_VALUE_MAX counts the NUL, so 91 usable chars).
+    // Re-pack the list comma-joined into the base prop + _1/_2/..., keeping each value within the
+    // sysprop cap (PROPERTY_VALUE_MAX counts the NUL, so 91 usable chars).
     const size_t kCap = PROPERTY_VALUE_MAX - 1;
     std::vector<std::string> chunks;
     std::string cur;
@@ -10537,23 +10629,35 @@ void NanoMenu::dualstackSet(const std::string& pkg, bool enable) {
     }
     if (!cur.empty()) chunks.push_back(cur);
 
-    property_set("persist.gammaos.dualstack.pkgs", chunks.empty() ? "" : chunks[0].c_str());
+    property_set(baseProp, chunks.empty() ? "" : chunks[0].c_str());
     int idx = 1;
     for (; idx < (int)chunks.size(); idx++) {
-        char key[64];
-        snprintf(key, sizeof key, "persist.gammaos.dualstack.pkgs_%d", idx);
+        char key[96];
+        snprintf(key, sizeof key, "%s_%d", baseProp, idx);
         property_set(key, chunks[idx].c_str());
     }
     // Clear any leftover continuation props left behind by a previously longer list.
     for (; ; idx++) {
-        char key[64];
-        snprintf(key, sizeof key, "persist.gammaos.dualstack.pkgs_%d", idx);
+        char key[96];
+        snprintf(key, sizeof key, "%s_%d", baseProp, idx);
         char v[PROPERTY_VALUE_MAX];
         property_get(key, v, "");
         if (v[0] == '\0') break;
         property_set(key, "");
     }
 }
+
+static const char* kDualstackProp   = "persist.gammaos.dualstack.pkgs";
+static const char* kPrimaryScreenProp = "persist.gammaos.nano.primary_pkgs";
+
+bool NanoMenu::dualstackHas(const std::string& pkg) { return nanoPkgListHas(kDualstackProp, pkg); }
+void NanoMenu::dualstackSet(const std::string& pkg, bool enable) { nanoPkgListSet(kDualstackProp, pkg, enable); }
+
+// "Run on primary screen": launch this app's main activity on the primary/bottom display (see
+// RootWindowContainer.getNanoTargetDisplayId), so a dual-SCREEN app gets primary-on-bottom + both
+// screens. Distinct from Dual-Stack (tall single canvas).
+bool NanoMenu::primaryScreenHas(const std::string& pkg) { return nanoPkgListHas(kPrimaryScreenProp, pkg); }
+void NanoMenu::primaryScreenSet(const std::string& pkg, bool enable) { nanoPkgListSet(kPrimaryScreenProp, pkg, enable); }
 
 // Resolve the currently focused home item's ROM path (a game in a system submenu = PS3_ROM, or a
 // Recently Played entry = PS3_RECENT), or "" if the focus is not a launchable ROM. Shared by the
@@ -10645,6 +10749,21 @@ void NanoMenu::openXmbOpt() {
         dsub.push_back(D("Disabled", false));
         dsub.push_back(D("Enabled",  true));
         addSub("Dual-Stack Display", false, dsub, dualstackHas(pkg) ? 1 : 0);
+    };
+    // Per-app "Run on primary screen" toggle. Dual-screen devices only (e.g. RG DS). Enabled adds
+    // the package to persist.gammaos.nano.primary_pkgs, which makes the framework launch its main
+    // activity on the primary/bottom display (DEFAULT_DISPLAY) instead of the panel that
+    // persist.gammaos.nano.primary_display routes normal launches to. For a dual-SCREEN app (one
+    // that opens its own second activity on the other display, e.g. cocoonshell) this puts the main
+    // screen on the bottom and lets it span both screens, and keeps its child activities (SAF
+    // pickers) on the primary display so they are not torn down.
+    auto addPrimaryScreen = [&](const std::string& pkg) {
+        if (pkg.empty() || !hasSecondaryDisplay()) return;
+        std::vector<Ps3OptSub> psub;
+        auto P = [](const char* l, bool en) { Ps3OptSub s; s.label = l; s.kind = 5; s.psEnable = en; return s; };
+        psub.push_back(P("Default", false));
+        psub.push_back(P("Primary Screen", true));
+        addSub("Run on Primary Screen", false, psub, primaryScreenHas(pkg) ? 1 : 0);
     };
     // Photo Sort By submenu (web photoSortBy, 5 firmware options). Default focus tracks
     // the live sort. Film/Import Date desc/asc + Image Name.
@@ -10765,6 +10884,7 @@ void NanoMenu::openXmbOpt() {
                 addSub("Screen Orientation", false, osub, odef);
             }
             addDualStack(p);   // per-app Dual-Stack allowlist toggle (dual-screen devices only)
+            addPrimaryScreen(p);   // per-app "Run on primary screen" toggle (dual-screen devices only)
             // Uninstall is offered only for real user apps - never the launcher-shortcut
             // kind, and never the same excluded packages the Applications loader hides
             // (NanoMenuState.cpp): those are system/protected and must not be removed.
@@ -10788,6 +10908,7 @@ void NanoMenu::openXmbOpt() {
         case PS3_LAUNCH_PKG:
             add("Start", "start", true); add("Information", "info", false);
             addDualStack(it.payloadStr);   // per-app Dual-Stack allowlist toggle (dual-screen devices only)
+            addPrimaryScreen(it.payloadStr);   // per-app "Run on primary screen" toggle (dual-screen devices only)
             break;
         case PS3_MUSIC_ALBUM:
             add("Play", "playalbum", true); add("Information", "info", false); break;
@@ -11580,6 +11701,9 @@ void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
         closeXmbOpt();
     } else if (sr.kind == 4) {     // Per-app Dual-Stack allowlist toggle (mPs3OptCtxPayload = package)
         dualstackSet(mPs3OptCtxPayload, sr.dsEnable);
+        closeXmbOpt();
+    } else if (sr.kind == 5) {     // Per-app "Run on primary screen" toggle (mPs3OptCtxPayload = package)
+        primaryScreenSet(mPs3OptCtxPayload, sr.psEnable);
         closeXmbOpt();
     }
 }
