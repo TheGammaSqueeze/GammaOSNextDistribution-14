@@ -2468,6 +2468,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (!nanoOverlayHomeActive()) {
             return false;
         }
+        // GammaOS Nano: mirror RootWindowContainer.nanoRaiseOverlay - do not raise
+        // the XMB overlay while a drastic-nano DS session is live (native binary,
+        // invisible to the framework's app-alive model). Prevents the double
+        // overlay and the mid-restart input strand. Graceful DS exit runs through
+        // the session-gated backLongPress exit_home path before session clears.
+        if ("1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.drastic_nano.session", "0"))) {
+            Slog.i(TAG, "GammaOS Nano: drastic session live, suppressing overlay raise (PWM)");
+            return true;
+        }
         Slog.i(TAG, "GammaOS Nano: overlay-home, raising overlay launcher (PWM)");
         android.os.SystemProperties.set("sys.gammaos.nano.overlay_wallpaper", "1");
         android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
@@ -6708,12 +6718,21 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // toggle, not an exit signal. Without this check, QR pause
                 // leaves pending_exit=1 and the handoff that follows takes the
                 // "immediate cleanup" branch instead of the normal launch path.
+                // GammaOS Nano: also skip while a drastic-nano DS session is live.
+                // A brief BACK during a DS game is drastic-nano's own overlay-menu
+                // toggle (read from raw evdev), NOT an app-exit request; arming
+                // pending_exit here makes the immediate-cleanup branch force-stop
+                // the game and raise the XMB (the framework leg of the double
+                // overlay). Graceful DS exit is the session-gated long-BACK
+                // exit_home path. Non-drastic apps are unaffected (session=0).
                 if (android.os.SystemProperties.getBoolean(
                         "sys.gammaos.minimal_boot", false)
                         && "1".equals(android.os.SystemProperties.get(
                                 "sys.gammaos.nano.app_launched", "0"))
                         && "1".equals(android.os.SystemProperties.get(
-                                "service.bootanim.exit", "0"))) {
+                                "service.bootanim.exit", "0"))
+                        && !"1".equals(android.os.SystemProperties.get(
+                                "sys.gammaos.drastic_nano.session", "0"))) {
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.pending_exit", "1");
                 }

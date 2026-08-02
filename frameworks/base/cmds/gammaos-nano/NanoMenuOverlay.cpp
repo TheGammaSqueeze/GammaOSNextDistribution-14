@@ -460,6 +460,7 @@ void NanoMenu::overlayShow() {
     // Re-reading here makes the list always reflect the most recently launched game.
     loadXmbRecent();
     loadCollections();
+    loadFavorites();
 
     // Isolate the running app's input via the FRAMEWORK drop_input path: while it
     // is set, InputDispatcher drops keys + motion to the app (POWER and BACK are
@@ -1268,6 +1269,24 @@ void NanoMenu::overlayPoll() {
                       ready ? 1 : 0, (long long)el);
             }
             return;   // keep the overlay shown during the launch transition
+        }
+    }
+
+    // drastic-nano relaunch guard: during a Restart Game / settings relaunch the
+    // old drastic sets sys.gammaos.nano.killing=1 for the session=0 gap before the
+    // new own-layer session re-takes the panel (it clears killing + show_overlay
+    // when it asserts session=1). In that window a freshly (re)started home or a
+    // framework/AMS path can briefly set show_overlay=1; raising the XMB then just
+    // flashes it over the reload for ~2s. Since this is the SOLE consumer that
+    // actually shows the overlay, gate it here so NO setter can flash the overlay
+    // mid-relaunch, whoever sets the prop. Not applied to a normal exit (killing is
+    // only set on a relaunch), so the overlay still returns after a real quit.
+    {
+        char kb[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.killing", kb, "0");
+        if (kb[0] == '1' && kb[1] == '\0') {
+            if (mOverlayShown) overlayHide();
+            return;
         }
     }
 

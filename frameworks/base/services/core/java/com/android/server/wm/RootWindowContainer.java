@@ -2640,6 +2640,22 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         if (!nanoOverlayHomeActive()) {
             return false;
         }
+        // GammaOS Nano: never raise the XMB overlay while a drastic-nano DS session
+        // is genuinely live. drastic-nano is a native /system/bin binary, not an
+        // ActivityRecord, so the processAlive / appWasLaunched scans that lead here
+        // cannot see it and wrongly conclude the game exited (a brief BACK, a
+        // startHome pass, or the relaunch window). That raise composites the XMB
+        // over the running game (the double-overlay) and, mid-restart, strands
+        // input. The session prop is the only truthful live-session signal (set by
+        // drastic-nano, cleared by its rc on session_done). Return true (handled)
+        // so the caller does not fall back to restarting the DRM home. On the
+        // DRM-direct path the overlay is already stopped during a session, so this
+        // is a visual no-op there.
+        if ("1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.drastic_nano.session", "0"))) {
+            Slog.i(TAG, "GammaOS Nano: drastic session live, suppressing overlay raise");
+            return true;
+        }
         Slog.i(TAG, "GammaOS Nano: overlay-home, raising resident overlay as launcher");
         // Hint the overlay to render the opaque full-wallpaper XMB (not the
         // scrim-over-app in-game view); the overlay consumes this hint on show.

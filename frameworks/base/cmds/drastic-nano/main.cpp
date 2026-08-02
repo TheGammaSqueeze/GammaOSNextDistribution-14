@@ -2746,6 +2746,26 @@ int main(int argc, char** argv) {
                 if (!forceSf) {
                     property_set("sys.gammaos.nano.overlay_ran", "0");
                     property_set("ctl.stop", "gammaos-nano-overlay");
+                    // Own-layer SF path (e.g. the TrimUI Brick): we own the panel
+                    // AND input for this session. Mark the session live NOW, before
+                    // the long dr.init ROM load, so the framework overlay-raise
+                    // guards (RootWindowContainer / PhoneWindowManager / AMS, all
+                    // gated on drastic_nano.session) suppress any XMB raise across
+                    // the WHOLE launch/restart window - not just after we start
+                    // rendering. Also clear any stale drop_input / show_overlay left
+                    // by a prior session's teardown race, so this session's input is
+                    // never suppressed and no orphaned XMB composites over us (the
+                    // double-overlay + restart-input-loss fix). The later session=1
+                    // set after dr.init is now idempotent; the rc clears the session
+                    // on session_done (clean exit and crash). DRM and the
+                    // DrasticSf-hosted (forceSf) paths skip this block unchanged.
+                    property_set("sys.gammaos.drastic_nano.session", "1");
+                    property_set("sys.gammaos.nano.drop_input", "0");
+                    property_set("sys.gammaos.nano.show_overlay", "0");
+                    // This new session now owns the panel + input: clear the
+                    // relaunch kill-guard set by the previous instance so the
+                    // framework resumes normal home handling once we exit later.
+                    property_set("sys.gammaos.nano.killing", "0");
                 }
             } else {
                 sfBackend.reset();
@@ -3199,6 +3219,18 @@ int main(int argc, char** argv) {
     if (sfMode && !rlr.relaunchRequested) {
         property_set("sys.gammaos.nano.app_launched", "0");
         property_set("sys.gammaos.nano.show_overlay", "1");
+    }
+
+    // Relaunch (Restart Game / a settings change): mark a kill-and-relaunch in
+    // progress so the framework's startHomeOnTaskDisplayArea skips the home AND the
+    // overlay raise across the session=0 gap between this instance exiting and the
+    // NEW instance re-taking the panel. The new own-layer SF session clears killing
+    // when it asserts session=1 (before its ROM load); RootWindowContainer also
+    // self-clears it after ~3s as a backstop. Without this the restarted home
+    // briefly raises the XMB over the reload (a ~2s overlay flash). SF own-layer
+    // only; on DRM the home is stopped for the whole session so this never applies.
+    if (sfMode && rlr.relaunchRequested) {
+        property_set("sys.gammaos.nano.killing", "1");
     }
 
     // SF was never stopped, so with that launcher state set the session_done

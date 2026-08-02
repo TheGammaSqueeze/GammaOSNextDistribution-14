@@ -3514,7 +3514,14 @@ public class ActivityManagerService extends IActivityManager.Stub
                     // an Android app so its save-and-quit trips this handler;
                     // drastic-nano is not, which is why only RetroArch needed this.
                     && !"1".equals(android.os.SystemProperties.get(
-                            "sys.gammaos.nano.shutting_down", "0"))) {
+                            "sys.gammaos.nano.shutting_down", "0"))
+                    // GammaOS Nano: never raise the overlay while a drastic-nano DS
+                    // session is live (defense in depth - this hook already cannot
+                    // fire for drastic-nano itself since it is a native binary with
+                    // no ProcessRecord, but a helper/host death must not raise the
+                    // XMB over a running game).
+                    && !"1".equals(android.os.SystemProperties.get(
+                            "sys.gammaos.drastic_nano.session", "0"))) {
                 final String nanoApp = android.os.SystemProperties.get(
                         "sys.gammaos.nano.launch_app", "");
                 if (!nanoApp.isEmpty() && nanoApp.equals(app.info.packageName)
