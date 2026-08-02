@@ -263,8 +263,26 @@ inline void staticBrightness(int& r, int& g, int& b, int ledBrightness) {
 }
 
 inline void applyBrightness(int& r, int& g, int& b, const GammaRgbParams& P) {
-    if (P.scaleWithBrightness) postBrightness(r, g, b, P);
-    else                       staticBrightness(r, g, b, P.ledBrightness);
+    if (P.scaleWithBrightness) { postBrightness(r, g, b, P); return; }
+
+    staticBrightness(r, g, b, P.ledBrightness);
+
+    // Saturation boost, matching postBrightness so follow colors stay vivid
+    // regardless of scale_with_brightness (else the muted averaged screen
+    // colour reaches the LEDs unboosted and looks washed out).
+    if (P.satBoost != 1.0f) {
+        float fr = r / 255.0f, fg = g / 255.0f, fb = b / 255.0f;
+        float L = .299f * fr + .587f * fg + .114f * fb;
+        fr = L + (fr - L) * P.satBoost;
+        fg = L + (fg - L) * P.satBoost;
+        fb = L + (fb - L) * P.satBoost;
+        fr = std::max(0.f, std::min(1.f, fr));
+        fg = std::max(0.f, std::min(1.f, fg));
+        fb = std::max(0.f, std::min(1.f, fb));
+        r = int(fr * 255.f + .5f);
+        g = int(fg * 255.f + .5f);
+        b = int(fb * 255.f + .5f);
+    }
 }
 
 inline std::string toHex(int r, int g, int b) {

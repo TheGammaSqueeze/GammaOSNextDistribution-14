@@ -675,11 +675,28 @@ void GammaRgbSampler::postAdjustWithBrightness(int& r, int& g, int& b) const {
 void GammaRgbSampler::applyStaticLedBrightness(int& r, int& g, int& b) const {
     int level = GetIntProperty("persist.gammaos.rgb.led_brightness", 255);
     level = std::max(0, std::min(255, level));
-    if (level >= 255) return;
-    const float scale = level / 255.0f;
-    r = std::max(0, std::min(255, int(r * scale)));
-    g = std::max(0, std::min(255, int(g * scale)));
-    b = std::max(0, std::min(255, int(b * scale)));
+
+    float fr = r / 255.0f, fg = g / 255.0f, fb = b / 255.0f;
+    if (level < 255) {
+        const float scale = level / 255.0f;
+        fr *= scale; fg *= scale; fb *= scale;
+    }
+
+    // Saturation boost, matching postAdjustWithBrightness so follow colors
+    // stay vivid regardless of scale_with_brightness. Without this the raw
+    // averaged screen colour (naturally muted) reaches the LEDs unboosted and
+    // looks washed out when "Scale with Brightness" is off.
+    float L = .299f * fr + .587f * fg + .114f * fb;
+    fr = L + (fr - L) * mSatBoost;
+    fg = L + (fg - L) * mSatBoost;
+    fb = L + (fb - L) * mSatBoost;
+
+    fr = std::max(0.f, std::min(1.f, fr));
+    fg = std::max(0.f, std::min(1.f, fg));
+    fb = std::max(0.f, std::min(1.f, fb));
+    r = int(fr * 255.f + .5f);
+    g = int(fg * 255.f + .5f);
+    b = int(fb * 255.f + .5f);
 }
 
 std::string GammaRgbSampler::toHex(int r, int g, int b) {
