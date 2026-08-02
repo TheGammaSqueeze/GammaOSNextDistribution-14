@@ -8610,7 +8610,11 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         }
         if (!strcmp(b->options, "@rgbeffect")) {
             // cur is gammargb.control; "off" wins, else map the rgb.effect code.
-            if (cur == "off") return std::string("Off");
+            // enable=0 also means the LEDs are off (the "Off" pick drives it, and the
+            // separate Enable toggle can too), so show "Off" for that as well.
+            if (cur == "off"
+                || !readSettingValue(SettingSource::kProp, "persist.gammaos.rgb.enable", "1").compare("0"))
+                return std::string("Off");
             std::string effect = readSettingValue(SettingSource::kProp, "persist.gammaos.rgb.effect", "follow");
             for (const auto& e : ps3RgbEffectList()) if (e.second == effect) return e.first;
             return std::string("Follow Screen");
@@ -10224,8 +10228,19 @@ void NanoMenu::closePs3Dialog(bool apply) {
                 if (mPs3DlgSel >= 0 && mPs3DlgSel < (int)list.size()) {
                     const std::string& code = list[mPs3DlgSel].second;
                     if (code == "off") {
+                        // Truly turn the LEDs off. The vendor init.gammargb.rc only
+                        // reacts to persist.gammaos.rgb.enable: =0 stops the gammargb
+                        // daemon AND runs the led_off service, which force-writes 0 to
+                        // every /sys/class/leds/sunxi_led*/brightness (the same hardware
+                        // blank the screen-off path uses). gammargb.control=off alone
+                        // left the daemon running with the LEDs still lit, which is why
+                        // "Effect > Off" never turned them off. Drive enable=0 too.
                         writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "off");
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.enable", "0");
                     } else {
+                        // Re-enable: a prior "Off" set enable=0 (stopped the daemon +
+                        // ran led_off), so any non-off effect must restart it.
+                        writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.enable", "1");
                         writeSettingValue(SettingSource::kProp, "persist.gammargb.control", "on");
                         writeSettingValue(SettingSource::kProp, "persist.gammaos.rgb.effect", code);
                         // Follow Screen tracks the panel brightness, so (re-)enable brightness
