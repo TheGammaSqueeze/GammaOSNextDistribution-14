@@ -1632,6 +1632,72 @@ void NanoMenu::collectionRemoveRom(int colIdx, const std::string& romPath) {
     saveCollections();
 }
 
+// ---- Favourites (a single global, cross-system starred-games list) --------------------------
+static const char* kFavoritesFile = "/data/system/nano_favorites.txt";
+
+void NanoMenu::loadFavorites() {
+    mXmbFavorites.clear();
+    FILE* f = fopen(kFavoritesFile, "r");
+    if (!f) return;
+    char line[4096];
+    while (fgets(line, sizeof(line), f)) {
+        size_t n = strlen(line);
+        while (n > 0 && (line[n - 1] == '\n' || line[n - 1] == '\r')) line[--n] = 0;
+        if (n == 0) continue;
+        mXmbFavorites.push_back(line);
+    }
+    fclose(f);
+}
+
+void NanoMenu::saveFavorites() {
+    int fd = open(kFavoritesFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) return;
+    chmod(kFavoritesFile, 0644);
+    for (const auto& r : mXmbFavorites) {
+        std::string ln = r + "\n";
+        ssize_t w = write(fd, ln.c_str(), ln.size()); (void)w;
+    }
+    close(fd);
+}
+
+bool NanoMenu::isFavorite(const std::string& romPath) const {
+    if (romPath.empty()) return false;
+    for (const auto& r : mXmbFavorites) if (r == romPath) return true;
+    return false;
+}
+
+void NanoMenu::toggleFavorite(const std::string& romPath) {
+    if (romPath.empty()) return;
+    for (size_t i = 0; i < mXmbFavorites.size(); i++)
+        if (mXmbFavorites[i] == romPath) { mXmbFavorites.erase(mXmbFavorites.begin() + i); saveFavorites(); return; }
+    mXmbFavorites.push_back(romPath);
+    saveFavorites();
+}
+
+// The global Favourites list: resolve each stored path to a live (system, rom) index so a
+// favourited game reuses the normal PS3_ROM launch / boxart / option-menu path, exactly like a
+// collection's game list. Games whose system is gone/disabled are skipped.
+void NanoMenu::buildFavoritesSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Favorites";
+    for (const auto& romPath : mXmbFavorites) {
+        int s = -1, r = -1;
+        if (!collectionResolveRom(romPath, &s, &r)) continue;
+        const XmbSystem& sys = mXmbSystems[s];
+        Ps3Item it;
+        it.label = (r >= 0 && r < (int)sys.displayNames.size()) ? sys.displayNames[r] : romPath;
+        it.kind = PS3_ROM; it.a = s; it.b = r;
+        GLuint tex = 0, nmap = 0; resolveSystemIcon(sys.iconRef, &tex, &nmap);
+        it.iconTex = tex; it.nmapTex = nmap;
+        it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
+        out.items.push_back(it);
+    }
+    if (out.items.empty()) {
+        Ps3Item it; it.label = "There are no titles"; it.kind = PS3_DATA_LEAF; it.action = 0;
+        it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+
 // True when a ROM is actually present and launchable. A game whose file has been deleted or
 // whose card is not mounted used to be handed to the emulator anyway, which then died on the
 // missing file and looked like a crashed launch, so every launch path checks this first.

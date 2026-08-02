@@ -1209,6 +1209,15 @@ private:
     void collectionRemoveRom(int colIdx, const std::string& romPath);
     void openAddToCollectionDialog(const std::string& romPath);   // chooser: New + each collection
     std::string mPendingCollectionRom;   // rom awaiting an Add-to-Collection choice / new-collection name
+    // Favourites: a single global, cross-system "starred games" list with a one-button toggle on any
+    // game (NextUI-style). A flat list of full ROM paths, persisted one-per-line to
+    // /data/system/nano_favorites.txt. Shown as its own "Favorites" entry under Game when non-empty.
+    std::vector<std::string> mXmbFavorites;
+    void loadFavorites();
+    void saveFavorites();
+    bool isFavorite(const std::string& romPath) const;
+    void toggleFavorite(const std::string& romPath);   // add if absent, remove if present; persists
+    // buildFavoritesSubmenu takes Ps3Level& so it is declared with the other builders below.
     std::vector<XmbSystem> mXmbSystems;
     int mXmbSystemIndex;       // Currently selected system
     int mXmbGameIndex;         // Currently selected game in current system
@@ -1237,6 +1246,7 @@ private:
         PS3_COLLECTIONS_LIST, // "Collections" entry under Game -> the collections list
         PS3_COLLECTION,   // a user collection -> its games submenu (a = collection idx)
         PS3_COLLECTION_NEW,   // "New Collection..." row -> OSK name -> create an empty collection
+        PS3_FAVORITES_LIST,   // "Favorites" entry under Game -> the global favourites list
         PS3_SETTING,      // a settings entry (a = action: 0 Wi-Fi, 1 Bluetooth, 2 settings tree)
         PS3_LAUNCH_PKG,   // launch a package (payloadStr = package name)
         PS3_DATA_SUBMENU, // a static DATA item with children -> submenu (data*)
@@ -2384,6 +2394,7 @@ private:
     void buildAppSubmenu(Ps3Level& out);
     void buildCollectionsSubmenu(Ps3Level& out);            // the list of collections + New Collection...
     void buildCollectionSubmenu(int colIdx, Ps3Level& out); // one collection's games (resolved PS3_ROM rows)
+    void buildFavoritesSubmenu(Ps3Level& out);              // the global favourites list (resolved PS3_ROM rows)
     // Game Systems editor (dynamic systems config). The list screen shows every
     // configured system (enabled + disabled) with enable/disable + reorder; later
     // phases add the per-system editor, folder picker, and icon grid.
@@ -2403,6 +2414,7 @@ private:
     void gsEditScraperCred(bool masked);        // per-system scraper credential override via OSK
     bool resetSystemToBuiltinDefaults(int sysIdx);  // restore a built-in's config from kXmbSystemDefs
     int mGsEditIdx = -1;   // mXmbSystems index currently open in the editor (for chooser/OSK writeback)
+    int mGsRemoveSrcIdx = -1;  // scan-source index awaiting a remove-confirm (dialog theme key 45)
     float mGsTintOrigR = 1.0f, mGsTintOrigG = 1.0f, mGsTintOrigB = 1.0f;  // exact tint at chooser open (cancel restore)
     int  ps3TopScreenKind() const { return mPs3Stack.empty() ? 0 : mPs3Stack.back().screenKind; }
 
@@ -2461,6 +2473,7 @@ private:
     std::vector<std::string> mountedShareNames() const;
     void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
+    void gsOpenRemoveScanSourceConfirm(int srcIdx);  // Cancel / Remove Folder confirm for a scan source
 
     // ======================= File Explorer (Settings > File Explorer) =======================
     // A controller-first file manager that reuses the folder-picker navigation (opendir/readdir,

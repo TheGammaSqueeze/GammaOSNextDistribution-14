@@ -2654,11 +2654,11 @@ void NanoMenu::pollInput() {
                             }
                             break;
                         }
-                        // Scan-folders screen: Y removes the selected scan source.
+                        // Scan-folders screen: Y asks to remove the selected scan source (confirm dialog).
                         if (mPs3Xmb && ps3TopScreenKind() == GS_FOLDER) {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
                             if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SCANSRC)
-                                gsRemoveScanSource(its[sel].a);
+                                gsOpenRemoveScanSourceConfirm(its[sel].a);
                             break;
                         }
                         // Music folders screen: Y removes the selected music folder.

@@ -145,6 +145,25 @@ void NanoMenu::gsOpenRemoveConfirm(int sysIdx) {
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
 }
 
+// Confirm before dropping a scan-source folder (Cancel / Remove Folder), so removing an
+// accidentally-added ROM source is a clear, deliberate action instead of a silent one-press
+// delete. The folder path is shown in the body. case 45 removes on commit.
+void NanoMenu::gsOpenRemoveScanSourceConfirm(int srcIdx) {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
+    const XmbSystem& s = mXmbSystems[mGsEditIdx];
+    if (srcIdx < 0 || srcIdx >= (int)s.scanSources.size()) return;
+    mGsRemoveSrcIdx = srcIdx;   // case 45 reads this
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 45; mPs3DlgTitle = "Remove Folder";
+    mPs3DlgBody = s.scanSources[srcIdx].value;
+    mPs3DlgOptions.push_back("Cancel");         mPs3DlgSwatch.push_back(-1);
+    mPs3DlgOptions.push_back("Remove Folder");  mPs3DlgSwatch.push_back(-1);
+    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
 // ---- Native folder picker ----
 
 void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {

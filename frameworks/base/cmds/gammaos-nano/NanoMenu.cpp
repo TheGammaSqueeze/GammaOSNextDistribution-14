@@ -882,6 +882,7 @@ status_t NanoMenu::readyToRun() {
         initXmbSystems();
         loadXmbRecent();
         loadCollections();
+        loadFavorites();
     }
     openInputDevices();
     if (!sDrasticQrFastPath) {

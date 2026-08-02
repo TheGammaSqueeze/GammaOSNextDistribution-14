@@ -1201,6 +1201,13 @@ void NanoMenu::buildPs3Cats() {
         { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
           it.iconTex = mIconTextures[18]; it.nmapTex = bevelForIconIdx(18);   // app-grid glyph (index 18), NOT the generic game cartridge (16)
           it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
+        // Favorites: a single global, cross-system starred-games list. Shown once the user has
+        // starred at least one game (via a game's "Add to Favorites" option). Sits above Collections.
+        if (!mXmbFavorites.empty()) {
+            Ps3Item it; it.label = "Favorites"; it.kind = PS3_FAVORITES_LIST;
+            it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);
+            it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
+        }
         // Collections: cross-system game groups. Shown once the user has made at least one (created
         // via a game's "Add to Collection" option or the New Collection... row inside).
         if (!mXmbCollections.empty()) {
@@ -4661,6 +4668,7 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_SYSTEM:       { Ps3Level lvl; buildRomSubmenu(it.a, lvl);     mPs3Stack.push_back(lvl); break; }
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
+        case PS3_FAVORITES_LIST:   { Ps3Level lvl; buildFavoritesSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_COLLECTIONS_LIST: { Ps3Level lvl; buildCollectionsSubmenu(lvl);      mPs3Stack.push_back(lvl); break; }
         case PS3_COLLECTION:       { Ps3Level lvl; buildCollectionSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_COLLECTION_NEW:
@@ -9879,6 +9887,7 @@ void NanoMenu::previewThemeSetting(int themeKey, int sel) {
             break;
         case 20: break;  // GS launch type: applied on commit
         case 23: break;  // GS remove-system confirm: applied on commit
+        case 45: break;  // GS remove-scan-source confirm: applied on commit
         case 21:         // GS icon tint: live-preview the chosen swatch (Game tile + editor row recolour)
             if (mGsEditIdx >= 0 && mGsEditIdx < (int)mXmbSystems.size()
                 && sel >= 0 && sel < kPs3ColorCount) {
@@ -10002,6 +10011,11 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
         }
         case 23: {  // Game Systems: remove custom system confirm (sel 1 = remove)
             if (sel == 1 && mGsEditIdx >= 0) gsRemoveSystem(mGsEditIdx);
+            break;
+        }
+        case 45: {  // Scan Folders: remove-scan-source confirm (sel 1 = remove the stashed source)
+            if (sel == 1 && mGsRemoveSrcIdx >= 0) gsRemoveScanSource(mGsRemoveSrcIdx);
+            mGsRemoveSrcIdx = -1;
             break;
         }
         case 24: {  // Game Systems editor: per-system scraper override
@@ -10702,6 +10716,9 @@ void NanoMenu::openXmbOpt() {
                 const ScrapeEntry* be = scrapeEntryFor(boxRom);
                 if (be && !be->box.empty()) add("Reset Boxart", "resetboxart", false);
             }
+            // Favourites: one-button toggle on any game (label reflects the current state).
+            if (!boxRom.empty())
+                add(isFavorite(boxRom) ? "Remove from Favorites" : "Add to Favorites", "togfav", false);
             // Collections: add this game to a collection, or remove it if we are inside one.
             add("Add to Collection", "addcol", false);
             if (!mPs3Stack.empty() && mPs3Stack.back().collectionIdx >= 0)
@@ -10814,7 +10831,7 @@ void NanoMenu::openXmbOpt() {
         case PS3_MUSIC_FOLDER_ROW: add("Remove Folder", "rmmusicfolder", true); break;
         case PS3_VIDEO_FOLDER_ROW: add("Remove Folder", "rmvideofolder", true); break;
         case PS3_PHOTO_FOLDER_ROW: add("Remove Folder", "rmphotofolder", true); break;
-        case PS3_GS_SCANSRC:       add("Remove Source", "rmscansrc",     true); break;
+        case PS3_GS_SCANSRC:       add("Remove Folder", "rmscansrc",     true); break;
         case PS3_SYSTEM:
             // A game system row on the Game home. Shortcut straight into its editor under
             // Settings > Game Settings > Game System, so the user can set the emulator,
@@ -11591,7 +11608,31 @@ void NanoMenu::xmbOptAction(const std::string& act) {
     if (act == "rmmusicfolder") { musicRemoveFolder(mPs3OptCtxA); return; }
     if (act == "rmvideofolder") { videoRemoveFolder(mPs3OptCtxA); return; }
     if (act == "rmphotofolder") { photoRemoveFolder(mPs3OptCtxA); return; }
-    if (act == "rmscansrc")     { gsRemoveScanSource(mPs3OptCtxA); return; }
+    if (act == "rmscansrc")     { gsOpenRemoveScanSourceConfirm(mPs3OptCtxA); return; }
+    if (act == "togfav") {
+        // Toggle the focused game in the global Favourites list (PS3_ROM = system+rom index,
+        // PS3_RECENT = the stored recent path).
+        std::string romPath;
+        if (mPs3OptCtxKind == PS3_ROM && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbSystems.size()
+            && mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)mXmbSystems[mPs3OptCtxA].roms.size())
+            romPath = mXmbSystems[mPs3OptCtxA].roms[mPs3OptCtxB];
+        else if (mPs3OptCtxKind == PS3_RECENT && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbRecent.size())
+            romPath = mXmbRecent[mPs3OptCtxA].romPath;
+        if (romPath.empty()) return;
+        bool wasFav = isFavorite(romPath);
+        toggleFavorite(romPath);
+        // If we just un-starred a game while viewing the Favorites list itself, rebuild it in place
+        // so the row disappears immediately (title is set only by buildFavoritesSubmenu).
+        if (wasFav && !mPs3Stack.empty() && mPs3Stack.back().title == "Favorites") {
+            int keep = mPs3Stack.back().sel;
+            buildFavoritesSubmenu(mPs3Stack.back());
+            int n = (int)mPs3Stack.back().items.size();
+            mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+        }
+        buildPs3Cats();   // the Favorites home entry appears with the first star / vanishes with the last
+        mDisplayDirty = true;
+        return;
+    }
     if (act == "addcol" || act == "rmcol") {
         // Resolve the focused game's ROM path from the option context (PS3_ROM = system+rom index,
         // PS3_RECENT = the stored recent path).
