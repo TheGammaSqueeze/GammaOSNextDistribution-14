@@ -79,6 +79,7 @@ void NanoMenu::buildSharesList(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = NS_LIST;
     out.title = "Network Shares";
     GLuint nmap = nmapForIcon(6);   // network glyph
+    GLuint nicon = iconTexForIcon(6);   // colour tex so the DSi/Minima flat card is never blank / glass-leaked
 
     std::vector<ShareConfig> shares = gammaos::sharefs::loadShares();
     for (const ShareConfig& c : shares) {
@@ -92,7 +93,7 @@ void NanoMenu::buildSharesList(Ps3Level& out) {
         if (!c.enabled)                                       it.value = "Off";
         else if (gammaos::sharefs::isShareMounted(c.name))    it.value = "Connected";
         else                                                  it.value = "Connecting...";
-        it.iconTex = 0; it.nmapTex = nmap;
+        it.iconTex = nicon; it.nmapTex = nmap;
         it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
@@ -100,7 +101,7 @@ void NanoMenu::buildSharesList(Ps3Level& out) {
     if ((int)shares.size() < kMaxShares) {
         Ps3Item it; it.kind = PS3_NS_ADD; it.label = "Add Share";
         it.desc = "Connect to an SMB, NFS, WebDAV or FTP server on your network.";
-        it.iconTex = 0; it.nmapTex = nmapForIcon(22);
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22);
         it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     } else {

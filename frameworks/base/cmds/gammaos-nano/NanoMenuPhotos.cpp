@@ -773,12 +773,12 @@ void NanoMenu::photoOpenFolders() {
 void NanoMenu::buildPhotoFoldersScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Photo Folders"; out.screenKind = PHOTO_FOLDER;
     { Ps3Item it; it.label = "Add Folder..."; it.kind = PS3_GS_ADDFOLDER;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(50); it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     { Ps3Item it; it.label = mPhotoScanRunning ? "Refreshing..." : "Refresh";
       it.kind = PS3_PHOTO_REFRESH;
       it.value = mPhotoScanRunning ? "" : "Rescan photo folders";
-      it.iconTex = 0; it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(8); it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     for (size_t i = 0; i < mPhotoFolders.size(); i++) {
         int cnt = 0;
@@ -786,7 +786,7 @@ void NanoMenu::buildPhotoFoldersScreen(Ps3Level& out) {
             if (p.file.compare(0, mPhotoFolders[i].size(), mPhotoFolders[i]) == 0) cnt++;
         Ps3Item it; it.label = mPhotoFolders[i]; it.kind = PS3_PHOTO_FOLDER_ROW; it.a = (int)i;
         char v[24]; snprintf(v, sizeof(v), "%d images", cnt); it.value = v;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     if (mPhotoFolders.empty()) {
@@ -856,6 +856,17 @@ std::vector<NanoMenu::PhotoGroup> NanoMenu::photoGroups() const {
                                   "Jul","Aug","Sep","Oct","Nov","Dec"};
     std::vector<PhotoGroup> out;
     if (order.empty()) return out;
+    // Folder view (Y toggle): bucket by the photo's parent directory, preserving the sorted order
+    // within each folder. Overrides the date/album grouping while it is on.
+    if (mPhotoFolderView) {
+        auto dirOf = [](const std::string& p){ size_t s = p.rfind('/'); return s == std::string::npos ? std::string() : p.substr(0, s); };
+        auto baseOf = [](const std::string& p){ size_t s = p.rfind('/'); return s == std::string::npos ? p : p.substr(s + 1); };
+        std::map<std::string, std::vector<int>> m; std::vector<std::string> keys;
+        for (int i : order) { std::string d = dirOf(mPhotos[i].file);
+            if (m.find(d) == m.end()) keys.push_back(d); m[d].push_back(i); }
+        for (const auto& k : keys) { PhotoGroup g; g.name = baseOf(k); if (g.name.empty()) g.name = "/"; g.idx = m[k]; out.push_back(g); }
+        return out;
+    }
     int mode = mPhotoGroupIdx;
     if (mode == 3) { PhotoGroup g; g.name = "All Photos"; g.idx = order; out.push_back(g); return out; }
     if (mode == 2) { PhotoGroup g; g.name = "Unknown"; g.idx = order; out.push_back(g); return out; }
@@ -892,7 +903,7 @@ void NanoMenu::buildPhotoColumnItems(std::vector<Ps3Item>& out) {
         it.b = groups[a].idx.empty() ? -1 : groups[a].idx[0];   // cover = the group's first photo
         size_t n = groups[a].idx.size();
         char v[32]; snprintf(v, sizeof(v), "%zu %s", n, n == 1 ? "Image" : "Images"); it.value = v;
-        it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.push_back(it);
     }
 }
@@ -949,10 +960,19 @@ void NanoMenu::photoSetSort(int field, int dir) {
 void NanoMenu::photoSortCycleY() {
     static const int kField[5] = {0, 0, 1, 1, 2};
     static const int kDir[5]   = {0, 1, 0, 1, 1};
+    // Folder View is the terminal step of the Y cycle (user request: "folder view toggled by Y").
+    // The cycle is: 5 sort orders -> Folder View -> back to the first sort order.
+    if (mPhotoFolderView) {                       // leave folder view -> first sort order
+        mPhotoFolderView = false;
+        property_set("persist.gammaos.nano.photo.folderview", "0");
+        photoSetSort(kField[0], kDir[0]);         // rebuilds + shows the sort banner
+        return;
+    }
     int cur = 0;
     for (int i = 0; i < 5; i++)
         if (kField[i] == mPhotoSortField && (mPhotoSortField == 2 || kDir[i] == mPhotoSortDir)) { cur = i; break; }
-    int nx = (cur + 1) % 5;
+    if (cur == 4) { photoToggleFolderView(); return; }   // last sort order -> enter folder view
+    int nx = cur + 1;
     photoSetSort(kField[nx], kDir[nx]);
 }
 
@@ -966,7 +986,10 @@ void NanoMenu::drawPhotoBanner() {
     if (mPhotoBannerStart < 0.0f || mPhotoBanner.empty()) return;
     float el = (mEffectTime - mPhotoBannerStart) * 1000.0f;
     const float life = 2000.0f;
-    if (el >= life) { mPhotoBannerStart = -1.0f; return; }
+    if (el >= life) { mPhotoBannerStart = -1.0f; mDisplayDirty = true; return; }
+    // Keep repainting while the banner is up so it fades + auto-dismisses on the static DSi / Minima
+    // themes (they only redraw on mDisplayDirty; the XMB wave repaints anyway).
+    mDisplayDirty = true;
     float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (life - el)) / 300.0f);
     int W = mWidth, H = mHeight;
     const char* txt = mPhotoBanner.c_str();
@@ -992,6 +1015,14 @@ void NanoMenu::photoSetGroup(int mode) {
     mPhotoGroupIdx = mode;
     mPhotoCatsStale = true;
     photoShowBanner(trDyn(kModeNames[mPhotoGroupIdx]));
+}
+// Y on the Photo column: toggle folder view (group by parent directory vs the date/album grouping),
+// persist it, rebuild the column, and flash a banner. Sort stays in the Triangle option menu.
+void NanoMenu::photoToggleFolderView() {
+    mPhotoFolderView = !mPhotoFolderView;
+    property_set("persist.gammaos.nano.photo.folderview", mPhotoFolderView ? "1" : "0");
+    mPhotoCatsStale = true;
+    photoShowBanner(trDyn(mPhotoFolderView ? "Folder View" : "Grouped View"));
 }
 
 // ---------------------------------------------------------------------------
@@ -2474,7 +2505,8 @@ void NanoMenu::wallpaperApplyPick(const std::string& file) {
     property_set(prop, file.c_str());
     // Any XMB wallpaper (top or bottom) turns the wave off: the wave toggle is global and a wallpaper only
     // shows on its panel while the wave is off, so a bottom-only wallpaper would otherwise stay hidden.
-    if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "0"); mXmbWave = false; }
+    if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "0"); mXmbWave = false;
+                mPs3BindCache.erase("XMB Wave"); }   // this flips the wave outside the chooser: drop the cached row so it re-reads
     // A video file on the TOP panel drives the single video decoder instead of a still.
     if (tgt == 0 && wpIsVideoPath(file)) {
         if (mWpTexTop) { glDeleteTextures(1, &mWpTexTop); mWpTexTop = 0; } mWpTopW = 0; mWpTopH = 0; mWpPathTop = file;
@@ -2546,7 +2578,8 @@ void NanoMenu::clearWallpaper() {
     const bool dsi = mNdsTheme;
     property_set(dsi ? "persist.gammaos.nano.wp.dsi.top"    : "persist.gammaos.nano.wp.xmb.top",    "");
     property_set(dsi ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.xmb.bottom", "");
-    if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "1"); mXmbWave = true; }
+    if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "1"); mXmbWave = true;
+                mPs3BindCache.erase("XMB Wave"); }   // wave restored outside the chooser: drop the cached row so it re-reads
     // Free the textures directly (the just-cleared props may not have propagated to this process's read
     // cache yet, so re-reading them could keep the old wallpaper alive).
     if (mWpTopIsVideo) { wpVideoStop(); mWpTopIsVideo = false; }
@@ -2573,13 +2606,13 @@ void NanoMenu::photoAddToPlaylist(int plIdx, const std::string& file) {
 void NanoMenu::buildPhotoPlaylistsScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = 0;
     { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_PHOTO_PL_NEW;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(50); it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     for (size_t p = 0; p < mPhotoPlaylists.size(); p++) {
         Ps3Item it; it.label = mPhotoPlaylists[p].name; it.kind = PS3_PHOTO_PLAYLIST; it.a = (int)p;
         size_t n = mPhotoPlaylists[p].files.size();
         char v[32]; snprintf(v, sizeof(v), "%zu %s", n, n == 1 ? "Image" : "Images"); it.value = v;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }

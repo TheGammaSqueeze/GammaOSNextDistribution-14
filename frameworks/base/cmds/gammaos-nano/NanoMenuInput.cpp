@@ -1870,6 +1870,9 @@ void NanoMenu::pollInput() {
                          && mMusicLoaded && !mMusicTracks.empty()
                          && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                          && mPs3Cats[mPs3CatIdx].name == "Music") musicSortCycleY();    // Y: cycle Sort By on the Music column
+                else if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive
+                         && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                         && mPs3Cats[mPs3CatIdx].name == "Game") gameSortCycleY();       // Y: cycle the system tile order on the Game column
             }
             // Game Systems list scripting: l1/r1 reorder the selected system,
             // x toggles its enabled state (the physical L1/R1/X buttons do the
@@ -2620,6 +2623,10 @@ void NanoMenu::pollInput() {
                             && mMusicLoaded && !mMusicTracks.empty()
                             && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                             && mPs3Cats[mPs3CatIdx].name == "Music") { musicSortCycleY(); break; }
+                        // Game column root: Y cycles the system tile order (Default / A-Z / Most Games / Manufacturer).
+                        if (mPs3Xmb && !mOskActive && mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive
+                            && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+                            && mPs3Cats[mPs3CatIdx].name == "Game") { gameSortCycleY(); break; }
                         if (mMenuState == MENU_WIFI) { handleWifiScreenY(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenY();   break; }
                         // Icon grid picker: Y opens the name-filter OSK.

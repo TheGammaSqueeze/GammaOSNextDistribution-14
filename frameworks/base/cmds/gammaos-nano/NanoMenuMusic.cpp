@@ -77,6 +77,11 @@ static std::string parentName(const std::string& path) {
     size_t sl2 = path.rfind('/', sl - 1);
     return path.substr(sl2 + 1, sl - sl2 - 1);
 }
+// Full parent-directory path of a file (unique folder key for folder view). "" for a bare name.
+static std::string parentDir(const std::string& path) {
+    size_t sl = path.rfind('/');
+    return sl == std::string::npos ? std::string() : path.substr(0, sl);
+}
 static std::string stripExt(const std::string& name) {
     size_t dot = name.rfind('.');
     return dot == std::string::npos ? name : name.substr(0, dot);
@@ -502,6 +507,14 @@ void NanoMenu::musicRemapQueueAfterReload() {
 // ---------------------------------------------------------------------------
 int64_t NanoMenu::musicAlbumNewestMtime(const std::string& album) const {
     int64_t newest = 0;
+    // In folder view the key is a parent-directory path; match by folder so the date sort of the
+    // Music column stays correct (the album-tag match is a no-op on a path key otherwise).
+    if (mMusicFolderView) {
+        std::string want = (album == "/") ? std::string() : album;
+        for (const auto& t : mMusicTracks)
+            if (!t.albumHidden && parentDir(t.file) == want && t.mtime > newest) newest = t.mtime;
+        return newest;
+    }
     for (const auto& t : mMusicTracks)
         if (!t.albumHidden && t.album == album && t.mtime > newest) newest = t.mtime;
     return newest;
@@ -510,6 +523,15 @@ int64_t NanoMenu::musicAlbumNewestMtime(const std::string& album) const {
 std::vector<std::string> NanoMenu::musicAlbumNames() const {
     std::vector<std::string> names;
     std::set<std::string> seen;
+    // Folder view: the "album" key is the track's full parent directory (unique across the library),
+    // so two folders with the same name never merge. musicAlbumTrackIndices matches on the same key.
+    if (mMusicFolderView) {
+        for (const auto& t : mMusicTracks) {
+            if (t.albumHidden) continue;
+            std::string d = parentDir(t.file); if (d.empty()) d = "/";
+            if (seen.insert(d).second) names.push_back(d);
+        }
+    } else
     for (const auto& t : mMusicTracks)
         if (!t.albumHidden && seen.insert(t.album).second) names.push_back(t.album);
     auto nameLess = [](const std::string& a, const std::string& b){ return strcasecmp(a.c_str(), b.c_str()) < 0; };
@@ -540,20 +562,45 @@ std::string NanoMenu::musicSortLabelCur() const {
 }
 
 void NanoMenu::musicSortCycleY() {
-    // 4 modes: Title, Date newest, Date oldest, Tracks most. Mirrors the video cycle.
+    // 4 sort modes then Folder View as the terminal step (user request: "folder view toggled by Y").
     static const int kField[4] = {0, 1, 1, 2};
     static const int kDir[4]   = {1, 0, 1, 0};
+    if (mMusicFolderView) {                   // leave folder view -> first sort order
+        mMusicFolderView = false;
+        property_set("persist.gammaos.nano.music.folderview", "0");
+        mMusicSortField = kField[0]; mMusicSortDir = kDir[0];
+        mMusicCatsStale = true;
+        photoShowBanner(musicSortLabelCur());
+        return;
+    }
     int cur = 0;
     for (int i = 0; i < 4; i++)
         if (kField[i] == mMusicSortField && (mMusicSortField == 0 || kDir[i] == mMusicSortDir)) { cur = i; break; }
-    int nx = (cur + 1) % 4;
+    if (cur == 3) { musicToggleFolderView(); return; }   // last sort order -> enter folder view
+    int nx = cur + 1;
     mMusicSortField = kField[nx]; mMusicSortDir = kDir[nx];
     mMusicCatsStale = true;                 // rebuild the Music column in the new order
     photoShowBanner(musicSortLabelCur());   // reuse the shared sort banner overlay
 }
 
+// Y on the Music column: toggle folder view (group by parent directory vs by album), persist it,
+// rebuild the column, and flash a banner. Sort stays reachable via the Triangle option menu.
+void NanoMenu::musicToggleFolderView() {
+    mMusicFolderView = !mMusicFolderView;
+    property_set("persist.gammaos.nano.music.folderview", mMusicFolderView ? "1" : "0");
+    mMusicCatsStale = true;
+    photoShowBanner(trDyn(mMusicFolderView ? "Folder View" : "Album View"));
+    mDisplayDirty = true;
+}
+
 std::vector<int> NanoMenu::musicAlbumTrackIndices(const std::string& album) const {
     std::vector<int> idx;
+    // Folder view: the key is a full parent-directory path; match tracks by their folder.
+    if (mMusicFolderView) {
+        std::string want = (album == "/") ? std::string() : album;
+        for (size_t i = 0; i < mMusicTracks.size(); i++)
+            if (!mMusicTracks[i].albumHidden && parentDir(mMusicTracks[i].file) == want) idx.push_back((int)i);
+    } else
     for (size_t i = 0; i < mMusicTracks.size(); i++)
         if (!mMusicTracks[i].albumHidden && mMusicTracks[i].album == album) idx.push_back((int)i);
     // Keep tracks in FILE order (sort by path, the order the files appear on disk -
@@ -575,9 +622,11 @@ void NanoMenu::buildMusicColumnItems(std::vector<Ps3Item>& out) {
     std::vector<std::string> albums = musicAlbumNames();
     for (size_t a = 0; a < albums.size(); a++) {
         std::vector<int> tr = musicAlbumTrackIndices(albums[a]);
-        Ps3Item it; it.label = albums[a]; it.kind = PS3_MUSIC_ALBUM; it.a = (int)a;
+        Ps3Item it; it.kind = PS3_MUSIC_ALBUM; it.a = (int)a;
+        it.label = mMusicFolderView ? baseName(albums[a]) : albums[a];   // folder view shows the folder name, not the full path
+        if (it.label.empty()) it.label = "/";
         char v[32]; snprintf(v, sizeof(v), "%zu Tracks", tr.size()); it.value = v;
-        it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.push_back(it);
     }
 }
@@ -586,13 +635,14 @@ void NanoMenu::buildMusicAlbumSubmenu(int albumIdx, Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = 0;
     std::vector<std::string> albums = musicAlbumNames();
     if (albumIdx < 0 || albumIdx >= (int)albums.size()) { out.title = "Album"; return; }
-    out.title = albums[albumIdx];
+    out.title = mMusicFolderView ? baseName(albums[albumIdx]) : albums[albumIdx];
+    if (out.title.empty()) out.title = "/";
     GLuint noteNmap = nmapForIcon(37);
     for (int ti : musicAlbumTrackIndices(albums[albumIdx])) {
         const MusicTrack& t = mMusicTracks[ti];
         Ps3Item it; it.label = t.title; it.kind = PS3_MUSIC_TRACK; it.a = ti;
         it.desc = t.artist + " / " + t.album;
-        it.iconTex = 0; it.nmapTex = noteNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(37); it.nmapTex = noteNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }
@@ -601,12 +651,12 @@ void NanoMenu::buildMusicPlaylistsScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = 0;
     GLuint noteNmap = nmapForIcon(37);
     { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_MUSIC_PL_NEW;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(50); it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     for (size_t p = 0; p < mMusicPlaylists.size(); p++) {
         Ps3Item it; it.label = mMusicPlaylists[p].name; it.kind = PS3_MUSIC_PLAYLIST; it.a = (int)p;
         char v[32]; snprintf(v, sizeof(v), "%zu Tracks", mMusicPlaylists[p].files.size()); it.value = v;
-        it.iconTex = 0; it.nmapTex = noteNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(37); it.nmapTex = noteNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }
@@ -624,7 +674,7 @@ void NanoMenu::buildMusicPlaylistSubmenu(int plIdx, Ps3Level& out) {
         const MusicTrack& t = mMusicTracks[ti];
         Ps3Item it; it.label = t.title; it.kind = PS3_MUSIC_TRACK; it.a = ti;
         it.desc = t.artist + " / " + t.album;
-        it.iconTex = 0; it.nmapTex = noteNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(37); it.nmapTex = noteNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }
@@ -635,12 +685,12 @@ void NanoMenu::buildMusicPlaylistSubmenu(int plIdx, Ps3Level& out) {
 void NanoMenu::buildMusicFoldersScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Music Folders"; out.screenKind = MUSIC_FOLDER;
     { Ps3Item it; it.label = "Add Folder..."; it.kind = PS3_GS_ADDFOLDER;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(50); it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     { Ps3Item it; it.label = mMusicScanRunning ? "Refreshing..." : "Refresh";
       it.kind = PS3_MUSIC_REFRESH;
       it.value = mMusicScanRunning ? "" : "Rescan music folders";
-      it.iconTex = 0; it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(8); it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     for (size_t i = 0; i < mMusicFolders.size(); i++) {
         int cnt = 0;
@@ -648,7 +698,7 @@ void NanoMenu::buildMusicFoldersScreen(Ps3Level& out) {
             if (t.file.compare(0, mMusicFolders[i].size(), mMusicFolders[i]) == 0) cnt++;
         Ps3Item it; it.label = mMusicFolders[i]; it.kind = PS3_MUSIC_FOLDER_ROW; it.a = (int)i;
         char v[24]; snprintf(v, sizeof(v), "%d tracks", cnt); it.value = v;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     if (mMusicFolders.empty()) {

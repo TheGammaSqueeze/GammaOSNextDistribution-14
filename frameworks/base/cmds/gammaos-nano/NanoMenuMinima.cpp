@@ -471,6 +471,9 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         float fa = (lf - 3.0f) / 44.0f; if (fa < 0.0f) fa = 0.0f; if (fa > 1.0f) fa = 1.0f;
         if (fa > 0.0f) { drawQuad(rx, ry, rw, rh, 1.0f, 1.0f, 1.0f, fa); mDisplayDirty = true; }
     }
+    // Sort / Group / Folder-view change banner (Y), drawn on top so it shows in the Minima theme too
+    // (the XMB path draws it in renderPs3Xmb; the DSi path in renderNdsCarousel).
+    drawPhotoBanner();
     mTextOutlineMode = minPrevOutline;
 }
 
@@ -542,7 +545,11 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
             drawIconTex(boxTex, axx, ayy, aw, ah, 1.0f, 1.0f, 1.0f, 1.0f);
         } else if (iconTex) {
             float isz = rh * 0.34f;
-            drawIconTex(iconTex, cx - isz * 0.5f, ry + rh * 0.26f, isz, isz, 1.0f, 1.0f, 1.0f, 1.0f);
+            // Icons that opt into their own flat colour (the Favourites loveheart) keep it; the rest
+            // draw as the plain silhouette/art in white.
+            float tr = 1.0f, tg = 1.0f, tb = 1.0f;
+            if (selItem && selItem->flatOwnTint) { tr = selItem->iconR; tg = selItem->iconG; tb = selItem->iconB; }
+            drawIconTex(iconTex, cx - isz * 0.5f, ry + rh * 0.26f, isz, isz, tr, tg, tb, 1.0f);
         }
     }
     // focused item label (white, bottom)

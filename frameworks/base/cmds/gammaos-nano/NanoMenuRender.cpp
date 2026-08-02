@@ -1565,6 +1565,8 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
     auto Y = [&](float d){ return offY + d * scale; };
 
+    NdsPal dp = ndsPal();
+
     // scrim over the carousel behind.
     drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.42f * ap);
 
@@ -1575,18 +1577,21 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     // DSi dialog panel: the real msk_dialog_BG sprite (white body + favColour-blue border with
     // corner AA), 224x156 at x16 - matches the web `dialog_box_<favColor>` exactly (favColour 11 =
     // blue = the device default). Falls back to the flat rounded rects if the sprite is missing.
+    // The white sprite is skipped in the dark theme (a white body would defeat it): the procedural
+    // path below rebuilds the panel with the dark body from the palette.
     static GLuint gDsiDialogTex = 0;
     if (!gDsiDialogTex) gDsiDialogTex = ndsLoadTex("dialog_box_blue");
-    if (gDsiDialogTex && ndsAccentIsDefault()) {
+    if (gDsiDialogTex && ndsAccentIsDefault() && !mNdsDark) {
         drawIconTex(gDsiDialogTex, px, pyTop, pw, ph, 1.0f, 1.0f, 1.0f, ap);   // colour-preserving blue sprite
     } else {
-        // Non-Original accent (or the sprite is missing): a procedural panel with an ACCENT-coloured
-        // border around the white body, so the dialog frame follows the Colour setting too. The
-        // sprite's own white body cannot be tinted without staining the body, hence the rebuild.
+        // Non-Original accent, the dark theme, or a missing sprite: a procedural panel with an
+        // ACCENT-coloured border around the body (light in the light theme, dark in the dark theme),
+        // so the dialog frame follows the Colour setting too. The sprite's own white body cannot be
+        // tinted without staining it, hence the rebuild.
         float br, bg, bb; ndsAccentRGB(br, bg, bb);
         drawRoundedRect(px, pyTop + S(3.0f), pw, ph, S(6.0f), 0.05f, 0.05f, 0.05f, 0.55f * ap);   // drop shadow
         drawRoundedRect(px, pyTop, pw, ph, S(6.0f), br, bg, bb, ap);                              // accent border
-        drawRoundedRect(px + S(2.0f), pyTop + S(2.0f), pw - S(4.0f), ph - S(4.0f), S(5.0f), 0.97f, 0.97f, 0.98f, ap);  // white body
+        drawRoundedRect(px + S(2.0f), pyTop + S(2.0f), pw - S(4.0f), ph - S(4.0f), S(5.0f), dp.dlgBg, dp.dlgBg, dp.dlgBg, ap);  // body
     }
 
     // title: flat DSi ink, no drop shadow (the real DSi message-box title is flat dark grey).
@@ -1596,7 +1601,7 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
         // (the same size the carousel name-box title was validated at). S(15) read oversized.
         float fs = S(13.0f) / (float)FONT_CHAR_H, tw = measureText(t, fs);
         float tx = cx - tw * 0.5f, ty = Y(by + 54.0f - 18.0f);
-        drawText(t, tx, ty, fs, 0.28f, 0.28f, 0.30f, ap);
+        drawText(t, tx, ty, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, ap);
     }
     // body text, word-wrapped. A confirm dialog (Yes/No) keeps its short paragraph centred; an
     // info dialog (single OK - System Information, music tags, ...) can be long, so it top-anchors
@@ -1635,17 +1640,17 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
             int first = mNdsInfoPage * maxVis, last = first + maxVis; if (last > total) last = total;
             for (int k = first; k < last; k++) {
                 float tw = measureText(lines[k].c_str(), fs);
-                drawText(lines[k].c_str(), cx - tw * 0.5f, bodyTopY + (float)(k - first) * lineH, fs, 0.20f, 0.20f, 0.22f, ap);
+                drawText(lines[k].c_str(), cx - tw * 0.5f, bodyTopY + (float)(k - first) * lineH, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, ap);
             }
             char pg[24]; snprintf(pg, sizeof(pg), "%d / %d", mNdsInfoPage + 1, pages);
             float pf = S(9.0f) / (float)FONT_CHAR_H, pgw = measureText(pg, pf);
-            drawText(pg, cx - pgw * 0.5f, Y(by + 106.0f), pf, 0.40f, 0.40f, 0.44f, ap);   // above the button
+            drawText(pg, cx - pgw * 0.5f, Y(by + 106.0f), pf, dp.dlgInk, dp.dlgInk, dp.dlgInk, 0.72f * ap);   // above the button
             float pillY = Y(by + 132.0f);
             float lA = (mNdsInfoPage > 0) ? 1.0f : 0.3f, rA = (mNdsInfoPage < pages - 1) ? 1.0f : 0.3f;
             auto pill = [&](float dxc, const char* g, float act){
                 float gw = measureText(g, pf);
-                drawRoundedRect(X(dxc) - S(9.0f), pillY - S(1.5f), S(18.0f), S(13.0f), S(3.0f), 0.28f, 0.28f, 0.30f, act * ap);
-                drawText(g, X(dxc) - gw * 0.5f, pillY, pf, 1.0f, 1.0f, 1.0f, act * ap); };
+                drawRoundedRect(X(dxc) - S(9.0f), pillY - S(1.5f), S(18.0f), S(13.0f), S(3.0f), dp.dlgInk, dp.dlgInk, dp.dlgInk, act * ap);
+                drawText(g, X(dxc) - gw * 0.5f, pillY, pf, dp.dlgBg, dp.dlgBg, dp.dlgBg, act * ap); };
             pill(30.0f, "L", lA); pill(226.0f, "R", rA);
         } else if (!infoStyle && total > maxVis) {
             // Long confirm-dialog body (Yes/No, e.g. the IPTV disclaimer): AUTO-SCROLL it as a
@@ -1672,7 +1677,7 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
                 float ty = bandTop + (float)k * lineH - off;
                 if (ty > bandBot || ty + lineH < bandTop) continue;   // fully outside the band
                 float tw = measureText(lines[k].c_str(), fs);
-                drawText(lines[k].c_str(), cx - tw * 0.5f, ty, fs, 0.20f, 0.20f, 0.22f, ap);
+                drawText(lines[k].c_str(), cx - tw * 0.5f, ty, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, ap);
             }
             glDisable(GL_SCISSOR_TEST);
         } else {
@@ -1681,7 +1686,7 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
             float y0 = Y(by + 82.0f) - blockH * 0.5f;
             for (int k = 0; k < shown; k++) {
                 float tw = measureText(lines[k].c_str(), fs);
-                drawText(lines[k].c_str(), cx - tw * 0.5f, y0 + (float)k * lineH, fs, 0.20f, 0.20f, 0.22f, ap);
+                drawText(lines[k].c_str(), cx - tw * 0.5f, y0 + (float)k * lineH, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, ap);
             }
         }
     }
@@ -1755,10 +1760,11 @@ void NanoMenu::renderNds() {
             if (wallpaperActive(mRenderingPanel)) {
                 drawWallpaperFill(mRenderingPanel);
             } else {
-                drawQuad(0.0f, half, W, gap, 0.953f, 0.953f, 0.953f, 1.0f);       // #f3 light field
+                NdsPal gp = ndsPal();
+                drawQuad(0.0f, half, W, gap, gp.field, gp.field, gp.field, 1.0f);       // #f3 light field
                 const float ec = 1.0f;
-                drawQuad(0.0f, half, ec, gap, 0.859f, 0.859f, 0.859f, 1.0f);      // #db edge columns
-                drawQuad(W - ec, half, ec, gap, 0.859f, 0.859f, 0.859f, 1.0f);
+                drawQuad(0.0f, half, ec, gap, gp.edge, gp.edge, gp.edge, 1.0f);      // #db edge columns
+                drawQuad(W - ec, half, ec, gap, gp.edge, gp.edge, gp.edge, 1.0f);
             }
         }
         renderNdsTop(0.0f, 0.0f, W, half);
@@ -1824,8 +1830,17 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // returns before the carousel's dialog dispatch below, so a dialog opened here (System
         // Information, IPTV/Radio disclaimer, Restore/Format confirms) would set mPs3DlgActive but
         // never render. Draw it OVER the list (scrim + DSi panel), matching the carousel path.
-        if ((mPs3DlgActive || mPs3DlgClosing) && !ndsDlgIsSidePanel())
-            renderNdsDialog(rx, ry, rw, rh);
+        // EXCEPTION: a game-info / User Guide page (mPs3DlgGameInfo) is NOT a message box - it is the
+        // full-screen info page that spans both DS screens (top = part 1, bottom = part 2). Route it to
+        // renderNdsInfoPage here too so the bottom shows the continuation, not the old cramped dialog.
+        if ((mPs3DlgActive || mPs3DlgClosing) && !ndsDlgIsSidePanel()) {
+            if (ndsGameInfoActive()) {
+                bool topShowsInfo = mNdsStack || mNdsHadSecondary;
+                renderNdsInfoPage(rx, ry, rw, rh, topShowsInfo ? /*bottom=*/2 : /*full=*/0);
+            } else {
+                renderNdsDialog(rx, ry, rw, rh);
+            }
+        }
         return;
     }
     // Stacked-carousel nav: every other level (categories root, a category's items, or a submenu)
@@ -1873,12 +1888,13 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             // Custom wallpaper fills the whole DSi bottom screen behind the carousel chrome.
             drawWallpaperFill(mRenderingPanel);
         } else {
-            drawQuad(rx, ry, rw, rh, 0.953f, 0.953f, 0.953f, 1.0f);
+            NdsPal p = ndsPal();
+            drawQuad(rx, ry, rw, rh, p.field, p.field, p.field, 1.0f);
             { float dl = S(2.0f); if (dl < 2.0f) dl = 2.0f;
-              for (float y = ry; y < ry + rh; y += dl) drawQuad(rx, y, rw, fmaxf(1.0f, S(1.0f)), 0.922f, 0.922f, 0.922f, 1.0f); }
+              for (float y = ry; y < ry + rh; y += dl) drawQuad(rx, y, rw, fmaxf(1.0f, S(1.0f)), p.dither, p.dither, p.dither, 1.0f); }
             float ec = fmaxf(1.0f, S(1.0f));
-            drawQuad(rx, ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
-            drawQuad(rx + rw - ec, ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
+            drawQuad(rx, ry, ec, rh, p.edge, p.edge, p.edge, 1.0f);
+            drawQuad(rx + rw - ec, ry, ec, rh, p.edge, p.edge, p.edge, 1.0f);
         }
     }
 
@@ -2134,8 +2150,11 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // the tile in DS px (negative = up): the launch rise + the boot/return intro cascade.
     auto drawTile = [&](float dcx, const Ps3Item* it, float yoffDS){
         float ty = Y(82.0f) + S(yoffDS);
-        if (mNdsTileTex) drawIconTex(mNdsTileTex, dcx - S(32), ty, S(64), S(64), 1.0f, 1.0f, 1.0f, 1.0f);   // tile_white sprite
-        else             drawRoundedRect(dcx - S(32), ty, S(64), S(64), S(9), 1.0f, 1.0f, 1.0f, 1.0f);
+        // The white "jewel case" pillow is dimmed in the dark theme (pal.tile) so the light glyphs
+        // read on it instead of light-on-light; identity (white) in the light theme.
+        float tt = ndsPal().tile;
+        if (mNdsTileTex) drawIconTex(mNdsTileTex, dcx - S(32), ty, S(64), S(64), tt, tt, tt, 1.0f);   // tile_white sprite
+        else             drawRoundedRect(dcx - S(32), ty, S(64), S(64), S(9), tt, tt, tt, 1.0f);
         if (!it) return;
         // DSi tile icon (iconTop 98 / iconSize 32, config.js). The DSi draws FLAT icons,
         // not the XMB's relit glass. Games/apps carry a full-colour iconTex (nmapTex==0)
@@ -2164,25 +2183,28 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             }
         }
         float ix = dcx - S(16), iy = Y(98.0f) + S(yoffDS), sz = S(32);
+        NdsPal gp = ndsPal();
         if (it->iconTex) {
-            if (it->nmapTex) drawIconTex(it->iconTex, ix, iy, sz, sz, 0.28f, 0.30f, 0.36f, 1.0f);  // dark glyph
-            else             drawIconTex(it->iconTex, ix, iy, sz, sz, 1.0f, 1.0f, 1.0f, 1.0f);      // colour art
-        } else if (it->nmapTex && mIconGlassReady && ps3bg::workTex()) {
-            drawGlassIcon(it->nmapTex, ix, iy, sz, sz, it->iconR, it->iconG, it->iconB, 1.0f);
+            if (it->flatOwnTint)  drawIconTex(it->iconTex, ix, iy, sz, sz, it->iconR, it->iconG, it->iconB, 1.0f);  // keep the item's own colour (e.g. the red loveheart)
+            else if (it->nmapTex) drawIconTex(it->iconTex, ix, iy, sz, sz, gp.glyphR, gp.glyphG, gp.glyphB, 1.0f);  // flat glyph (theme-tinted, dark on light / light on dark)
+            else                  drawIconTex(it->iconTex, ix, iy, sz, sz, 1.0f, 1.0f, 1.0f, 1.0f);      // colour art
         }
+        // Deliberately NO drawGlassIcon fallback on the DSi theme: the glass/normal-map relit look is
+        // XMB-only. A builder that set only nmapTex (no colour tex) degrades to no icon, never glass.
     };
     // end-of-list boundary brackets (web _drawEndCaps): light-grey #dbdbdb rounded "["/"]"
     // just outside the first/last item (virtual slots -0.9 and totalSlots-1+0.9), y82..159,
     // scrolling with the carousel. Hidden during the intro cascade and the launch (web).
     if (nItems > 0 && !introActive && !launchFx) {
+        NdsPal cp = ndsPal();
         auto drawCap = [&](float vslot, bool isRight){
             float bcx = cx + S(slotOffX(vslot - camera));
             if (bcx < rx - S(30.0f) || bcx > rx + rw + S(30.0f)) return;
             float top = Y(82.0f), bot = Y(159.0f), armW = S(6.0f), t = fmaxf(1.0f, S(3.0f));
-            drawQuad(bcx - t * 0.5f, top, t, bot - top, 0.859f, 0.859f, 0.859f, 1.0f);   // vertical edge
+            drawQuad(bcx - t * 0.5f, top, t, bot - top, cp.edge, cp.edge, cp.edge, 1.0f);   // vertical edge
             float armX = isRight ? bcx - armW : bcx - t * 0.5f;                          // arms toward centre
-            drawQuad(armX, top,         armW, t, 0.859f, 0.859f, 0.859f, 1.0f);          // top arm
-            drawQuad(armX, bot - t,     armW, t, 0.859f, 0.859f, 0.859f, 1.0f);          // bottom arm
+            drawQuad(armX, top,         armW, t, cp.edge, cp.edge, cp.edge, 1.0f);          // top arm
+            drawQuad(armX, bot - t,     armW, t, cp.edge, cp.edge, cp.edge, 1.0f);          // bottom arm
         };
         drawCap(-0.9f, false);                              // left "["
         drawCap((float)(nItems - 1) + 0.9f, true);          // right "]"
@@ -2239,7 +2261,8 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         const char* w = "GammaOS";                            // debranded (web app draws "Nintendo DSi Menu")
         float fs = S(20.0f) / (float)FONT_CHAR_H;
         float tw = measureText(w, fs);
-        drawText(w, cx - tw * 0.5f, Y(30.0f), fs, 0.827f, 0.827f, 0.827f, wmA);   // #d3d3d3
+        NdsPal wp = ndsPal();
+        drawText(w, cx - tw * 0.5f, Y(30.0f), fs, wp.watermark, wp.watermark, wp.watermark, wmA);   // #d3d3d3
     }
 
     if (frameChrome > 0.004f || chromeAlpha > 0.004f) {
@@ -2277,11 +2300,12 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
       // #a2a2a2/#c3c3c3/#dbdbdb -> white #fbfbfb interior. Firmware rect DS x3..252, y3..76
       // (centred DS coords via X(); edge-to-edge on the 4:3 RG DS). The centred item's label.
       { float bx = X(3.0f), bw = X(253.0f) - X(3.0f), by = Y(3.0f), bh = S(73.0f);
-        drawRoundedRect(bx,           by,           bw,            bh,            S(6.0f), 0.318f, 0.318f, 0.318f, ca);  // #515151 outer line
-        drawRoundedRect(bx + S(1.0f), by + S(1.0f), bw - S(2.0f),  bh - S(2.0f),  S(5.0f), 0.635f, 0.635f, 0.635f, ca);  // #a2a2a2
-        drawRoundedRect(bx + S(2.0f), by + S(2.0f), bw - S(4.0f),  bh - S(4.0f),  S(4.0f), 0.765f, 0.765f, 0.765f, ca);  // #c3c3c3
-        drawRoundedRect(bx + S(3.0f), by + S(3.0f), bw - S(6.0f),  bh - S(6.0f),  S(3.0f), 0.859f, 0.859f, 0.859f, ca);  // #dbdbdb
-        drawRoundedRect(bx + S(4.0f), by + S(4.0f), bw - S(8.0f),  bh - S(8.0f),  S(2.0f), 0.984f, 0.984f, 0.984f, ca);  // #fbfbfb interior
+        NdsPal nb = ndsPal();
+        drawRoundedRect(bx,           by,           bw,            bh,            S(6.0f), nb.bevel0, nb.bevel0, nb.bevel0, ca);  // #515151 outer line
+        drawRoundedRect(bx + S(1.0f), by + S(1.0f), bw - S(2.0f),  bh - S(2.0f),  S(5.0f), nb.bevel1, nb.bevel1, nb.bevel1, ca);  // #a2a2a2
+        drawRoundedRect(bx + S(2.0f), by + S(2.0f), bw - S(4.0f),  bh - S(4.0f),  S(4.0f), nb.bevel2, nb.bevel2, nb.bevel2, ca);  // #c3c3c3
+        drawRoundedRect(bx + S(3.0f), by + S(3.0f), bw - S(6.0f),  bh - S(6.0f),  S(3.0f), nb.bevel3, nb.bevel3, nb.bevel3, ca);  // #dbdbdb
+        drawRoundedRect(bx + S(4.0f), by + S(4.0f), bw - S(8.0f),  bh - S(8.0f),  S(2.0f), nb.bevel4, nb.bevel4, nb.bevel4, ca);  // #fbfbfb interior
         // Two lines like the DSi (name + publisher): the centred item's label, then its
         // category for context (launcher.js _drawNameBox is multi-line, #414141, centred).
         std::string l1, l2;
@@ -2305,7 +2329,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             if (am <= 0.004f || s.empty()) return;
             float f = baseFs, tw = measureText(s.c_str(), f);
             if (tw > maxW) { f *= maxW / tw; tw = measureText(s.c_str(), f); }
-            drawText(s.c_str(), cx - tw * 0.5f, yc, f, 0.255f, 0.255f, 0.255f, ca * am);   // #414141
+            drawText(s.c_str(), cx - tw * 0.5f, yc, f, nb.ink, nb.ink, nb.ink, ca * am);   // #414141
         };
         // HARD-SWAP the label (launcher.js hard-swaps game->game via _displaySelected; only
         // populated<->empty cross-fades). ca carries the boot-intro/watermark fade only.
@@ -2394,6 +2418,9 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         float wf = 1.0f - introFrame / 21.0f;
         if (wf > 0.0f) { drawQuad(rx, ry, rw, rh, 1.0f, 1.0f, 1.0f, wf); mDisplayDirty = true; }
     }
+    // Sort / Group / Folder-view change banner (Y), on TOP of the carousel so it shows in the DSi
+    // theme too (the XMB path draws it in renderPs3Xmb; drawn last here for the same feedback).
+    drawPhotoBanner();
     mTextOutlineMode = ndsPrevOutline;   // restore the caller's text outline mode
     mNdsFontPref = ndsPrevFont;   // restore the caller's font preference
 }
@@ -2523,21 +2550,124 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
     auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
     auto Y = [&](float d){ return offY + d * scale; };
     const float FCH = (float)FONT_CHAR_H;
-    const float hR = 0.235f, hG = 0.463f, hB = 0.427f;   // #3b766d label teal
-    const float vR = 0.145f, vG = 0.325f, vB = 0.298f;   // darker value/body
+    NdsPal ip = ndsPal();
+    const float hR = ip.headR, hG = ip.headG, hB = ip.headB;   // #3b766d label teal
+    const float vR = ip.valR,  vG = ip.valG,  vB = ip.valB;    // darker value/body
     auto fit = [&](const char* s, float wantFs, float maxW){ float f = wantFs; float w = measureText(s, f); if (w > maxW && w > 0) f *= maxW / w; return f; };
 
+    // ===================== USER GUIDE (plain full-width, dual-screen) =====================
+    // The User Guide reuses this info-page plumbing but is NOT a game: no cover, no mint canvas,
+    // no metadata. It gets a plain full-width readable text layout that SPANS BOTH DS screens -
+    // the top panel shows the title plus the first block of a "spread", the bottom panel shows the
+    // continuation, and L/R turns the spread. On a single screen it is one paged panel. Both the
+    // top (part 1) and bottom (part 2) calls derive the same fixed DS bands so they agree on the
+    // spread math and the page count without sharing state.
+    if (mPs3DlgHelp) {
+        // background: the DSi light/dark field + edge columns (no mint canvas).
+        drawQuad(rx, ry, rw, rh, ip.topBg, ip.topBg, ip.topBg, 1.0f);
+        { float ec = fmaxf(1.0f, S(1.0f));
+          drawQuad(X(0.0f), ry, ec, rh, ip.edge, ip.edge, ip.edge, 1.0f);
+          drawQuad(X(255.0f), ry, ec, rh, ip.edge, ip.edge, ip.edge, 1.0f); }
+
+        // Fixed DS layout bands (same in both the top and bottom calls). The top panel reserves
+        // room for the title; the bottom panel uses the full height. lineH/font are shared.
+        const float bodyFs = S(11.0f) / FCH;
+        const float lineH  = 14.0f;                 // DS px per line (readable at this font)
+        const float bodyLeft = 14.0f, bodyRight = 242.0f;
+        const float wrapW = X(bodyRight) - X(bodyLeft);
+        const float pagerY = 181.0f;                // L/R + page-number row (bottom corners)
+        const float topBodyTop = 46.0f, topBodyBot = pagerY - 3.0f;   // below the title
+        const float botBodyTop = 14.0f, botBodyBot = pagerY - 3.0f;   // full height (no title)
+        int topRows = (int)((topBodyBot - topBodyTop) / lineH); if (topRows < 1) topRows = 1;
+        int botRows = (int)((botBodyBot - botBodyTop) / lineH); if (botRows < 1) botRows = 1;
+
+        // Wrap the whole guide to the full width once (deterministic, so every call agrees).
+        std::vector<std::string> lines;
+        { const char* body = mPs3DlgBody.empty() ? "" : trDyn(mPs3DlgBody.c_str());
+          std::string line, word;
+          auto commit = [&](){ if (word.empty()) return;
+              std::string trial = line.empty() ? word : line + " " + word;
+              if (!line.empty() && measureText(trial.c_str(), bodyFs) > wrapW) { lines.push_back(line); line = word; }
+              else line = trial; word.clear(); };
+          for (const char* q = body; ; ++q) {
+              if (*q == ' ' || *q == '\n' || *q == '\0') { commit(); if (*q == '\n') lines.push_back(""); if (*q == '\0') break; }
+              else word.push_back(*q);
+          }
+          if (!line.empty()) lines.push_back(line);
+        }
+        const int total = (int)lines.size();
+
+        // part 0 = single panel (title + paged body); parts 1/2 = a spread across both screens.
+        const bool single   = (part == 0);
+        const int  perSpread = single ? topRows : (topRows + botRows);
+        int pages = (total + perSpread - 1) / perSpread; if (pages < 1) pages = 1;
+        mNdsInfoPageCount = pages;
+        if (mNdsInfoPage < 0) mNdsInfoPage = 0;
+        if (mNdsInfoPage > pages - 1) mNdsInfoPage = pages - 1;
+        const int spreadBase = mNdsInfoPage * perSpread;
+
+        auto drawLines = [&](int from, int count, float yTopDS){
+            float ly = yTopDS;
+            for (int i = from; i < from + count && i < total; i++) {
+                if (!lines[i].empty()) drawText(lines[i].c_str(), X(bodyLeft), Y(ly), bodyFs, vR, vG, vB, ap);
+                ly += lineH;
+            }
+        };
+
+        // Title (top panel and single panel only), in the DSi teal.
+        if (part != 2) {
+            const char* t = mPs3DlgTitle.empty() ? "User Guide" : mPs3DlgTitle.c_str();
+            float f = fit(t, S(14.0f) / FCH, X(bodyRight) - X(bodyLeft)); float tw = measureText(t, f);
+            drawText(t, cx - tw * 0.5f, Y(26.0f), f, hR, hG, hB, ap);
+        }
+        // Touch Back chevron on the interactive panel (bottom/full).
+        if (part != 1) drawNdsArrowBtn(X(4.0f), Y(4.0f), S(13.0f), S(13.0f), -1);
+
+        // Body.
+        if (single)            drawLines(spreadBase, topRows, topBodyTop);
+        else if (part == 1)    drawLines(spreadBase, topRows, topBodyTop);
+        else /* part == 2 */   drawLines(spreadBase + topRows, botRows, botBodyTop);
+
+        // L/R pager (bottom corners) on the interactive panel when there is more than one spread.
+        if (pages > 1 && part != 1) {
+            float by = Y(pagerY);
+            char pg[24]; snprintf(pg, sizeof(pg), "%d / %d", mNdsInfoPage + 1, pages);
+            float pf0 = S(9.0f) / FCH, pgw = measureText(pg, pf0);
+            drawText(pg, cx - pgw * 0.5f, by, pf0, hR, hG, hB, ap);
+            float lAct = (mNdsInfoPage > 0) ? 1.0f : 0.3f;
+            float rAct = (mNdsInfoPage < pages - 1) ? 1.0f : 0.3f;
+            auto pill = [&](float dxc, const char* g, float act){
+                float pf = S(9.0f) / FCH, gw = measureText(g, pf);
+                drawRoundedRect(X(dxc) - S(9.0f), by - S(1.5f), S(18.0f), S(13.0f), S(3.0f), hR, hG, hB, act * ap);
+                drawText(g, X(dxc) - gw * 0.5f, by, pf, ip.dlgBg, ip.dlgBg, ip.dlgBg, act * ap);
+            };
+            pill(14.0f, "L", lAct);
+            pill(242.0f, "R", rAct);
+        }
+        // "continued below" hint on the top panel of a multi-line spread (so it is clear the text
+        // carries onto the bottom screen), only when the bottom actually has lines this spread.
+        if (part == 1 && total > spreadBase + topRows) {
+            const char* h = "(continued below)";
+            float hf = S(8.5f) / FCH, hw = measureText(h, hf);
+            drawText(h, cx - hw * 0.5f, Y(pagerY), hf, ip.mintBevel, ip.mintBevel, ip.mintBevel, 0.9f * ap);
+        }
+
+        mTextOutlineMode = ndsPrevOutline;
+        mNdsFontPref = ndsPrevFont;
+        return;
+    }
+
     // light upper-screen background + side edge shading (matches renderNdsTop).
-    drawQuad(rx, ry, rw, rh, 0.965f, 0.965f, 0.965f, 1.0f);
+    drawQuad(rx, ry, rw, rh, ip.topBg, ip.topBg, ip.topBg, 1.0f);
     { float ec = fmaxf(1.0f, S(1.0f));
-      drawQuad(X(0.0f), ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
-      drawQuad(X(255.0f), ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f); }
+      drawQuad(X(0.0f), ry, ec, rh, ip.edge, ip.edge, ip.edge, 1.0f);
+      drawQuad(X(255.0f), ry, ec, rh, ip.edge, ip.edge, ip.edge, 1.0f); }
     // mint canvas: procedural bevel -> white inset -> mint field (no photo_U camera glyph).
     const float cvL = 18.0f, cvT = 18.0f, cvRr = 240.0f, cvB = 188.0f;
     { float px = X(cvL), pw = X(cvRr) - X(cvL), py = Y(cvT), ph = Y(cvB) - Y(cvT);
-      drawRoundedRect(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), 0.812f, 0.812f, 0.812f, ap);
-      drawRoundedRect(px, py, pw, ph, S(3), 1.0f, 1.0f, 1.0f, ap);
-      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), 0.678f, 0.839f, 0.808f, ap); }
+      drawRoundedRect(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), ip.mintBevel, ip.mintBevel, ip.mintBevel, ap);
+      drawRoundedRect(px, py, pw, ph, S(3), ip.mintInset, ip.mintInset, ip.mintInset, ap);
+      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), ip.mintR, ip.mintG, ip.mintB, ap); }
     // Faint scraped fanart CONTAINED inside the mint field (fit-inside, never overflowing the
     // green canvas), like the PS3 info backdrop.
     if (wantSummary && mPs3DlgFanTex && mPs3DlgFanW > 0 && mPs3DlgFanH > 0) {
@@ -2645,7 +2775,7 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
             auto pill = [&](float dxc, const char* g, float act){
                 float pf = S(9.0f) / FCH, gw = measureText(g, pf);
                 drawRoundedRect(X(dxc) - S(9.0f), by - S(1.5f), S(18.0f), S(13.0f), S(3.0f), hR, hG, hB, act * ap);
-                drawText(g, X(dxc) - gw * 0.5f, by, pf, 1.0f, 1.0f, 1.0f, act * ap);
+                drawText(g, X(dxc) - gw * 0.5f, by, pf, ip.dlgBg, ip.dlgBg, ip.dlgBg, act * ap);
             };
             pill(14.0f, "L", lAct);    // bottom-left corner
             pill(242.0f, "R", rAct);   // bottom-right corner
@@ -2679,8 +2809,9 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
       pollNdsStatus();    // wifi / bluetooth / audio active
       const float cy = 10.5f;          // shared icon centre line (DS)
       const float lw = S(1.25f);       // shared stroke weight
-      const float on_r = 0.255f, on_g = 0.255f, on_b = 0.255f;   // #414141 active
-      const float of_r = 0.741f, of_g = 0.741f, of_b = 0.741f;   // #bdbdbd inactive
+      NdsPal sp = ndsPal();
+      const float on_r = sp.ink, on_g = sp.ink, on_b = sp.ink;      // #414141 active
+      const float of_r = sp.subInk, of_g = sp.subInk, of_b = sp.subInk;   // #bdbdbd inactive
       // Even cell centres (uniform pitch). Each glyph is built symmetric about its centre.
       const float cVol = 12.0f, cWifi = 27.0f, cBt = 41.0f, cNote = 55.0f;
 
@@ -2790,6 +2921,7 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
     // 4px cell for ':' and ' '). Baseline y15 (cell-top y5 + Fonts.s baseline 10).
     { time_t tt = time(nullptr); struct tm lt; localtime_r(&tt, &lt);
       clockRefreshMaybe();
+      NdsPal sp2 = ndsPal();
       bool blinkOff = (lt.tm_sec & 1);
       char ds[16], ts[16];
       // Honor the Date Format setting (mPs3DateFormatIdx 2 = DD/MM, else MM/DD), same as the XMB clock.
@@ -2808,7 +2940,7 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
           for (const char* p = s; *p; ++p) {
               float cellPx = S(adv(*p));
               if (*p != ' ') { char buf[2] = { *p, 0 }; float gw = measureText(buf, fs);
-                  drawText(buf, x + (cellPx - gw) * 0.5f, cy, fs, 0.255f, 0.255f, 0.255f, 1.0f); }   // centre in the fixed cell
+                  drawText(buf, x + (cellPx - gw) * 0.5f, cy, fs, sp2.ink, sp2.ink, sp2.ink, 1.0f); }   // centre in the fixed cell
               x += cellPx;
           } };
       float clockRight = X(231.0f);                          // battInkX(237) - 6
@@ -2825,8 +2957,8 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
         } else {
             if (pct > 100) pct = 100;
             float bx = X(236.0f), by = Y(6.0f), bw = S(12.5f), bh = S(9.0f);
-            drawRoundedRect(bx, by, bw, bh, S(1.5f), 0.255f, 0.255f, 0.255f, 1.0f);               // dark frame
-            drawQuad(bx + bw, by + S(2.0f), S(2.0f), bh - S(4.0f), 0.255f, 0.255f, 0.255f, 1.0f); // terminal nub
+            drawRoundedRect(bx, by, bw, bh, S(1.5f), sp2.ink, sp2.ink, sp2.ink, 1.0f);               // dark frame
+            drawQuad(bx + bw, by + S(2.0f), S(2.0f), bh - S(4.0f), sp2.ink, sp2.ink, sp2.ink, 1.0f); // terminal nub
             float ix = bx + S(1.5f), iy = by + S(1.5f), iw = bw - S(3.0f), ih = bh - S(3.0f);
             drawQuad(ix, iy, iw, ih, 0.902f, 0.902f, 0.902f, 1.0f);                               // empty track
             float fr, fg, fb;
@@ -2877,6 +3009,7 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // a translucent in-game overlay so the darkened live app shows through (the overlay scrim),
     // like the PS3 XMB overlay (user request); the opaque post-game launcher + home keep it.
     const bool ndsTopScrim = mOverlayMode && !mOverlayWallpaper;
+    NdsPal tpal = ndsPal();
     if (!ndsTopScrim) {
         if (wallpaperActive(mRenderingPanel)) {
             // Custom wallpaper fills the whole DSi top screen behind all the chrome, replacing the flat
@@ -2884,10 +3017,10 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))
                 drawWallpaperFill(mRenderingPanel);
         } else {
-            drawQuad(rx, ry, rw, rh, 0.965f, 0.965f, 0.965f, 1.0f);
+            drawQuad(rx, ry, rw, rh, tpal.topBg, tpal.topBg, tpal.topBg, 1.0f);
             float ec = fmaxf(1.0f, S(1.0f));
-            drawQuad(X(0.0f), ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
-            drawQuad(X(255.0f), ry, ec, rh, 0.859f, 0.859f, 0.859f, 1.0f);
+            drawQuad(X(0.0f), ry, ec, rh, tpal.edge, tpal.edge, tpal.edge, 1.0f);
+            drawQuad(X(255.0f), ry, ec, rh, tpal.edge, tpal.edge, tpal.edge, 1.0f);
         }
     }
 
@@ -2901,9 +3034,9 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // firmware CAMERA glyph baked into the mint field). The highlighted card's own icon is drawn
     // into this clean field below, so the camera never shows through for non-game items.
     { float px = X(18.0f), pw = X(240.0f) - X(18.0f), py = Y(18.0f), ph = Y(188.0f) - Y(18.0f);
-      drawRoundedRect(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), 0.812f, 0.812f, 0.812f, 1.0f);   // grey bevel
-      drawRoundedRect(px, py, pw, ph, S(3), 1.0f, 1.0f, 1.0f, 1.0f);                                     // white inset
-      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), 0.678f, 0.839f, 0.808f, 1.0f); } // mint field
+      drawRoundedRect(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), tpal.mintBevel, tpal.mintBevel, tpal.mintBevel, 1.0f);   // grey bevel
+      drawRoundedRect(px, py, pw, ph, S(3), tpal.mintInset, tpal.mintInset, tpal.mintInset, 1.0f);                                // white inset
+      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), tpal.mintR, tpal.mintG, tpal.mintB, 1.0f); } // mint field
     // panel content: current category (head) + selected item (sub), DSi teal, centred.
     // Top screen shows the current level / parent context (head) + the focused selection (sub).
     // The focused item follows the SAME hard-swap selection as the bottom name box
@@ -2913,7 +3046,7 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // Icon of the currently highlighted card, resolved at whatever level we are on, so the mint
     // field shows the SAME glyph as the focused bottom-screen card (root = the category icon,
     // inside = the focused item/app/game icon). Follows the mNdsDispSel hard-swap.
-    GLuint hlIconTex = 0, hlNmapTex = 0; float hlIconR = 1.0f, hlIconG = 1.0f, hlIconB = 1.0f;
+    GLuint hlIconTex = 0, hlNmapTex = 0; float hlIconR = 1.0f, hlIconG = 1.0f, hlIconB = 1.0f; bool hlOwnTint = false;
     if (mNdsAtRoot) {                                     // categories root
         head = "GammaOS";
         int d = mNdsDispSel; if (d < 0) d = 0; if (d >= (int)mPs3Cats.size()) d = (int)mPs3Cats.size() - 1;
@@ -2936,7 +3069,8 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     }
     // For a focused item/app/game inside a category or submenu, use that item's own icon.
     if (selItem) { hlIconTex = selItem->iconTex; hlNmapTex = selItem->nmapTex;
-                   hlIconR = selItem->iconR; hlIconG = selItem->iconG; hlIconB = selItem->iconB; }
+                   hlIconR = selItem->iconR; hlIconG = selItem->iconG; hlIconB = selItem->iconB;
+                   hlOwnTint = selItem->flatOwnTint; }
     if (head.empty()) head = "GammaOS";
 
     // ---- game preview (#66) -------------------------------------------------
@@ -3038,14 +3172,14 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             float fs = S(13.0f) / (float)FONT_CHAR_H;
             float w = measureText(s.c_str(), fs);
             if (w <= subMaxW) {                                   // fits at full size
-                drawText(s.c_str(), cx - w * 0.5f, Y(160.0f), fs, 0.235f, 0.463f, 0.427f, am);
+                drawText(s.c_str(), cx - w * 0.5f, Y(160.0f), fs, tpal.headR, tpal.headG, tpal.headB, am);
                 return;
             }
             float minFs = S(9.0f) / (float)FONT_CHAR_H;           // readability floor
             float scaled = fs * (subMaxW / w);
             if (scaled >= minFs) {                                // one line, shrunk to fit
                 float w2 = measureText(s.c_str(), scaled);
-                drawText(s.c_str(), cx - w2 * 0.5f, Y(160.0f), scaled, 0.235f, 0.463f, 0.427f, am);
+                drawText(s.c_str(), cx - w2 * 0.5f, Y(160.0f), scaled, tpal.headR, tpal.headG, tpal.headB, am);
                 return;
             }
             // two lines: split at the space nearest the middle (hard split if no space).
@@ -3059,7 +3193,7 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             auto drawFit = [&](const std::string& tstr, float yc){
                 float f = S(11.0f) / (float)FONT_CHAR_H; float lw = measureText(tstr.c_str(), f);
                 if (lw > subMaxW) { f *= subMaxW / lw; lw = measureText(tstr.c_str(), f); }
-                drawText(tstr.c_str(), cx - lw * 0.5f, yc, f, 0.235f, 0.463f, 0.427f, am);
+                drawText(tstr.c_str(), cx - lw * 0.5f, yc, f, tpal.headR, tpal.headG, tpal.headB, am);
             };
             drawFit(l1, Y(154.0f));
             drawFit(l2, Y(167.0f));
@@ -3093,17 +3227,17 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             // readouts keep their space; game boxart/fanart is the if-branch above, untouched.
             { const float isz = S(72.0f); const float ixI = cx - isz * 0.5f; const float iyI = Y(46.0f);
               if (hlIconTex) {
-                  if (hlNmapTex) drawIconTex(hlIconTex, ixI, iyI, isz, isz, 0.28f, 0.30f, 0.36f, 1.0f);   // dark glyph (system/glass)
-                  else           drawIconTex(hlIconTex, ixI, iyI, isz, isz, 1.0f, 1.0f, 1.0f, 1.0f);        // colour art (game/app)
-              } else if (hlNmapTex && mIconGlassReady && ps3bg::workTex()) {
-                  drawGlassIcon(hlNmapTex, ixI, iyI, isz, isz, hlIconR, hlIconG, hlIconB, 1.0f);            // relit glass fallback
+                  if (hlOwnTint)      drawIconTex(hlIconTex, ixI, iyI, isz, isz, hlIconR, hlIconG, hlIconB, 1.0f);   // item's own colour (red loveheart)
+                  else if (hlNmapTex) drawIconTex(hlIconTex, ixI, iyI, isz, isz, tpal.glyphR, tpal.glyphG, tpal.glyphB, 1.0f);   // flat glyph (theme-tinted)
+                  else                drawIconTex(hlIconTex, ixI, iyI, isz, isz, 1.0f, 1.0f, 1.0f, 1.0f);        // colour art (game/app)
               } }
-            drawCtx(head, Y(132.0f), 1.0f, 0.235f, 0.463f, 0.427f);   // #3b766d (hard-swap), below the icon
-            drawCtx(sub,  Y(148.0f), 1.0f, 0.349f, 0.635f, 0.604f);   // #59a29a teal
+              // No glass fallback on the DSi top panel: glass is XMB-only (see the carousel tile).
+            drawCtx(head, Y(132.0f), 1.0f, tpal.headR, tpal.headG, tpal.headB);   // #3b766d (hard-swap), below the icon
+            drawCtx(sub,  Y(148.0f), 1.0f, tpal.subR, tpal.subG, tpal.subB);      // #59a29a teal
         } else {
-            drawCtx(head, Y(64.0f), 1.0f, 0.235f, 0.463f, 0.427f);
-            drawCtx(sub,  Y(80.0f), 1.0f, 0.349f, 0.635f, 0.604f);
-            if (!val.empty()) drawCtx(val, Y(98.0f), 1.0f, 0.145f, 0.325f, 0.298f);   // current value, darker
+            drawCtx(head, Y(64.0f), 1.0f, tpal.headR, tpal.headG, tpal.headB);
+            drawCtx(sub,  Y(80.0f), 1.0f, tpal.subR, tpal.subG, tpal.subB);
+            if (!val.empty()) drawCtx(val, Y(98.0f), 1.0f, tpal.valR, tpal.valG, tpal.valB);   // current value, darker
             if (!dsc.empty()) {                                                       // wrapped description
                 const char* d = trDyn(dsc.c_str());
                 float fs = S(9.0f) / (float)FONT_CHAR_H;
@@ -3116,7 +3250,7 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
                 if (!line.empty()) ln.push_back(line);
                 int maxL = 5; if ((int)ln.size() > maxL) ln.resize(maxL);
                 float ly = Y(118.0f);
-                for (auto& s : ln) { if (!s.empty()) { float tw = measureText(s.c_str(), fs); drawText(s.c_str(), cx - tw*0.5f, ly, fs, 0.30f, 0.42f, 0.40f, 1.0f); } ly += S(11.0f); }
+                for (auto& s : ln) { if (!s.empty()) { float tw = measureText(s.c_str(), fs); drawText(s.c_str(), cx - tw*0.5f, ly, fs, tpal.headR, tpal.headG, tpal.headB, 1.0f); } ly += S(11.0f); }
             }
         }
     }

@@ -169,7 +169,7 @@ void NanoMenu::gsOpenRemoveScanSourceConfirm(int srcIdx) {
 void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Scan Folders"; out.screenKind = GS_FOLDER;
     { Ps3Item it; it.label = "Add Folder..."; it.kind = PS3_GS_ADDFOLDER;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(50);   // folder+ glyph
+      it.iconTex = iconTexForIcon(50); it.nmapTex = nmapForIcon(50);   // folder+ glyph
       it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
     if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
     const XmbSystem& sys = mXmbSystems[mGsEditIdx];
@@ -179,7 +179,7 @@ void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {
     for (size_t i = 0; i < sys.scanSources.size(); i++) {
         Ps3Item it; it.label = sys.scanSources[i].value;
         it.kind = PS3_GS_SCANSRC; it.a = (int)i;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(62);   // folder glyph
+        it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62);   // folder glyph
         it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
     }
 
@@ -231,7 +231,7 @@ void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {
         if (cnt > 0) snprintf(v, sizeof(v), "%s%d", trDyn("Default, "), cnt);   // "Default, 12"
         else         snprintf(v, sizeof(v), "%s", trDyn("Default (empty)"));
         it.value = v;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(62);
+        it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62);
         float m = cnt > 0 ? 0.72f : 0.5f;   // brighter when populated, dimmer when empty
         it.iconR = it.iconG = it.iconB = m;
         out.items.push_back(it);
@@ -344,7 +344,7 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
     GLuint folderNmap = nmapForIcon(62);
     auto addDir = [&](const std::string& label, const std::string& target) {
         Ps3Item it; it.label = label; it.kind = PS3_GS_DIR; it.payloadStr = target;
-        it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     };
     if (path.empty()) {
@@ -402,7 +402,7 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
     }
     // "Select this folder".
     { Ps3Item it; it.label = "Select This Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = path;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
 }
 

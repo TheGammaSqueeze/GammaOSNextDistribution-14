@@ -1506,6 +1506,13 @@ bool NanoMenu::threadLoop() {
     mNdsTheme    = (homeTheme == 1);
     mMinimaTheme = (homeTheme == 2) || android::base::GetBoolProperty("persist.gammaos.nano.minima", false);
     if (mMinimaTheme) mNdsTheme = false;          // Minima wins over DSi
+    mNdsDark = android::base::GetBoolProperty("persist.gammaos.nano.nds.dark", false);  // DSi dark variant
+    mGameSortMode = android::base::GetIntProperty("persist.gammaos.nano.gamesort", 0);   // Game tile order (Y cycles)
+    if (mGameSortMode < 0 || mGameSortMode > 3) mGameSortMode = 0;
+    // Media folder view (Y toggles): group each library by parent directory. Persisted per library.
+    mPhotoFolderView = android::base::GetBoolProperty("persist.gammaos.nano.photo.folderview", false);
+    mVideoFolderView = android::base::GetBoolProperty("persist.gammaos.nano.video.folderview", false);
+    mMusicFolderView = android::base::GetBoolProperty("persist.gammaos.nano.music.folderview", false);
     if (mNdsTheme || mMinimaTheme) mPs3Xmb = true;  // reuse the XMB home infrastructure, swap the render
     // Dual-screen XMB: render a static PSP clock on the bottom panel instead of a second wave.
     // Cached once (read on the render hot path otherwise); only meaningful in pure XMB (!mNdsTheme)

@@ -157,7 +157,7 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
     // ".." up one real level, except at "/" (the top: there is nowhere higher, Back exits there).
     if (cur != "/") {
         Ps3Item it; it.label = ".."; it.kind = PS3_FE_DIR; it.payloadStr = feParentDir(cur);
-        it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 
@@ -188,7 +188,7 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
 
     for (const auto& n : dirs) {
         Ps3Item it; it.label = n; it.kind = PS3_FE_DIR; it.payloadStr = base + "/" + n;
-        it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     for (const auto& n : files) {
@@ -197,7 +197,7 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
         // per-entry round trip the worker exists to avoid.
         auto sit = sizes.find(n);
         if (sit != sizes.end()) it.value = feHumanSize(sit->second);
-        it.iconTex = 0; it.nmapTex = fileNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(25); it.nmapTex = fileNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     if (!listingReady) {
@@ -214,7 +214,7 @@ void NanoMenu::buildFileBrowser(const std::string& path, Ps3Level& out) {
         for (const std::string& sn : shareNames) {
             Ps3Item it; it.label = std::string("Share: ") + sn;
             it.kind = PS3_FE_DIR; it.payloadStr = "/mnt/shares/" + sn;
-            it.iconTex = 0; it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+            it.iconTex = iconTexForIcon(62); it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
             out.items.push_back(it);
         }
     }

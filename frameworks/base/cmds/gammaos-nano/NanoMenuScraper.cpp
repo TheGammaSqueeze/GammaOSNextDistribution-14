@@ -742,7 +742,7 @@ void NanoMenu::scrapeOneSystem(int sysIdx) {
 // Builds a one-element job the same way scrapeSystemsAsync does and runs the
 // existing worker + progress modal.
 // ---------------------------------------------------------------------------
-void NanoMenu::scrapeOneRom(int sysIdx, int romIdx) {
+void NanoMenu::scrapeOneRom(int sysIdx, int romIdx, const std::string& queryOverride) {
     if (mScrapeRunning) return;
     if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
     scraperEnsureLoaded();
@@ -772,7 +772,10 @@ void NanoMenu::scrapeOneRom(int sysIdx, int romIdx) {
                 j.romPath = rom;
                 j.displayName = (romIdx < (int)s.displayNames.size()) ? s.displayNames[romIdx] : rom;
                 j.sysName = s.name;
-                if (const std::string* ov = romNameOverrideFor(rom)) j.queryName = *ov;
+                // A one-off custom search name (user typed it for this scrape only) wins over the
+                // saved title override; neither persists a rename here.
+                if (!queryOverride.empty()) j.queryName = queryOverride;
+                else if (const std::string* ov = romNameOverrideFor(rom)) j.queryName = *ov;
                 j.engine = (int)eng;
                 j.cred = cred;
                 j.plat = plat;

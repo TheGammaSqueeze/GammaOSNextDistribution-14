@@ -366,7 +366,7 @@ void NanoMenu::buildIptvCategoriesScreen(Ps3Level& out) {
         Ps3Item it; it.label = mIptvCats[c].title; it.kind = PS3_IPTV_GROUP; it.a = (int)c;
         int n = mIptvCats[c].total;
         char v[32]; snprintf(v, sizeof(v), "%d %s", n, trDyn(n == 1 ? "Channel" : "Channels")); it.value = v;
-        it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(4); it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }
 }
@@ -383,7 +383,7 @@ void NanoMenu::buildIptvCountrySubmenu(int catIdx, Ps3Level& out) {
         it.kind = PS3_IPTV_COUNTRY; it.a = catIdx; it.b = (int)k;
         int n = (int)c.countries[k].channels.size();
         char v[32]; snprintf(v, sizeof(v), "%d %s", n, trDyn(n == 1 ? "Channel" : "Channels")); it.value = v;
-        it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(4); it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }
 }
@@ -404,7 +404,7 @@ void NanoMenu::buildIptvChannelSubmenu(int catIdx, int countryIdx, Ps3Level& out
         it.payloadStr = ch.url;
         it.desc = c.title;        // carried into the stream queue / playlist entry
         it.value = "Live";
-        it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(4); it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }
     if (out.items.empty()) {

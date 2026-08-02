@@ -613,6 +613,13 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
 // Build a submenu level from a static DATA node's children.
 void NanoMenu::buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out) {
     out.items.clear(); out.sel = 0;
+    // Drop the memoised bound-value cache on every settings-submenu (re-)entry so each row RE-READS
+    // its live source once here, instead of serving a value cached on a previous visit. Without this
+    // a setting changed by anything other than this menu's own chooser (an external setprop, a QS
+    // tile, or an in-code writer like wallpaper-pick flipping XMB Wave) shows a stale value until the
+    // process restarts. resolvePs3ItemValue repopulates the cache on the first frame, so the per-frame
+    // draw stays cheap; the one-time re-read burst is bounded by the rows visible on entry.
+    mPs3BindCache.clear();
     out.title = node ? node->name : "";
     if (!node || !node->children) return;
     for (int i = 0; i < node->childCount; i++) {
@@ -691,7 +698,75 @@ void NanoMenu::openHelpPage() {
     // XMB scroll branch (Up/Down). Empty nonce so the async app-info reader never overwrites the body.
     mPs3DlgAppInfo = true; mPs3DlgAppInfoPending = false; mPs3AppInfoScroll = 0; mPs3AppInfoNonce.clear();
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
-    mPs3DlgGameInfo = true; mNdsInfoPage = 0;
+    mPs3DlgGameInfo = true; mPs3DlgHelp = true; mNdsInfoPage = 0;
+}
+
+// ---------------------------------------------------------------------------
+// Game category system ordering (Y cycles Default / A-Z / Most Games / Manufacturer).
+// ---------------------------------------------------------------------------
+// Best-effort manufacturer for grouping. Catalog-created systems carry a LibretroDB icon ref
+// ("retroarch:Sony_-_PlayStation_2") whose prefix before "_-_" IS the maker; use it. Built-ins
+// use a "builtin:N" ref, so fall back to a small shortname map covering the seeded systems. An
+// unknown system groups under "Other" so it clusters together at the end rather than scattering.
+std::string NanoMenu::systemManufacturer(const XmbSystem& s) const {
+    // 1) Derive from a retroarch/libretro icon ref ("retroarch:Maker_-_System").
+    const std::string& ref = s.iconRef;
+    if (ref.rfind("retroarch:", 0) == 0) {
+        std::string n = ref.substr(10);
+        size_t sep = n.find("_-_");
+        if (sep != std::string::npos) {
+            std::string maker = n.substr(0, sep);
+            for (char& c : maker) if (c == '_') c = ' ';
+            if (!maker.empty()) return maker;
+        }
+    }
+    // 2) Built-in / unmapped: a compact maker map keyed by shortname (case-insensitive).
+    static const struct { const char* sn; const char* maker; } kMakers[] = {
+        {"NES","Nintendo"},{"SNES","Nintendo"},{"GB","Nintendo"},{"GBC","Nintendo"},
+        {"GBA","Nintendo"},{"N64","Nintendo"},{"NDS","Nintendo"},{"3DS","Nintendo"},
+        {"VB","Nintendo"},{"GEN","Sega"},{"SMS","Sega"},{"GG","Sega"},{"DC","Sega"},
+        {"SATURN","Sega"},{"SEGACD","Sega"},{"32X","Sega"},{"PSX","Sony"},{"PSP","Sony"},
+        {"PS2","Sony"},{"NGP","SNK"},{"NGPC","SNK"},{"NEOGEO","SNK"},{"PCE","NEC"},
+        {"TG16","NEC"},{"PCECD","NEC"},{"WS","Bandai"},{"WSC","Bandai"},{"LYNX","Atari"},
+        {"A2600","Atari"},{"A5200","Atari"},{"A7800","Atari"},{"JAGUAR","Atari"},
+        {"3DO","Panasonic"},{"CDI","Philips"},{"C64","Commodore"},{"AMIGA","Commodore"},
+    };
+    for (const auto& m : kMakers) if (!strcasecmp(m.sn, s.shortname.c_str())) return m.maker;
+    return "Other";
+}
+
+std::string NanoMenu::gameSortLabelCur() const {
+    switch (mGameSortMode) {
+        case 1:  return trDyn("Sort: A - Z");
+        case 2:  return trDyn("Sort: Most Games");
+        case 3:  return trDyn("Sort: By Manufacturer");
+        default: return trDyn("Sort: Default");
+    }
+}
+
+// Y on the Game category: step the ordering mode, persist it, rebuild the category so the tiles
+// re-emit in the new order, keep the focused system focused where possible, and flash a banner.
+void NanoMenu::gameSortCycleY() {
+    // Remember which system is focused (by mXmbSystems index) so we can re-focus it after the
+    // re-order instead of jumping to a different tile.
+    int focusSysA = -1;
+    if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
+        const auto& its = mPs3Cats[mPs3CatIdx].items;
+        int sel = ps3CurSel();
+        if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_SYSTEM) focusSysA = its[sel].a;
+    }
+    mGameSortMode = (mGameSortMode + 1) % 4;
+    property_set("persist.gammaos.nano.gamesort", std::to_string(mGameSortMode).c_str());
+    buildPs3Cats();
+    // Re-focus the same system tile in the rebuilt category.
+    if (focusSysA >= 0 && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
+        const auto& its = mPs3Cats[mPs3CatIdx].items;
+        for (int i = 0; i < (int)its.size(); i++)
+            if (its[i].kind == PS3_SYSTEM && its[i].a == focusSysA) { ps3CurSel() = i; break; }
+    }
+    photoShowBanner(gameSortLabelCur());   // reuse the shared centered banner overlay
+    mDisplayDirty = true;
+    ALOGI("NanoMenu: game sort -> %d", mGameSortMode);
 }
 
 void NanoMenu::buildRecentSubmenu(Ps3Level& out) {
@@ -1211,8 +1286,13 @@ void NanoMenu::buildPs3Cats() {
         // starred at least one game (via a game's "Add to Favorites" option). Sits above Collections.
         if (!mXmbFavorites.empty()) {
             Ps3Item it; it.label = "Favorites"; it.kind = PS3_FAVORITES_LIST;
-            it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);
-            it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
+            // Loveheart icon, rendered in the SAME style as every other icon: glass (silvery relit
+            // normal map) on XMB, flat theme-tinted glyph on DSi/Minima. NOT colour-tinted - the user
+            // wants the standard shading, not a red heart. Procedural, so no PNG asset is required.
+            ensureHeartIcon();
+            it.iconTex = mHeartIconTex; it.nmapTex = mHeartNmapTex;
+            it.iconR = it.iconG = it.iconB = 1.0f;   // white: glass on XMB, flat glyph on DSi/Minima
+            nano.push_back(it);
         }
         // Collections: cross-system game groups. Shown once the user has made at least one (created
         // via a game's "Add to Collection" option or the New Collection... row inside).
@@ -1221,15 +1301,43 @@ void NanoMenu::buildPs3Cats() {
             it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);
             it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
         }
+        // Collect the visible system indices, then order them per mGameSortMode. mXmbSystems
+        // itself is never reordered (that order is the Game Systems editor order); only this
+        // local view is sorted, so the editor + persistence stay intact. Default keeps the
+        // editor order (the original loop order).
+        std::vector<int> order;
         for (size_t s = 0; s < mXmbSystems.size(); s++) {
             const XmbSystem& sys = mXmbSystems[s];
             if (!sys.enabled) continue;
-            // Builtin systems stay hidden until ROMs are found (keeps the
-            // column to what the user actually has). User-added systems always
-            // show: the user explicitly created them and needs to see the tile
-            // (and its 0 count) before any ROMs land in the scan folders.
+            // Builtin systems stay hidden until ROMs are found (keeps the column to what the
+            // user actually has). User-added systems always show: the user explicitly created
+            // them and needs to see the tile (and its 0 count) before any ROMs land.
             if (sys.roms.empty() && sys.builtin) continue;
-            Ps3Item it; it.label = sys.name; it.kind = PS3_SYSTEM; it.a = (int)s;
+            order.push_back((int)s);
+        }
+        auto nameLess = [&](int a, int b){
+            return strcasecmp(mXmbSystems[a].name.c_str(), mXmbSystems[b].name.c_str()) < 0;
+        };
+        if (mGameSortMode == 1) {                       // A-Z by display name
+            std::stable_sort(order.begin(), order.end(), nameLess);
+        } else if (mGameSortMode == 2) {                // Most games first (name tiebreak)
+            std::stable_sort(order.begin(), order.end(), [&](int a, int b){
+                size_t ra = mXmbSystems[a].roms.size(), rb = mXmbSystems[b].roms.size();
+                if (ra != rb) return ra > rb;
+                return nameLess(a, b);
+            });
+        } else if (mGameSortMode == 3) {                // Cluster by manufacturer, then name
+            std::stable_sort(order.begin(), order.end(), [&](int a, int b){
+                std::string ma = systemManufacturer(mXmbSystems[a]);
+                std::string mb = systemManufacturer(mXmbSystems[b]);
+                int c = strcasecmp(ma.c_str(), mb.c_str());
+                if (c != 0) return c < 0;
+                return nameLess(a, b);
+            });
+        }
+        for (int s : order) {
+            const XmbSystem& sys = mXmbSystems[s];
+            Ps3Item it; it.label = sys.name; it.kind = PS3_SYSTEM; it.a = s;
             resolveSystemIcon(sys.iconRef, &it.iconTex, &it.nmapTex);
             it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;   // per-system tint
             char buf[32]; snprintf(buf, sizeof(buf), "%zu", sys.roms.size()); it.value = buf;
@@ -1662,6 +1770,10 @@ void NanoMenu::gpAct(Ps3Level& out, const char* label, int qa, int icon, const c
 // leaf list. Keeps the ~28 controller options scannable instead of one long list.
 void NanoMenu::buildGamepadSubmenu(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Gamepad Settings"; out.screenKind = 0;
+    // Gamepad Settings bypasses buildDataSubmenu (custom buildGp* builders), and its bound rows share
+    // props with the QS tiles + the power-menu Controller dialog (external changers). Drop the cache
+    // on entry so every gamepad/mouse bound row - reached only through this menu - re-reads live.
+    mPs3BindCache.clear();
     gpAct(out, "Controllers",      QA_GP_CONTROLLERS, 5,  nullptr);
     gpAct(out, "Sticks & D-Pad",   QA_GP_STICKS,      5,  nullptr);
     gpAct(out, "Buttons",          QA_GP_BUTTONS,     5,  nullptr);
@@ -3719,11 +3831,11 @@ void NanoMenu::buildGameSystemsList(Ps3Level& out) {
     }
     // Add New System (from the Daijishou catalog or blank). Y removes a custom row.
     { Ps3Item it; it.label = "Add New System..."; it.kind = PS3_GS_ADD;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(51);   // add glyph
+      it.iconTex = iconTexForIcon(51); it.nmapTex = nmapForIcon(51);   // add glyph (colour tex so DSi/Minima flat card is not blank)
       it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
     // ES-DE-style bulk import: point it at a ROMs root and it adds every recognised system folder.
     { Ps3Item it; it.label = "Auto-add Systems from Folder..."; it.kind = PS3_GS_AUTOADD;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(50);   // folder glyph
+      it.iconTex = iconTexForIcon(50); it.nmapTex = nmapForIcon(50);   // folder glyph (colour tex so DSi/Minima flat card is not blank)
       it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
 }
 
@@ -4726,7 +4838,7 @@ void NanoMenu::ps3XmbSelect() {
                     // The Game Systems editor now lives under Game Settings; inject it as
                     // the first row (it is a runtime PS3_GS_ROOT item, not static data).
                     Ps3Item gs; gs.label = "Game Systems"; gs.kind = PS3_GS_ROOT;
-                    gs.iconTex = 0; gs.nmapTex = nmapForIcon(22);
+                    gs.iconTex = iconTexForIcon(22); gs.nmapTex = nmapForIcon(22);   // colour tex so the DSi flat card is never blank / glass-leaked
                     gs.iconR = gs.iconG = gs.iconB = 1.0f;
                     lvl.items.insert(lvl.items.begin(), gs);
                     lvl.sel = 0;
@@ -4734,7 +4846,7 @@ void NanoMenu::ps3XmbSelect() {
                     // The Home Categories editor lives under Theme Settings; inject it as
                     // the first row (a runtime PS3_CATORDER_ROOT item, not static data).
                     Ps3Item co; co.label = "Home Categories"; co.kind = PS3_CATORDER_ROOT;
-                    co.iconTex = 0; co.nmapTex = nmapForIcon(79);
+                    co.iconTex = iconTexForIcon(79); co.nmapTex = nmapForIcon(79);   // colour/mono tex so the DSi flat card is never blank / glass-leaked
                     co.iconR = co.iconG = co.iconB = 1.0f;
                     lvl.items.insert(lvl.items.begin(), co);
                     lvl.sel = 0;
@@ -4857,6 +4969,9 @@ void NanoMenu::ps3XmbSelect() {
             // Open the full-screen video player on the surrounding list of videos.
             openVideoPlayer(items, sel);
             return;
+        }
+        case PS3_VIDEO_FOLDER: {   // folder-view group -> the videos in that folder
+            Ps3Level lvl; buildVideoFolderSubmenu(it.payloadStr, lvl); mPs3Stack.push_back(lvl); break;
         }
         case PS3_VIDEO_REFRESH: { videoRefresh(); return; }
         case PS3_VIDEO_PLAYLIST: {   // open the playlist's file submenu
@@ -7972,6 +8087,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // closePs3Dialog. "0"/empty = GammaOS XMB, "1" = the DSi Menu theme.
     {"Home Theme", SettingSource::kProp, "persist.gammaos.nano.ndstheme", "0",
      "0:GammaOS XMB,1:DSi Menu,2:Minima"},
+    // DSi theme dark variant. mNdsDark is read live by ndsPal() in every DSi renderer, so this
+    // applies immediately (no home restart) - see the "DSi Dark Theme" hook in closePs3Dialog.
+    // Only meaningful while the DSi Menu theme is selected.
+    {"DSi Dark Theme", SettingSource::kProp, "persist.gammaos.nano.nds.dark", "0", "0:Off,1:On"},
     // Gamepad free-text / mapping fields (edited via the OSK for now; Inc2/Inc3 readapt
     // these into native button/axis/device pickers). Formats match the gammapad daemon:
     //   devices/blacklist_pass: device-name patterns (';') / button codes (',')
@@ -9336,7 +9455,7 @@ void NanoMenu::openDualScreenPrompt(const std::string& pkg) {
     mPs3DlgBinding = nullptr; mPs3DlgThemeKey = 0; mShaderParamEdit = -1;
     mPs3DlgKind = 0; mPs3DlgType = 1;   // fullscreen chooser: body + selectable option list
     mPs3DlgIllust = 0; mPs3DlgNotice.clear();
-    mPs3DlgRomInfo = false; mPs3DlgGameInfo = false; mPs3DlgAppInfo = false;
+    mPs3DlgRomInfo = false; mPs3DlgGameInfo = false; mPs3DlgHelp = false; mPs3DlgAppInfo = false;
     mPs3DlgTitle = "Dual-Screen App";
     mPs3DlgBody = name + " appears to use both screens.\n\n"
                   "Run it on the primary screen so it opens across the top and bottom "
@@ -10413,6 +10532,13 @@ void NanoMenu::closePs3Dialog(bool apply) {
                             mMinimaSfxDepth = -1; mMinimaSfxSel = -1; mMinimaTransStart = 0;
                         }
                     }
+                    // DSi Dark Theme on/off: apply LIVE. mNdsDark is read every frame by ndsPal()
+                    // in each DSi renderer, so flipping the member repaints the DSi home dark/light
+                    // with no restart (the persist prop was already written above for reboot).
+                    if (!strcmp(b->label, "DSi Dark Theme")) {
+                        mNdsDark = (v == "1" || v == "true");
+                        mDisplayDirty = true;
+                    }
                     // XMB Wave on/off: apply live (the home is the resident overlay on the RG DS, so a
                     // property_set alone would not repaint). renderEffect reads mXmbWave every frame;
                     // mDisplayDirty above forces the repaint. Toggling it is the EXPLICIT user choice
@@ -10557,7 +10683,7 @@ void NanoMenu::closePs3Dialog(bool apply) {
         mPs3RomInfoScroll = 0;
         mPs3DlgRomInfo = false;
     }
-    mPs3DlgGameInfo = false; mNdsInfoPage = 0;   // DSi: top-screen info page closed
+    mPs3DlgGameInfo = false; mPs3DlgHelp = false; mNdsInfoPage = 0;   // DSi: top-screen info page closed
     // A confirm dialog whose accept handler reconfigured itself into a progress modal
     // (uninstall) must NOT be torn down here - keep it up until its own logic closes it.
     if (mPs3DlgKeepOpen) { mPs3DlgKeepOpen = false; return; }
@@ -10850,6 +10976,9 @@ void NanoMenu::openXmbOpt() {
             // This Game re-fetches just this ROM (forcing overwrite) using that query.
             add("Rename / Edit Title", "romrename", false);
             add("Scrape This Game", "romscrape", false);
+            // One-off scrape with a typed-in search name (does NOT rename the game): useful when the
+            // filename does not match the database (a region tag, a fan-translation title, etc.).
+            add("Scrape with Custom Name...", "romscrapecustom", false);
             add("Information", "rominfo", false);
             // Custom box art: pick any image as this game's cover. "Reset Boxart" only
             // appears once a cover exists. Resolve the focused ROM the same way the
@@ -12102,7 +12231,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         mOskQuery = cur; mOsk.caret = (int)mOskQuery.size();   // prefill AFTER open (which clears it)
         return;
     }
-    if (act == "romscrape") {
+    if (act == "romscrape" || act == "romscrapecustom") {
         // Re-scrape just this ROM (force overwrite, override title as the query). Resolve
         // the sysIdx/romIdx from the option context. A PS3_RECENT entry is mapped back to
         // its owning system/rom by path; if it cannot be resolved, tell the user.
@@ -12142,6 +12271,25 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         }
         if (sysIdx < 0 || romIdx < 0) {
             feInfoDialog("Scrape This Game", "This game is not in a scannable system.");
+            return;
+        }
+        if (act == "romscrapecustom") {
+            // One-off scrape with a typed search name (no rename). Prefill the OSK with the current
+            // display name so the user can tweak it. sysIdx/romIdx are captured so the scrape fires
+            // once the option menu has closed behind the keyboard.
+            std::string prefill;
+            if (romIdx < (int)mXmbSystems[sysIdx].displayNames.size())
+                prefill = mXmbSystems[sysIdx].displayNames[romIdx];
+            if (prefill.empty()) prefill = mPs3OptCtxLabel;
+            openOskForPassword("Scrape - Search Name", [this, sysIdx, romIdx](const std::string& typed) {
+                std::string q = typed;
+                while (!q.empty() && q.front() == ' ') q.erase(q.begin());
+                while (!q.empty() && q.back()  == ' ') q.pop_back();
+                if (q.empty()) return;   // nothing typed: leave everything as-is
+                scrapeOneRom(sysIdx, romIdx, q);
+            });
+            mOskPasswordMode = false; mOskPlaintext = true;   // plain text, not masked
+            mOskQuery = prefill; mOsk.caret = (int)mOskQuery.size();   // prefill AFTER open (which clears it)
             return;
         }
         scrapeOneRom(sysIdx, romIdx);
@@ -12252,7 +12400,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             mPs3DlgBody = body;
         }
         mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
-        mPs3DlgGameInfo = true; mNdsInfoPage = 0;   // DSi: route to the top-screen info page
+        mPs3DlgGameInfo = true; mPs3DlgHelp = false; mNdsInfoPage = 0;   // DSi: route to the top-screen info page (a real game, not the help page)
         return;
     }
     if (act == "start") {

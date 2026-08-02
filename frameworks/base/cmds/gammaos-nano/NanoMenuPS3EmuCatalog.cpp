@@ -160,7 +160,7 @@ void NanoMenu::buildEmulatorPicker(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Emulator"; out.screenKind = GS_EMUPICK;
     // "Custom..." first so manual entry is always one press away.
     { Ps3Item it; it.label = "Custom (type core / package)..."; it.kind = PS3_GS_EMU_CUSTOM;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(22);
+      it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22);
       it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
     for (int i = 0; i < (int)mEmuCatalog.size(); i++) {
         const EmuCatEntry& e = mEmuCatalog[i];
@@ -172,7 +172,7 @@ void NanoMenu::buildEmulatorPicker(Ps3Level& out) {
         Ps3Item it;
         it.label = e.platform + " - " + e.player;
         it.kind = PS3_GS_EMUROW; it.a = i;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(22);
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22);
         it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }

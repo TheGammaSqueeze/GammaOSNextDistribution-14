@@ -523,17 +523,36 @@ std::string NanoMenu::videoSortLabelCur() const {
 }
 
 void NanoMenu::videoSortCycleY() {
-    // 4 modes: Title, Date newest, Date oldest, Length longest.
+    // 4 sort modes then Folder View as the terminal step (user request: "folder view toggled by Y").
     static const int kField[4] = {0, 1, 1, 2};
     static const int kDir[4]   = {1, 0, 1, 0};
+    if (mVideoFolderView) {                    // leave folder view -> first sort order
+        mVideoFolderView = false;
+        property_set("persist.gammaos.nano.video.folderview", "0");
+        mVideoSortField = kField[0]; mVideoSortDir = kDir[0];
+        videoSortApply(); mVideoCatsStale = true;
+        photoShowBanner(videoSortLabelCur());
+        return;
+    }
     int cur = 0;
     for (int i = 0; i < 4; i++)
         if (kField[i] == mVideoSortField && (mVideoSortField == 0 || kDir[i] == mVideoSortDir)) { cur = i; break; }
-    int nx = (cur + 1) % 4;
+    if (cur == 3) { videoToggleFolderView(); return; }   // last sort order -> enter folder view
+    int nx = cur + 1;
     mVideoSortField = kField[nx]; mVideoSortDir = kDir[nx];
     videoSortApply();
     mVideoCatsStale = true;
     photoShowBanner(videoSortLabelCur());   // reuse the photo banner overlay
+}
+
+// Y on the Video column: toggle folder view (group by parent directory vs the flat list), persist,
+// rebuild, banner. Used as the terminal step of videoSortCycleY (and callable directly).
+void NanoMenu::videoToggleFolderView() {
+    mVideoFolderView = !mVideoFolderView;
+    property_set("persist.gammaos.nano.video.folderview", mVideoFolderView ? "1" : "0");
+    mVideoCatsStale = true;
+    photoShowBanner(trDyn(mVideoFolderView ? "Folder View" : "All Videos"));
+    mDisplayDirty = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -542,22 +561,68 @@ void NanoMenu::videoSortCycleY() {
 // ---------------------------------------------------------------------------
 void NanoMenu::buildVideoColumnItems(std::vector<Ps3Item>& out) {
     GLuint filmNmap = nmapForIcon(4);   // video category glyph as the row bevel
+    // Fill a flat file row for one video (shared by the flat column and the folder submenu).
+    auto fillFileRow = [](Ps3Item& it, const VideoItem& v, int idx){
+        it.label = v.name; it.kind = PS3_VIDEO_FILE; it.a = idx; it.payloadStr = v.file;
+        std::string sub = v.vcodec.empty() ? std::string() : v.vcodec;
+        if (v.w > 0 && v.h > 0) { char wh[32]; snprintf(wh, sizeof(wh), "%s%dx%d", sub.empty() ? "" : "  ", v.w, v.h); sub += wh; }
+        it.value = sub;
+    };
+    // Folder view: one drill-in row per parent directory (in first-seen order), each opening a
+    // submenu of the videos in that folder. Video has no album/date grouping, so this is its
+    // only grouping. buildVideoFolderSubmenu re-derives the members by directory.
+    if (mVideoFolderView) {
+        GLuint folderNmap = nmapForIcon(62);
+        std::vector<std::string> keys;               // parent dirs, first-seen order
+        std::map<std::string, int> counts;
+        for (const auto& v : mVideos) {
+            size_t s = v.file.rfind('/');
+            std::string d = (s == std::string::npos) ? std::string() : v.file.substr(0, s);
+            if (counts.find(d) == counts.end()) keys.push_back(d);
+            counts[d]++;
+        }
+        for (const auto& d : keys) {
+            std::string base = d; size_t s = d.rfind('/'); if (s != std::string::npos) base = d.substr(s + 1);
+            if (base.empty()) base = "/";
+            Ps3Item it; it.label = base; it.kind = PS3_VIDEO_FOLDER; it.payloadStr = d;
+            char vv[32]; snprintf(vv, sizeof(vv), "%d %s", counts[d], counts[d] == 1 ? "Video" : "Videos"); it.value = vv;
+            it.iconTex = iconTexForIcon(62); it.nmapTex = folderNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+            out.push_back(it);
+        }
+        return;
+    }
     for (size_t i = 0; i < mVideos.size(); i++) {
         const VideoItem& v = mVideos[i];
-        Ps3Item it; it.label = v.name; it.kind = PS3_VIDEO_FILE; it.a = (int)i;
-        it.payloadStr = v.file;
-        std::string sub = v.vcodec.empty() ? std::string() : v.vcodec;
-        if (v.w > 0 && v.h > 0) {
-            char wh[32]; snprintf(wh, sizeof(wh), "%s%dx%d", sub.empty() ? "" : "  ", v.w, v.h);
-            sub += wh;
-        }
-        it.value = sub;
-        it.iconTex = 0; it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        Ps3Item it; fillFileRow(it, v, (int)i);
+        it.iconTex = iconTexForIcon(4); it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         if (v.hasIcon) {                        // custom Change-Icon poster -> flat full-colour icon (no film bevel)
             GLuint t = videoIconTexCached(v.file);
             if (t) { it.iconTex = t; it.nmapTex = 0; }
         }
         out.push_back(it);
+    }
+}
+
+// Videos in one folder (the PS3_VIDEO_FOLDER drill target). Same rows as the flat column, filtered
+// to files whose parent directory matches, keeping their real mVideos index so launch/info work.
+void NanoMenu::buildVideoFolderSubmenu(const std::string& dir, Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    { size_t s = dir.rfind('/'); out.title = (s == std::string::npos) ? dir : dir.substr(s + 1); }
+    if (out.title.empty()) out.title = "/";
+    GLuint filmNmap = nmapForIcon(4);
+    for (size_t i = 0; i < mVideos.size(); i++) {
+        const VideoItem& v = mVideos[i];
+        size_t s = v.file.rfind('/');
+        std::string d = (s == std::string::npos) ? std::string() : v.file.substr(0, s);
+        if (d != dir) continue;
+        Ps3Item it;
+        it.label = v.name; it.kind = PS3_VIDEO_FILE; it.a = (int)i; it.payloadStr = v.file;
+        std::string sub = v.vcodec.empty() ? std::string() : v.vcodec;
+        if (v.w > 0 && v.h > 0) { char wh[32]; snprintf(wh, sizeof(wh), "%s%dx%d", sub.empty() ? "" : "  ", v.w, v.h); sub += wh; }
+        it.value = sub;
+        it.iconTex = iconTexForIcon(4); it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        if (v.hasIcon) { GLuint t = videoIconTexCached(v.file); if (t) { it.iconTex = t; it.nmapTex = 0; } }
+        out.items.push_back(it);
     }
 }
 
@@ -824,13 +889,13 @@ void NanoMenu::videoAddStreamToPlaylist(int plIdx, const VidStreamRef& s) {
 void NanoMenu::buildVideoPlaylistsScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = GS_NONE;
     { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_VIDEO_PL_NEW;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(50); it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     for (size_t p = 0; p < mVideoPlaylists.size(); p++) {
         Ps3Item it; it.label = mVideoPlaylists[p].name; it.kind = PS3_VIDEO_PLAYLIST; it.a = (int)p;
         size_t n = mVideoPlaylists[p].files.size() + mVideoPlaylists[p].streams.size();
         char v[32]; snprintf(v, sizeof(v), "%zu %s", n, n == 1 ? "Item" : "Items"); it.value = v;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
 }
@@ -848,14 +913,14 @@ void NanoMenu::buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out) {
         std::string sub = v.vcodec;
         if (v.w > 0 && v.h > 0) { char wh[32]; snprintf(wh, sizeof(wh), "%s%dx%d", sub.empty() ? "" : "  ", v.w, v.h); sub += wh; }
         it.value = sub;
-        it.iconTex = 0; it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(4); it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     // IPTV channels saved to this playlist (nano addition): rendered as live-stream rows.
     for (const auto& s : mVideoPlaylists[plIdx].streams) {
         Ps3Item it; it.label = s.name; it.kind = PS3_IPTV_CHANNEL; it.a = -1;
         it.payloadStr = s.url; it.desc = s.group; it.value = "Live";
-        it.iconTex = 0; it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(4); it.nmapTex = filmNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }
 }
@@ -937,12 +1002,12 @@ void NanoMenu::drawVidPlChooser() {
 void NanoMenu::buildVideoFoldersScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Video Folders"; out.screenKind = VIDEO_FOLDER;
     { Ps3Item it; it.label = "Add Folder..."; it.kind = PS3_GS_ADDFOLDER;
-      it.iconTex = 0; it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(50); it.nmapTex = nmapForIcon(50); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     { Ps3Item it; it.label = mVideoScanRunning ? "Refreshing..." : "Refresh";
       it.kind = PS3_VIDEO_REFRESH;
       it.value = mVideoScanRunning ? "" : "Rescan video folders";
-      it.iconTex = 0; it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
+      it.iconTex = iconTexForIcon(8); it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
       out.items.push_back(it); }
     for (size_t i = 0; i < mVideoFolders.size(); i++) {
         int cnt = 0;
@@ -950,7 +1015,7 @@ void NanoMenu::buildVideoFoldersScreen(Ps3Level& out) {
             if (v.file.compare(0, mVideoFolders[i].size(), mVideoFolders[i]) == 0) cnt++;
         Ps3Item it; it.label = mVideoFolders[i]; it.kind = PS3_VIDEO_FOLDER_ROW; it.a = (int)i;
         char val[24]; snprintf(val, sizeof(val), "%d videos", cnt); it.value = val;
-        it.iconTex = 0; it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62); it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }
     if (mVideoFolders.empty()) {

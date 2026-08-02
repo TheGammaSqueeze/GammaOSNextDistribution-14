@@ -384,7 +384,7 @@ void NanoMenu::buildRadioRootScreen(Ps3Level& out) {
                 const RadioStation& s = mRadioStations[si];
                 Ps3Item it; it.label = s.name; it.kind = PS3_RADIO_STATION; it.a = si;
                 it.payloadStr = s.url; it.desc = c.title; it.value = "Live";
-                it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
+                it.iconTex = iconTexForIcon(3); it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
                 out.items.push_back(std::move(it));
             }
         } else {
@@ -393,7 +393,7 @@ void NanoMenu::buildRadioRootScreen(Ps3Level& out) {
                 it.kind = PS3_RADIO_BUCKET; it.a = 0; it.b = (int)k;
                 int n = (int)c.buckets[k].stations.size();
                 char v[32]; snprintf(v, sizeof(v), "%d %s", n, trDyn(n == 1 ? "Station" : "Stations")); it.value = v;
-                it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
+                it.iconTex = iconTexForIcon(3); it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
                 out.items.push_back(std::move(it));
             }
         }
@@ -403,7 +403,7 @@ void NanoMenu::buildRadioRootScreen(Ps3Level& out) {
         Ps3Item it; it.label = mRadioCats[c].title; it.kind = PS3_RADIO_GROUP; it.a = (int)c;
         int n = mRadioCats[c].total;
         char v[32]; snprintf(v, sizeof(v), "%d %s", n, trDyn(n == 1 ? "Station" : "Stations")); it.value = v;
-        it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(3); it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }
 }
@@ -420,7 +420,7 @@ void NanoMenu::buildRadioBucketSubmenu(int catIdx, Ps3Level& out) {
         it.kind = PS3_RADIO_BUCKET; it.a = catIdx; it.b = (int)k;
         int n = (int)c.buckets[k].stations.size();
         char v[32]; snprintf(v, sizeof(v), "%d %s", n, trDyn(n == 1 ? "Station" : "Stations")); it.value = v;
-        it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(3); it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }
 }
@@ -441,7 +441,7 @@ void NanoMenu::buildRadioStationSubmenu(int catIdx, int bucketIdx, Ps3Level& out
         it.payloadStr = s.url;
         it.desc = c.title;
         it.value = "Live";
-        it.iconTex = 0; it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
+        it.iconTex = iconTexForIcon(3); it.nmapTex = nm; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(std::move(it));
     }
     if (out.items.empty()) {

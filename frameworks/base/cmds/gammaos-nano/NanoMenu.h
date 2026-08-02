@@ -1297,6 +1297,7 @@ private:
         PS3_PHOTO_REFRESH,  // "Refresh" row in the photo folders screen -> rescan the library
         // ---- Video player (PS3 XMB video port) ----
         PS3_VIDEO_FILE,     // a video file row (a = video idx in mVideos) -> open the player
+        PS3_VIDEO_FOLDER,   // folder-view group in the Video column (payloadStr = dir) -> its files
         PS3_VIDEO_FOLDER_ROW,// a configured video scan-folder row (a = mVideoFolders idx; Y removes)
         PS3_VIDEO_REFRESH,  // "Refresh" row in the video folders screen -> rescan the library
         PS3_VIDEO_PLAYLIST, // a video playlist -> its file submenu (a = playlist idx)
@@ -1335,6 +1336,10 @@ private:
         GLuint iconTex = 0;     // flat fallback texture (mono-white), 0 = none
         GLuint nmapTex = 0;     // normal map for the glass shader, 0 = flat fallback
         float iconR = 1.0f, iconG = 1.0f, iconB = 1.0f;  // _ChangingColor tint
+        // On the flat (DSi/Minima) themes an icon that carries a normal map normally draws as a
+        // theme-tinted dark/light glyph. Set this so the flat draw keeps the item's OWN iconR/G/B
+        // colour instead (used by the Favourites loveheart: glass on XMB, flat RED elsewhere).
+        bool  flatOwnTint = false;
         int kind = 0;
         int a = 0, b = 0;
         // Multi-select / toggle rows (Slide Up/Down actions, Passthrough Blacklist,
@@ -1373,6 +1378,47 @@ private:
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)
+    bool mNdsDark = false;        // persist.gammaos.nano.nds.dark: DSi theme dark variant (dark field + light ink/glyphs)
+    // DSi/NDS theme palette. Light = the original DSi Menu look (light field, dark ink); dark = the
+    // dark variant (dark field, light ink, lightened teal accents + light flat icon glyphs for
+    // contrast). Every DSi renderer pulls its greys/inks from here instead of hardcoded literals so
+    // the two variants stay in lockstep. Returned by ndsPal(); the teal accent frame is untouched.
+    struct NdsPal {
+        float field, dither, edge;                 // main surface, dither line, edge columns/borders
+        float bevel0, bevel1, bevel2, bevel3, bevel4;  // name-box bevel ramp (outer->interior)
+        float ink, subInk;                         // primary text / inactive-secondary ink (status bar)
+        float watermark;                           // "GammaOS" watermark grey
+        float topBg;                               // top-screen background
+        float mintBevel, mintInset, mintR, mintG, mintB;   // top/info mint photo panel
+        float headR, headG, headB, subR, subG, subB, valR, valG, valB;  // teal head/sub/value text
+        float glyphR, glyphG, glyphB;              // flat icon glyph tint
+        float dlgBg, dlgInk;                       // message-box body + text
+        float tile;                                // carousel tile "jewel case" pillow tint (1=white, dark=dim)
+    };
+    NdsPal ndsPal() const {
+        if (mNdsDark) return NdsPal{
+            0.114f, 0.153f, 0.290f,
+            0.541f, 0.400f, 0.290f, 0.220f, 0.157f,
+            0.878f, 0.451f,
+            0.235f,
+            0.106f,
+            0.290f, 0.180f, 0.145f, 0.325f, 0.298f,
+            0.42f, 0.78f, 0.72f, 0.55f, 0.85f, 0.80f, 0.68f, 0.90f, 0.86f,
+            0.82f, 0.85f, 0.90f,
+            0.118f, 0.898f,
+            0.235f };   // dark tile pillow (light glyph reads on it)
+        return NdsPal{
+            0.953f, 0.922f, 0.859f,
+            0.318f, 0.635f, 0.765f, 0.859f, 0.984f,
+            0.255f, 0.741f,
+            0.827f,
+            0.965f,
+            0.812f, 1.0f, 0.678f, 0.839f, 0.808f,
+            0.235f, 0.463f, 0.427f, 0.349f, 0.635f, 0.604f, 0.145f, 0.325f, 0.298f,
+            0.28f, 0.30f, 0.36f,
+            0.97f, 0.255f,
+            1.0f };   // white tile pillow (identity tint)
+    }
     bool mMinimaTheme = false;    // persist.gammaos.nano.minima (Minima list theme, NextUI-inspired; rides the XMB
                                   // infrastructure like the DSi theme and swaps the home render/nav/sfx/boot)
     bool mPs3BottomClock = false; // persist.gammaos.nano.ps3xmb.bottomclock (PSP clock on the bottom panel, dual-screen XMB)
@@ -1828,6 +1874,12 @@ private:
     // DSi theme: a game Information page (scraped OR unscraped file-facts) is open. Routed to the
     // top-screen mint canvas on a dual-screen device (like the PS3 XMB) with L/R pagination.
     bool   mPs3DlgGameInfo = false;
+    // The User Guide (Settings > User Guide): reuses the game-info page plumbing so DSi/Minima get
+    // their paged full-screen renderers, but it is NOT a game - it has no cover/fanart/metadata and
+    // wants a plain, full-width, readable text layout that SPANS BOTH DS screens (top = the first
+    // half of a "spread", bottom = the continuation), instead of an empty mint canvas up top and a
+    // cramped narrow body below. renderNdsInfoPage / renderMinimaInfoPage branch on this.
+    bool   mPs3DlgHelp = false;
     int    mNdsInfoPage = 0;               // current description page (L/R paginate)
     int    mNdsInfoPageCount = 1;          // total pages (computed each render; 1 -> hide L/R)
     void   renderNdsInfoPage(float rx, float ry, float rw, float rh, int part);  // 0=full(single) 1=top(cover+meta) 2=bottom(description)
@@ -2663,7 +2715,10 @@ private:
     void clearRomNameOverride(const std::string& romPath);
     void applyRomNameOverrides(XmbSystem& sys);            // patch sys.displayNames from the map
     void applyRomNameOverridesToRecents();                 // patch mXmbRecent[].displayName from the map
-    void scrapeOneRom(int sysIdx, int romIdx);             // re-scrape one ROM (force overwrite, override query)
+    // Re-scrape one ROM (force overwrite). queryOverride, when non-empty, is used as the search
+    // query for this scrape ONLY - a one-off "search with a different name" that does NOT persist
+    // any rename (unlike the saved title override). Empty falls back to the saved override / filename.
+    void scrapeOneRom(int sysIdx, int romIdx, const std::string& queryOverride = std::string());
     std::string focusedRomPath();                  // focused home item's ROM path (PS3_ROM / PS3_RECENT) or ""
     const ScrapeEntry* focusedScrapeEntry();       // scrape entry for the focused ROM if it has art, else null
     bool openInfoForFocusedItem();                 // Y shortcut: open Information for a focused scraped-art item
@@ -3522,6 +3577,30 @@ private:
     void photoShowBanner(const std::string& text);
     void drawPhotoBanner();
 
+    // ==== Media folder view (Y toggles) ==================================
+    // Y on the Photo / Video / Music column root toggles a FOLDER VIEW: the column regroups by the
+    // media file's parent directory (each folder drills into its files) instead of the default view
+    // (Photo date groups / flat Video list / Music albums). Persisted per library so it survives a
+    // reboot. Sort stays reachable via the Triangle option menu. Read live by the column builders.
+    bool mPhotoFolderView = false;
+    bool mVideoFolderView = false;
+    bool mMusicFolderView = false;
+    void photoToggleFolderView();     // Y on the Photo column
+    void videoToggleFolderView();     // Y on the Video column
+    void musicToggleFolderView();     // Y on the Music column
+    void buildVideoFolderSubmenu(const std::string& dir, Ps3Level& out);  // videos in one folder
+
+    // ==== Game category system ordering (Y cycles) =======================
+    // Y on the Game category re-orders the system tiles (below the fixed Recently Played /
+    // Applications / Favorites / Collections rows). mXmbSystems is NEVER reordered (its order is
+    // the user's Game Systems editor order and is persisted separately); buildPs3Cats emits the
+    // system tiles through a sorted local index vector. persist.gammaos.nano.gamesort survives a
+    // reboot. Modes: 0 Default (editor order), 1 A-Z, 2 Most Games, 3 By Manufacturer.
+    int  mGameSortMode = 0;
+    void gameSortCycleY();                       // Y: step the mode, persist, rebuild, banner
+    std::string gameSortLabelCur() const;        // banner label for the current mode
+    std::string systemManufacturer(const XmbSystem& s) const;  // best-effort maker for grouping
+
     // ==== Global search (Select on the home XMB) ==========================
     // A categorized results overlay across every XMB section (Games, Music, Photos,
     // Videos). Lazy: nothing is built until the user runs a search; the result list
@@ -4011,6 +4090,11 @@ private:
     GLuint uiIconTexForIcon(int iconIndex);// framework UI icon (idx>=kUiIconBase): mono silhouette as a plain tex (else 0)
     GLuint bevelForIconIdx(int iconIdx);   // bevel normal from a console icon's alpha
     GLuint bevelFromRGBA(const uint8_t* px, int w, int h);   // bevel normal from any silhouette buffer
+    // Favourites loveheart icon, rasterised procedurally from the implicit heart curve (no PNG
+    // asset needed): a white-on-alpha silhouette uploaded as the flat colour tex (DSi/Minima tint
+    // it red) and beveled into a normal map for the XMB glass relight. Lazily built + cached.
+    GLuint mHeartIconTex = 0, mHeartNmapTex = 0;
+    void   ensureHeartIcon();               // build mHeartIconTex + mHeartNmapTex once
     GLuint gpGlassNmap(bool round, float wpx, float hpx);    // cached bevel nmap for a gamepad-tester button shape
     // Resolve a system iconRef (builtin:/retroarch:/core:/file:) to a (colour
     // tex, glass bevel nmap) pair, cached by ref string. See NanoMenuPS3Icons.cpp.

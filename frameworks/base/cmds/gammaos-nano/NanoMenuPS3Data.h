@@ -135,6 +135,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
   {"Home Theme",22,"Switches the home screen between GammaOS XMB, DSi Menu and Minima. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},
+  {"DSi Dark Theme",22,"DSi Menu theme only: switches the DSi home to a dark variant (dark field, light text and icons) for low-light use. Applies immediately.","Off",1,nullptr,0},
   {"Navigation Sounds",22,"Plays the UI sound effects (cursor, select, back, launch) as you move through the home menu. Turn off for silent navigation in any theme. The boot sound is not affected.","On",1,nullptr,0},
   {"Bottom Clock",73,"Shows a PSP-style analog clock on the bottom screen. Dual-screen devices only (e.g. the RG DS); no effect on a single-screen device.","On",1,nullptr,0},
   {"Bottom Clock FPS",73,"Frame rate of the bottom-screen clock. 30 FPS saves power; 60 FPS is smoother.","30 FPS",1,nullptr,0},

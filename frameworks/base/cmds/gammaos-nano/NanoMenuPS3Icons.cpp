@@ -1023,6 +1023,43 @@ GLuint NanoMenu::bevelFromRGBA(const uint8_t* px, int w, int h) {
     return uploadRGBA(nmap.data(), w, h);
 }
 
+// Favourites loveheart, rasterised from the implicit heart curve so no PNG asset is needed.
+// f(x,y) = (x^2 + y^2 - 1)^3 - x^2*y^3 < 0 is inside a heart (point at the bottom, lobes on
+// top). We sample it into a white-on-alpha silhouette with 3x3 supersampled coverage for smooth
+// edges, upload that as the flat colour tex (DSi/Minima tint it red via iconR/G/B), and bevel it
+// into a normal map for the XMB glass relight (identical treatment to every console icon).
+void NanoMenu::ensureHeartIcon() {
+    if (mHeartIconTex && mHeartNmapTex) return;
+    const int N = 128;                                  // source silhouette resolution
+    std::vector<uint8_t> px((size_t)N * N * 4, 0);
+    const int SS = 3;                                   // supersample per axis
+    // Coordinate window centred on the heart's bounds (~x[-1.3,1.3], y[-1.4,1.3]); a small
+    // vertical bias keeps the shape optically centred in the square, with a little margin.
+    const float span = 2.9f, biasY = 0.18f;
+    for (int iy = 0; iy < N; iy++) {
+        for (int ix = 0; ix < N; ix++) {
+            int cov = 0;
+            for (int sy = 0; sy < SS; sy++) {
+                for (int sx = 0; sx < SS; sx++) {
+                    float fx = ((ix + (sx + 0.5f) / SS) / N - 0.5f) * span;
+                    // image y grows downward; flip so the lobes sit at the TOP of the image.
+                    float fy = (0.5f - (iy + (sy + 0.5f) / SS) / N) * span + biasY;
+                    float t = fx * fx + fy * fy - 1.0f;
+                    float f = t * t * t - fx * fx * fy * fy * fy;
+                    if (f < 0.0f) cov++;
+                }
+            }
+            if (cov > 0) {
+                uint8_t a = (uint8_t)(cov * 255 / (SS * SS));
+                size_t o = (size_t)(iy * N + ix) * 4;
+                px[o + 0] = 255; px[o + 1] = 255; px[o + 2] = 255; px[o + 3] = a;   // white on alpha
+            }
+        }
+    }
+    mHeartIconTex = uploadRGBA(px.data(), N, N);
+    mHeartNmapTex = bevelFromRGBA(px.data(), N, N);
+}
+
 // Procedural bevel normal map for a gamepad-tester button shape, cached by shape +
 // aspect bucket so the Test Controller / Calibration buttons get the identical glass
 // relight as the console icons (bevelFromRGBA), refracting the live XMB wave. round =
