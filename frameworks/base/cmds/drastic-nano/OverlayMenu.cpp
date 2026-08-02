@@ -2000,6 +2000,23 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     }
+    {
+        // FPS Counter: draw the measured present rate in the top-right corner.
+        // The render loop reads this prop live per frame, so it applies from the
+        // next frame; default off.
+        RowAction r;
+        r.label = "FPS Counter";
+        r.value = property_get_bool("persist.gammaos.drastic_nano.fps_counter", false)
+                          ? "On" : "Off";
+        auto flip = []() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.fps_counter", false);
+            property_set("persist.gammaos.drastic_nano.fps_counter", cur ? "0" : "1");
+        };
+        r.onAccept = flip;
+        r.onAdjust = [flip](int) { flip(); };
+        mRows.push_back(std::move(r));
+    }
     auto addBool = [&](const char* label, bool& field,
                        bool requiresRestart) {
         RowAction r;

@@ -1631,6 +1631,42 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             drawTouchCursor(gfx, cbr, input.cursorX, input.cursorY,
                             (input.dsBtnMask & DrasticRunner::kDsBtnA) != 0);
         }
+        // Optional on-screen FPS counter (DRM path parity with runLoopSf). The RG DS dual-screen
+        // path uses THIS loop, not runLoopSf, so the counter must be drawn here too or it never shows
+        // on that device. Count rendered frames over a rolling ~1s window (this loop has no shared
+        // fps accounting, so keep its own), then draw a small top-right number gated on the same prop.
+        // Sized off the overlay height so it holds a consistent on-screen fraction at any panel size.
+        {
+            static int64_t sFpsWinMs = 0;
+            static int     sFpsFrames = 0;
+            static float   sFpsDisplay = 0.0f;
+            if (sFpsWinMs == 0) sFpsWinMs = android::elapsedRealtime();
+            sFpsFrames++;
+            const int64_t fpsNowMs = android::elapsedRealtime();
+            if (fpsNowMs - sFpsWinMs >= 1000) {
+                const float r = sFpsFrames * 1000.0f / (float)(fpsNowMs - sFpsWinMs);
+                sFpsDisplay = sFpsDisplay > 0.0f ? sFpsDisplay * 0.5f + r * 0.5f : r;
+                sFpsFrames = 0;
+                sFpsWinMs = fpsNowMs;
+            }
+            if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false) &&
+                gfx.fontBasePx() > 0) {
+                char buf[16];
+                snprintf(buf, sizeof(buf), "%.0f", sFpsDisplay);
+                const float W = (float)gfx.viewportW();
+                const float H = (float)gfx.viewportH();
+                const float sf    = H / 720.0f;
+                const float scale = (14.0f * sf) / gfx.fontBasePx();
+                const float tw    = gfx.measure(buf, scale);
+                const float pad   = 6.0f * sf;
+                const float bw    = tw + 2 * pad, bh = gfx.fontLineH() * scale + 2 * pad;
+                const float bx    = W - bw - 8.0f * sf, by = 8.0f * sf;
+                gfx.fillRect(bx, by, bw, bh,
+                             android::drastic_gfx::rgba(0.0f, 0.0f, 0.0f, 0.5f));
+                gfx.text(buf, bx + pad, by + pad, scale,
+                         android::drastic_gfx::rgba(0.2f, 1.0f, 0.4f, 1.0f));
+            }
+        }
         gfx.endFrame();
         // Debug screenshot: latch the request now (primTgt is bound and holds
         // the DS top screen + overlay), capture the bottom panel after the OSK
@@ -2069,6 +2105,10 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // Negligible overhead.
     int64_t fpsWindowStartMs = android::elapsedRealtime();
     int     fpsFrameCount    = 0;
+    // Smoothed present rate for the optional on-screen FPS counter (drawn in the
+    // overlay pass, gated on persist.gammaos.drastic_nano.fps_counter). Updated
+    // once per measurement window from the same present count as the log.
+    float   fpsDisplay       = 0.0f;
 
     int64_t audioBoostDeadlineMs = android::elapsedRealtime() + 1000;
     int audioBoostSweeps = 0;
@@ -2459,6 +2499,22 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             drawTouchCursor(gfx, cbr, input.cursorX, input.cursorY,
                             (input.dsBtnMask & DrasticRunner::kDsBtnA) != 0);
         }
+        // Optional on-screen FPS counter, top-right. Sized off the panel height so
+        // it holds a consistent on-screen fraction at any resolution/orientation.
+        if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false)) {
+            char buf[16];
+            snprintf(buf, sizeof(buf), "%.0f", fpsDisplay);
+            const float sf    = H / 720.0f;
+            const float scale = (14.0f * sf) / gfx.fontBasePx();
+            const float tw    = gfx.measure(buf, scale);
+            const float pad   = 6.0f * sf;
+            const float bw    = tw + 2 * pad, bh = gfx.fontLineH() * scale + 2 * pad;
+            const float bx    = W - bw - 8.0f * sf, by = 8.0f * sf;
+            gfx.fillRect(bx, by, bw, bh,
+                         android::drastic_gfx::rgba(0.0f, 0.0f, 0.0f, 0.5f));
+            gfx.text(buf, bx + pad, by + pad, scale,
+                     android::drastic_gfx::rgba(0.2f, 1.0f, 0.4f, 1.0f));
+        }
         gfx.endFrame();
 
         const bool wantShot = shotRequested();
@@ -2549,9 +2605,13 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         {
             const int64_t nowMs = android::elapsedRealtime();
             const int64_t dtMs = nowMs - fpsWindowStartMs;
-            if (dtMs >= 2000) {
-                ALOGI("drastic-nano: SF present rate %.1f fps",
-                      fpsFrameCount * 1000.0 / (double)dtMs);
+            if (dtMs >= 1000) {
+                const float newRate = fpsFrameCount * 1000.0f / (float)dtMs;
+                ALOGI("drastic-nano: SF present rate %.1f fps", newRate);
+                // Light smoothing so the on-screen counter does not jitter.
+                fpsDisplay = fpsDisplay > 0.0f
+                        ? fpsDisplay * 0.5f + newRate * 0.5f
+                        : newRate;
                 fpsFrameCount = 0;
                 fpsWindowStartMs = nowMs;
             }
