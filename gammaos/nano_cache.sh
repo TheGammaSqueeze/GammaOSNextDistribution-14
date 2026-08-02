@@ -14,16 +14,56 @@ log_i() { log -t "$TAG" -p i "$1"; }
 log_w() { log -t "$TAG" -p w "$1"; }
 log_e() { log -t "$TAG" -p e "$1"; }
 
+# I/O throttle for large cache copies. A plain cp of a big ROM (a 250MB+ NDS title) saturates the
+# slow eMMC on these handhelds, starving the foreground game launch and freezing the device. So any
+# file larger than CACHE_COPY_THROTTLE_MB is copied in CACHE_COPY_RATE_MB-MiB chunks with a 1s pause
+# between chunks, capping the copy at ~CACHE_COPY_RATE_MB MiB/s and leaving bandwidth for the game.
+# Tunable live (no reflash) via persist.gammaos.nano.cache_copy_mbps; 0 disables the throttle.
+CACHE_COPY_RATE_MB="$(getprop persist.gammaos.nano.cache_copy_mbps 2>/dev/null)"
+case "$CACHE_COPY_RATE_MB" in ''|*[!0-9]*) CACHE_COPY_RATE_MB=2 ;; esac
+CACHE_COPY_THROTTLE_MB=32
+
 # Atomic copy: write to a temp in the destination dir then rename into place, so
 # a concurrent reader (a resume-boot cache scan) or an interrupted copy (a short
 # game session powering off mid-populate) never observes a truncated destination.
 # rename() within the same filesystem is atomic. Falls back nowhere: on failure
 # the temp is removed and the previous destination (if any) is left intact.
+# Rate-limited copy: CACHE_COPY_RATE_MB MiB per dd chunk, then a 1s pause, so a big ROM copy
+# never saturates the eMMC. Writes linearly (skip==seek==block offset) into an already-truncated
+# destination. Returns non-zero on any dd failure so atomic_copy cleans up the temp.
+throttled_copy() {
+    local src="$1" dst="$2"
+    local rate="$CACHE_COPY_RATE_MB"
+    [ "$rate" -lt 1 ] 2>/dev/null && rate=1
+    local size total off
+    size=$(stat -c %s "$src" 2>/dev/null) || return 1
+    total=$(( (size + 1048575) / 1048576 ))   # size in MiB, rounded up
+    : > "$dst" 2>/dev/null || return 1
+    off=0
+    while [ "$off" -lt "$total" ]; do
+        dd if="$src" of="$dst" bs=1048576 count="$rate" skip="$off" seek="$off" conv=notrunc 2>/dev/null || return 1
+        off=$(( off + rate ))
+        [ "$off" -lt "$total" ] && sleep 1
+    done
+    return 0
+}
+
 atomic_copy() {
     local src="$1" dst="$2"
     local tmp="${dst}.tmp.$$"
-    if cp -p "$src" "$tmp" 2>/dev/null && mv -f "$tmp" "$dst" 2>/dev/null; then
-        return 0
+    local size
+    size=$(stat -c %s "$src" 2>/dev/null || echo 0)
+    # Throttle only large files; small ones (saves, BIOS, config) copy plainly so the per-chunk
+    # pause never adds latency to the many tiny delta-sync copies.
+    if [ "$CACHE_COPY_RATE_MB" -gt 0 ] 2>/dev/null && \
+       [ "$size" -gt "$(( CACHE_COPY_THROTTLE_MB * 1048576 ))" ]; then
+        if throttled_copy "$src" "$tmp" && mv -f "$tmp" "$dst" 2>/dev/null; then
+            return 0
+        fi
+    else
+        if cp -p "$src" "$tmp" 2>/dev/null && mv -f "$tmp" "$dst" 2>/dev/null; then
+            return 0
+        fi
     fi
     rm -f "$tmp" 2>/dev/null
     return 1
@@ -730,17 +770,32 @@ do_populate_drastic() {
         local rom_raw=$(to_raw_path "$rom_path")
         if [ -f "$rom_raw" ]; then
             local rom_file=$(basename "$rom_raw")
-            # Clear ALL previous ROMs before copying the new one.
-            # Previous code only cleared *.nds, leaving stale non-NDS
-            # files from cross-system QR primes (e.g. a GBA ROM cached
-            # when the user switched from a libretro QR to drastic QR).
-            rm -f "$dcache/rom/"* 2>/dev/null
-            atomic_copy "$rom_raw" "$dcache/rom/$rom_file"
-            if [ -f "$dcache/rom/$rom_file" ]; then
-                log_i "populate_drastic: cached ROM $rom_file"
+            # Clear any stale partial copies first. A throttled copy that was hard-killed (a device
+            # force-restart / power loss mid-populate) leaves a "<rom>.tmp.<pid>" behind because the
+            # atomic_copy cleanup never ran. These are never loaded (drastic reads the final name, not
+            # .tmp), but prune them so they cannot accumulate or confuse a size check.
+            rm -f "$dcache/rom/"*.tmp.* 2>/dev/null
+            # Already staged? Skip the (throttled, ~50s) re-copy when the same ROM of the same size
+            # is already in the cache. This makes a repeat populate (e.g. the power-off QR arming
+            # right after a launch-time populate already finished) return immediately instead of
+            # re-copying the whole ROM and blowing past the bounded shutdown wait.
+            if [ -f "$dcache/rom/$rom_file" ] && \
+               [ "$(stat -c %s "$dcache/rom/$rom_file" 2>/dev/null)" = "$(stat -c %s "$rom_raw" 2>/dev/null)" ]; then
+                log_i "populate_drastic: ROM $rom_file already cached (same size) -- skipping copy"
                 rom_staged=1
             else
-                log_e "populate_drastic: failed to copy ROM from $rom_raw"
+                # Clear ALL previous ROMs before copying the new one.
+                # Previous code only cleared *.nds, leaving stale non-NDS
+                # files from cross-system QR primes (e.g. a GBA ROM cached
+                # when the user switched from a libretro QR to drastic QR).
+                rm -f "$dcache/rom/"* 2>/dev/null
+                atomic_copy "$rom_raw" "$dcache/rom/$rom_file"
+                if [ -f "$dcache/rom/$rom_file" ]; then
+                    log_i "populate_drastic: cached ROM $rom_file"
+                    rom_staged=1
+                else
+                    log_e "populate_drastic: failed to copy ROM from $rom_raw"
+                fi
             fi
         else
             log_w "populate_drastic: ROM not found at $rom_raw (resolved from $rom_path)"
