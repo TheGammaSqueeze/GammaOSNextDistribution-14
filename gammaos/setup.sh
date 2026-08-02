@@ -49,8 +49,12 @@ FRESH_SETUP=1
 
 echo "Starting configuration of the GammaOS system..."
         settings put secure navigation_mode 0
-        cmd overlay disable --user 0 com.android.internal.systemui.navbar.gestural
-        cmd overlay enable  --user 0 com.android.internal.systemui.navbar.threebutton
+        # These navbar RRO overlays are not present on every build (e.g. the TrimUI Brick), where
+        # the command throws a Java SecurityException that gets dumped into the setup log and shown
+        # in the wizard UI as a scary error. navigation_mode above already selects 3-button; the
+        # overlay toggle is belt-and-suspenders, so suppress its output and never fail on it.
+        cmd overlay disable --user 0 com.android.internal.systemui.navbar.gestural  >/dev/null 2>&1 || true
+        cmd overlay enable  --user 0 com.android.internal.systemui.navbar.threebutton >/dev/null 2>&1 || true
         settings put global package_verifier_user_consent -1
 	settings put secure doze_pulse_on_pick_up 0
 	settings put secure camera_double_tap_power_gesture_disabled 1
@@ -214,7 +218,7 @@ echo "Installing GammaOS Splash app."
 pm install /system/etc/gammaos-displayloading.apk
 appops set com.gammaos.displayloading SYSTEM_ALERT_WINDOW allow
 cmd deviceidle whitelist +com.gammaos.displayloading
-pm install system/etc/Toast.apk
+pm install /system/etc/Toast.apk
 pm grant bellavita.toast android.permission.POST_NOTIFICATIONS
 
 echo "Granting permissions to applications."
@@ -237,10 +241,10 @@ pm grant com.retroarch.aarch64 android.permission.READ_EXTERNAL_STORAGE
 mkdir -p /data/setupcompleted
 sleep 4
 # (screen_off_timeout is pinned at the top of this script and restored to 240000 in finish())
-rm /sdcard/RetroArch/config/global.slangp
+rm -f /sdcard/RetroArch/config/global.slangp
 
 tar -xvf /system/etc/gboard.tar.gz -C /
-cd /sdcard/gboard/
+cd /sdcard/gboard/ 2>/dev/null || true
 
 #echo "Installing GBoard."
 #session_id=$(pm install-create -r | cut -d '[' -f2 | cut -d ']' -f1)
