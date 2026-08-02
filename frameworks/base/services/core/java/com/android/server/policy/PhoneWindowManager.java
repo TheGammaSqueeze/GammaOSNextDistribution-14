@@ -8086,6 +8086,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return;
         }
 
+        // GammaOS Nano: publish screen-off so a foreground native drastic-nano
+        // (SF path) pauses its DS core instead of emulating + playing audio behind
+        // an off panel. On DRM drastic owns power and sleeps itself; on SF the
+        // framework owns power, so this prop is the only sleep signal it gets. The
+        // no-auto-sleep gate only blocks the idle timeout, so this fires on a real
+        // (manual/lid) sleep. Set as early as possible so the core pauses before
+        // suspend. Cleared in startedWakingUp.
+        android.os.SystemProperties.set("sys.gammaos.nano.screen_off", "1");
+
         mRequestedOrSleepingDefaultDisplay = true;
 
         if (mKeyguardDelegate != null) {
@@ -8143,6 +8152,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (displayGroupId != Display.DEFAULT_DISPLAY_GROUP) {
             return;
         }
+        // GammaOS Nano: clear screen-off so a foreground drastic-nano resumes its
+        // DS core on wake (paired with the set in startedGoingToSleep).
+        android.os.SystemProperties.set("sys.gammaos.nano.screen_off", "0");
         EventLogTags.writeScreenToggled(1);
 
         // Slide-trigger post-wake resync window (see applyGammaRotate). Open it on any wake the

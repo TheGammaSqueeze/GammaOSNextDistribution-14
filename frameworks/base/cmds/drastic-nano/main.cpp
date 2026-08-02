@@ -2058,6 +2058,10 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     const float gradient   = 0.0f;
     int  fsCounter = 0;
     bool screensSwapped = false;
+    // Screen-off pause state (SF path). true once we paused the DS core for a
+    // framework-driven sleep, so wake only resumes what we paused (never undoing
+    // an overlay-menu-held pause). See the screen_off handling in the loop below.
+    bool sfPausedForSleep = false;
 
     // Lightweight present-rate log: count presents and report the measured FPS
     // every ~2 seconds. SurfaceFlinger keeps no latency stats for a
@@ -2091,6 +2095,34 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             property_get_int32("persist.gammaos.drastic_nano.sf_vsync", 0) != 0;
     while (!exitRequested) {
         const int64_t _frameStartNs = android::elapsedRealtimeNano();
+
+        // Screen-off pause (SF path only): on SF the framework owns power, so when
+        // it sleeps the device it publishes sys.gammaos.nano.screen_off=1 (see
+        // PhoneWindowManager.startedGoingToSleep). Without this the native
+        // drastic-nano loop keeps emulating + rendering + playing audio at ~150%
+        // CPU behind an off panel. Pause the DS core (unless the overlay menu
+        // already holds a pause), then skip all input/emulate/render/present work
+        // and idle at 10 Hz until wake clears the prop; resume only what we paused.
+        // The DRM path is untouched: it owns power and sleeps via doSleep().
+        {
+            const bool screenOff =
+                    property_get_int32("sys.gammaos.nano.screen_off", 0) != 0;
+            if (screenOff) {
+                if (!sfPausedForSleep && !overlay.isOpen()) {
+                    dr->pauseToggle(true);
+                    sfPausedForSleep = true;
+                    ALOGI("drastic-nano: screen off, pausing DS core");
+                }
+                struct timespec ts = {0, 100L * 1000 * 1000};  // 100 ms idle
+                nanosleep(&ts, nullptr);
+                continue;
+            } else if (sfPausedForSleep) {
+                dr->pauseToggle(false);
+                sfPausedForSleep = false;
+                ALOGI("drastic-nano: screen on, resuming DS core");
+            }
+        }
+
         // Pick up live Screen Layout menu changes (orientation / scaling / swap).
         layout = readSfLayoutConfig(W, H);
         if (android::elapsedRealtime() >= audioBoostDeadlineMs) {
