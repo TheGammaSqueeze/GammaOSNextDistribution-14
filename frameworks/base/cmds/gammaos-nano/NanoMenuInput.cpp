@@ -2595,6 +2595,7 @@ void NanoMenu::pollInput() {
                     case KEY_RIGHT:
                         navPress(NavDir::Right); break;
                     case BTN_WEST: // Y button (Nintendo layout: BTN_WEST = Y); PS3 Square in music
+                        if (mOskActive) { oskPaste(); break; }   // Y while typing: paste from the system clipboard
                         if (mMpActive && !mOskActive) { mpCycleVis(); break; }   // Square: cycle the visualizer
                         if (mPvActive && !mOskActive) {   // Square in the viewer: 2D/3D switch
                             if (!mPvWpMode && !mPvTrimMode && !mPvPlChooserActive) pvShow3D();

@@ -509,6 +509,8 @@ private:
     void oskCommitPopupCell();      // commit the focused popup cell
     void oskCycleLanguage(int dir); // in-keyboard language switch
     void oskInsertCp(uint32_t cp);  // insert a codepoint at the caret (UTF-8)
+    void oskInsertString(const std::string& s); // insert a UTF-8 string at the caret (paste)
+    void oskPaste();                // Y: request the system clipboard, insert it on reply
     void oskCaretLeft();
     void oskCaretRight();
     OskBox oskLayoutBox();          // compute the aspect-aware keyboard box
@@ -4200,6 +4202,13 @@ private:
     float mOskGlassT = 0.0f;       // mEffectTime of the last OSK panel capture
     std::string mOskQuery;     // current typed buffer (committed text)
     NanoOskState mOsk;         // page/shift/focus/caret/popup/candidates/IME state
+    // OSK clipboard paste (Y). nano is native (bootanim) and can't call ClipboardManager,
+    // so oskPaste() asks the SystemServer clipboard bridge via sys.gammaos.nano.clip_req and
+    // oskTick() picks up the reply (clip_ready + /data/system/nano_clipboard.txt) and inserts
+    // it - non-blocking so the render/input thread never stalls.
+    bool    mOskPastePending = false;  // a paste request is in flight
+    long    mOskPasteNonce = 0;        // request id echoed back by the bridge in clip_ready
+    int64_t mOskPasteReqMs = 0;        // when the request was sent (for timeout)
     // Touchscreen OSK input. The digitizer is read straight from the same evdev
     // stream (ABS_MT_POSITION_X/Y + BTN_TOUCH); ranges are read lazily via
     // EVIOCGABS. Raw -> panel-normalized -> logical is corrected per device by

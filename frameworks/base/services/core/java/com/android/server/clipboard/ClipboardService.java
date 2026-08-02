@@ -876,6 +876,29 @@ public class ClipboardService extends SystemService {
         }
     };
 
+    /**
+     * GammaOS Nano: returns the current primary-clip text for {@code userId} on the default
+     * device, bypassing the foreground/permission checks that {@link ClipboardImpl#getPrimaryClip}
+     * enforces. Intended ONLY for the trusted, in-process nano clipboard bridge in SystemServer,
+     * which hands the text to the native launcher's on-screen keyboard (the launcher runs as
+     * bootanim and cannot call ClipboardManager). Returns null when the clipboard has no text.
+     */
+    public @Nullable CharSequence getPrimaryClipTextForSystem(@UserIdInt int userId) {
+        synchronized (mLock) {
+            Clipboard clipboard = getClipboardLocked(userId, DEVICE_ID_DEFAULT);
+            if (clipboard == null || clipboard.primaryClip == null
+                    || clipboard.primaryClip.getItemCount() == 0) {
+                return null;
+            }
+            ClipData.Item item = clipboard.primaryClip.getItemAt(0);
+            CharSequence text = item.getText();
+            if (text == null) {
+                text = item.coerceToText(getContext());
+            }
+            return text;
+        }
+    }
+
     @GuardedBy("mLock")
     private @Nullable Clipboard getClipboardLocked(@UserIdInt int userId, int deviceId) {
         Clipboard clipboard = mClipboards.get(userId, deviceId);

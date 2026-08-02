@@ -524,6 +524,7 @@ public final class SystemServer implements Dumpable {
     private WindowManagerGlobalLock mWindowManagerGlobalLock;
     private WebViewUpdateService mWebViewUpdateService;
     private DisplayManagerService mDisplayManagerService;
+    private ClipboardService mClipboardService;
     private PackageManagerService mPackageManagerService;
     private PackageManager mPackageManager;
     private ContentResolver mContentResolver;
@@ -3244,7 +3245,7 @@ public final class SystemServer implements Dumpable {
         // GammaOS Nano: ClipboardService must start even in minimal boot —
         // apps like Firefox call getSystemService(CLIPBOARD_SERVICE) and crash if null.
         t.traceBegin("StartClipboardService");
-        mSystemServiceManager.startService(ClipboardService.class);
+        mClipboardService = mSystemServiceManager.startService(ClipboardService.class);
         t.traceEnd();
 
         // GammaOS Nano: ShortcutService (and the LauncherApps service it backs) must
@@ -4204,6 +4205,10 @@ public final class SystemServer implements Dumpable {
                 // into the provider it cannot write itself, and re-apply them after this boot.
                 startNanoDisplayBridge(mSystemContext);
 
+                // Let the nano on-screen keyboard's Paste (Y) key pull from the Android
+                // clipboard (the native launcher can't call ClipboardManager).
+                startNanoClipboardBridge(mClipboardService);
+
                 // Live refresh on package changes. We are past sys.boot_completed, so
                 // AMS/PMS are up and registerReceiver cannot race system-ready. A
                 // dedicated HandlerThread both dispatches the receiver and runs the
@@ -4516,6 +4521,68 @@ public final class SystemServer implements Dumpable {
         t.setDaemon(true);
         t.start();
         Slog.i(TAG, "GammaOS Nano: display bridge started");
+    }
+
+    /**
+     * GammaOS Nano: on-demand clipboard bridge for the nano on-screen keyboard's Paste (Y) key.
+     * The native launcher runs as bootanim and cannot call ClipboardManager, and the clipboard
+     * service refuses background reads even from system_server, so nano requests a paste by setting
+     * sys.gammaos.nano.clip_req to a fresh id; we read the primary clip through a trusted in-process
+     * path, write the (single-line, control-stripped) text to /data/system/nano_clipboard.txt
+     * (system_data_file, which bootanim can read), and echo the id to sys.gammaos.nano.clip_ready.
+     * Read only on request, so clipboard contents are never mirrored to disk casually.
+     */
+    private void startNanoClipboardBridge(ClipboardService clipboard) {
+        if (clipboard == null) {
+            Slog.w(TAG, "GammaOS Nano: clipboard bridge not started (no ClipboardService)");
+            return;
+        }
+        Thread t = new Thread(() -> {
+            String last = "";
+            while (true) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                String req = SystemProperties.get("sys.gammaos.nano.clip_req", "");
+                if (req.isEmpty() || req.equals(last)) {
+                    continue;
+                }
+                last = req;
+                String text = "";
+                try {
+                    int userId = android.app.ActivityManager.getCurrentUser();
+                    CharSequence cs = clipboard.getPrimaryClipTextForSystem(userId);
+                    if (cs != null) text = cs.toString();
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: clipboard read failed", e);
+                }
+                // OSK fields are single-line: strip control chars (newlines / tabs / NUL / DEL) so a
+                // pasted URL is clean and the native reader never hits an embedded terminator. Cap the
+                // payload; the OSK further caps to its 256-byte buffer.
+                StringBuilder sb = new StringBuilder(Math.min(text.length(), 4096));
+                for (int i = 0; i < text.length() && sb.length() < 4096; i++) {
+                    char c = text.charAt(i);
+                    if (c >= 0x20 && c != 0x7f) sb.append(c);
+                }
+                try {
+                    java.io.File dst = new java.io.File("/data/system/nano_clipboard.txt");
+                    java.io.File tmp = new java.io.File("/data/system/nano_clipboard.txt.tmp");
+                    java.io.FileWriter fw = new java.io.FileWriter(tmp);
+                    fw.write(sb.toString());
+                    fw.close();
+                    tmp.setReadable(true, false);
+                    tmp.renameTo(dst);   // atomic replace; nano never reads a partial value
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: clipboard file write failed", e);
+                }
+                SystemProperties.set("sys.gammaos.nano.clip_ready", req);
+            }
+        }, "NanoClipboardBridge");
+        t.setDaemon(true);
+        t.start();
+        Slog.i(TAG, "GammaOS Nano: clipboard bridge started");
     }
 
     /**

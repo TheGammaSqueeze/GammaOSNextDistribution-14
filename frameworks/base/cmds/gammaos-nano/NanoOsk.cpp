@@ -27,9 +27,12 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <string>
 #include <vector>
+
+#include <cutils/properties.h>
 
 #include <utils/Log.h>
 
@@ -620,6 +623,43 @@ void NanoMenu::oskCaretRight() {
     mDisplayDirty = true;
 }
 
+// Insert a whole UTF-8 string at the caret (used by Paste). Unlike oskInsertCp this does not
+// route through the IME - pasted text is committed raw. Respects the committed-buffer cap,
+// truncating on a UTF-8 lead boundary so a multibyte sequence is never split.
+void NanoMenu::oskInsertString(const std::string& s) {
+    if (s.empty()) return;
+    if (mOsk.caret < 0) mOsk.caret = 0;
+    if (mOsk.caret > (int)mOskQuery.size()) mOsk.caret = (int)mOskQuery.size();
+    size_t room = (mOskQuery.size() < kBufferCap) ? (kBufferCap - mOskQuery.size()) : 0;
+    if (room == 0) { mDisplayDirty = true; return; }
+    std::string ins = s;
+    if (ins.size() > room) {
+        size_t cut = room;
+        while (cut > 0 && (((unsigned char)ins[cut]) & 0xC0) == 0x80) cut--;  // UTF-8 lead boundary
+        ins.resize(cut);
+        if (ins.empty()) { mDisplayDirty = true; return; }
+    }
+    mOskQuery.insert((size_t)mOsk.caret, ins);
+    mOsk.caret += (int)ins.size();
+    if (!mOskPasswordMode) updateSearchResults();
+    mDisplayDirty = true;
+}
+
+// Y while the OSK is up: request the Android clipboard from the SystemServer bridge. nano is
+// native (bootanim) and cannot call ClipboardManager, so we bump sys.gammaos.nano.clip_req with a
+// fresh id; the bridge reads the primary clip, writes /data/system/nano_clipboard.txt, and echoes
+// the id to clip_ready. Non-blocking: oskTick() picks up the reply and inserts the text.
+void NanoMenu::oskPaste() {
+    if (!mOskActive) return;
+    if (mOskFieldFmt != 0) return;   // numeric (date/time) fields: paste is meaningless
+    mOskPasteNonce++;
+    char req[32];
+    snprintf(req, sizeof(req), "%ld", mOskPasteNonce);
+    property_set("sys.gammaos.nano.clip_req", req);
+    mOskPastePending = true;
+    mOskPasteReqMs = nowMs();
+}
+
 // ---------------------------------------------------------------------------
 // State machine: shift / caps / symbol page / language
 // ---------------------------------------------------------------------------
@@ -810,6 +850,30 @@ void NanoMenu::oskTick() {
                 oskOpenPopup(key);
                 mOsk.aLongFired = true;
             }
+        }
+    }
+
+    // Pick up a pending clipboard paste (see oskPaste). The bridge echoes our request id to
+    // clip_ready once it has written the text file, so we insert exactly the reply we asked for
+    // and never a stale value. Give up quietly after a short timeout.
+    if (mOskPastePending) {
+        char ready[PROPERTY_VALUE_MAX] = {0};
+        property_get("sys.gammaos.nano.clip_ready", ready, "");
+        char want[32];
+        snprintf(want, sizeof(want), "%ld", mOskPasteNonce);
+        if (strcmp(ready, want) == 0) {
+            mOskPastePending = false;
+            std::string clip;
+            FILE* f = fopen("/data/system/nano_clipboard.txt", "re");
+            if (f) {
+                char buf[1024];
+                size_t n;
+                while ((n = fread(buf, 1, sizeof(buf), f)) > 0) clip.append(buf, n);
+                fclose(f);
+            }
+            if (!clip.empty()) oskInsertString(clip);
+        } else if (nowMs() - mOskPasteReqMs > 1500) {
+            mOskPastePending = false;   // bridge did not answer; drop the request
         }
     }
 }
@@ -1421,8 +1485,8 @@ void NanoMenu::renderOsk() {
     {
         float fScale = 1.35f * b.sf;
         const char* footer = trDyn(mOskPasswordCallback
-            ? "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Enter  B:Cancel"
-            : "A:Key  X:Back  L:Shift  R:Sym  Sel:Lang  Start:Search  B:Cancel");
+            ? "A:Key  X:Back  Y:Paste  L:Shift  R:Sym  Sel:Lang  Start:Enter  B:Cancel"
+            : "A:Key  X:Back  Y:Paste  L:Shift  R:Sym  Sel:Lang  Start:Search  B:Cancel");
         float fw = measureText(footer, fScale);
         drawText(footer, b.panelX + b.panelW / 2.0f - fw / 2.0f, b.footerY, fScale,
                  0.58f, 0.60f, 0.68f, 0.80f * fade);
