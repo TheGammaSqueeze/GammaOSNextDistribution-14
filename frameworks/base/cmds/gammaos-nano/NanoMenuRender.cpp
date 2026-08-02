@@ -5303,6 +5303,8 @@ void NanoMenu::render() {
             fbTick();        // File Explorer / folder browser: adopt a directory listing the worker
                              // finished (same reason as appInfoTick - without this the browser is
                              // stuck on "Loading..." forever in the DSi theme).
+            gsAutoAddTick(); // ES-DE bulk auto-add: apply matched folders (renderPs3Xmb is skipped
+                             // in this theme, so the worker's results must be applied from here too).
             feTick();        // File Explorer: reap a finished copy / move / delete op + its result dialog.
             nsTick();        // Network Shares: follow a mount coming up / going away while the list is open.
             ensureNdsAssets();
@@ -5344,6 +5346,8 @@ void NanoMenu::render() {
                 fbTick();    // File Explorer / folder browser: adopt a finished directory listing
                              // (renderPs3Xmb, which normally ticks this, is skipped for the Minima
                              // home - without it the browser is stuck on "Loading..." forever).
+                gsAutoAddTick(); // ES-DE bulk auto-add: apply matched folders (renderPs3Xmb skipped
+                                 // in the Minima theme too, so apply the worker's results from here).
                 feTick();    // File Explorer: reap a finished copy / move / delete op + its result dialog.
                 nsTick();    // Network Shares: follow a mount coming up / going away while the list is open.
                 renderMinima();

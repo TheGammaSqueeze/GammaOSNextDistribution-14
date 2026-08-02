@@ -1351,6 +1351,14 @@ void NanoMenu::overlayLaunchGame() {
         return;
     }
 
+    // Same emulator guard as the home launcher: if the core .so or standalone app is not on the
+    // device, warn instead of replacing the running app with an emulator that immediately dies.
+    if (standalone) {
+        if (!packageInstalled(launchPkg)) { showEmuMissingMsg(romName, true); return; }
+    } else if (!coreSoExists(coreSo)) {
+        showEmuMissingMsg(romName, false); return;
+    }
+
     // GammaOS: drastic-nano intercept for the resident overlay launcher. The
     // home XMB reroutes a DS ROM to the drastic-nano binary when
     // persist.gammaos.nano.drastic_nano=1; do the same here so launching a DS

@@ -343,6 +343,22 @@ static std::string platformIconFor(const std::string& uid) {
 int nano_makeUniqueSystem(std::vector<NanoMenu::XmbSystem>& systems, const std::string& name,
                           const std::string& preferredId);
 
+// Default icon ref for a platform, shared by the emulator-picker add path and the bulk auto-add.
+// Prefer the curated uniqueId->LibretroDB icon map; unmapped platforms fall back to a sanitized
+// display-name guess, then to the generic cartridge inside resolveSystemIcon.
+std::string NanoMenu::gsIconRefForPlatform(const std::string& platformId,
+                                           const std::string& platformDisplay) {
+    std::string iconName = platformIconFor(platformId);
+    if (iconName.empty()) {
+        iconName = platformDisplay;
+        for (char& c : iconName)
+            if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                  (c >= '0' && c <= '9') || c == '.' || c == '-')) c = '_';
+    }
+    if (iconName.empty()) return "";
+    return "retroarch:" + iconName;
+}
+
 // Apply a catalog entry's launch config (type / core / package / intent / exts)
 // to a system, classifying RetroArch libretro players vs standalone packages.
 void NanoMenu::applyEmuEntryToSystem(XmbSystem& s, const EmuCatEntry& e) {
@@ -379,18 +395,10 @@ void NanoMenu::applyEmulatorChoice(int catIdx) {
     int idx;
     if (adding) {
         idx = nano_makeUniqueSystem(mXmbSystems, e.platform, e.platformId);
-        // Platform icon from the curated uniqueId map (the Daijishou display
-        // names do not match the LibretroDB icon names). Unmapped platforms
-        // fall back to a sanitized-name guess, then to the generic cartridge
-        // inside resolveSystemIcon.
-        std::string iconName = platformIconFor(e.platformId);
-        if (iconName.empty()) {
-            iconName = e.platform;
-            for (char& c : iconName)
-                if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-                      (c >= '0' && c <= '9') || c == '.' || c == '-')) c = '_';
-        }
-        mXmbSystems[idx].iconRef = "retroarch:" + iconName;
+        // Platform icon from the curated uniqueId map (the Daijishou display names do not match the
+        // LibretroDB icon names); unmapped platforms fall back to a sanitized-name guess, then to the
+        // generic cartridge inside resolveSystemIcon. Shared with the bulk auto-add path.
+        mXmbSystems[idx].iconRef = gsIconRefForPlatform(e.platformId, e.platform);
         mGsAddMode = false;
     } else {
         if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;

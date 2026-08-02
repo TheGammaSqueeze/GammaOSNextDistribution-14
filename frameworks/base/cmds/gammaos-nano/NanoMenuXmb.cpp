@@ -629,7 +629,7 @@ static std::vector<std::string> getRomFolderAliases(const std::string& romDir) {
         "n64,nintendo64,n64dd",
         "nds,ds,nintendods",
         "genesis,megadrive,md,megadrivejp",
-        "mastersystem,sms",
+        "mastersystem,sms,master",
         "gamegear,gg",
         "psx,ps1,playstation,psone",
         "psp,playstationportable",
@@ -647,12 +647,12 @@ static std::vector<std::string> getRomFolderAliases(const std::string& romDir) {
         "sega32x,sega32xjp,sega32xna,32x",
         "sg-1000,sg1000",
         "pcengine,tg16,pce,turbografx16,supergrafx",
-        "pcenginecd,tg-cd,pcecd",
+        "pcenginecd,tg-cd,pcecd,tgcd",
         "neogeo,neogeocd",
         "wonderswan,ws", "wonderswancolor,wsc",
         "atari2600,a2600", "atari5200", "atari7800",
         "atarilynx,lynx", "atarijaguar,jaguar", "atarist,ast",
-        "msx,msx1", "msx2", "colecovision,coleco", "intellivision,intv",
+        "msx,msx1,msx2", "colecovision,coleco", "intellivision,intv",
         "vectrex", "virtualboy,vb",
         "arcade,mame,fbneo,fba,mame2003,mame2010,cps1,cps2,cps3",
         "c64,commodore64", "amiga", "amstradcpc,cpc", "zxspectrum,spectrum,zx81",
@@ -680,6 +680,223 @@ static std::vector<std::string> getRomFolderAliases(const std::string& romDir) {
         }
     }
     return out;
+}
+
+// ---- ES-DE-style bulk auto-add (scan a ROMs root, add every recognised system folder) ----
+// Defined in NanoMenuPS3Folder.cpp.
+int nano_makeUniqueSystem(std::vector<NanoMenu::XmbSystem>& systems, const std::string& name,
+                          const std::string& preferredId);
+
+static std::string autoAddLower(const std::string& in) {
+    std::string o; o.reserve(in.size());
+    for (char c : in) o += (char)((c >= 'A' && c <= 'Z') ? c + 32 : c);
+    return o;
+}
+
+// True if `path` (or, bounded, its immediate subfolders) holds at least one file whose extension is
+// in `acceptExts` (comma-separated dotted lowercase) or a common ROM archive. Mirrors ES-DE's rule
+// that a system is only surfaced when its folder actually contains ROMs, so an alias-matched but
+// empty folder is not turned into a system. Bounded so a large or networked folder cannot stall.
+static bool autoAddFolderHasRom(const std::string& path, const std::string& acceptExts) {
+    std::vector<std::string> exts;
+    { std::string t;
+      for (char c : acceptExts) {
+          if (c == ',') { if (!t.empty()) exts.push_back(autoAddLower(t)); t.clear(); }
+          else t += c;
+      }
+      if (!t.empty()) exts.push_back(autoAddLower(t)); }
+    exts.push_back(".zip"); exts.push_back(".7z"); exts.push_back(".chd");   // common ROM archives
+    auto fileMatches = [&](const char* nm) -> bool {
+        const char* dot = strrchr(nm, '.');
+        if (!dot) return false;
+        std::string e = autoAddLower(dot);   // includes the dot
+        for (const auto& x : exts) if (!x.empty() && x == e) return true;
+        return false;
+    };
+    std::vector<std::string> subdirs;
+    DIR* d = opendir(path.c_str());
+    if (!d) return false;
+    int examined = 0;
+    struct dirent* de;
+    while ((de = readdir(d)) != nullptr && examined < 4000) {
+        if (de->d_name[0] == '.') continue;
+        examined++;
+        std::string full = path + "/" + de->d_name;
+        struct stat st;
+        if (stat(full.c_str(), &st) != 0) continue;
+        if (S_ISREG(st.st_mode)) { if (fileMatches(de->d_name)) { closedir(d); return true; } }
+        else if (S_ISDIR(st.st_mode) && subdirs.size() < 12) subdirs.push_back(full);
+    }
+    closedir(d);
+    // One level deep (per-game-folder layouts, e.g. some disc systems), bounded.
+    for (const auto& sd : subdirs) {
+        DIR* sdd = opendir(sd.c_str());
+        if (!sdd) continue;
+        int n2 = 0;
+        struct dirent* se;
+        while ((se = readdir(sdd)) != nullptr && n2 < 400) {
+            if (se->d_name[0] == '.') continue;
+            n2++;
+            if (fileMatches(se->d_name)) { closedir(sdd); return true; }
+        }
+        closedir(sdd);
+    }
+    return false;
+}
+
+// Broad ROM-extension set used only for the bulk-add "does this folder hold ROMs" gate on the worker
+// thread (where the specific system's exts are not yet known). Deliberately lenient: the alias match
+// already excludes non-system folders, so this only needs to reject a matched-but-empty folder.
+static const char* kBulkAddGenericExts =
+    ".nes,.fds,.unf,.unif,.sfc,.smc,.fig,.swc,.bs,.gb,.gbc,.gba,.agb,.n64,.z64,.v64,.ndd,.nds,.dsi,"
+    ".md,.gen,.smd,.bin,.sms,.sg,.gg,.pce,.sgx,.cue,.ccd,.chd,.iso,.cdi,.gdi,.mdf,.mds,.img,.pbp,"
+    ".cso,.m3u,.a26,.a78,.lnx,.ws,.wsc,.ngp,.ngc,.npc,.col,.int,.vec,.d64,.t64,.prg,.crt,.adf,.dsk,"
+    ".rom,.p8,.32x,.gcm,.ciso,.rvz,.wbfs,.cas,.tap,.j64,.jag,.vb,.min,.sv,.gam,.pc2";
+
+// Kick an ES-DE-style bulk import off the RENDER thread. The read-only folder probe (opendir/readdir/
+// stat over the chosen root, which may be a slow NAS/FTP share) runs on a DETACHED worker so it can
+// never freeze the render heartbeat and trip the watchdog; the worker only produces a list of matched
+// (folder -> catalog index) candidates, which gsAutoAddTick() applies on the render thread. Matching
+// and the has-ROMs gate touch only the immutable emulator catalog + pure helpers, never mXmbSystems.
+void NanoMenu::gsAutoAddFromRoot(const std::string& root) {
+    if (root.empty()) return;
+    if (mBulkAddScanning.load(std::memory_order_acquire)) return;   // one scan at a time
+    if (mEmuCatalog.empty()) loadEmuCatalog();
+
+    mBulkAddScanning.store(true, std::memory_order_release);
+    mBulkAddDone.store(false, std::memory_order_release);
+    { std::lock_guard<std::mutex> lk(mBulkAddLock); mBulkAddResults.clear(); }
+    showXmbMessage("Scanning folder...", "Looking for game systems to add.", 100000);
+
+    // Snapshot the catalog's (platformId -> first index) so the worker never races a catalog reload.
+    std::vector<std::pair<std::string,int>> catIds;
+    for (int i = 0; i < (int)mEmuCatalog.size(); i++) {
+        std::string pid = autoAddLower(mEmuCatalog[i].platformId);
+        if (!pid.empty()) catIds.push_back({pid, i});
+    }
+
+    std::thread([this, root, catIds]() {
+        std::vector<BulkAddCand> cands;
+        DIR* d = opendir(root.c_str());
+        if (d) {
+            struct dirent* de;
+            int examined = 0;
+            while ((de = readdir(d)) != nullptr && examined < 4000) {
+                if (de->d_name[0] == '.') continue;
+                examined++;
+                std::string name = de->d_name;
+                std::string full = root + "/" + name;
+                struct stat st;
+                if (stat(full.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) continue;
+
+                // Fold the folder name into its alias group, then take the first catalog entry whose
+                // platformId is in that group (symmetric: matches whether the folder uses the ES-DE
+                // name or the catalog's).
+                std::vector<std::string> falias;
+                for (const auto& a : getRomFolderAliases(name)) falias.push_back(autoAddLower(a));
+                int ci = -1;
+                for (const auto& kv : catIds) {
+                    bool m = false;
+                    for (const auto& a : falias) if (a == kv.first) { m = true; break; }
+                    if (m) { ci = kv.second; break; }
+                }
+                if (ci < 0) continue;   // not a recognised system folder (media / gamelists / etc.)
+                if (!autoAddFolderHasRom(full, kBulkAddGenericExts)) continue;   // empty -> skip
+
+                BulkAddCand c; c.folder = full; c.catIdx = ci; cands.push_back(std::move(c));
+            }
+            closedir(d);
+        }
+        {
+            std::lock_guard<std::mutex> lk(mBulkAddLock);
+            mBulkAddResults = std::move(cands);
+        }
+        mBulkAddDone.store(true, std::memory_order_release);
+    }).detach();
+}
+
+// Render thread: once the bulk-add worker has finished, apply its matched folders. Creating/linking
+// systems and touching mXmbSystems must happen here (render thread), never on the worker.
+void NanoMenu::gsAutoAddTick() {
+    if (!mBulkAddScanning.load(std::memory_order_acquire)) return;
+    if (!mBulkAddDone.load(std::memory_order_acquire)) return;
+
+    std::vector<BulkAddCand> cands;
+    { std::lock_guard<std::mutex> lk(mBulkAddLock); cands.swap(mBulkAddResults); }
+    mBulkAddDone.store(false, std::memory_order_release);
+    mBulkAddScanning.store(false, std::memory_order_release);
+
+    // Find an existing system that already represents a platform/folder (attach rather than duplicate).
+    auto findExisting = [&](const std::string& folderLower, const std::string& platformIdLower) -> int {
+        for (int i = 0; i < (int)mXmbSystems.size(); i++) {
+            if (autoAddLower(mXmbSystems[i].id) == platformIdLower) return i;
+            for (const auto& a : getRomFolderAliases(mXmbSystems[i].romDir)) {
+                std::string la = autoAddLower(a);
+                if (la == folderLower || la == platformIdLower) return i;
+            }
+        }
+        return -1;
+    };
+
+    int added = 0, linked = 0, needEmu = 0;
+    for (const auto& c : cands) {
+        if (c.catIdx < 0 || c.catIdx >= (int)mEmuCatalog.size()) continue;
+        const std::string full = c.folder;
+        std::string nameLower = full;
+        { size_t sl = nameLower.rfind('/'); if (sl != std::string::npos) nameLower = nameLower.substr(sl + 1); }
+        nameLower = autoAddLower(nameLower);
+        std::string platformId = mEmuCatalog[c.catIdx].platformId;
+        std::string platformIdLower = autoAddLower(platformId);
+        int ex = findExisting(nameLower, platformIdLower);
+
+        if (ex >= 0) {
+            XmbSystem& s = mXmbSystems[ex];
+            bool dup = false;
+            for (const auto& src : s.scanSources) if (src.value == full) { dup = true; break; }
+            if (dup) continue;
+            ScanSource src; src.type = 0; src.value = full; s.scanSources.push_back(src);
+            unlink(xmbCachePath(s).c_str()); s.scanned = false;
+            linked++;
+            if (s.isStandalone() ? !packageInstalled(s.launchPkg) : !coreSoExists(s.coreSo)) needEmu++;
+        } else {
+            int idx = nano_makeUniqueSystem(mXmbSystems, mEmuCatalog[c.catIdx].platform, platformId);
+            applyEmuEntryToSystem(mXmbSystems[idx], mEmuCatalog[c.catIdx]);
+            mXmbSystems[idx].iconRef = gsIconRefForPlatform(platformId, mEmuCatalog[c.catIdx].platform);
+            ScanSource src; src.type = 0; src.value = full; mXmbSystems[idx].scanSources.push_back(src);
+            unlink(xmbCachePath(mXmbSystems[idx]).c_str()); mXmbSystems[idx].scanned = false;
+            added++;
+            if (mXmbSystems[idx].isStandalone() ? !packageInstalled(mXmbSystems[idx].launchPkg)
+                                                : !coreSoExists(mXmbSystems[idx].coreSo)) needEmu++;
+        }
+    }
+
+    if (added > 0 || linked > 0) {
+        saveSystemsConfig();
+        if (!mBgScanThreadRunning) forceRescanAllSystems();
+    }
+    // Pop the folder browser back to the Game Systems list, if it is still showing (single level).
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE) mPs3Stack.pop_back();
+    gsRefreshStackLevels();
+    buildPs3Cats();
+
+    if (added == 0 && linked == 0) {
+        showXmbMessage("No new systems found",
+                       "No subfolders matched a known system with ROMs.", 300);
+    } else {
+        std::string l1 = "Added " + std::to_string(added) + (added == 1 ? " system" : " systems");
+        std::string l2;
+        if (linked && needEmu)
+            l2 = "Linked " + std::to_string(linked) + " existing; " +
+                 std::to_string(needEmu) + " need an emulator";
+        else if (linked)
+            l2 = "Linked " + std::to_string(linked) + " to existing systems";
+        else if (needEmu)
+            l2 = std::to_string(needEmu) + (needEmu == 1 ? " needs an emulator installed"
+                                                         : " need an emulator installed");
+        else
+            l2 = "Scanning for games now...";
+        showXmbMessage(l1, l2, 340);
+    }
 }
 
 // Build the ordered, de-duplicated list of directories to scan for a system's
@@ -1772,6 +1989,54 @@ void NanoMenu::showRomMissingMsg(const std::string& displayName) {
                    "It may have been deleted, or its storage is not connected.", 260);
 }
 
+// True when the RetroArch libretro core .so for a system is present on disk. RetroArch keeps its
+// cores under its own data dir; this is the exact path every launch branch feeds RetroArch. Fails
+// OPEN (returns true) for an empty coreSo so a non-core launch type is never blocked here.
+bool NanoMenu::coreSoExists(const std::string& coreSo) {
+    if (coreSo.empty()) return true;   // not a libretro-core launch; nothing to check
+    std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + coreSo;
+    struct stat st;
+    if (stat(corePath.c_str(), &st) != 0) return false;
+    return S_ISREG(st.st_mode) && st.st_size > 0;
+}
+
+// True when a standalone emulator package is installed. Reads /data/system/packages.list directly
+// (the authoritative DB; the package name is the first space-delimited token of each line) rather
+// than mAppEntries, which drops system/com.android.*/com.gammaos.* packages an emulator may live in.
+// Fails OPEN (returns true) if the list is unreadable, so a transient state never blocks a launch.
+bool NanoMenu::packageInstalled(const std::string& pkg) {
+    if (pkg.empty()) return true;
+    int fd = open("/data/system/packages.list", O_RDONLY);
+    if (fd < 0) return true;   // fail-open: never block a launch if the DB cannot be read
+    std::string content;
+    char b[4096];
+    ssize_t n;
+    while ((n = read(fd, b, sizeof(b))) > 0) content.append(b, (size_t)n);
+    close(fd);
+    size_t pos = 0;
+    while (pos < content.size()) {
+        size_t eol = content.find('\n', pos);
+        if (eol == std::string::npos) eol = content.size();
+        size_t sp = content.find(' ', pos);
+        if (sp != std::string::npos && sp <= eol &&
+            content.compare(pos, sp - pos, pkg) == 0)
+            return true;
+        pos = eol + 1;
+    }
+    return false;
+}
+
+// Tell the user a game's emulator/core is not on the device, instead of launching into a black
+// screen. Theme-agnostic (renders via the same toast path as showRomMissingMsg).
+void NanoMenu::showEmuMissingMsg(const std::string& displayName, bool standalone) {
+    ALOGW("NanoMenu: refusing to launch, emulator missing (%s, standalone=%d)",
+          displayName.c_str(), standalone ? 1 : 0);
+    showXmbMessage(displayName.empty() ? std::string("Emulator not installed")
+                                       : (displayName + ": emulator not installed"),
+                   standalone ? "Install the required emulator app, then try again."
+                              : "The RetroArch core for this system is missing.", 300);
+}
+
 // Drop Recently Played entries whose ROM file is gone, so a rescan (or a deleted game) does not
 // leave rows that cannot launch. Only rewrites the list file when something actually changed.
 void NanoMenu::pruneStaleRecentEntries() {
@@ -1968,6 +2233,14 @@ void NanoMenu::launchXmbGame() {
             return;
         }
 
+        // The emulator that opens this game may not be on the device (a core was never installed, or
+        // the standalone app was uninstalled). Warn instead of black-screening on launch.
+        if (re.standalone) {
+            if (!packageInstalled(re.launchPkg)) { showEmuMissingMsg(re.displayName, true); return; }
+        } else if (!coreSoExists(re.coreSo)) {
+            showEmuMissingMsg(re.displayName, false); return;
+        }
+
         // Move to front of recent list -- only on disk, not in-memory.
         // Modifying the vector causes a visible shuffle during the
         // transition frames before NanoMenu exits.
@@ -2129,6 +2402,14 @@ void NanoMenu::launchXmbGame() {
         showRomMissingMsg(gameIdx < (int)sys.displayNames.size()
                               ? sys.displayNames[gameIdx] : std::string());
         return;
+    }
+
+    // The emulator for this system may not be installed (a bulk-added system whose core was never
+    // fetched, or an uninstalled standalone app). Warn instead of launching into a black screen.
+    if (sys.isStandalone()) {
+        if (!packageInstalled(sys.launchPkg)) { showEmuMissingMsg(sys.name, true); return; }
+    } else if (!coreSoExists(sys.coreSo)) {
+        showEmuMissingMsg(sys.name, false); return;
     }
 
     if (sys.isStandalone()) {

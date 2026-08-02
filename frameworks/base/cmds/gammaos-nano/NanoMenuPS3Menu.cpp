@@ -3721,6 +3721,10 @@ void NanoMenu::buildGameSystemsList(Ps3Level& out) {
     { Ps3Item it; it.label = "Add New System..."; it.kind = PS3_GS_ADD;
       it.iconTex = 0; it.nmapTex = nmapForIcon(51);   // add glyph
       it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
+    // ES-DE-style bulk import: point it at a ROMs root and it adds every recognised system folder.
+    { Ps3Item it; it.label = "Auto-add Systems from Folder..."; it.kind = PS3_GS_AUTOADD;
+      it.iconTex = 0; it.nmapTex = nmapForIcon(50);   // folder glyph
+      it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it); }
 }
 
 // Flip a system's enabled flag, persist the config, and refresh both the visible
@@ -4771,6 +4775,15 @@ void NanoMenu::ps3XmbSelect() {
             mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
             return;
         }
+        case PS3_GS_AUTOADD: {   // ES-DE bulk import: browse to the ROMs root, then Select This Folder
+            mFolderPickTarget = 4;
+            std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+            Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
+            mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+            mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+            mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+            return;
+        }
         case PS3_GS_DIR: {   // descend/ascend the folder browser in place
             if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE)
                 buildFolderBrowser(it.payloadStr, mPs3Stack.back());
@@ -4780,6 +4793,7 @@ void NanoMenu::ps3XmbSelect() {
             if (mFolderPickTarget == 1) musicFolderSelect(it.payloadStr);
             else if (mFolderPickTarget == 2) photoFolderSelect(it.payloadStr);
             else if (mFolderPickTarget == 3) videoFolderSelect(it.payloadStr);
+            else if (mFolderPickTarget == 4) { mFolderPickTarget = 0; gsAutoAddFromRoot(it.payloadStr); }
             else gsFolderSelect(it.payloadStr);
             return;
         }
@@ -5694,6 +5708,7 @@ void NanoMenu::renderPs3Xmb() {
     musicTick();       // music player: auto-advance to the next track at end-of-stream
     mpDrainAlbumArt(); // album art resolved off-thread: upload whatever finished since last frame
     fbTick();          // folder browser: adopt a directory listing the worker finished
+    gsAutoAddTick();   // ES-DE bulk auto-add: apply the matched folders once the worker finishes
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
     feTick();          // File Explorer: reap a finished copy/move/delete worker, refresh + report
     nsTick();          // Network Shares: follow a mount coming up or going away while the screen is open

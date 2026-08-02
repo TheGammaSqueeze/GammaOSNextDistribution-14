@@ -435,6 +435,13 @@ private:
     bool romParentDirReachable(const std::string& romPath);  // true if the file's folder is stat-able
     void recentRemoveAt(int idx);     // drop one Recently Played row (a live stat proved it is gone)
     void showRomMissingMsg(const std::string& displayName);
+    // Pre-launch emulator guard (ES-DE style, checked lazily at launch). coreSoExists stats the
+    // RetroArch core .so; packageInstalled scans /data/system/packages.list for a standalone package.
+    // Both fail OPEN (return true) if the check itself cannot be performed, so a transient FS state
+    // never blocks a valid launch. showEmuMissingMsg surfaces a theme-agnostic toast and we do not launch.
+    bool coreSoExists(const std::string& coreSo);
+    bool packageInstalled(const std::string& pkg);
+    void showEmuMissingMsg(const std::string& displayName, bool standalone);
     void pruneStaleRecentEntries();   // drop Recently Played rows whose ROM is gone
     void gamesRefresh();              // Settings > Game Settings > Rescan Games
     // Centred message on the home menu, reusing the launch toast's panel (which the main render
@@ -1267,6 +1274,7 @@ private:
         PS3_GS_SYSTEM_ROW,// a system row in the Game Systems list (a = mXmbSystems index)
         PS3_GS_FIELD,     // a field row in the per-system editor (a = field id)
         PS3_GS_ADD,       // "Add New System" row in the Game Systems list
+        PS3_GS_AUTOADD,   // "Auto-add Systems from Folder..." row (ES-DE style bulk import)
         PS3_GS_EMUROW,    // an emulator/core row in the emulator picker (a = catalog index)
         PS3_GS_EMU_CUSTOM,// "Custom..." row in the emulator picker (type a core/package by hand)
         PS3_GS_SCANSRC,   // a configured scan-folder row (a = scanSources index; Y removes it)
@@ -2468,11 +2476,24 @@ private:
     void gsOpenEmulatorPicker();               // open the emulator chooser for mGsEditIdx
     void applyEmulatorChoice(int catIdx);      // apply a catalog entry (edit, or add a new system)
     void applyEmuEntryToSystem(XmbSystem& s, const EmuCatEntry& e);  // set launch fields from a catalog entry
+    std::string gsIconRefForPlatform(const std::string& platformId, const std::string& platformDisplay);
     bool mGsAddMode = false;                    // emulator picker opened to create a NEW system
 
     // ---- Add / remove custom systems ----
     void gsAddSystem();                        // "Add New System" -> emulator picker in add mode
     void gsAddBlankSystem();                   // create a blank custom system + open its editor
+    // ES-DE-style bulk import: scan the chosen ROMs root's immediate subfolders, match each name to
+    // an emulator-catalog platform (via the folder-alias table), and add every match that actually
+    // holds a ROM as a system + scan source in one pass. Shows an "Added N systems" summary.
+    // The blocking folder probe runs on a detached worker (a slow NAS/FTP root must never freeze the
+    // render thread and trip the watchdog); the render thread applies the results in gsAutoAddTick().
+    void gsAutoAddFromRoot(const std::string& root);
+    void gsAutoAddTick();                       // render thread: apply the worker's matched folders
+    struct BulkAddCand { std::string folder; int catIdx = -1; };
+    std::mutex               mBulkAddLock;
+    std::vector<BulkAddCand> mBulkAddResults;   // worker output (guarded by mBulkAddLock)
+    std::atomic<bool>        mBulkAddScanning{false};  // a scan is in flight (blocks re-entry, shows UI)
+    std::atomic<bool>        mBulkAddDone{false};      // worker finished; results ready to apply
     void gsRemoveSystem(int sysIdx);           // remove a custom system + its caches
     void gsOpenRemoveConfirm(int sysIdx);      // Cancel / Remove confirm chooser
 
@@ -2579,7 +2600,7 @@ private:
         std::string m3uPath;              // non-empty: derived from this .m3u (regenerated on scan);
                                           // empty: user-created (preserved across scans)
     };
-    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library, 2 = Photo library, 3 = Video library
+    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library, 2 = Photo library, 3 = Video library, 4 = ES-DE bulk auto-add root
     std::vector<std::string> mMusicFolders;
     std::vector<MusicTrack>  mMusicTracks;
     std::vector<MusicPlaylist> mMusicPlaylists;
