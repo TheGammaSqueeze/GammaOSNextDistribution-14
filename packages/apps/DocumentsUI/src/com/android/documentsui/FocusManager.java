@@ -45,6 +45,8 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.AppBarLayout;
+
 import com.android.documentsui.Model.Update;
 import com.android.documentsui.base.EventListener;
 import com.android.documentsui.base.Events;
@@ -74,6 +76,11 @@ public final class FocusManager extends FocusDelegate<String> implements FocusHa
     private final TitleSearchHelper mSearchHelper;
 
     private boolean mNavDrawerHasFocus;
+
+    // Tracks the directory app bar's expanded state as driven by controller navigation, so we only
+    // toggle it on a real change (avoids re-animating on every keypress).
+    private boolean mAppBarStateKnown;
+    private boolean mAppBarExpanded = true;
 
     public FocusManager(
             Features features,
@@ -444,6 +451,11 @@ public final class FocusManager extends FocusDelegate<String> implements FocusHa
         }
 
         final RecyclerView recyclerView = mScope.view;
+
+        // Collapse/expand the app bar to match where focus is going, reclaiming the header space
+        // during controller navigation (the app bar otherwise only reacts to touch nested-scroll).
+        updateAppBarForFocus(pos);
+
         final RecyclerView.ViewHolder vh = recyclerView.findViewHolderForAdapterPosition(pos);
 
         if (vh != null) {
@@ -476,6 +488,38 @@ public final class FocusManager extends FocusDelegate<String> implements FocusHa
                 }
             });
         }
+    }
+
+    /**
+     * Collapses or expands the directory app bar to follow controller navigation. The app bar's
+     * scroll behavior only reacts to touch-driven nested scrolling, so programmatic (d-pad)
+     * navigation would leave it stuck expanded, wasting roughly a third of the screen. Expand it
+     * only when focus is on the first row (list scrolled to the top) or the list is too short to
+     * scroll; collapse it otherwise, mirroring how touch scrolling behaves. Purely cosmetic and
+     * defensive - focus visibility is guaranteed independently by {@link #revealDelta}, which reads
+     * the live on-screen geometry and so works whether the app bar is expanded or collapsed.
+     */
+    private void updateAppBarForFocus(int pos) {
+        final RecyclerView rv = mScope.view;
+        if (rv == null || mScope.layout == null) {
+            return;
+        }
+        final View root = rv.getRootView();
+        final View appBar = (root != null) ? root.findViewById(R.id.app_bar) : null;
+        if (!(appBar instanceof AppBarLayout)) {
+            return;
+        }
+        final int spanCount = mScope.layout.getSpanCount();
+        final boolean atTopRow =
+                mScope.layout.getSpanSizeLookup().getSpanGroupIndex(pos, spanCount) == 0;
+        final boolean listScrolls = rv.canScrollVertically(1) || rv.canScrollVertically(-1);
+        final boolean expand = atTopRow || !listScrolls;
+        if (mAppBarStateKnown && mAppBarExpanded == expand) {
+            return;
+        }
+        mAppBarStateKnown = true;
+        mAppBarExpanded = expand;
+        ((AppBarLayout) appBar).setExpanded(expand, true);
     }
 
     /**
@@ -789,6 +833,9 @@ public final class FocusManager extends FocusDelegate<String> implements FocusHa
 
         mScope.lastFocusPosition = RecyclerView.NO_POSITION;
         mScope.pendingFocusId = null;
+
+        mAppBarStateKnown = false;
+        mAppBarExpanded = true;
 
         return this;
     }
