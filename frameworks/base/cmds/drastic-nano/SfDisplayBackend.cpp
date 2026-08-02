@@ -175,6 +175,21 @@ bool SfDisplayBackend::createContext(DisplayEnv* env) {
     // a DRM-direct binary otherwise never starts.
     android::ProcessState::self()->startThreadPool();
 
+    // Primary swap interval (SF path only). Default 0 = free-run + main.cpp's
+    // nanosleep cap (the shipped pacing). sf_vsync=1 phase-locks the present loop
+    // to the panel vblank (blocks in eglSwapBuffers), which is smoother ONLY when
+    // the frame already fits in the ~16.67 ms vblank budget: on-device A/B on
+    // Pokemon White 2 (TrimUI Brick, max perf) showed the SF frame is GPU-bound at
+    // ~53 fps (~18.9 ms) so it overruns the vblank, and vsync-lock then drops it to
+    // ~45 fps (each missed vblank waits a whole frame) -- worse than the ~53 fps
+    // free-run. So it stays OFF until the per-frame GPU cost is cut below 16.67 ms
+    // (drop the layout-offscreen blit + the twice-per-frame fxSetup + 16-bit fb);
+    // then flipping this to 1 gives a clean locked 60. Kept as a ready toggle.
+    mSfSwapInterval =
+            property_get_int32("persist.gammaos.drastic_nano.sf_vsync", 0) != 0
+                    ? 1
+                    : 0;
+
     // EGL display + a GLES2 context shared by every window surface this backend
     // creates. The config comes from the shared helper, which returns an
     // RGBX/window-capable config (the overlay creates window surfaces with it).
@@ -477,11 +492,23 @@ void SfDisplayBackend::present(const FrameTargets&) {
     // Hand each window's frame to SurfaceFlinger. The secondary swaps first so the
     // primary is the last current surface for the next frame's draws, matching the
     // DRM flip order and leaving the loop on the primary by default.
+    //
+    // The swap interval is (re)asserted per surface each frame because it is a
+    // property of the current draw surface and present() re-makes each surface
+    // current: the secondary always swaps at interval 0 so it returns immediately
+    // and never adds a second vblank wait, then the primary swaps at
+    // mSfSwapInterval. With interval 1 the primary eglSwapBuffers blocks until the
+    // panel vblank, which is what phase-locks the whole loop to the display refresh
+    // (smooth pacing); main.cpp's trailing nanosleep then sees the full frame
+    // already elapsed and becomes a no-op, and remains a safety cap if a device
+    // ever reports interval 1 but does not actually block.
     if (mDisplayCount >= 2) {
         eglMakeCurrent(mEglDpy, mDisplays[1].eglSurface, mDisplays[1].eglSurface, mEglCtx);
+        eglSwapInterval(mEglDpy, 0);
         eglSwapBuffers(mEglDpy, mDisplays[1].eglSurface);
     }
     eglMakeCurrent(mEglDpy, mDisplays[0].eglSurface, mDisplays[0].eglSurface, mEglCtx);
+    eglSwapInterval(mEglDpy, mSfSwapInterval);
     eglSwapBuffers(mEglDpy, mDisplays[0].eglSurface);
 }
 

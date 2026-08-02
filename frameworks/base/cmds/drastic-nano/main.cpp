@@ -2034,6 +2034,16 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // splash exactly when there is something to show.
     bool firstPresented = false;
     bool exitRequested = false;
+    // Vsync-lock: when the SF backend is set to swap interval 1 (default), the
+    // primary eglSwapBuffers in present() blocks on the panel vblank and paces the
+    // loop by itself. In that mode the trailing software nanosleep is skipped:
+    // mixing a fixed 16.67 ms sleep with a vblank-blocking swap can push the loop
+    // phase across a vblank boundary and make the next swap wait a whole extra
+    // frame (a 30 fps stutter). With interval 0 (persist.gammaos.drastic_nano.
+    // sf_vsync=0) the nanosleep remains the rate cap. SF path only; DRM paces on
+    // its own vblank ioctl and never runs this loop.
+    const bool sfVsyncLocked =
+            property_get_int32("persist.gammaos.drastic_nano.sf_vsync", 0) != 0;
     while (!exitRequested) {
         const int64_t _frameStartNs = android::elapsedRealtimeNano();
         // Pick up live Screen Layout menu changes (orientation / scaling / swap).
@@ -2441,13 +2451,14 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             }
         }
 
-        // Cap the present rate at the DS-native / panel 60 Hz. The SF window
-        // swaps with interval 0 so eglSwapBuffers never blocks; without a cap
-        // the loop re-presents the same emulated frame as fast as the GPU
-        // allows (hundreds of fps), pinning a CPU core and overheating the
-        // handheld for no visible gain. Sleeping the rest of each 60 Hz slice
-        // idles the core between frames while keeping the game smooth.
-        {
+        // Cap the present rate at the DS-native / panel 60 Hz. When vsync-locked
+        // (interval 1) the primary present() already blocked on the vblank, so the
+        // loop is paced and this software sleep is skipped (see sfVsyncLocked). In
+        // free-run mode (interval 0) eglSwapBuffers never blocks; without a cap the
+        // loop re-presents the same emulated frame as fast as the GPU allows
+        // (hundreds of fps), pinning a CPU core and overheating the handheld for no
+        // visible gain, so sleep the rest of each 60 Hz slice to idle the core.
+        if (!sfVsyncLocked) {
             constexpr int64_t kFrameNs = 16666667;   // 1/60 s
             const int64_t usedNs = android::elapsedRealtimeNano() - _frameStartNs;
             if (usedNs < kFrameNs) {

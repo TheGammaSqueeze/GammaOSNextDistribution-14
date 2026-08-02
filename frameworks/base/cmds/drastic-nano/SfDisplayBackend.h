@@ -134,6 +134,19 @@ private:
 
     SfDisplay mDisplays[2];
     int       mDisplayCount = 0;
+
+    // Primary swap interval. 1 = eglSwapBuffers blocks on the panel vblank so the
+    // present loop is phase-locked to the display refresh (matches standalone
+    // DraStic's GLSurfaceView); 0 = free-run and let main.cpp's nanosleep cap the
+    // rate. Read once from persist.gammaos.drastic_nano.sf_vsync at createContext.
+    // DEFAULT 0: phase-lock only helps once the frame fits the ~16.67 ms vblank;
+    // measured on Pokemon White 2 the SF frame is GPU-bound at ~53 fps (~18.9 ms),
+    // so interval 1 drops it to ~45 fps (missed vblanks wait a whole frame) --
+    // worse than the ~53 fps free-run. Flip to 1 once the per-frame GPU cost is cut
+    // under 16.67 ms. The secondary (dual-panel) always swaps at 0 so it never
+    // double-blocks the loop; the primary swap alone paces it. DRM is a separate
+    // backend and is unaffected.
+    int       mSfSwapInterval = 0;
 };
 
 } // namespace drastic_nano

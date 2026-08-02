@@ -1623,11 +1623,19 @@ void DrasticRunner::patchFinalPassFbo(unsigned int targetFbo) {
             uint32_t* unitP =
                     reinterpret_cast<uint32_t*>(p + 56 + 40 * i);
             if (*unitP < 0x84C0 || *unitP > 0x84C7) {
-                if (totalBadNormalized < 16) {
+                // Global one-shot cap: patchFinalPassFbo runs in the
+                // per-frame render path (fxSetup rebuilds the pass list per
+                // slot), so a per-call cap would still spam once per frame on
+                // a shader that genuinely ships bad enums. Cap across the
+                // whole session so a real problem surfaces a few times then
+                // goes quiet.
+                static int sBadEnumLogs = 0;
+                if (sBadEnumLogs < 16) {
                     ALOGW("DrasticRunner::patchFinalPassFbo: pass[%d] "
                           "sampler[%u].unit_enum = 0x%x (invalid) -> "
                           "forcing to GL_TEXTURE%u (0x%x)",
                           count, i, *unitP, i, 0x84C0 + i);
+                    sBadEnumLogs++;
                 }
                 *unitP = 0x84C0 + i;
                 totalBadNormalized++;
@@ -1646,31 +1654,42 @@ void DrasticRunner::patchFinalPassFbo(unsigned int targetFbo) {
     uint32_t oldFbo = *reinterpret_cast<uint32_t*>(last + kPassFboOff);
     *reinterpret_cast<uint32_t*>(last + kPassFboOff) = targetFbo;
 
-    uint32_t program    = *reinterpret_cast<uint32_t*>(last + 0);
-    uint32_t posAttrib  = *reinterpret_cast<uint32_t*>(last + 4);
-    uint32_t uvAttrib   = *reinterpret_cast<uint32_t*>(last + 8);
-    uint32_t resUnif    = *reinterpret_cast<uint32_t*>(last + 16);
-    uint32_t sclUnif    = *reinterpret_cast<uint32_t*>(last + 20);
-    uint32_t samp0Unit  = *reinterpret_cast<uint32_t*>(last + 56);
-    uint32_t samp0Idx   = *reinterpret_cast<uint32_t*>(last + 60);
-    uint32_t samp1Unit  = *reinterpret_cast<uint32_t*>(last + 96);
-    uint32_t samp1Idx   = *reinterpret_cast<uint32_t*>(last + 100);
-    uint32_t outW       = *reinterpret_cast<uint32_t*>(last + 348);
-    uint32_t outH       = *reinterpret_cast<uint32_t*>(last + 352);
-    uint32_t samplerCnt = *reinterpret_cast<uint32_t*>(last + 364);
+    // Verbose per-call diagnostics. patchFinalPassFbo runs in the per-frame
+    // render path: renderSlotShaded re-patches whenever the slot geometry
+    // changes, and the two DS screen slots alternate geometry every frame, so
+    // this fires ~2x per frame (~125 lines/sec into logd on the Brick) -- pure
+    // per-frame string-format + logd IPC cost that steals CPU from the
+    // emulator. Gate behind an opt-in debug prop (default off); the pass-list
+    // walk, the sampler normalize and the FBO patch above always run.
+    static const bool kFxDebug =
+            property_get_int32("persist.gammaos.drastic_nano.fxdebug", 0) != 0;
+    if (kFxDebug) {
+        uint32_t program    = *reinterpret_cast<uint32_t*>(last + 0);
+        uint32_t posAttrib  = *reinterpret_cast<uint32_t*>(last + 4);
+        uint32_t uvAttrib   = *reinterpret_cast<uint32_t*>(last + 8);
+        uint32_t resUnif    = *reinterpret_cast<uint32_t*>(last + 16);
+        uint32_t sclUnif    = *reinterpret_cast<uint32_t*>(last + 20);
+        uint32_t samp0Unit  = *reinterpret_cast<uint32_t*>(last + 56);
+        uint32_t samp0Idx   = *reinterpret_cast<uint32_t*>(last + 60);
+        uint32_t samp1Unit  = *reinterpret_cast<uint32_t*>(last + 96);
+        uint32_t samp1Idx   = *reinterpret_cast<uint32_t*>(last + 100);
+        uint32_t outW       = *reinterpret_cast<uint32_t*>(last + 348);
+        uint32_t outH       = *reinterpret_cast<uint32_t*>(last + 352);
+        uint32_t samplerCnt = *reinterpret_cast<uint32_t*>(last + 364);
 
-    ALOGI("DrasticRunner::patchFinalPassFbo: walked %d pass(es), "
-          "final pass.fbo %u -> %u (targetFbo)",
-          count, oldFbo, targetFbo);
-    ALOGI("DrasticRunner::patchFinalPassFbo: pass fields "
-          "program=%u posAttrib=%u uvAttrib=%u resUnif=%u sclUnif=%u "
-          "outW=%u outH=%u samplerCount=%u",
-          program, posAttrib, uvAttrib, resUnif, sclUnif,
-          outW, outH, samplerCnt);
-    ALOGI("DrasticRunner::patchFinalPassFbo: final sampler[0] unit=0x%x "
-          "idx=%u  sampler[1] unit=0x%x idx=%u "
-          "(total bad unit_enums normalized across all passes: %u)",
-          samp0Unit, samp0Idx, samp1Unit, samp1Idx, totalBadNormalized);
+        ALOGI("DrasticRunner::patchFinalPassFbo: walked %d pass(es), "
+              "final pass.fbo %u -> %u (targetFbo)",
+              count, oldFbo, targetFbo);
+        ALOGI("DrasticRunner::patchFinalPassFbo: pass fields "
+              "program=%u posAttrib=%u uvAttrib=%u resUnif=%u sclUnif=%u "
+              "outW=%u outH=%u samplerCount=%u",
+              program, posAttrib, uvAttrib, resUnif, sclUnif,
+              outW, outH, samplerCnt);
+        ALOGI("DrasticRunner::patchFinalPassFbo: final sampler[0] unit=0x%x "
+              "idx=%u  sampler[1] unit=0x%x idx=%u "
+              "(total bad unit_enums normalized across all passes: %u)",
+              samp0Unit, samp0Idx, samp1Unit, samp1Idx, totalBadNormalized);
+    }
 }
 
 void DrasticRunner::dumpFxCtxState(const char* when) {

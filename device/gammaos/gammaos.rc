@@ -1,3 +1,17 @@
+on early-init
+    # Silence the vendor audio + power HAL verbose/debug log spam. The prebuilt
+    # audio HAL emits "audio_platform: mode(N),devices(...):platform device:
+    # OUT_SPK" (and friends) tens of times per second whenever any audio stream is
+    # open, which loads logd and burns CPU on every foreground app -- measured on
+    # the TrimUI Brick as ~55 audio_platform lines/sec plus AW_PowerHAL churn,
+    # stealing cycles from emulators the same way per-frame ALOGs do. Raising each
+    # tag to INFO drops the V/D flood but KEEPS I/W/E so genuine HAL faults still
+    # show. Set in early-init so it is in place before audioserver/HAL start.
+    setprop log.tag.audio_platform I
+    setprop log.tag.audio_hw_primary I
+    setprop log.tag.audio_route I
+    setprop log.tag.AW_PowerHAL I
+
 on post-fs
     start gammaos_on_boot
     mount none /system/etc/usb_audio_policy_configuration.xml /vendor/etc/usb_audio_policy_configuration.xml bind
