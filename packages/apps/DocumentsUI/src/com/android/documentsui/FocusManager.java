@@ -23,6 +23,7 @@ import static androidx.core.util.Preconditions.checkNotNull;
 import androidx.annotation.ColorRes;
 import androidx.annotation.Nullable;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -445,37 +446,92 @@ public final class FocusManager extends FocusDelegate<String> implements FocusHa
         final RecyclerView recyclerView = mScope.view;
         final RecyclerView.ViewHolder vh = recyclerView.findViewHolderForAdapterPosition(pos);
 
-        // If the item is already in view, focus it; otherwise, scroll to it and focus it.
         if (vh != null) {
-            if (vh.itemView.requestFocus() && callback != null) {
-                callback.onFocus(vh.itemView);
-            }
+            // The item is laid out. Focus it and, if it is not fully within the on-screen
+            // viewport, scroll it in by the exact delta. We must NOT use
+            // smoothScrollToPosition here: this directory's app bar sets
+            // shouldHeaderOverlapScrollingChild=true, so the RecyclerView is measured taller
+            // than the screen (by the app bar's collapse range) and its "end" for scroll math
+            // is below the visible bottom - smoothScrollToPosition (and RecyclerView's own
+            // scroll-on-focus) therefore treat rows that are actually off the bottom edge as
+            // already visible, which is what let controller focus walk off-screen.
+            focusAndReveal(recyclerView, vh.itemView, callback);
         } else {
-            // Set a one-time listener to request focus when the scroll has completed.
-            recyclerView.addOnScrollListener(
-                    new RecyclerView.OnScrollListener() {
-                        @Override
-                        public void onScrollStateChanged(RecyclerView view, int newState) {
-                            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                                // When scrolling stops, find the item and focus it.
-                                RecyclerView.ViewHolder vh = view
-                                        .findViewHolderForAdapterPosition(pos);
-                                if (vh != null) {
-                                    if (vh.itemView.requestFocus() && callback != null) {
-                                        callback.onFocus(vh.itemView);
-                                    }
-                                } else {
-                                    // This might happen in weird corner cases, e.g. if the user is
-                                    // scrolling while a delete operation is in progress. In that
-                                    // case, just don't attempt to focus the missing item.
-                                    Log.w(TAG, "Unable to focus position " + pos + " after scroll");
-                                }
-                                view.removeOnScrollListener(this);
-                            }
-                        }
-                    });
-            recyclerView.smoothScrollToPosition(pos);
+            // Not laid out yet (a large jump such as page-down or move-to-end). Bring it into
+            // the visible content area deterministically, then focus + reveal after layout.
+            // scrollToPositionWithOffset places the row just below the app-bar top padding
+            // (on-screen), unlike smoothScrollToPosition which would snap it to the RV's
+            // off-screen measured bottom.
+            mScope.layout.scrollToPositionWithOffset(pos, recyclerView.getPaddingTop());
+            recyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    RecyclerView.ViewHolder settled =
+                            recyclerView.findViewHolderForAdapterPosition(pos);
+                    if (settled != null) {
+                        focusAndReveal(recyclerView, settled.itemView, callback);
+                    } else {
+                        Log.w(TAG, "Unable to focus position " + pos + " after scroll");
+                    }
+                }
+            });
         }
+    }
+
+    /**
+     * Focuses {@code item} and, if it is not fully inside the RecyclerView's on-screen viewport,
+     * scrolls by the minimum delta to reveal it. Works for both directions (down: item below the
+     * viewport; up: item above the top padding / behind the app bar).
+     */
+    private static void focusAndReveal(RecyclerView rv, View item, @Nullable FocusCallback cb) {
+        final boolean gotFocus = item.requestFocus();
+        if (gotFocus && cb != null) {
+            cb.onFocus(item);
+        }
+        final int delta = revealDelta(rv, item);
+        if (delta != 0) {
+            rv.smoothScrollBy(0, delta);
+        }
+    }
+
+    /**
+     * @return the vertical scroll delta needed to bring {@code item} fully into the RecyclerView's
+     * on-screen viewport, or 0 if it is already fully visible. Positive scrolls content up (reveal
+     * an item below the fold); negative scrolls down (reveal an item above the top padding).
+     *
+     * <p>The viewport bottom is the true on-screen bottom (from getGlobalVisibleRect), NOT
+     * rv.getHeight(): with shouldHeaderOverlapScrollingChild the RecyclerView is measured taller
+     * than the screen, so rv.getHeight() overstates the visible area and would report off-screen
+     * rows as visible. The top is the RecyclerView's top padding (sized to the app bar).
+     */
+    private static int revealDelta(RecyclerView rv, View item) {
+        final int viewportTop = rv.getPaddingTop();
+        int viewportBottom = onScreenBottomLocal(rv);
+        viewportBottom = Math.min(viewportBottom, rv.getHeight() - rv.getPaddingBottom());
+
+        final int top = item.getTop();
+        final int bottom = item.getBottom();
+        if (bottom > viewportBottom) {
+            return bottom - viewportBottom;
+        }
+        if (top < viewportTop) {
+            return top - viewportTop;
+        }
+        return 0;
+    }
+
+    /**
+     * @return the RecyclerView's visible bottom edge in its own (local) coordinates - i.e. clipped
+     * to what is actually on screen. Falls back to the measured height if the view is not visible.
+     */
+    private static int onScreenBottomLocal(RecyclerView rv) {
+        final Rect visible = new Rect();
+        if (!rv.getGlobalVisibleRect(visible)) {
+            return rv.getHeight();
+        }
+        final int[] loc = new int[2];
+        rv.getLocationOnScreen(loc);
+        return visible.bottom - loc[1];
     }
 
     /** @return Whether the layout manager is currently in a grid-configuration. */
