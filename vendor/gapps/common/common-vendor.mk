@@ -32,10 +32,6 @@ PRODUCT_PACKAGES += \
 ifeq ($(TARGET_IS_GROUPER),)
 PRODUCT_COPY_FILES += \
     vendor/gapps/common/proprietary/product/etc/sysconfig/wellbeing.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/wellbeing.xml
-
-PRODUCT_PACKAGES += \
-    GoogleRestore \
-    Wellbeing
 endif
 
 PRODUCT_SOONG_NAMESPACES += vendor/gapps/overlay

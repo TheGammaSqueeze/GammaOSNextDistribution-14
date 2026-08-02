@@ -1,0 +1,82 @@
+{
+  "_comment": [
+    "Declarative config for refresh-gapps-seeds.py.",
+    "The goal is to move Google-app updates from the device's first boot to build time,",
+    "so a freshly flashed GSI does not have to download+reinstall+re-dexopt hundreds of MB",
+    "of Play Services / Play Store right after setup.",
+    "",
+    "'signer_sha256' is Google's release cert. Every downloaded APK MUST match it or it is",
+    "rejected, which is what keeps the ;PRESIGNED entries valid and guarantees authenticity.",
+    "",
+    "'max_sdk' is the running platform API level (Android 14 = 34). We only accept an APK",
+    "whose minSdk is <= this, so we never seed a build that refuses to run on the target.",
+    "",
+    "'arches' are the arch trees to update. The shipped Google target (arm64_bgN) is arm64",
+    "only; arm and x86_64 are kept for completeness and only updated if a matching multi-abi",
+    "or per-abi build is available."
+  ],
+
+  "signer_sha256": "7ce83c1b71f3d572fed04c8d40c5cb10ff75e6d87d9df6fbd53f0468c2905053",
+  "max_sdk": 34,
+  "arches": ["arm64"],
+
+  "abi_tokens": {
+    "arm64": ["arm64-v8a"],
+    "arm": ["armeabi-v7a", "armeabi"],
+    "x86_64": ["x86_64", "x86-64"]
+  },
+
+  "refresh": [
+    {
+      "name": "GmsCore",
+      "package": "com.google.android.gms",
+      "slug": "google-play-services",
+      "dpi": "nodpi",
+      "arch_specific": true,
+      "paths": {
+        "arm64": "arm64/proprietary/product/priv-app/GmsCore/GmsCore.apk",
+        "arm": "arm/proprietary/product/priv-app/GmsCore/GmsCore.apk",
+        "x86_64": "x86_64/proprietary/product/priv-app/GmsCore/GmsCore.apk"
+      }
+    },
+    {
+      "name": "Phonesky",
+      "package": "com.android.vending",
+      "slug": "google-play-store",
+      "dpi": "nodpi",
+      "arch_specific": true,
+      "paths": {
+        "arm64": "arm64/proprietary/product/priv-app/Phonesky/Phonesky.apk",
+        "arm": "arm/proprietary/product/priv-app/Phonesky/Phonesky.apk",
+        "x86_64": "x86_64/proprietary/product/priv-app/Phonesky/Phonesky.apk"
+      }
+    },
+    {
+      "name": "GoogleServicesFramework",
+      "package": "com.google.android.gsf",
+      "slug": "google-services-framework",
+      "dpi": "nodpi",
+      "arch_specific": false,
+      "paths": {
+        "common": "common/proprietary/system_ext/priv-app/GoogleServicesFramework/GoogleServicesFramework.apk"
+      }
+    }
+  ],
+
+  "_trim_comment": [
+    "Optional Google apps removed from the seed set so there is less to auto-update and",
+    "re-dexopt on first boot. Each entry lists the proprietary-files-*.txt line to drop and",
+    "the on-disk APK dir to delete. After trimming, setup-makefiles.sh is re-run to",
+    "regenerate the *-vendor.mk / Android.bp without them.",
+    "Remove an entry here to KEEP that app."
+  ],
+  "trim": [
+    { "name": "Velvet",                 "match": "priv-app/Velvet/Velvet.apk" },
+    { "name": "VelvetTitan",            "match": "priv-app/VelvetTitan/VelvetTitan.apk" },
+    { "name": "SpeechServicesByGoogle", "match": "app/SpeechServicesByGoogle/SpeechServicesByGoogle.apk" },
+    { "name": "talkback",               "match": "app/talkback/talkback.apk" },
+    { "name": "MarkupGoogle",           "match": "app/MarkupGoogle/MarkupGoogle.apk" },
+    { "name": "Wellbeing",              "match": "priv-app/Wellbeing/Wellbeing.apk" },
+    { "name": "GoogleRestore",          "match": "priv-app/GoogleRestore/GoogleRestore.apk" }
+  ]
+}

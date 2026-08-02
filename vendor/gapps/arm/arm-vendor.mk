@@ -14,9 +14,6 @@ PRODUCT_PACKAGES += \
 ifeq ($(TARGET_IS_GROUPER),)
 
 PRODUCT_PACKAGES += \
-    SpeechServicesByGoogle \
-    talkback \
-    Velvet \
     SetupWizard
 endif
 

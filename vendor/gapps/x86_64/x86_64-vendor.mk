@@ -14,7 +14,6 @@ PRODUCT_PACKAGES += \
 ifeq ($(TARGET_IS_GROUPER),)
 
 PRODUCT_PACKAGES += \
-    Velvet \
     SetupWizard
 endif
 

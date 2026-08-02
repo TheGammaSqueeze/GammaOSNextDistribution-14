@@ -102,29 +102,3 @@ dex_import {
 	product_specific: true,
 }
 
-android_app_import {
-	name: "GoogleRestore",
-	owner: "gapps",
-	apk: "proprietary/product/priv-app/GoogleRestore/GoogleRestore.apk",
-	preprocessed: true,
-	presigned: true,
-	dex_preopt: {
-		enabled: false,
-	},
-	privileged: true,
-	product_specific: true,
-}
-
-android_app_import {
-	name: "Wellbeing",
-	owner: "gapps",
-	apk: "proprietary/product/priv-app/Wellbeing/Wellbeing.apk",
-	preprocessed: true,
-	presigned: true,
-	dex_preopt: {
-		enabled: false,
-	},
-	privileged: true,
-	product_specific: true,
-}
-
