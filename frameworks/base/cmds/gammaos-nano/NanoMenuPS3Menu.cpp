@@ -14331,8 +14331,16 @@ void NanoMenu::renderNetWizard() {
     }
 
     // Horizontal slide: ease the body offset back to 0 over ~260 ms (easeOutCubic).
+    // mEffectTime wraps back to 0 every 500 s (fmod in the run loop). Once that wrap
+    // happens while a dialog is open, mPs3WizSlideStart (set on entry) is larger than the
+    // wrapped mEffectTime, so sp goes strongly negative; with only a high clamp,
+    // (1 - sp)^3 explodes and mPs3WizSlide grows astronomically, shoving the dialog BODY
+    // (the only thing offset by slidePx) millions of pixels off-screen while the title and
+    // footer stay put - the "dialog goes blank after a few minutes" report. A negative sp
+    // can only mean the clock wrapped long after this screen's 260 ms entry finished, so
+    // clamp it to fully-settled (sp = 1 -> slide 0) exactly like the completed case.
     float sp = (mEffectTime - mPs3WizSlideStart) / 0.26f;
-    if (sp > 1.0f) sp = 1.0f;
+    if (sp > 1.0f || sp < 0.0f) sp = 1.0f;
     float ease = 1.0f - (1.0f - sp) * (1.0f - sp) * (1.0f - sp);
     mPs3WizSlide = (float)mPs3WizSlideDir * ps3::VW * (1.0f - ease);
 
