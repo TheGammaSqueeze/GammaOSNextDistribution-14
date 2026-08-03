@@ -65,7 +65,7 @@ std::mutex& netHelperMutex() {
 // Redirects stderr into stdout so the few tools that log warnings
 // on stderr (cmd wifi connect-network when the SSID is already
 // saved) don't bleed onto the render thread's stderr fd.
-std::string runCmd(const std::string& cmdline) {
+std::string runCmd(const std::string& cmdline, int timeoutSecs = 3) {
     std::lock_guard<std::mutex> lk(netHelperMutex());
     std::string result;
     result.reserve(4096);
@@ -75,9 +75,15 @@ std::string runCmd(const std::string& cmdline) {
     // when system_server is busy) cannot block popen while the global netHelperMutex is held.
     // buildNetStatusBody() calls runCmd on the render/input thread, and an unbounded hang there (or
     // in a background runCmd that holds the mutex) stalls the render thread past nano's 8s watchdog
-    // and SIGABRTs it. 3s keeps the worst-case render path (mutex wait + its two calls) under the
-    // watchdog; toybox `timeout` sends SIGTERM then the child is reaped. Normal commands run <1s.
-    full = "timeout 3 " + full;
+    // and SIGABRTs it. The default 3s keeps the worst-case render path (mutex wait + its two calls)
+    // under the watchdog; toybox `timeout` sends SIGTERM then the child is reaped. Normal `cmd`/
+    // `dumpsys` calls run <1s. BUT the `gammaos-net bt pair`/`connect`/`scan` helpers run on DETACHED
+    // worker threads and BLOCK for the whole radio operation (a BT bond alone is 5-30s+, and every
+    // gammaos-net call spends ~2-3s just starting app_process) - a 3s cap SIGTERMs them mid-bond, so
+    // the pair returns no "OK" and the UI shows "could not be registered". Those callers pass an
+    // explicit longer timeout; only the render-path callers rely on the 3s default.
+    if (timeoutSecs < 1) timeoutSecs = 1;
+    full = "timeout " + std::to_string(timeoutSecs) + " " + full;
     FILE* f = popen(full.c_str(), "r");
     if (!f) {
         ALOGE("NanoMenu runCmd popen failed for '%s': %s",
@@ -769,7 +775,7 @@ void NanoMenu::connectToSavedWifi(int savedNetId) {
         char cmd[96];
         snprintf(cmd, sizeof(cmd),
                  "gammaos-net wifi connect-saved %d", savedNetId);
-        std::string result = runCmd(cmd);
+        std::string result = runCmd(cmd, 30);   // association + DHCP can take >3s
         bool ok = result.find("OK") != std::string::npos;
         if (!ok) {
             ALOGW("connectToSavedWifi id=%d failed: %s",
@@ -828,7 +834,7 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
         // while connected, so a deliberate key change is not silently dropped.
         std::string st = runCmd("cmd wifi status 2>/dev/null");
         if (force || connectedSsidFromStatus(st) != ssidCapture) {
-            (void)runCmd(cmdline);
+            (void)runCmd(cmdline, 30);   // cmd wifi connect-network blocks until the association resolves
         }
         // Verify the association instead of firing a scan right away. A scan kicked
         // while the supplicant is still associating can abort the association on a
@@ -848,7 +854,7 @@ void NanoMenu::addAndConnectWifi(const std::string& ssid, int security,
         if (!connected && !force) {
             std::string dump = runCmd("dumpsys wifi 2>/dev/null");
             if (!wifiDumpWrongPassword(dump, ssidCapture)) {
-                (void)runCmd(cmdline);                      // silent no-association: one retry
+                (void)runCmd(cmdline, 30);   // cmd wifi connect-network blocks until the association resolves                      // silent no-association: one retry
                 for (int i = 0; i < 20; i++) {
                     usleep(500 * 1000);
                     std::string s = runCmd("cmd wifi status 2>/dev/null");
@@ -903,7 +909,7 @@ void NanoMenu::connectWithWizardSettings() {
             std::chrono::steady_clock::now().time_since_epoch()).count() + 20000;
     mDisplayDirty = true;
     std::thread([this, cmd]() {
-        (void)runCmd(cmd);
+        (void)runCmd(cmd, 30);   // gammaos-net wifi configure: static-IP apply + associate + DHCP
         startWifiScanAsync();
     }).detach();
 }
@@ -1744,7 +1750,7 @@ void NanoMenu::refreshBtList() {
         if (c == '0') { btOn = false; break; }
         if (c != ' ' && c != '\n' && c != '\r') break;
     }
-    std::string bondText = btOn ? runCmd("gammaos-net bt list-bonded")
+    std::string bondText = btOn ? runCmd("gammaos-net bt list-bonded", 12)
                                 : std::string();
     auto devs = parseBondedDevices(bondText);
     // Connection state now rides the 4th TSV column from gammaos-net bt
@@ -1800,7 +1806,7 @@ void NanoMenu::discoverBtDevices() {
     // `gammaos-net bt scan` blocks until discovery finishes or the
     // timeout elapses (~8 s by default). Must NOT run on the UI thread;
     // callers go through startBtDiscoveryAsync() which spawns a thread.
-    std::string scanText = runCmd("gammaos-net bt scan 8");
+    std::string scanText = runCmd("gammaos-net bt scan 8", 30);
     auto scanned = parseBtScanResults(scanText);
     // Merge into the live list: update existing entries in place so
     // their connected state isn't clobbered, and append new ones.
@@ -1925,7 +1931,7 @@ void NanoMenu::pairBtDevice(const std::string& mac) {
             }
         } else {
             std::string cmd = "gammaos-net bt pair " + macCopy;
-            std::string result = runCmd(cmd.c_str());
+            std::string result = runCmd(cmd.c_str(), 80);   // a BT bond takes 30s+ (SSP + profiles); never a 3s cap
             ok = result.find("OK") != std::string::npos;
             if (!ok) ALOGW("pairBtDevice %s failed: %s",
                            macCopy.c_str(), result.c_str());
@@ -1944,7 +1950,7 @@ void NanoMenu::unpairBtDevice(const std::string& mac) {
         ok = true;   // fire-and-forget; the bond-state broadcast repopulates the list
     } else {
         std::string cmd = "gammaos-net bt unpair " + mac;
-        std::string result = runCmd(cmd.c_str());
+        std::string result = runCmd(cmd.c_str(), 20);
         ok = result.find("OK") != std::string::npos;
         if (!ok) ALOGW("unpairBtDevice %s failed: %s",
                        mac.c_str(), result.c_str());
@@ -2000,7 +2006,7 @@ void NanoMenu::btWizRefreshBondedAsync() {
         std::string d = runCmd("dumpsys bluetooth_manager 2>/dev/null");
         bool on = (d.find("enabled: true") != std::string::npos);
         mBtWizRadioOn = on;
-        std::string txt = on ? runCmd("gammaos-net bt list-bonded") : std::string();
+        std::string txt = on ? runCmd("gammaos-net bt list-bonded", 12) : std::string();
         auto devs = parseBondedDevices(txt);
         { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
         mDisplayDirty = true;
@@ -2022,11 +2028,11 @@ void NanoMenu::btWizToggleRadioAsync(bool on) {
         // from nano's context, which left bluetooth_on=1 and let the service
         // reconcile the radio back on.
         if (!nanoNetBridgeCmd(on ? "bt_enable" : "bt_disable", ""))
-            runCmd(on ? "gammaos-net bt radio on" : "gammaos-net bt radio off");
+            runCmd(on ? "gammaos-net bt radio on" : "gammaos-net bt radio off", 20);   // waits ~10s for the adapter
         std::string d = runCmd("dumpsys bluetooth_manager 2>/dev/null");
         bool realOn = (d.find("enabled: true") != std::string::npos);
         mBtWizRadioOn = realOn;
-        std::string txt = realOn ? runCmd("gammaos-net bt list-bonded") : std::string();
+        std::string txt = realOn ? runCmd("gammaos-net bt list-bonded", 12) : std::string();
         auto devs = parseBondedDevices(txt);
         { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
         mBtWizToggling = false;
@@ -2092,7 +2098,7 @@ void NanoMenu::btWizScanAsync() {
             (void)nanoNetBridgeCmd("bt_scan_stop", "");
         } else {
             // Legacy one-shot inquiry (15s) via the gammaos-net helper.
-            std::string txt = runCmd("gammaos-net bt scan 15");
+            std::string txt = runCmd("gammaos-net bt scan 15", 40);
             auto devs = parseBtScanResults(txt);
             mergeInto(devs);
         }
@@ -2107,11 +2113,15 @@ void NanoMenu::btWizPairAsync(const std::string& addr, const std::string& pin) {
     std::thread([this, a, p]() {
         std::string cmd = "gammaos-net bt pair " + a;
         if (!p.empty()) cmd += " " + p;           // user PIN for classic pairing
-        std::string r = runCmd(cmd.c_str());
+        // A BT bond blocks for the whole SSP + profile-connect exchange (5-30s+, worst case ~75s
+        // with the transport fallback). runCmd's default 3s cap SIGTERMs it mid-bond, so the pair
+        // returns no "OK" and the wizard shows "could not be registered" - the exact regression the
+        // fb8b541745e watchdog-bound introduced. This runs on a detached worker, so a long cap is safe.
+        std::string r = runCmd(cmd.c_str(), 80);
         mBtWizOpOk = r.find("OK") != std::string::npos;
         if (!mBtWizOpOk) ALOGW("btWizPair %s failed: %s", a.c_str(), r.c_str());
         // Refresh bonded so the freshly paired device appears in Manage.
-        std::string txt = runCmd("gammaos-net bt list-bonded");
+        std::string txt = runCmd("gammaos-net bt list-bonded", 12);
         auto devs = parseBondedDevices(txt);
         { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
         mBtWizBusy = false;
@@ -2127,13 +2137,13 @@ void NanoMenu::btWizInboundAcceptAsync(const std::string& addr, int variant) {
         // the bond to land (the BondStateMachine patch left it pending).
         std::string cmd = "gammaos-net bt confirm " + a + " accept";
         if (v == 0) cmd += " 0000";   // classic PIN inbound: default 0000
-        runCmd(cmd.c_str());
+        runCmd(cmd.c_str(), 20);
         // Poll for the bond to land. A real bond completes in the first couple of
         // iterations; the cap bounds the failure path (each list-bonded already
         // costs ~1.5s to spawn, so 8 iterations is ~15s worst case).
         for (int i = 0; i < 8 && !mBtWizOpOk; i++) {
             usleep(700 * 1000);
-            std::string txt = runCmd("gammaos-net bt list-bonded");
+            std::string txt = runCmd("gammaos-net bt list-bonded", 12);
             auto devs = parseBondedDevices(txt);
             bool bonded = false;
             for (auto& d : devs) if (d.address == a) { bonded = true; break; }
@@ -2149,10 +2159,10 @@ void NanoMenu::btWizConnectAsync(const std::string& addr) {
     mBtWizBusy = true; mBtWizOpOk = false;
     std::string a = addr;
     std::thread([this, a]() {
-        std::string r = runCmd(("gammaos-net bt connect " + a).c_str());
+        std::string r = runCmd(("gammaos-net bt connect " + a).c_str(), 20);
         mBtWizOpOk = r.find("OK") != std::string::npos;
         usleep(1200 * 1000);   // let the profiles attach before re-reading state
-        std::string txt = runCmd("gammaos-net bt list-bonded");
+        std::string txt = runCmd("gammaos-net bt list-bonded", 12);
         auto devs = parseBondedDevices(txt);
         { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
         mBtWizBusy = false;
@@ -2164,10 +2174,10 @@ void NanoMenu::btWizDisconnectAsync(const std::string& addr) {
     mBtWizBusy = true; mBtWizOpOk = false;
     std::string a = addr;
     std::thread([this, a]() {
-        std::string r = runCmd(("gammaos-net bt disconnect " + a).c_str());
+        std::string r = runCmd(("gammaos-net bt disconnect " + a).c_str(), 20);
         mBtWizOpOk = r.find("OK") != std::string::npos;
         usleep(800 * 1000);
-        std::string txt = runCmd("gammaos-net bt list-bonded");
+        std::string txt = runCmd("gammaos-net bt list-bonded", 12);
         auto devs = parseBondedDevices(txt);
         { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
         mBtWizBusy = false;
@@ -2179,9 +2189,9 @@ void NanoMenu::btWizUnpairAsync(const std::string& addr) {
     mBtWizBusy = true; mBtWizOpOk = false;
     std::string a = addr;
     std::thread([this, a]() {
-        std::string r = runCmd(("gammaos-net bt unpair " + a).c_str());
+        std::string r = runCmd(("gammaos-net bt unpair " + a).c_str(), 20);
         mBtWizOpOk = r.find("OK") != std::string::npos;
-        std::string txt = runCmd("gammaos-net bt list-bonded");
+        std::string txt = runCmd("gammaos-net bt list-bonded", 12);
         auto devs = parseBondedDevices(txt);
         { std::lock_guard<std::mutex> lk(mBtWizMutex); mBtWizBonded.swap(devs); }
         mBtWizBusy = false;
