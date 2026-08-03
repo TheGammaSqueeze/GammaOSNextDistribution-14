@@ -46,8 +46,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class NanoNetBridge {
@@ -58,7 +60,9 @@ public final class NanoNetBridge {
     private static final String BT_FILE = "/data/system/nano_bt_list.txt";
     private static final String WIFI_GEN_PROP = "sys.gammaos.nano.wifi_generation";
     private static final String BT_GEN_PROP = "sys.gammaos.nano.bt_generation";
+    private static final String CMD_PROP = "sys.gammaos.nano.net_cmd";
     private static final long HEARTBEAT_MS = 8000;
+    private static final long CMD_POLL_MS = 200;
 
     // Keep a static reference so the receiver-owning instance is never GC'd.
     private static NanoNetBridge sInstance;
@@ -74,6 +78,10 @@ public final class NanoNetBridge {
     private String mLastWifi = "";
     private String mLastBt = "";
     private Method mIsConnected;   // BluetoothDevice.isConnected() (@hide) via reflection
+    private long mLastCmdSeq = -1; // last executed nano command sequence (dedup)
+    // Devices seen during an active discovery: MAC -> {name, rssi, cod}. Published as the
+    // non-bonded ("bonded=0") rows of nano_bt_list.txt so nano's scan UI can list them.
+    private final LinkedHashMap<String, String[]> mDiscovered = new LinkedHashMap<>();
 
     public NanoNetBridge(Context context) {
         mContext = context;
@@ -125,27 +133,219 @@ public final class NanoNetBridge {
         f.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         f.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         f.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        // Bluetooth discovery (inquiry) for the "scan for devices" UI.
+        f.addAction(BluetoothDevice.ACTION_FOUND);
+        f.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        f.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         try {
-            // All of the above are protected system broadcasts; register non-exported.
-            mContext.registerReceiver(mReceiver, f, Context.RECEIVER_NOT_EXPORTED);
+            // These are all protected system broadcasts (no untrusted app can forge them),
+            // but some - notably BluetoothDevice.ACTION_FOUND / ACL / bond - are sent by the
+            // com.android.bluetooth process (a different uid than system_server), so the
+            // receiver must be EXPORTED to receive them. NOT_EXPORTED silently drops those
+            // cross-process broadcasts (only same-process WifiService/BluetoothManagerService
+            // broadcasts would arrive), which is why device discovery results never appeared.
+            mContext.registerReceiver(mReceiver, f, Context.RECEIVER_EXPORTED);
         } catch (Throwable t) {
             Slog.w(TAG, "registerReceiver failed", t);
         }
 
-        // Initial publish + heartbeat recompute (catches broadcasts we might miss).
+        // Do not replay a command left in the prop from a previous session.
+        mLastCmdSeq = parseSeq(SystemProperties.get(CMD_PROP, ""));
+
+        // Initial publish + heartbeat recompute (catches broadcasts we might miss) +
+        // command poll (nano -> bridge control channel; addChangeCallback is unreliable
+        // on this build so we poll).
         mHandler.post(this::publishAll);
         mHandler.postDelayed(mHeartbeat, HEARTBEAT_MS);
+        mHandler.postDelayed(mCmdPoll, CMD_POLL_MS);
         Slog.i(TAG, "GammaOS Nano: net bridge started");
     }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context c, Intent i) {
-            // Coalesce a burst of broadcasts (e.g. RSSI storms) into one recompute.
+            final String action = i.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                try {
+                    BluetoothDevice d = i.getParcelableExtra(
+                            BluetoothDevice.EXTRA_DEVICE, BluetoothDevice.class);
+                    if (d != null && d.getAddress() != null) {
+                        short rssi = i.getShortExtra(BluetoothDevice.EXTRA_RSSI, (short) -127);
+                        String name = null;
+                        try { name = d.getName(); } catch (Throwable t) {}
+                        int cod = 0;
+                        try {
+                            BluetoothClass bc = d.getBluetoothClass();
+                            if (bc != null) cod = bc.getDeviceClass();
+                        } catch (Throwable t) {}
+                        synchronized (mDiscovered) {
+                            mDiscovered.put(d.getAddress(), new String[] {
+                                    name == null ? "" : name,
+                                    Integer.toString(rssi), Integer.toString(cod) });
+                        }
+                    }
+                } catch (Throwable t) {}
+            }
+            // Coalesce a burst of broadcasts (e.g. RSSI storms / ACTION_FOUND bursts)
+            // into one recompute+publish.
             mHandler.removeCallbacks(mPublish);
             mHandler.postDelayed(mPublish, 150);
         }
     };
+
+    // nano -> bridge command channel. nano sets CMD_PROP = "<seq>|<verb>|<arg>"; we poll,
+    // dedup by seq, and drive the live WifiManager/BluetoothAdapter. Results flow back
+    // through the normal published state/list files.
+    private final Runnable mCmdPoll = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                String v = SystemProperties.get(CMD_PROP, "");
+                long seq = parseSeq(v);
+                if (seq != -1 && seq != mLastCmdSeq) {
+                    mLastCmdSeq = seq;
+                    int p1 = v.indexOf('|');
+                    String rest = (p1 >= 0) ? v.substring(p1 + 1) : "";
+                    int p2 = rest.indexOf('|');
+                    String verb = (p2 >= 0) ? rest.substring(0, p2) : rest;
+                    String arg = (p2 >= 0) ? rest.substring(p2 + 1) : "";
+                    executeCommand(verb.trim(), arg.trim());
+                }
+            } catch (Throwable t) {
+                Slog.w(TAG, "cmd poll", t);
+            }
+            mHandler.postDelayed(this, CMD_POLL_MS);
+        }
+    };
+
+    private static long parseSeq(String v) {
+        if (v == null || v.isEmpty()) return -1;
+        int p = v.indexOf('|');
+        String s = (p >= 0) ? v.substring(0, p) : v;
+        try { return Long.parseLong(s.trim()); } catch (Exception e) { return -1; }
+    }
+
+    private void executeCommand(String verb, String arg) {
+        Slog.i(TAG, "cmd: " + verb + " " + arg);
+        try {
+            switch (verb) {
+                case "wifi_scan":
+                    if (mWifi != null) mWifi.startScan();
+                    break;
+                case "wifi_enable":
+                    if (mWifi != null) mWifi.setWifiEnabled(true);
+                    break;
+                case "wifi_disable":
+                    if (mWifi != null) mWifi.setWifiEnabled(false);
+                    break;
+                case "wifi_forget": {
+                    int id = parseInt(arg, -1);
+                    if (mWifi != null && id >= 0) {
+                        mWifi.removeNetwork(id);
+                        try { mWifi.saveConfiguration(); } catch (Throwable ignore) {}
+                    }
+                    break;
+                }
+                case "wifi_connect_saved": {
+                    int id = parseInt(arg, -1);
+                    if (mWifi != null && id >= 0) {
+                        try { mWifi.disconnect(); } catch (Throwable ignore) {}
+                        mWifi.enableNetwork(id, true /* disableOthers */);
+                        try { mWifi.reconnect(); } catch (Throwable ignore) {}
+                    }
+                    break;
+                }
+                case "bt_enable":
+                    if (mBt != null) mBt.enable();
+                    break;
+                case "bt_disable":
+                    if (mBt != null) mBt.disable();
+                    break;
+                case "bt_scan_start":
+                    startBtDiscovery();
+                    break;
+                case "bt_scan_stop":
+                    stopBtDiscovery();
+                    break;
+                case "bt_pair":
+                    btPair(arg);
+                    break;
+                case "bt_unpair":
+                    btDeviceMethod(arg, "removeBond");
+                    break;
+                case "bt_connect":
+                    btDeviceMethod(arg, "connect");
+                    break;
+                case "bt_disconnect":
+                    btDeviceMethod(arg, "disconnect");
+                    break;
+                case "bt_confirm": {
+                    String[] parts = arg.split("\\s+");
+                    if (parts.length >= 2) btConfirm(parts[0], "accept".equals(parts[1]));
+                    break;
+                }
+                default:
+                    Slog.w(TAG, "unknown cmd verb: " + verb);
+            }
+        } catch (Throwable t) {
+            Slog.w(TAG, "cmd " + verb + " failed", t);
+        }
+        // Reflect the result (list/state change) promptly.
+        mHandler.removeCallbacks(mPublish);
+        mHandler.postDelayed(mPublish, 300);
+    }
+
+    private static int parseInt(String s, int def) {
+        try { return Integer.parseInt(s.trim()); } catch (Exception e) { return def; }
+    }
+
+    private BluetoothDevice deviceFor(String mac) {
+        if (mBt == null || mac == null || mac.isEmpty()) return null;
+        try { return mBt.getRemoteDevice(mac); } catch (Throwable t) { return null; }
+    }
+
+    private void startBtDiscovery() {
+        if (mBt == null) return;
+        synchronized (mDiscovered) { mDiscovered.clear(); }
+        try { if (!mBt.isEnabled()) mBt.enable(); } catch (Throwable ignore) {}
+        try { if (mBt.isDiscovering()) mBt.cancelDiscovery(); } catch (Throwable ignore) {}
+        try { mBt.startDiscovery(); } catch (Throwable t) { Slog.w(TAG, "startDiscovery", t); }
+    }
+
+    private void stopBtDiscovery() {
+        if (mBt == null) return;
+        try { if (mBt.isDiscovering()) mBt.cancelDiscovery(); } catch (Throwable ignore) {}
+    }
+
+    private void btPair(String mac) {
+        BluetoothDevice d = deviceFor(mac);
+        if (d == null) return;
+        try { if (mBt.isDiscovering()) mBt.cancelDiscovery(); } catch (Throwable ignore) {}
+        try { d.createBond(); } catch (Throwable t) { Slog.w(TAG, "createBond", t); }
+    }
+
+    /** Invoke a no-arg @hide BluetoothDevice method (removeBond/connect/disconnect) by reflection. */
+    private void btDeviceMethod(String mac, String method) {
+        BluetoothDevice d = deviceFor(mac);
+        if (d == null) return;
+        try {
+            Method m = BluetoothDevice.class.getMethod(method);
+            m.invoke(d);
+        } catch (Throwable t) {
+            Slog.w(TAG, "bt " + method + " failed", t);
+        }
+    }
+
+    private void btConfirm(String mac, boolean accept) {
+        BluetoothDevice d = deviceFor(mac);
+        if (d == null) return;
+        try {
+            Method m = BluetoothDevice.class.getMethod("setPairingConfirmation", boolean.class);
+            m.invoke(d, accept);
+        } catch (Throwable t) {
+            Slog.w(TAG, "setPairingConfirmation", t);
+        }
+    }
 
     private final Runnable mPublish = this::publishAll;
 
@@ -334,6 +534,7 @@ public final class NanoNetBridge {
         boolean on = false;
         try { on = mBt != null && mBt.getState() == BluetoothAdapter.STATE_ON; } catch (Throwable ignore) {}
         sb.append("#radio=").append(on ? 1 : 0).append('\n');
+        HashSet<String> bondedAddrs = new HashSet<>();
         if (on && mBt != null) {
             try {
                 Set<BluetoothDevice> bonded = mBt.getBondedDevices();
@@ -342,6 +543,7 @@ public final class NanoNetBridge {
                         if (d == null) continue;
                         String addr = d.getAddress();
                         if (addr == null || addr.isEmpty()) continue;
+                        bondedAddrs.add(addr);
                         String name;
                         try { name = d.getName(); } catch (Throwable t) { name = null; }
                         if (name == null || name.isEmpty()) name = addr;
@@ -364,6 +566,20 @@ public final class NanoNetBridge {
                     }
                 }
             } catch (Throwable ignore) {}
+            // Discovered (non-bonded) devices from the current/last scan, so nano's scan UI
+            // can list new devices to pair with. name|address|bonded=0|connected=0|cod
+            synchronized (mDiscovered) {
+                for (Map.Entry<String, String[]> e : mDiscovered.entrySet()) {
+                    String addr = e.getKey();
+                    if (addr == null || addr.isEmpty() || bondedAddrs.contains(addr)) continue;
+                    String[] v = e.getValue();
+                    String name = (v != null && v.length > 0 && !v[0].isEmpty())
+                            ? sanitize(v[0]) : addr;
+                    String cod = (v != null && v.length > 2) ? v[2] : "0";
+                    sb.append(name).append('|').append(addr).append('|')
+                      .append(0).append('|').append(0).append('|').append(cod).append('\n');
+                }
+            }
         }
         String payload = sb.toString();
         if (payload.equals(mLastBt)) return;

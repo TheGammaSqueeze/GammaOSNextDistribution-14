@@ -20,6 +20,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include <algorithm>
+#include <atomic>
 #include <cctype>
 #include <cerrno>
 #include <chrono>
@@ -93,6 +94,33 @@ std::string runCmd(const std::string& cmdline) {
     }
     (void)pclose(f);
     return result;
+}
+
+// Is the resident NanoNetBridge live? (published at least one generation, and not disabled).
+bool nanoNetBridgeUp() {
+    if (!property_get_bool("persist.gammaos.net_bridge", true)) return false;
+    return property_get_int32("sys.gammaos.nano.net_generation", 0) > 0
+        || property_get_int32("sys.gammaos.nano.bt_generation", 0) > 0
+        || property_get_int32("sys.gammaos.nano.wifi_generation", 0) > 0;
+}
+
+// Send a command to NanoNetBridge (system_server) via sys.gammaos.nano.net_cmd =
+// "<seq>|<verb>|<arg>". The bridge polls the prop, dedups by strictly-increasing seq, and
+// drives the live WifiManager/BluetoothAdapter; results come back through the published
+// state/list files. Returns true if the bridge is live (command sent) so callers can fall
+// back to the legacy cmd/gammaos-net path when it is not.
+bool nanoNetBridgeCmd(const char* verb, const std::string& arg) {
+    if (!nanoNetBridgeUp()) return false;
+    static std::atomic<long long> sLast{0};
+    long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+    long long prev = sLast.load();
+    long long seq = (ms > prev) ? ms : prev + 1;   // strictly increasing, survives ms collisions
+    sLast.store(seq);
+    std::string v = std::to_string(seq) + "|" + verb;
+    if (!arg.empty()) { v += "|"; v += arg; }
+    property_set("sys.gammaos.nano.net_cmd", v.c_str());
+    return true;
 }
 
 // POSIX single-quote wrap with escape for embedded single quotes.
@@ -674,8 +702,8 @@ void NanoMenu::wifiScanThreadFunc() {
     // look empty during the scan window.
     refreshWifiList();
     // Kick a fresh scan on the wifi radio and wait briefly for results
-    // to land before re-reading list-scan-results.
-    (void)runCmd("cmd wifi start-scan");
+    // to land before re-reading the list (from the bridge when it is live).
+    if (!nanoNetBridgeCmd("wifi_scan", "")) (void)runCmd("cmd wifi start-scan");
     // 3 second sleep so the radio has time to produce a fresh scan.
     for (int i = 0; i < 30 && mWifiScanInProgress; i++) {
         usleep(100 * 1000);
@@ -695,7 +723,8 @@ void NanoMenu::wifiScanThreadFunc() {
     // just several tens of seconds in. The list populates live while the user is on the
     // AP list because it reads mWifiEntries, which each pass refreshes.
     for (int pass = 0; pass < 30 && mWifiScanInProgress && wifiRealApCount() == 0; pass++) {
-        if ((pass % 5) == 0) (void)runCmd("cmd wifi start-scan");   // ~every 15s
+        if ((pass % 5) == 0 && !nanoNetBridgeCmd("wifi_scan", ""))
+            (void)runCmd("cmd wifi start-scan");   // ~every 15s
         for (int i = 0; i < 30 && mWifiScanInProgress; i++) {
             usleep(100 * 1000);                                     // ~3s dwell per pass
         }
@@ -880,10 +909,12 @@ void NanoMenu::connectWithWizardSettings() {
 }
 
 void NanoMenu::forgetWifiNetwork(int savedNetId) {
-    char cmd[128];
-    snprintf(cmd, sizeof(cmd),
-             "cmd wifi forget-network %d", savedNetId);
-    (void)runCmd(cmd);
+    if (!nanoNetBridgeCmd("wifi_forget", std::to_string(savedNetId))) {
+        char cmd[128];
+        snprintf(cmd, sizeof(cmd),
+                 "cmd wifi forget-network %d", savedNetId);
+        (void)runCmd(cmd);
+    }
     // Refresh on the scan thread so we don't block the caller.
     startWifiScanAsync();
 }
@@ -897,8 +928,9 @@ bool NanoMenu::wifiRadioEnabled() {
 }
 
 void NanoMenu::toggleWifiRadio(bool on) {
-    (void)runCmd(on ? "cmd wifi set-wifi-enabled enabled"
-                    : "cmd wifi set-wifi-enabled disabled");
+    if (!nanoNetBridgeCmd(on ? "wifi_enable" : "wifi_disable", ""))
+        (void)runCmd(on ? "cmd wifi set-wifi-enabled enabled"
+                        : "cmd wifi set-wifi-enabled disabled");
     { std::lock_guard<std::mutex> lk(mNetStateMutex); mWifiRadioOn = on; }
     mWifiStatusMsg = trDyn(on ? "Enabling Wi-Fi..." : "Disabling Wi-Fi...");
     mWifiStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -1819,10 +1851,21 @@ void NanoMenu::startBtScanAsync() {
 }
 
 void NanoMenu::btDiscoveryThreadFunc() {
-    // Actively inquire for nearby devices via BluetoothAdapter.startDiscovery(),
-    // merged into mBtEntries. This is the slow path (~8 s radio airtime)
-    // triggered by the "Scan" button.
-    discoverBtDevices();
+    // Actively inquire for nearby devices. Prefer the resident bridge: it runs
+    // BluetoothAdapter.startDiscovery() in system_server and streams found devices into
+    // nano_bt_list.txt (as bonded=0 rows), which refreshBtList() reads - so devices appear
+    // live as they are discovered. Fall back to the one-shot gammaos-net scan otherwise.
+    if (nanoNetBridgeCmd("bt_scan_start", "")) {
+        for (int i = 0; i < 14 && mBtDiscoveryInProgress; i++) {
+            usleep(1000 * 1000);
+            if (!mBtDiscoveryInProgress) break;
+            refreshBtList();
+        }
+        (void)nanoNetBridgeCmd("bt_scan_stop", "");
+        refreshBtList();
+    } else {
+        discoverBtDevices();
+    }
     mBtDiscoveryInProgress = false;
     mBtLastScanMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
@@ -1844,8 +1887,9 @@ void NanoMenu::startBtDiscoveryAsync() {
 }
 
 void NanoMenu::toggleBtRadio(bool on) {
-    (void)runCmd(on ? "cmd bluetooth_manager enable"
-                    : "cmd bluetooth_manager disable");
+    if (!nanoNetBridgeCmd(on ? "bt_enable" : "bt_disable", ""))
+        (void)runCmd(on ? "cmd bluetooth_manager enable"
+                        : "cmd bluetooth_manager disable");
     mBtStatusMsg = trDyn(on ? "Enabling Bluetooth..." : "Disabling Bluetooth...");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2000;
@@ -1867,11 +1911,25 @@ void NanoMenu::pairBtDevice(const std::string& mac) {
     // the newly-bonded entry snaps into the bonded section.
     std::string macCopy = mac;
     std::thread([this, macCopy]() {
-        std::string cmd = "gammaos-net bt pair " + macCopy;
-        std::string result = runCmd(cmd.c_str());
-        bool ok = result.find("OK") != std::string::npos;
-        if (!ok) ALOGW("pairBtDevice %s failed: %s",
-                       macCopy.c_str(), result.c_str());
+        bool ok;
+        if (nanoNetBridgeUp()) {
+            // Bridge drives BluetoothDevice.createBond() + auto-confirm; poll the bonded
+            // list for the device to flip to bonded (createBond resolves in a few seconds).
+            nanoNetBridgeCmd("bt_pair", macCopy);
+            ok = false;
+            for (int i = 0; i < 30 && !ok; i++) {   // up to ~15s
+                usleep(500 * 1000);
+                refreshBtList();   // re-read the bridge's bonded list (no lock held here)
+                std::lock_guard<std::mutex> lk(mBtListMutex);
+                for (auto& d : mBtEntries) if (d.address == macCopy && d.bonded) { ok = true; break; }
+            }
+        } else {
+            std::string cmd = "gammaos-net bt pair " + macCopy;
+            std::string result = runCmd(cmd.c_str());
+            ok = result.find("OK") != std::string::npos;
+            if (!ok) ALOGW("pairBtDevice %s failed: %s",
+                           macCopy.c_str(), result.c_str());
+        }
         mBtStatusMsg = trDyn(ok ? "Paired" : "Pair failed");
         mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now().time_since_epoch()).count() + 3000;
@@ -1881,11 +1939,16 @@ void NanoMenu::pairBtDevice(const std::string& mac) {
 }
 
 void NanoMenu::unpairBtDevice(const std::string& mac) {
-    std::string cmd = "gammaos-net bt unpair " + mac;
-    std::string result = runCmd(cmd.c_str());
-    bool ok = result.find("OK") != std::string::npos;
-    if (!ok) ALOGW("unpairBtDevice %s failed: %s",
-                   mac.c_str(), result.c_str());
+    bool ok;
+    if (nanoNetBridgeCmd("bt_unpair", mac)) {
+        ok = true;   // fire-and-forget; the bond-state broadcast repopulates the list
+    } else {
+        std::string cmd = "gammaos-net bt unpair " + mac;
+        std::string result = runCmd(cmd.c_str());
+        ok = result.find("OK") != std::string::npos;
+        if (!ok) ALOGW("unpairBtDevice %s failed: %s",
+                       mac.c_str(), result.c_str());
+    }
     mBtStatusMsg = trDyn(ok ? "Removed" : "Unpair failed");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + 2500;
@@ -1903,11 +1966,15 @@ void NanoMenu::connectBtDevice(const std::string& mac) {
     // fall back to a disable+enable cycle if that subcommand is
     // missing. The radio auto-reconnects cached bonded audio/input
     // devices on re-enable.
-    // No AOSP CLI exposes direct connect; fall back to a radio toggle so
-    // bonded audio/input devices re-pair on the next enable.
-    (void)runCmd("cmd bluetooth_manager disable");
-    usleep(400 * 1000);
-    (void)runCmd("cmd bluetooth_manager enable");
+    // Prefer the bridge: BluetoothDevice.connect() reconnects just this bonded device
+    // (all profiles) without bouncing the radio and dropping every other connection.
+    if (!nanoNetBridgeCmd("bt_connect", mac)) {
+        // No AOSP CLI exposes direct connect; fall back to a radio toggle so
+        // bonded audio/input devices re-pair on the next enable.
+        (void)runCmd("cmd bluetooth_manager disable");
+        usleep(400 * 1000);
+        (void)runCmd("cmd bluetooth_manager enable");
+    }
     (void)mac;
     mBtStatusMsg = trDyn("Reconnecting...");
     mBtStatusMsgUntilMs = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -1954,7 +2021,8 @@ void NanoMenu::btWizToggleRadioAsync(bool on) {
         // so the radio stays in the requested state - unlike `cmd bluetooth_manager`
         // from nano's context, which left bluetooth_on=1 and let the service
         // reconcile the radio back on.
-        runCmd(on ? "gammaos-net bt radio on" : "gammaos-net bt radio off");
+        if (!nanoNetBridgeCmd(on ? "bt_enable" : "bt_disable", ""))
+            runCmd(on ? "gammaos-net bt radio on" : "gammaos-net bt radio off");
         std::string d = runCmd("dumpsys bluetooth_manager 2>/dev/null");
         bool realOn = (d.find("enabled: true") != std::string::npos);
         mBtWizRadioOn = realOn;
@@ -1969,27 +2037,64 @@ void NanoMenu::btWizToggleRadioAsync(bool on) {
 void NanoMenu::btWizScanAsync() {
     mBtWizBusy = true;
     std::thread([this]() {
-        // A longer inquiry (15s) catches BLE peripherals that advertise only
-        // intermittently, and the results are MERGED into the list rather than
-        // replacing it so a device seen in one scan does not vanish if the next
-        // scan misses it (the "devices only appear after several scans" problem).
-        std::string txt = runCmd("gammaos-net bt scan 15");
-        auto devs = parseBtScanResults(txt);
-        std::lock_guard<std::mutex> lk(mBtWizMutex);
-        for (auto& s : devs) {
-            bool found = false;
-            for (auto& d : mBtWizScan) {
-                if (d.address == s.address) {
-                    // Upgrade a placeholder (MAC-as-name) once a real name resolves;
-                    // refresh class-of-device + bond state from the freshest sighting.
-                    if (!s.name.empty() && s.name != s.address &&
-                        (d.name.empty() || d.name == d.address)) d.name = s.name;
-                    if (s.cod != 0) d.cod = s.cod;
-                    d.bonded = s.bonded;
-                    found = true; break;
+        // Merge (never replace) so a device seen in one pass does not vanish if the next
+        // pass misses it (the "devices only appear after several scans" problem).
+        auto mergeInto = [this](std::vector<NanoMenu::BtDevEntry>& devs) {
+            std::lock_guard<std::mutex> lk(mBtWizMutex);
+            for (auto& s : devs) {
+                bool found = false;
+                for (auto& d : mBtWizScan) {
+                    if (d.address == s.address) {
+                        if (!s.name.empty() && s.name != s.address &&
+                            (d.name.empty() || d.name == d.address)) d.name = s.name;
+                        if (s.cod != 0) d.cod = s.cod;
+                        d.bonded = s.bonded;
+                        found = true; break;
+                    }
                 }
+                if (!found) mBtWizScan.push_back(std::move(s));
             }
-            if (!found) mBtWizScan.push_back(std::move(s));
+        };
+        if (nanoNetBridgeCmd("bt_scan_start", "")) {
+            // Bridge runs BluetoothAdapter.startDiscovery() and streams found devices into
+            // nano_bt_list.txt; read + merge each second so they appear live over ~15s.
+            for (int pass = 0; pass < 16 && mBtWizBusy; pass++) {
+                usleep(1000 * 1000);
+                std::vector<NanoMenu::BtDevEntry> devs;
+                int fd = open("/data/system/nano_bt_list.txt", O_RDONLY | O_CLOEXEC);
+                if (fd >= 0) {
+                    std::string buf; char tmp[4096]; ssize_t n;
+                    while ((n = read(fd, tmp, sizeof(tmp))) > 0) buf.append(tmp, (size_t)n);
+                    close(fd);
+                    size_t p = 0;
+                    while (p < buf.size()) {
+                        size_t eol = buf.find('\n', p);
+                        if (eol == std::string::npos) eol = buf.size();
+                        std::string line = buf.substr(p, eol - p); p = eol + 1;
+                        if (line.empty() || line[0] == '#') continue;
+                        std::string f[5]; size_t q = 0;
+                        for (int fi = 0; fi < 5; fi++) {
+                            size_t bar = line.find('|', q);
+                            if (fi == 4 || bar == std::string::npos) { f[fi] = line.substr(q); break; }
+                            f[fi] = line.substr(q, bar - q); q = bar + 1;
+                        }
+                        NanoMenu::BtDevEntry e{};
+                        e.name = f[0]; e.address = f[1];
+                        e.bonded = (atoi(f[2].c_str()) != 0);
+                        e.connected = (atoi(f[3].c_str()) != 0);
+                        e.cod = atoi(f[4].c_str());
+                        devs.push_back(std::move(e));
+                    }
+                }
+                mergeInto(devs);
+                mDisplayDirty = true;
+            }
+            (void)nanoNetBridgeCmd("bt_scan_stop", "");
+        } else {
+            // Legacy one-shot inquiry (15s) via the gammaos-net helper.
+            std::string txt = runCmd("gammaos-net bt scan 15");
+            auto devs = parseBtScanResults(txt);
+            mergeInto(devs);
         }
         mBtWizBusy = false;
         mDisplayDirty = true;
