@@ -25,11 +25,13 @@
 #include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <functional>
 #include <mutex>
 #include <string>
 #include <thread>
+#include <fcntl.h>
 #include <unistd.h>
 #include <utility>
 #include <vector>
@@ -538,6 +540,81 @@ void NanoMenu::closeWifiScreen() {
 }
 
 void NanoMenu::refreshWifiList() {
+    // Bridge path: NanoNetBridge (system_server) publishes the merged saved+scan list to
+    // /data/system/nano_wifi_list.txt, so read it directly - no `cmd wifi` fork, no
+    // free-form text parse. Falls through to the shell path when the bridge is absent
+    // (full boot / not yet published) or disabled via persist.gammaos.net_bridge.
+    if (property_get_bool("persist.gammaos.net_bridge", true)
+            && property_get_int32("sys.gammaos.nano.wifi_generation", 0) > 0) {
+        int fd = open("/data/system/nano_wifi_list.txt", O_RDONLY | O_CLOEXEC);
+        if (fd >= 0) {
+            std::string buf;
+            char tmp[4096];
+            ssize_t n;
+            while ((n = read(fd, tmp, sizeof(tmp))) > 0) buf.append(tmp, (size_t)n);
+            close(fd);
+            bool haveRadio = false, radioOn = false;
+            std::vector<NanoMenu::WifiNetEntry> body;
+            size_t p = 0;
+            while (p < buf.size()) {
+                size_t eol = buf.find('\n', p);
+                if (eol == std::string::npos) eol = buf.size();
+                std::string line = buf.substr(p, eol - p);
+                p = eol + 1;
+                if (line.empty()) continue;
+                if (line[0] == '#') {
+                    if (line.rfind("#radio=", 0) == 0) {
+                        radioOn = (line.substr(7) == "1");
+                        haveRadio = true;
+                    }
+                    continue;
+                }
+                // ssid|bssid|rssi|security|savedNetId|connected
+                std::string fld[6];
+                size_t q = 0;
+                for (int fi = 0; fi < 6; fi++) {
+                    size_t bar = line.find('|', q);
+                    if (fi == 5 || bar == std::string::npos) { fld[fi] = line.substr(q); break; }
+                    fld[fi] = line.substr(q, bar - q);
+                    q = bar + 1;
+                }
+                NanoMenu::WifiNetEntry e{};
+                e.ssid = fld[0];
+                e.bssid = fld[1];
+                e.rssi = atoi(fld[2].c_str());
+                e.security = atoi(fld[3].c_str());
+                e.savedNetId = atoi(fld[4].c_str());
+                e.connected = (atoi(fld[5].c_str()) != 0);
+                body.push_back(std::move(e));
+            }
+            if (haveRadio) {
+                std::vector<NanoMenu::WifiNetEntry> merged;
+                NanoMenu::WifiNetEntry toggle{};
+                toggle.ssid = std::string(trDyn("Wi-Fi")) + ": "
+                            + (radioOn ? trDyn("On") : trDyn("Off"));
+                toggle.bssid = "__TOGGLE__";
+                toggle.rssi = -127;
+                toggle.security = 0;
+                toggle.savedNetId = radioOn ? -3 : -4;
+                toggle.connected = false;
+                merged.push_back(std::move(toggle));
+                for (auto& e : body) merged.push_back(std::move(e));
+                {
+                    std::lock_guard<std::mutex> lk(mWifiListMutex);
+                    mWifiEntries.swap(merged);
+                    mWifiListDirty = true;
+                }
+                if (mWifiEntrySelected >= (int)mWifiEntries.size()) {
+                    mWifiEntrySelected = mWifiEntries.empty() ? 0
+                                       : (int)mWifiEntries.size() - 1;
+                }
+                if (mWifiEntrySelected < 0) mWifiEntrySelected = 0;
+                mDisplayDirty = true;
+                return;
+            }
+        }
+    }
+
     std::string statusText = runCmd("cmd wifi status");
     // Detect whether the Wi-Fi radio is currently on. When it is off,
     // list-networks / list-scan-results return empty; we still want
@@ -1530,6 +1607,95 @@ void NanoMenu::closeBtScreen() {
 }
 
 void NanoMenu::refreshBtList() {
+    // Bridge path: NanoNetBridge (system_server) publishes the bonded devices + the REAL
+    // radio state to /data/system/nano_bt_list.txt, so read it directly - no
+    // `gammaos-net bt list-bonded` JVM fork, and the toggle reflects the live adapter state
+    // instead of the stale `settings get global bluetooth_on`. Non-bonded devices found by
+    // an active gammaos-net discovery are preserved across refreshes, same as the shell path.
+    if (property_get_bool("persist.gammaos.net_bridge", true)
+            && property_get_int32("sys.gammaos.nano.bt_generation", 0) > 0) {
+        int fd = open("/data/system/nano_bt_list.txt", O_RDONLY | O_CLOEXEC);
+        if (fd >= 0) {
+            std::string buf;
+            char tmp[4096];
+            ssize_t n;
+            while ((n = read(fd, tmp, sizeof(tmp))) > 0) buf.append(tmp, (size_t)n);
+            close(fd);
+            bool haveRadio = false, btOn = false;
+            std::vector<NanoMenu::BtDevEntry> devs;
+            size_t p = 0;
+            while (p < buf.size()) {
+                size_t eol = buf.find('\n', p);
+                if (eol == std::string::npos) eol = buf.size();
+                std::string line = buf.substr(p, eol - p);
+                p = eol + 1;
+                if (line.empty()) continue;
+                if (line[0] == '#') {
+                    if (line.rfind("#radio=", 0) == 0) {
+                        btOn = (line.substr(7) == "1");
+                        haveRadio = true;
+                    }
+                    continue;
+                }
+                // name|address|bonded|connected|cod
+                std::string fld[5];
+                size_t q = 0;
+                for (int fi = 0; fi < 5; fi++) {
+                    size_t bar = line.find('|', q);
+                    if (fi == 4 || bar == std::string::npos) { fld[fi] = line.substr(q); break; }
+                    fld[fi] = line.substr(q, bar - q);
+                    q = bar + 1;
+                }
+                NanoMenu::BtDevEntry e{};
+                e.name = fld[0];
+                e.address = fld[1];
+                e.bonded = (atoi(fld[2].c_str()) != 0);
+                e.connected = (atoi(fld[3].c_str()) != 0);
+                e.cod = atoi(fld[4].c_str());
+                devs.push_back(std::move(e));
+            }
+            if (haveRadio) {
+                // Preserve non-bonded discovered devices (from gammaos-net bt scan).
+                std::vector<NanoMenu::BtDevEntry> preservedUnbonded;
+                {
+                    std::lock_guard<std::mutex> lk(mBtListMutex);
+                    for (auto& d : mBtEntries) {
+                        if (d.address == "__TOGGLE__") continue;
+                        if (!d.bonded) preservedUnbonded.push_back(d);
+                    }
+                }
+                if (btOn) {
+                    for (auto& u : preservedUnbonded) {
+                        bool already = false;
+                        for (auto& d : devs) if (d.address == u.address) { already = true; break; }
+                        if (!already) devs.push_back(std::move(u));
+                    }
+                }
+                std::vector<NanoMenu::BtDevEntry> merged;
+                NanoMenu::BtDevEntry toggle{};
+                toggle.address = "__TOGGLE__";
+                toggle.name = std::string(trDyn("Bluetooth")) + ": "
+                            + (btOn ? trDyn("On") : trDyn("Off"));
+                toggle.bonded = false;
+                toggle.connected = false;
+                merged.push_back(std::move(toggle));
+                for (auto& d : devs) merged.push_back(std::move(d));
+                {
+                    std::lock_guard<std::mutex> lk(mBtListMutex);
+                    mBtEntries.swap(merged);
+                    mBtListDirty = true;
+                }
+                if (mBtEntrySelected >= (int)mBtEntries.size()) {
+                    mBtEntrySelected = mBtEntries.empty() ? 0
+                                     : (int)mBtEntries.size() - 1;
+                }
+                if (mBtEntrySelected < 0) mBtEntrySelected = 0;
+                mDisplayDirty = true;
+                return;
+            }
+        }
+    }
+
     // gammaos-net bt list-bonded is the same getBondedDevices() call
     // Settings uses; it works whether or not `cmd bluetooth_manager`
     // ever shipped a list-bonded-devices subcommand. We still parse
