@@ -2577,6 +2577,23 @@ public final class SystemServer implements Dumpable {
             }
             } // !minimalBoot: SecurityState through WallpaperEffects
 
+            // GammaOS Nano: SearchManagerService lives in the !minimalBoot block above, so nano's
+            // minimal_boot never publishes the "search" binder. Apps that put a SearchView in their
+            // action bar call getSystemService(SEARCH_SERVICE) from onCreateOptionsMenu and CRASH with
+            // ServiceNotFoundException("search") the moment their menu inflates (e.g. MelonDS's ROM
+            // list on launch). The service is lightweight, so start it in minimal_boot too, exactly
+            // once (full boot already started it above). Mirrors the WebView / AppHibernation
+            // minimal_boot exceptions elsewhere in this file.
+            if (minimalBoot && !isWatch) {
+                t.traceBegin("StartSearchManagerService(minimal)");
+                try {
+                    mSystemServiceManager.startService(SEARCH_MANAGER_SERVICE_CLASS);
+                } catch (Throwable e) {
+                    reportWtf("starting Search Service", e);
+                }
+                t.traceEnd();
+            }
+
             if (minimalBoot) {
                 Slog.i(TAG, "GammaOS Nano: starting AudioService (cache signal runs in parallel)");
             }
