@@ -239,10 +239,16 @@ public final class NanoNetBridge {
                     if (mWifi != null) mWifi.setWifiEnabled(false);
                     break;
                 case "wifi_forget": {
+                    // removeNetwork()+saveConfiguration() are @Deprecated no-ops on the
+                    // modern Wi-Fi stack (removeNetwork returns false, saveConfiguration
+                    // does nothing), so the old pair silently failed to forget. forget()
+                    // is the working replacement (the same call cmd wifi forget-network
+                    // makes via mWifiService.forget). The nano UI now always uses the
+                    // shell path; this keeps the bridge correct for any direct caller.
                     int id = parseInt(arg, -1);
                     if (mWifi != null && id >= 0) {
-                        mWifi.removeNetwork(id);
-                        try { mWifi.saveConfiguration(); } catch (Throwable ignore) {}
+                        try { mWifi.forget(id, null); }
+                        catch (Throwable t) { Slog.w(TAG, "wifi forget", t); }
                     }
                     break;
                 }

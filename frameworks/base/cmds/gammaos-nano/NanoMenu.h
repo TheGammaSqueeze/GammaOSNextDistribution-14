@@ -4199,6 +4199,7 @@ private:
     int    mPs3WizSecTok = 0;             // cmd-wifi security token: 0 open,1 wep,2 wpa2,3 wpa3,4 owe
     std::string mPs3WizSecLabel;          // display security label
     std::string mPs3WizKey;               // WEP/WPA passphrase
+    bool   mPs3WizChangePwOnly = false;   // saved-net "Change Password": key -> WS_SAVE (skip IP/advanced walk)
     std::string mPs3WizMethod, mPs3WizConn, mPs3WizWlanMode;
     std::string mPs3WizIpMode, mPs3WizDnsMode, mPs3WizMtuMode, mPs3WizProxyMode, mPs3WizUpnp;
     std::string mPs3WizIpAddr, mPs3WizSubnet, mPs3WizRouter, mPs3WizPdns, mPs3WizSdns;

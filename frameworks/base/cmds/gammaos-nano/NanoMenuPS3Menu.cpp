@@ -13677,6 +13677,7 @@ void NanoMenu::startNetWizard() {
     mPs3WizExit = 0;
     mPs3WizStack.clear();
     mPs3WizSsid.clear(); mPs3WizKey.clear(); mPs3WizSecLabel.clear(); mPs3WizSecTok = 0;
+    mPs3WizChangePwOnly = false;
     mPs3WizConn = mPs3WizWlanMode = "";
     mPs3WizMethod = "Easy";   // Easy/Custom chooser removed: the whole flow takes the Easy path
     mPs3WizIpMode = "Automatic"; mPs3WizDnsMode = "Automatic"; mPs3WizMtuMode = "Automatic";
@@ -14076,16 +14077,22 @@ void NanoMenu::wizConfirm() {
         if (mPs3WizSel < 0 || mPs3WizSel >= (int)acts.size()) return;
         int act = acts[mPs3WizSel];
         if (act == WMNG_CONNECT) {
+            mPs3WizChangePwOnly = false;
             if (netId >= 0) connectToSavedWifi(netId);          // reconnect with the saved key
             mPs3WizStack.push_back(mPs3WizId);
             wizEnter(WS_TEST_CONFIRM, 1);                       // offer the connection test for feedback
         } else if (act == WMNG_CHANGE_PW) {
-            // Enter a new key; the normal key -> ... -> WS_SAVE flow overwrites the
-            // saved profile with it (WS_SAVE calls addAndConnectWifi).
+            // Enter a new key, then jump straight to WS_SAVE (addAndConnectWifi) so the
+            // saved profile is overwritten and reconnected with the new key. The saved
+            // network already has its IP/DNS/proxy settings, so skip the Easy-advanced /
+            // Review walk a brand-new network takes (mPs3WizChangePwOnly routes the key
+            // screen to WS_SAVE in wizNextScreen).
+            mPs3WizChangePwOnly = true;
             int nxt = (mPs3WizSecTok == 1) ? WS_WEP_KEY : WS_WPA_KEY;
             mPs3WizStack.push_back(mPs3WizId);
             wizEnter(nxt, 1);
         } else {                                                // WMNG_FORGET
+            mPs3WizChangePwOnly = false;
             if (netId >= 0) forgetWifiNetwork(netId);           // remove + async rescan
             wizBack();                                          // back to the AP list (refreshes on the rescan)
         }
@@ -14095,6 +14102,15 @@ void NanoMenu::wizConfirm() {
         std::vector<WifiNetEntry> aps;
         { std::lock_guard<std::mutex> lk(mWifiListMutex);
           for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
+        // Empty list: if the Wi-Fi radio is off, A/OK turns it on (and the scan the
+        // toggle kicks fills the list in place); if it is on, A/OK rescans. Mirrors the
+        // Bluetooth WS_BT_MANAGE "Turn Bluetooth On" pattern so the user is never stuck
+        // on a bare "No networks found" with no way to enable Wi-Fi.
+        if (aps.empty()) {
+            bool radioOn; { std::lock_guard<std::mutex> lk(mNetStateMutex); radioOn = mWifiRadioOn; }
+            if (!radioOn) toggleWifiRadio(true); else wizRescan();
+            return;
+        }
         if (mPs3WizSel < 0 || mPs3WizSel >= (int)aps.size()) return;
         const WifiNetEntry& ap = aps[mPs3WizSel];
         mPs3WizSsid = ap.ssid; mPs3WizSecTok = ap.security;
@@ -14110,6 +14126,7 @@ void NanoMenu::wizConfirm() {
         }
         // Mirror web wlan_ap_list.onSelect: open/OWE need no key; WEP -> WEP key;
         // everything else -> WPA key (then Easy: advanced? / Custom: IP setting).
+        mPs3WizChangePwOnly = false;   // brand-new network walks the full flow, not the change-pw shortcut
         int nxt;
         if (ap.security == 0 || ap.security == 4) nxt = (mPs3WizMethod == "Easy") ? WS_EASY_ADV : WS_IP;
         else if (ap.security == 1)                nxt = WS_WEP_KEY;
@@ -14149,6 +14166,11 @@ void NanoMenu::wizRescan() {
     // device list. Drop the transient scan screen we arrived through so repeats
     // don't bloat the stack.
     if (mPs3WizId == WS_APLIST) {
+        // A rescan with the radio off would loop on an empty list forever; turn Wi-Fi
+        // on first (toggleWifiRadio kicks its own scan). Covers the Y/Search rescan and
+        // the empty-list touch tap in all themes with no per-theme input edits.
+        bool radioOn; { std::lock_guard<std::mutex> lk(mNetStateMutex); radioOn = mWifiRadioOn; }
+        if (!radioOn) { toggleWifiRadio(true); return; }
         while (!mPs3WizStack.empty() && mPs3WizStack.back() == WS_SCANNING)
             mPs3WizStack.pop_back();
         wizEnter(WS_SCANNING, 1);           // fires startWifiScanAsync; auto-advances back to the list
@@ -14257,8 +14279,10 @@ int NanoMenu::wizNextScreen(int id, int sel) {
         if (sel == 1) { mPs3WizSecTok = 1; return WS_WEP_KEY; }    // WEP
         if (sel == 7) { mPs3WizSecTok = 2; return WS_EAP_AUTH; }   // EAP Authentication
         mPs3WizSecTok = 2; return WS_WPA_KEY; }                    // WPA*
-    case WS_WEP_KEY: return afterAuth();
-    case WS_WPA_KEY: return afterAuth();
+    // Change-password on a saved network: the key was just re-entered, so save + reconnect
+    // immediately (the saved profile keeps its IP/DNS/proxy) instead of walking Easy-advanced.
+    case WS_WEP_KEY: return mPs3WizChangePwOnly ? WS_SAVE : afterAuth();
+    case WS_WPA_KEY: return mPs3WizChangePwOnly ? WS_SAVE : afterAuth();
     case WS_EAP_AUTH: return WS_EAP_USER;
     case WS_EAP_USER: return WS_EAP_PASS;
     case WS_EAP_PASS: return afterAuth();
@@ -14670,7 +14694,12 @@ void NanoMenu::renderNetWizard() {
             // On a fresh wipe the driver can take tens of seconds to return results,
             // and the background rescan keeps trying and fills this list live. Say so
             // while a scan is running instead of the misleading "no networks" prompt.
-            const char* empt = mWifiScanInProgress ? trDyn("Searching for networks...")
+            // When the radio is OFF the scan can never return anything, so tell the user
+            // and let A/Cross turn Wi-Fi on (wizConfirm/wizRescan handle it). "Cross" is
+            // the canonical word themeButtonText maps to the confirm glyph per theme.
+            bool radioOn; { std::lock_guard<std::mutex> lk(mNetStateMutex); radioOn = mWifiRadioOn; }
+            const char* empt = !radioOn ? trDyn("Wi-Fi is off. Press Cross to turn it on.")
+                             : mWifiScanInProgress ? trDyn("Searching for networks...")
                                                    : trDyn("No networks found. Press Triangle to rescan.");
             ps3DlgText(themeButtonText(empt).c_str(), bodyCx, Y(top + 30.0f), FS(22.0f), 0.9f, 0.9f, 0.9f, ap, 1);
         }
@@ -15074,7 +15103,13 @@ void NanoMenu::renderNdsNetWizardBody(float rx, float ry, float rw, float rh) {
     } else if (d.kind == WK_SCANLIST) {
         std::vector<WifiNetEntry> aps; { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
         if (d.body[0]) textCenter(trDyn(d.body), 30.0f, 12.0f, 0.93f, 0.93f, 0.93f);
-        if (aps.empty()) { textCenter(mWifiScanInProgress ? trDyn("Searching for networks...") : trDyn("No networks found. Press X to rescan."), 100.0f, 12.0f, 0.85f, 0.85f, 0.85f); }
+        if (aps.empty()) {
+            bool radioOn; { std::lock_guard<std::mutex> lk(mNetStateMutex); radioOn = mWifiRadioOn; }
+            textCenter(!radioOn ? trDyn("Wi-Fi is off. Press X to turn it on.")
+                      : mWifiScanInProgress ? trDyn("Searching for networks...")
+                                            : trDyn("No networks found. Press X to rescan."),
+                       100.0f, 12.0f, 0.85f, 0.85f, 0.85f);
+        }
         else {
             std::vector<std::string> labels; for (auto& e : aps) labels.push_back(e.ssid);
             drawGlossyList(labels, [&](int i, float rowDevY){
@@ -15479,7 +15514,13 @@ void NanoMenu::renderMinimaNetWizardBody(float rx, float ry, float rw, float rh)
     } else if (d.kind == WK_SCANLIST) {
         std::vector<WifiNetEntry> aps; { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
         float listTop = drawPromptBand(d.body);
-        if (aps.empty()) tCenter(mWifiScanInProgress ? trDyn("Searching for networks...") : trDyn("No networks found. Press A to rescan."), (listTop + g.bodyBot) * 0.5f, fsRow, 0.85f, 0.85f, 0.85f);
+        if (aps.empty()) {
+            bool radioOn; { std::lock_guard<std::mutex> lk(mNetStateMutex); radioOn = mWifiRadioOn; }
+            tCenter(!radioOn ? trDyn("Wi-Fi is off. Press A to turn it on.")
+                   : mWifiScanInProgress ? trDyn("Searching for networks...")
+                                         : trDyn("No networks found. Press A to rescan."),
+                    (listTop + g.bodyBot) * 0.5f, fsRow, 0.85f, 0.85f, 0.85f);
+        }
         else {
             std::vector<std::string> labels; for (auto& e : aps) labels.push_back(e.ssid);
             MinimaWizGeom lg = drawWizList(labels, listTop, true);
@@ -15494,7 +15535,9 @@ void NanoMenu::renderMinimaNetWizardBody(float rx, float ry, float rw, float rh)
     } else if (d.kind == WK_TEXT) {
         tLeft(trDyn(d.label), rx + pad + g.btnMg, g.bodyTop, fsRow, 0.95f, 0.95f, 0.95f);
         float bxx = rx + pad + g.btnMg, byy = g.bodyTop + rowH, bww = rw - pad * 2.0f - g.btnMg * 2.0f, bhh = rowH;
-        drawRoundedRect(bxx, byy, bww, bhh, rowH * 0.25f, 0.0f, 0.0f, 0.0f, 0.55f);
+        // Opaque non-black fill so the field reads as a distinct surface over the black Minima
+        // background (a 0,0,0,0.55 fill was invisible - the box appeared to be just the accent line).
+        drawRoundedRect(bxx, byy, bww, bhh, rowH * 0.25f, 0.12f, 0.12f, 0.14f, 1.0f);
         drawRoundedRect(bxx, byy, bww, fmaxf(1.0f, 1.5f * sc), rowH * 0.25f, ar, ag, ab, 0.8f);
         std::string val = d.mask ? maskPassword(mOskQuery) : mOskQuery;
         std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
@@ -15502,7 +15545,10 @@ void NanoMenu::renderMinimaNetWizardBody(float rx, float ry, float rw, float rh)
         float vx = bxx + btnPad, ty = byy + (bhh - MW_FONT * sc) * 0.5f;
         if (!val.empty()) { drawText(val.c_str(), vx, ty, fsRow, 1.0f, 1.0f, 1.0f, 1.0f); vx += measureText(val.c_str(), fsRow); }
         float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
-        drawQuad(vx + 1.5f * sc, ty, fmaxf(1.0f, 1.5f * sc), MW_FONT * sc, 1.0f, 1.0f, 1.0f, blink);
+        // Centre the caret in the box interior (matches the value text's centre) rather than
+        // anchoring it to the text top with a full-em height, which sat it low in the field.
+        float caretH = rowH * 0.60f;
+        drawQuad(vx + 1.5f * sc, byy + (bhh - caretH) * 0.5f, fmaxf(1.0f, 1.5f * sc), caretH, 1.0f, 1.0f, 1.0f, blink);
         if (!mPs3WizFieldError.empty()) tLeft(mPs3WizFieldError.c_str(), bxx, byy + bhh + rowH * 0.3f, fsHint, 1.0f, 0.46f, 0.42f);
         mDisplayDirty = true;
     } else if (d.kind == WK_REVIEW) {

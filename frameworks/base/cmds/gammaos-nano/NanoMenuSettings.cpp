@@ -656,6 +656,13 @@ void NanoMenu::refreshWifiList() {
     bool radioOn = !statusText.empty()
                 && statusText.find("Wifi is disabled") == std::string::npos
                 && statusText.find("is disabled") == std::string::npos;
+    // Cache the authoritative radio state for the net wizard's WS_APLIST empty-state
+    // (which shows "Wi-Fi is off. Press <btn> to turn it on." and enables it on A/X).
+    // refreshWifiList runs on the scan worker (it shells out), so this is off the render
+    // thread; the painters + wizConfirm/wizRescan only read mWifiRadioOn under the mutex.
+    // Re-synced on every scan/rescan/toggle, so it also catches a radio turned off
+    // mid-wizard.
+    { std::lock_guard<std::mutex> lk(mNetStateMutex); mWifiRadioOn = radioOn; }
     std::vector<NanoMenu::WifiNetEntry> merged;
     // Prepend a synthetic toggle row. Sentinel: savedNetId == kWifiToggleSentinel,
     // bssid == "__TOGGLE__". renderWifiScreen / handleWifiScreenSelect
@@ -915,12 +922,21 @@ void NanoMenu::connectWithWizardSettings() {
 }
 
 void NanoMenu::forgetWifiNetwork(int savedNetId) {
-    if (!nanoNetBridgeCmd("wifi_forget", std::to_string(savedNetId))) {
-        char cmd[128];
-        snprintf(cmd, sizeof(cmd),
-                 "cmd wifi forget-network %d", savedNetId);
-        (void)runCmd(cmd);
-    }
+    if (savedNetId < 0) { startWifiScanAsync(); return; }
+    // Always take the root-gated shell path. The old code gated it behind
+    // nanoNetBridgeCmd("wifi_forget"), but that helper is FIRE-AND-FORGET (it just
+    // writes sys.gammaos.nano.net_cmd and returns true whenever the bridge is up,
+    // never confirming the op), so when the bridge was up the reliable shell path
+    // never ran and the whole thing hinged on the bridge handler - which used the
+    // deprecated, always-false WifiManager.removeNetwork()+saveConfiguration() pair
+    // and silently no-op'd, so "Forget This Network" did nothing. `cmd wifi
+    // forget-network` runs from nano's root domain (gammaos-nano.rc user root, which
+    // clears WifiShellCommand's ROOT_UID gate) and calls the modern working
+    // mWifiService.forget(netId, listener). A WPA2/WPA3 transition profile is a single
+    // WifiConfiguration under one netId, so forgetting that id removes it outright.
+    char cmd[128];
+    snprintf(cmd, sizeof(cmd), "cmd wifi forget-network %d 2>&1", savedNetId);
+    (void)runCmd(cmd);
     // Refresh on the scan thread so we don't block the caller.
     startWifiScanAsync();
 }

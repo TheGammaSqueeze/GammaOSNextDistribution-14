@@ -1860,22 +1860,29 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // (rw == 256*scale); on wider panels the bg field fills the side margins (like the web).
     auto X = [&](float dx){ return cx + (dx - 128.0f) * scale; };
 
-    // Single-screen (lone panel) redistribution: on a taller-than-4:3 panel the 4:3 carousel
-    // width-fits and leaves top+bottom letterbox. Put it to use - draw the DSi status bar
-    // (radios + date/time + battery) pinned to the TOP strip and the scrollbar/navbar pinned to
-    // the BOTTOM strip, and centre the name box + tiles in the band between. On a 4:3/wide panel
-    // there is no letterbox room, so this is inert and the classic centred layout stands. offY is
-    // shifted to the content band here; the scrollbar block temporarily swaps in ndsScrollOffY.
-    const bool ndsSingleBands = singleFull && (192.0f * scale < rh - 1.0f);
-    float ndsScrollOffY = offY;
+    // Single-screen (lone panel) layout: there is no separate top screen to carry the DSi status
+    // bar, so ALWAYS reserve a status-bar strip (DS y2..17) pinned to the panel TOP and fit the
+    // contiguous 192-tall carousel (name box + tiles + its own scrollbar at y170..192) below it.
+    // Previously the strip was only carved from letterbox slack, so on a 4:3 (or wider) panel -
+    // where the 4:3 carousel height-fits edge to edge with no slack - the status bar (clock /
+    // Wi-Fi / Bluetooth / audio + date/time + battery) was skipped entirely (user: "we don't get
+    // that on this 4:3 display"). Now the carousel is shrunk to make room: fit [17 (strip) + 192
+    // (carousel)] into the height and 256 into the width, then centre the carousel in the area
+    // below the strip. On a 4:3 panel the block fills the height so the carousel sits directly
+    // under the strip; a narrower panel is width-limited and just adds letterbox below. The
+    // scrollbar stays inside the carousel (ndsScrollOffY == offY, no split), so the tiles and the
+    // scrollbar read as one contiguous list right under the status bar.
+    const bool ndsSingleBands = singleFull;
+    float ndsSingleStatusOffY = ry - 2.0f * scale;
     if (ndsSingleBands) {
+        scale = rh / (192.0f + 17.0f);                      // reserve a 17 DS-unit strip above the carousel
+        if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;   // narrow panel: width-limited, letterbox below
         const float sbTopH = 17.0f * scale;                 // status-bar strip (DS y2..17)
-        const float sbBotH = 22.0f * scale;                 // scrollbar strip (DS y170..192)
-        const float midTop = ry + sbTopH, midBot = ry + rh - sbBotH;
-        const float contentH = (161.0f - 3.0f) * scale;     // name box top (y3) .. frame bottom (y161)
-        offY = midTop + ((midBot - midTop) - contentH) * 0.5f - 3.0f * scale;   // content centred in the mid band
-        ndsScrollOffY = (ry + rh) - 192.0f * scale;         // pin DS y192 (scrollbar foot) to the panel bottom
+        ndsSingleStatusOffY = ry - 2.0f * scale;            // DS y2 -> panel top
+        const float belowTop = ry + sbTopH;
+        offY = belowTop + ((ry + rh - belowTop) - 192.0f * scale) * 0.5f;   // carousel centred below the strip
     }
+    float ndsScrollOffY = offY;                             // contiguous: scrollbar stays within the carousel
 
     // background field fills the rect (no black bars): #f3f3f3 + #ebebeb dither lines
     // + #dbdbdb edge columns at the rect edges. SKIP the opaque field while this is a translucent
@@ -1901,7 +1908,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // Single-screen: draw the DSi status bar pinned to the top strip (DS y2 mapped to the panel
     // top). The dual/stacked layouts draw it on their own top panel, so this is single-only.
     // Skipped in the in-game scrim so the darkened live app shows through the top strip too.
-    if (ndsSingleBands && !ndsInGameScrim) drawNdsStatusBar(cx, ry - 2.0f * scale, scale);
+    if (ndsSingleBands && !ndsInGameScrim) drawNdsStatusBar(cx, ndsSingleStatusOffY, scale);
 
     // ---- carousel content from the XMB hierarchy. At the top level it is the current
     // category's items; inside a submenu it is the current stack level's items (so
@@ -5444,8 +5451,18 @@ void NanoMenu::render() {
             ensureNdsAssets();
             bool ndsDual = !mNdsStack &&
                 (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
-            if (ndsDual) renderNdsTop(0.0f, 0.0f, (float)mWidth, (float)mHeight);
-            else         renderNds();
+            if (ndsDual) {
+                renderNdsTop(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+                // Dual-panel: the net wizard + global search + OSK draw on the bottom (secondary pass).
+            } else {
+                renderNds();
+                // Single-panel DSi (no secondary): the Wi-Fi/Bluetooth wizard and global search have
+                // no bottom panel to draw on, so paint them here over the carousel (their opaque body
+                // covers it) - otherwise the WK_TEXT field never showed and the OSK floated over the
+                // bare carousel. The OSK itself draws below on this same panel (oskOnSecondary false).
+                if (mPs3WizActive) renderNetWizard();
+                if (mGSearchActive) renderGlobalSearch();
+            }
         } else if (mMinimaTheme && !mPs3BootActive && ndsPlayerActive()) {
             // Minima: media players show the existing full-screen XMB video / music / photo player.
             renderPs3Xmb();
@@ -5469,8 +5486,13 @@ void NanoMenu::render() {
             // Minima and render OVER the Minima home, so they must not fall into the XMB fallback
             // either (user 2026-07-30). Remaining unskinned modals (tz/lang pickers, net wizard,
             // photo grid) still use the XMB chrome for now.
+            // The net wizard's WK_TEXT (Wi-Fi password / SSID / static-IP) field must stay drawn
+            // UNDER the OSK on a single-panel device, where the OSK shares this panel (oskOnSecondary
+            // false). Excluding mOskActive outright dropped the wizard for renderMinima(), so the OSK
+            // floated over the settings list instead of the password field. On a dual-panel device the
+            // OSK is on the bottom (oskOnSecondary true) so the top keeps the old behaviour.
             const bool minOtherModal = ndsInModal() && !minSidePanel && !minInfoPage && !minDialog
-                                       && !minSearch && !mOskActive
+                                       && !minSearch && (!mOskActive || (mPs3WizActive && !oskOnSecondary))
                                        && !mPs3BrightSlider && !mScrapeProgActive;
             if (minOtherModal) {
                 renderPs3Xmb();
