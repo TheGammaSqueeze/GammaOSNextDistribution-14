@@ -13456,6 +13456,23 @@ static const char* btTypeLabel(int cod) {
 // HID devices (keyboards/mice, major class 0x0500) get the pass-key screen, like
 // the web flow; audio devices pair directly.
 static bool btNeedsPasskey(int cod) { return (cod & 0x1F00) == 0x0500; }
+// Build the pass-key instruction shown while pairing. gammaos-net publishes the
+// system-generated code in sys.gammaos.bt.passkey and the SSP variant in
+// sys.gammaos.bt.pk_variant (2=numeric compare, 4=display passkey, 5=display PIN).
+// Returns "" when there is no code to show. The wording tells the user whether to
+// verify the code matches (numeric comparison) or type it on the remote device
+// (display variants) - the two need opposite actions.
+static std::string btPasskeyLine() {
+    char pk[PROPERTY_VALUE_MAX] = {0};
+    property_get("sys.gammaos.bt.passkey", pk, "");
+    if (!pk[0]) return std::string();
+    int variant = property_get_int32("sys.gammaos.bt.pk_variant", -1);
+    if (variant == 4 || variant == 5)   // DISPLAY_PASSKEY / DISPLAY_PIN
+        return std::string("Enter this pass key on the device:  ") + pk;
+    if (variant == 2)                    // PASSKEY_CONFIRMATION (numeric comparison)
+        return std::string("Confirm this pass key matches the device:  ") + pk;
+    return std::string("Pass Key:  ") + pk;
+}
 // The five WS_BT_* progress screens whose advance is gated on a background op
 // completing (mBtWizBusy) rather than a fixed dwell.
 static bool btIsBusyProgress(int id) {
@@ -14021,6 +14038,15 @@ void NanoMenu::wizConfirm() {
         mBtWizSelAddr = scan[mPs3WizSel].address; mBtWizSelName = scan[mPs3WizSel].name;
         mBtWizSelCod = scan[mPs3WizSel].cod;      mBtWizSelConnected = scan[mPs3WizSel].connected;
         mPs3WizStack.push_back(mPs3WizId);
+        // A device that is already registered (bonded) cannot be paired again: the
+        // stack rejects createBond on any device that is not BOND_NONE, so a blind
+        // re-pair just fails with "The device could not be registered" (this is the
+        // AKG headset case - it was already bonded, so selecting it from the scan and
+        // pairing looped straight to the failure screen). Route it to the same
+        // Connect / Disconnect / Delete options the Manage list uses, so the user can
+        // connect it, or delete it and register fresh - matching Android's behaviour
+        // when you pick an already-paired device from "pair new device".
+        if (scan[mPs3WizSel].bonded) { wizEnter(WS_BT_DEVICE_OPTS, 1); return; }
         wizEnter(btNeedsPasskey(mBtWizSelCod) ? WS_BT_PASSKEY : WS_BT_REGISTERING, 1);
         return;
     }
@@ -14588,12 +14614,9 @@ void NanoMenu::renderNetWizard() {
         // While pairing, surface the system-generated pass key so the user can
         // verify it (numeric confirmation) or type it on the remote device.
         if (mPs3WizId == WS_BT_REGISTERING || mPs3WizId == WS_BT_INBOUND_PAIRING) {
-            char pk[PROPERTY_VALUE_MAX] = {0};
-            property_get("sys.gammaos.bt.passkey", pk, "");
-            if (pk[0]) {
-                std::string pkLine = std::string("Pass Key:  ") + pk;
-                ps3DlgText(pkLine.c_str(), bodyCx, ty + DS(10.0f), FS(28.0f), 1.0f, 0.92f, 0.66f, ap, 1);
-            }
+            std::string pkLine = btPasskeyLine();
+            if (!pkLine.empty())
+                ps3DlgText(pkLine.c_str(), bodyCx, ty + DS(10.0f), FS(24.0f), 1.0f, 0.92f, 0.66f, ap, 1);
         }
         // spinner: 8 dots around a circle, brightness sweeping.
         float ccx = bodyCx, ccy = Y((innerTop + innerBot) * 0.5f - 50.0f), rad = DS(26.0f);
@@ -15022,8 +15045,8 @@ void NanoMenu::renderNdsNetWizardBody(float rx, float ry, float rw, float rh) {
         auto lines = wrapDs(trDyn(d.body), 12.0f, 224.0f);
         centeredBlock(lines, 118.0f, 15.0f, 12.0f, 0.93f, 0.93f, 0.93f);
         if (id == WS_BT_REGISTERING || id == WS_BT_INBOUND_PAIRING) {
-            char pk[PROPERTY_VALUE_MAX] = {0}; property_get("sys.gammaos.bt.passkey", pk, "");
-            if (pk[0]) { std::string pl = std::string("Pass Key:  ") + pk; textCenter(pl.c_str(), 150.0f, 13.0f, 1.0f, 0.92f, 0.66f); }
+            std::string pl = btPasskeyLine();
+            if (!pl.empty()) textCenter(pl.c_str(), 150.0f, 11.0f, 1.0f, 0.92f, 0.66f);
         }
         float mcx = cx, mcy = Y(70.0f), rad = S(14.0f);
         int lead = (int)(mEffectTime * 8.0f) % 8;

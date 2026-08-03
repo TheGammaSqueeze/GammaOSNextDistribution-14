@@ -321,6 +321,15 @@ public final class NanoNetBridge {
         BluetoothDevice d = deviceFor(mac);
         if (d == null) return;
         try { if (mBt.isDiscovering()) mBt.cancelDiscovery(); } catch (Throwable ignore) {}
+        // An already-registered device cannot be re-bonded - AdapterService.createBond()
+        // refuses anything that is not BOND_NONE, so createBond() here would be a silent
+        // no-op. Kick a profile connect instead so a bonded-but-idle device links up.
+        try {
+            if (d.getBondState() == BluetoothDevice.BOND_BONDED) {
+                BluetoothDevice.class.getMethod("connect").invoke(d);
+                return;
+            }
+        } catch (Throwable ignore) {}
         try { d.createBond(); } catch (Throwable t) { Slog.w(TAG, "createBond", t); }
     }
 

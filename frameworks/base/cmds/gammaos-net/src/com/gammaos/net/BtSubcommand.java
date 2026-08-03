@@ -503,6 +503,14 @@ public final class BtSubcommand {
         if (adapter.isDiscovering()) adapter.cancelDiscovery();
         final BluetoothDevice dev = adapter.getRemoteDevice(addr);
         if (dev.getBondState() == BluetoothDevice.BOND_BONDED) {
+            // Already registered. AdapterService.createBond() refuses any device
+            // that is not BOND_NONE, so we cannot (and must not) re-bond here.
+            // Kick a profile connect so a bonded-but-disconnected device (the common
+            // "my headset is paired but silent" case) actually links up, then report
+            // success. If the bond is genuinely broken the user can Delete + register
+            // fresh from the UI (which removeBond()s first).
+            try { BluetoothDevice.class.getMethod("connect").invoke(dev); }
+            catch (Throwable ignored) { }
             System.out.println("OK");
             return 0;
         }
@@ -510,7 +518,7 @@ public final class BtSubcommand {
         // null falls back to 0000. Clear any stale passkey we may have published
         // so the UI doesn't show an old one before this bond's request lands.
         final String pin = (args.length >= 4 && !args[3].isEmpty()) ? args[3] : null;
-        android.os.SystemProperties.set("sys.gammaos.bt.passkey", "");
+        clearPasskey();
         // The latch holder is shared between the broadcast receiver and
         // the main pair flow so we can re-arm it for a second (LE)
         // attempt without having to tear down and re-register the
@@ -614,12 +622,23 @@ public final class BtSubcommand {
             }
             int bondResult = attemptBond(dev, firstTransport,
                     doneHolder[0], finalBond);
-            if (bondResult != BluetoothDevice.BOND_BONDED
+            // If the first attempt is still mid-flight (BOND_BONDING) at the 30 s
+            // mark, the SSP/A2DP exchange has not finished - common on A2DP headsets
+            // whose profile attach runs long. Give it one more window on the SAME
+            // transport rather than switching: tearing it down here with removeBond()
+            // aborts a bond that was about to complete (this was making headsets like
+            // the AKG N60NC fail even though BR/EDR would have succeeded).
+            if (bondResult == BluetoothDevice.BOND_BONDING) {
+                doneHolder[0].await(15, TimeUnit.SECONDS);
+                bondResult = finalBond[0];
+            }
+            // Only fall back to the other transport when the first attempt genuinely
+            // FAILED back to BOND_NONE. Never removeBond() a BONDING/BONDED device.
+            if (bondResult == BluetoothDevice.BOND_NONE
                     && fallbackTransport != 0) {
                 System.err.println("gammaos-net bt: transport " + firstTransport
                         + " bond failed (final=" + bondResult + "), retrying transport "
                         + fallbackTransport);
-                try { dev.removeBond(); } catch (Throwable ignored) { }
                 Thread.sleep(500);
                 doneHolder[0] = new CountDownLatch(1);
                 finalBond[0] = dev.getBondState();
@@ -643,7 +662,7 @@ public final class BtSubcommand {
         } finally {
             try {
                 android.os.SystemProperties.set("sys.gammaos.bt_autopair", "0");
-                android.os.SystemProperties.set("sys.gammaos.bt.passkey", "");
+                clearPasskey();
             } catch (Throwable ignored) { }
             if (receiverRegistered) {
                 try {
@@ -717,9 +736,15 @@ public final class BtSubcommand {
                     case 2: // PASSKEY_CONFIRMATION (both ends show the same code)
                     case 3: // CONSENT (just works)
                     case 6: // OOB_CONSENT
-                    case 4: // DISPLAY_PASSKEY (user types it on the remote)
-                    case 5: // DISPLAY_PIN
                         d.setPairingConfirmation(true);
+                        break;
+                    case 4: // DISPLAY_PASSKEY (we show the code; the user types it on the remote)
+                    case 5: // DISPLAY_PIN
+                        // Nothing to confirm here - the bond completes when the remote
+                        // echoes the code we published via publishPasskey(). Calling
+                        // setPairingConfirmation(true) on a DISPLAY variant is a no-op at
+                        // best and can abort the bond on some stacks, so we leave it to
+                        // the remote and just keep the code on screen (nano displays it).
                         break;
                     case 0: // PIN (we provide a PIN; the remote must match it)
                         d.setPin((pin != null ? pin : "0000")
@@ -844,14 +869,27 @@ public final class BtSubcommand {
     // ---------------------------------------------------------------------
 
     // Publish a pairing passkey/PIN for the UI to display. Variants 2/4/5 carry a
-    // 6-digit numeric key (confirmation / display); the others have none.
+    // 6-digit numeric key (confirmation / display); the others have none. The variant
+    // is published too so the UI can word the prompt correctly - "confirm this matches"
+    // for numeric comparison (2) vs "enter this on the device" for the display
+    // variants (4/5), which need opposite user actions.
     private static void publishPasskey(int variant, int key) {
         String s = "";
         if (key >= 0 && (variant == 2 || variant == 4 || variant == 5)) {
             s = String.format("%06d", key);
         }
-        try { android.os.SystemProperties.set("sys.gammaos.bt.passkey", s); }
-        catch (Throwable ignored) { }
+        try {
+            android.os.SystemProperties.set("sys.gammaos.bt.passkey", s);
+            android.os.SystemProperties.set("sys.gammaos.bt.pk_variant",
+                    s.isEmpty() ? "" : Integer.toString(variant));
+        } catch (Throwable ignored) { }
+    }
+
+    private static void clearPasskey() {
+        try {
+            android.os.SystemProperties.set("sys.gammaos.bt.passkey", "");
+            android.os.SystemProperties.set("sys.gammaos.bt.pk_variant", "");
+        } catch (Throwable ignored) { }
     }
 
     // Make the adapter connectable + discoverable for <secs> (0 = back to
