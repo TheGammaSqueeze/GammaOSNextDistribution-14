@@ -2484,8 +2484,28 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         outConfig.screenHeightDp = (int) (info.mConfigFrame.height() / density + 0.5f);
         outConfig.compatScreenWidthDp = (int) (outConfig.screenWidthDp / mCompatibleScreenScale);
         outConfig.compatScreenHeightDp = (int) (outConfig.screenHeightDp / mCompatibleScreenScale);
-        outConfig.orientation = (outConfig.screenWidthDp <= outConfig.screenHeightDp)
-                ? ORIENTATION_PORTRAIT : ORIENTATION_LANDSCAPE;
+        // GammaOS: a perfectly square panel (e.g. RG Rotate 720x720) has identical width and
+        // height at every rotation, so the AOSP tie-break (width <= height => PORTRAIT) always
+        // resolves to PORTRAIT. Under normal Android the status/navigation bars shrink the usable
+        // frame enough to break the tie (here to LANDSCAPE), but the nano/minimal-boot home draws
+        // no system bars, so the app config stays a perfect square and every app is pinned
+        // PORTRAIT. Apps with orientation-specific layouts then come up wrong - e.g. Dolphin's
+        // layout-port renders the game SurfaceView into only the top half of the screen, so the
+        // game is letterboxed to the top and the bottom half is black. The RG Rotate is a
+        // landscape device in BOTH slide positions - the hardware slider physically rotates the
+        // panel (handled independently in DisplayRotation, which forces the display rotation and
+        // ignores app orientation on a square panel), so the app orientation must stay LANDSCAPE
+        // regardless of that rotation, otherwise a slid ROTATION_90 would flip apps back to the
+        // broken portrait layout. Force LANDSCAPE for the exact-square tie on a rotate-capable
+        // default display; every non-square (i.e. normal-Android, with-bars) configuration keeps
+        // the standard tie-break untouched.
+        if (outConfig.screenWidthDp == outConfig.screenHeightDp && isDefaultDisplay
+                && SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)) {
+            outConfig.orientation = ORIENTATION_LANDSCAPE;
+        } else {
+            outConfig.orientation = (outConfig.screenWidthDp <= outConfig.screenHeightDp)
+                    ? ORIENTATION_PORTRAIT : ORIENTATION_LANDSCAPE;
+        }
         outConfig.screenLayout = computeScreenLayout(
                 Configuration.resetScreenLayout(outConfig.screenLayout),
                 outConfig.screenWidthDp, outConfig.screenHeightDp);

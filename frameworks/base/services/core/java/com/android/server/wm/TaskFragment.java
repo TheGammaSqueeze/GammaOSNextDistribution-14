@@ -90,6 +90,7 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.IBinder;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.util.DisplayMetrics;
 import android.util.Slog;
@@ -2397,8 +2398,30 @@ class TaskFragment extends WindowContainer<WindowContainer> {
         }
 
         if (inOutConfig.orientation == ORIENTATION_UNDEFINED) {
-            inOutConfig.orientation = (inOutConfig.screenWidthDp <= inOutConfig.screenHeightDp)
-                    ? ORIENTATION_PORTRAIT : ORIENTATION_LANDSCAPE;
+            // GammaOS: on a perfectly square panel (e.g. RG Rotate 720x720) the app bounds are
+            // identical at every rotation, so this tie-break (width <= height => PORTRAIT) forces
+            // PORTRAIT. Under normal Android the system bars shrink the app frame enough to break
+            // the tie (to LANDSCAPE here), but the nano/minimal-boot home draws no system bars, so
+            // the app config stays a perfect square and every app is pinned PORTRAIT. Apps with
+            // orientation-specific layouts then render wrong - e.g. Dolphin's layout-port puts the
+            // game SurfaceView in only the top half of the screen. This override config is what the
+            // app actually resolves to (a display-config fix alone is overridden here), so it must
+            // break the square tie the same way. The RG Rotate is a landscape device in BOTH slide
+            // positions - the slider physically rotates the panel (DisplayRotation forces that
+            // rotation independently and ignores app orientation on a square panel), so the app
+            // orientation must stay LANDSCAPE regardless of rotation, otherwise the slid ROTATION_90
+            // would flip apps back to the broken portrait layout. Force LANDSCAPE for the exact-
+            // square tie on a rotate-capable default display; every other case keeps the standard
+            // rule untouched.
+            final DisplayContent squareDc = getDisplayContent();
+            if (inOutConfig.screenWidthDp == inOutConfig.screenHeightDp
+                    && squareDc != null && squareDc.isDefaultDisplay
+                    && SystemProperties.getBoolean("persist.gammaos.rotate.enabled", false)) {
+                inOutConfig.orientation = ORIENTATION_LANDSCAPE;
+            } else {
+                inOutConfig.orientation = (inOutConfig.screenWidthDp <= inOutConfig.screenHeightDp)
+                        ? ORIENTATION_PORTRAIT : ORIENTATION_LANDSCAPE;
+            }
         }
         if (inOutConfig.screenLayout == Configuration.SCREENLAYOUT_UNDEFINED) {
             // For calculating screen layout, we need to use the non-decor inset screen area for the
