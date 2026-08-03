@@ -2560,6 +2560,7 @@ private:
     // enumerated a second time and shown as memory cards.
     std::vector<std::string> mountedShareNames() const;
     void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
+    void drasticDataFolderSelect(const std::string& path); // #90: set persist.gammaos.drastic.data_dir (folder-picker target 5)
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
     void gsOpenRemoveScanSourceConfirm(int srcIdx);  // Cancel / Remove Folder confirm for a scan source
 

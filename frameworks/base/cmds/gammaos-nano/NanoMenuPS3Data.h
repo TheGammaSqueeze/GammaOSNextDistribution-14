@@ -72,6 +72,7 @@ static const Ps3DataItem kGameSettingsCh[] = {
   {"PS/PS2 Smoothing",22,"Smooth out the rough edges of images of PlayStation® and PlayStation®2 format software.","Off",0,nullptr,0},
 #endif
   {"Rescan Games",8,"Searches your ROM folders again and rebuilds the game list. Games you have deleted are removed, including from Recently Played.",nullptr,1,nullptr,0},
+  {"DraStic Data Folder",62,"Point the built-in DS core at your DraStic data folder (saves, config and BIOS). Set this if you moved DraStic's storage to the SD card or a scoped folder, so DS games keep launching and use the same saves. Pick Use Default Folder to reset.","Default",1,nullptr,0},
   {"Boxart Scraper",25,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
 };
 static const Ps3DataItem kVideoSettingsCh[] = {

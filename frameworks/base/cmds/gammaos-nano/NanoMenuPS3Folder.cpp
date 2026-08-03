@@ -24,6 +24,7 @@
 #include <strings.h>
 #include <algorithm>
 #include <utils/Log.h>
+#include <cutils/properties.h>   // property_set for the DraStic data-folder override (#90)
 
 namespace android {
 
@@ -350,6 +351,13 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
     if (path.empty()) {
         // Storage roots.
         out.title = "Storage";
+        // #90 DraStic data-folder picker (target 5): offer a reset-to-default at the top of the roots,
+        // since the roots pseudo-folder has no "Select This Folder". Selecting it clears the override.
+        if (mFolderPickTarget == 5) {
+            Ps3Item it; it.label = "Use Default Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = "@default";
+            it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+            out.items.push_back(it);
+        }
         addDir("Internal storage", "/storage/emulated/0");
         // Network shares are bind-mounted into /storage so apps can open them by path, which means
         // they turn up in this scan too and would otherwise be listed twice: once here as "SD: name"
@@ -522,6 +530,25 @@ void NanoMenu::gsFolderSelect(const std::string& path) {
         buildScanFoldersScreen(mPs3Stack.back());
     gsRefreshStackLevels();
     buildPs3Cats();
+}
+
+// #90: point the native drastic-nano DS core at the DraStic data/saves/BIOS folder. Writes
+// persist.gammaos.drastic.data_dir, which drastic-nano reads at each DS launch (main.cpp). Empty /
+// "@default" (the "Use Default Folder" row) clears it back to the installed app's own files dir.
+// This lets a user who moved DraStic to scoped / SD storage keep DS games launching via the core
+// that is immune to DraStic's scoped-storage ROM-open failure. Pops the browser back to Game Settings.
+void NanoMenu::drasticDataFolderSelect(const std::string& path) {
+    if (path.empty() || path == "@default") {
+        property_set("persist.gammaos.drastic.data_dir", "");
+        photoShowBanner(trDyn("DraStic data folder: Default"));
+        ALOGI("ps3menu: DraStic data folder reset to default");
+    } else {
+        property_set("persist.gammaos.drastic.data_dir", path.c_str());
+        photoShowBanner(trDyn("DraStic data folder set"));
+        ALOGI("ps3menu: DraStic data folder -> %s", path.c_str());
+    }
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE) mPs3Stack.pop_back();
+    mDisplayDirty = true;
 }
 
 } // namespace android

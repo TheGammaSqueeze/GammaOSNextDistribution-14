@@ -4906,6 +4906,7 @@ void NanoMenu::ps3XmbSelect() {
             else if (mFolderPickTarget == 2) photoFolderSelect(it.payloadStr);
             else if (mFolderPickTarget == 3) videoFolderSelect(it.payloadStr);
             else if (mFolderPickTarget == 4) { mFolderPickTarget = 0; gsAutoAddFromRoot(it.payloadStr); }
+            else if (mFolderPickTarget == 5) { mFolderPickTarget = 0; drasticDataFolderSelect(it.payloadStr); }
             else gsFolderSelect(it.payloadStr);
             return;
         }
@@ -5078,6 +5079,20 @@ void NanoMenu::ps3XmbSelect() {
             // Game Settings: re-read the ROM folders. The scan rebuilds each system's list from
             // disk, so deleted games disappear, and the Recently Played list is pruned with it.
             if (it.label == "Rescan Games") { gamesRefresh(); return; }
+            // Game Settings: pick the folder drastic-nano reads DraStic's data/saves/BIOS from
+            // (persist.gammaos.drastic.data_dir). Needed when the user moved DraStic to scoped/SD
+            // storage: the native DS core then follows the moved folder instead of failing to find
+            // BIOS and falling back to the scoped-broken standalone launch (#90). Opens the folder
+            // browser (target 5); "Use Default Folder" at the roots clears it back to the app default.
+            if (it.label == "DraStic Data Folder") {
+                mFolderPickTarget = 5;
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
             // Theme Settings: pick a custom wallpaper from the Photos album grid (top / bottom), or clear it.
             if (it.label == "Wallpaper Image")   { openWallpaperPicker(0); return; }
             if (it.label == "Bottom Wallpaper")  { openWallpaperPicker(1); return; }
@@ -8683,6 +8698,15 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
 // it without opening the chooser. Non-theme rows fall back to the static value.
 std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
+    // #90 DraStic data-folder row: show the current override (its folder name) or "Default" when
+    // unset. Read live (no binding/cache) so it reflects a just-picked folder immediately.
+    if (n == "DraStic Data Folder") {
+        char dd[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic.data_dir", dd, "");
+        if (dd[0] != '/') return std::string(trDyn("Default"));
+        std::string p = dd; size_t sl = p.rfind('/');
+        return (sl == std::string::npos || sl + 1 >= p.size()) ? p : p.substr(sl + 1);
+    }
     // GammaShader discrete-option row: it.value holds the "key|opts|title" spec; show
     // the label of the current value instead of the raw spec.
     if (it.kind == PS3_QUICK && it.a == QA_SHADER_OPT_MENU && !it.value.empty())
