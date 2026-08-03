@@ -1470,6 +1470,8 @@ private:
     // Minima render/animation state (NextUI feel: pill glides between rows, list windows to keep sel visible).
     float   mMinimaSelAnim   = 0.0f;   // eased selected-row index (pill glide, ~3-frame linear)
     float   mMinimaScroll    = 0.0f;   // eased list scroll top (in rows)
+    float   mMinimaWizListTop = -1.0f; // Minima net-wizard list top from the last render (below the
+                                       // dynamic prompt band), read by minimaWizTouch for hit-testing
     float   mMinimaListTop   = -1.0f;  // list top y from the last render (below the status pill on
                                        // narrow panels); read by minimaListTouch for hit-testing
 
@@ -4233,6 +4235,8 @@ private:
     // Back/OK bar) instead of the XMB chrome. Panel rect = the bottom DS touch screen.
     void renderNdsNetWizardBody(float rx, float ry, float rw, float rh);
     void ndsWizTouch();                   // DSi wizard bottom-panel touch: tap rows / Yes-No / Back-OK-Search bar
+    void renderMinimaNetWizardBody(float rx, float ry, float rw, float rh);   // Minima-styled Wi-Fi/BT wizard
+    void minimaWizTouch();                // Minima wizard touch (mirror of ndsWizTouch): rows / Yes-No / footer legend
 
     // Bluetooth sub-screen state
     std::vector<BtDevEntry> mBtEntries;

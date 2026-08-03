@@ -14380,6 +14380,7 @@ void NanoMenu::renderNetWizard() {
     // DURING setup the WHOLE wizard is forced to the XMB chrome (the DSi steps are not
     // fully themed), sitting on the DSi backdrop that renderSetupNdsBackdrop already drew,
     // so fall through to the XMB net-wizard body in that case.
+    if (mMinimaTheme && !mSetupWizardActive) { renderMinimaNetWizardBody(0.0f, 0.0f, (float)mWidth, (float)mHeight); return; }
     if (mNdsTheme && !mSetupWizardActive) { renderNdsNetWizardBody(0.0f, 0.0f, (float)mWidth, (float)mHeight); return; }
 
     bool oskUp = mOskActive;   // text screens render the OSK on top
@@ -15229,6 +15230,379 @@ void NanoMenu::ndsWizTouch() {
         if (acted) mDisplayDirty = true;
     }
     mTouchWasDown = mTouchDown;
+}
+
+// ===========================================================================
+// Minima-theme Wi-Fi/Bluetooth setup-wizard painter. renderNetWizard() runs the shared wiz* state
+// machine then delegates here when mMinimaTheme (the parallel of renderNdsNetWizardBody for DSi).
+// Draws the NextUI/Minima visual language: a flat black (or Background Colour) canvas, an accent
+// title, white rows on black with a white selected capsule, and an A/B/Y face-glyph legend. Nav +
+// state stay in the shared wiz* handlers; minimaWizTouch mirrors ndsWizTouch for touch. Lives beside
+// the DSi painter (not in NanoMenuMinima.cpp) so the WS_*/WizKind/WizDesc machinery is visible.
+// Constants mirror NanoMenuMinima.cpp's MIN_* (file-local there).
+// ===========================================================================
+static constexpr float MW_REF = 336.0f, MW_PILL = 30.0f, MW_PAD = 10.0f, MW_BTNMG = 5.0f,
+                       MW_BTNPAD = 12.0f, MW_FONT = 16.0f, MW_FONT_S = 12.0f;
+struct MinimaWizGeom {
+    float sc = 1.0f, pad = 0, rowH = 1.0f, btnMg = 0, btnPad = 0, cx = 0;
+    float headerBot = 0, footerTop = 0, bodyTop = 0, bodyBot = 0, promptY = 0;
+    float listLeft = 0, listTop = 0, listBot = 0;
+    int   visRows = 1, first = 0, n = 0;
+    float rowY(int i) const { return listTop + (float)(i - first) * rowH; }
+};
+// Row/anchor geometry shared by the painter AND minimaWizTouch so tap rects never drift from the
+// drawn rows. Anchors are n-independent; only visRows/first use n.
+static MinimaWizGeom minimaWizGeomCalc(float rx, float ry, float rw, float rh, int n, int sel,
+                                       float listTopOverride = -1.0f) {
+    MinimaWizGeom g;
+    g.sc = fminf(rw, rh) / MW_REF;
+    g.pad = MW_PAD * g.sc; g.rowH = MW_PILL * g.sc;
+    g.btnMg = MW_BTNMG * g.sc; g.btnPad = MW_BTNPAD * g.sc;
+    g.cx = rx + rw * 0.5f;
+    g.headerBot = ry + g.pad + g.rowH * 1.3f;
+    g.footerTop = ry + rh - g.pad - g.rowH;
+    g.promptY   = g.headerBot + g.pad * 0.6f;
+    g.bodyTop   = g.headerBot + g.pad;
+    g.bodyBot   = g.footerTop - g.btnMg;
+    g.listLeft  = rx + g.pad + g.btnMg;
+    // The list starts below the (dynamic) prompt band the painter measured; the default keeps a
+    // one-row gap when there is no prompt. Painter + touch pass the same override so rows line up.
+    g.listTop   = (listTopOverride >= 0.0f) ? listTopOverride : (g.headerBot + g.rowH * 1.15f);
+    g.listBot   = g.footerTop - g.btnMg;
+    g.n = n;
+    g.visRows = (int)fmaxf(1.0f, floorf((g.listBot - g.listTop) / g.rowH));
+    int first = sel - g.visRows / 2;
+    if (first < 0) first = 0;
+    if (n > g.visRows) { if (first > n - g.visRows) first = n - g.visRows; } else first = 0;
+    g.first = first;
+    return g;
+}
+
+void NanoMenu::renderMinimaNetWizardBody(float rx, float ry, float rw, float rh) {
+    setUiBlend();
+    const int prevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // Minima flat text
+
+    WizDesc d; wizDesc(mPs3WizId, d);
+    const int id = mPs3WizId;
+
+    float ar, ag, ab; minimaAccent(ar, ag, ab);
+    const float accLum = 0.299f * ar + 0.587f * ag + 0.114f * ab;
+    const float atc = (accLum > 0.62f) ? 0.0f : 1.0f;   // legible text on the accent
+
+    MinimaWizGeom g = minimaWizGeomCalc(rx, ry, rw, rh, 0, mPs3WizSel);
+    if (g.sc < 1e-4f) { mTextOutlineMode = prevOutline; return; }
+    const float sc = g.sc, cx = g.cx, rowH = g.rowH, pad = g.pad, btnPad = g.btnPad;
+    const float fsRow  = (MW_FONT   * sc) / (float)FONT_CHAR_H;
+    const float fsHint = (MW_FONT_S * sc) / (float)FONT_CHAR_H;
+
+    auto tCenter = [&](const char* s, float y, float fs, float r, float gg, float b){ float tw = measureText(s, fs); drawText(s, cx - tw * 0.5f, y, fs, r, gg, b, 1.0f); };
+    auto tLeft   = [&](const char* s, float x, float y, float fs, float r, float gg, float b){ drawText(s, x, y, fs, r, gg, b, 1.0f); };
+    auto tRight  = [&](const char* s, float xr, float y, float fs, float r, float gg, float b){ float tw = measureText(s, fs); drawText(s, xr - tw, y, fs, r, gg, b, 1.0f); };
+    auto wrap = [&](const std::string& text, float fs, float maxW){
+        std::vector<std::string> out; std::string para;
+        auto flush = [&](const std::string& p){
+            if (p.empty()) { out.push_back(""); return; }
+            std::string line, word;
+            auto commit = [&](){ if (word.empty()) return; std::string trial = line.empty() ? word : line + " " + word; if (!line.empty() && measureText(trial.c_str(), fs) > maxW) { out.push_back(line); line = word; } else line = trial; word.clear(); };
+            for (const char* q = p.c_str(); ; ++q) { if (*q == ' ' || *q == '\0') { commit(); if (*q == '\0') break; } else word.push_back(*q); }
+            if (!line.empty()) out.push_back(line);
+        };
+        for (size_t i = 0; i <= text.size(); i++) { if (i == text.size() || text[i] == '\n') { flush(para); para.clear(); } else para.push_back(text[i]); }
+        return out;
+    };
+    auto centeredBlock = [&](const std::vector<std::string>& lines, float centerY, float lineH, float fs, float r, float gg, float b){
+        float startY = centerY - (float)((int)lines.size() - 1) * lineH * 0.5f; float ty = startY;
+        for (auto& ln : lines) { if (!ln.empty()) tCenter(ln.c_str(), ty, fs, r, gg, b); ty += lineH; }
+        return startY;
+    };
+
+    // ---- background + header chrome ----
+    { float br, bg2, bb; if (minimaSolidBg(&br, &bg2, &bb)) drawQuad(rx, ry, rw, rh, br, bg2, bb, 1.0f); else drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f); }
+    { std::string title = trDyn(d.title); float ty = ry + pad + (rowH * 1.3f - MW_FONT * sc) * 0.5f;
+      drawText(title.c_str(), rx + pad + g.btnMg + btnPad, ty, (18.0f * sc) / (float)FONT_CHAR_H, ar, ag, ab, 1.0f); }
+    drawQuad(rx + pad, g.headerBot, rw - pad * 2.0f, fmaxf(1.0f, 1.5f * sc), ar, ag, ab, 0.45f);
+
+    // ---- optional prompt band under the header: tight-wrapped, returns the list-top BELOW it (and
+    // caches it for minimaWizTouch) so a multi-line prompt never overlaps the first row. ----
+    auto drawPromptBand = [&](const std::string& body) -> float {
+        float top = g.headerBot + pad * 0.6f;
+        if (!body.empty()) {
+            auto pl = wrap(trDyn(body.c_str()), fsHint, rw - pad * 2.0f);
+            float lh = MW_FONT_S * sc * 1.4f;
+            for (auto& ln : pl) { if (!ln.empty()) tCenter(ln.c_str(), top, fsHint, 0.85f, 0.85f, 0.88f); top += lh; }
+            top += pad * 0.4f;
+        }
+        mMinimaWizListTop = top;
+        return top;
+    };
+    // ---- Minima capsule list (choosers + scan lists), NextUI style: LEFT-aligned rows, the selected
+    // row a white capsule with black text, others white on black. fullWidth (scan lists) makes the
+    // pill span the row and reserves the right edge for the per-row detail. Returns the geom so the
+    // scan-list detail loops reuse the exact row rects. listTop is the dynamic post-prompt top. ----
+    auto drawWizList = [&](const std::vector<std::string>& labels, float listTop, bool fullWidth) -> MinimaWizGeom {
+        int n = (int)labels.size();
+        if (mPs3WizSel >= n) mPs3WizSel = n > 0 ? n - 1 : 0; if (mPs3WizSel < 0) mPs3WizSel = 0;
+        MinimaWizGeom lg = minimaWizGeomCalc(rx, ry, rw, rh, n, mPs3WizSel, listTop);
+        const float rightReserve = fullWidth ? 46.0f * sc : 0.0f;
+        const float rowRight = rx + rw - pad;
+        for (int i = lg.first; i < n && i < lg.first + lg.visRows; i++) {
+            float rowY = lg.rowY(i); bool sel = (i == mPs3WizSel);
+            float ty = rowY + (rowH - MW_FONT * sc) * 0.5f, fs = fsRow;
+            const std::string& lbl = labels[i];
+            float lmax = (rowRight - lg.listLeft) - btnPad * 2.0f - rightReserve;
+            float tw = measureText(lbl.c_str(), fs); if (tw > lmax && lmax > 0.0f) fs *= lmax / tw;
+            if (sel) {
+                float pillH = rowH * 0.86f, pillY = rowY + rowH * 0.07f;
+                float pillW = fullWidth ? (rowRight - lg.listLeft)
+                                        : fminf(measureText(lbl.c_str(), fs) + btnPad * 2.0f, rowRight - lg.listLeft);
+                drawRoundedRect(lg.listLeft, pillY, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);
+            }
+            float tr = sel ? 0.0f : 1.0f;   // black on the white pill, white otherwise
+            drawText(lbl.c_str(), lg.listLeft + btnPad, ty, fs, tr, tr, tr, 1.0f);
+        }
+        if (n > lg.visRows) {   // accent scrollbar thumb
+            float trackH = lg.listBot - lg.listTop;
+            drawQuad(rowRight - 1.0f * sc, lg.listTop, 2.0f * sc, trackH, 1.0f, 1.0f, 1.0f, 0.12f);
+            float thumbH = fmaxf(rowH * 0.5f, trackH * (float)lg.visRows / (float)n);
+            float thumbY = lg.listTop + (trackH - thumbH) * ((float)lg.first / (float)(n - lg.visRows));
+            drawRoundedRect(rowRight - 1.0f * sc, thumbY, 2.0f * sc, thumbH, 1.0f * sc, ar, ag, ab, 0.9f);
+        }
+        return lg;
+    };
+
+    // ---- body per kind (dispatch order mirrors renderNdsNetWizardBody) ----
+    if (id == WS_BT_INFO) {
+        struct KV { const char* k; std::string v; };
+        std::vector<KV> rows = {
+            {"Device Name",       mBtWizSelName.empty() ? mBtWizSelAddr : mBtWizSelName},
+            {"Bluetooth Address", mBtWizSelAddr},
+            {"Type",              btTypeLabel(mBtWizSelCod)},
+            {"Connection",        mBtWizSelConnected ? "Connected" : "Not Connected"},
+        };
+        float ty = g.bodyTop + rowH * 0.5f;
+        for (auto& kv : rows) { tLeft(kv.k, rx + pad + g.btnMg, ty, fsHint, 0.60f, 0.60f, 0.64f); tRight(kv.v.c_str(), rx + rw - pad, ty, fsHint, 0.95f, 0.95f, 0.95f); ty += rowH * 0.9f; }
+    } else if (id == WS_BT_BD_REMOTE) {
+        auto lines = wrap(trDyn(d.body), fsHint, rw - pad * 2.0f);
+        float ty = g.bodyTop; for (auto& ln : lines) { if (!ln.empty()) tCenter(ln.c_str(), ty, fsHint, 0.90f, 0.90f, 0.92f); ty += rowH * 0.55f; }
+        float bw = rowH * 1.6f, bh = rowH * 3.2f, byTop = ty + rowH * 0.3f;
+        drawRoundedRect(cx - bw * 0.5f, byTop, bw, bh, rowH * 0.3f, 0.80f, 0.80f, 0.84f, 1.0f);
+        drawQuad(cx - bw * 0.18f, byTop + rowH * 0.2f, bw * 0.36f, fmaxf(2.0f, 3.0f * sc), 0.08f, 0.08f, 0.10f, 1.0f);
+        ps3FillCircle(cx, byTop + bh * 0.28f, rowH * 0.26f, 0.42f, 0.42f, 0.47f, 1.0f);
+        for (int r = 0; r < 3; r++) for (int c = 0; c < 3; c++) ps3FillCircle(cx + (c - 1) * rowH * 0.34f, byTop + bh * 0.52f + r * rowH * 0.38f, rowH * 0.10f, 0.24f, 0.24f, 0.27f, 1.0f);
+        drawRoundedRect(cx - rowH * 0.6f, byTop + bh - rowH * 0.5f, rowH * 0.48f, rowH * 0.22f, rowH * 0.08f, ar, ag, ab, 1.0f);
+        drawRoundedRect(cx + rowH * 0.12f, byTop + bh - rowH * 0.5f, rowH * 0.48f, rowH * 0.22f, rowH * 0.08f, ar, ag, ab, 1.0f);
+    } else if (d.kind == WK_INFO || d.kind == WK_RESULT) {
+        std::string body = d.body;
+        if (id == WS_SAVE) body = "Internet connection settings have been completed.\n\nSave completed.";
+        bool ok = true;
+        if (id == WS_BT_REGISTER_DONE && !mBtWizOpOk) { body = "The device could not be registered.\nMake sure the device is in pairing mode and try again."; ok = false; }
+        auto lines = wrap(trDyn(body.c_str()), fsRow, rw - pad * 3.0f);
+        float startY = centeredBlock(lines, (g.bodyTop + g.bodyBot) * 0.5f, rowH * 0.9f, fsRow, 0.90f, 0.90f, 0.92f);
+        if (d.kind == WK_RESULT) {
+            float r = rowH * 0.45f, mcx = cx, mcy = startY - rowH * 0.9f, lw = fmaxf(2.0f, 2.0f * sc);
+            if (ok) {
+                ps3StrokeRing(mcx, mcy, r, r, lw, 0.45f, 0.90f, 0.45f, 1.0f);
+                ps3ThickLine(mcx - r * 0.45f, mcy + r * 0.05f, mcx - r * 0.10f, mcy + r * 0.45f, lw, 0.5f, 0.95f, 0.5f, 1.0f);
+                ps3ThickLine(mcx - r * 0.10f, mcy + r * 0.45f, mcx + r * 0.50f, mcy - r * 0.40f, lw, 0.5f, 0.95f, 0.5f, 1.0f);
+            } else {
+                ps3StrokeRing(mcx, mcy, r, r, lw, 0.95f, 0.45f, 0.45f, 1.0f);
+                ps3ThickLine(mcx - r * 0.4f, mcy - r * 0.4f, mcx + r * 0.4f, mcy + r * 0.4f, lw, 0.95f, 0.5f, 0.5f, 1.0f);
+                ps3ThickLine(mcx - r * 0.4f, mcy + r * 0.4f, mcx + r * 0.4f, mcy - r * 0.4f, lw, 0.95f, 0.5f, 0.5f, 1.0f);
+            }
+        }
+    } else if (d.kind == WK_TEST) {
+        std::string body; { std::lock_guard<std::mutex> lk(mPs3NetTestMutex); body = mPs3NetTestBody; }
+        auto lines = wrap(body, fsRow, rw - pad * 3.0f);
+        centeredBlock(lines, (g.bodyTop + g.bodyBot) * 0.5f, rowH * 0.9f, fsRow, 0.90f, 0.90f, 0.92f);
+        mDisplayDirty = true;
+    } else if (d.kind == WK_CHOOSER) {
+        std::vector<std::string> opts; std::string body = d.body;
+        if (id == WS_BT_MANAGE) {
+            if (!mBtWizRadioOn) { opts.push_back("Turn Bluetooth On"); }
+            else {
+                opts.push_back("Register New Device"); opts.push_back("Receive Registration Request");
+                { std::lock_guard<std::mutex> lk(mBtWizMutex); for (auto& b : mBtWizBonded) { std::string l = b.name.empty() ? b.address : b.name; if (b.connected) l += "   (Connected)"; opts.push_back(l); } }
+                opts.push_back("Turn Bluetooth Off");
+            }
+            float dt = mEffectTime - mBtWizManageRefreshT; if (dt < 0.0f) dt += 500.0f;
+            if (dt > 2.0f) { btWizRefreshBondedAsync(); mBtWizManageRefreshT = mEffectTime; }
+        } else if (id == WS_BT_DEVICE_OPTS) {
+            body = std::string("Registered Device:  ") + mBtWizSelName;
+            for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]);
+        } else if (id == WS_MANAGE) {
+            body = mPs3WizSsid; bool connected = false;
+            { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) { if (e.bssid == "__TOGGLE__") continue; if (e.ssid == mPs3WizSsid) { connected = e.connected; break; } } }
+            for (int a : wizManageActs(mPs3WizSecTok, connected)) opts.push_back(wizMngLabel(a));
+        } else { for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(d.opts[i]); }
+        float listTop = drawPromptBand(body);
+        drawWizList(opts, listTop, false);
+    } else if (d.kind == WK_CONFIRM) {
+        std::string cbody = d.body;
+        if (id == WS_BT_INBOUND_CONFIRM) {
+            cbody = mBtWizSelName + "  (" + mBtWizSelAddr + ")\nis requesting to register with this system.";
+            if (!mBtWizInPasskey.empty()) cbody += "\n\nPass Key:  " + mBtWizInPasskey;
+            cbody += "\n\nAccept this device?";
+        }
+        auto lines = wrap(trDyn(cbody.c_str()), fsRow, rw - pad * 3.0f);
+        centeredBlock(lines, g.bodyTop + (g.bodyBot - g.bodyTop) * 0.32f, rowH * 0.9f, fsRow, 0.90f, 0.90f, 0.92f);
+        float pillH = rowH, by = g.footerTop - rowH - g.btnMg;
+        const char* yy = trDyn("Yes"); const char* nn = trDyn("No");
+        float wY = measureText(yy, fsRow) + btnPad * 2.0f, wN = measureText(nn, fsRow) + btnPad * 2.0f, gap = pad;
+        float x0 = cx - (wY + wN + gap) * 0.5f; bool s0 = (mPs3WizSel == 0);
+        drawRoundedRect(x0, by, wY, pillH, pillH * 0.5f, s0 ? ar : 0.16f, s0 ? ag : 0.16f, s0 ? ab : 0.18f, 1.0f);
+        drawRoundedRect(x0 + wY + gap, by, wN, pillH, pillH * 0.5f, !s0 ? ar : 0.16f, !s0 ? ag : 0.16f, !s0 ? ab : 0.18f, 1.0f);
+        float ty = by + (pillH - MW_FONT * sc) * 0.5f, c0 = s0 ? atc : 0.9f, c1 = !s0 ? atc : 0.9f;
+        drawText(yy, x0 + (wY - measureText(yy, fsRow)) * 0.5f, ty, fsRow, c0, c0, c0, 1.0f);
+        drawText(nn, x0 + wY + gap + (wN - measureText(nn, fsRow)) * 0.5f, ty, fsRow, c1, c1, c1, 1.0f);
+    } else if (d.kind == WK_PROGRESS) {
+        auto lines = wrap(trDyn(d.body), fsRow, rw - pad * 3.0f);
+        centeredBlock(lines, g.bodyTop + (g.bodyBot - g.bodyTop) * 0.62f, rowH * 0.9f, fsRow, 0.90f, 0.90f, 0.92f);
+        if (id == WS_BT_REGISTERING || id == WS_BT_INBOUND_PAIRING) { std::string pl = btPasskeyLine(); if (!pl.empty()) tCenter(pl.c_str(), g.bodyBot - rowH, fsHint, 1.0f, 0.92f, 0.66f); }
+        float mcx = cx, mcy = g.bodyTop + rowH * 0.8f, rad = rowH * 0.55f;
+        int lead = (int)(mEffectTime * 8.0f) % 8;
+        for (int i = 0; i < 8; i++) { float a = (float)i / 8.0f * 2.0f * (float)M_PI - (float)M_PI * 0.5f; int dist = (lead - i + 8) % 8; float br = 0.25f + 0.75f * fmaxf(0.0f, 1.0f - dist * 0.18f); ps3FillCircle(mcx + cosf(a) * rad, mcy + sinf(a) * rad, rowH * 0.10f, 0.9f, 0.9f, 0.95f, br); }
+        mDisplayDirty = true;
+    } else if (d.kind == WK_SCANLIST && id == WS_BT_DEVICE_LIST) {
+        std::vector<BtDevEntry> devs; { std::lock_guard<std::mutex> lk(mBtWizMutex); devs = mBtWizScan; }
+        float listTop = drawPromptBand(d.body);
+        if (devs.empty()) tCenter(trDyn("No devices found. Press A to scan again."), (listTop + g.bodyBot) * 0.5f, fsRow, 0.85f, 0.85f, 0.85f);
+        else {
+            std::vector<std::string> labels; for (auto& b : devs) labels.push_back(b.name.empty() ? b.address : b.name);
+            MinimaWizGeom lg = drawWizList(labels, listTop, true);
+            for (int i = lg.first; i < (int)devs.size() && i < lg.first + lg.visRows; i++) {
+                std::string t = btTypeLabel(devs[i].cod); if (devs[i].bonded) t += "  (Paired)";
+                bool sel = (i == mPs3WizSel); float ic = sel ? 0.20f : 0.55f;   // dark on the white pill, dim otherwise
+                float ty = lg.rowY(i) + (rowH - MW_FONT_S * sc) * 0.5f;
+                tRight(t.c_str(), rx + rw - pad - 6.0f * sc, ty, fsHint, ic, ic, ic);
+            }
+        }
+    } else if (d.kind == WK_SCANLIST) {
+        std::vector<WifiNetEntry> aps; { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
+        float listTop = drawPromptBand(d.body);
+        if (aps.empty()) tCenter(mWifiScanInProgress ? trDyn("Searching for networks...") : trDyn("No networks found. Press A to rescan."), (listTop + g.bodyBot) * 0.5f, fsRow, 0.85f, 0.85f, 0.85f);
+        else {
+            std::vector<std::string> labels; for (auto& e : aps) labels.push_back(e.ssid);
+            MinimaWizGeom lg = drawWizList(labels, listTop, true);
+            for (int i = lg.first; i < (int)aps.size() && i < lg.first + lg.visRows; i++) {
+                bool sel = (i == mPs3WizSel); float ic = sel ? 0.12f : 0.85f;   // dark on white pill, light on black
+                int bars = 0, r = aps[i].rssi; if (r >= -55) bars = 4; else if (r >= -66) bars = 3; else if (r >= -77) bars = 2; else if (r >= -88) bars = 1;
+                float rowY = lg.rowY(i), bx0 = rx + rw - pad - 44.0f * sc, by0 = rowY + rowH * 0.62f;
+                for (int b = 0; b < 4; b++) { float bh = (4.0f + b * 3.0f) * sc; drawQuad(bx0 + b * 7.0f * sc, by0 - bh, 5.0f * sc, bh, ic, ic, ic, b < bars ? 1.0f : 0.35f); }
+                if (aps[i].security != 0 && aps[i].security != 4) { drawQuad(lg.listLeft + btnPad * 0.4f, rowY + rowH * 0.4f, 6.0f * sc, 5.0f * sc, ic, ic, ic, 0.9f); }
+            }
+        }
+    } else if (d.kind == WK_TEXT) {
+        tLeft(trDyn(d.label), rx + pad + g.btnMg, g.bodyTop, fsRow, 0.95f, 0.95f, 0.95f);
+        float bxx = rx + pad + g.btnMg, byy = g.bodyTop + rowH, bww = rw - pad * 2.0f - g.btnMg * 2.0f, bhh = rowH;
+        drawRoundedRect(bxx, byy, bww, bhh, rowH * 0.25f, 0.0f, 0.0f, 0.0f, 0.55f);
+        drawRoundedRect(bxx, byy, bww, fmaxf(1.0f, 1.5f * sc), rowH * 0.25f, ar, ag, ab, 0.8f);
+        std::string val = d.mask ? maskPassword(mOskQuery) : mOskQuery;
+        std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
+        if (!d.mask && !composing.empty()) val += composing;
+        float vx = bxx + btnPad, ty = byy + (bhh - MW_FONT * sc) * 0.5f;
+        if (!val.empty()) { drawText(val.c_str(), vx, ty, fsRow, 1.0f, 1.0f, 1.0f, 1.0f); vx += measureText(val.c_str(), fsRow); }
+        float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
+        drawQuad(vx + 1.5f * sc, ty, fmaxf(1.0f, 1.5f * sc), MW_FONT * sc, 1.0f, 1.0f, 1.0f, blink);
+        if (!mPs3WizFieldError.empty()) tLeft(mPs3WizFieldError.c_str(), bxx, byy + bhh + rowH * 0.3f, fsHint, 1.0f, 0.46f, 0.42f);
+        mDisplayDirty = true;
+    } else if (d.kind == WK_REVIEW) {
+        struct KV { std::string k, v; };
+        std::vector<KV> rows;
+        rows.push_back({"Connection Method", mPs3WizConn.empty() ? "Wired Connection" : mPs3WizConn});
+        if (mPs3WizConn == "Wireless") { rows.push_back({"SSID", mPs3WizSsid.empty() ? "-" : mPs3WizSsid}); rows.push_back({"Security", mPs3WizSecLabel.empty() ? "None" : mPs3WizSecLabel}); }
+        else if (!mPs3WizOpmode.empty()) rows.push_back({"Speed and Duplex", mPs3WizOpmode == "Auto-Detect" ? "Auto-Detect" : (mPs3WizSpeedDuplex.empty() ? "Auto-Detect" : mPs3WizSpeedDuplex)});
+        rows.push_back({"IP Address Setting", mPs3WizIpMode.empty() ? "Automatic" : mPs3WizIpMode});
+        if (mPs3WizIpMode == "Manual") { rows.push_back({"IP Address", mPs3WizIpAddr.empty() ? "-" : mPs3WizIpAddr}); rows.push_back({"Subnet Mask", mPs3WizSubnet.empty() ? "-" : mPs3WizSubnet}); rows.push_back({"Default Router", mPs3WizRouter.empty() ? "-" : mPs3WizRouter}); }
+        rows.push_back({"Primary DNS", mPs3WizPdns.empty() ? "Automatic" : mPs3WizPdns});
+        rows.push_back({"Secondary DNS", mPs3WizSdns.empty() ? "Automatic" : mPs3WizSdns});
+        rows.push_back({"MTU", mPs3WizMtuMode == "Manual" ? (mPs3WizMtu.empty() ? "-" : mPs3WizMtu) : "Automatic"});
+        rows.push_back({"Proxy Server", mPs3WizProxyMode.empty() ? "Do Not Use" : mPs3WizProxyMode});
+        rows.push_back({"UPnP", mPs3WizUpnp.empty() ? "Enable" : mPs3WizUpnp});
+        float availH = g.bodyBot - g.bodyTop, lineH = fminf(rowH * 0.9f, availH / (float)rows.size()), ty = g.bodyTop + lineH * 0.5f;
+        for (auto& kv : rows) { tLeft(kv.k.c_str(), rx + pad + g.btnMg, ty, fsHint, 0.60f, 0.60f, 0.64f); tRight(kv.v.c_str(), rx + rw - pad, ty, fsHint, 0.95f, 0.95f, 0.95f); ty += lineH; }
+    }
+
+    // ---- footer legend (skipped for WK_TEXT: the OSK owns the panel) ----
+    if (d.kind != WK_TEXT) {
+        const float ph = rowH, py = g.footerTop, gap = 5.0f * sc, glyphR = MW_FONT_S * sc * 0.70f, lw = fmaxf(1.5f, 2.0f * sc);
+        auto legend = [&](int role, const char* label, int align){
+            const char* lbl = trDyn(label); float lblW = measureText(lbl, fsHint);
+            float pw = glyphR * 2.0f + gap + lblW + btnPad * 2.0f;
+            float pxx = (align == 1) ? (rx + rw - pad - pw) : (align == 2) ? (cx - pw * 0.5f) : (rx + pad);
+            drawRoundedRect(pxx, py, pw, ph, ph * 0.5f, ar, ag, ab, 1.0f);
+            float gcx = pxx + btnPad + glyphR, gcy = py + ph * 0.5f;
+            drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f);
+            drawText(lbl, gcx + glyphR + gap, py + (ph - MW_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
+        };
+        legend(1, "Back", 0);                                     // B Back (left)
+        if (d.kind != WK_PROGRESS) legend(0, "OK", 1);            // A OK (right)
+        if (d.kind == WK_SCANLIST) legend(2, "Search", 2);        // Y Search (centre)
+    }
+
+    mTextOutlineMode = prevOutline;
+}
+
+// Touch handler for the Minima wizard (gated mMinimaTheme && mPs3WizActive; dispatched after the OSK
+// branch so WK_TEXT keeps routing to the OSK). Mirrors ndsWizTouch but with Minima device-px geometry
+// via the shared minimaWizGeomCalc(), so a tapped row/pill lines up with what wizConfirm reads.
+void NanoMenu::minimaWizTouch() {
+    if (mPs3BootActive || mOskActive) { mTouchWasDown = mTouchDown; return; }
+    if (!mOverlayMode && mLaunchFadeStart > 0) { mTouchWasDown = mTouchDown; return; }
+    float px, py;
+    if (!touchLogicalPx(px, py)) { mTouchWasDown = mTouchDown; return; }
+    const float SLOP = 16.0f, TAPMAX = 24.0f; const int64_t TAPMS = 450;
+    int64_t now = uptimeMillis();
+    bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
+    if (downEdge) { mXmbTouchTracking = true; mXmbTouchMoved = false; mXmbTouchDownMs = now; mXmbTouchDownPX = px; mXmbTouchDownPY = py; mLastInputMs = now; mTouchWasDown = mTouchDown; return; }
+    if (down && mXmbTouchTracking) { float ddx = px - mXmbTouchDownPX, ddy = py - mXmbTouchDownPY; if (!mXmbTouchMoved && ddx * ddx + ddy * ddy >= SLOP * SLOP) mXmbTouchMoved = true; mLastInputMs = now; mTouchWasDown = mTouchDown; return; }
+    if (!(upEdge && mXmbTouchTracking)) { mTouchWasDown = mTouchDown; return; }
+    mXmbTouchTracking = false; mLastInputMs = now; mTouchWasDown = mTouchDown;
+    float ddx = px - mXmbTouchDownPX, ddy = py - mXmbTouchDownPY; int64_t held = now - mXmbTouchDownMs;
+    if (mXmbTouchMoved || held > TAPMS || ddx * ddx + ddy * ddy > TAPMAX * TAPMAX) return;   // not a tap
+    float tx = mXmbTouchDownPX, ty = mXmbTouchDownPY;
+
+    WizDesc d; wizDesc(mPs3WizId, d); const int id = mPs3WizId;
+    const float rw = (float)mWidth, rh = (float)mHeight, rx = 0.0f, ry = 0.0f;
+    int n = 0;
+    if (d.kind == WK_CHOOSER) {
+        if (id == WS_BT_MANAGE) { if (!mBtWizRadioOn) n = 1; else { std::lock_guard<std::mutex> lk(mBtWizMutex); n = 3 + (int)mBtWizBonded.size(); } }
+        else if (id == WS_MANAGE) { bool connected = false; { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) { if (e.bssid == "__TOGGLE__") continue; if (e.ssid == mPs3WizSsid) { connected = e.connected; break; } } } n = (int)wizManageActs(mPs3WizSecTok, connected).size(); }
+        else { while (n < 8 && d.opts[n]) n++; }
+    } else if (d.kind == WK_SCANLIST) {
+        if (id == WS_BT_DEVICE_LIST) { std::lock_guard<std::mutex> lk(mBtWizMutex); n = (int)mBtWizScan.size(); }
+        else { std::lock_guard<std::mutex> lk(mWifiListMutex); for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") n++; }
+    }
+    // Use the same post-prompt list top the painter cached, so tapped rows line up with the drawn rows.
+    MinimaWizGeom g = minimaWizGeomCalc(rx, ry, rw, rh, n, mPs3WizSel, mMinimaWizListTop);
+    const float rowH = g.rowH, third = rw / 3.0f;
+    bool acted = false;
+    if (ty >= g.footerTop) {                                      // footer legend thirds
+        if (tx < rx + third) { wizBack(); acted = true; }         // Back (left)
+        else if (tx > rx + rw - third) {                          // OK (right)
+            if (d.kind == WK_PROGRESS) {}
+            else if (d.kind == WK_SCANLIST && n == 0) { wizRescan(); acted = true; }
+            else { wizConfirm(); acted = true; }
+        } else if (d.kind == WK_SCANLIST) { wizRescan(); acted = true; }   // Search (centre)
+    } else if (d.kind == WK_CHOOSER || d.kind == WK_SCANLIST) {
+        if (n > 0) {
+            for (int i = g.first; i < n && i < g.first + g.visRows; i++) {
+                float rowY = g.rowY(i);
+                if (tx >= g.listLeft && tx <= rx + rw - g.pad && ty >= rowY && ty <= rowY + rowH) { mPs3WizSel = i; wizConfirm(); acted = true; break; }
+            }
+        } else if (d.kind == WK_SCANLIST && ty >= g.listTop && ty < g.footerTop) { wizRescan(); acted = true; }
+    } else if (d.kind == WK_CONFIRM) {
+        float by = g.footerTop - rowH - g.btnMg;
+        if (ty >= by && ty <= by + rowH) {
+            float fsRow = (MW_FONT * g.sc) / (float)FONT_CHAR_H;
+            float wY = measureText(trDyn("Yes"), fsRow) + g.btnPad * 2.0f, wN = measureText(trDyn("No"), fsRow) + g.btnPad * 2.0f;
+            float x0 = g.cx - (wY + wN + g.pad) * 0.5f;
+            if (tx >= x0 && tx <= x0 + wY) { mPs3WizSel = 0; wizConfirm(); acted = true; }
+            else if (tx >= x0 + wY + g.pad && tx <= x0 + wY + g.pad + wN) { mPs3WizSel = 1; wizConfirm(); acted = true; }
+        }
+    } else if (d.kind == WK_INFO || d.kind == WK_RESULT || d.kind == WK_TEST || d.kind == WK_REVIEW) {
+        wizConfirm(); acted = true;
+    }
+    if (acted) mDisplayDirty = true;
 }
 
 // ===========================================================================

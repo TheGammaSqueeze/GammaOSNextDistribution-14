@@ -1154,6 +1154,8 @@ void NanoMenu::renderOsk() {
     // before this in render()). Mip-AA softens the small key glyphs, so keep it
     // off here regardless of the caller's state.
     setGlyphAtlasAA(false);
+    // Minima OSK: flat text (no shadow/outline) to match the theme; restored before every return.
+    const int oskPrevOutline = mTextOutlineMode; if (mMinimaTheme) mTextOutlineMode = 2;
     oskTick();   // long-press popup + animation clock (render runs every frame)
 
     // --- Show/hide fade ---
@@ -1162,6 +1164,7 @@ void NanoMenu::renderOsk() {
         mOsk.anim += (0.0f - mOsk.anim) * decay;
         if (mOsk.anim < 0.02f) {           // fully hidden -> finalize
             mOskActive = false; mOsk.closing = false; mOsk.anim = 0.0f;
+            mTextOutlineMode = oskPrevOutline;
             return;
         }
     } else {
@@ -1179,12 +1182,24 @@ void NanoMenu::renderOsk() {
     const float keyRad   = 9.0f * b.sf;
     const float keyGap   = 3.0f * b.sf;     // inset of the key cap inside its cell
     // key cap fill
-    const float kBgR = 0.16f, kBgG = 0.19f, kBgB = 0.24f, kBgA = 1.0f;
+    float kBgR = 0.16f, kBgG = 0.19f, kBgB = 0.24f; const float kBgA = 1.0f;
     // light text on dark keys; dark text on the white focused key
-    const float kTxtR = 0.88f, kTxtG = 0.90f, kTxtB = 0.95f;
-    const float kFocTxtR = 0.08f, kFocTxtG = 0.10f, kFocTxtB = 0.14f;
+    float kTxtR = 0.88f, kTxtG = 0.90f, kTxtB = 0.95f;
+    float kFocTxtR = 0.08f, kFocTxtG = 0.10f, kFocTxtB = 0.14f;
     // accent (action / active shift)
-    const float accR = 0.27f, accG = 0.52f, accB = 0.96f;
+    float accR = 0.27f, accG = 0.52f, accB = 0.96f;
+    // Minima OSK skin: dark neutral caps, WHITE unselected glyphs, BLACK glyph on the white focused
+    // cap (the focused-cap fill is already near-white at the draw sites), accent = the Colour setting.
+    float oskAtc = 1.0f;   // legible text on the accent (action button), hoisted for the draw sites
+    if (mMinimaTheme) {
+        float ar, ag, ab; minimaAccent(ar, ag, ab);
+        const float accLum = 0.299f * ar + 0.587f * ag + 0.114f * ab;
+        oskAtc = (accLum > 0.62f) ? 0.0f : 1.0f;
+        kBgR = 0.10f; kBgG = 0.10f; kBgB = 0.12f;
+        kTxtR = 1.0f;  kTxtG = 1.0f;  kTxtB = 1.0f;      // white unselected glyphs
+        kFocTxtR = 0.0f; kFocTxtG = 0.0f; kFocTxtB = 0.0f;  // black on the white focused cap
+        accR = ar; accG = ag; accB = ab;
+    }
 
     // --- Frosted-glass panel ---
     // The panel NEVER re-captures the framebuffer while open any more: the old
@@ -1223,9 +1238,10 @@ void NanoMenu::renderOsk() {
         drawFrostedGlass(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
                          0.50f, 0.54f, 0.64f, 1.0f, fade, true);
         drewGlass = true;
-    } else if (!mOverlayMode) {
+    } else if (!mOverlayMode && !mMinimaTheme) {
         // Legacy menu path: capture ONCE per open and keep the frozen frost
-        // (a static panel cannot flicker; the periodic re-capture could).
+        // (a static panel cannot flicker; the periodic re-capture could). EXCLUDE Minima:
+        // its flat-black canvas should get the solid dark panel below, not a wave-space frost.
         if (!mOskGlassValid && captureGlass(b.panelX, b.panelY, b.panelW, b.panelH)) {
             mOskGlassValid = true; mOskGlassT = mEffectTime;
         }
@@ -1241,8 +1257,16 @@ void NanoMenu::renderOsk() {
         // running app shimmer through the panel. Draw the solid dark panel
         // fully opaque on the layer instead (there is nothing to frost - the
         // app's pixels are composited by SF, not present in our framebuffer).
-        drawRoundedRect(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
-                        0.12f, 0.14f, 0.18f, (mOverlayMode ? 1.0f : 0.92f) * fade);
+        if (mMinimaTheme) {
+            // Minima: solid dark card + an accent top rule, echoing the Minima dialog/side panel.
+            drawRoundedRect(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
+                            0.08f, 0.08f, 0.10f, (mOverlayMode ? 1.0f : 0.96f) * fade);
+            drawRoundedRect(b.panelX, b.panelY, b.panelW, fmaxf(2.0f, 4.0f * b.sf), panelRad,
+                            accR, accG, accB, fade);
+        } else {
+            drawRoundedRect(b.panelX, b.panelY, b.panelW, b.panelH, panelRad,
+                            0.12f, 0.14f, 0.18f, (mOverlayMode ? 1.0f : 0.92f) * fade);
+        }
     }
 
     // --- Candidate bar (Phase B+): only when an engine produced candidates. ---
@@ -1478,7 +1502,7 @@ void NanoMenu::renderOsk() {
         if (foc) drawText(actLabel, b.actX + (b.actW - tw) / 2.0f, b.actY + (b.actH - th) / 2.0f,
                           scale, kFocTxtR, kFocTxtG, kFocTxtB, fade);
         else     drawText(actLabel, b.actX + (b.actW - tw) / 2.0f, b.actY + (b.actH - th) / 2.0f,
-                          scale, 1.0f, 1.0f, 1.0f, fade);
+                          scale, oskAtc, oskAtc, oskAtc, fade);   // legible on a light Minima accent
     }
 
     // --- Footer / help line ---
@@ -1491,6 +1515,7 @@ void NanoMenu::renderOsk() {
         drawText(footer, b.panelX + b.panelW / 2.0f - fw / 2.0f, b.footerY, fScale,
                  0.58f, 0.60f, 0.68f, 0.80f * fade);
     }
+    mTextOutlineMode = oskPrevOutline;
 }
 
 } // namespace android

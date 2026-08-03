@@ -2278,6 +2278,12 @@ void NanoMenu::pollInput() {
                 // Gated on mPs3WizActive (NOT mPs3Xmb) so it also works in the first-run setup flow.
                 else if (mNdsTheme && mPs3WizActive)
                                      ndsWizTouch();
+                // Minima theme WiFi/Bluetooth setup wizard: same as the DSi branch above but the Minima
+                // painter/geometry. Must precede the generic Minima branches below so a wizard tap does
+                // not fall to minimaListTouch (the home list behind the wizard). WK_TEXT self-routes to
+                // the OSK via minimaWizTouch's mOskActive early-out (the OSK touch branch runs earlier).
+                else if (mMinimaTheme && mPs3WizActive)
+                                     minimaWizTouch();
                 // DSi theme global search: tap a result row to select+activate (query OSK closed).
                 else if (mNdsTheme && mPs3Xmb && mGSearchActive)
                                      gsearchTouch();
