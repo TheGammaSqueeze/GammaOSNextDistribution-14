@@ -1033,6 +1033,18 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
         if (!pkg.empty())
             property_set("sys.gammaos.nano.launch_app", pkg.c_str());
         property_set("sys.gammaos.nano.app_launched", "1");
+        // GammaOS Nano: arm the boot-anim hand-off signal that the DRM-home launch path also sets
+        // (NanoMenuInput.cpp launchXmbGame / MENU_RECENT). On minimal_boot, WindowManagerService.
+        // performEnableScreen ENABLES framework input dispatch only on its "full" branch, which is
+        // gated on service.bootanim.nano_retroarch==1; the preload branch (nano home) leaves dispatch
+        // OFF (nano reads evdev directly). This resident-overlay launch path never set nano_retroarch,
+        // so a framework app launched through the overlay could stay in the preload branch with input
+        // dispatch globally disabled - dead controls. This bit RetroArch launched right after a native
+        // drastic-nano session (drastic is not a framework activity, so it never opened the gate, and
+        // the overlay launch that followed did not either). Setting it here makes the overlay launch
+        // match the DRM-home launch. Quick-Resume / background preloads use a separate path (not this
+        // worker), so they are unaffected and the nano home stays in the preload branch.
+        property_set("service.bootanim.nano_retroarch", "1");
         // GammaOS dual-screen: once the resident overlay home is up (app_launched=1),
         // app/game relaunches funnel through here instead of the framework home path,
         // which has no display target - so without this they default to display 0 (the
