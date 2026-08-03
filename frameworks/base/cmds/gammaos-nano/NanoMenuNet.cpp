@@ -20,10 +20,13 @@
 #include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <string>
+#include <fcntl.h>
 #include <unistd.h>
 
+#include <cutils/properties.h>
 #include <log/log.h>
 
 #include "NanoMenu.h"
@@ -209,11 +212,63 @@ void NanoMenu::netPollThreadFunc() {
         // the change-detect block adapts (snappy 2s when active/changed, geometric
         // backoff to 8s when idle and stable).
 
-        // --- WiFi -----------------------------------------------------
+        // --- Network state --------------------------------------------
         WifiLevel wifiLevel = kWifiLevel_Unknown;
         int wifiBars = 0;
         std::string wifiSsid;
-        {
+        BtLevel btLevel = kBtLevel_Unknown;
+        int btConnected = 0;
+
+        // Prefer the resident NanoNetBridge: system_server holds WifiManager/
+        // BluetoothAdapter live and pushes event-driven HUD state to a file, so we
+        // read it here with no fork and no version-fragile text parse. Fall back to
+        // the cmd/dumpsys shell path when the bridge is absent (full boot) or has not
+        // published yet (net_generation still 0), or when explicitly disabled.
+        bool fromBridge = false;
+        if (property_get_bool("persist.gammaos.net_bridge", true)
+                && property_get_int32("sys.gammaos.nano.net_generation", 0) > 0) {
+            int fd = open("/data/system/nano_net_state.txt", O_RDONLY | O_CLOEXEC);
+            if (fd >= 0) {
+                char nb[512];
+                ssize_t n = read(fd, nb, sizeof(nb) - 1);
+                close(fd);
+                if (n > 0) {
+                    nb[n] = '\0';
+                    std::string s(nb, (size_t)n);
+                    int wOn = -1, wConn = 0, bars = 0, bOn = -1, bCnt = 0;
+                    std::string ssid;
+                    size_t p = 0;
+                    while (p < s.size()) {
+                        size_t eol = s.find('\n', p);
+                        if (eol == std::string::npos) eol = s.size();
+                        std::string line = s.substr(p, eol - p);
+                        p = eol + 1;
+                        size_t eq = line.find('=');
+                        if (eq == std::string::npos) continue;
+                        std::string k = line.substr(0, eq), v = line.substr(eq + 1);
+                        if (k == "wifi_on") wOn = atoi(v.c_str());
+                        else if (k == "wifi_conn") wConn = atoi(v.c_str());
+                        else if (k == "wifi_bars") bars = atoi(v.c_str());
+                        else if (k == "wifi_ssid") ssid = v;
+                        else if (k == "bt_on") bOn = atoi(v.c_str());
+                        else if (k == "bt_count") bCnt = atoi(v.c_str());
+                    }
+                    if (wOn >= 0 && bOn >= 0) {   // well-formed payload
+                        wifiLevel = !wOn ? kWifiLevel_Off
+                                : (wConn ? kWifiLevel_Connected : kWifiLevel_Disconnected);
+                        wifiBars = wConn ? bars : 0;
+                        wifiSsid = wConn ? ssid : std::string();
+                        btLevel = !bOn ? kBtLevel_Off
+                                : (bCnt > 0 ? kBtLevel_Connected : kBtLevel_On);
+                        btConnected = bOn ? bCnt : 0;
+                        fromBridge = true;
+                    }
+                }
+            }
+        }
+
+        if (!fromBridge) {
+            // --- WiFi (shell fallback) --------------------------------
             std::string status = runCmdShellout("cmd wifi status 2>/dev/null");
             if (status.empty()) {
                 // Service missing or binder refused. Leave as Unknown.
@@ -236,12 +291,8 @@ void NanoMenu::netPollThreadFunc() {
                     wifiLevel = kWifiLevel_Disconnected;
                 }
             }
-        }
 
-        // --- Bluetooth ------------------------------------------------
-        BtLevel btLevel = kBtLevel_Unknown;
-        int btConnected = 0;
-        {
+            // --- Bluetooth (shell fallback) ---------------------------
             // Read the REAL adapter state from dumpsys. `settings get global
             // bluetooth_on` is NOT reliable: `cmd bluetooth_manager enable/disable`
             // (which the radio toggle uses) does not update that setting, so it

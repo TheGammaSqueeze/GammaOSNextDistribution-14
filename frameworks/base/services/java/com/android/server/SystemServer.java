@@ -4230,6 +4230,15 @@ public final class SystemServer implements Dumpable {
                 // once) so nano can offer to route them to the primary/bottom display.
                 startNanoDualScreenBridge(mSystemContext);
 
+                // Publish live Wi-Fi/Bluetooth HUD state (holding WifiManager/BluetoothAdapter
+                // in this warm JVM and listening to the real framework broadcasts) so the nano
+                // launcher can read it from a file instead of forking cmd/dumpsys every poll.
+                try {
+                    com.android.server.gammaos.NanoNetBridge.start(mSystemContext);
+                } catch (Throwable e) {
+                    reportWtf("starting NanoNetBridge", e);
+                }
+
                 // Live refresh on package changes. We are past sys.boot_completed, so
                 // AMS/PMS are up and registerReceiver cannot race system-ready. A
                 // dedicated HandlerThread both dispatches the receiver and runs the
