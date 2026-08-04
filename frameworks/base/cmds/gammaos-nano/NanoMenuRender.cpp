@@ -2067,9 +2067,19 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // swap it to the bottom-pinned origin for this block only, then restore for the tiles).
         float ndsSbSave = offY;
         if (ndsSingleBands) offY = ndsScrollOffY;
+        // Single-screen the carousel is HEIGHT-fit and centred, so the 256-DS chrome is narrower
+        // than a wide panel and the bar would sit inset with side margins. Span the bar edge to
+        // edge instead: map its DS x-range (0..256) across the full panel width (SBX/SBS), keeping
+        // the height-fit `scale` for heights and for the arrow button size so the arrows stay
+        // intact and only the track (rail + ticks + thumb) stretches. Dual-screen already fills
+        // the width, so SBX/SBS collapse to the normal X()/S() there.
+        const float sbScaleX = ndsSingleBands ? (rw / 256.0f) : scale;
+        const float sbX0     = ndsSingleBands ? rx : X(0.0f);
+        auto SBX = [&](float dx){ return sbX0 + dx * sbScaleX; };   // DS x -> px across the full bar width
+        auto SBS = [&](float v){ return v * sbScaleX; };            // DS length -> px along the bar
         // FULL-WIDTH grey rail (launcher._drawScrollTrack fills x0..256), drawn BEHIND the L/R
         // arrow buttons so there is no white gap between the bar and the arrows (user report).
-        float railX = X(0.0f), railW = X(256.0f) - X(0.0f);
+        float railX = SBX(0.0f), railW = SBX(256.0f) - SBX(0.0f);
         // exact 22-row rail gradient (launcher._drawScrollTrack): dark #82 top -> #eb light
         // band -> #aa/#a2 bottom, one grey per DS row y170..191 (was a flat #d3 approximation).
         static const int rail22[22] = {130,162,211,235,235,219,219,195,211,195,211,195,
@@ -2082,22 +2092,22 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // is a 3D dark anchor dot; slot 1 is a flat grey block. All XMB items are occupied.
         auto drawTick = [&](int i){
             float cx = 33.0f + 5.0f * (float)i;
-            if (X(cx) > X(236.0f)) return;
+            if (SBX(cx) > SBX(236.0f)) return;
             if (i == 0) {                                       // anchor: per-pixel 3D dot, x32..35 y180..183
                 static const float an[4][4] = {   // rows y180..183, cols x32..35 (grey level /255)
                     {0.616f,0.255f,0.255f,0.616f}, {0.188f,0.380f,0.380f,0.188f},
                     {0.000f,0.137f,0.137f,0.000f}, {0.510f,0.000f,0.000f,0.510f} };
                 for (int ry = 0; ry < 4; ry++) for (int cxi = 0; cxi < 4; cxi++) {
                     float v = an[ry][cxi]; if (v <= 0.0f) continue;
-                    drawQuad(X(32.0f + cxi), Y(180.0f + ry), S(1.0f), S(1.0f), v, v, v, 1.0f);
+                    drawQuad(SBX(32.0f + cxi), Y(180.0f + ry), SBS(1.0f), S(1.0f), v, v, v, 1.0f);
                 }
             } else if (i == 1) {                                // flat grey first tick, x(cx-1..cx+2) y179..184
-                drawQuad(X(cx - 1.0f), Y(179.0f), S(4.0f), S(6.0f), 0.510f, 0.510f, 0.510f, 1.0f);
+                drawQuad(SBX(cx - 1.0f), Y(179.0f), SBS(4.0f), S(6.0f), 0.510f, 0.510f, 0.510f, 1.0f);
             } else {                                            // beveled green square
-                drawQuad(X(cx - 1.0f), Y(180.0f), S(4.0f), S(2.0f), 0.510f, 0.541f, 0.510f, 1.0f); // #828a82 light top
-                drawQuad(X(cx - 1.0f), Y(181.0f), S(1.0f), S(3.0f), 0.349f, 0.412f, 0.349f, 1.0f); // #596959 left edge
-                drawQuad(X(cx + 2.0f), Y(181.0f), S(1.0f), S(3.0f), 0.349f, 0.412f, 0.349f, 1.0f); // right edge
-                drawQuad(X(cx),        Y(182.0f), S(2.0f), S(2.0f), 0.349f, 0.412f, 0.349f, 1.0f); // dark bottom centre
+                drawQuad(SBX(cx - 1.0f), Y(180.0f), SBS(4.0f), S(2.0f), 0.510f, 0.541f, 0.510f, 1.0f); // #828a82 light top
+                drawQuad(SBX(cx - 1.0f), Y(181.0f), SBS(1.0f), S(3.0f), 0.349f, 0.412f, 0.349f, 1.0f); // #596959 left edge
+                drawQuad(SBX(cx + 2.0f), Y(181.0f), SBS(1.0f), S(3.0f), 0.349f, 0.412f, 0.349f, 1.0f); // right edge
+                drawQuad(SBX(cx),        Y(182.0f), SBS(2.0f), S(2.0f), 0.349f, 0.412f, 0.349f, 1.0f); // dark bottom centre
             }
         };
         for (int i = 0; i < nItems; i++) drawTick(i);
@@ -2106,8 +2116,8 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // track-facing edge (innerDS=0) so they read as flat ends of the bar; only the outer
         // corner (at the screen edge) keeps a small round (outerDS=3). User: no rounded corners
         // except on the screen edges; not taller than the bar.
-        drawNdsArrowBtn(X(0.0f),   Y(171.0f), S(19.0f), S(21.0f), -1, 3.0f, 0.0f);
-        drawNdsArrowBtn(X(237.0f), Y(171.0f), S(19.0f), S(21.0f), +1, 3.0f, 0.0f);
+        drawNdsArrowBtn(SBX(0.0f),              Y(171.0f), S(19.0f), S(21.0f), -1, 3.0f, 0.0f);
+        drawNdsArrowBtn(SBX(256.0f) - S(19.0f), Y(171.0f), S(19.0f), S(21.0f), +1, 3.0f, 0.0f);
         // favColor thumb over the ticks: DS left = clamp(19, 208, 19 + 5*camera); 29px wide.
         // Exactly like the web (launcher._drawScrollbar): a blue frame + a glossy interior
         // window, and the per-card ticks are REDRAWN on top of the window (clipped to it) so
@@ -2117,10 +2127,10 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             float tlDS = 19.0f + 5.0f * camera;
             if (tlDS < 19.0f)  tlDS = 19.0f;
             if (tlDS > 208.0f) tlDS = 208.0f;
-            float tx = X(tlDS), tw = S(29.0f);
+            float tx = SBX(tlDS), tw = SBS(29.0f);
             drawNdsPillGrad(tx, Y(171.0f), tw, S(21.0f));                        // exact 21-stop favColor frame (r=3)
             const float ixDS = tlDS + 4.0f, iwDS = 21.0f;                        // interior window (DS x)
-            float ix = X(ixDS), iw = S(iwDS), iy = Y(172.0f), ih = S(19.0f);
+            float ix = SBX(ixDS), iw = SBS(iwDS), iy = Y(172.0f), ih = S(19.0f);
             if (mNdsThumbHeld) {                                                 // pressed: light-blue translucent
                 drawRoundedRect(ix, iy, iw, ih, S(2.0f), 0.827f, 0.882f, 0.984f, 0.58f);
             } else {
@@ -2694,7 +2704,10 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
     if (part != 1) drawNdsArrowBtn(X(4.0f), Y(4.0f), S(13.0f), S(13.0f), -1);
 
     // ================= SUMMARY (cover + metadata), top/full =================
-    if (wantSummary) {
+    // On a single screen the summary and the description each get their OWN page (L/R turns
+    // between them, page 0 = summary) so the metadata and the wrapped description never overlap.
+    // On a dual screen the summary always owns the top panel (part 1).
+    if (wantSummary && (part != 0 || mNdsInfoPage == 0)) {
         bool hasCover = mPs3DlgRomInfo && !mPs3DlgPendingBox.empty();
         float contentL = 24.0f;
         if (hasCover) {
@@ -2736,15 +2749,16 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
         }
     }
 
-    // ================= DESCRIPTION (bottom/full) =================
+    // ================= DESCRIPTION (bottom / single-screen desc page) =================
     if (wantDesc) {
         std::string bodyText = mPs3DlgRomInfo ? mPs3RomInfoSyn : mPs3DlgBody;
-        // Bottom screen gives the description the whole canvas and a larger, readable font.
-        bool bottomOnly = (part == 2);
-        float bodyFs = (bottomOnly ? S(12.0f) : S(10.0f)) / FCH;
-        float lineH  = bottomOnly ? 16.0f : 13.0f;
-        float capY   = bottomOnly ? 42.0f : 116.0f;
-        float bodyTop = bottomOnly ? 58.0f : 116.0f;
+        // The description always gets the whole canvas and the larger, readable font: the dual-screen
+        // bottom panel, and (now) each single-screen description page. Single screen pages it AFTER
+        // the summary (page 0), so the metadata and the description never share the canvas.
+        float bodyFs = S(12.0f) / FCH;
+        float lineH  = 16.0f;
+        float capY   = 42.0f;
+        float bodyTop = 58.0f;
         float bodyBot = 178.0f;
         float bodyLeft = 24.0f, contentR = 236.0f;
         float wrapW = X(contentR) - X(bodyLeft);
@@ -2763,23 +2777,30 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
         }
         int linesPerPage = (int)((bodyBot - bodyTop) / lineH); if (linesPerPage < 1) linesPerPage = 1;
         int total = (int)lines.size();
-        int pages = (total + linesPerPage - 1) / linesPerPage; if (pages < 1) pages = 1;
-        mNdsInfoPageCount = pages;
+        int descPages = (total > 0) ? ((total + linesPerPage - 1) / linesPerPage) : 0;
+        // Page model: single screen (part 0) = [summary][desc pages...]; dual bottom (part 2) = [desc...].
+        if (part == 0) mNdsInfoPageCount = 1 + descPages;                 // page 0 is the summary
+        else           mNdsInfoPageCount = (descPages > 0) ? descPages : 1;
         if (mNdsInfoPage < 0) mNdsInfoPage = 0;
-        if (mNdsInfoPage > pages - 1) mNdsInfoPage = pages - 1;
-        if (total > 0) drawText("Description", X(bodyLeft), Y(capY), S(9.0f) / FCH, hR, hG, hB, 0.85f * ap);
-        float ly = bodyTop;
-        int firstL = mNdsInfoPage * linesPerPage, lastL = firstL + linesPerPage; if (lastL > total) lastL = total;
-        for (int i = firstL; i < lastL; i++) { if (!lines[i].empty()) drawText(lines[i].c_str(), X(bodyLeft), Y(ly), bodyFs, vR, vG, vB, ap); ly += lineH; }
+        if (mNdsInfoPage > mNdsInfoPageCount - 1) mNdsInfoPage = mNdsInfoPageCount - 1;
+        const int descPage = (part == 0) ? (mNdsInfoPage - 1) : mNdsInfoPage;   // <0 => the summary page
 
-        // ---- L/R pager at the BOTTOM CORNERS of the screen (only when there is >1 page) ----
-        if (pages > 1) {
+        if (descPage >= 0 && total > 0) {
+            drawText("Description", X(bodyLeft), Y(capY), S(9.0f) / FCH, hR, hG, hB, 0.85f * ap);
+            float ly = bodyTop;
+            int firstL = descPage * linesPerPage, lastL = firstL + linesPerPage; if (lastL > total) lastL = total;
+            for (int i = firstL; i < lastL; i++) { if (!lines[i].empty()) drawText(lines[i].c_str(), X(bodyLeft), Y(ly), bodyFs, vR, vG, vB, ap); ly += lineH; }
+        }
+
+        // ---- L/R pager at the BOTTOM CORNERS (whenever there is more than one page). On a single
+        // screen this shows on the summary page too, so it is clear R turns to the description. ----
+        if (mNdsInfoPageCount > 1) {
             float by = Y(181.0f);
-            char pg[24]; snprintf(pg, sizeof(pg), "%d / %d", mNdsInfoPage + 1, pages);
+            char pg[24]; snprintf(pg, sizeof(pg), "%d / %d", mNdsInfoPage + 1, mNdsInfoPageCount);
             float pf0 = S(9.0f) / FCH, pgw = measureText(pg, pf0);
             drawText(pg, cx - pgw * 0.5f, by, pf0, hR, hG, hB, ap);
             float lAct = (mNdsInfoPage > 0) ? 1.0f : 0.3f;
-            float rAct = (mNdsInfoPage < pages - 1) ? 1.0f : 0.3f;
+            float rAct = (mNdsInfoPage < mNdsInfoPageCount - 1) ? 1.0f : 0.3f;
             auto pill = [&](float dxc, const char* g, float act){
                 float pf = S(9.0f) / FCH, gw = measureText(g, pf);
                 drawRoundedRect(X(dxc) - S(9.0f), by - S(1.5f), S(18.0f), S(13.0f), S(3.0f), hR, hG, hB, act * ap);
