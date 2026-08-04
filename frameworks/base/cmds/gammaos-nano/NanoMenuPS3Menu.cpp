@@ -1383,14 +1383,14 @@ void NanoMenu::buildPs3Cats() {
             it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
         }
         { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
-          it.iconTex = mIconTextures[18]; it.nmapTex = bevelForIconIdx(18);   // app-grid glyph (index 18), NOT the generic game cartridge (16)
+          it.iconTex = mIconTextures[19]; it.nmapTex = bevelForIconIdx(19);   // 4-square grid (index 19), distinct from Pinned Apps
           it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
         // Pinned Apps: a shortcut list of user-chosen apps, shown once at least one app is pinned
-        // (via an app's "Pin to Home" option or the Y shortcut). Reuses the app-grid glyph so it
-        // reads as an apps affordance, like Applications above. Package-keyed store (pinned_pkgs).
+        // (via an app's "Pin to Home" option or the Y shortcut). Uses the push-pin glyph (index 20)
+        // so it is visually distinct from the Applications 4-square grid. Package-keyed (pinned_pkgs).
         if (!nanoPkgListRead(kPinnedAppsProp).empty()) {
             Ps3Item it; it.label = "Pinned Apps"; it.kind = PS3_PINNED_APPS_LIST;
-            it.iconTex = mIconTextures[18]; it.nmapTex = bevelForIconIdx(18);
+            it.iconTex = mIconTextures[20]; it.nmapTex = bevelForIconIdx(20);   // push-pin (index 20)
             it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
         }
         // Favorites: a single global, cross-system starred-games list. Shown once the user has

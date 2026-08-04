@@ -102,7 +102,7 @@ static float nanoSecondaryClearAlpha(bool overlayMode, bool overlayWallpaper) {
 
 // Map system index to RetroArch XMB monochrome icon filename
 // Order MUST match kXmbSystemDefs (in NanoMenuXmb.cpp): NES,SNES,GB,GBC,GBA,N64,NDS,GEN,SMS,GG,PSX,PSP,DC,NGP,P8,history,<game slot has no file>,setting
-static const char* kIconPngNames[19] = {
+static const char* kIconPngNames[21] = {
     "Nintendo - Nintendo Entertainment System.png",       // 0: NES
     "Nintendo - Super Nintendo Entertainment System.png", // 1: SNES
     "Nintendo - Game Boy.png",                            // 2: GB
@@ -122,6 +122,8 @@ static const char* kIconPngNames[19] = {
     nullptr,                                              // 16: generic game cartridge (embedded only)
     "setting.png",                                        // 17: Settings column
     nullptr,                                              // 18: Applications app-grid (embedded only)
+    nullptr,                                              // 19: Applications 4-square grid (embedded only)
+    nullptr,                                              // 20: Pinned Apps push-pin (embedded only)
 };
 
 static const char* kIconPngDir = "/data/system/nano_icons";
@@ -490,7 +492,7 @@ void NanoMenu::initIconTextures() {
     // virtual px, so a 256 source is oversized on a small panel. iconTexCap keeps
     // them crisp on high-DPI screens (returns up to the full source there).
     const int iconCap = ps3::iconTexCap(mWidth, mHeight, ps3::ITEM_ICON_SIZE, 256);
-    for (int i = 0; i < 19; i++) {
+    for (int i = 0; i < 21; i++) {
         // Try loading high-res PNG from on-device RetroArch assets
         bool mono = (i != 14); // PICO-8 (index 14) keeps its original colors
         std::string pngPath;
@@ -513,7 +515,7 @@ void NanoMenu::initIconTextures() {
 
 void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
                         float r, float g, float b, float a) {
-    if (iconIdx < 0 || iconIdx >= 19 || mIconTextures[iconIdx] == 0) return;
+    if (iconIdx < 0 || iconIdx >= 21 || mIconTextures[iconIdx] == 0) return;
 
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + size) / mHeight) * 2.0f;

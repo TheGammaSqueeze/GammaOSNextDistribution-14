@@ -4346,7 +4346,7 @@ private:
     // mIconTextures[]). Supports a non-square w/h. (NanoMenuPS3Menu.cpp)
     void drawIconTex(GLuint tex, float x, float y, float w, float h,
                      float r, float g, float b, float a, float rot = 0.0f, bool flipV = false);
-    GLuint mIconTextures[19]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=Applications app-grid
+    GLuint mIconTextures[21]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=app-grid, 19=4-square grid (Applications), 20=push-pin (Pinned Apps)
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
     // external code reads/writes directly; all new runtime state is in mOsk.
