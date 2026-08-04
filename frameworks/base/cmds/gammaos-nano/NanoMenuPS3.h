@@ -158,6 +158,7 @@ enum RodinWeight { RODIN_LIGHT = 0, RODIN_REGULAR = 1, RODIN_BOLD = 2 };
 // ============================================================================
 
 extern float gScale;        // virtual -> device px (uniform; never anamorphic)
+extern float gFontScale;    // user Font Size multiplier applied inside the text primitives (0.85..1.30)
 extern float gDescSize;     // resolution-gated subtitle size in virtual px (ITEM_DESC_SIZE..ITEM_DESC_SIZE_SMALL), set per frame in layoutCompute
 extern float gActivePad;    // active-item pad in virtual px, sized to fit 3 lines of gDescSize, set per frame in layoutCompute
 extern float gOffX;         // device-px horizontal offset (frame centring / pillarbox)

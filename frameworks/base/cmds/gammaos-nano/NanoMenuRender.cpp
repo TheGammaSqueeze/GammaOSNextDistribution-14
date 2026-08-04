@@ -962,8 +962,9 @@ bool NanoMenu::ndsCurLevelIsList() const {
             // Game system list and per-system editor hold GS-kind rows (PS3_GS_SYSTEM_ROW,
             // PS3_GS_FIELD) which the item-kind whitelist below does not cover. Force list
             // mode here so Enabled toggles and scraper rows are navigable in Minima/NDS.
-            // Home Categories (CAT_ORDER) holds PS3_CATORDER_ROW rows for the same reason.
-            case GS_LIST: case GS_EDITOR: case CAT_ORDER:
+            // Home Categories (CAT_ORDER) holds PS3_CATORDER_ROW rows for the same reason, and the
+            // per-item show/hide editor (ITEM_HIDE) holds PS3_ITEMHIDE_ROW rows.
+            case GS_LIST: case GS_EDITOR: case CAT_ORDER: case ITEM_HIDE:
                 return true;
             default: break;
         }
@@ -1218,7 +1219,7 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         const bool genericIcon = (iconIdx == 22);                            // shared placeholder settings glyph
         const bool hasIcon     = items[i].iconTex && !genericIcon;
         const bool showVal     = (items[i].kind == PS3_GS_SYSTEM_ROW || items[i].kind == PS3_GS_FIELD
-                                  || items[i].kind == PS3_CATORDER_ROW)
+                                  || items[i].kind == PS3_CATORDER_ROW || items[i].kind == PS3_ITEMHIDE_ROW)
                                  && !items[i].value.empty();
         float rightEdge = X(bx + bw - 9.0f);
         if (showVal) {
@@ -3999,6 +4000,7 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
 
 float NanoMenu::measureText(const char* str, float scale) {
     if (!str || !*str) return 0.0f;
+    scale *= ps3::gFontScale;   // user Font Size (kept in lockstep with drawText so widths track)
     // Match drawText's per-size layout: glyphs are rasterized at the integer
     // display pixel size and (for mono <= the master) drawn 1:1, so the summed
     // advances are already the device-px width. strResidual covers the upscaled
@@ -4069,6 +4071,7 @@ static inline void emitGlyph(int n, float x0, float y0, float x1, float y1,
 void NanoMenu::drawText(const char* str, float px, float py, float scale,
                         float r, float g, float b, float a) {
     if (!str || !*str || mFtNumFaces == 0) return;
+    scale *= ps3::gFontScale;   // user Font Size (matches measureText so layout widths track)
     flushSolidBatch();   // submit any pending batched solids first so this glyph pass keeps painter order
     // Per-size: rasterize glyphs at the integer display pixel size and blit them
     // 1:1 (for mono text at/below the master) so strokes are crisp and evenly
@@ -4228,6 +4231,7 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
 void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
                             float oR, float iR, float outerA, float innerA, float mainA) {
     if (!str || !*str || mFtNumFaces == 0) return;
+    scale *= ps3::gFontScale;   // user Font Size (keep the glowing active label in step with inactive ones)
     float displayEm = (float)FONT_CHAR_H * scale;
     int rasterPx = (int)lroundf(displayEm);
     if (rasterPx < 6) rasterPx = 6;
@@ -4847,11 +4851,48 @@ void NanoMenu::startRenderWatchdog() {
     }).detach();
 }
 
+// User Font Size: read the fast mirror prop (persist.gammaos.nano.fontscale, kept in sync with the
+// System font_scale setting by the Settings write hook) and publish it to the render globals so every
+// theme's text primitives scale live. property_get is a cheap shmem read, safe on the render path
+// (unlike `settings get`, a popen). Clamped to a sane band.
+void NanoMenu::refreshUserFontScale() {
+    // One-time seed: if the fast prop was never written (a build before this feature), pull the
+    // current System font_scale once so a value chosen while the row was a no-op (it still showed the
+    // selection) takes effect without re-selecting. Done on a detached thread because `settings get`
+    // is a popen and must never block the render thread; the next frame reads the seeded prop.
+    static std::atomic<bool> sSeeded{false};
+    bool expected = false;
+    if (sSeeded.compare_exchange_strong(expected, true)) {
+        char cur[PROPERTY_VALUE_MAX] = {};
+        if (property_get("persist.gammaos.nano.fontscale", cur, "") <= 0 || cur[0] == '\0') {
+            std::thread([]() {
+                FILE* f = popen("settings get system font_scale 2>/dev/null", "r");
+                if (!f) return;
+                char b[64] = {};
+                bool got = fgets(b, sizeof(b), f) != nullptr;
+                pclose(f);
+                if (!got) return;
+                for (char* p = b; *p; ++p) { if (*p == '\n' || *p == '\r') { *p = '\0'; break; } }
+                if (b[0] && strcmp(b, "null") != 0)
+                    property_set("persist.gammaos.nano.fontscale", b);
+            }).detach();
+        }
+    }
+    char b[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.fontscale", b, "1.0");
+    float f = (float)atof(b);
+    if (f < 0.5f) f = 0.5f;
+    if (f > 1.6f) f = 1.6f;
+    mUserFontScale = f;
+    ps3::gFontScale = f;
+}
+
 void NanoMenu::render() {
     static bool sFirstFrame = true;
     if (sFirstFrame) {
         sFirstFrame = false;
     }
+    refreshUserFontScale();   // publish the live user Font Size to ps3::gFontScale before any text draws
     // Render-thread watchdog heartbeat: bumped every frame so a background thread
     // can detect a hang (e.g. an infinite loop or a stuck GL call inside a render
     // path) and abort into a tombstone instead of leaving the device frozen.

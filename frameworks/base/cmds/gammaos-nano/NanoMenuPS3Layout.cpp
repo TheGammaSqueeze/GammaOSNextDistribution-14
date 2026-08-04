@@ -41,6 +41,7 @@ namespace android {
 namespace ps3 {
 
 float gScale       = 1.0f;
+float gFontScale   = 1.0f;   // user Font Size multiplier (persist.gammaos.nano.fontscale), 0.85..1.30
 float gDescSize    = ITEM_DESC_SIZE;
 float gActivePad   = ITEM_ACTIVE_PAD;
 float gOffX        = 0.0f;

@@ -1896,6 +1896,14 @@ void NanoMenu::pollInput() {
                         else                            catOrderToggle(its[sel].a);
                     }
                 }
+                // Per-item show/hide editor: x toggles the focused item Shown/Hidden. No reorder
+                // (static rows keep their source order), so l1/r1 are inert here.
+                else if (mPs3Xmb && ps3TopScreenKind() == ITEM_HIDE && !mPs3Stack.empty()) {
+                    auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                    if (!strcmp(navbuf, "x") && sel >= 0 && sel < (int)its.size()
+                        && its[sel].kind == PS3_ITEMHIDE_ROW)
+                        itemHideToggle(its[sel].payloadStr);
+                }
                 // DSi / Minima drilled game/media list: l1/r1 fast page-skip (bumper scrolling),
                 // mirroring the physical L1/R1. x has no effect here.
                 else if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && !mNdsAtRoot
@@ -2696,6 +2704,16 @@ void NanoMenu::pollInput() {
                                 videoRemoveFolder(its[sel].a);
                             break;
                         }
+                        // Y on a focused app (ANY theme, at the home, no modal / player): pin/unpin
+                        // it to the Game-home Pinned Apps list, mirroring the game Favourites toggle.
+                        // Guarded to PS3_APP rows only, so Y still opens a game's Info below.
+                        if (mPs3Xmb && !mOskActive && !mPs3OptActive && !mPs3DlgActive && !mPs3WizActive
+                            && !mPs3TzActive && !mMpActive && !mPvActive && !mVidActive) {
+                            std::vector<Ps3Item>& fi = ps3CurItems();
+                            int fs = ps3CurSel();
+                            if (fs >= 0 && fs < (int)fi.size() && fi[fs].kind == PS3_APP
+                                && !fi[fs].payloadStr.empty()) { toggleAppPinFocused(); break; }
+                        }
                         // Y on a focused game with scraped art (ANY theme, at the home, no modal / player):
                         // open its Information page directly, without the Triangle option menu. Returns
                         // false (falls through) when the focus has no scraped art.
@@ -2730,6 +2748,13 @@ void NanoMenu::pollInput() {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
                             if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_CATORDER_ROW)
                                 catOrderToggle(its[sel].a);
+                            break;
+                        }
+                        // Per-item show/hide editor: X toggles the selected item Shown/Hidden.
+                        if (mPs3Xmb && ps3TopScreenKind() == ITEM_HIDE) {
+                            auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
+                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_ITEMHIDE_ROW)
+                                itemHideToggle(its[sel].payloadStr);
                             break;
                         }
                         // Triangle on the focused Internet Search item picks the engine

@@ -871,6 +871,13 @@ void writeSettingValue(SettingSource src, const std::string& key,
     default:
         break;
     }
+    // Font Size: the System font_scale setting was a no-op in nano (nano never read it back). Mirror
+    // it to a fast prop the render loop reads every frame (property_get) and applies as a global text
+    // scale across all themes. The Font Size row exists in both the legacy tree and the PS3-XMB
+    // binding; both write font_scale, so this single hook covers both front-ends.
+    if (src == SettingSource::kSystem && key == "font_scale") {
+        property_set("persist.gammaos.nano.fontscale", val.c_str());
+    }
     // Display saturation rides the display colour matrix, which has no persisted setting of its
     // own, so applying it is an explicit call. nano re-applies the prop on boot.
     if (src == SettingSource::kProp && key == "persist.gammaos.nano.display.saturation") {

@@ -24,6 +24,7 @@
 #include <set>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <atomic>
 #include <memory>
 #include <mutex>
@@ -399,6 +400,16 @@ private:
     void catOrderToggle(int idx);               // X: flip shown/hidden (anti-lockout guarded)
     void catOrderReorder(int idx, int dir);     // L1/R1: move a category up (-1) / down (+1)
     void catOrderRebuildCats();                 // rebuild home cats, keep focus on the same column by name
+    // Per-item show/hide for STATIC submenu rows (Theme Settings > Home Categories > drill a
+    // category). Stored in the SAME nano_categories.json (a "hiddenItems" string array), so it
+    // shares the atomic write + cross-process stamp reload. The compound id is
+    // "<catId>/<parentPath>/<itemName>" using the static Ps3DataItem.name of every ancestor,
+    // which is stable (never relabelled) and unique within its sibling list. Applied at the two
+    // choke points buildPs3Cats (first-level rows) + buildDataSubmenu (nested rows), so a hide
+    // covers all three home themes (XMB / DSi / Minima) with no per-theme render change.
+    std::unordered_set<std::string> mHiddenItems;
+    bool isItemHidden(const std::string& id) const;   // true if this compound id is in the hidden set
+    void itemHideToggle(const std::string& id);       // flip hidden/shown for a submenu item (anti-lockout guarded)
     // Max directory depth for recursive ROM subfolder scanning when the
     // "Scan ROM Subfolders" toggle (persist.gammaos.nano.rom.recursive) is on.
     // 0 = top level only (toggle off = the legacy one-level behavior).
@@ -885,6 +896,11 @@ private:
     void dualstackSet(const std::string& pkg, bool enable);
     bool primaryScreenHas(const std::string& pkg);   // per-app "Run on primary screen" allowlist
     void primaryScreenSet(const std::string& pkg, bool enable);
+    // Pinned apps: a Game-home shortcut list of user-chosen apps. Package-keyed, stored in the
+    // same ~91-char-safe indexed sysprop list infra as primary_pkgs (persist.gammaos.nano.pinned_pkgs).
+    bool isAppPinned(const std::string& pkg);         // package is in persist.gammaos.nano.pinned_pkgs
+    void toggleAppPin(const std::string& pkg);        // add/remove the package, then rebuild the home cats
+    void toggleAppPinFocused();                       // Y shortcut: pin/unpin the focused PS3_APP row (all themes)
     // Dual-SCREEN detect prompt: system_server publishes sys.gammaos.nano.dualscreen_detected when
     // an app is seen spanning both physical panels. On the home we offer to enable "Run on primary
     // screen" for it; "Don't ask again" adds it to persist.gammaos.nano.dualscreen_dismissed.
@@ -1317,6 +1333,10 @@ private:
         PS3_NS_SHARE,       // a configured share row in the shares list (a = slot 1..kMaxShares)
         PS3_NS_ADD,         // "Add Share" row in the shares list
         PS3_NS_FIELD,       // a field row in the per-share editor (a = NsField)
+        // ---- Home menu item show/hide (Theme Settings > Home Categories > <cat>) ----
+        PS3_ITEMHIDE_ROW,   // a static submenu-item row in the item-visibility editor (payloadStr = compound id, value Shown/Hidden)
+        // ---- Pinned Apps (a Game-home shortcut list of user-chosen apps) ----
+        PS3_PINNED_APPS_LIST, // "Pinned Apps" entry under Game -> the pinned-apps submenu
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -1327,7 +1347,7 @@ private:
                         VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12,
                         FE_BROWSE = 13, APP_INFO = 14, APP_STORAGE = 15, APP_PERMS = 16,
                         SHADER_BROWSE = 17, NS_LIST = 18, NS_EDITOR = 19,
-                        CAT_ORDER = 20 };
+                        CAT_ORDER = 20, ITEM_HIDE = 21 };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -1375,6 +1395,8 @@ private:
                               // rescan rebuild the open ROM column in place. -1 for every other level.
         int collectionIdx = -1;  // >=0 only for a collection's game list (set by buildCollectionSubmenu);
                                  // lets a game's option menu there offer Remove from Collection.
+        std::string itemHideCatId;  // the category id an ITEM_HIDE editor level is editing (set by
+                                    // buildCatItemVisibilityList); lets itemHideToggle rebuild it in place.
     };
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)
@@ -1636,6 +1658,8 @@ private:
     bool   mNdsTexLoaded = false; // one-shot load guard
     bool mPs3MenuBuilt = false;
     float mPs3UiScale = 1.0f;     // persist.gammaos.nano.ps3xmb.uiscale (menu zoom)
+    float mUserFontScale = 1.0f;  // user Font Size (persist.gammaos.nano.fontscale mirror of System font_scale)
+    void  refreshUserFontScale(); // cheap per-frame prop read -> ps3::gFontScale (all themes)
     // ---- PS3 cold-boot intro (NanoMenuPS3Boot.cpp) ----
     // The intro plays the wave/gradient revealing from black, the white logo +
     // footer plate, the photosensitivity warning, then hands off to the XMB with
@@ -2305,8 +2329,11 @@ private:
     // mPs3CatsStale from the threadLoop scan pickup, applied at the XMB root.
     void rebuildPs3CatsPreserveSel();
     bool mPs3CatsStale = false;
-    Ps3Item makeDataItem(const Ps3DataItem* d);   // runtime item from a DATA node
-    void buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out);
+    // Runtime item from a static DATA node. hidePrefix (when non-empty) is the compound-id path of
+    // this item's PARENT ("<catId>/.../"), so the item's own compound id ("<hidePrefix><name>") can
+    // be stored in payloadStr for the show/hide feature; empty leaves payloadStr untouched.
+    Ps3Item makeDataItem(const Ps3DataItem* d, const std::string& hidePrefix = std::string());
+    void buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out, const std::string& hidePrefix = std::string());
     bool themeSettingRowVisible(const char* name) const;   // hide theme-irrelevant appearance rows per active theme
     void buildRomSubmenu(int sysIdx, Ps3Level& out);
     // Quick Menu (nano legacy global actions): the Power submenu builder, the
@@ -2469,6 +2496,7 @@ private:
     void overlayKillAll();   // Quick Menu Kill All Apps (overlay): hard-stop every app incl the game, no relaunch
     void buildRecentSubmenu(Ps3Level& out);
     void buildAppSubmenu(Ps3Level& out);
+    void buildPinnedAppsSubmenu(Ps3Level& out);            // the pinned-apps list (resolved PS3_APP rows)
     void buildCollectionsSubmenu(Ps3Level& out);            // the list of collections + New Collection...
     void buildCollectionSubmenu(int colIdx, Ps3Level& out); // one collection's games (resolved PS3_ROM rows)
     void buildFavoritesSubmenu(Ps3Level& out);              // the global favourites list (resolved PS3_ROM rows)
@@ -2476,6 +2504,7 @@ private:
     // configured system (enabled + disabled) with enable/disable + reorder; later
     // phases add the per-system editor, folder picker, and icon grid.
     void buildCatOrderList(Ps3Level& out);      // the "Home Categories" editor screen (declared here where Ps3Level is defined)
+    void buildCatItemVisibilityList(const std::string& catId, Ps3Level& out);   // one category's static submenu rows, each Shown/Hidden (ITEM_HIDE screen)
     void buildGameSystemsList(Ps3Level& out);
     void gsToggleSystem(int sysIdx);            // flip enabled, persist, rebuild
     void gsReorderSystem(int sysIdx, int dir);  // move a system up (-1) / down (+1)

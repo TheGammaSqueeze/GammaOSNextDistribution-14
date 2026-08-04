@@ -120,6 +120,19 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     // 50% scrim keeps the white rows legible). Empty fanFile when the focus is not a scraped game, so
     // drawPs3CinfoBg fades it back out. mNdsAtRoot has no focused ROM, so focusedScrapeEntry returns null.
     const ScrapeEntry* minSe = inGameScrim ? nullptr : focusedScrapeEntry();
+    // Focused app (for the Y-to-Pin legend hint below): the current row when it is a PS3_APP.
+    bool minFocApp = false; std::string minFocPkg;
+    if (!inGameScrim && !mNdsAtRoot) {
+        const Ps3Item* fi = nullptr;
+        if (!mPs3Stack.empty()) {
+            const auto& its = mPs3Stack.back().items; int s = mPs3Stack.back().sel;
+            if (s >= 0 && s < (int)its.size()) fi = &its[s];
+        } else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
+            const auto& its = mPs3Cats[mPs3CatIdx].items;
+            if (mPs3ItemIdx >= 0 && mPs3ItemIdx < (int)its.size()) fi = &its[mPs3ItemIdx];
+        }
+        if (fi && fi->kind == PS3_APP && !fi->payloadStr.empty()) { minFocApp = true; minFocPkg = fi->payloadStr; }
+    }
     if (!inGameScrim) {
         std::string fanFile = (minSe && scraperFanartEnabled() && !minSe->fan.empty()) ? minSe->fan : std::string();
         drawPs3CinfoBg("", fanFile);   // focusLabel is only used for the Photo Gallery cinfo (never a game)
@@ -160,7 +173,8 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     std::vector<std::string> vals;
     auto pushItem = [&](const Ps3Item& it) {
         rows.push_back(it.label);
-        if (it.kind == PS3_GS_SYSTEM_ROW || it.kind == PS3_GS_FIELD || it.kind == PS3_CATORDER_ROW) vals.push_back(it.value);
+        if (it.kind == PS3_GS_SYSTEM_ROW || it.kind == PS3_GS_FIELD || it.kind == PS3_CATORDER_ROW
+            || it.kind == PS3_ITEMHIDE_ROW) vals.push_back(it.value);
         else vals.push_back(std::string());
     };
     int sel = 0;
@@ -456,7 +470,10 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         };
         drawLegend(0, "Open", 1);    // A Open (right)
         drawLegend(1, "Back", 0);    // B Back (left)
-        if (minSe) drawLegend(2, "Info", 2);   // Y Info (centre), only when the focus has scraped info
+        // Centre hint: "Y Info" for a focused game with scraped art, or "Y Pin" for a focused app
+        // (mirrors the Y-to-pin shortcut so Minima advertises the affordance).
+        if (minSe) drawLegend(2, "Info", 2);
+        else if (minFocApp) drawLegend(2, isAppPinned(minFocPkg) ? "Unpin" : "Pin", 2);
     }
 
     // ---- level-change black-wash crossfade (paired with the horizontal slide above) ----
@@ -563,7 +580,7 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
     // game-system rows: echo the On/Off (or field value) in the accent colour under the label,
     // so the enable state is visible on the bottom screen too.
     if (selItem && (selItem->kind == PS3_GS_SYSTEM_ROW || selItem->kind == PS3_GS_FIELD
-                    || selItem->kind == PS3_CATORDER_ROW)
+                    || selItem->kind == PS3_CATORDER_ROW || selItem->kind == PS3_ITEMHIDE_ROW)
         && !selItem->value.empty()) {
         float fsV = (18.0f * sc) / (float)FONT_CHAR_H;
         float vw = measureText(selItem->value.c_str(), fsV);

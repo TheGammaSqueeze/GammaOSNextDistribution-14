@@ -80,8 +80,12 @@ namespace android {
 // Forward declarations for the per-app sysprop-list helpers (defined lower in this file). The
 // dual-screen detect prompt (ps3XmbSelect / pollDualScreenDetect, higher up) reads and writes the
 // "don't ask again" list before the definitions appear.
+static std::vector<std::string> nanoPkgListRead(const char* baseProp);
 static bool nanoPkgListHas(const char* baseProp, const std::string& pkg);
 static void nanoPkgListSet(const char* baseProp, const std::string& pkg, bool enable);
+// Pinned-apps sysprop-list base key. Named here (before buildPs3Cats / buildPinnedAppsSubmenu use
+// it) though the dual-stack / primary-screen keys stay next to their wrappers lower down.
+static const char* kPinnedAppsProp = "persist.gammaos.nano.pinned_pkgs";
 
 // Clock drop-shadow offset: a single device-y offset. The caller passes a signed
 // magnitude (devS(..) * mPs3ShadowDir) where mPs3ShadowDir is the device-y sign of
@@ -447,9 +451,14 @@ void NanoMenu::ndsRestoreReturnPath() {
     mNdsScrubbing = false; mNdsFlingVel = 0.0f; mNdsFastScroll = false;
 }
 
-NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d) {
+NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d, const std::string& hidePrefix) {
     Ps3Item it;
     it.label = d->name;
+    // Compound show/hide id of this item ("<catId>/<parentPath>/<name>"), stored in payloadStr so
+    // drilling this row can compute its children's ids. Only set when a prefix was threaded in
+    // (buildPs3Cats first-level rows and buildDataSubmenu nested rows); left empty otherwise, so
+    // data rows built without the feature (none currently) keep an empty payload.
+    if (!hidePrefix.empty() && d->name) it.payloadStr = hidePrefix + d->name;
     // Resolve the settings binding once here (the only producer of items whose label
     // can match kPs3Bindings) so resolvePs3ItemValue does not re-scan the table by
     // string-compare for every visible item every frame. nullptr for non-bound rows.
@@ -607,11 +616,24 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("Long Names")) return minima;
     // The DSi dual-screen layout + hinge gap only affect the DSi carousel home.
     if (is("Dual Screen") || is("Screen Gap")) return mNdsTheme;
+    // The DSi dark variant (mNdsDark, persist.gammaos.nano.nds.dark) only repaints the DSi
+    // carousel; it does nothing on XMB or Minima (the system-wide Dark Theme in Display Settings
+    // is the separate, always-shown control). This is the reported "dark theme does nothing in
+    // XMB" - the row was offered everywhere. Show it only in the DSi home.
+    if (is("DSi Dark Theme")) return mNdsTheme;
+    // The bottom-panel PSP clock (and its FPS readout) + the bottom custom wallpaper only exist on
+    // a physical dual-screen device (e.g. RG DS); their own descriptions say single-screen devices
+    // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
+    // once a secondary panel has been seen (const-safe here, unlike hasSecondaryDisplay()).
+    if (is("Bottom Clock") || is("Bottom Clock FPS") || is("Bottom Wallpaper")) return mNdsHadSecondary;
     return true;
 }
 
-// Build a submenu level from a static DATA node's children.
-void NanoMenu::buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out) {
+// Build a submenu level from a static DATA node's children. hidePrefix is the compound-id path of
+// `node` ("<catId>/<parentPath>/") so each child's own id ("<hidePrefix><name>") can be checked
+// against the hidden set (Theme Settings > Home Categories item show/hide) and stashed for a deeper
+// drill. Empty prefix disables the feature for this level (never happens on the live path).
+void NanoMenu::buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out, const std::string& hidePrefix) {
     out.items.clear(); out.sel = 0;
     // Drop the memoised bound-value cache on every settings-submenu (re-)entry so each row RE-READS
     // its live source once here, instead of serving a value cached on a previous visit. Without this
@@ -623,8 +645,12 @@ void NanoMenu::buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out) {
     out.title = node ? node->name : "";
     if (!node || !node->children) return;
     for (int i = 0; i < node->childCount; i++) {
-        if (!themeSettingRowVisible(node->children[i].name)) continue;
-        out.items.push_back(makeDataItem(&node->children[i]));
+        const char* childName = node->children[i].name;
+        if (!themeSettingRowVisible(childName)) continue;
+        // Skip a child the user has hidden (Theme Settings > Home Categories item show/hide). The
+        // compound id is "<hidePrefix><name>"; when no prefix was threaded in the check is inert.
+        if (!hidePrefix.empty() && childName && isItemHidden(hidePrefix + childName)) continue;
+        out.items.push_back(makeDataItem(&node->children[i], hidePrefix));
     }
 }
 
@@ -830,6 +856,45 @@ void NanoMenu::buildAppSubmenu(Ps3Level& out) {
     }
 }
 
+// The pinned-apps list: one PS3_APP row per package in persist.gammaos.nano.pinned_pkgs that is
+// still installed, resolved back to its mAppEntries index so launch + the per-app option menu behave
+// exactly like the Applications list. Skips packages that were uninstalled (mirrors buildFavorites-
+// Submenu skipping gone systems). Empty -> the same "There are no titles" leaf fallback.
+void NanoMenu::buildPinnedAppsSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Pinned Apps";
+    if (!mAppsLoaded) loadInstalledApps();
+    GLuint bevel = bevelForIconIdx(16);
+    for (const auto& pkg : nanoPkgListRead(kPinnedAppsProp)) {
+        // Resolve the package to a live AppEntry (an uninstalled app is silently dropped).
+        int appIdx = -1;
+        for (size_t i = 0; i < mAppEntries.size(); i++)
+            if (mAppEntries[i].packageName == pkg) { appIdx = (int)i; break; }
+        if (appIdx < 0) continue;
+        Ps3Item it;
+        it.label = mAppEntries[appIdx].label;
+        it.kind = PS3_APP; it.a = appIdx; it.payloadStr = pkg;
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        // Same real-icon resolution as buildAppSubmenu (DE cache -> disk -> bevelled placeholder).
+        GLuint appTex = 0;
+        auto cached = mPs3AppIcons.find(pkg);
+        if (cached != mPs3AppIcons.end()) {
+            appTex = cached->second;
+        } else {
+            std::string path = "/data/system/nano_app_icons/" + pkg + ".png";
+            appTex = loadColorIconTexAbs(path.c_str());
+            if (appTex != 0) mPs3AppIcons[pkg] = appTex;
+        }
+        if (appTex != 0) { it.iconTex = appTex; it.nmapTex = 0; }
+        else { it.iconTex = mIconTextures[16]; it.nmapTex = bevel; }
+        out.items.push_back(it);
+    }
+    if (out.items.empty()) {
+        Ps3Item it; it.label = "There are no titles"; it.kind = PS3_DATA_LEAF; it.action = 0;
+        it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+
 // Quick Menu action codes (Ps3Item.a when kind == PS3_QUICK). Dispatched in
 // ps3XmbSelect(). These mirror the GammaOS Nano legacy global actions.
 enum {
@@ -973,8 +1038,12 @@ static bool ps3QaOpensSubmenu(int qa) {
 bool NanoMenu::ps3ItemOpensSubmenu(const Ps3Item& it) const {
     return it.kind == PS3_DATA_SUBMENU || it.kind == PS3_SYSTEM ||
            it.kind == PS3_RECENT_LIST || it.kind == PS3_APP_LIST ||
+           it.kind == PS3_PINNED_APPS_LIST ||
            it.kind == PS3_GS_ROOT || it.kind == PS3_GS_SYSTEM_ROW ||
            it.kind == PS3_CATORDER_ROOT ||
+           // A Home Categories row now drills into the per-category item show/hide editor
+           // (X still toggles the whole category), so a directional drill opens it too.
+           it.kind == PS3_CATORDER_ROW ||
            // IPTV / Internet Radio group + bucket rows drill into a pushed submenu
            // (country/alpha bucket, then channels/stations), so a directional drill
            // (XMB RIGHT, DSi DOWN) must open them like every other carousel/list group.
@@ -1011,6 +1080,9 @@ int64_t NanoMenu::catOrderConfigStamp() const {
 // the file as visible (forward-compat when a future build adds a category), and
 // drops unknown ids. Absent / parse-fail seeds all-visible in source order.
 void NanoMenu::loadCatOrder() {
+    // The hidden-item set is re-parsed from scratch on every (re)load so a cross-process edit
+    // that unhid an item is reflected. Seeded empty; only ids listed in "hiddenItems" are hidden.
+    mHiddenItems.clear();
     auto seedDefaults = [&]() {
         mCatOrder.clear();
         for (int i = 0; i < kPs3DataCatCount; i++)
@@ -1030,8 +1102,24 @@ void NanoMenu::loadCatOrder() {
 
     njson::Value root;
     const njson::Value* cats = nullptr;
-    if (!content.empty() && njson::parse(content, &root) && root.isObject())
-        cats = root.find("categories");
+    bool rootOk = !content.empty() && njson::parse(content, &root) && root.isObject();
+    if (rootOk) cats = root.find("categories");
+    // Parse the per-item hidden set (compound ids) whenever the root parsed, even if the
+    // categories array is missing/invalid (the two arrays are independent).
+    if (rootOk) {
+        const njson::Value* hidden = root.find("hiddenItems");
+        if (hidden && hidden->isArray()) {
+            for (const auto& hv : hidden->arr) {
+                if (!hv.isString()) continue;
+                std::string id = hv.asString();
+                if (!id.empty()) mHiddenItems.insert(id);
+            }
+        }
+        // Anti-lockout (mirrors the settings-category force-visible below): Theme Settings is the
+        // only path back to the item-visibility editor, so a hand-edited / corrupted json that hid
+        // it would strand the user. Force it shown on load so that can never happen.
+        mHiddenItems.erase("settings/Theme Settings");
+    }
     if (!cats || !cats->isArray()) {
         ALOGW("NanoMenu: nano_categories.json missing/invalid; seeding all-visible defaults");
         seedDefaults();
@@ -1087,6 +1175,15 @@ void NanoMenu::saveCatOrder() {
         cats.arr.push_back(std::move(o));
     }
     root.set("categories") = std::move(cats);
+    // Per-item hidden set: a flat string array of compound ids. Sorted so the file stays stable /
+    // diffable across saves (unordered_set iteration order is otherwise unspecified).
+    {
+        std::vector<std::string> ids(mHiddenItems.begin(), mHiddenItems.end());
+        std::sort(ids.begin(), ids.end());
+        njson::Value hidden = njson::Value::makeArray();
+        for (const auto& id : ids) hidden.arr.push_back(njson::Value::makeString(id));
+        root.set("hiddenItems") = std::move(hidden);
+    }
     std::string text = njson::serialize(root, true);
 
     const std::string path = catOrderPath();
@@ -1220,6 +1317,7 @@ void NanoMenu::buildPs3Cats() {
         int catIdx = (dc.icon >= 1 && dc.icon <= 6) ? dc.icon - 1 : 0;
         c.iconTex = mPs3CatTex[catIdx];
         c.nmapTex = mPs3CatNmap[catIdx];
+        const std::string catHidePrefix = std::string(dc.id) + "/";
         for (int ii = 0; ii < dc.itemCount; ii++) {
             // The IPTV row (Video category) is hidden when toggled off in Video Settings.
             if (strcmp(dc.id, "video") == 0 && !iptvOn && strcmp(dc.items[ii].name, "IPTV") == 0)
@@ -1227,7 +1325,12 @@ void NanoMenu::buildPs3Cats() {
             // The Internet Radio row (Music category) is hidden when toggled off in Music Settings.
             if (strcmp(dc.id, "music") == 0 && !radioOn && strcmp(dc.items[ii].name, "Internet Radio") == 0)
                 continue;
-            c.items.push_back(makeDataItem(&dc.items[ii]));
+            // User-hidden first-level item (Theme Settings > Home Categories > drill this category).
+            // The compound id is "<catId>/<itemName>"; anti-lockout on Theme Settings is enforced at
+            // the toggle, so a corrupt/hand-edited hide of it is refused there and never reaches here.
+            if (dc.items[ii].name && isItemHidden(catHidePrefix + dc.items[ii].name))
+                continue;
+            c.items.push_back(makeDataItem(&dc.items[ii], catHidePrefix));
         }
         if (strcmp(dc.id, "game") == 0)     gameCatRuntimeIdx     = (int)mPs3Cats.size();
         if (strcmp(dc.id, "music") == 0)    musicCatRuntimeIdx    = (int)mPs3Cats.size();
@@ -1282,6 +1385,14 @@ void NanoMenu::buildPs3Cats() {
         { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
           it.iconTex = mIconTextures[18]; it.nmapTex = bevelForIconIdx(18);   // app-grid glyph (index 18), NOT the generic game cartridge (16)
           it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
+        // Pinned Apps: a shortcut list of user-chosen apps, shown once at least one app is pinned
+        // (via an app's "Pin to Home" option or the Y shortcut). Reuses the app-grid glyph so it
+        // reads as an apps affordance, like Applications above. Package-keyed store (pinned_pkgs).
+        if (!nanoPkgListRead(kPinnedAppsProp).empty()) {
+            Ps3Item it; it.label = "Pinned Apps"; it.kind = PS3_PINNED_APPS_LIST;
+            it.iconTex = mIconTextures[18]; it.nmapTex = bevelForIconIdx(18);
+            it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
+        }
         // Favorites: a single global, cross-system starred-games list. Shown once the user has
         // starred at least one game (via a game's "Add to Favorites" option). Sits above Collections.
         if (!mXmbFavorites.empty()) {
@@ -1375,6 +1486,14 @@ void NanoMenu::buildPs3Cats() {
         mPs3CatItemSel[mPs3CatIdx] = mPs3ItemIdx;
     }
     mPs3AnimItem = (float)mPs3ItemIdx; mPs3ItemAnimStart = -1.0f;
+    // DSi root carousel caches a copy of the category list (mNdsCatCards) built ONCE and never
+    // invalidated. Any rebuild here (a category hide/reorder, an item hide that changes a column, a
+    // pinned-app add/remove, a background rescan) must force the DSi cards to be rebuilt on the next
+    // render, or the DSi root would keep showing the old columns until the process restarts. (The
+    // XMB reads mPs3Cats directly and Minima rebuilds its root list every frame, so only the DSi
+    // cache needs poking.) Rebuilt lazily in ndsBuildCatCards on the next frame.
+    mNdsCatCardsBuilt = false;
+    mNdsCatCards.clear();
 }
 
 // Rebuild the category tree in place (a background rescan changed some
@@ -3993,6 +4112,97 @@ void NanoMenu::catOrderReorder(int idx, int dir) {
     catOrderRebuildCats();
 }
 
+// ---- Per-item show/hide (Home Categories > drill a category) ----------------
+// A compound id ("<catId>/<parentPath>/<itemName>") whose hide would strand the user by removing
+// the only path back to the item-visibility editor is never hideable. The editor lives under
+// Settings > Theme Settings, so Theme Settings itself must stay reachable. (Settings the category
+// is protected by catOrderToggle; the Home Categories editor row is runtime-injected, not a static
+// row, so it is never listed here in the first place.)
+static bool itemHideLockedOut(const std::string& id) {
+    return id == "settings/Theme Settings";
+}
+
+bool NanoMenu::isItemHidden(const std::string& id) const {
+    if (id.empty()) return false;
+    return mHiddenItems.find(id) != mHiddenItems.end();
+}
+
+// Flip a static submenu item between Shown and Hidden. Blocked for the anti-lockout id. Persists to
+// nano_categories.json, refreshes any open ITEM_HIDE editor level in place, and rebuilds the home
+// categories so a hidden first-level row disappears live (nested rows re-hide on the next submenu
+// (re)build via buildDataSubmenu).
+void NanoMenu::itemHideToggle(const std::string& id) {
+    if (id.empty() || itemHideLockedOut(id)) return;
+    auto it = mHiddenItems.find(id);
+    if (it != mHiddenItems.end()) mHiddenItems.erase(it);
+    else mHiddenItems.insert(id);
+    saveCatOrder();
+    // Rebuild the open ITEM_HIDE level(s) in place so the Shown/Hidden value updates immediately.
+    for (auto& lvl : mPs3Stack) {
+        if (lvl.screenKind != ITEM_HIDE) continue;
+        int keep = lvl.sel;
+        // The editor level's catId is stashed in payloadStr of the level (set at build time).
+        buildCatItemVisibilityList(lvl.itemHideCatId, lvl);
+        int n = (int)lvl.items.size();
+        if (keep >= n) keep = n - 1;
+        lvl.sel = keep < 0 ? 0 : keep;
+    }
+    buildPs3Cats();
+    mDisplayDirty = true;
+}
+
+// ---- Per-item show/hide editor (Home Categories > drill a category) ---------
+// One row per STATIC data item in the category (recursing into submenus), each toggling Shown /
+// Hidden. The compound id "<catId>/<parentPath>/<itemName>" is the stable hide key. Nested rows are
+// prefixed with their parent chain so the list is unambiguous when the same leaf name recurs. Only
+// STATIC Ps3DataItem rows are listed (runtime rows - systems, apps, media folders, injected editor
+// rows - already have their own visibility controls and are not identified stably by label).
+void NanoMenu::buildCatItemVisibilityList(const std::string& catId, Ps3Level& out) {
+    out.items.clear(); out.sel = 0;
+    out.screenKind = ITEM_HIDE;
+    out.itemHideCatId = catId;
+    // Resolve the source category + its display name for the title.
+    const Ps3DataCat* dc = nullptr;
+    for (int ci = 0; ci < kPs3DataCatCount; ci++)
+        if (catId == kPs3DataCats[ci].id) { dc = &kPs3DataCats[ci]; break; }
+    out.title = dc ? dc->name : "Items";
+    if (!dc) return;
+
+    // Recursively emit a row for each static item. `path` is the compound-id prefix ending in '/';
+    // `label` is the human prefix ("Parent > ") shown before nested item names.
+    std::function<void(const Ps3DataItem*, int, const std::string&, const std::string&)> emit =
+        [&](const Ps3DataItem* items, int n, const std::string& path, const std::string& labelPfx) {
+            for (int i = 0; i < n; i++) {
+                const Ps3DataItem& d = items[i];
+                if (!d.name) continue;
+                const std::string id  = path + d.name;
+                Ps3Item it;
+                it.label = labelPfx + d.name;
+                it.kind = PS3_ITEMHIDE_ROW;
+                it.payloadStr = id;
+                bool hidden = isItemHidden(id);
+                it.value = hidden ? "Hidden" : "Shown";
+                // Reuse the item's own icon so the row reads like the real menu entry; dim when hidden.
+                int icon = (d.icon >= 0) ? d.icon : 5;
+                it.iconTex = iconTexForIcon(icon);
+                it.nmapTex = nmapForIcon(icon);
+                float m = hidden ? 0.45f : 1.0f;
+                it.iconR = it.iconG = it.iconB = m;
+                out.items.push_back(it);
+                // Recurse into a submenu so its children are individually hideable too.
+                if (d.children && d.childCount > 0)
+                    emit(d.children, d.childCount, id + "/", labelPfx + d.name + " > ");
+            }
+        };
+    emit(dc->items, dc->itemCount, catId + "/", std::string());
+
+    if (out.items.empty()) {
+        Ps3Item it; it.label = "There are no items"; it.kind = PS3_DATA_LEAF; it.action = 0;
+        it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+
 // ---- Per-system editor ----
 
 // Editor field ids (Ps3Item.a for PS3_GS_FIELD rows).
@@ -4806,6 +5016,7 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_SYSTEM:       { Ps3Level lvl; buildRomSubmenu(it.a, lvl);     mPs3Stack.push_back(lvl); break; }
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
+        case PS3_PINNED_APPS_LIST: { Ps3Level lvl; buildPinnedAppsSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
         case PS3_FAVORITES_LIST:   { Ps3Level lvl; buildFavoritesSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_COLLECTIONS_LIST: { Ps3Level lvl; buildCollectionsSubmenu(lvl);      mPs3Stack.push_back(lvl); break; }
         case PS3_COLLECTION:       { Ps3Level lvl; buildCollectionSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
@@ -4833,7 +5044,11 @@ void NanoMenu::ps3XmbSelect() {
                 // remap pickers and the nested Mouse Mode) rather than the thin data list.
                 buildGamepadSubmenu(lvl);
             } else {
-                buildDataSubmenu(it.data, lvl);
+                // Thread this node's compound-id path so its children inherit the show/hide id chain
+                // ("<node compound id>/"). it.payloadStr was set to the node's own compound id at build
+                // (makeDataItem). Empty when the node was not built with the feature (never on the live path).
+                std::string childPrefix = it.payloadStr.empty() ? std::string() : (it.payloadStr + "/");
+                buildDataSubmenu(it.data, lvl, childPrefix);
                 if (it.label == "Game Settings") {
                     // The Game Systems editor now lives under Game Settings; inject it as
                     // the first row (it is a runtime PS3_GS_ROOT item, not static data).
@@ -4857,7 +5072,17 @@ void NanoMenu::ps3XmbSelect() {
         }
         case PS3_GS_ROOT:      { Ps3Level lvl; buildGameSystemsList(lvl);      mPs3Stack.push_back(lvl); break; }
         case PS3_CATORDER_ROOT: { Ps3Level lvl; buildCatOrderList(lvl);       mPs3Stack.push_back(lvl); break; }
-        case PS3_CATORDER_ROW:  catOrderToggle(it.a); return;   // A toggles Shown/Hidden (X also works); a category row has no submenu to open, so A is the natural toggle
+        case PS3_CATORDER_ROW: {
+            // A/select drills into this category's per-item show/hide editor (X still toggles the
+            // whole category Shown/Hidden, in every theme, via the input handler + nav hook). Resolve
+            // the category id from the mCatOrder index the row carries.
+            if (it.a >= 0 && it.a < (int)mCatOrder.size()) {
+                Ps3Level lvl; buildCatItemVisibilityList(mCatOrder[it.a].first, lvl);
+                mPs3Stack.push_back(lvl);
+            }
+            break;
+        }
+        case PS3_ITEMHIDE_ROW:  itemHideToggle(it.payloadStr); return;   // A toggles Shown/Hidden (X also works)
         case PS3_GS_SYSTEM_ROW: { mGsEditIdx = it.a; Ps3Level lvl; buildGameSystemEditor(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_GS_FIELD:     { gsEditField(it.a); return; }   // open OSK / chooser / toggle
         case PS3_GS_EMUROW: {   // pick a catalog emulator/core -> apply to the system
@@ -10814,6 +11039,7 @@ static void nanoPkgListSet(const char* baseProp, const std::string& pkg, bool en
 
 static const char* kDualstackProp   = "persist.gammaos.dualstack.pkgs";
 static const char* kPrimaryScreenProp = "persist.gammaos.nano.primary_pkgs";
+// kPinnedAppsProp is defined near the top of this file (buildPs3Cats uses it before this point).
 
 bool NanoMenu::dualstackHas(const std::string& pkg) { return nanoPkgListHas(kDualstackProp, pkg); }
 void NanoMenu::dualstackSet(const std::string& pkg, bool enable) { nanoPkgListSet(kDualstackProp, pkg, enable); }
@@ -10823,6 +11049,45 @@ void NanoMenu::dualstackSet(const std::string& pkg, bool enable) { nanoPkgListSe
 // screens. Distinct from Dual-Stack (tall single canvas).
 bool NanoMenu::primaryScreenHas(const std::string& pkg) { return nanoPkgListHas(kPrimaryScreenProp, pkg); }
 void NanoMenu::primaryScreenSet(const std::string& pkg, bool enable) { nanoPkgListSet(kPrimaryScreenProp, pkg, enable); }
+
+// Pinned apps: a Game-home shortcut list of user-chosen apps, package-keyed. Reuses the same
+// ~91-char-safe indexed sysprop list infra (base + _1/_2/...) as the primary-screen allowlist, so
+// a long pin list splits automatically and is read back by nano only (no framework contract, no new
+// SELinux). A dedicated store, NOT nano_favorites.txt (path-keyed for games).
+bool NanoMenu::isAppPinned(const std::string& pkg) { return nanoPkgListHas(kPinnedAppsProp, pkg); }
+void NanoMenu::toggleAppPin(const std::string& pkg) {
+    if (pkg.empty()) return;
+    nanoPkgListSet(kPinnedAppsProp, pkg, !isAppPinned(pkg));
+    // The "Pinned Apps" home row appears with the first pin and vanishes with the last, so the home
+    // categories must rebuild. buildPs3Cats also invalidates the DSi card cache (all themes update).
+    buildPs3Cats();
+    mDisplayDirty = true;
+}
+
+// Y shortcut: pin/unpin the focused PS3_APP row (works in XMB / DSi / Minima; the Y handler is
+// shared). Rebuilds any open pinned-apps list in place so an unpin from within it removes the row
+// immediately, and shows a banner confirming the change.
+void NanoMenu::toggleAppPinFocused() {
+    std::vector<Ps3Item>& items = ps3CurItems();
+    int sel = ps3CurSel();
+    if (sel < 0 || sel >= (int)items.size()) return;
+    const Ps3Item& it = items[sel];
+    if (it.kind != PS3_APP || it.payloadStr.empty()) return;
+    std::string pkg = it.payloadStr;
+    bool wasPinned = isAppPinned(pkg);
+    nanoPkgListSet(kPinnedAppsProp, pkg, !wasPinned);
+    // If we just unpinned an app while viewing the Pinned Apps list itself, rebuild it in place so
+    // the row disappears immediately (title is set only by buildPinnedAppsSubmenu).
+    if (wasPinned && !mPs3Stack.empty() && mPs3Stack.back().title == "Pinned Apps") {
+        int keep = mPs3Stack.back().sel;
+        buildPinnedAppsSubmenu(mPs3Stack.back());
+        int n = (int)mPs3Stack.back().items.size();
+        mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+    }
+    buildPs3Cats();   // the Pinned Apps home entry appears with the first pin / vanishes with the last
+    photoShowBanner(trDyn(wasPinned ? "Removed from Home" : "Pinned to Home"));
+    mDisplayDirty = true;
+}
 
 // Resolve the currently focused home item's ROM path (a game in a system submenu = PS3_ROM, or a
 // Recently Played entry = PS3_RECENT), or "" if the focus is not a launchable ROM. Shared by the
@@ -11030,6 +11295,9 @@ void NanoMenu::openXmbOpt() {
         case PS3_APP: {
             add("Start", "start", true); add("Information", "info", false);
             const std::string& p = it.payloadStr;   // package name (set at buildAppSubmenu)
+            // Pin to / Remove from the Game-home "Pinned Apps" shortcut list (label reflects state).
+            if (!p.empty())
+                add(isAppPinned(p) ? "Remove from Home" : "Pin to Home", "togpin", false);
             // Per-app Screen Orientation override. While this app is foreground nano
             // enforces the chosen orientation (via sys.gammaos.nano.force_orientation);
             // Default hands back to the app's own requested orientation. Offered for any
@@ -11916,6 +12184,25 @@ void NanoMenu::xmbOptAction(const std::string& act) {
     if (act == "rmvideofolder") { videoRemoveFolder(mPs3OptCtxA); return; }
     if (act == "rmphotofolder") { photoRemoveFolder(mPs3OptCtxA); return; }
     if (act == "rmscansrc")     { gsOpenRemoveScanSourceConfirm(mPs3OptCtxA); return; }
+    if (act == "togpin") {
+        // Toggle the focused app in the Pinned Apps list. The package was captured in the option
+        // context (mPs3OptCtxPayload) when the menu opened. Guard on the app kind + a non-empty pkg.
+        if (mPs3OptCtxKind != PS3_APP || mPs3OptCtxPayload.empty()) return;
+        std::string pkg = mPs3OptCtxPayload;
+        bool wasPinned = isAppPinned(pkg);
+        nanoPkgListSet(kPinnedAppsProp, pkg, !wasPinned);
+        // If we unpinned while viewing the Pinned Apps list itself, rebuild it in place so the row
+        // disappears immediately (title is set only by buildPinnedAppsSubmenu).
+        if (wasPinned && !mPs3Stack.empty() && mPs3Stack.back().title == "Pinned Apps") {
+            int keep = mPs3Stack.back().sel;
+            buildPinnedAppsSubmenu(mPs3Stack.back());
+            int n = (int)mPs3Stack.back().items.size();
+            mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+        }
+        buildPs3Cats();   // the Pinned Apps home entry appears with the first pin / vanishes with the last
+        mDisplayDirty = true;
+        return;
+    }
     if (act == "togfav") {
         // Toggle the focused game in the global Favourites list (PS3_ROM = system+rom index,
         // PS3_RECENT = the stored recent path).
