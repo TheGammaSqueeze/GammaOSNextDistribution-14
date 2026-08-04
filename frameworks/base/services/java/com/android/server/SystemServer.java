@@ -4239,6 +4239,16 @@ public final class SystemServer implements Dumpable {
                     reportWtf("starting NanoNetBridge", e);
                 }
 
+                // Auto-grant storage + microphone runtime permissions (and all-files
+                // access for the emulator/frontend allowlist) to user apps so the nano
+                // controller-only UI never has to answer a permission prompt. Runs its
+                // own sweep on a daemon HandlerThread, self-gated on minimal_boot.
+                try {
+                    com.android.server.gammaos.NanoPermGrantBridge.start(mSystemContext);
+                } catch (Throwable e) {
+                    reportWtf("starting NanoPermGrantBridge", e);
+                }
+
                 // Live refresh on package changes. We are past sys.boot_completed, so
                 // AMS/PMS are up and registerReceiver cannot race system-ready. A
                 // dedicated HandlerThread both dispatches the receiver and runs the
@@ -4251,12 +4261,27 @@ public final class SystemServer implements Dumpable {
                 android.content.BroadcastReceiver rcvr = new android.content.BroadcastReceiver() {
                     @Override public void onReceive(android.content.Context c,
                                                     android.content.Intent i) {
+                        android.net.Uri data = i.getData();
+                        String pkg = (data != null) ? data.getSchemeSpecificPart() : null;
+                        String action = i.getAction();
+                        // Auto-grant storage/mic (and all-files for the frontend
+                        // allowlist, e.g. RetroArch) to a freshly installed/updated app
+                        // so it never prompts. Done BEFORE the nano-app-cache prefix
+                        // filter below, which intentionally drops com.retroarch.aarch64
+                        // (a package that still needs the grant). The bridge itself
+                        // applies the correct system/user-app skip rules and is a no-op
+                        // on removals and on gated (non-nano) builds.
+                        if (pkg != null
+                                && !android.content.Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action)
+                                && !android.content.Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
+                            try {
+                                com.android.server.gammaos.NanoPermGrantBridge.sweepPackage(c, pkg);
+                            } catch (Throwable ignored) { }
+                        }
                         // Ignore packages the nano list never shows, so frequent
                         // system-component / Play-services updates never cause churn.
                         // Prefix filter always; the system-flag filter only when the
                         // package still resolves (i.e. not a full removal).
-                        android.net.Uri data = i.getData();
-                        String pkg = (data != null) ? data.getSchemeSpecificPart() : null;
                         if (pkg == null
                                 || pkg.startsWith("com.android.")
                                 || pkg.startsWith("org.lineageos.")
@@ -4265,7 +4290,6 @@ public final class SystemServer implements Dumpable {
                                 || pkg.startsWith("com.retroarch.aarch64")) {
                             return;
                         }
-                        String action = i.getAction();
                         if (!android.content.Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action)
                                 && !android.content.Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
                             try {

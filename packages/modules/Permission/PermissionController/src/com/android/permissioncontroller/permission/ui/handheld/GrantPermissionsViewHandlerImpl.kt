@@ -28,6 +28,7 @@ import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.util.SparseIntArray
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
@@ -374,6 +375,61 @@ class GrantPermissionsViewHandlerImpl(
                 }
             }
             buttons[pos]?.requestLayout()
+        }
+        // GammaOS Nano: on a controller-only device (no touchscreen) the dialog opens in
+        // touch mode with no focused view, so the d-pad has no anchor and Allow/Deny are
+        // unreachable. Give the d-pad a starting anchor by focusing the first visible
+        // button. isFocusableInTouchMode lets it take focus even though the window opened
+        // in touch mode with no touch input available. Universal safety net (harmless on
+        // touch devices, where the user can still tap).
+        installControllerConfirmKeys()
+        focusFirstVisibleButton()
+    }
+
+    // GammaOS Nano: a retro handheld's confirm button emits KEYCODE_BUTTON_A, which the
+    // framework does NOT count as a confirm key (KeyEvent.isConfirmKey is only
+    // DPAD_CENTER / ENTER / SPACE), so even a *focused* button could not be activated by
+    // the pad - the user could reach Allow with the d-pad but no button "pressed" it (the
+    // reported "no button can Allow"). Map the gamepad confirm buttons onto a click of
+    // whichever button currently holds focus. Native DPAD_CENTER / ENTER are left to the
+    // default handling. Harmless on touch / keyboard devices (those codes never arrive).
+    private fun installControllerConfirmKeys() {
+        val onKey =
+            View.OnKeyListener { v, keyCode, event ->
+                when (keyCode) {
+                    KeyEvent.KEYCODE_BUTTON_A,
+                    KeyEvent.KEYCODE_BUTTON_START -> {
+                        if (event.action == KeyEvent.ACTION_UP) v.performClick()
+                        true // consume DOWN and UP so the event never falls through
+                    }
+                    else -> false
+                }
+            }
+        for (b in buttons) {
+            (b ?: continue).setOnKeyListener(onKey)
+        }
+    }
+
+    private fun focusFirstVisibleButton() {
+        // Priority: the primary "Allow" family first, then the picker variants, then Deny.
+        val priority =
+            intArrayOf(
+                ALLOW_BUTTON,
+                ALLOW_ALWAYS_BUTTON,
+                ALLOW_FOREGROUND_BUTTON,
+                ALLOW_ONE_TIME_BUTTON,
+                ALLOW_ALL_BUTTON,
+                ALLOW_SELECTED_BUTTON,
+                DENY_BUTTON,
+                DENY_AND_DONT_ASK_AGAIN_BUTTON
+            )
+        for (pos in priority) {
+            val b = buttons.getOrNull(pos) ?: continue
+            if (b.visibility == View.VISIBLE) {
+                b.isFocusableInTouchMode = true
+                b.requestFocus()
+                return
+            }
         }
     }
 
