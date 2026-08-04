@@ -9412,9 +9412,15 @@ void NanoMenu::drawFaceGlyph(int role, float gcx, float yDev, float glyphR, floa
         ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
         if (localBatch) endSolidBatch();   // flush the ring before the text pass
         // Letter sized to sit inside the ring with padding (ring diameter is 2*glyphR).
-        float scale = glyphR * 1.40f / (float)FONT_CHAR_H;
+        // measureText/drawText fold in the user font scale, but the ring geometry does
+        // not, so divide it back out here to keep the letter fit to the ring instead of
+        // overflowing it at large font sizes. At fontScale 1.0 this is a no-op.
+        const float fg = (mUserFontScale > 0.05f) ? mUserFontScale : 1.0f;
+        float scale = glyphR * 1.40f / ((float)FONT_CHAR_H * fg);
         float tw = measureText(L, scale);
-        float topY = yDev - 0.45f * (float)FONT_CHAR_H * scale;   // centres the cap ink on yDev
+        // Rendered ink height is FONT_CHAR_H*scale*fg (== glyphR*1.40), so centre the cap
+        // ink on yDev using that, not the pre-scale value.
+        float topY = yDev - 0.45f * (float)FONT_CHAR_H * scale * fg;
         drawText(L, gcx - tw * 0.5f, topY, scale, 1.0f, 1.0f, 1.0f, 0.95f * ap);
         return;
     }

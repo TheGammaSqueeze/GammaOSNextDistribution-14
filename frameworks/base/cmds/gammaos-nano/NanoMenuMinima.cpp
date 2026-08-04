@@ -155,6 +155,11 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     const float sc      = fminf(rw, rh) / MIN_REF_H;
     const float pad     = MIN_PAD * sc;
     const float rowH    = MIN_PILL * sc;
+    // At a large user font size the list text grows but a geometric row height would crowd the
+    // rows and the selected pill, so scale the LIST row pitch + pill height with the font size so
+    // the items get more breathing room. Chrome (status / legend pills) keeps rowH. fg 1.0 = same.
+    const float lfg     = (mUserFontScale > 0.05f) ? mUserFontScale : 1.0f;
+    const float listRowH = rowH * lfg;
     const float btnPad  = MIN_BTNPAD * sc;
     const float btnMg   = MIN_BTNMARGIN * sc;
     const float fsRow   = (MIN_FONT * sc) / (float)FONT_CHAR_H;
@@ -223,7 +228,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     mMinimaListTop = listTop;                                // cache for minimaListTouch hit-testing
     const float hintTop    = ry + rh - pad - rowH;          // hint bar occupies the bottom PILL_SIZE band
     const float listBottom = hintTop - btnMg;
-    const int   visRows    = (int)fmaxf(1.0f, floorf((listBottom - listTop) / rowH));
+    const int   visRows    = (int)fmaxf(1.0f, floorf((listBottom - listTop) / listRowH));
     const float textMaxW   = (rx + rw - pad) - listLeft - btnPad;   // room before the right edge
 
     // ---- ease the scroll window and the pill toward the selection (NextUI ~3-frame glide) ----
@@ -282,23 +287,23 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     if (n == 0) {
         const char* empty = "Empty";
         float tw = measureText(empty, fsRow);
-        drawText(empty, rx + rw * 0.5f - tw * 0.5f, listTop + rowH * 0.5f, fsRow, 1.0f, 1.0f, 1.0f, 0.55f);
+        drawText(empty, rx + rw * 0.5f - tw * 0.5f, listTop + listRowH * 0.5f, fsRow, 1.0f, 1.0f, 1.0f, 0.55f);
     }
     for (int i = 0; i < n; i++) {
-        float rowY = listTop + ((float)i - mMinimaScroll) * rowH;
-        if (rowY + rowH < listTop - 1.0f || rowY > listBottom + 1.0f) continue;   // clip to the list band
+        float rowY = listTop + ((float)i - mMinimaScroll) * listRowH;
+        if (rowY + listRowH < listTop - 1.0f || rowY > listBottom + 1.0f) continue;   // clip to the list band
         if (i == sel) continue;                                                    // selected drawn on the pill below
-        float ty = rowY + (rowH - MIN_FONT * sc) * 0.5f;
+        float ty = rowY + (listRowH - MIN_FONT * sc * lfg) * 0.5f;
         // A value-bearing row draws its value right-aligned (dim white); the label is clipped to
         // the space before it so the two never overlap. rowRight tracks slideX so the value slides
         // with the row during a level-change transition, like the label does.
         float rowRight = rx + rw - pad - btnPad + slideX;
-        if (rowY < statusBandBot && rowY + rowH > ry + pad)
+        if (rowY < statusBandBot && rowY + listRowH > ry + pad)
             rowRight = fminf(rowRight, statusPillLeft - 8.0f * sc);   // clear the status pill
         float labelMaxW = textMaxW;
         // Keep the label clear of the top-right status pill (mirror the value-column clip above):
         // in portrait a long first-row label (e.g. "Quick Menu") otherwise runs under the pill.
-        if (rowY < statusBandBot && rowY + rowH > ry + pad)
+        if (rowY < statusBandBot && rowY + listRowH > ry + pad)
             labelMaxW = fminf(labelMaxW, (statusPillLeft - 8.0f * sc) - (lx + btnPad));
         if (!vals[i].empty()) {
             float vw = measureText(vals[i].c_str(), fsRow);
@@ -311,7 +316,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
                 // "Scroll" mode (Theme Settings > Long Names): keep the font size and CLIP the label
                 // to its column instead of shrinking. The focused row marquee-scrolls (below); a
                 // non-focused long name just truncates at the column edge, at full size.
-                scissorLogicalRect(lx + btnPad, rowY, labelMaxW, rowH);
+                scissorLogicalRect(lx + btnPad, rowY, labelMaxW, listRowH);
                 drawText(rows[i].c_str(), lx + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);
                 glDisable(GL_SCISSOR_TEST);
                 continue;
@@ -328,8 +333,8 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         const std::string& lbl = rows[si];
         const std::string& val = vals[si];
         const float fs = fsRow, tw = measureText(lbl.c_str(), fs);
-        const float pillY = listTop + (mMinimaSelAnim - mMinimaScroll) * rowH + rowH * 0.07f;
-        const float pillH = rowH * 0.86f;
+        const float pillY = listTop + (mMinimaSelAnim - mMinimaScroll) * listRowH + listRowH * 0.07f;
+        const float pillH = listRowH * 0.86f;
         // The selected capsule normally runs to the right list margin, but the FIRST row sits under
         // the top-right status pill (portrait especially): cap the pill's right edge to statusPillLeft
         // so a long selected label (e.g. "Internet Connection") is not overlapped by the pill. This
@@ -339,7 +344,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
             pillRightLimit = fminf(pillRightLimit, statusPillLeft - 8.0f * sc);
         const float maxPillW = pillRightLimit - lx;
         const float maxTextW = maxPillW - btnPad * 2.0f;
-        const float ty = pillY + (pillH - MIN_FONT * sc) * 0.5f;
+        const float ty = pillY + (pillH - MIN_FONT * sc * lfg) * 0.5f;
         if (sel != mMinimaMarqueeSel) { mMinimaMarqueeSel = sel; mMinimaMarquee = 0.0f; mMinimaMarqueeStart = (int64_t)uptimeMillis(); }
         if (!val.empty()) {
             // value-bearing selected row: full-width capsule, label left + value right (both black)
@@ -455,7 +460,10 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     // a centred Y Info between them for a focused game that has scraped info. ----
     {
         const float ph = rowH, py = hintTop, gap = 5.0f * sc;
-        const float glyphR = MIN_FONT_S * sc * 0.70f, lw = fmaxf(1.5f, 2.0f * sc);
+        // The label text scales with the user font size (drawText folds in the font scale),
+        // so grow the button glyph to match, capped so it still fits inside the pill height.
+        const float fg = (mUserFontScale > 0.05f) ? mUserFontScale : 1.0f;
+        const float glyphR = fminf(MIN_FONT_S * sc * 0.70f * fg, ph * 0.40f), lw = fmaxf(1.5f, 2.0f * sc);
         auto drawLegend = [&](int role, const char* label, int align) {   // align: 0 left, 1 right, 2 centre
             const char* lbl = trDyn(label);
             float lblW = measureText(lbl, fsHint);
@@ -466,7 +474,8 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
             drawRoundedRect(px, py, pw, ph, ph * 0.5f, ar, ag, ab, 1.0f);
             float gcx = px + btnPad + glyphR, gcy = py + ph * 0.5f;
             drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f);   // A=0, B=1, Y=2 (white ring + letter)
-            drawText(lbl, gcx + glyphR + gap, py + (ph - MIN_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
+            // Centre the label on the pill using its rendered height (which includes the font scale).
+            drawText(lbl, gcx + glyphR + gap, py + (ph - MIN_FONT_S * sc * fg) * 0.5f, fsHint, atc, atc, atc, 1.0f);
         };
         drawLegend(0, "Open", 1);    // A Open (right)
         drawLegend(1, "Back", 0);    // B Back (left)
@@ -631,13 +640,17 @@ void NanoMenu::renderMinimaSidePanel(float rx, float ry, float rw, float rh) {
     float ar, ag, ab; minimaAccent(ar, ag, ab);
     const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc;
     const float inset = 8.0f * sc;
+    // Scale the option-list row pitch + pill with the user font size (matches the home list) so the
+    // options are not crowded at a large font. fg 1.0 = unchanged.
+    const float lfg = (mUserFontScale > 0.05f) ? mUserFontScale : 1.0f;
+    const float listRowH = rowH * lfg;
     float panelW = fminf(rw * 0.60f, rw - pad * 2.0f);
     float px = rx + rw - panelW + (1.0f - ap) * panelW;             // slide in from the right
     drawQuad(px, ry, panelW, rh, 0.05f, 0.05f, 0.06f, 0.98f * ap);  // dark panel
     drawQuad(px, ry, fmaxf(2.0f, 3.0f * sc), rh, ar, ag, ab, ap);   // accent left edge
     drawText(title.c_str(), px + pad + inset, ry + pad, (18.0f * sc) / (float)FONT_CHAR_H, ar, ag, ab, ap);
     float listLeft = px + pad + inset;
-    float contentTop = ry + pad + rowH * 0.9f + 6.0f * sc;
+    float contentTop = ry + pad + listRowH * 0.9f + 6.0f * sc;
 
     if (slider) {
         float mn = mPs3DlgSldMin, mx = mPs3DlgSldMax, v = mPs3DlgSldVal;
@@ -653,17 +666,17 @@ void NanoMenu::renderMinimaSidePanel(float rx, float ry, float rw, float rh) {
         drawRoundedRect(bx + bw * t - 5.0f * sc, by - 5.0f * sc, 10.0f * sc, bh + 10.0f * sc, 5.0f * sc, 1.0f, 1.0f, 1.0f, ap);
     } else if (n > 0) {
         float listBot = ry + rh - pad;
-        int visRows = (int)fmaxf(1.0f, floorf((listBot - contentTop) / rowH));
+        int visRows = (int)fmaxf(1.0f, floorf((listBot - contentTop) / listRowH));
         int top = sel - visRows / 2; if (top > n - visRows) top = n - visRows; if (top < 0) top = 0;
         float textMaxW = px + panelW - pad - listLeft - btnPad;
         for (int i = top; i < n && i < top + visRows; i++) {
-            float rowY = contentTop + (float)(i - top) * rowH;
-            float ty = rowY + (rowH - MIN_FONT * sc) * 0.5f;
+            float rowY = contentTop + (float)(i - top) * listRowH;
+            float ty = rowY + (listRowH - MIN_FONT * sc * lfg) * 0.5f;
             float fs = (MIN_FONT * sc) / (float)FONT_CHAR_H, tw = measureText(rows[i].c_str(), fs);
             if (tw > textMaxW && textMaxW > 0.0f) { fs *= textMaxW / tw; tw = measureText(rows[i].c_str(), fs); }
             if (i == sel) {
-                float pillH = rowH * 0.86f, pillW = fminf(tw + btnPad * 2.0f, px + panelW - pad - listLeft);
-                drawRoundedRect(listLeft, rowY + rowH * 0.07f, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, ap);
+                float pillH = listRowH * 0.86f, pillW = fminf(tw + btnPad * 2.0f, px + panelW - pad - listLeft);
+                drawRoundedRect(listLeft, rowY + listRowH * 0.07f, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, ap);
                 drawText(rows[i].c_str(), listLeft + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, ap);
             } else {
                 drawText(rows[i].c_str(), listLeft + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, ap);
@@ -788,25 +801,29 @@ void NanoMenu::minimaListTouch() {
 
     const float rw = (float)mWidth, rh = (float)mHeight;
     const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnMg = MIN_BTNMARGIN * sc;
+    // The list rows are drawn at a font-scaled pitch (renderMinima's listRowH), so hit-test at the
+    // SAME pitch or a tap lands on the wrong row at a large font size. Chrome (hint band) keeps rowH.
+    const float lfg = (mUserFontScale > 0.05f) ? mUserFontScale : 1.0f;
+    const float listRowH = rowH * lfg;
     // listTop mirrors renderMinimaList (pushed below the status pill on narrow panels); use the cached
     // render value so touch hit-testing lines up with what is drawn. Fall back to pad before first render.
     const float listTop = (mMinimaListTop >= 0.0f) ? mMinimaListTop : pad;
     const float listLeft = pad + btnMg, hintTop = rh - pad - rowH, listBottom = hintTop - btnMg;
 
     if (!tap) {                                              // vertical swipe -> scroll the selection
-        if (fabsf(ddy) > fabsf(ddx) && fabsf(ddy) > rowH * 0.5f) {
-            int step = (int)(-ddy / rowH);                  // content follows finger (drag down reveals earlier rows)
+        if (fabsf(ddy) > fabsf(ddx) && fabsf(ddy) > listRowH * 0.5f) {
+            int step = (int)(-ddy / listRowH);              // content follows finger (drag down reveals earlier rows)
             if (step != 0) { int ns = *selPtr + step; if (ns < 0) ns = 0; if (ns > n - 1) ns = n - 1;
                              if (ns != *selPtr) { *selPtr = ns; mDisplayDirty = true; } }
         }
         return;
     }
-    // TAP: hit-test the visible row under the finger (rowY = listTop + (i - mMinimaScroll)*rowH).
+    // TAP: hit-test the visible row under the finger (rowY = listTop + (i - mMinimaScroll)*listRowH).
     if (mXmbTouchDownPY < listTop || mXmbTouchDownPY > listBottom ||
         mXmbTouchDownPX < listLeft - pad || mXmbTouchDownPX > rw - pad) return;
-    int i = (int)floorf((mXmbTouchDownPY - listTop) / rowH + mMinimaScroll);
-    float rowY = listTop + ((float)i - mMinimaScroll) * rowH;
-    if (i >= 0 && i < n && mXmbTouchDownPY >= rowY && mXmbTouchDownPY <= rowY + rowH) {
+    int i = (int)floorf((mXmbTouchDownPY - listTop) / listRowH + mMinimaScroll);
+    float rowY = listTop + ((float)i - mMinimaScroll) * listRowH;
+    if (i >= 0 && i < n && mXmbTouchDownPY >= rowY && mXmbTouchDownPY <= rowY + listRowH) {
         *selPtr = i; mDisplayDirty = true;
         ndsNavSelect(true);                                 // activate (root/category/stack aware, same as A)
         if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
@@ -825,7 +842,9 @@ void NanoMenu::minimaSidePanelTouch() {
     const float sc = fminf(rw, rh) / MIN_REF_H, pad = MIN_PAD * sc, rowH = MIN_PILL * sc, btnPad = MIN_BTNPAD * sc, inset = 8.0f * sc;
     const float panelW = fminf(rw * 0.60f, rw - pad * 2.0f);
     const float pxl = rw - panelW;                          // settled panel left (slide-in done)
-    const float listLeft = pxl + pad + inset, contentTop = pad + rowH * 0.9f + 6.0f * sc, listBot = rh - pad;
+    const float lfg = (mUserFontScale > 0.05f) ? mUserFontScale : 1.0f;
+    const float listRowH = rowH * lfg;                      // font-scaled pitch (mirror renderMinimaSidePanel)
+    const float listLeft = pxl + pad + inset, contentTop = pad + listRowH * 0.9f + 6.0f * sc, listBot = rh - pad;
 
     // Rebuild the visible-row -> real-index map exactly as renderMinimaSidePanel / ndsSidePanelTouch.
     const bool optSrc = (mPs3OptActive || mPs3OptClosing);
@@ -878,13 +897,13 @@ void NanoMenu::minimaSidePanelTouch() {
 
     if (mXmbTouchDownPX < pxl) { ps3XmbBack(); return; }    // tapped the scrim (left of the panel) -> dismiss/back
     if (n <= 0) return;
-    int visRows = (int)fmaxf(1.0f, floorf((listBot - contentTop) / rowH));
+    int visRows = (int)fmaxf(1.0f, floorf((listBot - contentTop) / listRowH));
     int top = selVis - visRows / 2; if (top > n - visRows) top = n - visRows; if (top < 0) top = 0;
     if (mXmbTouchDownPY < contentTop || mXmbTouchDownPY > listBot) return;
-    int vis = (int)floorf((mXmbTouchDownPY - contentTop) / rowH);
+    int vis = (int)floorf((mXmbTouchDownPY - contentTop) / listRowH);
     int i = top + vis;
-    float rowY = contentTop + (float)vis * rowH;
-    if (i >= 0 && i < n && mXmbTouchDownPY >= rowY && mXmbTouchDownPY <= rowY + rowH) {
+    float rowY = contentTop + (float)vis * listRowH;
+    if (i >= 0 && i < n && mXmbTouchDownPY >= rowY && mXmbTouchDownPY <= rowY + listRowH) {
         if (optSrc && !subOpen) { mPs3OptSel = realIdx[i]; xmbOptEnter(); }
         else if (optSrc && subOpen) { mPs3OptSubSel = i; xmbOptEnter(); }
         else { mPs3DlgSel = i; ps3XmbSelect(); }
