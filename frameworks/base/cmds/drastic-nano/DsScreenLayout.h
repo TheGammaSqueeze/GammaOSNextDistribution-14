@@ -84,6 +84,18 @@ struct LayoutConfig {
     // bottom-right, the original placement). Only used when the PiP inset
     // overlaps the big screen; ignored otherwise.
     PipCorner   pipCorner = PipCorner::BottomRight;
+    // Fine layout tuning applied as a single post-pass over the computed slots,
+    // on top of ANY preset or parametric layout. These let the user nudge the
+    // whole screen group so it lands correctly on a panel whose safe area or
+    // bezel does not match the reference layout. tuneDx/tuneDy shift the group as
+    // a fraction of the surface width/height; tuneScale scales every slot about
+    // the group centre (1 = unchanged). All identity by default, so a user who
+    // never touches them sees the exact same layout as before. Applied uniformly
+    // so the bottom (touch) rect moves with the drawn quads and the OSK + DS
+    // touch mapping (which read bottomRect()) stay aligned.
+    float       tuneDx    = 0.0f;   // group X offset, fraction of surface W (-0.5..0.5)
+    float       tuneDy    = 0.0f;   // group Y offset, fraction of surface H (-0.5..0.5)
+    float       tuneScale = 1.0f;   // uniform group scale about centre (0.5..1.5)
 };
 
 // Number of predetermined layout presets (kLayoutPresets in DsScreenLayout.cpp).

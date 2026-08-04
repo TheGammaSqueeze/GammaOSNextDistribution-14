@@ -1917,6 +1917,27 @@ static drastic_nano::LayoutConfig readSfLayoutConfig(int surfaceW, int surfaceH)
     else if (!strcmp(buf, "tr")) cfg.pipCorner = drastic_nano::PipCorner::TopRight;
     else if (!strcmp(buf, "tl")) cfg.pipCorner = drastic_nano::PipCorner::TopLeft;
     else                         cfg.pipCorner = drastic_nano::PipCorner::BottomRight;
+
+    // Fine layout tuning (Layout X/Y Offset + Layout Scale in the overlay Video
+    // section). A group offset + uniform scale applied as a post-pass over the
+    // computed layout, so it rides on top of any preset or the parametric layout.
+    // Offsets are a signed percent of the surface width/height (-50..50);
+    // scale is a percent (50..150, 100 = unchanged). Identity by default.
+    property_get("persist.gammaos.drastic_nano.ltune_dx", buf, "0");
+    int tdx = atoi(buf);
+    if (tdx < -50) tdx = -50; else if (tdx > 50) tdx = 50;
+    cfg.tuneDx = (float)tdx / 100.0f;
+
+    property_get("persist.gammaos.drastic_nano.ltune_dy", buf, "0");
+    int tdy = atoi(buf);
+    if (tdy < -50) tdy = -50; else if (tdy > 50) tdy = 50;
+    cfg.tuneDy = (float)tdy / 100.0f;
+
+    property_get("persist.gammaos.drastic_nano.ltune_scale", buf, "100");
+    int tsc = atoi(buf);
+    if (tsc < 50) tsc = 50; else if (tsc > 150) tsc = 150;
+    cfg.tuneScale = (float)tsc / 100.0f;
+
     return cfg;
 }
 

@@ -40,6 +40,40 @@ Rect place(const Fit& f, float nx, float ny, float nw, float nh) {
     return { f.ox + nx * f.s, f.oy + ny * f.s, nw * f.s, nh * f.s };
 }
 
+// Fine layout tuning post-pass. Runs over an already-computed LayoutPlan, in the
+// same logical (pre-rotation) pixel space compute() produced. It scales every
+// slot about the group centre (the centre of the union bounding box of the
+// slots) and then offsets the whole group. Because it edits plan.slots in place,
+// every consumer inherits the tuning for free: the render loop's viewport/scissor
+// AND bottomRect() (so the OSK and the DS touch mapping follow the moved bottom
+// screen). Identity (no offset, unit scale) leaves the plan untouched.
+void applyTune(LayoutPlan& p, const LayoutConfig& c, float W, float H) {
+    if (c.tuneScale == 1.0f && c.tuneDx == 0.0f && c.tuneDy == 0.0f) return;
+    if (p.count <= 0) return;
+
+    // Union bounding box of the slots -> group centre.
+    float minx = 1e9f, miny = 1e9f, maxx = -1e9f, maxy = -1e9f;
+    for (int i = 0; i < p.count; i++) {
+        const Rect& r = p.slots[i].rect;
+        minx = std::min(minx, r.x);       miny = std::min(miny, r.y);
+        maxx = std::max(maxx, r.x + r.w); maxy = std::max(maxy, r.y + r.h);
+    }
+    const float cx = (minx + maxx) * 0.5f;
+    const float cy = (miny + maxy) * 0.5f;
+    const float ox = c.tuneDx * W;
+    const float oy = c.tuneDy * H;
+    const float s  = c.tuneScale;
+
+    for (int i = 0; i < p.count; i++) {
+        Rect& r = p.slots[i].rect;
+        r.x = cx + (r.x - cx) * s + ox;
+        r.y = cy + (r.y - cy) * s + oy;
+        r.w = r.w * s;
+        r.h = r.h * s;
+        r = roundRect(r);
+    }
+}
+
 // --- Predetermined handheld layout presets -------------------------------
 // Authored at a 16:9 reference resolution (the advanced_drastic / drastic_layout
 // TSP layout.json, 1280x720); compute() scales the rectangles to the real
@@ -133,12 +167,14 @@ LayoutPlan compute(const LayoutConfig& cfg, uint32_t surfaceW, uint32_t surfaceH
                 plan.count = 2;
                 plan.slots[0] = { roundRect(bigR), big, 1.0f };
                 plan.slots[1] = { roundRect(insR), ins, 1.0f };
+                applyTune(plan, cfg, W, H);
                 return plan;
             }
             if (p.pipFrac < 0.0f) {
                 // Auto with no room beside the big screen: just the big, full.
                 plan.count = 1;
                 plan.slots[0] = { roundRect({ bf.ox, bf.oy, bigW, bigH }), big, 1.0f };
+                applyTune(plan, cfg, W, H);
                 return plan;
             }
             // Overlapping translucent inset, placed in the configured corner
@@ -157,6 +193,7 @@ LayoutPlan compute(const LayoutConfig& cfg, uint32_t surfaceW, uint32_t surfaceH
             plan.count = 2;
             plan.slots[0] = { roundRect({ bf.ox, bf.oy, bigW, bigH }), big, 1.0f };
             plan.slots[1] = { roundRect({ px, py, iW, iH }), ins, a };
+            applyTune(plan, cfg, W, H);
             return plan;
         }
 
@@ -167,6 +204,7 @@ LayoutPlan compute(const LayoutConfig& cfg, uint32_t surfaceW, uint32_t surfaceH
             if (cfg.swap) c = (c == DsScreen::Top) ? DsScreen::Bottom : DsScreen::Top;
             plan.count = 1;
             plan.slots[0] = { roundRect({ 0.0f, 0.0f, W, H }), c, 1.0f };
+            applyTune(plan, cfg, W, H);
             return plan;
         }
 
@@ -209,6 +247,7 @@ LayoutPlan compute(const LayoutConfig& cfg, uint32_t surfaceW, uint32_t surfaceH
             if (cfg.swap) c = (c == DsScreen::Top) ? DsScreen::Bottom : DsScreen::Top;
             plan.slots[i] = { roundRect(place(f, ps.x - minX, ps.y - minY, ps.w, ps.h)), c, 1.0f };
         }
+        applyTune(plan, cfg, W, H);
         return plan;
     }
 
@@ -231,6 +270,7 @@ LayoutPlan compute(const LayoutConfig& cfg, uint32_t surfaceW, uint32_t surfaceH
         }
         plan.count = 1;
         plan.slots[0] = { roundRect(r), cfg.swap ? DsScreen::Bottom : DsScreen::Top };
+        applyTune(plan, cfg, W, H);
         return plan;
     }
 
@@ -324,6 +364,7 @@ LayoutPlan compute(const LayoutConfig& cfg, uint32_t surfaceW, uint32_t surfaceH
         }
     }
 
+    applyTune(plan, cfg, W, H);
     return plan;
 }
 

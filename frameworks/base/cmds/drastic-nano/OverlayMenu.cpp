@@ -1969,6 +1969,64 @@ void OverlayMenu::rebuildVideo() {
         mRows.push_back(std::move(r));
     }
     {
+        // Fine layout tuning: nudge the WHOLE screen group's X/Y offset and its
+        // uniform scale on top of any preset or the parametric layout, so a panel
+        // whose safe area or bezel does not match the reference layout can be
+        // dialled in. Live: the render loop re-reads the properties every frame
+        // (readSfLayoutConfig -> compute() applyTune post-pass), so a Left/Right
+        // press slides or scales the screens on the very next frame with no
+        // relaunch. Because the tuning also moves the computed bottom-screen rect,
+        // the touch mapping and OSK follow the moved screen automatically.
+        auto addNudge = [this](const char* label, const char* key,
+                               int lo, int hi, int step, int def) {
+            RowAction r;
+            r.label = label;
+            char cur[PROPERTY_VALUE_MAX] = {};
+            char defs[16];
+            snprintf(defs, sizeof(defs), "%d", def);
+            property_get(key, cur, defs);
+            int v = atoi(cur);
+            if (v < lo) v = lo; else if (v > hi) v = hi;
+            char vs[16];
+            snprintf(vs, sizeof(vs), "%d%%", v);
+            r.value = vs;
+            r.onAdjust = [key, lo, hi, step, def](int dir) {
+                char b[PROPERTY_VALUE_MAX] = {};
+                char defb[16];
+                snprintf(defb, sizeof(defb), "%d", def);
+                property_get(key, b, defb);
+                int n = atoi(b) + dir * step;
+                if (n < lo) n = lo; else if (n > hi) n = hi;
+                char nb[16];
+                snprintf(nb, sizeof(nb), "%d", n);
+                property_set(key, nb);
+            };
+            mRows.push_back(std::move(r));
+        };
+        addNudge("Layout X Offset", "persist.gammaos.drastic_nano.ltune_dx",
+                 -50, 50, 1, 0);
+        addNudge("Layout Y Offset", "persist.gammaos.drastic_nano.ltune_dy",
+                 -50, 50, 1, 0);
+        addNudge("Layout Scale", "persist.gammaos.drastic_nano.ltune_scale",
+                 50, 150, 1, 100);
+    }
+    {
+        // Reset Layout Tuning: snap the fine-tune offset/scale back to identity so
+        // a user can never strand the screens off-panel with no way back. Only
+        // touches the ltune_* props (leaves the preset / gap / rotation choices).
+        RowAction r;
+        r.label = "Reset Layout Tuning";
+        auto reset = [this]() {
+            property_set("persist.gammaos.drastic_nano.ltune_dx", "0");
+            property_set("persist.gammaos.drastic_nano.ltune_dy", "0");
+            property_set("persist.gammaos.drastic_nano.ltune_scale", "100");
+            toast("Layout tuning reset");
+        };
+        r.onAccept = reset;
+        r.onAdjust = [reset](int) { reset(); };
+        mRows.push_back(std::move(r));
+    }
+    {
         RowAction r;
         r.label = "Swap Screens";
         r.value = property_get_bool("persist.gammaos.drastic_nano.swap", false)
@@ -2609,9 +2667,34 @@ void OverlayMenu::drawFooter(drastic_gfx::OverlayGfx& gfx, float vw,
                "Left/Right: adjust     B: close";
     }
     hint = trDyn(hint);
+    // Fit-to-width: this hint strip is a fixed, space-padded label and it is
+    // localized (some locales run longer than English), so on a narrow or a
+    // tall panel (base glyph px = viewportH/22, clamped at 32) its natural width
+    // can exceed the viewport and the centered string clips off the edges (the
+    // reported overflow on the 1024x768 Brick). Shrink footScale until it fits.
+    //
+    // This must be ITERATIVE, not a single avail/fw step: the pixel size re-quantises
+    // to an integer after every scale change, so one proportional step routinely lands
+    // a hair too wide and the last glyph still clips (that was the residual bug). We
+    // loop, re-measuring each pass, until the width is genuinely under a target that
+    // keeps a safety gutter (kFit) below the usable width - the gutter also absorbs any
+    // drift between measure() and the rendered pen advance. A scale floor keeps it
+    // readable; if even that overflows, the origin clamp below keeps the START visible.
+    const float sideMargin = 16.0f * sf;
+    const float avail      = vw - 2.0f * sideMargin;
+    const float kFit       = 0.94f;             // leave ~6% gutter so nothing touches the edge
+    const float target     = avail * kFit;
+    const float kMinFoot   = 0.40f * sf;        // absolute readability floor for footScale
     float fw = gfx.measure(hint, footScale);
+    int   guard = 0;
+    while (fw > target && footScale > kMinFoot && guard++ < 48) {
+        footScale *= 0.95f;
+        fw = gfx.measure(hint, footScale);
+    }
     float fy = vh - gfx.fontLineH() * footScale - 10.0f * sf;
-    gfx.text(hint, (vw - fw) / 2.0f, fy, footScale,
+    float fx = (vw - fw) / 2.0f;
+    if (fx < sideMargin) fx = sideMargin;        // never clip the left; residual clips right
+    gfx.text(hint, fx, fy, footScale,
              rgba(0.55f, 0.58f, 0.70f, 0.85f));
 }
 
