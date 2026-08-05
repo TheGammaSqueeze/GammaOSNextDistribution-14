@@ -8257,7 +8257,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "none:Black,20222b:Slate,3a3f4b:Graphite,ffffff:White,9b2257:Berry,1e3a5f:Navy,0d5c46:Teal,2e5d34:Forest,6a1b9a:Purple,b3122b:Crimson,d2691e:Amber,1a1a2e:Midnight"},
     // Minima long-name handling: 0 = shrink the font so a long name fits (default), 1 = keep the
     // font size and scroll the focused name (marquee) / clip the rest. Read live by renderMinimaList.
-    {"Long Names", SettingSource::kProp, "persist.gammaos.nano.minima.namescroll", "0", "0:Shrink to Fit,1:Scroll"},
+    {"Long Names", SettingSource::kProp, "persist.gammaos.nano.minima.namescroll", "1", "0:Shrink to Fit,1:Scroll"},
     // Adjustable dimming over a custom wallpaper (read live by wallpaperScrimAlpha, applied in
     // drawWallpaperFill / drawTopVideoWallpaper for every theme). Percent value, 0 = off.
     {"Wallpaper Dimming", SettingSource::kProp, "persist.gammaos.nano.wp.scrim", "25",

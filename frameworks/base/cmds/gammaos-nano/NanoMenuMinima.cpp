@@ -164,9 +164,9 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     const float btnMg   = MIN_BTNMARGIN * sc;
     const float fsRow   = (MIN_FONT * sc) / (float)FONT_CHAR_H;
     const float fsHint  = (MIN_FONT_S * sc) / (float)FONT_CHAR_H;
-    // Theme Settings > Long Names: 0 = shrink a too-long name to fit (default), 1 = keep the font
-    // size and scroll the focused name / clip the rest. Read live so a chooser change applies at once.
-    char nsv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.minima.namescroll", nsv, "0");
+    // Theme Settings > Long Names: 1 = keep the font size and scroll the focused name / clip the rest
+    // (default), 0 = shrink a too-long name to fit. Read live so a chooser change applies at once.
+    char nsv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.minima.namescroll", nsv, "1");
     const bool minNameScroll = (nsv[0] == '1' || nsv[0] == 't' || nsv[0] == 'o');
 
     // ---- resolve the current level's rows (categories at root, else the category/submenu items) ----
