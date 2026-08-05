@@ -715,6 +715,10 @@ void NanoMenu::overlayQuitToHome() {
     bool isGame = !pkg.empty() &&
         (pkg.find("retroarch") != std::string::npos ||
          pkg.find("drastic") != std::string::npos);
+    // Per-app "Keep Running in Background": leave the app alive when exiting to the menu so it can
+    // resume warm. We still return to the launcher (raise the overlay wallpaper / hide to the DRM
+    // home), we just skip the ESC/force-stop below. Explicit Kill All / Kill Background still stop it.
+    bool keepAlive = !pkg.empty() && backgroundHas(pkg);
 
     if (property_get_bool("persist.gammaos.nano.overlay_home", false)) {
         // Overlay-home: quit == return to the overlay launcher. Keep the overlay
@@ -730,7 +734,9 @@ void NanoMenu::overlayQuitToHome() {
         // the wave juddered (~34fps presented at a 59fps render loop).
         overlayApplyPresentMode();
         property_set("sys.gammaos.nano.app_launched", "0");
-        if (!pkg.empty()) {
+        if (keepAlive) {
+            ALOGI("overlay: quit %s -> overlay launcher (kept alive in background)", pkg.c_str());
+        } else if (!pkg.empty()) {
             std::string p = pkg;
             std::thread([p, isGame]() {
                 if (isGame) {
@@ -758,7 +764,7 @@ void NanoMenu::overlayQuitToHome() {
     }
 
     // Non-overlay-home: force-stop and let the DRM home XMB take the display back.
-    if (!pkg.empty()) {
+    if (!pkg.empty() && !keepAlive) {
         char cmd[320];
         snprintf(cmd, sizeof(cmd), "am force-stop %s 2>/dev/null",
                  overlayShq(pkg).c_str());
@@ -766,6 +772,19 @@ void NanoMenu::overlayQuitToHome() {
         ALOGI("overlay: quit -> force-stopped %s, returning to home XMB", pkg.c_str());
     }
     property_set("sys.gammaos.nano.show_overlay", "0");
+    if (keepAlive) {
+        // The app is left alive, so the framework's app-death-triggered home restart never fires.
+        // Trigger the DRM home restart ourselves and clear the launch state (mirroring the
+        // RootWindowContainer cleanup) so nano retakes the display over the still-alive app instead
+        // of overlayHide simply revealing it again. app_launched=0 stops the restart from relaunching
+        // it via the LAUNCHER fallback.
+        property_set("sys.gammaos.nano.app_launched", "0");
+        property_set("sys.gammaos.nano.launch_app", "");
+        property_set("sys.gammaos.nano.launch_intent", "");
+        property_set("sys.gammaos.nano.launch_core", "");
+        property_set("sys.gammaos.nano.restart", "1");
+        ALOGI("overlay: quit -> %s kept alive in background, restarting home XMB", pkg.c_str());
+    }
     overlayHide();
 }
 
@@ -1021,7 +1040,9 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
                 usleep(2500000);   // pids unknown: give the ESC time to save and quit
                 ALOGI("overlay: ESC-exited %s (pids unknown, fixed wait)", old.c_str());
             }
-        } else if (!old.empty()) {
+        } else if (!old.empty() && !backgroundHas(old)) {
+            // Do NOT force-stop a "Keep Running in Background" app when switching away from it -
+            // it must stay alive so re-selecting it later resumes warm.
             char c[320];
             snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
                      overlayShq(old).c_str());
@@ -1089,7 +1110,16 @@ bool NanoMenu::overlayLaunchPackage(const std::string& pkg) {
     if (pkg.empty()) return false;
     // Selecting the app that is ALREADY running = just resume it (one app per
     // package, unlike emulators). Games never take this path (see overlayLaunchGame).
-    if (pkg == mOverlayPausedPkg) { overlayResume(); return true; }
+    if (pkg == mOverlayPausedPkg) {
+        // Scrim-over-app: dismiss the scrim to return to the running app.
+        if (!mOverlayWallpaper) { overlayResume(); return true; }
+        // Launcher mode (the overlay IS the home): overlayResume() is a deliberate no-op, so a
+        // "Keep Running in Background" app that was exited to the menu would get stuck here. Its
+        // process is still alive, so fall through and am-start its launcher activity - that brings the
+        // existing task to the front WARM. Clear mOverlayPausedPkg first so overlayLaunchCommand does
+        // NOT force-stop the very process we kept alive (which would cold-restart it).
+        mOverlayPausedPkg.clear();
+    }
     // Plain app (Applications submenu): start its LAUNCHER activity. Resolve the
     // component and start it with `am start` rather than `monkey` - monkey cannot take
     // a --display flag, which overlayLaunchCommand needs to pin the app to the top panel

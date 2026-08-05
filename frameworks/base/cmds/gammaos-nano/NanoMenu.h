@@ -896,6 +896,14 @@ private:
     void dualstackSet(const std::string& pkg, bool enable);
     bool primaryScreenHas(const std::string& pkg);   // per-app "Run on primary screen" allowlist
     void primaryScreenSet(const std::string& pkg, bool enable);
+    // Per-app "keep running in the background" allowlist. When a package is on this list nano does NOT
+    // force-stop it when the user exits it back to the nano menu (back-hold or quick-menu Close App);
+    // the app stays alive so re-launching it resumes warm. Stored in the same ~91-char-safe indexed
+    // sysprop list (persist.gammaos.nano.background_pkgs) and read by the framework exit path
+    // (PhoneWindowManager) via DualStackPropertyUtils.isPackageInList. Explicit "Kill All / Kill
+    // Background" actions still stop it.
+    bool backgroundHas(const std::string& pkg);
+    void backgroundSet(const std::string& pkg, bool enable);
     // Pinned apps: a Game-home shortcut list of user-chosen apps. Package-keyed, stored in the
     // same ~91-char-safe indexed sysprop list infra as primary_pkgs (persist.gammaos.nano.pinned_pkgs).
     bool isAppPinned(const std::string& pkg);         // package is in persist.gammaos.nano.pinned_pkgs
@@ -1792,7 +1800,7 @@ private:
     // level only. The vectors are populated only while the menu is open (no idle cost).
     struct Ps3OptSub {
         std::string label;
-        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style, 3 = per-app orientation, 4 = dual-stack, 5 = run-on-primary-screen
+        int kind = 0;      // 0 = sort, 1 = group content, 2 = slideshow style, 3 = per-app orientation, 4 = dual-stack, 5 = run-on-primary-screen, 6 = keep-alive-in-background
         int field = 0;     // sort: 0 = film date, 1 = import date, 2 = name
         int dir = 1;       // sort: 0 = desc, 1 = asc
         int groupIdx = 0;  // group-content mode index
@@ -1800,6 +1808,7 @@ private:
         std::string orient; // per-app orientation value ("" = default/none, else landscape/portrait/rev_*)
         bool dsEnable = false; // dual-stack toggle: true = add the package to the whitelist, false = remove
         bool psEnable = false; // run-on-primary-screen toggle: true = add to persist.gammaos.nano.primary_pkgs
+        bool bgEnable = false; // keep-alive-in-background toggle: true = add to persist.gammaos.nano.background_pkgs
     };
     std::vector<char> mPs3OptSep;                       // parallel: 1 = separator row (skipped in nav)
     std::vector<char> mPs3OptHasSub;                    // parallel: 1 = row opens a submenu

@@ -11045,6 +11045,7 @@ static void nanoPkgListSet(const char* baseProp, const std::string& pkg, bool en
 
 static const char* kDualstackProp   = "persist.gammaos.dualstack.pkgs";
 static const char* kPrimaryScreenProp = "persist.gammaos.nano.primary_pkgs";
+static const char* kBackgroundProp  = "persist.gammaos.nano.background_pkgs";
 // kPinnedAppsProp is defined near the top of this file (buildPs3Cats uses it before this point).
 
 bool NanoMenu::dualstackHas(const std::string& pkg) { return nanoPkgListHas(kDualstackProp, pkg); }
@@ -11055,6 +11056,14 @@ void NanoMenu::dualstackSet(const std::string& pkg, bool enable) { nanoPkgListSe
 // screens. Distinct from Dual-Stack (tall single canvas).
 bool NanoMenu::primaryScreenHas(const std::string& pkg) { return nanoPkgListHas(kPrimaryScreenProp, pkg); }
 void NanoMenu::primaryScreenSet(const std::string& pkg, bool enable) { nanoPkgListSet(kPrimaryScreenProp, pkg, enable); }
+
+// "Keep running in the background": when a package is on this list nano does not force-stop it on
+// exit back to the menu (overlayQuitToHome + PhoneWindowManager.backLongPress both honour it), so the
+// app is left alive and re-launching it resumes warm. The framework reads the same list via
+// DualStackPropertyUtils.isPackageInList(persist.gammaos.nano.background_pkgs). Explicit Kill All /
+// Kill Background still stop it.
+bool NanoMenu::backgroundHas(const std::string& pkg) { return nanoPkgListHas(kBackgroundProp, pkg); }
+void NanoMenu::backgroundSet(const std::string& pkg, bool enable) { nanoPkgListSet(kBackgroundProp, pkg, enable); }
 
 // Pinned apps: a Game-home shortcut list of user-chosen apps, package-keyed. Reuses the same
 // ~91-char-safe indexed sysprop list infra (base + _1/_2/...) as the primary-screen allowlist, so
@@ -11201,6 +11210,23 @@ void NanoMenu::openXmbOpt() {
         psub.push_back(P("Primary Screen", true));
         addSub("Run on Primary Screen", false, psub, primaryScreenHas(pkg) ? 1 : 0);
     };
+    // Per-app "Keep Running in Background" toggle. Offered for any real package (all devices). Enabled
+    // adds the package to persist.gammaos.nano.background_pkgs, which makes nano skip the force-stop
+    // when this app is exited back to the menu (back-hold / quick-menu Close App), so it stays alive
+    // and re-launching resumes warm. Disabled removes it (default: exit closes the app as before).
+    auto addKeepAlive = [&](const std::string& pkg) {
+        // Not offered for RetroArch/DraStic: they already preserve state via Quick Resume, keeping an
+        // emulator rendering behind the overlay wastes GPU, and it would skip their save-state ESC on
+        // exit (overlayQuitToHome checks keep-alive before the game ESC branch).
+        if (pkg.empty()
+            || pkg.find("retroarch") != std::string::npos
+            || pkg.find("drastic") != std::string::npos) return;
+        std::vector<Ps3OptSub> bsub;
+        auto B = [](const char* l, bool en) { Ps3OptSub s; s.label = l; s.kind = 6; s.bgEnable = en; return s; };
+        bsub.push_back(B("Off", false));
+        bsub.push_back(B("On", true));
+        addSub("Keep Running in Background", false, bsub, backgroundHas(pkg) ? 1 : 0);
+    };
     // Photo Sort By submenu (web photoSortBy, 5 firmware options). Default focus tracks
     // the live sort. Film/Import Date desc/asc + Image Name.
     auto photoSortSub = [&]() {
@@ -11327,6 +11353,7 @@ void NanoMenu::openXmbOpt() {
             }
             addDualStack(p);   // per-app Dual-Stack allowlist toggle (dual-screen devices only)
             addPrimaryScreen(p);   // per-app "Run on primary screen" toggle (dual-screen devices only)
+            addKeepAlive(p);   // per-app "Keep Running in Background" toggle (all devices)
             // Uninstall is offered only for real user apps - never the launcher-shortcut
             // kind, and never the same excluded packages the Applications loader hides
             // (NanoMenuState.cpp): those are system/protected and must not be removed.
@@ -11351,6 +11378,7 @@ void NanoMenu::openXmbOpt() {
             add("Start", "start", true); add("Information", "info", false);
             addDualStack(it.payloadStr);   // per-app Dual-Stack allowlist toggle (dual-screen devices only)
             addPrimaryScreen(it.payloadStr);   // per-app "Run on primary screen" toggle (dual-screen devices only)
+            addKeepAlive(it.payloadStr);   // per-app "Keep Running in Background" toggle (all devices)
             break;
         case PS3_MUSIC_ALBUM:
             add("Play", "playalbum", true); add("Information", "info", false); break;
@@ -12146,6 +12174,9 @@ void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
         closeXmbOpt();
     } else if (sr.kind == 5) {     // Per-app "Run on primary screen" toggle (mPs3OptCtxPayload = package)
         primaryScreenSet(mPs3OptCtxPayload, sr.psEnable);
+        closeXmbOpt();
+    } else if (sr.kind == 6) {     // Per-app "Keep Running in Background" toggle (mPs3OptCtxPayload = package)
+        backgroundSet(mPs3OptCtxPayload, sr.bgEnable);
         closeXmbOpt();
     }
 }

@@ -47,6 +47,15 @@ public final class DualStackPropertyUtils {
      */
     public static final String PROP_NANO_PRIMARY_PKGS = "persist.gammaos.nano.primary_pkgs";
 
+    /**
+     * Base property used for the nano "Keep Running in Background" per-app allowlist (comma-separated,
+     * with {@code _#} continuations). Packages here are NOT force-stopped when the user exits them
+     * back to the nano menu (back-hold in PhoneWindowManager, or the nano quick-menu Close App) - the
+     * app is left alive so re-launching it resumes warm. Written from nano's per-app option menu.
+     * Explicit "Kill All / Kill Background" actions still stop the package.
+     */
+    public static final String PROP_NANO_BACKGROUND_PKGS = "persist.gammaos.nano.background_pkgs";
+
     private DualStackPropertyUtils() {}
 
     /**
@@ -82,6 +91,15 @@ public final class DualStackPropertyUtils {
      */
     public static boolean isRunOnPrimaryScreen(String packageName) {
         return isPackageInList(PROP_NANO_PRIMARY_PKGS, packageName);
+    }
+
+    /**
+     * Returns true if {@code packageName} is in the nano "Keep Running in Background" allowlist
+     * ({@link #PROP_NANO_BACKGROUND_PKGS} and its {@code _#} continuations), meaning nano should not
+     * force-stop it when the user exits it back to the menu.
+     */
+    public static boolean isKeepAliveInBackground(String packageName) {
+        return isPackageInList(PROP_NANO_BACKGROUND_PKGS, packageName);
     }
 
     /**

@@ -1915,8 +1915,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // For standalone emulators (PPSSPP, Flycast, Mupen64Plus, etc.):
             // force-stop the app and signal nano menu restart
             if (fgApp != null) {
+                // Per-app "Keep Running in Background" allowlist (persist.gammaos.nano.background_pkgs,
+                // set from nano's per-app option menu): leave the app alive on exit so re-launching it
+                // resumes warm. We still raise the nano menu and clear the launch state below; we only
+                // skip the task-removal + force-stop. Explicit Kill All / Kill Background still stop it.
+                final boolean keepAlive = com.android.server.dualstack.DualStackPropertyUtils
+                        .isKeepAliveInBackground(fgApp);
                 Slog.i(TAG, "GammaOS Nano: long-press back on standalone app " + fgApp
-                        + ", force-stopping and restarting nano menu");
+                        + (keepAlive ? ", keeping it alive in background and raising nano menu"
+                                     : ", force-stopping and restarting nano menu"));
                 // Signal nano menu restart FIRST, before killing the app.
                 // This ensures menu_active=1 is set before the framework tries
                 // to restart the killed app's task.
@@ -1948,26 +1955,28 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
                 android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
                 android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
-                try {
-                    // Remove all tasks for this package from the recent tasks list,
-                    // then force-stop the package. Order matters: removing tasks first
-                    // prevents the framework from restarting the process.
-                    android.app.IActivityTaskManager atm =
-                            android.app.ActivityTaskManager.getService();
-                    java.util.List<android.app.ActivityManager.RecentTaskInfo> tasks =
-                            atm.getRecentTasks(100, 0, mCurrentUserId).getList();
-                    for (android.app.ActivityManager.RecentTaskInfo ti : tasks) {
-                        if (ti.baseActivity != null
-                                && fgApp.equals(ti.baseActivity.getPackageName())) {
-                            atm.removeTask(ti.taskId);
-                            Slog.i(TAG, "GammaOS Nano: removed task " + ti.taskId
-                                    + " for " + fgApp);
+                if (!keepAlive) {
+                    try {
+                        // Remove all tasks for this package from the recent tasks list,
+                        // then force-stop the package. Order matters: removing tasks first
+                        // prevents the framework from restarting the process.
+                        android.app.IActivityTaskManager atm =
+                                android.app.ActivityTaskManager.getService();
+                        java.util.List<android.app.ActivityManager.RecentTaskInfo> tasks =
+                                atm.getRecentTasks(100, 0, mCurrentUserId).getList();
+                        for (android.app.ActivityManager.RecentTaskInfo ti : tasks) {
+                            if (ti.baseActivity != null
+                                    && fgApp.equals(ti.baseActivity.getPackageName())) {
+                                atm.removeTask(ti.taskId);
+                                Slog.i(TAG, "GammaOS Nano: removed task " + ti.taskId
+                                        + " for " + fgApp);
+                            }
                         }
+                        mContext.getSystemService(android.app.ActivityManager.class)
+                                .forceStopPackage(fgApp);
+                    } catch (Exception e) {
+                        Slog.e(TAG, "GammaOS Nano: force-stop failed", e);
                     }
-                    mContext.getSystemService(android.app.ActivityManager.class)
-                            .forceStopPackage(fgApp);
-                } catch (Exception e) {
-                    Slog.e(TAG, "GammaOS Nano: force-stop failed", e);
                 }
                 return;
             }
