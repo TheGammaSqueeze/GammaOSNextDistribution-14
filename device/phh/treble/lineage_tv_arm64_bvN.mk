@@ -35,6 +35,7 @@ PRODUCT_PACKAGES += \
     DrasticSf \
     LaunchGuardControl \
     SecondaryDisplayControl \
+    SecondaryHome \
     gammapad \
     gammapad_restore \
     gammaos-ota \
@@ -76,6 +77,23 @@ PRODUCT_VENDOR_PROPERTIES += \
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     persist.sys.usb.config=adb \
     ro.cust.cdrom=/dev/null
+
+# GammaOS: secondary-display home for the TV/desktop build. The framework's secondary-home
+# resolver (ActivityTaskManagerService.getSecondaryHomeIntent) honours this explicit component
+# and launches it on any secondary display that has system decorations. It stays inert in
+# nano/handheld mode (no secondary home is ever started there), so the daily-driver dual-screen
+# path is unchanged. gammaos.rc re-forces this in desktop mode so a stale persisted value (older
+# builds pointed it at com.android.launcher3, which is not installed) cannot shadow it.
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    persist.gammaos.secondary_home=com.gammaos.secondaryhome/com.gammaos.secondaryhome.SecondaryHomeActivity
+
+# GammaOS: replace the cut-down leanback TV settings entirely with the full phone Settings app
+# (added in device/google/atv/products/atv_system_ext.mk). TvSettingsTwoPanel is the module that
+# actually ships com.android.tv.settings on this large-screen ATV base; remove it here so the
+# normal Settings is the one and only settings app on the desktop build.
+PRODUCT_REMOVE_PACKAGES += \
+    TvSettings \
+    TvSettingsTwoPanel
 
 # GammaOS init (replaces PHH vndk.rc + rw-system.sh + phh-on-boot.sh)
 PRODUCT_COPY_FILES += \

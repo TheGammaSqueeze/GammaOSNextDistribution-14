@@ -20,8 +20,13 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/media_system_ext.mk)
 PRODUCT_PACKAGES += \
     blur_sysprop_notifier \
     TvSystemUI \
-    TvFrameworkPackageStubs \
-    TvSettings
+    TvFrameworkPackageStubs
+
+# GammaOS: ship the full phone Settings app instead of the cut-down leanback TvSettings so the
+# desktop/TV build has the complete settings tree (network, apps, storage, accessibility, etc.).
+# TvSettings is intentionally omitted. Settings is d-pad navigable and works on the TV form factor.
+PRODUCT_PACKAGES += \
+    Settings
 
 SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += device/google/atv/sepolicy/system_ext/public
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += device/google/atv/sepolicy/system_ext/private

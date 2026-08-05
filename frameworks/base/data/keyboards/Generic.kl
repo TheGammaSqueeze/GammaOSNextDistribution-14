@@ -424,6 +424,10 @@ key 580   APP_SWITCH
 key 582   VOICE_ASSIST
 # Linux KEY_ASSISTANT
 key 583   ASSIST
+# Linux KEY_ALL_APPLICATIONS (evdev 604) - the stock key layout only maps the HID usage
+# (0x0c01A2) below, so the physical evdev key produces no keycode. Map it here so it reaches
+# KEYCODE_ALL_APPS (which PhoneWindowManager routes to the GammaOS shade in desktop mode).
+key 604   ALL_APPS
 key 656   MACRO_1
 key 657   MACRO_2
 key 658   MACRO_3

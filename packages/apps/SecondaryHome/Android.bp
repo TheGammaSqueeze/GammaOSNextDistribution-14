@@ -1,0 +1,24 @@
+// GammaOS SecondaryHome: a minimal launcher used as the secondary-display home on the
+// TV/desktop build (RG DS second screen). Kept deliberately lean to respect the memory
+// budget: a single Activity showing a d-pad-navigable grid of installed launchers.
+android_app {
+    name: "SecondaryHome",
+
+    srcs: [
+        "java/**/*.java",
+    ],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+
+    platform_apis: true,
+    certificate: "platform",
+    privileged: false,
+
+    static_libs: [
+        "com.google.android.material_material",
+        "androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout",
+    ],
+}

@@ -2577,6 +2577,14 @@ public final class PowerManagerService extends SystemService
             }
             target = anyOn ? "on" : "off";
         }
+        // Do not derive an "off" screen state from transient display power before boot completes.
+        // While the panels are still being brought up during boot they report not-ON, which would
+        // spuriously blank the backlight and (on the RG DS) trip the vendor force_sleep / screen-off
+        // handlers for several seconds mid-boot. The real wakefulness path is likewise gated on boot
+        // completion, so only assert "off" once boot is complete; "on" may be asserted any time.
+        if ("off".equals(target) && !mBootCompleted) {
+            return;
+        }
         final String cur = SystemProperties.get("sys.screen.state", "");
         if (!TextUtils.equals(cur, target)) {
             SystemProperties.set("sys.screen.state", target);

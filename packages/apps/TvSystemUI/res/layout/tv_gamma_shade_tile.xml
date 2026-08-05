@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One simplified QS tile: icon + label, driven from the real QSTile.State via setActivated(). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/gamma_tile_bg"
+    android:focusable="true"
+    android:clickable="true"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp">
+
+    <ImageView
+        android:id="@+id/tile_icon"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_marginBottom="5dp"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/tile_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textColor="@color/gamma_shade_text"
+        android:textSize="11sp" />
+
+</LinearLayout>

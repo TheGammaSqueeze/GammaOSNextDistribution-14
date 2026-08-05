@@ -124,8 +124,13 @@ PRODUCT_PACKAGES += \
     LineageGoogleSetupWraithPairingOverlay
 
 # Settings
-PRODUCT_PACKAGES += \
-    TvSettingsTwoPanel
+# GammaOS: the cut-down leanback TvSettings (TvSettingsTwoPanel) is intentionally NOT shipped.
+# The full phone Settings app is added instead (device/google/atv/products/atv_system_ext.mk) so
+# the desktop/TV build has the complete settings tree. Removing it here at the source is reliable;
+# PRODUCT_REMOVE_PACKAGES in the product did not strip it because it is re-added through this
+# inherited makefile.
+# PRODUCT_PACKAGES += \
+#     TvSettingsTwoPanel
 
 # TVLauncher
 PRODUCT_PACKAGES += \

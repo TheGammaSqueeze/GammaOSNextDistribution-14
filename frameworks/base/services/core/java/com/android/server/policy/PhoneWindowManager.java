@@ -5080,6 +5080,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
                 break;
             case KeyEvent.KEYCODE_ALL_APPS:
+                // GammaOS: in desktop mode the "all apps" key toggles the GammaOS shade
+                // (TvGammaShade) instead of launching the all-apps drawer. Nano owns its own
+                // input, so keep the default behaviour there.
+                if (!down && !SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                    mContext.sendBroadcastAsUser(
+                            new Intent("com.gammaos.action.TOGGLE_SHADE")
+                                    .setPackage("com.android.systemui"),
+                            UserHandle.SYSTEM);
+                    return true;
+                }
                 if (!down) {
                     mHandler.removeMessages(MSG_HANDLE_ALL_APPS);
                     Message msg = mHandler.obtainMessage(MSG_HANDLE_ALL_APPS);

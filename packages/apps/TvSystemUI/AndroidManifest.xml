@@ -32,6 +32,20 @@
     <uses-permission android:name="android.permission.STATUS_BAR_SERVICE" />
     <uses-permission android:name="android.permission.HDMI_CEC" />
 
+    <!-- GammaOS shade (TvGammaShade): quick toggles for Wi-Fi, Bluetooth, airplane mode and audio.
+         The phone SystemUI declares these; the leanback TvSystemUI does not, so add them here. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.NETWORK_SETTINGS" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- Spy on top-edge touches per display to open the shade without stealing app touches
+         (pilfer only once a real pull-down is recognised, exactly like SystemUI edge gestures). -->
+    <uses-permission android:name="android.permission.MONITOR_INPUT" />
+
     <application
         android:appComponentFactory="com.android.systemui.tv.TvSystemUIAppComponentFactory"
         tools:replace="android:appComponentFactory">

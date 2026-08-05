@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colors -->
+    <color name="gamma_shade_text">#F5F5F5</color>
+    <color name="gamma_shade_text_dim">#B0B7BE</color>
+
+    <!-- Strings -->
+    <string name="gamma_shade_title">Quick Settings</string>
+    <string name="gamma_shade_brightness">Brightness</string>
+    <string name="gamma_shade_brightness2">Brightness 2</string>
+    <string name="gamma_shade_volume">Volume</string>
+    <string name="gamma_shade_notifications">Notifications</string>
+    <string name="gamma_shade_clear_all">Clear all</string>
+    <string name="gamma_shade_no_notifications">No notifications</string>
+
+    <!-- Chip style shared by the quick toggles -->
+    <style name="GammaShadeChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:paddingLeft">14dp</item>
+        <item name="android:paddingRight">14dp</item>
+        <item name="android:paddingTop">7dp</item>
+        <item name="android:paddingBottom">7dp</item>
+        <item name="android:background">@drawable/gamma_chip_bg</item>
+        <item name="android:textColor">@color/gamma_shade_text</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+</resources>

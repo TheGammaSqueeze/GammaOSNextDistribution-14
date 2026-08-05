@@ -47,6 +47,13 @@ on property:sys.boot_completed=1
 on property:persist.sys.phh.mainkeys=*
     setprop qemu.hw.mainkeys ${persist.sys.phh.mainkeys}
 
+# GammaOS: in desktop mode (persist.bootanim.skip_nano=1) force the minimal SecondaryHome launcher
+# as the secondary-display home. This overrides any stale persisted value (older builds set it to
+# com.android.launcher3, which is not installed on this build, leaving the second screen without a
+# launcher). Desktop-only, so the handheld nano dual-screen path is left untouched.
+on property:persist.bootanim.skip_nano=1
+    setprop persist.gammaos.secondary_home com.gammaos.secondaryhome/com.gammaos.secondaryhome.SecondaryHomeActivity
+
 on property:vendor.debug.sf.latch_unsignaled=1
     setprop debug.sf.latch_unsignaled 1
 

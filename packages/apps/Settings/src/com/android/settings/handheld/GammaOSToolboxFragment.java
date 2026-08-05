@@ -612,6 +612,25 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
 
     private void bindEditText(EditTextPreference etp, String key) {
         String def = DEFAULTS.getOrDefault(key, "");
+
+        // Package-list properties are stored across a base prop plus _1, _2, ... continuation
+        // segments (because a single Android prop caps at ~92 bytes), exactly as the dedicated
+        // DualStackControl / SecondaryDisplayControl apps write them. Reading only the base prop
+        // showed a truncated, "not live" whitelist; read and write the full multi-segment value.
+        if (isMultipart(key)) {
+            String current = getMultiSegment(key);
+            etp.setText(current);
+            updateEditTextSummary(etp, current);
+            etp.setOnPreferenceChangeListener((p, newValue) -> {
+                String val = newValue == null ? "" : ((String) newValue).trim();
+                setMultiSegment(key, val);
+                etp.setText(val);
+                updateEditTextSummary(etp, val);
+                return false;
+            });
+            return;
+        }
+
         String current = SystemProperties.get(key, def);
         etp.setText(current);
         updateEditTextSummary(etp, current);
@@ -624,6 +643,70 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
             updateEditTextSummary(etp, val);
             return false;                         // we already called setText
         });
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Multi-segment (base + _1.._N) package-list properties             */
+    /* ------------------------------------------------------------------ */
+
+    private static boolean isMultipart(String key) {
+        return "persist.gammaos.dualstack.pkgs".equals(key)
+                || "persist.gammaos.secondary_display.packages".equals(key)
+                || "persist.gammaos.ultra_low_power_saving_freeze_exclude_packages".equals(key);
+    }
+
+    /** Join the base prop with its _1, _2, ... continuations into one comma-separated list. */
+    private static String getMultiSegment(String baseKey) {
+        StringBuilder out = new StringBuilder();
+        appendSeg(out, SystemProperties.get(baseKey, ""));
+        for (int idx = 1; ; idx++) {
+            String seg = SystemProperties.get(baseKey + "_" + idx, "");
+            if (TextUtils.isEmpty(seg) || seg.trim().isEmpty()) break;
+            appendSeg(out, seg);
+        }
+        return out.toString();
+    }
+
+    private static void appendSeg(StringBuilder out, String seg) {
+        if (seg == null) return;
+        seg = seg.trim();
+        if (seg.isEmpty()) return;
+        if (out.length() > 0) out.append(',');
+        out.append(seg);
+    }
+
+    /** Split a comma/space list back into <=90-char segments across base + _1.._N, clearing stale. */
+    private static void setMultiSegment(String baseKey, String value) {
+        List<String> tokens = new ArrayList<>();
+        if (value != null) {
+            for (String t : value.split("[,\\s]+")) {
+                String s = t.trim();
+                if (!s.isEmpty()) tokens.add(s);
+            }
+        }
+        List<String> segments = new ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        for (String tok : tokens) {
+            int extra = (cur.length() == 0) ? tok.length() : (1 + tok.length());
+            if (cur.length() > 0 && cur.length() + extra > 90) {
+                segments.add(cur.toString());
+                cur.setLength(0);
+            }
+            if (cur.length() > 0) cur.append(',');
+            cur.append(tok);
+        }
+        if (cur.length() > 0) segments.add(cur.toString());
+
+        SystemProperties.set(baseKey, segments.isEmpty() ? "" : segments.get(0));
+        for (int idx = 1; idx < segments.size(); idx++) {
+            SystemProperties.set(baseKey + "_" + idx, segments.get(idx));
+        }
+        for (int idx = Math.max(1, segments.size()); ; idx++) {
+            String k = baseKey + "_" + idx;
+            String old = SystemProperties.get(k, "");
+            if (TextUtils.isEmpty(old) || old.trim().isEmpty()) break;
+            SystemProperties.set(k, "");
+        }
     }
 
     private void updateEditTextSummary(EditTextPreference etp, String value) {

@@ -744,7 +744,12 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
     }
 
     private void handleRbcChanged() {
-        if (mAutomaticBrightnessController == null) {
+        // GammaOS: DC-dimming emulation drives Reduce Bright Colors. On panels with no nits
+        // configuration (mNitsRange null - these handhelds log "nits configuration unavailable")
+        // or before ColorDisplayService internals are ready (mCdsi null), the array/spline math
+        // below would NPE and take down system_server. Guard all three so toggling the mode can
+        // never crash the UI.
+        if (mAutomaticBrightnessController == null || mNitsRange == null || mCdsi == null) {
             return;
         }
 

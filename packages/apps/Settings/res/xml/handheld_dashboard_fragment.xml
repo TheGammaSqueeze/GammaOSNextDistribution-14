@@ -30,8 +30,59 @@
     <!-- Network shares: SMB / NFS / WebDAV / FTP, mounted by the gammaos-sharefs daemon -->
     <Preference
         android:key="network_shares"
+        android:icon="@drawable/ic_homepage_network"
         android:title="@string/network_shares_title"
         android:summary="@string/network_shares_summary"
         android:fragment="com.android.settings.handheld.NetworkSharesFragment" />
+
+    <!-- Shortcuts to the standalone GammaOS control apps. Wired up (and hidden when the target
+         app is not installed) by HandheldDashboardFragment. -->
+    <PreferenceCategory
+        android:key="gtools_category"
+        android:title="@string/gtools_category_title">
+
+        <Preference
+            android:key="gtools_caveat"
+            android:selectable="false"
+            android:icon="@android:drawable/ic_dialog_info"
+            android:summary="@string/gtools_caveat" />
+
+        <Preference
+            android:key="gtool_shaders"
+            android:icon="@drawable/ic_settings_display"
+            android:title="@string/gtool_shaders_title"
+            android:summary="@string/gtool_shaders_summary" />
+
+        <Preference
+            android:key="gtool_dualstack"
+            android:icon="@drawable/ic_app_aspect_ratio_half_screen"
+            android:title="@string/gtool_dualstack_title"
+            android:summary="@string/gtool_dualstack_summary" />
+
+        <Preference
+            android:key="gtool_secondary"
+            android:icon="@drawable/ic_devices_other"
+            android:title="@string/gtool_secondary_title"
+            android:summary="@string/gtool_secondary_summary" />
+
+        <Preference
+            android:key="gtool_led"
+            android:icon="@drawable/ic_settings_gamepad"
+            android:title="@string/gtool_led_title"
+            android:summary="@string/gtool_led_summary" />
+
+        <Preference
+            android:key="gtool_eq"
+            android:icon="@drawable/ic_media_stream"
+            android:title="@string/gtool_eq_title"
+            android:summary="@string/gtool_eq_summary" />
+
+        <Preference
+            android:key="gtool_launchguard"
+            android:icon="@drawable/ic_privacy_shield_24dp"
+            android:title="@string/gtool_launchguard_title"
+            android:summary="@string/gtool_launchguard_summary" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

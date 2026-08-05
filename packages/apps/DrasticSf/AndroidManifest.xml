@@ -20,10 +20,13 @@
             android:screenOrientation="nosensor"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|density|uiMode|navigation">
 
+            <!-- No LAUNCHER category: this is the SurfaceFlinger host for drastic-nano, not a
+                 user-facing app, so it must not show a drawer icon in normal Android. nano starts
+                 it by explicit component (-n com.gammaos.drasticsf/.DrasticSfActivity -a MAIN),
+                 which resolves on MAIN alone and does not need LAUNCHER. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>

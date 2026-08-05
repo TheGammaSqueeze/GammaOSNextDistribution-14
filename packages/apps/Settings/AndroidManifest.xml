@@ -3422,6 +3422,11 @@
         </activity>
 
         <!-- Triggered when user-selected home app isn't encryption aware -->
+        <!-- GammaOS: the HOME intent-filter is intentionally removed. On the TV/desktop build we
+             install the full Settings app; leaving FallbackHome registered as a category.HOME
+             candidate lets the system pick this blank encryption placeholder as the launcher when
+             no other home resolves, producing a black screen. It is never needed here (no secure
+             lock screen / direct-boot launcher gap), so it must not advertise HOME. -->
         <activity android:name=".FallbackHome"
                   android:excludeFromRecents="true"
                   android:label=""
@@ -3430,11 +3435,6 @@
                   android:theme="@style/FallbackHome"
                   android:permission="android.permission.DEVICE_POWER"
                   android:configChanges="keyboardHidden">
-            <intent-filter android:priority="-1000">
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
 
         <activity

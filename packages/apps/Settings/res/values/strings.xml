@@ -13061,6 +13061,23 @@
     <!-- GammaOS network shares (SMB / NFS / WebDAV / FTP, served by the gammaos-sharefs daemon) -->
     <string name="network_shares_title">Network shares</string>
     <string name="network_shares_summary">Connect to shared folders over SMB, NFS, WebDAV or FTP</string>
+
+    <!-- GammaOS device-tools shortcuts (Handheld Settings). These launch the standalone control
+         apps and are hidden when the app is not installed. -->
+    <string name="gtools_category_title">Device tools</string>
+    <string name="gtools_caveat">These tools configure hardware features that only exist on some devices, such as extra screens, controller LEDs or display shaders. Options that do not apply to your device have no effect.</string>
+    <string name="gtool_shaders_title">Global shaders</string>
+    <string name="gtool_shaders_summary">Apply screen shaders (CRT, LCD, scanlines) system-wide</string>
+    <string name="gtool_dualstack_title">Dual stack</string>
+    <string name="gtool_dualstack_summary">Run selected apps across both screens on dual-screen devices</string>
+    <string name="gtool_secondary_title">Secondary display</string>
+    <string name="gtool_secondary_summary">Choose which apps open on the second screen</string>
+    <string name="gtool_led_title">Joystick LED</string>
+    <string name="gtool_led_summary">Colour, brightness and effects for the controller LEDs</string>
+    <string name="gtool_eq_title">Audio equalizer</string>
+    <string name="gtool_eq_summary">Audio EQ presets, bands and effects</string>
+    <string name="gtool_launchguard_title">Launch guard</string>
+    <string name="gtool_launchguard_summary">Force-stop chosen apps when opened from another app</string>
     <string name="network_shares_info">Shared folders on your network appear under /mnt/shares once connected, and can be browsed and played from there.</string>
     <string name="network_shares_add">Add share</string>
     <string name="network_shares_add_summary">Connect to a server on your network</string>

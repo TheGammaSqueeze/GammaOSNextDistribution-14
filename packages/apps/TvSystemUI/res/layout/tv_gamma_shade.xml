@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full-screen root: the panel is translated in/out from the top; the dim area below it dismisses.
+     QS tiles live in a swipeable ViewPager2 (real QSTile objects, rendered simplified). -->
+<com.android.systemui.tv.shade.GammaShadeRoot
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/shade_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#66000000"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <LinearLayout
+        android:id="@+id/shade_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:background="@drawable/gamma_shade_bg"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="14dp">
+
+        <TextView
+            android:id="@+id/shade_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gamma_shade_title"
+            android:textColor="@color/gamma_shade_text"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingTop="4dp"
+            android:paddingBottom="6dp" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/qs_pager"
+            android:layout_width="match_parent"
+            android:layout_height="176dp" />
+
+        <LinearLayout
+            android:id="@+id/qs_dots"
+            android:layout_width="match_parent"
+            android:layout_height="14dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Brightness (primary display) -->
+        <LinearLayout
+            android:id="@+id/brightness_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+            <TextView
+                android:id="@+id/brightness_label"
+                android:layout_width="72dp"
+                android:layout_height="wrap_content"
+                android:text="@string/gamma_shade_brightness"
+                android:textColor="@color/gamma_shade_text"
+                android:textSize="13sp" />
+            <SeekBar
+                android:id="@+id/brightness"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Brightness (secondary display, shown only in split-brightness mode) -->
+        <LinearLayout
+            android:id="@+id/brightness_secondary_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="wrap_content"
+                android:text="@string/gamma_shade_brightness2"
+                android:textColor="@color/gamma_shade_text"
+                android:textSize="13sp" />
+            <SeekBar
+                android:id="@+id/brightness_secondary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Volume -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="wrap_content"
+                android:text="@string/gamma_shade_volume"
+                android:textColor="@color/gamma_shade_text"
+                android:textSize="13sp" />
+            <SeekBar
+                android:id="@+id/volume"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Notifications header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/gamma_shade_notifications"
+                android:textColor="@color/gamma_shade_text_dim"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/notif_clear_all"
+                style="@style/GammaShadeChip"
+                android:layout_marginRight="0dp"
+                android:text="@string/gamma_shade_clear_all" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="6dp"
+            android:scrollbars="vertical">
+            <LinearLayout
+                android:id="@+id/notif_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/notif_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="@string/gamma_shade_no_notifications"
+            android:textColor="@color/gamma_shade_text_dim"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</com.android.systemui.tv.shade.GammaShadeRoot>

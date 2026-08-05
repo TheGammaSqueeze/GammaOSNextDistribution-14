@@ -30,7 +30,7 @@ import com.android.systemui.statusbar.notification.InstantAppNotifier
 import com.android.systemui.theme.ThemeOverlayController
 import com.android.systemui.toast.ToastUI
 import com.android.systemui.tv.notifications.TvNotificationHandler
-import com.android.systemui.tv.notifications.TvNotificationPanel
+import com.android.systemui.tv.shade.TvGammaShade
 import com.android.systemui.tv.statusbar.TvStatusBar
 import com.android.systemui.tv.vpn.VpnStatusObserver
 import com.android.systemui.usb.StorageNotification
@@ -130,17 +130,30 @@ abstract class TVSystemUICoreStartableModule {
     @ClassKey(TvNotificationHandler::class)
     abstract fun bindTvNotificationHandler(sysui: TvNotificationHandler): CoreStartable
 
-    /** Inject into TvNotificationPanel.  */
-    @Binds
-    @IntoMap
-    @ClassKey(TvNotificationPanel::class)
-    abstract fun bindTvNotificationPanel(sysui: TvNotificationPanel): CoreStartable
+    /*
+     * GammaOS: TvNotificationPanel is intentionally NOT bound. It responds to
+     * animateExpandNotificationsPanel by launching the stock TvNotificationPanelActivity (a bare
+     * "Notifications" screen), which otherwise opens behind the GammaOS shade (TvGammaShade) that
+     * replaces it. TvNotificationHandler stays bound so the shared NotificationListener is still
+     * registered for the shade to read.
+     *
+     * @Binds
+     * @IntoMap
+     * @ClassKey(TvNotificationPanel::class)
+     * abstract fun bindTvNotificationPanel(sysui: TvNotificationPanel): CoreStartable
+     */
 
     /** Inject into TvStatusBar.  */
     @Binds
     @IntoMap
     @ClassKey(TvStatusBar::class)
     abstract fun bindTvStatusBar(sysui: TvStatusBar): CoreStartable
+
+    /** Inject into TvGammaShade (GammaOS pull-down shade).  */
+    @Binds
+    @IntoMap
+    @ClassKey(TvGammaShade::class)
+    abstract fun bindTvGammaShade(sysui: TvGammaShade): CoreStartable
 
     /** Inject into VpnStatusObserver.  */
     @Binds

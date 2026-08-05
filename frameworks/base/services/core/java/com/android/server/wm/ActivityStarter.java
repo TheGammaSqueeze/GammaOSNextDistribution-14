@@ -129,6 +129,7 @@ import android.window.RemoteTransition;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.HeavyWeightSwitcherActivity;
 import com.android.internal.app.IVoiceInteractor;
+import com.android.server.dualstack.DualStackPropertyUtils;
 import com.android.internal.protolog.common.ProtoLog;
 import com.android.server.am.PendingIntentRecord;
 import com.android.server.pm.InstantAppResolver;
@@ -1174,6 +1175,12 @@ class ActivityStarter {
         // GammaOS: optionally override launch display for selected packages (e.g. emulators).
         checkedOptions =
                 adjustLaunchDisplayForGammaSecondaryPackages(checkedOptions, aInfo);
+
+        // GammaOS: dual-stack apps must always open on the primary display so the dual-stack
+        // mirror/crop (which drives both panels from display 0) works, same as nano. This runs
+        // after the secondary-display override and wins for dual-stack packages.
+        checkedOptions =
+                adjustLaunchDisplayForGammaDualStack(checkedOptions, aInfo);
 
         final BalVerdict balVerdict;
         if (!abort) {
@@ -3351,6 +3358,36 @@ class ActivityStarter {
                 : ActivityOptions.makeBasic();
         outOptions.setLaunchDisplayId(secondaryDisplayId);
         return outOptions;
+    }
+
+    /**
+     * GammaOS: Dual-stack whitelisted apps must always launch on the primary display so the
+     * dual-stack mirror/crop (which drives BOTH panels from display 0) works. This mirrors nano's
+     * getNanoTargetDisplayId behaviour for the desktop/TV build, and overrides even an explicit
+     * non-default launch display (e.g. an app started from the secondary-screen launcher, which
+     * would otherwise land on the second panel and break the mirror).
+     */
+    private ActivityOptions adjustLaunchDisplayForGammaDualStack(
+            @Nullable ActivityOptions options, @Nullable ActivityInfo aInfo) {
+        if (aInfo == null || aInfo.packageName == null) {
+            return options;
+        }
+        // In minimal_boot, nano's getNanoTargetDisplayId already forces dual-stack apps to the
+        // primary display; leave placement to nano there.
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return options;
+        }
+        if (!DualStackPropertyUtils.isPackageWhitelisted(aInfo.packageName)) {
+            return options;
+        }
+        if (options != null && options.getLaunchDisplayId() == DEFAULT_DISPLAY) {
+            return options;   // already targeting the primary
+        }
+        final ActivityOptions out = (options != null)
+                ? ActivityOptions.fromBundle(options.toBundle())
+                : ActivityOptions.makeBasic();
+        out.setLaunchDisplayId(DEFAULT_DISPLAY);
+        return out;
     }
 
     /**
