@@ -45,7 +45,7 @@ using drastic_gfx::rgba;
 
 namespace {
 constexpr const char* kSectionNames[] = {
-    "Save States", "Video", "Audio", "Controls", "Cheats", "Achievements",
+    "General", "Save States", "Video", "Audio", "Controls", "Cheats", "Achievements",
 };
 // XMB-style layout constants. Coordinates scale with sf =
 // min(vw/1080, vh/720), matching the nano XMB scaling so the overlay
@@ -1007,6 +1007,7 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
 void OverlayMenu::rebuildRows() {
     mRows.clear();
     switch (mSection) {
+    case kSec_General:  rebuildGeneral();  break;
     case kSec_Save:     rebuildSave();     break;
     case kSec_Video:    rebuildVideo();    break;
     case kSec_Audio:    rebuildAudio();    break;
@@ -1030,32 +1031,67 @@ void OverlayMenu::rebuildRows() {
     }
 }
 
-void OverlayMenu::rebuildSave() {
-    // Game lifecycle rows at the top of the (default) Save States
-    // section, so they are the first thing the user sees on opening
-    // the overlay.
+void OverlayMenu::rebuildGeneral() {
+    // The General page is the default landing tab: the everyday knobs and the
+    // game/power lifecycle actions, all in one place so they are the first thing
+    // the user sees on opening the overlay.
 
-    // Auto-load save state on launch. A nano-launcher behaviour (not a
-    // real drastic setting), persisted in a system property so it
-    // survives reboots without polluting drastic's own prefs XML. When
-    // on, the next launch of a game restores its most recent save slot
-    // (see the auto-load hook in main.cpp's run loop).
+    // Brightness (live). Reuses the exact path the SELECT+VOL shortcut uses
+    // (adjustBrightness): the drastic-nano binary runs as root in both the
+    // DRM-direct and SF backends, so nanoBacklightSet() drives the panel
+    // backlight directly and the level is mirrored to
+    // persist.gammaos.nano.brightness. Step and 8..255 clamp match the shortcut.
     {
-        bool autoLoad = property_get_bool(
-                "persist.gammaos.drastic_nano.autoload", true);
         RowAction r;
-        r.label = "Auto Load State on Launch";
-        r.value = autoLoad ? "On" : "Off";
-        auto toggle = [this]() {
-            bool cur = property_get_bool(
-                    "persist.gammaos.drastic_nano.autoload", true);
-            property_set("persist.gammaos.drastic_nano.autoload",
-                         cur ? "0" : "1");
-            toast(cur ? "Auto load: Off" : "Auto load: On");
-            rebuildRows();   // refresh the On/Off value
+        r.label = "Brightness";
+        if (!mBrightInit) {
+            mBrightLevel = property_get_int32(
+                    "persist.gammaos.nano.brightness", 128);
+            mBrightInit = true;
+        }
+        char pct[16];
+        snprintf(pct, sizeof(pct), "%d%%", mBrightLevel * 100 / 255);
+        r.value = pct;
+        // rebuildRows() is called by the input dispatcher right after onAdjust,
+        // so the value string above refreshes automatically each step.
+        r.onAdjust = [this](int dir) { adjustBrightness(dir); };
+        mRows.push_back(std::move(r));
+    }
+
+    // Performance profile (live). Cycles Max -> Stock -> Powersave
+    // and re-fires the corresponding setclock service via
+    // ctl.start, matching the triggers in
+    // /vendor/etc/init/init.gammaos_power.rc. We also write the
+    // persist property so the chosen profile survives a reboot
+    // and so any future trigger evaluations see the right value.
+    // This is a live knob (no [restart] tag): the governors change
+    // immediately.
+    {
+        RowAction r;
+        r.label = "Performance";
+        static const char* const kModes[] = {"max", "stock", "powersave"};
+        static const char* const kLabels[] = {"Max", "Stock", "Powersave"};
+        static const char* const kSvcs[]   = {"setclock_max",
+                                              "setclock_stock",
+                                              "setclock_powersave"};
+        static const int kModeCount = 3;
+        auto currentIdx = []() {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.performance_mode", cur, "max");
+            for (int i = 0; i < kModeCount; i++) {
+                if (strcmp(cur, kModes[i]) == 0) return i;
+            }
+            return 0;
         };
-        r.onAccept = toggle;
-        r.onAdjust = [toggle](int) { toggle(); };
+        int idx = currentIdx();
+        r.value = kLabels[idx];
+        r.onAdjust = [currentIdx](int dir) {
+            int idx = currentIdx();
+            idx = (idx + dir + kModeCount) % kModeCount;
+            property_set("persist.gammaos.performance_mode", kModes[idx]);
+            property_set("ctl.start", kSvcs[idx]);
+            ALOGI("drastic-nano: overlay switched to %s", kModes[idx]);
+        };
         mRows.push_back(std::move(r));
     }
 
@@ -1116,6 +1152,39 @@ void OverlayMenu::rebuildSave() {
         };
         mRows.push_back(std::move(r));
     }
+}
+
+void OverlayMenu::rebuildSave() {
+    // Save/load slots for the currently running game. The game/power lifecycle
+    // rows and the live knobs (Brightness, Performance) now live on the General
+    // page (rebuildGeneral), which is the default tab.
+
+    // Auto-load save state on launch. A nano-launcher behaviour (not a
+    // real drastic setting), persisted in a system property so it
+    // survives reboots without polluting drastic's own prefs XML. When
+    // on, the next launch of a game restores its most recent save slot
+    // (see the auto-load hook in main.cpp's run loop).
+    {
+        bool autoLoad = property_get_bool(
+                "persist.gammaos.drastic_nano.autoload", true);
+        RowAction r;
+        r.label = "Auto Load State on Launch";
+        r.value = autoLoad ? "On" : "Off";
+        auto toggle = [this]() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.autoload", true);
+            property_set("persist.gammaos.drastic_nano.autoload",
+                         cur ? "0" : "1");
+            toast(cur ? "Auto load: Off" : "Auto load: On");
+            rebuildRows();   // refresh the On/Off value
+        };
+        r.onAccept = toggle;
+        r.onAdjust = [toggle](int) { toggle(); };
+        mRows.push_back(std::move(r));
+    }
+
+    // Restart Game / Exit Game / Power Off / Reboot moved to the General page
+    // (rebuildGeneral). Save States now holds only Auto Load + the save/load slots.
 
     for (int slot = 0; slot < 9; slot++) {
         char label[64];
@@ -2092,42 +2161,7 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     };
-    // Performance profile (live). Cycles Max -> Stock -> Powersave
-    // and re-fires the corresponding setclock service via
-    // ctl.start, matching the triggers in
-    // /vendor/etc/init/init.gammaos_power.rc. We also write the
-    // persist property so the chosen profile survives a reboot
-    // and so any future trigger evaluations see the right value.
-    // This is a live knob (no [restart] tag): the governors change
-    // immediately.
-    {
-        RowAction r;
-        r.label = "Performance";
-        static const char* const kModes[] = {"max", "stock", "powersave"};
-        static const char* const kLabels[] = {"Max", "Stock", "Powersave"};
-        static const char* const kSvcs[]   = {"setclock_max",
-                                              "setclock_stock",
-                                              "setclock_powersave"};
-        static const int kModeCount = 3;
-        auto currentIdx = []() {
-            char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.performance_mode", cur, "max");
-            for (int i = 0; i < kModeCount; i++) {
-                if (strcmp(cur, kModes[i]) == 0) return i;
-            }
-            return 0;
-        };
-        int idx = currentIdx();
-        r.value = kLabels[idx];
-        r.onAdjust = [currentIdx](int dir) {
-            int idx = currentIdx();
-            idx = (idx + dir + kModeCount) % kModeCount;
-            property_set("persist.gammaos.performance_mode", kModes[idx]);
-            property_set("ctl.start", kSvcs[idx]);
-            ALOGI("drastic-nano: overlay switched to %s", kModes[idx]);
-        };
-        mRows.push_back(std::move(r));
-    }
+    // Performance profile moved to the General page (rebuildGeneral).
     // All three apply live. Hi-res 3D changes the internal 3D render
     // resolution; applyConfigLive() pushes the bit and then requests a
     // render-thread DS-texture re-dim (redimDsTextures) so the textures and

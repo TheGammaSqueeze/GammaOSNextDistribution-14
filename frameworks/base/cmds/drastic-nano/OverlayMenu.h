@@ -178,8 +178,8 @@ public:
     void close();
 
 private:
-    enum Section { kSec_Save = 0, kSec_Video, kSec_Audio, kSec_Controls,
-                   kSec_Cheats, kSec_Achievements, kSec_COUNT };
+    enum Section { kSec_General = 0, kSec_Save, kSec_Video, kSec_Audio,
+                   kSec_Controls, kSec_Cheats, kSec_Achievements, kSec_COUNT };
     enum class NavDir { None, Up, Down, Left, Right };
 
     struct RowAction {
@@ -248,7 +248,7 @@ private:
     };
     std::deque<BannerSpec> mBannerQueue;
     void startNextBanner();   // pop the next queued banner and show it
-    Section mSection = kSec_Save;
+    Section mSection = kSec_General;
     int mCursor[kSec_COUNT] = {};   // zero-init all sections (count-proof)
     int mScroll[kSec_COUNT] = {};
     bool mCaptureKey = false;
@@ -391,6 +391,7 @@ private:
     void openMenu();
     void closeMenu();
     void rebuildRows();
+    void rebuildGeneral();
     void rebuildSave();
     void rebuildVideo();
     void rebuildAudio();
