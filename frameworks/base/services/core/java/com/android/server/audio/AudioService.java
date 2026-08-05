@@ -14673,7 +14673,20 @@ public class AudioService extends IAudioService.Stub
         private void persistDisplayMapLocked(@NonNull SparseIntArray map) {
             final String serialized = serializeDisplayVolumeMap(map);
             mLastWrittenMap = serialized;
-            Settings.Global.putString(mContentResolver, GAMMA_SETTING_DISPLAY_VOLUME_MAP, serialized);
+            // Write as the system server's own identity. This is reached synchronously inside a
+            // setStreamVolume/adjustStreamVolume binder transaction (e.g. the SystemUI volume slider on
+            // a secondary display drives a non-default-display map entry + persist). Without clearing the
+            // identity the Settings.Global write is attributed to the caller (SystemUI's uid with the
+            // "android" op-package), which SettingsProvider rejects with "Package android does not belong
+            // to <uid>" and crashes SystemUI. The map is a system-owned global setting, so writing it
+            // under the system identity is correct.
+            final long token = Binder.clearCallingIdentity();
+            try {
+                Settings.Global.putString(
+                        mContentResolver, GAMMA_SETTING_DISPLAY_VOLUME_MAP, serialized);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         private void applyPlayerAttenuations(@NonNull List<AudioPlaybackConfiguration> configs,
