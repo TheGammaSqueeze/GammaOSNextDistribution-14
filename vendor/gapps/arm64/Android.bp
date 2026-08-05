@@ -34,11 +34,6 @@ android_app_import {
 	owner: "gapps",
 	apk: "proprietary/product/priv-app/GmsCore/GmsCore.apk",
 	preprocessed: true,
-	// Refreshed arm64 GmsCore is the user-variant APK (v2/v3-signed only) and carries a
-	// couple of compressed dex entries. It is privileged, so the build would normally
-	// reject compressed dex, but uncompressing rewrites the zip and breaks the Google
-	// signature (which Play Integrity depends on). Ship it as-is; it dexopts on first boot.
-	skip_preprocessed_apk_checks: true,
 	presigned: true,
 	dex_preopt: {
 		enabled: false,
@@ -52,10 +47,6 @@ android_app_import {
 	owner: "gapps",
 	apk: "proprietary/product/priv-app/Phonesky/Phonesky.apk",
 	preprocessed: true,
-	// Refreshed arm64 Phonesky is the user-variant APK (v2/v3-signed only) with compressed
-	// dex. Same as GmsCore above: privileged, but uncompressing would break the signature,
-	// so accept the compressed dex and let it dexopt on first boot.
-	skip_preprocessed_apk_checks: true,
 	presigned: true,
 	dex_preopt: {
 		enabled: false,
