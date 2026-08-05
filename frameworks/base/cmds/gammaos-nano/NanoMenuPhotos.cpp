@@ -991,15 +991,47 @@ void NanoMenu::drawPhotoBanner() {
     // themes (they only redraw on mDisplayDirty; the XMB wave repaints anyway).
     mDisplayDirty = true;
     float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (life - el)) / 300.0f);
-    int W = mWidth, H = mHeight;
+    // Draw the banner with the standard font, NOT the caller's theme text state. The DSi carousel
+    // renders with mNdsFontPref=true (DSVec faces); measureText/drawText for the banner string then
+    // return ~0 width, so the banner collapsed to an unreadable dark sliver in the DSi theme (the
+    // Y-sort banner "not readable" bug). Force the default font (as the XMB path uses) for the measure
+    // AND the draw so widths and glyphs match, then restore so the rest of the frame is unaffected.
+    const bool prevFont = mNdsFontPref; mNdsFontPref = false;
+    const int prevOutline = mTextOutlineMode; mTextOutlineMode = 1;
+    const float W = (float)mWidth, H = (float)mHeight;
     const char* txt = mPhotoBanner.c_str();
-    float fs = PFS(30.0f);
+    // Bigger text than before, with shrink-to-fit so a long label (or a large user Font Size) can never
+    // overflow the panel. Sized off the smaller screen dimension so it scales sensibly on any panel.
+    float fs = ps3::fontScale(fminf(W, H) * 0.085f);
+    if (fs < PFS(30.0f)) fs = PFS(30.0f);
     float tw = measureText(txt, fs);
-    float cx = (W - tw) * 0.5f;
-    float cy = (float)H * 0.12f;
-    float pad = PFS(18.0f);
-    drawQuad(cx - pad, cy - PFS(8.0f), tw + pad * 2.0f, PFS(46.0f), 0.0f, 0.0f, 0.0f, 0.55f * fade);
-    drawText(txt, cx, ps3::baselineToTopY(cy + PFS(30.0f), fs), fs, 1.0f, 1.0f, 1.0f, fade);
+    const float padX = fmaxf(PFS(24.0f), fs * 0.6f);
+    const float padY = fmaxf(PFS(12.0f), fs * 0.32f);
+    const float margin = PFS(18.0f);
+    const float maxW = W - margin * 2.0f;
+    if (tw > 0.0f && tw + padX * 2.0f > maxW) {           // shrink to fit the screen width
+        float sc = (maxW - padX * 2.0f) / tw;
+        fs *= sc; tw *= sc;
+    }
+    // Standard alpha blend for the backdrop fills (a theme render can leave a different blend state).
+    setUiBlend();
+    // Solid backdrop so the label reads clearly over ANY theme (the busy XMB wave, the DSi white info
+    // panel, the Minima list). Use drawQuad (not drawRoundedRect): the SDF rounded-rect uses a separate
+    // rotation path from drawText, so on the RG DS's rotated panels the pill landed misaligned/offscreen
+    // while the text drew fine. A bright frame quad behind a near-opaque dark quad reads on BOTH dark
+    // (bright frame stands out) and light (dark fill stands out) backgrounds, co-located with the text.
+    float pw = tw + padX * 2.0f;
+    float ph = fs + padY * 2.0f;
+    float px = (W - pw) * 0.5f;
+    float py = H * 0.11f;
+    float bw = PFS(3.0f);
+    drawQuad(px - bw, py - bw, pw + bw * 2.0f, ph + bw * 2.0f, 0.96f, 0.97f, 1.0f, 0.92f * fade);  // bright frame
+    drawQuad(px, py, pw, ph, 0.06f, 0.07f, 0.10f, 0.94f * fade);   // dark fill
+    // Vertically centre the text in the pill.
+    float baseY = py + ph * 0.5f + fs * 0.34f;
+    drawText(txt, (W - tw) * 0.5f, ps3::baselineToTopY(baseY, fs), fs, 1.0f, 1.0f, 1.0f, fade);
+    mNdsFontPref = prevFont;
+    mTextOutlineMode = prevOutline;
 }
 void NanoMenu::photoCycleGroup() {
     static const char* kModeNames[4] = {"By Month", "By Year", "By Album", "All"};
