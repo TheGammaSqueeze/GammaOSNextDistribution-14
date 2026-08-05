@@ -116,6 +116,12 @@ const LayoutPreset kLayoutPresets[] = {
                            { DsScreen::Top,    960, 240,  320, 240 } }, 0.0f, false },
     { "Stacked",      2, { { DsScreen::Top,    400,   0,  480, 360 },
                            { DsScreen::Bottom, 400, 360,  480, 360 } }, 0.0f, false },
+    // Vertical asymmetric: the big screen on top, the small one directly under it
+    // (the "Big + Small" pairing stacked instead of side by side). DS Top leads as
+    // the big screen by default; swap flips which DS screen is big without moving a
+    // rect. Appended last so existing saved layout_preset indices do not shift.
+    { "Big Top + Small", 2, { { DsScreen::Top,    256,   0,  768, 576 },
+                              { DsScreen::Bottom, 384, 576,  512, 384 } }, 0.0f, false },
 };
 const int kPresetCount = (int)(sizeof(kLayoutPresets) / sizeof(kLayoutPresets[0]));
 
