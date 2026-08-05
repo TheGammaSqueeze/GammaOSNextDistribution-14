@@ -2434,6 +2434,34 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                 }
                             }
                         }
+                        // GammaOS Nano: final fallback for a hidden-but-launchable target -
+                        // an activity declared MAIN+DEFAULT with NO LAUNCHER category, kept off
+                        // the app drawer on purpose (e.g. com.gammaos.drasticsf's
+                        // DrasticSfActivity, the SurfaceFlinger host for drastic-nano). The
+                        // LAUNCHER/LEANBACK queries above cannot see it, and on the cold-boot
+                        // Quick Resume handoff launch_intent is empty, so without this the QR
+                        // resume falls back to the default launcher instead of the game.
+                        // Resolve ACTION_MAIN within the package and accept it ONLY when the
+                        // package exposes exactly one MAIN activity, so we never guess wrong for
+                        // a package that ships several.
+                        if (aInfo == null) {
+                            Intent mainOnly = new Intent(Intent.ACTION_MAIN);
+                            mainOnly.setPackage(nanoApp);
+                            java.util.List<android.content.pm.ResolveInfo> mains =
+                                    pm.queryIntentActivities(mainOnly, mflags);
+                            if (mains.size() == 1) {
+                                aInfo = mains.get(0).activityInfo;
+                                homeIntent = new Intent(Intent.ACTION_MAIN);
+                                homeIntent.setComponent(new ComponentName(
+                                        aInfo.applicationInfo.packageName, aInfo.name));
+                                homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                Slog.i(TAG, "GammaOS Nano: resolved hidden MAIN activity "
+                                        + aInfo.name + " (no LAUNCHER category) for " + nanoApp);
+                            } else if (mains.size() > 1) {
+                                Slog.w(TAG, "GammaOS Nano: " + nanoApp + " has " + mains.size()
+                                        + " MAIN activities; not auto-selecting a home target");
+                            }
+                        }
                     }
                 }
                 if (aInfo != null) {
