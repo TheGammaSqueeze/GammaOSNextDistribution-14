@@ -94,8 +94,10 @@ struct PresetScreen { DsScreen content; float x, y, w, h; };   // reference pixe
 // (LayoutConfig::pipAlpha). The reference rects are ignored.
 // pipFrac semantics: 0 = static (use s[] rects); > 0 = fixed-size inset of that
 // fraction of the surface width (placed side by side when there is room, else an
-// overlapping translucent inset in the configured corner); < 0 = "Auto" (the second screen
-// dynamically fills the width left over beside the 4:3 big screen).
+// overlapping translucent inset in the configured corner); -1 = "Auto" (the second screen
+// dynamically fills the width left over beside the 4:3 big screen); <= -2 = vertical
+// "Big Top + Tiny" (big fit 4:3 to the full width at the top, tiny fills the leftover
+// height at the bottom).
 // `fill` true marks a stretch-to-panel preset (Full Screen): the single screen is
 // intentionally drawn over the whole surface, ignoring aspect. Every other static
 // preset is an aspect-preserving arrangement whose screens' bounding box is fit
@@ -122,6 +124,12 @@ const LayoutPreset kLayoutPresets[] = {
     // rect. Appended last so existing saved layout_preset indices do not shift.
     { "Big Top + Small", 2, { { DsScreen::Top,    256,   0,  768, 576 },
                               { DsScreen::Bottom, 384, 576,  512, 384 } }, 0.0f, false },
+    // Vertical dynamic (computed, not from the reference rects): the big screen fills
+    // the width at the top and the tiny screen takes whatever height is left at the
+    // bottom, so the big is as large as the panel allows. pipFrac -2 selects the
+    // vertical-auto path in compute(). Appended last so saved layout_preset indices
+    // stay stable.
+    { "Big Top + Tiny",  2, { {} }, -2.0f, false },
 };
 const int kPresetCount = (int)(sizeof(kLayoutPresets) / sizeof(kLayoutPresets[0]));
 
@@ -156,6 +164,39 @@ LayoutPlan compute(const LayoutConfig& cfg, uint32_t surfaceW, uint32_t surfaceH
         // it fall back to an overlapping bottom-right inset, drawn translucent
         // (LayoutConfig::pipAlpha) so the big screen shows through.
         if (p.pipFrac != 0.0f) {
+            // Vertical dynamic "Big Top + Tiny": the big screen is fit 4:3 to the
+            // FULL WIDTH and pinned to the top; the tiny screen fills whatever height
+            // is left at the bottom. Selected by pipFrac <= -2 (distinct from the
+            // horizontal Auto, pipFrac == -1). On a panel too wide for the big to fit
+            // to width (e.g. 16:9) the big height is capped so a tiny band always
+            // remains at the bottom. Big screen is DS Top by default; swap flips it.
+            if (p.pipFrac <= -1.5f) {
+                const DsScreen bigScr  = cfg.swap ? DsScreen::Bottom : DsScreen::Top;
+                const DsScreen tinyScr = cfg.swap ? DsScreen::Top : DsScreen::Bottom;
+                const float vgap = 0.02f * H;
+                float bigW = W, bigH = W * (SH / SW);   // fit big to the full width
+                const float maxBigH = H * 0.80f;        // keep >= 20% of the height for the tiny
+                if (bigH > maxBigH) {
+                    bigH = maxBigH;
+                    bigW = bigH * (SW / SH);
+                    if (bigW > W) { bigW = W; bigH = W * (SH / SW); }
+                }
+                Rect bigR = { (W - bigW) * 0.5f, 0.0f, bigW, bigH };
+                const float bandY = bigH + vgap, bandH = H - bandY;
+                if (bandH > 4.0f) {
+                    const Fit tf = fitUniform(SW, SH, W, bandH);   // tiny fills the leftover band
+                    const float tW = SW * tf.s, tH = SH * tf.s;
+                    Rect tinyR = { (W - tW) * 0.5f, bandY + (bandH - tH) * 0.5f, tW, tH };
+                    plan.count = 2;
+                    plan.slots[0] = { roundRect(bigR),  bigScr,  1.0f };
+                    plan.slots[1] = { roundRect(tinyR), tinyScr, 1.0f };
+                } else {
+                    plan.count = 1;
+                    plan.slots[0] = { roundRect(bigR), bigScr, 1.0f };
+                }
+                applyTune(plan, cfg, W, H);
+                return plan;
+            }
             const float gap  = 0.02f * W;
             const Fit   bf   = fitUniform(SW, SH, W, H);      // big 4:3, full height
             const float bigW = SW * bf.s, bigH = SH * bf.s;
