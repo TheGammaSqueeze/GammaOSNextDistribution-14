@@ -284,8 +284,12 @@ void NanoMenu::applyRomNameOverrides(XmbSystem& sys) {
     if (sys.roms.empty() || sys.displayNames.empty()) return;
     size_t n = sys.roms.size() < sys.displayNames.size() ? sys.roms.size() : sys.displayNames.size();
     for (size_t i = 0; i < n; i++) {
+        // Priority: a manual Rename/Edit Title wins; otherwise, once a game has been scraped, show its
+        // matched title instead of the ROM filename; otherwise keep the scanned basename.
         const std::string* ov = romNameOverrideFor(sys.roms[i]);
-        if (ov && !ov->empty()) sys.displayNames[i] = *ov;
+        if (ov && !ov->empty()) { sys.displayNames[i] = *ov; continue; }
+        const ScrapeEntry* se = scrapeEntryFor(sys.roms[i]);
+        if (se && !se->title.empty()) sys.displayNames[i] = se->title;
     }
 }
 
@@ -296,7 +300,9 @@ void NanoMenu::applyRomNameOverrides(XmbSystem& sys) {
 void NanoMenu::applyRomNameOverridesToRecents() {
     for (auto& e : mXmbRecent) {
         const std::string* ov = romNameOverrideFor(e.romPath);
-        if (ov && !ov->empty()) e.displayName = *ov;
+        if (ov && !ov->empty()) { e.displayName = *ov; continue; }
+        const ScrapeEntry* se = scrapeEntryFor(e.romPath);
+        if (se && !se->title.empty()) e.displayName = se->title;
     }
 }
 

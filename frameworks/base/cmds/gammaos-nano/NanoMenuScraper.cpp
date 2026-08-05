@@ -865,7 +865,12 @@ void NanoMenu::scraperDrainResults() {
     if (!pending.empty()) {
         for (auto& p : pending) mScrapeIndex[p.first] = std::move(p.second);
         saveScrapeIndex();
-        mPs3CatsStale = true;       // refresh columns so new boxart shows (Phase 3)
+        // A scrape supplies a matched game title: refresh the display names so each scraped game shows
+        // its title instead of the ROM filename right away (not only after the next rescan). A manual
+        // Rename/Edit Title still wins (applyRomNameOverrides checks the override first).
+        for (auto& sys : mXmbSystems) applyRomNameOverrides(sys);
+        applyRomNameOverridesToRecents();
+        mPs3CatsStale = true;       // refresh columns so new boxart + titles show (Phase 3)
         mDisplayDirty = true;
     }
     if (done) {
