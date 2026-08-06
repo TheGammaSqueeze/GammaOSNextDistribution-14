@@ -3422,11 +3422,20 @@
         </activity>
 
         <!-- Triggered when user-selected home app isn't encryption aware -->
-        <!-- GammaOS: the HOME intent-filter is intentionally removed. On the TV/desktop build we
-             install the full Settings app; leaving FallbackHome registered as a category.HOME
-             candidate lets the system pick this blank encryption placeholder as the launcher when
-             no other home resolves, producing a black screen. It is never needed here (no secure
-             lock screen / direct-boot launcher gap), so it must not advertise HOME. -->
+        <!-- GammaOS: FallbackHome MUST keep its low-priority (-1000) HOME intent-filter. The Settings
+             app is directBootAware, so FallbackHome is the ONLY home that resolves during the locked
+             (pre-unlock) boot window on a freshly-wiped device, where the real homes
+             (Daijisho/Launcher3/nano) are all encryption-unaware. Its launch + idle is what drives
+             ActivityTaskSupervisor.checkFinishBootingLocked -> enableScreenAfterBoot ->
+             bootAnimationComplete -> finishBooting -> UserController.onBootComplete ->
+             finishUserBoot(user 0), i.e. it bootstraps user 0 out of STATE_BOOTING and unlocks it.
+             Removing this filter deadlocks full-Android (persist.bootanim.skip_nano=1) boot: nothing
+             launches during locked boot, no activity goes idle, boot completion never fires, user 0
+             never unlocks, and WindowManager loops "No home screen found" forever (service.bootanim.exit
+             stays 0). Nano mode is immune only because minimal_boot completes boot via its own timeout.
+             FallbackHome.maybeFinish() hands off to the real home on ACTION_USER_UNLOCKED and priority
+             -1000 keeps it from ever winning over a real launcher, so it never persists as a black
+             screen once a real home exists. -->
         <activity android:name=".FallbackHome"
                   android:excludeFromRecents="true"
                   android:label=""
@@ -3435,6 +3444,11 @@
                   android:theme="@style/FallbackHome"
                   android:permission="android.permission.DEVICE_POWER"
                   android:configChanges="keyboardHidden">
+            <intent-filter android:priority="-1000">
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <activity
