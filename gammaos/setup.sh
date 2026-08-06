@@ -222,12 +222,23 @@ pm install /system/etc/Toast.apk
 pm grant bellavita.toast android.permission.POST_NOTIFICATIONS
 
 echo "Granting permissions to applications."
-# Daijisho 1.8.1 (426) exposes its launcher/home as .ui.activities.BootstrapActivity;
-# the old .app.HomeActivity no longer exists, so setting it made the preferred home a
-# dangling component -> in full-Android mode the home never resolves and the device
-# hangs on the boot animation ("No home screen found"). Point at the real activity.
-cmd package set-home-activity com.magneticchen.daijishou/.ui.activities.BootstrapActivity
-pm set-home-activity com.magneticchen.daijishou/.ui.activities.BootstrapActivity -user --user 0
+# Set Daijisho as the deterministic preferred home. RESOLVE its HOME activity dynamically
+# instead of hardcoding a class name: Daijisho 1.8.1 (426) renamed its home activity from
+# .app.HomeActivity to .ui.activities.BootstrapActivity, and because the hardcoded
+# set-home-activity line was not updated with that bump, cmd package set-home-activity threw
+# "cannot be home" and recorded NO preferred home - which leaves full-Android mode
+# (persist.bootanim.skip_nano=1) with no home to resolve and hangs the boot animation with
+# "No home screen found". Resolving the real HOME component from the installed package makes a
+# future rename self-correcting; fall back to the known 1.8.1 component if the query comes back
+# empty (e.g. the package is still in the freshly-installed stopped state), and guard both calls
+# with || true so a bad component can never abort the rest of setup.
+DJ_HOME=$(cmd package query-activities --components -a android.intent.action.MAIN \
+    -c android.intent.category.HOME 2>/dev/null | tr -d '\r' \
+    | grep -oE 'com\.magneticchen\.daijishou/[A-Za-z0-9_.]+' | head -n1)
+[ -z "$DJ_HOME" ] && DJ_HOME=com.magneticchen.daijishou/.ui.activities.BootstrapActivity
+echo "Setting Daijisho home activity: $DJ_HOME"
+cmd package set-home-activity "$DJ_HOME" || true
+pm set-home-activity "$DJ_HOME" -user --user 0 || true
 
 echo "Extracting and setting up ROMs."
 if [ "$FRESH_SETUP" = 1 ]; then
