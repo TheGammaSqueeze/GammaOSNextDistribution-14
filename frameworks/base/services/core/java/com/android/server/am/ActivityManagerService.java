@@ -3526,23 +3526,73 @@ public class ActivityManagerService extends IActivityManager.Stub
                         "sys.gammaos.nano.launch_app", "");
                 if (!nanoApp.isEmpty() && nanoApp.equals(app.info.packageName)
                         && nanoApp.equals(app.processName)) {
-                    Slog.i(TAG, "GammaOS Nano: overlay-home launched app " + nanoApp
-                            + " process died, raising the overlay launcher directly");
-                    // Clear launch state so the death-cascade startHome cannot
-                    // re-launch the app, then raise the resident overlay (its
-                    // overlayPoll picks up show_overlay). No force-stop.
-                    android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
-                    android.os.SystemProperties.set("sys.gammaos.nano.launch_app", "");
-                    android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
-                    android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
-                    android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
-                    android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
-                    android.os.SystemProperties.set("persist.gammaos.nano.qr_prepared", "0");
-                    try {
-                        new java.io.File("/data/system/nano_launch_rom.txt").delete();
-                    } catch (Exception ignore) { }
-                    android.os.SystemProperties.set("sys.gammaos.nano.overlay_wallpaper", "1");
-                    android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
+                    // GammaOS Nano: distinguish a genuine exit from a self-kill-and-relaunch.
+                    // Some apps tear down and restart their OWN process to switch what is
+                    // effectively the next "activity" - GameMaker/yoyo chapter chaining is the
+                    // canonical case: the runner logs "GMSExtender: runner chN", SIGKILLs its own
+                    // process, then ActivityManager restarts the (still non-finishing, top)
+                    // RunnerActivity "for top-activity" and the next chapter returns to the
+                    // foreground on its own. Raising the overlay on the death races that restart
+                    // and drops the relaunched chapter behind the nano launcher (observed bug: the
+                    // chained chapter loads in the background and it loops).
+                    //
+                    // We cannot tell the two apart synchronously: by the time we get here the dead
+                    // process's activity is already non-visible, so hasVisibleActivities() is false
+                    // for both a chain restart AND a real exit. Instead DEFER briefly and check the
+                    // OUTCOME - if AMS has spun up a fresh process for the package it was a relaunch
+                    // (leave it alone, nano stays out of the way); if the package is really gone it
+                    // was a true teardown (RetroArch ESC save-and-quit, a normal exit) so raise the
+                    // overlay exactly as before, just ~0.8s later. Not clearing the launch state up
+                    // front is safe: for a chain restart the top activity survives so the
+                    // death-cascade startHome is never invoked, and for a real exit startHome's own
+                    // appWasLaunched path (or this deferred check) still raises the overlay.
+                    final String nanoDeadPkg = nanoApp;
+                    final int nanoDeadUid = app.uid;
+                    final int nanoDeadPid = pid;
+                    mHandler.postDelayed(() -> {
+                        synchronized (ActivityManagerService.this) {
+                            // Already handled (startHome exit path) or a different app is the
+                            // current launched one - nothing to do.
+                            if (!"1".equals(android.os.SystemProperties.get(
+                                        "sys.gammaos.nano.app_launched", "0"))
+                                    || !nanoDeadPkg.equals(android.os.SystemProperties.get(
+                                        "sys.gammaos.nano.launch_app", ""))) {
+                                return;
+                            }
+                            // A fresh ProcessRecord for the package (different pid from the one
+                            // that just died) means AMS restarted it - the app chained to its next
+                            // activity/chapter. The record is created as soon as the restart begins
+                            // (well before the new process attaches), so this catches even a rapid
+                            // chain without depending on attach latency.
+                            final ProcessRecord proc =
+                                    getProcessRecordLocked(nanoDeadPkg, nanoDeadUid);
+                            if (proc != null && proc.getPid() != nanoDeadPid
+                                    && proc.getPid() > 0) {
+                                Slog.i(TAG, "GammaOS Nano: launched app " + nanoDeadPkg
+                                        + " self-relaunched (fresh process " + proc.getPid()
+                                        + "), not raising the overlay");
+                                return;
+                            }
+                            Slog.i(TAG, "GammaOS Nano: overlay-home launched app " + nanoDeadPkg
+                                    + " did not come back, raising the overlay launcher directly");
+                            // Clear launch state so the death-cascade startHome cannot re-launch
+                            // the app, then raise the resident overlay (its overlayPoll picks up
+                            // show_overlay). No force-stop.
+                            android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+                            android.os.SystemProperties.set("sys.gammaos.nano.launch_app", "");
+                            android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+                            android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
+                            android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+                            android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+                            android.os.SystemProperties.set("persist.gammaos.nano.qr_prepared", "0");
+                            try {
+                                new java.io.File("/data/system/nano_launch_rom.txt").delete();
+                            } catch (Exception ignore) { }
+                            android.os.SystemProperties.set(
+                                    "sys.gammaos.nano.overlay_wallpaper", "1");
+                            android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
+                        }
+                    }, 800);
                 }
             }
         } catch (Exception e) {
