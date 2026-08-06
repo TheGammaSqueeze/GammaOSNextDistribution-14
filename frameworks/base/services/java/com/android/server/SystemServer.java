@@ -4067,6 +4067,59 @@ public final class SystemServer implements Dumpable {
             reportWtf("starting System UI", e);
         }
         t.traceEnd();
+
+        // GammaOS: auto-grant storage/microphone runtime permissions to user apps in
+        // FULL ANDROID too. The nano bring-up in the else branch below already starts
+        // the permission bridge for nano, but a frontend launched from the normal
+        // Android launcher (e.g. RetroArch from Daijisho) otherwise never gets the
+        // silent grants and re-prompts on every launch. Mirror the nano bring-up here,
+        // scoped to just the permission bridge and its package-change receiver, off the
+        // boot thread and after boot_completed so PackageManager can resolve packages.
+        {
+            final Context permGrantCtx = context;
+            new Thread(() -> {
+                while (!"1".equals(SystemProperties.get("sys.boot_completed"))) {
+                    try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+                }
+                try {
+                    com.android.server.gammaos.NanoPermGrantBridge.start(permGrantCtx);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS: NanoPermGrantBridge (full Android) start failed: " + e);
+                }
+                // Live-grant on package changes so a freshly installed emulator/frontend
+                // never prompts (perm-only mirror of the nano app-cache receiver).
+                try {
+                    final android.os.HandlerThread pht =
+                            new android.os.HandlerThread("NanoPermGrantPkg");
+                    pht.start();
+                    final android.os.Handler ph = new android.os.Handler(pht.getLooper());
+                    final android.content.BroadcastReceiver prcvr =
+                            new android.content.BroadcastReceiver() {
+                        @Override public void onReceive(android.content.Context c,
+                                                        android.content.Intent i) {
+                            android.net.Uri d = i.getData();
+                            String pkg = (d != null) ? d.getSchemeSpecificPart() : null;
+                            String action = i.getAction();
+                            if (pkg != null
+                                    && !android.content.Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action)
+                                    && !android.content.Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
+                                try {
+                                    com.android.server.gammaos.NanoPermGrantBridge.sweepPackage(c, pkg);
+                                } catch (Throwable ignored) { }
+                            }
+                        }
+                    };
+                    final android.content.IntentFilter pf = new android.content.IntentFilter();
+                    pf.addAction(android.content.Intent.ACTION_PACKAGE_ADDED);
+                    pf.addAction(android.content.Intent.ACTION_PACKAGE_REPLACED);
+                    pf.addAction(android.content.Intent.ACTION_PACKAGE_CHANGED);
+                    pf.addDataScheme("package");
+                    permGrantCtx.registerReceiver(prcvr, pf, null, ph);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS: perm-grant package receiver (full Android) failed: " + e);
+                }
+            }, "NanoPermGrantBoot").start();
+        }
         } else {
             Slog.i(TAG, "GammaOS Nano: skipping SystemUI (gammapad vibration bridge started)");
             // Preload RetroArch behind the nano menu: call finishBooting (which

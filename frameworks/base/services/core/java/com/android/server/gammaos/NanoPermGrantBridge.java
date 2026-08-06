@@ -19,9 +19,20 @@
  * marked GRANTED_BY_DEFAULT (not SYSTEM_FIXED) so the user can still revoke them from
  * Settings if they want to.
  *
- * The sweep runs entirely on a daemon HandlerThread, never on the boot thread. It is safe
- * in full Android (self-gates on sys.gammaos.minimal_boot, i.e. nano builds) and is
- * additionally kill-switchable via persist.gammaos.perm.autogrant=0.
+ * The sweep runs entirely on a daemon HandlerThread, never on the boot thread. It runs on
+ * every GammaOS boot (nano and full Android alike) so a frontend launched from the normal
+ * Android launcher gets the same silent access as one launched from the nano home, and is
+ * kill-switchable via persist.gammaos.perm.autogrant=0.
+ *
+ * READ/WRITE_EXTERNAL_STORAGE and ACCESS_MEDIA_LOCATION are *restricted* permissions:
+ * grantRuntimePermission silently no-ops (the permission keeps FLAG_PERMISSION_APPLY_
+ * RESTRICTION and stays revoked) unless the app is first exempted from the restriction. A
+ * plain `pm grant` (or setup.sh) does not do that, and an app updated by a store/sideloader
+ * that re-applies the restriction loses the install-time exemption, so the grant never
+ * sticks and the frontend re-prompts on every launch (RetroArch's legacy-storage
+ * READ_EXTERNAL_STORAGE is the canonical case). The bridge therefore adds the SYSTEM
+ * restriction whitelist for those permissions before granting them, mirroring what a normal
+ * install does, so the grant takes and no prompt is ever shown.
  */
 
 package com.android.server.gammaos;
@@ -38,6 +49,7 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.util.Slog;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -69,6 +81,14 @@ public final class NanoPermGrantBridge {
         Manifest.permission.RECORD_AUDIO,
     };
 
+    // Restricted permissions (of the storage set above): grantRuntimePermission is a no-op
+    // for these while the restriction is applied, so the app must be added to the SYSTEM
+    // restriction whitelist first. Any of the *_EXEMPT flags clears APPLY_RESTRICTION.
+    private static final Set<String> RESTRICTED_PERMISSIONS = new HashSet<>(Arrays.asList(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.ACCESS_MEDIA_LOCATION));
+
     // Package prefixes nano never treats as user apps; skip them to avoid touching
     // system / platform components. Mirrors the exact list used by the nano app-cache
     // package-change receiver in SystemServer.
@@ -90,12 +110,9 @@ public final class NanoPermGrantBridge {
         mContext = context;
     }
 
-    /** Called from SystemServer's minimal-boot bring-up thread (after boot_completed). */
+    /** Called from SystemServer after boot_completed, in both nano and full Android. */
     public static synchronized void start(Context context) {
         if (sStarted) return;
-        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
-            return; // only the nano home benefits from silent grants
-        }
         if (!SystemProperties.getBoolean(AUTOGRANT_PROP, true)) {
             return; // explicit kill-switch
         }
@@ -123,7 +140,6 @@ public final class NanoPermGrantBridge {
      */
     public static void sweepPackage(Context context, String pkg) {
         if (context == null || pkg == null) return;
-        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return;
         if (!SystemProperties.getBoolean(AUTOGRANT_PROP, true)) return;
         final NanoPermGrantBridge inst = sInstance;
         final Runnable r = () -> {
@@ -222,6 +238,18 @@ public final class NanoPermGrantBridge {
         for (String p : perms) {
             if (!declared.contains(p)) continue;
             try {
+                // Restricted permissions (READ/WRITE_EXTERNAL_STORAGE, ACCESS_MEDIA_LOCATION)
+                // will not grant while the restriction is applied: exempt the app from the
+                // restriction first (SYSTEM whitelist), mirroring a normal install, so the
+                // subsequent grant actually sticks instead of silently no-opping.
+                if (RESTRICTED_PERMISSIONS.contains(p)) {
+                    try {
+                        pm.addWhitelistedRestrictedPermission(pkg, p,
+                                PackageManager.FLAG_PERMISSION_WHITELIST_SYSTEM);
+                    } catch (Throwable ignore) {
+                        // Not restricted on this SDK, or already whitelisted; keep going.
+                    }
+                }
                 if (pm.checkPermission(p, pkg) != PackageManager.PERMISSION_GRANTED) {
                     pm.grantRuntimePermission(pkg, p, user);
                 }
