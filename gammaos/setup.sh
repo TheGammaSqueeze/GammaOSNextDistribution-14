@@ -222,8 +222,12 @@ pm install /system/etc/Toast.apk
 pm grant bellavita.toast android.permission.POST_NOTIFICATIONS
 
 echo "Granting permissions to applications."
-cmd package set-home-activity com.magneticchen.daijishou/.app.HomeActivity
-pm set-home-activity com.magneticchen.daijishou/.app.HomeActivity -user --user 0
+# Daijisho 1.8.1 (426) exposes its launcher/home as .ui.activities.BootstrapActivity;
+# the old .app.HomeActivity no longer exists, so setting it made the preferred home a
+# dangling component -> in full-Android mode the home never resolves and the device
+# hangs on the boot animation ("No home screen found"). Point at the real activity.
+cmd package set-home-activity com.magneticchen.daijishou/.ui.activities.BootstrapActivity
+pm set-home-activity com.magneticchen.daijishou/.ui.activities.BootstrapActivity -user --user 0
 
 echo "Extracting and setting up ROMs."
 if [ "$FRESH_SETUP" = 1 ]; then
