@@ -615,6 +615,9 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("Background") || is("Wallpaper") || is("Font") || is("Day/Night")) return xmb;
     // The wave exists on XMB and (opt-in) Minima, but never the DSi carousel.
     if (is("XMB Wave")) return xmb || minima;
+    // Half-resolution render-scale is a PS3 XMB-only perf toggle (the DSi/Minima homes are cheap list
+    // renders with no wave, so it would do nothing there).
+    if (is("Half Resolution")) return xmb;
     // The Minima solid background colour is meaningless on XMB / DSi.
     if (is("Background Colour")) return minima;
     // Long-name shrink/scroll is a Minima-list behaviour (XMB/DSi handle long names their own way).
@@ -8286,6 +8289,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
     {"XMB Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.wave", "1", "0:Off,1:On"},
+    {"Half Resolution", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres", "0", "0:Off,1:On"},
     // Interactive UI/menu sound effects (cursor/select/back/launch) - gated in ps3Sfx/ndsSfxPlay/
     // minimaSfx (navSoundsOn), so it silences navigation sounds in every theme. Boot jingle unaffected.
     {"Navigation Sounds", SettingSource::kProp, "persist.gammaos.nano.nav_sounds", "1", "0:Off,1:On"},
@@ -10843,6 +10847,14 @@ void NanoMenu::closePs3Dialog(bool apply) {
                         mXmbWave = (v == "1" || v == "true");
                         mXmbWaveExplicit = true;
                         property_set("persist.gammaos.nano.ps3xmb.wave_explicit", "1");
+                    }
+                    // Half Resolution on/off: apply live. render() reads the mPs3HalfRes MEMBER once per
+                    // frame into its halfResActive local (the prop is cached at startup, so a bare write
+                    // would not take effect until reboot); mDisplayDirty above forces the repaint. The
+                    // render thread lazily (re)allocates the half-res FBO on the next wrapped frame, and
+                    // toggling OFF simply stops wrapping - no GL work happens on this settings thread.
+                    if (!strcmp(b->label, "Half Resolution")) {
+                        mPs3HalfRes = (v == "1" || v == "true");
                     }
                     // Dark Theme: the write above mirrors Secure.ui_night_mode ("1"=off / "2"=on), but a
                     // bare settings-write does NOT reconfigure the running apps / SystemUI. Drive the real

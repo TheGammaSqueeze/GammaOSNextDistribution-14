@@ -199,6 +199,10 @@ static int    sWaveLutCols = 0;              // 0 until built
 // scene/gradient FBOs
 static GLuint sGradFbo = 0, sGradTex = 0;
 static GLuint sWorkFbo = 0, sWorkTex = 0;
+// Half-resolution render-scale target (Theme Settings > Half Resolution). Sized to half the primary
+// pass viewport and reused every frame; reallocated only when the panel size changes. See beginHalfRes.
+static GLuint sHalfFbo = 0, sHalfTex = 0;
+static int    sHalfW = 0, sHalfH = 0;
 // In-game overlay: FREEZE the offscreen wave (the glass-icon refraction source,
 // never composited to the panel). It is rendered ONCE into the work-texture and
 // reused every frame - the wave's animation is imperceptible in the small glass
@@ -868,15 +872,56 @@ float musicVisBlend() { return sMvBlend; }
 
 void invalidateGradient() { sGradDirty = true; sScrimEpoch++; }
 
+// Half-resolution render-scale (Theme Settings > Half Resolution, XMB-only). Bind a half-size FBO as
+// the scene target so the whole XMB (wave + chrome + text) draws at quarter the pixel count; the
+// upscale then GL_LINEAR-magnifies it to the panel. Returns 0 (leaving the previously bound target
+// intact) when ps3bg is not ready yet or the FBO fails, so the caller falls back to full-res cleanly.
+GLuint beginHalfRes(int fullW, int fullH) {
+    if (!sReady || fullW < 2 || fullH < 2) return 0;   // need sBlitProg (built in init); tiny sizes -> skip
+    GLint prevFbo = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    int hw = fullW >> 1, hh = fullH >> 1;
+    if (hw < 1) hw = 1;
+    if (hh < 1) hh = 1;
+    if (!sHalfFbo || hw != sHalfW || hh != sHalfH) {
+        // (Re)allocate only on first use or a panel-size change (ensureFbo re-uploads the texture).
+        if (!ensureFbo(&sHalfFbo, &sHalfTex, hw, hh)) {
+            glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);   // restore the caller's target on failure
+            sHalfW = sHalfH = 0;
+            return 0;
+        }
+        sHalfW = hw; sHalfH = hh;
+    } else {
+        glBindFramebuffer(GL_FRAMEBUFFER, sHalfFbo);
+    }
+    glViewport(0, 0, hw, hh);
+    return sHalfFbo;
+}
+
+// Sharp GL_LINEAR upscale of the half-size scene to the CURRENTLY BOUND target at fullW x fullH.
+// Opaque (FS_BLIT writes alpha=1); blend is disabled. Identity quad -> no rotation/flip (the half FBO
+// already holds panel-oriented pixels), matching the existing sGradTex->sWorkTex blit precedent.
+void upscaleHalfRes(int fullW, int fullH) {
+    if (!sHalfTex || !sBlitProg) return;
+    glViewport(0, 0, fullW, fullH);
+    glDisable(GL_BLEND);
+    glUseProgram(sBlitProg);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, sHalfTex);
+    glUniform1i(sBlitTex, 0);
+    drawFullQuad(sBlitPos, sBlitUV);
+}
+
 void shutdown() {
     if (sBgProg) glDeleteProgram(sBgProg);
     if (sWaveProg) glDeleteProgram(sWaveProg);
     if (sBlitProg) glDeleteProgram(sBlitProg);
     if (sCompProg) glDeleteProgram(sCompProg);
-    GLuint texs[] = {sGradTex, sWorkTex};
-    glDeleteTextures(2, texs);
-    GLuint fbos[] = {sGradFbo, sWorkFbo};
-    glDeleteFramebuffers(2, fbos);
+    GLuint texs[] = {sGradTex, sWorkTex, sHalfTex};
+    glDeleteTextures(3, texs);
+    GLuint fbos[] = {sGradFbo, sWorkFbo, sHalfFbo};
+    glDeleteFramebuffers(3, fbos);
+    sHalfFbo = sHalfTex = 0; sHalfW = sHalfH = 0;
     GLuint bufs[] = {sWaveSeqVBO, sWaveAttrVBO, sWaveIBO, sQuadVBO};
     glDeleteBuffers(4, bufs);
     sBgProg = sWaveProg = sBlitProg = sCompProg = 0;

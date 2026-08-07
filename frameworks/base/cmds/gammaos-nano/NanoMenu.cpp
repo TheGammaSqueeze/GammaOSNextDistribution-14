@@ -1522,6 +1522,13 @@ bool NanoMenu::threadLoop() {
     // panel, so defaulting on is inert there and only lights up the RG DS's bottom panel.
     mPs3BottomClock = android::base::GetBoolProperty(
             "persist.gammaos.nano.ps3xmb.bottomclock", true);
+    // Half Resolution (XMB theme only): render the whole XMB scene (wave + chrome + text) into a
+    // half-size FBO and sharp-linear upscale it to the panel. Perf toggle for weak GPUs (A133P class).
+    // Default OFF so existing devices are unchanged; the render gate additionally scopes it to the true
+    // PS3 XMB home (not DSi/Minima, not the in-game scrim overlay, not boot/video). Read once here and
+    // flipped live in closePs3Dialog so a toggle takes effect on the next frame without a reboot.
+    mPs3HalfRes = android::base::GetBoolProperty(
+            "persist.gammaos.nano.ps3xmb.halfres", false);
     // Bottom-screen Control Center: live dashboard on the bottom panel while a single-screen
     // (non-dual-stack) app runs on top. Dual-screen XMB only; the render gate re-checks context.
     mControlCenterEnabled = android::base::GetBoolProperty(

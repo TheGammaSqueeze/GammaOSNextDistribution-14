@@ -91,6 +91,17 @@ GLuint workTex();
 GLuint workFbo();
 void   workTexSize(int* w, int* h);
 
+// Half-resolution render-scale (Theme Settings > Half Resolution, XMB-only). beginHalfRes()
+// (lazily) allocates a half-size (fullW/2 x fullH/2) RGBA FBO, binds it as the render target and
+// sets a half-size viewport, so the caller draws the ENTIRE XMB scene into it at quarter the pixel
+// count. Returns the FBO id, or 0 if not ready / on allocation failure (in which case the previously
+// bound target is left intact and the caller renders full-res). upscaleHalfRes() blits that half-size
+// texture to the CURRENTLY BOUND target at fullW x fullH with a sharp GL_LINEAR filter (opaque). The
+// FBO is size-cached and reused every frame; freed in shutdown(). Scene rotation is untouched (the
+// half FBO holds already-rotated pixels; the upscale is an identity 2x magnify).
+GLuint beginHalfRes(int fullW, int fullH);
+void   upscaleHalfRes(int fullW, int fullH);
+
 // In-game overlay only: FREEZE the offscreen-only wave (the glass-icon refraction
 // source, never composited). setScrimWaveFreeze(true) makes render() build the
 // work-texture ONCE and reuse it every frame - the wave's animation is imperceptible

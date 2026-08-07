@@ -133,6 +133,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Long Names",22,"Minima theme only: how a game or app name too long for its row is shown. Scroll keeps the normal font size, scrolling the focused name and clipping the others at the edge; Shrink to Fit reduces the font so the whole name fits.","Scroll",1,nullptr,0},
   {"Wallpaper Dimming",22,"Darkens a custom photo or video wallpaper so a bright image does not wash out the icons or menu text. Higher = darker.","25%",1,nullptr,0},
   {"XMB Wave",22,"Shows the moving PS3 wave behind the home screen. Off by default when a custom wallpaper is set.","On",1,nullptr,0},
+  {"Half Resolution",22,"XMB theme only: renders the whole home (including the wave) at half resolution and upscales it with a smooth filter. Trades a little sharpness for a large speed-up on lower-powered devices.","Off",1,nullptr,0},
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
   {"Home Theme",22,"Switches the home screen between GammaOS XMB, DSi Menu and Minima. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},

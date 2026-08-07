@@ -5036,6 +5036,17 @@ void NanoMenu::render() {
     // boot_completed fires.
     DrasticRunner* drastic = DrasticRunner::getInstance();
     const bool drasticActive = drastic && drastic->isInitialized();
+    // Half Resolution (Theme Settings > Half Resolution): render the whole XMB scene into a half-size
+    // FBO and sharp-linear upscale it to the panel. Scoped to the TRUE PS3 XMB home only: not DSi/Minima
+    // (mPs3Xmb is shared by all three home themes), not the drastic Quick-Resume split, not the cold-boot
+    // intro (keep the logo + epilepsy warning crisp), not the fullscreen video player, and NOT the in-game
+    // translucent overlay - the upscale is opaque (FS_BLIT alpha=1), which would defeat the scrim that lets
+    // the running app show through; the opaque post-game overlay-wallpaper home is fine (its alpha is
+    // force-masked to 1 at present anyway). Evaluated once per frame; the per-pass wrap re-checks nothing.
+    const bool halfResActive = mPs3HalfRes && mPs3Xmb && !mNdsTheme && !mMinimaTheme &&
+                               !drasticActive && !mPs3BootActive &&
+                               !(mVidActive || mVidEnterT > 0.001f) &&
+                               !(mOverlayMode && !mOverlayWallpaper);
     static float sDrasticSaturation = 0.15f;
     static float sDrasticGradient   = 1.0f;
     if (drasticActive) {
@@ -5302,11 +5313,15 @@ void NanoMenu::render() {
     // primitive clipped away while glClear still paints (the "wallpaper blanks to blue /
     // overlay icons vanish but scrim stays" rotation bug). Require sDrmZeroCopy so the
     // SF-overlay self-rotate renders into the full mWidth x mHeight surface.
-    if (sDrmGlRotation && sDrmZeroCopy) {
-        glViewport(0, 0, sAhbTarget.w, sAhbTarget.h);
-    } else {
-        glViewport(0, 0, mWidth, mHeight);
-    }
+    int vpW, vpH;
+    if (sDrmGlRotation && sDrmZeroCopy) { vpW = sAhbTarget.w; vpH = sAhbTarget.h; }
+    else                                { vpW = mWidth;       vpH = mHeight; }
+    glViewport(0, 0, vpW, vpH);
+    // Half Resolution (Theme Settings, XMB-only): redirect the whole primary XMB scene into a half-size
+    // FBO (half of THIS pass's viewport, so it adapts to any resolution/rotation). The scene composes at
+    // half scale here; the upscale further below magnifies it back to vpW x vpH with a sharp GL_LINEAR
+    // filter. Returns 0 (leaving the full-res viewport above intact) when disabled or not yet ready.
+    GLuint priHalfFbo = halfResActive ? ps3bg::beginHalfRes(vpW, vpH) : 0;
     uploadRotationMatrices();
     // Overlay: show the FULL PS3 WALLPAPER (opaque) ONLY in launcher/no-app state
     // (mOverlayWallpaper). When there is a LIVE APP behind us (the in-game overlay),
@@ -5933,6 +5948,17 @@ void NanoMenu::render() {
     drawPointerCursor();
 
     glDisable(GL_BLEND);
+
+    // Half Resolution: composite the half-size scene up to the real target with a sharp GL_LINEAR
+    // filter, BEFORE the debug capture + present so both observe the final full-res frame. Target is the
+    // primary AHB slot on the DRM zero-copy path (rebinding the SAME slot the scene rendered for; this
+    // does NOT advance the ring), else FBO 0 for the SF / DRM-blit paths. The native fence inserted in
+    // the ring dispatch just below is created after this, so it fences the scene render AND this upscale.
+    if (priHalfFbo) {
+        if (sDrmActive && sDrmZeroCopy) glBindFramebuffer(GL_FRAMEBUFFER, sAhbTarget.glFbo);
+        else                            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        ps3bg::upscaleHalfRes(vpW, vpH);
+    }
 
     // Debug frame capture (no-op unless sys.gammaos.nano.shot is set).
     maybeNanoScreenshot();

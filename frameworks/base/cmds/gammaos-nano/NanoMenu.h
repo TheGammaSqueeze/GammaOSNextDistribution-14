@@ -1459,6 +1459,8 @@ private:
     bool mMinimaTheme = false;    // persist.gammaos.nano.minima (Minima list theme, NextUI-inspired; rides the XMB
                                   // infrastructure like the DSi theme and swaps the home render/nav/sfx/boot)
     bool mPs3BottomClock = false; // persist.gammaos.nano.ps3xmb.bottomclock (PSP clock on the bottom panel, dual-screen XMB)
+    bool mPs3HalfRes = false;     // persist.gammaos.nano.ps3xmb.halfres (XMB-only: render the whole scene incl. the
+                                  // wave into a half-size FBO then sharp GL_LINEAR upscale; big GPU-fill win on weak SoCs)
     bool mControlCenterEnabled = false; // persist.gammaos.nano.ps3xmb.controlcenter (bottom-screen dashboard over a single-screen app)
     // Bottom-panel PSP clock reveal (own scalar, independent of the F12 summon mPspClockReveal).
     // 0..1: on cold boot it ramps 0 -> 1 after the XMB icons float in so the clock plays its drop-in
