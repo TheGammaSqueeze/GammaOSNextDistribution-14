@@ -773,6 +773,9 @@ private:
     void drawText(const char* str, float px, float py, float scale,
                   float r, float g, float b, float a);
     float measureText(const char* str, float scale);
+    // Logical->visual bidi/shaping front-end for the glyph pipeline (see
+    // nanoBidiVisual in NanoOsk.h). Returns str itself on the fast path.
+    const char* textForDisplay(const char* str);
     // Enable a scissor covering the LOGICAL rect (x,y,w,h), correct for any
     // panel rotation AND flip (transforms the rect through sDrmRotMat, the
     // same composed matrix the vertex shaders apply). See the definition for
@@ -4450,6 +4453,11 @@ private:
     // Scale-independent text widths keyed by string (see measureText). Never
     // invalidated: the font size is fixed at init and glyphs only get added.
     std::unordered_map<std::string, float> mTextWidthCache;
+    // Logical UTF-8 -> visual (Arabic-shaped / bidi-reordered) strings for
+    // textForDisplay. Only strings whose bytes can carry RTL or zero-width
+    // codepoints land here. Cleared wholesale past a size backstop because
+    // OSK typing feeds it unbounded user text.
+    std::unordered_map<std::string, std::string> mBidiCache;
 
     // Text shader (per-vertex color for emoji support)
     GLuint mTextProgram;

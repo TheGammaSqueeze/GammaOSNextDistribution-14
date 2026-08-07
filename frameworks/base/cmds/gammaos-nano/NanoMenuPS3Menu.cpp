@@ -15099,13 +15099,21 @@ void NanoMenu::renderNetWizard() {
         std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
         if (!d.mask && !composing.empty()) val += composing;
         float vfs = FS(24.0f);
-        float vx = boxX + DS(12.0f);
-        if (!val.empty()) {
-            ps3DlgText(val.c_str(), vx, boxY + DS(30.0f), vfs, 1, 1, 1, ap, 0);
-            vx += measureText(val.c_str(), vfs);
-        }
+        // RTL committed text (Arabic/Hebrew keyboard) right-aligns in the box
+        // with the caret on the visual LEFT, where the next letter lands;
+        // drawText handles the shaping/visual order itself.
+        bool rtlVal = nanoTextIsRtl(val.c_str());
+        float tw = val.empty() ? 0.0f : measureText(val.c_str(), vfs);
+        float vx = rtlVal ? (boxX + boxW - DS(12.0f) - tw) : (boxX + DS(12.0f));
+        if (vx < boxX + DS(12.0f)) vx = boxX + DS(12.0f);   // keep an over-wide RTL value's caret end in the box
+        // Draw the value directly (not via ps3DlgText, which would re-translate
+        // a typed value that happens to match an i18n key, so the drawn width
+        // would no longer match the measured tw used for alignment/caret).
+        if (!val.empty())
+            drawText(val.c_str(), vx, ps3::baselineToTopY(boxY + DS(30.0f), vfs), vfs, 1, 1, 1, ap);
         float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
-        drawQuad(vx + DS(1.0f), boxY + DS(8.0f), fmaxf(1.0f, DS(2.0f)), DS(28.0f), 1, 1, 1, blink * ap);
+        float caretX = rtlVal ? (vx - DS(3.0f)) : (vx + tw + DS(1.0f));
+        drawQuad(caretX, boxY + DS(8.0f), fmaxf(1.0f, DS(2.0f)), DS(28.0f), 1, 1, 1, blink * ap);
         // Inline validation message (re-opened field after a bad entry).
         if (!mPs3WizFieldError.empty())
             ps3DlgText(mPs3WizFieldError.c_str(), boxX, boxY + boxH + DS(24.0f), FS(19.0f),
@@ -15499,13 +15507,19 @@ void NanoMenu::renderNdsNetWizardBody(float rx, float ry, float rw, float rh) {
         std::string val = d.mask ? maskPassword(mOskQuery) : mOskQuery;
         std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
         if (!d.mask && !composing.empty()) val += composing;
-        float fs = fsFor(13.0f), vx = bxx + S(6.0f);
+        float fs = fsFor(13.0f);
         // drawText's y is the text TOP (baseline = y + 0.8*em), not a baseline like
         // ps3DlgText. Using byy+17 pushed the text ~12px down, so it rendered UNDER the
         // input box. Align the top with the caret (byy+5) so it sits inside the field.
-        if (!val.empty()) { drawText(val.c_str(), vx, byy + S(5.0f), fs, 1.0f, 1.0f, 1.0f, 1.0f); vx += measureText(val.c_str(), fs); }
+        // RTL committed text right-aligns with the caret on the visual left.
+        bool rtlVal = nanoTextIsRtl(val.c_str());
+        float tw = val.empty() ? 0.0f : measureText(val.c_str(), fs);
+        float vx = rtlVal ? (bxx + bww - S(6.0f) - tw) : (bxx + S(6.0f));
+        if (vx < bxx + S(6.0f)) vx = bxx + S(6.0f);   // keep an over-wide RTL value's caret end in the box
+        if (!val.empty()) drawText(val.c_str(), vx, byy + S(5.0f), fs, 1.0f, 1.0f, 1.0f, 1.0f);
         float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
-        drawQuad(vx + S(1.0f), byy + S(5.0f), fmaxf(1.0f, S(1.5f)), S(15.0f), 1.0f, 1.0f, 1.0f, blink);
+        float caretX = rtlVal ? (vx - S(2.5f)) : (vx + tw + S(1.0f));
+        drawQuad(caretX, byy + S(5.0f), fmaxf(1.0f, S(1.5f)), S(15.0f), 1.0f, 1.0f, 1.0f, blink);
         if (!mPs3WizFieldError.empty()) textLeft(mPs3WizFieldError.c_str(), 24.0f, 92.0f, 11.0f, 1.0f, 0.46f, 0.42f);
     } else if (d.kind == WK_REVIEW) {
         struct KV { std::string k; std::string v; };
@@ -15907,13 +15921,19 @@ void NanoMenu::renderMinimaNetWizardBody(float rx, float ry, float rw, float rh)
         std::string val = d.mask ? maskPassword(mOskQuery) : mOskQuery;
         std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
         if (!d.mask && !composing.empty()) val += composing;
-        float vx = bxx + btnPad, ty = byy + (bhh - MW_FONT * sc) * 0.5f;
-        if (!val.empty()) { drawText(val.c_str(), vx, ty, fsRow, 1.0f, 1.0f, 1.0f, 1.0f); vx += measureText(val.c_str(), fsRow); }
+        float ty = byy + (bhh - MW_FONT * sc) * 0.5f;
+        // RTL committed text right-aligns with the caret on the visual left.
+        bool rtlVal = nanoTextIsRtl(val.c_str());
+        float tw = val.empty() ? 0.0f : measureText(val.c_str(), fsRow);
+        float vx = rtlVal ? (bxx + bww - btnPad - tw) : (bxx + btnPad);
+        if (vx < bxx + btnPad) vx = bxx + btnPad;   // keep an over-wide RTL value's caret end in the box
+        if (!val.empty()) drawText(val.c_str(), vx, ty, fsRow, 1.0f, 1.0f, 1.0f, 1.0f);
         float blink = 0.5f + 0.5f * sinf(mEffectTime * 6.0f);
         // Centre the caret in the box interior (matches the value text's centre) rather than
         // anchoring it to the text top with a full-em height, which sat it low in the field.
         float caretH = rowH * 0.60f;
-        drawQuad(vx + 1.5f * sc, byy + (bhh - caretH) * 0.5f, fmaxf(1.0f, 1.5f * sc), caretH, 1.0f, 1.0f, 1.0f, blink);
+        float caretX = rtlVal ? (vx - 3.0f * sc) : (vx + tw + 1.5f * sc);
+        drawQuad(caretX, byy + (bhh - caretH) * 0.5f, fmaxf(1.0f, 1.5f * sc), caretH, 1.0f, 1.0f, 1.0f, blink);
         if (!mPs3WizFieldError.empty()) tLeft(mPs3WizFieldError.c_str(), bxx, byy + bhh + rowH * 0.3f, fsHint, 1.0f, 0.46f, 0.42f);
         mDisplayDirty = true;
     } else if (d.kind == WK_REVIEW) {

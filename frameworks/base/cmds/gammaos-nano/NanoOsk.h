@@ -160,7 +160,6 @@ struct NanoOskState {
 
     // --- Composition / candidates (Phase B+; inert for direct Latin) ---
     OskScriptDir          dir = OSK_LTR;     // committed-buffer direction
-    bool     arabicShape  = false;           // shape buffer to Arabic presentation forms
     OskInputMethod*       im  = nullptr;     // active engine, or nullptr (direct)
     std::vector<std::string> candidates;     // mirror of im->candidates()
     int      candFocus       = -1;           // focused candidate index
@@ -193,6 +192,26 @@ struct NanoOskState {
 // full LeanbackKeyboardContainer.initKeyboards() first-match-wins chain.
 // Returns qwerty_eu / sym_eu for anything unmatched.
 OskLayoutChoice oskPickLayout(const char* code, const char* region);
+
+// ---------------------------------------------------------------------------
+// Bidirectional text for display (implemented in NanoOsk.cpp, used by the
+// glyph renderer in NanoMenuRender.cpp for every drawn string).
+// ---------------------------------------------------------------------------
+
+// True when the first strong-direction codepoint of the UTF-8 string is an
+// Arabic/Hebrew letter, i.e. the string reads right-to-left as a whole. Used
+// for caret placement and field alignment decisions (digits and punctuation
+// are direction-neutral and skipped).
+bool nanoTextIsRtl(const char* s);
+
+// Logical order -> visual order for the glyph renderer: Arabic contextual
+// shaping (presentation forms + lam-alef ligatures, ZWJ/ZWNJ aware), RTL run
+// reversal with embedded Latin/digit runs kept left-to-right, paired-bracket
+// mirroring inside RTL runs, and stripping of zero-width joiner/direction
+// codepoints (no bundled font has glyphs for them, so they would render as
+// '?' boxes). Returns the input unchanged when it contains neither RTL nor
+// zero-width codepoints.
+std::string nanoBidiVisual(const std::string& s);
 
 } // namespace android
 

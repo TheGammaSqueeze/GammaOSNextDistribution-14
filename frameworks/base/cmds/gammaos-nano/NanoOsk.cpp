@@ -130,8 +130,9 @@ int utf8Len(const std::string& s) {
 // --- Native Arabic contextual shaping (replaces ICU u_shapeArabic) ---
 // Table-driven: each Arabic letter resolves to one of four presentation forms
 // (isolated/final/initial/medial) based on whether it connects to its logical
-// neighbours, plus the lam-alef ligature. Data lives in NanoOskArabic.h. Output
-// stays in logical order; the RTL renderer reverses it for visual order.
+// neighbours, plus the lam-alef ligature. Data lives in NanoOskArabic.h; the
+// shaping itself (arShapeVector) lives with the bidi engine below, which the
+// glyph renderer runs on every drawn string via textForDisplay.
 
 const OskArShape* arShapeFor(uint32_t cp) {
     int lo = 0, hi = kOskArShapeCount - 1;     // table is sorted by base
@@ -142,70 +143,6 @@ const OskArShape* arShapeFor(uint32_t cp) {
     }
     return nullptr;
 }
-// Can cp connect to the letter AFTER it (joins on its left side)?
-bool arJoinsLeft(uint32_t cp) { const OskArShape* s = arShapeFor(cp); return s && s->joinsLeft; }
-// Can cp connect to the letter BEFORE it (joins on its right side)?
-bool arJoinsRight(uint32_t cp) { const OskArShape* s = arShapeFor(cp); return s && s->joinsRight; }
-
-std::string shapeArabic(const std::string& s) {
-    if (s.empty()) return s;
-    // Decode to codepoints.
-    std::vector<uint32_t> cps;
-    for (int i = 0; i < (int)s.size(); ) {
-        int adv = 0;
-        cps.push_back(utf8DecodeAt(s, i, adv));
-        i += (adv > 0 ? adv : 1);
-    }
-    const int n = (int)cps.size();
-    std::vector<uint32_t> out;
-    out.reserve(n);
-    for (int i = 0; i < n; i++) {
-        uint32_t cp = cps[i];
-        // Lam (U+0644) + alef variant -> single ligature glyph.
-        if (cp == 0x0644 && i + 1 < n) {
-            const OskArLamAlef* lig = nullptr;
-            for (int k = 0; k < kOskArLamAlefCount; k++)
-                if (kOskArLamAlef[k].alef == cps[i + 1]) { lig = &kOskArLamAlef[k]; break; }
-            if (lig) {
-                bool joinPrev = (i > 0) && arJoinsLeft(cps[i - 1]);  // lam joins right
-                uint32_t g = joinPrev ? lig->fin : lig->iso;
-                out.push_back(g ? g : cp);
-                i++;                 // consume the alef
-                continue;
-            }
-        }
-        const OskArShape* sh = arShapeFor(cp);
-        if (!sh) { out.push_back(cp); continue; }
-        uint32_t prev = (i > 0)     ? cps[i - 1] : 0;
-        uint32_t next = (i + 1 < n) ? cps[i + 1] : 0;
-        bool joinPrev = arJoinsLeft(prev) && sh->joinsRight;
-        bool joinNext = sh->joinsLeft && arJoinsRight(next);
-        uint32_t g;
-        if (joinPrev && joinNext) g = sh->med ? sh->med : (sh->fin ? sh->fin : sh->iso);
-        else if (joinPrev)        g = sh->fin ? sh->fin : sh->iso;
-        else if (joinNext)        g = sh->ini ? sh->ini : sh->iso;
-        else                      g = sh->iso;
-        out.push_back(g ? g : cp);
-    }
-    std::string r;
-    for (uint32_t c : out) r += utf8Encode(c);
-    return r;
-}
-
-// Reverse the codepoint order of a UTF-8 string (for pure-RTL visual layout).
-std::string utf8Reverse(const std::string& s) {
-    std::string out;
-    out.reserve(s.size());
-    int i = (int)s.size();
-    while (i > 0) {
-        int start = i - 1;
-        while (start > 0 && (((unsigned char)s[start] & 0xC0) == 0x80)) start--;
-        out.append(s, (size_t)start, (size_t)(i - start));
-        i = start;
-    }
-    return out;
-}
-
 // Best-effort Latin uppercase for case folding. Covers ASCII, Latin-1
 // Supplement, and the odd->even pairing of Latin Extended-A that the accent
 // popups use. Replaced by ICU u_toupper when the RTL/ICU phase lands.
@@ -363,6 +300,294 @@ JapaneseInput* oskJapaneseInput() { static JapaneseInput inst; return &inst; }
 } // anonymous namespace
 
 // ---------------------------------------------------------------------------
+// UBA-lite bidirectional layout for the glyph renderer (see NanoOsk.h).
+//
+// drawText/measureText walk the string in order and advance the pen along +x,
+// so RTL scripts need a logical-to-visual transform up front: Arabic letters
+// substitute their contextual presentation forms and RTL runs reverse, while
+// embedded Latin/digit runs keep flowing left-to-right. This is the small
+// subset of UAX #9 the nano UI needs: a single embedding level, the first
+// strong codepoint sets the paragraph direction, a neutral span between two
+// runs of the same direction joins that direction and otherwise takes the
+// paragraph direction, numbers always read left-to-right, combining marks
+// travel with their base letter, and paired brackets mirror inside reversed
+// runs. ZWJ/ZWNJ are honoured by the shaper and then stripped along with the
+// other zero-width direction marks: no bundled font has glyphs for them, so
+// left in the stream they surface as '?' fallback boxes.
+// ---------------------------------------------------------------------------
+
+namespace {
+
+enum BidiClass : uint8_t { BC_L = 0, BC_R, BC_NUM, BC_NEU, BC_MARK };
+
+// Zero-width format codepoints stripped from the visual stream (ZWSP..RLM,
+// embedding controls, word joiner + invisible operators, isolates, variation
+// selectors, BOM/ZWNBSP, and the Arabic letter mark).
+bool bidiIsZeroWidth(uint32_t cp) {
+    return cp == 0x061C
+        || (cp >= 0x200B && cp <= 0x200F)
+        || (cp >= 0x202A && cp <= 0x202E)
+        || (cp >= 0x2060 && cp <= 0x2064)
+        || (cp >= 0x2066 && cp <= 0x2069)
+        || (cp >= 0xFE00 && cp <= 0xFE0F)
+        || cp == 0xFEFF;
+}
+
+// Combining marks that overlay the preceding base glyph (zero advance in the
+// Noto faces): they must stay directly after their base in the visual stream
+// and are transparent for Arabic join context.
+bool bidiIsCombining(uint32_t cp) {
+    return (cp >= 0x0300 && cp <= 0x036F)                                  // Latin/Greek/Cyrillic
+        || (cp >= 0x0591 && cp <= 0x05C7)                                  // Hebrew points
+        || (cp >= 0x0610 && cp <= 0x061A)                                  // Arabic honorific signs
+        || (cp >= 0x064B && cp <= 0x065F) || cp == 0x0670                  // harakat + superscript alef
+        || (cp >= 0x06D6 && cp <= 0x06DC) || (cp >= 0x06DF && cp <= 0x06E4)
+        || (cp >= 0x06E7 && cp <= 0x06E8) || (cp >= 0x06EA && cp <= 0x06ED)
+        || (cp >= 0x08D3 && cp <= 0x08FF);                                 // Arabic Extended-A marks
+}
+
+// Strong right-to-left letters (Hebrew + Arabic blocks and their presentation
+// forms). Combining marks and digits from these blocks are classified before
+// this test, so the broad ranges are safe.
+bool bidiIsRtlLetter(uint32_t cp) {
+    return (cp >= 0x0590 && cp <= 0x05FF) || (cp >= 0xFB1D && cp <= 0xFB4F)
+        || (cp >= 0x0600 && cp <= 0x06FF) || (cp >= 0x0750 && cp <= 0x077F)
+        || (cp >= 0x08A0 && cp <= 0x08D2)
+        || (cp >= 0xFB50 && cp <= 0xFDFF) || (cp >= 0xFE70 && cp <= 0xFEFE);
+}
+
+bool bidiIsDigit(uint32_t cp) {
+    return (cp >= '0' && cp <= '9')
+        || (cp >= 0x0660 && cp <= 0x0669)    // Arabic-Indic digits
+        || (cp >= 0x06F0 && cp <= 0x06F9);   // extended Arabic-Indic digits
+}
+
+// Direction-neutral codepoints: spacing, ASCII/Latin-1 punctuation and
+// symbols, general punctuation, arrows/math/misc symbols, CJK and fullwidth
+// punctuation. Anything unlisted that is not a digit/mark/RTL letter counts
+// as strong LTR, which keeps unknown scripts in logical order.
+bool bidiIsNeutral(uint32_t cp) {
+    return cp == ' ' || cp == '\t' || cp == '\n'
+        || (cp >= 0x21 && cp <= 0x2F) || (cp >= 0x3A && cp <= 0x40)
+        || (cp >= 0x5B && cp <= 0x60) || (cp >= 0x7B && cp <= 0x7E)
+        || (cp >= 0x00A0 && cp <= 0x00BF) || cp == 0x00D7 || cp == 0x00F7
+        || (cp >= 0x2000 && cp <= 0x2BFF)
+        || (cp >= 0x3000 && cp <= 0x3020)
+        || (cp >= 0xFE30 && cp <= 0xFE6F)
+        || (cp >= 0xFF01 && cp <= 0xFF0F) || (cp >= 0xFF1A && cp <= 0xFF20)
+        || (cp >= 0xFF3B && cp <= 0xFF40) || (cp >= 0xFF5B && cp <= 0xFF65);
+}
+
+// Paired-bracket mirroring for codepoints that land inside a reversed run.
+uint32_t bidiMirror(uint32_t cp) {
+    switch (cp) {
+        case '(':    return ')';    case ')':    return '(';
+        case '[':    return ']';    case ']':    return '[';
+        case '{':    return '}';    case '}':    return '{';
+        case '<':    return '>';    case '>':    return '<';
+        case 0x00AB: return 0x00BB; case 0x00BB: return 0x00AB;   // double angle quotes
+        case 0x2039: return 0x203A; case 0x203A: return 0x2039;   // single angle quotes
+        default:     return cp;
+    }
+}
+
+// Does the nearest non-transparent logical neighbour of cps[i] (step = -1
+// toward the string start, +1 toward the end) join across the boundary?
+// Combining marks and zero-width formats (except ZWNJ/ZWJ) are transparent;
+// ZWJ forces the join, ZWNJ blocks it. A letter neighbour joins when the
+// facing side of its shape entry connects: the left neighbour must join left
+// (toward its follower), the right neighbour must join right (toward its
+// predecessor).
+bool arNeighbourJoins(const std::vector<uint32_t>& cps, int i, int step) {
+    for (int j = i + step; j >= 0 && j < (int)cps.size(); j += step) {
+        uint32_t cp = cps[j];
+        if (cp == 0x200D) return true;    // zero-width joiner
+        if (cp == 0x200C) return false;   // zero-width non-joiner
+        if (bidiIsCombining(cp) || bidiIsZeroWidth(cp)) continue;
+        const OskArShape* sh = arShapeFor(cp);
+        if (!sh) return false;
+        return (step < 0) ? (sh->joinsLeft != 0) : (sh->joinsRight != 0);
+    }
+    return false;
+}
+
+// Codepoint-level Arabic contextual shaping: resolves each letter to its
+// isolated/final/initial/medial presentation form, ligates directly adjacent
+// lam+alef, and looks THROUGH combining marks and zero-width formats for join
+// context so harakat do not break the join between their neighbours.
+void arShapeVector(std::vector<uint32_t>& cps) {
+    const int n = (int)cps.size();
+    std::vector<uint32_t> out;
+    out.reserve(n);
+    for (int i = 0; i < n; i++) {
+        uint32_t cp = cps[i];
+        if (cp == 0x0644 && i + 1 < n) {   // lam + alef variant -> ligature
+            const OskArLamAlef* lig = nullptr;
+            for (int k = 0; k < kOskArLamAlefCount; k++)
+                if (kOskArLamAlef[k].alef == cps[i + 1]) { lig = &kOskArLamAlef[k]; break; }
+            if (lig) {
+                bool joinPrev = arNeighbourJoins(cps, i, -1);
+                uint32_t g = joinPrev ? lig->fin : lig->iso;
+                out.push_back(g ? g : cp);
+                i++;                 // consume the alef
+                continue;
+            }
+        }
+        const OskArShape* sh = arShapeFor(cp);
+        if (!sh) { out.push_back(cp); continue; }
+        bool joinPrev = sh->joinsRight && arNeighbourJoins(cps, i, -1);
+        bool joinNext = sh->joinsLeft  && arNeighbourJoins(cps, i, +1);
+        uint32_t g;
+        if (joinPrev && joinNext) g = sh->med ? sh->med : (sh->fin ? sh->fin : sh->iso);
+        else if (joinPrev)        g = sh->fin ? sh->fin : sh->iso;
+        else if (joinNext)        g = sh->ini ? sh->ini : sh->iso;
+        else                      g = sh->iso;
+        out.push_back(g ? g : cp);
+    }
+    cps.swap(out);
+}
+
+} // namespace
+
+bool nanoTextIsRtl(const char* s) {
+    if (!s) return false;
+    for (const unsigned char* p = (const unsigned char*)s; *p; ) {
+        uint32_t cp; uint8_t b0 = *p;
+        if (b0 < 0x80) { cp = b0; p++; }
+        else if ((b0 & 0xE0) == 0xC0 && p[1]) { cp = ((b0 & 0x1F) << 6) | (p[1] & 0x3F); p += 2; }
+        else if ((b0 & 0xF0) == 0xE0 && p[1] && p[2]) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
+        else if ((b0 & 0xF8) == 0xF0 && p[1] && p[2] && p[3]) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
+        else { p++; continue; }
+        if (bidiIsZeroWidth(cp) || bidiIsCombining(cp) || bidiIsDigit(cp) || bidiIsNeutral(cp))
+            continue;                       // weak/neutral: keep scanning
+        return bidiIsRtlLetter(cp);         // first strong codepoint decides
+    }
+    return false;
+}
+
+// True when the string contains ANY RTL letter (not just first-strong). The
+// OSK preview uses this to avoid the caret-split path for a value that is
+// LTR-first but has an embedded Arabic/Hebrew run: splitting at the caret and
+// bidi-transforming each half independently would garble that run.
+static bool nanoTextHasRtl(const char* s) {
+    if (!s) return false;
+    for (const unsigned char* p = (const unsigned char*)s; *p; ) {
+        uint32_t cp; uint8_t b0 = *p;
+        if (b0 < 0x80) { cp = b0; p++; }
+        else if ((b0 & 0xE0) == 0xC0 && p[1]) { cp = ((b0 & 0x1F) << 6) | (p[1] & 0x3F); p += 2; }
+        else if ((b0 & 0xF0) == 0xE0 && p[1] && p[2]) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
+        else if ((b0 & 0xF8) == 0xF0 && p[1] && p[2] && p[3]) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
+        else { p++; continue; }
+        if (!bidiIsCombining(cp) && bidiIsRtlLetter(cp)) return true;
+    }
+    return false;
+}
+
+std::string nanoBidiVisual(const std::string& s) {
+    if (s.empty()) return s;
+    // Decode, noting whether any work is needed at all.
+    std::vector<uint32_t> cps;
+    cps.reserve(s.size());
+    bool hasRtl = false, hasZw = false;
+    for (int i = 0; i < (int)s.size(); ) {
+        int adv = 0;
+        uint32_t cp = utf8DecodeAt(s, i, adv);
+        i += (adv > 0 ? adv : 1);
+        cps.push_back(cp);
+        if (bidiIsZeroWidth(cp)) hasZw = true;
+        else if (!bidiIsCombining(cp) && bidiIsRtlLetter(cp)) hasRtl = true;
+    }
+    if (!hasRtl && !hasZw) return s;
+
+    if (hasRtl) arShapeVector(cps);   // ZWJ/ZWNJ still present for join context
+
+    if (hasZw) {
+        std::vector<uint32_t> kept;
+        kept.reserve(cps.size());
+        for (uint32_t cp : cps)
+            if (!bidiIsZeroWidth(cp)) kept.push_back(cp);
+        cps.swap(kept);
+    }
+    if (!hasRtl) {   // only stripped zero-width marks: logical order stands
+        std::string out;
+        out.reserve(s.size());
+        for (uint32_t cp : cps) out += utf8Encode(cp);
+        return out;
+    }
+
+    const int n = (int)cps.size();
+    std::vector<uint8_t> cls(n);
+    for (int i = 0; i < n; i++) {
+        uint32_t cp = cps[i];
+        if (bidiIsCombining(cp))      cls[i] = BC_MARK;
+        else if (bidiIsDigit(cp))     cls[i] = BC_NUM;
+        else if (bidiIsRtlLetter(cp)) cls[i] = BC_R;
+        else if (bidiIsNeutral(cp))   cls[i] = BC_NEU;
+        else                          cls[i] = BC_L;
+    }
+    // Combining marks take their base's class (marks with no base act neutral).
+    for (int i = 0; i < n; i++)
+        if (cls[i] == BC_MARK) cls[i] = (i > 0) ? cls[i - 1] : (uint8_t)BC_NEU;
+    // Paragraph direction: first strong letter (digits are weak, neutrals skip).
+    uint8_t para = BC_L;
+    for (int i = 0; i < n; i++) {
+        if (cls[i] == BC_R) { para = BC_R; break; }
+        if (cls[i] == BC_L) { para = BC_L; break; }
+    }
+    // Neutral spans join their surrounding direction when both sides agree,
+    // otherwise the paragraph direction. Numbers count as LTR context.
+    auto strongOf = [](uint8_t c) -> uint8_t { return c == BC_NUM ? (uint8_t)BC_L : c; };
+    {
+        uint8_t prev = para;
+        for (int i = 0; i < n; ) {
+            if (cls[i] != BC_NEU) { prev = strongOf(cls[i]); i++; continue; }
+            int j = i;
+            while (j < n && cls[j] == BC_NEU) j++;
+            uint8_t next = (j < n) ? strongOf(cls[j]) : para;
+            uint8_t fill = (prev == next) ? prev : para;
+            for (int k = i; k < j; k++) cls[k] = fill;
+            i = j;
+        }
+    }
+    for (int i = 0; i < n; i++) cls[i] = strongOf(cls[i]);   // fold numbers into LTR runs
+
+    // Emit runs: paragraph-RTL lists runs right-to-left; RTL runs reverse
+    // cluster-wise (base + trailing combining marks stay together, brackets
+    // mirror); LTR runs stay in logical order.
+    std::string out;
+    out.reserve(s.size());
+    auto emitRun = [&](int a, int b, bool rtl) {   // inclusive range
+        if (!rtl) {
+            for (int i = a; i <= b; i++) out += utf8Encode(cps[i]);
+            return;
+        }
+        std::vector<int> starts;
+        for (int i = a; i <= b; i++)
+            if (i == a || !bidiIsCombining(cps[i])) starts.push_back(i);
+        for (int k = (int)starts.size() - 1; k >= 0; k--) {
+            int cs = starts[k];
+            int ce = (k + 1 < (int)starts.size()) ? starts[k + 1] - 1 : b;
+            out += utf8Encode(bidiMirror(cps[cs]));
+            for (int i = cs + 1; i <= ce; i++) out += utf8Encode(cps[i]);
+        }
+    };
+    struct Run { int a, b; uint8_t c; };
+    std::vector<Run> runs;
+    for (int i = 0; i < n; ) {
+        int j = i;
+        while (j < n && cls[j] == cls[i]) j++;
+        runs.push_back({i, j - 1, cls[i]});
+        i = j;
+    }
+    if (para == BC_R)
+        for (int k = (int)runs.size() - 1; k >= 0; k--) emitRun(runs[k].a, runs[k].b, runs[k].c == BC_R);
+    else
+        for (int k = 0; k < (int)runs.size(); k++)       emitRun(runs[k].a, runs[k].b, runs[k].c == BC_R);
+    return out;
+}
+
+
+// ---------------------------------------------------------------------------
 // Language -> layout (faithful LeanbackKeyboardContainer.initKeyboards chain)
 // ---------------------------------------------------------------------------
 OskLayoutChoice oskPickLayout(const char* code, const char* region) {
@@ -433,7 +658,6 @@ void NanoMenu::oskSetLanguage(const char* code, const char* region) {
         for (; s[i] && i < sizeof(mOsk.langLabel) - 1; i++) mOsk.langLabel[i] = s[i];
         mOsk.langLabel[i] = 0;
     };
-    mOsk.arabicShape = false;
     // Non-Latin scripts: own layout + composing input method.
     if (strcmp(code, "ko") == 0) {
         mOsk.abcKb = &kKb_korean;
@@ -494,7 +718,7 @@ void NanoMenu::oskSetLanguage(const char* code, const char* region) {
     if (strcmp(code, "ar") == 0) {
         mOsk.abcKb = &kKb_arabic;
         mOsk.symKb = &kOskKb[OSK_KB_SYM_US];
-        mOsk.im = nullptr; mOsk.dir = OSK_RTL; mOsk.arabicShape = true;
+        mOsk.im = nullptr; mOsk.dir = OSK_RTL;   // shaping happens in drawText
         setLabel("AR"); return;
     }
     // Latin (Leanback chain), direct input.
@@ -1316,19 +1540,41 @@ void NanoMenu::renderOsk() {
         float blink = 0.55f + 0.45f * sinf((float)nowMs() * 0.006f);
         drawText(label.c_str(), b.previewX, y, ps, pr, pg, pb, fade);
         float lw = measureText(label.c_str(), ps);
-        if (mOsk.dir == OSK_RTL) {
-            // Right-to-left: shape (Arabic) then put into visual order, right-
-            // aligned; caret sits at the logical end, i.e. to the LEFT of the text.
-            std::string base = mOsk.arabicShape ? shapeArabic(value) : value;
-            std::string vis = utf8Reverse(base);
-            if (!composing.empty()) vis = utf8Reverse(composing) + vis;
-            float vw = measureText(vis.c_str(), ps);
+        // Branch on the CONTENT direction, not the keyboard's: digits/Latin
+        // typed on the Arabic/Hebrew keyboard read left-to-right and belong in
+        // the LTR path (caret at the insertion point), matching the wizard
+        // fields. An empty value on an RTL keyboard starts right-aligned so the
+        // first letter lands on the right.
+        if (nanoTextIsRtl(value.c_str())
+            || (value.empty() && mOsk.dir == OSK_RTL)) {
+            // Right-to-left: drawText shapes Arabic and lays the string out in
+            // visual order itself now, so hand it the LOGICAL buffer; this
+            // branch only right-aligns it and keeps the caret at the visual
+            // left, the logical end where the next letter lands. Direct RTL
+            // scripts install no composing engine, so there is no composing
+            // segment to append here.
+            float vw = measureText(value.c_str(), ps);
             float rightEdge = b.panelX + b.panelW - 70.0f * b.sf; // room for badge
             float minx = b.previewX + lw + 12.0f * b.sf;
             float vx = rightEdge - vw;
             if (vx < minx) vx = minx;
-            drawText(vis.c_str(), vx, y, ps, 1.0f, 1.0f, 1.0f, fade);
+            drawText(value.c_str(), vx, y, ps, 1.0f, 1.0f, 1.0f, fade);
             drawQuad(vx - 4.0f * b.sf, y, 2.0f * b.sf, FONT_CHAR_H * ps,
+                     1.0f, 1.0f, 1.0f, blink * fade);
+        } else if (nanoTextHasRtl(value.c_str())) {
+            // LTR-first value with an embedded RTL run (e.g. a prefilled name
+            // being edited): draw the WHOLE value in one call so drawText's
+            // bidi lays the run out correctly, and end-anchor the caret. The
+            // split+window path below would bidi-transform each half of the
+            // value independently and garble the RTL run as the caret moves.
+            float x = b.previewX + lw;
+            drawText(value.c_str(), x, y, ps, 1.0f, 1.0f, 1.0f, fade);
+            float vw = measureText(value.c_str(), ps);
+            if (!composing.empty()) {
+                drawText(composing.c_str(), x + vw, y, ps, 0.6f, 0.9f, 1.0f, fade);
+                vw += measureText(composing.c_str(), ps);
+            }
+            drawQuad(x + vw + 2.0f * b.sf, y, 2.0f * b.sf, FONT_CHAR_H * ps,
                      1.0f, 1.0f, 1.0f, blink * fade);
         } else {
             int caret = mOsk.caret;

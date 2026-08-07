@@ -4036,8 +4036,30 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
 // Text measurement and rendering
 // ---------------------------------------------------------------------------
 
+// Logical->visual bidi/shaping hook in front of the glyph pipeline. Lead
+// bytes below 0xD6 can only start codepoints under U+0580 (ASCII, Latin-1/
+// Extended, Greek, Cyrillic), which never need shaping, reordering, or
+// zero-width stripping, so the common case returns str untouched without a
+// single allocation. Anything else resolves through mBidiCache: the transform
+// (nanoBidiVisual in NanoOsk.cpp) runs once per distinct string, not per
+// frame. Returned pointers stay valid across rehash (values are node-stable);
+// the wholesale clear() only runs between lookups, never while a caller still
+// holds the pointer within one draw call.
+const char* NanoMenu::textForDisplay(const char* str) {
+    const unsigned char* p = (const unsigned char*)str;
+    while (*p && *p < 0xD6) p++;
+    if (!*p) return str;
+    auto it = mBidiCache.find(str);
+    if (it == mBidiCache.end()) {
+        if (mBidiCache.size() > 4096) mBidiCache.clear();   // OSK user text backstop
+        it = mBidiCache.emplace(str, nanoBidiVisual(str)).first;
+    }
+    return it->second.c_str();
+}
+
 float NanoMenu::measureText(const char* str, float scale) {
     if (!str || !*str) return 0.0f;
+    str = textForDisplay(str);   // Arabic shaping / bidi (width = visual form's width)
     scale *= ps3::gFontScale;   // user Font Size (kept in lockstep with drawText so widths track)
     // Match drawText's per-size layout: glyphs are rasterized at the integer
     // display pixel size and (for mono <= the master) drawn 1:1, so the summed
@@ -4109,6 +4131,7 @@ static inline void emitGlyph(int n, float x0, float y0, float x1, float y1,
 void NanoMenu::drawText(const char* str, float px, float py, float scale,
                         float r, float g, float b, float a) {
     if (!str || !*str || mFtNumFaces == 0) return;
+    str = textForDisplay(str);   // Arabic shaping / bidi reordering
     scale *= ps3::gFontScale;   // user Font Size (matches measureText so layout widths track)
     flushSolidBatch();   // submit any pending batched solids first so this glyph pass keeps painter order
     // Per-size: rasterize glyphs at the integer display pixel size and blit them
@@ -4269,6 +4292,7 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
 void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
                             float oR, float iR, float outerA, float innerA, float mainA) {
     if (!str || !*str || mFtNumFaces == 0) return;
+    str = textForDisplay(str);   // Arabic shaping / bidi reordering
     scale *= ps3::gFontScale;   // user Font Size (keep the glowing active label in step with inactive ones)
     float displayEm = (float)FONT_CHAR_H * scale;
     int rasterPx = (int)lroundf(displayEm);
