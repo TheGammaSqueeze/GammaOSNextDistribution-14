@@ -91,16 +91,17 @@ GLuint workTex();
 GLuint workFbo();
 void   workTexSize(int* w, int* h);
 
-// Half-resolution render-scale (Theme Settings > Half Resolution, XMB-only). beginHalfRes()
-// (lazily) allocates a half-size (fullW/2 x fullH/2) RGBA FBO, binds it as the render target and
-// sets a half-size viewport, so the caller draws the ENTIRE XMB scene into it at quarter the pixel
-// count. Returns the FBO id, or 0 if not ready / on allocation failure (in which case the previously
-// bound target is left intact and the caller renders full-res). upscaleHalfRes() blits that half-size
-// texture to the CURRENTLY BOUND target at fullW x fullH with a sharp GL_LINEAR filter (opaque). The
-// FBO is size-cached and reused every frame; freed in shutdown(). Scene rotation is untouched (the
-// half FBO holds already-rotated pixels; the upscale is an identity 2x magnify).
+// Half-resolution TRANSPARENT overlay layer (Theme Settings > Half Resolution: Clock, XMB-only).
+// beginHalfRes() (lazily) allocates a half-size (fullW/2 x fullH/2) RGBA FBO, binds it, sets a half
+// viewport and CLEARS it to transparent, so the caller draws an overlay (the PSP clock graphics) into
+// it at quarter the pixel count. Returns the FBO id, or 0 if not ready / on allocation failure (the
+// previously bound target is left intact -> caller renders full-res). upscaleHalfResAlpha() composites
+// that half-size layer onto the CURRENTLY BOUND target at fullW x fullH with a sharp GL_LINEAR filter
+// and straight-alpha blend (so it lays over the already-drawn scene). The FBO is size-cached and reused
+// every frame; freed in shutdown(). Rotation is untouched (the layer holds already-rotated pixels; the
+// upscale is an identity 2x magnify). Clock TEXT is drawn full-res OUTSIDE this wrap by the caller.
 GLuint beginHalfRes(int fullW, int fullH);
-void   upscaleHalfRes(int fullW, int fullH);
+void   upscaleHalfResAlpha(int fullW, int fullH);
 
 // In-game overlay only: FREEZE the offscreen-only wave (the glass-icon refraction
 // source, never composited). setScrimWaveFreeze(true) makes render() build the
@@ -153,6 +154,11 @@ float waveDisplacementAt(float ndcX);
 // XMB Wave on/off (Theme Settings). When off, render() composites only the per-month gradient (no cloth
 // wave, no glitter) - the clean base a custom wallpaper draws over, or a calm plain background. Default on.
 void setWaveEnabled(bool enabled);
+
+// Wave Half Resolution (Theme Settings, XMB-only): build the work texture (the composited wave
+// background + the glass-icon refraction source) at half the frame size, upscaled by the composite's
+// GL_LINEAR. Pushed every frame from NanoMenuEffects beside setWaveEnabled.
+void setWaveHalfRes(bool enabled);
 
 // Music "XMB Waves" visualizer morph: the host calls setMusicVisTarget(1) while the
 // Now-Playing player is open on the Waves visualizer and 0 otherwise; render() ramps

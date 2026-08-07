@@ -615,9 +615,9 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("Background") || is("Wallpaper") || is("Font") || is("Day/Night")) return xmb;
     // The wave exists on XMB and (opt-in) Minima, but never the DSi carousel.
     if (is("XMB Wave")) return xmb || minima;
-    // Half-resolution render-scale is a PS3 XMB-only perf toggle (the DSi/Minima homes are cheap list
-    // renders with no wave, so it would do nothing there).
-    if (is("Half Resolution")) return xmb;
+    // Half-resolution render-scale is a set of PS3 XMB-only perf toggles (the DSi/Minima homes are
+    // cheap list renders with no wave/glass/clock, so they would do nothing there).
+    if (is("Half Resolution: Wave") || is("Half Resolution: Icons") || is("Half Resolution: Clock")) return xmb;
     // The Minima solid background colour is meaningless on XMB / DSi.
     if (is("Background Colour")) return minima;
     // Long-name shrink/scroll is a Minima-list behaviour (XMB/DSi handle long names their own way).
@@ -8289,7 +8289,9 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
     {"XMB Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.wave", "1", "0:Off,1:On"},
-    {"Half Resolution", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres", "0", "0:Off,1:On"},
+    {"Half Resolution: Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres.wave", "0", "0:Off,1:On"},
+    {"Half Resolution: Icons", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres.icons", "0", "0:Off,1:On"},
+    {"Half Resolution: Clock", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres.clock", "0", "0:Off,1:On"},
     // Interactive UI/menu sound effects (cursor/select/back/launch) - gated in ps3Sfx/ndsSfxPlay/
     // minimaSfx (navSoundsOn), so it silences navigation sounds in every theme. Boot jingle unaffected.
     {"Navigation Sounds", SettingSource::kProp, "persist.gammaos.nano.nav_sounds", "1", "0:Off,1:On"},
@@ -10848,14 +10850,14 @@ void NanoMenu::closePs3Dialog(bool apply) {
                         mXmbWaveExplicit = true;
                         property_set("persist.gammaos.nano.ps3xmb.wave_explicit", "1");
                     }
-                    // Half Resolution on/off: apply live. render() reads the mPs3HalfRes MEMBER once per
-                    // frame into its halfResActive local (the prop is cached at startup, so a bare write
-                    // would not take effect until reboot); mDisplayDirty above forces the repaint. The
-                    // render thread lazily (re)allocates the half-res FBO on the next wrapped frame, and
+                    // Half Resolution (three independent toggles): apply live. render() reads each MEMBER
+                    // once per frame into its *_HalfActive gate (the props are cached at startup, so a bare
+                    // write would not take effect until reboot); mDisplayDirty above forces the repaint.
+                    // The render thread lazily (re)allocates the per-subsystem FBOs on the next frame;
                     // toggling OFF simply stops wrapping - no GL work happens on this settings thread.
-                    if (!strcmp(b->label, "Half Resolution")) {
-                        mPs3HalfRes = (v == "1" || v == "true");
-                    }
+                    if (!strcmp(b->label, "Half Resolution: Wave"))  mPs3HalfResWave  = (v == "1" || v == "true");
+                    if (!strcmp(b->label, "Half Resolution: Icons")) mPs3HalfResIcons = (v == "1" || v == "true");
+                    if (!strcmp(b->label, "Half Resolution: Clock")) mPs3HalfResClock = (v == "1" || v == "true");
                     // Dark Theme: the write above mirrors Secure.ui_night_mode ("1"=off / "2"=on), but a
                     // bare settings-write does NOT reconfigure the running apps / SystemUI. Drive the real
                     // day/night switch through UiModeManager (which also persists the setting) off-thread.

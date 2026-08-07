@@ -1266,6 +1266,18 @@ void NanoMenu::drawPspClock(float dtMs) {
     int64_t tBd0 = prof ? (glFinish(), profNs()) : 0;
 
     pspClockBackdropBlur(mPspClockReveal);   // stage 1: surround, opaque base + eased blur/darken cross-fade
+    // Half Resolution: Clock (Theme Settings, XMB-only). Render the clock GRAPHICS (lens + entrance burst
+    // + face glow/ticks/hands/numerals) into a half-size TRANSPARENT layer, then alpha-upscale it over the
+    // scene with a smooth GL_LINEAR filter. The backdrop above stays full-res on the primary FBO (it dims
+    // the live scene beneath the clock; wrapping it would dim an empty layer / bake an opaque app copy).
+    // The clock date TEXT stays full-res too - pspClockFace skips it while mClockHalfActive and we draw it
+    // after the composite. Rotation is unchanged: the passes upload sDrmRotMat, so the layer holds
+    // panel-rotated pixels and the upscale is an identity magnify (no double-rotation).
+    GLint clockSceneFbo = 0; GLuint clockHalfFbo = 0;
+    if (mClockHalfActive) {
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &clockSceneFbo);
+        clockHalfFbo = ps3bg::beginHalfRes(mWidth, mHeight);   // 0 -> not ready: falls back to full-res
+    }
     int64_t tLens0 = prof ? (glFinish(), profNs()) : 0;
     pspClockLens(clockReveal);               // stage 2
     int64_t tEnt0 = prof ? (glFinish(), profNs()) : 0;
@@ -1306,6 +1318,16 @@ void NanoMenu::drawPspClock(float dtMs) {
     int64_t tFace0 = prof ? (glFinish(), profNs()) : 0;
 
     pspClockFace(clockReveal, floatY, descentPx);  // stage 3/4
+
+    // Half Resolution: Clock - composite the half-size clock layer onto the scene (smooth GL_LINEAR,
+    // straight-alpha). The date TEXT was skipped inside pspClockFace whenever mClockHalfActive (so it
+    // stays full-res), so draw it here full-res - both when the layer succeeded AND when beginHalfRes
+    // fell back to full-res (clockHalfFbo == 0 but the passes drew straight to the scene).
+    if (clockHalfFbo) {
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)clockSceneFbo);
+        ps3bg::upscaleHalfResAlpha(mWidth, mHeight);
+    }
+    if (mClockHalfActive) pspClockDateText();
 
     if (prof) {
         int64_t tEnd = (glFinish(), profNs());
@@ -2714,44 +2736,51 @@ void NanoMenu::pspClockFace(float reveal, float /*floatY*/, float /*descentFrac*
     setUiBlend();
 
     // --- section 5: date "DDD D" below centre (frosted-glass, additive) --------------
-    // Web (psp_clock.js): PS3/Arial-Narrow at sizePx, fill rgba(224,237,248,0.32), a faint
-    // white edge stroke rgba(255,255,255,0.28) width max(0.7, sizePx*0.064), composited
-    // 'lighter'. Nano bundles no condensed/Arial-Narrow face, so (as on the web) the visible
-    // weight comes from the additive fill + a synthesized white edge, not the typeface.
-    // NOTE: drawTextStroke() is a no-op on this path and drawText's built-in outline paints
-    // BLACK, so the white edge is drawn manually as four additive white offset copies under
-    // one additive coloured fill. The old code also used the WRONG scale base (/32 vs the
-    // real FONT_CHAR_H=16), rendering the date at HALF size - fixed here.
-    {
-        time_t now = time(nullptr); struct tm lt; localtime_r(&now, &lt);
-        static const char* DAYS[7] = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
-        char dtxt[24];
-        snprintf(dtxt, sizeof(dtxt), "%s %d", DAYS[lt.tm_wday], lt.tm_mday);
-        // Web max(11, round(11*sc/2)*2); round to an even device-px em so drawText rasterizes
-        // crisply at-size (grid snap) instead of a blurry fractional downscale of the master.
-        float sizePx = 11.0f * sc;
-        if (sizePx < 11.0f) sizePx = 11.0f;
-        sizePx = floorf(sizePx / 2.0f + 0.5f) * 2.0f;
-        float ts = sizePx / (float)FONT_CHAR_H;   // drawText scale (displayEm = FONT_CHAR_H*scale)
-        float tw = measureText(dtxt, ts);
-        float bx = dx(CX) - tw * 0.5f;
-        float by = dy(CY + 33.0f) - sizePx * 0.5f;
-        float strokePx = fmaxf(0.7f, sizePx * 0.064f);   // web stroke width -> white-edge offset
-
-        const int prevOutline = mTextOutlineMode;
-        mTextOutlineMode = 2;                             // no built-in (black) outline
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);               // additive ('lighter')
-        const float edgeA = 0.28f * 0.5f;                // 4 overlapping copies ~= web 0.28 edge
-        static const float ed[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
-        for (int e = 0; e < 4; e++)
-            drawText(dtxt, bx + ed[e][0]*strokePx, by + ed[e][1]*strokePx, ts, 1.0f, 1.0f, 1.0f, edgeA);
-        // Frosted-glass fill: exact web rgba(224,237,248) at ~web alpha (0.36, a hair over the
-        // web 0.32 to offset nano's thinner additive AA; keep <=0.40 or it clips to white).
-        drawText(dtxt, bx, by, ts, 0.878f, 0.929f, 0.973f, 0.36f);
-        mTextOutlineMode = prevOutline;
-        setUiBlend();
-    }
+    // Drawn as TEXT, so it must stay full resolution even when the clock graphics are rendered at half
+    // res (Half Resolution: Clock). On the normal path it draws inline here; on the half-res path
+    // pspClockFace runs into the half-size layer, so drawPspClock skips it here (mClockHalfActive) and
+    // calls pspClockDateText() full-res AFTER the layer is composited. pspClockDateText recomputes its
+    // own sc/dx/dy from mPspLensR/Cx/Cy so it needs nothing from this frame's locals.
+    if (!mClockHalfActive) pspClockDateText();
     (void)reveal;
+}
+
+// The clock's date readout ("DDD D") - a TEXT element kept at full resolution regardless of the
+// Half Resolution: Clock toggle. Geometry mirrors pspClockFace section 5 (recomputed from the lens
+// members). Additive frosted-glass fill + a synthesized 4-copy white edge (nano bundles no
+// Arial-Narrow face). Self-contained blend (restores setUiBlend on exit).
+void NanoMenu::pspClockDateText() {
+    const float sc = mPspLensR / 141.0f;
+    const float CX = 240.0f, CY = 136.0f;
+    auto dx = [&](float px){ return mPspLensCx + (px - CX) * sc; };
+    auto dy = [&](float py){ return mPspLensCy + (py - CY) * sc; };
+    time_t now = time(nullptr); struct tm lt; localtime_r(&now, &lt);
+    static const char* DAYS[7] = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
+    char dtxt[24];
+    snprintf(dtxt, sizeof(dtxt), "%s %d", DAYS[lt.tm_wday], lt.tm_mday);
+    // Web max(11, round(11*sc/2)*2); round to an even device-px em so drawText rasterizes crisply
+    // at-size (grid snap) instead of a blurry fractional downscale of the master.
+    float sizePx = 11.0f * sc;
+    if (sizePx < 11.0f) sizePx = 11.0f;
+    sizePx = floorf(sizePx / 2.0f + 0.5f) * 2.0f;
+    float ts = sizePx / (float)FONT_CHAR_H;   // drawText scale (displayEm = FONT_CHAR_H*scale)
+    float tw = measureText(dtxt, ts);
+    float bx = dx(CX) - tw * 0.5f;
+    float by = dy(CY + 33.0f) - sizePx * 0.5f;
+    float strokePx = fmaxf(0.7f, sizePx * 0.064f);   // web stroke width -> white-edge offset
+
+    const int prevOutline = mTextOutlineMode;
+    mTextOutlineMode = 2;                             // no built-in (black) outline
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);               // additive ('lighter')
+    const float edgeA = 0.28f * 0.5f;                // 4 overlapping copies ~= web 0.28 edge
+    static const float ed[4][2] = {{-1,0},{1,0},{0,-1},{0,1}};
+    for (int e = 0; e < 4; e++)
+        drawText(dtxt, bx + ed[e][0]*strokePx, by + ed[e][1]*strokePx, ts, 1.0f, 1.0f, 1.0f, edgeA);
+    // Frosted-glass fill: exact web rgba(224,237,248) at ~web alpha (0.36, a hair over the
+    // web 0.32 to offset nano's thinner additive AA; keep <=0.40 or it clips to white).
+    drawText(dtxt, bx, by, ts, 0.878f, 0.929f, 0.973f, 0.36f);
+    mTextOutlineMode = prevOutline;
+    setUiBlend();
 }
 
 // Bow + magnify a sprite behind the glass ball (spec 5.8).

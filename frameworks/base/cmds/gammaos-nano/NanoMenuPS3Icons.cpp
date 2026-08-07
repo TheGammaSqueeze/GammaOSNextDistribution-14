@@ -1204,6 +1204,34 @@ bool NanoMenu::decodeRetroIconRGBA(const std::string& name, std::vector<uint8_t>
 // ---------------------------------------------------------------------------
 // draw one glass icon (device px coords, like drawIconTex)
 // ---------------------------------------------------------------------------
+// Half-resolution glass-icon scratch FBO (Theme Settings > Half Resolution: Icons). One shared
+// RGBA target the glass icon is rendered into at half its on-screen size, then composited onto the
+// panel with a sharp GL_LINEAR upscale. Reallocated only when the requested size changes (icons in a
+// row share a size, so it is mostly cached). GL_LINEAR set once at creation gives the smooth upscale.
+static GLuint sGlassScratchFbo = 0, sGlassScratchTex = 0;
+static int    sGlassScratchW = 0, sGlassScratchH = 0;
+static bool glassScratchEnsure(int w, int h) {
+    if (w < 1) w = 1;
+    if (h < 1) h = 1;
+    if (sGlassScratchFbo && w == sGlassScratchW && h == sGlassScratchH) {
+        glBindFramebuffer(GL_FRAMEBUFFER, sGlassScratchFbo);
+        return true;
+    }
+    if (!sGlassScratchFbo) glGenFramebuffers(1, &sGlassScratchFbo);
+    if (!sGlassScratchTex) glGenTextures(1, &sGlassScratchTex);
+    glBindTexture(GL_TEXTURE_2D, sGlassScratchTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindFramebuffer(GL_FRAMEBUFFER, sGlassScratchFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sGlassScratchTex, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { sGlassScratchW = sGlassScratchH = 0; return false; }
+    sGlassScratchW = w; sGlassScratchH = h;
+    return true;
+}
+
 void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
                              float cr, float cg, float cb, float alpha, float rot) {
     if (!mIconGlassReady || nmapTex == 0) return;
@@ -1292,6 +1320,52 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
     // over a busy custom background instead of half-dissolving into it.
     glUniform1f(mIconGlassLocWpLift,
                 (wallpaperActive(mRenderingPanel) && !mXmbWave) ? 1.0f : 0.0f);
+
+    // Half Resolution: Icons (Theme Settings, XMB-only). Render the glass into a half-size scratch FBO
+    // with IDENTITY rotation and a full-NDC quad, then composite it onto the panel at (x,y,w,h) with the
+    // panel rotation + any tumble via drawIconTex (premultiplied blend, GL_LINEAR upscale). The refraction
+    // UVs (buv) still reference the icon's wave position, so the glass reads the same, just softer. m
+    // IconsHalfActive is frame-wide, so all glass icons this frame take this path (uRotation is re-set to
+    // identity per icon here and re-armed to sDrmRotMat by renderPs3Xmb next frame).
+    if (mIconsHalfActive) {
+        int sw = (int)(w * 0.5f + 0.5f); if (sw < 1) sw = 1;
+        int sh = (int)(h * 0.5f + 0.5f); if (sh < 1) sh = 1;
+        // Capture the caller's target + viewport BEFORE glassScratchEnsure (which binds the scratch FBO),
+        // so we restore to the real scene target afterwards, not the scratch.
+        GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+        GLint prevVp[4]; glGetIntegerv(GL_VIEWPORT, prevVp);
+        if (glassScratchEnsure(sw, sh)) {
+            glBindFramebuffer(GL_FRAMEBUFFER, sGlassScratchFbo);   // glassScratchEnsure already bound it
+            glViewport(0, 0, sw, sh);
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            static const GLfloat kIdentityRot[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+            glUniformMatrix2fv(mIconGlassLocRot, 1, GL_FALSE, kIdentityRot);   // no panel rotation into the scratch
+            static const GLfloat spos[] = { -1.f,-1.f, 1.f,-1.f, 1.f,1.f, 1.f,1.f, -1.f,1.f, -1.f,-1.f };
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glVertexAttribPointer(mIconGlassLocPos, 2, GL_FLOAT, GL_FALSE, 0, spos);
+            glEnableVertexAttribArray(mIconGlassLocPos);
+            glVertexAttribPointer(mIconGlassLocIconUV, 2, GL_FLOAT, GL_FALSE, 0, iuv);
+            glEnableVertexAttribArray(mIconGlassLocIconUV);
+            glVertexAttribPointer(mIconGlassLocBgUV, 2, GL_FLOAT, GL_FALSE, 0, buv);
+            glEnableVertexAttribArray(mIconGlassLocBgUV);
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);   // premultiplied (matches the direct path)
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDisableVertexAttribArray(mIconGlassLocPos);
+            glDisableVertexAttribArray(mIconGlassLocIconUV);
+            glDisableVertexAttribArray(mIconGlassLocBgUV);
+            glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+            glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+            // Composite the premultiplied scratch onto the panel with the panel rotation (mTextProgram's
+            // uRotation) + the tumble (rot), sampled V-flipped (FBO origin). Premultiplied blend.
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            drawIconTex(sGlassScratchTex, x, y, w, h, 1.0f, 1.0f, 1.0f, 1.0f, rot, /*flipV=*/true);
+            setUiBlend();
+            glActiveTexture(GL_TEXTURE0);
+            return;
+        }
+        // scratch allocation failed: fall through to the full-res direct draw.
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexAttribPointer(mIconGlassLocPos, 2, GL_FLOAT, GL_FALSE, 0, pos);

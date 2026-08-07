@@ -1459,8 +1459,17 @@ private:
     bool mMinimaTheme = false;    // persist.gammaos.nano.minima (Minima list theme, NextUI-inspired; rides the XMB
                                   // infrastructure like the DSi theme and swaps the home render/nav/sfx/boot)
     bool mPs3BottomClock = false; // persist.gammaos.nano.ps3xmb.bottomclock (PSP clock on the bottom panel, dual-screen XMB)
-    bool mPs3HalfRes = false;     // persist.gammaos.nano.ps3xmb.halfres (XMB-only: render the whole scene incl. the
-                                  // wave into a half-size FBO then sharp GL_LINEAR upscale; big GPU-fill win on weak SoCs)
+    // Half Resolution (XMB theme only, three INDEPENDENT Theme Settings toggles). Each renders only its
+    // subsystem at half resolution and sharp-linear upscales it; the rest stays full-res. Perf for weak
+    // SoCs (A133P class). Read once at startup, applied live from closePs3Dialog.
+    bool mPs3HalfResWave  = false;  // persist.gammaos.nano.ps3xmb.halfres.wave  (the moving wave wallpaper)
+    bool mPs3HalfResIcons = false;  // persist.gammaos.nano.ps3xmb.halfres.icons (the glass home icons)
+    bool mPs3HalfResClock = false;  // persist.gammaos.nano.ps3xmb.halfres.clock (the PSP-style clock)
+    // Transient per-frame gates: set once at the top of render() (the shared XMB-home scope AND the matching
+    // member), read by the wave push / drawGlassIcon / drawPspClock so they need no re-check.
+    bool mWaveHalfActive  = false;
+    bool mIconsHalfActive = false;
+    bool mClockHalfActive = false;
     bool mControlCenterEnabled = false; // persist.gammaos.nano.ps3xmb.controlcenter (bottom-screen dashboard over a single-screen app)
     // Bottom-panel PSP clock reveal (own scalar, independent of the F12 summon mPspClockReveal).
     // 0..1: on cold boot it ramps 0 -> 1 after the XMB icons float in so the clock plays its drop-in
@@ -4046,6 +4055,7 @@ private:
     void  pspClockBackdropBlur(float amt);     // 5.10 (stage 1)
     void  pspClockLens(float cr);              // 5.9 glass refraction disc (stage 2)
     void  pspClockFace(float reveal, float floatY, float descentFrac);  // clock face (stage 3/4)
+    void  pspClockDateText();                  // clock date readout (TEXT; kept full-res under Half Resolution: Clock)
     // Soft Gaussian glow for the clock chrome (numerals/ticks/hands/hub): render the
     // shapes white into mPspChromeGlowFbo, blur with blurGlassChain, composite additively
     // in the glow colour. drawShapes is a caller-supplied lambda that draws the shapes

@@ -296,6 +296,9 @@ void NanoMenu::renderEffect() {
         // original procedural ribbon (effect 21) is kept as a separate option.
         ps3::layoutComputeNative(mWidth, mHeight);
         ps3bg::setWaveEnabled(mXmbWave);
+        // Wave Half Resolution (Theme Settings): mWaveHalfActive is the per-frame gate set at the top of
+        // render() (member && XMB-home scope). Pushed every frame so it tracks the toggle + survives park.
+        ps3bg::setWaveHalfRes(mWaveHalfActive);
         if (wallpaperActive(mRenderingPanel) && !mXmbWave) {
             // A user wallpaper is visible (wave toggled off): a looping video on the top panel, else a still.
             // Paint it cover-fit, then still update the ps3bg work texture OFFSCREEN (compositeToScreen=false,

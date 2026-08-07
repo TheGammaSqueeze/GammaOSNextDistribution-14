@@ -56,6 +56,7 @@ static bool   sReady     = false;
 
 // programs + locations
 static GLuint sBgProg = 0, sWaveProg = 0, sBlitProg = 0, sCompProg = 0;
+static GLuint sBlitAProg = 0;   // alpha-preserving blit (FS_BLITA) for the half-res clock overlay layer
 // FS_BG (gradient, month-base path) locations
 static GLint  sBgPos, sBgUV, sBgMonthBase, sBgMonthBaseBot, sBgNightBlend;
 static GLint  sBgMusicVis = -1, sBgMusicTop = -1;   // music "XMB Waves" gradient flip
@@ -66,6 +67,7 @@ static GLint  sWSeqP0, sWSeqA, sWSeqB, sWSeqP3, sWSeq0, sWSeqT, sWSeqW,
               sWFade, sWTint, sWAlpha, sWSilk, sWSpecW, sWSpecExp, sWYFade;
 // blit locations
 static GLint  sBlitPos, sBlitUV, sBlitTex;
+static GLint  sBlitAPos, sBlitAUV, sBlitATex;   // alpha-preserving blit locations
 // composite locations
 static GLint  sCompPos, sCompUV, sCompTex, sCompRot, sCompExposure, sCompWhite;
 
@@ -217,6 +219,11 @@ static bool sScrimFreeze = false;
 static int  sScrimEpoch = 1;       // bumped on any static-input change
 static int  sScrimLastEpoch = 0;   // epoch of the last rendered offscreen wave
 static int    sFbW = 0, sFbH = 0;
+// Wave Half Resolution (Theme Settings): when on, the work texture (the composited wave background AND
+// the glass-icon refraction source) is built at half the frame size and upscaled for free by the
+// composite's GL_LINEAR. sWorkW/sWorkH = the actual work-texture pixel size (== fw/fh, or half of it).
+static bool   sWaveHalfEnabled = false;
+static int    sWorkW = 0, sWorkH = 0;
 static bool   sGradDirty = true;
 static int    sGradMonth = -1;
 static float  sGradBlendQ = -1.0f;
@@ -255,6 +262,14 @@ static const char* FS_BLIT =
     "varying vec2 vUV;\n"
     "uniform sampler2D uTex;\n"
     "void main(){ gl_FragColor = vec4(texture2D(uTex, vUV).rgb, 1.0); }\n";
+
+// Alpha-preserving blit: keeps the source RGBA so a half-res TRANSPARENT overlay layer (the clock)
+// composites over the already-drawn scene. Used with GL_SRC_ALPHA/GL_ONE_MINUS_SRC_ALPHA blend.
+static const char* FS_BLITA =
+    "precision mediump float;\n"
+    "varying vec2 vUV;\n"
+    "uniform sampler2D uTex;\n"
+    "void main(){ gl_FragColor = texture2D(uTex, vUV); }\n";
 
 // Composite: exp2 tonemap of the (gradient + additive wave) scene. Mirrors
 // FS_COMPOSITE (index.html 3880). uRotation maps logical NDC to the physical
@@ -757,6 +772,7 @@ bool init() {
         sBgProg   = linkProgram(VS_FULL, FS_BG);
         sWaveProg = linkProgram(VS_WAVECAP, FS_WAVECAP);
         sBlitProg = linkProgram(VS_FULL, FS_BLIT);
+        sBlitAProg = linkProgram(VS_FULL, FS_BLITA);   // alpha-preserving (half-res clock overlay)
         sCompProg = linkProgram(VS_COMP, FS_COMP);
         if (sBgProg) {
             sBgPos = glGetAttribLocation(sBgProg, "aPos");
@@ -794,6 +810,11 @@ bool init() {
             sBlitUV = glGetAttribLocation(sBlitProg, "aUV");
             sBlitTex = glGetUniformLocation(sBlitProg, "uTex");
         }
+        if (sBlitAProg) {
+            sBlitAPos = glGetAttribLocation(sBlitAProg, "aPos");
+            sBlitAUV = glGetAttribLocation(sBlitAProg, "aUV");
+            sBlitATex = glGetUniformLocation(sBlitAProg, "uTex");
+        }
         if (sCompProg) {
             sCompPos = glGetAttribLocation(sCompProg, "aPos");
             sCompUV = glGetAttribLocation(sCompProg, "aUV");
@@ -815,7 +836,7 @@ bool ready() { return sReady; }
 
 GLuint workTex() { return sWorkTex; }
 GLuint workFbo() { return sWorkFbo; }
-void workTexSize(int* w, int* h) { if (w) *w = sFbW; if (h) *h = sFbH; }
+void workTexSize(int* w, int* h) { if (w) *w = sWorkW ? sWorkW : sFbW; if (h) *h = sWorkH ? sWorkH : sFbH; }
 void setScrimWaveFreeze(bool on) { sScrimFreeze = on; sScrimEpoch++; }
 
 // Free ONLY the 21MB keyframe VBO (sWaveSeqVBO) and mark the sequence not-ready,
@@ -862,6 +883,9 @@ void accentColor(float* rgb) {
 }
 void setParticlesEnabled(bool e) { sParticlesEnabled = e; }
 void setWaveEnabled(bool e) { sWaveEnabled = e; }
+// Wave Half Resolution toggle. Bumping sScrimEpoch re-renders a frozen offscreen wave at the new size;
+// the work-texture reallocation happens in render() when sWorkW/sWorkH no longer match the target.
+void setWaveHalfRes(bool e) { if (e != sWaveHalfEnabled) { sWaveHalfEnabled = e; sScrimEpoch++; } }
 float backgroundLuma() { return sBgLumaEst; }
 bool themeFading() { return sThemeFadingNow; }
 
@@ -877,7 +901,7 @@ void invalidateGradient() { sGradDirty = true; sScrimEpoch++; }
 // upscale then GL_LINEAR-magnifies it to the panel. Returns 0 (leaving the previously bound target
 // intact) when ps3bg is not ready yet or the FBO fails, so the caller falls back to full-res cleanly.
 GLuint beginHalfRes(int fullW, int fullH) {
-    if (!sReady || fullW < 2 || fullH < 2) return 0;   // need sBlitProg (built in init); tiny sizes -> skip
+    if (!sReady || !sBlitAProg || fullW < 2 || fullH < 2) return 0;   // need the alpha blit for upscale
     GLint prevFbo = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
     int hw = fullW >> 1, hh = fullH >> 1;
@@ -895,27 +919,32 @@ GLuint beginHalfRes(int fullW, int fullH) {
         glBindFramebuffer(GL_FRAMEBUFFER, sHalfFbo);
     }
     glViewport(0, 0, hw, hh);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);   // transparent: this is an overlay layer composited over the scene
+    glClear(GL_COLOR_BUFFER_BIT);
     return sHalfFbo;
 }
 
-// Sharp GL_LINEAR upscale of the half-size scene to the CURRENTLY BOUND target at fullW x fullH.
-// Opaque (FS_BLIT writes alpha=1); blend is disabled. Identity quad -> no rotation/flip (the half FBO
-// already holds panel-oriented pixels), matching the existing sGradTex->sWorkTex blit precedent.
-void upscaleHalfRes(int fullW, int fullH) {
-    if (!sHalfTex || !sBlitProg) return;
+// Sharp GL_LINEAR, ALPHA-PRESERVING upscale of the half-size transparent overlay layer (the clock)
+// onto the CURRENTLY BOUND target at fullW x fullH, composited with straight-alpha blend so it lays
+// over the already-drawn scene. Identity quad -> no rotation (the half layer already holds
+// panel-oriented pixels; rotation was applied when the clock passes drew into it).
+void upscaleHalfResAlpha(int fullW, int fullH) {
+    if (!sHalfTex || !sBlitAProg) return;
     glViewport(0, 0, fullW, fullH);
-    glDisable(GL_BLEND);
-    glUseProgram(sBlitProg);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glUseProgram(sBlitAProg);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, sHalfTex);
-    glUniform1i(sBlitTex, 0);
-    drawFullQuad(sBlitPos, sBlitUV);
+    glUniform1i(sBlitATex, 0);
+    drawFullQuad(sBlitAPos, sBlitAUV);
 }
 
 void shutdown() {
     if (sBgProg) glDeleteProgram(sBgProg);
     if (sWaveProg) glDeleteProgram(sWaveProg);
     if (sBlitProg) glDeleteProgram(sBlitProg);
+    if (sBlitAProg) glDeleteProgram(sBlitAProg);
     if (sCompProg) glDeleteProgram(sCompProg);
     GLuint texs[] = {sGradTex, sWorkTex, sHalfTex};
     glDeleteTextures(3, texs);
@@ -926,6 +955,7 @@ void shutdown() {
     glDeleteBuffers(4, bufs);
     sBgProg = sWaveProg = sBlitProg = sCompProg = 0;
     sGradFbo = sWorkFbo = sGradTex = sWorkTex = 0;
+    sFbW = sFbH = sWorkW = sWorkH = 0; sWaveHalfEnabled = false;   // wave half-res state
     sScrimFreeze = false; sScrimEpoch = 1; sScrimLastEpoch = 0;
     sWaveSeqVBO = sWaveAttrVBO = sWaveIBO = sQuadVBO = 0;
     sSeqCount = 0;
@@ -1055,8 +1085,12 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     // re-bake ~4x cheaper, which is precisely the per-frame cost during the music
     // "XMB Waves" enter/leave morph (the bake refreshes every frame while the blend
     // moves) as well as the theme / day-night cross-fades.
-    const int gw = fw > 3 ? fw / 2 : fw;
-    const int gh = fh > 3 ? fh / 2 : fh;
+    // Wave Half Resolution: build the work texture at half the frame size when enabled (the composite
+    // upscales it with GL_LINEAR; rotation is applied post-upscale so there is no double-rotation).
+    const int ww = (sWaveHalfEnabled && fw > 3) ? fw / 2 : fw;
+    const int wh = (sWaveHalfEnabled && fh > 3) ? fh / 2 : fh;
+    const int gw = ww > 3 ? ww / 2 : ww;   // gradient baked at half of the work size (smooth, upscaled)
+    const int gh = wh > 3 ? wh / 2 : wh;
 
     // The caller's draw target (default surface OR the DRM AHB-backed FBO) and
     // its viewport must be restored for the composite pass; our FBO passes below
@@ -1064,13 +1098,14 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
     GLint prevVp[4] = {0, 0, panelW, panelH}; glGetIntegerv(GL_VIEWPORT, prevVp);
 
-    // (Re)create the frame-sized FBOs on a size change.
-    if (fw != sFbW || fh != sFbH) {
+    // (Re)create the frame-sized FBOs on a size change OR a wave-half toggle (ww/wh changed).
+    if (fw != sFbW || fh != sFbH || ww != sWorkW || wh != sWorkH) {
         ensureFbo(&sGradFbo, &sGradTex, gw, gh);   // half-res smooth gradient (upscaled by the blit)
-        ensureFbo(&sWorkFbo, &sWorkTex, fw, fh);
-        sFbW = fw; sFbH = fh;
+        ensureFbo(&sWorkFbo, &sWorkTex, ww, wh);   // work texture: full, or half when wave-half is on
+        sFbW = fw; sFbH = fh;                       // LOGICAL frame size (composite NDC mapping)
+        sWorkW = ww; sWorkH = wh;                   // ACTUAL work-texture pixel size
         sGradDirty = true;
-        sScrimEpoch++;   // a resize invalidates the frozen offscreen wave
+        sScrimEpoch++;   // a resize / toggle invalidates the frozen offscreen wave
     }
 
     // Time-of-day + month.
@@ -1187,7 +1222,7 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     ps3part::update(dt);
     glBindFramebuffer(GL_FRAMEBUFFER, sWorkFbo);
     discardColorTile();   // TBDR: skip the LOAD of last frame's tile (overwritten next)
-    glViewport(0, 0, fw, fh);
+    glViewport(0, 0, sWorkW, sWorkH);   // == fw/fh, or half when Wave Half Resolution is on
     glDisable(GL_BLEND);
     glUseProgram(sBlitProg);
     glActiveTexture(GL_TEXTURE0);
