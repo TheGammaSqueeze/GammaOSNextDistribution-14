@@ -94,6 +94,14 @@ public class VpnPreferenceController extends AbstractPreferenceController
 
     @Override
     public boolean isAvailable() {
+        // GammaOS Nano: the VPN framework service is not published in minimal_boot, so
+        // getSystemService(VpnManager) throws ("missing IVpnManager"). Marking the controller
+        // unavailable hides the VPN row AND stops onResume from registering the network
+        // callback whose async updateSummary would otherwise crash the settings process on
+        // the ConnectivityThread. Full Android is unaffected.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            return false;
+        }
         return !RestrictedLockUtilsInternal.hasBaseUserRestriction(mContext,
                 UserManager.DISALLOW_CONFIG_VPN, UserHandle.myUserId());
     }

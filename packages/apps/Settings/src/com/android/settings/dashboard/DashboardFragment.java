@@ -375,7 +375,30 @@ public abstract class DashboardFragment extends SettingsPreferenceFragment
      */
     protected void displayResourceTilesToScreen(PreferenceScreen screen) {
         mPreferenceControllers.values().stream().flatMap(Collection::stream).forEach(
-                controller -> controller.displayPreference(screen));
+                controller -> {
+                    try {
+                        controller.displayPreference(screen);
+                    } catch (RuntimeException e) {
+                        // GammaOS Nano: in minimal_boot many system services are intentionally
+                        // not published, so a preference controller that dereferences one throws
+                        // and would take down the whole settings screen. Skip that controller
+                        // (its preference simply stays hidden) instead of crashing. Full Android
+                        // keeps the original behaviour so genuine bugs are not masked.
+                        if (isNanoMinimalBoot()) {
+                            Log.w(TAG, "GammaOS Nano: skipping controller "
+                                    + controller.getClass().getSimpleName()
+                                    + " display in minimal_boot (unavailable service): " + e);
+                        } else {
+                            throw e;
+                        }
+                    }
+                });
+    }
+
+    // GammaOS Nano: true on the reduced minimal_boot (nano) system, where a number of
+    // system services are deliberately not started to save memory.
+    private static boolean isNanoMinimalBoot() {
+        return android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false);
     }
 
     /**
@@ -394,24 +417,37 @@ public abstract class DashboardFragment extends SettingsPreferenceFragment
                 mPreferenceControllers.values();
         for (List<AbstractPreferenceController> controllerList : controllerLists) {
             for (AbstractPreferenceController controller : controllerList) {
-                if (!controller.isAvailable()) {
-                    continue;
-                }
+                try {
+                    if (!controller.isAvailable()) {
+                        continue;
+                    }
 
-                final String key = controller.getPreferenceKey();
-                if (TextUtils.isEmpty(key)) {
-                    Log.d(TAG, String.format("Preference key is %s in Controller %s",
-                            key, controller.getClass().getSimpleName()));
-                    continue;
-                }
+                    final String key = controller.getPreferenceKey();
+                    if (TextUtils.isEmpty(key)) {
+                        Log.d(TAG, String.format("Preference key is %s in Controller %s",
+                                key, controller.getClass().getSimpleName()));
+                        continue;
+                    }
 
-                final Preference preference = screen.findPreference(key);
-                if (preference == null) {
-                    Log.d(TAG, String.format("Cannot find preference with key %s in Controller %s",
-                            key, controller.getClass().getSimpleName()));
-                    continue;
+                    final Preference preference = screen.findPreference(key);
+                    if (preference == null) {
+                        Log.d(TAG, String.format("Cannot find preference with key %s in Controller %s",
+                                key, controller.getClass().getSimpleName()));
+                        continue;
+                    }
+                    controller.updateState(preference);
+                } catch (RuntimeException e) {
+                    // GammaOS Nano: skip a controller whose backing system service is absent in
+                    // minimal_boot rather than crashing the whole screen (see displayResource
+                    // TilesToScreen). Full Android rethrows so real bugs are not hidden.
+                    if (isNanoMinimalBoot()) {
+                        Log.w(TAG, "GammaOS Nano: skipping controller "
+                                + controller.getClass().getSimpleName()
+                                + " updateState in minimal_boot (unavailable service): " + e);
+                    } else {
+                        throw e;
+                    }
                 }
-                controller.updateState(preference);
             }
         }
     }

@@ -57,6 +57,13 @@ public class DataUsagePreference extends Preference implements TemplatePreferenc
         } else {
             final DataUsageController.DataUsageInfo usageInfo =
                     controller.getDataUsageInfo(mTemplate);
+            if (usageInfo == null) {
+                // GammaOS Nano: NetworkStats/data-usage is unavailable in minimal_boot, so
+                // getDataUsageInfo returns null. Hide the data-usage row and bail out instead
+                // of dereferencing null (which would crash the Wi-Fi / Network settings screen).
+                setVisible(false);
+                return;
+            }
             setTitle(mTitleRes);
             setSummary(getContext().getString(R.string.data_usage_template,
                     DataUsageUtils.formatDataUsage(getContext(), usageInfo.usageLevel),

@@ -32,7 +32,12 @@ private const val TAG = "SystemUpdateManagerExt"
  * StrictMode violation.
  */
 suspend fun Context.getSystemUpdateInfo(): Bundle? = withContext(Dispatchers.Default) {
-    val updateManager = getSystemService(SystemUpdateManager::class.java)!!
+    // GammaOS Nano: the system_update service is not published in minimal_boot, so
+    // getSystemService returns null. Return null gracefully (callers already handle a null
+    // Bundle) instead of the "!!" not-null assertion, which would throw an NPE inside this
+    // coroutine and crash the settings process (off the main-thread controller-loop guard).
+    val updateManager = getSystemService(SystemUpdateManager::class.java)
+            ?: return@withContext null
     try {
         updateManager.retrieveSystemUpdateInfo()
     } catch (e: Exception) {
