@@ -22,11 +22,15 @@ PRODUCT_PACKAGES += \
     TvSystemUI \
     TvFrameworkPackageStubs
 
-# GammaOS: ship the full phone Settings app instead of the cut-down leanback TvSettings so the
-# desktop/TV build has the complete settings tree (network, apps, storage, accessibility, etc.).
-# TvSettings is intentionally omitted. Settings is d-pad navigable and works on the TV form factor.
+# GammaOS: ship BOTH the full phone Settings app AND the leanback TvSettings. A full ATV boot
+# (skip nano) uses the full com.android.settings as the default (TvSettings no longer claims the
+# android.settings.SETTINGS action - see its manifest), giving the complete settings tree (network,
+# apps, storage, accessibility). nano's Quick Menu > System Settings launches the lighter,
+# d-pad-first TvSettings on Core/ATV builds (it avoids the minimal_boot service crashes the full
+# Settings hits and reads better on the TV form factor).
 PRODUCT_PACKAGES += \
-    Settings
+    Settings \
+    TvSettings
 
 SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += device/google/atv/sepolicy/system_ext/public
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += device/google/atv/sepolicy/system_ext/private

@@ -87,12 +87,14 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     persist.gammaos.secondary_home=com.gammaos.secondaryhome/com.gammaos.secondaryhome.SecondaryHomeActivity
 
-# GammaOS: replace the cut-down leanback TV settings entirely with the full phone Settings app
-# (added in device/google/atv/products/atv_system_ext.mk). TvSettingsTwoPanel is the module that
-# actually ships com.android.tv.settings on this large-screen ATV base; remove it here so the
-# normal Settings is the one and only settings app on the desktop build.
+# GammaOS: the full phone Settings (com.android.settings, added in atv_system_ext.mk) is the
+# DEFAULT settings app for a full ATV boot. We also ship the single-panel leanback TvSettings
+# (also atv_system_ext.mk) so nano's Quick Menu > System Settings can open it on Core/ATV builds:
+# it is lighter, d-pad-first and avoids the full Settings' minimal_boot absent-service crashes.
+# TvSettings no longer registers android.settings.SETTINGS (see its manifest), so it never shadows
+# com.android.settings for the full boot. Remove only the base's TwoPanel variant, which
+# `overrides: TvSettings` (so it would win) and is cramped on the handheld screen.
 PRODUCT_REMOVE_PACKAGES += \
-    TvSettings \
     TvSettingsTwoPanel
 
 # GammaOS init (replaces PHH vndk.rc + rw-system.sh + phh-on-boot.sh)

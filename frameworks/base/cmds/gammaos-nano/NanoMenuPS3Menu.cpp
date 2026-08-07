@@ -1611,6 +1611,17 @@ static std::string nanoResolveSettingsComp() {
     return comp;
 }
 
+// True on a Core/ATV build (ro.build.characteristics contains "tv"). On those builds nano's
+// "System Settings" opens the leanback TvSettings instead of the full phone Settings: TvSettings
+// is lighter and d-pad-first and sidesteps the minimal_boot absent-service crashes the full
+// Settings hits. A full ATV boot (skip nano) still defaults to com.android.settings - TvSettings
+// no longer claims the android.settings.SETTINGS action, so nano targets it by package instead.
+static bool nanoIsAtvBuild() {
+    char c[PROPERTY_VALUE_MAX] = {};
+    property_get("ro.build.characteristics", c, "");
+    return strstr(c, "tv") != nullptr;
+}
+
 // Quick Menu -> Settings: launch the device's own Settings app through the normal app-launch flow
 // (nano parks and hands off exactly like launching any app or the browser). The Settings package +
 // activity is RESOLVED at runtime from ACTION_SETTINGS, so it works for TVSettings on ATV, the
@@ -1624,6 +1635,14 @@ static std::string nanoResolveSettingsComp() {
 // fade/exit plays out. launchUrl never hit this: it resolves the browser from an in-memory cache.
 void NanoMenu::launchAndroidSettings() {
     if (mOverlayMode) {
+        // Core/ATV: open the leanback TvSettings by its explicit MainSettings component (am resolves
+        // a LEANBACK activity fine; this is the overlay `am start` path, not the RootWindowContainer
+        // resolver).
+        if (nanoIsAtvBuild()) {
+            overlayLaunchCommand("com.android.tv.settings",
+                "am start -n com.android.tv.settings/com.android.tv.settings.MainSettings 2>/dev/null");
+            return;
+        }
         // In-game overlay: overlayLaunchCommand arms overlay state synchronously (it must run on the
         // render thread), so keep this path here. overlayLaunchPackage() would use "monkey -c
         // LAUNCHER", but a Settings app (e.g. TVSettings) has NO LAUNCHER activity, so launch the
@@ -1649,16 +1668,25 @@ void NanoMenu::launchAndroidSettings() {
     property_set("sys.gammaos.nano.drop_input", "1");
     mWaitForRelease = true;
     std::thread([]{
-        std::string comp = nanoResolveSettingsComp();
-        if (comp.empty()) { system("am start -a android.settings.SETTINGS 2>/dev/null"); return; }
-        std::string pkg = comp.substr(0, comp.find('/'));
-        // Hand off the Settings ACTION, not the resolved component. The home-launch
-        // resolver (RootWindowContainer) fetches a component with getActivityInfo, which
-        // fails on a LEANBACK_LAUNCHER entry like TvSettings' MainSettings and left a blank
-        // screen. Resolving the action by intent-matching is deterministic on ANY device
-        // (tv Settings or the handheld Settings - no hardcoding) and launches it like a
-        // normal app. launch_app is still the resolved package so the hand-off tracks it.
-        std::string intent = "-a\tandroid.settings.SETTINGS";
+        std::string pkg, intent;
+        if (nanoIsAtvBuild()) {
+            // Core/ATV: hand off TvSettings' MainSettings via MAIN + LEANBACK_LAUNCHER scoped to its
+            // package. parseAmIntent applies setPackage(launch_app) when no component is given, so
+            // this resolves to TvSettings by intent-matching (NOT a component getActivityInfo, which
+            // blanks on a LEANBACK_LAUNCHER entry). TvSettings no longer claims android.settings.SETTINGS
+            // (that stays com.android.settings for the full-Android boot), so target it by package here.
+            pkg = "com.android.tv.settings";
+            intent = "-a\tandroid.intent.action.MAIN\t-c\tandroid.intent.category.LEANBACK_LAUNCHER";
+        } else {
+            std::string comp = nanoResolveSettingsComp();
+            if (comp.empty()) { system("am start -a android.settings.SETTINGS 2>/dev/null"); return; }
+            pkg = comp.substr(0, comp.find('/'));
+            // Hand off the Settings ACTION, not the resolved component. The home-launch resolver
+            // (RootWindowContainer) fetches a component with getActivityInfo, which fails on a
+            // LEANBACK_LAUNCHER entry and left a blank screen. Resolving the action by intent-matching
+            // is deterministic; launch_app is the resolved package so the hand-off tracks it.
+            intent = "-a\tandroid.settings.SETTINGS";
+        }
         property_set("sys.gammaos.nano.launch_app", pkg.c_str());
         property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
         const char* f = "/data/system/nano_launch_intent.txt";
@@ -1668,7 +1696,7 @@ void NanoMenu::launchAndroidSettings() {
         // Trigger LAST, once the intent file + target props are in place, so the framework hand-off
         // never observes a half-written launch request.
         property_set("service.bootanim.nano_retroarch", "1");
-        ALOGI("NanoMenu: launching Settings via %s", comp.c_str());
+        ALOGI("NanoMenu: launching Settings (%s)", pkg.c_str());
     }).detach();
 }
 
@@ -1853,6 +1881,10 @@ void NanoMenu::buildQuickSettingsSubmenu(Ps3Level& out) {
         return false;
     };
     auto emit = [&](const std::string& spec) {
+        // Always hidden from nano Quick Settings (user 2026-08-07): "Immersive Mode" is a
+        // full-Android SystemUI status/nav-bar concept with no effect in nano's own home, and
+        // "Analog Calibration" is reached from Gamepad Settings (the QS copy was redundant).
+        if (spec == "immersivemode" || spec == "analogcalibration") return;
         if (isBlacklisted(spec)) return;
         for (const auto& m : kQsTileMap) {
             if (spec == m.spec) {
