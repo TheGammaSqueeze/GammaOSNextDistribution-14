@@ -716,26 +716,70 @@ void NanoMenu::renderMinimaDialog(float rx, float ry, float rw, float rh) {
         drawText(t, cxC - tw * 0.5f, yy, fs, ar, ag, ab, ap);
         yy += rowH * 1.05f;
     }
-    // word-wrapped body (centred), capped so it never runs into the button row
+    // Word-wrapped body. A short confirm paragraph stays centred; a long info body (single OK -
+    // Settings and Connection Status List, Internet Connection Test, System Information) PAGINATES
+    // with L/R instead of being truncated, matching the DSi dialog. Honour embedded '\n' line breaks
+    // so the key:value status lines are not mangled into one run (the old wrap split only on spaces).
+    const bool infoStyle = ((int)mPs3DlgOptions.size() <= 1);
+    mNdsInfoPageCount = 1;   // stays 1 unless an info body overflows one panel (below)
     if (!mPs3DlgBody.empty()) {
         std::string body = trDyn(mPs3DlgBody.c_str());
         float fs = (15.0f * sc) / (float)FONT_CHAR_H;
-        float maxW = pw - pad * 2.0f, lineH = 18.0f * sc, bodyBot = pyTop + ph - rowH - pad * 1.5f;
-        std::string line;
-        size_t i = 0;
-        while (i < body.size() && yy < bodyBot) {
-            size_t sp = body.find(' ', i);
-            std::string word = body.substr(i, (sp == std::string::npos ? body.size() : sp) - i);
-            std::string cand = line.empty() ? word : line + " " + word;
-            if (measureText(cand.c_str(), fs) > maxW && !line.empty()) {
-                float tw = measureText(line.c_str(), fs);
-                drawText(line.c_str(), cxC - tw * 0.5f, yy, fs, 0.90f, 0.90f, 0.92f, ap);
-                yy += lineH; line = word;
-            } else line = cand;
-            if (sp == std::string::npos) break;
-            i = sp + 1;
+        float maxW = pw - pad * 2.0f, lineH = 18.0f * sc;
+        float btnTop = pyTop + ph - pad - rowH;      // the OK / option pill row
+        float bodyTop = yy, bodyBot = btnTop - pad * 0.6f;
+        // Wrap into lines, breaking on BOTH spaces and newlines.
+        std::vector<std::string> lines; std::string cur; size_t i = 0;
+        auto flush = [&]() { lines.push_back(cur); cur.clear(); };
+        while (i < body.size()) {
+            size_t sp = body.find_first_of(" \n", i);
+            std::string word = body.substr(i, sp == std::string::npos ? std::string::npos : sp - i);
+            bool nl = (sp != std::string::npos && body[sp] == '\n');
+            std::string trial = cur.empty() ? word : cur + " " + word;
+            if (measureText(trial.c_str(), fs) > maxW && !cur.empty()) { flush(); cur = word; }
+            else cur = trial;
+            if (nl) flush();
+            i = (sp == std::string::npos) ? body.size() : sp + 1;
         }
-        if (!line.empty() && yy < bodyBot) { float tw = measureText(line.c_str(), fs); drawText(line.c_str(), cxC - tw * 0.5f, yy, fs, 0.90f, 0.90f, 0.92f, ap); }
+        if (!cur.empty()) flush();
+        const int total = (int)lines.size();
+        int maxVis = (int)((bodyBot - bodyTop) / lineH); if (maxVis < 1) maxVis = 1;
+        if (infoStyle && total > maxVis) {
+            int visRows = maxVis - 1; if (visRows < 1) visRows = 1;   // reserve a row for the pager
+            int pages = (total + visRows - 1) / visRows; mNdsInfoPageCount = pages;
+            if (mNdsInfoPage < 0) mNdsInfoPage = 0;
+            if (mNdsInfoPage > pages - 1) mNdsInfoPage = pages - 1;
+            int first = mNdsInfoPage * visRows, last = first + visRows; if (last > total) last = total;
+            float ty = bodyTop;
+            for (int k = first; k < last; k++) {
+                float tw = measureText(lines[k].c_str(), fs);
+                drawText(lines[k].c_str(), cxC - tw * 0.5f, ty, fs, 0.90f, 0.90f, 0.92f, ap);
+                ty += lineH;
+            }
+            // Pager row: "n / m" centred, L/R pills at the body edges (drives mNdsInfoPage via the
+            // shared ndsDlgInfoPaged() L/R input path).
+            float pf = (12.0f * sc) / (float)FONT_CHAR_H;
+            float pgy = bodyTop + (float)visRows * lineH + 1.0f * sc;
+            char pgs[24]; snprintf(pgs, sizeof(pgs), "%d / %d", mNdsInfoPage + 1, pages);
+            float pgw = measureText(pgs, pf);
+            drawText(pgs, cxC - pgw * 0.5f, pgy, pf, ar, ag, ab, 0.9f * ap);
+            const float phh = 15.0f * sc, pwl = 22.0f * sc;
+            auto pill = [&](float pxx, const char* g, bool on) {
+                drawRoundedRect(pxx, pgy - 2.0f * sc, pwl, phh, 5.0f * sc,
+                                on ? ar : 0.16f, on ? ag : 0.16f, on ? ab : 0.18f, (on ? 1.0f : 0.4f) * ap);
+                float gw = measureText(g, pf);
+                drawText(g, pxx + (pwl - gw) * 0.5f, pgy, pf, 1.0f, 1.0f, 1.0f, (on ? 1.0f : 0.4f) * ap);
+            };
+            pill(pxL + pad,            "L", mNdsInfoPage > 0);
+            pill(pxL + pw - pad - pwl, "R", mNdsInfoPage < pages - 1);
+        } else {
+            float ty = bodyTop;
+            for (int k = 0; k < total && ty < bodyBot; k++) {
+                float tw = measureText(lines[k].c_str(), fs);
+                drawText(lines[k].c_str(), cxC - tw * 0.5f, ty, fs, 0.90f, 0.90f, 0.92f, ap);
+                ty += lineH;
+            }
+        }
     }
     // option pills (Yes / No / OK), selected filled with the accent
     int n = (int)mPs3DlgOptions.size(), sel = mPs3DlgSel; if (sel < 0) sel = 0; if (n > 0 && sel >= n) sel = n - 1;

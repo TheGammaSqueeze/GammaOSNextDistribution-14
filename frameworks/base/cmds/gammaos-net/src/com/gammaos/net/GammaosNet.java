@@ -34,6 +34,9 @@ public final class GammaosNet {
                 case "bluetooth":
                     rc = BtSubcommand.run(ctx, args);
                     break;
+                case "usb":
+                    rc = UsbSubcommand.run(ctx, args);
+                    break;
                 default:
                     printHelp();
                     rc = 2;
@@ -67,6 +70,10 @@ public final class GammaosNet {
                 + "      Remove the bond for <address>.\n"
                 + "\n"
                 + "  gammaos-net bt list-bonded\n"
-                + "      Print bonded devices as ADDR<TAB>NAME<TAB>COD.\n");
+                + "      Print bonded devices as ADDR<TAB>NAME<TAB>COD.\n"
+                + "\n"
+                + "  gammaos-net usb <functions>\n"
+                + "      Switch the USB gadget functions via UsbManager\n"
+                + "      (mtp / ptp / rndis, or none/empty = charge only).\n");
     }
 }

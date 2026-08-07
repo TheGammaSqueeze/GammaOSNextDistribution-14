@@ -464,7 +464,12 @@ NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d, const std::string
     // string-compare for every visible item every frame. nullptr for non-bound rows.
     it.binding = ps3BindingFor(it.label);
     if (d->desc)  it.desc  = d->desc;
-    if (d->value) it.value = d->value;
+    if (d->value) it.value = d->value;   // static informational default from the DATA tree
+    // For a settings-bound row, store the LIVE current value: the DSi list and the Minima
+    // selected-row preview draw it.value directly (the XMB path resolves live on its own), so
+    // without this the static d->value above (e.g. "GammaOS XMB", "Off") shows as a stale preview
+    // in DSi/Minima that never tracks the real setting. Rebuilt on every submenu (re-)entry.
+    if (it.binding) it.value = resolvePs3ItemValue(it);
     it.action = d->action;
     it.data = d;
     it.kind = (d->children && d->childCount > 0) ? PS3_DATA_SUBMENU : PS3_DATA_LEAF;
@@ -5728,14 +5733,16 @@ void NanoMenu::ps3XmbSelect() {
                     mDisplayDirty = true; return;
                 }
                 case QA_USB_SET: {
-                    // Apply the chosen USB gadget function. `svc usb setFunctions` with a
-                    // blank argument = charging; otherwise the mtp/ptp/rndis token. Run
-                    // detached so the (asynchronous) UsbManager round-trip never stalls the
-                    // render thread. ADB, when enabled, is re-added by the USB stack.
+                    // Apply the chosen USB gadget function (blank = charging; else mtp/ptp/rndis).
+                    // Route through gammaos-net, NOT `svc usb setFunctions` directly: nano runs in
+                    // init's bootstrap mount namespace where /apex/com.android.art is absent, so
+                    // app_process (which `svc` launches) cannot start and the switch silently no-ops.
+                    // gammaos-net.sh nsenters into init's full namespace before calling UsbManager,
+                    // exactly like the wifi/bt controls. Run detached so the round-trip never stalls
+                    // the render thread. ADB, when enabled, is re-added by the USB stack.
                     std::string fn = it.payloadStr;
-                    std::string cmd = "svc usb setFunctions";
-                    if (!fn.empty()) cmd += " " + fn;
-                    cmd += " 2>/dev/null";
+                    std::string cmd = "gammaos-net usb " + (fn.empty() ? std::string("none") : fn)
+                                    + " 2>/dev/null";
                     std::thread([cmd]{ system(cmd.c_str()); }).detach();
                     // Rebuild this level in place so the "Active" marker jumps to the chosen
                     // row immediately (sys.usb.state updates asynchronously). Map the token to
@@ -9661,6 +9668,8 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
         // Live-backed Network dialogs: replace the static placeholder body with the
         // real system state.
         mPs3NetTestLive = false;
+        mNdsInfoPage = 0;   // start these (paginated in DSi/Minima) on the first page
+
         if (n == "Settings and Connection Status List") {
             mPs3DlgBody = buildNetStatusBody();          // real SSID/IP/gateway/DNS/MAC
         } else if (n == "Internet Connection Test") {
@@ -15906,7 +15915,7 @@ void NanoMenu::renderMinimaNetWizardBody(float rx, float ry, float rw, float rh)
         };
         legend(1, "Back", 0);                                     // B Back (left)
         if (d.kind != WK_PROGRESS) legend(0, "OK", 1);            // A OK (right)
-        if (d.kind == WK_SCANLIST) legend(2, "Search", 2);        // Y Search (centre)
+        if (d.kind == WK_SCANLIST) legend(3, "Search", 2);        // X Search (centre) - rescan is BTN_NORTH (X), not Y
     }
 
     mTextOutlineMode = prevOutline;

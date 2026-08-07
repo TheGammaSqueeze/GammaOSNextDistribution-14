@@ -1058,11 +1058,13 @@ void NanoMenu::handleSettingsTreeSelect() {
         } else if (node.id == "factory_reset") {
             property_set("sys.gammaos.nano.factory_reset", "1");
         } else if (node.id == "usb_mtp") {
-            // Switch the USB gadget into MTP so a desktop can transfer files (nano never did
-            // this, so it stayed on the boot default). Same path as SystemUI's File Transfer.
-            (void)system("svc usb setFunctions mtp 2>/dev/null");
+            // Switch the USB gadget into MTP so a desktop can transfer files. Route through
+            // gammaos-net (not `svc usb` directly): nano runs in init's bootstrap mount namespace
+            // where /apex/com.android.art is absent, so app_process - which `svc` launches - cannot
+            // start and the switch silently no-ops. gammaos-net.sh nsenters into the full namespace.
+            (void)system("gammaos-net usb mtp 2>/dev/null");
         } else if (node.id == "usb_charge") {
-            (void)system("svc usb setFunctions 2>/dev/null");   // back to charge-only
+            (void)system("gammaos-net usb none 2>/dev/null");   // back to charge-only
         }
         break;
     case SettingNodeType::kInfo:
