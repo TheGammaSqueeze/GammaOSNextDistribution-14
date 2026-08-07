@@ -128,7 +128,18 @@ public class VpnSettings extends RestrictedDashboardFragment implements
 
         mUserManager = (UserManager) getSystemService(Context.USER_SERVICE);
         mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        mVpnManager = (VpnManager) getSystemService(Context.VPN_MANAGEMENT_SERVICE);
+        // GammaOS Nano: the vpn_management service is absent in minimal_boot, so the VpnManager
+        // constructor throws ("missing IVpnManager") from getSystemService. The VPN row is already
+        // hidden, but this fragment is still launchable via the exported android.settings.VPN_SETTINGS
+        // / android.net.vpn.SETTINGS actions, so guard here and finish gracefully rather than crash
+        // (VPN is unusable without the service, and the worker thread later derefs mVpnManager).
+        try {
+            mVpnManager = (VpnManager) getSystemService(Context.VPN_MANAGEMENT_SERVICE);
+        } catch (RuntimeException e) {
+            Log.w(LOG_TAG, "VpnManager unavailable (minimal_boot); finishing VPN settings", e);
+            finish();
+            return;
+        }
         mFeatureProvider = FeatureFactory.getFeatureFactory().getAdvancedVpnFeatureProvider();
         mIsAdvancedVpnSupported = mFeatureProvider.isAdvancedVpnSupported(getContext());
 

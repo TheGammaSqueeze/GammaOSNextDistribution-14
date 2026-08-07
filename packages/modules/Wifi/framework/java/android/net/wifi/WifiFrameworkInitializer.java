@@ -94,6 +94,16 @@ public class WifiFrameworkInitializer {
                         return null;
                     }
                     IWifiP2pManager service = IWifiP2pManager.Stub.asInterface(serviceBinder);
+                    // GammaOS Nano: the wifip2p system service can be absent (minimal_boot) even
+                    // though FEATURE_WIFI_DIRECT is present, in which case serviceBinder is null and
+                    // asInterface() returns null. Returning a WifiP2pManager that wraps a null binder
+                    // makes every call NPE and defeats callers' getSystemService(WIFI_P2P_SERVICE)
+                    // != null checks (Settings' Wi-Fi Direct and Cast screens). Return null instead so
+                    // those checks work and the screens degrade gracefully. No-op on full Android,
+                    // where the service is always present when the feature is.
+                    if (service == null) {
+                        return null;
+                    }
                     return new WifiP2pManager(service);
                 }
         );

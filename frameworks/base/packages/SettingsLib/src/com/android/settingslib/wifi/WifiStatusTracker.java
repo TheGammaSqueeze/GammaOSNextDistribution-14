@@ -206,16 +206,23 @@ public class WifiStatusTracker {
 
     public void setListening(boolean listening) {
         if (listening) {
-            mNetworkScoreManager.registerNetworkScoreCache(NetworkKey.TYPE_WIFI,
-                    mWifiNetworkScoreCache, NetworkScoreManager.SCORE_FILTER_CURRENT_NETWORK);
-            mWifiNetworkScoreCache.registerListener(mCacheListener);
+            // NetworkScoreManager is an optional service (absent on GammaOS Nano minimal_boot),
+            // so getSystemService can return null. Skip the score-cache wiring when it is null
+            // instead of NPE-ing; Wi-Fi status still works without network scores.
+            if (mNetworkScoreManager != null) {
+                mNetworkScoreManager.registerNetworkScoreCache(NetworkKey.TYPE_WIFI,
+                        mWifiNetworkScoreCache, NetworkScoreManager.SCORE_FILTER_CURRENT_NETWORK);
+                mWifiNetworkScoreCache.registerListener(mCacheListener);
+            }
             mConnectivityManager.registerNetworkCallback(
                     mNetworkRequest, mNetworkCallback, mHandler);
             mConnectivityManager.registerDefaultNetworkCallback(mDefaultNetworkCallback, mHandler);
         } else {
-            mNetworkScoreManager.unregisterNetworkScoreCache(NetworkKey.TYPE_WIFI,
-                    mWifiNetworkScoreCache);
-            mWifiNetworkScoreCache.unregisterListener();
+            if (mNetworkScoreManager != null) {
+                mNetworkScoreManager.unregisterNetworkScoreCache(NetworkKey.TYPE_WIFI,
+                        mWifiNetworkScoreCache);
+                mWifiNetworkScoreCache.unregisterListener();
+            }
             mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
             mConnectivityManager.unregisterNetworkCallback(mDefaultNetworkCallback);
         }
@@ -291,6 +298,10 @@ public class WifiStatusTracker {
     }
 
     private void maybeRequestNetworkScore() {
+        // NetworkScoreManager can be null (optional service, absent on GammaOS Nano minimal_boot).
+        if (mNetworkScoreManager == null) {
+            return;
+        }
         NetworkKey networkKey = NetworkKey.createFromWifiInfo(mWifiInfo);
         if (mWifiNetworkScoreCache.getScoredNetwork(networkKey) == null) {
             mNetworkScoreManager.requestScores(new NetworkKey[]{ networkKey });

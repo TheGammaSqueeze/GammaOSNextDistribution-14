@@ -137,6 +137,15 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment implem
         mRouter.setRouterGroupId(MediaRouter.MIRRORING_GROUP_ID);
         mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
         mWifiP2pManager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
+        // GammaOS Nano: the wifip2p service can be absent (minimal_boot), so getSystemService returns
+        // null. isAvailable() already hides the Cast tile in that case, but this screen is also
+        // launchable directly via the android.settings.CAST_SETTINGS action, so guard here too and
+        // bail out gracefully instead of NPE-ing on mWifiP2pManager.initialize().
+        if (mWifiP2pManager == null) {
+            android.util.Log.w(TAG, "Wi-Fi P2p service unavailable; Wi-Fi Display not supported");
+            finish();
+            return;
+        }
         mWifiP2pChannel = mWifiP2pManager.initialize(context, Looper.getMainLooper(), null);
 
         addPreferencesFromResource(R.xml.wifi_display_settings);

@@ -20,6 +20,7 @@ import static androidx.lifecycle.Lifecycle.Event.ON_ANY;
 import android.annotation.UiThread;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemProperties;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -71,6 +72,52 @@ public class Lifecycle extends LifecycleRegistry {
         addObserver(mProxy);
     }
 
+    // GammaOS Nano: in minimal_boot many framework services are deliberately not started, so a
+    // PreferenceController's lifecycle callback (onAttach/onCreate/onStart/onResume/onPause/onStop/
+    // onDestroy) can dereference a null/absent system service and throw. The DashboardFragment
+    // main-thread safety net only wraps displayPreference()/updateState(), NOT these lifecycle-observer
+    // dispatches, so an absent-service NPE here would kill the whole Settings process. Fail gracefully:
+    // skip the offending observer's callback and keep the rest of the screen alive. Full Android is
+    // byte-for-byte unaffected (every guard rethrows when not in minimal_boot).
+    private static boolean isNanoMinimalBoot() {
+        return SystemProperties.getBoolean("sys.gammaos.minimal_boot", false);
+    }
+
+    private static void safeDispatch(LifecycleObserver observer, String event, Runnable action) {
+        try {
+            action.run();
+        } catch (RuntimeException e) {
+            if (isNanoMinimalBoot()) {
+                Log.w(TAG, "GammaOS Nano: skipping " + observer.getClass().getName() + "." + event
+                        + " in minimal_boot (absent service): " + e);
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Catches lifecycle-dispatch exceptions from androidx {@code @OnLifecycleEvent} observers (e.g.
+     * PreferenceControllers such as InternetPreferenceController) in GammaOS Nano minimal_boot, where an
+     * absent framework service can make an onResume/onPause callback throw. Those observers are dispatched
+     * by {@link androidx.lifecycle.LifecycleRegistry}'s forwardPass (not the settingslib for-loops below),
+     * so without this override the exception propagates out and crashes the Settings process. Full Android
+     * rethrows unchanged.
+     */
+    @Override
+    public void handleLifecycleEvent(@NonNull androidx.lifecycle.Lifecycle.Event event) {
+        try {
+            super.handleLifecycleEvent(event);
+        } catch (RuntimeException e) {
+            if (isNanoMinimalBoot()) {
+                Log.w(TAG, "GammaOS Nano: swallowing lifecycle " + event
+                        + " exception in minimal_boot (absent service): " + e);
+            } else {
+                throw e;
+            }
+        }
+    }
+
     /**
      * Registers a new observer of lifecycle events.
      */
@@ -101,7 +148,7 @@ public class Lifecycle extends LifecycleRegistry {
         for (int i = 0, size = mObservers.size(); i < size; i++) {
             final LifecycleObserver observer = mObservers.get(i);
             if (observer instanceof OnAttach) {
-                ((OnAttach) observer).onAttach();
+                safeDispatch(observer, "onAttach", () -> ((OnAttach) observer).onAttach());
             }
         }
     }
@@ -112,7 +159,8 @@ public class Lifecycle extends LifecycleRegistry {
         for (int i = 0, size = mObservers.size(); i < size; i++) {
             final LifecycleObserver observer = mObservers.get(i);
             if (observer instanceof OnCreate) {
-                ((OnCreate) observer).onCreate(savedInstanceState);
+                safeDispatch(observer, "onCreate",
+                        () -> ((OnCreate) observer).onCreate(savedInstanceState));
             }
         }
     }
@@ -121,7 +169,7 @@ public class Lifecycle extends LifecycleRegistry {
         for (int i = 0, size = mObservers.size(); i < size; i++) {
             final LifecycleObserver observer = mObservers.get(i);
             if (observer instanceof OnStart) {
-                ((OnStart) observer).onStart();
+                safeDispatch(observer, "onStart", () -> ((OnStart) observer).onStart());
             }
         }
     }
@@ -139,7 +187,7 @@ public class Lifecycle extends LifecycleRegistry {
         for (int i = 0, size = mObservers.size(); i < size; i++) {
             final LifecycleObserver observer = mObservers.get(i);
             if (observer instanceof OnResume) {
-                ((OnResume) observer).onResume();
+                safeDispatch(observer, "onResume", () -> ((OnResume) observer).onResume());
             }
         }
     }
@@ -148,7 +196,7 @@ public class Lifecycle extends LifecycleRegistry {
         for (int i = 0, size = mObservers.size(); i < size; i++) {
             final LifecycleObserver observer = mObservers.get(i);
             if (observer instanceof OnPause) {
-                ((OnPause) observer).onPause();
+                safeDispatch(observer, "onPause", () -> ((OnPause) observer).onPause());
             }
         }
     }
@@ -166,7 +214,7 @@ public class Lifecycle extends LifecycleRegistry {
         for (int i = 0, size = mObservers.size(); i < size; i++) {
             final LifecycleObserver observer = mObservers.get(i);
             if (observer instanceof OnStop) {
-                ((OnStop) observer).onStop();
+                safeDispatch(observer, "onStop", () -> ((OnStop) observer).onStop());
             }
         }
     }
@@ -175,7 +223,7 @@ public class Lifecycle extends LifecycleRegistry {
         for (int i = 0, size = mObservers.size(); i < size; i++) {
             final LifecycleObserver observer = mObservers.get(i);
             if (observer instanceof OnDestroy) {
-                ((OnDestroy) observer).onDestroy();
+                safeDispatch(observer, "onDestroy", () -> ((OnDestroy) observer).onDestroy());
             }
         }
     }

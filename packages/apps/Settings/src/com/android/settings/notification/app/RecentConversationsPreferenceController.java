@@ -72,7 +72,10 @@ public class RecentConversationsPreferenceController extends AbstractPreferenceC
 
     @Override
     public boolean isAvailable() {
-        return true;
+        // GammaOS Nano: the "people" system service is absent in minimal_boot, so the IPeopleManager
+        // binder (mPs) is null. Hide the recent-conversations section instead of crashing when it is
+        // later dereferenced.
+        return mPs != null;
     }
 
     //TODO(b/233325816): Use ButtonPreference instead.
@@ -117,6 +120,11 @@ public class RecentConversationsPreferenceController extends AbstractPreferenceC
      * @return true if this controller has content to display.
      */
     boolean updateList() {
+        // GammaOS Nano: the "people" service is absent in minimal_boot, so mPs is null. Bail out
+        // (no recent conversations) instead of NPE-ing on mPs.getRecentConversations().
+        if (mPs == null) {
+            return populateList(Collections.emptyList());
+        }
         // Load conversations
         List<ConversationChannel> conversations = Collections.emptyList();
         try {
