@@ -68,6 +68,11 @@ public class CredentialManagementAppPreferenceController extends BasePreferenceC
                 mCredentialManagerPackageName = service.getCredentialManagementAppPackageName();
             } catch (InterruptedException | RemoteException e) {
                 Log.e(TAG, "Unable to display credential management app preference");
+            } catch (RuntimeException | Error e) {
+                // GammaOS Nano: the keychain service is absent in minimal_boot, so KeyChain.bind()
+                // throws AssertionError ("could not resolve KeyChainService") on this worker thread.
+                // Fail gracefully (treat as no credential-management app) instead of crashing.
+                Log.e(TAG, "KeyChain unavailable; skipping credential management app preference", e);
             }
             mHandler.post(() -> displayPreference(preference));
         });

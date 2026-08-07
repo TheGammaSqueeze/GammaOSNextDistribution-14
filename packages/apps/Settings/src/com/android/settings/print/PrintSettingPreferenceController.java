@@ -54,8 +54,14 @@ public class PrintSettingPreferenceController extends BasePreferenceController i
     public PrintSettingPreferenceController(Context context) {
         super(context, KEY_PRINTING_SETTINGS);
         mPackageManager = context.getPackageManager();
-        mPrintManager = ((PrintManager) context.getSystemService(Context.PRINT_SERVICE))
-                .getGlobalPrintManagerForUser(context.getUserId());
+        // GammaOS Nano: the print service is absent in minimal_boot, so getSystemService returns
+        // null. Guard it (getAvailabilityStatus already null-checks mPrintManager and onStart/onStop
+        // do too) instead of NPE-ing in this constructor, which runs before the availability check.
+        final PrintManager printManager =
+                (PrintManager) context.getSystemService(Context.PRINT_SERVICE);
+        mPrintManager = printManager != null
+                ? printManager.getGlobalPrintManagerForUser(context.getUserId())
+                : null;
     }
 
     @Override

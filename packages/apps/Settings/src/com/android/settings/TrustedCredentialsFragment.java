@@ -280,6 +280,12 @@ public class TrustedCredentialsFragment extends ObservableFragment
 
         @Override
         public int getChildrenCount(int groupPosition) {
+            // GammaOS Nano: when the keychain service is absent (minimal_boot) the alias loader
+            // yields no profile groups, but the paged ChildAdapter still queries group 0. Guard the
+            // index so an empty cert list renders as empty instead of ArrayIndexOutOfBounds.
+            if (groupPosition < 0 || groupPosition >= mData.mCertHoldersByUserId.size()) {
+                return 0;
+            }
             List<CertHolder> certHolders = mData.mCertHoldersByUserId.valueAt(groupPosition);
             if (certHolders != null) {
                 return certHolders.size();
@@ -739,6 +745,13 @@ public class TrustedCredentialsFragment extends ObservableFragment
                     return new SparseArray<>();
                 } catch (InterruptedException e) {
                     Log.e(TAG, "InterruptedException while loading aliases.", e);
+                    return new SparseArray<>();
+                } catch (RuntimeException | Error e) {
+                    // GammaOS Nano: the keychain service is absent in minimal_boot, so
+                    // KeyChain.bindAsUser() throws AssertionError ("could not resolve
+                    // KeyChainService"). Fail gracefully (show no trusted credentials) instead of
+                    // crashing this AsyncTask worker thread.
+                    Log.e(TAG, "KeyChain unavailable while loading aliases.", e);
                     return new SparseArray<>();
                 }
             }

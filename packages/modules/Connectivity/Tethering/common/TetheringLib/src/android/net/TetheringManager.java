@@ -1545,7 +1545,11 @@ public class TetheringManager {
     @SystemApi(client = MODULE_LIBRARIES)
     public @NonNull String[] getTetherableUsbRegexs() {
         mCallback.waitForStarted();
-        return mTetheringConfiguration.tetherableUsbRegexs;
+        // GammaOS Nano: in minimal_boot the tethering config callback may return without ever
+        // delivering a configuration, leaving mTetheringConfiguration null. Return an empty list
+        // instead of NPE-ing (matches the documented "tethering not supported" contract).
+        final TetheringConfigurationParcel cfg = mTetheringConfiguration;
+        return cfg != null ? cfg.tetherableUsbRegexs : new String[0];
     }
 
     /**
@@ -1560,7 +1564,10 @@ public class TetheringManager {
     @SystemApi(client = MODULE_LIBRARIES)
     public @NonNull String[] getTetherableWifiRegexs() {
         mCallback.waitForStarted();
-        return mTetheringConfiguration.tetherableWifiRegexs;
+        // GammaOS Nano: guard a null tethering configuration in minimal_boot (see
+        // getTetherableUsbRegexs) instead of NPE-ing.
+        final TetheringConfigurationParcel cfg = mTetheringConfiguration;
+        return cfg != null ? cfg.tetherableWifiRegexs : new String[0];
     }
 
     /**
@@ -1575,7 +1582,10 @@ public class TetheringManager {
     @SystemApi(client = MODULE_LIBRARIES)
     public @NonNull String[] getTetherableBluetoothRegexs() {
         mCallback.waitForStarted();
-        return mTetheringConfiguration.tetherableBluetoothRegexs;
+        // GammaOS Nano: guard a null tethering configuration in minimal_boot (see
+        // getTetherableUsbRegexs) instead of NPE-ing.
+        final TetheringConfigurationParcel cfg = mTetheringConfiguration;
+        return cfg != null ? cfg.tetherableBluetoothRegexs : new String[0];
     }
 
     /**
