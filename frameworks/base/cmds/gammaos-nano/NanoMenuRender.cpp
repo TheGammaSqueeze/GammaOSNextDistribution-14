@@ -1766,8 +1766,8 @@ void NanoMenu::renderNds() {
                 NdsPal gp = ndsPal();
                 drawQuad(0.0f, half, W, gap, gp.field, gp.field, gp.field, 1.0f);       // #f3 light field
                 const float ec = 1.0f;
-                drawQuad(0.0f, half, ec, gap, gp.edge, gp.edge, gp.edge, 1.0f);      // #db edge columns
-                drawQuad(W - ec, half, ec, gap, gp.edge, gp.edge, gp.edge, 1.0f);
+                drawQuad(0.0f, half, ec, gap, gp.edgeShadow, gp.edgeShadow, gp.edgeShadow, 1.0f);      // #db edge columns
+                drawQuad(W - ec, half, ec, gap, gp.edgeShadow, gp.edgeShadow, gp.edgeShadow, 1.0f);
             }
         }
         renderNdsTop(0.0f, 0.0f, W, half);
@@ -1903,8 +1903,8 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             { float dl = S(2.0f); if (dl < 2.0f) dl = 2.0f;
               for (float y = ry; y < ry + rh; y += dl) drawQuad(rx, y, rw, fmaxf(1.0f, S(1.0f)), p.dither, p.dither, p.dither, 1.0f); }
             float ec = fmaxf(1.0f, S(1.0f));
-            drawQuad(rx, ry, ec, rh, p.edge, p.edge, p.edge, 1.0f);
-            drawQuad(rx + rw - ec, ry, ec, rh, p.edge, p.edge, p.edge, 1.0f);
+            drawQuad(rx, ry, ec, rh, p.edgeShadow, p.edgeShadow, p.edgeShadow, 1.0f);
+            drawQuad(rx + rw - ec, ry, ec, rh, p.edgeShadow, p.edgeShadow, p.edgeShadow, 1.0f);
         }
     }
 
@@ -2088,10 +2088,20 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
                                         170,162,170,162,170,162,162,162,170,170};
         float rowH = S(1.0f);
         for (int r = 0; r < 22; r++) { float v = (float)rail22[r] / 255.0f;
+            // Dark theme: remap the light-chrome rail gradient into a dark grooved track (~0.17..0.22)
+            // so the bottom slider reads as dark, not light chrome (HandyMarco report), while keeping
+            // the same bevel shape (dark top / light band / mid bottom -> dark grey equivalent).
+            if (mNdsDark) v = 0.10f + v * 0.13f;
             drawQuad(railX, Y(170.0f + (float)r), railW, rowH + 0.6f, v, v, v, 1.0f); }
         // one tick per slot at track-x = 33 + 5*i (launcher._drawScrollbar). Occupied slots
         // are beveled green SQUARES (#828a82 light top / #596959 dark edges+bottom); slot 0
         // is a 3D dark anchor dot; slot 1 is a flat grey block. All XMB items are occupied.
+        // Per-slot tick colours: dark-on-light in the light theme; light-on-dark in the dark theme
+        // so the marks stay readable on the dark grooved rail (they'd otherwise sink into it).
+        const bool dk = mNdsDark;
+        const float tkTopR = dk ? 0.62f : 0.510f, tkTopG = dk ? 0.66f : 0.541f, tkTopB = dk ? 0.62f : 0.510f;  // beveled square top
+        const float tkEdR  = dk ? 0.50f : 0.349f, tkEdG  = dk ? 0.55f : 0.412f, tkEdB  = dk ? 0.50f : 0.349f;  // edges + bottom
+        const float tkFlat = dk ? 0.62f : 0.510f;                                                             // flat first tick
         auto drawTick = [&](int i){
             float cx = 33.0f + 5.0f * (float)i;
             if (SBX(cx) > SBX(236.0f)) return;
@@ -2100,16 +2110,17 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
                     {0.616f,0.255f,0.255f,0.616f}, {0.188f,0.380f,0.380f,0.188f},
                     {0.000f,0.137f,0.137f,0.000f}, {0.510f,0.000f,0.000f,0.510f} };
                 for (int ry = 0; ry < 4; ry++) for (int cxi = 0; cxi < 4; cxi++) {
-                    float v = an[ry][cxi]; if (v <= 0.0f) continue;
+                    float v = an[ry][cxi]; if (v <= 0.0f) continue;   // 0 = transparent dot corner (keep skipping)
+                    if (dk) v = 0.40f + v * 0.40f;                    // dark theme: lift the dot to a light 3D bevel
                     drawQuad(SBX(32.0f + cxi), Y(180.0f + ry), SBS(1.0f), S(1.0f), v, v, v, 1.0f);
                 }
             } else if (i == 1) {                                // flat grey first tick, x(cx-1..cx+2) y179..184
-                drawQuad(SBX(cx - 1.0f), Y(179.0f), SBS(4.0f), S(6.0f), 0.510f, 0.510f, 0.510f, 1.0f);
+                drawQuad(SBX(cx - 1.0f), Y(179.0f), SBS(4.0f), S(6.0f), tkFlat, tkFlat, tkFlat, 1.0f);
             } else {                                            // beveled green square
-                drawQuad(SBX(cx - 1.0f), Y(180.0f), SBS(4.0f), S(2.0f), 0.510f, 0.541f, 0.510f, 1.0f); // #828a82 light top
-                drawQuad(SBX(cx - 1.0f), Y(181.0f), SBS(1.0f), S(3.0f), 0.349f, 0.412f, 0.349f, 1.0f); // #596959 left edge
-                drawQuad(SBX(cx + 2.0f), Y(181.0f), SBS(1.0f), S(3.0f), 0.349f, 0.412f, 0.349f, 1.0f); // right edge
-                drawQuad(SBX(cx),        Y(182.0f), SBS(2.0f), S(2.0f), 0.349f, 0.412f, 0.349f, 1.0f); // dark bottom centre
+                drawQuad(SBX(cx - 1.0f), Y(180.0f), SBS(4.0f), S(2.0f), tkTopR, tkTopG, tkTopB, 1.0f); // #828a82 light top
+                drawQuad(SBX(cx - 1.0f), Y(181.0f), SBS(1.0f), S(3.0f), tkEdR,  tkEdG,  tkEdB,  1.0f); // #596959 left edge
+                drawQuad(SBX(cx + 2.0f), Y(181.0f), SBS(1.0f), S(3.0f), tkEdR,  tkEdG,  tkEdB,  1.0f); // right edge
+                drawQuad(SBX(cx),        Y(182.0f), SBS(2.0f), S(2.0f), tkEdR,  tkEdG,  tkEdB,  1.0f); // dark bottom centre
             }
         };
         for (int i = 0; i < nItems; i++) drawTick(i);
@@ -2140,7 +2151,11 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
                 // gloss ramp e3 / f3 / fb x9 / e3 / db / d3 / db from y172..190, with the blue
                 // pill frame curving into the interior top/bottom corners (p11 top, p9 bottom)
                 // so the window reads as a rounded glass inset, not a flat white block.
-                auto band = [&](float yds, float h, float v){ drawQuad(ix, Y(yds), iw + 0.6f, S(h) + 0.6f, v, v, v, 1.0f); };
+                // Dark theme: dim the near-white glossy ramp to a frosted mid-grey knob (~0.53..0.58)
+                // so the handle reads as a raised grip on the dark rail, not a bright light-chrome pill,
+                // while the favColor frame keeps it as the accent grabber.
+                auto band = [&](float yds, float h, float v){ if (dk) v = 0.30f + v * 0.28f;
+                    drawQuad(ix, Y(yds), iw + 0.6f, S(h) + 0.6f, v, v, v, 1.0f); };
                 band(172.0f, 1.0f, 0.890f);   // e3 top edge
                 band(173.0f, 2.0f, 0.953f);   // f3
                 band(175.0f, 9.0f, 0.984f);   // fb solid white core (y175..183)
@@ -2586,8 +2601,8 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
         // background: the DSi light/dark field + edge columns (no mint canvas).
         drawQuad(rx, ry, rw, rh, ip.topBg, ip.topBg, ip.topBg, 1.0f);
         { float ec = fmaxf(1.0f, S(1.0f));
-          drawQuad(X(0.0f), ry, ec, rh, ip.edge, ip.edge, ip.edge, 1.0f);
-          drawQuad(X(255.0f), ry, ec, rh, ip.edge, ip.edge, ip.edge, 1.0f); }
+          drawQuad(X(0.0f), ry, ec, rh, ip.edgeShadow, ip.edgeShadow, ip.edgeShadow, 1.0f);
+          drawQuad(X(255.0f), ry, ec, rh, ip.edgeShadow, ip.edgeShadow, ip.edgeShadow, 1.0f); }
 
         // Fixed DS layout bands (same in both the top and bottom calls). The top panel reserves
         // room for the title; the bottom panel uses the full height. lineH/font are shared.
@@ -2680,8 +2695,8 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
     // light upper-screen background + side edge shading (matches renderNdsTop).
     drawQuad(rx, ry, rw, rh, ip.topBg, ip.topBg, ip.topBg, 1.0f);
     { float ec = fmaxf(1.0f, S(1.0f));
-      drawQuad(X(0.0f), ry, ec, rh, ip.edge, ip.edge, ip.edge, 1.0f);
-      drawQuad(X(255.0f), ry, ec, rh, ip.edge, ip.edge, ip.edge, 1.0f); }
+      drawQuad(X(0.0f), ry, ec, rh, ip.edgeShadow, ip.edgeShadow, ip.edgeShadow, 1.0f);
+      drawQuad(X(255.0f), ry, ec, rh, ip.edgeShadow, ip.edgeShadow, ip.edgeShadow, 1.0f); }
     // mint canvas: procedural bevel -> white inset -> mint field (no photo_U camera glyph).
     const float cvL = 18.0f, cvT = 18.0f, cvRr = 240.0f, cvB = 188.0f;
     { float px = X(cvL), pw = X(cvRr) - X(cvL), py = Y(cvT), ph = Y(cvB) - Y(cvT);
@@ -3050,8 +3065,8 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
         } else {
             drawQuad(rx, ry, rw, rh, tpal.topBg, tpal.topBg, tpal.topBg, 1.0f);
             float ec = fmaxf(1.0f, S(1.0f));
-            drawQuad(X(0.0f), ry, ec, rh, tpal.edge, tpal.edge, tpal.edge, 1.0f);
-            drawQuad(X(255.0f), ry, ec, rh, tpal.edge, tpal.edge, tpal.edge, 1.0f);
+            drawQuad(X(0.0f), ry, ec, rh, tpal.edgeShadow, tpal.edgeShadow, tpal.edgeShadow, 1.0f);
+            drawQuad(X(255.0f), ry, ec, rh, tpal.edgeShadow, tpal.edgeShadow, tpal.edgeShadow, 1.0f);
         }
     }
 

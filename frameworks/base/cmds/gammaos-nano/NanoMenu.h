@@ -1414,7 +1414,8 @@ private:
     // contrast). Every DSi renderer pulls its greys/inks from here instead of hardcoded literals so
     // the two variants stay in lockstep. Returned by ndsPal(); the teal accent frame is untouched.
     struct NdsPal {
-        float field, dither, edge;                 // main surface, dither line, edge columns/borders
+        float field, dither, edge;                 // main surface, dither line, end-cap bracket grey
+        float edgeShadow;                          // recessed screen-edge column (web #db, a hair DARKER than field)
         float bevel0, bevel1, bevel2, bevel3, bevel4;  // name-box bevel ramp (outer->interior)
         float ink, subInk;                         // primary text / inactive-secondary ink (status bar)
         float watermark;                           // "GammaOS" watermark grey
@@ -1428,6 +1429,8 @@ private:
     NdsPal ndsPal() const {
         if (mNdsDark) return NdsPal{
             0.114f, 0.153f, 0.290f,
+            0.075f,   // edgeShadow: a hair DARKER than the dark field so the screen-edge columns recede
+                      // (a subtle inset shadow) instead of reading as light lines (HandyMarco report)
             0.541f, 0.400f, 0.290f, 0.220f, 0.157f,
             0.878f, 0.451f,
             0.235f,
@@ -1439,6 +1442,7 @@ private:
             0.235f };   // dark tile pillow (light glyph reads on it)
         return NdsPal{
             0.953f, 0.922f, 0.859f,
+            0.859f,   // edgeShadow == edge in the light theme (web #db columns, already blend on #f3)
             0.318f, 0.635f, 0.765f, 0.859f, 0.984f,
             0.255f, 0.741f,
             0.827f,
