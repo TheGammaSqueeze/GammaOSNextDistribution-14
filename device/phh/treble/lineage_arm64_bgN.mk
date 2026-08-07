@@ -19,6 +19,16 @@ PRODUCT_CHARACTERISTICS := device
 PRODUCT_PACKAGES += \
     GammaBrowser
 
+# GammaOS: include the minimal Gamma secondary-display home (parity with the TV build - it was only
+# added in the ATV product, so the non-TV images shipped without it). The framework secondary-home
+# resolver (ActivityTaskManagerService.getSecondaryHomeIntent) launches this component on a
+# secondary display that has system decorations; it stays inert on a single-screen device.
+PRODUCT_PACKAGES += \
+    SecondaryHome
+
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    persist.gammaos.secondary_home=com.gammaos.secondaryhome/com.gammaos.secondaryhome.SecondaryHomeActivity
+
 # Force CC with read barriers (concurrent-copying=true). Our GSI does not bundle
 # a kernel, so without this the AOSP build probe falls back to "<unknown-kernel>"
 # -> uffd CMC, which makes the host dex2oat emit boot.art with
