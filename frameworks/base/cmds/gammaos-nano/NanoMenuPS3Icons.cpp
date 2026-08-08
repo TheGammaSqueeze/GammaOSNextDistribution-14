@@ -1330,10 +1330,12 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
     if (mIconsHalfActive) {
         int sw = (int)(w * 0.5f + 0.5f); if (sw < 1) sw = 1;
         int sh = (int)(h * 0.5f + 0.5f); if (sh < 1) sh = 1;
-        // Capture the caller's target + viewport BEFORE glassScratchEnsure (which binds the scratch FBO),
-        // so we restore to the real scene target afterwards, not the scratch.
-        GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
-        GLint prevVp[4]; glGetIntegerv(GL_VIEWPORT, prevVp);
+        // Restore target = the scene FBO/viewport captured ONCE per pass in renderPs3Xmb
+        // (mSceneFbo/mSceneVp). Avoids 2 blocking glGetIntegerv per icon (a per-icon tiler
+        // stall that was the dominant half-res-icon slowdown). Glass icons are only drawn
+        // inside the renderPs3Xmb pass, so the cached values are always current here.
+        GLint prevFbo = mSceneFbo;
+        const GLint* prevVp = mSceneVp;
         if (glassScratchEnsure(sw, sh)) {
             glBindFramebuffer(GL_FRAMEBUFFER, sGlassScratchFbo);   // glassScratchEnsure already bound it
             glViewport(0, 0, sw, sh);
@@ -1359,7 +1361,11 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
             // Composite the premultiplied scratch onto the panel with the panel rotation (mTextProgram's
             // uRotation) + the tumble (rot), sampled V-flipped (FBO origin). Premultiplied blend.
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            drawIconTex(sGlassScratchTex, x, y, w, h, 1.0f, 1.0f, 1.0f, 1.0f, rot, /*flipV=*/true);
+            drawIconTex(sGlassScratchTex, x, y, w, h, 1.0f, 1.0f, 1.0f, 1.0f, rot, /*flipV=*/true,
+                        /*sharpUpW=*/(float)sw, /*sharpUpH=*/(float)sh);   // sharp-bilinear upscale
+            // Seal uSharpUp back to OFF so no later mTextProgram consumer (glyphs/photos/clock) inherits it.
+            glUseProgram(mTextProgram);
+            if (mTextLocSharpUp >= 0) glUniform2f(mTextLocSharpUp, 0.0f, 0.0f);
             setUiBlend();
             glActiveTexture(GL_TEXTURE0);
             return;

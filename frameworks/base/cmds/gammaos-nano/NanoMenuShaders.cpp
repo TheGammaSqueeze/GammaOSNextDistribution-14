@@ -299,9 +299,22 @@ const char TEXT_FRAGMENT_SHADER[] = R"(
     varying vec2 vTexCoord;
     varying vec4 vColor;
     uniform sampler2D uTexture;
-    uniform float uSharp;   // 0 = plain bilinear; >0 = crisp analytic edge AA
+    uniform float uSharp;    // 0 = plain bilinear; >0 = crisp analytic edge AA (glyphs)
+    uniform vec2  uSharpUp;  // >0: sharp-bilinear upscale; xy = source size in TEXELS
     void main() {
-        vec4 texel = texture2D(uTexture, vTexCoord);
+        vec2 uv = vTexCoord;
+        if (uSharpUp.x > 0.0) {
+            // Sharp-bilinear: keep GL_LINEAR (no aliasing) but pre-warp UV toward
+            // texel centres by the on-screen magnification, so a half-res icon
+            // upscales crisp instead of soft. 1 fetch + a few ALU ops.
+            vec2 ts = 1.0 / uSharpUp;          // texel size in UV
+            vec2 tc = uv * uSharpUp;           // texel-space coord
+            vec2 tf = fract(tc);
+            vec2 w  = fwidth(tc);              // texels per dest pixel (<1 when magnifying)
+            vec2 f  = clamp((tf - 0.5) / max(w, vec2(1e-4)) + 0.5, 0.0, 1.0);
+            uv = (floor(tc) + f) * ts;         // keep the whole texel, sharpen the fraction
+        }
+        vec4 texel = texture2D(uTexture, uv);
         float a = texel.a;
         if (uSharp > 0.001) {
             // The atlas stores antialiased coverage in alpha; trilinear sampling
@@ -309,8 +322,8 @@ const char TEXT_FRAGMENT_SHADER[] = R"(
             // ~1px-wide edge using the screen-space gradient, so glyphs read crisp
             // at any scale instead of blurry. uSharp scales the edge width
             // (smaller = sharper). Non-AA text skips this and is unchanged.
-            float w = max(fwidth(a) * uSharp, 1.0 / 256.0);
-            a = smoothstep(0.5 - w, 0.5 + w, a);
+            float sw = max(fwidth(a) * uSharp, 1.0 / 256.0);
+            a = smoothstep(0.5 - sw, 0.5 + sw, a);
         }
         gl_FragColor = vec4(texel.rgb, a) * vColor;
     }
@@ -565,6 +578,7 @@ void NanoMenu::initShaders() {
         mTextLocTexture  = glGetUniformLocation(mTextProgram, "uTexture");
         mTextLocRotation = glGetUniformLocation(mTextProgram, "uRotation");
         mTextLocSharp    = glGetUniformLocation(mTextProgram, "uSharp");
+        mTextLocSharpUp  = glGetUniformLocation(mTextProgram, "uSharpUp");
         glDeleteShader(vs); glDeleteShader(fs);
     }
     // Rounded-rect shader (OSK keys).

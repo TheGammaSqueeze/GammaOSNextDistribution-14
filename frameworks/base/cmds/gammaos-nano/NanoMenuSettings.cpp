@@ -1510,6 +1510,9 @@ std::string NanoMenu::buildSysInfoBody() {
     std::string sec    = prop("ro.build.version.security_patch", "");
     std::string serial = prop("ro.serialno", "");
     if (serial.empty()) serial = prop("ro.boot.serialno", "");
+    std::string gver  = prop("ro.gammaos.build.version", "");
+    std::string gvar  = prop("ro.gammaos.variant", "");
+    std::string bdate = prop("ro.build.date", "");
 
     // Wi-Fi MAC via sysfs; IPv4 from the framework status (binder), exactly like
     // buildNetStatusBody (direct ip/route do not work in nano's restricted runtime).
@@ -1536,9 +1539,11 @@ std::string NanoMenu::buildSysInfoBody() {
     if (!inc.empty()) sw += "  (" + inc + ")";
 
     std::string body;
-    body += "System Software\n" + sw + "\n\n";
+    if (!gver.empty()) { body += "System Software\nGammaOS " + gver; if (!gvar.empty()) body += " (" + gvar + ")"; body += "\n\n"; }
+    body += "Android Version\n" + sw + "\n\n";
     body += "Model\n" + orDash(model) + "\n\n";
     if (!sec.empty()) body += "Security Patch Level\n" + sec + "\n\n";
+    if (!bdate.empty()) body += "Build Date\n" + bdate + "\n\n";
     body += "Serial Number\n" + orDash(serial) + "\n\n";
     body += "MAC Address (Wi-Fi)\n" + orDash(mac) + "\n\n";
     body += "IP Address\n" + orDash(ip) + "\n\n";

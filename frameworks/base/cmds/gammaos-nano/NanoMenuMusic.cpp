@@ -765,6 +765,20 @@ void NanoMenu::musicAddTrackToPlaylist(int plIdx, const std::string& file) {
     saveMusicConfig();
 }
 
+void NanoMenu::musicDeletePlaylist(int plIdx) {
+    if (plIdx < 0 || plIdx >= (int)mMusicPlaylists.size()) return;
+    // An m3u-derived playlist is regenerated from its .m3u on every rescan
+    // (musicDrainScanResults keeps only empty-m3uPath rows and re-adds the scan's
+    // m3u playlists), so erasing the in-memory row alone lets it reappear; unlink the
+    // backing file too. A user-created playlist has no m3uPath and lives solely in
+    // nano_music.json, so erase + save is enough.
+    const std::string m3u = mMusicPlaylists[plIdx].m3uPath;
+    if (!m3u.empty()) nanoRemovePath(m3u);
+    mMusicPlaylists.erase(mMusicPlaylists.begin() + plIdx);
+    saveMusicConfig();
+    mMusicCatsStale = true;   // rebuild the Music column (Playlists count) at the settled root
+}
+
 // ---------------------------------------------------------------------------
 // Playback: open the player on a list of track items, repeat/shuffle/order, and
 // the per-frame auto-advance. The Now-Playing UI (renderMusicPlayer, control

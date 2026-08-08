@@ -1911,6 +1911,11 @@ void NanoMenu::pollInput() {
                     if (!strcmp(navbuf, "l1"))      ndsBumperSkip(-1);
                     else if (!strcmp(navbuf, "r1")) ndsBumperSkip(+1);
                 }
+                // Pure PS3 XMB: l1/r1 nav-hook page-skip the focused column/submenu.
+                else if (mPs3Xmb && ps3TopScreenKind() == 0 && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive) {
+                    if (!strcmp(navbuf, "l1"))      ps3XmbBumperSkip(-1);
+                    else if (!strcmp(navbuf, "r1")) ps3XmbBumperSkip(+1);
+                }
             }
             // Cold-boot intro replay: re-run the boot sequence from t=0 so it can be
             // verified 1:1 against the web without a real reboot.
@@ -2367,13 +2372,14 @@ void NanoMenu::pollInput() {
                             if (mVidCpOpen) vidPanelClose();
                         }
                     }
-                    // PS3 XMB: SELECT invokes the global search (categorized results
-                    // across Games / Music / Photos / Videos). Opens the query keyboard;
-                    // re-opens it to refine when results are already showing. Gated off
-                    // any other modal so it never steals input from a player/dialog.
+                    // PS3 XMB: SELECT invokes the global search on RELEASE (tap), not on
+                    // press, so a SELECT+Volume brightness chord does not also open the
+                    // search OSK. Arm the tap here; the chord flag (set by a Volume press
+                    // below) and the release edge decide whether it actually fires.
                     else if (mPs3Xmb && !mMpActive && !mPs3OptActive && !mPs3DlgActive
                              && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) {
-                        gsearchOpen();
+                        mSelectSearchArmed = true;
+                        mSelectVolChord    = false;
                     }
                     else if (mXmbMode) forceRescanAllSystems();
                 }
@@ -2385,6 +2391,17 @@ void NanoMenu::pollInput() {
                 // so a plain volume press kept adjusting brightness (and Power kept hitting the
                 // shader escape hatch). Ignoring repeats lets the raise-time clear stick.
                 if (ev.value != 2) mSelectHeld = (ev.value != 0);
+                // SELECT tap-to-search: fire on the real release edge, but only if no
+                // Volume chord happened while it was held (that was a brightness combo).
+                if (ev.value == 0) {
+                    if (mSelectSearchArmed && !mSelectVolChord
+                        && mPs3Xmb && !mOskActive && !mMpActive && !mPs3OptActive
+                        && !mPs3DlgActive && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) {
+                        gsearchOpen();
+                    }
+                    mSelectSearchArmed = false;
+                    mSelectVolChord    = false;
+                }
             }
             if (ev.type == EV_KEY && ev.code == BTN_START) {
                 // Photo viewer: during a running slideshow, START toggles play/pause.
@@ -2515,6 +2532,7 @@ void NanoMenu::pollInput() {
                 // missed SELECT release never turns plain volume into brightness.
                 if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
                     if (mSelectHeld && selectKeyHeld()) {
+                        mSelectVolChord = true;   // brightness combo: cancel the pending SELECT search tap
                         adjustBrightness(ev.code == KEY_VOLUMEUP ? 1 : -1);
                     } else if (ev.value == 1) {
                         adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
@@ -2794,6 +2812,9 @@ void NanoMenu::pollInput() {
                             && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive) {
                             ndsBumperSkip(-1); break;
                         }
+                        // Pure PS3 XMB: L1 fast page-skips up through the focused item list.
+                        if (mPs3Xmb && ps3TopScreenKind() == 0 && !mPs3OptActive && !mPs3DlgActive
+                            && !mGSearchActive && !mMpActive && !mPvActive && !mVidActive) { ps3XmbBumperSkip(-1); break; }
                         // Shut any open Settings sub-screen before leaving XMB
                         // so its scan thread exits instead of churning in bg.
                         if (mMenuState == MENU_WIFI) closeWifiScreen();
@@ -2836,11 +2857,22 @@ void NanoMenu::pollInput() {
                             && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive) {
                             ndsBumperSkip(+1); break;
                         }
+                        // Pure PS3 XMB: R1 fast page-skips down through the focused item list.
+                        if (mPs3Xmb && ps3TopScreenKind() == 0 && !mPs3OptActive && !mPs3DlgActive
+                            && !mGSearchActive && !mMpActive && !mPvActive && !mVidActive) { ps3XmbBumperSkip(+1); break; }
                         mQuickResumeEnabled = !mQuickResumeEnabled;
                         property_set("persist.gammaos.nano.quick_resume",
                                      mQuickResumeEnabled ? "1" : "0");
                         mDisplayDirty = true;
                         ALOGD("Quick Resume: %s", mQuickResumeEnabled ? "ON" : "OFF");
+                        break;
+                    case BTN_TL2:
+                        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && !mNdsAtRoot && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive) { ndsBumperSkip(-1); break; }
+                        if (mPs3Xmb && ps3TopScreenKind() == 0 && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive && !mMpActive && !mPvActive && !mVidActive) ps3XmbBumperSkip(-1);
+                        break;
+                    case BTN_TR2:
+                        if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && !mNdsAtRoot && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive) { ndsBumperSkip(+1); break; }
+                        if (mPs3Xmb && ps3TopScreenKind() == 0 && !mPs3OptActive && !mPs3DlgActive && !mGSearchActive && !mMpActive && !mPvActive && !mVidActive) ps3XmbBumperSkip(+1);
                         break;
                     default: break;
                     }

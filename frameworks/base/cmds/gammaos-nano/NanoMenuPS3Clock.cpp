@@ -1796,7 +1796,8 @@ void NanoMenu::pspClockLens(float cr) {
     // as a dark night-mode piece, matching the darkened surround.
     if (mPspLensLocAppSrc >= 0)
         glUniform1f(mPspLensLocAppSrc,
-                    useApp ? (pspClockLiveBackdropOn() ? mPspAppDim : 0.16f) : 0.0f);
+                    useApp ? (pspClockLiveBackdropOn() ? mPspAppDim : 0.16f)
+                           : (mPspClockThemeBackdropLight ? 0.45f : 0.0f));
     glUniform1f(mPspLensLocAlpha, op);
     // Gyro/accel parallax offset (smoothed device tilt -> UV shift). Fades in with the
     // lens so the peek-behind only kicks in once the disc is present.

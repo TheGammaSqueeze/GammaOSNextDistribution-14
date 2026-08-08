@@ -1165,6 +1165,8 @@ private:
 
     // Brightness / power
     bool mSelectHeld;
+    bool mSelectSearchArmed = false;  // XMB SELECT tap pending: open the search OSK on release
+    bool mSelectVolChord    = false;  // a Volume key was pressed while SELECT held -> suppress the OSK tap
     bool mStartHeld = false;   // for the START+SELECT PS3 boot-intro re-trigger
     int64_t mPowerPressTime;
     int mBrightness;
@@ -2225,6 +2227,7 @@ private:
     // by drawPspClockThemeBackdrop(); tells pspClockLens/pspClockSampleGlow the work texture is display
     // sRGB (skip the wave's LINEAR tonemap), matching the captured-app path.
     bool  mPspClockThemeBackdrop = false;
+    bool  mPspClockThemeBackdropLight = false;  // theme home backdrop fed to the disc is bright -> dim the disc so the additive-white clock face/date read
     // Swipe-to-dismiss: while the clock is up a touch swipe drags the WHOLE clock up with the
     // finger and, past a threshold, flings it off the top + dismisses - all WITHOUT touching the
     // rotation, so the user can exit the clock but keep the device rotated. Released short, it
@@ -2638,6 +2641,9 @@ private:
     // is accepted, plus which library to rescan afterwards. lib: 0=video, 1=photo, 2=music.
     std::vector<std::string> mMediaDelPaths;
     int mMediaDelLib = -1;
+    int mMusicDelPlIdx = -1;   // playlist index pending Delete-Playlist confirm (dialog themeKey 46)
+    int mVideoDelPlIdx = -1;   // pending Delete-Playlist confirm for a video playlist (themeKey 47)
+    int mPhotoDelPlIdx = -1;   // pending Delete-Playlist confirm for a photo playlist (themeKey 48)
     // Async copy/move/delete: the worker holds its OWN shared_ptr to this result block and touches
     // ONLY the block + value-captured paths (never `this`), so a teardown mid-op cannot use-after-free.
     // feTick polls done and reaps. One op at a time (mFeOp non-null = busy).
@@ -2887,6 +2893,7 @@ private:
     // playlists
     void musicCreatePlaylist(const std::string& name);
     void musicAddTrackToPlaylist(int plIdx, const std::string& file);
+    void musicDeletePlaylist(int plIdx);   // erase a playlist (user JSON entry; m3u-derived also unlinks the .m3u) + save + rebuild
     // The audio engine instance (decode + AAudio + FFT). Lazy: init() on first Music
     // entry; open()/play() on first track play.
     NanoAudioPlayer mMusicPlayer;
@@ -3033,6 +3040,7 @@ private:
     void buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out);
     void videoCreatePlaylist(const std::string& name);
     void videoAddToPlaylist(int plIdx, const std::string& file);
+    void videoDeletePlaylist(int plIdx);   // erase a video playlist (JSON-only) + save + rebuild
     bool  mVidPlChooserActive = false;
     std::vector<std::string> mVidPlChooserOpts;   // "New Playlist..." + existing names
     int   mVidPlChooserSel = 0;
@@ -3883,6 +3891,7 @@ private:
     void buildPhotoPlaylistGridList(int plIdx, std::vector<int>& out, std::string& title);
     void photoCreatePlaylist(const std::string& name);
     void photoAddToPlaylist(int plIdx, const std::string& file);
+    void photoDeletePlaylist(int plIdx);   // erase a photo playlist (JSON-only) + save + rebuild
     // add-to-playlist chooser (viewer + grid)
     bool  mPvPlChooserActive = false;
     std::vector<std::string> mPvPlChooserOpts;   // "New Playlist..." + existing names
@@ -4123,6 +4132,7 @@ private:
     void ps3XmbRight();
     void ps3XmbUp();
     void ps3XmbDown();
+    void ps3XmbBumperSkip(int dir);
     void ps3XmbSelect();
     void ps3XmbBack();
     // Time Zone 3D-globe selector (NanoMenuPS3Globe.cpp). Shared 1:1 web tzglobe
@@ -4373,7 +4383,8 @@ private:
     // Draw an arbitrary GL texture handle (PS3 category icons live outside
     // mIconTextures[]). Supports a non-square w/h. (NanoMenuPS3Menu.cpp)
     void drawIconTex(GLuint tex, float x, float y, float w, float h,
-                     float r, float g, float b, float a, float rot = 0.0f, bool flipV = false);
+                     float r, float g, float b, float a, float rot = 0.0f, bool flipV = false,
+                     float sharpUpW = 0.0f, float sharpUpH = 0.0f);
     GLuint mIconTextures[21]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=app-grid, 19=4-square grid (Applications), 20=push-pin (Pinned Apps)
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
@@ -4479,6 +4490,9 @@ private:
     GLint  mTextLocTexture;
     GLint  mTextLocRotation;
     GLint  mTextLocSharp = -1;   // uSharp uniform: crisp analytic edge AA amount
+    GLint  mTextLocSharpUp = -1;   // uSharpUp: sharp-bilinear upscale source size (texels), 0=off
+    GLint  mSceneFbo = 0;          // scene FBO captured once per XMB pass (half-res icons perf)
+    GLint  mSceneVp[4] = {0,0,0,0}; // scene viewport captured once per XMB pass
     float  mTextSharp = 0.0f;    // current uSharp value (set by setGlyphAtlasAA), uploaded by drawText
 
     // Rounded-rect shader (OSK keys)

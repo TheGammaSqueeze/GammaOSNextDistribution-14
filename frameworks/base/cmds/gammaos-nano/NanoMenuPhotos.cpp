@@ -2635,6 +2635,13 @@ void NanoMenu::photoAddToPlaylist(int plIdx, const std::string& file) {
     if (std::find(files.begin(), files.end(), file) == files.end()) files.push_back(file);
     savePhotoConfig();
 }
+void NanoMenu::photoDeletePlaylist(int plIdx) {
+    if (plIdx < 0 || plIdx >= (int)mPhotoPlaylists.size()) return;
+    // Photo playlists live only in nano_photo.json (no backing file), so erase + save.
+    mPhotoPlaylists.erase(mPhotoPlaylists.begin() + plIdx);
+    savePhotoConfig();
+    mPhotoCatsStale = true;   // rebuild the Photo column (Playlists count) at the settled root
+}
 void NanoMenu::buildPhotoPlaylistsScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = 0;
     { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_PHOTO_PL_NEW;

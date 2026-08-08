@@ -293,7 +293,8 @@ GLuint NanoMenu::loadColorIconTexAbs(const char* absPath) {
 }
 
 void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
-                           float r, float g, float b, float a, float rot, bool flipV) {
+                           float r, float g, float b, float a, float rot, bool flipV,
+                           float sharpUpW, float sharpUpH) {
     if (tex == 0) return;
     GLfloat verts[12];
     if (rot == 0.0f) {
@@ -325,7 +326,8 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
     GLfloat colors[6 * 4];
     for (int i = 0; i < 6; i++) { colors[i*4]=r; colors[i*4+1]=g; colors[i*4+2]=b; colors[i*4+3]=a; }
     glUseProgram(mTextProgram);
-    if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, 0.0f);   // icons: no glyph edge-sharpen
+    if (mTextLocSharp >= 0)   glUniform1f(mTextLocSharp, 0.0f);   // icons: no glyph edge-sharpen
+    if (mTextLocSharpUp >= 0) glUniform2f(mTextLocSharpUp, sharpUpW, sharpUpH); // 0=plain bilinear; >0=sharp-bilinear upscale
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
     glUniform1i(mTextLocTexture, 0);
@@ -1083,6 +1085,21 @@ int64_t NanoMenu::catOrderConfigStamp() const {
     return (int64_t)st.st_mtim.tv_sec * 1000000000LL + st.st_mtim.tv_nsec;
 }
 
+// Physical RAM in kB from /proc/meminfo, or 0 if it cannot be read. Used to seed
+// low-memory home defaults (mirrors the setup.sh Firefox skip: <= 1300000 kB == ~1GB
+// device, since a 1GB panel reports ~0.95-1.0GB and a 2GB panel ~1.9GB).
+static long nanoMemTotalKb() {
+    FILE* mf = fopen("/proc/meminfo", "r");
+    if (!mf) return 0;
+    char l[128];
+    long kb = 0;
+    while (fgets(l, sizeof(l), mf)) {
+        if (sscanf(l, "MemTotal: %ld kB", &kb) == 1) break;
+    }
+    fclose(mf);
+    return kb > 0 ? kb : 0;
+}
+
 // Load the home-category order + visibility from nano_categories.json. Keeps
 // only ids that exist in kPs3DataCats, appends any kPs3DataCats id missing from
 // the file as visible (forward-compat when a future build adds a category), and
@@ -1093,8 +1110,18 @@ void NanoMenu::loadCatOrder() {
     mHiddenItems.clear();
     auto seedDefaults = [&]() {
         mCatOrder.clear();
-        for (int i = 0; i < kPs3DataCatCount; i++)
-            mCatOrder.emplace_back(kPs3DataCats[i].id, true);
+        // On low-memory devices (~1GB or less) hide the Network column by default,
+        // matching the setup.sh Firefox skip (MemTotal <= 1300000 kB). DEFAULT only:
+        // applies solely on the absent/parse-fail/empty seed path. Once the user touches
+        // Home Categories (or edits the json) the parsed branch runs instead, so unhiding
+        // Network is always respected and >1GB devices are never affected.
+        const long mt = nanoMemTotalKb();
+        const bool lowMem = mt > 0 && mt <= 1300000;
+        for (int i = 0; i < kPs3DataCatCount; i++) {
+            const char* id = kPs3DataCats[i].id;
+            bool visible = !(lowMem && strcmp(id, "network") == 0);
+            mCatOrder.emplace_back(id, visible);
+        }
     };
     const std::string path = catOrderPath();
     int fd = open(path.c_str(), O_RDONLY);
@@ -4765,7 +4792,11 @@ void NanoMenu::ps3XmbUp() {
     if (mPs3WizActive) { wizNav(-1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(-1, false); return; }
     int& s = ps3CurSel();
-    if (s > 0) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s--; ps3NavSound(); }
+    int nUp = (int)ps3CurItems().size();
+    if (nUp > 0) { int ns = (s > 0) ? s - 1 : nUp - 1;               // wrap first->last
+        if (ns != s) { mPs3ItemAnimFrom = mPs3AnimItem;
+            mPs3ItemAnimStart = (nUp > 1 && s == 0) ? -1.0f : mEffectTime;  // snap on wrap
+            s = ns; ps3NavSound(); } }
 }
 void NanoMenu::ps3XmbDown() {
     xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
@@ -4798,7 +4829,18 @@ void NanoMenu::ps3XmbDown() {
     if (mPs3WizActive) { wizNav(+1, false); return; }
     if (mPs3DlgActive) { ps3DlgNav(+1, false); return; }
     int& s = ps3CurSel(); int n = (int)ps3CurItems().size();
-    if (s < n - 1) { mPs3ItemAnimFrom = mPs3AnimItem; mPs3ItemAnimStart = mEffectTime; s++; ps3NavSound(); }
+    if (n > 0) { int ns = (s < n - 1) ? s + 1 : 0;                   // wrap last->first
+        if (ns != s) { mPs3ItemAnimFrom = mPs3AnimItem;
+            mPs3ItemAnimStart = (n > 1 && s == n - 1) ? -1.0f : mEffectTime;  // snap on wrap
+            s = ns; ps3NavSound(); } }
+}
+
+// XMB (PS3 theme) L1/R1 bumper page-skip: page the current column/submenu item
+// list vertically, reusing ps3XmbUp/ps3XmbDown so item ease/sound/selection stay
+// consistent (mirrors ndsBumperSkip reusing handleUp/handleDown). dir<0 = up a page.
+void NanoMenu::ps3XmbBumperSkip(int dir) {
+    const int PAGE = 10;
+    for (int i = 0; i < PAGE; i++) { if (dir < 0) ps3XmbUp(); else ps3XmbDown(); }
 }
 
 // ---- Internet Browser / Internet Search (Network category) ------------------
@@ -5924,7 +5966,9 @@ void NanoMenu::ps3XmbSelect() {
                 case QA_BRIGHTNESS:   mPs3BrightSlider = true; mShowBrightnessBar = true; mBrightnessBarTimer = 90; return;
                 case QA_PERFORMANCE:  openPerformanceChooser(); return;
                 case QA_CLOSE_APP:    if (mOverlayMode) overlayQuitToHome(); return;  // home: no fg app
-                case QA_KILL_BG:      quickKillApps(false); return;   // keep the foreground game running
+                case QA_KILL_BG:      quickKillApps(false);
+                                      photoShowBanner(trDyn("Background apps closed"));
+                                      return;   // keep the foreground game running
                 case QA_KILL_ALL:
                     // Overlay (in-game): hard-stop EVERY app including the foreground
                     // game (clearing its relaunch state so it does not respawn) and
@@ -5932,6 +5976,7 @@ void NanoMenu::ps3XmbSelect() {
                     // sweep all third-party apps.
                     if (mOverlayMode) overlayKillAll();
                     else              quickKillApps(true);
+                    photoShowBanner(trDyn("All apps closed"));
                     return;
                 case QA_RESTART:      prepareShutdown("reboot");   return;
                 case QA_POWEROFF:     prepareShutdown("shutdown"); return;
@@ -6116,6 +6161,14 @@ void NanoMenu::renderPs3Xmb() {
     // Arm the once-per-frame glass-icon uniform upload (drawGlassIcon sends the
     // frame-invariant uniforms on the first icon, skips them on the rest).
     mGlassUniformsSet = false;
+    // Capture the scene FBO + viewport ONCE per pass for the half-res-icon path, so
+    // drawGlassIcon does not run 2 blocking glGetIntegerv per icon (a per-icon tiler
+    // stall). renderPs3Xmb runs once per display pass after the caller binds the pass
+    // target, so this is the correct once-per-pass capture point.
+    if (mIconsHalfActive) {
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mSceneFbo);
+        glGetIntegerv(GL_VIEWPORT, mSceneVp);
+    }
     // Route all PS3 text through drawText's EVEN 4-offset outline (mode 1) instead
     // of the default single directional drop shadow. It is symmetric on all four
     // sides (fixing the uneven/clipped look), subtle, brightness-scaled (ratio set
@@ -8178,12 +8231,14 @@ void NanoMenu::drawPspClockThemeBackdrop() {
     if (mMinimaTheme && minimaSolidBg(&r, &g, &b)) {
         // user-chosen Minima solid colour (r,g,b filled by minimaSolidBg)
     } else if (mNdsTheme) {
-        r = g = b = 0.965f;   // DSi light canvas (matches renderNdsTop's #f6f6f6 field)
+        NdsPal p = ndsPal();
+        r = g = b = p.topBg;   // DSi canvas: light 0.965 / dark 0.106 per variant (matches renderNdsTop)
     } else {
         r = g = b = 0.0f;     // Minima default: the pure-black NextUI canvas
     }
     drawQuad(0.0f, 0.0f, pw, ph, r, g, b, 1.0f);
     fillWorkTexSolid(r, g, b);
+    mPspClockThemeBackdropLight = (0.299f*r + 0.587f*g + 0.114f*b) > 0.5f;
     mPspClockThemeBackdrop = true;
 }
 
@@ -9682,6 +9737,7 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
     } else {
         // Fullscreen dialog page (kind 0): look up the 1:1 web template.
         mPs3DlgType = 0; mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+        mPs3DlgAppInfo = false; mPs3DlgRomInfo = false; mPs3DlgGameInfo = false; mPs3DlgHelp = false;   // clear stale scroll/paginate flags from a prior page
         const Ps3DlgTemplate* tpl = nullptr;
         for (const Ps3DlgTemplate& t : kPs3DlgTemplates) {
             if (n == t.name) { tpl = &t; break; }
@@ -9715,6 +9771,9 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
             mPs3NetTestLive = true;
         } else if (n == "System Information") {
             mPs3DlgBody = buildSysInfoBody();            // real build/model/serial/MAC/IP/storage
+            // Route into the XMB scrolling info branch (top-anchored, Up/Down + chevrons)
+            // so a long body scrolls instead of overflowing the fixed dialog.
+            mPs3DlgAppInfo = true; mPs3AppInfoScroll = 0; mPs3AppInfoNonce.clear(); mPs3DlgAppInfoPending = false;
         }
     }
     mPs3DlgOrigSel = mPs3DlgSel;
@@ -10722,6 +10781,57 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             mPendingCollectionRom.clear();
             break;
         }
+        case 46: {  // Delete-Playlist confirm (sel 1 = Delete): remove the stashed playlist + rebuild the open list
+            if (sel == 1 && mMusicDelPlIdx >= 0 && mMusicDelPlIdx < (int)mMusicPlaylists.size()) {
+                int keepRow = -1;
+                bool onList = !mPs3Stack.empty() && mPs3Stack.back().screenKind == 0
+                              && mPs3Stack.back().title == "Playlists";
+                if (onList) keepRow = mPs3Stack.back().sel;
+                musicDeletePlaylist(mMusicDelPlIdx);
+                if (onList) {
+                    buildMusicPlaylistsScreen(mPs3Stack.back());   // row disappears immediately
+                    int n = (int)mPs3Stack.back().items.size();
+                    mPs3Stack.back().sel = (keepRow >= 0 && keepRow < n) ? keepRow : (n > 0 ? n - 1 : 0);
+                }
+                mDisplayDirty = true;
+            }
+            mMusicDelPlIdx = -1;
+            break;
+        }
+        case 47: {  // Delete-Playlist confirm (video): sel 1 = Delete
+            if (sel == 1 && mVideoDelPlIdx >= 0 && mVideoDelPlIdx < (int)mVideoPlaylists.size()) {
+                int keepRow = -1;
+                bool onList = !mPs3Stack.empty() && mPs3Stack.back().screenKind == 0
+                              && mPs3Stack.back().title == "Playlists";
+                if (onList) keepRow = mPs3Stack.back().sel;
+                videoDeletePlaylist(mVideoDelPlIdx);
+                if (onList) {
+                    buildVideoPlaylistsScreen(mPs3Stack.back());
+                    int n = (int)mPs3Stack.back().items.size();
+                    mPs3Stack.back().sel = (keepRow >= 0 && keepRow < n) ? keepRow : (n > 0 ? n - 1 : 0);
+                }
+                mDisplayDirty = true;
+            }
+            mVideoDelPlIdx = -1;
+            break;
+        }
+        case 48: {  // Delete-Playlist confirm (photo): sel 1 = Delete
+            if (sel == 1 && mPhotoDelPlIdx >= 0 && mPhotoDelPlIdx < (int)mPhotoPlaylists.size()) {
+                int keepRow = -1;
+                bool onList = !mPs3Stack.empty() && mPs3Stack.back().screenKind == 0
+                              && mPs3Stack.back().title == "Playlists";
+                if (onList) keepRow = mPs3Stack.back().sel;
+                photoDeletePlaylist(mPhotoDelPlIdx);
+                if (onList) {
+                    buildPhotoPlaylistsScreen(mPs3Stack.back());
+                    int n = (int)mPs3Stack.back().items.size();
+                    mPs3Stack.back().sel = (keepRow >= 0 && keepRow < n) ? keepRow : (n > 0 ? n - 1 : 0);
+                }
+                mDisplayDirty = true;
+            }
+            mPhotoDelPlIdx = -1;
+            break;
+        }
         default: break;
     }
 }
@@ -10962,6 +11072,10 @@ void NanoMenu::closePs3Dialog(bool apply) {
             // GammaEQ writes only take effect once the matching .seq prop changes.
             if (strstr(b->key, "persist.sys.gammaeq") || strstr(b->key, "persist.sys.spk"))
                 ps3BumpEqSeqs();
+            // Confirmation toast: one brief self-fading pill on a successful settings-bound
+            // commit. Inside `if (apply)`, so never on cancel; a slider commits only here on
+            // close, so never per-frame/per-drag.
+            photoShowBanner(trDyn("Setting changed"));
         }
     } else if (mPs3DlgThemeKey == 21 && !apply) {
         // Icon-tint cancel: restore the exact original tint (not the nearest
@@ -10973,8 +11087,26 @@ void NanoMenu::closePs3Dialog(bool apply) {
             buildPs3Cats();
         }
     } else if (mPs3DlgThemeKey > 0) {
-        if (apply) applyThemeSetting(mPs3DlgThemeKey, mPs3DlgSel);
-        else       previewThemeSetting(mPs3DlgThemeKey, mPs3DlgOrigSel);   // revert the live preview
+        if (apply) {
+            // Snapshot the key BEFORE applyThemeSetting: the app-uninstall case (31)
+            // reconfigures the dialog into a progress modal and zeroes mPs3DlgThemeKey.
+            const int committedKey = mPs3DlgThemeKey;
+            applyThemeSetting(mPs3DlgThemeKey, mPs3DlgSel);
+            // Confirmation toast only for genuine preference changes; destructive-confirm /
+            // launch-action keys get no "Setting changed" pill so the wording stays truthful
+            // (delete, uninstall, clear-data, remove-share/system/source, add-to-collection,
+            // wifi-radio, delete-playlist).
+            switch (committedKey) {
+                case 6: case 22: case 23: case 30: case 31: case 32:
+                case 36: case 43: case 44: case 45: case 46: case 47: case 48:
+                    break;                                   // confirm/action, not a setting
+                default:
+                    photoShowBanner(trDyn("Setting changed"));
+                    break;
+            }
+        } else {
+            previewThemeSetting(mPs3DlgThemeKey, mPs3DlgOrigSel);   // revert the live preview
+        }
     }
     if (mPs3NetTestLive) { stopNetTest(); mPs3NetTestLive = false; }
     // Side-panel choosers (kind 1) play a fade + reverse-settle close animation on
@@ -11440,7 +11572,17 @@ void NanoMenu::openXmbOpt() {
         case PS3_MUSIC_TRACK:
             add("Play", "playtrack", true); add("Information", "info", false); break;
         case PS3_MUSIC_PLAYLIST:
-            add("Play", "playpl", true); add("Information", "info", false); break;
+            add("Play", "playpl", true);
+            add("Delete Playlist", "delpl", false);
+            add("Information", "info", false); break;
+        case PS3_VIDEO_PLAYLIST:
+            add("Open", "vplopen", true);
+            add("Delete Playlist", "vdelpl", false);
+            add("Information", "info", false); break;
+        case PS3_PHOTO_PLAYLIST:
+            add("Open", "pplopen", true);
+            add("Delete Playlist", "pdelpl", false);
+            add("Information", "info", false); break;
         case PS3_VIDEO_FILE:
             // Web video option menu (index.html 13446-13464): a watched title (resumeSec>0)
             // shows Resume + Play from Beginning; an unwatched one shows a single Play. Then
@@ -12850,6 +12992,48 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mMusicPlaylists.size()) {
             Ps3Level lvl; buildMusicPlaylistSubmenu(mPs3OptCtxA, lvl);
             if (!lvl.items.empty()) openMusicPlayer(lvl.items, 0);
+        }
+        return;
+    }
+    if (act == "delpl") {   // Delete Playlist: Cancel/Delete confirm (themeKey 46) -> musicDeletePlaylist
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mMusicPlaylists.size()) {
+            mMusicDelPlIdx = mPs3OptCtxA;
+            // Reuse the exact media Cancel/Delete confirm styling; only the routing key differs.
+            mediaDeleteConfirm(std::string("Delete ") + mPs3OptCtxLabel,
+                               "This removes the playlist. Your music files are not deleted.");
+            mPs3DlgThemeKey = 46;   // override 43 (file-unlink path) -> the playlist path
+        }
+        return;
+    }
+    if (act == "vplopen") {   // open a video playlist's file submenu (mirrors the A-press)
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideoPlaylists.size()) {
+            Ps3Level lvl; buildVideoPlaylistSubmenu(mPs3OptCtxA, lvl); mPs3Stack.push_back(lvl);
+        }
+        return;
+    }
+    if (act == "vdelpl") {   // Delete Video Playlist: Cancel/Delete confirm (themeKey 47)
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mVideoPlaylists.size()) {
+            mVideoDelPlIdx = mPs3OptCtxA;
+            mediaDeleteConfirm(std::string("Delete ") + mPs3OptCtxLabel,
+                               "This removes the playlist. Your video files are not deleted.");
+            mPs3DlgThemeKey = 47;
+        }
+        return;
+    }
+    if (act == "pplopen") {   // open a photo playlist's thumbnail grid (mirrors the A-press)
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotoPlaylists.size()) {
+            std::vector<int> list; std::string title;
+            buildPhotoPlaylistGridList(mPs3OptCtxA, list, title);
+            openPhotoGrid(list, title, mPs3OptCtxA);
+        }
+        return;
+    }
+    if (act == "pdelpl") {   // Delete Photo Playlist: Cancel/Delete confirm (themeKey 48)
+        if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotoPlaylists.size()) {
+            mPhotoDelPlIdx = mPs3OptCtxA;
+            mediaDeleteConfirm(std::string("Delete ") + mPs3OptCtxLabel,
+                               "This removes the playlist. Your photo files are not deleted.");
+            mPs3DlgThemeKey = 48;
         }
         return;
     }

@@ -1809,6 +1809,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     if (mPs3OptActive || mPs3OptClosing ||
         ((mPs3DlgActive || mPs3DlgClosing) && ndsDlgIsSidePanel())) {
         renderNdsSidePanel(rx, ry, rw, rh);
+        drawPhotoBanner();   // setting-change / sort confirmation pill, over the DSi side panel
         return;
     }
     // DSi enter/back transition: stamp a fade whenever the nav depth changes (root -> category
@@ -1844,6 +1845,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
                 renderNdsDialog(rx, ry, rw, rh);
             }
         }
+        drawPhotoBanner();   // setting-change / sort confirmation pill over the DSi settings list
         return;
     }
     // Stacked-carousel nav: every other level (categories root, a category's items, or a submenu)
@@ -5514,6 +5516,7 @@ void NanoMenu::render() {
         const bool pspClockActive = !mPs3BootActive &&
             (mPspClockStandalone || mPspClockOn || mPspClockReveal > 0.0f);
         mPspClockThemeBackdrop = false;   // reset each frame; drawPspClockThemeBackdrop() re-sets it below
+        mPspClockThemeBackdropLight = false;   // ditto; only the DSi/Minima solid-backdrop branch sets it true
         if (mNdsTheme && mPs3BootActive) {
             // DSi cold boot: drive the shared boot clock (advances mPs3BootElapsedMs and
             // clears mPs3BootActive at the end -> the carousel intro cascade takes over the

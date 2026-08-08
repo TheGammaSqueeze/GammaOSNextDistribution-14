@@ -886,6 +886,13 @@ void NanoMenu::videoAddStreamToPlaylist(int plIdx, const VidStreamRef& s) {
     streams.push_back(s);
     saveVideoConfig();
 }
+void NanoMenu::videoDeletePlaylist(int plIdx) {
+    if (plIdx < 0 || plIdx >= (int)mVideoPlaylists.size()) return;
+    // Video playlists live only in nano_video.json (no .m3u backing), so erase + save.
+    mVideoPlaylists.erase(mVideoPlaylists.begin() + plIdx);
+    saveVideoConfig();
+    mVideoCatsStale = true;   // rebuild the Video column (Playlists count) at the settled root
+}
 void NanoMenu::buildVideoPlaylistsScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = GS_NONE;
     { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_VIDEO_PL_NEW;

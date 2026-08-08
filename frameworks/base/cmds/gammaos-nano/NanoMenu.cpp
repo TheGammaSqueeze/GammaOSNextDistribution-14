@@ -5247,7 +5247,13 @@ if (sRingPrimedCount >= 2) {
                     property_get("sys.boot_completed", val, "0");
                     if (!strcmp(val, "1")) {
                         mXmbBootCompleted = true;
-                        forceRescanAllSystems();
+                        // During the first-run setup wizard the device is under heavy memory
+                        // pressure (RetroArch/ROM extraction). Defer the initial ROM scan, which
+                        // reads and caches every share, until setup finishes. finishSetupWizard()
+                        // calls forceRescanAllSystems() itself, so the scan resumes automatically.
+                        if (!mSetupWizardActive) {
+                            forceRescanAllSystems();
+                        }
                     }
                 }
 

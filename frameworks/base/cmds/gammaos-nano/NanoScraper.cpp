@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -394,21 +395,49 @@ static ScrapeOutcome scrapeScreenScraper(const Credentials& cred,
 
     std::vector<std::string> regs = regionOrder(cred.region);
 
-    // Title: noms[] {region,text} preferred-region first, else first; else "nom".
-    if (const njson::Value* noms = jeu->find("noms")) {
-        if (noms->isArray() && !noms->arr.empty()) {
-            std::string first, picked;
-            for (const auto& nm : noms->arr) {
-                std::string rg = nm.getString("region");
-                std::string tx = nm.getString("text");
-                if (first.empty()) first = tx;
-                for (const std::string& want : regs)
-                    if (rg == want && picked.empty()) picked = tx;
-            }
-            r.title = picked.empty() ? first : picked;
+    // Title: noms[] are keyed by REGION only (ScreenScraper has no per-name
+    // language field, unlike synopsis/genre which use "langue"). Prefer
+    // English-speaking regions in a fixed order (independent of the media `regs`
+    // chain) so we never default to the French community ("ss"/"cus"/"fr") title.
+    // An English Scrape Region (us/eu/wor) is honoured first.
+    {
+        std::vector<std::string> titleRegs = {"us", "wor", "eu", "uk", "au", "ca"};
+        if (cred.region == "eu" || cred.region == "us" || cred.region == "wor") {
+            std::string r0 = cred.region;
+            titleRegs.erase(std::remove(titleRegs.begin(), titleRegs.end(), r0),
+                            titleRegs.end());
+            titleRegs.insert(titleRegs.begin(), r0);
         }
+        std::string picked;
+        if (const njson::Value* noms = jeu->find("noms")) {
+            if (noms->isArray() && !noms->arr.empty()) {
+                // Pass 1: strict English-region preference.
+                for (const std::string& want : titleRegs) {
+                    for (const auto& nm : noms->arr) {
+                        if (nm.getString("region") != want) continue;
+                        std::string tx = nm.getString("text");
+                        if (!tx.empty()) { picked = tx; break; }
+                    }
+                    if (!picked.empty()) break;
+                }
+                // Pass 2: world / Japanese (romanised) before any French entry.
+                if (picked.empty()) {
+                    static const char* kFallback[] = {"wor", "us", "jp"};
+                    for (const char* want : kFallback) {
+                        for (const auto& nm : noms->arr) {
+                            if (nm.getString("region") != want) continue;
+                            std::string tx = nm.getString("text");
+                            if (!tx.empty()) { picked = tx; break; }
+                        }
+                        if (!picked.empty()) break;
+                    }
+                }
+            }
+        }
+        r.title = picked;
     }
-    if (r.title.empty()) r.title = jeu->getString("nom");
+    // Do NOT fall back to jeu["nom"] (account-region/language default, French for
+    // the shipped dev account); use the local filename instead.
     if (r.title.empty()) r.title = stripExt(displayName);
 
     // Game metadata for the Information screen (best effort). language-/region-preferred.
