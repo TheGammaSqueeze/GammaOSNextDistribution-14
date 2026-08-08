@@ -163,6 +163,26 @@ public class LocaleActivity extends BaseSetupWizardActivity {
         mHandler.postDelayed(mUpdateLocale, 1000);
     }
 
+    // Flush any pending delayed locale apply and commit it synchronously. Called before we hand
+    // off to the next wizard step (esp. the Settings-owned Wi-Fi screen, which runs in a separate
+    // process and reads its locale at creation time). Without this, the 1000ms
+    // postDelayed(mUpdateLocale) loses the race and the next screen renders in the old locale.
+    private void commitLocaleNow() {
+        mHandler.removeCallbacks(mUpdateLocale);
+        if (mCurrentLocale != null) {
+            if (mLanguagePicker != null) {
+                mLanguagePicker.setEnabled(false);
+            }
+            com.android.internal.app.LocalePicker.updateLocale(mCurrentLocale);
+        }
+    }
+
+    @Override
+    protected void onNextPressed() {
+        commitLocaleNow();
+        super.onNextPressed();
+    }
+
     private void fetchAndUpdateSimLocale() {
         if (((SetupWizardApp) getApplication()).ignoreSimLocale() || isDestroyed()) {
             return;

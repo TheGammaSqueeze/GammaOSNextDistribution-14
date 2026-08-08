@@ -24,6 +24,13 @@ finish() {
     rc=$?
     trap - EXIT
     echo "setup.sh exited with ${rc}"
+    # Tear down the temporary setup-only swap. swapoff MUST run before rm: this kernel refuses to
+    # unlink an ACTIVE swap file (EBUSY, which -f silently swallows), so removing it first would
+    # leave it both active and on disk. swapoff on a path that was never swapped-on is a harmless
+    # no-op here (guarded). Distinct path from the persistent gammaos-swap.sh file, so they never
+    # collide. (An earlier /proc/swaps grep guard here failed - the path has no leading space.)
+    swapoff /data/gammaos_setup_swap 2>/dev/null || true
+    rm -f /data/gammaos_setup_swap 2>/dev/null || true
     # Restore a sane screen-off timeout now that setup is done (see the pin below).
     settings put system screen_off_timeout 240000 2>/dev/null || true
     setprop persist.gammaos.setupwizard_exit_code "${rc}"
@@ -112,11 +119,75 @@ settings put global mobile_data_always_on 0
 echo "Installing applications."
 mkdir -p /data/tmpsetup
 
+# --- Low-RAM setup relief (TrimUI Brick / A133 ~1GB) -----------------------------------------
+# The heavy steps below extract ~1.3GB of payloads (retroarch 1.1GB + roms 201MB) to userdata
+# and cold-start a dozen system apps via pm/appops. On a ~1GB device the fresh dirty-page write
+# burst collapses MemAvailable and the kernel LMK thrashes, which can black-screen the panel.
+# Two scoped rel', both undone in finish(): (1) a temporary on-disk swap for the anon pressure,
+# (2) a flush_caches helper called right after each big extract to drain the dirty write burst.
+SETUP_SWAP=/data/gammaos_setup_swap
+SETUP_SWAP_MB=512
+if ! grep -q "^$SETUP_SWAP " /proc/swaps 2>/dev/null; then
+    avail_kb=$(df -k /data 2>/dev/null | awk 'NR==2 {print $4}')
+    need_kb=$((SETUP_SWAP_MB * 1024 + 1024 * 1024))
+    if [ -n "$avail_kb" ] && [ "$avail_kb" -ge "$need_kb" ]; then
+        rm -f "$SETUP_SWAP" 2>/dev/null
+        if fallocate -l "${SETUP_SWAP_MB}M" "$SETUP_SWAP" 2>/dev/null; then
+            chmod 0600 "$SETUP_SWAP" 2>/dev/null
+            if mkswap "$SETUP_SWAP" >/dev/null 2>&1 && swapon "$SETUP_SWAP" 2>/dev/null; then
+                echo "temporary setup swap active: ${SETUP_SWAP_MB}MB"
+            else
+                swapoff "$SETUP_SWAP" 2>/dev/null || true
+                rm -f "$SETUP_SWAP" 2>/dev/null
+                echo "temporary setup swap unavailable (mkswap/swapon failed)"
+            fi
+        else
+            echo "temporary setup swap unavailable (fallocate failed)"
+        fi
+    else
+        echo "temporary setup swap skipped (need ${need_kb}KB, have ${avail_kb:-0}KB free on /data)"
+    fi
+fi
+
+# Flush the page cache after a big write burst. drop_caches only frees CLEAN pages, so sync
+# (dirty -> clean) MUST come first. echo 1 = pagecache only (safer than 3 mid-setup).
+flush_caches() {
+    sync
+    if [ -w /proc/sys/vm/drop_caches ]; then
+        echo 1 > /proc/sys/vm/drop_caches 2>/dev/null || true
+    fi
+}
+
+# Persistent virtual-memory swap on low-RAM devices (~1GB or less). This is SEPARATE from the
+# temporary setup swap above (which is torn down in finish()): it emulates GammaOS Toolbox >
+# Virtual Memory by setting persist.gammaos.swap.size_mb, which the gammaos-swap.sh init service
+# (on property:persist.gammaos.swap.size_mb=*) turns into a persistent /data/gammaos_swap/swapfile
+# that survives reboot and gives ongoing headroom (large NDS ROMs, cache-populate, etc). Gate on
+# MemTotal <= 1300000 kB (same as the Firefox skip); only SEED it when the user has not already
+# chosen a size, so a later Toolbox change is always respected.
+mem_total_kb=$(grep MemTotal /proc/meminfo 2>/dev/null | tr -dc 0-9)
+cur_swap_mb=$(getprop persist.gammaos.swap.size_mb 2>/dev/null)
+case "$cur_swap_mb" in ''|*[!0-9]*) cur_swap_mb=0 ;; esac
+if [ -n "$mem_total_kb" ] && [ "$mem_total_kb" -le 1300000 ] && [ "$cur_swap_mb" = 0 ]; then
+    echo "Low-memory device (${mem_total_kb} kB): enabling a persistent 1GB swap (Virtual Memory)."
+    setprop persist.gammaos.swap.size_mb 1024
+fi
+# --------------------------------------------------------------------------------------------
+
 echo "Installing MiXplorer."
 pm install /system/etc/MiXplorer_v6.64.3-API29_B23090720.apk
 
-echo "Installing FireFox"
-pm install /system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk
+# Skip Firefox on low-memory devices (~1GB RAM or less). Installing the browser APK adds
+# avoidable memory/IO pressure during first-run setup and it is not needed on these devices.
+# MemTotal always reads a bit under the physical size (kernel reservations): a 1GB device
+# reports ~0.95-1.0GB, a 2GB device ~1.9GB, so 1300000 kB cleanly separates "<=1GB" from ">=2GB".
+mem_total_kb=$(grep MemTotal /proc/meminfo 2>/dev/null | tr -dc 0-9)
+if [ -n "$mem_total_kb" ] && [ "$mem_total_kb" -le 1300000 ]; then
+    echo "Skipping FireFox install (low-memory device: ${mem_total_kb} kB total RAM)."
+else
+    echo "Installing FireFox"
+    pm install /system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk
+fi
 
 echo "Installing flycast DC emulator." && \
 pm install /system/etc/flycast-release.apk && \
@@ -192,6 +263,11 @@ chown -R $launcheruser:$launchergroup /data/data/com.retroarch.aarch64 && \
 chown -R $launcheruser:media_rw /sdcard/RetroArch && \
 chown -R $launcheruser:ext_data_rw /sdcard/Android/data/com.retroarch.aarch64
 
+# The RetroArch extract writes ~1.1GB uncompressed. On a ~1GB device that dirties the whole page
+# cache and collapses MemAvailable, which is what triggers the low-memory kill storm. Flush the
+# just-written pages to disk and release the clean cache before moving on.
+flush_caches
+
 echo "Copying XMB icons for Nano boot menu."
 mkdir -p /data/system/nano_icons
 for f in \
@@ -245,6 +321,8 @@ if [ "$FRESH_SETUP" = 1 ]; then
     tar -xJvf /system/etc/roms.tar.xz -P -C / && \
     find /sdcard/ROMs/ -type f \( -iname '*state.auto' -o -iname '*state.auto.png' \) -delete
     find /sdcard/ROMs/ -type f \( -iname '*state.auto' -o -iname '*state.auto.png' \) -exec rm -f {} \;
+    # The ROMs extract writes another ~200MB uncompressed; drain it too before continuing.
+    flush_caches
 else
     echo "Re-run detected (/data/setupcompleted exists): keeping existing ROMs and save states."
 fi
