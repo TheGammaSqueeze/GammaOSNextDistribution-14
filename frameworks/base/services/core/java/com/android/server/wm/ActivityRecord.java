@@ -8157,6 +8157,36 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
         mDisplayContent.getDisplayRotation().onSetRequestedOrientation();
     }
 
+    /**
+     * GammaOS native-portrait handhelds (gated by persist.gammaos.nano.orientation=portrait or
+     * persist.gammaos.nano.natural_orientation=portrait). Some apps, notably native GL emulators
+     * such as PPSSPP and Flycast, hard-lock themselves to landscape (in the manifest and again at
+     * runtime from onCreate/onResume) and then black-screen on a portrait panel: their own internal
+     * size/orientation guard measures the portrait surface, decides the orientation is "wrong" and
+     * recreates the activity in a loop until it gives up on a black GL surface. On a portrait device
+     * we never want an app to rotate the panel to landscape, so any fixed-landscape request is
+     * rewritten to portrait before it is stored. That keeps the value the app reads back from
+     * getRequestedOrientation() consistent with the portrait surface (no recreate loop, no blank)
+     * and keeps the display on its natural portrait rotation. This lives in the core window manager,
+     * so it applies in normal Android as well as under nano. On landscape devices the props are
+     * unset, so this is a no-op and behaviour is byte-identical.
+     */
+    private static boolean gammaosPortraitForced() {
+        return "portrait".equals(android.os.SystemProperties.get(
+                        "persist.gammaos.nano.orientation", ""))
+                || "portrait".equals(android.os.SystemProperties.get(
+                        "persist.gammaos.nano.natural_orientation", ""));
+    }
+
+    @Override
+    void setOrientation(@ActivityInfo.ScreenOrientation int orientation,
+            @Nullable WindowContainer requestingContainer) {
+        if (ActivityInfo.isFixedOrientationLandscape(orientation) && gammaosPortraitForced()) {
+            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        }
+        super.setOrientation(orientation, requestingContainer);
+    }
+
     /*
      * Called from {@link RootWindowContainer#ensureVisibilityAndConfig} to make sure the
      * orientation is updated before the app becomes visible.

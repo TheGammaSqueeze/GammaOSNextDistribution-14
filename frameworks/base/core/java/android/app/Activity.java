@@ -7533,6 +7533,22 @@ public class Activity extends ContextThemeWrapper
      * {@link ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
      */
     public void setRequestedOrientation(@ActivityInfo.ScreenOrientation int requestedOrientation) {
+        // GammaOS native-portrait handhelds (persist.gammaos.nano.orientation=portrait or
+        // persist.gammaos.nano.natural_orientation=portrait): rewrite any fixed-landscape request
+        // to portrait. Landscape-locked apps (e.g. PPSSPP, Flycast) set landscape here and then
+        // read it straight back via getRequestedOrientation() (which, on this build, returns the
+        // client-cached mLastRequestedOrientation without consulting the server), so their own
+        // orientation guard sees "landscape" against a portrait surface and recreates the activity
+        // in a loop until it black-screens. Neutralising the request at this single client entry
+        // keeps the cached value consistent with the portrait panel (no recreate, no blank). On
+        // landscape devices the props are unset, so this is a no-op.
+        if (ActivityInfo.isFixedOrientationLandscape(requestedOrientation)
+                && ("portrait".equals(android.os.SystemProperties.get(
+                            "persist.gammaos.nano.orientation", ""))
+                    || "portrait".equals(android.os.SystemProperties.get(
+                            "persist.gammaos.nano.natural_orientation", "")))) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        }
         if (requestedOrientation == mLastRequestedOrientation) {
             return;
         }
