@@ -770,33 +770,59 @@ do_populate_drastic() {
         local rom_raw=$(to_raw_path "$rom_path")
         if [ -f "$rom_raw" ]; then
             local rom_file=$(basename "$rom_raw")
-            # Clear any stale partial copies first. A throttled copy that was hard-killed (a device
-            # force-restart / power loss mid-populate) leaves a "<rom>.tmp.<pid>" behind because the
-            # atomic_copy cleanup never ran. These are never loaded (drastic reads the final name, not
-            # .tmp), but prune them so they cannot accumulate or confuse a size check.
+            # Prune stale partial copies first. A throttled copy that was
+            # hard-killed (a device force-restart / power loss mid-populate)
+            # leaves a "<rom>.tmp.<pid>" behind because atomic_copy's cleanup
+            # never ran. These are never loaded (drastic reads the final name),
+            # but prune them so they cannot accumulate or confuse a size check.
             rm -f "$dcache/rom/"*.tmp.* 2>/dev/null
-            # Already staged? Skip the (throttled, ~50s) re-copy when the same ROM of the same size
-            # is already in the cache. This makes a repeat populate (e.g. the power-off QR arming
-            # right after a launch-time populate already finished) return immediately instead of
-            # re-copying the whole ROM and blowing past the bounded shutdown wait.
-            if [ -f "$dcache/rom/$rom_file" ] && \
-               [ "$(stat -c %s "$dcache/rom/$rom_file" 2>/dev/null)" = "$(stat -c %s "$rom_raw" 2>/dev/null)" ]; then
-                log_i "populate_drastic: ROM $rom_file already cached (same size) -- skipping copy"
-                rom_staged=1
-            else
-                # Clear ALL previous ROMs before copying the new one.
-                # Previous code only cleared *.nds, leaving stale non-NDS
-                # files from cross-system QR primes (e.g. a GBA ROM cached
-                # when the user switched from a libretro QR to drastic QR).
-                rm -f "$dcache/rom/"* 2>/dev/null
-                atomic_copy "$rom_raw" "$dcache/rom/$rom_file"
-                if [ -f "$dcache/rom/$rom_file" ]; then
-                    log_i "populate_drastic: cached ROM $rom_file"
-                    rom_staged=1
-                else
-                    log_e "populate_drastic: failed to copy ROM from $rom_raw"
-                fi
-            fi
+            case "$rom_file" in
+                *.zip|*.ZIP)
+                    # ZIP ROMs are extracted by drastic-nano ITSELF at launch,
+                    # atomically (temp + rename) into this same cache dir and
+                    # guarded by a ".src" marker so it extracts once and reuses
+                    # thereafter. populate must NOT copy or re-extract the zip
+                    # here: the old launch-prime populate re-copied + re-unzipped
+                    # the ~512MB .nds WHILE drastic-nano had it mmap-loaded and
+                    # was auto-loading a save state -- corrupting the file the
+                    # game/resume was reading (the "zip ROMs lose their save
+                    # state / fail to resume" regression). The extracted .nds
+                    # persists in /data across reboots, so the QR boot preview
+                    # still finds it. Just mark staging OK (so qr_prepared is not
+                    # cleared): the .nds is either already cached, or the source
+                    # zip exists and drastic-nano will extract it on launch.
+                    if ls "$dcache/rom/"*.nds >/dev/null 2>&1 || \
+                       ls "$dcache/rom/"*.NDS >/dev/null 2>&1 || \
+                       [ -f "$rom_raw" ]; then
+                        log_i "populate_drastic: $rom_file is zipped -- drastic-nano extracts it at launch (not re-extracting here)"
+                        rom_staged=1
+                    fi
+                    ;;
+                *)
+                    # RAW ROM: drastic-nano mmaps the source directly and does not
+                    # cache it, so stage a copy here for the QR boot preview. Skip
+                    # the (throttled, ~50s) re-copy when the same-size file is
+                    # already cached.
+                    if [ -f "$dcache/rom/$rom_file" ] && \
+                       [ "$(stat -c %s "$dcache/rom/$rom_file" 2>/dev/null)" = "$(stat -c %s "$rom_raw" 2>/dev/null)" ]; then
+                        log_i "populate_drastic: ROM $rom_file already cached (same size) -- skipping copy"
+                        rom_staged=1
+                    else
+                        # Clear ALL previous ROMs (and a stale drastic-nano .src
+                        # marker, which a bare * glob does not match) before
+                        # copying the new one. Previous code only cleared *.nds,
+                        # leaving stale non-NDS files from cross-system QR primes.
+                        rm -f "$dcache/rom/"* "$dcache/rom/.src" 2>/dev/null
+                        atomic_copy "$rom_raw" "$dcache/rom/$rom_file"
+                        if [ -f "$dcache/rom/$rom_file" ]; then
+                            log_i "populate_drastic: cached ROM $rom_file"
+                            rom_staged=1
+                        else
+                            log_e "populate_drastic: failed to copy ROM from $rom_raw"
+                        fi
+                    fi
+                    ;;
+            esac
         else
             log_w "populate_drastic: ROM not found at $rom_raw (resolved from $rom_path)"
         fi
@@ -807,6 +833,17 @@ do_populate_drastic() {
         log_w "populate_drastic: ROM staging failed -- clearing qr_prepared so next boot falls back to XMB"
         setprop persist.gammaos.nano.qr_prepared 0
     fi
+
+    # NOTE: zipped ROMs are NO LONGER unzipped here. drastic-nano extracts the
+    # inner .nds itself at launch (atomically, once, marker-guarded, with a
+    # progress bar) -- see NanoZipExtract.cpp / main.cpp. Extracting it here too
+    # raced that launch and corrupted the in-use .nds (the resume/auto-load
+    # regression on zip ROMs). libdrastic still must never be handed a raw zip
+    # (it decompresses it whole into anonymous RAM and OOMs a 1GB device); the
+    # launch-time extract keeps loading the file-backed .nds instead.
+
+    # (The ".src" marker that keys reuse of a zip's extracted .nds is written
+    # and read solely by drastic-nano; populate no longer manages it.)
 
     # ---- Permissions: world-readable for dirs, writable for user-subdirs ----
     # The dirs under user/ need to be writable by the bootanim-domain

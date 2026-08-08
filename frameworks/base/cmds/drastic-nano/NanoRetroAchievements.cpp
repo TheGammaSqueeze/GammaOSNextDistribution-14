@@ -17,6 +17,9 @@
 
 #include <rc_consoles.h>
 #include <rc_error.h>
+#include <rc_hash.h>    // custom filereader hook so the ROM hasher can read a zipped .nds
+#include <zlib.h>       // streaming inflate of the zipped .nds (no whole-ROM unzip)
+#include <new>
 
 #include <utils/Log.h>
 #include <cutils/properties.h>
@@ -862,7 +865,307 @@ void NanoRetroAchievements::attemptStoredLogin() {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Zip-aware streaming ROM reader for the RetroAchievements hasher.
+//
+// rc_hash's Nintendo DS hasher (rc_hash_nintendo_ds) identifies a game by MD5ing
+// only the NDS header, the ARM9 and ARM7 code blocks and the icon - all near the
+// FRONT of the ROM - which it reads via seek/read on a file handle. When the ROM
+// is a .zip, passing the raw path made it read the ZIP local-file-header bytes as
+// if they were the NDS header, so the offsets it parsed were garbage and the hash
+// never matched the server (the "Achievements Loading... 0/0" bug for zipped DS
+// ROMs). rc_client with an explicit console id takes the direct hasher path
+// (rc_hash_generate -> rc_hash_nintendo_ds), which is not archive-aware.
+//
+// This custom filereader is installed as rc_hash's global reader. For a .zip it
+// locates the .nds entry and stream-inflates it on demand, so the hasher reads
+// only up to the last region it needs (typically a few MB) and the rest of the
+// ROM is never decompressed - no whole-ROM unzip, no big RAM/disk spike (which
+// matters on the ~1GB devices). Plain (non-zip) files pass straight through to
+// stdio, so raw .nds ROMs behave exactly as before.
+namespace {
+
+struct RaRomFile {
+    FILE*    fp = nullptr;
+    bool     isZip = false;
+    // Zip entry (valid when isZip): the single .nds inside the archive.
+    uint64_t dataOfs = 0;      // absolute file offset of the entry payload
+    uint64_t compSize = 0;     // compressed payload size
+    uint64_t uncompSize = 0;   // decompressed (virtual) size
+    uint16_t method = 0;       // 0 = stored, 8 = deflate
+    // Streaming state.
+    z_stream zs;
+    bool     zsActive = false;
+    uint64_t vpos = 0;         // current virtual (decompressed) position
+    uint64_t compLeft = 0;     // compressed bytes not yet fed to inflate
+    unsigned char inbuf[1 << 15];
+};
+
+static inline uint16_t ra_rd16(const unsigned char* p) {
+    return (uint16_t)(p[0] | (p[1] << 8));
+}
+static inline uint32_t ra_rd32(const unsigned char* p) {
+    return (uint32_t)(p[0] | (p[1] << 8) | (p[2] << 16) | ((uint32_t)p[3] << 24));
+}
+
+// Find the .nds entry (or largest entry as a fallback) via the End-Of-Central-
+// Directory record + central directory, then resolve its payload offset from the
+// local header. Returns false for zip64 / encrypted / unsupported-method zips.
+static bool ra_zip_find_entry(RaRomFile* z) {
+    if (fseek(z->fp, 0, SEEK_END) != 0) return false;
+    long fileSize = ftell(z->fp);
+    if (fileSize < 22) return false;
+
+    long scan = fileSize < 65557L ? fileSize : 65557L; // 64KB comment + 22
+    std::vector<unsigned char> tail((size_t)scan);
+    if (fseek(z->fp, fileSize - scan, SEEK_SET) != 0) return false;
+    if (fread(tail.data(), 1, (size_t)scan, z->fp) != (size_t)scan) return false;
+
+    long eocd = -1;
+    for (long i = scan - 22; i >= 0; --i) {
+        if (tail[i] == 0x50 && tail[i + 1] == 0x4B && tail[i + 2] == 0x05 && tail[i + 3] == 0x06) {
+            eocd = i; break;
+        }
+    }
+    if (eocd < 0) return false;
+    const unsigned char* e = &tail[eocd];
+    uint16_t nEntries = ra_rd16(e + 10);
+    uint32_t cdSize   = ra_rd32(e + 12);
+    uint32_t cdOfs    = ra_rd32(e + 16);
+    if (nEntries == 0 || nEntries == 0xFFFFu ||
+        cdSize == 0xFFFFFFFFu || cdOfs == 0xFFFFFFFFu)
+        return false; // empty or zip64 (ROM zips are never zip64)
+
+    std::vector<unsigned char> cd((size_t)cdSize);
+    if (fseek(z->fp, (long)cdOfs, SEEK_SET) != 0) return false;
+    if (fread(cd.data(), 1, (size_t)cdSize, z->fp) != (size_t)cdSize) return false;
+
+    uint64_t bestUncomp = 0; bool found = false; bool foundNds = false;
+    uint64_t p = 0;
+    for (uint16_t i = 0; i < nEntries && p + 46 <= cdSize; ++i) {
+        const unsigned char* c = &cd[p];
+        if (ra_rd32(c) != 0x02014b50u) break;
+        uint16_t flag     = ra_rd16(c + 8);
+        uint16_t meth     = ra_rd16(c + 10);
+        uint32_t csize    = ra_rd32(c + 20);
+        uint32_t usize    = ra_rd32(c + 24);
+        uint16_t nameLen  = ra_rd16(c + 28);
+        uint16_t extraLen = ra_rd16(c + 30);
+        uint16_t cmtLen   = ra_rd16(c + 32);
+        uint32_t lho      = ra_rd32(c + 42);
+        // Bounds-check the variable-length fields before reading the name or
+        // advancing p, so a malformed/truncated central directory cannot over-read cd[].
+        if (p + 46 + (uint64_t)nameLen + extraLen + cmtLen > (uint64_t)cdSize) break;
+        const char* name  = (const char*)(c + 46);
+
+        bool encrypted = (flag & 0x0001) != 0;
+        bool isNds = (nameLen >= 4) &&
+            name[nameLen - 4] == '.' &&
+            (name[nameLen - 3] == 'n' || name[nameLen - 3] == 'N') &&
+            (name[nameLen - 2] == 'd' || name[nameLen - 2] == 'D') &&
+            (name[nameLen - 1] == 's' || name[nameLen - 1] == 'S');
+
+        if (!encrypted && (meth == 0 || meth == 8) &&
+            csize != 0xFFFFFFFFu && usize != 0xFFFFFFFFu && usize > 0) {
+            bool take = false;
+            if (isNds && !foundNds) { take = true; foundNds = true; }
+            else if (isNds && foundNds && usize > bestUncomp) take = true;
+            else if (!foundNds && usize > bestUncomp) take = true;
+            if (take) {
+                z->method = meth;
+                z->compSize = csize;
+                z->uncompSize = usize;
+                z->dataOfs = lho; // local-header offset; resolved to payload below
+                bestUncomp = usize;
+                found = true;
+            }
+        }
+        p += (uint64_t)46 + nameLen + extraLen + cmtLen;
+    }
+    if (!found) return false;
+
+    unsigned char lh[30];
+    if (fseek(z->fp, (long)z->dataOfs, SEEK_SET) != 0) return false;
+    if (fread(lh, 1, 30, z->fp) != 30) return false;
+    if (ra_rd32(lh) != 0x04034b50u) return false;
+    uint16_t lNameLen  = ra_rd16(lh + 26);
+    uint16_t lExtraLen = ra_rd16(lh + 28);
+    z->dataOfs = z->dataOfs + 30 + lNameLen + lExtraLen;
+    return true;
+}
+
+// (Re)start the decompression stream at the beginning of the entry payload.
+static bool ra_zip_stream_reset(RaRomFile* z) {
+    if (z->zsActive) { inflateEnd(&z->zs); z->zsActive = false; }
+    if (fseek(z->fp, (long)z->dataOfs, SEEK_SET) != 0) return false;
+    z->vpos = 0;
+    z->compLeft = z->compSize;
+    if (z->method == 8) {
+        memset(&z->zs, 0, sizeof(z->zs));
+        if (inflateInit2(&z->zs, -MAX_WBITS) != Z_OK) return false; // raw deflate
+        z->zsActive = true;
+    }
+    return true;
+}
+
+// Produce up to want bytes of decompressed data into out (out==null discards,
+// used for forward seeks). Advances vpos. Returns bytes produced.
+static size_t ra_zip_produce(RaRomFile* z, unsigned char* out, size_t want) {
+    size_t produced = 0;
+    unsigned char scratch[1 << 15];
+    if (z->method == 0) { // stored: payload == plaintext
+        while (produced < want && z->compLeft > 0) {
+            size_t chunk = want - produced;
+            if (chunk > z->compLeft) chunk = (size_t)z->compLeft;
+            unsigned char* dst = out ? out + produced : scratch;
+            if (!out && chunk > sizeof(scratch)) chunk = sizeof(scratch);
+            size_t got = fread(dst, 1, chunk, z->fp);
+            if (got == 0) break;
+            produced += got; z->compLeft -= got; z->vpos += got;
+        }
+        return produced;
+    }
+    if (!z->zsActive) return 0;
+    while (produced < want) {
+        if (z->zs.avail_in == 0 && z->compLeft > 0) {
+            size_t rd = z->compLeft < sizeof(z->inbuf) ? (size_t)z->compLeft : sizeof(z->inbuf);
+            size_t got = fread(z->inbuf, 1, rd, z->fp);
+            if (got == 0) break;
+            z->compLeft -= got;
+            z->zs.next_in = z->inbuf;
+            z->zs.avail_in = (uInt)got;
+        }
+        size_t chunk = want - produced;
+        unsigned char* dst;
+        if (out) { dst = out + produced; }
+        else { dst = scratch; if (chunk > sizeof(scratch)) chunk = sizeof(scratch); }
+        z->zs.next_out = dst;
+        z->zs.avail_out = (uInt)chunk;
+        int r = inflate(&z->zs, Z_NO_FLUSH);
+        size_t got = chunk - z->zs.avail_out;
+        produced += got; z->vpos += got;
+        if (r == Z_STREAM_END) break;
+        if (r != Z_OK && r != Z_BUF_ERROR) break;
+        if (got == 0 && r == Z_BUF_ERROR && z->zs.avail_in > 0) break; // stuck on corrupt data
+        if (got == 0 && z->zs.avail_in == 0 && z->compLeft == 0) break; // no more input
+    }
+    return produced;
+}
+
+static void* ra_file_open(const char* path) {
+    if (!path) return nullptr;
+    FILE* fp = fopen(path, "rb");
+    if (!fp) return nullptr;
+    RaRomFile* z = new (std::nothrow) RaRomFile();
+    if (!z) { fclose(fp); return nullptr; }
+    z->fp = fp;
+
+    unsigned char magic[4] = {0, 0, 0, 0};
+    size_t n = fread(magic, 1, 4, fp);
+    bool zipMagic = (n == 4 && magic[0] == 0x50 && magic[1] == 0x4B &&
+                     magic[2] == 0x03 && magic[3] == 0x04);
+    if (zipMagic) {
+        if (ra_zip_find_entry(z) && ra_zip_stream_reset(z)) {
+            z->isZip = true;
+            const char* bn = strrchr(path, '/'); bn = bn ? bn + 1 : path;
+            ALOGI("RA(zip): hashing '%s' entry (method=%u comp=%llu uncomp=%llu, streamed)",
+                  bn, z->method, (unsigned long long)z->compSize,
+                  (unsigned long long)z->uncompSize);
+            return z;
+        }
+        // It IS a zip but we cannot stream it (zip64 / encrypted / unsupported
+        // method / no .nds entry / OOM). Do NOT fall back to hashing the raw
+        // container bytes - that is a silent wrong hash. Fail the open so the
+        // hasher reports an error instead.
+        const char* bn = strrchr(path, '/'); bn = bn ? bn + 1 : path;
+        ALOGW("RA(zip): '%s' is an archive we cannot stream; RA hash skipped", bn);
+        if (z->zsActive) inflateEnd(&z->zs);
+        fclose(fp);
+        delete z;
+        return nullptr;
+    }
+    // Plain (non-zip) file: serve raw bytes from offset 0.
+    z->isZip = false;
+    fseek(fp, 0, SEEK_SET);
+    return z;
+}
+
+static void ra_file_seek(void* h, int64_t offset, int origin) {
+    RaRomFile* z = (RaRomFile*)h;
+    if (!z) return;
+    if (!z->isZip) { fseek(z->fp, (long)offset, origin); return; }
+    int64_t target;
+    switch (origin) {
+        case SEEK_SET: target = offset; break;
+        case SEEK_CUR: target = (int64_t)z->vpos + offset; break;
+        case SEEK_END: target = (int64_t)z->uncompSize + offset; break;
+        default: return;
+    }
+    if (target < 0) target = 0;
+    if ((uint64_t)target > z->uncompSize) target = (int64_t)z->uncompSize;
+    if ((uint64_t)target < z->vpos) {
+        if (!ra_zip_stream_reset(z)) return; // deflate is forward-only: restart
+    }
+    while (z->vpos < (uint64_t)target) {
+        size_t got = ra_zip_produce(z, nullptr, (size_t)((uint64_t)target - z->vpos));
+        if (got == 0) break;
+    }
+}
+
+static int64_t ra_file_tell(void* h) {
+    RaRomFile* z = (RaRomFile*)h;
+    if (!z) return 0;
+    return z->isZip ? (int64_t)z->vpos : (int64_t)ftell(z->fp);
+}
+
+static size_t ra_file_read(void* h, void* buffer, size_t requested) {
+    RaRomFile* z = (RaRomFile*)h;
+    if (!z) return 0;
+    if (!z->isZip) return fread(buffer, 1, requested, z->fp);
+    size_t got = ra_zip_produce(z, (unsigned char*)buffer, requested);
+    if (got < requested) {
+        // The NDS hasher does not check the arm9/arm7 read length; it MD5s the
+        // whole requested span from an uninitialized malloc buffer. On a short
+        // read (truncated/corrupt entry) zero-fill the tail so the hash is at
+        // least deterministic (a stable non-match) instead of seeded with heap
+        // garbage. A well-formed entry never short-reads before EOF.
+        memset((unsigned char*)buffer + got, 0, requested - got);
+        if (z->vpos < z->uncompSize)
+            ALOGW("RA(zip): short read %zu/%zu before EOF (corrupt ROM?)", got, requested);
+    }
+    return got;
+}
+
+static void ra_file_close(void* h) {
+    RaRomFile* z = (RaRomFile*)h;
+    if (!z) return;
+    if (z->zsActive) inflateEnd(&z->zs);
+    if (z->fp) fclose(z->fp);
+    delete z;
+}
+
+// Install our zip-aware reader as rc_hash's global filereader exactly once.
+static void raInstallZipAwareFilereader() {
+    static bool installed = false;
+    if (installed) return;
+    installed = true;
+    static rc_hash_filereader reader;
+    memset(&reader, 0, sizeof(reader));
+    reader.open  = ra_file_open;
+    reader.seek  = ra_file_seek;
+    reader.tell  = ra_file_tell;
+    reader.read  = ra_file_read;
+    reader.close = ra_file_close;
+    rc_hash_init_custom_filereader(&reader);
+    ALOGI("RA: installed zip-aware ROM filereader (streamed inflate for zipped .nds)");
+}
+
+} // anonymous namespace
+
 void NanoRetroAchievements::clientThreadMain() {
+    // Route rc_hash's ROM reads through the zip-aware streaming reader so a zipped
+    // .nds identifies correctly (and is never fully decompressed).
+    raInstallZipAwareFilereader();
     mClient = rc_client_create(sReadMemory, sServerCall);
     if (!mClient) {
         ALOGE("RA: rc_client_create failed");

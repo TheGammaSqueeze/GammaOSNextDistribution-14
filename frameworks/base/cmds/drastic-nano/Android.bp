@@ -64,6 +64,8 @@ cc_binary {
         "OverlayMenuRa.cpp",
         "DrasticOsk.cpp",
         "NanoRetroAchievements.cpp",
+        "NanoZipExtract.cpp",
+        "NanoLoadingScreen.cpp",
         "DsScreenLayout.cpp",
         "SfDisplayBackend.cpp",
         ":drastic_nano_shared_srcs",

@@ -26,6 +26,10 @@
 
 #include <aidl/android/hardware/health/BatteryStatus.h>
 #include <aidl/android/hardware/health/IHealth.h>
+#include <aidl/android/hardware/light/HwLight.h>
+#include <aidl/android/hardware/light/HwLightState.h>
+#include <aidl/android/hardware/light/ILights.h>
+#include <aidl/android/hardware/light/LightType.h>
 #include <android/binder_manager.h>
 #include <cutils/properties.h>
 
@@ -1399,7 +1403,34 @@ void OverlayMenu::adjustBrightness(int dir) {
     if (b < 8)   b = 8;       // never fully dark via the keys
     if (b > 255) b = 255;
     mBrightLevel = b;
+    // Drive both mechanisms so every device relights: the sysfs backlight nodes
+    // AND the ILights HAL. The Brick routes the panel backlight through the HAL
+    // only, so the sysfs write alone no-ops (matches the nano home's applyBrightness,
+    // and the sleep/wake path here already uses the HAL).
     android::nanobl::nanoBacklightSet(mBrightLevel);
+    {
+        using aidl::android::hardware::light::ILights;
+        using aidl::android::hardware::light::HwLight;
+        using aidl::android::hardware::light::HwLightState;
+        using aidl::android::hardware::light::LightType;
+        ndk::SpAIBinder binder(AServiceManager_checkService(
+                "android.hardware.light.ILights/default"));
+        if (binder.get()) {
+            std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
+            if (hal) {
+                std::vector<HwLight> lights;
+                hal->getLights(&lights);
+                for (const auto& light : lights) {
+                    if (light.type == LightType::BACKLIGHT) {
+                        HwLightState state{};
+                        state.color = 0xFF000000 | (mBrightLevel << 16) |
+                                      (mBrightLevel << 8) | mBrightLevel;
+                        hal->setLightState(light.id, state);
+                    }
+                }
+            }
+        }
+    }
     char buf[16];
     snprintf(buf, sizeof(buf), "%d", mBrightLevel);
     property_set("persist.gammaos.nano.brightness", buf);

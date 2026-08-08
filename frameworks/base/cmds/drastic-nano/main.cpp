@@ -95,6 +95,8 @@
 #include "OverlayGfx.h"
 #include "OverlayMenu.h"
 #include "NanoRetroAchievements.h"
+#include "NanoZipExtract.h"
+#include "NanoLoadingScreen.h"
 #include "DisplayBackend.h"
 #include "SfDisplayBackend.h"
 #include "DsScreenLayout.h"
@@ -181,6 +183,118 @@ std::string readTrimmed(const char* path) {
 bool exists(const std::string& p) {
     struct stat st;
     return stat(p.c_str(), &st) == 0;
+}
+
+// ------------------------------------------------------------------
+// Zipped-ROM cache reuse
+// ------------------------------------------------------------------
+//
+// The extracted .nds is kept under /data/system/nano_cache/drastic/rom next to
+// a ".src" marker recording the identity of the source archive it came from, so
+// a relaunch / Restart of the SAME zip reuses the cached extract instead of
+// re-extracting (or, at power-off, re-copying) it every time. nano_cache.sh's
+// do_populate_drastic writes the SAME marker format, so the launch path and the
+// Quick Resume populate agree on what is already cached.
+
+constexpr const char* kRomCacheDir = "/data/system/nano_cache/drastic/rom";
+
+// A stable identity string for a source file: "size:mtime:basename". Matches
+// `printf '%s:%s:%s' "$(stat -c %s)" "$(stat -c %Y)" "$(basename)"` in shell.
+std::string cacheSrcId(const std::string& path) {
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0) return {};
+    std::string base = path;
+    size_t slash = base.find_last_of('/');
+    if (slash != std::string::npos) base = base.substr(slash + 1);
+    char buf[64 + 256];
+    snprintf(buf, sizeof(buf), "%lld:%lld:%s",
+             (long long)st.st_size, (long long)st.st_mtime, base.c_str());
+    return std::string(buf);
+}
+
+bool endsWithNdsCI(const std::string& name) {
+    return name.size() >= 4 &&
+           name[name.size() - 4] == '.' &&
+           (name[name.size() - 3] == 'n' || name[name.size() - 3] == 'N') &&
+           (name[name.size() - 2] == 'd' || name[name.size() - 2] == 'D') &&
+           (name[name.size() - 1] == 's' || name[name.size() - 1] == 'S');
+}
+
+// Return the first *.nds in the cache dir, or empty.
+std::string cacheFindNds(const std::string& dir) {
+    DIR* d = opendir(dir.c_str());
+    if (!d) return {};
+    std::string found;
+    struct dirent* e;
+    while ((e = readdir(d)) != nullptr) {
+        std::string name(e->d_name);
+        if (name == "." || name == "..") continue;
+        if (endsWithNdsCI(name)) { found = dir + "/" + name; break; }
+    }
+    closedir(d);
+    return found;
+}
+
+// Remove any previously-extracted .nds, the marker, and a stale temp so a fresh
+// extract for a DIFFERENT archive never leaves a wrong-game .nds behind (which
+// cacheFindNds would otherwise pick up).
+void cacheEvictExtracted(const std::string& dir) {
+    DIR* d = opendir(dir.c_str());
+    if (!d) return;
+    struct dirent* e;
+    while ((e = readdir(d)) != nullptr) {
+        std::string name(e->d_name);
+        if (name == "." || name == "..") continue;
+        if (endsWithNdsCI(name) || name == ".src" || name == ".extract.tmp")
+            unlink((dir + "/" + name).c_str());
+    }
+    closedir(d);
+}
+
+void cacheWriteMarker(const std::string& dir, const std::string& id) {
+    const std::string path = dir + "/.src";
+    const std::string tmp = path + ".tmp";
+    int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) return;
+    if (write(fd, id.c_str(), id.size()) == (ssize_t)id.size()) {
+        fsync(fd);
+        close(fd);
+        if (rename(tmp.c_str(), path.c_str()) != 0) unlink(tmp.c_str());
+    } else {
+        close(fd);
+        unlink(tmp.c_str());
+    }
+}
+
+// Fallback extractor for archives the in-process inflater cannot stream (zip64,
+// stored-multi, odd layouts): fork /system/bin/unzip and pump an indeterminate
+// loading frame while it runs. WNOHANG keeps the draw on the render thread so
+// the marquee animates instead of freezing. Returns the extracted .nds or "".
+std::string extractZipViaUnzip(const std::string& zipPath, const std::string& cacheDir,
+                               android::drastic_load::LoadingScreen* ls) {
+    auto runUnzip = [&](bool ndsFilter) {
+        pid_t pid = fork();
+        if (pid == 0) {
+            if (ndsFilter)
+                execl("/system/bin/unzip", "unzip", "-o", "-j", "-q",
+                      zipPath.c_str(), "*.nds", "*.NDS", "-d", cacheDir.c_str(),
+                      (char*)nullptr);
+            else
+                execl("/system/bin/unzip", "unzip", "-o", "-j", "-q",
+                      zipPath.c_str(), "-d", cacheDir.c_str(), (char*)nullptr);
+            _exit(127);
+        }
+        if (pid <= 0) return;
+        int st = 0;
+        while (waitpid(pid, &st, WNOHANG) == 0) {
+            if (ls) ls->frame("Extracting ROM...", android::drastic_load::kIndeterminate);
+            usleep(40 * 1000);
+        }
+    };
+    runUnzip(true);
+    std::string nds = cacheFindNds(cacheDir);
+    if (nds.empty()) { runUnzip(false); nds = cacheFindNds(cacheDir); }
+    return nds;
 }
 
 // Find the com.dsemu.drastic APK install directory.
@@ -2808,6 +2922,13 @@ int main(int argc, char** argv) {
     }
     ALOGI("drastic-nano: rom=%s", romPath.c_str());
 
+    // A zipped .nds is extracted to a file-backed cache (never handed to
+    // libdrastic, which would decompress the whole ROM into ANONYMOUS RAM and
+    // OOM a 1GB device on a ~512MB DSi title). That extraction now runs AFTER
+    // the display backend is up (below), so it can show a loading screen with a
+    // progress bar instead of a blank panel -- see the "Zipped ROM" block after
+    // the backend bring-up.
+
     // Verify drastic's installed data dir exists. If drastic has
     // never been launched by the user, the dir is missing and we
     // refuse to start -- without the BIOS + firmware files stored
@@ -2963,6 +3084,84 @@ int main(int argc, char** argv) {
         ALOGE("drastic-nano: no display backend (DRM and SF both unavailable)");
         property_set(kSessionDoneProp, "1");
         return 6;
+    }
+
+    // The display backend is up and the EGL context is current: from here until
+    // the render loop's first frame we can draw a loading screen instead of
+    // leaving the panel blank. One instance serves the zip extraction below and
+    // the cold-load frame just before dr.init; it is shut down before the loop
+    // creates its own OverlayGfx.
+    android::drastic_load::LoadingScreen loadScr;
+    loadScr.init(sfMode ? sfBackend.get() : nullptr, dpy.width, dpy.height);
+
+    // ---- Zipped ROM -> file-backed .nds, with an on-screen progress bar ----
+    // A zipped .nds handed to libdrastic decompresses whole into ANONYMOUS
+    // (unreclaimable) RAM and OOMs a 1GB device on a ~512MB DSi title; an
+    // extracted .nds is mmap'd FILE-BACKED (reclaimable). We reuse a cached
+    // extract when its ".src" marker matches THIS archive, so a relaunch /
+    // Restart never re-extracts. A fresh archive is stream-inflated in-process
+    // (a determinate "Extracting ROM..." bar); a layout the inflater cannot
+    // stream (zip64 / stored-multi / odd) falls back to /system/bin/unzip behind
+    // an indeterminate bar. do_populate_drastic writes the same marker, so the
+    // power-off Quick Resume populate reuses this extract too.
+    {
+        auto endsWithCI = [](const std::string& s, const char* ext) {
+            size_t elen = strlen(ext);
+            return s.size() >= elen &&
+                   strcasecmp(s.c_str() + s.size() - elen, ext) == 0;
+        };
+        if (endsWithCI(romPath, ".zip")) {
+            const std::string cacheDir = kRomCacheDir;
+            const std::string srcId = cacheSrcId(romPath);
+            mkdir(cacheDir.c_str(), 0755);
+
+            std::string nds = cacheFindNds(cacheDir);
+            const bool cacheHit =
+                    !nds.empty() && !srcId.empty() &&
+                    readTrimmed((cacheDir + "/.src").c_str()) == srcId &&
+                    access(nds.c_str(), R_OK) == 0;
+
+            if (cacheHit) {
+                ALOGI("drastic-nano: reusing cached extract %s (marker matches %s)",
+                      nds.c_str(), romPath.c_str());
+                romPath = nds;
+            } else {
+                // Different game (or an unmarked legacy cache): drop the stale
+                // extract so cacheFindNds can never return a wrong-game .nds.
+                cacheEvictExtracted(cacheDir);
+                nds.clear();
+
+                ALOGI("drastic-nano: extracting zip ROM %s -> %s",
+                      romPath.c_str(), cacheDir.c_str());
+                loadScr.frame("Extracting ROM...", 0.0f);
+                std::string outNds;
+                int rc = android::drastic_zip::extractNds(
+                        romPath.c_str(), cacheDir.c_str(), &outNds,
+                        [&](uint64_t done, uint64_t total) {
+                            float p = total
+                                    ? (float)((double)done / (double)total)
+                                    : android::drastic_load::kBusy;
+                            loadScr.frameThrottled("Extracting ROM...", p);
+                        });
+                if (rc == android::drastic_zip::kOk &&
+                    access(outNds.c_str(), R_OK) == 0) {
+                    loadScr.frame("Extracting ROM...", 1.0f);
+                    nds = outNds;
+                } else {
+                    ALOGW("drastic-nano: in-process extract rc=%d, falling back to unzip", rc);
+                    nds = extractZipViaUnzip(romPath, cacheDir, &loadScr);
+                }
+
+                if (!nds.empty() && access(nds.c_str(), R_OK) == 0) {
+                    if (!srcId.empty()) cacheWriteMarker(cacheDir, srcId);
+                    ALOGI("drastic-nano: using extracted .nds %s", nds.c_str());
+                    romPath = nds;
+                } else {
+                    ALOGE("drastic-nano: could not extract an .nds from %s -- "
+                          "loading the zip may OOM on large ROMs", romPath.c_str());
+                }
+            }
+        }
     }
 
     // Read the user's drastic SharedPreferences so the overlay menu
@@ -3151,6 +3350,12 @@ int main(int argc, char** argv) {
     // home's QR preview never sets this, so it stays on the renderFrame path.
     // drastic-nano.rc clears it on session_done (clean exit and crash).
     property_set("sys.gammaos.drastic_nano.session", "1");
+    // Cold load (dlopen libdrastic + ROM/savestate load) is a few blocking
+    // seconds; show a "Loading game..." frame so a raw large ROM never sits on
+    // a blank panel either. It runs on the render thread (dr.init is blocking),
+    // so this is a single static frame that persists until the loop's first
+    // present -- kBusy draws the bare track, never a frozen marquee.
+    loadScr.frame("Loading game...", android::drastic_load::kBusy);
     if (!dr.init(gDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
                  /*configBitsOverride=*/userBits,
@@ -3173,6 +3378,11 @@ int main(int argc, char** argv) {
     // a second, unaligned attenuation. The volume HUD now reflects that system
     // level; see OverlayMenu::adjustVolume / drawHud.
     dr.setVolumeRuntime(100);
+
+    // Free the loading screen's GL resources before the render loop brings up
+    // its own OverlayGfx. Its last frame stays on the panel until the loop's
+    // first present overwrites it.
+    loadScr.shutdown();
 
     RunLoopResult rlr = sfMode
             ? runLoopSf(sfBackend.get(), &dr, prefs, appUid, appGid,
