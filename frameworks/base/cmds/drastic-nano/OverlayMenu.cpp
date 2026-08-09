@@ -30,6 +30,7 @@
 #include <aidl/android/hardware/light/HwLightState.h>
 #include <aidl/android/hardware/light/ILights.h>
 #include <aidl/android/hardware/light/LightType.h>
+#include <android/hardware/light/2.0/ILight.h>   // HIDL fallback (Brick backlight)
 #include <android/binder_manager.h>
 #include <cutils/properties.h>
 
@@ -706,6 +707,33 @@ void OverlayMenu::handleNavDown() {
     }
     mCursor[mSection] = c;
 }
+// L2/R2 on the cheats page: jump one visible page (dir<0 up, dir>0 down),
+// clamped to the list ends (no wrap, unlike the single-step nav), then land on
+// a selectable row (skip section headers, matching handleNavUp/Down). drawList
+// scrolls to follow the cursor, so only mCursor needs to move.
+void OverlayMenu::handleCheatsPageSkip(int dir) {
+    if (mSection != kSec_Cheats || mRows.empty() || dir == 0) return;
+    const int n = (int)mRows.size();
+    int page = mLastVisibleRows - 1;
+    if (page < 1) page = 1;
+    int c = mCursor[mSection] + (dir < 0 ? -page : page);
+    if (c < 0) c = 0;
+    if (c > n - 1) c = n - 1;
+    // Skip header rows in the direction of travel; if that runs off the end,
+    // walk back the other way so the cursor always lands on a selectable row.
+    int guard = 0;
+    while (c >= 0 && c < n && mRows[c].tag == kRowHeader && guard++ < n)
+        c += (dir < 0 ? -1 : 1);
+    if (c < 0 || c >= n) {
+        c = (dir < 0) ? 0 : n - 1;
+        guard = 0;
+        while (c >= 0 && c < n && mRows[c].tag == kRowHeader && guard++ < n)
+            c += (dir < 0 ? 1 : -1);
+    }
+    if (c < 0) c = 0;
+    if (c > n - 1) c = n - 1;
+    mCursor[mSection] = c;
+}
 void OverlayMenu::adjustCurrent(int dir) {
     int cur = mCursor[mSection];
     if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].onAdjust) {
@@ -959,6 +987,12 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         mSection = (Section)((mSection + 1) % kSec_COUNT);
         rebuildRows();
     }
+    // L2/R2 page-skip the cheats list (long cheat lists). Gated to the cheats
+    // page so the triggers stay free everywhere else; a no-op on other pages.
+    if (mSection == kSec_Cheats) {
+        if (a.pageSkipPrev) handleCheatsPageSkip(-1);
+        if (a.pageSkipNext) handleCheatsPageSkip(+1);
+    }
     // Hold-to-repeat scroll/adjust (PS3 XMB method): edge-detect the held
     // dpad level, fire one step on press, then auto-repeat with geometric
     // acceleration so long cheat lists are easy to traverse.
@@ -1099,6 +1133,34 @@ void OverlayMenu::rebuildGeneral() {
         mRows.push_back(std::move(r));
     }
 
+    // DS Game Language: the firmware language the emulated DS reports to games
+    // that read it (many first-party titles pick their in-game language from the
+    // console setting). It is inherited from the real DraStic app's config at
+    // startup (mPrefs is seeded from _Dra$t1c_Pref$_.xml, DrasticPrefs), so this
+    // row shows the user's existing choice and lets them change it without
+    // opening the full DraStic app - fixing games launched from nano defaulting
+    // to English. The value is packed into the emulated firmware once at init
+    // (setFirmwareUserdata), so it applies on the next launch (requiresRelaunch
+    // surfaces the "Restart to apply changes" row below).
+    {
+        RowAction r;
+        r.label = "DS Game Language";
+        static const char* const kLangLabels[6] = {
+            "Japanese", "English", "French", "German", "Italian", "Spanish" };
+        auto langIdx = [this]() {
+            int v = mPrefs.firmwareLanguage;
+            // 6/7 are DSi-only (Chinese/Korean) and not selectable here; show
+            // them (and any out-of-range value) as English for the label.
+            return (v >= 0 && v <= 5) ? v : 1;
+        };
+        r.value = std::string(kLangLabels[langIdx()]) + trDyn("  (next launch)");
+        r.onAdjust = [this, langIdx](int dir) {
+            mPrefs.firmwareLanguage = (langIdx() + dir + 6) % 6;
+            mDirty = true;   // rebuildRows() refreshes r.value on the next frame
+        };
+        mRows.push_back(std::move(r));
+    }
+
     // Restart Game: reboot the ROM from the title. We do NOT use
     // drastic's in-process soft reset (resetDS): the boot-race longjmp
     // patch at libdrastic+0x17304 (applied at init so a reset-style
@@ -1153,6 +1215,24 @@ void OverlayMenu::rebuildGeneral() {
             mReboot = true;
             closeMenu();
             toast("Rebooting...");
+        };
+        mRows.push_back(std::move(r));
+    }
+
+    // Shown only when a General-page change needs a fresh launch to take effect
+    // (currently DS Game Language). A firmware-language change is packed into the
+    // emulated DS firmware at init (setFirmwareUserdata), but a DS game only
+    // reads the console language at its OWN title boot, so a resume/auto-load
+    // would not show it. Restart FRESH from the title (mRestartFresh forces
+    // auto-load off), which re-reads the new language end to end. closeMenu()
+    // flushes the pref write (mDirty) before the relaunch.
+    if (drastic_prefs::requiresRelaunch(mSavedPrefs, mPrefs)) {
+        RowAction r;
+        r.label = "Restart game to apply changes";
+        r.onAccept = [this]() {
+            mRestartFresh = true;
+            closeMenu();
+            toast("Restarting...");
         };
         mRows.push_back(std::move(r));
     }
@@ -1408,6 +1488,7 @@ void OverlayMenu::adjustBrightness(int dir) {
     // only, so the sysfs write alone no-ops (matches the nano home's applyBrightness,
     // and the sleep/wake path here already uses the HAL).
     android::nanobl::nanoBacklightSet(mBrightLevel);
+    bool halApplied = false;
     {
         using aidl::android::hardware::light::ILights;
         using aidl::android::hardware::light::HwLight;
@@ -1426,9 +1507,30 @@ void OverlayMenu::adjustBrightness(int dir) {
                         state.color = 0xFF000000 | (mBrightLevel << 16) |
                                       (mBrightLevel << 8) | mBrightLevel;
                         hal->setLightState(light.id, state);
+                        halApplied = true;
                     }
                 }
             }
+        }
+    }
+    // Brick (and similar) have no AIDL ILights service AND no
+    // /sys/class/backlight nodes, so the AIDL block above and nanoBacklightSet
+    // both no-op there. Fall back to the HIDL light@2.0 HAL - the same path the
+    // nano home uses, which is what actually drives this panel's backlight.
+    if (!halApplied) {
+        using ::android::hardware::light::V2_0::ILight;
+        using ::android::hardware::light::V2_0::Type;
+        using ::android::hardware::light::V2_0::LightState;
+        using ::android::hardware::light::V2_0::Brightness;
+        using ::android::hardware::light::V2_0::Flash;
+        android::sp<ILight> hal = ILight::getService();
+        if (hal != nullptr) {
+            LightState st{};
+            st.color = 0xFF000000 | (mBrightLevel << 16) |
+                       (mBrightLevel << 8) | mBrightLevel;
+            st.flashMode = Flash::NONE;
+            st.brightnessMode = Brightness::USER;
+            hal->setLight(Type::BACKLIGHT, st);
         }
     }
     char buf[16];
@@ -1563,6 +1665,52 @@ void OverlayMenu::rebuildAchievements() {
                                            // raises the restart on enable
             closeMenu();
             toast(newOn ? "Hardcore on, restarting..." : "Hardcore Mode off");
+        };
+        r.onAccept = toggle;
+        r.onAdjust = [toggle](int /*dir*/) { toggle(); };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // Achievement Progress Toast: the brief measured-progress popup near the
+        // bottom centre (e.g. "Collect 50 rings   23/50"). This is separate from
+        // the top-right unlock banner and the left-edge challenge badges; some
+        // users find the progress popup distracting, so let them turn it off.
+        // Default on. Read/gated in drawRaIndicators (OverlayMenuRa.cpp).
+        RowAction r;
+        r.label = "Achievement Progress Toast";
+        const bool on = property_get_bool(
+                "persist.gammaos.drastic_nano.ra_show_progress_toast", true);
+        r.value = on ? "On" : "Off";
+        auto toggle = [this]() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.ra_show_progress_toast", true);
+            property_set("persist.gammaos.drastic_nano.ra_show_progress_toast",
+                         cur ? "0" : "1");
+            toast(cur ? "Progress toast off" : "Progress toast on");
+            rebuildRows();
+        };
+        r.onAccept = toggle;
+        r.onAdjust = [toggle](int /*dir*/) { toggle(); };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // Challenge Indicators: the stacked badges at the left edge showing the
+        // achievements currently primed ("Trigger" state). Separate from the
+        // progress toast and the top-right unlock banner; some users prefer a
+        // clean screen, so let them turn these off too. Default on. Read/gated
+        // in drawRaIndicators (OverlayMenuRa.cpp).
+        RowAction r;
+        r.label = "Challenge Indicators";
+        const bool on = property_get_bool(
+                "persist.gammaos.drastic_nano.ra_show_challenge_badges", true);
+        r.value = on ? "On" : "Off";
+        auto toggle = [this]() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.ra_show_challenge_badges", true);
+            property_set("persist.gammaos.drastic_nano.ra_show_challenge_badges",
+                         cur ? "0" : "1");
+            toast(cur ? "Challenge badges off" : "Challenge badges on");
+            rebuildRows();
         };
         r.onAccept = toggle;
         r.onAdjust = [toggle](int /*dir*/) { toggle(); };
@@ -2663,6 +2811,7 @@ void OverlayMenu::drawList(drastic_gfx::OverlayGfx& gfx, float vw,
     float rowH = gfx.fontLineH() * kRowSelScale * sf + 6.0f * sf;
     int visibleRows = (int)(listH / rowH);
     if (visibleRows < 4) visibleRows = 4;
+    mLastVisibleRows = visibleRows;   // for the cheats L2/R2 page-skip
 
     int cur = mCursor[mSection];
     int scroll = mScroll[mSection];

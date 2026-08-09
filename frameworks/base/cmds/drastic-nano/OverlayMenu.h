@@ -256,6 +256,9 @@ private:
     Section mSection = kSec_General;
     int mCursor[kSec_COUNT] = {};   // zero-init all sections (count-proof)
     int mScroll[kSec_COUNT] = {};
+    int mLastVisibleRows = 8;       // rows that fit the list viewport; set by
+                                    // drawList each frame so the cheats L2/R2
+                                    // page-skip jumps exactly one visible page.
     bool mCaptureKey = false;
     int  mCaptureActionIdx = -1;      // when mCaptureKey: which action
     bool mDirty = false;              // staged edits pending write
@@ -426,6 +429,7 @@ private:
     void fireNav(NavDir dir);
     void handleNavUp();
     void handleNavDown();
+    void handleCheatsPageSkip(int dir);   // L2/R2 page jump (cheats page only)
     void adjustCurrent(int dir);   // Left/Right onAdjust on the cursor row
     // Enumerate the running ROM's cheats from drastic (folders + flat list
     // grouped by folderId, plus a synthetic "Assorted" group), caching

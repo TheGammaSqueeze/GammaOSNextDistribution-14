@@ -466,13 +466,16 @@ long applyConfigBitsFrom(const Prefs& p) {
 }
 
 bool requiresRelaunch(const Prefs& a, const Prefs& b) {
-    // Only audioLatency genuinely cannot apply live: it sizes the OpenSL
-    // buffer queue, which drastic reads once at startGame; the applyConfig
-    // converter never re-extracts it. Everything else applies immediately
-    // via applyVideoConfigLive -- including Hi-res 3D, which additionally
-    // re-dims the DS textures on the render thread (DrasticRunner::
-    // redimDsTextures), so it no longer needs a relaunch.
-    return a.audioLatency != b.audioLatency;
+    // audioLatency cannot apply live: it sizes the OpenSL buffer queue, which
+    // drastic reads once at startGame; the applyConfig converter never
+    // re-extracts it. firmwareLanguage is packed into the emulated firmware
+    // userdata once at init (setFirmwareUserdata) and is never re-applied by
+    // applyVideoConfigLive, so changing it also needs a fresh launch.
+    // Everything else applies immediately via applyVideoConfigLive -- including
+    // Hi-res 3D, which additionally re-dims the DS textures on the render
+    // thread (DrasticRunner::redimDsTextures), so it no longer needs a relaunch.
+    return a.audioLatency != b.audioLatency
+        || a.firmwareLanguage != b.firmwareLanguage;
 }
 
 // ------------------------------------------------------------------

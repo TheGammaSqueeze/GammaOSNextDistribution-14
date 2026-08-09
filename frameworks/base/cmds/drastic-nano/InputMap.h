@@ -168,6 +168,8 @@ struct InputActions {
     bool navCancel = false;  // B
     bool navNextTab = false; // R / R1
     bool navPrevTab = false; // L / L1
+    bool pageSkipPrev = false; // L2 - overlay list page-skip up (cheats page)
+    bool pageSkipNext = false; // R2 - overlay list page-skip down (cheats page)
     bool navX = false;       // X (BTN_NORTH) - OSK backspace
     bool navStart = false;   // Start - OSK submit
 

@@ -65,7 +65,10 @@ void OverlayMenu::drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float /*sf*/) {
 
     // Challenge (Trigger) indicators: a stacked column of the currently primed
     // achievements' badges at the left edge, so the player sees which are active.
-    if (!mRaChallenge.empty()) {
+    // Gated by the "Challenge Indicators" toggle (rebuildAchievements); the
+    // progress toast and the top-right unlock banner are independent. Default on.
+    if (!mRaChallenge.empty() &&
+        property_get_bool("persist.gammaos.drastic_nano.ra_show_challenge_badges", true)) {
         const float sz  = floorf(lineH * 1.7f);
         const float gap = floorf(sz * 0.18f);
         const float x   = floorf(vw * 0.012f);
@@ -82,11 +85,23 @@ void OverlayMenu::drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float /*sf*/) {
 
     // Progress (Measured) indicator: a brief centred popup near the bottom with
     // the badge and the measured value (e.g. "Collect 50 rings    23/50").
-    if (mRaProgressId && now < mRaProgressUntilMs && !mRaProgressText.empty()) {
+    // Gated by the "Achievement Progress Toast" toggle (rebuildAchievements);
+    // the challenge badges above and the top-right unlock banner are separate and
+    // stay on. Default on.
+    if (mRaProgressId && now < mRaProgressUntilMs && !mRaProgressText.empty() &&
+        property_get_bool("persist.gammaos.drastic_nano.ra_show_progress_toast", true)) {
         const float pad   = fmaxf(5.0f, lineH * 0.40f);
         const float sz    = lineH * 1.55f;
         const float txtPx = lineH * 0.62f;
-        const float boxW  = fminf(vw * 0.72f, sz + pad * 3.0f + lineH * 9.5f);
+        const float txtScale = scaleFor(txtPx);
+        // Size the scrim to the MEASURED text (badge + text + padding) instead of
+        // a fixed width, so long achievement titles are fully covered. Clamp to
+        // the panel width; when the text still will not fit, it scrolls (below).
+        const float measuredW = gfx.measure(mRaProgressText.c_str(), txtScale);
+        const float maxBoxW = vw * 0.94f;
+        float boxW = sz + pad * 3.0f + measuredW;
+        if (boxW > maxBoxW)          boxW = maxBoxW;
+        if (boxW < sz + pad * 2.0f)  boxW = sz + pad * 2.0f;
         const float boxH  = sz + pad * 2.0f;
         const float x     = floorf((vw - boxW) * 0.5f);
         const float y     = floorf(vh * 0.80f);
@@ -104,8 +119,34 @@ void OverlayMenu::drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float /*sf*/) {
                                  rgba(0.16f, 0.17f, 0.22f, a));
         const float tx = bx + sz + pad;
         const float ty = y + (boxH - txtPx) * 0.5f;
-        gfx.text(mRaProgressText.c_str(), tx, ty, scaleFor(txtPx),
-                 rgba(0.93f, 0.95f, 1.0f, a));
+        // When the text overflows the (clamped) box, marquee it: draw only the
+        // substring that fits, sliding over time. There is no scissor API, so the
+        // visible window IS the substring (same technique as the bottom-panel
+        // leaderboard marquee).
+        const float availTextW = (x + boxW - pad) - tx;
+        std::string shown = mRaProgressText;
+        if (availTextW > 0.0f && measuredW > availTextW) {
+            const std::string& s = mRaProgressText;
+            const int nch = (int)s.size();
+            int maxStart = nch - 1;
+            for (int st = 0; st < nch; st++)
+                if (gfx.measure(s.c_str() + st, txtScale) <= availTextW) { maxStart = st; break; }
+            if (maxStart > 0) {
+                const int hold = 3, leg = maxStart + hold, full = leg * 2;
+                int p = (int)((now / 260) % full);
+                int start = (p < leg) ? (p < maxStart ? p : maxStart)
+                                      : ((full - p) < maxStart ? (full - p) : maxStart);
+                if (start < 0) start = 0;
+                std::string out;
+                for (int e = start; e < nch; e++) {
+                    std::string cand = s.substr((size_t)start, (size_t)(e - start + 1));
+                    if (gfx.measure(cand.c_str(), txtScale) > availTextW) break;
+                    out = cand;
+                }
+                shown = out.empty() ? s.substr((size_t)start, 1) : out;
+            }
+        }
+        gfx.text(shown.c_str(), tx, ty, txtScale, rgba(0.93f, 0.95f, 1.0f, a));
     }
 }
 

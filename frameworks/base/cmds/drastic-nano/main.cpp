@@ -79,6 +79,7 @@
 #include <aidl/android/hardware/light/HwLightState.h>
 #include <aidl/android/hardware/light/ILights.h>
 #include <aidl/android/hardware/light/LightType.h>
+#include <android/hardware/light/2.0/ILight.h>   // HIDL fallback (Brick backlight)
 #include <android/binder_manager.h>
 #include <cutils/properties.h>
 #include <system/thread_defs.h>
@@ -806,18 +807,40 @@ void setBacklightHal(int brightness) {
 
     ndk::SpAIBinder binder(
             AServiceManager_checkService("android.hardware.light.ILights/default"));
-    if (!binder.get()) return;
-    std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
-    if (!hal) return;
-
-    std::vector<HwLight> lights;
-    hal->getLights(&lights);
-    for (const auto& light : lights) {
-        if (light.type == LightType::BACKLIGHT) {
-            HwLightState state{};
-            state.color = 0xFF000000 | (brightness << 16) |
-                          (brightness << 8) | brightness;
-            hal->setLightState(light.id, state);
+    bool halApplied = false;
+    if (binder.get()) {
+        std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
+        if (hal) {
+            std::vector<HwLight> lights;
+            hal->getLights(&lights);
+            for (const auto& light : lights) {
+                if (light.type == LightType::BACKLIGHT) {
+                    HwLightState state{};
+                    state.color = 0xFF000000 | (brightness << 16) |
+                                  (brightness << 8) | brightness;
+                    hal->setLightState(light.id, state);
+                    halApplied = true;
+                }
+            }
+        }
+    }
+    // Brick (and similar) expose only the HIDL light@2.0 HAL (no AIDL ILights
+    // service, no /sys/class/backlight), so the AIDL path above no-ops there.
+    // Fall back to HIDL ILight@2.0::setLight(BACKLIGHT), matching the nano home.
+    if (!halApplied) {
+        using ::android::hardware::light::V2_0::ILight;
+        using ::android::hardware::light::V2_0::Type;
+        using ::android::hardware::light::V2_0::LightState;
+        using ::android::hardware::light::V2_0::Brightness;
+        using ::android::hardware::light::V2_0::Flash;
+        android::sp<ILight> hidl = ILight::getService();
+        if (hidl != nullptr) {
+            LightState st{};
+            st.color = 0xFF000000 | (brightness << 16) |
+                       (brightness << 8) | brightness;
+            st.flashMode = Flash::NONE;
+            st.brightnessMode = Brightness::USER;
+            hidl->setLight(Type::BACKLIGHT, st);
         }
     }
 }

@@ -100,6 +100,8 @@ cc_binary {
         "libaaudio",
         "android.hardware.health-V2-ndk",
         "android.hardware.light-V2-ndk",
+        "android.hardware.light@2.0",
+        "libhidlbase",
     ],
 
     init_rc: ["drastic-nano.rc"],

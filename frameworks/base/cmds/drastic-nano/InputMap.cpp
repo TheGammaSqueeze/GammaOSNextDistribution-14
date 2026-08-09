@@ -428,6 +428,8 @@ bool dispatchNav(int androidKc, bool pressed, InputActions* out) {
     case 99:  out->navX = true; return true;       // BUTTON_X (OSK backspace)
     case 102: out->navPrevTab = true; return true; // BUTTON_L1
     case 103: out->navNextTab = true; return true; // BUTTON_R1
+    case 104: out->pageSkipPrev = true; return true; // BUTTON_L2 (cheats page-skip up)
+    case 105: out->pageSkipNext = true; return true; // BUTTON_R2 (cheats page-skip down)
     case 108: out->navStart = true; return true;   // BUTTON_START (OSK submit)
     default:  return false;
     }
