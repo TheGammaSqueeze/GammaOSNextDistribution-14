@@ -1978,6 +1978,10 @@ private:
     int64_t mPs3AutoScrollLastMs = 0;
     int     mPs3AutoScrollCount  = 0;
     void tickAutoScroll();
+    // Set while an L1/R1 page-skip steps the cursor many rows at once: ps3NavSound()
+    // no-ops so the burst does not fire (and additively stack) a cursor cue per step;
+    // one cue is emitted for the whole jump. See ps3XmbBumperSkip.
+    bool    mSuppressNavSfx = false;
     GLuint mPs3DlgFanTex = 0;       // fanart texture for the info page (freed on dialog close)
     int    mPs3DlgFanW = 0, mPs3DlgFanH = 0;
     GLuint mPs3DlgBoxTex = 0;       // cover texture for the info page (freed on dialog close)

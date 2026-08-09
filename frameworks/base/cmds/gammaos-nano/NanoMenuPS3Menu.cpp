@@ -4662,7 +4662,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
 // it. The first nav before the player is ready is silent.
 // Cursor move (D-pad / touch scroll). Thin wrapper over the shared ps3Sfx dispatcher, which routes to
 // the early-boot direct mixer before the audio server is up and the pre-loaded AAudio player after.
-void NanoMenu::ps3NavSound() { ps3Sfx(PS3_SFX_CURSOR); }
+void NanoMenu::ps3NavSound() { if (mSuppressNavSfx) return; ps3Sfx(PS3_SFX_CURSOR); }
 
 void NanoMenu::ps3XmbLeft() {
     xmbCancelTouchScroll();       // a discrete nav press takes over from an inertial glide
@@ -4848,7 +4848,15 @@ void NanoMenu::ps3XmbDown() {
 // consistent (mirrors ndsBumperSkip reusing handleUp/handleDown). dir<0 = up a page.
 void NanoMenu::ps3XmbBumperSkip(int dir) {
     const int PAGE = 10;
+    // ps3XmbUp/Down fire the cursor cue on every step; running 10 in one input tick made
+    // the polyphonic SFX player stack ~10 overlapping voices, so an L1/R1 page-skip sounded
+    // far louder than a single d-pad move. Suppress the per-step cue and emit exactly one for
+    // the whole jump (only if the cursor actually moved).
+    const int before = ps3CurSel();
+    mSuppressNavSfx = true;
     for (int i = 0; i < PAGE; i++) { if (dir < 0) ps3XmbUp(); else ps3XmbDown(); }
+    mSuppressNavSfx = false;
+    if (ps3CurSel() != before) ps3NavSound();
 }
 
 // ---- Internet Browser / Internet Search (Network category) ------------------
