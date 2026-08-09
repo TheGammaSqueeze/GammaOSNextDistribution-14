@@ -102,6 +102,8 @@ static inline float smooth01(float u) { return u * u * (3.0f - 2.0f * u); }
 static std::string dsiAudioPath(const char* file);   // defined below (used by the pre-warm)
 static float dsiEarlyAudioGain(float master);        // defined below (used by the pre-warm volume)
 static bool dsiBootCompleted();                      // defined below (gates the pre-warm vs HAL chime)
+static bool bootSoundOn();   // defined below (near navSoundsOn); used by the SPRD path here
+
 void NanoMenu::ps3BootReset(bool freshSetup) {
     mPs3BootElapsedMs = 0.0;
     mPs3BootActive = true;
@@ -134,7 +136,7 @@ void NanoMenu::ps3BootReset(bool freshSetup) {
         // (~the audioserver floor) regardless of how slowly the intro renders. Suppress the
         // render-clock fire below (mPs3ColdSoundPlayed=true).
         mPs3ColdSoundPlayed = true;
-        if (!mSfxOpening.exchange(true)) {
+        if (bootSoundOn() && !mSfxOpening.exchange(true)) {
             std::string path = dsiAudioPath("coldboot_stereo.wav");
             std::thread([this, path]() {
                 float gain = dsiEarlyAudioGain(0.8f);
@@ -314,6 +316,16 @@ bool NanoMenu::earlySfxOneShot(const char* wavName, float master) {
 static bool navSoundsOn() {
     char v[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.nav_sounds", v, "1");
+    return !(v[0] == '0' || v[0] == 'f' || v[0] == 'F');
+}
+
+// User setting (persist.gammaos.nano.boot_sound, default on): when off, the cold-boot startup
+// jingle / chime (and the DSi touch/enter fanfare) stay silent for a fully quiet boot, across all
+// themes and every SoC audio path. Read live at each boot-audio fire site (Theme Settings > Boot
+// Sound). Separate from nav_sounds (which gates interactive UI SFX) and from the DSi menu ambiance.
+static bool bootSoundOn() {
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.boot_sound", v, "1");
     return !(v[0] == '0' || v[0] == 'f' || v[0] == 'F');
 }
 
@@ -574,7 +586,7 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
             // it plays exactly on the mark; if the audio service was still coming up it plays
             // the instant it is ready, rather than blocking the render thread on open).
             if (!mDsiChimePlayed && f / 60.0 >= DSI_CHIME_SEC) { mChimePlayReq = true; mDsiChimePlayed = true; }
-            if (mChimePlayReq && !mChimeStarted) {
+            if (mChimePlayReq && !mChimeStarted && bootSoundOn()) {
                 if (nanoDirectAudioUsable() && !dsiBootCompleted()) {
                     // The audio server does not come up until ~13-37s (its AudioPolicyManager ctor
                     // blocks on ActivityManager), so AAudio cannot sound at this 1.45s mark. Play the
@@ -616,10 +628,10 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
         } else if (mDsiBootPhase == DSI_WAIT) {
             if (mDsiWantProceed) {                                  // proceed() on touch/press
                 mDsiWantProceed = false;
-                dsiBootSound(DsiSfx::Touch);
+                if (bootSoundOn()) dsiBootSound(DsiSfx::Touch);
                 mDsiBootPhase = DSI_ENTERING;
                 mDsiEnterStart = f;
-                dsiBootSound(DsiSfx::Enter);
+                if (bootSoundOn()) dsiBootSound(DsiSfx::Enter);
                 mDsiEnterAudioStartMs = (int64_t)android::uptimeMillis();
             }
         } else if (mDsiBootPhase == DSI_ENTERING) {
@@ -644,7 +656,9 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
     // (the audio server is not up), AAudio fallback otherwise. Fire-once (reset in ps3BootReset).
     if (!mPs3ColdSoundPlayed && e >= BOOT_SCENE_A) {
         mPs3ColdSoundPlayed = true;
-        if (nanoDirectAudioUsable() && !dsiBootCompleted()) {
+        if (!bootSoundOn()) {
+            // Boot Sound off: mark played (suppresses re-fire) and stay silent.
+        } else if (nanoDirectAudioUsable() && !dsiBootCompleted()) {
             nanoDirectPlayOneShot(dsiAudioPath("coldboot_stereo.wav"), dsiEarlyAudioGain(0.8f));
         } else if (!mSfxOpening.exchange(true)) {          // AAudio fallback (plays reliably once the audio server is up)
             std::string path = dsiAudioPath("coldboot_stereo.wav");

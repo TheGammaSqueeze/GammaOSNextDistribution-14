@@ -701,7 +701,32 @@ static float computeNightDayBlend(float hour) {
 // ---------------------------------------------------------------------------
 // FBO management
 // ---------------------------------------------------------------------------
-static bool ensureFbo(GLuint* fbo, GLuint* tex, int w, int h) {
+// EXT_multisampled_render_to_texture: on a PowerVR TBDR the extra coverage samples
+// live in on-chip tile memory and resolve for free at tile store, so MSAA on a
+// reduced-resolution render target is nearly free (fragment shading still runs once
+// per pixel - the half-res perf win is preserved). Used to anti-alias the half-res
+// wave so lowering its render scale does not stair-step the wave silhouette / ribbon
+// edges; the composite still GL_LINEAR-upscales the resolved single-sample texture.
+static PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC sFbTex2DMS = nullptr;
+static int  sMaxMSSamples = 1;
+static bool sMSChecked = false;
+static void ensureMSProc() {
+    if (sMSChecked) return;
+    sMSChecked = true;
+    const char* ext = (const char*)glGetString(GL_EXTENSIONS);
+    if (ext && strstr(ext, "GL_EXT_multisampled_render_to_texture")) {
+        sFbTex2DMS = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)
+            eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
+        GLint ms = 0; glGetIntegerv(GL_MAX_SAMPLES_EXT, &ms);
+        if (ms > 1) sMaxMSSamples = ms;
+    }
+}
+
+// samples > 1 requests implicit MSAA (clamped to the driver max, falls back to a
+// single-sample attach when the extension is absent). The texture itself stays a
+// normal single-sample GL_RGBA texture; the multisample buffer is implicit and
+// resolves into it when the texture is next sampled.
+static bool ensureFbo(GLuint* fbo, GLuint* tex, int w, int h, int samples = 1) {
     if (!*fbo) glGenFramebuffers(1, fbo);
     if (!*tex) glGenTextures(1, tex);
     glBindTexture(GL_TEXTURE_2D, *tex);
@@ -711,7 +736,13 @@ static bool ensureFbo(GLuint* fbo, GLuint* tex, int w, int h) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindFramebuffer(GL_FRAMEBUFFER, *fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *tex, 0);
+    ensureMSProc();
+    int s = samples;
+    if (s > sMaxMSSamples) s = sMaxMSSamples;
+    if (s > 1 && sFbTex2DMS)
+        sFbTex2DMS(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *tex, 0, s);
+    else
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *tex, 0);
     return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
@@ -1101,7 +1132,10 @@ void render(int panelW, int panelH, float dt, const float rotMat2[4], bool /*rot
     // (Re)create the frame-sized FBOs on a size change OR a wave-half toggle (ww/wh changed).
     if (fw != sFbW || fh != sFbH || ww != sWorkW || wh != sWorkH) {
         ensureFbo(&sGradFbo, &sGradTex, gw, gh);   // half-res smooth gradient (upscaled by the blit)
-        ensureFbo(&sWorkFbo, &sWorkTex, ww, wh);   // work texture: full, or half when wave-half is on
+        // Wave Half Resolution: render the reduced-size work buffer with 4x MSAA (implicit,
+        // resolved in tile memory - nearly free on this TBDR) so the wave silhouette / ribbon
+        // edges do not stair-step when the composite upscales it. Full-res stays single-sample.
+        ensureFbo(&sWorkFbo, &sWorkTex, ww, wh, sWaveHalfEnabled ? 4 : 1);
         sFbW = fw; sFbH = fh;                       // LOGICAL frame size (composite NDC mapping)
         sWorkW = ww; sWorkH = wh;                   // ACTUAL work-texture pixel size
         sGradDirty = true;

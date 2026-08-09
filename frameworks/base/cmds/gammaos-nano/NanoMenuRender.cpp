@@ -5051,7 +5051,9 @@ void NanoMenu::render() {
                            !(mVidActive || mVidEnterT > 0.001f) &&
                            !(mOverlayMode && !mOverlayWallpaper);
     mWaveHalfActive  = mPs3HalfResWave  && halfScope;
-    mIconsHalfActive = mPs3HalfResIcons && halfScope;
+    // Half-res glass icons was removed: on this PowerVR TBDR the per-icon scratch-FBO ping-pong
+    // costs more (2N tile flush/resolve) than it saves, so it tanked FPS (60 -> 33). Force off.
+    mIconsHalfActive = false;
     mClockHalfActive = mPs3HalfResClock && halfScope;
     static float sDrasticSaturation = 0.15f;
     static float sDrasticGradient   = 1.0f;
@@ -5504,7 +5506,11 @@ void NanoMenu::render() {
         ndsAmbianceTick(mNdsTheme && !mPs3BootActive && !ndsPlayerActive()
                         && !(mOverlayMode && !mOverlayWallpaper)
                         && mLaunchFadeStart == 0 && !mOverlayLaunchPending
-                        && !property_get_bool("sys.gammaos.nano.app_launched", false));
+                        && !property_get_bool("sys.gammaos.nano.app_launched", false)
+                        // Theme Settings > Menu Music (DSi only). Off -> wantOnHome
+                        // false -> ndsAmbianceTick runs its stop branch, so it tears
+                        // down live and restarts when turned back on.
+                        && property_get_bool("persist.gammaos.nano.nds.ambiance", true));
         // PS3 XMB theme: hold card0 open through the pre-boot-complete window so nav SFX are audible
         // in the early menu (self-gates to !mNdsTheme; the DSi hold is ndsAmbianceTick above). Runs
         // every frame including the boot intro, so nano owns card0 before the audio HAL can grab it.

@@ -294,7 +294,7 @@ GLuint NanoMenu::loadColorIconTexAbs(const char* absPath) {
 
 void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
                            float r, float g, float b, float a, float rot, bool flipV,
-                           float sharpUpW, float sharpUpH) {
+                           float sharpUpW, float sharpUpH, float uMaxU, float uMaxV) {
     if (tex == 0) return;
     GLfloat verts[12];
     if (rot == 0.0f) {
@@ -323,6 +323,12 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
     // has the GL bottom-left origin (row 0 = bottom), so it must be sampled V-flipped to appear upright.
     GLfloat uvs[]   = { 0,1, 1,1, 1,0, 1,0, 0,0, 0,1 };
     if (flipV) { GLfloat f[] = { 0,0, 1,0, 1,1, 1,1, 0,1, 0,0 }; for (int i = 0; i < 12; i++) uvs[i] = f[i]; }
+    // Sample only a sub-rect [0,uMaxU]x[0,uMaxV] of the texture. Used when the source content
+    // occupies just the bottom-left of a larger (grow-only) scratch texture, so the icon still
+    // fills (x,y,w,h) on screen. Default 1,1 samples the whole texture (unchanged for all callers).
+    if (uMaxU != 1.0f || uMaxV != 1.0f) {
+        for (int i = 0; i < 12; i += 2) { uvs[i] *= uMaxU; uvs[i + 1] *= uMaxV; }
+    }
     GLfloat colors[6 * 4];
     for (int i = 0; i < 6; i++) { colors[i*4]=r; colors[i*4+1]=g; colors[i*4+2]=b; colors[i*4+3]=a; }
     glUseProgram(mTextProgram);
@@ -619,7 +625,7 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("XMB Wave")) return xmb || minima;
     // Half-resolution render-scale is a set of PS3 XMB-only perf toggles (the DSi/Minima homes are
     // cheap list renders with no wave/glass/clock, so they would do nothing there).
-    if (is("Half Resolution: Wave") || is("Half Resolution: Icons") || is("Half Resolution: Clock")) return xmb;
+    if (is("Half Resolution: Wave") || is("Half Resolution: Clock")) return xmb;
     // The Minima solid background colour is meaningless on XMB / DSi.
     if (is("Background Colour")) return minima;
     // Long-name shrink/scroll is a Minima-list behaviour (XMB/DSi handle long names their own way).
@@ -631,6 +637,8 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // is the separate, always-shown control). This is the reported "dark theme does nothing in
     // XMB" - the row was offered everywhere. Show it only in the DSi home.
     if (is("DSi Dark Theme")) return mNdsTheme;
+    // The looping menu ambiance is a DSi-only feature (ndsAmbianceTick gates on mNdsTheme).
+    if (is("Menu Music")) return mNdsTheme;
     // The bottom-panel PSP clock (and its FPS readout) + the bottom custom wallpaper only exist on
     // a physical dual-screen device (e.g. RG DS); their own descriptions say single-screen devices
     // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
@@ -8345,11 +8353,14 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
     {"XMB Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.wave", "1", "0:Off,1:On"},
     {"Half Resolution: Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres.wave", "0", "0:Off,1:On"},
-    {"Half Resolution: Icons", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres.icons", "0", "0:Off,1:On"},
     {"Half Resolution: Clock", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres.clock", "0", "0:Off,1:On"},
     // Interactive UI/menu sound effects (cursor/select/back/launch) - gated in ps3Sfx/ndsSfxPlay/
     // minimaSfx (navSoundsOn), so it silences navigation sounds in every theme. Boot jingle unaffected.
     {"Navigation Sounds", SettingSource::kProp, "persist.gammaos.nano.nav_sounds", "1", "0:Off,1:On"},
+    // Boot startup jingle/chime - gated in ps3BootUpdate/ps3BootReset (bootSoundOn), all themes, next boot.
+    {"Boot Sound", SettingSource::kProp, "persist.gammaos.nano.boot_sound", "1", "0:Off,1:On"},
+    // DSi looping menu ambiance (menu_ambiance.wav) - gated live in the ndsAmbianceTick call (DSi only).
+    {"Menu Music", SettingSource::kProp, "persist.gammaos.nano.nds.ambiance", "1", "0:Off,1:On"},
     // Minima solid background colour: the value is either "none" (default black) or a 6-digit
     // hex RGB read live by minimaSolidBg() at render. A generic bound chooser (openBoundChooser)
     // shows these presets as a Minima side panel; the hex has no ':'/',' so parseListOptions is safe.
@@ -9021,6 +9032,16 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
 // Live right-side value for a Theme Settings row (mirrors the web
 // resolveItemValue): the value reflects the CURRENT selection so the menu shows
 // it without opening the chooser. Non-theme rows fall back to the static value.
+void NanoMenu::refreshBoundValuesInStack() {
+    auto refresh = [this](std::vector<Ps3Item>& items) {
+        for (auto& it : items)
+            if (it.binding) it.value = resolvePs3ItemValue(it);
+    };
+    for (auto& lvl : mPs3Stack) refresh(lvl.items);
+    if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size())
+        refresh(mPs3Cats[mPs3CatIdx].items);
+}
+
 std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
     // #90 DraStic data-folder row: show the current override (its folder name) or "Default" when
@@ -10907,6 +10928,7 @@ void NanoMenu::closePs3Dialog(bool apply) {
                 std::string v = ps3FormatNum(mPs3DlgSldVal, mPs3DlgSldScale);
                 writeSettingValue(b->source, b->key, v);
                 mPs3BindCache[b->label] = v;
+                refreshBoundValuesInStack();   // update the DSi/Minima frozen row-value snapshot live
                 mDisplayDirty = true;
             } else {
                 std::vector<SettingListOption> opts = parseListOptions(b->options);
@@ -10914,6 +10936,7 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     const std::string& v = opts[mPs3DlgSel].value;
                     writeSettingValue(b->source, b->key, v);
                     mPs3BindCache[b->label] = v;
+                    refreshBoundValuesInStack();   // update the DSi/Minima frozen row-value snapshot live
                     // Home Theme switch: apply LIVE (user: "apply immediately"). mNdsTheme is
                     // read once at startup, but the render path re-reads it every frame and lazily
                     // loads the DSi assets, so flipping it in-memory swaps the home instantly with
@@ -10966,7 +10989,6 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     // The render thread lazily (re)allocates the per-subsystem FBOs on the next frame;
                     // toggling OFF simply stops wrapping - no GL work happens on this settings thread.
                     if (!strcmp(b->label, "Half Resolution: Wave"))  mPs3HalfResWave  = (v == "1" || v == "true");
-                    if (!strcmp(b->label, "Half Resolution: Icons")) mPs3HalfResIcons = (v == "1" || v == "true");
                     if (!strcmp(b->label, "Half Resolution: Clock")) mPs3HalfResClock = (v == "1" || v == "true");
                     // Dark Theme: the write above mirrors Secure.ui_night_mode ("1"=off / "2"=on), but a
                     // bare settings-write does NOT reconfigure the running apps / SystemUI. Drive the real

@@ -1205,22 +1205,31 @@ bool NanoMenu::decodeRetroIconRGBA(const std::string& name, std::vector<uint8_t>
 // draw one glass icon (device px coords, like drawIconTex)
 // ---------------------------------------------------------------------------
 // Half-resolution glass-icon scratch FBO (Theme Settings > Half Resolution: Icons). One shared
-// RGBA target the glass icon is rendered into at half its on-screen size, then composited onto the
-// panel with a sharp GL_LINEAR upscale. Reallocated only when the requested size changes (icons in a
-// row share a size, so it is mostly cached). GL_LINEAR set once at creation gives the smooth upscale.
+// RGBA target the glass icon is rendered into (bottom-left w x h sub-rect) at half its on-screen
+// size, then composited onto the panel with a sharp GL_LINEAR upscale sampling only that sub-rect.
+// GROW-ONLY: the allocation only ever grows to the largest size seen, so an icon whose size changes
+// every frame (scroll/scale animation) REUSES it instead of triggering a per-icon glTexImage2D
+// reallocation + a glCheckFramebufferStatus GPU sync -- that per-icon realloc+sync storm was the
+// dramatic half-res-icon slowdown, and is pathological on a tiler (each status query flushes tiles).
 static GLuint sGlassScratchFbo = 0, sGlassScratchTex = 0;
-static int    sGlassScratchW = 0, sGlassScratchH = 0;
+static int    sGlassScratchW = 0, sGlassScratchH = 0;   // allocated (>= requested) size
 static bool glassScratchEnsure(int w, int h) {
     if (w < 1) w = 1;
     if (h < 1) h = 1;
-    if (sGlassScratchFbo && w == sGlassScratchW && h == sGlassScratchH) {
+    // Reuse whenever the current allocation is big enough (grow-only).
+    if (sGlassScratchFbo && w <= sGlassScratchW && h <= sGlassScratchH) {
         glBindFramebuffer(GL_FRAMEBUFFER, sGlassScratchFbo);
         return true;
     }
+    // Grow to cover the largest size seen, rounded up to a multiple of 64 so subsequent
+    // slightly-larger icons still hit (the realloc/sync happens a handful of times, never per frame).
+    auto up64 = [](int v) { return (v + 63) & ~63; };
+    int nw = up64(w > sGlassScratchW ? w : sGlassScratchW);
+    int nh = up64(h > sGlassScratchH ? h : sGlassScratchH);
     if (!sGlassScratchFbo) glGenFramebuffers(1, &sGlassScratchFbo);
     if (!sGlassScratchTex) glGenTextures(1, &sGlassScratchTex);
     glBindTexture(GL_TEXTURE_2D, sGlassScratchTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nw, nh, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1228,7 +1237,7 @@ static bool glassScratchEnsure(int w, int h) {
     glBindFramebuffer(GL_FRAMEBUFFER, sGlassScratchFbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sGlassScratchTex, 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { sGlassScratchW = sGlassScratchH = 0; return false; }
-    sGlassScratchW = w; sGlassScratchH = h;
+    sGlassScratchW = nw; sGlassScratchH = nh;
     return true;
 }
 
@@ -1361,8 +1370,13 @@ void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
             // Composite the premultiplied scratch onto the panel with the panel rotation (mTextProgram's
             // uRotation) + the tumble (rot), sampled V-flipped (FBO origin). Premultiplied blend.
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            // The icon occupies the bottom-left sw x sh of the (grow-only) scratch, so sample only
+            // that sub-rect [0,sw/allocW] x [0,sh/allocH]; sharpUp uses the full allocated texel
+            // dims so the sharp-bilinear texel grid aligns to the texture.
             drawIconTex(sGlassScratchTex, x, y, w, h, 1.0f, 1.0f, 1.0f, 1.0f, rot, /*flipV=*/true,
-                        /*sharpUpW=*/(float)sw, /*sharpUpH=*/(float)sh);   // sharp-bilinear upscale
+                        /*sharpUpW=*/(float)sGlassScratchW, /*sharpUpH=*/(float)sGlassScratchH,
+                        /*uMaxU=*/(float)sw / (float)sGlassScratchW,
+                        /*uMaxV=*/(float)sh / (float)sGlassScratchH);   // sharp-bilinear upscale, sub-rect
             // Seal uSharpUp back to OFF so no later mTextProgram consumer (glyphs/photos/clock) inherits it.
             glUseProgram(mTextProgram);
             if (mTextLocSharpUp >= 0) glUniform2f(mTextLocSharpUp, 0.0f, 0.0f);

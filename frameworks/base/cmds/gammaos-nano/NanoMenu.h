@@ -2150,6 +2150,11 @@ private:
     void   applyThemeSetting(int themeKey, int sel);     // persist + apply
     void   loadPs3ThemeSettings();
     std::string resolvePs3ItemValue(const Ps3Item& it);  // live theme value for a row, else it.value
+    // Re-resolve the frozen it.value snapshot for every bound row in the open levels after a
+    // settings change committed in place. The XMB carousel re-resolves live each frame, but the
+    // DSi/Minima list draws the snapshot, so without this a changed value keeps showing the old
+    // (default) value until you leave and re-enter the submenu.
+    void refreshBoundValuesInStack();
     void openBoundChooser(const Ps3SettingBinding* b);   // side chooser for a settings-bound leaf
     std::string ps3BoundValue(const Ps3SettingBinding* b);  // cached current value for a binding
     // Dark STROKE behind text/icons instead of a single drop shadow: a left/right
@@ -4384,7 +4389,8 @@ private:
     // mIconTextures[]). Supports a non-square w/h. (NanoMenuPS3Menu.cpp)
     void drawIconTex(GLuint tex, float x, float y, float w, float h,
                      float r, float g, float b, float a, float rot = 0.0f, bool flipV = false,
-                     float sharpUpW = 0.0f, float sharpUpH = 0.0f);
+                     float sharpUpW = 0.0f, float sharpUpH = 0.0f,
+                     float uMaxU = 1.0f, float uMaxV = 1.0f);
     GLuint mIconTextures[21]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=app-grid, 19=4-square grid (Applications), 20=push-pin (Pinned Apps)
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
