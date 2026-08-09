@@ -1886,6 +1886,8 @@ void OverlayMenu::rebuildVideo() {
             idx = (idx + dir + (int)mShaders.size())
                    % (int)mShaders.size();
             mPrefs.currentFx = mShaders[idx];
+            property_set("persist.gammaos.drastic_nano.shader",
+                         mPrefs.currentFx.c_str());
             mDirty = true;
             if (mRunner) {
                 std::string path = mShadersDir + "/" +
@@ -2140,11 +2142,11 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     }
-    {
+    if (mSfMode) {
         // Half Resolution: render the game at half the panel size and NEAREST-
         // upscale it, quartering the fill cost for a big speed-up on fill-bound
-        // panels (softer image). SurfaceFlinger path only; inert on the DRM path.
-        // Applies live from the next frame; default off.
+        // panels (softer image). SurfaceFlinger path only. Applies live from the
+        // next frame; default off.
         RowAction r;
         r.label = "Half Resolution";
         r.value = property_get_bool("persist.gammaos.drastic_nano.sf_half_res", false)
@@ -2158,7 +2160,27 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     }
-    {
+    if (mSfMode) {
+        // 16-bit Framebuffers: render the layout offscreen as RGB565 instead of
+        // 8888, halving the per-frame write+read bandwidth of the offscreen the
+        // final blit samples. Helps a memory-bandwidth-bound panel; may show mild
+        // banding on gradients (A/B it). SurfaceFlinger path only; applies live
+        // from the next frame; default off. Auto-reverts if the GPU cannot render
+        // to a 565 target.
+        RowAction r;
+        r.label = "16-bit Framebuffers";
+        r.value = property_get_bool("persist.gammaos.drastic_nano.sf_16bit", false)
+                          ? "On" : "Off";
+        auto flip = []() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.sf_16bit", false);
+            property_set("persist.gammaos.drastic_nano.sf_16bit", cur ? "0" : "1");
+        };
+        r.onAccept = flip;
+        r.onAdjust = [flip](int) { flip(); };
+        mRows.push_back(std::move(r));
+    }
+    if (mSfMode) {
         // FPS Counter: draw the measured present rate in the top-right corner.
         // The render loop reads this prop live per frame, so it applies from the
         // next frame; default off.
@@ -2176,16 +2198,20 @@ void OverlayMenu::rebuildVideo() {
         mRows.push_back(std::move(r));
     }
     auto addBool = [&](const char* label, bool& field,
-                       bool requiresRestart) {
+                       bool requiresRestart, const char* prop = nullptr) {
         RowAction r;
         r.label = label;
         r.value = trDyn(field ? "On" : "Off");
         // Live settings apply immediately; the few that genuinely need a
         // relaunch are tagged so the user knows it lands on next launch.
         if (requiresRestart) r.value += trDyn("  (next launch)");
-        auto flip = [this, &field, requiresRestart]() {
+        auto flip = [this, &field, requiresRestart, prop]() {
             field = !field;
             mDirty = true;
+            // Mirror the change into its prop so it persists over a vendor
+            // build.prop default (the launch loader applies the prop over the
+            // DraStic XML). unset prop = honor the XML as before.
+            if (prop) property_set(prop, field ? "1" : "0");
             if (!requiresRestart) applyConfigLive();
         };
         r.onAccept = flip;
@@ -2199,9 +2225,12 @@ void OverlayMenu::rebuildVideo() {
     // fxSetup match the new 256x192 / 512x384 upload size. Threaded 3D and
     // Disable Edge Marking are pure config bits the rasterizer re-reads
     // each frame.
-    addBool("Hi-res 3D",           mPrefs.hires3d,      false);
-    addBool("Threaded 3D",         mPrefs.threaded3d,   false);
-    addBool("Disable Edge Marking",mPrefs.disableEdge,  false);
+    addBool("Hi-res 3D",           mPrefs.hires3d,      false,
+            "persist.gammaos.drastic_nano.hires3d");
+    addBool("Threaded 3D",         mPrefs.threaded3d,   false,
+            "persist.gammaos.drastic_nano.threaded3d");
+    addBool("Disable Edge Marking",mPrefs.disableEdge,  false,
+            "persist.gammaos.drastic_nano.disable_edge");
     // Frame Sync: live toggle. Updates the DRM flip-path global
     // immediately so the next submitted frame picks up the new
     // behavior. No restart needed -- the ring already has the spare
@@ -2213,6 +2242,8 @@ void OverlayMenu::rebuildVideo() {
         auto toggle = [this]() {
             mPrefs.frameSync = !mPrefs.frameSync;
             android::sDrmFrameSync = mPrefs.frameSync;
+            property_set("persist.gammaos.drastic_nano.frame_sync",
+                         mPrefs.frameSync ? "1" : "0");
             mDirty = true;
         };
         r.onAccept = toggle;
@@ -2237,6 +2268,11 @@ void OverlayMenu::rebuildVideo() {
                 mPrefs.frameskipValue = v;
             }
             mDirty = true;
+            // Mirror to the prop so it persists over a build.prop default:
+            // Auto -> "-1" (loader honors the XML's Auto), Fixed N -> "N".
+            int fsv = (mPrefs.frameskipType == 1) ? -1 : mPrefs.frameskipValue;
+            property_set("persist.gammaos.drastic_nano.frameskip",
+                         std::to_string(fsv).c_str());
             applyConfigLive();
         };
         mRows.push_back(std::move(r));

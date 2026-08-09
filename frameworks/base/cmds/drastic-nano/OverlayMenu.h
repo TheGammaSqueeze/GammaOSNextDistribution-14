@@ -141,6 +141,11 @@ public:
     // devices (RG DS), which keep the bottom-screen panel instead.
     void setSingleScreen(bool s) { mSingleScreen = s; }
 
+    // True when running the SurfaceFlinger backend (vs DRM-direct). Gates the
+    // SF-only Video rows (Half Resolution / FPS Counter / 16-bit Framebuffers)
+    // so they never appear as no-op rows on the DRM path.
+    void setSfMode(bool s) { mSfMode = s; }
+
     // True if the user picked an option that requires drastic to
     // quit and relaunch (e.g. Hi-res toggle). main.cpp polls this
     // and, when set, writes prefs + triggers the auto-relaunch
@@ -341,6 +346,7 @@ private:
     // 0 = achievement list (normal), 1 = achievement detail card,
     // 2 = leaderboards list, 3 = one leaderboard's online rankings.
     bool mSingleScreen = false;
+    bool mSfMode = false;
     int  mRaView = 0;
     int  mAchTopRow = 0;           // first visible row of the rich achievements
                                    // list (whole-row scroll, so the cursor moves

@@ -1257,6 +1257,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // No second DS screen for the RA panel unless this is a dual-panel device
     // (RG DS): single-panel devices get the on-screen Achievements drill-in.
     overlay.setSingleScreen(!hasDualDisplay);
+    overlay.setSfMode(false);
     bool raInited = false;
     bool raPrevOverlayOpen = false;
 
@@ -2135,10 +2136,13 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // 16-bit (RGB565) layout offscreen: the fx final pass writes this every frame
     // and blitFullTexture reads it back, so a 565 target halves that per-frame
     // bandwidth on the SF path (the DS frame has no alpha and NEAREST scaling, so
-    // 565 is visually close). Gated so it can be A/B'd or disabled if a panel bands
-    // badly. SF path only; the DRM layout tex is untouched.
-    const bool sfFb16 =
-            property_get_int32("persist.gammaos.drastic_nano.sf_fb16", 0) != 0;
+    // 565 is visually close). Exposed as the in-game menu toggle "16-bit
+    // Framebuffers" (SF only; the DRM layout tex is untouched); re-read live below
+    // so it applies from the next frame, and A/B-able or off if a panel bands badly.
+    auto sfReadFb16 = []() -> bool {
+        return property_get_int32("persist.gammaos.drastic_nano.sf_16bit", 0) != 0;
+    };
+    bool sfFb16 = sfReadFb16();
     // GPU profiling (gated behind the existing fx debug prop): glFinish around the
     // full-panel blit and around the whole frame to attribute the SF frame time to
     // the layout->window copy vs everything else, so the next optimisation targets
@@ -2180,6 +2184,20 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             glBindFramebuffer(GL_FRAMEBUFFER, sfLayoutFbo);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                    GL_TEXTURE_2D, sfLayoutTex, 0);
+            // Not every GLES2 driver can render into a GL_RGB 5_6_5 texture
+            // attachment. If 565 leaves the FBO incomplete, fall back to 8888
+            // (and clear the toggle so the menu reflects it) rather than render
+            // a black panel.
+            if (sfFb16 &&
+                glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+                ALOGW("drastic-nano: SF 565 offscreen incomplete -- falling back to 8888");
+                sfFb16 = false;
+                property_set("persist.gammaos.drastic_nano.sf_16bit", "0");
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sfRenderW, sfRenderH, 0,
+                             GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                       GL_TEXTURE_2D, sfLayoutTex, 0);
+            }
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
         // rotate(rot) * Yflip, column-major [m0,m1,m2,m3] = [[m0,m2],[m1,m3]].
@@ -2222,6 +2240,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // The SF single-window path has no second screen for RA, so use the
     // on-screen Achievements drill-in here too.
     overlay.setSingleScreen(true);
+    overlay.setSfMode(true);
     bool raInited = false;
     bool raPrevOverlayOpen = false;
 
@@ -2546,8 +2565,9 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             // changing re-sizes the layout offscreen (applySfRotation reads
             // sfRenderScale). Half-res is SF-only and applies from the next frame.
             { int wantRot = sfReadRotate(); int wantScale = sfReadRenderScale();
-              if (wantRot != sfRot || wantScale != sfRenderScale) {
-                  sfRenderScale = wantScale; applySfRotation(wantRot); } }
+              bool wantFb16 = sfReadFb16();
+              if (wantRot != sfRot || wantScale != sfRenderScale || wantFb16 != sfFb16) {
+                  sfRenderScale = wantScale; sfFb16 = wantFb16; applySfRotation(wantRot); } }
 
             // The layout plan is computed at the RENDER size so the slot rects land
             // in the (possibly half-res) offscreen; the blit NEAREST-upscales the
@@ -3236,6 +3256,28 @@ int main(int argc, char** argv) {
         if (v > 1.0f) v = 1.0f;
         prefs.analogDeadzone = v;
     }
+    // drastic-nano video-setting prop overrides (applied AFTER readPrefs so a
+    // vendor build.prop / user prop wins over DraStic's SharedPreferences XML).
+    // Tri-state for the bools: unset or "-1" honors the XML (normal in-menu
+    // behaviour), "0"/"1" forces it. The Video-page menu rows write these same
+    // props on change, so an in-menu toggle persists over a build.prop default.
+    // This lets a vendor build.prop ship the Shader / Hi-res 3D / Threaded 3D /
+    // Edge Marking / Frame Sync defaults, which otherwise live only in the XML.
+    {
+        auto ovBool = [](const char* prop, bool& field) {
+            int v = property_get_int32(prop, -1);
+            if (v == 0) field = false;
+            else if (v == 1) field = true;   // -1 / unset: honor the XML value
+        };
+        ovBool("persist.gammaos.drastic_nano.hires3d",      prefs.hires3d);
+        ovBool("persist.gammaos.drastic_nano.threaded3d",   prefs.threaded3d);
+        ovBool("persist.gammaos.drastic_nano.disable_edge", prefs.disableEdge);
+        ovBool("persist.gammaos.drastic_nano.frame_sync",   prefs.frameSync);
+        char sh[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic_nano.shader", sh, "");
+        if (sh[0]) prefs.currentFx = sh;     // empty / unset: honor the XML value
+    }
+
     // Carry the frame-sync flag into the DRM flip path. Read at session
     // start rather than per-iter so the ring-depth assumption (enabled
     // adds one hold-slot to the working set) holds for the whole run.
