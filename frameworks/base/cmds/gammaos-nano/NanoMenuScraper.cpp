@@ -55,19 +55,35 @@ void NanoMenu::scraperEnsureLoaded() {
 
 void NanoMenu::loadScrapeIndex() {
     mScrapeIndex.clear();
+    mScrapeIndexLoadErr = false;
     int fd = open(kScrapeIndexPath, O_RDONLY);
-    if (fd < 0) return;
+    if (fd < 0) return;                          // absent: clean start, safe to save
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large scraped library (thousands of games with synopses) exceeds 8MB and the whole manifest would silently fail to load
-        content.resize(st.st_size);
-        ssize_t rd = read(fd, &content[0], st.st_size);
-        if (rd > 0) content.resize(rd); else content.clear();
+    if (fstat(fd, &st) == 0 && st.st_size > 0) {
+        // 128MB ceiling. The read allocates the ACTUAL file size (lazy), not 128MB, so this reserves
+        // no extra memory; it only lets a genuinely huge scraped library (thousands of games with
+        // synopses) load instead of being discarded.
+        if (st.st_size < 128 * 1024 * 1024) {
+            content.resize(st.st_size);
+            ssize_t rd = read(fd, &content[0], st.st_size);
+            if (rd > 0) content.resize(rd); else { content.clear(); mScrapeIndexLoadErr = true; }
+        } else {
+            mScrapeIndexLoadErr = true;          // present but over the ceiling: never let a save clobber it
+        }
     }
     close(fd);
+    if (mScrapeIndexLoadErr) {
+        ALOGW("scraper: index.json present but unreadable; refusing to overwrite (no data loss)");
+        return;
+    }
     if (content.empty()) return;
     njson::Value root;
-    if (!njson::parse(content, &root) || !root.isObject()) return;
+    if (!njson::parse(content, &root) || !root.isObject()) {
+        mScrapeIndexLoadErr = true;              // corrupt/partial: keep the file, do not clobber
+        ALOGW("scraper: index.json parse failed; refusing to overwrite (no data loss)");
+        return;
+    }
     const njson::Value* items = root.find("items");
     if (!items || !items->isArray()) return;
     for (const auto& it : items->arr) {
@@ -93,6 +109,13 @@ void NanoMenu::loadScrapeIndex() {
 }
 
 void NanoMenu::saveScrapeIndex() {
+    // Never clobber good on-disk data: if the last load failed (present but too big,
+    // unreadable, or corrupt) mScrapeIndex is empty and writing it would DELETE the
+    // user's whole scraped library. Refuse.
+    if (mScrapeIndexLoadErr) {
+        ALOGW("scraper: NOT saving index.json - prior load failed (avoiding data loss)");
+        return;
+    }
     njson::Value root = njson::Value::makeObject();
     root.set("version") = njson::Value::makeNumber(2);
     njson::Value items = njson::Value::makeArray();
@@ -161,19 +184,34 @@ const NanoMenu::ScrapeEntry* NanoMenu::scrapeEntryFor(const std::string& romPath
 // ---------------------------------------------------------------------------
 void NanoMenu::loadRomNameOverrides() {
     mRomNameOverride.clear();
+    mRomNamesLoadErr = false;
     int fd = open(kRomNamesPath, O_RDONLY);
-    if (fd < 0) return;
+    if (fd < 0) return;                          // absent: clean start, safe to save
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large scraped library (thousands of games with synopses) exceeds 8MB and the whole manifest would silently fail to load
-        content.resize(st.st_size);
-        ssize_t rd = read(fd, &content[0], st.st_size);
-        if (rd > 0) content.resize(rd); else content.clear();
+    bool tooBig = false;
+    if (fstat(fd, &st) == 0 && st.st_size > 0) {
+        if (st.st_size < 64 * 1024 * 1024) {     // 64MB, not 8MB: a large scraped library (thousands of games with synopses) exceeds 8MB and the whole manifest would silently fail to load
+            content.resize(st.st_size);
+            ssize_t rd = read(fd, &content[0], st.st_size);
+            if (rd > 0) content.resize(rd); else { content.clear(); mRomNamesLoadErr = true; }
+        } else {
+            tooBig = true;                       // present but over the ceiling: never let a save clobber it
+        }
     }
     close(fd);
+    if (tooBig || mRomNamesLoadErr) {
+        mRomNamesLoadErr = true;
+        ALOGW("scraper: names.json present but unreadable; refusing to overwrite (no data loss)");
+        return;
+    }
     if (content.empty()) return;
     njson::Value root;
-    if (!njson::parse(content, &root) || !root.isObject()) return;
+    if (!njson::parse(content, &root) || !root.isObject()) {
+        mRomNamesLoadErr = true;                 // corrupt/partial: keep the file, do not clobber
+        ALOGW("scraper: names.json parse failed; refusing to overwrite (no data loss)");
+        return;
+    }
     const njson::Value* items = root.find("items");
     if (!items || !items->isArray()) return;
     for (const auto& it : items->arr) {
@@ -187,6 +225,11 @@ void NanoMenu::loadRomNameOverrides() {
 }
 
 void NanoMenu::saveRomNameOverrides() {
+    // Never clobber good on-disk data if the last load failed (see saveScrapeIndex).
+    if (mRomNamesLoadErr) {
+        ALOGW("scraper: NOT saving names.json - prior load failed (avoiding data loss)");
+        return;
+    }
     njson::Value root = njson::Value::makeObject();
     root.set("version") = njson::Value::makeNumber(1);
     njson::Value items = njson::Value::makeArray();

@@ -2857,6 +2857,14 @@ private:
     struct BoxTex { GLuint tex = 0; float ar = 1.0f; };   // ar = width/height
     std::unordered_map<std::string, BoxTex> mRomBoxartCache;
     bool mScrapeBoxartOn = false;        // per-frame cache of scraperBoxartEnabled()
+    // Data-loss guards: a loader sets its flag true when the on-disk file EXISTS but could not be
+    // fully read (too big / IO error) or parsed. The matching saver then REFUSES to write, so a
+    // failed load never overwrites (destroys) the user's real data. Absent file / clean load = false.
+    bool mScrapeIndexLoadErr = false;    // index.json (scraped covers/fanart/metadata)
+    bool mRomNamesLoadErr    = false;    // names.json (per-game title overrides)
+    bool mMusicCfgLoadErr    = false;    // nano_music.json (music library + playlists)
+    bool mVideoCfgLoadErr    = false;    // nano_video.json (video library + playlists)
+    bool mPhotoCfgLoadErr    = false;    // nano_photo.json (photo library + playlists)
     GLuint romBoxartTex(const std::string& romPath, float* outAR);
     void scraperFreeBoxart();            // delete all cached cover textures
     void scraperArtTick();               // per-frame: toggle cache + free-on-leave-Game + saDrainArt (both themes)

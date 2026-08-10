@@ -482,15 +482,29 @@ int64_t NanoMenu::photoConfigStamp() const {
 
 bool NanoMenu::loadPhotoConfig() {
     const char* path = "/data/system/nano_photo.json";
+    mPhotoCfgLoadErr = false;
     int fd = open(path, O_RDONLY);
-    if (fd < 0) { mPhotoCfgStamp = -1; return false; }
+    if (fd < 0) { mPhotoCfgStamp = -1; return false; }   // absent: clean start, safe to save
     std::string content;
     char b[4096]; ssize_t n;
+    bool readErr = false;
     while ((n = read(fd, b, sizeof(b))) > 0) content.append(b, n);
+    if (n < 0) readErr = true;                            // read failed mid-stream: content is partial
     close(fd);
     mPhotoCfgStamp = photoConfigStamp();
+    if (readErr) {
+        mPhotoCfgLoadErr = true;                          // never let a save clobber the on-disk file
+        ALOGW("NanoMenu: nano_photo.json read failed; refusing to overwrite (no data loss)");
+        return false;
+    }
     njson::Value root;
-    if (!njson::parse(content, &root) || !root.isObject()) return false;
+    if (!njson::parse(content, &root) || !root.isObject()) {
+        if (!content.empty()) {                           // corrupt/partial (not just an empty file): keep it
+            mPhotoCfgLoadErr = true;
+            ALOGW("NanoMenu: nano_photo.json parse failed; refusing to overwrite (no data loss)");
+        }
+        return false;
+    }
     mPhotoFolders.clear();
     mPhotos.clear();
     mPhotoPlaylists.clear();
@@ -525,6 +539,11 @@ bool NanoMenu::loadPhotoConfig() {
 }
 
 void NanoMenu::savePhotoConfig() {
+    // Never clobber good on-disk data if the last load failed (see saveScrapeIndex).
+    if (mPhotoCfgLoadErr) {
+        ALOGW("NanoMenu: NOT saving nano_photo.json - prior load failed (avoiding data loss)");
+        return;
+    }
     njson::Value root = njson::Value::makeObject();
     root.set("version") = njson::Value::makeNumber(kPhotoMetaVersion);
     njson::Value folders = njson::Value::makeArray();

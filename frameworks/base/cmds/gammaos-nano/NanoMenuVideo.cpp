@@ -123,21 +123,38 @@ int64_t NanoMenu::videoConfigStamp() const {
 
 bool NanoMenu::loadVideoConfig() {
     const char* path = "/data/system/nano_video.json";
+    mVideoCfgLoadErr = false;
     int fd = open(path, O_RDONLY);
-    if (fd < 0) { mVideoCfgStamp = -1; return false; }
+    if (fd < 0) { mVideoCfgStamp = -1; return false; }   // absent: clean start, safe to save
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large video library would exceed 8MB and the whole list would silently fail to load
-        content.resize(st.st_size);
-        ssize_t rd = read(fd, &content[0], st.st_size);
-        if (rd > 0) content.resize(rd); else content.clear();
+    bool present = false;
+    if (fstat(fd, &st) == 0 && st.st_size > 0) {
+        present = true;
+        if (st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large video library would exceed 8MB and the whole list would silently fail to load
+            content.resize(st.st_size);
+            ssize_t rd = read(fd, &content[0], st.st_size);
+            if (rd > 0) content.resize(rd); else { content.clear(); mVideoCfgLoadErr = true; }
+        } else {
+            mVideoCfgLoadErr = true;           // present but over the ceiling: never let a save clobber it
+        }
     }
     close(fd);
     mVideoCfgStamp = videoConfigStamp();
+    if (mVideoCfgLoadErr) {
+        ALOGW("NanoMenu: nano_video.json present but unreadable; refusing to overwrite (no data loss)");
+        return false;
+    }
     if (content.empty()) return false;
 
     njson::Value root;
-    if (!njson::parse(content, &root) || !root.isObject()) return false;
+    if (!njson::parse(content, &root) || !root.isObject()) {
+        if (present) {                         // corrupt/partial: keep the file, do not clobber
+            mVideoCfgLoadErr = true;
+            ALOGW("NanoMenu: nano_video.json parse failed; refusing to overwrite (no data loss)");
+        }
+        return false;
+    }
 
     mVideoFolders.clear();
     mVideos.clear();
@@ -189,6 +206,11 @@ bool NanoMenu::loadVideoConfig() {
 }
 
 void NanoMenu::saveVideoConfig() {
+    // Never clobber good on-disk data if the last load failed (see saveScrapeIndex).
+    if (mVideoCfgLoadErr) {
+        ALOGW("NanoMenu: NOT saving nano_video.json - prior load failed (avoiding data loss)");
+        return;
+    }
     njson::Value root = njson::Value::makeObject();
     root.set("version") = njson::Value::makeNumber(kVideoMetaVersion);
     njson::Value folders = njson::Value::makeArray();

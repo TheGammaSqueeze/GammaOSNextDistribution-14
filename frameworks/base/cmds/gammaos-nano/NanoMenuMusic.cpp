@@ -99,21 +99,38 @@ int64_t NanoMenu::musicConfigStamp() const {
 
 bool NanoMenu::loadMusicConfig() {
     const char* path = "/data/system/nano_music.json";
+    mMusicCfgLoadErr = false;
     int fd = open(path, O_RDONLY);
-    if (fd < 0) { mMusicCfgStamp = -1; return false; }
+    if (fd < 0) { mMusicCfgStamp = -1; return false; }   // absent: clean start, safe to save
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large music library would exceed 8MB and the whole list would silently fail to load
-        content.resize(st.st_size);
-        ssize_t rd = read(fd, &content[0], st.st_size);
-        if (rd > 0) content.resize(rd); else content.clear();
+    bool present = false;
+    if (fstat(fd, &st) == 0 && st.st_size > 0) {
+        present = true;
+        if (st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large music library would exceed 8MB and the whole list would silently fail to load
+            content.resize(st.st_size);
+            ssize_t rd = read(fd, &content[0], st.st_size);
+            if (rd > 0) content.resize(rd); else { content.clear(); mMusicCfgLoadErr = true; }
+        } else {
+            mMusicCfgLoadErr = true;           // present but over the ceiling: never let a save clobber it
+        }
     }
     close(fd);
     mMusicCfgStamp = musicConfigStamp();
+    if (mMusicCfgLoadErr) {
+        ALOGW("NanoMenu: nano_music.json present but unreadable; refusing to overwrite (no data loss)");
+        return false;
+    }
     if (content.empty()) return false;
 
     njson::Value root;
-    if (!njson::parse(content, &root) || !root.isObject()) return false;
+    if (!njson::parse(content, &root) || !root.isObject()) {
+        if (present) {                         // corrupt/partial: keep the file, do not clobber
+            mMusicCfgLoadErr = true;
+            ALOGW("NanoMenu: nano_music.json parse failed; refusing to overwrite (no data loss)");
+        }
+        return false;
+    }
 
     mMusicFolders.clear();
     mMusicTracks.clear();
@@ -159,6 +176,11 @@ bool NanoMenu::loadMusicConfig() {
 }
 
 void NanoMenu::saveMusicConfig() {
+    // Never clobber good on-disk data if the last load failed (see saveScrapeIndex).
+    if (mMusicCfgLoadErr) {
+        ALOGW("NanoMenu: NOT saving nano_music.json - prior load failed (avoiding data loss)");
+        return;
+    }
     njson::Value root = njson::Value::makeObject();
     root.set("version") = njson::Value::makeNumber(kMusicMetaVersion);
     njson::Value folders = njson::Value::makeArray();
