@@ -2642,6 +2642,26 @@ void NanoMenu::photoDeletePlaylist(int plIdx) {
     savePhotoConfig();
     mPhotoCatsStale = true;   // rebuild the Photo column (Playlists count) at the settled root
 }
+// Remove one photo (matched by file path) from a playlist. Non-destructive: the image file stays.
+void NanoMenu::photoRemoveFromPlaylist(int plIdx, const std::string& file) {
+    if (plIdx < 0 || plIdx >= (int)mPhotoPlaylists.size() || file.empty()) return;
+    auto& files = mPhotoPlaylists[plIdx].files;
+    files.erase(std::remove(files.begin(), files.end(), file), files.end());
+    savePhotoConfig();
+}
+// Reorder a photo within a playlist by swapping it with its neighbour (dir -1 = up/earlier,
+// +1 = down/later). Matched by file path so it is robust to entries skipped when the grid built.
+void NanoMenu::photoMoveInPlaylist(int plIdx, const std::string& file, int dir) {
+    if (plIdx < 0 || plIdx >= (int)mPhotoPlaylists.size() || file.empty() || dir == 0) return;
+    auto& files = mPhotoPlaylists[plIdx].files;
+    int i = -1;
+    for (int k = 0; k < (int)files.size(); k++) if (files[k] == file) { i = k; break; }
+    if (i < 0) return;
+    int j = i + (dir < 0 ? -1 : 1);
+    if (j < 0 || j >= (int)files.size()) return;
+    std::swap(files[i], files[j]);
+    savePhotoConfig();
+}
 void NanoMenu::buildPhotoPlaylistsScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = 0;
     { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_PHOTO_PL_NEW;

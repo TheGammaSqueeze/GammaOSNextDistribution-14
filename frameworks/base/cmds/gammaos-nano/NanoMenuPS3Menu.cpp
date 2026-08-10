@@ -2178,9 +2178,10 @@ static std::string cpHex(float h, float s, float v) {
     return std::string(buf);
 }
 
-void NanoMenu::colorPickerOpen(const Ps3SettingBinding* b, const std::string& curHex) {
+void NanoMenu::colorPickerOpen(const Ps3SettingBinding* b, const std::string& curHex, int applyMode) {
     mCpBinding = b;
-    mCpTitle = b ? b->label : std::string("Colour");
+    mCpApplyMode = applyMode;
+    mCpTitle = (applyMode == 1) ? std::string("Custom Colour") : (b ? b->label : std::string("Colour"));
     std::string h = curHex; if (!h.empty() && h[0] == '#') h = h.substr(1);
     if (h.size() >= 6) {
         long v = strtol(h.substr(0, 6).c_str(), nullptr, 16);
@@ -2198,9 +2199,35 @@ void NanoMenu::colorPickerOpen(const Ps3SettingBinding* b, const std::string& cu
 }
 
 void NanoMenu::colorPickerApply() {
+    if (mCpApplyMode == 1) { applyThemeAccentColor(cpHex(mCpHue, mCpSat, mCpVal)); return; }   // theme accent (all themes)
     if (!mCpBinding) return;
     applyRgbSolidColor(cpHex(mCpHue, mCpSat, mCpVal), mCpBinding);
 }
+
+// Parse "#RRGGBB" (or "RRGGBB") into 0..1 RGB. False for empty / malformed input.
+static bool ps3ParseHexColor(const std::string& hex, float& r, float& g, float& b) {
+    std::string h = hex;
+    if (!h.empty() && h[0] == '#') h = h.substr(1);
+    if (h.size() < 6) return false;
+    std::string six = h.substr(0, 6);
+    for (char c : six)
+        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) return false;
+    long v = strtol(six.c_str(), nullptr, 16);
+    r = ((v >> 16) & 0xFF) / 255.0f;
+    g = ((v >> 8)  & 0xFF) / 255.0f;
+    b = (v & 0xFF) / 255.0f;
+    return true;
+}
+
+bool NanoMenu::customAccentRGB(float& r, float& g, float& b) const {
+    return ps3ParseHexColor(mPs3ColorCustomHex, r, g, b);
+}
+
+std::string NanoMenu::customAccentHex() const {
+    return mPs3ColorCustomHex.empty() ? std::string("#3AA0FF") : mPs3ColorCustomHex;   // last custom, or a neutral azure seed
+}
+// applyThemeAccentColor is defined lower down, next to the accent resolvers, because it needs the
+// file-static kPs3ColorCount which is declared there.
 
 // Shared "apply a solid LED colour" logic, used by both the picker and the preset swatches.
 // Writes the colour to the row's *_hex_custom prop (+ the primary rgb_hex mirror), then puts the
@@ -2243,9 +2270,9 @@ bool NanoMenu::colorPickerHandleKey(int code, int value) {
     if (value != 1) return true;               // act on press edges only
     if (code == BTN_SOUTH || code == KEY_ENTER) {          // A / Enter -> confirm + apply
         colorPickerApply();
-        mCpActive = false; mCpBinding = nullptr; mGpSelectDownMs = 0; mDisplayDirty = true;
+        mCpActive = false; mCpBinding = nullptr; mCpApplyMode = 0; mGpSelectDownMs = 0; mDisplayDirty = true;
     } else if (code == BTN_EAST || code == KEY_BACK) {      // B / Back -> cancel
-        mCpActive = false; mCpBinding = nullptr; mGpSelectDownMs = 0; mDisplayDirty = true;
+        mCpActive = false; mCpBinding = nullptr; mCpApplyMode = 0; mGpSelectDownMs = 0; mDisplayDirty = true;
     } else if (code == BTN_TL) {               // L1 -> less saturation
         mCpSat -= 0.08f; if (mCpSat < 0.0f) mCpSat = 0.0f; mDisplayDirty = true;
     } else if (code == BTN_TR) {               // R1 -> more saturation
@@ -4786,6 +4813,7 @@ void NanoMenu::ps3XmbUp() {
     if (mMpActive) { if (mMpDelConfirmActive) { mpDelConfirmMove(-1); return; }
                      if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }
                      if (mMpCpOpen) mpOptMove(0, +1); return; }   // panel grid nav (screen-up = grid-up)
+    if (mMpPlChooserActive) { mpPlChooserMove(-1); return; }   // music chooser opened over the browse column (mMpActive == false)
     if (mPvPlChooserActive) { pvPlChooserMove(-1); return; }
     if (mVidPlChooserActive) { vidPlChooserMove(-1); return; }
     if (mPhotoMultiActive) { photoMultiMove(-1); return; }
@@ -4823,6 +4851,7 @@ void NanoMenu::ps3XmbDown() {
     if (mMpActive) { if (mMpDelConfirmActive) { mpDelConfirmMove(+1); return; }
                      if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }
                      if (mMpCpOpen) mpOptMove(0, -1); return; }   // panel grid nav (screen-down = grid-down)
+    if (mMpPlChooserActive) { mpPlChooserMove(+1); return; }   // music chooser opened over the browse column (mMpActive == false)
     if (mPvPlChooserActive) { pvPlChooserMove(+1); return; }
     if (mVidPlChooserActive) { vidPlChooserMove(+1); return; }
     if (mPhotoMultiActive) { photoMultiMove(+1); return; }
@@ -5031,6 +5060,7 @@ void NanoMenu::ps3XmbSelect() {
         else mpAudioCmd(mMusicPlayer.isPlaying() ? MpAudioCmd::Pause : MpAudioCmd::Play);
         return;
     }
+    if (mMpPlChooserActive) { mpPlChooserSelect(); return; }   // X: commit the music chooser over the browse column
     if (mPvPlChooserActive) { pvPlChooserSelect(); return; }   // X: commit the chooser
     if (mVidPlChooserActive) { vidPlChooserSelect(); return; }
     if (mPhotoMultiActive) { photoMultiActivate(); return; }   // X: toggle row / activate button
@@ -6098,6 +6128,7 @@ void NanoMenu::ps3XmbBack() {
                      if (mMpCpOpen) mpOptBack();
                      else if (mpIsOpening()) closeMusicPlayer();   // abort a slow/stuck open (loading spinner up)
                      else minimizeMusicPlayer(); return; }   // O: chooser cancel / panel back / minimize (audio keeps playing)
+    if (mMpPlChooserActive) { mpPlChooserCancel(); return; }   // O: cancel the music chooser over the browse column
     if (mPvPlChooserActive) { pvPlChooserCancel(); return; }   // O: cancel the chooser
     if (mVidPlChooserActive) { vidPlChooserCancel(); return; }
     if (mPhotoMultiActive) { photoMultiClose(); return; }   // O: leave multi-select
@@ -7270,6 +7301,11 @@ void NanoMenu::renderPs3Xmb() {
         mVidPlChooserAnim += (ct - mVidPlChooserAnim) * fminf(1.0f, d * 10.0f);
         if (mVidPlChooserActive || mVidPlChooserAnim > 0.004f) drawVidPlChooser();
     }
+    // Music "Add to Playlist" chooser over the live Music column (modal). drawMpPlChooser eases its
+    // own open fade, so this is a plain call (input is already routed over the column). Lets X add a
+    // browse track to a playlist without opening the player. Skipped in Now-Playing (mMpActive draws
+    // its own copy), so there is never a double draw.
+    if (!mMpActive && (mMpPlChooserActive || mMpPlChooserAnim > 0.004f)) drawMpPlChooser();
 
     // Restore the XMB chrome reveal that the standalone slide clock zeroed at the top of this frame,
     // so it does not persist to a later XMB home render (see the capture note above). All of this
@@ -7877,6 +7913,7 @@ bool NanoMenu::ps3SwatchColor(int ci, float& r, float& g, float& b) const {
 // for a bold NextUI-style accent. Defined here because kPs3ColorOpts is file-static.
 void NanoMenu::minimaAccent(float& r, float& g, float& b) const {
     int idx = mPs3ColorIdx;
+    if (idx == kPs3ColorCount && customAccentRGB(r, g, b)) return;   // "Custom..." accent (user hex)
     if (idx <= 0 || idx >= kPs3ColorCount) {   // "Original" -> the XMB's auto per-month hue (as a vivid accent)
         float c[3]; ps3bg::accentColor(c);
         r = c[0]; g = c[1]; b = c[2];
@@ -7891,6 +7928,7 @@ void NanoMenu::minimaAccent(float& r, float& g, float& b) const {
 // before (identity rotation). Otherwise it is the chosen saturated preset.
 void NanoMenu::ndsAccentRGB(float& r, float& g, float& b) const {
     int idx = mPs3ColorIdx;
+    if (idx == kPs3ColorCount && customAccentRGB(r, g, b)) return;   // "Custom..." accent (user hex)
     if (idx <= 0 || idx >= kPs3ColorCount) {   // "Original" -> keep the DSi signature azure
         r = 0.094f; g = 0.573f; b = 0.922f;
         return;
@@ -7901,7 +7939,28 @@ void NanoMenu::ndsAccentRGB(float& r, float& g, float& b) const {
 // True when the Colour setting is "Original" - the DSi keeps its baked blue sprites (dialog frame)
 // verbatim; any other accent swaps them for accent-coloured procedural equivalents.
 bool NanoMenu::ndsAccentIsDefault() const {
+    if (mPs3ColorIdx == kPs3ColorCount && !mPs3ColorCustomHex.empty()) return false;  // Custom accent -> recolor the DSi chrome
     return mPs3ColorIdx <= 0 || mPs3ColorIdx >= kPs3ColorCount;
+}
+
+// Commit a "Custom..." theme accent chosen in the HSV picker. Persists the hex + the sentinel
+// colour index (kPs3ColorCount = Custom), pushes the wave tint live (ps3bg cross-fades), and
+// invalidates the DSi frame-accent cache (which keys on mPs3ColorIdx alone, so it would not
+// otherwise notice one custom hex replacing another). The XMB icons are relit by the live wave and
+// the Minima/DSi accents are read per-frame, so no rebuild is needed there. Defined here (not up by
+// colorPickerApply) so the file-static kPs3ColorCount above is in scope.
+void NanoMenu::applyThemeAccentColor(const std::string& hex) {
+    float r, g, b;
+    if (!ps3ParseHexColor(hex, r, g, b)) return;
+    mPs3ColorCustomHex = hex;
+    mPs3ColorIdx = kPs3ColorCount;   // sentinel = Custom
+    property_set("persist.gammaos.nano.ps3xmb.color_custom", hex.c_str());
+    char v[16]; snprintf(v, sizeof(v), "%d", kPs3ColorCount);
+    property_set("persist.gammaos.nano.ps3xmb.color", v);
+    ps3bg::setThemeColor(r, g, b);
+    mNdsFrameAccentIdx = -999;        // force the DSi accent frame to rebuild for this custom colour
+    mDisplayDirty = true;
+    photoShowBanner(trDyn("Setting changed"));
 }
 
 // Game Systems editor: icon-tint chooser (theme key 21). Defined here so it can
@@ -7955,14 +8014,20 @@ void NanoMenu::loadPs3ThemeSettings() {
         if (v < 0 || v >= cap) v = atoi(def); if (v < 0 || v >= cap) v = 0; return v;
     };
     mPs3ThemeIdx    = rd("persist.gammaos.nano.ps3xmb.theme", 2);
-    mPs3ColorIdx    = rd("persist.gammaos.nano.ps3xmb.color", kPs3ColorCount);
+    mPs3ColorIdx    = rd("persist.gammaos.nano.ps3xmb.color", kPs3ColorCount + 1);   // allow kPs3ColorCount = the "Custom..." accent
+    property_get("persist.gammaos.nano.ps3xmb.color_custom", buf, "");
+    mPs3ColorCustomHex = buf;
     mPs3BgIdx       = rd("persist.gammaos.nano.ps3xmb.bg", 3);
     mPs3FontIdx     = rd("persist.gammaos.nano.ps3xmb.font", 3);
     mPs3DayNightIdx = rd("persist.gammaos.nano.ps3xmb.daynight", kPs3DayNightCount, "5");   // default: Night
     // Apply the visual state (colour + day/night). Cross-fades from the boot
     // colour are handled in ps3bg; setThemeColor/setDayNightBlend just set the
     // target. mPs3ColorIdx 0 = Original (per-month hue).
-    if (mPs3ColorIdx == 0) ps3bg::clearThemeColor();
+    if (mPs3ColorIdx == kPs3ColorCount) {   // "Custom..." accent
+        float cr, cg, cb;
+        if (customAccentRGB(cr, cg, cb)) ps3bg::setThemeColor(cr, cg, cb);
+        else { mPs3ColorIdx = 0; ps3bg::clearThemeColor(); }   // sentinel with no valid hex -> Original
+    } else if (mPs3ColorIdx == 0) ps3bg::clearThemeColor();
     else ps3bg::setThemeColor(kPs3ColorOpts[mPs3ColorIdx].r,
                               kPs3ColorOpts[mPs3ColorIdx].g,
                               kPs3ColorOpts[mPs3ColorIdx].b);
@@ -9180,6 +9245,7 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         int c = (int)(sizeof(kPs3ThemeOpts) / sizeof(kPs3ThemeOpts[0]));
         if (mPs3ThemeIdx >= 0 && mPs3ThemeIdx < c) return kPs3ThemeOpts[mPs3ThemeIdx];
     } else if (n == "Colour" || n == "Color") {
+        if (mPs3ColorIdx == kPs3ColorCount) return trDyn("Custom");
         if (mPs3ColorIdx >= 0 && mPs3ColorIdx < kPs3ColorCount) return kPs3ColorOpts[mPs3ColorIdx].name;
     } else if (n == "Background") {
         int c = (int)(sizeof(kPs3BgOpts) / sizeof(kPs3BgOpts[0]));
@@ -9721,7 +9787,10 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
     } else if (n == "Colour" || n == "Color") {
         mPs3DlgKind = 1; mPs3DlgThemeKey = 2;
         for (int i = 0; i < kPs3ColorCount; i++) { mPs3DlgOptions.push_back(kPs3ColorOpts[i].name); mPs3DlgSwatch.push_back(i); }
-        mPs3DlgSel = mPs3ColorIdx;
+        // "Custom..." (swatch sentinel -2) opens the full-screen d-pad HSV picker, exactly like the
+        // GammaRGB LED Colour chooser; its committed colour drives the accent across all three themes.
+        mPs3DlgOptions.push_back(trDyn("Custom...")); mPs3DlgSwatch.push_back(-2);
+        mPs3DlgSel = mPs3ColorIdx;   // kPs3ColorCount selects the Custom row when a custom accent is active
     } else if (n == "Background") {
         mPs3DlgKind = 1; mPs3DlgThemeKey = 3;
         for (const char* s : kPs3BgOpts) { mPs3DlgOptions.push_back(s); mPs3DlgSwatch.push_back(-1); }
@@ -10483,6 +10552,7 @@ void NanoMenu::previewThemeSetting(int themeKey, int sel) {
             mPs3ColorIdx = sel;
             if (sel <= 0) ps3bg::clearThemeColor();
             else if (sel < kPs3ColorCount) ps3bg::setThemeColor(kPs3ColorOpts[sel].r, kPs3ColorOpts[sel].g, kPs3ColorOpts[sel].b);
+            else { float cr, cg, cb; if (customAccentRGB(cr, cg, cb)) ps3bg::setThemeColor(cr, cg, cb); }   // "Custom..." row highlighted -> preview the stored custom colour
             break;
         case 3: mPs3BgIdx = sel; ps3bg::setParticlesEnabled(sel != 1); break;  // Classic hides particles
         case 4: mPs3FontIdx = sel; break;
@@ -11116,6 +11186,12 @@ void NanoMenu::closePs3Dialog(bool apply) {
             gsRefreshStackLevels();
             buildPs3Cats();
         }
+    } else if (mPs3DlgThemeKey == 2 && apply && mPs3DlgSel >= 0
+               && mPs3DlgSel < (int)mPs3DlgSwatch.size() && mPs3DlgSwatch[mPs3DlgSel] == -2) {
+        // "Custom..." row of the Colour chooser: hand off to the full-screen d-pad HSV picker in
+        // theme-accent mode (no preset commit). The picker persists + live-applies the accent on
+        // confirm, or leaves the current colour untouched on cancel. Mirrors the LED @rgbcolor flow.
+        colorPickerOpen(nullptr, customAccentHex(), 1);
     } else if (mPs3DlgThemeKey > 0) {
         if (apply) {
             // Snapshot the key BEFORE applyThemeSetting: the app-uninstall case (31)
@@ -11370,7 +11446,7 @@ void NanoMenu::openXmbOpt() {
     // Only over the live home column - never while another modal owns input, and
     // not over a live in-game app in the overlay (where a dialog could fight it).
     if (mPs3DlgActive || mMpActive || mPvActive || mVidActive || mPs3WizActive || mPs3TzActive || mPs3LangActive
-        || mPs3BrightSlider || mOskActive || mVidPlChooserActive) return;
+        || mPs3BrightSlider || mOskActive || mVidPlChooserActive || mMpPlChooserActive || mPvPlChooserActive) return;
     if (mOverlayMode && !mOverlayWallpaper) return;
     ps3Sfx(PS3_SFX_OPTION);       // PS3 XMB: option / information panel sound as the menu opens
 
@@ -11475,6 +11551,16 @@ void NanoMenu::openXmbOpt() {
         for (int i = 0; i < 4; i++) { Ps3OptSub s; s.label = kG[i]; s.kind = 1; s.groupIdx = i; v.push_back(s); }
         return v;
     };
+    // Playlist item reorder (kind 7): a "Reorder" submenu with Move Up / Move Down. xmbOptApplySub
+    // moves the focused item within its playlist by file/url identity and keeps the submenu open, so
+    // the user can nudge it several positions in one go. Offered only over a playlist's contents.
+    auto addReorder = [&]() {
+        std::vector<Ps3OptSub> rsub;
+        auto R = [](const char* l, int d) { Ps3OptSub s; s.label = l; s.kind = 7; s.dir = d; return s; };
+        rsub.push_back(R("Move Up",   -1));
+        rsub.push_back(R("Move Down", +1));
+        addSub("Reorder", false, rsub, 0);
+    };
 
     // Photo thumbnail grid: per-photo options for the focused thumbnail (the grid
     // is a full-takeover screen with an empty stack level, so it is handled before
@@ -11489,13 +11575,17 @@ void NanoMenu::openXmbOpt() {
         add("View", "pgview", false);
         add("Copy", "pgcopy", false);
         add("Add to Playlist", "pgaddgrid", false);
+        if (mPhotoGridFromPl >= 0) {   // browsing a playlist's contents: offer remove + reorder
+            add("Remove from Playlist", "prmfrompl", false);
+            addReorder();
+        }
         add("Print", "pgprint", false);
         add("Delete", "pgdelete", false);
         add("Information", "photoinfo", false);
         mPs3OptCtxKind = PS3_PHOTO; mPs3OptCtxA = pIdx; mPs3OptCtxB = 0;
         mPs3OptCtxLabel = (pIdx >= 0 && pIdx < (int)mPhotos.size()) ? mPhotos[pIdx].name : std::string();
         mPs3OptCtxPayload.clear(); mPs3OptCtxDesc.clear();
-        mPs3OptCtxList.clear(); mPs3OptCtxSel = 0;
+        mPs3OptCtxList.clear(); mPs3OptCtxSel = 0; mPs3OptCtxPlaylist = mPhotoGridFromPl;
         mPs3OptSel = xmbOptDefaultSel(); mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
         return;
     }
@@ -11600,7 +11690,13 @@ void NanoMenu::openXmbOpt() {
         case PS3_MUSIC_ALBUM:
             add("Play", "playalbum", true); add("Information", "info", false); break;
         case PS3_MUSIC_TRACK:
-            add("Play", "playtrack", true); add("Information", "info", false); break;
+            add("Play", "playtrack", true);
+            add("Add to Playlist", "addpltrack", false);   // add straight from the browse list (no need to play first)
+            if (!mPs3Stack.empty() && mPs3Stack.back().playlistIdx >= 0) {   // inside a playlist: remove + reorder
+                add("Remove from Playlist", "rmfrompl", false);
+                addReorder();
+            }
+            add("Information", "info", false); break;
         case PS3_MUSIC_PLAYLIST:
             add("Play", "playpl", true);
             add("Delete Playlist", "delpl", false);
@@ -11625,12 +11721,21 @@ void NanoMenu::openXmbOpt() {
                 add("Play", "vplay", true);
             }
             add("Add to Playlist", "vaddpl", false);
+            if (!mPs3Stack.empty() && mPs3Stack.back().playlistIdx >= 0) {   // inside a playlist: remove + reorder
+                add("Remove from Playlist", "vrmfrompl", false);
+                addReorder();
+            }
             add("Copy", "vcopy", false); add("Delete", "vdelete", false);
             add("Information", "vinfo", false); break;
         case PS3_IPTV_CHANNEL:
             // Live channel: Watch + Add to Playlist (so a channel can be saved like a video).
             add("Watch", "iptvplay", true);
-            add("Add to Playlist", "iptvaddpl", false); break;
+            add("Add to Playlist", "iptvaddpl", false);
+            if (!mPs3Stack.empty() && mPs3Stack.back().playlistIdx >= 0) {   // saved into a playlist: remove + reorder
+                add("Remove from Playlist", "vrmstreampl", false);
+                addReorder();
+            }
+            break;
         case PS3_PHOTO_ALBUM: {
             // Photo column-root folder: 1:1 with the web (Sort By + Group Content,
             // a gap, then Slideshow / Copy / Delete / Information).
@@ -11686,6 +11791,7 @@ void NanoMenu::openXmbOpt() {
     mPs3OptCtxKind = it.kind; mPs3OptCtxA = it.a; mPs3OptCtxB = it.b;
     mPs3OptCtxLabel = it.label; mPs3OptCtxPayload = it.payloadStr; mPs3OptCtxDesc = it.desc;
     mPs3OptCtxList = items; mPs3OptCtxSel = sel;
+    mPs3OptCtxPlaylist = (!mPs3Stack.empty()) ? mPs3Stack.back().playlistIdx : -1;   // >=0 => this item is a playlist's content
     // The app menu wants Start (row 0) highlighted, not the post-separator Uninstall the
     // generic "first action after the separator" heuristic would pick.
     mPs3OptSel = (it.kind == PS3_APP) ? 0 : xmbOptDefaultSel();
@@ -12405,6 +12511,51 @@ void NanoMenu::xmbOptApplySub(const Ps3OptSub& sr) {
     } else if (sr.kind == 6) {     // Per-app "Keep Running in Background" toggle (mPs3OptCtxPayload = package)
         backgroundSet(mPs3OptCtxPayload, sr.bgEnable);
         closeXmbOpt();
+    } else if (sr.kind == 7) {     // Playlist reorder (Move Up/Down). Moves the focused item within its
+        // playlist by file/url identity, rebuilds the open level in place, and re-points the cursor to
+        // the moved item. The option menu is deliberately LEFT OPEN so the user can nudge it several
+        // positions in a row (the item identity is stable, so repeated moves keep targeting it).
+        int pl = mPs3OptCtxPlaylist;
+        if (pl >= 0) {
+            if (mPs3OptCtxKind == PS3_MUSIC_TRACK && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mMusicTracks.size()) {
+                std::string ident = mMusicTracks[mPs3OptCtxA].file;
+                musicMoveInPlaylist(pl, ident, sr.dir);
+                if (!mPs3Stack.empty() && mPs3Stack.back().playlistIdx == pl) {
+                    buildMusicPlaylistSubmenu(pl, mPs3Stack.back());
+                    auto& its = mPs3Stack.back().items;
+                    for (int k = 0; k < (int)its.size(); k++) if (its[k].payloadStr == ident) { mPs3Stack.back().sel = k; break; }
+                    int nn = (int)its.size(); if (mPs3Stack.back().sel >= nn) mPs3Stack.back().sel = nn - 1; if (mPs3Stack.back().sel < 0) mPs3Stack.back().sel = 0;
+                    mPs3OptCtxList = its; mPs3OptCtxSel = mPs3Stack.back().sel;
+                }
+            } else if (mPs3OptCtxKind == PS3_VIDEO_FILE || mPs3OptCtxKind == PS3_IPTV_CHANNEL) {
+                std::string ident = mPs3OptCtxPayload;
+                bool isStream = (mPs3OptCtxKind == PS3_IPTV_CHANNEL);
+                if (!ident.empty()) {
+                    videoMoveInPlaylist(pl, ident, isStream, sr.dir);
+                    if (!mPs3Stack.empty() && mPs3Stack.back().playlistIdx == pl) {
+                        buildVideoPlaylistSubmenu(pl, mPs3Stack.back());
+                        auto& its = mPs3Stack.back().items;
+                        // Match BOTH the path/url and the kind: files render before streams and both set
+                        // payloadStr, so a file path that equals a stream url would otherwise land the
+                        // cursor on the wrong row after moving the other kind.
+                        int expectKind = isStream ? PS3_IPTV_CHANNEL : PS3_VIDEO_FILE;
+                        for (int k = 0; k < (int)its.size(); k++) if (its[k].payloadStr == ident && its[k].kind == expectKind) { mPs3Stack.back().sel = k; break; }
+                        int nn = (int)its.size(); if (mPs3Stack.back().sel >= nn) mPs3Stack.back().sel = nn - 1; if (mPs3Stack.back().sel < 0) mPs3Stack.back().sel = 0;
+                        mPs3OptCtxList = its; mPs3OptCtxSel = mPs3Stack.back().sel;
+                    }
+                }
+            } else if (mPs3OptCtxKind == PS3_PHOTO && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotos.size()) {
+                std::string ident = mPhotos[mPs3OptCtxA].file;
+                photoMoveInPlaylist(pl, ident, sr.dir);
+                std::vector<int> list; std::string title;
+                buildPhotoPlaylistGridList(pl, list, title);
+                mPhotoGridList = list;
+                for (int k = 0; k < (int)mPhotoGridList.size(); k++) if (mPhotoGridList[k] == mPs3OptCtxA) { mPhotoGridCursor = k; break; }
+                int nn = (int)mPhotoGridList.size(); if (mPhotoGridCursor >= nn) mPhotoGridCursor = nn - 1; if (mPhotoGridCursor < 0) mPhotoGridCursor = 0;
+            }
+            mDisplayDirty = true;
+        }
+        // No closeXmbOpt(): the Reorder submenu stays open so Move Up/Down can repeat.
     }
 }
 
@@ -13010,6 +13161,48 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         return;
     }
     if (act == "playtrack") { openMusicPlayer(mPs3OptCtxList, mPs3OptCtxSel); return; }
+    if (act == "addpltrack") { mpOpenAddChooser(mPs3OptCtxA); return; }   // add the focused browse track to a playlist (chooser over the column)
+    if (act == "rmfrompl") {   // remove the focused track from the playlist being browsed
+        int pl = mPs3OptCtxPlaylist;
+        if (pl >= 0 && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mMusicTracks.size()) {
+            musicRemoveTrackFromPlaylist(pl, mMusicTracks[mPs3OptCtxA].file);
+            if (!mPs3Stack.empty() && mPs3Stack.back().playlistIdx == pl) {
+                int keep = mPs3Stack.back().sel;
+                buildMusicPlaylistSubmenu(pl, mPs3Stack.back());
+                int n = (int)mPs3Stack.back().items.size();
+                mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+            }
+            mDisplayDirty = true;
+        }
+        return;
+    }
+    if (act == "vrmfrompl" || act == "vrmstreampl") {   // remove the focused file/stream from the video playlist
+        int pl = mPs3OptCtxPlaylist;
+        if (pl >= 0 && !mPs3OptCtxPayload.empty()) {
+            videoRemoveFromPlaylist(pl, mPs3OptCtxPayload, act == "vrmstreampl");
+            if (!mPs3Stack.empty() && mPs3Stack.back().playlistIdx == pl) {
+                int keep = mPs3Stack.back().sel;
+                buildVideoPlaylistSubmenu(pl, mPs3Stack.back());
+                int n = (int)mPs3Stack.back().items.size();
+                mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
+            }
+            mDisplayDirty = true;
+        }
+        return;
+    }
+    if (act == "prmfrompl") {   // remove the focused photo from the playlist grid
+        int pl = mPhotoGridFromPl;
+        if (pl >= 0 && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mPhotos.size()) {
+            photoRemoveFromPlaylist(pl, mPhotos[mPs3OptCtxA].file);
+            std::vector<int> list; std::string title;
+            buildPhotoPlaylistGridList(pl, list, title);
+            mPhotoGridList = list;
+            if (mPhotoGridCursor >= (int)mPhotoGridList.size()) mPhotoGridCursor = (int)mPhotoGridList.size() - 1;
+            if (mPhotoGridCursor < 0) mPhotoGridCursor = 0;
+            mDisplayDirty = true;
+        }
+        return;
+    }
     if (act == "playalbum") {
         std::vector<std::string> albums = musicAlbumNames();
         if (mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)albums.size()) {

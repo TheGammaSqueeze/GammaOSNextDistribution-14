@@ -1133,8 +1133,9 @@ private:
     float mCpHue = 210.0f;         // 0..360
     float mCpSat = 1.0f;           // 0..1
     float mCpVal = 1.0f;           // 0..1
-    const Ps3SettingBinding* mCpBinding = nullptr;  // colour prop to write on confirm
+    const Ps3SettingBinding* mCpBinding = nullptr;  // colour prop to write on confirm (mode 0)
     std::string mCpTitle;          // header label (the colour row name)
+    int   mCpApplyMode = 0;        // 0 = write an RGB LED colour (applyRgbSolidColor), 1 = a theme accent (applyThemeAccentColor)
     // Calibration wizard (port of LineageParts GamepadCalibrationDialogFragment).
     // Steps: 0 centre, 1 left-stick range, 2 right-stick range, 3 triggers,
     // 4 deadzone, 5 sensitivity, 6 done.
@@ -1408,6 +1409,8 @@ private:
                               // rescan rebuild the open ROM column in place. -1 for every other level.
         int collectionIdx = -1;  // >=0 only for a collection's game list (set by buildCollectionSubmenu);
                                  // lets a game's option menu there offer Remove from Collection.
+        int playlistIdx = -1;    // >=0 only for a music/video playlist's contents (set by buildMusic/VideoPlaylistSubmenu);
+                                 // lets a track/file's option menu there offer Remove from Playlist + Reorder.
         std::string itemHideCatId;  // the category id an ITEM_HIDE editor level is editing (set by
                                     // buildCatItemVisibilityList); lets itemHideToggle rebuild it in place.
     };
@@ -1814,6 +1817,7 @@ private:
     std::string mPs3OptCtxLabel, mPs3OptCtxPayload, mPs3OptCtxDesc;
     std::vector<Ps3Item> mPs3OptCtxList;
     int    mPs3OptCtxSel = 0;
+    int    mPs3OptCtxPlaylist = -1;   // >=0 when the option menu opened over a playlist's contents (music/video/photo)
     // Nested side-panel submenu (web optMenu.subOpen/subRows): a parent row can
     // carry a list of sub-rows. Opening it slides the main column left and shows the
     // submenu in the right slot, the selected sub-row aligned to the parent. Single
@@ -1997,7 +2001,8 @@ private:
     // value so the menu rows show the selection inline (resolvePs3ItemValue),
     // exactly like the web resolveItemValue. Loaded from props at init.
     int    mPs3ThemeIdx = 0;
-    int    mPs3ColorIdx = 0;
+    int    mPs3ColorIdx = 0;   // 0..kPs3ColorCount-1 = preset; kPs3ColorCount = the "Custom..." accent (mPs3ColorCustomHex)
+    std::string mPs3ColorCustomHex;   // "#RRGGBB" of the custom theme accent (persist.gammaos.nano.ps3xmb.color_custom)
     int    mPs3BgIdx = 0;
     int    mPs3FontIdx = 0;
     int    mPs3DayNightIdx = 5;   // default: Night (kPs3DayNightOpts index 5)
@@ -2409,12 +2414,15 @@ private:
     void gpDialogHeader(const char* title, int iconIdx, float ap); // icon + title + top/bottom dividers
     float gpAxisNorm(int absCode);                   // latest axis value normalised to [-1,1]
     // Full-screen HSV colour picker (all themes) - see the mCp* state block above.
-    void colorPickerOpen(const Ps3SettingBinding* b, const std::string& curHex); // enter the picker
+    void colorPickerOpen(const Ps3SettingBinding* b, const std::string& curHex, int applyMode = 0); // enter the picker (mode 0 = RGB LED, 1 = theme accent)
     void renderColorPicker();                        // draw the Hue/Brightness field + preview + hints
     bool colorPickerHandleKey(int code, int value);  // confirm / cancel / saturation / hold-exit (press edges)
     void colorPickerTick();                          // per-frame cursor move from held d-pad / stick / hat
-    void colorPickerApply();                         // write the chosen colour via applyRgbSolidColor
+    void colorPickerApply();                         // write the chosen colour (RGB LED or theme accent)
     void applyRgbSolidColor(const std::string& hex, const Ps3SettingBinding* b); // shared vivid solid-colour apply
+    void applyThemeAccentColor(const std::string& hex); // commit a "Custom..." theme accent (all themes) + persist + live-apply
+    bool customAccentRGB(float& r, float& g, float& b) const; // parse mPs3ColorCustomHex -> 0..1 RGB; false if unset/bad
+    std::string customAccentHex() const;             // the stored custom hex (or a sensible default) to seed the picker
     void gpCalibTick();                              // per-frame min/max capture for range steps
     void gpCalibNext(int dir);                       // advance/adjust the wizard (A / left / right)
     void gpCalibSave();                              // write cal_axis props + bump config_version
@@ -2902,6 +2910,8 @@ private:
     // playlists
     void musicCreatePlaylist(const std::string& name);
     void musicAddTrackToPlaylist(int plIdx, const std::string& file);
+    void musicRemoveTrackFromPlaylist(int plIdx, const std::string& file);   // drop a track from a playlist + save
+    void musicMoveInPlaylist(int plIdx, const std::string& file, int dir);   // reorder a track within a playlist (dir -1/+1) + save
     void musicDeletePlaylist(int plIdx);   // erase a playlist (user JSON entry; m3u-derived also unlinks the .m3u) + save + rebuild
     // The audio engine instance (decode + AAudio + FFT). Lazy: init() on first Music
     // entry; open()/play() on first track play.
@@ -3049,6 +3059,8 @@ private:
     void buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out);
     void videoCreatePlaylist(const std::string& name);
     void videoAddToPlaylist(int plIdx, const std::string& file);
+    void videoRemoveFromPlaylist(int plIdx, const std::string& key, bool isStream);   // drop a file/stream from a video playlist + save
+    void videoMoveInPlaylist(int plIdx, const std::string& key, bool isStream, int dir); // reorder a file/stream within its vector + save
     void videoDeletePlaylist(int plIdx);   // erase a video playlist (JSON-only) + save + rebuild
     bool  mVidPlChooserActive = false;
     std::vector<std::string> mVidPlChooserOpts;   // "New Playlist..." + existing names
@@ -3589,7 +3601,7 @@ private:
     int   mMpPlChooserSel = 0;
     int   mMpPlChooserTrack = -1;                // track index being added
     float mMpPlChooserAnim = 0.0f;               // open fade
-    void mpOpenAddChooser();          // build + open the chooser for the current track
+    void mpOpenAddChooser(int trackIdx = -1);   // build + open the add-to-playlist chooser (trackIdx <0 = the now-playing track)
     void mpPlChooserMove(int dir);    // up/down through the options
     void mpPlChooserSelect();         // commit the highlighted option
     void mpPlChooserCancel();         // dismiss without adding
@@ -3900,6 +3912,8 @@ private:
     void buildPhotoPlaylistGridList(int plIdx, std::vector<int>& out, std::string& title);
     void photoCreatePlaylist(const std::string& name);
     void photoAddToPlaylist(int plIdx, const std::string& file);
+    void photoRemoveFromPlaylist(int plIdx, const std::string& file);   // drop a photo from a playlist + save
+    void photoMoveInPlaylist(int plIdx, const std::string& file, int dir); // reorder a photo within a playlist (dir -1/+1) + save
     void photoDeletePlaylist(int plIdx);   // erase a photo playlist (JSON-only) + save + rebuild
     // add-to-playlist chooser (viewer + grid)
     bool  mPvPlChooserActive = false;

@@ -893,6 +893,39 @@ void NanoMenu::videoDeletePlaylist(int plIdx) {
     saveVideoConfig();
     mVideoCatsStale = true;   // rebuild the Video column (Playlists count) at the settled root
 }
+// Remove one item from a video playlist. A video playlist keeps files and IPTV streams in two
+// separate vectors (rendered files-then-streams), so branch on isStream and match by path/url.
+// Non-destructive: only the playlist membership changes.
+void NanoMenu::videoRemoveFromPlaylist(int plIdx, const std::string& key, bool isStream) {
+    if (plIdx < 0 || plIdx >= (int)mVideoPlaylists.size() || key.empty()) return;
+    if (isStream) {
+        auto& s = mVideoPlaylists[plIdx].streams;
+        s.erase(std::remove_if(s.begin(), s.end(),
+                    [&](const VidStreamRef& x){ return x.url == key; }), s.end());
+    } else {
+        auto& f = mVideoPlaylists[plIdx].files;
+        f.erase(std::remove(f.begin(), f.end(), key), f.end());
+    }
+    saveVideoConfig();
+}
+// Reorder within a video playlist. Stays within the correct vector (files or streams) so the
+// files-then-streams render order is preserved. Matched by path/url (robust to skipped entries).
+void NanoMenu::videoMoveInPlaylist(int plIdx, const std::string& key, bool isStream, int dir) {
+    if (plIdx < 0 || plIdx >= (int)mVideoPlaylists.size() || key.empty() || dir == 0) return;
+    int step = (dir < 0 ? -1 : 1);
+    if (isStream) {
+        auto& s = mVideoPlaylists[plIdx].streams;
+        int i = -1; for (int k = 0; k < (int)s.size(); k++) if (s[k].url == key) { i = k; break; }
+        if (i < 0) return; int j = i + step; if (j < 0 || j >= (int)s.size()) return;
+        std::swap(s[i], s[j]);
+    } else {
+        auto& f = mVideoPlaylists[plIdx].files;
+        int i = -1; for (int k = 0; k < (int)f.size(); k++) if (f[k] == key) { i = k; break; }
+        if (i < 0) return; int j = i + step; if (j < 0 || j >= (int)f.size()) return;
+        std::swap(f[i], f[j]);
+    }
+    saveVideoConfig();
+}
 void NanoMenu::buildVideoPlaylistsScreen(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.title = "Playlists"; out.screenKind = GS_NONE;
     { Ps3Item it; it.label = "Create New Playlist"; it.kind = PS3_VIDEO_PL_NEW;
@@ -908,6 +941,7 @@ void NanoMenu::buildVideoPlaylistsScreen(Ps3Level& out) {
 }
 void NanoMenu::buildVideoPlaylistSubmenu(int plIdx, Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = GS_NONE;
+    out.playlistIdx = plIdx;   // marks these files/streams as a playlist's contents (option menu offers Remove/Reorder)
     if (plIdx < 0 || plIdx >= (int)mVideoPlaylists.size()) { out.title = "Playlist"; return; }
     out.title = mVideoPlaylists[plIdx].name;
     GLuint filmNmap = nmapForIcon(4);

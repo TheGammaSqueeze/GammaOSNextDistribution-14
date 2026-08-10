@@ -640,7 +640,7 @@ void NanoMenu::buildMusicAlbumSubmenu(int albumIdx, Ps3Level& out) {
     GLuint noteNmap = nmapForIcon(37);
     for (int ti : musicAlbumTrackIndices(albums[albumIdx])) {
         const MusicTrack& t = mMusicTracks[ti];
-        Ps3Item it; it.label = t.title; it.kind = PS3_MUSIC_TRACK; it.a = ti;
+        Ps3Item it; it.label = t.title; it.kind = PS3_MUSIC_TRACK; it.a = ti; it.payloadStr = t.file;
         it.desc = t.artist + " / " + t.album;
         it.iconTex = iconTexForIcon(37); it.nmapTex = noteNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
@@ -663,6 +663,7 @@ void NanoMenu::buildMusicPlaylistsScreen(Ps3Level& out) {
 
 void NanoMenu::buildMusicPlaylistSubmenu(int plIdx, Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = 0;
+    out.playlistIdx = plIdx;   // marks these tracks as a playlist's contents (option menu offers Remove/Reorder)
     if (plIdx < 0 || plIdx >= (int)mMusicPlaylists.size()) { out.title = "Playlist"; return; }
     const MusicPlaylist& pl = mMusicPlaylists[plIdx];
     out.title = pl.name;
@@ -672,7 +673,7 @@ void NanoMenu::buildMusicPlaylistSubmenu(int plIdx, Ps3Level& out) {
         for (size_t i = 0; i < mMusicTracks.size(); i++) if (mMusicTracks[i].file == file) { ti = (int)i; break; }
         if (ti < 0) continue;
         const MusicTrack& t = mMusicTracks[ti];
-        Ps3Item it; it.label = t.title; it.kind = PS3_MUSIC_TRACK; it.a = ti;
+        Ps3Item it; it.label = t.title; it.kind = PS3_MUSIC_TRACK; it.a = ti; it.payloadStr = file;
         it.desc = t.artist + " / " + t.album;
         it.iconTex = iconTexForIcon(37); it.nmapTex = noteNmap; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
@@ -777,6 +778,30 @@ void NanoMenu::musicDeletePlaylist(int plIdx) {
     mMusicPlaylists.erase(mMusicPlaylists.begin() + plIdx);
     saveMusicConfig();
     mMusicCatsStale = true;   // rebuild the Music column (Playlists count) at the settled root
+}
+
+// Remove one track (matched by file path) from a playlist. Non-destructive: the audio file is
+// untouched, only the playlist membership. Persist to nano_music.json.
+void NanoMenu::musicRemoveTrackFromPlaylist(int plIdx, const std::string& file) {
+    if (plIdx < 0 || plIdx >= (int)mMusicPlaylists.size() || file.empty()) return;
+    auto& files = mMusicPlaylists[plIdx].files;
+    files.erase(std::remove(files.begin(), files.end(), file), files.end());
+    saveMusicConfig();
+}
+
+// Reorder a track within a playlist by swapping it with its neighbour (dir -1 = up, +1 = down).
+// Matched by file path so it is robust to library entries that were skipped when the submenu was
+// built (a stale path in the playlist stays put; the visible tracks still swap correctly).
+void NanoMenu::musicMoveInPlaylist(int plIdx, const std::string& file, int dir) {
+    if (plIdx < 0 || plIdx >= (int)mMusicPlaylists.size() || file.empty() || dir == 0) return;
+    auto& files = mMusicPlaylists[plIdx].files;
+    int i = -1;
+    for (int k = 0; k < (int)files.size(); k++) if (files[k] == file) { i = k; break; }
+    if (i < 0) return;
+    int j = i + (dir < 0 ? -1 : 1);
+    if (j < 0 || j >= (int)files.size()) return;
+    std::swap(files[i], files[j]);
+    saveMusicConfig();
 }
 
 // ---------------------------------------------------------------------------
@@ -1841,8 +1866,11 @@ void NanoMenu::mpOptActivate() {
 // Now-Playing screen. Select 0 opens the name OSK + creates; select i adds to the
 // existing playlist i-1.
 // ---------------------------------------------------------------------------
-void NanoMenu::mpOpenAddChooser() {
-    int ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
+void NanoMenu::mpOpenAddChooser(int trackIdx) {
+    // trackIdx < 0 = the now-playing track (from the control panel); >=0 = a specific track picked
+    // from a browse list (X on the item), so the user never has to open+play it first.
+    int ti = trackIdx;
+    if (ti < 0) ti = (mMpIdx >= 0 && mMpIdx < (int)mMpQueue.size()) ? mMpQueue[mMpIdx] : -1;
     if (ti < 0 || ti >= (int)mMusicTracks.size()) return;
     mMpPlChooserTrack = ti;
     mMpPlChooserOpts.clear();
@@ -1851,7 +1879,7 @@ void NanoMenu::mpOpenAddChooser() {
     mMpPlChooserSel = mMusicPlaylists.empty() ? 0 : 1;   // default to the first existing (web)
     mMpPlChooserAnim = 0.0f;
     mMpPlChooserActive = true;
-    closeMpOpt();   // close the control panel behind the chooser (web pv.panel=false)
+    if (trackIdx < 0) closeMpOpt();   // close the Now-Playing control panel behind the chooser (web pv.panel=false)
 }
 
 void NanoMenu::mpPlChooserMove(int dir) {
