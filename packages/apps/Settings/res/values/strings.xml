@@ -13171,6 +13171,14 @@
     <string name="gammaos_toolbox_rotate_degrees_summary">Angle for the Rotate action.</string>
     <string name="gammaos_toolbox_rotate_launch_target_title">Launch target</string>
     <string name="gammaos_toolbox_rotate_launch_target_summary">For the Launch action: a package name, a package/activity component, or nano:&lt;mode&gt; to invoke a nano mode.</string>
+    <!-- Launch-target app/activity picker -->
+    <string name="gammaos_rotate_launch_pick_app">Choose an app</string>
+    <string name="gammaos_rotate_launch_pick_activity">Choose an activity</string>
+    <string name="gammaos_rotate_launch_default_activity">Default activity</string>
+    <string name="gammaos_rotate_launch_custom_entry">Custom target…</string>
+    <string name="gammaos_rotate_launch_custom_title">Custom launch target</string>
+    <string name="gammaos_rotate_launch_custom_hint">package, package/activity, or nano:&lt;mode&gt;</string>
+    <string name="gammaos_rotate_launch_not_set">Not set</string>
     <string name="gammaos_toolbox_rotate_sleep_delay_title">Sleep delay</string>
     <string name="gammaos_toolbox_rotate_sleep_delay_summary">How long to wait before the Turn screen off action sleeps the display. 0 = immediate.</string>
 

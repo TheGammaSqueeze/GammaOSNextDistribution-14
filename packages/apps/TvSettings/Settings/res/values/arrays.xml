@@ -486,6 +486,7 @@
         <item>@string/slide_behavior_action_screenoff</item>
         <item>@string/slide_behavior_action_wake</item>
         <item>@string/slide_behavior_action_launch</item>
+        <item>@string/slide_behavior_action_close</item>
         <item>@string/slide_behavior_action_clock</item>
     </string-array>
     <string-array name="slide_behavior_action_values" translatable="false">
@@ -495,6 +496,7 @@
         <item>screenoff</item>
         <item>wake</item>
         <item>launch</item>
+        <item>close</item>
         <item>clock</item>
     </string-array>
 

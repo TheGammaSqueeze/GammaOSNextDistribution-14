@@ -3165,6 +3165,7 @@
     <string name="slide_behavior_action_screenoff">Sleep (screen off)</string>
     <string name="slide_behavior_action_wake">Wake</string>
     <string name="slide_behavior_action_launch">Launch app / overlay</string>
+    <string name="slide_behavior_action_close">Close launched app</string>
     <string name="slide_behavior_action_clock">PSP clock (Nano)</string>
     <string name="slide_behavior_degrees_90">90 degrees</string>
     <string name="slide_behavior_degrees_180">180 degrees</string>

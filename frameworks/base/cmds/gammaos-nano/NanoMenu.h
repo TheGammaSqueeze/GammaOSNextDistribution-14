@@ -369,6 +369,18 @@ private:
     void loadInstalledActivities();   // parse /data/system/nano_activities.txt
     void ensureActivityList();        // reload on activities_generation change
 
+    // Every activity of every launchable app (nano_pkg_activities.txt), grouped by package - feeds
+    // the slide "Launch Target" app -> activity picker (all activities, not just launchers).
+    std::vector<ActivityEntry> mPkgActivityEntries;
+    bool mPkgActivitiesLoaded = false;
+    int  mPkgActivitiesGen = -1;
+    void loadPackageActivities();     // parse /data/system/nano_pkg_activities.txt
+    void ensurePackageActivities();   // reload on activities_generation change
+    std::string mLaunchPickPkg;       // the package whose activity list the launch-target picker shows
+    std::string launchTargetLabel(const std::string& value);              // human summary for the bound row
+    // buildLaunchTargetAppSubmenu / buildLaunchTargetActivitySubmenu are declared with the other
+    // Ps3Level builders further down (Ps3Level is not defined yet here).
+
     // XMB mode
     void initXmbSystems();
     // Dynamic systems config (/data/system/nano_systems.json, DE storage).
@@ -2426,6 +2438,8 @@ private:
     void gpCalibTick();                              // per-frame min/max capture for range steps
     void gpCalibNext(int dir);                       // advance/adjust the wizard (A / left / right)
     void gpCalibSave();                              // write cal_axis props + bump config_version
+    void buildLaunchTargetAppSubmenu(Ps3Level& out);                              // Slide Launch Target step 1: pick an app
+    void buildLaunchTargetActivitySubmenu(Ps3Level& out, const std::string& pkg); // Slide Launch Target step 2: pick an activity
     void buildMouseSubmenu(Ps3Level& out);           // Mouse Mode cursor-speed settings
     void buildRemapSrcSubmenu(Ps3Level& out, bool axis);  // button/axis remap source list
     void buildRemapTargetSubmenu(Ps3Level& out);          // target chooser for mRemapSrc

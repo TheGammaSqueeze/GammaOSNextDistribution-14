@@ -163,18 +163,24 @@
 
         <androidx.preference.MultiSelectListPreference
             android:key="persist.gammaos.rotate.down_action"
+            android:persistent="false"
             android:title="@string/gammaos_toolbox_rotate_down_action_title"
             android:summary="@string/gammaos_toolbox_rotate_down_action_summary"
             android:entries="@array/gammaos_rotate_action_entries"
             android:entryValues="@array/gammaos_rotate_action_values"
+            android:positiveButtonText="@android:string/ok"
+            android:negativeButtonText="@android:string/cancel"
             android:defaultValue="@array/gammaos_rotate_down_action_default" />
 
         <androidx.preference.MultiSelectListPreference
             android:key="persist.gammaos.rotate.up_action"
+            android:persistent="false"
             android:title="@string/gammaos_toolbox_rotate_up_action_title"
             android:summary="@string/gammaos_toolbox_rotate_up_action_summary"
             android:entries="@array/gammaos_rotate_action_entries"
             android:entryValues="@array/gammaos_rotate_action_values"
+            android:positiveButtonText="@android:string/ok"
+            android:negativeButtonText="@android:string/cancel"
             android:defaultValue="@array/gammaos_rotate_up_action_default" />
 
         <ListPreference
@@ -193,11 +199,11 @@
             android:entryValues="@array/gammaos_rotate_sleep_delay_values"
             android:defaultValue="0" />
 
-        <EditTextPreference
+        <Preference
             android:key="persist.gammaos.rotate.launch_target"
+            android:persistent="false"
             android:title="@string/gammaos_toolbox_rotate_launch_target_title"
-            android:summary="@string/gammaos_toolbox_rotate_launch_target_summary"
-            android:defaultValue="" />
+            android:summary="@string/gammaos_toolbox_rotate_launch_target_summary" />
 
     </PreferenceCategory>
 

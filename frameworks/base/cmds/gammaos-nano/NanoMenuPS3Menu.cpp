@@ -960,6 +960,8 @@ enum {
     QA_SLIDE_EVENT_MENU, // Slide Behaviour: open the slide-trigger event/code chooser
     QA_SLIDE_EVENT_SET,  // set key_code (it.b) + key_type (it.value = "1"/"5")
     QA_BROWSER_SET,      // set persist.gammaos.nano.browser_pkg (it.value = package)
+    QA_LAUNCH_PICK_APP,  // Slide Launch Target: drill from the app row (it.value = pkg) into its activities
+    QA_LAUNCH_SET,       // Slide Launch Target: set rotate.launch_target (it.value = "pkg" or "pkg/Activity")
     QA_BLACKLIST_MENU,   // open the passthrough-blacklist button multi-select
     QA_BLACKLIST_TOGGLE, // toggle a button code in blacklist_pass (it.b = code)
     QA_SLIDE_DOWN_TOGGLE,// Slide Behaviour: toggle an action name in down_action (it.value = name)
@@ -3264,6 +3266,83 @@ void NanoMenu::buildDefaultBrowserSubmenu(Ps3Level& out) {
     }
 }
 
+// Slide "Launch Target" step 1: pick an app. Each row (PS3_QUICK / QA_LAUNCH_PICK_APP, value = pkg)
+// drills into that app's activities. Mirrors the Applications grid (real APK icons where cached),
+// sourced from mAppEntries so it matches what the user sees elsewhere.
+void NanoMenu::buildLaunchTargetAppSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Launch Target";
+    // Every launchable app (the launcher-activity cache carries the app label, one launcher row per
+    // app), deduped by package - matches the normal-Settings picker rather than only nano's user-app
+    // Applications list.
+    ensureActivityList();
+    ensurePackageActivities();
+    std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.rotate.launch_target", "");
+    std::string curPkg = cur;
+    size_t slash = curPkg.find('/'); if (slash != std::string::npos) curPkg = curPkg.substr(0, slash);
+    GLuint bevel = bevelForIconIdx(16);
+    for (const auto& a : mActivityEntries) {
+        const std::string& pkg = a.packageName;
+        bool seen = false;
+        for (const auto& e : out.items) if (e.value == pkg) { seen = true; break; }
+        if (seen) continue;   // one row per package
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_LAUNCH_PICK_APP;
+        it.value = pkg; it.label = a.label;
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        GLuint appTex = 0;
+        auto cached = mPs3AppIcons.find(pkg);
+        if (cached != mPs3AppIcons.end()) appTex = cached->second;
+        else {
+            std::string path = "/data/system/nano_app_icons/" + pkg + ".png";
+            appTex = loadColorIconTexAbs(path.c_str());
+            if (appTex != 0) mPs3AppIcons[pkg] = appTex;
+        }
+        if (appTex != 0) { it.iconTex = appTex; it.nmapTex = 0; }
+        else { it.iconTex = mIconTextures[16]; it.nmapTex = bevel; }
+        out.items.push_back(it);
+        if (!curPkg.empty() && pkg == curPkg) out.sel = (int)out.items.size() - 1;
+    }
+}
+
+// Slide "Launch Target" step 2: pick an activity within the chosen app. "Default activity" is first
+// (stored as the bare package name), then every activity from nano_pkg_activities.txt for this
+// package. Each row is PS3_QUICK / QA_LAUNCH_SET with it.value = "pkg" or "pkg/Activity".
+void NanoMenu::buildLaunchTargetActivitySubmenu(Ps3Level& out, const std::string& pkg) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    out.title = actionAppLabel(pkg);
+    ensurePackageActivities();
+    std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.rotate.launch_target", "");
+    GLuint dico = iconTexForIcon(40), dnm = nmapForIcon(40);
+    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_LAUNCH_SET; it.value = pkg;
+      it.label = "Default activity"; it.iconTex = dico; it.nmapTex = dnm;
+      it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+      if (cur == pkg) out.sel = 0; }
+    for (const auto& a : mPkgActivityEntries) {
+        if (a.packageName != pkg) continue;
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_LAUNCH_SET; it.value = a.component;
+        it.label = a.label; it.iconTex = dico; it.nmapTex = dnm;
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+        if (a.component == cur) out.sel = (int)out.items.size() - 1;
+    }
+}
+
+// Human summary for the "Slide Launch Target" row: "Not Set", a nano:&lt;mode&gt; verbatim, the app
+// label for a bare package, or "App / Activity" for a component.
+std::string NanoMenu::launchTargetLabel(const std::string& value) {
+    if (value.empty()) return trDyn("Not Set");
+    if (value.rfind("nano:", 0) == 0) return value;
+    std::string pkg = value, cls;
+    size_t slash = value.find('/');
+    if (slash != std::string::npos) { pkg = value.substr(0, slash); cls = value.substr(slash + 1); }
+    std::string appLabel = actionAppLabel(pkg);
+    if (cls.empty()) return appLabel;
+    ensurePackageActivities();
+    std::string actLabel = cls.substr(cls.find_last_of('.') + 1);
+    for (const auto& a : mPkgActivityEntries)
+        if (a.component == value) { actLabel = a.label; break; }
+    return appLabel + " / " + actLabel;
+}
+
 // "Passthrough Blacklist": multi-select of buttons to suppress at runtime (comma list
 // of decimal codes).
 void NanoMenu::buildBlacklistSubmenu(Ps3Level& out) {
@@ -3314,6 +3393,7 @@ void NanoMenu::buildSlideActionSubmenu(Ps3Level& out, bool up) {
         {"screenoff","Sleep"},
         {"wake",     "Wake"},
         {"launch",   "Launch App"},
+        {"close",    "Close App"},
         {"clock",    "PSP Clock"},
     };
     int qa = up ? QA_SLIDE_UP_TOGGLE : QA_SLIDE_DOWN_TOGGLE;
@@ -5809,6 +5889,25 @@ void NanoMenu::ps3XmbSelect() {
                     if (!mPs3Stack.empty()) {
                         buildDefaultBrowserSubmenu(mPs3Stack.back());
                     }
+                    mDisplayDirty = true; return;
+                }
+                case QA_LAUNCH_PICK_APP: {
+                    // Slide Launch Target: drill from the chosen app into its activity list.
+                    mLaunchPickPkg = it.value;
+                    std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                    Ps3Level lvl; buildLaunchTargetActivitySubmenu(lvl, it.value); mPs3Stack.push_back(lvl);
+                    mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                    mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                    mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                    mDisplayDirty = true; return;
+                }
+                case QA_LAUNCH_SET: {
+                    // Commit the launch target ("pkg" = default activity, or "pkg/Activity"). Rebuild
+                    // the activity list in place so the selection dot moves; drop the bind cache so the
+                    // parent "Slide Launch Target" row re-reads the new value on back-out.
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.rotate.launch_target", it.value);
+                    mPs3BindCache.erase("Slide Launch Target");
+                    if (!mPs3Stack.empty()) buildLaunchTargetActivitySubmenu(mPs3Stack.back(), mLaunchPickPkg);
                     mDisplayDirty = true; return;
                 }
                 case QA_SLIDE_DEV_SET: {
@@ -8422,7 +8521,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "0:Immediate,5:5 seconds,15:15 seconds,30:30 seconds,60:60 seconds"},
     {"Rotation Angle", SettingSource::kProp, "persist.gammaos.rotate.degrees", "90",
      "90:90 degrees,180:180 degrees,270:270 degrees"},
-    {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@text"},
+    {"Slide Launch Target", SettingSource::kProp, "persist.gammaos.rotate.launch_target", "", "@launchtarget"},
     {"Show Clock On Slide", SettingSource::kProp, "persist.gammaos.nano.pspclock", "0", "0:Off,1:On"},
     {"XMB Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.wave", "1", "0:Off,1:On"},
     {"Half Resolution: Wave", SettingSource::kProp, "persist.gammaos.nano.ps3xmb.halfres.wave", "0", "0:Off,1:On"},
@@ -8992,6 +9091,15 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
         mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
         return;
     }
+    if (!strcmp(b->options, "@launchtarget")) {
+        // Slide Launch Target: drill into an app -> activity picker (Default activity first).
+        std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+        Ps3Level lvl; buildLaunchTargetAppSubmenu(lvl); mPs3Stack.push_back(lvl);
+        mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+        mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+        mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+        return;
+    }
     if (!strcmp(b->options, "@device")) {
         std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
         Ps3Level lvl; buildSlideDeviceSubmenu(lvl); mPs3Stack.push_back(lvl);
@@ -9183,6 +9291,11 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         // package). The row drills into buildDefaultBrowserSubmenu on activate.
         if (!strcmp(b->options, "@browser")) {
             return browserLabelForPkg(cur);
+        }
+        // Slide Launch Target row: show a human "App / Activity" (or the app name, Not Set, or a
+        // nano:<mode> verbatim). The row drills into the app -> activity picker on activate.
+        if (!strcmp(b->options, "@launchtarget")) {
+            return launchTargetLabel(cur);
         }
         // Slide Behaviour trigger-device row: show the chosen device name, or
         // "Any device" when the filter is off (empty dev_name). The row drills

@@ -608,6 +608,56 @@ void NanoMenu::ensureActivityList() {
     }
 }
 
+// Parsed from /data/system/nano_pkg_activities.txt ("pkg|ActivityLabel|pkg/Activity" per line),
+// written by SystemServer.writeNanoPackageActivities: EVERY activity of every launchable app (not
+// just launchers), grouped by package in label order. Feeds the slide "Launch Target" app ->
+// activity picker so the user can target any activity. Rides activities_generation.
+void NanoMenu::loadPackageActivities() {
+    mPkgActivityEntries.clear();
+    mPkgActivitiesLoaded = true;
+    const char* path = "/data/system/nano_pkg_activities.txt";
+    int fd = open(path, O_RDONLY | O_CLOEXEC);
+    if (fd >= 0) {
+        struct stat st;
+        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 8 * 1024 * 1024) {
+            std::string content(st.st_size, '\0');
+            ssize_t n = read(fd, &content[0], st.st_size);
+            if (n > 0) {
+                content.resize(n);
+                size_t pos = 0;
+                while (pos < content.size()) {
+                    size_t eol = content.find('\n', pos);
+                    if (eol == std::string::npos) eol = content.size();
+                    std::string line = content.substr(pos, eol - pos);
+                    pos = eol + 1;
+                    if (line.empty()) continue;
+                    size_t p1 = line.find('|');
+                    if (p1 == std::string::npos) continue;
+                    size_t p2 = line.find('|', p1 + 1);
+                    if (p2 == std::string::npos) continue;
+                    ActivityEntry a;
+                    a.packageName = line.substr(0, p1);
+                    a.label = line.substr(p1 + 1, p2 - p1 - 1);
+                    a.component = line.substr(p2 + 1);
+                    if (a.packageName.empty() || a.component.empty()) continue;
+                    if (a.label.empty()) a.label = a.component;
+                    mPkgActivityEntries.push_back(std::move(a));
+                }
+            }
+        }
+        close(fd);
+    }
+    ALOGD("NanoMenu: loaded %zu package activities from nano_pkg_activities.txt", mPkgActivityEntries.size());
+}
+
+void NanoMenu::ensurePackageActivities() {
+    int gen = property_get_int32("sys.gammaos.nano.activities_generation", 0);
+    if (!mPkgActivitiesLoaded || gen != mPkgActivitiesGen) {
+        mPkgActivitiesGen = gen;
+        loadPackageActivities();
+    }
+}
+
 // Human label for a browser package (the "Default Browser" row's value column). Falls back
 // to the bare package name, then "GammaBrowser" for the shipped default.
 std::string NanoMenu::browserLabelForPkg(const std::string& pkg) {

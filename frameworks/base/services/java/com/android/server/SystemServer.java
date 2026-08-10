@@ -4561,6 +4561,9 @@ public final class SystemServer implements Dumpable {
                     + apps.size() + " apps, " + iconCount + " icons, gen=" + gen);
             // The installed-browser list rides the same triggers (boot + package change).
             writeNanoBrowserCache(pm, reason);
+            // Every launchable app's FULL activity list (for the nano slide/rotate
+            // "Launch Target" app -> activity picker) rides the same triggers.
+            writeNanoPackageActivities(pm, reason);
             // The launchable-activity list (for the gamepad remap "Launch Activity"
             // action) rides the same triggers too.
             writeNanoActivityCache(pm, reason);
@@ -4923,6 +4926,82 @@ public final class SystemServer implements Dumpable {
                     + count + " activities, gen=" + gen);
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: failed to write activity list", e);
+        }
+    }
+
+    /**
+     * GammaOS Nano: write every launchable app's FULL activity list for the nano
+     * slide/rotate "Launch Target" app -> activity picker, as
+     * "pkg|ActivityLabel|pkg/Activity" lines in /data/system/nano_pkg_activities.txt.
+     *
+     * Unlike nano_activities.txt (launcher entry points only), this enumerates ALL
+     * declared activities of each launchable package via GET_ACTIVITIES so the picker
+     * can offer any activity, not just the launcher one. Grouped by package (apps in
+     * label order); the nano side adds its own "Default activity" row (stored as the
+     * bare package name). Written just before writeNanoActivityCache so it rides that
+     * method's activities_generation bump (nano reloads both files together).
+     */
+    private void writeNanoPackageActivities(android.content.pm.PackageManager pm, String reason) {
+        try {
+            Intent probe = new Intent(Intent.ACTION_MAIN);
+            probe.addCategory(Intent.CATEGORY_LAUNCHER);
+            java.util.List<android.content.pm.ResolveInfo> ris =
+                    pm.queryIntentActivities(probe,
+                            android.content.pm.PackageManager.MATCH_ALL);
+            java.util.LinkedHashMap<String, String> pkgLabel = new java.util.LinkedHashMap<>();
+            if (ris != null) {
+                java.util.Collections.sort(ris, new java.util.Comparator<
+                        android.content.pm.ResolveInfo>() {
+                    @Override
+                    public int compare(android.content.pm.ResolveInfo a,
+                                       android.content.pm.ResolveInfo b) {
+                        CharSequence la = a.loadLabel(pm), lb = b.loadLabel(pm);
+                        return String.valueOf(la).compareToIgnoreCase(String.valueOf(lb));
+                    }
+                });
+                for (android.content.pm.ResolveInfo ri : ris) {
+                    if (ri.activityInfo == null) continue;
+                    String pkg = ri.activityInfo.packageName;
+                    if (pkg == null || pkgLabel.containsKey(pkg)) continue;
+                    CharSequence l = ri.loadLabel(pm);
+                    pkgLabel.put(pkg, (l != null && l.length() > 0) ? l.toString() : pkg);
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            int count = 0;
+            for (java.util.Map.Entry<String, String> e : pkgLabel.entrySet()) {
+                String pkg = e.getKey();
+                try {
+                    android.content.pm.PackageInfo pi = pm.getPackageInfo(pkg,
+                            android.content.pm.PackageManager.GET_ACTIVITIES);
+                    if (pi.activities == null) continue;
+                    for (android.content.pm.ActivityInfo ai : pi.activities) {
+                        if (ai.name == null) continue;
+                        CharSequence l = ai.loadLabel(pm);
+                        String name = (l != null && l.length() > 0)
+                                ? l.toString()
+                                : ai.name.substring(ai.name.lastIndexOf('.') + 1);
+                        name = name.replace('|', ' ').replace('\n', ' ').trim();
+                        if (name.isEmpty()) name = ai.name;
+                        sb.append(pkg).append('|').append(name).append('|')
+                          .append(pkg).append('/').append(ai.name).append('\n');
+                        count++;
+                    }
+                } catch (Exception ignore) {
+                    // package vanished mid-scan; skip it.
+                }
+            }
+            java.io.File dst = new java.io.File("/data/system/nano_pkg_activities.txt");
+            java.io.File tmp = new java.io.File("/data/system/nano_pkg_activities.txt.tmp");
+            java.io.FileWriter fw = new java.io.FileWriter(tmp);
+            fw.write(sb.toString());
+            fw.close();
+            tmp.setReadable(true, false);
+            tmp.renameTo(dst);
+            Slog.i(TAG, "GammaOS Nano: wrote package-activity list (" + reason + "): "
+                    + count + " activities across " + pkgLabel.size() + " apps");
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: failed to write package-activity list", e);
         }
     }
 

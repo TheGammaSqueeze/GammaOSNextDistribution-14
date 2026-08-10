@@ -17,14 +17,26 @@ package com.android.settings.handheld;
 
 import android.app.AlertDialog;
 import android.app.settings.SettingsEnums;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Drawable;
 import android.hardware.input.InputManager;
 import android.os.Bundle;
 import android.os.SystemProperties;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.InputDevice;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
@@ -294,6 +306,8 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         // Swap size needs custom handling (a "Custom..." entry that types any size),
         // so bind it after the generic binder to override its listener.
         bindSwapSize();
+        // Launch target is a two-level app -> activity picker, not a free-text field.
+        bindLaunchTarget();
     }
 
     /* ------------------------------------------------------------------ */
@@ -392,6 +406,168 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
     }
 
     /* ------------------------------------------------------------------ */
+    /*  Launch target: a two-level app -> activity picker                 */
+    /* ------------------------------------------------------------------ */
+
+    private static final String LAUNCH_TARGET_KEY = "persist.gammaos.rotate.launch_target";
+
+    private void bindLaunchTarget() {
+        Preference pref = findPreference(LAUNCH_TARGET_KEY);
+        if (pref == null) return;
+        updateLaunchTargetSummary(pref, SystemProperties.get(LAUNCH_TARGET_KEY, ""));
+        pref.setOnPreferenceClickListener(p -> { showLaunchAppPicker(pref); return true; });
+    }
+
+    /** Human-readable summary for the stored value ("", "pkg", "pkg/Component", or nano:&lt;mode&gt;). */
+    private void updateLaunchTargetSummary(Preference pref, String value) {
+        if (TextUtils.isEmpty(value)) {
+            pref.setSummary(getString(R.string.gammaos_rotate_launch_not_set));
+            return;
+        }
+        if (value.startsWith("nano:")) { pref.setSummary(value); return; }
+        Context ctx = getContext();
+        PackageManager pm = (ctx != null) ? ctx.getPackageManager() : null;
+        String pkg = value, cls = null;
+        int slash = value.indexOf('/');
+        if (slash >= 0) { pkg = value.substring(0, slash); cls = value.substring(slash + 1); }
+        String appLabel = pkg;
+        if (pm != null) {
+            try { appLabel = pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString(); }
+            catch (Exception ignored) {}
+        }
+        if (cls == null) { pref.setSummary(appLabel); return; }
+        String actLabel = cls.substring(cls.lastIndexOf('.') + 1);
+        if (pm != null) {
+            try {
+                ComponentName cn = new ComponentName(pkg, cls.startsWith(".") ? pkg + cls : cls);
+                CharSequence l = pm.getActivityInfo(cn, 0).loadLabel(pm);
+                if (!TextUtils.isEmpty(l)) actLabel = l.toString();
+            } catch (Exception ignored) {}
+        }
+        pref.setSummary(appLabel + " / " + actLabel);
+    }
+
+    /** Step 1: an icon+label list of every launchable app, plus a "Custom..." row. */
+    private void showLaunchAppPicker(final Preference pref) {
+        final Context ctx = getContext();
+        if (ctx == null) return;
+        final PackageManager pm = ctx.getPackageManager();
+        Intent main = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
+        final List<ResolveInfo> apps = pm.queryIntentActivities(main, 0);
+        apps.sort(new ResolveInfo.DisplayNameComparator(pm));
+
+        final int n = apps.size();
+        final CharSequence[] labels = new CharSequence[n + 1];
+        final Drawable[] icons = new Drawable[n + 1];
+        for (int i = 0; i < n; i++) {
+            labels[i] = apps.get(i).loadLabel(pm);
+            try { icons[i] = apps.get(i).loadIcon(pm); } catch (Exception e) { icons[i] = null; }
+        }
+        labels[n] = getString(R.string.gammaos_rotate_launch_custom_entry);
+
+        new AlertDialog.Builder(ctx)
+                .setTitle(R.string.gammaos_rotate_launch_pick_app)
+                .setAdapter(new IconTextAdapter(ctx, labels, icons), (d, which) -> {
+                    if (which == n) { showLaunchCustomDialog(pref); return; }
+                    showLaunchActivityPicker(pref, apps.get(which).activityInfo.packageName);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    /** Step 2: the chosen app's activities, with "Default activity" pinned first. */
+    private void showLaunchActivityPicker(final Preference pref, final String pkg) {
+        final Context ctx = getContext();
+        if (ctx == null) return;
+        final PackageManager pm = ctx.getPackageManager();
+
+        // The default launcher component for this package is stored as the bare "pkg".
+        String defCls = null;
+        Intent li = pm.getLaunchIntentForPackage(pkg);
+        if (li != null && li.getComponent() != null) defCls = li.getComponent().getClassName();
+
+        final List<String> classes = new ArrayList<>();     // null = default (bare pkg)
+        final List<CharSequence> labels = new ArrayList<>();
+        final List<Drawable> icons = new ArrayList<>();
+        classes.add(null);
+        labels.add(getString(R.string.gammaos_rotate_launch_default_activity));
+        try { icons.add(pm.getApplicationIcon(pkg)); } catch (Exception e) { icons.add(null); }
+
+        try {
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_ACTIVITIES);
+            if (pi.activities != null) {
+                for (ActivityInfo ai : pi.activities) {
+                    if (ai.name.equals(defCls)) continue;   // already the default row
+                    classes.add(ai.name);
+                    CharSequence l = ai.loadLabel(pm);
+                    labels.add(!TextUtils.isEmpty(l) ? l : ai.name.substring(ai.name.lastIndexOf('.') + 1));
+                    try { icons.add(ai.loadIcon(pm)); } catch (Exception e) { icons.add(null); }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        new AlertDialog.Builder(ctx)
+                .setTitle(R.string.gammaos_rotate_launch_pick_activity)
+                .setAdapter(new IconTextAdapter(ctx,
+                        labels.toArray(new CharSequence[0]), icons.toArray(new Drawable[0])), (d, which) -> {
+                    String cls = classes.get(which);
+                    setLaunchTarget(pref, (cls == null) ? pkg : (pkg + "/" + cls));
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    /** Fallback text entry for arbitrary values (nano:&lt;mode&gt; or a hand-typed component). */
+    private void showLaunchCustomDialog(final Preference pref) {
+        Context ctx = getContext();
+        if (ctx == null) return;
+        final EditText input = new EditText(ctx);
+        input.setSingleLine(true);
+        input.setHint(R.string.gammaos_rotate_launch_custom_hint);
+        input.setText(SystemProperties.get(LAUNCH_TARGET_KEY, ""));
+        new AlertDialog.Builder(ctx)
+                .setTitle(R.string.gammaos_rotate_launch_custom_title)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    String v = input.getText().toString().trim();
+                    if (v.length() > 91) v = v.substring(0, 91);   // prop value limit
+                    setLaunchTarget(pref, v);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void setLaunchTarget(Preference pref, String value) {
+        SystemProperties.set(LAUNCH_TARGET_KEY, value);
+        updateLaunchTargetSummary(pref, value);
+    }
+
+    /** Icon + single-line-label rows for the app / activity chooser dialogs. */
+    private static final class IconTextAdapter extends BaseAdapter {
+        private final Context mCtx;
+        private final CharSequence[] mLabels;
+        private final Drawable[] mIcons;
+        IconTextAdapter(Context ctx, CharSequence[] labels, Drawable[] icons) {
+            mCtx = ctx; mLabels = labels; mIcons = icons;
+        }
+        @Override public int getCount() { return mLabels.length; }
+        @Override public Object getItem(int position) { return mLabels[position]; }
+        @Override public long getItemId(int position) { return position; }
+        @Override public View getView(int position, View convertView, ViewGroup parent) {
+            TextView tv = (convertView instanceof TextView) ? (TextView) convertView
+                    : (TextView) android.view.LayoutInflater.from(mCtx)
+                            .inflate(android.R.layout.simple_list_item_1, parent, false);
+            tv.setText(mLabels[position]);
+            Drawable d = (position < mIcons.length) ? mIcons[position] : null;
+            int sz = (int) (tv.getTextSize() * 1.6f);
+            if (d != null) d.setBounds(0, 0, sz, sz);
+            tv.setCompoundDrawables(d, null, null, null);
+            tv.setCompoundDrawablePadding(sz / 2);
+            return tv;
+        }
+    }
+
+    /* ------------------------------------------------------------------ */
     /*  Dynamic input-device list for the rotation trigger                */
     /* ------------------------------------------------------------------ */
 
@@ -456,6 +632,7 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
             }
             String key = pref.getKey();
             if (key == null || !key.startsWith("persist.gammaos.")) continue;
+            if (LAUNCH_TARGET_KEY.equals(key)) continue;   // handled by bindLaunchTarget (app/activity picker)
 
             if (pref instanceof SwitchPreference) {
                 bindSwitch((SwitchPreference) pref, key);

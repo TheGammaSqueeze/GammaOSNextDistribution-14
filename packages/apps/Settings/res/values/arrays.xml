@@ -1535,6 +1535,7 @@
         <item>Turn screen off</item>
         <item>Wake screen</item>
         <item>Launch target</item>
+        <item>Close launched app</item>
         <item>PSP clock (Nano)</item>
     </string-array>
     <string-array name="gammaos_rotate_action_values" translatable="false">
@@ -1544,6 +1545,7 @@
         <item>screenoff</item>
         <item>wake</item>
         <item>launch</item>
+        <item>close</item>
         <item>clock</item>
     </string-array>
 

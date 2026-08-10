@@ -60,18 +60,24 @@
 
         <androidx.preference.MultiSelectListPreference
             android:key="persist.gammaos.rotate.down_action"
+            android:persistent="false"
             android:title="@string/slide_behavior_down_action_title"
             android:summary="@string/slide_behavior_down_action_summary"
             android:entries="@array/slide_behavior_action_entries"
             android:entryValues="@array/slide_behavior_action_values"
+            android:positiveButtonText="@android:string/ok"
+            android:negativeButtonText="@android:string/cancel"
             android:defaultValue="@array/slide_behavior_down_action_default" />
 
         <androidx.preference.MultiSelectListPreference
             android:key="persist.gammaos.rotate.up_action"
+            android:persistent="false"
             android:title="@string/slide_behavior_up_action_title"
             android:summary="@string/slide_behavior_up_action_summary"
             android:entries="@array/slide_behavior_action_entries"
             android:entryValues="@array/slide_behavior_action_values"
+            android:positiveButtonText="@android:string/ok"
+            android:negativeButtonText="@android:string/cancel"
             android:defaultValue="@array/slide_behavior_up_action_default" />
 
         <ListPreference

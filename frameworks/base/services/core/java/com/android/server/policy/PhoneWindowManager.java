@@ -6389,6 +6389,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (transition) gammaArmWake();     // wake only on a genuine slide-up, after a steady-state debounce
         } else if ("launch".equals(act)) {
             gammaRotateLaunch();
+        } else if ("close".equals(act)) {
+            gammaRotateClose();
         }
         // "clock" is handled entirely by GammaOS Nano's own evdev reader (it must open the PSP
         // slide clock even over a fullscreen app, which the framework key path cannot reach), so
@@ -6647,6 +6649,28 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             startActivityAsUser(intent, UserHandle.CURRENT_OR_SELF);
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS rotate: launch '" + target + "' failed", e);
+        }
+    }
+
+    // Slide "Close launched app" action: force-stop the launch_target's package (finishes its
+    // activities and stops the process) if it is running. The counterpart to the "launch" action, so
+    // one slide position opens the app and the other closes it. No-op for an empty target or a
+    // nano:<mode> (nothing to force-stop). system_server holds FORCE_STOP_PACKAGES.
+    private void gammaRotateClose() {
+        final String target = android.os.SystemProperties.get("persist.gammaos.rotate.launch_target", "");
+        if (target.isEmpty() || target.startsWith("nano:")) {
+            return;
+        }
+        String pkg = target;
+        int slash = target.indexOf('/');
+        if (slash >= 0) pkg = target.substring(0, slash);
+        if (pkg.isEmpty()) return;
+        try {
+            android.app.ActivityManager am = (android.app.ActivityManager)
+                    mContext.getSystemService(Context.ACTIVITY_SERVICE);
+            if (am != null) am.forceStopPackage(pkg);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS rotate: close '" + pkg + "' failed", e);
         }
     }
 
