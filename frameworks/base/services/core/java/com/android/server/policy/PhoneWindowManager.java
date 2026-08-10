@@ -1909,6 +1909,26 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // clean exit. When the app's process actually dies, AMS's
                 // handleAppDiedLocked hook raises the overlay launcher (overlay-home)
                 // or the existing RootWindowContainer cleanup restarts the DRM home.
+                //
+                // GammaOS Nano (regression fix for commit fc25fdd8588, the Deltarune
+                // self-relaunch change): DISARM the startHomeOnTaskDisplayArea
+                // auto-launch gate BEFORE the ESC. When RetroArch finishes its
+                // activity during the save, resumeTopActivities -> startHome fires;
+                // that gate re-launches launch_app if ANY of {nano_retroarch,
+                // qr_prepared, launch_intent, launch_rom} is still set - which they
+                // are during a live session - so it restarted RetroArch instead of
+                // returning to nano. Clear all four launch SIGNALS here but KEEP
+                // app_launched + launch_app set, so handleAppDiedLocked still raises
+                // the overlay ~800ms after the process dies (and clears the rest).
+                // This never touches Deltarune: its self-relaunch is an internal
+                // SIGKILL, not a BACK-hold, so this branch never runs for it.
+                android.os.SystemProperties.set("service.bootanim.nano_retroarch", "0");
+                android.os.SystemProperties.set("persist.gammaos.nano.qr_prepared", "0");
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+                android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+                try {
+                    new java.io.File("/data/system/nano_launch_rom.txt").delete();
+                } catch (Exception ignore) { }
                 triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
                 return;
             }

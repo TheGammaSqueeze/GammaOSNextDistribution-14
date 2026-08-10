@@ -4476,6 +4476,18 @@ if (sRingPrimedCount >= 2) {
                 mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
                 continue;
             }
+            // Clear the stale stock-DraStic launch state the standalone XMB launch
+            // path set (launch_app=com.dsemu.drastic + launch_intent=file). This
+            // DRM-direct path runs the drastic-nano BINARY via start=1 and never uses
+            // these, but if they survive the session a sleep/wake startHome pass would
+            // auto-launch STOCK DraStic in the background ("normal drastic runs on
+            // wake"). Mirror the SF branch above. (RootWindowContainer also guards on
+            // drastic_nano.session, so this is defense in depth.)
+            android::base::SetProperty("sys.gammaos.nano.launch_app", "com.gammaos.drasticsf");
+            android::base::SetProperty("sys.gammaos.nano.launched_pkg", "com.gammaos.drasticsf");
+            android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+            setLaunchRomPath("");
+            android::base::SetProperty("sys.gammaos.nano.launch_core", "");
             // setDrasticNanoRomPath() already wrote the ROM file; pull the trigger.
             property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);

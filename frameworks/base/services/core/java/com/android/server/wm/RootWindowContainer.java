@@ -2163,6 +2163,20 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 }
                 return true;
             }
+            // GammaOS Nano: never auto-launch anything while a drastic-nano DS
+            // session is live. drastic-nano is a native binary with no
+            // ActivityRecord, so the stale launch_app=com.dsemu.drastic +
+            // launch_intent=file it left set (the DRM-direct handoff historically
+            // did not clear them) would otherwise auto-launch STOCK DraStic in the
+            // background on a sleep/wake startHome pass ("normal drastic runs on
+            // wake"). Mirror the guard in nanoRaiseOverlay: return true (handled,
+            // keep the panel to drastic-nano) instead of starting anything.
+            if ("1".equals(android.os.SystemProperties.get(
+                    "sys.gammaos.drastic_nano.session", "0"))) {
+                Slog.i(TAG, "GammaOS Nano: drastic-nano session live, "
+                        + "skipping auto-launch (keeping panel to drastic-nano)");
+                return true;
+            }
             // GammaOS: read launch_app WITHOUT a default. SystemProperties.get
             // with a default returns the default when the value is empty —
             // that swallows our intentional clear-to-empty in the exit
