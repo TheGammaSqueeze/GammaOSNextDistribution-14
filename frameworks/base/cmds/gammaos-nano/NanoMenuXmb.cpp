@@ -216,7 +216,7 @@ void NanoMenu::loadRomCacheForSystem(XmbSystem& sys) {
     int cfd = open(cachePath.c_str(), O_RDONLY);
     if (cfd >= 0) {
         struct stat cst;
-        if (fstat(cfd, &cst) == 0 && cst.st_size > 0 && cst.st_size < 512 * 1024) {
+        if (fstat(cfd, &cst) == 0 && cst.st_size > 0 && cst.st_size < 64 * 1024 * 1024) {
             std::string content(cst.st_size, '\0');
             ssize_t rd = read(cfd, &content[0], cst.st_size);
             if (rd > 0) {
@@ -472,7 +472,7 @@ bool NanoMenu::loadSystemsConfig() {
     if (fd < 0) return false;
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 4 * 1024 * 1024) {
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {
         content.resize(st.st_size);
         ssize_t rd = read(fd, &content[0], st.st_size);
         if (rd > 0) content.resize(rd); else content.clear();
@@ -1680,7 +1680,7 @@ void NanoMenu::loadXmbRecent() {
     int fd = open(kXmbRecentFile, O_RDONLY);
     if (fd < 0) return;
     struct stat st;
-    if (fstat(fd, &st) != 0 || st.st_size == 0 || st.st_size > 256 * 1024) {
+    if (fstat(fd, &st) != 0 || st.st_size == 0 || st.st_size > 64 * 1024 * 1024) {
         close(fd); return;
     }
     std::string content(st.st_size, '\0');

@@ -59,7 +59,7 @@ void NanoMenu::loadScrapeIndex() {
     if (fd < 0) return;
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 8 * 1024 * 1024) {
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large scraped library (thousands of games with synopses) exceeds 8MB and the whole manifest would silently fail to load
         content.resize(st.st_size);
         ssize_t rd = read(fd, &content[0], st.st_size);
         if (rd > 0) content.resize(rd); else content.clear();
@@ -165,7 +165,7 @@ void NanoMenu::loadRomNameOverrides() {
     if (fd < 0) return;
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 8 * 1024 * 1024) {
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large scraped library (thousands of games with synopses) exceeds 8MB and the whole manifest would silently fail to load
         content.resize(st.st_size);
         ssize_t rd = read(fd, &content[0], st.st_size);
         if (rd > 0) content.resize(rd); else content.clear();

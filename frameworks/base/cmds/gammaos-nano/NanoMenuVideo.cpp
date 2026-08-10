@@ -127,7 +127,7 @@ bool NanoMenu::loadVideoConfig() {
     if (fd < 0) { mVideoCfgStamp = -1; return false; }
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 8 * 1024 * 1024) {
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {   // 64MB, not 8MB: a large video library would exceed 8MB and the whole list would silently fail to load
         content.resize(st.st_size);
         ssize_t rd = read(fd, &content[0], st.st_size);
         if (rd > 0) content.resize(rd); else content.clear();
@@ -1643,7 +1643,7 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
     for (const char* e : kExt) {
         std::string sp = base + e;
         struct stat st;
-        if (stat(sp.c_str(), &st) == 0 && st.st_size > 0 && st.st_size < 4 * 1024 * 1024) {
+        if (stat(sp.c_str(), &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {
             int sfd = ::open(sp.c_str(), O_RDONLY);
             if (sfd < 0) continue;
             std::string content; content.resize(st.st_size);

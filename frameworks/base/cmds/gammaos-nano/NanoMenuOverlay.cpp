@@ -1609,7 +1609,7 @@ void NanoMenu::appOrientLoad() {
     if (fd < 0) return;
     std::string content;
     struct stat st;
-    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 1 * 1024 * 1024) {
+    if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {
         char buf[4096];
         ssize_t n;
         while ((n = read(fd, buf, sizeof(buf))) > 0) content.append(buf, (size_t)n);

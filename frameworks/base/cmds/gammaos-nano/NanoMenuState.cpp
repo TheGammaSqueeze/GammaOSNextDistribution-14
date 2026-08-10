@@ -229,7 +229,7 @@ void NanoMenu::loadRecentPlaylist() {
     }
     mRecentLoaded = true;
     struct stat st;
-    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 1024 * 1024) {
+    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 64 * 1024 * 1024) {
         close(fd);
         return;
     }
@@ -339,7 +339,7 @@ void NanoMenu::loadInstalledApps() {
     }
     mAppsLoaded = true;
     struct stat st;
-    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 2 * 1024 * 1024) {
+    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 64 * 1024 * 1024) {
         close(fd);
         return;
     }
@@ -446,7 +446,7 @@ void NanoMenu::loadInstalledApps() {
         if (labelFd >= 0) {
             struct stat labelSt;
             if (fstat(labelFd, &labelSt) == 0 && labelSt.st_size > 0
-                    && labelSt.st_size < 512 * 1024) {
+                    && labelSt.st_size < 64 * 1024 * 1024) {
                 std::string labelContent(labelSt.st_size, '\0');
                 ssize_t labelRead = read(labelFd, &labelContent[0], labelSt.st_size);
                 if (labelRead > 0) {
@@ -506,7 +506,7 @@ void NanoMenu::loadInstalledBrowsers() {
     int fd = open(path, O_RDONLY | O_CLOEXEC);
     if (fd >= 0) {
         struct stat st;
-        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 256 * 1024) {
+        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {
             std::string content(st.st_size, '\0');
             ssize_t n = read(fd, &content[0], st.st_size);
             if (n > 0) {
@@ -567,7 +567,7 @@ void NanoMenu::loadInstalledActivities() {
     int fd = open(path, O_RDONLY | O_CLOEXEC);
     if (fd >= 0) {
         struct stat st;
-        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 2 * 1024 * 1024) {
+        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {
             std::string content(st.st_size, '\0');
             ssize_t n = read(fd, &content[0], st.st_size);
             if (n > 0) {
@@ -619,7 +619,7 @@ void NanoMenu::loadPackageActivities() {
     int fd = open(path, O_RDONLY | O_CLOEXEC);
     if (fd >= 0) {
         struct stat st;
-        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 8 * 1024 * 1024) {
+        if (fstat(fd, &st) == 0 && st.st_size > 0 && st.st_size < 64 * 1024 * 1024) {
             std::string content(st.st_size, '\0');
             ssize_t n = read(fd, &content[0], st.st_size);
             if (n > 0) {
@@ -675,7 +675,7 @@ bool NanoMenu::readNanoAppInfo(const std::string& nonce, std::string& bodyOut) {
     int fd = open("/data/system/nano_app_info.txt", O_RDONLY | O_CLOEXEC);
     if (fd < 0) return false;
     struct stat st;
-    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 512 * 1024) { close(fd); return false; }
+    if (fstat(fd, &st) < 0 || st.st_size <= 0 || st.st_size > 64 * 1024 * 1024) { close(fd); return false; }
     std::string content(st.st_size, '\0');
     ssize_t n = read(fd, &content[0], st.st_size);
     close(fd);
