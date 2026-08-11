@@ -977,6 +977,10 @@ private:
     // spawn). Returns a new GL texture of the current screen (or 0 on failure,
     // caller falls back to the screencap binary). Outputs the captured size.
     GLuint overlayCaptureInProcess(int* outW, int* outH);
+    // Resolve the "-d <physId> " argument for `screencap` so a Control Center screenshot targets the
+    // CONTENT panel (where the launched app plays), not the CC's own panel. Empty string = let
+    // screencap use its default display (single-screen device, or resolution failed).
+    std::string ccContentScreencapArg();
     GLuint mOverlayBgTex = 0;         // captured app snapshot (colour), 0 = none
     int64_t mOverlayShowMs = 0;       // uptimeMillis() when the overlay was raised;
                                       // power events within a grace window after

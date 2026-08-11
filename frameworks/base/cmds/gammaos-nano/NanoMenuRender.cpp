@@ -365,6 +365,38 @@ GLuint NanoMenu::overlayCaptureInProcess(int* outW, int* outH) {
     return tex;
 }
 
+// Resolve the "-d <physId> " argument for `screencap` so a Control Center screenshot captures the
+// CONTENT panel (where the launched app plays), not the CC's own panel. On a dual-screen device the
+// CC dashboard renders on the secondary panel, which is exactly `screencap`'s default target
+// (getPhysicalDisplayIds().front()); the launched app is pinned to the PRIMARY panel (the port named
+// by persist.gammaos.nano.primary_display, e.g. port 1 = the top DS screen on the RG DS). So without
+// -d the shot is of the CC itself. Return "-d <value> " for the primary/content display, or an empty
+// string on a single-screen device (default capture is already correct) or if resolution fails.
+std::string NanoMenu::ccContentScreencapArg() {
+    const std::vector<PhysicalDisplayId> ids =
+            SurfaceComposerClient::getPhysicalDisplayIds();
+    if (ids.size() < 2) return "";                    // single physical screen: default is correct
+    const uint64_t defaultVal = ids.front().value;    // == the panel screencap grabs with no -d (the CC)
+    const int primaryPort = property_get_int32("persist.gammaos.nano.primary_display", 0);
+    uint64_t target = 0; bool found = false;
+    // Prefer the display whose port holds the primary/XMB panel (where apps are pinned). Never pick
+    // the default (CC) panel here - that is the bug we are fixing.
+    for (const PhysicalDisplayId& pid : ids)
+        if ((int)pid.getPort() == primaryPort && pid.value != defaultVal) {
+            target = pid.value; found = true; break;
+        }
+    // Fallback (primary_display unset/misconfigured): any physical display that is NOT the default.
+    if (!found)
+        for (const PhysicalDisplayId& pid : ids)
+            if (pid.value != defaultVal) { target = pid.value; found = true; break; }
+    if (!found) return "";
+    char buf[48];
+    snprintf(buf, sizeof(buf), "-d %llu ", (unsigned long long)target);
+    ALOGI("nano CC: screenshot -> content display %llu (primaryPort=%d, CC/default=%llu)",
+          (unsigned long long)target, primaryPort, (unsigned long long)defaultVal);
+    return buf;
+}
+
 void NanoMenu::overlayCaptureBackground() {
     // Snapshot the current screen (the just-frozen foreground app) so the opaque
     // overlay can show a static, blurred+tinted backdrop of it (task-switcher

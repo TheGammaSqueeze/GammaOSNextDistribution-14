@@ -1413,8 +1413,16 @@ void NanoMenu::ccOnTap(float px, float py) {
                         ccEndBottomApp(true);        // force-stop the bottom app + restore drop_input=1
                         mCcActiveSeeded = false;     // re-seed the idle timer so the returning CC does not auto-sleep
                     } else {
-                        shellCmd("mkdir -p /sdcard/Pictures/Screenshots 2>/dev/null; "
-                                 "screencap -p /sdcard/Pictures/Screenshots/CC_$(date +%Y%m%d_%H%M%S).png 2>/dev/null");
+                        // Capture the CONTENT panel (the launched app on the other screen), NOT the
+                        // CC's own panel. `screencap` with no -d grabs the default display, which on a
+                        // dual-screen device is the panel the CC renders on - so it would screenshot the
+                        // dashboard. ccContentScreencapArg() resolves the primary/content display and
+                        // returns "-d <physId> " (empty on single-screen, where the default is correct).
+                        std::string darg = ccContentScreencapArg();
+                        std::string cmd =
+                            "mkdir -p /sdcard/Pictures/Screenshots 2>/dev/null; screencap " + darg +
+                            "-p /sdcard/Pictures/Screenshots/Screenshot_$(date +%Y%m%d_%H%M%S).png 2>/dev/null";
+                        shellCmd(cmd.c_str());
                     }
                     break;
                 case A_WIFI:
