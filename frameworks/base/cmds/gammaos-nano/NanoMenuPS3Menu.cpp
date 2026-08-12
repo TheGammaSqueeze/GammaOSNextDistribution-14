@@ -80,7 +80,7 @@ namespace android {
 // Forward declarations for the per-app sysprop-list helpers (defined lower in this file). The
 // dual-screen detect prompt (ps3XmbSelect / pollDualScreenDetect, higher up) reads and writes the
 // "don't ask again" list before the definitions appear.
-static std::vector<std::string> nanoPkgListRead(const char* baseProp);
+// nanoPkgListRead is declared in NanoMenu.h (shared with loadInstalledApps); external linkage.
 static bool nanoPkgListHas(const char* baseProp, const std::string& pkg);
 static void nanoPkgListSet(const char* baseProp, const std::string& pkg, bool enable);
 // Pinned-apps sysprop-list base key. Named here (before buildPs3Cats / buildPinnedAppsSubmenu use
@@ -11374,7 +11374,7 @@ void NanoMenu::closePs3Dialog(bool apply) {
 // Dual-Stack allowlist (persist.gammaos.dualstack.pkgs, read by DualStackPropertyUtils.java) and
 // the nano "Run on primary screen" allowlist (persist.gammaos.nano.primary_pkgs, read by the same
 // util). nano toggles a package in/out from the XMB option menu.
-static std::vector<std::string> nanoPkgListRead(const char* baseProp) {
+std::vector<std::string> nanoPkgListRead(const char* baseProp) {
     std::vector<std::string> out;
     auto addFrom = [&](const char* raw) {
         std::string s(raw);

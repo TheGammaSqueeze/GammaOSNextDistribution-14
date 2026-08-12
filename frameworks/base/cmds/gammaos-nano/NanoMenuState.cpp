@@ -349,6 +349,13 @@ void NanoMenu::loadInstalledApps() {
     if (bytesRead <= 0) return;
     content.resize(bytesRead);
 
+    // GammaOS: an allowlist of packages to force-show in the default Applications grid even
+    // though the filters below would skip them (system/@system marker or a com.android./
+    // org.lineageos./com.gammaos./com.topjohnwu. prefix). Device-agnostic: a vendor sets
+    // persist.gammaos.nano.extra_apps (e.g. the GKD USB Mode app) to surface its own utility
+    // apps without hardcoding any package name in nano. Empty on devices that do not set it.
+    const std::vector<std::string> extraApps = nanoPkgListRead("persist.gammaos.nano.extra_apps");
+
     // Parse line by line
     size_t pos = 0;
     while (pos < content.size()) {
@@ -367,7 +374,9 @@ void NanoMenu::loadInstalledApps() {
         // controller from Applications, even though it is a system / com.android.* package that
         // the filters below would otherwise skip. Its launcher is force-enabled in
         // DocumentsUI PreBootReceiver so the launch handshake resolves.
-        const bool forceInclude = (pkgName == "com.android.documentsui");
+        const bool inExtraApps =
+                std::find(extraApps.begin(), extraApps.end(), pkgName) != extraApps.end();
+        const bool forceInclude = (pkgName == "com.android.documentsui") || inExtraApps;
 
         if (forceInclude) {
             // AOSP disables the Files launcher on S+, so selecting it in Applications would not

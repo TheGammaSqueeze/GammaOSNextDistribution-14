@@ -67,6 +67,11 @@ class GraphicBuffer;
 // the enterDrmSleep fix for nano's own DRM-home sleep. `disabled` is the caller's latch.
 void nanoBtLpmSuspendGate(bool screenOff, bool& disabled);
 
+// Read a ~91-char-safe indexed sysprop package list ("pkg,pkg" in baseProp plus
+// baseProp_1, baseProp_2, ... continuations). Defined in NanoMenuPS3Menu.cpp; shared so
+// loadInstalledApps can honour persist.gammaos.nano.extra_apps (force-show vendor apps).
+std::vector<std::string> nanoPkgListRead(const char* baseProp);
+
 // Adapter that lets the shared NanoSliderHud spec draw through NanoMenu's
 // private GL primitives (drawQuad/drawText/measureText). Defined in
 // NanoMenuSystem.cpp; friended so the volume/brightness HUD matches the
