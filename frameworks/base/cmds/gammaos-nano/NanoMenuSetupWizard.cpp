@@ -208,6 +208,14 @@ void NanoMenu::finishSetupWizard() {
     mPs3CatsStale = true;
     forceRescanAllSystems();
 
+    // The blocking system() calls above (settings/ime/locksettings) stall the
+    // render/input thread long enough that nano's output AudioTrack underruns and
+    // AudioFlinger tears it down; without a re-init all nano audio (nav SFX, menu
+    // music) stays silent until the process is restarted. Re-arm the SFX engine
+    // here, the same way the cold-boot disclaimer path does, so audio survives
+    // setup completion on a fresh (factory-reset) device.
+    mSfxPlayer.init();
+
     ALOGI("NanoMenu: setup wizard finished, device provisioned");
 }
 
