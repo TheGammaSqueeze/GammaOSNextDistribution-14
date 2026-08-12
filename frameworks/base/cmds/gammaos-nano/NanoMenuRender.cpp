@@ -845,8 +845,15 @@ bool NanoMenu::ndsInModal() const {
 // A media player is on screen (user: "show the XMB ones when we're actually playing"). While
 // one is up the DSi home hands the whole render to renderPs3Xmb() so the existing full-screen
 // video / music / photo player UI shows instead of the DSi carousel.
+//
+// The video player also owns the screen during its LEAVE FADE (mVidActive already false, but
+// mVidEnterT > 0): its decoder + audio are torn down by videoTick() only once the fade reaches 0,
+// and videoTick() only runs inside renderPs3Xmb(). Without the fade-tail term the DSi/Minima render
+// stops delegating the instant the user exits, so videoTick() never completes and the video keeps
+// playing (audible) in the background. Mirror the XMB gating (mVidActive || mVidEnterT > 0.001f).
 bool NanoMenu::ndsPlayerActive() const {
-    return mVidActive || mMpActive || mPvActive || mPhotoMultiActive
+    return mVidActive || mVidEnterT > 0.001f
+        || mMpActive || mPvActive || mPhotoMultiActive
         || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive
         || ps3TopScreenKind() == PHOTO_GRID;
 }
