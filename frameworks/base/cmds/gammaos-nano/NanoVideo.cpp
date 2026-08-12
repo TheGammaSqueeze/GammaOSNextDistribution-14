@@ -636,7 +636,21 @@ void NanoVideo::decodeLoop() {
         } else if (mSeekPending.exchange(false)) {
             double t = mSeekTarget.load();
             AMediaExtractor_seekTo(mEx, (int64_t)(t * 1e6), AMEDIAEXTRACTOR_SEEK_CLOSEST_SYNC);
+            // Workaround for Android's MatroskaExtractor: on some MKVs the cue-based video seek
+            // fails ("Did not locate the video track for seeking") and the fallback can land with
+            // no sample or grossly past the target. If so, re-anchor to the PREVIOUS sync sample so
+            // we resume at/just before where the user asked instead of jumping far away.
+            int64_t landed = AMediaExtractor_getSampleTime(mEx);
+            if (landed < 0 || landed > (int64_t)((t + 10.0) * 1e6)) {
+                AMediaExtractor_seekTo(mEx, (int64_t)(t * 1e6), AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC);
+            }
             if (mCodec) AMediaCodec_flush(mCodec);        // null-safe: a recovery park may have left mCodec null
+            // Adopt the seek target as our position immediately. Otherwise mPosSec still holds the
+            // last RENDERED frame (the pre-seek position) until the first post-seek frame decodes, so
+            // if the HW decoder wedges on the flush the stall watchdog's recreateExtractorCodec would
+            // re-seek to the OLD position (line ~599) - jumping the picture backward while the audio
+            // extractor sits at the target. Set it now so any rebuild resumes at the target.
+            mPosSec = t;
             sawInputEos = false; mEnded = false;
             queuedAny = false; lastProgressNs = monoNs();
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
@@ -790,9 +804,18 @@ void NanoVideo::decodeLoop() {
                   // audio (cold-start backlog): it must WAIT for the audio, not render now. Rendering
                   // an ahead frame immediately is exactly what raced the picture to ~2x the audio.
                   bool ptsJump = (prevPts >= 0.0 && (pts - prevPts > 0.5 || prevPts - pts > 0.5));
+                  // A frame should never be held more than ~1.5s for the audio: the decode
+                  // backlog is at most the codec's few output buffers (< 0.5s). A far larger
+                  // positive wait means the audio clock is in the WRONG DOMAIN - a seek or an
+                  // audio-track switch re-based it (observed reporting a position seconds off,
+                  // even negative, while still advancing at ~1x so the stall guard above does
+                  // not catch it). Waiting for it freezes the picture while audio plays. Render
+                  // now and re-anchor so playback keeps moving; the clock re-locks within the
+                  // +/-0.10s window once it is sane again.
+                  bool wildAhead = waitNs > 1500000000LL;
                   dbgWaitNs = waitNs; dbgPrev = prevPts;
-                  if (ptsJump || waitNs < -500000000LL) {
-                      dbgReason = ptsJump ? 2 : 3;
+                  if (ptsJump || waitNs < -500000000LL || wildAhead) {
+                      dbgReason = ptsJump ? 2 : (wildAhead ? 4 : 3);
                       mClockBaseNs = now; mClockBasePts = pts; waitNs = 0;
                   }
                 }

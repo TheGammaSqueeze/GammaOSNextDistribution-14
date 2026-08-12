@@ -100,7 +100,8 @@ public:
     void pause();
     void togglePause();
     void stop();                               // pause + seek to 0 (marks "stopped")
-    void seek(double sec);                      // FF / REW / scrub
+    void seek(double sec);                      // FF / REW / scrub (async: runs seekSync off-thread)
+    void seekSync(double sec);                   // blocking seek core (render-thread-safe callers only)
 
     bool isPlaying() const;
     bool isPaused() const;
@@ -160,6 +161,7 @@ private:
     int   mStreamRate = 0;
     int   mStreamChans = 0;
     std::mutex mStreamMutex;                    // guards open/close/start/pause
+    std::mutex mSeekMx;                          // serialises async seek() workers vs stop()/release()
     std::atomic<bool> mStarted{false};          // requestStart issued (playing)
     std::atomic<bool> mStopped{false};          // user pressed Stop (vs Pause)
     // Route-change recovery: an AAudio output stream is DISCONNECTED when the output device

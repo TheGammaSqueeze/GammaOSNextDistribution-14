@@ -498,11 +498,17 @@ void NanoAudioPlayer::togglePause() {
 
 void NanoAudioPlayer::stop() {
     pause();
-    seek(0.0);
+    { std::lock_guard<std::mutex> lk(mSeekMx); seekSync(0.0); }   // sync (not the async seek()) + serialised
     mStopped = true;
 }
 
-void NanoAudioPlayer::seek(double sec) {
+// Blocking seek core: stop + reposition + restart the decode thread on the cached extractor. The
+// full restart (the decode thread re-seeks at its start, line ~788) is the PROVEN path that recovers
+// audio output cleanly after a seek - an in-loop AMediaCodec_flush alone did NOT recover FLAC output.
+// Repositions to an ABSOLUTE media time, so mSeekBaseFrames IS the media time; clear any leftover
+// start-together origin (armOrigin) or position() = mOriginPts + sec desyncs the audio-master clock
+// (observed -78s, which froze the picture via the video's audio-master pacing).
+void NanoAudioPlayer::seekSync(double sec) {
     if (sec < 0) sec = 0;
     bool wasPlaying = mStarted.load();
     pause();                       // halt the callback
@@ -512,14 +518,26 @@ void NanoAudioPlayer::seek(double sec) {
     mSeekBaseFrames = (int64_t)(sec * mStreamRate);
     mFramesConsumed = 0;
     mClockArmed = false;
+    mOriginPts.store(0.0);
     mPendingSeekUs = (int64_t)(sec * 1e6);
     mStopped = false;
     mDecodeStop = false;
-    // Restart the decode thread on the SAME cached extractor: it only AMediaExtractor_seekTo's
-    // (cheap), never re-parses the container. This makes A/V resync affordable on slow sources.
     if (mExtractor)
         mDecodeThread = std::thread(&NanoAudioPlayer::decodeThreadFunc, this, mCurrentPath);
     if (wasPlaying) play();
+}
+
+void NanoAudioPlayer::seek(double sec) {
+    if (sec < 0) sec = 0;
+    // Run the (blocking) seekSync on a DETACHED, serialized worker so the caller (the render thread)
+    // never blocks joining the decode thread - that join could exceed the 8s render watchdog on a slow
+    // source (SIGABRT), and made scrubbing wait for each seek. mSeekMx serialises concurrent seeks and
+    // guards against release()/stop() tearing the player down underneath an in-flight seek.
+    std::thread([this, sec]() {
+        std::lock_guard<std::mutex> lk(mSeekMx);
+        if (mShutdown.load()) return;   // player torn down while this seek was queued
+        seekSync(sec);
+    }).detach();
 }
 
 bool NanoAudioPlayer::isPlaying() const { return mStarted.load() && !mStopped.load(); }
@@ -552,7 +570,10 @@ NanoAudioPlayer::Meta NanoAudioPlayer::meta() const {
 }
 
 void NanoAudioPlayer::release() {
-    mShutdown.store(true);   // block any new route-change recovery from touching the stream
+    mShutdown.store(true);   // block any new route-change recovery / queued async seek
+    // Serialise against an in-flight async seek() worker so it cannot restart the decode thread
+    // underneath this teardown (it bails on mShutdown once it acquires the lock).
+    std::lock_guard<std::mutex> seekLk(mSeekMx);
     // Wait out an in-flight recovery (bounded) so its detached thread never reopens after free.
     for (int i = 0; i < 100 && mRecovering.load(); i++) usleep(10000);
     icyFree();                           // stop + join the radio demuxer (its worker calls feedPcm)
