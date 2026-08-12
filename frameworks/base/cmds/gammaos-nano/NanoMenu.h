@@ -3278,7 +3278,7 @@ private:
     void vidSetAudioTrack(int ordinal);             // switch the active audio track (re-opens mVidAudio)
     void vidOpenTitleAudio(const std::string& file);   // open audio for a NON-.ts title (mVidAudio)
     // (vidOpenTitle is now vidOpenTitleRun above - runs on the open worker thread)
-    void vidCloseTitleAudio();                      // stop the demux (if any) + release mVidAudio
+    void vidCloseTitleAudio(bool async = true);     // stop the demux (if any) + release mVidAudio (async off the render thread)
     void vidAudioSeek(double sec);                  // seek the audio, routed to the demux for .ts
     double vidDuration() const;                     // duration (s): demux for .ts, else NanoVideo
     std::vector<VidCue> vidParseSrt(const std::string& text);   // SRT/VTT cue parser (web vidParseCues)

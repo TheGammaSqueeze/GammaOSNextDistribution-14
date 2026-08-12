@@ -529,14 +529,33 @@ void NanoAudioPlayer::seekSync(double sec) {
 
 void NanoAudioPlayer::seek(double sec) {
     if (sec < 0) sec = 0;
-    // Run the (blocking) seekSync on a DETACHED, serialized worker so the caller (the render thread)
-    // never blocks joining the decode thread - that join could exceed the 8s render watchdog on a slow
-    // source (SIGABRT), and made scrubbing wait for each seek. mSeekMx serialises concurrent seeks and
-    // guards against release()/stop() tearing the player down underneath an in-flight seek.
-    std::thread([this, sec]() {
-        std::lock_guard<std::mutex> lk(mSeekMx);
-        if (mShutdown.load()) return;   // player torn down while this seek was queued
-        seekSync(sec);
+    // Run the (blocking) seekSync on a DETACHED worker so the caller (the render thread) never blocks
+    // joining the decode thread - that join can exceed the 8s render watchdog on a slow source (SIGABRT),
+    // and made scrubbing wait for each seek. COALESCE: keep at most ONE worker alive; it drains to the
+    // LATEST target, skipping intermediate scrub positions. Rapid scrubbing previously spawned a worker
+    // per input, each doing a full slow cue-less-MKV seekSync serialized on mSeekMx - the pile-up seen in
+    // the exit-after-scrub tombstone (release() waiting behind the whole queue). mSeekMx still serialises
+    // the actual seekSync vs stop()/release(); mSeekReqMx is a small lock over the request state only.
+    {
+        std::lock_guard<std::mutex> rq(mSeekReqMx);
+        mSeekTarget = sec;
+        mSeekPending = true;
+        if (mSeekWorkerActive) return;          // an existing worker will pick up this newer target
+        mSeekWorkerActive = true;
+    }
+    std::thread([this]() {
+        for (;;) {
+            double t;
+            {
+                std::lock_guard<std::mutex> rq(mSeekReqMx);
+                if (!mSeekPending || mShutdown.load()) { mSeekWorkerActive = false; return; }
+                t = mSeekTarget;
+                mSeekPending = false;           // claim the current target (a newer seek() re-sets it)
+            }
+            std::lock_guard<std::mutex> sk(mSeekMx);   // serialise vs stop()/release()
+            if (mShutdown.load()) { std::lock_guard<std::mutex> rq(mSeekReqMx); mSeekWorkerActive = false; return; }
+            seekSync(t);
+        }
     }).detach();
 }
 
@@ -571,6 +590,15 @@ NanoAudioPlayer::Meta NanoAudioPlayer::meta() const {
 
 void NanoAudioPlayer::release() {
     mShutdown.store(true);   // block any new route-change recovery / queued async seek
+    // Quiesce the coalescing seek worker BEFORE taking mSeekMx: with mShutdown set it bails at its
+    // next top-of-loop or post-mSeekMx check and clears mSeekWorkerActive. Waiting here (bounded, and
+    // NOT holding mSeekMx so the worker can acquire it to observe mShutdown) guarantees no seek worker
+    // survives this teardown into the next open()'s mShutdown=false - which would strand a stale scrub
+    // target onto the freshly reopened extractor. Bounded by at most one in-flight seekSync.
+    for (int i = 0; i < 400; i++) {
+        { std::lock_guard<std::mutex> rq(mSeekReqMx); if (!mSeekWorkerActive) break; }
+        usleep(5000);
+    }
     // Serialise against an in-flight async seek() worker so it cannot restart the decode thread
     // underneath this teardown (it bails on mShutdown once it acquires the lock).
     std::lock_guard<std::mutex> seekLk(mSeekMx);

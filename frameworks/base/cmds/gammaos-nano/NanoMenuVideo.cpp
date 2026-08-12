@@ -2028,6 +2028,11 @@ void NanoMenu::vidOpenTitleAudio(const std::string& file) {
 bool NanoMenu::vidOpenTitleRun() {
     const std::string& file = mVidPending.file;
     int w = mVidPending.w, h = mVidPending.h;
+    // Worker thread: wait out any in-flight async mVidAudio release from the previous title's
+    // vidCloseTitleAudio() before we touch mVidAudio (open/openFed below), so a fresh open never
+    // races a detached release() tearing the same player down. Off the render thread, so blocking here
+    // is fine (and watchdog-exempt inside the join).
+    vidAudioSwitchJoin();
     mVidTsMode = false; mVidTsAudio = false; mVidHasAudio = false;
     mVidTsDemux.close();
     mVidAviMode = false; mVidAviDemux.close();
@@ -2163,7 +2168,16 @@ bool NanoMenu::vidOpenTitleRun() {
 
 // Tear down the title's audio + picture demuxer. Stops the demux worker (which feeds
 // mVideoTest) FIRST so the picture can then be freed safely, then releases mVidAudio.
-void NanoMenu::vidCloseTitleAudio() {
+// async=true (interactive exit/abort/reopen): the mVidAudio.release() runs on a detached worker so
+// the render thread never blocks. release() can sit for many seconds acquiring mSeekMx while a scrub
+// seek() worker holds it joining a decode thread parked in an UNINTERRUPTIBLE cue-less-MKV
+// AMediaExtractor_seekTo (the platform FileSource dup()s the fd, so we cannot abort the read). Doing
+// that release on the render thread stalled it past the 8s watchdog on video exit after scrubbing
+// (SIGABRT). The detached worker flips mVidAudSwitchDone true LAST; the next open (vidOpenTitleRun) and
+// any later teardown wait on it via vidAudioSwitchJoin() so nothing races the in-flight release.
+// async=false (process shutdown / dtor): release synchronously - blocking is acceptable at shutdown and
+// a detached release must not outlive the object into ~NanoAudioPlayer's own release().
+void NanoMenu::vidCloseTitleAudio(bool async) {
     // Drop the picture's audio-clock fn BEFORE the demuxer/audio are torn down so the video
     // worker stops reading a clock whose backing audio is going away (.ts: the demuxer also
     // clears it in stop(); this covers the separate-extractor path).
@@ -2174,9 +2188,17 @@ void NanoMenu::vidCloseTitleAudio() {
     // sub-demuxer worker - the real last toucher of mVideoTest - before the picture is freed.
     mVidTsDemux.close(); mVidTsMode = false; mVidTsAudio = false;
     mVidAviDemux.close(); mVidAviMode = false;
-    vidAudioSwitchJoin();          // settle any in-flight async audio-track switch before tearing down
-    mVidAudio.release();
+    vidAudioSwitchJoin();          // settle any in-flight async audio-track switch/release before tearing down
     mVidHasAudio = false;
+    if (!async) { mVidAudio.release(); return; }   // shutdown: block here (see header), never detach
+    // Hand the (potentially multi-second) release to a detached worker; claim the switch slot so a
+    // later open/close waits it out. The render thread returns immediately - the picture is async-freed
+    // by the caller and mVidAudio methods still in the loop (isPlaying/position) read only atomics.
+    mVidAudSwitchDone.store(false, std::memory_order_release);
+    std::thread([this]() {
+        mVidAudio.release();
+        mVidAudSwitchDone.store(true, std::memory_order_release);
+    }).detach();
 }
 
 // Seek, routed to the demuxer for .ts (repositions the single read pointer + flushes both
@@ -2463,6 +2485,7 @@ void NanoMenu::vidStepRetryNext() {
 bool NanoMenu::vidOpenStreamRun() {
     if (mVidIdx < 0 || mVidIdx >= (int)mVidStreamList.size()) return false;
     const VidStreamRef& s = mVidStreamList[mVidIdx];
+    vidAudioSwitchJoin();   // wait out a prior title's in-flight async mVidAudio release before reopening (worker thread)
     mVidTsMode = false; mVidTsAudio = false; mVidHasAudio = false;
     mVidTsDemux.close();
     mVidAviMode = false; mVidAviDemux.close();
@@ -2849,7 +2872,7 @@ void NanoMenu::videoHardFree(bool sync) {
     }
     vidCaptureResume();   // persist the Resume position before tearing the decoder down
     if (mVidResumeDirty) { saveVideoConfig(); mVidResumeDirty = false; }
-    vidCloseTitleAudio();   // stop the demuxer FIRST (it feeds mVideoTest) before freeing it
+    vidCloseTitleAudio(/*async=*/!sync);   // stop the demuxer FIRST (it feeds mVideoTest) before freeing it; sync teardown releases inline
     if (mVideoTest) {
         if (sync) { mVideoTest->release(); delete mVideoTest; mVideoTest = nullptr; }
         else { vidAsyncFree(mVideoTest); mVideoTest = nullptr; }   // OMX stop off the render thread (watchdog)

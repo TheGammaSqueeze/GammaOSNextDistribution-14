@@ -161,7 +161,15 @@ private:
     int   mStreamRate = 0;
     int   mStreamChans = 0;
     std::mutex mStreamMutex;                    // guards open/close/start/pause
-    std::mutex mSeekMx;                          // serialises async seek() workers vs stop()/release()
+    std::mutex mSeekMx;                          // serialises the async seek worker vs stop()/release()
+    // Seek coalescing: rapid scrubbing (hold-right) used to spawn one detached seek() worker PER input,
+    // each running a full slow cue-less-MKV seekSync serialized on mSeekMx - a pile-up that desynced A/V
+    // and, on teardown, made release() wait behind the whole queue (render-watchdog SIGABRT). Now a SINGLE
+    // worker drains to the LATEST requested target, skipping intermediate scrub positions.
+    std::mutex mSeekReqMx;                        // guards the request state below (small/fast, never held across a seek)
+    double mSeekTarget = 0.0;                     // latest requested seek position (s)
+    bool mSeekPending = false;                    // a newer target is waiting for the worker
+    bool mSeekWorkerActive = false;              // a coalescing worker is currently draining
     std::atomic<bool> mStarted{false};          // requestStart issued (playing)
     std::atomic<bool> mStopped{false};          // user pressed Stop (vs Pause)
     // Route-change recovery: an AAudio output stream is DISCONNECTED when the output device
