@@ -79,6 +79,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String KEY_REMAP_AXES = "gamepad_remap_axes";
     private static final String KEY_AXIS_ROLES = "gamepad_axis_roles";
     private static final String KEY_AXIS_TO_BUTTON = "gamepad_axis_to_button";
+    private static final String KEY_BUTTON_TO_AXIS = "gamepad_button_to_axis";
     private static final String KEY_CALIBRATION = "gamepad_calibration";
     private static final String KEY_ANALOG_TO_DPAD = "gamepad_analog_to_dpad";
     private static final String KEY_DPAD_TO_ANALOG = "gamepad_dpad_to_analog";
@@ -120,6 +121,7 @@ public class GamepadSettings extends SettingsPreferenceFragment
     private static final String PROP_REMAP_BTN = "persist.gammaos.gamepad.remap_btn";
     private static final String PROP_REMAP_AXIS = "persist.gammaos.gamepad.remap_axis";
     private static final String PROP_AXIS_BTN = "persist.gammaos.gamepad.axis_btn";
+    private static final String PROP_BTN_AXIS = "persist.gammaos.gamepad.btn_axis";
     private static final String PROP_ANALOG_TO_DPAD = "persist.gammaos.gamepad.analog_to_dpad";
     private static final String PROP_DPAD_TO_ANALOG = "persist.gammaos.gamepad.dpad_to_analog";
     private static final String PROP_DPAD_THRESHOLD = "persist.gammaos.gamepad.dpad_threshold";
@@ -400,6 +402,12 @@ public class GamepadSettings extends SettingsPreferenceFragment
         if (axisBtnPref != null) {
             axisBtnPref.setOnPreferenceClickListener(this);
             updateAxisButtonSummary(axisBtnPref);
+        }
+
+        Preference btnAxisPref = findPreference(KEY_BUTTON_TO_AXIS);
+        if (btnAxisPref != null) {
+            btnAxisPref.setOnPreferenceClickListener(this);
+            updateButtonToAxisSummary(btnAxisPref);
         }
 
         Preference blacklistVpadPref = findPreference(KEY_BLACKLIST_VPAD);
@@ -794,6 +802,10 @@ public class GamepadSettings extends SettingsPreferenceFragment
         if (axisBtnPref != null) {
             updateAxisButtonSummary(axisBtnPref);
         }
+        Preference btnAxisPref = findPreference(KEY_BUTTON_TO_AXIS);
+        if (btnAxisPref != null) {
+            updateButtonToAxisSummary(btnAxisPref);
+        }
         Preference blacklistVpadPref = findPreference(KEY_BLACKLIST_VPAD);
         if (blacklistVpadPref != null) {
             updateBlacklistSummary(blacklistVpadPref, PROP_BLACKLIST_VPAD);
@@ -951,6 +963,162 @@ public class GamepadSettings extends SettingsPreferenceFragment
         bumpConfigVersion();
         refreshRemapSummaries();
         Toast.makeText(getContext(), R.string.gamepad_axis_to_button_saved,
+                Toast.LENGTH_SHORT).show();
+    }
+
+    // -- Button-to-axis (btn_axis): a digital button emulates an analog trigger --
+    // axis (e.g. L2 -> Brake, R2 -> Gas). Format "btn:axis[:value]" per rule.
+
+    private void updateButtonToAxisSummary(Preference pref) {
+        String s = SystemProperties.get(PROP_BTN_AXIS, "");
+        if (s.isEmpty()) {
+            pref.setSummary(R.string.gamepad_button_to_axis_none);
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String entry : s.split(",")) {
+            String[] p = entry.split(":");
+            if (p.length < 2) continue;
+            try {
+                int btn = Integer.parseInt(p[0]);
+                int axis = Integer.parseInt(p[1]);
+                String btnName = BTN_NAMES.getOrDefault(btn, "0x" + Integer.toHexString(btn));
+                String axisName = AXIS_NAMES.getOrDefault(axis, "0x" + Integer.toHexString(axis));
+                boolean keep = p.length >= 4 && !"0".equals(p[3].trim());
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(btnName).append(" → ").append(axisName);
+                if (keep) sb.append(" (+btn)");
+            } catch (NumberFormatException e) {
+                // Skip
+            }
+        }
+        pref.setSummary(sb.length() > 0 ? sb.toString()
+                : getString(R.string.gamepad_button_to_axis_none));
+    }
+
+    private void showButtonToAxisDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        String current = SystemProperties.get(PROP_BTN_AXIS, "");
+        List<String> items = new ArrayList<>();
+        if (!current.isEmpty()) {
+            for (String entry : current.split(",")) {
+                String[] p = entry.split(":");
+                if (p.length >= 2) {
+                    int btn = Integer.parseInt(p[0]);
+                    int axis = Integer.parseInt(p[1]);
+                    String btnName = BTN_NAMES.getOrDefault(btn, "0x" + Integer.toHexString(btn));
+                    String axisName = AXIS_NAMES.getOrDefault(axis, "0x" + Integer.toHexString(axis));
+                    items.add(btnName + " → " + axisName);
+                }
+            }
+        }
+        items.add(getString(R.string.gamepad_button_to_axis_add));
+        if (!current.isEmpty()) {
+            items.add(getString(R.string.gamepad_button_to_axis_clear_all));
+        }
+        int currentCount = current.isEmpty() ? 0 : current.split(",").length;
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_button_to_axis_title)
+                .setItems(items.toArray(new String[0]), (d, which) -> {
+                    if (which < currentCount) {
+                        // Remove this mapping
+                        String[] entries = current.split(",");
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < entries.length; i++) {
+                            if (i == which) continue;
+                            if (sb.length() > 0) sb.append(",");
+                            sb.append(entries[i]);
+                        }
+                        SystemProperties.set(PROP_BTN_AXIS, sb.toString());
+                        bumpConfigVersion();
+                        refreshRemapSummaries();
+                    } else {
+                        int idx = which - currentCount;
+                        if (idx == 0) {
+                            showAddButtonAxisRuleDialog();
+                        } else if (idx == 1) {
+                            SystemProperties.set(PROP_BTN_AXIS, "");
+                            bumpConfigVersion();
+                            refreshRemapSummaries();
+                            Toast.makeText(context, R.string.gamepad_button_to_axis_cleared,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showAddButtonAxisRuleDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        final int[] btnCodes = {0x138, 0x139, 0x136, 0x137, 0x130, 0x131, 0x133, 0x134};
+        String[] btnLabels = new String[btnCodes.length];
+        for (int i = 0; i < btnCodes.length; i++) {
+            btnLabels[i] = BTN_NAMES.getOrDefault(btnCodes[i],
+                    "0x" + Integer.toHexString(btnCodes[i]));
+        }
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.gamepad_button_to_axis_pick_button)
+                .setItems(btnLabels, (d, bi) -> {
+                    final int btn = btnCodes[bi];
+                    final int[] axisCodes = {0x0a, 0x09, 0x02, 0x05};
+                    String[] axisLabels = new String[axisCodes.length];
+                    for (int i = 0; i < axisCodes.length; i++) {
+                        axisLabels[i] = AXIS_NAMES.getOrDefault(axisCodes[i],
+                                "0x" + Integer.toHexString(axisCodes[i]));
+                    }
+                    new AlertDialog.Builder(context)
+                            .setTitle(R.string.gamepad_button_to_axis_pick_axis)
+                            .setItems(axisLabels, (d2, ai) -> {
+                                final int axis = axisCodes[ai];
+                                // Third step: also forward the original digital
+                                // button? (so apps that read L2/R2 as a button
+                                // keep working alongside the emulated trigger.)
+                                String[] keepLabels = {
+                                    getString(R.string.gamepad_button_to_axis_keep_both),
+                                    getString(R.string.gamepad_button_to_axis_axis_only),
+                                };
+                                new AlertDialog.Builder(context)
+                                        .setTitle(R.string.gamepad_button_to_axis_keep_title)
+                                        .setItems(keepLabels, (d3, ki) ->
+                                                applyButtonAxisRule(context, btn, axis, ki == 0))
+                                        .setNegativeButton(android.R.string.cancel, null)
+                                        .show();
+                            })
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    // Write (or replace) a btn_axis rule. keepButton=true appends the 4th field
+    // so the daemon also forwards the original digital button. Value is fixed at
+    // full-trigger (32767); the daemon defaults to that when the field is absent.
+    private void applyButtonAxisRule(Context context, int btn, int axis, boolean keepButton) {
+        String current = SystemProperties.get(PROP_BTN_AXIS, "");
+        StringBuilder sb = new StringBuilder();
+        if (!current.isEmpty()) {
+            for (String entry : current.split(",")) {
+                String[] p = entry.split(":");
+                if (p.length >= 1 && p[0].equals(String.valueOf(btn))) continue;
+                if (sb.length() > 0) sb.append(",");
+                sb.append(entry);
+            }
+        }
+        if (sb.length() > 0) sb.append(",");
+        sb.append(btn).append(":").append(axis).append(":").append(32767);
+        if (keepButton) sb.append(":").append(1);
+        SystemProperties.set(PROP_BTN_AXIS, sb.toString());
+        bumpConfigVersion();
+        refreshRemapSummaries();
+        Toast.makeText(context, R.string.gamepad_button_to_axis_saved,
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -1587,6 +1755,9 @@ public class GamepadSettings extends SettingsPreferenceFragment
             return true;
         } else if (KEY_AXIS_TO_BUTTON.equals(key)) {
             showAxisToButtonDialog();
+            return true;
+        } else if (KEY_BUTTON_TO_AXIS.equals(key)) {
+            showButtonToAxisDialog();
             return true;
         } else if (KEY_BLACKLIST_VPAD.equals(key)) {
             showBlacklistDialog(PROP_BLACKLIST_VPAD,

@@ -179,6 +179,9 @@ private:
 
     bool hideDeviceNode(PhysicalDevice& dev);
     bool restoreDeviceNode(PhysicalDevice& dev);
+    // Re-hide a source node that reappeared at a path we had already hidden
+    // (e.g. ueventd coldboot recreating it during nano/minimal boot).
+    void rehideReappearedNode(const std::string& path);
     void writeHiddenNodesState();
     void recoverHiddenNodes();
 

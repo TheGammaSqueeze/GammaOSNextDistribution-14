@@ -137,6 +137,7 @@ The PID determines the virtual device's axis layout:
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `remap_axis` | string | _(empty)_ | Comma-separated `from:to` pairs of Linux ABS codes (decimal). Applied at the mAbsMap level after .kl and role resolution. |
+| `btn_axis` | string | _(empty)_ | Comma-separated `btn:axis[:value[:keep]]` rules. A digital button emulates an analog axis: press emits `value` (default `32767`, full trigger), release emits `0`. Optional 4th field `keep=1` also forwards the original digital button event (so apps that read the button still see it; default `0` = axis only). Example: `312:10:32767:1,313:9:32767:1` = BTN_TL2 → ABS_BRAKE, BTN_TR2 → ABS_GAS while still sending L2/R2 as buttons. |
 
 ### Axis Role Assignment
 

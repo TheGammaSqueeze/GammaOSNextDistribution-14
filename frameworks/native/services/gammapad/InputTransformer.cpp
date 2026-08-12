@@ -34,6 +34,7 @@ void InputTransformer::loadConfig() {
 
     mButtonRemap.clear();
     mAxisRemap.clear();
+    mButtonToAxis.clear();
     mCalibration.clear();
     mAxisButtons.clear();
     mCombos.clear();
@@ -75,6 +76,25 @@ void InputTransformer::loadConfig() {
                 int from = std::atoi(pair.substr(0, colon).c_str());
                 int to = std::atoi(pair.substr(colon + 1).c_str());
                 mAxisRemap[from] = to;
+            }
+        }
+    }
+
+    // Parse button-to-axis rules: "btn:axis[:value[:keep]],..." (e.g. "312:10,313:9").
+    // A digital button emulates an analog axis - press emits <value> (default
+    // 32767 = full trigger), release emits 0. Primary use: drive ABS_BRAKE (10)
+    // and ABS_GAS (9) from the digital L2/R2 shoulder buttons for racing games.
+    // Optional 4th field keep=1 also forwards the original digital button event,
+    // so apps that read L2/R2 as a button keep working (default 0 = axis only).
+    std::string btnAxis = GetProperty("persist.gammaos.gamepad.btn_axis", "");
+    if (!btnAxis.empty()) {
+        std::istringstream ss(btnAxis);
+        std::string rule;
+        while (std::getline(ss, rule, ',')) {
+            int btn = 0, axis = -1, value = 32767, keep = 0;
+            int n = sscanf(rule.c_str(), "%d:%d:%d:%d", &btn, &axis, &value, &keep);
+            if (n >= 2 && btn > 0 && axis >= 0) {
+                mButtonToAxis[btn] = {axis, value, (n >= 4 && keep != 0)};
             }
         }
     }
@@ -204,6 +224,14 @@ std::set<int> InputTransformer::getAxisButtonCodes() const {
     return codes;
 }
 
+std::set<int> InputTransformer::getButtonAxisCodes() const {
+    std::set<int> codes;
+    for (const auto& [btn, ax] : mButtonToAxis) {
+        codes.insert(ax.axis);
+    }
+    return codes;
+}
+
 bool InputTransformer::transform(struct input_event& ev,
                                   const std::unordered_map<int, AxisInfo>& deviceAbsInfo) {
     if (ev.type == EV_KEY) {
@@ -249,6 +277,33 @@ bool InputTransformer::transform(struct input_event& ev,
         auto it = mButtonRemap.find(ev.code);
         if (it != mButtonRemap.end()) {
             ev.code = it->second;
+        }
+
+        // 2b. Button-to-axis: a digital button emulates an analog axis (e.g.
+        //     L2/R2 -> ABS_BRAKE/ABS_GAS trigger). Convert this key event into an
+        //     absolute-axis event in place: press -> value, release -> 0. Emitted
+        //     directly (fixed trigger extents), bypassing stick calibration.
+        if (!mButtonToAxis.empty()) {
+            auto bax = mButtonToAxis.find(ev.code);
+            if (bax != mButtonToAxis.end()) {
+                // Optionally forward the original digital button too, so apps
+                // that read L2/R2 as a button still see it. Emitted as an extra
+                // event (the axis event goes out in-place below); a SYN flushes
+                // the axis+button together as one frame.
+                if (bax->second.keepButton) {
+                    struct input_event btnEv = ev;   // EV_KEY, mapped code, press/release
+                    mExtraEvents.push_back(btnEv);
+                    struct input_event synEv{};
+                    synEv.type = EV_SYN;
+                    synEv.code = SYN_REPORT;
+                    synEv.value = 0;
+                    mExtraEvents.push_back(synEv);
+                }
+                ev.type = EV_ABS;
+                ev.code = bax->second.axis;
+                ev.value = (ev.value != 0) ? bax->second.value : 0;
+                return true;
+            }
         }
 
         // 2a. Per-button action rules (short/long press). A button that carries

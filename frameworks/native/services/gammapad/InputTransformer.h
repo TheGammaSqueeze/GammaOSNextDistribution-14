@@ -65,6 +65,14 @@ struct AxisButtonTrigger {
     bool hijack;        // true = suppress ABS event, false = emit both
 };
 
+// Button-to-axis rule: a digital button drives an analog axis. When keepButton
+// is set, the original digital button event is forwarded as well.
+struct ButtonAxisRule {
+    int axis;           // target axis code (e.g. ABS_BRAKE / ABS_GAS)
+    int value;          // value emitted on press (release always emits 0)
+    bool keepButton;    // also forward the original digital button event
+};
+
 struct ComboMapping {
     int btn1;           // first source button code
     int btn2;           // second source button code
@@ -98,6 +106,10 @@ public:
 
     // Get all button codes used by axis-to-button triggers
     std::set<int> getAxisButtonCodes() const;
+
+    // Get all target axis codes used by button-to-axis rules (btn_axis), so the
+    // virtual pad advertises them.
+    std::set<int> getButtonAxisCodes() const;
 
     // Get all button codes emitted by combo mappings
     std::set<int> getComboEmitCodes() const;
@@ -179,6 +191,11 @@ private:
     std::unordered_map<int, int> mButtonRemap;
     // Axis remap: from axis code -> to axis code
     std::unordered_map<int, int> mAxisRemap;
+    // Button-to-axis: source button code -> rule. A digital button emulates an
+    // analog axis (e.g. L2/R2 -> ABS_BRAKE/ABS_GAS trigger): press emits the
+    // value, release emits 0. When keepButton is set, the original digital button
+    // event is ALSO forwarded (so apps that read L2/R2 as a button still see it).
+    std::unordered_map<int, ButtonAxisRule> mButtonToAxis;
     // Per-axis calibration
     std::unordered_map<int, CalibrationData> mCalibration;
 

@@ -904,6 +904,22 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
         axisSetups.push_back(setup);
     }
 
+    // Add button-to-axis (btn_axis) target axes so the virtual pad advertises
+    // them (ABS_GAS/ABS_BRAKE are already defaults; this covers custom targets).
+    for (int ax : mTransformer->getButtonAxisCodes()) {
+        if (finalAxes.count(ax)) continue;
+        finalAxes.insert(ax);
+
+        VirtualGamepad::AxisSetup setup;
+        setup.code = ax;
+        if (ax == ABS_GAS || ax == ABS_BRAKE) {
+            setup.min = 0; setup.max = 32767; setup.fuzz = 0; setup.flat = 0;
+        } else {
+            setup.min = -32768; setup.max = 32767; setup.fuzz = 16; setup.flat = 128;
+        }
+        axisSetups.push_back(setup);
+    }
+
     // Also add axis-to-button target button codes
     for (int btn : mTransformer->getAxisButtonCodes()) {
         mDiscoveredKeys.insert(btn);
@@ -1102,18 +1118,40 @@ void GamepadManager::handleInotifyEvent() {
             std::string path = std::string(DEV_INPUT_PATH) + "/" + event->name;
 
             if (event->mask & IN_CREATE) {
-                // Skip if we already have this path grabbed (self-triggered by mknod restore)
-                bool alreadyGrabbed = false;
+                // Do we already track a device at this path?
+                int trackedFd = -1;
+                bool trackedHidden = false;
                 for (const auto& [fd, dev] : mDevices) {
-                    if (dev.path == path) { alreadyGrabbed = true; break; }
+                    if (dev.path == path) {
+                        trackedFd = fd;
+                        trackedHidden = dev.nodeHidden;
+                        break;
+                    }
                 }
-                if (!alreadyGrabbed) {
-                    // Wait for device node to settle
+                if (trackedFd < 0) {
+                    // New device — grab it.
                     usleep(HOTPLUG_SETTLE_MS * 1000);
                     if (grabDevice(path)) {
                         needRebuild = true;
                     }
+                } else if (trackedHidden) {
+                    // We hid this path (unlinked the source node) yet a fresh
+                    // node has reappeared at the same path. During nano/minimal
+                    // boot, ueventd's coldboot pass recreates /dev/input nodes
+                    // after we hid ours, leaving the source visible to
+                    // InputReader (both the source and our virtual pad show).
+                    // While our grabbed fd is still valid the device was not
+                    // re-enumerated, so just re-hide the duplicate node. (If the
+                    // device was truly re-enumerated our fd goes ENODEV and the
+                    // rescan path re-grabs it instead.)
+                    int ver = 0;
+                    if (ioctl(trackedFd, EVIOCGVERSION, &ver) == 0) {
+                        usleep(HOTPLUG_SETTLE_MS * 1000);
+                        rehideReappearedNode(path);
+                    }
                 }
+                // else: tracked but not hidden — self-triggered mknod restore,
+                // ignore.
             } else if (event->mask & IN_DELETE) {
                 // Find and release by path, but skip if we intentionally hid this node
                 for (auto& [fd, dev] : mDevices) {
@@ -1579,6 +1617,31 @@ bool GamepadManager::hideDeviceNode(PhysicalDevice& dev) {
               << " (major=" << major(dev.devNumber)
               << " minor=" << minor(dev.devNumber) << ")";
     return true;
+}
+
+void GamepadManager::rehideReappearedNode(const std::string& path) {
+    // A fresh node reappeared at a path we had already hidden (e.g. ueventd's
+    // coldboot pass recreating /dev/input nodes after we unlinked ours). Unlink
+    // the new node again so the source stays hidden from InputReader, refreshing
+    // the saved major/minor/mode so a later restore recreates the right node.
+    struct stat st;
+    if (stat(path.c_str(), &st) < 0) return;  // already gone
+    for (auto& [fd, dev] : mDevices) {
+        if (dev.path == path && dev.nodeHidden) {
+            dev.devNumber = st.st_rdev;
+            dev.devMode = st.st_mode;
+            if (unlink(path.c_str()) == 0) {
+                writeHiddenNodesState();
+                LOG(INFO) << "Re-hid reappeared source node: " << path
+                          << " (major=" << major(dev.devNumber)
+                          << " minor=" << minor(dev.devNumber) << ")";
+            } else {
+                LOG(WARNING) << "Failed to re-hide reappeared node " << path
+                             << ": " << strerror(errno);
+            }
+            break;
+        }
+    }
 }
 
 bool GamepadManager::restoreDeviceNode(PhysicalDevice& dev) {

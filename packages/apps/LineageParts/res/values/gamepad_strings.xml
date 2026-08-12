@@ -117,6 +117,20 @@
     <string name="gamepad_axis_to_button_title">Axis-to-button mapping</string>
     <string name="gamepad_axis_to_button_summary">Convert axis thresholds to button presses</string>
     <string name="gamepad_axis_to_button_none">No axis-to-button rules configured</string>
+
+    <!-- Button-to-axis (btn_axis): digital button emulates an analog trigger axis -->
+    <string name="gamepad_button_to_axis_title">Button-to-trigger mapping</string>
+    <string name="gamepad_button_to_axis_summary">Make a digital button act as an analog trigger (Brake/Gas)</string>
+    <string name="gamepad_button_to_axis_none">No button-to-trigger mappings configured</string>
+    <string name="gamepad_button_to_axis_add">Add mapping…</string>
+    <string name="gamepad_button_to_axis_clear_all">Clear all</string>
+    <string name="gamepad_button_to_axis_cleared">Button-to-trigger mappings cleared</string>
+    <string name="gamepad_button_to_axis_saved">Mapping saved</string>
+    <string name="gamepad_button_to_axis_pick_button">Select button</string>
+    <string name="gamepad_button_to_axis_pick_axis">Select trigger axis</string>
+    <string name="gamepad_button_to_axis_keep_title">Also send the original button?</string>
+    <string name="gamepad_button_to_axis_keep_both">Send both (trigger + button)</string>
+    <string name="gamepad_button_to_axis_axis_only">Trigger only</string>
     <string name="gamepad_axis_to_button_add">Add rule\u2026</string>
     <string name="gamepad_axis_to_button_axis">Source axis</string>
     <string name="gamepad_axis_to_button_button">Target button</string>

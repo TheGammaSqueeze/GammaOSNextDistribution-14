@@ -571,6 +571,13 @@ void NanoMenu::buildSettingsTree() {
                SettingSource::kProp, "persist.gammaos.gamepad.combo_map", "");
         b.text("gp_axis_btn", "Axis to Button",
                SettingSource::kProp, "persist.gammaos.gamepad.axis_btn", "");
+        // Button-to-axis: digital button emulates an analog trigger axis, e.g.
+        // "312:10,313:9" = L2 -> Brake, R2 -> Gas. Press = full (32767), release = 0.
+        // Format is "btn:axis[:value[:keep]]"; keep=1 also forwards the original
+        // digital button (e.g. "312:10:32767:1,313:9:32767:1" keeps L2/R2 working
+        // as buttons too).
+        b.text("gp_btn_axis", "Button to Trigger Axis",
+               SettingSource::kProp, "persist.gammaos.gamepad.btn_axis", "");
         b.text("gp_ff_device", "FF Vibrate Device",
                SettingSource::kProp, "persist.gammaos.gamepad.ff_vibrate_device", "");
         b.text("gp_blacklist_pass", "Blacklist Passthrough",

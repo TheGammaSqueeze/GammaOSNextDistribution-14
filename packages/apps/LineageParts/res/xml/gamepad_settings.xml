@@ -85,6 +85,11 @@
             android:summary="@string/gamepad_axis_to_button_summary" />
 
         <Preference
+            android:key="gamepad_button_to_axis"
+            android:title="@string/gamepad_button_to_axis_title"
+            android:summary="@string/gamepad_button_to_axis_summary" />
+
+        <Preference
             android:key="gamepad_combo_map"
             android:title="@string/gamepad_combo_map_title"
             android:summary="@string/gamepad_combo_map_summary" />
