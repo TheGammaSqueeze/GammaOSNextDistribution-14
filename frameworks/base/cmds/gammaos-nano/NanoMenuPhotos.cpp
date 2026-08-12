@@ -1043,13 +1043,13 @@ void NanoMenu::drawPhotoBanner() {
     const float padX    = fmaxf(PFS(14.0f), fs * 0.7f);
     const float padY    = fmaxf(PFS(8.0f),  fs * 0.42f);
     const float margin  = fmaxf(PFS(12.0f), mn * 0.03f);
-    const float accentW = fmaxf(PFS(3.0f),  fs * 0.16f);   // signature colored left edge
+    const float accentH = fmaxf(PFS(2.0f),  fs * 0.10f);   // accent underline thickness (drastic-nano style)
 
-    // Text column caps the card at ~62% of the width; anything longer marquees.
-    const float textColW = fmaxf(PFS(40.0f), W * 0.62f - padX * 2.0f - accentW);
+    // Text column caps the card at ~70% of the width; anything longer marquees.
+    const float textColW = fmaxf(PFS(40.0f), W * 0.70f - padX * 2.0f);
     const float fullTw = measureText(txt, fs);
     const float colW = fminf(fullTw, textColW);
-    const float cardW = accentW + padX + colW + padX;
+    const float cardW = padX + colW + padX;
     const float cardH = fs + padY * 2.0f;
 
     // Per-theme palette: card fill, ink, accent (left edge) and a thin frame.
@@ -1079,17 +1079,20 @@ void NanoMenu::drawPhotoBanner() {
         frR = 0.90f; frG = 0.93f; frB = 1.0f; frA = 0.22f;
     }
 
-    // Top-right, sliding in from the right edge.
-    const float xRest = W - cardW - margin;
-    const float x = xRest + (1.0f - vis) * (cardW + margin);
-    const float y = margin;
+    // Top-CENTRE with a small slide-down + fade. Centring guarantees the card can never land
+    // off-screen on rotated / overscan panels (the earlier top-right slide-in went off the GKD's
+    // physical edge); the short vertical drop keeps the drastic-nano toast feel. clamped so the top
+    // never slides above the screen edge.
+    const float x = (W - cardW) * 0.5f;
+    const float y = fmaxf(PFS(4.0f), margin - (1.0f - vis) * (fs * 0.6f));
 
     // Frame + fill (drawQuad, not drawRoundedRect: the SDF rounded-rect uses a separate rotation path
     // from drawText and lands misaligned/offscreen on the RG DS's rotated panels).
     const float bw = PFS(2.0f);
     drawQuad(x - bw, y - bw, cardW + bw * 2.0f, cardH + bw * 2.0f, frR, frG, frB, frA * alpha);
     drawQuad(x, y, cardW, cardH, fR, fG, fB, fA * alpha);
-    drawQuad(x, y, accentW, cardH, aR, aG, aB, alpha);   // colored left edge
+    // Accent underline along the bottom (drastic-nano drawToast style).
+    drawQuad(x, y + cardH - accentH, cardW, accentH, aR, aG, aB, alpha);
 
     // Marquee: when the label overflows its column, window a fitting substring that scrolls, wrapping
     // with a gap (mirrors the drastic-nano toast ticker; no GL clip needed, works at any opacity).
@@ -1107,7 +1110,7 @@ void NanoMenu::drawPhotoBanner() {
         }
         shown = vs;
     }
-    const float tx = x + accentW + padX;
+    const float tx = x + padX;
     const float baseY = y + cardH * 0.5f + fs * 0.34f;
     drawText(shown.c_str(), tx, ps3::baselineToTopY(baseY, fs), fs, iR, iG, iB, alpha);
 
