@@ -3201,6 +3201,11 @@ private:
     bool mVidOsd = false;                   // persistent Display toggle (keeps the bar visible)
     std::string mVidTransient; float mVidTransientUntil = 0.0f;   // top-center flash (FF/Rew/etc.)
     std::string mVidDispMode; float mVidDispModeUntil = 0.0f;     // screen-mode pill
+    // Monotonic wall-clock safety net for the two timed OSD strings: mEffectTime is CLOCK_BOOTTIME mod
+    // 500s (wraps) and only refreshes on a rendered frame, so a set-near-the-wrap or a stalled framebuffer
+    // could leave "Audio: ..."/"Loading subtitles..." stuck. videoTick clears each past this real-time cap.
+    int64_t mVidDispModeShownMs = 0; std::string mVidDispModePrev;
+    int64_t mVidTransientShownMs = 0; std::string mVidTransientPrev;
     // resumeChoice: -1 = ask (direct Enter shows the Resume prompt for a watched title);
     // 1 = resume now (option-menu "Resume", no prompt); 0 = play from the start (option-menu
     // "Play from Beginning", caller clears the bookmark first).
@@ -3250,7 +3255,34 @@ private:
     // colour aspects) and cold-starts reliably. Owned here; freed right after openFed/on close.
     AMediaFormat* mVidTsVideoFmt = nullptr;
     // ---- multiple audio tracks + subtitles (built per opened title; web audioTracks/subList) ----
-    struct VidCue { double t = 0.0, d = 0.0; std::string text; };   // start, duration, text
+    // One ASS/SSA [V4+ Styles] entry (parsed from the Matroska CodecPrivate header). Colours are
+    // pre-decoded from ASS &HAABBGGRR (BGR order, inverted alpha) into straight rgba 0..1.
+    struct AssStyle {
+        std::string name;                      // style key (matched by the event Style field)
+        float fontSizePx = 63.0f;              // PlayRes px (V4+ "Fontsize")
+        float pr = 1, pg = 1, pb = 1, pa = 1;  // PrimaryColour rgba
+        float ro = 0, go = 0, bo = 0, ao = 1;  // OutlineColour rgba
+        float outlinePx = 2.0f;                // "Outline" thickness (PlayRes px)
+        bool  bold = false, italic = false;
+        int   alignment = 2;                   // numpad 1..9 (SSA legacy converted at parse)
+        int   marginL = 0, marginR = 0, marginV = 0;
+    };
+    // A rendered subtitle cue. For plain tracks (SRT/CEA-608/DVB) only t/d/text are set and styled=false
+    // so the renderer uses the legacy bottom-centre path. For ASS the worker fills the typeset layout.
+    struct VidCue {
+        double t = 0.0, d = 0.0; std::string text;   // start, duration, display text (tags removed)
+        bool  styled = false;                   // true => use the positioned/coloured ASS path
+        int   alignment = 2;                    // numpad 1..9
+        bool  hasPos = false;                   // \pos/\move present => posX/posY anchor, ignore margins
+        float posX = -1.0f, posY = -1.0f;       // PlayRes px anchor when hasPos
+        float fontSizePx = 0.0f;                // PlayRes px; 0 => style/default
+        float pr = 1, pg = 1, pb = 1, pa = 1;   // primary fill rgba
+        float ro = 0, go = 0, bo = 0, ao = 1;   // outline rgba
+        float outlinePx = 0.0f;                 // PlayRes outline thickness
+        bool  bold = false, italic = false;     // flags only (no bold/slant glyph primitive)
+        int   marginL = 0, marginR = 0, marginV = 0;   // effective margins (ignored when hasPos)
+        int   layer = 0, order = 0;             // draw order: layer asc, then order (ReadOrder/index) asc
+    };
     struct VidAudTrk { int idx = 0; std::string name; };           // idx = extractor track index
     struct VidSubTrk { std::string name; bool external = false; std::string file; int embIdx = -1;
                        std::vector<VidCue> cues; bool dvb = false; int dvbPid = -1;
@@ -3258,7 +3290,15 @@ private:
                        // Matroska embedded text sub: the track is listed cheaply at open, but its cues
                        // (a full-file cluster walk) are loaded LAZILY on first selection so the open never
                        // stalls. mkvNum = the MKV track number (>=0), mkvAss = ASS/SSA vs SubRip.
-                       int mkvNum = -1; bool mkvAss = false; };  // live line-21 caption (via NanoTsDemux)
+                       int mkvNum = -1; bool mkvAss = false;
+                       // ASS header (Matroska CodecPrivate 0x63A2), parsed once at header build on the render
+                       // thread; the lazy-cue worker reads a value copy of this (never indexes mVidSubTracks).
+                       bool assParsed = false;
+                       int  assPlayResX = 1440, assPlayResY = 1080;   // [Script Info] PlayResX/Y (ASS default 384x288 if absent)
+                       int  assWrapStyle = 0;                          // WrapStyle (0/3 => \n behaves as a space)
+                       bool assScaledBorder = true;                    // ScaledBorderAndShadow (default yes for V4+)
+                       std::map<std::string, AssStyle> assStyles;      // keyed by Style Name
+                     };  // live line-21 caption (via NanoTsDemux)
     std::vector<VidAudTrk> mVidAudTracks;   // all audio tracks in the current file
     std::vector<VidSubTrk> mVidSubTracks;   // embedded text subs + external SRT/VTT sidecars
     mutable std::vector<VidCue> mVidCcCues; // live CEA-608 cues snapshot (refreshed on read)
@@ -3269,6 +3309,15 @@ private:
     void vidReadMkvEmbeddedSubs(const std::string& file);   // list Matroska sub tracks at open (extractor exposes none)
     void vidLoadMkvSubCues(int subIdx);                     // lazily load one MKV sub track's cues (bg thread)
     void vidPublishMkvSubCues();                            // render thread: adopt a finished lazy cue load
+    void drawAssCue(const VidCue& c, float W, float H, int prX, int prY,
+                    float sx, float sy, bool scaledBorder, float et);   // positioned/coloured ASS cue
+    std::vector<std::string> wrapTextToWidth(const std::string& s, float fs, float maxW);   // greedy word-wrap (keeps \n)
+    // ASS header + per-event parse (static: pure logic, no member state; access the private nested
+    // VidCue/VidSubTrk/AssStyle types). parseAssHeader runs at track build (render thread);
+    // parseAssEvent runs on the lazy-cue worker thread from a value-copied style snapshot.
+    static void parseAssHeader(const std::string& codecPrivate, const std::string& codecId, VidSubTrk& out);
+    static void parseAssEvent(const std::string& rawBlock, const std::map<std::string, AssStyle>& styles,
+                              int wrapStyle, int fileOrder, VidCue& c);
     // Lazy MKV subtitle cue load (see vidLoadMkvSubCues): the bg worker fills mVidSubLoadCues then flips
     // mVidSubLoadReady; the render thread moves it into the track and clears busy. One load at a time.
     std::atomic<bool>   mVidSubLoadBusy{false};

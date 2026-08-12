@@ -1539,20 +1539,7 @@ static void mkvParseChapterTree(int fd, int64_t start, int64_t end, std::vector<
 // parse the container directly like the chapters above). Reads the Tracks header for subtitle
 // TrackEntries, then walks the Clusters for that track's SimpleBlock/BlockGroup payloads + timestamps.
 // S_TEXT/UTF8 = SubRip (plain); S_TEXT/ASS|SSA = the Dialogue fields (strip {\...} tags + \N). ------------
-struct MkvSubTrk { int num = 0; std::string codec, name, lang; };
-
-// In-memory EBML vint (a whole cluster is buffered, then parsed in-RAM - far fewer syscalls than
-// per-element pread over a multi-hundred-MB file). Advances off. Returns -1 on error.
-static int64_t memVint(const uint8_t* p, size_t len, size_t& off, bool keepMarker) {
-    if (off >= len) return -1;
-    uint8_t first = p[off]; int l = 0; uint8_t mask = 0x80;
-    for (l = 1; l <= 8; l++) { if (first & mask) break; mask >>= 1; }
-    if (l > 8 || off + l > len) return -1;
-    uint64_t v = keepMarker ? first : (uint64_t)(first & (mask - 1));
-    for (int i = 1; i < l; i++) v = (v << 8) | p[off + i];
-    off += l;
-    return (int64_t)v;
-}
+struct MkvSubTrk { int num = 0; std::string codec, name, lang; std::string codecPrivate; };
 
 // Convert one subtitle block payload to plain display text. For ASS/SSA the payload is the Dialogue
 // fields "ReadOrder,Layer,Style,Name,MarginL,MarginR,MarginV,Effect,Text" - keep only Text (after the
@@ -1586,51 +1573,57 @@ static std::string mkvSubToText(const std::string& in, bool isAss) {
     return s;
 }
 
-struct MkvRawCue { int64_t startNs; int64_t durNs; std::string text; };
-
-// Parse one buffered Cluster in memory: read its Timecode, then each SimpleBlock/BlockGroup for the
-// wanted subtitle track. Emits raw cues (durNs = -1 when the block had no BlockDuration).
-static void mkvParseClusterBuf(const uint8_t* b, size_t n, int64_t tcScale, int wantTrack, bool isAss,
-                               std::vector<MkvRawCue>& raw) {
-    size_t pos = 0; int64_t clusterTC = 0;
-    auto emitBlock = [&](const uint8_t* bd, size_t bn, int64_t durTicks) {
-        size_t o = 0;
-        int64_t trk = memVint(bd, bn, o, false);       // block track number (vint, marker stripped)
-        if (trk != wantTrack || o + 3 > bn) return;
-        int16_t rel = (int16_t)((bd[o] << 8) | bd[o + 1]); o += 2;
-        uint8_t flags = bd[o]; o += 1;
-        if (flags & 0x06) return;                       // laced subtitle block (rare) - skip
-        std::string txt((const char*)bd + o, bn - o);
-        std::string disp = mkvSubToText(txt, isAss);
-        if (disp.empty()) return;
-        int64_t startNs = (clusterTC + rel) * tcScale;
-        int64_t durNs = (durTicks >= 0) ? durTicks * tcScale : -1;
-        raw.push_back({ startNs, durNs, disp });
-    };
-    while (pos < n) {
-        int64_t id = memVint(b, n, pos, true); if (id < 0) break;
-        int64_t sz = memVint(b, n, pos, false); if (sz < 0) break;
-        size_t ds = pos, de = pos + (size_t)sz; if (de > n) de = n;
-        if (id == 0xE7) {                               // Timecode (cluster base, in ticks)
-            int64_t v = 0; for (size_t i = ds; i < de && i < ds + 8; i++) v = (v << 8) | b[i];
-            clusterTC = v;
-        } else if (id == 0xA3) {                        // SimpleBlock
-            emitBlock(b + ds, de - ds, -1);
-        } else if (id == 0xA0) {                        // BlockGroup: Block + BlockDuration
-            size_t p = ds; const uint8_t* blk = nullptr; size_t blkN = 0; int64_t durTicks = -1;
-            while (p < de) {
-                int64_t cid = memVint(b, n, p, true); if (cid < 0) break;
-                int64_t csz = memVint(b, n, p, false); if (csz < 0) break;
-                size_t cs = p, ce = p + (size_t)csz; if (ce > de) ce = de;
-                if (cid == 0xA1) { blk = b + cs; blkN = ce - cs; }
-                else if (cid == 0x9B) { int64_t v = 0; for (size_t i = cs; i < ce && i < cs + 8; i++) v = (v << 8) | b[i]; durTicks = v; }
-                p = ce;
-            }
-            if (blk) emitBlock(blk, blkN, durTicks);
-        }
-        pos = de;
-    }
+// ---- ASS/SSA colour + alignment helpers (used by NanoMenu::parseAssHeader / parseAssEvent) ----
+// Parse an ASS colour literal "&HAABBGGRR" / "&HBBGGRR" (leading &H optional) into straight rgba 0..1.
+// Channel order is B,G,R (little-endian) and the AA byte is INVERTED alpha (00=opaque, FF=transparent).
+// r,g,b are always written; a is written ONLY when the literal carried >=8 hex digits, so a bare
+// \c&HBBGGRR& (6 digits, no alpha) never clobbers a previously-set \1a alpha.
+static void parseAssColor(const std::string& in, float& r, float& g, float& b, float& a) {
+    size_t i = 0, n = in.size();
+    while (i < n && (in[i] == ' ' || in[i] == '\t')) i++;
+    if (i + 1 < n && in[i] == '&' && (in[i + 1] == 'H' || in[i + 1] == 'h')) i += 2;
+    else if (i < n && (in[i] == 'H' || in[i] == 'h')) i += 1;
+    std::string hex;
+    for (; i < n && isxdigit((unsigned char)in[i]); i++) hex += in[i];
+    if (hex.empty()) return;
+    uint32_t v = (uint32_t)strtoul(hex.c_str(), nullptr, 16);
+    r = ((v      ) & 0xFF) / 255.0f;
+    g = ((v >>  8) & 0xFF) / 255.0f;
+    b = ((v >> 16) & 0xFF) / 255.0f;
+    if ((int)hex.size() >= 8) a = (255 - ((v >> 24) & 0xFF)) / 255.0f;   // inverted alpha only if present
 }
+
+// \1a / \3a / \alpha : "&HXX&" -> straight alpha (inverted: 00=opaque).
+static float parseAssAlpha(const std::string& in) {
+    size_t i = 0, n = in.size();
+    while (i < n && (in[i] == ' ' || in[i] == '\t')) i++;
+    if (i + 1 < n && in[i] == '&' && (in[i + 1] == 'H' || in[i + 1] == 'h')) i += 2;
+    else if (i < n && (in[i] == 'H' || in[i] == 'h')) i += 1;
+    std::string hex;
+    for (; i < n && isxdigit((unsigned char)in[i]); i++) hex += in[i];
+    if (hex.empty()) return 1.0f;
+    uint32_t v = (uint32_t)strtoul(hex.c_str(), nullptr, 16);
+    return (255 - (v & 0xFF)) / 255.0f;
+}
+
+// Legacy SSA alignment (1..11) -> ASS numpad (1..9). SSA: 1/2/3 = bottom L/C/R, +4 = top, +8 = middle.
+static int ssaToNumpad(int a) {
+    int h = a & 0x3; if (h == 0) h = 2;                 // horizontal: 1=L,2=C,3=R
+    int base = (a & 0x4) ? 7 : ((a & 0x8) ? 4 : 1);     // vertical band base
+    int r = base + (h - 1);
+    return (r >= 1 && r <= 9) ? r : 2;
+}
+
+// Trim ASCII whitespace (incl CR) from both ends.
+static std::string assTrim(const std::string& s) {
+    size_t a = 0, b = s.size();
+    while (a < b && (unsigned char)s[a] <= ' ') a++;
+    while (b > a && (unsigned char)s[b - 1] <= ' ') b--;
+    return s.substr(a, b - a);
+}
+
+struct MkvRawCue { int64_t startNs; int64_t durNs; std::string text; std::string rawAss; };
+
 
 // Read the subtitle TrackEntries from the Tracks header (fast; header only) + the SegmentInfo
 // TimecodeScale. Returns the segment bounds so the caller can walk clusters without re-finding them.
@@ -1679,6 +1672,7 @@ static bool mkvReadSubTracks(int fd, int64_t fsize, int64_t& tcScale, int64_t& s
                         else if (eid == 0x86 && esz > 0 && esz < 256) { std::vector<uint8_t> cb(esz); if (vidPreadAll(fd, es, cb.data(), esz)) t.codec.assign((char*)cb.data(), esz); }
                         else if (eid == 0x536E && esz > 0 && esz < 256) { std::vector<uint8_t> cb(esz); if (vidPreadAll(fd, es, cb.data(), esz)) t.name.assign((char*)cb.data(), esz); }
                         else if (eid == 0x22B59C && esz > 0 && esz < 32) { std::vector<uint8_t> cb(esz); if (vidPreadAll(fd, es, cb.data(), esz)) t.lang.assign((char*)cb.data(), esz); }
+                        else if (eid == 0x63A2 && esz > 0 && esz < 131072) { std::vector<uint8_t> cb(esz); if (vidPreadAll(fd, es, cb.data(), esz)) t.codecPrivate.assign((char*)cb.data(), esz); }   // CodecPrivate (ASS [V4+ Styles] header), cap 128KB
                         q = ee;
                     }
                     if (type == 0x11 && !t.codec.empty()) subs.push_back(std::move(t));   // 0x11 = subtitle
@@ -1692,8 +1686,60 @@ static bool mkvReadSubTracks(int fd, int64_t fsize, int64_t& tcScale, int64_t& s
     return true;
 }
 
-// Walk the Clusters (buffered) collecting one subtitle track's cues; fills missing durations from the
-// next cue (capped) so a subtitle stays up a sensible time. Bounded so a huge file cannot hang.
+// Walk ONE cluster's elements by pread and collect only the wanted subtitle track's blocks, SKIPPING the
+// (multi-MB) video/audio block payloads: for each SimpleBlock/Block we read just the ~3-byte header to check
+// the track number and, only on a match, read the tiny subtitle text. This is the difference between
+// reading ~all of a multi-GB file (buffering whole clusters) and reading only headers + sub payloads.
+static void mkvParseClusterFast(int fd, int64_t cStart, int64_t cEnd, int64_t tcScale,
+                                int wantTrack, bool isAss, std::vector<MkvRawCue>& raw) {
+    int64_t clusterTC = 0;
+    auto emitBlock = [&](int64_t bStart, int64_t bEnd, int64_t durTicks) {
+        if (bEnd - bStart < 4) return;
+        int64_t p = bStart;
+        int64_t trk = ebmlVint(fd, p, bEnd, false);      // block track number (vint, marker stripped)
+        if (trk != wantTrack) return;                    // not our track -> payload never read
+        uint8_t hdr[3]; if (!vidPreadAll(fd, p, hdr, 3)) return;
+        int16_t rel = (int16_t)((hdr[0] << 8) | hdr[1]); uint8_t flags = hdr[2]; p += 3;
+        if (flags & 0x06) return;                        // laced subtitle block (rare) -> skip
+        int64_t textLen = bEnd - p;
+        if (textLen <= 0 || textLen > 4ll * 1024 * 1024) return;
+        std::string txt((size_t)textLen, '\0');
+        if (!vidPreadAll(fd, p, (uint8_t*)&txt[0], textLen)) return;
+        std::string disp = mkvSubToText(txt, isAss);
+        if (disp.empty() && !isAss) return;              // ASS: keep (may be pure tags/positioned)
+        int64_t startNs = (clusterTC + rel) * tcScale;
+        int64_t durNs = (durTicks >= 0) ? durTicks * tcScale : -1;
+        raw.push_back({ startNs, durNs, disp, isAss ? txt : std::string() });
+    };
+    int64_t pos = cStart;
+    while (pos < cEnd) {
+        int64_t id = ebmlVint(fd, pos, cEnd, true); if (id < 0) break;
+        bool unk = false; int64_t sz = ebmlVint(fd, pos, cEnd, false, &unk); if (sz < 0) break;
+        int64_t dStart = pos, dEnd = unk ? cEnd : pos + sz; if (dEnd > cEnd || dEnd < dStart) dEnd = cEnd;
+        if (id == 0xE7) {                                // Timecode (cluster base, ticks)
+            int n = (int)(dEnd - dStart); if (n > 8) n = 8; uint8_t bb[8]; int64_t v = 0;
+            if (n > 0 && vidPreadAll(fd, dStart, bb, n)) { for (int i = 0; i < n; i++) v = (v << 8) | bb[i]; clusterTC = v; }
+        } else if (id == 0xA3) {                         // SimpleBlock
+            emitBlock(dStart, dEnd, -1);
+        } else if (id == 0xA0) {                         // BlockGroup: Block (0xA1) + BlockDuration (0x9B)
+            int64_t p = dStart, blkS = -1, blkE = -1, durTicks = -1;
+            while (p < dEnd) {
+                int64_t cid = ebmlVint(fd, p, dEnd, true); if (cid < 0) break;
+                int64_t csz = ebmlVint(fd, p, dEnd, false); if (csz < 0) break;
+                int64_t cs = p, ce = p + csz; if (ce > dEnd) ce = dEnd;
+                if (cid == 0xA1) { blkS = cs; blkE = ce; }
+                else if (cid == 0x9B) { int n = (int)(ce - cs); if (n > 8) n = 8; uint8_t bb[8]; int64_t v = 0; if (n > 0 && vidPreadAll(fd, cs, bb, n)) { for (int i = 0; i < n; i++) v = (v << 8) | bb[i]; durTicks = v; } }
+                p = ce;
+            }
+            if (blkS >= 0) emitBlock(blkS, blkE, durTicks);
+        }
+        pos = dEnd;
+    }
+}
+
+// Walk the Clusters collecting one subtitle track's cues; fills missing durations from the next cue
+// (capped) so a subtitle stays up a sensible time. Bounded so a huge file cannot hang. Uses the pread
+// block-skipping walker above so a multi-GB file is not fully read (was minutes; now seconds).
 static void mkvReadSubCues(int fd, int64_t segStart, int64_t segEnd, int64_t tcScale, int trackNum,
                            bool isAss, std::vector<MkvRawCue>& raw) {
     int64_t pos = segStart;
@@ -1701,14 +1747,8 @@ static void mkvReadSubCues(int fd, int64_t segStart, int64_t segEnd, int64_t tcS
         int64_t id = ebmlVint(fd, pos, segEnd, true); if (id < 0) break;
         bool unk = false; int64_t size = ebmlVint(fd, pos, segEnd, false, &unk); if (size < 0) break;
         int64_t dStart = pos, dEnd = unk ? segEnd : pos + size; if (dEnd > segEnd || dEnd < dStart) dEnd = segEnd;
-        if (id == 0x1F43B675) {                         // Cluster: buffer + parse in memory
-            int64_t clen = dEnd - dStart;
-            if (clen > 0 && clen < 64ll * 1024 * 1024) {
-                std::vector<uint8_t> buf((size_t)clen);
-                if (vidPreadAll(fd, dStart, buf.data(), clen))
-                    mkvParseClusterBuf(buf.data(), buf.size(), tcScale, trackNum, isAss, raw);
-            }
-        }
+        if (id == 0x1F43B675)                            // Cluster: pread-walk, skip non-sub payloads
+            mkvParseClusterFast(fd, dStart, dEnd, tcScale, trackNum, isAss, raw);
         pos = dEnd;
         if (raw.size() > 50000) break;
     }
@@ -1801,11 +1841,279 @@ void NanoMenu::vidReadMkvEmbeddedSubs(const std::string& file) {
         if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "%s %zu", trDyn("Track"), mVidSubTracks.size() + 1); nm = b; }
         nm += isAss ? "  (ASS)" : "  (SRT)";
         t.name = nm;
+        // Parse the ASS [V4+ Styles] header now (render thread; subs+codecPrivate still alive). Cheap
+        // (a few KB of text). The lazy-cue worker later reads a value COPY of t.assStyles, never indexes
+        // mVidSubTracks (which the render thread may resize) - so the parse must land on t here.
+        if (isAss && !s.codecPrivate.empty()) parseAssHeader(s.codecPrivate, s.codec, t);
         // cues left empty -> loaded lazily by vidLoadMkvSubCues on first selection (the full-file cluster
         // walk must NOT run on the open path or the "Opening..." spinner stalls for seconds).
         mVidSubTracks.push_back(std::move(t));
         VLOGI("NanoMenu: MKV embedded sub track %d codec=%s (lazy cues)", s.num, s.codec.c_str());
     }
+}
+
+// Parse an ASS/SSA CodecPrivate header (the [Script Info] PlayRes + [V4+ Styles] table) into the
+// track's style map. Render thread, once, at track build. Fields are indexed by the Format line (not
+// fixed positions) so V4 vs V4+ column differences are handled.
+void NanoMenu::parseAssHeader(const std::string& cp, const std::string& codecId, VidSubTrk& out) {
+    out.assParsed = true;   // set even if empty so we never reparse
+    bool ssaGlobal = (codecId.find("SSA") != std::string::npos);
+    enum { NONE, INFO, STYLES } sect = NONE;
+    bool sectV4Legacy = false;
+    std::map<std::string, int> col;   // lowercased field name -> index (from the section Format line)
+    auto lower = [](std::string s) { for (auto& c : s) c = (char)tolower((unsigned char)c); return s; };
+    size_t pos = 0, len = cp.size();
+    while (pos < len) {
+        size_t nl = cp.find('\n', pos);
+        std::string line = assTrim(cp.substr(pos, (nl == std::string::npos ? len : nl) - pos));
+        pos = (nl == std::string::npos) ? len : nl + 1;
+        if (line.empty()) continue;
+        if (line[0] == '[') {
+            std::string l = lower(line);
+            if (l.find("[script info]") != std::string::npos) sect = INFO;
+            else if (l.find("[v4+ styles]") != std::string::npos) { sect = STYLES; sectV4Legacy = false; col.clear(); }
+            else if (l.find("[v4 styles]") != std::string::npos)  { sect = STYLES; sectV4Legacy = true;  col.clear(); }
+            else sect = NONE;
+            continue;
+        }
+        size_t colon = line.find(':');
+        if (colon == std::string::npos) continue;
+        std::string keyL = lower(assTrim(line.substr(0, colon)));
+        std::string val = assTrim(line.substr(colon + 1));
+        if (sect == INFO) {
+            if (keyL == "playresx") { int v = atoi(val.c_str()); if (v > 0) out.assPlayResX = v; }
+            else if (keyL == "playresy") { int v = atoi(val.c_str()); if (v > 0) out.assPlayResY = v; }
+            else if (keyL == "wrapstyle") { out.assWrapStyle = atoi(val.c_str()); }
+            else if (keyL == "scaledborderandshadow") { out.assScaledBorder = (lower(val).find("yes") != std::string::npos); }
+        } else if (sect == STYLES) {
+            std::vector<std::string> f;
+            { size_t s = 0; for (;;) { size_t c = val.find(',', s); if (c == std::string::npos) { f.push_back(val.substr(s)); break; } f.push_back(val.substr(s, c - s)); s = c + 1; } }
+            if (keyL == "format") {
+                col.clear();
+                for (size_t i = 0; i < f.size(); i++) col[lower(assTrim(f[i]))] = (int)i;
+            } else if (keyL == "style" && !col.empty()) {
+                auto get = [&](const char* name) -> std::string {
+                    auto it = col.find(name);
+                    if (it == col.end() || it->second >= (int)f.size()) return std::string();
+                    return assTrim(f[it->second]);
+                };
+                AssStyle st;
+                st.name = get("name");
+                if (st.name.empty()) continue;
+                std::string v;
+                if (!(v = get("fontsize")).empty()) st.fontSizePx = (float)atof(v.c_str());
+                std::string pc = get("primarycolour"); if (pc.empty()) pc = get("primarycolor");
+                if (!pc.empty()) parseAssColor(pc, st.pr, st.pg, st.pb, st.pa);
+                std::string oc = get("outlinecolour");
+                if (oc.empty()) oc = get("outlinecolor");
+                if (oc.empty()) oc = get("tertiarycolour");
+                if (oc.empty()) oc = get("tertiarycolor");
+                if (!oc.empty()) parseAssColor(oc, st.ro, st.go, st.bo, st.ao);
+                if (!(v = get("bold")).empty()) st.bold = (atoi(v.c_str()) != 0);
+                if (!(v = get("italic")).empty()) st.italic = (atoi(v.c_str()) != 0);
+                if (!(v = get("outline")).empty()) st.outlinePx = (float)atof(v.c_str());
+                if (!(v = get("alignment")).empty()) {
+                    int a = atoi(v.c_str());
+                    if (ssaGlobal || sectV4Legacy) a = ssaToNumpad(a);
+                    st.alignment = (a >= 1 && a <= 9) ? a : 2;
+                }
+                if (!(v = get("marginl")).empty()) st.marginL = atoi(v.c_str());
+                if (!(v = get("marginr")).empty()) st.marginR = atoi(v.c_str());
+                if (!(v = get("marginv")).empty()) st.marginV = atoi(v.c_str());
+                out.assStyles[st.name] = st;
+            }
+        }
+    }
+}
+
+// Convert one raw ASS/SSA Matroska block (ReadOrder,Layer,Style,Name,MarginL,MarginR,MarginV,Effect,Text)
+// into a styled VidCue: resolve the base Style, apply the Text field's {\...} override tags to layout +
+// colour, and produce the plain display text (tags removed, \p vector-drawing runs dropped). Worker thread.
+void NanoMenu::parseAssEvent(const std::string& raw, const std::map<std::string, AssStyle>& styles,
+                             int wrapStyle, int fileOrder, VidCue& c) {
+    int commas = 0; size_t i = 0, fieldStart = 0; std::string f[8];
+    for (; i < raw.size() && commas < 8; i++)
+        if (raw[i] == ',') { f[commas++] = raw.substr(fieldStart, i - fieldStart); fieldStart = i + 1; }
+    if (commas < 8) { c.styled = false; return; }        // malformed -> caller uses the plain fallback
+    std::string text = raw.substr(i);                    // Text = everything after the 8th comma
+    c.order = !f[0].empty() ? atoi(f[0].c_str()) : fileOrder;
+    c.layer = atoi(f[1].c_str());
+    std::string styleName = assTrim(f[2]);
+    int eML = atoi(f[4].c_str()), eMR = atoi(f[5].c_str()), eMV = atoi(f[6].c_str());
+    AssStyle st;                                         // base style: exact -> Default -> first -> hard default
+    { auto it = styles.find(styleName);
+      if (it == styles.end()) it = styles.find("Default");
+      if (it == styles.end() && !styles.empty()) it = styles.begin();
+      if (it != styles.end()) st = it->second; }
+    const AssStyle base = st;                            // for \r reset
+    c.alignment = st.alignment; c.fontSizePx = st.fontSizePx;
+    c.pr = st.pr; c.pg = st.pg; c.pb = st.pb; c.pa = st.pa;
+    c.ro = st.ro; c.go = st.go; c.bo = st.bo; c.ao = st.ao;
+    c.outlinePx = st.outlinePx; c.bold = st.bold; c.italic = st.italic;
+    c.marginL = eML ? eML : st.marginL;
+    c.marginR = eMR ? eMR : st.marginR;
+    c.marginV = eMV ? eMV : st.marginV;
+
+    int drawMode = 0;                                    // >0 while inside a \p vector-drawing run
+    auto applyTags = [&](const std::string& grp) {
+        size_t p = 0, n = grp.size();
+        while (p < n) {
+            if (grp[p] != '\\') { p++; continue; }
+            p++;                                         // skip the backslash
+            size_t ns = p;                               // tag name = optional leading digits (\1c \3a) then letters
+            while (p < n && isdigit((unsigned char)grp[p])) p++;
+            while (p < n && isalpha((unsigned char)grp[p])) p++;
+            std::string name = grp.substr(ns, p - ns);
+            std::string arg;                             // arg: balanced (...), &H..&, or a plain number
+            if (p < n && grp[p] == '(') {
+                int depth = 0; size_t as = p;
+                for (; p < n; p++) { if (grp[p] == '(') depth++; else if (grp[p] == ')') { depth--; if (depth == 0) { p++; break; } } }
+                arg = grp.substr(as, p - as);
+            } else if (p < n && grp[p] == '&') {
+                size_t as = p; p++;
+                if (p < n && (grp[p] == 'H' || grp[p] == 'h')) p++;
+                while (p < n && isxdigit((unsigned char)grp[p])) p++;
+                if (p < n && grp[p] == '&') p++;
+                arg = grp.substr(as, p - as);
+            } else {
+                size_t as = p;
+                while (p < n && (isdigit((unsigned char)grp[p]) || grp[p] == '.' || grp[p] == '-' || grp[p] == '+')) p++;
+                arg = grp.substr(as, p - as);
+            }
+            auto inside = [&]() -> std::string {
+                return (arg.size() >= 2 && arg.front() == '(' && arg.back() == ')') ? arg.substr(1, arg.size() - 2) : arg;
+            };
+            if (!name.empty() && name[0] == 'r') {       // \r or \r<style>: reset (only ASS tag starting with r)
+                std::string rn = name.substr(1);
+                const AssStyle* rs = &base;
+                if (!rn.empty()) { auto it = styles.find(rn); if (it != styles.end()) rs = &it->second; }
+                c.alignment = rs->alignment; c.fontSizePx = rs->fontSizePx;
+                c.pr = rs->pr; c.pg = rs->pg; c.pb = rs->pb; c.pa = rs->pa;
+                c.ro = rs->ro; c.go = rs->go; c.bo = rs->bo; c.ao = rs->ao;
+                c.outlinePx = rs->outlinePx; c.bold = rs->bold; c.italic = rs->italic;
+            }
+            else if (name == "an") { int a = atoi(arg.c_str()); if (a >= 1 && a <= 9) c.alignment = a; }
+            else if (name == "a")  { c.alignment = ssaToNumpad(atoi(arg.c_str())); }
+            else if (name == "pos" || name == "move") { float x = 0, y = 0; std::string in = inside();
+                                                        if (sscanf(in.c_str(), "%f,%f", &x, &y) == 2) { c.hasPos = true; c.posX = x; c.posY = y; } }
+            else if (name == "fs")  { float v = (float)atof(arg.c_str()); if (v > 0) c.fontSizePx = v; }
+            else if (name == "fscy"){ float v = (float)atof(arg.c_str()); if (v > 0) c.fontSizePx *= v / 100.0f; }
+            else if (name == "c" || name == "1c") parseAssColor(arg, c.pr, c.pg, c.pb, c.pa);
+            else if (name == "3c") parseAssColor(arg, c.ro, c.go, c.bo, c.ao);
+            else if (name == "1a") c.pa = parseAssAlpha(arg);
+            else if (name == "3a") c.ao = parseAssAlpha(arg);
+            else if (name == "alpha") { float a = parseAssAlpha(arg); c.pa = a; c.ao = a; }
+            else if (name == "b")  c.bold = (atoi(arg.c_str()) >= 1);
+            else if (name == "i")  c.italic = (atoi(arg.c_str()) >= 1);
+            else if (name == "p")  { int v = atoi(arg.c_str()); drawMode = (v >= 1) ? v : 0; }
+            // every other tag: name + arg already consumed, ignored (graceful skip)
+        }
+    };
+
+    std::string out; out.reserve(text.size());
+    for (size_t k = 0; k < text.size(); ) {
+        char ch = text[k];
+        if (ch == '{') { size_t e = text.find('}', k); if (e == std::string::npos) break; applyTags(text.substr(k + 1, e - k - 1)); k = e + 1; continue; }
+        if (drawMode > 0) { k++; continue; }             // inside \p...\p0: drop the drawing geometry
+        if (ch == '\\' && k + 1 < text.size()) {
+            char nx = text[k + 1];
+            if (nx == 'N') { out += '\n'; k += 2; continue; }
+            if (nx == 'n') { out += (wrapStyle == 0 || wrapStyle == 3) ? ' ' : '\n'; k += 2; continue; }
+            if (nx == 'h') { out += ' '; k += 2; continue; }
+            k++; continue;                               // stray backslash (defensive)
+        }
+        out += ch; k++;
+    }
+    while (!out.empty() && (out.back() == '\n' || out.back() == ' ' || out.back() == '\t' || out.back() == '\r')) out.pop_back();
+    if (out.empty()) { c.styled = false; c.text.clear(); return; }   // pure drawing/tag cue -> draw nothing
+    c.text = out; c.styled = true;
+}
+
+// Draw one positioned/coloured/sized ASS cue (worker already resolved styles+tags into c). Render thread.
+// Coordinates are in the ASS PlayRes canvas (prX x prY), scaled to the surface by (sx, sy). Font size and
+// positions come from the cue; the em is computed in DEVICE px (drawText scale = deviceEm/16), so it must
+// NOT route through ps3::fontScale (which bakes in the virtual->device gScale).
+void NanoMenu::drawAssCue(const VidCue& c, float W, float H, int prX, int prY,
+                          float sx, float sy, bool scaledBorder, float et) {
+    float fontPx = (c.fontSizePx > 0.0f) ? c.fontSizePx : 63.0f;
+    float fs = fontPx * sy / 16.0f;                      // device em = fontPx*sy px
+    if (fs < 0.05f) fs = 0.05f;
+    float LH = fontPx * 1.2f * sy;                        // line height (device Y)
+    int al = (c.alignment >= 1 && c.alignment <= 9) ? c.alignment : 2;
+    int hAlign = (al - 1) % 3;                            // 0=left,1=center,2=right
+    int vBand  = (al - 1) / 3;                            // 0=bottom,1=middle,2=top
+    // Word-wrap to the usable width so long dialogue does not run off-screen. Positioned signs get a
+    // generous cap (authors place them precisely); flow text wraps within its margin band.
+    float availPlay = c.hasPos ? (float)prX : (float)(prX - c.marginL - c.marginR);
+    if (availPlay < 1.0f) availPlay = (float)prX;
+    float maxW = availPlay * sx; float capW = W * 0.94f; if (maxW > capW) maxW = capW;
+    std::vector<std::string> lines = wrapTextToWidth(c.text, fs, maxW);
+    int N = (int)lines.size();
+    float Ax, Ay;
+    if (c.hasPos) { Ax = c.posX; Ay = c.posY; }
+    else {
+        if (hAlign == 0)      Ax = (float)c.marginL;
+        else if (hAlign == 1) Ax = (float)c.marginL + (prX - c.marginL - c.marginR) * 0.5f;
+        else                  Ax = (float)prX - c.marginR;
+        if (vBand == 0)       Ay = (float)prY - c.marginV;   // bottom
+        else if (vBand == 1)  Ay = prY * 0.5f;               // middle (margin ignored)
+        else                  Ay = (float)c.marginV;         // top
+    }
+    float aXdev = Ax * sx, aYdev = Ay * sy;
+    float BH = N * LH;
+    float baseTopY = (vBand == 0) ? (aYdev - BH) : (vBand == 1) ? (aYdev - BH * 0.5f) : aYdev;
+    float ow = fmaxf(1.0f, c.outlinePx * (scaledBorder ? sy : 1.0f));
+    float owCap = fmaxf(1.5f, H * 0.006f); if (ow > owCap) ow = owCap;
+    for (int li = 0; li < N; li++) {
+        if (lines[li].empty()) continue;
+        float baselineY = baseTopY + (li + 0.8f) * LH;
+        float topy = ps3::baselineToTopY(baselineY, fs);
+        float tw = measureText(lines[li].c_str(), fs);
+        float lineX = (hAlign == 0) ? aXdev : (hAlign == 1) ? (aXdev - tw * 0.5f) : (aXdev - tw);
+        for (int oy = -1; oy <= 1; oy++) for (int ox = -1; ox <= 1; ox++) {
+            if (!ox && !oy) continue;
+            drawText(lines[li].c_str(), lineX + ox * ow, topy + oy * ow, fs, c.ro, c.go, c.bo, c.ao * et);
+        }
+        drawText(lines[li].c_str(), lineX, topy, fs, c.pr, c.pg, c.pb, c.pa * et);
+    }
+}
+
+// Greedy word-wrap: split on existing '\n', then break each line on spaces so no display line exceeds
+// maxW (a single over-long word/token is hard-broken by UTF-8 character). Returns >=1 line. Uses
+// measureText so it is font-accurate. Keeps subtitle captions inside the frame instead of running off-screen.
+std::vector<std::string> NanoMenu::wrapTextToWidth(const std::string& s, float fs, float maxW) {
+    std::vector<std::string> out;
+    std::vector<std::string> hard;
+    { size_t p = 0, q; while ((q = s.find('\n', p)) != std::string::npos) { hard.push_back(s.substr(p, q - p)); p = q + 1; } hard.push_back(s.substr(p)); }
+    for (const std::string& line : hard) {
+        if (maxW <= 1.0f || measureText(line.c_str(), fs) <= maxW) { out.push_back(line); continue; }
+        std::vector<std::string> words;
+        { size_t p = 0; while (p < line.size()) { size_t sp = line.find(' ', p);
+              if (sp == std::string::npos) { words.push_back(line.substr(p)); break; }
+              words.push_back(line.substr(p, sp - p)); p = sp + 1; } }
+        std::string cur;
+        for (const std::string& w : words) {
+            if (measureText(w.c_str(), fs) > maxW) {          // single word wider than the box: char-break
+                if (!cur.empty()) { out.push_back(cur); cur.clear(); }
+                std::string acc;
+                for (size_t k = 0; k < w.size(); ) {
+                    size_t clen = 1; unsigned char ch = (unsigned char)w[k];
+                    if (ch >= 0xF0) clen = 4; else if (ch >= 0xE0) clen = 3; else if (ch >= 0xC0) clen = 2;
+                    if (k + clen > w.size()) clen = w.size() - k;
+                    std::string piece = w.substr(k, clen);
+                    if (!acc.empty() && measureText((acc + piece).c_str(), fs) > maxW) { out.push_back(acc); acc.clear(); }
+                    acc += piece; k += clen;
+                }
+                cur = acc; continue;
+            }
+            std::string trial = cur.empty() ? w : (cur + " " + w);
+            if (cur.empty() || measureText(trial.c_str(), fs) <= maxW) cur = trial;
+            else { out.push_back(cur); cur = w; }
+        }
+        if (!cur.empty()) out.push_back(cur);
+    }
+    if (out.empty()) out.push_back(s);
+    return out;
 }
 
 // Lazily load one MKV embedded sub track's cues on a DETACHED worker (the cluster walk reads much of the
@@ -1816,8 +2124,12 @@ void NanoMenu::vidLoadMkvSubCues(int subIdx) {
     if (tk.mkvNum < 0 || !tk.cues.empty()) return;                 // not MKV-lazy, or already loaded
     if (mVidSubLoadBusy.exchange(true, std::memory_order_acq_rel)) return;   // another load in flight
     std::string file = tk.file; int mkvNum = tk.mkvNum; bool isAss = tk.mkvAss;
+    // Snapshot the (immutable, render-thread-written) ASS style table into the closure. The worker must
+    // NEVER index mVidSubTracks - the render thread may resize it while the worker runs.
+    bool assParsed = tk.assParsed; int wrapStyle = tk.assWrapStyle;
+    std::map<std::string, AssStyle> styles = tk.assStyles;
     mVidSubLoadReady.store(false, std::memory_order_release);
-    std::thread([this, file, mkvNum, isAss, subIdx]() {
+    std::thread([this, file, mkvNum, isAss, subIdx, assParsed, wrapStyle, styles]() {
         std::vector<VidCue> cues;
         int fd = ::open(file.c_str(), O_RDONLY);
         if (fd >= 0) {
@@ -1833,7 +2145,15 @@ void NanoMenu::vidLoadMkvSubCues(int subIdx) {
                         if (raw[k].durNs >= 0) dur = (double)raw[k].durNs / 1e9;
                         else { double next = (k + 1 < raw.size()) ? (double)raw[k + 1].startNs / 1e9 : start + 4.0;
                                dur = next - start; if (dur <= 0.0 || dur > 12.0) dur = 4.0; }
-                        VidCue c; c.t = start; c.d = dur; c.text = raw[k].text; cues.push_back(c);
+                        VidCue c; c.t = start; c.d = dur;
+                        if (isAss && assParsed && !raw[k].rawAss.empty()) {
+                            parseAssEvent(raw[k].rawAss, styles, wrapStyle, (int)k, c);   // sets text + styled + layout
+                            if (!c.styled) c.text = raw[k].text;   // parse produced no styled text -> plain fallback
+                        } else {
+                            c.text = raw[k].text;                  // non-ASS, or header not parsed
+                        }
+                        if (c.text.empty()) continue;              // skip empty (pure-drawing) cues
+                        cues.push_back(std::move(c));
                     }
                 }
             }
@@ -3053,6 +3373,23 @@ void NanoMenu::vidBeginning() {
 void NanoMenu::videoTick() {
     vidReapDying();   // free any async-released decoder whose background teardown finished
     vidPublishMkvSubCues();   // adopt a finished lazy MKV subtitle-cue load (render thread)
+    // OSD label safety net (monotonic, wrap/stall-proof): the "Audio: ..."/"Subtitle: ..."/screen-mode
+    // pill and the top transient normally fade via mEffectTime, but that clock wraps at 500s and only
+    // ticks on a rendered frame, so an audio switch that stalls or lands near the wrap could leave the
+    // label stuck at the bottom-left. Stamp on change; force redraws while shown; hard-clear past the cap.
+    {
+        int64_t now = uptimeMillis();
+        if (mVidDispMode != mVidDispModePrev) { mVidDispModePrev = mVidDispMode; mVidDispModeShownMs = now; }
+        if (!mVidDispMode.empty()) {
+            if (now - mVidDispModeShownMs > 2200) { mVidDispMode.clear(); mVidDispModePrev.clear(); mVidDispModeUntil = 0.0f; }
+            else mDisplayDirty = true;
+        }
+        if (mVidTransient != mVidTransientPrev) { mVidTransientPrev = mVidTransient; mVidTransientShownMs = now; }
+        if (!mVidTransient.empty()) {
+            if (now - mVidTransientShownMs > 3000) { mVidTransient.clear(); mVidTransientPrev.clear(); mVidTransientUntil = 0.0f; }
+            else mDisplayDirty = true;
+        }
+    }
     // Deferred open: the worker (which creates the codec) was held in vidBeginOpen until the
     // previous title's codec released the single HW decoder, so the new create cannot race it
     // (second-video-hangs-on-switch). Spawn it now that the decoder is free (vidReapDying above
@@ -3380,19 +3717,40 @@ bool NanoMenu::renderVideoPlayer() {
     }
     if (!mVideoTest) return et > 0.001f;   // exit fade: black only
 
-    // Layer 1b: active subtitle cue (embedded text track or external sidecar), web 12739-12753.
+    // Layer 1b: active subtitle cue(s), web 12739-12753. Plain tracks (SRT/CEA-608/DVB-text) draw one
+    // cue bottom-centre white (legacy). Typeset ASS tracks draw ALL active cues, each positioned/coloured/
+    // sized from its resolved layout (signs top/mid, dialogue bottom), so Signs/Songs render correctly.
     {
         const std::vector<VidCue>* cues = vidActiveSubCues();
         if (cues) {
             double tc = mVideoTest->position();
-            const std::string* txt = nullptr;
-            for (const auto& c : *cues) if (tc >= c.t && tc < c.t + c.d) { txt = &c.text; break; }
-            if (txt && !txt->empty()) {
+            // ASS PlayRes for the active track (styled cues scale from it); default 1440x1080 otherwise.
+            int prX = 1440, prY = 1080; bool scaledBorder = true;
+            if (mVidSubCur >= 0 && mVidSubCur < (int)mVidSubTracks.size()) {
+                const VidSubTrk& tkr = mVidSubTracks[mVidSubCur];
+                if (tkr.assParsed) { prX = tkr.assPlayResX; prY = tkr.assPlayResY; scaledBorder = tkr.assScaledBorder; }
+            }
+            if (prX <= 0) prX = 1440;  if (prY <= 0) prY = 1080;
+            float sx = (float)W / (float)prX, sy = (float)H / (float)prY;
+            // Collect ALL cues active at tc (styled tracks may show a sign + dialogue at once); sort by
+            // layer then order so higher layers / later events draw on top. Render-thread-only static.
+            static std::vector<int> act; act.clear();
+            for (int i = 0; i < (int)cues->size(); i++) {
+                const VidCue& c = (*cues)[i];
+                if (tc >= c.t && tc < c.t + c.d && !c.text.empty()) act.push_back(i);
+            }
+            std::stable_sort(act.begin(), act.end(), [&](int a, int b) {
+                const VidCue& A = (*cues)[a]; const VidCue& B = (*cues)[b];
+                return (A.layer != B.layer) ? (A.layer < B.layer) : (A.order < B.order);
+            });
+            for (int idx : act) {
+                const VidCue& c = (*cues)[idx];
+                if (c.styled) { drawAssCue(c, (float)W, (float)H, prX, prY, sx, sy, scaledBorder, et); continue; }
+                // Legacy plain path: bottom-centre white with 8-way dark outline. Word-wrap to ~90% of
+                // the width so long SRT/CC lines wrap instead of running off both edges of the screen.
                 float fs = ps3::fontScale(40.0f);   // web round(CH*0.040)
                 float lh = H * 0.05f, ow = fmaxf(1.5f, H * 0.004f);
-                std::vector<std::string> ls; size_t lp = 0, nl; const std::string& s = *txt;
-                while ((nl = s.find('\n', lp)) != std::string::npos) { ls.push_back(s.substr(lp, nl - lp)); lp = nl + 1; }
-                ls.push_back(s.substr(lp));
+                std::vector<std::string> ls = wrapTextToWidth(c.text, fs, W * 0.90f);
                 float y0s = H * 0.855f - (float)(ls.size() - 1) * lh;   // multi-line stacks upward
                 for (size_t li = 0; li < ls.size(); li++) {
                     if (ls[li].empty()) continue;
@@ -3711,8 +4069,32 @@ void NanoMenu::drawMediaOptDialog(const char* title,
                                g.rowH * 0.76f, rad * 0.45f, 0.20f, 0.46f, 0.86f, 0.60f * A);   // XMB-blue
         float ow = measureText(opts[i].c_str(), g.rowFs);
         float c = s ? 1.0f : 0.82f;
-        drawText(opts[i].c_str(), g.cx - ow * 0.5f, ps3::baselineToTopY(rmid + emp * 0.35f, g.rowFs),
-                 g.rowFs, c, c, c, (s ? 1.0f : 0.85f) * A);
+        float texty = ps3::baselineToTopY(rmid + emp * 0.35f, g.rowFs);
+        float innerW = g.w - g.pad * 1.3f;               // usable text width inside the row padding
+        if (ow <= innerW) {                              // fits: centre as before
+            drawText(opts[i].c_str(), g.cx - ow * 0.5f, texty, g.rowFs, c, c, c, (s ? 1.0f : 0.85f) * A);
+        } else {
+            // Overflows the box: clip to the inner width so nothing leaks past the dialog. The SELECTED
+            // row marquees (ping-pong) to reveal the whole name; other rows are left-clipped (show start).
+            float x0 = g.cx - innerW * 0.5f;
+            float off = 0.0f;
+            if (s) {
+                float over = ow - innerW;
+                float speed = base * 0.05f;              // px/s scroll
+                float st = over / fmaxf(1.0f, speed);
+                float pause = 1.1f, cycle = 2.0f * (pause + st);
+                float tt = fmodf((float)mEffectTime, cycle);
+                off = (tt < pause) ? 0.0f
+                    : (tt < pause + st) ? (tt - pause) / st * over
+                    : (tt < 2.0f * pause + st) ? over
+                    : over - (tt - 2.0f * pause - st) / st * over;
+                mDisplayDirty = true;                    // keep the marquee animating
+            }
+            glEnable(GL_SCISSOR_TEST);
+            scissorLogicalRect(x0, ry + g.rowH * 0.08f, innerW, g.rowH * 0.84f);
+            drawText(opts[i].c_str(), x0 - off, texty, g.rowFs, c, c, c, (s ? 1.0f : 0.85f) * A);
+            glDisable(GL_SCISSOR_TEST);
+        }
     }
     // Scroll affordances (small triangles) when the list is windowed.
     float aw = base * 0.018f;
