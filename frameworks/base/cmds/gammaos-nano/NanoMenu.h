@@ -3380,6 +3380,17 @@ private:
     void vidCaptureChapterThumb(int idx);          // grab mVideoTest's current frame into chapter idx
     void vidFreeChapterThumbs();                   // glDeleteTextures all chapter thumbs (render thread)
     void vidJumpToChapter(int idx);                // seek player+audio to chapter idx (test hook / shared)
+    // Optional PRE-CACHE: at open, before playback, seek the player through each chapter to grab a preview,
+    // bounded by an overall wall-clock timeout so a slow MKV seek can never hang startup (the rest fill in
+    // opportunistically during playback). Gated by persist.gammaos.nano.video.chapter_precache (default on).
+    void   vidChapterPrecacheBegin(double resumeAt);
+    void   vidChapterPrecacheTick();               // render thread: drives the open-time seek sweep
+    int    mVidChapPreState = 0;                    // 0 off, 1 seek, 2 settle-then-grab
+    int    mVidChapPreIdx = 0;
+    double mVidChapPreDeadline = 0.0;               // overall budget (mEffectTime)
+    double mVidChapPreSeekAt = 0.0;                 // when the current chapter seek was issued
+    double mVidChapPreLandedAt = -1.0;              // when the seek reached the target (position near it)
+    double mVidChapPreResumeAt = 0.0;              // position to resume playback at when done
     bool  mVidSceneOpen = false;
     bool  mVidSceneClosing = false;
     int   mVidSceneSel = 0;

@@ -2118,6 +2118,8 @@ void NanoMenu::vidSpawnOpenWorker() {
 void NanoMenu::vidAdoptOpen() {
     mVidAudioStarted = false;
     mVidPlaying = true;
+    double startPos = 0.0;
+    bool prompting = false;
     if (!mVidIsStream) {
         double rs = mVidPending.resumeSec;
         bool resumable = (rs > 0.0);
@@ -2125,12 +2127,17 @@ void NanoMenu::vidAdoptOpen() {
             if (mVideoTest) mVideoTest->seek(rs);
             if (mVidHasAudio) vidAudioSeek(rs);
             mVidHintUntil = mEffectTime + 1.5f;
+            startPos = rs;
         } else if (mVidPending.resumeChoice == 0) {              // "Play from Beginning": start at 0
         } else if (mVidPending.resumeChoice < 0 && resumable) {  // direct Enter: prompt
             mVidResumeAsk = true; mVidResumeAskSec = rs; mVidPlaying = false;
+            prompting = true;
         }
     }
     mVidOpenInProgress.store(false, std::memory_order_relaxed);
+    // Pre-cache the chapter previews before playback (bounded). Skip when a Resume prompt is up - it runs
+    // after the user chooses (vidResumeConfirm) so the sweep resumes at their chosen position.
+    if (!prompting) vidChapterPrecacheBegin(startPos);
 }
 
 // Render thread: tear down a failed/canceled open (worker already joined by the caller), then
@@ -2148,6 +2155,7 @@ void NanoMenu::vidAbortOpen(const char* banner) {
     mVidSceneOpen = mVidSceneClosing = false;
     mVidResumeAsk = false;
     vidFreeChapterThumbs();
+    mVidChapPreState = 0;
     mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
     if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }
     vidDvbFree();
@@ -2325,6 +2333,8 @@ void NanoMenu::vidResumeConfirm() {
         }
     }
     mVidPlaying = true;
+    // Now that the start position is chosen, pre-cache the chapter previews (bounded) before playback.
+    vidChapterPrecacheBegin(mVidResumeSel == 0 ? mVidResumeAskSec : 0.0);
 }
 
 void NanoMenu::closeVideoPlayer() {
@@ -2598,6 +2608,7 @@ void NanoMenu::videoHardFree(bool sync) {
     mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
     mVidSceneOpen = mVidSceneClosing = false;
     vidFreeChapterThumbs();
+    mVidChapPreState = 0;
     mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
     if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }
     vidDvbFree();
@@ -2807,6 +2818,7 @@ void NanoMenu::videoTick() {
         mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
         mVidSceneOpen = mVidSceneClosing = false;
         vidFreeChapterThumbs();
+        mVidChapPreState = 0;
         mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
         vidDvbFree();
     }
@@ -2846,8 +2858,11 @@ void NanoMenu::videoTick() {
         }
     } else {
         mVidScanLastTick = -1.0;
-        // Reconcile native playback with the play/pause state at 1x.
-        bool wantNative = mVidPlaying && mVidRate == 1.0;
+        // Reconcile native playback with the play/pause state at 1x. During the chapter pre-cache the
+        // decoder must keep running (even though mVidPlaying is held false) so its seeks actually decode
+        // the target frames to grab - otherwise videoTick would re-pause it every frame and every chapter
+        // would capture the same stale frame.
+        bool wantNative = (mVidPlaying && mVidRate == 1.0) || mVidChapPreState != 0;
         if (wantNative && !mVideoTest->isPlaying()) mVideoTest->play();
         else if (!wantNative && mVideoTest->isPlaying()) mVideoTest->pause();
     }
@@ -2904,6 +2919,23 @@ void NanoMenu::videoTick() {
         }
     } else {
         mVidBuffering = false; mVidLastPos = -1.0;
+    }
+
+    // A/V realign after a far seek. On a cue-less MKV the audio extractor's post-seek scan is slow, so the
+    // picture (fast cue-based video seek) can run ahead; when the audio finally resumes it is far behind
+    // and the picture "rushes" to reconcile. Instead, once the audio is genuinely playing but has fallen
+    // >3s behind the picture, pull the AUDIO forward to the picture (a forward read from its just-landed
+    // position is far cheaper than the original cold scan) so they realign without the picture speeding up.
+    // Cooldown so it never tight-loops; only for the separate-extractor (mp4/mkv) path.
+    if (mVidPlaying && mVidRate == 1.0 && !mVidStopped && mVidHasAudio && mVidAudioStarted
+        && !mVidTsMode && !mVidAviMode && mVidChapPreState == 0
+        && mVidAudSwitchDone.load(std::memory_order_acquire)) {
+        double vp = mVideoTest->position();
+        double ap = mVidAudio.position();
+        if (mVidAudio.isPlaying() && ap > 0.5 && (vp - ap) > 3.0 && (mEffectTime - mVidAudioResyncT) > 6.0f) {
+            mVidAudioResyncT = mEffectTime;
+            vidAudioSeek(vp);   // realign audio up to the picture (async; the seek grace holds the picture)
+        }
     }
 
     // Resume: live-capture the position while playing + debounced save (~12s) so a
@@ -3011,6 +3043,21 @@ bool NanoMenu::renderVideoPlayer() {
     int W = mWidth, H = mHeight;
     float et = mVidEnterT;
     drawQuad(0, 0, (float)W, (float)H, 0.0f, 0.0f, 0.0f, 1.0f);   // black backdrop
+
+    // Chapter pre-cache sweep: before playback, seek the decoder through the chapters to grab previews
+    // (bounded). Show a loading indicator over black instead of the flashing seek frames; it self-finishes
+    // (resume + play) on completion or timeout.
+    if (mVidChapPreState != 0 && mVideoTest) {
+        vidChapterPrecacheTick();
+        if (mVidChapPreState != 0) {
+            drawLoadingSpinner(W * 0.5f, H * 0.5f, H * 0.06f, 0.9f * et);
+            float tfs = ps3::fontScale(24.0f);
+            const char* t = trDyn("Preparing chapters...");
+            drawText(t, (W - measureText(t, tfs)) * 0.5f, ps3::baselineToTopY(H * 0.5f + H * 0.09f, tfs),
+                     tfs, 1.0f, 1.0f, 1.0f, 0.95f * et);
+            return true;
+        }
+    }
 
     // Layer 1: the video frame at the chosen Screen Mode (0 Normal .. 4 Double Scale,
     // mapped 1:1 in NanoVideo::draw). updateFrame latches the newest decoded frame.
@@ -4108,6 +4155,73 @@ void NanoMenu::vidCaptureChapterThumb(int idx) {
 void NanoMenu::vidFreeChapterThumbs() {
     for (auto& c : mVidChapters) {
         if (c.thumbTex) { glDeleteTextures(1, &c.thumbTex); c.thumbTex = 0; c.thumbW = c.thumbH = 0; }
+    }
+}
+
+// Begin the open-time chapter pre-cache: hold playback and sweep the player through the chapters to grab
+// a preview for each, bounded by an overall timeout. Called from vidAdoptOpen once the start position is
+// known. No-op for streams, single/zero-chapter clips, or when disabled.
+void NanoMenu::vidChapterPrecacheBegin(double resumeAt) {
+    mVidChapPreState = 0;
+    if (mVidIsStream || mVidChapters.size() < 2 || !mVideoTest) return;
+    if (!property_get_bool("persist.gammaos.nano.video.chapter_precache", true)) return;
+    mVidChapPreResumeAt = resumeAt;
+    mVidChapPreIdx = 0;
+    mVidChapPreState = 1;
+    mVidChapPreDeadline = mEffectTime + 6.0;   // total budget: never delay startup more than ~6s
+    mVidChapPreLandedAt = -1.0;
+    mVidPlaying = false;                        // hold real playback until previews are cached (or timeout)
+}
+
+// Render thread: drive the pre-cache seek sweep one step per frame. Seeks the player to each un-cached
+// chapter, lets the decoder settle briefly, grabs the frame into that chapter's texture, and moves on.
+// On the overall timeout (or once all chapters are done) it seeks back to the resume position and starts
+// playback; any chapters not reached fill in opportunistically during playback.
+void NanoMenu::vidChapterPrecacheTick() {
+    if (mVidChapPreState == 0) return;
+    auto finish = [&]() {
+        mVidChapPreState = 0;
+        if (mVideoTest) {
+            mVidRate = 1.0;
+            mVideoTest->seek(mVidChapPreResumeAt);
+            if (mVidHasAudio) vidAudioSeek(mVidChapPreResumeAt);
+            mVidPlaying = true;
+            mVideoTest->play();
+        }
+    };
+    if (!mVideoTest || mVidChapters.empty()) { mVidChapPreState = 0; return; }
+    if (mEffectTime > mVidChapPreDeadline) { finish(); return; }
+    // Skip chapters already captured (e.g. chapter 0 from the first decoded frame).
+    while (mVidChapPreIdx < (int)mVidChapters.size() && mVidChapters[mVidChapPreIdx].thumbTex)
+        mVidChapPreIdx++;
+    if (mVidChapPreIdx >= (int)mVidChapters.size()) { finish(); return; }
+    if (mVidChapPreState == 1) {                       // issue the seek for this chapter
+        mVideoTest->play();                            // decoder rolls so it actually produces the target frame
+        mVideoTest->seek(mVidChapters[mVidChapPreIdx].t);
+        mVidChapPreSeekAt = mEffectTime;
+        mVidChapPreLandedAt = -1.0;
+        mVidChapPreState = 2;
+        return;
+    }
+    // state 2: WAIT FOR THE SEEK TO LAND before grabbing, else every chapter grabs the same not-yet-moved
+    // frame. position() only reaches the target once the slow MKV seek completes (mPosSec is set after the
+    // AMediaExtractor_seekTo), so treat "position within ~4s of the target" as landed, then give the frame
+    // ~0.3s to actually render and grab it. A 2.5s per-chapter cap bounds a pathological seek; chapters not
+    // reached within the overall budget fill in opportunistically during playback.
+    mVideoTest->updateFrame();
+    double p = mVideoTest->position();
+    double waited = mEffectTime - mVidChapPreSeekAt;
+    if (mVidChapPreLandedAt < 0.0 && fabs(p - mVidChapters[mVidChapPreIdx].t) < 4.0 && waited > 0.15)
+        mVidChapPreLandedAt = mEffectTime;             // seek reached the target
+    bool ready = (mVidChapPreLandedAt >= 0.0 && mEffectTime - mVidChapPreLandedAt >= 0.30);
+    if (ready || waited >= 2.2) {
+        // Only KEEP the capture when the seek actually landed near the target. If it timed out (a slow
+        // far seek on this cue-less MKV), skip it - grabbing the stale current frame would just repeat the
+        // previous chapter's picture. That chapter stays a placeholder and fills in accurately from the
+        // live frame when it is watched/jumped to (the opportunistic path).
+        if (ready) vidCaptureChapterThumb(mVidChapPreIdx);
+        mVidChapPreIdx++;
+        mVidChapPreState = 1;
     }
 }
 
