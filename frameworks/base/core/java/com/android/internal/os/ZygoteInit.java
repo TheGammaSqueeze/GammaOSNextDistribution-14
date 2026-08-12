@@ -160,6 +160,11 @@ public class ZygoteInit {
             WebViewFactory.prepareWebViewInZygote();
         }
         endPreload();
+        // GammaOS Nano: the AndroidKeyStore JCA provider must be installed even in
+        // minimal boot, otherwise apps forked from this zygote hit
+        // "AndroidKeyStore not found" from KeyStore.getInstance("AndroidKeyStore").
+        // Only the broader JCA provider warm-up (a startup optimization) is skipped.
+        installAndroidKeyStoreProvider();
         if (!minimalBoot) {
             warmUpJcaProviders();
         }
@@ -227,7 +232,14 @@ public class ZygoteInit {
      * By doing it here we avoid that each app does it when requesting a service from the provider
      * for the first time.
      */
-    private static void warmUpJcaProviders() {
+    /**
+     * Install the AndroidKeyStore JCA provider. This must run in every zygote (including
+     * GammaOS Nano minimal boot) so that apps forked from it can use
+     * KeyStore.getInstance("AndroidKeyStore"); otherwise they crash with
+     * "AndroidKeyStore not found". It only registers the provider (Security.addProvider)
+     * and does not require the keystore2 daemon to be up yet.
+     */
+    private static void installAndroidKeyStoreProvider() {
         long startTime = SystemClock.uptimeMillis();
         Trace.traceBegin(
                 Trace.TRACE_TAG_DALVIK, "Starting installation of AndroidKeyStoreProvider");
@@ -236,8 +248,10 @@ public class ZygoteInit {
         Log.i(TAG, "Installed AndroidKeyStoreProvider in "
                 + (SystemClock.uptimeMillis() - startTime) + "ms.");
         Trace.traceEnd(Trace.TRACE_TAG_DALVIK);
+    }
 
-        startTime = SystemClock.uptimeMillis();
+    private static void warmUpJcaProviders() {
+        long startTime = SystemClock.uptimeMillis();
         Trace.traceBegin(
                 Trace.TRACE_TAG_DALVIK, "Starting warm up of JCA providers");
         for (Provider p : Security.getProviders()) {
