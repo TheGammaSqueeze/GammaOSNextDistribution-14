@@ -630,7 +630,7 @@ void NanoVideo::decodeLoop() {
                 queuedAny = false; lastProgressNs = monoNs();   // need fresh input before output again
                 { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; mClockBasePts = mFedFlushBase.load(); }
                 lastAclkVal = -1.0; lastAclkAdvNs = monoNs(); aclkStalled = false;
-                seekGraceUntilNs = monoNs() + 3000000000LL;   // audio re-buffers after the seek; do not race the picture
+                seekGraceUntilNs = monoNs() + 6000000000LL;   // audio re-buffers after the seek (cue-less MKV audio seek is slow); hold the picture, do not race it
                 mFedCv.notify_all();
             }
         } else if (mSeekPending.exchange(false)) {
@@ -655,7 +655,7 @@ void NanoVideo::decodeLoop() {
             queuedAny = false; lastProgressNs = monoNs();
             { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
             lastAclkVal = -1.0; lastAclkAdvNs = monoNs(); aclkStalled = false;
-            seekGraceUntilNs = monoNs() + 3000000000LL;       // audio re-buffers after the seek; do not race the picture
+            seekGraceUntilNs = monoNs() + 6000000000LL;       // audio re-buffers after the seek (cue-less MKV audio seek is slow); hold the picture, do not race it
         }
 
         // Feed one input access unit (fed: from the demuxer queue; else: from the extractor).
@@ -812,7 +812,14 @@ void NanoVideo::decodeLoop() {
                   // not catch it). Waiting for it freezes the picture while audio plays. Render
                   // now and re-anchor so playback keeps moving; the clock re-locks within the
                   // +/-0.10s window once it is sane again.
-                  bool wildAhead = waitNs > 1500000000LL;
+                  // ...but NOT during the post-seek grace: there a large positive wait is the LEGITIMATE
+                  // audio re-buffer (the audio extractor is still seeking - on a cue-less MKV a far audio
+                  // seek is a slow linear scan), and the audio clock is correctly parked at the seek
+                  // target. Racing the picture forward then is exactly the "audio drops out, picture rushes
+                  // ahead, A/V desync when audio finally arrives" bug. Hold the picture for the audio while
+                  // the grace is live; only once it expires (audio genuinely not coming) does wildAhead
+                  // unfreeze to video-only, so a truly wrong-domain clock still can't freeze forever.
+                  bool wildAhead = waitNs > 1500000000LL && now > seekGraceUntilNs;
                   dbgWaitNs = waitNs; dbgPrev = prevPts;
                   if (ptsJump || waitNs < -500000000LL || wildAhead) {
                       dbgReason = ptsJump ? 2 : (wildAhead ? 4 : 3);
