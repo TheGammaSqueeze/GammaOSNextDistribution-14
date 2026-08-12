@@ -1037,20 +1037,25 @@ void NanoMenu::drawPhotoBanner() {
     if (remain < outMs) vis = fminf(vis, clamp01(remain / outMs));
     const float alpha = vis;
 
-    // Compact, adaptive sizing off the smaller screen dimension + user font scale.
-    float fs = ps3::fontScale(mn * 0.050f);
-    if (fs < PFS(15.0f)) fs = PFS(15.0f);
-    const float padX    = fmaxf(PFS(14.0f), fs * 0.7f);
-    const float padY    = fmaxf(PFS(8.0f),  fs * 0.42f);
-    const float margin  = fmaxf(PFS(12.0f), mn * 0.03f);
-    const float accentH = fmaxf(PFS(2.0f),  fs * 0.10f);   // accent underline thickness (drastic-nano style)
+    // Compact drastic-nano RA-card sizing. CRUCIAL: ps3::fontScale() returns a drawText *scale
+    // multiplier* (~2-4), NOT a pixel height. Card geometry must be in PIXELS, so derive the on-screen
+    // pixel height (basePx, incl. the user Font Size uf) and size the card from that; fs is used only for
+    // measureText/drawText. (The old code used the scale as pixels, so the card collapsed to a ~7px sliver
+    // that looked like a stray underline under full-height text.)
+    const float uf     = ps3::gFontScale;                     // user Font Size (drawText/measureText apply it)
+    const float basePx = fmaxf(mn * 0.030f, 20.0f);           // pre-user-scale text height in device px
+    const float fs     = ps3::fontScale(basePx);              // scale for that pixel height
+    const float fpx    = basePx * uf;                         // actual rendered text pixel height
+    const float padX   = fpx * 0.80f;
+    const float padY   = fpx * 0.52f;
+    const float margin = fmaxf(mn * 0.03f, 16.0f);            // keep clear of any overscan edge
 
-    // Text column caps the card at ~70% of the width; anything longer marquees.
-    const float textColW = fmaxf(PFS(40.0f), W * 0.70f - padX * 2.0f);
+    // Text column caps the card at ~44% of the width; anything longer marquees inside the card.
+    const float textColW = fmaxf(fpx * 3.0f, W * 0.44f - padX * 2.0f);
     const float fullTw = measureText(txt, fs);
     const float colW = fminf(fullTw, textColW);
     const float cardW = padX + colW + padX;
-    const float cardH = fs + padY * 2.0f;
+    const float cardH = fpx + padY * 2.0f;
 
     // Per-theme palette: card fill, ink, accent (left edge) and a thin frame.
     float fR, fG, fB, fA;            // fill
@@ -1079,20 +1084,28 @@ void NanoMenu::drawPhotoBanner() {
         frR = 0.90f; frG = 0.93f; frB = 1.0f; frA = 0.22f;
     }
 
-    // Top-CENTRE with a small slide-down + fade. Centring guarantees the card can never land
-    // off-screen on rotated / overscan panels (the earlier top-right slide-in went off the GKD's
-    // physical edge); the short vertical drop keeps the drastic-nano toast feel. clamped so the top
-    // never slides above the screen edge.
-    const float x = (W - cardW) * 0.5f;
-    const float y = fmaxf(PFS(4.0f), margin - (1.0f - vis) * (fs * 0.6f));
+    // Top-RIGHT, sliding in from the right edge with the fade (drastic-nano drawAchievementBanner:
+    // xRest = W - cardW - margin, x = xRest + (1-vis)*(cardW+margin)). The card is now small enough
+    // (<=~42% width) that right-anchoring keeps it fully on screen at any resolution/orientation.
+    const float xRest = W - cardW - margin;
+    const float x = xRest + (1.0f - vis) * (cardW + margin);
+    // Sit BELOW the XMB status bar (clock/battery live at the very top-right) so the card lands on the
+    // wallpaper, not clipped behind the status strip, and reads clearly on any panel.
+    const float y = fmaxf(mn * 0.130f, 64.0f);
 
-    // Frame + fill (drawQuad, not drawRoundedRect: the SDF rounded-rect uses a separate rotation path
-    // from drawText and lands misaligned/offscreen on the RG DS's rotated panels).
-    const float bw = PFS(2.0f);
-    drawQuad(x - bw, y - bw, cardW + bw * 2.0f, cardH + bw * 2.0f, frR, frG, frB, frA * alpha);
-    drawQuad(x, y, cardW, cardH, fR, fG, fB, fA * alpha);
-    // Accent underline along the bottom (drastic-nano drawToast style).
-    drawQuad(x, y + cardH - accentH, cardW, accentH, aR, aG, aB, alpha);
+    // drastic-nano drawAchievementBanner card: an accent-coloured ROUNDED border behind a dark rounded
+    // body (NO underline). drawRoundedRect is rotation-aware (uRotation = sDrmRotMat) exactly like
+    // drawText, so the card and its text always land together under any panel rotation. Rounded corners
+    // + the thin accent frame read as a PS3-XMB glass chip, not a bare text label.
+    (void)frR; (void)frG; (void)frB; (void)frA;
+    const float radius = fpx * 0.42f;
+    const float bw = fmaxf(2.0f, fpx * 0.10f);
+    drawRoundedRect(x - bw, y - bw, cardW + bw * 2.0f, cardH + bw * 2.0f, radius + bw,
+                    aR, aG, aB, 0.92f * alpha);                    // accent frame (drastic-nano look)
+    drawRoundedRect(x, y, cardW, cardH, radius, fR, fG, fB, fA * alpha);   // dark glass body
+    // Subtle top highlight edge (XMB dialog sheen).
+    drawRoundedRect(x + radius * 0.6f, y + bw * 1.2f, cardW - radius * 1.2f,
+                    fmaxf(1.5f, fpx * 0.06f), fmaxf(1.0f, fpx * 0.05f), 1.0f, 1.0f, 1.0f, 0.16f * alpha);
 
     // Marquee: when the label overflows its column, window a fitting substring that scrolls, wrapping
     // with a gap (mirrors the drastic-nano toast ticker; no GL clip needed, works at any opacity).
@@ -1111,7 +1124,7 @@ void NanoMenu::drawPhotoBanner() {
         shown = vs;
     }
     const float tx = x + padX;
-    const float baseY = y + cardH * 0.5f + fs * 0.34f;
+    const float baseY = y + cardH * 0.5f + fpx * 0.34f;
     drawText(shown.c_str(), tx, ps3::baselineToTopY(baseY, fs), fs, iR, iG, iB, alpha);
 
     mNdsFontPref = prevFont;
