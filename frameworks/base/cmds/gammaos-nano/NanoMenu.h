@@ -2106,6 +2106,11 @@ private:
     char   mPs3ClockStr[48] = {0};
     int    mPs3ClockKMin = -1, mPs3ClockKHour = -1, mPs3ClockKMday = -1,
            mPs3ClockKMon = -1, mPs3ClockKDateFmt = -1, mPs3ClockKTimeFmt = -1;
+    // Last-drawn XMB clock/status bar rect (device px), captured by drawPs3Clock so the confirmation
+    // toast (drawPhotoBanner) can render as a matching open-right bar directly below it. mPs3ClockBarT
+    // is mEffectTime of the capture (staleness guard; the toast only mirrors a fresh clock bar).
+    float  mPs3ClockBarL = 0, mPs3ClockBarR = 0, mPs3ClockBarTop = 0, mPs3ClockBarBot = 0;
+    float  mPs3ClockBarCorner = 0, mPs3ClockBarStamp = -1.0f, mPs3ClockBarBaseY = 0;
     // One-shot analog-hand spin on a menu context change (submenu enter/leave or a
     // dialog open/close), mirroring the web drawClock. mPs3ClockSpinSig is the last
     // seen context signature; a change restarts the spin at mPs3ClockSpinStart.
@@ -3356,9 +3361,18 @@ private:
     // ---- Scene Search (chapter grid, web vidScene* / drawVideoScene) ------------
     // Chapters parsed directly from the container (mp4/mov QT chapter track + Nero
     // chpl; mkv EBML Chapters) since the NDK extractor does not expose chapters.
-    struct VidChapter { double t = 0.0; std::string title; };
+    struct VidChapter { double t = 0.0; std::string title;
+                        GLuint thumbTex = 0; int thumbW = 0, thumbH = 0; };   // per-chapter preview frame (render-thread GL)
     std::vector<VidChapter> mVidChapters;   // sorted by time; empty = "No chapters"
     void vidParseChapters(const std::string& file);   // fill mVidChapters from the file
+    // Chapter preview thumbnails: the SoC has a single HW video decoder that mVideoTest holds while a
+    // clip plays, so a chapter's frame cannot be decoded independently. Instead the current chapter's
+    // thumbnail is grabbed opportunistically from the live mVideoTest frame during playback (zero extra
+    // decode), so previews fill in for chapters as they are watched or jumped to. Render thread only.
+    int  vidCurrentChapter(double pos) const;      // index of the chapter containing pos (-1 if none)
+    void vidCaptureChapterThumb(int idx);          // grab mVideoTest's current frame into chapter idx
+    void vidFreeChapterThumbs();                   // glDeleteTextures all chapter thumbs (render thread)
+    void vidJumpToChapter(int idx);                // seek player+audio to chapter idx (test hook / shared)
     bool  mVidSceneOpen = false;
     bool  mVidSceneClosing = false;
     int   mVidSceneSel = 0;

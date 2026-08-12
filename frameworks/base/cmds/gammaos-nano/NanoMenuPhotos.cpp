@@ -1084,33 +1084,62 @@ void NanoMenu::drawPhotoBanner() {
         frR = 0.90f; frG = 0.93f; frB = 1.0f; frA = 0.22f;
     }
 
-    // Top-RIGHT, sliding in from the right edge with the fade (drastic-nano drawAchievementBanner:
-    // xRest = W - cardW - margin, x = xRest + (1-vis)*(cardW+margin)). The card is now small enough
-    // (<=~42% width) that right-anchoring keeps it fully on screen at any resolution/orientation.
-    const float xRest = W - cardW - margin;
-    const float x = xRest + (1.0f - vis) * (cardW + margin);
-    // Sit BELOW the XMB status bar (clock/battery live at the very top-right) so the card lands on the
-    // wallpaper, not clipped behind the status strip, and reads clearly on any panel.
-    const float y = fmaxf(mn * 0.130f, 64.0f);
+    (void)frR; (void)frG; (void)frB; (void)frA; (void)padY;
 
-    // drastic-nano drawAchievementBanner card: an accent-coloured ROUNDED border behind a dark rounded
-    // body (NO underline). drawRoundedRect is rotation-aware (uRotation = sDrmRotMat) exactly like
-    // drawText, so the card and its text always land together under any panel rotation. Rounded corners
-    // + the thin accent frame read as a PS3-XMB glass chip, not a bare text label.
-    (void)frR; (void)frG; (void)frB; (void)frA;
-    const float radius = fpx * 0.42f;
-    const float bw = fmaxf(2.0f, fpx * 0.10f);
-    drawRoundedRect(x - bw, y - bw, cardW + bw * 2.0f, cardH + bw * 2.0f, radius + bw,
-                    aR, aG, aB, 0.92f * alpha);                    // accent frame (drastic-nano look)
-    drawRoundedRect(x, y, cardW, cardH, radius, fR, fG, fB, fA * alpha);   // dark glass body
-    // Subtle top highlight edge (XMB dialog sheen).
-    drawRoundedRect(x + radius * 0.6f, y + bw * 1.2f, cardW - radius * 1.2f,
-                    fmaxf(1.5f, fpx * 0.06f), fmaxf(1.0f, fpx * 0.05f), 1.0f, 1.0f, 1.0f, 0.16f * alpha);
+    // Final bar geometry + text metrics. On the XMB home the clock/status bar publishes its exact rect
+    // (mPs3ClockBar*, refreshed every frame by drawPs3Clock); mirror it so the toast is a matching bar
+    // directly BELOW the clock - same right edge, width, height and corner - which is the cleanest,
+    // most native placement. Elsewhere (video player, DSi/Minima themes, clock hidden) fall back to the
+    // compact top-right card sized to the text.
+    const bool clockBarFresh = mPs3Xmb && !mNdsTheme && !mMinimaTheme
+                               && mPs3ClockBarStamp >= 0.0f && (mEffectTime - mPs3ClockBarStamp) < 0.5f
+                               && (mPs3ClockBarR - mPs3ClockBarL) > mn * 0.10f
+                               && (mPs3ClockBarBot - mPs3ClockBarTop) > 4.0f;
+    float bx, by, bW, bH, bRad, tPadX, bFs, tColW, baseY;
+    if (clockBarFresh) {
+        // COVER the clock bar at its exact rect; slide in from the right. Text uses the clock's own font
+        // size and baseline so it lines up perfectly (vertically centred) with where the clock time sits.
+        bW = mPs3ClockBarR - mPs3ClockBarL;
+        bH = mPs3ClockBarBot - mPs3ClockBarTop;
+        by = mPs3ClockBarTop;
+        bx = mPs3ClockBarL + (1.0f - vis) * (bW + bH);
+        bRad = mPs3ClockBarCorner;
+        bFs   = ps3::fontScale(ps3::CLOCK_SIZE);
+        tPadX = bH * 0.42f;
+        tColW = bW - tPadX * 2.0f;
+        baseY = mPs3ClockBarBaseY;
+    } else {
+        bW = cardW; bH = cardH; bRad = fpx * 0.42f;
+        bx = (W - cardW - margin) + (1.0f - vis) * (cardW + margin);
+        by = fmaxf(mn * 0.130f, 64.0f);
+        bFs = fs; tPadX = padX; tColW = colW;
+        baseY = by + bH * 0.5f + fpx * 0.34f;
+    }
+
+    // Frosted-glass body: an accent-tinted rounded frame at the OUTER extent (== the clock rect when
+    // covering, so the toast is exactly the clock bar's size), a dark glass base opaque enough to hide
+    // the clock underneath, a translucent light sheen over the top for the frosted look, and a bright
+    // top edge. drawRoundedRect is rotation-aware (uRotation = sDrmRotMat) exactly like drawText.
+    const float bwF = fmaxf(2.0f, bH * 0.05f);
+    float oX, oY, oW, oH, iX, iY, iW, iH;
+    if (clockBarFresh) { oX = bx; oY = by; oW = bW; oH = bH;
+                         iX = bx + bwF; iY = by + bwF; iW = bW - bwF * 2.0f; iH = bH - bwF * 2.0f; }
+    else               { oX = bx - bwF; oY = by - bwF; oW = bW + bwF * 2.0f; oH = bH + bwF * 2.0f;
+                         iX = bx; iY = by; iW = bW; iH = bH; }
+    const float iRad = fmaxf(1.0f, bRad - bwF);
+    drawRoundedRect(oX, oY, oW, oH, bRad, aR, aG, aB, 0.90f * alpha);                              // accent frame
+    drawRoundedRect(iX, iY, iW, iH, iRad, fR, fG, fB, fA * alpha);                                 // dark glass base
+    // Frosted sheen: a light wash over the whole body + a brighter band across the top half (fake the
+    // glassy gradient without a real blur), then a crisp bright top edge line.
+    drawRoundedRect(iX, iY, iW, iH, iRad, 1.0f, 1.0f, 1.0f, 0.05f * alpha);
+    drawRoundedRect(iX, iY, iW, iH * 0.50f, iRad, 1.0f, 1.0f, 1.0f, 0.07f * alpha);
+    drawRoundedRect(iX + iRad * 0.6f, iY + bwF * 0.6f, iW - iRad * 1.2f,
+                    fmaxf(1.5f, bH * 0.035f), fmaxf(1.0f, bH * 0.025f), 1.0f, 1.0f, 1.0f, 0.22f * alpha);
 
     // Marquee: when the label overflows its column, window a fitting substring that scrolls, wrapping
     // with a gap (mirrors the drastic-nano toast ticker; no GL clip needed, works at any opacity).
     std::string shown = txt;
-    if (fullTw > colW + 0.5f) {
+    if (measureText(txt, bFs) > tColW + 0.5f) {
         std::string scroll = std::string(txt) + "     ";
         int n = (int)scroll.size();
         int shift = (int)((((long)(el / 220.0f)) % n + n) % n);
@@ -1118,14 +1147,13 @@ void NanoMenu::drawPhotoBanner() {
         std::string vs;
         for (size_t i = 0; i < rot.size(); i++) {
             std::string cand = vs; cand += rot[i];
-            if (measureText(cand.c_str(), fs) > colW) break;
+            if (measureText(cand.c_str(), bFs) > tColW) break;
             vs = cand;
         }
         shown = vs;
     }
-    const float tx = x + padX;
-    const float baseY = y + cardH * 0.5f + fpx * 0.34f;
-    drawText(shown.c_str(), tx, ps3::baselineToTopY(baseY, fs), fs, iR, iG, iB, alpha);
+    const float tx = bx + tPadX;
+    drawText(shown.c_str(), tx, ps3::baselineToTopY(baseY, bFs), bFs, iR, iG, iB, alpha);
 
     mNdsFontPref = prevFont;
     mTextOutlineMode = prevOutline;

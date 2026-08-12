@@ -7714,6 +7714,10 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     float dyT = cy(ps3::CLOCK_FRAME_Y);
     float dyB = cy(ps3::CLOCK_FRAME_Y + ps3::CLOCK_FRAME_H);
     float fr  = ps3::devS(ps3::CLOCK_FRAME_CORNER);
+    // Publish the bar rect so the confirmation toast can render as a matching open-right bar just below
+    // it (same right edge, width, height, corner). Stamped for a staleness guard in drawPhotoBanner.
+    mPs3ClockBarL = dxL; mPs3ClockBarR = dxR; mPs3ClockBarTop = dyT; mPs3ClockBarBot = dyB;
+    mPs3ClockBarCorner = fr; mPs3ClockBarStamp = mEffectTime;
     float lw  = fmaxf(1.0f, ps3::devS(1.0f));
     float so[2]; ps3ShadowOffset(ps3::devS(3.0f) * mPs3ShadowDir, mWidth, mHeight, so);   // panel-down drop shadow (dir from orientation)
 
@@ -7853,6 +7857,7 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
     const float margin = ps3::devS(9.0f);          // uniform gap (matches the face)
     float cyc = (dyT + dyB) * 0.5f;                // bar vertical centre
     float baseY = iconCY + ps3::devS(9.0f);        // text baseline -> visually centred
+    mPs3ClockBarBaseY = baseY;                     // published so the toast text matches the clock's baseline
 
     // date/time: right edge just left of the face, vertically centred.
     float ts = ps3::fontScale(ps3::CLOCK_SIZE);
