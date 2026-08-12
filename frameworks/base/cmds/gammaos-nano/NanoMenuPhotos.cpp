@@ -999,56 +999,118 @@ void NanoMenu::photoShowBanner(const std::string& text) {
     mPhotoBanner = text; mPhotoBannerStart = mEffectTime;
 }
 
-// Transient centered banner over the photo column/grid (web showGroupBanner): fades
-// in 150ms, holds, fades out over the last 300ms of a 2.0s life. No-op when inactive.
+// Transient confirmation toast (Setting changed / Pinned to Home / Background apps
+// closed / sort + folder labels). Modelled on the drastic-nano RetroAchievements
+// unlock banner: a compact card in the top-right that slides in from the edge,
+// holds, then slides out with a fade. Long labels marquee-scroll instead of
+// blowing up the card. Sized off the smaller screen dimension + user font scale so
+// it adapts to any resolution, aspect and orientation, and it is themed per active
+// home theme (XMB glass / DSi panel / Minima). No-op when inactive.
 void NanoMenu::drawPhotoBanner() {
     if (mPhotoBannerStart < 0.0f || mPhotoBanner.empty()) return;
     float el = (mEffectTime - mPhotoBannerStart) * 1000.0f;
-    const float life = 2000.0f;
+    const float life = 2600.0f;   // a touch longer so an overflowing label can marquee once
     if (el >= life) { mPhotoBannerStart = -1.0f; mDisplayDirty = true; return; }
-    // Keep repainting while the banner is up so it fades + auto-dismisses on the static DSi / Minima
+    // Keep repainting while the toast is up so it animates + auto-dismisses on the static DSi / Minima
     // themes (they only redraw on mDisplayDirty; the XMB wave repaints anyway).
     mDisplayDirty = true;
-    float fade = fminf(1.0f, el / 150.0f) * fminf(1.0f, fmaxf(0.0f, (life - el)) / 300.0f);
-    // Draw the banner with the standard font, NOT the caller's theme text state. The DSi carousel
-    // renders with mNdsFontPref=true (DSVec faces); measureText/drawText for the banner string then
-    // return ~0 width, so the banner collapsed to an unreadable dark sliver in the DSi theme (the
-    // Y-sort banner "not readable" bug). Force the default font (as the XMB path uses) for the measure
-    // AND the draw so widths and glyphs match, then restore so the rest of the frame is unaffected.
+
+    // Draw with the standard font, NOT the caller's theme text state. The DSi carousel renders with
+    // mNdsFontPref=true (DSVec faces); measureText/drawText for the toast string then return ~0 width,
+    // so the toast collapsed to an unreadable sliver in the DSi theme (the Y-sort banner bug). Force the
+    // default font for the measure AND the draw so widths and glyphs match, then restore.
     const bool prevFont = mNdsFontPref; mNdsFontPref = false;
     const int prevOutline = mTextOutlineMode; mTextOutlineMode = 1;
-    const float W = (float)mWidth, H = (float)mHeight;
-    const char* txt = mPhotoBanner.c_str();
-    // Bigger text than before, with shrink-to-fit so a long label (or a large user Font Size) can never
-    // overflow the panel. Sized off the smaller screen dimension so it scales sensibly on any panel.
-    float fs = ps3::fontScale(fminf(W, H) * 0.085f);
-    if (fs < PFS(30.0f)) fs = PFS(30.0f);
-    float tw = measureText(txt, fs);
-    const float padX = fmaxf(PFS(24.0f), fs * 0.6f);
-    const float padY = fmaxf(PFS(12.0f), fs * 0.32f);
-    const float margin = PFS(18.0f);
-    const float maxW = W - margin * 2.0f;
-    if (tw > 0.0f && tw + padX * 2.0f > maxW) {           // shrink to fit the screen width
-        float sc = (maxW - padX * 2.0f) / tw;
-        fs *= sc; tw *= sc;
-    }
-    // Standard alpha blend for the backdrop fills (a theme render can leave a different blend state).
     setUiBlend();
-    // Solid backdrop so the label reads clearly over ANY theme (the busy XMB wave, the DSi white info
-    // panel, the Minima list). Use drawQuad (not drawRoundedRect): the SDF rounded-rect uses a separate
-    // rotation path from drawText, so on the RG DS's rotated panels the pill landed misaligned/offscreen
-    // while the text drew fine. A bright frame quad behind a near-opaque dark quad reads on BOTH dark
-    // (bright frame stands out) and light (dark fill stands out) backgrounds, co-located with the text.
-    float pw = tw + padX * 2.0f;
-    float ph = fs + padY * 2.0f;
-    float px = (W - pw) * 0.5f;
-    float py = H * 0.11f;
-    float bw = PFS(3.0f);
-    drawQuad(px - bw, py - bw, pw + bw * 2.0f, ph + bw * 2.0f, 0.96f, 0.97f, 1.0f, 0.92f * fade);  // bright frame
-    drawQuad(px, py, pw, ph, 0.06f, 0.07f, 0.10f, 0.94f * fade);   // dark fill
-    // Vertically centre the text in the pill.
-    float baseY = py + ph * 0.5f + fs * 0.34f;
-    drawText(txt, (W - tw) * 0.5f, ps3::baselineToTopY(baseY, fs), fs, 1.0f, 1.0f, 1.0f, fade);
+
+    const float W = (float)mWidth, H = (float)mHeight;
+    const float mn = fminf(W, H);
+    const char* txt = mPhotoBanner.c_str();
+
+    // Slide-in / hold / slide-out with a matching alpha fade (ease-out cubic).
+    auto easeOut = [](float p){ float q = 1.0f - p; return 1.0f - q * q * q; };
+    auto clamp01 = [](float v){ return fminf(fmaxf(v, 0.0f), 1.0f); };
+    const float inMs = 240.0f, outMs = 320.0f;
+    float vis = 1.0f;
+    if (el < inMs) vis = easeOut(clamp01(el / inMs));
+    const float remain = life - el;
+    if (remain < outMs) vis = fminf(vis, clamp01(remain / outMs));
+    const float alpha = vis;
+
+    // Compact, adaptive sizing off the smaller screen dimension + user font scale.
+    float fs = ps3::fontScale(mn * 0.050f);
+    if (fs < PFS(15.0f)) fs = PFS(15.0f);
+    const float padX    = fmaxf(PFS(14.0f), fs * 0.7f);
+    const float padY    = fmaxf(PFS(8.0f),  fs * 0.42f);
+    const float margin  = fmaxf(PFS(12.0f), mn * 0.03f);
+    const float accentW = fmaxf(PFS(3.0f),  fs * 0.16f);   // signature colored left edge
+
+    // Text column caps the card at ~62% of the width; anything longer marquees.
+    const float textColW = fmaxf(PFS(40.0f), W * 0.62f - padX * 2.0f - accentW);
+    const float fullTw = measureText(txt, fs);
+    const float colW = fminf(fullTw, textColW);
+    const float cardW = accentW + padX + colW + padX;
+    const float cardH = fs + padY * 2.0f;
+
+    // Per-theme palette: card fill, ink, accent (left edge) and a thin frame.
+    float fR, fG, fB, fA;            // fill
+    float iR, iG, iB;               // ink
+    float aR, aG, aB;               // accent
+    float frR, frG, frB, frA;       // frame
+    if (mNdsTheme) {
+        NdsPal p = ndsPal();
+        fR = fG = fB = p.field; fA = 0.98f;             // light near-white / dark near-black panel
+        iR = iG = iB = p.ink;                            // dark ink on light, light ink on dark
+        aR = p.headR; aG = p.headG; aB = p.headB;        // DSi teal accent
+        frR = frG = frB = mNdsDark ? 0.42f : p.edge; frA = 0.85f;
+    } else if (mMinimaTheme) {
+        float ar, ag, ab; minimaAccent(ar, ag, ab);
+        fR = 0.09f; fG = 0.10f; fB = 0.12f; fA = 0.94f;  // clean dark card reads on any Minima bg
+        iR = iG = iB = 0.97f;
+        aR = ar; aG = ag; aB = ab;
+        frR = 0.90f; frG = 0.92f; frB = 1.0f; frA = 0.22f;
+    } else {
+        // XMB: dark glass card with the theme accent (custom colour if the user set one).
+        float ar = 0.45f, ag = 0.78f, ab = 1.0f;
+        customAccentRGB(ar, ag, ab);
+        fR = 0.06f; fG = 0.07f; fB = 0.11f; fA = 0.92f;
+        iR = iG = iB = 1.0f;
+        aR = ar; aG = ag; aB = ab;
+        frR = 0.90f; frG = 0.93f; frB = 1.0f; frA = 0.22f;
+    }
+
+    // Top-right, sliding in from the right edge.
+    const float xRest = W - cardW - margin;
+    const float x = xRest + (1.0f - vis) * (cardW + margin);
+    const float y = margin;
+
+    // Frame + fill (drawQuad, not drawRoundedRect: the SDF rounded-rect uses a separate rotation path
+    // from drawText and lands misaligned/offscreen on the RG DS's rotated panels).
+    const float bw = PFS(2.0f);
+    drawQuad(x - bw, y - bw, cardW + bw * 2.0f, cardH + bw * 2.0f, frR, frG, frB, frA * alpha);
+    drawQuad(x, y, cardW, cardH, fR, fG, fB, fA * alpha);
+    drawQuad(x, y, accentW, cardH, aR, aG, aB, alpha);   // colored left edge
+
+    // Marquee: when the label overflows its column, window a fitting substring that scrolls, wrapping
+    // with a gap (mirrors the drastic-nano toast ticker; no GL clip needed, works at any opacity).
+    std::string shown = txt;
+    if (fullTw > colW + 0.5f) {
+        std::string scroll = std::string(txt) + "     ";
+        int n = (int)scroll.size();
+        int shift = (int)((((long)(el / 220.0f)) % n + n) % n);
+        std::string rot = scroll.substr(shift) + scroll.substr(0, shift);
+        std::string vs;
+        for (size_t i = 0; i < rot.size(); i++) {
+            std::string cand = vs; cand += rot[i];
+            if (measureText(cand.c_str(), fs) > colW) break;
+            vs = cand;
+        }
+        shown = vs;
+    }
+    const float tx = x + accentW + padX;
+    const float baseY = y + cardH * 0.5f + fs * 0.34f;
+    drawText(shown.c_str(), tx, ps3::baselineToTopY(baseY, fs), fs, iR, iG, iB, alpha);
+
     mNdsFontPref = prevFont;
     mTextOutlineMode = prevOutline;
 }
