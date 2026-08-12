@@ -3292,6 +3292,7 @@ static const VidCp kVidCp[] = {
     {"chgicon",    "Change Icon",         24,  3.5f, 1},
     {"del",        "Delete",               4,  4.5f, 1},
     {"showinfo",   "Display",              0,  5.5f, 1},
+    {"shader",     "Global Shaders",       1,  6.5f, 1},   // system-wide display shader chooser (reuses the monitor glyph)
     {"beginning",  "Return to Beginning",  9,  1.0f, 2},
     {"next",       "Next",                10,  2.0f, 2},
     {"frev",       "Fast Reverse",        11,  3.0f, 2},
@@ -3308,6 +3309,13 @@ static const VidCp kVidCp[] = {
     {"repeat",     "Repeat",              17,  7.0f, 3},
 };
 static const int kVidCpCount = (int)(sizeof(kVidCp) / sizeof(kVidCp[0]));
+
+// Global Shaders chooser (video panel "shader" action): the system-wide display shader, mirrors the XMB
+// Global Shaders list (kShaderTypes). Off clears persist.gammaos.shader.enable; any other sets the type +
+// enables it. Kept local to the video player so it needs no cross-file coupling.
+static const char* kVidShaderLabels[] = { "Off", "CRT", "LCD3x", "LCD", "Blur Fill", "Custom (Vulkan)", "Custom (GLSL)" };
+static const char* kVidShaderTypes[]  = { "",    "crt-simple", "lcd3x", "lcd-shader", "blur-fill", "custom-vk", "custom-gl" };
+static const int   kVidShaderCount = (int)(sizeof(kVidShaderLabels) / sizeof(kVidShaderLabels[0]));
 static int vidCpDefault() {
     for (int i = 0; i < kVidCpCount; i++) if (!strcmp(kVidCp[i].act, "play")) return i;
     return 0;
@@ -3513,6 +3521,19 @@ void NanoMenu::vidSubBuild(int kind) {
         case 4: mVidSubLabel = "Audio Options";   // one row per audio track
             for (const auto& a : mVidAudTracks) mVidSubOpts.push_back(a.name);
             mVidSubSel = (mVidAudCur >= 0 && mVidAudCur < (int)mVidAudTracks.size()) ? mVidAudCur : 0; break;
+        case 6: mVidSubLabel = "Global Shaders";  // system-wide display shader (persist.gammaos.shader.*)
+            for (const char* s : kVidShaderLabels) mVidSubOpts.push_back(trDyn(s));
+            {   // preselect the active shader (Off unless enabled AND the type matches a known entry)
+                char en[PROPERTY_VALUE_MAX] = {0}, ty[PROPERTY_VALUE_MAX] = {0};
+                property_get("persist.gammaos.shader.enable", en, "0");
+                property_get("persist.gammaos.shader.type", ty, "");
+                int idx = 0;
+                if (en[0] == '1' || !strcmp(en, "true"))
+                    for (int i = 1; i < kVidShaderCount; i++)
+                        if (!strcmp(ty, kVidShaderTypes[i])) { idx = i; break; }
+                mVidSubSel = idx;
+            }
+            break;
         case 5: mVidSubLabel = "Subtitle Options";   // Off + each subtitle track
             // .ts line-21 captions: once the demuxer has actually seen GA94 cc_data, offer the
             // four caption channels (added once; no clutter for streams without captions).
@@ -3577,6 +3598,15 @@ void NanoMenu::vidSubConfirm() {
             }
             mVidDispModeUntil = mEffectTime + 1.8f;
             mVidSubOpen = false; } break;
+        case 6:   // global display shader
+            if (sel >= 0 && sel < kVidShaderCount) {
+                if (sel == 0) property_set("persist.gammaos.shader.enable", "0");
+                else { property_set("persist.gammaos.shader.type", kVidShaderTypes[sel]);
+                       property_set("persist.gammaos.shader.enable", "1"); }
+                mVidDispMode = std::string(trDyn("Shader: ")) + trDyn(kVidShaderLabels[sel]);
+                mVidDispModeUntil = mEffectTime + 1.8f;
+            }
+            mVidSubOpen = false; break;
     }
 }
 
@@ -3599,6 +3629,7 @@ void NanoMenu::vidPanelActivate() {
     else if (!strcmp(a, "beginning"))  vidBeginning();
     else if (!strcmp(a, "next"))       vidStepTitle(1);
     else if (!strcmp(a, "showinfo"))   { mVidOsd = !mVidOsd; mVidCpOpen = false; mVidCpClosing = false; }   // web: instant close
+    else if (!strcmp(a, "shader"))     { vidSubBuild(6); mVidSubOpen = true; }   // Global Shaders chooser (over the video)
     else if (!strcmp(a, "screenmode")) { vidSubBuild(0); mVidSubOpen = true; }
     else if (!strcmp(a, "repeat"))     { vidSubBuild(1); mVidSubOpen = true; }
     else if (!strcmp(a, "volume"))     { vidSubBuild(2); mVidSubOpen = true; }
