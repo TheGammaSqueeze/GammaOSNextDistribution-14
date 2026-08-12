@@ -3229,6 +3229,13 @@ private:
     NanoAudioPlayer mVidAudio;
     bool   mVidHasAudio = false;
     bool   mVidAudioStarted = false;        // audio held until the first video frame (avoids warmup desync)
+    // Audio-track switch runs mVidAudio.release()+open() on a DETACHED worker, not the render thread:
+    // release() joins the decode thread, which can be parked for seconds in a slow AMediaExtractor_seekTo
+    // after a far seek. Doing it inline froze the UI (and used to trip the render watchdog). The render
+    // thread claims the flag + spawns the worker and returns; vidAudioSwitchJoin() settles it (waits the
+    // flag) before any player teardown/close so the worker's release() can never race the close release().
+    std::atomic<bool> mVidAudSwitchDone{true};   // false while a switch worker is in flight
+    void vidAudioSwitchJoin();                    // wait out an in-flight async audio-track switch (watchdog-exempt)
     float  mVidAudioResyncT = 0.0f;         // last A/V resync time (cooldown so resync never tight-loops)
     // .ts runs through the in-process single-pass demuxer: ONE read pointer feeds both the
     // HW video codec (NanoVideo fed mode) and the audio (liba52 -> mVidAudio fed ring), so

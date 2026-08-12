@@ -1906,6 +1906,7 @@ void NanoMenu::vidCloseTitleAudio() {
     // sub-demuxer worker - the real last toucher of mVideoTest - before the picture is freed.
     mVidTsDemux.close(); mVidTsMode = false; mVidTsAudio = false;
     mVidAviDemux.close(); mVidAviMode = false;
+    vidAudioSwitchJoin();          // settle any in-flight async audio-track switch before tearing down
     mVidAudio.release();
     mVidHasAudio = false;
 }
@@ -1936,25 +1937,56 @@ double NanoMenu::vidDuration() const {
 // shared PCR clock; otherwise re-open mVidAudio on that extractor track (web vidSetAudioTrack).
 void NanoMenu::vidSetAudioTrack(int ordinal) {
     if (ordinal < 0 || ordinal >= (int)mVidAudTracks.size()) return;
-    mVidAudCur = ordinal;
     if (mVidTsAudio) {
         // O(1) PID re-route on the shared read pointer: the ~0.8s of already-buffered old-track
         // audio drains, then the new track flows, in sync (no seek -> no video disturbance, and
         // no byte-estimate jump on discontinuity captures). Brief changeover, like the web aux.
+        mVidAudCur = ordinal;
         mVidTsDemux.selectAudio(ordinal);
         mVidAudio.setVolume(mVidVolume);
     } else {
         if (mVidList.empty() || mVidIdx < 0 || mVidIdx >= (int)mVidList.size()) return;
         int vi = mVidList[mVidIdx];
         if (vi < 0 || vi >= (int)mVideos.size()) return;
-        double pos = mVideoTest ? mVideoTest->position() : 0.0;
-        mVidAudio.release();
-        mVidHasAudio = mVidAudio.open(mVideos[vi].file, mVidAudTracks[ordinal].idx);
-        mVidAudioStarted = false;
-        if (mVidHasAudio) { mVidAudio.setVolume(mVidVolume); if (pos > 0.0) mVidAudio.seek(pos); }
+        // A prior async switch is still settling (its release()+open() can sit for seconds inside a slow
+        // AMediaExtractor_seekTo after a far seek). Atomically claim the slot; if one is already in flight,
+        // ignore the new request rather than block the render thread or run two teardowns of mVidAudio at
+        // once. The user can pick again once it lands; mVidAudCur/OSD stay on the track that is loading.
+        bool wasDone = mVidAudSwitchDone.exchange(false, std::memory_order_acq_rel);
+        if (!wasDone) return;                                            // another switch owns the slot
+        mVidAudCur = ordinal;
+        const std::string file = mVideos[vi].file;
+        const int trackIdx = mVidAudTracks[ordinal].idx;
+        const double pos = mVideoTest ? mVideoTest->position() : 0.0;
+        const float vol = mVidVolume;
+        mVidAudioStarted = false;                                         // re-arm audio start on the new track
+        // Run the blocking teardown + reopen OFF the render thread (detached) so the UI never freezes;
+        // release() joins the decode thread (which may be parked in the slow far-seek binder call).
+        // position() reads only atomics so the video's audio-master pacing tolerates the transient (the
+        // wildAhead clamp prevents a bad-clock freeze). mVidAudSwitchDone flips true LAST, and
+        // vidAudioSwitchJoin() waits on it before any teardown so release() can never race the worker.
+        std::thread([this, file, trackIdx, pos, vol]() {
+            mVidAudio.release();
+            bool ok = mVidAudio.open(file, trackIdx);
+            mVidHasAudio = ok;
+            if (ok) { mVidAudio.setVolume(vol); if (pos > 0.0) mVidAudio.seek(pos); }
+            mVidAudSwitchDone.store(true, std::memory_order_release);
+        }).detach();
     }
     mVidDispMode = std::string(trDyn("Audio: ")) + mVidAudTracks[ordinal].name;
     mVidDispModeUntil = mEffectTime + 1.8f;
+}
+
+// Wait out an in-flight async audio-track switch (vidSetAudioTrack's detached worker). Render thread,
+// before any mVidAudio teardown/close so the worker's release()+open() can never race the close path's
+// release(). Watchdog-exempt because it can wait the worker's slow far-seek; a video teardown legitimately
+// blocks here. The worker flips mVidAudSwitchDone true as its LAST act, so once it is true the worker has
+// finished every mVidAudio call and it is safe to release/close.
+void NanoMenu::vidAudioSwitchJoin() {
+    if (mVidAudSwitchDone.load(std::memory_order_acquire)) return;
+    bool prevExempt = mVidTeardownExempt.exchange(true, std::memory_order_relaxed);
+    while (!mVidAudSwitchDone.load(std::memory_order_acquire)) usleep(5000);
+    mVidTeardownExempt.store(prevExempt, std::memory_order_relaxed);
 }
 
 // ===========================================================================
@@ -2115,6 +2147,7 @@ void NanoMenu::vidAbortOpen(const char* banner) {
     mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
     mVidSceneOpen = mVidSceneClosing = false;
     mVidResumeAsk = false;
+    vidFreeChapterThumbs();
     mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
     if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }
     vidDvbFree();
@@ -2564,6 +2597,7 @@ void NanoMenu::videoHardFree(bool sync) {
     mVidEnterRaw = 0.0f; mVidEnterT = 0.0f;
     mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
     mVidSceneOpen = mVidSceneClosing = false;
+    vidFreeChapterThumbs();
     mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
     if (mVidTsVideoFmt) { AMediaFormat_delete(mVidTsVideoFmt); mVidTsVideoFmt = nullptr; }
     vidDvbFree();
@@ -2772,6 +2806,7 @@ void NanoMenu::videoTick() {
         vidAsyncFree(mVideoTest); mVideoTest = nullptr;
         mVidCpOpen = mVidCpClosing = mVidSubOpen = mVidGoToOpen = false;
         mVidSceneOpen = mVidSceneClosing = false;
+        vidFreeChapterThumbs();
         mVidAudTracks.clear(); mVidSubTracks.clear(); mVidChapters.clear(); mVidAudCur = 0; mVidSubCur = -1;
         vidDvbFree();
     }
@@ -2988,6 +3023,19 @@ bool NanoMenu::renderVideoPlayer() {
         if (mVidIconGrabPending) videoIconGrabCurrentFrame();
         mVideoTest->draw(W, H, 0.0f, 0.0f, (float)W, (float)H, et,
                          mVidScreenMode, sDrmRotMat);
+        // Chapter preview thumbnails: opportunistically grab the current chapter's frame from the live
+        // decoder (the single HW decoder is busy with mVideoTest, so this is the only non-disruptive way).
+        // Only while the picture is settled (playing at 1x, not scrubbing/scanning/seeking) and at least a
+        // moment past the chapter start, so we capture real content rather than a black cut/fade. Captured
+        // once per chapter; previews fill in for chapters as they are watched or jumped to via Scene Search.
+        if (!mVidChapters.empty() && mVidPlaying && mVidRate == 1.0 &&
+            !mVidScrubbing && !mVidScrubPending && mVidScanLastTick < 0.0 &&
+            mVideoTest->firstFrameReady()) {
+            double pos = mVideoTest->position();
+            int ci = vidCurrentChapter(pos);
+            if (ci >= 0 && !mVidChapters[ci].thumbTex && pos >= mVidChapters[ci].t + 0.7)
+                vidCaptureChapterThumb(ci);
+        }
     }
     if (!mVideoTest) return et > 0.001f;   // exit fade: black only
 
@@ -4003,6 +4051,77 @@ void NanoMenu::drawVideoDialog(float et) {
 // (Web also has an interval grid for chapter-less clips; deferred for nano - its
 // own layout breaks past ~8 rows, e.g. a 75-min .ts, and Go To already time-jumps.)
 // ===========================================================================
+// Index of the chapter whose time range contains pos (chapters are sorted by time). -1 if before the
+// first chapter or the list is empty. Cheap; called each rendered frame while a clip plays.
+int NanoMenu::vidCurrentChapter(double pos) const {
+    int idx = -1;
+    for (size_t i = 0; i < mVidChapters.size(); i++) {
+        if (pos + 0.001 >= mVidChapters[i].t) idx = (int)i; else break;
+    }
+    return idx;
+}
+
+// Render thread (GL current), from renderVideoPlayer after updateFrame(): grab the live mVideoTest frame
+// into chapter idx's persistent 16:9 preview texture. Same offscreen-FBO capture as videoIconGrabCurrentFrame
+// (crop-fill, glReadPixels bottom-left -> flip to top-left), but the pixels stay in a GL texture (drawn in
+// drawVideoScene) instead of the on-disk poster cache, and the texture persists for the life of the open clip.
+void NanoMenu::vidCaptureChapterThumb(int idx) {
+    if (!mVideoTest || idx < 0 || idx >= (int)mVidChapters.size()) return;
+    const int TW = 256, TH = 144;   // 16:9 preview
+    GLint  prevFbo = 0;  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLint  prevVp[4] = {0, 0, 0, 0}; glGetIntegerv(GL_VIEWPORT, prevVp);
+    GLint  prevTex = 0;  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTex);
+    GLfloat prevClear[4] = {0, 0, 0, 0}; glGetFloatv(GL_COLOR_CLEAR_VALUE, prevClear);
+    GLuint tex = mVidChapters[idx].thumbTex, fbo = 0;
+    bool newTex = (tex == 0);
+    if (newTex) {
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TW, TH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+    bool ok = false;
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+        glViewport(0, 0, TW, TH);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        mVideoTest->draw(TW, TH, 0.0f, 0.0f, (float)TW, (float)TH, 1.0f, /*fitMode=fill/crop*/1, nullptr);
+        ok = true;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    glBindTexture(GL_TEXTURE_2D, (GLuint)prevTex);
+    glClearColor(prevClear[0], prevClear[1], prevClear[2], prevClear[3]);
+    glDeleteFramebuffers(1, &fbo);
+    if (ok) { mVidChapters[idx].thumbTex = tex; mVidChapters[idx].thumbW = TW; mVidChapters[idx].thumbH = TH; }
+    else if (newTex) { glDeleteTextures(1, &tex); }   // capture failed and this was a fresh texture: drop it
+}
+
+// Render thread: release every chapter preview texture (called on player teardown before mVidChapters is
+// rebuilt/cleared, so the GL objects are freed on the thread that owns the EGL context).
+void NanoMenu::vidFreeChapterThumbs() {
+    for (auto& c : mVidChapters) {
+        if (c.thumbTex) { glDeleteTextures(1, &c.thumbTex); c.thumbTex = 0; c.thumbW = c.thumbH = 0; }
+    }
+}
+
+// Seek the player (+ audio) to chapter idx's time. Shared by the Scene Search activation path and the
+// "vidchap:" test hook (which lives in NanoMenuInput.cpp where NanoVideo is only forward-declared).
+void NanoMenu::vidJumpToChapter(int idx) {
+    if (idx < 0 || idx >= (int)mVidChapters.size() || !mVideoTest) return;
+    double t = mVidChapters[idx].t;
+    mVidRate = 1.0;
+    mVideoTest->seek(t);
+    if (mVidHasAudio) vidAudioSeek(t);
+    if (mVidPlaying) mVideoTest->play();
+}
+
 void NanoMenu::vidSceneOpen() {
     if (mVidChapters.empty()) { vidShowTransient(trDyn("No chapters"), 1400.0f); return; }
     double cur = mVideoTest ? mVideoTest->position() : 0.0;
@@ -4081,8 +4200,16 @@ void NanoMenu::drawVideoScene(float closeT) {
         float cx = x0 + col * (tw + gap), cy = y0 + row * rowH;
         bool sel = (i == mVidSceneSel);
 
-        // Placeholder cell (web fallback rgba(40,40,46,0.9)).
-        drawQuad(cx, cy, tw, th, 0.157f, 0.157f, 0.18f, 0.9f * A);
+        // Cell contents: the captured chapter preview frame if we have one (grabbed live from the player
+        // as the chapter was watched/jumped to), else the web's gray placeholder. The thumb texture is a
+        // 16:9 FBO render (GL bottom-left origin) matching the cell aspect, so draw it V-flipped and full.
+        if (mVidChapters[i].thumbTex) {
+            drawQuad(cx, cy, tw, th, 0.0f, 0.0f, 0.0f, A);   // opaque black base under the frame
+            drawIconTex(mVidChapters[i].thumbTex, cx, cy, tw, th, 1.0f, 1.0f, 1.0f, A, 0.0f, /*flipV=*/true);
+        } else {
+            // Placeholder cell (web fallback rgba(40,40,46,0.9)).
+            drawQuad(cx, cy, tw, th, 0.157f, 0.157f, 0.18f, 0.9f * A);
+        }
 
         // Border: 4 thin quads. Selected = bright + a faint outer glow ring.
         float bw = sel ? fmaxf(2.0f, H * 0.004f) : fmaxf(1.0f, H * 0.0022f);

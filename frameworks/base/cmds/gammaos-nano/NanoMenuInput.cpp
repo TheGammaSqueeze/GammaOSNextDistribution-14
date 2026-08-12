@@ -1948,6 +1948,19 @@ void NanoMenu::pollInput() {
                     }
                 }
             }
+            // Video Scene Search scripting: "vidscene" opens the chapter grid directly (bypasses the
+            // control-panel grid nav), "vidchap:<n>" seeks to chapter n (0-based) so per-chapter preview
+            // thumbnails can be populated + captured headlessly for 1:1 verification.
+            else if (!strcmp(navbuf, "vidscene")) {
+                if (mVidActive && !mVidSceneOpen && !mVidGoToOpen && !mVidOpenInProgress.load(std::memory_order_relaxed)) {
+                    if (mVidCpOpen) vidPanelClose();
+                    vidSceneOpen();
+                }
+            }
+            else if (!strncmp(navbuf, "vidchap:", 8)) {
+                if (mVidActive && !mVidOpenInProgress.load(std::memory_order_relaxed))
+                    vidJumpToChapter(atoi(navbuf + 8));
+            }
             // Live-stream scripting: "streamopen:<url>" opens an arbitrary IPTV/HLS URL directly
             // in the player (bypasses the channel-list navigation) so the live A/V pacing path
             // can be verified headlessly against a known live .ts/HLS stream.
