@@ -3254,7 +3254,11 @@ private:
     struct VidAudTrk { int idx = 0; std::string name; };           // idx = extractor track index
     struct VidSubTrk { std::string name; bool external = false; std::string file; int embIdx = -1;
                        std::vector<VidCue> cues; bool dvb = false; int dvbPid = -1;
-                       bool cea608 = false; int ccChannel = 0; };  // live line-21 caption (via NanoTsDemux)
+                       bool cea608 = false; int ccChannel = 0;
+                       // Matroska embedded text sub: the track is listed cheaply at open, but its cues
+                       // (a full-file cluster walk) are loaded LAZILY on first selection so the open never
+                       // stalls. mkvNum = the MKV track number (>=0), mkvAss = ASS/SSA vs SubRip.
+                       int mkvNum = -1; bool mkvAss = false; };  // live line-21 caption (via NanoTsDemux)
     std::vector<VidAudTrk> mVidAudTracks;   // all audio tracks in the current file
     std::vector<VidSubTrk> mVidSubTracks;   // embedded text subs + external SRT/VTT sidecars
     mutable std::vector<VidCue> mVidCcCues; // live CEA-608 cues snapshot (refreshed on read)
@@ -3262,6 +3266,15 @@ private:
     int mVidSubCur = -1;                     // -1 = Off, else index into mVidSubTracks
     void vidBuildTracks(const std::string& file);   // enumerate audio + embedded text subs + sidecars
     void vidReadEmbeddedCues(const std::string& file, int trackIdx, std::vector<VidCue>& out);
+    void vidReadMkvEmbeddedSubs(const std::string& file);   // list Matroska sub tracks at open (extractor exposes none)
+    void vidLoadMkvSubCues(int subIdx);                     // lazily load one MKV sub track's cues (bg thread)
+    void vidPublishMkvSubCues();                            // render thread: adopt a finished lazy cue load
+    // Lazy MKV subtitle cue load (see vidLoadMkvSubCues): the bg worker fills mVidSubLoadCues then flips
+    // mVidSubLoadReady; the render thread moves it into the track and clears busy. One load at a time.
+    std::atomic<bool>   mVidSubLoadBusy{false};
+    std::atomic<bool>   mVidSubLoadReady{false};
+    int                 mVidSubLoadIdx = -1;
+    std::vector<VidCue> mVidSubLoadCues;
     void vidSetAudioTrack(int ordinal);             // switch the active audio track (re-opens mVidAudio)
     void vidOpenTitleAudio(const std::string& file);   // open audio for a NON-.ts title (mVidAudio)
     // (vidOpenTitle is now vidOpenTitleRun above - runs on the open worker thread)

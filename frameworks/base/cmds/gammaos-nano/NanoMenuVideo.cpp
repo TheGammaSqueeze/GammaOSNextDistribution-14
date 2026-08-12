@@ -1535,6 +1535,186 @@ static void mkvParseChapterTree(int fd, int64_t start, int64_t end, std::vector<
     }
 }
 
+// --- Matroska embedded SUBTITLE demux (Android's MatroskaExtractor exposes NO subtitle tracks, so
+// parse the container directly like the chapters above). Reads the Tracks header for subtitle
+// TrackEntries, then walks the Clusters for that track's SimpleBlock/BlockGroup payloads + timestamps.
+// S_TEXT/UTF8 = SubRip (plain); S_TEXT/ASS|SSA = the Dialogue fields (strip {\...} tags + \N). ------------
+struct MkvSubTrk { int num = 0; std::string codec, name, lang; };
+
+// In-memory EBML vint (a whole cluster is buffered, then parsed in-RAM - far fewer syscalls than
+// per-element pread over a multi-hundred-MB file). Advances off. Returns -1 on error.
+static int64_t memVint(const uint8_t* p, size_t len, size_t& off, bool keepMarker) {
+    if (off >= len) return -1;
+    uint8_t first = p[off]; int l = 0; uint8_t mask = 0x80;
+    for (l = 1; l <= 8; l++) { if (first & mask) break; mask >>= 1; }
+    if (l > 8 || off + l > len) return -1;
+    uint64_t v = keepMarker ? first : (uint64_t)(first & (mask - 1));
+    for (int i = 1; i < l; i++) v = (v << 8) | p[off + i];
+    off += l;
+    return (int64_t)v;
+}
+
+// Convert one subtitle block payload to plain display text. For ASS/SSA the payload is the Dialogue
+// fields "ReadOrder,Layer,Style,Name,MarginL,MarginR,MarginV,Effect,Text" - keep only Text (after the
+// 8th comma), drop {\...} override blocks, turn \N/\n into real newlines. SubRip is already plain; just
+// strip simple <...> tags and normalise CRLF.
+static std::string mkvSubToText(const std::string& in, bool isAss) {
+    std::string s = in;
+    if (isAss) {
+        int commas = 0; size_t i = 0;
+        for (; i < s.size() && commas < 8; i++) if (s[i] == ',') commas++;
+        s = (commas == 8) ? s.substr(i) : s;   // Text field only (else keep whole - malformed)
+        std::string o; o.reserve(s.size());
+        for (size_t k = 0; k < s.size(); k++) {
+            if (s[k] == '{') { size_t e = s.find('}', k); if (e != std::string::npos) { k = e; continue; } }
+            if (s[k] == '\\' && k + 1 < s.size() && (s[k+1] == 'N' || s[k+1] == 'n')) { o += '\n'; k++; continue; }
+            if (s[k] == '\\' && k + 1 < s.size() && s[k+1] == 'h') { o += ' '; k++; continue; }  // hard space
+            o += s[k];
+        }
+        s.swap(o);
+    } else {
+        std::string o; o.reserve(s.size());
+        for (size_t k = 0; k < s.size(); k++) {
+            if (s[k] == '<') { size_t e = s.find('>', k); if (e != std::string::npos) { k = e; continue; } }  // <i>/<b>
+            if (s[k] == '\r') continue;
+            o += s[k];
+        }
+        s.swap(o);
+    }
+    // trim trailing whitespace/newlines
+    while (!s.empty() && (s.back() == '\n' || s.back() == ' ' || s.back() == '\t')) s.pop_back();
+    return s;
+}
+
+struct MkvRawCue { int64_t startNs; int64_t durNs; std::string text; };
+
+// Parse one buffered Cluster in memory: read its Timecode, then each SimpleBlock/BlockGroup for the
+// wanted subtitle track. Emits raw cues (durNs = -1 when the block had no BlockDuration).
+static void mkvParseClusterBuf(const uint8_t* b, size_t n, int64_t tcScale, int wantTrack, bool isAss,
+                               std::vector<MkvRawCue>& raw) {
+    size_t pos = 0; int64_t clusterTC = 0;
+    auto emitBlock = [&](const uint8_t* bd, size_t bn, int64_t durTicks) {
+        size_t o = 0;
+        int64_t trk = memVint(bd, bn, o, false);       // block track number (vint, marker stripped)
+        if (trk != wantTrack || o + 3 > bn) return;
+        int16_t rel = (int16_t)((bd[o] << 8) | bd[o + 1]); o += 2;
+        uint8_t flags = bd[o]; o += 1;
+        if (flags & 0x06) return;                       // laced subtitle block (rare) - skip
+        std::string txt((const char*)bd + o, bn - o);
+        std::string disp = mkvSubToText(txt, isAss);
+        if (disp.empty()) return;
+        int64_t startNs = (clusterTC + rel) * tcScale;
+        int64_t durNs = (durTicks >= 0) ? durTicks * tcScale : -1;
+        raw.push_back({ startNs, durNs, disp });
+    };
+    while (pos < n) {
+        int64_t id = memVint(b, n, pos, true); if (id < 0) break;
+        int64_t sz = memVint(b, n, pos, false); if (sz < 0) break;
+        size_t ds = pos, de = pos + (size_t)sz; if (de > n) de = n;
+        if (id == 0xE7) {                               // Timecode (cluster base, in ticks)
+            int64_t v = 0; for (size_t i = ds; i < de && i < ds + 8; i++) v = (v << 8) | b[i];
+            clusterTC = v;
+        } else if (id == 0xA3) {                        // SimpleBlock
+            emitBlock(b + ds, de - ds, -1);
+        } else if (id == 0xA0) {                        // BlockGroup: Block + BlockDuration
+            size_t p = ds; const uint8_t* blk = nullptr; size_t blkN = 0; int64_t durTicks = -1;
+            while (p < de) {
+                int64_t cid = memVint(b, n, p, true); if (cid < 0) break;
+                int64_t csz = memVint(b, n, p, false); if (csz < 0) break;
+                size_t cs = p, ce = p + (size_t)csz; if (ce > de) ce = de;
+                if (cid == 0xA1) { blk = b + cs; blkN = ce - cs; }
+                else if (cid == 0x9B) { int64_t v = 0; for (size_t i = cs; i < ce && i < cs + 8; i++) v = (v << 8) | b[i]; durTicks = v; }
+                p = ce;
+            }
+            if (blk) emitBlock(blk, blkN, durTicks);
+        }
+        pos = de;
+    }
+}
+
+// Read the subtitle TrackEntries from the Tracks header (fast; header only) + the SegmentInfo
+// TimecodeScale. Returns the segment bounds so the caller can walk clusters without re-finding them.
+static bool mkvReadSubTracks(int fd, int64_t fsize, int64_t& tcScale, int64_t& segStart, int64_t& segEnd,
+                             std::vector<MkvSubTrk>& subs) {
+    tcScale = 1000000;   // default 1ms
+    int64_t pos = 0; segStart = -1; segEnd = fsize;
+    while (pos + 4 < fsize) {
+        int64_t id = ebmlVint(fd, pos, fsize, true); if (id < 0) break;
+        bool unk = false; int64_t size = ebmlVint(fd, pos, fsize, false, &unk); if (size < 0) break;
+        int64_t dStart = pos, dEnd = unk ? fsize : pos + size; if (dEnd > fsize || dEnd < dStart) dEnd = fsize;
+        if (id == 0x18538067) { segStart = dStart; segEnd = dEnd; break; }
+        pos = dEnd;
+    }
+    if (segStart < 0) return false;
+    pos = segStart;
+    for (int guard = 0; guard < 200000 && pos + 4 < segEnd; guard++) {
+        int64_t id = ebmlVint(fd, pos, segEnd, true); if (id < 0) break;
+        bool unk = false; int64_t size = ebmlVint(fd, pos, segEnd, false, &unk); if (size < 0) break;
+        int64_t dStart = pos, dEnd = unk ? segEnd : pos + size; if (dEnd > segEnd || dEnd < dStart) { if (unk) break; dEnd = segEnd; }
+        if (id == 0x1549A966) {                         // SegmentInfo -> TimecodeScale
+            int64_t p = dStart;
+            while (p < dEnd) {
+                int64_t cid = ebmlVint(fd, p, dEnd, true); if (cid < 0) break;
+                int64_t csz = ebmlVint(fd, p, dEnd, false); if (csz < 0) break;
+                int64_t cs = p, ce = p + csz; if (ce > dEnd) ce = dEnd;
+                if (cid == 0x2AD7B1) { int n = (int)(ce - cs); if (n > 8) n = 8; uint8_t bb[8]; uint64_t v = 0;
+                                       if (n > 0 && vidPreadAll(fd, cs, bb, n)) { for (int i = 0; i < n; i++) v = (v << 8) | bb[i]; if (v) tcScale = (int64_t)v; } }
+                p = ce;
+            }
+        } else if (id == 0x1654AE6B) {                  // Tracks -> TrackEntry(s)
+            int64_t p = dStart;
+            while (p < dEnd) {
+                int64_t cid = ebmlVint(fd, p, dEnd, true); if (cid < 0) break;
+                int64_t csz = ebmlVint(fd, p, dEnd, false); if (csz < 0) break;
+                int64_t cs = p, ce = p + csz; if (ce > dEnd) ce = dEnd;
+                if (cid == 0xAE) {                      // TrackEntry
+                    MkvSubTrk t; int type = 0;
+                    int64_t q = cs;
+                    while (q < ce) {
+                        int64_t eid = ebmlVint(fd, q, ce, true); if (eid < 0) break;
+                        int64_t esz = ebmlVint(fd, q, ce, false); if (esz < 0) break;
+                        int64_t es = q, ee = q + esz; if (ee > ce) ee = ce;
+                        if (eid == 0xD7) { uint8_t bb[8]; int nn = (int)(ee - es); if (nn > 8) nn = 8; uint64_t v = 0; if (nn > 0 && vidPreadAll(fd, es, bb, nn)) { for (int i = 0; i < nn; i++) v = (v << 8) | bb[i]; } t.num = (int)v; }
+                        else if (eid == 0x83) { uint8_t bb[8]; int nn = (int)(ee - es); if (nn > 8) nn = 8; uint64_t v = 0; if (nn > 0 && vidPreadAll(fd, es, bb, nn)) { for (int i = 0; i < nn; i++) v = (v << 8) | bb[i]; } type = (int)v; }
+                        else if (eid == 0x86 && esz > 0 && esz < 256) { std::vector<uint8_t> cb(esz); if (vidPreadAll(fd, es, cb.data(), esz)) t.codec.assign((char*)cb.data(), esz); }
+                        else if (eid == 0x536E && esz > 0 && esz < 256) { std::vector<uint8_t> cb(esz); if (vidPreadAll(fd, es, cb.data(), esz)) t.name.assign((char*)cb.data(), esz); }
+                        else if (eid == 0x22B59C && esz > 0 && esz < 32) { std::vector<uint8_t> cb(esz); if (vidPreadAll(fd, es, cb.data(), esz)) t.lang.assign((char*)cb.data(), esz); }
+                        q = ee;
+                    }
+                    if (type == 0x11 && !t.codec.empty()) subs.push_back(std::move(t));   // 0x11 = subtitle
+                }
+                p = ce;
+            }
+        }
+        pos = dEnd;
+        if (segStart >= 0 && !subs.empty() && id == 0x1F43B675) break;   // reached clusters: header done
+    }
+    return true;
+}
+
+// Walk the Clusters (buffered) collecting one subtitle track's cues; fills missing durations from the
+// next cue (capped) so a subtitle stays up a sensible time. Bounded so a huge file cannot hang.
+static void mkvReadSubCues(int fd, int64_t segStart, int64_t segEnd, int64_t tcScale, int trackNum,
+                           bool isAss, std::vector<MkvRawCue>& raw) {
+    int64_t pos = segStart;
+    for (int guard = 0; guard < 500000 && pos + 4 < segEnd; guard++) {
+        int64_t id = ebmlVint(fd, pos, segEnd, true); if (id < 0) break;
+        bool unk = false; int64_t size = ebmlVint(fd, pos, segEnd, false, &unk); if (size < 0) break;
+        int64_t dStart = pos, dEnd = unk ? segEnd : pos + size; if (dEnd > segEnd || dEnd < dStart) dEnd = segEnd;
+        if (id == 0x1F43B675) {                         // Cluster: buffer + parse in memory
+            int64_t clen = dEnd - dStart;
+            if (clen > 0 && clen < 64ll * 1024 * 1024) {
+                std::vector<uint8_t> buf((size_t)clen);
+                if (vidPreadAll(fd, dStart, buf.data(), clen))
+                    mkvParseClusterBuf(buf.data(), buf.size(), tcScale, trackNum, isAss, raw);
+            }
+        }
+        pos = dEnd;
+        if (raw.size() > 50000) break;
+    }
+    std::sort(raw.begin(), raw.end(), [](const MkvRawCue& a, const MkvRawCue& b) { return a.startNs < b.startNs; });
+}
+
 static bool vidParseMkvChapters(int fd, int64_t fsize, std::vector<ChapItem>& out) {
     // Top level: find Segment (0x18538067).
     int64_t pos = 0, segStart = -1, segEnd = fsize;
@@ -1592,6 +1772,90 @@ void NanoMenu::vidParseChapters(const std::string& file) {
     if (tmp.size() > 200) tmp.resize(200);
     for (const ChapItem& c : tmp) { VidChapter v; v.t = c.t; v.title = c.title; mVidChapters.push_back(v); }
     VLOGI("NanoMenu: vidParseChapters %s -> %zu chapters", file.c_str(), mVidChapters.size());
+}
+
+// Add Matroska EMBEDDED text-subtitle tracks (SubRip S_TEXT/UTF8, ASS/SSA) to mVidSubTracks by parsing
+// the container directly - Android's MatroskaExtractor exposes ZERO subtitle tracks so vidBuildTracks's
+// extractor pass never sees them. Header (track list) is cheap; the cluster walk that reads each track's
+// cues is bounded. Called from vidBuildTracks only for MKV/WebM files.
+void NanoMenu::vidReadMkvEmbeddedSubs(const std::string& file) {
+    int fd = ::open(file.c_str(), O_RDONLY);
+    if (fd < 0) return;
+    struct stat st;
+    if (fstat(fd, &st) != 0 || st.st_size <= 16) { ::close(fd); return; }
+    uint8_t magic[4];
+    if (!vidPreadAll(fd, 0, magic, 4) ||
+        !(magic[0] == 0x1A && magic[1] == 0x45 && magic[2] == 0xDF && magic[3] == 0xA3)) { ::close(fd); return; }
+    int64_t tcScale = 1000000, segStart = -1, segEnd = st.st_size;
+    std::vector<MkvSubTrk> subs;
+    if (!mkvReadSubTracks(fd, st.st_size, tcScale, segStart, segEnd, subs) || subs.empty() || segStart < 0) {
+        ::close(fd); return;
+    }
+    ::close(fd);   // only the (cheap) header was needed here; the cue walk happens lazily on selection
+    for (const MkvSubTrk& s : subs) {
+        bool isAss = (s.codec.find("ASS") != std::string::npos) || (s.codec.find("SSA") != std::string::npos);
+        bool isText = isAss || (s.codec.find("UTF8") != std::string::npos) || (s.codec.find("UTF-8") != std::string::npos);
+        if (!isText) continue;   // only text subtitles (skip VobSub/PGS image subs)
+        VidSubTrk t; t.external = false; t.embIdx = -1; t.mkvNum = s.num; t.mkvAss = isAss; t.file = file;
+        std::string nm = !s.name.empty() ? s.name : (!s.lang.empty() && s.lang != "und" ? s.lang : "");
+        if (nm.empty()) { char b[24]; snprintf(b, sizeof(b), "%s %zu", trDyn("Track"), mVidSubTracks.size() + 1); nm = b; }
+        nm += isAss ? "  (ASS)" : "  (SRT)";
+        t.name = nm;
+        // cues left empty -> loaded lazily by vidLoadMkvSubCues on first selection (the full-file cluster
+        // walk must NOT run on the open path or the "Opening..." spinner stalls for seconds).
+        mVidSubTracks.push_back(std::move(t));
+        VLOGI("NanoMenu: MKV embedded sub track %d codec=%s (lazy cues)", s.num, s.codec.c_str());
+    }
+}
+
+// Lazily load one MKV embedded sub track's cues on a DETACHED worker (the cluster walk reads much of the
+// file). The render thread adopts the result via vidPublishMkvSubCues once ready; one load at a time.
+void NanoMenu::vidLoadMkvSubCues(int subIdx) {
+    if (subIdx < 0 || subIdx >= (int)mVidSubTracks.size()) return;
+    const VidSubTrk& tk = mVidSubTracks[subIdx];
+    if (tk.mkvNum < 0 || !tk.cues.empty()) return;                 // not MKV-lazy, or already loaded
+    if (mVidSubLoadBusy.exchange(true, std::memory_order_acq_rel)) return;   // another load in flight
+    std::string file = tk.file; int mkvNum = tk.mkvNum; bool isAss = tk.mkvAss;
+    mVidSubLoadReady.store(false, std::memory_order_release);
+    std::thread([this, file, mkvNum, isAss, subIdx]() {
+        std::vector<VidCue> cues;
+        int fd = ::open(file.c_str(), O_RDONLY);
+        if (fd >= 0) {
+            struct stat st;
+            if (fstat(fd, &st) == 0 && st.st_size > 16) {
+                int64_t tcScale = 1000000, segStart = -1, segEnd = st.st_size;
+                std::vector<MkvSubTrk> subs;
+                if (mkvReadSubTracks(fd, st.st_size, tcScale, segStart, segEnd, subs) && segStart >= 0) {
+                    std::vector<MkvRawCue> raw;
+                    mkvReadSubCues(fd, segStart, segEnd, tcScale, mkvNum, isAss, raw);
+                    for (size_t k = 0; k < raw.size(); k++) {
+                        double start = (double)raw[k].startNs / 1e9, dur;
+                        if (raw[k].durNs >= 0) dur = (double)raw[k].durNs / 1e9;
+                        else { double next = (k + 1 < raw.size()) ? (double)raw[k + 1].startNs / 1e9 : start + 4.0;
+                               dur = next - start; if (dur <= 0.0 || dur > 12.0) dur = 4.0; }
+                        VidCue c; c.t = start; c.d = dur; c.text = raw[k].text; cues.push_back(c);
+                    }
+                }
+            }
+            ::close(fd);
+        }
+        mVidSubLoadCues = std::move(cues);
+        mVidSubLoadIdx = subIdx;
+        mVidSubLoadReady.store(true, std::memory_order_release);   // render thread publishes + clears busy
+    }).detach();
+}
+
+// Render thread: adopt a finished lazy MKV sub-cue load into its track. Called each frame from videoTick.
+void NanoMenu::vidPublishMkvSubCues() {
+    if (!mVidSubLoadReady.load(std::memory_order_acquire)) return;
+    int idx = mVidSubLoadIdx;
+    if (idx >= 0 && idx < (int)mVidSubTracks.size())
+        mVidSubTracks[idx].cues = std::move(mVidSubLoadCues);
+    mVidSubLoadCues.clear();
+    mVidSubLoadReady.store(false, std::memory_order_release);
+    mVidSubLoadBusy.store(false, std::memory_order_release);
+    if (idx >= 0 && idx < (int)mVidSubTracks.size() && mVidSubTracks[idx].cues.empty())
+        vidShowTransient(trDyn("No subtitles found"), 1600.0f);
 }
 
 // Enumerate the file's audio tracks + embedded text-subtitle tracks, then probe for
@@ -1658,6 +1922,10 @@ void NanoMenu::vidBuildTracks(const std::string& file) {
         vidReadEmbeddedCues(file, embSubIdx[s], t.cues);
         if (!t.cues.empty()) mVidSubTracks.push_back(std::move(t));
     }
+    // Matroska embedded subtitles: the platform extractor lists NONE, so demux the container directly
+    // (checks the MKV magic + early-outs for non-MKV). Runs on the open worker; the DBZ-class MKVs carry
+    // ASS + SubRip subtitle tracks the extractor never surfaces.
+    vidReadMkvEmbeddedSubs(file);
     // external sidecars: <basename without ext> + .srt / .vtt
     std::string base = file; size_t dot = base.find_last_of('.');
     if (dot != std::string::npos) base = base.substr(0, dot);
@@ -2118,6 +2386,8 @@ void NanoMenu::vidSpawnOpenWorker() {
 void NanoMenu::vidAdoptOpen() {
     mVidAudioStarted = false;
     mVidPlaying = true;
+    mVidSubLoadBusy.store(false, std::memory_order_release);   // clear any abandoned lazy sub-cue load
+    mVidSubLoadReady.store(false, std::memory_order_release);
     double startPos = 0.0;
     bool prompting = false;
     if (!mVidIsStream) {
@@ -2759,6 +3029,7 @@ void NanoMenu::vidBeginning() {
 
 void NanoMenu::videoTick() {
     vidReapDying();   // free any async-released decoder whose background teardown finished
+    vidPublishMkvSubCues();   // adopt a finished lazy MKV subtitle-cue load (render thread)
     // Deferred open: the worker (which creates the codec) was held in vidBeginOpen until the
     // previous title's codec released the single HW decoder, so the new create cannot race it
     // (second-video-hangs-on-switch). Spawn it now that the decoder is free (vidReapDying above
@@ -3590,6 +3861,8 @@ void NanoMenu::vidSubConfirm() {
                 // Live line-21 captions: turn the demuxer's CEA-608 decode on for this channel
                 // (off for any non-CC track so it stops scanning user_data).
                 if (mVidTsMode) mVidTsDemux.setCea608(t.cea608, t.ccChannel);
+                // MKV embedded track: cues are loaded lazily on first selection (a full-file cluster walk).
+                if (t.mkvNum >= 0 && t.cues.empty()) { vidLoadMkvSubCues(mVidSubCur); vidShowTransient(trDyn("Loading subtitles..."), 2000.0f); }
                 mVidDispMode = std::string(trDyn("Subtitle: ")) + t.name + (t.external ? trDyn(" (External)") : "");
             } else {
                 mVidSubCur = -1; vidDvbFree();
