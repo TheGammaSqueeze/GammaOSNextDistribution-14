@@ -3996,7 +3996,30 @@ if (sRingPrimedCount >= 2) {
         // nano 90 = 180). That is the "touch-launch: game runs but nano is stuck on top rotated an
         // extra 90" bug: while the home instance fades out to hand off, the app has already flipped
         // SF, so nano's fade must render un-rotated (SF supplies the rotation) to stay single.
-        if (property_get_bool("persist.gammaos.rotate.enabled", false)) {
+        // The enable gate is serial-cached like app_launched / show_overlay below:
+        // it is a persist prop that is unset on nearly every device, yet a full
+        // property name lookup for it ran on every frame of every device just to
+        // fall through. Watching the serial makes the common (feature-off) case a
+        // pointer-deref, and a live toggle still lands on the next frame. The four
+        // reads INSIDE the branch are left alone - they only run where the rotate
+        // feature is actually enabled.
+        static const prop_info* sRotPi = nullptr;
+        static uint32_t sRotSer = 0;
+        static bool sRotHave = false;
+        static bool sRotVal = false;
+        if (!sRotPi) sRotPi = __system_property_find("persist.gammaos.rotate.enabled");
+        if (!sRotPi) {
+            sRotHave = false;
+            sRotVal = false;
+        } else {
+            const uint32_t ser = __system_property_serial(sRotPi);
+            if (!sRotHave || ser != sRotSer) {
+                sRotSer = ser;
+                sRotHave = true;
+                sRotVal = property_get_bool("persist.gammaos.rotate.enabled", false);
+            }
+        }
+        if (sRotVal) {
             int physical = 0;
             if (property_get_int32("sys.gammaos.rotate.state", 0) == 1) {
                 const int deg = property_get_int32("persist.gammaos.rotate.degrees", 90);
@@ -4802,10 +4825,60 @@ if (sRingPrimedCount >= 2) {
         // home that GRABS input drives its own sleep via enterDrmSleep, which blocks
         // the render thread itself; a DRM home that does NOT grab input is handled by
         // the sys.screen.state branch below, same as an SF home.)
+        //
+        // sys.screen.state and persist.gammaos.nano.grab_input are both consulted
+        // once per frame and both change at most a couple of times a session, so
+        // they are serial-cached here (the same idiom app_launched / show_overlay
+        // already use above) and re-parsed only when the serial actually advances.
+        // grab_input costs twice over: android::base::GetBoolProperty returns a
+        // std::string BY VALUE, so that gate was a heap allocation as well as a
+        // property name lookup on every frame of the DRM home. property_get_bool
+        // accepts the identical token set (1/y/yes/on/true, 0/n/no/off/false, else
+        // the default), so it reads exactly as it did.
+        //
+        // Both are resolved BEFORE the branch: the two screen-state branches are
+        // mutually exclusive, the reads have no side effects, and the grab_input
+        // value is needed from an `else if` CONDITION, where a function-local
+        // static cannot be declared.
+        static const prop_info* sSsPi = nullptr;
+        static uint32_t sSsSer = 0;
+        static bool sSsHave = false;
+        static bool sSsOff = false;
+        if (!sSsPi) sSsPi = __system_property_find("sys.screen.state");
+        if (!sSsPi) {
+            sSsHave = false;
+            sSsOff = false;          // unset: identical to the "on" default
+        } else {
+            const uint32_t ser = __system_property_serial(sSsPi);
+            if (!sSsHave || ser != sSsSer) {
+                sSsSer = ser;
+                sSsHave = true;
+                char ss[PROPERTY_VALUE_MAX] = {};
+                property_get("sys.screen.state", ss, "on");
+                sSsOff = !strcmp(ss, "off");
+            }
+        }
+        const bool screenOffNow = sSsOff;
+
+        static const prop_info* sGiPi = nullptr;
+        static uint32_t sGiSer = 0;
+        static bool sGiHave = false;
+        static bool sGiVal = false;
+        if (!sGiPi) sGiPi = __system_property_find("persist.gammaos.nano.grab_input");
+        if (!sGiPi) {
+            sGiHave = false;
+            sGiVal = false;
+        } else {
+            const uint32_t ser = __system_property_serial(sGiPi);
+            if (!sGiHave || ser != sGiSer) {
+                sGiSer = ser;
+                sGiHave = true;
+                sGiVal = property_get_bool("persist.gammaos.nano.grab_input", false);
+            }
+        }
+
         if (mOverlayMode) {
-            char ss[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.screen.state", ss, "on");
-            bool screenOff = !strcmp(ss, "off");
+            bool screenOff = screenOffNow;
             // Drop to the powersave governor while the panel is off and restore the
             // user's mode when it returns (the framework drives display standby for the
             // overlay, but not the CPU clocks). Also fully close the home audio: the DSi
@@ -4878,11 +4951,8 @@ if (sRingPrimedCount >= 2) {
         // parked; the framework owns wake and flips sys.screen.state back on. Only a
         // DRM-direct home that GRABS input drives its own sleep via enterDrmSleep (which
         // blocks the render thread itself), so this is gated off there.
-        else if (!sDrmActive ||
-                 !android::base::GetBoolProperty("persist.gammaos.nano.grab_input", false)) {
-            char ss[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.screen.state", ss, "on");
-            bool screenOff = !strcmp(ss, "off");
+        else if (!sDrmActive || !sGiVal) {
+            bool screenOff = screenOffNow;
             static bool sSfPwrSave = false;
             if (screenOff && !sSfPwrSave) {
                 // Fully close nano's home audio behind the dark panel. Stopping the

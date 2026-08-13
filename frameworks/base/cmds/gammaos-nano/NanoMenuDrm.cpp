@@ -1017,24 +1017,56 @@ void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
         return;
     }
     // Rotated paths: scalar per-pixel (rare -- only used if GL rotation fallback).
-    for (uint32_t dy = 0; dy < dstH; dy++) {
-        uint32_t* dstRow = (uint32_t*)(dst + dy * dstPitch);
-        for (uint32_t dx = 0; dx < dstW; dx++) {
-            uint32_t sx, sy;
-            switch (blitRotation) {
-            case 90:  sx = dy; sy = dx; break;
-            case 180: sx = srcW-1-dx; sy = dy; break;
-            case 270: sx = srcW-1-dy; sy = srcH-1-dx; break;
-            default:  sx = dx; sy = srcH-1-dy; break;
+    //
+    // blitRotation is constant for the whole blit, so resolve it ONCE instead of
+    // re-running the switch on each of the ~300k pixels. For the orientations
+    // whose source row depends only on dy (180, and the default that a
+    // non-90/180/270 value would take), the row address and its bounds test
+    // hoist out of the inner loop too, and the destination span is clamped up
+    // front rather than tested per pixel -- an out-of-range sx used to `continue`
+    // and leave that destination pixel untouched, which is exactly what not
+    // visiting it does. Pixel mapping, the wrap-around behaviour of the unsigned
+    // arithmetic and the leave-untouched semantics are all unchanged.
+    if (blitRotation == 90 || blitRotation == 270) {
+        // sy varies with dx here, so the source row genuinely has to be
+        // recomputed per pixel; only the switch comes out of the loop.
+        const bool rot90 = (blitRotation == 90);
+        for (uint32_t dy = 0; dy < dstH; dy++) {
+            uint32_t* dstRow = (uint32_t*)(dst + dy * dstPitch);
+            for (uint32_t dx = 0; dx < dstW; dx++) {
+                const uint32_t sx = rot90 ? dy : (srcW - 1 - dy);
+                const uint32_t sy = rot90 ? dx : (srcH - 1 - dx);
+                if (sx >= srcW || sy >= srcH) continue;
+                const uint32_t* srcRow = (const uint32_t*)((const uint8_t*)ahbPtr
+                                         + sy * ahbStride);
+                uint32_t rgba = srcRow[sx];
+                dstRow[dx] = 0xFF000000u |
+                             ((rgba >> 16) & 0xFFu) |
+                             (rgba & 0xFF00u) |
+                             ((rgba & 0xFFu) << 16);
             }
-            if (sx >= srcW || sy >= srcH) continue;
-            const uint32_t* srcRow = (const uint32_t*)((const uint8_t*)ahbPtr
-                                     + sy * ahbStride);
-            uint32_t rgba = srcRow[sx];
-            dstRow[dx] = 0xFF000000u |
-                         ((rgba >> 16) & 0xFFu) |
-                         (rgba & 0xFF00u) |
-                         ((rgba & 0xFFu) << 16);
+        }
+        return;
+    }
+    const uint32_t rotCopyW = std::min(srcW, dstW);
+    for (uint32_t dy = 0; dy < dstH; dy++) {
+        const uint32_t sy = (blitRotation == 180) ? dy : (srcH - 1 - dy);
+        if (sy >= srcH) continue;
+        uint32_t* dstRow = (uint32_t*)(dst + dy * dstPitch);
+        const uint32_t* srcRow = (const uint32_t*)((const uint8_t*)ahbPtr
+                                 + sy * ahbStride);
+        if (blitRotation == 180) {
+            for (uint32_t dx = 0; dx < rotCopyW; dx++) {
+                uint32_t rgba = srcRow[srcW - 1 - dx];
+                dstRow[dx] = 0xFF000000u |
+                             ((rgba >> 16) & 0xFFu) |
+                             (rgba & 0xFF00u) |
+                             ((rgba & 0xFFu) << 16);
+            }
+        } else {
+            // sx == dx: a straight row copy, so this is exactly what the NEON
+            // helper above does -- reuse it rather than re-walking pixel by pixel.
+            blitRowRgbaToXrgbNeon(srcRow, dstRow, rotCopyW);
         }
     }
 }
@@ -1487,7 +1519,10 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         // Rate-limit slow-flip logging to once per second so a burst
         // does not flood logcat. Periodic samples always emit.
         static int64_t sLastSlowLogMs = 0;
-        int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        // Derived from tEnd (already microseconds) instead of a second
+        // systemTime() read: this ran on every flip purely to rate-limit a
+        // log line, and the two reads are the same instant for that purpose.
+        int64_t nowMs = tEnd / 1000LL;
         bool logSlow = (tot > 10000) &&
                        (nowMs - sLastSlowLogMs >= 1000);
         if (periodic || logSlow) {
