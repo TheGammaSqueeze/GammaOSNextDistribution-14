@@ -614,8 +614,10 @@ bool setupDisplay(Display* out) {
     // give up and fall back to SurfaceFlinger, which strands offscreen on a
     // DRM-direct panel and would leave the user on a dead home.
     android::drmEarlySplash();
+    const int64_t retryDeadline = android::elapsedRealtimeNano() + 3000000000LL;
     for (int tries = 0;
-         (!android::sDrmActive || android::sDrmDisplays.empty()) && tries < 30;
+         (!android::sDrmActive || android::sDrmDisplays.empty()) &&
+         tries < 30 && android::elapsedRealtimeNano() < retryDeadline;
          tries++) {
         usleep(100 * 1000);   // 100 ms per attempt, up to ~3s total
         android::drmEarlySplash();
@@ -632,10 +634,26 @@ bool setupDisplay(Display* out) {
     ALOGI("drastic-nano: primary %dx%d", out->width, out->height);
 
     out->eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    auto failEgl = [&]() -> bool {
+        if (out->eglDpy != EGL_NO_DISPLAY) {
+            eglMakeCurrent(out->eglDpy, EGL_NO_SURFACE, EGL_NO_SURFACE,
+                           EGL_NO_CONTEXT);
+            if (out->eglSurf != EGL_NO_SURFACE)
+                eglDestroySurface(out->eglDpy, out->eglSurf);
+            if (out->eglCtx != EGL_NO_CONTEXT)
+                eglDestroyContext(out->eglDpy, out->eglCtx);
+            eglTerminate(out->eglDpy);
+        }
+        android::drmReleaseEarly();
+        out->eglDpy = EGL_NO_DISPLAY;
+        out->eglCtx = EGL_NO_CONTEXT;
+        out->eglSurf = EGL_NO_SURFACE;
+        return false;
+    };
     if (out->eglDpy == EGL_NO_DISPLAY ||
         !eglInitialize(out->eglDpy, nullptr, nullptr)) {
         ALOGE("drastic-nano: eglInitialize failed: 0x%x", eglGetError());
-        return false;
+        return failEgl();
     }
 
     EGLConfig cfg = android::getEglConfig(out->eglDpy);
@@ -648,7 +666,7 @@ bool setupDisplay(Display* out) {
     if (out->eglSurf == EGL_NO_SURFACE) {
         ALOGE("drastic-nano: eglCreatePbufferSurface failed: 0x%x",
               eglGetError());
-        return false;
+        return failEgl();
     }
 
     EGLint ctxAttrs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
@@ -656,17 +674,27 @@ bool setupDisplay(Display* out) {
                                    ctxAttrs);
     if (out->eglCtx == EGL_NO_CONTEXT) {
         ALOGE("drastic-nano: eglCreateContext failed: 0x%x", eglGetError());
-        return false;
+        return failEgl();
     }
     if (!eglMakeCurrent(out->eglDpy, out->eglSurf, out->eglSurf,
                         out->eglCtx)) {
         ALOGE("drastic-nano: eglMakeCurrent failed: 0x%x", eglGetError());
-        return false;
+        return failEgl();
     }
 
     android::drmSetupZeroCopy(out->eglDpy);
     if (!android::sDrmZeroCopy) {
         ALOGE("drastic-nano: DRM zero-copy setup failed; no AHB path");
+        // drmSetupZeroCopy ran with this pbuffer current. Release its AHB/DRM
+        // state before the caller constructs the SurfaceFlinger fallback.
+        android::drmStop();
+        eglMakeCurrent(out->eglDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        eglDestroySurface(out->eglDpy, out->eglSurf);
+        eglDestroyContext(out->eglDpy, out->eglCtx);
+        eglTerminate(out->eglDpy);
+        out->eglDpy = EGL_NO_DISPLAY;
+        out->eglCtx = EGL_NO_CONTEXT;
+        out->eglSurf = EGL_NO_SURFACE;
         return false;
     }
 

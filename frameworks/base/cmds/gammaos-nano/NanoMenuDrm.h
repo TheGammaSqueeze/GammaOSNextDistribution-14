@@ -187,7 +187,6 @@ extern int sRingPrimedCount;
 #define sAhbTargetSecondary  (sAhbRingSecondary[sRingRenderIdx])
 
 extern int sDrmPrimaryIdx;
-extern int64_t sDrmRescanDeadlineNs;
 
 // ---------------------------------------------------------------------------
 // DRM function declarations
@@ -201,7 +200,6 @@ int drmCrtcSlot(uint32_t crtcId);
 void drmPaceWithoutVsync();
 bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out);
 bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage);
-void drmRescanDisplays();
 void drmEarlySplash(int existingFd = -1);
 // Tear down everything drmEarlySplash() set up: RMFB the dumb buffer fb_ids,
 // DROP_MASTER, close the DRM fd, clear sDrmActive/sDrmDisplays/sDrmZeroCopy,
@@ -212,7 +210,7 @@ void drmEarlySplash(int existingFd = -1);
 void drmReleaseEarly();
 bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
                         AhbRenderTarget* target, const char* label);
-void drmSetupZeroCopy(EGLDisplay eglDpy);
+bool drmSetupZeroCopy(EGLDisplay eglDpy);
 void drmBindNextFbo();
 void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
                          uint32_t srcW, uint32_t srcH,

@@ -738,6 +738,8 @@ status_t NanoMenu::readyToRun() {
                   "device (config=%p surface=%p context=%p) - releasing DRM "
                   "master and falling back to SurfaceFlinger window-surface path",
                   (void*)config, (void*)surface, (void*)context);
+            if (display != EGL_NO_DISPLAY)
+                eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
             if (surface != EGL_NO_SURFACE) eglDestroySurface(display, surface);
             if (context != EGL_NO_CONTEXT) eglDestroyContext(display, context);
             if (display != EGL_NO_DISPLAY) eglTerminate(display);
@@ -745,39 +747,61 @@ status_t NanoMenu::readyToRun() {
             mDrmBootPath = false;
             // Falls through to the if (!sDrmActive) SF block below.
         } else {
-            if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
-                return NO_INIT;
+            if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+                ALOGW("NanoMenu: DRM-direct pbuffer eglMakeCurrent failed; "
+                      "releasing DRM and falling back to SurfaceFlinger");
+                eglDestroySurface(display, surface);
+                eglDestroyContext(display, context);
+                eglTerminate(display);
+                drmReleaseEarly();
+                mDrmBootPath = false;
+            } else {
 
-            mDisplay = display; mContext = context; mSurface = surface;
-            mFlingerSurfaceControl = nullptr; mFlingerSurface = nullptr;
+                mDisplay = display; mContext = context; mSurface = surface;
+                mFlingerSurfaceControl = nullptr; mFlingerSurface = nullptr;
 
-            ALOGD("NanoMenu: DRM boot path %dx%d (headless EGL, no SF)", mWidth, mHeight);
-            tlog("headless EGL init");
+                ALOGD("NanoMenu: DRM boot path %dx%d (headless EGL, no SF)", mWidth, mHeight);
+                tlog("headless EGL init");
 
-            property_set("sys.gammaos.nano.menu_active", "1");
-            {
-                char lastApp[PROPERTY_VALUE_MAX] = {};
-                property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
-                if (lastApp[0] != '\0') {
-                    property_set("sys.gammaos.nano.kill_pkg", lastApp);
-                    ALOGD("NanoMenu: signaled framework to kill: %s", lastApp);
-                    property_set("sys.gammaos.nano.launched_pkg", "");
+                property_set("sys.gammaos.nano.menu_active", "1");
+                {
+                    char lastApp[PROPERTY_VALUE_MAX] = {};
+                    property_get("sys.gammaos.nano.launched_pkg", lastApp, "");
+                    if (lastApp[0] != '\0') {
+                        property_set("sys.gammaos.nano.kill_pkg", lastApp);
+                        ALOGD("NanoMenu: signaled framework to kill: %s", lastApp);
+                        property_set("sys.gammaos.nano.launched_pkg", "");
+                    }
+                }
+
+                if (!drmSetupZeroCopy(display)) {
+                    ALOGW("NanoMenu: DRM AHB setup failed; releasing DRM and "
+                          "falling back to SurfaceFlinger window-surface path");
+                    // Never leave the 16x16 pbuffer as a present target.
+                    drmStop();
+                    eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+                    eglDestroySurface(display, surface);
+                    eglDestroyContext(display, context);
+                    eglTerminate(display);
+                    mDisplay = EGL_NO_DISPLAY;
+                    mContext = EGL_NO_CONTEXT;
+                    mSurface = EGL_NO_SURFACE;
+                    mDrmBootPath = false;
+                } else {
+                    {
+                        char buf[PROPERTY_VALUE_MAX];
+                        snprintf(buf, sizeof(buf), "zc%d_ahbW%u_ahbH%u_fbo%u",
+                                 sDrmZeroCopy ? 1 : 0,
+                                 sDrmZeroCopy ? sAhbRingPrimary[0].w : 0,
+                                 sDrmZeroCopy ? sAhbRingPrimary[0].h : 0,
+                                 sDrmZeroCopy ? sAhbRingPrimary[0].glFbo : 0);
+                        property_set("sys.gammaos.nano.drm_zc", buf);
+                    }
+
+                    // DRM zero-copy rendering active - no SF needed.
+                    tlog("DRM zero-copy setup");
                 }
             }
-
-            drmSetupZeroCopy(display);
-            {
-                char buf[PROPERTY_VALUE_MAX];
-                snprintf(buf, sizeof(buf), "zc%d_ahbW%u_ahbH%u_fbo%u",
-                         sDrmZeroCopy ? 1 : 0,
-                         sDrmZeroCopy ? sAhbRingPrimary[0].w : 0,
-                         sDrmZeroCopy ? sAhbRingPrimary[0].h : 0,
-                         sDrmZeroCopy ? sAhbRingPrimary[0].glFbo : 0);
-                property_set("sys.gammaos.nano.drm_zc", buf);
-            }
-
-            // DRM zero-copy rendering active - no SF needed.
-            tlog("DRM zero-copy setup");
         }
     }
     if (!sDrmActive) {
@@ -5161,10 +5185,6 @@ if (sRingPrimedCount >= 2) {
                 }
             }
 
-            // GammaOS: Late-display re-probe. Any DRM CRTC that wasn't ready at
-            // splash time gets a second chance here. Bounded to a 5-second boot
-            // window by drmRescanDisplays itself. No-op post-boot (sDrmFd = -1).
-            drmRescanDisplays();
             // GammaOS Nano: Keep the surface's layer stack in sync with the
             // chosen display. SurfaceFlinger's initial layerStack for the display
             // can change once DisplayManagerService finishes assigning logical

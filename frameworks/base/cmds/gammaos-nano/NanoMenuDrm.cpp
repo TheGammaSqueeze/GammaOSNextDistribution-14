@@ -17,6 +17,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include <algorithm>
+#include <functional>
 #include <vector>
 #include <fcntl.h>
 #include <unistd.h>
@@ -99,7 +100,6 @@ int sRingPresentIdx = 0;
 int sRingPrimedCount = 0;
 
 int sDrmPrimaryIdx = 0;
-int64_t sDrmRescanDeadlineNs = 0;
 
 // ---------------------------------------------------------------------------
 // EGL setup
@@ -161,9 +161,23 @@ void drmPaceWithoutVsync() {
 // DRM buffer and display setup
 // ---------------------------------------------------------------------------
 
-// Create and map a double-buffered dumb buffer pair for a DRM CRTC. Shared
-// by drmEarlySplash (first-pass enumeration) and drmRescanDisplays (late
-// re-probe for displays that weren't ready at splash time).
+static void drmReleaseDumbBuffer(int fd, DrmBuffer* buffer) {
+    if (buffer->fbId) {
+        uint32_t fbId = buffer->fbId;
+        ioctl(fd, DRM_IOCTL_MODE_RMFB, &fbId);
+    }
+    if (buffer->mapped && buffer->size) {
+        munmap(buffer->mapped, buffer->size);
+    }
+    if (buffer->handle) {
+        struct drm_gem_close gc = {};
+        gc.handle = buffer->handle;
+        ioctl(fd, DRM_IOCTL_GEM_CLOSE, &gc);
+    }
+    *buffer = {};
+}
+
+// Create and map a double-buffered dumb buffer pair for a DRM CRTC.
 bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
     struct drm_mode_create_dumb create = {};
     create.width = w; create.height = h; create.bpp = 32;
@@ -171,11 +185,21 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
 
     struct drm_mode_map_dumb mapReq = {};
     mapReq.handle = create.handle;
-    if (ioctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &mapReq) != 0) return false;
+    if (ioctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &mapReq) != 0) {
+        struct drm_gem_close gc = {};
+        gc.handle = create.handle;
+        ioctl(fd, DRM_IOCTL_GEM_CLOSE, &gc);
+        return false;
+    }
 
     void* mapped = mmap(nullptr, create.size, PROT_READ | PROT_WRITE,
                        MAP_SHARED, fd, mapReq.offset);
-    if (mapped == MAP_FAILED) return false;
+    if (mapped == MAP_FAILED) {
+        struct drm_gem_close gc = {};
+        gc.handle = create.handle;
+        ioctl(fd, DRM_IOCTL_GEM_CLOSE, &gc);
+        return false;
+    }
 
     // Fill with dark background so the display isn't garbage on first scanout
     uint32_t* px = (uint32_t*)mapped;
@@ -186,7 +210,11 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
     fbCmd.pitch = create.pitch; fbCmd.bpp = 32; fbCmd.depth = 24;
     fbCmd.handle = create.handle;
     if (ioctl(fd, DRM_IOCTL_MODE_ADDFB, &fbCmd) != 0) {
-        munmap(mapped, create.size); return false;
+        munmap(mapped, create.size);
+        struct drm_gem_close gc = {};
+        gc.handle = create.handle;
+        ioctl(fd, DRM_IOCTL_GEM_CLOSE, &gc);
+        return false;
     }
     out->handle = create.handle;
     out->fbId = fbCmd.fb_id;
@@ -281,14 +309,118 @@ static int drmAtomicModesetFallback(int fd, uint32_t crtcId, uint32_t connId,
     atomic.props_ptr = (uint64_t)(uintptr_t)aprops;
     atomic.prop_values_ptr = (uint64_t)(uintptr_t)values;
 
-    return ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+    int ret = ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+    if (blob.blob_id != 0) {
+        struct drm_mode_destroy_blob destroy = {};
+        destroy.blob_id = blob.blob_id;
+        ioctl(fd, DRM_IOCTL_MODE_DESTROYPROPBLOB, &destroy);
+    }
+    return ret;
+}
+
+struct DrmConnectorInfo {
+    uint32_t id;
+    uint32_t possibleCrtcs;
+    bool connected;
+};
+
+static bool drmReadConnectorInfo(int fd, uint32_t connectorId,
+                                 DrmConnectorInfo* out) {
+    struct drm_mode_get_connector conn = {};
+    conn.connector_id = connectorId;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn) != 0) return false;
+
+    out->id = connectorId;
+    // Fixed DSI panels can report UNKNOWN while their mode is already usable;
+    // only an explicit DISCONNECTED state excludes the connector.
+    out->connected = (conn.connection != 2 /* disconnected */);
+    out->possibleCrtcs = 0;
+    if (conn.count_encoders == 0) return false;
+
+    std::vector<uint32_t> encoderIds(conn.count_encoders);
+    struct drm_mode_get_connector conn2 = {};
+    conn2.connector_id = connectorId;
+    conn2.count_encoders = conn.count_encoders;
+    conn2.encoders_ptr = (uint64_t)(uintptr_t)encoderIds.data();
+    if (ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn2) != 0) return false;
+
+    for (uint32_t encoderId : encoderIds) {
+        struct drm_mode_get_encoder encoder = {};
+        encoder.encoder_id = encoderId;
+        if (ioctl(fd, DRM_IOCTL_MODE_GETENCODER, &encoder) == 0) {
+            out->possibleCrtcs |= encoder.possible_crtcs;
+        }
+    }
+    return out->possibleCrtcs != 0;
+}
+
+// Resolve connector/CRTC pairs through the encoder possible_crtcs masks. The
+// DRM resource arrays are not parallel arrays; keeping this mapping explicit
+// also prevents a late CRTC from changing the primary display's slot.
+static void drmResolveConnectorMap(int fd, const std::vector<uint32_t>& connectors,
+                                   uint32_t crtcCount,
+                                   const std::vector<uint32_t>& reserved,
+                                   std::vector<uint32_t>* out) {
+    std::vector<DrmConnectorInfo> infos;
+    for (uint32_t connectorId : connectors) {
+        DrmConnectorInfo info = {};
+        if (drmReadConnectorInfo(fd, connectorId, &info) && info.connected) {
+            infos.push_back(info);
+        }
+    }
+
+    out->assign(crtcCount, 0);
+    std::vector<uint32_t> current(crtcCount, 0);
+    std::vector<uint32_t> best(crtcCount, 0);
+    std::vector<bool> used(infos.size(), false);
+    for (size_t i = 0; i < infos.size(); i++) {
+        used[i] = std::find(reserved.begin(), reserved.end(), infos[i].id) != reserved.end();
+    }
+    int bestCount = -1;
+    std::function<void(uint32_t, int)> assign = [&](uint32_t crtcIndex, int count) {
+        if (crtcIndex == crtcCount) {
+            if (count > bestCount) {
+                bestCount = count;
+                best = current;
+            }
+            return;
+        }
+
+        // Leave this CRTC unmatched when its connector is not ready yet.
+        assign(crtcIndex + 1, count);
+        for (size_t i = 0; i < infos.size(); i++) {
+            if (used[i] || (infos[i].possibleCrtcs != 0 &&
+                            crtcIndex < 32 &&
+                            !(infos[i].possibleCrtcs & (1u << crtcIndex)))) {
+                continue;
+            }
+            used[i] = true;
+            current[crtcIndex] = infos[i].id;
+            assign(crtcIndex + 1, count + 1);
+            current[crtcIndex] = 0;
+            used[i] = false;
+        }
+    };
+    assign(0, 0);
+    *out = best;
+}
+
+static bool drmDisplayModeReady(int fd, uint32_t crtcId, uint32_t connId) {
+    struct drm_mode_crtc crtc = {};
+    crtc.crtc_id = crtcId;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETCRTC, &crtc) == 0 && crtc.mode_valid) return true;
+
+    struct drm_mode_get_connector conn = {};
+    conn.connector_id = connId;
+    return ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn) == 0 &&
+            conn.count_modes > 0 && conn.connection != 2 /* disconnected */;
 }
 
 // Try to bring up a single DRM CRTC with the given connector. Returns true
-// if the CRTC was added to sDrmDisplays. Non-blocking: if the mode is not
-// valid (display not ready), returns false immediately -- caller can retry
-// later via drmRescanDisplays().
+// if the CRTC was added to sDrmDisplays. If the mode is not valid (display not
+// ready), returns false so the bounded startup handshake can retry it.
 bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage) {
+    if (connId == 0) return false;
     struct drm_mode_crtc crtc = {};
     crtc.crtc_id = crtcId;
     ioctl(fd, DRM_IOCTL_MODE_GETCRTC, &crtc);
@@ -299,7 +431,7 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
         struct drm_mode_get_connector conn = {};
         conn.connector_id = connId;
         if (ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &conn) == 0 &&
-            conn.count_modes > 0 && conn.connection == 1 /* connected */) {
+            conn.count_modes > 0 && conn.connection != 2 /* disconnected */) {
             std::vector<struct drm_mode_modeinfo> modes(conn.count_modes);
             struct drm_mode_get_connector conn2 = {};
             conn2.connector_id = connId;
@@ -322,7 +454,7 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
     DrmBuffer buf0, buf1;
     if (!drmCreateDumbBuffer(fd, w, h, &buf0)) return false;
     if (!drmCreateDumbBuffer(fd, w, h, &buf1)) {
-        munmap(buf0.mapped, buf0.size);
+        drmReleaseDumbBuffer(fd, &buf0);
         return false;
     }
 
@@ -358,8 +490,8 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
     }
 
     if (ret != 0) {
-        munmap(buf0.mapped, buf0.size);
-        munmap(buf1.mapped, buf1.size);
+        drmReleaseDumbBuffer(fd, &buf0);
+        drmReleaseDumbBuffer(fd, &buf1);
         return false;
     }
 
@@ -374,54 +506,6 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
     return true;
 }
 
-// Re-probe DRM CRTCs that weren't ready at drmEarlySplash() time. Called
-// periodically from the main loop so a slow-to-come-up display can be
-// brought in without blocking the fast path. Bounded by sDrmRescanDeadlineNs
-// so we stop burning ioctls after the boot window.
-void drmRescanDisplays() {
-    if (sDrmFd < 0) return;
-    if (sDrmRescanDeadlineNs == 0) return;
-    if (systemTime(SYSTEM_TIME_MONOTONIC) > sDrmRescanDeadlineNs) {
-        sDrmRescanDeadlineNs = 0; // disable further scans
-        return;
-    }
-
-    struct drm_mode_card_res res = {};
-    if (ioctl(sDrmFd, DRM_IOCTL_MODE_GETRESOURCES, &res) != 0 || res.count_crtcs == 0) {
-        return;
-    }
-    uint32_t numCrtcs = res.count_crtcs, numConns = res.count_connectors;
-    std::vector<uint32_t> crtcs(numCrtcs), connectors(numConns);
-    struct drm_mode_card_res res2 = {};
-    res2.count_crtcs = numCrtcs;
-    res2.count_connectors = numConns;
-    res2.crtc_id_ptr = (uint64_t)(uintptr_t)crtcs.data();
-    res2.connector_id_ptr = (uint64_t)(uintptr_t)connectors.data();
-    if (ioctl(sDrmFd, DRM_IOCTL_MODE_GETRESOURCES, &res2) != 0) return;
-
-    for (uint32_t c = 0; c < numCrtcs && c < 2; c++) {
-        // Skip CRTCs already in our display list.
-        bool already = false;
-        for (const auto& d : sDrmDisplays) {
-            if (d.crtcId == crtcs[c]) { already = true; break; }
-        }
-        if (already) continue;
-
-        uint32_t connId = (c < numConns) ? connectors[c] : 0;
-        if (drmTryAddDisplay(sDrmFd, crtcs[c], connId, "rescan")) {
-            ALOGW("NanoMenu DRM rescan: brought up late CRTC %u (now %zu displays)",
-                  crtcs[c], sDrmDisplays.size());
-            // A new display came up. We don't re-allocate the secondary AHB
-            // here because the GL context for AHB allocation lives on the
-            // render thread and drmRescanDisplays is called from the main
-            // loop, which IS the render thread -- but drmSetupZeroCopy uses
-            // the EGL display. The simplest behavior: leave AHB setup alone.
-            // The new display will mirror the primary (sAhbTarget) via the
-            // fallback path in drmFlipAll. Good enough for the edge case.
-        }
-    }
-}
-
 // Tear down everything drmEarlySplash() set up: RMFB the dumb buffer fb_ids,
 // GEM_CLOSE the handles, munmap the mappings, DROP_MASTER, close the DRM fd,
 // clear sDrmActive / sDrmDisplays / sDrmZeroCopy, and publish
@@ -432,20 +516,9 @@ void drmRescanDisplays() {
 // window-surface fallback path can take over without leaking master.
 void drmReleaseEarly() {
     if (sDrmFd >= 0) {
-        for (const auto& d : sDrmDisplays) {
+        for (auto& d : sDrmDisplays) {
             for (int b = 0; b < 2; b++) {
-                if (d.buffers[b].fbId) {
-                    uint32_t fbId = d.buffers[b].fbId;
-                    ioctl(sDrmFd, DRM_IOCTL_MODE_RMFB, &fbId);
-                }
-                if (d.buffers[b].mapped && d.buffers[b].size) {
-                    munmap(d.buffers[b].mapped, d.buffers[b].size);
-                }
-                if (d.buffers[b].handle) {
-                    struct drm_gem_close gc = {};
-                    gc.handle = d.buffers[b].handle;
-                    ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc);
-                }
+                drmReleaseDumbBuffer(sDrmFd, &d.buffers[b]);
             }
         }
         ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
@@ -455,10 +528,84 @@ void drmReleaseEarly() {
     sDrmDisplays.clear();
     sDrmActive = false;
     sDrmZeroCopy = false;
-    sDrmRescanDeadlineNs = 0;
+    sDrmGlRotation = false;
+    sDrmYFlipForPrime = false;
+    sDrmPrimaryIdx = 0;
+    sCrtcTrackCount = 0;
+    memset(sCrtcIds, 0, sizeof(sCrtcIds));
+    memset(sCrtcPending, 0, sizeof(sCrtcPending));
+    sPendingFlipEvents = 0;
     property_set("sys.gammaos.nano.drm_active", "0");
     ALOGW("NanoMenu DRM: released master and torn down dumb buffers, "
           "falling back to SurfaceFlinger window-surface path");
+}
+
+// Force a real off->on cycle on every committed CRTC so the panel driver
+// re-runs its unprepare/prepare (and therefore the panel's DCS init sequence).
+//
+// Why this is needed on RG DS: the bootloader lights both DSI panels for its
+// logo and hands them over already on (see "Freeing drm_logo memory" in dmesg).
+// The mode nano commits at drmTryAddDisplay() time is the mode already
+// programmed, so the kernel takes the no-modeset fast path -- it attaches our
+// plane but never re-enables the encoder/panel. Whatever horizontal start the
+// bootloader left in the panel's own registers therefore survives into Android,
+// and one panel scans out shifted. A suspend/resume (closing the RG DS lid)
+// fixes it permanently because the kernel disables and re-enables the CRTCs
+// across sleep, which does run the panel init sequence. This reproduces that
+// one step at startup, with the backlight not yet raised, so the panel comes up
+// correct without the user having to close the lid.
+//
+// Deliberately NOT part of drmResumeRecommit(): after a real suspend the kernel
+// has already re-initialised the panels, and an extra disable there would just
+// add a visible blink to every wake.
+//
+// Returns false if a CRTC could not be brought back up, in which case the
+// caller releases DRM and falls back to SurfaceFlinger rather than leaving a
+// panel dark.
+static bool drmForcePanelReinit() {
+    for (auto& d : sDrmDisplays) {
+        // Disable: legacy SETCRTC with no mode, no fb and no connectors is the
+        // DRM ABI's "turn this CRTC off", and drives the full
+        // atomic_disable -> encoder disable -> panel unprepare chain.
+        struct drm_mode_crtc off = {};
+        off.crtc_id = d.crtcId;
+        off.mode_valid = 0;
+        int offRc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &off);
+        if (offRc != 0) {
+            // Nothing was torn down, so the panel is still in its handover
+            // state -- no worse than not having tried. Keep the display.
+            ALOGW("NanoMenu DRM panel reinit: crtc %u disable failed (%s), "
+                  "leaving panel as the bootloader left it",
+                  d.crtcId, strerror(errno));
+            continue;
+        }
+
+        // Let the panel's power-off sequencing settle before driving it back
+        // up. The panel driver owns its own delays; this is just slack.
+        usleep(50 * 1000);
+
+        struct drm_mode_crtc on = {};
+        on.crtc_id = d.crtcId;
+        on.fb_id = d.buffers[d.activeBuffer].fbId;
+        on.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
+        on.count_connectors = 1;
+        on.mode = d.mode;
+        on.mode_valid = 1;
+        int onRc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &on);
+        if (onRc != 0 && errno == EINVAL) {
+            onRc = drmAtomicModesetFallback(sDrmFd, d.crtcId, d.connId, d.mode,
+                                            on.fb_id, d.w, d.h);
+        }
+        if (onRc != 0) {
+            ALOGE("NanoMenu DRM panel reinit: crtc %u re-enable FAILED (%s) -- "
+                  "cannot leave a dark panel, abandoning the direct path",
+                  d.crtcId, strerror(errno));
+            return false;
+        }
+        ALOGW("NanoMenu DRM panel reinit: crtc %u conn %u off/on OK (fb %u)",
+              d.crtcId, d.connId, on.fb_id);
+    }
+    return true;
 }
 
 void drmEarlySplash(int existingFd) {
@@ -487,40 +634,150 @@ void drmEarlySplash(int existingFd) {
     if (ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res2) != 0) { close(fd); return; }
 
     sDrmFd = fd;
+    // Nano owns DRM while the panel set is being resolved. Keep SurfaceFlinger
+    // from presenting into that ownership window; drmReleaseEarly() clears it
+    // on every failure path below. sDrmActive remains the committed state.
+    property_set("sys.gammaos.nano.drm_active", "1");
 
-    // Enumerate CRTCs independently -- a slow display does NOT hold back a
-    // fast one. Any CRTC that isn't ready here is retried by drmRescanDisplays().
-    int attempted = 0, addedCount = 0;
-    for (uint32_t c = 0; c < numCrtcs && c < 2; c++) {
-        attempted++;
-        uint32_t connId = (c < numConns) ? connectors[c] : 0;
-        if (drmTryAddDisplay(fd, crtcs[c], connId, "splash")) addedCount++;
-    }
-    sDrmActive = !sDrmDisplays.empty();
-    if (!sDrmActive && sDrmFd >= 0) {
-        // No displays added - release DRM master so HWC can use it.
-        ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
-        close(sDrmFd);
-        sDrmFd = -1;
-        ALOGW("NanoMenu DRM splash: no displays, released DRM master");
-    }
-    property_set("sys.gammaos.nano.drm_active", sDrmActive ? "1" : "0");
-    if (sDrmActive) {
-        ALOGW("NanoMenu DRM splash: %d/%d CRTCs active for direct rendering",
-              addedCount, attempted);
+    char primaryProp[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.primary_display", primaryProp, "0");
+    const bool dualProbe = numCrtcs >= 2 &&
+            (numConns >= 1 || atoi(primaryProp) > 0);
+    std::vector<uint32_t> initialConnectorMap;
+    drmResolveConnectorMap(fd, connectors, std::min(numCrtcs, 2u),
+                           std::vector<uint32_t>(),
+                           &initialConnectorMap);
+    int initiallyResolved = 0;
+    for (uint32_t connId : initialConnectorMap) if (connId != 0) initiallyResolved++;
+    const bool dualExpected = dualProbe &&
+            (atoi(primaryProp) > 0 || initiallyResolved >= 2);
+    int attempted = 0;
+    const int64_t readyDeadline =
+            systemTime(SYSTEM_TIME_MONOTONIC) + (dualProbe ? 1500000000LL : 0);
+
+    // Connector resources can appear a little after the first GETRESOURCES
+    // call. Re-read the complete resource set only inside this startup gate;
+    // after the display set is committed it must remain fixed for the lifetime
+    // of the AHB/DRM session.
+    auto refreshResources = [&]() -> bool {
+        struct drm_mode_card_res current = {};
+        if (ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &current) != 0 ||
+            current.count_crtcs == 0) {
+            return false;
+        }
+        numCrtcs = current.count_crtcs;
+        numConns = current.count_connectors;
+        crtcs.assign(numCrtcs, 0);
+        connectors.assign(numConns, 0);
+        struct drm_mode_card_res current2 = {};
+        current2.count_crtcs = numCrtcs;
+        current2.count_connectors = numConns;
+        current2.crtc_id_ptr = (uint64_t)(uintptr_t)crtcs.data();
+        current2.connector_id_ptr = (uint64_t)(uintptr_t)connectors.data();
+        return ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &current2) == 0;
+    };
+
+    // Resolve and commit the complete DRM display set while the ownership gate
+    // is held. A dual panel may expose its second connector shortly after the
+    // first; only this DRM-only retry window is allowed to wait.
+    do {
+        if (!refreshResources()) {
+            if (!dualProbe || systemTime(SYSTEM_TIME_MONOTONIC) >= readyDeadline) {
+                break;
+            }
+            usleep(20000);
+            continue;
+        }
+        const uint32_t crtcLimit = std::min(numCrtcs, 2u);
+        std::vector<uint32_t> reserved;
+        for (const auto& d : sDrmDisplays) reserved.push_back(d.connId);
+        std::vector<uint32_t> connectorMap;
+        drmResolveConnectorMap(fd, connectors, crtcLimit, reserved, &connectorMap);
+        const bool timedOut = systemTime(SYSTEM_TIME_MONOTONIC) >= readyDeadline;
+        bool commitReady = !dualProbe || timedOut;
+        if (dualProbe && !timedOut) {
+            for (uint32_t c = 0; c < crtcLimit; c++) {
+                bool already = false;
+                for (const auto& d : sDrmDisplays) {
+                    if (d.crtcId == crtcs[c]) { already = true; break; }
+                }
+                if (!already && (connectorMap[c] == 0 ||
+                                 !drmDisplayModeReady(fd, crtcs[c], connectorMap[c]))) {
+                    commitReady = false;
+                    break;
+                }
+            }
+        }
+        if (commitReady) {
+            for (uint32_t c = 0; c < crtcLimit; c++) {
+                bool already = false;
+                for (const auto& d : sDrmDisplays) {
+                    if (d.crtcId == crtcs[c]) { already = true; break; }
+                }
+                if (already || connectorMap[c] == 0) continue;
+                attempted++;
+                drmTryAddDisplay(fd, crtcs[c], connectorMap[c], "splash");
+            }
+        }
+        if (!dualProbe || sDrmDisplays.size() >= 2) break;
+        if (systemTime(SYSTEM_TIME_MONOTONIC) >= readyDeadline) break;
+        usleep(20000);
+    } while (true);
+
+    if (dualExpected && sDrmDisplays.size() < 2) {
+        ALOGW("NanoMenu DRM splash: dual-panel readiness timed out after "
+              "%lldms (%zu/2 displays); releasing partial DRM state",
+              (long long)((1500000000LL) / 1000000LL), sDrmDisplays.size());
+        drmReleaseEarly();
+        return;
     }
 
-    // Enable late-display re-probe for the first 5 seconds of the process.
-    // This is a bounded window: if a panel hasn't come up by then, it is
-    // either broken or never going to, so we stop spending ioctls on it.
-    sDrmRescanDeadlineNs = systemTime(SYSTEM_TIME_MONOTONIC) + 5000000000LL;
+    if (sDrmDisplays.empty()) {
+        ALOGW("NanoMenu DRM splash: no displays became ready; releasing DRM master");
+        drmReleaseEarly();
+        return;
+    }
+
+    // CRTC resource order, not discovery order, defines the display slots.
+    // This preserves the RG DS primary_display selection when one CRTC is late.
+    std::sort(sDrmDisplays.begin(), sDrmDisplays.end(),
+              [&crtcs](const DrmDisplay& a, const DrmDisplay& b) {
+                  const auto ai = std::find(crtcs.begin(), crtcs.end(), a.crtcId);
+                  const auto bi = std::find(crtcs.begin(), crtcs.end(), b.crtcId);
+                  return ai < bi;
+              });
+
+    const int addedCount = (int)sDrmDisplays.size();
+    sDrmActive = true;
+    ALOGW("NanoMenu DRM splash: %d/%d CRTCs active for direct rendering",
+          addedCount, attempted);
+
+    // Re-init the panels once per boot, before any content is presented and
+    // while the backlight is still down. Only the first process to own DRM
+    // after a cold boot needs to do it: the panel registers stay corrected
+    // afterwards, so gammaos-nano handing off to drastic-nano must not repeat
+    // the cycle and add a blink to every game launch. sys.* properties reset
+    // on reboot, which is exactly the lifetime we want for the guard.
+    {
+        char reinitProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.panel_reinit", reinitProp, "1");
+        char doneProp[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.panel_reinit_done", doneProp, "0");
+        if (atoi(reinitProp) != 0 && atoi(doneProp) == 0) {
+            property_set("sys.gammaos.nano.panel_reinit_done", "1");
+            if (!drmForcePanelReinit()) {
+                drmReleaseEarly();
+                return;
+            }
+        }
+    }
 
     // GammaOS: Read persist.gammaos.nano.primary_display to choose which
-    // enumerated CRTC receives the XMB/menu AHB. All other displays receive
-    // wallpaper-only output via sAhbTargetSecondary. The property value is a
-    // CRTC enumeration index (0 = first, 1 = second, ...). Invalid values
-    // fall back to 0. This mirrors the same property used post-boot to pick
-    // the physical display port for the EGL/SurfaceFlinger path.
+    // CRTC resource slot receives the XMB/menu AHB. All other displays receive
+    // wallpaper-only output via sAhbTargetSecondary. The property value keeps
+    // its existing CRTC-slot meaning on the DRM path (0 = first, 1 = second,
+    // ...), while the stable resource-order sort above prevents discovery
+    // timing from changing the RG DS primary selection.
     {
         char primaryProp[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.primary_display", primaryProp, "0");
@@ -682,41 +939,50 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
             AHardwareBuffer_describe(target->ahb, &d);
             uint32_t pitch = d.stride * 4;  // R8G8B8A8 = 4 bytes/px
 
-            struct drm_prime_handle ph = {};
-            ph.fd = dmabufFd;
-            ph.flags = 0;
-            ph.handle = 0;
-            if (ioctl(sDrmFd, DRM_IOCTL_PRIME_FD_TO_HANDLE, &ph) == 0
-                && ph.handle != 0) {
-                struct drm_mode_fb_cmd2 cmd = {};
-                cmd.width = w;
-                cmd.height = h;
-                cmd.pixel_format = DRM_FORMAT_ABGR8888;
-                cmd.flags = 0;
-                cmd.handles[0] = ph.handle;
-                cmd.pitches[0] = pitch;
-                cmd.offsets[0] = 0;
-                if (ioctl(sDrmFd, DRM_IOCTL_MODE_ADDFB2, &cmd) == 0
-                    && cmd.fb_id != 0) {
-                    target->drmFbId = cmd.fb_id;
-                    target->drmGemHandle = ph.handle;
-                    ALOGW("NanoMenu DRM PRIME: AHB(%s) imported as fb_id=%u "
-                          "(gem=%u dmabuf_fd=%d pitch=%u)",
-                          label, target->drmFbId, target->drmGemHandle,
-                          dmabufFd, pitch);
-                } else {
-                    ALOGW("NanoMenu DRM PRIME: ADDFB2 failed for AHB(%s) "
-                          "(errno=%d) -- will fall back to blit path",
-                          label, errno);
-                    // GEM handle leaks slightly; close via GEM_CLOSE
-                    struct drm_gem_close gc = {};
-                    gc.handle = ph.handle;
-                    ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc);
-                }
+            // Do not mix PRIME's shader-space Y flip with the legacy row flip
+            // unless the imported buffer has the layout we explicitly expect.
+            if (d.format != AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM ||
+                d.stride < w || pitch < w * 4) {
+                ALOGW("NanoMenu DRM PRIME: rejecting unvalidated AHB(%s) "
+                      "format=%u stride=%u (%ux%u)", label, d.format,
+                      d.stride, w, h);
             } else {
-                ALOGW("NanoMenu DRM PRIME: PRIME_FD_TO_HANDLE failed for "
-                      "AHB(%s) (errno=%d) -- will fall back to blit path",
-                      label, errno);
+
+                struct drm_prime_handle ph = {};
+                ph.fd = dmabufFd;
+                ph.flags = 0;
+                ph.handle = 0;
+                if (ioctl(sDrmFd, DRM_IOCTL_PRIME_FD_TO_HANDLE, &ph) == 0
+                    && ph.handle != 0) {
+                    struct drm_mode_fb_cmd2 cmd = {};
+                    cmd.width = w;
+                    cmd.height = h;
+                    cmd.pixel_format = DRM_FORMAT_ABGR8888;
+                    cmd.flags = 0;
+                    cmd.handles[0] = ph.handle;
+                    cmd.pitches[0] = pitch;
+                    cmd.offsets[0] = 0;
+                    if (ioctl(sDrmFd, DRM_IOCTL_MODE_ADDFB2, &cmd) == 0
+                        && cmd.fb_id != 0) {
+                        target->drmFbId = cmd.fb_id;
+                        target->drmGemHandle = ph.handle;
+                        ALOGW("NanoMenu DRM PRIME: AHB(%s) imported as fb_id=%u "
+                               "(gem=%u dmabuf_fd=%d pitch=%u)",
+                               label, target->drmFbId, target->drmGemHandle,
+                               dmabufFd, pitch);
+                    } else {
+                        ALOGW("NanoMenu DRM PRIME: ADDFB2 failed for AHB(%s) "
+                               "(errno=%d) -- will fall back to blit path",
+                               label, errno);
+                        struct drm_gem_close gc = {};
+                        gc.handle = ph.handle;
+                        ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc);
+                    }
+                } else {
+                    ALOGW("NanoMenu DRM PRIME: PRIME_FD_TO_HANDLE failed for "
+                          "AHB(%s) (errno=%d) -- will fall back to blit path",
+                          label, errno);
+                }
             }
         }
     }
@@ -726,6 +992,19 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
     return true;
 }
 
+static void drmReleasePrimeImport(AhbRenderTarget* target) {
+    if (target->drmFbId != 0 && sDrmFd >= 0) {
+        ioctl(sDrmFd, DRM_IOCTL_MODE_RMFB, &target->drmFbId);
+        target->drmFbId = 0;
+    }
+    if (target->drmGemHandle != 0 && sDrmFd >= 0) {
+        struct drm_gem_close gc = {};
+        gc.handle = target->drmGemHandle;
+        ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc);
+        target->drmGemHandle = 0;
+    }
+}
+
 // Set up fast GPU->DRM rendering via AHardwareBuffer.
 // GPU renders into an AHB-backed FBO, then we lock the AHB for CPU read
 // (fast, no driver format conversion) and memcpy to DRM dumb buffer.
@@ -733,10 +1012,11 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
 //
 // Allocates two targets: PRIMARY (wallpaper + menu) and SECONDARY (wallpaper
 // only). The secondary is only created if sDrmDisplays has more than one
-// entry. Secondary allocation is best-effort: if it fails, the secondary
-// display simply mirrors the primary (same behavior as before this patch).
-void drmSetupZeroCopy(EGLDisplay eglDpy) {
-    if (!sDrmActive) return;
+// entry. Dual-panel setup is all-or-nothing so a partial ring cannot expose
+// one panel through a different presentation path.
+bool drmSetupZeroCopy(EGLDisplay eglDpy) {
+    if (!sDrmActive) return false;
+    sDrmZeroCopy = false;
 
     // Resolve extension functions
     sEglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
@@ -760,7 +1040,7 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
 
     if (!sEglCreateImageKHR || !sGlEGLImageTargetTexture2DOES || !sEglGetNativeClientBufferANDROID) {
         ALOGW("NanoMenu DRM zero-copy: EGL/GL ext functions not available");
-        return;
+        return false;
     }
     const bool haveFenceSync = sEglCreateSyncKHR && sEglDestroySyncKHR &&
                                sEglDupNativeFenceFDANDROID;
@@ -771,7 +1051,7 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
     if (!exts || !strstr(exts, "EGL_ANDROID_image_native_buffer") ||
         !strstr(exts, "EGL_ANDROID_get_native_client_buffer")) {
         ALOGW("NanoMenu DRM zero-copy: AHB EGL extensions not supported");
-        return;
+        return false;
     }
 
     // AHB is always at PANEL NATIVE dimensions of the selected primary display.
@@ -791,10 +1071,9 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
         snprintf(label, sizeof(label), "primary[%d]", i);
         if (!drmAllocAhbTarget(eglDpy, primaryW, primaryH,
                                &sAhbRingPrimary[i], label)) {
-            // Release any previously-allocated slots and bail. We stay
-            // in the pre-AHB path (readback via glReadPixels) because
-            // the ring has to be "all or nothing" -- a partially-allocated
-            // ring would corrupt any attempt to advance renderIdx.
+            // Release any previously-allocated slots and fail the direct
+            // session. The ring has to be "all or nothing" -- a partially-
+            // allocated ring would corrupt any attempt to advance renderIdx.
             for (int j = 0; j < i; j++) {
                 if (sAhbRingPrimary[j].glFbo) {
                     glDeleteFramebuffers(1, &sAhbRingPrimary[j].glFbo);
@@ -805,12 +1084,13 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
                 if (sAhbRingPrimary[j].eglImage != EGL_NO_IMAGE_KHR) {
                     sEglDestroyImageKHR(eglDpy, sAhbRingPrimary[j].eglImage);
                 }
+                drmReleasePrimeImport(&sAhbRingPrimary[j]);
                 if (sAhbRingPrimary[j].ahb) {
                     AHardwareBuffer_release(sAhbRingPrimary[j].ahb);
                 }
                 sAhbRingPrimary[j] = {};
             }
-            return;
+            return false;
         }
     }
 
@@ -834,12 +1114,10 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
                 snprintf(label, sizeof(label), "secondary-wallpaper[%d]", i);
                 if (!drmAllocAhbTarget(eglDpy, secW, secH,
                                        &sAhbRingSecondary[i], label)) {
-                    // Partial secondary allocation. Roll back so either
-                    // all secondary slots exist or none do -- matches the
-                    // primary-ring policy. Secondary displays then mirror
-                    // the primary AHB (same as single-display fallback).
+                    // Do not leave a dual-panel DRM session with only a
+                    // primary ring. The caller releases DRM and uses SF.
                     ALOGW("NanoMenu DRM: secondary AHB slot %d alloc failed, "
-                          "rolling back to mirror", i);
+                          "abandoning direct path", i);
                     for (int j = 0; j < i; j++) {
                         if (sAhbRingSecondary[j].glFbo) {
                             glDeleteFramebuffers(1, &sAhbRingSecondary[j].glFbo);
@@ -850,15 +1128,38 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
                         if (sAhbRingSecondary[j].eglImage != EGL_NO_IMAGE_KHR) {
                             sEglDestroyImageKHR(eglDpy, sAhbRingSecondary[j].eglImage);
                         }
+                        drmReleasePrimeImport(&sAhbRingSecondary[j]);
                         if (sAhbRingSecondary[j].ahb) {
                             AHardwareBuffer_release(sAhbRingSecondary[j].ahb);
                         }
                         sAhbRingSecondary[j] = {};
                     }
-                    break;
+                    return false;
                 }
             }
+        } else {
+            ALOGW("NanoMenu DRM: secondary display has no valid mode dimensions");
+            return false;
         }
+    }
+
+    // PRIME is session-wide. If any ring slot or either panel cannot import,
+    // release every import and use the proven CPU row-flip path for all panels.
+    bool primeComplete = true;
+    for (int i = 0; i < AHB_RING_DEPTH; i++) {
+        primeComplete = primeComplete && sAhbRingPrimary[i].drmFbId != 0;
+        if (sDrmDisplays.size() > 1) {
+            primeComplete = primeComplete && sAhbRingSecondary[i].drmFbId != 0;
+        }
+    }
+    if (!primeComplete) {
+        for (int i = 0; i < AHB_RING_DEPTH; i++) {
+            drmReleasePrimeImport(&sAhbRingPrimary[i]);
+            drmReleasePrimeImport(&sAhbRingSecondary[i]);
+        }
+        sDrmYFlipForPrime = false;
+        ALOGW("NanoMenu DRM PRIME: incomplete ring import, using CPU blit "
+              "for every display");
     }
 
     // GammaOS: DRM PRIME path requires Y-flip in the vertex shader.
@@ -872,7 +1173,7 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
     // install rotation. drastic gets the updated matrix via the
     // setRotationMatrix call inside the QR loop, which runs after
     // this setup completes.
-    if (sAhbRingPrimary[0].drmFbId != 0 && !sDrmYFlipForPrime) {
+    if (primeComplete && sAhbRingPrimary[0].drmFbId != 0 && !sDrmYFlipForPrime) {
         sDrmRotMat[1] = -sDrmRotMat[1];
         sDrmRotMat[3] = -sDrmRotMat[3];
         sDrmGlRotation = true;
@@ -881,6 +1182,7 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
               "(rotMat=[%g %g %g %g], glRotation forced ON)",
               sDrmRotMat[0], sDrmRotMat[1], sDrmRotMat[2], sDrmRotMat[3]);
     }
+    return true;
 }
 
 // Reproduce the logical->panel "install" matrix that NanoMenu::initShaders()
@@ -902,12 +1204,11 @@ void drmBuildInstallMatrix(float out[4], int degrees) {
     case 270: out[0] =  0.0f; out[1] =  1.0f; out[2] = -1.0f; out[3] =  0.0f; break;
     default:  out[0] =  1.0f; out[1] =  0.0f; out[2] =  0.0f; out[3] =  1.0f; break;
     }
-    // The PRIME scanout Y-flip is a property of the PHYSICAL panel install, not
-    // the logical content rotation. Apply it only on a true 0-degree-install
-    // panel. A rotated panel (install 90/180/270) turned to an effective 0 by a
-    // user Display Rotation must NOT get it, or that one orientation comes out
-    // mirrored/upside-down while every other rotation is correct.
-    if (deg == 0 && sDrmRotationDeg == 0) { out[1] = -out[1]; out[3] = -out[3]; }
+    // The PRIME scanout Y-flip is only needed when the session actually uses
+    // PRIME. CPU blit already flips rows, so never compose both corrections.
+    if (deg == 0 && sDrmRotationDeg == 0 && sDrmYFlipForPrime) {
+        out[1] = -out[1]; out[3] = -out[3];
+    }
     if (sDrmFlipH) { out[0] = -out[0]; out[2] = -out[2]; }
     if (sDrmFlipV) { out[1] = -out[1]; out[3] = -out[3]; }
 }
@@ -1047,8 +1348,8 @@ void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
 // assigned AHB in the given ring slot:
 // - sDrmPrimaryIdx -> sAhbRingPrimary[idx] (wallpaper + menu)
 // - every other display -> sAhbRingSecondary[idx] (wallpaper only)
-// If the secondary AHB isn't allocated (single-display hardware, or allocation
-// failed), every display falls back to the primary AHB (mirrored).
+// A secondary AHB is present for every committed dual-display session; a
+// single-display session naturally has no secondary source.
 // Non-blocking page flip per display: displays are independent -- if one fails
 // to flip, the others still present.
 //
@@ -1391,10 +1692,10 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         // event has arrived before submitting a new flip to it.
         int crtcSlot = wantEvent ? drmCrtcSlot(d.crtcId) : -1;
         if (crtcSlot >= 0 && sCrtcPending[crtcSlot] > 0) {
-            if (!primePath) d.activeBuffer = bufIdx;
             continue;
         }
         int flipRc = ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip);
+        bool presented = (flipRc == 0);
         if (flipRc == 0) {
             if (i < 8) sEbusyStreak[i] = 0;
             if (wantEvent) {
@@ -1464,11 +1765,11 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
             crtc.count_connectors = 1;
             crtc.mode = d.mode;
             crtc.mode_valid = 1;
-            ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+            presented = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc) == 0;
         }
         // Track activeBuffer only when we used a dumb buffer; PRIME path
         // doesn't have alternating buffers (the AHB IS the framebuffer).
-        if (!primePath) d.activeBuffer = bufIdx;
+        if (!primePath && presented) d.activeBuffer = bufIdx;
     }
 
     int64_t tCopy = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
@@ -1763,18 +2064,23 @@ void drmPushFrame(uint32_t glWidth, uint32_t glHeight) {
 void drmStop() {
     if (!sDrmActive) return;
     sDrmActive = false;
-    // GammaOS: release the SurfaceFlinger composition gate now that HWC
-    // owns the display again. Mirrors the set at drmEarlySplash().
-    property_set("sys.gammaos.nano.drm_active", "0");
     sDrmZeroCopy = false;
     // Reset GL rotation to identity for the SF EGL path
     sDrmGlRotation = false;
+    sDrmYFlipForPrime = false;
     sDrmRotMat[0] = 1.0f; sDrmRotMat[1] = 0.0f;
     sDrmRotMat[2] = 0.0f; sDrmRotMat[3] = 1.0f;
     ALOGW("NanoMenu DRM splash: stopping direct rendering, HWC has taken over");
 
     // Rebind default framebuffer before destroying FBOs
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Let all queued flips retire while their scanout buffers still exist.
+    // SurfaceFlinger must not see the ownership gate clear until after the
+    // DRM fd and its scanout resources have been handed back.
+    drmDrainPageFlipEvents();
+    sPendingFlipEvents = 0;
+    for (int i = 0; i < sCrtcTrackCount; i++) sCrtcPending[i] = 0;
 
     // Release all ring slots. sAhbTarget / sAhbTargetSecondary are refs to
     // slot 0 so they tear down with the ring. The EGLDisplay is retrieved
@@ -1820,19 +2126,9 @@ void drmStop() {
     sRingPresentIdx = 0;
     sRingPrimedCount = 0;
     sRingEglDpy = EGL_NO_DISPLAY;
-    // Drain any outstanding page flip events before handing the DRM fd
-    // back (or closing it). Otherwise the kernel holds buffers hostage
-    // and the next CRTC user (SurfaceFlinger on restart, for instance)
-    // gets stuck because its first commit is blocked on our unconsumed
-    // flip. 50 ms is plenty -- events arrive at panel refresh rate.
-    drmDrainPageFlipEvents();
-    sPendingFlipEvents = 0;
-    for (int i = 0; i < sCrtcTrackCount; i++) sCrtcPending[i] = 0;
-
     for (auto& d : sDrmDisplays) {
         for (int i = 0; i < 2; i++) {
-            DrmBuffer& buf = d.buffers[i];
-            if (buf.mapped) { munmap(buf.mapped, buf.size); buf.mapped = nullptr; }
+            drmReleaseDumbBuffer(sDrmFd, &d.buffers[i]);
         }
     }
     sDrmDisplays.clear();
@@ -1841,6 +2137,11 @@ void drmStop() {
         close(sDrmFd);
         sDrmFd = -1;
     }
+    sCrtcTrackCount = 0;
+    memset(sCrtcIds, 0, sizeof(sCrtcIds));
+    // GammaOS: release the SurfaceFlinger composition gate only after HWC
+    // owns the display again. Mirrors the set at drmEarlySplash().
+    property_set("sys.gammaos.nano.drm_active", "0");
 }
 
 // Re-commit the DRM output state after a kernel suspend/resume cycle.
