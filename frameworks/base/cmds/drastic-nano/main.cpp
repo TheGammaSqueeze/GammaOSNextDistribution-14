@@ -92,6 +92,7 @@
 #include "InputMap.h"
 #include "NanoBacklight.h"
 #include "NanoMenuDrm.h"
+#include "NanoPowerMode.h"
 #include "NanoI18n.h"
 #include "OverlayGfx.h"
 #include "OverlayMenu.h"
@@ -2932,6 +2933,7 @@ int main(int argc, char** argv) {
     // that normally fires this races at boot and on screen state
     // flips; forcing it here eliminates the "restart sometimes
     // fixes it" variance.
+    android::nano_power::applyDrasticDefault();
     retriggerPowerProfile();
 
     std::string romPath;

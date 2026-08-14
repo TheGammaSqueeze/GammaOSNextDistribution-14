@@ -184,6 +184,9 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.gesture_wake_ignore", "");
         DEFAULTS.put("persist.gammaos.performance_mode", "stock");
         DEFAULTS.put("persist.gammaos.qs.override_default_tiles", "");
+        DEFAULTS.put("persist.gammaos.nano.performance_mode", "stock");
+        DEFAULTS.put("persist.gammaos.drastic_nano.performance_mode", "max");
+        DEFAULTS.put("persist.gammaos.apps.performance_mode", "stock");
         DEFAULTS.put("persist.gammaos.fan_mode", "");
         // 0/1, not true/false: the vendor init.gammaos_power.rc force_sleep trigger does
         // an exact "=1" match, and bindSwitch only writes 0/1 when the default is 0/1

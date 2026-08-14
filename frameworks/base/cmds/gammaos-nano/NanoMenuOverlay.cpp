@@ -41,6 +41,7 @@
 #include "NanoMenuPS3Bg.h"    // ps3bg::init for the boot warm-up
 #include "NanoMenuUtils.h"    // setDrasticNanoRomPath for the overlay launch route
 #include "NanoJson.h"        // per-app orientation override persistence
+#include "NanoPowerMode.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -416,6 +417,7 @@ void NanoMenu::overlayShow() {
         // app_launched=0 before show, so it correctly gets the wallpaper.
         bool appBehind = property_get_bool("sys.gammaos.nano.app_launched", false);
         mOverlayWallpaper = !appBehind;
+        if (!appBehind) nano_power::applyNanoDefault();
         // Raising the full launcher (no app behind) is the app-exit return. Clear any stale
         // SELECT-held here too (not just in overlayShow, which early-returns when the overlay is
         // already up over the app): the emulator ate the synthesized-SELECT up on exit, so drop
@@ -727,6 +729,7 @@ void NanoMenu::overlayQuitToHome() {
         // app_launched=0 + show_overlay=1 keeps the RWC overlay-launcher
         // short-circuit active so the real launcher never appears.
         mOverlayWallpaper = true;
+        android::nano_power::applyNanoDefault();
         // The mode flips WITHOUT a hide+show cycle, so re-apply the wallpaper
         // presentation state here (opaque layer + vsync-locked swaps). Without
         // this the launcher kept the scrim's translucent layer + free-running
@@ -990,6 +993,7 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
         // "exited" and tear it down. Same guard the home-mode nanoKillAppAndRestart
         // uses. Cleared only once the new app is actually the resumed activity.
         property_set("sys.gammaos.nano.killing", "1");
+        nano_power::applyDefaultForPackage(pkg.c_str());
 
         bool oldIsGame = !old.empty() &&
             (old.find("retroarch") != std::string::npos ||
@@ -1414,6 +1418,7 @@ void NanoMenu::overlayLaunchGame() {
     char dnBackend[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.drastic_nano.backend", dnBackend, "auto");
     if (standalone && launchPkg == "com.dsemu.drastic" && dnGate[0] == '1') {
+        nano_power::applyDrasticDefault();
         setDrasticNanoRomPath(romPath);
         // Keep Quick Resume's boot preview in sync with the game launched here. The
         // preview shows qr_game_name and, when storage is slow to mount, falls back

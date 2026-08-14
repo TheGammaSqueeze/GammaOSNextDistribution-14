@@ -167,6 +167,9 @@ static const Ps3DataItem kPowerSaveCh[] = {
   {"Battery Percentage",22,"Show the battery charge percentage in the status bar.","Off",1,nullptr,0},
 #endif
   {"Battery Saver",22,"Reduce power usage to extend battery life.","Off",1,nullptr,0},
+  {"GammaOS Nano Default",22,"Default CPU/GPU profile while the GammaOS Nano home is active.","Normal",1,nullptr,0},
+  {"DraStic-Nano Default",22,"Default CPU/GPU profile while DraStic-Nano is running.","Max Performance",1,nullptr,0},
+  {"Other Apps Default",22,"Default CPU/GPU profile while another app is running.","Normal",1,nullptr,0},
 };
 static const Ps3DataItem kAccessoryCh[] = {
 #if !NANO_XMB_HIDE_LEGACY
@@ -450,7 +453,7 @@ static const Ps3DataItem kSettingsItems[] = {
   {"Developer Options",78,"Adjusts advanced settings for software developers.",nullptr,0,PS3CH(kDevOptionsCh)},
   {"Theme Settings",79,"Adjusts settings related to the appearance of the home screen.",nullptr,0,PS3CH(kThemeSettingsCh)},
   {"Date and Time Settings",14,"Adjusts date and time settings.",nullptr,0,PS3CH(kDateTimeCh)},
-  {"Power Save Settings",27,"Adjusts settings to reduce power usage by this system.",nullptr,0,PS3CH(kPowerSaveCh)},
+  {"Power Settings",27,"Adjusts settings to reduce power usage by this system.",nullptr,0,PS3CH(kPowerSaveCh)},
   {"Accessory Settings",76,"Adjusts settings for accessories that are connected to this system.",nullptr,0,PS3CH(kAccessoryCh)},
   // Gamepad Settings opens the rich buildGamepadSubmenu (dispatch special-case in
   // ps3XmbSelect); Mouse Mode is now nested inside it, so the top-level entry is retired.

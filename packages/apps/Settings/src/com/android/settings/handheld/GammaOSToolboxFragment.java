@@ -267,6 +267,9 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.qs.override_default_tiles", "");
 
         // Power & Performance
+        DEFAULTS.put("persist.gammaos.nano.performance_mode", "stock");
+        DEFAULTS.put("persist.gammaos.drastic_nano.performance_mode", "max");
+        DEFAULTS.put("persist.gammaos.apps.performance_mode", "stock");
         DEFAULTS.put("persist.gammaos.fan_mode", "");
         // 0/1, not true/false: the vendor init.gammaos_power.rc force_sleep trigger does
         // an exact "=1" match; a boolean value here never matched and left deep sleep off.

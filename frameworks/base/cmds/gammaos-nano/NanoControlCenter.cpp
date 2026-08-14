@@ -16,6 +16,7 @@
 #define LOG_TAG "GammaOSNano"
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"   // FONT_CHAR_H
+#include "NanoPowerMode.h"
 #include <cutils/properties.h>
 #include <sys/system_properties.h>
 #include <GLES2/gl2.h>
@@ -907,6 +908,7 @@ int NanoMenu::ccAppAt(float px, float py) {
 // closes the current one first. All the shell work runs off the render thread.
 void NanoMenu::ccLaunchBottomApp(const std::string& pkg) {
     if (pkg.empty()) return;
+    nano_power::applyDefaultForPackage(pkg.c_str());
     if (dualstackHas(pkg)) {
         // Dual-stack app: it spans BOTH panels (the framework DualStackController drives it because the
         // package is in persist.gammaos.dualstack.pkgs and dual-stack is enabled). Unlike a single-panel
@@ -1068,6 +1070,17 @@ void NanoMenu::ccPollBottomAppExit() {
         }
         self->mCcBottomPollBusy.store(false, std::memory_order_release);
     }).detach();
+}
+
+// Restore the mode for the context that remains after a bottom-app transition.
+void NanoMenu::ccApplyContextPowerDefault() {
+    char pkg[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.launch_app", pkg, "");
+    if (property_get_bool("sys.gammaos.nano.app_launched", false) && pkg[0]) {
+        nano_power::applyDefaultForPackage(pkg);
+    } else {
+        nano_power::applyNanoDefault();
+    }
 }
 
 // Tear down an outstanding bottom-screen app: optionally force-stop it (off-thread), clear the state +
@@ -1379,7 +1392,7 @@ void NanoMenu::ccOnTap(float px, float py) {
                     if      (!strcmp(v, "stock"))     next = "powersave";
                     else if (!strcmp(v, "powersave")) next = "max";
                     else                              next = "stock";
-                    property_set("persist.gammaos.performance_mode", next);
+                    nano_power::applyMode(next);
                     break;
                 }
                 case A_SPLITBRI: {
@@ -1411,6 +1424,7 @@ void NanoMenu::ccOnTap(float px, float py) {
                     // watcher would also catch the close, but tearing it down here is immediate and idempotent.
                     if (!mCcBottomApp.empty()) {
                         ccEndBottomApp(true);        // force-stop the bottom app + restore drop_input=1
+                        ccApplyContextPowerDefault();
                         mCcActiveSeeded = false;     // re-seed the idle timer so the returning CC does not auto-sleep
                     } else {
                         // Capture the CONTENT panel (the launched app on the other screen), NOT the

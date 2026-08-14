@@ -46,6 +46,7 @@
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuShaders.h"
 #include "NanoJson.h"
+#include "NanoPowerMode.h"
 
 namespace android {
 
@@ -2278,6 +2279,7 @@ void NanoMenu::launchXmbGame() {
             { const char* p = intent.c_str(); while (*p) { while (*p == ' ') p++;
               if (!*p) break; if (!tabIntent.empty()) tabIntent += '\t';
               const char* s = p; while (*p && *p != ' ') p++; tabIntent.append(s, p - s); } }
+            nano_power::applyDefaultForPackage(re.launchPkg.c_str());
             android::base::SetProperty("sys.gammaos.nano.launch_app", re.launchPkg);
             { const char* f = "/data/system/nano_launch_intent.txt";
               int ifd = open(f, O_WRONLY|O_CREAT|O_TRUNC, 0666);
@@ -2338,6 +2340,7 @@ void NanoMenu::launchXmbGame() {
             }
         } else {
             std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + re.coreSo;
+            nano_power::applyOtherAppsDefault();
             setLaunchRomPath(re.romPath);
             android::base::SetProperty("sys.gammaos.nano.launch_core", corePath);
             android::base::SetProperty("sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
@@ -2460,6 +2463,7 @@ void NanoMenu::launchXmbGame() {
         }
         ALOGI("NanoMenu XMB: standalone launch %s uri=%s",
               sys.launchPkg.c_str(), contentUri.c_str());
+        nano_power::applyDefaultForPackage(sys.launchPkg.c_str());
         android::base::SetProperty("sys.gammaos.nano.launch_app", sys.launchPkg);
         {
             const char* intentFile = "/data/system/nano_launch_intent.txt";
@@ -2534,6 +2538,7 @@ void NanoMenu::launchXmbGame() {
     } else {
         // RetroArch core
         std::string corePath = "/data/data/com.retroarch.aarch64/cores/" + sys.coreSo;
+        nano_power::applyOtherAppsDefault();
         ALOGI("NanoMenu XMB: launching %s core=%s", romPath.c_str(), corePath.c_str());
         setLaunchRomPath(romPath);
         android::base::SetProperty("sys.gammaos.nano.launch_core", corePath);
