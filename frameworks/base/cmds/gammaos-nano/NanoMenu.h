@@ -2823,6 +2823,8 @@ private:
     const std::string* romNameOverrideFor(const std::string& romPath);   // lazy-load; alias-normalized
     void setRomNameOverride(const std::string& romPath, const std::string& name);
     void clearRomNameOverride(const std::string& romPath);
+    void applyRomNameOverrides(std::vector<std::string>& roms,
+                               std::vector<std::string>& displayNames);
     void applyRomNameOverrides(XmbSystem& sys);            // patch sys.displayNames from the map
     void applyRomNameOverridesToRecents();                 // patch mXmbRecent[].displayName from the map
     // Re-scrape one ROM (force overwrite). queryOverride, when non-empty, is used as the search

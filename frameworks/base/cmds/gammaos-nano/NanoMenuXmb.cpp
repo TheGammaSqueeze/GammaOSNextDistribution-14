@@ -113,6 +113,12 @@ static const int kNumXmbSystemDefs = sizeof(kXmbSystemDefs) / sizeof(kXmbSystemD
 // buildScanCandidates (which precedes it) can use it.
 static std::string findCaseInsensitive(const std::string& parent, const std::string& target);
 
+static std::string romDisplayName(const std::string& rom);
+static void buildRomDisplayNames(const std::vector<std::string>& roms,
+                                 std::vector<std::string>& displayNames);
+static void sortRomEntriesByDisplayName(std::vector<std::string>& roms,
+                                        std::vector<std::string>& displayNames);
+
 // Font layout constants come from NanoMenuShaders.h (shared with NanoMenu.cpp).
 
 // ---------------------------------------------------------------------------
@@ -254,14 +260,7 @@ void NanoMenu::loadRomCacheForSystem(XmbSystem& sys) {
                     if (ls != std::string::npos) sys.activePath = sys.roms[0].substr(0, ls);
                     sys.pathExists = true;
                 }
-                for (const auto& rom : sys.roms) {
-                    std::string dn = rom;
-                    size_t sl = dn.rfind('/');
-                    if (sl != std::string::npos) dn = dn.substr(sl + 1);
-                    size_t d = dn.rfind('.');
-                    if (d != std::string::npos) dn = dn.substr(0, d);
-                    sys.displayNames.push_back(std::move(dn));
-                }
+                buildRomDisplayNames(sys.roms, sys.displayNames);
                 if (!sys.roms.empty())
                     ALOGD("NanoMenu: %s: loaded %zu ROMs from cache",
                           sys.name.c_str(), sys.roms.size());
@@ -274,23 +273,26 @@ void NanoMenu::loadRomCacheForSystem(XmbSystem& sys) {
     applyRomNameOverrides(sys);   // patch in any per-game title overrides
 }
 
-// Patch a system's display names from the per-game title override sidecar. Called at
-// the end of every render-thread display-name derivation site (cache load, sync scan,
-// async single-system scan, and the bg-scan publish) so a user-renamed game shows the
-// override everywhere (column labels / recents / search / Info) instead of the raw
-// filename. NOT called from the bg-scan worker (off the render thread); the render
-// thread applies it when it drains the published result.
-void NanoMenu::applyRomNameOverrides(XmbSystem& sys) {
-    if (sys.roms.empty() || sys.displayNames.empty()) return;
-    size_t n = sys.roms.size() < sys.displayNames.size() ? sys.roms.size() : sys.displayNames.size();
+// Patch display names from the per-game title override sidecar and keep the ROM list
+// ordered by those names. Called only from the render thread: scraperEnsureLoaded()
+// may lazily read the metadata index. NOT called from the bg-scan worker.
+void NanoMenu::applyRomNameOverrides(std::vector<std::string>& roms,
+                                     std::vector<std::string>& displayNames) {
+    if (roms.empty() || displayNames.empty()) return;
+    size_t n = roms.size() < displayNames.size() ? roms.size() : displayNames.size();
     for (size_t i = 0; i < n; i++) {
         // Priority: a manual Rename/Edit Title wins; otherwise, once a game has been scraped, show its
         // matched title instead of the ROM filename; otherwise keep the scanned basename.
-        const std::string* ov = romNameOverrideFor(sys.roms[i]);
-        if (ov && !ov->empty()) { sys.displayNames[i] = *ov; continue; }
-        const ScrapeEntry* se = scrapeEntryFor(sys.roms[i]);
-        if (se && !se->title.empty()) sys.displayNames[i] = se->title;
+        const std::string* ov = romNameOverrideFor(roms[i]);
+        if (ov && !ov->empty()) { displayNames[i] = *ov; continue; }
+        const ScrapeEntry* se = scrapeEntryFor(roms[i]);
+        if (se && !se->title.empty()) displayNames[i] = se->title;
     }
+    sortRomEntriesByDisplayName(roms, displayNames);
+}
+
+void NanoMenu::applyRomNameOverrides(XmbSystem& sys) {
+    applyRomNameOverrides(sys.roms, sys.displayNames);
 }
 
 // Patch the Recently Played list's display names from the override sidecar. Recent
@@ -1023,6 +1025,46 @@ static std::string romLower(const std::string& in) {
     return o;
 }
 
+static std::string romDisplayName(const std::string& rom) {
+    size_t sl = rom.rfind('/');
+    std::string name = (sl == std::string::npos) ? rom : rom.substr(sl + 1);
+    size_t dot = name.rfind('.');
+    if (dot != std::string::npos) name.resize(dot);
+    return name;
+}
+
+static void buildRomDisplayNames(const std::vector<std::string>& roms,
+                                 std::vector<std::string>& displayNames) {
+    displayNames.clear();
+    displayNames.reserve(roms.size());
+    for (const auto& rom : roms) displayNames.push_back(romDisplayName(rom));
+}
+
+// Keep ROM paths paired with their labels while sorting by the name shown in the UI.
+static void sortRomEntriesByDisplayName(std::vector<std::string>& roms,
+                                        std::vector<std::string>& displayNames) {
+    if (roms.size() != displayNames.size()) return;
+    std::vector<size_t> order;
+    order.reserve(roms.size());
+    for (size_t i = 0; i < roms.size(); i++) order.push_back(i);
+    std::stable_sort(order.begin(), order.end(), [&](size_t a, size_t b) {
+        int nameCmp = strcasecmp(displayNames[a].c_str(), displayNames[b].c_str());
+        if (nameCmp != 0) return nameCmp < 0;
+        return strcasecmp(roms[a].c_str(), roms[b].c_str()) < 0;
+    });
+
+    std::vector<std::string> sortedRoms;
+    std::vector<std::string> sortedNames;
+    sortedRoms.reserve(roms.size());
+    sortedNames.reserve(displayNames.size());
+    for (size_t i : order) {
+        sortedRoms.push_back(std::move(roms[i]));
+        sortedNames.push_back(std::move(displayNames[i]));
+    }
+    roms.swap(sortedRoms);
+    displayNames.swap(sortedNames);
+}
+
 // Recursively scan one candidate directory for ROMs. Mirrors the inner readdir
 // loop that used to be duplicated at the three scan sites (extension filter, junk
 // blacklist, case-insensitive dedup, 0-byte skip) and adds bounded-depth recursion
@@ -1351,36 +1393,7 @@ void NanoMenu::scanRomPaths() {
         sys.activePath = bestPath;
         sys.lastScanTime = elapsedRealtime();
 
-        // Sort by display name (case-insensitive) -- extract filename, strip extension
-        std::sort(sys.roms.begin(), sys.roms.end(),
-                  [](const std::string& a, const std::string& b) {
-                      // Extract filename from full path
-                      size_t sa = a.rfind('/');
-                      size_t sb = b.rfind('/');
-                      const char* na = (sa != std::string::npos) ? a.c_str() + sa + 1 : a.c_str();
-                      const char* nb = (sb != std::string::npos) ? b.c_str() + sb + 1 : b.c_str();
-                      // Case-insensitive compare
-                      for (size_t i = 0; na[i] && nb[i]; i++) {
-                          char ca = na[i], cb = nb[i];
-                          if (ca >= 'A' && ca <= 'Z') ca += 32;
-                          if (cb >= 'A' && cb <= 'Z') cb += 32;
-                          if (ca != cb) return ca < cb;
-                      }
-                      // Shorter name first if prefixes match
-                      size_t la = strlen(na), lb = strlen(nb);
-                      return la < lb;
-                  });
-
-        // Pre-compute display names (strip path + extension)
-        sys.displayNames.reserve(sys.roms.size());
-        for (const auto& rom : sys.roms) {
-            std::string dn = rom;
-            size_t sl = dn.rfind('/');
-            if (sl != std::string::npos) dn = dn.substr(sl + 1);
-            size_t d = dn.rfind('.');
-            if (d != std::string::npos) dn = dn.substr(0, d);
-            sys.displayNames.push_back(std::move(dn));
-        }
+        buildRomDisplayNames(sys.roms, sys.displayNames);
         applyRomNameOverrides(sys);   // patch in any per-game title overrides
 
         ALOGD("NanoMenu: %s: %zu ROMs across %zu paths (primary: %s)",
@@ -1465,21 +1478,9 @@ bool NanoMenu::scanOneSystemAsync(int sysIdx) {
     // Fold multi-disc discs under their .m3u playlist (once, before the sort).
     if (groupM3u) applyM3uGrouping(newRoms, m3uPaths);
 
-    // Sort by display name
-    std::sort(newRoms.begin(), newRoms.end(),
-              [](const std::string& a, const std::string& b) {
-                  size_t sa = a.rfind('/');
-                  size_t sb = b.rfind('/');
-                  const char* na = (sa != std::string::npos) ? a.c_str() + sa + 1 : a.c_str();
-                  const char* nb = (sb != std::string::npos) ? b.c_str() + sb + 1 : b.c_str();
-                  for (size_t i = 0; na[i] && nb[i]; i++) {
-                      char ca = na[i], cb = nb[i];
-                      if (ca >= 'A' && ca <= 'Z') ca += 32;
-                      if (cb >= 'A' && cb <= 'Z') cb += 32;
-                      if (ca != cb) return ca < cb;
-                  }
-                  return strlen(na) < strlen(nb);
-              });
+    std::vector<std::string> newDisplayNames;
+    buildRomDisplayNames(newRoms, newDisplayNames);
+    applyRomNameOverrides(newRoms, newDisplayNames);
 
     ALOGD("NanoMenu: %s: scan found %zu ROMs across %zu paths (current: %zu ROMs)",
           sys.name.c_str(), newRoms.size(), newActivePaths.size(), sys.roms.size());
@@ -1515,18 +1516,7 @@ bool NanoMenu::scanOneSystemAsync(int sysIdx) {
         sys.activePath = newBestPath;
         sys.pathExists = !sys.roms.empty();
 
-        // Rebuild display names
-        sys.displayNames.clear();
-        sys.displayNames.reserve(sys.roms.size());
-        for (const auto& rom : sys.roms) {
-            std::string dn = rom;
-            size_t sl = dn.rfind('/');
-            if (sl != std::string::npos) dn = dn.substr(sl + 1);
-            size_t d = dn.rfind('.');
-            if (d != std::string::npos) dn = dn.substr(0, d);
-            sys.displayNames.push_back(std::move(dn));
-        }
-        applyRomNameOverrides(sys);   // patch in any per-game title overrides
+        sys.displayNames = std::move(newDisplayNames);
 
         // Update cache file (xmbCachePath keys on the stable id, matching the
         // loader and the bg-scan writer; romDir is NOT the cache key)
@@ -1633,30 +1623,8 @@ void NanoMenu::bgScanThreadFunc() {
         res.activePath = bestPath;
 
         // Sort by display name
-        std::sort(res.roms.begin(), res.roms.end(),
-                  [](const std::string& a, const std::string& b) {
-                      size_t sa = a.rfind('/'), sb = b.rfind('/');
-                      const char* na = sa != std::string::npos ? a.c_str()+sa+1 : a.c_str();
-                      const char* nb = sb != std::string::npos ? b.c_str()+sb+1 : b.c_str();
-                      for (size_t i = 0; na[i] && nb[i]; i++) {
-                          char ca = na[i], cb = nb[i];
-                          if (ca >= 'A' && ca <= 'Z') ca += 32;
-                          if (cb >= 'A' && cb <= 'Z') cb += 32;
-                          if (ca != cb) return ca < cb;
-                      }
-                      return strlen(na) < strlen(nb);
-                  });
-
-        // Build display names
-        res.displayNames.reserve(res.roms.size());
-        for (const auto& rom : res.roms) {
-            std::string dn = rom;
-            size_t sl = dn.rfind('/');
-            if (sl != std::string::npos) dn = dn.substr(sl + 1);
-            size_t d = dn.rfind('.');
-            if (d != std::string::npos) dn = dn.substr(0, d);
-            res.displayNames.push_back(std::move(dn));
-        }
+        buildRomDisplayNames(res.roms, res.displayNames);
+        sortRomEntriesByDisplayName(res.roms, res.displayNames);
     }
 
     // Publish results for the render thread

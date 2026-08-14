@@ -5396,15 +5396,18 @@ if (sRingPrimedCount >= 2) {
                                 // smaller count is a real deletion and drops immediately, even at boot.
                                 if (fewerPaths || (earlyBoot && res.roms.empty())) continue;
                             }
-                            bool romsChanged = (res.roms != sys.roms);
-                            if (romsChanged || !sys.scanned) {
+                            const bool rawRomsChanged = (res.roms != sys.roms);
+                            if (rawRomsChanged || !sys.scanned) {
+                                const bool wasScanned = sys.scanned;
+                                const std::vector<std::string> oldRoms = sys.roms;
                                 sys.roms = std::move(res.roms);
                                 sys.displayNames = std::move(res.displayNames);
                                 applyRomNameOverrides(sys);   // patch in per-game title overrides (render thread)
+                                const bool romsChanged = (sys.roms != oldRoms);
                                 sys.activePaths = std::move(res.activePaths);
                                 sys.activePath = std::move(res.activePath);
                                 sys.pathExists = !sys.roms.empty();
-                                mDisplayDirty = true;
+                                mDisplayDirty = romsChanged || !wasScanned;
                                 // Game tiles show per-system ROM counts (and
                                 // appear/disappear with them): refresh the PS3
                                 // cats once the user is at the settled root.
@@ -5432,7 +5435,7 @@ if (sRingPrimedCount >= 2) {
                                 // published changes during navigation. The
                                 // roms snapshot is copied only for ACCEPTED
                                 // changes (rare), never per frame.
-                                pendingCacheWrites.emplace_back(sys.id, sys.roms);
+                                if (romsChanged) pendingCacheWrites.emplace_back(sys.id, sys.roms);
                             }
                             sys.scanned = true;
                             sys.lastScanTime = elapsedRealtime();
