@@ -1133,6 +1133,34 @@ void OverlayMenu::rebuildGeneral() {
         mRows.push_back(std::move(r));
     }
 
+    // Buffering is selected when drastic-nano creates its display path, so
+    // changing it here takes effect on the next launch. 1 is lowest latency,
+    // 3 preserves the existing smoothness-oriented buffering.
+    {
+        RowAction r;
+        r.label = "Buffering";
+        auto readCount = []() {
+            int count = property_get_int32(
+                    "persist.gammaos.drastic_nano.buffer_count", 3);
+            if (count < 1) count = 1;
+            if (count > 3) count = 3;
+            return count;
+        };
+        r.value = std::to_string(readCount());
+        r.value += trDyn("  (next launch)");
+        auto change = [this, readCount](int dir) {
+            int count = readCount() + dir;
+            if (count < 1) count = 3;
+            if (count > 3) count = 1;
+            property_set("persist.gammaos.drastic_nano.buffer_count",
+                         std::to_string(count).c_str());
+            toast("Buffering applies next launch");
+        };
+        r.onAccept = [change]() { change(1); };
+        r.onAdjust = change;
+        mRows.push_back(std::move(r));
+    }
+
     // DS Game Language: the firmware language the emulated DS reports to games
     // that read it (many first-party titles pick their in-game language from the
     // console setting). It is inherited from the real DraStic app's config at

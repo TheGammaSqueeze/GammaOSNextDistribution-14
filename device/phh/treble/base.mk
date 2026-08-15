@@ -225,6 +225,7 @@ PRODUCT_PRODUCT_PROPERTIES += \
 # these from the drastic-nano overlay menu, and dual-screen devices ignore the preset.
 PRODUCT_PRODUCT_PROPERTIES += \
     persist.gammaos.nano.drastic_nano=1 \
+    persist.gammaos.drastic_nano.buffer_count=3 \
     persist.gammaos.drastic_nano.layout_preset=2 \
     persist.gammaos.drastic_nano.pip_alpha=80
 

@@ -102,6 +102,19 @@ void SfDisplayBackend::onHostSurfaceReceived(const sp<Surface>& s) {
     ALOGI("drastic-nano: SF host surface received");
 }
 
+// Configure the SF producer queue from the shared buffering setting. 1 is the
+// lowest-latency queue, while 3 preserves the previous throughput-oriented
+// depth.
+void configureSfBufferQueue(const sp<Surface>& surface) {
+    if (surface == nullptr) return;
+    int maxDequeued = property_get_int32(
+            "persist.gammaos.drastic_nano.buffer_count", 3);
+    if (maxDequeued < 1) maxDequeued = 1;
+    if (maxDequeued > 3) maxDequeued = 3;
+    surface->setMaxDequeuedBufferCount(maxDequeued);
+    ALOGI("drastic-nano: SF buffer queue count=%d", maxDequeued);
+}
+
 // Render-thread side of the surface handoff. When the activity's SurfaceView is
 // recreated during the DRM->SurfaceFlinger takeover, the producer we adopted at
 // createContext() is dead -- eglSwapBuffers into it is silently dropped and the
@@ -145,6 +158,7 @@ void SfDisplayBackend::maybeAdoptNewHostSurface() {
     int h = ANativeWindow_getHeight(win);
     mDisplays[0].surface = ns;
     mDisplays[0].eglSurface = es;
+    configureSfBufferQueue(ns);
     if (w <= 0) eglQuerySurface(mEglDpy, es, EGL_WIDTH, &w);
     if (h <= 0) eglQuerySurface(mEglDpy, es, EGL_HEIGHT, &h);
     if (w > 0) mDisplays[0].width = (uint32_t)w;
@@ -242,6 +256,7 @@ bool SfDisplayBackend::createContext(DisplayEnv* env) {
         if (h <= 0) eglQuerySurface(mEglDpy, mDisplays[0].eglSurface, EGL_HEIGHT, &h);
         mDisplays[0].width  = (uint32_t)w;
         mDisplays[0].height = (uint32_t)h;
+        configureSfBufferQueue(surf);
         mDisplayCount = 1;
         eglMakeCurrent(mEglDpy, mDisplays[0].eglSurface, mDisplays[0].eglSurface,
                        mEglCtx);
@@ -439,7 +454,7 @@ bool SfDisplayBackend::createDisplaySurface(const PhysicalDisplayId& id, SfDispl
     t.apply();
 
     out->surface = out->control->getSurface();
-    out->surface->setMaxDequeuedBufferCount(3);   // steady 60, avoids release-paced dequeue stall
+    configureSfBufferQueue(out->surface);
     out->eglSurface = eglCreateWindowSurface(mEglDpy, mEglCfg, out->surface.get(), nullptr);
     if (out->eglSurface == EGL_NO_SURFACE) {
         ALOGE("drastic-nano: SF eglCreateWindowSurface failed: 0x%x", eglGetError());
