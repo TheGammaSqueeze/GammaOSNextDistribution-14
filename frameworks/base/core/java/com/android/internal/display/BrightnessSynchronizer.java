@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.os.SystemProperties;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -96,9 +97,10 @@ public class BrightnessSynchronizer {
     /**
      * Starts brightnessSyncObserver to ensure that the float and int brightness values stay
      * in sync.
-     * This also ensures that values are synchronized at system start up too.
-     * So we force an update to the int value, since float is the source of truth. Fallback to int
-     * value, if float is invalid. If both are invalid, use default float value from config.
+     * This also ensures that values are synchronized at system start up too. A valid GammaOS Nano
+     * brightness is restored first because Nano may have applied it before the settings provider
+     * was ready. Otherwise, force an update to the int value since float is the source of truth.
+     * Fallback to int value if float is invalid. If both are invalid, use the configured default.
      */
     public void startSynchronizing() {
         if (mDisplayManager == null) {
@@ -113,7 +115,16 @@ public class BrightnessSynchronizer {
         Slog.i(TAG, "Initial brightness readings: " + mLatestIntBrightness + "(int), "
                 + mLatestFloatBrightness + "(float)");
 
-        if (!Float.isNaN(mLatestFloatBrightness)) {
+        final int persistedNanoBrightness = SystemProperties.getInt(
+                "persist.gammaos.nano.brightness", PowerManager.BRIGHTNESS_INVALID);
+        if (persistedNanoBrightness > PowerManager.BRIGHTNESS_OFF
+                && persistedNanoBrightness <= PowerManager.BRIGHTNESS_ON) {
+            // Nano starts before the settings provider and owns the panel during early boot.
+            // Restore the last user value instead of allowing a framework default or stale
+            // display value to overwrite it during synchronizer startup.
+            mPendingUpdate = new BrightnessUpdate(BrightnessUpdate.TYPE_INT,
+                    persistedNanoBrightness);
+        } else if (!Float.isNaN(mLatestFloatBrightness)) {
             mPendingUpdate = new BrightnessUpdate(BrightnessUpdate.TYPE_FLOAT,
                     mLatestFloatBrightness);
         } else if (mLatestIntBrightness != PowerManager.BRIGHTNESS_INVALID) {
@@ -422,9 +433,13 @@ public class BrightnessSynchronizer {
                             UserHandle.USER_CURRENT);
                     mLatestIntBrightness = brightnessInt;
                     mUpdatedTypes |= TYPE_INT;
-                    // GammaOS: sync to persist property for NanoMenu early boot
-                    android.os.SystemProperties.set(
-                            "persist.gammaos.nano.brightness",
+                }
+                // GammaOS: persist every valid user setting, including direct Settings writes.
+                // The int observer updates mLatestIntBrightness before this method runs, so this
+                // must not be conditional on the settings write above.
+                if (brightnessInt > PowerManager.BRIGHTNESS_OFF
+                        && brightnessInt <= PowerManager.BRIGHTNESS_ON) {
+                    SystemProperties.set("persist.gammaos.nano.brightness",
                             String.valueOf(brightnessInt));
                 }
 
