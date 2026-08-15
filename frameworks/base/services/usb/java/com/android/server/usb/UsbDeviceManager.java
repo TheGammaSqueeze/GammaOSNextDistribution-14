@@ -1556,11 +1556,11 @@ public class UsbDeviceManager implements ActivityTaskManagerInternal.ScreenObser
 
         protected long getChargingFunctions() {
             // if ADB is enabled, reset functions to ADB
-            // else enable MTP as usual.
+            // otherwise leave the USB gadget in charging-only mode.
             if (isAdbEnabled()) {
                 return UsbManager.FUNCTION_ADB;
             } else {
-                return UsbManager.FUNCTION_MTP;
+                return UsbManager.FUNCTION_NONE;
             }
         }
 
