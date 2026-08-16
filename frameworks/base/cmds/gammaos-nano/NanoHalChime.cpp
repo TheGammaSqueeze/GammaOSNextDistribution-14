@@ -105,10 +105,18 @@ bool nanoHalChimePlay(const std::string& wavPath, float gain) {
     {
         char platform[PROPERTY_VALUE_MAX] = {};
         property_get("ro.board.platform", platform, "");
-        if (strstr(platform, "ums") != nullptr || strstr(platform, "sc98") != nullptr ||
+        // Force-SF devices (e.g. Manmgi Air X / Qualcomm bengal) hit the same failure:
+        // their vendor audio HAL is flaky racing audioserver during the early Quick-Resume
+        // boot, and libaudiohal's death handler _exit(1)s the WHOLE process -- fatal for
+        // nano (a oneshot service that cannot restart), leaving a stuck boot logo. A force-SF
+        // home waits for SurfaceFlinger before chiming anyway, by which time audioserver is up,
+        // so the AAudio fallback (no death handler) plays the chime and the early direct-HAL
+        // path is never needed. Skip it there too.
+        if (property_get_bool("persist.gammaos.nano.force_sf", false) ||
+            strstr(platform, "ums") != nullptr || strstr(platform, "sc98") != nullptr ||
             strstr(platform, "sc99") != nullptr || strstr(platform, "sharkl") != nullptr) {
-            NHC_W("halchime: Unisoc/Spreadtrum SoC (%s) - skipping direct HAL to avoid "
-                  "libaudiohal's _exit-on-HAL-death; using AAudio fallback", platform);
+            NHC_W("halchime: force-SF or Unisoc/Spreadtrum SoC (%s) - skipping direct HAL to "
+                  "avoid libaudiohal's _exit-on-HAL-death; using AAudio fallback", platform);
             return false;
         }
     }
