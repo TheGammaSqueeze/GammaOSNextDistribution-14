@@ -2521,8 +2521,26 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             drastic_nano::Rect br = drastic_nano::bottomRect(
                     drastic_nano::compute(fc, (uint32_t)sfLogW, (uint32_t)sfLogH));
             if (br.w > 0.0f && br.h > 0.0f) {
-                const float a = actions.touchX / 256.0f;   // window fraction
-                const float b = actions.touchY / 192.0f;
+                // Apply the shared nano digitizer calibration
+                // (persist.gammaos.nano.osk_touch_swap/flipx/flipy) in the SAME order
+                // gammaos-nano's XMB touch uses (NanoMenuPS3Menu::touchMapRaw). On a
+                // force-SF device the framework's primary_touch_orientation never reaches
+                // these raw-evdev readers, so the panel-mount rotation/flip must be applied
+                // here, and it must match the XMB home's calibration so both agree. Air X
+                // (portrait 1080x1920 digitizer, landscape 1920x1080 logical, ORIENTATION_270)
+                // uses swap+flipx. Read once per game process; all default false = identity
+                // for a landscape-native panel, so other devices are unaffected.
+                static const bool tSwap  =
+                        property_get_bool("persist.gammaos.nano.osk_touch_swap", false);
+                static const bool tFlipX =
+                        property_get_bool("persist.gammaos.nano.osk_touch_flipx", false);
+                static const bool tFlipY =
+                        property_get_bool("persist.gammaos.nano.osk_touch_flipy", false);
+                float a = actions.touchX / 256.0f;   // panel-native fraction
+                float b = actions.touchY / 192.0f;
+                if (tSwap)  { float t = a; a = b; b = t; }
+                if (tFlipX) a = 1.0f - a;
+                if (tFlipY) b = 1.0f - b;
                 float la = a, lb = b;                       // -> logical fraction
                 switch (sfRot) {
                 case 90:  la = b;        lb = 1.0f - a; break;
