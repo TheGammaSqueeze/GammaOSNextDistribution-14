@@ -1285,14 +1285,17 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     bool raPrevOverlayOpen = false;
 
     // Buffering is the shared controller-to-photon tradeoff:
-    //   1 = single-slot, lowest latency
+    //   1 = zero-lag presentation using the rotating AHB ring
     //   2 = one-frame render-ahead
     //   3 = existing two-frame render-ahead default
     int bufferCount = property_get_int32(
             "persist.gammaos.drastic_nano.buffer_count", 3);
     if (bufferCount < 1) bufferCount = 1;
     if (bufferCount > 3) bufferCount = 3;
-    bool renderAhead = bufferCount > 1;
+    // Keep the ring active even at count 1. The old slot-0 path rendered into
+    // the buffer currently being scanned out, which was especially visible
+    // when the settings scrim updated the bottom panel.
+    bool renderAhead = true;
     const int ringPresentLag = (bufferCount == 1) ? 0
                              : (bufferCount == 2) ? 1 : 2;
     for (int i = 0; i < android::AHB_RING_DEPTH; i++) {
@@ -1310,8 +1313,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         android::sRingPresentIdx = 0;
         android::sRingPrimedCount = 0;
     }
-    ALOGI("drastic-nano: buffer_count=%d render_ahead=%d present_lag=%d",
-          bufferCount, renderAhead ? 1 : 0, ringPresentLag);
+    ALOGI("drastic-nano: buffer_count=%d ring=%d render_ahead=%d present_lag=%d",
+          bufferCount, renderAhead ? 1 : 0,
+          (renderAhead && bufferCount > 1) ? 1 : 0, ringPresentLag);
 
     bool exitRequested = false;
     // Full saturation / no gradient -- drastic-nano has no preview
@@ -1915,8 +1919,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // fence IS the kick-and-record. When the slot rotates
             // back in at presentIdx, drmFlipRingSlot dup's the
             // fd and waits on it via AHardwareBuffer_lock, which
-            // sidesteps the global glFinish that single-buffer
-            // mode relies on (and which is the tearing source).
+            // sidesteps the global glFinish that the old single-slot
+            // path relied on (and which is the tearing source).
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             if (android::sEglCreateSyncKHR &&
                 android::sRingEglDpy != EGL_NO_DISPLAY) {
