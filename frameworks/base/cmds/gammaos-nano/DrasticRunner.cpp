@@ -2156,11 +2156,12 @@ void DrasticRunner::setInput(int bitmask) {
 void DrasticRunner::setInputWithTouch(int bitmask, int touchX, int touchY,
                                       bool touchHeld) {
     if (!mInitialized || !mUpdateInput) return;
-    // updateInput(JNIEnv*, jclass, int bitmask, int touchPacked, int held)
+    // updateInput(JNIEnv*, jclass, int bitmask, int touchPacked,
+    //             int inputFilterMask)
     //
     // Native side at 0x1a5d8 stores:
     //   master+0x48c = bitmask & 0x7fffffff     (button bits 0..11 used)
-    //   master+0x490 = held
+    //   master+0x490 = input-filter mask (the third JNI argument)
     //   master+0x494 = asr(touchPacked, 16)     (touch Y, signed top half)
     //   master+0x498 = touchPacked & 0xffff     (touch X, low half)
     //   master+0x4bf = (bitmask >> 31) & 1      (pointer-down flag)
@@ -2193,8 +2194,11 @@ void DrasticRunner::setInputWithTouch(int bitmask, int touchX, int touchY,
     if (touchY > 191) touchY = 191;
     const int touchPacked =
             ((touchX & 0xffff) << 16) | (touchY & 0xffff);
-    const int held = touchHeld ? 1 : 0;
-    mUpdateInput(mFakeEnv, mFakeCls, fullBitmask, touchPacked, held);
+    // The third JNI argument is not the touchscreen held flag. DraStic uses it
+    // as a mask while processing special input bindings; passing touchHeld
+    // here would set bit 0 of that mask whenever a finger is down and suppress
+    // the D-pad. Touch state is already carried by bit 31 above.
+    mUpdateInput(mFakeEnv, mFakeCls, fullBitmask, touchPacked, 0);
 }
 
 void DrasticRunner::pauseDrastic() {
