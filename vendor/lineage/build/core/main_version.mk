@@ -9,8 +9,18 @@ endif
 # manifest compatibility check (ro.gammaos.build.version).
 GAMMAOS_VERSION := 1.4.1
 
-# GammaOS variant: bgN (GApps-Go) = Full, anything else (bvN, bvS) = Lite
-ifneq (,$(findstring bgN,$(TARGET_PRODUCT)))
+# GammaOS variant, three-way. This is the {variant} placeholder the Updater app
+# substitutes into the OTA server URL (see ro.gammaos.variant below), so every
+# variant needs its own manifest path on the OTA server:
+#   core = Android TV builds (lineage_tv_*),     branded "GammaOS Core"
+#   full = GApps-Go builds   (bgN),              branded "GammaOS Next Full"
+#   lite = everything else   (bvN, bvS, bfN...), branded "GammaOS Next Lite"
+# TV is matched first so a TV GApps target (tv_arm64_bgN) still resolves to core,
+# matching its PRODUCT_MODEL, instead of falling through to full.
+ifneq (,$(findstring tv_,$(TARGET_PRODUCT)))
+GAMMAOS_VARIANT_TAG := Core
+GAMMAOS_VARIANT := core
+else ifneq (,$(findstring bgN,$(TARGET_PRODUCT)))
 GAMMAOS_VARIANT_TAG := Full
 GAMMAOS_VARIANT := full
 else

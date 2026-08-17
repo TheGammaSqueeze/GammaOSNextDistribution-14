@@ -2,9 +2,11 @@
 
 ## Overview
 
-GammaOS OTA is a custom in-place system update mechanism for GammaOS Next (Android 14, TrebleDroid GSI). Unlike standard Android A/B OTA which requires dual partition copies, GammaOS OTA writes directly to live partitions — including the mounted root filesystem — without requiring an unmount, a recovery partition, or fastboot access.
+GammaOS OTA is a custom in-place system update mechanism for GammaOS Next (Android 14, TrebleDroid GSI). Unlike standard Android A/B OTA which requires dual partition copies, GammaOS OTA writes directly to live partitions, including the mounted root filesystem, without requiring an unmount, a recovery partition, or fastboot access.
 
 This is necessary because TrebleDroid GSI super partitions typically lack space for dual system copies, making standard A/B OTA impossible.
+
+> **For OEM integrators**: this document is both the design reference and the integration guide. If you are wiring OTA up for a new device or standing up your own update server, start with [OTA Server and OEM Integration](#ota-server-and-oem-integration) (the three variants, the check URL, the server JSON contract, and self-hosting) and [Build Integration](#build-integration) (where the variant properties come from). In practice the only per-device property you must author is `ro.gammaos.device`; the variant and version properties are set for you by the build.
 
 ## Screenshots
 
@@ -51,7 +53,7 @@ This is necessary because TrebleDroid GSI super partitions typically lack space 
 
 The LineageOS Updater app, rebranded to "GammaOS Update", serves as the entry point:
 
-- **Online mode**: Checks `https://ota.gammaos.sh/api/v1/{ro.gammaos.device}/{ro.gammaos.variant}` for updates (variant is `full` for bgN / GApps-Go builds and `lite` for bvN / bvS), downloads the OTA zip, user taps INSTALL → OK to begin
+- **Online mode**: Checks `https://ota.gammaos.sh/api/v1/{ro.gammaos.device}/{ro.gammaos.variant}` for updates (see [OTA Server and OEM Integration](#ota-server-and-oem-integration) for the three variants and how the URL is built), downloads the OTA zip, user taps INSTALL → OK to begin
 - **Local update** (menu): Opens Android's `ACTION_OPEN_DOCUMENT` file picker. Imports the selected zip as an update in the list. GammaOS OTA packages (detected by `manifest.json` in zip) skip `RecoverySystem.verifyPackage()`.
 - **Install from storage** (menu): Opens Android file picker, copies the selected zip to `/data/gammaos_ota/`, extracts it, validates `manifest.json`, and launches `gammaos-ota` with `autoinstall=1` for immediate installation.
 
@@ -59,7 +61,7 @@ The app runs as `android.uid.system` (via `sharedUserId` in manifest), giving it
 - Set system properties (`sys.gammaos.ota.package`, `sys.gammaos.ota.autoinstall`)
 - Start/stop the `gammaos-ota` service via `ctl.start`
 
-When the user initiates an install via the online flow, a persistent "GammaOS System Update — Preparing update..." `ProgressDialog` is shown. This dialog stays visible until `gammaos-ota`'s fullscreen EGL UI takes over, providing a seamless transition with no gap. `GammaOtaInstaller.java` extracts the OTA zip to `/data/gammaos_ota/`, verifies the manifest, and launches the native OTA binary.
+When the user initiates an install via the online flow, a persistent "GammaOS System Update" `ProgressDialog` reading "Preparing update..." is shown. This dialog stays visible until `gammaos-ota`'s fullscreen EGL UI takes over, providing a seamless transition with no gap. `GammaOtaInstaller.java` extracts the OTA zip to `/data/gammaos_ota/`, verifies the manifest, and launches the native OTA binary.
 
 ### 2. Native OTA Binary (`frameworks/base/cmds/gammaos-ota/`)
 
@@ -137,7 +139,7 @@ After copying, the binary re-execs itself from tmpfs via `execv()` with:
 - `GAMMAOS_OTA_STAGED=1`
 - `PATH=/dev/gammaos-ota-stage/bin:/system/bin`
 
-All subsequent shell commands use `fork()+execl()` with the staged `/dev/gammaos-ota-stage/bin/sh` — NOT `popen()`/`system()` which hardcode `/system/bin/sh`.
+All subsequent shell commands use `fork()+execl()` with the staged `/dev/gammaos-ota-stage/bin/sh`, NOT `popen()`/`system()` which hardcode `/system/bin/sh`.
 
 ### Phase 2: UI Rendering
 
@@ -174,7 +176,7 @@ The OTA binary creates a SurfaceFlinger surface and renders via OpenGL ES 2.0:
 | `BACKUP` | Optional backup of current partitions |
 | `FLASHING` | Decompressing + writing partition images |
 | `VERIFYING` | SHA-256 read-back verification |
-| `SUCCESS` | Done — 5-second auto-reboot countdown |
+| `SUCCESS` | Done, 5-second auto-reboot countdown |
 | `FAILED` | Error with retry/restore/reboot options |
 
 #### Flash Phases (within FLASHING state)
@@ -223,7 +225,7 @@ sync
 echo 3 > /proc/sys/vm/drop_caches
 ```
 
-Only zygote is stopped — SurfaceFlinger is kept alive so the OTA UI can continue rendering progress via its EGL surface through the HWC pipeline. Bind-mounts over `/system/bin` and `/system/lib64` prevent page cache conflicts: the kernel's page cache for the old system content is replaced by the tmpfs-backed copies, so even if SF demand-pages a library, it reads from tmpfs.
+Only zygote is stopped; SurfaceFlinger is kept alive so the OTA UI can continue rendering progress via its EGL surface through the HWC pipeline. Bind-mounts over `/system/bin` and `/system/lib64` prevent page cache conflicts: the kernel's page cache for the old system content is replaced by the tmpfs-backed copies, so even if SF demand-pages a library, it reads from tmpfs.
 
 This preserves:
 - Display output (SurfaceFlinger + HWC)
@@ -307,14 +309,9 @@ This atomically replaces the dm table, growing the device while it's mounted and
 
 ### Phase 6: Verification
 
-After all writes complete:
+After all writes complete, each partition is read back from the block device and SHA-256 is computed over exactly `size` bytes, then compared against the manifest's `sha256_uncompressed` field.
 
-```
-sync
-echo 3 > /proc/sys/vm/drop_caches
-```
-
-Each partition is read back from the block device and SHA-256 is computed over exactly `size` bytes, then compared against the manifest's `sha256_uncompressed` field.
+Both the writes and the read-back use `O_DIRECT`, so the data bypasses the page cache in each direction. This means the verification reads come straight from the flash rather than from a cached copy of what was just written (a cached read could pass even if the physical write was wrong), and it also removes the need to `echo 3 > /proc/sys/vm/drop_caches` between write and read. The earlier switch away from `drop_caches` matters on low-RAM devices: dropping all caches mid-flash used to evict the tmpfs-staged binaries' own pages and stall the UI.
 
 ### Phase 7: Reboot
 
@@ -472,12 +469,161 @@ python3 tools/gen_ota_manifest.py \
 
 The script computes SHA-256 checksums for both compressed and uncompressed images automatically.
 
-## OTA Server
+## OTA Server and OEM Integration
 
-- **Domain**: `ota.gammaos.sh`
-- **API**: `GET https://ota.gammaos.sh/api/v1/{ro.gammaos.device}/{ro.gammaos.variant}`
-- **Format**: LineageOS Updater JSON format
-- **Device property**: `ro.gammaos.device` (set in vendor image per device)
+This section is the reference for OEM integrators. It covers the stock GammaOS
+endpoint, the three build variants, exactly how the check URL is assembled from
+device properties, the JSON contract the server must answer with, and how to
+point a device at your own server instead.
+
+### Default endpoint
+
+Out of the box the Updater checks:
+
+```
+GET https://ota.gammaos.sh/api/v1/{device}/{variant}
+```
+
+The default is baked into the app as the string resource `updater_server_url`
+(`packages/apps/Updater/.../res/values/strings.xml`). A device installs a
+GammaOS build unchanged and this endpoint is what it polls. You do not need to
+run anything to get working OTA on a GammaOS-supported device; the hosted server
+already serves it.
+
+### The three variants
+
+`{variant}` is the value of `ro.gammaos.variant`, which is set at build time in
+`vendor/lineage/build/core/main_version.mk` from the product target:
+
+| Variant | `ro.gammaos.variant` | Product target | Build entry point | Branding (`PRODUCT_MODEL`) |
+|---------|----------------------|----------------|-------------------|----------------------------|
+| Core | `core` | `lineage_tv_arm64_*` (any Android TV target) | `buildtv.sh` | GammaOS Core |
+| Full | `full` | `lineage_arm64_bgN` (GApps-Go) | `build.sh` with `64GN` | GammaOS Next Full |
+| Lite | `lite` | `lineage_arm64_bvN` / `bvS` and everything else | `build.sh` (`64VN`) | GammaOS Next Lite |
+
+The selection order matters: TV targets are matched first (by the `tv_` substring
+in `TARGET_PRODUCT`), so a TV GApps target such as `lineage_tv_arm64_bgN` still
+resolves to `core`, matching its `GammaOS Core` branding, rather than falling
+through to `full`. `ro.gammaos.variant` is also what drives the
+`GammaOS_Next_{Core,Full,Lite}` string in `ro.lineage.version` /
+`ro.lineage.display.version`.
+
+Each variant is a separate manifest path on the server. A `core` device and a
+`lite` device for the same codename fetch `.../{device}/core` and
+`.../{device}/lite` respectively and never see each other's builds, so you can
+ship, gate, and roll back the three product lines independently.
+
+### How the check URL is built
+
+`Utils.getServerURL()` takes the template (either the default resource above or
+the `lineage.updater.uri` override, see below) and substitutes four
+placeholders. Any subset may appear in a template; each is replaced with the
+corresponding device property:
+
+| Placeholder | Source property | Notes |
+|-------------|-----------------|-------|
+| `{device}` | `ro.gammaos.device` | Per-device codename. MUST be set by the per-device vendor image. If empty, the update check is skipped entirely (the generic `tdgsi_arm64_ab` product device is deliberately never used, so it cannot leak into the URL and serve the wrong manifest). |
+| `{variant}` | `ro.gammaos.variant` | `core` / `full` / `lite` as above. If empty, the check is skipped. |
+| `{type}` | `ro.lineage.releasetype` (lowercased) | Release channel, e.g. `release`, `nightly`. |
+| `{incr}` | `ro.build.version.incremental` | Incremental build id. |
+
+`ro.gammaos.device` is the one property an OEM MUST author per device (it is set
+in the device's vendor image, for example `ro.gammaos.device=mangmiairxmq65`).
+`ro.gammaos.variant`, `ro.gammaos.build.version`, and the `ro.lineage.*` version
+strings are all set automatically by the GammaOS build from the product target.
+
+### Server response contract
+
+The server answers with the LineageOS Updater JSON shape: a top-level `response`
+array, one object per available build. Only the fields below are read
+(`Utils.parseJsonUpdate`); anything else is ignored.
+
+```json
+{
+  "response": [
+    {
+      "datetime": 1711036800,
+      "filename": "gammaos-1.4.1-20260817-mangmiairxmq65.zip",
+      "id": "sha256-or-any-unique-string",
+      "romtype": "release",
+      "size": 892133376,
+      "url": "https://ota.example.com/builds/mangmiairxmq65/gammaos-1.4.1-....zip",
+      "version": "14"
+    }
+  ]
+}
+```
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `datetime` | int (Unix seconds) | Build timestamp. Must be newer than the device's `ro.build.date.utc` or the build is filtered out (unless downgrading is allowed, see below). |
+| `filename` | string | Display name of the package. |
+| `id` | string | Unique id for the download (used for dedup and resume). Any stable unique string works. |
+| `romtype` | string | Must equal the device's `ro.lineage.releasetype` (case-insensitive) or the build is filtered out. This is how you keep `nightly` builds off `release` devices. |
+| `size` | int (bytes) | Size of the OTA zip, for the progress bar and free-space check. |
+| `url` | string | Absolute download URL of the OTA zip. Does not have to be on the same host as the API. |
+| `version` | string | Compared against the device's `ro.gammaos.build.version`; a build older than the current version is filtered out. Point releases (1.4.0 to 1.4.1) upgrade cleanly, so this is a `>=` compare, not an exact match. |
+
+The returned `url` points at a GammaOS OTA zip in the [package format](#ota-package-format)
+described above (a `manifest.json` plus the per-partition `.img.xz` files). The
+API JSON and the in-zip `manifest.json` are two different things: the API entry
+tells the Updater which zip to download and whether it is newer, and the
+`manifest.json` inside that zip drives the actual flash.
+
+### Client-side compatibility filtering
+
+Before a build is offered to the user, the Updater applies `isCompatible()`:
+
+- `version` must be `>=` `ro.gammaos.build.version` (string compare).
+- `datetime` must be `>` `ro.build.date.utc`.
+- `romtype` must match `ro.lineage.releasetype` (case-insensitive).
+
+Setting `lineage.updater.allow_downgrading=true` relaxes the version/timestamp
+checks (useful for QA rollback testing). This means the server can safely return
+the full history for a device/variant; the client shows only what is newer and
+of the right release type.
+
+### Pointing a device at your own server
+
+Two supported ways, no app rebuild required for the first:
+
+1. Runtime override property. Set `lineage.updater.uri` to your template and it
+   takes precedence over the built-in default. It supports the same
+   `{device}` / `{variant}` / `{type}` / `{incr}` placeholders:
+
+   ```
+   # e.g. in your vendor build.prop or an init .rc setprop
+   lineage.updater.uri=https://ota.example.com/api/v1/{device}/{variant}
+   ```
+
+   Because it is a normal system property you can bake it into the vendor image,
+   ship it in an overlay, or set it for a single device without touching the
+   system image.
+
+2. Change the built-in default. Edit the `updater_server_url` string resource
+   in the Updater app and rebuild it. Use this when you are producing your own
+   GammaOS-derived distribution and want your server to be the out-of-box
+   default.
+
+Minimum checklist to self-host:
+
+- Serve `GET {template with placeholders filled}` returning the `response` JSON
+  above, per `{device}` and per `{variant}` you build.
+- Host the OTA zips (built as in [Generating OTA Packages](#generating-ota-packages))
+  at the `url` you return; any static host works, the download is a plain GET.
+- Ensure every device image sets `ro.gammaos.device` to a codename your server
+  recognises. The three `ro.gammaos.variant` values are set for you by the build.
+- Keep `romtype` in the JSON aligned with the `ro.lineage.releasetype` your
+  builds ship with, or nothing will be offered.
+
+### Local / offline install (no server)
+
+OTA does not require a server at all. The Updater's **Local update** and
+**Install from storage** menu entries take a GammaOS OTA zip straight from
+storage (or an Android file picker) and flash it through the same native
+`gammaos-ota` path. This is the recommended flow for bring-up, factory lines,
+and sideloading, and it is how the package format is validated before you stand
+up a server.
 
 ## Key Technical Decisions
 
@@ -485,7 +631,7 @@ The script computes SHA-256 checksums for both compressed and uncompressed image
 Super partition on TrebleDroid GSIs lacks space for dual copies. A 3.5GB system partition would need 7GB+ in super.
 
 ### Why not recovery mode?
-TrebleDroid GSIs use system-as-root. The system IS the root filesystem — there's no separate recovery partition that can unmount it.
+TrebleDroid GSIs use system-as-root. The system IS the root filesystem; there is no separate recovery partition that can unmount it.
 
 ### Why direct block device writes?
 Proven on-device: `dd` can write to `/dev/block/dm-N` while ext4 is mounted read-only. The kernel allows this because the block device layer is independent of the filesystem layer.
@@ -497,18 +643,47 @@ After overwriting the system partition, any binary or library being demand-paged
 `popen()` and `system()` are hardcoded by bionic libc to use `/system/bin/sh`. After system is overwritten, this shell is corrupted. `fork()+execl()` with the staged shell path is the only safe approach.
 
 ### Why not unmount system?
-`umount -l /` on system-as-root GSIs is **catastrophic** — it kills ALL child mounts (`/dev`, `/data`, `/proc`). `pivot_root` and `mount --move` also fail. The solution: don't unmount at all.
+`umount -l /` on system-as-root GSIs is **catastrophic**: it kills ALL child mounts (`/dev`, `/data`, `/proc`). `pivot_root` and `mount --move` also fail. The solution: don't unmount at all.
 
 ### Why keep SurfaceFlinger alive during flash?
-Direct framebuffer (fbdev) writes don't update the display on MediaTek HWC — the hardware composer sits between fb0 and the panel. DRM/KMS is similarly blocked. The only reliable way to show progress on all devices is through SurfaceFlinger's EGL→HWC pipeline. Since SF's binary and GPU drivers are already loaded in memory (and their library paths are bind-mounted to tmpfs), SF continues to composite the OTA UI's EGL surface even while the system partition is being overwritten underneath.
+Direct framebuffer (fbdev) writes don't update the display on MediaTek HWC: the hardware composer sits between fb0 and the panel. DRM/KMS is similarly blocked. The only reliable way to show progress on all devices is through SurfaceFlinger's EGL to HWC pipeline. Since SF's binary and GPU drivers are already loaded in memory (and their library paths are bind-mounted to tmpfs), SF continues to composite the OTA UI's EGL surface even while the system partition is being overwritten underneath.
 
 ### Why decompress to staging file instead of piping to block device?
-Piping XZ directly to a block device is a point of no return — if decompression fails midway, the partition is corrupted. Decompressing to a staging file on `/data` first means the partition is untouched if decompression fails. The staging file also enables a pre-write SHA-256 check (currently skipped for OOM reasons, but architecturally available).
+Piping XZ directly to a block device is a point of no return: if decompression fails midway, the partition is corrupted. Decompressing to a staging file on `/data` first means the partition is untouched if decompression fails. The staging file also enables a pre-write SHA-256 check (currently skipped for OOM reasons, but architecturally available).
 
 ### Why dmctl replace for resize?
 `lptools unmap` fails on mounted partitions. `dmctl replace` atomically swaps the dm table, allowing live partition expansion while the filesystem is mounted. Proven working with +200MB expansion on system_a while mounted at `/`.
 
 ## Build Integration
+
+### Variant properties (`vendor/lineage/build/core/main_version.mk`)
+The OTA-facing properties are all derived here from the product target, so a
+correctly named lunch target is all an integrator needs; nothing per-variant is
+authored by hand:
+
+```makefile
+# core = Android TV (lineage_tv_*), full = GApps-Go (bgN), lite = everything else
+ifneq (,$(findstring tv_,$(TARGET_PRODUCT)))
+GAMMAOS_VARIANT_TAG := Core
+GAMMAOS_VARIANT := core
+else ifneq (,$(findstring bgN,$(TARGET_PRODUCT)))
+GAMMAOS_VARIANT_TAG := Full
+GAMMAOS_VARIANT := full
+else
+GAMMAOS_VARIANT_TAG := Lite
+GAMMAOS_VARIANT := lite
+endif
+
+ADDITIONAL_SYSTEM_PROPERTIES += \
+    ro.gammaos.variant=$(GAMMAOS_VARIANT) \
+    ro.gammaos.build.version=$(GAMMAOS_VERSION)
+```
+
+`ro.gammaos.variant` feeds the `{variant}` URL slot and `ro.gammaos.build.version`
+(the single `GAMMAOS_VERSION`, currently `1.4.1`) is what the client compares the
+server's `version` field against. The only property the integrator must add
+themselves is the per-device `ro.gammaos.device`, set in the device vendor image.
+See [OTA Server and OEM Integration](#ota-server-and-oem-integration).
 
 ### Android.bp
 The binary is built as a `cc_binary` with shared libs for EGL, GLES2, FreeType, liblp, libcrypto, and HAL interfaces. `libdm` is statically linked (no shared variant available).
