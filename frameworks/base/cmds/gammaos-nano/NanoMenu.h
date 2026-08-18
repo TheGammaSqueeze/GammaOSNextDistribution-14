@@ -3813,6 +3813,13 @@ private:
     // reboot. Modes: 0 Default (editor order), 1 A-Z, 2 Most Games, 3 By Manufacturer.
     int  mGameSortMode = 0;
     void gameSortCycleY();                       // Y: step the mode, persist, rebuild, banner
+
+    // ==== Per-game Display Name view (persist.gammaos.nano.rom.show_display_names) =========
+    // ON (default): each game shows its scraped / manually set Display Name (games with no such
+    // name fall back to the ROM file name) and the list is ordered by that shown name, so the
+    // fall-back items sort alongside the named ones. OFF: games show and are ordered by the raw
+    // ROM file name. Read at startup and on the settings toggle; drives applyRomNameOverrides.
+    bool mShowDisplayNames = true;
     std::string gameSortLabelCur() const;        // banner label for the current mode
     std::string systemManufacturer(const XmbSystem& s) const;  // best-effort maker for grouping
 

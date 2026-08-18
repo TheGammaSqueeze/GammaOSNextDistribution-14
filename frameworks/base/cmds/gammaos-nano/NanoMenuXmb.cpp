@@ -278,11 +278,21 @@ void NanoMenu::loadRomCacheForSystem(XmbSystem& sys) {
 // may lazily read the metadata index. NOT called from the bg-scan worker.
 void NanoMenu::applyRomNameOverrides(std::vector<std::string>& roms,
                                      std::vector<std::string>& displayNames) {
-    if (roms.empty() || displayNames.empty()) return;
+    if (roms.empty()) return;
+    // Display Name view OFF: show and order the list by the raw ROM file name. Rebuild the labels
+    // from the file names (dropping any previously-applied scraped/renamed title) and sort by them,
+    // which is exactly an order-by-file-name (the labels are the basenames). See mShowDisplayNames.
+    if (!mShowDisplayNames) {
+        buildRomDisplayNames(roms, displayNames);
+        sortRomEntriesByDisplayName(roms, displayNames);
+        return;
+    }
+    if (displayNames.empty()) buildRomDisplayNames(roms, displayNames);
     size_t n = roms.size() < displayNames.size() ? roms.size() : displayNames.size();
     for (size_t i = 0; i < n; i++) {
         // Priority: a manual Rename/Edit Title wins; otherwise, once a game has been scraped, show its
-        // matched title instead of the ROM filename; otherwise keep the scanned basename.
+        // matched title instead of the ROM filename; otherwise keep the scanned basename. Games with
+        // no Display Name therefore keep the file name and sort alongside the named ones below.
         const std::string* ov = romNameOverrideFor(roms[i]);
         if (ov && !ov->empty()) { displayNames[i] = *ov; continue; }
         const ScrapeEntry* se = scrapeEntryFor(roms[i]);
@@ -301,6 +311,8 @@ void NanoMenu::applyRomNameOverrides(XmbSystem& sys) {
 // them from the override map. Called at load and after a rename.
 void NanoMenu::applyRomNameOverridesToRecents() {
     for (auto& e : mXmbRecent) {
+        // Match the game list: with Display Names off, Recently Played shows the raw file name too.
+        if (!mShowDisplayNames) { e.displayName = romDisplayName(e.romPath); continue; }
         const std::string* ov = romNameOverrideFor(e.romPath);
         if (ov && !ov->empty()) { e.displayName = *ov; continue; }
         const ScrapeEntry* se = scrapeEntryFor(e.romPath);
