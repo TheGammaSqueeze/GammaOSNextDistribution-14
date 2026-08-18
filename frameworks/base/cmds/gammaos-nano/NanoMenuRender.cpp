@@ -40,6 +40,13 @@
 
 #include <android-base/properties.h>
 #include <cutils/properties.h>
+#include <sys/system_properties.h>
+// __system_property_serial is exported by libc (libc.map.txt) but declared only in
+// the internal <sys/_system_properties.h>; forward-declare it so the per-frame
+// property readers can detect a change via the serial (a cheap pointer-deref)
+// instead of a full name lookup every frame. Mirrors the declaration NanoMenu.cpp
+// already carries. prop_info comes from <sys/system_properties.h> above.
+extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
@@ -1939,6 +1946,14 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             // Custom wallpaper fills the whole DSi bottom screen behind the carousel chrome.
             drawWallpaperFill(mRenderingPanel);
         } else {
+            // Batched: the dither loop alone is ~96 full-width quads on the RG DS bottom
+            // panel (480px / S(2)=5px), and each un-batched drawQuad is its own
+            // glUseProgram + glUniform4f + attrib setup + glDrawArrays. Batching submits
+            // the field, every dither line and both edge columns as ONE draw with
+            // per-vertex colour, in the same order, so the composite is unchanged.
+            // Texture-free region, so nothing can land out of z-order (drawIconTex does
+            // NOT flush the batch — see the note at the scrollbar block below).
+            bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
             NdsPal p = ndsPal();
             drawQuad(rx, ry, rw, rh, p.field, p.field, p.field, 1.0f);
             { float dl = S(2.0f); if (dl < 2.0f) dl = 2.0f;
@@ -1946,6 +1961,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             float ec = fmaxf(1.0f, S(1.0f));
             drawQuad(rx, ry, ec, rh, p.edgeShadow, p.edgeShadow, p.edgeShadow, 1.0f);
             drawQuad(rx + rw - ec, ry, ec, rh, p.edgeShadow, p.edgeShadow, p.edgeShadow, 1.0f);
+            if (lb) endSolidBatch();
         }
     }
 
@@ -2106,6 +2122,21 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // the per-card ticks redrawn on top so they read through the pill); and L/R arrow
     // buttons at the track ends. Exact DS coords via X()/Y()/S().
     {
+        // Batched. This block is the draw-call hot spot of the whole carousel: the 22-row
+        // rail gradient, one tick per item (the slot-0 anchor alone is a 4x4 grid of 1px
+        // quads), the 21-stop favColor pill, the 7-band gloss window, its 4 corner pixels
+        // and then the ticks redrawn through that window — on the order of 150-250
+        // individual glDrawArrays per frame at a typical library size, each carrying a
+        // full program bind + uniform upload + attrib setup. Batched they become one draw
+        // (two when the held-thumb branch's drawRoundedRect splits it, which is correct —
+        // it flushes first to keep painter order).
+        //
+        // Safe because the block is entirely texture- and text-free: drawRoundedRect and
+        // drawText DO flush the batch before drawing, but drawIconTex does NOT, so a batch
+        // must never span one. Verified: zero drawIconTex/drawText calls in this block.
+        // drawNdsArrowBtn / drawNdsPillGrad use the same `lb` idiom, so they simply join
+        // this batch instead of opening their own.
+        bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
         // Single-screen: pin the scrollbar/navbar to the bottom strip (Y() reads offY by ref, so
         // swap it to the bottom-pinned origin for this block only, then restore for the tiles).
         float ndsSbSave = offY;
@@ -2218,6 +2249,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
                 drawTick(i);
             }
         }
+        if (lb) endSolidBatch();   // flush the rail + ticks + pill + gloss as one draw
         offY = ndsSbSave;   // restore the content-band origin for the tiles / name box below
     }
 
@@ -2272,6 +2304,8 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // just outside the first/last item (virtual slots -0.9 and totalSlots-1+0.9), y82..159,
     // scrolling with the carousel. Hidden during the intro cascade and the launch (web).
     if (nItems > 0 && !introActive && !launchFx) {
+        // Six solid quads across the two caps -> one draw. Texture-free like the blocks above.
+        bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
         NdsPal cp = ndsPal();
         auto drawCap = [&](float vslot, bool isRight){
             float bcx = cx + S(slotOffX(vslot - camera));
@@ -2284,6 +2318,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         };
         drawCap(-0.9f, false);                              // left "["
         drawCap((float)(nItems - 1) + 0.9f, true);          // right "]"
+        if (lb) endSolidBatch();
     }
     // enter/back level transition: the new line of cards slides into focus - on a drill the
     // old row falls up and the child row rises from below (dir +1 -> start below), on Back the
@@ -4114,7 +4149,13 @@ float NanoMenu::measureText(const char* str, float scale) {
     // Width cache keyed by raster size + string (advances now differ per size).
     // drawList measures every visible label AND value every frame, so this keeps
     // the UTF-8 decode + per-glyph walk off the steady-state path.
-    std::string key(1, (char)rasterPx);
+    // Composed into a reusable buffer instead of a fresh std::string: labels are
+    // usually past the SSO limit, so building the key cost a malloc+free on EVERY
+    // call - including the cache hits this cache exists to make cheap. assign()
+    // reuses the capacity, so a hit now allocates nothing. Render-thread only,
+    // like mTextWidthCache itself.
+    static std::string key;
+    key.assign(1, (char)rasterPx);
     key += (char)(mNdsFontPref ? 1 : 0);   // DSVec advances differ; keep a separate cache slot
     key += str;
     auto cached = mTextWidthCache.find(key);
@@ -4131,7 +4172,11 @@ float NanoMenu::measureText(const char* str, float scale) {
         const GlyphInfo* gi = ensureGlyph(cp, rasterPx);
         if (gi) unit += gi->advance * gi->scaleW;
     }
-    mTextWidthCache.emplace(std::move(key), unit);
+    // Copy, not move: moving out of the reusable buffer would surrender the
+    // capacity this reuse exists to keep. The map owns a string either way, so
+    // this is the same allocation the old std::move paid - it has simply moved
+    // off the hit path onto the miss path, which is where a cache should pay it.
+    mTextWidthCache.emplace(key, unit);
     return unit * strResidual;
 }
 
@@ -4852,7 +4897,18 @@ void NanoMenu::hideControlCenterLayer() {
 // cleared after one capture.
 // Non-static so the Quick Resume splash loop (NanoMenu.cpp), which renders
 // outside the normal render() path, can capture its live game preview too.
-static void nanoScreenshotProp(const char* prop, const char* defPath) {
+// `pi`/`ser`/`have` are the CALLER's serial cache for `prop` (one per prop name).
+// Both shot props are polled every single frame and are unset in production, so
+// the property name lookup was pure per-frame overhead; watching the serial turns
+// the miss into a pointer-deref while still firing on the frame the prop is written.
+static void nanoScreenshotProp(const prop_info*& pi, uint32_t& ser, bool& have,
+                               const char* prop, const char* defPath) {
+    if (!pi) pi = __system_property_find(prop);
+    if (!pi) { have = false; return; }          // never set: nothing to capture
+    const uint32_t nowSer = __system_property_serial(pi);
+    if (have && nowSer == ser) return;          // unchanged since the last look
+    ser = nowSer;
+    have = true;
     char val[PROPERTY_VALUE_MAX] = {};
     property_get(prop, val, "");
     if (!val[0]) return;
@@ -4887,11 +4943,15 @@ static void nanoScreenshotProp(const char* prop, const char* defPath) {
 // Capture the just-composited SECONDARY (bottom DS) panel: sys.gammaos.nano.shot2.
 // Must be called while the secondary EGL surface is current (in the secondary pass).
 void maybeNanoScreenshotSecondary() {
-    nanoScreenshotProp("sys.gammaos.nano.shot2", "/data/local/tmp/nano_shot2.ppm");
+    static const prop_info* pi = nullptr; static uint32_t ser = 0; static bool have = false;
+    nanoScreenshotProp(pi, ser, have,
+                       "sys.gammaos.nano.shot2", "/data/local/tmp/nano_shot2.ppm");
 }
 
 void maybeNanoScreenshot() {
-    nanoScreenshotProp("sys.gammaos.nano.shot", "/data/local/tmp/nano_shot.ppm");
+    static const prop_info* pi = nullptr; static uint32_t ser = 0; static bool have = false;
+    nanoScreenshotProp(pi, ser, have,
+                       "sys.gammaos.nano.shot", "/data/local/tmp/nano_shot.ppm");
 }
 
 // Background watchdog: if render() stops bumping mRenderHeartbeat for ~8s the
@@ -4981,13 +5041,36 @@ void NanoMenu::refreshUserFontScale() {
             }).detach();
         }
     }
-    char b[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.nano.fontscale", b, "1.0");
-    float f = (float)atof(b);
-    if (f < 0.5f) f = 0.5f;
-    if (f > 1.6f) f = 1.6f;
-    mUserFontScale = f;
-    ps3::gFontScale = f;
+    // Serial-cached. This runs at the top of EVERY render() call, so the property
+    // name lookup + atof + clamp ran 60x/s for a value the user changes maybe once
+    // a session. Watch the property's serial instead (a pointer-deref) and re-parse
+    // only when it actually advances, so the Font Size row still takes effect on the
+    // very next frame. Same idiom threadLoop() already uses for app_launched /
+    // show_overlay / pspclock. sFsHave (rather than trusting serial != 0) covers a
+    // freshly-created property whose first serial legitimately reads back as 0.
+    static const prop_info* sFsPi = nullptr;
+    static uint32_t sFsSer = 0;
+    static bool sFsHave = false;
+    static float sFsVal = 1.0f;
+    if (!sFsPi) sFsPi = __system_property_find("persist.gammaos.nano.fontscale");
+    if (!sFsPi) {
+        sFsHave = false;
+        sFsVal = 1.0f;          // not created yet: identical to the "1.0" default
+    } else {
+        const uint32_t ser = __system_property_serial(sFsPi);
+        if (!sFsHave || ser != sFsSer) {
+            sFsSer = ser;
+            sFsHave = true;
+            char b[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.fontscale", b, "1.0");
+            float f = (float)atof(b);
+            if (f < 0.5f) f = 0.5f;
+            if (f > 1.6f) f = 1.6f;
+            sFsVal = f;
+        }
+    }
+    mUserFontScale = sFsVal;
+    ps3::gFontScale = sFsVal;
 }
 
 void NanoMenu::render() {
@@ -6000,6 +6083,19 @@ void NanoMenu::render() {
     // Debug frame capture (no-op unless sys.gammaos.nano.shot is set).
     maybeNanoScreenshot();
 
+    // sys.gammaos.nano.show_overlay was read FIVE times below (three secondary-
+    // setup gates, the secondary show/hide toggle, the secondary render gate),
+    // i.e. five property lookups per frame in overlay mode for one flag that
+    // cannot change midway through a frame anyway. Read it once instead.
+    //
+    // The guard keeps the DRM-direct home at ZERO lookups, which is what it had:
+    // the three setup gates live on the !sDrmActive (SurfaceFlinger) branch and
+    // never run there, and the other two short-circuit on mOverlayMode. So the
+    // read is skipped in exactly the case where no consumer would have reached it,
+    // and every consumer still sees the value it saw before, refreshed each frame.
+    const bool showOverlayProp = (mOverlayMode || !sDrmActive) &&
+            property_get_bool("sys.gammaos.nano.show_overlay", false);
+
     // GammaOS: DRM direct rendering path.
     // - Zero-copy: GPU rendered straight into the scanout FBO; just page flip.
     // - Fallback: glReadPixels → CPU copy to dumb buffer → page flip.
@@ -6234,21 +6330,18 @@ if (sRingPrimedCount >= 2) {
         // Gate on show_overlay (overlay displayed) + the requested stack mode, NOT mOverlayWallpaper
         // or the computed mNdsStack (deadlock, see the deleted note). No-op on a genuine 1-panel
         // device (no secondary port). The visibility toggle below hides it again on dismiss.
-        const bool ndsOverlayLauncher = mNdsTheme && mNdsStackMode != 1 &&
-            property_get_bool("sys.gammaos.nano.show_overlay", false);
+        const bool ndsOverlayLauncher = mNdsTheme && mNdsStackMode != 1 && showOverlayProp;
         // Dual-screen XMB bottom clock: the nds gate above only sets up the SF secondary in the DSi
         // theme, but the overlay-home also needs a secondary surface in PURE XMB to render the PSP
         // clock on the bottom panel. Gate on show_overlay so it only sets up while the overlay-home
         // is displayed, and on wallpaper mode so it is NOT set up over a live app (the clock is a
         // wallpaper-only feature; over an app the app/dual-stack owns the bottom panel). No-op on a
         // genuine 1-panel device (no secondary port).
-        const bool xmbBottomClockLauncher = mPs3BottomClock && !mNdsTheme && mOverlayWallpaper &&
-            property_get_bool("sys.gammaos.nano.show_overlay", false);
+        const bool xmbBottomClockLauncher = mPs3BottomClock && !mNdsTheme && mOverlayWallpaper && showOverlayProp;
         // Minima needs its own SF secondary surface while the overlay-home is displayed, so the
         // bottom panel shows the Minima category+boxart view (renderMinimaSecondary) in overlay mode
         // and after returning from an app, instead of the PS3 wave.
-        const bool minimaOverlayLauncher = mMinimaTheme &&
-            property_get_bool("sys.gammaos.nano.show_overlay", false);
+        const bool minimaOverlayLauncher = mMinimaTheme && showOverlayProp;
         if (mSecondaryEglSurfaces.empty()
                 && (!mOverlayMode || ndsOverlayLauncher || xmbBottomClockLauncher || minimaOverlayLauncher)) {
             setupSecondaryEglSurfaces();
@@ -6261,7 +6354,7 @@ if (sRingPrimedCount >= 2) {
     // instant the overlay is dismissed (show_overlay=0, also forced by overlayHide) so the opaque
     // RGBX surface never covers the running game's bottom screen. Toggle only on change.
     if (mOverlayMode && !mSecondaryWallpaperControls.empty()) {
-        const bool wantShown = property_get_bool("sys.gammaos.nano.show_overlay", false);
+        const bool wantShown = showOverlayProp;
         if (wantShown != mNdsSecondaryShown) {
             SurfaceComposerClient::Transaction t;
             for (const auto& sc : mSecondaryWallpaperControls) {
@@ -6322,8 +6415,7 @@ if (sRingPrimedCount >= 2) {
     // Skip the secondary render only while the overlay is DISMISSED (show_overlay=0) so the
     // running game owns its bottom screen; while the overlay is displayed, render the carousel
     // on the secondary (the in-game scrim path in renderNdsCarousel dims the live app behind it).
-    const bool ndsSecondaryHidden = mOverlayMode &&
-        !property_get_bool("sys.gammaos.nano.show_overlay", false);
+    const bool ndsSecondaryHidden = mOverlayMode && !showOverlayProp;
 
     // GammaOS: Render wallpaper (or bottom DS screen when drastic QR
     // is active) to secondary display(s). Switch to each secondary
