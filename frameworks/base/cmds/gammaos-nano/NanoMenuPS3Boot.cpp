@@ -324,6 +324,10 @@ static bool navSoundsOn() {
 // themes and every SoC audio path. Read live at each boot-audio fire site (Theme Settings > Boot
 // Sound). Separate from nav_sounds (which gates interactive UI SFX) and from the DSi menu ambiance.
 static bool bootSoundOn() {
+    // A Quick Resume boot goes straight back into the game and must never play the boot
+    // chime: sounding the early chime (which drives / races the audio HAL) is exactly what
+    // could hang a QR boot. Normal boots (qr_prepared != 1) play the chime as usual.
+    if (property_get_bool("persist.gammaos.nano.qr_prepared", false)) return false;
     char v[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.boot_sound", v, "1");
     return !(v[0] == '0' || v[0] == 'f' || v[0] == 'F');
