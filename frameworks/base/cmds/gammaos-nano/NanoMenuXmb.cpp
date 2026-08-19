@@ -392,6 +392,11 @@ static njson::Value systemToJson(const NanoMenu::XmbSystem& sys) {
         srcs.arr.push_back(std::move(sv));
     }
     o.set("scanSources") = std::move(srcs);
+    if (!sys.disabledDefaultFolders.empty()) {
+        njson::Value dd = njson::Value::makeArray();
+        for (const auto& d : sys.disabledDefaultFolders) dd.arr.push_back(njson::Value::makeString(d));
+        o.set("disabledDefaultFolders") = std::move(dd);
+    }
     o.set("extensions") = extsToJsonArray(sys.acceptExts);
     njson::Value icon = njson::Value::makeObject();
     icon.set("ref") = njson::Value::makeString(sys.iconRef);
@@ -441,6 +446,12 @@ static NanoMenu::XmbSystem jsonToSystem(const njson::Value& o) {
                 if (!s.value.empty()) sys.scanSources.push_back(std::move(s));
             }
         }
+    }
+    sys.disabledDefaultFolders.clear();
+    if (const njson::Value* dd = o.find("disabledDefaultFolders")) {
+        if (dd->isArray())
+            for (const auto& v : dd->arr)
+                if (v.isString() && !v.str.empty()) sys.disabledDefaultFolders.push_back(v.str);
     }
     if (const njson::Value* exts = o.find("extensions"))
         sys.acceptExts = jsonArrayToExts(*exts);
@@ -626,6 +637,7 @@ bool NanoMenu::resetSystemToBuiltinDefaults(int sysIdx) {
     sys.iconR = sys.iconG = sys.iconB = 1.0f;   // white default tint
     sys.acceptExts = def.acceptExts;
     sys.scanSources.clear();
+    sys.disabledDefaultFolders.clear();
     char ref[24]; snprintf(ref, sizeof(ref), "builtin:%d", idx); sys.iconRef = ref;
     sys.scanned = false;
     loadRomCacheForSystem(sys);
@@ -674,7 +686,13 @@ static std::vector<std::string> getRomFolderAliases(const std::string& romDir) {
         "atarilynx,lynx", "atarijaguar,jaguar", "atarist,ast",
         "msx,msx1,msx2", "colecovision,coleco", "intellivision,intv",
         "vectrex", "virtualboy,vb",
-        "arcade,mame,fbneo,fba,mame2003,mame2010,cps1,cps2,cps3",
+        // Keep distinct arcade platforms in their OWN groups so a per-board system (e.g. CPS1) does
+        // not scan every other arcade folder and auto-add does not collapse them into one system.
+        // "arcade" stays a synonym of MAME (the generic catch-all folder name); FBNeo keeps its FBA
+        // alias; each CP System board is on its own.
+        "arcade,mame,mame2003,mame2010",
+        "fbneo,fba",
+        "cps1", "cps2", "cps3",
         "c64,commodore64", "amiga", "amstradcpc,cpc", "zxspectrum,spectrum,zx81",
         "scummvm", "ports", "dos,pc", "fds", "naomi", "atomiswave", "pokemini",
         "channelf", "odyssey2,videopac", "x68000,x68k",
@@ -920,10 +938,11 @@ void NanoMenu::gsAutoAddTick() {
 }
 
 // Build the ordered, de-duplicated list of directories to scan for a system's
-// ROMs. Honors user scanSources first; always appends the legacy default
-// candidates (so built-ins with empty scanSources behave exactly as before),
-// expanded across the system's ES-DE / libretro folder-name aliases, then
-// prepends any persist.gammaos.nano.xmb.<id>.path override at the front.
+// ROMs. When the user has set scanSources they are authoritative: only those are
+// scanned. Otherwise the legacy default candidates are used (so built-ins with
+// empty scanSources behave as before), expanded across the system's ES-DE /
+// libretro folder-name aliases minus any the user removed (disabledDefaultFolders).
+// A persist.gammaos.nano.xmb.<id>.path override is always prepended at the front.
 std::vector<std::string> NanoMenu::buildScanCandidates(const XmbSystem& sys) {
     std::vector<std::string> scanPaths;
 
@@ -937,7 +956,23 @@ std::vector<std::string> NanoMenu::buildScanCandidates(const XmbSystem& sys) {
     }
 
     const std::string romDir = sys.romDir;
-    const std::vector<std::string> aliases = getRomFolderAliases(romDir);
+    // Default folder aliases to scan. scanSources are authoritative when set (documented contract):
+    // in that mode we scan ONLY the user's chosen folders, so the alias list is empty. Otherwise it
+    // is the romDir's alias group minus any default folders the user removed (disabledDefaultFolders).
+    std::vector<std::string> aliases;
+    if (sys.scanSources.empty()) {
+        auto lc = [](const std::string& s) {
+            std::string o; o.reserve(s.size());
+            for (char c : s) o += (char)((c >= 'A' && c <= 'Z') ? c + 32 : c);
+            return o;
+        };
+        for (const auto& a : getRomFolderAliases(romDir)) {
+            std::string la = lc(a);
+            bool off = false;
+            for (const auto& d : sys.disabledDefaultFolders) if (d == la) { off = true; break; }
+            if (!off) aliases.push_back(a);
+        }
+    }
 
     // 1. Internal storage (raw + FUSE) - for every folder-name alias
     for (const auto& a : aliases) {

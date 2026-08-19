@@ -227,7 +227,11 @@ void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {
         shownNorm.push_back(c);
         int cnt = 0;
         for (const auto& ac : activeCount) if (ac.first == c) { cnt = ac.second; break; }
-        Ps3Item it; it.label = c; it.kind = PS3_GS_FIELD; it.a = -1;   // inert (default); show the normalised path
+        Ps3Item it; it.label = c; it.kind = PS3_GS_DEFFOLDER; it.a = -1;   // default folder; Y removes it
+        // Alias = last path component (ROMs/<alias> or /<alias>), lowercased -- the key stored in
+        // disabledDefaultFolders so removing here drops that alias from every mount it maps to.
+        { size_t sl = c.rfind('/'); std::string al = (sl == std::string::npos) ? c : c.substr(sl + 1);
+          for (char& ch : al) ch = (char)((ch >= 'A' && ch <= 'Z') ? ch + 32 : ch); it.payloadStr = al; }
         char v[40];
         if (cnt > 0) snprintf(v, sizeof(v), "%s%d", trDyn("Default, "), cnt);   // "Default, 12"
         else         snprintf(v, sizeof(v), "%s", trDyn("Default (empty)"));
@@ -237,6 +241,18 @@ void NanoMenu::buildScanFoldersScreen(Ps3Level& out) {
         it.iconR = it.iconG = it.iconB = m;
         out.items.push_back(it);
         defaultShown++;
+    }
+
+    // Removed default folders (Y restores). Listed straight from disabledDefaultFolders because a
+    // removed alias is no longer in buildScanCandidates above, so it would otherwise vanish with no
+    // way to bring it back.
+    for (const auto& alias : sys.disabledDefaultFolders) {
+        Ps3Item it; it.label = std::string("ROMs/") + alias;
+        it.kind = PS3_GS_DEFFOLDER_OFF; it.a = -1; it.payloadStr = alias;
+        it.value = trDyn("Removed");
+        it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62);
+        it.iconR = it.iconG = it.iconB = 0.42f;   // dim: not scanned
+        out.items.push_back(it);
     }
 
     // Nothing at all to scan (no user folders, and not even a default dir exists yet):
@@ -276,6 +292,40 @@ void NanoMenu::gsRemoveScanSource(int srcIdx) {
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDER)
         buildScanFoldersScreen(mPs3Stack.back());
     buildPs3Cats();
+}
+
+// Re-derive + persist after a scan-folder change, then rebuild the open screen. Shared by the
+// default-folder remove/restore below (mirrors gsRemoveScanSource's refresh tail).
+void NanoMenu::gsAfterScanFolderChange(XmbSystem& s) {
+    unlink(xmbCachePath(s).c_str());
+    s.scanned = false;
+    if (!mBgScanThreadRunning) forceRescanAllSystems();
+    saveSystemsConfig();
+    gsRefreshStackLevels();
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDER)
+        buildScanFoldersScreen(mPs3Stack.back());
+    buildPs3Cats();
+}
+
+// Remove a default (built-in alias) scan folder from the edited system so it is no longer scanned.
+void NanoMenu::gsDisableDefaultFolder(const std::string& alias) {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size() || alias.empty()) return;
+    XmbSystem& s = mXmbSystems[mGsEditIdx];
+    std::string la; for (char c : alias) la += (char)((c >= 'A' && c <= 'Z') ? c + 32 : c);
+    for (const auto& d : s.disabledDefaultFolders) if (d == la) return;   // already removed
+    s.disabledDefaultFolders.push_back(la);
+    gsAfterScanFolderChange(s);
+}
+
+// Restore a previously-removed default scan folder.
+void NanoMenu::gsEnableDefaultFolder(const std::string& alias) {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size() || alias.empty()) return;
+    XmbSystem& s = mXmbSystems[mGsEditIdx];
+    std::string la; for (char c : alias) la += (char)((c >= 'A' && c <= 'Z') ? c + 32 : c);
+    for (size_t i = 0; i < s.disabledDefaultFolders.size(); i++) {
+        if (s.disabledDefaultFolders[i] == la) { s.disabledDefaultFolders.erase(s.disabledDefaultFolders.begin() + i); break; }
+    }
+    gsAfterScanFolderChange(s);
 }
 
 // Names of the network shares that are actually mounted right now.

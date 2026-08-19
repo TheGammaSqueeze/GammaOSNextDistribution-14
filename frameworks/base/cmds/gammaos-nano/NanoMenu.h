@@ -202,6 +202,10 @@ public:
         std::string launchArgs;    // extra am tokens appended to the intent (custom-package)
         std::string iconRef;       // builtin:N | retroarch:name | core:name | file:/abs | ""
         std::vector<ScanSource> scanSources; // user-chosen scan locations (empty = legacy default)
+        // Default folder-name aliases the user has removed from this system's scan (lowercased,
+        // e.g. "sfc"). Only consulted when scanSources is empty (default-scan mode); a removed alias
+        // is skipped in buildScanCandidates so its ROMs/<alias> folders are no longer scanned.
+        std::vector<std::string> disabledDefaultFolders;
         float iconR = 1.0f, iconG = 1.0f, iconB = 1.0f; // Icon color (tint)
         std::string acceptExts;    // Comma-separated accepted extensions
         std::string activePath;    // Primary path (largest collection) — for backward compat
@@ -1329,6 +1333,8 @@ private:
         PS3_GS_EMUROW,    // an emulator/core row in the emulator picker (a = catalog index)
         PS3_GS_EMU_CUSTOM,// "Custom..." row in the emulator picker (type a core/package by hand)
         PS3_GS_SCANSRC,   // a configured scan-folder row (a = scanSources index; Y removes it)
+        PS3_GS_DEFFOLDER,     // an active default scan folder (Y removes it; payloadStr = alias)
+        PS3_GS_DEFFOLDER_OFF, // a removed default scan folder (Y restores it; payloadStr = alias)
         PS3_GS_ADDFOLDER, // "Add Folder..." row in the scan-folders screen
         PS3_GS_DIR,       // a directory row in the folder browser (payloadStr = path)
         PS3_GS_SELFOLDER, // "Select This Folder" row in the folder browser (payloadStr = path)
@@ -2668,6 +2674,9 @@ private:
     void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
     void drasticDataFolderSelect(const std::string& path); // #90: set persist.gammaos.drastic.data_dir (folder-picker target 5)
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
+    void gsDisableDefaultFolder(const std::string& alias);  // remove a default scan folder (alias) from the edited system
+    void gsEnableDefaultFolder(const std::string& alias);   // restore a previously-removed default scan folder
+    void gsAfterScanFolderChange(XmbSystem& sys);           // re-scan + persist + rebuild after a scan-folder edit
     void gsOpenRemoveScanSourceConfirm(int srcIdx);  // Cancel / Remove Folder confirm for a scan source
 
     // ======================= File Explorer (Settings > File Explorer) =======================

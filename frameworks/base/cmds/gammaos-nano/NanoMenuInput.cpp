@@ -2707,11 +2707,18 @@ void NanoMenu::pollInput() {
                             }
                             break;
                         }
-                        // Scan-folders screen: Y asks to remove the selected scan source (confirm dialog).
+                        // Scan-folders screen: Y removes the selected folder. A user scan source asks
+                        // to confirm (destructive); a built-in default folder toggles off/on inline.
                         if (mPs3Xmb && ps3TopScreenKind() == GS_FOLDER) {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;
-                            if (sel >= 0 && sel < (int)its.size() && its[sel].kind == PS3_GS_SCANSRC)
-                                gsOpenRemoveScanSourceConfirm(its[sel].a);
+                            if (sel >= 0 && sel < (int)its.size()) {
+                                if (its[sel].kind == PS3_GS_SCANSRC)
+                                    gsOpenRemoveScanSourceConfirm(its[sel].a);
+                                else if (its[sel].kind == PS3_GS_DEFFOLDER)
+                                    gsDisableDefaultFolder(its[sel].payloadStr);
+                                else if (its[sel].kind == PS3_GS_DEFFOLDER_OFF)
+                                    gsEnableDefaultFolder(its[sel].payloadStr);
+                            }
                             break;
                         }
                         // Music folders screen: Y removes the selected music folder.
