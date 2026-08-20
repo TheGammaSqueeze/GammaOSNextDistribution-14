@@ -5089,6 +5089,10 @@ void NanoMenu::render() {
     // while the flow owns the shared dialog (NanoMenuOta.cpp). A handoff exits the process.
     if (mOtaFlowActive) otaFlowTick();
 
+    // Live boxart reload: an external editor (PC Boxart Tool) can rewrite index.json/
+    // names.json and bump sys.gammaos.nano.scrape_reload; pick that up without a restart.
+    scraperPollReload();
+
     // Allow at most one glyph-atlas recycle per frame (see ensureGlyph): the
     // first overflow rewinds the atlas, later overflows in the same frame fall
     // back to blank glyphs rather than recycling in a loop.

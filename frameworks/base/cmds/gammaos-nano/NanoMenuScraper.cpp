@@ -605,6 +605,40 @@ GLuint NanoMenu::romBoxartTex(const std::string& romPath, float* outAR) {
 // disk cache on return), and uploads any finished async art decodes to GL on the render
 // thread. MUST be called once per frame from whichever theme render path is live, or
 // async covers never land (the DSi bug: renderPs3Xmb was the only caller of saDrainArt).
+// Live reload from disk without a Nano restart. An external editor (the PC
+// GammaOS Boxart Tool) rewrites index.json/names.json out-of-process, then bumps
+// sys.gammaos.nano.scrape_reload with a fresh token. We notice the token change
+// here on the render thread (GL context live), reload both sidecars, drop every
+// cached cover/fanart texture so the new art re-decodes, re-apply the title
+// overrides, and echo the token back on sys.gammaos.nano.scrape_reload_ack so the
+// tool knows the reload landed (and can skip the heavier ctl.restart fallback).
+void NanoMenu::scraperPollReload() {
+    char tok[PROPERTY_VALUE_MAX] = {};
+    if (property_get("sys.gammaos.nano.scrape_reload", tok, "") <= 0 || !tok[0]) return;
+    if (mScrapeReloadToken == tok) return;         // already handled this token
+    mScrapeReloadToken = tok;
+
+    // Reload the manifest + name overrides from disk. loadScrapeIndex clears and
+    // refills mScrapeIndex (and honours the no-data-loss guard on a bad file).
+    mScrapeIndexLoaded = true;                      // keep the loaded-guard satisfied
+    loadScrapeIndex();
+    loadRomNameOverrides();
+
+    // Drop all live scraper textures so covers/fanart re-decode from the new files.
+    scraperFreeBoxart();
+    if (mPs3DlgBoxTex) { glDeleteTextures(1, &mPs3DlgBoxTex); mPs3DlgBoxTex = 0; mPs3DlgBoxW = mPs3DlgBoxH = 0; }
+    if (mPs3DlgFanTex) { glDeleteTextures(1, &mPs3DlgFanTex); mPs3DlgFanTex = 0; }
+
+    // Re-apply titles so renamed/newly-scraped games show their name immediately.
+    for (auto& sys : mXmbSystems) applyRomNameOverrides(sys);
+    applyRomNameOverridesToRecents();
+    mPs3CatsStale = true;
+    mDisplayDirty = true;
+
+    property_set("sys.gammaos.nano.scrape_reload_ack", tok);
+    ALOGD("scraper: live-reloaded index/names (token %s), %zu entries", tok, mScrapeIndex.size());
+}
+
 void NanoMenu::scraperArtTick() {
     mScrapeBoxartOn = scraperBoxartEnabled();
     bool inGame = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()

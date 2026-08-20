@@ -2817,7 +2817,9 @@ private:
     };
     std::unordered_map<std::string, ScrapeEntry> mScrapeIndex;
     bool mScrapeIndexLoaded = false;
+    std::string mScrapeReloadToken;        // last sys.gammaos.nano.scrape_reload token handled
     void scraperEnsureLoaded();            // lazy-load index.json
+    void scraperPollReload();              // per-frame: live-reload index/names on an external token bump
     void loadScrapeIndex();
     void saveScrapeIndex();
     const ScrapeEntry* scrapeEntryFor(const std::string& romPath);
