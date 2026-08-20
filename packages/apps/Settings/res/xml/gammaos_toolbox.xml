@@ -1238,6 +1238,30 @@
             android:selectable="false"
             android:summary="@string/gammaos_toolbox_category_power_description" />
 
+        <ListPreference
+            android:key="persist.gammaos.nano.performance_mode"
+            android:title="@string/gammaos_toolbox_nano_power_mode_title"
+            android:summary="@string/gammaos_toolbox_nano_power_mode_summary"
+            android:entries="@array/gammaos_performance_mode_entries"
+            android:entryValues="@array/gammaos_performance_mode_values"
+            android:defaultValue="stock" />
+
+        <ListPreference
+            android:key="persist.gammaos.drastic_nano.performance_mode"
+            android:title="@string/gammaos_toolbox_drastic_power_mode_title"
+            android:summary="@string/gammaos_toolbox_drastic_power_mode_summary"
+            android:entries="@array/gammaos_performance_mode_entries"
+            android:entryValues="@array/gammaos_performance_mode_values"
+            android:defaultValue="max" />
+
+        <ListPreference
+            android:key="persist.gammaos.apps.performance_mode"
+            android:title="@string/gammaos_toolbox_apps_power_mode_title"
+            android:summary="@string/gammaos_toolbox_apps_power_mode_summary"
+            android:entries="@array/gammaos_performance_mode_entries"
+            android:entryValues="@array/gammaos_performance_mode_values"
+            android:defaultValue="stock" />
+
         <EditTextPreference
             android:key="persist.gammaos.fan_mode"
             android:title="@string/gammaos_toolbox_fan_mode_title"

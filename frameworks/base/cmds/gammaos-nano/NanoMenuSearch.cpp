@@ -16,6 +16,8 @@
 #include <cutils/properties.h>
 #include <utils/SystemClock.h>   // uptimeMillis (touch-launch fade stamp)
 
+#include "NanoPowerMode.h"
+
 namespace android {
 
 namespace {
@@ -242,6 +244,7 @@ void NanoMenu::gsearchActivate() {
             gsearchClose();
             if (mOverlayMode) { overlayLaunchPackage(r.payload); return; }
             if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+            nano_power::applyDefaultForPackage(r.payload.c_str());
             property_set("sys.gammaos.nano.launch_app", r.payload.c_str());
             property_set("sys.gammaos.nano.launched_pkg", r.payload.c_str());
             setLaunchRomPath("");

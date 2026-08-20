@@ -37,6 +37,7 @@
 #include "NanoMenuUtils.h" // setLaunchRomPath for the Applications launch
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuStrings.h" // NanoLocale/LocaleInfo + nanoGetLocale/SetLocale/ApplyLocaleToSystem (System Language picker)
+#include "NanoPowerMode.h"
 #include "stb_image.h"     // stbi_load for the cinfo hover background JPEG (impl lives in NanoMenuPS3Icons.cpp)
 #include <utils/SystemClock.h>  // android::uptimeMillis() for touch-gesture timing (long-press, tap, velocity)
 
@@ -1689,7 +1690,10 @@ void NanoMenu::launchAndroidSettings() {
         // RESOLVED COMPONENT explicitly. The resolve is bounded by nanoCaptureCmd's hard timeout.
         std::string comp = nanoResolveSettingsComp();
         if (comp.empty()) {
-            std::thread([]{ system("am start -a android.settings.SETTINGS 2>/dev/null"); }).detach();
+            std::thread([]{
+                nano_power::applyOtherAppsDefault();
+                system("am start -a android.settings.SETTINGS 2>/dev/null");
+            }).detach();
             return;
         }
         std::string pkg = comp.substr(0, comp.find('/'));
@@ -1708,6 +1712,7 @@ void NanoMenu::launchAndroidSettings() {
     property_set("sys.gammaos.nano.drop_input", "1");
     mWaitForRelease = true;
     std::thread([]{
+        nano_power::applyOtherAppsDefault();
         std::string pkg, intent;
         if (nanoIsAtvBuild()) {
             // Core/ATV: hand off TvSettings' MainSettings via MAIN + LEANBACK_LAUNCHER scoped to its
@@ -5048,6 +5053,7 @@ void NanoMenu::launchUrl(const std::string& url) {
 
     if (mOverlayMode) { overlayLaunchUrl(pkg, comp, url); return; }   // in-game: replace the app
     if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+    nano_power::applyOtherAppsDefault();
     property_set("sys.gammaos.nano.launch_app", pkg.c_str());
     property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
     {
@@ -5492,6 +5498,7 @@ void NanoMenu::ps3XmbSelect() {
             if (mOverlayMode) { overlayLaunchPackage(it.payloadStr); return; }
             if (!isLaunchReady()) { showLaunchBusyToast(); return; }
             ALOGI("ps3menu: launching app %s", it.payloadStr.c_str());
+            nano_power::applyDefaultForPackage(it.payloadStr.c_str());
             property_set("sys.gammaos.nano.launch_app", it.payloadStr.c_str());
             property_set("sys.gammaos.nano.launched_pkg", it.payloadStr.c_str());
             setLaunchRomPath("");
@@ -6145,9 +6152,11 @@ void NanoMenu::ps3XmbSelect() {
                     openOnOffChooser("External Display", 16, mSecondaryDisplayOn, 34);
                     return;
                 case QA_LAUNCH_CALIBRATION:
+                    nano_power::applyOtherAppsDefault();
                     std::thread([]{ system("am start -a org.lineageos.lineageparts.GAMEPAD_CALIBRATION 2>/dev/null"); }).detach();
                     return;
                 case QA_LAUNCH_REMAP:
+                    nano_power::applyOtherAppsDefault();
                     std::thread([]{ system("am start -n org.lineageos.lineageparts/.input.GamepadSettings "
                                            "--es :settings:fragment_args_key gamepad_remap_buttons 2>/dev/null"); }).detach();
                     return;
@@ -8449,6 +8458,12 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Screen Lock Sounds", SettingSource::kSystem, "lockscreen_sounds_enabled", "1", "0:Off,1:On"},
     {"Battery Percentage", SettingSource::kSystem, "status_bar_show_battery_percent", "0", "0:Off,1:On"},
     {"Battery Saver", SettingSource::kGlobal, "low_power", "0", "0:Off,1:On"},
+    {"GammaOS Nano Default", SettingSource::kProp, "persist.gammaos.nano.performance_mode", "stock",
+     "stock:Normal,max:Max Performance,powersave:Power Saver"},
+    {"DraStic-Nano Default", SettingSource::kProp, "persist.gammaos.drastic_nano.performance_mode", "max",
+     "stock:Normal,max:Max Performance,powersave:Power Saver"},
+    {"Other Apps Default", SettingSource::kProp, "persist.gammaos.apps.performance_mode", "stock",
+     "stock:Normal,max:Max Performance,powersave:Power Saver"},
     {"Dark Theme", SettingSource::kSecure, "ui_night_mode", "1", "1:Off,2:On"},
     // nano's own home/menu orientation, and the SINGLE control for auto-rotate.
     // Publishes persist.gammaos.nano.orientation; writeSettingValue couples it to
@@ -10779,7 +10794,7 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             static const char* kPerfModes[]  = {"stock", "max", "powersave"};
             static const char* kPerfLabels[] = {"Normal", "Max Performance", "Power Saver"};
             if (sel >= 0 && sel < 3) {
-                property_set("persist.gammaos.performance_mode", kPerfModes[sel]);
+                nano_power::applyMode(kPerfModes[sel]);
                 mPs3PerfModeLabel = kPerfLabels[sel];
             }
             break;
@@ -13265,6 +13280,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             if (mPs3OptCtxPayload.empty()) return;
             if (mOverlayMode) { overlayLaunchPackage(mPs3OptCtxPayload); return; }
             if (!isLaunchReady()) { showLaunchBusyToast(); return; }
+            nano_power::applyDefaultForPackage(mPs3OptCtxPayload.c_str());
             property_set("sys.gammaos.nano.launch_app", mPs3OptCtxPayload.c_str());
             property_set("sys.gammaos.nano.launched_pkg", mPs3OptCtxPayload.c_str());
             setLaunchRomPath("");

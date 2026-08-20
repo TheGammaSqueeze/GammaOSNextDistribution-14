@@ -1610,6 +1610,18 @@
         <item>custom</item>
     </string-array>
 
+    <!-- GammaOS context-specific CPU/GPU performance defaults. -->
+    <string-array name="gammaos_performance_mode_entries">
+        <item>Normal</item>
+        <item>Max Performance</item>
+        <item>Power Saver</item>
+    </string-array>
+    <string-array name="gammaos_performance_mode_values" translatable="false">
+        <item>stock</item>
+        <item>max</item>
+        <item>powersave</item>
+    </string-array>
+
     <!-- GammaOS hardware rotation key: slide trigger event type -->
     <string-array name="gammaos_rotate_key_type_entries">
         <item>Key (EV_KEY)</item>

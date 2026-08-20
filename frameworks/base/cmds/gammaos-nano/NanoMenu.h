@@ -4162,6 +4162,7 @@ private:
     void   ccLaunchBottomApp(const std::string& pkg);  // launch on the bottom panel (or dual-stack branch)
     void   ccPollBottomAppExit();          // watch the launched bottom app; clear + return to CC on exit
     void   ccEndBottomApp(bool stopApp);   // tear down bottom-app state (force-stop optional), restore drop_input
+    void   ccApplyContextPowerDefault();   // restore the top-app or Nano-home default after bottom-app exit
     bool   ccDrainBottomTouch();           // drain the BOTTOM digitizer; true if a touch-DOWN occurred this poll
     bool   ccPollTopTapDown();             // drain the TOP digitizer (gt9xx-1); true if a touch-DOWN occurred
     // Controller-focus pin: point sys.gammaos.nano.focus.display at the panel that should own the gamepad.

@@ -36,6 +36,7 @@
 
 #include "NanoBacklight.h"
 #include "NanoSliderHud.h"   // shared volume/brightness slider spec (gammaos-nano)
+#include "NanoPowerMode.h"
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
 
@@ -1109,9 +1110,6 @@ void OverlayMenu::rebuildGeneral() {
         r.label = "Performance";
         static const char* const kModes[] = {"max", "stock", "powersave"};
         static const char* const kLabels[] = {"Max", "Stock", "Powersave"};
-        static const char* const kSvcs[]   = {"setclock_max",
-                                              "setclock_stock",
-                                              "setclock_powersave"};
         static const int kModeCount = 3;
         auto currentIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
@@ -1126,8 +1124,7 @@ void OverlayMenu::rebuildGeneral() {
         r.onAdjust = [currentIdx](int dir) {
             int idx = currentIdx();
             idx = (idx + dir + kModeCount) % kModeCount;
-            property_set("persist.gammaos.performance_mode", kModes[idx]);
-            property_set("ctl.start", kSvcs[idx]);
+            nano_power::applyMode(kModes[idx]);
             ALOGI("drastic-nano: overlay switched to %s", kModes[idx]);
         };
         mRows.push_back(std::move(r));

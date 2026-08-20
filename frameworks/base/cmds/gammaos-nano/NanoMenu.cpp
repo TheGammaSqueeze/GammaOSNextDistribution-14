@@ -86,6 +86,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "NanoMenuStrings.h"
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoBtStable.h"
+#include "NanoPowerMode.h"
 #include "NanoMenuPS3Bg.h"   // ps3bg::themeFading() for the adaptive idle frame-rate
 
 extern int gEarlyDrmFd;
@@ -623,6 +624,14 @@ status_t NanoMenu::readyToRun() {
                          "com.dsemu.drastic");
             property_set("sys.gammaos.nano.launch_intent", "file");
         }
+    }
+
+    // Select the context default before any rendering or app handoff. A QR resume is
+    // already a DraStic-Nano session; all other home starts use the GammaOS Nano default.
+    if (sDrasticQrFastPath) {
+        nano_power::applyDrasticDefault();
+    } else if (!mOverlayMode || !property_get_bool("sys.gammaos.nano.app_launched", false)) {
+        nano_power::applyNanoDefault();
     }
 
     // GammaOS: Nano mode is confirmed active (skip_nano check passed).
@@ -1243,7 +1252,7 @@ void NanoMenu::nanoApplyPerfClock(const char* mode) {
 void NanoMenu::nanoRestorePerfClock() {
     char mode[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.performance_mode", mode, "stock");
-    nanoApplyPerfClock(mode);
+    nano_power::applyMode(mode);
 }
 
 bool NanoMenu::threadLoop() {
@@ -2914,6 +2923,7 @@ if (sRingPrimedCount >= 2) {
                         if (handoffToDrasticNano) {
                             ALOGI("drastic QR: handoff to "
                                   "drastic-nano binary");
+                            nano_power::applyDrasticDefault();
                             // Reuse the QR ROM path as the drastic-nano
                             // ROM path -- the binary reads from the
                             // nano_drastic_nano_rom.txt file.
@@ -4159,6 +4169,7 @@ if (sRingPrimedCount >= 2) {
                     // clear it and re-seed so the CC fades back in on the bottom panel.
                     if (mCcBottomAppGone.load(std::memory_order_acquire)) {
                         ccEndBottomApp(false);       // app already exited: clear state + restore drop_input (no force-stop)
+                        ccApplyContextPowerDefault();
                         mCcActiveSeeded = false;     // re-seed the idle timer + fade the CC back in
                     }
                     // A bottom-screen app launched from the app grid owns the bottom panel: hide the CC so it
@@ -4345,7 +4356,9 @@ if (sRingPrimedCount >= 2) {
                 // restore drop_input=1. Otherwise it would run orphaned with input isolation stuck off,
                 // and the next CC session would immediately hide behind the stale package. Force-stop here
                 // is off-thread and idempotent.
+                bool hadBottomApp = !mCcBottomApp.empty();
                 ccEndBottomApp(true);
+                if (hadBottomApp) ccApplyContextPowerDefault();
                 ccSetFocusDisplay(-1);        // CC not active: release the focus pin, normal focus resumes
                 if (property_get_int32("sys.gammaos.nano.cc.active", 0) != 0)
                     property_set("sys.gammaos.nano.cc.active", "0");   // release the display-0 rotation pin
@@ -4442,6 +4455,7 @@ if (sRingPrimedCount >= 2) {
             if (android::base::GetProperty(
                         "persist.gammaos.drastic_nano.backend", "auto") == "sf") {
                 ALOGW("drastic nano: SF mode -- launching DrasticSf via launch_app");
+                nano_power::applyDrasticDefault();
                 // Launch the DrasticSf host activity through the SAME path a
                 // normal app (e.g. the store) uses: set launch_app and let the
                 // home's existing app-launch handoff run. That handoff is what
@@ -4515,6 +4529,7 @@ if (sRingPrimedCount >= 2) {
             setLaunchRomPath("");
             android::base::SetProperty("sys.gammaos.nano.launch_core", "");
             // setDrasticNanoRomPath() already wrote the ROM file; pull the trigger.
+            nano_power::applyDrasticDefault();
             property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);
         }
@@ -5644,10 +5659,8 @@ if (sRingPrimedCount >= 2) {
     if (mExitRequested) {
         char mode[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.performance_mode", mode, "stock");
-        char cmd[128];
-        snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh &", mode);
         ALOGI("NanoMenu: re-applying performance mode '%s' (background)", mode);
-        system(cmd);
+        nano_power::applyMode(mode);
     }
 
     // Transition: grab input devices. drop_input was already set in handleSelect()

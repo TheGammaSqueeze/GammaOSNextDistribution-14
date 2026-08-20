@@ -58,6 +58,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "NanoMenuShaders.h"
 #include "NanoMenuUtils.h"
 #include "NanoMenuStrings.h"   // LOCALE_COUNT (DSi language picker touch)
+#include "NanoPowerMode.h"
 
 namespace android {
 
@@ -398,6 +399,9 @@ void NanoMenu::handleSelect() {
         {
             char launchApp[PROPERTY_VALUE_MAX] = {};
             property_get("sys.gammaos.nano.launch_app", launchApp, "com.retroarch.aarch64");
+            // The legacy Recent list contains RetroArch games; launch_app can still
+            // name the app from the previous session at this point.
+            nano_power::applyOtherAppsDefault();
             android::base::SetProperty("sys.gammaos.nano.launched_pkg", launchApp);
         }
         // Trigger DE cache populate (ROM first, then delta sync everything)
@@ -450,6 +454,7 @@ void NanoMenu::handleSelect() {
         // Launch the selected app
         const auto& app = mAppEntries[mAppSelectedIndex];
         ALOGI("NanoMenu: launching app: %s", app.packageName.c_str());
+        nano_power::applyDefaultForPackage(app.packageName.c_str());
         android::base::SetProperty("sys.gammaos.nano.launch_app", app.packageName);
         // Track launched package so NanoMenu can force-stop it on next restart
         android::base::SetProperty("sys.gammaos.nano.launched_pkg", app.packageName);

@@ -13428,7 +13428,7 @@
     <string name="gammaos_toolbox_gesture_wake_title">Wake gesture filter</string>
     <string name="gammaos_toolbox_gesture_wake_summary">Filter specific wake gestures to prevent accidental screen wake. Comma-separated gesture identifiers.</string>
     <string name="gammaos_toolbox_performance_mode_title">Performance mode</string>
-    <string name="gammaos_toolbox_performance_mode_summary">Performance profile for CPU/GPU governor tuning. Options: stock, performance, powersave.</string>
+    <string name="gammaos_toolbox_performance_mode_summary">Active CPU/GPU profile override. Options: stock, max, powersave.</string>
 
     <!-- GammaOS Toolbox: CRT Shader Sub-Parameters -->
     <string name="gammaos_toolbox_category_shader_crt">CRT Simple Shader</string>
@@ -13505,6 +13505,12 @@
     <!-- GammaOS Toolbox: Power & Performance -->
     <string name="gammaos_toolbox_category_power">Power &amp; Performance</string>
     <string name="gammaos_toolbox_category_power_description">Power management, fan control, and process limiting. These affect battery life, thermal behavior, and system responsiveness.</string>
+    <string name="gammaos_toolbox_nano_power_mode_title">GammaOS Nano default</string>
+    <string name="gammaos_toolbox_nano_power_mode_summary">Performance mode used while the GammaOS Nano home is active.</string>
+    <string name="gammaos_toolbox_drastic_power_mode_title">DraStic-Nano default</string>
+    <string name="gammaos_toolbox_drastic_power_mode_summary">Performance mode used while DraStic-Nano is running.</string>
+    <string name="gammaos_toolbox_apps_power_mode_title">Other apps default</string>
+    <string name="gammaos_toolbox_apps_power_mode_summary">Performance mode used while other apps are running. Quick Settings and the in-game overlay can override it temporarily.</string>
     <string name="gammaos_toolbox_fan_mode_title">Fan mode</string>
     <string name="gammaos_toolbox_fan_mode_summary">Fan control profile for devices with active cooling. Device-specific values.</string>
     <string name="gammaos_toolbox_ultra_low_power_title">Ultra low power mode</string>

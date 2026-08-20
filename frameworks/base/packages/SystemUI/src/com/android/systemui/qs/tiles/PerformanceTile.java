@@ -80,15 +80,13 @@ public class PerformanceTile extends QSTileImpl<BooleanState> {
         super(host, qsEventLogger, bgLooper, mainHandler, falsingManager, metricsLogger,
               statusBarStateController, activityStarter, qsLogger);
 
-        // 1) Read the persisted prop (default to max if missing), map to our state enum
+        // Read the active mode. Nano applies the context default at home/app handoff;
+        // the tile must not write its fallback during boot and race that selection.
         currentState = mapPropToState(
-                SystemProperties.get(PROP_PERF_MODE, MODE_MAX)
+                SystemProperties.get(PROP_PERF_MODE, MODE_STOCK)
         );
 
-        // 2) Re-apply it (in case it's been changed externally between boots)
-        applyState(currentState);
-
-        // 3) Listen for screen-off and boot so we can re-sync
+        // Listen for screen-off and boot so we can re-sync.
         mReceiver.init();
     }
 
@@ -109,7 +107,7 @@ public class PerformanceTile extends QSTileImpl<BooleanState> {
         if (listening) {
             // Re-read the prop when QS panel is opened
             int newState = mapPropToState(
-                    SystemProperties.get(PROP_PERF_MODE, MODE_MAX)
+                    SystemProperties.get(PROP_PERF_MODE, MODE_STOCK)
             );
             // If it changed externally, update and refresh tile
             if (newState != currentState) {
@@ -171,14 +169,14 @@ public class PerformanceTile extends QSTileImpl<BooleanState> {
 
     /**
      * Map the string prop ("stock"/"powersave"/"max") to our integer state.
-     * Invalid or missing values default to MAX.
+     * Invalid or missing values default to STOCK.
      */
     private int mapPropToState(String mode) {
         if (MODE_POWERSAVE.equals(mode)) return STATE_POWERSAVE;
         if (MODE_MAX.equals(mode))       return STATE_MAX;
         if (MODE_STOCK.equals(mode))     return STATE_STOCK;
-        // default to max on invalid
-        return STATE_MAX;
+        // default to stock on invalid
+        return STATE_STOCK;
     }
 
     /**
@@ -222,12 +220,11 @@ public class PerformanceTile extends QSTileImpl<BooleanState> {
             String action = intent.getAction();
             if (Intent.ACTION_SCREEN_OFF.equals(action)
              || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-                // Re-read the prop in case it was changed elsewhere
+                // Re-read the prop in case it was changed elsewhere. Do not write
+                // the tile's value here: Nano owns context-default application.
                 currentState = mapPropToState(
-                        SystemProperties.get(PROP_PERF_MODE, MODE_MAX)
+                        SystemProperties.get(PROP_PERF_MODE, MODE_STOCK)
                 );
-                // Re-apply it just to be safe, and update UI
-                applyState(currentState);
                 refreshState();
             }
         }

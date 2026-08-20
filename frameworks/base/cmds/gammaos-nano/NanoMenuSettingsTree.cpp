@@ -34,6 +34,7 @@
 #include "NanoMenuSettingsTree.h"
 #include "NanoMenuStrings.h"
 #include "NanoI18n.h"
+#include "NanoPowerMode.h"
 
 namespace android {
 
@@ -653,6 +654,15 @@ void NanoMenu::buildSettingsTree() {
 
       // -- Power & Performance --
       b.beginCategory("gos_power", "Power & Performance");
+        b.list("nano_power_mode", "GammaOS Nano Default",
+               SettingSource::kProp, "persist.gammaos.nano.performance_mode", "stock",
+               "stock:Normal,max:Max Performance,powersave:Power Saver");
+        b.list("drastic_power_mode", "DraStic-Nano Default",
+               SettingSource::kProp, "persist.gammaos.drastic_nano.performance_mode", "max",
+               "stock:Normal,max:Max Performance,powersave:Power Saver");
+        b.list("apps_power_mode", "Other Apps Default",
+               SettingSource::kProp, "persist.gammaos.apps.performance_mode", "stock",
+               "stock:Normal,max:Max Performance,powersave:Power Saver");
         b.text("fan_mode", "Fan Mode",
                SettingSource::kProp, "persist.gammaos.fan_mode", "");
         b.toggle("ultra_low_power", "Ultra Low Power Saving",
@@ -907,6 +917,12 @@ void writeSettingValue(SettingSource src, const std::string& key,
     if (src == SettingSource::kProp && key == "persist.gammaos.nano.orientation") {
         writeSettingValue(SettingSource::kSystem, "accelerometer_rotation",
                           (val == "auto") ? "1" : "0");
+    }
+    // Changing the home default while the home is active should take effect immediately;
+    // defaults for apps are picked up the next time that app becomes foreground.
+    if (src == SettingSource::kProp && key == nano_power::kNanoDefault
+            && !property_get_bool("sys.gammaos.nano.app_launched", false)) {
+        nano_power::applyMode(val.c_str());
     }
     // The gammapad daemon watches persist.gammaos.gamepad.config_version (it polls
     // it every ~1s) and does a lightweight transform reload when it changes. Every
