@@ -825,8 +825,10 @@ void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
     if (w != mPspClockAppTexW || h != mPspClockAppTexH) {
         glBindTexture(GL_TEXTURE_2D, mPspClockAppTex);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // Nearest-neighbour so the game content behind the clock stays crisp/pixel-sharp when the
+        // refracting lens samples it at sub-texel UVs, instead of a bilinear-smeared look.
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         mPspClockAppTexW = w; mPspClockAppTexH = h;
@@ -936,6 +938,14 @@ void NanoMenu::pspClockMirrorTick(bool want) {
 // (microseconds) - NEVER across a binder call, a GL call, or a SW buffer lock, so it
 // cannot stall the render thread into the ~8s watchdog.
 void NanoMenu::pspClockAppCaptureTick() {
+    // Freeze App Under Clock: once the game is backgrounded it produces no new frames, so stop the
+    // mirror/worker and HOLD the last captured still - mPspClockAppTex stays valid, so the surround
+    // and lens keep sampling it and the gyro parallax keeps panning it. Do NOT clear the texture.
+    if (mPspAppBackgrounded) {
+        if (mPspClockCaptureRunning) { gPspCapRun.store(false, std::memory_order_release); mPspClockCaptureRunning = false; }
+        if (gMirActive) pspClockMirrorStop();
+        return;
+    }
     // Diagnostic kill-switch: force the live-app SF capture OFF to A/B whether the
     // full-display captureDisplay is what stalls the game. persist.gammaos.nano.pspclock.nocap=1.
     const bool want = pspClockLiveAppEnabled()
@@ -1033,8 +1043,9 @@ void NanoMenu::pspClockAppCaptureTick() {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, uw, uh, 0,
                          GL_RGBA, GL_UNSIGNED_BYTE, sUpload.data());
             mPspClockAppTexW = uw; mPspClockAppTexH = uh;
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            // Nearest-neighbour: keep the game content behind the clock crisp under the lens refraction.
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         } else {
@@ -1109,6 +1120,9 @@ void NanoMenu::drawPspClock(float dtMs) {
         // left show_overlay=1 through the retract so this animates fully first). Clearing
         // standalone first lets overlayPoll's hide guard pass; it does the actual overlayHide.
         if (mPspClockStandalone) {
+            // Backstop: if the clock fully closed while the game was still backgrounded (the
+            // close-start foreground above did not run for some reason), resume it now.
+            if (mPspAppBackgrounded) { mPspAppBackgrounded = false; pspClockFreezeApp(false); }
             mPspClockStandalone = false;
             if (mPspClockRaisedOverlay) {
                 mPspClockRaisedOverlay = false;
@@ -1233,6 +1247,24 @@ void NanoMenu::drawPspClock(float dtMs) {
     // its FBO switch cannot flush the clock's tile. Phase 0.
     { static int sG = 0; if ((sG++ % sampleiv) == 0) pspClockSampleGlow(); }
     pspClockAppCaptureTick();                 // #5: pump live-app capture -> mPspClockAppTex
+    // Freeze App Under Clock (over-app standalone summon only, gated). Once a real game frame is
+    // captured, send the game to the background (normal Android pause) and hold the still; the moment
+    // the clock starts closing (mPspClockOn cleared on slide release) foreground it so it resumes and
+    // renders live under the fading clock. mPspClockOn stays true through the whole open hold and only
+    // clears on release, so the background fires once on entry and the foreground once on exit.
+    if (mPspClockStandalone && property_get_bool("persist.gammaos.nano.pspclock.freezeapp", false)) {
+        if (mPspClockOn && !mPspAppBackgrounded && mPspClockAppTexValid && !mOverlayPausedPkg.empty()) {
+            mPspAppBackgrounded = true;
+            pspClockFreezeApp(true);          // HOME: background the game, hold the just-captured still
+        } else if (!mPspClockOn && mPspAppBackgrounded) {
+            mPspAppBackgrounded = false;
+            pspClockFreezeApp(false);         // am start: foreground/resume as the clock fades out
+        }
+    } else if (mPspAppBackgrounded) {
+        // Feature toggled off, or the summon ended, while still frozen: resume the game.
+        mPspAppBackgrounded = false;
+        pspClockFreezeApp(false);
+    }
     // #5 dynamic darkening: sample the live-app mean brightness so a bright game dims the
     // disc + darkens the surround. Before the visible passes (FBO switch). Phase iv/2 so its
     // glReadPixels flush lands on a DIFFERENT frame than the glow sample above.

@@ -8673,8 +8673,16 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // Gap (percent of panel height) between the stacked DS screens - read live by renderNds.
     {"Screen Gap", SettingSource::kProp, "persist.gammaos.nano.ndstheme.gap", "6",
      "0:None,3:Small,6:Medium,12:Large,20:Extra Large,30:Maximum"},
+    {"Freeze App Under Clock", SettingSource::kProp, "persist.gammaos.nano.pspclock.freezeapp", "0", "0:Off,1:On"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},
-    {"Parallax Calibration", SettingSource::kProp, "persist.gammaos.nano.pspclock.tilt.cal", "0.12,1,-1,-1", "@text"},
+    // Friendly parallax rows. They do not bind tilt.cal directly (that raw "gain,rot,sx,sy" CSV is
+    // still the single source of truth pspClockPollTilt reads); writeSettingValue recomposes tilt.cal
+    // from these three whenever one changes, preserving the per-device rot field.
+    {"Parallax", SettingSource::kProp, "persist.gammaos.nano.pspclock.parallax", "1", "0:Off,1:On"},
+    {"Parallax Strength", SettingSource::kProp, "persist.gammaos.nano.pspclock.parallax.strength", "12",
+     "6:Subtle,12:Normal,20:Strong,30:Extra Strong,50:Maximum"},
+    {"Parallax Direction", SettingSource::kProp, "persist.gammaos.nano.pspclock.parallax.dir", "0",
+     "0:Peek Behind,1:Follow Tilt,2:Invert X Only,3:Invert Y Only"},
     // Developer Options
     {"USB Debugging", SettingSource::kGlobal, "adb_enabled", "0", "0:Off,1:On"},
     {"Stay Awake While Charging", SettingSource::kGlobal, "stay_on_while_plugged_in", "0", "0:Off,7:On"},

@@ -924,6 +924,40 @@ void writeSettingValue(SettingSource src, const std::string& key,
         char nb[16]; snprintf(nb, sizeof(nb), "%ld", v + 1);
         property_set("persist.gammaos.gamepad.config_version", nb);
     }
+    // The friendly slide-clock Parallax rows (on/off, strength, direction) recompose into the single
+    // pspclock.tilt.cal "gain,rot,sx,sy" string that pspClockPollTilt re-reads ~1s. The rot field is a
+    // per-device accel-mount correction the user never sets, so preserve whatever is already in
+    // tilt.cal (default 1). Parallax Off => gain 0 (pspClockPollTilt treats gain 0 as no pan). The
+    // default composition (on, Normal=12, Peek Behind) yields "0.12,1,-1,-1" - the shipped default, so
+    // existing installs are unchanged until a row is touched. property_set below writes tilt.cal, which
+    // does not match this "...parallax" prefix, so there is no recursion.
+    if (src == SettingSource::kProp &&
+        key.rfind("persist.gammaos.nano.pspclock.parallax", 0) == 0) {
+        int rot = 1;
+        char cur[PROPERTY_VALUE_MAX] = {};
+        if (property_get("persist.gammaos.nano.pspclock.tilt.cal", cur, "") > 0 && cur[0]) {
+            float g = 0.12f, sx = -1.0f, sy = -1.0f; int rt = 1;
+            if (sscanf(cur, "%f,%d,%f,%f", &g, &rt, &sx, &sy) >= 2) rot = rt;
+        }
+        char pv[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.pspclock.parallax", pv, "1");
+        bool on = (pv[0] == '1' || pv[0] == 't' || pv[0] == 'o');
+        property_get("persist.gammaos.nano.pspclock.parallax.strength", pv, "12");
+        int strength = atoi(pv); if (strength < 0) strength = 0; if (strength > 100) strength = 100;
+        property_get("persist.gammaos.nano.pspclock.parallax.dir", pv, "0");
+        int dir = atoi(pv);
+        float gain = on ? (float)strength / 100.0f : 0.0f;
+        int sx = -1, sy = -1;
+        switch (dir) {
+            case 1: sx =  1; sy =  1; break;   // Follow Tilt
+            case 2: sx =  1; sy = -1; break;   // Invert X Only
+            case 3: sx = -1; sy =  1; break;   // Invert Y Only
+            default: sx = -1; sy = -1; break;  // Peek Behind (current default)
+        }
+        char cal[PROPERTY_VALUE_MAX];
+        snprintf(cal, sizeof(cal), "%.4g,%d,%d,%d", gain, rot, sx, sy);
+        property_set("persist.gammaos.nano.pspclock.tilt.cal", cal);
+    }
 }
 
 void NanoMenu::startSettingsValueRefresh() {

@@ -335,6 +335,35 @@ void NanoMenu::overlayPauseApp(bool pause) {
     }
 }
 
+void NanoMenu::pspClockFreezeApp(bool background) {
+    // Freeze App Under Clock (persist.gammaos.nano.pspclock.freezeapp). Unlike overlayPauseApp's
+    // SIGSTOP (which broke resume), this uses the NORMAL Android lifecycle: background=true sends the
+    // game to the background with a HOME intent so Android pauses it (kept alive, resumes warm -
+    // verified on the RG Rotate: HOME backgrounded a live app without killing it); background=false
+    // brings the game's launcher activity back to the front (warm resume). Both shell out on a
+    // detached thread so the render thread never stalls on am/cmd.
+    if (mOverlayPausedPkg.empty()) return;
+    if (background) {
+        ALOGI("pspclock: freeze -> HOME (background %s)", mOverlayPausedPkg.c_str());
+        std::thread([]() {
+            system("am start -a android.intent.action.MAIN -c android.intent.category.HOME 2>/dev/null");
+        }).detach();
+    } else {
+        std::string pkg = mOverlayPausedPkg;
+        ALOGI("pspclock: thaw -> foreground %s", pkg.c_str());
+        std::thread([pkg]() {
+            char cmd[512];
+            // Bring the existing task to the front WARM via its launcher activity (Android package
+            // names are [a-zA-Z0-9._] so no shell-quoting of pkg is needed).
+            snprintf(cmd, sizeof(cmd),
+                "ACT=$(cmd package resolve-activity --brief -c android.intent.category.LAUNCHER %s 2>/dev/null | tail -1); "
+                "case \"$ACT\" in */*) am start -n \"$ACT\" 2>/dev/null;; esac",
+                pkg.c_str());
+            system(cmd);
+        }).detach();
+    }
+}
+
 void NanoMenu::overlayShow() {
     if (mOverlayShown) return;
     if (mFlingerSurfaceControl == nullptr) {

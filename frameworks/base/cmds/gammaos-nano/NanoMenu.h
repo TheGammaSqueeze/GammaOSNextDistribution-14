@@ -951,6 +951,9 @@ private:
     // persist.gammaos.nano.overlay.pause (default on); the frozen window keeps
     // its last frame for SurfaceFlinger to blur.
     void overlayPauseApp(bool pause);
+    // Freeze App Under Clock: background (HOME intent, keeps the game alive) / foreground (am start
+    // the game's launcher, warm resume) the over-app game while the slide clock is open. Async.
+    void pspClockFreezeApp(bool background);
     std::string mOverlayPausedPkg;    // package frozen on show, thawed on hide
     // Overlay XMB actions (NanoMenuOverlay.cpp), invoked from the PS3 input
     // handlers when mOverlayMode. Resume = dismiss + thaw the running app; quit =
@@ -2513,6 +2516,11 @@ private:
     // overlay when the clock finishes retracting. mPspClockRaisedOverlay = we raised it.
     bool  mPspClockStandalone = false;
     bool  mPspClockRaisedOverlay = false;
+    // Freeze App Under Clock (persist.gammaos.nano.pspclock.freezeapp): once a game frame is
+    // captured for the over-app slide clock, the game is sent to the background (normal Android
+    // pause, kept alive) and its last frame is held as the backdrop; it is foregrounded/resumed
+    // when the clock starts closing. This latch = the game is currently backgrounded by us.
+    bool  mPspAppBackgrounded = false;
     // PSP slide clock in a DSi/Minima HOME (no app): the surround + glass disc show the THEME home
     // backdrop (Minima black/solid/wallpaper, DSi field/wallpaper), not the XMB wave. Set for the frame
     // by drawPspClockThemeBackdrop(); tells pspClockLens/pspClockSampleGlow the work texture is display

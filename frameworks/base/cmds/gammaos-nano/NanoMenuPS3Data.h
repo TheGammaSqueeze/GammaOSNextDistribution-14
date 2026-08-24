@@ -309,8 +309,11 @@ static const Ps3DataItem kSlideCh[] = {
   {"Rotation Angle",70,"Angle used by the Rotate action.","90 degrees",0,nullptr,0},
   {"Slide Launch Target",74,"For the Launch action: a package, component, or nano:<mode>.",nullptr,1,nullptr,0},
   {"Show Clock On Slide",73,"Show the PSP clock overlay while the button is slid.","On",0,nullptr,0},
+  {"Freeze App Under Clock",73,"While the slide clock is open, pause the running game and show a still of it, then resume the game when the clock closes. Saves power and stops the game running while you are not playing.","Off",0,nullptr,0},
   {"Clock Live Backdrop",73,"Refract and blur the running game behind the clock.","On",0,nullptr,0},
-  {"Parallax Calibration",73,"gain,rot,sx,sy - gyro parallax throw, orientation and per-axis sign.",nullptr,1,nullptr,0},
+  {"Parallax",73,"Tilt the device to peek behind the glass clock face.","On",0,nullptr,0},
+  {"Parallax Strength",73,"How far the background shifts behind the glass when you tilt.","Normal",0,nullptr,0},
+  {"Parallax Direction",73,"Which way the background slides relative to your tilt.","Peek Behind",0,nullptr,0},
 };
 // kMouseCh (data-driven Mouse Mode) is retired: Mouse Mode now opens the code-built
 // buildMouseSubmenu via QA_MOUSE_MENU under Gamepad Settings. Guard so it is not unused.
