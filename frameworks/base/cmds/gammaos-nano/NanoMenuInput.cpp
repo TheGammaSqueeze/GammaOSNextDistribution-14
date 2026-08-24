@@ -804,6 +804,46 @@ void NanoMenu::tickNavRepeat() {
 // the burst to a single cursor cue. Vertical for the Minima list and DSi settings lists, horizontal
 // for the DSi game / app carousel. dir < 0 = back a page, dir > 0 = forward a page.
 void NanoMenu::ndsBumperSkip(int dir) {
+    // NextUI's L1/R1 jump to the previous / next initial-letter group on the (alphabetically
+    // sorted) game list. Reproduce that on an alpha-sorted list level here; on a list that is not
+    // alpha-sorted (settings screens, the recency-ordered Recently Played) fall back to the fixed
+    // page skip so the bumper still advances a screenful.
+    std::vector<Ps3Item>* items = nullptr; int* selPtr = nullptr;
+    if (!mPs3Stack.empty())                                          { items = &mPs3Stack.back().items; selPtr = &mPs3Stack.back().sel; }
+    else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size())   { items = &mPs3Cats[mPs3CatIdx].items; selPtr = &mPs3ItemIdx; }
+    const int n = items ? (int)items->size() : 0;
+    if (items && selPtr && n >= 8) {
+        // Group key = the label's first character folded to an upper-case letter; digits and
+        // symbols share one leading '#' group (matching NextUI's getIndexChar bucketing).
+        auto keyOf = [&](int i) -> char {
+            const std::string& s = (*items)[i].label;
+            char c = s.empty() ? '#' : s[0];
+            if (c >= 'a' && c <= 'z') c = (char)(c - 32);
+            return (c >= 'A' && c <= 'Z') ? c : '#';
+        };
+        int ordered = 0;
+        for (int i = 1; i < n; i++) if (keyOf(i) >= keyOf(i - 1)) ordered++;
+        if (ordered * 100 >= (n - 1) * 80) {   // >=80% non-decreasing -> treat as an alpha-sorted list
+            int sel = *selPtr; if (sel < 0) sel = 0; if (sel >= n) sel = n - 1;
+            const char cur = keyOf(sel);
+            int target = sel;
+            if (dir > 0) {                                   // next group: first row past this letter
+                int i = sel + 1; while (i < n && keyOf(i) == cur) i++;
+                if (i < n) target = i;
+            } else {                                         // start of this group, else the previous group
+                int gs = sel; while (gs > 0 && keyOf(gs - 1) == cur) gs--;
+                if (gs < sel) target = gs;
+                else if (gs > 0) { const char pl = keyOf(gs - 1); int j = gs - 1; while (j > 0 && keyOf(j - 1) == pl) j--; target = j; }
+                else target = 0;
+            }
+            if (target != sel) {
+                *selPtr = target;
+                mListWrapSnap  = true;    // snap the scroll window to the jump instead of gliding through
+                mDisplayDirty  = true;    // minimaSfxTick fires the cursor SFX on the sel change next frame
+            }
+            return;
+        }
+    }
     const int PAGE = 10;
     bool vertical = mMinimaTheme || ndsCurLevelIsList();
     for (int i = 0; i < PAGE; i++) {
