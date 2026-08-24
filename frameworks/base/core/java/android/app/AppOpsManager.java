@@ -2802,7 +2802,13 @@ public class AppOpsManager {
             .setDefaultMode(AppOpsManager.MODE_ALLOWED).build(),
         new AppOpInfo.Builder(OP_REQUEST_INSTALL_PACKAGES, OPSTR_REQUEST_INSTALL_PACKAGES,
                 "REQUEST_INSTALL_PACKAGES").setSwitchCode(OP_REQUEST_INSTALL_PACKAGES)
-            .setPermission(Manifest.permission.REQUEST_INSTALL_PACKAGES).build(),
+            .setPermission(Manifest.permission.REQUEST_INSTALL_PACKAGES)
+            // GammaOS: allow installing from unknown sources by default for every app that declares
+            // REQUEST_INSTALL_PACKAGES, so file managers and app stores can install APKs without the
+            // per-app "Install unknown apps" toggle (unreachable on touchless devices where that
+            // settings screen crashes). getPackageTrustedToInstallApps maps MODE_ALLOWED ->
+            // USER_TRUSTED, so canRequestPackageInstalls returns true with no prompt.
+            .setDefaultMode(AppOpsManager.MODE_ALLOWED).build(),
         new AppOpInfo.Builder(OP_PICTURE_IN_PICTURE, OPSTR_PICTURE_IN_PICTURE, "PICTURE_IN_PICTURE")
             .setSwitchCode(OP_PICTURE_IN_PICTURE).setDefaultMode(AppOpsManager.MODE_ALLOWED)
             .build(),
