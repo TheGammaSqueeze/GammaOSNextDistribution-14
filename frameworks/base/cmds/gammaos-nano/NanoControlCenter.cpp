@@ -1292,12 +1292,21 @@ void NanoMenu::ccTouchFrame() {
     static bool sWokeThisTouch = false;
     if (downEdge) {
         mCcDownX = px; mCcDownY = py;
-        mCcLastTouchMs = nowMs();                        // any press resets the 30s idle auto-sleep window
-        // ANY touch wakes the slept bottom screen; that touch is consumed (no tile toggled / no drag).
+        mCcLastTouchMs = nowMs();                        // any press resets the idle auto-sleep window
+        // A touch wakes the slept bottom screen; that touch is consumed (no tile toggled / no drag).
+        // "Double Tap" (persist.gammaos.nano.cc.doubletapwake): require TWO taps within ~450ms so an
+        // accidental brush of the bottom panel - common when the app is on the top screen - does not
+        // wake it. The first tap only arms the window (still consumed); the second one wakes.
         if (mCcSleeping || mCcSleepDir < 0) {
-            mCcSleeping = false; mCcSleepDir = +1;
-            sWokeThisTouch = true;
+            bool wake = true;
+            if (property_get_bool("persist.gammaos.nano.cc.doubletapwake", false)) {
+                int64_t now = nowMs();
+                wake = (mCcWakeTapMs > 0 && (now - mCcWakeTapMs) <= 450);
+                mCcWakeTapMs = wake ? 0 : now;           // second tap wakes + clears; first tap arms
+            }
+            sWokeThisTouch = true;                       // consume the tap either way (arm or wake)
             mCcHeldSlider = -1;
+            if (wake) { mCcSleeping = false; mCcSleepDir = +1; }
         } else {
             sWokeThisTouch = false;
             // sliders live on the dashboard (page 0) only; on the app page a press starts a swipe/tap.

@@ -739,6 +739,8 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
     // once a secondary panel has been seen (const-safe here, unlike hasSecondaryDisplay()).
     if (is("Bottom Clock") || is("Bottom Clock FPS") || is("Bottom Wallpaper")) return mNdsHadSecondary;
+    // The Control Centre lives on the dual-screen bottom panel, so its options only make sense there.
+    if (is("Control Centre Double Tap") || is("Control Centre Timeout")) return mNdsHadSecondary;
     return true;
 }
 
@@ -8774,6 +8776,12 @@ static const Ps3SettingBinding kPs3Bindings[] = {
      "0:Automatic,60:60 Hz,90:90 Hz,120:120 Hz"},
     {"Widevine L3 Compatibility Mode", SettingSource::kProp, "persist.gammaos.drm.force_l3", "true",
      "false:Off,true:On"},
+    // Control Centre (dual-screen bottom-panel) options - shown only on a dual-screen device (RG DS).
+    // Read live: doubletapwake by ccPollTouch (NanoControlCenter.cpp), sleeptimeout by the CC idle
+    // check (NanoMenu.cpp); 0 = Never auto-sleep.
+    {"Control Centre Double Tap", SettingSource::kProp, "persist.gammaos.nano.cc.doubletapwake", "0", "0:Off,1:On"},
+    {"Control Centre Timeout", SettingSource::kProp, "persist.gammaos.nano.cc.sleeptimeout", "30000",
+     "15000:15 seconds,30000:30 seconds,60000:1 minute,120000:2 minutes,300000:5 minutes,600000:10 minutes,0:Never"},
     {"Display Tweaks", SettingSource::kProp, "persist.gammaos.display.tweaks", "false", "false:Off,true:On"},
     {"Force Client Composition", SettingSource::kProp, "persist.gammaos.force_client_comp", "false", "false:Off,true:On"},
     {"Desktop Fullscreen", SettingSource::kProp, "persist.gammaos.desktop.fullscreen", "false", "false:Off,true:On"},

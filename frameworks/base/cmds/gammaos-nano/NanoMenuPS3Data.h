@@ -348,6 +348,8 @@ static const Ps3DataItem kToolboxCh[] = {
   {"RGB LED",22,"Enable RGB LED lighting effects.","Off",1,nullptr,0},
   {"Launch Guard",22,"Guard against unintended application launches.","Off",1,nullptr,0},
   {"Widevine L3 Compatibility Mode",22,"Request L3 DRM licenses so streaming apps that reject uncertified devices can play. Video quality may be limited.","On",1,nullptr,0},
+  {"Control Centre Double Tap",22,"Dual-screen devices only (e.g. the RG DS): require a double tap to wake the Control Centre bottom screen, so an accidental touch while using the top screen does not wake it.","Off",1,nullptr,0},
+  {"Control Centre Timeout",22,"Dual-screen devices only (e.g. the RG DS): how long the Control Centre bottom screen stays lit with no touch before it dims off.","30 seconds",1,nullptr,0},
 };
 
 // ---- GammaRGB (persist.gammaos.rgb.* + persist.gammargb.control) ---------

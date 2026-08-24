@@ -4305,11 +4305,13 @@ if (sRingPrimedCount >= 2) {
                         if ((sCcOrientCtr++ % 20) == 0) orientationTick();
                         continue;
                     }
-                    // Awake: auto-sleep once 30s pass with nothing touching the bottom screen, using the
-                    // SAME graceful ramp as the Sleep tile. A manual wake tap is a touch, so it refreshes
-                    // mCcLastTouchMs and restarts this window; the awake gate stops it re-firing while
-                    // dimming or slept until a touch re-arms it.
-                    if (!mCcSleeping && mCcSleepDir >= 0 && (ccNowMs - mCcLastTouchMs) >= 30000) {
+                    // Awake: auto-sleep once the configured idle time passes with nothing touching the
+                    // bottom screen, using the SAME graceful ramp as the Sleep tile. A manual wake tap is a
+                    // touch, so it refreshes mCcLastTouchMs and restarts this window; the awake gate stops it
+                    // re-firing while dimming or slept until a touch re-arms it. The timeout is configurable
+                    // (Settings > GammaOS Toolbox > Control Centre Timeout, dual-screen only); 0 = Never.
+                    int64_t ccIdleMs = (int64_t)property_get_int32("persist.gammaos.nano.cc.sleeptimeout", 30000);
+                    if (ccIdleMs > 0 && !mCcSleeping && mCcSleepDir >= 0 && (ccNowMs - mCcLastTouchMs) >= ccIdleMs) {
                         ccBeginSleep();
                     }
                     renderControlCenterFrame();

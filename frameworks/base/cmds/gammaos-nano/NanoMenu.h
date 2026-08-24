@@ -4427,8 +4427,9 @@ private:
     int   mCcSleepFromBri = 128;           // backlight1 value to restore on wake
     float mCcSleepRamp = 1.0f;             // 1 = full brightness, 0 = off (eased)
     int   mCcSleepDir = 0;                 // -1 dimming to off, +1 ramping back up, 0 idle
-    int64_t mCcLastTouchMs = 0;            // monotonic ms of the last bottom-touch activity (30s idle auto-sleep)
+    int64_t mCcLastTouchMs = 0;            // monotonic ms of the last bottom-touch activity (idle auto-sleep)
     bool  mCcActiveSeeded = false;         // false until the CC-active edge seeds mCcLastTouchMs (re-arms per activation)
+    int64_t mCcWakeTapMs = 0;              // "Double Tap" wake: monotonic ms of the first arming tap while slept (0 = none)
     float mCcFadeIn = 1.0f;                // 0 = full black, 1 = fully revealed; reset to 0 each time the CC comes up
     // CC paging: page 0 = the dashboard, page 1 = the app-launcher grid. mCcPage is the target; mCcPageOffset
     // eases toward it (0 = dashboard, 1 = app grid) for the horizontal slide. mCcPassXoff is the device-px
