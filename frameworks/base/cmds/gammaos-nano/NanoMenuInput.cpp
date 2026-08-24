@@ -307,7 +307,16 @@ void NanoMenu::handleBack() {
     if (mPs3Xmb || mPs3WizActive) {
         // DSi carousel / Minima list: B walks up one level (pop submenu / leave the category).
         if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && !ndsInModal()) ndsNavBack();
-        else ps3XmbBack();
+        else if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuBack();
+        else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) {
+            // ES-DE Back walks up one level: gamelist -> system view inside esdeBack(). At the
+            // system root esdeBack() returns false ("nothing left to go back to"); in overlay mode
+            // that must dismiss the overlay and resume the running app, exactly like the XMB
+            // (ps3XmbBack -> overlayResume) and DSi/Minima top-level Back. Without this, Back was a
+            // dead key over a running app in the ES-DE theme and the overlay could not be closed.
+            if (!esdeBack() && mOverlayMode) overlayResume();
+        }
+        else ps3XmbBack();   // native XMB submenu drilled in (mPs3Stack): pop it, e.g. the power-hold Quick Menu
         return;
     }
     if (mXmbMode) {
@@ -363,7 +372,9 @@ void NanoMenu::handleSelect() {
         // NextUI's "A OPEN" paradigm (a discrete button press, so stick drift is not a concern here).
         if (mNdsTheme && mPs3Xmb && !ndsInModal()) ndsNavSelect(false);
         else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavSelect(true);
-        else ps3XmbSelect();
+        else if (mEsdeTheme && mEsdeMenuActive) esdeMenuSelect();
+        else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeSelect();
+        else ps3XmbSelect();   // native XMB submenu drilled in (mPs3Stack): confirm the focused row
         return;
     }
     if (mXmbMode) {
@@ -543,7 +554,9 @@ void NanoMenu::handleUp() {
         // A settings LIST level moves the selection up a row; a carousel level walks up to the parent.
         if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavHoriz(-1); else ndsNavBack(); }
         else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(-1);   // Minima: flat list, UP moves the selection up a row
-        else ps3XmbUp();
+        else if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuMove(-1);  // ES-DE menu row up
+        else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeNav(0, -1);       // ES-DE: previous system / game
+        else ps3XmbUp();   // native XMB submenu drilled in (mPs3Stack): move selection up
         return;
     }
     if (mXmbMode) {
@@ -610,7 +623,9 @@ void NanoMenu::handleDown() {
             else if (mNdsAtRoot || ps3FocusOpensSubmenu()) ndsNavSelect(false);
         }
         else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(+1);   // Minima: flat list, DOWN moves the selection down a row
-        else ps3XmbDown();
+        else if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuMove(+1);  // ES-DE menu row down
+        else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeNav(0, +1);       // ES-DE: next system / game
+        else ps3XmbDown();   // native XMB submenu drilled in (mPs3Stack): move selection down
         return;
     }
     if (mXmbMode) {
@@ -1828,6 +1843,11 @@ void NanoMenu::pollInput() {
             else if (!strcmp(navbuf, "right")) handleRight();
             else if (!strcmp(navbuf, "up"))    handleUp();
             else if (!strcmp(navbuf, "down"))  handleDown();
+            // ES-DE options menu toggle (the Start button), scriptable for 1:1 verification.
+            else if (!strcmp(navbuf, "menu")) {
+                if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuClose();
+                else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeMenuOpen();
+            }
             else if (!strcmp(navbuf, "enter")) handleSelect();
             else if (!strcmp(navbuf, "back"))  handleBack();
             // OSK scripting for 1:1 verification: `type:<text>` inserts each ASCII
@@ -2633,6 +2653,9 @@ void NanoMenu::pollInput() {
                         // button to KEY_ENTER.
                         if (mOskActive) oskConfirm();
                         else if (mSetupWizardActive) handleSetupStart();
+                        // ES-DE home: Start toggles the ES-DE options menu.
+                        else if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuClose();
+                        else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeMenuOpen();
                         break;
                     case BTN_EAST: case KEY_BACK: case KEY_ESC:
                         if (mSetupWizardActive) handleSetupBack();

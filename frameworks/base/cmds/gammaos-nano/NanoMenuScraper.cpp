@@ -641,7 +641,11 @@ void NanoMenu::scraperPollReload() {
 
 void NanoMenu::scraperArtTick() {
     mScrapeBoxartOn = scraperBoxartEnabled();
-    bool inGame = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
+    // The ES-DE theme browses games through its own selection (not the shared mPs3CatIdx
+    // category rail), so keep boxart alive whenever it is active; otherwise a per-frame
+    // free/rebuild would thrash the decode worker and the cover would never land.
+    bool inGame = mEsdeTheme ||
+                  (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                    && mPs3Cats[mPs3CatIdx].name == "Game");
     if (!inGame && (!mRomBoxartCache.empty() || mFanartTex || mNdsFanTex || mSaDecStarted.load()))
         scraperFreeBoxart();

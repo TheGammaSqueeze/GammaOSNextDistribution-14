@@ -37,6 +37,9 @@ public final class GammaosNet {
                 case "usb":
                     rc = UsbSubcommand.run(ctx, args);
                     break;
+                case "download":
+                    rc = DownloadSubcommand.run(ctx, args);
+                    break;
                 default:
                     printHelp();
                     rc = 2;

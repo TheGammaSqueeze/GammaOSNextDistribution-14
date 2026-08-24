@@ -34,6 +34,8 @@ extern const char FX_FRAGMENT_SHADER[];
 extern const char XMB_FRAGMENT_SHADER[];
 extern const char TEXT_VERTEX_SHADER[];
 extern const char TEXT_FRAGMENT_SHADER[];
+extern const char ESDE_IMAGE_VERTEX_SHADER[];     // ES-DE cover FX vertex (carries local coord)
+extern const char ESDE_IMAGE_FRAGMENT_SHADER[];   // ES-DE cover FX: brightness + saturation + cornerRadius
 
 // ---------------------------------------------------------------------------
 // Shader compile + link helpers

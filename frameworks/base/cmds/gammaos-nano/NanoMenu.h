@@ -38,6 +38,7 @@
 #include "NanoTsDemux.h"
 #include "NanoAviDemux.h"
 #include "NanoScraper.h"
+#include "NanoEsdeTheme.h"   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -785,15 +786,15 @@ private:
     // Mono glyphs are rendered at that exact size (crisp, evenly hinted, no
     // fractional bitmap scaling); color emoji use their fixed strike normalized
     // to mFontSize regardless of rasterPx. Returns nullptr if unavailable.
-    const GlyphInfo* ensureGlyph(uint32_t codepoint, int rasterPx);
+    const GlyphInfo* ensureGlyph(uint32_t codepoint, int rasterPx, int preferFace = -1);
     // Toggle anti-aliased (mipmapped) minification on the glyph atlas. Scoped to
     // the home-XMB menu content only (see renderPs3Xmb); off for dialogs, OSK,
     // setup wizard and legacy menus. Filter is texture-object state, so one call
     // per region covers every drawText within it.
     void setGlyphAtlasAA(bool on);
     void drawText(const char* str, float px, float py, float scale,
-                  float r, float g, float b, float a);
-    float measureText(const char* str, float scale);
+                  float r, float g, float b, float a, int preferFace = -1);
+    float measureText(const char* str, float scale, int preferFace = -1);
     // Logical->visual bidi/shaping front-end for the glyph pipeline (see
     // nanoBidiVisual in NanoOsk.h). Returns str itself on the fast path.
     const char* textForDisplay(const char* str);
@@ -1323,6 +1324,9 @@ private:
         PS3_DATA_SUBMENU, // a static DATA item with children -> submenu (data*)
         PS3_DATA_LEAF,    // a static DATA leaf (dialog / value / info, no action)
         PS3_QUICK,        // Quick Menu action; a = action code (QA_* in NanoMenuPS3Menu.cpp)
+        PS3_CAT_SUBMENU,  // open a home category's item list as a pushed submenu (a = mPs3Cats index).
+                          // Used by the ES-DE home's Nano Settings chooser to reach the Quick Menu and
+                          // the Settings category the XMB/DSi/Minima carousels expose directly.
         PS3_GS_ROOT,      // "Game Systems" entry -> open the systems-list editor screen
         PS3_CATORDER_ROOT,// "Home Categories" entry -> open the category order/visibility editor
         PS3_CATORDER_ROW, // a category row in the Home Categories editor (a = mCatOrder index)
@@ -1490,6 +1494,223 @@ private:
     }
     bool mMinimaTheme = false;    // persist.gammaos.nano.minima (Minima list theme, NextUI-inspired; rides the XMB
                                   // infrastructure like the DSi theme and swaps the home render/nav/sfx/boot)
+    // ES-DE theme engine: the fourth home theme (persist.gammaos.nano.ndstheme=3). Parses
+    // real ES-DE theme sets and renders the system/gamelist views over the shared game
+    // model. Additive + gated; the built-ins are unaffected. See docs/THEME_ENGINE.md,
+    // NanoThemeEngine.cpp and NanoEsdeTheme.{h,cpp}.
+    bool mEsdeTheme = false;
+    // Set by any renderEsde animation site (carousel slide, marquee, description scroll, media
+    // decode, GIF) that needs the next frame drawn soon; reset each frame before renderEsde. When
+    // it stays false and there has been no recent input, the frame governor paces the (static but
+    // expensive) ES-DE home down to an idle rate instead of re-rendering the identical frame at
+    // 60fps - the ES-DE render is text/element heavy (~0.7 core) where the XMB wave is ~0.08 core.
+    bool mEsdeWantsFastFrame = false;
+    nanoesde::Theme mEsdeDoc;                     // parsed theme for the selected set
+    bool mEsdeLoaded = false;                     // latched after the first load attempt
+    std::string mEsdeSetName;                     // active theme-set directory name
+    // User theme folder watcher: users drop a theme under kEsdeSdcardDir (/sdcard/ES-DE/themes/<name>)
+    // and the picker picks it up live. esdeSdcardThemesTick() polls the folder mtime/size (and, when
+    // the active set lives there, its theme.xml/capabilities.xml) every ~1.5s and, on a change,
+    // re-enumerates the installed list and forces a reparse of the active set. Cheap stat-only poll.
+    int64_t mEsdeSdcardPollMs = 0;                // last time the sdcard theme folder was polled
+    uint64_t mEsdeSdcardSig = 0;                  // dir-listing signature (add/remove -> re-enumerate; 0 = unseeded)
+    uint64_t mEsdeSdcardActiveSig = 0;            // active-set file signature (in-place edit -> reload that set)
+    std::string mEsdeRepSysTheme;                 // representative system.theme folder used at load
+                                                  // (swapped per carousel item for per-system logos)
+    int  mEsdeLoadedSysIdx = -1;                  // system the per-system theme data is resolved for
+    int  mEsdeDecodeBudget = 0;                   // theme-art decodes left this frame (render-watchdog guard)
+    // Resolve a game's media for an ES-DE imageType (screenshot/marquee/cover/...) from the shared
+    // ES-DE downloaded_media tree, falling back to nano's own scraped cover. Returns tex (0 until
+    // ready / none) and sets *outAR to the native aspect ratio.
+    GLuint esdeGameMediaTex(const std::string& romPath, const std::string& imageType, float* outAR);
+    std::string esdeGameMediaPath(const std::string& romPath, const std::string& imageType);  // resolved file ("" = none)
+    std::string esdeDefaultStarPath(bool filled);   // materialise ES-DE's built-in rating star svg, return its path
+    std::unordered_map<std::string, std::string> mEsdeMediaPath;  // "rom\x1ftype" -> resolved file ("" = none)
+    void esdeReloadForSystem(int sysIdx);         // re-parse per-system data (systeminfo/colours) on
+                                                  // a settled system change (XML only, no GL reload)
+    int  mEsdeSysSel = 0;                         // selected system (system view)
+    int  mEsdeGameSel = 0;                        // selected game (gamelist view)
+    bool mEsdeInGamelist = false;                 // system view vs gamelist view
+    // ES-DE view transition (system <-> gamelist), see docs/theme-engine/VIEW_TRANSITIONS.md.
+    // mEsdeXsActive gates it; mEsdeXsSlide picks slide vs the black-overlay fade; mEsdeXsToGamelist
+    // is the direction; mEsdeXsStart is the uptimeMillis start; mEsdeXsSwapped tracks the mid-fade
+    // view swap. mEsdeForceView (0 auto / 1 system / 2 gamelist) lets renderEsde draw either view
+    // from the stored selection so both can be composited during a slide.
+    bool mEsdeXsActive = false, mEsdeXsSlide = false, mEsdeXsToGamelist = false, mEsdeXsSwapped = false;
+    bool mEsdeXsSnapped = false;                   // slide: both views captured to FBOs once
+    bool mEsdeGotoDone = false;                    // debug: gotosys jump applied once per process
+    int64_t mEsdeXsStart = 0;
+    int  mEsdeForceView = 0;
+    unsigned mEsdeXsFboA = 0, mEsdeXsTexA = 0, mEsdeXsFboB = 0, mEsdeXsTexB = 0;
+    // Scratch FBO for a rotated <text> element: nano lays out glyphs axis-aligned, so a rotated text
+    // is rendered here upright then blitted rotated through drawIconTex (see esdeDrawRotatedText).
+    unsigned mEsdeTextRotFbo = 0, mEsdeTextRotTex = 0; int mEsdeTextRotW = 0, mEsdeTextRotH = 0;
+    void esdeDrawRotatedText(const std::string& s, float pivotX, float pivotY, float sc, int face,
+                             const float col[4], float rotDeg);
+    void esdeBeginTransition(bool toGamelist);    // start a transition per the resolved animation
+    void esdeApplyViewSwap(bool toGamelist);      // do the system<->gamelist state change
+    void renderEsdeHome();                        // renderEsde() wrapped with the active transition
+    // Carousel camera-offset slide animation (mirrors CarouselComponent::onCursorChanged):
+    // eases from mEsdeCamStart to mEsdeCamTarget over mEsdeCamAnimDur ms with an ease-out
+    // curve, choosing the shortest wrapped path so the strip loops seamlessly.
+    float   mEsdeCamOffset = 0.0f;                // current animated cursor position (wrapped)
+    float   mEsdeCamStart = 0.0f, mEsdeCamTarget = 0.0f;
+    int64_t mEsdeCamAnimStart = 0;                // uptimeMillis at animation start
+    float   mEsdeCamAnimDur = 0.0f;               // 0 when settled
+    int     mEsdeCamCursor = -1;                  // cursor the current slide targets (-1 = snap)
+
+    // ES-DE gamelist GRID (GridComponent): vertical row scroll + the focus scale/opacity ease.
+    // All scalars (no per-frame allocation); rows are windowed so only visible covers are bound.
+    float   mEsdeGridScroll = 0.0f;               // animated top-of-window row (float)
+    float   mEsdeGridScrollStart = 0.0f, mEsdeGridScrollTarget = 0.0f;
+    int64_t mEsdeGridAnimStart = 0;
+    float   mEsdeGridAnimDur = 0.0f;              // 0 = settled
+    int     mEsdeGridCursor = -1;                 // cursor the current scroll targets (-1 = snap)
+    float   mEsdeGridTransFactor = 1.0f;          // 0..1 focus scale/opacity ease (mTransitionFactor)
+    int     mEsdeGridLastCursor = -1;             // previous selection, for its inverse ease
+    int     mEsdeGridColumns = 1;                 // computed each grid frame; nav reads it for up/down
+    int     mEsdeGamelistGrid = -1;               // cache: gamelist primary is a grid (-1 unknown/0/1)
+    bool    esdeGamelistIsGrid();                 // true if the loaded gamelist view's primary is a grid
+    // The single primary navigation element ES-DE would keep for a view: the textlist/carousel/grid
+    // with the alphabetically-smallest name (ES-DE instantiates the first, skips the rest). Used so
+    // the renderer and the nav model agree on one primary when a variant layers several.
+    const nanoesde::Element* esdeChosenPrimary(const nanoesde::View* v);
+    // Play a theme navigation sound (ES-DE <sound name=...>): 0=systembrowse 1=quicksysselect
+    // 2=select 3=back 4=scroll 5=favorite 6=launch. Lazily loads the theme's wav into a shared
+    // low-latency player (like the XMB/DSi/Minima SFX), no-op when the theme omits that sound.
+    void esdeSfx(int which);
+    // Absolute wav paths for the 7 ES-DE sounds, cached when the theme loads (ensureEsdeTheme) so
+    // esdeSfx does not race the per-system doc reload on the render thread. Empty = sound absent.
+    std::string mEsdeSoundPath[7];
+    void esdeCacheSounds();   // populate mEsdeSoundPath from the loaded theme
+
+    // Auto-scroll state for the gamelist description container (ES-DE ScrollableContainer):
+    // pause 4.5s at the top, scroll up, pause 7s at the bottom, then reset. Keyed by the game
+    // so it restarts when the selection changes.
+    std::string mEsdeDescKey;                     // rom the current scroll state belongs to
+    int64_t     mEsdeDescStart = 0;               // ms the current text became active (delay origin)
+    int64_t     mEsdeDescEndStart = 0;            // ms the scroll reached the bottom
+    bool        mEsdeDescAtEnd = false;
+
+    // --- ES-DE start menu (opened with Start; inert unless mEsdeTheme). Mirrors ES-DE's
+    // GuiMenu UI-settings subset; see NanoMenuEsdeMenu.cpp. ---
+    // ESDE_PG_THEME..ESDE_PG_FONT MUST stay contiguous from ESDE_PG_THEME: a root option row opens
+    // page (ESDE_PG_THEME + optRow) and Back maps it back via (page - ESDE_PG_THEME). The two
+    // trailing pages (downloader, apps) are handled by name, so they can live at the end.
+    enum EsdeMenuPage { ESDE_PG_ROOT, ESDE_PG_THEME, ESDE_PG_VARIANT, ESDE_PG_COLOR,
+                        ESDE_PG_ASPECT, ESDE_PG_FONT, ESDE_PG_DOWNLOADER, ESDE_PG_APPS };
+    struct EsdeInstalledSet { std::string dir, name; nanoesde::Capabilities caps; };
+    struct EsdeDlEntry {
+        std::string name, reponame, url, author;
+        int variants = 0, colorSchemes = 0, aspectRatios = 0, fontSizes = 0;
+        bool installed = false;
+    };
+    bool         mEsdeMenuActive = false;         // menu open
+    bool         mEsdeMenuClosing = false;        // fade-out in progress
+    float        mEsdeMenuAnim = 0.0f;            // 0..1 open ease
+    EsdeMenuPage mEsdeMenuPage = ESDE_PG_ROOT;
+    int          mEsdeMenuSel = 0;                // cursor within the current page
+    int          mEsdeMenuScroll = 0;             // first visible row for long picker lists
+    std::vector<EsdeInstalledSet> mEsdeInstalled; // rebuilt on menu open, not per frame
+    std::vector<std::pair<std::string, std::string>> mEsdeMenuPickOpts;  // active picker options
+    std::string  mEsdeMenuPickProp, mEsdeMenuPickTitle;                  // active picker target
+    void esdeMenuOpen();
+    void esdeMenuClose();
+    void esdeMenuEnumerateInstalled();
+    int  esdeMenuOptionCtx(int row, std::string& label, std::string& prop,
+                           std::vector<std::pair<std::string, std::string>>& opts);
+    int  esdeMenuPageRows();
+    void esdeMenuMove(int dir);
+    void esdeMenuCycle(int dir);
+    void esdeMenuSelect();
+    void esdeMenuBack();
+    void esdeMenuApplyOption(const char* prop, const std::string& value);
+    // From the ES-DE start menu's "Nano Settings" row: close the ES-DE menu and open a chooser that
+    // reaches the Quick Menu and the full Settings tree (the menus the XMB/DSi/Minima carousels expose
+    // directly), so the ES-DE home has settings parity with the built-in themes.
+    void esdeOpenNanoSettings();
+    void renderEsdeMenu();
+    // ES-DE menu help prompts (icon id, label) for the focused row - rendered as glyphs by
+    // esdeDrawHelp at the bottom help bar when the menu is open, matching the control's help bar.
+    void esdeMenuBuildHelpPrompts(std::vector<std::pair<std::string, std::string>>& out) const;
+    // Theme downloader: fetch a themes list, install a chosen theme (zip archive of the repo)
+    // under the data theme root, on a detached worker polled per frame. See NanoMenuEsdeMenu.cpp.
+    std::vector<EsdeDlEntry> mEsdeDlList;
+    std::mutex               mEsdeDlMutex;      // guards mEsdeDlList swap from the worker
+    std::thread              mEsdeDlThread;
+    std::atomic<bool>        mEsdeDlFetching{false};
+    std::atomic<bool>        mEsdeDlInstalling{false};
+    std::atomic<bool>        mEsdeDlDone{false};   // a worker finished; join + refresh on the UI thread
+    std::atomic<int>         mEsdeDlProgress{0};   // 0..100 for the active install
+    std::string              mEsdeDlError, mEsdeDlInstalledName;
+    int                      mEsdeDlSel = 0, mEsdeDlScroll = 0;
+    void esdeDlStartFetch();
+    void esdeDlStartInstall(const EsdeDlEntry& e);
+    std::string esdeDlDoInstall(const EsdeDlEntry& e);   // worker body; returns "" or an error
+    void esdeDlTick();
+    std::vector<int> mEsdeSysList;                // enabled + non-empty system indices (reused)
+    std::map<std::string, GLuint> mEsdeTexCache;  // theme image path -> GL texture
+    // ES-DE SVG logo rasterization (nanosvg): rasterized textures keyed by "path@WxH",
+    // aspect-fit into the requested box. Freed with mEsdeTexCache on theme-set reload.
+    struct EsdeSvg { GLuint tex = 0; int w = 0, h = 0; };
+    std::map<std::string, EsdeSvg> mEsdeSvgCache;
+    EsdeSvg esdeRasterSvg(const std::string& path, int boxW, int boxH);
+    // Resolve ${system.theme}/${system.name}/${system.fullName} in a raw theme path to a
+    // given system's values (the parser leaves ${system.*} raw so art/logos resolve per
+    // system: slate uses the folder, Art Book Next the filename stem).
+    std::string esdeResolveSystemPath(const std::string& raw, int sysIdx);
+    // Load a theme art path (SVG or PNG/JPG) and return the texture + its contain-fit size
+    // within boxW x boxH. SVG goes through esdeRasterSvg; raster art uses mEsdeTexCache +
+    // native dims (mEsdePngDims, one stbi_info per file). No double-free: raster textures
+    // are owned by mEsdeTexCache, mEsdePngDims holds only sizes (cleared on reload).
+    EsdeSvg esdeArtTex(const std::string& path, int boxW, int boxH);
+    std::map<std::string, std::pair<int, int>> mEsdePngDims;
+    // ES-DE animation element (animated GIF). Every frame is decoded once via AImageDecoder's
+    // frame API into its own texture, downscaled to bound memory on A133-class parts, with each
+    // frame's on-screen duration; the render branch advances by wall clock. Lottie (.json) is not
+    // supported. Frame textures are freed with the other caches on theme-set reload.
+    struct EsdeAnim { std::vector<GLuint> frames; std::vector<int> delaysMs;
+                      int nw = 0, nh = 0; int totalMs = 0; };
+    std::map<std::string, EsdeAnim> mEsdeAnimCache;
+    const EsdeAnim* esdeAnimGet(const std::string& path);
+    // ES-DE TextListComponent marquee: the selected entry scrolls horizontally when its text
+    // overflows the element width. The scroll clock resets whenever the selected label changes.
+    std::string mEsdeMarqueeLbl;
+    int64_t     mEsdeMarqueeStart = 0;
+    // ES-DE horizontal text container (containerType=horizontal): each overflowing single-line value
+    // (e.g. linear's Developer/Publisher) marquee-scrolls independently. Keyed by rom+element so the
+    // scroll clock restarts on a new game; the map is scoped to the current game (cleared on change).
+    std::map<std::string, int64_t> mEsdeHScrollStart;
+    std::string mEsdeHScrollRom;
+    void renderEsde();
+    void renderEsdeSecondary();
+    void ensureEsdeTheme();
+    void esdeSdcardThemesTick();                  // watch /sdcard/ES-DE/themes for user-dropped themes
+    void esdeRebuildSysList();
+    // ES-DE variant triggers (ViewController per-system scan): a system with no matching game
+    // media renders with the selected variant's <override useVariant> instead of the variant
+    // itself. nano keeps one scraped image per game (the box, reused for the video element), so
+    // every image/video mediaType maps onto "has a scraped box". esdeSystemHasMedia scans a
+    // system's roms for that; esdeEffectiveVariant resolves the per-system variant name.
+    bool esdeSystemHasMedia(int sysIdx, const std::vector<std::string>& mediaTypes);
+    std::string esdeEffectiveVariant(const std::string& selectedVariant, int sysIdx);
+    // Shared ES-DE chrome: rounded background plate, help-icon path lookup, and the
+    // helpsystem / systemstatus element renderers (see NanoThemeEngine.cpp).
+    void esdeDrawPlate(const nanoesde::Element* e, float cx, float cy, float cw, float ch);
+    std::string esdeHelpIconPath(const std::string& id);
+    // menuOverlayPass=false is the normal home element pass. When the options menu is open the
+    // menu's help bar must draw ON TOP of the dim/blur, so that pass only caches the matching
+    // helpsystem element + view context (mEsdeHelp*) and renderEsdeMenu calls back with
+    // menuOverlayPass=true to actually draw the menu legend over the panel.
+    void esdeDrawHelp(const nanoesde::Element* e, bool gamelist,
+                      const nanoesde::Element* primary, bool menuOverlayPass = false);
+    const nanoesde::Element* mEsdeHelpElem = nullptr;     // helpsystem matching the current view
+    const nanoesde::Element* mEsdeHelpPrimary = nullptr;  // its view primary (icon selection)
+    bool mEsdeHelpGamelist = false;                       // cached view flag for the deferred draw
+    void esdeDrawSystemStatus(const nanoesde::Element* e);
+    void esdeNav(int dx, int dy);
+    bool esdeSelect();
+    bool esdeBack();
     bool mPs3BottomClock = false; // persist.gammaos.nano.ps3xmb.bottomclock (PSP clock on the bottom panel, dual-screen XMB)
     // Half Resolution (XMB theme only, three INDEPENDENT Theme Settings toggles). Each renders only its
     // subsystem at half resolution and sharp-linear upscales it; the rest stays full-res. Perf for weak
@@ -1631,7 +1852,14 @@ private:
     // FT faces; ensureGlyph prefers them only while mNdsFontPref is set (NDS text only).
     int  mNdsFontIdx = -1;        // mFtFaces index of dsvec.ttf (letters), -1 = not loaded
     int  mNdsNumIdx  = -1;        // mFtFaces index of dsvecnum.ttf (digits), -1 = not loaded
+    int  mEsdeDefaultFace = -1;  // mFtFaces index of Akrobat (ES-DE default for no-fontPath text), -1 = UI font
     bool mNdsFontPref = false;    // when true, ensureGlyph tries the DSVec faces first
+    // ES-DE theme fonts: a text element carries a fontPath (e.g. Art Book Next's Mulish); the
+    // ES-DE renderer resolves it to an mFtFaces index via esdeFontFace() and passes that as the
+    // preferFace to drawText/measureText so the glyph is rasterised from the theme's own typeface
+    // rather than the default UI font. Loaded on demand and cached by absolute path.
+    std::map<std::string, int> mEsdeFontFaces;   // absolute .ttf path -> mFtFaces index (or -1)
+    int esdeFontFace(const std::string& path);   // load-on-demand, returns the face index or -1
     // DSi "4x" SVG-rasterised sprites (the real firmware assets, redrawn as vectors):
     // cell_00 selection frame (transparent centre) + the white pillow tile. Loaded lazily.
     GLuint ndsLoadTex(const char* name);   // decode /data|/system nano_xmb/nds/<name>.png -> RGBA tex
@@ -2058,6 +2286,19 @@ private:
     void   wpVideoStop();                          // tear the video wallpaper down (join worker, free decoder)
     void   wpVideoTick();                          // per-frame: adopt a finished open, loop on end
     bool   drawTopVideoWallpaper();                // draw the current video frame cover-fit; true if it drew
+    // ES-DE theme background video: a <video> element with a fixed file path (Adroit's Animated
+    // backgroundvideo -> background.mp4). A DEDICATED decoder so it does not entangle the user's video
+    // wallpaper; while it plays it borrows the SoC's single HW decoder (the wallpaper is stopped and
+    // its re-open is gated on mEsdeBgVideo being null). Same async-open + adopt + loop model as wpVideo.
+    NanoVideo* mEsdeBgVideo = nullptr;
+    std::string mEsdeBgVideoPath;                  // video file currently loaded as the ES-DE background
+    std::thread mEsdeBgVideoThread;
+    std::atomic<bool> mEsdeBgVideoOpenDone{false};
+    std::atomic<bool> mEsdeBgVideoOpenOk{false};
+    bool   mEsdeBgVideoAdopted = false;
+    void   esdeBgVideoTick(const std::string& wantPath);  // start on path change, adopt, loop; "" stops
+    bool   esdeBgVideoDraw(float x, float y, float w, float h);  // draw current frame into the rect
+    void   esdeBgVideoStop();
     // Live hover preview in the Video Wallpaper picker: decode the currently-focused video and draw it
     // into its grid cell. Only ONE decoder runs at a time (the single HW decoder), so the tick stops the
     // video wallpaper while previewing and lets wpVideoTick re-adopt it on leaving the picker. Mirrors
@@ -2814,6 +3055,15 @@ private:
         long long when = 0;  // epoch seconds when scraped
         // Metadata for the Information screen (empty = no data).
         std::string synopsis, genre, players, rating, releaseDate, developer, publisher;
+        // ES-DE gamelist play stats (raw gamelist.xml values): lastPlayed is ISO basic
+        // YYYYMMDDThhmmss, playTime is a whole-second count, playCount a launch tally. Empty/unset
+        // renders never / unknown / 0.
+        std::string lastPlayed, playTime, playCount;
+        // ES-DE badge metadata (gamelist.xml): the bool flags render the matching badge slot; the
+        // controller string is a controller shortName whose icon overlays the controller badge; the
+        // altemulator string enables the altemulator badge when non-empty.
+        bool favorite = false, completed = false, kidgame = false, broken = false;
+        std::string controller, altemulator;
     };
     std::unordered_map<std::string, ScrapeEntry> mScrapeIndex;
     bool mScrapeIndexLoaded = false;
@@ -2823,6 +3073,15 @@ private:
     void loadScrapeIndex();
     void saveScrapeIndex();
     const ScrapeEntry* scrapeEntryFor(const std::string& romPath);
+    // ES-DE per-game metadata read straight from ES-DE's own gamelist.xml files (the same source
+    // real ES-DE displays), so the ES-DE theme engine shows the identical description / rating /
+    // release date / developer / publisher / genre / players as the control, instead of nano's own
+    // scrape store which can differ (e.g. a timezone-shifted release date). Loaded lazily per system
+    // and merged with the scrape store's cover paths; absent gamelist.xml -> falls back to the store.
+    std::unordered_map<std::string, ScrapeEntry> mEsdeGamelistMeta;  // full romPath -> gamelist metadata
+    std::set<int> mEsdeGamelistLoadedSys;                            // system indices already parsed
+    void esdeEnsureGamelistLoaded(int sysIdx);                       // parse gamelists/<system>/gamelist.xml once
+    const ScrapeEntry* esdeMetaFor(const std::string& romPath);      // gamelist entry, else scrapeEntryFor
     // Per-game title override (Rename / Edit Title). A user-typed name that overrides
     // the basename-minus-extension display name everywhere (columns / recents / search /
     // Info) AND becomes the scraper search query so a corrected title can match. Stored
@@ -4553,7 +4812,15 @@ private:
     void drawIconTex(GLuint tex, float x, float y, float w, float h,
                      float r, float g, float b, float a, float rot = 0.0f, bool flipV = false,
                      float sharpUpW = 0.0f, float sharpUpH = 0.0f,
-                     float uMaxU = 1.0f, float uMaxV = 1.0f);
+                     float uMaxU = 1.0f, float uMaxV = 1.0f, bool flipH = false);
+    // Like drawIconTex but through the ES-DE FX program, applying the element's ES-DE brightness
+    // (0 = none) and saturation (1 = none) to the sampled texture. Used only for ES-DE covers /
+    // backdrops that set a non-default value; falls back to drawIconTex if the FX program is absent.
+    void drawIconTexFx(GLuint tex, float x, float y, float w, float h,
+                       float r, float g, float b, float a, float rot,
+                       float saturation, float brightness, float cornerRadius = 0.0f,
+                       const float* gradEnd = nullptr, bool gradHoriz = true,
+                       bool flipH = false, bool flipV = false);
     GLuint mIconTextures[21]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=app-grid, 19=4-square grid (Applications), 20=push-pin (Pinned Apps)
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
@@ -4619,8 +4886,13 @@ private:
     int mSearchSelectedIndex;
     bool mSearchActive;        // Search results being displayed
 
-    // FreeType font rendering
-    static const int MAX_FT_FACES = 12;   // 7-8 system fonts + the DSi DSVec/DSVecNum faces
+    // FreeType font rendering. The array holds the ~10 system faces (Noto Latin/CJK/emoji/Arabic +
+    // the DSi DSVec/DSVecNum faces) PLUS every ES-DE theme fontPath loaded on demand (esdeFontFace).
+    // A single ES-DE theme can declare many fonts (aura/canvas use 6, atari 3) and they accumulate
+    // across theme switches, so keep generous headroom - a too-small cap silently drops later theme
+    // fonts to the default face (e.g. Atari 50 Menu's carousel losing HarryHeavy). Each slot is one
+    // pointer; the glyph-cache key packs the face index into bits 41+, so 48 stays well within range.
+    static const int MAX_FT_FACES = 48;
     FT_Library mFtLib;
     FT_Face mFtFaces[MAX_FT_FACES];
     int mFtNumFaces;
@@ -4660,6 +4932,19 @@ private:
     GLint  mTextLocRotation;
     GLint  mTextLocSharp = -1;   // uSharp uniform: crisp analytic edge AA amount
     GLint  mTextLocSharpUp = -1;   // uSharpUp: sharp-bilinear upscale source size (texels), 0=off
+    // ES-DE cover FX program (brightness/saturation); 0 if it failed to link (drawIconTexFx then
+    // falls back to the plain drawIconTex path).
+    GLuint mEsdeFxProgram = 0;
+    GLint  mEsdeFxLocPosition = -1;
+    GLint  mEsdeFxLocTexCoord = -1;
+    GLint  mEsdeFxLocColor = -1;
+    GLint  mEsdeFxLocLocal = -1;
+    GLint  mEsdeFxLocTexture = -1;
+    GLint  mEsdeFxLocRotation = -1;
+    GLint  mEsdeFxLocSat = -1;
+    GLint  mEsdeFxLocBright = -1;
+    GLint  mEsdeFxLocHalf = -1;
+    GLint  mEsdeFxLocRadius = -1;
     GLint  mSceneFbo = 0;          // scene FBO captured once per XMB pass (half-res icons perf)
     GLint  mSceneVp[4] = {0,0,0,0}; // scene viewport captured once per XMB pass
     float  mTextSharp = 0.0f;    // current uSharp value (set by setGlyphAtlasAA), uploaded by drawText

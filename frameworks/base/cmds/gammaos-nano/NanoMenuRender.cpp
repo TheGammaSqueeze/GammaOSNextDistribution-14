@@ -846,7 +846,8 @@ bool NanoMenu::ndsInModal() const {
     return mPs3OptActive || mPs3DlgActive || mOskActive || mVidActive || mMpActive || mPvActive
         || mGSearchActive || mPs3WizActive || mPs3TzActive || mPs3LangActive || mPs3BrightSlider
         || mPhotoMultiActive || mScrapeProgActive || mPvPlChooserActive || mVidPlChooserActive
-        || mMpPlChooserActive || ps3TopScreenKind() == PHOTO_GRID;
+        || mMpPlChooserActive || mEsdeMenuActive || mEsdeMenuClosing
+        || ps3TopScreenKind() == PHOTO_GRID;
 }
 
 // A media player is on screen (user: "show the XMB ones when we're actually playing"). While
@@ -3810,6 +3811,20 @@ void NanoMenu::initFonts() {
             ALOGW("NanoMenu: failed to load font: %s", path);
         }
     }
+    // FontAwesome icon glyphs. ES-DE merges FontAwesome as a fallback into its font stack so themes
+    // can use its private-use-area codepoints: the gamelist info line's controller (U+F11B) and star
+    // (U+F005) counters, the folder/filter markers, and similar. Loaded as a plain fallback face - it
+    // carries no ASCII so it never shadows normal text; ensureGlyph reaches it only after the Latin,
+    // CJK and emoji faces miss the codepoint. Dev push dir first, then the shipped asset.
+    if (mFtNumFaces < MAX_FT_FACES) {
+        const char* fa = (access("/data/system/nano_xmb/fonts/fontawesome-webfont.ttf", R_OK) == 0)
+                             ? "/data/system/nano_xmb/fonts/fontawesome-webfont.ttf"
+                             : "/system/etc/nano_xmb/fonts/fontawesome-webfont.ttf";
+        if (FT_New_Face(mFtLib, fa, 0, &mFtFaces[mFtNumFaces]) == 0) {
+            ALOGD("NanoMenu: loaded FontAwesome fallback: %s (face %d)", fa, mFtNumFaces);
+            mFtNumFaces++;
+        }
+    }
     // DSi System Menu theme fonts: the redrawn resolution-independent "4x" faces the web
     // app uses at scale>1 (DSVec = letters/Mirsany, DSVecNum = digits/M PLUS Rounded 1c).
     // Loaded as extra faces; ensureGlyph prefers them only while mNdsFontPref is set, so
@@ -3826,6 +3841,31 @@ void NanoMenu::initFonts() {
               ALOGD("NanoMenu: loaded NDS font: %s (face %d)", p, *f.idx);
           }
       }
+    }
+    // ES-DE's built-in default typeface. ES-DE renders any theme element that does not set its own
+    // <fontPath> - help prompts, the system-view game counter, unstyled labels - in this font. The
+    // exact weight matters: ES-DE's getDefaultPath() returns FONT_PATH_REGULAR, which is defined as
+    // Akrobat-SemiBold.ttf (Font.h), NOT Akrobat-Regular; every default TextComponent/HelpComponent
+    // starts on Font::get(..., getDefaultPath()). SemiBold is a touch heavier and wider than Regular,
+    // so loading Regular here left no-fontPath text visibly thin and narrow against the control. Load
+    // SemiBold to match ES-DE's metrics (fall back to Regular only if SemiBold is absent). Returned
+    // from esdeFontFace for an empty path; only the ES-DE engine consults it, XMB/DSi/Minima untouched.
+    // Dev push dir first, then the shipped asset.
+    if (mFtNumFaces < MAX_FT_FACES) {
+        const char* kSemi[] = { "/data/system/nano_xmb/fonts/akrobat-semibold.ttf",
+                                "/system/etc/nano_xmb/fonts/akrobat-semibold.ttf" };
+        const char* kReg[]  = { "/data/system/nano_xmb/fonts/akrobat-regular.ttf",
+                                "/system/etc/nano_xmb/fonts/akrobat-regular.ttf" };
+        const char* akr = (access(kSemi[0], R_OK) == 0) ? kSemi[0]
+                        : (access(kSemi[1], R_OK) == 0) ? kSemi[1]
+                        : (access(kReg[0],  R_OK) == 0) ? kReg[0]
+                                                        : kReg[1];
+        if (FT_New_Face(mFtLib, akr, 0, &mFtFaces[mFtNumFaces]) == 0) {
+            mEsdeDefaultFace = mFtNumFaces; mFtNumFaces++;
+            ALOGD("NanoMenu: loaded ES-DE default font (%s): face %d", akr, mEsdeDefaultFace);
+        } else {
+            ALOGW("NanoMenu: ES-DE default font (Akrobat) not found; no-fontPath text uses the UI font");
+        }
     }
     // Base atlas render size. Higher = sharper LARGE text (the setup-wizard
     // welcome greeting is drawn at ~57-85px and was upscaling/blurring from a
@@ -3928,15 +3968,41 @@ void NanoMenu::resetGlyphAtlas() {
     mAtlasRowH = 0;
 }
 
-const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
+// Load an ES-DE theme's typeface (an absolute .ttf/.otf path from a text element's fontPath) into
+// a spare FT face and return its mFtFaces index, so drawText/measureText can prefer it. Cached by
+// path (failures cached as -1). Returns -1 for an empty path, a missing file, or no free face slot,
+// in which case the caller falls back to the default UI font chain.
+int NanoMenu::esdeFontFace(const std::string& path) {
+    // No <fontPath>: ES-DE falls back to its bundled Akrobat typeface, so use that (not nano's wider
+    // UI default) to keep no-fontPath text at ES-DE's metrics. mEsdeDefaultFace is -1 if Akrobat did
+    // not load, which drawText/measureText treat as the UI font (previous behaviour).
+    if (path.empty()) return mEsdeDefaultFace;
+    auto it = mEsdeFontFaces.find(path);
+    if (it != mEsdeFontFaces.end()) return it->second;
+    int idx = -1;
+    if (mFtLib && mFtNumFaces < MAX_FT_FACES && access(path.c_str(), R_OK) == 0) {
+        if (FT_New_Face(mFtLib, path.c_str(), 0, &mFtFaces[mFtNumFaces]) == 0) {
+            idx = mFtNumFaces++;
+            ALOGD("NanoMenu: loaded ES-DE theme font: %s (face %d)", path.c_str(), idx);
+        }
+    }
+    mEsdeFontFaces[path] = idx;
+    return idx;
+}
+
+const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx, int preferFace) {
     if (rasterPx < 6) rasterPx = 6;
     if (rasterPx > mFontSize) rasterPx = mFontSize;   // upscale beyond the master in drawText
+    if (preferFace < 0 || preferFace >= mFtNumFaces) preferFace = -1;
     // Fast path: already cached at this raster size (mono), or as a color strike
     // (cached once under mFontSize regardless of the requested size).
     // When rendering DSi-theme text, the DSVec faces cache in a separate slot (a spare
     // high bit) so they never collide with the primary font's glyph at the same size.
+    // An ES-DE theme font (preferFace >= 0) caches under its own face index (bits 41-44) so a
+    // codepoint drawn from the theme typeface never reuses the default font's cached glyph.
     const uint64_t ndsBit  = mNdsFontPref ? ((uint64_t)1 << 40) : 0;
-    const uint64_t monoKey = (((uint64_t)(uint32_t)rasterPx << 32) | cp) | ndsBit;
+    const uint64_t faceBit = preferFace >= 0 ? ((uint64_t)(preferFace + 1) << 41) : 0;
+    const uint64_t monoKey = (((uint64_t)(uint32_t)rasterPx << 32) | cp) | ndsBit | faceBit;
     {
         auto it = mGlyphCache.find(monoKey);
         if (it != mGlyphCache.end()) return &it->second;
@@ -3951,8 +4017,14 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx) {
     FT_Face face = nullptr;
     FT_UInt gi = 0;
     bool isColorFace = false;
+    // ES-DE theme font: try the element's typeface first (it covers Latin), so CJK/Arabic/emoji
+    // still fall through to the Noto faces below.
+    if (preferFace >= 0) {
+        gi = FT_Get_Char_Index(mFtFaces[preferFace], cp);
+        if (gi != 0) face = mFtFaces[preferFace];
+    }
     // DSi theme: try the DSVec faces first (digits -> DSVecNum, else DSVec letters).
-    if (mNdsFontPref) {
+    if (!face && mNdsFontPref) {
         int pref = (cp >= '0' && cp <= '9' && mNdsNumIdx >= 0) ? mNdsNumIdx : mNdsFontIdx;
         if (pref >= 0) { gi = FT_Get_Char_Index(mFtFaces[pref], cp); if (gi != 0) face = mFtFaces[pref]; }
     }
@@ -4133,8 +4205,9 @@ const char* NanoMenu::textForDisplay(const char* str) {
     return it->second.c_str();
 }
 
-float NanoMenu::measureText(const char* str, float scale) {
+float NanoMenu::measureText(const char* str, float scale, int preferFace) {
     if (!str || !*str) return 0.0f;
+    if (preferFace < 0 || preferFace >= mFtNumFaces) preferFace = -1;
     str = textForDisplay(str);   // Arabic shaping / bidi (width = visual form's width)
     scale *= ps3::gFontScale;   // user Font Size (kept in lockstep with drawText so widths track)
     // Match drawText's per-size layout: glyphs are rasterized at the integer
@@ -4157,6 +4230,7 @@ float NanoMenu::measureText(const char* str, float scale) {
     static std::string key;
     key.assign(1, (char)rasterPx);
     key += (char)(mNdsFontPref ? 1 : 0);   // DSVec advances differ; keep a separate cache slot
+    key += (char)(preferFace + 1);         // ES-DE theme font advances differ; separate slot per face
     key += str;
     auto cached = mTextWidthCache.find(key);
     if (cached != mTextWidthCache.end()) return cached->second * strResidual;
@@ -4169,7 +4243,7 @@ float NanoMenu::measureText(const char* str, float scale) {
         else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
         else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
         else { p++; continue; }
-        const GlyphInfo* gi = ensureGlyph(cp, rasterPx);
+        const GlyphInfo* gi = ensureGlyph(cp, rasterPx, preferFace);
         if (gi) unit += gi->advance * gi->scaleW;
     }
     // Copy, not move: moving out of the reusable buffer would surrender the
@@ -4215,7 +4289,7 @@ static inline void emitGlyph(int n, float x0, float y0, float x1, float y1,
 }
 
 void NanoMenu::drawText(const char* str, float px, float py, float scale,
-                        float r, float g, float b, float a) {
+                        float r, float g, float b, float a, int preferFace) {
     if (!str || !*str || mFtNumFaces == 0) return;
     str = textForDisplay(str);   // Arabic shaping / bidi reordering
     scale *= ps3::gFontScale;   // user Font Size (matches measureText so layout widths track)
@@ -4248,7 +4322,7 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
         else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
         else { p++; continue; }
 
-        const GlyphInfo* git = ensureGlyph(cp, rasterPx);
+        const GlyphInfo* git = ensureGlyph(cp, rasterPx, preferFace);
         if (!git) continue;
         const GlyphInfo& gi = *git;
         // residual = 1.0 for crisp 1:1 mono at its rasterized size; > 1 only when
@@ -5093,6 +5167,10 @@ void NanoMenu::render() {
     // names.json and bump sys.gammaos.nano.scrape_reload; pick that up without a restart.
     scraperPollReload();
 
+    // Live ES-DE user theme reload: a set dropped into /sdcard/ES-DE/themes (or an edit to the
+    // active set) is picked up without a restart. Cheap stat-only poll, self-throttled to ~1.5s.
+    esdeSdcardThemesTick();
+
     // Allow at most one glyph-atlas recycle per frame (see ensureGlyph): the
     // first overflow rewinds the atlas, later overflows in the same frame fall
     // back to blank glyphs rather than recycling in a loop.
@@ -5374,6 +5452,16 @@ void NanoMenu::render() {
             if (mGSearchActive) renderGlobalSearch();
             renderOsk();
             mWidth = sw; mHeight = sh;
+        } else if (mEsdeTheme && !mPs3BootActive) {
+            // ES-DE dual-panel: a plain themed backdrop on the bottom for now (the
+            // interactive views stay on the primary). Remap to the secondary AHB dims.
+            int sw = mWidth, sh = mHeight;
+            mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+            renderEsdeSecondary();
+            if (mPs3WizActive) renderNetWizard();
+            if (mGSearchActive) renderGlobalSearch();
+            renderOsk();
+            mWidth = sw; mHeight = sh;
         } else {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -5557,8 +5645,21 @@ void NanoMenu::render() {
         // reaches framebuffer alpha 1 and the live app cannot bleed through it).
         setUiBlend();
     } else {
-        // Background effect on primary AHB.
-        renderEffect();
+        // Background effect on primary AHB. In pure ES-DE mode the theme paints its own opaque
+        // background over the frame's dark glClear, so the XMB-wave wallpaper is never visible (real
+        // ES-DE has no wave) - and a theme with no background element should show the dark clear, not
+        // a wave. Skipping renderEffect() there avoids loading the 85-keyframe wave (~21 MB) and its
+        // cold-GPU render-thread stall for a wallpaper that cannot be seen. Keep it on any frame that
+        // may fall back to the shared XMB chrome (media player, boot, an unskinned modal / the native
+        // quick menu, or the OSK), which DOES draw the wave. Conservative: only the clearly-pure ES-DE
+        // home / start-menu frame skips it. XMB/DSi/Minima never reach here in ES-DE mode (mEsdeTheme
+        // gates it) so they are unaffected.
+        const bool esdePureHome = mEsdeTheme && !mPs3BootActive && !ndsPlayerActive()
+                                  && mPs3Stack.empty()
+                                  && (mEsdeMenuActive || mEsdeMenuClosing
+                                      || (!ndsInModal() && !mOskActive));
+        if (!esdePureHome)
+            renderEffect();
         // Decouple the glass icons from the wave WALLPAPER. The glass-icon shader
         // refracts the PS3 wave's offscreen work-texture (ps3bg::workTex), but
         // renderEffect only produces that texture for the wave effect (22). With
@@ -5764,6 +5865,46 @@ void NanoMenu::render() {
                 else if (minInfoPage) renderMinimaInfoPage(0.0f, 0.0f, (float)mWidth, (float)mHeight);
                 else if (minDialog)  renderMinimaDialog(0.0f, 0.0f, (float)mWidth, (float)mHeight);
                 else if (minSearch)  renderGlobalSearch();   // Minima-styled results overlay (see renderGlobalSearch)
+            }
+        } else if (mEsdeTheme && !mPs3BootActive && ndsPlayerActive()) {
+            // ES-DE: media players fall back to the shared full-screen XMB player.
+            renderPs3Xmb();
+        } else if (mEsdeTheme && !mPs3BootActive) {
+            // ES-DE theme engine home (renderEsde). renderPs3Xmb is skipped for the home,
+            // so pump the shared per-frame lifecycle ticks here exactly as DSi/Minima do,
+            // or App Info / File Explorer / bulk-add would hang on "Loading...". Modals
+            // nano has not yet skinned for ES-DE fall back to the shared XMB chrome.
+            if (mEsdeMenuActive || mEsdeMenuClosing) {
+                // ES-DE start menu: draw the live home first, then the options panel on top.
+                esdeDlTick();            // join a finished downloader worker
+                scraperArtTick();
+                appInfoTick();
+                fbTick();
+                gsAutoAddTick();
+                feTick();
+                nsTick();
+                renderEsde();
+                renderEsdeMenu();
+            } else {
+                // The native Quick Menu (power-hold -> openQuickPowerMenu) and any drilled-in XMB
+                // submenu live in mPs3Stack and are not skinned for ES-DE, so - like the other
+                // unskinned modals above - fall back to the shared XMB chrome to draw them. Without
+                // this the quick menu opened but rendered nothing over the ES-DE home.
+                const bool esdeNativeMenu = !mPs3Stack.empty();
+                const bool esdeOtherModal = (ndsInModal() &&
+                                            (!mOskActive || (mPs3WizActive && !oskOnSecondary)))
+                                            || esdeNativeMenu;
+                if (esdeOtherModal) {
+                    renderPs3Xmb();
+                } else {
+                    scraperArtTick();
+                    appInfoTick();
+                    fbTick();
+                    gsAutoAddTick();
+                    feTick();
+                    nsTick();
+                    renderEsdeHome();   // renderEsde() plus any active system<->gamelist transition
+                }
             }
         } else {
             renderPs3Xmb();
@@ -6459,6 +6600,13 @@ if (sRingPrimedCount >= 2) {
             // secondary above is skipped once HWC owns the display), so it fixes the bottom showing
             // the wave in those contexts too.
             renderMinimaSecondary(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            if (i == 0 && mPs3WizActive) renderNetWizard();
+            if (i == 0 && mGSearchActive) renderGlobalSearch();
+            if (i == 0) renderOsk();
+        } else if (mEsdeTheme && !mPs3BootActive) {
+            // ES-DE live secondary: a plain themed backdrop, not the PS3 wave (mirrors the
+            // DRM secondary branch). A themed bottom view is a follow-up.
+            renderEsdeSecondary();
             if (i == 0 && mPs3WizActive) renderNetWizard();
             if (i == 0 && mGSearchActive) renderGlobalSearch();
             if (i == 0) renderOsk();

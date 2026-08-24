@@ -969,12 +969,13 @@ bool NanoSfxPlayer::load(const std::string& wavPath, float master) {
     if (!f) { ALOGW("NanoSfx: cannot open %s", wavPath.c_str()); return false; }
     unsigned char hdr[12];
     if (fread(hdr, 1, 12, f) != 12 || memcmp(hdr, "RIFF", 4) || memcmp(hdr + 8, "WAVE", 4)) { fclose(f); return false; }
-    int ch = 0, rate = 0, bits = 0; long dataOff = 0; uint32_t dataLen = 0;
+    int ch = 0, rate = 0, bits = 0, fmt = 1; long dataOff = 0; uint32_t dataLen = 0;
     for (;;) {
         unsigned char c[8]; if (fread(c, 1, 8, f) != 8) break;
         uint32_t sz = (uint32_t)c[4] | ((uint32_t)c[5] << 8) | ((uint32_t)c[6] << 16) | ((uint32_t)c[7] << 24);
         if (!memcmp(c, "fmt ", 4)) {
             unsigned char fm[16]; uint32_t n = sz < 16 ? sz : 16; if (fread(fm, 1, n, f) != n) break;
+            fmt  = (int)fm[0]  | ((int)fm[1]  << 8);
             ch   = (int)fm[2]  | ((int)fm[3]  << 8);
             rate = (int)fm[4]  | ((int)fm[5]  << 8) | ((int)fm[6] << 16) | ((int)fm[7] << 24);
             bits = (int)fm[14] | ((int)fm[15] << 8);
@@ -982,10 +983,35 @@ bool NanoSfxPlayer::load(const std::string& wavPath, float master) {
         } else if (!memcmp(c, "data", 4)) { dataOff = ftell(f); dataLen = sz; break; }
         else fseek(f, (long)((sz + 1) & ~1u), SEEK_CUR);
     }
-    if (bits != 16 || ch < 1 || rate <= 0 || dataOff <= 0 || dataLen == 0) { fclose(f); return false; }
+    // Accept 16/24/32-bit integer PCM (fmt 1) and 32-bit IEEE float (fmt 3); down-convert to 16-bit
+    // interleaved. ES-DE themes ship a mix of depths (Analogue's scroll/systembrowse are 32-bit).
+    if ((bits != 16 && bits != 24 && bits != 32) || ch < 1 || rate <= 0 || dataOff <= 0 || dataLen == 0) {
+        fclose(f); return false;
+    }
     fseek(f, dataOff, SEEK_SET);
-    std::vector<int16_t> raw(dataLen / 2);
-    size_t got = fread(raw.data(), 1, dataLen, f); fclose(f); raw.resize(got / 2);
+    int bytesPer = bits / 8;
+    std::vector<uint8_t> bytes(dataLen);
+    size_t gotB = fread(bytes.data(), 1, dataLen, f); fclose(f); bytes.resize(gotB);
+    size_t nSamp = bytes.size() / bytesPer;
+    std::vector<int16_t> raw(nSamp);
+    for (size_t i = 0; i < nSamp; i++) {
+        const uint8_t* p = &bytes[i * bytesPer];
+        int16_t s16;
+        if (bits == 16) {
+            s16 = (int16_t)((uint16_t)p[0] | ((uint16_t)p[1] << 8));
+        } else if (bits == 24) {
+            int32_t v = (int32_t)((uint32_t)p[0] << 8 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 24);
+            s16 = (int16_t)(v >> 16);              // arithmetic shift keeps the sign, drops low 8 bits
+        } else if (fmt == 3) {                     // 32-bit float in [-1,1]
+            uint32_t u = (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+            float fv; memcpy(&fv, &u, 4);
+            int v = (int)(fv * 32767.0f); s16 = (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v));
+        } else {                                   // 32-bit int
+            int32_t v = (int32_t)((uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24));
+            s16 = (int16_t)(v >> 16);
+        }
+        raw[i] = s16;
+    }
     int g = (int)(master * 32768.0f + 0.5f); if (g < 0) g = 0; else if (g > 32768) g = 32768;
     auto sat = [](int v) -> int16_t { return (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v)); };
     if (ch == 1) {                              // mono -> stereo

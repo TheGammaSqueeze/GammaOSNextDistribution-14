@@ -3048,6 +3048,66 @@ void NanoMenu::wpVideoStop() {
     mWpVideoPath.clear();
 }
 
+// ---- ES-DE theme background video (a <video> element with a fixed file path) --------------------
+// Same async-open + adopt + loop model as the video wallpaper, on a dedicated decoder. Called per
+// frame from renderEsde's video branch with the resolved path (or "" to stop). Borrows the single HW
+// decoder while active (stops the wallpaper), which is fine because the ES-DE home draws its own
+// background, not the wallpaper.
+void NanoMenu::esdeBgVideoStop() {
+    if (mEsdeBgVideoThread.joinable()) {
+        if (mEsdeBgVideo) mEsdeBgVideo->requestOpenCancel();
+        bool prevExempt = mVidTeardownExempt.exchange(true, std::memory_order_relaxed);
+        mEsdeBgVideoThread.join();                  // watchdog-exempt (a cold HW decoder open can block)
+        mVidTeardownExempt.store(prevExempt, std::memory_order_relaxed);
+    }
+    if (mEsdeBgVideo) { vidAsyncFree(mEsdeBgVideo); mEsdeBgVideo = nullptr; }
+    mEsdeBgVideoAdopted = false;
+    mEsdeBgVideoOpenDone.store(false, std::memory_order_relaxed);
+    mEsdeBgVideoOpenOk.store(false, std::memory_order_relaxed);
+    mEsdeBgVideoPath.clear();
+}
+
+void NanoMenu::esdeBgVideoTick(const std::string& wantPath) {
+    if (wantPath != mEsdeBgVideoPath) {            // theme/scheme changed the background video (or "" to stop)
+        esdeBgVideoStop();
+        if (wantPath.empty()) return;
+        wpVideoStop();                              // free the single HW decoder from the user's wallpaper
+        NanoVideo::Meta m; int wHint = 0, hHint = 0;
+        if (NanoVideo::probe(wantPath, m)) { wHint = m.width; hHint = m.height; }
+        NanoVideo* v = new NanoVideo();
+        if (!v->openBegin(wHint, hHint)) { delete v; return; }   // GL alloc failed; leave path empty to retry
+        mEsdeBgVideo = v;
+        mEsdeBgVideoPath = wantPath;
+        mEsdeBgVideoAdopted = false;
+        mEsdeBgVideoOpenDone.store(false, std::memory_order_relaxed);
+        mEsdeBgVideoOpenOk.store(false, std::memory_order_relaxed);
+        mEsdeBgVideoThread = std::thread([this, v, wantPath] {
+            bool ok = v->openAsyncRun(wantPath);    // blocking; muted (no audio player created)
+            mEsdeBgVideoOpenOk.store(ok, std::memory_order_relaxed);
+            mEsdeBgVideoOpenDone.store(true, std::memory_order_release);
+        });
+        return;
+    }
+    if (!mEsdeBgVideo) return;
+    if (!mEsdeBgVideoAdopted) {
+        if (mEsdeBgVideoOpenDone.load(std::memory_order_acquire)) {
+            if (mEsdeBgVideoThread.joinable()) mEsdeBgVideoThread.join();
+            if (mEsdeBgVideoOpenOk.load(std::memory_order_relaxed)) { mEsdeBgVideo->play(); mEsdeBgVideoAdopted = true; }
+            else { NanoVideo* v = mEsdeBgVideo; mEsdeBgVideo = nullptr; vidAsyncFree(v); }   // undecodable; keep path (no retry loop)
+        }
+        return;
+    }
+    if (mEsdeBgVideo->ended()) { mEsdeBgVideo->seek(0.0); mEsdeBgVideo->play(); }   // seamless loop
+    mDisplayDirty = true;                            // animating: keep the render loop awake
+}
+
+bool NanoMenu::esdeBgVideoDraw(float x, float y, float w, float h) {
+    if (!mEsdeBgVideo || !mEsdeBgVideoAdopted || !mEsdeBgVideo->firstFrameReady()) return false;
+    mEsdeBgVideo->updateFrame();
+    mEsdeBgVideo->draw(mWidth, mHeight, x, y, w, h, 1.0f, /*cover=*/1, sDrmRotMat);
+    return true;
+}
+
 // Per-frame: adopt a finished open (start playback), loop at end of stream, and re-open after the decoder
 // was handed to the video player / an app and has since come free. Called once per home frame (both themes).
 void NanoMenu::wpVideoTick() {
@@ -3057,8 +3117,10 @@ void NanoMenu::wpVideoTick() {
         // theme has no wave); on the XMB theme skip the re-open while the wave is on (nothing would draw it).
         // Do NOT re-open the wallpaper while the Video Wallpaper picker is up: the hover preview
         // owns the single HW decoder there (vidPreviewTick stopped the wallpaper on purpose).
+        // Also do NOT re-open the wallpaper while the ES-DE theme background video owns the single
+        // HW decoder (esdeBgVideoTick stopped the wallpaper on purpose for an Animated ES-DE scheme).
         if (mWpTopIsVideo && !mWpPathTop.empty() && (mNdsTheme || !mXmbWave) && !mVidActive
-                && !mWpVideoPick
+                && !mWpVideoPick && !mEsdeBgVideo
                 && mVidPrevCodecFreed.load(std::memory_order_acquire))
             wpVideoStart(mWpPathTop);
         return;

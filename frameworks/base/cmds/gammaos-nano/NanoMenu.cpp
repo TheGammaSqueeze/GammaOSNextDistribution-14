@@ -1506,6 +1506,11 @@ bool NanoMenu::threadLoop() {
     mNdsTheme    = (homeTheme == 1);
     mMinimaTheme = (homeTheme == 2) || android::base::GetBoolProperty("persist.gammaos.nano.minima", false);
     if (mMinimaTheme) mNdsTheme = false;          // Minima wins over DSi
+    // ES-DE theme engine (homeTheme == 3): a fourth home theme that renders ES-DE theme
+    // sets. Like DSi/Minima it rides the XMB infrastructure; it is its own home so it
+    // clears the other home flags. Additive and gated; see docs/THEME_ENGINE.md.
+    mEsdeTheme = (homeTheme == 3);
+    if (mEsdeTheme) { mNdsTheme = false; mMinimaTheme = false; }
     mNdsDark = android::base::GetBoolProperty("persist.gammaos.nano.nds.dark", false);  // DSi dark variant
     mGameSortMode = android::base::GetIntProperty("persist.gammaos.nano.gamesort", 0);   // Game tile order (Y cycles)
     if (mGameSortMode < 0 || mGameSortMode > 3) mGameSortMode = 0;
@@ -1516,7 +1521,7 @@ bool NanoMenu::threadLoop() {
     mPhotoFolderView = android::base::GetBoolProperty("persist.gammaos.nano.photo.folderview", false);
     mVideoFolderView = android::base::GetBoolProperty("persist.gammaos.nano.video.folderview", false);
     mMusicFolderView = android::base::GetBoolProperty("persist.gammaos.nano.music.folderview", false);
-    if (mNdsTheme || mMinimaTheme) mPs3Xmb = true;  // reuse the XMB home infrastructure, swap the render
+    if (mNdsTheme || mMinimaTheme || mEsdeTheme) mPs3Xmb = true;  // reuse the XMB home infrastructure, swap the render
     // Dual-screen XMB: render a static PSP clock on the bottom panel instead of a second wave.
     // Cached once (read on the render hot path otherwise); only meaningful in pure XMB (!mNdsTheme)
     // on a device with a secondary panel (the render call sites are gated accordingly).
@@ -4773,8 +4778,15 @@ if (sRingPrimedCount >= 2) {
                     if (sIdleFpsProp > 60) sIdleFpsProp = 60;
                     if (sIdleFpsProp == 0) sIdleFpsProp = 30;
                 }
-                bool longIdle =
-                    (int64_t)android::uptimeMillis() - mLastInputMs >= 60000;
+                int64_t idleMs = (int64_t)android::uptimeMillis() - mLastInputMs;
+                // The ES-DE home is a static image when nothing animates, but the render is
+                // text/element heavy (~0.7 core at 60fps vs the XMB wave's ~0.08). Pace it down to
+                // the idle rate after ~1s of no input with no pending ES-DE animation, instead of
+                // waiting the full 60s the XMB path uses. Any input refreshes mLastInputMs and any
+                // animation (carousel slide, marquee, description scroll, media decode) sets
+                // mEsdeWantsFastFrame, so 60fps is restored immediately and smoothness is unchanged.
+                bool esdeStaticIdle = mEsdeTheme && !mEsdeWantsFastFrame && idleMs >= 1000;
+                bool longIdle = idleMs >= 60000 || esdeStaticIdle;
                 int idleFps = longIdle ? (sIdleFpsProp > 0 ? sIdleFpsProp : 30)
                                        : 60;
                 if (idleFps < 60) frameTimeUs = 1000000 / idleFps;   // e.g. 30fps -> 33333us

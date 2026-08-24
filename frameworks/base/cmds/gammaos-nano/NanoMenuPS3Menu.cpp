@@ -294,7 +294,7 @@ GLuint NanoMenu::loadColorIconTexAbs(const char* absPath) {
 
 void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
                            float r, float g, float b, float a, float rot, bool flipV,
-                           float sharpUpW, float sharpUpH, float uMaxU, float uMaxV) {
+                           float sharpUpW, float sharpUpH, float uMaxU, float uMaxV, bool flipH) {
     if (tex == 0) return;
     GLfloat verts[12];
     if (rot == 0.0f) {
@@ -329,6 +329,9 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
     if (uMaxU != 1.0f || uMaxV != 1.0f) {
         for (int i = 0; i < 12; i += 2) { uvs[i] *= uMaxU; uvs[i + 1] *= uMaxV; }
     }
+    // ES-DE flipHorizontal mirrors the sampled texture left-right (ImageComponent::setFlipX);
+    // mirror the u coords within the sampled sub-rect [0,uMaxU] (uMaxU == 1 for the full texture).
+    if (flipH) { for (int i = 0; i < 12; i += 2) uvs[i] = uMaxU - uvs[i]; }
     GLfloat colors[6 * 4];
     for (int i = 0; i < 6; i++) { colors[i*4]=r; colors[i*4+1]=g; colors[i*4+2]=b; colors[i*4+3]=a; }
     glUseProgram(mTextProgram);
@@ -348,6 +351,92 @@ void NanoMenu::drawIconTex(GLuint tex, float x, float y, float w, float h,
     glDisableVertexAttribArray(mTextLocPosition);
     glDisableVertexAttribArray(mTextLocTexCoord);
     glDisableVertexAttribArray(mTextLocColor);
+}
+
+// ES-DE cover/backdrop draw with the theme element's brightness + saturation applied to the
+// texture (see ESDE_IMAGE_FRAGMENT_SHADER). Mirrors drawIconTex's vertex/UV setup (rotation baked
+// into the NDC verts) but binds the FX program and feeds uSaturation/uBrightness. Only called for
+// ES-DE covers that set a non-default value, so the shared drawIconTex path is untouched; if the FX
+// program did not link it degrades to a plain drawIconTex (the pre-existing full-colour behaviour).
+void NanoMenu::drawIconTexFx(GLuint tex, float x, float y, float w, float h,
+                             float r, float g, float b, float a, float rot,
+                             float saturation, float brightness, float cornerRadius,
+                             const float* gradEnd, bool gradHoriz, bool flipH, bool flipV) {
+    if (tex == 0) return;
+    if (mEsdeFxProgram == 0) {
+        drawIconTex(tex, x, y, w, h, r, g, b, a, rot, flipV, 0.0f, 0.0f, 1.0f, 1.0f, flipH);
+        return;
+    }
+    GLfloat verts[12];
+    if (rot == 0.0f) {
+        float x0 = (x / mWidth) * 2.0f - 1.0f;
+        float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
+        float x1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+        float y1 = 1.0f - (y / mHeight) * 2.0f;
+        GLfloat v[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+        for (int i = 0; i < 12; i++) verts[i] = v[i];
+    } else {
+        float cx = x + w * 0.5f, cy = y + h * 0.5f;
+        float co = cosf(rot), si = sinf(rot);
+        auto corner = [&](float lx, float ly, int slot) {
+            float rx = lx * co - ly * si, ry = lx * si + ly * co;
+            verts[slot*2]   = ((cx + rx) / mWidth) * 2.0f - 1.0f;
+            verts[slot*2+1] = 1.0f - ((cy + ry) / mHeight) * 2.0f;
+        };
+        const float hw = w * 0.5f, hh = h * 0.5f;
+        corner(-hw,  hh, 0); corner( hw,  hh, 1); corner( hw, -hh, 2);
+        corner( hw, -hh, 3); corner(-hw, -hh, 4); corner(-hw,  hh, 5);
+    }
+    GLfloat uvs[]   = { 0,1, 1,1, 1,0, 1,0, 0,0, 0,1 };
+    // ES-DE flipHorizontal / flipVertical mirror the sampled texture (ImageComponent setFlipX/Y).
+    if (flipH) { for (int i = 0; i < 12; i += 2) uvs[i]     = 1.0f - uvs[i]; }
+    if (flipV) { for (int i = 1; i < 12; i += 2) uvs[i]     = 1.0f - uvs[i]; }
+    GLfloat colors[6 * 4];
+    if (gradEnd) {
+        // ES-DE colorEnd gradient (ImageComponent::updateColors): horizontal seats the start colour
+        // on the left edge and colorEnd on the right; vertical seats start on top, colorEnd on the
+        // bottom. Vertex order here is BL, BR, TR, TR, TL, BL (same for the rotated build).
+        const float S[4] = { r, g, b, a };
+        const float* E = gradEnd;
+        const float* pick[6];
+        if (gradHoriz) { pick[0]=S; pick[1]=E; pick[2]=E; pick[3]=E; pick[4]=S; pick[5]=S; }
+        else           { pick[0]=E; pick[1]=E; pick[2]=S; pick[3]=S; pick[4]=S; pick[5]=E; }
+        for (int i = 0; i < 6; i++) {
+            colors[i*4]=pick[i][0]; colors[i*4+1]=pick[i][1]; colors[i*4+2]=pick[i][2]; colors[i*4+3]=pick[i][3];
+        }
+    } else {
+        for (int i = 0; i < 6; i++) { colors[i*4]=r; colors[i*4+1]=g; colors[i*4+2]=b; colors[i*4+3]=a; }
+    }
+    // Centred pixel coords for the corner-radius SDF (abs() makes the sign per corner irrelevant,
+    // so this one array serves both the axis-aligned and rotated vertex orders). Matches drawRoundedRect.
+    const float hw = w * 0.5f, hh = h * 0.5f;
+    GLfloat local[] = { -hw,hh, hw,hh, hw,-hh, hw,-hh, -hw,-hh, -hw,hh };
+    glUseProgram(mEsdeFxProgram);
+    // Vertices are already NDC (rotation baked in), so pin uRotation to identity.
+    if (mEsdeFxLocRotation >= 0) { const GLfloat I[4] = {1,0,0,1}; glUniformMatrix2fv(mEsdeFxLocRotation, 1, GL_FALSE, I); }
+    if (mEsdeFxLocSat >= 0)    glUniform1f(mEsdeFxLocSat, saturation);
+    if (mEsdeFxLocBright >= 0) glUniform1f(mEsdeFxLocBright, brightness);
+    if (mEsdeFxLocHalf >= 0)   glUniform2f(mEsdeFxLocHalf, hw, hh);
+    if (mEsdeFxLocRadius >= 0) glUniform1f(mEsdeFxLocRadius, cornerRadius);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glUniform1i(mEsdeFxLocTexture, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mEsdeFxLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mEsdeFxLocPosition);
+    glVertexAttribPointer(mEsdeFxLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+    glEnableVertexAttribArray(mEsdeFxLocTexCoord);
+    glVertexAttribPointer(mEsdeFxLocColor, 4, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(mEsdeFxLocColor);
+    if (mEsdeFxLocLocal >= 0) {
+        glVertexAttribPointer(mEsdeFxLocLocal, 2, GL_FLOAT, GL_FALSE, 0, local);
+        glEnableVertexAttribArray(mEsdeFxLocLocal);
+    }
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mEsdeFxLocPosition);
+    glDisableVertexAttribArray(mEsdeFxLocTexCoord);
+    glDisableVertexAttribArray(mEsdeFxLocColor);
+    if (mEsdeFxLocLocal >= 0) glDisableVertexAttribArray(mEsdeFxLocLocal);
 }
 
 // ---------------------------------------------------------------------------
@@ -615,7 +704,11 @@ void NanoMenu::initPs3Menu() {
 // Date/Time / System / etc. submenus (which share buildDataSubmenu but have none of these names).
 bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (!name) return true;
-    const bool xmb    = !mNdsTheme && !mMinimaTheme;
+    // "xmb" gates rows that only the PS3/XMB home honours. The DSi, Minima AND ES-DE homes each
+    // render their own way and ignore the wave/particle background, the XMB font, the day/night
+    // lighting and the half-res perf toggles, so exclude all three (renderEsde() reads none of
+    // them - offering them under ES-DE was the same "row does nothing here" bug as the old DSi case).
+    const bool xmb    = !mNdsTheme && !mMinimaTheme && !mEsdeTheme;
     const bool minima = mMinimaTheme;
     auto is = [&](const char* n) { return strcmp(name, n) == 0; };
     // XMB-only appearance: the wave/particle Background + effect picker, the XMB font and the
@@ -5224,6 +5317,18 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_SYSTEM:       { Ps3Level lvl; buildRomSubmenu(it.a, lvl);     mPs3Stack.push_back(lvl); break; }
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
+        case PS3_CAT_SUBMENU:  {
+            // Open a home category's item list as a submenu - the ES-DE home's Nano Settings chooser
+            // uses this to reach the Quick Menu and the Settings category the XMB/DSi/Minima carousels
+            // expose directly. The copied items keep their own kinds (PS3_QUICK actions, PS3_DATA_SUBMENU
+            // settings), so selecting them dispatches exactly as it does from the carousel.
+            if (it.a >= 0 && it.a < (int)mPs3Cats.size()) {
+                Ps3Level lvl; lvl.title = mPs3Cats[it.a].name; lvl.sel = 0;
+                lvl.items = mPs3Cats[it.a].items;
+                mPs3Stack.push_back(lvl);
+            }
+            break;
+        }
         case PS3_PINNED_APPS_LIST: { Ps3Level lvl; buildPinnedAppsSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
         case PS3_FAVORITES_LIST:   { Ps3Level lvl; buildFavoritesSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_COLLECTIONS_LIST: { Ps3Level lvl; buildCollectionsSubmenu(lvl);      mPs3Stack.push_back(lvl); break; }
@@ -8614,7 +8719,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // so applying restarts the main gammaos-nano home service - see the "Home Theme" hook in
     // closePs3Dialog. "0"/empty = GammaOS XMB, "1" = the DSi Menu theme.
     {"Home Theme", SettingSource::kProp, "persist.gammaos.nano.ndstheme", "0",
-     "0:GammaOS XMB,1:DSi Menu,2:Minima"},
+     "0:GammaOS XMB,1:DSi Menu,2:Minima,3:Custom / ES-DE"},
     // DSi theme dark variant. mNdsDark is read live by ndsPal() in every DSi renderer, so this
     // applies immediately (no home restart) - see the "DSi Dark Theme" hook in closePs3Dialog.
     // Only meaningful while the DSi Menu theme is selected.
@@ -11140,13 +11245,19 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     // overlay process (restarting gammaos-nano would not touch it). The persist
                     // prop was already written above, so the choice survives a reboot.
                     if (!strcmp(b->label, "Home Theme")) {
-                        int  tv      = atoi(v.c_str());   // 0 = GammaOS XMB, 1 = DSi Menu, 2 = Minima
-                        bool wantDsi = (tv == 1);
-                        bool wantMin = (tv == 2);
-                        if (wantDsi != mNdsTheme || wantMin != mMinimaTheme) {
+                        int  tv       = atoi(v.c_str());   // 0 XMB, 1 DSi, 2 Minima, 3 ES-DE
+                        bool wantDsi  = (tv == 1);
+                        bool wantMin  = (tv == 2);
+                        bool wantEsde = (tv == 3);
+                        if (wantDsi != mNdsTheme || wantMin != mMinimaTheme || wantEsde != mEsdeTheme) {
                             mNdsTheme = wantDsi;
                             mMinimaTheme = wantMin;
+                            mEsdeTheme = wantEsde;
                             if (wantDsi) ensureNdsAssets();
+                            if (wantEsde) {   // force a (re)load of the ES-DE theme set, reset its view
+                                mEsdeLoaded = false; mEsdeInGamelist = false;
+                                mEsdeSysSel = 0; mEsdeGameSel = 0;
+                            }
                             // Keep the fallback bool in sync so a reboot lands on the same theme.
                             property_set("persist.gammaos.nano.minima", wantMin ? "1" : "0");
                             // Reset to the home root so the new theme presents from a clean state

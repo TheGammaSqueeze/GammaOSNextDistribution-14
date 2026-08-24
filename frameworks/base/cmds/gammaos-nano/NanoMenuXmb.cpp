@@ -2158,7 +2158,9 @@ void NanoMenu::handleLeft() {
         // A settings LIST level: LEFT walks up to the parent (a vertical list has no horizontal move).
         if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) ndsNavBack(); else ndsNavHoriz(-1); }
         else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(-6);   // Minima: LEFT jumps up a page (clamped)
-        else ps3XmbLeft();
+        else if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuCycle(-1);  // ES-DE menu: cycle value / row
+        else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeNav(-1, 0);       // ES-DE: previous system
+        else ps3XmbLeft();   // native XMB submenu drilled in (mPs3Stack): left within the submenu
         return;
     }
     if (!mXmbMode) return;
@@ -2195,7 +2197,9 @@ void NanoMenu::handleRight() {
         // drifting stick / temperamental d-pad diagonal cannot confirm it (confirm is X/A).
         if (mNdsTheme && mPs3Xmb && !ndsInModal()) { if (ndsCurLevelIsList()) { if (ps3FocusOpensSubmenu()) ndsNavSelect(false); } else ndsNavHoriz(+1); }
         else if (mMinimaTheme && mPs3Xmb && !ndsInModal()) ndsNavHoriz(+6);   // Minima: RIGHT jumps down a page (clamped)
-        else ps3XmbRight();
+        else if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuCycle(+1);  // ES-DE menu: cycle value / row
+        else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeNav(+1, 0);       // ES-DE: next system
+        else ps3XmbRight();   // native XMB submenu drilled in (mPs3Stack): right within the submenu
         return;
     }
     if (!mXmbMode) return;
@@ -2214,13 +2218,16 @@ void NanoMenu::handleRight() {
 }
 
 void NanoMenu::launchXmbGame() {
-    // Overlay XMB: the home exit-to-launch handshake (set launch_* props + exit so
-    // the framework starts the app) does not apply to the resident overlay - and
-    // running it would make the overlay exit/restart without launching. Game
-    // relaunch from the overlay needs the am-start intent path (follow-up); for
-    // now select-on-a-game is a no-op in overlay mode (apps launch via
-    // overlayLaunchPackage; Back resumes, and the running game can be quit).
-    if (mOverlayMode) { ALOGI("overlay: game relaunch from overlay not yet wired"); return; }
+    // Overlay: the home exit-to-launch handshake (set launch_* props + exit so the framework starts
+    // the app) does not apply to the resident overlay - running it would make the overlay
+    // exit/restart without launching. Launching a game while the overlay is up (over a running app)
+    // instead uses overlayLaunchGame(), the am-start handoff that sets app_launched, fades the
+    // overlay and dismisses onto the new app (the same path the search launch uses). It reads the
+    // same mXmbSystemIndex/mXmbGameIndex every caller sets (XMB/DSi/Minima select, esdeSelect), so a
+    // game selected from any home theme launches correctly. Without this, every launch AFTER the
+    // first was a dead no-op: once an app is behind it the home runs as the resident overlay, so
+    // launching from the overlay or after returning to the theme did nothing.
+    if (mOverlayMode) { overlayLaunchGame(); return; }
     int sysIdx, gameIdx;
 
     // GammaOS Nano: gate the entire XMB launch path until the system

@@ -405,6 +405,45 @@ void NanoMenu::minimaSfx(int which) {
     }).detach();
 }
 
+// ---- ES-DE theme navigation SFX -----------------------------------------------------------------
+// The active ES-DE theme's own <sound name=...> wavs (systembrowse/quicksysselect/select/back/
+// scroll/favorite/launch), parsed into the system view as type "sound" with an absolute path.
+// Same low-latency file-static player model as gPs3Sfx: one player per slot, reloaded when the
+// theme changes the path. No-op when the theme omits a given sound (path empty).
+static NanoSfxPlayer     gEsdeSfx[7];
+static std::string       gEsdeSfxPath[7];
+static std::atomic<bool> gEsdeSfxOpening[7];
+
+void NanoMenu::esdeSfx(int which) {
+    if (!mEsdeTheme || !navSoundsOn()) return;
+    if (which < 0 || which >= 7) return;
+    const std::string path = mEsdeSoundPath[which];   // cached at load; no live-doc race
+    if (path.empty()) return;
+    if (gEsdeSfx[which].loaded() && gEsdeSfxPath[which] == path) { gEsdeSfx[which].trigger(); return; }
+    if (gEsdeSfxOpening[which].exchange(true)) return;    // one decode in flight per clip
+    std::thread([which, path]() {
+        if (gEsdeSfx[which].load(path, 0.8f)) { gEsdeSfxPath[which] = path; gEsdeSfx[which].trigger(); }
+        gEsdeSfxOpening[which].store(false);
+    }).detach();
+}
+
+// Snapshot the 7 ES-DE navigation-sound wav paths from the just-loaded theme (called by
+// ensureEsdeTheme). The <sound> elements are theme-global (view name="all"), so they are the same
+// for every system; caching them here keeps esdeSfx off the live doc, which the render thread
+// reloads per focused system.
+void NanoMenu::esdeCacheSounds() {
+    static const char* kNames[7] = {
+        "systembrowse", "quicksysselect", "select", "back", "scroll", "favorite", "launch" };
+    for (int i = 0; i < 7; i++) mEsdeSoundPath[i].clear();
+    if (!mEsdeDoc.valid()) return;
+    const nanoesde::View* v = mEsdeDoc.view("system");
+    if (!v) return;
+    for (int i = 0; i < 7; i++) {
+        auto it = v->elements.find(std::string("sound\x1f") + kNames[i]);
+        if (it != v->elements.end()) mEsdeSoundPath[i] = it->second.getPath("path");
+    }
+}
+
 // Per-frame DSi SFX driver: detect nav / drill / back / launch by DIFFING this frame's menu state
 // against the previous frame, so exactly one sound fires per event regardless of whether the change
 // came from the D-pad or from touch (no per-call-site wiring, no double-fire). Called once per frame

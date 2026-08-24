@@ -71,6 +71,9 @@ cc_binary {
         "NanoMenuShares.cpp",
         "NanoMenuPS3Menu.cpp",
         "NanoMenuMinima.cpp",
+        "NanoEsdeTheme.cpp",
+        "NanoThemeEngine.cpp",
+        "NanoMenuEsdeMenu.cpp",
         "NanoMenuPS3Clock.cpp",
         "NanoControlCenter.cpp",
         "NanoMenuPS3Globe.cpp",
@@ -113,11 +116,14 @@ cc_binary {
         "DrasticRunner.cpp",
     ],
 
-    // Vendored liba52 public header (a52.h) for NanoAc3.cpp.
-    local_include_dirs: ["liba52/include"],
+    // Vendored liba52 public header (a52.h) for NanoAc3.cpp; nanosvg headers for the
+    // ES-DE theme engine's SVG logo rasterization.
+    local_include_dirs: ["liba52/include", "nanosvg"],
 
     static_libs: [
         "liba52_nano",   // AC-3 decoder (no AC-3 codec on the device)
+        "libtinyxml2",   // XML DOM parser for the ES-DE theme engine (NanoEsdeTheme)
+        "libnanosvg_nano",   // SVG rasterizer for ES-DE theme logos (NanoThemeEngine)
         // Share storage + credential encoding, shared with the gammaos-sharefs daemon so a share
         // added in the menu is written exactly as the daemon expects to read it.
         "libgammaos_sharecfg",
@@ -187,6 +193,7 @@ cc_binary {
         "nano_xmb_canyon",
         "nano_xmb_photoviewer",
         "nano_xmb_backgrounds",
+        "nano_xmb_systemstatus",
     ],
 }
 
@@ -219,6 +226,29 @@ cc_library_static {
         "-Wno-constant-conversion",
         "-Wno-shift-negative-value",
         "-Wno-self-assign",
+    ],
+}
+
+// Vendored nanosvg (github.com/memononen/nanosvg, zlib license) - header-only SVG
+// parser + rasterizer. The ES-DE theme engine rasterizes theme logo/console SVGs to
+// RGBA and uploads them as GL textures. Built -w because the upstream single-header
+// source is not clean under Soong's warning set (same treatment as liba52_nano).
+cc_library_static {
+    name: "libnanosvg_nano",
+    srcs: ["nanosvg/nanosvg_impl.c"],
+    local_include_dirs: ["nanosvg"],
+    export_include_dirs: ["nanosvg"],
+    cflags: [
+        "-DNANOSVG_ALL_COLOR_KEYWORDS",
+        "-Wno-error",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-unused-function",
+        "-Wno-unused-but-set-variable",
+        "-Wno-sign-compare",
+        "-Wno-implicit-fallthrough",
+        "-Wno-missing-field-initializers",
+        "-Wno-constant-conversion",
     ],
 }
 
@@ -386,6 +416,17 @@ prebuilt_etc {
     name: "nano_xmb_backgrounds",
     srcs: ["ps3xmb/backgrounds/*.jpg"],
     sub_dir: "nano_xmb/backgrounds",
+}
+
+// ES-DE's built-in system-status icons (bluetooth / wifi / cellular / battery levels), the exact
+// SVGs upstream ES-DE ships in resources/graphics/systemstatus. The theme engine's systemstatus
+// element falls back to these when a theme defines the element but no customIcons, so the status
+// cluster matches real ES-DE instead of showing a bare battery percentage. Dev override
+// /data/system/nano_xmb/systemstatus/ is checked first.
+prebuilt_etc {
+    name: "nano_xmb_systemstatus",
+    srcs: ["ps3xmb/systemstatus/*.svg"],
+    sub_dir: "nano_xmb/systemstatus",
 }
 
 // 3D Earth maps for the Time Zone globe selector (web tzglobe screen). Day /

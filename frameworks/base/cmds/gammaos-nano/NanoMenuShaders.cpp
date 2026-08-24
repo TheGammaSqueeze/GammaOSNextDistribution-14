@@ -329,6 +329,56 @@ const char TEXT_FRAGMENT_SHADER[] = R"(
     }
 )";
 
+// ES-DE cover/backdrop FX: applies the theme element's brightness + saturation to the sampled
+// texture exactly as ES-DE's core shader does (resources/shaders/glsl/core.glsl:118-132) -
+// brightness shifts luminance (rgb += 0.3*b) and saturation blends toward greyscale
+// (mix(luma, rgb, sat), luma = dot(rgb, 0.299/0.587/0.114)) - then multiplies by the vertex tint.
+// A SEPARATE program (reusing TEXT_VERTEX_SHADER) so the shared text/icon path pays nothing; only
+// ES-DE covers that set a non-default brightness/saturation are drawn through it. Reuses vTexCoord/
+// vColor from the text vertex shader; the caller bakes rotation into the vertices and sets uRotation
+// to identity, so no glyph-sharpening path is needed here.
+const char ESDE_IMAGE_VERTEX_SHADER[] = R"(
+    attribute vec2 aPosition;
+    attribute vec2 aTexCoord;
+    attribute vec4 aColor;
+    attribute vec2 aLocal;       // centred pixel coord of the quad, for the corner-radius SDF
+    uniform mat2 uRotation;
+    varying vec2 vTexCoord;
+    varying vec4 vColor;
+    varying vec2 vLocal;
+    void main() {
+        gl_Position = vec4(uRotation * aPosition, 0.0, 1.0);
+        vTexCoord = aTexCoord;
+        vColor = aColor;
+        vLocal = aLocal;
+    }
+)";
+
+const char ESDE_IMAGE_FRAGMENT_SHADER[] = R"(
+    precision mediump float;
+    varying vec2 vTexCoord;
+    varying vec4 vColor;
+    varying vec2 vLocal;
+    uniform sampler2D uTexture;
+    uniform float uSaturation;   // 1.0 = unchanged, 0.0 = greyscale
+    uniform float uBrightness;   // 0.0 = unchanged (ES-DE range -2..2)
+    uniform vec2  uHalf;         // half-size of the quad in the same units as vLocal
+    uniform float uRadius;       // corner radius in px; 0 = square (SDF skipped)
+    void main() {
+        vec4 texel = texture2D(uTexture, vTexCoord);
+        vec3 rgb = texel.rgb + 0.3 * uBrightness;
+        float luma = dot(rgb, vec3(0.299, 0.587, 0.114));
+        rgb = mix(vec3(luma), rgb, uSaturation);
+        float alpha = texel.a;
+        if (uRadius > 0.0) {   // ES-DE cornerRadius: round the drawn quad, same SDF as drawRoundedRect
+            vec2 d = abs(vLocal) - (uHalf - vec2(uRadius));
+            float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - uRadius;
+            alpha *= clamp(0.5 - dist, 0.0, 1.0);
+        }
+        gl_FragColor = vec4(clamp(rgb, 0.0, 1.0), alpha) * vColor;
+    }
+)";
+
 // ---------------------------------------------------------------------------
 // Shader compile + link helpers
 // ---------------------------------------------------------------------------
@@ -579,6 +629,33 @@ void NanoMenu::initShaders() {
         mTextLocRotation = glGetUniformLocation(mTextProgram, "uRotation");
         mTextLocSharp    = glGetUniformLocation(mTextProgram, "uSharp");
         mTextLocSharpUp  = glGetUniformLocation(mTextProgram, "uSharpUp");
+        glDeleteShader(vs); glDeleteShader(fs);
+    }
+    // ES-DE cover FX program: the text vertex shader + the brightness/saturation fragment shader.
+    // Kept separate so the shared text/icon path is untouched (no per-fragment cost on the XMB /
+    // DSi / Minima homes). If it fails to link mEsdeFxProgram stays 0 and drawIconTexFx degrades
+    // to a plain drawIconTex (full brightness/saturation, i.e. the pre-existing behaviour).
+    {   GLuint vs = compileShader(GL_VERTEX_SHADER, ESDE_IMAGE_VERTEX_SHADER);
+        GLuint fs = compileShader(GL_FRAGMENT_SHADER, ESDE_IMAGE_FRAGMENT_SHADER);
+        mEsdeFxProgram = linkProgram(vs, fs);
+        // linkProgram returns the (possibly failed) program object and only logs on error, so
+        // verify the link explicitly - a broken FX program must become 0 so drawIconTexFx falls
+        // back to the plain drawIconTex path instead of drawing garbage/black covers.
+        GLint linked = 0;
+        glGetProgramiv(mEsdeFxProgram, GL_LINK_STATUS, &linked);
+        if (!linked) { glDeleteProgram(mEsdeFxProgram); mEsdeFxProgram = 0; }
+        if (mEsdeFxProgram) {
+            mEsdeFxLocPosition = glGetAttribLocation(mEsdeFxProgram, "aPosition");
+            mEsdeFxLocTexCoord = glGetAttribLocation(mEsdeFxProgram, "aTexCoord");
+            mEsdeFxLocColor    = glGetAttribLocation(mEsdeFxProgram, "aColor");
+            mEsdeFxLocLocal    = glGetAttribLocation(mEsdeFxProgram, "aLocal");
+            mEsdeFxLocTexture  = glGetUniformLocation(mEsdeFxProgram, "uTexture");
+            mEsdeFxLocRotation = glGetUniformLocation(mEsdeFxProgram, "uRotation");
+            mEsdeFxLocSat      = glGetUniformLocation(mEsdeFxProgram, "uSaturation");
+            mEsdeFxLocBright   = glGetUniformLocation(mEsdeFxProgram, "uBrightness");
+            mEsdeFxLocHalf     = glGetUniformLocation(mEsdeFxProgram, "uHalf");
+            mEsdeFxLocRadius   = glGetUniformLocation(mEsdeFxProgram, "uRadius");
+        }
         glDeleteShader(vs); glDeleteShader(fs);
     }
     // Rounded-rect shader (OSK keys).
