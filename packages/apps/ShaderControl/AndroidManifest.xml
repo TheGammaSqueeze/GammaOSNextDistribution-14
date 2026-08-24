@@ -18,5 +18,18 @@
             android:exported="true">
         </activity>
 
+        <!-- GammaOS Nano "Freeze App Under Clock": a transparent activity nano fronts while the PSP
+             slide clock is open so the running game receives onPause and pauses itself cleanly, then
+             finishes (game onResume) when the clock closes. Translucent so the game stays in onPause
+             (keeps its surface for a clean resume) rather than onStop. Hidden from recents, own task. -->
+        <activity
+            android:name=".NanoPauseActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.gammaos.nano.pause"
+            android:configChanges="orientation|screenSize|smallestScreenSize|keyboardHidden|screenLayout|uiMode|density|navigation" />
+
     </application>
 </manifest>

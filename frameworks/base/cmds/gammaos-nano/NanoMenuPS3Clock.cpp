@@ -875,6 +875,7 @@ void NanoMenu::pspClockMirrorImportAndBlit(const sp<GraphicBuffer>& buf) {
     glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
     if (prevBlend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
     mPspClockAppTexValid = true;
+    mPspClockAppFrameSeq++;   // fresh mirror frame -> advance the freeze gate
 }
 
 // Render-thread. Lifecycle + per-frame pump for the continuous mirror. Drains to the
@@ -938,10 +939,12 @@ void NanoMenu::pspClockMirrorTick(bool want) {
 // (microseconds) - NEVER across a binder call, a GL call, or a SW buffer lock, so it
 // cannot stall the render thread into the ~8s watchdog.
 void NanoMenu::pspClockAppCaptureTick() {
-    // Freeze App Under Clock: once the game is backgrounded it produces no new frames, so stop the
+    // Freeze App Under Clock: once the game is SIGSTOP'd it produces no new frames, so stop the
     // mirror/worker and HOLD the last captured still - mPspClockAppTex stays valid, so the surround
-    // and lens keep sampling it and the gyro parallax keeps panning it. Do NOT clear the texture.
-    if (mPspAppBackgrounded) {
+    // and lens keep sampling it and the gyro parallax keeps panning it. Held right through the close
+    // transition (until the overlay is fully gone), so no launcher/stale frame shows. Do NOT clear
+    // the texture.
+    if (mPspAppFrozen) {
         if (mPspClockCaptureRunning) { gPspCapRun.store(false, std::memory_order_release); mPspClockCaptureRunning = false; }
         if (gMirActive) pspClockMirrorStop();
         return;
@@ -1053,6 +1056,7 @@ void NanoMenu::pspClockAppCaptureTick() {
                             GL_RGBA, GL_UNSIGNED_BYTE, sUpload.data());
         }
         mPspClockAppTexValid = true;
+        mPspClockAppFrameSeq++;   // fresh worker frame -> advance the freeze gate
     }
 }
 
@@ -1067,6 +1071,10 @@ void NanoMenu::drawPspClock(float dtMs) {
     // non-XMB themes when it is not summoned (never touch DSi/Minima otherwise).
     if (!mPs3Xmb && !(mPspClockOn || mPspClockReveal > 0.0f || mPspClockStandalone)) return;
     pspClockPollInput();
+    // Freeze App Under Clock: snapshot the capture frame seq at each open edge, so the freeze only
+    // fires once a FRESH frame has been captured this summon (never the previous summon's stale still).
+    if (mPspClockOn && !mPspClockPrevOn) mPspAppFreezeBaseSeq = mPspClockAppFrameSeq;
+    mPspClockPrevOn = mPspClockOn;
     // Gyro/accel parallax: sample the tilt while the clock is up (disables the sensor and
     // eases the offset back to centre once it is fully closed).
     pspClockPollTilt(mPspClockReveal > 0.001f || mPspClockOn);
@@ -1120,9 +1128,13 @@ void NanoMenu::drawPspClock(float dtMs) {
         // left show_overlay=1 through the retract so this animates fully first). Clearing
         // standalone first lets overlayPoll's hide guard pass; it does the actual overlayHide.
         if (mPspClockStandalone) {
-            // Backstop: if the clock fully closed while the game was still backgrounded (the
-            // close-start foreground above did not run for some reason), resume it now.
-            if (mPspAppBackgrounded) { mPspAppBackgrounded = false; pspClockFreezeApp(false); }
+            // Fully closed: drop the still-hold. Backstop SIGCONT in case the close-start resume above
+            // never ran (e.g. the clock snapped shut). The overlay is torn down just below, revealing
+            // the real game (already resuming since close-start).
+            if (mPspAppFrozen) {
+                if (!mPspAppResumeSent) pspClockFreezeApp(false);
+                mPspAppFrozen = false; mPspAppResumeSent = false;
+            }
             mPspClockStandalone = false;
             if (mPspClockRaisedOverlay) {
                 mPspClockRaisedOverlay = false;
@@ -1248,22 +1260,24 @@ void NanoMenu::drawPspClock(float dtMs) {
     { static int sG = 0; if ((sG++ % sampleiv) == 0) pspClockSampleGlow(); }
     pspClockAppCaptureTick();                 // #5: pump live-app capture -> mPspClockAppTex
     // Freeze App Under Clock (over-app standalone summon only, gated). Once a real game frame is
-    // captured, send the game to the background (normal Android pause) and hold the still; the moment
-    // the clock starts closing (mPspClockOn cleared on slide release) foreground it so it resumes and
-    // renders live under the fading clock. mPspClockOn stays true through the whole open hold and only
-    // clears on release, so the background fires once on entry and the foreground once on exit.
+    // captured, SIGSTOP the game in place and hold that still (the game stays the foreground task, so
+    // no launcher is ever launched). The moment the clock starts closing (mPspClockOn cleared on slide
+    // release) SIGCONT it so it is rendering again by the time the overlay is fully gone - but keep
+    // holding the still (mPspAppFrozen stays set) right through the fade, so the launcher/stale frame
+    // never shows; the real, resumed game is revealed only when the overlay tears down at full close.
     if (mPspClockStandalone && property_get_bool("persist.gammaos.nano.pspclock.freezeapp", false)) {
-        if (mPspClockOn && !mPspAppBackgrounded && mPspClockAppTexValid && !mOverlayPausedPkg.empty()) {
-            mPspAppBackgrounded = true;
-            pspClockFreezeApp(true);          // HOME: background the game, hold the just-captured still
-        } else if (!mPspClockOn && mPspAppBackgrounded) {
-            mPspAppBackgrounded = false;
-            pspClockFreezeApp(false);         // am start: foreground/resume as the clock fades out
+        if (mPspClockOn && !mPspAppFrozen && mPspClockAppTexValid
+                && (mPspClockAppFrameSeq - mPspAppFreezeBaseSeq) >= 2 && !mOverlayPausedPkg.empty()) {
+            mPspAppFrozen = true; mPspAppResumeSent = false;
+            pspClockFreezeApp(true);          // SIGSTOP the game, hold the just-captured (fresh) still
+        } else if (!mPspClockOn && mPspAppFrozen && !mPspAppResumeSent) {
+            mPspAppResumeSent = true;
+            pspClockFreezeApp(false);         // SIGCONT at close-start; still stays held until full close
         }
-    } else if (mPspAppBackgrounded) {
-        // Feature toggled off, or the summon ended, while still frozen: resume the game.
-        mPspAppBackgrounded = false;
-        pspClockFreezeApp(false);
+    } else if (mPspAppFrozen) {
+        // Feature toggled off, or the summon ended, while still frozen: resume the game and drop the hold.
+        if (!mPspAppResumeSent) pspClockFreezeApp(false);
+        mPspAppFrozen = false; mPspAppResumeSent = false;
     }
     // #5 dynamic darkening: sample the live-app mean brightness so a bright game dims the
     // disc + darkens the surround. Before the visible passes (FBO switch). Phase iv/2 so its

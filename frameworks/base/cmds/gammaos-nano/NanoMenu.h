@@ -951,9 +951,9 @@ private:
     // persist.gammaos.nano.overlay.pause (default on); the frozen window keeps
     // its last frame for SurfaceFlinger to blur.
     void overlayPauseApp(bool pause);
-    // Freeze App Under Clock: background (HOME intent, keeps the game alive) / foreground (am start
-    // the game's launcher, warm resume) the over-app game while the slide clock is open. Async.
-    void pspClockFreezeApp(bool background);
+    // Freeze App Under Clock: SIGSTOP (freeze=true) / SIGCONT (freeze=false) the over-app game in
+    // place while the slide clock is open, via the crash-safe overlaySignalPackage. Async.
+    void pspClockFreezeApp(bool freeze);
     std::string mOverlayPausedPkg;    // package frozen on show, thawed on hide
     // Overlay XMB actions (NanoMenuOverlay.cpp), invoked from the PS3 input
     // handlers when mOverlayMode. Resume = dismiss + thaw the running app; quit =
@@ -2516,11 +2516,21 @@ private:
     // overlay when the clock finishes retracting. mPspClockRaisedOverlay = we raised it.
     bool  mPspClockStandalone = false;
     bool  mPspClockRaisedOverlay = false;
-    // Freeze App Under Clock (persist.gammaos.nano.pspclock.freezeapp): once a game frame is
-    // captured for the over-app slide clock, the game is sent to the background (normal Android
-    // pause, kept alive) and its last frame is held as the backdrop; it is foregrounded/resumed
-    // when the clock starts closing. This latch = the game is currently backgrounded by us.
-    bool  mPspAppBackgrounded = false;
+    // Freeze App Under Clock (persist.gammaos.nano.pspclock.freezeapp): once a game frame is captured
+    // for the over-app slide clock, SIGSTOP the game IN PLACE (it stays the foreground task - we do
+    // NOT go HOME, so the launcher is never brought up, which is wasteful on constrained devices and
+    // flashes on resume) and hold its last frame as the backdrop. SIGCONT it the moment the clock
+    // starts closing so it is rendering again by the time the overlay is fully gone; the still is held
+    // right up to that point, so no launcher or stale frame ever shows.
+    bool  mPspAppFrozen = false;      // the game is currently SIGSTOP'd by us (drives the still-hold)
+    bool  mPspAppResumeSent = false;  // SIGCONT already sent this summon (at close-start)
+    // The freeze must only fire after a FRESH game frame is captured THIS summon - mPspClockAppTexValid
+    // stays set across summons, so without this gate the second+ open would freeze on the previous
+    // summon's stale still (and stop the capture before it could refresh). mPspClockAppFrameSeq bumps
+    // on every new capture upload; snapshot it at each open edge and require it to advance first.
+    uint32_t mPspClockAppFrameSeq = 0;
+    uint32_t mPspAppFreezeBaseSeq = 0;
+    bool  mPspClockPrevOn = false;    // mPspClockOn from last drawPspClock, to detect the open edge
     // PSP slide clock in a DSi/Minima HOME (no app): the surround + glass disc show the THEME home
     // backdrop (Minima black/solid/wallpaper, DSi field/wallpaper), not the XMB wave. Set for the frame
     // by drawPspClockThemeBackdrop(); tells pspClockLens/pspClockSampleGlow the work texture is display
