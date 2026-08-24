@@ -131,6 +131,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Clear Wallpaper",22,"Removes the custom wallpaper (both screens) and brings the moving wave back.",nullptr,1,nullptr,0},
   {"Background Colour",22,"Minima theme only: fills the Minima home background with a solid colour instead of black. Overrides the wave; a photo or video wallpaper still takes priority.","Black",1,nullptr,0},
   {"Long Names",22,"Minima theme only: how a game or app name too long for its row is shown. Scroll keeps the normal font size, scrolling the focused name and clipping the others at the edge; Shrink to Fit reduces the font so the whole name fits.","Scroll",1,nullptr,0},
+  {"Show Battery Percent",22,"Minima and DSi themes: shows the battery charge as a number next to the status-bar battery icon.","Off",1,nullptr,0},
   {"Wallpaper Dimming",22,"Darkens a custom photo or video wallpaper so a bright image does not wash out the icons or menu text. Higher = darker.","25%",1,nullptr,0},
   {"XMB Wave",22,"Shows the moving PS3 wave behind the home screen. Off by default when a custom wallpaper is set.","On",1,nullptr,0},
   {"Half Resolution: Wave",22,"XMB theme only: renders the moving wave wallpaper at half resolution and upscales it smoothly. Trades a little wave sharpness for a large GPU speed-up on lower-powered devices. Menu and clock text stay sharp.","Off",1,nullptr,0},

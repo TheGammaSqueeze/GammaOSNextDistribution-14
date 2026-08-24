@@ -168,6 +168,11 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     // (default), 0 = shrink a too-long name to fit. Read live so a chooser change applies at once.
     char nsv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.minima.namescroll", nsv, "1");
     const bool minNameScroll = (nsv[0] == '1' || nsv[0] == 't' || nsv[0] == 'o');
+    // Theme Settings > Battery Percentage: draw the charge as a number next to the status-pill
+    // battery icon (NextUI Appearance "Show Battery Percent"). Shared with the DSi status bar.
+    // Read live so a toggle applies at once.
+    char bpv[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.battpct", bpv, "0");
+    const bool minBattPct = (bpv[0] == '1' || bpv[0] == 't' || bpv[0] == 'o');
 
     // ---- resolve the current level's rows (categories at root, else the category/submenu items) ----
     // vals holds the inline right-aligned value for value-bearing rows (else empty). Only the
@@ -218,7 +223,11 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         float contentW = measureText(cb, fsHint);
         if (wl != kWifiLevel_Off && wl != kWifiLevel_Unknown) contentW += wifiW + gp;
         if (bl != kBtLevel_Off && bl != kBtLevel_Unknown)     contentW += btW + gp;
-        if (mBatteryPercent >= 0)                              contentW += battW + gp;
+        if (mBatteryPercent >= 0) {
+            contentW += battW + gp;
+            if (minBattPct) { int p = mBatteryPercent; if (p < 0) p = 0; if (p > 100) p = 100;
+                              char pb[8]; snprintf(pb, sizeof(pb), "%d%%", p); contentW += measureText(pb, fsHint) + gp; }
+        }
         statusPillLeft = rx + rw - pad - (contentW + btnPad * 2.0f);
         statusBandBot  = ry + pad + ph;
     }
@@ -436,10 +445,13 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         const bool showBt   = (bl != kBtLevel_Off && bl != kBtLevel_Unknown);
         const bool showBatt = (mBatteryPercent >= 0);
         const float clockW = measureText(clockbuf, fsHint);
+        char battpb[8] = {};
+        if (showBatt && minBattPct) { int p = mBatteryPercent; if (p < 0) p = 0; if (p > 100) p = 100; snprintf(battpb, sizeof(battpb), "%d%%", p); }
         float contentW = clockW;
         if (showWifi) contentW += wifiW + gap;
         if (showBt)   contentW += btW + gap;
         if (showBatt) contentW += battW + gap;
+        if (showBatt && minBattPct) contentW += measureText(battpb, fsHint) + gap;   // widen the pill for the % label
 
         const float pw = contentW + btnPad * 2.0f;
         const float px = rx + rw - pad - pw, py = ry + pad;
@@ -461,6 +473,10 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
             drawRoundedRect(ix + 2.0f * sc, by + 2.0f * sc, fillW, bh - 4.0f * sc, 1.0f * sc, atc, atc, atc, 1.0f);            // charge
             drawQuad(ix + battBW, by + bh * 0.28f, battNub, bh * 0.44f, atc, atc, atc, 1.0f);                     // nub
             ix += battW + gap;
+            if (minBattPct) {
+                drawText(battpb, ix, py + (ph - MIN_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
+                ix += measureText(battpb, fsHint) + gap;
+            }
         }
         drawText(clockbuf, ix, py + (ph - MIN_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
     }

@@ -3093,7 +3093,16 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
                   drawText(buf, x + (cellPx - gw) * 0.5f, cy, fs, sp2.ink, sp2.ink, sp2.ink, 1.0f); }   // centre in the fixed cell
               x += cellPx;
           } };
-      float clockRight = X(231.0f);                          // battInkX(237) - 6
+      // Optional battery percentage (Theme Settings > Battery Percentage, shared with the Minima
+      // toggle): a small number just left of the battery icon; the clock shifts left to make room.
+      char battPb[8] = {};
+      { char v[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.battpct", v, "0");
+        if ((v[0] == '1' || v[0] == 't' || v[0] == 'o') && mBatteryPercent >= 0) {
+            int p = mBatteryPercent; if (p > 100) p = 100; snprintf(battPb, sizeof(battPb), "%d%%", p); } }
+      const float battPbW = battPb[0] ? measureText(battPb, fs) : 0.0f;
+      if (battPb[0]) drawText(battPb, X(234.0f) - battPbW, cy, fs, sp2.ink, sp2.ink, sp2.ink, 1.0f);
+      float clockRight = battPb[0] ? (X(234.0f) - battPbW - S(4.0f))   // just before the % label
+                                   : X(231.0f);                        // battInkX(237) - 6
       drawField(ts, clockRight);
       drawField(ds, clockRight - S(fieldW(ts)) - S(5.0f));
       // battery: a DSi-styled indicator with a PROPORTIONAL fill so it reflects the real

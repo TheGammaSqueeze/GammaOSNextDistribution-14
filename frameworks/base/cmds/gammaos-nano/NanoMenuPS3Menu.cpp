@@ -723,6 +723,8 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("Background Colour")) return minima;
     // Long-name shrink/scroll is a Minima-list behaviour (XMB/DSi handle long names their own way).
     if (is("Long Names")) return minima;
+    // The numeric battery readout is drawn in the Minima status pill and the DSi status bar.
+    if (is("Show Battery Percent")) return minima || mNdsTheme;
     // The DSi dual-screen layout + hinge gap only affect the DSi carousel home.
     if (is("Dual Screen") || is("Screen Gap")) return mNdsTheme;
     // The DSi dark variant (mNdsDark, persist.gammaos.nano.nds.dark) only repaints the DSi
@@ -8651,6 +8653,12 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // Minima long-name handling: 0 = shrink the font so a long name fits (default), 1 = keep the
     // font size and scroll the focused name (marquee) / clip the rest. Read live by renderMinimaList.
     {"Long Names", SettingSource::kProp, "persist.gammaos.nano.minima.namescroll", "1", "0:Shrink to Fit,1:Scroll"},
+    // Battery as a numeric percentage next to the status-bar battery icon (NextUI Appearance
+    // "Show Battery Percent", default off). Shared by the Minima status pill (renderMinimaList)
+    // and the DSi status bar (drawNdsStatusBar); one global toggle like NextUI. NOT named
+    // "Battery Percentage" - that label is already bound (Power Save -> status_bar_show_battery_percent)
+    // and ps3BindingFor matches by label, so a duplicate would resolve to the wrong prop.
+    {"Show Battery Percent", SettingSource::kProp, "persist.gammaos.nano.battpct", "0", "0:Off,1:On"},
     // Adjustable dimming over a custom wallpaper (read live by wallpaperScrimAlpha, applied in
     // drawWallpaperFill / drawTopVideoWallpaper for every theme). Percent value, 0 = off.
     {"Wallpaper Dimming", SettingSource::kProp, "persist.gammaos.nano.wp.scrim", "25",
