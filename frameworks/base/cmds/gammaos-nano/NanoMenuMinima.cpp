@@ -176,15 +176,21 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     // (enter to change), matching the DSi list decision.
     std::vector<std::string> rows;
     std::vector<std::string> vals;
+    // Per-row checkbox state, parallel to rows/vals: -1 = normal row, 0 = unchecked, 1 = checked.
+    // The rows are flattened to strings here, so the Ps3Item.checkState (set by the multi-select
+    // builders: Slide Up/Down actions, Devices to Capture, Passthrough Blacklist) has to be carried
+    // alongside or the Minima list loses it. The XMB theme draws these boxes; this keeps parity.
+    std::vector<int> checks;
     auto pushItem = [&](const Ps3Item& it) {
         rows.push_back(it.label);
+        checks.push_back(it.checkState);
         if (it.kind == PS3_GS_SYSTEM_ROW || it.kind == PS3_GS_FIELD || it.kind == PS3_CATORDER_ROW
             || it.kind == PS3_ITEMHIDE_ROW) vals.push_back(it.value);
         else vals.push_back(std::string());
     };
     int sel = 0;
     if (mNdsAtRoot) {
-        for (auto& c : mPs3Cats) { rows.push_back(c.name); vals.push_back(std::string()); }
+        for (auto& c : mPs3Cats) { rows.push_back(c.name); vals.push_back(std::string()); checks.push_back(-1); }
         sel = mPs3CatIdx;
     } else if (!mPs3Stack.empty()) {
         for (auto& it : mPs3Stack.back().items) pushItem(it);
@@ -281,6 +287,27 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     }
     const float lx = listLeft + slideX;
 
+    // ---- left-gutter checkbox for multi-select rows (Slide Up/Down actions, Devices to Capture,
+    // Passthrough Blacklist). An outlined square with a two-stroke tick when checked, drawn in the
+    // passed colour so it reads on both the white idle rows and the black-on-white selected pill.
+    // ckShiftW is how far a checkbox pushes its label right; sized off the row font so it tracks the
+    // user font scale. Mirrors the XMB box (NanoMenuPS3Menu.cpp) and the DSi box. ----
+    const float ckSide   = MIN_FONT * sc * 0.86f;
+    const float ckGap    = 8.0f * sc;
+    const float ckShiftW = ckSide + ckGap;
+    auto drawMinCheck = [&](float x, float y, float r, float g, float b, float a, bool checked) {
+        float bwid = fmaxf(1.0f, 1.5f * sc);
+        drawQuad(x,                 y,                 ckSide, bwid,   r, g, b, a);   // top
+        drawQuad(x,                 y + ckSide - bwid, ckSide, bwid,   r, g, b, a);   // bottom
+        drawQuad(x,                 y,                 bwid,   ckSide, r, g, b, a);   // left
+        drawQuad(x + ckSide - bwid, y,                 bwid,   ckSide, r, g, b, a);   // right
+        if (checked) {
+            float tw = fmaxf(1.5f, 2.0f * sc);
+            ps3ThickLine(x + ckSide * 0.24f, y + ckSide * 0.52f, x + ckSide * 0.44f, y + ckSide * 0.72f, tw, r, g, b, a);
+            ps3ThickLine(x + ckSide * 0.44f, y + ckSide * 0.72f, x + ckSide * 0.78f, y + ckSide * 0.26f, tw, r, g, b, a);
+        }
+    };
+
     // (status-pill band geometry computed up-front, before listTop, so the list starts below it)
 
     // ---- draw the rows (white text) then the gliding white capsule + inverted selected label ----
@@ -294,21 +321,27 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         if (rowY + listRowH < listTop - 1.0f || rowY > listBottom + 1.0f) continue;   // clip to the list band
         if (i == sel) continue;                                                    // selected drawn on the pill below
         float ty = rowY + (listRowH - MIN_FONT * sc * lfg) * 0.5f;
+        // Multi-select rows draw a white checkbox in the left gutter; the label shifts right by
+        // ckShiftW so the two never overlap (idle rows are white text on the dark canvas).
+        const bool  isCk = (checks[i] >= 0);
+        const float lblX = (lx + btnPad) + (isCk ? ckShiftW : 0.0f);
+        if (isCk)
+            drawMinCheck(lx + btnPad, rowY + (listRowH - ckSide) * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, checks[i] == 1);
         // A value-bearing row draws its value right-aligned (dim white); the label is clipped to
         // the space before it so the two never overlap. rowRight tracks slideX so the value slides
         // with the row during a level-change transition, like the label does.
         float rowRight = rx + rw - pad - btnPad + slideX;
         if (rowY < statusBandBot && rowY + listRowH > ry + pad)
             rowRight = fminf(rowRight, statusPillLeft - 8.0f * sc);   // clear the status pill
-        float labelMaxW = textMaxW;
+        float labelMaxW = textMaxW - (isCk ? ckShiftW : 0.0f);
         // Keep the label clear of the top-right status pill (mirror the value-column clip above):
         // in portrait a long first-row label (e.g. "Quick Menu") otherwise runs under the pill.
         if (rowY < statusBandBot && rowY + listRowH > ry + pad)
-            labelMaxW = fminf(labelMaxW, (statusPillLeft - 8.0f * sc) - (lx + btnPad));
+            labelMaxW = fminf(labelMaxW, (statusPillLeft - 8.0f * sc) - lblX);
         if (!vals[i].empty()) {
             float vw = measureText(vals[i].c_str(), fsRow);
             drawText(vals[i].c_str(), rowRight - vw, ty, fsRow, 1.0f, 1.0f, 1.0f, 0.70f);
-            labelMaxW = (rowRight - vw - 12.0f * sc) - (lx + btnPad);
+            labelMaxW = (rowRight - vw - 12.0f * sc) - lblX;
         }
         float fs = fsRow, tw = measureText(rows[i].c_str(), fs);
         if (tw > labelMaxW && labelMaxW > 0.0f) {
@@ -316,14 +349,14 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
                 // "Scroll" mode (Theme Settings > Long Names): keep the font size and CLIP the label
                 // to its column instead of shrinking. The focused row marquee-scrolls (below); a
                 // non-focused long name just truncates at the column edge, at full size.
-                scissorLogicalRect(lx + btnPad, rowY, labelMaxW, listRowH);
-                drawText(rows[i].c_str(), lx + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);
+                scissorLogicalRect(lblX, rowY, labelMaxW, listRowH);
+                drawText(rows[i].c_str(), lblX, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);
                 glDisable(GL_SCISSOR_TEST);
                 continue;
             }
             fs *= labelMaxW / tw;   // default "Shrink to Fit": scale the font down so it all fits
         }
-        drawText(rows[i].c_str(), lx + btnPad, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);   // COLOR_LIST_TEXT white
+        drawText(rows[i].c_str(), lblX, ty, fs, 1.0f, 1.0f, 1.0f, 1.0f);   // COLOR_LIST_TEXT white
     }
     // The capsule pill, hugging the selected label, glided to the eased position. A label too long to
     // fit MARQUEE-scrolls (NextUI: after a short pause, 2px/frame with a 30px gap, looping) inside a
@@ -332,9 +365,14 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         const int si = sel < n ? sel : 0;
         const std::string& lbl = rows[si];
         const std::string& val = vals[si];
+        // A selected multi-select row keeps its checkbox on the white pill, drawn in black to match
+        // the inverted (black-on-white) selected text; the label + text width reserve ckShiftW for it.
+        const bool  isCkSel  = (checks[si] >= 0);
+        const float pillLblX = lx + btnPad + (isCkSel ? ckShiftW : 0.0f);
         const float fs = fsRow, tw = measureText(lbl.c_str(), fs);
         const float pillY = listTop + (mMinimaSelAnim - mMinimaScroll) * listRowH + listRowH * 0.07f;
         const float pillH = listRowH * 0.86f;
+        const float ckYsel = pillY + (pillH - ckSide) * 0.5f;
         // The selected capsule normally runs to the right list margin, but the FIRST row sits under
         // the top-right status pill (portrait especially): cap the pill's right edge to statusPillLeft
         // so a long selected label (e.g. "Internet Connection") is not overlapped by the pill. This
@@ -343,34 +381,37 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         if (pillY < statusBandBot && pillY + pillH > ry + pad)
             pillRightLimit = fminf(pillRightLimit, statusPillLeft - 8.0f * sc);
         const float maxPillW = pillRightLimit - lx;
-        const float maxTextW = maxPillW - btnPad * 2.0f;
+        const float maxTextW = maxPillW - btnPad * 2.0f - (isCkSel ? ckShiftW : 0.0f);
         const float ty = pillY + (pillH - MIN_FONT * sc * lfg) * 0.5f;
         if (sel != mMinimaMarqueeSel) { mMinimaMarqueeSel = sel; mMinimaMarquee = 0.0f; mMinimaMarqueeStart = (int64_t)uptimeMillis(); }
         if (!val.empty()) {
             // value-bearing selected row: full-width capsule, label left + value right (both black)
             drawRoundedRect(lx, pillY, maxPillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);
+            if (isCkSel) drawMinCheck(lx + btnPad, ckYsel, 0.0f, 0.0f, 0.0f, 1.0f, checks[si] == 1);
             const float vw = measureText(val.c_str(), fs);
             float valRight = lx + maxPillW - btnPad;
             if (pillY < statusBandBot && pillY + pillH > ry + pad)
                 valRight = fminf(valRight, statusPillLeft - 8.0f * sc);   // clear the status pill
             const float vx = valRight - vw;
             drawText(val.c_str(), vx, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);
-            const float lblMax = (vx - 12.0f * sc) - (lx + btnPad);
+            const float lblMax = (vx - 12.0f * sc) - pillLblX;
             float lfs = fs; if (tw > lblMax && lblMax > 0.0f) lfs *= lblMax / tw;
-            drawText(lbl.c_str(), lx + btnPad, ty, lfs, 0.0f, 0.0f, 0.0f, 1.0f);
+            drawText(lbl.c_str(), pillLblX, ty, lfs, 0.0f, 0.0f, 0.0f, 1.0f);
         } else if (tw <= maxTextW || maxTextW <= 0.0f) {
-            const float pillW = fminf(tw + btnPad * 2.0f, maxPillW);
+            const float pillW = fminf((isCkSel ? ckShiftW : 0.0f) + tw + btnPad * 2.0f, maxPillW);
             drawRoundedRect(lx, pillY, pillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);   // white capsule
-            drawText(lbl.c_str(), lx + btnPad, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // COLOR_LIST_TEXT_SELECTED black
+            if (isCkSel) drawMinCheck(lx + btnPad, ckYsel, 0.0f, 0.0f, 0.0f, 1.0f, checks[si] == 1);
+            drawText(lbl.c_str(), pillLblX, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // COLOR_LIST_TEXT_SELECTED black
         } else {
             drawRoundedRect(lx, pillY, maxPillW, pillH, pillH * 0.5f, 1.0f, 1.0f, 1.0f, 1.0f);   // full-width pill
+            if (isCkSel) drawMinCheck(lx + btnPad, ckYsel, 0.0f, 0.0f, 0.0f, 1.0f, checks[si] == 1);
             const float gap = 30.0f * sc, loopW = tw + gap;
             if ((int64_t)uptimeMillis() - mMinimaMarqueeStart > 700) {            // ~0.7s read pause, then scroll
                 mMinimaMarquee += 2.0f * sc * fmaxf(0.0f, fminf(3.0f, mFrameDt * 60.0f));   // 2px per 1/60s
                 if (mMinimaMarquee >= loopW) mMinimaMarquee -= loopW;
             }
             mDisplayDirty = true;
-            const float clipX = lx + btnPad, tx0 = clipX - mMinimaMarquee;
+            const float clipX = pillLblX, tx0 = clipX - mMinimaMarquee;
             scissorLogicalRect(clipX, pillY, maxTextW, pillH);                    // clip to the pill's text area
             drawText(lbl.c_str(), tx0,         ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);
             drawText(lbl.c_str(), tx0 + loopW, ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);   // wrap copy for a seamless loop

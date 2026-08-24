@@ -1270,13 +1270,40 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         const bool showVal     = (items[i].kind == PS3_GS_SYSTEM_ROW || items[i].kind == PS3_GS_FIELD
                                   || items[i].kind == PS3_CATORDER_ROW || items[i].kind == PS3_ITEMHIDE_ROW)
                                  && !items[i].value.empty();
+        // Multi-select / toggle rows (Slide Up/Down actions, Devices to Capture, Passthrough
+        // Blacklist) carry their membership in it.checkState (0 = unchecked, 1 = checked, -1 =
+        // not a checkbox row). The XMB theme draws a real box for these; match it here so the
+        // state is visible in the DSi list too. The box takes the left gutter in place of the
+        // row icon, and the value (the internal action name) is suppressed - a clean label + box.
+        const bool isCheck     = (items[i].checkState >= 0);
         float rightEdge = X(bx + bw - 9.0f);
-        if (showVal) {
+        if (showVal && !isCheck) {
             float vw = measureText(items[i].value.c_str(), fs);
             drawText(items[i].value.c_str(), rightEdge - vw, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
             rightEdge = rightEdge - vw - S(10.0f);                           // label clipped before the value
         }
-        if (hasIcon) {
+        if (isCheck) {
+            // Outlined box in the icon gutter + a two-stroke tick when checked, all in the row
+            // text colour ic (white on the selected button, #282828 idle) so it reads in both
+            // states. Sized in DS virtual px like every other row element (S()/X()/Y()).
+            const float ckd = 14.0f;                                         // box side, DS px
+            float bx0 = X(bx + 8.0f), by0 = Y(rowY + (bh - ckd) * 0.5f), bs = S(ckd);
+            float bwid = fmaxf(1.0f, S(1.5f));
+            drawQuad(bx0,               by0,               bs,   bwid, ic, ic, ic, 1.0f);   // top
+            drawQuad(bx0,               by0 + bs - bwid,   bs,   bwid, ic, ic, ic, 1.0f);   // bottom
+            drawQuad(bx0,               by0,               bwid, bs,   ic, ic, ic, 1.0f);   // left
+            drawQuad(bx0 + bs - bwid,   by0,               bwid, bs,   ic, ic, ic, 1.0f);   // right
+            if (items[i].checkState == 1) {
+                float tw = fmaxf(1.5f, S(2.0f));
+                ps3ThickLine(bx0 + bs * 0.24f, by0 + bs * 0.52f, bx0 + bs * 0.44f, by0 + bs * 0.72f, tw, ic, ic, ic, 1.0f);
+                ps3ThickLine(bx0 + bs * 0.44f, by0 + bs * 0.72f, bx0 + bs * 0.78f, by0 + bs * 0.26f, tw, ic, ic, ic, 1.0f);
+            }
+            float labelLeft = X(bx + 8.0f + ckd + 6.0f);                     // label after the box + gap
+            float lmax = rightEdge - labelLeft;
+            float lw = measureText(lbl.c_str(), fs);
+            if (lw > lmax && lmax > 0.0f) fs *= lmax / lw;
+            drawText(lbl.c_str(), labelLeft, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+        } else if (hasIcon) {
             float isz = S(18.0f);
             drawIconTex(items[i].iconTex, X(bx + 8.0f), Y(rowY + (bh - 18.0f) * 0.5f), isz, isz, ic, ic, ic, 1.0f);
             float labelLeft = X(bx + 32.0f);                                 // label left-aligned after the icon
