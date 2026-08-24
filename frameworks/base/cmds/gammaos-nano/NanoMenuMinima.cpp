@@ -514,7 +514,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
                                     : (rx + pad);
             drawRoundedRect(px, py, pw, ph, ph * 0.5f, ar, ag, ab, 1.0f);
             float gcx = px + btnPad + glyphR, gcy = py + ph * 0.5f;
-            drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f);   // A=0, B=1, Y=2 (white ring + letter)
+            drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f, atc, atc, atc);   // A=0, B=1, Y=2 - contrast the accent pill, like the label
             // Centre the label on the pill using its rendered height (which includes the font scale).
             drawText(lbl, gcx + glyphR + gap, py + (ph - MIN_FONT_S * sc * fg) * 0.5f, fsHint, atc, atc, atc, 1.0f);
         };

@@ -2409,7 +2409,11 @@ private:
     // in the default theme, or a PlayStation glyph (cross/ring/square/triangle)
     // in the PlayStation theme. role: 0 = Confirm, 1 = Cancel, 2 = Square,
     // 3 = Triangle. The OK/Cancel relabel swap flips the Confirm/Cancel display.
-    void   drawFaceGlyph(int role, float gcx, float yDev, float glyphR, float lw, float ap);
+    // r/g/b tint the glyph (ring + letter, or the vector shape). Defaults to white so
+    // existing callers are unchanged; the Minima accent-pill legends pass the pill's
+    // contrast colour so the glyph stays legible on a light accent (matches its label).
+    void   drawFaceGlyph(int role, float gcx, float yDev, float glyphR, float lw, float ap,
+                         float r = 1.0f, float g = 1.0f, float b = 1.0f);
     // Re-read persist.gammaos.nano.face_glyphs / face_swap (cheap shared-mem read).
     void   refreshFaceButtonPrefs();
     // Theme an on-screen legend that uses the canonical PlayStation face-button

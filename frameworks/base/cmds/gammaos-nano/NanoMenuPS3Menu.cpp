@@ -9817,7 +9817,8 @@ std::string NanoMenu::themeButtonText(const char* in) {
 // 2=Square, 3=Triangle. Letters theme draws the mapped letter as anti-aliased
 // text; PlayStation theme draws the vector glyph. The OK/Cancel relabel swap
 // flips only the Confirm/Cancel display (the input mapping is untouched).
-void NanoMenu::drawFaceGlyph(int role, float gcx, float yDev, float glyphR, float lw, float ap) {
+void NanoMenu::drawFaceGlyph(int role, float gcx, float yDev, float glyphR, float lw, float ap,
+                             float r, float g, float b) {
     if (mFaceLetters) {
         const char* L =
             (role == 0) ? (mFaceSwapOk ? "B" : "A") :
@@ -9827,7 +9828,7 @@ void NanoMenu::drawFaceGlyph(int role, float gcx, float yDev, float glyphR, floa
         // the PlayStation "O" glyph so all four letter badges match that badge size.
         bool localBatch = !mSolidBatchActive;
         if (localBatch) beginSolidBatch();
-        ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, r, g, b, 0.95f * ap);
         if (localBatch) endSolidBatch();   // flush the ring before the text pass
         // Letter sized to sit inside the ring with padding (ring diameter is 2*glyphR).
         // measureText/drawText fold in the user font scale, but the ring geometry does
@@ -9839,7 +9840,7 @@ void NanoMenu::drawFaceGlyph(int role, float gcx, float yDev, float glyphR, floa
         // Rendered ink height is FONT_CHAR_H*scale*fg (== glyphR*1.40), so centre the cap
         // ink on yDev using that, not the pre-scale value.
         float topY = yDev - 0.45f * (float)FONT_CHAR_H * scale * fg;
-        drawText(L, gcx - tw * 0.5f, topY, scale, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        drawText(L, gcx - tw * 0.5f, topY, scale, r, g, b, 0.95f * ap);
         return;
     }
     bool localBatch = !mSolidBatchActive;
@@ -9848,21 +9849,21 @@ void NanoMenu::drawFaceGlyph(int role, float gcx, float yDev, float glyphR, floa
     if (mFaceSwapOk && (role == 0 || role == 1)) slot = (role == 0) ? 1 : 0;
     if (slot == 0) {                        // cross (X)
         float d = glyphR * 0.78f;
-        ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-        ps3ThickLine(gcx + d, yDev - d, gcx - d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev + d, lw, r, g, b, 0.95f * ap);
+        ps3ThickLine(gcx + d, yDev - d, gcx - d, yDev + d, lw, r, g, b, 0.95f * ap);
     } else if (slot == 1) {                 // ring (O)
-        ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3StrokeRing(gcx, yDev, glyphR, glyphR, lw, r, g, b, 0.95f * ap);
     } else if (role == 2) {                 // square (box outline)
         float d = glyphR * 0.80f;
-        ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev - d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-        ps3ThickLine(gcx + d, yDev - d, gcx + d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-        ps3ThickLine(gcx + d, yDev + d, gcx - d, yDev + d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-        ps3ThickLine(gcx - d, yDev + d, gcx - d, yDev - d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx - d, yDev - d, gcx + d, yDev - d, lw, r, g, b, 0.95f * ap);
+        ps3ThickLine(gcx + d, yDev - d, gcx + d, yDev + d, lw, r, g, b, 0.95f * ap);
+        ps3ThickLine(gcx + d, yDev + d, gcx - d, yDev + d, lw, r, g, b, 0.95f * ap);
+        ps3ThickLine(gcx - d, yDev + d, gcx - d, yDev - d, lw, r, g, b, 0.95f * ap);
     } else {                                // triangle outline (point up)
         float d = glyphR * 0.95f;
-        ps3ThickLine(gcx, yDev - d, gcx + d * 0.92f, yDev + d * 0.72f, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-        ps3ThickLine(gcx + d * 0.92f, yDev + d * 0.72f, gcx - d * 0.92f, yDev + d * 0.72f, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
-        ps3ThickLine(gcx - d * 0.92f, yDev + d * 0.72f, gcx, yDev - d, lw, 1.0f, 1.0f, 1.0f, 0.95f * ap);
+        ps3ThickLine(gcx, yDev - d, gcx + d * 0.92f, yDev + d * 0.72f, lw, r, g, b, 0.95f * ap);
+        ps3ThickLine(gcx + d * 0.92f, yDev + d * 0.72f, gcx - d * 0.92f, yDev + d * 0.72f, lw, r, g, b, 0.95f * ap);
+        ps3ThickLine(gcx - d * 0.92f, yDev + d * 0.72f, gcx, yDev - d, lw, r, g, b, 0.95f * ap);
     }
     if (localBatch) endSolidBatch();
 }
@@ -16612,7 +16613,7 @@ void NanoMenu::renderMinimaNetWizardBody(float rx, float ry, float rw, float rh)
             float pxx = (align == 1) ? (rx + rw - pad - pw) : (align == 2) ? (cx - pw * 0.5f) : (rx + pad);
             drawRoundedRect(pxx, py, pw, ph, ph * 0.5f, ar, ag, ab, 1.0f);
             float gcx = pxx + btnPad + glyphR, gcy = py + ph * 0.5f;
-            drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f);
+            drawFaceGlyph(role, gcx, gcy, glyphR, lw, 1.0f, atc, atc, atc);   // contrast the accent pill, like the label
             drawText(lbl, gcx + glyphR + gap, py + (ph - MW_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);
         };
         legend(1, "Back", 0);                                     // B Back (left)
