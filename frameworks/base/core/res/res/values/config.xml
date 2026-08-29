@@ -5418,8 +5418,13 @@
          setFrameRate().
          If a non-zero value is set for config_defaultPeakRefreshRate, then
          config_defaultRefreshRate may be set to 0, in which case the value set for
-         config_defaultPeakRefreshRate will act as the default frame rate. -->
-    <integer name="config_defaultRefreshRate">60</integer>
+         config_defaultPeakRefreshRate will act as the default frame rate.
+         GammaOS: set to 0 so the framework uses the panel's actual mode rate instead of a
+         hard 60 Hz cap. Several handheld panels report a single ~61 Hz mode; with a 60 Hz
+         default the render range maxes at 60, forcing SurfaceFlinger to the next integer
+         divisor (61/2 = 30.5 Hz) and making all compositing feel like 30 fps. 0 resolves to
+         the highest available mode (config_defaultPeakRefreshRate is 0), i.e. full rate. -->
+    <integer name="config_defaultRefreshRate">0</integer>
 
     <!-- The default peak refresh rate for a given device. Change this value if you want to prevent
          the framework from using higher refresh rates, even if display modes with higher refresh
