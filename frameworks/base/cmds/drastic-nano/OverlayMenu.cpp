@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -1473,6 +1474,38 @@ void OverlayMenu::adjustVolume(int dir) {
     mVolHudTimer = 90;   // ~1.5s at 60fps
 }
 
+// Mirror the in-game brightness level into the framework's authoritative store,
+// Settings.System.screen_brightness (Android 0-255 range, the same value nano
+// home writes in syncBrightnessToAndroid). Without this the change lives only in
+// persist.gammaos.nano.brightness + the volatile sysfs/HAL nodes, so when the
+// game exits the display framework re-asserts the OLD system brightness and the
+// panel jumps back (the "reverts to ~50% on exit" report), and a reboot restores
+// the old value because nano seeds brightness from Settings.System first. Runs as
+// a reparented grandchild via a double-fork so the game process never blocks on
+// the settings CLI and never accumulates zombie children on repeated presses.
+static void pushBrightnessToSettings(int level) {
+    if (level < 0) level = 0;
+    if (level > 255) level = 255;
+    char val[16];
+    snprintf(val, sizeof(val), "%d", level);
+    pid_t pid = fork();
+    if (pid == 0) {
+        // First child: fork again so the grandchild (the settings CLI) is
+        // reparented to init and reaped by it, then exit immediately.
+        pid_t gc = fork();
+        if (gc == 0) {
+            execl("/system/bin/settings", "settings", "put", "system",
+                  "screen_brightness", val, (char*)nullptr);
+            _exit(127);   // exec failed
+        }
+        _exit(0);
+    } else if (pid > 0) {
+        // Parent: reap the short-lived first child (returns almost immediately,
+        // it only forks and exits) so it does not linger as a zombie.
+        waitpid(pid, nullptr, 0);
+    }
+}
+
 void OverlayMenu::adjustBrightness(int dir) {
     if (!mBrightInit) {
         mBrightLevel = property_get_int32(
@@ -1536,6 +1569,9 @@ void OverlayMenu::adjustBrightness(int dir) {
     char buf[16];
     snprintf(buf, sizeof(buf), "%d", mBrightLevel);
     property_set("persist.gammaos.nano.brightness", buf);
+    // Persist system-wide so the level survives leaving the game, a reboot, and is
+    // visible to other apps (not just nano's own private property + volatile nodes).
+    pushBrightnessToSettings(mBrightLevel);
     mBrightHudTimer = 90;
 }
 
