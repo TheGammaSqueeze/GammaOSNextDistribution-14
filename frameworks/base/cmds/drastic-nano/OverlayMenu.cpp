@@ -1097,6 +1097,58 @@ void OverlayMenu::rebuildGeneral() {
         mRows.push_back(std::move(r));
     }
 
+    // Quick Save / Quick Load (slot 0). The most-used save actions, surfaced on the
+    // landing page so they are one press away without drilling into the Save States
+    // tab (a common request). Slot 0 is the conventional quick slot; the full 0..8
+    // slots still live on the Save States tab. Both close the overlay on success so
+    // the action is truly "quick" (one press, back to the game).
+    {
+        RowAction r;
+        r.label = "Quick Save";
+        if (slotFileExists(0)) r.label += trDyn(" (overwrite)");
+        r.onAccept = [this]() {
+            if (!mRunner) return;
+            if (mRunner->saveStateSlot(0)) {
+                toast(trDyn("Quick saved"));
+                // Hand the new .dss to the real drastic app, exactly like the Save
+                // States tab does, so a later load from the full app can read it.
+                if (mAppUid != 0) {
+                    char path[512];
+                    snprintf(path, sizeof(path), "%s/%s_0.dss",
+                             mSavestatesDir.c_str(), mRomBase.c_str());
+                    chown(path, mAppUid, mAppGid);
+                    chmod(path, 0660);
+                }
+                closeMenu();
+            } else {
+                toast(trDyn("Save failed"));
+            }
+        };
+        mRows.push_back(std::move(r));
+    }
+    // RetroAchievements hardcore forbids loading save states (saving stays allowed),
+    // so Quick Load is shown disabled in that mode, matching the Save States tab.
+    if (mRaHardcore) {
+        RowAction r;
+        r.label = "Quick Load disabled (RetroAchievements hardcore)";
+        mRows.push_back(std::move(r));
+    } else {
+        RowAction r;
+        r.label = "Quick Load";
+        r.value = slotFileExists(0) ? trDyn("ready") : trDyn("empty");
+        r.onAccept = [this]() {
+            if (!mRunner) return;
+            if (!slotFileExists(0)) { toast(trDyn("No quick save yet")); return; }
+            if (mRunner->loadStateSlot(0)) {
+                toast(trDyn("Quick loaded"));
+                closeMenu();
+            } else {
+                toast(trDyn("Load failed"));
+            }
+        };
+        mRows.push_back(std::move(r));
+    }
+
     // Performance profile (live). Cycles Max -> Stock -> Powersave
     // and re-fires the corresponding setclock service via
     // ctl.start, matching the triggers in
