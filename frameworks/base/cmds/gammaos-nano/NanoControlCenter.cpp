@@ -902,6 +902,101 @@ int NanoMenu::ccAppAt(float px, float py) {
     return -1;
 }
 
+// --- Screen-options page (CC page 2) ---------------------------------------
+// Prop-driven toggles for the dual-screen bottom panel, surfaced inside the Control
+// Centre (swipe left past Applications) so they are reachable without leaving nano.
+// Both are read live every frame elsewhere, so a change here takes effect at once:
+//   persist.gammaos.nano.cc.doubletapwake (bool)   - require TWO taps to wake the
+//       bottom screen, so brushing it while using the top-screen app does not wake it.
+//   persist.gammaos.nano.cc.sleeptimeout  (int ms) - idle auto-sleep delay, 0 = Never.
+static const int   kCcTimeoutMs[]  = {0, 15000, 30000, 60000, 120000, 300000};
+static const char* kCcTimeoutLbl[] = {"Never", "15s", "30s", "1 min", "2 min", "5 min"};
+static const int   kCcTimeoutCount = 6;
+static const int   kCcSettingsRows = 2;
+
+// Row rect in the 640x480 design space, shared by the render and the hit-test so
+// they can never desync (mirrors the ccAppAt / renderCcApps pairing).
+static void ccSettingsRowRect(int i, float& x, float& y, float& w, float& h) {
+    w = 600.0f; h = 74.0f; x = 20.0f; y = 66.0f + (float)i * (h + 16.0f);
+}
+
+void NanoMenu::renderCcSettings() {
+    const float DW = 640.0f, DH = 480.0f;
+    const float u  = fminf((float)mWidth / DW, (float)mHeight / DH);
+    const float ox = ((float)mWidth  - DW * u) * 0.5f + mCcPassXoff;
+    const float oy = ((float)mHeight - DH * u) * 0.5f;
+    auto X  = [&](float x){ return ox + x * u; };
+    auto Y  = [&](float y){ return oy + y * u; };
+    auto S  = [&](float s){ return s * u; };
+    auto TS = [&](float px){ return (px * u) / (float)FONT_CHAR_H; };
+
+    setUiBlend();
+    drawQuad(X(0), Y(0), S(DW), S(DH), 0.015f, 0.017f, 0.028f, 1.0f);   // page background (opaque during slide)
+
+    // header (tiny dim letter-spaced caps, matching the dashboard and app grid)
+    { const char* h = "SCREEN OPTIONS"; float sc = TS(11.0f), cx = X(10);
+      for (const char* p = h; *p; ++p) { char c[2] = { *p, 0 };
+          drawText(c, cx, Y(8), sc, 0.46f, 0.52f, 0.64f, 1.0f); cx += measureText(c, sc) + S(2.2f); } }
+
+    const bool dtw = property_get_bool("persist.gammaos.nano.cc.doubletapwake", false);
+    const int  tms = property_get_int32("persist.gammaos.nano.cc.sleeptimeout", 30000);
+
+    for (int i = 0; i < kCcSettingsRows; i++) {
+        float rx, ry, rw, rh; ccSettingsRowRect(i, rx, ry, rw, rh);
+        drawRoundedRect(X(rx), Y(ry), S(rw), S(rh), S(14.0f), 0.075f, 0.082f, 0.11f, 0.95f);   // card
+
+        const char* label; const char* desc; std::string valTxt; bool on;
+        if (i == 0) {
+            label = "Double Tap to Wake";
+            desc  = "Two taps to wake the bottom screen";
+            valTxt = dtw ? "On" : "Off"; on = dtw;
+        } else {
+            label = "Screen Timeout";
+            desc  = "Auto-sleep the bottom screen when idle";
+            for (int k = 0; k < kCcTimeoutCount; k++) if (kCcTimeoutMs[k] == tms) { valTxt = kCcTimeoutLbl[k]; break; }
+            if (valTxt.empty()) { char b[16]; snprintf(b, sizeof(b), "%ds", tms / 1000); valTxt = b; }
+            on = (tms > 0);
+        }
+
+        drawText(label, X(rx + 18), Y(ry + 14), TS(15.0f), 0.92f, 0.94f, 0.98f, 1.0f);
+        drawText(desc,  X(rx + 18), Y(ry + 44), TS(11.0f), 0.52f, 0.57f, 0.68f, 1.0f);
+
+        // value pill, right-aligned; green when the option is active, neutral otherwise
+        const float pillW = 120.0f, pillH = 44.0f;
+        float pillX = rx + rw - pillW - 16.0f, pillY = ry + (rh - pillH) * 0.5f;
+        float pr = on ? 0.15f : 0.13f, pg = on ? 0.45f : 0.14f, pb = on ? 0.26f : 0.17f;
+        drawRoundedRect(X(pillX), Y(pillY), S(pillW), S(pillH), S(pillH * 0.5f), pr, pg, pb, 1.0f);
+        float vsc = TS(14.0f), vtw = measureText(valTxt.c_str(), vsc);
+        drawText(valTxt.c_str(), X(pillX + pillW * 0.5f) - vtw * 0.5f,
+                 Y(pillY + (pillH - 14.0f) * 0.5f), vsc, 0.95f, 0.97f, 1.0f, 1.0f);
+    }
+
+    // footer hint
+    { const char* h = "Tap a row to change"; float sc = TS(11.0f);
+      drawText(h, X(320) - measureText(h, sc) * 0.5f, Y(DH - 34.0f), sc, 0.44f, 0.49f, 0.60f, 1.0f); }
+}
+
+// Options-page hit-test: toggle/cycle the prop under a tap. Coords are the 640x480
+// design space (same space ccAppAt / ccOnTap use), matching ccSettingsRowRect.
+void NanoMenu::ccOnSettingsTap(float px, float py) {
+    for (int i = 0; i < kCcSettingsRows; i++) {
+        float rx, ry, rw, rh; ccSettingsRowRect(i, rx, ry, rw, rh);
+        if (px < rx || px > rx + rw || py < ry || py > ry + rh) continue;
+        if (i == 0) {
+            bool dtw = property_get_bool("persist.gammaos.nano.cc.doubletapwake", false);
+            property_set("persist.gammaos.nano.cc.doubletapwake", dtw ? "0" : "1");
+        } else {
+            int tms = property_get_int32("persist.gammaos.nano.cc.sleeptimeout", 30000);
+            int idx = 0;
+            for (int k = 0; k < kCcTimeoutCount; k++) if (kCcTimeoutMs[k] == tms) { idx = k; break; }
+            idx = (idx + 1) % kCcTimeoutCount;
+            char b[16]; snprintf(b, sizeof(b), "%d", kCcTimeoutMs[idx]);
+            property_set("persist.gammaos.nano.cc.sleeptimeout", b);
+        }
+        return;
+    }
+}
+
 // Launch a chosen app on the BOTTOM panel (its own display), hiding the CC so the app owns the screen.
 // A dual-stack app instead takes the full-screen both-panels path (Stage 3). Launching another bottom app
 // closes the current one first. All the shell work runs off the render thread.
@@ -1320,13 +1415,15 @@ void NanoMenu::ccTouchFrame() {
     } else if (upEdge) {
         float ddx = px - mCcDownX, ddy = py - mCcDownY;
         bool swiped = false;
-        // A big mostly-horizontal drag with no slider grabbed pages between the dashboard (0) and the app
-        // grid (1). Left swipe -> next page, right swipe -> previous. The offset eases in the render.
+        // A big mostly-horizontal drag with no slider grabbed pages across the dashboard (0), the app
+        // grid (1) and the screen-options page (2). Left swipe -> next page, right swipe -> previous.
+        // The offset eases in the render.
         if (!sWokeThisTouch && mCcHeldSlider < 0 && fabsf(ddx) > 120.0f && fabsf(ddx) > 2.0f * fabsf(ddy)) {
-            if      (ddx < 0 && mCcPage < 1) { mCcPage = 1; swiped = true; }   // swipe left -> apps
-            else if (ddx > 0 && mCcPage > 0) { mCcPage = 0; swiped = true; }   // swipe right -> dashboard
+            if      (ddx < 0 && mCcPage < 2) { mCcPage++; swiped = true; }   // swipe left -> next page
+            else if (ddx > 0 && mCcPage > 0) { mCcPage--; swiped = true; }   // swipe right -> previous page
         }
-        // Otherwise a short press is a tap. Page 0 hits tiles/sliders; page 1 launches the app under it.
+        // Otherwise a short press is a tap. Page 0 hits tiles/sliders; page 1 launches the app under it;
+        // page 2 toggles the screen option under it.
         if (!swiped && !sWokeThisTouch && mCcHeldSlider < 0 && ddx*ddx + ddy*ddy < 400.0f
                 && mCcPageOffset >= 0.999f * (float)mCcPage && mCcPageOffset <= (float)mCcPage + 0.001f) {
             if (mCcPage == 0) ccOnTap(mCcDownX, mCcDownY);
@@ -1334,6 +1431,7 @@ void NanoMenu::ccTouchFrame() {
                 int ai = ccAppAt(mCcDownX, mCcDownY);
                 if (ai >= 0 && ai < (int)mAppEntries.size()) ccLaunchBottomApp(mAppEntries[ai].packageName);
             }
+            else if (mCcPage == 2) ccOnSettingsTap(mCcDownX, mCcDownY);
         }
         // Flush the final volume the finger ended on (the drag debounced the intermediate writes).
         // Sliders: 2 = Master, 3 = Top screen, 4 = Bottom screen. When multi-volume is on, all volume

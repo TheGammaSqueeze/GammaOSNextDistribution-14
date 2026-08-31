@@ -4442,7 +4442,9 @@ private:
     float mCcPassXoff = 0.0f;
     int   mCcAppScroll = 0;                // first app row shown in the grid (vertical scroll)
     void   renderCcApps(bool st, bool dy); // the app-launcher grid page (icons + labels)
-    void   renderCcPageDots();             // pagination dots (dashboard <-> apps) at the CC bottom edge
+    void   renderCcSettings();             // the screen-options page (double-tap wake, idle timeout)
+    void   ccOnSettingsTap(float px, float py);  // options-page hit-test (design space) -> toggle the prop
+    void   renderCcPageDots();             // pagination dots (dashboard <-> apps <-> options) at the CC bottom edge
     void   ccEnsureAppList();              // (re)load the installed-app list + apps_generation gate
     GLuint loadColorIconTexAbs(const char* absPath);  // full-colour PNG -> GL texture (real APK icons)
     int    ccAppAt(float px, float py);    // app-grid hit-test (design space) -> app index or -1

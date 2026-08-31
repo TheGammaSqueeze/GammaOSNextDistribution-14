@@ -4756,7 +4756,7 @@ void NanoMenu::setupSecondaryEglSurfaces() {
 // bright and elongated, the other a dim dot; both cross-fade with mCcPageOffset so the indicator
 // tracks the horizontal slide 1:1. Device-pixel sized so it adapts to any panel resolution.
 void NanoMenu::renderCcPageDots() {
-    const int nPages = 2;
+    const int nPages = 3;
     float dotR = (float)mHeight * 0.0105f;          // ~5px tall at 480; scales with the panel
     if (dotR < 2.0f) dotR = 2.0f;
     float gap  = dotR * 3.6f;                        // centre-to-centre spacing
@@ -4764,7 +4764,7 @@ void NanoMenu::renderCcPageDots() {
     float x0   = (float)mWidth * 0.5f - gap * (float)(nPages - 1) * 0.5f;
     setUiBlend();
     for (int i = 0; i < nPages; i++) {
-        float act = (i == 0) ? (1.0f - mCcPageOffset) : mCcPageOffset;   // two-page cross-fade
+        float act = 1.0f - fabsf(mCcPageOffset - (float)i);   // n-page cross-fade tracking the slide
         if (act < 0.0f) act = 0.0f; else if (act > 1.0f) act = 1.0f;
         float cx    = x0 + gap * (float)i;
         float br    = 0.30f + 0.62f * act;           // dim grey -> bright white
@@ -4931,13 +4931,24 @@ void NanoMenu::renderControlCenterFrame() {
         drawIconTex(mCcStaticTex, 0.0f, 0.0f, (float)mWidth, (float)mHeight, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, true);
         renderCcDynamic();     // re-issues setUiBlend(); draws hands/arcs/numbers/fills/status/date over the cache
     } else {
-        // Mid-slide or on the app page (or cache disabled): render immediate, each page translated by the
-        // eased offset so the dashboard slides left as the app grid slides in from the right.
+        // Mid-slide or on a non-dashboard page (or cache disabled): render immediate. The offset runs
+        // 0..2 across three pages (dashboard, apps, options); only the two pages straddling the current
+        // fractional position are drawn, each translated so the outgoing page slides left while the
+        // incoming one slides in from the right. Smoothstep within the segment keeps the original feel.
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        float e = mCcPageOffset * mCcPageOffset * (3.0f - 2.0f * mCcPageOffset);   // smoothstep slide
-        if (e < 0.999f) { mCcPassXoff = -e * (float)mWidth;          renderControlCenterUI(); }  // dashboard
-        if (e > 0.001f) { mCcPassXoff = (1.0f - e) * (float)mWidth;  renderCcApps(true, true); } // app grid
+        int lo = (int)floorf(mCcPageOffset);
+        if (lo < 0) lo = 0; else if (lo > 1) lo = 1;   // the last transition starts at page 1 (1->2)
+        float f = mCcPageOffset - (float)lo;
+        float e = f * f * (3.0f - 2.0f * f);           // smoothstep slide within this segment
+        auto drawCcPage = [&](int idx, float xoff) {
+            mCcPassXoff = xoff;
+            if      (idx == 0) renderControlCenterUI();   // dashboard
+            else if (idx == 1) renderCcApps(true, true);  // app grid
+            else               renderCcSettings();        // screen options
+        };
+        if (e < 0.999f) drawCcPage(lo,     -e * (float)mWidth);
+        if (e > 0.001f) drawCcPage(lo + 1, (1.0f - e) * (float)mWidth);
         mCcPassXoff = 0.0f;
     }
     // Pagination dots: which CC page is showing (dashboard <-> apps). Drawn after both pages so they
