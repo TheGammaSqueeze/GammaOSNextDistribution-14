@@ -1345,6 +1345,7 @@ private:
         PS3_GS_ADDFOLDER, // "Add Folder..." row in the scan-folders screen
         PS3_GS_DIR,       // a directory row in the folder browser (payloadStr = path)
         PS3_GS_SELFOLDER, // "Select This Folder" row in the folder browser (payloadStr = path)
+        PS3_GS_PICKFILE,  // a selectable image file row in the icon-import file browser (payloadStr = full path)
         // ---- Music player (PS3 XMB music port) ----
         PS3_MUSIC_ALBUM,    // an album folder in the Music column -> track submenu (a = album idx)
         PS3_MUSIC_TRACK,    // a track -> open the Now-Playing player (a = track idx in the view list)
@@ -2886,6 +2887,8 @@ private:
     void   iconGridNav(int dx, int dy);        // 2D cursor movement
     void   iconGridSelect();                   // assign the highlighted icon to the system
     void   iconGridResetCache();               // drop all thumbnail textures
+    void   gsOpenIconFilePicker();             // open the file browser to import a custom PNG icon (folder-picker target 6)
+    void   gsIconFileSelect(const std::string& path); // copy the chosen image into nano_user_icons and set a file: iconRef
 
     // ---- Emulator catalog (Daijishou platform configs, NanoMenuPS3EmuCatalog.cpp) ----
     struct EmuCatEntry {

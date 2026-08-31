@@ -2837,6 +2837,8 @@ void NanoMenu::pollInput() {
                         if (mPs3WizActive) { wizRescan(); break; }   // X: re-scan on the AP list
                         if (mMenuState == MENU_WIFI) { handleWifiScreenX(); break; }
                         if (mMenuState == MENU_BT)   { handleBtScreenX();   break; }
+                        // Icon grid picker: X opens the file browser to import your own PNG icon.
+                        if (mPs3Xmb && ps3TopScreenKind() == GS_ICONGRID) { gsOpenIconFilePicker(); break; }
                         // Game Systems list: X toggles the selected system's enabled state.
                         if (mPs3Xmb && ps3TopScreenKind() == GS_LIST) {
                             auto& its = mPs3Stack.back().items; int sel = mPs3Stack.back().sel;

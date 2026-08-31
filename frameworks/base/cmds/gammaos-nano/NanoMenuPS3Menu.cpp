@@ -5452,6 +5452,10 @@ void NanoMenu::ps3XmbSelect() {
             else gsFolderSelect(it.payloadStr);
             return;
         }
+        case PS3_GS_PICKFILE: {   // icon-import file browser: a chosen image becomes the system icon
+            gsIconFileSelect(it.payloadStr);
+            return;
+        }
         case PS3_FE_DIR: {   // File Explorer: descend into the directory (rebuild the level in place)
             feNavigate(it.payloadStr);
             return;

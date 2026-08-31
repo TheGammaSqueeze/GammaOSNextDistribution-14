@@ -448,9 +448,28 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
     // which is what let the watchdog abort nano when a folder on an FTP share was opened. The
     // listing is requested once and cached; until it arrives the screen shows "Loading..." and
     // stays fully responsive, so Back still works if the server never answers.
+    // Icon-import picker (target 6) also lists selectable image files, so the user can browse to
+    // their own PNG. Every other picker lists directories only.
+    const bool iconPick = (mFolderPickTarget == 6);
+    auto isImageName = [](const std::string& n) {
+        size_t dot = n.rfind('.');
+        if (dot == std::string::npos) return false;
+        std::string ext = n.substr(dot + 1);
+        return strcasecmp(ext.c_str(), "png") == 0 || strcasecmp(ext.c_str(), "jpg") == 0 ||
+               strcasecmp(ext.c_str(), "jpeg") == 0;
+    };
+    GLuint pngNmap = nmapForIcon(25);   // document/page glyph for a file row
     if (mFbCacheValid && mFbCachePath == path) {
         for (const auto& e : mFbCacheEntries)
             if (e.isDir) addDir(e.name, path + "/" + e.name);
+        if (iconPick) {
+            for (const auto& e : mFbCacheEntries) {
+                if (e.isDir || !isImageName(e.name)) continue;
+                Ps3Item it; it.label = e.name; it.kind = PS3_GS_PICKFILE; it.payloadStr = path + "/" + e.name;
+                it.iconTex = iconTexForIcon(25); it.nmapTex = pngNmap; it.iconR = it.iconG = it.iconB = 1.0f;
+                out.items.push_back(it);
+            }
+        }
     } else {
         fbRequestListing(path);
         Ps3Item it; it.kind = PS3_DATA_LEAF; it.label = trDyn("Loading...");
@@ -458,10 +477,13 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
         it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 0.55f;
         out.items.push_back(it);
     }
-    // "Select this folder".
-    { Ps3Item it; it.label = "Select This Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = path;
-      it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
-      out.items.push_back(it); }
+    // "Select this folder" - only when picking a folder. The icon-import picker selects a file
+    // instead, so it has no whole-folder action.
+    if (!iconPick) {
+        Ps3Item it; it.label = "Select This Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = path;
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
 }
 
 // Queue a directory listing for the folder browser. Render thread; never blocks.

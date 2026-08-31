@@ -20,6 +20,9 @@
 #include <dirent.h>
 #include <string.h>
 #include <strings.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include <math.h>
 #include <algorithm>
 #include <GLES2/gl2.h>
@@ -185,6 +188,87 @@ void NanoMenu::closeIconGridPicker() {
     iconGridResetCache();
 }
 
+// Import your own icon (X on the grid). Opens the storage-roots file browser in icon-pick mode
+// (folder-picker target 6), where directories are navigable and PNG/JPG files are selectable.
+void NanoMenu::gsOpenIconFilePicker() {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
+    mFolderPickTarget = 6;
+    std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+    Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
+    mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+    mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+    mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+}
+
+// Commit a user-chosen image as this system's icon. The source can live on an SD card or a share
+// that may be unmounted later, so the file is copied into nano's own storage
+// (/data/system/nano_user_icons/<id>.png) and referenced by a stable "file:" path. gsRemoveSystem
+// already unlinks that same path, so a deleted custom system cleans up its imported icon too.
+void NanoMenu::gsIconFileSelect(const std::string& path) {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size() || path.empty()) return;
+    XmbSystem& s = mXmbSystems[mGsEditIdx];
+
+    // Validate the file is a real PNG/JPEG by its magic bytes before committing, so a mis-named or
+    // empty file never becomes a broken icon. The decode itself (any dimension/colour) is left to
+    // resolveSystemIcon, which falls back to the generic cartridge if it ever fails.
+    {
+        unsigned char sig[8] = {0};
+        FILE* f = fopen(path.c_str(), "rb");
+        size_t got = f ? fread(sig, 1, sizeof(sig), f) : 0;
+        if (f) fclose(f);
+        const bool isPng  = (got >= 8 && sig[0] == 0x89 && sig[1] == 'P' && sig[2] == 'N' &&
+                             sig[3] == 'G' && sig[4] == 0x0D && sig[5] == 0x0A && sig[6] == 0x1A &&
+                             sig[7] == 0x0A);
+        const bool isJpeg = (got >= 3 && sig[0] == 0xFF && sig[1] == 0xD8 && sig[2] == 0xFF);
+        if (!isPng && !isJpeg) {
+            feInfoDialog(trDyn("Import Icon"),
+                         trDyn("That file is not a readable PNG or JPG image."));
+            return;
+        }
+    }
+
+    mkdir("/data/system/nano_user_icons", 0771);
+    std::string dst = "/data/system/nano_user_icons/" + s.id + ".png";
+    // Copy the raw bytes verbatim (preserve the user's exact file; the decode above was only a check).
+    bool ok = false;
+    FILE* in = fopen(path.c_str(), "rb");
+    if (in) {
+        FILE* out = fopen(dst.c_str(), "wb");
+        if (out) {
+            char buf[1 << 16]; size_t n; ok = true;
+            while ((n = fread(buf, 1, sizeof(buf), in)) > 0)
+                if (fwrite(buf, 1, n, out) != n) { ok = false; break; }
+            if (ferror(in)) ok = false;
+            fclose(out);
+        }
+        fclose(in);
+    }
+    if (!ok) {
+        unlink(dst.c_str());
+        feInfoDialog(trDyn("Import Icon"), trDyn("Could not copy the image into storage."));
+        return;
+    }
+    chmod(dst.c_str(), 0644);
+
+    // Drop any cached texture for the old ref (or a prior import at this same path) so the new
+    // image is decoded fresh, then point the system at it.
+    std::string ref = "file:" + dst;
+    auto cached = mPs3IconRefCache.find(ref);
+    if (cached != mPs3IconRefCache.end()) mPs3IconRefCache.erase(cached);
+    s.iconRef = ref;
+    s.iconR = s.iconG = s.iconB = 1.0f;   // a full-colour import is shown untinted by default
+    ALOGI("icongrid: imported custom icon %s for system %s", dst.c_str(), s.id.c_str());
+    saveSystemsConfig();
+
+    // Pop the file browser AND the icon grid, back to the editor, then refresh so the icon shows.
+    mFolderPickTarget = 0;
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE) mPs3Stack.pop_back();
+    closeIconGridPicker();
+    if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_ICONGRID) mPs3Stack.pop_back();
+    gsRefreshStackLevels();
+    buildPs3Cats();
+}
+
 void NanoMenu::iconGridNav(int dx, int dy) {
     if (mIconGridFiltered.empty()) return;
     int cols = gridCols(mWidth);
@@ -284,7 +368,7 @@ void NanoMenu::renderIconGridPicker() {
         drawText(nm.c_str(), (W - tw) * 0.5f, (float)H - footerH - 26.0f * ts, ns,
                  1.0f, 1.0f, 1.0f, a);
     }
-    const char* hints = trDyn("Enter: Select    Y: Filter    Back: Cancel");
+    const char* hints = trDyn("Enter: Select    Y: Filter    X: Import PNG    Back: Cancel");
     float hs = 0.9f * ts;
     float hw = measureText(hints, hs);
     drawText(hints, (W - hw) * 0.5f, (float)H - 30.0f * ts, hs, 0.7f, 0.78f, 0.88f, a);
