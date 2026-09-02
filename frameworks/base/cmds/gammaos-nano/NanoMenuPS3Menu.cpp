@@ -4267,6 +4267,13 @@ void NanoMenu::gsReorderSystem(int sysIdx, int dir) {
     std::swap(mXmbSystems[sysIdx], mXmbSystems[j]);
     for (size_t k = 0; k < mXmbSystems.size(); k++) mXmbSystems[k].order = (int)k;
     saveSystemsConfig();
+    // An explicit manual reorder is the user asking for THIS order in the Game column, so snap the
+    // tile sort back to Default (the editor order). Otherwise an earlier Y-cycle to A-Z / Most Games /
+    // Manufacturer silently overrides the order they just set, which reads as "my ordering is ignored".
+    if (mGameSortMode != 0) {
+        mGameSortMode = 0;
+        property_set("persist.gammaos.nano.gamesort", "0");
+    }
     gsRefreshStackLevels();
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_LIST)
         mPs3Stack.back().sel = j;   // follow the moved row
