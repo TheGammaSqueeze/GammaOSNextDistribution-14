@@ -2416,10 +2416,11 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     }
-    if (mSfMode) {
+    {
         // FPS Counter: draw the measured present rate in the top-right corner.
         // The render loop reads this prop live per frame, so it applies from the
-        // next frame; default off.
+        // next frame; default off. Shown on both the SurfaceFlinger and the
+        // DRM-direct (dual-screen, e.g. RG DS) paths - both render loops draw it.
         RowAction r;
         r.label = "FPS Counter";
         r.value = property_get_bool("persist.gammaos.drastic_nano.fps_counter", false)

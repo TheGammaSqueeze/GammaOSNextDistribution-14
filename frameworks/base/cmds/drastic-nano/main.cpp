@@ -1794,7 +1794,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 const float W = (float)gfx.viewportW();
                 const float H = (float)gfx.viewportH();
                 const float sf    = H / 720.0f;
-                const float scale = (14.0f * sf) / gfx.fontBasePx();
+                const float scale = (28.0f * sf) / gfx.fontBasePx();
                 const float tw    = gfx.measure(buf, scale);
                 const float pad   = 6.0f * sf;
                 const float bw    = tw + 2 * pad, bh = gfx.fontLineH() * scale + 2 * pad;
@@ -2701,7 +2701,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             char buf[16];
             snprintf(buf, sizeof(buf), "%.0f", fpsDisplay);
             const float sf    = H / 720.0f;
-            const float scale = (14.0f * sf) / gfx.fontBasePx();
+            const float scale = (28.0f * sf) / gfx.fontBasePx();
             const float tw    = gfx.measure(buf, scale);
             const float pad   = 6.0f * sf;
             const float bw    = tw + 2 * pad, bh = gfx.fontLineH() * scale + 2 * pad;
