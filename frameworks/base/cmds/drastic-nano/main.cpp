@@ -1284,29 +1284,38 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     bool raInited = false;
     bool raPrevOverlayOpen = false;
 
-    // Triple-buffered AHB ring: render slot[renderIdx], present
-    // slot[renderIdx - 2]. Mirrors the gammaos-nano QR fast-path
-    // pacing so the present-side AHB lock observes GPU work
-    // submitted ~2 frames earlier and the DRM flip never races an
-    // in-progress render. Without this, single-buffering caused
-    // visible tearing (observed on RG DS dual DSI 640x480@60).
-    bool tripleBuffer = true;
+    // Buffering is the shared controller-to-photon tradeoff:
+    //   1 = zero-lag presentation using the rotating AHB ring
+    //   2 = one-frame render-ahead
+    //   3 = existing two-frame render-ahead default
+    int bufferCount = property_get_int32(
+            "persist.gammaos.drastic_nano.buffer_count", 3);
+    if (bufferCount < 1) bufferCount = 1;
+    if (bufferCount > 3) bufferCount = 3;
+    // Keep the ring active even at count 1. The old slot-0 path rendered into
+    // the buffer currently being scanned out, which was especially visible
+    // when the settings scrim updated the bottom panel.
+    bool renderAhead = true;
+    const int ringPresentLag = (bufferCount == 1) ? 0
+                             : (bufferCount == 2) ? 1 : 2;
     for (int i = 0; i < android::AHB_RING_DEPTH; i++) {
         if (android::sAhbRingPrimary[i].glFbo == 0 ||
             (hasDualDisplay &&
              android::sAhbRingSecondary[i].glFbo == 0)) {
-            tripleBuffer = false;
-            ALOGW("drastic-nano: triple_buffer disabled, slot %d "
+            renderAhead = false;
+            ALOGW("drastic-nano: render-ahead disabled, slot %d "
                   "not fully allocated", i);
             break;
         }
     }
-    if (tripleBuffer) {
+    if (renderAhead) {
         android::sRingRenderIdx = 0;
         android::sRingPresentIdx = 0;
         android::sRingPrimedCount = 0;
     }
-    ALOGI("drastic-nano: triple_buffer=%d", tripleBuffer ? 1 : 0);
+    ALOGI("drastic-nano: buffer_count=%d ring=%d render_ahead=%d present_lag=%d",
+          bufferCount, renderAhead ? 1 : 0,
+          (renderAhead && bufferCount > 1) ? 1 : 0, ringPresentLag);
 
     bool exitRequested = false;
     // Full saturation / no gradient -- drastic-nano has no preview
@@ -1645,7 +1654,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         if (renderDs && !drmSingleLayout) dr->renderDsToOffscreen();
 
         const int renderIdx =
-                tripleBuffer ? android::sRingRenderIdx : 0;
+                renderAhead ? android::sRingRenderIdx : 0;
         android::AhbRenderTarget& primTgt =
                 android::sAhbRingPrimary[renderIdx];
         android::AhbRenderTarget& secTgt =
@@ -1903,15 +1912,15 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             property_set("sys.gammaos.drastic_nano.shot", "0");
         }
 
-        if (tripleBuffer) {
+        if (renderAhead) {
             // Unbind before fence-create so the kick point is
             // unambiguous. eglCreateSyncKHR with NATIVE_FENCE
             // flushes implicitly, so no glFlush is needed -- the
             // fence IS the kick-and-record. When the slot rotates
             // back in at presentIdx, drmFlipRingSlot dup's the
             // fd and waits on it via AHardwareBuffer_lock, which
-            // sidesteps the global glFinish that single-buffer
-            // mode relies on (and which is the tearing source).
+            // sidesteps the global glFinish that the old single-slot
+            // path relied on (and which is the tearing source).
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             if (android::sEglCreateSyncKHR &&
                 android::sRingEglDpy != EGL_NO_DISPLAY) {
@@ -1939,14 +1948,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             }
             android::sRingRenderIdx =
                     (renderIdx + 1) % android::AHB_RING_DEPTH;
-            // Bootstrap: first two iterations render only, don't
-            // present. Once primed (>= 2 slots rendered), flip the
-            // slot we rendered ~2 frames ago. Present-lag = 2 plus
-            // ring depth = 5 leaves enough headroom for both baseline
-            // pacing (1 slot free) and Frame Sync's delayed-secondary
-            // mode (secondary scanning out an older slot adds one
-            // more "live" entry to the working set).
-            if (android::sRingPrimedCount >= 2) {
+            // Bootstrap until the selected render-ahead lag is available,
+            // then present the corresponding older slot. The five-slot ring
+            // leaves headroom for GPU fences and Frame Sync's delayed
+            // secondary panel when the default lag is two frames.
+            if (android::sRingPrimedCount >= ringPresentLag) {
                 const int presentIdx = android::sRingPresentIdx;
                 android::drmFlipRingSlot(presentIdx, false);
                 android::sRingPresentIdx =
