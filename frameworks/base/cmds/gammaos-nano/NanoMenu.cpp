@@ -892,23 +892,19 @@ status_t NanoMenu::readyToRun() {
         tlog("drastic fast-path skipped XMB+effects");
     }
 
-    // Initialize brightness. Priority:
-    // 1. Android settings (authoritative, but not available during early boot)
-    // 2. Persist property (available at /data mount, before settings provider)
-    // 3. Sysfs current value (last resort - may be bootloader default)
+    // Initialize brightness. The persist property is the last user-selected value and is
+    // available before the settings provider. Android settings remain a fallback for devices
+    // upgrading from a build that did not have the property yet.
     mMaxBrightness = readSysfsInt("/sys/class/backlight/panel0-backlight/max_brightness",
                      readSysfsInt("/sys/class/leds/lcd-backlight/max_brightness", 255));
-    int androidBrt = readAndroidBrightness();
-    if (androidBrt > 0) {
-        mBrightness = androidBrt;
+    char saved[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.brightness", saved, "");
+    int persistedBrightness = atoi(saved);
+    if (persistedBrightness >= 1 && persistedBrightness <= 255) {
+        mBrightness = persistedBrightness;
     } else {
-        char saved[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.brightness", saved, "");
-        if (saved[0] != '\0') {
-            mBrightness = atoi(saved);
-        } else {
-            mBrightness = 128; // safe default (~50%)
-        }
+        int androidBrt = readAndroidBrightness();
+        mBrightness = androidBrt > 0 ? androidBrt : 128; // safe default (~50%)
     }
     // Never start up on a level that looks like a dead panel. The stored value can be a
     // leftover of the display dimming or turning off, and this hardware's backlight does not
@@ -922,7 +918,7 @@ status_t NanoMenu::readyToRun() {
     // enumerator scales per node max (the old fixed-path loop wrote one
     // device-wide sysfs value to every node).
     nanobl::nanoBacklightSet(mBrightness);
-    ALOGI("NanoMenu: early sysfs brightness (android %d) applied to %zu backlight nodes",
+    ALOGI("NanoMenu: early sysfs brightness %d applied to %zu backlight nodes",
           mBrightness, nanobl::nanoBacklightNodes().size());
 
     // Apply brightness async via HAL (expects sysfs-range value)
