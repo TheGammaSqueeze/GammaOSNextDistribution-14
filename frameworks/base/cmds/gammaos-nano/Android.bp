@@ -194,6 +194,7 @@ cc_binary {
         "nano_xmb_photoviewer",
         "nano_xmb_backgrounds",
         "nano_xmb_systemstatus",
+        "nano_esde_slate",
     ],
 }
 
@@ -324,6 +325,18 @@ prebuilt_etc {
     name: "nano_xmb_fonts",
     srcs: ["ps3xmb/fonts/*.ttf"],
     sub_dir: "nano_xmb/fonts",
+}
+
+// Bundled default ES-DE theme (Slate), shipped as a single zip so a fresh
+// install has the default theme with no network fetch. nano's ES-DE engine
+// extracts it to /data/system/nano_esde_themes/slate-es-de/ on first use
+// (see esdeSeedBundledSlate in NanoThemeEngine.cpp). The zip's entries are at
+// the theme root (capabilities.xml directly inside), so extraction lands the
+// set directly.
+prebuilt_etc {
+    name: "nano_esde_slate",
+    srcs: ["nano_esde_themes/slate-es-de.zip"],
+    sub_dir: "nano_esde_themes",
 }
 
 prebuilt_etc {

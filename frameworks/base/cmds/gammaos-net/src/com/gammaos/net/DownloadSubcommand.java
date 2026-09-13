@@ -68,6 +68,24 @@ public final class DownloadSubcommand {
         } catch (InterruptedException ignored) {}
 
         Network net = netRef.get();
+        // The requestNetwork callback can fail to fire onAvailable even when the
+        // device already has a usable connection (e.g. the network was up and
+        // validated before we asked). Fall back to the active network, then to
+        // any INTERNET-capable network, before giving up.
+        if (net == null) {
+            net = cm.getActiveNetwork();
+        }
+        if (net == null) {
+            try {
+                for (Network n : cm.getAllNetworks()) {
+                    NetworkCapabilities nc = cm.getNetworkCapabilities(n);
+                    if (nc != null && nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                        net = n;
+                        break;
+                    }
+                }
+            } catch (Throwable ignored) {}
+        }
         if (net == null) {
             System.err.println("download: no internet network");
             rc = 4;
@@ -98,6 +116,11 @@ public final class DownloadSubcommand {
         h.setConnectTimeout(20000);
         h.setReadTimeout(60000);
         h.setInstanceFollowRedirects(false);
+        // Some hosts (GitHub/GitLab archive endpoints, CDNs) reject the default
+        // "Java/<ver>" User-Agent with a 4xx, which surfaces to the caller as a
+        // failed download. Send a normal UA and accept anything.
+        h.setRequestProperty("User-Agent", "gammaos-nano");
+        h.setRequestProperty("Accept", "*/*");
         int code = h.getResponseCode();
         if (code >= 300 && code < 400 && redirects > 0) {
             String loc = h.getHeaderField("Location");

@@ -702,6 +702,12 @@ void NanoMenu::esdeDlStartFetch() {
         property_get("persist.gammaos.nano.esde.themes_url", urlbuf,
                      "https://gitlab.com/es-de/themes/themes-list/-/raw/master/themes.json");
         const std::string tmp = "/data/system/nano_esde_themes/.themes.json";
+        // Ensure the theme root exists first. On a fresh install nothing has
+        // created /data/system/nano_esde_themes yet, so gammaos-net's
+        // FileOutputStream(dest.part) failed with ENOENT (rc 5) and the theme
+        // list came back empty -- surfacing as "themes list not working" even
+        // with Wi-Fi connected. Create the directory before the fetch.
+        esdeRunProc({"/system/bin/mkdir", "-p", "/data/system/nano_esde_themes"});
         unlink(tmp.c_str());
         // Download through the framework helper: nano itself has no default network, so it routes
         // the fetch through gammaos-net (an app_process with the framework + a validated network).
@@ -737,8 +743,8 @@ void NanoMenu::esdeDlStartFetch() {
             }
         }
         if (list.empty())
-            err = "theme list fetch failed (curl rc " + std::to_string(rc) + ", " +
-                  std::to_string((long)text.size()) + " bytes)";
+            err = "theme list fetch failed (net rc " + std::to_string(rc) + ", " +
+                  std::to_string((long)text.size()) + " bytes) - check Wi-Fi";
         ALOGI("esde-dl: fetch rc=%d bytes=%zu parsed=%zu", rc, text.size(), list.size());
         {
             std::lock_guard<std::mutex> lk(mEsdeDlMutex);

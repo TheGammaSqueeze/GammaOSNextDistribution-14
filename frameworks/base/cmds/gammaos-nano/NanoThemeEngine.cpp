@@ -33,6 +33,8 @@
 
 #include <unistd.h>
 #include <sys/stat.h>          // mkdir for the on-demand default rating-star cache
+#include <sys/wait.h>          // waitpid for the bundled-theme seed
+#include <cerrno>
 
 #include <cctype>
 #include <cstdio>
@@ -56,6 +58,54 @@ static std::string esdeSetDir(const std::string& name) {
         if (access((d + "/capabilities.xml").c_str(), F_OK) == 0) return d;
     }
     return "";
+}
+
+// fork/exec a program with no shell; returns its exit code (-1 on spawn fail).
+static int esdeExec(std::vector<const char*> argv) {
+    argv.push_back(nullptr);
+    pid_t pid = fork();
+    if (pid < 0) return -1;
+    if (pid == 0) {
+        execv(argv[0], const_cast<char* const*>(argv.data()));
+        _exit(127);
+    }
+    int st = 0;
+    while (waitpid(pid, &st, 0) < 0 && errno == EINTR) {}
+    return WIFEXITED(st) ? WEXITSTATUS(st) : -1;
+}
+
+// First-run seed for the default ES-DE theme. If Slate is not present in any
+// theme root, extract the bundled /system/etc/nano_esde_themes/slate-es-de.zip
+// into the data root so a fresh install has its default set with no network
+// fetch. Cheap guard: returns immediately once Slate exists. Extraction is
+// staged then renamed so an interrupted unzip never leaves a half-written set
+// that looks installed.
+static void esdeSeedBundledSlate() {
+    for (const char* root : {kEsdeDataDir, kEsdeSystemDir, kEsdeSdcardDir}) {
+        std::string caps = std::string(root) + "/slate-es-de/capabilities.xml";
+        if (access(caps.c_str(), F_OK) == 0) return;   // already present
+    }
+    const char* zip = "/system/etc/nano_esde_themes/slate-es-de.zip";
+    if (access(zip, F_OK) != 0) return;                 // not bundled in this build
+    const std::string stage = std::string(kEsdeDataDir) + "/.slate_seed";
+    const std::string dest  = std::string(kEsdeDataDir) + "/slate-es-de";
+    esdeExec({"/system/bin/mkdir", "-p", kEsdeDataDir});
+    esdeExec({"/system/bin/rm", "-rf", stage.c_str()});
+    esdeExec({"/system/bin/mkdir", "-p", stage.c_str()});
+    // The bundled zip holds the theme at its root (capabilities.xml directly),
+    // so the staging dir becomes the theme set after extraction.
+    if (esdeExec({"/system/bin/unzip", "-o", "-q", zip, "-d", stage.c_str()}) != 0) {
+        esdeExec({"/system/bin/rm", "-rf", stage.c_str()});
+        ALOGW("esde: bundled Slate unzip failed");
+        return;
+    }
+    esdeExec({"/system/bin/rm", "-rf", dest.c_str()});
+    if (esdeExec({"/system/bin/mv", stage.c_str(), dest.c_str()}) != 0) {
+        esdeExec({"/system/bin/rm", "-rf", stage.c_str()});
+        ALOGW("esde: bundled Slate install failed");
+        return;
+    }
+    ALOGI("esde: seeded bundled Slate theme -> %s", dest.c_str());
 }
 
 #include "NanoEsdeSystemNames.inc"
@@ -200,6 +250,10 @@ void NanoMenu::ensureEsdeTheme() {
     char buf[PROPERTY_VALUE_MAX] = {0};
     property_get("persist.gammaos.nano.esde.themeset", buf, "");
     std::string want = buf[0] ? buf : "slate-es-de";
+    // Ensure the bundled default theme is present on a fresh install so the
+    // engine's default set loads with no network fetch. Self-guarded (no-op
+    // once Slate exists), so it is cheap to call every time.
+    if (want == "slate-es-de") esdeSeedBundledSlate();
     if (mEsdeLoaded && want == mEsdeSetName) return;
 
     mEsdeSetName = want;
