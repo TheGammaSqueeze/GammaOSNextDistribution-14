@@ -60,7 +60,12 @@ struct Element {
     bool getB(const char* k, bool def = false) const {
         auto p = get(k); return p ? p->b : def;
     }
-    const std::string& getS(const char* k, const std::string& def) const {
+    // Returns BY VALUE, not by reference: when the key is absent this returns a copy of `def`.
+    // Returning a reference here would dangle whenever a caller passes a temporary default
+    // (e.g. getS("imageFit", std::string("contain"))) and binds the result to a const ref, since
+    // binding a const ref to a function's returned reference does NOT extend the temporary's
+    // lifetime. A copy of a short enum/alignment string is cheap (SSO) and always safe.
+    std::string getS(const char* k, const std::string& def) const {
         auto p = get(k); return p ? p->s : def;
     }
     // Pair/rect component accessors (normalized 0..1).

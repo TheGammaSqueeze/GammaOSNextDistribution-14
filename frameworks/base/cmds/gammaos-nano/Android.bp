@@ -195,6 +195,9 @@ cc_binary {
         "nano_xmb_backgrounds",
         "nano_xmb_systemstatus",
         "nano_esde_slate",
+        "nano_esde_help_icons",
+        "nano_esde_controller_icons",
+        "nano_esde_badge_icons",
     ],
 }
 
@@ -337,6 +340,30 @@ prebuilt_etc {
     name: "nano_esde_slate",
     srcs: ["nano_esde_themes/slate-es-de.zip"],
     sub_dir: "nano_esde_themes",
+}
+
+// ES-DE built-in asset SVGs the theme engine falls back to when a theme does not
+// ship its own: the helpsystem button glyphs (the legend icons at the bottom of
+// every view), the per-controller badge icons, and the metadata badge icons.
+// Installed to /system/etc/nano_esde_assets/<sub>/; the engine checks a
+// /data/system/nano_esde_assets/<sub>/ dev-override first, then this path
+// (esdeAssetPath in NanoThemeEngine.cpp). Sourced from ES-DE resources/graphics.
+prebuilt_etc {
+    name: "nano_esde_help_icons",
+    srcs: ["nano_esde_assets/help/*.svg"],
+    sub_dir: "nano_esde_assets/help",
+}
+
+prebuilt_etc {
+    name: "nano_esde_controller_icons",
+    srcs: ["nano_esde_assets/controllers/*.svg"],
+    sub_dir: "nano_esde_assets/controllers",
+}
+
+prebuilt_etc {
+    name: "nano_esde_badge_icons",
+    srcs: ["nano_esde_assets/badges/*.svg"],
+    sub_dir: "nano_esde_assets/badges",
 }
 
 prebuilt_etc {

@@ -786,7 +786,10 @@ private:
     // Mono glyphs are rendered at that exact size (crisp, evenly hinted, no
     // fractional bitmap scaling); color emoji use their fixed strike normalized
     // to mFontSize regardless of rasterPx. Returns nullptr if unavailable.
-    const GlyphInfo* ensureGlyph(uint32_t codepoint, int rasterPx, int preferFace = -1);
+    // fracEm > 0 (ES-DE render only) rasterises at the FRACTIONAL em via FT_Set_Char_Size to match
+    // real ES-DE (es-core Font FT_Set_Char_Size(size*64)); 0 keeps the integer FT_Set_Pixel_Sizes path
+    // used by XMB/DSi/Minima. For integer em the two are identical, so those modes are byte-unchanged.
+    const GlyphInfo* ensureGlyph(uint32_t codepoint, int rasterPx, int preferFace = -1, float fracEm = 0.0f);
     // Toggle anti-aliased (mipmapped) minification on the glyph atlas. Scoped to
     // the home-XMB menu content only (see renderPs3Xmb); off for dialogs, OSK,
     // setup wizard and legacy menus. Filter is texture-object state, so one call

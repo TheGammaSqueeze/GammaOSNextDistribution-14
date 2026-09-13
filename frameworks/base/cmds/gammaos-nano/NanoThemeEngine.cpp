@@ -60,6 +60,20 @@ static std::string esdeSetDir(const std::string& name) {
     return "";
 }
 
+// Resolve a bundled ES-DE asset (help glyphs, controller/badge icons): a
+// /data/system/nano_esde_assets/<sub>/<file> dev-override wins if present, else the
+// shipped /system/etc/nano_esde_assets/<sub>/<file> (installed by the nano_esde_*_icons
+// prebuilt_etc modules). Returns the data path when neither exists (harmless: esdeArtTex
+// then decodes nothing). Fixes the missing legend button icons / badges: the engine only
+// ever looked under /data, which nothing populated, so the glyphs never loaded.
+static std::string esdeAssetPath(const char* sub, const std::string& file) {
+    std::string dataP = std::string("/data/system/nano_esde_assets/") + sub + "/" + file;
+    if (access(dataP.c_str(), R_OK) == 0) return dataP;
+    std::string sysP = std::string("/system/etc/nano_esde_assets/") + sub + "/" + file;
+    if (access(sysP.c_str(), R_OK) == 0) return sysP;
+    return dataP;
+}
+
 // fork/exec a program with no shell; returns its exit code (-1 on spawn fail).
 static int esdeExec(std::vector<const char*> argv) {
     argv.push_back(nullptr);
@@ -130,7 +144,13 @@ static std::map<std::string, std::string> esdeSysVars(const std::string& sysThem
     std::string full = esdeSystemFullName(sysTheme);
     if (full.empty()) full = sysName;
     v["system.theme"] = sysTheme;
-    v["system.name"] = sysName;
+    // ES-DE ${system.name} is the es_systems.xml SHORT <name> (e.g. "n64"), not the display
+    // fullname - SystemData exposes name (short) and fullName separately, and themes that want the
+    // long form use ${system.fullName}. simplemenu's gamelist header is <text>${system.name}</text>
+    // + letterCase uppercase, so it reads "N64", not "NINTENDO 64". nano had mapped system.name to
+    // the full display name; use the short theme id (romDir/shortname) to match, consistent with the
+    // per-path resolver which already substitutes ${system.name} with the short id.
+    v["system.name"] = sysTheme;
     v["system.fullName"] = full;
     v["system.fullName.noCollections"] = full;
     v["system.fullName.autoCollections"] = full;
@@ -213,6 +233,15 @@ bool NanoMenu::esdeSystemHasMedia(int sysIdx, const std::vector<std::string>& me
     scraperEnsureLoaded();
     const XmbSystem& s = mXmbSystems[sysIdx];
     for (const auto& rom : s.roms) {
+        // Real ES-DE downloaded_media of the exact requested type. The DISPLAY path (esdeGameMediaTex
+        // -> esdeGameMediaPath) reads downloaded_media FIRST, so the trigger MUST scan it too, or a
+        // game whose only cover lives in ES-DE downloaded_media shows that cover while the layout
+        // stays on the no-media fallback variant (Art Book Next's gamelist-list-metadata-cover would
+        // stay on gamelist-list-basic even with a cover present). Cached per rom+type.
+        for (const auto& t : mediaTypes)
+            if (!esdeGameMediaPath(rom, t).empty()) return true;
+        // nano's own scrape store: a single per-game box (also used for the video element) plus an
+        // optional fanart, so a box/cover/screenshot/... type maps onto "has a box".
         const ScrapeEntry* se = scrapeEntryFor(rom);
         if (!se) continue;
         if (wantBox && !se->box.empty()) return true;
@@ -454,6 +483,28 @@ void NanoMenu::esdeRebuildSysList() {
     }
 }
 
+// Decode a standard base64 string (RFC 4648) into raw bytes, skipping any whitespace/newlines.
+// Used for SVGs whose only content is an embedded <image href="data:image/...;base64,..."> raster.
+static std::vector<unsigned char> esdeBase64Decode(const char* s, size_t n) {
+    int8_t T[256];
+    for (int i = 0; i < 256; i++) T[i] = -1;
+    static const char* A =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    for (int i = 0; i < 64; i++) T[(unsigned char)A[i]] = (int8_t)i;
+    std::vector<unsigned char> out;
+    out.reserve(n * 3 / 4 + 3);
+    int val = 0, bits = -8;
+    for (size_t i = 0; i < n; i++) {
+        unsigned char c = (unsigned char)s[i];
+        if (c == '=') break;
+        int8_t d = T[c];
+        if (d < 0) continue;                       // skip newlines/whitespace/invalid
+        val = (val << 6) | d; bits += 6;
+        if (bits >= 0) { out.push_back((unsigned char)((val >> bits) & 0xFF)); bits -= 8; }
+    }
+    return out;
+}
+
 // Rasterize an SVG file (theme logo / console art) aspect-fit into a boxW x boxH pixel
 // box, upload as a GL texture, and cache it keyed by "path@WxH". Rasterization runs once
 // per (path,size) at load-time cost; the per-frame path only samples the cached texture.
@@ -476,6 +527,51 @@ NanoMenu::EsdeSvg NanoMenu::esdeRasterSvg(const std::string& path, int boxW, int
 
     EsdeSvg out;
     NSVGimage* img = nsvgParseFromFile(path.c_str(), "px", 96.0f);
+    // nanosvg ignores <image> elements, so an SVG that is only a wrapper around an embedded raster
+    // (ps5-menu's icon-controller.svg is a <use> of an <image href="data:image/png;base64,...">)
+    // parses with a valid viewBox but ZERO vector shapes and would rasterize to a transparent quad.
+    // Decode the embedded PNG and fit it into the box instead, so the icon shows like the real app.
+    if (img && img->width > 0.5f && img->height > 0.5f && img->shapes == nullptr) {
+        FILE* f = fopen(path.c_str(), "rb");
+        if (f) {
+            fseek(f, 0, SEEK_END); long sz = ftell(f); fseek(f, 0, SEEK_SET);
+            std::string txt;
+            if (sz > 0) { txt.resize((size_t)sz); if (fread(&txt[0], 1, (size_t)sz, f) != (size_t)sz) txt.clear(); }
+            fclose(f);
+            size_t dp = txt.find("data:image/");
+            size_t bp = dp == std::string::npos ? std::string::npos : txt.find("base64,", dp);
+            if (bp != std::string::npos) {
+                bp += 7;
+                size_t ep = txt.find_first_of("\"'", bp);
+                if (ep == std::string::npos) ep = txt.size();
+                std::vector<unsigned char> raw = esdeBase64Decode(txt.c_str() + bp, ep - bp);
+                int pw = 0, ph = 0, pn = 0;
+                unsigned char* px = raw.empty() ? nullptr
+                    : stbi_load_from_memory(raw.data(), (int)raw.size(), &pw, &ph, &pn, 4);
+                if (px && pw > 0 && ph > 0) {
+                    // Fit the SVG viewBox (the layout box the theme sized the icon to) into the target
+                    // box; the embedded raster fills that viewBox via its <use> transform.
+                    float s = (float)boxW / img->width, sy = (float)boxH / img->height;
+                    if (sy < s) s = sy;
+                    int ow = (int)(img->width * s + 0.5f), oh = (int)(img->height * s + 0.5f);
+                    if (ow < 1) ow = 1; if (oh < 1) oh = 1;
+                    glGenTextures(1, &out.tex);
+                    glBindTexture(GL_TEXTURE_2D, out.tex);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pw, ph, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
+                    out.w = ow; out.h = oh;
+                }
+                if (px) stbi_image_free(px);
+            }
+        }
+        nsvgDelete(img);
+        mEsdeSvgCache[key] = out;
+        return out;
+    }
     if (img && img->width > 0.5f && img->height > 0.5f) {
         float s = (float)boxW / img->width;
         float sy = (float)boxH / img->height;
@@ -845,7 +941,25 @@ GLuint NanoMenu::esdeGameMediaTex(const std::string& romPath, const std::string&
         if (a != std::string::npos && imageType.compare(a, b - a + 1, "none") == 0) return 0;
     }
     std::string found = esdeGameMediaPath(romPath, imageType);
-    if (found.empty()) return romBoxartTex(romPath, outAR);   // no ES-DE media -> nano's own cover
+    if (found.empty()) {
+        // No real ES-DE media of this type. nano keeps a single scraped image (the 2D box/cover),
+        // so it is a valid stand-in ONLY when the theme actually asked for a cover/box media type.
+        // For any other type (marquee, screenshot, titlescreen, fanart, ...) ES-DE shows the entry's
+        // TEXT fallback rather than substituting a different media, so returning nano's box here would
+        // diverge (e.g. Artflix's marquee gamelist wheel must show game-name text, not box art). Match
+        // ES-DE: fall back to the cover only for a cover/box-family imageType (the first token of a
+        // comma list), else report no media so the caller draws text.
+        size_t a = imageType.find_first_not_of(" \t\r\n");
+        std::string tok;
+        if (a != std::string::npos) {
+            size_t comma = imageType.find_first_of(", ", a);
+            tok = imageType.substr(a, comma == std::string::npos ? comma : comma - a);
+        }
+        bool boxLike = tok.empty() || tok == "cover" || tok == "boxart" ||
+                       tok == "box" || tok == "2dbox" || tok == "box2d";
+        if (boxLike) return romBoxartTex(romPath, outAR);   // cover/box type -> nano's own cover
+        return 0;                                           // other types -> let the caller draw text
+    }
     EsdeSvg a = esdeArtTex(found, mWidth, mHeight);           // load + cache (decode-budgeted)
     if (!a.tex) return 0;
     auto dit = mEsdePngDims.find(found);
@@ -1154,7 +1268,8 @@ void NanoMenu::renderEsde() {
                            float sc, float lineSp, const char* align, float col[4],
                            const std::string& scrollKey = std::string(), int face = -1,
                            const char* vAlign = nullptr, float startDelayMs = 4500.0f,
-                           float scrollSpeedConst = 4.0f, float resetDelayMs = 7000.0f) {
+                           float scrollSpeedConst = 4.0f, float resetDelayMs = 7000.0f,
+                           bool ellipsize = false) {
         float lineH = sc * FONT_CHAR_H * (lineSp > 0 ? lineSp : 1.0f);
         std::vector<std::string> lines;
         std::string cur, tok;
@@ -1162,8 +1277,27 @@ void NanoMenu::renderEsde() {
         auto pushWord = [&](const std::string& wd) {
             if (wd.empty()) return;
             std::string trial = cur.empty() ? wd : cur + " " + wd;
-            if (cur.empty() || measureText(trial.c_str(), sc, face) <= boxW) cur = trial;
-            else { flush(); cur = wd; }
+            if (measureText(trial.c_str(), sc, face) <= boxW) { cur = trial; return; }
+            // Doesn't fit alongside the current line content: break the line first.
+            if (!cur.empty()) flush();
+            // The word fits on its own line, or there is no width budget to honour.
+            if (boxW <= 0.0f || measureText(wd.c_str(), sc, face) <= boxW) { cur = wd; return; }
+            // ES-DE Font::wrapText breaks a single word that is wider than the line at the character
+            // boundary (a long game name like "AEROGAUGE" splits to "AEROGAU"/"GE" in a narrow covers-
+            // carousel item box), rather than letting it overrun. Split on UTF-8 code points.
+            std::string chunk;
+            for (size_t i = 0; i < wd.size(); ) {
+                size_t j = i + 1;
+                while (j < wd.size() && (((unsigned char)wd[j]) & 0xC0) == 0x80) j++;
+                std::string piece = wd.substr(i, j - i);
+                if (!chunk.empty() && measureText((chunk + piece).c_str(), sc, face) > boxW) {
+                    lines.push_back(chunk); chunk = piece;
+                } else {
+                    chunk += piece;
+                }
+                i = j;
+            }
+            cur = chunk;
         };
         size_t n = s.size();
         for (size_t k = 0; k <= n; k++) {
@@ -1242,6 +1376,22 @@ void NanoMenu::renderEsde() {
         } else {
             int maxLines = boxH > 0 ? (int)(boxH / lineH) : (int)lines.size();
             if (maxLines < 1) maxLines = 1;
+            // ES-DE TextComponent appends a horizontal ellipsis (U+2026) to the last visible line
+            // when the wrapped text overflows the fixed box and horizontal scrolling is off, rather
+            // than hard-clipping mid-word (the carousel item name does this). Trim the last shown line
+            // until it plus the ellipsis fits boxW.
+            if (ellipsize && (int)lines.size() > maxLines && maxLines >= 1) {
+                std::string last = lines[maxLines - 1];
+                const char* ell = "\xE2\x80\xA6";   // U+2026
+                while (!last.empty() && measureText((last + ell).c_str(), sc, face) > boxW) {
+                    // drop a whole UTF-8 code point off the end
+                    size_t cut = last.size() - 1;
+                    while (cut > 0 && (((unsigned char)last[cut]) & 0xC0) == 0x80) cut--;
+                    last.erase(cut);
+                    while (!last.empty() && last.back() == ' ') last.pop_back();
+                }
+                lines[maxLines - 1] = last + ell;
+            }
             // ES-DE positions a text block that FITS its box by verticalAlignment (default CENTER),
             // not pinned to the top (TextComponent yOff, :283-301): a single-line name in a tall box
             // (Catppuccin's game-name, origin-centred 0.13-tall box) centres. Only an overflowing block
@@ -1406,15 +1556,27 @@ void NanoMenu::renderEsde() {
             // (CarouselComponent.h:248). Everything below is gated on isWheel so straight carousels are
             // untouched.
             const bool isWheel = (carType == "verticalWheel" || carType == "horizontalWheel");
+            // ES-DE itemAxisHorizontal (CarouselComponent.h:1147): when set, a wheel positions each
+            // item along its arc but keeps the item box UPRIGHT (the rotation is discarded from the
+            // draw transform, only the arc position is kept), so a marquee/text wheel curves without
+            // tilting each label. This also zeroes the pivot's cross-axis (yOffTrans) for a vertical
+            // wheel (CarouselComponent.h:1132).
+            const bool wheelAxisHoriz = primary->getB("itemAxisHorizontal", false);
+            // wheelHorizontalAlignment (vertical wheel) / wheelVerticalAlignment (horizontal wheel)
+            // seat the focused item against an edge of the component box rather than its centre
+            // (CarouselComponent.h:785-810,760-780). Parsed here, applied to cx/cyc below.
+            const std::string wheelHAlign = primary->getS("wheelHorizontalAlignment", std::string("center"));
+            const std::string wheelVAlign = primary->getS("wheelVerticalAlignment", std::string("center"));
             float wheelDegPerDist = 0.0f, wheelPivotX = 0.0f, wheelPivotY = 0.0f;
             if (isWheel) {
                 wheelDegPerDist = primary->getF("itemRotation", 7.5f);
                 float wroX = primary->getPair("itemRotationOrigin", 0, -3.0f);
                 float wroY = primary->getPair("itemRotationOrigin", 1, 0.5f);
-                // xOffTrans/yOffTrans = -itemRotationOrigin * itemSize; a horizontalWheel makes the item
-                // axis horizontal so its pivot has no cross-axis (Y) component.
+                // xOffTrans/yOffTrans = -itemRotationOrigin * itemSize; a horizontalWheel, or any wheel
+                // with itemAxisHorizontal, makes the item axis horizontal so its pivot has no cross-axis
+                // (Y) component.
                 wheelPivotX = -wroX * itemW;
-                wheelPivotY = (carType == "horizontalWheel") ? 0.0f : -wroY * itemH;
+                wheelPivotY = (carType == "horizontalWheel" || wheelAxisHoriz) ? 0.0f : -wroY * itemH;
             }
             // Cross-axis item centre honouring itemHorizontalAlignment (vertical carousels) and
             // itemVerticalAlignment (horizontal carousels), mirroring ES-DE's xOff/yOff
@@ -1432,6 +1594,54 @@ void NanoMenu::renderEsde() {
                            : (itemVA == "bottom") ? y + h - itemH * 0.5f
                                                   : y + h * 0.5f)
                         : y + h * 0.5f;
+            // ES-DE wheel edge alignment (CarouselComponent.h:756-810): a wheel seats its focused item
+            // against the LEFT/RIGHT edge (vertical wheel, wheelHorizontalAlignment) or TOP/BOTTOM edge
+            // (horizontal wheel, wheelVerticalAlignment) of the component box, plus the enlarged-item
+            // margin scaleSize = itemExtent*(itemScale-1). nano previously centred every wheel, so a
+            // left/right seated wheel (Artflix's marquee wheel) sat off in the wrong place or off-screen.
+            // These override the straight-carousel cross-axis centre computed above; the base value
+            // (mSize-mItemSize)/2 + itemSize/2 reduces to mSize/2 (centred item) for the CENTER default.
+            if (isWheel) {
+                if (carType == "verticalWheel") {
+                    float scaleSize = itemW * itemScale - itemW;
+                    float xOff = (w - itemW) * 0.5f;
+                    if (wheelHAlign == "right") {
+                        xOff += w * 0.5f;
+                        if (itemHA == "left")       xOff -= itemW * 0.5f + scaleSize;
+                        else if (itemHA == "right") xOff -= itemW * 0.5f;
+                        else                        xOff -= itemW * 0.5f + scaleSize * 0.5f;
+                    } else if (wheelHAlign == "left") {
+                        xOff -= w * 0.5f;
+                        if (itemHA == "left")       xOff += itemW * 0.5f;
+                        else if (itemHA == "right") xOff += itemW * 0.5f + scaleSize;
+                        else                        xOff += itemW * 0.5f + scaleSize * 0.5f;
+                    } else {  // center
+                        if (itemHA == "right")      xOff += scaleSize * 0.5f;
+                        else if (itemHA == "left")  xOff -= scaleSize * 0.5f;
+                    }
+                    cx  = x + xOff + itemW * 0.5f;
+                    cyc = y + h * 0.5f;
+                } else {  // horizontalWheel
+                    float scaleSize = itemH * itemScale - itemH;
+                    float yOff = (h - itemH) * 0.5f;
+                    if (wheelVAlign == "top") {
+                        yOff -= h * 0.5f;
+                        if (itemVA == "top")        yOff += itemH * 0.5f;
+                        else if (itemVA == "bottom") yOff += itemH * 0.5f + scaleSize;
+                        else                        yOff += itemH * 0.5f + scaleSize * 0.5f;
+                    } else if (wheelVAlign == "bottom") {
+                        yOff += h * 0.5f;
+                        if (itemVA == "top")        yOff -= itemH * 0.5f + scaleSize;
+                        else if (itemVA == "bottom") yOff -= itemH * 0.5f;
+                        else                        yOff -= itemH * 0.5f + scaleSize * 0.5f;
+                    } else {  // center
+                        if (itemVA == "bottom")     yOff += scaleSize * 0.5f;
+                        else if (itemVA == "top")   yOff -= scaleSize * 0.5f;
+                    }
+                    cx  = x + w * 0.5f;
+                    cyc = y + yOff + itemH * 0.5f;
+                }
+            }
             // ES-DE horizontalOffset/verticalOffset (CarouselComponent.h:833-834): a uniform
             // per-item shift of mSize.x*hOff / mSize.y*vOff (clamped [-1,1]) applied to EVERY
             // item regardless of orientation, so a theme can seat the wheel off-centre (canvas
@@ -1444,8 +1654,16 @@ void NanoMenu::renderEsde() {
                 cyc += (float)h * cl11(primary->getF("verticalOffset", 0.0f));
             }
             float imgC[4] = {1, 1, 1, 1}; primary->getColor("imageColor", imgC);
-            float selC[4]; colorOf(primary, "textSelectedColor", 1, 1, 1, 1, selC);
             float unC[4]; colorOf(primary, "textColor", 0.85f, 0.85f, 0.85f, 0.6f, unC);
+            // ES-DE CarouselComponent seeds mTextSelectedColor from mTextColor (CarouselComponent.cpp
+            // :1786) and only overrides it when the theme sets textSelectedColor, so the focused item
+            // shares the textColor unless told otherwise - analogue-os-menu's carousel sets only
+            // textColor 000000 (black on its fafafa plate), so the selected name must be black, not
+            // white. nano used to default the selected colour to white, painting the focused item's
+            // name invisibly onto its light plate.
+            float selC[4];
+            if (primary->has("textSelectedColor")) colorOf(primary, "textSelectedColor", 1, 1, 1, 1, selC);
+            else { selC[0] = unC[0]; selC[1] = unC[1]; selC[2] = unC[2]; selC[3] = unC[3]; }
             const std::string artTmpl = gamelist ? std::string() : primary->getPath("staticImage");
             const std::string defTmpl = gamelist ? std::string() : primary->getPath("defaultImage");
 
@@ -1481,8 +1699,11 @@ void NanoMenu::renderEsde() {
             // (itemsBeforeCenter/After 0) shows only the focused item instead of over-drawing stacked
             // neighbours. Capped so a huge count cannot blow the per-frame draw budget.
             if (isWheel) {
-                int wb = (int)primary->getF("itemsBeforeCenter", 8.0f);
-                int wa = (int)primary->getF("itemsAfterCenter", 8.0f);
+                // itemsBeforeCenter/itemsAfterCenter are UINT props, so they must be read from the
+                // integer field (getU); getF returns 0 for a UINT prop, which collapsed the span to
+                // zero and drew ONLY the focused item (the whole wheel of neighbours vanished).
+                int wb = (int)primary->getU("itemsBeforeCenter", 8);
+                int wa = (int)primary->getU("itemsAfterCenter", 8);
                 span = std::min(12, std::max(wb, wa));
             }
             auto wrapIdx = [&](int v) { int n = count; return ((v % n) + n) % n; };
@@ -1518,6 +1739,9 @@ void NanoMenu::renderEsde() {
                     float ry = wheelPivotX * saw + wheelPivotY * caw;
                     slotCx = cx + (rx - wheelPivotX);
                     slotCy = cyc + (ry - wheelPivotY);
+                    // itemAxisHorizontal keeps the ARC position but discards the tilt from the item's
+                    // own draw transform, so the marquee/text is drawn upright on the curve.
+                    if (wheelAxisHoriz) itemAngleRad = 0.0f;
                 } else {
                     slotCx = isVertical ? cx : cx + distance * spacing + selMargin;
                     slotCy = isVertical ? cyc + distance * spacing + selMargin : cyc;
@@ -1543,6 +1767,18 @@ void NanoMenu::renderEsde() {
                     ss = 1.0f + (1.0f - itemScale) * (fabsf(distance) - 1.0f);
                     ss = std::max(itemScale, std::min(1.0f, ss));
                 }
+                // ES-DE anchors the item's TOP EDGE (not the centre) when itemVerticalAlignment=top on a
+                // horizontal carousel, so a scaled focused item sinks by half its growth to hold that
+                // edge: superstation-one gamelist-carousel-cover is top-aligned with itemScale 1.2, and
+                // without this its cover rides up scaleSize/2 = itemH*(ss-1)/2 above the selector frame
+                // (leaving a black band at the frame bottom). Scoped to itemVerticalAlignment=top - the
+                // only alignment/carousel this is verified against (superstation is the sole theme using
+                // it) - so centre-aligned carousels (the default; sagadiamond, analogue, ...) and ss==1
+                // items are untouched. The symmetric bottom/left edge cases are NOT applied here: they
+                // could not be cleanly verified (artflix's bottom logo sits behind character art), so
+                // they keep the existing centre-scale behaviour rather than risk a regression.
+                if (!isWheel && !isVertical && ss != 1.0f && itemVA == "top")
+                    slotCy += itemH * (ss - 1.0f) * 0.5f;
                 int bw = (int)(itemW * ss), bh = (int)(itemH * ss);
                 float ad = fabsf(distance);
                 float opacity = (distance == 0.0f || unfOpacity == 1.0f) ? 1.0f
@@ -1583,10 +1819,38 @@ void NanoMenu::renderEsde() {
                         // it, and every other item with imageColor.
                         float ic[4] = {imgC[0], imgC[1], imgC[2], imgC[3]};
                         if (idx == sel) primary->getColor("imageSelectedColor", ic);
-                        drawCover(art.tex, slotCx - art.w * 0.5f, slotCy - art.h * 0.5f,
-                                  (float)art.w, (float)art.h,
+                        // ES-DE CarouselComponent imageFit (contain default / fill / cover) applies to
+                        // the static per-system image too - shinretro's system-carousel fanart sets
+                        // imageFit=cover, so the focused fanart is a zoomed centre crop that FILLS the
+                        // itemSize box, not a letterboxed contain-fit. esdeArtTex already contain-fits,
+                        // so art.w/art.h carry the native aspect: use them as-is for contain (unchanged
+                        // for every theme that omits imageFit, i.e. defaults to contain) and recompute
+                        // for fill/cover. The GL texture is the full-resolution image, so drawing it at
+                        // the larger cover rect upsamples from source, not from the contain thumbnail.
+                        std::string fit = primary->getS("imageFit", std::string("contain"));
+                        float ar = art.h > 0 ? (float)art.w / (float)art.h : 1.0f;
+                        float fw, fh; bool clip = false;
+                        if (fit == "fill") {
+                            fw = (float)bw; fh = (float)bh;
+                        } else if (fit == "cover" && ar > 0.0f) {
+                            if ((float)bw / ar >= (float)bh) { fw = (float)bw; fh = (float)bw / ar; }
+                            else { fh = (float)bh; fw = (float)bh * ar; }
+                            clip = true;
+                        } else {                       // contain (esdeArtTex already fit it)
+                            fw = (float)art.w; fh = (float)art.h;
+                        }
+                        float drawX = slotCx - fw * 0.5f, drawY = slotCy - fh * 0.5f;
+                        if (clip) {
+                            float cpx = std::min(1.0f, std::max(0.0f, primary->getPair("imageCropPos", 0, 0.5f)));
+                            float cpy = std::min(1.0f, std::max(0.0f, primary->getPair("imageCropPos", 1, 0.5f)));
+                            drawX += (0.5f - cpx) * (fw - (float)bw);
+                            drawY += (0.5f - cpy) * (fh - (float)bh);
+                            scissorLogicalRect(slotCx - bw * 0.5f, slotCy - bh * 0.5f, (float)bw, (float)bh);
+                        }
+                        drawCover(art.tex, drawX, drawY, fw, fh,
                                   ic[0] * dimming, ic[1] * dimming, ic[2] * dimming,
                                   ic[3] * opacity);
+                        if (clip) { if (carClip) scissorLogicalRect(x, y, w, h); else glDisable(GL_SCISSOR_TEST); }
                         return;
                     }
                 }
@@ -1670,18 +1934,33 @@ void NanoMenu::renderEsde() {
                 float largeFont = (mWidth < mHeight) ? 0.080f : 0.085f;
                 float fsc = fontPx(primary, largeFont) * ss;
                 int lblFace = faceOf(primary);
-                float tw = measureText(s.c_str(), fsc, lblFace);
                 float* col = selected ? selC : unC;
-                float txtY = isVertical ? slotCy - fsc * FONT_CHAR_H * 0.5f : y + h * 0.4f;
-                // ES-DE aligns a text item inside its slot by itemHorizontalAlignment (the item
-                // origin.x): left seats the label's left edge at the item box left, right its right
-                // edge at the box right, else centred. Atari 50 Menu's vertical name list uses left.
+                // ES-DE renders EVERY carousel entry (wheel, horizontal or vertical) as a TextComponent
+                // with a FIXED box of itemSize*itemScale (CarouselComponent.h:387-392), centred on the
+                // item slot, so a long name WRAPS within the item width and ellipsises to the item
+                // height instead of running off as one line - the Artflix covers-carousel game names
+                // stack "AEROGAU"/"GE"/"(JAPAN)"/"(DEMO)..." in a box rather than overlapping in a
+                // single row. Honour the item h/v alignment + lineSpacing, ellipsise the overflow, and
+                // draw the item's textBackgroundColor plate behind the text (the covers carousel uses an
+                // opaque black plate). The straight carousels previously drew a single line at y+h*0.4,
+                // which overlapped for long names and dropped the plate.
                 const std::string& itemHA = primary->getS("itemHorizontalAlignment", std::string());
-                float labelX = (itemHA == "left")  ? slotCx - itemW * 0.5f
-                             : (itemHA == "right") ? slotCx + itemW * 0.5f - tw
-                                                   : slotCx - tw * 0.5f;
-                drawText(s.c_str(), labelX, txtY, fsc,
-                         col[0] * dimming, col[1] * dimming, col[2] * dimming, col[3] * opacity, lblFace);
+                const std::string& itemVA = primary->getS("itemVerticalAlignment", std::string());
+                float boxW = (float)bw, boxH = (float)bh;
+                const char* hAl = (itemHA == "left") ? "left" : (itemHA == "right") ? "right" : "center";
+                const char* vAl = (itemVA == "top") ? "top" : (itemVA == "bottom") ? "bottom" : nullptr;
+                // ES-DE TextComponent renders its backgroundColor behind the whole component box
+                // (setRenderBackground true) when the theme sets textBackgroundColor; the covers
+                // carousel uses 000000FF. Draw it first, sized to the item box, faded by opacity.
+                float tbg[4];
+                if (primary->getColor("textBackgroundColor", tbg) && tbg[3] > 0.0f)
+                    drawQuad(slotCx - boxW * 0.5f, slotCy - boxH * 0.5f, boxW, boxH,
+                             tbg[0], tbg[1], tbg[2], tbg[3] * opacity);
+                float col4[4] = {col[0] * dimming, col[1] * dimming, col[2] * dimming, col[3] * opacity};
+                float lineSp = std::min(3.0f, std::max(0.5f, primary->getF("lineSpacing", 1.5f)));
+                drawWrapped(s, slotCx - boxW * 0.5f, slotCy - boxH * 0.5f, boxW, boxH, fsc,
+                            lineSp, hAl, col4, std::string(), lblFace, vAl,
+                            4500.0f, 4.0f, 7000.0f, /*ellipsize=*/true);
             };
             // ES-DE clips the carousel to its own box (CarouselComponent::render pushClipRect of
             // pos/size), so it shows exactly maxItemCount items and the strip never bleeds past its
@@ -1926,7 +2205,16 @@ void NanoMenu::renderEsde() {
                         // (GridComponent.h), overridden only when the theme sets <textColor>. A
                         // coverless cell with no textColor is black, not white.
                         float tc[4] = {0, 0, 0, 1}; primary->getColor("textColor", tc);
-                        float fsc = fontPx(primary, 0.03f) * scale;
+                        // ES-DE colours the FOCUSED cell's label with textSelectedColor (which defaults
+                        // to textColor when unset), the others with textColor (GridComponent.h:920-924).
+                        // X-Grid's monochrome systemGrid selects with white (textSelected FFFFFF) text
+                        // vs grey (textPrimary A8A8A8); without this the selected system read grey too.
+                        if (i == sel) { float ts[4]; if (primary->getColor("textSelectedColor", ts))
+                                        { tc[0] = ts[0]; tc[1] = ts[1]; tc[2] = ts[2]; tc[3] = ts[3]; } }
+                        // A grid element without a themed <fontSize> uses ES-DE's default grid font,
+                        // FONT_SIZE_MEDIUM_FIXED = 0.045 * min(screenH, screenW) (Font.h getMediumFixedFont),
+                        // not 0.03 - so a coverless cell's label wraps at the same width as the real app.
+                        float fsc = fontPx(primary, 0.045f) * scale;
                         // ES-DE labels a coverless system grid cell with the system's FULL name
                         // (GridComponent uses getFullName, e.g. "Sony PlayStation"), same as the
                         // carousel/textlist. Resolve nano's system to its ES-DE full name rather than
@@ -2020,8 +2308,14 @@ void NanoMenu::renderEsde() {
                         // ES-DE GridComponent::mTextColor default is 0x000000FF (BLACK), not white -
                         // a coverless game cell without <textColor> renders black (GridComponent.h).
                         float tc[4] = {0, 0, 0, 1}; primary->getColor("textColor", tc);
+                        // The focused cell's label uses textSelectedColor (defaults to textColor);
+                        // others use textColor (GridComponent.h:920-924).
+                        if (i == sel) { float ts[4]; if (primary->getColor("textSelectedColor", ts))
+                                        { tc[0] = ts[0]; tc[1] = ts[1]; tc[2] = ts[2]; tc[3] = ts[3]; } }
                         float trs = clampf(primary->getF("textRelativeScale", 1.0f), 0.2f, 1.0f);
-                        float fsc = fontPx(primary, 0.03f) * scale;
+                        // Default grid font is FONT_SIZE_MEDIUM_FIXED (0.045 * min(H,W)), not 0.03,
+                        // so a coverless game name wraps at the same width as the real app.
+                        float fsc = fontPx(primary, 0.045f) * scale;
                         std::string s = label(i);
                         esdeLetterCase(s, glc);
                         // ES-DE builds the coverless cell's name TextComponent with the grid's scroll
@@ -2044,9 +2338,14 @@ void NanoMenu::renderEsde() {
                                      col4[0], col4[1], col4[2], col4[3], gFace);
                             if (ov) scissorLogicalRect(x, y, w, dimY);
                         } else {
+                            // ES-DE's grid fallback TextComponent ellipsizes the last visible line
+                            // (U+2026) when the name overflows the itemSize*textRelativeScale box with
+                            // horizontal scrolling off - a tiny grid-8 cell shows "AeroG..." not a hard
+                            // clip. Wider cells (grid-3/4) fit within maxLines so nothing is trimmed.
                             drawWrapped(s, ccx - tBoxW * 0.5f, ccy - tBoxH * 0.5f, tBoxW, tBoxH, fsc,
                                         primary->getF("lineSpacing", 1.5f), "center", col4,
-                                        std::string(), faceOf(primary), "center");
+                                        std::string(), faceOf(primary), "center",
+                                        4500.0f, 4.0f, 7000.0f, /*ellipsize=*/true);
                         }
                     }
                 }
@@ -2182,19 +2481,27 @@ void NanoMenu::renderEsde() {
                     // with the default face sized the plate to a wider glyph run than the themed text,
                     // so the plate overhung the text (Analogue's system-name pill was too wide).
                     float tw = measureText(lbl.c_str(), sc, faceOf(primary));
+                    // ES-DE sizes the plate to the entry TextComponent's width plus margins
+                    // (TextListComponent.h:439). For a horizontal-scrolling list ES-DE CLAMPS that
+                    // TextComponent width to the element text area (mSize.x - 2*horizontalMargin) when
+                    // the name overflows, so it marquees inside a FIXED box - the plate is then the
+                    // element width, NOT the full name width (TextListComponent.h:216-225). nano sized
+                    // the plate to the whole name, so a long selected name (ABN's scrolling game name)
+                    // drew an over-long pill. Clamp to the available width to match.
+                    float aw = w - padX * 2.0f;
+                    float ptw = std::min(tw, aw);
                     // ES-DE anchors the plate to the selected entry's TEXT position, so it must follow
                     // the textlist horizontalAlignment - a center/right list positions the label away
                     // from the row's left edge and the plate has to move with it. Without this a
                     // center-aligned list (SuperStation One Menu) drew the plate at the left while the
                     // label centred, so the highlight sat beside the text instead of behind it.
-                    float aw = w - padX * 2.0f;
                     float textLeft = x + padX;
-                    if (alignS == "center")     textLeft += (aw - tw) * 0.5f;
-                    else if (alignS == "right") textLeft += (aw - tw);
+                    if (alignS == "center")     textLeft += (aw - ptw) * 0.5f;
+                    else if (alignS == "right") textLeft += (aw - ptw);
                     bool hadScissor = (w > 1 && h > 1);
                     if (hadScissor) glDisable(GL_SCISSOR_TEST);
                     drawRoundedRect(textLeft - selMx, ry + selYOff,
-                                    tw + selMx + selMy, selPlateH, selRad,
+                                    ptw + selMx + selMy, selPlateH, selRad,
                                     selBg[0], selBg[1], selBg[2], selBg[3]);
                     if (hadScissor) glEnable(GL_SCISSOR_TEST);
                 }
@@ -2345,10 +2652,36 @@ void NanoMenu::renderEsde() {
             // panel/band (ABN backgrounds, slate bands): tiling a 1px pixel just fills the box
             // with the colour, so draw that directly rather than contain-fitting the spacer into
             // a centred square. Only for coloured, sized boxes; real tiled art is rare here.
-            if (e->getB("tile", false) && e->has("color") && w > 1 && h > 1) {
+            // ES-DE sizes a tiled image to mTargetSize verbatim then clamps each axis to [1px,
+            // 3*screen] (ImageComponent::resize + the mSize clamp), so a thin border spacer with a
+            // zero axis - epic-noir's gamelist-nav-border <size>0 1</size> / gamelist-top-border
+            // <size>1 0.0009</size> - becomes a 1px line, NOT an aspect-expanded square. nano's old
+            // w>1 && h>1 guard dropped those through to drawSysImage, which expanded the 16x16 white
+            // spacer into a full-height grey bar that buried the gamelist system-artwork. Clamp to
+            // 1px and fill for any tiled+colour box that carries an explicit <size>.
+            if (e->getB("tile", false) && e->has("color") && e->has("size")) {
+                w = std::max(1.0f, w);
+                h = std::max(1.0f, h);
+                // ES-DE ImageComponent::render draws NOTHING when the texture fails to load
+                // (mTexture == nullptr) - the <color> is only a tint on a loaded texture, never a
+                // standalone fill. So if the spacer image file is genuinely MISSING (an incomplete
+                // theme install, e.g. modern-es-de's ./assets/box.png), skip the fill and leave the
+                // box empty, matching the control. A present spacer still fills (ABN/slate unchanged);
+                // a texture that exists but nano cannot decode keeps the old fill (access() succeeds).
+                std::string tp = e->getPath("path");
+                if (!tp.empty() && tp.find("${system.") != std::string::npos) {
+                    int fs = (!mEsdeSysList.empty() && mEsdeSysSel < (int)mEsdeSysList.size())
+                                 ? mEsdeSysList[mEsdeSysSel] : -1;
+                    if (fs >= 0) tp = esdeResolveSystemPath(tp, fs);
+                }
+                if (!tp.empty() && access(tp.c_str(), R_OK) != 0) continue;   // missing image -> nothing
                 // A colorEnd turns the solid band into a gradient: draw a white 1px through the FX
                 // shader so the per-vertex colour->colorEnd tint fills the box.
                 if (imgGrad) drawImg(esdeWhiteTex(), x, y, w, h, c[0], c[1], c[2], c[3], 0.0f);
+                // cornerRadius rounds the solid fill (ps5-menu's metadata/gamecount/search scrims are
+                // tiled spacer images tinted grey with cornerRadius 0.0188, or 1 for a full pill) -
+                // drawQuad would leave them square. drawRoundedRect clamps the radius to a pill.
+                else if (imgRad > 0.0f) drawRoundedRect(x, y, w, h, imgRad, c[0], c[1], c[2], c[3]);
                 else         drawQuad(x, y, w, h, c[0], c[1], c[2], c[3]);
                 continue;
             }
@@ -2469,8 +2802,16 @@ void NanoMenu::renderEsde() {
                 // The navigated game, or a gameselector-picked game (system-view background art).
                 std::string iRom = curRom;
                 const std::string imgType = e->getS("imageType", std::string("cover"));
-                if (iRom.empty()) { const std::string& gs = e->getS("gameselector", std::string());
-                                    if (!gs.empty()) iRom = esdeGsRom(gs, imgType); }
+                if (iRom.empty()) {
+                    std::string gs = e->getS("gameselector", std::string());
+                    // ES-DE auto-links an image that names no <gameselector> to the view's SINGLE
+                    // gameselector ("if only one gameselector is defined it does not need to be
+                    // explicitly linked"). codywheel's system-view <image name="artwork"> (imageType
+                    // screenshot, no gameselector attribute) relies on this to show a picked game's
+                    // screenshot as the background; without the fallback nano drew nothing (black).
+                    if (gs.empty() && esdeGsSel.size() == 1) gs = esdeGsSel.begin()->first;
+                    if (!gs.empty()) iRom = esdeGsRom(gs, imgType);
+                }
                 if (!iRom.empty())
                     tex = esdeGameMediaTex(iRom, imgType, &coverAr);
             }
@@ -2540,6 +2881,22 @@ void NanoMenu::renderEsde() {
                     float dx = e->getPair("pos", 0, 0) * mWidth - ox * w;
                     float dy = e->getPair("pos", 1, 0) * mHeight - oy * h;
                     drawImg(tex, dx, dy, w, h, c[0], c[1], c[2], c[3], rotRad);
+                } else if (e->has("size") &&
+                           ((e->getPair("size", 0, -1.0f) == 0.0f && e->getPair("size", 1, -1.0f) > 0.0f) ||
+                            (e->getPair("size", 1, -1.0f) == 0.0f && e->getPair("size", 0, -1.0f) > 0.0f))) {
+                    // ES-DE <size> with ONE axis 0 (setResize with a 0 component): fix the non-zero
+                    // axis and DERIVE the other from the image aspect ratio, keeping the image whole
+                    // (ImageComponent::resize). Artflix's gamelistfanart uses "0 1" = full height,
+                    // width from aspect, right-anchored - contain-fitting into a 0-width box collapsed
+                    // it to nothing (black), which is why the brick-wall default never showed.
+                    float szx = e->getPair("size", 0, 0.0f), szy = e->getPair("size", 1, 0.0f);
+                    float fw, fh;
+                    if (szx == 0.0f) { fh = szy * mHeight; fw = fh * ar; }
+                    else             { fw = szx * mWidth;  fh = fw / ar; }
+                    float ox = e->getPair("origin", 0, 0), oy = e->getPair("origin", 1, 0);
+                    float dx = e->getPair("pos", 0, 0) * mWidth - ox * fw;
+                    float dy = e->getPair("pos", 1, 0) * mHeight - oy * fh;
+                    drawImg(tex, dx, dy, fw, fh, c[0], c[1], c[2], c[3], rotRad);
                 } else {
                     // Contain-fit the cover to its own aspect ratio inside the element box, as
                     // ES-DE does for a maxSize image and as nano's own video path already does,
@@ -2669,6 +3026,25 @@ void NanoMenu::renderEsde() {
                         // element shows the 0..5 star value via RatingComponent::getRatingValue.
                         else if (md == "playcount") s = se->playCount.empty() ? "0" : se->playCount;
                         else if (md == "rating") s = esdeRatingValue(se->rating);
+                    }
+                    // rating and playcount are numeric metadata with a built-in "0" default, so the
+                    // real app renders "0" (getRatingValue("0") -> "0") even for an unscraped game with
+                    // no gamelist.xml entry: TextComponent::setValue sees a non-empty value and never
+                    // substitutes a :space: defaultValue. Without this an unscraped rating/playcount
+                    // row showed the blank :space: placeholder instead of the control's "0".
+                    if (md == "rating" && s.empty()) s = esdeRatingValue(se ? se->rating : std::string());
+                    else if (md == "playcount" && s.empty()) s = "0";
+                    // ES-DE FileData::getName defaults to the cleaned file name when a game carries no
+                    // <name> metadata, so a "name" text/container (Artflix's top-left game-name) shows
+                    // the filename-derived title even for an unscraped game. nano only had the scrape
+                    // title, so an unscraped game drew nothing. Fall back to the rom's display name
+                    // (basename without extension), matching the wheel label and the control.
+                    if (md == "name" && s.empty()) {
+                        size_t sl = curRom.find_last_of('/');
+                        std::string base = (sl == std::string::npos) ? curRom : curRom.substr(sl + 1);
+                        size_t dot = base.find_last_of('.');
+                        if (dot != std::string::npos) base = base.substr(0, dot);
+                        s = base;
                     }
                 }
                 // The game's system name (Analogue's gamelist-carousel subtitle "game-system-name",
@@ -2822,7 +3198,14 @@ void NanoMenu::renderEsde() {
                     baseFromTop = (hEff + yTopCap) * 0.5f;
                 }
                 float vOff = baseFromTop - emPx * 0.8f;
-                if (w > 1.0f && h > sc * FONT_CHAR_H * 1.6f) {
+                // ES-DE TextComponent word-wraps to any defined width; a height of 0 just makes the
+                // component auto-height (it grows to fit the wrapped lines) rather than single-line.
+                // analogue-os-menu's carousel game-name is <size>0.4375 0</size> and wraps "AeroGauge
+                // (Japan)" / "(Demo) (Kiosk)" over two lines; nano only wrapped when the box was tall
+                // enough, so an auto-height name ran off the screen as one line. Wrap whenever a width
+                // is set - a short name still lays out as one line, and drawWrapped draws every line
+                // from the top when boxH is 0. The seating matches the single-line path for one line.
+                if (w > 1.0f && (h > sc * FONT_CHAR_H * 1.6f || h <= 1.0f)) {
                     // Pass the element's verticalAlignment so a fitting wrapped block (e.g. a
                     // single-line game-name in a tall box) centres in its box as ES-DE does, rather
                     // than pinning to the top; an overflowing container still top-anchors and scrolls.
@@ -2987,8 +3370,12 @@ void NanoMenu::renderEsde() {
                 if (a != std::string::npos && vImgType.substr(a, b - a + 1) == "none") continue;
             }
             std::string vRom = curRom;
-            if (vRom.empty()) { const std::string& gs = e->getS("gameselector", std::string());
-                                if (!gs.empty()) vRom = esdeGsRom(gs, vImgType); }
+            if (vRom.empty()) {
+                std::string gs = e->getS("gameselector", std::string());
+                // Same ES-DE single-gameselector auto-link as the <image> path above.
+                if (gs.empty() && esdeGsSel.size() == 1) gs = esdeGsSel.begin()->first;
+                if (!gs.empty()) vRom = esdeGsRom(gs, vImgType);
+            }
             const bool fullBg = (boxW <= 1.0f || boxH <= 1.0f);
             if (fullBg) { boxW = (float)mWidth; boxH = (float)mHeight; }
             bool drewVideo = false;
@@ -3212,9 +3599,15 @@ void NanoMenu::renderEsde() {
                     // instead of the literal token.
                     if (s == ":space:") s = " ";
                     // With no <defaultValue>, a relative lastplayed on a never-played game reads
-                    // "never" (DateTimeComponent.cpp:96); other unset dates stay blank.
+                    // "never" (DateTimeComponent.cpp:96).
                     if (s.empty() && md == "lastplayed" && e->getB("displayRelative", true))
                         s = "never";
+                    // Any other unset date (stored time 0, e.g. an unscraped releasedate or a
+                    // non-relative unplayed lastplayed) with no theme defaultValue displays
+                    // "unknown", NOT blank (DateTimeComponent::getDisplayString, :128-132) -
+                    // showcase's release element shows "unknown" for an unscraped game.
+                    else if (s.empty())
+                        s = "unknown";
                 }
             }
             // ES-DE datetime/clock inherit TextComponent's letterCase (uppercase/lowercase/
@@ -3231,14 +3624,29 @@ void NanoMenu::renderEsde() {
                 // Catppuccin's) hangs half a line below its pos instead of centering on it.
                 float eox = e->getPair("origin", 0, 0.0f), eoy = e->getPair("origin", 1, 0.0f);
                 if (w <= 1.0f && eox != 0.0f) x -= eox * tw;
-                // ES-DE renders a datetime/clock as ONE line and auto-sizes the box HEIGHT to that
-                // line (DateTimeComponent), so a theme <size> height never stretches the vertical box.
-                // A size'd clock therefore seats its single line origin.y*th below pos.y, not at the
-                // box top: Cathode's LCD clock is a full-screen "size 1 1" element corner-anchored via
-                // "origin 1 1 / pos .995 .996" - without collapsing the height it drew at the screen
-                // TOP instead of the bottom-right. Recompute y from the one-line text height; this
-                // subsumes the no-size case (rectOf gives h=0 there, so the old h<=1 branch matched).
-                y = e->getPair("pos", 1, 0.0f) * mHeight - eoy * th;
+                // ES-DE DateTimeComponent (applyTheme, :396-408) KEEPS the themed box when a non-zero
+                // <size> is set and vertically aligns its single line within it (it inherits
+                // TextComponent's default CENTER); only WITHOUT a size (or a clock) does it auto-size
+                // the box to one line. A datetime value that sits just below a label (showcase's
+                // RELEASED: over its release year) must therefore centre in its size box, or it rides
+                // up and overlaps the label. Reuse the text branch's centre seating for the sized box;
+                // keep the one-line collapse (origin.y*th below pos) for a clock / no-size datetime
+                // (Cathode's corner LCD clock).
+                bool sizedDate = (t == "datetime") && h > th * 1.05f;
+                if (sizedDate) {
+                    float emPx = sc * (float)FONT_CHAR_H;
+                    int capRpx = (int)lroundf(emPx); if (capRpx < 6) capRpx = 6;
+                    const GlyphInfo* capG = ensureGlyph('S', capRpx, faceOf(e));
+                    float yTopCap = capG ? (float)capG->bearingY : emPx * 0.72f;
+                    float yBot = emPx * std::min(3.0f, std::max(0.5f, e->getF("lineSpacing", 1.5f)));
+                    const std::string& va = e->getS("verticalAlignment", std::string());
+                    float baseFromTop = (va == "top")    ? (yTopCap + yBot) * 0.5f
+                                      : (va == "bottom") ? h - (yBot - yTopCap) * 0.5f
+                                                         : (h + yTopCap) * 0.5f;   // center (default)
+                    y += baseFromTop - emPx * 0.8f;   // rectOf already seated the box top by origin
+                } else {
+                    y = e->getPair("pos", 1, 0.0f) * mHeight - eoy * th;
+                }
                 esdeDrawPlate(e, x, y, tw, th);
                 drawAligned(s, x, y, w, sc,
                             e->getS("horizontalAlignment", std::string()).c_str(), c, faceOf(e));
@@ -3366,15 +3774,15 @@ void NanoMenu::renderEsde() {
                 // Base icon: the theme's customBadgeIcon or the bundled ES-DE default.
                 std::string iconPath = e->getPath(("customBadgeIcon:" + active[i].slot).c_str());
                 if (iconPath.empty())
-                    iconPath = "/data/system/nano_esde_assets/badges/badge_" + active[i].slot + ".svg";
+                    iconPath = esdeAssetPath("badges", "badge_" + active[i].slot + ".svg");
                 EsdeSvg a = esdeArtTex(iconPath, (int)bs, (int)bs);
                 if (a.tex) drawIconTex(a.tex, bx + (bs - a.w) * 0.5f, by + (bs - a.h) * 0.5f,
                                        (float)a.w, (float)a.h, bc[0], bc[1], bc[2], bc[3]);
                 // Controller overlay: the specific controller icon, scaled by controllerSize, centred.
                 if (active[i].slot == "controller" && !active[i].controller.empty()) {
-                    std::string cp = "/data/system/nano_esde_assets/controllers/" + active[i].controller + ".svg";
+                    std::string cp = esdeAssetPath("controllers", active[i].controller + ".svg");
                     if (access(cp.c_str(), R_OK) != 0)
-                        cp = "/data/system/nano_esde_assets/controllers/unknown.svg";
+                        cp = esdeAssetPath("controllers", "unknown.svg");
                     int os = (int)roundf(bs * ctrlSize); if (os < 1) os = 1;
                     EsdeSvg ov = esdeArtTex(cp, os, os);
                     if (ov.tex) drawIconTex(ov.tex, bx + (bs - ov.w) * 0.5f, by + (bs - ov.h) * 0.5f,
@@ -3477,7 +3885,7 @@ std::string NanoMenu::esdeHelpIconPath(const std::string& id) {
     };
     auto it = m.find(id);
     if (it == m.end()) return std::string();
-    return std::string("/data/system/nano_esde_assets/help/") + it->second;
+    return esdeAssetPath("help", it->second);
 }
 
 // The bottom helpsystem bar. Builds the view's prompt set, dedups by icon and sorts by ES-DE's
@@ -3552,6 +3960,13 @@ void NanoMenu::esdeDrawHelp(const nanoesde::Element* e, bool gamelist,
         }
         prompts.push_back({chooseIcon, "choose"});
         prompts.push_back({"a", "select"});
+        // ES-DE SystemView::getHelpPrompts adds the screensaver prompt when the
+        // ScreensaverControls setting is on, which is its default ({true, true} in
+        // Settings.cpp). nano has no screensaver settings UI, so follow the upstream
+        // default and always show it, matching the real app's "X SCREENSAVER" legend
+        // entry (RandomEntryButton "gamessystems" would add a random prompt too, but
+        // the default "games" only affects the gamelist view, so it is not added here).
+        prompts.push_back({"x", "screensaver"});
         prompts.push_back({"start", "menu"});
     }
 

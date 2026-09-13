@@ -4026,10 +4026,14 @@ int NanoMenu::esdeFontFace(const std::string& path) {
     return idx;
 }
 
-const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx, int preferFace) {
+const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx, int preferFace, float fracEm) {
     if (rasterPx < 6) rasterPx = 6;
     if (rasterPx > mFontSize) rasterPx = mFontSize;   // upscale beyond the master in drawText
     if (preferFace < 0 || preferFace >= mFtNumFaces) preferFace = -1;
+    // ES-DE renders glyphs at the FRACTIONAL em (FT_Set_Char_Size), only meaningful for a non-upscaled
+    // mono glyph; drop it once the raster is clamped to the master (upscale/color take the integer path).
+    if (fracEm > (float)mFontSize + 0.5f) fracEm = 0.0f;
+    const bool useFrac = (fracEm > 1.0f);
     // Fast path: already cached at this raster size (mono), or as a color strike
     // (cached once under mFontSize regardless of the requested size).
     // When rendering DSi-theme text, the DSVec faces cache in a separate slot (a spare
@@ -4038,7 +4042,12 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx, int preferFace
     // codepoint drawn from the theme typeface never reuses the default font's cached glyph.
     const uint64_t ndsBit  = mNdsFontPref ? ((uint64_t)1 << 40) : 0;
     const uint64_t faceBit = preferFace >= 0 ? ((uint64_t)(preferFace + 1) << 41) : 0;
-    const uint64_t monoKey = (((uint64_t)(uint32_t)rasterPx << 32) | cp) | ndsBit | faceBit;
+    // A fractional (ES-DE) glyph must never share a cache slot with an integer (XMB/DSi/Minima) glyph
+    // at the same rasterPx, or a later mode would draw the other mode's raster. Mark it (bit 50, clear
+    // of ndsBit/faceBit which use <=46). Same-rasterPx ES-DE glyphs at slightly different fracEm share a
+    // slot (sub-pixel, harmless); the fix is the +1px-advance step, which rasterPx buckets already track.
+    const uint64_t fracBit = useFrac ? ((uint64_t)1 << 50) : 0;
+    const uint64_t monoKey = (((uint64_t)(uint32_t)rasterPx << 32) | cp) | ndsBit | faceBit | fracBit;
     {
         auto it = mGlyphCache.find(monoKey);
         if (it != mGlyphCache.end()) return &it->second;
@@ -4102,7 +4111,12 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx, int preferFace
         }
         FT_Select_Size(face, bestIdx);
     } else if (!isColorFace) {
-        FT_Set_Pixel_Sizes(face, 0, px);
+        // ES-DE path: set the FRACTIONAL char size exactly like es-core Font (FT_Set_Char_Size, 72dpi),
+        // so a pixel font's monospace advance rounds the same way (0.5*26.67=13.33->13, not
+        // 0.5*27=13.5->14). For integer em this is identical to FT_Set_Pixel_Sizes, so the non-frac
+        // (XMB/DSi/Minima) path is byte-unchanged.
+        if (useFrac) FT_Set_Char_Size(face, 0, (FT_F26Dot6)lroundf(fracEm * 64.0f), 0, 0);
+        else         FT_Set_Pixel_Sizes(face, 0, px);
     }
 
     FT_Int32 loadFlags = FT_LOAD_RENDER;
@@ -4141,7 +4155,7 @@ const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx, int preferFace
             if (!mGlyphAtlasReset) {
                 mGlyphAtlasReset = true;
                 resetGlyphAtlas();
-                return ensureGlyph(cp, rasterPx);
+                return ensureGlyph(cp, rasterPx, preferFace, fracEm);
             }
             // Already recycled this frame. Two ways here: a single frame whose
             // visible glyphs exceed the whole atlas (pathological, never happens
@@ -4279,7 +4293,7 @@ float NanoMenu::measureText(const char* str, float scale, int preferFace) {
         else if ((b0 & 0xF0) == 0xE0) { cp = ((b0 & 0x0F) << 12) | ((p[1] & 0x3F) << 6) | (p[2] & 0x3F); p += 3; }
         else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
         else { p++; continue; }
-        const GlyphInfo* gi = ensureGlyph(cp, rasterPx, preferFace);
+        const GlyphInfo* gi = ensureGlyph(cp, rasterPx, preferFace, mEsdeTheme ? displayEm : 0.0f);
         if (gi) unit += gi->advance * gi->scaleW;
     }
     // Copy, not move: moving out of the reusable buffer would surrender the
@@ -4358,7 +4372,7 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
         else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
         else { p++; continue; }
 
-        const GlyphInfo* git = ensureGlyph(cp, rasterPx, preferFace);
+        const GlyphInfo* git = ensureGlyph(cp, rasterPx, preferFace, mEsdeTheme ? displayEm : 0.0f);
         if (!git) continue;
         const GlyphInfo& gi = *git;
         // residual = 1.0 for crisp 1:1 mono at its rasterized size; > 1 only when

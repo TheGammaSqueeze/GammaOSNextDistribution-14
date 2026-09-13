@@ -130,6 +130,8 @@ const std::map<std::string, PropType>* elementPropertyMap(const std::string& typ
             {"selectedItemOffset", PT_NORMALIZED_PAIR},
             {"imageInterpolation", PT_STRING},
             {"itemHorizontalAlignment", PT_STRING}, {"itemVerticalAlignment", PT_STRING},
+            {"wheelHorizontalAlignment", PT_STRING}, {"wheelVerticalAlignment", PT_STRING},
+            {"itemAxisHorizontal", PT_BOOL},
             {"unfocusedItemOpacity", PT_FLOAT}, {"unfocusedItemDimming", PT_FLOAT},
             {"imageSaturation", PT_FLOAT}, {"unfocusedItemSaturation", PT_FLOAT},
             {"imageCornerRadius", PT_FLOAT},
@@ -138,6 +140,7 @@ const std::map<std::string, PropType>* elementPropertyMap(const std::string& typ
             {"textSelectedColor", PT_COLOR}, {"fontPath", PT_PATH}, {"fontSize", PT_FLOAT},
             {"letterCase", PT_STRING}, {"imageFit", PT_STRING}, {"imageCropPos", PT_NORMALIZED_PAIR},
             {"imageColor", PT_COLOR}, {"imageSelectedColor", PT_COLOR}, {"zIndex", PT_FLOAT},
+            {"lineSpacing", PT_FLOAT}, {"textRelativeScale", PT_FLOAT},
         }},
         {"grid", {
             {"pos", PT_NORMALIZED_PAIR}, {"size", PT_NORMALIZED_PAIR},
@@ -258,11 +261,48 @@ static std::string dirOf(const std::string& path) {
 }
 
 // Resolve a theme-relative path (leading "./" or bare) against baseDir -> absolute.
+// Collapse "." and ".." segments in a path, preserving a leading "/" and any ${...} segments
+// (which never contain a slash and so pass through as ordinary segments). This lets a theme path
+// authored relative to a subdirectory file - e.g. gameOS's ./../assets from variants/default.xml -
+// resolve correctly once its defining directory is prepended (theme/variants/../assets -> theme/assets).
+static std::string normalizeDots(const std::string& in) {
+    if (in.empty()) return in;
+    bool abs = in[0] == '/';
+    std::vector<std::string> parts;
+    size_t i = 0;
+    while (i < in.size()) {
+        size_t s = in.find('/', i);
+        std::string seg = (s == std::string::npos) ? in.substr(i) : in.substr(i, s - i);
+        if (seg == "..") {
+            if (!parts.empty() && parts.back() != "..") parts.pop_back();
+            else if (!abs) parts.push_back("..");   // keep leading ".." on a relative path
+        } else if (!seg.empty() && seg != ".") {
+            parts.push_back(seg);
+        }
+        if (s == std::string::npos) break;
+        i = s + 1;
+    }
+    std::string out = abs ? "/" : "";
+    for (size_t k = 0; k < parts.size(); k++) { if (k) out += "/"; out += parts[k]; }
+    return out;
+}
+
 static std::string resolvePath(const std::string& p, const std::string& baseDir) {
-    if (p.empty() || p[0] == '/') return p;
+    if (p.empty() || p[0] == '/') return normalizeDots(p);
     std::string rel = p;
     if (rel.size() >= 2 && rel[0] == '.' && rel[1] == '/') rel = rel.substr(2);
-    return baseDir + "/" + rel;
+    return normalizeDots(baseDir + "/" + rel);
+}
+
+// A variable value that begins with "./" or "../" is a theme file path, and in ES-DE it resolves
+// relative to the file that DEFINES the variable, not the element that later references it. gameOS
+// defines <sysBackground> as ./../assets/... in variants/default.xml and ./assets/... in
+// variables.xml; both point at <theme>/assets from their own file. nano stores variables globally and
+// resolves paths at the element site (theme root), so the ./../ form would escape the theme dir and
+// the system-view fanart would silently draw nothing. Absolutise such values at their definition site.
+static bool looksLikeRelPath(const std::string& v) {
+    return (v.size() >= 2 && v[0] == '.' && v[1] == '/') ||
+           (v.size() >= 3 && v[0] == '.' && v[1] == '.' && v[2] == '/');
 }
 
 static bool fileExists(const std::string& p) { return access(p.c_str(), F_OK) == 0; }
@@ -497,8 +537,11 @@ void Theme::walk(XMLElement* node, const std::string& baseDir, bool active,
     if (phase == 0 && active) {
         for (XMLElement* c = node->FirstChildElement(); c; c = c->NextSiblingElement()) {
             if (strcmp(c->Name(), "variables") != 0) continue;
-            for (XMLElement* v = c->FirstChildElement(); v; v = v->NextSiblingElement())
-                mVars[v->Name()] = v->GetText() ? std::string(v->GetText()) : std::string();
+            for (XMLElement* v = c->FirstChildElement(); v; v = v->NextSiblingElement()) {
+                std::string vv = v->GetText() ? std::string(v->GetText()) : std::string();
+                if (looksLikeRelPath(vv)) vv = resolvePath(vv, baseDir);
+                mVars[v->Name()] = vv;
+            }
         }
     }
     for (XMLElement* c = node->FirstChildElement(); c; c = c->NextSiblingElement()) {
@@ -520,7 +563,9 @@ void Theme::walk(XMLElement* node, const std::string& baseDir, bool active,
             if (phase == 0 && active)
                 for (XMLElement* v = c->FirstChildElement(); v; v = v->NextSiblingElement()) {
                     const char* t = v->GetText();
-                    mVars[v->Name()] = t ? std::string(t) : std::string();
+                    std::string vv = t ? std::string(t) : std::string();
+                    if (looksLikeRelPath(vv)) vv = resolvePath(vv, baseDir);
+                    mVars[v->Name()] = vv;
                 }
 
         } else if (tag == "variant") {
@@ -632,6 +677,37 @@ void Theme::walk(XMLElement* node, const std::string& baseDir, bool active,
 }
 
 void Theme::finalize() {
+    // ES-DE instantiates exactly ONE primary navigation component (carousel/grid/textlist) per
+    // view (SystemView/GamelistView populate): it takes the first primary element in element-key
+    // order as the component, applies EVERY same-type primary element's theme to that one component
+    // in order (so props merge, later keys overriding), and SKIPS any primary of a different type.
+    // A theme that shares one primary across both views with a combined name (ps5-menu's
+    // "system-carousel,games-carousel" in view "system,gamelist") therefore leaves TWO carousel
+    // elements in each view - the shared one plus the view-specific "system-carousel"/"games-carousel"
+    // - which ES-DE collapses into a single merged carousel. nano stored each separately and drew
+    // them all, so the propless leaked element (e.g. games-carousel in the system view) overdrew the
+    // real one with a blank default band and no images. Collapse to one merged primary per view here.
+    auto isPrimary = [](const std::string& t) {
+        return t == "carousel" || t == "grid" || t == "textlist";
+    };
+    for (auto& kv : mViews) {
+        View& v = kv.second;
+        std::string canonKey, primType;
+        for (auto& e : v.elements) {                       // std::map: iterated in key order
+            if (isPrimary(e.second.type)) { canonKey = e.first; primType = e.second.type; break; }
+        }
+        if (canonKey.empty()) continue;
+        std::vector<std::string> drop;
+        for (auto& e : v.elements) {
+            if (e.first == canonKey || !isPrimary(e.second.type)) continue;
+            if (e.second.type == primType) {               // merge same-type props into the canonical
+                Element& canon = v.elements[canonKey];     // (later key wins, matching ES-DE order)
+                for (auto& p : e.second.props) canon.props[p.first] = p.second;
+            }
+            drop.push_back(e.first);                        // drop extra same-type + other-type primaries
+        }
+        for (auto& k : drop) v.elements.erase(k);
+    }
     auto defZ = [](const std::string& t) -> float {
         if (t == "image" || t == "video") return 30.0f;
         if (t == "animation" || t == "badges") return 35.0f;
