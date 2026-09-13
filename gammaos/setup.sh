@@ -391,13 +391,29 @@ run appops set com.gammaos.displayloading SYSTEM_ALERT_WINDOW allow
 
 # ---------------------------------------------------------------------------------------------
 # 3. Low-RAM relief (TrimUI Brick / A133 ~1GB)
+# True when this device has a dedicated block swap partition (the RG DS Plus 'swap' GPT
+# partition, /dev/block/by-name/swap). Prefer the active /proc/swaps signal, but fall back to
+# the partition merely existing, because swapon_all (vendor init, on boot-completed) can race
+# this first-boot setup service and may not have activated it yet. When a real swap partition
+# is present the on-/data swapfiles below are redundant and only add SD wear, so both are
+# skipped. zram stays the first-priority swap regardless (swapprio=2 in fstab_swap).
+swap_partition_present() {
+    # a real block-device swap that is not zram = the dedicated swap partition
+    awk 'NR>1 && $1 ~ /^\/dev\/block\// && $1 !~ /zram/ { found=1 } END { exit !found }' /proc/swaps 2>/dev/null && return 0
+    # present in the GPT but not yet swapped on (boot-completed race with swapon_all)
+    [ -e /dev/block/by-name/swap ] && return 0
+    return 1
+}
+
 # ---------------------------------------------------------------------------------------------
 # The steps below extract ~1.3GB of payloads (retroarch 1.1GB + roms 201MB) to userdata and
 # cold-start a dozen apps via pm/appops. On a ~1GB device the fresh dirty-page write burst
 # collapses MemAvailable and the kernel LMK thrashes, which can black-screen the panel. Two
 # scoped reliefs, both undone in finish(): (1) a temporary on-disk swap for the anon pressure,
 # (2) flush_caches right after each big extract to drain the dirty write burst.
-if ! grep -q "^$SETUP_SWAP " /proc/swaps 2>/dev/null; then
+if swap_partition_present; then
+    step "dedicated swap partition present; skipping the temporary setup swap"
+elif ! grep -q "^$SETUP_SWAP " /proc/swaps 2>/dev/null; then
     avail_kb=$(df -k /data 2>/dev/null | awk 'NR==2 {print $4}')
     need_kb=$((SETUP_SWAP_MB * 1024 + 1024 * 1024))
     if [ -n "$avail_kb" ] && [ "$avail_kb" -ge "$need_kb" ]; then
@@ -430,8 +446,12 @@ mem_total_kb=$(grep MemTotal /proc/meminfo 2>/dev/null | tr -dc 0-9)
 cur_swap_mb=$(getprop persist.gammaos.swap.size_mb 2>/dev/null)
 case "$cur_swap_mb" in ''|*[!0-9]*) cur_swap_mb=0 ;; esac
 if [ -n "$mem_total_kb" ] && [ "$mem_total_kb" -le 1300000 ] && [ "$cur_swap_mb" = 0 ]; then
-    step "Low-memory device (${mem_total_kb} kB): enabling a persistent 1GB swap (Virtual Memory)."
-    setprop persist.gammaos.swap.size_mb 1024
+    if swap_partition_present; then
+        step "dedicated swap partition present; not seeding the 1GB virtual-memory swapfile"
+    else
+        step "Low-memory device (${mem_total_kb} kB): enabling a persistent 1GB swap (Virtual Memory)."
+        setprop persist.gammaos.swap.size_mb 1024
+    fi
 fi
 
 # ---------------------------------------------------------------------------------------------
