@@ -1,0 +1,12 @@
+cc_binary {
+    name: "gpubench",
+    srcs: ["gpubench.cpp"],
+    shared_libs: [
+        "libEGL",
+        "libGLESv2",
+        "liblog",
+        "libc",
+    ],
+    cflags: ["-Wall", "-Wno-unused-parameter"],
+    vendor: false,
+}
