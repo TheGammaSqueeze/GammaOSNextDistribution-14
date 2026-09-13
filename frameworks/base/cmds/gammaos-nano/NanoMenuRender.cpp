@@ -5122,6 +5122,14 @@ void NanoMenu::startRenderWatchdog() {
             // clears, the exemption lifts, and a still-stalled nano recovers normally.
             if (mInDrmSleep.load(std::memory_order_relaxed)
                 || mVidTeardownExempt.load(std::memory_order_relaxed)
+                // First-boot SetupWizard: the render thread legitimately stalls under the extract +
+                // dexopt IO/memory storm (blocking present ioctl on a starved composer, or a page
+                // fault waiting on reclaim/swap on a 1GB microSD device). setup.sh runs headless and
+                // finishes regardless, so the stall is TRANSIENT - the render thread recovers once the
+                // storm passes. Aborting nano here just makes the wizard vanish mid-install for no gain
+                // (same rationale as the sleep / app-launched exemptions above). setup_active is set by
+                // startSetupWizard() and cleared by finishSetupWizard().
+                || property_get_bool("sys.gammaos.nano.setup_active", false)
                 || property_get_bool("sys.gammaos.nano.app_launched", false)) {
                 // Parked for sleep, joining a wedged video-open worker during a forced
                 // teardown (sleep/occlusion), or parked behind a foreground app whose crash
@@ -5213,6 +5221,9 @@ void NanoMenu::render() {
     if (sFirstFrame) {
         sFirstFrame = false;
     }
+    // Perf probe (dual-screen SetupWizard): per-frame render() start time. Logged (throttled) only
+    // while the wizard runs, so we can see nano's per-frame CPU cost while setup.sh provisions.
+    const int64_t sSetupRenderT0 = systemTime(SYSTEM_TIME_MONOTONIC);
     refreshUserFontScale();   // publish the live user Font Size to ps3::gFontScale before any text draws
     // Render-thread watchdog heartbeat: bumped every frame so a background thread
     // can detect a hang (e.g. an infinite loop or a stuck GL call inside a render
@@ -5255,6 +5266,23 @@ void NanoMenu::render() {
     // composite that same texture (identical state on every panel, single
     // wave build per frame).
     ps3bg::newFrame();
+    // Dual-screen SetupWizard perf: while the wizard runs on a dual-screen device, the setup.sh
+    // provisioning script needs the SoC. Skip the animated wallpaper on the primary (plain black
+    // behind the setup UI) and skip all wallpaper/backdrop rendering on the secondary panel, while
+    // still drawing the interactive touch overlays (net wizard / global search / OSK) so Wi-Fi/BT
+    // entry keeps working. Excludes the cold-boot animation (mPs3BootActive) so it still plays on
+    // both screens. Single-screen devices are unaffected (hasSecondaryDisplay()==false).
+    const bool setupBlankDual = mSetupWizardActive && !mPs3BootActive && hasSecondaryDisplay();
+    // The INSTALLING step is where setup.sh provisions (the CPU-critical phase; no user interaction,
+    // no OSK). There, additionally skip the secondary panel entirely and throttle the render loop to
+    // ~10fps (see the end of render()). nano's render thread runs SCHED_FIFO (RT), so a 60fps loop
+    // preempts dexopt/extraction - the real cause of the slow nano-driven setup vs single-screen.
+    // Gate on mSetupScriptRunning (true for the whole life of the setup.sh provisioning, set in
+    // startSetupScript / cleared when the log-tail thread finishes) rather than only the INSTALLING
+    // step: a nano restart mid-setup resets mSetupStep to WELCOME while setup.sh keeps running, so a
+    // step-only gate would miss the exact window we must throttle. Keep the step as a fallback.
+    const bool setupInstalling = setupBlankDual &&
+                                 (mSetupScriptRunning || mSetupStep == SETUP_INSTALLING);
     // Reap async-freed decoders every frame on BOTH themes (renderPs3Xmb reaps only on the XMB path; the
     // DSi carousel home never calls it). Without this, a video-wallpaper teardown on the DSi theme leaves
     // mVidPrevCodecFreed stuck false, so the wallpaper never re-opens and the decoder leaks. Idempotent.
@@ -5444,14 +5472,20 @@ void NanoMenu::render() {
     // The XMB ribbon / procedural effects are cheap fullscreen shaders on
     // Mali-G52, so rendering them twice (once here, once on the primary AHB
     // below) costs well under a millisecond total on 640x480.
-    if (sDrmActive && sDrmZeroCopy && sAhbTargetSecondary.glFbo != 0) {
+    if (sDrmActive && sDrmZeroCopy && sAhbTargetSecondary.glFbo != 0 && !setupInstalling) {
         glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
         glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
         uploadRotationMatrices();
         glClearColor(0.0f, 0.0f, 0.0f, nanoSecondaryClearAlpha(mOverlayMode, mOverlayWallpaper));
         glClear(GL_COLOR_BUFFER_BIT);
         mRenderingPanel = 1;   // this whole pass targets the BOTTOM panel: pick the bottom wallpaper
-        if (drasticActive) {
+        if (setupBlankDual) {
+            // Dual-screen SetupWizard: the bottom panel is fully released - keep it BLACK (the opaque
+            // clear above) and draw NOTHING. Every setup dialog (the Wi-Fi/Bluetooth net wizard, the
+            // global search overlay and the OSK/IME) renders on the PRIMARY (top) panel instead, so the
+            // secondary is not driven at all during setup. Skipping all work here frees the SoC for
+            // setup.sh. The OSK is routed to the primary by clearing oskOnSecondary during setup below.
+        } else if (drasticActive) {
             // Secondary display -> BOTTOM DS screen fullscreen.
             drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
             // drawText inside the overlay lambda uses mWidth/mHeight for
@@ -5645,6 +5679,9 @@ void NanoMenu::render() {
             ovScrim = sOvDim * (1.0f - clkReveal);
         }
         glClearColor(0.0f, 0.0f, 0.0f, ovScrim);
+    } else if (setupBlankDual) {
+        // Dual-screen SetupWizard: plain black behind the setup UI (no wallpaper/wave).
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     } else {
         // Home XMB, overlay wallpaper/submenu mode, or drastic: OPAQUE clear
         // (alpha 1) so the layer fully covers whatever is behind it.
@@ -5719,7 +5756,7 @@ void NanoMenu::render() {
                                   && mPs3Stack.empty()
                                   && (mEsdeMenuActive || mEsdeMenuClosing
                                       || (!ndsInModal() && !mOskActive));
-        if (!esdePureHome)
+        if (!esdePureHome && !setupBlankDual)
             renderEffect();
         // Decouple the glass icons from the wave WALLPAPER. The glass-icon shader
         // refracts the PS3 wave's offscreen work-texture (ps3bg::workTex), but
@@ -5746,7 +5783,7 @@ void NanoMenu::render() {
         // screen over the rendered wallpaper; otherwise keep the wave OFFSCREEN only
         // (it just feeds glass-icon refraction).
         bool mpWavesVis = (mMpActive && mMpVis == 0);
-        if (mPs3Xmb && mCurrentEffect != 22 && !visCovers) {
+        if (mPs3Xmb && mCurrentEffect != 22 && !visCovers && !setupBlankDual) {
             ps3::layoutComputeNative(mWidth, mHeight);
             ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
                           sDrmActive && sDrmGlRotation, /*compositeToScreen=*/mpWavesVis);
@@ -5758,7 +5795,11 @@ void NanoMenu::render() {
     // primary (top) draws with it; the secondary (bottom) passes draw the OSK when this is true, so it is
     // never drawn on both panels. mPs3Xmb covers the XMB and DSi themes; a single-panel device has no
     // secondary target so this stays false and the OSK still draws on the only (primary) panel.
-    const bool oskOnSecondary = mPs3Xmb &&
+    // During the dual-screen SetupWizard the secondary panel is fully released (drawn black, no
+    // overlays), so the OSK/IME must render on the PRIMARY instead of the (now blank) bottom panel -
+    // otherwise Wi-Fi password / System Name entry would have no visible keyboard. Force it onto the
+    // primary for the whole of setup.
+    const bool oskOnSecondary = mPs3Xmb && !setupBlankDual &&
         (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
 
     if (mSetupWizardActive && !mPs3BootActive) {
@@ -6626,13 +6667,19 @@ if (sRingPrimedCount >= 2) {
     // GammaOS: Render wallpaper (or bottom DS screen when drastic QR
     // is active) to secondary display(s). Switch to each secondary
     // EGL surface, render, swap.
-    for (size_t i = 0; !ndsSecondaryHidden && i < mSecondaryEglSurfaces.size(); i++) {
+    for (size_t i = 0; !ndsSecondaryHidden && !setupInstalling && i < mSecondaryEglSurfaces.size(); i++) {
         eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[i], mSecondaryEglSurfaces[i], mContext);
         glViewport(0, 0, mWidth, mHeight); // secondary has same resolution
         glClearColor(0.0f, 0.0f, 0.0f, nanoSecondaryClearAlpha(mOverlayMode, mOverlayWallpaper));
         glClear(GL_COLOR_BUFFER_BIT);
         mRenderingPanel = 1;   // secondary/bottom panel: pick its own wallpaper (empty -> normal bg)
-        if (drasticActive) {
+        if (setupBlankDual) {
+            // Dual-screen SetupWizard: the bottom panel is fully released - keep it BLACK (the opaque
+            // clear above) and draw NOTHING. Every setup dialog (the Wi-Fi/Bluetooth net wizard, the
+            // global search overlay and the OSK/IME) renders on the PRIMARY (top) panel instead, so the
+            // secondary is not driven at all during setup. The OSK is routed to the primary by clearing
+            // oskOnSecondary during setup below.
+        } else if (drasticActive) {
             // Secondary display -> bottom DS screen fullscreen.
             drastic->renderBottomScreen(sDrasticSaturation, sDrasticGradient);
             drawDrasticQrOverlay(mWidth, mHeight,
@@ -6688,6 +6735,31 @@ if (sRingPrimedCount >= 2) {
     // Switch back to primary
     if (!mSecondaryEglSurfaces.empty()) {
         eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
+    }
+
+    // Perf probe (throttled ~1/s): while the SetupWizard runs, report render() CPU cost so we can
+    // see nano's per-frame contribution during setup.sh provisioning and confirm the dual-screen
+    // blanking engaged (wallpaper + secondary panel skipped -> black).
+    if (mSetupWizardActive) {
+        const double renderMs =
+                (systemTime(SYSTEM_TIME_MONOTONIC) - sSetupRenderT0) / 1000000.0;
+        static double sSetupMsAcc = 0.0; static int sSetupMsCtr = 0;
+        sSetupMsAcc += renderMs;
+        if ((++sSetupMsCtr % 60) == 0) {
+            ALOGI("nano setup-perf: render=%.2fms avg60=%.2fms dualBlank=%d wallpaper=%s",
+                  renderMs, sSetupMsAcc / 60.0, (int)setupBlankDual,
+                  setupBlankDual ? "BLACK(skipped)" : "drawn");
+            sSetupMsAcc = 0.0;
+        }
+    }
+
+    // Frame-rate throttle: during the INSTALLING step, hand the SoC back to setup.sh. nano's render
+    // thread is SCHED_FIFO (RT), so a 60fps loop preempts dexopt/extraction; cap to ~10fps (the
+    // install progress screen needs no more). Interactive steps (Wi-Fi/BT/OSK) stay unthrottled.
+    if (setupInstalling) {
+        const int64_t targetNs = 100000000LL; // ~10 fps
+        const int64_t elapsed = systemTime(SYSTEM_TIME_MONOTONIC) - sSetupRenderT0;
+        if (elapsed < targetNs) usleep((useconds_t)((targetNs - elapsed) / 1000));
     }
 }
 

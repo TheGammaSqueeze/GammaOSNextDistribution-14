@@ -5181,7 +5181,13 @@ if (sRingPrimedCount >= 2) {
                     sBootBrightnessAsserted = true;
                 } else if (!sBootBrightnessAsserted) {
                     applyBrightness();
-                    if (readAndroidBrightness() == mBrightness) sBootBrightnessAsserted = true;
+                    // Do NOT read back via popen("settings get") on the render thread while the setup
+                    // wizard runs. popen forks this mlockall'd process (already slow) + execs a JVM that
+                    // binders into a system_server saturated by first-boot pm-install/dexopt, blocking the
+                    // render thread for >8s -> the render watchdog SIGABRTs nano (regression introduced by
+                    // 258ef6005bf). applyBrightness() above already asserts the panel level; defer the
+                    // settings-provider confirmation until setup finishes (device idle -> popen returns in ms).
+                    if (!mSetupWizardActive && readAndroidBrightness() == mBrightness) sBootBrightnessAsserted = true;
                 }
             }
 
@@ -5569,8 +5575,11 @@ if (sRingPrimedCount >= 2) {
                 // there is nothing to refresh; the timer stays due and a single
                 // rescan fires the moment the player closes.
                 if (mXmbBootCompleted && !mBgScanThreadRunning
-                    && !mXmbSystems.empty()
+                    && !mXmbSystems.empty() && !mSetupWizardActive
                     && !mVidActive && !mMpActive && !mPvActive) {
+                    // !mSetupWizardActive: never walk the ROM tree during setup (competes with
+                    // setup.sh extraction I/O). Already unreachable in setup because the initial
+                    // scan is deferred (mXmbSystems empty), but gate explicitly to survive refactors.
                     int64_t now = elapsedRealtime();
                     if (mXmbSystems[0].lastScanTime > 0 &&
                         (now - mXmbSystems[0].lastScanTime) > 30000) {
@@ -5607,8 +5616,14 @@ if (sRingPrimedCount >= 2) {
                 if (mPs3Xmb && mPs3Stack.empty()
                     && !mVidActive && !mMpActive && !mPvActive
                     && !mPs3DlgActive && !mOskActive && !mPs3WizActive
-                    && !mPs3BootActive && !mPs3TzActive
+                    && !mPs3BootActive && !mPs3TzActive && !mSetupWizardActive
                     && animSettledOrNonXmbTheme) {
+                    // During the SetupWizard (esp. INSTALLING, while setup.sh extracts ~1.3GB of ROMs on a
+                    // ~1GB device) do NOT drain scan results / rebuild the XMB columns / kick library scans:
+                    // that loads boxart into GL memory and walks the filesystem, both competing with the
+                    // extraction for the scarce MemAvailable and the slow SD I/O. finishSetupWizard() already
+                    // re-runs loadInstalledApps() + mPs3CatsStale + forceRescanAllSystems() when setup ends,
+                    // so all content is discovered/loaded then instead of during the memory-critical window.
                     // The reload waits out a running scan thread (it reads
                     // mXmbSystems unlocked); the stamp stays unequal so the
                     // next tick retries. Pending scan results are dropped: they

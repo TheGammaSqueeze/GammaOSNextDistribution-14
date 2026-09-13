@@ -23,6 +23,7 @@
 #include "NanoMenuPS3Bg.h"
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Particles.h"
+#include <android-base/properties.h>   // defer heavy home assets during the SetupWizard
 
 #include <math.h>
 #include <stdio.h>
@@ -798,6 +799,12 @@ static void drawFullQuad(GLint posLoc, GLint uvLoc) {
 // ---------------------------------------------------------------------------
 bool init() {
     if (sReady) return true;
+    // Defer the heavy home GL assets (wave geometry + the 85-keyframe wave sequence ~21MB of GPU
+    // memory + shaders) while the first-boot SetupWizard runs. The wizard only draws text/globe, and
+    // on a 1GB device carrying 21MB+ of GPU memory through the extract+dexopt storm worsens the swap
+    // thrash that slows setup. sReady stays false, so callers fall back cleanly; the assets load
+    // lazily on the first home frame once setup finishes (sys.gammaos.nano.setup_active clears).
+    if (android::base::GetBoolProperty("sys.gammaos.nano.setup_active", false)) return false;
     if (!sTriedInit) {
         sTriedInit = true;
         sBgProg   = linkProgram(VS_FULL, FS_BG);

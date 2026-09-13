@@ -23,6 +23,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <vector>
+#include <android-base/properties.h>   // defer the particle cloud during the SetupWizard
 
 #include <GLES2/gl2.h>
 #include <utils/Log.h>
@@ -202,6 +203,10 @@ static void step() {
 // ---- public API -------------------------------------------------------------
 bool init() {
     if (sReady) return true;
+    // Defer the particle cloud during the first-boot SetupWizard (see ps3bg::init): the wizard does
+    // not draw particles, so don't carry the pool/GL buffers through the 1GB setup memory storm.
+    // Loads lazily once setup finishes (sys.gammaos.nano.setup_active clears).
+    if (android::base::GetBoolProperty("sys.gammaos.nano.setup_active", false)) return false;
     if (!sTried) {
         sTried = true;
         float l0x = 4.16f, l0y = 2.63f, l0z = -7.6f;

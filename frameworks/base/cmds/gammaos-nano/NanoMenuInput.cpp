@@ -2342,6 +2342,15 @@ void NanoMenu::pollInput() {
                     mOskTouchFlipY = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipy", false);
                     mOskTouchTuneRead = true;
                 }
+                // Dual-screen SetupWizard: the bottom panel (the only touch digitizer on the RG DS) is
+                // fully released and drawn black while setup runs; the entire wizard - net wizard, OSK/IME,
+                // pickers - renders on the PRIMARY panel and is button/D-pad driven. Swallow all touch here
+                // so a blind tap on the blank bottom panel cannot fire a phantom key/row press into that
+                // now-hidden UI. Single-screen setup is unaffected (hasSecondaryDisplay()==false, its
+                // on-panel OSK keeps touch); cold boot keeps touch too (the DSi boot prompt needs it).
+                if (mSetupWizardActive && !mPs3BootActive && hasSecondaryDisplay()) {
+                    continue;
+                }
                 // Bottom-screen Control Center (over a single-screen app): the CC owns touch on the
                 // BOTTOM digitizer (tiles / sliders / wake-from-sleep). ccTouchFrame self-gates on the
                 // bottom device fd, so top-panel touches fall through (harmless; the app is isolated).
