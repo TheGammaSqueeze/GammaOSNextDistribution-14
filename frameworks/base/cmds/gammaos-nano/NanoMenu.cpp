@@ -5123,11 +5123,41 @@ if (sRingPrimedCount >= 2) {
             // mirrors the level into Settings. Pick the change up here and apply it, so moving the
             // slider actually dims the screen. applyBrightness writes the same value back, so once
             // they agree this is a single integer compare and cannot loop.
+            //
+            // It also keeps the panel consistent with nano's level across every transition - boot,
+            // and returning from a normal app or a drastic-nano DRM app. The framework has its own
+            // DisplayPowerController that drives the backlight from Settings.System while an app is
+            // foreground, so without re-asserting, brightness drifts between nano and apps. Three
+            // triggers, in priority order:
+            //   1. persisted level changed (Display Settings slider / drastic-nano in-game change):
+            //      adopt and apply.
+            //   2. an app just exited (app_launched fell 1->0): a foreground app / the framework may
+            //      have driven the backlight, so re-assert nano's level. (DRM apps exit by
+            //      restarting nano, so that path is covered by trigger 3.)
+            //   3. first run after boot / a DRM-app-exit restart: assert nano's level into Settings
+            //      so the framework converges to it, not a stale default. Retry each tick until the
+            //      settings provider confirms the write took (early-boot attempts land before it is
+            //      up). applyBrightness re-asserts the same value, so this cannot loop or fight the
+            //      framework's legitimate power-management dimming (not one of these edges).
             {
+                static int sPrevAppLaunched = -1;
+                static bool sBootBrightnessAsserted = false;
+                int appNow =
+                        property_get_bool("sys.gammaos.nano.app_launched", false) ? 1 : 0;
+                bool appJustExited = (sPrevAppLaunched == 1 && appNow == 0);
+                sPrevAppLaunched = appNow;
+
                 int want = property_get_int32("persist.gammaos.nano.brightness", -1);
                 if (want > 0 && want <= 255 && want != mBrightness) {
                     mBrightness = want;
                     applyBrightness();
+                    sBootBrightnessAsserted = true;
+                } else if (appJustExited) {
+                    applyBrightness();
+                    sBootBrightnessAsserted = true;
+                } else if (!sBootBrightnessAsserted) {
+                    applyBrightness();
+                    if (readAndroidBrightness() == mBrightness) sBootBrightnessAsserted = true;
                 }
             }
 
