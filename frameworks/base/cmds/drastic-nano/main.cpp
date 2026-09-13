@@ -1198,6 +1198,38 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         drmInstallMat[0], drmInstallMat[1], -drmInstallMat[2], -drmInstallMat[3]
     };
 
+    // DRM dual-panel half-resolution render (mirror of the SF sf_half_res option).
+    // When on, each DS screen is rendered into a half-size logical offscreen (e.g.
+    // 512x384 for a 1024x768 panel) with NO rotation, then NEAREST-upscaled onto the
+    // panel AHB by blitFullTexture(drmCompositeMat) - exactly the drmSingleLayout
+    // offscreen->panel path, but per panel. Quarters the per-frame fill on these
+    // fill-bound 1024x768 panels the device cannot drive at full res. Off by default.
+    // persist.gammaos.drastic_nano.drm_half_res.
+    const int drmHalfRes =
+            property_get_int32("persist.gammaos.drastic_nano.drm_half_res", 0) != 0 ? 2 : 1;
+    int drmHalfW = drmLogicalW / drmHalfRes;
+    int drmHalfH = drmLogicalH / drmHalfRes;
+    if (drmHalfW < 256) drmHalfW = drmLogicalW;   // too small -> fall back to full
+    if (drmHalfH < 192) drmHalfH = drmLogicalH;
+    GLuint drmHalfFbo = 0, drmHalfTex = 0;
+    if (drmHalfRes > 1 && hasDualDisplay && !drmSingleLayout) {
+        glGenTextures(1, &drmHalfTex);
+        glBindTexture(GL_TEXTURE_2D, drmHalfTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, drmHalfW, drmHalfH, 0,
+                     GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &drmHalfFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, drmHalfFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, drmHalfTex, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        ALOGI("drastic-nano: DRM dual-panel half-res ON (render %dx%d -> panel %dx%d, NEAREST)",
+              drmHalfW, drmHalfH, drmPanelW, drmPanelH);
+    }
+
     android::drastic_input::InputState input{};
     android::drastic_input::applyPrefs(&input, initialPrefs);
     android::drastic_input::scanInputDevices(&input);
@@ -1719,7 +1751,39 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         android::AhbRenderTarget& secTgt =
                 android::sAhbRingSecondary[renderIdx];
 
-        if (hasDualDisplay) {
+        if (hasDualDisplay && drmHalfRes > 1) {
+            // Half-res dual-panel: render each DS screen into the half-size logical
+            // offscreen (identity, no rotation), then NEAREST-upscale onto the panel
+            // AHB via blitFullTexture(drmCompositeMat) - same offscreen->panel path as
+            // drmSingleLayout, per panel. 512x384 -> 1024x768 crisp nearest.
+            // --- secondary panel (bottom unless swapped) ---
+            glBindFramebuffer(GL_FRAMEBUFFER, drmHalfFbo);
+            glViewport(0, 0, drmHalfW, drmHalfH);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            dr->setRotationMatrix(drmIdentityMat);
+            if (screensSwapped) dr->renderTopScreen(saturation, gradient);
+            else                dr->renderBottomScreen(saturation, gradient);
+            glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
+            glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
+            dr->blitFullTexture(drmHalfTex, drmCompositeMat);
+            // --- primary panel (top unless swapped) ---
+            glBindFramebuffer(GL_FRAMEBUFFER, drmHalfFbo);
+            glViewport(0, 0, drmHalfW, drmHalfH);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            dr->setRotationMatrix(drmIdentityMat);
+            if (screensSwapped) dr->renderBottomScreen(saturation, gradient);
+            else                dr->renderTopScreen(saturation, gradient);
+            glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
+            if (android::sDrmGlRotation) {
+                glViewport(0, 0, (GLsizei)primTgt.w, (GLsizei)primTgt.h);
+            } else {
+                glViewport(0, 0, dpy->width, dpy->height);
+            }
+            dr->blitFullTexture(drmHalfTex, drmCompositeMat);
+            dr->setRotationMatrix(android::sDrmRotMat);
+        } else if (hasDualDisplay) {
             glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
             glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
             if (screensSwapped) {
