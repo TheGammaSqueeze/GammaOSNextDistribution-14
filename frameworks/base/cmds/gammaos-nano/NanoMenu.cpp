@@ -899,8 +899,10 @@ status_t NanoMenu::readyToRun() {
     mMaxBrightness = readSysfsInt("/sys/class/backlight/panel0-backlight/max_brightness",
                      readSysfsInt("/sys/class/leds/lcd-backlight/max_brightness", 255));
     int androidBrt = readAndroidBrightness();
+    bool trustedBrt = false;   // came from the authoritative Android Settings value
     if (androidBrt > 0) {
         mBrightness = androidBrt;
+        trustedBrt = true;
     } else {
         char saved[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.brightness", saved, "");
@@ -910,14 +912,17 @@ status_t NanoMenu::readyToRun() {
             mBrightness = 128; // safe default (~50%)
         }
     }
-    // Never start up on a level that looks like a dead panel. The stored value can be a
-    // leftover of the display dimming or turning off, and this hardware's backlight does not
-    // light at all at the bottom of the range, so restoring one of those at boot is
-    // indistinguishable from a broken device with no obvious way back. Anything below a
-    // visibly-lit floor falls back to the safe default. The user can still pick a genuinely
-    // dim level from the brightness control, which applies live rather than through here.
-    if (mBrightness < 24) mBrightness = 128;
+    // Dead-panel floor: only for UNTRUSTED sources (a stale persist prop or the
+    // sysfs last-resort at cold boot, before the settings provider is up). Those
+    // can be a leftover of dimming/turn-off and this hardware does not light at the
+    // very bottom of the range, so restoring one looks like a broken device. But a
+    // level the user EXPLICITLY set via the brightness control is written to Android
+    // Settings and is authoritative -- honor it even if very dim, so a genuine low
+    // setting is NOT reverted to ~50% on nano relaunch or drastic entry (which reads
+    // persist.gammaos.nano.brightness that applyBrightness keeps in sync).
+    if (!trustedBrt && mBrightness < 24) mBrightness = 128;
     if (mBrightness > 255) mBrightness = 255;
+    if (mBrightness < 1) mBrightness = 1;   // never a literal-zero dead panel
     // Write to sysfs for instant backlight during early boot. The shared
     // enumerator scales per node max (the old fixed-path loop wrote one
     // device-wide sysfs value to every node).
