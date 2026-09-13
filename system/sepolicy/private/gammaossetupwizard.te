@@ -12,6 +12,11 @@ get_prop(gammaossetupwizard, persist_gammaos_prop)
 # setup.sh also sets regular sys.* and persist.sys.* properties.
 set_prop(gammaossetupwizard, system_prop)
 
+# setup.sh temporarily switches pm.dexopt.install to "skip" for its install batch (no
+# install-time dex2oat on a slow core) and restores it afterwards.
+set_prop(gammaossetupwizard, exported_pm_prop)
+set_prop(gammaossetupwizard, pm_prop)
+
 # It uses lots of toolbox/system binaries and /system/bin/sh.
 allow gammaossetupwizard toolbox_exec:file { read open getattr execute execute_no_trans map };
 allow gammaossetupwizard system_file:file { read open getattr execute execute_no_trans map };

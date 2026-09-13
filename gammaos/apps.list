@@ -1,0 +1,16 @@
+# GammaOS first-boot app list, consumed by /system/bin/setup.sh (see install_apps there).
+# One app per line, installed top to bottom:
+#   display name | package | source | condition | post-install hook
+# source     an APK file, or a directory holding a base + split APK set
+# condition  empty, or "minmem:<kB>" to skip the app when MemTotal is at or below that value
+# hook       name of a setup.sh shell function run after a successful install (may be empty)
+# Lines starting with # are ignored. Add an app by adding a line and the copy rule in base.mk.
+Daijisho|com.magneticchen.daijishou|/system/etc/daijisho||post_daijisho
+RetroArch|com.retroarch.aarch64|/system/etc/RetroArch_aarch64.apk||post_retroarch
+MiXplorer|com.mixplorer|/system/etc/MiXplorer_v6.64.3-API29_B23090720.apk||
+Aurora Store|com.aurora.store|/system/etc/AuroraStore_4.6.2.apk||post_aurora
+PPSSPP|org.ppsspp.ppsspp|/system/etc/ppsspp_1.20.3.apk||post_ppsspp
+DraStic|com.dsemu.drastic|/system/etc/drastic_r2.6.0.4a.apk||post_drastic
+Flycast|com.flycast.emulator|/system/etc/flycast-release.apk||post_flycast
+M64Plus FZ|org.mupen64plusae.v3.fzurita|/system/etc/mupen64plusae_3.0.335.apk||post_mupen
+Firefox|org.mozilla.firefox_beta|/system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk|minmem:1300000|

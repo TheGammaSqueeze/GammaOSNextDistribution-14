@@ -1,0 +1,23 @@
+// GammaOS helper apps shipped as pre-installed system apps. Both were previously meant to be
+// pm-installed by setup.sh from /system/etc, but no makefile ever copied the APKs into the
+// image, so the installs silently failed. As system apps they are present from the first
+// boot, dex-preopted at build time, and cost nothing during setup.
+
+android_app_import {
+    name: "GammaToast",
+    apk: "Toast.apk",
+    // Upstream-signed APK; keep it byte-identical.
+    preprocessed: true,
+    dex_preopt: {
+        enabled: true,
+    },
+}
+
+android_app_import {
+    name: "GammaDisplayLoading",
+    apk: "gammaos-displayloading.apk",
+    preprocessed: true,
+    dex_preopt: {
+        enabled: true,
+    },
+}

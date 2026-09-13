@@ -118,26 +118,43 @@ PRODUCT_COPY_FILES += \
     gammaos/magisk/magisk.tar.gz:system/etc/magisk.tar.gz \
     gammaos/magisk/magisk2.tar.gz:system/etc/magisk2.tar.gz \
     gammaos/retroarch/RetroArch_aarch64.apk:system/etc/RetroArch_aarch64.apk \
-    gammaos/retroarch/retroarch.tar.xz:system/etc/retroarch.tar.xz \
-    gammaos/retroarch/roms.tar.xz:system/etc/roms.tar.xz \
+    gammaos/retroarch/retroarch.tar.zst:system/etc/retroarch.tar.zst \
+    gammaos/retroarch/roms.tar.zst:system/etc/roms.tar.zst \
     gammaos/setup.sh:system/bin/setup.sh \
     gammaos/nano_cache.sh:system/bin/nano_cache.sh \
     gammaos/gammaos-swap.sh:system/bin/gammaos-swap.sh \
     gammaos/launcher/MiXplorer_v6.64.3-API29_B23090720.apk:system/etc/MiXplorer_v6.64.3-API29_B23090720.apk \
     gammaos/launcher/AuroraStore_4.6.2.apk:system/etc/AuroraStore_4.6.2.apk \
-    gammaos/launcher/aurorastore.tar.gz:system/etc/aurorastore.tar.gz \
+    gammaos/launcher/aurorastore.tar.zst:system/etc/aurorastore.tar.zst \
     gammaos/daijisho/splits/base.apk:system/etc/daijisho/base.apk \
     gammaos/daijisho/splits/split_config.en.apk:system/etc/daijisho/split_config.en.apk \
     gammaos/daijisho/splits/split_config.xxxhdpi.apk:system/etc/daijisho/split_config.xxxhdpi.apk \
-    gammaos/daijisho/daijisho.tar.xz:system/etc/daijisho.tar.xz \
-    gammaos/emulators/drastic.tar.gz:system/etc/drastic.tar.gz \
+    gammaos/daijisho/daijisho.tar.zst:system/etc/daijisho.tar.zst \
+    gammaos/emulators/drastic.tar.zst:system/etc/drastic.tar.zst \
     gammaos/emulators/drastic_r2.6.0.4a.apk:system/etc/drastic_r2.6.0.4a.apk \
-    gammaos/emulators/mupen64plusae.tar.gz:system/etc/mupen64plusae.tar.gz \
+    gammaos/emulators/mupen64plusae.tar.zst:system/etc/mupen64plusae.tar.zst \
     gammaos/emulators/mupen64plusae_3.0.335.apk:system/etc/mupen64plusae_3.0.335.apk \
-    gammaos/emulators/ppsspp.tar.xz:system/etc/ppsspp.tar.xz \
+    gammaos/emulators/ppsspp.tar.zst:system/etc/ppsspp.tar.zst \
     gammaos/emulators/ppsspp_1.20.3.apk:system/etc/ppsspp_1.20.3.apk \
-    gammaos/emulators/flycast.tar.xz:system/etc/flycast.tar.xz \
+    gammaos/emulators/flycast.tar.zst:system/etc/flycast.tar.zst \
     gammaos/emulators/flycast-release.apk:system/etc/flycast-release.apk
+
+# GammaOS first-boot setup: data-driven app list for setup.sh, pre-installed helper apps
+# (dex-preopted at build time), the zstd decompressor for the setup payloads, and the
+# build-time replacements for setup.sh's per-app grant/allowlist commands.
+PRODUCT_COPY_FILES += \
+    gammaos/apps.list:system/etc/gammaos/apps.list \
+    device/gammaos/sysconfig/gammaos_apps.xml:system/etc/sysconfig/gammaos_apps.xml \
+    device/gammaos/default-permissions/gammaos_permissions.xml:system/etc/default-permissions/gammaos_permissions.xml
+
+PRODUCT_PACKAGES += \
+    GammaToast \
+    GammaDisplayLoading \
+    zstd
+
+# Settings defaults shared by every GammaOS product (see the overlay's defaults.xml).
+PRODUCT_PACKAGE_OVERLAYS += \
+    device/gammaos/overlay-common
 
 SELINUX_IGNORE_NEVERALLOWS := true
 

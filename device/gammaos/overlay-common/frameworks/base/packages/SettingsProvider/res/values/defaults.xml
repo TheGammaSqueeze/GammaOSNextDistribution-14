@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GammaOS settings defaults. These used to be applied by setup.sh with one `settings put`
+     each on first boot; seeding them here means they are already in place when the settings
+     database is created, before the setup wizard even starts. -->
+<resources>
+    <!-- Handhelds have no pick-up / wave sensors worth waking on. -->
+    <bool name="def_wake_gesture_enabled">false</bool>
+    <!-- No touch sounds. -->
+    <bool name="def_sound_effects_enabled">false</bool>
+    <!-- Let the panel idle off while charging. -->
+    <bool name="def_stay_on_while_plugged_in">false</bool>
+    <!-- No mobile radio on these devices. -->
+    <bool name="def_mobile_data_always_on">false</bool>
+</resources>

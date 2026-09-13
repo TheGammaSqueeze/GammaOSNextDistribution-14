@@ -19,9 +19,15 @@
 # Set lowram options and enable traced by default
 PRODUCT_VENDOR_PROPERTIES += ro.config.low_ram=true
 
-# Minimize boot-time dex compilation to avoid OOM on 1GB devices.
-# verify is the fastest filter - just checks DEX integrity, no compilation.
-PRODUCT_SYSTEM_SERVER_COMPILER_FILTER := verify
+# system_server: compile the hot paths (services art-profile) at BUILD time so the device
+# never JITs them at boot and the code stays file-backed/evictable instead of living in the
+# per-process JIT cache. The ON-DEVICE fallback (odrefresh recompiling after a mainline update
+# or a boot-image mismatch) stays at verify via dalvik.vm.systemservercompilerfilter below, so a
+# 1GB device never runs a heavy dex2oat at boot. main.mk derives that property from this
+# variable into ADDITIONAL_PRODUCT_PROPERTIES; PRODUCT_PRODUCT_PROPERTIES is written after it
+# and the last assignment wins (BUILD_BROKEN_DUP_SYSPROP).
+PRODUCT_SYSTEM_SERVER_COMPILER_FILTER := speed-profile
+PRODUCT_PRODUCT_PROPERTIES += dalvik.vm.systemservercompilerfilter=verify
 
 # Limit dex2oat concurrency to prevent OOM during boot.
 PRODUCT_SYSTEM_PROPERTIES += \

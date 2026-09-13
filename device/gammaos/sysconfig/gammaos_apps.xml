@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GammaOS pre-installed app policy (replaces `cmd deviceidle whitelist` calls in setup.sh). -->
+<config>
+    <!-- The boot/loading splash must be able to run while the device is idle. -->
+    <allow-in-power-save package="com.gammaos.displayloading"/>
+</config>

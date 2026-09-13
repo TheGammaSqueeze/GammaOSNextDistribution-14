@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default runtime grants for GammaOS pre-installed system apps (replaces `pm grant` calls in
+     setup.sh). Only system packages are eligible here; user-installed apps keep their grants in
+     setup.sh. -->
+<exceptions>
+    <exception package="bellavita.toast">
+        <permission name="android.permission.POST_NOTIFICATIONS" fixed="false"/>
+    </exception>
+</exceptions>

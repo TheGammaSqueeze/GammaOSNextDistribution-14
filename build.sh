@@ -13,6 +13,11 @@ set -e
 
 MODE="${1:-nosync}"
 
+# Ship APEX modules uncompressed. With compressed .capex files every first boot (and every
+# boot after an OTA) has to decompress all of them into /data/apex before ART can even check
+# its boot artifacts; on SD-card devices that is tens of seconds. Costs image size only.
+export OVERRIDE_PRODUCT_COMPRESSED_APEX=false
+
 mkdir -p out/home/build-output
 
 HOME="$PWD/out/home" bash lineage_build_unified/buildbot_unified.sh treble 64VN "$MODE"
