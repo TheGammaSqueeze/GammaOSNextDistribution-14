@@ -4675,6 +4675,30 @@ if (sRingPrimedCount >= 2) {
             else sOrVal = false;
             const bool orphanOverlayRaiseHome = sSoVal && !sAlVal && !sOrVal;
             if (orphanOverlayRaiseHome) property_set("sys.gammaos.nano.show_overlay", "0");
+            // Stuck-state recovery: show_overlay raised (sSoVal) with no app actually foreground
+            // (!sAlVal), while not mid-launch (!mWaitForRelease, mLaunchFadeStart==0) and not a
+            // pspclock summon. The orphan path above only self-heals when no resident overlay has
+            // run (!sOrVal); when one HAS (sOrVal, e.g. after entering/exiting apps) and the theme
+            // is not the pspclock XMB (ES-DE), nothing clears the stale raise, so the home parks
+            // forever - render() skipped and input still dropped via drop_input - and the dpad does
+            // nothing. After a short grace (so a transient raise during a normal launch is left
+            // alone) clear the stale raise, the input-drop flag and its fence so the home becomes
+            // navigable again. Reset the moment the condition clears so it never fires spuriously.
+            static int sStaleOverlayTicks = 0;
+            const bool staleOverlayRaise = !mOverlayMode && sSoVal && !sAlVal && !mWaitForRelease
+                    && mLaunchFadeStart == 0 && !pspClockSummonHome && !orphanOverlayRaiseHome;
+            if (staleOverlayRaise) {
+                if (++sStaleOverlayTicks >= 45) {   // ~1.5s at the 33ms parked cadence
+                    ALOGW("NanoMenu: stale show_overlay with no foreground app -- recovering "
+                          "(clearing show_overlay + drop_input)");
+                    property_set("sys.gammaos.nano.show_overlay", "0");
+                    property_set("sys.gammaos.nano.drop_input", "0");
+                    property_set("sys.gammaos.nano.drop_fence_ns", "0");
+                    sStaleOverlayTicks = 0;
+                }
+            } else {
+                sStaleOverlayTicks = 0;
+            }
             if (!mOverlayMode && mLaunchFadeStart == 0 && !mWaitForRelease
                     && (sAlVal || sSoVal) && !pspClockSummonHome && !orphanOverlayRaiseHome) {
                 // Parked (occluded by the foreground app): render() is skipped, so
