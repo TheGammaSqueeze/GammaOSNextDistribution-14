@@ -70,7 +70,9 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <atomic>
 #include <cstring>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -1357,6 +1359,57 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     constexpr int64_t kAudioFastGapMs = 2000;
     constexpr int64_t kAudioSlowGapMs = 30000;
 
+    // ---- Low Latency Mode: dedicated fast-input thread ----
+    // Forward DS gameplay input (buttons + real touch) to drastic the instant
+    // an evdev event arrives, rather than once per rendered frame. drastic's DS
+    // core runs on its own thread and samples the input master struct on its
+    // own cadence, so pushing presses within ~1 ms (vs up to a ~16.7 ms render
+    // sample quantum) trims input-to-emulator latency at zero framerate cost.
+    // The thread opens its OWN evdev fds (evdev is multi-open: every reader sees
+    // all events), so it never races the render loop's drain. Forwarding is
+    // gated on Low Latency Mode; when off it idles and the render loop forwards
+    // as before. Touch is only forwarded on the direct pass-through layout
+    // (dual-panel, e.g. RG DS) and outside cursor mode, so the single-panel
+    // touch remap and the analog-stick cursor stay owned by the render loop.
+    std::mutex inputFwdMutex;
+    std::atomic<bool> fastInputRun{true};
+    std::atomic<bool> fastOverlayOpen{false};
+    std::atomic<bool> fastReapplyPrefs{false};
+    bool fastPrevOverlayOpen = false;
+    const bool fastDirectLayout = !drmSingleLayout;
+    std::thread fastInputThread([&]() {
+        android::drastic_input::InputState fin{};
+        fin.admitPowerKey = false;               // never capture power here
+        android::drastic_input::applyPrefs(&fin, initialPrefs);
+        android::drastic_input::scanInputDevices(&fin);
+        std::vector<struct pollfd> pfds;
+        for (int fd : fin.fds)      pfds.push_back({fd, POLLIN, (short)0});
+        for (int fd : fin.touchFds) pfds.push_back({fd, POLLIN, (short)0});
+        while (fastInputRun.load(std::memory_order_relaxed)) {
+            // Block until an event lands (8 ms cap so flag changes are seen).
+            if (!pfds.empty()) poll(pfds.data(), pfds.size(), 8);
+            else               usleep(8000);
+            if (fastReapplyPrefs.exchange(false))
+                android::drastic_input::applyPrefs(&fin, overlay.prefs());
+            const bool ovOpen =
+                    fastOverlayOpen.load(std::memory_order_relaxed);
+            android::drastic_input::InputActions fa{};
+            android::drastic_input::pollInputMap(
+                    &fin, ovOpen, false,
+                    kBackShortMs, kBackHoldMs, kPowerHoldMs, kPowerOffHoldMs,
+                    &fa);
+            // Forward only the DS gameplay state; edge actions (menu, sleep,
+            // quick save/load, etc.) stay owned by the render loop, which sees
+            // the same events on its own fds.
+            if (android::sDrmLowLatency && !ovOpen && !fin.cursorMode &&
+                    fastDirectLayout) {
+                std::lock_guard<std::mutex> lk(inputFwdMutex);
+                dr->setInputWithTouch(fa.dsBtnMask, fa.touchX, fa.touchY,
+                                      fa.touchHeld);
+            }
+        }
+    });
+
     while (!exitRequested) {
         if (android::elapsedRealtime() >= audioBoostDeadlineMs) {
             boostAudioServer();
@@ -1390,6 +1443,16 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             continue;
         }
         overlay.update(actions, &input);
+
+        // Publish overlay state to the fast-input thread. On an open->close
+        // edge, signal it to re-apply prefs so live control remaps (done while
+        // the overlay is open) reach its independent InputState.
+        {
+            const bool ovNow = overlay.isOpen();
+            if (!ovNow && fastPrevOverlayOpen) fastReapplyPrefs.store(true);
+            fastPrevOverlayOpen = ovNow;
+            fastOverlayOpen.store(ovNow, std::memory_order_relaxed);
+        }
 
         // RetroAchievements lifecycle. Start once the first DS frame is ready,
         // mirror the overlay's pause state into the client (so it idles instead
@@ -1625,8 +1688,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 }
             }
         }
-        dr->setInputWithTouch(actions.dsBtnMask, dsTouchX, dsTouchY,
-                              dsTouchHeld);
+        {
+            // Shared with the fast-input thread so the two never tear the
+            // master struct mid-write. Uncontended in practice.
+            std::lock_guard<std::mutex> lk(inputFwdMutex);
+            dr->setInputWithTouch(actions.dsBtnMask, dsTouchX, dsTouchY,
+                                  dsTouchHeld);
+        }
 
         // Consumer-side frameskip (see fsCounter declaration above). Skip
         // the DS upload/shade on N of every (N+1) vblanks; the blit and
@@ -1940,17 +2008,27 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             android::sRingRenderIdx =
                     (renderIdx + 1) % android::AHB_RING_DEPTH;
             // Bootstrap: first two iterations render only, don't
-            // present. Once primed (>= 2 slots rendered), flip the
-            // slot we rendered ~2 frames ago. Present-lag = 2 plus
-            // ring depth = 5 leaves enough headroom for both baseline
-            // pacing (1 slot free) and Frame Sync's delayed-secondary
-            // mode (secondary scanning out an older slot adds one
-            // more "live" entry to the working set).
+            // present. Once primed (>= 2 slots rendered), flip a slot
+            // we rendered a few frames ago.
+            //
+            // Present-lag (age): baseline presents the slot rendered
+            // two frames ago (age 2) so the AHB fence wait in
+            // drmFlipRingSlot never blocks on an in-progress render.
+            // Low Latency Mode drops to age 1 (present the previous
+            // frame), removing ~one refresh (~16.7 ms) of input latency
+            // at the cost of pipeline slack (the fence wait may block
+            // under heavy GPU load). Read live so the in-game toggle
+            // applies from the next frame; the two panels stay aligned
+            // via the kernel's rockchip,sync-vp-mask either way. Ring
+            // depth 5 leaves headroom for both ages plus Frame Sync's
+            // extra hold-slot. renderIdx is the slot just rendered this
+            // iter (age 0), so age N presents renderIdx - N.
             if (android::sRingPrimedCount >= 2) {
-                const int presentIdx = android::sRingPresentIdx;
+                const int D    = android::AHB_RING_DEPTH;
+                const int age  = android::sDrmLowLatency ? 1 : 2;
+                const int presentIdx = (renderIdx - age + 2 * D) % D;
                 android::drmFlipRingSlot(presentIdx, false);
-                android::sRingPresentIdx =
-                        (presentIdx + 1) % android::AHB_RING_DEPTH;
+                android::sRingPresentIdx = presentIdx;
             } else {
                 android::sRingPrimedCount++;
             }
@@ -1983,6 +2061,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
         android::drmDrainPageFlipEvents();
     }
+
+    // Stop the fast-input thread before anything it captured by reference
+    // (dr, overlay, the atomics/mutex) is torn down.
+    fastInputRun.store(false);
+    if (fastInputThread.joinable()) fastInputThread.join();
 
     // Stop the RetroAchievements client (joins its threads) before the runner
     // and overlay tear down, since its threads read the runner's memory.
@@ -3314,6 +3397,7 @@ int main(int argc, char** argv) {
         ovBool("persist.gammaos.drastic_nano.threaded3d",   prefs.threaded3d);
         ovBool("persist.gammaos.drastic_nano.disable_edge", prefs.disableEdge);
         ovBool("persist.gammaos.drastic_nano.frame_sync",   prefs.frameSync);
+        ovBool("persist.gammaos.drastic_nano.low_latency",  prefs.lowLatency);
         char sh[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.drastic_nano.shader", sh, "");
         if (sh[0]) prefs.currentFx = sh;     // empty / unset: honor the XML value
@@ -3324,6 +3408,14 @@ int main(int argc, char** argv) {
     // adds one hold-slot to the working set) holds for the whole run.
     // Runtime toggle from the overlay writes this variable too.
     android::sDrmFrameSync = prefs.frameSync;
+    // Low Latency Mode supersedes Frame Sync (it removes a frame of lag rather
+    // than adding one); when both are set, Low Latency wins and Frame Sync is
+    // forced off so the ring isn't holding a stale secondary slot.
+    android::sDrmLowLatency = prefs.lowLatency;
+    if (android::sDrmLowLatency && android::sDrmFrameSync) {
+        android::sDrmFrameSync = false;
+        prefs.frameSync = false;
+    }
     long userBits = android::drastic_prefs::applyConfigBitsFrom(prefs);
     const std::string savestatesDir = gDrasticDataDir + "/savestates";
     const std::string shadersDir    = gDrasticDataDir + "/shaders";

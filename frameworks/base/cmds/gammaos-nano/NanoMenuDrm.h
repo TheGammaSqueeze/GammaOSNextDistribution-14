@@ -148,6 +148,13 @@ extern bool sDrmVblankBroken;
 // behind render time but stay visually synchronized with each other.
 // Off by default -- adds 1 frame of input lag to the primary panel.
 extern bool sDrmFrameSync;
+// Low Latency Mode: when true, the drastic-nano AHB ring presents the previous
+// frame (age 1) instead of the frame-before-that (age 2), removing ~one refresh
+// (~16.7 ms) of input-to-photon latency at the cost of pipeline slack (the AHB
+// fence wait can block under heavy GPU load). Read live in the render loop's
+// present step. Inter-screen sync is handled by the kernel (rockchip,sync-vp-mask
+// on the RG DS), so this is a pure latency-vs-throughput trade. Off by default.
+extern bool sDrmLowLatency;
 extern int sPendingFlipEvents;
 extern uint32_t sCrtcIds[kMaxCrtcTrack];
 extern int sCrtcPending[kMaxCrtcTrack];

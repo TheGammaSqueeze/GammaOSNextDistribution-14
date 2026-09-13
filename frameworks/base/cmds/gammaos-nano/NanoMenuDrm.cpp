@@ -67,6 +67,7 @@ bool sDrmFlipH = false;
 bool sDrmFlipV = false;
 bool sDrmVblankBroken = false;
 bool sDrmFrameSync = true;
+bool sDrmLowLatency = false;
 int sPendingFlipEvents = 0;
 uint32_t sCrtcIds[kMaxCrtcTrack] = {0};
 int sCrtcPending[kMaxCrtcTrack] = {0};

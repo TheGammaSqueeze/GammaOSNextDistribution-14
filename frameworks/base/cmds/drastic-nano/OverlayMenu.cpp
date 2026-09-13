@@ -2487,6 +2487,35 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [toggle](int) { toggle(); };
         mRows.push_back(std::move(r));
     }
+    // Low Latency Mode: live toggle. Presents the previous frame (age 1)
+    // instead of age 2 in the DRM ring, removing ~one refresh (~16.7 ms) of
+    // input latency at the cost of pipeline slack under heavy GPU load. The
+    // two panels stay aligned via the kernel's rockchip,sync-vp-mask, so this
+    // supersedes Frame Sync: enabling it forces Frame Sync off. Read live by
+    // the render loop's present step, so it applies from the next frame.
+    {
+        RowAction r;
+        r.label = "Low Latency Mode";
+        r.value = mPrefs.lowLatency ? "On" : "Off";
+        auto toggle = [this]() {
+            mPrefs.lowLatency = !mPrefs.lowLatency;
+            android::sDrmLowLatency = mPrefs.lowLatency;
+            property_set("persist.gammaos.drastic_nano.low_latency",
+                         mPrefs.lowLatency ? "1" : "0");
+            // Low Latency and Frame Sync are mutually exclusive (one removes a
+            // frame of lag, the other adds one). Turning Low Latency on forces
+            // Frame Sync off.
+            if (mPrefs.lowLatency && mPrefs.frameSync) {
+                mPrefs.frameSync = false;
+                android::sDrmFrameSync = false;
+                property_set("persist.gammaos.drastic_nano.frame_sync", "0");
+            }
+            mDirty = true;
+        };
+        r.onAccept = toggle;
+        r.onAdjust = [toggle](int) { toggle(); };
+        mRows.push_back(std::move(r));
+    }
     // Frameskip type.
     {
         RowAction r;

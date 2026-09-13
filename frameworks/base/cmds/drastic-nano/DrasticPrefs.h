@@ -88,6 +88,16 @@ struct Prefs {
     // Video overlay if they prefer the phase-locked look.
     bool frameSync = false;
 
+    // Low Latency Mode. When on, the DRM ring presents the previous frame
+    // (age 1) instead of the frame-before-that (age 2), shaving ~one refresh
+    // (~16.7 ms) of input-to-photon latency at the cost of less pipeline
+    // slack (the AHB fence wait can block under heavy GPU load). Inter-screen
+    // sync is handled by the kernel (rockchip,sync-vp-mask on the RG DS), so
+    // this trades purely latency for throughput headroom and supersedes Frame
+    // Sync (which is forced off while Low Latency is on). Off by default;
+    // user-togglable live from the in-game Video overlay.
+    bool lowLatency = false;
+
     // DS firmware userdata. drastic packs these into a single int it
     // hands to setFirmwareUserdata so the emulated DS boots with the
     // user's chosen language / theme colour / birthday / nickname
