@@ -4421,6 +4421,28 @@ if (sRingPrimedCount >= 2) {
             overlayUpdateSurfaceSize();
         }
 
+        // GammaOS: prop-driven ROM launch for automation (perf loop / adb).
+        // Set sys.gammaos.nano.launch_rom to an absolute path or a bare filename
+        // under /sdcard/ROMs/nds/; the launcher drives the exact same drastic-nano
+        // handoff a menu selection does. Self-clears. Only acts at the menu (a
+        // running game parks the overlay above and skips this via continue).
+        if (!mDrasticNanoPending) {
+            char lr[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.nano.launch_rom", lr, "");
+            if (lr[0]) {
+                property_set("sys.gammaos.nano.launch_rom", "");
+                std::string rp = lr;
+                if (rp[0] != '/') rp = std::string("/sdcard/ROMs/nds/") + rp;
+                if (access(rp.c_str(), R_OK) == 0) {
+                    setDrasticNanoRomPath(rp);
+                    ALOGW("drastic nano: prop launch_rom -> %s", rp.c_str());
+                    mDrasticNanoPending = true;
+                } else {
+                    ALOGW("drastic nano: launch_rom path not readable: %s", rp.c_str());
+                }
+            }
+        }
+
         // GammaOS: Drastic Nano cache-wait + restart. When
         // launchXmbGame() sets mDrasticNanoPending, show
         // "Preparing..." while polling cache_ready. Once the
