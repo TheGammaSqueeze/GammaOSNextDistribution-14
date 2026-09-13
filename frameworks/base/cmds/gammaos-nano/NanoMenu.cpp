@@ -2654,6 +2654,7 @@ bool NanoMenu::threadLoop() {
                             sEglDestroySyncKHR(sRingEglDpy,
                                     sAhbRingSyncPrimary[renderIdx]);
                         }
+                        drmResolveTurnedTargets(renderIdx);   // turned panel: scratch -> scanout AHB, covered by this fence
                         sAhbRingSyncPrimary[renderIdx] = sEglCreateSyncKHR(
                                 sRingEglDpy,
                                 EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
@@ -4421,24 +4422,27 @@ if (sRingPrimedCount >= 2) {
             overlayUpdateSurfaceSize();
         }
 
-        // GammaOS: prop-driven ROM launch for automation (perf loop / adb).
-        // Set sys.gammaos.nano.launch_rom to an absolute path or a bare filename
-        // under /sdcard/ROMs/nds/; the launcher drives the exact same drastic-nano
-        // handoff a menu selection does. Self-clears. Only acts at the menu (a
-        // running game parks the overlay above and skips this via continue).
+        // GammaOS: prop-driven DS ROM launch for automation (perf loop / adb).
+        // Set sys.gammaos.nano.drastic_launch_rom to an absolute path or a bare
+        // filename under /sdcard/ROMs/nds/; the launcher drives the exact same
+        // drastic-nano handoff a menu selection does. Self-clears. Only acts at the
+        // menu (a running game parks the overlay above and skips this via continue).
+        // Its own prop: sys.gammaos.nano.launch_rom is the quick-resume hand-off
+        // nano itself sets for every libretro launch, and reading that here sent
+        // every RetroArch game into drastic-nano.
         if (!mDrasticNanoPending) {
             char lr[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.gammaos.nano.launch_rom", lr, "");
+            property_get("sys.gammaos.nano.drastic_launch_rom", lr, "");
             if (lr[0]) {
-                property_set("sys.gammaos.nano.launch_rom", "");
+                property_set("sys.gammaos.nano.drastic_launch_rom", "");
                 std::string rp = lr;
                 if (rp[0] != '/') rp = std::string("/sdcard/ROMs/nds/") + rp;
                 if (access(rp.c_str(), R_OK) == 0) {
                     setDrasticNanoRomPath(rp);
-                    ALOGW("drastic nano: prop launch_rom -> %s", rp.c_str());
+                    ALOGW("drastic nano: prop drastic_launch_rom -> %s", rp.c_str());
                     mDrasticNanoPending = true;
                 } else {
-                    ALOGW("drastic nano: launch_rom path not readable: %s", rp.c_str());
+                    ALOGW("drastic nano: drastic_launch_rom path not readable: %s", rp.c_str());
                 }
             }
         }
@@ -5339,6 +5343,13 @@ if (sRingPrimedCount >= 2) {
             // splash time gets a second chance here. Bounded to a 5-second boot
             // window by drmRescanDisplays itself. No-op post-boot (sDrmFd = -1).
             drmRescanDisplays();
+            // DRM-direct home: a kernel suspend/resume (deep-sleep tile, the sleep
+            // script, the power key) brings the CRTCs back with no planes attached;
+            // re-commit the modeset so the panels relight instead of staying blank.
+            if (sDrmActive && sDrmZeroCopy && drmSuspendCycleDetected()) {
+                ALOGW("NanoMenu DRM: resumed from suspend, re-committing the modeset");
+                drmResumeRecommit();
+            }
             // GammaOS Nano: Keep the surface's layer stack in sync with the
             // chosen display. SurfaceFlinger's initial layerStack for the display
             // can change once DisplayManagerService finishes assigning logical

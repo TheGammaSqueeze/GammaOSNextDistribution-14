@@ -5036,8 +5036,10 @@ void NanoMenu::hideControlCenterLayer() {
 // Both shot props are polled every single frame and are unset in production, so
 // the property name lookup was pure per-frame overhead; watching the serial turns
 // the miss into a pointer-deref while still firing on the frame the prop is written.
+// scanFbo: when the target renders into a turned-panel scratch, read the real scanout
+// AHB (the previous frame's resolved image) so the dump shows what the panel scans.
 static void nanoScreenshotProp(const prop_info*& pi, uint32_t& ser, bool& have,
-                               const char* prop, const char* defPath) {
+                               const char* prop, const char* defPath, GLuint scanFbo = 0) {
     if (!pi) pi = __system_property_find(prop);
     if (!pi) { have = false; return; }          // never set: nothing to capture
     const uint32_t nowSer = __system_property_serial(pi);
@@ -5052,7 +5054,10 @@ static void nanoScreenshotProp(const prop_info*& pi, uint32_t& ser, bool& have,
     int w = vp[2], h = vp[3];
     if (w <= 0 || h <= 0) { property_set(prop, ""); return; }
     std::vector<unsigned char> px((size_t)w * h * 4);
+    GLint prevFbo = 0;
+    if (scanFbo) { glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo); glBindFramebuffer(GL_FRAMEBUFFER, scanFbo); }
     glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+    if (scanFbo) glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
     const char* path = (val[0] == '1' && !val[1]) ? defPath : val;
     FILE* f = fopen(path, "wb");
     if (f) {
@@ -5080,13 +5085,15 @@ static void nanoScreenshotProp(const prop_info*& pi, uint32_t& ser, bool& have,
 void maybeNanoScreenshotSecondary() {
     static const prop_info* pi = nullptr; static uint32_t ser = 0; static bool have = false;
     nanoScreenshotProp(pi, ser, have,
-                       "sys.gammaos.nano.shot2", "/data/local/tmp/nano_shot2.ppm");
+                       "sys.gammaos.nano.shot2", "/data/local/tmp/nano_shot2.ppm",
+                       (sDrmActive && sDrmZeroCopy) ? sAhbTargetSecondary.scanFbo : 0);
 }
 
 void maybeNanoScreenshot() {
     static const prop_info* pi = nullptr; static uint32_t ser = 0; static bool have = false;
     nanoScreenshotProp(pi, ser, have,
-                       "sys.gammaos.nano.shot", "/data/local/tmp/nano_shot.ppm");
+                       "sys.gammaos.nano.shot", "/data/local/tmp/nano_shot.ppm",
+                       (sDrmActive && sDrmZeroCopy) ? sAhbTarget.scanFbo : 0);
 }
 
 // Background watchdog: if render() stops bumping mRenderHeartbeat for ~8s the
@@ -6390,6 +6397,7 @@ void NanoMenu::render() {
                     sEglDestroySyncKHR(sRingEglDpy,
                             sAhbRingSyncPrimary[renderIdxNow]);
                 }
+                drmResolveTurnedTargets(renderIdxNow);   // turned panel: scratch -> scanout AHB, covered by this fence
                 sAhbRingSyncPrimary[renderIdxNow] = sEglCreateSyncKHR(
                         sRingEglDpy, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
                 if (sAhbRingSyncPrimary[renderIdxNow] == EGL_NO_SYNC_KHR) {

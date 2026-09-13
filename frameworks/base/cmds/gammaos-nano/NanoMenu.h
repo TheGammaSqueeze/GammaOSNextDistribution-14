@@ -4421,6 +4421,7 @@ private:
     void  ccSetDisplayVolMap(int bot, int top);  // write the per-display volume map (Settings.Global); debounced by callers
     // CC touch + interactive state (render-thread only; no mutex).
     int   mCcRawX = 0, mCcRawY = 0;        // last bottom-digitizer raw coords (0..640 x 0..480)
+    float mCcRawMaxX = 0.0f, mCcRawMaxY = 0.0f; // bottom digitizer ABS range (EVIOCGABS, read once; 0 = not yet read)
     bool  mCcTouchDownRaw = false;         // BTN_TOUCH state
     bool  mCcTouchWas = false;             // previous-frame down (edge detect)
     float mCcDownX = -1.0f, mCcDownY = -1.0f;  // press position (tap detection)

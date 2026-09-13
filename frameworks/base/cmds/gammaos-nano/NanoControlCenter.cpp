@@ -1348,6 +1348,18 @@ void NanoMenu::ccPollTouch() {
     int bfd = -1;
     for (const auto& kv : mInputFdNames) if (kv.second == dev) { bfd = kv.first; break; }
     if (bfd < 0) return;
+    // The digitizer's raw range differs per device (RG DS 640x480, RG DS Plus 1024x768):
+    // read it from the device once instead of assuming the RG DS range.
+    if (mCcRawMaxX <= 0.0f || mCcRawMaxY <= 0.0f) {
+        struct input_absinfo ax = {}, ay = {};
+        bool okx = ioctl(bfd, EVIOCGABS(ABS_MT_POSITION_X), &ax) == 0 && ax.maximum > ax.minimum;
+        bool oky = ioctl(bfd, EVIOCGABS(ABS_MT_POSITION_Y), &ay) == 0 && ay.maximum > ay.minimum;
+        if (!okx) okx = ioctl(bfd, EVIOCGABS(ABS_X), &ax) == 0 && ax.maximum > ax.minimum;
+        if (!oky) oky = ioctl(bfd, EVIOCGABS(ABS_Y), &ay) == 0 && ay.maximum > ay.minimum;
+        mCcRawMaxX = okx ? (float)ax.maximum : 640.0f;
+        mCcRawMaxY = oky ? (float)ay.maximum : 480.0f;
+        ALOGI("NanoMenu CC: bottom digitizer %s raw range %gx%g", dev, mCcRawMaxX, mCcRawMaxY);
+    }
     struct input_event ev;
     while (read(bfd, &ev, sizeof(ev)) == sizeof(ev)) {
         if (ev.type == EV_ABS) {
@@ -1365,8 +1377,9 @@ void NanoMenu::ccPollTouch() {
 }
 
 void NanoMenu::ccTouchFrame() {
-    // Map raw digitizer (0..640 x 0..480) to the 640x480 design space; optional axis fixups via props
-    // (persist.gammaos.nano.cc.touch_swap/flipx/flipy) in case the bottom panel is mounted rotated.
+    // Map the raw digitizer (its own ABS range, read in ccPollTouch) to the 640x480 design space;
+    // optional axis fixups via props (persist.gammaos.nano.cc.touch_swap/flipx/flipy) in case the
+    // bottom panel is mounted rotated.
     static bool sRead = false, sSwap = false, sFlipX = false, sFlipY = false;
     if (!sRead) {
         sSwap  = property_get_bool("persist.gammaos.nano.cc.touch_swap",  false);
@@ -1375,8 +1388,10 @@ void NanoMenu::ccTouchFrame() {
         sRead = true;
     }
     float rx = (float)mCcRawX, ry = (float)mCcRawY;
-    if (sSwap) { float t = rx; rx = ry; ry = t; }
-    float dx = rx / 640.0f, dy = ry / 480.0f;
+    float rmx = (mCcRawMaxX > 0.0f) ? mCcRawMaxX : 640.0f;
+    float rmy = (mCcRawMaxY > 0.0f) ? mCcRawMaxY : 480.0f;
+    if (sSwap) { float t = rx; rx = ry; ry = t; t = rmx; rmx = rmy; rmy = t; }
+    float dx = rx / rmx, dy = ry / rmy;
     if (sFlipX) dx = 1.0f - dx;
     if (sFlipY) dy = 1.0f - dy;
     float px = dx * 640.0f, py = dy * 480.0f;

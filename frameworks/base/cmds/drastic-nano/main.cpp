@@ -994,6 +994,7 @@ void doSleep(android::drastic_input::InputState* input,
     // modeset and reset the flip/ring bookkeeping before relighting.
     // The ring cursors restart at 0, so the render loop's bootstrap
     // re-primes (renders 2 frames before the first flip) automatically.
+    android::drmSuspendMarkSeen();   // this cycle was ours; the loop's external check skips it
     android::drmResumeRecommit();
 
     int level = property_get_int32("persist.gammaos.nano.brightness", 128);
@@ -1187,6 +1188,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     RunLoopResult result{false, false, false, false, false};
     bool hasDualDisplay = (android::sDrmActive && android::sDrmZeroCopy &&
                             android::sAhbRingSecondary[0].glFbo != 0);
+    // Dual-panel DRM: with Half Resolution off the shaders must run at full
+    // resolution into the combined buffer, so the render-scale prop is ignored
+    // there; with it on, the half-size offscreen is exactly what is wanted.
+    if (hasDualDisplay &&
+        !property_get_bool("persist.gammaos.drastic_nano.drm_half_res", false)) {
+        dr->setFxRenderScale(1);
+    }
     dr->initSurface(dpy->width, dpy->height, hasDualDisplay);
     dr->setRotationMatrix(android::sDrmRotMat);
 
@@ -1203,8 +1211,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // The panel's native FBO size (what the AHB ring scans out).
     const int drmPanelW = (android::sAhbRingPrimary[0].glFbo != 0)
                           ? (int)android::sAhbRingPrimary[0].w : dpy->width;
+    // AFBC dual mode: the primary ring is one combined buffer two panels tall; a
+    // panel (and so the overlay canvas, the logical layout and the keyboard rects)
+    // is one half of it.
     const int drmPanelH = (android::sAhbRingPrimary[0].glFbo != 0)
-                          ? (int)android::sAhbRingPrimary[0].h : dpy->height;
+                          ? (int)(android::sDrmAfbcMode ? android::sDrmAfbcHalfH
+                                                        : android::sAhbRingPrimary[0].h)
+                          : dpy->height;
     // The effective rotation is the panel install orientation plus a live user
     // Display Rotation (persist.gammaos.drastic_nano.display_rotate), so the
     // whole single-panel output can be turned for portrait play. The logical
@@ -1323,8 +1336,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     int overlayW = dpy->width;
     int overlayH = dpy->height;
     if (android::sAhbRingPrimary[0].glFbo != 0) {
-        overlayW = android::sAhbRingPrimary[0].w;
-        overlayH = android::sAhbRingPrimary[0].h;
+        overlayW = drmPanelW;
+        overlayH = drmPanelH;   // one panel, also in AFBC dual mode (half the combined buffer)
     }
     // Default rotation matrix for overlay geometry: the shared sDrmRotMat,
     // correct for non-rotated panels and the dual-panel path. For the single-
@@ -1522,6 +1535,21 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     });
 
     while (!exitRequested) {
+        // A suspend cycle this session did not run itself (the deep-sleep tile, the
+        // home, the vendor sleep script): resume leaves both CRTCs active with no
+        // planes attached and every flip fails with EINVAL until the modeset is
+        // re-committed. Detect it from the kernel's suspend counter and relight
+        // exactly like doSleep()'s own wake path does.
+        if (android::drmSuspendCycleDetected()) {
+            ALOGW("drastic-nano: resumed from a suspend this session did not start; re-committing DRM");
+            android::drmResumeRecommit();
+            int level = property_get_int32("persist.gammaos.nano.brightness", 128);
+            if (level < 1) level = 1;
+            if (level > 255) level = 255;
+            android::nanobl::nanoBacklightSet(level);
+            setBacklightHal(level);
+            boostAudioServer();
+        }
         if (android::elapsedRealtime() >= audioBoostDeadlineMs) {
             boostAudioServer();
             audioBoostSweeps++;
@@ -1940,7 +1968,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     (int)android::sDrmDisplays[secIdx].crtcId == rotCrtc;
             const bool renderSwapD = property_get_bool("sys.gammaos.drastic_nano.afbc_render_swap", false);
             const bool topToLower = !(screensSwapped ^ renderSwapD);
-            dr->setDirectTarget(primTgt.glFbo, topToLower, rotLower, rotUpper);
+            dr->setDirectTarget(primTgt.glFbo, (int)primTgt.w, (int)primTgt.h,
+                                topToLower, rotLower, rotUpper);
             directArmed = true;
         }
         const int64_t sRdT0 = android::elapsedRealtimeNano();
@@ -2023,6 +2052,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // offscreen (identity, no rotation), then NEAREST-upscale onto the panel
             // AHB via blitFullTexture(drmCompositeMat) - same offscreen->panel path as
             // drmSingleLayout, per panel. 512x384 -> 1024x768 crisp nearest.
+            // Which target is the panel on VOP port 1 (mounted turned, see
+            // persist.gsf.rot.1, SurfaceFlinger's own physical orientation prop): that one is drawn
+            // with the 180-turned composite matrix.
+            const bool rotPrimDual = android::sDrmSeamRotCrtc > 0 &&
+                    (int)android::sDrmDisplays[android::sDrmPrimaryIdx].crtcId == (int)android::sDrmSeamRotCrtc;
+            const bool rotSecDual = android::sDrmSeamRotCrtc > 0 && !rotPrimDual;
+            float compRot180[4] = { -drmCompositeMat[0], -drmCompositeMat[1], -drmCompositeMat[2], -drmCompositeMat[3] };
             // --- secondary panel (bottom unless swapped) ---
             glBindFramebuffer(GL_FRAMEBUFFER, drmHalfFbo);
             glViewport(0, 0, drmHalfW, drmHalfH);
@@ -2033,7 +2069,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             else                dr->renderBottomScreen(saturation, gradient);
             glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
             glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
-            dr->blitFullTexture(drmHalfTex, drmCompositeMat);
+            dr->blitFullTexture(drmHalfTex, rotSecDual ? compRot180 : drmCompositeMat);
             // --- primary panel (top unless swapped) ---
             glBindFramebuffer(GL_FRAMEBUFFER, drmHalfFbo);
             glViewport(0, 0, drmHalfW, drmHalfH);
@@ -2048,9 +2084,16 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             } else {
                 glViewport(0, 0, dpy->width, dpy->height);
             }
-            dr->blitFullTexture(drmHalfTex, drmCompositeMat);
+            dr->blitFullTexture(drmHalfTex, rotPrimDual ? compRot180 : drmCompositeMat);
             dr->setRotationMatrix(android::sDrmRotMat);
         } else if (hasDualDisplay) {
+            // Same mount rule as the half-res path: the target on VOP port 1 is
+            // drawn with the 180-turned rotation matrix.
+            const bool rotPrimDual = android::sDrmSeamRotCrtc > 0 &&
+                    (int)android::sDrmDisplays[android::sDrmPrimaryIdx].crtcId == (int)android::sDrmSeamRotCrtc;
+            const bool rotSecDual = android::sDrmSeamRotCrtc > 0 && !rotPrimDual;
+            float rot180Dual[4] = { -android::sDrmRotMat[0], -android::sDrmRotMat[1],
+                                    -android::sDrmRotMat[2], -android::sDrmRotMat[3] };
             // DEBUG: mirror_top makes the SECONDARY panel render the SAME
             // content as the primary (top screen). Both buffers then hold
             // identical pixels from one texture; if the panels still look
@@ -2059,6 +2102,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     "sys.gammaos.drastic_nano.mirror_top", false);
             glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
             glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
+            if (rotSecDual) dr->setRotationMatrix(rot180Dual);
             if (mirrorTop) {
                 dr->renderTopScreen(saturation, gradient);
             } else if (screensSwapped) {
@@ -2066,8 +2110,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             } else {
                 dr->renderBottomScreen(saturation, gradient);
             }
+            if (rotSecDual) dr->setRotationMatrix(android::sDrmRotMat);
 
             glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
+            if (rotPrimDual) dr->setRotationMatrix(rot180Dual);
             if (android::sDrmGlRotation) {
                 glViewport(0, 0, (GLsizei)primTgt.w,
                            (GLsizei)primTgt.h);
@@ -2079,6 +2125,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             } else {
                 dr->renderTopScreen(saturation, gradient);
             }
+            if (rotPrimDual) dr->setRotationMatrix(android::sDrmRotMat);
         } else if (drmSingleLayout) {
             // Lay out the DS screens by the advanced_drastic preset into the
             // logical (landscape) offscreen with NO rotation, exactly as the SF
@@ -2155,18 +2202,57 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             dr->renderBothScreens(saturation, gradient);
         }
 
-        // Composite the overlay onto the primary AHB tex. Drawing
+        // Overlay passes. The menu, toasts and HUD go on the PRIMARY panel (the DS top
+        // screen); the keyboard, the RetroAchievements detail panel, the scrim and the
+        // touch cursor go on the BOTTOM panel. On the AFBC combined buffer those are
+        // the GL lower half (DRM rows [0,H) -> primary panel) and the GL upper half
+        // (rows [H,2H) -> secondary panel); otherwise the primary and secondary
+        // targets. Whichever of them scans to the turned VOP port 1 panel gets the
+        // 180-turned overlay matrix, exactly like the DS screens above.
+        const bool ovRotPrim = android::sDrmSeamRotCrtc > 0 &&
+                (int)android::sDrmDisplays[android::sDrmPrimaryIdx].crtcId == (int)android::sDrmSeamRotCrtc;
+        const bool ovRotSec = android::sDrmSeamRotCrtc > 0 && hasDualDisplay && !ovRotPrim;
+        const float ovRot180[4] = { -android::sDrmRotMat[0], -android::sDrmRotMat[1],
+                                    -android::sDrmRotMat[2], -android::sDrmRotMat[3] };
+        const bool ovAfbc = android::sDrmAfbcMode && hasDualDisplay;
+        const uint32_t ovHalfH = ovAfbc ? android::sDrmAfbcHalfH : 0u;
+        auto bindPrimaryPass = [&]() {
+            glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
+            if (ovAfbc) {
+                glViewport(0, 0, (GLsizei)primTgt.w, (GLsizei)ovHalfH);
+                gfx.setViewport((int)primTgt.w, (int)ovHalfH);
+            } else if (android::sDrmGlRotation) {
+                glViewport(0, 0, (GLsizei)primTgt.w, (GLsizei)primTgt.h);
+            } else {
+                glViewport(0, 0, dpy->width, dpy->height);
+            }
+            gfx.setRotationMatrix(ovRotPrim ? ovRot180 : overlayRotMat);
+        };
+        auto bindBottomPass = [&]() {
+            if (ovAfbc) {
+                glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
+                glViewport(0, (GLint)ovHalfH, (GLsizei)primTgt.w, (GLsizei)ovHalfH);
+                gfx.setViewport((int)primTgt.w, (int)ovHalfH);
+            } else {
+                glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
+                glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
+                gfx.setViewport((int)secTgt.w, (int)secTgt.h);
+            }
+            gfx.setRotationMatrix(ovRotSec ? ovRot180 : overlayRotMat);
+        };
+        // Back to the primary panel's overlay canvas (one panel) and matrix.
+        auto endBottomPass = [&]() {
+            gfx.setRotationMatrix(overlayRotMat);
+            gfx.setViewport(drmPanelW, drmPanelH);
+        };
+
+        // Composite the overlay onto the primary panel. Drawing
         // happens even when the menu is closed so toast messages
         // (e.g. from quick save/load hotkeys) still appear.
-        glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
-        if (android::sDrmGlRotation) {
-            glViewport(0, 0, (GLsizei)primTgt.w, (GLsizei)primTgt.h);
-        } else {
-            glViewport(0, 0, dpy->width, dpy->height);
-        }
+        bindPrimaryPass();
         gfx.beginFrame();
         overlay.draw(gfx);
-        if (input.cursorMode && !overlay.isOpen()) {
+        if (input.cursorMode && !overlay.isOpen() && !hasDualDisplay) {
             drastic_nano::LayoutConfig cc =
                     readSfLayoutConfig(drmLogicalW, drmLogicalH);
             cc.swap = cc.swap ^ screensSwapped;
@@ -2268,14 +2354,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
           if (od[0] == '1') overlay.debugOpenOsk(); }
         if (overlay.oskActive()) {
             if (hasDualDisplay) {
-                glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
-                glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
-                gfx.setViewport((int)secTgt.w, (int)secTgt.h);
+                bindBottomPass();
                 gfx.beginFrame();
                 overlay.drawOsk(gfx);
                 gfx.endFrame();
-                // Restore the primary logical viewport for the next iteration.
-                gfx.setViewport((int)primTgt.w, (int)primTgt.h);
+                endBottomPass();
             } else {
                 glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
                 // Constrain the keyboard to the bottom (touch) DS screen's rect so
@@ -2315,24 +2398,30 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // the Achievements section is open (keyboard takes priority above).
         // Dual-panel only: the bottom panel is a real second screen there.
         if (!overlay.oskActive() && hasDualDisplay && overlay.wantsRaBottomPanel()) {
-            glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
-            glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
-            gfx.setViewport((int)secTgt.w, (int)secTgt.h);
+            bindBottomPass();
             gfx.beginFrame();
             overlay.drawRaBottomPanel(gfx);
             gfx.endFrame();
-            gfx.setViewport((int)primTgt.w, (int)primTgt.h);
+            endBottomPass();
         } else if (!overlay.oskActive() && hasDualDisplay && overlay.isOpen()) {
             // Any other overlay section: dim the bottom DS panel with a scrim so
             // the paused game reads as "the menu is open", matching the keyboard
             // and Achievements passes.
-            glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
-            glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
-            gfx.setViewport((int)secTgt.w, (int)secTgt.h);
+            bindBottomPass();
             gfx.beginFrame();
             overlay.drawBottomScrim(gfx);
             gfx.endFrame();
-            gfx.setViewport((int)primTgt.w, (int)primTgt.h);
+            endBottomPass();
+        } else if (hasDualDisplay && input.cursorMode && !overlay.isOpen()) {
+            // Touch cursor on the panel showing the DS bottom (touch) screen, which
+            // fills that panel: the bottom panel, or the top one when swapped.
+            if (screensSwapped) bindPrimaryPass(); else bindBottomPass();
+            gfx.beginFrame();
+            drastic_nano::Rect cbr{0.0f, 0.0f, (float)gfx.viewportW(), (float)gfx.viewportH()};
+            drawTouchCursor(gfx, cbr, input.cursorX, input.cursorY,
+                            (input.dsBtnMask & DrasticRunner::kDsBtnA) != 0);
+            gfx.endFrame();
+            endBottomPass();
         }
 
         // Debug screenshot: bottom panel (secondary AHB slot = DS bottom screen
@@ -3604,6 +3693,9 @@ int main(int argc, char** argv) {
         // DRM master; it succeeds on a DRM-capable panel and returns false on a
         // device with no DRM-direct path.
         if (!forceSf) {
+            // Opt into the AFBC combined-buffer path (rk356x + Low Latency): only
+            // drastic-nano renders both DS screens into the one 2x-tall buffer.
+            android::sDrmAfbcClient = true;
             drmUp = setupDisplay(&dpy);
             if (drmUp) {
                 ALOGI("drastic-nano: DRM backend up (%dx%d)", dpy.width, dpy.height);

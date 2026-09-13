@@ -75,10 +75,163 @@ bool sDrmVblankBroken = false;
 bool sDrmFrameSync = true;
 bool sDrmLowLatency = false;
 bool sDrmAfbcMode = false;  /* rk356x + Low Latency: AFBC buffers + Cluster planes */
+bool sDrmAfbcClient = false; /* set by drastic-nano before its DRM setup: it renders both DS screens into the combined buffer */
 uint32_t sDrmAfbcHalfH = 0; /* per-panel height; combined buffer is 2x this tall */
 static int64_t sDrmReadyUs = 0; /* frame ready-to-present instant, latency probe */
 int sPendingFlipEvents = 0;
 uint32_t sDrmSeamRotCrtc = 0;
+int sDrmSecondaryRotDeg = 0;       // mount rotation of the VOP port 1 panel (persist.gsf.rot.1 / persist.gsf.sec_rot)
+int sDrmVp1DisplayIdx = -1;        // index in sDrmDisplays of the panel on VOP video port 1, -1 if none
+bool sDrmPrimaryTurned = false;    // nano home: the primary ring's panel is the turned (port 1) one
+bool sDrmSecondaryTurned = false;  // nano home: the secondary ring's panel is the turned one
+
+// Turned-panel resolve. The passes keep rendering exactly as on an untouched
+// panel (every matrix, flip and glyph path unchanged) into a shared scratch FBO;
+// right before the slot's fence / flip the scratch image is drawn into the real
+// scanout AHB with its texture coordinates turned 180 degrees. One fullscreen
+// textured quad per turned panel per frame, well under a millisecond on the G52.
+struct TurnScratch { GLuint fbo = 0, tex = 0; uint32_t w = 0, h = 0; };
+static TurnScratch sTurnPrimary, sTurnSecondary;
+static GLuint sTurnProg = 0;
+static GLint sTurnPosLoc = -1, sTurnUvLoc = -1, sTurnTexLoc = -1;
+
+static GLuint drmTurnCompile(GLenum type, const char* src) {
+    GLuint sh = glCreateShader(type);
+    glShaderSource(sh, 1, &src, nullptr);
+    glCompileShader(sh);
+    GLint ok = GL_FALSE;
+    glGetShaderiv(sh, GL_COMPILE_STATUS, &ok);
+    if (!ok) { glDeleteShader(sh); return 0; }
+    return sh;
+}
+
+static bool drmTurnEnsureProgram() {
+    if (sTurnProg) return true;
+    static const char* kVs =
+        "attribute vec2 aPos; attribute vec2 aUv; varying vec2 vUv;\n"
+        "void main() { gl_Position = vec4(aPos, 0.0, 1.0); vUv = aUv; }\n";
+    static const char* kFs =
+        "precision mediump float; varying vec2 vUv; uniform sampler2D uTex;\n"
+        "void main() { gl_FragColor = texture2D(uTex, vUv); }\n";
+    GLuint vs = drmTurnCompile(GL_VERTEX_SHADER, kVs);
+    GLuint fs = drmTurnCompile(GL_FRAGMENT_SHADER, kFs);
+    if (!vs || !fs) { if (vs) glDeleteShader(vs); if (fs) glDeleteShader(fs); return false; }
+    GLuint prog = glCreateProgram();
+    glAttachShader(prog, vs); glAttachShader(prog, fs);
+    glLinkProgram(prog);
+    glDeleteShader(vs); glDeleteShader(fs);
+    GLint ok = GL_FALSE;
+    glGetProgramiv(prog, GL_LINK_STATUS, &ok);
+    if (!ok) { glDeleteProgram(prog); ALOGW("NanoMenu DRM turn: blit program failed to link"); return false; }
+    sTurnProg = prog;
+    sTurnPosLoc = glGetAttribLocation(prog, "aPos");
+    sTurnUvLoc  = glGetAttribLocation(prog, "aUv");
+    sTurnTexLoc = glGetUniformLocation(prog, "uTex");
+    return true;
+}
+
+// Redirect a ring slot's rendering into the (shared, lazily created) scratch FBO
+// and remember the real scanout FBO for the resolve.
+static void drmTurnAttach(AhbRenderTarget* t, TurnScratch* s, const char* label) {
+    if (!t->glFbo || t->scanFbo) return;
+    if (!drmTurnEnsureProgram()) return;
+    if (!s->fbo) {
+        GLint prevFbo = 0, prevTex = 0;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+        glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTex);
+        glGenTextures(1, &s->tex);
+        glBindTexture(GL_TEXTURE_2D, s->tex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)t->w, (GLsizei)t->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &s->fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, s->fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->tex, 0);
+        const GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        glBindTexture(GL_TEXTURE_2D, (GLuint)prevTex);
+        if (status != GL_FRAMEBUFFER_COMPLETE) {
+            ALOGW("NanoMenu DRM turn: scratch FBO(%s) incomplete 0x%x", label, status);
+            glDeleteFramebuffers(1, &s->fbo); glDeleteTextures(1, &s->tex);
+            s->fbo = s->tex = 0;
+            return;
+        }
+        s->w = t->w; s->h = t->h;
+        ALOGW("NanoMenu DRM turn: %s renders into a %ux%u scratch, resolved 180 into scanout", label, s->w, s->h);
+    }
+    t->scanFbo = t->glFbo;
+    t->glFbo = s->fbo;
+}
+
+static void drmTurnBlit(AhbRenderTarget& t, const TurnScratch& s) {
+    if (!t.scanFbo || !s.tex || !sTurnProg) return;
+    GLint prevFbo = 0, prevProg = 0, prevTex = 0, prevActive = 0, prevArray = 0, prevVp[4] = {0, 0, 0, 0};
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    glGetIntegerv(GL_CURRENT_PROGRAM, &prevProg);
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &prevActive);
+    glActiveTexture(GL_TEXTURE0);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTex);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &prevArray);
+    glGetIntegerv(GL_VIEWPORT, prevVp);
+    const GLboolean blend = glIsEnabled(GL_BLEND), scissor = glIsEnabled(GL_SCISSOR_TEST);
+    const GLboolean depth = glIsEnabled(GL_DEPTH_TEST), cull = glIsEnabled(GL_CULL_FACE);
+    GLint posWas = 0, uvWas = 0;
+    if (sTurnPosLoc >= 0) glGetVertexAttribiv((GLuint)sTurnPosLoc, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &posWas);
+    if (sTurnUvLoc >= 0)  glGetVertexAttribiv((GLuint)sTurnUvLoc,  GL_VERTEX_ATTRIB_ARRAY_ENABLED, &uvWas);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, t.scanFbo);
+    glViewport(0, 0, (GLsizei)t.w, (GLsizei)t.h);
+    glDisable(GL_BLEND); glDisable(GL_SCISSOR_TEST); glDisable(GL_DEPTH_TEST); glDisable(GL_CULL_FACE);
+    glUseProgram(sTurnProg);
+    glBindTexture(GL_TEXTURE_2D, s.tex);
+    glUniform1i(sTurnTexLoc, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Fullscreen strip; texture coordinates turned 180 degrees (u,v) -> (1-u,1-v).
+    static const GLfloat kPos[8] = { -1.f, -1.f,  1.f, -1.f,  -1.f, 1.f,  1.f, 1.f };
+    static const GLfloat kUv[8]  = {  1.f,  1.f,  0.f,  1.f,   1.f, 0.f,  0.f, 0.f };
+    glVertexAttribPointer((GLuint)sTurnPosLoc, 2, GL_FLOAT, GL_FALSE, 0, kPos);
+    glEnableVertexAttribArray((GLuint)sTurnPosLoc);
+    glVertexAttribPointer((GLuint)sTurnUvLoc, 2, GL_FLOAT, GL_FALSE, 0, kUv);
+    glEnableVertexAttribArray((GLuint)sTurnUvLoc);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    if (!posWas) glDisableVertexAttribArray((GLuint)sTurnPosLoc);
+    if (!uvWas)  glDisableVertexAttribArray((GLuint)sTurnUvLoc);
+    glBindBuffer(GL_ARRAY_BUFFER, (GLuint)prevArray);
+    glBindTexture(GL_TEXTURE_2D, (GLuint)prevTex);
+    glActiveTexture((GLenum)prevActive);
+    glUseProgram((GLuint)prevProg);
+    if (blend) glEnable(GL_BLEND);
+    if (scissor) glEnable(GL_SCISSOR_TEST);
+    if (depth) glEnable(GL_DEPTH_TEST);
+    if (cull) glEnable(GL_CULL_FACE);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+}
+
+void drmResolveTurnedTargets(int idx) {
+    if (idx < 0 || idx >= AHB_RING_DEPTH) return;
+    if (sDrmPrimaryTurned)   drmTurnBlit(sAhbRingPrimary[idx],   sTurnPrimary);
+    if (sDrmSecondaryTurned) drmTurnBlit(sAhbRingSecondary[idx], sTurnSecondary);
+}
+
+int drmPanelMountRotationDeg(int port) {
+    if (port <= 0) return 0;   // port 0 is SurfaceFlinger's primary: ro.surface_flinger.primary_display_orientation
+    auto toDeg = [](const char* s) -> int {
+        if (!strcmp(s, "ORIENTATION_90")  || !strcmp(s, "90"))  return 90;
+        if (!strcmp(s, "ORIENTATION_180") || !strcmp(s, "180")) return 180;
+        if (!strcmp(s, "ORIENTATION_270") || !strcmp(s, "270")) return 270;
+        return 0;
+    };
+    char key[PROPERTY_KEY_MAX];
+    char val[PROPERTY_VALUE_MAX];
+    snprintf(key, sizeof(key), "persist.gsf.rot.%d", port);
+    if (property_get(key, val, "") > 0) return toDeg(val);
+    if (property_get("persist.gsf.sec_rot", val, "") > 0) return toDeg(val);
+    return 0;
+}
 int64_t sDrmLastVblankUs = 0;   // CLOCK_MONOTONIC us of the latest primary flip-complete
 static int64_t sDrmVblankPeriodUs = 16667;   // learned from consecutive primary flip timestamps
 static int sDrmLastFenceFd = -1; // in-fence of the last AFBC commit (GPU completion probe)
@@ -968,16 +1121,48 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
         char plat[PROPERTY_VALUE_MAX] = {};
         property_get("ro.board.platform", plat, "");
         bool isRk356x = (strcmp(plat, "rk356x") == 0);
-        bool ll = property_get_bool("persist.gammaos.drastic_nano.low_latency", false);
+        // drastic-nano only (sDrmAfbcClient): it renders both DS screens into the
+        // one combined buffer. The nano home renders its two passes into separate
+        // primary/secondary buffers and must stay on the linear + Smart plane path
+        // (the combined buffer would leave its secondary pass unscanned and stretch
+        // the primary over both panels). Low Latency itself is still the persisted
+        // pref, read here because drastic-nano's prefs load after its DRM setup.
+        bool ll = sDrmAfbcClient &&
+                  property_get_bool("persist.gammaos.drastic_nano.low_latency", false);
         sDrmAfbcMode = isRk356x && ll && (sDrmDisplays.size() == 2);
         // RG DS: the panel on VOP2 video port 1 (DSI-2, the physical top
         // screen) is driven with its gate scan starting at the hinge, which
         // turns its image 180 degrees; the renderer compensates for that
         // CRTC. Keyed on the port index so it does not depend on CRTC ids.
+        // Physical mount of the panel on VOP video port 1 (the second DSI, the
+        // physical top screen on the RG DS and RG DS Plus). Its controller scans
+        // like the bottom panel so both latch in step; SurfaceFlinger turns it by
+        // persist.gsf.rot.1 as that display's physical orientation, and the
+        // DRM-direct producers apply the same prop here. Only 180 is supported on
+        // this path (a quarter turn would need the panel dimensions swapped).
+        sDrmSecondaryRotDeg = drmPanelMountRotationDeg(1);
+        if (sDrmSecondaryRotDeg != 0 && sDrmSecondaryRotDeg != 180)
+            ALOGW("NanoMenu DRM: port 1 mount rotation %d not supported on the DRM path, ignoring", sDrmSecondaryRotDeg);
+        sDrmVp1DisplayIdx = -1;
+        for (size_t i = 0; i < sDrmDisplays.size(); i++)
+            if (drmCrtcIndex(sDrmFd, sDrmDisplays[i].crtcId) == 1) sDrmVp1DisplayIdx = (int)i;
         sDrmSeamRotCrtc = 0;
-        if (sDrmAfbcMode)
-            for (auto& d : sDrmDisplays)
-                if (drmCrtcIndex(sDrmFd, d.crtcId) == 1) sDrmSeamRotCrtc = d.crtcId;
+        if (sDrmSecondaryRotDeg == 180 && sDrmVp1DisplayIdx >= 0)
+            sDrmSeamRotCrtc = sDrmDisplays[sDrmVp1DisplayIdx].crtcId;
+        // nano home only (drastic-nano keys its own passes on sDrmSeamRotCrtc): the
+        // ring whose panel is the turned one renders into a scratch FBO and is
+        // resolved 180 degrees into its scanout AHB (drmResolveTurnedTargets), so
+        // no matrix, flip or glyph path changes. Attached after the rings exist.
+        {
+            const bool primIsVp1 = (sDrmVp1DisplayIdx == sDrmPrimaryIdx);
+            const bool rot = (sDrmSecondaryRotDeg == 180 && sDrmVp1DisplayIdx >= 0 && sDrmDisplays.size() > 1);
+            sDrmPrimaryTurned   = rot && primIsVp1  && !sDrmAfbcClient;
+            sDrmSecondaryTurned = rot && !primIsVp1 && !sDrmAfbcClient;
+            if (sDrmSecondaryRotDeg)
+                ALOGW("NanoMenu DRM: port 1 mount rotation=%d vp1 display idx %d primary idx %d -> seamRotCrtc %u, turned primary=%d secondary=%d",
+                      sDrmSecondaryRotDeg, sDrmVp1DisplayIdx, sDrmPrimaryIdx, sDrmSeamRotCrtc,
+                      sDrmPrimaryTurned ? 1 : 0, sDrmSecondaryTurned ? 1 : 0);
+        }
         if (property_get_bool("sys.gammaos.drastic_nano.phase_probe", false))
             drmMeasureVblankPhase(sDrmFd);
         ALOGW("NanoMenu DRM: AFBC dual-screen mode %s (platform=%s low_latency=%d displays=%zu)",
@@ -1096,6 +1281,13 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
     // install rotation. drastic gets the updated matrix via the
     // setRotationMatrix call inside the QR loop, which runs after
     // this setup completes.
+    // Turned panel: redirect every slot of that ring into the scratch FBO now that
+    // the rings exist (the resolve copies it into the real AHB before each flip).
+    for (int i = 0; i < AHB_RING_DEPTH; i++) {
+        if (sDrmPrimaryTurned)   drmTurnAttach(&sAhbRingPrimary[i],   &sTurnPrimary,   "primary");
+        if (sDrmSecondaryTurned) drmTurnAttach(&sAhbRingSecondary[i], &sTurnSecondary, "secondary");
+    }
+
     if (sAhbRingPrimary[0].drmFbId != 0 && !sDrmYFlipForPrime) {
         sDrmRotMat[1] = -sDrmRotMat[1];
         sDrmRotMat[3] = -sDrmRotMat[3];
@@ -2804,7 +2996,15 @@ void drmStop() {
     // owns the display again. Mirrors the set at drmEarlySplash().
     property_set("sys.gammaos.nano.drm_active", "0");
     sDrmZeroCopy = false;
-    // Reset GL rotation to identity for the SF EGL path
+    // Reset GL rotation to identity for the SF EGL path. SurfaceFlinger applies the
+    // port 1 panel's physical orientation itself, so drop the DRM-only fold too.
+    sDrmPrimaryTurned = sDrmSecondaryTurned = false;
+    for (TurnScratch* s : { &sTurnPrimary, &sTurnSecondary }) {
+        if (s->fbo) glDeleteFramebuffers(1, &s->fbo);
+        if (s->tex) glDeleteTextures(1, &s->tex);
+        s->fbo = s->tex = 0; s->w = s->h = 0;
+    }
+    if (sTurnProg) { glDeleteProgram(sTurnProg); sTurnProg = 0; }
     sDrmGlRotation = false;
     sDrmRotMat[0] = 1.0f; sDrmRotMat[1] = 0.0f;
     sDrmRotMat[2] = 0.0f; sDrmRotMat[3] = 1.0f;
@@ -2818,6 +3018,7 @@ void drmStop() {
     // once and reused for every slot's eglDestroyImageKHR.
     EGLDisplay eglDpy = eglGetCurrentDisplay();
     auto releaseSlot = [&](AhbRenderTarget& t) {
+        if (t.scanFbo) { t.glFbo = t.scanFbo; t.scanFbo = 0; }   // the shared scratch was freed above
         if (t.glFbo) { glDeleteFramebuffers(1, &t.glFbo); t.glFbo = 0; }
         if (t.glTexture) { glDeleteTextures(1, &t.glTexture); t.glTexture = 0; }
         if (t.eglImage != EGL_NO_IMAGE_KHR && eglDpy != EGL_NO_DISPLAY &&
@@ -2907,6 +3108,35 @@ void drmStop() {
 //
 // Compiled into both gammaos-nano and drastic-nano (shared filegroup); each
 // process recommits its own master after its own sleep block.
+static long drmReadSuspendCount() {
+    FILE* f = fopen("/sys/power/suspend_stats/success", "r");
+    if (!f) return -1;
+    long v = -1;
+    if (fscanf(f, "%ld", &v) != 1) v = -1;
+    fclose(f);
+    return v;
+}
+static long sSuspendSeen = -1;
+static int64_t sSuspendCheckUs = 0;
+
+bool drmSuspendCycleDetected() {
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    if (now - sSuspendCheckUs < 500000) return false;
+    sSuspendCheckUs = now;
+    const long c = drmReadSuspendCount();
+    if (c < 0) return false;
+    if (sSuspendSeen < 0) { sSuspendSeen = c; return false; }
+    if (c == sSuspendSeen) return false;
+    sSuspendSeen = c;
+    return true;
+}
+
+void drmSuspendMarkSeen() {
+    const long c = drmReadSuspendCount();
+    if (c >= 0) sSuspendSeen = c;
+    sSuspendCheckUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+}
+
 void drmResumeRecommit() {
     if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return;
 

@@ -2396,6 +2396,26 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     }
+    if (!mSfMode) {
+        // Half Resolution on the DRM-direct dual-panel path: render each DS screen
+        // at half the panel size and NEAREST-upscale it onto the panel (mirror of
+        // the SurfaceFlinger option above, persist.gammaos.drastic_nano.drm_half_res).
+        // The DRM loop sizes its offscreen targets once at start, so the change
+        // takes effect through the same relaunch the other restart rows use.
+        RowAction r;
+        r.label = "Half Resolution";
+        r.value = property_get_bool("persist.gammaos.drastic_nano.drm_half_res", false)
+                          ? "On" : "Off";
+        auto flip = [this]() {
+            bool cur = property_get_bool(
+                    "persist.gammaos.drastic_nano.drm_half_res", false);
+            property_set("persist.gammaos.drastic_nano.drm_half_res", cur ? "0" : "1");
+            mRelaunch = true;
+        };
+        r.onAccept = flip;
+        r.onAdjust = [flip](int) { flip(); };
+        mRows.push_back(std::move(r));
+    }
     if (mSfMode) {
         // 16-bit Framebuffers: render the layout offscreen as RGB565 instead of
         // 8888, halving the per-frame write+read bandwidth of the offscreen the

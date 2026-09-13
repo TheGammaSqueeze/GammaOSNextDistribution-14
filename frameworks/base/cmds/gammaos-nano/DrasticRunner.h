@@ -111,6 +111,10 @@ public:
     // are no-ops. dualDisplay=true creates a portrait FBO (WxH*2)
     // for split-screen output to two displays.
     void initSurface(int viewportW, int viewportH, bool dualDisplay);
+    // Force the fx offscreen scale (1 = full resolution shaders regardless of
+    // persist.gammaos.nano.drastic_render_scale; 0 = follow the prop). Call before
+    // initSurface(). The DRM dual-panel path forces 1 when Half Resolution is off.
+    void setFxRenderScale(int scale) { mFxScaleOverride = scale; }
 
     // Render both DS screens into the offscreen FBO via drastic's
     // renderFrame. Must be called ONCE per frame, BEFORE any
@@ -853,10 +857,12 @@ private:
     bool mZcOn = false, mZcTried = false;
     bool setupZeroCopySlots();
     unsigned int mDirectFbo = 0; int mDirectVariant = -1; bool mDirectDone = false;
+    int mDirectW = 0, mDirectH = 0;   // size of the direct target (the combined AFBC buffer)
+    int mFxScaleOverride = 0;         // see setFxRenderScale()
     unsigned int mDirectVbo[8] = {0}; int mDirectVboKey[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
     unsigned int directVbo(int variant);
 public:
-    void setDirectTarget(unsigned int fbo, bool topToLower, bool rotLower, bool rotUpper);
+    void setDirectTarget(unsigned int fbo, int w, int h, bool topToLower, bool rotLower, bool rotUpper);
     bool directRendered() const { return mDirectDone; }
     bool vblankPacingActive() const;
     void inputHeldCheck();   // lock engaged (not bypassed, not fast-forward)

@@ -99,6 +99,10 @@ struct AhbRenderTarget {
     // display on RG DS, ~5-8 ms on 1080p panels).
     uint32_t drmFbId;
     uint32_t drmGemHandle;
+    // Turned panel (nano home DRM-direct): when non-zero, glFbo is a shared scratch
+    // FBO the passes render into unchanged and scanFbo is the real AHB FBO that
+    // drmResolveTurnedTargets() fills with the scratch image turned 180 degrees.
+    uint32_t scanFbo;
 };
 
 // ---------------------------------------------------------------------------
@@ -175,8 +179,23 @@ extern bool sDrmFrameSync;
 // on the RG DS), so this is a pure latency-vs-throughput trade. Off by default.
 extern bool sDrmLowLatency;
 extern bool sDrmAfbcMode;
+extern bool sDrmAfbcClient;      // drastic-nano opts into the AFBC combined-buffer path before setupDisplay()
 extern int64_t sDrmLastVblankUs;
-extern uint32_t sDrmSeamRotCrtc; // CRTC whose panel image is rendered 180 degrees (0 = none)
+extern uint32_t sDrmSeamRotCrtc;
+extern int sDrmSecondaryRotDeg;      // physical mount rotation of the VOP port 1 panel (persist.gsf.rot.1 / persist.gsf.sec_rot)
+extern int sDrmVp1DisplayIdx;
+extern bool sDrmPrimaryTurned;       // nano home: the primary ring scans the turned (port 1) panel
+extern bool sDrmSecondaryTurned;     // nano home: the secondary ring scans the turned panel
+// Before a ring slot's fence is created / it is flipped: copy each turned target's
+// scratch image into its scanout AHB turned 180 degrees. No-op for untouched targets.
+void drmResolveTurnedTargets(int idx);
+// Physical mount rotation (degrees) of the panel on a display port, read from the
+// same props SurfaceFlinger applies as that display's physical orientation
+// (getPhysicalDisplayOrientation): persist.gsf.rot.<displayId> (a DSI panel's
+// display id is its port) then persist.gsf.sec_rot for any non-primary port. On the
+// SF path SurfaceFlinger composes it under every projection; the DRM-direct path
+// has no SurfaceFlinger, so nano and drastic-nano apply it to that VOP port here.
+int drmPanelMountRotationDeg(int port);
 extern uint32_t sDrmAfbcHalfH;
 extern int sPendingFlipEvents;
 extern uint32_t sCrtcIds[kMaxCrtcTrack];
@@ -289,6 +308,7 @@ inline void drmFrameEnd(EGLDisplay dpy, EGLSurface surf) {
         // in libretro QR. glFinish here mirrors what drmFlipRingSlot
         // already does for the legacy blit path (!fenceUsed &&
         // !primeActive), just moved to the right place for PRIME.
+        drmResolveTurnedTargets(sRingRenderIdx);
         glFinish();
         drmFlipAll();
     } else if (sDrmActive) {
@@ -315,6 +335,12 @@ void nanoSetOverlayRenderRotation(int rot);
 // legacy page flip then EBUSYs forever). Call once at the wake point, on
 // the render thread, before relighting the backlight.
 void drmResumeRecommit();
+// True once per completed kernel suspend cycle (/sys/power/suspend_stats/success
+// advanced since the last look; polled at most every 500 ms, so safe to call per
+// frame). A caller that ran its own sleep/wake path calls drmSuspendMarkSeen() on
+// wake so that cycle is not reported again.
+bool drmSuspendCycleDetected();
+void drmSuspendMarkSeen();
 
 } // namespace android
 

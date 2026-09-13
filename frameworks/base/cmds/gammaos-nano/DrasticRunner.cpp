@@ -1311,6 +1311,12 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
         char rs[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.drastic_render_scale", rs, "");
         if (rs[0]) { int v = atoi(rs); if (v >= 1 && v <= 8) rscale = v; }
+        // The caller can pin the scale: the DRM dual-panel path renders the
+        // shader's final pass straight into the combined panel buffer whose
+        // pass geometry is fixed here by fxSetup, so with Half Resolution off it
+        // needs the full-size offscreen (full-resolution shaders, both panels
+        // filled); the render-scale prop then only applies with Half Resolution on.
+        if (mFxScaleOverride >= 1) rscale = mFxScaleOverride;
         if (rscale > 1) {
             int scaledW = mOffscreenW / rscale;
             int scaledH = mOffscreenH / rscale;
@@ -1690,9 +1696,11 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
 // top DS screen and 6..11 for the bottom one; a per-layout VBO variant
 // places each screen in the lower or upper half of the 640x960 target and
 // flips both texture axes for the half whose panel scans from the hinge.
-void DrasticRunner::setDirectTarget(unsigned int fbo, bool topToLower,
+void DrasticRunner::setDirectTarget(unsigned int fbo, int w, int h, bool topToLower,
                                     bool rotLower, bool rotUpper) {
     mDirectFbo = fbo;
+    mDirectW = w;
+    mDirectH = h;
     mDirectVariant = (topToLower ? 1 : 0) | (rotLower ? 2 : 0) | (rotUpper ? 4 : 0);
     mDirectDone = false;
 }
@@ -3109,6 +3117,11 @@ void DrasticRunner::renderDsToOffscreen() {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             glBindBuffer(GL_ARRAY_BUFFER, directVbo(mDirectVariant));
+            // The final pass lands in the combined buffer, whose size is the
+            // panel pair, not the (possibly render-scaled) fx offscreen: size
+            // the viewport and the output rect to the target, or a render scale
+            // above 1 leaves the pair drawn small in one corner of it.
+            if (mDirectW > 0 && mDirectH > 0) glViewport(0, 0, mDirectW, mDirectH);
         }
         // Drain any prior errors first so the post-call check is clean.
         while (glGetError() != GL_NO_ERROR) {}
@@ -3154,10 +3167,12 @@ void DrasticRunner::renderDsToOffscreen() {
             }
         }
         if (mFastUploadOn) fastUploadFrame();
+        const int fxOutW = (direct && mDirectW > 0) ? mDirectW : mOffscreenW;
+        const int fxOutH = (direct && mDirectH > 0) ? mDirectH : mOffscreenH;
         mFxRender(mFakeEnv, mFakeCls,
                   (int)mDsTopTex, (int)mDsBotTex,
                   0, 6, 18,
-                  0, 0, mOffscreenW, mOffscreenH,
+                  0, 0, fxOutW, fxOutH,
                   0);
         if (probing) slotProbePost(probe);
         if (direct) { patchFinalPassFbo(mOffscreenFbo); mDirectDone = true; }
