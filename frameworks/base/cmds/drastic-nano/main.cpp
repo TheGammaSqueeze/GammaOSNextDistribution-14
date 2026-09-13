@@ -2307,6 +2307,22 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 ALOGI("drastic-nano metrics: %s rd=%lld pb=%lld", m,
                       (long long)(sStgRdMaxNs / 1000000LL),
                       (long long)(sStgPbMaxNs / 1000000LL));
+                // Reliable test hook: append the metrics line to a file once/sec. Immune to
+                // adbd starvation (mode 5 saturates the SoC), the metrics-prop not persisting,
+                // and logcat rotation. Off unless the test path is armed.
+                {
+                    static FILE* sMf = nullptr;
+                    static bool sMfTried = false;
+                    if (!sMfTried) {
+                        sMfTried = true;
+                        char pth[PROPERTY_VALUE_MAX] = {0};
+                        property_get("sys.gammaos.drastic_nano.metrics_file", pth, "");
+                        if (pth[0]) sMf = fopen(pth, "we");
+                    }
+                    if (sMf) { fprintf(sMf, "%s rd=%lld pb=%lld\n", m,
+                                       (long long)(sStgRdMaxNs / 1000000LL),
+                                       (long long)(sStgPbMaxNs / 1000000LL)); fflush(sMf); }
+                }
                 sFpsFrames = 0;
                 sFpsWinMs = fpsNowMs;
                 sMaxFrameMs = 0;

@@ -871,6 +871,8 @@ private:
     bool setupDsAhbTextures(int w, int h);
     void patchFxUpload(bool disableUpload);
     void installVblankPacing(uint8_t* base);
+    void installThreaded3dSync(uint8_t* base);
+    bool mT3dSyncInstalled = false;
     void pacerThread();
     std::thread mPacerThread;
     std::atomic<bool> mPacerRun{false};

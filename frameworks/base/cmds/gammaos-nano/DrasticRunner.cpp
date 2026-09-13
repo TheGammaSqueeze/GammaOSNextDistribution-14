@@ -393,6 +393,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
             base = reinterpret_cast<uint8_t*>(info.dli_fbase);
             mArm64Base = base;
             installVblankPacing(base);
+            installThreaded3dSync(base);
         } else {
             ALOGW("DrasticRunner: dladdr(JNI_OnLoad) failed, skip "
                   "longjmp patches");
@@ -2036,6 +2037,149 @@ std::atomic<int64_t>  gLeadFloorRelaxAt{0};    // vblank seq at which the floor 
 // virtual clock could not reach for minutes).
 std::atomic<int64_t>  gVirtBaseUs{0};
 std::atomic<uint32_t> gVirtBaseSeq{0};
+uint32_t gT3dStats[8] = {0, 0, 0, 0, 0, 0, 0, 0};   // threaded 3D sync caves, see installThreaded3dSync
+// Mode 4 state (t3dComposeHook): adaptive join for games that compose engine A in
+// mid-frame chunks (Golden Sun, Dragon Ball Origins compose every scanline; Pokemon
+// Black 2 ~130 chunks per frame with a 3D render that never fits in the vblank slack).
+uint8_t* gT3dBase = nullptr;
+struct T3dAdapt {
+    bool lagMode = false;      // partial-path frames stay on drastic's one-frame pipeline
+    bool frameFresh = false;   // this frame's first chunk published the fresh buffer
+    int64_t emaWaitUs = 0;     // smoothed wait at the first chunk (join mode)
+    uint32_t freeStreak = 0;   // consecutive frames whose worker was idle at the first chunk
+    uint32_t wholeJoins = 0, firstFree = 0, firstWait = 0, firstSkip = 0, switches = 0;
+    int64_t maxWaitUs = 0, sumWaitUs = 0;
+    // Alternating-screen detection: games that draw the 3D scene on both screens toggle
+    // the POWCNT1 display-swap bit (master+0x1b374 bit 15) every frame. For them a stale
+    // 3D frame lands on the wrong screen, so they always wait for the fresh buffer; games
+    // that keep the 3D on one screen never show the one-frame lag and may use the budget.
+    uint16_t lastPow = 0; uint32_t altHist = 0; uint32_t toggles = 0; bool alternating = false;
+    uint32_t capFrames = 0;    // frames whose display capture was armed at the first chunk (render+0x458836)
+    uint32_t frames = 0;       // frames seen at the first chunk
+    // Capture-based alternation: the 3D is captured every frame (render+0x458836) and the
+    // OTHER engine displays VRAM (DISPCNT B display mode 2, master+0x1c070 bits 16..17),
+    // i.e. the captured 3D is shown on the other screen a frame later (Dragon Ball
+    // Origins). Pokemon Black 2 captures every frame too but shows the 3D on its own
+    // engine, so the lag is not visible there.
+    uint32_t capHist = 0, vramBHist = 0; uint32_t modeA = 0, modeB = 0;
+} gT3d;
+// Mode 5 (per-band pipeline) state. gT3dBands is written by the rasterizer band cave
+// (+0x5ee64: bands completed in the in-flight target buffer, 32 hi-res lines each) and
+// reset by the kick cave (+0x2c9c4) at scanline 214 when the next frame is queued.
+alignas(8) volatile uint32_t gT3dBandMask = 0;   // bit b set when global band b is rendered+edge-fixed
+int gT3dMode = 0;
+struct T3dPipe {
+    uint32_t chunks = 0, waited = 0, timeouts = 0, startWaits = 0, idleSkips = 0, fullWaits = 0;
+    int64_t sumUs = 0, maxUs = 0, sumStartUs = 0;
+} gT3dPipe;
+static inline int64_t t3dNowUs() {
+    struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (int64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+}
+extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
+    if (last > 191 || !gT3dBase) return;                       // vblank-issued compose
+    uint8_t* render = engA - 0x2e78;
+    uint8_t* master = *reinterpret_cast<uint8_t**>(render);
+    uint8_t* video  = *reinterpret_cast<uint8_t**>(master + 0xfba68);
+    if (*reinterpret_cast<uint32_t*>(video + 0x8aac0) == 0) return;   // threaded 3D not active
+    if (video[0x8f42c] & 8) return;                                     // original join gate
+    if (gT3dMode >= 5) {
+        // Per-band pipeline for the multi-threaded rasterizer. Frame N's render was kicked
+        // at scanline 214 of N-1; nth rasterizer threads render interleaved 32-line bands
+        // out of order, each setting its bit in gT3dBandMask (band cave +0x5ee64) after it
+        // has rendered and edge-fixed that band; the kick cave (+0x2c9c4) clears the mask.
+        // The 3D line fetch reads the in-flight target buffer (csel patches), so a compose
+        // chunk [first,last] only waits until every band it covers is set, or the worker is
+        // idle. Normally the wait is zero and the 3D overlaps the CPU emulation with no lag.
+        uint8_t* cfg = *reinterpret_cast<uint8_t**>(render + 8);
+        const bool hires = *reinterpret_cast<uint32_t*>(cfg + 1184) != 0;
+        volatile uint8_t* work = render + 0x34ec78;
+        volatile uint8_t* busy = render + 0x34ec79;
+        const int64_t t0 = t3dNowUs();
+        gT3dPipe.chunks++;
+        // Wait for the worker to take this frame's kick before trusting the target pointer.
+        { bool w = false;
+          while (*work) { w = true; if (t3dNowUs() - t0 > 40000) { gT3dPipe.timeouts++; break; } sched_yield(); }
+          if (w) { gT3dPipe.startWaits++; gT3dPipe.sumStartUs += t3dNowUs() - t0; } }
+        uint32_t need;
+        const uint32_t ctl = *reinterpret_cast<uint32_t*>(render + 0x34eb40);
+        if (!hires) { need = 0xffffffffu; gT3dPipe.fullWaits++; }   // lo-res rasterizer: no band mask, wait for idle
+        else {
+            const uint32_t bnd = last / 16;              // band holding DS line `last`
+            uint32_t top = bnd;
+            if ((ctl & 0x20) && (last % 16) == 15 && bnd < 11) top = bnd + 1;   // edge boundary needs the next band
+            need = (top >= 31) ? 0xffffffffu : ((1u << (top + 1)) - 1u);        // bands 0..top
+        }
+        bool waited = false;
+        while ((__atomic_load_n(&gT3dBandMask, __ATOMIC_ACQUIRE) & need) != need) {
+            if (!*work && !*busy) { if (!waited) gT3dPipe.idleSkips++; break; }
+            waited = true;
+            if (t3dNowUs() - t0 > 40000) { gT3dPipe.timeouts++; break; }
+            sched_yield();
+        }
+        if (waited) {
+            const int64_t w = t3dNowUs() - t0;
+            gT3dPipe.waited++; gT3dPipe.sumUs += w; if (w > gT3dPipe.maxUs) gT3dPipe.maxUs = w;
+        }
+        return;
+    }
+    if (first != 0) return;   // later chunks read whatever the first chunk left published
+    auto join = reinterpret_cast<void (*)(void*)>(gT3dBase + 0x5f4b4);
+    const bool busy = render[0x34ec79] != 0;
+    if (last == 191) {        // whole-frame compose: fresh (mode 3 behaviour) unless the
+                              // game is in lag mode, where every frame must stay one behind
+                              // so a mix of whole-frame and chunked frames never lands the
+                              // two 3D scenes of an alternating game on the same screen
+        if (gT3d.lagMode) { gT3d.firstSkip++; gT3d.frameFresh = false; return; }
+        gT3d.wholeJoins++;
+        join(render + 0x1056c0);
+        return;
+    }
+    // first chunk of an incrementally composed frame: refresh the alternation history
+    {
+        const uint16_t pow = *reinterpret_cast<uint16_t*>(master + 0x1b374);
+        const bool tog = ((pow ^ gT3d.lastPow) & 0x8000) != 0;
+        gT3d.lastPow = pow;
+        gT3d.altHist = (gT3d.altHist << 1) | (tog ? 1u : 0u);
+        if (tog) gT3d.toggles++;
+        gT3d.frames++;
+        const bool cap = render[0x458836] != 0;
+        if (cap) gT3d.capFrames++;
+        gT3d.modeA = (*reinterpret_cast<uint32_t*>(master + 0x1b070) >> 16) & 3;
+        gT3d.modeB = (*reinterpret_cast<uint32_t*>(master + 0x1c070) >> 16) & 3;
+        gT3d.capHist   = (gT3d.capHist   << 1) | (cap ? 1u : 0u);
+        gT3d.vramBHist = (gT3d.vramBHist << 1) | (gT3d.modeB == 2 ? 1u : 0u);
+        const bool swapAlt = __builtin_popcount(gT3d.altHist) >= 16;      // half of the last 32 frames
+        const bool capAlt  = __builtin_popcount(gT3d.capHist) >= 16 && __builtin_popcount(gT3d.vramBHist) >= 16;
+        gT3d.alternating = swapAlt || capAlt;
+        if (gT3d.alternating && gT3d.lagMode) { gT3d.lagMode = false; gT3d.switches++; gT3d.emaWaitUs = 0; }
+    }
+    if (!busy) {
+        gT3d.firstFree++;
+        if (gT3d.lagMode) {
+            if (++gT3d.freeStreak >= 30) { gT3d.lagMode = false; gT3d.switches++; gT3d.emaWaitUs = 0; }
+            gT3d.frameFresh = false;   // stay consistent with the previous frames until we switch
+            return;
+        }
+        join(render + 0x1056c0);
+        gT3d.frameFresh = true;
+        return;
+    }
+    gT3d.freeStreak = 0;
+    if (gT3d.lagMode) { gT3d.firstSkip++; gT3d.frameFresh = false; return; }
+    static int64_t sBudgetUs = 3000, sBudgetReadUs = 0;
+    const int64_t t0 = t3dNowUs();
+    if (t0 - sBudgetReadUs > 1000000) {
+        sBudgetReadUs = t0;
+        sBudgetUs = property_get_int32("sys.gammaos.drastic_nano.t3d_wait_budget_us", 3000);
+    }
+    join(render + 0x1056c0);
+    const int64_t w = t3dNowUs() - t0;
+    gT3d.firstWait++; gT3d.sumWaitUs += w; if (w > gT3d.maxWaitUs) gT3d.maxWaitUs = w;
+    gT3d.emaWaitUs = (gT3d.emaWaitUs * 7 + w) / 8;
+    gT3d.frameFresh = true;
+    if (!gT3d.alternating && gT3d.emaWaitUs > sBudgetUs) { gT3d.lagMode = true; gT3d.switches++; }
+}
 std::atomic<bool>     gPaceBypass{false};   // emulator too slow for the lock: drastic's own timer
 static inline uint64_t realClockUs() {
     struct timeval tv; gettimeofday(&tv, nullptr);
@@ -2188,6 +2332,207 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     mPacerThread.detach();
     ALOGW("DrasticRunner: vblank pacing installed (panel %.4f Hz, audio %u mHz)",
           mPanelHz, rate);
+}
+
+// Threaded 3D presents the 3D layer one frame late. libdrastic's frame-end
+// routine (+0x3cf88, called at scanline 191) first composes the 2D layers
+// (+0x3cd78), reading the 3D scanlines through the "published" buffer
+// pointer (+0x34eb60 in the render struct), and only afterwards waits for
+// the 3D worker and publishes the buffer it just finished (+0x5f4b4:
+// wait busy==0, then published = target). The worker is kicked at
+// scanline 214, so the frame composed at line 191 shows the geometry
+// swapped two frames earlier, while the non-threaded path renders at
+// line 214 and shows it one frame later, like the hardware. Games that
+// alternate the 3D engine between the two screens every frame (display
+// capture + screen swap, e.g. Diddy Kong Racing DS) therefore get each
+// screen's 3D image on the other screen with threading on.
+//
+// The cave below swaps the order: wait for the worker and publish first,
+// then compose. The worker still overlaps the whole CPU frame (kicked at
+// line 214, joined at line 191 of the next frame); only the join moves in
+// front of the 2D compose instead of behind it. The original join after
+// the compose stays and becomes a no-op.
+void DrasticRunner::installThreaded3dSync(uint8_t* base) {
+    if (!base) return;
+    // 0 = off; 1 = join before the frame-end compose (line 191); 2 = join before every
+    // engine A compose (the whole-frame compose and the partial composes issued by
+    // mid-frame VRAM/capture changes); 3 = join only before the whole-frame engine A
+    // compose. Mode 3 is the default: games that compose the frame in one go at line
+    // 191 (Diddy Kong Racing, Sonic Rush) read the freshest 3D buffer while engine B's
+    // compose on the 2D worker thread still overlaps the wait; games that compose
+    // incrementally (Pokemon Black 2 does ~130 chunks per frame from line 0) keep
+    // drastic's original one-frame pipeline for the whole frame, so a frame is never
+    // mixed from two 3D buffers and the first chunk never stalls on the worker (mode 2
+    // measured Black 2 below 60 fps for that reason).
+    // 4 = mode 3 for whole-frame composes plus an adaptive join at the FIRST chunk of an
+    // incrementally composed frame: free when the worker is already done, otherwise wait
+    // while the smoothed wait stays under sys.gammaos.drastic_nano.t3d_wait_budget_us
+    // (3 ms); a game whose 3D render never fits the vblank slack (Black 2) falls back to
+    // the original one-frame pipeline until its worker is idle at the first chunk for 30
+    // consecutive frames. Later chunks never join, so a frame is never mixed.
+    // 5 = per-band pipeline (see t3dComposeHook): universal, no lag, 3D overlaps the
+    // CPU emulation; the default.
+    const int mode = property_get_int32("persist.gammaos.drastic_nano.t3d_sync", 5);
+    gT3dMode = mode;
+    if (mode <= 0) {
+        ALOGW("DrasticRunner: threaded 3D sync patch disabled by property");
+        return;
+    }
+    const long ps = sysconf(_SC_PAGESIZE) > 0 ? sysconf(_SC_PAGESIZE) : 4096;
+    struct Word { uintptr_t off; uint32_t expect; };
+    // Frame-end compose site (+0x3cf88 at line 191): bl +0x3cd78.
+    static const Word kFeSite = { 0x3cfe4, 0x97ffff65u };
+    // Engine A (the engine with the 3D layer, render+0x2e78) compose sites: bl +0x5004c
+    // with x0 = engine A, w1 = first line, w2 = last line. +0x3ced8 is the whole-frame
+    // path of +0x3cd78 on the main thread (the 2D worker +0x3cca0 composes engine B,
+    // render+0x84298, meanwhile), +0x3cf40 is the partial path.
+    static const Word kASites[2] = { {0x3ced8, 0x94004c5du}, {0x3cf40, 0x94004c43u} };
+    // The original join we mirror: ldr w8,[x22,#32]; ldrb w8,[x21]; tbnz #3;
+    // mov w8,#0x56c0; movk w8,#0x10,lsl#16; add x0,x19,x8; bl +0x5f4b4.
+    static const Word kJoinSite[] = {
+        {0x3d2c0, 0xb94022c8u}, {0x3d2c8, 0x394002a8u}, {0x3d2d0, 0x528ad808u},
+        {0x3d2d4, 0x72a00208u}, {0x3d2d8, 0x8b080260u}, {0x3d2dc, 0x94008876u},
+    };
+    auto check = [&](const Word& w) {
+        if (*reinterpret_cast<uint32_t*>(base + w.off) == w.expect) return true;
+        ALOGW("DrasticRunner: threaded 3D sync: unexpected code at +0x%lx, leaving off",
+              (unsigned long)w.off);
+        return false;
+    };
+    if (!check(kFeSite)) return;
+    for (const Word& w : kJoinSite) if (!check(w)) return;
+    for (const Word& w : kASites) if (!check(w)) return;
+    // Both caves, assembled and linked at +0x132ca0 (RX padding after the pacing caves):
+    //   fe_cave +0x132ca0 (mode 1): join (+0x5f4b4) then compose (+0x3cd78) with the
+    //     original gates ([x22+32] threaded active, !([x21]&8)); literal +0x132d20.
+    //   a_cave +0x132d30 (modes 2/3): for composes ending before line 192 derive render
+    //     (x0 - 0x2e78), master ([render]) and video ([master+0xfba68]), same gates,
+    //     join, then tail-call the line compose (+0x5004c); literal +0x132dd0.
+    //     A vblank-issued compose skips the join: nothing to compose, and the kick at
+    //     line 214 must never see a join before the worker has taken the job.
+    // Counters gT3dStats: [0] frame-end joins, [1] of which preceded by a partial compose,
+    // [2] of which found the worker busy, [3] engine A joins, [4] of which busy,
+    // [5] last split line seen at a frame-end join.
+    static const uint32_t kBlob[110] = {
+        0xa9bf7bfdu, 0x910003fdu, 0xb94022c8u, 0x34000308u, 0x394002a8u, 0x371802c8u,
+        0x58000350u, 0xb9400211u, 0x11000631u, 0xb9000211u, 0x79405a88u, 0x340000a8u,
+        0xb9001608u, 0xb9400611u, 0x11000631u, 0xb9000611u, 0x529d8f31u, 0x72a00691u,
+        0x38716a68u, 0x34000088u, 0xb9400a11u, 0x11000631u, 0xb9000a11u, 0x528ad808u,
+        0x72a00208u, 0x8b080260u, 0x97fcb1ebu, 0xaa1303e0u, 0x528017e1u, 0x97fc2819u,
+        0xa8c17bfdu, 0xd65f03c0u, 0x00000000u, 0x00000000u, 0xd503201fu, 0xd503201fu,
+        0xa9bd7bfdu, 0xa90107e0u, 0xa9020fe2u, 0x910003fdu, 0x7102fc5fu, 0x540003c8u,
+        0x5285cf11u, 0xcb110010u, 0xf9400211u, 0x52974d08u, 0x72a001e8u, 0xf8686a31u,
+        0x52955808u, 0x72a00108u, 0xb8686a28u, 0x34000288u, 0x529e8588u, 0x72a00108u,
+        0x38686a28u, 0x37180208u, 0x58000291u, 0xb9400e28u, 0x11000508u, 0xb9000e28u,
+        0x529d8f28u, 0x72a00688u, 0x38686a08u, 0x34000088u, 0xb9401228u, 0x11000508u,
+        0xb9001228u, 0x528ad808u, 0x72a00208u, 0x8b080200u, 0x97fcb1bfu, 0xa94107e0u,
+        0xa9420fe2u, 0xa8c37bfdu, 0x17fc74a1u, 0xd503201fu, 0x00000000u, 0x00000000u,
+        0xd503201fu, 0xd503201fu, 0xa9bd7bfdu, 0xa90107e0u, 0xa9020fe2u, 0x910003fdu,
+        0x580000d0u, 0xd63f0200u, 0xa94107e0u, 0xa9420fe2u, 0xa8c37bfdu, 0x17fc7492u,
+        0x00000000u, 0x00000000u, 0x58000090u, 0x889ffe1fu, 0x17fcb179u, 0xd503201fu,
+        0x00000000u, 0x00000000u, 0xd503201fu, 0xd503201fu, 0xb94173e1u, 0x12001c21u,
+        0x52800031u, 0x1ac12231u, 0x58000090u, 0xb871321fu, 0xb9416feau, 0xd65f03c0u,
+        0x00000000u, 0x00000000u,
+    };
+    //   c_cave +0x132de0 (mode 4): both engine A sites -> t3dComposeHook(engineA, first,
+    //     last) (C, decides and joins), then the line compose; literal +0x132e08.
+    //   k_cave +0x132e10 (mode 5): kick site +0x2c9c4 (bl +0x5f3fc) -> reset gT3dBands,
+    //     tail-call the kick; literal +0x132e20.
+    //   b_cave +0x132e30 (mode 5): rasterizer band-complete site +0x5ee64 (ldr w10,[sp,#364]
+    //     in the hi-res frame rasterizer +0x5e648, one band = 32 hi-res lines). With edge
+    //     marking on (3D control bit 5) the band-boundary pass (+0x5c9d4 / +0x5dd80 /
+    //     just marks the band done (atomic OR); no per-band edge pass (calling the edge
+    //     boundary pass from the concurrent rasterizer threads segfaults - see 2026-09-14;
+    //     the original frame-end edge pass still runs). Literal +0x132e50.
+    // Mode 5 also patches the 3D line fetches so threaded mode reads the in-flight target
+    // buffer (+0x34eb58) like non-threaded: +0x5f2a0 / +0x59f98 csel -> mov x8, x9,
+    // +0x5fa18 csel -> nop, +0x5fa9c ldr x8,[x9,#8] -> ldr x8,[x9].
+    const uintptr_t kCave = 0x132ca0, kFeCave = 0x132ca0, kACave = 0x132d30, kCCave = 0x132de0;
+    const uintptr_t kKCave = 0x132e10, kBCave = 0x132e30;
+    const int kFeLit = 32, kALit = 76, kCLit = 90, kKLit = 96, kBLit = 108;   // word index of each literal
+    static const Word kKickSite = { 0x2c9c4, 0x9400ca8eu };
+    static const Word kBandSite = { 0x5ee64, 0xb9416feau };
+    struct Patch { uintptr_t off; uint32_t expect; uint32_t with; };
+    static const Patch kFetch[4] = {
+        { 0x5f2a0, 0x9a8a0128u, 0xaa0903e8u },   // hi-res fetch: csel x8,x9,x10,eq -> mov x8, x9
+        { 0x59f98, 0x9a8a0128u, 0xaa0903e8u },   // lo-res fetch: same
+        { 0x5fa18, 0x9a8b0129u, 0xd503201fu },   // unified fetch (hi-res): csel x9,x9,x11,eq -> nop
+        { 0x5fa9c, 0xf9400528u, 0xf9400128u },   // unified fetch (lo-res): ldr x8,[x9,#8] -> ldr x8,[x9]
+    };
+    if (mode >= 5) {
+        if (!check(kKickSite) || !check(kBandSite)) return;
+        for (const Patch& f : kFetch)
+            if (*reinterpret_cast<uint32_t*>(base + f.off) != f.expect) {
+                ALOGW("DrasticRunner: threaded 3D sync: unexpected fetch code at +0x%lx, leaving off",
+                      (unsigned long)f.off);
+                return;
+            }
+    }
+    uint8_t* cavePg = (uint8_t*)((uintptr_t)(base + kCave) & ~(uintptr_t)(ps - 1));
+    uint8_t* sitePg = (uint8_t*)((uintptr_t)(base + kFeSite.off) & ~(uintptr_t)(ps - 1));
+    // Pages touched by mode 5 (kick site, band site, the four fetch sites).
+    static const uintptr_t kExtraOffs[5] = { 0x2c9c4, 0x5ee64, 0x5f2a0, 0x59f98, 0x5fa18 };
+    uint8_t* extraPg[5];
+    for (int i = 0; i < 5; i++) extraPg[i] = (uint8_t*)((uintptr_t)(base + kExtraOffs[i]) & ~(uintptr_t)(ps - 1));
+    if (mprotect(cavePg, ps, PROT_READ | PROT_WRITE | PROT_EXEC) != 0 ||
+        mprotect(sitePg, ps, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
+        ALOGW("DrasticRunner: threaded 3D sync: mprotect failed: %s", strerror(errno));
+        return;
+    }
+    if (mode >= 5)
+        for (int i = 0; i < 5; i++)
+            if (mprotect(extraPg[i], ps, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
+                ALOGW("DrasticRunner: threaded 3D sync: mprotect(+0x%lx) failed: %s",
+                      (unsigned long)kExtraOffs[i], strerror(errno));
+                return;
+            }
+    auto bl = [&](uintptr_t from, uintptr_t to) -> uint32_t {
+        intptr_t d = (intptr_t)to - (intptr_t)from;
+        return 0x94000000u | (uint32_t)((d >> 2) & 0x03ffffff);
+    };
+    uint32_t* c = reinterpret_cast<uint32_t*>(base + kCave);
+    for (int i = 0; i < 110; i++) c[i] = kBlob[i];
+    const uint64_t statsAddr = (uint64_t)(uintptr_t)gT3dStats;
+    const uint64_t hookAddr  = (uint64_t)(uintptr_t)&t3dComposeHook;
+    const uint64_t bandsAddr = (uint64_t)(uintptr_t)&gT3dBandMask;
+    memcpy(&c[kFeLit], &statsAddr, 8);
+    memcpy(&c[kALit], &statsAddr, 8);
+    memcpy(&c[kCLit], &hookAddr, 8);
+    memcpy(&c[kKLit], &bandsAddr, 8);
+    memcpy(&c[kBLit], &bandsAddr, 8);
+    gT3dBase = base;
+    if (mode >= 5) {
+        *reinterpret_cast<uint32_t*>(base + kKickSite.off) = bl(kKickSite.off, kKCave);
+        *reinterpret_cast<uint32_t*>(base + kBandSite.off) = bl(kBandSite.off, kBCave);
+        for (const Patch& f : kFetch) *reinterpret_cast<uint32_t*>(base + f.off) = f.with;
+        for (const Word& w : kASites)
+            *reinterpret_cast<uint32_t*>(base + w.off) = bl(w.off, kCCave);
+    } else if (mode >= 4) {
+        for (const Word& w : kASites)
+            *reinterpret_cast<uint32_t*>(base + w.off) = bl(w.off, kCCave);
+    } else if (mode == 2) {
+        for (const Word& w : kASites)
+            *reinterpret_cast<uint32_t*>(base + w.off) = bl(w.off, kACave);
+    } else if (mode == 3) {
+        *reinterpret_cast<uint32_t*>(base + kASites[0].off) = bl(kASites[0].off, kACave);
+    } else {
+        *reinterpret_cast<uint32_t*>(base + kFeSite.off) = bl(kFeSite.off, kFeCave);
+    }
+    __builtin___clear_cache((char*)cavePg, (char*)cavePg + ps);
+    __builtin___clear_cache((char*)sitePg, (char*)sitePg + ps);
+    mprotect(cavePg, ps, PROT_READ | PROT_EXEC);
+    mprotect(sitePg, ps, PROT_READ | PROT_EXEC);
+    if (mode >= 5)
+        for (int i = 0; i < 5; i++) {
+            __builtin___clear_cache((char*)extraPg[i], (char*)extraPg[i] + ps);
+            mprotect(extraPg[i], ps, PROT_READ | PROT_EXEC);
+        }
+    mT3dSyncInstalled = true;
+    ALOGW("DrasticRunner: threaded 3D sync patch installed (mode %d: join before %s)",
+          mode, mode >= 5 ? "nothing: per-band pipeline, fetch reads the in-flight target"
+                          : mode >= 4 ? "the whole-frame engine A compose, adaptive at first chunks"
+                          : mode == 3 ? "the whole-frame engine A compose"
+                          : mode == 2 ? "every engine A compose" : "the frame-end compose");
 }
 
 bool DrasticRunner::vblankPacingActive() const { return gPaceOn.load(); }
@@ -2391,6 +2736,19 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             ALOGW("PACE lead=%lld misses=%u floor=%lld hookflips=%u emu=%lld", (long long)gLeadUs.load(),
                   gMissCount.load(), (long long)gLeadCreepFloor.load(), gFlipHookCount.load(),
                   (long long)gEmuDurUs.load());
+            if (mT3dSyncInstalled && gT3dMode >= 5)
+                ALOGW("PACE t3d5 chunks=%u waited=%u sum=%lld max=%lld start=%u startus=%lld idle=%u full=%u to=%u bands=%u",
+                      gT3dPipe.chunks, gT3dPipe.waited, (long long)gT3dPipe.sumUs, (long long)gT3dPipe.maxUs,
+                      gT3dPipe.startWaits, (long long)gT3dPipe.sumStartUs, gT3dPipe.idleSkips,
+                      gT3dPipe.fullWaits, gT3dPipe.timeouts, __atomic_load_n(&gT3dBandMask, __ATOMIC_RELAXED));
+            else if (mT3dSyncInstalled)
+                ALOGW("PACE t3d joins=%u partial=%u blocked=%u ajoins=%u ablocked=%u split=%u "
+                      "whole=%u ffree=%u fwait=%u fskip=%u ema=%lld max=%lld sum=%lld sw=%u lag=%d tog=%u alt=%d cap=%u/%u modeA=%u modeB=%u",
+                      gT3dStats[0], gT3dStats[1], gT3dStats[2], gT3dStats[3], gT3dStats[4], gT3dStats[5],
+                      gT3d.wholeJoins, gT3d.firstFree, gT3d.firstWait, gT3d.firstSkip,
+                      (long long)gT3d.emaWaitUs, (long long)gT3d.maxWaitUs, (long long)gT3d.sumWaitUs,
+                      gT3d.switches, gT3d.lagMode ? 1 : 0, gT3d.toggles, gT3d.alternating ? 1 : 0,
+                      gT3d.capFrames, gT3d.frames, gT3d.modeA, gT3d.modeB);
         }
     }
     // Creep the lead in while frames land on time: 50 us every 20 frames,
