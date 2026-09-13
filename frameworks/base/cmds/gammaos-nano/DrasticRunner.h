@@ -17,6 +17,7 @@
 #include <string>
 #include <thread>
 #include <atomic>
+#include <android/hardware_buffer.h>
 #include <chrono>
 #include <mutex>
 #include <condition_variable>
@@ -242,6 +243,33 @@ public:
     // internally). No-op until drastic is initialized.
     void setFastForward(bool on);
 
+    // Vblank-locked emulation (RG DS low-latency path). Call setPanelRefreshHz
+    // before init(): the OpenSL output rate is patched to 44100 * hz / 60 so
+    // drastic's fixed 735 samples per frame drain at exactly the panel rate,
+    // and drastic's frame limiter is redirected to a virtual clock that
+    // advances one frame per vblankTick() and a wait that blocks until the
+    // next tick. setVblankPacing() switches the redirect live (fast-forward
+    // and non-DRM paths run drastic's own timer); waitProducerFrame() blocks
+    // until drastic flips its screen slot, or the timeout passes.
+    void setPanelRefreshHz(double hz) { mPanelHz = hz; }
+    void setVblankPacing(bool on);
+    // Report the timestamp (CLOCK_MONOTONIC us) of the vblank that latched
+    // the last flip. The pacer thread ticks the emulator pace_lead_us before
+    // the next expected vblank, so its frame completes as the vblank arrives
+    // and the render plus GPU fence fit before the one after.
+    void vblankTick(int64_t vblankUs, int64_t gpuDoneUs = 0);
+    bool lastWaitWasImmediate() const { return mLastWaitImmediate; }
+    void reportFrameMiss(int source);
+    bool waitProducerFrame(int timeoutUs);
+    bool vblankPacingInstalled() const { return mPaceInstalled; }
+
+    // Fast DS texture upload: the two DS textures are backed by CPU-writable
+    // AHardwareBuffers (EGLImages) and fxRender's two glTexSubImage2D calls
+    // are patched out; each frame the front slot's screens are copied into
+    // the buffers with memcpy instead of the driver's tiling upload.
+    bool fastUploadInstalled() const { return mFastUploadOn; }
+    void fastUploadFrame();
+
     // Apply a freshly-built config word (from DrasticPrefs::
     // applyConfigBitsFrom) to the running emulator with no relaunch, the
     // way the real drastic app applies in-game video/audio changes.
@@ -409,6 +437,23 @@ private:
     // fxSetup (fxSetup's worker always ends with glUseProgram(0), so
     // glGetIntegerv(GL_CURRENT_PROGRAM) is useless for capturing it).
     uint8_t* mArm64Base = nullptr;
+
+    // Slot content probe (diagnostic). See slotProbePre/Post in the .cpp.
+    struct SlotProbeSample {
+        bool     valid = false;
+        uint8_t* front = nullptr;
+        uint8_t* back = nullptr;
+        size_t   bytes[2] = {0, 0};
+        int32_t  curSlotPre = 0, curSlotPost = 0;
+        uint32_t framesPre = 0, framesPost = 0, renderedPre = 0;
+        uint8_t  mask = 0;
+        int64_t  tPre = 0, tPost = 0;
+        uint32_t f0 = 0, f1 = 0, b0 = 0, b1 = 0, f0b = 0, f1b = 0;
+    };
+    void slotProbePre(SlotProbeSample& sm);
+    void slotProbePost(SlotProbeSample& sm);
+    bool slotProbeArm();
+    void slotSamplerArm();
     bool  mInitialized = false;
 
     // startGame is drastic's emulator main loop -- it does NOT return.
@@ -787,6 +832,42 @@ private:
     // Cached fast-forward state so we don't hammer applyConfig every
     // frame when the user just holds the button.
     bool mFastForwardOn = false;
+    double mPanelHz = 0.0;
+    bool mPaceInstalled = false;
+    bool mPaceWanted = false;
+    bool mLastWaitImmediate = false;
+    bool mFastUploadOn = false;
+    bool mFxUploadPatched = false;
+    bool mFastUploadTried = false;
+    pid_t mEmuTid = 0;
+    void applyCpuPlacement();
+    AHardwareBuffer* mDsAhb[2] = {nullptr, nullptr};
+    void* mDsImg[2] = {nullptr, nullptr};
+    int mDsAhbW = 0, mDsAhbH = 0;
+    // Zero-copy slots: drastic's two output slots live in one 3 MB dma-buf
+    // that the GPU samples directly (one EGLImage view per slot/screen).
+    int mZcFd = -1;
+    uint8_t* mZcMap = nullptr;
+    void* mZcImg[2][2] = {{nullptr, nullptr}, {nullptr, nullptr}};
+    int mZcImgW = 0, mZcImgH = 0;
+    bool mZcOn = false, mZcTried = false;
+    bool setupZeroCopySlots();
+    unsigned int mDirectFbo = 0; int mDirectVariant = -1; bool mDirectDone = false;
+    unsigned int mDirectVbo[8] = {0}; int mDirectVboKey[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
+    unsigned int directVbo(int variant);
+public:
+    void setDirectTarget(unsigned int fbo, bool topToLower, bool rotLower, bool rotUpper);
+    bool directRendered() const { return mDirectDone; }
+    bool vblankPacingActive() const;
+    void inputHeldCheck();   // lock engaged (not bypassed, not fast-forward)
+private:
+    bool zeroCopyBindFront();
+    bool setupDsAhbTextures(int w, int h);
+    void patchFxUpload(bool disableUpload);
+    void installVblankPacing(uint8_t* base);
+    void pacerThread();
+    std::thread mPacerThread;
+    std::atomic<bool> mPacerRun{false};
 
     // Shader-swap throttle / re-entrance guard. The overlay menu's Shader
     // row calls setShaderRuntime on every navLeft/Right, and drastic's

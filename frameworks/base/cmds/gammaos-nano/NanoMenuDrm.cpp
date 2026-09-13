@@ -16,8 +16,12 @@
 
 #define LOG_TAG "GammaOSNano"
 
+#include <sched.h>
+#include <condition_variable>
+#include <mutex>
 #include <algorithm>
 #include <vector>
+#include <thread>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -42,6 +46,8 @@
 #include <android/hardware_buffer.h>
 #include <vndk/hardware_buffer.h>  // AHardwareBuffer_getNativeHandle
 #include <cutils/native_handle.h>  // native_handle_t layout
+#include <ui/GraphicBufferMapper.h>  // gralloc metadata (AFBC modifier/layout)
+#include <ui/GraphicTypes.h>         // ui::PlaneLayout
 
 // Include NanoMenuDrm.h BEFORE arm_neon.h so GAMMAOS_NANO_HAVE_NEON is defined
 #include "NanoMenuDrm.h"
@@ -68,7 +74,78 @@ bool sDrmFlipV = false;
 bool sDrmVblankBroken = false;
 bool sDrmFrameSync = true;
 bool sDrmLowLatency = false;
+bool sDrmAfbcMode = false;  /* rk356x + Low Latency: AFBC buffers + Cluster planes */
+uint32_t sDrmAfbcHalfH = 0; /* per-panel height; combined buffer is 2x this tall */
+static int64_t sDrmReadyUs = 0; /* frame ready-to-present instant, latency probe */
 int sPendingFlipEvents = 0;
+uint32_t sDrmSeamRotCrtc = 0;
+int64_t sDrmLastVblankUs = 0;   // CLOCK_MONOTONIC us of the latest primary flip-complete
+static int64_t sDrmVblankPeriodUs = 16667;   // learned from consecutive primary flip timestamps
+static int sDrmLastFenceFd = -1; // in-fence of the last AFBC commit (GPU completion probe)
+static int sDrmPrevFenceFd = -1; // in-fence of the commit before that (the one just drained)
+// Deferred drain (AFBC low-latency path): the atomic commit returns at once
+// and its flip event is collected right before the NEXT commit instead of
+// immediately after this one. The presenter then renders frame N+1 while
+// frame N's fence and scanout are still pending. When the GPU is fast the
+// commit still lands on the very next vblank (age 0 unchanged); when the
+// GPU fence is slow (heavy scenes) the pipeline overlaps instead of every
+// flip slipping a whole vblank. Prop sys.gammaos.drastic_nano.defer_drain.
+// Adaptive: the deferral only engages while the GPU fence is measured to
+// complete slowly (heavy scenes); with a fast fence the immediate drain keeps
+// the sub-frame latency of light scenes (a permanent deferral there settled
+// into a self-perpetuating one-vblank offset, 2.4 frames on Sonic Rush).
+static bool sDrmDeferDrain = true;
+static bool sDrmDeferActive = false;
+static int64_t sDrmLastCommitUs = 0, sDrmPrevCommitUs = 0;
+static int64_t sDrmLastEnterUs = 0;   // when drmFlipRingSlot was entered for the last commit (render just submitted)
+static int sDrmGpuSlowFrames = 0, sDrmGpuFastFrames = 0;
+static bool drmDeferDrainOn() {
+    static int sCount = 0;
+    if ((sCount++ % 120) == 0)
+        sDrmDeferDrain = property_get_bool("sys.gammaos.drastic_nano.defer_drain", true);
+    return sDrmDeferDrain && sDrmAfbcMode && sDrmDeferActive;
+}
+static int64_t drmFenceDoneUs(int fd);
+// Called once per presented frame with the GPU completion latency of the
+// commit that just landed (fence signal time minus commit time).
+// The decision is whether the frame would have reached the first vblank
+// after the render was handed over: a fence that signals later than that
+// vblank (minus a margin) means the immediate drain would have slipped a
+// whole vblank, so the pipelined mode is worth its extra latency; a fence
+// that keeps making it means the immediate drain is safe again. This holds
+// in both modes (in the deferred mode the GPU runs during the drain wait).
+static bool sDrmPacerLocked = true;
+void drmSetPacerLocked(bool locked) { sDrmPacerLocked = locked; }
+static void drmDeferDrainUpdate(int64_t enterUs, int64_t doneUs) {
+    // While the pacer has handed the emulator back to its own timer (heavy
+    // scene) the pipelined mode is always right: engage it and never leave
+    // it on the phase-dependent "would have made it" test, which flips the
+    // mode and costs a second at half rate each time.
+    if (!sDrmPacerLocked) {
+        sDrmGpuFastFrames = 0;
+        if (!sDrmDeferActive) { sDrmDeferActive = true; ALOGW("NanoMenu DRM AFBC: deferred drain ON (pacer bypassed)"); }
+        return;
+    }
+    if (doneUs <= 0 || enterUs <= 0 || sDrmLastVblankUs <= 0) return;
+    const int64_t period = sDrmVblankPeriodUs > 0 ? sDrmVblankPeriodUs : 16667;
+    const int64_t marginUs = property_get_int32("sys.gammaos.drastic_nano.defer_drain_margin_us", 800);
+    int64_t next = sDrmLastVblankUs;
+    while (next <= enterUs) next += period;
+    while (next - period > enterUs) next -= period;
+    const bool slow = doneUs > next - marginUs;
+    if (slow) { sDrmGpuSlowFrames++; sDrmGpuFastFrames = 0; }
+    else { sDrmGpuFastFrames++; sDrmGpuSlowFrames = 0; }
+    const int64_t gpuLatUs = doneUs - enterUs;
+    if (!sDrmDeferActive && sDrmGpuSlowFrames >= 2) {
+        sDrmDeferActive = true;
+        ALOGW("NanoMenu DRM AFBC: deferred drain ON (GPU fence %lld us after commit)", (long long)gpuLatUs);
+    } else if (sDrmDeferActive && sDrmGpuFastFrames >= property_get_int32("sys.gammaos.drastic_nano.defer_drain_fast_frames", 120)) {
+        sDrmDeferActive = false;
+        ALOGW("NanoMenu DRM AFBC: deferred drain OFF (GPU fence %lld us after commit)", (long long)gpuLatUs);
+    }
+}
+bool drmDeferDrainActive() { return drmDeferDrainOn(); }
+static uint64_t sDrmCommitSeq = 0; /* per-iteration commit tag, latency probe */
 uint32_t sCrtcIds[kMaxCrtcTrack] = {0};
 int sCrtcPending[kMaxCrtcTrack] = {0};
 int sCrtcTrackCount = 0;
@@ -206,6 +283,64 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
 // (drmTryAddDisplay) and the wake-time recommit (drmResumeRecommit) so the
 // two paths cannot drift. Do NOT disable the CRTC first - that tears down
 // the DSI backlight controller permanently on SDE.
+// GPU completion time (CLOCK_MONOTONIC us) of the last AFBC commit's render,
+// from the sync file's signal timestamp. 0 if unavailable or not yet signaled.
+struct DrmSyncFenceInfo { char obj_name[32]; char driver_name[32]; int32_t status; uint32_t flags; uint64_t timestamp_ns; };
+struct DrmSyncFileInfo { char name[32]; int32_t status; uint32_t flags; uint32_t num_fences; uint32_t pad; uint64_t sync_fence_info; };
+#define DRM_SYNC_IOC_FILE_INFO _IOWR('>', 4, struct DrmSyncFileInfo)
+int64_t drmLastGpuDoneUs() {
+    return drmFenceDoneUs(drmDeferDrainOn() ? sDrmPrevFenceFd : sDrmLastFenceFd);
+}
+static int64_t drmFenceDoneUs(int probeFd) {
+    if (probeFd < 0) return 0;
+    DrmSyncFenceInfo fi[4] = {};
+    DrmSyncFileInfo info = {};
+    info.num_fences = 4;
+    info.sync_fence_info = (uint64_t)(uintptr_t)fi;
+    if (ioctl(probeFd, DRM_SYNC_IOC_FILE_INFO, &info) != 0) return 0;
+    if (info.status <= 0) return 0;  // not signaled yet
+    uint64_t latest = 0;
+    for (uint32_t i = 0; i < info.num_fences && i < 4; i++)
+        if (fi[i].timestamp_ns > latest) latest = fi[i].timestamp_ns;
+    return latest ? (int64_t)(latest / 1000ULL) : 0;
+}
+
+// Refresh rate of the first connected connector's preferred mode, from the
+// mode timings (clock / (htotal * vtotal)), before the DRM path is set up.
+// Used to lock drastic's frame pacing and audio rate to the panel. 0 if
+// nothing is connected or the device cannot be opened.
+double drmProbePrimaryRefreshHz() {
+    int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+    if (fd < 0) return 0.0;
+    double hz = 0.0;
+    struct drm_mode_card_res res = {};
+    if (ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res) == 0 && res.count_connectors) {
+        uint32_t conns[16] = {};
+        struct drm_mode_card_res res2 = {};
+        res2.count_connectors = res.count_connectors < 16 ? res.count_connectors : 16;
+        res2.connector_id_ptr = (uint64_t)(uintptr_t)conns;
+        if (ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res2) == 0) {
+            for (uint32_t i = 0; i < res2.count_connectors && hz == 0.0; i++) {
+                struct drm_mode_get_connector gc = {};
+                gc.connector_id = conns[i];
+                if (ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &gc) != 0) continue;
+                if (gc.connection != 1 || gc.count_modes == 0) continue;
+                struct drm_mode_modeinfo modes[32] = {};
+                struct drm_mode_get_connector gc2 = {};
+                gc2.connector_id = conns[i];
+                gc2.count_modes = gc.count_modes < 32 ? gc.count_modes : 32;
+                gc2.modes_ptr = (uint64_t)(uintptr_t)modes;
+                if (ioctl(fd, DRM_IOCTL_MODE_GETCONNECTOR, &gc2) != 0) continue;
+                const struct drm_mode_modeinfo& m = modes[0];
+                if (m.htotal && m.vtotal && m.clock)
+                    hz = (double)m.clock * 1000.0 / ((double)m.htotal * (double)m.vtotal);
+            }
+        }
+    }
+    close(fd);
+    return hz;
+}
+
 static int drmAtomicModesetFallback(int fd, uint32_t crtcId, uint32_t connId,
                                     const struct drm_mode_modeinfo& mode,
                                     uint32_t fbId, uint32_t w, uint32_t h) {
@@ -605,6 +740,17 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
                  AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE |
                  AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY |
                  AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN;
+    // AFBC mode (rk356x + Low Latency): drop CPU_READ_OFTEN so Mali gralloc
+    // allocates an AFBC-compressed buffer. On RK3568 the Cluster planes (which,
+    // unlike the Smart planes, do NOT carry the per-VP output-pipeline offset
+    // that desyncs the two DSI panels) can ONLY scan AFBC. The DRM import below
+    // tags the fb with the matching AFBC modifier and the flip drives Cluster.
+    // If any of that fails we fall back to linear+Smart (drmFbId stays 0).
+    if (sDrmAfbcMode) {
+        desc.usage = AHARDWAREBUFFER_USAGE_GPU_FRAMEBUFFER |
+                     AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE |
+                     AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY;
+    }
     if (AHardwareBuffer_allocate(&desc, &target->ahb) != 0 || !target->ahb) {
         ALOGW("NanoMenu DRM zero-copy: AHardwareBuffer_allocate(%s) failed", label);
         return false;
@@ -683,6 +829,35 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
             AHardwareBuffer_describe(target->ahb, &d);
             uint32_t pitch = d.stride * 4;  // R8G8B8A8 = 4 bytes/px
 
+            // AFBC mode: the linear pitch/offset/modifier are all wrong for a
+            // compressed buffer -- the kernel's fb size checks then reject
+            // ADDFB2 (EINVAL). Query gralloc for the REAL modifier and plane
+            // layout (byte stride + offset) so the import matches Mali's exact
+            // AFBC allocation. This is what drm_hwcomposer does for SF.
+            unsigned long long afbcMod = 0;
+            if (sDrmAfbcMode) {
+                using android::GraphicBufferMapper;
+                using android::ui::PlaneLayout;
+                auto& gm = GraphicBufferMapper::get();
+                uint64_t realMod = 0;
+                if (gm.getPixelFormatModifier(nh, &realMod) == android::OK &&
+                    realMod != 0) {
+                    afbcMod = (unsigned long long)realMod;
+                }
+                std::vector<PlaneLayout> layouts;
+                if (gm.getPlaneLayouts(nh, &layouts) == android::OK &&
+                    !layouts.empty()) {
+                    if (layouts[0].strideInBytes > 0)
+                        pitch = (uint32_t)layouts[0].strideInBytes;
+                }
+                // A prop override still wins, for A/B tuning if gralloc lies.
+                unsigned long long ov = (unsigned long long)property_get_int64(
+                        "sys.gammaos.drastic_nano.afbc_mod", 0);
+                if (ov) afbcMod = ov;
+                ALOGW("NanoMenu DRM AFBC: gralloc modifier=0x%llx pitch=%u (%s)",
+                      afbcMod, pitch, label);
+            }
+
             struct drm_prime_handle ph = {};
             ph.fd = dmabufFd;
             ph.flags = 0;
@@ -697,14 +872,20 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
                 cmd.handles[0] = ph.handle;
                 cmd.pitches[0] = pitch;
                 cmd.offsets[0] = 0;
+                // AFBC mode: tag the fb with the real gralloc AFBC modifier so
+                // the Cluster planes accept it and decode the exact layout.
+                if (sDrmAfbcMode && afbcMod) {
+                    cmd.flags = DRM_MODE_FB_MODIFIERS;
+                    cmd.modifier[0] = afbcMod;
+                }
                 if (ioctl(sDrmFd, DRM_IOCTL_MODE_ADDFB2, &cmd) == 0
                     && cmd.fb_id != 0) {
                     target->drmFbId = cmd.fb_id;
                     target->drmGemHandle = ph.handle;
                     ALOGW("NanoMenu DRM PRIME: AHB(%s) imported as fb_id=%u "
-                          "(gem=%u dmabuf_fd=%d pitch=%u)",
+                          "(gem=%u dmabuf_fd=%d pitch=%u mod=0x%llx)",
                           label, target->drmFbId, target->drmGemHandle,
-                          dmabufFd, pitch);
+                          dmabufFd, pitch, afbcMod);
                 } else {
                     ALOGW("NanoMenu DRM PRIME: ADDFB2 failed for AHB(%s) "
                           "(errno=%d) -- will fall back to blit path",
@@ -736,6 +917,9 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
 // only). The secondary is only created if sDrmDisplays has more than one
 // entry. Secondary allocation is best-effort: if it fails, the secondary
 // display simply mirrors the primary (same behavior as before this patch).
+static void drmMeasureVblankPhase(int fd);
+static int drmCrtcIndex(int fd, uint32_t crtcId);
+
 void drmSetupZeroCopy(EGLDisplay eglDpy) {
     if (!sDrmActive) return;
 
@@ -775,12 +959,47 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
         return;
     }
 
+    // AFBC dual-screen sync mode: rk356x + Low Latency only. The RK3568 Cluster
+    // planes (which, unlike Smart, don't carry the per-VP output offset that
+    // desyncs the two DSI panels) can only scan AFBC buffers, so the ring must
+    // be allocated AFBC. Decided at ring-alloc time from the persisted toggle;
+    // any downstream failure falls back to the linear+Smart path.
+    {
+        char plat[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.board.platform", plat, "");
+        bool isRk356x = (strcmp(plat, "rk356x") == 0);
+        bool ll = property_get_bool("persist.gammaos.drastic_nano.low_latency", false);
+        sDrmAfbcMode = isRk356x && ll && (sDrmDisplays.size() == 2);
+        // RG DS: the panel on VOP2 video port 1 (DSI-2, the physical top
+        // screen) is driven with its gate scan starting at the hinge, which
+        // turns its image 180 degrees; the renderer compensates for that
+        // CRTC. Keyed on the port index so it does not depend on CRTC ids.
+        sDrmSeamRotCrtc = 0;
+        if (sDrmAfbcMode)
+            for (auto& d : sDrmDisplays)
+                if (drmCrtcIndex(sDrmFd, d.crtcId) == 1) sDrmSeamRotCrtc = d.crtcId;
+        if (property_get_bool("sys.gammaos.drastic_nano.phase_probe", false))
+            drmMeasureVblankPhase(sDrmFd);
+        ALOGW("NanoMenu DRM: AFBC dual-screen mode %s (platform=%s low_latency=%d displays=%zu)",
+              sDrmAfbcMode ? "ON" : "off", plat, ll, sDrmDisplays.size());
+    }
+
     // AHB is always at PANEL NATIVE dimensions of the selected primary display.
     // When the install orientation is non-zero, GL rotation (via uRotation mat2
     // in vertex shaders) maps logical coords to the panel-native AHB -- so the
     // blit is always a fast straight copy with no per-pixel rotation.
     const uint32_t primaryW = sDrmDisplays[sDrmPrimaryIdx].w;
     const uint32_t primaryH = sDrmDisplays[sDrmPrimaryIdx].h;
+
+    // AFBC dual-DSI sync: the ONLY configuration that displays both panels
+    // synced at zero added latency is a SINGLE physical buffer scanned by both
+    // Cluster planes (proven on device: two distinct buffers desync by ~1 frame
+    // from a per-VP output-pipeline offset, one shared buffer does not). So the
+    // primary ring buffer holds BOTH DS screens stacked vertically (top screen
+    // in rows [0,H), bottom screen in rows [H,2H)); each Cluster plane crops its
+    // half via SRC_Y. sDrmAfbcHalfH is one panel's height; the buffer is 2x tall.
+    const uint32_t ringH = sDrmAfbcMode ? primaryH * 2 : primaryH;
+    if (sDrmAfbcMode) sDrmAfbcHalfH = primaryH;
 
     // Allocate all AHB_RING_DEPTH primary slots. Slot 0 is the "classic"
     // single-buffered target used by XMB and the default QR path;
@@ -790,7 +1009,7 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
     for (int i = 0; i < AHB_RING_DEPTH; i++) {
         char label[32];
         snprintf(label, sizeof(label), "primary[%d]", i);
-        if (!drmAllocAhbTarget(eglDpy, primaryW, primaryH,
+        if (!drmAllocAhbTarget(eglDpy, primaryW, ringH,
                                &sAhbRingPrimary[i], label)) {
             // Release any previously-allocated slots and bail. We stay
             // in the pre-AHB path (readback via glReadPixels) because
@@ -821,6 +1040,10 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
     // one display is active. Use the first non-primary display's dimensions;
     // if other non-primary displays have different resolutions the blit
     // tolerates mismatch (clips/pads in blitAhbToDrmBuffer).
+    // Even in AFBC mode the secondary ring is still allocated: the two panels
+    // scan the combined PRIMARY buffer, but main.cpp keys `hasDualDisplay` off
+    // sAhbRingSecondary[0] and several paths (OSK, shot) bind secTgt, so keeping
+    // it avoids null-FBO binds. It is simply not scanned out in AFBC mode.
     if (sDrmDisplays.size() > 1) {
         uint32_t secW = 0, secH = 0;
         for (size_t i = 0; i < sDrmDisplays.size(); i++) {
@@ -1104,11 +1327,542 @@ void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
 static uint32_t sEbusyStreak[8] = {0};
 static int64_t sEbusyRecoverMs[8] = {0};
 
+// --- Low-latency atomic dual-CRTC flip -------------------------------------
+// The kernel rockchip,sync-vp-mask phase-locks VP0/VP1 (verified: the two
+// panels' scanline counters track to delta 0), so the two DSI panels share a
+// vblank instant. The legacy path page-flips each CRTC separately (secondary
+// then primary), which lets the bottom panel latch one vblank later than the
+// top -- a one-frame CONTENT lag even though scanout is aligned. This commits
+// BOTH planes' FB_ID in a single atomic NONBLOCK ioctl so both latch the same
+// vblank: synced content, no added latency. Gated to the low-latency dual-DSI
+// PRIME path; any failure falls back to the legacy per-CRTC flips.
+static uint32_t drmFindPropId(int fd, uint32_t objId, uint32_t objType,
+                              const char* name) {
+    struct drm_mode_obj_get_properties p = {};
+    p.obj_id = objId; p.obj_type = objType;
+    if (ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p) != 0) return 0;
+    uint32_t pids[128]; uint64_t pvals[128];
+    struct drm_mode_obj_get_properties p2 = {};
+    p2.obj_id = objId; p2.obj_type = objType;
+    p2.count_props = p.count_props < 128 ? p.count_props : 128;
+    p2.props_ptr = (uint64_t)(uintptr_t)pids;
+    p2.prop_values_ptr = (uint64_t)(uintptr_t)pvals;
+    if (ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p2) != 0) return 0;
+    for (uint32_t i = 0; i < p2.count_props; i++) {
+        struct drm_mode_get_property gp = {};
+        gp.prop_id = pids[i];
+        if (ioctl(fd, DRM_IOCTL_MODE_GETPROPERTY, &gp) != 0) continue;
+        if (strcmp(gp.name, name) == 0) return pids[i];
+    }
+    return 0;
+}
+
+// Value of an enum property's entry by name (0 if absent). Used for the
+// Cluster plane's "pixel blend mode" = None, so the panel never blends the
+// scanout buffer's alpha channel against the background.
+static bool drmFindEnumValue(int fd, uint32_t propId, const char* entry,
+                             uint64_t* out) {
+    struct drm_mode_get_property gp = {};
+    gp.prop_id = propId;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETPROPERTY, &gp) != 0) return false;
+    struct drm_mode_property_enum ens[32];
+    struct drm_mode_get_property gp2 = {};
+    gp2.prop_id = propId;
+    gp2.count_enum_blobs = gp.count_enum_blobs < 32 ? gp.count_enum_blobs : 32;
+    gp2.enum_blob_ptr = (uint64_t)(uintptr_t)ens;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETPROPERTY, &gp2) != 0) return false;
+    for (uint32_t i = 0; i < gp2.count_enum_blobs; i++)
+        if (strcmp(ens[i].name, entry) == 0) { *out = ens[i].value; return true; }
+    return false;
+}
+
+// Index of crtcId within the DRM crtc resource list -- possible_crtcs is a
+// bitmask over that ordering. Returns -1 if not found.
+static int drmCrtcIndex(int fd, uint32_t crtcId) {
+    struct drm_mode_card_res res = {};
+    if (ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res) != 0) return -1;
+    uint32_t crtcs[16] = {};
+    struct drm_mode_card_res res2 = {};
+    res2.count_crtcs = res.count_crtcs < 16 ? res.count_crtcs : 16;
+    res2.crtc_id_ptr = (uint64_t)(uintptr_t)crtcs;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res2) != 0) return -1;
+    for (uint32_t i = 0; i < res2.count_crtcs; i++)
+        if (crtcs[i] == crtcId) return (int)i;
+    return -1;
+}
+
+// Measure the raw vblank phase between the two CRTCs, independent of any
+// atomic commit. DRM_IOCTL_WAIT_VBLANK with RELATIVE 1 blocks until that
+// pipe's next vblank and reports its timestamp, so waiting on pipe A and then
+// pipe B gives (tB - tA) in (0, period]; modulo the refresh period that is the
+// hardware phase offset between the two DSI video ports. A phase near 0 means
+// the panels tick together and the one-frame content skew is a latch-deadline
+// problem; a phase in the middle of the frame means the panels genuinely run
+// out of step and one of them must be re-timed to fix the skew at its source.
+static void drmMeasureVblankPhase(int fd) {
+    if (sDrmDisplays.size() < 2) return;
+    int idxA = drmCrtcIndex(fd, sDrmDisplays[0].crtcId);
+    int idxB = drmCrtcIndex(fd, sDrmDisplays[1].crtcId);
+    if (idxA < 0 || idxB < 0) return;
+    // Pipe number goes in the high bits of the request type.
+    auto pipeFlag = [](int idx) -> uint32_t {
+        return ((uint32_t)idx << 1) & _DRM_VBLANK_HIGH_CRTC_MASK;
+    };
+    for (int s = 0; s < 8; s++) {
+        union drm_wait_vblank va = {}, vb = {};
+        va.request.type = (drm_vblank_seq_type)(_DRM_VBLANK_RELATIVE |
+                                                pipeFlag(idxA));
+        va.request.sequence = 1;
+        if (ioctl(fd, DRM_IOCTL_WAIT_VBLANK, &va) != 0) return;
+        vb.request.type = (drm_vblank_seq_type)(_DRM_VBLANK_RELATIVE |
+                                                pipeFlag(idxB));
+        vb.request.sequence = 1;
+        if (ioctl(fd, DRM_IOCTL_WAIT_VBLANK, &vb) != 0) return;
+        int64_t ta = (int64_t)va.reply.tval_sec * 1000000LL + va.reply.tval_usec;
+        int64_t tb = (int64_t)vb.reply.tval_sec * 1000000LL + vb.reply.tval_usec;
+        ALOGW("NanoMenu vblank raw phase: crtc%u(pipe%d)=%lld "
+              "crtc%u(pipe%d)=%lld phase=%lldus",
+              sDrmDisplays[0].crtcId, idxA, (long long)ta,
+              sDrmDisplays[1].crtcId, idxB, (long long)tb,
+              (long long)(tb - ta));
+    }
+}
+
+// True if the plane advertises at least one ARM-vendor (AFBC) format modifier
+// via its IN_FORMATS blob. On RK3568 only the Cluster planes do; Smart/Esmart
+// expose LINEAR only. This is how we tell a Cluster plane apart generically.
+static bool drmPlaneHasAfbc(int fd, uint32_t planeId) {
+    uint32_t inFmtProp = drmFindPropId(fd, planeId, DRM_MODE_OBJECT_PLANE,
+                                       "IN_FORMATS");
+    if (!inFmtProp) return false;
+    // Read the plane's current IN_FORMATS value (a blob id).
+    struct drm_mode_obj_get_properties p = {};
+    p.obj_id = planeId; p.obj_type = DRM_MODE_OBJECT_PLANE;
+    if (ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p) != 0) return false;
+    uint32_t pids[128]; uint64_t pvals[128];
+    struct drm_mode_obj_get_properties p2 = {};
+    p2.obj_id = planeId; p2.obj_type = DRM_MODE_OBJECT_PLANE;
+    p2.count_props = p.count_props < 128 ? p.count_props : 128;
+    p2.props_ptr = (uint64_t)(uintptr_t)pids;
+    p2.prop_values_ptr = (uint64_t)(uintptr_t)pvals;
+    if (ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p2) != 0) return false;
+    uint32_t blobId = 0;
+    for (uint32_t i = 0; i < p2.count_props; i++)
+        if (pids[i] == inFmtProp) { blobId = (uint32_t)pvals[i]; break; }
+    if (!blobId) return false;
+    // First GETPROPBLOB to size, then read the payload.
+    struct drm_mode_get_blob gb = {};
+    gb.blob_id = blobId;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETPROPBLOB, &gb) != 0 || gb.length == 0)
+        return false;
+    std::vector<uint8_t> buf(gb.length);
+    gb.data = (uint64_t)(uintptr_t)buf.data();
+    if (ioctl(fd, DRM_IOCTL_MODE_GETPROPBLOB, &gb) != 0) return false;
+    if (gb.length < sizeof(struct drm_format_modifier_blob)) return false;
+    const auto* hdr = (const struct drm_format_modifier_blob*)buf.data();
+    if ((uint64_t)hdr->modifiers_offset +
+        (uint64_t)hdr->count_modifiers * sizeof(struct drm_format_modifier)
+        > gb.length) return false;
+    const auto* mods = (const struct drm_format_modifier*)
+                       (buf.data() + hdr->modifiers_offset);
+    for (uint32_t i = 0; i < hdr->count_modifiers; i++) {
+        uint64_t vendor = (mods[i].modifier >> 56) & 0xff;
+        if (vendor == DRM_FORMAT_MOD_VENDOR_ARM) return true;
+    }
+    return false;
+}
+
+// Discover the AFBC-capable Cluster plane for d.crtcId and cache its full set of
+// atomic property ids (FB_ID + CRTC_ID + CRTC_{X,Y,W,H} + SRC_{X,Y,W,H}), plus
+// the Smart primary's CRTC_ID prop so the first commit can disable it. The
+// caller ensures the Smart primary (planeId/fbIdProp) is already resolved. A
+// static claimed-set keeps two displays from grabbing the same Cluster plane;
+// displays are processed in ascending crtc order so Cluster0->VP0, Cluster1->VP1
+// (matching SF's assignment). Returns false (and the caller keeps the linear
+// Smart path) if no suitable plane is found.
+static bool drmEnsureClusterPlane(int fd, DrmDisplay& d) {
+    if (d.clPlaneId && d.clFbIdProp && d.clCrtcIdProp) return true;
+    static uint32_t sClaimed[8] = {0};
+    int crtcIdx = drmCrtcIndex(fd, d.crtcId);
+    if (crtcIdx < 0) return false;
+    uint32_t crtcBit = 1u << crtcIdx;
+
+    struct drm_mode_get_plane_res pr = {};
+    if (ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr) != 0) return false;
+    uint32_t ids[32] = {};
+    struct drm_mode_get_plane_res pr2 = {};
+    pr2.count_planes = pr.count_planes < 32 ? pr.count_planes : 32;
+    pr2.plane_id_ptr = (uint64_t)(uintptr_t)ids;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr2) != 0) return false;
+
+    uint32_t chosen = 0;
+    for (uint32_t i = 0; i < pr2.count_planes; i++) {
+        struct drm_mode_get_plane gp = {};
+        gp.plane_id = ids[i];
+        if (ioctl(fd, DRM_IOCTL_MODE_GETPLANE, &gp) != 0) continue;
+        if (!(gp.possible_crtcs & crtcBit)) continue;
+        bool claimed = false;
+        for (int c = 0; c < 8 && sClaimed[c]; c++)
+            if (sClaimed[c] == ids[i]) { claimed = true; break; }
+        if (claimed) continue;
+        if (!drmPlaneHasAfbc(fd, ids[i])) continue;
+        chosen = ids[i];  // lowest-id AFBC plane => Cluster0 before Cluster1
+        break;
+    }
+    if (!chosen) return false;
+
+    uint32_t fbP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "FB_ID");
+    uint32_t crP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "CRTC_ID");
+    uint32_t cxP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "CRTC_X");
+    uint32_t cyP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "CRTC_Y");
+    uint32_t cwP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "CRTC_W");
+    uint32_t chP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "CRTC_H");
+    uint32_t sxP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "SRC_X");
+    uint32_t syP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "SRC_Y");
+    uint32_t swP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "SRC_W");
+    uint32_t shP  = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "SRC_H");
+    if (!fbP || !crP || !cxP || !cyP || !cwP || !chP || !sxP || !syP ||
+        !swP || !shP)
+        return false;
+    // Smart primary CRTC_ID prop, so the first commit can detach it (a VP can
+    // scan only one primary; leaving Smart bound would double-composite).
+    uint32_t smartCr = d.planeId
+        ? drmFindPropId(fd, d.planeId, DRM_MODE_OBJECT_PLANE, "CRTC_ID") : 0;
+
+    d.clPlaneId = chosen;
+    d.clFbIdProp = fbP; d.clCrtcIdProp = crP;
+    d.clCrtcXProp = cxP; d.clCrtcYProp = cyP; d.clCrtcWProp = cwP; d.clCrtcHProp = chP;
+    d.clSrcXProp = sxP; d.clSrcYProp = syP; d.clSrcWProp = swP; d.clSrcHProp = shP;
+    d.smartCrtcIdProp = smartCr;
+    d.clInFenceProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "IN_FENCE_FD");
+    d.clBlendProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "pixel blend mode");
+    d.clAlphaProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "alpha");
+    d.clBlendNone = 0;
+    if (d.clBlendProp && !drmFindEnumValue(fd, d.clBlendProp, "None", &d.clBlendNone))
+        d.clBlendProp = 0;
+    d.clConfigured = false;
+    for (int c = 0; c < 8; c++) if (!sClaimed[c]) { sClaimed[c] = chosen; break; }
+    ALOGW("NanoMenu DRM AFBC: crtc=%u -> Cluster plane=%u (smart=%u smartCrtcProp=%u)",
+          d.crtcId, chosen, d.planeId, smartCr);
+    return true;
+}
+
+// Find the plane currently scanning out d.crtcId + its FB_ID prop; cache them.
+static bool drmEnsurePlane(int fd, DrmDisplay& d) {
+    if (d.planeId && d.fbIdProp) return true;
+    // The atomic ioctl and the primary-plane listing both require these client
+    // caps on this fd. Legacy page-flip/SETCRTC keep working with them set, so
+    // it is safe to enable once for the whole session.
+    static bool capsSet = false;
+    if (!capsSet) {
+        struct drm_set_client_cap cap = {};
+        cap.capability = DRM_CLIENT_CAP_UNIVERSAL_PLANES; cap.value = 1;
+        ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
+        cap.capability = DRM_CLIENT_CAP_ATOMIC; cap.value = 1;
+        ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
+        capsSet = true;
+    }
+    struct drm_mode_get_plane_res pr = {};
+    if (ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr) != 0) return false;
+    uint32_t ids[16] = {};
+    struct drm_mode_get_plane_res pr2 = {};
+    pr2.count_planes = pr.count_planes < 16 ? pr.count_planes : 16;
+    pr2.plane_id_ptr = (uint64_t)(uintptr_t)ids;
+    if (ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr2) != 0) return false;
+    for (uint32_t i = 0; i < pr2.count_planes; i++) {
+        struct drm_mode_get_plane gp = {};
+        gp.plane_id = ids[i];
+        if (ioctl(fd, DRM_IOCTL_MODE_GETPLANE, &gp) != 0) continue;
+        if (gp.crtc_id == d.crtcId) {
+            uint32_t fb = drmFindPropId(fd, ids[i], DRM_MODE_OBJECT_PLANE, "FB_ID");
+            if (fb) { d.planeId = ids[i]; d.fbIdProp = fb; return true; }
+        }
+    }
+    return false;
+}
+
+// One atomic commit flipping every display's plane to fbs[i]. 0 on success,
+// otherwise errno is set (EBUSY = prior flip still pending).
+static int drmAtomicDualFlip(int fd, const uint32_t* fbs) {
+    const size_t n = sDrmDisplays.size();
+    if (n < 2 || n > 4) return -1;
+    uint32_t objs[4]; uint32_t counts[4]; uint32_t props[4]; uint64_t vals[4];
+    for (size_t i = 0; i < n; i++) {
+        if (!fbs[i] || !drmEnsurePlane(fd, sDrmDisplays[i])) return -1;
+        objs[i] = sDrmDisplays[i].planeId;
+        counts[i] = 1;
+        props[i] = sDrmDisplays[i].fbIdProp;
+        vals[i] = fbs[i];
+    }
+    struct drm_mode_atomic atomic = {};
+    // Non-blocking commit with a flip-complete event, then wait on the event via
+    // drmDrainPageFlipEvents -- the same model SurfaceFlinger uses, which IS
+    // synced on this VOP2. One atomic commit latches both planes on the shared
+    // (kernel phase-locked) vblank; the event drain paces to that vblank so the
+    // next commit never races (no EBUSY, no tearing).
+    atomic.flags = DRM_MODE_PAGE_FLIP_EVENT | DRM_MODE_ATOMIC_NONBLOCK;
+    atomic.count_objs = n;
+    atomic.objs_ptr = (uint64_t)(uintptr_t)objs;
+    atomic.count_props_ptr = (uint64_t)(uintptr_t)counts;
+    atomic.props_ptr = (uint64_t)(uintptr_t)props;
+    atomic.prop_values_ptr = (uint64_t)(uintptr_t)vals;
+    atomic.user_data = sDrmCommitSeq;
+    int ret = ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+    if (ret == 0) {
+        for (size_t i = 0; i < n; i++) {
+            int slot = drmCrtcSlot(sDrmDisplays[i].crtcId);
+            if (slot >= 0) sCrtcPending[slot]++;
+            sPendingFlipEvents++;
+        }
+        drmDrainPageFlipEvents();
+    }
+    return ret;
+}
+
+// AFBC + Cluster variant of the atomic dual flip (rk356x low-latency sync fix).
+// Drives the two AFBC-capable Cluster planes instead of the Smart primaries.
+// The FIRST successful commit is a full modeset: it binds each Cluster plane to
+// its VP with the correct geometry AND detaches the Smart primary (a VP scans
+// one primary; leaving Smart on would double-composite). Every commit after
+// that is a plain NONBLOCK|PAGE_FLIP_EVENT FB_ID flip, event-drained exactly
+// like drmAtomicDualFlip so pacing/latency are identical. Returns 0 on success;
+// nonzero (errno set) makes the caller fall back to the legacy path.
+// Flip thread (deferred-drain mode): the atomic commit is issued as a
+// BLOCKING call from a SCHED_FIFO helper, so the in-fence wait and the
+// programming of both CRTCs run in real-time context. With a nonblocking
+// commit that work runs on the kernel's normal-priority commit worker, which
+// drastic's real-time emulator threads preempt on heavy scenes: flips landed
+// a vblank late with the fence long signalled, and the two panels latched
+// one vblank apart 6% of the time. The presenter hands the commit over and
+// keeps rendering; before its next commit it waits for the helper to be idle
+// (the previous flip has landed) and then collects the flip events.
+struct FlipJob {
+    uint32_t objs[4]; uint32_t counts[4]; uint32_t props[64]; uint64_t vals[64];
+    size_t no; uint64_t userData; int fenceFd;
+};
+static std::mutex sFlipMu;
+static std::condition_variable sFlipCv;
+static bool sFlipBusy = false, sFlipThreadStarted = false;
+static FlipJob sFlipJob;
+static int sFlipResult = 0, sFlipErrno = 0;
+static int sFlipGuardHolds = 0;
+int drmFlipGuardHolds() { return sFlipGuardHolds; }
+static void drmFlipThreadMain() {
+    sched_param sp = {}; sp.sched_priority = 80;
+    if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0)
+        ALOGW("NanoMenu DRM: flip thread SCHED_FIFO failed: %s", strerror(errno));
+    pthread_setname_np(pthread_self(), "dn-flip");
+    for (;;) {
+        FlipJob job;
+        {
+            std::unique_lock<std::mutex> lk(sFlipMu);
+            sFlipCv.wait(lk, [] { return sFlipBusy; });
+            job = sFlipJob;
+        }
+        // Wait for the GPU fence here (not in the kernel) so the commit's
+        // CRTC programming happens at a known moment, then keep that moment
+        // clear of the vblank edge: the driver flushes the two CRTCs one after
+        // the other, and a vblank falling between them latches the panels one
+        // frame apart. If the edge is within flip_guard_us, wait until just
+        // past it (the frame lands on the following vblank either way).
+        if (job.fenceFd >= 0) {
+            struct pollfd pfd = { job.fenceFd, POLLIN, 0 };
+            for (int t = 0; t < 100; t++) { if (poll(&pfd, 1, 20) > 0) break; }
+        }
+        {
+            const int64_t guardUs = property_get_int32("sys.gammaos.drastic_nano.flip_guard_us", 1000);
+            const int64_t period = sDrmVblankPeriodUs > 0 ? sDrmVblankPeriodUs : 16667;
+            const int64_t last = sDrmLastVblankUs;
+            if (guardUs > 0 && last > 0) {
+                int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                int64_t next = last + period;
+                while (next <= now) next += period;
+                if (next - now < guardUs) {
+                    usleep((useconds_t)(next - now + 300));
+                    sFlipGuardHolds++;
+                }
+            }
+        }
+        struct drm_mode_atomic atomic = {};
+        atomic.flags = DRM_MODE_PAGE_FLIP_EVENT;   // blocking: returns once the flip has landed
+        atomic.count_objs = (uint32_t)job.no;
+        atomic.objs_ptr = (uint64_t)(uintptr_t)job.objs;
+        atomic.count_props_ptr = (uint64_t)(uintptr_t)job.counts;
+        atomic.props_ptr = (uint64_t)(uintptr_t)job.props;
+        atomic.prop_values_ptr = (uint64_t)(uintptr_t)job.vals;
+        atomic.user_data = job.userData;
+        errno = 0;
+        const int ret = ioctl(sDrmFd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+        {
+            std::lock_guard<std::mutex> lk(sFlipMu);
+            sFlipResult = ret; sFlipErrno = errno; sFlipBusy = false;
+        }
+        sFlipCv.notify_all();
+    }
+}
+static void drmFlipThreadWaitIdle() {
+    std::unique_lock<std::mutex> lk(sFlipMu);
+    sFlipCv.wait(lk, [] { return !sFlipBusy; });
+}
+static bool drmFlipThreadOn() {
+    static int sCount = 0; static bool sOn = true;
+    if ((sCount++ % 120) == 0) sOn = property_get_bool("sys.gammaos.drastic_nano.flip_thread", true);
+    return sOn;
+}
+bool drmFlipThreadBusy() { std::lock_guard<std::mutex> lk(sFlipMu); return sFlipBusy; }
+
+static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) {
+    const size_t n = sDrmDisplays.size();
+    if (n != 2) return -1;
+    for (size_t i = 0; i < n; i++) {
+        DrmDisplay& d = sDrmDisplays[i];
+        if (!fbs[i]) return -1;
+        if (!d.planeId && !drmEnsurePlane(fd, d)) return -1;  // smart id
+        if (!drmEnsureClusterPlane(fd, d)) return -1;
+    }
+    bool needConfig = false;
+    for (size_t i = 0; i < n; i++)
+        if (!sDrmDisplays[i].clConfigured) needConfig = true;
+
+    uint32_t objs[4]; uint32_t counts[4];
+    uint32_t props[64]; uint64_t vals[64];
+    size_t no = 0, np = 0;
+    // Region assignment for the combined buffer: the primary display (VP that
+    // shows the DS TOP screen) crops rows [0,H); the secondary crops [H,2H).
+    // A prop can swap it if the panels come out with the wrong half.
+    bool regionSwap = property_get_bool(
+            "sys.gammaos.drastic_nano.afbc_region_swap", false);
+    for (size_t i = 0; i < n; i++) {
+        DrmDisplay& d = sDrmDisplays[i];
+        uint32_t w = d.w, h = d.h;
+        // srcY selects which half of the combined buffer this panel scans.
+        bool topRegion = ((int)i == sDrmPrimaryIdx);
+        if (regionSwap) topRegion = !topRegion;
+        uint32_t srcY = topRegion ? 0u : sDrmAfbcHalfH;
+        // DEBUG afbc_both_top: force BOTH planes to crop the SAME (top) half, so
+        // both panels show identical content through this exact code path. If it
+        // then looks synced the offset is content-per-region (render race /
+        // per-half frame mismatch); if it STILL desyncs it is a hardware per-VP
+        // output offset (only fixable by delaying the lead panel or in-kernel).
+        if (property_get_bool("sys.gammaos.drastic_nano.afbc_both_top", false))
+            srcY = 0u;
+        objs[no] = d.clPlaneId; size_t start = np;
+        props[np] = d.clFbIdProp;  vals[np++] = fbs[i];
+        // GPU completion handed to the kernel: the commit is queued now and
+        // latches on the first vblank after the fence signals, so the CPU
+        // does not sit in a fence wait before every flip.
+        if (inFenceFd >= 0 && d.clInFenceProp && !needConfig) {
+            props[np] = d.clInFenceProp; vals[np++] = (uint64_t)(uint32_t)inFenceFd;
+        }
+        if (needConfig) {
+            props[np] = d.clCrtcIdProp; vals[np++] = d.crtcId;
+            props[np] = d.clCrtcXProp;  vals[np++] = 0;
+            props[np] = d.clCrtcYProp;  vals[np++] = 0;
+            props[np] = d.clCrtcWProp;  vals[np++] = w;
+            props[np] = d.clCrtcHProp;  vals[np++] = h;
+            // Opaque scanout: no per-pixel alpha blending against the VP
+            // background, full global alpha. Without this the planes come up
+            // in whatever blend mode the previous owner left (Cluster0 was
+            // seen in mode 2), and any region the shader leaves with alpha
+            // below 1 shows through as a flickering translucent patch.
+            if (d.clBlendProp) { props[np] = d.clBlendProp; vals[np++] = d.clBlendNone; }
+            if (d.clAlphaProp) { props[np] = d.clAlphaProp; vals[np++] = 0xffff; }
+            props[np] = d.clSrcXProp;   vals[np++] = 0;
+            props[np] = d.clSrcYProp;   vals[np++] = (uint64_t)srcY << 16;
+            props[np] = d.clSrcWProp;   vals[np++] = (uint64_t)w << 16;
+            props[np] = d.clSrcHProp;   vals[np++] = (uint64_t)h << 16;
+        }
+        counts[no] = (uint32_t)(np - start); no++;
+        if (needConfig && d.smartCrtcIdProp) {
+            objs[no] = d.planeId; start = np;
+            props[np] = d.smartCrtcIdProp; vals[np++] = 0;
+            if (d.fbIdProp) { props[np] = d.fbIdProp; vals[np++] = 0; }
+            counts[no] = (uint32_t)(np - start); no++;
+        }
+    }
+
+    // Never overlap with a commit the flip thread still has in flight.
+    drmFlipThreadWaitIdle();
+    if (!needConfig && drmDeferDrainOn() && drmFlipThreadOn()) {
+        if (!sFlipThreadStarted) {
+            sFlipThreadStarted = true;
+            std::thread(drmFlipThreadMain).detach();
+            ALOGW("NanoMenu DRM AFBC: flip thread started (blocking commits in FIFO context)");
+        }
+        {
+            std::lock_guard<std::mutex> lk(sFlipMu);
+            memcpy(sFlipJob.objs, objs, sizeof(objs)); memcpy(sFlipJob.counts, counts, sizeof(counts));
+            memcpy(sFlipJob.props, props, sizeof(props)); memcpy(sFlipJob.vals, vals, sizeof(vals));
+            sFlipJob.no = no; sFlipJob.userData = sDrmCommitSeq; sFlipJob.fenceFd = inFenceFd; sFlipBusy = true;
+        }
+        sFlipCv.notify_all();
+        for (size_t i = 0; i < n; i++) {
+            int slot = drmCrtcSlot(sDrmDisplays[i].crtcId);
+            if (slot >= 0) sCrtcPending[slot]++;
+            sPendingFlipEvents++;
+        }
+        return 0;
+    }
+    struct drm_mode_atomic atomic = {};
+    atomic.flags = needConfig ? DRM_MODE_ATOMIC_ALLOW_MODESET
+                              : (DRM_MODE_PAGE_FLIP_EVENT |
+                                 DRM_MODE_ATOMIC_NONBLOCK);
+    atomic.count_objs = (uint32_t)no;
+    atomic.objs_ptr = (uint64_t)(uintptr_t)objs;
+    atomic.count_props_ptr = (uint64_t)(uintptr_t)counts;
+    atomic.props_ptr = (uint64_t)(uintptr_t)props;
+    atomic.prop_values_ptr = (uint64_t)(uintptr_t)vals;
+    // Per-commit tag so the drain can pair BOTH CRTCs' flip-complete events to
+    // the same commit (diagnostic pairing, see FLIPP log in the drain).
+    atomic.user_data = sDrmCommitSeq;
+    int ret = ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+    if (ret != 0) {
+        static int64_t sLastErrMs = 0;
+        const int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        if (nowMs - sLastErrMs >= 1000) {
+            sLastErrMs = nowMs;
+            ALOGW("NanoMenu DRM AFBC: atomic commit failed: %s (fence fd %d, config %d)",
+                  strerror(errno), inFenceFd, needConfig ? 1 : 0);
+        }
+    }
+    if (ret == 0) {
+        if (needConfig) {
+            for (size_t i = 0; i < n; i++) sDrmDisplays[i].clConfigured = true;
+            ALOGW("NanoMenu DRM AFBC: Cluster modeset committed (both VPs)");
+        } else {
+            for (size_t i = 0; i < n; i++) {
+                int slot = drmCrtcSlot(sDrmDisplays[i].crtcId);
+                if (slot >= 0) sCrtcPending[slot]++;
+                sPendingFlipEvents++;
+            }
+            if (!drmDeferDrainOn()) drmDrainPageFlipEvents();
+        }
+    }
+    return ret;
+}
+
 void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return;
     AhbRenderTarget& prim = sAhbRingPrimary[idx];
     AhbRenderTarget& sec  = sAhbRingSecondary[idx];
     if (!sDrmZeroCopy || !prim.ahb) return;
+    // Deferred drain: the previous commit's flip is collected here, after the
+    // caller has already rendered this frame, so its GPU work overlapped the
+    // previous scanout wait. A second nonblocking commit while one is pending
+    // would be EBUSY, so this must precede the commit below.
+    // GPU latency is measured from the moment the caller handed us the
+    // rendered frame (entry here), not from the commit: in deferred mode the
+    // commit itself waits for the previous flip, which would make the fence
+    // look fast and flap the mode.
+    const int64_t enterUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    if (sPendingFlipEvents > 0 || drmAnyCrtcPending()) {
+        drmFlipThreadWaitIdle();   // blocking commit returned: the flip has landed
+        drmDrainPageFlipEvents();
+        if (sDrmAfbcMode && sDrmLastFenceFd >= 0 && sDrmLastEnterUs > 0) {
+            const int64_t done = drmFenceDoneUs(sDrmLastFenceFd);
+            if (done > 0) drmDeferDrainUpdate(sDrmLastEnterUs, done);
+        }
+    }
 
     // Frame-sync mode: delay the SECONDARY CRTC's flip by one refresh so
     // its logical content matches what the PRIMARY CRTC is showing at
@@ -1146,6 +1900,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     static int sFrameSyncHoldSlot = -1;
     AhbRenderTarget* secSrcForSecondaryCrtc = &sec;
     bool frameSyncUsingHoldSlot = false;
+    int secSrcForSecondaryCrtcIdx = idx;
     if (sDrmFrameSync && !skipNonPrimary && sDrmDisplays.size() > 1 &&
         sec.ahb) {
         if (sFrameSyncHoldSlot >= 0 &&
@@ -1153,6 +1908,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
             sAhbRingSecondary[sFrameSyncHoldSlot].ahb) {
             secSrcForSecondaryCrtc = &sAhbRingSecondary[sFrameSyncHoldSlot];
             frameSyncUsingHoldSlot = true;
+            secSrcForSecondaryCrtcIdx = sFrameSyncHoldSlot;
         }
         sFrameSyncHoldSlot = idx;
     } else {
@@ -1170,6 +1926,18 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     bool periodic = (sFlipCount < 5) || (sFlipCount % 60 == 0);
     bool verbose = true; // always capture timing; filter at print time
     int64_t t0 = (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL);
+    sDrmCommitSeq++;
+    if (property_get_bool("sys.gammaos.drastic_nano.flip_pair_log", false)) {
+        static int sPresLog = 0;
+        if (sPresLog < 600) {
+            ALOGW("PRES ud=%llu idx=%d secidx=%d t=%lld ll=%d fs=%d afbc=%d",
+                  (unsigned long long)sDrmCommitSeq, idx,
+                  frameSyncUsingHoldSlot ? secSrcForSecondaryCrtcIdx : idx,
+                  (long long)t0, sDrmLowLatency ? 1 : 0, sDrmFrameSync ? 1 : 0,
+                  sDrmAfbcMode ? 1 : 0);
+            sPresLog++;
+        }
+    }
 
     // Unbind FBO so subsequent GL calls don't mess with AHB
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1193,11 +1961,44 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     //
     // 3. No fence + non-PRIME: fallback to glFinish() (global drain).
     int primaryFenceFd = -1;
+    int afbcInFenceFd = -1;
     bool fenceUsed = false;
     if (sAhbRingSyncPrimary[idx] != EGL_NO_SYNC_KHR &&
         sEglDupNativeFenceFDANDROID && sEglDestroySyncKHR &&
         sRingEglDpy != EGL_NO_DISPLAY) {
-        if (primeActive && sEglClientWaitSyncKHR) {
+        const bool kernelFence = sDrmAfbcMode && primeActive &&
+                sDrmDisplays.size() == 2 &&
+                sDrmDisplays[0].clInFenceProp && sDrmDisplays[1].clInFenceProp &&
+                property_get_bool("sys.gammaos.drastic_nano.afbc_in_fence", true);
+        if (kernelFence) {
+            // AFBC path: pass the slot's fence to the atomic commit as the
+            // planes' IN_FENCE_FD; no userspace wait.
+            primaryFenceFd = sEglDupNativeFenceFDANDROID(
+                    sRingEglDpy, sAhbRingSyncPrimary[idx]);
+            if (primaryFenceFd >= 0) {
+                fenceUsed = true; afbcInFenceFd = primaryFenceFd;
+                // GPU completion probe: a duplicate of the fence polled on a
+                // helper thread gives the instant the GPU finished this
+                // slot, which against the flip event gives the margin the
+                // adaptive pacing lead is leaving before the vblank.
+                if (property_get_bool("sys.gammaos.drastic_nano.gpu_done_log", false)) {
+                    const int pfd = dup(primaryFenceFd);
+                    const uint64_t ud = sDrmCommitSeq;
+                    if (pfd >= 0) std::thread([pfd, ud] {
+                        struct pollfd pf = { pfd, POLLIN, 0 };
+                        poll(&pf, 1, 200);
+                        const int64_t t = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                        close(pfd);
+                        ALOGW("GPUDONE ud=%llu t=%lld", (unsigned long long)ud, (long long)t);
+                    }).detach();
+                }
+            }
+            else {
+                sEglClientWaitSyncKHR(sRingEglDpy, sAhbRingSyncPrimary[idx],
+                                      EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, 100000000);
+                fenceUsed = true;
+            }
+        } else if (primeActive && sEglClientWaitSyncKHR) {
             // PRIME path: sync via eglClientWaitSyncKHR, no fd needed.
             sEglClientWaitSyncKHR(sRingEglDpy,
                                   sAhbRingSyncPrimary[idx],
@@ -1253,9 +2054,11 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
                                lockErr, idx);
             return;
         }
-    } else if (primaryFenceFd >= 0) {
+    } else if (primaryFenceFd >= 0 && afbcInFenceFd < 0) {
         // PRIME path already waited via eglClientWaitSyncKHR, but we
         // never actually used the fence_fd -- close it to avoid a fd leak.
+        // (When the fd is the AFBC commit's IN_FENCE_FD it stays open until
+        // the atomic ioctl has taken its reference.)
         close(primaryFenceFd);
     }
 
@@ -1279,6 +2082,108 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
 
     int64_t tLock = verbose ? (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL) : 0;
 
+    // Presentation-latency reference point: the frame's GPU work is complete
+    // here (the fence has been waited on) and nothing has been submitted yet,
+    // so this is the earliest instant the frame COULD be shown. Subtracting it
+    // from the primary panel's flip-complete vblank timestamp gives the true
+    // ready-to-visible latency, directly comparable between Low Latency and
+    // Frame Sync. Same clock base as drm_event_vblank's tv (CLOCK_MONOTONIC).
+    sDrmReadyUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+
+    // Low Latency Mode: flip both CRTCs in ONE atomic commit so they latch
+    // the same (kernel-phase-locked) vblank -- kills the inter-panel content
+    // lag without Frame Sync's added frame of latency. Only the dual-DSI PRIME
+    // path; falls back to the legacy per-CRTC loop below on any failure.
+    bool atomicFlipDone = false;
+    if (android::sDrmLowLatency && primeActive && !skipNonPrimary &&
+        sDrmDisplays.size() == 2 && sDrmFd >= 0 && prim.drmFbId != 0) {
+        // The secondary (bottom) VP latches/scans one frame AHEAD of the
+        // primary on this VOP2, so putting the same-slot buffer on both makes
+        // the bottom screen run a frame early. Present the secondary from a
+        // slot that is sec_delay frames OLDER to cancel that lead, while the
+        // primary stays at the caller's low-latency slot. Net: content synced,
+        // primary latency unchanged. Prop-tunable for A/B (default 1).
+        // AFBC/Cluster is the true fix: each panel shows its OWN current buffer
+        // with no offset, so sec_delay must be 0 there (any delay re-adds the
+        // very latency we are removing). Only the legacy Smart atomic path uses
+        // the sec_delay compensation (default 1).
+        int secDelay = sDrmAfbcMode ? 0 : property_get_int32(
+                "sys.gammaos.drastic_nano.sec_delay", 1);
+        if (secDelay < 0) secDelay = 0;
+        if (secDelay >= AHB_RING_DEPTH) secDelay = AHB_RING_DEPTH - 1;
+        int secIdx = (idx - secDelay + 2 * AHB_RING_DEPTH) % AHB_RING_DEPTH;
+        uint32_t secDelayedFb = sAhbRingSecondary[secIdx].drmFbId;
+        // DEBUG shared_fb: point BOTH planes at the SAME buffer (prim). If the
+        // panels are then synced (vs the two-buffer case which desyncs), it
+        // confirms the offset is per-VP post-latch pipeline and the fix is a
+        // single shared scanout buffer for both panels (SF's model).
+        // shared_fb is a diagnostic: point BOTH planes at the primary's single
+        // buffer. Works for the Cluster (AFBC) path too so we can tell a per-VP
+        // OUTPUT-pipeline offset (still desyncs with one shared buffer) apart
+        // from a per-buffer latch race (syncs with one shared buffer).
+        bool sharedFb = property_get_bool(
+                "sys.gammaos.drastic_nano.shared_fb", false);
+        uint32_t fbs[2] = {0, 0};
+        for (size_t i = 0; i < 2; i++) {
+            bool isPrim = ((int)i == sDrmPrimaryIdx);
+            uint32_t secFb = (haveSecondary && secDelayedFb) ? secDelayedFb
+                             : ((haveSecondary && sec.drmFbId) ? sec.drmFbId
+                                                               : prim.drmFbId);
+            fbs[i] = isPrim ? prim.drmFbId : secFb;
+            if (sharedFb) fbs[i] = prim.drmFbId;
+        }
+        // AFBC: one combined buffer feeds BOTH panels; each Cluster plane crops
+        // its half (drmAtomicDualFlipCluster sets SRC_Y). Always the primary
+        // buffer for both -- this is what makes the panels sync at zero latency.
+        if (sDrmAfbcMode) { fbs[0] = prim.drmFbId; fbs[1] = prim.drmFbId; }
+        errno = 0;
+        // AFBC mode routes to the Cluster planes (the root-cause sync fix);
+        // otherwise the original Smart-plane atomic flip. On this VOP2 only the
+        // Cluster planes avoid the per-VP Smart output offset, so shared_fb/
+        // sec_delay are irrelevant there (both panels share one AFBC pipeline).
+        const bool deferNow = drmDeferDrainOn();
+        const int64_t commitUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+        int ar = sDrmAfbcMode ? drmAtomicDualFlipCluster(sDrmFd, fbs, afbcInFenceFd)
+                              : drmAtomicDualFlip(sDrmFd, fbs);
+        if (afbcInFenceFd >= 0) {
+            if (sDrmPrevFenceFd >= 0) close(sDrmPrevFenceFd);
+            sDrmPrevFenceFd = sDrmLastFenceFd; // the commit just drained
+            sDrmPrevCommitUs = sDrmLastCommitUs;
+            sDrmLastFenceFd = afbcInFenceFd;   // queried by drmLastGpuDoneUs()
+            sDrmLastCommitUs = commitUs;
+            sDrmLastEnterUs = enterUs;
+            if (ar == 0 && !deferNow) {
+                // Immediate mode: the cluster commit drained the flip already.
+                const int64_t done = drmFenceDoneUs(sDrmLastFenceFd);
+                if (done > 0) drmDeferDrainUpdate(enterUs, done);
+            }
+            afbcInFenceFd = -1; primaryFenceFd = -1;
+        }
+        {
+            static int sAtomicLog = 0;
+            if (sAtomicLog < 40)
+                ALOGW("NanoMenu atomic dual-flip #%d: afbc=%d ar=%d errno=%d idx=%d primIdx=%d "
+                      "primFb=%u secFb=%u fbs[0]=%u fbs[1]=%u",
+                      sAtomicLog, sDrmAfbcMode ? 1 : 0, ar, errno, idx, sDrmPrimaryIdx,
+                      prim.drmFbId, sec.drmFbId, fbs[0], fbs[1]);
+            sAtomicLog++;
+        }
+        if (ar == 0) {
+            atomicFlipDone = true;
+            for (size_t i = 0; i < sDrmDisplays.size(); i++) sEbusyStreak[i] = 0;
+        } else if (errno == EBUSY) {
+            // Prior atomic flip still pending: drop this frame. Both panels
+            // keep their current buffer, so they stay in sync. Skip legacy.
+            atomicFlipDone = true;
+        } else if (sDrmAfbcMode) {
+            // AFBC mode has no valid legacy fallback: the buffers are AFBC and
+            // the combined layout can only be scanned by the cropped Cluster
+            // planes. Drop the frame (keep last good) rather than blit garbage.
+            atomicFlipDone = true;
+        }
+        // else: fall through to the legacy per-CRTC flips.
+    }
+
     // Blit + flip each display independently. Order matters on dual-DSI
     // (RG DS): the two panels run on independent vblank clocks with no
     // phase lock, so whichever CRTC we ioctl first has the shorter queue
@@ -1289,7 +2194,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     //
     // A failure on one display does not prevent the others from
     // presenting; both flips are non-blocking ioctls.
-    for (size_t outer = 0; outer < sDrmDisplays.size(); outer++) {
+    for (size_t outer = 0; !atomicFlipDone && outer < sDrmDisplays.size(); outer++) {
         // Iterate secondaries first, primary last: map outer index
         // to the real display index so primary lands in the final
         // slot of the loop.
@@ -1396,6 +2301,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         struct drm_mode_crtc_page_flip flip = {};
         flip.crtc_id = d.crtcId;
         flip.fb_id = targetFbId;
+        flip.user_data = sDrmCommitSeq;
         // Only request EVENT when we're going to drain it (vsync gate ON
         // and broken-vblank path active). When vsync is disabled at runtime
         // we'd never call the drainer, and unread events would pile up in
@@ -1576,6 +2482,21 @@ bool drmAnyCrtcPending() {
 void drmDrainPageFlipEvents() {
     if (sDrmFd < 0) return;
     if (sPendingFlipEvents <= 0 && !drmAnyCrtcPending()) return;
+    // Async-secondary pacing (perf loop, opt-in, default OFF): on dual-DSI the
+    // secondary CRTC's vblank is phase-offset and its flip lands ~18 ms late every
+    // frame, gating this blocking drain to ~2 vblanks (~28 ms -> ~50 fps). When
+    // sys.gammaos.drastic_nano.async_secondary_flip is set we return as soon as the
+    // PRIMARY CRTC's flip has landed and let the secondary complete asynchronously
+    // (the submit side at ~L1426 skips a CRTC that is still pending, so no EBUSY;
+    // the secondary just holds its previous frame until its own vblank arrives).
+    const bool asyncSec =
+            (sDrmDisplays.size() > 1) &&
+            property_get_bool("sys.gammaos.drastic_nano.async_secondary_flip", false);
+    int primSlot = -1;
+    if (asyncSec && sDrmPrimaryIdx >= 0 &&
+        (size_t)sDrmPrimaryIdx < sDrmDisplays.size()) {
+        primSlot = drmCrtcSlot(sDrmDisplays[sDrmPrimaryIdx].crtcId);
+    }
     char buf[4096];
     static int64_t sLastTimeoutLogMs = 0;
     // Per-CRTC arrival tracking for slow-drain diagnostics. On multi-CRTC
@@ -1590,7 +2511,15 @@ void drmDrainPageFlipEvents() {
     // decrement the global without matching any tracked CRTC, so waiting
     // on per-CRTC ensures we don't return until the flips we actually
     // submitted have all landed.
-    while (sPendingFlipEvents > 0 || drmAnyCrtcPending()) {
+    while (true) {
+        // Stop condition. async-secondary: return once the PRIMARY CRTC's flip has
+        // landed (leave the secondary pending; it drains opportunistically on a
+        // later poll). Otherwise: wait for every submitted CRTC as before.
+        if (asyncSec && primSlot >= 0) {
+            if (primSlot >= sCrtcTrackCount || sCrtcPending[primSlot] <= 0) break;
+        } else if (!(sPendingFlipEvents > 0 || drmAnyCrtcPending())) {
+            break;
+        }
         struct pollfd pfd = {};
         pfd.fd = sDrmFd;
         pfd.events = POLLIN;
@@ -1644,6 +2573,78 @@ void drmDrainPageFlipEvents() {
                     int slot = drmCrtcSlot(vb->crtc_id);
                     if (slot >= 0 && sCrtcPending[slot] > 0) {
                         sCrtcPending[slot]--;
+                    }
+                    if (sDrmPrimaryIdx >= 0 && (size_t)sDrmPrimaryIdx < sDrmDisplays.size() &&
+                        vb->crtc_id == sDrmDisplays[sDrmPrimaryIdx].crtcId)
+                        {
+                            const int64_t nv = (int64_t)vb->tv_sec * 1000000LL + vb->tv_usec;
+                            const int64_t d = nv - sDrmLastVblankUs;
+                            if (sDrmLastVblankUs > 0 && d > 15000 && d < 18000)
+                                sDrmVblankPeriodUs = (sDrmVblankPeriodUs * 15 + d + 8) / 16;
+                        }
+                        sDrmLastVblankUs = (int64_t)vb->tv_sec * 1000000LL + vb->tv_usec;
+                    if (property_get_bool(
+                                "sys.gammaos.drastic_nano.flip_pair_log", false)) {
+                        static int sPairLog = 0;
+                        if (sPairLog < 3000) {
+                            ALOGW("FLIPP ud=%llu crtc=%u seq=%u tv=%lld",
+                                  (unsigned long long)vb->user_data, vb->crtc_id,
+                                  vb->sequence,
+                                  (long long)vb->tv_sec * 1000000LL + vb->tv_usec);
+                            sPairLog++;
+                        }
+                    }
+                    {
+                        static int sSeqLog = 0;
+                        if (sSeqLog < 40) {
+                            ALOGW("NanoMenu flipdone: crtc=%u seq=%u tv=%u.%06u",
+                                  vb->crtc_id, vb->sequence,
+                                  vb->tv_sec, vb->tv_usec);
+                            sSeqLog++;
+                        }
+                    }
+                    // Rolling VP0/VP1 vblank phase measurement. The two DSI
+                    // video ports free-run on independent pixel clocks; the
+                    // delta between their flip-complete vblank timestamps is
+                    // the phase offset that can push one panel's latch a whole
+                    // refresh behind the other even from a single atomic
+                    // commit. Prop-gated, logged once per second.
+                    if (slot >= 0 && slot < 4 &&
+                        property_get_bool(
+                                "sys.gammaos.drastic_nano.phase_log", false)) {
+                        static int64_t sLastVblUs[4] = {0, 0, 0, 0};
+                        static uint32_t sVblCrtc[4] = {0, 0, 0, 0};
+                        static uint32_t sVblSeq[4] = {0, 0, 0, 0};
+                        static int64_t sLastPhaseMs = 0;
+                        sLastVblUs[slot] = (int64_t)vb->tv_sec * 1000000LL +
+                                           (int64_t)vb->tv_usec;
+                        sVblCrtc[slot] = vb->crtc_id;
+                        sVblSeq[slot] = vb->sequence;
+                        int64_t nowMs =
+                                systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+                        if (sLastVblUs[0] && sLastVblUs[1] &&
+                            nowMs - sLastPhaseMs >= 1000) {
+                            sLastPhaseMs = nowMs;
+                            // Ready-to-visible latency on each panel: how long
+                            // after the frame was renderable it actually hit
+                            // the glass. This is the number that matters when
+                            // comparing Low Latency against Frame Sync.
+                            ALOGW("NanoMenu present latency: crtc%u=%lldus "
+                                  "crtc%u=%lldus",
+                                  sVblCrtc[0],
+                                  (long long)(sLastVblUs[0] - sDrmReadyUs),
+                                  sVblCrtc[1],
+                                  (long long)(sLastVblUs[1] - sDrmReadyUs));
+                            ALOGW("NanoMenu vblank phase: crtc%u=%lld seq=%u "
+                                  "crtc%u=%lld seq=%u delta=%lldus seqdiff=%d",
+                                  sVblCrtc[0], (long long)sLastVblUs[0],
+                                  sVblSeq[0],
+                                  sVblCrtc[1], (long long)sLastVblUs[1],
+                                  sVblSeq[1],
+                                  (long long)(sLastVblUs[1] - sLastVblUs[0]),
+                                  (int)((int32_t)sVblSeq[1] -
+                                        (int32_t)sVblSeq[0]));
+                        }
                     }
                     // Capture per-CRTC arrival time for the slow-drain log.
                     if (numCrtcs < 4) {
@@ -1932,13 +2933,19 @@ void drmResumeRecommit() {
         // primary AHB, every other CRTC the secondary AHB (primary as the
         // mirror fallback), dumb buffer when PRIME import is unavailable.
         uint32_t fbId = 0;
-        if (sDrmZeroCopy) {
+        // AFBC mode: the ring buffers are AFBC and only the Cluster planes can
+        // scan them, so the legacy SETCRTC through the Smart primary would be
+        // rejected and leave the panels blank after wake. Bring the CRTC up on
+        // its linear dumb buffer instead and force the next flip to redo the
+        // Cluster binding modeset (the kernel dropped the plane state).
+        if (sDrmZeroCopy && !sDrmAfbcMode) {
             if (!isPrimary && sAhbRingSecondary[0].drmFbId != 0)
                 fbId = sAhbRingSecondary[0].drmFbId;
             else
                 fbId = sAhbRingPrimary[0].drmFbId;
         }
         if (fbId == 0) fbId = d.buffers[d.activeBuffer].fbId;
+        if (sDrmAfbcMode) d.clConfigured = false;
 
         struct drm_mode_crtc crtc = {};
         crtc.crtc_id = d.crtcId;

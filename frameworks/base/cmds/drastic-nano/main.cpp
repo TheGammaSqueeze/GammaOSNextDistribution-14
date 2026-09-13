@@ -147,6 +147,16 @@ void initDrasticLocale() {
 constexpr const char* kRomPathFile       = "/data/system/nano_drastic_nano_rom.txt";
 constexpr const char* kSessionDoneProp   = "sys.gammaos.drastic_nano.session_done";
 
+// Perf-loop stage timers (DRM runLoop). Published in the once/sec metrics line to
+// localize where a frame overruns: render "work" (everything between page flips),
+// the page-flip call itself, and the flip-event drain. Reset each metrics window.
+static int64_t sStgPrevEndNs  = 0;   // timestamp at end of the previous iteration
+static int64_t sStgWorkMaxNs  = 0;   // max render-work span in the window
+static int64_t sStgFlipMaxNs  = 0;   // max drmFlipRingSlot span
+static int64_t sStgDrainMaxNs = 0;   // max drmDrainPageFlipEvents span
+static int64_t sStgRdMaxNs    = 0;   // max renderDsToOffscreen span (DS upload+shade)
+static int64_t sStgPbMaxNs    = 0;   // max panel-blit span (half-res render to panels)
+
 // drastic's installed data dir. FakeJNI points here directly so
 // DraStic/system/* and User/config|backup|savestates|cheats|... all
 // resolve to the real files drastic writes / reads on the app's own
@@ -763,10 +773,13 @@ void boostPeerAudioThreads(const char* svcPropName,
         }
         pid_t tid = (pid_t)atoi(e->d_name);
         sched_param sp = {};
-        sp.sched_priority = 79;
+        // Above every thread in our own process (presenter, flip thread,
+        // emulator and workers share FIFO 80 on the AFBC path): the audio
+        // output path must never wait for them or the DS audio crackles.
+        sp.sched_priority = property_get_int32("sys.gammaos.drastic_nano.audio_boost_prio", 82);
         if (sched_setscheduler(tid, SCHED_FIFO, &sp) == 0) {
             ALOGI("drastic-nano: boosted %s %s (tid=%d) to "
-                  "SCHED_FIFO 79", tag, comm, tid);
+                  "SCHED_FIFO %d", tag, comm, tid, sp.sched_priority);
             boosted++;
         } else {
             ALOGW("drastic-nano: boost %s %s (tid=%d) failed: %s",
@@ -1101,6 +1114,69 @@ static void drawTouchCursor(android::drastic_gfx::OverlayGfx& gfx,
     gfx.fillRect(px - thin, py - thin, 2.0f * thin, 2.0f * thin, fill);
 }
 
+// GPU timing (GL_EXT_disjoint_timer_query), gated by
+// sys.gammaos.drastic_nano.gpu_time_log=1: two elapsed-time queries per frame
+// (drastic's shader passes into the offscreen, and our copy pass into the AFBC
+// target), read back one frame later so they never stall, averaged and logged
+// once a second. Tells how the per-frame GPU cost splits before optimising.
+namespace {
+struct GpuTimer {
+    PFNGLGENQUERIESEXTPROC gen = nullptr;
+    PFNGLBEGINQUERYEXTPROC begin = nullptr;
+    PFNGLENDQUERYEXTPROC end = nullptr;
+    PFNGLGETQUERYOBJECTUI64VEXTPROC get64 = nullptr;
+    PFNGLGETQUERYOBJECTUIVEXTPROC getui = nullptr;
+    GLuint q[2][2] = {{0, 0}, {0, 0}};   // [pass][parity]; pass 0 uses two timestamps
+    GLuint ts[2][2] = {{0, 0}, {0, 0}};  // [parity][begin/end] timestamps around the shader passes
+    PFNGLQUERYCOUNTEREXTPROC counter = nullptr;
+    int parity = 0; bool ready = false, tried = false, on = false;
+    double sumNs[2] = {0, 0}; int n = 0; int64_t lastLogMs = 0;
+    void init() {
+        if (tried) return;
+        tried = true;
+        gen = (PFNGLGENQUERIESEXTPROC)eglGetProcAddress("glGenQueriesEXT");
+        begin = (PFNGLBEGINQUERYEXTPROC)eglGetProcAddress("glBeginQueryEXT");
+        end = (PFNGLENDQUERYEXTPROC)eglGetProcAddress("glEndQueryEXT");
+        get64 = (PFNGLGETQUERYOBJECTUI64VEXTPROC)eglGetProcAddress("glGetQueryObjectui64vEXT");
+        getui = (PFNGLGETQUERYOBJECTUIVEXTPROC)eglGetProcAddress("glGetQueryObjectuivEXT");
+        counter = (PFNGLQUERYCOUNTEREXTPROC)eglGetProcAddress("glQueryCounterEXT");
+        if (!gen || !begin || !end || !get64 || !getui || !counter) { ALOGW("drastic-nano: gpu_time_log: timer queries unavailable"); return; }
+        gen(2, q[0]); gen(2, q[1]); gen(2, ts[0]); gen(2, ts[1]); ready = true;
+    }
+    void frameBegin() {
+        on = property_get_bool("sys.gammaos.drastic_nano.gpu_time_log", false);
+        if (!on) return;
+        init(); if (!ready) return;
+        // collect last frame's results (other parity)
+        const int prev = parity ^ 1;
+        bool have = true; GLuint avail = 0;
+        getui(q[1][prev], GL_QUERY_RESULT_AVAILABLE_EXT, &avail); if (!avail) have = false;
+        getui(ts[prev][1], GL_QUERY_RESULT_AVAILABLE_EXT, &avail); if (!avail) have = false;
+        if (have) {
+            GLuint64 t0 = 0, t1 = 0, v = 0;
+            get64(ts[prev][0], GL_QUERY_RESULT_EXT, &t0); get64(ts[prev][1], GL_QUERY_RESULT_EXT, &t1);
+            get64(q[1][prev], GL_QUERY_RESULT_EXT, &v);
+            if (t1 > t0) sumNs[0] += (double)(t1 - t0);
+            sumNs[1] += (double)v;
+            n++;
+        }
+        const int64_t nowMs = android::elapsedRealtimeNano() / 1000000LL;
+        if (n > 0 && nowMs - lastLogMs >= 1000) {
+            ALOGW("drastic-nano GPU time: shader passes %.2f ms, copy pass %.2f ms (avg of %d frames)",
+                  sumNs[0] / n / 1e6, sumNs[1] / n / 1e6, n);
+            sumNs[0] = sumNs[1] = 0; n = 0; lastLogMs = nowMs;
+        }
+    }
+    // pass 0 (drastic's shader passes) is bracketed by timestamps so any
+    // query drastic's own code issues inside cannot break the nesting;
+    // pass 1 (our copy pass) is a plain elapsed query.
+    void beginPass(int pss) { if (!(on && ready)) return; if (pss == 0) counter(ts[parity][0], GL_TIMESTAMP_EXT); else begin(GL_TIME_ELAPSED_EXT, q[1][parity]); }
+    void endPass(int pss) { if (!(on && ready)) return; if (pss == 0) counter(ts[parity][1], GL_TIMESTAMP_EXT); else end(GL_TIME_ELAPSED_EXT); }
+    void frameEnd() { if (on && ready) parity ^= 1; }
+};
+GpuTimer sGpuTimer;
+} // namespace
+
 RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                       const android::drastic_prefs::Prefs& initialPrefs,
                       uid_t appUid, gid_t appGid,
@@ -1342,6 +1418,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     }
     ALOGI("drastic-nano: triple_buffer=%d", tripleBuffer ? 1 : 0);
 
+    const int ringDepth = android::AHB_RING_DEPTH;
+
     bool exitRequested = false;
     // Full saturation / no gradient -- drastic-nano has no preview
     // overlay.
@@ -1434,7 +1512,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // quick save/load, etc.) stay owned by the render loop, which sees
             // the same events on its own fds.
             if (android::sDrmLowLatency && !ovOpen && !fin.cursorMode &&
-                    fastDirectLayout) {
+                    fastDirectLayout &&
+                    property_get_bool("sys.gammaos.drastic_nano.fast_input", true)) {
                 std::lock_guard<std::mutex> lk(inputFwdMutex);
                 dr->setInputWithTouch(fa.dsBtnMask, fa.touchX, fa.touchY,
                                       fa.touchHeld);
@@ -1609,6 +1688,42 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
         if (exitRequested) break;
 
+        // External load-state channel (optimization/testing): set
+        // sys.gammaos.drastic_nano.load_state=<slot 0..8> to reload that
+        // save-state slot mid-session over adb; it self-clears. Lets a bench
+        // script snap back to a fixed scene (e.g. a title screen) for
+        // repeatable measurement without touching the emulation loop otherwise.
+        {
+            char ls[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.drastic_nano.load_state", ls, "");
+            if (ls[0]) {
+                int slot = atoi(ls);
+                property_set("sys.gammaos.drastic_nano.load_state", "");
+                if (slot >= 0 && slot <= 9) {
+                    ALOGI("drastic-nano: external load_state slot %d", slot);
+                    dr->loadStateSlot(slot);
+                }
+            }
+        }
+        // External save-state channel, same shape: sys.gammaos.drastic_nano.
+        // save_state=<slot 0..8> saves the current scene into that slot
+        // (blocking form, so the log line marks completion). Used to pin a
+        // control scene for repeatable measurements.
+        {
+            char ss[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.drastic_nano.save_state", ss, "");
+            if (ss[0]) {
+                int slot = atoi(ss);
+                property_set("sys.gammaos.drastic_nano.save_state", "");
+                if (slot >= 0 && slot <= 8) {
+                    const int64_t t0 = android::elapsedRealtimeNano();
+                    dr->saveStateSlot(slot);
+                    ALOGW("drastic-nano: external save_state slot %d done in %lld ms", slot,
+                          (long long)((android::elapsedRealtimeNano() - t0) / 1000000LL));
+                }
+            }
+        }
+
         // Special action handlers. Fast-forward flips drastic's
         // runtime-only V bit via applyConfig (bit 29). Screen swap
         // toggles our own renderTop/renderBottom routing. Toggle-mic
@@ -1720,7 +1835,16 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 }
             }
         }
-        {
+        // While the fast-input thread owns forwarding (Low Latency, menu
+        // closed, no touch cursor, direct layout) the render loop must not
+        // write the DS state as well: its mask was drained at the top of the
+        // iteration and is several milliseconds stale by now, so a press the
+        // fast thread already delivered (a d-pad edge while A and B are held)
+        // got overwritten every frame and reached the game only sporadically.
+        const bool fastOwnsInput = android::sDrmLowLatency && !overlay.isOpen() &&
+                                   !input.cursorMode && fastDirectLayout &&
+                                   property_get_bool("sys.gammaos.drastic_nano.fast_input", true);
+        if (!fastOwnsInput) {
             // Shared with the fast-input thread so the two never tear the
             // master struct mid-write. Uncontended in practice.
             std::lock_guard<std::mutex> lk(inputFwdMutex);
@@ -1742,8 +1866,57 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // the shared stacked offscreen that renderDsToOffscreen fills. Every
         // other path (dual-panel RG DS, fixed stack) still pre-renders here
         // exactly as before -- their render code is left untouched.
-        if (renderDs && !drmSingleLayout) dr->renderDsToOffscreen();
-
+        // Flip-first pacing (perf loop, opt-in, default OFF): present the
+        // already-rendered slot at the TOP of the loop (right after the previous
+        // vblank) and drain here, THEN do this iteration's ~11ms render (half-res
+        // panel blits) during the vblank interval. This decouples the render from
+        // the flip-submission deadline so the flip lands on the NEXT vblank instead
+        // of slipping to the one after (~34ms -> ~16ms). Prop-gated + revertible;
+        // the bottom present/drain/vblank are skipped when this is on. Same slot +
+        // age as the bottom path (presentIdx = sRingRenderIdx - age) so latency is
+        // unchanged. The presented slot's fence was created a prior iteration.
+        const bool flipFirst =
+                property_get_bool("sys.gammaos.drastic_nano.flip_first", false);
+        if (flipFirst && tripleBuffer && android::sRingPrimedCount >= 3) {
+            const int D   = ringDepth;
+            // Present a 2-frames-old slot (never fewer): at the loop TOP the slot
+            // rendered last iter has only had ~1-2ms since its GPU submit, so its
+            // pb (~11ms GPU) fence would still block the flip (the iter-6 failure).
+            // Depth 2 guarantees the GPU work is done, so the flip submits instantly
+            // and lands on the next vblank. Costs +1 frame of latency vs the bottom
+            // path; ring depth 5 has the headroom.
+            const int age = android::sDrmLowLatency ? 2 : 2;
+            const int presentIdx = (android::sRingRenderIdx - age + 2 * D) % D;
+            const int64_t flipT0 = android::elapsedRealtimeNano();
+            if (sStgPrevEndNs != 0) {
+                const int64_t w = flipT0 - sStgPrevEndNs;
+                if (w > sStgWorkMaxNs) sStgWorkMaxNs = w;
+            }
+            android::drmFlipRingSlot(presentIdx, false);
+            const int64_t flipNs = android::elapsedRealtimeNano() - flipT0;
+            if (flipNs > sStgFlipMaxNs) sStgFlipMaxNs = flipNs;
+            android::sRingPresentIdx = presentIdx;
+            const int64_t drainT0 = android::elapsedRealtimeNano();
+            android::drmDrainPageFlipEvents();
+            const int64_t drainNs = android::elapsedRealtimeNano() - drainT0;
+            if (drainNs > sStgDrainMaxNs) sStgDrainMaxNs = drainNs;
+            sStgPrevEndNs = android::elapsedRealtimeNano();
+        }
+        // Vblank-locked emulation: only on the low-latency dual-panel path.
+        // With pacing on, the emulator started this frame at our last flip's
+        // vblank; wait (bounded) for it to finish so the upload below carries
+        // the frame it just produced instead of the one before.
+        const bool vblPace = android::sDrmLowLatency && android::sDrmAfbcMode &&
+                             tripleBuffer && !flipFirst;
+        dr->setVblankPacing(vblPace);
+        if (vblPace && dr->vblankPacingInstalled()) {
+            // No new emulated frame in time: this present would repeat the
+            // previous one, so treat it as a pacing miss and back the lead
+            // off a little.
+            if (!dr->waitProducerFrame(property_get_int32(
+                        "sys.gammaos.drastic_nano.pace_wait_us", 10000)))
+                dr->reportFrameMiss(1); // producer wait timed out
+        }
         const int renderIdx =
                 tripleBuffer ? android::sRingRenderIdx : 0;
         android::AhbRenderTarget& primTgt =
@@ -1751,7 +1924,101 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         android::AhbRenderTarget& secTgt =
                 android::sAhbRingSecondary[renderIdx];
 
-        if (hasDualDisplay && drmHalfRes > 1) {
+        // Direct render (AFBC dual-panel, no half-res, no menu): drastic's
+        // final shader pass lands straight in this iteration's ring target,
+        // laid out and rotated per panel, so the copy pass below is skipped.
+        bool directArmed = false;
+        if (hasDualDisplay && android::sDrmAfbcMode && !(drmHalfRes > 1) &&
+            renderDs && !drmSingleLayout && primTgt.glFbo != 0 && !overlay.isOpen() &&
+            property_get_bool("sys.gammaos.drastic_nano.direct_render", true)) {
+            int rotCrtc = property_get_int32("sys.gammaos.drastic_nano.afbc_rot180_crtc", 0);
+            if (rotCrtc == 0) rotCrtc = (int)android::sDrmSeamRotCrtc;
+            const size_t secIdx = (android::sDrmPrimaryIdx == 0) ? 1 : 0;
+            const bool rotLower = rotCrtc > 0 &&
+                    (int)android::sDrmDisplays[android::sDrmPrimaryIdx].crtcId == rotCrtc;
+            const bool rotUpper = rotCrtc > 0 &&
+                    (int)android::sDrmDisplays[secIdx].crtcId == rotCrtc;
+            const bool renderSwapD = property_get_bool("sys.gammaos.drastic_nano.afbc_render_swap", false);
+            const bool topToLower = !(screensSwapped ^ renderSwapD);
+            dr->setDirectTarget(primTgt.glFbo, topToLower, rotLower, rotUpper);
+            directArmed = true;
+        }
+        const int64_t sRdT0 = android::elapsedRealtimeNano();
+        sGpuTimer.frameBegin();
+        sGpuTimer.beginPass(0);
+        if (renderDs && !drmSingleLayout) dr->renderDsToOffscreen();
+        sGpuTimer.endPass(0);
+        const int64_t sRdT1 = android::elapsedRealtimeNano();
+        const bool directDone = directArmed && dr->directRendered();
+
+        if (hasDualDisplay && android::sDrmAfbcMode) {
+            // AFBC dual-DSI sync path (rk356x + Low Latency). Render BOTH DS
+            // screens into the ONE combined primary buffer (640x2H): each half
+            // is a panel's image, and the two Cluster planes crop their half via
+            // SRC_Y (drmAtomicDualFlipCluster). Both panels scanning a single
+            // physical buffer is the only zero-latency configuration that stays
+            // synced on this VOP2 (two distinct buffers desync ~1 frame). The GL
+            // FBO origin is bottom-left and DRM row 0 is the top of the buffer,
+            // so the GL LOWER half maps to DRM rows [0,H) (the primary panel's
+            // crop) -- render the top DS screen there. afbc_render_swap flips the
+            // content-to-half assignment if a shot shows the screens reversed.
+            const uint32_t halfH = android::sDrmAfbcHalfH;
+            const uint32_t fullW = primTgt.w;
+            const bool renderSwap = property_get_bool(
+                    "sys.gammaos.drastic_nano.afbc_render_swap", false);
+            // DIAGNOSTIC: coherent-pair test. Upload the atomic getScreenBuffers
+            // pair to mTopTex/mBotTex so renderTop/BottomScreen sample a single
+            // coherent frame (no shader). Tells us if drastic can deliver both
+            // screens from one frame -> zero-latency sync possible.
+            if (property_get_bool(
+                    "persist.gammaos.drastic_nano.afbc_coherent_test", false)) {
+                dr->updatePixels();
+            }
+            dr->setRotationMatrix(android::sDrmRotMat);
+            sGpuTimer.beginPass(1);
+            if (directDone) {
+                // already composed into primTgt by the final shader pass
+                sGpuTimer.endPass(1);
+                sGpuTimer.frameEnd();
+            } else {
+            glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
+            glDisable(GL_SCISSOR_TEST);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            const bool topToLower = !(screensSwapped ^ renderSwap);
+            // Seam-scan test: the physical top panel's controller is being
+            // switched to scan from the hinge outward (JD9365D page-1 0x37 GS
+            // bit), which also turns its image 180 degrees. Render that panel's
+            // half rotated 180 to compensate. The panel is named by CRTC id so
+            // the test does not depend on which index is primary.
+            // 0/unset = automatic (the CRTC NanoMenuDrm marked at setup),
+            // -1 = off, otherwise an explicit CRTC id.
+            int rotCrtc = property_get_int32(
+                    "sys.gammaos.drastic_nano.afbc_rot180_crtc", 0);
+            if (rotCrtc == 0) rotCrtc = (int)android::sDrmSeamRotCrtc;
+            const size_t secIdx = (android::sDrmPrimaryIdx == 0) ? 1 : 0;
+            const bool rotLower = rotCrtc > 0 &&
+                    (int)android::sDrmDisplays[android::sDrmPrimaryIdx].crtcId == rotCrtc;
+            const bool rotUpper = rotCrtc > 0 &&
+                    (int)android::sDrmDisplays[secIdx].crtcId == rotCrtc;
+            float rot180[4] = { -android::sDrmRotMat[0], -android::sDrmRotMat[1],
+                                -android::sDrmRotMat[2], -android::sDrmRotMat[3] };
+            // GL lower half -> DRM rows [0,H) -> primary panel.
+            glViewport(0, 0, (GLsizei)fullW, (GLsizei)halfH);
+            if (rotLower) dr->setRotationMatrix(rot180);
+            if (topToLower) dr->renderTopScreen(saturation, gradient);
+            else            dr->renderBottomScreen(saturation, gradient);
+            if (rotLower) dr->setRotationMatrix(android::sDrmRotMat);
+            // GL upper half -> DRM rows [H,2H) -> secondary panel.
+            glViewport(0, (GLint)halfH, (GLsizei)fullW, (GLsizei)halfH);
+            if (rotUpper) dr->setRotationMatrix(rot180);
+            if (topToLower) dr->renderBottomScreen(saturation, gradient);
+            else            dr->renderTopScreen(saturation, gradient);
+            if (rotUpper) dr->setRotationMatrix(android::sDrmRotMat);
+            sGpuTimer.endPass(1);
+            sGpuTimer.frameEnd();
+            }
+        } else if (hasDualDisplay && drmHalfRes > 1) {
             // Half-res dual-panel: render each DS screen into the half-size logical
             // offscreen (identity, no rotation), then NEAREST-upscale onto the panel
             // AHB via blitFullTexture(drmCompositeMat) - same offscreen->panel path as
@@ -1784,9 +2051,17 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             dr->blitFullTexture(drmHalfTex, drmCompositeMat);
             dr->setRotationMatrix(android::sDrmRotMat);
         } else if (hasDualDisplay) {
+            // DEBUG: mirror_top makes the SECONDARY panel render the SAME
+            // content as the primary (top screen). Both buffers then hold
+            // identical pixels from one texture; if the panels still look
+            // offset during motion it is the present/scanout, not content.
+            const bool mirrorTop = property_get_bool(
+                    "sys.gammaos.drastic_nano.mirror_top", false);
             glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
             glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
-            if (screensSwapped) {
+            if (mirrorTop) {
+                dr->renderTopScreen(saturation, gradient);
+            } else if (screensSwapped) {
                 dr->renderTopScreen(saturation, gradient);
             } else {
                 dr->renderBottomScreen(saturation, gradient);
@@ -1910,14 +2185,50 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             static int64_t sFpsWinMs = 0;
             static int     sFpsFrames = 0;
             static float   sFpsDisplay = 0.0f;
+            static int64_t sPrevFrameMs = 0;
+            static int64_t sMaxFrameMs = 0;
             if (sFpsWinMs == 0) sFpsWinMs = android::elapsedRealtime();
             sFpsFrames++;
             const int64_t fpsNowMs = android::elapsedRealtime();
+            if (sPrevFrameMs != 0) {
+                const int64_t d = fpsNowMs - sPrevFrameMs;
+                if (d > sMaxFrameMs) sMaxFrameMs = d;
+            }
+            sPrevFrameMs = fpsNowMs;
             if (fpsNowMs - sFpsWinMs >= 1000) {
                 const float r = sFpsFrames * 1000.0f / (float)(fpsNowMs - sFpsWinMs);
                 sFpsDisplay = sFpsDisplay > 0.0f ? sFpsDisplay * 0.5f + r * 0.5f : r;
+                // Publish metrics once per second, off the per-frame path, so an
+                // optimization pass can read them over adb (getprop
+                // sys.gammaos.drastic_nano.metrics) or logcat without touching the
+                // emulation loop. Also reports the active render path + resolutions,
+                // which doubles as the definitive "is half-res on" check.
+                // Keep this UNDER 92 chars (Android non-ro. property value limit) or
+                // property_set silently fails and getprop returns a stale value.
+                // Verbose field names live in the ALOGI/logcat copy only.
+                char m[92];
+                snprintf(m, sizeof(m),
+                         "fps=%.1f mf=%lld wk=%lld fl=%lld dr=%lld %s %dx%d->%dx%d rs%d",
+                         sFpsDisplay, (long long)sMaxFrameMs,
+                         (long long)(sStgWorkMaxNs / 1000000LL),
+                         (long long)(sStgFlipMaxNs / 1000000LL),
+                         (long long)(sStgDrainMaxNs / 1000000LL),
+                         (drmHalfRes > 1 ? "half" : "full"),
+                         (drmHalfRes > 1 ? drmHalfW : drmLogicalW),
+                         (drmHalfRes > 1 ? drmHalfH : drmLogicalH),
+                         drmPanelW, drmPanelH, drmHalfRes);
+                property_set("sys.gammaos.drastic_nano.metrics", m);
+                ALOGI("drastic-nano metrics: %s rd=%lld pb=%lld", m,
+                      (long long)(sStgRdMaxNs / 1000000LL),
+                      (long long)(sStgPbMaxNs / 1000000LL));
                 sFpsFrames = 0;
                 sFpsWinMs = fpsNowMs;
+                sMaxFrameMs = 0;
+                sStgWorkMaxNs = 0;
+                sStgFlipMaxNs = 0;
+                sStgDrainMaxNs = 0;
+                sStgRdMaxNs = 0;
+                sStgPbMaxNs = 0;
             }
             if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false) &&
                 gfx.fontBasePx() > 0) {
@@ -2036,6 +2347,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
 
         if (tripleBuffer) {
+            {
+                const int64_t sPreFlipNs = android::elapsedRealtimeNano();
+                const int64_t rd = sRdT1 - sRdT0;
+                const int64_t pb = sPreFlipNs - sRdT1;
+                if (rd > sStgRdMaxNs) sStgRdMaxNs = rd;
+                if (pb > sStgPbMaxNs) sStgPbMaxNs = pb;
+            }
             // Unbind before fence-create so the kick point is
             // unambiguous. eglCreateSyncKHR with NATIVE_FENCE
             // flushes implicitly, so no glFlush is needed -- the
@@ -2070,7 +2388,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 glFlush();
             }
             android::sRingRenderIdx =
-                    (renderIdx + 1) % android::AHB_RING_DEPTH;
+                    (renderIdx + 1) % ringDepth;
             // Bootstrap: first two iterations render only, don't
             // present. Once primed (>= 2 slots rendered), flip a slot
             // we rendered a few frames ago.
@@ -2088,11 +2406,47 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // extra hold-slot. renderIdx is the slot just rendered this
             // iter (age 0), so age N presents renderIdx - N.
             if (android::sRingPrimedCount >= 2) {
-                const int D    = android::AHB_RING_DEPTH;
-                const int age  = android::sDrmLowLatency ? 1 : 2;
-                const int presentIdx = (renderIdx - age + 2 * D) % D;
-                android::drmFlipRingSlot(presentIdx, false);
-                android::sRingPresentIdx = presentIdx;
+                if (!flipFirst) {
+                    const int D    = ringDepth;
+                    // Present-age A/B knob: sys.gammaos.drastic_nano.present_age
+                    // overrides the default (1 low-latency, 2 otherwise). Lets us
+                    // test whether more buffer slack aligns the two panels.
+                    // Low Latency presents the slot rendered THIS iteration
+                    // (age 0): drmFlipRingSlot waits on its GPU fence before
+                    // the flip, so nothing tears, and the commit lands on the
+                    // very next vblank. Measured on the RG DS: 1.6 frames from
+                    // the emulator finishing a frame to the panel latching it,
+                    // against 2.6 at age 1 and 3.5 at age 2.
+                    int age = android::sDrmLowLatency ? 0 : 2;
+                    {
+                        // present_age overrides for experiments; -1/unset
+                        // keeps the default.
+                        int a = property_get_int32(
+                                "sys.gammaos.drastic_nano.present_age", -1);
+                        if (a >= 0 && a < D) age = a;
+                    }
+                    const int presentIdx = (renderIdx - age + 2 * D) % D;
+                    const int64_t flipT0 = android::elapsedRealtimeNano();
+                    if (sStgPrevEndNs != 0) {
+                        const int64_t w = flipT0 - sStgPrevEndNs;
+                        if (w > sStgWorkMaxNs) sStgWorkMaxNs = w;
+                    }
+                    android::drmSetPacerLocked(dr->vblankPacingActive());
+                    android::drmFlipRingSlot(presentIdx, false);
+                    // The flip returned on the vblank that latched it. A gap of
+                    // more than 1.5 periods since the previous latch means this
+                    // flip missed a vblank: back the pacing lead off.
+                    {
+                        static int64_t sPrevLatchUs = 0;
+                        const int64_t v = android::sDrmLastVblankUs;
+                        if (sPrevLatchUs > 0 && v - sPrevLatchUs > 25000) dr->reportFrameMiss(2); // flip landed a vblank late
+                        sPrevLatchUs = v;
+                    }
+                    dr->vblankTick(android::sDrmLastVblankUs, android::drmLastGpuDoneUs());
+                    const int64_t flipNs = android::elapsedRealtimeNano() - flipT0;
+                    if (flipNs > sStgFlipMaxNs) sStgFlipMaxNs = flipNs;
+                    android::sRingPresentIdx = presentIdx;
+                }
             } else {
                 android::sRingPrimedCount++;
             }
@@ -2100,7 +2454,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             android::drmFrameEnd(dpy->eglDpy, dpy->eglSurf);
         }
 
-        if (android::sDrmFd >= 0 && !android::sDrmDisplays.empty() &&
+        if (!flipFirst && android::sDrmFd >= 0 && !android::sDrmDisplays.empty() &&
             !android::sDrmVblankBroken && android::sDrmDisplays.size() <= 1) {
             const int64_t vblT0 = android::elapsedRealtimeNano();
             union drm_wait_vblank vbl = {};
@@ -2123,7 +2477,16 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                       (long long)(vblNs / 1000000LL));
             }
         }
-        android::drmDrainPageFlipEvents();
+        // Deferred drain (AFBC low latency): the flip event is collected by
+        // drmFlipRingSlot right before the next commit, after the next frame
+        // has been rendered, so the GPU overlaps the scanout wait.
+        if (!flipFirst && !android::drmDeferDrainActive()) {
+            const int64_t drainT0 = android::elapsedRealtimeNano();
+            android::drmDrainPageFlipEvents();
+            const int64_t drainNs = android::elapsedRealtimeNano() - drainT0;
+            if (drainNs > sStgDrainMaxNs) sStgDrainMaxNs = drainNs;
+        }
+        if (!flipFirst) sStgPrevEndNs = android::elapsedRealtimeNano();
     }
 
     // Stop the fast-input thread before anything it captured by reference
@@ -2643,6 +3006,22 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             exitRequested = true;
         }
         if (exitRequested) break;
+
+        // External load-state channel (parity with the DRM loop): reload a
+        // save-state slot mid-session over adb via
+        // sys.gammaos.drastic_nano.load_state=<slot 0..8>; self-clears.
+        {
+            char ls[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.drastic_nano.load_state", ls, "");
+            if (ls[0]) {
+                int slot = atoi(ls);
+                property_set("sys.gammaos.drastic_nano.load_state", "");
+                if (slot >= 0 && slot <= 9) {
+                    ALOGI("drastic-nano: external load_state slot %d (SF)", slot);
+                    dr->loadStateSlot(slot);
+                }
+            }
+        }
 
         dr->setFastForward(ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd);
         if (actions.actSwapScreens) screensSwapped = !screensSwapped;
@@ -3595,6 +3974,25 @@ int main(int argc, char** argv) {
     // so this is a single static frame that persists until the loop's first
     // present -- kBusy draws the bare track, never a frozen marquee.
     loadScr.frame("Loading game...", android::drastic_load::kBusy);
+    // Lock drastic's frame pacing and audio rate to the panel refresh on the
+    // DRM path (installed only if the library bytes match; see DrasticRunner).
+    if (!sfMode) {
+        const double panelHz = android::drmProbePrimaryRefreshHz();
+        ALOGI("drastic-nano: panel refresh %.4f Hz", panelHz);
+        dr.setPanelRefreshHz(panelHz);
+    }
+    // AFBC dual-panel low-latency path (rk356x): keep the emulator and its
+    // rasterizer workers on CFS at nice -10 instead of SCHED_RR. The GPU's
+    // job-completion and the display commit path run on kernel workers that
+    // real-time emulator threads starve on heavy scenes; measured on the
+    // RG DS control scene: presented 60.0 fps at nice -10 against 59.8 with
+    // SCHED_RR, producer identical, Sonic Rush latency unchanged. A set prop
+    // wins (sys.gammaos.drastic_nano.emu_rt).
+    if (!sfMode && android::sDrmAfbcMode) {
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.drastic_nano.emu_rt", v, "");
+        if (!v[0]) property_set("sys.gammaos.drastic_nano.emu_rt", "2");
+    }
     if (!dr.init(gDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
                  /*configBitsOverride=*/userBits,
@@ -3632,6 +4030,27 @@ int main(int argc, char** argv) {
     // behind them. The DRM teardown below is guarded by sDrmActive and no-ops on
     // the SF path.
     if (sfMode && sfBackend) sfBackend->teardown();
+
+    // Leave real-time scheduling before the teardown. The presenter, the flip
+    // thread and (on the AFBC path) drastic's emulator and rasterizer workers
+    // all run at SCHED_FIFO 80 during the session; a worker that spin-waits
+    // after its emulator thread is gone would starve every CFS task on the
+    // device (init, adbd, the home) and the exit looked like a full hang on
+    // the RG DS Plus. Put every thread of this process on SCHED_OTHER now.
+    {
+        DIR* d = opendir("/proc/self/task");
+        int demoted = 0;
+        if (d) {
+            struct dirent* e;
+            while ((e = readdir(d)) != nullptr) {
+                if (e->d_name[0] == '.') continue;
+                sched_param sp = {}; sp.sched_priority = 0;
+                if (sched_setscheduler((pid_t)atoi(e->d_name), SCHED_OTHER, &sp) == 0) demoted++;
+            }
+            closedir(d);
+        }
+        ALOGI("drastic-nano: exit: %d threads moved to SCHED_OTHER before teardown", demoted);
+    }
 
     // Persist the autosave (slot 9) that the next launch auto-loads.
     // The DrasticRunner destructor's quitSystem does NOT reliably

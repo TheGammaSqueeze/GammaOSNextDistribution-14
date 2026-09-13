@@ -64,6 +64,25 @@ struct DrmDisplay {
     DrmBuffer buffers[2];  // double buffer
     int activeBuffer;       // index currently being displayed
     struct drm_mode_modeinfo mode;
+    // Cached primary plane + its FB_ID property, for the low-latency atomic
+    // dual-CRTC flip (drmAtomicDualFlip). 0 until lazily discovered.
+    uint32_t planeId = 0;
+    uint32_t fbIdProp = 0;
+    // AFBC + Cluster low-latency dual-DSI sync path (rk356x). When sDrmAfbcMode
+    // the flip drives an AFBC-capable Cluster plane -- which, unlike the Smart
+    // plane, does NOT carry the per-VP output-pipeline offset that desyncs the
+    // two DSI panels -- instead of the Smart primary. All 0 until discovered by
+    // drmEnsureClusterPlane; clConfigured latches after the one-time full
+    // geometry commit (subsequent flips only touch FB_ID).
+    uint32_t clPlaneId = 0;       // Cluster (AFBC) plane bound to this crtc
+    uint32_t clFbIdProp = 0;
+    uint32_t clCrtcIdProp = 0;
+    uint32_t clCrtcXProp = 0, clCrtcYProp = 0, clCrtcWProp = 0, clCrtcHProp = 0;
+    uint32_t clSrcXProp = 0, clSrcYProp = 0, clSrcWProp = 0, clSrcHProp = 0;
+    uint32_t clBlendProp = 0, clAlphaProp = 0; uint64_t clBlendNone = 0;
+    uint32_t clInFenceProp = 0;
+    uint32_t smartCrtcIdProp = 0; // Smart primary CRTC_ID prop (to disable it)
+    bool     clConfigured = false;
 };
 
 struct AhbRenderTarget {
@@ -155,6 +174,10 @@ extern bool sDrmFrameSync;
 // present step. Inter-screen sync is handled by the kernel (rockchip,sync-vp-mask
 // on the RG DS), so this is a pure latency-vs-throughput trade. Off by default.
 extern bool sDrmLowLatency;
+extern bool sDrmAfbcMode;
+extern int64_t sDrmLastVblankUs;
+extern uint32_t sDrmSeamRotCrtc; // CRTC whose panel image is rendered 180 degrees (0 = none)
+extern uint32_t sDrmAfbcHalfH;
 extern int sPendingFlipEvents;
 extern uint32_t sCrtcIds[kMaxCrtcTrack];
 extern int sCrtcPending[kMaxCrtcTrack];
@@ -217,6 +240,10 @@ void drmEarlySplash(int existingFd = -1);
 // where libEGL needs SurfaceFlinger binder to return a usable EGL config) so
 // that the SF window-surface fallback path can take over without leaking master.
 void drmReleaseEarly();
+double drmProbePrimaryRefreshHz();
+int64_t drmLastGpuDoneUs();
+bool drmDeferDrainActive();
+void drmSetPacerLocked(bool locked);   // presenter tells the flip path whether the vblank lock is engaged   // AFBC deferred flip drain in effect (presenter must not drain itself)
 bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
                         AhbRenderTarget* target, const char* label);
 void drmSetupZeroCopy(EGLDisplay eglDpy);
