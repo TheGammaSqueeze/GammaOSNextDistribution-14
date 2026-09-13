@@ -98,6 +98,42 @@ public:
     // this; it ticks once per render-loop vblank via NanoRetroAchievements::
     // onRenderFrame() (~60Hz, the DS rate).
     int emulatedFrames() const { return mFrameCounter.load(); }
+    // Count of producer (emulated) frames the DS core has completed, taken from
+    // the slot-flip hook (drasticSlotFlipHook). Unlike emulatedFrames() and
+    // dsEmulatedFrameCounter() this KEEPS advancing on the renderDsToOffscreen()
+    // path, and it climbs above the panel rate during fast-forward, so a
+    // per-second delta gives the true emulation FPS. 0 until the pacing hooks
+    // are installed (installVblankPacing); read-only, safe from any thread.
+    uint32_t producerFrameCount() const;
+    // Emulated-frame count from the frame-limiter hook (drasticVWait): advances
+    // once per emulated frame in every mode, before render frame-skip, so its
+    // per-second delta is the TRUE emulation rate (60 at full speed, ~120 at 2x
+    // fast-forward). This is what the on-screen "emulation FPS" uses.
+    uint32_t limiterFrameCount() const;
+    // Raw frame-limiter clock-read count: advances a fixed number of times per
+    // emulated frame in every mode (fast-forward included). Divide its per-second
+    // delta by the per-frame read count for the true emulation FPS.
+    uint32_t limiterClockCount() const;
+    // True emulated-frame count: advances exactly once per emulated frame in every
+    // mode (paced, heavy, fast-forward). Its per-second delta is the emulation FPS
+    // shown on screen. This is the authoritative emulation-rate source.
+    uint32_t emuFrameCount() const;
+    // DraStic's own core frame counters in libdrastic BSS, written by the
+    // emulation core independent of our render path. coreTotalFrames() counts
+    // every emulated frame, so it advances at the EMULATION rate and doubles
+    // under fast-forward (the slot-flip/producer counter tracks the capped
+    // video-output rate instead). coreRenderedFrames() counts drawn frames.
+    // Both stay live on the direct fxRender path where the DS VCOUNT counter
+    // (dsEmulatedFrameCounter) freezes. 0 until the library is mapped.
+    uint32_t coreTotalFrames() const {
+        return mArm64Base ? *reinterpret_cast<volatile uint32_t*>(mArm64Base + 0x3c9b124) : 0;
+    }
+    uint32_t coreRenderedFrames() const {
+        return mArm64Base ? *reinterpret_cast<volatile uint32_t*>(mArm64Base + 0x3c9b120) : 0;
+    }
+    // True while fast-forward is applied to the emulator right now (used by the
+    // frontend to show the on-screen fast-forward indicator).
+    bool fastForwardActive() const { return mFastForwardOn; }
     // Block until the emulated-frame count moves past lastCount (a new frame was
     // produced) or timeoutMs elapses; returns the current count. Lets a consumer
     // wake promptly per frame instead of polling.

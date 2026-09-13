@@ -1115,6 +1115,79 @@ static void drawTouchCursor(android::drastic_gfx::OverlayGfx& gfx,
     gfx.fillRect(px - thin, py - thin, 2.0f * thin, 2.0f * thin, fill);
 }
 
+// Top-right FPS HUD: a single number, the EMULATION frame rate (DS core), which
+// is what shows real performance -- it sits at ~60 at full speed, DROPS when the
+// emulator cannot keep up (a bottleneck), and climbs above 60 under fast-forward.
+// Green at/near full speed, red when it drops below ~55 (a slowdown), amber while
+// fast-forwarding.
+static void drawFpsHud(android::drastic_gfx::OverlayGfx& gfx,
+                       float emuFps, bool ffActive) {
+    if (gfx.fontBasePx() <= 0) return;
+    using android::drastic_gfx::Color;
+    const float W = (float)gfx.viewportW();
+    const float H = (float)gfx.viewportH();
+    const float sf    = H / 720.0f;
+    const float scale = (28.0f * sf) / gfx.fontBasePx();
+    const float lineH = gfx.fontLineH() * scale;
+    const float pad   = 6.0f * sf;
+    char l1[16]; snprintf(l1, sizeof(l1), "%.0f", emuFps);
+    const float tw = gfx.measure(l1, scale);
+    const float bw = tw + 2.0f * pad;
+    const float bh = lineH + 2.0f * pad;
+    const float bx = W - bw - 8.0f * sf, by = 8.0f * sf;
+    gfx.fillRect(bx, by, bw, bh, android::drastic_gfx::rgba(0.0f, 0.0f, 0.0f, 0.5f));
+    Color c = ffActive ? android::drastic_gfx::rgba(1.0f, 0.75f, 0.2f, 1.0f)   // amber: FF
+                       : (emuFps < 55.0f ? android::drastic_gfx::rgba(1.0f, 0.35f, 0.3f, 1.0f)  // red: slowdown
+                                         : android::drastic_gfx::rgba(0.2f, 1.0f, 0.4f, 1.0f)); // green: full speed
+    gfx.text(l1, bx + pad, by + pad, scale, c);
+}
+
+// Fast-forward indicator: a ">>" pair of triangles in a small badge, top-left,
+// shown ONLY while fast-forward is active. Independent of the FPS counter, so
+// the player always sees when FF is toggled on.
+static void drawFfBadge(android::drastic_gfx::OverlayGfx& gfx, bool ffActive) {
+    if (!ffActive) return;
+    using android::drastic_gfx::Color;
+    const float H   = (float)gfx.viewportH();
+    const float sf  = H / 720.0f;
+    const float m   = 10.0f * sf;          // screen margin
+    const float s   = 20.0f * sf;          // triangle height
+    const float tw  = s * 0.85f;           // triangle width
+    const float gap = 3.0f * sf;
+    const float pad = 6.0f * sf;
+    const float bw  = 2.0f * tw + gap + 2.0f * pad;
+    const float bh  = s + 2.0f * pad;
+    const float bx  = m, by = m;
+    gfx.roundedRect(bx, by, bw, bh, 4.0f * sf,
+                    android::drastic_gfx::rgba(0.0f, 0.0f, 0.0f, 0.5f));
+    const Color c = android::drastic_gfx::rgba(1.0f, 0.75f, 0.2f, 1.0f); // amber
+    const float ty = by + pad;
+    float tx = bx + pad;
+    gfx.triangle(tx, ty, tx, ty + s, tx + tw, ty + s * 0.5f, c);
+    tx += tw + gap;
+    gfx.triangle(tx, ty, tx, ty + s, tx + tw, ty + s * 0.5f, c);
+}
+
+// Counter that feeds the on-screen emulation FPS. Default (0) is the frame-limiter
+// counter (drasticVWait), which ticks once per EMULATED frame before render
+// frame-skip, so it reads the true emulation rate: 60 at full speed and ~120 at
+// 2x fast-forward. The slot-flip/producer counter (option 4) instead tracks the
+// frame-skipped render rate (it DROPS under fast-forward on heavy scenes), and
+// DraStic's in-memory core counters (1/2/3) freeze on this render path. Override
+// via persist.gammaos.drastic_nano.emu_fps_src: 1=total, 2=rendered, 3=DS VCOUNT,
+// 4=producer/slot-flip.
+static uint32_t emuFrameSource(DrasticRunner* dr) {
+    switch (property_get_int32("persist.gammaos.drastic_nano.emu_fps_src", 0)) {
+        case 1:  return dr->coreTotalFrames();
+        case 2:  return dr->coreRenderedFrames();
+        case 3:  return dr->dsEmulatedFrameCounter();
+        case 4:  return dr->producerFrameCount();      // slot-flip / render rate (frame-skips)
+        case 5:  return dr->limiterClockCount();        // all clock reads (loop-inflated)
+        case 6:  return dr->limiterFrameCount();        // limiter sleeps (zero under FF)
+        default: return dr->emuFrameCount();            // true emulated-frame rate
+    }
+}
+
 // GPU timing (GL_EXT_disjoint_timer_query), gated by
 // sys.gammaos.drastic_nano.gpu_time_log=1: two elapsed-time queries per frame
 // (drastic's shader passes into the offscreen, and our copy pass into the AFBC
@@ -1761,7 +1834,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // auto-resume while hardcore is active). Use the restrictions signal so
         // fast-forward is also blocked during the async login+load window, not
         // just once the game is confirmed loaded.
-        dr->setFastForward(ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd);
+        {
+            // Adb/harness override: sys.gammaos.drastic_nano.force_ff forces FF on
+            // (for testing FF and the emulation-FPS readout without the button).
+            const bool ffForce = property_get_bool("sys.gammaos.drastic_nano.force_ff", false);
+            const bool ffWant  = (ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd) || ffForce;
+            dr->setFastForward(ffWant);
+        }
         if (actions.actSwapScreens) {
             screensSwapped = !screensSwapped;
             ALOGI("drastic-nano: screen swap = %d", screensSwapped);
@@ -2273,6 +2352,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             static float   sFpsDisplay = 0.0f;
             static int64_t sPrevFrameMs = 0;
             static int64_t sMaxFrameMs = 0;
+            // Emulation FPS: per-second delta of the producer frame count
+            // (rises above panel FPS during fast-forward).
+            static uint32_t sEmuPrev = 0;
+            static bool     sEmuInit = false;
+            static float    sEmuFps  = 0.0f;
             if (sFpsWinMs == 0) sFpsWinMs = android::elapsedRealtime();
             sFpsFrames++;
             const int64_t fpsNowMs = android::elapsedRealtime();
@@ -2284,6 +2368,28 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             if (fpsNowMs - sFpsWinMs >= 1000) {
                 const float r = sFpsFrames * 1000.0f / (float)(fpsNowMs - sFpsWinMs);
                 sFpsDisplay = sFpsDisplay > 0.0f ? sFpsDisplay * 0.5f + r * 0.5f : r;
+                // Emulation rate from the producer-frame delta (unsigned so a
+                // 32-bit wrap is handled). Frozen counters read equal -> 0.
+                const uint32_t emuNow = emuFrameSource(dr);
+                if (sEmuInit) {
+                    const float er = (uint32_t)(emuNow - sEmuPrev) * 1000.0f
+                                     / (float)(fpsNowMs - sFpsWinMs);
+                    sEmuFps = sEmuFps > 0.0f ? sEmuFps * 0.5f + er * 0.5f : er;
+                }
+                sEmuPrev = emuNow;
+                sEmuInit = true;
+                // Diagnosis hook: per-second delta of every candidate counter so
+                // we can see which one doubles under fast-forward. Gate:
+                // sys.gammaos.drastic_nano.emu_dbg=1.
+                if (property_get_bool("sys.gammaos.drastic_nano.emu_dbg", false)) {
+                    static uint32_t dE=0,dF=0,dW=0,dC=0; static bool dI=false;
+                    const uint32_t E=dr->emuFrameCount(), F=dr->producerFrameCount(),
+                                   W=dr->limiterFrameCount(), C=dr->limiterClockCount();
+                    if (dI) ALOGI("drastic-nano emu_dbg: dfr=%u dflip=%u dvw=%u dclk=%u ff=%d win=%lldms",
+                                  (uint32_t)(E-dE),(uint32_t)(F-dF),(uint32_t)(W-dW),(uint32_t)(C-dC),
+                                  dr->fastForwardActive()?1:0, (long long)(fpsNowMs - sFpsWinMs));
+                    dE=E;dF=F;dW=W;dC=C;dI=true;
+                }
                 // Publish metrics once per second, off the per-frame path, so an
                 // optimization pass can read them over adb (getprop
                 // sys.gammaos.drastic_nano.metrics) or logcat without touching the
@@ -2332,23 +2438,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 sStgRdMaxNs = 0;
                 sStgPbMaxNs = 0;
             }
-            if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false) &&
-                gfx.fontBasePx() > 0) {
-                char buf[16];
-                snprintf(buf, sizeof(buf), "%.0f", sFpsDisplay);
-                const float W = (float)gfx.viewportW();
-                const float H = (float)gfx.viewportH();
-                const float sf    = H / 720.0f;
-                const float scale = (28.0f * sf) / gfx.fontBasePx();
-                const float tw    = gfx.measure(buf, scale);
-                const float pad   = 6.0f * sf;
-                const float bw    = tw + 2 * pad, bh = gfx.fontLineH() * scale + 2 * pad;
-                const float bx    = W - bw - 8.0f * sf, by = 8.0f * sf;
-                gfx.fillRect(bx, by, bw, bh,
-                             android::drastic_gfx::rgba(0.0f, 0.0f, 0.0f, 0.5f));
-                gfx.text(buf, bx + pad, by + pad, scale,
-                         android::drastic_gfx::rgba(0.2f, 1.0f, 0.4f, 1.0f));
-            }
+            // Fast-forward badge is independent of the FPS counter prop.
+            drawFfBadge(gfx, dr->fastForwardActive());
+            if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false))
+                drawFpsHud(gfx, sEmuFps, dr->fastForwardActive());
         }
         gfx.endFrame();
         // Debug screenshot: latch the request now (primTgt is bound and holds
@@ -2901,6 +2994,11 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // overlay pass, gated on persist.gammaos.drastic_nano.fps_counter). Updated
     // once per measurement window from the same present count as the log.
     float   fpsDisplay       = 0.0f;
+    // Emulation FPS: per-second delta of the producer frame count (climbs above
+    // the present rate during fast-forward).
+    uint32_t emuPrevCount    = 0;
+    bool     emuInit         = false;
+    float    emuFpsDisplay   = 0.0f;
 
     int64_t audioBoostDeadlineMs = android::elapsedRealtime() + 1000;
     int audioBoostSweeps = 0;
@@ -3128,7 +3226,13 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             }
         }
 
-        dr->setFastForward(ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd);
+        {
+            // Adb/harness override: sys.gammaos.drastic_nano.force_ff forces FF on
+            // (for testing FF and the emulation-FPS readout without the button).
+            const bool ffForce = property_get_bool("sys.gammaos.drastic_nano.force_ff", false);
+            const bool ffWant  = (ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd) || ffForce;
+            dr->setFastForward(ffWant);
+        }
         if (actions.actSwapScreens) screensSwapped = !screensSwapped;
 
         // Touch maps to the bottom (touch) DS screen. In dual mode the touch
@@ -3326,22 +3430,11 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             drawTouchCursor(gfx, cbr, input.cursorX, input.cursorY,
                             (input.dsBtnMask & DrasticRunner::kDsBtnA) != 0);
         }
-        // Optional on-screen FPS counter, top-right. Sized off the panel height so
-        // it holds a consistent on-screen fraction at any resolution/orientation.
-        if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false)) {
-            char buf[16];
-            snprintf(buf, sizeof(buf), "%.0f", fpsDisplay);
-            const float sf    = H / 720.0f;
-            const float scale = (28.0f * sf) / gfx.fontBasePx();
-            const float tw    = gfx.measure(buf, scale);
-            const float pad   = 6.0f * sf;
-            const float bw    = tw + 2 * pad, bh = gfx.fontLineH() * scale + 2 * pad;
-            const float bx    = W - bw - 8.0f * sf, by = 8.0f * sf;
-            gfx.fillRect(bx, by, bw, bh,
-                         android::drastic_gfx::rgba(0.0f, 0.0f, 0.0f, 0.5f));
-            gfx.text(buf, bx + pad, by + pad, scale,
-                     android::drastic_gfx::rgba(0.2f, 1.0f, 0.4f, 1.0f));
-        }
+        // Fast-forward badge is independent of the FPS counter prop.
+        drawFfBadge(gfx, dr->fastForwardActive());
+        // Optional on-screen FPS counter, top-right (panel rate + emulation rate).
+        if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false))
+            drawFpsHud(gfx, emuFpsDisplay, dr->fastForwardActive());
         gfx.endFrame();
 
         const bool wantShot = shotRequested();
@@ -3439,6 +3532,17 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
                 fpsDisplay = fpsDisplay > 0.0f
                         ? fpsDisplay * 0.5f + newRate * 0.5f
                         : newRate;
+                // Emulation rate from the producer-frame delta (unsigned so a
+                // 32-bit wrap is handled).
+                const uint32_t emuNow = emuFrameSource(dr);
+                if (emuInit) {
+                    const float er = (uint32_t)(emuNow - emuPrevCount) * 1000.0f
+                                     / (float)dtMs;
+                    emuFpsDisplay = emuFpsDisplay > 0.0f
+                            ? emuFpsDisplay * 0.5f + er * 0.5f : er;
+                }
+                emuPrevCount = emuNow;
+                emuInit = true;
                 fpsFrameCount = 0;
                 fpsWindowStartMs = nowMs;
             }

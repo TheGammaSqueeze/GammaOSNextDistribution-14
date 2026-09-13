@@ -2185,7 +2185,16 @@ static inline uint64_t realClockUs() {
     struct timeval tv; gettimeofday(&tv, nullptr);
     return (uint64_t)tv.tv_sec * 1000000ULL + (uint64_t)tv.tv_usec;
 }
+// Counts the emulator frame-limiter's clock reads. The limiter reads the clock a
+// FIXED number of times per emulated frame (limiter reset + deadline check) in
+// EVERY mode -- paced, unpaced/heavy, and fast-forward -- because it always runs
+// once per frame even when it does not sleep. So this advances strictly with the
+// emulation rate (unlike drasticVWait, which stops under fast-forward, and unlike
+// the slot-flip counter, which frame-skips). Divide the per-second delta by the
+// reads-per-frame to get emulated FPS.
+std::atomic<uint32_t> gVTimeCount{0};
 extern "C" void drasticVTime(uint64_t* out) {
+    gVTimeCount.fetch_add(1, std::memory_order_relaxed);
     if (gPaceOn.load(std::memory_order_relaxed)) {
         const uint32_t seq = gVblSeq.load(std::memory_order_acquire);
         *out = (uint64_t)gVirtBaseUs.load() +
@@ -2194,6 +2203,14 @@ extern "C" void drasticVTime(uint64_t* out) {
     }
     *out = realClockUs();
 }
+
+// Emulated-frame counter. Bumped once per emulated frame by the cave installed on
+// the frame-limiter call site (+0x2c99c) in installVblankPacing: that site is
+// entered exactly once per emulated frame in every mode -- paced, unpaced/heavy,
+// and fast-forward -- so gEmuFrames' per-second delta is the true emulation rate
+// (60 at full speed, higher under fast-forward, and it DROPS when the emulator
+// cannot keep up). Written only by the emulator thread (single writer).
+std::atomic<uint32_t> gEmuFrames{0};
 
 // Called in place of the per-frame slot flip (+0x1cb14 from +0x3d2bc):
 // records the exact instant the emulated frame becomes visible to the
@@ -2240,7 +2257,14 @@ extern "C" void drasticSlotFlipHook() {
     gFlipCv.notify_all();
 }
 
+// Counts emulated frames: drastic's frame limiter calls this once per emulated
+// frame in EVERY mode (paced, unpaced/heavy, and fast-forward), before any
+// render frame-skip, so a per-second delta is the true emulation rate (60 at
+// full speed, ~120 at 2x fast-forward), unlike the slot-flip counter which
+// tracks the frame-skipped render rate.
+std::atomic<uint32_t> gVWaitCount{0};
 extern "C" void drasticVWait(unsigned usec) {
+    gVWaitCount.fetch_add(1, std::memory_order_relaxed);
     if (!gPaceOn.load(std::memory_order_relaxed)) { usleep(usec); return; }
     std::unique_lock<std::mutex> lk(gPaceMu);
     const uint32_t seen = gVblSeq.load(std::memory_order_acquire);
@@ -2291,7 +2315,8 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
               (unsigned long)kFlipSite.off);
         return;
     }
-    const uintptr_t kCaveTime = 0x132c40, kCaveWait = 0x132c60, kCaveFlip = 0x132c80;
+    const uintptr_t kCaveTime = 0x132c40, kCaveWait = 0x132c60, kCaveFlip = 0x132c80,
+                    kCaveLim = 0x132e60;   // free RX padding after the threaded3d caves (end ~0x132e58)
     uint8_t* cavePg = (uint8_t*)((uintptr_t)(base + kCaveTime) & ~(uintptr_t)(ps - 1));
     uint8_t* sitePg = (uint8_t*)((uintptr_t)(base + 0x1b76c) & ~(uintptr_t)(ps - 1));
     uint8_t* flipPg = (uint8_t*)((uintptr_t)(base + kFlipSite.off) & ~(uintptr_t)(ps - 1));
@@ -2312,6 +2337,42 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     writeCave(kCaveWait, (void*)&drasticVWait);
     gOrigSlotFlip = reinterpret_cast<void (*)()>(base + 0x1cb14);
     writeCave(kCaveFlip, (void*)&drasticSlotFlipHook);
+    // Emulated-frame counter: the frame limiter (+0x1b7a8) is entered from exactly
+    // ONE site (+0x2c99c: `bl +0x1b7a8`), once per emulated frame in every mode.
+    // Replace that bl with a bl into a cave that bumps gEmuFrames and tail-branches
+    // (b, LR preserved) into the real limiter, so gEmuFrames is the true emulation
+    // rate. Cave at kCaveLim (free RX padding after the threaded3d caves).
+    {
+        const uintptr_t kLimSite = 0x2c99c;
+        const uint32_t  kLimExpect = 0x97ffbb83u;   // bl +0x1b7a8 from +0x2c99c (device-verified)
+        uint32_t* site = reinterpret_cast<uint32_t*>(base + kLimSite);
+        if (*site != kLimExpect) {
+            ALOGW("DrasticRunner: emu-frame counter: unexpected code at +0x%lx (0x%08x), "
+                  "skipping", (unsigned long)kLimSite, *site);
+        } else {
+            uint32_t* c = reinterpret_cast<uint32_t*>(base + kCaveLim);
+            c[0] = 0x580000b0u;   // ldr x16, [pc, #20]  -> &gEmuFrames at c[5]
+            c[1] = 0xb9400211u;   // ldr w17, [x16]
+            c[2] = 0x11000631u;   // add w17, w17, #1
+            c[3] = 0xb9000211u;   // str w17, [x16]     (single writer: emulator thread)
+            intptr_t bd = (intptr_t)(base + 0x1b7a8) - (intptr_t)(base + kCaveLim + 16);
+            c[4] = 0x14000000u | (uint32_t)((bd >> 2) & 0x03ffffffu);   // b +0x1b7a8
+            uint64_t addr = (uint64_t)(uintptr_t)&gEmuFrames;
+            memcpy(&c[5], &addr, 8);
+            // page holding +0x2c99c must be writable for the patch.
+            uint8_t* limPg = (uint8_t*)((uintptr_t)site & ~(uintptr_t)(ps - 1));
+            if (mprotect(limPg, ps, PROT_READ | PROT_WRITE | PROT_EXEC) == 0) {
+                intptr_t d = (intptr_t)(base + kCaveLim) - (intptr_t)(base + kLimSite);
+                *site = 0x94000000u | (uint32_t)((d >> 2) & 0x03ffffffu);   // bl kCaveLim
+                __builtin___clear_cache((char*)limPg, (char*)limPg + ps);
+                __builtin___clear_cache((char*)(base + kCaveLim), (char*)(base + kCaveLim) + 32);
+                mprotect(limPg, ps, PROT_READ | PROT_EXEC);
+                ALOGW("DrasticRunner: emu-frame counter installed at +0x%lx", (unsigned long)kLimSite);
+            } else {
+                ALOGW("DrasticRunner: emu-frame counter: mprotect(site) failed: %s", strerror(errno));
+            }
+        }
+    }
     auto patchBl = [&](uintptr_t site, uintptr_t target) {
         intptr_t d = (intptr_t)target - (intptr_t)site;
         *reinterpret_cast<uint32_t*>(base + site) =
@@ -4186,6 +4247,35 @@ uint16_t DrasticRunner::dsEmulatedFrameCounter() {
     if (!mArm64Base) return 0;
     uintptr_t master = (uintptr_t)mArm64Base + 0x14c000;
     return *reinterpret_cast<volatile uint16_t*>(master + 0x4b0);
+}
+
+// Producer/emulated frame count from the slot-flip hook. gFlipHookCount is the
+// file-scope atomic bumped once per DS core frame in drasticSlotFlipHook(),
+// so it tracks the emulation rate (and rises during fast-forward) even on the
+// renderDsToOffscreen() path where the other counters freeze.
+uint32_t DrasticRunner::producerFrameCount() const {
+    return gFlipHookCount.load();
+}
+
+// Emulated-frame count from the frame-limiter hook (drasticVWait). Advances once
+// per emulated frame regardless of render frame-skip, so it is the true emulation
+// rate under fast-forward. 0 until the pacing hooks are installed.
+uint32_t DrasticRunner::limiterFrameCount() const {
+    return gVWaitCount.load();
+}
+
+// Raw frame-limiter clock-read count (see drasticVTime). Advances a fixed number
+// of times per emulated frame in every mode, so its per-second delta divided by
+// that per-frame count is the true emulation rate, fast-forward included.
+uint32_t DrasticRunner::limiterClockCount() const {
+    return gVTimeCount.load();
+}
+
+// True emulated-frame count (see drasticVTimeReset): once per emulated frame in
+// every mode, so its per-second delta is the emulation FPS -- 60 at full speed,
+// higher under fast-forward, lower when the emulator cannot keep up.
+uint32_t DrasticRunner::emuFrameCount() const {
+    return gEmuFrames.load();
 }
 
 // Overlay drastic's fast-forward bits onto an already-built config word.

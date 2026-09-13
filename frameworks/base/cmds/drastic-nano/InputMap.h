@@ -99,10 +99,13 @@ struct InputState {
     // Digital trigger / thumb press state.
     bool btnL2 = false, btnR2 = false;
     bool btnL3 = false, btnR3 = false;
-    // Held state for the fast-forward action. Tracked as held (not
-    // edge) because drastic's fast-forward lever is "hold the button
-    // to run at uncapped emu speed" -- pollInputMap copies this into
-    // InputActions::actFastFwd each frame.
+    // Fast-forward is now a TOGGLE, not a hold: each press of the mapped
+    // button (action 17, e.g. L2) flips ffToggled, and pollInputMap copies
+    // ffToggled into InputActions::actFastFwd each frame. ffWasDown edge-
+    // detects the press so one physical press = one toggle. (btnFastFwd is
+    // kept only for any code that still reads the raw held state.)
+    bool ffToggled = false;
+    bool ffWasDown = false;
     bool btnFastFwd = false;
 
     // Held state for drastic's "Stylus Touch" action (slot 28). Acts

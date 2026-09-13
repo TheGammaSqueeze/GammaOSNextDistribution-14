@@ -587,10 +587,16 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         else         st->dsBtnMask &= ~dsBit;
                     } else {
                         switch (action) {
-                        // Fast-forward and stylus-touch track press+
-                        // release so the lever / touch stays active
-                        // while the button is held.
-                        case 17: st->btnFastFwd   = pressed; break;
+                        // Fast-forward is a TOGGLE: flip ffToggled on the
+                        // press edge (one physical press = one toggle). The
+                        // held state is still mirrored into btnFastFwd for
+                        // any consumer that wants the raw level.
+                        case 17:
+                            if (pressed && !st->ffWasDown)
+                                st->ffToggled = !st->ffToggled;
+                            st->ffWasDown = pressed;
+                            st->btnFastFwd = pressed;
+                            break;
                         // Touch Cursor: edge-toggle the virtual cursor (the new
                         // default R3 behavior, replacing the momentary stylus).
                         case 28:
@@ -761,10 +767,9 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         out->touchX = st->touchDsX;
         out->touchY = st->touchDsY;
         out->touchHeld = false;
-        // Also force-off fast-forward: the menu pauses the emulator,
-        // so the lever would get stuck ON if the player closes the
-        // menu and then releases the FF button (we would not see
-        // the release).
+        // Suppress fast-forward while the menu is up (it pauses the
+        // emulator). The toggle state (ffToggled) is preserved, so FF
+        // resumes automatically when the menu closes if it was on.
         out->actFastFwd = false;
     } else if (st->cursorMode) {
         // Virtual touch cursor active. It owns the D-Pad / left stick (move the
@@ -784,7 +789,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         out->touchY = (int)(st->cursorY + 0.5f);
         out->touchHeld = (st->dsBtnMask & DrasticRunner::kDsBtnA) != 0;
         out->touchDirect = true;
-        out->actFastFwd = st->btnFastFwd;
+        out->actFastFwd = st->ffToggled;
     } else {
         // Layer stick-as-DPad bits on top of latched DPad / button state
         // so the stick acts as a secondary DPad for games that don't use
@@ -814,8 +819,8 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         // Real finger wins; otherwise the stylus-touch button synthesizes
         // a press at the last known cursor position.
         out->touchHeld = st->touchHeld || st->stylusBtnHeld;
-        // Reflect the held state of the fast-forward button.
-        out->actFastFwd = st->btnFastFwd;
+        // Reflect the toggled state of the fast-forward button.
+        out->actFastFwd = st->ffToggled;
     }
 }
 
