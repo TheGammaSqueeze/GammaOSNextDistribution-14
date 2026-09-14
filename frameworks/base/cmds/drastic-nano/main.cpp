@@ -1170,31 +1170,39 @@ static void drawTouchCursor(android::drastic_gfx::OverlayGfx& gfx,
     gfx.fillRect(px - thin, py - thin, 2.0f * thin, 2.0f * thin, fill);
 }
 
-// Top-right FPS HUD: a single number, the EMULATION frame rate (DS core), which
-// is what shows real performance -- it sits at ~60 at full speed, DROPS when the
-// emulator cannot keep up (a bottleneck), and climbs above 60 under fast-forward.
-// Green at/near full speed, red when it drops below ~55 (a slowdown), amber while
-// fast-forwarding.
+// Top-right FPS HUD: two labelled counters.
+//   BLIT = how fast we present/blit to the panel (the present rate).
+//   GAME = the emulation frame rate (DS core), which shows real performance:
+//          ~60 at full speed, DROPS when the emulator cannot keep up (a
+//          bottleneck), and climbs above 60 under fast-forward.
+// GAME is coloured green at full speed, red below ~55 (a slowdown), amber while
+// fast-forwarding; BLIT stays a calm cyan.
 static void drawFpsHud(android::drastic_gfx::OverlayGfx& gfx,
-                       float emuFps, bool ffActive) {
+                       float panelFps, float emuFps, bool ffActive) {
     if (gfx.fontBasePx() <= 0) return;
     using android::drastic_gfx::Color;
     const float W = (float)gfx.viewportW();
     const float H = (float)gfx.viewportH();
     const float sf    = H / 720.0f;
-    const float scale = (28.0f * sf) / gfx.fontBasePx();
+    const float scale = (24.0f * sf) / gfx.fontBasePx();
     const float lineH = gfx.fontLineH() * scale;
     const float pad   = 6.0f * sf;
-    char l1[16]; snprintf(l1, sizeof(l1), "%.0f", emuFps);
-    const float tw = gfx.measure(l1, scale);
+    char l1[24]; snprintf(l1, sizeof(l1), "BLIT %.0f", panelFps);
+    char l2[24]; snprintf(l2, sizeof(l2), "GAME %.0f", emuFps);
+    float tw = gfx.measure(l1, scale);
+    { const float t2 = gfx.measure(l2, scale); if (t2 > tw) tw = t2; }
     const float bw = tw + 2.0f * pad;
-    const float bh = lineH + 2.0f * pad;
+    const float bh = 2.0f * lineH + 2.0f * pad;
     const float bx = W - bw - 8.0f * sf, by = 8.0f * sf;
-    gfx.fillRect(bx, by, bw, bh, android::drastic_gfx::rgba(0.0f, 0.0f, 0.0f, 0.5f));
-    Color c = ffActive ? android::drastic_gfx::rgba(1.0f, 0.75f, 0.2f, 1.0f)   // amber: FF
-                       : (emuFps < 55.0f ? android::drastic_gfx::rgba(1.0f, 0.35f, 0.3f, 1.0f)  // red: slowdown
-                                         : android::drastic_gfx::rgba(0.2f, 1.0f, 0.4f, 1.0f)); // green: full speed
-    gfx.text(l1, bx + pad, by + pad, scale, c);
+    gfx.fillRect(bx, by, bw, bh, android::drastic_gfx::rgba(0.0f, 0.0f, 0.0f, 0.55f));
+    // BLIT / present rate: cyan.
+    gfx.text(l1, bx + pad, by + pad, scale,
+             android::drastic_gfx::rgba(0.3f, 0.8f, 1.0f, 1.0f));
+    // GAME / emulation rate: amber under FF, red when slow, else green.
+    const Color gc = ffActive ? android::drastic_gfx::rgba(1.0f, 0.75f, 0.2f, 1.0f)
+                              : (emuFps < 55.0f ? android::drastic_gfx::rgba(1.0f, 0.35f, 0.3f, 1.0f)
+                                                : android::drastic_gfx::rgba(0.2f, 1.0f, 0.4f, 1.0f));
+    gfx.text(l2, bx + pad, by + pad + lineH, scale, gc);
 }
 
 // Fast-forward indicator: a ">>" pair of triangles in a small badge, top-left,
@@ -2497,7 +2505,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // Fast-forward badge is independent of the FPS counter prop.
             drawFfBadge(gfx, dr->fastForwardActive());
             if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false))
-                drawFpsHud(gfx, sEmuFps, dr->fastForwardActive());
+                drawFpsHud(gfx, sFpsDisplay, sEmuFps, dr->fastForwardActive());
         }
         gfx.endFrame();
         // Debug screenshot: latch the request now (primTgt is bound and holds
@@ -3491,7 +3499,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         drawFfBadge(gfx, dr->fastForwardActive());
         // Optional on-screen FPS counter, top-right (panel rate + emulation rate).
         if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false))
-            drawFpsHud(gfx, emuFpsDisplay, dr->fastForwardActive());
+            drawFpsHud(gfx, fpsDisplay, emuFpsDisplay, dr->fastForwardActive());
         gfx.endFrame();
 
         const bool wantShot = shotRequested();
