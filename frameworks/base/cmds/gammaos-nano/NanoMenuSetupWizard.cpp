@@ -162,23 +162,26 @@ void NanoMenu::finishSetupWizard() {
     // USER_SETUP_COMPLETE (unblocks permission grants and storage). Run
     // synchronously so the framework processes each change before the next
     // one lands.
-    system("settings put global device_provisioned 1 2>/dev/null");
-    system("settings put secure user_setup_complete 1 2>/dev/null");
-    system("settings put secure tv_user_setup_complete 1 2>/dev/null");
-
-    // GammaOS: the stock SetupWizard normally enables + selects the first soft
-    // keyboard; nano provisions the device itself and bypasses it, so normal
-    // Android would otherwise boot with NO IME enabled (default_input_method and
-    // enabled_input_methods empty) and never show a keyboard. Re-apply the
-    // framework's default-enabled IME here (LatinIME on non-TV, LeanbackIME on TV).
-    // Runs post-setup with the user unlocked, so the write persists. Also show the
-    // on-screen keyboard even when a controller is misdetected as a hardware
-    // keyboard (belt-and-suspenders alongside the gammapad companion-keyboard fix).
-    system("settings put secure show_ime_with_hard_keyboard 1 2>/dev/null");
-    system("ime reset 2>/dev/null");
-
-    // Disable lockscreen (no swipe to unlock)
-    system("locksettings clear --old \"\" 2>/dev/null");
+    // These provisioning commands each fork a shell + a framework binary and, run
+    // synchronously here, stalled the render/input thread ~1s (and underran the audio
+    // track), so pressing "start" on the finish screen visibly froze the exit to the
+    // home. Run them off the render thread instead, preserving their order (order
+    // matters: DEVICE_PROVISIONED first -> AMS mirrors it to persist.sys.device_
+    // provisioned; then USER_SETUP_COMPLETE unblocks grants/storage; the IME + lock
+    // settings after). The device is already fully installed by this point, so nothing
+    // on the UI path depends on these completing this frame.
+    std::thread([]() {
+        system("settings put global device_provisioned 1 2>/dev/null");
+        system("settings put secure user_setup_complete 1 2>/dev/null");
+        system("settings put secure tv_user_setup_complete 1 2>/dev/null");
+        // Re-apply the framework's default-enabled IME (stock SetupWizard would; nano
+        // bypasses it, so normal Android would otherwise boot with no IME enabled).
+        // Also show the OSK even when a controller is misdetected as a hardware keyboard.
+        system("settings put secure show_ime_with_hard_keyboard 1 2>/dev/null");
+        system("ime reset 2>/dev/null");
+        // Disable lockscreen (no swipe to unlock).
+        system("locksettings clear --old \"\" 2>/dev/null");
+    }).detach();
 
     // Fast-path property for next boot
     property_set("persist.gammaos.nano.setup_done", "1");
@@ -455,7 +458,11 @@ void NanoMenu::updateSetupTransition() {
             startBtWizard(0);
         } else if (mSetupStep == SETUP_INSTALLING) {
             mMenuState = MENU_SETUP_WIZARD;
-            startSetupScript();
+            // Defer setup.sh until the fade-in completes + a grace period (see
+            // renderSetupWizard) so the enter transition stays at 60fps instead of
+            // fighting the script's CPU spike.
+            mSetupScriptPending = true;
+            mSetupScriptReadyMs = 0;
         } else if (mSetupStep == SETUP_TIMEZONE) {
             // The timezone step is the 1:1 web 3D-globe selector. Rebuild the zone
             // list (pre-selects the current tz), then start the globe cross-fade
@@ -703,25 +710,40 @@ void NanoMenu::renderSetupNdsBackdrop() {
     setUiBlend();
     const float W = (float)mWidth, H = (float)mHeight;
     if (wallpaperActive(mRenderingPanel)) {
+        // A custom panel wallpaper is set: keep it, with a dim + blue cast so the
+        // forced-XMB white chrome/text stays legible over it.
         drawWallpaperFill(mRenderingPanel);
+        drawQuad(0.0f, 0.0f, W, H, 0.10f, 0.18f, 0.42f, 0.30f);   // blue tint
+        drawQuad(0.0f, 0.0f, W, H, 0.0f,  0.0f,  0.0f,  0.50f);   // dim
     } else {
-        drawQuad(0.0f, 0.0f, W, H, 0.953f, 0.953f, 0.953f, 1.0f);
-        float dl = H / 192.0f * 2.0f; if (dl < 2.0f) dl = 2.0f;
-        float lh = fmaxf(1.0f, H / 192.0f);
-        for (float y = 0.0f; y < H; y += dl) drawQuad(0.0f, y, W, lh, 0.922f, 0.922f, 0.922f, 1.0f);
-        float ec = fmaxf(1.0f, W / 256.0f);
-        drawQuad(0.0f, 0.0f, ec, H, 0.859f, 0.859f, 0.859f, 1.0f);
-        drawQuad(W - ec, 0.0f, ec, H, 0.859f, 0.859f, 0.859f, 1.0f);
+        // No wallpaper (the first-boot default): the user wants a pure BLACK backdrop
+        // for the DSi-theme setup wizard, not the light-grey dither field. The forced
+        // XMB chrome is white text, which reads cleanly on black, so no dim/blue is
+        // needed.
+        drawQuad(0.0f, 0.0f, W, H, 0.0f, 0.0f, 0.0f, 1.0f);
     }
-    // Dim + blue, like the XMB fullscreen dialogs (a dark dim over the blue frosted wave):
-    // a low blue cast then a black dim, so the light DSi field darkens to a readable blue-grey
-    // (~0.36 luma) that keeps the forced-XMB white chrome/text legible.
-    drawQuad(0.0f, 0.0f, W, H, 0.10f, 0.18f, 0.42f, 0.30f);   // blue tint
-    drawQuad(0.0f, 0.0f, W, H, 0.0f,  0.0f,  0.0f,  0.50f);   // dim
 }
 
 void NanoMenu::renderSetupWizard() {
     updateSetupTransition();
+    // Debug/test hook: jump straight to a setup step for on-device 1:1 screenshot
+    // verification. `setprop sys.gammaos.nano.setup_step_jump <n>` (0=welcome ..
+    // installing/finish). Does NOT start setup.sh, so the installing screen shows
+    // the animated (running) progress bar. Self-clears; no effect when empty.
+    {
+        char sj[PROPERTY_VALUE_MAX] = {0};
+        if (property_get("sys.gammaos.nano.setup_step_jump", sj, "") > 0 && sj[0]) {
+            property_set("sys.gammaos.nano.setup_step_jump", "");
+            int s = atoi(sj);
+            if (s >= 0 && s < SETUP_STEP_COUNT) {
+                mSetupStep = (SetupWizardStep)s;
+                mSetupTransitioning = false;
+                mSetupTransitionAlpha = 1.0f;
+                mSetupSlideOffset = 0.0f;
+                mSetupScriptPending = false;
+            }
+        }
+    }
     // DSi theme: paint the DSi background + dim/blue behind the whole wizard first, so every
     // step (the XMB-forced Wi-Fi/Bluetooth net wizard, and the language/timezone/installing/
     // finish steps below) sits on the DSi backdrop instead of the PS3 wave. The net-wizard
@@ -787,8 +809,31 @@ void NanoMenu::renderSetupWizard() {
     // Fade-in when not transitioning (lerp alpha toward 1.0)
     if (!mSetupTransitioning && mSetupTransitionAlpha < 1.0f) {
         mSetupTransitionAlpha += 0.06f;
-        if (mSetupTransitionAlpha > 1.0f) mSetupTransitionAlpha = 1.0f;
-        mSetupSlideOffset *= 0.85f; // ease slide to zero
+        if (mSetupTransitionAlpha >= 1.0f) {
+            mSetupTransitionAlpha = 1.0f;
+            mSetupSlideOffset = 0.0f;   // snap to exactly centred; leaving a residual
+                                        // offset shifts every step (finish title, hints)
+        } else {
+            mSetupSlideOffset *= 0.85f; // ease slide toward zero
+        }
+    }
+
+    // Launch setup.sh only after the enter transition into the installing step has
+    // fully faded in AND settled for a short grace period. setup.sh saturates the CPU
+    // the instant it starts (dexopt, app installs, payload extraction); starting it
+    // during (or on the last frame of) the animation stutters it, so we wait until a
+    // few clean 60fps frames have been presented at the settled position.
+    if (mSetupStep == SETUP_INSTALLING && mSetupScriptPending &&
+            !mSetupTransitioning && mSetupTransitionAlpha >= 1.0f &&
+            mSetupSlideOffset == 0.0f) {
+        int64_t now = elapsedRealtime();
+        if (mSetupScriptReadyMs == 0) {
+            mSetupScriptReadyMs = now + 250;    // arm the grace timer
+        } else if (now >= mSetupScriptReadyMs) {
+            mSetupScriptPending = false;
+            mSetupScriptReadyMs = 0;
+            startSetupScript();
+        }
     }
 
     // Light dim over wallpaper (skip on welcome for clean iOS-style look; skip on
@@ -1195,13 +1240,34 @@ void NanoMenu::renderSetupInstalling() {
                    lfs, r, g, b, alpha * 0.92f, 0);
     }
 
-    // Footer: Start-Continue once done, otherwise a centred "Please wait...".
+    // Footer: Start-Continue once done, otherwise a centred "Please wait..." with a
+    // marching indeterminate progress bar underneath it (Windows-XP / Android-boot
+    // style: a small group of blocks that slides left -> right and loops), so the
+    // user can see setup is alive and not stalled.
     float hintY = Y(909.0f);
     if (mSetupScriptDone) {
         ps3DlgHintG(XC(VW * 0.5f), 2, "Continue", hintY, S, alpha);
     } else {
         ps3DlgText(tr(STR_SETUP_INSTALL_WAIT), XC(VW * 0.5f), Y(916.0f), FS(20.0f),
                    0.9f, 0.9f, 0.95f, 0.9f * alpha, 1);
+        // Marching bar, centred under the "Please wait..." text.
+        const float barW = S * VW * 0.34f;
+        const float barX = XC(VW * 0.5f) - barW * 0.5f;
+        const float barY = Y(946.0f);
+        const float blkH = DS(9.0f);
+        drawQuad(barX, barY, barW, blkH, 1.0f, 1.0f, 1.0f, 0.10f * alpha);   // recessed trough
+        const int   grp    = 3;                                             // blocks in the group
+        const float blkW   = DS(11.0f);
+        const float blkGap = DS(7.0f);
+        const float grpW   = grp * blkW + (grp - 1) * blkGap;
+        const float ph     = fmodf((float)elapsedRealtime(), 1300.0f) / 1300.0f;  // ~1.3s per sweep
+        const float gx     = barX - grpW + ph * (barW + grpW);              // enter left, exit right, loop
+        for (int i = 0; i < grp; i++) {
+            float x  = gx + (float)i * (blkW + blkGap);
+            float xl = fmaxf(x, barX);
+            float xr = fminf(x + blkW, barX + barW);                        // clip to the trough
+            if (xr > xl) drawQuad(xl, barY, xr - xl, blkH, 0.35f, 0.75f, 1.0f, 0.95f * alpha);
+        }
     }
 
     mTextOutlineMode = savedMode;
@@ -1214,33 +1280,38 @@ void NanoMenu::renderSetupFinish() {
     float alpha = mSetupTransitionAlpha;
     float slideX = mSetupSlideOffset;
 
+    const char* title  = tr(STR_SETUP_FINISH_TITLE);
+    const char* sub    = tr(STR_SETUP_FINISH_SUB);
+    const char* prompt = tr(STR_SETUP_FINISH_PRESS_A);
+    const float titleScale  = 4.0f * sf;
+    const float subScale    = 2.0f * sf;
+    const float promptScale = 2.2f * sf;
+
+    // Center the whole title + subtitle + prompt block both horizontally (each line
+    // individually) and VERTICALLY (as one group), so the screen reads as centred
+    // instead of top-heavy.
+    const float titleH  = FONT_CHAR_H * titleScale;
+    const float subH    = FONT_CHAR_H * subScale;
+    const float promptH = FONT_CHAR_H * promptScale;
+    const float gapTitleSub = 20.0f * sf;   // title -> subtitle
+    const float gapSubPrompt = 70.0f * sf;  // subtitle -> prompt (kept airy)
+    const float blockH = titleH + gapTitleSub + subH + gapSubPrompt + promptH;
+    const float titleY  = ((float)mHeight - blockH) * 0.5f;
+    const float subY    = titleY + titleH + gapTitleSub;
+    const float promptY = subY + subH + gapSubPrompt;
+
     // Title with a green tint
-    float titleScale = 4.0f * sf;
-    const char* title = tr(STR_SETUP_FINISH_TITLE);
-    float titleW = measureText(title, titleScale);
-    float titleX = ((float)mWidth - titleW) / 2.0f + slideX;
-    float titleY = (float)mHeight * 0.30f;
-    drawText(title, titleX, titleY, titleScale,
-             0.3f, 1.0f, 0.5f, alpha);
+    float titleX = ((float)mWidth - measureText(title, titleScale)) / 2.0f + slideX;
+    drawText(title, titleX, titleY, titleScale, 0.3f, 1.0f, 0.5f, alpha);
 
     // Subtitle
-    float subScale = 2.0f * sf;
-    const char* sub = tr(STR_SETUP_FINISH_SUB);
-    float subW = measureText(sub, subScale);
-    float subX = ((float)mWidth - subW) / 2.0f + slideX;
-    float subY = titleY + FONT_CHAR_H * titleScale + 20.0f * sf;
-    drawText(sub, subX, subY, subScale,
-             0.6f, 0.7f, 0.65f, alpha * 0.9f);
+    float subX = ((float)mWidth - measureText(sub, subScale)) / 2.0f + slideX;
+    drawText(sub, subX, subY, subScale, 0.6f, 0.7f, 0.65f, alpha * 0.9f);
 
     // Pulsing prompt
-    float promptScale = 2.2f * sf;
     float pulse = 0.6f + 0.4f * sinf((float)elapsedRealtime() * 0.004f);
-    const char* prompt = tr(STR_SETUP_FINISH_PRESS_A);
-    float promptW = measureText(prompt, promptScale);
-    float promptX = ((float)mWidth - promptW) / 2.0f + slideX;
-    float promptY = (float)mHeight * 0.62f;
-    drawText(prompt, promptX, promptY, promptScale,
-             0.95f, 0.95f, 1.0f, alpha * pulse);
+    float promptX = ((float)mWidth - measureText(prompt, promptScale)) / 2.0f + slideX;
+    drawText(prompt, promptX, promptY, promptScale, 0.95f, 0.95f, 1.0f, alpha * pulse);
 }
 
 // ---------------------------------------------------------------------------

@@ -5121,6 +5121,11 @@ private:
     int mSetupLogScrollTop;
     bool mSetupScriptRunning;
     bool mSetupScriptDone;
+    // Defer startSetupScript() until the enter-transition into the installing step
+    // has fully faded in AND a short grace period has passed, so setup.sh's CPU
+    // spike does not stutter the animation or its final presented frame.
+    bool mSetupScriptPending = false;
+    int64_t mSetupScriptReadyMs = 0;   // 0 = grace not armed yet
     std::thread mSetupLogThread;
     std::mutex mSetupLogMutex;
     bool mSetupLogExitRequested;
