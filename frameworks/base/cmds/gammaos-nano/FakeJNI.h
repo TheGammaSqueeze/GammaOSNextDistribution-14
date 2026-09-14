@@ -16,7 +16,9 @@
 #pragma once
 
 #include <jni.h>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace android {
 namespace fakejni {
@@ -64,6 +66,22 @@ jsize getIntArrayLength(jintArray arr);
 // single trailing NUL. Pointer/length stay valid until process teardown.
 const jbyte* getByteArrayData(jbyteArray arr);
 jsize getByteArrayLength(jbyteArray arr);
+
+// RAM-backed savestate slots (run-ahead). Files named "<rom>_<slot>.dss" for
+// a registered slot, and drastic's "<rom>_savestate_temp.dss" staging file,
+// are backed by memfds instead of the disk (see the registry in FakeJNI.cpp).
+// ramStateFd returns the registry memfd for a slot that has been saved at
+// least once (do not close it; use pread/pwrite/fstat), else -1. The copy
+// helpers move the whole state in or out of that memfd.
+void addRamStateSlot(int slot);
+int  ramStateFd(int slot);
+bool ramStateCopyOut(int slot, std::vector<uint8_t>& out);
+bool ramStateCopyIn(int slot, const void* data, size_t len);
+// Make the slot file exist (created from the temp file's directory if it
+// has never been saved) and report exactly len bytes; contents untouched.
+bool ramStateSetSize(int slot, size_t len);
+// Create (if needed) the RAM file for a virtual savestate path and size it.
+bool ramStateEnsureVirtual(const char* vpath, size_t len);
 
 } // namespace fakejni
 } // namespace android

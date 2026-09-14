@@ -2536,6 +2536,61 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [toggle](int) { toggle(); };
         mRows.push_back(std::move(r));
     }
+    // Run-Ahead (preemptive frames): the emulator keeps N frames of state
+    // and, when the input changes, replays the last N frames with the new
+    // input before the next shown frame, so the game reacts N frames sooner
+    // (buttons and touch alike). Needs the vblank lock (Low Latency Mode on
+    // the DRM dual-panel path); idle while fast-forwarding, in this menu,
+    // under RetroAchievements hardcore, or while the pacer bypasses a heavy
+    // scene. Each input change costs one replay burst (about 35 ms for one
+    // frame, 47 ms for two on this SoC), so a few repeated panel frames per
+    // press are the price of the latency cut. Read live by the render loop.
+    {
+        RowAction r;
+        r.label = "Run-Ahead (Experimental)";
+        const int raMode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
+        const int raFrames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
+        const int raLevel = (raMode == 2) ? std::max(1, std::min(raFrames, 3)) : 0;
+        r.value = raLevel == 0 ? "Off" : (std::to_string(raLevel) + (raLevel == 1 ? " frame" : " frames"));
+        auto setLevel = [](int level) {
+            property_set("persist.gammaos.drastic_nano.runahead_mode", level > 0 ? "2" : "0");
+            if (level > 0) property_set("persist.gammaos.drastic_nano.runahead_frames", std::to_string(level).c_str());
+        };
+        r.onAdjust = [this, setLevel](int dir) {
+            const int mode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
+            const int frames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
+            int level = (mode == 2) ? std::max(1, std::min(frames, 3)) : 0;
+            level = (level + (dir > 0 ? 1 : 3)) % 4;
+            setLevel(level);
+            mDirty = true;
+        };
+        r.onAccept = [this, setLevel]() {
+            const int mode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
+            const int frames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
+            const int level = (mode == 2) ? std::max(1, std::min(frames, 3)) : 0;
+            setLevel((level + 1) % 4);
+            mDirty = true;
+        };
+        mRows.push_back(std::move(r));
+    }
+    // Run-Ahead mode: Adaptive replays only when the replay fits before the
+    // vblank (falls back to fewer frames, never repeats a frame); Always
+    // replays on every input change like RetroArch, and may stutter in
+    // scenes where the replay does not fit.
+    {
+        RowAction r;
+        r.label = "Run-Ahead Mode (Experimental)";
+        const bool strict = property_get_bool("persist.gammaos.drastic_nano.runahead_strict", false);
+        r.value = strict ? "Always" : "Adaptive";
+        auto toggle = [this]() {
+            const bool cur = property_get_bool("persist.gammaos.drastic_nano.runahead_strict", false);
+            property_set("persist.gammaos.drastic_nano.runahead_strict", cur ? "0" : "1");
+            mDirty = true;
+        };
+        r.onAdjust = [toggle](int) { toggle(); };
+        r.onAccept = toggle;
+        mRows.push_back(std::move(r));
+    }
     // Frameskip type.
     {
         RowAction r;

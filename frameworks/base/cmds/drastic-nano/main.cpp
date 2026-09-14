@@ -1631,6 +1631,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // (dual-panel, e.g. RG DS) and outside cursor mode, so the single-panel
     // touch remap and the analog-stick cursor stay owned by the render loop.
     std::mutex inputFwdMutex;
+    std::atomic<bool> gRaTestInputActive{false};   // scripted run-ahead test input owns the DS input words
     std::atomic<bool> fastInputRun{true};
     std::atomic<bool> fastOverlayOpen{false};
     std::atomic<bool> fastReapplyPrefs{false};
@@ -1661,7 +1662,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // quick save/load, etc.) stay owned by the render loop, which sees
             // the same events on its own fds.
             if (android::sDrmLowLatency && !ovOpen && !fin.cursorMode &&
-                    fastDirectLayout &&
+                    fastDirectLayout && !gRaTestInputActive.load() &&
                     property_get_bool("sys.gammaos.drastic_nano.fast_input", true)) {
                 std::lock_guard<std::mutex> lk(inputFwdMutex);
                 dr->setInputWithTouch(fa.dsBtnMask, fa.touchX, fa.touchY,
@@ -1904,6 +1905,43 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             const bool ffWant  = (ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd) || ffForce;
             dr->setFastForward(ffWant);
             setRtThrottleForFf(ffWant);   // reserve CPU for input only while FF is on
+            // Run-ahead buffers are faulted in once, ahead of the first enable.
+            {
+                static bool sRaPrepared = false;
+                if (!sRaPrepared && dr->vblankPacingInstalled()) {
+                    sRaPrepared = true;
+                    if (property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) == 2 ||
+                        property_get_int32("sys.gammaos.drastic_nano.runahead", -1) == 2) {
+                        int f = property_get_int32("sys.gammaos.drastic_nano.runahead_frames", -1);
+                        if (f < 0) f = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
+                        dr->runAheadPrepare(f);
+                    }
+                }
+            }
+            // Run-ahead (preemptive frames): persist.gammaos.drastic_nano.runahead_mode
+            // (2 = preemptive) / runahead_frames (N), runtime override
+            // sys.gammaos.drastic_nano.runahead (mode, -1 = use persist).
+            // Off while fast-forwarding, in the menu or under hardcore.
+            {
+                static int64_t sRaCheckUs = 0;
+                const int64_t nowRa = android::elapsedRealtimeNano() / 1000;
+                if (nowRa - sRaCheckUs > 500000) {
+                    sRaCheckUs = nowRa;
+                    int mode = property_get_int32("sys.gammaos.drastic_nano.runahead", -1);
+                    if (mode < 0) mode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
+                    int frames = property_get_int32("sys.gammaos.drastic_nano.runahead_frames", -1);
+                    if (frames < 0) frames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
+                    const bool allow = !ffWant && !overlay.isOpen() && !ra.hardcoreRestrictionsActive() &&
+                                       dr->vblankPacingInstalled();
+                    dr->setRunAhead(allow ? mode : 0, frames);
+                    static int64_t sRaLogUs = 0;
+                    if (dr->runAheadMode() && nowRa - sRaLogUs > 5000000) {
+                        sRaLogUs = nowRa;
+                        std::string st; dr->runAheadStats(st);
+                        ALOGI("drastic-nano run-ahead: %s", st.c_str());
+                    }
+                }
+            }
         }
         if (actions.actSwapScreens) {
             screensSwapped = !screensSwapped;
@@ -2015,7 +2053,26 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         const bool fastOwnsInput = android::sDrmLowLatency && !overlay.isOpen() &&
                                    !input.cursorMode && fastDirectLayout &&
                                    property_get_bool("sys.gammaos.drastic_nano.fast_input", true);
-        if (!fastOwnsInput) {
+        // Run-ahead test input (sys.gammaos.drastic_nano.ra_test_input = period
+        // in frames, 0 off): hold A for 8 frames once per period, written
+        // regardless of who owns forwarding, so bursts can be exercised and
+        // filmed without a hand on the device.
+        {
+            static int sRaTestPeriod = 0; static int64_t sRaTestReadUs = 0; static uint32_t sRaTestFrame = 0;
+            const int64_t nowT = android::elapsedRealtimeNano() / 1000;
+            if (nowT - sRaTestReadUs > 1000000) {
+                sRaTestReadUs = nowT;
+                sRaTestPeriod = property_get_int32("sys.gammaos.drastic_nano.ra_test_input", 0);
+                gRaTestInputActive.store(sRaTestPeriod > 8);
+            }
+            if (sRaTestPeriod > 8) {
+                sRaTestFrame++;
+                const bool press = (sRaTestFrame % (uint32_t)sRaTestPeriod) < 8;
+                std::lock_guard<std::mutex> lk(inputFwdMutex);
+                dr->setInputWithTouch(press ? 1 : 0, 0, 0, false);
+            }
+        }
+        if (!fastOwnsInput && !gRaTestInputActive.load()) {   // the scripted test input owns the words while active
             // Shared with the fast-input thread so the two never tear the
             // master struct mid-write. Uncontended in practice.
             std::lock_guard<std::mutex> lk(inputFwdMutex);

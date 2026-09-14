@@ -257,6 +257,72 @@ public:
     bool saveStateSlot(int slot);
     bool loadStateSlot(int slot);
 
+    // ---- Run-ahead primitives (RAM-backed savestate + single-stepping) ----
+    //
+    // kRamStateSlot is a savestate slot above drastic's user range whose
+    // file lives in a memfd (FakeJNI ram state registry), so a save/load
+    // round trip never touches the disk. The step controller parks the
+    // vblank pacer and advances the emulator exactly one frame per
+    // stepOneFrame(): the emulator thread waits in the frame-limiter hook
+    // between steps, which is a clean frame boundary (3D worker joined,
+    // slot flipped). drastic consumes save/load requests at the START of
+    // the next frame, so a save captures the state before the stepped
+    // frame runs and a load replaces the state before it runs.
+    static constexpr int kRamStateSlot = 10;
+    struct RamStateTiming {
+        int64_t requestUs = 0;    // request -> emulator picked it up and serialized
+        int64_t writerUs = 0;     // request -> drastic's writer thread finished (memfd)
+        int64_t frameUs = 0;      // step tick -> emulator parked again (step mode only)
+        size_t  bytes = 0;        // state size in the memfd
+    };
+    // Step mode: pacer parked, no frames run unless stepOneFrame() ticks.
+    // Requires the vblank lock to be installed; forces it on for the duration.
+    bool setStepMode(bool on);
+    bool stepModeActive() const;
+    // Wait until the emulator thread is parked in the limiter hook.
+    bool waitEmuParked(int timeoutUs);
+    // Advance exactly one emulated frame (tick + wait for the park). In
+    // step mode only. Returns false on timeout.
+    bool stepOneFrame(int timeoutUs = 250000);
+    // Save into / load from the RAM slot. In step mode each call runs one
+    // frame (the one that consumes the request); outside step mode the
+    // request is picked up by the next free-running frame.
+    bool ramStateSave(RamStateTiming* t = nullptr, int timeoutUs = 2000000);
+    bool ramStateLoad(int64_t* loadUs = nullptr, int timeoutUs = 2000000);
+    bool ramStateCopyOut(std::vector<uint8_t>& out) const;
+    bool ramStateCopyIn(const void* data, size_t len);
+    // Direct state buffers: with the hooks installed (GOT interposers on
+    // libdrastic's malloc/free/fread/pthread_create plus the memory-map
+    // remap dedup) a save serializes straight into a registered buffer
+    // and a load deserializes straight out of one, no file, no writer
+    // thread, no remap storm. Buffers come from ramStateAllocBuffer()
+    // (pre-faulted, never freed). The image is drastic's file layout
+    // (64-byte header + body); len is what the save produced.
+    bool ramStateInstallHooks();
+    uint8_t* ramStateAllocBuffer();
+    size_t ramStateBufferSize() const;
+    bool ramStateSaveTo(uint8_t* buf, size_t* lenOut, RamStateTiming* t = nullptr, int timeoutUs = 2000000);
+    bool ramStateLoadFrom(uint8_t* buf, size_t len, int64_t* loadUs = nullptr, int timeoutUs = 2000000);
+    void ramStateHookStats(std::string& out) const;
+    // Preemptive frames (run-ahead). mode 2 = preemptive with N=frames
+    // (1..4), anything else = off. Needs the vblank pacing hooks; the
+    // caller keeps it off during fast-forward, menus and hardcore mode.
+    bool setRunAhead(int mode, int frames);
+    // Pre-allocate the run-ahead buffers (call once after init, before play).
+    bool runAheadPrepare(int frames);
+    int  runAheadMode() const;
+    void runAheadReset();          // after a user state load / reset
+    void runAheadStats(std::string& out) const;
+    // True once per fresh visible (non-replayed) frame consumed by
+    // waitProducerFrame; the presenter renders the DS only then.
+    bool takeFreshVisible();
+    // FNV-1a over the front screen slot (both DS screens) for replay checks.
+    uint64_t hashFrontSlot() const;
+    // Phase 0 harness (sys.gammaos.drastic_nano.runahead_probe=<iters>):
+    // RAM save/load timings, a step burst, then a replay determinism check
+    // at depths 1..3. Runs on its own thread; results in logcat "RAPROBE".
+    void runaheadProbe(int iters);
+
     // Write drastic's autosave (the reserved slot 9 the
     // drastic-android-mod auto-resumes from). Unlike saveStateSlot this
     // is allowed to use slot 9, so a graceful exit can persist progress
@@ -455,6 +521,8 @@ public:
     // this to call initSurface/renderOneFrame without the smoke test
     // having to plumb an instance pointer through.
     static DrasticRunner* getInstance();
+    // Load base of libdrastic_arm64.so (nullptr before init).
+    uint8_t* libBase() const { return mArm64Base; }
 
 private:
     // Resolve a JNI export symbol from the arm64 handle with logging.
@@ -910,6 +978,11 @@ private:
     void installThreaded3dSync(uint8_t* base);
     bool mT3dSyncInstalled = false;
     void pacerThread();
+    void runAheadPacerTick();
+    bool runAheadTryBurst(bool atTick);
+    void raInstallCrashLogger();
+    void raArmSave(uint8_t* buf);
+    bool raArmLoad(uint8_t* buf, size_t len);
     std::thread mPacerThread;
     std::atomic<bool> mPacerRun{false};
 

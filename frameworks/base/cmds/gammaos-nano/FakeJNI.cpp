@@ -21,6 +21,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
+#include <sys/sendfile.h>
+#include <map>
+#include <mutex>
+#include <set>
 #include <vector>
 #include <memory>
 #include <utils/Log.h>
@@ -356,9 +361,132 @@ static std::string redirectFuseToDirect(const std::string& path) {
     return direct;
 }
 
+// -------- RAM-backed savestate files (run-ahead) --------
+//
+// drastic writes a savestate by opening "<dir>/<rom>_savestate_temp.dss" for
+// write, serializing into it on a worker thread and renaming it to
+// "<dir>/<rom>_<slot>.dss"; a load opens the slot file read-only. Run-ahead
+// needs that round trip several times per frame, so the temp file and every
+// slot registered through addRamStateSlot() are backed by a memfd instead of
+// the disk. A rename from the RAM temp file to a disk path writes the bytes
+// out through a sibling temp file plus rename(), so the user's slot file is
+// still replaced atomically; a rename to another RAM path just re-keys the
+// memfd. Each open hands drastic a fresh open file description (re-opened
+// through /proc/self/fd) so its fclose() never takes the registry fd down.
+static std::mutex sRamMu;
+static std::map<std::string, int> sRamFiles;   // real path -> memfd
+static std::set<int> sRamSlots;
+
+static const char* baseNameOf(const std::string& p) {
+    const char* s = strrchr(p.c_str(), '/');
+    return s ? s + 1 : p.c_str();
+}
+
+// slotOut: -1 for the temp file, else the slot number.
+static bool isRamStatePath(const std::string& real, int* slotOut) {
+    const std::string name = baseNameOf(real);
+    static const std::string kTemp = "_savestate_temp.dss";
+    if (name.size() >= kTemp.size() &&
+        name.compare(name.size() - kTemp.size(), kTemp.size(), kTemp) == 0) {
+        if (slotOut) *slotOut = -1;
+        return true;
+    }
+    static const std::string kExt = ".dss";
+    if (name.size() <= kExt.size() ||
+        name.compare(name.size() - kExt.size(), kExt.size(), kExt) != 0) return false;
+    const size_t us = name.rfind('_', name.size() - kExt.size() - 1);
+    if (us == std::string::npos) return false;
+    const std::string num = name.substr(us + 1, name.size() - kExt.size() - us - 1);
+    if (num.empty()) return false;
+    for (char c : num) if (c < '0' || c > '9') return false;
+    const int slot = atoi(num.c_str());
+    std::lock_guard<std::mutex> lk(sRamMu);
+    if (sRamSlots.count(slot) == 0) return false;
+    if (slotOut) *slotOut = slot;
+    return true;
+}
+
+// New open file description on a registry memfd. O_CREAT is meaningless on
+// the reopen path; O_TRUNC is honoured explicitly so both paths agree.
+static int ramReopen(int memfd, int flags) {
+    char p[64];
+    snprintf(p, sizeof(p), "/proc/self/fd/%d", memfd);
+    int fd = open(p, (flags & ~(O_CREAT | O_TRUNC)) | O_CLOEXEC);
+    if (fd < 0) {
+        fd = dup(memfd);
+        if (fd < 0) return -1;
+    }
+    if (flags & O_TRUNC) ftruncate(fd, 0);
+    lseek(fd, 0, SEEK_SET);
+    return fd;
+}
+
+// Copy a memfd's bytes to a disk file, atomically (sibling temp + rename).
+static bool ramMaterialize(int memfd, const std::string& to) {
+    struct stat st = {};
+    if (fstat(memfd, &st) != 0) return false;
+    ensureParentDirs(to);
+    const std::string tmp = to + ".fakejni_tmp";
+    int out = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+    if (out < 0) {
+        ALOGW("FakeJNI: ram state materialize: open %s failed errno=%d", tmp.c_str(), errno);
+        return false;
+    }
+    off_t off = 0;
+    size_t left = (size_t)st.st_size;
+    bool ok = true;
+    while (left > 0) {
+        ssize_t n = sendfile(out, memfd, &off, left);
+        if (n <= 0) {
+            // sendfile refused (unlikely for shmem): fall back to pread/write.
+            std::vector<uint8_t> buf(64 * 1024);
+            ssize_t r = pread(memfd, buf.data(), buf.size(), off);
+            if (r <= 0) { ok = false; break; }
+            ssize_t w = write(out, buf.data(), (size_t)r);
+            if (w != r) { ok = false; break; }
+            off += r; left -= (size_t)r;
+            continue;
+        }
+        left -= (size_t)n;
+    }
+    close(out);
+    if (ok && rename(tmp.c_str(), to.c_str()) != 0) ok = false;
+    if (!ok) { unlink(tmp.c_str()); ALOGW("FakeJNI: ram state materialize to %s failed errno=%d", to.c_str(), errno); }
+    return ok;
+}
+
+// Registry lookup or creation. Caller holds sRamMu.
+static int ramGetOrCreateLocked(const std::string& real, bool create) {
+    auto it = sRamFiles.find(real);
+    if (it != sRamFiles.end()) return it->second;
+    if (!create) return -1;
+    int fd = memfd_create("dss", MFD_CLOEXEC);
+    if (fd < 0) {
+        ALOGW("FakeJNI: memfd_create failed errno=%d", errno);
+        return -1;
+    }
+    sRamFiles[real] = fd;
+    return fd;
+}
+
 static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
     std::string realPath = translateVirtualPath(vpath);
     int flags = translateOpenMode(mode);
+
+    {
+        int slot = 0;
+        if (isRamStatePath(realPath, &slot)) {
+            std::lock_guard<std::mutex> lk(sRamMu);
+            int memfd = ramGetOrCreateLocked(realPath, (flags & O_CREAT) != 0);
+            int fd = memfd >= 0 ? ramReopen(memfd, flags) : -1;
+            if (fd < 0 && memfd >= 0) {
+                ALOGW("FakeJNI: ram state reopen failed for \"%s\" errno=%d", realPath.c_str(), errno);
+            }
+            ALOGI("FakeJNI: ram open: \"%s\" mode=%s memfd=%d fd=%d slot=%d", realPath.c_str(),
+                  mode ? mode : "(null)", memfd, fd, slot);
+            return allocHandle(fd, realPath.c_str());
+        }
+    }
 
     // Read-only opens through a FUSE storage view are redirected to the direct
     // backing path (ext4 for internal, vfat/exfat for physical SD) so large-ROM
@@ -400,6 +528,47 @@ static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
 static jboolean dispatchRename(const char* fromVpath, const char* toVpath) {
     std::string from = translateVirtualPath(fromVpath);
     std::string to   = translateVirtualPath(toVpath);
+    {
+        int toSlot = 0;
+        const bool toRam = isRamStatePath(to, &toSlot);
+        std::lock_guard<std::mutex> lk(sRamMu);
+        auto it = sRamFiles.find(from);
+        if (it != sRamFiles.end()) {
+            const int memfd = it->second;
+            if (toRam) {
+                auto old = sRamFiles.find(to);
+                if (old != sRamFiles.end()) { close(old->second); sRamFiles.erase(old); }
+                sRamFiles.erase(it);
+                sRamFiles[to] = memfd;
+                return JNI_TRUE;
+            }
+            const bool ok = ramMaterialize(memfd, to);
+            close(memfd);
+            sRamFiles.erase(it);
+            ALOGI("FakeJNI: ram state \"%s\" written out to \"%s\" (%s)",
+                  from.c_str(), to.c_str(), ok ? "ok" : "FAILED");
+            return ok ? JNI_TRUE : JNI_FALSE;
+        }
+        if (toRam) {
+            // disk -> RAM slot: pull the file in, then drop the source.
+            int src = open(from.c_str(), O_RDONLY | O_CLOEXEC);
+            if (src < 0) return JNI_FALSE;
+            int memfd = ramGetOrCreateLocked(to, true);
+            if (memfd < 0) { close(src); return JNI_FALSE; }
+            ftruncate(memfd, 0);
+            std::vector<uint8_t> buf(64 * 1024);
+            off_t off = 0;
+            for (;;) {
+                ssize_t r = read(src, buf.data(), buf.size());
+                if (r <= 0) break;
+                pwrite(memfd, buf.data(), (size_t)r, off);
+                off += r;
+            }
+            close(src);
+            unlink(from.c_str());
+            return JNI_TRUE;
+        }
+    }
     if (rename(from.c_str(), to.c_str()) == 0) {
         ALOGI("FakeJNI: rename ok: \"%s\" -> \"%s\"", from.c_str(), to.c_str());
         return JNI_TRUE;
@@ -411,6 +580,15 @@ static jboolean dispatchRename(const char* fromVpath, const char* toVpath) {
 
 static jboolean dispatchRemove(const char* vpath) {
     std::string real = translateVirtualPath(vpath);
+    {
+        std::lock_guard<std::mutex> lk(sRamMu);
+        auto it = sRamFiles.find(real);
+        if (it != sRamFiles.end()) {
+            close(it->second);
+            sRamFiles.erase(it);
+            return JNI_TRUE;
+        }
+    }
     if (unlink(real.c_str()) == 0) {
         ALOGI("FakeJNI: remove ok: \"%s\"", real.c_str());
         return JNI_TRUE;
@@ -917,6 +1095,86 @@ void setCacheRoot(const std::string& cacheRoot) {
 
 void setDirectUserMode(bool enabled) {
     sDirectUserMode = enabled;
+}
+
+void addRamStateSlot(int slot) {
+    std::lock_guard<std::mutex> lk(sRamMu);
+    sRamSlots.insert(slot);
+}
+
+int ramStateFd(int slot) {
+    char suffix[32];
+    snprintf(suffix, sizeof(suffix), "_%d.dss", slot);
+    const size_t sl = strlen(suffix);
+    std::lock_guard<std::mutex> lk(sRamMu);
+    for (const auto& kv : sRamFiles) {
+        const std::string name = baseNameOf(kv.first);
+        if (name.size() > sl && name.compare(name.size() - sl, sl, suffix) == 0) return kv.second;
+    }
+    return -1;
+}
+
+bool ramStateCopyOut(int slot, std::vector<uint8_t>& out) {
+    int fd = ramStateFd(slot);
+    if (fd < 0) return false;
+    struct stat st = {};
+    if (fstat(fd, &st) != 0) return false;
+    out.resize((size_t)st.st_size);
+    size_t done = 0;
+    while (done < out.size()) {
+        ssize_t r = pread(fd, out.data() + done, out.size() - done, (off_t)done);
+        if (r <= 0) return false;
+        done += (size_t)r;
+    }
+    return true;
+}
+
+bool ramStateEnsureVirtual(const char* vpath, size_t len) {
+    if (!vpath || !*vpath) return false;
+    const std::string real = translateVirtualPath(vpath);
+    std::lock_guard<std::mutex> lk(sRamMu);
+    int fd = ramGetOrCreateLocked(real, true);
+    static int sLogged = 0;
+    if (sLogged++ < 3) ALOGI("FakeJNI: ram state ensure: vpath=\"%s\" real=\"%s\" memfd=%d len=%zu", vpath, real.c_str(), fd, len);
+    if (fd < 0) return false;
+    return ftruncate(fd, (off_t)len) == 0;
+}
+
+bool ramStateSetSize(int slot, size_t len) {
+    int fd = ramStateFd(slot);
+    if (fd < 0) {
+        // Derive the slot path from the temp file's path (same directory,
+        // same rom name) and create the memfd under that key.
+        char suffix[32];
+        snprintf(suffix, sizeof(suffix), "_%d.dss", slot);
+        static const std::string kTemp = "_savestate_temp.dss";
+        std::lock_guard<std::mutex> lk(sRamMu);
+        std::string tempPath;
+        for (const auto& kv : sRamFiles) {
+            const std::string name = baseNameOf(kv.first);
+            if (name.size() > kTemp.size() &&
+                name.compare(name.size() - kTemp.size(), kTemp.size(), kTemp) == 0) { tempPath = kv.first; break; }
+        }
+        if (tempPath.empty()) return false;
+        const std::string slotPath = tempPath.substr(0, tempPath.size() - kTemp.size()) + suffix;
+        fd = ramGetOrCreateLocked(slotPath, true);
+        if (fd < 0) return false;
+    }
+    return ftruncate(fd, (off_t)len) == 0;
+}
+
+bool ramStateCopyIn(int slot, const void* data, size_t len) {
+    int fd = ramStateFd(slot);
+    if (fd < 0) return false;
+    if (ftruncate(fd, (off_t)len) != 0) return false;
+    size_t done = 0;
+    const uint8_t* p = static_cast<const uint8_t*>(data);
+    while (done < len) {
+        ssize_t w = pwrite(fd, p + done, len - done, (off_t)done);
+        if (w <= 0) return false;
+        done += (size_t)w;
+    }
+    return true;
 }
 
 } // namespace fakejni
