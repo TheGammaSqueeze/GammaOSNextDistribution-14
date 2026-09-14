@@ -467,6 +467,61 @@ void retriggerPowerProfile() {
           svc, mode);
 }
 
+// RT bandwidth throttle, applied ONLY while fast-forward is active. GammaOS sets
+// /proc/sys/kernel/sched_rt_runtime_us to -1 (RT throttling OFF) in
+// init.rk356x.rc, so SCHED_FIFO/RR threads may consume 100% of every core with
+// nothing reserved for SCHED_OTHER. Under fast-forward the emulator's RT threads
+// saturate all cores and starve the threads that GENERATE input (the Bluetooth
+// HID stack and the kernel joypad poll worker), so controls -- including the
+// fast-forward toggle -- stop responding. While fast-forward is on we clamp RT
+// bandwidth to a share (default 95%) so those producers always get a slice; the
+// instant fast-forward turns off we restore the original value, so NORMAL play
+// is never throttled and its performance is unchanged. Gated by
+// persist.gammaos.drastic_nano.rt_throttle.
+static long sSavedRtRuntimeUs = 0;
+static bool sRtThrottled = false;
+static long readLongFile(const char* path, long dflt) {
+    int fd = open(path, O_RDONLY | O_CLOEXEC);
+    if (fd < 0) return dflt;
+    char b[32] = {0};
+    ssize_t n = read(fd, b, sizeof(b) - 1);
+    close(fd);
+    return n > 0 ? strtol(b, nullptr, 10) : dflt;
+}
+static bool writeLongFile(const char* path, long v) {
+    int fd = open(path, O_WRONLY | O_CLOEXEC);
+    if (fd < 0) return false;
+    char b[32];
+    int n = snprintf(b, sizeof(b), "%ld", v);
+    bool ok = (write(fd, b, n) == n);
+    close(fd);
+    return ok;
+}
+// Enable RT throttling on the fast-forward rising edge, restore it on the falling
+// edge. Cheap no-op when the state is unchanged, so it is safe to call every frame.
+void setRtThrottleForFf(bool ffActive) {
+    const char* kPath = "/proc/sys/kernel/sched_rt_runtime_us";
+    if (ffActive && !sRtThrottled) {
+        if (!property_get_bool("persist.gammaos.drastic_nano.rt_throttle", true)) return;
+        long period = readLongFile("/proc/sys/kernel/sched_rt_period_us", 1000000);
+        long want = property_get_int32("persist.gammaos.drastic_nano.rt_runtime_us",
+                                       (int)(period * 95 / 100));
+        sSavedRtRuntimeUs = readLongFile(kPath, -1);
+        sRtThrottled = true;   // set before write so a restore always runs
+        // Only tighten (RT off = -1, or looser than we want); never loosen.
+        if (sSavedRtRuntimeUs < 0 || sSavedRtRuntimeUs > want) {
+            if (writeLongFile(kPath, want))
+                ALOGI("drastic-nano: fast-forward RT throttle %ld -> %ld us/%ld us "
+                      "(reserve CPU for input)", sSavedRtRuntimeUs, want, period);
+            else
+                ALOGW("drastic-nano: RT throttle write failed: %s", strerror(errno));
+        }
+    } else if (!ffActive && sRtThrottled) {
+        writeLongFile(kPath, sSavedRtRuntimeUs);   // restore full RT for normal play
+        sRtThrottled = false;
+    }
+}
+
 // Disable the deep cpu-sleep idle state (state1) on every CPU so
 // that thread migrations do not pay the ~220 us wake latency. The
 // shallow WFI state (state0, 1 us) stays enabled. Saves the prior
@@ -1840,6 +1895,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             const bool ffForce = property_get_bool("sys.gammaos.drastic_nano.force_ff", false);
             const bool ffWant  = (ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd) || ffForce;
             dr->setFastForward(ffWant);
+            setRtThrottleForFf(ffWant);   // reserve CPU for input only while FF is on
         }
         if (actions.actSwapScreens) {
             screensSwapped = !screensSwapped;
@@ -3232,6 +3288,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             const bool ffForce = property_get_bool("sys.gammaos.drastic_nano.force_ff", false);
             const bool ffWant  = (ra.hardcoreRestrictionsActive() ? false : actions.actFastFwd) || ffForce;
             dr->setFastForward(ffWant);
+            setRtThrottleForFf(ffWant);   // reserve CPU for input only while FF is on
         }
         if (actions.actSwapScreens) screensSwapped = !screensSwapped;
 
@@ -4400,6 +4457,7 @@ int main(int argc, char** argv) {
     }
 
     restoreDeepCpuIdle();
+    setRtThrottleForFf(false);   // ensure full RT restored if we exit during fast-forward
 
     // Quick Resume power off / reboot. drastic-nano owns the save + power action
     // here because gammaos-nano is stopped during a DRM session (and in SF the
