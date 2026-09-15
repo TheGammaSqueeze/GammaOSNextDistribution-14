@@ -698,12 +698,25 @@ static void startDrasticLibPreloadThread() {
         int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         ALOGI("drastic preload: starting at T+%lldms", t0);
 
+        // The point of the warm is the page cache: the file pages are hot for
+        // the drastic-nano process (and for the in-process QR path) once they
+        // have been read. Keeping the libraries MAPPED in the home is not needed
+        // and is expensive: this process runs mlockall(MCL_CURRENT | MCL_FUTURE),
+        // so every mapped page of libdrastic, libOpenSLES and its ~200 transitive
+        // media libraries stayed locked resident, plus libdrastic's 62 MB BSS as
+        // locked zero pages. Measured on the RG DS Plus (1 GB): the home sat at
+        // 384 MB RSS against 169 MB on the TrimUI Brick (no drastic preload), and
+        // the rest of the system lived in zram (lmkd busy, system_server stalls,
+        // audio dropouts). dlclose right after the load drops the mappings while
+        // the page cache stays warm; a library the QR path has open stays mapped
+        // through its own reference.
         auto warmLib = [&](const char* name) {
             int64_t s = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
             void* h = dlopen(name, RTLD_NOW | RTLD_GLOBAL);
             int64_t e = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
             if (h) {
-                ALOGI("drastic preload: %s warm (+%lldms)", name, e - s);
+                const int rc = dlclose(h);
+                ALOGI("drastic preload: %s warm (+%lldms, dlclose=%d)", name, e - s, rc);
             } else {
                 ALOGW("drastic preload: %s failed: %s", name, dlerror());
             }
@@ -754,31 +767,6 @@ static void startDrasticLibPreloadThread() {
         // returned above when it wasn't), so warm them too so the
         // user-visible dlopen in DrasticRunner::init is a pure cache
         // hit.
-        warmLib(cpuPath);
-        warmLib(arm64Path);
-
-        // Prefetch drastic's cold-read data files into the page cache.
-        // At boot time these are on f2fs that hasn't been touched yet,
-        // so drastic's first read blocks on I/O. We need the data
-        // ACTUALLY in the page cache when drastic reads it — not just
-        // "the kernel agrees to read it soon."
-        //
-        // readahead(2) and posix_fadvise(WILLNEED) are both async on
-        // Linux: they schedule IO and return. For boot-time prefetch
-        // this is worthless because drastic's sequential read happens
-        // ~1ms later, before the kernel has actually pulled the
-        // pages. The only reliable way to guarantee the file is hot
-        // is to actually read it into a throwaway buffer, which
-        // forces synchronous IO and populates the page cache.
-        //
-        // game_database.xml is ~1.6 MB and is read+parsed linearly by
-        // drastic during startGame. BIOS/firmware files are small
-        // (~20 KB total) but hit the critical path.
-        //
-        // For the ROM file we only warm the first 16 MB. A full read
-        // of a 512 MB ROM would waste bandwidth, and drastic only
-        // needs the header + ARM9/ARM7 binaries + a few data sections
-        // to boot. 16 MB covers all of that for every DS title.
         auto warmFile = [](const char* path, off_t len) {
             int fd = open(path, O_RDONLY | O_CLOEXEC);
             if (fd < 0) {
@@ -811,6 +799,34 @@ static void startDrasticLibPreloadThread() {
                   e - s);
             close(fd);
         };
+        // The two drastic libraries are read, not mapped: a dlopen in the home left
+        // libdrastic's 62 MB BSS and text locked here for the life of the process
+        // (see warmLib). Reading the files puts them in the page cache just the same.
+        warmFile(cpuPath, 0);
+        warmFile(arm64Path, 0);
+
+        // Prefetch drastic's cold-read data files into the page cache.
+        // At boot time these are on f2fs that hasn't been touched yet,
+        // so drastic's first read blocks on I/O. We need the data
+        // ACTUALLY in the page cache when drastic reads it — not just
+        // "the kernel agrees to read it soon."
+        //
+        // readahead(2) and posix_fadvise(WILLNEED) are both async on
+        // Linux: they schedule IO and return. For boot-time prefetch
+        // this is worthless because drastic's sequential read happens
+        // ~1ms later, before the kernel has actually pulled the
+        // pages. The only reliable way to guarantee the file is hot
+        // is to actually read it into a throwaway buffer, which
+        // forces synchronous IO and populates the page cache.
+        //
+        // game_database.xml is ~1.6 MB and is read+parsed linearly by
+        // drastic during startGame. BIOS/firmware files are small
+        // (~20 KB total) but hit the critical path.
+        //
+        // For the ROM file we only warm the first 16 MB. A full read
+        // of a 512 MB ROM would waste bandwidth, and drastic only
+        // needs the header + ARM9/ARM7 binaries + a few data sections
+        // to boot. 16 MB covers all of that for every DS title.
         auto fadviseWillneed = warmFile;  // alias, kept for clarity
 
         if (cacheReady) {

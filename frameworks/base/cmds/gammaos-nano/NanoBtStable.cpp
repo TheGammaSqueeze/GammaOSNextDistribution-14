@@ -27,6 +27,8 @@
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <thread>
+#include <sched.h>
+#include <pthread.h>
 #include <unistd.h>
 
 #include <cutils/properties.h>
@@ -209,6 +211,9 @@ void cpuRestore() {
 }
 
 void monitorLoop() {
+    // Started from the SCHED_FIFO render thread: drop the inherited real-time policy
+    // first, or this loop and its dumpsys children run at FIFO 80.
+    { sched_param sp = {}; sp.sched_priority = 0; pthread_setschedparam(pthread_self(), SCHED_OTHER, &sp); }
     setpriority(PRIO_PROCESS, 0, 10);   // be polite; this is a ~1 Hz housekeeping loop
     pthread_setname_np(pthread_self(), "nano-btstable");
 

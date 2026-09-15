@@ -18,6 +18,8 @@
 
 #include <algorithm>
 #include <thread>
+#include <poll.h>
+#include <climits>
 #include <mutex>
 #include <fcntl.h>
 #include <dirent.h>
@@ -1380,7 +1382,11 @@ bool NanoMenu::threadLoop() {
     // never faults. The cost is the resident working set; the right way to shrink
     // it is to load fewer/smaller assets (see the memory-footprint audit), NOT to
     // unlock them. Paired with the mallopt above for the scudo/Mali calloc fix.
-    if (mlockall(MCL_CURRENT | MCL_FUTURE) == 0) {
+    // persist.gammaos.nano.mlockall=0 skips the lock (A/B on 1 GB devices, where the
+    // ~370 MB locked home leaves the rest of the system in zram).
+    if (!property_get_bool("persist.gammaos.nano.mlockall", true)) {
+        ALOGW("NanoMenu: mlockall skipped by persist.gammaos.nano.mlockall=0");
+    } else if (mlockall(MCL_CURRENT | MCL_FUTURE) == 0) {
         ALOGW("NanoMenu: mlockall done (scudo secondary cache disabled)");
     } else {
         ALOGW("NanoMenu: mlockall failed (%s) -- check caps/rlimit in "
@@ -5074,6 +5080,69 @@ if (sRingPrimedCount >= 2) {
             }
         }
 
+        // GammaOS: DSi theme idle. The DSi home has no continuous animation once the
+        // carousel has landed, yet the loop above paces it like the XMB wave (60 fps,
+        // vsync-locked) and re-renders both panels every frame: measured 42% of a core
+        // for the render thread plus the Mali backend on the RG DS at a static menu, and
+        // in the SurfaceFlinger mode nano falls into after an app exits (RG DS Plus)
+        // SurfaceFlinger and the composer HAL added another 50% composing those
+        // identical frames. When nothing on either panel is in motion and there has
+        // been no input for 1.5 s, skip the render and the present (the scanout keeps
+        // the last frame), wait on the input fds so a press wakes the loop at once,
+        // and redraw once per idle_redraw_ms (default 1000) so the clock and status
+        // icons still tick. Any animation, dialog, bar, boot/wizard flow, touch gesture,
+        // player screen or the overlay instance keeps the full-rate path.
+        bool ndsIdleSkip = false;
+        {
+            static int64_t sNdsLastDrawMs = 0;
+            static int sNdsIdleRedrawMs = -1;
+            if (sNdsIdleRedrawMs < 0)
+                sNdsIdleRedrawMs = property_get_int32("persist.gammaos.nano.nds.idle_redraw_ms", 1000);
+            const int64_t nowMs = (int64_t)android::uptimeMillis();
+            float previewT = -1.0f;
+            if (mNdsPreviewT0 >= 0.0f) { previewT = mEffectTime - mNdsPreviewT0; if (previewT < 0.0f) previewT += 500.0f; }
+            const bool ndsSettled = mNdsTheme && mPs3Xmb && !mOverlayMode && sNdsIdleRedrawMs > 0
+                && !mPs3BootActive && !mPs3WizActive && !mSetupWizardActive
+                && !mPs3DlgActive && !mPs3DlgClosing && !mPs3TzActive
+                && mNdsIntroStart > 0 && nowMs - mNdsIntroStart > 3000
+                && !mNdsCamMoving && mNdsSettleT < 0.0f
+                && mNdsFlingVel == 0.0f && !mNdsFastScroll && mNdsListFlingVel == 0.0f
+                && mNdsSubTransStart == 0 && mNdsGameXfadeStart < 0.0f
+                && (mNdsPreviewT0 < 0.0f || previewT > 2.0f)
+                && mLaunchFadeStart == 0 && !mOverlayLaunchPending && !mWaitForRelease
+                && !mShowLaunchBusy && !mShowBrightnessBar && !mShowVolumeBar
+                && !mXmbTouchTracking && !mXmbItemFling && mOverlayEnterStart < 0.0f
+                && !pspClockActive && !ps3bg::themeFading()
+                && !mMpActive && !ndsPlayerActive()
+                && nowMs - mLastInputMs >= 1500 && nowMs - mLastPointerMs >= 1500;
+            if (ndsSettled && sNdsLastDrawMs > 0 && nowMs - sNdsLastDrawMs < sNdsIdleRedrawMs) {
+                ndsIdleSkip = true;
+                mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);   // alive, deliberately idle
+                // Service ticks that live inside render() and must not wait for the
+                // next redraw: the DSi ambiance loop restarts itself from its tick
+                // (ended -> seek 0 -> play), so skipping frames left a gap of up to a
+                // second at every loop end (the "BGM cuts out" report). The idle wait
+                // is capped at 50 ms so the restart lands within that.
+                ndsAmbianceTick(!property_get_bool("sys.gammaos.nano.app_launched", false)
+                                && property_get_bool("persist.gammaos.nano.nds.ambiance", true));
+                int64_t waitMs = sNdsIdleRedrawMs - (nowMs - sNdsLastDrawMs);
+                if (waitMs > 50) waitMs = 50;
+                if (waitMs < 1) waitMs = 1;
+                struct pollfd pfds[64];
+                int nf = 0;
+                for (int fd : mInputFds) {
+                    if (fd < 0 || nf >= 63) continue;
+                    pfds[nf].fd = fd; pfds[nf].events = POLLIN; pfds[nf].revents = 0; nf++;
+                }
+                if (mInotifyFd >= 0) { pfds[nf].fd = mInotifyFd; pfds[nf].events = POLLIN; pfds[nf].revents = 0; nf++; }
+                if (nf > 0) poll(pfds, nf, (int)waitMs);
+                else usleep((useconds_t)(waitMs * 1000));
+            } else {
+                sNdsLastDrawMs = nowMs;
+            }
+        }
+
+        if (!ndsIdleSkip) {
         render();
 
         // GammaRGB Follow-Screen: in DRM mode nano owns the panel, so SF's
@@ -5119,6 +5188,7 @@ if (sRingPrimedCount >= 2) {
                 sFpsFrames = 0;
             }
         }
+        }   // !ndsIdleSkip
 
         // Frame pacing, clock-based: measure actual elapsed time so variable
         // swap durations don't cause frame-to-frame jitter. This now ALSO runs
@@ -5129,7 +5199,7 @@ if (sRingPrimedCount >= 2) {
         // the NEXT vsync, which used to turn every 17-18ms frame into a 33ms
         // one. On the DRM path the swap blocks on the page flip as before and
         // elapsed >= the period, so the sleep stays a no-op there.
-        if (frameTimeUs >= 16666) {
+        if (!ndsIdleSkip && frameTimeUs >= 16666) {
             struct timespec tsNow;
             clock_gettime(CLOCK_MONOTONIC, &tsNow);
             int64_t nowUs = (int64_t)tsNow.tv_sec * 1000000LL + tsNow.tv_nsec / 1000LL;
@@ -5141,6 +5211,7 @@ if (sRingPrimedCount >= 2) {
 
         // Check every ~0.5s if an external trigger requested exit
         int exitCheckInterval = animating ? 30 : 5; // 30*16ms or 5*100ms
+        if (ndsIdleSkip) exitCheckCounter = exitCheckInterval;   // idle ticks are 100 ms apart: check every tick
         if (++exitCheckCounter >= exitCheckInterval) {
             exitCheckCounter = 0;
             // GammaOS Nano orientation: publish the foreground-aware orientation
@@ -5218,7 +5289,30 @@ if (sRingPrimedCount >= 2) {
                     // render thread for >8s -> the render watchdog SIGABRTs nano (regression introduced by
                     // 258ef6005bf). applyBrightness() above already asserts the panel level; defer the
                     // settings-provider confirmation until setup finishes (device idle -> popen returns in ms).
-                    if (!mSetupWizardActive && readAndroidBrightness() == mBrightness) sBootBrightnessAsserted = true;
+                    // The read-back is a popen("settings get") that blocks on system_server; it never
+                    // runs on the render thread. A helper thread at normal priority does it (its child
+                    // must not inherit FIFO 80 / nice -20 either), at most once every 2 s until confirmed.
+                    static std::atomic<int> sBrtConfirm{INT_MIN};   // INT_MIN idle, -1 running, -2 no value, else value
+                    static int64_t sBrtConfirmLastMs = 0;
+                    {
+                        const int got = sBrtConfirm.load();
+                        if (got >= 0 || got == -2) {
+                            if (got == mBrightness) sBootBrightnessAsserted = true;
+                            sBrtConfirm.store(INT_MIN);
+                        }
+                    }
+                    if (!mSetupWizardActive && !sBootBrightnessAsserted && sBrtConfirm.load() == INT_MIN) {
+                        const int64_t nowMs = (int64_t)android::uptimeMillis();
+                        if (nowMs - sBrtConfirmLastMs >= 2000) {
+                            sBrtConfirmLastMs = nowMs;
+                            sBrtConfirm.store(-1);
+                            std::thread([this]() {
+                                nanoThreadNormalPriority();
+                                const int r = readAndroidBrightness();
+                                sBrtConfirm.store(r < 0 ? -2 : r);
+                            }).detach();
+                        }
+                    }
                 }
             }
 

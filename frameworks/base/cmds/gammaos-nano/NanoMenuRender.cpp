@@ -5150,8 +5150,8 @@ void NanoMenu::startRenderWatchdog() {
             }
             uint64_t cur = mRenderHeartbeat.load(std::memory_order_relaxed);
             if (cur != 0 && cur == last) {
-                if (++stuck >= 4) {   // ~8s with no new frame
-                    ALOGE("NanoMenu WATCHDOG: render thread stalled ~8s "
+                if (++stuck >= 15) {   // ~30s with no new frame
+                    ALOGE("NanoMenu WATCHDOG: render thread stalled ~30s "
                           "(heartbeat=%llu) - aborting for a stack tombstone",
                           (unsigned long long)cur);
                     abort();   // -> debuggerd tombstone (all thread stacks) + restart

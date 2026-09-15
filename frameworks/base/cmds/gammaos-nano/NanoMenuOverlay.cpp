@@ -1827,6 +1827,7 @@ void NanoMenu::orientationTick() {
         !property_get_bool("persist.gammaos.nano.accel_seeded", false)) {
         property_set("persist.gammaos.nano.accel_seeded", "1");
         std::thread([]() {
+            nanoThreadNormalPriority();
             char ob[PROPERTY_VALUE_MAX] = {};
             property_get("persist.gammaos.nano.orientation", ob, "landscape");
             const char want = (std::string(ob) == "auto") ? '1' : '0';
@@ -1930,6 +1931,7 @@ void NanoMenu::orientationTick() {
         if (wantAccel != sLastAccel) {
             sLastAccel = wantAccel;
             std::thread([wantAccel]() {
+                nanoThreadNormalPriority();
                 char cmd[96];
                 snprintf(cmd, sizeof(cmd),
                          "settings put system accelerometer_rotation %d 2>/dev/null", wantAccel);

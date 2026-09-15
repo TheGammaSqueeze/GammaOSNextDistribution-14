@@ -31,6 +31,28 @@
 #include <thread>
 #include <deque>
 #include <condition_variable>
+#include <pthread.h>
+#include <sched.h>
+#include <sys/resource.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+
+namespace android {
+// GammaOS: a std::thread started from the SCHED_FIFO 80 / nice -20 render thread
+// inherits that policy, priority and nice, and so does every process it then
+// popen()s or system()s: a "settings get" child ran at FIFO 80 and its
+// system_server binder thread at nice -20, above every other system_server
+// thread. Under the nano startup load that stalled system_server for tens of
+// seconds (measured on the RG DS Plus), and the render thread waiting on such a
+// child tripped its own watchdog. Call this first in any helper thread that is
+// not itself latency critical.
+static inline void nanoThreadNormalPriority() {
+    sched_param sp = {};
+    sp.sched_priority = 0;
+    pthread_setschedparam(pthread_self(), SCHED_OTHER, &sp);
+    setpriority(PRIO_PROCESS, (int)syscall(SYS_gettid), 0);
+}
+} // namespace android
 
 #include "NanoMenuSettingsTree.h"
 #include "NanoOsk.h"
