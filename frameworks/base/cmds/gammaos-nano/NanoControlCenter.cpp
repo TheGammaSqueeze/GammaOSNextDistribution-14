@@ -350,13 +350,13 @@ void NanoMenu::pollControlCenterStats() {
 namespace {
 constexpr float CC_TX0 = 180, CC_TY0 = 58, CC_TW = 106, CC_TH = 70, CC_GX = 114, CC_GY = 82;
 inline void ccTileXY(int i, float& x, float& y) { x = CC_TX0 + (i % 4) * CC_GX; y = CC_TY0 + (i / 4) * CC_GY; }
-enum { A_SLEEP, A_PERF, A_SPLITBRI, A_SHADER, A_EQ, A_ABXY, A_SHOT, A_WIFI };
+enum { A_SLEEP, A_PERF, A_SPLITBRI, A_SHADER, A_EQ, A_MOUSE, A_SHOT, A_WIFI };
 // renderCcPass mask bits: STATIC layers are baked into the cache, DYNAMIC layers redraw over it each frame.
 enum { CC_PASS_STATIC = 1, CC_PASS_DYNAMIC = 2 };
 struct CcTileDef { const char* label; int act; };
 const CcTileDef CC_TILE[8] = {
     { "Sleep Screen", A_SLEEP },  { "Performance", A_PERF },   { "Split Bright", A_SPLITBRI }, { "Shader", A_SHADER },
-    { "Gamma EQ",     A_EQ },      { "ABXY Swap",   A_ABXY },   { "Screenshot",   A_SHOT },     { "Wi-Fi", A_WIFI },
+    { "Gamma EQ",     A_EQ },      { "Mouse",       A_MOUSE },  { "Screenshot",   A_SHOT },     { "Wi-Fi", A_WIFI },
 };
 // live on-state / mode of a tile action. 0 = off/inactive; 1 = on (or perf=powersave); 2 = perf=max.
 int ccActState(int act, bool sleeping) {
@@ -370,7 +370,7 @@ int ccActState(int act, bool sleeping) {
         case A_SPLITBRI: return property_get_int32("persist.gammaos.multidisplay.split_brightness", 0) ? 1 : 0;
         case A_SHADER:   return property_get_int32("persist.gammaos.shader.enable", 0) ? 1 : 0;
         case A_EQ:       return property_get_int32("persist.sys.gammaeq.enable", 0) ? 1 : 0;
-        case A_ABXY:     return property_get_int32("persist.gammaos.gamepad.abxy_swap", 0) ? 1 : 0;
+        case A_MOUSE:    return property_get_int32("sys.gammaos.gamepad.mouse_active", 0) ? 1 : 0;
         case A_WIFI:     return sCc.wifiOn ? 1 : 0;
         default:         return 0;
     }
@@ -557,13 +557,21 @@ void NanoMenu::renderCcPass(int pass) {
         drawTriangle(CX - rr*0.05f, CY - rr*0.9f, CX + rr*0.7f, CY - rr*0.7f, CX + rr*0.7f, CY - rr*0.2f, R, G, B, A); // flag
         drawTriangle(CX - rr*0.05f, CY - rr*0.9f, CX + rr*0.7f, CY - rr*0.2f, CX - rr*0.05f, CY - rr*0.35f, R, G, B, A);
     };
-    // ABXY: four face buttons in a diamond.
-    auto icoAbxy = [&](float cx, float cy, float r, float R, float G, float B, float A){
-        float CX = X(cx), CY = Y(cy), rr = S(r), br = rr*0.36f, o = rr*0.72f;
-        disc(CX, CY - o, br, R, G, B, A);     // top (Y)
-        disc(CX, CY + o, br, R, G, B, A);     // bottom (A)
-        disc(CX - o, CY, br, R, G, B, A);     // left (X)
-        disc(CX + o, CY, br, R, G, B, A);     // right (B)
+    // Mouse: a pointer arrow (the classic tilted cursor) with a short tail.
+    auto icoMouse = [&](float cx, float cy, float r, float R, float G, float B, float A){
+        float CX = X(cx), CY = Y(cy), rr = S(r);
+        // arrow head: tip top-left, two wings
+        float tx = CX - rr*0.55f, ty = CY - rr*0.85f;
+        drawTriangle(tx, ty, tx, ty + rr*1.35f, tx + rr*0.42f, ty + rr*1.0f, R, G, B, A);
+        drawTriangle(tx, ty, tx + rr*0.42f, ty + rr*1.0f, tx + rr*1.05f, ty + rr*0.95f, R, G, B, A);
+        // tail
+        float bx = tx + rr*0.42f, by = ty + rr*1.0f, ex = bx + rr*0.35f, ey = by + rr*0.7f, t = S(1.6f);
+        float dx = ex - bx, dy2 = ey - by, len = sqrtf(dx*dx + dy2*dy2);
+        if (len > 1e-3f) {
+            float nx = -dy2 / len * t, ny = dx / len * t;
+            drawTriangle(bx+nx, by+ny, bx-nx, by-ny, ex-nx, ey-ny, R, G, B, A);
+            drawTriangle(bx+nx, by+ny, ex-nx, ey-ny, ex+nx, ey+ny, R, G, B, A);
+        }
     };
     // close: an X of two thick diagonal bars (the "Close App" tile while a bottom app runs).
     auto icoClose = [&](float cx, float cy, float r, float R, float G, float B, float A){
@@ -647,7 +655,7 @@ void NanoMenu::renderCcPass(int pass) {
                 case A_SPLITBRI: icoSplitBri(icx, icy, 10, ir,ig,ib,1); break;
                 case A_SHADER:   icoShader(icx, icy, 9,  ir,ig,ib,1); break;
                 case A_EQ:       icoMusic(icx, icy, 11, ir,ig,ib,1); break;
-                case A_ABXY:     icoAbxy(icx, icy, 11, ir,ig,ib,1); break;
+                case A_MOUSE:    icoMouse(icx, icy, 11, ir,ig,ib,1); break;
                 case A_SHOT:     if (isClose) icoClose(icx, icy, 11, ir,ig,ib,1);
                                  else         icoCamera(icx, icy, 11, ir,ig,ib,1); break;
                 case A_WIFI:     icoWifi(icx, icy, 10, ir,ig,ib,1); break;
@@ -749,7 +757,7 @@ void NanoMenu::renderCcDynamic()       { renderCcPass(CC_PASS_DYNAMIC); }
 
 // Capture the STATIC-layer cache signature: every runtime input that changes a BAKED pixel (never a live
 // number). st = ccActState(act, mCcSleeping) folds mCcSleeping (A_SLEEP), the perf mode (incl. the
-// Stock/Powersave/Max label), split_brightness, shader, gammaeq, abxy_swap and sCc.wifiOn; plus the clock
+// Stock/Powersave/Max label), split_brightness, shader, gammaeq, mouse_active and sCc.wifiOn; plus the clock
 // DATE (belt-and-braces; the date is drawn dynamic) and the panel size (drives the layout scale u).
 NanoMenu::CcStaticSig NanoMenu::ccStaticSignature() const {
     CcStaticSig s;
@@ -1519,12 +1527,16 @@ void NanoMenu::ccOnTap(float px, float py) {
                     property_set("persist.sys.gammaeq.enable", on ? "0" : "1");
                     break;
                 }
-                case A_ABXY: {
-                    int on = property_get_int32("persist.gammaos.gamepad.abxy_swap", 0);
-                    property_set("persist.gammaos.gamepad.abxy_swap", on ? "0" : "1");
-                    int ver = property_get_int32("persist.gammaos.gamepad.config_version", 0);
-                    char vb[16]; snprintf(vb, sizeof(vb), "%d", ver + 1);
-                    property_set("persist.gammaos.gamepad.config_version", vb);   // trigger gamepad reconfig
+                case A_MOUSE: {
+                    // gammapad's virtual mouse (the same switch its QS tile and button combo use):
+                    // the daemon watches sys.gammaos.gamepad.mouse_active and creates or tears down
+                    // its uinput mouse + touchscreen. On a dual-panel device the cursor and the taps
+                    // must land on the TOP (app) panel, not on this bottom panel: the vendor's
+                    // /vendor/etc/input-port-associations.xml binds gammapad-mouse and gammapad-touch
+                    // to display port 1 for that. The controller stays pinned to the top display
+                    // while the mouse is on, so the app receives the clicks.
+                    int on = property_get_int32("sys.gammaos.gamepad.mouse_active", 0);
+                    property_set("sys.gammaos.gamepad.mouse_active", on ? "0" : "1");
                     break;
                 }
                 case A_SHOT:
