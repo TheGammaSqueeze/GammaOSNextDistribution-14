@@ -5101,14 +5101,24 @@ if (sRingPrimedCount >= 2) {
             const int64_t nowMs = (int64_t)android::uptimeMillis();
             float previewT = -1.0f;
             if (mNdsPreviewT0 >= 0.0f) { previewT = mEffectTime - mNdsPreviewT0; if (previewT < 0.0f) previewT += 500.0f; }
-            const bool ndsSettled = mNdsTheme && mPs3Xmb && !mOverlayMode && sNdsIdleRedrawMs > 0
-                && !mPs3BootActive && !mPs3WizActive && !mSetupWizardActive
-                && !mPs3DlgActive && !mPs3DlgClosing && !mPs3TzActive
+            // Per-theme "nothing is moving": the DSi carousel state, or the Minima
+            // renderer's own flag (scroll easing, level transition, marquee).
+            const bool ndsQuiet = mNdsTheme
                 && mNdsIntroStart > 0 && nowMs - mNdsIntroStart > 3000
                 && !mNdsCamMoving && mNdsSettleT < 0.0f
                 && mNdsFlingVel == 0.0f && !mNdsFastScroll && mNdsListFlingVel == 0.0f
                 && mNdsSubTransStart == 0 && mNdsGameXfadeStart < 0.0f
-                && (mNdsPreviewT0 < 0.0f || previewT > 2.0f)
+                && (mNdsPreviewT0 < 0.0f || previewT > 2.0f);
+            const bool minimaQuiet = mMinimaTheme && !mNdsTheme && !mMinimaWantsFrame
+                && !mPs3OptActive && !mPs3OptClosing;
+            // ES-DE: the engine raises mEsdeWantsFastFrame during its last render whenever
+            // anything still moves (marquee, grid/carousel motion, video and animation loops,
+            // pending cover decodes); the loop clears it before each render.
+            const bool esdeQuiet = mEsdeTheme && !mNdsTheme && !mMinimaTheme && !mEsdeWantsFastFrame
+                && !mPs3OptActive && !mPs3OptClosing;
+            const bool ndsSettled = (ndsQuiet || minimaQuiet || esdeQuiet) && mPs3Xmb && !mOverlayMode && sNdsIdleRedrawMs > 0
+                && !mPs3BootActive && !mPs3WizActive && !mSetupWizardActive
+                && !mPs3DlgActive && !mPs3DlgClosing && !mPs3TzActive
                 && mLaunchFadeStart == 0 && !mOverlayLaunchPending && !mWaitForRelease
                 && !mShowLaunchBusy && !mShowBrightnessBar && !mShowVolumeBar
                 && !mXmbTouchTracking && !mXmbItemFling && mOverlayEnterStart < 0.0f
@@ -5123,7 +5133,7 @@ if (sRingPrimedCount >= 2) {
                 // (ended -> seek 0 -> play), so skipping frames left a gap of up to a
                 // second at every loop end (the "BGM cuts out" report). The idle wait
                 // is capped at 50 ms so the restart lands within that.
-                ndsAmbianceTick(!property_get_bool("sys.gammaos.nano.app_launched", false)
+                ndsAmbianceTick(mNdsTheme && !property_get_bool("sys.gammaos.nano.app_launched", false)
                                 && property_get_bool("persist.gammaos.nano.nds.ambiance", true));
                 int64_t waitMs = sNdsIdleRedrawMs - (nowMs - sNdsLastDrawMs);
                 if (waitMs > 50) waitMs = 50;
@@ -5143,6 +5153,7 @@ if (sRingPrimedCount >= 2) {
         }
 
         if (!ndsIdleSkip) {
+        mMinimaWantsFrame = false;   // the Minima renderer re-arms it while anything animates
         render();
 
         // GammaRGB Follow-Screen: in DRM mode nano owns the panel, so SF's

@@ -265,8 +265,8 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         const float k = 1.0f - powf(1.0f - 0.55f, dt * 60.0f);
         mMinimaScroll  += (targetScroll - mMinimaScroll) * k;
         mMinimaSelAnim += ((float)sel - mMinimaSelAnim) * k;
-        if (fabsf(mMinimaScroll - targetScroll)  > 0.002f) mDisplayDirty = true; else mMinimaScroll = targetScroll;
-        if (fabsf(mMinimaSelAnim - (float)sel)   > 0.002f) mDisplayDirty = true; else mMinimaSelAnim = (float)sel;
+        if (fabsf(mMinimaScroll - targetScroll)  > 0.002f) { mDisplayDirty = true; mMinimaWantsFrame = true; } else mMinimaScroll = targetScroll;
+        if (fabsf(mMinimaSelAnim - (float)sel)   > 0.002f) { mDisplayDirty = true; mMinimaWantsFrame = true; } else mMinimaSelAnim = (float)sel;
     }
 
     // ---- detect a level change (drill/back) to arm the slide + crossfade, and snap the window so
@@ -291,7 +291,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
         if (t < 1.0f) {
             float ease = 1.0f - powf(1.0f - t, 3.0f);                    // NextUI TRANSITION_CURVE (1-(1-t)^3)
             slideX = (float)mMinimaTransDir * (rw * 0.22f) * (1.0f - ease);
-            mDisplayDirty = true;
+            mDisplayDirty = true; mMinimaWantsFrame = true;
         }
     }
     const float lx = listLeft + slideX;
@@ -419,7 +419,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
                 mMinimaMarquee += 2.0f * sc * fmaxf(0.0f, fminf(3.0f, mFrameDt * 60.0f));   // 2px per 1/60s
                 if (mMinimaMarquee >= loopW) mMinimaMarquee -= loopW;
             }
-            mDisplayDirty = true;
+            mDisplayDirty = true; mMinimaWantsFrame = true;   // long label: keeps scrolling, never idle
             const float clipX = pillLblX, tx0 = clipX - mMinimaMarquee;
             scissorLogicalRect(clipX, pillY, maxTextW, pillH);                    // clip to the pill's text area
             drawText(lbl.c_str(), tx0,         ty, fs, 0.0f, 0.0f, 0.0f, 1.0f);
@@ -545,7 +545,7 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     // ---- level-change black-wash crossfade (paired with the horizontal slide above) ----
     if (mMinimaTransStart > 0) {
         float a = 1.0f - (float)((int64_t)uptimeMillis() - mMinimaTransStart) / 150.0f;
-        if (a > 0.0f) { drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, a); mDisplayDirty = true; }
+        if (a > 0.0f) { drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, a); mDisplayDirty = true; mMinimaWantsFrame = true; }
         else mMinimaTransStart = 0;
     }
     // launch white-wash carried through from the home (an item can launch a game/app)

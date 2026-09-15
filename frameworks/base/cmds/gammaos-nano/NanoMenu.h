@@ -1798,6 +1798,8 @@ private:
     void minimaSfx(int which);                                      // trigger a Minima SFX (MIN_SFX_* id, NanoMenuPS3Boot.cpp)
     void minimaSfxTick();                                           // per-frame: fire nav/drill/back/launch by state diff
     // Minima render/animation state (NextUI feel: pill glides between rows, list windows to keep sel visible).
+    bool    mMinimaWantsFrame = false; // set by the Minima renderer while anything still animates (scroll ease,
+                                       // level transition, marquee); cleared by the loop before each render
     float   mMinimaSelAnim   = 0.0f;   // eased selected-row index (pill glide, ~3-frame linear)
     float   mMinimaScroll    = 0.0f;   // eased list scroll top (in rows)
     float   mMinimaWizListTop = -1.0f; // Minima net-wizard list top from the last render (below the
