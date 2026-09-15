@@ -563,7 +563,14 @@ static inline float db2lin(float db) {
     return powf(10.f, db * (1.f / 20.f));
 }
 
+// Fills coefficients and switches from the properties. The biquad state is
+// deliberately left alone: this runs once a second from the mixer thread, and
+// zeroing the delay lines each time put a discontinuity (an audible tick,
+// measured with a microphone on the RG DS Plus speaker) into the output every
+// second. A coefficient change with the state kept is a smooth transition; the
+// state is reset only when the stage is switched on from off.
 static inline void loadSpeakerPEQFromProps(SpeakerPEQ& s) {
+    const bool wasEnabled = s.enabled;
     s.enabled   = property_get_bool("persist.sys.spk.peq", false);
     s.s2enabled = property_get_bool("persist.sys.spk.peq2", false);
     s.pregain   = propFloat("persist.sys.spk.peq.pregain", 1.f);
@@ -576,14 +583,13 @@ static inline void loadSpeakerPEQFromProps(SpeakerPEQ& s) {
     s.s1.b2 = propFloat("persist.sys.spk.peq.b2", 0.f);
     s.s1.a1 = propFloat("persist.sys.spk.peq.a1", 0.f);
     s.s1.a2 = propFloat("persist.sys.spk.peq.a2", 0.f);
-    s.s1.reset();
 
     s.s2.b0 = propFloat("persist.sys.spk.peq2.b0", 1.f);
     s.s2.b1 = propFloat("persist.sys.spk.peq2.b1", 0.f);
     s.s2.b2 = propFloat("persist.sys.spk.peq2.b2", 0.f);
     s.s2.a1 = propFloat("persist.sys.spk.peq2.a1", 0.f);
     s.s2.a2 = propFloat("persist.sys.spk.peq2.a2", 0.f);
-    s.s2.reset();
+    if (s.enabled && !wasEnabled) { s.s1.reset(); s.s2.reset(); }
 }
 
 static inline void maybeReloadPEQ(SpeakerPEQ& s) {
