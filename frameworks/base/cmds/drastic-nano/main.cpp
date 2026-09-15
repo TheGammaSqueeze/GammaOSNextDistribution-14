@@ -172,7 +172,13 @@ static const char* kDrasticDataDirDefault =
         "/data/user/0/com.dsemu.drastic/files/DraStic";
 static std::string gDrasticDataDir = kDrasticDataDirDefault;
 
-constexpr int64_t     kBackHoldMs        = 2000;
+// Back hold to exit: the same long-press timeout the framework uses for its
+// own hold-BACK-to-exit (ViewConfiguration / Settings.Secure long_press_timeout,
+// 400 ms by default, longer with the accessibility touch-and-hold delay). Read
+// once at startup; the framework path (exit_home) and this local path then
+// fire at the same moment. A release before the timeout is the short press.
+static int64_t gBackHoldMs = 400;
+#define kBackHoldMs gBackHoldMs
 
 // ------------------------------------------------------------------
 // Small utilities
@@ -1109,7 +1115,7 @@ void doSleep(android::drastic_input::InputState* input,
 
 // kBackShortMs vs kBackHoldMs: release before kBackShortMs = short
 // press = toggle overlay; held past kBackHoldMs = long press = exit.
-constexpr int64_t kBackShortMs = 500;
+#define kBackShortMs gBackHoldMs
 
 // Power gestures (read straight from evdev: PhoneWindowManager
 // consumes KEYCODE_POWER inertly while minimal_boot=1 with no app or
@@ -4375,6 +4381,17 @@ int main(int argc, char** argv) {
         property_get("sys.gammaos.drastic_nano.emu_rt", v, "");
         if (!v[0]) property_set("sys.gammaos.drastic_nano.emu_rt", "2");
     }
+    {
+        // Back-hold timeout = the system long-press timeout (see gBackHoldMs).
+        int64_t ms = property_get_int32("persist.gammaos.drastic_nano.back_hold_ms", 0);
+        if (ms <= 0) {
+            FILE* pf = popen("settings get secure long_press_timeout 2>/dev/null", "r");
+            if (pf) { char b[32] = {0}; if (fgets(b, sizeof(b), pf)) ms = atol(b); pclose(pf); }
+        }
+        if (ms < 250 || ms > 5000) ms = 400;
+        gBackHoldMs = ms;
+        ALOGI("drastic-nano: back hold to exit = %lld ms", (long long)gBackHoldMs);
+    }
     if (!dr.init(gDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
                  /*configBitsOverride=*/userBits,
@@ -4459,6 +4476,9 @@ int main(int argc, char** argv) {
     // (the point is to preserve progress on the way out), independent of the Quick
     // Resume / Auto Load toggles.
     bool forceSlot9 = (qrPowerAction && qrEnabled) || rlr.exitToHome;
+    // Silence the game the moment the exit starts: the autosave below needs the
+    // emulator to keep running a few frames, but nobody should hear them.
+    dr.setVolumeRuntime(0);
     if (!rlr.restartFresh &&
         (forceSlot9 ||
          property_get_bool("persist.gammaos.drastic_nano.autoload", true))) {
@@ -4505,8 +4525,14 @@ int main(int argc, char** argv) {
             if (stable) {
                 int fd = open(slot9.c_str(), O_RDONLY);
                 if (fd >= 0) { fsync(fd); close(fd); }
-                usleep(2 * 1000 * 1000);   // 2s durability grace before the power action
-                ALOGI("drastic-nano: autosave slot 9 fsynced (+2s durability grace)");
+                if (qrPowerAction) {
+                    // Only before a power cut: a plain exit to the home keeps the
+                    // system up, the fsync above is enough.
+                    usleep(2 * 1000 * 1000);   // 2s durability grace before the power action
+                    ALOGI("drastic-nano: autosave slot 9 fsynced (+2s durability grace)");
+                } else {
+                    ALOGI("drastic-nano: autosave slot 9 fsynced");
+                }
             } else {
                 ALOGW("drastic-nano: autosave slot 9 never stabilized; leaving prior state, next boot may quarantine it");
             }
