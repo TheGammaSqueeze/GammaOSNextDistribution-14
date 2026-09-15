@@ -892,6 +892,40 @@ void boostPeerAudioThreads(const char* svcPropName,
     }
 }
 
+// Our own side of the playback path: drastic's AAudio stream runs in
+// callback mode, and the callback thread the AAudio legacy path creates in
+// this process (comm "AudioTrack") is where the emulator's samples are
+// handed to AudioFlinger. It inherits the process's SCHED_FIFO 80, the same
+// level as the emulator, its 3D worker and the presenter, none of which
+// block in a heavy scene; equal FIFO levels never preempt each other, so a
+// callback due every ~22 ms could wait for a core and miss its slot: the
+// occasional crackle in Golden Sun and White 2. Lift it to the audio level.
+static void boostOwnAudioThreads() {
+    static int done = 0;
+    if (done) return;
+    DIR* d = opendir("/proc/self/task");
+    if (!d) return;
+    const int prio = property_get_int32("sys.gammaos.drastic_nano.audio_boost_prio", 82);
+    while (dirent* e = readdir(d)) {
+        if (e->d_name[0] == '.') continue;
+        char path[64], comm[32] = {0};
+        snprintf(path, sizeof(path), "/proc/self/task/%s/comm", e->d_name);
+        int fd = open(path, O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        ssize_t n = read(fd, comm, sizeof(comm) - 1); close(fd);
+        if (n <= 0) continue;
+        if (comm[n - 1] == '\n') comm[n - 1] = 0;
+        if (strcmp(comm, "AudioTrack") != 0) continue;
+        const pid_t tid = (pid_t)atoi(e->d_name);
+        sched_param sp = {}; sp.sched_priority = prio;
+        if (sched_setscheduler(tid, SCHED_FIFO, &sp) == 0) {
+            ALOGI("drastic-nano: boosted own audio callback thread (tid=%d) to SCHED_FIFO %d", tid, prio);
+            done = 1;
+        }
+    }
+    closedir(d);
+}
+
 void boostAudioServer() {
     // AudioFlinger's own mixer thread + HAL writer need the same
     // RT guarantee. Boosting only one side leaves the other as the
@@ -902,6 +936,7 @@ void boostAudioServer() {
                            "audioserver");
     boostPeerAudioThreads("init.svc_debug_pid.vendor.audio-hal",
                            "vendor.audio-hal");
+    if (property_get_bool("persist.gammaos.drastic_nano.audio_own_boost", true)) boostOwnAudioThreads();
 }
 
 // ------------------------------------------------------------------

@@ -20,6 +20,7 @@
 #include <ucontext.h>
 #include <stdio.h>
 #include <sys/mman.h>
+#include <sys/uio.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
 #include <linux/dma-heap.h>
@@ -2092,6 +2093,12 @@ bool gRaWarmLoad = false;   // the parked load in flight is the warm-up (state u
 std::atomic<uint32_t> gRaStatJitSkipped{0}, gRaStatJitFull{0};
 std::atomic<int> gRaFrames{0}, gRaRingNext{0}, gRaRingCount{0};
 void raRunParkedOp();
+uint32_t raPatchInsn(uint8_t* base, uintptr_t off, uint32_t insn);
+extern "C" void raAudioSubmitHook(uint8_t* ctx);
+extern "C" void raAudioSubmitPost(uint8_t* ctx);
+extern "C" void raAudioCallbackHook();
+std::atomic<uint32_t> gEmuLostTicks{0}, gEmuCatchUps{0}, gEmuDebtDrops{0};   // tick accounting (see drasticVWait)
+uint8_t* gAudLibBase = nullptr;   // libdrastic base for the audio submit probe
 void raDirtyPostLoad();
 void raDirtyApplyWant();
 void raDirtyOnRemap(void* addr, size_t len, int fd, off_t off);
@@ -2391,6 +2398,37 @@ extern "C" void drasticVWait(unsigned usec) {
     if (!gPaceOn.load(std::memory_order_relaxed)) { usleep(usec); return; }
     std::unique_lock<std::mutex> lk(gPaceMu);
     const uint32_t seen = gVblSeq.load(std::memory_order_acquire);
+    // Tick accounting. A frame that ran past its period saw the next tick
+    // fire while it was still emulating; waiting for the tick after that
+    // silently drops one emulated frame, and with it 16.7 ms of audio that
+    // the output side still consumes (the buffer queue then starves: that is
+    // the crackle on heavy scenes). With catch-up on, that tick is consumed
+    // now and the frame runs back to back; a backlog of more than
+    // pace_catchup_max ticks means the scene cannot keep 60 and is forgiven
+    // (the bypass handles sustained overload).
+    static uint32_t sConsumedSeq = 0; static bool sConsumedValid = false;
+    static int sCatchUp = -1, sCatchUpMax = 2; static int64_t sCatchUpReadUs = 0;
+    if (gLastParkUs.load() - sCatchUpReadUs > 1000000) {
+        sCatchUpReadUs = gLastParkUs.load();
+        sCatchUp = property_get_int32("persist.gammaos.drastic_nano.pace_catchup", 1);
+        sCatchUpMax = property_get_int32("persist.gammaos.drastic_nano.pace_catchup_max", 2);
+    }
+    if (sConsumedValid) {
+        const int32_t behind = (int32_t)(seen - sConsumedSeq);   // ticks that fired during the frame
+        if (behind > 0) {
+            gEmuLostTicks.fetch_add((uint32_t)behind, std::memory_order_relaxed);
+            if (sCatchUp > 0 && !gStepMode.load(std::memory_order_relaxed) &&
+                gRaMode.load(std::memory_order_relaxed) != 2 && gRaParkOp.load(std::memory_order_acquire) == 0) {
+                if (behind <= sCatchUpMax) {
+                    sConsumedSeq++;
+                    gEmuCatchUps.fetch_add(1, std::memory_order_relaxed);
+                    raFlushDeferredUnmaps();
+                    return;   // run the next frame now: no park, no wait
+                }
+                gEmuDebtDrops.fetch_add((uint32_t)behind, std::memory_order_relaxed);
+            }
+        }
+    }
     raFlushDeferredUnmaps();
     // Run-ahead: the ring save happens here, in the idle slack before the
     // next tick, at the same frame boundary the burst loads use.
@@ -2418,6 +2456,10 @@ extern "C" void drasticVWait(unsigned usec) {
         if (gRaParkOp.load(std::memory_order_acquire)) raRunParkedOp();
     }
     if (gRaMode.load(std::memory_order_relaxed) == 2 || gRaSlotsRedirected) raApplySlotRedirect();
+    // The tick this frame consumes is the first one after the park; any
+    // further ticks that arrived during the wait stay owed (see above).
+    if (gVblSeq.load(std::memory_order_acquire) != seen) { sConsumedSeq = seen + 1; sConsumedValid = true; }
+    else sConsumedValid = false;   // free-run timeout or pacing switched off: resync on the next tick
     gEmuParked.store(false);
 }
 } // namespace
@@ -2530,6 +2572,166 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     patchBl(kFlipSite.off, kCaveFlip);
     __builtin___clear_cache((char*)cavePg, (char*)cavePg + ps);
     __builtin___clear_cache((char*)sitePg, (char*)sitePg + ps);
+    // Audio output rate: drastic generates 735 samples per emulated frame
+    // (60.000 fps worth at 44100) but opens its player at 44100 x 59.8261/60
+    // = 43971 Hz (+0x73050..+0x73080: x12 = rate * 0.997101), the DS's native
+    // frame rate. The paced emulator runs 60.000 frames per second, so that
+    // rate leaves a 0.29% surplus that drifts the buffer queue to full, where
+    // the submit (+0x1de98) drops whole frames. Play at 44100: production and
+    // consumption match exactly (pitch +0.29%, inaudible).
+    // Audio submit hook (audio_probe, default on): wraps every per-frame
+    // submit for the frame normalisation below and counts refill underruns.
+    if (property_get_bool("sys.gammaos.drastic_nano.audio_probe", true)) {
+        // The library's padding page (+0x132c00..+0x133000) is fully used by
+        // the pacing, threaded-3D and run-ahead caves, so this probe gets its
+        // own executable page, mapped just below the library so the site's
+        // 26-bit branch reaches it.
+        const uintptr_t site = 0x2cc20, target = 0x1dd6c;
+        static uint8_t* sProbePage = nullptr;
+        if (!sProbePage) {
+            // A plain hint is ignored when the address is taken and the
+            // layout below the library varies per launch (one run found no
+            // free megabyte in 64), so walk /proc/self/maps for any unmapped
+            // page within the 26-bit branch range of the site (128 MB
+            // either side, kept to 120 MB for the cave's own branches back).
+            const uintptr_t siteAbs = (uintptr_t)base + site;
+            const uintptr_t lo = siteAbs > 120u * 0x100000u ? (siteAbs - 120u * 0x100000u) & ~(uintptr_t)(ps - 1) : (uintptr_t)ps;
+            const uintptr_t hi = siteAbs + 120u * 0x100000u;
+            std::vector<std::pair<uintptr_t, uintptr_t>> used;
+            if (FILE* mf = fopen("/proc/self/maps", "r")) {
+                char line[512];
+                while (fgets(line, sizeof line, mf)) {
+                    unsigned long a = 0, b = 0;
+                    if (sscanf(line, "%lx-%lx", &a, &b) == 2 && b > lo && a < hi) used.emplace_back((uintptr_t)a, (uintptr_t)b);
+                }
+                fclose(mf);
+            }
+            std::sort(used.begin(), used.end());
+            // candidates: the page just below each mapping (closest to the
+            // library first is not needed; any gap in range does)
+            std::vector<uintptr_t> cands;
+            uintptr_t cursor = lo;
+            for (const auto& r : used) {
+                if (r.first > cursor && r.first - cursor >= (uintptr_t)ps) cands.push_back(r.first - ps);   // top of the gap
+                if (r.second > cursor) cursor = r.second;
+            }
+            if (hi > cursor + ps) cands.push_back(cursor);
+            for (uintptr_t want : cands) {
+                if (want < lo || want + ps > hi) continue;
+                void* pg = mmap((void*)want, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE, -1, 0);
+                if (pg == MAP_FAILED) continue;
+                if (pg != (void*)want) { munmap(pg, (size_t)ps); continue; }
+                sProbePage = static_cast<uint8_t*>(pg);
+                break;
+            }
+            if (!sProbePage) ALOGW("DrasticRunner: audio probe: no executable page within branch range (%zu candidates), skipped", cands.size());
+            else ALOGI("DrasticRunner: audio probe page at %p (library %p)", sProbePage, base);
+        }
+        if (sProbePage && *reinterpret_cast<uint32_t*>(base + site) == 0x97ffc453u) {   // bl +0x1dd6c
+            const uintptr_t cave = (uintptr_t)sProbePage - (uintptr_t)base;   // base-relative like the others
+            uint8_t* cavePg2 = sProbePage;
+            mprotect(cavePg2, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            // The cave wraps the submit: pre-hook (may rewrite the frame's
+            // sample count and tail), the submit itself, then the post-hook
+            // (re-seeds the emptied frame buffer with the carried surplus).
+            // The caller ignores the submit's return value (+0x2cc24 reloads
+            // w8 from memory); x1 is preserved for the submit.
+            uint32_t* w = reinterpret_cast<uint32_t*>(base + cave);
+            const int64_t bOff = ((int64_t)target - (int64_t)(cave + 20)) / 4;
+            w[0] = 0xa9bf07e0u;                      // stp x0, x1, [sp, #-16]!
+            w[1] = 0xf81f0ffeu;                      // str x30, [sp, #-16]!
+            w[2] = 0x58000150u;                      // ldr x16, [pc, #40]  (pre literal at cave+48)
+            w[3] = 0xd63f0200u;                      // blr x16
+            w[4] = 0xa94107e0u;                      // ldp x0, x1, [sp, #16]
+            w[5] = 0x94000000u | ((uint32_t)bOff & 0x03ffffffu);   // bl +0x1dd6c
+            w[6] = 0xf9400be0u;                      // ldr x0, [sp, #16]
+            w[7] = 0x580000f0u;                      // ldr x16, [pc, #28]  (post literal at cave+56)
+            w[8] = 0xd63f0200u;                      // blr x16
+            w[9] = 0xf84107feu;                      // ldr x30, [sp], #16
+            w[10] = 0xa8c107e0u;                     // ldp x0, x1, [sp], #16
+            w[11] = 0xd65f03c0u;                     // ret
+            *reinterpret_cast<uint64_t*>(base + cave + 48) = (uint64_t)(uintptr_t)&raAudioSubmitHook;
+            *reinterpret_cast<uint64_t*>(base + cave + 56) = (uint64_t)(uintptr_t)&raAudioSubmitPost;
+            __builtin___clear_cache((char*)(base + cave), (char*)(base + cave + 64));
+            mprotect(cavePg2, (size_t)ps, PROT_READ | PROT_EXEC);
+            gAudLibBase = base;
+            uint8_t* sitePg2 = (uint8_t*)((uintptr_t)(base + site) & ~(uintptr_t)(ps - 1));
+            mprotect(sitePg2, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            const int64_t d = ((int64_t)cave - (int64_t)site) / 4;
+            *reinterpret_cast<uint32_t*>(base + site) = 0x94000000u | ((uint32_t)d & 0x03ffffffu);
+            __builtin___clear_cache((char*)(base + site), (char*)(base + site + 4));
+            mprotect(sitePg2, (size_t)ps, PROT_READ | PROT_EXEC);
+            ALOGI("DrasticRunner: audio submit probe installed");
+        } else ALOGW("DrasticRunner: audio submit site +0x2cc20 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + site));
+        // Buffer queue refill callback (+0x1d650, called by OpenSL each time
+        // a chunk finishes): when its queued count is zero it enqueues a
+        // silence buffer, which is an audible gap. The entry instruction
+        // (adrp x8, +0x3c7d000) is replaced by a branch to a second cave at
+        // +64 in the probe page that counts empty entries, re-executes the
+        // adrp with the displacement recomputed for the cave, and continues
+        // at +0x1d654.
+        const uintptr_t cbSite = 0x1d650;
+        if (sProbePage && *reinterpret_cast<uint32_t*>(base + cbSite) == 0x9001e308u) {
+            uint8_t* cavePg3 = sProbePage;
+            const uintptr_t cave2 = (uintptr_t)sProbePage - (uintptr_t)base + 64;
+            mprotect(cavePg3, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            uint32_t* w = reinterpret_cast<uint32_t*>(base + cave2);
+            const int64_t adrpPage = (((int64_t)0x3c7d000) >> 12) - (((int64_t)(cave2 + 24)) >> 12);
+            const uint32_t immlo = (uint32_t)adrpPage & 3u, immhi = ((uint32_t)adrpPage >> 2) & 0x7ffffu;
+            const int64_t bOff2 = ((int64_t)(cbSite + 4) - (int64_t)(cave2 + 28)) / 4;
+            w[0] = 0xa9bf07e0u;                      // stp x0, x1, [sp, #-16]!
+            w[1] = 0xa9bf7be2u;                      // stp x2, x30, [sp, #-16]!
+            w[2] = 0x58000110u;                      // ldr x16, [pc, #32]  (literal at cave2+40)
+            w[3] = 0xd63f0200u;                      // blr x16
+            w[4] = 0xa8c17be2u;                      // ldp x2, x30, [sp], #16
+            w[5] = 0xa8c107e0u;                      // ldp x0, x1, [sp], #16
+            w[6] = 0x90000008u | (immlo << 29) | (immhi << 5);   // adrp x8, +0x3c7d000 (from the cave)
+            w[7] = 0x14000000u | ((uint32_t)bOff2 & 0x03ffffffu);   // b +0x1d654
+            w[8] = 0xd503201fu; w[9] = 0xd503201fu;  // pad to the literal
+            *reinterpret_cast<uint64_t*>(base + cave2 + 40) = (uint64_t)(uintptr_t)&raAudioCallbackHook;
+            __builtin___clear_cache((char*)(base + cave2), (char*)(base + cave2 + 48));
+            mprotect(cavePg3, (size_t)ps, PROT_READ | PROT_EXEC);
+            uint8_t* sitePg3 = (uint8_t*)((uintptr_t)(base + cbSite) & ~(uintptr_t)(ps - 1));
+            mprotect(sitePg3, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            const int64_t d2 = ((int64_t)cave2 - (int64_t)cbSite) / 4;
+            *reinterpret_cast<uint32_t*>(base + cbSite) = 0x14000000u | ((uint32_t)d2 & 0x03ffffffu);
+            __builtin___clear_cache((char*)(base + cbSite), (char*)(base + cbSite + 4));
+            mprotect(sitePg3, (size_t)ps, PROT_READ | PROT_EXEC);
+            ALOGI("DrasticRunner: audio callback probe installed");
+        } else if (sProbePage) ALOGW("DrasticRunner: audio callback entry +0x1d650 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + cbSite));
+    }
+    // The ratio is the 64-bit fixed-point constant 0xff90ecc69f727e51
+    // (0.997101 x 2^64) loaded by a mov/movk quartet at three sites
+    // (+0x723ec x12, +0x72450 x11, +0x73058 x14) and applied with umulh to
+    // rate << 22. Replacing the constant with 0xffffffffffffffff makes every
+    // derived quantity nominal (ratio 1 - 2^-64). Pinning a single derived
+    // value instead crashed: those are buffer sizes and time-to-sample
+    // scales, not the rate itself.
+    {
+        static bool sRateDone = false;
+        // Off by default: measured on Golden Sun slot 1 it did not change the
+        // player rate (43971, set elsewhere) and raised empty-queue top-ups
+        // and pacer misses (29 vs 10 per 30 s). Kept as an experiment knob.
+        if (!sRateDone && property_get_bool("persist.gammaos.drastic_nano.audio_rate_fix", false)) {
+            sRateDone = true;
+            struct Q { uintptr_t off; uint32_t expect; uint32_t patched; };
+            // movz/movk keep every field but imm16, so the encodings differ only in bits 20:5
+            static const Q sites[12] = {
+                {0x723ec, 0xd28fca2cu, 0xd29fffecu}, {0x723f0, 0xf2b3ee4cu, 0xf2bfffecu},
+                {0x723f4, 0xf2dd98ccu, 0xf2dfffecu}, {0x723fc, 0xf2fff20cu, 0xf2ffffecu},
+                {0x72450, 0xd28fca2bu, 0xd29fffebu}, {0x72454, 0xf2b3ee4bu, 0xf2bfffebu},
+                {0x72458, 0xf2dd98cbu, 0xf2dfffebu}, {0x72460, 0xf2fff20bu, 0xf2ffffebu},
+                {0x73058, 0xd28fca2eu, 0xd29fffeeu}, {0x73060, 0xf2b3ee4eu, 0xf2bfffeeu},
+                {0x73068, 0xf2dd98ceu, 0xf2dfffeeu}, {0x7306c, 0xf2fff20eu, 0xf2ffffeeu},
+            };
+            bool ok = true;
+            for (const Q& q : sites) if (*reinterpret_cast<uint32_t*>(base + q.off) != q.expect) { ok = false; ALOGW("DrasticRunner: audio ratio site +0x%lx unexpected (0x%08x)", (unsigned long)q.off, *reinterpret_cast<uint32_t*>(base + q.off)); }
+            if (ok) {
+                for (const Q& q : sites) raPatchInsn(base, q.off, q.patched);
+                ALOGI("DrasticRunner: audio 59.8261/60 rate ratio neutralised at 3 sites (player rate 44100, matches 735 samples x 60 fps)");
+            }
+        }
+    }
     __builtin___clear_cache((char*)flipPg, (char*)flipPg + ps);
     mprotect(cavePg, ps, PROT_READ | PROT_EXEC);
     mprotect(sitePg, ps, PROT_READ | PROT_EXEC);
@@ -2766,10 +2968,13 @@ void DrasticRunner::setVblankPacing(bool on) {
     }
 }
 
+std::atomic<uint32_t> gAudioHoldSeq{0};   // vblank seq of the last deliberate audio-lead hold (see audioLeadHoldTick)
 void DrasticRunner::reportFrameMiss(int source) {
     if (!gPaceOn.load()) return;   // bypass: the lock is not driving the emulator
     // A replay burst legitimately delays the shown frame: not a pacing miss.
     if (gRaBurst.load() || (int32_t)(gVblSeq.load() - gRaBurstUntilSeq.load()) < 0) return;
+    // A deliberate audio-lead hold produced no frame this period: not a miss either.
+    if ((int32_t)(gVblSeq.load() - gAudioHoldSeq.load()) <= 2) return;
     // Only adapt in steady state. While the ROM loads, a menu is open or the
     // game is paused the emulator produces nothing and every wait times out;
     // those are not pacing misses.
@@ -2873,6 +3078,140 @@ void DrasticRunner::applyCpuPlacement() {
     closedir(d);
 }
 
+// Per-frame audio submit probe (cave on the frame loop's bl +0x1dd6c at
+// +0x2cc20): histogram of the samples each emulated frame hands over
+// ([ctx+0x4000c], nominally 1470 = 735 stereo) and the queue-full drops
+// (drastic skips the frame when its queued count reaches the maximum).
+std::atomic<uint32_t> gAudSubmitCalls{0}, gAudSubmitNominal{0}, gAudSubmitShort{0}, gAudSubmitLong{0}, gAudSubmitDropped{0};
+std::atomic<uint32_t> gAudSubmitMin{0xffffffff}, gAudSubmitMax{0};
+// Frame normalisation (audio_frame_fix, default on). drastic's mixer
+// (+0x72764) turns the ARM9 cycles elapsed since its last call into samples
+// with an exact fractional accumulator, so a frame whose boundary landed a
+// few hundred cycles later than usual mixes 736 stereo samples and the next
+// one 734; the total is exact. The submit (+0x1dd6c) copies count*2 bytes but
+// always advances the chunk by 735 samples, so a 734 frame leaves one stale
+// sample (from the chunk's previous lap, 267 ms old) and a 736 frame writes
+// one that is overwritten. Measured on Golden Sun slot 1 with a microphone
+// on the speaker: the crackle bursts coincide exactly with runs of those
+// frames. Here every frame is made exactly 1470 shorts: a surplus is held
+// back and re-seeded into the emptied frame buffer after the submit; a small
+// deficit is padded by repeating the last stereo sample (the held surplus
+// then normally covers the next deficit); a large deficit (state load) is
+// padded with silence instead of stale audio.
+std::atomic<uint32_t> gAudFixCarried{0}, gAudFixPadded{0}, gAudFixSilenced{0}, gAudFixDropped{0};
+static int16_t gAudCarry[64]; static uint32_t gAudCarryN = 0;   // emulator thread only
+static int sAudFrameFix = -1;
+extern "C" void raAudioSubmitPost(uint8_t* ctx) {
+    // The submit zeroed the count (both its copy and its drop path).
+    if (gAudCarryN == 0) return;
+    if (*reinterpret_cast<uint32_t*>(ctx + 0x4000c) != 0) { gAudCarryN = 0; return; }   // unexpected: do not corrupt
+    memcpy(ctx, gAudCarry, gAudCarryN * sizeof(int16_t));
+    *reinterpret_cast<uint32_t*>(ctx + 0x4000c) = gAudCarryN;
+    gAudCarryN = 0;
+}
+std::atomic<uint32_t> gAudSkipped{0};   // frames drastic discards itself (skip byte at ctx+0x40027)
+extern "C" void raAudioSubmitHook(uint8_t* ctx) {
+    const uint32_t raw = *reinterpret_cast<uint32_t*>(ctx + 0x4000c);
+    const uint32_t flag = raw & 0x80000000u;   // bit 31 is a flag the submit masks off; keep it
+    uint32_t n = raw & 0x7fffffffu;
+    gAudSubmitCalls.fetch_add(1, std::memory_order_relaxed);
+    if (sAudFrameFix < 0) sAudFrameFix = property_get_int32("persist.gammaos.drastic_nano.audio_frame_fix", 1);
+    static int sAudDebug = -1;
+    if (sAudDebug < 0) sAudDebug = property_get_int32("sys.gammaos.drastic_nano.audio_debug", 0);
+    if (ctx[0x40027] != 0) {
+        const uint32_t k = gAudSkipped.fetch_add(1, std::memory_order_relaxed);
+        if (sAudDebug > 0 && k < 100) ALOGW("AUDIO frame skipped by drastic (call %u) samples=%u", gAudSubmitCalls.load(), n);
+    }
+    if (sAudDebug > 0 && gAudLibBase) {
+        const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070);
+        const uint32_t maxq = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d07c);
+        static uint32_t sDropLogged = 0;
+        if (queued >= maxq && sDropLogged++ < 100) ALOGW("AUDIO frame dropped, queue full (%u/%u) call %u", queued, maxq, gAudSubmitCalls.load());
+    }
+    if (sAudFrameFix > 0 && n != 1470 && n < 0x10000) {
+        int16_t* pcm = reinterpret_cast<int16_t*>(ctx);
+        if (n > 1470) {
+            uint32_t extra = n - 1470;
+            if (extra > 64) { gAudFixDropped.fetch_add(extra - 64, std::memory_order_relaxed); extra = 64; }
+            memcpy(gAudCarry, pcm + 1470, extra * sizeof(int16_t));
+            gAudCarryN = extra;
+            gAudFixCarried.fetch_add(1, std::memory_order_relaxed);
+        } else if (n >= 1470 - 16 && n >= 2) {
+            for (uint32_t i = n; i < 1470; i += 2) { pcm[i] = pcm[n - 2]; pcm[i + 1] = pcm[n - 1]; }
+            gAudFixPadded.fetch_add(1, std::memory_order_relaxed);
+        } else {
+            memset(pcm + n, 0, (1470 - n) * sizeof(int16_t));
+            gAudFixSilenced.fetch_add(1, std::memory_order_relaxed);
+        }
+        *reinterpret_cast<uint32_t*>(ctx + 0x4000c) = 1470u | flag;
+    }
+    // Diagnostic: replace the frame with a continuous synthetic tone
+    // (audio_tone=1) so the rest of the output path can be judged on its own.
+    {
+        static int sTone = -1; static double sPhase = 0;
+        if (sTone < 0) sTone = property_get_int32("sys.gammaos.drastic_nano.audio_tone", 0);
+        if (sTone > 0) {
+            int16_t* pcm = reinterpret_cast<int16_t*>(ctx);
+            const uint32_t m = *reinterpret_cast<uint32_t*>(ctx + 0x4000c) & 0x7fffffffu;
+            for (uint32_t i = 0; i + 1 < m && i < 0x10000; i += 2) {
+                const double v = 0.15 * (sin(sPhase) + 0.5 * sin(sPhase * 1.5) + 0.3 * sin(sPhase * 2.0));
+                pcm[i] = pcm[i + 1] = (int16_t)(v * 32767.0);
+                sPhase += 2.0 * M_PI * 220.0 / 44100.0;
+                if (sPhase > 2.0 * M_PI * 1000.0) sPhase -= 2.0 * M_PI * 1000.0;
+            }
+        }
+    }
+    // Diagnostic: dump the exact stream handed to the chunk (audio_dump=path).
+    {
+        static FILE* sDump = nullptr; static int sDumpTried = 0;
+        if (!sDumpTried) {
+            sDumpTried = 1;
+            char path[PROP_VALUE_MAX] = {0};
+            if (property_get("sys.gammaos.drastic_nano.audio_dump", path, "") > 0) sDump = fopen(path, "wb");
+        }
+        if (sDump) {
+            const uint32_t m = *reinterpret_cast<uint32_t*>(ctx + 0x4000c) & 0x7fffffffu;
+            if (m < 0x10000 && ctx[0x40027] == 0) fwrite(ctx, 2, m, sDump);
+        }
+    }
+    if (n != 1470 && sAudDebug > 0) {
+        static std::atomic<uint32_t> sLogged{0};
+        if (sLogged.fetch_add(1) < 60)
+            ALOGW("AUDIO frame samples=%u (call %u) queued=%u vbl=%u parked=%d burst=%d holdseq=%u", n, gAudSubmitCalls.load(),
+                  gAudLibBase ? *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070) : 0u, gVblSeq.load(),
+                  gEmuParked.load() ? 1 : 0, gRaBurst.load() ? 1 : 0, gAudioHoldSeq.load());
+    }
+    if (n == 1470) gAudSubmitNominal.fetch_add(1, std::memory_order_relaxed);
+    else if (n < 1470) gAudSubmitShort.fetch_add(1, std::memory_order_relaxed);
+    else gAudSubmitLong.fetch_add(1, std::memory_order_relaxed);
+    uint32_t mn = gAudSubmitMin.load(); while (n < mn && !gAudSubmitMin.compare_exchange_weak(mn, n)) {}
+    uint32_t mx = gAudSubmitMax.load(); while (n > mx && !gAudSubmitMax.compare_exchange_weak(mx, n)) {}
+    if (gAudLibBase) {
+        const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070);
+        const uint32_t maxq = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d07c);
+        if (queued >= maxq) gAudSubmitDropped.fetch_add(1, std::memory_order_relaxed);
+    }
+}
+// Refill callback probe (cave at +0x1d650): an entry with nothing queued
+// means drastic hands OpenSL a silence chunk (67 ms gap) = one underrun.
+std::atomic<uint32_t> gAudCallbacks{0}, gAudUnderruns{0};
+extern "C" void raAudioCallbackHook() {
+    gAudCallbacks.fetch_add(1, std::memory_order_relaxed);
+    if (!gAudLibBase) return;
+    if (*reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d074) != 0) return;   // output stopped
+    const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070);
+    if (queued == 0) {
+        const uint32_t k = gAudUnderruns.fetch_add(1, std::memory_order_relaxed);
+        if (k < 200 && property_get_int32("sys.gammaos.drastic_nano.audio_debug", 0) > 0)
+            ALOGW("AUDIO underrun %u at vbl=%u parked=%d lost=%u catchups=%u misses=%u", k + 1, gVblSeq.load(),
+                  gEmuParked.load() ? 1 : 0, gEmuLostTicks.load(), gEmuCatchUps.load(), gMissCount.load());
+    }
+}
+// Audio lead state (see audioLeadExtraTick).
+constexpr uintptr_t kAudioQueuedOff = 0x3c7d070;
+std::atomic<int> gAudioLeadDebt{0};
+std::atomic<uint32_t> gAudioLeadExtra{0}, gAudioLeadTopUps{0}, gAudioLeadHolds{0};
+
 void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
     if (vblankUs <= 0) return;
     applyCpuPlacement();
@@ -2971,9 +3310,20 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         static int64_t sLastStatUs = 0;
         if (vblankUs - sLastStatUs >= 1000000) {
             sLastStatUs = vblankUs;
-            ALOGW("PACE lead=%lld misses=%u floor=%lld hookflips=%u emu=%lld", (long long)gLeadUs.load(),
+            audioRateApply();
+            static int sAudStatN = 0;
+            if (++sAudStatN % 10 == 0)
+                ALOGW("AUDIO frames=%u nominal=%u short=%u long=%u min=%u max=%u dropped=%u callbacks=%u underruns=%u "
+                      "lostticks=%u catchups=%u debtdrops=%u skipped=%u fix: carried=%u padded=%u silenced=%u dropped=%u",
+                      gAudSubmitCalls.load(), gAudSubmitNominal.load(), gAudSubmitShort.load(), gAudSubmitLong.load(),
+                      gAudSubmitMin.load(), gAudSubmitMax.load(), gAudSubmitDropped.load(),
+                      gAudCallbacks.load(), gAudUnderruns.load(), gEmuLostTicks.load(), gEmuCatchUps.load(), gEmuDebtDrops.load(),
+                      gAudSkipped.load(), gAudFixCarried.load(), gAudFixPadded.load(), gAudFixSilenced.load(), gAudFixDropped.load());
+            ALOGW("PACE lead=%lld misses=%u floor=%lld hookflips=%u emu=%lld audioq=%u lead+%u topups=%u holds=%u", (long long)gLeadUs.load(),
                   gMissCount.load(), (long long)gLeadCreepFloor.load(), gFlipHookCount.load(),
-                  (long long)gEmuDurUs.load());
+                  (long long)gEmuDurUs.load(),
+                  mArm64Base ? *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff) : 0u,
+                  gAudioLeadExtra.load(), gAudioLeadTopUps.load(), gAudioLeadHolds.load());
             if (mT3dSyncInstalled && gT3dMode >= 5)
                 ALOGW("PACE t3d5 chunks=%u waited=%u sum=%lld max=%lld start=%u startus=%lld idle=%u full=%u to=%u bands=%u",
                       gT3dPipe.chunks, gT3dPipe.waited, (long long)gT3dPipe.sumUs, (long long)gT3dPipe.maxUs,
@@ -3027,8 +3377,155 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
 // Ticks the emulator pace_lead_us before each expected vblank. When the loop
 // stops reporting vblanks (menu, stall) it keeps ticking at the panel period
 // from the last one, so the game keeps full speed rather than slowing down.
+// Audio lead. drastic hands its output queue 4-frame (67 ms) chunks and the
+// queue holds at most 4 of them; under vblank pacing the emulator runs exactly
+// real time, so each chunk lands as the previous one ends and the queue sits
+// at 0 or 1 (measured: 0 in 63% of samples on Golden Sun). Any late frame then
+// leaves the output thread with nothing: a silence gap that AudioFlinger does
+// not count as an underrun (the crackle). Stock drastic only avoids it because
+// its unpaced loop runs ahead until the queue is full. So the pacer runs the
+// emulator audio_lead_frames (default 2) frames ahead once when the lock
+// engages, and tops the lead up with one extra frame whenever the queue is
+// found empty (rate limited): the picture is then a frame or two ahead of the
+// sound, 33 ms, below what people notice, and a late frame no longer opens a
+// gap. The queue depth is drastic's own counter at .bss +0x3c7d070.
+// Ceiling: drastic drops a whole frame of audio at its submit when the
+// queue already holds the maximum (4 chunks). The 0.29% rate surplus and
+// the top-ups walk the queue up over time, so when it reaches
+// audio_lead_max_queued (default 3) the pacer holds the emulator for one
+// vblank (the presenter repeats a frame) instead of letting drastic pop.
+// Audio output rate. drastic opens its OpenSL player at 44100 x 59.8261/60 =
+// 43971 Hz (the DS's native frame rate) while producing 735 samples per
+// emulated frame; on this build the emulator runs 60.000 frames per second
+// (drastic's own limiter period is 16666.67 us, and the vblank lock ticks at
+// the panel's 60.000 Hz), so 44100 samples arrive per second and the queue
+// drifts full at 0.29% per second, where drastic's submit drops frames: the
+// popping about a minute into a scene. The rate computation is buried in
+// drastic, but the AudioTrack libwilhelm created for the player is in this
+// process: find it from drastic's player object (static +0x3c7d050) by its
+// vtable and set its sample rate to 44100 (AudioFlinger resamples; the pitch
+// change is 0.29%). audio_rate_fix (default on).
+std::atomic<bool> gAudioRateApplied{false};
+void DrasticRunner::audioRateApply() {
+    static int sTries = 0;
+    // drastic keeps its OpenSL objects (engine, output mix, player and their
+    // interfaces) as a row of pointers in its static block at +0x3c7d008 ..
+    // +0x3c7d060; the exact slot of the player varies, so every pointer in
+    // the row is a search root. A new set of pointers means a new player.
+    static uint64_t sLastSig = 0;
+    uint64_t sig = 0;
+    if (mArm64Base) for (uintptr_t o = 0x3c7d008; o <= 0x3c7d060; o += 8) sig ^= *reinterpret_cast<uint64_t*>(mArm64Base + o) * (o & 0xff);
+    if (sig != sLastSig) { sLastSig = sig; gAudioRateApplied.store(false); sTries = 0; }
+    if (gAudioRateApplied.load() || !mArm64Base || sTries > 60) return;
+    static int sWant = -1;
+    // Off by default: the search never found the track (libwilhelm keeps it
+    // behind more indirection) and its thousands of process_vm_readv calls
+    // per attempt stalled the pacer once a second for the first minute.
+    if (sWant < 0) sWant = property_get_int32("persist.gammaos.drastic_nano.audio_rate_fix", 0) ? property_get_int32("persist.gammaos.drastic_nano.audio_rate_hz", 44100) : 0;
+    if (sWant <= 0) { gAudioRateApplied.store(true); return; }
+    sTries++;
+    typedef int (*setRate_t)(void*, uint32_t);
+    typedef uint32_t (*getRate_t)(void*);
+    static void* vt = dlsym(RTLD_DEFAULT, "_ZTVN7android10AudioTrackE");
+    static setRate_t setRate = reinterpret_cast<setRate_t>(dlsym(RTLD_DEFAULT, "_ZN7android10AudioTrack13setSampleRateEj"));
+    static getRate_t getRate = reinterpret_cast<getRate_t>(dlsym(RTLD_DEFAULT, "_ZNK7android10AudioTrack13getSampleRateEv"));
+    if (!vt || !setRate) { ALOGW("DrasticRunner: audio rate: AudioTrack symbols not found (vt %p set %p)", vt, (void*)setRate); gAudioRateApplied.store(true); return; }
+    const uintptr_t vptr = (uintptr_t)vt + 16;   // Itanium ABI: object vptr points past the offset/typeinfo slots
+    if (sTries == 1) ALOGI("DrasticRunner: audio rate: scanning OpenSL object row, AudioTrack vtable %p", vt);
+    // Every read of foreign memory goes through process_vm_readv: it fails
+    // with EFAULT on unmapped or unreadable pages instead of faulting (mincore
+    // alone said "mapped" for PROT_NONE guard pages and crashed the scan).
+    auto peek = [](uintptr_t a, uintptr_t* out) {
+        if (a < 0x10000 || (a & 7)) return false;
+        struct iovec l = { out, sizeof(*out) }, r = { (void*)a, sizeof(*out) };
+        return process_vm_readv(getpid(), &l, 1, &r, 1, 0) == (ssize_t)sizeof(*out);
+    };
+    auto readable = [&](uintptr_t a) { uintptr_t v; return peek(a, &v); };
+    auto isTrack = [&](uintptr_t a) { uintptr_t v; return peek(a, &v) && v == vptr; };
+    // The player object is a libwilhelm CAudioPlayer. Depending on the
+    // wilhelm version the AudioTrack is a direct member or sits one level
+    // down (CAudioPlayer -> TrackPlayerBase -> sp<AudioTrack>): scan two levels.
+    for (uintptr_t root = 0x3c7d008; root <= 0x3c7d060; root += 8)
+    for (size_t off = 0; off < 4096; off += 8) {
+        uint8_t* player = *reinterpret_cast<uint8_t**>(mArm64Base + root);
+        uintptr_t cand = 0;
+        if (!peek((uintptr_t)player + off, &cand)) continue;
+        uintptr_t track = 0; size_t off2 = 0;
+        if (isTrack(cand)) track = cand;
+        else if (readable(cand)) {
+            for (size_t o2 = 0; o2 < 1024; o2 += 8) {
+                uintptr_t c2 = 0;
+                if (!peek(cand + o2, &c2)) break;
+                if (isTrack(c2)) { track = c2; off2 = o2; break; }
+            }
+        }
+        if (!track) continue;
+        const uint32_t before = getRate ? getRate((void*)track) : 0;
+        const int rc = setRate((void*)track, (uint32_t)sWant);
+        const uint32_t after = getRate ? getRate((void*)track) : 0;
+        ALOGI("DrasticRunner: audio rate: AudioTrack via static+0x%lx -> +0x%zx%s, setSampleRate(%d) rc=%d (rate %u -> %u)",
+              (unsigned long)root, off, off2 ? (std::string(" +0x") + std::to_string(off2)).c_str() : "", sWant, rc, before, after);
+        gAudioRateApplied.store(true);
+        return;
+    }
+    if (sTries == 60) ALOGW("DrasticRunner: audio rate: AudioTrack not found in the player object");
+}
+
+// Queue depth is a coarse counter that toggles between two values every
+// 67 ms chunk, so decisions use its 2 s average: above audio_lead_hi (2.6
+// chunks) one frame is held, below audio_lead_lo (1.4) one frame is added,
+// at most one correction per 2 s. One frame is a quarter chunk, so a
+// correction moves the average by 0.25; the 0.29% rate surplus (when the
+// AudioTrack rate could not be set) needs a hold about every 6 s.
+bool DrasticRunner::audioLeadHoldTick(int64_t nowUs) {
+    static double sSum = 0; static int sN = 0; static int64_t sWinStartUs = 0, sLastActUs = 0;
+    static int sHi = -1, sLo = -1;
+    if (sHi < 0) { sHi = property_get_int32("persist.gammaos.drastic_nano.audio_lead_hi_x10", 26); sLo = property_get_int32("persist.gammaos.drastic_nano.audio_lead_lo_x10", 14); }
+    if (!mArm64Base || !gPaceOn.load() || gRaBurst.load()) return false;
+    const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
+    sSum += queued; sN++;
+    if (sWinStartUs == 0) sWinStartUs = nowUs;
+    if (nowUs - sWinStartUs < 2000000 || sN < 30) return false;
+    const double avg = sSum / sN;
+    sSum = 0; sN = 0; sWinStartUs = nowUs;
+    if (gAudioLeadDebt.load() > 0) return false;
+    if (avg * 10 > sHi && nowUs - sLastActUs > 2000000) {
+        sLastActUs = nowUs; gAudioLeadHolds.fetch_add(1); gAudioHoldSeq.store(gVblSeq.load());
+        ALOGW("AUDIO lead hold at vbl=%u (avg queued %.2f)", gVblSeq.load(), avg);
+        return true;
+    }
+    if (avg * 10 < sLo && nowUs - sLastActUs > 2000000) {
+        sLastActUs = nowUs; gAudioLeadDebt.store(1); gAudioLeadTopUps.fetch_add(1);
+        ALOGW("AUDIO lead top-up at vbl=%u (avg queued %.2f)", gVblSeq.load(), avg);
+    }
+    return false;
+}
+
+void DrasticRunner::audioLeadExtraTick(int64_t nowUs) {
+    static int sLeadFrames = -1; static int64_t sLastTopUpUs = 0;
+    if (sLeadFrames < 0) sLeadFrames = property_get_int32("persist.gammaos.drastic_nano.audio_lead_frames", 2);
+    if (sLeadFrames <= 0 || !mArm64Base || !gPaceOn.load() || gRaBurst.load()) return;
+    const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
+    // Top up while one chunk (67 ms) is still queued: at 0 the output thread
+    // may already be starving. Measured on Golden Sun slot 1: late frames
+    // erode the lead at about one chunk per 10 s.
+    // An empty queue is an emergency regardless of the averaging controller.
+    if (gAudioLeadDebt.load() <= 0 && queued == 0 && nowUs - sLastTopUpUs > 1000000) {
+        gAudioLeadDebt.store(1); sLastTopUpUs = nowUs; gAudioLeadTopUps.fetch_add(1);
+    }
+    if (gAudioLeadDebt.load() <= 0) return;
+    // the frame just ticked must finish first; give it most of a period
+    if (!waitEmuParked(12000)) return;
+    gAudioLeadDebt.fetch_sub(1);
+    gAudioLeadExtra.fetch_add(1);
+    ALOGW("AUDIO lead extra tick at vbl=%u", gVblSeq.load());
+    { std::lock_guard<std::mutex> lk(gPaceMu); gVblSeq.fetch_add(1, std::memory_order_acq_rel); }
+    gPaceCv.notify_all();
+}
+
 void DrasticRunner::pacerThread() {
     pthread_setname_np(pthread_self(), "dn-pacer");
+    bool prevPaceOn = false;
     int64_t nextTick = 0;
     while (mPacerRun.load()) {
         if (!gPaceOn.load() || gStepMode.load()) { usleep(2000); nextTick = 0; continue; }
@@ -3096,12 +3593,20 @@ void DrasticRunner::pacerThread() {
                     std::chrono::steady_clock::now().time_since_epoch()).count();
             gTickLog[k][1] = last; gTickLog[k][2] = lead; gTickLog[k][3] = target;
         }
+        {
+            const bool on = gPaceOn.load();
+            if (on && !prevPaceOn) gAudioLeadDebt.store(property_get_int32("persist.gammaos.drastic_nano.audio_lead_frames", 2));
+            prevPaceOn = on;
+        }
+        if (audioLeadHoldTick(target)) continue;   // queue at its ceiling: no emulated frame this vblank
         if (gRaMode.load() == 2) {
             runAheadPacerTick();   // replay burst if the input changed, then the shown frame
+            audioLeadExtraTick(target);
             continue;
         }
         { std::lock_guard<std::mutex> lk(gPaceMu); gVblSeq.fetch_add(1, std::memory_order_acq_rel); }
         gPaceCv.notify_all();
+        audioLeadExtraTick(target);
     }
 }
 

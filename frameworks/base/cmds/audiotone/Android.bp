@@ -1,0 +1,26 @@
+cc_binary {
+    name: "audiotone",
+    srcs: ["audiotone.cpp"],
+    defaults: ["latest_android_media_audio_common_types_cpp_static"],
+    header_libs: [
+        "libmedia_headers",
+        "libmediametrics_headers",
+    ],
+    static_libs: [
+        "audioclient-types-aidl-cpp",
+        "av-types-aidl-cpp",
+        "libaudio_aidl_conversion_common_cpp",
+        "libaudioclient_aidl_conversion",
+        "libstagefright_foundation",
+    ],
+    shared_libs: [
+        "framework-permission-aidl-cpp",
+        "libshmemcompat",
+        "libaudioclient",
+        "libbinder",
+        "libcutils",
+        "liblog",
+        "libutils",
+    ],
+    cflags: ["-Wall", "-Werror"],
+}

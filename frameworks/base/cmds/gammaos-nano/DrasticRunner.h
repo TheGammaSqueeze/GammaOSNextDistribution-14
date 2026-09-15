@@ -281,6 +281,9 @@ public:
     bool stepModeActive() const;
     // Wait until the emulator thread is parked in the limiter hook.
     bool waitEmuParked(int timeoutUs);
+    void audioLeadExtraTick(int64_t nowUs);
+    bool audioLeadHoldTick(int64_t nowUs);     // audio lead ceiling: skip this vblank's emulated frame
+    void audioRateApply();                      // set drastic's AudioTrack to the real production rate (see pacer)   // audio lead: extra emulated frame after a tick (see pacerThread)
     // Advance exactly one emulated frame (tick + wait for the park). In
     // step mode only. Returns false on timeout.
     bool stepOneFrame(int timeoutUs = 250000);
