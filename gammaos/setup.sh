@@ -105,17 +105,56 @@ FRESH_SETUP=1
 # Helpers
 # ---------------------------------------------------------------------------------------------
 
+# Retry policy for the install and extraction steps. A single transient I/O error on the SD
+# card (a write that the storage stack had to abort and retry, a momentarily busy card) used to
+# skip an app for good. Retry up to SETUP_RETRIES times, flushing the page cache and backing off
+# a little longer each time so a real transient has cleared before the next attempt.
+SETUP_RETRIES=3
+
+# Count kernel erofs decompression failures so far. When /system itself has bytes that do not
+# decompress (a bad flash), every retry fails the same way; logging it tells the user a
+# reflash is needed instead of leaving a bare "I/O error".
+erofs_errors() {
+    dmesg 2>/dev/null | grep -c "erofs.*failed to decompress"
+}
+
+retry_step() {   # <description> <command...>
+    local what=$1; shift
+    local attempt rc before
+    for attempt in $(seq 1 "$SETUP_RETRIES"); do
+        before=$(erofs_errors)
+        "$@"
+        rc=$?
+        [ "$rc" -eq 0 ] && return 0
+        if [ "$(erofs_errors)" -gt "$before" ]; then
+            step "warning: $what failed (rc=$rc): the system image could not be read back" \
+                 "(erofs decompression error), which means /system is corrupt on the card; reflash the image"
+        else
+            step "warning: $what failed (rc=$rc), attempt $attempt of $SETUP_RETRIES"
+        fi
+        [ "$attempt" -lt "$SETUP_RETRIES" ] || break
+        flush_caches
+        sleep $((attempt * 3))
+    done
+    return "$rc"
+}
+
 # Extract a zstd tarball onto /. Absolute-path safe (-P) like the old xz calls. pipefail makes a
-# corrupt archive fail the step instead of tar quietly succeeding on a truncated stream.
-extract_archive() {
+# corrupt archive fail the step instead of tar quietly succeeding on a truncated stream. Tar
+# overwrites what an earlier partial attempt left, so a retry is safe.
+extract_archive_once() {
     local archive=$1
-    [ -f "$archive" ] || { step "warning: missing payload $archive"; return 1; }
     set -o pipefail
     zstd -dc "$archive" | tar -x -P -C /
     local rc=$?
     set +o pipefail
-    [ "$rc" -ne 0 ] && step "warning: extracting $archive failed (rc=$rc)"
     return "$rc"
+}
+
+extract_archive() {
+    local archive=$1
+    [ -f "$archive" ] || { step "warning: missing payload $archive"; return 1; }
+    retry_step "extracting $archive" extract_archive_once "$archive"
 }
 
 # Flush the page cache after a big write burst. drop_caches only frees CLEAN pages, so sync
@@ -150,23 +189,31 @@ app_user() {
 }
 
 # Install one APK, or a directory holding a base APK plus splits as a single session.
-install_package() {
-    local src=$1
+# `pm` exits non-zero on failure but the reliable signal is its "Success" line, so check that.
+# A failed split session is abandoned before returning so a retry starts clean.
+install_package_once() {
+    local src=$1 out
     if [ -d "$src" ]; then
-        local sid apk
+        local sid apk name
         sid=$(pm install-create -r 2>&1 | grep -oE '[0-9]+' | head -n1)
-        [ -n "$sid" ] || { step "warning: could not open an install session for $src"; return 1; }
+        [ -n "$sid" ] || { echo "could not open an install session"; return 1; }
         for apk in "$src"/*.apk; do
             [ -f "$apk" ] || continue
-            local name
             name=$(basename "$apk" .apk)
-            pm install-write -S "$(stat -c %s "$apk")" "$sid" "$name" "$apk" >/dev/null || {
-                step "warning: install-write $apk failed"; pm install-abandon "$sid" >/dev/null 2>&1; return 1; }
+            out=$(pm install-write -S "$(stat -c %s "$apk")" "$sid" "$name" "$apk" 2>&1) || {
+                echo "install-write $apk: $out"; pm install-abandon "$sid" >/dev/null 2>&1; return 1; }
         done
-        pm install-commit "$sid"
+        out=$(pm install-commit "$sid" 2>&1)
     else
-        pm install -r "$src"
+        out=$(pm install -r "$src" 2>&1)
     fi
+    echo "$out"
+    case "$out" in *Success*) return 0 ;; esac
+    return 1
+}
+
+install_package() {
+    retry_step "installing $1" install_package_once "$1"
 }
 
 # Walk apps.list (see the header in that file) and install each entry, running its post hook.
