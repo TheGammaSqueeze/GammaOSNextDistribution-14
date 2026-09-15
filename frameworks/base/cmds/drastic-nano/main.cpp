@@ -4391,6 +4391,15 @@ int main(int argc, char** argv) {
         if (ms < 250 || ms > 5000) ms = 400;
         gBackHoldMs = ms;
         ALOGI("drastic-nano: back hold to exit = %lld ms", (long long)gBackHoldMs);
+        // A quit / exit request left behind by a previous session (the framework
+        // raised exit_home while no drastic-nano was running to consume it) must
+        // not end this one on its first frame.
+        if (property_get_bool("sys.gammaos.drastic_nano.exit_home", false) ||
+            property_get_bool("sys.gammaos.drastic_nano.quit", false)) {
+            ALOGW("drastic-nano: stale exit_home/quit request from before this session, ignored");
+            property_set("sys.gammaos.drastic_nano.exit_home", "0");
+            property_set("sys.gammaos.drastic_nano.quit", "0");
+        }
     }
     if (!dr.init(gDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
