@@ -497,11 +497,48 @@ static bool writeLongFile(const char* path, long v) {
     close(fd);
     return ok;
 }
+static pid_t sRenderTid = 0;   // the render loop thread (also the input reader without fast input)
+// Every thread of the process shares SCHED_FIFO 80 on the AFBC path. In fast
+// forward the emulator and drastic's worker threads never block, so on a
+// 4-core part the cores fill with equal-priority FIFO threads and the input
+// readers only run when one of them happens to block: buttons go dead (RG DS
+// Plus, Golden Sun). Equal FIFO priorities never preempt each other, and the
+// RT runtime throttle only helps CFS threads, so during fast forward the
+// emulator side is moved one step below (79): the unnamed "drastic-nano"
+// threads are the emulator and the workers it spawns; the render loop, the
+// fast input thread, the pacer, the flip thread and audio keep their levels.
+static int setEmuThreadsPrio(int prio) {
+    DIR* d = opendir("/proc/self/task");
+    if (!d) return 0;
+    int changed = 0;
+    while (dirent* e = readdir(d)) {
+        if (e->d_name[0] == '.') continue;
+        const pid_t tid = (pid_t)atoi(e->d_name);
+        if (tid == sRenderTid || tid == getpid()) continue;
+        char path[64], comm[32] = {0};
+        snprintf(path, sizeof(path), "/proc/self/task/%d/comm", tid);
+        int fd = open(path, O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        ssize_t n = read(fd, comm, sizeof(comm) - 1); close(fd);
+        if (n <= 0) continue;
+        if (comm[n - 1] == '\n') comm[n - 1] = 0;
+        if (strcmp(comm, "drastic-nano") != 0) continue;
+        if (sched_getscheduler(tid) != SCHED_FIFO) continue;
+        sched_param sp = {}; sp.sched_priority = prio;
+        if (sched_setscheduler(tid, SCHED_FIFO, &sp) == 0) changed++;
+    }
+    closedir(d);
+    return changed;
+}
 // Enable RT throttling on the fast-forward rising edge, restore it on the falling
 // edge. Cheap no-op when the state is unchanged, so it is safe to call every frame.
 void setRtThrottleForFf(bool ffActive) {
     const char* kPath = "/proc/sys/kernel/sched_rt_runtime_us";
     if (ffActive && !sRtThrottled) {
+        if (property_get_bool("persist.gammaos.drastic_nano.ff_emu_demote", true)) {
+            const int n = setEmuThreadsPrio(79);
+            ALOGI("drastic-nano: fast-forward: %d emulator threads moved to SCHED_FIFO 79 (input readers stay above)", n);
+        }
         if (!property_get_bool("persist.gammaos.drastic_nano.rt_throttle", true)) return;
         long period = readLongFile("/proc/sys/kernel/sched_rt_period_us", 1000000);
         long want = property_get_int32("persist.gammaos.drastic_nano.rt_runtime_us",
@@ -519,6 +556,7 @@ void setRtThrottleForFf(bool ffActive) {
     } else if (!ffActive && sRtThrottled) {
         writeLongFile(kPath, sSavedRtRuntimeUs);   // restore full RT for normal play
         sRtThrottled = false;
+        setEmuThreadsPrio(80);
     }
 }
 
@@ -1638,6 +1676,15 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     bool fastPrevOverlayOpen = false;
     const bool fastDirectLayout = !drmSingleLayout;
     std::thread fastInputThread([&]() {
+        pthread_setname_np(pthread_self(), "dn-fastin");
+        {
+            // Input reader above the emulator/presenter level (80) and below
+            // the audio output threads (82): a press must never queue behind
+            // a busy FIFO 80 thread, which is what happened in fast forward.
+            sched_param sp = {}; sp.sched_priority = property_get_int32("sys.gammaos.drastic_nano.fast_input_prio", 81);
+            if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp) != 0)
+                ALOGW("drastic-nano: fast input thread SCHED_FIFO %d denied: %s", sp.sched_priority, strerror(errno));
+        }
         android::drastic_input::InputState fin{};
         fin.admitPowerKey = false;               // never capture power here
         android::drastic_input::applyPrefs(&fin, initialPrefs);
@@ -3748,6 +3795,7 @@ int main(int argc, char** argv) {
     {
         sched_param sp = {};
         sp.sched_priority = 80;
+        sRenderTid = (pid_t)syscall(__NR_gettid);
         int rc = pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp);
         pid_t selfTid = (pid_t)syscall(SYS_gettid);
         setpriority(PRIO_PROCESS, selfTid, -20);

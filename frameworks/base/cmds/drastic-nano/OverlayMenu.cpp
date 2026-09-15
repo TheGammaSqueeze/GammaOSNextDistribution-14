@@ -87,6 +87,18 @@ inline float scaleForViewport(float sf) {
 }
 } // anonymous namespace
 
+// True on the two-panel Anbernic devices (RG DS, RG DS Plus): the emulator
+// renders each DS screen to its own physical panel there.
+static bool isDualScreenDevice() {
+    static int cached = -1;
+    if (cached < 0) {
+        char v[PROP_VALUE_MAX] = {0};
+        property_get("ro.gammaos.device", v, "");
+        cached = (strcmp(v, "anbernicrgds") == 0 || strcmp(v, "anbernicrgdsplus") == 0) ? 1 : 0;
+    }
+    return cached == 1;
+}
+
 OverlayMenu::OverlayMenu() {}
 OverlayMenu::~OverlayMenu() {}
 
@@ -2135,6 +2147,11 @@ void OverlayMenu::rebuildVideo() {
         };
         mRows.push_back(std::move(r));
     }
+    // The RG DS and RG DS Plus drive two physical panels through the DRM path:
+    // the single-window layout options (layout, PiP, rotation, scaling, gap),
+    // Swap Screens and Half Resolution do not apply there and are hidden.
+    const bool dualScreenDevice = isDualScreenDevice();
+    if (!dualScreenDevice) {
     // Screen Layout presets (advanced_drastic). These place the two DS screens
     // within a single SurfaceFlinger window or single panel; the render loop
     // re-reads the properties every frame, so the change applies the instant the
@@ -2416,6 +2433,7 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [flip](int) { flip(); };
         mRows.push_back(std::move(r));
     }
+    }   // !dualScreenDevice
     if (mSfMode) {
         // 16-bit Framebuffers: render the layout offscreen as RGB565 instead of
         // 8888, halving the per-frame write+read bandwidth of the offscreen the
@@ -2492,6 +2510,9 @@ void OverlayMenu::rebuildVideo() {
     // immediately so the next submitted frame picks up the new
     // behavior. No restart needed -- the ring already has the spare
     // slot for the delayed primary flip whether the flag is on or off.
+    // Frame Sync and Low Latency Mode are single-panel presenter options;
+    // the dual-panel devices run the DRM two-panel path where they do not apply.
+    if (!dualScreenDevice) {
     {
         RowAction r;
         r.label = "Frame Sync";
@@ -2536,6 +2557,7 @@ void OverlayMenu::rebuildVideo() {
         r.onAdjust = [toggle](int) { toggle(); };
         mRows.push_back(std::move(r));
     }
+    }   // !dualScreenDevice
     // Run-Ahead (preemptive frames): the emulator keeps N frames of state
     // and, when the input changes, replays the last N frames with the new
     // input before the next shown frame, so the game reacts N frames sooner
