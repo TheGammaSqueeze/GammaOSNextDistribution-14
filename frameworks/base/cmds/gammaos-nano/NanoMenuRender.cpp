@@ -2319,6 +2319,18 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             }
         }
         float ix = dcx - S(16), iy = Y(98.0f) + S(yoffDS), sz = S(32);
+        // DS ROM: the cartridge's own banner icon replaces the generic glyph on the tile.
+        // A scraped cover (handled above) always wins; this only fills the gap.
+        if (mNdsTheme && (it->kind == PS3_ROM || it->kind == PS3_RECENT)) {
+            std::string dsRom;
+            if (ndsIsDsRomItem(*it, &dsRom)) {
+                const ScrapeEntry* se = scrapeEntryFor(dsRom);
+                if (!(mScrapeBoxartOn && se && !se->box.empty())) {
+                    GLuint bt = ndsBannerTex(dsRom);
+                    if (bt) { drawIconTex(bt, ix, iy, sz, sz, 1.0f, 1.0f, 1.0f, 1.0f); return; }
+                }
+            }
+        }
         NdsPal gp = ndsPal();
         if (it->iconTex) {
             if (it->flatOwnTint)  drawIconTex(it->iconTex, ix, iy, sz, sz, it->iconR, it->iconG, it->iconB, 1.0f);  // keep the item's own colour (e.g. the red loveheart)

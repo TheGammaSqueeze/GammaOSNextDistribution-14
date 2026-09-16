@@ -60,7 +60,8 @@ static inline void nanoThreadNormalPriority() {
 #include "NanoTsDemux.h"
 #include "NanoAviDemux.h"
 #include "NanoScraper.h"
-#include "NanoEsdeTheme.h"   // ES-DE theme engine model (fourth home theme)
+#include "NanoEsdeTheme.h"
+#include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -3157,6 +3158,29 @@ private:
     const ScrapeEntry* focusedScrapeEntry();       // scrape entry for the focused ROM if it has art, else null
     bool openInfoForFocusedItem();                 // Y shortcut: open Information for a focused scraped-art item
     bool scraperBoxartEnabled();           // persist.gammaos.scraper.boxart
+    // ---- DSi theme: DS ROM banner icon + title (NanoMenuNdsBanner.cpp) ----
+    // The banner every DS cartridge carries (32x32 icon + title) stands in for the
+    // generic cartridge glyph and the file name on the DSi carousel when nothing scraped
+    // exists. Parsed once per ROM (disk cache keyed by path/size/mtime), titles by the
+    // scan thread before the list is sorted, icons uploaded lazily on first draw.
+    struct NdsBannerTexEntry { GLuint tex = 0; };
+    std::unordered_map<std::string, NdsBannerTexEntry> mNdsBannerTex;   // render thread only
+    std::mutex mNdsBannerMu;                                             // guards the three below
+    std::unordered_map<std::string, std::string> mNdsBannerTitle;        // path -> title ("" = none/failed)
+    std::unordered_map<std::string, std::vector<uint8_t>> mNdsBannerPix; // path -> RGBA awaiting upload
+    std::deque<std::string> mNdsBannerQueue;                             // draw-time requests for the worker
+    std::condition_variable mNdsBannerCv;
+    bool mNdsBannerWorkerUp = false;
+    std::atomic<bool> mNdsBannerLanded{false};                            // worker finished something: names may change
+    void ndsBannerStartWorkerLocked();                                   // mNdsBannerMu held
+    void ndsBannerTick();                                                // render thread, per frame
+    bool ndsRomTitleEnabled();                                           // persist.gammaos.nano.nds.romtitle (default on)
+    bool ndsIsDsRomItem(const Ps3Item& it, std::string* romPath);        // DS system ROM or DS recent entry
+    void ndsBannerLoad(const std::string& romPath);                      // sync parse via disk cache (any thread)
+    void ndsBannerPrefetch(const std::vector<std::string>& roms);        // scan thread: titles before sorting
+    std::string ndsBannerTitleFor(const std::string& romPath);           // "" if unknown or none
+    GLuint ndsBannerTex(const std::string& romPath);                     // render thread; 0 until ready
+    void ndsBannerFreeAll();                                             // drop GL textures (theme/GL teardown)
     bool scraperFanartEnabled();           // persist.gammaos.scraper.fanart
     nanoscraper::Credentials scraperCredsFor(int sysIdx);   // global + per-system override
     nanoscraper::Engine scraperEngineFor(int sysIdx, const nanoscraper::Credentials& cred);

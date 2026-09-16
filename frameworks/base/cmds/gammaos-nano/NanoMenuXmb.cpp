@@ -296,12 +296,24 @@ void NanoMenu::applyRomNameOverrides(std::vector<std::string>& roms,
         const std::string* ov = romNameOverrideFor(roms[i]);
         if (ov && !ov->empty()) { displayNames[i] = *ov; continue; }
         const ScrapeEntry* se = scrapeEntryFor(roms[i]);
-        if (se && !se->title.empty()) displayNames[i] = se->title;
+        if (se && !se->title.empty()) { displayNames[i] = se->title; continue; }
+        // DSi theme: the title from the DS cartridge's own banner, when the user has not
+        // named the game and it has not been scraped (persist.gammaos.nano.nds.romtitle).
+        if (mNdsTheme && ndsRomTitleEnabled()) {
+            const std::string bt = ndsBannerTitleFor(roms[i]);
+            if (!bt.empty()) displayNames[i] = bt;
+        }
     }
     sortRomEntriesByDisplayName(roms, displayNames);
 }
 
 void NanoMenu::applyRomNameOverrides(XmbSystem& sys) {
+    // DSi theme: queue the DS system's banners (async); ndsBannerTick re-applies the names
+    // once they land. Only the DS system: a zip elsewhere is never a DS ROM.
+    {
+        std::string dir = sys.romDir; for (auto& c : dir) if (c >= 'A' && c <= 'Z') c = (char)(c + 32);
+        if (dir == "nds" || sys.shortname == "NDS") ndsBannerPrefetch(sys.roms);
+    }
     applyRomNameOverrides(sys.roms, sys.displayNames);
 }
 
@@ -316,7 +328,11 @@ void NanoMenu::applyRomNameOverridesToRecents() {
         const std::string* ov = romNameOverrideFor(e.romPath);
         if (ov && !ov->empty()) { e.displayName = *ov; continue; }
         const ScrapeEntry* se = scrapeEntryFor(e.romPath);
-        if (se && !se->title.empty()) e.displayName = se->title;
+        if (se && !se->title.empty()) { e.displayName = se->title; continue; }
+        if (mNdsTheme && ndsRomTitleEnabled() && e.systemName == "NDS") {
+            const std::string bt = ndsBannerTitleFor(e.romPath);
+            if (!bt.empty()) e.displayName = bt;
+        }
     }
 }
 
@@ -1527,6 +1543,10 @@ bool NanoMenu::scanOneSystemAsync(int sysIdx) {
 
     std::vector<std::string> newDisplayNames;
     buildRomDisplayNames(newRoms, newDisplayNames);
+    {   // DSi theme: queue this DS system's banners (async, dedup) so the titles land shortly after
+        std::string dir = sys.romDir; for (auto& c : dir) if (c >= 'A' && c <= 'Z') c = (char)(c + 32);
+        if (dir == "nds" || sys.shortname == "NDS") ndsBannerPrefetch(newRoms);
+    }
     applyRomNameOverrides(newRoms, newDisplayNames);
 
     ALOGD("NanoMenu: %s: scan found %zu ROMs across %zu paths (current: %zu ROMs)",

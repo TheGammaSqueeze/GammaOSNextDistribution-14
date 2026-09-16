@@ -650,6 +650,7 @@ void NanoMenu::scraperArtTick() {
     if (!inGame && (!mRomBoxartCache.empty() || mFanartTex || mNdsFanTex || mSaDecStarted.load()))
         scraperFreeBoxart();
     saDrainArt();
+    ndsBannerTick();
 }
 
 void NanoMenu::scraperFreeBoxart() {

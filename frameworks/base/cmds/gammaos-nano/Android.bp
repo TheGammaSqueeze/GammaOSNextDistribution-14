@@ -108,6 +108,8 @@ cc_binary {
         "NanoCea608.cpp",
         "NanoScraper.cpp",
         "NanoMenuScraper.cpp",
+        "NanoMenuNdsBanner.cpp",
+        "NanoNdsBanner.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",
         "NanoOsk.cpp",

@@ -732,6 +732,7 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // is the separate, always-shown control). This is the reported "dark theme does nothing in
     // XMB" - the row was offered everywhere. Show it only in the DSi home.
     if (is("DSi Dark Theme")) return mNdsTheme;
+    if (is("Titles From ROM")) return mNdsTheme;
     // The looping menu ambiance is a DSi-only feature (ndsAmbianceTick gates on mNdsTheme).
     if (is("Menu Music")) return mNdsTheme;
     // The bottom-panel PSP clock (and its FPS readout) + the bottom custom wallpaper only exist on
@@ -8658,6 +8659,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Boot Sound", SettingSource::kProp, "persist.gammaos.nano.boot_sound", "1", "0:Off,1:On"},
     // DSi looping menu ambiance (menu_ambiance.wav) - gated live in the ndsAmbianceTick call (DSi only).
     {"Menu Music", SettingSource::kProp, "persist.gammaos.nano.nds.ambiance", "1", "0:Off,1:On"},
+    {"Titles From ROM", SettingSource::kProp, "persist.gammaos.nano.nds.romtitle", "1", "0:Off,1:On"},
     // Minima solid background colour: the value is either "none" (default black) or a 6-digit
     // hex RGB read live by minimaSolidBg() at render. A generic bound chooser (openBoundChooser)
     // shows these presets as a Minima side panel; the hex has no ':'/',' so parseListOptions is safe.
@@ -11315,6 +11317,14 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     // with no restart (the persist prop was already written above for reboot).
                     if (!strcmp(b->label, "DSi Dark Theme")) {
                         mNdsDark = (v == "1" || v == "true");
+                        mDisplayDirty = true;
+                    }
+                    // Titles From ROM on/off: re-derive every game name now (banner title vs file
+                    // name) and rebuild the carousel; the titles were parsed at scan time.
+                    if (!strcmp(b->label, "Titles From ROM")) {
+                        for (auto& sys : mXmbSystems) applyRomNameOverrides(sys);
+                        applyRomNameOverridesToRecents();
+                        mPs3CatsStale = true;
                         mDisplayDirty = true;
                     }
                     // XMB Wave on/off: apply live (the home is the resident overlay on the RG DS, so a
