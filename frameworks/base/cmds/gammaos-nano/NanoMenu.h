@@ -1861,6 +1861,11 @@ private:
     bool  ndsPlayerActive() const;         // a media player is up -> show the XMB player, not the carousel
     bool  ndsDlgIsSidePanel() const;       // the active dialog is a chooser/slider (list) vs a confirm (buttons)
     void  ndsSaveReturnPath();             // persist the nav path (cat + stack sels) before a launch-exit
+    // How long the home holds the exit after a launch is armed (mLaunchFadeStart) so the
+    // launch effect can finish on screen: the DSi theme plays a tile lift + sparkle ring +
+    // 44f white wash (full by ~47 frames), every other theme a quick 260ms fade. Shared by
+    // pollInput's exit gate and the drastic-nano hand-off so neither cuts the effect short.
+    int   launchFadeHoldMs() const { return mNdsTheme ? 780 : 260; }
     void  ndsRestoreReturnPath();          // on the fresh return process, drill back to the launched card
     float mNdsCamera = 3.0f;      // carousel scroll position (slot units, fractional while sliding)
     float mNdsSettleT = -1.0f;    // select-landing squash: frames (0..3) since the frame settled (-1 = idle)

@@ -1838,7 +1838,7 @@ void NanoMenu::pollInput() {
     // wash) before handing off, so it holds the exit until the wash has fully covered the
     // screen (~47 frames); every other theme keeps the quick 260ms fade.
     if (mLaunchFadeStart > 0 &&
-        (int64_t)uptimeMillis() - mLaunchFadeStart >= (mNdsTheme ? 780 : 260)) {
+        (int64_t)uptimeMillis() - mLaunchFadeStart >= launchFadeHoldMs()) {
         // DSi theme: persist the carousel nav path so the fresh return process comes back to
         // the exact launched card (once, right before we hand off).
         if (mNdsTheme && mPs3Xmb) ndsSaveReturnPath();

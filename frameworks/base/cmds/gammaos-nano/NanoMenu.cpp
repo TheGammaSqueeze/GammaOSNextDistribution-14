@@ -4534,19 +4534,25 @@ if (sRingPrimedCount >= 2) {
                 // for any launched app. Exiting abruptly here would strand the panel.
                 continue;
             }
-            // Fade to black first, like a normal app launch (the SF branch above
-            // uses the same mLaunchFadeStart). Render the fade inline -- render()
-            // draws the black ramp while mLaunchFadeStart is set -- and keep the
-            // heartbeat alive; once the ~260ms fade completes, pull the start
-            // trigger and exit. We stay in this block (continue, mDrasticNanoPending
-            // not cleared) so pollInput and the normal fade->mExitRequested handoff
-            // never run, and the occlusion guard below is not reached.
+            // Play the launch effect first, like a normal app launch (the SF branch
+            // above uses the same mLaunchFadeStart). Render it inline -- render()
+            // draws the black ramp (or the DSi tile lift + white wash) while
+            // mLaunchFadeStart is set -- and keep the heartbeat alive; once the
+            // theme's hold (launchFadeHoldMs: 260ms fade, ~780ms for the DSi effect)
+            // has elapsed, pull the start trigger and exit. We stay in this block
+            // (continue, mDrasticNanoPending not cleared) so pollInput and the normal
+            // fade->mExitRequested handoff never run, and the occlusion guard below is
+            // not reached. A fixed 260ms here used to cut the DSi card lift short.
             if (mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
-            if ((int64_t)uptimeMillis() - mLaunchFadeStart < 260) {
+            if ((int64_t)uptimeMillis() - mLaunchFadeStart < launchFadeHoldMs()) {
                 render();
                 mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
                 continue;
             }
+            // DSi theme: persist the carousel nav path so the fresh return process comes back
+            // to the launched card (pollInput does this for every other launch; this path
+            // exits below without ever reaching it).
+            if (mNdsTheme && mPs3Xmb) ndsSaveReturnPath();
             // Clear the stale stock-DraStic launch state the standalone XMB launch
             // path set (launch_app=com.dsemu.drastic + launch_intent=file). This
             // DRM-direct path runs the drastic-nano BINARY via start=1 and never uses

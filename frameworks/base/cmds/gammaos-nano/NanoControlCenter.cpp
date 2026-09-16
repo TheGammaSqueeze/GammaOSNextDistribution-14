@@ -1478,7 +1478,18 @@ void NanoMenu::ccTouchFrame() {
                     "setprop sys.gammaos.multidisplay.split_brightness.d1.override %d; "
                     "setprop persist.gammaos.multidisplay.split_brightness.d1.last %d", v, v);
             } else {
-                snprintf(c, sizeof(c), "settings put system screen_brightness %d 2>/dev/null", v);
+                // Unified brightness: this is nano's own level too. The home re-asserts mBrightness
+                // (applyBrightness) the moment the app exits, and a fresh process after a DRM
+                // drastic-nano session adopts persist.gammaos.nano.brightness on its first tick, so
+                // unless both are updated here the Control Centre change is undone on return to the
+                // menu. Scale the raw node value to nano's 0..255 level (max is 255 on this panel).
+                const int mx = (mCcHeldSlider == 0) ? sCc.briTopMax : sCc.briBotMax;
+                int lvl = (mx > 0) ? (int)lroundf((float)v * 255.0f / (float)mx) : v;
+                if (lvl < 1) lvl = 1; if (lvl > 255) lvl = 255;
+                mBrightness = lvl;
+                char pb[16]; snprintf(pb, sizeof(pb), "%d", lvl);
+                property_set("persist.gammaos.nano.brightness", pb);
+                snprintf(c, sizeof(c), "settings put system screen_brightness %d 2>/dev/null", lvl);
             }
             shellCmd(c);
         }
