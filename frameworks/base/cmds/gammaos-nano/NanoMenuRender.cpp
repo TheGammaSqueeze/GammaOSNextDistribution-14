@@ -2294,9 +2294,13 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             }
         }
         if (lb) endSolidBatch();   // flush the rail + ticks + pill + gloss as one draw
-        // Background Effect active: the whole bar (rail, ticks, arrows, thumb) at 50 percent over the
-        // live backdrop (user request) by re-blitting this frame's effect over the band at half alpha.
-        if (ndsFxOverlayReady()) ndsFxOverlay(railX, Y(170.0f), railW, Y(192.0f) - Y(170.0f), 0.5f);
+        // Background Effect active: the track (rail, ticks, thumb) at 85 percent over the live
+        // backdrop (user request) by re-blitting this frame's effect over the band at 15 percent.
+        // The L/R chevron buttons at the ends are left out so they stay opaque.
+        if (ndsFxOverlayReady()) {
+            const float bxl = SBX(0.0f) + S(19.0f), bxr = SBX(256.0f) - S(19.0f);
+            ndsFxOverlay(bxl, Y(170.0f), bxr - bxl, Y(192.0f) - Y(170.0f), 0.15f);
+        }
         offY = ndsSbSave;   // restore the content-band origin for the tiles / name box below
     }
 
@@ -2476,9 +2480,10 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         drawRoundedRect(bx + S(2.0f), by + S(2.0f), bw - S(4.0f),  bh - S(4.0f),  S(4.0f), nb.bevel2, nb.bevel2, nb.bevel2, ca);  // #c3c3c3
         drawRoundedRect(bx + S(3.0f), by + S(3.0f), bw - S(6.0f),  bh - S(6.0f),  S(3.0f), nb.bevel3, nb.bevel3, nb.bevel3, ca);  // #dbdbdb
         drawRoundedRect(bx + S(4.0f), by + S(4.0f), bw - S(8.0f),  bh - S(8.0f),  S(2.0f), nb.bevel4, nb.bevel4, nb.bevel4, ca);  // #fbfbfb interior
-        // Background Effect active: the balloon reads at 50 percent over the live backdrop (user
-        // request). Re-blit this frame's effect over the box at half alpha; the text goes on top.
-        if (ndsFxOverlayReady()) ndsFxOverlay(bx, by, bw, bh, 0.5f * ca);
+        // Background Effect active: the balloon's white interior reads at 85 percent over the live
+        // backdrop (user request). Re-blit this frame's effect over the INTERIOR only, at 15 percent,
+        // so the four-step bevel border stays opaque; the text goes on top.
+        if (ndsFxOverlayReady()) ndsFxOverlay(bx + S(4.0f), by + S(4.0f), bw - S(8.0f), bh - S(8.0f), 0.15f * ca);
         // Two lines like the DSi (name + publisher): the centred item's label, then its
         // category for context (launcher.js _drawNameBox is multi-line, #414141, centred).
         std::string l1, l2;
@@ -3370,11 +3375,11 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // into this clean field below, so the camera never shows through for non-game items.
     { float px = X(18.0f), pw = X(240.0f) - X(18.0f), py = Y(18.0f), ph = Y(188.0f) - Y(18.0f);
       // The bevel and inset are drawn as RINGS (not nested fills) so the field's interior is never
-      // painted by them, and the mint field itself is half transparent (user request): a custom
+      // painted by them, and the mint field itself is 85 percent opaque (user request): a custom
       // wallpaper or Background Effect shows through the canvas while the frame stays opaque.
       drawRoundedRing(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), S(2), tpal.mintBevel, tpal.mintBevel, tpal.mintBevel, 1.0f);   // grey bevel ring
       drawRoundedRing(px, py, pw, ph, S(3), S(3), tpal.mintInset, tpal.mintInset, tpal.mintInset, 1.0f);                                // white inset ring
-      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), tpal.mintR, tpal.mintG, tpal.mintB, 0.5f); } // mint field, half
+      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), tpal.mintR, tpal.mintG, tpal.mintB, 0.85f); } // mint field, 85 percent
     // panel content: current category (head) + selected item (sub), DSi teal, centred.
     // Top screen shows the current level / parent context (head) + the focused selection (sub).
     // The focused item follows the SAME hard-swap selection as the bottom name box
