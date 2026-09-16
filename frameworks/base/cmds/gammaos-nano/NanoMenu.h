@@ -1791,6 +1791,7 @@ private:
     void minimaDialogTouch();      // Minima confirm/message dialog touch: tap a pill / scrim (mirrors renderMinimaDialog)
     void renderMinimaBootOverlay(bool primary);                        // Minima cold-boot intro + GammaOS disclaimer (NanoMenuPS3Boot.cpp)
     void minimaAccent(float& r, float& g, float& b) const;          // accent RGB from the shared Colour setting
+    NdsPal ndsTopPal() const;                                       // ndsPal() with the mint canvas + teal text recoloured to a non-Original accent
     void ndsAccentRGB(float& r, float& g, float& b) const;          // DSi accent RGB (reference azure at "Original")
     bool ndsAccentIsDefault() const;                                // true = Colour "Original" (keep the baked blue sprites)
     void ndsRecolor(float& r, float& g, float& b) const;            // hue-rotate a DSi blue shade toward the accent
@@ -1969,6 +1970,7 @@ private:
     int    mNdsFrameBaseW = 0, mNdsFrameBaseH = 0;
     GLuint mNdsFrameTexAccent = 0;          // uploaded hue-rotated frame; 0 = not built
     int    mNdsFrameAccentIdx = -999;       // Colour idx mNdsFrameTexAccent was built for (-999 = none)
+    float  mNdsFrameBaseHue = -1.0f;        // measured dominant hue of the base frame sprite (deg; -1 = unknown)
     GLuint mNdsTileTex  = 0;      // tile_white pillow sprite
     GLuint mNdsPhotoTex = 0;      // photo_U panel (grey/white bevel frame + mint field), top screen
     GLuint mNdsBattTex  = 0;      // spr_batt_full sprite (unknown-level fallback; the live battery is procedural + proportional)

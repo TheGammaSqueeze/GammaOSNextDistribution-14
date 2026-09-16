@@ -408,13 +408,30 @@ GLuint NanoMenu::ndsFrameTexAccented() {
         }
         if (w < 2 || h < 2) return mNdsFrameTex;
         mNdsFrameBasePx.swap(px); mNdsFrameBaseW = w; mNdsFrameBaseH = h;
+        // The sprite's own dominant hue (median of its saturated opaque texels, ~218 deg): the
+        // rotation below anchors on THIS, not the nominal favColour azure (205 deg). Anchoring
+        // on the nominal value shifted every accent by the 13 deg difference, and the sprite's
+        // ~25 deg gloss spread was carried over unchanged, so Yellow came out lime, Orange
+        // gold, Red orange, Teal cyan and Pink red on the carousel while the swatch, the top
+        // screen and the rest of the chrome showed the true accent.
+        std::vector<float> hues;
+        for (size_t p = 0; p + 3 < mNdsFrameBasePx.size(); p += 4) {
+            if (mNdsFrameBasePx[p + 3] < 200) continue;
+            float hh, ss, vv;
+            ndsPxRgb2Hsv(mNdsFrameBasePx[p] / 255.0f, mNdsFrameBasePx[p + 1] / 255.0f, mNdsFrameBasePx[p + 2] / 255.0f, hh, ss, vv);
+            if (ss > 0.4f) hues.push_back(hh);
+        }
+        if (!hues.empty()) { std::sort(hues.begin(), hues.end()); mNdsFrameBaseHue = hues[hues.size() / 2]; }
     }
-    // One hue delta + saturation scale for the whole sprite (accent vs reference DSi azure).
+    // Per texel: place the sprite's dominant hue AT the accent hue and keep only a compressed
+    // share of each texel's offset from it (the gloss/shadow hue variation), so the frame reads
+    // as the chosen colour instead of drifting into the neighbouring hue on warm accents.
+    // Saturation is scaled once against the reference azure (as ndsRecolor); value is kept.
     static const float kRefBlue[3] = {0.094f, 0.573f, 0.922f};
     float ar, ag, ab; ndsAccentRGB(ar, ag, ab);
     float refH, refS, refV;  ndsPxRgb2Hsv(kRefBlue[0], kRefBlue[1], kRefBlue[2], refH, refS, refV);
     float accH, accS, accV;  ndsPxRgb2Hsv(ar, ag, ab, accH, accS, accV);
-    float dH = accH - refH;
+    const float baseH = (mNdsFrameBaseHue >= 0.0f) ? mNdsFrameBaseHue : refH;
     float sScale = (refS > 1e-3f) ? (accS / refS) : 1.0f;
     if (sScale > 1.15f) sScale = 1.15f;                            // matches ndsRecolor's clamp
     std::vector<uint8_t> out = mNdsFrameBasePx;
@@ -423,7 +440,8 @@ GLuint NanoMenu::ndsFrameTexAccented() {
         float r = out[p] / 255.0f, g = out[p + 1] / 255.0f, b = out[p + 2] / 255.0f;
         float h, s, v; ndsPxRgb2Hsv(r, g, b, h, s, v);
         float ns = s * sScale; if (ns > 1.0f) ns = 1.0f;
-        ndsPxHsv2Rgb(h + dH, ns, v, r, g, b);
+        float dh = h - baseH; dh = fmodf(dh + 540.0f, 360.0f) - 180.0f;   // shortest signed offset
+        ndsPxHsv2Rgb(accH + dh * 0.35f, ns, v, r, g, b);
         r = fmaxf(0.0f, fminf(1.0f, r)); g = fmaxf(0.0f, fminf(1.0f, g)); b = fmaxf(0.0f, fminf(1.0f, b));
         out[p] = (uint8_t)(r * 255.0f + 0.5f); out[p + 1] = (uint8_t)(g * 255.0f + 0.5f); out[p + 2] = (uint8_t)(b * 255.0f + 0.5f);
     }

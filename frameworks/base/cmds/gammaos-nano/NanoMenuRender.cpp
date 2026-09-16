@@ -1064,12 +1064,16 @@ void NanoMenu::ndsRecolor(float& r, float& g, float& b) const {
     float ar, ag, ab; ndsAccentRGB(ar, ag, ab);
     float refH, refS, refV;  ndsRgb2Hsv(kRefBlue[0], kRefBlue[1], kRefBlue[2], refH, refS, refV);
     float accH, accS, accV;  ndsRgb2Hsv(ar, ag, ab, accH, accS, accV);
-    float dH = accH - refH;
     float sScale = (refS > 1e-3f) ? (accS / refS) : 1.0f;
     if (sScale > 1.15f) sScale = 1.15f;   // clamp so a very saturated accent does not over-boost the light stops
     float h, s, v; ndsRgb2Hsv(r, g, b, h, s, v);
     float ns = s * sScale; if (ns > 1.0f) ns = 1.0f;
-    ndsHsv2Rgb(h + dH, ns, v, r, g, b);
+    // Place the reference azure AT the accent hue and keep only a compressed share (0.35) of
+    // the shade's own offset from it. The DSi blue shades span ~195..227 deg; carrying that
+    // full spread over a warm accent pushed the deep stops into the neighbouring hue (a
+    // green tinge on Yellow, gold on Orange). Identity at "Original" (accent == reference).
+    float dh = h - refH; dh = fmodf(dh + 540.0f, 360.0f) - 180.0f;
+    ndsHsv2Rgb(accH + dh * 0.35f, ns, v, r, g, b);
 }
 
 // A DSi System Settings glossy list button (settings.js _glossyButtonVec + button_grads.json):
@@ -2702,7 +2706,7 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
     auto X = [&](float d){ return cx + (d - 128.0f) * scale; };
     auto Y = [&](float d){ return offY + d * scale; };
     const float FCH = (float)FONT_CHAR_H;
-    NdsPal ip = ndsPal();
+    NdsPal ip = ndsTopPal();
     const float hR = ip.headR, hG = ip.headG, hB = ip.headB;   // #3b766d label teal
     const float vR = ip.valR,  vG = ip.valG,  vB = ip.valB;    // darker value/body
     auto fit = [&](const char* s, float wantFs, float maxW){ float f = wantFs; float w = measureText(s, f); if (w > maxW && w > 0) f *= maxW / w; return f; };
@@ -2955,6 +2959,32 @@ void NanoMenu::ndsInfoPage(int dir) {
     if (p > mNdsInfoPageCount - 1) p = mNdsInfoPageCount - 1;
     if (p != mNdsInfoPage) { mNdsInfoPage = p; mDisplayDirty = true; }
 }
+// Top-screen / info-page palette. At Colour "Original" this is ndsPal() untouched (the DSi's
+// own mint canvas and teal head/sub/value text). With any other Theme Settings colour (a preset
+// or a Custom hex) the mint field and the three text tints are re-derived from that accent so
+// the top screen follows the user's selection like the rest of the DSi chrome. The accent takes
+// the role the mid teal (sub) has in the original scheme; the canvas is a pale tint of it and
+// head/value are darker steps (light variant) or lighter steps (dark variant), keeping the
+// original scheme's contrast ratios. The greys, frame and status bar inks are untouched.
+NanoMenu::NdsPal NanoMenu::ndsTopPal() const {
+    NdsPal p = ndsPal();
+    if (ndsAccentIsDefault()) return p;
+    float ar, ag, ab; ndsAccentRGB(ar, ag, ab);
+    auto mix = [](float a, float b, float t){ return a + (b - a) * t; };
+    if (mNdsDark) {
+        p.mintR = ar * 0.45f;            p.mintG = ag * 0.45f;            p.mintB = ab * 0.45f;   // dark field: a deep shade of the accent
+        p.headR = mix(ar, 1.0f, 0.20f);  p.headG = mix(ag, 1.0f, 0.20f);  p.headB = mix(ab, 1.0f, 0.20f);
+        p.subR  = mix(ar, 1.0f, 0.40f);  p.subG  = mix(ag, 1.0f, 0.40f);  p.subB  = mix(ab, 1.0f, 0.40f);
+        p.valR  = mix(ar, 1.0f, 0.55f);  p.valG  = mix(ag, 1.0f, 0.55f);  p.valB  = mix(ab, 1.0f, 0.55f);
+    } else {
+        p.mintR = mix(1.0f, ar, 0.45f);  p.mintG = mix(1.0f, ag, 0.45f);  p.mintB = mix(1.0f, ab, 0.45f);   // pale tint of the accent
+        p.headR = ar * 0.73f;            p.headG = ag * 0.73f;            p.headB = ab * 0.73f;
+        p.subR  = ar;                    p.subG  = ag;                    p.subB  = ab;
+        p.valR  = ar * 0.50f;            p.valG  = ag * 0.50f;            p.valB  = ab * 0.50f;
+    }
+    return p;
+}
+
 // DSi status bar (topscreen.js): radio/audio glyphs on the left, date/time + battery on
 // the right, at DS y2..17. Factored out of renderNdsTop so the single-screen carousel
 // can draw the same bar pinned to its top strip. cx/offY/scale map DS -> device px
@@ -3185,7 +3215,7 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // a translucent in-game overlay so the darkened live app shows through (the overlay scrim),
     // like the PS3 XMB overlay (user request); the opaque post-game launcher + home keep it.
     const bool ndsTopScrim = mOverlayMode && !mOverlayWallpaper;
-    NdsPal tpal = ndsPal();
+    NdsPal tpal = ndsTopPal();
     if (!ndsTopScrim) {
         if (wallpaperActive(mRenderingPanel)) {
             // Custom wallpaper fills the whole DSi top screen behind all the chrome, replacing the flat
