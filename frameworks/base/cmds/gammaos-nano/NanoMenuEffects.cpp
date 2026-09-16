@@ -295,11 +295,14 @@ void NanoMenu::renderEffect() {
         // the per-month gradient (NanoMenuPS3Bg). The default wallpaper. The
         // original procedural ribbon (effect 21) is kept as a separate option.
         ps3::layoutComputeNative(mWidth, mHeight);
-        ps3bg::setWaveEnabled(mXmbWave);
+        // The DSi home offers "XMB Wave" as a Background Effect in its own right (its Theme Settings
+        // hide the XMB wave toggle), so picking it there means the cloth wave, not the bare gradient.
+        const bool waveOn = mXmbWave || mNdsTheme;
+        ps3bg::setWaveEnabled(waveOn);
         // Wave Half Resolution (Theme Settings): mWaveHalfActive is the per-frame gate set at the top of
         // render() (member && XMB-home scope). Pushed every frame so it tracks the toggle + survives park.
         ps3bg::setWaveHalfRes(mWaveHalfActive);
-        if (wallpaperActive(mRenderingPanel) && !mXmbWave) {
+        if (wallpaperActive(mRenderingPanel) && !waveOn) {
             // A user wallpaper is visible (wave toggled off): a looping video on the top panel, else a still.
             // Paint it cover-fit, then still update the ps3bg work texture OFFSCREEN (compositeToScreen=false,
             // gradient only) so the glass category/console icons and every frost backdrop keep a valid scene.

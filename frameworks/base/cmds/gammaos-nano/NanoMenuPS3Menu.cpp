@@ -713,7 +713,10 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     auto is = [&](const char* n) { return strcmp(name, n) == 0; };
     // XMB-only appearance: the wave/particle Background + effect picker, the XMB font and the
     // day/night lighting have no effect in the DSi or Minima home.
-    if (is("Background") || is("Wallpaper") || is("Font") || is("Day/Night")) return xmb;
+    if (is("Background") || is("Font") || is("Day/Night")) return xmb;
+    // The effect picker also serves the DSi home: a chosen effect renders on both DSi screens in
+    // place of the flat field / custom wallpaper (persisted separately, see the case 11 commit).
+    if (is("Wallpaper")) return xmb || mNdsTheme;
     // The wave exists on XMB and (opt-in) Minima, but never the DSi carousel.
     if (is("XMB Wave")) return xmb || minima;
     // Half-resolution render-scale is a set of PS3 XMB-only perf toggles (the DSi/Minima homes are
@@ -10914,7 +10917,10 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
         case 11:    // Wallpaper effect: commit the live selection + persist it
             previewThemeSetting(11, sel);
             { char b[16]; snprintf(b, sizeof(b), "%d", mCurrentEffect);
-              property_set("persist.gammaos.nano.wallpaper", b); }
+              // The DSi home keeps its own Background Effect selection (default None) so
+              // choosing one there never changes the XMB wallpaper, and vice versa.
+              property_set(mNdsTheme ? "persist.gammaos.nano.nds.effect"
+                                     : "persist.gammaos.nano.wallpaper", b); }
             break;
         case 10: {  // Quick Menu -> Performance Mode. Replicates the legacy
             // global action / PerformanceTile: set persist.gammaos.performance_mode

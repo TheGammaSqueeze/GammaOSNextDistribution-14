@@ -1601,6 +1601,20 @@ bool NanoMenu::threadLoop() {
             }
         }
     }
+    // DSi theme: its own persisted Background Effect (persist.gammaos.nano.nds.effect, default
+    // 0 = None so the flat field / custom wallpaper stays as before). Loaded AFTER the XMB
+    // wallpaper re-read above so it wins for this process: the DSi home renders whichever
+    // effect mCurrentEffect names on both screens in place of the wallpaper (renderNdsCarousel /
+    // renderNdsTop), and the Theme Settings picker commits to this prop instead of the XMB one.
+    if (mNdsTheme) {
+        int fx = android::base::GetIntProperty("persist.gammaos.nano.nds.effect", 0);
+        bool ok = false;
+        for (int i = 0; i < kNumActiveEffects; i++) {
+            if (kActiveEffects[i] == fx) { sActiveEffectIdx = i; mCurrentEffect = fx; ok = true; break; }
+        }
+        if (!ok) { sActiveEffectIdx = 0; mCurrentEffect = 0; }
+        if (mCurrentEffect >= 1 && mCurrentEffect <= 10) initEffects();
+    }
     // If returning from a game, restore the XMB position + color
     {
         std::string retSys = android::base::GetProperty(
@@ -5116,7 +5130,7 @@ if (sRingPrimedCount >= 2) {
             if (mNdsPreviewT0 >= 0.0f) { previewT = mEffectTime - mNdsPreviewT0; if (previewT < 0.0f) previewT += 500.0f; }
             // Per-theme "nothing is moving": the DSi carousel state, or the Minima
             // renderer's own flag (scroll easing, level transition, marquee).
-            const bool ndsQuiet = mNdsTheme
+            const bool ndsQuiet = mNdsTheme && mCurrentEffect == 0   // a Background Effect animates: never idle-skip
                 && mNdsIntroStart > 0 && nowMs - mNdsIntroStart > 3000
                 && !mNdsCamMoving && mNdsSettleT < 0.0f
                 && mNdsFlingVel == 0.0f && !mNdsFastScroll && mNdsListFlingVel == 0.0f

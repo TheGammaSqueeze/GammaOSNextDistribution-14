@@ -684,6 +684,13 @@ void NanoMenu::drawQuad(float x, float y, float w, float h,
 // coordinate so the SDF abs() handles all four corners symmetrically.
 void NanoMenu::drawRoundedRect(float x, float y, float w, float h, float radius,
                                float r, float g, float b, float a) {
+    drawRoundedRing(x, y, w, h, radius, 0.0f, r, g, b, a);
+}
+
+// A rounded rect drawn as a hollow ring of `thick` px (0 = filled = drawRoundedRect). Each pixel is
+// painted once, so a translucent frame composites exactly (nested filled rects would stack).
+void NanoMenu::drawRoundedRing(float x, float y, float w, float h, float radius, float thick,
+                               float r, float g, float b, float a) {
     flushSolidBatch();   // submit any pending batched solids first so this SDF rect keeps painter order
     float x0 = (x / mWidth) * 2.0f - 1.0f;
     float y0 = 1.0f - ((y + h) / mHeight) * 2.0f;
@@ -700,6 +707,7 @@ void NanoMenu::drawRoundedRect(float x, float y, float w, float h, float radius,
     glUniformMatrix2fv(mRoundLocRotation, 1, GL_FALSE, sDrmRotMat);
     glUniform2f(mRoundLocHalf, hw, hh);
     glUniform1f(mRoundLocRadius, radius);
+    if (mRoundLocInset >= 0) glUniform1f(mRoundLocInset, thick > 0.0f ? thick : 0.0f);
     glUniform4f(mRoundLocColor, r, g, b, a);
     glVertexAttribPointer(mRoundLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
     glEnableVertexAttribArray(mRoundLocPosition);
@@ -1975,7 +1983,10 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // like the PS3 XMB in-game overlay) instead of the DSi stripe bg covering it (user request).
     const bool ndsInGameScrim = mOverlayMode && !mOverlayWallpaper;
     if (!ndsInGameScrim) {
-        if (wallpaperActive(mRenderingPanel)) {
+        if (ndsEffectActive()) {
+            // Background Effect (Theme Settings): the effect replaces the wallpaper / flat field.
+            drawNdsEffectBackdrop();
+        } else if (wallpaperActive(mRenderingPanel)) {
             // Custom wallpaper fills the whole DSi bottom screen behind the carousel chrome.
             drawWallpaperFill(mRenderingPanel);
         } else {
@@ -2283,6 +2294,9 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             }
         }
         if (lb) endSolidBatch();   // flush the rail + ticks + pill + gloss as one draw
+        // Background Effect active: the whole bar (rail, ticks, arrows, thumb) at 50 percent over the
+        // live backdrop (user request) by re-blitting this frame's effect over the band at half alpha.
+        if (ndsFxOverlayReady()) ndsFxOverlay(railX, Y(170.0f), railW, Y(192.0f) - Y(170.0f), 0.5f);
         offY = ndsSbSave;   // restore the content-band origin for the tiles / name box below
     }
 
@@ -2462,6 +2476,9 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         drawRoundedRect(bx + S(2.0f), by + S(2.0f), bw - S(4.0f),  bh - S(4.0f),  S(4.0f), nb.bevel2, nb.bevel2, nb.bevel2, ca);  // #c3c3c3
         drawRoundedRect(bx + S(3.0f), by + S(3.0f), bw - S(6.0f),  bh - S(6.0f),  S(3.0f), nb.bevel3, nb.bevel3, nb.bevel3, ca);  // #dbdbdb
         drawRoundedRect(bx + S(4.0f), by + S(4.0f), bw - S(8.0f),  bh - S(8.0f),  S(2.0f), nb.bevel4, nb.bevel4, nb.bevel4, ca);  // #fbfbfb interior
+        // Background Effect active: the balloon reads at 50 percent over the live backdrop (user
+        // request). Re-blit this frame's effect over the box at half alpha; the text goes on top.
+        if (ndsFxOverlayReady()) ndsFxOverlay(bx, by, bw, bh, 0.5f * ca);
         // Two lines like the DSi (name + publisher): the centred item's label, then its
         // category for context (launcher.js _drawNameBox is multi-line, #414141, centred).
         std::string l1, l2;
@@ -2985,6 +3002,115 @@ NanoMenu::NdsPal NanoMenu::ndsTopPal() const {
     return p;
 }
 
+// DSi Background Effect: the chosen wallpaper effect (particles, procedural shaders, the XMB
+// ribbon or the PS3 cloth wave) rendered full-panel BEHIND the DSi chrome in place of the flat
+// field / custom wallpaper, on both screens. renderEffect() paints the whole panel, and in the
+// stacked single-panel layout the top and bottom screens are two bands of the same panel drawn
+// in one frame, so the effect is drawn once per frame per panel (the second band's chrome lands
+// over the same backdrop). Both DSi screens on a dual-panel device each get their own draw since
+// they are separate panels (mRenderingPanel). Leaves the UI blend state ready for the chrome.
+// The effect is rendered into a per-panel offscreen texture at the panel's window size, then
+// blitted full-panel. Keeping the frame's effect as a texture lets the chrome bands (name
+// balloon, scroll rail) re-blit it over themselves at 50 percent afterwards, which composites the
+// chrome at exactly half over the live backdrop without an offscreen chrome pass; nested fills
+// with a halved alpha would stack instead. The FBO pass happens first in the panel's frame, so
+// the tiler has nothing to flush when the target switches.
+void NanoMenu::drawNdsEffectBackdrop() {
+    const uint64_t hb = (uint64_t)mRenderHeartbeat.load(std::memory_order_relaxed);
+    const int pnl = (mRenderingPanel == 1) ? 1 : 0;
+    if (mNdsFxDrawnHb == hb && mNdsFxDrawnPanel == mRenderingPanel) return;
+    const bool lb = mSolidBatchActive; if (lb) endSolidBatch();
+    GLint vp[4] = {0, 0, 0, 0}; glGetIntegerv(GL_VIEWPORT, vp);
+    const int fw = vp[2], fh = vp[3];
+    GLint prevFbo = 0; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    bool viaFbo = fw > 0 && fh > 0;
+    if (viaFbo) {
+        if (mNdsFxTex[pnl] == 0) glGenTextures(1, &mNdsFxTex[pnl]);
+        if (mNdsFxFbo[pnl] == 0) glGenFramebuffers(1, &mNdsFxFbo[pnl]);
+        glBindTexture(GL_TEXTURE_2D, mNdsFxTex[pnl]);
+        if (mNdsFxW[pnl] != fw || mNdsFxH[pnl] != fh) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fw, fh, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            mNdsFxW[pnl] = fw; mNdsFxH[pnl] = fh;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, mNdsFxFbo[pnl]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mNdsFxTex[pnl], 0);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+            viaFbo = false;
+        } else {
+            glViewport(0, 0, fw, fh);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
+    }
+    renderEffect();
+    if (viaFbo) {
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        glViewport(vp[0], vp[1], vp[2], vp[3]);
+        mNdsFxDrawnHb = hb; mNdsFxDrawnPanel = mRenderingPanel;   // overlay available this frame
+        setUiBlend();
+        ndsFxOverlay(0.0f, 0.0f, (float)mWidth, (float)mHeight, 1.0f);
+    } else {
+        mNdsFxDrawnHb = hb; mNdsFxDrawnPanel = -2;                  // drawn direct: no overlay texture
+    }
+    setUiBlend();
+    mDisplayDirty = true;   // the effect animates: keep presenting every frame
+}
+
+bool NanoMenu::ndsFxOverlayReady() const {
+    const uint64_t hb = (uint64_t)mRenderHeartbeat.load(std::memory_order_relaxed);
+    const int pnl = (mRenderingPanel == 1) ? 1 : 0;
+    return mNdsFxDrawnHb == hb && mNdsFxDrawnPanel == mRenderingPanel && mNdsFxTex[pnl] != 0;
+}
+
+// Blit the panel's effect texture over the logical rect (x,y,w,h) at `alpha`. The texture holds the
+// effect in WINDOW orientation (it was rendered through the same rotation the chrome uses), so the
+// rect is mapped to window NDC through sDrmRotMat and drawn with an identity rotation, sampling the
+// matching texture region 1:1.
+void NanoMenu::ndsFxOverlay(float x, float y, float w, float h, float alpha) {
+    const int pnl = (mRenderingPanel == 1) ? 1 : 0;
+    if (mNdsFxTex[pnl] == 0) return;
+    flushSolidBatch();
+    float lx0 = (x / mWidth) * 2.0f - 1.0f, lx1 = ((x + w) / mWidth) * 2.0f - 1.0f;
+    float ly0 = 1.0f - ((y + h) / mHeight) * 2.0f, ly1 = 1.0f - (y / mHeight) * 2.0f;
+    // window NDC = sDrmRotMat (column-major 2x2) * logical NDC
+    auto wx = [&](float px, float py){ return sDrmRotMat[0] * px + sDrmRotMat[2] * py; };
+    auto wy = [&](float px, float py){ return sDrmRotMat[1] * px + sDrmRotMat[3] * py; };
+    float cxs[4] = { wx(lx0, ly0), wx(lx1, ly0), wx(lx1, ly1), wx(lx0, ly1) };
+    float cys[4] = { wy(lx0, ly0), wy(lx1, ly0), wy(lx1, ly1), wy(lx0, ly1) };
+    float x0 = cxs[0], x1 = cxs[0], y0 = cys[0], y1 = cys[0];
+    for (int i = 1; i < 4; i++) { x0 = fminf(x0, cxs[i]); x1 = fmaxf(x1, cxs[i]); y0 = fminf(y0, cys[i]); y1 = fmaxf(y1, cys[i]); }
+    GLfloat verts[] = { x0,y0, x1,y0, x1,y1, x1,y1, x0,y1, x0,y0 };
+    const float u0 = (x0 + 1.0f) * 0.5f, u1 = (x1 + 1.0f) * 0.5f, v0 = (y0 + 1.0f) * 0.5f, v1 = (y1 + 1.0f) * 0.5f;
+    GLfloat uvs[] = { u0,v0, u1,v0, u1,v1, u1,v1, u0,v1, u0,v0 };
+    GLfloat colors[6 * 4];
+    for (int i = 0; i < 6; i++) { colors[i*4] = 1.0f; colors[i*4+1] = 1.0f; colors[i*4+2] = 1.0f; colors[i*4+3] = alpha; }
+    static const GLfloat kIdent[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    glUseProgram(mTextProgram);
+    glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, kIdent);
+    if (mTextLocSharp >= 0)   glUniform1f(mTextLocSharp, 0.0f);
+    if (mTextLocSharpUp >= 0) glUniform2f(mTextLocSharpUp, 0.0f, 0.0f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mNdsFxTex[pnl]);
+    glUniform1i(mTextLocTexture, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mTextLocPosition, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(mTextLocPosition);
+    glVertexAttribPointer(mTextLocTexCoord, 2, GL_FLOAT, GL_FALSE, 0, uvs);
+    glEnableVertexAttribArray(mTextLocTexCoord);
+    glVertexAttribPointer(mTextLocColor, 4, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(mTextLocColor);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(mTextLocPosition);
+    glDisableVertexAttribArray(mTextLocTexCoord);
+    glDisableVertexAttribArray(mTextLocColor);
+    glUniformMatrix2fv(mTextLocRotation, 1, GL_FALSE, sDrmRotMat);   // restore the frame's rotation
+}
+
 // DSi status bar (topscreen.js): radio/audio glyphs on the left, date/time + battery on
 // the right, at DS y2..17. Factored out of renderNdsTop so the single-screen carousel
 // can draw the same bar pinned to its top strip. cx/offY/scale map DS -> device px
@@ -3217,7 +3343,10 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     const bool ndsTopScrim = mOverlayMode && !mOverlayWallpaper;
     NdsPal tpal = ndsTopPal();
     if (!ndsTopScrim) {
-        if (wallpaperActive(mRenderingPanel)) {
+        if (ndsEffectActive()) {
+            // Background Effect (Theme Settings): the effect replaces the wallpaper / flat field.
+            drawNdsEffectBackdrop();
+        } else if (wallpaperActive(mRenderingPanel)) {
             // Custom wallpaper fills the whole DSi top screen behind all the chrome, replacing the flat
             // light field: a looping video on the top panel, else a still. The chrome still draws over it.
             if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))
@@ -3240,11 +3369,12 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // firmware CAMERA glyph baked into the mint field). The highlighted card's own icon is drawn
     // into this clean field below, so the camera never shows through for non-game items.
     { float px = X(18.0f), pw = X(240.0f) - X(18.0f), py = Y(18.0f), ph = Y(188.0f) - Y(18.0f);
-      drawRoundedRect(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), tpal.mintBevel, tpal.mintBevel, tpal.mintBevel, 1.0f);   // grey bevel
-      drawRoundedRect(px, py, pw, ph, S(3), tpal.mintInset, tpal.mintInset, tpal.mintInset, 1.0f);                                // white inset
-      // The mint field is half transparent (user request) so a custom wallpaper shows through
-      // the canvas; the grey bevel and white inset frame stay opaque.
-      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), tpal.mintR, tpal.mintG, tpal.mintB, 0.5f); } // mint field
+      // The bevel and inset are drawn as RINGS (not nested fills) so the field's interior is never
+      // painted by them, and the mint field itself is half transparent (user request): a custom
+      // wallpaper or Background Effect shows through the canvas while the frame stays opaque.
+      drawRoundedRing(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), S(2), tpal.mintBevel, tpal.mintBevel, tpal.mintBevel, 1.0f);   // grey bevel ring
+      drawRoundedRing(px, py, pw, ph, S(3), S(3), tpal.mintInset, tpal.mintInset, tpal.mintInset, 1.0f);                                // white inset ring
+      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), tpal.mintR, tpal.mintG, tpal.mintB, 0.5f); } // mint field, half
     // panel content: current category (head) + selected item (sub), DSi teal, centred.
     // Top screen shows the current level / parent context (head) + the focused selection (sub).
     // The focused item follows the SAME hard-swap selection as the bottom name box

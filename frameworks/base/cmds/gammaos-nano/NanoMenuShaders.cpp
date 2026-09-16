@@ -471,11 +471,18 @@ const char ROUND_FRAGMENT_SHADER[] = R"(
     varying vec2 vLocal;
     uniform vec2 uHalf;
     uniform float uRadius;
+    uniform float uInset;        // > 0: hollow ring of this thickness (px); 0 = filled
     uniform vec4 uColor;
     void main() {
         vec2 d = abs(vLocal) - (uHalf - vec2(uRadius));
         float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - uRadius;
         float a = clamp(0.5 - dist, 0.0, 1.0);
+        if (uInset > 0.0) {   // carve the inner rounded rect out so the ring paints each pixel once
+            float ir = max(uRadius - uInset, 0.0);
+            vec2 di = abs(vLocal) - (uHalf - vec2(uInset) - vec2(ir));
+            float disti = length(max(di, 0.0)) + min(max(di.x, di.y), 0.0) - ir;
+            a *= 1.0 - clamp(0.5 - disti, 0.0, 1.0);
+        }
         if (a <= 0.0) discard;
         gl_FragColor = vec4(uColor.rgb, uColor.a * a);
     }
@@ -667,6 +674,7 @@ void NanoMenu::initShaders() {
         mRoundLocRotation = glGetUniformLocation(mRoundProgram, "uRotation");
         mRoundLocHalf     = glGetUniformLocation(mRoundProgram, "uHalf");
         mRoundLocRadius   = glGetUniformLocation(mRoundProgram, "uRadius");
+        mRoundLocInset    = glGetUniformLocation(mRoundProgram, "uInset");
         mRoundLocColor    = glGetUniformLocation(mRoundProgram, "uColor");
         glDeleteShader(vs); glDeleteShader(fs);
     }

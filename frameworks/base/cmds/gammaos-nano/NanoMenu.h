@@ -1792,6 +1792,16 @@ private:
     void renderMinimaBootOverlay(bool primary);                        // Minima cold-boot intro + GammaOS disclaimer (NanoMenuPS3Boot.cpp)
     void minimaAccent(float& r, float& g, float& b) const;          // accent RGB from the shared Colour setting
     NdsPal ndsTopPal() const;                                       // ndsPal() with the mint canvas + teal text recoloured to a non-Original accent
+    bool   ndsEffectActive() const { return mNdsTheme && mCurrentEffect != 0; }   // a Background Effect replaces the DSi wallpaper/field
+    void   drawNdsEffectBackdrop();                                 // render the effect (via its FBO) full-panel once per frame per panel
+    bool   ndsFxOverlayReady() const;                               // this panel's effect texture was rendered this frame
+    void   ndsFxOverlay(float x, float y, float w, float h, float alpha);   // re-blit the effect over a chrome band (= chrome at 1-alpha)
+    void   drawRoundedRing(float x, float y, float w, float h, float radius, float thick,
+                           float r, float g, float b, float a);
+    uint64_t mNdsFxDrawnHb = ~0ULL;                                 // heartbeat of the last effect draw (per-frame guard)
+    int      mNdsFxDrawnPanel = -1;                                 // panel that draw was for
+    GLuint   mNdsFxTex[2] = {0, 0}, mNdsFxFbo[2] = {0, 0};          // per-panel offscreen effect render (window orientation)
+    int      mNdsFxW[2] = {0, 0}, mNdsFxH[2] = {0, 0};
     void ndsAccentRGB(float& r, float& g, float& b) const;          // DSi accent RGB (reference azure at "Original")
     bool ndsAccentIsDefault() const;                                // true = Colour "Original" (keep the baked blue sprites)
     void ndsRecolor(float& r, float& g, float& b) const;            // hue-rotate a DSi blue shade toward the accent
@@ -5059,6 +5069,7 @@ private:
     GLint  mRoundLocRotation;
     GLint  mRoundLocHalf;
     GLint  mRoundLocRadius;
+    GLint  mRoundLocInset = -1;
     GLint  mRoundLocColor;
     // Frosted-glass shader (OSK panel) + framebuffer snapshot texture
     GLuint mGlassProgram;
