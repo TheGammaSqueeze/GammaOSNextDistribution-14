@@ -79,8 +79,58 @@ final class DualStackController {
             "com.android.devicelockcontroller",
     };
 
-    private static final int DUALSTACK_TALL_WIDTH = 640;
-    private static final int DUALSTACK_TALL_HEIGHT = 960;
+    // The tall logical canvas that a dual-stack app renders into: the primary panel's native
+    // width by twice its native height, so each half maps 1:1 onto a panel (1024x1536 on the
+    // RG DS / RG DS Plus). It used to be a fixed 640x960 from the first bring-up, which every
+    // 1024x768 panel then upscaled. persist.gammaos.dualstack.canvas="WxH" overrides it
+    // (for example 640x960 to trade sharpness for GPU load on a heavy title).
+    private static final int DUALSTACK_FALLBACK_WIDTH = 640;
+    private static final int DUALSTACK_FALLBACK_HEIGHT = 960;
+    private int mTallWidth = 0;
+    private int mTallHeight = 0;
+
+    private void resolveTallCanvas() {
+        if (mTallWidth > 0 && mTallHeight > 0) return;
+        final String override = android.os.SystemProperties.get(
+                "persist.gammaos.dualstack.canvas", "");
+        if (!override.isEmpty()) {
+            final int x = override.indexOf('x');
+            if (x > 0) {
+                try {
+                    final int w = Integer.parseInt(override.substring(0, x).trim());
+                    final int h = Integer.parseInt(override.substring(x + 1).trim());
+                    if (w > 0 && h > 0) {
+                        mTallWidth = w;
+                        mTallHeight = h;
+                        Slog.d(TAG, "DualStack canvas from property: " + w + "x" + h);
+                        return;
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        final DisplayContent primary = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
+        if (primary != null && primary.mInitialDisplayWidth > 0
+                && primary.mInitialDisplayHeight > 0) {
+            mTallWidth = primary.mInitialDisplayWidth;
+            mTallHeight = primary.mInitialDisplayHeight * 2;
+            Slog.d(TAG, "DualStack canvas from the primary panel: " + mTallWidth + "x"
+                    + mTallHeight);
+            return;
+        }
+        mTallWidth = DUALSTACK_FALLBACK_WIDTH;
+        mTallHeight = DUALSTACK_FALLBACK_HEIGHT;
+    }
+
+    private int tallWidth() {
+        resolveTallCanvas();
+        return mTallWidth;
+    }
+
+    private int tallHeight() {
+        resolveTallCanvas();
+        return mTallHeight;
+    }
 
     private final WindowManagerService mWm;
 
@@ -543,11 +593,11 @@ final class DualStackController {
         // is exactly the same projection WM's own reconfigureDisplayLocked path
         // would have set if it had pushed one.
         final Rect layerStackRect = new Rect(0, 0,
-                DUALSTACK_TALL_WIDTH, DUALSTACK_TALL_HEIGHT);
+                tallWidth(), tallHeight());
         final int physW = primary.mInitialDisplayWidth > 0
-                ? primary.mInitialDisplayWidth : 640;
+                ? primary.mInitialDisplayWidth : DUALSTACK_FALLBACK_WIDTH;
         final int physH = primary.mInitialDisplayHeight > 0
-                ? primary.mInitialDisplayHeight : 480;
+                ? primary.mInitialDisplayHeight : DUALSTACK_FALLBACK_HEIGHT / 2;
         final Rect displayRect = new Rect(0, 0, physW, physH);
         try {
             t.setDisplayProjection(token, android.view.Surface.ROTATION_0,
@@ -637,8 +687,8 @@ final class DualStackController {
         final int currentW = primary.mBaseDisplayWidth;
         final int currentH = primary.mBaseDisplayHeight;
         if (mForcedTallSizeApplied
-                && currentW == DUALSTACK_TALL_WIDTH
-                && currentH == DUALSTACK_TALL_HEIGHT) {
+                && currentW == tallWidth()
+                && currentH == tallHeight()) {
             return;
         }
 
@@ -647,11 +697,11 @@ final class DualStackController {
             // This updates DisplayContent, DisplayFrames, app configuration, and
             // also drives the DisplayManager / SurfaceFlinger side.
             mWm.setForcedDisplaySize(DEFAULT_DISPLAY,
-                    DUALSTACK_TALL_WIDTH,
-                    DUALSTACK_TALL_HEIGHT);
+                    tallWidth(),
+                    tallHeight());
             mForcedTallSizeApplied = true;
             Slog.d(TAG, "DualStack forced tall size "
-                    + DUALSTACK_TALL_WIDTH + "x" + DUALSTACK_TALL_HEIGHT
+                    + tallWidth() + "x" + tallHeight()
                     + " on display " + DEFAULT_DISPLAY
                     + " (was " + currentW + "x" + currentH + ")");
 
@@ -790,8 +840,8 @@ final class DualStackController {
 
         // We are mirroring the full primary windowing tree, so always split the full
         // forced tall canvas (640x960) rather than attempting to infer per-app bounds.
-        int appW = DUALSTACK_TALL_WIDTH;
-        int appH = DUALSTACK_TALL_HEIGHT;
+        int appW = tallWidth();
+        int appH = tallHeight();
         int contentLeft = 0;
 
         if (appW <= 0 || appH <= 0) {
@@ -839,7 +889,7 @@ final class DualStackController {
         // the mirrored content starts at X=0 on both displays.
         float primaryTx = 0f;
         float secondaryTx = 0f;
-        if (contentLeft > 0 && appW < DUALSTACK_TALL_WIDTH) {
+        if (contentLeft > 0 && appW < tallWidth()) {
             primaryTx = -contentLeft * primarySx;
             secondaryTx = -contentLeft * secondarySx;
         }
@@ -1558,8 +1608,8 @@ final class DualStackController {
         if (primary == null) {
             return false;
         }
-        return primary.mBaseDisplayWidth == DUALSTACK_TALL_WIDTH
-                && primary.mBaseDisplayHeight == DUALSTACK_TALL_HEIGHT;
+        return primary.mBaseDisplayWidth == tallWidth()
+                && primary.mBaseDisplayHeight == tallHeight();
     }
 
     /**
