@@ -2,6 +2,7 @@
 // sounds on its 1.45s mark before the audio server is up.
 
 #include "NanoBootChime.h"
+#include <cutils/properties.h>
 
 #include <tinyalsa/asoundlib.h>
 
@@ -135,8 +136,37 @@ const int64_t kDirectMaxLoopMs = 60000;    // hard cap: never hold the card past
 // so the early audio is audible on the rk817 (RG DS) AND the Allwinner sun50iw10codec (TrimUI Brick),
 // and a graceful no-op on other codecs (they keep whatever init/default route they have). Device-
 // agnostic where possible; the audio server re-programs its own route once it takes the card back.
+// The ALSA card the direct engine drives. Card 0 is the SoC codec on every device so far, and on
+// most of them it also feeds the speaker. On the RG DS Plus the loudspeaker hangs off a separate
+// smart PA card (rockchipaw882xx, card 1) while card 0 (rk817) only reaches the headphone path, so
+// a fixed card 0 played the boot chime and the menu audio into silence until the audio HAL took
+// over. Pick the smart-PA card when one exists (id contains aw88x / smartpa), else card 0.
+// persist.gammaos.nano.direct_card forces a card index.
+static int directCard() {
+    static int cached = -1;
+    if (cached >= 0) return cached;
+    const int forced = property_get_int32("persist.gammaos.nano.direct_card", -1);
+    if (forced >= 0) { cached = forced; return cached; }
+    cached = 0;
+    for (int c = 0; c < 8; c++) {
+        char path[64]; snprintf(path, sizeof(path), "/proc/asound/card%d/id", c);
+        FILE* f = fopen(path, "rb");
+        if (!f) continue;
+        char id[64] = {};
+        size_t n = fread(id, 1, sizeof(id) - 1, f);
+        fclose(f);
+        for (size_t i = 0; i < n; i++) if (id[i] >= 'A' && id[i] <= 'Z') id[i] = (char)(id[i] + 32);
+        if (strstr(id, "aw882") || strstr(id, "aw883") || strstr(id, "aw88") || strstr(id, "smartpa")) {
+            char node[64]; snprintf(node, sizeof(node), "/dev/snd/pcmC%dD0p", c);
+            if (access(node, W_OK) == 0) { cached = c; break; }
+        }
+    }
+    NBC_I("direct: using card %d", cached);
+    return cached;
+}
+
 void directEnableSpeaker() {
-    struct mixer* mx = mixer_open(0);
+    struct mixer* mx = mixer_open((unsigned)directCard());
     if (!mx) return;
     std::string set;
     auto setEnum = [&](const char* name, const char* val) -> bool {
@@ -296,7 +326,7 @@ void directWorker() {
             struct pcm_config cfg; memset(&cfg, 0, sizeof(cfg));
             cfg.channels = 2; cfg.rate = 48000; cfg.format = PCM_FORMAT_S16_LE;
             cfg.period_size = 960; cfg.period_count = 4;
-            pcm = pcm_open(0, 0, PCM_OUT, &cfg);
+            pcm = pcm_open((unsigned)directCard(), 0, PCM_OUT, &cfg);
             if (!pcm || !pcm_is_ready(pcm)) {          // EBUSY / unsupported -> this device can't do direct
                 NBC_W("direct: pcm_open failed: %s -> fall back to AAudio", pcm ? pcm_get_error(pcm) : "(null)");
                 if (pcm) { pcm_close(pcm); pcm = nullptr; }
@@ -449,8 +479,11 @@ bool nanoDirectAudioUsable() {
     if (gEng.failed.load()) return false;              // a prior direct open failed -> AAudio only
     if (nanoBootChimeIsMtkDevice()) return false;      // no usable pre-HAL window here -> AAudio path (plays once the audio server is up)
     if (nanoBootChimeIsSprdDevice()) return false;     // SPRD VBC/AGDSP: raw PCM DMA never drains without the vendor DSP protocol -> AAudio-late
-    static int hasNode = -1;                           // card 0 playback PCM present? (cheap, cached)
-    if (hasNode < 0) hasNode = (access("/dev/snd/pcmC0D0p", W_OK) == 0) ? 1 : 0;
+    static int hasNode = -1;                           // playback PCM of the chosen card present? (cheap, cached)
+    if (hasNode < 0) {
+        char node[64]; snprintf(node, sizeof(node), "/dev/snd/pcmC%dD0p", directCard());
+        hasNode = (access(node, W_OK) == 0) ? 1 : 0;
+    }
     return hasNode == 1;
 }
 

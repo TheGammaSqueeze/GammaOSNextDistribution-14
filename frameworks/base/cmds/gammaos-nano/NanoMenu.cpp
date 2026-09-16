@@ -84,6 +84,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <android/hardware/light/2.0/ILight.h>
 
 #include "NanoMenu.h"
+#include "NanoBootChime.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuStrings.h"
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
@@ -5225,6 +5226,16 @@ if (sRingPrimedCount >= 2) {
         if (ndsIdleSkip) exitCheckCounter = exitCheckInterval;   // idle ticks are 100 ms apart: check every tick
         if (++exitCheckCounter >= exitCheckInterval) {
             exitCheckCounter = 0;
+            // Test hook: sys.gammaos.nano.direct_test=<wav> plays that file through the direct
+            // ALSA engine right now (the path the boot chime and the pre-boot menu audio use), so
+            // the card choice can be checked on a booted device without a reboot. Self-clears.
+            {
+                char dt[PROPERTY_VALUE_MAX] = {};
+                if (property_get("sys.gammaos.nano.direct_test", dt, "") > 0 && dt[0]) {
+                    property_set("sys.gammaos.nano.direct_test", "");
+                    nanoDirectChimePlay(dt, 0, 0, 0.5f, nullptr);
+                }
+            }
             // GammaOS Nano orientation: publish the foreground-aware orientation
             // token every tick (idempotent; only writes on change). Both the home
             // and overlay processes run this and agree on the token from shared
