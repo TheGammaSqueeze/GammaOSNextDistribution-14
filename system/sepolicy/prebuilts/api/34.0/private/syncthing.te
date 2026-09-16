@@ -1,0 +1,61 @@
+# GammaOS: syncthing, the Syncthing file synchronisation daemon (external/gammaos-syncthing).
+#
+# Started by init from syncthing.rc as user system with the media_rw group. It keeps its config,
+# keys and database under /data/misc/syncthing, syncs user folders under /data/media (internal
+# storage), and serves a loopback REST API on 127.0.0.1:8384 that the nano menu (bootanim) and the
+# Settings apps (system_app) drive. Every rule here is one the daemon actually exercises; nothing
+# is granted "just in case".
+
+type syncthing, domain, coredomain;
+type syncthing_exec, exec_type, system_file_type, file_type;
+type syncthing_data_file, file_type, data_file_type, core_data_file_type;
+
+init_daemon_domain(syncthing)
+
+# Home: config.xml, cert/key, the database directory, the log and its rotations. The daemon
+# renames temporary files into place and watches its own config, hence the full set.
+allow syncthing syncthing_data_file:dir create_dir_perms;
+allow syncthing syncthing_data_file:file create_file_perms;
+allow syncthing syncthing_data_file:lnk_file create_file_perms;
+
+# Synced folders live on internal storage (/data/media/<user>/...). Syncing creates, renames,
+# deletes and (with "watch for changes") inotify-watches directories and files there. Path
+# lookup crosses /data (system_data_file) on the way.
+allow syncthing system_data_file:dir search;
+allow syncthing media_rw_data_file:dir { create_dir_perms watch watch_reads };
+allow syncthing media_rw_data_file:file { create_file_perms watch watch_reads };
+allow syncthing media_rw_data_file:lnk_file create_file_perms;
+
+# Network: the sync protocol (tcp and quic on 22000), local discovery (udp 21027 broadcast and
+# multicast), global discovery and relays (https), and the loopback API listener on 8384.
+net_domain(syncthing)
+allow syncthing port:tcp_socket name_bind;
+allow syncthing port:udp_socket name_bind;
+allow syncthing node:tcp_socket node_bind;
+allow syncthing node:udp_socket node_bind;
+allow syncthing self:tcp_socket { create_stream_socket_perms listen accept };
+allow syncthing self:udp_socket create_socket_perms;
+
+# Go's resolver reads /etc/resolv.conf and /etc/hosts (system_file, read by coredomain already)
+# and the runtime reads a few sysfs / proc entries at start (transparent hugepage size, cpu
+# topology). The daemon reports free space on its folders and reads its own status from proc.
+allow syncthing sysfs:dir r_dir_perms;
+allow syncthing sysfs:file r_file_perms;
+allow syncthing proc_meminfo:file r_file_perms;
+allow syncthing fs_type:filesystem getattr;
+allow syncthing self:process { setsched getsched };
+
+# The certificate store, for https to the discovery and relay endpoints.
+allow syncthing system_security_cacerts_file:dir r_dir_perms;
+allow syncthing system_security_cacerts_file:file r_file_perms;
+
+# The daemon only reads its control properties; init owns starting and stopping it.
+get_prop(syncthing, persist_gammaos_prop)
+
+# The clients of the loopback API read the API key from config.xml in the home directory.
+# bootanim is the GammaOS Nano menu (a root process). system_app covers the Settings and
+# TV Settings apps (both run as uid system). Neither writes there.
+allow bootanim syncthing_data_file:dir search;
+allow bootanim syncthing_data_file:file r_file_perms;
+allow system_app syncthing_data_file:dir search;
+allow system_app syncthing_data_file:file r_file_perms;

@@ -1,0 +1,40 @@
+# Syncthing for GammaOS
+
+The official Syncthing release, unmodified, packaged as a native background service.
+
+| | |
+|---|---|
+| Version | v2.1.5 "Hafnium Hornet" (2026-09-08) |
+| Upstream | https://github.com/syncthing/syncthing/releases/tag/v2.1.5 |
+| Archive | syncthing-linux-arm64-v2.1.5.tar.gz |
+| sha256 of `prebuilt/arm64/syncthing` | b13cd05fe3171d062116a430ec1b1d333c23b477fe719d27879d501ad9350f97 |
+| Licence | MPL-2.0 (NOTICE) |
+
+## Layout on the device
+
+- `/system/bin/syncthing` - the daemon (static Go binary, arm64).
+- `/system/etc/resolv.conf` - resolver file for Go's pure DNS resolver (see Android.bp).
+- `/data/misc/syncthing` - home: config.xml (holds the REST API key), keys, database, log.
+- Init service `syncthing` (syncthing.rc), SELinux domain `syncthing`
+  (system/sepolicy/private/syncthing.te).
+
+## Control
+
+Everything is property driven; no UI starts the service directly.
+
+- `persist.gammaos.syncthing.enabled` 0/1: off / run from boot.
+- `sys.gammaos.syncthing.restart` = 1: restart the daemon (cleared by init).
+
+The REST API listens on 127.0.0.1:8384 with the API key from
+`/data/misc/syncthing/config.xml` (`<apikey>`). The daemon runs as `system`, so the two Settings
+apps (uid system) and the nano menu (root, domain bootanim, allowed by policy) read the key
+directly. The key is deliberately never exported as a property, which any app could read.
+
+## Updating the binary
+
+1. Download `syncthing-linux-arm64-<ver>.tar.gz` from the upstream release page and verify it
+   against the upstream sha256sum.txt.asc.
+2. Replace `prebuilt/arm64/syncthing`, update the version and checksum in this file and copy the
+   release's LICENSE.txt over NOTICE if it changed.
+3. Re-run the regression and load scripts in docs/syncthing-plan.md on the RG DS Plus with
+   SELinux enforcing and check `dmesg` for `avc: denied` lines naming `syncthing`.

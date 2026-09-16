@@ -1,0 +1,50 @@
+// GammaOS: Syncthing, shipped as a native background service.
+//
+// This is the unmodified official release binary (a static Go executable, see README.md for the
+// pinned version, upstream URL and checksum). It runs as the `syncthing` init service declared in
+// syncthing.rc, in its own SELinux domain (system/sepolicy/private/syncthing.te), and is driven
+// only through properties: persist.gammaos.syncthing.enabled turns it on and off, and the nano
+// menu and the two Settings apps talk to its loopback REST API for everything else.
+
+package {
+    default_applicable_licenses: ["external_gammaos_syncthing_license"],
+}
+
+license {
+    name: "external_gammaos_syncthing_license",
+    license_kinds: ["SPDX-license-identifier-MPL-2.0"],
+    license_text: ["NOTICE"],
+}
+
+cc_prebuilt_binary {
+    name: "syncthing",
+
+    // Only the 64-bit ARM build is bundled; every GammaOS target this ships on is arm64.
+    arch: {
+        arm64: {
+            srcs: ["prebuilt/arm64/syncthing"],
+        },
+    },
+    compile_multilib: "64",
+
+    init_rc: ["syncthing.rc"],
+    required: ["syncthing-resolv.conf"],
+
+    // A statically linked, already stripped Go binary: nothing for the build to strip or to
+    // check against the platform's shared libraries.
+    strip: {
+        none: true,
+    },
+    check_elf_files: false,
+}
+
+// Go's pure resolver reads /etc/resolv.conf and Android does not have one (bionic resolves
+// through netd instead), so without this file the daemon cannot reach the public discovery and
+// relay servers and falls back to localhost:53. Syncing on the LAN by direct address does not
+// need DNS; this only serves the global discovery / relay / update-check hostnames. Nothing in
+// bionic reads the file, so it changes nothing else on the system.
+prebuilt_etc {
+    name: "syncthing-resolv.conf",
+    src: "resolv.conf",
+    filename: "resolv.conf",
+}

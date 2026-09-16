@@ -40,6 +40,8 @@ PRODUCT_PACKAGES += \
     bootanimation \
     gammaos-nano \
     gammaos-sharefs \
+    syncthing \
+    syncthing-resolv.conf \
     GammaShares \
     drastic-nano \
     bootstat \

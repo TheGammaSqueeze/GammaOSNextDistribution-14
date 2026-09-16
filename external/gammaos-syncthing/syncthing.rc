@@ -1,0 +1,38 @@
+# GammaOS: the Syncthing background service.
+#
+# Control is by properties only, like gammaos-sharefs, so none of the UIs (nano, Settings,
+# TV Settings) needs the right to start a service itself:
+#   persist.gammaos.syncthing.enabled   1 = run from boot, 0 = stopped (the UI toggle)
+#   sys.gammaos.syncthing.restart       set to 1 to bounce the daemon (cleared here)
+#
+# The home holds the config, keys and database. It is under /data/misc so it inherits the
+# device-encrypted policy of that tree and is usable before the user unlocks. The daemon runs as
+# system with the media_rw group so it can sync folders under /data/media (internal storage) and
+# reads /system/etc/resolv.conf for the public discovery and relay hostnames (see Android.bp).
+#
+# --no-restart: Syncthing normally forks a monitor that re-executes it when a config change
+# needs a restart. Under init that would be two processes (about 20 MB of extra RSS on a 1 GB
+# device); with the flag the daemon exits instead and init starts it again.
+
+on post-fs-data
+    mkdir /data/misc/syncthing 0700 system system
+
+service syncthing /system/bin/syncthing serve --home=/data/misc/syncthing --no-browser --no-upgrade --no-port-probing --no-restart --gui-address=127.0.0.1:8384 --log-file=/data/misc/syncthing/syncthing.log --log-max-size=1048576 --log-max-old-files=2
+    class late_start
+    user system
+    group system media_rw inet
+    seclabel u:r:syncthing:s0
+    setenv HOME /data/misc/syncthing
+    setenv STNOUPGRADE 1
+    setenv GOMAXPROCS 2
+    disabled
+
+on property:persist.gammaos.syncthing.enabled=1 && property:sys.boot_completed=1
+    start syncthing
+
+on property:persist.gammaos.syncthing.enabled=0
+    stop syncthing
+
+on property:sys.gammaos.syncthing.restart=1
+    setprop sys.gammaos.syncthing.restart 0
+    restart syncthing
