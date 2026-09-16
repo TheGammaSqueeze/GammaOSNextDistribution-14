@@ -2960,8 +2960,12 @@ void NanoMenu::ndsInfoPage(int dir) {
 // can draw the same bar pinned to its top strip. cx/offY/scale map DS -> device px
 // exactly as the caller's X()/Y()/S().
 void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
+    // The whole bar (status glyphs, date/time, battery icon + percentage) sits 3 DS px higher
+    // than the firmware's y2..17 row (user request: a few pixels up on the top screen). Every
+    // element maps through Y(), so the lift keeps the row's internal alignment intact.
+    const float kLift = 3.0f;
     auto X = [&](float dx){ return cx + (dx - 128.0f) * scale; };
-    auto Y = [&](float dy){ return offY + dy * scale; };
+    auto Y = [&](float dy){ return offY + (dy - kLift) * scale; };
     auto S = [&](float v){ return v * scale; };
     // ---- status bar (DS y2..17): a row of four consistent indicator glyphs on the left
     // (volume / wifi / bluetooth / audio), then date/time + battery on the right. Every
@@ -3208,7 +3212,9 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     { float px = X(18.0f), pw = X(240.0f) - X(18.0f), py = Y(18.0f), ph = Y(188.0f) - Y(18.0f);
       drawRoundedRect(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), tpal.mintBevel, tpal.mintBevel, tpal.mintBevel, 1.0f);   // grey bevel
       drawRoundedRect(px, py, pw, ph, S(3), tpal.mintInset, tpal.mintInset, tpal.mintInset, 1.0f);                                // white inset
-      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), tpal.mintR, tpal.mintG, tpal.mintB, 1.0f); } // mint field
+      // The mint field is half transparent (user request) so a custom wallpaper shows through
+      // the canvas; the grey bevel and white inset frame stay opaque.
+      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), tpal.mintR, tpal.mintG, tpal.mintB, 0.5f); } // mint field
     // panel content: current category (head) + selected item (sub), DSi teal, centred.
     // Top screen shows the current level / parent context (head) + the focused selection (sub).
     // The focused item follows the SAME hard-swap selection as the bottom name box
