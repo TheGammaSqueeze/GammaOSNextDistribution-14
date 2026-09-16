@@ -333,6 +333,22 @@ static bool bootSoundOn() {
     return !(v[0] == '0' || v[0] == 'f' || v[0] == 'F');
 }
 
+// Decode a DSi clip ahead of time (the render loop's idle tick calls this for the launch
+// clip) so the first launch does not stall a frame on the decode + player open.
+void NanoMenu::ndsSfxPreload(int which) {
+    if (!mNdsTheme || which < 0 || which >= NDS_SFX_COUNT) return;
+    if (gNdsSfx[which].loaded()) return;
+    if (gNdsSfxOpening[which].exchange(true)) return;
+    static const char* kFiles[NDS_SFX_COUNT] = {
+        "nav_blip.wav", "app_launch.wav", "settings_nav.wav", "settings_back.wav", "settings_enter.wav" };
+    std::string path = dsiAudioPath(kFiles[which]);
+    std::thread([which, path]() {
+        nanoThreadNormalPriority();
+        (void)gNdsSfx[which].load(path, 0.4f);
+        gNdsSfxOpening[which].store(false);
+    }).detach();
+}
+
 void NanoMenu::ndsSfxPlay(int which) {
     if (!mNdsTheme) return;
     if (!navSoundsOn()) return;

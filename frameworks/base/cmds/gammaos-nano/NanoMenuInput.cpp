@@ -425,7 +425,7 @@ void NanoMenu::handleSelect() {
         }
         // Flag so next nano menu restart returns to Recently Played
         property_set("sys.gammaos.nano.return_recent", "1");
-        property_set("service.bootanim.nano_retroarch", "1");
+        armAppLaunchTrigger();
         // Tell InputDispatcher to drop events immediately — prevents a fast
         // double-press A from queuing a second event before the transition.
         property_set("sys.gammaos.nano.drop_input", "1");
@@ -475,7 +475,7 @@ void NanoMenu::handleSelect() {
         android::base::SetProperty("persist.gammaos.nano.qr_core", "");
         // Flag so next nano menu restart returns to Applications
         property_set("sys.gammaos.nano.return_apps", "1");
-        property_set("service.bootanim.nano_retroarch", "1");
+        armAppLaunchTrigger();
         property_set("sys.gammaos.nano.drop_input", "1");
         mWaitForRelease = true;
         return;
@@ -492,7 +492,7 @@ void NanoMenu::handleSelect() {
             showLaunchBusyToast();
             return;
         }
-        property_set("service.bootanim.nano_retroarch", "1");
+        armAppLaunchTrigger();
         property_set("sys.gammaos.nano.drop_input", "1");
         mWaitForRelease = true;
     } else if (mSelectedIndex == 1) { // Recently Played
@@ -1815,6 +1815,11 @@ int NanoMenu::kbdCodeToCp(int code, bool shift) {
     }
 }
 
+void NanoMenu::armAppLaunchTrigger() {
+    if (!mOverlayMode && !sDrmActive) { mLaunchTriggerDeferred = true; return; }
+    property_set("service.bootanim.nano_retroarch", "1");
+}
+
 void NanoMenu::pollInput() {
     // Overlay launch transition: while a launch is pending (the overlay is held up
     // until the new app resumes), FREEZE the XMB - drain and ignore all input so the
@@ -1842,6 +1847,12 @@ void NanoMenu::pollInput() {
         // DSi theme: persist the carousel nav path so the fresh return process comes back to
         // the exact launched card (once, right before we hand off).
         if (mNdsTheme && mPs3Xmb) ndsSaveReturnPath();
+        // SF-composited home: the app start was deferred so its window could not cover the
+        // effect (armAppLaunchTrigger); fire it now that the effect has completed.
+        if (mLaunchTriggerDeferred) {
+            mLaunchTriggerDeferred = false;
+            property_set("service.bootanim.nano_retroarch", "1");
+        }
         mExitRequested = true;
     }
     // Deferred wrong-password re-prompt: wifiConnectWatch (a detached watch thread)
@@ -1888,7 +1899,13 @@ void NanoMenu::pollInput() {
                 if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuClose();
                 else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeMenuOpen();
             }
-            else if (!strcmp(navbuf, "enter")) handleSelect();
+            else if (!strcmp(navbuf, "enter")) {
+                handleSelect();
+                // A scripted select has no key release, so stamp the launch effect here (as the
+                // touch-tap path does) or a scripted launch never fades and never hands off.
+                if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0)
+                    mLaunchFadeStart = uptimeMillis();
+            }
             else if (!strcmp(navbuf, "back"))  handleBack();
             // OSK scripting for 1:1 verification: `type:<text>` inserts each ASCII
             // character at the caret, `submit` commits the on-screen keyboard.

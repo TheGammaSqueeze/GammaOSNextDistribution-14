@@ -1866,6 +1866,22 @@ private:
     // 44f white wash (full by ~47 frames), every other theme a quick 260ms fade. Shared by
     // pollInput's exit gate and the drastic-nano hand-off so neither cuts the effect short.
     int   launchFadeHoldMs() const { return mNdsTheme ? 780 : 260; }
+    // Origin (uptimeMillis) of the launch effect the DSi renderer keys its tile lift / ring /
+    // white wash on, or 0 when no launch is in flight. The home stamps mLaunchFadeStart; the
+    // resident overlay-home launches through mOverlayLaunchPending (mOverlayLaunchStartMs) and
+    // never sets mLaunchFadeStart, so both are folded here and the effect plays on either home.
+    int64_t ndsLaunchOriginMs() const {
+        if (mOverlayMode) return mOverlayLaunchPending ? mOverlayLaunchStartMs : 0;
+        return mLaunchFadeStart;
+    }
+    // Fire service.bootanim.nano_retroarch=1 (init turns it into do_launch, which starts the
+    // app). On the DRM-direct home the app cannot be seen until nano exits, so it fires at
+    // select time to give the cold start a head start. On the SurfaceFlinger-composited home
+    // the app's window covers nano's layer the moment it draws, which cut the launch effect
+    // short, so there it is deferred to the moment the effect completes (pollInput's exit gate).
+    void  armAppLaunchTrigger();
+    bool  mLaunchTriggerDeferred = false;
+    void  ndsSfxPreload(int which);        // decode a DSi clip ahead of its first trigger (idle)
     void  ndsRestoreReturnPath();          // on the fresh return process, drill back to the launched card
     float mNdsCamera = 3.0f;      // carousel scroll position (slot units, fractional while sliding)
     float mNdsSettleT = -1.0f;    // select-landing squash: frames (0..3) since the frame settled (-1 = idle)

@@ -965,6 +965,7 @@ void NanoMenu::ndsNavSelect(bool allowLaunch) {
     ps3XmbSelect();                       // drill / launch / open a chooser or dialog
     if (!allowLaunch && mLaunchFadeStart != savedFade) {
         mLaunchFadeStart = savedFade; mWaitForRelease = false; mExitRequested = false;
+        mLaunchTriggerDeferred = false;
         property_set("sys.gammaos.nano.launched_pkg", savedPkg);
     }
     if (mPs3Stack.size() > before) {      // drilled into a submenu -> focus its selection
@@ -1346,8 +1347,8 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         else mNdsSubTransStart = 0;
     }
     // launch white-wash carried through from the home (a submenu item can launch a game/app).
-    if (!mOverlayMode && mLaunchFadeStart > 0) {
-        float lf = (float)((int64_t)uptimeMillis() - mLaunchFadeStart) / (1000.0f / 60.0f);
+    if (ndsLaunchOriginMs() > 0) {
+        float lf = (float)((int64_t)uptimeMillis() - ndsLaunchOriginMs()) / (1000.0f / 60.0f);
         float fa = (lf - 3.0f) / 44.0f; if (fa < 0.0f) fa = 0.0f; if (fa > 1.0f) fa = 1.0f;
         if (fa > 0.0f) { drawQuad(rx, ry, rw, rh, 1.0f, 1.0f, 1.0f, fa); mDisplayDirty = true; }
     }
@@ -1892,7 +1893,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     { int depth = ndsNavDepth();
       if (mNdsPrevStackDepth < 0) mNdsPrevStackDepth = depth;
       else if (depth != mNdsPrevStackDepth) {
-          if (!(!mOverlayMode && mLaunchFadeStart > 0)) {
+          if (ndsLaunchOriginMs() == 0) {
               mNdsSubTransStart = (int64_t)uptimeMillis();
               mNdsTransDir = (depth > mNdsPrevStackDepth) ? +1 : -1;   // drill down vs back up
           }
@@ -2026,9 +2027,9 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // ---- game-launch animation state (launcher._drawLaunch): once the launch fade is
     // armed, the whole carousel freezes, the centred tile rises 5px/frame and the screen
     // washes to white. lFrames = frames (60fps) since the effect began; START=3f delay. ----
-    const bool  ndsLaunching = (!mOverlayMode && mLaunchFadeStart > 0);
+    const bool  ndsLaunching = (ndsLaunchOriginMs() > 0);
     const float lFrames = ndsLaunching
-        ? (float)((int64_t)uptimeMillis() - mLaunchFadeStart) / (1000.0f / 60.0f) : -1.0f;
+        ? (float)((int64_t)uptimeMillis() - ndsLaunchOriginMs()) / (1000.0f / 60.0f) : -1.0f;
     const bool  launchFx = ndsLaunching && lFrames >= 3.0f;    // effect visible after ~3f
     const float launchRise = launchFx ? (lFrames - 3.0f) * 5.0f : 0.0f;
     if (ndsLaunching) ensureNdsRing();
@@ -3156,8 +3157,8 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // last, over whatever the top showed (mint panel or the game Information page), exactly as the
     // bottom carousel applies its own launchWhiteAlpha at the end of renderNdsCarousel.
     auto ndsTopLaunchWhite = [&]() {
-        if (mOverlayMode || mLaunchFadeStart <= 0) return;
-        float lf = (float)((int64_t)uptimeMillis() - mLaunchFadeStart) / (1000.0f / 60.0f);
+        if (ndsLaunchOriginMs() <= 0) return;
+        float lf = (float)((int64_t)uptimeMillis() - ndsLaunchOriginMs()) / (1000.0f / 60.0f);
         float fa = (lf - 6.0f) / 41.0f;
         if (fa < 0.0f) fa = 0.0f; if (fa > 1.0f) fa = 1.0f;
         if (fa > 0.0f) { drawQuad(rx, ry, rw, rh, 1.0f, 1.0f, 1.0f, fa); mDisplayDirty = true; }
@@ -3434,8 +3435,8 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // launch white-wash (top screen): ramps over frames 6..47 (launcher.launchWhiteAlpha:
     // the top screen lags the bottom by 3f), holding white until nano exits to the app. The
     // generic render() fade is gated off for the NDS theme so each screen washes at its own rate.
-    if (!mOverlayMode && mLaunchFadeStart > 0) {
-        float lf = (float)((int64_t)uptimeMillis() - mLaunchFadeStart) / (1000.0f / 60.0f);
+    if (ndsLaunchOriginMs() > 0) {
+        float lf = (float)((int64_t)uptimeMillis() - ndsLaunchOriginMs()) / (1000.0f / 60.0f);
         float fa = (lf - 6.0f) / 41.0f;
         if (fa < 0.0f) fa = 0.0f;
         if (fa > 1.0f) fa = 1.0f;
@@ -6046,9 +6047,11 @@ void NanoMenu::render() {
         // app's own cold start is covered by a clean fade-out instead of a frozen,
         // still-navigable menu. The black holds (the input-freeze in pollInput keeps
         // it inert) until the overlay dismisses onto the resumed app (overlayPoll).
-        // The DSi launch washes both screens to WHITE (MASTER_BRIGHT), not black.
+        // The DSi theme is excluded here exactly as on the home path below: renderNdsTop /
+        // renderNdsCarousel draw their own per-screen tile lift + ring + white wash keyed on
+        // ndsLaunchOriginMs(), which folds mOverlayLaunchStartMs in for the overlay-home.
         const float lf = mNdsTheme ? 1.0f : 0.0f;
-        if (mOverlayMode && mOverlayLaunchPending) {
+        if (mOverlayMode && mOverlayLaunchPending && !mNdsTheme) {
             int64_t el = uptimeMillis() - mOverlayLaunchStartMs;
             float fa = (el <= 0) ? 0.0f : (float)el / 300.0f;
             if (fa < 0.0f) fa = 0.0f;

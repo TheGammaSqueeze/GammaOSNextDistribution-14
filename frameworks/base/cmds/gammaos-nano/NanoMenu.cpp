@@ -4471,12 +4471,18 @@ if (sRingPrimedCount >= 2) {
             // SurfaceFlinger, starts the drastic-nano service, and
             // (when drastic-nano later exits) brings nano back up via
             // session_done=1.
-            ALOGW("drastic nano: starting drastic-nano binary");
-            // Clear QR primed state so when gammaos-nano restarts
-            // after drastic-nano exits, it comes up in plain XMB mode
-            // rather than re-entering the QR preview for a ROM that
-            // is now a stale reference.
-            property_set("persist.gammaos.nano.qr_prepared", "0");
+            // This block runs once per FRAME while the launch effect plays (it renders inline
+            // and continues), so the one-time work must only happen on the first pass: a
+            // persist property_set is a synchronous write to the persist store (~15-20 ms) and
+            // doing it every frame paced the DSi launch effect at ~40 fps instead of 60.
+            if (mLaunchFadeStart == 0) {
+                ALOGW("drastic nano: starting drastic-nano binary");
+                // Clear QR primed state so when gammaos-nano restarts
+                // after drastic-nano exits, it comes up in plain XMB mode
+                // rather than re-entering the QR preview for a ROM that
+                // is now a stale reference.
+                property_set("persist.gammaos.nano.qr_prepared", "0");
+            }
             // SurfaceFlinger mode: instead of the DRM-direct handshake, launch
             // the DrasticSf host activity first. Starting any normal app already
             // hands the panel from this DRM home to SurfaceFlinger seamlessly,
@@ -5162,6 +5168,16 @@ if (sRingPrimedCount >= 2) {
         if (!ndsIdleSkip) {
         mMinimaWantsFrame = false;   // the Minima renderer re-arms it while anything animates
         render();
+        // DSi theme: warm the launch effect once the home has settled (both the DRM/SF home and
+        // the resident overlay-home, which never takes the idle-skip branch). The 36 ring
+        // textures and the launch clip used to load on the launch's first frame, a ~120 ms +
+        // ~90 ms stall right as the tile lifts. Once per process; the ring upload needs this
+        // thread's GL context, so it runs here rather than on a worker.
+        if (mNdsTheme && !mNdsRingLoaded && mLaunchFadeStart == 0 && !mOverlayLaunchPending
+                && !mPs3BootActive && (int64_t)uptimeMillis() - mLastInputMs >= 1500) {
+            ensureNdsRing();
+            ndsSfxPreload(NDS_SFX_LAUNCH);
+        }
 
         // GammaRGB Follow-Screen: in DRM mode nano owns the panel, so SF's
         // sampler is blind; sample our own just-presented frame and drive the

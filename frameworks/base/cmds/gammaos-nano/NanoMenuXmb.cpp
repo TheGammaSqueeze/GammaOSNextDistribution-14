@@ -2412,7 +2412,7 @@ void NanoMenu::launchXmbGame() {
         property_set("sys.gammaos.nano.xmb_return_game", "0");
         property_set("sys.gammaos.nano.return_recent", "0");
         property_set("sys.gammaos.nano.return_apps", "0");
-        property_set("service.bootanim.nano_retroarch", "1");
+        armAppLaunchTrigger();
         property_set("sys.gammaos.nano.drop_input", "1");
         struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
         int64_t fenceNs = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
@@ -2630,7 +2630,7 @@ void NanoMenu::launchXmbGame() {
 
     property_set("sys.gammaos.nano.return_recent", "0");
     property_set("sys.gammaos.nano.return_apps", "0");
-    property_set("service.bootanim.nano_retroarch", "1");
+    armAppLaunchTrigger();
     property_set("sys.gammaos.nano.drop_input", "1");
 
     struct timespec ts;

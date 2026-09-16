@@ -5166,7 +5166,7 @@ void NanoMenu::launchUrl(const std::string& url) {
     property_set("persist.gammaos.nano.qr_prepared", "0");
     property_set("persist.gammaos.nano.qr_core", "");
     property_set("sys.gammaos.nano.return_apps", "1");
-    property_set("service.bootanim.nano_retroarch", "1");
+    armAppLaunchTrigger();
     property_set("sys.gammaos.nano.drop_input", "1");
     mWaitForRelease = true;   // fade out + exit so the browser is on top
 }
@@ -5620,7 +5620,7 @@ void NanoMenu::ps3XmbSelect() {
             property_set("persist.gammaos.nano.qr_prepared", "0");
             property_set("persist.gammaos.nano.qr_core", "");
             property_set("sys.gammaos.nano.return_apps", "1");
-            property_set("service.bootanim.nano_retroarch", "1");
+            armAppLaunchTrigger();
             property_set("sys.gammaos.nano.drop_input", "1");
             mWaitForRelease = true;
             return;
@@ -13429,7 +13429,7 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             property_set("persist.gammaos.nano.qr_prepared", "0");
             property_set("persist.gammaos.nano.qr_core", "");
             property_set("sys.gammaos.nano.return_apps", "1");
-            property_set("service.bootanim.nano_retroarch", "1");
+            armAppLaunchTrigger();
             property_set("sys.gammaos.nano.drop_input", "1");
             mWaitForRelease = true;
         }

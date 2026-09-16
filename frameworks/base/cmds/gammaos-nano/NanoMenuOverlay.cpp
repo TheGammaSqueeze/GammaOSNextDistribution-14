@@ -1113,6 +1113,15 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
             if (sp != std::string::npos && finalCmd.find("--display") == std::string::npos
                     && !dualstackHas(pkg) && !primaryScreenHas(pkg) && primaryPort > 0)
                 finalCmd.insert(sp + 8, " --display " + std::to_string(td));
+            // DSi theme: let the launch effect (tile lift + ring + wash, ~780 ms from
+            // mOverlayLaunchStartMs) complete before the new app is started, so its window
+            // cannot come up over a half-finished effect. The old app's clean exit above
+            // already overlapped the effect; only the start itself waits for the remainder.
+            if (mNdsTheme) {
+                const int64_t el = (int64_t)uptimeMillis() - mOverlayLaunchStartMs;
+                const int64_t hold = launchFadeHoldMs();
+                if (el < hold) usleep((useconds_t)((hold - el) * 1000));
+            }
             system(finalCmd.c_str());
         }
         ALOGI("overlay: launched %s", pkg.c_str());
@@ -1488,13 +1497,22 @@ void NanoMenu::overlayLaunchGame() {
         // with no fade while every other game/app faded. Drive that same fade inline
         // on the render thread (we are called from the input handler on it), then
         // hand the panel to drastic-nano. mOverlayLaunchPending also freezes input.
+        // The hold is theme-aware (launchFadeHoldMs: the DSi tile lift + ring + wash needs
+        // ~780 ms, every other theme the 300 ms fade), and the loop is paced to the frame
+        // period rather than render + a fixed sleep (which ran the effect at ~45 fps).
         mOverlayLaunchStartMs = uptimeMillis();
         mOverlayLaunchPending = true;
-        while ((int64_t)uptimeMillis() - mOverlayLaunchStartMs < 300) {
+        const int holdMs = mNdsTheme ? launchFadeHoldMs() : 300;
+        while ((int64_t)uptimeMillis() - mOverlayLaunchStartMs < holdMs) {
+            const int64_t f0 = (int64_t)android::elapsedRealtimeNano();
             render();
             mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
-            usleep(16666);
+            const int64_t spentUs = ((int64_t)android::elapsedRealtimeNano() - f0) / 1000;
+            if (spentUs < 16666) usleep((useconds_t)(16666 - spentUs));
         }
+        // DSi theme: the process exits below, so persist the carousel nav path for the fresh
+        // home after the session (the same save the DRM home makes before its hand-off).
+        if (mNdsTheme && mPs3Xmb) ndsSaveReturnPath();
         property_set("sys.gammaos.nano.overlay_ran", "0");
         property_set("sys.gammaos.nano.app_launched", "0");
         property_set("sys.gammaos.nano.show_overlay", "0");
