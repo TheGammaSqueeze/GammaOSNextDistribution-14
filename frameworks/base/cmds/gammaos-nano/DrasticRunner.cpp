@@ -2010,6 +2010,11 @@ uint32_t slotProbeHash(const uint8_t* p, size_t bytes) {
 // call sites makes the emulator run exactly one frame per panel vblank, in
 // phase with it, with no frame ever duplicated or dropped for rate mismatch.
 namespace {
+// SPU mix cave control block (see the spu_mix_lines cave in init): [0] lines since the last
+// mix, [1] lines per mix (0xffffffff = disarmed until the first frame-end submit has run, so the
+// mixer is never entered before drastic has finished bringing the sound unit up), [2] mixes done.
+volatile uint32_t* gSpuMixCtl = nullptr;
+uint32_t gSpuMixLines = 0;
 std::atomic<bool>     gPaceOn{false};
 std::atomic<uint32_t> gVblSeq{0};
 std::mutex            gPaceMu;
@@ -2095,6 +2100,64 @@ std::atomic<int> gRaFrames{0}, gRaRingNext{0}, gRaRingCount{0};
 void raRunParkedOp();
 uint32_t raPatchInsn(uint8_t* base, uintptr_t off, uint32_t insn);
 extern "C" void raAudioSubmitHook(uint8_t* ctx);
+// SPU mix trace (sys.gammaos.drastic_nano.spu_trace=1): one record per mixer call from the
+// scanline cave, with the two capture units' state and the ring buffers they write, so the
+// emulated timeline of a capture-fed delay line can be reconstructed offline.
+struct SpuTraceRec { uint32_t cycles, widx; uint64_t cap0, cap1; uint32_t line, cnt; int16_t ring0[680]; int16_t ring1[680]; uint8_t spu[3328]; };
+static SpuTraceRec* gSpuTrace = nullptr;
+static std::atomic<uint32_t> gSpuTraceN{0};
+static const uint32_t kSpuTraceCap = 4000;
+static uint8_t* gSpuTraceBase = nullptr;
+// Compact long-run trace: capture state and a few ring samples per mix, for the whole session.
+struct SpuMini { uint32_t cycles, cap, cnt; int16_t sig[8]; };
+static SpuMini* gSpuMini = nullptr;
+static uint32_t gSpuMiniN = 0;
+static const uint32_t kSpuMiniCap = 120000;
+extern "C" void spuMixTrace(uint8_t* master) {
+    if (!gSpuTrace) return;
+    if (gSpuMini && gSpuMiniN < kSpuMiniCap) {
+        SpuMini& m = gSpuMini[gSpuMiniN++];
+        uint8_t* sp = master + 0x158c000;
+        m.cycles = *reinterpret_cast<uint32_t*>(master + 8);
+        m.cap = (uint32_t)(*reinterpret_cast<uint64_t*>(sp + 0x40ca8) >> 32);
+        m.cnt = sp[0x40cc4] | (sp[0x40cc4 + 32] << 8);
+        uint8_t* d = *reinterpret_cast<uint8_t**>(sp + 0x40cb8);
+        uint32_t len = *reinterpret_cast<uint32_t*>(sp + 0x40cc0);
+        if ((sp[0x40cc4] & 0x80) && d && len == 680) {
+            const int16_t* rg = reinterpret_cast<const int16_t*>(d);
+            m.sig[0] = rg[0]; m.sig[1] = rg[1]; m.sig[2] = rg[338]; m.sig[3] = rg[339]; m.sig[4] = rg[340]; m.sig[5] = rg[341]; m.sig[6] = rg[678]; m.sig[7] = rg[679];
+        } else memset(m.sig, 0, sizeof(m.sig));
+    }
+    static int listed = 0;
+    if (listed < 4 && gSpuTraceBase) {   // the scheduler's event list: {countdown, handler, arg, next}
+        listed++;
+        char lg[512]; int n = 0;
+        uint8_t* ev = *reinterpret_cast<uint8_t**>(master + 792);
+        for (int k = 0; ev && k < 12 && n < (int)sizeof(lg) - 60; k++) {
+            uint64_t h = *reinterpret_cast<uint64_t*>(ev + 8);
+            n += snprintf(lg + n, sizeof(lg) - n, " [cnt=%u h=+0x%llx arg=%llx]", *reinterpret_cast<uint32_t*>(ev),
+                          (unsigned long long)(h - (uint64_t)(uintptr_t)gSpuTraceBase), (unsigned long long)*reinterpret_cast<uint64_t*>(ev + 16));
+            ev = *reinterpret_cast<uint8_t**>(ev + 24);
+        }
+        ALOGI("DrasticRunner: SPU trace events line=%u cyc=%u m0=%u m16=%u:%s", *reinterpret_cast<uint16_t*>(master + 20),
+              *reinterpret_cast<uint32_t*>(master + 8), *reinterpret_cast<uint32_t*>(master), *reinterpret_cast<uint32_t*>(master + 16), lg);
+    }
+    SpuTraceRec& r = gSpuTrace[gSpuTraceN.fetch_add(1) % kSpuTraceCap];
+    r.cycles = *reinterpret_cast<uint32_t*>(master + 8);
+    r.widx = *reinterpret_cast<uint32_t*>(master + 0x15cc00c);
+    r.line = *reinterpret_cast<uint16_t*>(master + 20);
+    uint8_t* spu = master + 0x158c000;   // the SPU state the mixer hands to its channel and capture routines
+    r.cnt = spu[0x40cc4] | (spu[0x40cc4 + 32] << 8);
+    r.cap0 = *reinterpret_cast<uint64_t*>(spu + 0x40ca8);
+    r.cap1 = *reinterpret_cast<uint64_t*>(spu + 0x40ca8 + 32);
+    memcpy(r.spu, spu + 0x40000, sizeof(r.spu));
+    for (int u = 0; u < 2; u++) {
+        uint8_t* d = *reinterpret_cast<uint8_t**>(spu + 0x40cb8 + u * 32);
+        uint32_t len = *reinterpret_cast<uint32_t*>(spu + 0x40cc0 + u * 32);
+        int16_t* dst = u ? r.ring1 : r.ring0;
+        if ((spu[0x40cc4 + u * 32] & 0x80) && d && len == 680) memcpy(dst, d, 1360); else memset(dst, 0, 1360);
+    }
+}
 extern "C" void raAudioSubmitPost(uint8_t* ctx);
 extern "C" void raAudioCallbackHook();
 std::atomic<uint32_t> gEmuLostTicks{0}, gEmuCatchUps{0}, gEmuDebtDrops{0};   // tick accounting (see drasticVWait)
@@ -2699,6 +2762,92 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             mprotect(sitePg3, (size_t)ps, PROT_READ | PROT_EXEC);
             ALOGI("DrasticRunner: audio callback probe installed");
         } else if (sProbePage) ALOGW("DrasticRunner: audio callback entry +0x1d650 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + cbSite));
+
+        // SPU mix granularity (persist.gammaos.drastic_nano.spu_mix_lines, default 16, 0 = off).
+        // drastic renders the DS sound unit once per frame: the mixer (+0x72764) is called from
+        // the frame-end path of the scanline handler (+0x2c8f8, entered once per scanline by the
+        // scheduler) and converts the ARM9 cycles elapsed since its previous call into samples
+        // in one go, so the SPU channels read their sample memory in 16.7 ms bursts. A game that
+        // streams audio through a small looping buffer refilled by the CPU during the frame
+        // (Golden Sun Dark Dawn: a 680-sample PCM16 ring for its voice, refilled half at a time
+        // every 10.4 ms) is then mixed from halves the CPU has not written yet or has already
+        // replaced: a step in the output at every half-ring boundary, audible as scratchy speech.
+        // The hardware and melonDS read the ring sample by sample. A third cave takes over the
+        // handler's entry: it re-executes the entry instruction, counts scanlines and every N
+        // lines calls the mixer for the cycles elapsed so far (x0 = master, x0/x1 preserved for
+        // the handler), then continues at +0x2c8fc. The mixer only ever produces the samples for
+        // that interval, so the per-frame total and the submit are unchanged; the SPU just tracks
+        // the CPU more closely. Gated like the frame-end call on bit 6 of the sound flags byte at
+        // master+0x8f42c. The frame limiter site (+0x2c99c) is left to installVblankPacing.
+        // Ring-clear removal (persist.gammaos.drastic_nano.no_ring_clear, default on): the channel
+        // mix routine at libdrastic +0x724f4 zeroes each source sample as it reads it (the four
+        // "strh/strb wzr, [x13, x..]" stores at +0x7258c/+0x725b8/+0x72658/+0x72680). For a normal
+        // sample that source is ROM/RAM the game owns, so clearing it is invisible; but Golden Sun
+        // DD streams voice through an SPU capture ring that channels 1 and 3 loop over, and the
+        // hardware (and melonDS) never clear it. drastic clearing it leaves zero gaps between the
+        // consumed region and the capture/DSP write heads, and those gaps are the scratch. NOP the
+        // four stores so the ring keeps its samples, exactly as on hardware.
+        if (property_get_bool("persist.gammaos.drastic_nano.no_ring_clear", false)) {
+            const uintptr_t clr[4] = {0x7258c, 0x725b8, 0x72658, 0x72680};
+            const uint32_t exp[4] = {0x782a69bfu, 0x783069bfu, 0x382a69bfu, 0x383069bfu};
+            int ok = 0;
+            uint8_t* pg0 = (uint8_t*)((uintptr_t)(base + clr[0]) & ~(uintptr_t)(ps - 1));
+            mprotect(pg0, (size_t)ps * 2, PROT_READ | PROT_WRITE | PROT_EXEC);
+            for (int i = 0; i < 4; i++) {
+                uint32_t* site = reinterpret_cast<uint32_t*>(base + clr[i]);
+                if (*site == exp[i]) { *site = 0xd503201fu; __builtin___clear_cache((char*)site, (char*)site + 4); ok++; }
+            }
+            mprotect(pg0, (size_t)ps * 2, PROT_READ | PROT_EXEC);
+            ALOGI("DrasticRunner: SPU ring-clear removal patched %d/4 stores", ok);
+        }
+        const int mixLines = property_get_int32("persist.gammaos.drastic_nano.spu_mix_lines", 0);
+        const uintptr_t lineEntry = 0x2c8f8;
+        if (sProbePage && mixLines > 0 && *reinterpret_cast<uint32_t*>(base + lineEntry) == 0xf81a0ffbu) {   // str x27, [sp, #-96]!
+            uint8_t* cavePg4 = sProbePage;
+            const uintptr_t cave3 = (uintptr_t)sProbePage - (uintptr_t)base + 128;
+            mprotect(cavePg4, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            uint32_t* w = reinterpret_cast<uint32_t*>(base + cave3);
+            static const uint32_t kCave3[] = {   // scratchpad/gs/cave7.s
+                0xf81a0ffbu, 0xa9bf07e0u, 0xa9bf7bfdu, 0x58000330u,
+                0xb9400211u, 0xb940060fu, 0x11000631u, 0x6b0f023fu,
+                0x540001e3u, 0xb900021fu, 0x529e858fu, 0x72a0010fu,
+                0x386f680fu, 0x3730016fu, 0x94000000u, 0xf9400be0u,
+                0x580001d0u, 0xd63f0200u, 0x58000150u, 0xb9400a0fu,
+                0x110005efu, 0xb9000a0fu, 0x14000002u, 0xb9000211u,
+                0xa8c17bfdu, 0xa8c107e0u, 0x14000000u, 0xd503201fu,
+                0u, 0u,        // +0x70: control block address (u64)
+                0u, 0u,        // +0x78: spuMixTrace address (u64)
+                0u,            // +0x80: lines since the last mix
+                0xffffffffu,   // +0x84: lines per mix (disarmed)
+                0u,            // +0x88: mixes done
+                0u,            // +0x8c: pad
+            };
+            memcpy(w, kCave3, sizeof(kCave3));
+            const int64_t bMix  = ((int64_t)0x72764 - (int64_t)(cave3 + 0x38)) / 4;
+            const int64_t bBack = ((int64_t)(lineEntry + 4) - (int64_t)(cave3 + 0x68)) / 4;
+            w[14] = 0x94000000u | ((uint32_t)bMix & 0x03ffffffu);
+            w[26] = 0x14000000u | ((uint32_t)bBack & 0x03ffffffu);
+            *reinterpret_cast<uint64_t*>(base + cave3 + 0x70) = (uint64_t)(uintptr_t)(base + cave3 + 0x80);
+            *reinterpret_cast<uint64_t*>(base + cave3 + 0x78) = (uint64_t)(uintptr_t)&spuMixTrace;
+            gSpuMixCtl = reinterpret_cast<volatile uint32_t*>(base + cave3 + 0x80);
+            if (property_get_bool("sys.gammaos.drastic_nano.spu_trace", false)) {
+                gSpuTraceBase = base;
+                gSpuTrace = static_cast<SpuTraceRec*>(calloc(kSpuTraceCap, sizeof(SpuTraceRec)));
+                gSpuMini = static_cast<SpuMini*>(calloc(kSpuMiniCap, sizeof(SpuMini)));
+                ALOGI("DrasticRunner: SPU trace buffer %s", gSpuTrace ? "ready" : "FAILED");
+            }
+            gSpuMixLines = (uint32_t)mixLines;
+            __builtin___clear_cache((char*)(base + cave3), (char*)(base + cave3 + sizeof(kCave3)));
+            // The probe page stays RWX: the cave's control block (counters) is written from the
+            // cave and from the submit hook, like the counters the other two caves keep there.
+            uint8_t* sitePg4 = (uint8_t*)((uintptr_t)(base + lineEntry) & ~(uintptr_t)(ps - 1));
+            mprotect(sitePg4, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            const int64_t d3 = ((int64_t)cave3 - (int64_t)lineEntry) / 4;
+            *reinterpret_cast<uint32_t*>(base + lineEntry) = 0x14000000u | ((uint32_t)d3 & 0x03ffffffu);
+            __builtin___clear_cache((char*)(base + lineEntry), (char*)(base + lineEntry + 4));
+            mprotect(sitePg4, (size_t)ps, PROT_READ | PROT_EXEC);
+            ALOGI("DrasticRunner: SPU mix every %d scanlines installed (cave +0x%zx)", mixLines, (size_t)cave3);
+        } else if (sProbePage && mixLines > 0) ALOGW("DrasticRunner: scanline handler entry +0x2c8f8 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + lineEntry));
     }
     // The ratio is the 64-bit fixed-point constant 0xff90ecc69f727e51
     // (0.997101 x 2^64) loaded by a mov/movk quartet at three sites
@@ -3115,6 +3264,10 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
     const uint32_t flag = raw & 0x80000000u;   // bit 31 is a flag the submit masks off; keep it
     uint32_t n = raw & 0x7fffffffu;
     gAudSubmitCalls.fetch_add(1, std::memory_order_relaxed);
+    if (gSpuMixCtl && gSpuMixCtl[1] == 0xffffffffu && gAudSubmitCalls.load() >= 2) {
+        gSpuMixCtl[1] = gSpuMixLines;   // arm the per-scanline mixing once frame-end mixing has run
+        ALOGI("DrasticRunner: SPU mix every %u scanlines armed", gSpuMixLines);
+    }
     if (sAudFrameFix < 0) sAudFrameFix = property_get_int32("persist.gammaos.drastic_nano.audio_frame_fix", 1);
     static int sAudDebug = -1;
     if (sAudDebug < 0) sAudDebug = property_get_int32("sys.gammaos.drastic_nano.audio_debug", 0);
@@ -3314,11 +3467,21 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             static int sAudStatN = 0;
             if (++sAudStatN % 10 == 0)
                 ALOGW("AUDIO frames=%u nominal=%u short=%u long=%u min=%u max=%u dropped=%u callbacks=%u underruns=%u "
-                      "lostticks=%u catchups=%u debtdrops=%u skipped=%u fix: carried=%u padded=%u silenced=%u dropped=%u",
+                      "lostticks=%u catchups=%u debtdrops=%u skipped=%u fix: carried=%u padded=%u silenced=%u dropped=%u spumix=%u",
                       gAudSubmitCalls.load(), gAudSubmitNominal.load(), gAudSubmitShort.load(), gAudSubmitLong.load(),
                       gAudSubmitMin.load(), gAudSubmitMax.load(), gAudSubmitDropped.load(),
                       gAudCallbacks.load(), gAudUnderruns.load(), gEmuLostTicks.load(), gEmuCatchUps.load(), gEmuDebtDrops.load(),
-                      gAudSkipped.load(), gAudFixCarried.load(), gAudFixPadded.load(), gAudFixSilenced.load(), gAudFixDropped.load());
+                      gAudSkipped.load(), gAudFixCarried.load(), gAudFixPadded.load(), gAudFixSilenced.load(), gAudFixDropped.load(),
+                      gSpuMixCtl ? gSpuMixCtl[2] : 0u);
+                if (gSpuTrace && property_get_int32("sys.gammaos.drastic_nano.spu_trace_dump", 0) == 1) {
+                    FILE* tf = fopen("/data/local/tmp/spu_trace.bin", "wb");
+                    uint32_t n = gSpuTraceN.load(); uint32_t first = n > kSpuTraceCap ? n - kSpuTraceCap : 0;
+                    for (uint32_t i = first; tf && i < n; i++) fwrite(&gSpuTrace[i % kSpuTraceCap], sizeof(SpuTraceRec), 1, tf);
+                    if (tf) fclose(tf);
+                    if (gSpuMini && (tf = fopen("/data/local/tmp/spu_mini.bin", "wb")) != nullptr) { fwrite(gSpuMini, sizeof(SpuMini), gSpuMiniN, tf); fclose(tf); }
+                    property_set("sys.gammaos.drastic_nano.spu_trace_dump", "2");
+                    ALOGW("DrasticRunner: SPU trace dumped %u records (first %u)", n - first, first);
+                }
             ALOGW("PACE lead=%lld misses=%u floor=%lld hookflips=%u emu=%lld audioq=%u lead+%u topups=%u holds=%u", (long long)gLeadUs.load(),
                   gMissCount.load(), (long long)gLeadCreepFloor.load(), gFlipHookCount.load(),
                   (long long)gEmuDurUs.load(),
