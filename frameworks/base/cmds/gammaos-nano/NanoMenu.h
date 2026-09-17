@@ -61,6 +61,7 @@ static inline void nanoThreadNormalPriority() {
 #include "NanoAviDemux.h"
 #include "NanoScraper.h"
 #include "NanoEsdeTheme.h"
+#include "NanoSyncthing.h"  // Syncthing REST client + model (Settings > Syncthing)
 #include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
@@ -1408,6 +1409,7 @@ private:
         PS3_NS_SHARE,       // a configured share row in the shares list (a = slot 1..kMaxShares)
         PS3_NS_ADD,         // "Add Share" row in the shares list
         PS3_NS_FIELD,       // a field row in the per-share editor (a = NsField)
+        PS3_ST_ROW,         // a Syncthing screen row (a = StRow, b = index, payloadStr = id)
         // ---- Home menu item show/hide (Theme Settings > Home Categories > <cat>) ----
         PS3_ITEMHIDE_ROW,   // a static submenu-item row in the item-visibility editor (payloadStr = compound id, value Shown/Hidden)
         // ---- Pinned Apps (a Game-home shortcut list of user-chosen apps) ----
@@ -1422,7 +1424,10 @@ private:
                         VIDEO_FOLDER = 10, IPTV_GROUPS = 11, RADIO_STATIONS = 12,
                         FE_BROWSE = 13, APP_INFO = 14, APP_STORAGE = 15, APP_PERMS = 16,
                         SHADER_BROWSE = 17, NS_LIST = 18, NS_EDITOR = 19,
-                        CAT_ORDER = 20, ITEM_HIDE = 21 };
+                        CAT_ORDER = 20, ITEM_HIDE = 21,
+                        ST_ROOT = 22, ST_FOLDERS = 23, ST_FOLDER = 24, ST_DEVICES = 25, ST_DEVICE = 26,
+                        ST_PENDING = 27, ST_OPTIONS = 28, ST_LOG = 29, ST_SHARE = 30, ST_IGNORES = 31,
+                        ST_LAST = ST_IGNORES };
     struct Ps3Item {
         std::string label;
         std::string desc;
@@ -3075,6 +3080,80 @@ private:
     void nsRemoveShare();                       // clear mNsEditSlot and pop back to the list
     void nsDiscardIfUnconfigured();             // Back out of a never-filled-in new share = drop it
     void nsRefreshStackLevels();                // rebuild any shares screen still on the nav stack
+
+    // ======================= Syncthing (Settings > Syncthing) =======================
+    // The nano client for the Syncthing daemon (external/gammaos-syncthing). Screens are plain
+    // Ps3Level submenus so all four themes render them; the REST client is NanoSyncthing.h and
+    // the screens live in NanoMenuSyncthing.cpp. Row ids (Ps3Item.a on a PS3_ST_ROW):
+    enum StRow {
+        STR_INFO = 0,
+        STR_ENABLED, STR_THISDEVICE, STR_FOLDERS, STR_DEVICES, STR_PENDING, STR_OPTIONS, STR_WEBGUI, STR_RESTART, STR_LOG,
+        STR_FOLDER_ROW, STR_FOLDER_ADD, STR_FOLDER_SAVE, STR_FOLDER_LABEL, STR_FOLDER_ID, STR_FOLDER_PATH, STR_FOLDER_TYPE,
+        STR_FOLDER_SHARE, STR_FOLDER_VERSIONING, STR_FOLDER_VERSIONING_PARAM, STR_FOLDER_RESCAN, STR_FOLDER_WATCH,
+        STR_FOLDER_IGNPERMS, STR_FOLDER_PAUSED, STR_FOLDER_RESCAN_NOW, STR_FOLDER_OVERRIDE, STR_FOLDER_REVERT,
+        STR_FOLDER_IGNORES, STR_FOLDER_REMOVE,
+        STR_DEVICE_ROW, STR_DEVICE_ADD, STR_DEVICE_SAVE, STR_DEVICE_NAME, STR_DEVICE_ADDR, STR_DEVICE_COMPRESSION,
+        STR_DEVICE_INTRODUCER, STR_DEVICE_AUTOACCEPT, STR_DEVICE_SHARE, STR_DEVICE_PAUSED, STR_DEVICE_REMOVE,
+        STR_SHARE_TOGGLE, STR_PENDING_DEVICE, STR_PENDING_FOLDER,
+        STR_OPT_NAME, STR_OPT_LISTEN, STR_OPT_GLOBAL, STR_OPT_LOCAL, STR_OPT_RELAYS, STR_OPT_NAT, STR_OPT_RECV, STR_OPT_SEND,
+        STR_OPT_LANLIMIT, STR_OPT_CONCURRENCY, STR_OPT_MINFREE, STR_OPT_UR,
+        STR_IGNORE_ROW, STR_IGNORE_ADD,
+    };
+    std::mutex        mStMutex;                 // guards mStSnap
+    nanost::Snapshot  mStSnap;                  // latest worker result
+    nanost::Snapshot  mStShown;                 // what the open screens were built from (render thread)
+    std::thread       mStWorker;
+    std::atomic<bool> mStWorkerRun{false};
+    std::atomic<bool> mStRefreshNow{false};     // a mutation asked for an immediate refresh
+    nanost::FolderCfg mStFolderDraft;           // folder editor subject
+    nanost::DeviceCfg mStDeviceDraft;           // device editor subject
+    bool mStFolderIsNew = false, mStDeviceIsNew = false;
+    bool mStShareFolderMode = true;             // ST_SHARE: devices for a folder (true) / folders for a device
+    bool mStPendingIsDevice = true; int mStPendingIdx = 0;   // the pending row a chooser is open for
+    std::vector<std::string> mStIgnores;        // ST_IGNORES working copy
+    int  mStIgnoreIdx = -1;
+    bool stInstalled() const;                   // the daemon binary is in this image
+    bool stEnabled() const;                     // persist.gammaos.syncthing.enabled
+    bool stScreenOpen() const;                  // a Syncthing screen is on top of the nav stack
+    void stWorkerStart();
+    void stWorkerStop();
+    void stTick();                              // per frame: run/stop the worker, rebuild on new data
+    void stRefreshSoon();
+    void stRefreshStackLevels();
+    void stPush(Ps3Level& lvl);
+    static Ps3Item stRow(const std::string& label, int row, const std::string& value,
+                         const std::string& desc = std::string(), int aux = 0, const std::string& payload = std::string());
+    static Ps3Item stInfoRow(const std::string& label, const std::string& value, const std::string& desc = std::string());
+    static Ps3Item stToggleRow(const std::string& label, int row, bool on, const std::string& desc = std::string(), int aux = 0);
+    std::string stDeviceIp() const;
+    void stOpenRoot();                          // Settings leaf -> the root screen
+    void buildStRoot(Ps3Level& out);
+    void buildStFolders(Ps3Level& out);
+    void buildStFolder(Ps3Level& out);
+    void buildStDevices(Ps3Level& out);
+    void buildStDevice(Ps3Level& out);
+    void buildStPending(Ps3Level& out);
+    void buildStOptions(Ps3Level& out);
+    void buildStLog(Ps3Level& out);
+    void buildStShare(Ps3Level& out);
+    void buildStIgnores(Ps3Level& out);
+    void stOpenFolder(const std::string& id);
+    void stAddFolder(const std::string& presetId, const std::string& presetLabel, const std::string& sharedWith);
+    bool stCommitFolder();
+    void stFolderPathSelect(const std::string& path);   // folder browser result (mFolderPickTarget 6)
+    void stEnsureFolderDir(const std::string& path);      // create a new folder's directory writable by the daemon
+    void stOpenDevice(const std::string& id);
+    void stAddDevice(const std::string& presetId, const std::string& presetName, const std::string& presetAddress);
+    bool stCommitDevice();
+    void stShareToggle(int idx);
+    bool stCommitOptions(const nanost::Options& o);
+    void stOpenIgnores();
+    void stSaveIgnores();
+    void stOpenChooser(int key, const std::string& title, const std::vector<std::string>& opts, int sel);
+    void stOpenConfirm(int key, const std::string& title, const std::string& body, const char* action);
+    void stOpenText(const std::string& prompt, const std::string& prefill, std::function<void(const std::string&)> onSubmit);
+    bool stDialogResult(int key, int sel);      // applyThemeSetting hands keys 50..59 here
+    void stSelectRow(const Ps3Item& it);        // ps3XmbSelect on a PS3_ST_ROW
 
     // ======================= Music player (PS3 XMB port) =======================
     // Library model (nano_music.json), folder import (reuses the folder picker via

@@ -10,20 +10,30 @@
 # system with the media_rw group so it can sync folders under /data/media (internal storage) and
 # reads /system/etc/resolv.conf for the public discovery and relay hostnames (see Android.bp).
 #
-# --no-restart: Syncthing normally forks a monitor that re-executes it when a config change
-# needs a restart. Under init that would be two processes (about 20 MB of extra RSS on a 1 GB
-# device); with the flag the daemon exits instead and init starts it again.
+# STMONITORED=1 + --no-restart: Syncthing normally forks a monitor process that re-executes the
+# real daemon and restarts it on config changes; the monitor is also what writes a log file.
+# Under init that would be two processes (about 20 MB of extra RSS on a 1 GB device). With the
+# environment variable the binary runs as the daemon directly, and with the flag it exits when a
+# restart is needed and init starts it again. The daemon keeps its recent log in memory
+# (/rest/system/log), which is what the nano and Settings screens show.
+#
+# SSL_CERT_DIR: this is the linux (not android) build of Go, whose certificate loader only looks
+# in /etc/ssl and /etc/pki, so it is pointed at Android's CA store explicitly. Without it every
+# https connection (relay directory, global discovery) fails with "certificate signed by unknown
+# authority". Seen on the RG DS Plus, fixed by this line.
 
 on post-fs-data
     mkdir /data/misc/syncthing 0700 system system
 
-service syncthing /system/bin/syncthing serve --home=/data/misc/syncthing --no-browser --no-upgrade --no-port-probing --no-restart --gui-address=127.0.0.1:8384 --log-file=/data/misc/syncthing/syncthing.log --log-max-size=1048576 --log-max-old-files=2
+service syncthing /system/bin/syncthing serve --home=/data/misc/syncthing --no-browser --no-upgrade --no-port-probing --no-restart --gui-address=127.0.0.1:8384
     class late_start
     user system
     group system media_rw inet
     seclabel u:r:syncthing:s0
     setenv HOME /data/misc/syncthing
     setenv STNOUPGRADE 1
+    setenv STMONITORED 1
+    setenv SSL_CERT_DIR /system/etc/security/cacerts
     setenv GOMAXPROCS 2
     disabled
 

@@ -14,7 +14,10 @@ The official Syncthing release, unmodified, packaged as a native background serv
 
 - `/system/bin/syncthing` - the daemon (static Go binary, arm64).
 - `/system/etc/resolv.conf` - resolver file for Go's pure DNS resolver (see Android.bp).
-- `/data/misc/syncthing` - home: config.xml (holds the REST API key), keys, database, log.
+- `SSL_CERT_DIR=/system/etc/security/cacerts` in the service environment: the linux build of Go
+  does not know Android's CA store path (syncthing.rc).
+- `/data/misc/syncthing` - home: config.xml (holds the REST API key), keys, database. The daemon
+  runs as a single process (STMONITORED=1); its recent log is served from memory by the REST API.
 - Init service `syncthing` (syncthing.rc), SELinux domain `syncthing`
   (system/sepolicy/private/syncthing.te).
 

@@ -5460,6 +5460,7 @@ void NanoMenu::ps3XmbSelect() {
             else if (mFolderPickTarget == 3) videoFolderSelect(it.payloadStr);
             else if (mFolderPickTarget == 4) { mFolderPickTarget = 0; gsAutoAddFromRoot(it.payloadStr); }
             else if (mFolderPickTarget == 5) { mFolderPickTarget = 0; drasticDataFolderSelect(it.payloadStr); }
+            else if (mFolderPickTarget == 6) { stFolderPathSelect(it.payloadStr); }   // Syncthing: new folder path
             else gsFolderSelect(it.payloadStr);
             return;
         }
@@ -5478,6 +5479,7 @@ void NanoMenu::ps3XmbSelect() {
         case PS3_NS_SHARE:  { nsOpenEditor(it.a, false); return; }  // Network Shares: edit one share
         case PS3_NS_ADD:    { nsAddShare(); return; }               // Network Shares: create one
         case PS3_NS_FIELD:  { nsEditField(it.a); return; }          // share editor: OSK / chooser / toggle
+        case PS3_ST_ROW:    { stSelectRow(it); return; }             // Syncthing screens
         case PS3_PHOTO_REFRESH: { photoRefresh(); return; }   // rescan the imported photo folders
         case PS3_PHOTO_FOLDER_ROW: { return; }   // a display row; removal is via the option (Y)
         case PS3_PHOTO_ALBUM: {   // a group-folder -> open its thumbnail grid
@@ -5633,6 +5635,8 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "File Explorer") { feOpen(); return; }
             // Settings: "Network Shares" opens the SMB/NFS/WebDAV/FTP share editor.
             if (it.label == "Network Shares") { nsOpenList(); return; }
+            // Settings: "Syncthing" opens the client for the Syncthing daemon.
+            if (it.label == "Syncthing") { stOpenRoot(); return; }
             // Game Settings: re-read the ROM folders. The scan rebuilds each system's list from
             // disk, so deleted games disappear, and the Recently Played list is pruned with it.
             if (it.label == "Rescan Games") { gamesRefresh(); return; }
@@ -6424,6 +6428,7 @@ void NanoMenu::renderPs3Xmb() {
     photoTick();       // photo viewer: enter-fade easing + slideshow timers
     feTick();          // File Explorer: reap a finished copy/move/delete worker, refresh + report
     nsTick();          // Network Shares: follow a mount coming up or going away while the screen is open
+    stTick();          // Syncthing: run the refresh worker while a Syncthing screen is open
     appInfoTick();     // App Information: async-refresh the level from the framework
     shaderMetaTick();  // GammaShader: pick up custom shader params once SF publishes them
     vidReapDying();    // free any async-released video decoders every frame (also after the player closes)
@@ -11055,6 +11060,10 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
         }
         case 36: {  // Network Shares: remove confirm (sel 1 = forget the share)
             if (sel == 1) nsRemoveShare();
+            break;
+        }
+        case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57: case 58: case 59: {
+            stDialogResult(themeKey, sel);   // Syncthing choosers and confirms
             break;
         }
         case 40: {  // GammaShader: master shader-type selection (enable+type) + rebuild

@@ -69,6 +69,8 @@ cc_binary {
         "NanoMenuPS3Folder.cpp",
         "NanoMenuFileExplorer.cpp",
         "NanoMenuShares.cpp",
+        "NanoSyncthing.cpp",        // Syncthing REST client + model
+        "NanoMenuSyncthing.cpp",    // Syncthing screens (Settings > Syncthing)
         "NanoMenuPS3Menu.cpp",
         "NanoMenuMinima.cpp",
         "NanoEsdeTheme.cpp",

@@ -1023,6 +1023,9 @@ bool NanoMenu::ndsCurLevelIsList() const {
             // Home Categories (CAT_ORDER) holds PS3_CATORDER_ROW rows for the same reason, and the
             // per-item show/hide editor (ITEM_HIDE) holds PS3_ITEMHIDE_ROW rows.
             case GS_LIST: case GS_EDITOR: case CAT_ORDER: case ITEM_HIDE:
+            // The Syncthing screens hold PS3_ST_ROW rows (status, toggles, choosers, actions).
+            case ST_ROOT: case ST_FOLDERS: case ST_FOLDER: case ST_DEVICES: case ST_DEVICE:
+            case ST_PENDING: case ST_OPTIONS: case ST_LOG: case ST_SHARE: case ST_IGNORES:
                 return true;
             default: break;
         }
@@ -1281,7 +1284,8 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         const bool genericIcon = (iconIdx == 22);                            // shared placeholder settings glyph
         const bool hasIcon     = items[i].iconTex && !genericIcon;
         const bool showVal     = (items[i].kind == PS3_GS_SYSTEM_ROW || items[i].kind == PS3_GS_FIELD
-                                  || items[i].kind == PS3_CATORDER_ROW || items[i].kind == PS3_ITEMHIDE_ROW)
+                                  || items[i].kind == PS3_CATORDER_ROW || items[i].kind == PS3_ITEMHIDE_ROW
+                                  || items[i].kind == PS3_ST_ROW)
                                  && !items[i].value.empty();
         // Multi-select / toggle rows (Slide Up/Down actions, Devices to Capture, Passthrough
         // Blacklist) carry their membership in it.checkState (0 = unchecked, 1 = checked, -1 =
@@ -6095,6 +6099,7 @@ void NanoMenu::render() {
                              // in this theme, so the worker's results must be applied from here too).
             feTick();        // File Explorer: reap a finished copy / move / delete op + its result dialog.
             nsTick();        // Network Shares: follow a mount coming up / going away while the list is open.
+            stTick();        // Syncthing: refresh worker + rebuild while a Syncthing screen is open.
             ensureNdsAssets();
             bool ndsDual = !mNdsStack &&
                 (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty());
@@ -6153,6 +6158,7 @@ void NanoMenu::render() {
                                  // in the Minima theme too, so apply the worker's results from here).
                 feTick();    // File Explorer: reap a finished copy / move / delete op + its result dialog.
                 nsTick();    // Network Shares: follow a mount coming up / going away while the list is open.
+                stTick();    // Syncthing: refresh worker + rebuild while a Syncthing screen is open.
                 renderMinima();
                 if (minSidePanel)    renderMinimaSidePanel(0.0f, 0.0f, (float)mWidth, (float)mHeight);
                 else if (minInfoPage) renderMinimaInfoPage(0.0f, 0.0f, (float)mWidth, (float)mHeight);
