@@ -76,7 +76,8 @@ public final class SyncthingClient {
 
     // ---- daemon control (properties) -------------------------------------------------------
 
-    public static boolean isInstalled() { return new File(BINARY).canExecute(); }
+    /** Existence, not executability: the callers are not allowed to execute it under SELinux. */
+    public static boolean isInstalled() { return new File(BINARY).exists(); }
     public static boolean isEnabled() { return SystemProperties.getBoolean(ENABLED_PROP, false); }
     public static void setEnabled(boolean on) { SystemProperties.set(ENABLED_PROP, on ? "1" : "0"); }
     public static void requestRestart() { SystemProperties.set(RESTART_PROP, "1"); }

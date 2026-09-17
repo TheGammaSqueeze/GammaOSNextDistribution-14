@@ -137,9 +137,12 @@ final class SyncthingUi {
         }
         try {
             s = c.fetchSnapshot();
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
+            // A RuntimeException would otherwise die silently inside the executor and leave the
+            // screen on "Starting..." for good; report it like a daemon error.
+            android.util.Log.w("SyncthingUi", "snapshot failed", e);
             s = new Snapshot();
-            s.error = e.getMessage() == null ? "" : e.getMessage();
+            s.error = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
             return s;
         }
         // First run: Syncthing names a new device after the hostname, which on Android is

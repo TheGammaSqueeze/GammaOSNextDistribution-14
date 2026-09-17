@@ -3,6 +3,14 @@ typeattribute bootanim coredomain;
 permissive bootanim;
 init_daemon_domain(bootanim)
 
+# GammaOS Nano runs in this domain and talks TCP: the Syncthing REST API on loopback, network
+# shares and the OTA check. Bionic routes every connect() through netd's fwmark server, which
+# may only touch sockets from netdomain processes (netd.te: "allow netd netdomain:tcp_socket"),
+# so without this attribute netd refuses the socket and connect() fails with EMSGSIZE under an
+# enforcing policy, silently: the refusal happens inside netd, and the permissive marker on this
+# domain does not cover it.
+net_domain(bootanim)
+
 # b/68864350
 dontaudit bootanim unlabeled:dir search;
 

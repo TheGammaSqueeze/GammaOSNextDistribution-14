@@ -75,7 +75,9 @@ static const char* kStCompressionLbl[] = { "Metadata Only", "All Data", "Off" };
 // mStFolderDraft / mStDeviceDraft   the object an editor screen works on (a copy, or a new one)
 // mStFolderIsNew / mStDeviceIsNew   the editor is creating, so Save is a PUT of the draft
 
-bool NanoMenu::stInstalled() const { return access(kStBinary, X_OK) == 0; }
+// Existence only: nano is not allowed to execute the daemon's binary under SELinux, so X_OK would
+// read as "not installed" on an enforcing device.
+bool NanoMenu::stInstalled() const { return access(kStBinary, F_OK) == 0; }
 bool NanoMenu::stEnabled() const { return property_get_bool(kStEnabledProp, false); }
 bool NanoMenu::stScreenOpen() const {
     if (mPs3Stack.empty()) return false;
@@ -99,7 +101,12 @@ void NanoMenu::stWorkerStart() {
                 lastMs = now;
                 Snapshot s;
                 if (stEnabled()) {
-                    client.fetchSnapshot(s);
+                    if (!client.fetchSnapshot(s)) {
+                        // Log a failure once per distinct error so a broken REST path is visible
+                        // in logcat without flooding it at the 2 s refresh rate.
+                        static std::string lastErr;
+                        if (s.error != lastErr) { lastErr = s.error; ALOGW("syncthing: snapshot failed: %s", s.error.c_str()); }
+                    }
                     // First run: Syncthing names a new device after the hostname, which on Android is
                     // "localhost". Give it the product model instead (once; the user can rename it).
                     if (s.apiOk && s.options.deviceName == "localhost" && !s.myID.empty()) {
