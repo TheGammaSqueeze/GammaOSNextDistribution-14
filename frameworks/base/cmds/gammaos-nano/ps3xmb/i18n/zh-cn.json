@@ -1751,5 +1751,6 @@
  "Discovery: {1}": "发现：{1}",
  "{1} device": "{1} 台设备",
  "{1} devices": "{1} 台设备",
- "{1}, {2} files": "{1}，{2} 个文件"
+ "{1}, {2} files": "{1}，{2} 个文件",
+ "Choose a folder on internal storage or on an SD card.": "请选择内部存储或 SD 卡上的文件夹。"
 }

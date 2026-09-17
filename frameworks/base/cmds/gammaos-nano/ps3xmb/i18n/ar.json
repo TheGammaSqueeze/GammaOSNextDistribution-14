@@ -1753,5 +1753,6 @@
  "Discovery: {1}": "الاكتشاف: {1}",
  "{1} device": "{1} جهاز",
  "{1} devices": "{1} أجهزة",
- "{1}, {2} files": "{1}، {2} ملفات"
+ "{1}, {2} files": "{1}، {2} ملفات",
+ "Choose a folder on internal storage or on an SD card.": "اختر مجلداً في وحدة التخزين الداخلية أو على بطاقة SD."
 }

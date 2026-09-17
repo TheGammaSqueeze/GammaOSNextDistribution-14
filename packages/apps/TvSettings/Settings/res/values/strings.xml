@@ -3600,6 +3600,7 @@
     <string name="syncthing_folder_path">Path</string>
     <string name="syncthing_folder_path_prompt">Folder path on this device</string>
     <string name="syncthing_folder_path_fixed">Cannot be changed once created.</string>
+    <string name="syncthing_folder_path_unsupported">Choose a folder on internal storage or on an SD card.</string>
     <string name="syncthing_folder_type">Folder Type</string>
     <string name="syncthing_folder_type_sendreceive">Send &amp; Receive</string>
     <string name="syncthing_folder_type_sendonly">Send Only</string>

@@ -1751,5 +1751,6 @@
  "Discovery: {1}": "探索：{1}",
  "{1} device": "{1} 台裝置",
  "{1} devices": "{1} 台裝置",
- "{1}, {2} files": "{1}，{2} 個檔案"
+ "{1}, {2} files": "{1}，{2} 個檔案",
+ "Choose a folder on internal storage or on an SD card.": "請選擇內部儲存空間或 SD 卡上的資料夾。"
 }

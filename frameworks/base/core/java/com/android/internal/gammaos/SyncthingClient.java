@@ -82,6 +82,59 @@ public final class SyncthingClient {
     public static void setEnabled(boolean on) { SystemProperties.set(ENABLED_PROP, on ? "1" : "0"); }
     public static void requestRestart() { SystemProperties.set(RESTART_PROP, "1"); }
 
+    // ---- folder paths ----------------------------------------------------------------------
+
+    /**
+     * The daemon runs outside the app sandbox, so a synced folder must sit on a raw storage
+     * mount: internal storage is /data/media/&lt;user&gt;/... and a removable card is
+     * /mnt/media_rw/&lt;volume&gt;/... (what vold mounts underneath the FUSE views apps see at
+     * /storage). This maps the paths a user types (/storage/emulated/0, /sdcard,
+     * /storage/XXXX-XXXX) onto those raw mounts and leaves anything else alone.
+     */
+    public static String canonicalFolderPath(String in) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : in.toCharArray()) {
+            if (c != '/' || sb.length() == 0 || sb.charAt(sb.length() - 1) != '/') sb.append(c);
+        }
+        while (sb.length() > 1 && sb.charAt(sb.length() - 1) == '/') sb.setLength(sb.length() - 1);
+        String p = sb.toString();
+        if (p.equals("/sdcard") || p.startsWith("/sdcard/")) return "/data/media/0" + p.substring(7);
+        if (p.equals("/storage/self/primary") || p.startsWith("/storage/self/primary/")) {
+            return "/data/media/0" + p.substring(21);
+        }
+        for (String root : new String[] { "/storage/emulated/", "/mnt/user/" }) {
+            if (!p.startsWith(root)) continue;
+            String rest = p.substring(root.length());
+            if (root.startsWith("/mnt")) {
+                int e = rest.indexOf("emulated/");
+                if (e < 0) return p;
+                rest = rest.substring(e + 9);
+            }
+            int sl = rest.indexOf('/');
+            String user = sl < 0 ? rest : rest.substring(0, sl);
+            if (!user.matches("[0-9]+")) return p;
+            return "/data/media/" + user + (sl < 0 ? "" : rest.substring(sl));
+        }
+        if (p.startsWith("/storage/")) {
+            String rest = p.substring(9);
+            int sl = rest.indexOf('/');
+            String vol = sl < 0 ? rest : rest.substring(0, sl);
+            if (!vol.isEmpty() && !vol.equals("emulated") && !vol.equals("self")) return "/mnt/media_rw/" + rest;
+        }
+        return p;
+    }
+
+    /** Whether the (canonical) path is somewhere the daemon may use at all. */
+    public static boolean isSupportedFolderPath(String path) {
+        String p = canonicalFolderPath(path);
+        return p.matches("/data/media/[0-9]+(/.*)?") || isRemovableFolderPath(p);
+    }
+
+    /** On a removable card, whose FAT file system stores no permission bits. */
+    public static boolean isRemovableFolderPath(String path) {
+        return canonicalFolderPath(path).matches("/mnt/media_rw/[^/]+(/.*)?");
+    }
+
     // ---- model -----------------------------------------------------------------------------
 
     public static final class Folder {

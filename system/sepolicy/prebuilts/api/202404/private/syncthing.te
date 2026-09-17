@@ -26,6 +26,13 @@ allow syncthing media_rw_data_file:dir { create_dir_perms watch watch_reads };
 allow syncthing media_rw_data_file:file { create_file_perms watch watch_reads };
 allow syncthing media_rw_data_file:lnk_file create_file_perms;
 
+# Removable cards: vold mounts them raw at /mnt/media_rw/<volume> (FAT or exFAT, group media_rw)
+# underneath the FUSE view apps use, and the clients map a picked /storage/<volume> path onto that
+# raw mount. FAT has no permission bits, so the clients set "ignore permissions" on such folders.
+allow syncthing mnt_media_rw_file:dir search;
+allow syncthing sdcard_type:dir { create_dir_perms watch watch_reads };
+allow syncthing sdcard_type:file { create_file_perms watch watch_reads };
+
 # Network: the sync protocol (tcp and quic on 22000), local discovery (udp 21027 broadcast and
 # multicast), global discovery and relays (https), and the loopback API listener on 8384.
 net_domain(syncthing)

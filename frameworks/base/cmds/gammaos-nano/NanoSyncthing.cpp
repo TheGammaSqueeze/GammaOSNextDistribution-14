@@ -560,6 +560,54 @@ const char* folderTypeLabel(const std::string& t) {
     return "Send & Receive";
 }
 
+// ---- folder paths ------------------------------------------------------------------------
+
+static bool startsWith(const std::string& s, const char* pfx) { return s.rfind(pfx, 0) == 0; }
+
+std::string canonicalFolderPath(const std::string& in) {
+    // Collapse repeated slashes and drop a trailing one so the prefix tests below are exact.
+    std::string p;
+    for (char c : in) if (c != '/' || p.empty() || p.back() != '/') p += c;
+    while (p.size() > 1 && p.back() == '/') p.pop_back();
+    // /sdcard and /storage/self/primary are the primary user's internal storage.
+    if (p == "/sdcard" || startsWith(p, "/sdcard/")) return "/data/media/0" + p.substr(7);
+    if (p == "/storage/self/primary" || startsWith(p, "/storage/self/primary/")) return "/data/media/0" + p.substr(21);
+    // /storage/emulated/<user>/... and the vold view /mnt/user/<user>/emulated/<user>/... .
+    static const char* kEmu[] = { "/storage/emulated/", "/mnt/user/" };
+    for (const char* root : kEmu) {
+        if (!startsWith(p, root)) continue;
+        std::string rest = p.substr(strlen(root));
+        if (root[1] == 'm') { size_t e = rest.find("emulated/"); if (e == std::string::npos) return p; rest = rest.substr(e + 9); }
+        size_t sl = rest.find('/');
+        std::string user = rest.substr(0, sl);
+        if (user.empty() || user.find_first_not_of("0123456789") != std::string::npos) return p;
+        return "/data/media/" + user + (sl == std::string::npos ? "" : rest.substr(sl));
+    }
+    // /storage/<volume>/... is a removable card; vold's raw mount of it is /mnt/media_rw/<volume>.
+    if (startsWith(p, "/storage/")) {
+        std::string rest = p.substr(9);
+        size_t sl = rest.find('/');
+        std::string vol = rest.substr(0, sl);
+        if (!vol.empty() && vol != "emulated" && vol != "self") return "/mnt/media_rw/" + rest;
+    }
+    return p;
+}
+
+bool isSupportedFolderPath(const std::string& path) {
+    const std::string p = canonicalFolderPath(path);
+    if (startsWith(p, "/data/media/")) {
+        size_t sl = p.find('/', 12);
+        std::string user = p.substr(12, sl == std::string::npos ? std::string::npos : sl - 12);
+        return !user.empty() && user.find_first_not_of("0123456789") == std::string::npos;
+    }
+    return isRemovableFolderPath(p);
+}
+
+bool isRemovableFolderPath(const std::string& path) {
+    const std::string p = canonicalFolderPath(path);
+    return startsWith(p, "/mnt/media_rw/") && p.size() > 14 && p[14] != '/';
+}
+
 const char* folderStateLabel(const std::string& s) {
     if (s == "idle")            return "Up to Date";
     if (s == "scanning")        return "Scanning";

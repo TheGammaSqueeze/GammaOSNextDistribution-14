@@ -1751,5 +1751,6 @@
  "Discovery: {1}": "Detectie: {1}",
  "{1} device": "{1} apparaat",
  "{1} devices": "{1} apparaten",
- "{1}, {2} files": "{1}, {2} bestanden"
+ "{1}, {2} files": "{1}, {2} bestanden",
+ "Choose a folder on internal storage or on an SD card.": "Kies een map op de interne opslag of op een SD-kaart."
 }

@@ -13204,6 +13204,7 @@
     <string name="syncthing_folder_path_new_summary">The folder on this device. It is created if it does not exist.</string>
     <string name="syncthing_folder_path_fixed_summary">Cannot be changed once created.</string>
     <string name="syncthing_folder_path_required">Choose a path for the folder first.</string>
+    <string name="syncthing_folder_path_unsupported">Choose a folder on internal storage or on an SD card.</string>
     <string name="syncthing_folder_type">Folder Type</string>
     <string name="syncthing_folder_type_sendreceive">Send &amp; Receive</string>
     <string name="syncthing_folder_type_sendonly">Send Only</string>

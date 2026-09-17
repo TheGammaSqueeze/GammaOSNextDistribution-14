@@ -1751,5 +1751,6 @@
  "Discovery: {1}": "Keşif: {1}",
  "{1} device": "{1} cihaz",
  "{1} devices": "{1} cihaz",
- "{1}, {2} files": "{1}, {2} dosya"
+ "{1}, {2} files": "{1}, {2} dosya",
+ "Choose a folder on internal storage or on an SD card.": "Dahili depolamada veya bir SD kartta bir klasör seçin."
 }

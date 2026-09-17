@@ -28,7 +28,9 @@ on post-fs-data
 service syncthing /system/bin/syncthing serve --home=/data/misc/syncthing --no-browser --no-upgrade --no-port-probing --no-restart --gui-address=127.0.0.1:8384
     class late_start
     user system
-    group system media_rw inet
+    # media_rw: internal storage under /data/media and the raw card mounts vold makes for it.
+    # external_storage: the /mnt/media_rw directory those raw card mounts live in is root:external_storage.
+    group system media_rw external_storage inet
     seclabel u:r:syncthing:s0
     setenv HOME /data/misc/syncthing
     setenv STNOUPGRADE 1

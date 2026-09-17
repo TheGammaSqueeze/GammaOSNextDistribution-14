@@ -28,7 +28,6 @@ import com.android.internal.gammaos.SyncthingClient.Snapshot;
 import com.android.settings.R;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -140,8 +139,8 @@ public class SyncthingFolderFragment extends SyncthingBaseFragment {
                     getString(R.string.syncthing_folder_path_new_summary),
                     InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI, v -> {
                         if (v.isEmpty()) return;
-                        f.path = v;
-                        if (f.label.isEmpty()) f.label = new File(v).getName();
+                        f.path = SyncthingClient.canonicalFolderPath(v);
+                        if (f.label.isEmpty()) f.label = new File(f.path).getName();
                         commit();
                     }));
         } else {
@@ -321,6 +320,18 @@ public class SyncthingFolderFragment extends SyncthingBaseFragment {
             showError(getString(R.string.syncthing_folder_path_required));
             return;
         }
+        f.path = SyncthingClient.canonicalFolderPath(f.path);
+        if (!SyncthingClient.isSupportedFolderPath(f.path)) {
+            showError(getString(R.string.syncthing_folder_path_unsupported));
+            return;
+        }
+        // FAT cards store no permission bits; syncing them would flag every file as changed. A
+        // pulled card leaves the folder in "path missing" until the next full rescan, so keep that
+        // rescan at most ten minutes away.
+        if (SyncthingClient.isRemovableFolderPath(f.path)) {
+            f.ignorePerms = true;
+            if (f.rescanIntervalS <= 0 || f.rescanIntervalS > 600) f.rescanIntervalS = 600;
+        }
         action(client -> {
             ensureDirectory(f.path);
             client.putFolder(f);
@@ -331,20 +342,20 @@ public class SyncthingFolderFragment extends SyncthingBaseFragment {
     }
 
     /**
-     * Make sure the folder's directory exists and the daemon can write to it. Settings runs as
-     * system, as does the daemon, and internal storage is group writable for media_rw, so a
-     * plain mkdirs with group access is enough; only the missing tail is created.
+     * Create the folder's directory when it is missing. Settings runs as system, as does the
+     * daemon, and internal storage is group writable for media_rw, so a plain mkdirs with group
+     * access does; only the missing tail is created. Best effort: on a card this app cannot
+     * reach /mnt/media_rw at all, and the daemon creates a missing root itself when the folder
+     * is added, reporting a path it cannot use as the folder's error.
      */
-    private static void ensureDirectory(String path) throws IOException {
+    private static void ensureDirectory(String path) {
         File dir = new File(path);
         if (dir.isDirectory()) return;
         // Remember which directories are missing so only those get their mode set; an existing
         // parent is left exactly as it is.
         List<File> created = new ArrayList<>();
         for (File d = dir; d != null && !d.exists(); d = d.getParentFile()) created.add(d);
-        if (!dir.mkdirs() && !dir.isDirectory()) {
-            throw new IOException("Could not create " + path);
-        }
+        if (!dir.mkdirs()) return;
         for (File d : created) {
             d.setReadable(true, false);
             d.setWritable(true, false);

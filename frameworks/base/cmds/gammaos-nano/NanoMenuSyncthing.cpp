@@ -481,7 +481,8 @@ bool NanoMenu::stCommitFolder() {
 void NanoMenu::stFolderPathSelect(const std::string& path) {
     mFolderPickTarget = 0;
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE) mPs3Stack.pop_back();
-    mStFolderDraft.path = path;
+    // The browser hands back the FUSE view (/storage/...); the daemon needs the raw mount behind it.
+    mStFolderDraft.path = nanost::canonicalFolderPath(path);
     if (mStFolderDraft.label.empty()) {
         size_t sl = path.find_last_of('/');
         mStFolderDraft.label = (sl == std::string::npos) ? path : path.substr(sl + 1);
@@ -885,6 +886,15 @@ void NanoMenu::stSelectRow(const Ps3Item& it) {
         case STR_FOLDER_SAVE: {
             FolderCfg& f = mStFolderDraft;
             if (f.path.empty()) { feInfoDialog(trDyn("Syncthing"), trDyn("Choose a path for the folder first.")); return; }
+            f.path = nanost::canonicalFolderPath(f.path);
+            if (!nanost::isSupportedFolderPath(f.path)) { feInfoDialog(trDyn("Syncthing"), trDyn("Choose a folder on internal storage or on an SD card.")); return; }
+            // FAT cards store no permission bits; syncing them would flag every file as changed. A
+            // pulled card leaves the folder in "path missing" until the next full rescan, so keep
+            // that rescan at most ten minutes away.
+            if (nanost::isRemovableFolderPath(f.path)) {
+                f.ignorePerms = true;
+                if (f.rescanIntervalS <= 0 || f.rescanIntervalS > 600) f.rescanIntervalS = 600;
+            }
             stEnsureFolderDir(f.path);
             if (!c.putFolder(f, err)) { feInfoDialog(trDyn("Syncthing"), trDyn("Could not create the folder: ") + err); return; }
             mStFolderIsNew = false;

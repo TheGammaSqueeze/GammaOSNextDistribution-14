@@ -1751,5 +1751,6 @@
  "Discovery: {1}": "探索: {1}",
  "{1} device": "{1} 台のデバイス",
  "{1} devices": "{1} 台のデバイス",
- "{1}, {2} files": "{1}、{2} ファイル"
+ "{1}, {2} files": "{1}、{2} ファイル",
+ "Choose a folder on internal storage or on an SD card.": "内部ストレージまたは SD カード上のフォルダーを選んでください。"
 }

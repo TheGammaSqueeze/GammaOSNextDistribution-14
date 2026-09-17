@@ -1751,5 +1751,6 @@
  "Discovery: {1}": "Rilevamento: {1}",
  "{1} device": "{1} dispositivo",
  "{1} devices": "{1} dispositivi",
- "{1}, {2} files": "{1}, {2} file"
+ "{1}, {2} files": "{1}, {2} file",
+ "Choose a folder on internal storage or on an SD card.": "Scegli una cartella nella memoria interna o su una scheda SD."
 }

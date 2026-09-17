@@ -201,5 +201,16 @@ std::string fmtRate(int64_t bytesPerS);
 const char* folderTypeLabel(const std::string& type);
 const char* folderStateLabel(const std::string& state);
 
+// ---- folder paths ------------------------------------------------------------------------
+// The daemon runs outside the app sandbox, so a synced folder must sit on a raw storage mount:
+// internal storage is /data/media/<user>/... and a removable card is /mnt/media_rw/<volume>/...
+// (what vold mounts underneath the FUSE views apps see at /storage). canonicalFolderPath maps the
+// paths a user picks or types (/storage/emulated/0, /sdcard, /storage/XXXX-XXXX) onto those raw
+// mounts and leaves anything else alone; isSupportedFolderPath then says whether the result is a
+// place the daemon may use at all (its SELinux domain covers exactly these two trees).
+std::string canonicalFolderPath(const std::string& path);
+bool isSupportedFolderPath(const std::string& path);
+bool isRemovableFolderPath(const std::string& path);   // on a removable card (FAT: no permission bits)
+
 } // namespace nanost
 } // namespace android

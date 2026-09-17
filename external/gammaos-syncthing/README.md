@@ -21,6 +21,26 @@ The official Syncthing release, unmodified, packaged as a native background serv
 - Init service `syncthing` (syncthing.rc), SELinux domain `syncthing`
   (system/sepolicy/private/syncthing.te).
 
+## Where folders can live
+
+The daemon runs outside the app sandbox, so a synced folder must sit on a raw storage mount:
+
+- internal storage: `/data/media/<user>/...` (what apps see as `/storage/emulated/<user>` and
+  `/sdcard`), including `Android/data/<package>/...`;
+- a removable card: `/mnt/media_rw/<volume>/...` (vold's raw mount underneath the FUSE view at
+  `/storage/<volume>`; the service carries the `external_storage` group to reach it).
+
+All three clients map a picked or typed `/storage/...` or `/sdcard/...` path onto those mounts
+(`canonicalFolderPath` in NanoSyncthing.cpp and SyncthingClient.java) and refuse anything else,
+since the SELinux domain covers exactly these two trees. Files the daemon writes under
+`/data/media` bypass the FUSE layer, so the media store only notices them at its next scan; the
+nano game and save folders do not depend on it.
+
+A folder on a card gets "ignore permissions" (FAT keeps none) and a full rescan interval of at
+most ten minutes. When the card is pulled, the daemon fails the folder's health check ("folder
+path missing") and stops syncing it, so nothing is deleted on the other devices; when the card is
+back, the folder recovers at its next full rescan, which is what the short interval bounds.
+
 ## Control
 
 Everything is property driven; no UI starts the service directly.

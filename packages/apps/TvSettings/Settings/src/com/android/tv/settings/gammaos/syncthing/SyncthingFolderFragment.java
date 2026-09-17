@@ -137,6 +137,7 @@ public class SyncthingFolderFragment extends SyncthingBaseFragment {
                             InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI, v -> {
                                 String p = v.trim();
                                 if (p.isEmpty()) return;
+                                p = SyncthingClient.canonicalFolderPath(p);
                                 f.path = p;
                                 // A label makes the folder recognisable in the list; borrow the
                                 // last path segment when none was typed.
@@ -314,6 +315,18 @@ public class SyncthingFolderFragment extends SyncthingBaseFragment {
         if (f.path.isEmpty()) {
             SyncthingUi.showError(this, getString(R.string.syncthing_folder_no_path));
             return;
+        }
+        f.path = SyncthingClient.canonicalFolderPath(f.path);
+        if (!SyncthingClient.isSupportedFolderPath(f.path)) {
+            SyncthingUi.showError(this, getString(R.string.syncthing_folder_path_unsupported));
+            return;
+        }
+        // FAT cards store no permission bits; syncing them would flag every file as changed. A
+        // pulled card leaves the folder in "path missing" until the next full rescan, so keep that
+        // rescan at most ten minutes away.
+        if (SyncthingClient.isRemovableFolderPath(f.path)) {
+            f.ignorePerms = true;
+            if (f.rescanIntervalS <= 0 || f.rescanIntervalS > 600) f.rescanIntervalS = 600;
         }
         SyncthingUi.act(this, c -> {
             // The daemon refuses a path that does not exist. A failure here is not fatal: the

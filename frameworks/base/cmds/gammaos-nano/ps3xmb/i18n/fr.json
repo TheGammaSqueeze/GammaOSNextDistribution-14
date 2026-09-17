@@ -1751,5 +1751,6 @@
  "Discovery: {1}": "Découverte : {1}",
  "{1} device": "{1} appareil",
  "{1} devices": "{1} appareils",
- "{1}, {2} files": "{1}, {2} fichiers"
+ "{1}, {2} files": "{1}, {2} fichiers",
+ "Choose a folder on internal storage or on an SD card.": "Choisissez un dossier sur le stockage interne ou sur une carte SD."
 }
