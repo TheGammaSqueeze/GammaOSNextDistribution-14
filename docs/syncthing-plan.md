@@ -267,3 +267,144 @@ coherent step (prebuilt, policy, nano, tests, Settings, TvSettings).
   nano screens in the XMB / Minima / ES-DE themes (XMB 'right' drills into a column, so the
   nav path differs), translations for the nano labels through trDyn, and a longer soak with
   the host peer left connected. Everything else in the plan is done and committed.
+- 2026-09-17 05:40: nano Syncthing screens translated (commit 8ce9fdd17ca). Every fixed label,
+  value, description, chooser and dialog goes through trDyn; composed texts (uptime, last seen,
+  sync percentage, folder and device counters, remove prompts) use positional format keys
+  ("Up {1} h {2} min. ", "Disconnected, last seen {1}") so translators can reorder them, and
+  fmtAgo is re-rendered through "{1} min ago" style keys. 199 keys added to all 14 language
+  files (ps3xmb/i18n). Verified live on the Plus in German through the /data/system/nano_i18n
+  override (root, folders, folder, device, options screens all translated; locale restored to
+  en-US afterwards). The longer German labels exposed a DSi list bug: a value wider than the
+  row ran under its label ("Pfad" + path, "Ordnertyp" + "Senden und Empfangen"); the value
+  column now shrinks its font so the label keeps at least its natural width up to 45% of the
+  row. Still to do: XMB / Minima / ES-DE captures, a longer soak, and the next image flash
+  (status row change + translations + list fix).
+- 2026-09-17 05:35: Theme captures done on the Plus with the translated build. XMB (settings
+  column: Syncthing row with description, root with checkbox toggle, folders, folder detail,
+  pending) and Minima (one row per page with the value under the label) render every Syncthing
+  screen; ES-DE opens the same XMB Quick Menu > Full Settings path, verified to the Syncthing
+  root. Nav notes for future runs: XMB starts on Game, Settings is four lefts; Minima cycles
+  categories with up/down (Game, Quick Menu, Settings); ES-DE needs `nav menu`, seven downs to
+  Nano Settings, then Full Settings. Theme restored to DSi, locale en-US. Remaining: longer
+  soak and the next image flash.
+- 2026-09-17 06:35: Image with the translations flashed (erofs, fastbootd, boots in ~50 s).
+  With `setenforce 1` on that build the nano Syncthing screen stayed at "Starting..." while
+  curl from the shell reached the REST API. Root cause found with strace: bionic's connect()
+  hands the socket to netd's fwmark server, and netd may only touch sockets from netdomain
+  processes (netd.te), so netd refused nano's socket and connect() returned EMSGSIZE with no
+  AVC line (the refusal is inside netd, and bootanim's permissive marker does not cover it).
+  Every TCP connect from nano was affected (loopback 8384, adbd 5555, the wifi address), so
+  network shares and the OTA check had the same latent bug on an enforcing boot. Fix: bootanim
+  is now a net_domain (commit f04f98fd813, plus a once-per-error snapshot failure log in the
+  nano worker). Verified by compiling the new policy on the device with secilc, load_policy,
+  setenforce 1: runcon bootanim curl gets 200 and the nano root shows live data. Note the earlier
+  "enforcing" nano check was in fact done permissive (the screenshot hook needs it), which is how
+  this was missed. Next: image build with the policy, flash, regenerate the vendor precompiled
+  policy (plat hash changes), flash vendor, then a boot-to-enforcing check of nano, Settings and
+  TvSettings. Note this build's cmdline carries androidboot.selinux=permissive by design.
+- 2026-09-17 07:00: Policy build flashed (system erofs via fastbootd), then the vendor precompiled
+  policy regenerated on the device with secilc (plat hash changed), vendor.img rebuilt in
+  /work/rg_ds_plus/GammaOSCoreVendor (commit 484224cd) and flashed. Clean boot: init loads the
+  precompiled policy again (no "Compiling SELinux policy"), with setenforce 1 a runcon-bootanim
+  curl gets 200 from the REST API and the nano Syncthing screen fetches with zero snapshot
+  failures in logcat and no AVC denials. Soak sampler (5 min cadence, enforcing while it ran):
+  daemon RSS steady 22-38 MB, peer connected every sample, zero syncthing denials; the two
+  reflashes reset the uptime but the daemon and the peer link came back on their own each time.
+  Device left on the DSi theme, en-US, permissive (its default cmdline). Plan items all done;
+  what remains is optional: a Settings/TvSettings walkthrough on an enforcing boot (system_app
+  already carries net_domain, so no change is expected) and a multi-hour soak.
+- 2026-09-17 07:25: Tried the TV Settings walkthrough on an enforcing boot. The hand-off to
+  TvSettings works, but the row cannot be located blind from adb on this device: uiautomator
+  dump is killed by lmkd (1 GB), screencap of the top panel (display 2) returns status -2, and
+  a scripted back from the accessories row ends the whole activity, after which nano has to be
+  restarted. Not worth more time: the only enforcing-specific failure found today (netd's
+  fwmark refusal) is keyed on the netdomain attribute, which system_app has always carried, and
+  the Settings/TvSettings client was already verified end to end on this build. Left as is.
+  Soak sampler continues; device back on the nano home, permissive, DSi, en-US.
+- 2026-09-17 08:35: Folder locations (user request: /data, /sdcard/Android, external storage).
+  Found that a /storage path from the nano browser or typed in Settings went to the daemon as is
+  and failed ("permission denied" enforcing, "folder marker missing" permissive): the daemon is
+  not an app, so it needs the raw mounts. Commit d82c7be95e9: one shared rule maps
+  /storage/emulated/<n>, /sdcard, /storage/self/primary and /mnt/user views onto
+  /data/media/<n> and /storage/<volume> onto /mnt/media_rw/<volume>, and every other path is
+  refused with a message; card folders get ignore permissions and a rescan of at most ten
+  minutes; the service gains the external_storage group (/mnt/media_rw is root:external_storage)
+  and the policy sdcard_type + mnt_media_rw_file rules (mirrored to prebuilts/api). 17-case unit
+  test of the rule passes. Verified on the Plus: a folder under
+  Android/data/com.retroarch.aarch64/files syncs both ways; a FAT32 image loop-mounted at
+  /mnt/media_rw/TEST01 (vold's raw path, vold mount options) syncs both ways, under enforcing
+  with the new policy, zero syncthing denials. Card removal (umount + rmdir as vold does): the
+  folder goes to "folder path missing" as soon as anything needs syncing, the host keeps every
+  file, and after re-insert the folder recovers by itself at the next full rescan (48 s with a
+  60 s interval; a config change also restarts it at once). Without the short interval it sat in
+  error for 5+ min (default 1 h). vold's own virtual disk (sm set-virtual-disk) is unusable here:
+  its public-volume FUSE mount timed out and broke the internal FUSE mount (reboot fixed it), so
+  st-card.sh replays the scenario with the loop mount instead. Image build with the rc group,
+  policy and clients started; then vendor precompiled regen + flash, plan entry after.
+- 2026-09-17 09:20: Image with the folder location work flashed (system erofs + vendor with the
+  regenerated precompiled policy, commit 35477da9 in the vendor tree; init loads the precompiled
+  policy at boot, the daemon runs with groups media_rw, external_storage, inet). On the flashed
+  build with setenforce 1: st-card.sh all pass (two-way sync on the FAT card, error while pulled,
+  host keeps its files, self recovery 44 s after re-insert with a 60 s rescan, change made while
+  out arrives), regression suite on test1 all pass, zero syncthing AVC denials, nano client zero
+  snapshot failures. Device left permissive (cmdline default), DSi, en-US, only test1 paired.
+- 2026-09-17 09:45: Follow-up from the card work. Verified that the daemon creates a missing
+  folder root by itself when a folder is added (system:media_rw, setgid, marker in place), so
+  the phone Settings app no longer fails the save when its own mkdirs cannot run; it runs as
+  system and cannot reach /mnt/media_rw, which made every card folder added from that app fail
+  before reaching the daemon (commit f3d471263cc, compile-checked; TV Settings and nano already
+  behaved this way). This change only affects the phone Settings app and rides along with the
+  next image; nothing else on the plan is open.
+- 2026-09-17 10:50: Real card (user's SanDisk 64 GB in slot 2). vold formats it as FAT32 (sm
+  partition public) and mounts it raw at /mnt/media_rw/00000000-0000-0000-0000-000000000001
+  plus the FUSE view; a Syncthing folder on it passes the regression suite. Eject via vold (what
+  Settings does): folder goes to "folder path missing" once anything needs syncing, host keeps
+  its files. Platform bug found on remount: GammaOS's synthetic volume id counted up on every
+  mount (0001 -> 0002 -> 0003), because vold's readMetadata allocated a new index each time and
+  only released it on destroy, so any card path broke after an eject. Fixed in vold (commit
+  e3dfffe5fe5, index kept across unmount/mount; a physically removed card still frees it) and
+  flashed; a hot swap of vold rebooted the device, so it went through the image. Reboot with the
+  card in: back at 0001, folder idle, the file changed while ejected arrived. The post-flash
+  eject/mount cycle could not run: the card had been pulled physically meanwhile (mmc1 empty),
+  which itself showed the pulled-without-eject case behaving as designed (folder path missing,
+  nothing deleted). To finish: reinsert the card, run two sm unmount/mount cycles (id must stay
+  0001) and let the folder recover at its 600 s rescan. Test tooling note: the WSL adb.exe
+  wrapper stopped answering during a build; the Linux adb from out/host with
+  ANDROID_ADB_SERVER_PORT=5038 over wifi (scratchpad/adbshim) covers the scripts' fixed serial.
+  Also this iteration: Java copy of the path rule passes the same 17 cases; image with the
+  Settings folder-creation change flashed.
+- 2026-09-17 11:05: Card still out (no disk on mmc1), so the eject/mount cycle on the fixed vold
+  waits for the user to reinsert it. On the flashed build (policy unchanged; the vendor
+  precompiled policy still matches this system's hash) st-card.sh passes again under enforcing
+  with zero syncthing denials, so nothing regressed with the vold and Settings changes. Nothing
+  else open.
+- 2026-09-17 11:25: Card reinserted (back as 000000000001). On the fixed vold two sm unmount/mount
+  cycles kept the id at 000000000001, and the folder on the card recovered on its own after
+  503 s (its 600 s rescan) with the file changed while it was ejected arriving, no manual
+  action. Card handling is now verified end to end on real hardware: format, sync, eject,
+  physical pull, reinsert, remount. Test folder removed from the card and both peers.
+- 2026-09-17 12:05: User request: Syncthing moved under Network Shares in all three clients
+  (last row of the Network Shares list in nano, a row on the Network Shares screen in Settings
+  and TV Settings, shown only when the daemon ships); the top-level rows are gone. Nano verified
+  on the Plus (DSi): Settings > Network Shares > Syncthing opens the client. Settings apps
+  compile; they ride along with the next image. Scripted nav for the nano screen is now
+  r2 enter d15 enter, then down to the last row, enter.
+- 2026-09-17 12:45: Three user-reported nano issues on the Plus, all in commit 6c0a6aec84f and
+  flashed. (1) DS icons on a fresh boot / after adding ROMs: a ROM whose file was unreachable at
+  the first parse (card volume and the FUSE view come up ~40 s after nano; a file still being
+  copied) was recorded as parsed and never retried. Now an unreachable path retries a few
+  seconds later from the next prefetch or draw, a file whose size/mtime changed is parsed again
+  with its old icon dropped, and the DSi theme check no longer caches the empty early-boot
+  property. Verified: card ejected at nano start, SD ROM shows the placeholder, mounted, icon
+  appears within 12 s untouched; fresh boot with the card in shows all icons. (2) Zips: the
+  parser already reads the central directory and inflates lazily up to the banner (13 ms on
+  the host for a 27 MB deflated demo); no change needed. (3) Boot chime lost its first second:
+  in the DSi theme the direct ALSA card was opened by the chime itself and the aw882xx smart PA
+  takes most of a second to power up. The card is now held open with silence from the first
+  frame; on the flashed build the route is up 1.4 s before the chime is queued (was the same
+  instant). Test copies removed from internal storage and the card.
+- 2026-09-17 13:05: Follow-up on the chime warm hold: on the flashed build the hand-off log
+  showed the direct worker still owning the card when the 250 ms bounded wait expired; the
+  later AAudio opens all succeeded, so nothing broke, but the wait is now up to one second with
+  the elapsed time logged (commit, compile-checked, rides with the next image). Nothing else
+  open; the Syncthing plan itself has been complete since the card work.
