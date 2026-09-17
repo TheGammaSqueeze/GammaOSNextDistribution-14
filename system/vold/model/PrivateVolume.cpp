@@ -64,8 +64,9 @@ PrivateVolume::~PrivateVolume() {}
 status_t PrivateVolume::readMetadata() {
     status_t res = ReadMetadata(mDmDevPath, &mFsType, &mFsUuid, &mFsLabel);
 
-    // Allocate a new index and use a stable UUID
-    int idx = allocateIndexForVolume(getId());
+    // Allocate a new index and use a stable UUID; keep the one already held across a remount
+    // (the index is only released when the volume is destroyed).
+    int idx = (mAllocatedIndex != -1) ? mAllocatedIndex : allocateIndexForVolume(getId());
     if (idx == -1) {
         idx = 999; // fallback if no index available
     }

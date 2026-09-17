@@ -77,7 +77,11 @@ status_t PublicVolume::readMetadata() {
 
     // LOS20: allocate a stable synthetic UUID regardless of on-disk UUID
     // Keep this behavior to ensure stable mount names across boots/devices.
-    int idx = allocateIndexForVolume(getId());
+    // readMetadata runs on every mount, and the index is only released when the volume is
+    // destroyed, so a volume unmounted and mounted again (eject from Settings, a remount
+    // after a filesystem check) must keep the index it already holds; taking a fresh one
+    // moved the card from .../000000000001 to .../000000000002 and broke every path into it.
+    int idx = (mAllocatedIndex != -1) ? mAllocatedIndex : allocateIndexForVolume(getId());
     if (idx == -1) {
         // Fallback: try to derive a stable-ish name if allocator unavailable.
         // If iso/udf provided label above, keep it; otherwise use the existing mFsUuid or id.
