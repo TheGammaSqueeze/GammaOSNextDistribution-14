@@ -2107,6 +2107,83 @@ struct SpuTraceRec { uint32_t cycles, widx; uint64_t cap0, cap1; uint32_t line, 
 static SpuTraceRec* gSpuTrace = nullptr;
 static std::atomic<uint32_t> gSpuTraceN{0};
 static const uint32_t kSpuTraceCap = 4000;
+// In-ring interpolation repair (persist.gammaos.drastic_nano.ring_repair): Golden Sun DD streams speech
+// through an SPU capture-feedback echo ring (680 samples, capture len 680) that channels 1/3 loop-read.
+// DraStic reads+clears it in blocks, so the reader crosses cleared-but-not-yet-refilled zero-gaps and
+// steps to a floor (the scratch). Hardware/melonDS never expose such gaps. Right before the channel
+// mix reads the ring, linearly interpolate across every internal zero-run (circular, between the two
+// flanking non-zero samples). Offline replay of the ring trace: reader-crossed discontinuities 133 -> 8;
+// hold-last 83, forward-fill 358, so linear interpolation is the one that works. The required clear
+// (capture side) is left intact so the echo still decays. Gated on the exact echo config so no other
+// game or address is touched.
+static std::atomic<uint32_t> gRingRepairCalls{0}, gRingRepairFilled{0};
+// Universal form: the ring length, sample width and mode come from the capture unit itself, not from
+// one game's numbers. Length is in samples for both formats (the clear loop compares the sample index
+// against it and scales the byte offset by the width). Gated to loop-mode, non-add-mode captures.
+static const uint32_t kRingMaxSamples = 32768;
+static uint8_t  gRingSave[2][kRingMaxSamples * 2];
+static uint32_t gRingSaveBytes[2] = {0, 0};
+static uint32_t gRingCfgSeen[2] = {0xffffffffu, 0xffffffffu};   // (len<<8 | cnt) last logged per unit
+static inline bool ringRepairTarget(uint8_t* spu, int u, uint8_t** out, uint32_t* len, int* width) {
+    const uint8_t cnt = spu[0x40cc4 + u * 32];
+    if (!(cnt & 0x80)) return false;                                            // not running
+    const uint32_t L = *reinterpret_cast<uint32_t*>(spu + 0x40cc0 + u * 32);
+    uint8_t* p = *reinterpret_cast<uint8_t**>(spu + 0x40cb8 + u * 32);
+    const uint32_t key = (L << 8) | cnt;
+    const bool ok = !(cnt & 0x04) && !(cnt & 0x01) && L >= 16 && L <= kRingMaxSamples && p;   // loop, not add-mode, sane, mapped
+    if (gRingCfgSeen[u] != key) {                                               // one line per new config, for the sweep
+        gRingCfgSeen[u] = key;
+        ALOGI("DrasticRunner: RINGREPAIR cfg unit=%d len=%u cnt=0x%02x fmt=%s mode=%s add=%d -> %s", u, L, cnt,
+              (cnt & 0x08) ? "pcm8" : "pcm16", (cnt & 0x04) ? "oneshot" : "loop", (cnt & 0x01) ? 1 : 0, ok ? "repair" : "skip");
+    }
+    if (!ok) return false;
+    *out = p; *len = L; *width = (cnt & 0x08) ? 1 : 2;
+    return true;
+}
+template <typename T> static uint32_t ringInterpFill(T* r, uint32_t L) {
+    int firstnz = -1;
+    for (uint32_t i = 0; i < L; i++) if (r[i]) { firstnz = (int)i; break; }
+    if (firstnz < 0) return 0;                                                  // silent ring, nothing to bridge
+    uint32_t prev = (uint32_t)firstnz, filled = 0;
+    for (uint32_t step = 1; step <= L; step++) {
+        uint32_t i = ((uint32_t)firstnz + step) % L;
+        if (!r[i]) continue;
+        uint32_t gap = (i - prev + L) % L;
+        if (gap > 1) {
+            long a = r[prev], b = r[i];
+            for (uint32_t k = 1; k < gap; k++) r[(prev + k) % L] = (T)(a + ((b - a) * (long)k) / (long)gap);
+            filled += gap - 1;
+        }
+        prev = i;
+    }
+    return filled;
+}
+// Pre: snapshot the real ring, then bridge every internal zero-run by linear interpolation so the
+// channel-mix that follows never reads a cleared-but-unrefilled zero. Visible only for that read.
+extern "C" void spuRingRepairPre(uint8_t* master) {
+    uint8_t* spu = master + 0x158c000;
+    gRingRepairCalls.fetch_add(1, std::memory_order_relaxed);
+    for (int u = 0; u < 2; u++) {
+        gRingSaveBytes[u] = 0;
+        uint8_t* p; uint32_t L; int w;
+        if (!ringRepairTarget(spu, u, &p, &L, &w)) continue;
+        const uint32_t bytes = L * (uint32_t)w;
+        memcpy(gRingSave[u], p, bytes); gRingSaveBytes[u] = bytes;
+        const uint32_t filled = (w == 2) ? ringInterpFill(reinterpret_cast<int16_t*>(p), L) : ringInterpFill(reinterpret_cast<int8_t*>(p), L);
+        if (filled) gRingRepairFilled.fetch_add(filled, std::memory_order_relaxed);
+    }
+}
+// Post: put the real (gapped) ring back so the capture units still clear/write it and the game's ARM9
+// feedback never accumulates our bridged values; an in-place fill alone runs the echo away.
+extern "C" void spuRingRepairPost(uint8_t* master) {
+    uint8_t* spu = master + 0x158c000;
+    for (int u = 0; u < 2; u++) {
+        if (!gRingSaveBytes[u]) continue;
+        uint8_t* p = *reinterpret_cast<uint8_t**>(spu + 0x40cb8 + u * 32);
+        if (p) memcpy(p, gRingSave[u], gRingSaveBytes[u]);
+        gRingSaveBytes[u] = 0;
+    }
+}
 static uint8_t* gSpuTraceBase = nullptr;
 // Compact long-run trace: capture state and a few ring samples per mix, for the whole session.
 struct SpuMini { uint32_t cycles, cap, cnt; int16_t sig[8]; };
@@ -2848,6 +2925,41 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             mprotect(sitePg4, (size_t)ps, PROT_READ | PROT_EXEC);
             ALOGI("DrasticRunner: SPU mix every %d scanlines installed (cave +0x%zx)", mixLines, (size_t)cave3);
         } else if (sProbePage && mixLines > 0) ALOGW("DrasticRunner: scanline handler entry +0x2c8f8 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + lineEntry));
+        // In-ring interpolation repair cave: wraps the mixer's channel-mix call so the ring is bridged
+        // right before channels 1/3 read it. Site +0x72858 is "bl +0x71bf0" inside the mixer +0x72764,
+        // where x19 = master and x0/x1/w2 are the channel-mix arguments; the cave saves those, calls
+        // spuRingRepair(master), restores them and tail-branches into +0x71bf0 with x30 still holding the
+        // mixer's return address. Lives at probe page +512, clear of the other caves.
+        const uintptr_t rrSite = 0x72858;
+        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.ring_repair", true) &&
+            *reinterpret_cast<uint32_t*>(base + rrSite) == 0x97fffce6u) {   // bl +0x71bf0
+            uint8_t* cavePg5 = sProbePage;
+            const uintptr_t cave4 = (uintptr_t)sProbePage - (uintptr_t)base + 512;
+            mprotect(cavePg5, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            uint32_t* w = reinterpret_cast<uint32_t*>(base + cave4);
+            static const uint32_t kCaveRR[] = {   // scratchpad/gs/caveRR2.s
+                0xa9bf07e0u, 0xa9bf7be2u, 0xaa1303e0u, 0x580001b0u,
+                0xd63f0200u, 0xa8c17be2u, 0xa8c107e0u, 0xf81f0ffeu,
+                0x94000000u, 0xf84107feu, 0xf81f0ffeu, 0xaa1303e0u,
+                0x580000d0u, 0xd63f0200u, 0xf84107feu, 0xd65f03c0u,
+                0u, 0u,        // +0x40: spuRingRepairPre address (u64)
+                0u, 0u,        // +0x48: spuRingRepairPost address (u64)
+            };
+            memcpy(w, kCaveRR, sizeof(kCaveRR));
+            const int64_t bMix = ((int64_t)0x71bf0 - (int64_t)(cave4 + 0x20)) / 4;
+            w[8] = 0x94000000u | ((uint32_t)bMix & 0x03ffffffu);   // bl +0x71bf0, returns into the cave
+            *reinterpret_cast<uint64_t*>(base + cave4 + 0x40) = (uint64_t)(uintptr_t)&spuRingRepairPre;
+            *reinterpret_cast<uint64_t*>(base + cave4 + 0x48) = (uint64_t)(uintptr_t)&spuRingRepairPost;
+            __builtin___clear_cache((char*)(base + cave4), (char*)(base + cave4 + sizeof(kCaveRR)));
+            uint8_t* sitePg5 = (uint8_t*)((uintptr_t)(base + rrSite) & ~(uintptr_t)(ps - 1));
+            mprotect(sitePg5, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            const int64_t d = ((int64_t)cave4 - (int64_t)rrSite) / 4;
+            *reinterpret_cast<uint32_t*>(base + rrSite) = 0x94000000u | ((uint32_t)d & 0x03ffffffu);   // bl cave4
+            __builtin___clear_cache((char*)(base + rrSite), (char*)(base + rrSite + 4));
+            mprotect(sitePg5, (size_t)ps, PROT_READ | PROT_EXEC);
+            ALOGI("DrasticRunner: SPU ring interpolation repair installed (cave +0x%zx)", (size_t)cave4);
+        } else if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.ring_repair", true))
+            ALOGW("DrasticRunner: mixer channel-mix site +0x72858 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + rrSite));
     }
     // The ratio is the 64-bit fixed-point constant 0xff90ecc69f727e51
     // (0.997101 x 2^64) loaded by a mov/movk quartet at three sites
@@ -3473,6 +3585,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                       gAudCallbacks.load(), gAudUnderruns.load(), gEmuLostTicks.load(), gEmuCatchUps.load(), gEmuDebtDrops.load(),
                       gAudSkipped.load(), gAudFixCarried.load(), gAudFixPadded.load(), gAudFixSilenced.load(), gAudFixDropped.load(),
                       gSpuMixCtl ? gSpuMixCtl[2] : 0u);
+                if (gRingRepairCalls.load()) ALOGW("DrasticRunner: RINGREPAIR calls=%u filled=%u", gRingRepairCalls.load(), gRingRepairFilled.load());
                 if (gSpuTrace && property_get_int32("sys.gammaos.drastic_nano.spu_trace_dump", 0) == 1) {
                     FILE* tf = fopen("/data/local/tmp/spu_trace.bin", "wb");
                     uint32_t n = gSpuTraceN.load(); uint32_t first = n > kSpuTraceCap ? n - kSpuTraceCap : 0;
