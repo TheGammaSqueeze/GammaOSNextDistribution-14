@@ -59,7 +59,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 
-import com.android.internal.gammaos.SyncthingClient;
 import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.suggestions.SuggestionControllerMixinCompat;
 import com.android.tv.settings.HotwordSwitchController.HotwordStateListener;
@@ -121,7 +120,6 @@ public class MainFragment extends PreferenceControllerFragment implements
     static final String KEY_DISPLAY_AND_SOUND = "display_and_sound";
     private static final String KEY_CHANNELS_AND_INPUTS = "channels_and_inputs";
     private static final String KEY_CHANNELS_AND_INPUTS_SLICE = "channels_and_inputs_slice";
-    private static final String KEY_SYNCTHING = "syncthing";
 
     private static final String ACTION_ACCOUNTS = "com.android.tv.settings.ACCOUNTS";
     @VisibleForTesting
@@ -265,13 +263,6 @@ public class MainFragment extends PreferenceControllerFragment implements
             Preference privacyPref = findPreference(KEY_PRIVACY);
             if (privacyPref != null) {
                 privacyPref.setVisible(true);
-            }
-        }
-        // The Syncthing row only makes sense on an image that ships the daemon.
-        if (!SyncthingClient.isInstalled()) {
-            Preference syncthingPref = findPreference(KEY_SYNCTHING);
-            if (syncthingPref != null) {
-                syncthingPref.setVisible(false);
             }
         }
         mSuggestionQuickSettingPrefsContainer.onCreatePreferences();

@@ -35,15 +35,6 @@
         android:summary="@string/network_shares_summary"
         android:fragment="com.android.settings.handheld.NetworkSharesFragment" />
 
-    <!-- Syncthing: the bundled sync daemon. Hidden by HandheldDashboardFragment when the build
-         does not ship the binary. -->
-    <Preference
-        android:key="syncthing"
-        android:icon="@drawable/ic_settings_sync"
-        android:title="@string/syncthing_title"
-        android:summary="@string/syncthing_summary"
-        android:fragment="com.android.settings.handheld.syncthing.SyncthingFragment" />
-
     <!-- Shortcuts to the standalone GammaOS control apps. Wired up (and hidden when the target
          app is not installed) by HandheldDashboardFragment. -->
     <PreferenceCategory

@@ -112,6 +112,17 @@ void NanoMenu::buildSharesList(Ps3Level& out) {
         it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 0.55f;
         out.items.push_back(it);
     }
+
+    // Syncthing lives here with the other ways of reaching files over the network. A plain
+    // leaf: the PS3_DATA_LEAF dispatch opens the client by its English label
+    // (NanoMenuPS3Menu.cpp), so the label stays untranslated like the top-level leaves.
+    {
+        Ps3Item it; it.kind = PS3_DATA_LEAF; it.label = "Syncthing";
+        it.desc = trDyn("Keep folders on this device in sync with your other devices and computers. Runs in the background.");
+        it.iconTex = nicon; it.nmapTex = nmap;
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
 }
 
 void NanoMenu::nsOpenList() {

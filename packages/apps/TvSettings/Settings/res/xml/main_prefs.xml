@@ -72,12 +72,6 @@
             android:summary="@string/gammaos_toolbox_summary"
             android:fragment="com.android.tv.settings.gammaos.GammaOSToolboxFragment" />
         <Preference
-            android:icon="@drawable/ic_network"
-            android:key="syncthing"
-            android:title="@string/syncthing_title"
-            android:summary="@string/syncthing_main_summary"
-            android:fragment="com.android.tv.settings.gammaos.syncthing.SyncthingFragment" />
-        <Preference
             android:icon="@drawable/ic_photo_size_select_actual"
             android:key="display_orientation"
             android:title="@string/display_orientation_title"

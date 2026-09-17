@@ -21,6 +21,9 @@ import android.os.Bundle;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
+import com.android.internal.gammaos.SyncthingClient;
+import com.android.settings.handheld.syncthing.SyncthingFragment;
+
 import com.android.internal.gammaos.GammaShareConfig;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
@@ -103,6 +106,24 @@ public class NetworkSharesFragment extends SettingsPreferenceFragment {
             full.setSelectable(false);
             full.setSummary(getString(R.string.network_shares_full, GammaShareConfig.MAX_SHARES));
             screen.addPreference(full);
+        }
+
+        // Syncthing lives here with the other ways of reaching files over the network, on
+        // builds that ship the daemon.
+        if (SyncthingClient.isInstalled()) {
+            Preference st = new Preference(getPrefContext());
+            st.setKey("syncthing");
+            st.setIcon(R.drawable.ic_settings_sync);
+            st.setTitle(R.string.syncthing_title);
+            st.setSummary(R.string.syncthing_summary);
+            st.setOnPreferenceClickListener(pref -> {
+                new com.android.settings.core.SubSettingLauncher(getContext())
+                        .setDestination(SyncthingFragment.class.getName())
+                        .setSourceMetricsCategory(getMetricsCategory())
+                        .launch();
+                return true;
+            });
+            screen.addPreference(st);
         }
     }
 
