@@ -234,3 +234,36 @@ coherent step (prebuilt, policy, nano, tests, Settings, TvSettings).
   SyncthingClient.java, twin of the nano client); Settings and TV Settings screens being
   written by two implementation passes from one spec. Next: build both apps + framework +
   nano (buildtv), flash system + vendor, verify both apps on the device, commit.
+- 2026-09-17 04:15: Settings + TV Settings screens committed (60f7d4e3f1e) on a shared framework
+  client (com.android.internal.gammaos.SyncthingClient). Image with framework + both apps + nano
+  built and flashed with the regenerated vendor sepolicy; service now single-process (STMONITORED),
+  relay TLS fine (SSL_CERT_DIR), identity kept, peer reconnected, zero denials. Found and fixed
+  (69ba6966f8b): the clients probed the binary with X_OK / canExecute, which SELinux denies for
+  bootanim and system_app, so the feature hid itself when enforcing; both use existence now.
+  Found on the Plus: the stock odm partition carried an old precompiled_sepolicy that init
+  consults before vendor's, so the regenerated vendor policy was never used (runtime compile
+  every boot); removed those three files from a dumped odm image with debugfs and flashed it,
+  init now loads the precompiled policy at boot (backup scratchpad/odm/odm.orig.img).
+  TV Settings verified on the Plus top panel through nano's real hand-off (launch_app +
+  nano_retroarch props): root screen shows live status, device, folders, devices, pending,
+  options, web interface, restart, logs. Phone Settings fetches correctly (logged) but an
+  activity started with adb's plain am start stays paused on this dual-display build, so its
+  rows only render through the real launch path; screens are code-identical to TV Settings.
+  Note: Settings.apk cannot be adb-installed over the system one here (provider conflict with
+  TvSettings), a bind mount over the APK works for iteration. Final image build with the
+  existence fix started; flash pending. Remaining: flash, final walkthrough of the nano screens
+  on the flashed build with enforcing, then XMB / Minima / ES-DE theme captures of the nano
+  screens, translations (trDyn) for the nano labels.
+- 2026-09-17 04:50: Final image (framework client + Settings + TvSettings + nano existence fix +
+  single-process rc) flashed with the regenerated vendor sepolicy and the cleaned odm. On this
+  build, enforcing: service single-process, precompiled policy loaded at boot (no runtime
+  compile), zero syncthing AVC denials, peer connected, nano Syncthing root shows live data
+  (Running v2.1.5, device "GammaOS Core", 1 folder active, 1 device connected). Two device
+  quirks for future test runs: an activity started with plain adb `am start` stays paused on
+  this dual-display build (drive apps through nano's hand-off props instead), and nano's
+  screenshot hook needs the DRM home (not the resident overlay) and permissive mode. Small
+  cosmetic follow-up committed: the status row keeps the version as value and the uptime in
+  the description (needs the next image). Open items for later iterations: captures of the
+  nano screens in the XMB / Minima / ES-DE themes (XMB 'right' drills into a column, so the
+  nav path differs), translations for the nano labels through trDyn, and a longer soak with
+  the host peer left connected. Everything else in the plan is done and committed.

@@ -1295,8 +1295,16 @@ void NanoMenu::renderNdsSubmenu(float rx, float ry, float rw, float rh) {
         const bool isCheck     = (items[i].checkState >= 0);
         float rightEdge = X(bx + bw - 9.0f);
         if (showVal && !isCheck) {
-            float vw = measureText(items[i].value.c_str(), fs);
-            drawText(items[i].value.c_str(), rightEdge - vw, Y(rowY + 6.0f), fs, ic, ic, ic, 1.0f);
+            // The label keeps at least its natural width up to 45% of the row (translated labels
+            // are often longer than the English ones); a value wider than the remainder is drawn
+            // smaller instead of running under the label.
+            const float labelLeft0 = hasIcon ? X(bx + 32.0f) : X(bx + 12.0f);
+            const float avail      = rightEdge - labelLeft0 - S(10.0f);
+            const float labelMin   = fminf(measureText(lbl.c_str(), fs), avail * 0.45f);
+            float vfs = fs;
+            float vw  = measureText(items[i].value.c_str(), vfs);
+            if (vw > avail - labelMin && vw > 0.0f) { vfs *= (avail - labelMin) / vw; vw = measureText(items[i].value.c_str(), vfs); }
+            drawText(items[i].value.c_str(), rightEdge - vw, Y(rowY + 6.0f) + (fs - vfs) * 0.5f, vfs, ic, ic, ic, 1.0f);
             rightEdge = rightEdge - vw - S(10.0f);                           // label clipped before the value
         }
         if (isCheck) {

@@ -45,6 +45,24 @@ using nanost::DeviceCfg;
 using nanost::fmtBytes;
 using nanost::fmtAgo;
 
+// Translated text with positional placeholders, e.g. stFmt("Since {1}", when). The English key
+// carries the placeholders so translators can reorder them.
+static std::string stFmt(const char* key, const std::string& a, const std::string& b = std::string()) {
+    std::string s = trDyn(key);
+    size_t p = s.find("{1}"); if (p != std::string::npos) s.replace(p, 3, a);
+    p = s.find("{2}");        if (p != std::string::npos) s.replace(p, 3, b);
+    return s;
+}
+
+// fmtAgo ("5 min ago", "never") in the user's language.
+static std::string stAgo(const std::string& ts) {
+    const std::string r = fmtAgo(ts);
+    if (r == "never") return trDyn("never");
+    size_t sp = r.find(' ');
+    if (sp == std::string::npos) return r;
+    return stFmt(("{1} " + r.substr(sp + 1)).c_str(), r.substr(0, sp));
+}
+
 static const char* kStEnabledProp = "persist.gammaos.syncthing.enabled";
 static const char* kStRestartProp = "sys.gammaos.syncthing.restart";
 static const char* kStBinary      = "/system/bin/syncthing";
@@ -198,9 +216,13 @@ static std::string stFitValue(const std::string& v) {
 NanoMenu::Ps3Item NanoMenu::stRow(const std::string& label, int row, const std::string& value,
                                   const std::string& desc, int aux, const std::string& payload) {
     NanoMenu::Ps3Item it;
-    it.label = label; it.kind = NanoMenu::PS3_ST_ROW; it.a = row; it.b = aux;
-    it.value = stFitValue(value); it.payloadStr = payload;
-    it.desc = (it.value != value && desc.empty()) ? value : (it.value != value ? value + "\n" + desc : desc);
+    // Fixed text is translated here (trDyn returns dynamic text such as names and paths unchanged),
+    // so the rows read translated in every theme's list renderer.
+    it.label = trDyn(label.c_str()); it.kind = NanoMenu::PS3_ST_ROW; it.a = row; it.b = aux;
+    const std::string tv = trDyn(value.c_str());
+    it.value = stFitValue(tv); it.payloadStr = payload;
+    const std::string td = trDyn(desc.c_str());
+    it.desc = (it.value != tv && td.empty()) ? tv : (it.value != tv ? tv + "\n" + td : td);
     it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 1.0f;
     return it;
 }
@@ -210,7 +232,7 @@ NanoMenu::Ps3Item NanoMenu::stInfoRow(const std::string& label, const std::strin
     return it;
 }
 NanoMenu::Ps3Item NanoMenu::stToggleRow(const std::string& label, int row, bool on, const std::string& desc, int aux) {
-    NanoMenu::Ps3Item it = stRow(label, row, on ? "On" : "Off", desc, aux);
+    NanoMenu::Ps3Item it = stRow(label, row, on ? "On" : "Off", desc, aux);   // On/Off translate through stRow
     it.checkState = on ? 1 : 0;
     return it;
 }
@@ -233,9 +255,9 @@ static std::string stFolderStateText(const Snapshot& s, const FolderCfg& f) {
     if (st.state == "syncing" && st.globalBytes > 0) {
         int pct = (int)(100.0 * (double)(st.globalBytes - st.needBytes) / (double)st.globalBytes);
         if (pct < 0) pct = 0; if (pct > 100) pct = 100;
-        txt += " (" + std::to_string(pct) + "%)";
+        txt = stFmt("Syncing ({1}%)", std::to_string(pct));
     } else if (st.state == "idle" && st.needBytes > 0) {
-        txt = "Out of Sync (" + fmtBytes(st.needBytes) + ")";
+        txt = stFmt("Out of Sync ({1})", fmtBytes(st.needBytes));
     } else if (st.state == "idle" && st.receiveOnlyChangedFiles > 0) {
         txt = "Local Additions";
     }
@@ -247,13 +269,13 @@ static std::string stDeviceStateText(const Snapshot& s, const DeviceCfg& d) {
     if (d.paused) return "Paused";
     auto it = s.connections.find(d.id);
     if (it == s.connections.end() || !it->second.connected) {
-        std::string ls = (it != s.connections.end()) ? fmtAgo(it->second.lastSeen) : "never";
-        return "Disconnected, last seen " + ls;
+        std::string ls = (it != s.connections.end()) ? stAgo(it->second.lastSeen) : trDyn("never");
+        return stFmt("Disconnected, last seen {1}", ls);
     }
     const nanost::DeviceConn& c = it->second;
     char buf[48]; snprintf(buf, sizeof(buf), "%.0f%%", c.completion);
     if (c.completion >= 99.95) return "Up to Date";
-    return std::string("Syncing (") + buf + ")";
+    return stFmt("Syncing ({1})", buf);
 }
 
 // ---- root --------------------------------------------------------------------------------
@@ -266,7 +288,7 @@ void NanoMenu::stOpenRoot() {
 
 void NanoMenu::buildStRoot(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = ST_ROOT;
-    out.title = "Syncthing";
+    out.title = trDyn("Syncthing");
     const Snapshot& s = mStShown;
     const bool enabled = stEnabled();
 
@@ -281,25 +303,31 @@ void NanoMenu::buildStRoot(Ps3Level& out) {
     if (!enabled)            { status = "Stopped"; }
     else if (!s.apiOk)       { status = "Starting..."; statusDesc = s.error == "off" ? "" : s.error; }
     else {
-        char up[48];
-        if (s.uptimeS >= 3600) snprintf(up, sizeof(up), "up %lld h %lld min", (long long)(s.uptimeS / 3600), (long long)((s.uptimeS % 3600) / 60));
-        else                   snprintf(up, sizeof(up), "up %lld min", (long long)(s.uptimeS / 60));
-        status = "Running " + s.version + ", " + up;
+        // The version is the value; uptime goes in the description so the row stays short in
+        // the list themes (the DSi list fits about twenty characters beside a label).
+        status = stFmt("Running {1}", s.version);
+        statusDesc = (s.uptimeS >= 3600)
+            ? stFmt("Up {1} h {2} min. ", std::to_string(s.uptimeS / 3600), std::to_string((s.uptimeS % 3600) / 60))
+            : stFmt("Up {1} min. ", std::to_string(s.uptimeS / 60));
         int bad = 0;
         for (const std::string& l : s.listeners) if (l.find(": ok") == std::string::npos) bad++;
-        if (bad) statusDesc = std::to_string(bad) + " listener(s) failed; see Logs.";
-        if (!s.discoveryErrors.empty()) statusDesc += (statusDesc.empty() ? "" : " ") + std::string("Discovery: ") + s.discoveryErrors.front();
+        if (bad) statusDesc += stFmt("{1} listener(s) failed; see Logs. ", std::to_string(bad));
+        if (!s.discoveryErrors.empty()) statusDesc += stFmt("Discovery: {1}", s.discoveryErrors.front());
     }
     out.items.push_back(stInfoRow("Status", status, statusDesc));
 
     if (enabled && s.apiOk) {
-        out.items.push_back(stRow("This Device", STR_THISDEVICE, s.options.deviceName.empty() ? "(unnamed)" : s.options.deviceName,
-                                  "ID " + s.myID + ". Select to show the full ID for pairing."));
-        int syncing = 0; for (const FolderCfg& f : s.folders) { std::string t = stFolderStateText(s, f); if (t.rfind("Syncing", 0) == 0 || t.rfind("Scanning", 0) == 0) syncing++; }
+        out.items.push_back(stRow("This Device", STR_THISDEVICE, s.options.deviceName.empty() ? trDyn("(unnamed)") : s.options.deviceName,
+                                  stFmt("ID {1}. Select to show the full ID for pairing.", s.myID)));
+        int syncing = 0;
+        for (const FolderCfg& f : s.folders) {
+            auto st = s.folderStatus.find(f.id);
+            if (!f.paused && st != s.folderStatus.end() && (st->second.state == "syncing" || st->second.state == "scanning")) syncing++;
+        }
         int connected = 0; for (const DeviceCfg& d : s.devices) { auto c = s.connections.find(d.id); if (c != s.connections.end() && c->second.connected) connected++; }
-        out.items.push_back(stRow("Folders", STR_FOLDERS, std::to_string(s.folders.size()) + (syncing ? " (" + std::to_string(syncing) + " active)" : ""),
+        out.items.push_back(stRow("Folders", STR_FOLDERS, syncing ? stFmt("{1} ({2} active)", std::to_string(s.folders.size()), std::to_string(syncing)) : std::to_string(s.folders.size()),
                                   "Folders shared with your other devices."));
-        out.items.push_back(stRow("Devices", STR_DEVICES, std::to_string(s.devices.size()) + " (" + std::to_string(connected) + " connected)",
+        out.items.push_back(stRow("Devices", STR_DEVICES, stFmt("{1} ({2} connected)", std::to_string(s.devices.size()), std::to_string(connected)),
                                   "Other devices this one syncs with."));
         const int pending = (int)(s.pendingDevices.size() + s.pendingFolders.size());
         out.items.push_back(stRow("Pending Requests", STR_PENDING, pending ? std::to_string(pending) : "None",
@@ -337,12 +365,12 @@ std::string NanoMenu::stDeviceIp() const {
 
 void NanoMenu::buildStFolders(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = ST_FOLDERS;
-    out.title = "Folders";
+    out.title = trDyn("Folders");
     const Snapshot& s = mStShown;
     for (size_t i = 0; i < s.folders.size(); i++) {
         const FolderCfg& f = s.folders[i];
         Ps3Item it = stRow(f.label.empty() ? f.id : f.label, STR_FOLDER_ROW, stFolderStateText(s, f),
-                           f.path + "  (" + nanost::folderTypeLabel(f.type) + ", " + std::to_string(f.devices.size()) + " device" + (f.devices.size() == 1 ? "" : "s") + ")",
+                           f.path + "  (" + trDyn(nanost::folderTypeLabel(f.type)) + ", " + stFmt(f.devices.size() == 1 ? "{1} device" : "{1} devices", std::to_string(f.devices.size())) + ")",
                            (int)i, f.id);
         it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62);   // folder glyph
         out.items.push_back(it);
@@ -375,7 +403,7 @@ void NanoMenu::buildStFolder(Ps3Level& out) {
     FolderCfg& f = mStFolderDraft;
     // Keep the draft of an existing folder in step with the daemon (another client may edit it).
     if (!mStFolderIsNew) for (const FolderCfg& x : s.folders) if (x.id == f.id) { f = x; break; }
-    out.title = mStFolderIsNew ? "New Folder" : (f.label.empty() ? f.id : f.label);
+    out.title = mStFolderIsNew ? trDyn("New Folder") : (f.label.empty() ? f.id : f.label);
 
     if (mStFolderIsNew) out.items.push_back(stRow("Save Folder", STR_FOLDER_SAVE, "", "Create the folder with the settings below."));
     out.items.push_back(stRow("Label", STR_FOLDER_LABEL, f.label.empty() ? "(none)" : f.label, "Shown on this device only."));
@@ -389,9 +417,10 @@ void NanoMenu::buildStFolder(Ps3Level& out) {
         for (const DeviceCfg& d : s.devices) if (d.id == id) n = d.name;
         shared += (shared.empty() ? "" : ", ") + n;
     }
-    out.items.push_back(stRow("Shared With", STR_FOLDER_SHARE, shared.empty() ? "(no devices)" : shared, "Devices this folder is synced with."));
+    out.items.push_back(stRow("Shared With", STR_FOLDER_SHARE, shared.empty() ? trDyn("(no devices)") : shared, "Devices this folder is synced with."));
     std::string ver = "None";
     for (int i = 0; i < 4; i++) if (f.versioningType == kStVersioning[i]) ver = kStVersioningLbl[i];
+    ver = trDyn(ver.c_str());
     if (!f.versioningType.empty() && !f.versioningParam.empty()) ver += " (" + f.versioningParam + ")";
     out.items.push_back(stRow("File Versioning", STR_FOLDER_VERSIONING, ver, "Keep old copies of changed or deleted files."));
     if (!f.versioningType.empty() && f.versioningType != "external") {
@@ -408,10 +437,10 @@ void NanoMenu::buildStFolder(Ps3Level& out) {
         auto st = s.folderStatus.find(f.id);
         if (st != s.folderStatus.end()) {
             const nanost::FolderStatus& x = st->second;
-            out.items.push_back(stInfoRow("State", stFolderStateText(s, f), x.error.empty() ? (x.stateChanged.empty() ? "" : "Since " + fmtAgo(x.stateChanged)) : x.error));
-            out.items.push_back(stInfoRow("Global State", fmtBytes(x.globalBytes) + ", " + std::to_string(x.globalFiles) + " files"));
-            out.items.push_back(stInfoRow("Local State", fmtBytes(x.localBytes) + ", " + std::to_string(x.localFiles) + " files"));
-            if (x.needBytes > 0) out.items.push_back(stInfoRow("Out of Sync", fmtBytes(x.needBytes) + ", " + std::to_string(x.needFiles) + " files"));
+            out.items.push_back(stInfoRow("State", stFolderStateText(s, f), x.error.empty() ? (x.stateChanged.empty() ? "" : stFmt("Since {1}", stAgo(x.stateChanged))) : x.error));
+            out.items.push_back(stInfoRow("Global State", stFmt("{1}, {2} files", fmtBytes(x.globalBytes), std::to_string(x.globalFiles))));
+            out.items.push_back(stInfoRow("Local State", stFmt("{1}, {2} files", fmtBytes(x.localBytes), std::to_string(x.localFiles))));
+            if (x.needBytes > 0) out.items.push_back(stInfoRow("Out of Sync", stFmt("{1}, {2} files", fmtBytes(x.needBytes), std::to_string(x.needFiles))));
             if (x.pullErrors > 0) out.items.push_back(stInfoRow("Failed Items", std::to_string(x.pullErrors), "See Logs for the file names."));
         }
         out.items.push_back(stRow("Rescan Now", STR_FOLDER_RESCAN_NOW, ""));
@@ -444,7 +473,7 @@ void NanoMenu::stEnsureFolderDir(const std::string& path) {
 bool NanoMenu::stCommitFolder() {
     if (mStFolderIsNew) return true;   // sent by Save
     nanost::Client c; std::string err;
-    if (!c.putFolder(mStFolderDraft, err)) { feInfoDialog("Syncthing", "Could not update the folder: " + err); return false; }
+    if (!c.putFolder(mStFolderDraft, err)) { feInfoDialog(trDyn("Syncthing"), trDyn("Could not update the folder: ") + err); return false; }
     stRefreshSoon();
     return true;
 }
@@ -464,14 +493,14 @@ void NanoMenu::stFolderPathSelect(const std::string& path) {
 
 void NanoMenu::buildStDevices(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = ST_DEVICES;
-    out.title = "Devices";
+    out.title = trDyn("Devices");
     const Snapshot& s = mStShown;
     for (size_t i = 0; i < s.devices.size(); i++) {
         const DeviceCfg& d = s.devices[i];
         std::string desc = stShortId(d.id);
         auto c = s.connections.find(d.id);
         if (c != s.connections.end() && c->second.connected)
-            desc += "  " + c->second.address + " (" + c->second.type + ")  down " + fmtBytes(c->second.inBytesTotal) + ", up " + fmtBytes(c->second.outBytesTotal);
+            desc += "  " + c->second.address + " (" + c->second.type + ")  " + stFmt("down {1}, up {2}", fmtBytes(c->second.inBytesTotal), fmtBytes(c->second.outBytesTotal));
         Ps3Item it = stRow(d.name.empty() ? stShortId(d.id) : d.name, STR_DEVICE_ROW, stDeviceStateText(s, d), desc, (int)i, d.id);
         it.iconTex = iconTexForIcon(6); it.nmapTex = nmapForIcon(6);   // network glyph
         out.items.push_back(it);
@@ -499,9 +528,9 @@ void NanoMenu::stAddDevice(const std::string& presetId, const std::string& prese
     if (!presetId.empty()) { open(presetId, presetName, presetAddress); return; }
     openOskForPassword("Device ID of the other device (shown in its Syncthing)", [this, open](const std::string& val) {
         std::string id;
-        if (!nanost::Client::normaliseDeviceId(val, id)) { feInfoDialog("Syncthing", "That is not a valid Device ID. It is 56 letters and digits, usually shown in groups of 7."); return; }
-        for (const DeviceCfg& d : mStShown.devices) if (d.id == id) { feInfoDialog("Syncthing", "That device is already added."); return; }
-        if (id == mStShown.myID) { feInfoDialog("Syncthing", "That is this device's own ID."); return; }
+        if (!nanost::Client::normaliseDeviceId(val, id)) { feInfoDialog(trDyn("Syncthing"), trDyn("That is not a valid Device ID. It is 56 letters and digits, usually shown in groups of 7.")); return; }
+        for (const DeviceCfg& d : mStShown.devices) if (d.id == id) { feInfoDialog(trDyn("Syncthing"), trDyn("That device is already added.")); return; }
+        if (id == mStShown.myID) { feInfoDialog(trDyn("Syncthing"), trDyn("That is this device's own ID.")); return; }
         open(id, "", "");
     });
     mOskPasswordMode = false; mOskPlaintext = true; mOskQuery.clear(); mOsk.caret = 0;
@@ -512,7 +541,7 @@ void NanoMenu::buildStDevice(Ps3Level& out) {
     const Snapshot& s = mStShown;
     DeviceCfg& d = mStDeviceDraft;
     if (!mStDeviceIsNew) for (const DeviceCfg& x : s.devices) if (x.id == d.id) { d = x; break; }
-    out.title = mStDeviceIsNew ? "New Device" : (d.name.empty() ? stShortId(d.id) : d.name);
+    out.title = mStDeviceIsNew ? trDyn("New Device") : (d.name.empty() ? stShortId(d.id) : d.name);
 
     if (mStDeviceIsNew) out.items.push_back(stRow("Save Device", STR_DEVICE_SAVE, "", "Add the device with the settings below. The other device must add this one too."));
     out.items.push_back(stRow("Name", STR_DEVICE_NAME, d.name.empty() ? "(from the device)" : d.name, "Shown on this device only."));
@@ -533,10 +562,10 @@ void NanoMenu::buildStDevice(Ps3Level& out) {
         auto c = s.connections.find(d.id);
         if (c != s.connections.end()) {
             const nanost::DeviceConn& x = c->second;
-            out.items.push_back(stInfoRow("Connection", x.connected ? x.address + " (" + x.type + ")" : "Disconnected", x.connected ? "" : "Last seen " + fmtAgo(x.lastSeen)));
+            out.items.push_back(stInfoRow("Connection", x.connected ? x.address + " (" + x.type + ")" : "Disconnected", x.connected ? "" : stFmt("Last seen {1}", stAgo(x.lastSeen))));
             if (x.connected) {
                 out.items.push_back(stInfoRow("Version", x.clientVersion.empty() ? "(unknown)" : x.clientVersion));
-                out.items.push_back(stInfoRow("Transferred", "down " + fmtBytes(x.inBytesTotal) + ", up " + fmtBytes(x.outBytesTotal)));
+                out.items.push_back(stInfoRow("Transferred", stFmt("down {1}, up {2}", fmtBytes(x.inBytesTotal), fmtBytes(x.outBytesTotal))));
                 char buf[32]; snprintf(buf, sizeof(buf), "%.1f%%", x.completion);
                 out.items.push_back(stInfoRow("Completion", buf, "How much of the shared data this device has."));
             }
@@ -548,7 +577,7 @@ void NanoMenu::buildStDevice(Ps3Level& out) {
 bool NanoMenu::stCommitDevice() {
     if (mStDeviceIsNew) return true;
     nanost::Client c; std::string err;
-    if (!c.putDevice(mStDeviceDraft, err)) { feInfoDialog("Syncthing", "Could not update the device: " + err); return false; }
+    if (!c.putDevice(mStDeviceDraft, err)) { feInfoDialog(trDyn("Syncthing"), trDyn("Could not update the device: ") + err); return false; }
     stRefreshSoon();
     return true;
 }
@@ -562,7 +591,7 @@ void NanoMenu::buildStShare(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = ST_SHARE;
     const Snapshot& s = mStShown;
     if (mStShareFolderMode) {
-        out.title = "Shared With";
+        out.title = trDyn("Shared With");
         for (size_t i = 0; i < s.devices.size(); i++) {
             const DeviceCfg& d = s.devices[i];
             bool on = false; for (const std::string& id : mStFolderDraft.devices) if (id == d.id) on = true;
@@ -570,7 +599,7 @@ void NanoMenu::buildStShare(Ps3Level& out) {
         }
         if (s.devices.empty()) out.items.push_back(stInfoRow("No Devices", "", "Add a device first, then share this folder with it."));
     } else {
-        out.title = "Shared Folders";
+        out.title = trDyn("Shared Folders");
         for (size_t i = 0; i < s.folders.size(); i++) {
             const FolderCfg& f = s.folders[i];
             bool on = false; for (const std::string& id : f.devices) if (id == mStDeviceDraft.id) on = true;
@@ -591,13 +620,13 @@ void NanoMenu::stShareToggle(int idx) {
         stCommitFolder();
     } else {
         if (idx < 0 || idx >= (int)s.folders.size()) return;
-        if (mStDeviceIsNew) { feInfoDialog("Syncthing", "Save the device first, then choose the folders to share."); return; }
+        if (mStDeviceIsNew) { feInfoDialog(trDyn("Syncthing"), trDyn("Save the device first, then choose the folders to share.")); return; }
         FolderCfg f = s.folders[idx];
         auto& v = f.devices;
         auto it = std::find(v.begin(), v.end(), mStDeviceDraft.id);
         if (it == v.end()) v.push_back(mStDeviceDraft.id); else v.erase(it);
         nanost::Client c; std::string err;
-        if (!c.putFolder(f, err)) feInfoDialog("Syncthing", "Could not update the folder: " + err);
+        if (!c.putFolder(f, err)) feInfoDialog(trDyn("Syncthing"), trDyn("Could not update the folder: ") + err);
         stRefreshSoon();
     }
     stRefreshStackLevels(); mDisplayDirty = true;
@@ -607,17 +636,17 @@ void NanoMenu::stShareToggle(int idx) {
 
 void NanoMenu::buildStPending(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = ST_PENDING;
-    out.title = "Pending Requests";
+    out.title = trDyn("Pending Requests");
     const Snapshot& s = mStShown;
     for (size_t i = 0; i < s.pendingDevices.size(); i++) {
         const nanost::PendingDevice& p = s.pendingDevices[i];
         out.items.push_back(stRow(p.name.empty() ? stShortId(p.id) : p.name, STR_PENDING_DEVICE, "Wants to connect",
-                                  stShortId(p.id) + " from " + p.address + ", " + fmtAgo(p.time), (int)i, p.id));
+                                  stFmt("{1} from {2}", stShortId(p.id), p.address) + ", " + stAgo(p.time), (int)i, p.id));
     }
     for (size_t i = 0; i < s.pendingFolders.size(); i++) {
         const nanost::PendingFolder& p = s.pendingFolders[i];
         out.items.push_back(stRow(p.label.empty() ? p.id : p.label, STR_PENDING_FOLDER, "Folder offered",
-                                  "Offered by " + p.offeredByName + ", " + fmtAgo(p.time), (int)i, p.id));
+                                  stFmt("Offered by {1}", p.offeredByName) + ", " + stAgo(p.time), (int)i, p.id));
     }
     if (out.items.empty()) out.items.push_back(stInfoRow("No Pending Requests", "", "Requests from other devices appear here."));
 }
@@ -626,7 +655,7 @@ void NanoMenu::buildStPending(Ps3Level& out) {
 
 void NanoMenu::buildStOptions(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = ST_OPTIONS;
-    out.title = "Options";
+    out.title = trDyn("Options");
     const nanost::Options& o = mStShown.options;
     out.items.push_back(stRow("Device Name", STR_OPT_NAME, o.deviceName.empty() ? "(unnamed)" : o.deviceName, "How this device appears on your other devices."));
     std::string listen; for (const std::string& a : o.listenAddresses) listen += (listen.empty() ? "" : ", ") + a;
@@ -635,8 +664,8 @@ void NanoMenu::buildStOptions(Ps3Level& out) {
     out.items.push_back(stToggleRow("Local Discovery", STR_OPT_LOCAL, o.localAnnounceEnabled, "Find devices on the same network."));
     out.items.push_back(stToggleRow("Relaying", STR_OPT_RELAYS, o.relaysEnabled, "Connect through public relays when a direct connection is not possible."));
     out.items.push_back(stToggleRow("NAT Traversal", STR_OPT_NAT, o.natEnabled, "Ask the router to forward the sync port (UPnP / NAT-PMP)."));
-    out.items.push_back(stRow("Download Limit", STR_OPT_RECV, o.maxRecvKbps > 0 ? std::to_string(o.maxRecvKbps) + " KiB/s" : "Unlimited"));
-    out.items.push_back(stRow("Upload Limit", STR_OPT_SEND, o.maxSendKbps > 0 ? std::to_string(o.maxSendKbps) + " KiB/s" : "Unlimited"));
+    out.items.push_back(stRow("Download Limit", STR_OPT_RECV, o.maxRecvKbps > 0 ? std::to_string(o.maxRecvKbps) + " KiB/s" : trDyn("Unlimited")));
+    out.items.push_back(stRow("Upload Limit", STR_OPT_SEND, o.maxSendKbps > 0 ? std::to_string(o.maxSendKbps) + " KiB/s" : trDyn("Unlimited")));
     out.items.push_back(stToggleRow("Apply Limits on LAN", STR_OPT_LANLIMIT, o.limitBandwidthInLan));
     out.items.push_back(stRow("Concurrent Scans", STR_OPT_CONCURRENCY, o.maxFolderConcurrency > 0 ? std::to_string(o.maxFolderConcurrency) : "Automatic", "Folders scanned or synced at the same time. Lower saves memory."));
     out.items.push_back(stRow("Minimum Free Space", STR_OPT_MINFREE, std::to_string(o.minHomeDiskFreePct) + "%", "Pause syncing when the storage falls below this."));
@@ -645,7 +674,7 @@ void NanoMenu::buildStOptions(Ps3Level& out) {
 
 bool NanoMenu::stCommitOptions(const nanost::Options& o) {
     nanost::Client c; std::string err;
-    if (!c.setOptions(o, mStShown.myID, err)) { feInfoDialog("Syncthing", "Could not save the options: " + err); return false; }
+    if (!c.setOptions(o, mStShown.myID, err)) { feInfoDialog(trDyn("Syncthing"), trDyn("Could not save the options: ") + err); return false; }
     mStShown.options = o;
     stRefreshSoon();
     return true;
@@ -655,7 +684,7 @@ bool NanoMenu::stCommitOptions(const nanost::Options& o) {
 
 void NanoMenu::buildStIgnores(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = ST_IGNORES;
-    out.title = "Ignore Patterns";
+    out.title = trDyn("Ignore Patterns");
     for (size_t i = 0; i < mStIgnores.size(); i++)
         out.items.push_back(stRow(mStIgnores[i], STR_IGNORE_ROW, "", "", (int)i));
     out.items.push_back(stRow("Add Pattern", STR_IGNORE_ADD, "", "Examples: *.tmp   (?d).DS_Store   /Cache"));
@@ -663,13 +692,13 @@ void NanoMenu::buildStIgnores(Ps3Level& out) {
 
 void NanoMenu::stOpenIgnores() {
     nanost::Client c; std::string err;
-    if (!c.getIgnores(mStFolderDraft.id, mStIgnores, err)) { feInfoDialog("Syncthing", "Could not read the ignore patterns: " + err); return; }
+    if (!c.getIgnores(mStFolderDraft.id, mStIgnores, err)) { feInfoDialog(trDyn("Syncthing"), trDyn("Could not read the ignore patterns: ") + err); return; }
     Ps3Level lvl; buildStIgnores(lvl); stPush(lvl);
 }
 
 void NanoMenu::stSaveIgnores() {
     nanost::Client c; std::string err;
-    if (!c.setIgnores(mStFolderDraft.id, mStIgnores, err)) feInfoDialog("Syncthing", "Could not save the ignore patterns: " + err);
+    if (!c.setIgnores(mStFolderDraft.id, mStIgnores, err)) feInfoDialog(trDyn("Syncthing"), trDyn("Could not save the ignore patterns: ") + err);
     stRefreshStackLevels(); mDisplayDirty = true;
 }
 
@@ -677,7 +706,7 @@ void NanoMenu::stSaveIgnores() {
 
 void NanoMenu::buildStLog(Ps3Level& out) {
     out.items.clear(); out.sel = 0; out.screenKind = ST_LOG;
-    out.title = "Syncthing Log";
+    out.title = trDyn("Syncthing Log");
     nanost::Client c; std::string err; std::vector<std::string> lines;
     if (!c.fetchLog(lines, 60, err)) { out.items.push_back(stInfoRow("Log unavailable", "", err)); return; }
     for (size_t i = 0; i < lines.size(); i++) {
@@ -694,8 +723,8 @@ void NanoMenu::buildStLog(Ps3Level& out) {
 void NanoMenu::stOpenChooser(int key, const std::string& title, const std::vector<std::string>& opts, int sel) {
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgThemeKey = key;
-    mPs3DlgTitle = title; mPs3DlgBody.clear();
-    for (const std::string& o : opts) { mPs3DlgOptions.push_back(o); mPs3DlgSwatch.push_back(-1); }
+    mPs3DlgTitle = trDyn(title.c_str()); mPs3DlgBody.clear();
+    for (const std::string& o : opts) { mPs3DlgOptions.push_back(trDyn(o.c_str())); mPs3DlgSwatch.push_back(-1); }
     mPs3DlgSel = (sel >= 0 && sel < (int)opts.size()) ? sel : 0; mPs3DlgOrigSel = mPs3DlgSel;
     mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(6);
     mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
@@ -705,9 +734,9 @@ void NanoMenu::stOpenChooser(int key, const std::string& title, const std::vecto
 void NanoMenu::stOpenConfirm(int key, const std::string& title, const std::string& body, const char* action) {
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgThemeKey = key;
-    mPs3DlgTitle = title; mPs3DlgBody = body;
-    mPs3DlgOptions.push_back("Cancel"); mPs3DlgSwatch.push_back(-1);
-    mPs3DlgOptions.push_back(action);   mPs3DlgSwatch.push_back(-1);
+    mPs3DlgTitle = trDyn(title.c_str()); mPs3DlgBody = trDyn(body.c_str());
+    mPs3DlgOptions.push_back(trDyn("Cancel")); mPs3DlgSwatch.push_back(-1);
+    mPs3DlgOptions.push_back(trDyn(action)); mPs3DlgSwatch.push_back(-1);
     mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
     mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(6);
     mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
@@ -716,7 +745,7 @@ void NanoMenu::stOpenConfirm(int key, const std::string& title, const std::strin
 
 // A text field through the OSK, prefilled with the current value.
 void NanoMenu::stOpenText(const std::string& prompt, const std::string& prefill, std::function<void(const std::string&)> onSubmit) {
-    openOskForPassword(prompt, std::move(onSubmit));
+    openOskForPassword(trDyn(prompt.c_str()), std::move(onSubmit));
     mOskPasswordMode = false; mOskPlaintext = true;
     mOskQuery = prefill; mOsk.caret = (int)mOskQuery.size();
 }
@@ -739,14 +768,14 @@ bool NanoMenu::stDialogResult(int key, int sel) {
             break;
         case ST_DLG_REMOVE_FOLDER:
             if (sel == 1) {
-                if (!c.removeFolder(mStFolderDraft.id, err)) feInfoDialog("Syncthing", "Could not remove the folder: " + err);
+                if (!c.removeFolder(mStFolderDraft.id, err)) feInfoDialog(trDyn("Syncthing"), trDyn("Could not remove the folder: ") + err);
                 else if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == ST_FOLDER) mPs3Stack.pop_back();
                 stRefreshSoon();
             }
             break;
         case ST_DLG_REMOVE_DEVICE:
             if (sel == 1) {
-                if (!c.removeDevice(mStDeviceDraft.id, err)) feInfoDialog("Syncthing", "Could not remove the device: " + err);
+                if (!c.removeDevice(mStDeviceDraft.id, err)) feInfoDialog(trDyn("Syncthing"), trDyn("Could not remove the device: ") + err);
                 else if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == ST_DEVICE) mPs3Stack.pop_back();
                 stRefreshSoon();
             }
@@ -771,22 +800,22 @@ bool NanoMenu::stDialogResult(int key, int sel) {
             break;
         }
         case ST_DLG_RESTART:
-            if (sel == 1) { if (!c.restart(err)) feInfoDialog("Syncthing", "Could not restart: " + err); stRefreshSoon(); }
+            if (sel == 1) { if (!c.restart(err)) feInfoDialog(trDyn("Syncthing"), trDyn("Could not restart: ") + err); stRefreshSoon(); }
             break;
         case ST_DLG_WEBGUI:
             // 0 = Off (loopback only), 1 = On (all interfaces, sign-in required)
             if (sel == 0) {
                 nanost::GuiCfg g = mStShown.gui; g.address = "127.0.0.1:8384";
-                if (!c.setGui(g, "", err)) feInfoDialog("Syncthing", "Could not change the web interface: " + err);
+                if (!c.setGui(g, "", err)) feInfoDialog(trDyn("Syncthing"), trDyn("Could not change the web interface: ") + err);
                 stRefreshSoon();
             } else if (sel == 1) {
                 stOpenText("Username for the web interface", mStShown.gui.user.empty() ? "gammaos" : mStShown.gui.user, [this](const std::string& user) {
                     if (user.empty()) return;
                     stOpenText("Password for the web interface", "", [this, user](const std::string& pw) {
-                        if (pw.size() < 4) { feInfoDialog("Syncthing", "The web interface needs a password of at least 4 characters when it is open to the network."); return; }
+                        if (pw.size() < 4) { feInfoDialog(trDyn("Syncthing"), trDyn("The web interface needs a password of at least 4 characters when it is open to the network.")); return; }
                         nanost::Client c2; std::string e2;
                         nanost::GuiCfg g = mStShown.gui; g.address = "0.0.0.0:8384"; g.user = user;
-                        if (!c2.setGui(g, pw, e2)) { feInfoDialog("Syncthing", "Could not change the web interface: " + e2); return; }
+                        if (!c2.setGui(g, pw, e2)) { feInfoDialog(trDyn("Syncthing"), trDyn("Could not change the web interface: ") + e2); return; }
                         // The GUI listener rebinds only on restart.
                         property_set(kStRestartProp, "1");
                         stRefreshSoon();
@@ -835,8 +864,8 @@ void NanoMenu::stSelectRow(const Ps3Item& it) {
             return;
         }
         case STR_THISDEVICE:
-            feInfoDialog(s.options.deviceName.empty() ? "This Device" : s.options.deviceName,
-                         "Device ID\n" + stWrapId(s.myID) + "\n\nEnter this ID on another device to pair it. Devices that add this ID show up under Pending Requests.");
+            feInfoDialog(s.options.deviceName.empty() ? trDyn("This Device") : s.options.deviceName.c_str(),
+                         trDyn("Device ID") + ("\n" + stWrapId(s.myID) + "\n\n") + trDyn("Enter this ID on another device to pair it. Devices that add this ID show up under Pending Requests."));
             return;
         case STR_FOLDERS: { Ps3Level lvl; buildStFolders(lvl); stPush(lvl); return; }
         case STR_DEVICES: { Ps3Level lvl; buildStDevices(lvl); stPush(lvl); return; }
@@ -855,9 +884,9 @@ void NanoMenu::stSelectRow(const Ps3Item& it) {
         case STR_FOLDER_ADD: stAddFolder("", "", ""); return;
         case STR_FOLDER_SAVE: {
             FolderCfg& f = mStFolderDraft;
-            if (f.path.empty()) { feInfoDialog("Syncthing", "Choose a path for the folder first."); return; }
+            if (f.path.empty()) { feInfoDialog(trDyn("Syncthing"), trDyn("Choose a path for the folder first.")); return; }
             stEnsureFolderDir(f.path);
-            if (!c.putFolder(f, err)) { feInfoDialog("Syncthing", "Could not create the folder: " + err); return; }
+            if (!c.putFolder(f, err)) { feInfoDialog(trDyn("Syncthing"), trDyn("Could not create the folder: ") + err); return; }
             mStFolderIsNew = false;
             stRefreshSoon();
             if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == ST_FOLDER) mPs3Stack.pop_back();
@@ -915,7 +944,7 @@ void NanoMenu::stSelectRow(const Ps3Item& it) {
         case STR_FOLDER_REVERT:     if (!c.revertFolder(mStFolderDraft.id, err)) feInfoDialog("Syncthing", err); stRefreshSoon(); break;
         case STR_FOLDER_IGNORES:    stOpenIgnores(); return;
         case STR_FOLDER_REMOVE:
-            stOpenConfirm(ST_DLG_REMOVE_FOLDER, "Remove " + (mStFolderDraft.label.empty() ? mStFolderDraft.id : mStFolderDraft.label),
+            stOpenConfirm(ST_DLG_REMOVE_FOLDER, stFmt("Remove {1}", mStFolderDraft.label.empty() ? mStFolderDraft.id : mStFolderDraft.label),
                           "This device stops syncing the folder. The files already on this device are kept.", "Remove");
             return;
 
@@ -923,7 +952,7 @@ void NanoMenu::stSelectRow(const Ps3Item& it) {
         case STR_DEVICE_ROW: stOpenDevice(it.payloadStr); return;
         case STR_DEVICE_ADD: stAddDevice("", "", ""); return;
         case STR_DEVICE_SAVE: {
-            if (!c.putDevice(mStDeviceDraft, err)) { feInfoDialog("Syncthing", "Could not add the device: " + err); return; }
+            if (!c.putDevice(mStDeviceDraft, err)) { feInfoDialog(trDyn("Syncthing"), trDyn("Could not add the device: ") + err); return; }
             mStDeviceIsNew = false;
             stRefreshSoon();
             if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == ST_DEVICE) mPs3Stack.pop_back();
@@ -955,7 +984,7 @@ void NanoMenu::stSelectRow(const Ps3Item& it) {
             else mStDeviceDraft.paused = !mStDeviceDraft.paused;
             stRefreshSoon(); break;
         case STR_DEVICE_REMOVE:
-            stOpenConfirm(ST_DLG_REMOVE_DEVICE, "Remove " + (mStDeviceDraft.name.empty() ? stShortId(mStDeviceDraft.id) : mStDeviceDraft.name),
+            stOpenConfirm(ST_DLG_REMOVE_DEVICE, stFmt("Remove {1}", mStDeviceDraft.name.empty() ? stShortId(mStDeviceDraft.id) : mStDeviceDraft.name),
                           "This device stops syncing with it. Folders and files on this device are kept.", "Remove");
             return;
 
