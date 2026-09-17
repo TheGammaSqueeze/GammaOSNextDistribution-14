@@ -550,11 +550,15 @@ void nanoDirectHoldOpen(bool on) {
 void nanoDirectShutdown() {
     { std::lock_guard<std::mutex> lk(gEng.m);
       gEng.shutdown = true; gEng.haveLoop = false; gEng.queue.clear(); gEng.cv.notify_one(); }
-    // Bounded wait (<=250ms) for the worker to close the PCM, so an AAudio open cannot EBUSY on us.
-    for (int i = 0; i < 50 && gEng.pcmOwned.load(); ++i) {
+    // Bounded wait (<=1s) for the worker to close the PCM, so an AAudio open cannot EBUSY on us.
+    // The worker is usually out within a period or two, but a hold-open worker blocked in
+    // pcm_write while the audio HAL probes the card at boot_completed has been seen to take
+    // longer than the 250 ms this once allowed (pcmOwned=1 at the hand-off log line).
+    int waited = 0;
+    for (; waited < 200 && gEng.pcmOwned.load(); ++waited) {
         struct timespec ts { 0, 5 * 1000 * 1000 }; nanosleep(&ts, nullptr);
     }
-    NBC_I("direct: shutdown (pcmOwned=%d)", gEng.pcmOwned.load() ? 1 : 0);
+    NBC_I("direct: shutdown (pcmOwned=%d after %d ms)", gEng.pcmOwned.load() ? 1 : 0, waited * 5);
 }
 
 bool nanoDirectActive() { return gEng.pcmOwned.load(); }

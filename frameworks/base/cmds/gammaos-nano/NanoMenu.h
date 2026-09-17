@@ -3281,10 +3281,14 @@ private:
     std::unordered_map<std::string, std::string> mNdsBannerTitle;        // path -> title ("" = none/failed)
     std::unordered_map<std::string, std::vector<uint8_t>> mNdsBannerPix; // path -> RGBA awaiting upload
     std::deque<std::string> mNdsBannerQueue;                             // draw-time requests for the worker
+    std::unordered_map<std::string, uint64_t> mNdsBannerIdent;           // path -> size/mtime the result belongs to
+    std::unordered_map<std::string, int64_t> mNdsBannerRetryAt;          // path unreachable: uptime ms of the next try
+    std::vector<std::string> mNdsBannerTexDrop;                          // paths whose uploaded icon is stale (render thread drains)
     std::condition_variable mNdsBannerCv;
     bool mNdsBannerWorkerUp = false;
     std::atomic<bool> mNdsBannerLanded{false};                            // worker finished something: names may change
     void ndsBannerStartWorkerLocked();                                   // mNdsBannerMu held
+    bool ndsBannerWantsParseLocked(const std::string& rom);              // mNdsBannerMu held
     void ndsBannerTick();                                                // render thread, per frame
     bool ndsRomTitleEnabled();                                           // persist.gammaos.nano.nds.romtitle (default on)
     bool ndsIsDsRomItem(const Ps3Item& it, std::string* romPath);        // DS system ROM or DS recent entry
@@ -3435,6 +3439,7 @@ private:
     bool mChimeStarted = false;    // play() already issued (fire once)
     std::atomic<bool> mDirectChimeInFlight{false};   // RG DS direct-ALSA chime worker guard (NanoBootChime)
     bool mDirectAmbiancePlaying = false;   // the direct-PCM carousel BGM loop is the active bed (pre-boot)
+    bool mDirectWarmHold = false;          // DSi: card held open (silence) from the first frame so the amp is up before the chime
     bool mPs3DirectHolding = false;        // PS3 theme is holding card0 open through early boot (ps3EarlyAudioTick)
     bool mPs3ColdSoundPlayed = false;      // PS3 XMB cold-boot sound (coldboot_stereo.wav) fired this boot
     bool mDirectHandedOff = false;         // the direct-PCM engine's card0 has been handed to the audio HAL (once, post-boot)

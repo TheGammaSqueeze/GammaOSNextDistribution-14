@@ -6,7 +6,9 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <thread>
+#include <utils/SystemClock.h>
 #include <log/log.h>
 
 namespace android {
@@ -60,6 +62,12 @@ static std::string cachePathFor(const std::string& rom, const struct stat& st) {
     return std::string(kNdsBannerCacheDir) + "/" + key + ".bin";
 }
 
+// A ROM's identity for the in-memory result: the file that was parsed, not just its path. A
+// path whose size or mtime changed (a copy that finished after the first scan, a replaced file)
+// is parsed again; the disk cache is keyed the same way.
+static uint64_t ndsIdentOf(const struct stat& st) { return ((uint64_t)st.st_size << 20) ^ (uint64_t)st.st_mtime; }
+static const int64_t kNdsBannerRetryMs = 5000;   // storage that is not up yet: try again after this
+
 void NanoMenu::ndsBannerLoad(const std::string& rom) {
     {
         std::lock_guard<std::mutex> lk(mNdsBannerMu);
@@ -69,7 +77,16 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
     std::string title;
     std::vector<uint8_t> rgba;
     struct stat st{};
-    if (stat(rom.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
+    if (stat(rom.c_str(), &st) != 0) {
+        // Not reachable right now: the volume it lives on (a card through vold, or the FUSE view
+        // of internal storage) comes up well after nano on a fresh boot. This is not a result,
+        // so drop the claim and let the next prefetch or draw try again shortly.
+        std::lock_guard<std::mutex> lk(mNdsBannerMu);
+        mNdsBannerTitle.erase(rom);
+        mNdsBannerRetryAt[rom] = (int64_t)uptimeMillis() + kNdsBannerRetryMs;
+        return;
+    }
+    if (S_ISREG(st.st_mode)) {
         const std::string cp = cachePathFor(rom, st);
         bool hit = false;
         int fd = open(cp.c_str(), O_RDONLY | O_CLOEXEC);
@@ -116,7 +133,27 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
     }
     std::lock_guard<std::mutex> lk(mNdsBannerMu);
     mNdsBannerTitle[rom] = title;
+    mNdsBannerIdent[rom] = ndsIdentOf(st);
+    mNdsBannerRetryAt.erase(rom);
     if (!rgba.empty()) mNdsBannerPix[rom] = std::move(rgba);
+}
+
+// Called with mNdsBannerMu held. True when the path may be queued now: not known, not queued,
+// not in its retry hold-off. A known path whose file changed underneath (size or mtime) is
+// forgotten first, so the new file is parsed and its old icon dropped from the render cache.
+bool NanoMenu::ndsBannerWantsParseLocked(const std::string& rom) {
+    auto it = mNdsBannerTitle.find(rom);
+    if (it != mNdsBannerTitle.end()) {
+        auto id = mNdsBannerIdent.find(rom);
+        if (id == mNdsBannerIdent.end()) return false;   // in flight
+        struct stat st{};
+        if (stat(rom.c_str(), &st) != 0 || ndsIdentOf(st) == id->second) return false;
+        mNdsBannerTitle.erase(it); mNdsBannerIdent.erase(id); mNdsBannerPix.erase(rom);
+        mNdsBannerTexDrop.push_back(rom);
+    }
+    auto r = mNdsBannerRetryAt.find(rom);
+    if (r != mNdsBannerRetryAt.end() && (int64_t)uptimeMillis() < r->second) return false;
+    return std::find(mNdsBannerQueue.begin(), mNdsBannerQueue.end(), rom) == mNdsBannerQueue.end();
 }
 
 // Queue every DS ROM of a list for the worker (no I/O here: this is called from the scan
@@ -125,8 +162,15 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
 // the cached game list (and the first name apply) is restored before the theme flags are
 // initialised, and that is exactly the moment the banners should start parsing.
 static bool ndsThemeSelected() {
+    // Cached only once the property has a value: at the earliest boot ticks the persist
+    // properties are not loaded yet and property_get returns "", which must not be taken as
+    // "not the DSi theme" for the rest of the process.
     static int cached = -1;
-    if (cached < 0) cached = (property_get_int32("persist.gammaos.nano.ndstheme", 0) == 1) ? 1 : 0;
+    if (cached < 0) {
+        char v[PROPERTY_VALUE_MAX] = {};
+        if (property_get("persist.gammaos.nano.ndstheme", v, "") > 0 && v[0]) cached = (atoi(v) == 1) ? 1 : 0;
+        else return false;
+    }
     return cached == 1;
 }
 
@@ -135,8 +179,7 @@ void NanoMenu::ndsBannerPrefetch(const std::vector<std::string>& roms) {
     std::lock_guard<std::mutex> lk(mNdsBannerMu);
     bool added = false;
     for (const auto& r : roms) {
-        if (!isDsRomPath(r) || mNdsBannerTitle.count(r)) continue;
-        if (std::find(mNdsBannerQueue.begin(), mNdsBannerQueue.end(), r) != mNdsBannerQueue.end()) continue;
+        if (!isDsRomPath(r) || !ndsBannerWantsParseLocked(r)) continue;
         mNdsBannerQueue.push_back(r); added = true;
     }
     if (added) { ndsBannerStartWorkerLocked(); mNdsBannerCv.notify_one(); }
@@ -164,7 +207,18 @@ void NanoMenu::ndsBannerStartWorkerLocked() {
 // Once per frame on the render thread: when the worker has finished a batch, re-derive the
 // DS systems' display names (banner titles now known) and rebuild the carousel once.
 void NanoMenu::ndsBannerTick() {
-    if (!ndsThemeSelected() || !mNdsBannerLanded.load()) return;
+    if (!ndsThemeSelected()) return;
+    {   // icons of files that changed underneath: forget the upload so the new parse shows
+        std::vector<std::string> drop;
+        { std::lock_guard<std::mutex> lk(mNdsBannerMu); drop.swap(mNdsBannerTexDrop); }
+        for (const auto& r : drop) {
+            auto t = mNdsBannerTex.find(r);
+            if (t == mNdsBannerTex.end()) continue;
+            if (t->second.tex) glDeleteTextures(1, &t->second.tex);
+            mNdsBannerTex.erase(t);
+        }
+    }
+    if (!mNdsBannerLanded.load()) return;
     {
         std::lock_guard<std::mutex> lk(mNdsBannerMu);
         if (!mNdsBannerQueue.empty()) return;   // let the batch finish: one re-sort, not one per ROM
@@ -210,12 +264,11 @@ GLuint NanoMenu::ndsBannerTex(const std::string& rom) {
         auto p = mNdsBannerPix.find(rom);
         if (p != mNdsBannerPix.end()) { px = std::move(p->second); mNdsBannerPix.erase(p); }
         if (!known) {
-            // Not prefetched (recent entry, theme switched live): hand it to the worker so a
-            // zip never inflates on the render thread.
-            if (std::find(mNdsBannerQueue.begin(), mNdsBannerQueue.end(), rom) == mNdsBannerQueue.end())
-                mNdsBannerQueue.push_back(rom);
+            // Not prefetched (recent entry, theme switched live, or its storage was not up at
+            // the first try): hand it to the worker so a zip never inflates on the render
+            // thread. An unreachable path is retried at most every few seconds.
+            if (ndsBannerWantsParseLocked(rom)) { mNdsBannerQueue.push_back(rom); ndsBannerStartWorkerLocked(); }
             queue = true;
-            ndsBannerStartWorkerLocked();
         }
     }
     if (queue) { mNdsBannerCv.notify_one(); return 0; }

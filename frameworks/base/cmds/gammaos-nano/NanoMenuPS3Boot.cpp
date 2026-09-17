@@ -515,6 +515,11 @@ void NanoMenu::ndsAmbianceTick(bool wantOnHome) {
 
     // ---- Phase A: pre-boot-complete -> DIRECT PCM loop (audio server not up yet) ----
     if (direct) {
+        // Open the card and stream silence from the very first frame, seconds before the boot
+        // chime is queued. A smart PA (the RG DS Plus loudspeaker, aw882xx) only powers up once
+        // its PCM is running and takes the better part of a second to come up, so a chime that
+        // opened the card itself lost its first second; the PS3 theme already holds this way.
+        if (!mDirectWarmHold) { nanoDirectHoldOpen(true); mDirectWarmHold = true; }
         if (!wantOnHome) { if (mDirectAmbiancePlaying) { nanoDirectStopLoop(); mDirectAmbiancePlaying = false; } return; }
         if (mDsiEnterAudioStartMs > 0 &&
             (int64_t)android::uptimeMillis() - mDsiEnterAudioStartMs < 2580) return;   // hold for the enter fanfare
@@ -527,9 +532,10 @@ void NanoMenu::ndsAmbianceTick(bool wantOnHome) {
         return;
     }
 
-    // ---- Handoff: booted (or direct unavailable) while the direct bed was up -> release for AAudio ----
-    if (mDirectAmbiancePlaying) {
-        nanoDirectStopLoop();
+    // ---- Handoff: booted (or direct unavailable) while the direct bed or the warm hold was up -> release for AAudio ----
+    if (mDirectAmbiancePlaying || mDirectWarmHold) {
+        if (mDirectAmbiancePlaying) nanoDirectStopLoop();
+        if (mDirectWarmHold) { nanoDirectHoldOpen(false); mDirectWarmHold = false; }
         nanoDirectShutdown();                 // bounded wait: the PCM is closed before AAudio opens (no EBUSY)
         mDirectAmbiancePlaying = false;
         mDirectHandedOff = true;              // card0 handed to the HAL; the safety-net tick need not repeat it
