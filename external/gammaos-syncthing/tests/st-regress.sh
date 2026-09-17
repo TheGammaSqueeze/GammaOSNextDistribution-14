@@ -23,5 +23,5 @@ echo "host edit" > "$HPATH/h2d/sub/note.txt"; adb -s $D shell "echo 'device edit
 $S/st-dev.sh dev PATCH /rest/config/folders/$FID '{"paused":false}' >/dev/null; sleep 3; scan
 $S/st-wait.sh $FID 120 || bad "wait conflict"
 nconf=$(hsum | grep -c "sync-conflict"); if [ "$nconf" -ge 1 ]; then ok "conflict produced a sync-conflict copy ($nconf)"; else bad "conflict: no sync-conflict file"; fi; same "conflict resolution"
-echo "== device state after the run"; adb -s $D shell "P=\$(pidof syncthing | cut -d' ' -f1); grep -E 'VmRSS|VmHWM' /proc/\$P/status | tr '\n' ' '; echo; dmesg | grep -c 'avc: denied.*syncthing' ; logcat -d | grep -c 'avc: denied.*syncthing'"
+adb -s $D shell 'P=""; B=0; for q in $(pidof syncthing); do r=$(grep VmRSS /proc/$q/status | awk "{print \$2}"); [ "${r:-0}" -gt "$B" ] && { B=$r; P=$q; }; done; grep -E "VmRSS|VmHWM" /proc/$P/status | tr "\n" " "; echo; dmesg | grep -c "scontext=u:r:syncthing"' 
 [ $fail = 0 ] && echo "REGRESSION: ALL PASS" || echo "REGRESSION: FAILURES"; exit $fail

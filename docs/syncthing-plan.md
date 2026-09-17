@@ -223,3 +223,14 @@ coherent step (prebuilt, policy, nano, tests, Settings, TvSettings).
   ID wrapped for dialogs, log lines stripped of structured tails. Load test (10k small + 3x200 MB)
   running under enforcing. Next: commit phase 2, rebuild + flash image with the rc changes,
   regenerate the Plus vendor precompiled sepolicy, then Settings / TV Settings.
+- 2026-09-17 02:20: Phase 2 committed (9a37633f573). Load run under ENFORCING on the Plus:
+  10,000 small files (host -> device) synced in 545 s, 3 x 200 MB in 295 s, all verified by
+  sha256, no lmkd kills of nano or system_server, zero syncthing AVC denials; daemon worker
+  peak RSS 81 MB (idle 32 MB single-process), MemAvailable stayed above 270 MB. Regression
+  re-run after fixing the script's own transient-temp-file compare: all pass. Precompiled
+  vendor sepolicy regenerated on the device for this system policy, committed to the Plus
+  vendor tree (4494bd86) and vendor.img rebuilt, to be flashed with the next system image.
+  Shared Java client written (frameworks/base/core/java/com/android/internal/gammaos/
+  SyncthingClient.java, twin of the nano client); Settings and TV Settings screens being
+  written by two implementation passes from one spec. Next: build both apps + framework +
+  nano (buildtv), flash system + vendor, verify both apps on the device, commit.

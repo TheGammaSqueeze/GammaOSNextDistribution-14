@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 
 import androidx.preference.Preference;
 
+import com.android.internal.gammaos.SyncthingClient;
 import com.android.settings.R;
 import com.android.settings.dashboard.DashboardFragment;
 import com.android.settings.search.BaseSearchIndexProvider;
@@ -63,6 +64,11 @@ public class HandheldDashboardFragment extends DashboardFragment {
     public void onResume() {
         super.onResume();
         wireToolShortcuts();
+        // Syncthing is only offered on builds that ship the daemon.
+        final Preference syncthing = findPreference("syncthing");
+        if (syncthing != null) {
+            syncthing.setVisible(SyncthingClient.isInstalled());
+        }
     }
 
     /**

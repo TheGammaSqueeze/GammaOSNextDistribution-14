@@ -3,7 +3,7 @@
 # device's memory pressure and whether nano / system_server survive. usage: st-load.sh <folderId> <devicePath> [hostPath] [smallCount] [bigMB]
 S=${ST_TEST_DIR:-$(dirname $0)/work}
 FID=$1; DPATH=$2; HPATH=${3:-$S/host_share/$FID}; N=${4:-10000}; BIG=${5:-200}; D=aeaef76817ce3b95
-mon(){ adb -s $D shell "P=\$(pidof syncthing | cut -d' ' -f1); echo \"\$(date +%T) rss=\$(grep VmRSS /proc/\$P/status | awk '{print \$2}')kB hwm=\$(grep VmHWM /proc/\$P/status | awk '{print \$2}')kB memavail=\$(grep MemAvailable /proc/meminfo | awk '{print \$2}')kB cpu=\$(awk '{print \$14+\$15}' /proc/\$P/stat) nano=\$(pidof gammaos-nano) psi=\$(head -1 /proc/pressure/memory | cut -d' ' -f2)\"" | tr -d '\r'; }
+mon(){ adb -s $D shell 'P=""; B=0; for q in $(pidof syncthing); do r=$(grep VmRSS /proc/$q/status | awk "{print \$2}"); [ "${r:-0}" -gt "$B" ] && { B=$r; P=$q; }; done; echo "$(date +%T) rss=$(grep VmRSS /proc/$P/status | awk "{print \$2}")kB hwm=$(grep VmHWM /proc/$P/status | awk "{print \$2}")kB memavail=$(grep MemAvailable /proc/meminfo | awk "{print \$2}")kB cpu=$(awk "{print \$14+\$15}" /proc/$P/stat) nano=$(pidof gammaos-nano) psi=$(head -1 /proc/pressure/memory | cut -d" " -f2)"' | tr -d '\r'; }
 echo "== baseline"; mon
 echo "== $N small files"; mkdir -p "$HPATH/load/small"; python3 - "$HPATH/load/small" "$N" <<'PY'
 import os,sys,random
