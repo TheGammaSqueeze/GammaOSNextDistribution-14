@@ -2158,17 +2158,370 @@ template <typename T> static uint32_t ringInterpFill(T* r, uint32_t L) {
     }
     return filled;
 }
+// Hardware SPU output routing + real sound capture (persist.gammaos.drastic_nano.hw_route).
+// DS SOUNDCNT bits 8-9 / 10-11 select what the LEFT / RIGHT speaker plays: 0 = the mixer, 1 = channel 1,
+// 2 = channel 3, 3 = ch1+ch3; bits 12/13 drop ch1/ch3 from the mixer; the two capture units record the
+// mixer (left / right) into RAM rings. Golden Sun DD sets 0xB97F: capture the mixer sans ch1/3 into the
+// rings, then play ONLY ch1/3 (which loop those rings plus the game's software-mixed voice). DraStic
+// ignores all of it: the capture stores zeros and the whole mixer goes to the speaker, so the voice
+// (via the rings) and the music (direct) reach the output by different paths and the ring path is
+// mostly silence -> "overlapping, unclear" against melonDS/hardware where one summed 32.7 kHz path
+// carries everything. Emulation, using DraStic's own channel decoder for every sample so per-channel
+// rendering is bit-identical to DraStic: run the channel mix twice into two accumulators, A = all
+// channels except 1/3 (the capture source) and B = only the channels the routing selects for output,
+// write A into the rings at the capture units' own positions/rates, and leave B for the mixer's tail.
+// Active only while SOUNDCNT selects ch1/ch3 output AND a capture unit is running; otherwise the
+// original path runs unchanged. The interp ring repair is skipped while this is active (the rings then
+// hold real samples).
+static std::atomic<uint32_t> gHwRouteMixes{0}, gHwRouteCapt{0}, gHwFallback{0};
+// Set to 1 only while spuHwRoute is actively routing (a capture-routed game like Golden Sun), 0 otherwise. The cubic
+// PCM16 interpolation cave reads it and falls back to a plain nearest fetch when 0, so games that do NOT use the
+// capture routing (the vast majority, e.g. Pokemon) pay nothing for the cubic and keep stock audio/performance; only
+// the routed voice that needs the melonDS match gets the cubic.
+static volatile int gCubicActive = 0;
+static int32_t* gHwAccA = nullptr;
+static uint16_t gHwLastCnt = 0;
+extern "C" void spuMixTrace(uint8_t* master);
+extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* master, void (*chanmix)(uint8_t*, int32_t*, uint32_t)) {
+    static int sOn = -1;
+    if (sOn < 0) sOn = property_get_bool("persist.gammaos.drastic_nano.hw_route", true) ? 1 : 0;
+    if (!sOn || n == 0 || n > 8192) return 0;
+    // Register mirror: the channel mix loads it as *(spu+0x40cd8) and reads master volume at +0x100,
+    // i.e. the mirror starts at IO 0x04000400 and SOUNDCNT (0x04000500) is at +0x100.
+    uint8_t* regs = *reinterpret_cast<uint8_t**>(spu + 0x40cd8);
+    if (!regs) return 0;
+    const uint16_t cntRaw = *reinterpret_cast<uint16_t*>(regs + 0x100);   // NOT the register (garbage); logged only
+    static int sFixed = -1; if (sFixed < 0) sFixed = property_get_int32("persist.gammaos.drastic_nano.hw_route_cnt", 0xB97F);
+    const uint16_t cnt = (uint16_t)sFixed;                                  // hardware-verified value for this routing class
+    gHwLastCnt = cntRaw;
+    {   // find SOUNDCNT empirically: scan the first 0x1000 bytes of the mirror for the 0x?97F pattern the game
+        // uses (bit15 set, vol 0x7f, drop bits 12/13 set) and log where it lives; also trace the ring here.
+        static int shots = 0;
+        if (shots < 4 && (gHwRouteMixes.load() % 900) == 0) { shots++;
+            char lg[400]; int n = 0;
+            for (int o = 0; o < 0x1000 && n < 300; o += 2) { uint16_t v = *reinterpret_cast<uint16_t*>(regs + o); if ((v & 0xb07f) == 0xb07f) n += snprintf(lg + n, sizeof(lg) - n, " +%x:%04x", o, v); }
+            ALOGI("DrasticRunner: HWROUTE regs=%p candidates(bit15,12,13,vol7f):%s", regs, lg[0] ? lg : " none"); }
+        if (gSpuTrace) spuMixTrace(master);
+    }
+    const int selL = (cnt >> 8) & 3, selR = (cnt >> 10) & 3;
+    const bool cap0 = (spu[0x40cc4] & 0x80) != 0, cap1 = (spu[0x40cc4 + 32] & 0x80) != 0;
+    if ((selL == 0 && selR == 0) || !(cap0 || cap1)) return 0;         // plain mixer output: nothing to emulate
+    if (!gHwAccA) gHwAccA = static_cast<int32_t*>(calloc(8192 * 2, sizeof(int32_t)));
+    if (!gHwAccA) return 0;
+    gCubicActive = 1;                                                     // routing this game: let the cubic PCM16 interp run (reset below)
+    uint8_t* ch = spu + 0x40028;                                          // 16 channel records, stride 0xc8, +190 = active flag
+    uint8_t save[16];
+    for (int i = 0; i < 16; i++) save[i] = ch[i * 0xc8 + 190];
+    if (gSpuTrace) {   // (diagnostic, persist.gammaos.drastic_nano.hw_route_diffdump) ch4 contribution by DIFFERENCE of two full mixes
+        static int sDD = -1; if (sDD < 0) sDD = property_get_bool("persist.gammaos.drastic_nano.hw_route_diffdump", false) ? 1 : 0;
+        static FILE* fd_ = nullptr; static FILE* fs_ = nullptr; static int di = 0;
+        if (sDD) {
+            if (!di) { di = 1; fd_ = fopen("/data/local/tmp/ch4_diff.bin", "wb"); fs_ = fopen("/data/local/tmp/ch4_src2.bin", "wb"); }
+            if (fd_ && fs_ && save[4] && n >= 8 && n <= 512) {
+                static int32_t* s1 = nullptr; static int32_t* s2 = nullptr;
+                if (!s1) { s1 = static_cast<int32_t*>(calloc(8192 * 2, sizeof(int32_t))); s2 = static_cast<int32_t*>(calloc(8192 * 2, sizeof(int32_t))); }
+                static uint8_t recs[16 * 0xc8]; memcpy(recs, ch, sizeof(recs));
+                memset(s1, 0, n * 2 * sizeof(int32_t)); chanmix(spu, s1, n);              // full mix, all channels as-is
+                uint32_t hdr[2] = {n, *reinterpret_cast<uint32_t*>(ch + 4 * 0xc8 + 144)};
+                fwrite(hdr, 4, 2, fs_); fwrite(ch + 4 * 0xc8, 2, 64, fs_);                  // ch4's decode buffer after the real advance
+                memcpy(ch, recs, sizeof(recs));
+                ch[4 * 0xc8 + 190] = 0;
+                memset(s2, 0, n * 2 * sizeof(int32_t)); chanmix(spu, s2, n);              // full mix without ch4
+                memcpy(ch, recs, sizeof(recs));
+                for (uint32_t i = 0; i < n * 2; i++) s1[i] -= s2[i];
+                fwrite(&n, 4, 1, fd_); fwrite(s1, sizeof(int32_t), n * 2, fd_);
+            }
+        }
+    }
+    if (gSpuTrace) {   // (diagnostic, persist.gammaos.drastic_nano.hw_route_bufdump) ch4 decode buffer vs its mixed contribution
+        static int sBD = -1; if (sBD < 0) sBD = property_get_bool("persist.gammaos.drastic_nano.hw_route_bufdump", false) ? 1 : 0;
+        static FILE* fb = nullptr; static FILE* fm = nullptr; static int bi = 0;
+        if (sBD) {
+            if (!bi) { bi = 1; fb = fopen("/data/local/tmp/ch4_buf.bin", "wb"); fm = fopen("/data/local/tmp/ch4_mix.bin", "wb"); }
+            if (fb && fm && save[4] && n >= 8 && n <= 512) {
+                static int32_t* sc = nullptr; if (!sc) sc = static_cast<int32_t*>(calloc(8192 * 2, sizeof(int32_t)));
+                static uint8_t recs[16 * 0xc8]; memcpy(recs, ch, sizeof(recs));
+                for (int i = 0; i < 16; i++) ch[i * 0xc8 + 190] = (i == 4) ? save[i] : 0;
+                memset(sc, 0, n * 2 * sizeof(int32_t)); chanmix(spu, sc, n);
+                // the decode buffer AFTER the solo mix holds the samples just consumed (64 x s16 at record+0)
+                uint32_t hdr[2] = {n, *reinterpret_cast<uint32_t*>(ch + 4 * 0xc8 + 144)};
+                fwrite(hdr, 4, 2, fb); fwrite(ch + 4 * 0xc8, 2, 64, fb);
+                fwrite(&n, 4, 1, fm); fwrite(sc, sizeof(int32_t), n * 2, fm);
+                memcpy(ch, recs, sizeof(recs));
+            }
+        }
+    }
+    {   // (diagnostic, persist.gammaos.drastic_nano.hw_route_perch) per-channel solo mix: rms and HF share of each channel
+        static int sPer = -1; if (sPer < 0) sPer = property_get_bool("persist.gammaos.drastic_nano.hw_route_perch", false) ? 1 : 0;
+        static uint32_t cnt_ = 0;
+        if (sPer && (++cnt_ % 200) == 0 && n >= 32) {
+            static int32_t* scratch = nullptr; if (!scratch) scratch = static_cast<int32_t*>(calloc(8192 * 2, sizeof(int32_t)));
+            // snapshot the full channel records so solo mixes do not advance state permanently
+            static uint8_t recs[16 * 0xc8]; memcpy(recs, ch, sizeof(recs));
+            char lg[600]; int m = 0;
+            for (int c = 0; c < 16 && m < (int)sizeof(lg) - 40; c++) {
+                if (!save[c]) continue;
+                for (int i = 0; i < 16; i++) ch[i * 0xc8 + 190] = (i == c) ? save[i] : 0;
+                memset(scratch, 0, n * 2 * sizeof(int32_t)); chanmix(spu, scratch, n);
+                memcpy(ch, recs, sizeof(recs));   // restore all records (positions, flags, decode buffers)
+                double e = 0, hf = 0; double prev = 0;
+                for (uint32_t i = 0; i < n; i++) { double v = scratch[i * 2] / 4096.0; e += v * v; double d = v - prev; hf += d * d; prev = v; }
+                m += snprintf(lg + m, sizeof(lg) - m, " ch%d:%.0f/%.2f", c, sqrt(e / n), hf / (e + 1e-9));
+            }
+            const uint8_t fmt1 = recs[1 * 0xc8 + 188];
+            ALOGI("DrasticRunner: HWROUTE perch n=%u (rms/diff-ratio; higher ratio = more HF)%s fmt1=%d", n, lg, fmt1);
+        }
+    }
+    // A: capture source = mixer without ch1/ch3 (SOUNDCNT bits 12/13 drop them from the mixer; the
+    // routing case only matters when the game also excludes them, which Golden Sun does: 0xB97F).
+    memset(gHwAccA, 0, n * 2 * sizeof(int32_t));
+    const bool drop1 = (cnt >> 12) & 1, drop3 = (cnt >> 13) & 1;
+    static uint8_t started[2] = {0, 0};                        // our persistent "started" state for ch1/ch3
+    if (drop1) ch[1 * 0xc8 + 190] = 0;
+    if (drop3) ch[3 * 0xc8 + 190] = 0;
+    chanmix(spu, gHwAccA, n);
+    // restore the flags the mix may have cleared (channels that ended); ch1/ch3 come back as STARTED if we
+    // started them before (a channel that toggles 0->1 every mix re-enters the loop as freshly keyed and
+    // restarts, which produced a burst of discontinuities and a level jump).
+    for (int i = 0; i < 16; i++) if (i != 1 && i != 3) save[i] = ch[i * 0xc8 + 190];
+    save[1] = started[0] ? 1 : save[1]; save[3] = started[1] ? 1 : save[3];
+    // Optional (persist.gammaos.drastic_nano.hw_route_repair): bridge the game's half-ring zero-slots by linear
+    // interpolation right before ch1/ch3 read the ring (same repair as ring_repair, applied in place; the
+    // capture pass below then overwrites the bridged slots with real samples on its next revolution).
+    {
+        static int sRep = -1; if (sRep < 0) sRep = property_get_bool("persist.gammaos.drastic_nano.hw_route_repair", false) ? 1 : 0;
+        if (sRep) for (int u = 0; u < 2; u++) {
+            uint8_t* rec = spu + 0x40ca8 + u * 32; if (!(rec[0x1c] & 0x80)) continue;
+            uint8_t* dst = *reinterpret_cast<uint8_t**>(rec + 0x10); const uint32_t len = *reinterpret_cast<uint32_t*>(rec + 0x18);
+            if (dst && len >= 16 && len <= 65536 && !(rec[0x1c] & 0x08)) ringInterpFill(reinterpret_cast<int16_t*>(dst), len);
+        }
+    }
+    // B: output = only the selected channels, into the mixer's own accumulator (already zeroed by the mixer)
+    for (int i = 0; i < 16; i++) ch[i * 0xc8 + 190] = 0;
+    // ch1/ch3 are keyed on (SOUNDxCNT bit 31) but DraStic never started them (+190 stays 0, so the mixer
+    // skips them: it knows its own capture rings are silent). Start them for the output pass when the
+    // routing selects them; the mixer then decodes the ring itself via its refill path.
+    auto playing = [&](int c) { uint32_t* rp = *reinterpret_cast<uint32_t**>(ch + c * 0xc8 + 152); return rp && (*rp & 0x80000000u); };
+    static int sForce = -1; if (sForce < 0) sForce = property_get_int32("persist.gammaos.drastic_nano.hw_route_force", 1);
+    // Start ch1/ch3 the way DraStic's own key-on does: +190 = has-samples (loop entry), +192 = playing
+    // (the decoder +0x71740 gates on it; without it the position stalls at the key-on value and the
+    // channel never advances, which is what left the read head frozen at one slot).
+    for (int c : {1, 3}) {
+        const bool sel = (c == 1) ? ((selL & 1) || (selR & 1)) : ((selL & 2) || (selR & 2));
+        uint8_t* rc = ch + c * 0xc8;
+        if (sel && sForce && playing(c)) { rc[190] = 1; started[c == 3] = 1; }
+        else { rc[190] = save[c]; if (!playing(c)) started[c == 3] = 0; }
+    }
+    chanmix(spu, acc, n);
+    // Self-correction: the SOUNDCNT is hardcoded to Golden Sun's 0xB97F (ch1/ch3 routing). A different game that
+    // trips the capture activation but does NOT use this routing gets ch1/ch3 forced as its only output, and if
+    // those channels carry nothing the whole frame is silenced (measured on NFS Underground 2). When the routed
+    // output is essentially silent, fall back to gHwAccA (the mix without ch1/ch3, already computed for capture,
+    // no channel re-advance) so hw_route never mutes a title it does not actually apply to. Early-exit the energy
+    // sum as soon as it clears the silence threshold (the common, audible case) instead of summing the whole frame.
+    {
+        const double thr = (double)n * 64.0;
+        double eb = 0; for (uint32_t i = 0; i < n * 2; i++) { eb += (double)acc[i] * acc[i]; if (eb >= thr) break; }
+        if (eb < thr) {   // avg |acc| < ~5.7, i.e. below ~0.001 FS: the routing produced silence
+            memcpy(acc, gHwAccA, n * 2 * sizeof(int32_t));
+            const uint32_t k = gHwFallback.fetch_add(1, std::memory_order_relaxed);
+            if (k < 4) ALOGI("DrasticRunner: HWROUTE routed output silent, using normal mix (this title is not Golden-Sun-routed)");
+        }
+    }
+    // put every channel back to DraStic's own flags; the forced-on ch1/ch3 state is per-pass only, so the
+    // next mix's capture pass never sees the ring channels as sources (that leak fed the ring back into
+    // itself and low-passed the music).
+    for (int i = 0; i < 16; i++) ch[i * 0xc8 + 190] = save[i];
+    if (started[0]) ch[1 * 0xc8 + 190] = 1;
+    if (started[1]) ch[3 * 0xc8 + 190] = 1;
+    {   // diagnostic: which channels are active, and how much energy each accumulator carries
+        static int shots = 0;
+        if (shots < 8 && (gHwRouteMixes.load() % 300) == 0) { shots++;
+            char fl[40]; for (int i = 0; i < 16; i++) fl[i] = save[i] ? '1' : '0'; fl[16] = 0;
+            double ea = 0, eb = 0; for (uint32_t i = 0; i < n * 2; i++) { ea += (double)gHwAccA[i] * gHwAccA[i]; eb += (double)acc[i] * acc[i]; }
+            char st[400]; int m = 0;
+            for (int i = 0; i < 6; i++) { uint8_t* rc = ch + i * 0xc8; uint32_t* rp = *reinterpret_cast<uint32_t**>(rc + 152);
+                m += snprintf(st + m, sizeof(st) - m, " ch%d[bc..c1]=%02x%02x%02x%02x%02x%02x cnt=%08x", i, rc[188], rc[189], rc[190], rc[191], rc[192], rc[193], rp ? *rp : 0u); }
+            ALOGI("DrasticRunner: HWROUTE act=%s selL=%d selR=%d n=%u rmsA=%.0f rmsB=%.0f%s", fl, selL, selR, n, sqrt(ea / (n * 2)) / 4096.0, sqrt(eb / (n * 2)) / 4096.0, st); }
+    }
+    // Anti-alias the capture source (persist.gammaos.drastic_nano.hw_route_aa, default on): A is a 44.1 kHz
+    // mix (with the source channels' own nearest-neighbour imaging up to 22 kHz); the ring is 32.7 kHz.
+    // Hardware captures a mix that never had anything above 16.4 kHz. Decimating A into the ring without a
+    // filter folds 16.4-22 kHz back into 10-16 kHz (measured +6 dB at 8-12 kHz vs melonDS). Same elliptic
+    // 16 kHz design as the output lowpass; state kept per accumulator channel across mixes.
+    {
+        static int sAA = -1; if (sAA < 0) sAA = property_get_bool("persist.gammaos.drastic_nano.hw_route_aa", false) ? 1 : 0;   // refuted offline: unfiltered decimation matches the reference
+        if (sAA) {
+            static double z[2][4][2] = {};
+            static const double kSos[4][6] = {
+                {0.117591635888, 0.231334590813, 0.117591635888, 1, -0.044855136197, 0.118892690289},
+                {1, 1.78076605039, 1, 1, 0.683890483871, 0.561995737842},
+                {1, 1.61010735757, 1, 1, 1.11201121842, 0.828723891871},
+                {1, 1.52945492835, 1, 1, 1.28681505201, 0.955182739885},
+            };
+            for (uint32_t i = 0; i < n; i++) for (int c = 0; c < 2; c++) {
+                double x = gHwAccA[i * 2 + c];
+                for (int k = 0; k < 4; k++) { const double* co = kSos[k]; double* zz = z[c][k]; const double y = co[0] * x + zz[0]; zz[0] = co[1] * x - co[4] * y + zz[1]; zz[1] = co[2] * x - co[5] * y; x = y; }
+                gHwAccA[i * 2 + c] = (int32_t)lrint(x);
+            }
+        }
+    }
+    // Capture: write A into the rings using each unit's own 32.32 position and step (DraStic's rate
+    // conversion), clamped >>12 like the mixer's own output conversion. PCM16 and PCM8, loop mode.
+    // Ordering: on hardware the capture writes a slot first and the game's ARM9 then ADDS its software
+    // voice into that slot before ch1/3 read it. Here the game has already run for the whole frame
+    // before this mix, so its add is already in the ring; overwriting the slot would erase it. Keep a
+    // shadow of what capture wrote last time: the game's contribution is ring - shadow, and the new
+    // slot value is fresh_capture + (ring - shadow). The shadow is per unit, sized to the ring.
+    static int16_t* shadow[2] = {nullptr, nullptr}; static uint32_t shadowLen[2] = {0, 0};
+    for (int u = 0; u < 2; u++) {
+        uint8_t* rec = spu + 0x40ca8 + u * 32;
+        const uint8_t c = rec[0x1c];
+        if (!(c & 0x80)) continue;
+        uint64_t pos = *reinterpret_cast<uint64_t*>(rec + 0x00);
+        const uint64_t step = *reinterpret_cast<uint64_t*>(rec + 0x08);
+        uint8_t* dst = *reinterpret_cast<uint8_t**>(rec + 0x10);
+        const uint32_t len = *reinterpret_cast<uint32_t*>(rec + 0x18);
+        if (!dst || len == 0 || len > 65536) continue;
+        const bool pcm8 = (c & 0x08) != 0, oneshot = (c & 0x04) != 0;
+        if (shadowLen[u] != len) { free(shadow[u]); shadow[u] = static_cast<int16_t*>(calloc(len, sizeof(int16_t))); shadowLen[u] = shadow[u] ? len : 0; }
+        int16_t* sh = shadow[u];
+        static int sShift = -1; if (sShift < 0) sShift = property_get_int32("persist.gammaos.drastic_nano.hw_route_capshift", 12);   // capture scale: acc >> shift
+        static int sCapMode = -1; if (sCapMode < 0) sCapMode = property_get_int32("persist.gammaos.drastic_nano.hw_route_cap", 0);   // 0 = overwrite (default, best), 1 = shadow-add, 3 = slot-walk lerp
+        if (sCapMode == 0 || sCapMode == 3) sh = nullptr;
+        if (sCapMode == 3 && !pcm8) {
+            // Walk the ring slots this mix covers (pos .. pos + step*n) and sample the 44.1 kHz source A at the
+            // fractional output index each slot corresponds to (linear). The old loop dropped ~26% of A's
+            // samples and placed the rest by sample-and-hold on the ring grid, which smeared 8-16 kHz.
+            int16_t* d16 = reinterpret_cast<int16_t*>(dst);
+            const uint64_t endpos = pos + step * (uint64_t)n;
+            const double inv = 4294967296.0 / (double)step;           // output samples per ring slot
+            uint32_t k = (uint32_t)(pos >> 32) + 1;                   // first slot whose boundary lies inside this mix
+            for (uint64_t sp_ = ((uint64_t)k << 32); sp_ <= endpos; sp_ += (1ull << 32), k++) {
+                const double t = (double)(sp_ - pos) / 4294967296.0 * inv;   // fractional output index in [0, n)
+                uint32_t i0 = (uint32_t)t; double fr = t - i0; if (i0 >= n - 1) { i0 = n - 1; fr = 0; }
+                const double v0 = gHwAccA[i0 * 2 + u], v1 = gHwAccA[(i0 + (fr > 0 ? 1 : 0)) * 2 + u];
+                int32_t v = (int32_t)lrint((v0 + (v1 - v0) * fr) / (double)(1 << sShift));
+                if (v > 32767) v = 32767; else if (v < -32768) v = -32768;
+                uint32_t idx = k % len; d16[idx] = (int16_t)v;
+            }
+            pos = endpos; while ((uint32_t)(pos >> 32) >= len) pos -= (uint64_t)len << 32;
+            *reinterpret_cast<uint64_t*>(rec + 0x00) = pos;
+            gHwRouteCapt.fetch_add(n, std::memory_order_relaxed);
+            continue;
+        }
+        // Phase-lock the capture to its channel (unit 0 <-> ch1, unit 1 <-> ch3). Hardware clocks both from the same
+        // timer reload and the game starts the channel an integer number of ticks after the capture, so the channel's
+        // fractional phase at any slot equals the capture's phase when it wrote that slot: the channel's double-advance
+        // (skip) lands exactly on the capture's double-write (dup) and the ring path is a pure delay. DraStic starts
+        // both at block boundaries with independent phases (lead exactly 506 slots, not a multiple of the 1.002891
+        // step), so the skip never meets the dup: a +/-1 sample delay sawtooth at (step-1)*mixrate = 94.6 Hz that put
+        // sidebands 5 dB below every HF line (measured: every native spur sat exactly 94.6 Hz under a real line).
+        // Set cap = ch + D*step for the integer D nearest the current lead; the lead moves by under half a slot, which
+        // the game's half-ring logic cannot see.
+        {
+            const int cch = u ? 3 : 1; uint8_t* crec = ch + cch * 0xc8;
+            const uint64_t cpos = *reinterpret_cast<uint64_t*>(crec + 128), cstep = *reinterpret_cast<uint64_t*>(crec + 136);
+            // Lock mode 1: keep the current lead, only align the fractional phase. Mode 2 (default): also set the lead
+            // itself to len-k slots, the hardware relation. Measured in melonDS (ringctx log, every frame): the game's
+            // ARM9 half-ring burst starts when the capture is at slot 365 and cap-ch1 is always 3 in FIFO position
+            // terms; the channel's 16-byte prefetch runs ahead of the capture FIFO's flush, so playback reads a slot
+            // just BEFORE the capture overwrites it (the previous revolution, already processed by the ARM9). DraStic
+            // (direct memory, no FIFOs) started the capture 176 slots late relative to ch1 (lead 506 instead of ~670),
+            // so the game processed 150 of every 340 slots before they were captured and the capture then erased its
+            // work: the voice defect. Reader k slots ahead of the writer reproduces the hardware order.
+            static int sLock = -1; if (sLock < 0) sLock = property_get_int32("persist.gammaos.drastic_nano.hw_route_lock", 2);
+            static int sLeadK = -1; if (sLeadK < 0) sLeadK = property_get_int32("persist.gammaos.drastic_nano.hw_route_lead_k", 10);
+            const uint64_t sdiff = cstep > step ? cstep - step : step - cstep;
+            const bool lockOk = sLock && sdiff < (1ull << 20) && step && (crec[190] || started[u]) && (uint32_t)(cpos >> 32) < len;
+            static uint32_t seen[2] = {0, 0}; const bool periodic = (seen[u]++ % 2000) == 0 && seen[u] < 40000;
+            if (lockOk) {
+                // The B pass has already advanced the channel by n samples for this block while the capture has not
+                // moved yet: measure and set the lead at the block START (channel position minus n*step).
+                const uint64_t ring = (uint64_t)len << 32, cp = (cpos % ring + ring - ((uint64_t)n * step) % ring) % ring;
+                const uint64_t lead = (pos + ring - cp) % ring;
+                const uint64_t target = (sLock == 2 && (uint32_t)sLeadK < len) ? ((uint64_t)(len - (uint32_t)sLeadK) << 32) : lead;
+                const uint64_t D = (target + step / 2) / step;
+                const uint64_t want = (cp + D * step) % ring;
+                const int64_t resid = (int64_t)(pos - want);
+                if (periodic) ALOGI("DrasticRunner: HWROUTE cap%d lock-check: lead %.5f D=%llu resid=%lld (%.5f slot) ch190=%d started=%d", u, lead / 4294967296.0, (unsigned long long)D, (long long)resid, resid / 4294967296.0, crec[190], started[u]);
+                if (want != pos) {
+                    static uint32_t logged = 0;
+                    if (logged++ < 40) ALOGI("DrasticRunner: HWROUTE cap%d phase-lock: lead %.5f -> %.5f slots (D=%llu, step %.6f, resid %lld)", u, lead / 4294967296.0, (D * step % ring) / 4294967296.0, (unsigned long long)D, step / 4294967296.0, (long long)resid);
+                    pos = want;
+                }
+            } else if (periodic) ALOGI("DrasticRunner: HWROUTE cap%d lock-check SKIPPED: cstep=%#llx step=%#llx ch190=%d started=%d cpos=%#llx pos=%#llx len=%u", u, (unsigned long long)cstep, (unsigned long long)step, crec[190], started[u], (unsigned long long)cpos, (unsigned long long)pos, len);
+        }
+        // The capture timer never leaves a slot unwritten: when the unit's rate exceeds the mix rate (step > 1, e.g. a
+        // 32823.6 Hz SOUND1TMR against a 32729 Hz native mix) hardware overflows the timer twice on one tick and writes
+        // the same sample into both slots. Mirror that: every slot from the next expected one up to this one gets v.
+        // Without it a slot every 1/(step-1) samples kept the previous revolution's 20 ms-old value (the one-sample
+        // dips measured in the ring and heard as ticks under native_mix). The expected slot carries across blocks.
+        static int32_t sNext[2] = {-1, -1};
+        int32_t nextSlot = sNext[u];
+        if (nextSlot >= (int32_t)len) nextSlot = -1;
+        int16_t* d16 = reinterpret_cast<int16_t*>(dst);
+        for (uint32_t i = 0; i < n; i++) {
+            int32_t v = gHwAccA[i * 2 + u] >> sShift;
+            if (v > 32767) v = 32767; else if (v < -32768) v = -32768;
+            const uint32_t idx = (uint32_t)(pos >> 32);
+            if (idx < len) {
+                if (!pcm8 && !sh && nextSlot >= 0 && (int32_t)idx > nextSlot) for (uint32_t j = (uint32_t)nextSlot; j < idx; j++) d16[j] = (int16_t)v;   // skipped slots
+                if (pcm8) {
+                    const int32_t cur = (int8_t)dst[idx], old = sh ? (int8_t)(sh[idx] >> 8) : 0;
+                    int32_t nv = (v >> 8) + (cur - old); if (nv > 127) nv = 127; else if (nv < -128) nv = -128;
+                    dst[idx] = (uint8_t)(int8_t)nv; if (sh) sh[idx] = (int16_t)((v >> 8) << 8);
+                } else {
+                    const int32_t cur = d16[idx], old = sh ? sh[idx] : 0;
+                    int32_t nv = v;
+                    if (sh && sCapMode == 2) { const int32_t voice = cur - old; if (voice > -24000 && voice < 24000) nv = v + voice; }
+                    else if (sh) nv = v + (cur - old);
+                    if (nv > 32767) nv = 32767; else if (nv < -32768) nv = -32768;
+                    d16[idx] = (int16_t)nv; if (sh) sh[idx] = (int16_t)v;
+                }
+                nextSlot = (int32_t)idx + 1;
+            }
+            pos += step;
+            if ((uint32_t)(pos >> 32) >= len) {
+                if (oneshot) { rec[0x1c] = c & 0x7f; break; }
+                if (!pcm8 && !sh && nextSlot >= 0) for (uint32_t j = (uint32_t)nextSlot; j < len; j++) d16[j] = (int16_t)v;   // skip across the wrap
+                pos -= (uint64_t)len << 32; nextSlot = 0;
+            }
+        }
+        sNext[u] = nextSlot;
+        *reinterpret_cast<uint64_t*>(rec + 0x00) = pos;
+        gHwRouteCapt.fetch_add(n, std::memory_order_relaxed);
+    }
+    if (gSpuTrace) {   // (diagnostic) dump both accumulators: A = capture source, B = ch1/ch3 output (pre >>12)
+        static FILE* bf = nullptr; static FILE* af = nullptr; static int bi = 0;
+        if (!bi) { bi = 1; bf = fopen("/data/local/tmp/spu_accB.bin", "wb"); af = fopen("/data/local/tmp/spu_accA.bin", "wb"); }
+        uint32_t m = n < 512 ? n : 512;
+        if (bf) { fwrite(&m, 4, 1, bf); fwrite(acc, sizeof(int32_t), m * 2, bf); }
+        if (af) { fwrite(&m, 4, 1, af); fwrite(gHwAccA, sizeof(int32_t), m * 2, af); }
+    }
+    gCubicActive = 0;                                                     // routing done for this mix; inert games never set it, so cubic stays off for them
+    gHwRouteMixes.fetch_add(1, std::memory_order_relaxed);
+    return 1;
+}
 // Pre: snapshot the real ring, then bridge every internal zero-run by linear interpolation so the
 // channel-mix that follows never reads a cleared-but-unrefilled zero. Visible only for that read.
 extern "C" void spuRingRepairPre(uint8_t* master) {
     uint8_t* spu = master + 0x158c000;
     gRingRepairCalls.fetch_add(1, std::memory_order_relaxed);
+    static int sHw = -1;
+    if (sHw < 0) sHw = property_get_bool("persist.gammaos.drastic_nano.hw_route", true) && !property_get_bool("persist.gammaos.drastic_nano.hw_route_repair", false) ? 1 : 0;
+    if (sHw) { gRingSaveBytes[0] = gRingSaveBytes[1] = 0; return; }   // the rings hold real captured audio now
     for (int u = 0; u < 2; u++) {
         gRingSaveBytes[u] = 0;
         uint8_t* p; uint32_t L; int w;
         if (!ringRepairTarget(spu, u, &p, &L, &w)) continue;
         const uint32_t bytes = L * (uint32_t)w;
         memcpy(gRingSave[u], p, bytes); gRingSaveBytes[u] = bytes;
+        // ring_mode: 0 = interpolate the gaps (the fix), 1 = silence the ring for this read only
+        // (diagnostic: whatever still reaches the speaker did NOT come through channels 1/3).
+        static int sRingMode = -1;
+        if (sRingMode < 0) sRingMode = property_get_int32("persist.gammaos.drastic_nano.ring_mode", 0);
+        if (sRingMode == 1) { memset(p, 0, bytes); continue; }
         const uint32_t filled = (w == 2) ? ringInterpFill(reinterpret_cast<int16_t*>(p), L) : ringInterpFill(reinterpret_cast<int8_t*>(p), L);
         if (filled) gRingRepairFilled.fetch_add(filled, std::memory_order_relaxed);
     }
@@ -2185,6 +2538,13 @@ extern "C" void spuRingRepairPost(uint8_t* master) {
     }
 }
 static uint8_t* gSpuTraceBase = nullptr;
+static uint8_t* gFetchLog = nullptr;
+static uint8_t* gWrapLog = nullptr;
+static uint8_t* gRefillLog = nullptr;
+static int gNativeMix = 0;
+static std::atomic<uint32_t> gNativeMinIn{0xffffffffu}, gNativeMaxIn{0}, gNativeOdd{0}, gNativeShort{0};   // chunk-size stats for the NATIVEMIX line
+static std::atomic<uint32_t> gNativeIn{0}, gNativeOut{0};
+static volatile uint32_t gAdpcmWraps = 0;
 // Compact long-run trace: capture state and a few ring samples per mix, for the whole session.
 struct SpuMini { uint32_t cycles, cap, cnt; int16_t sig[8]; };
 static SpuMini* gSpuMini = nullptr;
@@ -2238,7 +2598,19 @@ extern "C" void spuMixTrace(uint8_t* master) {
 extern "C" void raAudioSubmitPost(uint8_t* ctx);
 extern "C" void raAudioCallbackHook();
 std::atomic<uint32_t> gEmuLostTicks{0}, gEmuCatchUps{0}, gEmuDebtDrops{0};   // tick accounting (see drasticVWait)
+std::atomic<uint32_t> gEmuRenderCatchUps{0};   // catch-up frames run render-skipped (see drasticVWait)
+// Stall diagnostic (see drasticVWait): a "stall" is a single emulated frame that ran past
+// pace_catchup_max vblank periods. We bracket the emulation (return of drasticVWait to the
+// next entry) and compare wall time against this thread's CPU time: wall >> cpu means the
+// emulator thread was OFF-CPU (preempted/blocked by the scheduler, fixable with priority),
+// wall ~= cpu means a genuinely heavy frame (fixable with catch-up / offload).
+std::atomic<uint32_t> gStallOffCpu{0}, gStallOnCpu{0};   // classified stall counts
+std::atomic<uint32_t> gStallMaxWallMs{0}, gStallMaxCpuMs{0};   // worst stall seen
 uint8_t* gAudLibBase = nullptr;   // libdrastic base for the audio submit probe
+uint8_t* gPaceBase = nullptr;     // libdrastic base captured by installVblankPacing (drasticVWait render-skip)
+std::atomic<bool> gRaCatchUpSkip{false};   // a render-skip catch-up is in flight (guards the gEmuDurUs EMA)
+void raHiddenRenderSkip(uint8_t* base, int mask);
+void raHiddenRenderRestore(uint8_t* base);
 void raDirtyPostLoad();
 void raDirtyApplyWant();
 void raDirtyOnRemap(void* addr, size_t len, int fd, off_t off);
@@ -2428,6 +2800,7 @@ extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
     if (!gT3d.alternating && gT3d.emaWaitUs > sBudgetUs) { gT3d.lagMode = true; gT3d.switches++; }
 }
 std::atomic<bool>     gPaceBypass{false};   // emulator too slow for the lock: drastic's own timer
+std::atomic<bool>     gAudioChunks8{false};  // OpenSL sink re-shaped to 8 x 33 ms chunks (audio_chunks_8; set at install)
 static inline uint64_t realClockUs() {
     struct timeval tv; gettimeofday(&tv, nullptr);
     return (uint64_t)tv.tv_sec * 1000000ULL + (uint64_t)tv.tv_usec;
@@ -2495,7 +2868,8 @@ extern "C" void drasticSlotFlipHook() {
     const bool afterBurst = (int32_t)(gVblSeq.load() - gRaBurstUntilSeq.load()) < 0;
     gProducerDoneUs.store(now);
     const int64_t t = gLastTickUs.load();
-    if (gPaceOn.load() && t > 0 && now - t > 0 && now - t < 30000 && !hidden && !afterBurst) {
+    if (gPaceOn.load() && t > 0 && now - t > 0 && now - t < 30000 && !hidden && !afterBurst &&
+        !gRaCatchUpSkip.load(std::memory_order_relaxed)) {
         const int64_t d = gEmuDurUs.load();
         gEmuDurUs.store((d * 7 + (now - t)) / 8);
     }
@@ -2530,12 +2904,42 @@ extern "C" void drasticSlotFlipHook() {
 // tracks the frame-skipped render rate.
 std::atomic<uint32_t> gVWaitCount{0};
 std::atomic<int64_t> gLastParkUs{0};   // emulator entered the limiter wait (park)
+static inline int64_t threadCpuUs() {
+    struct timespec t;
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
+    return (int64_t)t.tv_sec * 1000000LL + t.tv_nsec / 1000;
+}
+// Emulation bracket for the stall diagnostic: markers set at every return of drasticVWait
+// (when drastic resumes emulating) and read at the next entry, so the delta is the frame's
+// emulation only, excluding the park wait. gEmuRunStart* / the diagnostic are emulator-thread only.
+static int64_t sEmuRunStartUs = 0, sEmuRunStartCpu = 0;
+static long sEmuRunNvcsw = 0, sEmuRunNivcsw = 0, sEmuRunMajflt = 0;
+static int sStallDiag = 0;   // pace_stall_diag: gate the per-frame stall diagnostic (off = zero cost)
+// Read this thread's voluntary/involuntary context switches and major faults. On an off-CPU
+// stall these separate the cause: nivcsw = preempted (scheduler), nvcsw = blocked on a lock/IO,
+// majflt = a major page fault (memory reclaim under pressure).
+static inline void threadRu(long& nvcsw, long& nivcsw, long& majflt) {
+    struct rusage ru; getrusage(RUSAGE_THREAD, &ru);
+    nvcsw = ru.ru_nvcsw; nivcsw = ru.ru_nivcsw; majflt = ru.ru_majflt;
+}
 extern "C" void drasticVWait(unsigned usec) {
     gVWaitCount.fetch_add(1, std::memory_order_relaxed);
-    gLastParkUs.store((int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::steady_clock::now().time_since_epoch()).count());
+    const int64_t nowUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+    gLastParkUs.store(nowUs);
+    // Emulation just finished (since the last return): wall vs this thread's CPU time.
+    // Gated behind pace_stall_diag (default off) so production pays nothing per frame.
+    int64_t emuWallUs = 0, emuCpuUs = 0, cpuNowUs = 0;
+    long nvNow = 0, nivNow = 0, mfNow = 0, dNv = 0, dNiv = 0, dMf = 0;
+    if (sStallDiag) {
+        cpuNowUs = threadCpuUs(); threadRu(nvNow, nivNow, mfNow);
+        if (sEmuRunStartUs > 0) {
+            emuWallUs = nowUs - sEmuRunStartUs; emuCpuUs = cpuNowUs - sEmuRunStartCpu;
+            dNv = nvNow - sEmuRunNvcsw; dNiv = nivNow - sEmuRunNivcsw; dMf = mfNow - sEmuRunMajflt;
+        }
+    }
     raDirtyApplyWant();   // emulator thread at a frame boundary: dirty tracking follows run-ahead and the pacer lock
-    if (!gPaceOn.load(std::memory_order_relaxed)) { usleep(usec); return; }
+    if (!gPaceOn.load(std::memory_order_relaxed)) { sEmuRunStartUs = 0; usleep(usec); return; }
     std::unique_lock<std::mutex> lk(gPaceMu);
     const uint32_t seen = gVblSeq.load(std::memory_order_acquire);
     // Tick accounting. A frame that ran past its period saw the next tick
@@ -2547,27 +2951,85 @@ extern "C" void drasticVWait(unsigned usec) {
     // pace_catchup_max ticks means the scene cannot keep 60 and is forgiven
     // (the bypass handles sustained overload).
     static uint32_t sConsumedSeq = 0; static bool sConsumedValid = false;
-    static int sCatchUp = -1, sCatchUpMax = 2; static int64_t sCatchUpReadUs = 0;
+    static int sCatchUp = -1, sCatchUpMax = 2, sCatchCeil = 5; static int64_t sCatchUpReadUs = 0;
+    static int sRenderSkip = 0, sCatchMask = 3;
+    static bool sSkipActive = false;
     if (gLastParkUs.load() - sCatchUpReadUs > 1000000) {
         sCatchUpReadUs = gLastParkUs.load();
         sCatchUp = property_get_int32("persist.gammaos.drastic_nano.pace_catchup", 1);
         sCatchUpMax = property_get_int32("persist.gammaos.drastic_nano.pace_catchup_max", 2);
+        // Full-render catch-up ceiling: an isolated stall this many ticks or fewer is
+        // caught up (owed frames run back to back), so its audio is produced and the
+        // output queue refills instead of starving (the heavy-scene pop). The picture
+        // stays fully composed on every catch-up frame, both DS panels included.
+        // Catch small isolated gameplay hiccups (behind 3..ceiling) but leave a giant
+        // stall (a state load is behind 8..10 and ~140 ms of CPU) to the drop path: its
+        // audio is silence during the load anyway, and a slow full-render catch-up of a
+        // backlog that big drains the output queue far worse than an instant resync.
+        sCatchCeil = property_get_int32("persist.gammaos.drastic_nano.pace_catchup_ceiling", 5);
+        // Render-skip the extension frames (compose + 3D kick): cheaper catch-up, but it
+        // leaves a STATIC panel (the DS bottom screen) un-redrawn and blank, so it is OFF
+        // by default. Only for experiments.
+        sRenderSkip = property_get_int32("persist.gammaos.drastic_nano.pace_render_catchup", 0);
+        sCatchMask = property_get_int32("persist.gammaos.drastic_nano.pace_catchup_mask", 3);
+        sStallDiag = property_get_int32("persist.gammaos.drastic_nano.pace_stall_diag", 0);
     }
     if (sConsumedValid) {
         const int32_t behind = (int32_t)(seen - sConsumedSeq);   // ticks that fired during the frame
         if (behind > 0) {
             gEmuLostTicks.fetch_add((uint32_t)behind, std::memory_order_relaxed);
-            if (sCatchUp > 0 && !gStepMode.load(std::memory_order_relaxed) &&
-                gRaMode.load(std::memory_order_relaxed) != 2 && gRaParkOp.load(std::memory_order_acquire) == 0) {
-                if (behind <= sCatchUpMax) {
+            const bool eligible = sCatchUp > 0 && !gStepMode.load(std::memory_order_relaxed) &&
+                gRaMode.load(std::memory_order_relaxed) != 2 && gRaParkOp.load(std::memory_order_acquire) == 0;
+            // Stall diagnostic: this frame ran past the small window. Classify it by
+            // comparing its emulation wall time against this thread's CPU time.
+            if (sStallDiag && behind > sCatchUpMax && emuWallUs > 0) {
+                const bool offCpu = emuCpuUs * 3 < emuWallUs * 2;   // used < 2/3 of the wall on CPU
+                (offCpu ? gStallOffCpu : gStallOnCpu).fetch_add(1, std::memory_order_relaxed);
+                const uint32_t wms = (uint32_t)(emuWallUs / 1000), cms = (uint32_t)(emuCpuUs / 1000);
+                uint32_t pw = gStallMaxWallMs.load(std::memory_order_relaxed);
+                if (wms > pw) gStallMaxWallMs.store(wms, std::memory_order_relaxed);
+                uint32_t pc = gStallMaxCpuMs.load(std::memory_order_relaxed);
+                if (cms > pc) gStallMaxCpuMs.store(cms, std::memory_order_relaxed);
+                static int64_t sLastStallLogUs = 0;
+                const int stallLogGap = property_get_int32("persist.gammaos.drastic_nano.pace_stall_log_us", 1000000);
+                if (nowUs - sLastStallLogUs > stallLogGap) {
+                    sLastStallLogUs = nowUs;
+                    ALOGW("PACE stall behind=%d wall=%u ms cpu=%u ms nvcsw=%ld nivcsw=%ld majflt=%ld %s",
+                          behind, wms, cms, dNv, dNiv, dMf,
+                          offCpu ? "OFF-CPU(sched)" : "ON-CPU(heavy)");
+                }
+            }
+            if (eligible) {
+                // Catch up (owed frame runs now, no park) while the backlog fits the
+                // ceiling. Full render by default; render-skip only as an experiment.
+                const bool small = behind <= sCatchUpMax;
+                if (small || behind <= sCatchCeil) {
+                    if (!small && sRenderSkip > 0 && !sSkipActive && gPaceBase) {
+                        raHiddenRenderSkip(gPaceBase, sCatchMask);
+                        sSkipActive = true;
+                        gRaCatchUpSkip.store(true, std::memory_order_release);
+                    }
                     sConsumedSeq++;
                     gEmuCatchUps.fetch_add(1, std::memory_order_relaxed);
+                    if (sSkipActive) gEmuRenderCatchUps.fetch_add(1, std::memory_order_relaxed);
+                    if (sStallDiag) {   // next frame's emulation starts now: reset the bracket
+                        sEmuRunStartUs = nowUs; sEmuRunStartCpu = cpuNowUs;
+                        sEmuRunNvcsw = nvNow; sEmuRunNivcsw = nivNow; sEmuRunMajflt = mfNow;
+                    }
                     raFlushDeferredUnmaps();
                     return;   // run the next frame now: no park, no wait
                 }
                 gEmuDebtDrops.fetch_add((uint32_t)behind, std::memory_order_relaxed);
             }
         }
+    }
+    // Caught up (or catch-up not eligible): if the picture was render-skipped for
+    // a catch-up run, restore it now, before this frame parks, so the next shown
+    // frame composes normally.
+    if (sSkipActive) {
+        if (gPaceBase) raHiddenRenderRestore(gPaceBase);
+        sSkipActive = false;
+        gRaCatchUpSkip.store(false, std::memory_order_release);
     }
     raFlushDeferredUnmaps();
     // Run-ahead: the ring save happens here, in the idle slack before the
@@ -2601,6 +3063,14 @@ extern "C" void drasticVWait(unsigned usec) {
     if (gVblSeq.load(std::memory_order_acquire) != seen) { sConsumedSeq = seen + 1; sConsumedValid = true; }
     else sConsumedValid = false;   // free-run timeout or pacing switched off: resync on the next tick
     gEmuParked.store(false);
+    // The park is over; the next frame's emulation begins now. Bracket it for the
+    // stall diagnostic (wall vs thread CPU), excluding the wait we just did.
+    if (sStallDiag) {
+        sEmuRunStartUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count();
+        sEmuRunStartCpu = threadCpuUs();
+        threadRu(sEmuRunNvcsw, sEmuRunNivcsw, sEmuRunMajflt);
+    }
 }
 } // namespace
 
@@ -2608,8 +3078,12 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     if (!base || mPanelHz <= 1.0) return;
     if (!property_get_bool("persist.gammaos.drastic_nano.vblank_pace", true)) return;
     const long ps = sysconf(_SC_PAGESIZE) > 0 ? sysconf(_SC_PAGESIZE) : 4096;
-    // 1. OpenSL PCM sample rate (rodata, milliHz): both format tables.
-    const uint32_t rate = (uint32_t)llround(44100000.0 * mPanelHz / 60.0);
+    // 1. OpenSL PCM sample rate (rodata, milliHz): both format tables. With native_mix the SPU mixes at 32824 Hz and
+    // hands 547 stereo frames per video frame; open the player at 32824 too so the frames go out untouched and
+    // AudioFlinger does the 32824->48000 conversion with its own (off-thread, optimised) resampler. This is what lets
+    // native_mix avoid a per-sample software resampler on the emulation thread, which starved the OpenSL queue.
+    const bool nativeMixRate = property_get_bool("persist.gammaos.drastic_nano.native_mix", false);
+    const uint32_t rate = (uint32_t)llround((nativeMixRate ? 32824000.0 : 44100000.0) * mPanelHz / 60.0);
     static const uintptr_t kRateOffs[2] = { 0x10a08c, 0x10a0c0 };
     for (uintptr_t off : kRateOffs) {
         uint32_t* p = reinterpret_cast<uint32_t*>(base + off);
@@ -2665,6 +3139,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     };
     writeCave(kCaveTime, (void*)&drasticVTime);
     writeCave(kCaveWait, (void*)&drasticVWait);
+    gPaceBase = base;   // drasticVWait uses this for the render-skip catch-up
     gOrigSlotFlip = reinterpret_cast<void (*)()>(base + 0x1cb14);
     writeCave(kCaveFlip, (void*)&drasticSlotFlipHook);
     // Emulated-frame counter: the frame limiter (+0x1b7a8) is entered from exactly
@@ -2930,8 +3405,46 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // where x19 = master and x0/x1/w2 are the channel-mix arguments; the cave saves those, calls
         // spuRingRepair(master), restores them and tail-branches into +0x71bf0 with x30 still holding the
         // mixer's return address. Lives at probe page +512, clear of the other caves.
+        if (sProbePage && property_get_bool("sys.gammaos.drastic_nano.spu_trace", false) && !gSpuTrace) {
+            gSpuTraceBase = base;
+            gSpuTrace = static_cast<SpuTraceRec*>(calloc(kSpuTraceCap, sizeof(SpuTraceRec)));
+            gSpuMini = static_cast<SpuMini*>(calloc(kSpuMiniCap, sizeof(SpuMini)));
+            ALOGI("DrasticRunner: SPU trace buffer %s (early)", gSpuTrace ? "ready" : "FAILED");
+        }
         const uintptr_t rrSite = 0x72858;
-        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.ring_repair", true) &&
+        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.hw_route", true) &&
+            *reinterpret_cast<uint32_t*>(base + rrSite) == 0x97fffce6u) {   // bl +0x71bf0
+            // Hardware routing cave (probe page +768, scratchpad/gs/caveRoute.s): hands the whole mix to
+            // spuHwRoute; on 1 it skips the original channel-mix + two capture calls (continues at
+            // +0x72884), on 0 it tail-calls the original +0x71bf0 with the mixer's return address intact.
+            if (property_get_bool("sys.gammaos.drastic_nano.spu_trace", false) && !gSpuTrace) {
+                gSpuTraceBase = base;
+                gSpuTrace = static_cast<SpuTraceRec*>(calloc(kSpuTraceCap, sizeof(SpuTraceRec)));
+                gSpuMini = static_cast<SpuMini*>(calloc(kSpuMiniCap, sizeof(SpuMini)));
+                ALOGI("DrasticRunner: SPU trace buffer %s (hw_route)", gSpuTrace ? "ready" : "FAILED");
+            }
+            uint8_t* pg = sProbePage;
+            const uintptr_t cave = (uintptr_t)sProbePage - (uintptr_t)base + 768;
+            mprotect(pg, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            uint32_t* w = reinterpret_cast<uint32_t*>(base + cave);
+            static const uint32_t kCaveRoute[] = {
+                0xa9bf07e0u, 0xa9bf0fe2u, 0xa9bf7be4u, 0xaa1603e0u, 0xaa1403e1u, 0x2a1503e2u, 0xaa1303e3u, 0x580001e4u,
+                0x58000190u, 0xd63f0200u, 0x340000a0u, 0xa8c17be4u, 0xa8c10fe2u, 0xa8c107e0u, 0x14000000u, 0xa8c17be4u,
+                0xa8c10fe2u, 0xa8c107e0u, 0x14000000u, 0xd503201fu, 0u, 0u, 0u, 0u,
+            };
+            memcpy(w, kCaveRoute, sizeof(kCaveRoute));
+            w[14] = 0x14000000u | ((uint32_t)(((int64_t)0x72884 - (int64_t)(cave + 0x38)) / 4) & 0x03ffffffu);
+            w[18] = 0x14000000u | ((uint32_t)(((int64_t)0x71bf0 - (int64_t)(cave + 0x48)) / 4) & 0x03ffffffu);
+            *reinterpret_cast<uint64_t*>(base + cave + 0x50) = (uint64_t)(uintptr_t)&spuHwRoute;
+            *reinterpret_cast<uint64_t*>(base + cave + 0x58) = (uint64_t)(uintptr_t)(base + 0x71bf0);
+            __builtin___clear_cache((char*)(base + cave), (char*)(base + cave + sizeof(kCaveRoute)));
+            uint8_t* sp2 = (uint8_t*)((uintptr_t)(base + rrSite) & ~(uintptr_t)(ps - 1));
+            mprotect(sp2, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            *reinterpret_cast<uint32_t*>(base + rrSite) = 0x94000000u | ((uint32_t)(((int64_t)cave - (int64_t)rrSite) / 4) & 0x03ffffffu);
+            __builtin___clear_cache((char*)(base + rrSite), (char*)(base + rrSite + 4));
+            mprotect(sp2, (size_t)ps, PROT_READ | PROT_EXEC);
+            ALOGI("DrasticRunner: SPU hardware output routing + real capture installed (cave +0x%zx)", (size_t)cave);
+        } else if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.ring_repair", true) &&
             *reinterpret_cast<uint32_t*>(base + rrSite) == 0x97fffce6u) {   // bl +0x71bf0
             uint8_t* cavePg5 = sProbePage;
             const uintptr_t cave4 = (uintptr_t)sProbePage - (uintptr_t)base + 512;
@@ -2960,6 +3473,320 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             ALOGI("DrasticRunner: SPU ring interpolation repair installed (cave +0x%zx)", (size_t)cave4);
         } else if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.ring_repair", true))
             ALOGW("DrasticRunner: mixer channel-mix site +0x72858 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + rrSite));
+        // PCM channel linear interpolation (persist.gammaos.drastic_nano.pcm_interp): DraStic's channel mixer
+        // resamples every channel from its own rate to 44.1 kHz by nearest neighbour: the PCM16 fetch at
+        // +0x71e04 / +0x72154 is "ldrsh w8, [x22, x8, lsl #1]" with x8 = the integer part of the 32.32
+        // position only, the fraction never used. Sample-and-hold images the source spectrum around its
+        // Nyquist and sounds gritty ("harsh, raw"); melonDS reads a 32.7 kHz channel 1:1 and sounds rounded.
+        // Two caves replace those fetches with a lerp between buf[i-1] and buf[i] by the 16-bit fraction
+        // (both already decoded; the 64-entry decode buffer is refilled just in time, so buf[i+1] may be
+        // stale), i.e. linear interpolation with a one-source-sample delay. The first sample of a channel
+        // (position 0) is fetched plain so a stale buf[i-1] cannot click. x16/x17 are scratch; x30 is not
+        // live across the loop (it already calls the decoder). Caves at probe page +640 and +704.
+        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.pcm_interp", false)) {
+            static const uint32_t kLerp21[] = {0xd360feb1u,0x34000191u,0x78e87ad0u,0x51000511u,0x12001631u,0x78f17ad1u,0xd350fea8u,0x12003d08u,
+                                               0x4b110210u,0x9b287e10u,0x9350fe10u,0x0b100228u,0xd65f03c0u,0x78e87ac8u,0xd65f03c0u};
+            static const uint32_t kLerp23[] = {0xd360fef1u,0x34000191u,0x78e87ad0u,0x51000511u,0x12001631u,0x78f17ad1u,0xd350fee8u,0x12003d08u,
+                                               0x4b110210u,0x9b287e10u,0x9350fe10u,0x0b100228u,0xd65f03c0u,0x78e87ac8u,0xd65f03c0u};
+            const uintptr_t sites[2] = {0x71e04, 0x72154};
+            const uint32_t* caves[2] = {kLerp21, kLerp23};
+            const uintptr_t caveOff[2] = {(uintptr_t)sProbePage - (uintptr_t)base + 640, (uintptr_t)sProbePage - (uintptr_t)base + 704};
+            int ok = 0;
+            mprotect(sProbePage, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            for (int k = 0; k < 2; k++) {
+                if (*reinterpret_cast<uint32_t*>(base + sites[k]) != 0x78e87ac8u) {   // ldrsh w8, [x22, x8, lsl #1]
+                    ALOGW("DrasticRunner: pcm_interp site +0x%zx unexpected (0x%08x)", (size_t)sites[k], *reinterpret_cast<uint32_t*>(base + sites[k]));
+                    continue;
+                }
+                memcpy(base + caveOff[k], caves[k], 15 * 4);
+                __builtin___clear_cache((char*)(base + caveOff[k]), (char*)(base + caveOff[k] + 64));
+                uint8_t* sp = (uint8_t*)((uintptr_t)(base + sites[k]) & ~(uintptr_t)(ps - 1));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                const int64_t d = ((int64_t)caveOff[k] - (int64_t)sites[k]) / 4;
+                *reinterpret_cast<uint32_t*>(base + sites[k]) = 0x94000000u | ((uint32_t)d & 0x03ffffffu);   // bl cave
+                __builtin___clear_cache((char*)(base + sites[k]), (char*)(base + sites[k] + 4));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_EXEC);
+                ok++;
+            }
+            ALOGI("DrasticRunner: PCM channel linear interpolation installed at %d/2 fetch sites", ok);
+        }
+        // PCM16 direct-read linear interpolation (persist.gammaos.drastic_nano.pcm16_interp): the PCM16 channel
+        // path does NOT use the 64-entry decode buffer; it reads the source directly at +0x71e94 (and the
+        // two loop copies at +0x72230 / +0x72288): "ldrsh w11, [x8, x11]" with x8 = source, x11 = byte offset of
+        // the integer position, the fraction unused = nearest neighbour. For the routed ch1/ch3 (ring at
+        // 32.7 kHz read at 44.1 kHz) that adds +3.5 dB of 6-12 kHz over the ring content (measured on the
+        // pass-B accumulator). One cave lerps s_i and s_{i+1} by the 16-bit fraction, wrapping s_{i+1} to the
+        // loop start at the loop length (x27), so a circular ring interpolates across its seam. x16/x17 are
+        // free in that loop. Probe page +896.
+        const int sInterpMode = property_get_int32("persist.gammaos.drastic_nano.pcm16_interp", 2);
+        if (sProbePage && sInterpMode >= 1) {
+            // The PCM16 channels are read at 44.1 kHz with a fractional step, so they image (nearest-neighbour = the
+            // harsh grinding). melonDS mixes at 32.7 kHz where these channels have step 1.0 and never resample. mode 1 =
+            // linear interp (sinc^2: kills the imaging but also dulls the genuine highs). mode 2 = Catmull-Rom cubic
+            // (offline-verified: HF preserved like nearest, imaging rejected like linear - the best of both, closest to
+            // melonDS while staying at 44.1 kHz so no rate change / no underruns). Twin register variants: site +0x71e94
+            // has pos=x21 len=x27; the loop copies at +0x72230/+0x72288 have pos=x23 len=x21, so each gets its own cave.
+            static const uint32_t kLerpA[] = {0x78eb6910u,0xd341fd71u,0x91000631u,0xeb1b023fu,0x9a9123f1u,0x78f17911u,0x4b100231u,
+                                              0xd350feabu,0x12003d6bu,0x9b2b7e31u,0x9350fe31u,0x0b11020bu,0xd65f03c0u};
+            static const uint32_t kLerpB[] = {0x78eb6910u,0xd341fd71u,0x91000631u,0xeb15023fu,0x9a9123f1u,0x78f17911u,0x4b100231u,
+                                              0xd350feebu,0x12003d6bu,0x9b2b7e31u,0x9350fe31u,0x0b11020bu,0xd65f03c0u};
+            // Catmull-Rom cubic (pos=x21 len=x27), saves x2,x3,x12-x15; reads s[i-1..i+2] circular, 16.16 frac. Gated:
+            // the cave loads gCubicActive (literal at cave+192, filled at install); when 0 it does a plain nearest fetch, so
+            // only capture-routed games (hw_route active) pay for the cubic. Non-capture games get stock audio and speed.
+            static const uint32_t kCubicA[] = {0x58000610u,0xb9400210u,0x34000570u,0xa9bf0fe2u,0xa9bf37ecu,0xa9bf3feeu,0xd341fd62u,0x78ab690du,0xd1000763u,0xd1000451u,0xf100005fu,0x9a910071u,0x78b1790cu,0x91000451u,0xeb1b023fu,0x9a9103f1u,0x78b1790eu,0x91000851u,0xeb1b0223u,0x9a912071u,0x78b1790fu,0xd3507eb0u,0xcb0e01a2u,0x8b020442u,0xcb0c01e3u,0x8b030051u,0x9b117e11u,0x9350fe31u,0xd37ef5c2u,0x8b0c0442u,0xcb0f0042u,0xcb0d0842u,0xcb0d0042u,0x8b110051u,0x9b117e11u,0x9350fe31u,0xcb0c01c2u,0x8b110051u,0x9b117e11u,0x9351fe31u,0x8b1101abu,0xa8c13feeu,0xa8c137ecu,0xa8c10fe2u,0xd65f03c0u,0x78eb690bu,0xd65f03c0u,0xd503201fu,0x0u,0x0u};
+            static const uint32_t kCubicB[] = {0x58000610u,0xb9400210u,0x34000570u,0xa9bf0fe2u,0xa9bf37ecu,0xa9bf3feeu,0xd341fd62u,0x78ab690du,0xd10006a3u,0xd1000451u,0xf100005fu,0x9a910071u,0x78b1790cu,0x91000451u,0xeb15023fu,0x9a9103f1u,0x78b1790eu,0x91000851u,0xeb150223u,0x9a912071u,0x78b1790fu,0xd3507ef0u,0xcb0e01a2u,0x8b020442u,0xcb0c01e3u,0x8b030051u,0x9b117e11u,0x9350fe31u,0xd37ef5c2u,0x8b0c0442u,0xcb0f0042u,0xcb0d0842u,0xcb0d0042u,0x8b110051u,0x9b117e11u,0x9350fe31u,0xcb0c01c2u,0x8b110051u,0x9b117e11u,0x9351fe31u,0x8b1101abu,0xa8c13feeu,0xa8c137ecu,0xa8c10fe2u,0xd65f03c0u,0x78eb690bu,0xd65f03c0u,0xd503201fu,0x0u,0x0u};
+            const bool cubic = sInterpMode >= 2;
+            const uint32_t* cvA = cubic ? kCubicA : kLerpA; const size_t szA = cubic ? sizeof(kCubicA) : sizeof(kLerpA);
+            const uint32_t* cvB = cubic ? kCubicB : kLerpB; const size_t szB = cubic ? sizeof(kCubicB) : sizeof(kLerpB);
+            const uintptr_t sites[3] = {0x71e94, 0x72230, 0x72288};
+            const uintptr_t caves[2] = {(uintptr_t)sProbePage - (uintptr_t)base + (cubic ? 3072 : 896),
+                                        (uintptr_t)sProbePage - (uintptr_t)base + (cubic ? 3328 : 960)};
+            mprotect(sProbePage, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            memcpy(base + caves[0], cvA, szA); memcpy(base + caves[1], cvB, szB);
+            __builtin___clear_cache((char*)(base + caves[0]), (char*)(base + caves[1] + szB));
+            if (cubic) {   // point both cubic caves at gCubicActive (literal at +192) so they gate on the routing
+                *reinterpret_cast<volatile int**>(base + caves[0] + 192) = &gCubicActive;
+                *reinterpret_cast<volatile int**>(base + caves[1] + 192) = &gCubicActive;
+                __builtin___clear_cache((char*)(base + caves[0]), (char*)(base + caves[1] + szB));
+            }
+            int ok = 0;
+            for (int k = 0; k < 3; k++) {
+                const uintptr_t cave = caves[k == 0 ? 0 : 1];
+                if (*reinterpret_cast<uint32_t*>(base + sites[k]) != 0x78eb690bu) {   // ldrsh w11, [x8, x11]
+                    ALOGW("DrasticRunner: pcm16_interp site +0x%zx unexpected (0x%08x)", (size_t)sites[k], *reinterpret_cast<uint32_t*>(base + sites[k])); continue;
+                }
+                uint8_t* sp = (uint8_t*)((uintptr_t)(base + sites[k]) & ~(uintptr_t)(ps - 1));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                *reinterpret_cast<uint32_t*>(base + sites[k]) = 0x94000000u | ((uint32_t)(((int64_t)cave - (int64_t)sites[k]) / 4) & 0x03ffffffu);   // bl cave
+                __builtin___clear_cache((char*)(base + sites[k]), (char*)(base + sites[k] + 4));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_EXEC); ok++;
+            }
+            ALOGI("DrasticRunner: PCM16 direct-read %s interpolation installed at %d/3 sites", cubic ? "cubic" : "linear", ok);
+        }
+        // NEON RGB555 two-source blend (persist.gammaos.drastic_nano.lerp_neon, default ON: proven bit-exact on the host over
+        // 264M pixels / all 65536 factor pairs, hot bucket emptied on device, main emu thread -7.6% CPU, panels intact).
+        // Profile: the scalar loop at +0x48358 (per pixel: ch = min(srcCh*2B + tabCh*A, 1023) >> 5, pack RGB555|0x8000,
+        // 33 instructions, do-while over [ctx+0x4c] pixels) is ~7% of all libdrastic CPU in the 3D band workers. The cave
+        // (scratchpad/gs/caveLerp555.s) does floor(count/4)*4 pixels in u32 lanes (overflow-proof for any byte factors)
+        // and leaves x9 as the index, then branches to the original scalar loop for the tail (drastic's own code, so the
+        // tail is bit-exact by construction) or to the ret when nothing remains (the do-while would run once more). It is
+        // reached by a plain b from +0x48354 (the last constant-setup mov, which the cave repeats): this leaf returns
+        // through LR, so no bl. The two trailing placeholders are patched here to the real targets.
+        if (sProbePage && property_get_int32("persist.gammaos.drastic_nano.lerp_neon", 1) > 0) {
+            static const uint32_t kLerp555[] = {0x528f800du,0x7940980eu,0x4e040d50u,0x4e040d11u,0x52807fefu,0x4e040df2u,0x4f0007f3u,0x5290000fu,0x4e040df4u,0x4b0901d0u,0x7100121fu,0x54000543u,0xd37ff92fu,0xfc6f6840u,0x2f10a400u,0x4e331c01u,0x6f3b0402u,0x4e331c42u,0x6f360403u,0x4e331c63u,0x8b090070u,0xbd400204u,0xbd410205u,0xbd420206u,0x2f08a484u,0x2f10a484u,0x2f08a4a5u,0x2f10a4a5u,0x2f08a4c6u,0x2f10a4c6u,0x4eb09c21u,0x4eb19481u,0x4eb09c42u,0x4eb194a2u,0x4eb09c63u,0x4eb194c3u,0x6eb26c21u,0x6eb26c42u,0x6eb26c63u,0x6f3b0421u,0x6f3b0442u,0x6f3b0463u,0x4f255442u,0x4f2a5463u,0x4ea21c21u,0x4ea31c21u,0x4eb41c21u,0x0e612821u,0xfc2f6821u,0x91001129u,0x4b0901d0u,0x7100121fu,0x54fffb02u,0x6b0e013fu,0x54000042u,0x14000000u,0x14000000u};
+            const uintptr_t kSite = 0x48354, kTail = 0x48358, kRet = 0x48430;
+            const size_t nw = sizeof(kLerp555) / sizeof(kLerp555[0]);
+            if (*reinterpret_cast<uint32_t*>(base + kSite) != 0x528f800du || kLerp555[nw - 2] != 0x14000000u || kLerp555[nw - 1] != 0x14000000u) {
+                ALOGW("DrasticRunner: lerp_neon: site +0x%zx unexpected (0x%08x), skipped", (size_t)kSite, *reinterpret_cast<uint32_t*>(base + kSite));
+            } else {
+                const uintptr_t cave = (uintptr_t)sProbePage - (uintptr_t)base + 3584;
+                auto bRel = [](int64_t from, int64_t to) { return 0x14000000u | ((uint32_t)((to - from) / 4) & 0x03ffffffu); };
+                mprotect(sProbePage, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                memcpy(base + cave, kLerp555, sizeof(kLerp555));
+                *reinterpret_cast<uint32_t*>(base + cave + (nw - 2) * 4) = bRel((int64_t)(cave + (nw - 2) * 4), (int64_t)kTail);
+                *reinterpret_cast<uint32_t*>(base + cave + (nw - 1) * 4) = bRel((int64_t)(cave + (nw - 1) * 4), (int64_t)kRet);
+                __builtin___clear_cache((char*)(base + cave), (char*)(base + cave + sizeof(kLerp555)));
+                uint8_t* sp = (uint8_t*)((uintptr_t)(base + kSite) & ~(uintptr_t)(ps - 1));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                *reinterpret_cast<uint32_t*>(base + kSite) = bRel((int64_t)kSite, (int64_t)cave);
+                __builtin___clear_cache((char*)(base + kSite), (char*)(base + kSite + 4));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_EXEC);
+                ALOGI("DrasticRunner: NEON RGB555 blend cave installed at probe+3584 (site +0x48354, %zu words)", nw);
+            }
+        }
+        // ADPCM loop-wrap fix (persist.gammaos.drastic_nano.adpcm_loop_fix, default OFF, kept as a no-op experiment): the
+        // "frozen decode buffer" theory this targeted was refuted by the refill log (buffered - pos stays 7..8 on every
+        // channel in stock, refills run continuously across loop wraps); the +144 field the SPU trace showed frozen is
+        // not the buffered count. Measured audio is bit-identical with it on or off. scratchpad/gs/caveWrapFix.s.
+        // The per-loop position rebase for every channel format is the PCM-tail "sub x21, x21, x11, lsl #32" (+0x71ecc, and
+        // +0x71f28 on the PCM8 tail), reached by the ADPCM loop too. It subtracts the loop length from pos and nothing else,
+        // so the decode bookkeeping (+144) is left past the loop end and the refill guard (buffered > pos) blocks every refill
+        // for the whole next loop: the channel replays a frozen 64-sample decode window (confirmed in stock: 0 skips before
+        // the first wrap, 27% after, forever = the grinding on looping ADPCM channels). The cave re-executes the rebase,
+        // rebases +144 by the same length, and restores the loop-start predictor DraStic saved at the first boundary hit.
+        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.adpcm_loop_fix", false)) {   // REFUTED: refills run fine in stock (gap 7-8); default off
+            static const uint32_t kWF[] = {0xcb0b82b5u,0xb94092d0u,0x4b0b0210u,0xb90092d0u,0x794172d0u,0x790176d0u,0x3942fed0u,0x390302d0u,0x580000d0u,0xb9400211u,0x11000631u,0xb9000211u,0xd65f03c0u,0xd503201fu,0u,0u};
+            const uintptr_t sites[2] = {0x71ecc, 0x71f28};
+            mprotect(sProbePage, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            int ok = 0;
+            for (int k = 0; k < 2; k++) {
+                if (*reinterpret_cast<uint32_t*>(base + sites[k]) != 0xcb0b82b5u) { ALOGW("DrasticRunner: loop-fix site +0x%zx unexpected (0x%08x)", (size_t)sites[k], *reinterpret_cast<uint32_t*>(base + sites[k])); continue; }
+                const uintptr_t cave = (uintptr_t)sProbePage - (uintptr_t)base + 2048 + k * 128;
+                memcpy(base + cave, kWF, sizeof(kWF));
+                *reinterpret_cast<uint64_t*>(base + cave + 0x38) = (uint64_t)(uintptr_t)&gAdpcmWraps;
+                __builtin___clear_cache((char*)(base + cave), (char*)(base + cave + sizeof(kWF)));
+                uint8_t* sp = (uint8_t*)((uintptr_t)(base + sites[k]) & ~(uintptr_t)(ps - 1));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                *reinterpret_cast<uint32_t*>(base + sites[k]) = 0x94000000u | ((uint32_t)(((int64_t)cave - (int64_t)sites[k]) / 4) & 0x03ffffffu);   // bl cave
+                __builtin___clear_cache((char*)(base + sites[k]), (char*)(base + sites[k] + 4));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_EXEC); ok++;
+            }
+            ALOGI("DrasticRunner: ADPCM loop-wrap fix installed at %d/2 wrap sites", ok);
+        }
+        // Native-rate mix (persist.gammaos.drastic_nano.native_mix=1): make DraStic's SPU mix at the rate its channels
+        // actually run at, so a DS-native channel (SOUNDxTMR -512 = 32728.5 Hz, what this game uses for its music, its
+        // capture rings and ch1/ch3) gets a step of exactly 1.0, as on hardware and in melonDS: no per-channel nearest
+        // resampling, no skipped sample every 346 (measured: that skip put a 94.6 Hz phase sawtooth on every line, i.e.
+        // sidebands 5 dB below the carrier, the "grinding"). DraStic runs the DS at 60 fps and scales every channel
+        // step by 60/59.8261, so the matching mix rate is 32729 * 60/59.8261 = 32824 Hz (channel step for -512 then
+        // 32728.5/32824 * 1.002907 = 1.000002); the submit hook maps each chunk (547 frames) onto 735 output frames.
+        // Two in-place immediates: the SPU init "mov w10, #0xac44" (+0x72ff8) -> 32824, and the per-frame stereo
+        // sample constant "add w9, w8, #0x5be" (+0x1dedc, 1470) -> 1094. Patched before the core initialises.
+        if (property_get_bool("persist.gammaos.drastic_nano.native_mix", false)) {
+            const struct { uintptr_t site; uint32_t expect, patch; const char* what; } imm[2] = {
+                {0x72ff8, 0x5295888au, 0x52800000u | (32824u << 5) | 10u, "SPU mix rate 44100->32824"},   // mov w10, #32824
+                {0x1dedc, 0x1116f909u, 0x11000000u | (1094u << 10) | (8u << 5) | 9u, "frame stereo samples 1470->1094"},   // add w9, w8, #1094
+            };
+            int ok = 0;
+            for (int k = 0; k < 2; k++) {
+                uint32_t* site = reinterpret_cast<uint32_t*>(base + imm[k].site);
+                if (*site != imm[k].expect) { ALOGW("DrasticRunner: native_mix site +0x%zx unexpected (0x%08x)", (size_t)imm[k].site, *site); continue; }
+                uint8_t* sp = (uint8_t*)((uintptr_t)site & ~(uintptr_t)(ps - 1));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                *site = imm[k].patch; __builtin___clear_cache((char*)site, (char*)site + 4);
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_EXEC); ok++;
+            }
+            gNativeMix = (ok == 2) ? 1 : 0;
+            ALOGI("DrasticRunner: native-rate mix patched %d/2 sites (%s)", ok, ok == 2 ? "active" : "INACTIVE");
+            // Re-point the OpenSL player rate to 32824 here, at LAUNCH: installVblankPacing set it (to the 44100 base) at
+            // preload before this session's native_mix prop was known, so without this the mixer runs at 32824 while the
+            // player still expects 44100 and the queue drains (the choppiness). Unless native_resample is on (the old
+            // in-hook resampler still produces 44100), match the player to the 32824 mix. Both format tables, milliHz.
+            if (gNativeMix && !property_get_bool("persist.gammaos.drastic_nano.native_resample", false)) {
+                const uint32_t nrate = (uint32_t)llround(32824000.0 * mPanelHz / 60.0);
+                static const uintptr_t kRateOffs[2] = { 0x10a08c, 0x10a0c0 };
+                for (uintptr_t off : kRateOffs) {
+                    uint32_t* p = reinterpret_cast<uint32_t*>(base + off);
+                    uint8_t* pg = (uint8_t*)((uintptr_t)p & ~(uintptr_t)(ps - 1));
+                    mprotect(pg, (size_t)ps, PROT_READ | PROT_WRITE);
+                    *p = nrate;
+                    mprotect(pg, (size_t)ps, PROT_READ);
+                }
+                ALOGI("DrasticRunner: native-rate mix: OpenSL player rate set to %u milliHz (32824 Hz base)", nrate);
+            }
+        }
+        // OpenSL sink re-shape: 8 x 33 ms chunks instead of 4 x 67 ms in the SAME 47,040-byte static chunk region
+        // (persist.gammaos.drastic_nano.audio_chunks_8, default ON: 200 s steady play went from 6-7 dropped submits
+        // with the 4-chunk sink to 0, no crash, panels intact). The residual steady-state clicks
+        // and gaps are the 4-chunk queue's quantisation margin: with 67 ms chunks and 16.7 ms submits the depth can
+        // only be held about one chunk from both the empty and the full edge. Halving the chunk keeps the total
+        // buffering and latency and halves that step. drastic keeps the chunk count in [ctx+0x6c], the chunk size
+        // (shorts) in [ctx+0x70], the drop gate as queued >= maxq ([row+0x70]+0xc), the stride as a literal 11760,
+        // and the SL locator numBuffers is that same count field (read at +0x1d888, stored by the stp at +0x1d8c4;
+        // the "mov w9,#4" at +0x1d89c is an unrelated CreateAudioPlayer argument and must NOT be touched: changing it
+        // fails player creation and stalls the audio init). Every read/literal in the audio code (+0x1d600..+0x1e700)
+        // becomes the matching immediate; the [ctx+0x70] field itself is left alone since all its reads are patched. The per-chunk fill counters at ctx+0x1dff8 extend into
+        // ctx+0x1e000..0x1e01f, which no code touches. All-or-nothing: every original word is verified first.
+        if (property_get_int32("persist.gammaos.drastic_nano.audio_chunks_8", 1) > 0) {
+            struct P { uintptr_t off; uint32_t expect, patched; const char* what; };
+            static const P kChunks8[] = {
+                {0x1d888, 0xb9406e6au, 0x5280010au, "count read"}, {0x1d9b8, 0xb9406e68u, 0x52800108u, "count read"},
+                {0x1d9fc, 0xb9406e68u, 0x52800108u, "count read"}, {0x1df24, 0xb9406ee9u, 0x52800109u, "count read"},
+                {0x1e54c, 0xb9406ea8u, 0x52800108u, "count read"},
+                {0x1d9e4, 0xb9407269u, 0x52816f89u, "size read"}, {0x1dee4, 0xb94072e8u, 0x52816f88u, "size read"},
+                {0x1e534, 0xb94072a9u, 0x52816f89u, "size read"},
+                {0x1de94, 0xb9400d08u, 0x52800108u, "maxq read -> 8"},
+                {0x1d9d4, 0x5285be19u, 0x5282df19u, "stride"}, {0x1deac, 0x5285be0au, 0x5282df0au, "stride"},
+                {0x1def4, 0x5285be0au, 0x5282df0au, "stride"}, {0x1e524, 0x5285be17u, 0x5282df17u, "stride"},
+            };
+            bool ok = true;
+            for (const P& q : kChunks8) if (*reinterpret_cast<uint32_t*>(base + q.off) != q.expect) {
+                ALOGW("DrasticRunner: audio_chunks_8: +0x%zx (%s) is 0x%08x, expected 0x%08x; not applied", (size_t)q.off, q.what,
+                      *reinterpret_cast<uint32_t*>(base + q.off), q.expect);
+                ok = false;
+            }
+            if (ok) {
+                for (const P& q : kChunks8) raPatchInsn(base, q.off, q.patched);
+                gAudioChunks8.store(true);
+                ALOGI("DrasticRunner: audio_chunks_8: OpenSL sink re-shaped to 8 x 33 ms chunks (%zu sites)", sizeof(kChunks8) / sizeof(kChunks8[0]));
+            }
+        }
+        // Skip the audio stop/flush the state-load path calls (bl 0x1e320 at +0x7a48c, which touches the OpenSL queue
+        // globals at 0x3c7d078): loading a slot stops and restarts the player, which drains the queue and puts a hard
+        // discontinuity in the output = the click on every state load. Replacing the call with "mov w0, #1" keeps the
+        // player running across the load (the audio content of a same-game slot is continuous, so no flush is needed).
+        // This is the same site the run-ahead path patches; only apply it here when run-ahead is NOT managing it.
+        if (property_get_bool("persist.gammaos.drastic_nano.skip_load_audio_flush", true) &&
+            property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) != 2 &&
+            *reinterpret_cast<uint32_t*>(base + 0x7a48c) == 0x97fe8fa5u) {   // bl 0x1e320 (kRaLoadJitFlushSite)
+            const uint32_t was = raPatchInsn(base, 0x7a48c, 0x52800020u);    // mov w0, #1 (kRaMovW0One)
+            ALOGI("DrasticRunner: state-load audio stop/flush skipped (site was 0x%08x)", was);
+        }
+        // Refill-log diagnostic (persist.gammaos.drastic_nano.refill_log=1): after every ADPCM refill call (+0x71df4) log
+        // (rec, pos>>32, +144, +172) so a position rebase inside the refill shows up as pos dropping across the call.
+        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.refill_log", false) && *reinterpret_cast<uint32_t*>(base + 0x71df4) == 0xb94092c8u) {
+            static const uint32_t kRL[] = {0xb94092c8u,0xa9bf47f0u,0x580002d0u,0xb9400a11u,0x52861a90u,0x72a00070u,0x6b10023fu,0x540001c2u,0x58000210u,0x8b111211u,0x91004231u,0xb9000236u,0xd360feb0u,0xb9000630u,0xb9000a28u,0xb940aed0u,0xb9000e30u,0x580000f0u,0xb9400a11u,0x11000631u,0xb9000a11u,0xa8c147f0u,0xd65f03c0u,0xd503201fu,0u,0u};
+            gRefillLog = static_cast<uint8_t*>(calloc(16 + 16 * 200000, 1));
+            if (gRefillLog) {
+                const uintptr_t cave = (uintptr_t)sProbePage - (uintptr_t)base + 2304;
+                mprotect(sProbePage, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                memcpy(base + cave, kRL, sizeof(kRL));
+                *reinterpret_cast<uint64_t*>(base + cave + 0x60) = (uint64_t)(uintptr_t)gRefillLog;
+                __builtin___clear_cache((char*)(base + cave), (char*)(base + cave + sizeof(kRL)));
+                uint8_t* sp = (uint8_t*)((uintptr_t)(base + 0x71df4) & ~(uintptr_t)(ps - 1));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                *reinterpret_cast<uint32_t*>(base + 0x71df4) = 0x94000000u | ((uint32_t)(((int64_t)cave - (int64_t)0x71df4) / 4) & 0x03ffffffu);
+                __builtin___clear_cache((char*)(base + 0x71df4), (char*)(base + 0x71df8));
+                mprotect(sp, (size_t)ps, PROT_READ | PROT_EXEC);
+                ALOGI("DrasticRunner: refill log installed");
+            }
+        }
+        // Wrap-log diagnostic (persist.gammaos.drastic_nano.wrap_log=1): logs the channel state at BOTH ADPCM loop-wrap
+        // paths (+0x71da8 catch-up, +0x71e4c first-wrap) into one 32-byte-entry block; dumped at spu_trace_dump.
+        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.wrap_log", false) &&
+            *reinterpret_cast<uint32_t*>(base + 0x71da8) == 0xb94092c9u && *reinterpret_cast<uint32_t*>(base + 0x71e4c) == 0x0b1b011bu) {
+            static const uint32_t kWA[] = {0xb94092c9u,0xa9bf47f0u,0xa9bf2feau,0x58000370u,0xb9400a11u,0x713e823fu,0x54000282u,0xd37bea2au,0x8b0a020au,0x9100414au,0xb9000156u,0xd360feabu,0xb900054bu,0xb9000949u,0xb9000d48u,0xb900115bu,0x794172cbu,0x7900294bu,0x3942fecbu,0x3900594bu,0x394306cbu,0x39005d4bu,0xb940b2cbu,0xb900194bu,0x11000631u,0xb9000a11u,0xa8c12feau,0xa8c147f0u,0xd65f03c0u,0xd503201fu,0u,0u};
+            static const uint32_t kWB[] = {0xa9bf47f0u,0xa9bf2feau,0x580003d0u,0xb9400a11u,0x713e823fu,0x540002c2u,0xd37bea2au,0x8b0a020au,0x9100414au,0x320102cbu,0xb900014bu,0xd360feabu,0xb900054bu,0xb94092cbu,0xb900094bu,0xb9000d48u,0xb900115bu,0x794176cbu,0x7900294bu,0x394302cbu,0x3900594bu,0x394306cbu,0x39005d4bu,0xb940aecbu,0xb900194bu,0x11000631u,0xb9000a11u,0xa8c12feau,0xa8c147f0u,0x0b1b011bu,0xd65f03c0u,0xd503201fu,0u,0u};
+            gWrapLog = static_cast<uint8_t*>(calloc(16 + 32 * 4000, 1));
+            if (gWrapLog) {
+                *reinterpret_cast<uint32_t*>(gWrapLog + 8) = 0;
+                const uintptr_t ca = (uintptr_t)sProbePage - (uintptr_t)base + 1280, cb = ca + 256;
+                mprotect(sProbePage, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                memcpy(base + ca, kWA, sizeof(kWA)); memcpy(base + cb, kWB, sizeof(kWB));
+                *reinterpret_cast<uint64_t*>(base + ca + 0x78) = (uint64_t)(uintptr_t)gWrapLog;
+                *reinterpret_cast<uint64_t*>(base + cb + 0x80) = (uint64_t)(uintptr_t)gWrapLog;
+                __builtin___clear_cache((char*)(base + ca), (char*)(base + cb + sizeof(kWB)));
+                for (int k = 0; k < 2; k++) {
+                    const uintptr_t site = k ? 0x71e4c : 0x71da8, cave = k ? cb : ca;
+                    uint8_t* sp = (uint8_t*)((uintptr_t)(base + site) & ~(uintptr_t)(ps - 1));
+                    mprotect(sp, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                    *reinterpret_cast<uint32_t*>(base + site) = 0x94000000u | ((uint32_t)(((int64_t)cave - (int64_t)site) / 4) & 0x03ffffffu);
+                    __builtin___clear_cache((char*)(base + site), (char*)(base + site + 4));
+                    mprotect(sp, (size_t)ps, PROT_READ | PROT_EXEC);
+                }
+                ALOGI("DrasticRunner: wrap log installed at both loop-wrap paths");
+            }
+        }
+        // Fetch-log diagnostic (persist.gammaos.drastic_nano.fetch_log=<channel>): logs every ADPCM/buffer fetch at
+        // +0x71e04 for one channel record (pos>>32, fetched s16) into a control block, so the fetch sequence can be
+        // compared against the channel's decode buffer offline. Probe page +1024 (cave) with the log block after it.
+        {
+            const int fl = property_get_int32("persist.gammaos.drastic_nano.fetch_log", -1);
+            if (sProbePage && fl >= 0 && fl < 16 && *reinterpret_cast<uint32_t*>(base + 0x71e04) == 0x78e87ac8u) {
+                static const uint32_t kFL[] = {0x78e87ac8u,0x580001f0u,0xb9400a11u,0xb9400e09u,0x0a090231u,0xd503201fu,0x91004209u,0x8b111529u,0xb9000136u,0xf9000535u,0xf9000937u,0x79003128u,0x58000090u,0x11000631u,0xb9000a11u,0xd65f03c0u,0u,0u};
+                gFetchLog = static_cast<uint8_t*>(calloc(16 + 32 * 262144, 1));   // control (16) + 256k entries, circular (index masked in the cave)
+                if (gFetchLog) {
+                    *reinterpret_cast<uint64_t*>(gFetchLog) = (uint64_t)(uintptr_t)(base + 0x158c000 + 0x40028 + fl * 0xc8);   // watch = that channel's record
+                    *reinterpret_cast<uint32_t*>(gFetchLog + 8) = 0; *reinterpret_cast<uint32_t*>(gFetchLog + 12) = 262143;   // mask
+                    const uintptr_t cave = (uintptr_t)sProbePage - (uintptr_t)base + 1024;
+                    mprotect(sProbePage, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                    uint32_t* w = reinterpret_cast<uint32_t*>(base + cave); memcpy(w, kFL, sizeof(kFL));
+                    *reinterpret_cast<uint64_t*>(base + cave + 0x40) = (uint64_t)(uintptr_t)gFetchLog;
+                    __builtin___clear_cache((char*)(base + cave), (char*)(base + cave + sizeof(kFL)));
+                    uint8_t* sp = (uint8_t*)((uintptr_t)(base + 0x71e04) & ~(uintptr_t)(ps - 1));
+                    mprotect(sp, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                    *reinterpret_cast<uint32_t*>(base + 0x71e04) = 0x94000000u | ((uint32_t)(((int64_t)cave - (int64_t)0x71e04) / 4) & 0x03ffffffu);
+                    __builtin___clear_cache((char*)(base + 0x71e04), (char*)(base + 0x71e08));
+                    mprotect(sp, (size_t)ps, PROT_READ | PROT_EXEC);
+                    {   // self-check: literal readback + a sentinel entry written from C++ (entry 0)
+                        const uint64_t lit = *reinterpret_cast<uint64_t*>(base + cave + 0x40);
+                        uint8_t* e0 = gFetchLog + 16; *reinterpret_cast<uint32_t*>(e0) = 0xdeadbeefu; *reinterpret_cast<uint32_t*>(e0 + 4) = 0xffffffffu;
+                        *reinterpret_cast<uint32_t*>(gFetchLog + 8) = 1;
+                        ALOGI("DrasticRunner: fetch log installed for channel %d (log=%p literal=%p match=%d, site now 0x%08x)", fl, gFetchLog, (void*)(uintptr_t)lit, lit == (uint64_t)(uintptr_t)gFetchLog, *reinterpret_cast<uint32_t*>(base + 0x71e04));
+                    }
+                }
+            }
+        }
     }
     // The ratio is the 64-bit fixed-point constant 0xff90ecc69f727e51
     // (0.997101 x 2^64) loaded by a mov/movk quartet at three sites
@@ -3360,6 +4187,10 @@ std::atomic<uint32_t> gAudSubmitMin{0xffffffff}, gAudSubmitMax{0};
 // then normally covers the next deficit); a large deficit (state load) is
 // padded with silence instead of stale audio.
 std::atomic<uint32_t> gAudFixCarried{0}, gAudFixPadded{0}, gAudFixSilenced{0}, gAudFixDropped{0};
+std::atomic<bool> gClockMatchOn{false};      // the submit-hook clock match is active (gates the frame-skip hold)
+std::atomic<int>  gClockMatchRatioPpm{0};   // current trim, ppm below 1.0 (telemetry)
+std::atomic<uint32_t> gClockMatchSkips{0};   // submits handed to drastic's discard path by the clock match
+std::atomic<int>  gClockMatchAvgX100{150};   // last 4 s average queue depth, chunks x100 (gates the emergency top-up)
 static int16_t gAudCarry[64]; static uint32_t gAudCarryN = 0;   // emulator thread only
 static int sAudFrameFix = -1;
 extern "C" void raAudioSubmitPost(uint8_t* ctx) {
@@ -3372,6 +4203,183 @@ extern "C" void raAudioSubmitPost(uint8_t* ctx) {
 }
 std::atomic<uint32_t> gAudSkipped{0};   // frames drastic discards itself (skip byte at ctx+0x40027)
 extern "C" void raAudioSubmitHook(uint8_t* ctx) {
+    // Native-rate resampler: with native_mix the core mixes at 32729 Hz and hands over ~546 stereo frames per video frame;
+    // convert each chunk to 44100 Hz here (before the frame-size normaliser and the dump). 16-tap Hann-windowed sinc,
+    // history of the last 16 input frames carried across chunks, phase accumulated in 32.32 so long runs do not drift.
+    if (gNativeMix) {
+        // Each submitted chunk is one video frame of audio in DraStic's time model (the pacer consumes 735 frames at 44.1 kHz
+        // per video frame), so map every chunk of nin native frames onto exactly 735 output frames: step = nin/735 per chunk
+        // (546/735 is 0.095% off the true 32729/44100, 1.6 cents, and it removes the variable-count carry/pad entirely).
+        // Outputs whose kernel needs frames beyond the chunk are deferred to the next call; a 16-frame silent pre-roll makes
+        // the FIFO always hold a full 735, so the count is a constant 1470 and the normaliser below never engages.
+        const uint32_t m = *reinterpret_cast<uint32_t*>(ctx + 0x4000c) & 0x7fffffffu;   // stereo samples (2 per frame)
+        // Default: play the 32824 Hz mix as-is and let AudioFlinger resample it (native_resample=0). The old submit-hook
+        // sinc resampler (native_resample=1) is kept only as a fallback; on this SoC it could not finish before the
+        // OpenSL refill callback and starved the queue (choppy audio) at any useful tap count.
+        static int sResample = -1; if (sResample < 0) sResample = property_get_int32("persist.gammaos.drastic_nano.native_resample", 0);
+        if (sResample && m >= 2 && m < 0x8000 && ctx[0x40027] == 0) {
+            enum { H = 32, OUTF = 735, PRE = 32, MAXPEND = 64, FIFOSZ = 2048, TAPMAX = 32 };
+            static int TAPS = -1, LB = 0, LA = 0;
+            if (TAPS < 0) { int t = property_get_int32("persist.gammaos.drastic_nano.native_taps", 16); if (t < 2) t = 2; if (t > TAPMAX) t = TAPMAX; t &= ~1; TAPS = t; LB = t / 2 - 1; LA = t / 2 + 1; }
+            static int16_t hist[H][2] = {};
+            static int64_t pos = 0;                     // 32.32 centre of this chunk's first output, relative to buf[0]
+            static int64_t pend[MAXPEND]; static int npend = 0;   // (unused with the constant-ratio loop; outputs simply wait for lookahead)
+            static int16_t fifo[FIFOSZ][2]; static int nfifo = 0;
+            static float win[TAPMAX][256];
+            static bool init = false;
+            if (!init) { init = true;
+                for (int ph = 0; ph < 256; ph++) { double sum = 0; for (int k = 0; k < TAPS; k++) { double x = (k - LB) - ph / 256.0; double w = 0.5 + 0.5 * cos(3.14159265358979 * x / (TAPS / 2.0)); double v = (fabs(x) < 1e-9) ? 1.0 : sin(3.14159265358979 * x) / (3.14159265358979 * x); win[k][ph] = (float)(v * w); sum += v * w; } for (int k = 0; k < TAPS; k++) win[k][ph] /= (float)sum; }
+                pos = (int64_t)H << 32;                 // first centre on the first real frame (after the zero history)
+                memset(fifo, 0, sizeof(int16_t) * 2 * PRE); nfifo = PRE;
+            }
+            const int16_t* in = reinterpret_cast<const int16_t*>(ctx); const uint32_t nin = m / 2 < 8192 ? m / 2 : 8192;
+            static int16_t buf[H + 8192][2]; memcpy(buf, hist, sizeof(hist)); for (uint32_t i = 0; i < nin; i++) { buf[H + i][0] = in[i * 2]; buf[H + i][1] = in[i * 2 + 1]; }
+            const int64_t total = (int64_t)H + nin;
+            // Deinterleave the whole chunk to contiguous float once (not TAPS times per output): the tap loop then reduces
+            // two contiguous float arrays, which the compiler auto-vectorises. Cuts the per-frame resample cost enough that
+            // 16 taps has the headroom 8 taps did not (the audio thread must finish before the OpenSL refill callback).
+            static float bufL[H + 8192], bufR[H + 8192];
+            for (int64_t i = 0; i < total; i++) { bufL[i] = buf[i][0]; bufR[i] = buf[i][1]; }
+            auto emit = [&](int64_t c) {
+                const int64_t ci = c >> 32; const int ph = (int)(((uint64_t)c & 0xffffffffu) >> 24);
+                const float* bl = &bufL[ci - LB]; const float* br = &bufR[ci - LB];
+                float l = 0, r = 0; for (int k = 0; k < TAPS; k++) { const float w = win[k][ph]; l += bl[k] * w; r += br[k] * w; }
+                if (nfifo < FIFOSZ) { long vl = lrintf(l), vr = lrintf(r); fifo[nfifo][0] = (int16_t)(vl > 32767 ? 32767 : vl < -32768 ? -32768 : vl); fifo[nfifo][1] = (int16_t)(vr > 32767 ? 32767 : vr < -32768 ? -32768 : vr); nfifo++; }
+            };
+            // Constant ratio (32824/44100) with a slow FIFO-level trim instead of a per-chunk warp: the mixer hands over
+            // 547 or 548 frames per chunk, and warping each chunk onto 735 would flutter the pitch by 0.09% at 60 Hz
+            // (sidebands -19 dB on a 15 kHz line). The level loop corrects the residual 0.02 frame/chunk drift with a
+            // pitch trim of at most 0.02% (time constant ~2 s), inaudible and phase-continuous.
+            static double stepD = 32824.0 / 44100.0;
+            const int level = nfifo - PRE;               // frames beyond the pre-roll after the last emit (0 = on target)
+            double trim = level * 1.0e-5; if (trim > 2.0e-4) trim = 2.0e-4; else if (trim < -2.0e-4) trim = -2.0e-4;   // too many buffered -> larger step (fewer outputs per input)
+            stepD = (32824.0 / 44100.0) * (1.0 + trim);
+            const int64_t step = (int64_t)(stepD * 4294967296.0);
+            for (int i = 0; i < npend; i++) emit(pend[i]);   // last chunk's tail, its lookahead has arrived
+            npend = 0;
+            while (true) {
+                const int64_t ci = pos >> 32; if (ci + LA >= total) break;
+                emit(pos); pos += step;
+            }
+            const int64_t keep = total - H; memcpy(hist, &buf[keep], sizeof(hist)); pos -= keep << 32;
+            const int nout = nfifo < OUTF ? nfifo : OUTF;
+            memcpy(ctx, fifo, (size_t)nout * 2 * sizeof(int16_t)); nfifo -= nout; memmove(fifo, &fifo[nout], (size_t)nfifo * 2 * sizeof(int16_t));
+            *reinterpret_cast<uint32_t*>(ctx + 0x4000c) = ((uint32_t)nout * 2u) | (*reinterpret_cast<uint32_t*>(ctx + 0x4000c) & 0x80000000u);
+            gNativeOut.fetch_add((uint32_t)nout, std::memory_order_relaxed); gNativeIn.fetch_add(nin, std::memory_order_relaxed);
+            {   // 1 Hz rate diagnostic: mixer input, resampler output, and the final submitted count vs the OpenSL queue
+                static int64_t t0 = 0; static uint32_t in0 = 0, out0 = 0, sub0 = 0, calls = 0; static uint64_t subAcc = 0;
+                subAcc += (uint32_t)nout; calls++;
+                const int64_t now = (int64_t)(clock() * 1000000LL / CLOCKS_PER_SEC);
+                struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts); const int64_t mono = ts.tv_sec * 1000000LL + ts.tv_nsec / 1000;
+                if (t0 == 0) t0 = mono;
+                if (mono - t0 >= 1000000) {
+                    const double dt = (mono - t0) / 1000000.0;
+                    const uint32_t inR = (uint32_t)((gNativeIn.load() - in0) / dt), outR = (uint32_t)((gNativeOut.load() - out0) / dt);
+                    const uint32_t q = gAudLibBase ? *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070) : 0;
+                    ALOGW("NATIVERATE in=%u/s out=%u/s calls=%u/s avgnin=%u avgnout=%u queue=%u", inR, outR, (uint32_t)(calls / dt), inR / (calls ? (uint32_t)(calls / dt) : 1), outR / (calls ? (uint32_t)(calls / dt) : 1), q);
+                    t0 = mono; in0 = gNativeIn.load(); out0 = gNativeOut.load(); calls = 0; subAcc = 0;
+                }
+            }
+            { uint32_t v = gNativeMinIn.load(); while (nin < v && !gNativeMinIn.compare_exchange_weak(v, nin)) {} v = gNativeMaxIn.load(); while (nin > v && !gNativeMaxIn.compare_exchange_weak(v, nin)) {} }
+            if (nin < 545 || nin > 549) gNativeOdd.fetch_add(1, std::memory_order_relaxed);
+            if (nout < OUTF) gNativeShort.fetch_add(1, std::memory_order_relaxed);
+        }
+    }
+    // Clock match (persist.gammaos.drastic_nano.clock_match, default 1). Production is 735 frames per
+    // emulated frame at the panel's vblank rate; the OpenSL sink drains a hair slower (measured ~0.28% on the
+    // 59.83 Hz panel: once the queue reached its ceiling a ~735-frame submit was dropped every ~6 s, a click,
+    // and the frame-skip "hold" meant to cancel it is a 16.7 ms discontinuity itself). Match the two clocks
+    // continuously: every chunk is resampled by a ratio (trimmed by a slow loop on the 2 s average queue
+    // depth) into a FIFO, and each call hands drastic EXACTLY 735 frames from that FIFO, so the frame-size
+    // normaliser below stays inert (it would otherwise pad any shorter chunk back to 1470 and undo the trim,
+    // which is what happened with a plain in-place resample). About once per 1/(1-ratio) frames the FIFO is
+    // short of 735: that call sets drastic's own skip byte (ctx+0x40027, read first thing by the submit at
+    // +0x1dd84 and branched to its discard path, the same flag its state-load path uses), so that one submit
+    // is dropped and the byte is cleared on the next call. The FIFO content is continuous, so the dropped
+    // submit is not a gap, just fewer bytes delivered: that is the rate match. Trim only (ratio <= 1, one
+    // submit per frame at most); a deficit stays with the queued==0 emergency top-up. At ~0.3% linear
+    // interpolation is sub-LSB and needs no filter; ~1470 lerps per frame. Skipped under native_mix.
+    static int sClockMatch = -1; static double sRatioBase = 1.0, sRatioKp = 0.0, sRatioKi = 0.0, sTargetQ = 1.5;
+    if (sClockMatch < 0) {
+        sClockMatch = property_get_int32("persist.gammaos.drastic_nano.clock_match", 1);
+        sRatioBase = 1.0 - property_get_int32("persist.gammaos.drastic_nano.clock_match_ppm", 2700) * 1e-6;
+        sRatioKp = property_get_int32("persist.gammaos.drastic_nano.clock_match_kp_ppm", 120) * 1e-6;   // per chunk of error
+        sRatioKi = property_get_int32("persist.gammaos.drastic_nano.clock_match_ki_ppm", 8) * 1e-6;     // per chunk, per window
+        // Target queue depth in 67 ms chunks. maxq is 4 INCLUDING the chunk playing and the counter toggles
+        // +-1 per chunk, so an average above ~2 lets the peak touch the ceiling (a dropped submit); 1.5
+        // reads 1..2: never empty, never full.
+        sTargetQ = property_get_int32("persist.gammaos.drastic_nano.clock_match_target_x10", 13) / 10.0;
+        // 33 ms chunks: the ceiling (8) is far, so the target can sit a little deeper (~107 ms) to keep the
+        // trough off zero on a hiccup; still nowhere near a drop.
+        if (gAudioChunks8.load(std::memory_order_relaxed))
+            sTargetQ = property_get_int32("persist.gammaos.drastic_nano.clock_match_target8_x10", 32) / 10.0;
+    }
+    static bool sSkipSet = false;
+    if (sSkipSet) { ctx[0x40027] = 0; sSkipSet = false; }   // clear the discard we asked for last call
+    if (sClockMatch > 0 && !gNativeMix && gAudLibBase) {
+        const uint32_t rawIn = *reinterpret_cast<uint32_t*>(ctx + 0x4000c);
+        const uint32_t nin = rawIn & 0x7fffffffu;
+        if (nin >= 4 && nin < 0x10000 && (nin & 1u) == 0 && ctx[0x40027] == 0) {
+            gClockMatchOn.store(true, std::memory_order_relaxed);
+            static double sSum = 0; static int sN = 0; static int64_t sWin = 0; static double sInteg = 0, sErr = 0;
+            const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070);
+            sSum += queued; sN++;
+            const int64_t nowUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch()).count();
+            if (sWin == 0) sWin = nowUs;
+            if (nowUs - sWin >= 4000000 && sN >= 60) {   // 4 s window: halves the +-1 quantisation noise
+                const double avg = sSum / sN; sSum = 0; sN = 0; sWin = nowUs;
+                gClockMatchAvgX100.store((int)(avg * 100.0), std::memory_order_relaxed);
+                sErr = avg - sTargetQ;                  // positive = too full: produce fewer frames
+                sInteg += sErr;
+                if (sInteg > 60) sInteg = 60; if (sInteg < -60) sInteg = -60;   // +-480 ppm at ki 8: covers the real surplus
+            }
+            // The plant is slow (~1 chunk per 60 s per 1000 ppm) and queued is quantised +-1, so the loop is
+            // gentle; the integral finds the real effective surplus (the mixer's 734/736 input jitter makes the
+            // delivered trim differ from the ratio). Wide safety clamp only: trim 0..5000 ppm.
+            double ratio = sRatioBase - sRatioKp * sErr - sRatioKi * sInteg;
+            if (ratio < 0.995) ratio = 0.995; if (ratio > 1.0) ratio = 1.0;
+            // Starve gate: while the queue is empty (after a state load or at launch) never trim; the
+            // emergency top-up is refilling it and removing frames now only prolongs the gaps.
+            if (queued < 1) ratio = 1.0;
+            gClockMatchRatioPpm.store((int)((1.0 - ratio) * 1e6), std::memory_order_relaxed);
+            enum { kFifoFr = 8192 };
+            static int16_t sFifo[kFifoFr * 2]; static uint32_t sFifoN = 0;   // frames of continuous resampled audio
+            static int16_t sIn[0x10000]; static int16_t sLast[2] = {0, 0}; static double sPhase = 0.0;
+            const uint32_t fin = nin / 2;
+            memcpy(sIn, ctx, (size_t)nin * sizeof(int16_t));
+            const double step = 1.0 / ratio;            // input frames per output frame
+            double pos = sPhase;
+            while (pos < (double)fin - 1.0 && sFifoN < (uint32_t)kFifoFr) {
+                const int i = (int)floor(pos); const double fr = pos - i;
+                const int16_t* a = (i < 0) ? sLast : &sIn[(size_t)i * 2];
+                const int16_t* b = &sIn[(size_t)(i + 1) * 2];
+                for (int ch = 0; ch < 2; ch++) {
+                    const long v = lrint(a[ch] + (b[ch] - a[ch]) * fr);
+                    sFifo[sFifoN * 2 + ch] = (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v));
+                }
+                sFifoN++; pos += step;
+            }
+            sLast[0] = sIn[(size_t)(fin - 1) * 2]; sLast[1] = sIn[(size_t)(fin - 1) * 2 + 1];
+            sPhase = pos - (double)fin;
+            // Burst smoothing: a catch-up runs owed frames back to back, so submits land a few ms apart and
+            // the OpenSL queue (4 chunks) overflows and drops one. Emit at most one submit per ~12.5 ms; the
+            // extra audio stays in the FIFO and drains over the following frames (nothing is lost). Past a
+            // 4-chunk backlog (fast-forward) emit regardless so the FIFO stays bounded.
+            static int64_t sLastEmitUs = 0;
+            const bool burst = (nowUs - sLastEmitUs) < 12500 && sFifoN < 4u * 735u;
+            if (sFifoN >= 735u && !burst) {
+                sLastEmitUs = nowUs;
+                memcpy(ctx, sFifo, 735u * 2u * sizeof(int16_t));
+                sFifoN -= 735u;
+                memmove(sFifo, sFifo + 735u * 2u, (size_t)sFifoN * 2u * sizeof(int16_t));
+            } else {
+                ctx[0x40027] = 1; sSkipSet = true;   // drastic discards this submit; the FIFO keeps the audio
+                gClockMatchSkips.fetch_add(1, std::memory_order_relaxed);
+            }
+            *reinterpret_cast<uint32_t*>(ctx + 0x4000c) = 1470u | (rawIn & 0x80000000u);   // always nominal
+        }
+    }
     const uint32_t raw = *reinterpret_cast<uint32_t*>(ctx + 0x4000c);
     const uint32_t flag = raw & 0x80000000u;   // bit 31 is a flag the submit masks off; keep it
     uint32_t n = raw & 0x7fffffffu;
@@ -3393,22 +4401,25 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
         static uint32_t sDropLogged = 0;
         if (queued >= maxq && sDropLogged++ < 100) ALOGW("AUDIO frame dropped, queue full (%u/%u) call %u", queued, maxq, gAudSubmitCalls.load());
     }
-    if (sAudFrameFix > 0 && n != 1470 && n < 0x10000) {
+    // Target one video frame's worth of samples: 735 stereo at 44100, or 547 (1094) at the 32824 native-mix rate when
+    // native_mix plays through AudioFlinger without the hook resampler.
+    const uint32_t nTarget = (gNativeMix && !property_get_bool("persist.gammaos.drastic_nano.native_resample", false)) ? 1094u : 1470u;
+    if (sAudFrameFix > 0 && n != nTarget && n < 0x10000) {
         int16_t* pcm = reinterpret_cast<int16_t*>(ctx);
-        if (n > 1470) {
-            uint32_t extra = n - 1470;
+        if (n > nTarget) {
+            uint32_t extra = n - nTarget;
             if (extra > 64) { gAudFixDropped.fetch_add(extra - 64, std::memory_order_relaxed); extra = 64; }
-            memcpy(gAudCarry, pcm + 1470, extra * sizeof(int16_t));
+            memcpy(gAudCarry, pcm + nTarget, extra * sizeof(int16_t));
             gAudCarryN = extra;
             gAudFixCarried.fetch_add(1, std::memory_order_relaxed);
-        } else if (n >= 1470 - 16 && n >= 2) {
-            for (uint32_t i = n; i < 1470; i += 2) { pcm[i] = pcm[n - 2]; pcm[i + 1] = pcm[n - 1]; }
+        } else if (n >= nTarget - 16 && n >= 2) {
+            for (uint32_t i = n; i < nTarget; i += 2) { pcm[i] = pcm[n - 2]; pcm[i + 1] = pcm[n - 1]; }
             gAudFixPadded.fetch_add(1, std::memory_order_relaxed);
         } else {
-            memset(pcm + n, 0, (1470 - n) * sizeof(int16_t));
+            memset(pcm + n, 0, (nTarget - n) * sizeof(int16_t));
             gAudFixSilenced.fetch_add(1, std::memory_order_relaxed);
         }
-        *reinterpret_cast<uint32_t*>(ctx + 0x4000c) = 1470u | flag;
+        *reinterpret_cast<uint32_t*>(ctx + 0x4000c) = nTarget | flag;
     }
     // Diagnostic: replace the frame with a continuous synthetic tone
     // (audio_tone=1) so the rest of the output path can be judged on its own.
@@ -3423,6 +4434,47 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
                 pcm[i] = pcm[i + 1] = (int16_t)(v * 32767.0);
                 sPhase += 2.0 * M_PI * 220.0 / 44100.0;
                 if (sPhase > 2.0 * M_PI * 1000.0) sPhase -= 2.0 * M_PI * 1000.0;
+            }
+        }
+    }
+    // 16 kHz output band limit (persist.gammaos.drastic_nano.lowpass). DraStic mixes at 44.1 kHz with
+    // nearest-neighbour per-channel resampling, so imaging lands anywhere up to 22 kHz and reaches the
+    // speaker; real DS hardware mixes at 32.7 kHz and physically cannot output above its 16.4 kHz Nyquist,
+    // and melonDS band-limits its native mix on the way out. That out-of-band imaging is the "grinding"
+    // heard on Golden Sun DD's speech. Measured on the speech: harshness ratio HF(6-20k)/MF(1-6k)
+    // -14.8 dB unfiltered vs melonDS -16.4; with this filter -16.0 (melonDS's own mix brought to 44.1 kHz
+    // by nearest neighbour measures -13.3, proving the difference is band-limiting, not the mixer).
+    // Elliptic order 8, 0.2 dB ripple, 70 dB stop, fc 16 kHz: flat to 16 kHz (-0.2 dB), -58 dB at
+    // 17 kHz, -70 dB at 18 kHz. Four transposed direct-form-II biquads per channel, state kept across
+    // chunks. Runs before AudioFlinger, so the HAL/EQ chain is untouched.
+    {
+        static int sLowpass = -1;
+        static double sLpz[2][4][2] = {};
+        static const double kLpSos[4][6] = {
+            {0.117591635888, 0.231334590813, 0.117591635888, 1, -0.044855136197, 0.118892690289},
+            {1, 1.78076605039, 1, 1, 0.683890483871, 0.561995737842},
+            {1, 1.61010735757, 1, 1, 1.11201121842, 0.828723891871},
+            {1, 1.52945492835, 1, 1, 1.28681505201, 0.955182739885},
+        };
+        if (sLowpass < 0) sLowpass = property_get_bool("persist.gammaos.drastic_nano.lowpass", false) ? 1 : 0;
+        if (sLowpass) {
+            const uint32_t m = *reinterpret_cast<uint32_t*>(ctx + 0x4000c) & 0x7fffffffu;
+            if (m < 0x10000 && ctx[0x40027] == 0) {
+                int16_t* pcm = reinterpret_cast<int16_t*>(ctx);
+                for (uint32_t i = 0; i + 1 < m; i += 2) {
+                    for (int ch = 0; ch < 2; ch++) {
+                        double x = pcm[i + ch];
+                        for (int sct = 0; sct < 4; sct++) {
+                            const double* c = kLpSos[sct]; double* z = sLpz[ch][sct];
+                            const double y = c[0] * x + z[0];
+                            z[0] = c[1] * x - c[4] * y + z[1];
+                            z[1] = c[2] * x - c[5] * y;
+                            x = y;
+                        }
+                        const long v = lrint(x);
+                        pcm[i + ch] = (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v));
+                    }
+                }
             }
         }
     }
@@ -3453,7 +4505,7 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
     uint32_t mx = gAudSubmitMax.load(); while (n > mx && !gAudSubmitMax.compare_exchange_weak(mx, n)) {}
     if (gAudLibBase) {
         const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070);
-        const uint32_t maxq = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d07c);
+        const uint32_t maxq = gAudioChunks8.load(std::memory_order_relaxed) ? 8u : *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d07c);
         if (queued >= maxq) gAudSubmitDropped.fetch_add(1, std::memory_order_relaxed);
     }
 }
@@ -3579,19 +4631,26 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             static int sAudStatN = 0;
             if (++sAudStatN % 10 == 0)
                 ALOGW("AUDIO frames=%u nominal=%u short=%u long=%u min=%u max=%u dropped=%u callbacks=%u underruns=%u "
-                      "lostticks=%u catchups=%u debtdrops=%u skipped=%u fix: carried=%u padded=%u silenced=%u dropped=%u spumix=%u",
+                      "lostticks=%u catchups=%u debtdrops=%u rcatchups=%u stalls=%u/%u(off/on) stallmax=%u/%ums clockppm=%d cmskips=%u skipped=%u fix: carried=%u padded=%u silenced=%u dropped=%u spumix=%u",
                       gAudSubmitCalls.load(), gAudSubmitNominal.load(), gAudSubmitShort.load(), gAudSubmitLong.load(),
                       gAudSubmitMin.load(), gAudSubmitMax.load(), gAudSubmitDropped.load(),
                       gAudCallbacks.load(), gAudUnderruns.load(), gEmuLostTicks.load(), gEmuCatchUps.load(), gEmuDebtDrops.load(),
+                      gEmuRenderCatchUps.load(), gStallOffCpu.load(), gStallOnCpu.load(), gStallMaxWallMs.load(), gStallMaxCpuMs.load(), gClockMatchRatioPpm.load(), gClockMatchSkips.load(),
                       gAudSkipped.load(), gAudFixCarried.load(), gAudFixPadded.load(), gAudFixSilenced.load(), gAudFixDropped.load(),
                       gSpuMixCtl ? gSpuMixCtl[2] : 0u);
                 if (gRingRepairCalls.load()) ALOGW("DrasticRunner: RINGREPAIR calls=%u filled=%u", gRingRepairCalls.load(), gRingRepairFilled.load());
+                if (gAdpcmWraps) ALOGW("DrasticRunner: ADPCMLOOP wraps=%u", gAdpcmWraps);
+                if (gNativeMix) ALOGW("DrasticRunner: NATIVEMIX in=%u out=%u ratio=%.4f nin=%u..%u odd=%u short=%u", gNativeIn.load(), gNativeOut.load(), gNativeIn.load() ? (double)gNativeOut.load() / gNativeIn.load() : 0.0, gNativeMinIn.load(), gNativeMaxIn.load(), gNativeOdd.load(), gNativeShort.load());
+                if (gHwRouteMixes.load()) ALOGW("DrasticRunner: HWROUTE mixes=%u captured=%u soundcnt=0x%04x", gHwRouteMixes.load(), gHwRouteCapt.load(), gHwLastCnt);
                 if (gSpuTrace && property_get_int32("sys.gammaos.drastic_nano.spu_trace_dump", 0) == 1) {
                     FILE* tf = fopen("/data/local/tmp/spu_trace.bin", "wb");
                     uint32_t n = gSpuTraceN.load(); uint32_t first = n > kSpuTraceCap ? n - kSpuTraceCap : 0;
                     for (uint32_t i = first; tf && i < n; i++) fwrite(&gSpuTrace[i % kSpuTraceCap], sizeof(SpuTraceRec), 1, tf);
                     if (tf) fclose(tf);
                     if (gSpuMini && (tf = fopen("/data/local/tmp/spu_mini.bin", "wb")) != nullptr) { fwrite(gSpuMini, sizeof(SpuMini), gSpuMiniN, tf); fclose(tf); }
+                    if (gRefillLog && (tf = fopen("/data/local/tmp/refill_log.bin", "wb")) != nullptr) { uint32_t cnt = *reinterpret_cast<uint32_t*>(gRefillLog + 8); fwrite(gRefillLog + 16, 16, cnt, tf); fclose(tf); ALOGW("DrasticRunner: refill log dumped %u entries", cnt); }
+                    if (gWrapLog && (tf = fopen("/data/local/tmp/wrap_log.bin", "wb")) != nullptr) { uint32_t cnt = *reinterpret_cast<uint32_t*>(gWrapLog + 8); fwrite(gWrapLog + 16, 32, cnt, tf); fclose(tf); ALOGW("DrasticRunner: wrap log dumped %u entries", cnt); }
+                    if (gFetchLog && (tf = fopen("/data/local/tmp/fetch_log.bin", "wb")) != nullptr) { uint32_t cnt = *reinterpret_cast<uint32_t*>(gFetchLog + 8); fwrite(gFetchLog + 16, 32, 262144, tf); fclose(tf); ALOGW("DrasticRunner: fetch log dumped 262144 entries (circular, next write index %u)", cnt & 262143u); }
                     property_set("sys.gammaos.drastic_nano.spu_trace_dump", "2");
                     ALOGW("DrasticRunner: SPU trace dumped %u records (first %u)", n - first, first);
                 }
@@ -3786,7 +4845,11 @@ void DrasticRunner::audioLeadExtraTick(int64_t nowUs) {
     // may already be starving. Measured on Golden Sun slot 1: late frames
     // erode the lead at about one chunk per 10 s.
     // An empty queue is an emergency regardless of the averaging controller.
-    if (gAudioLeadDebt.load() <= 0 && queued == 0 && nowUs - sLastTopUpUs > 1000000) {
+    // With the clock match running, a single 0 reading is usually the +-1 quantisation of a healthy queue;
+    // topping up then pushes it to the ceiling and drops a submit. Require the 4 s average to be low too.
+    const bool reallyLow = !gClockMatchOn.load(std::memory_order_relaxed) ||
+                           gClockMatchAvgX100.load(std::memory_order_relaxed) < 75;
+    if (gAudioLeadDebt.load() <= 0 && queued == 0 && reallyLow && nowUs - sLastTopUpUs > 1000000) {
         gAudioLeadDebt.store(1); sLastTopUpUs = nowUs; gAudioLeadTopUps.fetch_add(1);
     }
     if (gAudioLeadDebt.load() <= 0) return;
@@ -3874,7 +4937,7 @@ void DrasticRunner::pacerThread() {
             if (on && !prevPaceOn) gAudioLeadDebt.store(property_get_int32("persist.gammaos.drastic_nano.audio_lead_frames", 2));
             prevPaceOn = on;
         }
-        if (audioLeadHoldTick(target)) continue;   // queue at its ceiling: no emulated frame this vblank
+        if (!gClockMatchOn.load(std::memory_order_relaxed) && audioLeadHoldTick(target)) continue;   // queue at its ceiling: no emulated frame this vblank (the clock match trims the rate instead)
         if (gRaMode.load() == 2) {
             runAheadPacerTick();   // replay burst if the input changed, then the shown frame
             audioLeadExtraTick(target);
@@ -5048,6 +6111,16 @@ bool DrasticRunner::loadStateSlot(int slot) {
             volatile uint8_t* req = mArm64Base + 0x14c000 + 0x4b6;
             int spins = 0;
             while (*req != 0 && spins++ < 1000000) usleep(10);
+            // A state load stalls production ~140 ms and empties the OpenSL queue; the clock match only trims,
+            // and the queued==0 top-up adds 1/4 chunk per second, so without help the first ~30 s after a load
+            // ride the empty edge (audible gaps). Prime the queue now: a lead debt of clock_match_load_prime
+            // emulated frames (default 0: measured not to execute reliably after a load and, while pending, it gated
+            // off the once-per-second emergency top-up; kept as a knob) that the pacer runs over the next vblanks, at the
+            // load cut where a hitch already exists.
+            if (property_get_int32("persist.gammaos.drastic_nano.clock_match", 1) > 0) {
+                const int prime = property_get_int32("persist.gammaos.drastic_nano.clock_match_load_prime", 0);
+                if (prime > 0) gAudioLeadDebt.store(prime);
+            }
             const int64_t t1 = std::chrono::duration_cast<std::chrono::microseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count();
             ALOGW("STATELOAD slot %d done in %lld us", slot, (long long)(t1 - t0));
