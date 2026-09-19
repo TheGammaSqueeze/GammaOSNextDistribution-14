@@ -2837,6 +2837,10 @@ std::atomic<uint32_t> gEmuFrames{0};
 // consumer, then performs the original flip.
 void (*gOrigSlotFlip)() = nullptr;
 std::atomic<int64_t> gEmuDurUs{6000};   // running estimate of tick -> flip
+std::atomic<bool> gBypassPeriodSet{false};   // the limiter period holds the panel rate (bypass)
+std::atomic<uint32_t> gBypassTopUps{0}, gBypassHolds{0}, gBypassShifts{0};
+std::atomic<int> gBypassSteerPpm{0}; std::atomic<int64_t> gGpuMarginEma{0};
+std::atomic<uint32_t> gPresLate{0};
 std::atomic<int> gEmuCpuPct{0};          // emulator thread CPU share over the last second (percent of one core)
 std::atomic<int> gEmuCpuLightSecs{0};    // consecutive seconds with a light emulator thread
 std::atomic<uint32_t> gFlipHookCount{0};
@@ -2985,6 +2989,15 @@ extern "C" void drasticSlotFlipHook() {
         !gRaCatchUpSkip.load(std::memory_order_relaxed)) {
         const int64_t d = gEmuDurUs.load();
         gEmuDurUs.store((d * 7 + (now - t)) / 8);
+    }
+    {   // FFGAP trace (sys ff_trace=1): emulator flip gaps per second, count over 17/20/25 ms and the max
+        static int tr = -1; static int64_t last = 0, sec = 0, mx = 0; static int n = 0, g17 = 0, g20 = 0, g25 = 0;
+        if (tr < 0) tr = property_get_int32("sys.gammaos.drastic_nano.ff_trace", 0);
+        if (tr > 0) {
+            if (last) { const int64_t g = now - last; n++; if (g > mx) mx = g; if (g > 17000) g17++; if (g > 20000) g20++; if (g > 25000) g25++; }
+            last = now; if (!sec) sec = now;
+            if (now - sec > 1000000) { ALOGW("DrasticRunner: FLIPGAP n=%d max=%dms over17=%d over20=%d over25=%d", n, (int)(mx / 1000), g17, g20, g25); sec = now; mx = 0; n = g17 = g20 = g25 = 0; }
+        }
     }
     if (gOrigSlotFlip) gOrigSlotFlip();
     // Hidden replay frames run back to back with no vblank slack, so the
@@ -4191,6 +4204,7 @@ void DrasticRunner::setVblankPacing(bool on) {
 
 std::atomic<uint32_t> gAudioHoldSeq{0};   // vblank seq of the last deliberate audio-lead hold (see audioLeadHoldTick)
 void DrasticRunner::reportFrameMiss(int source) {
+    if (source == 2) gPresLate.fetch_add(1, std::memory_order_relaxed);   // flip latched a vblank late (any mode)
     if (!gPaceOn.load()) return;   // bypass: the lock is not driving the emulator
     // A replay burst legitimately delays the shown frame: not a pacing miss.
     if (gRaBurst.load() || (int32_t)(gVblSeq.load() - gRaBurstUntilSeq.load()) < 0) return;
@@ -4470,7 +4484,10 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
             // The plant is slow (~1 chunk per 60 s per 1000 ppm) and queued is quantised +-1, so the loop is
             // gentle; the integral finds the real effective surplus (the mixer's 734/736 input jitter makes the
             // delivered trim differ from the ratio). Wide safety clamp only: trim 0..5000 ppm.
-            double ratio = sRatioBase - sRatioKp * sErr - sRatioKi * sInteg;
+            // Panel-rate bypass: production equals the sink rate, so the base trim is 0 there (the 2700 ppm
+            // base is the 60.00 free-run surplus); the queue level is kept in band by the bypass top-up/hold.
+            const double base = gBypassPeriodSet.load(std::memory_order_relaxed) ? 1.0 : sRatioBase;
+            double ratio = base - sRatioKp * sErr - sRatioKi * sInteg;
             if (ratio < 0.995) ratio = 0.995; if (ratio > 1.0) ratio = 1.0;
             // Starve gate: while the queue is empty (after a state load or at launch) never trim; the
             // emergency top-up is refilling it and removing frames now only prolongs the gaps.
@@ -4665,6 +4682,83 @@ std::atomic<uint32_t> gAudioLeadExtra{0}, gAudioLeadTopUps{0}, gAudioLeadHolds{0
 void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
     if (vblankUs <= 0) return;
     applyCpuPlacement();
+    // Bypass at the panel rate. With the lock off drastic's limiter paces the
+    // emulator from its period at heapMaster+0x8aae4 (units of 1/3 us, 0 =
+    // the 50000 default = 60.00 frames a second) while the panel refreshes
+    // at its own rate (59.8255 Hz here): one surplus emulated frame every
+    // ~6 s, shown as a skipped frame, and a phase drift that runs the flip
+    // through the "just missed the vblank" zone every cycle (bursts of late
+    // flips = the periodic micro stutter). Set the period to the panel's
+    // while bypassed (audio production is per frame, so the audio clock
+    // match sees the same surplus as in the locked mode it is tuned for);
+    // back to 0 when the lock or fast-forward owns the timing.
+    if (mArm64Base) {
+        static int sRt = -2; static int64_t sReadUs = 0;
+        if (vblankUs - sReadUs > 1000000) { sReadUs = vblankUs; sRt = property_get_int32("sys.gammaos.drastic_nano.bypass_panel_rate_rt", -1); }
+        static int sPersist = -1;
+        if (sPersist < 0) sPersist = property_get_bool("persist.gammaos.drastic_nano.bypass_panel_rate", true) ? 1 : 0;
+        const bool want = !gPaceOn.load() && !mFastForwardOn && mPanelHz > 1.0 && (sRt >= 0 ? sRt > 0 : sPersist > 0);
+        volatile uint32_t* period = reinterpret_cast<volatile uint32_t*>(mArm64Base + 0x14c000);
+        uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
+        if (hm) {
+            period = reinterpret_cast<volatile uint32_t*>(hm + 0x8aae4);
+            const uint32_t units = (uint32_t)llround(3000000.0 / mPanelHz);
+            // Phase steer: at the panel rate the phase against the vblank is frozen wherever the switch left
+            // it; if the GPU then finishes just before the vblank every flip lands late. Nudge the period by a
+            // few hundred ppm until the GPU margin sits near bypass_margin_us, then hold the exact rate.
+            static int64_t sEma = 0, sTarget = 11000, sGain = 80, sMax = 400; static uint32_t sCur = 0;
+            if (gpuDoneUs > 0 && want && gBypassPeriodSet.load()) {
+                const int64_t per = gVblankPeriodUs.load();
+                int64_t m = vblankUs - gpuDoneUs; while (m < 0) m += per; while (m >= per) m -= per;
+                sEma = sEma == 0 ? m : (sEma * 15 + m) / 16;
+                if (vblankUs - sReadUs < 1100 && vblankUs - sReadUs >= 0) {
+                    sTarget = property_get_int32("sys.gammaos.drastic_nano.bypass_margin_us", 11000);
+                    sGain = property_get_int32("sys.gammaos.drastic_nano.bypass_steer_gain", 80);
+                    sMax = property_get_int32("sys.gammaos.drastic_nano.bypass_steer_max_ppm", 400);
+                }
+                // Phase acquisition: a large error is corrected in one step by moving the limiter's
+                // deadline (one frame interval changes by the error, audio is per frame so unaffected);
+                // the ppm steer then only holds the phase.
+                static int64_t sLastShiftUs = 0, sEmaSinceUs = 0;
+                if (sEmaSinceUs == 0) sEmaSinceUs = vblankUs;
+                const int64_t err = sTarget - sEma;
+                if ((err > 3000 || err < -3000) && vblankUs - sEmaSinceUs > 1500000 && vblankUs - sLastShiftUs > 3000000) {
+                    volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
+                    *deadline -= err * 3;   // earlier flips grow the margin
+                    sLastShiftUs = vblankUs; sEma = sTarget; gBypassShifts.fetch_add(1);
+                }
+                int64_t steer = (sTarget - sEma) * sGain / 1000;   // ppm faster when the margin is short
+                if (steer > sMax) steer = sMax; if (steer < -sMax) steer = -sMax;
+                if (steer > -40 && steer < 40) steer = 0;   // dead band: hold the exact panel rate
+                const uint32_t v = (uint32_t)llround((double)units * (1000000.0 - (double)steer) / 1000000.0);
+                if (v != sCur && *period == sCur) { *period = v; sCur = v; }
+                gBypassSteerPpm.store((int)steer, std::memory_order_relaxed);
+                gGpuMarginEma.store(sEma, std::memory_order_relaxed);
+            }
+            if (want) {
+                if (*period == 0) {
+                    *period = units; sCur = units; gBypassPeriodSet.store(true);
+                    ALOGI("DrasticRunner: bypass period %u units (panel %.4f Hz)", units, mPanelHz);
+                }
+            } else if (gBypassPeriodSet.load() && *period == sCur) {
+                *period = 0; sCur = 0; gBypassPeriodSet.store(false); gBypassSteerPpm.store(0);
+                ALOGI("DrasticRunner: bypass period restored");
+            }
+            // Queue keeper: at the balanced rate the sink queue only drifts with jitter. When its 4 s average
+            // leaves the band, move the limiter's deadline (hm+0x3b2f908, 1/3 us units) by one period: an
+            // extra emulated frame (top-up) or one held (hold), like the locked mode's lead top-up/hold.
+            if (want && gBypassPeriodSet.load()) {
+                static int64_t sLastAdjUs = 0;
+                const int avg = gClockMatchAvgX100.load(std::memory_order_relaxed);
+                const int lo = property_get_int32("sys.gammaos.drastic_nano.bypass_q_lo_x100", 200), hi = property_get_int32("sys.gammaos.drastic_nano.bypass_q_hi_x100", 550);
+                if (vblankUs - sLastAdjUs > 5000000 && gClockMatchOn.load(std::memory_order_relaxed)) {
+                    volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
+                    if (avg < lo) { *deadline -= units; sLastAdjUs = vblankUs; gBypassTopUps.fetch_add(1); }
+                    else if (avg > hi) { *deadline += units; sLastAdjUs = vblankUs; gBypassHolds.fetch_add(1); }
+                }
+            }
+        }
+    }
     // Heavy games: if the emulated frame takes longer than the lock can
     // absorb, hand the emulator back to its own timer (it then runs as fast
     // as it can, which is faster than one tick per period) and probe the
@@ -4699,8 +4793,21 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             sMissTrip = gPaceOn.load() && !gPaceBypass.load() && gRaMode.load() == 2 && (m - sMissBase) >= 4;
             sMissBase = m; sMissWindowUs = vblankUs;
         }
+        // Catch-up trip: a lock that keeps losing ticks (each one a late frame run back to back) on a
+        // scene whose average frame sits just under the bypass threshold is failing all the same;
+        // above pace_catchup_trip catch-ups a second for two consecutive seconds hand it to the bypass.
+        static uint32_t sCatchBase = 0; static int64_t sCatchWinUs = 0; static int sCatchHot = 0; static bool sCatchTrip = false;
+        if (vblankUs - sCatchWinUs > 1000000) {
+            const uint32_t c = gEmuCatchUps.load();
+            const int trip = property_get_int32("sys.gammaos.drastic_nano.pace_catchup_trip", 5);
+            sCatchHot = (trip > 0 && gPaceOn.load() && !gPaceBypass.load() && (int)(c - sCatchBase) >= trip) ? sCatchHot + 1 : 0;
+            sCatchTrip = sCatchHot >= 2;
+            sCatchBase = c; sCatchWinUs = vblankUs;
+        }
         if (!gPaceBypass.load()) {
-            if (gPaceOn.load() && (emu > sBypassUs || sMissTrip) && !gStepMode.load()) {
+            if (gPaceOn.load() && (emu > sBypassUs || sMissTrip || sCatchTrip) && !gStepMode.load()) {
+                if (sCatchTrip) ALOGW("PACE bypass: catch-up rate trip (%d/s)", sCatchHot);
+                sCatchTrip = false; sCatchHot = 0;
                 sMissTrip = false;
                 gPaceBypass.store(true); sBypassSinceUs = vblankUs; sProbeSinceUs = 0;
                 if (sRaRetryUs < 64000000) sRaRetryUs *= 2;
@@ -4787,11 +4894,11 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                     property_set("sys.gammaos.drastic_nano.spu_trace_dump", "2");
                     ALOGW("DrasticRunner: SPU trace dumped %u records (first %u)", n - first, first);
                 }
-            ALOGW("PACE lead=%lld misses=%u floor=%lld hookflips=%u emu=%lld audioq=%u lead+%u topups=%u holds=%u", (long long)gLeadUs.load(),
+            ALOGW("PACE lead=%lld misses=%u floor=%lld hookflips=%u emu=%lld audioq=%u lead+%u topups=%u holds=%u cmavg=%d cmppm=%d paceon=%d byp=%d btop=%u bhold=%u steer=%d margin=%lld late=%u shifts=%u", (long long)gLeadUs.load(),
                   gMissCount.load(), (long long)gLeadCreepFloor.load(), gFlipHookCount.load(),
                   (long long)gEmuDurUs.load(),
                   mArm64Base ? *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff) : 0u,
-                  gAudioLeadExtra.load(), gAudioLeadTopUps.load(), gAudioLeadHolds.load());
+                  gAudioLeadExtra.load(), gAudioLeadTopUps.load(), gAudioLeadHolds.load(), gClockMatchAvgX100.load(), gClockMatchRatioPpm.load(), gPaceOn.load() ? 1 : 0, gBypassPeriodSet.load() ? 1 : 0, gBypassTopUps.load(), gBypassHolds.load(), gBypassSteerPpm.load(), (long long)gGpuMarginEma.load(), gPresLate.load(), gBypassShifts.load());
             if (mT3dSyncInstalled && gT3dMode >= 5)
                 ALOGW("PACE t3d5 chunks=%u waited=%u sum=%lld max=%lld start=%u startus=%lld idle=%u full=%u to=%u bands=%u",
                       gT3dPipe.chunks, gT3dPipe.waited, (long long)gT3dPipe.sumUs, (long long)gT3dPipe.maxUs,
