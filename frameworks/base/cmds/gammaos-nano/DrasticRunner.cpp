@@ -2847,6 +2847,119 @@ std::mutex gFlipMu; std::condition_variable gFlipCv;
 std::atomic<uint8_t*> gZcNewBase{nullptr};
 std::atomic<int> gZcSwapState{0};   // 0 idle, 1 requested, 2 done
 static uint8_t* gZcBss = nullptr;
+
+// Fast-forward frameskip repair. Under FF drastic's frame limiter marks
+// most frames "skip" (about 6 of 7 at full speed); at the compose entry
+// (+0x3c938) the skip flag (+0x3c9a0, ldrb w24,[x26]) drops both engine
+// composes, but the display-capture block (+0x3cb40) still runs and
+// captures the unrendered engine A output. Games that display their own
+// capture then show garbage: Pokemon White 2's transition (a one-shot
+// capture) turns into a gray field with bands, Golden Sun Dark Dawn
+// (which renders 3D on one frame and shows the capture on the next,
+// swapping the engines every frame via POWCNT1 bit 15) flickers black.
+// The compose entry is routed through ffCapHook with DISPCAPCNT (live in
+// w8 there, drastic saves it at +0x3c9b8 for the capture block) and the
+// skip flag; the hook returns both:
+//   no capture: the limiter's decision, untouched;
+//   capture newly enabled (one-shot): render this frame;
+//   continuous capture: our own skip pattern, rendered frames in pairs
+//     aligned to the engine swap (one pair every ff_pair_period frames),
+//     and on skipped frames the capture is bypassed (enable bit cleared
+//     in the saved copy) so the capture VRAM keeps the last real image.
+// Integer only: the cave saves x0-x15/x29/x30 but no vector registers.
+uint8_t* gProbePage = nullptr;      // RWX page near the library (audio probe), caves at fixed offsets
+static int gFfPairPeriod = 8;
+static int gFfPairPhase = 0;    // POWCNT1 bit 15 value that starts a rendered pair
+static int gFfSkipPeriod = 0;   // non-swapping games under FF: 0 = the limiter's cadence, -1 adaptive, N fixed
+std::atomic<int> gFfOnForHook{0};
+static int gLastPhase = 0;          // POWCNT1 bit 15 of the frame last seen by the hook
+std::atomic<int> gLastRender{1};    // the hook rendered the frame last seen
+std::atomic<int> gCapToggling{0};   // the game swaps the engines every frame (POWCNT1 bit 15)
+// FF presentation staging: games that compose engine A per scanline (Golden Sun)
+// keep writing the slot the GPU is sampling between flips, and under FF the
+// skipped frames' chunks land there too (the displayed slot alternated between
+// the two screens' images). While FF is on the flip hook copies the completed
+// front slot into a double-buffered staging pair (slots 2/3 of the dma-buf)
+// and the presenter samples the last published one. ~24 copies/s under FF.
+// The staging pair lives in its OWN dma-buf: the per-vblank cache clean
+// (DMA_BUF_IOCTL_SYNC) covers a whole buffer, and growing the live one
+// from 3 to 6 MB cost ~10 fps at 1x. The staging buffer is only synced
+// while FF is on.
+std::atomic<int> gFfStageWant{0};
+std::atomic<int> gFfStagePub{-1};
+static int gFfStageNext = 0;
+static int gFfStageFd = -1;
+std::atomic<uint8_t*> gFfStageMap{nullptr};
+extern "C" uint64_t ffCapHook(uint32_t cap, uint32_t flag, uint8_t* hm) {
+    static bool prevOn = false, pending = false;
+    static int prevPow = -1;
+    static uint32_t pairs = 0;
+    const bool capOn = (cap & 0x80000000u) != 0;
+    const bool wasOn = prevOn; prevOn = capOn;
+    if (!capOn) {
+        // No capture: the limiter's decision. The publish state must follow
+        // it too, or a 2D scene after a skipped capture frame would never be
+        // published (Golden Sun's menus froze for seconds under FF).
+        gLastRender.store(flag == 0 ? 1 : 0, std::memory_order_relaxed);
+        gCapToggling.store(0, std::memory_order_relaxed);
+        return ((uint64_t)cap << 32) | flag;
+    }
+    const uint8_t* io = *reinterpret_cast<uint8_t* const*>(hm);   // memory image, IO at +0x1b070
+    const int pow15 = (*reinterpret_cast<const uint16_t*>(io + 0x1b374) >> 15) & 1;   // POWCNT1 swap bit
+    const bool toggling = prevPow >= 0 && prevPow != pow15; prevPow = pow15;
+    gCapToggling.store(toggling ? 1 : 0, std::memory_order_relaxed);
+    // A frame the limiter wants rendered always renders (at 1x that is
+    // every frame, so the hook is a passthrough); the pair pattern only
+    // adds frames among the ones the limiter wanted to skip. When the
+    // engines swap every frame a frame is only correct together with its
+    // partner: a pair starts on the start phase (a limiter-rendered frame
+    // included) and the other phase renders only as the partner.
+    // Games that do not swap the engines keep the limiter's own cadence
+    // (adding frames of our own made the presented motion step unevenly,
+    // seen as judder in Pokemon White 2); only the capture bypass applies.
+    bool render;
+    if (!wasOn) { render = true; pending = false; }
+    else if (!toggling) {
+        // Under FF the limiter's own cadence (1 in 7, the fastest) is the
+        // default; ff_skip_period selects a denser cadence for smoother
+        // motion at a speed cost: -1 = adaptive (content rate near 30 a
+        // second, a uniform 2 refresh hold), N = every Nth emulated frame.
+        // At 1x the limiter renders every frame and its decision is kept.
+        static uint32_t idx = 0, cnt = 0, per = 3; static int64_t secStart = 0;
+        if (gFfOnForHook.load(std::memory_order_relaxed) && gFfSkipPeriod != 0) {
+            struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
+            const int64_t t = (int64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+            cnt++;
+            if (!secStart) secStart = t;
+            else if (t - secStart >= 500000) {
+                const uint32_t rate = (uint32_t)((int64_t)cnt * 1000000 / (t - secStart));
+                if (gFfSkipPeriod > 0) per = (uint32_t)gFfSkipPeriod;
+                else { per = (rate + 15) / 30; if (per < 2) per = 2; if (per > 7) per = 7; }   // adaptive
+                secStart = t; cnt = 0;
+            }
+            render = (idx++ % per) == 0;
+        } else { render = flag == 0; idx = 0; cnt = 0; secStart = 0; }
+        pending = false;
+    }
+    else if (pow15 == gFfPairPhase) {
+        // Engine-swapping games: the pair pattern alone sets the cadence
+        // (the limiter's own frames would start extra pairs and cost a
+        // third of the fast-forward speed).
+        const uint32_t per = (uint32_t)gFfPairPeriod / 2;
+        render = (pairs++ % (per ? per : 1)) == 0;
+        pending = render;
+    } else { render = pending; pending = false; }
+    gLastPhase = pow15;
+    // Keep the limiter's skip byte (heapMaster+0x8f42c: bit 3 no 3D kick,
+    // bit 5 skip the frame end incl. the screen assignment and the slot
+    // flip, bit 6 skip the compose) consistent with the decision, so the
+    // rest of the frame-end path treats the frame the same way.
+    uint8_t* skipByte = hm + 0x8f42c;
+    gLastRender.store(render ? 1 : 0, std::memory_order_relaxed);
+    if (render) *skipByte &= (uint8_t)~0x68u; else *skipByte |= 0x68u;
+    if (render) return ((uint64_t)cap << 32);
+    return ((uint64_t)(cap & 0x7fffffffu) << 32) | 1u;
+}
 extern "C" void drasticSlotFlipHook() {
     gFlipHookCount.fetch_add(1);
     if (gZcSwapState.load() == 1 && gZcBss) {
@@ -2883,7 +2996,25 @@ extern "C" void drasticSlotFlipHook() {
     if (hidden && gRaLibBase) raJoin3dWorker(gRaLibBase);
     if (!hidden && gZcBss) {
         const int32_t cur = *reinterpret_cast<int32_t*>(gZcBss + 0x958);
-        gRaShownFront.store(((~cur) & 1) ? 1 : 0);
+        const int front = ((~cur) & 1) ? 1 : 0;
+        gRaShownFront.store(front);
+        if (gFfStageWant.load(std::memory_order_relaxed) && gZcSwapState.load() == 2) {
+            uint8_t* st = gFfStageMap.load(std::memory_order_acquire);
+            uint8_t** sl = reinterpret_cast<uint8_t**>(gZcBss);
+            // Publish only frames the hook rendered; for engine-swapping
+            // games only the pair's second frame (the first composes with a
+            // stale capture and drastic still flips on some skipped frames).
+            const bool publishable = gLastRender.load(std::memory_order_relaxed) &&
+                    (!gCapToggling.load(std::memory_order_relaxed) || gLastPhase != gFfPairPhase);
+            if (st && sl[front] && publishable) {
+                const int k = gFfStageNext & 1;
+                memcpy(st + (size_t)k * 0x180000, sl[front], 0x180000);
+                gFfStageNext ^= 1;
+                gFfStagePub.store(2 + k, std::memory_order_release);
+            }
+        } else if (gFfStagePub.load(std::memory_order_relaxed) >= 0) {
+            gFfStagePub.store(-1, std::memory_order_release);
+        }
     }
     if (hidden) {
         // A replayed frame: not for the panel. Clear the ready mask the
@@ -3237,6 +3368,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
                 if (pg == MAP_FAILED) continue;
                 if (pg != (void*)want) { munmap(pg, (size_t)ps); continue; }
                 sProbePage = static_cast<uint8_t*>(pg);
+                gProbePage = sProbePage;
                 break;
             }
             if (!sProbePage) ALOGW("DrasticRunner: audio probe: no executable page within branch range (%zu candidates), skipped", cands.size());
@@ -3871,7 +4003,8 @@ void DrasticRunner::installThreaded3dSync(uint8_t* base) {
     // consecutive frames. Later chunks never join, so a frame is never mixed.
     // 5 = per-band pipeline (see t3dComposeHook): universal, no lag, 3D overlaps the
     // CPU emulation; the default.
-    const int mode = property_get_int32("persist.gammaos.drastic_nano.t3d_sync", 5);
+    int mode = property_get_int32("persist.gammaos.drastic_nano.t3d_sync", 5);
+    { const int rt = property_get_int32("sys.gammaos.drastic_nano.t3d_sync_rt", -1); if (rt >= 0) mode = rt; }   // A/B override
     gT3dMode = mode;
     if (mode <= 0) {
         ALOGW("DrasticRunner: threaded 3D sync patch disabled by property");
@@ -4969,6 +5102,14 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
     // timeout every frame and the stale-drop below would discard frames
     // that are merely unaligned. Present the latest frame immediately.
     if (!gPaceOn.load()) {
+        // Fast-forward with the staging pair: the presenter never waits for
+        // the producer, it shows the newest staged frame every vblank (waiting
+        // here chained the presenter to the emulator's flips and made it miss
+        // every other vblank, an uneven 1 or 2 refresh hold per frame).
+        if (mFastForwardOn && gFfStageWant.load(std::memory_order_relaxed) && gFfStagePub.load(std::memory_order_acquire) >= 2) {
+            if (*mask != 0) { *mask = 0; gRaFreshVisible.store(true); }
+            return true;
+        }
         if (*mask == 0 && mPaceInstalled) {
             std::unique_lock<std::mutex> lk(gFlipMu);
             const int64_t deadline = nowUs + std::max(timeoutUs, 17000);
@@ -5360,36 +5501,75 @@ bool DrasticRunner::zeroCopyBindFront() {
     const int32_t cur = *reinterpret_cast<int32_t*>(bss + 0x958);
     int front = ((~cur) & 1) ? 1 : 0;
     if (gRaMode.load() == 2 && gRaShownFront.load() >= 0 && property_get_bool("sys.gammaos.drastic_nano.ra_front_pin", true)) front = gRaShownFront.load();
+    {
+        static int sFfStage = -1;
+        if (sFfStage < 0) sFfStage = property_get_int32("persist.gammaos.drastic_nano.ff_stage", 1);
+        const int rt = property_get_int32("sys.gammaos.drastic_nano.ff_stage_rt", -1);
+        bool want = mFastForwardOn && (rt >= 0 ? rt > 0 : sFfStage > 0);
+        if (want && gFfStageFd < 0) {
+            // lazily allocate the staging dma-buf on the first FF use
+            int heap = open("/dev/dma_heap/system", O_RDONLY | O_CLOEXEC);
+            struct dma_heap_allocation_data ad = {};
+            ad.len = 0x300000; ad.fd_flags = O_RDWR | O_CLOEXEC;
+            if (heap >= 0 && ioctl(heap, DMA_HEAP_IOCTL_ALLOC, &ad) == 0 && (int)ad.fd >= 0) {
+                void* m = mmap(nullptr, 0x300000, PROT_READ | PROT_WRITE, MAP_SHARED, (int)ad.fd, 0);
+                if (m == MAP_FAILED) { close((int)ad.fd); gFfStageFd = -2; }
+                else { memset(m, 0, 0x300000); gFfStageFd = (int)ad.fd; gFfStageMap.store((uint8_t*)m, std::memory_order_release); }
+            } else gFfStageFd = -2;
+            if (heap >= 0) close(heap);
+            ALOGW("DrasticRunner: FF staging dma-buf %s", gFfStageFd >= 0 ? "allocated" : "unavailable, staging off");
+        }
+        if (gFfStageFd < 0) want = false;
+        gFfStageWant.store(want ? 1 : 0, std::memory_order_relaxed);
+        int pub = gFfStagePub.load(std::memory_order_acquire);
+        // Change the shown frame only every second vblank: with the content
+        // rate near 30 a second every frame is held exactly 2 refreshes.
+        static int sHeld = -1, sHeldCount = 0;
+        if (want && pub >= 2) {
+            if (sHeld >= 2 && sHeldCount < 2 && property_get_int32("sys.gammaos.drastic_nano.ff_hold2_rt", 1) > 0) { pub = sHeld; sHeldCount++; }
+            else { if (pub != sHeld) sHeldCount = 1; else sHeldCount++; sHeld = pub; }
+            front = pub;
+        } else { sHeld = -1; sHeldCount = 0; }
+    }
+    // slots 2/3 = FF staging views, in the staging dma-buf
+    static void* sZcStageImg[2][2] = {{nullptr, nullptr}, {nullptr, nullptr}};
+    void** imgs[4] = { mZcImg[0], mZcImg[1], sZcStageImg[0], sZcStageImg[1] };
+    static int sStageImgW = 0, sStageImgH = 0;
     const int32_t hr = *reinterpret_cast<int32_t*>(bss + 0x968);
     const int w = (hr + 1) << 8, h = (hr + 1) * 192;
-    if (w != mZcImgW || h != mZcImgH) {
-        for (int s2 = 0; s2 < 2; s2++) for (int k = 0; k < 2; k++) {
-            if (mZcImg[s2][k]) { sEglDestroyImageKHR(sRingEglDpy, (EGLImageKHR)mZcImg[s2][k]); mZcImg[s2][k] = nullptr; }
+    const bool liveStale = w != mZcImgW || h != mZcImgH;
+    const bool stageStale = gFfStageFd >= 0 && (w != sStageImgW || h != sStageImgH);
+    if (liveStale || stageStale) {
+        const int s2lo = liveStale ? 0 : 2, s2hi = stageStale ? 4 : 2;
+        for (int s2 = s2lo; s2 < s2hi; s2++) for (int k = 0; k < 2; k++) {
+            if (imgs[s2][k]) { sEglDestroyImageKHR(sRingEglDpy, (EGLImageKHR)imgs[s2][k]); imgs[s2][k] = nullptr; }
             const EGLint attrs[] = {
                 EGL_WIDTH, w, EGL_HEIGHT, h,
                 EGL_LINUX_DRM_FOURCC_EXT, (EGLint)kDrmFormatAbgr8888,
-                EGL_DMA_BUF_PLANE0_FD_EXT, mZcFd,
-                EGL_DMA_BUF_PLANE0_OFFSET_EXT, (EGLint)(s2 * 0x180000 + k * 0xC0000),
+                EGL_DMA_BUF_PLANE0_FD_EXT, s2 < 2 ? mZcFd : gFfStageFd,
+                EGL_DMA_BUF_PLANE0_OFFSET_EXT, (EGLint)((s2 & 1) * 0x180000 + k * 0xC0000),
                 EGL_DMA_BUF_PLANE0_PITCH_EXT, w * 4,
                 EGL_NONE };
             EGLImageKHR img = sEglCreateImageKHR(sRingEglDpy, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, nullptr, attrs);
             if (img == EGL_NO_IMAGE_KHR) {
-                ALOGW("DrasticRunner: zero-copy: dma-buf EGLImage %dx%d failed (0x%x)", w, h, eglGetError());
+                ALOGW("DrasticRunner: zero-copy: dma-buf EGLImage %dx%d failed (0x%x)%s", w, h, eglGetError(), s2 >= 2 ? " (staging off)" : "");
+                if (s2 >= 2) { gFfStageFd = -2; gFfStageWant.store(0, std::memory_order_relaxed); if (front >= 2) front = ((~cur) & 1) ? 1 : 0; break; }
                 mZcImgW = mZcImgH = 0;
                 return false;
             }
-            mZcImg[s2][k] = (void*)img;
+            imgs[s2][k] = (void*)img;
         }
-        mZcImgW = w; mZcImgH = h;
+        if (liveStale) { mZcImgW = w; mZcImgH = h; }
+        if (stageStale) { sStageImgW = w; sStageImgH = h; }
         ALOGW("DrasticRunner: zero-copy: dma-buf views %dx%d ready", w, h);
     }
     struct dma_buf_sync sync = {};
     sync.flags = DMA_BUF_SYNC_END | DMA_BUF_SYNC_WRITE;   // clean CPU writes to memory
-    ioctl(mZcFd, DMA_BUF_IOCTL_SYNC, &sync);
+    ioctl(front >= 2 ? gFfStageFd : mZcFd, DMA_BUF_IOCTL_SYNC, &sync);
     const unsigned texs[2] = { mDsTopTex, mDsBotTex };
     for (int k = 0; k < 2; k++) {
         glBindTexture(GL_TEXTURE_2D, texs[k]);
-        sGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)mZcImg[front][k]);
+        sGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)imgs[front][k]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -5509,7 +5689,9 @@ void DrasticRunner::renderDsToOffscreen() {
     mFfBlendThisFrame = false;
     if (mFastForwardOn && mOffscreenTex != 0 && mOffscreenFbo != 0 &&
             mFfBlendProgram != 0 &&
-            property_get_int32("persist.gammaos.drastic_nano.ff_blend", 1)) {
+            (property_get_int32("sys.gammaos.drastic_nano.ff_blend_rt", -1) < 0
+                 ? property_get_int32("persist.gammaos.drastic_nano.ff_blend", 0)
+                 : property_get_int32("sys.gammaos.drastic_nano.ff_blend_rt", 0))) {
         if (mFfPrevTex == 0) {
             glGenTextures(1, &mFfPrevTex);
             glBindTexture(GL_TEXTURE_2D, mFfPrevTex);
@@ -5549,8 +5731,15 @@ void DrasticRunner::renderDsToOffscreen() {
     // subsequent grab sees both screens from the same frame N. It was removed
     // earlier to avoid coupling the render rate to drastic on overrun; gate it
     // so the dual-panel path can opt back in without affecting other devices.
+    // Under fast-forward drastic runs frames back to back, unaligned to our vblank grab, so the grab can
+    // read a screen buffer mid-compose or freshly cleared (an all-black panel for a frame: the FF flicker
+    // that ff_noclear does not cover). Waiting for a complete frame is cheap under FF (drastic produces
+    // them faster than 60 Hz). sys.gammaos.drastic_nano.ff_coherent (runtime): 1 = wait only while FF is on.
+    static int sFfCoherent = -1;
+    if (sFfCoherent < 0) sFfCoherent = property_get_int32("sys.gammaos.drastic_nano.ff_coherent", 0);
     if (mWaitScreen &&
-        property_get_int32("persist.gammaos.drastic_nano.frame_coherent", 0)) {
+        (property_get_int32("persist.gammaos.drastic_nano.frame_coherent", 0) ||
+         (mFastForwardOn && sFfCoherent > 0))) {
         mWaitScreen(mFakeEnv, mFakeCls);
     }
 
@@ -5564,11 +5753,27 @@ void DrasticRunner::renderDsToOffscreen() {
     // fragment shader pass that our own renderer then clears over
     // before drawing -- adds 5-7 ms to glFinish during sustained
     // frames.
-    const bool direct = mDirectFbo != 0 && mFxRender && !mFastForwardOn && !mFfBlendThisFrame;
+    static int sFfDirect = -1;
+    if (sFfDirect < 0) sFfDirect = property_get_int32("persist.gammaos.drastic_nano.ff_direct", 1);
+    const int ffDirectRt = property_get_int32("sys.gammaos.drastic_nano.ff_direct_rt", -1);
+    const bool ffDirectOk = ffDirectRt >= 0 ? ffDirectRt > 0 : sFfDirect > 0;
+    // Under FF the direct panel path is allowed when the frame is not being
+    // blended (the blend needs the offscreen), so the presenter keeps 60 Hz.
+    const bool direct = mDirectFbo != 0 && mFxRender && (!mFastForwardOn || ffDirectOk) && !mFfBlendThisFrame;
+    // Fast-forward (persist.gammaos.drastic_nano.ff_noclear, default 1): under FF the presenter goes through
+    // the offscreen FBO and used to clear it to black every frame; when a screen is not drawn that frame an
+    // all-black panel was presented (part of the FF flicker, read as "screen swapping"). Keep the previous
+    // frame in the offscreen instead: fxRender overwrites it whenever it does draw. 1x is untouched.
+    static int sFfNoClear = -1;
+    if (sFfNoClear < 0) sFfNoClear = property_get_int32("persist.gammaos.drastic_nano.ff_noclear", 1);
+    const int ncRt = property_get_int32("sys.gammaos.drastic_nano.ff_noclear_rt", -1);
+    const bool skipClear = mFastForwardOn && (ncRt >= 0 ? ncRt > 0 : sFfNoClear > 0);
     if (mOffscreenFbo != 0 && !direct) {
         glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFbo);
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        if (!skipClear) {
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
     }
     if (mFxRender) {
         // fxRender is the shader-enabled render path — renderFrame
@@ -8662,12 +8867,15 @@ uint32_t DrasticRunner::emuFrameCount() const {
 static void applyFfBits(long& bits, bool ffOn) {
     if (!ffOn) return;
     int cap = property_get_int32("persist.gammaos.drastic_nano.ffspeed", 5);
+    { const int rt = property_get_int32("sys.gammaos.drastic_nano.ffspeed_rt", -1); if (rt >= 0) cap = rt; }   // A/B override
     if (cap < 0)  cap = 0;
     if (cap > 15) cap = 15;
     bits |= 0x20000000L;                          // _V fast-forward lever
     bits = (bits & ~0xF000L) | ((long)cap << 12); // _FfwdSpeed index
-    if (property_get_int32(
-            "persist.gammaos.drastic_nano.ff_no_threaded3d", 0)) {
+    // Runtime override for A/B (sys.gammaos.drastic_nano.ff_no_threaded3d_rt: -1 follow the persist knob).
+    const int rtNoT3d = property_get_int32("sys.gammaos.drastic_nano.ff_no_threaded3d_rt", -1);
+    if (rtNoT3d > 0 || (rtNoT3d < 0 && property_get_int32(
+            "persist.gammaos.drastic_nano.ff_no_threaded3d", 0))) {
         bits &= ~0x10000000L;                     // clear _Threaded3D
     }
 }
@@ -8676,6 +8884,7 @@ void DrasticRunner::setFastForward(bool on) {
     if (!mInitialized || !mApplyConfig) return;
     if (on == mFastForwardOn) return;
     mFastForwardOn = on;
+    gFfOnForHook.store(on ? 1 : 0, std::memory_order_relaxed);
     setVblankPacing(mPaceWanted);
     // mBaseConfigBits holds the user's current (non-FF) settings, kept up
     // to date by applyVideoConfigLive, so FF composes with live changes.
@@ -8691,6 +8900,68 @@ void DrasticRunner::setFastForward(bool on) {
     // those 13 scalars right now. The logged rewrite count tells us how
     // many applyConfig actually clobbered.
     applyMasterStatePatch(on ? "fast-forward on" : "fast-forward off");
+
+    // Capture-aware frameskip (see ffCapHook). Installed on the first FF
+    // entry and left in place: at 1x the limiter never sets the skip flag
+    // so the hook is a passthrough. Knob persist ff_capfix (default 1),
+    // runtime override sys.gammaos.drastic_nano.ff_capfix_rt, pair period
+    // persist ff_pair_period (default 8: two rendered frames in eight,
+    // Golden Sun 2.0x at full speed).
+    {
+        static int sCapFix = -1;
+        if (sCapFix < 0) sCapFix = property_get_int32("persist.gammaos.drastic_nano.ff_capfix", 1);
+        const int rt = property_get_int32("sys.gammaos.drastic_nano.ff_capfix_rt", -1);
+        const bool wantC = on && (rt >= 0 ? rt > 0 : sCapFix > 0);
+        static bool sCapApplied = false;
+        const uintptr_t kSite = 0x3c9a0;
+        const uint32_t kSiteExpect = 0x39400358u;   // ldrb w24, [x26]
+        if (wantC && !sCapApplied && mArm64Base && gProbePage) {
+            uint32_t* site = reinterpret_cast<uint32_t*>(mArm64Base + kSite);
+            gFfPairPeriod = property_get_int32("persist.gammaos.drastic_nano.ff_pair_period", 8);
+            { const int rt = property_get_int32("sys.gammaos.drastic_nano.ff_skip_period_rt", -2);
+              gFfSkipPeriod = rt >= -1 ? rt : property_get_int32("persist.gammaos.drastic_nano.ff_skip_period", 0); }
+            if (gFfPairPeriod < 2) gFfPairPeriod = 2;
+            gFfPairPhase = property_get_int32("sys.gammaos.drastic_nano.ff_pair_phase_rt", -1);
+            if (gFfPairPhase < 0) gFfPairPhase = property_get_int32("persist.gammaos.drastic_nano.ff_pair_phase", 0) ? 1 : 0;
+            if (*site == kSiteExpect) {
+                // cave at probe page +2048: w0 = DISPCAPCNT (w8), w1 = skip flag, x2 = heapMaster (x19);
+                // x16 is unused in the compose entry so it carries the result across the restores.
+                uint32_t* c = reinterpret_cast<uint32_t*>(gProbePage + 2048);
+                const uint32_t words[28] = {
+                    0x39400358u,   // ldrb w24, [x26]
+                    0xa9bf7bfdu,   // stp x29, x30, [sp, #-16]!
+                    0xa9bf07e0u, 0xa9bf0fe2u, 0xa9bf17e4u, 0xa9bf1fe6u,   // stp x0..x7
+                    0xa9bf27e8u, 0xa9bf2feau, 0xa9bf37ecu, 0xa9bf3feeu,   // stp x8..x15
+                    0x2a0803e0u,   // mov w0, w8
+                    0x2a1803e1u,   // mov w1, w24
+                    0xaa1303e2u,   // mov x2, x19
+                    0x580001f0u,   // ldr x16, [pc, #60]  -> literal at c[28]
+                    0xd63f0200u,   // blr x16
+                    0xaa0003f0u,   // mov x16, x0
+                    0xa8c13feeu, 0xa8c137ecu, 0xa8c12feau, 0xa8c127e8u,   // ldp x14..x8
+                    0xa8c11fe6u, 0xa8c117e4u, 0xa8c10fe2u, 0xa8c107e0u,   // ldp x6..x0
+                    0xa8c17bfdu,   // ldp x29, x30, [sp], #16
+                    0x2a1003f8u,   // mov w24, w16         skip flag
+                    0xd360fe08u,   // lsr x8, x16, #32     DISPCAPCNT as saved for the capture block
+                    0xd65f03c0u }; // ret
+                memcpy(c, words, sizeof(words));
+                const uint64_t fn = (uint64_t)(uintptr_t)&ffCapHook;
+                memcpy(&c[28], &fn, 8);
+                __builtin___clear_cache((char*)c, (char*)c + 128);
+                const intptr_t d = (intptr_t)(gProbePage + 2048) - (intptr_t)(mArm64Base + kSite);
+                raPatchInsn(mArm64Base, kSite, 0x94000000u | (uint32_t)((d >> 2) & 0x03ffffffu));
+                sCapApplied = true;
+                ALOGW("DrasticRunner: ff_capfix installed (+0x3c9a0 -> probe page +2048, pair period %d)", gFfPairPeriod);
+            } else {
+                ALOGW("DrasticRunner: ff_capfix: unexpected code at +0x3c9a0 (0x%08x), skipped", *site);
+                sCapFix = 0;
+            }
+        } else if (!wantC && sCapApplied && mArm64Base && rt == 0) {
+            raPatchInsn(mArm64Base, kSite, kSiteExpect);
+            sCapApplied = false;
+            ALOGW("DrasticRunner: ff_capfix removed");
+        }
+    }
 
     // Reset the frame-blend prev state on both edges: on FF-on the first
     // blended frame must wait for a genuine capture (no stale flash); on
