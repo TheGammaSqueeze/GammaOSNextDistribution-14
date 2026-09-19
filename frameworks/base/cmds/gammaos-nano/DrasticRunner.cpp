@@ -2505,9 +2505,11 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
 }
 // Pre: snapshot the real ring, then bridge every internal zero-run by linear interpolation so the
 // channel-mix that follows never reads a cleared-but-unrefilled zero. Visible only for that read.
+std::atomic<uint32_t> gAudSubmitPub{0};   // submit index for the AUDIOMARK diagnostics
 extern "C" void spuRingRepairPre(uint8_t* master) {
     uint8_t* spu = master + 0x158c000;
     gRingRepairCalls.fetch_add(1, std::memory_order_relaxed);
+    { static int n = 0; if (n++ < 40) ALOGW("AUDIOMARK ringrepair at submit %u", gAudSubmitPub.load(std::memory_order_relaxed)); }
     static int sHw = -1;
     if (sHw < 0) sHw = property_get_bool("persist.gammaos.drastic_nano.hw_route", true) && !property_get_bool("persist.gammaos.drastic_nano.hw_route_repair", false) ? 1 : 0;
     if (sHw) { gRingSaveBytes[0] = gRingSaveBytes[1] = 0; return; }   // the rings hold real captured audio now
@@ -4336,6 +4338,9 @@ std::atomic<uint32_t> gAudSubmitMin{0xffffffff}, gAudSubmitMax{0};
 std::atomic<uint32_t> gAudFixCarried{0}, gAudFixPadded{0}, gAudFixSilenced{0}, gAudFixDropped{0};
 std::atomic<bool> gClockMatchOn{false};      // the submit-hook clock match is active (gates the frame-skip hold)
 std::atomic<int>  gClockMatchRatioPpm{0};   // current trim, ppm below 1.0 (telemetry)
+std::atomic<uint32_t> gAudCeilDefers{0};     // submits deferred because the sink was at its ceiling
+std::atomic<uint32_t> gAudMaxQ{0}, gAudPassthru{0};   // deepest sink seen, submits that bypassed the drain
+std::atomic<uint32_t> gAudResyncs{0};                 // counter corrections from the OpenSL queue state
 std::atomic<uint32_t> gClockMatchSkips{0};   // submits handed to drastic's discard path by the clock match
 std::atomic<int>  gClockMatchAvgX100{150};   // last 4 s average queue depth, chunks x100 (gates the emergency top-up)
 static int16_t gAudCarry[64]; static uint32_t gAudCarryN = 0;   // emulator thread only
@@ -4463,10 +4468,34 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
     }
     static bool sSkipSet = false;
     if (sSkipSet) { ctx[0x40027] = 0; sSkipSet = false; }   // clear the discard we asked for last call
+    if (gAudLibBase && gAudioChunks8.load(std::memory_order_relaxed)) {
+        // Resync drastic's outstanding-chunk counter (+0x3c7d070) from the OpenSL buffer queue. The
+        // queue callback (+0x1d650) decrements the counter for every completed buffer, the silence
+        // buffers it enqueues on underruns included, so after each underrun the counter under-reads
+        // the real queue by one more; the drop gate (counter >= 8) then fires too late, OpenSL
+        // rejects the enqueue at 8 real buffers (SL_RESULT_BUFFER_INSUFFICIENT) and the chunk is
+        // lost: a pop after every underrun cluster. GetState is the queue's own count.
+        void** itf = *reinterpret_cast<void***>(gAudLibBase + 0x3c7d038);
+        if (itf && *itf) {
+            struct { uint32_t count, playIndex; } st = {0, 0};
+            typedef uint32_t (*GetStateFn)(void*, void*);
+            const GetStateFn getState = reinterpret_cast<GetStateFn>((*reinterpret_cast<void***>(itf))[2]);
+            if (getState && getState(itf, &st) == 0) {
+                volatile uint32_t* cnt = reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070);
+                if (*cnt != st.count) { gAudResyncs.fetch_add(1, std::memory_order_relaxed); *cnt = st.count; }
+            }
+        }
+    }
+    if (gAudLibBase) {   // telemetry: path taken per submit and the deepest sink seen
+        const uint32_t qd = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070);
+        uint32_t m = gAudMaxQ.load(std::memory_order_relaxed); while (qd > m && !gAudMaxQ.compare_exchange_weak(m, qd)) {}
+    }
+    bool cmPath = false;
     if (sClockMatch > 0 && !gNativeMix && gAudLibBase) {
         const uint32_t rawIn = *reinterpret_cast<uint32_t*>(ctx + 0x4000c);
         const uint32_t nin = rawIn & 0x7fffffffu;
         if (nin >= 4 && nin < 0x10000 && (nin & 1u) == 0 && ctx[0x40027] == 0) {
+            cmPath = true;
             gClockMatchOn.store(true, std::memory_order_relaxed);
             static double sSum = 0; static int sN = 0; static int64_t sWin = 0; static double sInteg = 0, sErr = 0;
             const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(gAudLibBase + 0x3c7d070);
@@ -4518,7 +4547,14 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
             // 4-chunk backlog (fast-forward) emit regardless so the FIFO stays bounded.
             static int64_t sLastEmitUs = 0;
             const bool burst = (nowUs - sLastEmitUs) < 12500 && sFifoN < 4u * 735u;
-            if (sFifoN >= 735u && !burst) {
+            // Ceiling guard: the sink queue holds 8 chunks and an enqueue at the ceiling fails and loses
+            // the chunk outright (launch bursts and catch-up bursts logged SL_RESULT_BUFFER_INSUFFICIENT,
+            // each a 33 ms hole). Defer into the FIFO while the sink holds sink_ceiling chunks or more.
+            static int sCeil = -1;
+            if (sCeil < 0) sCeil = property_get_int32("sys.gammaos.drastic_nano.sink_ceiling", 7);
+            const bool atCeiling = sCeil > 0 && queued >= (uint32_t)sCeil && sFifoN < (uint32_t)kFifoFr - 735u;
+            if (atCeiling) gAudCeilDefers.fetch_add(1, std::memory_order_relaxed);
+            if (sFifoN >= 735u && !burst && !atCeiling) {
                 sLastEmitUs = nowUs;
                 memcpy(ctx, sFifo, 735u * 2u * sizeof(int16_t));
                 sFifoN -= 735u;
@@ -4530,10 +4566,12 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
             *reinterpret_cast<uint32_t*>(ctx + 0x4000c) = 1470u | (rawIn & 0x80000000u);   // always nominal
         }
     }
+    if (!cmPath) gAudPassthru.fetch_add(1, std::memory_order_relaxed);
     const uint32_t raw = *reinterpret_cast<uint32_t*>(ctx + 0x4000c);
     const uint32_t flag = raw & 0x80000000u;   // bit 31 is a flag the submit masks off; keep it
     uint32_t n = raw & 0x7fffffffu;
     gAudSubmitCalls.fetch_add(1, std::memory_order_relaxed);
+    gAudSubmitPub.store(gAudSubmitCalls.load(std::memory_order_relaxed), std::memory_order_relaxed);
     if (gSpuMixCtl && gSpuMixCtl[1] == 0xffffffffu && gAudSubmitCalls.load() >= 2) {
         gSpuMixCtl[1] = gSpuMixLines;   // arm the per-scanline mixing once frame-end mixing has run
         ALOGI("DrasticRunner: SPU mix every %u scanlines armed", gSpuMixLines);
@@ -4726,6 +4764,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                     volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
                     *deadline -= err * 3;   // earlier flips grow the margin
                     sLastShiftUs = vblankUs; sEma = sTarget; gBypassShifts.fetch_add(1);
+                    ALOGW("AUDIOMARK shift %lld us at submit %u", (long long)err, gAudSubmitPub.load());
                 }
                 int64_t steer = (sTarget - sEma) * sGain / 1000;   // ppm faster when the margin is short
                 if (steer > sMax) steer = sMax; if (steer < -sMax) steer = -sMax;
@@ -4751,10 +4790,19 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                 static int64_t sLastAdjUs = 0;
                 const int avg = gClockMatchAvgX100.load(std::memory_order_relaxed);
                 const int lo = property_get_int32("sys.gammaos.drastic_nano.bypass_q_lo_x100", 200), hi = property_get_int32("sys.gammaos.drastic_nano.bypass_q_hi_x100", 550);
-                if (vblankUs - sLastAdjUs > 5000000 && gClockMatchOn.load(std::memory_order_relaxed)) {
-                    volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
-                    if (avg < lo) { *deadline -= units; sLastAdjUs = vblankUs; gBypassTopUps.fetch_add(1); }
-                    else if (avg > hi) { *deadline += units; sLastAdjUs = vblankUs; gBypassHolds.fetch_add(1); }
+                // Fast refill on the instantaneous depth: after launch and state loads the sink sits at
+                // 0 to 1 chunk where any jitter is an audible gap, so while it holds fewer than 3 chunks
+                // run one extra emulated frame every 100 ms (about six frames in under a second, each a
+                // skipped panel frame, acceptable at a load). The 4 s average band then holds it.
+                volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
+                const uint32_t qnow = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
+                if (gClockMatchOn.load(std::memory_order_relaxed)) {
+                    if (qnow < 3 && vblankUs - sLastAdjUs > 100000) {
+                        *deadline -= units; sLastAdjUs = vblankUs; gBypassTopUps.fetch_add(1);
+                    } else if (qnow >= 3 && vblankUs - sLastAdjUs > 5000000) {
+                        if (avg < lo) { *deadline -= units; sLastAdjUs = vblankUs; gBypassTopUps.fetch_add(1); ALOGW("AUDIOMARK topup at submit %u", gAudSubmitPub.load()); }
+                        else if (avg > hi) { *deadline += units; sLastAdjUs = vblankUs; gBypassHolds.fetch_add(1); ALOGW("AUDIOMARK hold at submit %u", gAudSubmitPub.load()); }
+                    }
                 }
             }
         }
@@ -4894,11 +4942,11 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                     property_set("sys.gammaos.drastic_nano.spu_trace_dump", "2");
                     ALOGW("DrasticRunner: SPU trace dumped %u records (first %u)", n - first, first);
                 }
-            ALOGW("PACE lead=%lld misses=%u floor=%lld hookflips=%u emu=%lld audioq=%u lead+%u topups=%u holds=%u cmavg=%d cmppm=%d paceon=%d byp=%d btop=%u bhold=%u steer=%d margin=%lld late=%u shifts=%u", (long long)gLeadUs.load(),
+            ALOGW("PACE lead=%lld misses=%u floor=%lld hookflips=%u emu=%lld audioq=%u lead+%u topups=%u holds=%u cmavg=%d cmppm=%d paceon=%d byp=%d btop=%u bhold=%u steer=%d margin=%lld late=%u shifts=%u under=%u ceil=%u maxq=%u pass=%u resync=%u", (long long)gLeadUs.load(),
                   gMissCount.load(), (long long)gLeadCreepFloor.load(), gFlipHookCount.load(),
                   (long long)gEmuDurUs.load(),
                   mArm64Base ? *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff) : 0u,
-                  gAudioLeadExtra.load(), gAudioLeadTopUps.load(), gAudioLeadHolds.load(), gClockMatchAvgX100.load(), gClockMatchRatioPpm.load(), gPaceOn.load() ? 1 : 0, gBypassPeriodSet.load() ? 1 : 0, gBypassTopUps.load(), gBypassHolds.load(), gBypassSteerPpm.load(), (long long)gGpuMarginEma.load(), gPresLate.load(), gBypassShifts.load());
+                  gAudioLeadExtra.load(), gAudioLeadTopUps.load(), gAudioLeadHolds.load(), gClockMatchAvgX100.load(), gClockMatchRatioPpm.load(), gPaceOn.load() ? 1 : 0, gBypassPeriodSet.load() ? 1 : 0, gBypassTopUps.load(), gBypassHolds.load(), gBypassSteerPpm.load(), (long long)gGpuMarginEma.load(), gPresLate.load(), gBypassShifts.load(), gAudUnderruns.load(), gAudCeilDefers.load(), gAudMaxQ.exchange(0), gAudPassthru.load(), gAudResyncs.load());
             if (mT3dSyncInstalled && gT3dMode >= 5)
                 ALOGW("PACE t3d5 chunks=%u waited=%u sum=%lld max=%lld start=%u startus=%lld idle=%u full=%u to=%u bands=%u",
                       gT3dPipe.chunks, gT3dPipe.waited, (long long)gT3dPipe.sumUs, (long long)gT3dPipe.maxUs,
@@ -6410,6 +6458,44 @@ bool DrasticRunner::loadStateSlot(int slot) {
         ALOGW("DrasticRunner::loadStateSlot: refusing slot %d (valid 0..9, 9 = autosave)",
               slot);
         return false;
+    }
+    // Pre-load boost (bypass only): the restore stalls production ~130 ms against a 100 ms sink queue,
+    // one chunk of silence at the cut. Run a few extra emulated frames now (deadline moved back two
+    // periods at a time, the audio drains through the FIFO) until the sink holds 6 chunks or 600 ms
+    // pass; a handful of skipped panel frames at a load is accepted for a clean cut.
+    if (mArm64Base && gBypassPeriodSet.load() && gClockMatchOn.load(std::memory_order_relaxed) && mPanelHz > 1.0 &&
+        property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6) > 0) {
+        uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
+        const int want = property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6);
+        if (hm) {
+            volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
+            const uint32_t units = (uint32_t)llround(3000000.0 / mPanelHz);
+            const int64_t tb = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+            int extra = 0; uint32_t q = 0;
+            for (;;) {
+                q = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
+                const int64_t el = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - tb;
+                if ((int)q >= want || el > 600000) break;
+                *deadline -= 2 * (int64_t)units; extra += 2;
+                usleep(50000);
+            }
+            ALOGI("DrasticRunner::loadStateSlot: pre-load boost %d extra frames, queue %u chunks", extra, q);
+        }
+    } else if (mArm64Base && gPaceOn.load() && gClockMatchOn.load(std::memory_order_relaxed) &&
+               property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6) > 0) {
+        // Locked: the pacer runs extra ticks for an audio lead debt; request enough to reach the
+        // target depth and give it up to 600 ms (each extra tick is one skipped panel frame).
+        const int want = property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6);
+        uint32_t q = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
+        const int need = (want - (int)q) * 2;   // two emulated frames per 33 ms chunk
+        if (need > 0) {
+            gAudioLeadDebt.store(need);
+            const int64_t tb = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+            while (gAudioLeadDebt.load() > 0 && std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - tb < 600000) usleep(20000);
+            q = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
+            ALOGI("DrasticRunner::loadStateSlot: pre-load lead debt %d, left %d, queue %u chunks", need, gAudioLeadDebt.load(), q);
+            gAudioLeadDebt.store(0);
+        }
     }
     const int64_t t0 = std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
