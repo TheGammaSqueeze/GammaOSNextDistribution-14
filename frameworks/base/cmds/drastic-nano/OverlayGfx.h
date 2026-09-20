@@ -74,6 +74,10 @@ public:
     // Primitives. All coordinates are in overlay pixel space,
     // top-left origin. Widths/heights are pixels.
     void fillRect(float x, float y, float w, float h, Color c);
+    // Pixel-space clip rectangle (top-left origin, like the draw calls) applied
+    // to everything drawn until clipEnd(). Used for marquee text.
+    void clipBegin(float x, float y, float w, float h);
+    void clipEnd();
     void outline(float x, float y, float w, float h, float px, Color c);
     // Convenience: translucent panel with 1px outline.
     void panel(float x, float y, float w, float h, Color bg, Color edge);

@@ -550,23 +550,36 @@ const KeyMap kKeyTable[] = {
     {BTN_SELECT,    109, "Select"},
     // Mode (guide), home, back
     {BTN_MODE,      110, "Mode"},
-    {KEY_BACK,      4,   "Back"},
     {KEY_HOME,      3,   "Home"},
     {KEY_MENU,      82,  "Menu"},
-    // Volume rockers occasionally live on handhelds
-    {KEY_VOLUMEUP,    24, "Volume Up"},
-    {KEY_VOLUMEDOWN,  25, "Volume Down"},
     {KEY_L,         102, "L"},  // some pads expose KEY_L instead of BTN_TL
     {KEY_R,         103, "R"},
 };
 } // anonymous namespace
 
+// Any button on the pad can be bound to a control. Keys the table does not
+// name get a synthetic id (kSyntheticBase + evdev code) so they round-trip
+// through the keymap like the named ones. BACK, the volume rocker and POWER
+// are owned by the system and never bindable.
+namespace { constexpr int kSyntheticBase = 1000; }
+
+bool isReservedKeycode(int android) {
+    return android == 4 || android == 24 || android == 25 || android == 26;
+}
+
+bool isReservedEvdev(int k) {
+    return k == KEY_BACK || k == KEY_VOLUMEUP || k == KEY_VOLUMEDOWN || k == KEY_POWER;
+}
+
 int evdevToAndroidKeycode(int k) {
+    if (isReservedEvdev(k)) return 0;
     for (auto& e : kKeyTable) if (e.evdev == k) return e.android;
+    if (k > 0 && k <= KEY_MAX) return kSyntheticBase + k;
     return 0;
 }
 
 int androidKeycodeToEvdev(int k) {
+    if (k >= kSyntheticBase) return k - kSyntheticBase;
     // Reverse lookup prefers the "canonical" entry for each Android
     // keycode; because the table has duplicates (KEY_L <-> 102 same
     // as BTN_TL), we prefer BTN_* entries by scanning in table order.
@@ -578,6 +591,27 @@ const char* androidKeycodeLabel(int k) {
     for (auto& e : kKeyTable) if (e.android == k) return e.label;
     if (k == -1) return "Unmapped";
     static thread_local char buf[32];
+    if (k >= kSyntheticBase) {
+        const int ev = k - kSyntheticBase;
+        if (ev >= BTN_TRIGGER_HAPPY1 && ev <= BTN_TRIGGER_HAPPY40)
+            snprintf(buf, sizeof(buf), "Extra %d", ev - BTN_TRIGGER_HAPPY1 + 1);
+        else if (ev >= KEY_F1 && ev <= KEY_F10)
+            snprintf(buf, sizeof(buf), "F%d", ev - KEY_F1 + 1);
+        else if (ev >= KEY_F11 && ev <= KEY_F12)
+            snprintf(buf, sizeof(buf), "F%d", ev - KEY_F11 + 11);
+        else if (ev >= KEY_F13 && ev <= KEY_F24)
+            snprintf(buf, sizeof(buf), "F%d", ev - KEY_F13 + 13);
+        else if (ev == BTN_C) return "C";
+        else if (ev == BTN_Z) return "Z";
+        else if (ev >= BTN_0 && ev <= BTN_9)
+            snprintf(buf, sizeof(buf), "Button %d", ev - BTN_0);
+        else if (ev == KEY_HOMEPAGE) return "Home";
+        else if (ev == KEY_RECORD) return "Record";
+        else if (ev == KEY_PLAYPAUSE) return "Play/Pause";
+        else
+            snprintf(buf, sizeof(buf), "Key %d", ev);
+        return buf;
+    }
     snprintf(buf, sizeof(buf), "KC %d", k);
     return buf;
 }

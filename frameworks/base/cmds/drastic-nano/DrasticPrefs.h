@@ -61,7 +61,7 @@ struct Prefs {
     bool soundEnabled  = true;
 
     // Runtime-adjustable knobs.
-    int  volume        = 8;          // _Volume 0..10
+    int  volume        = 10;         // _Volume 0..10, pinned at max (system volume is the control)
     int  audioLatency  = 2;          // _AudioLatency 0..4
     bool micEnabled    = false;      // _MicEnabled
     int  micLevel      = 1;          // _MicLevel 0..2
@@ -158,6 +158,9 @@ const char* actionName(int actionIdx);
 // Map an evdev EV_KEY code to the Android keycode drastic's keymap
 // encodes. Returns 0 for unknown codes.
 int evdevToAndroidKeycode(int evdevKey);
+// BACK, volume and POWER are system keys and can never be bound to a control.
+bool isReservedKeycode(int androidKeycode);
+bool isReservedEvdev(int evdevKey);
 
 // Map an Android keycode back to an evdev EV_KEY code (reverse of
 // evdevToAndroidKeycode). Returns 0 for unmapped.

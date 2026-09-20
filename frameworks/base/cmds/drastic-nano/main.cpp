@@ -1806,6 +1806,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             overlay.update(ov, &input);
             continue;
         }
+        // Automation hook, same as the SF path: sys.gammaos.drastic_nano.menu=1
+        // toggles the overlay once (headless menu screenshots).
+        if (property_get_bool("sys.gammaos.drastic_nano.menu", false)) {
+            property_set("sys.gammaos.drastic_nano.menu", "0");
+            actions.menuToggle = true;
+        }
         overlay.update(actions, &input);
 
         // Publish overlay state to the fast-input thread. On an open->close

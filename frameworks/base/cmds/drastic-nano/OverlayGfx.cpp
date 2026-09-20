@@ -357,6 +357,39 @@ void OverlayGfx::fillRect(float x, float y, float w, float h, Color c) {
     drawSolidQuad(x, y, w, h, c);
 }
 
+void OverlayGfx::clipBegin(float x, float y, float w, float h) {
+    // The vertex shaders map overlay space (y down) to NDC and then apply
+    // uRot, so the scissor box must go through the same transform: rotate
+    // the rectangle's corners in NDC and take their bounding box in window
+    // (bottom-left based) pixels.
+    if (w <= 0.0f || h <= 0.0f) { glScissor(0, 0, 0, 0); glEnable(GL_SCISSOR_TEST); return; }
+    const float vw = (float)mViewportW, vh = (float)mViewportH;
+    float minX = 1e9f, minY = 1e9f, maxX = -1e9f, maxY = -1e9f;
+    const float cx[4] = {x, x + w, x, x + w};
+    const float cy[4] = {y, y, y + h, y + h};
+    for (int i = 0; i < 4; i++) {
+        float nx = cx[i] / vw * 2.0f - 1.0f;
+        float ny = -(cy[i] / vh * 2.0f - 1.0f);
+        // column-major mat2: out = M * v
+        const float rx = mRot[0] * nx + mRot[2] * ny;
+        const float ry = mRot[1] * nx + mRot[3] * ny;
+        const float px = (rx + 1.0f) * 0.5f * vw;
+        const float py = (ry + 1.0f) * 0.5f * vh;
+        if (px < minX) minX = px; if (px > maxX) maxX = px;
+        if (py < minY) minY = py; if (py > maxY) maxY = py;
+    }
+    int sx = (int)floorf(minX), sy = (int)floorf(minY);
+    int ex = (int)ceilf(maxX), ey = (int)ceilf(maxY);
+    if (sx < 0) sx = 0; if (sy < 0) sy = 0;
+    if (ex > mViewportW) ex = mViewportW; if (ey > mViewportH) ey = mViewportH;
+    glScissor(sx, sy, ex > sx ? ex - sx : 0, ey > sy ? ey - sy : 0);
+    glEnable(GL_SCISSOR_TEST);
+}
+
+void OverlayGfx::clipEnd() {
+    glDisable(GL_SCISSOR_TEST);
+}
+
 void OverlayGfx::outline(float x, float y, float w, float h, float px, Color c) {
     drawSolidQuad(x, y, w, px, c);               // top
     drawSolidQuad(x, y + h - px, w, px, c);      // bottom

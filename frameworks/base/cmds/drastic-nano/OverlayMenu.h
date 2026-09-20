@@ -203,7 +203,18 @@ private:
         // pull the badge for the bottom-screen detail panel.
         uint32_t raAchId = 0;
     };
-    enum { kRowNormal = 0, kRowUnlocked = 1, kRowLocked = 2, kRowHeader = 3 };
+    enum { kRowNormal = 0, kRowUnlocked = 1, kRowLocked = 2, kRowHeader = 3, kRowDivider = 4 };
+
+    // Modal confirm prompt (Power Off / Reboot): drawn over the list, Confirm
+    // is the default choice, B or Cancel dismisses, A runs the action.
+    struct ConfirmPrompt {
+        bool active = false;
+        std::string question;
+        std::function<void()> onConfirm;
+        int choice = 0;   // 0 = Confirm, 1 = Cancel
+    } mConfirm;
+    void openConfirm(const std::string& question, std::function<void()> onConfirm);
+    void drawConfirm(drastic_gfx::OverlayGfx& gfx, float vw, float vh, float sf);
 
     DrasticRunner* mRunner = nullptr;
     drastic_prefs::Prefs mPrefs;      // staged / live prefs

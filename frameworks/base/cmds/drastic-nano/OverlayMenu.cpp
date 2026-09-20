@@ -56,6 +56,7 @@ constexpr const char* kSectionNames[] = {
 // XMB-style layout constants. Coordinates scale with sf =
 // min(vw/1080, vh/720), matching the nano XMB scaling so the overlay
 // looks at home on the same display. Reference viewport: 1080x720 logical.
+constexpr float kUiShrink = 0.75f;   // overall menu scale, fonts included (25% smaller)
 constexpr float kSfMin = 0.45f;
 constexpr float kSfMax = 2.0f;
 constexpr float kCatBarTopFrac  = 0.06f;   // where the category title sits
@@ -178,6 +179,7 @@ void OverlayMenu::openMenu() {
 }
 
 void OverlayMenu::closeMenu() {
+    mConfirm = ConfirmPrompt{};
     if (!mOpen) return;
     if (mDirty) writePrefsSafe();
     mOpen = false;
@@ -706,7 +708,7 @@ void OverlayMenu::handleNavUp() {
     // they are not selectable, so the cursor lands on the next real row.
     for (int k = 0; k < n; k++) {
         c = (c - 1 + n) % n;
-        if (mRows[c].tag != kRowHeader) break;
+        if (mRows[c].tag != kRowHeader && mRows[c].tag != kRowDivider) break;
     }
     mCursor[mSection] = c;
 }
@@ -716,7 +718,7 @@ void OverlayMenu::handleNavDown() {
     int c = mCursor[mSection];
     for (int k = 0; k < n; k++) {
         c = (c + 1) % n;
-        if (mRows[c].tag != kRowHeader) break;
+        if (mRows[c].tag != kRowHeader && mRows[c].tag != kRowDivider) break;
     }
     mCursor[mSection] = c;
 }
@@ -747,6 +749,14 @@ void OverlayMenu::handleCheatsPageSkip(int dir) {
     if (c > n - 1) c = n - 1;
     mCursor[mSection] = c;
 }
+void OverlayMenu::openConfirm(const std::string& question, std::function<void()> onConfirm) {
+    mConfirm.active = true;
+    mConfirm.question = question;
+    mConfirm.onConfirm = std::move(onConfirm);
+    mConfirm.choice = 0;   // Confirm is the default
+    mNavHeldDir = NavDir::None;
+}
+
 void OverlayMenu::adjustCurrent(int dir) {
     int cur = mCursor[mSection];
     if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].onAdjust) {
@@ -815,6 +825,31 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
             rebuildRows();
         }
     }
+    // Automation hook (headless menu shots, this platform cannot inject controller
+    // input): sys.gammaos.drastic_nano.menu_nav = up|down|left|right|accept|cancel|
+    // tab|section:N, consumed once per frame; only while the menu is open.
+    if (mOpen) {
+        char nv[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.drastic_nano.menu_nav", nv, "");
+        if (nv[0]) {
+            property_set("sys.gammaos.drastic_nano.menu_nav", "");
+            drastic_input::InputActions b = {};
+            if (!strcmp(nv, "up")) b.navUpHeld = true;
+            else if (!strcmp(nv, "down")) b.navDownHeld = true;
+            else if (!strcmp(nv, "left")) b.navLeftHeld = true;
+            else if (!strcmp(nv, "right")) b.navRightHeld = true;
+            else if (!strcmp(nv, "accept")) b.navAccept = true;
+            else if (!strcmp(nv, "cancel")) b.navCancel = true;
+            else if (!strcmp(nv, "tab")) b.navNextTab = true;
+            else if (!strncmp(nv, "section:", 8)) { mSection = (Section)(atoi(nv + 8) % kSec_COUNT); rebuildRows(); }
+            if (b.navAccept || b.navCancel || b.navNextTab || b.navUpHeld || b.navDownHeld || b.navLeftHeld || b.navRightHeld) {
+                mNavHeldDir = NavDir::None;   // the synthetic press is a fresh edge
+                update(b, input);
+                mNavHeldDir = NavDir::None;
+            }
+            return;
+        }
+    }
     // Short-press BACK toggles menu open/close regardless of state.
     if (a.menuToggle) {
         if (mOpen) {
@@ -841,6 +876,25 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
             if (a.actQuickSave) mRunner->saveStateSlot(0);
             // Quick-load is a save-state load, disabled in hardcore.
             if (a.actQuickLoad && !mRaHardcore) mRunner->loadStateSlot(0);
+        }
+        return;
+    }
+
+    // Modal confirm prompt (Power Off / Reboot): it owns all input while open.
+    if (mConfirm.active) {
+        if (a.navLeftHeld || a.navRightHeld || a.navUpHeld || a.navDownHeld) {
+            NavDir held = a.navLeftHeld ? NavDir::Left : a.navRightHeld ? NavDir::Right
+                        : a.navUpHeld ? NavDir::Up : NavDir::Down;
+            if (held != mNavHeldDir) { mConfirm.choice ^= 1; mNavHeldDir = held; }
+        } else {
+            mNavHeldDir = NavDir::None;
+        }
+        if (a.navCancel) { mConfirm.active = false; }
+        else if (a.navAccept) {
+            const bool confirm = mConfirm.choice == 0;
+            auto fn = mConfirm.onConfirm;
+            mConfirm = ConfirmPrompt{};
+            if (confirm && fn) fn();
         }
         return;
     }
@@ -1076,7 +1130,8 @@ void OverlayMenu::rebuildRows() {
     {
         int n = (int)mRows.size();
         for (int k = 0; k < n && mCursor[mSection] < n &&
-                        mRows[mCursor[mSection]].tag == kRowHeader; k++) {
+                        (mRows[mCursor[mSection]].tag == kRowHeader ||
+                         mRows[mCursor[mSection]].tag == kRowDivider); k++) {
             mCursor[mSection] = (mCursor[mSection] + 1) % n;
         }
     }
@@ -1264,12 +1319,19 @@ void OverlayMenu::rebuildGeneral() {
     // the same graceful save + power action from inside the game. main.cpp saves
     // slot 9 (and arms Quick Resume when enabled) before the power action.
     {
+        RowAction d;   // divider above the power controls (not selectable)
+        d.tag = kRowDivider;
+        mRows.push_back(std::move(d));
+    }
+    {
         RowAction r;
         r.label = "Power Off";
         r.onAccept = [this]() {
-            mPowerOff = true;
-            closeMenu();
-            toast("Powering off...");
+            openConfirm("Power off the device?", [this]() {
+                mPowerOff = true;
+                closeMenu();
+                toast("Powering off...");
+            });
         };
         mRows.push_back(std::move(r));
     }
@@ -1277,9 +1339,11 @@ void OverlayMenu::rebuildGeneral() {
         RowAction r;
         r.label = "Reboot";
         r.onAccept = [this]() {
-            mReboot = true;
-            closeMenu();
-            toast("Rebooting...");
+            openConfirm("Reboot the device?", [this]() {
+                mReboot = true;
+                closeMenu();
+                toast("Rebooting...");
+            });
         };
         mRows.push_back(std::move(r));
     }
@@ -1821,7 +1885,7 @@ void OverlayMenu::rebuildAchievements() {
         // eligible for hardcore credit after RA approval and a ~6-month timeline
         // from release, so make users aware before they rely on it.
         RowAction r;
-        r.label = "Hardcore credit pending RA approval (~6-month eligibility)";
+        r.label = "Hardcore unavailable until RA approval";
         r.tag = kRowLocked;
         mRows.push_back(std::move(r));
     }
@@ -2614,31 +2678,11 @@ void OverlayMenu::rebuildVideo() {
         mRows.push_back(std::move(r));
     }
     // Frameskip type.
-    {
-        RowAction r;
-        r.label = "Frameskip";
-        r.value = (mPrefs.frameskipType == 1) ? "Auto"
-                  : ("Fixed " + std::to_string(mPrefs.frameskipValue));
-        r.onAdjust = [this](int dir) {
-            if (mPrefs.frameskipType == 1) {
-                // from Auto, Left -> fixed N, Right -> fixed 0
-                mPrefs.frameskipType = 0;
-                mPrefs.frameskipValue = (dir > 0) ? 0 : 9;
-            } else {
-                int v = mPrefs.frameskipValue + dir;
-                if (v < 0) { mPrefs.frameskipType = 1; v = 0; }
-                else if (v > 9) { v = 9; }
-                mPrefs.frameskipValue = v;
-            }
-            mDirty = true;
-            // Mirror to the prop so it persists over a build.prop default:
-            // Auto -> "-1" (loader honors the XML's Auto), Fixed N -> "N".
-            int fsv = (mPrefs.frameskipType == 1) ? -1 : mPrefs.frameskipValue;
-            property_set("persist.gammaos.drastic_nano.frameskip",
-                         std::to_string(fsv).c_str());
-            applyConfigLive();
-        };
-        mRows.push_back(std::move(r));
+    // Frameskip is fixed at 0 (no skipping) and not offered in the menu.
+    if (mPrefs.frameskipType != 0 || mPrefs.frameskipValue != 0) {
+        mPrefs.frameskipType = 0;
+        mPrefs.frameskipValue = 0;
+        mDirty = true;
     }
     // Restart button.
     if (drastic_prefs::requiresRelaunch(mSavedPrefs, mPrefs)) {
@@ -2652,19 +2696,13 @@ void OverlayMenu::rebuildVideo() {
 }
 
 void OverlayMenu::rebuildAudio() {
-    // Volume (live).
-    {
-        RowAction r;
-        r.label = "Volume";
-        r.value = std::to_string(mPrefs.volume) + "/10";
-        r.onAdjust = [this](int dir) {
-            int v = mPrefs.volume + dir;
-            if (v < 0) v = 0; if (v > 10) v = 10;
-            mPrefs.volume = v;
-            mDirty = true;
-            if (mRunner) mRunner->setVolumeRuntime(v * 10);
-        };
-        mRows.push_back(std::move(r));
+    // No Volume row: the Android system volume is the single authority. The
+    // core mixer is pinned at max (main.cpp sets it live at launch); keep the
+    // saved pref at 10 too so the XML matches.
+    if (mPrefs.volume != 10) {
+        mPrefs.volume = 10;
+        mDirty = true;
+        if (mRunner) mRunner->setVolumeRuntime(100);
     }
     {
         // Audio Latency sizes the OpenSL buffer queue, which drastic
@@ -2902,7 +2940,7 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     // regime so the menu holds a consistent on-screen fraction from a 480p
     // panel up through 1080p. Panels at or below the knee are left untouched,
     // so the existing small-panel look does not regress.
-    sf = scaleForViewport(sf);
+    sf = scaleForViewport(sf) * kUiShrink;
 
     if (!mOpen) {
         // The volume/brightness HUD and brief toasts still render (and the
@@ -2960,6 +2998,7 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     }
 
     drawFooter(gfx, vw, vh, sf);
+    if (mConfirm.active) drawConfirm(gfx, vw, vh, sf);
 
     // The on-screen keyboard is NOT drawn here: it renders on the bottom DS
     // screen (drawOsk, called by main.cpp against the secondary FBO) so it
@@ -2971,6 +3010,40 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
 
     if (!mToast.empty() && android::elapsedRealtime() <= mToastUntilMs) {
         drawToast(gfx, mToast, sf);
+    }
+}
+
+void OverlayMenu::drawConfirm(drastic_gfx::OverlayGfx& gfx, float vw, float vh, float sf) {
+    // Dim everything, then a centered card: the question on top, Confirm and
+    // Cancel side by side below, the chosen one highlighted with the accent.
+    gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.55f));
+    const float qs = kRowSelScale * sf;
+    const float bs = kRowBaseScale * sf;
+    const char* q = trDyn(mConfirm.question.c_str());
+    const char* opt[2] = { trDyn("Confirm"), trDyn("Cancel") };
+    const float qw = gfx.measure(q, qs);
+    const float ow0 = gfx.measure(opt[0], bs), ow1 = gfx.measure(opt[1], bs);
+    const float pad = 28.0f * sf, gapX = 48.0f * sf, gapY = 26.0f * sf;
+    const float lineQ = gfx.fontLineH() * qs, lineO = gfx.fontLineH() * bs;
+    float cardW = fmaxf(qw, ow0 + gapX + ow1) + 2.0f * pad;
+    if (cardW > vw - 2.0f * pad) cardW = vw - 2.0f * pad;
+    const float cardH = pad + lineQ + gapY + lineO + pad;
+    const float cx = (vw - cardW) / 2.0f, cy = (vh - cardH) / 2.0f;
+    gfx.fillRect(cx, cy, cardW, cardH, rgba(0.08f, 0.09f, 0.12f, 0.97f));
+    gfx.outline(cx, cy, cardW, cardH, 2.0f * sf, rgba(0.35f, 0.75f, 1.0f, 0.9f));
+    gfx.text(q, cx + (cardW - qw) / 2.0f, cy + pad, qs, rgba(1, 1, 1, 1));
+    const float oy = cy + pad + lineQ + gapY;
+    const float totalW = ow0 + gapX + ow1;
+    float ox = cx + (cardW - totalW) / 2.0f;
+    for (int i = 0; i < 2; i++) {
+        const float ow = i == 0 ? ow0 : ow1;
+        const bool sel = mConfirm.choice == i;
+        if (sel) {
+            gfx.fillRect(ox - 12.0f * sf, oy - 6.0f * sf, ow + 24.0f * sf, lineO + 12.0f * sf,
+                         rgba(0.35f, 0.75f, 1.0f, 0.28f));
+        }
+        gfx.text(opt[i], ox, oy, bs, sel ? rgba(1, 1, 1, 1) : rgba(0.65f, 0.66f, 0.72f, 0.75f));
+        ox += ow + gapX;
     }
 }
 
@@ -3050,6 +3123,14 @@ void OverlayMenu::drawList(drastic_gfx::OverlayGfx& gfx, float vw,
     for (int i = scroll; i < last; i++) {
         const auto& r = mRows[i];
         bool active = (i == cur);
+        if (r.tag == kRowDivider) {
+            // A thin separator line with breathing room above and below.
+            float lineY = rowY + rowH * 0.5f;
+            gfx.fillRect(contentLeft, lineY, contentRight - contentLeft, 2.0f * sf,
+                         rgba(1.0f, 1.0f, 1.0f, 0.22f));
+            rowY += rowH;
+            continue;
+        }
         float sc = (active ? kRowSelScale : kRowBaseScale) * sf;
         // Colour-code the Achievements list: unlocked gold, locked dim, section
         // headers in accent blue. Other sections use tag 0 (default grey).
@@ -3079,12 +3160,41 @@ void OverlayMenu::drawList(drastic_gfx::OverlayGfx& gfx, float vw,
                          rgba(0.35f, 0.75f, 1.0f, 0.95f));
         }
 
-        gfx.text(trDyn(r.label.c_str()), contentLeft, txtY, sc, fg);
         float vWidth = 0.0f;
         if (!r.value.empty()) {
             const char* rv = trDyn(r.value.c_str());
             vWidth = gfx.measure(rv, sc);
             gfx.text(rv, contentRight - vWidth, txtY, sc, fg);
+        }
+        // Label: when it would run into the value (long cheat names) clip it to
+        // the free width and, on the selected row, scroll it as a marquee so the
+        // whole name can be read; other rows show the clipped start.
+        {
+            const char* lab = trDyn(r.label.c_str());
+            const float gap = 24.0f * sf;
+            const float avail = contentRight - vWidth - (vWidth > 0.0f ? gap : 0.0f) - contentLeft;
+            const float lw = gfx.measure(lab, sc);
+            if (lw <= avail || avail <= 0.0f) {
+                gfx.text(lab, contentLeft, txtY, sc, fg);
+            } else {
+                float x = contentLeft;
+                if (active) {
+                    // Pause at the start, scroll left at a readable pace, pause at
+                    // the end, then jump back: period = pauses + travel.
+                    const float travel = lw - avail;
+                    const float speed = 40.0f * sf;             // px per second
+                    const int64_t pauseMs = 1200;
+                    const int64_t travelMs = (int64_t)(travel / speed * 1000.0f);
+                    const int64_t period = 2 * pauseMs + travelMs;
+                    const int64_t t = android::elapsedRealtime() % (period > 0 ? period : 1);
+                    float off = 0.0f;
+                    if (t > pauseMs) off = (t < pauseMs + travelMs) ? (float)(t - pauseMs) * speed / 1000.0f : travel;
+                    x -= off;
+                }
+                gfx.clipBegin(contentLeft, txtY - 2.0f * sf, avail, txtH + 4.0f * sf);
+                gfx.text(lab, x, txtY, sc, fg);
+                gfx.clipEnd();
+            }
         }
         // Unlocked marker: a small gold star drawn as geometry (the font has no
         // U+2605), placed just left of the points value.

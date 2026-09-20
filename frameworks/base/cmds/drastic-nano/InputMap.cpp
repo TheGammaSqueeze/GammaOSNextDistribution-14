@@ -186,7 +186,7 @@ void applyPrefs(InputState* st, const drastic_prefs::Prefs& p) {
     st->keycodeToAction.clear();
     for (int a = 0; a < drastic_prefs::kNumActions; a++) {
         int kc = st->keymapPlayer0[a];
-        if (kc > 0) st->keycodeToAction[kc] = a;
+        if (kc > 0 && !drastic_prefs::isReservedKeycode(kc)) st->keycodeToAction[kc] = a;
     }
     st->analogTouchEnabled = p.analogTouch;
     st->analogDeadzone = p.analogDeadzone;
