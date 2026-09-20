@@ -1813,5 +1813,17 @@
  "Side by Side": "Yan yana",
  "Single Screen": "Tek ekran",
  "RetroAchievements username": "RetroAchievements kullanıcı adı",
- "RetroAchievements password": "RetroAchievements parolası"
+ "RetroAchievements password": "RetroAchievements parolası",
+ "Move DraStic saves to the SD card?": "DraStic kayıtları SD karta taşınsın mı?",
+ "Move the DraStic app's saves and save states to /sdcard/drastic-nano?": "DraStic uygulamasının kayıtları ve durum kayıtları /sdcard/drastic-nano'ya taşınsın mı?",
+ "Import DraStic saves": "DraStic kayıtlarını içe aktar",
+ "Moved": "Taşındı",
+ "Not now": "Şimdi değil",
+ "save": "kayıt",
+ "saves": "kayıt",
+ "save state": "durum kaydı",
+ "save states": "durum kaydı",
+ "file": "dosya",
+ "files": "dosya",
+ "this game's files after exit": "bu oyunun dosyaları çıkıştan sonra"
 }

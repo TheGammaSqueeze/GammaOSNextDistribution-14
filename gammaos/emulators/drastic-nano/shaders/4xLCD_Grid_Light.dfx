@@ -1,0 +1,32 @@
+// 4xLCD_Grid_Light: thin, gentle pixel grid (1 px gap at 78 percent)
+// RG DS Plus (1024x768 per panel = 4x the DS 256x192): one NEAREST fetch. The LCD
+// mask lives in DS pixel space (texture coordinate x 256x192) and the panel pixels
+// per DS pixel come from the screen-space derivative, so it is right for either
+// screen, rotated or not, under hi-res 3D textures and under Half Resolution.
+=============================================
+<options>
+name=4xLCD_Grid_Light
+textures=1
+</options>
+
+<fheader>
+#extension GL_OES_standard_derivatives : enable
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_NEAREST
+mag_filter=GL_NEAREST
+</texture>
+
+<pass>
+shader=4xlcd_grid_light.dsd
+sampler:u_texture=0
+</pass>

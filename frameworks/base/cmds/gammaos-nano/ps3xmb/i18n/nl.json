@@ -1813,5 +1813,17 @@
  "Side by Side": "Naast elkaar",
  "Single Screen": "Eén scherm",
  "RetroAchievements username": "RetroAchievements-gebruikersnaam",
- "RetroAchievements password": "RetroAchievements-wachtwoord"
+ "RetroAchievements password": "RetroAchievements-wachtwoord",
+ "Move DraStic saves to the SD card?": "DraStic-saves naar de SD-kaart verplaatsen?",
+ "Move the DraStic app's saves and save states to /sdcard/drastic-nano?": "Saves en savestates van de DraStic-app naar /sdcard/drastic-nano verplaatsen?",
+ "Import DraStic saves": "DraStic-saves importeren",
+ "Moved": "Verplaatst",
+ "Not now": "Niet nu",
+ "save": "save",
+ "saves": "saves",
+ "save state": "savestate",
+ "save states": "savestates",
+ "file": "bestand",
+ "files": "bestanden",
+ "this game's files after exit": "bestanden van dit spel na afsluiten"
 }

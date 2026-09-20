@@ -51,7 +51,7 @@ struct Prefs {
     // Video filter: basename of the .dfx file (no path, no extension).
     // Default "Linear". When empty or unrecognized we treat it as
     // "Linear".
-    std::string currentFx = "Linear";
+    std::string currentFx = "2xPrescaleFast_LCD";   // shipped seed _CurrentFx
 
     // applyConfig-latched bits. Changing any of these requires
     // drastic to be relaunched.
@@ -62,8 +62,8 @@ struct Prefs {
 
     // Runtime-adjustable knobs.
     int  volume        = 10;         // _Volume 0..10, pinned at max (system volume is the control)
-    int  audioLatency  = 2;          // _AudioLatency 0..4
-    bool micEnabled    = false;      // _MicEnabled
+    int  audioLatency  = 1;          // _AudioLatency 0..4 (shipped seed)
+    bool micEnabled    = true;       // _MicEnabled (shipped seed)
     int  micLevel      = 1;          // _MicLevel 0..2
 
     // Frameskip: type 0 = fixed value, 1 = auto. Value is used when
@@ -75,8 +75,8 @@ struct Prefs {
     // Analog stick behavior.
     bool  analogTouch    = false;    // LS drives DS stylus
     bool  analogTriggers = false;    // Analog trigger mapping
-    int   analogStickMode = 0;
-    float analogDeadzone = 0.15f;
+    int   analogStickMode = 2;       // shipped seed
+    float analogDeadzone = 0.50f;    // drastic-nano default (the app shipped 0.15)
 
     // Delay the secondary (top) display's page flip by one refresh
     // so its logical content matches what the primary (bottom)
@@ -106,7 +106,7 @@ struct Prefs {
     // drastic's own f0/h defaults (lang English, colour 1, birthday
     // June 6, nick "Dr Drastic").
     int firmwareLanguage  = 1;   // _FirmwareLanguage (0..7)
-    int firmwareColor     = 1;   // _FirmwareColor
+    int firmwareColor     = 0;   // _FirmwareColor (shipped seed)
     int firmwareBdayMonth = 6;   // _FirmwareBdayMonth (1..12)
     int firmwareBdayDay   = 6;   // _FirmwareBdayDay (1..31)
     std::string firmwareNick = "Dr Drastic";  // _FirmwareNick
@@ -122,8 +122,38 @@ struct Prefs {
                 keymap[p][a] = -1;
             }
         }
+        // Player 0 defaults: the binding set the shipped DraStic seed config
+        // carried (_KeyMapConfigs_0_*), so a fresh device plays out of the box.
+        static const int kSeedKeymap0[kNumActions] = {
+            99, 100, 97, 96, 103, 102, 108, 109,      // X Y B A R L Start Select
+            -1, -1, -1, -1,
+            19, 22, 20, 21,                           // D-Pad Up Right Down Left
+            104, 105,                                 // Screen Swap (L2), Fast Forward (R2)
+            -1, -1,
+            4,                                        // Menu (Back)
+            -1, -1, -1, -1, -1, -1, -1,
+            107,                                      // Touch Cursor (R3)
+            -1, -1                                    // Save State, Load State
+        };
+        for (int a = 0; a < kNumActions; a++) keymap[0][a] = kSeedKeymap0[a];
     }
 };
+
+// ---- Property-backed configuration -------------------------------------
+//
+// drastic-nano's configuration lives entirely in persist.gammaos.drastic_nano.*
+// properties. The compiled-in Prefs defaults are the values the shipped
+// DraStic seed config carried, so an unset property means "the default".
+//   applyProps   : overlay every SET property onto *p (unset keys untouched,
+//                  so a caller may pre-fill device-specific defaults first).
+//   writeProps   : persist every field of p that differs from prev (each
+//                  persist write is a synchronous store, so only the delta is
+//                  written); prev == nullptr writes everything.
+//   propsSeeded  : the one-time import marker from the legacy DraStic XML.
+void applyProps(Prefs* p);
+int  writeProps(const Prefs& p, const Prefs* prev);
+bool propsSeeded();
+void markPropsSeeded();
 
 // Read the XML at xmlPath into out. Returns true if the file was
 // parsed (at least opened and read); unknown or missing keys keep

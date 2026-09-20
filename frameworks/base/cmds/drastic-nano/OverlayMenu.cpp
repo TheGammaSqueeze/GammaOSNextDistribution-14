@@ -8,6 +8,7 @@
 #include "DsScreenLayout.h"   // presetCount()/presetName() for the Layout Preset row
 #include "NanoI18n.h"   // trDyn() shared nano UI translations
 #include "NanoRetroAchievements.h"   // RaUiEvent
+#include "DrasticAssets.h"   // legacy DraStic saves import
 
 #include <dirent.h>
 #include <errno.h>
@@ -113,6 +114,7 @@ void OverlayMenu::init(DrasticRunner* runner,
     mRunner = runner;
     mPrefs = prefs;
     mSavedPrefs = prefs;
+    mWrittenPrefs = prefs;
     mAppUid = appUid;
     mAppGid = appGid;
     mXmlPath = std::move(xmlPath);
@@ -676,10 +678,11 @@ void OverlayMenu::drawTimeIndicator(drastic_gfx::OverlayGfx& gfx,
 }
 
 void OverlayMenu::writePrefsSafe() {
-    if (!drastic_prefs::writePrefs(mXmlPath, mPrefs, mAppUid, mAppGid)) {
-        toast("Save failed");
-        return;
-    }
+    // Configuration lives in persist.gammaos.drastic_nano.* properties; only the
+    // fields that changed since the last write are stored (each persist write
+    // is a synchronous store).
+    drastic_prefs::writeProps(mPrefs, &mWrittenPrefs);
+    mWrittenPrefs = mPrefs;
     mDirty = false;
     toast("Saved");
 }
@@ -1318,6 +1321,28 @@ void OverlayMenu::rebuildGeneral() {
     // during a DRM session so its overlay Quick Menu is unreachable; these give
     // the same graceful save + power action from inside the game. main.cpp saves
     // slot 9 (and arms Quick Resume when enabled) before the power action.
+    // Saves / save states still in the DraStic app's folder: offer the move here
+    // too (the launch prompt stops asking once the user declined it).
+    {
+        const drastic_assets::LegacyCount lc = drastic_assets::scanLegacy();
+        if (lc.saves + lc.states > 0) {
+            RowAction r;
+            r.label = "Import DraStic saves";
+            const int n = lc.saves + lc.states;
+            r.value = std::to_string(n) + " " + trDyn(n == 1 ? "file" : "files");
+            r.onAccept = [this]() {
+                openConfirm("Move the DraStic app's saves and save states to /sdcard/drastic-nano?", [this]() {
+                    drastic_assets::ImportResult res = drastic_assets::importLegacy(nullptr, mRomBase);
+                    char msg[128];
+                    snprintf(msg, sizeof(msg), "%s: %d %s (%s)", trDyn("Moved"), res.moved, trDyn(res.moved == 1 ? "file" : "files"),
+                             trDyn("this game's files after exit"));
+                    toast(msg);
+                    rebuildRows();
+                });
+            };
+            mRows.push_back(std::move(r));
+        }
+    }
     {
         RowAction d;   // divider above the power controls (not selectable)
         d.tag = kRowDivider;
@@ -2198,8 +2223,6 @@ void OverlayMenu::rebuildVideo() {
             idx = (idx + dir + (int)mShaders.size())
                    % (int)mShaders.size();
             mPrefs.currentFx = mShaders[idx];
-            property_set("persist.gammaos.drastic_nano.shader",
-                         mPrefs.currentFx.c_str());
             mDirty = true;
             if (mRunner) {
                 std::string path = mShadersDir + "/" +
@@ -2584,8 +2607,6 @@ void OverlayMenu::rebuildVideo() {
         auto toggle = [this]() {
             mPrefs.frameSync = !mPrefs.frameSync;
             android::sDrmFrameSync = mPrefs.frameSync;
-            property_set("persist.gammaos.drastic_nano.frame_sync",
-                         mPrefs.frameSync ? "1" : "0");
             mDirty = true;
         };
         r.onAccept = toggle;
@@ -2605,15 +2626,12 @@ void OverlayMenu::rebuildVideo() {
         auto toggle = [this]() {
             mPrefs.lowLatency = !mPrefs.lowLatency;
             android::sDrmLowLatency = mPrefs.lowLatency;
-            property_set("persist.gammaos.drastic_nano.low_latency",
-                         mPrefs.lowLatency ? "1" : "0");
             // Low Latency and Frame Sync are mutually exclusive (one removes a
             // frame of lag, the other adds one). Turning Low Latency on forces
             // Frame Sync off.
             if (mPrefs.lowLatency && mPrefs.frameSync) {
                 mPrefs.frameSync = false;
                 android::sDrmFrameSync = false;
-                property_set("persist.gammaos.drastic_nano.frame_sync", "0");
             }
             mDirty = true;
         };

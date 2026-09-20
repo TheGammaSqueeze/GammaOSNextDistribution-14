@@ -21,6 +21,7 @@
 #include <vector>
 
 #include <utils/Log.h>
+#include <cutils/properties.h>
 
 namespace android {
 namespace drastic_prefs {
@@ -440,6 +441,131 @@ bool writePrefs(const std::string& xmlPath, const Prefs& p,
           xmlPath.c_str(), out.size());
     return true;
 }
+
+
+// ---- Property-backed configuration -------------------------------------
+
+namespace {
+
+constexpr const char* kP = "persist.gammaos.drastic_nano.";
+
+std::string propName(const char* key) { return std::string(kP) + key; }
+
+bool propIsSet(const char* key, char* out) {
+    out[0] = 0;
+    property_get(propName(key).c_str(), out, "");
+    return out[0] != 0;
+}
+
+void applyBool(const char* key, bool& f) {
+    char v[PROPERTY_VALUE_MAX];
+    if (!propIsSet(key, v)) return;
+    if (!strcmp(v, "1") || !strcmp(v, "true"))  f = true;
+    else if (!strcmp(v, "0") || !strcmp(v, "false")) f = false;
+}
+void applyInt(const char* key, int& f) {
+    char v[PROPERTY_VALUE_MAX];
+    if (!propIsSet(key, v)) return;
+    char* end = nullptr;
+    long n = strtol(v, &end, 10);
+    if (end && end != v) f = (int)n;
+}
+void applyFloat(const char* key, float& f) {
+    char v[PROPERTY_VALUE_MAX];
+    if (!propIsSet(key, v)) return;
+    char* end = nullptr;
+    float n = strtof(v, &end);
+    if (end && end != v && n == n) f = n;
+}
+void applyStr(const char* key, std::string& f) {
+    char v[PROPERTY_VALUE_MAX];
+    if (!propIsSet(key, v)) return;
+    f = v;
+}
+
+int setIfChanged(const char* key, const std::string& val, const std::string* prevVal) {
+    if (prevVal && *prevVal == val) return 0;
+    // PROPERTY_VALUE_MAX includes the terminator.
+    std::string v = val.size() >= PROPERTY_VALUE_MAX ? val.substr(0, PROPERTY_VALUE_MAX - 1) : val;
+    property_set(propName(key).c_str(), v.c_str());
+    return 1;
+}
+std::string b2s(bool b) { return b ? "1" : "0"; }
+std::string i2s(int i)  { return std::to_string(i); }
+std::string f2s(float f) { char b[32]; snprintf(b, sizeof(b), "%.3f", f); return b; }
+std::string keyName(int a) { return "key." + std::to_string(a); }
+
+} // namespace
+
+void applyProps(Prefs* p) {
+    if (!p) return;
+    applyStr  ("shader",            p->currentFx);
+    applyBool ("hires3d",           p->hires3d);
+    applyBool ("threaded3d",        p->threaded3d);
+    applyBool ("disable_edge",      p->disableEdge);
+    applyBool ("sound",             p->soundEnabled);
+    applyInt  ("volume",            p->volume);
+    applyInt  ("audio_latency",     p->audioLatency);
+    applyBool ("mic",               p->micEnabled);
+    applyInt  ("mic_level",         p->micLevel);
+    applyInt  ("frameskip_type",    p->frameskipType);
+    applyInt  ("frameskip_value",   p->frameskipValue);
+    applyBool ("frameskip_safe",    p->frameskipSafe);
+    applyBool ("analog_touch",      p->analogTouch);
+    applyBool ("analog_triggers",   p->analogTriggers);
+    applyInt  ("analog_stick_mode", p->analogStickMode);
+    applyFloat("analog_deadzone",   p->analogDeadzone);
+    applyBool ("frame_sync",        p->frameSync);
+    applyBool ("low_latency",       p->lowLatency);
+    applyInt  ("fw_language",       p->firmwareLanguage);
+    applyInt  ("fw_color",          p->firmwareColor);
+    applyInt  ("fw_bday_month",     p->firmwareBdayMonth);
+    applyInt  ("fw_bday_day",       p->firmwareBdayDay);
+    applyStr  ("fw_nick",           p->firmwareNick);
+    for (int a = 0; a < kNumActions; a++) applyInt(keyName(a).c_str(), p->keymap[0][a]);
+    if (p->currentFx.empty()) p->currentFx = "Linear";
+}
+
+int writeProps(const Prefs& p, const Prefs* prev) {
+    int n = 0;
+    auto S = [&](const char* key, const std::string& cur, const std::string& old) {
+        n += setIfChanged(key, cur, prev ? &old : nullptr);
+    };
+#define W(key, field, conv) S(key, conv(p.field), prev ? conv(prev->field) : std::string())
+    W("shader",            currentFx,        std::string);
+    W("hires3d",           hires3d,          b2s);
+    W("threaded3d",        threaded3d,       b2s);
+    W("disable_edge",      disableEdge,      b2s);
+    W("sound",             soundEnabled,     b2s);
+    W("volume",            volume,           i2s);
+    W("audio_latency",     audioLatency,     i2s);
+    W("mic",               micEnabled,       b2s);
+    W("mic_level",         micLevel,         i2s);
+    W("frameskip_type",    frameskipType,    i2s);
+    W("frameskip_value",   frameskipValue,   i2s);
+    W("frameskip_safe",    frameskipSafe,    b2s);
+    W("analog_touch",      analogTouch,      b2s);
+    W("analog_triggers",   analogTriggers,   b2s);
+    W("analog_stick_mode", analogStickMode,  i2s);
+    W("analog_deadzone",   analogDeadzone,   f2s);
+    W("frame_sync",        frameSync,        b2s);
+    W("low_latency",       lowLatency,       b2s);
+    W("fw_language",       firmwareLanguage, i2s);
+    W("fw_color",          firmwareColor,    i2s);
+    W("fw_bday_month",     firmwareBdayMonth, i2s);
+    W("fw_bday_day",       firmwareBdayDay,  i2s);
+    W("fw_nick",           firmwareNick,     std::string);
+#undef W
+    for (int a = 0; a < kNumActions; a++) {
+        if (prev && prev->keymap[0][a] == p.keymap[0][a]) continue;
+        property_set(propName(keyName(a).c_str()).c_str(), i2s(p.keymap[0][a]).c_str());
+        n++;
+    }
+    return n;
+}
+
+bool propsSeeded() { return property_get_bool("persist.gammaos.drastic_nano.cfg_seeded", false); }
+void markPropsSeeded() { property_set("persist.gammaos.drastic_nano.cfg_seeded", "1"); }
 
 long applyConfigBitsFrom(const Prefs& p) {
     // Packed applyConfig config word. Bit positions verified against the

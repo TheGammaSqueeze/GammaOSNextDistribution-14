@@ -2047,6 +2047,12 @@ bool NanoMenu::coreSoExists(const std::string& coreSo) {
 // Fails OPEN (returns true) if the list is unreadable, so a transient state never blocks a launch.
 bool NanoMenu::packageInstalled(const std::string& pkg) {
     if (pkg.empty()) return true;
+    // DS games route to drastic-nano, which runs libdrastic from /system and no
+    // longer needs the DraStic APK: the system copy counts as "installed".
+    if (pkg == "com.dsemu.drastic" &&
+        property_get_bool("persist.gammaos.nano.drastic_nano", false) &&
+        access("/system/lib64/libdrastic_arm64.so", R_OK) == 0)
+        return true;
     int fd = open("/data/system/packages.list", O_RDONLY);
     if (fd < 0) return true;   // fail-open: never block a launch if the DB cannot be read
     std::string content;

@@ -595,31 +595,35 @@ do_populate_drastic() {
 
     local dcache="$CACHE/drastic"
 
-    # ---- Locate the installed drastic APK ----
+    # ---- Locate libdrastic ----
+    # Preferred: the copy shipped in /system (drastic-nano runs from it, so the
+    # DraStic APK may be absent). Fallback for older images: the installed APK.
+    local sys_dir="/system/etc/drastic-nano"
     local apk_dir=""
     local apk_path=""
-    for d in /data/app/~~*/com.dsemu.drastic-*; do
-        [ -d "$d" ] || continue
-        apk_dir="$d"
-        apk_path="$d/base.apk"
-        break
-    done
-    if [ -z "$apk_dir" ] || [ ! -f "$apk_path" ]; then
-        log_w "populate_drastic: com.dsemu.drastic not installed"
-        setprop sys.gammaos.nano.cache_ready 1
-        return 1
-    fi
-    log_i "populate_drastic: drastic APK at $apk_path"
-
-    # ---- Locate the source native lib dir ----
-    # Android normally extracts native libs to <apk_dir>/lib/arm64/ when
-    # extractNativeLibs=true, or leaves them inside the APK when false.
-    # We handle both.
-    local src_lib_dir="$apk_dir/lib/arm64"
+    local src_lib_dir=""
     local use_unzip=0
-    if [ ! -f "$src_lib_dir/libdrastic_arm64.so" ]; then
-        log_i "populate_drastic: native libs not extracted, will unzip from APK"
-        use_unzip=1
+    if [ -f "/system/lib64/libdrastic_arm64.so" ]; then
+        src_lib_dir="/system/lib64"
+        log_i "populate_drastic: libdrastic from $src_lib_dir (system)"
+    else
+        for d in /data/app/~~*/com.dsemu.drastic-*; do
+            [ -d "$d" ] || continue
+            apk_dir="$d"
+            apk_path="$d/base.apk"
+            break
+        done
+        if [ -z "$apk_dir" ] || [ ! -f "$apk_path" ]; then
+            log_w "populate_drastic: no system libdrastic and com.dsemu.drastic not installed"
+            setprop sys.gammaos.nano.cache_ready 1
+            return 1
+        fi
+        log_i "populate_drastic: drastic APK at $apk_path"
+        src_lib_dir="$apk_dir/lib/arm64"
+        if [ ! -f "$src_lib_dir/libdrastic_arm64.so" ]; then
+            log_i "populate_drastic: native libs not extracted, will unzip from APK"
+            use_unzip=1
+        fi
     fi
 
     # ---- Build cache directory structure ----
@@ -709,6 +713,9 @@ do_populate_drastic() {
     # drastic install that has been launched at least once. On a fresh
     # install the BIOS bins may only exist inside drastic_bios.zip.
     local drastic_root="/data/user/0/com.dsemu.drastic/files/DraStic"
+    if [ -d "$sys_dir/system" ]; then
+        drastic_root="$sys_dir"
+    fi
     if [ -d "$drastic_root/system" ]; then
         delta_sync_file "$drastic_root/system/drastic_bios_arm7.bin" "$dcache/system/drastic_bios_arm7.bin"
         delta_sync_file "$drastic_root/system/drastic_bios_arm9.bin" "$dcache/system/drastic_bios_arm9.bin"
@@ -730,7 +737,7 @@ do_populate_drastic() {
             unzip -o -j -q "$drastic_root/drastic_bios.zip" \
                 "drastic_bios_arm7.bin" "drastic_bios_arm9.bin" \
                 -d "$dcache/system" 2>/dev/null
-        else
+        elif [ -n "$apk_path" ]; then
             # Last-resort: pull from APK assets
             unzip -o -j -q "$apk_path" "assets/drastic_bios.zip" -d "$dcache" 2>/dev/null
             if [ -f "$dcache/drastic_bios.zip" ]; then

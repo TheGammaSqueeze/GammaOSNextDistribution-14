@@ -219,6 +219,7 @@ private:
     DrasticRunner* mRunner = nullptr;
     drastic_prefs::Prefs mPrefs;      // staged / live prefs
     drastic_prefs::Prefs mSavedPrefs; // snapshot at open, for restart check
+    drastic_prefs::Prefs mWrittenPrefs; // what the properties currently hold (delta writes)
     uid_t mAppUid = 0;
     gid_t mAppGid = 0;
     std::string mXmlPath;

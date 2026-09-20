@@ -1813,5 +1813,17 @@
  "Side by Side": "左右",
  "Single Screen": "単一画面",
  "RetroAchievements username": "RetroAchievements ユーザー名",
- "RetroAchievements password": "RetroAchievements パスワード"
+ "RetroAchievements password": "RetroAchievements パスワード",
+ "Move DraStic saves to the SD card?": "DraStic のセーブを SD カードへ移動しますか？",
+ "Move the DraStic app's saves and save states to /sdcard/drastic-nano?": "DraStic アプリのセーブとステートを /sdcard/drastic-nano へ移動しますか？",
+ "Import DraStic saves": "DraStic のセーブを取り込む",
+ "Moved": "移動しました",
+ "Not now": "今はしない",
+ "save": "セーブ",
+ "saves": "セーブ",
+ "save state": "ステート",
+ "save states": "ステート",
+ "file": "ファイル",
+ "files": "ファイル",
+ "this game's files after exit": "このゲームのファイルは終了後"
 }

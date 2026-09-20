@@ -1813,5 +1813,17 @@
  "Side by Side": "Lado a lado",
  "Single Screen": "Tela única",
  "RetroAchievements username": "Usuário do RetroAchievements",
- "RetroAchievements password": "Senha do RetroAchievements"
+ "RetroAchievements password": "Senha do RetroAchievements",
+ "Move DraStic saves to the SD card?": "Mover os saves do DraStic para o cartão SD?",
+ "Move the DraStic app's saves and save states to /sdcard/drastic-nano?": "Mover os saves e estados do app DraStic para /sdcard/drastic-nano?",
+ "Import DraStic saves": "Importar saves do DraStic",
+ "Moved": "Movidos",
+ "Not now": "Agora não",
+ "save": "save",
+ "saves": "saves",
+ "save state": "estado",
+ "save states": "estados",
+ "file": "arquivo",
+ "files": "arquivos",
+ "this game's files after exit": "os arquivos deste jogo após sair"
 }

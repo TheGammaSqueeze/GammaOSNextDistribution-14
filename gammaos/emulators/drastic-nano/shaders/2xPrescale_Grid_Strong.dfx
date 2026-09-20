@@ -1,0 +1,30 @@
+// 2xPrescale_Grid_Strong: DS-pixel-locked soft grid, strong
+// RG DS (640x480 per panel = 2.5x the DS 256x192): the stock single-pass integer
+// 2x prescale + linear mapping (crisp at a non-integer scale) with a different
+// LCD mask. See the mask comment in 2xprescale_grid_strong.dsd.
+=============================================
+<options>
+name=2xPrescale_Grid_Strong
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_NEAREST
+mag_filter=GL_NEAREST
+</texture>
+
+<pass>
+shader=2xprescale_grid_strong.dsd
+sampler:u_texture=0
+</pass>

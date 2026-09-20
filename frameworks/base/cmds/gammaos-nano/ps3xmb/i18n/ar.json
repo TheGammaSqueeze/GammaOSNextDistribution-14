@@ -1815,5 +1815,17 @@
  "Side by Side": "جنبًا إلى جنب",
  "Single Screen": "شاشة واحدة",
  "RetroAchievements username": "اسم مستخدم RetroAchievements",
- "RetroAchievements password": "كلمة مرور RetroAchievements"
+ "RetroAchievements password": "كلمة مرور RetroAchievements",
+ "Move DraStic saves to the SD card?": "نقل حفظات DraStic إلى بطاقة SD؟",
+ "Move the DraStic app's saves and save states to /sdcard/drastic-nano?": "نقل حفظات وحالات حفظ تطبيق DraStic إلى /sdcard/drastic-nano؟",
+ "Import DraStic saves": "استيراد حفظات DraStic",
+ "Moved": "تم النقل",
+ "Not now": "ليس الآن",
+ "save": "حفظ",
+ "saves": "حفظات",
+ "save state": "حالة حفظ",
+ "save states": "حالات حفظ",
+ "file": "ملف",
+ "files": "ملفات",
+ "this game's files after exit": "ملفات هذه اللعبة بعد الخروج"
 }

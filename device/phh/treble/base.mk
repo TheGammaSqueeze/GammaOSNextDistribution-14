@@ -166,6 +166,17 @@ PRODUCT_COPY_FILES += \
     gammaos/emulators/flycast.tar.zst:system/etc/flycast.tar.zst \
     gammaos/emulators/flycast-release.apk:system/etc/flycast-release.apk
 
+# drastic-nano runs libdrastic and its data from /system so the DS emulator keeps
+# working even when the DraStic APK is uninstalled: libdrastic_arm64.so + libdrastic_cpu.so
+# (in /system/lib64, the linker namespace of a system binary cannot dlopen from /system/etc),
+# the BIOS/firmware, the game database, the cheat database, the default touch layout and the
+# default shaders. drastic-nano seeds its private data root from here at launch; saves,
+# save states and user shaders live on /sdcard/drastic-nano.
+PRODUCT_COPY_FILES += \
+    $(call find-copy-subdir-files,*,gammaos/emulators/drastic-nano,system/etc/drastic-nano) \
+    gammaos/emulators/drastic-nano-lib/libdrastic_arm64.so:system/lib64/libdrastic_arm64.so \
+    gammaos/emulators/drastic-nano-lib/libdrastic_cpu.so:system/lib64/libdrastic_cpu.so
+
 # GammaOS first-boot setup: data-driven app list for setup.sh, pre-installed helper apps
 # (dex-preopted at build time), the zstd decompressor for the setup payloads, and the
 # build-time replacements for setup.sh's per-app grant/allowlist commands.

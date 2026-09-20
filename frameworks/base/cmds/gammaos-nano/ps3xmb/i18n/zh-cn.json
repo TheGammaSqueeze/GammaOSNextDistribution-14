@@ -1813,5 +1813,17 @@
  "Side by Side": "左右排列",
  "Single Screen": "单屏",
  "RetroAchievements username": "RetroAchievements 用户名",
- "RetroAchievements password": "RetroAchievements 密码"
+ "RetroAchievements password": "RetroAchievements 密码",
+ "Move DraStic saves to the SD card?": "将 DraStic 存档移动到 SD 卡？",
+ "Move the DraStic app's saves and save states to /sdcard/drastic-nano?": "将 DraStic 应用的存档和即时存档移动到 /sdcard/drastic-nano？",
+ "Import DraStic saves": "导入 DraStic 存档",
+ "Moved": "已移动",
+ "Not now": "暂不",
+ "save": "个存档",
+ "saves": "个存档",
+ "save state": "个即时存档",
+ "save states": "个即时存档",
+ "file": "个文件",
+ "files": "个文件",
+ "this game's files after exit": "本游戏的文件需退出后处理"
 }

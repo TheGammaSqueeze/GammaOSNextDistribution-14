@@ -1,0 +1,35 @@
+// 2xPrescaleFast_LCD shader
+// Integer 2x prescale emulation in a single pass (nearest up-scale -> linear mapping)
+//
+// Files:
+//   - prescale2x_fast_lcd.dsd
+//
+// Notes:
+//   - Texture filter for the input is set to NEAREST; filtering is implemented in the shader.
+//   - This avoids rendering an intermediate 2x framebuffer (significant fill-rate reduction).
+
+<options>
+name=2xPrescaleFast_LCD
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_NEAREST
+mag_filter=GL_NEAREST
+</texture>
+
+<pass>
+shader=prescale2x_fast_lcd.dsd
+sampler:u_texture=0
+</pass>

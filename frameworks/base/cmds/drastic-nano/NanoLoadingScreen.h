@@ -52,9 +52,20 @@ public:
     // high-frequency progress callback does not flood the panel with flips.
     void frameThrottled(const char* label, float progress);
 
+    // A two-choice question on the loading backdrop (no bar): title line,
+    // detail line, and two options with `choice` (0/1) highlighted.
+    void promptFrame(const char* title, const char* detail,
+                     const char* opt0, const char* opt1, int choice);
+
 private:
     void drawInto(int fbW, int fbH, int logicalW, int logicalH,
                   const float* rot, const char* label, float progress);
+
+    // Prompt state consumed by drawInto (cleared after each promptFrame).
+    const char* mPromptDetail = nullptr;
+    const char* mPromptOpt0 = nullptr;
+    const char* mPromptOpt1 = nullptr;
+    int         mPromptChoice = 0;
 
     drastic_nano::IDisplayBackend* mSf = nullptr;
     android::drastic_gfx::OverlayGfx* mGfx = nullptr;

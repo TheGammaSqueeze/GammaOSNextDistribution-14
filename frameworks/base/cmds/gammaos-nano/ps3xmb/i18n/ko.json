@@ -1813,5 +1813,17 @@
  "Side by Side": "좌우 배치",
  "Single Screen": "단일 화면",
  "RetroAchievements username": "RetroAchievements 사용자 이름",
- "RetroAchievements password": "RetroAchievements 비밀번호"
+ "RetroAchievements password": "RetroAchievements 비밀번호",
+ "Move DraStic saves to the SD card?": "DraStic 저장 데이터를 SD 카드로 이동할까요?",
+ "Move the DraStic app's saves and save states to /sdcard/drastic-nano?": "DraStic 앱의 저장 데이터와 상태 저장을 /sdcard/drastic-nano로 이동할까요?",
+ "Import DraStic saves": "DraStic 저장 데이터 가져오기",
+ "Moved": "이동함",
+ "Not now": "나중에",
+ "save": "저장",
+ "saves": "저장",
+ "save state": "상태 저장",
+ "save states": "상태 저장",
+ "file": "파일",
+ "files": "파일",
+ "this game's files after exit": "이 게임의 파일은 종료 후"
 }

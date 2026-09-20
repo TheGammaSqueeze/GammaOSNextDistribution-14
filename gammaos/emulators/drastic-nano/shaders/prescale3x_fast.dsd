@@ -1,0 +1,111 @@
+<options>
+filter=nearest
+</options>
+
+<vertex>
+attribute vec2 a_vertex_coordinate;
+attribute vec2 a_texture_coordinate;
+
+varying vec2 v_texture_coordinate;
+
+void main() {
+  gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+  v_texture_coordinate = a_texture_coordinate;
+}
+</vertex>
+
+<fragment>
+/*
+  Efficient integer prescale (x3) that emulates:
+    1) nearest-neighbour upscale to 3x in an intermediate buffer
+    2) linear filtering when mapping that buffer to the final target
+
+  This version does it in a single pass to avoid the 3x render-target fill-rate cost.
+  It performs at most 4 texture fetches, and typically fewer via branch-based fast paths.
+*/
+
+uniform vec4 u_texture_size;   // (1/w, 1/h, w, h)
+uniform sampler2D u_texture;
+
+varying vec2 v_texture_coordinate;
+
+void main() {
+  const float N = 3.0;
+
+  vec2 srcSize    = u_texture_size.zw;
+  vec2 invSrcSize = u_texture_size.xy;
+
+  // "Intermediate" (prescaled) size in texels.
+  vec2 preSize = srcSize * N;
+
+  // Map the current fragment to intermediate texel space.
+  // The -0.5 aligns normalized UVs with the same bilinear footprint used by texture2D() on GL_LINEAR.
+  vec2 p = v_texture_coordinate * preSize - vec2(0.5);
+
+  // Clamp to emulate GL_CLAMP_TO_EDGE behaviour.
+  vec2 pClamped = clamp(p, vec2(0.0), preSize - vec2(1.0));
+
+  vec2 j0 = floor(pClamped);      // base intermediate texel index
+  vec2 f  = pClamped - j0;        // fractional position within the intermediate texel
+
+  // Map intermediate texel indices back to source pixel indices.
+  vec2 i0 = floor(j0 / N);
+
+  // Detect whether the bilinear footprint crosses an integer-3 block boundary.
+  // Crossing only happens on the last texel of each 3-texel block.
+  vec2 rem = j0 - (i0 * N);
+  vec2 boundary = step(vec2(N - 1.5), rem);   // 1.0 only when rem == (N-1)
+
+  // Bilinear weights along axes, but only active near boundaries.
+  vec2 w = f * boundary;
+
+  vec2 i1 = min(i0 + boundary, srcSize - vec2(1.0));
+
+  // Precompute sample coordinates (texel centres) for the relevant source pixels.
+  vec2 uv00 = (i0 + vec2(0.5)) * invSrcSize;
+
+  vec4 c00 = texture2D(u_texture, uv00);
+
+  // Fast path: most pixels do not sit on a boundary in either axis, so 1 fetch is enough.
+  if ((boundary.x + boundary.y) < 0.5) {
+    gl_FragColor = vec4(c00.rgb, 1.0);
+    return;
+  }
+
+  float wx = w.x;
+  float wy = w.y;
+
+  // X-boundary only: 2 fetches.
+  if (boundary.x > 0.5 && boundary.y < 0.5) {
+    vec2 uv10 = (vec2(i1.x, i0.y) + vec2(0.5)) * invSrcSize;
+    vec4 c10 = texture2D(u_texture, uv10);
+    vec4 c0 = mix(c00, c10, wx);
+    gl_FragColor = vec4(c0.rgb, 1.0);
+    return;
+  }
+
+  // Y-boundary only: 2 fetches.
+  if (boundary.x < 0.5 && boundary.y > 0.5) {
+    vec2 uv01 = (vec2(i0.x, i1.y) + vec2(0.5)) * invSrcSize;
+    vec4 c01 = texture2D(u_texture, uv01);
+    vec4 c0 = mix(c00, c01, wy);
+    gl_FragColor = vec4(c0.rgb, 1.0);
+    return;
+  }
+
+  // Corner case: boundary in both axes (4 fetches).
+  vec2 uv10 = (vec2(i1.x, i0.y) + vec2(0.5)) * invSrcSize;
+  vec2 uv01 = (vec2(i0.x, i1.y) + vec2(0.5)) * invSrcSize;
+  vec2 uv11 = (i1 + vec2(0.5)) * invSrcSize;
+
+  vec4 c10 = texture2D(u_texture, uv10);
+  vec4 c01 = texture2D(u_texture, uv01);
+  vec4 c11 = texture2D(u_texture, uv11);
+
+  vec4 c0 = mix(c00, c10, wx);
+  vec4 c1 = mix(c01, c11, wx);
+
+  vec4 c = mix(c0, c1, wy);
+  gl_FragColor = vec4(c.rgb, 1.0);
+}
+</fragment>

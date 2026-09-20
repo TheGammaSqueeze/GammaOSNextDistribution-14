@@ -100,6 +100,7 @@
 #include "NanoRetroAchievements.h"
 #include "NanoZipExtract.h"
 #include "NanoLoadingScreen.h"
+#include "DrasticAssets.h"
 #include "DisplayBackend.h"
 #include "SfDisplayBackend.h"
 #include "DsScreenLayout.h"
@@ -168,9 +169,11 @@ static int64_t sStgPbMaxNs    = 0;   // max panel-blit span (half-res render to 
 // use that path instead, so backup/savestates/config all resolve to the SAME real folder the
 // standalone DraStic app uses and stay in sync. gDrasticDataDir is set once in main() from the
 // prop (default = this installed path, so an unset prop is byte-for-byte the old behaviour).
-static const char* kDrasticDataDirDefault =
-        "/data/user/0/com.dsemu.drastic/files/DraStic";
+// Default: drastic-nano's own root, seeded from /system/etc/drastic-nano (see
+// DrasticAssets). The DraStic APK and its /data tree are no longer required.
+static const char* kDrasticDataDirDefault = android::drastic_assets::kRootDefault;
 static std::string gDrasticDataDir = kDrasticDataDirDefault;
+static bool gOwnDataRoot = true;   // false when persist.gammaos.drastic.data_dir points elsewhere
 
 // Back hold to exit: the same long-press timeout the framework uses for its
 // own hold-BACK-to-exit (ViewConfiguration / Settings.Secure long_press_timeout,
@@ -3820,6 +3823,7 @@ int main(int argc, char** argv) {
         property_get("persist.gammaos.drastic.data_dir", dd, "");
         if (dd[0] == '/') {
             gDrasticDataDir = dd;
+            gOwnDataRoot = false;
             while (gDrasticDataDir.size() > 1 && gDrasticDataDir.back() == '/')
                 gDrasticDataDir.pop_back();   // trim trailing slash so "<dir>/savestates" joins clean
             ALOGI("drastic-nano: data-dir override -> %s", gDrasticDataDir.c_str());
@@ -3946,25 +3950,37 @@ int main(int argc, char** argv) {
     // never been launched by the user, the dir is missing and we
     // refuse to start -- without the BIOS + firmware files stored
     // there drastic cannot boot a ROM.
-    if (!exists(gDrasticDataDir)) {
-        ALOGE("drastic-nano: %s missing -- launch the real drastic "
-              "app at least once to seed BIOS / firmware (or point "
-              "persist.gammaos.drastic.data_dir at a complete DraStic folder)",
-              gDrasticDataDir.c_str());
+    // Our own root is built from the system assets on every launch (cheap when
+    // warm). A user-relocated DraStic folder must already be complete.
+    if (gOwnDataRoot) {
+        if (!android::drastic_assets::seedRoot(gDrasticDataDir)) {
+            ALOGE("drastic-nano: could not seed %s from %s", gDrasticDataDir.c_str(),
+                  android::drastic_assets::systemDir().c_str());
+            return 3;
+        }
+    } else if (!exists(gDrasticDataDir)) {
+        ALOGE("drastic-nano: %s missing (persist.gammaos.drastic.data_dir must point at a "
+              "complete DraStic folder)", gDrasticDataDir.c_str());
         return 3;
     }
 
-    std::string apkDir = findDrasticApkDir();
-    if (apkDir.empty()) {
-        ALOGE("drastic-nano: com.dsemu.drastic not installed");
-        return 4;
-    }
-    ALOGI("drastic-nano: apk dir=%s", apkDir.c_str());
-
-    std::string libsDir = resolveDrasticLibsDir(apkDir);
-    if (libsDir.empty()) {
-        ALOGE("drastic-nano: could not resolve libdrastic_arm64.so");
-        return 5;
+    // libdrastic: the copy shipped in /system. The installed APK is only a
+    // fallback for an image that predates the system copy.
+    std::string libsDir = android::drastic_assets::systemLibDir();
+    if (!libsDir.empty()) {
+        ALOGI("drastic-nano: libs at %s (system)", libsDir.c_str());
+    } else {
+        std::string apkDir = findDrasticApkDir();
+        if (apkDir.empty()) {
+            ALOGE("drastic-nano: no system libdrastic and com.dsemu.drastic not installed");
+            return 4;
+        }
+        ALOGI("drastic-nano: apk dir=%s", apkDir.c_str());
+        libsDir = resolveDrasticLibsDir(apkDir);
+        if (libsDir.empty()) {
+            ALOGE("drastic-nano: could not resolve libdrastic_arm64.so");
+            return 5;
+        }
     }
 
     // Look up drastic's installed UID/GID from its data dir so any
@@ -4184,6 +4200,10 @@ int main(int argc, char** argv) {
     // starts with the right values and applyConfig uses the user's
     // real video settings (shader, hi-res, threaded 3d, edge marking,
     // etc.). Failure is non-fatal: we fall back to defaults.
+    // Configuration is property driven (persist.gammaos.drastic_nano.*, see
+    // DrasticPrefs::applyProps). The DraStic app's SharedPreferences XML is read
+    // exactly once, on the first launch after the switch, to carry the user's
+    // existing settings over into the properties.
     const std::string prefsPath = std::string(
             "/data/user/0/com.dsemu.drastic/shared_prefs/"
             "_Dra$t1c_Pref$_.xml");
@@ -4208,7 +4228,15 @@ int main(int argc, char** argv) {
             prefs.disableEdge = true;   // edge marking OFF
         }
     }
-    android::drastic_prefs::readPrefs(prefsPath, &prefs);
+    if (!android::drastic_prefs::propsSeeded()) {
+        android::drastic_prefs::Prefs legacy = prefs;
+        if (android::drastic_prefs::readPrefs(prefsPath, &legacy)) {
+            int n = android::drastic_prefs::writeProps(legacy, nullptr);
+            ALOGI("drastic-nano: imported %d settings from the DraStic app config into properties", n);
+        }
+        android::drastic_prefs::markPropsSeeded();
+    }
+    android::drastic_prefs::applyProps(&prefs);
     // Frameskip. We USED to hard-force it off here on the theory that nano's
     // RT-paced render loop never needs to skip. But on a weak GPU that cannot
     // render every frame at full panel resolution (e.g. a 512MB DSi ROM on the
@@ -4237,43 +4265,10 @@ int main(int argc, char** argv) {
         }
         // fsv < 0: leave prefs.frameskip* as loaded from the XML (honor user).
     }
-    // Analog Stick -> Stylus and Analog Deadzone: drastic-nano OVERRIDES the DraStic app's own
-    // config for these two (applied AFTER readPrefs so nano wins), because the app's defaults
-    // (stylus mapping on / deadzone 0.15) make the left stick drive the DS touch/stylus and cause
-    // the "analog-up stops d-pad-up" input trouble in NDS games. drastic-nano keeps its OWN choice
-    // in separate props so it is independent of standalone DraStic: default stylus OFF and deadzone
-    // 0.50, and the user can retune via the props without touching DraStic's XML.
-    prefs.analogTouch = property_get_bool("persist.gammaos.drastic_nano.analog_touch", false);
-    {
-        char dz[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic_nano.analog_deadzone", dz, "0.50");
-        float v = strtof(dz, nullptr);
-        if (!(v >= 0.0f)) v = 0.50f;        // NaN / bad value -> default
-        if (v > 1.0f) v = 1.0f;
-        prefs.analogDeadzone = v;
-    }
-    // drastic-nano video-setting prop overrides (applied AFTER readPrefs so a
-    // vendor build.prop / user prop wins over DraStic's SharedPreferences XML).
-    // Tri-state for the bools: unset or "-1" honors the XML (normal in-menu
-    // behaviour), "0"/"1" forces it. The Video-page menu rows write these same
-    // props on change, so an in-menu toggle persists over a build.prop default.
-    // This lets a vendor build.prop ship the Shader / Hi-res 3D / Threaded 3D /
-    // Edge Marking / Frame Sync defaults, which otherwise live only in the XML.
-    {
-        auto ovBool = [](const char* prop, bool& field) {
-            int v = property_get_int32(prop, -1);
-            if (v == 0) field = false;
-            else if (v == 1) field = true;   // -1 / unset: honor the XML value
-        };
-        ovBool("persist.gammaos.drastic_nano.hires3d",      prefs.hires3d);
-        ovBool("persist.gammaos.drastic_nano.threaded3d",   prefs.threaded3d);
-        ovBool("persist.gammaos.drastic_nano.disable_edge", prefs.disableEdge);
-        ovBool("persist.gammaos.drastic_nano.frame_sync",   prefs.frameSync);
-        ovBool("persist.gammaos.drastic_nano.low_latency",  prefs.lowLatency);
-        char sh[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic_nano.shader", sh, "");
-        if (sh[0]) prefs.currentFx = sh;     // empty / unset: honor the XML value
-    }
+    // The analog stylus / deadzone and the video settings are ordinary
+    // properties now (applyProps above), so a vendor build.prop default or an
+    // in-menu change is the same mechanism.
+    if (prefs.currentFx.empty()) prefs.currentFx = "Linear";
 
     // Carry the frame-sync flag into the DRM flip path. Read at session
     // start rather than per-iter so the ring-depth assumption (enabled
@@ -4397,6 +4392,62 @@ int main(int argc, char** argv) {
     // home's QR preview never sets this, so it stays on the renderFrame path.
     // drastic-nano.rc clears it on session_done (clean exit and crash).
     property_set("sys.gammaos.drastic_nano.session", "1");
+    // Saves and save states the DraStic app still holds in its own data dir:
+    // offer to move them to /sdcard/drastic-nano before the ROM boots, so an
+    // imported autosave is what this session resumes. Asked once: either answer
+    // sets persist.gammaos.drastic_nano.import_prompted, and the General page
+    // keeps an "Import DraStic saves" row for anything left behind (a skipped
+    // duplicate, or files the app writes later).
+    if (gOwnDataRoot &&
+        !property_get_bool("persist.gammaos.drastic_nano.import_prompted", false)) {
+        const android::drastic_assets::LegacyCount lc = android::drastic_assets::scanLegacy();
+        if (lc.saves + lc.states > 0) {
+            char detail[160];
+            snprintf(detail, sizeof(detail), "%d %s, %d %s  ->  /sdcard/drastic-nano",
+                     lc.saves, android::trDyn(lc.saves == 1 ? "save" : "saves"),
+                     lc.states, android::trDyn(lc.states == 1 ? "save state" : "save states"));
+            const char* title = android::trDyn("Move DraStic saves to the SD card?");
+            const char* optMove = android::trDyn("Move");
+            const char* optSkip = android::trDyn("Not now");
+            android::drastic_input::InputState pin{};
+            pin.admitPowerKey = false;
+            android::drastic_input::scanInputDevices(&pin);
+            int choice = 0;           // Move is the default
+            int decided = -1;
+            bool dirHeld = false;
+            const int64_t t0 = android::elapsedRealtime();
+            while (decided < 0) {
+                android::drastic_input::InputActions a{};
+                android::drastic_input::pollInputMap(&pin, true, false, kBackShortMs, kBackHoldMs,
+                                                     kPowerHoldMs, kPowerOffHoldMs, &a);
+                const bool dir = a.navLeftHeld || a.navRightHeld;
+                if (dir && !dirHeld) choice ^= 1;
+                dirHeld = dir;
+                if (a.navAccept) decided = choice;
+                if (a.navCancel || a.menuToggle) decided = 1;
+                if (android::elapsedRealtime() - t0 > 120000) decided = 1;   // walked away: skip
+                loadScr.promptFrame(title, detail, optMove, optSkip, choice);
+                // Debug screenshot hook, same property as the in-game one.
+                if (!sfMode && shotRequested() && android::sAhbRingPrimary[0].glFbo) {
+                    glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingPrimary[0].glFbo);
+                    captureFboToPpm((int)android::sAhbRingPrimary[0].w,
+                                    (int)android::sAhbRingPrimary[0].h, "/data/drastic_nano_shot.ppm");
+                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    property_set("sys.gammaos.drastic_nano.shot", "0");
+                }
+                usleep(16000);
+            }
+            android::drastic_input::closeInputDevices(&pin);
+            property_set("persist.gammaos.drastic_nano.import_prompted", "1");
+            if (decided == 0) {
+                android::drastic_assets::ImportResult r = android::drastic_assets::importLegacy(
+                        [&](const char* label, float p) { loadScr.frameThrottled(label, p); });
+                ALOGI("drastic-nano: DraStic import moved=%d skipped=%d failed=%d", r.moved, r.skipped, r.failed);
+            } else {
+                ALOGI("drastic-nano: DraStic import declined (General > Import DraStic saves re-offers it)");
+            }
+        }
+    }
     // Cold load (dlopen libdrastic + ROM/savestate load) is a few blocking
     // seconds; show a "Loading game..." frame so a raw large ROM never sits on
     // a blank panel either. It runs on the render thread (dr.init is blocking),

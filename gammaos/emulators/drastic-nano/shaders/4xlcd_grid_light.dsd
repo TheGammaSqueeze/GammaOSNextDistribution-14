@@ -1,0 +1,34 @@
+<options>
+filter=nearest
+</options>
+
+<vertex>
+attribute vec2 a_vertex_coordinate;
+attribute vec2 a_texture_coordinate;
+varying vec2 v_texture_coordinate;
+void main() {
+  gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+  v_texture_coordinate = a_texture_coordinate;
+}
+</vertex>
+
+<fragment>
+uniform sampler2D u_texture;
+varying vec2 v_texture_coordinate;
+
+// Position of this panel pixel inside its DS pixel (0..cell-1 per axis) and the
+// cell size (panel pixels per DS pixel: 4 at full size, 2 under Half Resolution).
+vec2 cellPos(out float cell) {
+  vec2 ds = v_texture_coordinate * vec2(256.0, 192.0);   // DS pixel space
+  float perPx = fwidth(ds.x) + fwidth(ds.y);              // DS pixels per panel pixel
+  cell = max(floor(1.0 / max(perPx, 1.0e-4) + 0.5), 1.0);
+  return floor(fract(ds) * cell);
+}
+
+void main() {
+  float cell; vec2 q = cellPos(cell);
+  vec3 c = texture2D(u_texture, v_texture_coordinate).rgb;
+  float gap = (cell > 1.0 && (q.x >= cell - 1.0 || q.y >= cell - 1.0)) ? 0.78 : 1.0;
+  gl_FragColor = vec4(c * gap, 1.0);
+}
+</fragment>

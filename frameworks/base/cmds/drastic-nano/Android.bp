@@ -58,6 +58,7 @@ cc_binary {
     srcs: [
         "main.cpp",
         "DrasticPrefs.cpp",
+        "DrasticAssets.cpp",
         "InputMap.cpp",
         "OverlayGfx.cpp",
         "OverlayMenu.cpp",

@@ -100,9 +100,40 @@ void LoadingScreen::drawInto(int fbW, int fbH, int logicalW, int logicalH,
     if (labelScale > 3.0f) labelScale = 3.0f;
     if (label && label[0]) {
         float tw = mGfx->measure(label, labelScale);
+        if (tw > W * 0.92f) { labelScale *= (W * 0.92f) / tw; tw = mGfx->measure(label, labelScale); }
         float lineH = (float)fpx * labelScale;
         mGfx->text(label, (W - tw) * 0.5f, barY - lineH - H * 0.035f,
                    labelScale, rgba(1.0f, 1.0f, 1.0f, 0.96f));
+    }
+
+    if (mPromptOpt0) {
+        // Question mode: detail line under the title, then the two options
+        // side by side where the bar would be, the chosen one on an accent pill.
+        const Color accent = rgba(0.32f, 0.68f, 1.0f, 0.98f);
+        float dScale = labelScale * 0.62f;
+        if (mPromptDetail && mPromptDetail[0]) {
+            float dw = mGfx->measure(mPromptDetail, dScale);
+            if (dw > W * 0.92f) { dScale *= (W * 0.92f) / dw; dw = mGfx->measure(mPromptDetail, dScale); }
+            mGfx->text(mPromptDetail, (W - dw) * 0.5f, barY - H * 0.02f, dScale,
+                       rgba(1.0f, 1.0f, 1.0f, 0.72f));
+        }
+        float oScale = labelScale * 0.8f;
+        float lineH = (float)fpx * oScale;
+        float w0 = mGfx->measure(mPromptOpt0, oScale);
+        float w1 = mGfx->measure(mPromptOpt1 ? mPromptOpt1 : "", oScale);
+        float padX = lineH * 0.9f, padY = lineH * 0.35f, gap = lineH * 1.2f;
+        float total = w0 + w1 + padX * 4.0f + gap;
+        float x0 = (W - total) * 0.5f, y = barY + H * 0.06f;
+        float x1 = x0 + w0 + padX * 2.0f + gap;
+        auto pill = [&](float x, float w, const char* t, bool sel) {
+            if (sel) mGfx->roundedRect(x, y - padY, w + padX * 2.0f, lineH + padY * 2.0f, lineH * 0.5f, accent);
+            else     mGfx->roundedRect(x, y - padY, w + padX * 2.0f, lineH + padY * 2.0f, lineH * 0.5f, rgba(1.0f, 1.0f, 1.0f, 0.10f));
+            mGfx->text(t, x + padX, y, oScale, rgba(1.0f, 1.0f, 1.0f, sel ? 1.0f : 0.80f));
+        };
+        pill(x0, w0, mPromptOpt0, mPromptChoice == 0);
+        if (mPromptOpt1) pill(x1, w1, mPromptOpt1, mPromptChoice == 1);
+        mGfx->endFrame();
+        return;
     }
 
     // Track.
@@ -178,6 +209,16 @@ void LoadingScreen::frame(const char* label, float progress) {
     }
     mFrame++;
     mLastDrawMs = android::elapsedRealtime();
+}
+
+void LoadingScreen::promptFrame(const char* title, const char* detail,
+                                const char* opt0, const char* opt1, int choice) {
+    mPromptDetail = detail;
+    mPromptOpt0 = opt0;
+    mPromptOpt1 = opt1;
+    mPromptChoice = choice;
+    frame(title, kBusy);
+    mPromptDetail = mPromptOpt0 = mPromptOpt1 = nullptr;
 }
 
 void LoadingScreen::frameThrottled(const char* label, float progress) {
