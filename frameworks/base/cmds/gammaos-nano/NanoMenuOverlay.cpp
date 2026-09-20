@@ -984,6 +984,71 @@ static std::string overlayBuildContentUri(const std::string& romPath,
          + "/document/" + treeRoot + "%2F" + encFile;
 }
 
+// Close the app the overlay is sitting over before another launch takes the panel.
+// A game (RetroArch / DraStic) is asked to quit itself through ESC and waited for,
+// so it saves its state; force-stop is the last resort for a hung one. A plain app is
+// force-stopped unless it is a "Keep Running in Background" app. Blocks up to ~10 s,
+// so callers run it off the render thread. The caller has already set killing=1.
+void NanoMenu::overlayCloseRunningApp(const std::string& old) {
+    bool oldIsGame = !old.empty() &&
+        (old.find("retroarch") != std::string::npos ||
+         old.find("drastic") != std::string::npos);
+    if (oldIsGame) {
+        // CLEAN SELF-CLOSE (no force-stop): capture the game's pids, send ESC
+        // (RetroArch / DraStic save state then quit themselves), and WAIT for
+        // those pids to ACTUALLY die via kill(pid,0). dumpsys drops the
+        // ProcessRecord seconds before the process exits, so polling dumpsys was
+        // premature and needed a force-stop to stop the relaunch racing the husk
+        // - but a force-stop is a hard kill the user does not want. kill(pid,0)
+        // on the captured pids is reliable, so the old game closes itself
+        // cleanly (saving state) and the new ROM launches only once it is truly
+        // gone. The death lands under killing=1 so the AMS overlay hook ignores it.
+        std::set<int> oldPids = overlayGetPids(old.c_str());
+        // Restore the game's input, then ask PhoneWindowManager to send ESCAPE
+        // (overlay_esc -> triggerVirtualKeypress, the SAME path the back-long-
+        // press uses; a shell-injected ESC is ignored by RetroArch). The game
+        // must be the focused foreground window for this to land, which it is
+        // (the overlay is an SF layer, not a focusable window).
+        property_set("sys.gammaos.nano.drop_input", "0");
+        property_set("sys.gammaos.nano.overlay_esc", "1");
+        if (!oldPids.empty()) {
+            bool alive = true;
+            for (int i = 0; i < 100 && alive; i++) {   // up to ~10s for save+quit
+                usleep(100000);
+                // Re-send ESC a couple more times early, in case the first was
+                // dropped while focus settled after drop_input cleared.
+                if (i == 15 || i == 35)
+                    property_set("sys.gammaos.nano.overlay_esc", "1");
+                alive = overlayAnyAlive(oldPids);
+            }
+            if (alive) {
+                // Last resort ONLY (it never exited - a hung save): force-stop so
+                // the relaunch does not race a stuck instance.
+                char c[320];
+                snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
+                         overlayShq(old).c_str());
+                system(c);
+                usleep(400000);
+                ALOGW("overlay: %s did not self-exit ~10s after ESC, force-stopped",
+                      old.c_str());
+            } else {
+                ALOGI("overlay: %s self-exited cleanly (saved state) before launch",
+                      old.c_str());
+            }
+        } else {
+            usleep(2500000);   // pids unknown: give the ESC time to save and quit
+            ALOGI("overlay: ESC-exited %s (pids unknown, fixed wait)", old.c_str());
+        }
+    } else if (!old.empty() && !backgroundHas(old)) {
+        // Do NOT force-stop a "Keep Running in Background" app when switching away from it -
+        // it must stay alive so re-selecting it later resumes warm.
+        char c[320];
+        snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
+                 overlayShq(old).c_str());
+        system(c);
+    }
+}
+
 void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& amCmd) {
     // NOTE: no "pkg == mOverlayPausedPkg -> resume" shortcut here. A single
     // emulator package (com.retroarch.aarch64) hosts MANY games, so selecting a
@@ -1013,63 +1078,7 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
         // uses. Cleared only once the new app is actually the resumed activity.
         property_set("sys.gammaos.nano.killing", "1");
 
-        bool oldIsGame = !old.empty() &&
-            (old.find("retroarch") != std::string::npos ||
-             old.find("drastic") != std::string::npos);
-        if (oldIsGame) {
-            // CLEAN SELF-CLOSE (no force-stop): capture the game's pids, send ESC
-            // (RetroArch / DraStic save state then quit themselves), and WAIT for
-            // those pids to ACTUALLY die via kill(pid,0). dumpsys drops the
-            // ProcessRecord seconds before the process exits, so polling dumpsys was
-            // premature and needed a force-stop to stop the relaunch racing the husk
-            // - but a force-stop is a hard kill the user does not want. kill(pid,0)
-            // on the captured pids is reliable, so the old game closes itself
-            // cleanly (saving state) and the new ROM launches only once it is truly
-            // gone. The death lands under killing=1 so the AMS overlay hook ignores it.
-            std::set<int> oldPids = overlayGetPids(old.c_str());
-            // Restore the game's input, then ask PhoneWindowManager to send ESCAPE
-            // (overlay_esc -> triggerVirtualKeypress, the SAME path the back-long-
-            // press uses; a shell-injected ESC is ignored by RetroArch). The game
-            // must be the focused foreground window for this to land, which it is
-            // (the overlay is an SF layer, not a focusable window).
-            property_set("sys.gammaos.nano.drop_input", "0");
-            property_set("sys.gammaos.nano.overlay_esc", "1");
-            if (!oldPids.empty()) {
-                bool alive = true;
-                for (int i = 0; i < 100 && alive; i++) {   // up to ~10s for save+quit
-                    usleep(100000);
-                    // Re-send ESC a couple more times early, in case the first was
-                    // dropped while focus settled after drop_input cleared.
-                    if (i == 15 || i == 35)
-                        property_set("sys.gammaos.nano.overlay_esc", "1");
-                    alive = overlayAnyAlive(oldPids);
-                }
-                if (alive) {
-                    // Last resort ONLY (it never exited - a hung save): force-stop so
-                    // the relaunch does not race a stuck instance.
-                    char c[320];
-                    snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
-                             overlayShq(old).c_str());
-                    system(c);
-                    usleep(400000);
-                    ALOGW("overlay: %s did not self-exit ~10s after ESC, force-stopped",
-                          old.c_str());
-                } else {
-                    ALOGI("overlay: %s self-exited cleanly (saved state) before launch",
-                          old.c_str());
-                }
-            } else {
-                usleep(2500000);   // pids unknown: give the ESC time to save and quit
-                ALOGI("overlay: ESC-exited %s (pids unknown, fixed wait)", old.c_str());
-            }
-        } else if (!old.empty() && !backgroundHas(old)) {
-            // Do NOT force-stop a "Keep Running in Background" app when switching away from it -
-            // it must stay alive so re-selecting it later resumes warm.
-            char c[320];
-            snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
-                     overlayShq(old).c_str());
-            system(c);
-        }
+        overlayCloseRunningApp(old);
         // Track for the framework: RootWindowContainer raises the overlay launcher
         // when this app exits, and PhoneWindowManager's back-long-press exit fires
         // (both gated on app_launched=1).
@@ -1513,13 +1522,49 @@ void NanoMenu::overlayLaunchGame() {
         // DSi theme: the process exits below, so persist the carousel nav path for the fresh
         // home after the session (the same save the DRM home makes before its hand-off).
         if (mNdsTheme && mPs3Xmb) ndsSaveReturnPath();
-        property_set("sys.gammaos.nano.overlay_ran", "0");
-        property_set("sys.gammaos.nano.app_launched", "0");
-        property_set("sys.gammaos.nano.show_overlay", "0");
-        property_set("persist.gammaos.nano.qr_prepared", "0");
-        ALOGW("drastic nano: overlay launch -> drastic-nano (DRM)");
-        property_set("sys.gammaos.drastic_nano.start", "1");
-        _exit(0);
+        // The app the overlay is sitting over (a RetroArch game, say) must be gone
+        // before drastic-nano takes DRM master: left running it keeps rendering and
+        // holding the GPU and CPU under the DS session, and SurfaceFlinger keeps
+        // compositing it against the panel drastic owns. Same clean close the
+        // overlay's normal app launch performs (ESC + wait, force-stop only for a
+        // hung one), run off the render thread so the overlay keeps drawing the
+        // fade hold; the hand-off fires from that thread once the app is gone.
+        {
+            std::string old = mOverlayPausedPkg;
+            if (old.empty() && property_get_bool("sys.gammaos.nano.app_launched", false)) {
+                // The app was launched from the home, not through this overlay, so the
+                // overlay never recorded it; the framework's launch_app is the running app.
+                char la[PROPERTY_VALUE_MAX] = {};
+                property_get("sys.gammaos.nano.launch_app", la, "");
+                if (la[0] && strchr(la, '.') && strcmp(la, "com.gammaos.drasticsf") != 0) old = la;
+            }
+            mOverlayPausedPkg.clear();
+            unlink(kOverlayFrozenMarker);
+            std::thread([this, old]() {
+                property_set("sys.gammaos.nano.killing", "1");
+                overlayCloseRunningApp(old);
+                // No framework app resumes after this hand-off (drastic-nano is not an
+                // activity), so nothing else would clear the guard; left at 1 it makes
+                // RootWindowContainer skip every later home and app launch.
+                property_set("sys.gammaos.nano.killing", "0");
+                property_set("sys.gammaos.nano.overlay_ran", "0");
+                property_set("sys.gammaos.nano.app_launched", "0");
+                property_set("sys.gammaos.nano.show_overlay", "0");
+                property_set("persist.gammaos.nano.qr_prepared", "0");
+                ALOGW("drastic nano: overlay launch -> drastic-nano (DRM), %s closed",
+                      old.empty() ? "no app" : old.c_str());
+                property_set("sys.gammaos.drastic_nano.start", "1");
+                _exit(0);
+            }).detach();
+        }
+        // Keep the fade hold on screen until the worker exits the process.
+        for (;;) {
+            const int64_t f0 = (int64_t)android::elapsedRealtimeNano();
+            render();
+            mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+            const int64_t spentUs = ((int64_t)android::elapsedRealtimeNano() - f0) / 1000;
+            if (spentUs < 16666) usleep((useconds_t)(16666 - spentUs));
+        }
     }
 
     std::string pkg, cmd;

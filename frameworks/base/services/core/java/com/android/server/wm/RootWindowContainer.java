@@ -180,6 +180,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
     private static int sNanoCrashCount = 0;
     private static long sNanoLastLaunchTime = 0;
     private static boolean sNanoGraceRetryPending = false;
+    private static int sNanoGraceRetries = 0;   // GammaOS: deferred grace checks re-armed for a still-starting app
+    private static Runnable sNanoGraceCheck = null;   // GammaOS: the deferred grace check, re-posted while the app is still starting
 
     /**
      * GammaOS Nano: read the launch ROM path with a file fallback.
@@ -1998,7 +2000,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     // startHomeOnTaskDisplayArea (which resets sNanoLastLaunchTime).
                     if (!sNanoGraceRetryPending) {
                         sNanoGraceRetryPending = true;
-                        mService.mH.postDelayed(() -> {
+                        sNanoGraceRetries = 0;
+                        sNanoGraceCheck = () -> {
                             synchronized (mService.mGlobalLock) {
                                 sNanoGraceRetryPending = false;
                                 if (!"1".equals(android.os.SystemProperties.get(
@@ -2010,17 +2013,37 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                         "sys.gammaos.nano.launch_app",
                                         "com.retroarch.aarch64");
                                 final boolean[] alive = {false};
+                                final boolean[] starting = {false};
                                 forAllTasks(task -> {
                                     task.forAllActivities(r -> {
                                         if (r.packageName != null
                                                 && r.packageName.equals(pkg)
-                                                && r.app != null
-                                                && r.app.hasThread()
                                                 && !r.finishing) {
-                                            alive[0] = true;
+                                            if (r.app != null && r.app.hasThread()) {
+                                                alive[0] = true;
+                                            } else {
+                                                // A live activity record whose process has not
+                                                // attached yet: the app is still STARTING, not dead.
+                                                starting[0] = true;
+                                            }
                                         }
                                     });
                                 });
+                                if (!alive[0] && starting[0] && sNanoGraceRetries < 6) {
+                                    // GammaOS: a cold start on a 1 GB device under memory
+                                    // pressure can take well past the 5 s check to attach its
+                                    // thread (seen: Aurora Store force-stopped 5 s after its
+                                    // process started while the low-memory killer was reaping
+                                    // other processes). Keep waiting while the record is alive
+                                    // instead of killing a starting app.
+                                    sNanoGraceRetries++;
+                                    Slog.i(TAG, "GammaOS Nano: app still starting at the grace check ("
+                                            + sNanoGraceRetries + "), checking again in 5s");
+                                    sNanoGraceRetryPending = true;
+                                    mService.mH.postDelayed(sNanoGraceCheck, 5000);
+                                    return;
+                                }
+                                sNanoGraceRetries = 0;
                                 if (!alive[0]) {
                                     Slog.i(TAG, "GammaOS Nano: deferred cleanup — "
                                             + "app died during grace period, restarting");
@@ -2074,7 +2097,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                     }
                                 }
                             }
-                        }, 5000);
+                        };
+                        mService.mH.postDelayed(sNanoGraceCheck, 5000);
                     }
                     return true;
                 }
