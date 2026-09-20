@@ -3013,6 +3013,23 @@ void NanoMenu::wpVideoStart(const std::string& path) {
     NanoVideo::Meta m;
     int wHint = 0, hHint = 0;
     if (NanoVideo::probe(path, m)) { wHint = m.width; hHint = m.height; }
+    // A wallpaper runs BEHIND games on this device. The hardware decoder sizes its output
+    // pool from the clip's level (a level-5 1080p clip means 22 buffers of 1920x1088, about
+    // 90 MB, held for the whole session), which a 1 GB device cannot spare next to a running
+    // emulator. Refuse anything above 720p there and fall back to the still wallpaper; the
+    // panels are 1024x768, so a 720p clip loses nothing visible.
+    if ((int64_t)wHint * hHint > 1280 * 720) {
+        FILE* f = fopen("/proc/meminfo", "r");
+        long totalKb = 0;
+        if (f) { if (fscanf(f, "MemTotal: %ld kB", &totalKb) != 1) totalKb = 0; fclose(f); }
+        if (totalKb > 0 && totalKb < 1536L * 1024L) {
+            ALOGW("NanoMenu: video wallpaper %s is %dx%d; above 720p on a %ld MB device, using the still wallpaper",
+                  path.c_str(), wHint, hHint, totalKb / 1024);
+            mWpVideoRefused = path;
+            mWpTopIsVideo = false;
+            return;
+        }
+    }
     NanoVideo* v = new NanoVideo();
     if (!v->openBegin(wHint, hHint)) {   // GL alloc failed: give up on the video (avoid a per-frame retry
         delete v; mWpTopIsVideo = false; return;   // spin from wpVideoTick) and fall back to the wave/still
@@ -3111,6 +3128,17 @@ bool NanoMenu::esdeBgVideoDraw(float x, float y, float w, float h) {
 // Per-frame: adopt a finished open (start playback), loop at end of stream, and re-open after the decoder
 // was handed to the video player / an app and has since come free. Called once per home frame (both themes).
 void NanoMenu::wpVideoTick() {
+    // A wallpaper whose decoder gave up (every rebuild stalled) is torn down and not
+    // re-opened again this session: each open costs a full decoder pool that only the
+    // teardown returns, and re-opening after every app launch was what drained a 1 GB
+    // device into swap.
+    if (mWpVideoTop && mWpVideoAdopted && mWpVideoTop->fatal()) {
+        ALOGW("NanoMenu: video wallpaper decoder failed for good; falling back to the still wallpaper");
+        mWpVideoRefused = mWpVideoPath;
+        wpVideoStop();
+        mWpTopIsVideo = false;
+        return;
+    }
     if (!mWpVideoTop) {
         // Re-open a video wallpaper that was torn down for the single HW decoder, once the home is showing
         // and the decoder is free again (player closed, its codec reaped). The wave gate is XMB-only (the DSi
@@ -3119,7 +3147,7 @@ void NanoMenu::wpVideoTick() {
         // owns the single HW decoder there (vidPreviewTick stopped the wallpaper on purpose).
         // Also do NOT re-open the wallpaper while the ES-DE theme background video owns the single
         // HW decoder (esdeBgVideoTick stopped the wallpaper on purpose for an Animated ES-DE scheme).
-        if (mWpTopIsVideo && !mWpPathTop.empty() && (mNdsTheme || !mXmbWave) && !mVidActive
+        if (mWpTopIsVideo && !mWpPathTop.empty() && mWpPathTop != mWpVideoRefused && (mNdsTheme || !mXmbWave) && !mVidActive
                 && !mWpVideoPick && !mEsdeBgVideo
                 && mVidPrevCodecFreed.load(std::memory_order_acquire))
             wpVideoStart(mWpPathTop);

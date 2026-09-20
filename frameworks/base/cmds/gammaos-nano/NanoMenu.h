@@ -1007,6 +1007,7 @@ private:
     // exit+launch on a detached thread so the overlay keeps animating; overlayPoll
     // dismisses onto the new app once it resumes.
     void overlayLaunchCommand(const std::string& pkg, const std::string& amCmd);
+    void overlayCloseRunningApp(const std::string& old);   // ESC + wait / force-stop the app under the overlay
     // Launch the currently selected XMB game/ROM from the overlay (resolves the
     // emulator package for the selected system/recent entry, then reuses
     // overlayLaunchPackage). Routed from ps3XmbSelect's PS3_ROM/PS3_RECENT cases
@@ -2363,6 +2364,7 @@ private:
     bool   mXmbWave = true;                       // XMB wave visible (default derived: off when a wallpaper is set)
     bool   mXmbWaveExplicit = false;              // the user set the wave toggle explicitly (honour it verbatim)
     int    mRenderingPanel = 0;                   // which panel the current render pass targets (0 top, 1 bottom)
+    std::string mWpVideoRefused;   // video wallpaper path refused this session (too large, or its decoder failed): never re-opened
     NanoVideo* mWpVideoTop = nullptr;             // the single video-wallpaper decoder (top/primary panel, v1)
     NanoVideo* mWpVideoBottom = nullptr;          // reserved (single HW decoder -> only the top plays video in v1)
     bool   mWpTopIsVideo = false;                 // the top wallpaper path is a video (play it instead of a still)

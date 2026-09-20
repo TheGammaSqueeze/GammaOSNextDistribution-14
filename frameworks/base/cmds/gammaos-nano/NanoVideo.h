@@ -136,6 +136,9 @@ public:
     // PTS domain (fixes the live raw-TS-vs-0-based catch-up). The video decode/pace path itself
     // is unchanged (it renders from frame 0 as before); these just observe the first frame.
     bool firstFrameReady() const { return mFirstFrameReady.load(); }
+    // The decoder gave up for good (every rebuild stalled): the codec and its output pool are
+    // released; an owner that loops the clip (the video wallpaper) must stop and not re-open it.
+    bool fatal() const { return mFatal.load(); }
     double firstFramePts() const; // PTS (s) of the first decoded frame (the shared origin)
 
     // Render thread: latch the most-recently decoded frame into the OES texture.
@@ -254,6 +257,7 @@ private:
     // Step 1 start-together: set true on the first decoded (render-eligible) frame; mFirstFramePts
     // captures that frame's PTS so the host anchors the audio clock to the same origin.
     std::atomic<bool> mFirstFrameReady{false};
+    std::atomic<bool> mFatal{false};
     double mFirstFramePts = 0.0;       // guarded by mClockMx
 
     // Seek request handed to the worker.

@@ -8355,11 +8355,15 @@ void NanoMenu::loadWallpaperTextures() {
         char b[PROPERTY_VALUE_MAX] = {};
         property_get(topProp, b, "");
         std::string np(b);
-        if (!np.empty() && wpIsVideoPath(np)) {
+        if (!np.empty() && wpIsVideoPath(np) && np != mWpVideoRefused) {
             if (mWpTexTop) { glDeleteTextures(1, &mWpTexTop); mWpTexTop = 0; }
             mWpTopW = 0; mWpTopH = 0; mWpPathTop = np;
             mWpTopIsVideo = true;
             if (mWpVideoPath != np) wpVideoStart(np);   // (re)open only on a real change
+        } else if (!np.empty() && wpIsVideoPath(np)) {
+            // Refused this session (too large for the device, or its decoder failed for
+            // good): leave the video closed and show nothing extra; no re-open churn.
+            if (mWpTopIsVideo) { wpVideoStop(); mWpTopIsVideo = false; }
         } else {
             if (mWpTopIsVideo) { wpVideoStop(); mWpTopIsVideo = false; }
             reload(topProp, mWpPathTop, mWpTexTop, mWpTopW, mWpTopH);

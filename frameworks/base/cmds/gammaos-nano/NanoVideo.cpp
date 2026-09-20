@@ -571,6 +571,13 @@ bool NanoVideo::recreateFedCodec() {
 bool NanoVideo::recreateExtractorCodec() {
     if (!mEx || mVideoTrack < 0) return false;
     if (mCodec) { AMediaCodec_delete(mCodec); mCodec = nullptr; }   // faulted: delete, do not stop
+    // The Rockchip decoder sizes its pool from the stream's level (22 buffers of 1920x1088
+    // for a level-5 1080p clip, ~90 MB) and the codec2 service keeps a pool alive for as
+    // long as its BufferQueue exists, so every rebuild adds another pool until the owner
+    // tears the video down (370 MB leaked in 12 minutes on the RG DS Plus). A hi-res clip
+    // therefore gets ONE rebuild, not four; after that the owner sees fatal() and frees it.
+    const bool hiRes = (int64_t)mWidth * mHeight > 1280 * 720;
+    if (hiRes && mExtractorRecreate >= 1) return false;
     mExtractorRecreate++;
     AMediaFormat* fmt = AMediaExtractor_getTrackFormat(mEx, mVideoTrack);
     if (!fmt) return false;
@@ -895,8 +902,9 @@ void NanoVideo::decodeLoop() {
                     { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
                     continue;
                 }
-                LOGE("codec unrecoverable; parking decode worker");
+                LOGE("codec unrecoverable; parking decode worker (fatal)");
                 mEnded = true;
+                mFatal = true;   // the owner closes the video, which frees the codec and its pool
                 while (!mQuit.load() && !mSeekPending.load() && !mFedFlush.load()) usleep(50000);
                 hardErr = 0;
             }
@@ -929,6 +937,15 @@ void NanoVideo::decodeLoop() {
                 // keep up. lastProgressNs resets to now so the fresh codec gets the whole window.
                 lastProgressNs = monoNs();
                 { std::lock_guard<std::mutex> lk(mClockMx); mClockBaseNs = 0; }
+                continue;
+            }
+            if (!rebuilt && !mFed) {
+                // Out of rebuild attempts on the extractor path: a stalled decoder holding a
+                // full output pool is pure memory cost, so release it and park for good.
+                LOGE("codec stalled beyond recovery; parking decode worker (fatal)");
+                mEnded = true;
+                mFatal = true;   // the owner closes the video, which frees the codec and its pool
+                while (!mQuit.load() && !mSeekPending.load() && !mFedFlush.load()) usleep(50000);
                 continue;
             }
             lastProgressNs = monoNs();   // out of rebuild attempts: stop hammering, keep trying to drain
