@@ -210,10 +210,12 @@ private:
     struct ConfirmPrompt {
         bool active = false;
         std::string question;
+        std::vector<std::string> details;   // optional bullet lines under the question (translated, wrapped)
         std::function<void()> onConfirm;
         int choice = 0;   // 0 = Confirm, 1 = Cancel
     } mConfirm;
-    void openConfirm(const std::string& question, std::function<void()> onConfirm);
+    void openConfirm(const std::string& question, std::function<void()> onConfirm,
+                     std::vector<std::string> details = {});
     void drawConfirm(drastic_gfx::OverlayGfx& gfx, float vw, float vh, float sf);
 
     DrasticRunner* mRunner = nullptr;

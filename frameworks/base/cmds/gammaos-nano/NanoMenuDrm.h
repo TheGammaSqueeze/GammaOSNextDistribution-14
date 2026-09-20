@@ -273,6 +273,10 @@ void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
                          uint32_t dstW, uint32_t dstH,
                          int blitRotation);
 void drmFlipRingSlot(int idx, bool skipNonPrimary = false);
+// True when the slot's GPU fence has signalled (or there is no fence): a
+// zero-timeout probe, so a caller can present an older slot instead of
+// blocking on this one.
+bool drmSlotFenceReady(int idx);
 void drmFlipAll();
 bool drmAnyCrtcPending();
 void drmDrainPageFlipEvents();

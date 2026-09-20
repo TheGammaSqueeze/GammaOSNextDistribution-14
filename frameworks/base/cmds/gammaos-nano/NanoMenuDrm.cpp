@@ -2033,6 +2033,12 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
     return ret;
 }
 
+bool drmSlotFenceReady(int idx) {
+    if (idx < 0 || idx >= AHB_RING_DEPTH) return false;
+    if (sAhbRingSyncPrimary[idx] == EGL_NO_SYNC_KHR || !sEglClientWaitSyncKHR || sRingEglDpy == EGL_NO_DISPLAY) return true;
+    return sEglClientWaitSyncKHR(sRingEglDpy, sAhbRingSyncPrimary[idx], EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, 0) == EGL_CONDITION_SATISFIED_KHR;
+}
+
 void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return;
     AhbRenderTarget& prim = sAhbRingPrimary[idx];

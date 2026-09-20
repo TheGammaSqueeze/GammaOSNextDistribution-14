@@ -105,6 +105,7 @@ public:
     // per-second delta gives the true emulation FPS. 0 until the pacing hooks
     // are installed (installVblankPacing); read-only, safe from any thread.
     uint32_t producerFrameCount() const;
+    uint32_t audioSubmitCount() const;   // per-frame audio submits (hidden replay frames skip theirs)
     // Emulated-frame count from the frame-limiter hook (drasticVWait): advances
     // once per emulated frame in every mode, before render frame-skip, so its
     // per-second delta is the TRUE emulation rate (60 at full speed, ~120 at 2x
@@ -325,6 +326,10 @@ public:
     // RAM save/load timings, a step burst, then a replay determinism check
     // at depths 1..3. Runs on its own thread; results in logcat "RAPROBE".
     void runaheadProbe(int iters);
+    bool lookAheadTick();
+    void lagProbe(int mask);
+    static std::atomic<bool> sProbeOwnsInput;   // a probe drives the DS input words; the frame loop must not overwrite them
+    bool probeOwnsInput() const { return sProbeOwnsInput.load(std::memory_order_relaxed); }   // internal input lag of the running game, in step mode (frames until the front slot changes)
 
     // Write drastic's autosave (the reserved slot 9 the
     // drastic-android-mod auto-resumes from). Unlike saveStateSlot this

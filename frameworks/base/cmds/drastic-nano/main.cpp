@@ -1198,6 +1198,107 @@ static bool shotRequested() {
     return shot[0] == '1';
 }
 
+// Input-to-photon latency probe (sys.gammaos.drastic_nano.ra_latency_probe=1).
+// Armed, it waits for the next scripted press edge (ra_test_input), then
+// records the next kLatFrames presented frames of the top DS panel (bound
+// primary FBO, upper half, box-downsampled 4x to 256x192) into a filmstrip
+// /data/drastic_nano_latency.ppm and logs, per frame, the mean absolute
+// difference from the frame captured at the press. The first frame whose
+// difference jumps is where the press became visible: compare the frame
+// index with run-ahead off and on to see the frame(s) run-ahead removes.
+static std::atomic<bool> gLatPressEdge{false};   // set by the scripted input on a 0 -> 1 press
+static int gLatCount = 0;                        // captures taken since arming (rolling)
+static int gLatPressIdx = -1;                    // capture index of the press frame
+// Photon timing: the press delivery time and, per capture index, the time the
+// flip that latched that captured frame returned (the vblank it was shown at).
+// The capture happens at render time, so present age would otherwise be
+// invisible to the probe; the flip time is what the eye sees.
+static std::atomic<int64_t> gLatPressUs{0};
+static uint32_t gLatPressProducer = 0;
+static std::vector<uint8_t> gLatStrip;          // kLatFrames x 256x192 RGB, capture ring
+static constexpr int kLatFrames = 64, kLatW = 256, kLatH = 192, kLatAfter = 44;   // 4 frames before the press to 44 after: a full Sonic jump and landing
+static int64_t gLatFlipUs[kLatFrames];           // flip (vblank) time per capture index, photon timing
+// Capture runs from arming (steady-state readbacks, so the press frame is not
+// the one that stalls), records the press frame index, stops kLatAfter frames
+// after it. Diffs are against the press frame; the log carries the producer
+// count so the reaction latency reads directly in emulated frames.
+static void latencyProbeFrame(int fbW, int fbH, uint32_t producer) {
+    int x0 = fbW / 2 - 160, y0 = fbH / 4 - 40;
+    if (x0 < 0) x0 = 0; if (y0 < 0) y0 = 0;
+    if (x0 + kLatW > fbW) x0 = fbW - kLatW;
+    if (y0 + kLatH > fbH) y0 = fbH - kLatH;
+    const int idx = gLatCount % kLatFrames;
+    uint8_t* out = gLatStrip.data() + (size_t)idx * kLatW * kLatH * 3;
+    std::vector<uint8_t> buf((size_t)kLatW * kLatH * 4);
+    glReadPixels(x0, y0, kLatW, kLatH, GL_RGBA, GL_UNSIGNED_BYTE, buf.data());
+    for (size_t i = 0; i < (size_t)kLatW * kLatH; i++) { out[i * 3] = buf[i * 4]; out[i * 3 + 1] = buf[i * 4 + 1]; out[i * 3 + 2] = buf[i * 4 + 2]; }
+    if (gLatPressIdx < 0 && gLatPressEdge.exchange(false)) { gLatPressIdx = gLatCount; gLatPressProducer = producer;
+        ALOGW("LATENCY press at capture %d producer %u", gLatCount, producer); }
+    if (gLatPressIdx >= 0) {
+        const uint8_t* f0 = gLatStrip.data() + (size_t)(gLatPressIdx % kLatFrames) * kLatW * kLatH * 3;
+        uint64_t diff = 0;
+        for (size_t i = 0; i < (size_t)kLatW * kLatH * 3; i++) diff += (uint64_t)abs((int)out[i] - (int)f0[i]);
+        ALOGW("LATENCY +%d: producer %u (+%d) mean diff %.2f", gLatCount - gLatPressIdx, producer,
+              (int)(producer - gLatPressProducer), (double)diff / (kLatW * kLatH * 3));
+    }
+    gLatCount++;
+    if (gLatPressIdx >= 0 && gLatCount - gLatPressIdx > kLatAfter) {
+        FILE* f = fopen("/data/drastic_nano_latency.ppm", "wb");
+        if (f) {
+            // Write from 4 frames before the press to the end, in order.
+            const int first = gLatPressIdx - 4 < 0 ? 0 : gLatPressIdx - 4;
+            fprintf(f, "P6\n%d %d\n255\n", kLatW, kLatH * (gLatCount - first));
+            for (int i = first; i < gLatCount; i++)
+                fwrite(gLatStrip.data() + (size_t)(i % kLatFrames) * kLatW * kLatH * 3, 1, (size_t)kLatW * kLatH * 3, f);
+            fclose(f);
+        }
+        ALOGW("LATENCY strip written: press at strip frame %d", gLatPressIdx - (gLatPressIdx - 4 < 0 ? 0 : gLatPressIdx - 4));
+        {
+            // photon times of the captures after the press (ms after the press delivery)
+            char line[400]; int n = 0; const int64_t p = gLatPressUs.load();
+            for (int k = 0; k <= 8 && gLatPressIdx + k < gLatCount; k++) {
+                const int64_t f = gLatFlipUs[(gLatPressIdx + k) % kLatFrames];
+                n += snprintf(line + n, sizeof(line) - n, " +%d:%.1f", k, f > p ? (f - p) / 1000.0 : -1.0);
+                if (n >= (int)sizeof(line) - 16) break;
+            }
+            ALOGW("LATENCY photon ms after press:%s", line);
+        }
+        gLatCount = 0; gLatPressIdx = -1;
+        property_set("sys.gammaos.drastic_nano.ra_latency_probe", "0");
+    }
+}
+
+// Game-speed probe (sys.gammaos.drastic_nano.ra_speed_probe=1): every presented
+// frame reads the same window the latency probe uses and tracks its mean
+// luminance; a blinking element (the title screen's PRESS START) crosses the
+// running mean at the game's own rate, so edges per second is the true game
+// speed on screen, independent of any emulator-side frame counter.
+static void speedProbeFrame(int fbW, int fbH, uint32_t emuFrames) {
+    static std::vector<uint8_t> buf; static double mean = -1; static int sign = 0;
+    static int frames = 0, edges = 0; static int64_t secStart = 0; static uint32_t ef0 = 0;
+    int x0 = fbW / 2 - 160, y0 = fbH / 4 - 40;
+    if (x0 < 0) x0 = 0; if (y0 < 0) y0 = 0;
+    if (x0 + kLatW > fbW) x0 = fbW - kLatW;
+    if (y0 + kLatH > fbH) y0 = fbH - kLatH;
+    if (buf.empty()) buf.resize((size_t)kLatW * kLatH * 4);
+    glReadPixels(x0, y0, kLatW, kLatH, GL_RGBA, GL_UNSIGNED_BYTE, buf.data());
+    uint64_t sum = 0;
+    for (size_t i = 0; i < (size_t)kLatW * kLatH; i++) sum += buf[i * 4] + buf[i * 4 + 1] + buf[i * 4 + 2];
+    const double lum = (double)sum / ((double)kLatW * kLatH * 3);
+    if (mean < 0) mean = lum;
+    const int sg = lum > mean + 0.5 ? 1 : (lum < mean - 0.5 ? -1 : sign);
+    if (sign != 0 && sg != sign) edges++;
+    sign = sg;
+    mean = mean * 0.97 + lum * 0.03;
+    frames++;
+    const int64_t now = android::elapsedRealtimeNano() / 1000;
+    if (secStart == 0) { secStart = now; ef0 = emuFrames; }
+    if (now - secStart >= 1000000) {
+        ALOGW("SPEED %.2fs: presented %d, blink edges %d, emu frames %u, lum %.1f", (now - secStart) / 1e6, frames, edges, emuFrames - ef0, lum);
+        frames = 0; edges = 0; secStart = now; ef0 = emuFrames;
+    }
+}
+
 static void captureFboToPpm(int w, int h, const char* path) {
     std::vector<uint8_t> buf((size_t)w * h * 4);
     glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buf.data());
@@ -1753,7 +1854,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // quick save/load, etc.) stay owned by the render loop, which sees
             // the same events on its own fds.
             if (android::sDrmLowLatency && !ovOpen && !fin.cursorMode &&
-                    fastDirectLayout && !gRaTestInputActive.load() &&
+                    fastDirectLayout && !gRaTestInputActive.load() && !dr->probeOwnsInput() &&
                     property_get_bool("sys.gammaos.drastic_nano.fast_input", true)) {
                 std::lock_guard<std::mutex> lk(inputFwdMutex);
                 dr->setInputWithTouch(fa.dsBtnMask, fa.touchX, fa.touchY,
@@ -2008,9 +2109,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 if (!sRaPrepared && dr->vblankPacingInstalled()) {
                     sRaPrepared = true;
                     if (property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) == 2 ||
-                        property_get_int32("sys.gammaos.drastic_nano.runahead", -1) == 2) {
+                        property_get_int32("sys.gammaos.drastic_nano.runahead", -1) >= 2) {
                         int f = property_get_int32("sys.gammaos.drastic_nano.runahead_frames", -1);
-                        if (f < 0) f = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
+                        if (f < 0) { f = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 1); if (f > 1) f = 1; }
                         dr->runAheadPrepare(f);
                     }
                 }
@@ -2027,7 +2128,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     int mode = property_get_int32("sys.gammaos.drastic_nano.runahead", -1);
                     if (mode < 0) mode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
                     int frames = property_get_int32("sys.gammaos.drastic_nano.runahead_frames", -1);
-                    if (frames < 0) frames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
+                    if (frames < 0) { frames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 1); if (frames > 1) frames = 1; }   // shipped depth is one frame; the sys override may test deeper
                     const bool allow = !ffWant && !overlay.isOpen() && !ra.hardcoreRestrictionsActive() &&
                                        dr->vblankPacingInstalled();
                     dr->setRunAhead(allow ? mode : 0, frames);
@@ -2035,7 +2136,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     if (dr->runAheadMode() && nowRa - sRaLogUs > 5000000) {
                         sRaLogUs = nowRa;
                         std::string st; dr->runAheadStats(st);
-                        ALOGI("drastic-nano run-ahead: %s", st.c_str());
+                        // Emulated progress the player actually sees: producer frames
+                        // minus the hidden replay frames. Per second this must sit at
+                        // the panel rate (59.8) with run-ahead on or off: a burst
+                        // re-runs the last shown frame and continues, it never adds
+                        // emulated time.
+                        ALOGI("drastic-nano run-ahead: %s; producer %u limiter %u submits %u emuframes %u", st.c_str(), dr->producerFrameCount(), dr->limiterFrameCount(), dr->audioSubmitCount(), dr->emuFrameCount());
                     }
                 }
             }
@@ -2163,13 +2269,43 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 gRaTestInputActive.store(sRaTestPeriod > 8);
             }
             if (sRaTestPeriod > 8) {
+                // ra_test_hold = frames held per period (default 8); a hold below
+                // the period with a short period is the mashing test (period 12
+                // hold 4 = 5 presses a second, alternating A and B so each press
+                // is an input change the run-ahead engine must replay).
+                static int sRaTestHold = 8;
+                if (nowT - sRaTestReadUs == 0) sRaTestHold = property_get_int32("sys.gammaos.drastic_nano.ra_test_hold", 8);
                 sRaTestFrame++;
-                const bool press = (sRaTestFrame % (uint32_t)sRaTestPeriod) < 8;
-                std::lock_guard<std::mutex> lk(inputFwdMutex);
-                dr->setInputWithTouch(press ? 1 : 0, 0, 0, false);
+                const uint32_t cycle = sRaTestFrame / (uint32_t)sRaTestPeriod;
+                const bool press = (sRaTestFrame % (uint32_t)sRaTestPeriod) < (uint32_t)sRaTestHold;
+                const uint32_t mask = (cycle & 1) ? (uint32_t)DrasticRunner::kDsBtnB : (uint32_t)DrasticRunner::kDsBtnA;   // A, then B
+                static bool sWasPressed = false;
+                static uint32_t sWasMask = 0;
+                const bool pressEdge = press && !sWasPressed;   // latency probe arms at delivery
+                sWasPressed = press;
+                const uint32_t want = press ? mask : 0;
+                // Deliver each edge at a random point of the frame period. This
+                // loop runs at a fixed phase relative to the vblank, where a
+                // press could never fit a replay burst (the next tick is only
+                // ~4 ms away); real presses arrive at any phase, so the soak
+                // and the latency probe must see that distribution too.
+                // ra_test_phase_us=N pins the delay instead (0 = immediate).
+                if (want != sWasMask) {
+                    sWasMask = want;
+                    static int sPhaseUs = -1;
+                    if (sPhaseUs < 0 || nowT - sRaTestReadUs == 0) sPhaseUs = property_get_int32("sys.gammaos.drastic_nano.ra_test_phase_us", -1);
+                    static uint32_t sRng = 0x9e3779b9u;
+                    sRng = sRng * 1664525u + 1013904223u;
+                    const int delayUs = sPhaseUs >= 0 ? sPhaseUs : (int)(sRng % 16000u);
+                    std::thread([dr, want, delayUs, pressEdge, &inputFwdMutex] {
+                        if (delayUs > 0) usleep((useconds_t)delayUs);
+                        { std::lock_guard<std::mutex> lk(inputFwdMutex); dr->setInputWithTouch(want, 0, 0, false); }
+                        if (pressEdge) { gLatPressUs.store(android::elapsedRealtimeNano() / 1000); gLatPressEdge.store(true); }
+                    }).detach();
+                }
             }
         }
-        if (!fastOwnsInput && !gRaTestInputActive.load()) {   // the scripted test input owns the words while active
+        if (!fastOwnsInput && !gRaTestInputActive.load() && !dr->probeOwnsInput()) {   // the scripted test input owns the words while active
             // Shared with the fast-input thread so the two never tear the
             // master struct mid-write. Uncontended in practice.
             std::lock_guard<std::mutex> lk(inputFwdMutex);
@@ -2628,9 +2764,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                          (drmHalfRes > 1 ? drmHalfH : drmLogicalH),
                          drmPanelW, drmPanelH, drmHalfRes);
                 property_set("sys.gammaos.drastic_nano.metrics", m);
-                ALOGI("drastic-nano metrics: %s rd=%lld pb=%lld", m,
+                ALOGI("drastic-nano metrics: %s rd=%lld pb=%lld emu=%.1f producer=%u", m,
                       (long long)(sStgRdMaxNs / 1000000LL),
-                      (long long)(sStgPbMaxNs / 1000000LL));
+                      (long long)(sStgPbMaxNs / 1000000LL), sEmuFps, dr->producerFrameCount());
                 // Reliable test hook: append the metrics line to a file once/sec. Immune to
                 // adbd starvation (mode 5 saturates the SoC), the metrics-prop not persisting,
                 // and logcat rotation. Off unless the test path is armed.
@@ -2670,6 +2806,23 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         if (wantShot)
             captureFboToPpm((int)primTgt.w, (int)primTgt.h,
                             "/data/drastic_nano_shot.ppm");
+        // Latency probe: on the scripted press edge start the filmstrip; each
+        // presented frame after it (this one included) is recorded.
+        {
+            static int64_t sLatReadUs = 0; static bool sLatArmed = false;
+            const int64_t nowL = android::elapsedRealtimeNano() / 1000;
+            if (nowL - sLatReadUs > 1000000) {
+                sLatReadUs = nowL;
+                sLatArmed = property_get_bool("sys.gammaos.drastic_nano.ra_latency_probe", false);
+            }
+            if (sLatArmed) {
+                if (gLatStrip.empty()) gLatStrip.assign((size_t)kLatFrames * kLatW * kLatH * 3, 0);
+                latencyProbeFrame((int)primTgt.w, (int)primTgt.h, dr->producerFrameCount());
+            } else { gLatPressEdge.store(false); gLatCount = 0; gLatPressIdx = -1; }
+            static bool sSpeedArmed = false; static int64_t sSpeedReadUs = 0;
+            if (nowL - sSpeedReadUs > 1000000) { sSpeedReadUs = nowL; sSpeedArmed = property_get_bool("sys.gammaos.drastic_nano.ra_speed_probe", false); }
+            if (sSpeedArmed) speedProbeFrame((int)primTgt.w, (int)primTgt.h, dr->emuFrameCount());
+        }
 
         // On-screen keyboard: render on the BOTTOM DS panel (secondary FBO)
         // with its own scrim, so it does not cover the cheats menu on the top
@@ -2833,13 +2986,45 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     // very next vblank. Measured on the RG DS: 1.6 frames from
                     // the emulator finishing a frame to the panel latching it,
                     // against 2.6 at age 1 and 3.5 at age 2.
-                    int age = android::sDrmLowLatency ? 0 : 2;
+                    // Adaptive present age (Low Latency Mode off): age 1 while
+                    // the flips land on their vblanks, age 2 the moment one
+                    // misses, back to 1 after 180 clean flips. Measured on the
+                    // RG DS, press to the vblank showing the jump: age 2 93.8
+                    // ms, age 1 59.6 ms at native 3D with no shader; with
+                    // hi-res 3D and the 4xLCD_Dot shader age 1 missed vblanks
+                    // and gave only 90.1 ms, so the step back keeps a loaded
+                    // GPU on the age it can hold. Never slower than the fixed
+                    // age 2 it replaces. Low Latency Mode keeps age 0.
+                    static int sAdaptAge = 1; static int sCleanFlips = 0;
+                    static int sAdaptOn = -1;
+                    if (sAdaptOn < 0) sAdaptOn = property_get_int32("sys.gammaos.drastic_nano.present_age_adaptive", 1);
+                    int age = android::sDrmLowLatency ? 0 : (sAdaptOn ? sAdaptAge : 2);
                     {
                         // present_age overrides for experiments; -1/unset
                         // keeps the default.
                         int a = property_get_int32(
                                 "sys.gammaos.drastic_nano.present_age", -1);
                         if (a >= 0 && a < D) age = a;
+                    }
+                    // Low Latency Mode (age 0) without the stall: if this
+                    // frame's GPU fence has not signalled yet, flip the previous
+                    // slot for this vblank instead of blocking on it. Age 0
+                    // whenever the GPU is on time, age 1 only on the vblank it
+                    // would otherwise miss (measured age 0: 17 missed vblanks
+                    // in 54 frames at native 3D, an 810 ms stall with hi-res 3D
+                    // and the 4xLCD_Dot shader). Never later than blocking.
+                    static int sFenceSkip = -1; static uint32_t sFenceFallbacks = 0;
+                    // Off by default: at age 0 the fence is rarely signalled at
+                    // the instant of the flip (the frame was just submitted),
+                    // so the probe fell back nearly every frame and measured
+                    // WORSE (native, LLM on: 56.8 ms mean with 13 missed
+                    // vblanks vs 45.5 ms with 1 for the plain kernel-fence
+                    // flip, which lands on the vblank when the GPU finishes
+                    // in time). Kept as an experiment knob only.
+                    if (sFenceSkip < 0) sFenceSkip = property_get_int32("sys.gammaos.drastic_nano.fence_fallback", 0);
+                    if (age == 0 && sFenceSkip && android::sRingPrimedCount >= 3 && !android::drmSlotFenceReady(renderIdx)) {
+                        age = 1; sFenceFallbacks++;
+                        static uint32_t n = 0; if (n++ < 10) ALOGW("drastic-nano: fence not ready at flip, presenting the previous slot (fallback %u)", sFenceFallbacks);
                     }
                     const int presentIdx = (renderIdx - age + 2 * D) % D;
                     const int64_t flipT0 = android::elapsedRealtimeNano();
@@ -2849,13 +3034,21 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     }
                     android::drmSetPacerLocked(dr->vblankPacingActive());
                     android::drmFlipRingSlot(presentIdx, false);
+                    if (gLatCount > age) gLatFlipUs[(gLatCount - 1 - age) % kLatFrames] = android::elapsedRealtimeNano() / 1000;
                     // The flip returned on the vblank that latched it. A gap of
                     // more than 1.5 periods since the previous latch means this
                     // flip missed a vblank: back the pacing lead off.
                     {
                         static int64_t sPrevLatchUs = 0;
                         const int64_t v = android::sDrmLastVblankUs;
-                        if (sPrevLatchUs > 0 && v - sPrevLatchUs > 25000) dr->reportFrameMiss(2); // flip landed a vblank late
+                        if (sPrevLatchUs > 0 && v - sPrevLatchUs > 25000) {
+                            dr->reportFrameMiss(2); // flip landed a vblank late
+                            if (sAdaptAge == 1) { static uint32_t n = 0; if (n++ < 20) ALOGW("drastic-nano: present age 1 -> 2 (flip missed a vblank)"); }
+                            sAdaptAge = 2; sCleanFlips = 0;
+                        } else if (sAdaptAge == 2 && ++sCleanFlips >= 180) {
+                            sAdaptAge = 1; sCleanFlips = 0;
+                            { static uint32_t n = 0; if (n++ < 20) ALOGW("drastic-nano: present age 2 -> 1 (180 clean flips)"); }
+                        }
                         sPrevLatchUs = v;
                     }
                     dr->vblankTick(android::sDrmLastVblankUs, android::drmLastGpuDoneUs());
@@ -4237,6 +4430,20 @@ int main(int argc, char** argv) {
         android::drastic_prefs::markPropsSeeded();
     }
     android::drastic_prefs::applyProps(&prefs);
+    {
+        // Runtime-only experiment override for the hi-res 3D bit (sys prop,
+        // never persisted): lets the look-ahead cost be measured at native
+        // 3D without touching the user's setting.
+        const int hr = property_get_int32("sys.gammaos.drastic_nano.hires3d_override", -1);
+        if (hr == 0 || hr == 1) { prefs.hires3d = hr == 1; ALOGW("drastic-nano: hi-res 3D overridden to %d for this session (runtime prop)", hr); }
+        char fx[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.drastic_nano.shader_override", fx, "");
+        if (fx[0]) { prefs.currentFx = fx; ALOGW("drastic-nano: shader overridden to %s for this session (runtime prop)", fx); }
+        const int ll = property_get_int32("sys.gammaos.drastic_nano.low_latency_override", -1);
+        if (ll == 0 || ll == 1) { prefs.lowLatency = ll == 1; ALOGW("drastic-nano: Low Latency Mode overridden to %d for this session (runtime prop)", ll); }
+        const int t3 = property_get_int32("sys.gammaos.drastic_nano.threaded3d_override", -1);
+        if (t3 == 0 || t3 == 1) { prefs.threaded3d = t3 == 1; ALOGW("drastic-nano: threaded 3D overridden to %d for this session (runtime prop)", t3); }
+    }
     // Frameskip. We USED to hard-force it off here on the theory that nano's
     // RT-paced render loop never needs to skip. But on a weak GPU that cannot
     // render every frame at full panel resolution (e.g. a 512MB DSi ROM on the

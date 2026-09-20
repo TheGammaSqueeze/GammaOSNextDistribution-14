@@ -16,6 +16,7 @@
 #include <jni.h>
 #include <pthread.h>
 #include <sched.h>
+#include <functional>
 #include <signal.h>
 #include <ucontext.h>
 #include <stdio.h>
@@ -2031,6 +2032,8 @@ std::atomic<int64_t>  gLastStepTickUs{0};
 std::atomic<int64_t>  gPacerNextTickUs{0};   // the pacer's next scheduled tick (steady clock us)
 std::atomic<int64_t>  gRaSaveCostUs{5000};   // measured park-save cost (EMA)
 std::atomic<uint32_t> gRaStatSaveSkipped{0}; // park saves skipped for lack of slack
+std::atomic<uint32_t> gRaStatSaveQuiet{0};   // park saves skipped because no burst could fit the scene
+std::atomic<int64_t>  gRaLoadEstUs{0};        // EMA of the burst load (0 = none yet)
 void raFlushDeferredUnmaps();   // DS memory-map remap dedup, defined with the run-ahead primitives
 void raJoin3dWorker(uint8_t* base);   // threaded-3D worker join (run-ahead)
 extern uint8_t* gRaLibBase;
@@ -2095,6 +2098,23 @@ volatile uint32_t gRaCodeGen = 0;
 uint32_t gRaRingGen[kRaMaxRing] = {0, 0, 0, 0, 0, 0};
 bool gRaJitSkipOn = false;
 bool gRaWarmLoad = false;   // the parked load in flight is the warm-up (state unchanged: keep the GX FIFOs)
+// Look-ahead mode (runahead=3): RetroArch's run-ahead order. Every tick the
+// real frame runs hidden (no compose, no 3D kick, audio discarded), its park
+// saves the ring, one look-ahead frame runs with the current input and is
+// the frame shown and heard, then the real state is restored. The panel is
+// one frame ahead of the real timeline on every game, which is what the
+// past-replay design could not give on games with no internal input lag.
+std::atomic<bool> gRaLookAhead{false};       // mode 3 requested by the UI/prop
+std::atomic<bool> gRaLaForceSave{false};     // the park in flight must save the ring (skip/quiet policies bypassed)
+std::atomic<bool> gRaLaSkipSave{false};      // the park in flight must not save (look-ahead frame)
+std::atomic<uint32_t> gRaStatLaTicks{0}, gRaStatLaPlain{0}, gRaStatLaLate{0};
+std::atomic<int64_t> gRaLaCostUs{0};         // EMA of a full look-ahead tick (real + save + look-ahead + load)
+std::atomic<int64_t> gRaLaPhaseUs[3];         // EMA per phase: look-ahead frame, load, hidden real frame + save
+std::atomic<int64_t> gRaLaWaitUs[3];          // EMA of the 3D worker wait inside each phase
+std::atomic<bool> gRaSkipJoinOnce{false};      // next parked op may run without joining the 3D worker
+std::atomic<uint32_t> gRaStatLaNoJoin{0}, gRaStatLaJoin{0};
+std::atomic<int64_t> gRaJoinWaitUs{0};        // EMA of the 3D worker join before a parked op
+std::atomic<int64_t> gRaHiddenJoinUs{0};      // EMA of the 3D worker join at a hidden frame's flip
 std::atomic<uint32_t> gRaStatJitSkipped{0}, gRaStatJitFull{0};
 std::atomic<int> gRaFrames{0}, gRaRingNext{0}, gRaRingCount{0};
 void raRunParkedOp();
@@ -2619,6 +2639,8 @@ void raDirtyOnRemap(void* addr, size_t len, int fd, off_t off);
 void raRingAutoSave();   // emulator thread, on park: save the end-of-frame state into the ring
 void raJoin3dWorker(uint8_t* base);
 static void raLogGx(const char* when);
+std::atomic<uint32_t> gRaLoadSeq{0};   // parked loads so far (warm-up and burst)
+bool raBurstCouldFit(int64_t emu, int64_t leadUs);
 uint8_t* gRaGx = nullptr;      // 3D engine object: *(heapMaster + 0xfba78), back-pointer at gx+0x9a30
 uint8_t* gRaVideoP = nullptr;  // video object: *(master' + 0xfba68); byte +0x8aaa0 = "this frame skipped" (frameskip)
 // Hidden replay frames must not reach the panel. With zero-copy slots the
@@ -2966,8 +2988,17 @@ extern "C" uint64_t ffCapHook(uint32_t cap, uint32_t flag, uint8_t* hm) {
     if (render) return ((uint64_t)cap << 32);
     return ((uint64_t)(cap & 0x7fffffffu) << 32) | 1u;
 }
+// Press-stall diagnostic (ra_debug): the last 16 flip times and, at each flip,
+// a check for a gap over 20 ms within 100 ms of the last input change; the
+// gap's position relative to the press and the engine state are logged.
+static int64_t gFlipRing[16]; static int gFlipRingN = 0;
+std::atomic<int64_t> gLastInputChangeUs{0};
 extern "C" void drasticSlotFlipHook() {
-    gFlipHookCount.fetch_add(1);
+    // A parked run-ahead load presents the restored frame through this hook
+    // too; that flip is not an emulated frame, so the producer count skips it
+    // (it made producer minus hidden frames read one frame per burst above the
+    // panel rate).
+    if (gRaParkOp.load(std::memory_order_relaxed) != 1) gFlipHookCount.fetch_add(1);
     if (gZcSwapState.load() == 1 && gZcBss) {
         uint8_t* nb = gZcNewBase.load();
         uint8_t** slots = reinterpret_cast<uint8_t**>(gZcBss);
@@ -2986,6 +3017,18 @@ extern "C" void drasticSlotFlipHook() {
     const bool hidden = gRaBurst.load(std::memory_order_acquire);
     const bool afterBurst = (int32_t)(gVblSeq.load() - gRaBurstUntilSeq.load()) < 0;
     gProducerDoneUs.store(now);
+    {
+        static int sTr = -1; static uint32_t n = 0;
+        if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+        if (sTr) {
+            const int64_t prev = gFlipRingN > 0 ? gFlipRing[(gFlipRingN - 1) & 15] : 0;
+            gFlipRing[gFlipRingN & 15] = now; gFlipRingN++;
+            const int64_t press = gLastInputChangeUs.load();
+            if (prev && now - prev > 20000 && press && now - press < 100000 && n++ < 20)
+                ALOGW("PRESSSTALL flip gap %lld us (prev flip %lld us before the press, this flip %lld us after it) mode %d burst %d parkOp %d paced %d bypass %d seq %u",
+                      (long long)(now - prev), (long long)(press - prev), (long long)(now - press), gRaMode.load(), gRaBurst.load() ? 1 : 0, gRaParkOp.load(), gPaceOn.load() ? 1 : 0, gPaceBypass.load() ? 1 : 0, gVblSeq.load());
+        }
+    }
     const int64_t t = gLastTickUs.load();
     if (gPaceOn.load() && t > 0 && now - t > 0 && now - t < 30000 && !hidden && !afterBurst &&
         !gRaCatchUpSkip.load(std::memory_order_relaxed)) {
@@ -3008,7 +3051,9 @@ extern "C" void drasticSlotFlipHook() {
     // compaction at +0x63bc4: write reset to start, read mid-list). Join
     // the worker here, after the kick and compose, before the emulation of
     // the next hidden frame begins.
-    if (hidden && gRaLibBase) raJoin3dWorker(gRaLibBase);
+    if (hidden && gRaLibBase) { const int64_t j0 = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); raJoin3dWorker(gRaLibBase);
+        const int64_t j = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - j0;
+        const int64_t e = gRaHiddenJoinUs.load(); gRaHiddenJoinUs.store(e > 0 ? (e * 3 + j) / 4 : j); }
     if (!hidden && gZcBss) {
         const int32_t cur = *reinterpret_cast<int32_t*>(gZcBss + 0x958);
         const int front = ((~cur) & 1) ? 1 : 0;
@@ -3085,7 +3130,15 @@ extern "C" void drasticVWait(unsigned usec) {
         }
     }
     raDirtyApplyWant();   // emulator thread at a frame boundary: dirty tracking follows run-ahead and the pacer lock
-    if (!gPaceOn.load(std::memory_order_relaxed)) { sEmuRunStartUs = 0; usleep(usec); return; }
+    if (!gPaceOn.load(std::memory_order_relaxed)) {
+        // Unpaced: drastic's own limiter sleeps the remainder. Clamp it: a
+        // deadline from the other time base (seen once after a burst load
+        // that raced a lock/bypass switch) asked for a sleep of minutes and
+        // froze the emulator; nothing legitimate waits more than a frame or two.
+        sEmuRunStartUs = 0;
+        usleep(usec > 50000 ? 50000 : usec);
+        return;
+    }
     std::unique_lock<std::mutex> lk(gPaceMu);
     const uint32_t seen = gVblSeq.load(std::memory_order_acquire);
     // Tick accounting. A frame that ran past its period saw the next tick
@@ -4354,7 +4407,22 @@ extern "C" void raAudioSubmitPost(uint8_t* ctx) {
     gAudCarryN = 0;
 }
 std::atomic<uint32_t> gAudSkipped{0};   // frames drastic discards itself (skip byte at ctx+0x40027)
+std::atomic<uint32_t> gRaStatAudioSkipped{0};   // burst submits (load present + hidden frames) discarded here
 extern "C" void raAudioSubmitHook(uint8_t* ctx) {
+    // Run-ahead burst in flight (the parked load's present of the restored
+    // frame and the hidden replay frame): none of that audio is game time,
+    // the visible frame after the burst submits the real chunk. The burst
+    // set drastic's skip byte for its duration, but the state-load path
+    // rewrites that byte for its own submit, so the hidden frame's chunk
+    // leaked into the sink: one extra chunk per burst, which under mashing
+    // (up to a burst per frame) overfilled the queue and the ceiling dropped
+    // chunks, audible as the game and music running fast. Force the skip
+    // here, ahead of drastic's read of the byte, for every burst submit.
+    if (gRaBurst.load(std::memory_order_acquire)) {
+        ctx[0x40027] = 1;
+        gRaStatAudioSkipped.fetch_add(1, std::memory_order_relaxed);
+        return;
+    }
     // Native-rate resampler: with native_mix the core mixes at 32729 Hz and hands over ~546 stereo frames per video frame;
     // convert each chunk to 44100 Hz here (before the frame-size normaliser and the dump). 16-tap Hann-windowed sinc,
     // history of the last 16 input frames carried across chunks, phase accumulated in 32.32 so long runs do not drift.
@@ -4465,6 +4533,10 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
         // trough off zero on a hiccup; still nowhere near a drop.
         if (gAudioChunks8.load(std::memory_order_relaxed))
             sTargetQ = property_get_int32("persist.gammaos.drastic_nano.clock_match_target8_x10", 32) / 10.0;
+        {   // runtime-only experiment override (sys prop): the queue depth the clock match holds, in chunks x10
+            const int t = property_get_int32("sys.gammaos.drastic_nano.clock_match_target_override_x10", -1);
+            if (t > 0) { sTargetQ = t / 10.0; ALOGW("DrasticRunner: clock match target overridden to %.1f chunks (runtime prop)", sTargetQ); }
+        }
     }
     static bool sSkipSet = false;
     if (sSkipSet) { ctx[0x40027] = 0; sSkipSet = false; }   // clear the discard we asked for last call
@@ -4825,7 +4897,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         // frames: White 2 measured 54 fps locked vs 59.8 bypassed); scenes
         // that merely hiccuped recover through the run-ahead retry below.
         static int sOverCount = 0;
-        static int64_t sRaRetryUs = 4000000, sLockedSinceUs = 0;
+        static int64_t sRaRetryUs = 4000000, sLockedSinceUs = 0, sEmuAtDrop = 0;
         if (gPaceOn.load() && emu > sBypassUs) sOverCount++; else sOverCount = 0;
         if (gPaceOn.load() && !gPaceBypass.load()) {
             if (sLockedSinceUs == 0) sLockedSinceUs = vblankUs;
@@ -4859,15 +4931,37 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                 sMissTrip = false;
                 gPaceBypass.store(true); sBypassSinceUs = vblankUs; sProbeSinceUs = 0;
                 if (sRaRetryUs < 64000000) sRaRetryUs *= 2;
+                // The run-ahead retry waits for the scene to lighten from here,
+                // but only when the frame time itself caused the drop. A miss
+                // or catch-up trip at a normal frame time (Sonic slot 0, 10.5 ms)
+                // must not demand a lighter scene or the lock never returns and
+                // run-ahead stays idle for the session (seen: 0 bursts).
+                sEmuAtDrop = (emu > sBypassUs) ? emu : 0;
                 ALOGW("PACE bypass: emulator %lld us per frame", (long long)emu);
                 setVblankPacing(mPaceWanted);
             }
         } else if (sProbeSinceUs == 0 && vblankUs - sBypassSinceUs > 3000000 &&
                    (gEmuCpuLightSecs.load() >= 3 ||
-                    // run-ahead needs the lock: retry regardless of load, with
-                    // exponential backoff (4, 8, 16 .. 64 s) so a scene that
-                    // cannot hold the lock is not stuttered every few seconds
-                    (gRaMode.load() == 2 && vblankUs - sBypassSinceUs > sRaRetryUs) ||
+                    // run-ahead needs the lock: retry with exponential backoff
+                    // (4, 8, 16 .. 64 s), but only while the emulator's average
+                    // frame sits near the threshold. A scene well over it can
+                    // never hold the lock, and every probe cost a burst of
+                    // pacing misses and audio underruns (Golden Sun slot 0:
+                    // 10 to 48 misses and 33 to 68 underruns per two minutes
+                    // with run-ahead on, 0 and 2 with it off).
+                    // and only once the scene has lightened by 15% from the
+                    // frame time at which the lock last dropped: re-probing the
+                    // same load just repeats the drop (each probe = a burst of
+                    // misses; Golden Sun slot 0 took ~45 per two minutes).
+                    // Retry only when a burst could fit at all on this
+                    // frame time (raBurstCouldFit at the 12 ms lead the lock
+                    // holds): Golden Sun at 8 to 11 ms passed the old "near
+                    // the threshold" test, relocked, and took 43 to 65 misses
+                    // per two minutes (0 with run-ahead off) without a single
+                    // burst fitting.
+                    (gRaMode.load() == 2 && vblankUs - sBypassSinceUs > sRaRetryUs &&
+                     raBurstCouldFit(emu, 12000) &&
+                     (sEmuAtDrop <= 0 || emu < sEmuAtDrop - sEmuAtDrop * 3 / 20)) ||
                     (property_get_int32("sys.gammaos.drastic_nano.pace_probe_ms", 0) > 0 &&
                      vblankUs - sBypassSinceUs > 1000LL * property_get_int32("sys.gammaos.drastic_nano.pace_probe_ms", 0)))) {
             // probe: the emulator thread has been light for three seconds (or
@@ -5124,9 +5218,16 @@ bool DrasticRunner::audioLeadHoldTick(int64_t nowUs) {
     return false;
 }
 
+// Audio lead frames (extra emulated frames run at lock time to fill the sink):
+// the persisted setting, or a runtime-only experiment override.
+static int raAudioLeadFrames() {
+    const int o = property_get_int32("sys.gammaos.drastic_nano.audio_lead_override", -1);
+    if (o >= 0) { static bool logged = false; if (!logged) { logged = true; ALOGW("DrasticRunner: audio lead frames overridden to %d (runtime prop)", o); } return o; }
+    return property_get_int32("persist.gammaos.drastic_nano.audio_lead_frames", 2);
+}
 void DrasticRunner::audioLeadExtraTick(int64_t nowUs) {
     static int sLeadFrames = -1; static int64_t sLastTopUpUs = 0;
-    if (sLeadFrames < 0) sLeadFrames = property_get_int32("persist.gammaos.drastic_nano.audio_lead_frames", 2);
+    if (sLeadFrames < 0) sLeadFrames = raAudioLeadFrames();
     if (sLeadFrames <= 0 || !mArm64Base || !gPaceOn.load() || gRaBurst.load()) return;
     const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
     // Top up while one chunk (67 ms) is still queued: at 0 the output thread
@@ -5150,8 +5251,12 @@ void DrasticRunner::audioLeadExtraTick(int64_t nowUs) {
     gPaceCv.notify_all();
 }
 
+static int64_t gPacerPhaseUs[4];
+static inline int64_t pacerNowUs() { return (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); }   // per-tick time spent: 0 poke-burst, 1 tick (runAheadPacerTick), 2 audio extra tick, 3 hold
 void DrasticRunner::pacerThread() {
     pthread_setname_np(pthread_self(), "dn-pacer");
+    { struct sched_param sp = {}; int pol = pthread_getschedparam(pthread_self(), &pol, &sp) == 0 ? pol : -1;
+      ALOGI("DrasticRunner: pacer thread policy %d prio %d nice %d", pol, sp.sched_priority, getpriority(PRIO_PROCESS, gettid())); }
     bool prevPaceOn = false;
     int64_t nextTick = 0;
     while (mPacerRun.load()) {
@@ -5193,6 +5298,12 @@ void DrasticRunner::pacerThread() {
         // Never tick sooner than one period after the previous tick, even if
         // a late-reported vblank pulls the alignment earlier.
         if (nextTick > 0 && target < nextTick + period - 500) target = nextTick + period - 500;
+        { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+          if (sTr && nextTick > 0 && target - nextTick > period + period / 2 && n++ < 40)
+              ALOGW("RATRACE pacer skipped a period: previous tick %lld us ago, next in %lld us (burst %d); since last tick: poke-burst %lld, tick %lld, audio-extra %lld us",
+                    (long long)(now - nextTick), (long long)(target - now), gRaBurst.load() ? 1 : 0,
+                    (long long)gPacerPhaseUs[0], (long long)gPacerPhaseUs[1], (long long)gPacerPhaseUs[2]);
+          gPacerPhaseUs[0] = gPacerPhaseUs[1] = gPacerPhaseUs[2] = 0; }
         int64_t sleepUs = target - now;
         if (gRaMode.load() == 2) {
             // Sleep in a wakeable way: an input change starts the replay
@@ -5204,7 +5315,7 @@ void DrasticRunner::pacerThread() {
                     gRaPokeCv.wait_for(lk, std::chrono::microseconds(sleepUs),
                                        [] { return gRaInputPoke.load(); });
                 }
-                if (gRaInputPoke.exchange(false)) runAheadTryBurst(false);
+                if (gRaInputPoke.exchange(false) && !gRaLookAhead.load()) { const int64_t p0 = pacerNowUs(); runAheadTryBurst(false); gPacerPhaseUs[0] += pacerNowUs() - p0; }
                 sleepUs = target - (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
                         std::chrono::steady_clock::now().time_since_epoch()).count();
             }
@@ -5222,13 +5333,16 @@ void DrasticRunner::pacerThread() {
         }
         {
             const bool on = gPaceOn.load();
-            if (on && !prevPaceOn) gAudioLeadDebt.store(property_get_int32("persist.gammaos.drastic_nano.audio_lead_frames", 2));
+            if (on && !prevPaceOn) gAudioLeadDebt.store(raAudioLeadFrames());
             prevPaceOn = on;
         }
         if (!gClockMatchOn.load(std::memory_order_relaxed) && audioLeadHoldTick(target)) continue;   // queue at its ceiling: no emulated frame this vblank (the clock match trims the rate instead)
         if (gRaMode.load() == 2) {
+            int64_t p0 = pacerNowUs();
             runAheadPacerTick();   // replay burst if the input changed, then the shown frame
+            gPacerPhaseUs[1] += pacerNowUs() - p0; p0 = pacerNowUs();
             audioLeadExtraTick(target);
+            gPacerPhaseUs[2] += pacerNowUs() - p0;
             continue;
         }
         { std::lock_guard<std::mutex> lk(gPaceMu); gVblSeq.fetch_add(1, std::memory_order_acq_rel); }
@@ -5985,6 +6099,10 @@ void DrasticRunner::renderDsToOffscreen() {
         // (see runaheadProbe). Runs on its own thread so the presenter keeps
         // going while the emulator is single-stepped.
         {
+            {
+                const int lm = property_get_int32("sys.gammaos.drastic_nano.ra_lag_probe", 0);
+                if (lm > 0) { property_set("sys.gammaos.drastic_nano.ra_lag_probe", "0"); std::thread([this, lm] { lagProbe(lm); }).detach(); }
+            }
             int n = property_get_int32("sys.gammaos.drastic_nano.runahead_probe", 0);
             if (n > 0 && mSaveState && mLoadState && mArm64Base) {
                 property_set("sys.gammaos.drastic_nano.runahead_probe", "0");
@@ -6366,6 +6484,7 @@ void DrasticRunner::setInputWithTouch(int bitmask, int touchX, int touchY,
         }
     }
     sLastWritten = fullBitmask;
+    { static int sPrevStamped = -1; if (fullBitmask != sPrevStamped) { sPrevStamped = fullBitmask; gLastInputChangeUs.store((int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count()); } }
     mUpdateInput(mFakeEnv, mFakeCls, fullBitmask, touchPacked, 0);
     // Live input latch (live_input, default on): drastic copies the JNI input
     // words into the block the emulated KEYINPUT/touch reads come from
@@ -6580,10 +6699,28 @@ uint32_t raStepTick() {
 
 // The stepped frame is done once the emulator thread has entered the
 // limiter wait again (count advanced) and parked there.
+// Both waits below spin first: a condition-variable wake of the pacer thread
+// measured 2.6 ms on this SoC (hidden frame parked 3.1 ms after its tick,
+// the wait returned 5.7 ms after it), which was a third of a burst's wall
+// time and pushed the visible frame past its vblank. A bounded spin with
+// sched_yield returns within microseconds; the condition wait is the
+// fallback for anything longer.
+static bool raSpinUntil(const std::function<bool()>& pred, int spinUs) {
+    const int64_t t0 = raNowUs();
+    while (raNowUs() - t0 < spinUs) { if (pred()) return true; sched_yield(); }
+    return pred();
+}
+static int raSpinBudgetUs() {
+    static int sSpin = -1; static int64_t sReadUs = 0;
+    const int64_t now = raNowUs();
+    if (sSpin < 0 || now - sReadUs > 2000000) { sReadUs = now; sSpin = property_get_int32("sys.gammaos.drastic_nano.ra_spin_us", 12000); }
+    return sSpin;
+}
 bool raStepWait(uint32_t v0, int timeoutUs) {
+    auto done = [&] { return gVWaitCount.load(std::memory_order_acquire) != v0 && gEmuParked.load(std::memory_order_acquire); };
+    if (raSpinUntil(done, raSpinBudgetUs())) return true;
     std::unique_lock<std::mutex> lk(gParkMu);
-    return gParkCv.wait_for(lk, std::chrono::microseconds(timeoutUs),
-                            [&] { return gVWaitCount.load() != v0 && gEmuParked.load(); });
+    return gParkCv.wait_for(lk, std::chrono::microseconds(timeoutUs), done);
 }
 
 // Overwrite one instruction in libdrastic's text. Returns the old word.
@@ -6963,7 +7100,11 @@ extern "C" void* raHookMalloc(size_t n) {
 }
 
 extern "C" void raHookFree(void* p) {
-    if (p && gRaStateHookOn.load(std::memory_order_relaxed) && raIsOurBuf(p)) {
+    // Our buffers are never scudo's, whatever the hook state: a load that took
+    // one from raHookMalloc can free it AFTER run-ahead was switched off (the
+    // main loop disables it when the pacer bypasses a heavy scene), and scudo
+    // aborts on a pointer it never allocated (Golden Sun slot 0 load crash).
+    if (p && raIsOurBuf(p)) {
         gRaStatFreeSkip.fetch_add(1, std::memory_order_relaxed);
         gRaLoadTs[5].store(raTsNow());
         return;
@@ -7682,7 +7823,7 @@ void raRunParkedOp() {
     bool ok = false;
     if (base) {
         uint8_t* heapMaster = *reinterpret_cast<uint8_t**>(base + kRaMasterOff);
-        raJoin3dWorker(base);
+        if (!gRaSkipJoinOnce.exchange(false)) { const int64_t j0 = raNowUs(); raJoin3dWorker(base); const int64_t j = raNowUs() - j0; const int64_t e = gRaJoinWaitUs.load(); gRaJoinWaitUs.store(e > 0 ? (e * 3 + j) / 4 : j); }
         if (op == 1) {
             typedef int (*loadFn_t)(void*, int, void*, void*, int);
             if (gRaHashCheck && gRaParkRingIdx >= 0) {
@@ -7694,12 +7835,44 @@ void raRunParkedOp() {
                       hdr[0], hdr[1]);
             }
             if (fakejni::ramStateSetSize(DrasticRunner::kRamStateSlot, gRaParkLen)) {
+                // Warm-up load: the newest ring entry was saved at a park WITHOUT
+                // joining the 3D worker (a join every park is too costly), so its
+                // GX FIFO cursors can be torn against the worker's consumption.
+                // The live cursors (worker joined above) are the truth: keep them
+                // across the load so the warm-up only warms caches and never
+                // hands the parser a read cursor beyond its buffer (Sonic slot 0
+                // crash: compaction memcpy at +0x63bc4 off the end of a mapping).
+                uint8_t* gxKeep[4] = {};
+                uint8_t gxByte0 = 0, gxByte1 = 0;
+                const bool keepGx = gRaWarmLoad && gRaGx;
+                if (keepGx) {
+                    memcpy(gxKeep, gRaGx + 0x9a68, sizeof(gxKeep));
+                    gxByte0 = *(gRaGx + 0x9a30 + 154); gxByte1 = *(gRaGx + 0x9ac1);
+                }
                 gRaLoadBuf.store(gRaParkBuf);
                 const bool skipJit = gRaJitSkipOn && gRaParkGen == gRaCodeGen;
                 uint32_t was = 0;
                 if (skipJit) { was = raPatchInsn(base, kRaLoadJitClearSite, kRaNop); gRaStatJitSkipped.fetch_add(1); }
                 else gRaStatJitFull.fetch_add(1);
+                volatile int64_t* dl = reinterpret_cast<volatile int64_t*>(heapMaster + 0x3b2f908);
+                const int64_t dl0 = *dl; uint64_t vt0 = 0; drasticVTime(&vt0);
+                const bool paced0 = gPaceOn.load() && !gPaceBypass.load();
                 reinterpret_cast<loadFn_t>(base + 0x7acc4)(heapMaster, DrasticRunner::kRamStateSlot, nullptr, nullptr, 0);
+                gRaLoadSeq.fetch_add(1);
+                // drastic's load path resets its frame limiter deadline
+                // (master + 0x3b2f908) to 0, "run the next frame now": after
+                // every burst load the limiter ran one frame without waiting
+                // and the hidden tick ran another, two frames of game time
+                // per replay of one. Sonic Rush's timer gained 32.4 s in 29 s
+                // under mashing. The limiter's schedule is not part of the
+                // replayed timeline: keep the live one.
+                const int64_t dlAfter = *dl;
+                // Only while the pacing mode is the same as when dl0 was read:
+                // the lock/bypass switch rebases the limiter's deadline, and a
+                // value from the other base froze the emulator in a long sleep.
+                if (paced0 && gPaceOn.load() && !gPaceBypass.load()) *dl = dl0;
+                { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+                  if (sTr && n++ < 16) ALOGW("RATRACE load: deadline %lld -> %lld, kept %lld (vtime %llu, x3 %llu) warm %d emuFrames %u vwait %u seq %u", (long long)dl0, (long long)dlAfter, (long long)*dl, (unsigned long long)vt0, (unsigned long long)vt0 * 3, gRaWarmLoad ? 1 : 0, gEmuFrames.load(), gVWaitCount.load(), gVblSeq.load()); }
                 if (skipJit) raPatchInsn(base, kRaLoadJitClearSite, was);
                 gRaLoadBuf.store(nullptr);
                 raDirtyPostLoad();
@@ -7717,6 +7890,10 @@ void raRunParkedOp() {
                     f[1] = gRaGx + 0x81b00; f[3] = gRaGx + 0x81b00;   // vtx read / write
                     *(gRaGx + 0x9a30 + 154) = 0;
                     *(gRaGx + 0x9ac1) = 0;   // parameter words still expected by the command in flight
+                }
+                if (keepGx) {
+                    memcpy(gRaGx + 0x9a68, gxKeep, sizeof(gxKeep));
+                    *(gRaGx + 0x9a30 + 154) = gxByte0; *(gRaGx + 0x9ac1) = gxByte1;
                 }
                 // Retire the buffer just loaded from (see gRaRetired).
                 if (gRaParkRingIdx >= 0 && gRaRetired[gRaRetiredIdx]) {
@@ -7801,6 +7978,8 @@ void raFindVideo(uint8_t* base) {
     uint8_t* gx = sane(masterP) ? *reinterpret_cast<uint8_t**>(masterP + 0xfba78) : nullptr;
     const bool gxOk = sane(gx) && *reinterpret_cast<uint8_t**>(gx + 0x9a30) == heapMaster;
     gRaGx = gxOk ? gx : nullptr;
+    if (!gxOk) ALOGW("run-ahead: 3D engine object not resolved (master %p gx %p back %p heap %p); the compaction hook will supply it",
+                     masterP, gx, sane(gx) ? *reinterpret_cast<uint8_t**>(gx + 0x9a30) : nullptr, heapMaster);
     uint8_t* vp = sane(masterP) ? *reinterpret_cast<uint8_t**>(masterP + 0xfba68) : nullptr;
     gRaVideoP = sane(vp) ? vp : nullptr;
     ALOGW("run-ahead master' %p gx object %p (%s)", masterP, gx, gxOk ? "back-pointer ok" : "NOT validated");
@@ -7818,9 +7997,93 @@ void raJoin3dWorker(uint8_t* base) {
 // just emulated into ring[next] (drastic's internal save routine, writer
 // bypassed) and advance the ring. Bursts refresh entries the same way as
 // their hidden frames park.
+// GX FIFO cursor guard (run-ahead only): every crash tombstone so far shows the
+// compaction at +0x63bc4 copying from a cmd read cursor exactly cmdbuf + 0x346940
+// (gx + 0x3c0440), so a cursor outside its 0x8000-byte buffer is the precursor.
+// Check the four cursors at every park (four compares) and, when one is out of
+// range, log where it points and reset the FIFOs like ra_gx_reset does.
+std::atomic<uint32_t> gRaStatGxFix{0};
+static void raGxGuard(const char* when) {
+    if (!gRaGx) return;
+    uint8_t** f = reinterpret_cast<uint8_t**>(gRaGx + 0x9a68);
+    uint8_t* cmd = gRaGx + 0x79b00; uint8_t* vtx = gRaGx + 0x81b00;
+    const bool bad = f[0] < cmd || f[0] > cmd + 0x8000 || f[2] < cmd || f[2] > cmd + 0x8000 ||
+                     f[1] < vtx || f[1] > vtx + 0x8000 || f[3] < vtx || f[3] > vtx + 0x8000 ||
+                     f[2] < f[0] || f[3] < f[1];
+    if (!bad) return;
+    const uint32_t n = gRaStatGxFix.fetch_add(1) + 1;
+    if (n <= 20)
+        ALOGW("run-ahead GX guard (%s, #%u): cmd r %+lld w %+lld, vtx r %+lld w %+lld [rel gx]: reset",
+              when, n, (long long)(f[0] - gRaGx), (long long)(f[2] - gRaGx),
+              (long long)(f[1] - gRaGx), (long long)(f[3] - gRaGx));
+    f[0] = cmd; f[2] = cmd; f[1] = vtx; f[3] = vtx;
+    *(gRaGx + 0x9a30 + 154) = 0;
+    *(gRaGx + 0x9ac1) = 0;
+}
+
+// Compaction-entry guard (run-ahead only). The compaction at +0x63aec copies
+// the partial command [committed, write) to the buffer start with a 32-bit
+// length: a write cursor below the committed cursor (the GPU deserializer sets
+// write = cmdbuf + fill and leaves committed where the live timeline had it)
+// becomes a ~4 GB memcpy off the end of the mapping. The park guard never saw
+// the bad pair because it appears between parks, so the cursors are checked at
+// the copy itself: a cave at +0x63aec calls this with x0 = gx before the
+// function body runs. Bad FIFOs are reset like ra_gx_reset does and logged.
+std::atomic<uint32_t> gRaStatGxCompactFix{0};
+extern "C" void raGxCompactGuard(uint8_t* gx) {
+    if (!gx) return;
+    // The compaction only ever gets the real 3D engine object: this is the
+    // authoritative gx (raFindVideo's back-pointer check failed on Pokemon
+    // White 2, leaving gRaGx null: no ra_gx_reset after loads, and the
+    // guard's first hit was exactly the deserializer pair, committed +0x16f
+    // over a write cursor at the buffer start).
+    if (gRaGx != gx) { ALOGW("run-ahead GX object %p from the compaction hook (was %p)", gx, gRaGx); gRaGx = gx; }
+    uint8_t** f = reinterpret_cast<uint8_t**>(gx + 0x9a68);
+    uint8_t* cmd = gx + 0x79b00; uint8_t* vtx = gx + 0x81b00;
+    const bool badCmd = f[0] < cmd || f[0] > cmd + 0x8000 || f[2] < cmd || f[2] > cmd + 0x8000 || f[2] < f[0];
+    const bool badVtx = f[1] < vtx || f[1] > vtx + 0x8000 || f[3] < vtx || f[3] > vtx + 0x8000 || f[3] < f[1];
+    if (!badCmd && !badVtx) return;
+    const uint32_t n = gRaStatGxCompactFix.fetch_add(1) + 1;
+    if (n <= 20)
+        ALOGW("run-ahead GX compaction guard #%u: cmd c %+lld w %+lld, vtx c %+lld w %+lld [rel gx], burst %d parkOp %d loadSeq %u gx %s: reset %s%s",
+              n, (long long)(f[0] - gx), (long long)(f[2] - gx), (long long)(f[1] - gx), (long long)(f[3] - gx),
+              gRaBurst.load() ? 1 : 0, gRaParkOp.load(), gRaLoadSeq.load(), gRaGx == gx ? "known" : (gRaGx ? "MISMATCH" : "unresolved"),
+              badCmd ? "cmd" : "", badVtx ? " vtx" : "");
+    if (badCmd) { f[0] = cmd; f[2] = cmd; }
+    if (badVtx) { f[1] = vtx; f[3] = vtx; }
+    *(gx + 0x9a30 + 154) = 0;
+    *(gx + 0x9ac1) = 0;
+}
+
+// Could a one-frame burst fit at its best phase (the park right after a
+// visible frame) on a scene with this frame time? Slack to the next tick's
+// deadline (tick + lead - frame - presenter reserve) is period + lead -
+// reserve minus the frame that just ran and the one that follows, minus the
+// gate's spare; the cost is the gate's estimate (load + 75% of the frame + a
+// save, plus an eighth). Shared by the quiet park-save policy and the pacer's
+// lock retry so neither spends frame budget on a scene that cannot burst.
+bool raBurstCouldFit(int64_t emu, int64_t leadUs) {
+    const int64_t period = gVblankPeriodUs.load() > 0 ? gVblankPeriodUs.load() : 16667;
+    static int64_t sWaitUs = -1, sMargin = 0, sSpare = 0, sReadUs = 0;
+    const int64_t now = raNowUs();
+    if (sWaitUs < 0 || now - sReadUs > 2000000) {
+        sReadUs = now;
+        sWaitUs = property_get_int32("sys.gammaos.drastic_nano.pace_wait_us", 10000);
+        sMargin = property_get_int32("sys.gammaos.drastic_nano.ra_fit_margin_us", 1000);
+        sSpare = property_get_int32("sys.gammaos.drastic_nano.ra_fit_spare_us", 2000);
+    }
+    const int64_t reserve = std::max<int64_t>(sMargin, period - sWaitUs + sMargin);
+    const int64_t le = std::max<int64_t>(1500, gRaLoadEstUs.load());
+    const int64_t he = emu * 3 / 4 + gRaSaveCostUs.load();
+    const int64_t need = le + he + (le + he) / 8;
+    const int64_t budget = period + leadUs - 2 * emu - reserve - sSpare;
+    return need <= budget;
+}
+
 void raRingAutoSave() {
     DrasticRunner* r = DrasticRunner::getInstance();
     uint8_t* base = r ? r->libBase() : nullptr;
+    raGxGuard(gRaBurst.load() ? "hidden park" : "park");
     const int R = gRaFrames.load() + 1;
     const int next = gRaRingNext.load();
     if (!base || R < 2 || !gRaRing[next]) {
@@ -7828,6 +8091,8 @@ void raRingAutoSave() {
         return;
     }
     typedef int (*saveFn_t)(int);
+    if (gRaLaSkipSave.exchange(false)) return;   // look-ahead frame: its state is discarded
+    const bool laForce = gRaLaForceSave.exchange(false);
     // No 3D worker join here: the serializer only reads state the worker
     // never writes, and joining at every park would serialize the 3D render
     // into the frame period (pushed this scene over the pacer's bypass
@@ -7852,12 +8117,35 @@ void raRingAutoSave() {
         if (sHiddenJoin < 0) sHiddenJoin = property_get_int32("sys.gammaos.drastic_nano.ra_hidden_join", 0);
         if (sHiddenJoin) raJoin3dWorker(base);
     }
-    if (!gRaBurst.load()) {
+    if (!gRaBurst.load() && !laForce) {
         const int64_t due = gPacerNextTickUs.load();
         if (due > 0 && due - t0 < gRaSaveCostUs.load() + 500) {
             gRaRingCount.store(0);
             gRaStatSaveSkipped.fetch_add(1);
+            // The cost estimate only updates when a save runs, so a single
+            // slow save (a cold first one measured 22 ms) would skip every
+            // save from then on and the ring never refilled: decay it while
+            // skipping so a save gets tried again within a few parks.
+            const int64_t c = gRaSaveCostUs.load();
+            if (c > 1000) gRaSaveCostUs.store(c - c / 8);
             return;
+        }
+        // Quiet policy: when even a one-frame burst cannot fit the scene's
+        // frame budget at its best phase (raBurstCouldFit), the ring is dead
+        // weight. Every park save then only costs the frame budget (3 to 4 ms
+        // on a 9 ms Golden Sun frame busted the pacer lock: 40 misses and 50
+        // underruns per two minutes with the engine never bursting). Skip the
+        // save; the ring refills as soon as the scene lightens enough for a
+        // burst to fit again.
+        {
+            const int64_t emu = gEmuDurUs.load();
+            static int sQuiet = 0;   // hysteresis: 30 consecutive no-fit parks enter, 30 fit parks leave
+            if (!raBurstCouldFit(emu, gLeadUs.load())) { if (sQuiet < 60) sQuiet++; } else { if (sQuiet > 0) sQuiet--; }
+            if (sQuiet >= 30 && emu > 0) {
+                gRaRingCount.store(0);
+                gRaStatSaveQuiet.fetch_add(1);
+                return;
+            }
         }
     }
     gRaSaveDone.store(false);
@@ -7879,6 +8167,8 @@ void raRingAutoSave() {
     gRaRingNext.store((next + 1) % R);
     const int c = gRaRingCount.load();
     if (c < R) gRaRingCount.store(c + 1);
+    { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+      if (sTr && gRaLoadSeq.load() > 1 && n++ < 80) ALOGW("RATRACE park save slot %d (hidden %d) -> next %d count %d emuFrames %u vwait %u seq %u", next, gRaBurst.load() ? 1 : 0, (next + 1) % R, gRaRingCount.load(), gEmuFrames.load(), gVWaitCount.load(), gVblSeq.load()); }
 }
 
 // Ask the parked emulator thread to run a save (op 2) or load (op 1) now.
@@ -7889,8 +8179,9 @@ bool raParkedOp(int op, uint8_t* buf, size_t* len, int timeoutUs) {
     gRaParkOp.store(op, std::memory_order_release);
     { std::lock_guard<std::mutex> lk(gPaceMu); }
     gPaceCv.notify_all();
-    std::unique_lock<std::mutex> lk(gParkMu);
-    const bool done = gParkCv.wait_for(lk, std::chrono::microseconds(timeoutUs), [] { return gRaParkDone.load(); });
+    auto fin = [] { return gRaParkDone.load(std::memory_order_acquire); };
+    bool done = raSpinUntil(fin, raSpinBudgetUs() / 2);
+    if (!done) { std::unique_lock<std::mutex> lk(gParkMu); done = gParkCv.wait_for(lk, std::chrono::microseconds(timeoutUs), fin); }
     if (!done) { gRaParkOp.store(0); return false; }
     if (len && op == 2) *len = gRaParkLen;
     return gRaParkOk.load();
@@ -8028,7 +8319,6 @@ int gRaMinGap = 1;
 std::atomic<uint32_t> gRaStatRateLimited{0};
 std::atomic<uint32_t> gRaStatNoFit{0};        // input changes applied normally: the burst would not fit before the vblank
 std::atomic<int64_t>  gRaBurstEstUs{0};       // EMA of measured burst cost (0 = no burst yet)
-std::atomic<int64_t>  gRaLoadEstUs{0};        // EMA of the burst load (0 = none yet)
 std::atomic<int64_t>  gRaHiddenEstUs{0};      // EMA of one hidden replay frame
 std::atomic<uint32_t> gRaStatBurstN[kRaMaxRing + 1];   // bursts by replay depth
 bool                  gRaWarm = false;         // one warm-up load done since enable (first load is ~40 ms cold)
@@ -8052,6 +8342,8 @@ bool DrasticRunner::runAheadPrepare(int frames) {
 }
 
 bool DrasticRunner::setRunAhead(int mode, int frames) {
+    gRaLookAhead.store(mode == 3);
+    if (mode == 3) { mode = 2; frames = 1; }
     // sys.gammaos.drastic_nano.ra_skip_audio_restart (default 1): the load
     // path stops the OpenSL player (+0x1e320, synchronous audioserver calls)
     // and restarts it afterwards (+0x80828 -> +0x1e490). A run-ahead load
@@ -8071,6 +8363,13 @@ bool DrasticRunner::setRunAhead(int mode, int frames) {
     {
         static int sDirtyProp = -1;
         if (sDirtyProp < 0) sDirtyProp = property_get_int32("sys.gammaos.drastic_nano.ra_dirty", 1);
+        // Look-ahead loads the state every tick; the dirty tracking's
+        // write-protect faults on the real frame after each load cost more
+        // than a plain copy (look-ahead tick measured 29 ms with it).
+        // Dirty tracking stays on in look-ahead mode too: without it every
+        // load remaps the state windows and the frame after the load pays
+        // ~7 ms of first-touch faults (measured 11 ms for a 1.6 ms frame);
+        // with it the load replays only the dirty pages in place.
         gRaDirtyWant.store((sDirtyProp && mArm64Base && mode == 2 && frames >= 1) ? 1 : 0);
     }
     // SMC generation cave (see gRaCodeGen): every "bl 0x37cd0" except the
@@ -8113,6 +8412,43 @@ bool DrasticRunner::setRunAhead(int mode, int frames) {
         }
         sSmcCaveOn = true;
         ALOGI("DrasticRunner: run-ahead: SMC generation cave installed on %d/%d sites", patched, (int)(sizeof(sites) / sizeof(sites[0])));
+    }
+    // GX compaction guard cave (see raGxCompactGuard): the first instruction of
+    // +0x63aec becomes a branch into the cave, which saves lr and x0, calls the
+    // guard with x0 = gx, restores them, runs the displaced instruction and
+    // branches back to +0x63af0. Every caller (bl and the tail b at +0x694b8)
+    // goes through the entry, so the check covers all compactions.
+    static bool sGxCaveOn = false;
+    if (mode == 2 && frames >= 1 && !sGxCaveOn && mArm64Base &&
+        property_get_bool("sys.gammaos.drastic_nano.ra_gx_compact_guard", true)) {
+        const uintptr_t site = 0x63aec, cave = 0x132f90;
+        const uint32_t expect = 0xf81c0ff7u;   // str x23, [sp, #-64]!
+        if (*reinterpret_cast<uint32_t*>(mArm64Base + site) != expect) {
+            ALOGW("DrasticRunner: run-ahead: GX compaction guard: unexpected code at +0x%lx (0x%08x), skipping",
+                  (unsigned long)site, *reinterpret_cast<uint32_t*>(mArm64Base + site));
+        } else {
+            auto bImm = [](uintptr_t from, uintptr_t to, uint32_t op) {
+                const int64_t off = ((int64_t)to - (int64_t)from) / 4;
+                return op | ((uint32_t)off & 0x03ffffffu);
+            };
+            const uint64_t fn = (uint64_t)(uintptr_t)&raGxCompactGuard;
+            const uint32_t words[8] = {
+                0xa9bf7bfdu,                              // stp x29, x30, [sp, #-16]!
+                0xf81f0fe0u,                              // str x0, [sp, #-16]!
+                0x580000d0u,                              // ldr x16, [pc, #24]  (literal at cave+32)
+                0xd63f0200u,                              // blr x16
+                0xf84107e0u,                              // ldr x0, [sp], #16
+                0xa8c17bfdu,                              // ldp x29, x30, [sp], #16
+                expect,                                   // str x23, [sp, #-64]!  (displaced)
+                bImm(cave + 28, site + 4, 0x14000000u)};  // b +0x63af0
+            for (int i = 0; i < 8; i++) raPatchInsn(mArm64Base, cave + 4 * i, words[i]);
+            raPatchInsn(mArm64Base, cave + 32, (uint32_t)(fn & 0xffffffffu));
+            raPatchInsn(mArm64Base, cave + 36, (uint32_t)(fn >> 32));
+            __builtin___clear_cache((char*)(mArm64Base + cave), (char*)(mArm64Base + cave + 40));
+            raPatchInsn(mArm64Base, site, bImm(site, cave, 0x14000000u));
+            sGxCaveOn = true;
+            ALOGI("DrasticRunner: run-ahead: GX compaction guard installed at +0x%lx", (unsigned long)site);
+        }
     }
     gRaJitSkipOn = property_get_bool("sys.gammaos.drastic_nano.ra_jit_skip", true);
     gRaHashCheck = property_get_bool("sys.gammaos.drastic_nano.ra_hash_check", false);
@@ -8183,11 +8519,11 @@ void DrasticRunner::runAheadReset() {
 }
 
 void DrasticRunner::runAheadStats(std::string& out) const {
-    char b[400];
+    char b[640];
     const uint32_t n = gRaStatBursts.load();
-    snprintf(b, sizeof(b), "bursts %u (n1 %u n2 %u n3 %u, hidden frames %u, skipped busy %u, rate limited %u, no fit %u, est %lld us = load %lld + hidden %lld, gap %d, jit skipped %u full %u, codegen %u, save %lld us skipped %u), shown %u, burst last %lld us max %lld us avg %lld us, ring %d/%d; map skipped %u real %u; malloc hits %u fread skips %u writer bypass %u",
+    snprintf(b, sizeof(b), "bursts %u (n1 %u n2 %u n3 %u, hidden frames %u, skipped busy %u, rate limited %u, no fit %u, est %lld us = load %lld + hidden %lld, gap %d, jit skipped %u full %u, codegen %u, save %lld us skipped %u quiet %u, gx fixes %u compact %u, audio skipped %u, look-ahead ticks %u plain %u late %u cost %lld us = show %lld (3d wait %lld) + load %lld (3d wait %lld) + real+save %lld (3d wait %lld), nojoin %u join %u, join wait %lld us, hidden-flip join %lld us), shown %u, burst last %lld us max %lld us avg %lld us, ring %d/%d; map skipped %u real %u; malloc hits %u fread skips %u writer bypass %u",
              n, gRaStatBurstN[1].load(), gRaStatBurstN[2].load(), gRaStatBurstN[3].load(), gRaStatHidden.load(), gRaStatSkipped.load(), gRaStatRateLimited.load(), gRaStatNoFit.load(), (long long)gRaBurstEstUs.load(), (long long)gRaLoadEstUs.load(), (long long)gRaHiddenEstUs.load(), gRaMinGap,
-             gRaStatJitSkipped.load(), gRaStatJitFull.load(), gRaCodeGen, (long long)gRaSaveCostUs.load(), gRaStatSaveSkipped.load(), gRaStatShown.load(),
+             gRaStatJitSkipped.load(), gRaStatJitFull.load(), gRaCodeGen, (long long)gRaSaveCostUs.load(), gRaStatSaveSkipped.load(), gRaStatSaveQuiet.load(), gRaStatGxFix.load(), gRaStatGxCompactFix.load(), gRaStatAudioSkipped.load(), gRaStatLaTicks.load(), gRaStatLaPlain.load(), gRaStatLaLate.load(), (long long)gRaLaCostUs.load(), (long long)gRaLaPhaseUs[0].load(), (long long)gRaLaWaitUs[0].load(), (long long)gRaLaPhaseUs[1].load(), (long long)gRaLaWaitUs[1].load(), (long long)gRaLaPhaseUs[2].load(), (long long)gRaLaWaitUs[2].load(), gRaStatLaNoJoin.load(), gRaStatLaJoin.load(), (long long)gRaJoinWaitUs.load(), (long long)gRaHiddenJoinUs.load(), gRaStatShown.load(),
              (long long)gRaStatLastBurstUs.load(), (long long)gRaStatMaxBurstUs.load(),
              n ? (long long)(gRaStatSumBurstUs.load() / n) : 0LL, gRaRingCount.load(), gRaFrames.load() + 1,
              gRaMapSkipped.load(), gRaMapReal.load(), gRaStatMallocHit.load(), gRaStatFreadSkip.load(), gRaStatWriterBypass.load());
@@ -8236,8 +8572,15 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
     static int sNullK = -1;
     if (sNullK < 0) sNullK = property_get_int32("sys.gammaos.drastic_nano.ra_null_burst", 0);
     const uint32_t shownNow = gRaStatShown.load();
-    const bool nullDue = sNullK > 0 && !inputDirty && gRaPrevValid && (shownNow % (uint32_t)sNullK) == 0 &&
-                         shownNow != gRaLastBurstShown && gEmuParked.load();
+    // One warm null burst after the warm-up load: the first real burst of a
+    // session paid the cold costs (page faults of the dirty tracking on the
+    // replayed frame, estimates seeded from the model) and either stalled the
+    // emulator for several frames or was admitted too late. Replaying one
+    // frame with unchanged input takes that hit at load time instead.
+    static bool sWarmBurstPending = false;
+    const bool warmDue = sWarmBurstPending && !inputDirty && gRaPrevValid && gEmuParked.load() && !atTick;
+    const bool nullDue = warmDue || (sNullK > 0 && !inputDirty && gRaPrevValid && (shownNow % (uint32_t)sNullK) == 0 &&
+                         shownNow != gRaLastBurstShown && gEmuParked.load());
     const bool dirty = inputDirty || nullDue;
     const int N = gRaFrames.load(), R = N + 1;
     const bool parked = gEmuParked.load();
@@ -8259,6 +8602,7 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
         gRaWarmLoad = false;
         ALOGI("run-ahead warm-up load: %lld us ok=%d", (long long)(raNowUs() - w0), ok ? 1 : 0);
         if (!ok) gRaRingCount.store(0);
+        sWarmBurstPending = ok && property_get_bool("sys.gammaos.drastic_nano.ra_warm_burst", false);   // off: left the panel white on Sonic slot 0 (3 of 4 launches), cause open
         gRaPrevIn[0] = in[0]; gRaPrevIn[1] = in[1]; gRaPrevIn[2] = in[2]; gRaPrevValid = true;
         return false;
     }
@@ -8327,10 +8671,22 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
             // would hold bursts back for minutes.
             const int64_t le = gRaLoadEstUs.load();
             const int64_t he = gEmuDurUs.load() * 3 / 4 + gRaSaveCostUs.load();
+            // Conservative admission: the 75% model under-estimated on the
+            // Pokemon White 2 title scene (12 ms frames), where admitted
+            // bursts cost about two frame periods each and visible progress
+            // fell 5% (56.7 vs 59.95 frames/s). Take the larger of the model
+            // and the measured burst EMA (gRaBurstEstUs, which includes the
+            // load) and keep 2 ms spare before the presenter deadline.
+            static int64_t sSpareUs = -1;
+            if (sSpareUs < 0) sSpareUs = property_get_int32("sys.gammaos.drastic_nano.ra_fit_spare_us", 2000);
             if (sFit >= 2 && le > 0 && he > 0) {
                 useN = 0;
-                for (int n = N; n >= 1; n--) if (now + le + n * he + (le + n * he) / 8 <= deadline) { useN = n; break; }
-            } else if (now + est > deadline) useN = 0;
+                for (int n = N; n >= 1; n--) {
+                    int64_t cost = le + n * he + (le + n * he) / 8;
+                    if (n == 1 && est > cost) cost = est;
+                    if (now + cost + sSpareUs <= deadline) { useN = n; break; }
+                }
+            } else if (now + est + sSpareUs > deadline) useN = 0;
             if (useN == 0) {
                 gRaStatNoFit.fetch_add(1);
                 // Decay so the estimate re-probes after a run of no-fits.
@@ -8372,6 +8728,18 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
                 if (n > 0) gRaCopyLog.store(n);
             }
         }
+        // The park check above is a few hundred microseconds old: if the tick
+        // has fired since, the emulator is running the visible frame and a
+        // burst now would only block the presenter (a repeated frame) and
+        // fail its load. Treat it as busy.
+        if (!gEmuParked.load()) {
+            if (audioSkip) *audioSkip = 0;
+            gRaStatSkipped.fetch_add(1);
+            { static uint32_t n = 0; if (n++ < 20) ALOGW("RATRACE burst aborted: emulator unparked before the load"); }
+            gRaPrevIn[0] = in[0]; gRaPrevIn[1] = in[1]; gRaPrevIn[2] = in[2];
+            return false;
+        }
+        if (warmDue) sWarmBurstPending = false;
         gRaBurst.store(true, std::memory_order_release);
         // RetroArch preempt_run: unserialize(oldest), then run the last N
         // frames again; each re-run frame's park auto-saves its end state
@@ -8383,6 +8751,8 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
         gRaParkGen = gRaRingGen[oldest];
         gRaParkRingIdx = oldest;
         gRaStatBurstN[useN].fetch_add(1);
+        { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+          if (sTr && n++ < 40) ALOGW("RATRACE burst load slot %d (next %d count %d) emuFrames %u vwait %u seq %u atTick %d", oldest, gRaRingNext.load(), gRaRingCount.load(), gEmuFrames.load(), gVWaitCount.load(), gVblSeq.load(), atTick ? 1 : 0); }
         bool ok = raParkedOp(1, gRaRing[oldest], &gRaRingLen[oldest], 200000);
         tl[0] = raNowUs() - b0;
         // Hidden frames are never shown: skip their 2D compose and 3D kick
@@ -8404,9 +8774,14 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
             const uint32_t f0 = gRaDStatFaults.load();
             const int64_t w0 = gT3dPipe.sumUs;
             const int64_t tk = raNowUs();
+            { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+              if (sTr && n++ < 40) { uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + kRaMasterOff); volatile uint8_t* st = mArm64Base + kRaMasterOff;
+                ALOGW("RATRACE hidden start: latch %08x JNI %08x", hm ? *reinterpret_cast<uint32_t*>(hm + 0x80010) : 0u, *reinterpret_cast<volatile uint32_t*>(st + 0x48c)); } }
             const uint32_t v0 = raStepTick();
             ok = raStepWait(v0, 200000);
             gRaStatHidden.fetch_add(1);
+            { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+              if (sTr && n++ < 16 && heapMaster) { uint64_t vt = 0; drasticVTime(&vt); ALOGW("RATRACE hidden done: deadline %lld (vtime x3 %llu) emuFrames %u vwait %u seq %u ok %d", (long long)*reinterpret_cast<volatile int64_t*>(heapMaster + 0x3b2f908), (unsigned long long)vt * 3, gEmuFrames.load(), gVWaitCount.load(), gVblSeq.load(), ok ? 1 : 0); } }
             tl[j] = raNowUs() - b0;
             hf[j] = gRaDStatFaults.load() - f0;
             hflip[j] = gProducerDoneUs.load() - tk;
@@ -8414,6 +8789,24 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
             hwait[j] = gT3dPipe.sumUs - w0;
         }
         raHiddenRenderRestore(mArm64Base);
+        // ra_debug: for every burst, compare the replayed state with the
+        // original timeline's save of the same frame. A replay that saw the
+        // new input diverges in hundreds of bytes or more (Sonic's jump);
+        // one that ran with the old input differs only in the ~40 bytes a
+        // static scene drifts by. Plus the input words the hidden frame saw.
+        {
+            static int sTr = -1; static uint32_t n = 0;
+            if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug_compare", false) ? 1 : 0;   // costs ~50 ms per burst: never under plain ra_debug
+            if (sTr && !nullDue && ok && sHiddenSaveOn && useN >= 1 && n++ < 40) {
+                const int a = (oldest + useN - 1) % R, b = (oldest + useN) % R;
+                const size_t la = gRaRingLen[a], lb = gRaRingLen[b], nn = std::min(la, lb);
+                size_t other = 0, first = (size_t)-1;
+                for (size_t k = 0; k < nn; k++) if (gRaRing[a][k] != gRaRing[b][k] && !(k >= 0x40 && k < 0x30040) && k + 738 < nn) { other++; if (first == (size_t)-1) first = k; }
+                uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + kRaMasterOff);
+                ALOGW("RATRACE replay vs original: %zu bytes differ (first 0x%zx) len %zu/%zu; JNI words %08x/%08x latch now %08x", other, first == (size_t)-1 ? (size_t)0 : first, la, lb,
+                      in[0], gRaPrevIn[0], hm ? *reinterpret_cast<uint32_t*>(hm + 0x80010) : 0u);
+            }
+        }
         if (nullDue && ok && sHiddenSaveOn && useN >= 1) {
             // slot (oldest + useN - 1) holds the replayed state for the current
             // frame, slot (oldest + useN) the original timeline's save of it
@@ -8441,12 +8834,13 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
         }
         static uint32_t sBurstLog = 0;
         static int sBurstDebug = -1;
-        if (sBurstDebug < 0) sBurstDebug = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+        if (sBurstDebug < 0) sBurstDebug = 1;   // the first 40 bursts are always logged: admission must be visible without ra_debug
         if (sBurstDebug && sBurstLog < 40) {
             sBurstLog++;
-            ALOGI("run-ahead burst: in %08x/%08x/%08x -> %08x/%08x/%08x: load %lld, run+save %lld %lld %lld %lld us, ok=%d",
+            ALOGI("run-ahead burst: in %08x/%08x/%08x -> %08x/%08x/%08x: load %lld, run+save %lld %lld %lld %lld us, ok=%d, started %+lld us before the tick, ended %+lld us before it%s",
                   gRaPrevIn[0], gRaPrevIn[1], gRaPrevIn[2], in[0], in[1], in[2],
-                  (long long)tl[0], (long long)tl[1], (long long)tl[2], (long long)tl[3], (long long)tl[4], ok ? 1 : 0);
+                  (long long)tl[0], (long long)tl[1], (long long)tl[2], (long long)tl[3], (long long)tl[4], ok ? 1 : 0,
+                  (long long)(gPacerNextTickUs.load() - b0), (long long)(gPacerNextTickUs.load() - raNowUs()), atTick ? " (at tick)" : "");
             ALOGI("run-ahead hidden frames: tick->flip %lld %lld, tick->park %lld %lld, 3D waits %lld %lld us, emu EMA %lld, t3d mode %d",
                   (long long)hflip[1], (long long)hflip[2], (long long)hpark[1], (long long)hpark[2],
                   (long long)hwait[1], (long long)hwait[2], (long long)gEmuDurUs.load(), gT3dMode);
@@ -8468,7 +8862,12 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
             // Cost estimates for the fit policy: EMA with a 12% guard band on the
             // whole burst; load and per-hidden-frame estimates for adaptive depth.
             const int64_t e = gRaBurstEstUs.load();
-            gRaBurstEstUs.store(e > 0 ? (e * 3 + dt + dt / 8) / 4 : dt + dt / 8);
+            // A cold burst (first of a session: 66 ms of page faults measured)
+            // must not poison the estimate for minutes: clamp the sample to
+            // twice the model cost.
+            const int64_t model = std::max<int64_t>(1500, gRaLoadEstUs.load()) + gEmuDurUs.load() * 3 / 4 + gRaSaveCostUs.load();
+            const int64_t dts = (model > 0 && dt > 2 * model) ? 2 * model : dt;
+            gRaBurstEstUs.store(e > 0 ? (e * 3 + dts + dts / 8) / 4 : dts + dts / 8);
             if (ok && tl[0] > 0) {
                 const int64_t l = gRaLoadEstUs.load();
                 // outlier clamp: a cold or interrupted load must not poison the average
@@ -8490,6 +8889,11 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
         burstDone = ok;
     } else if (dirty && full) {
         gRaStatSkipped.fetch_add(1);
+        { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+          if (sTr && n++ < 40) ALOGW("RATRACE press skipped busy: parked %d tick %+lld us emu %lld", gEmuParked.load() ? 1 : 0, (long long)(gPacerNextTickUs.load() - raNowUs()), (long long)gEmuDurUs.load()); }
+    } else if (dirty) {
+        { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+          if (sTr && n++ < 40) ALOGW("RATRACE press with ring not full: count %d parked %d", gRaRingCount.load(), gEmuParked.load() ? 1 : 0); }
     }
     if (burstDone || !dirty || !full) {
         gRaPrevIn[0] = in[0]; gRaPrevIn[1] = in[1]; gRaPrevIn[2] = in[2]; gRaPrevValid = true;
@@ -8498,10 +8902,118 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
 }
 
 void DrasticRunner::runAheadPacerTick() {
+    if (gRaLookAhead.load() && lookAheadTick()) return;
     runAheadTryBurst(true);
     gRaStatShown.fetch_add(1);
     { std::lock_guard<std::mutex> lk(gPaceMu); gVblSeq.fetch_add(1, std::memory_order_acq_rel); }
     gPaceCv.notify_all();
+}
+
+// One look-ahead tick. Returns false to fall back to a plain tick (the shown
+// frame is then the real one, as with run-ahead off) when the sequence would
+// not finish before the presenter's deadline. Adaptive per tick with
+// hysteresis so the mode does not flap on a borderline scene.
+bool DrasticRunner::lookAheadTick() {
+    if (!mArm64Base || !gEmuParked.load()) return false;
+    uint8_t* heapMaster = *reinterpret_cast<uint8_t**>(mArm64Base + kRaMasterOff);
+    if (!heapMaster) return false;
+    const int R = gRaFrames.load() + 1;
+    if (R < 2 || !gRaRing[0] || !gRaRing[1]) return false;
+    // RetroArch's order. At the tick: the real frame runs hidden (compose and
+    // 3D kick skipped, audio discarded; about 1.6 ms of CPU on Sonic Rush)
+    // and its park saves the ring; then the look-ahead frame runs with the
+    // current input and is the frame shown and heard; then, in the period's
+    // slack while the look-ahead's 3D render proceeds on the worker, the real
+    // state is restored. The hidden real frame of the NEXT tick joins that
+    // worker a whole period later, so nothing serialises against the render
+    // (running the real frame right after the look-ahead cost 13.6 ms of
+    // waiting for it). The whole sequence must fit the period with spare;
+    // hysteresis keeps a borderline scene from flapping.
+    static int sHold = 0;
+    const int64_t now = raNowUs();
+    const int64_t period = gVblankPeriodUs.load() > 0 ? gVblankPeriodUs.load() : 16667;
+    const int64_t emu = gEmuDurUs.load();
+    static int64_t sSpare = -1, sMargin = 1500, sPropUs = 0;
+    if (sSpare < 0 || now - sPropUs > 2000000) { sPropUs = now; sSpare = property_get_int32("sys.gammaos.drastic_nano.ra_la_spare_us", 2500); sMargin = property_get_int32("sys.gammaos.drastic_nano.ra_la_margin_us", 1500); }
+    const int64_t model = 2 * emu + gRaSaveCostUs.load() + std::max<int64_t>(1500, gRaLoadEstUs.load()) + sMargin;
+    const int64_t est = std::max<int64_t>(model, gRaLaCostUs.load());
+    const bool fits = est + sSpare <= period;
+    if (fits) { if (sHold < 8) sHold++; } else sHold = 0;
+    if (sHold < 4) {
+        gRaStatLaPlain.fetch_add(1);
+        // the measured cost only updates on look-ahead ticks: decay it while
+        // plain so the mode re-probes once the scene lightens
+        const int64_t c = gRaLaCostUs.load(); if (c > model) gRaLaCostUs.store(c - c / 64);
+        return false;   // enter only after 4 consecutive fitting ticks
+    }
+    const int64_t t0 = now;
+    const int64_t w0 = gT3dPipe.sumUs;
+    // 1. real frame, hidden, saved at its park
+    gRaBurst.store(true, std::memory_order_release);
+    raHiddenRenderSkip(mArm64Base, 3);
+    gRaLaForceSave.store(true);
+    uint32_t v = raStepTick();
+    bool ok = raStepWait(v, 200000);
+    raHiddenRenderRestore(mArm64Base);
+    gRaLaForceSave.store(false);
+    gRaStatHidden.fetch_add(1);
+    const int64_t gRealFlipUs = gProducerDoneUs.load(), gRealParkUs = gLastParkUs.load();
+    // VRAM fingerprint after the real frame: if the look-ahead frame leaves
+    // it unchanged, the restore writes identical bytes and can run under the
+    // look-ahead's 3D render without joining the worker (the join cost 8 ms).
+    auto vramHash = [&]() -> uint64_t {
+        if (!gRaFlatVram) raFindFlatMaps();
+        if (!gRaFlatVram || gRaFlatVramSz < 0xa4000) return 0;
+        uint64_t h = 1469598103934665603ull;
+        const uint64_t* q = reinterpret_cast<const uint64_t*>(gRaFlatVram);
+        for (size_t i = 0; i < 0xa4000 / 8; i += 2) { h ^= q[i]; h *= 1099511628211ull; }
+        return h;
+    };
+    static int sNoJoin = -1; if (sNoJoin < 0) sNoJoin = property_get_bool("sys.gammaos.drastic_nano.ra_la_nojoin", true) ? 1 : 0;
+    const uint64_t vramReal = sNoJoin ? vramHash() : 0;
+    const int64_t t1 = raNowUs();
+    const int64_t w1 = gT3dPipe.sumUs;
+    if (!ok || gRaRingCount.load() < 1) { gRaBurst.store(false); gRaStatLaLate.fetch_add(1); gRaRingCount.store(0); return true; }
+    const int newest = (gRaRingNext.load() + R - 1) % R;
+    // 2. look-ahead frame: shown and heard, its state not saved
+    gRaBurst.store(false, std::memory_order_release);
+    gRaLaSkipSave.store(true);
+    gRaStatShown.fetch_add(1);
+    const int64_t tk = raNowUs();
+    v = raStepTick();
+    ok = raStepWait(v, 200000);
+    gRaLaSkipSave.store(false);
+    const int64_t t2 = raNowUs();
+    { static uint32_t n = 0; static int sTr = -1; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
+      if (sTr && emu > 3000 && n++ < 30) ALOGW("LOOKAHEAD la frame: tick->flip %lld, tick->park %lld, tick->wait-return %lld us; real frame: tick->flip %lld tick->park %lld, phase %lld us",
+            (long long)(gProducerDoneUs.load() - tk), (long long)(gLastParkUs.load() - tk), (long long)(t2 - tk),
+            (long long)(gRealFlipUs - t0), (long long)(gRealParkUs - t0), (long long)(t1 - t0)); }
+    const int64_t w2 = gT3dPipe.sumUs;
+    if (!ok) { gRaStatLaLate.fetch_add(1); return true; }
+    // 3. back to the real state. The load's present of the restored frame is
+    //    not shown, and its compose and 3D kick are skipped too: with the kick
+    //    in, the next tick's hidden real frame joined that render and cost
+    //    11 ms instead of 5.
+    gRaBurst.store(true, std::memory_order_release);
+    raHiddenRenderSkip(mArm64Base, 3);
+    gRaParkGen = gRaRingGen[newest]; gRaParkRingIdx = newest;
+    { const uint64_t vramLa = sNoJoin ? vramHash() : 0;
+      if (sNoJoin && vramReal != 0 && vramLa == vramReal) { gRaSkipJoinOnce.store(true); gRaStatLaNoJoin.fetch_add(1); }
+      else { gRaStatLaJoin.fetch_add(1); static uint32_t n = 0; if (n++ < 6) ALOGW("LOOKAHEAD join needed: vram view %p (%zu KB) hash real %016llx la %016llx", gRaFlatVram, gRaFlatVramSz >> 10, (unsigned long long)vramReal, (unsigned long long)vramLa); } }
+    const bool loaded = raParkedOp(1, gRaRing[newest], &gRaRingLen[newest], 200000);
+    gRaSkipJoinOnce.store(false);
+    raHiddenRenderRestore(mArm64Base);
+    gRaBurst.store(false, std::memory_order_release);
+    if (!loaded) { gRaStatLaLate.fetch_add(1); gRaRingCount.store(0); }
+    const int64_t t3 = raNowUs();
+    const int64_t w3 = gT3dPipe.sumUs;
+    const int64_t dt = t3 - t0;
+    { const int64_t e = gRaLaCostUs.load(); gRaLaCostUs.store(e > 0 ? (e * 3 + dt) / 4 : dt); }
+    { const int64_t wv[3] = {w2 - w1, w3 - w2, w1 - w0}; for (int i = 0; i < 3; i++) { const int64_t e = gRaLaWaitUs[i].load(); gRaLaWaitUs[i].store(e > 0 ? (e * 3 + wv[i]) / 4 : wv[i]); } }
+    { const int64_t ph[3] = {t2 - t1, t3 - t2, t1 - t0}; for (int i = 0; i < 3; i++) { const int64_t e = gRaLaPhaseUs[i].load(); gRaLaPhaseUs[i].store(e > 0 ? (e * 3 + ph[i]) / 4 : ph[i]); } }
+    if (dt > period) gRaStatLaLate.fetch_add(1);
+    gRaStatLaTicks.fetch_add(1);
+    return true;
 }
 
 uint64_t DrasticRunner::hashFrontSlot() const {
@@ -8530,29 +9042,139 @@ void DrasticRunner::raInstallCrashLogger() {
     static bool sInstalled = false;
     if (sInstalled) return;
     sInstalled = true;
+    // Chain to the handler that was installed before us (debuggerd's, from the
+    // linker) instead of restoring SIG_DFL: SIG_DFL killed the process with no
+    // tombstone, which is why run-ahead crashes never had a backtrace.
+    static struct sigaction sPrev[2];
     struct sigaction sa = {};
     sa.sa_flags = SA_SIGINFO | SA_NODEFER;
     sa.sa_sigaction = [](int sig, siginfo_t* si, void* uc) {
         if (sig == SIGSEGV && si && raDirtyFault(si->si_addr)) return;
-        signal(sig, SIG_DFL);
+        const struct sigaction& prev = sPrev[sig == SIGBUS ? 1 : 0];
+        if ((prev.sa_flags & SA_SIGINFO) && prev.sa_sigaction) sigaction(sig, &prev, nullptr);
+        else if (prev.sa_handler && prev.sa_handler != SIG_IGN) sigaction(sig, &prev, nullptr);
+        else signal(sig, SIG_DFL);
         ucontext_t* u = static_cast<ucontext_t*>(uc);
         const uintptr_t pc = u->uc_mcontext.pc;
         const uintptr_t lr = u->uc_mcontext.regs[30];
         DrasticRunner* r = DrasticRunner::getInstance();
         const uintptr_t base = r ? (uintptr_t)r->libBase() : 0;
-        ALOGE("RAPROBE CRASH sig=%d addr=%p pc=0x%lx (+0x%lx) lr=0x%lx (+0x%lx) x0=0x%lx x1=0x%lx",
+        ALOGE("RAPROBE CRASH sig=%d addr=%p pc=0x%lx (+0x%lx) lr=0x%lx (+0x%lx) x0=0x%lx x1=0x%lx x2=0x%lx gx=%p loads=%u compactFix=%u",
               sig, si ? si->si_addr : nullptr, (unsigned long)pc, (unsigned long)(pc - base),
               (unsigned long)lr, (unsigned long)(lr - base),
-              (unsigned long)u->uc_mcontext.regs[0], (unsigned long)u->uc_mcontext.regs[1]);
+              (unsigned long)u->uc_mcontext.regs[0], (unsigned long)u->uc_mcontext.regs[1],
+              (unsigned long)u->uc_mcontext.regs[2], gRaGx, gRaLoadSeq.load(), gRaStatGxCompactFix.load());
         usleep(200000);
         for (int i = 0; i < kRaMaxRing; i++) if (gRaRing[i]) ALOGE("RAPROBE CRASH ring[%d]=%p len %zu%s", i, gRaRing[i], gRaRingLen[i], (si && (uint8_t*)si->si_addr >= gRaRing[i] && (uint8_t*)si->si_addr <= gRaRing[i] + kRaStateBufSize) ? "  <-- fault" : "");
         ALOGE("RAPROBE CRASH retired %p %p scratch=%p burst=%d parkOp=%d ringNext=%d count=%d loadBuf=%p saveBuf=%p", gRaRetired[0], gRaRetired[1], gRaScratchSlots, gRaBurst.load() ? 1 : 0, gRaParkOp.load(), gRaRingNext.load(), gRaRingCount.load(), gRaLoadBuf.load(), gRaSaveBuf.load());
         raLogGx("CRASH");
         raise(sig);
     };
-    sigaction(SIGSEGV, &sa, nullptr);
-    sigaction(SIGBUS, &sa, nullptr);
+    sigaction(SIGSEGV, &sa, &sPrev[0]);
+    sigaction(SIGBUS, &sa, &sPrev[1]);
 }
+// Internal input lag probe (sys.gammaos.drastic_nano.ra_lag_probe=<DS mask>).
+// Step mode: no presenter, no pacing, every frame stepped by hand. Run 20
+// idle frames, hash the front slot after each, then hold the buttons and
+// count the stepped frames until the front slot's hash changes. That count
+// is the game's own input-to-image lag with nothing else in the way: what one
+// replayed frame can remove is min(lag, 1). Done three times, one second apart.
+std::atomic<bool> DrasticRunner::sProbeOwnsInput{false};
+void DrasticRunner::lagProbe(int mask) {
+    pthread_setname_np(pthread_self(), "dn-lagprobe");
+    sProbeOwnsInput.store(true);
+    if (!setStepMode(true)) { ALOGW("LAGPROBE: cannot enter step mode"); return; }
+    uint8_t* bss = mArm64Base + 0x3f2d1f8;
+    // Hash of both slots combined, order independent: a restored run's slot
+    // parity is offset from the original's, so the front slot alone compares
+    // different buffers (Pokemon: every other frame "identical").
+    auto frontHash = [&]() -> uint64_t {
+        const int32_t hr = *reinterpret_cast<int32_t*>(bss + 0x968);
+        const size_t bytes = (size_t)((hr + 1) << 8) * (size_t)((hr + 1) * 192) * 4u * 2u;   // both screens
+        uint64_t out = 0;
+        for (int sidx = 0; sidx < 2; sidx++) {
+            const uint8_t* slot = *reinterpret_cast<uint8_t**>(bss + sidx * 8);
+            if (!slot) continue;
+            uint64_t h = 1469598103934665603ull;
+            const uint64_t* p = reinterpret_cast<const uint64_t*>(slot);
+            for (size_t i = 0; i < bytes / 8; i += 4) { h ^= p[i]; h *= 1099511628211ull; }
+            out ^= h;
+        }
+        return out;
+    };
+    auto step = [&]() { const uint32_t v0 = raStepTick(); return raStepWait(v0, 200000); };
+    // Deterministic comparison: save the state, step 20 frames idle and hash
+    // each, restore the same state, hold the buttons, step 20 frames and hash
+    // each. The first index where the two sequences differ is the game's own
+    // input-to-image lag, idle animation included on both sides.
+    if (!ramStateInstallHooks()) { ALOGW("LAGPROBE: state hooks not installed"); setStepMode(false); return; }
+    uint8_t* buf = ramStateAllocBuffer();
+    uint8_t* scratch = ramStateAllocBuffer();
+    if (!buf || !scratch) { ALOGW("LAGPROBE: no state buffer"); setStepMode(false); return; }
+    size_t len = 0;
+    // Framebuffer hashes are not reproducible on 3D scenes (the threaded
+    // renderer's output differs run to run: Sonic Rush 0/20 identical even
+    // idle vs idle), so the comparison is on the emulated STATE: a save after
+    // every stepped frame, hashed without the thumbnails and the SPU tail.
+    // The first frame whose state diverges is the frame the game acted on the
+    // input; the image follows on that frame or the next.
+    // Per-chunk hashes (64 KB) so the volatile parts of the state (RTC,
+    // timers, per-save fields) can be learned from the idle control run and
+    // ignored: two idle runs never hash equal as a whole.
+    enum { CH = 65536, MAXCH = 128, NF = 20 };
+    static uint64_t hA[NF][MAXCH], hB[NF][MAXCH], hC[NF][MAXCH];
+    auto chunkHashes = [&](uint64_t out[MAXCH]) -> int {
+        size_t sl = 0;
+        if (!ramStateSaveTo(scratch, &sl, nullptr)) return 0;
+        int n = 0;
+        for (size_t base = 0; base < sl && n < MAXCH; base += CH, n++) {
+            uint64_t h = 1469598103934665603ull;
+            const size_t e = std::min(sl, base + (size_t)CH);
+            for (size_t k = base; k + 8 <= e; k += 8) {
+                if (k >= 0x40 && k < 0x30040) continue;   // thumbnails
+                h ^= *reinterpret_cast<const uint64_t*>(scratch + k); h *= 1099511628211ull;
+            }
+            out[n] = h;
+        }
+        return n;
+    };
+    (void)frontHash;
+    for (int rep = 0; rep < 3; rep++) {
+        setInput(0);
+        for (int i = 0; i < 10; i++) step();
+        if (!ramStateSaveTo(buf, &len, nullptr)) { ALOGW("LAGPROBE: save failed"); break; }
+        int nch = 0;
+        for (int i = 0; i < NF; i++) { step(); nch = chunkHashes(hA[i]); }
+        // control: restore and step idle again; frames where a and b differ are
+        // nondeterministic and are ignored for the press comparison
+        if (!ramStateLoadFrom(buf, len, nullptr)) { ALOGW("LAGPROBE: load failed"); break; }
+        setInput(0);
+        for (int i = 0; i < NF; i++) { step(); chunkHashes(hB[i]); }
+        bool volat[MAXCH] = {};
+        int nvol = 0;
+        for (int ch = 0; ch < nch; ch++) { for (int i = 0; i < NF; i++) if (hA[i][ch] != hB[i][ch]) { volat[ch] = true; break; } if (volat[ch]) nvol++; }
+        if (!ramStateLoadFrom(buf, len, nullptr)) { ALOGW("LAGPROBE: load failed"); break; }
+        setInput(mask);
+        int lag = -1;
+        int firstCh = -1;
+        for (int i = 0; i < NF; i++) {
+            step(); chunkHashes(hC[i]);
+            if (lag < 0) for (int ch = 0; ch < nch; ch++) if (!volat[ch] && hC[i][ch] != hA[i][ch]) { lag = i + 1; firstCh = ch; break; }
+        }
+        int dAB = 0, dAC = 0, dACstable = 0;
+        for (int ch = 0; ch < nch; ch++) { if (hA[NF-1][ch] != hB[NF-1][ch]) dAB++; if (hA[NF-1][ch] != hC[NF-1][ch]) { dAC++; if (!volat[ch]) dACstable++; } }
+        uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + kRaMasterOff); volatile uint8_t* st = mArm64Base + kRaMasterOff;
+        ALOGW("LAGPROBE mask 0x%x rep %d: %d chunks, %d volatile (ignored); state diverged from the idle run at stepped frame %d (chunk %d, offset ~0x%x); at frame 20: idle-vs-idle %d chunks differ, press-vs-idle %d (%d stable); JNI %08x latch %08x",
+              mask, rep, nch, nvol, lag, firstCh, firstCh * CH, dAB, dAC, dACstable,
+              *reinterpret_cast<volatile uint32_t*>(st + 0x48c), hm ? *reinterpret_cast<uint32_t*>(hm + 0x80010) : 0u);
+        setInput(0);
+        for (int i = 0; i < 30; i++) step();
+    }
+    setStepMode(false);
+    sProbeOwnsInput.store(false);
+    ALOGW("LAGPROBE done");
+}
+
 void DrasticRunner::runaheadProbe(int iters) {
     pthread_setname_np(pthread_self(), "dn-raprobe");
     ALOGW("RAPROBE start iters=%d t3d_sync=%d threaded3d=%d", iters,
@@ -9022,6 +9644,9 @@ uint16_t DrasticRunner::dsEmulatedFrameCounter() {
 // renderDsToOffscreen() path where the other counters freeze.
 uint32_t DrasticRunner::producerFrameCount() const {
     return gFlipHookCount.load();
+}
+uint32_t DrasticRunner::audioSubmitCount() const {
+    return gAudSubmitPub.load(std::memory_order_relaxed);
 }
 
 // Emulated-frame count from the frame-limiter hook (drasticVWait). Advances once

@@ -752,9 +752,11 @@ void OverlayMenu::handleCheatsPageSkip(int dir) {
     if (c > n - 1) c = n - 1;
     mCursor[mSection] = c;
 }
-void OverlayMenu::openConfirm(const std::string& question, std::function<void()> onConfirm) {
+void OverlayMenu::openConfirm(const std::string& question, std::function<void()> onConfirm,
+                              std::vector<std::string> details) {
     mConfirm.active = true;
     mConfirm.question = question;
+    mConfirm.details = std::move(details);
     mConfirm.onConfirm = std::move(onConfirm);
     mConfirm.choice = 0;   // Confirm is the default
     mNavHeldDir = NavDir::None;
@@ -897,7 +899,7 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
             const bool confirm = mConfirm.choice == 0;
             auto fn = mConfirm.onConfirm;
             mConfirm = ConfirmPrompt{};
-            if (confirm && fn) fn();
+            if (confirm && fn) { fn(); rebuildRows(); }   // the row's value reflects the confirmed change
         }
         return;
     }
@@ -2640,56 +2642,41 @@ void OverlayMenu::rebuildVideo() {
         mRows.push_back(std::move(r));
     }
     }   // !dualScreenDevice
-    // Run-Ahead (preemptive frames): the emulator keeps N frames of state
-    // and, when the input changes, replays the last N frames with the new
-    // input before the next shown frame, so the game reacts N frames sooner
-    // (buttons and touch alike). Needs the vblank lock (Low Latency Mode on
-    // the DRM dual-panel path); idle while fast-forwarding, in this menu,
-    // under RetroAchievements hardcore, or while the pacer bypasses a heavy
-    // scene. Each input change costs one replay burst (about 35 ms for one
-    // frame, 47 ms for two on this SoC), so a few repeated panel frames per
-    // press are the price of the latency cut. Read live by the render loop.
+    // Run-Ahead (one preemptive frame): the emulator keeps the last frame's
+    // state and, when the input changes, replays that frame with the new
+    // input before the next shown frame, so an admitted press reaches the
+    // panel one presented frame sooner (measured with the in-process latency
+    // probe: reaction at presented frame +1 instead of +3 on Sonic Rush).
+    // Adaptive: a replay is admitted only when it fits before the presenter
+    // deadline with spare, so it never repeats a frame or speeds the game
+    // up; heavy scenes (Golden Sun) simply get no replays. Needs the vblank
+    // lock; idle while fast-forwarding, in this menu or under hardcore.
+    // Pinned to one frame: deeper replays cost more than they gain here.
     {
         RowAction r;
         r.label = "Run-Ahead (Experimental)";
-        const int raMode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
-        const int raFrames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
-        const int raLevel = (raMode == 2) ? std::max(1, std::min(raFrames, 3)) : 0;
-        r.value = raLevel == 0 ? "Off" : (std::to_string(raLevel) + (raLevel == 1 ? " frame" : " frames"));
-        auto setLevel = [](int level) {
-            property_set("persist.gammaos.drastic_nano.runahead_mode", level > 0 ? "2" : "0");
-            if (level > 0) property_set("persist.gammaos.drastic_nano.runahead_frames", std::to_string(level).c_str());
-        };
-        r.onAdjust = [this, setLevel](int dir) {
-            const int mode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
-            const int frames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
-            int level = (mode == 2) ? std::max(1, std::min(frames, 3)) : 0;
-            level = (level + (dir > 0 ? 1 : 3)) % 4;
-            setLevel(level);
-            mDirty = true;
-        };
-        r.onAccept = [this, setLevel]() {
-            const int mode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
-            const int frames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 2);
-            const int level = (mode == 2) ? std::max(1, std::min(frames, 3)) : 0;
-            setLevel((level + 1) % 4);
-            mDirty = true;
-        };
-        mRows.push_back(std::move(r));
-    }
-    // Run-Ahead mode: Adaptive replays only when the replay fits before the
-    // vblank (falls back to fewer frames, never repeats a frame); Always
-    // replays on every input change like RetroArch, and may stutter in
-    // scenes where the replay does not fit.
-    {
-        RowAction r;
-        r.label = "Run-Ahead Mode (Experimental)";
-        const bool strict = property_get_bool("persist.gammaos.drastic_nano.runahead_strict", false);
-        r.value = strict ? "Always" : "Adaptive";
+        const bool raOn = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) == 2;
+        r.value = raOn ? "On" : "Off";
         auto toggle = [this]() {
-            const bool cur = property_get_bool("persist.gammaos.drastic_nano.runahead_strict", false);
-            property_set("persist.gammaos.drastic_nano.runahead_strict", cur ? "0" : "1");
-            mDirty = true;
+            const bool cur = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) == 2;
+            if (cur) {
+                property_set("persist.gammaos.drastic_nano.runahead_mode", "0");
+                mDirty = true;
+                return;
+            }
+            // Enabling asks first, like Power Off: the feature has limits the
+            // player should know before turning it on.
+            openConfirm("Enable Run-Ahead?", [this]() {
+                property_set("persist.gammaos.drastic_nano.runahead_mode", "2");
+                property_set("persist.gammaos.drastic_nano.runahead_frames", "1");
+                mDirty = true;
+            }, {
+                "Fixed at 1 frame of run-ahead.",
+                "Adaptive: depends on the game and the scene being played.",
+                "Very heavy scenes fall back to normal play to keep performance.",
+                "Turning off High Resolution 3D may give more consistent run-ahead in the heaviest scenes.",
+                "This feature is experimental.",
+            });
         };
         r.onAdjust = [toggle](int) { toggle(); };
         r.onAccept = toggle;
@@ -3032,25 +3019,69 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
 }
 
 void OverlayMenu::drawConfirm(drastic_gfx::OverlayGfx& gfx, float vw, float vh, float sf) {
-    // Dim everything, then a centered card: the question on top, Confirm and
-    // Cancel side by side below, the chosen one highlighted with the accent.
+    // Dim everything, then a centered card: the question on top, optional
+    // bullet lines (word-wrapped to the card) below it, Confirm and Cancel
+    // side by side at the bottom, the chosen one highlighted with the accent.
     gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.55f));
     const float qs = kRowSelScale * sf;
     const float bs = kRowBaseScale * sf;
+    const float ds = kRowBaseScale * 0.9f * sf;
     const char* q = trDyn(mConfirm.question.c_str());
     const char* opt[2] = { trDyn("Confirm"), trDyn("Cancel") };
     const float qw = gfx.measure(q, qs);
     const float ow0 = gfx.measure(opt[0], bs), ow1 = gfx.measure(opt[1], bs);
     const float pad = 28.0f * sf, gapX = 48.0f * sf, gapY = 26.0f * sf;
-    const float lineQ = gfx.fontLineH() * qs, lineO = gfx.fontLineH() * bs;
+    const float lineQ = gfx.fontLineH() * qs, lineO = gfx.fontLineH() * bs, lineD = gfx.fontLineH() * ds;
+    const float maxW = vw - 2.0f * pad;
     float cardW = fmaxf(qw, ow0 + gapX + ow1) + 2.0f * pad;
-    if (cardW > vw - 2.0f * pad) cardW = vw - 2.0f * pad;
-    const float cardH = pad + lineQ + gapY + lineO + pad;
+    if (!mConfirm.details.empty()) cardW = fmaxf(cardW, fminf(maxW, vw * 0.8f));
+    if (cardW > maxW) cardW = maxW;
+    // Wrap each detail line as a bullet to the card's inner width.
+    std::vector<std::string> lines;
+    const float bullet = gfx.measure("- ", ds);
+    const float innerW = cardW - 2.0f * pad;
+    for (const std::string& d : mConfirm.details) {
+        std::string text = trDyn(d.c_str());
+        std::string cur; size_t pos = 0; bool first = true;
+        while (pos <= text.size()) {
+            size_t sp = text.find(' ', pos);
+            if (sp == std::string::npos) sp = text.size();
+            std::string word = text.substr(pos, sp - pos);
+            // A run without spaces wider than the card (CJK text): break it
+            // on UTF-8 character boundaries at the widest fitting prefix.
+            while (bullet + gfx.measure(word.c_str(), ds) > innerW && word.size() > 1) {
+                size_t cut = word.size();
+                while (cut > 1) {
+                    size_t c = cut - 1;
+                    while (c > 0 && (static_cast<unsigned char>(word[c]) & 0xC0) == 0x80) c--;
+                    cut = c;
+                    if (bullet + gfx.measure(word.substr(0, cut).c_str(), ds) <= innerW) break;
+                }
+                if (cut == 0) break;
+                if (!cur.empty()) { lines.push_back((first ? "- " : "  ") + cur); first = false; cur.clear(); }
+                lines.push_back((first ? "- " : "  ") + word.substr(0, cut)); first = false;
+                word = word.substr(cut);
+            }
+            const std::string cand = cur.empty() ? word : cur + " " + word;
+            if (!cur.empty() && bullet + gfx.measure(cand.c_str(), ds) > innerW) {
+                lines.push_back((first ? "- " : "  ") + cur); first = false; cur = word;
+            } else cur = cand;
+            pos = sp + 1;
+        }
+        if (!cur.empty()) lines.push_back((first ? "- " : "  ") + cur);
+    }
+    const float detH = lines.empty() ? 0.0f : (lines.size() * lineD + gapY * 0.6f);
+    const float cardH = pad + lineQ + detH + gapY + lineO + pad;
     const float cx = (vw - cardW) / 2.0f, cy = (vh - cardH) / 2.0f;
     gfx.fillRect(cx, cy, cardW, cardH, rgba(0.08f, 0.09f, 0.12f, 0.97f));
     gfx.outline(cx, cy, cardW, cardH, 2.0f * sf, rgba(0.35f, 0.75f, 1.0f, 0.9f));
     gfx.text(q, cx + (cardW - qw) / 2.0f, cy + pad, qs, rgba(1, 1, 1, 1));
-    const float oy = cy + pad + lineQ + gapY;
+    float ly = cy + pad + lineQ + gapY * 0.6f;
+    for (const std::string& l : lines) {
+        gfx.text(l.c_str(), cx + pad, ly, ds, rgba(0.85f, 0.87f, 0.92f, 0.95f));
+        ly += lineD;
+    }
+    const float oy = cy + pad + lineQ + detH + gapY;
     const float totalW = ow0 + gapX + ow1;
     float ox = cx + (cardW - totalW) / 2.0f;
     for (int i = 0; i < 2; i++) {
