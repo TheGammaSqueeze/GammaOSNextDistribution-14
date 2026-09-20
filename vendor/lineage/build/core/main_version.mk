@@ -7,7 +7,7 @@ endif
 # GammaOS version. Single source of truth for the user-facing version string
 # embedded in ro.lineage.version, ro.lineage.display.version, and the OTA
 # manifest compatibility check (ro.gammaos.build.version).
-GAMMAOS_VERSION := 1.4.1
+GAMMAOS_VERSION := 1.4.2
 
 # GammaOS variant, three-way. This is the {variant} placeholder the Updater app
 # substitutes into the OTA server URL (see ro.gammaos.variant below), so every
