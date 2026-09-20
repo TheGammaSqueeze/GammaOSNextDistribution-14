@@ -8731,6 +8731,27 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // Seed the nano cold-boot chime volume props from the current system volume (AudioService is
         // up by now), so the chime respects the system level on the next boot.
         nanoPublishBootVolumeProps();
+        // GammaOS Nano: keep the published volume props tracking the REAL music volume for the
+        // output device in use. They were only rewritten by a volume key press here, so every
+        // other change left them stale: AudioService keeps a separate STREAM_MUSIC index per
+        // device (speaker / headset / headphone / Bluetooth), so plugging headphones in or out
+        // switched the live index while the props kept the old device's value, and the nano and
+        // drastic-nano sliders (which display the props) showed a level that did not exist.
+        // Seen as "100 percent but still quiet, and volume up keeps raising it": the prop said
+        // 15/15 while the speaker index was 9/15. Republish on every volume change and on every
+        // stream-device change, from AudioService's own broadcasts.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            IntentFilter f = new IntentFilter();
+            f.addAction(AudioManager.VOLUME_CHANGED_ACTION);
+            f.addAction(AudioManager.STREAM_DEVICES_CHANGED_ACTION);
+            f.addAction(AudioManager.ACTION_HEADSET_PLUG);
+            mContext.registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    nanoPublishBootVolumeProps();
+                }
+            }, f, null, mHandler);
+        }
         synchronized (mLock) {
             mSystemBooted = true;
             if (mSystemReady) {
