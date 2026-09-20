@@ -122,7 +122,7 @@ bool NanoMenu::drasticParkSession() {
     // right after. On the SF-hosted home there is nothing to drop: HWC loses
     // master to the game and gets it back when the game exits.
     const bool drmHome = sDrmActive;
-    if (drmHome) drmStop();
+    if (drmHome) { drmRememberInstallMatrix(); drmStop(); }
     property_set("sys.gammaos.nano.menu_active", "0");
 
     // Memory: the home pins itself with mlockall at startup; let every idle
@@ -217,6 +217,10 @@ bool NanoMenu::drasticParkSession() {
     mDrasticNanoPending = false;
     mLaunchFadeStart = 0;
     mExitRequested = false;
+    // Return like a fresh home would: drill back to the launched card from the
+    // path saved at launch and replay the DSi entrance cascade.
+    ndsRestoreReturnPath();
+    mNdsIntroStart = 0;
     property_set("sys.gammaos.nano.menu_active", "1");
     property_set("sys.gammaos.nano.drop_input", "0");
     // The Recently Played row was updated at launch; save-state and playtime

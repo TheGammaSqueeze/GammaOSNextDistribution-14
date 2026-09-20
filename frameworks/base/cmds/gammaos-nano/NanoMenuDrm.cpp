@@ -3089,14 +3089,29 @@ void drmStop() {
 // modeset, rebuild the zero-copy ring on the SAME EGL context, and put back
 // the install matrix drmStop() reset. Returns false when the panel could not
 // be reclaimed; the caller then falls back to a fresh home process.
+static float sParkRot[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+static bool  sParkGlRot = false, sParkYFlip = false, sParkSaved = false;
+
+void drmRememberInstallMatrix() {
+    for (int i = 0; i < 4; i++) sParkRot[i] = sDrmRotMat[i];
+    sParkGlRot = sDrmGlRotation;
+    sParkYFlip = sDrmYFlipForPrime;
+    sParkSaved = true;
+}
+
 bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs) {
     // The matrix initShaders() computed (rotation + user flips + the PRIME
-    // Y-flip drmSetupZeroCopy() folded in) is already what this context draws
-    // with; drmStop() reset it, so keep a copy and restore it after the
+    // Y-flip drmSetupZeroCopy() folded in) is what this context draws with.
+    // drmStop() resets it to identity, so the caller records it with
+    // drmRememberInstallMatrix() BEFORE stopping and it is put back after the
     // re-setup. sDrmYFlipForPrime stays true so the flip is not applied twice.
-    float rot[4] = { sDrmRotMat[0], sDrmRotMat[1], sDrmRotMat[2], sDrmRotMat[3] };
-    const bool glRot = sDrmGlRotation;
-    const bool yFlip = sDrmYFlipForPrime;
+    if (!sParkSaved) {
+        ALOGE("NanoMenu DRM: drmReacquireForHome without drmRememberInstallMatrix");
+        return false;
+    }
+    float rot[4] = { sParkRot[0], sParkRot[1], sParkRot[2], sParkRot[3] };
+    const bool glRot = sParkGlRot;
+    const bool yFlip = sParkYFlip;
     const int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     int fd = -1;
     for (;;) {
@@ -3127,8 +3142,9 @@ bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs) {
     sDrmGlRotation = glRot;
     sDrmYFlipForPrime = yFlip;
     drmSuspendMarkSeen();
-    ALOGW("NanoMenu DRM: master re-acquired for the parked home in %lld ms (zc=%d)",
-          (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - t0), sDrmZeroCopy ? 1 : 0);
+    ALOGW("NanoMenu DRM: master re-acquired for the parked home in %lld ms (zc=%d rot=[%g %g %g %g] glRot=%d yFlip=%d)",
+          (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - t0), sDrmZeroCopy ? 1 : 0,
+          sDrmRotMat[0], sDrmRotMat[1], sDrmRotMat[2], sDrmRotMat[3], sDrmGlRotation ? 1 : 0, sDrmYFlipForPrime ? 1 : 0);
     return true;
 }
 

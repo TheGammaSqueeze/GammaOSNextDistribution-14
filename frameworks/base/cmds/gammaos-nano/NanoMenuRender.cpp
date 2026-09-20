@@ -1034,9 +1034,20 @@ bool NanoMenu::ndsCurLevelIsList() const {
     if (!mPs3Stack.empty()) items = &mPs3Stack.back().items;
     else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) items = &mPs3Cats[mPs3CatIdx].items;
     if (!items || items->empty()) return false;
-    for (const Ps3Item& it : *items)
-        if (it.kind != PS3_DATA_LEAF && it.kind != PS3_DATA_SUBMENU && it.kind != PS3_QUICK)
-            return false;
+    for (const Ps3Item& it : *items) {
+        switch (it.kind) {
+            case PS3_DATA_LEAF: case PS3_DATA_SUBMENU: case PS3_QUICK:
+            // Entry rows that open a settings editor screen (Game Systems under Game
+            // Settings, Home Categories under Theme Settings, the Wi-Fi / Bluetooth /
+            // settings-tree entries): still a settings level. Without these the two
+            // pages that carry them fell back to the carousel while every other
+            // settings page was a list.
+            case PS3_GS_ROOT: case PS3_CATORDER_ROOT: case PS3_SETTING:
+                continue;
+            default:
+                return false;
+        }
+    }
     return true;
 }
 
