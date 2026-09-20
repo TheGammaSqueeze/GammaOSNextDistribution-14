@@ -1726,6 +1726,16 @@ public class JobSchedulerService extends com.android.server.SystemService
     public int scheduleAsPackage(JobInfo job, JobWorkItem work, int callingUid, String packageName,
             int userId, @Nullable String namespace, String tag) {
         // Rate limit excessive schedule() calls.
+        // GammaOS Nano: no analytics/measurement jobs for the Mupen64Plus AE app shell
+        // (see ActiveServices.nanoShouldBlockService); the SDK ignores a failed schedule.
+        if (packageName != null && packageName.startsWith("org.mupen64plusae.v3.")) {
+            final String cls = job.getService().getClassName();
+            if (cls.startsWith("com.google.android.gms.measurement")
+                    || cls.startsWith("com.google.firebase.")) {
+                Slog.i(TAG, "GammaOS Nano: refusing job " + cls + " for " + packageName);
+                return JobScheduler.RESULT_FAILURE;
+            }
+        }
         final String servicePkg = job.getService().getPackageName();
         if (job.isPersisted() && (packageName == null || packageName.equals(servicePkg))) {
             // Only limit schedule calls for persisted jobs scheduled by the app itself.

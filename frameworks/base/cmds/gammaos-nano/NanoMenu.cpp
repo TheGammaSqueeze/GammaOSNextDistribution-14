@@ -3061,6 +3061,7 @@ if (sRingPrimedCount >= 2) {
                                 "sys.gammaos.nano.pending_exit", "0");
                         property_set(
                                 "sys.gammaos.nano.do_launch", "1");
+                        nanoDropReclaimableCaches();   // hand the launching app the dentry/inode cache RAM
                         // Hold off setting service.bootanim.nano_retroarch
                         // until drastic's game window is actually drawn.
                         // This prop is the legacy bootanim-exit trigger;
@@ -3709,6 +3710,7 @@ if (sRingPrimedCount >= 2) {
                                             property_set("sys.gammaos.nano.drop_input", "1");
                                             // Direct: trigger the relaunch monitor immediately.
                                             property_set("sys.gammaos.nano.do_launch", "1");
+                                            nanoDropReclaimableCaches();   // hand the launching app the dentry/inode cache RAM
                                             // Also set legacy nano_retroarch for init side-effects
                                             // (service.bootanim.exit, etc) but don't depend on it.
                                             property_set("service.bootanim.nano_retroarch", "1");
@@ -3984,6 +3986,7 @@ if (sRingPrimedCount >= 2) {
                         property_set("sys.gammaos.nano.pending_exit", "0");
                         property_set("sys.gammaos.nano.drop_input", "1");
                         property_set("sys.gammaos.nano.do_launch", "1");
+                        nanoDropReclaimableCaches();   // hand the launching app the dentry/inode cache RAM
                         property_set("service.bootanim.nano_retroarch", "1");
                         mExitRequested = true;
                     }
@@ -4101,10 +4104,14 @@ if (sRingPrimedCount >= 2) {
                     // synchronous stall here): the 21MB wave keyframe VBO (rebuilt on
                     // the next live home frame) and the baked overlay backdrop (re-
                     // captured by overlayShow on every raise).
-                    ps3bg::freeWaveSeq();
-                    if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
-                    freeGlassScratch();
                 }
+                // Drop the whole XMB GPU working set (icons, normal maps, covers, wave
+                // keyframes, blur scratch) every time the overlay parks behind an app, not
+                // only on the first park: the resident overlay held ~130 MB of Mali memory
+                // behind a launching game on the 1 GB RG DS, which is GPU memory the kernel
+                // cannot swap, and that alone turned a 2.5 s RetroArch launch into 13 s of
+                // thrash. overlayGpuUnpark rebuilds it before the next raise.
+                if (!mOverlayGpuParked) overlayGpuPark();
                 // KEY_ALL_APPLICATIONS: toggle the Control Center visible over ANY running app. Drained here
                 // (before the controlCenterActive() gate) so it works from every park sub-case, including a
                 // dual-stack app where the CC is otherwise inactive - toggling it on flips controlCenterActive()

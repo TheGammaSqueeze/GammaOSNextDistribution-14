@@ -36,6 +36,9 @@
 
 #define LOG_TAG "GammaOSNano"
 
+#include <fcntl.h>
+#include <malloc.h>
+#include <sys/mman.h>
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"      // ps3::layoutComputeNative for the boot warm-up
 #include "NanoMenuPS3Bg.h"    // ps3bg::init for the boot warm-up
@@ -148,7 +151,16 @@ void NanoMenu::overlayInitLayer() {
     // still hidden - no render, no eglSwapBuffers, no input grab - so it is invisible
     // and safe. The GL context is current on this render thread. The first real show
     // then finds mPs3MenuBuilt=true and skips the rebuild, so it pops up immediately.
-    if (mOverlayMode && !mPs3MenuBuilt) {
+    // Not while an app is in front, though: the overlay is started by the app-launch
+    // hand-off with app_launched=1, and warming the XMB then only competes with the
+    // launching game for CPU, disk and ~100 MB of GPU memory it would drop again the
+    // moment it parks (overlayGpuPark). Build it on the first raise instead; when the
+    // overlay is (re)started as the home (show_overlay=1) it is about to draw, so warm.
+    const bool appInFront = property_get_bool("sys.gammaos.nano.app_launched", false)
+                            && !property_get_bool("sys.gammaos.nano.show_overlay", false);
+    if (mOverlayMode && !mPs3MenuBuilt && appInFront)
+        ALOGI("overlay: app in front, skipping the XMB warm-up (built on first raise)");
+    if (mOverlayMode && !mPs3MenuBuilt && !appInFront) {
         ALOGI("overlay: warming PS3 XMB (menu + wave) at boot for instant first show");
         mPs3Xmb = true;
         initPs3Menu();
@@ -531,7 +543,7 @@ void NanoMenu::overlayShow() {
     // post-exit launcher (wallpaper mode) keep the normal home category. Snap with no
     // rail animation and clear any leftover submenu / modal from a prior raise. The
     // Quick Menu is always the first category buildPs3Cats pushes (index 0).
-    if (!mPs3MenuBuilt) initPs3Menu();   // ensure the categories exist before the snap
+    overlayGpuUnpark();   // ensure the categories + their GPU assets exist before the snap
     int quickIdx = (mPs3QuickCatIdx >= 0) ? mPs3QuickCatIdx : 0;
     if (!mOverlayWallpaper && quickIdx < (int)mPs3Cats.size()) {
         mPs3Stack.clear();
@@ -583,6 +595,137 @@ void NanoMenu::overlayShow() {
     // over a portrait app.
     orientationTick();
     ALOGI("overlay: shown (translucent live-app + scrim, drop_input=1)");
+}
+
+// Drop the XMB GPU working set while the overlay is parked behind a foreground app.
+// Runs on the render thread with the GL context current. Everything freed here comes
+// back on demand: the maps are lazy caches that refill on a miss, the wave keyframes
+// reload on the next live wave frame, the blur scratch on the next capture, and the
+// category icons (whose handles buildPs3Cats copied into the Ps3Cat entries) are
+// reloaded plus the categories rebuilt by overlayGpuUnpark before the next raise.
+// Kept alive on purpose: the glyph atlas, the 21 base console icons, the glass shader
+// program with its two tiny support textures, the Control Center static cache and the
+// wave scene FBOs, so the bottom-panel Control Center keeps rendering identically.
+void NanoMenu::overlayGpuPark() {
+    if (mOverlayGpuParked) return;
+    mOverlayGpuParked = true;
+    ps3bg::freeWaveSeq();
+    if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
+    freeGlassScratch();
+    glassScratchFree();
+    scraperFreeBoxart();
+    iconGridResetCache();
+    auto dropMap = [](std::map<int, GLuint>& m) {
+        for (auto& kv : m) if (kv.second) glDeleteTextures(1, &kv.second);
+        m.clear();
+    };
+    dropMap(mPs3NmapByIcon);
+    dropMap(mPs3IconTexByIndex);
+    dropMap(mPs3BevelByIconIdx);
+    dropMap(mGpGlassNmaps);
+    for (auto& kv : mPs3IconRefCache) {
+        // The failure entries alias a base console icon + its bevel (not owned here);
+        // the bevel map above already dropped the bevel, the base icon stays.
+        if (kv.second.first && kv.second.first != mIconTextures[16])
+            glDeleteTextures(1, &kv.second.first);
+        if (kv.second.second) glDeleteTextures(1, &kv.second.second);
+    }
+    mPs3IconRefCache.clear();
+    for (auto& kv : mPs3AppIcons) if (kv.second) glDeleteTextures(1, &kv.second);
+    mPs3AppIcons.clear();
+    for (int i = 0; i < 7; i++) {
+        if (mPs3CatTex[i]) { glDeleteTextures(1, &mPs3CatTex[i]); mPs3CatTex[i] = 0; }
+        mPs3CatNmap[i] = 0;   // owned by mPs3NmapByIcon, dropped above
+    }
+    for (auto& kv : mEsdeTexCache) if (kv.second) glDeleteTextures(1, &kv.second);
+    mEsdeTexCache.clear();
+    for (auto& kv : mEsdeSvgCache) if (kv.second.tex) glDeleteTextures(1, &kv.second.tex);
+    mEsdeSvgCache.clear();
+    for (auto& kv : mEsdeAnimCache) for (GLuint t : kv.second.frames) if (t) glDeleteTextures(1, &t);
+    mEsdeAnimCache.clear();
+    for (int p = 0; p < 2; p++) {
+        if (mNdsFxFbo[p]) { glDeleteFramebuffers(1, &mNdsFxFbo[p]); mNdsFxFbo[p] = 0; }
+        if (mNdsFxTex[p]) { glDeleteTextures(1, &mNdsFxTex[p]); mNdsFxTex[p] = 0; }
+        mNdsFxW[p] = mNdsFxH[p] = 0;
+    }
+    if (mPs3TzHeaderTex) { glDeleteTextures(1, &mPs3TzHeaderTex); mPs3TzHeaderTex = 0; }
+    // DSi theme sprites + the 36 launch ring frames: ensureNdsAssets / ensureNdsRing are
+    // one-shot loaders on the render paths, so clearing their guards reloads on demand.
+    for (GLuint* t : {&mNdsFrameTex, &mNdsTileTex, &mNdsPhotoTex, &mNdsBattTex})
+        if (*t) { glDeleteTextures(1, t); *t = 0; }
+    mNdsTexLoaded = false;
+    for (int i = 0; i < 36; i++)
+        if (mNdsRingTex[i]) { glDeleteTextures(1, &mNdsRingTex[i]); mNdsRingTex[i] = 0; }
+    mNdsRingLoaded = false;
+    // The wave scene (shaders, gradient/work/half FBOs, geometry): a freshly started
+    // overlay behind an app never initialises it either, so the parked Control Center
+    // already renders without it in the common case; overlayGpuUnpark re-inits it.
+    ps3bg::shutdown();
+    glFlush();
+    ALOGI("overlay: parked, XMB GPU working set dropped");
+    overlayPageOutSelf();
+}
+
+// Rebuild what overlayGpuPark dropped, before the overlay draws again. The XMB
+// hierarchy itself (initPs3Menu) is only built here if it never was (the boot warm-up
+// is skipped while an app is in front); otherwise reload the category icons and
+// rebuild the categories so the Ps3Cat/Ps3Item handle copies are fresh. Everything
+// else refills lazily as it is drawn.
+void NanoMenu::overlayGpuUnpark() {
+    if (!mPs3MenuBuilt) {
+        initPs3Menu();
+    } else if (mOverlayGpuParked) {
+        initGlassIcons();
+        ps3LoadCatIcons();
+        buildPs3Cats();
+    }
+    if (mOverlayMode && !ps3bg::ready()) {
+        ps3bg::init();
+        ps3bg::setScrimWaveFreeze(true);   // as the boot warm-up does (see overlayInitLayer)
+    }
+    if (mOverlayGpuParked) ALOGI("overlay: raised, XMB GPU working set rebuilt");
+    mOverlayGpuParked = false;
+}
+
+// App launch hand-off: free the kernel's reclaimable dentry/inode caches. The ROM
+// library scans (nano's own on every home return, plus the media scanner walking the
+// same files through FUSE) leave 100 MB and more of them behind, and on the 1 GB RG
+// DS the kernel then evicts and re-reads system_server's and the app's code pages for
+// seconds rather than shrink that cache: measured 9 to 12 s to the RetroArch first
+// frame with the cache in place, 5 to 7 s with it dropped just before the launch.
+// Dropping it costs only the next scan's metadata re-reads. Best effort (root only).
+void NanoMenu::nanoDropReclaimableCaches() {
+    sync();
+    int fd = open("/proc/sys/vm/drop_caches", O_WRONLY | O_CLOEXEC);
+    if (fd < 0) { ALOGW("NanoMenu: drop_caches open failed: %s", strerror(errno)); return; }
+    if (write(fd, "2", 1) != 1) ALOGW("NanoMenu: drop_caches write failed: %s", strerror(errno));
+    close(fd);
+    ALOGI("NanoMenu: dropped the reclaimable kernel caches for the app launch");
+}
+
+// Parked overlay: push our own anonymous pages to zram NOW (MADV_PAGEOUT over every
+// private writable anonymous mapping) instead of leaving them for the kernel to swap
+// out one reclaim pass at a time while the launching app is already short of memory.
+// Everything faults back on demand (lz4 zram) when the overlay next draws. Best effort.
+void NanoMenu::overlayPageOutSelf() {
+    mallopt(M_PURGE_ALL, 0);   // return freed heap to the kernel first (bionic has no malloc_trim)
+    FILE* f = fopen("/proc/self/maps", "re");
+    if (!f) return;
+    char line[512];
+    size_t total = 0;
+    while (fgets(line, sizeof line, f)) {
+        unsigned long lo = 0, hi = 0; char perms[8] = {0}; unsigned long off = 0; char dev[16] = {0}; unsigned long ino = 0;
+        int n = 0;
+        if (sscanf(line, "%lx-%lx %7s %lx %15s %lu %n", &lo, &hi, perms, &off, dev, &ino, &n) < 6) continue;
+        if (perms[0] != 'r' || perms[1] != 'w' || perms[3] != 'p') continue;   // private writable only
+        const char* path = line + n;
+        if (ino != 0) continue;                                              // anonymous only (no file backing)
+        if (strstr(path, "[stack") || strstr(path, "[vvar]") || strstr(path, "[vdso]")) continue;
+        if (hi - lo < 64 * 1024) continue;                                    // skip tiny mappings
+        if (madvise((void*)lo, hi - lo, MADV_PAGEOUT) == 0) total += hi - lo;
+    }
+    fclose(f);
+    ALOGI("overlay: paged out %zu MB of own anonymous memory", total >> 20);
 }
 
 void NanoMenu::overlayHide() {
@@ -1097,6 +1240,9 @@ void NanoMenu::overlayLaunchCommand(const std::string& pkg, const std::string& a
         // match the DRM-home launch. Quick-Resume / background preloads use a separate path (not this
         // worker), so they are unaffected and the nano home stays in the preload branch.
         property_set("service.bootanim.nano_retroarch", "1");
+        // Free the kernel's reclaimable caches for the launching app while the launch
+        // effect is still playing (this is the worker thread, off the render loop).
+        nanoDropReclaimableCaches();
         // GammaOS dual-screen: once the resident overlay home is up (app_launched=1),
         // app/game relaunches funnel through here instead of the framework home path,
         // which has no display target - so without this they default to display 0 (the
@@ -1574,7 +1720,11 @@ void NanoMenu::overlayLaunchGame() {
         std::string intent = launchIntent;          // am-start arg template
         size_t pos = intent.find("{file.uri}");
         if (pos != std::string::npos) intent.replace(pos, 10, overlayShq(uri));
-        cmd = "am start " + intent + " --grant-read-uri-permission 2>/dev/null";
+        std::string direct;
+        if (mupenDirectIntent(pkg, romPath, uri, false, direct))
+            cmd = "am start " + direct + " 2>/dev/null";
+        else
+            cmd = "am start " + intent + " --grant-read-uri-permission 2>/dev/null";
     } else {
         pkg = "com.retroarch.aarch64";
         std::string rom = romPath;                   // direct FUSE path for RetroArch

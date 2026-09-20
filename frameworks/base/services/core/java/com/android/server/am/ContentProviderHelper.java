@@ -1225,6 +1225,28 @@ public class ContentProviderHelper {
                 "timeout publishing content providers");
     }
 
+    // Ad-network and analytics init providers that only exist to bootstrap their SDKs at
+    // process start; the app's own code never depends on them having run (the emulator
+    // calls FirebaseApp.initializeApp itself in GameActivity). In the game host process
+    // (:EmulationProcess) the Firebase, emoji and image-cache providers go too: nothing
+    // there shows ads or UI that needs them.
+    private static final String[] NANO_AD_PROVIDER_PREFIXES = {
+        "com.applovin.", "com.google.android.gms.ads.", "com.facebook.ads.", "com.vungle.",
+        "com.ironsource.", "com.bytedance.", "com.unity3d.", "com.inmobi.", "com.chartboost.",
+        "com.mbridge.", "com.fyber.", "com.intergi.", "com.google.firebase.provider.FirebaseInitProvider",
+    };
+    private static final String[] NANO_GAMEPROC_PROVIDER_PREFIXES = {
+        "androidx.startup.InitializationProvider", "com.squareup.picasso.",
+    };
+    static boolean nanoSkipProvider(ProcessRecord app, ProviderInfo cpi) {
+        if (app == null || app.info == null || cpi == null || cpi.name == null) return false;
+        if (!ActiveServices.nanoIsShellBlockedCaller(app.info.packageName)) return false;
+        for (String p : NANO_AD_PROVIDER_PREFIXES) if (cpi.name.startsWith(p)) return true;
+        if (app.processName != null && app.processName.endsWith(":EmulationProcess"))
+            for (String p : NANO_GAMEPROC_PROVIDER_PREFIXES) if (cpi.name.startsWith(p)) return true;
+        return false;
+    }
+
     List<ProviderInfo> generateApplicationProvidersLocked(ProcessRecord app) {
         final List<ProviderInfo> providers;
         try {
@@ -1250,6 +1272,20 @@ public class ContentProviderHelper {
         for (int i = 0; i < numProviders; i++) {
             // NOTE: keep logic in sync with installEncryptionUnawareProviders
             ProviderInfo cpi = providers.get(i);
+            // GammaOS Nano: the Mupen64Plus AE free build registers the init providers of
+            // seven ad networks plus analytics; every one of them initialises its SDK at
+            // process start, in the main process AND again in the :EmulationProcess that
+            // hosts the game, before any activity can draw. On the 1 GB RG DS that is 10
+            // to 12 s of black screen per process. Leave them out of the process's
+            // provider list so they are never instantiated (see nanoSkipProvider).
+            if (nanoSkipProvider(app, cpi)) {
+                Slog.i(TAG, "GammaOS Nano: skipping provider " + cpi.name + " in "
+                        + app.processName);
+                providers.remove(i);
+                numProviders--;
+                i--;
+                continue;
+            }
             boolean singleton = mService.isSingleton(cpi.processName, cpi.applicationInfo,
                     cpi.name, cpi.flags);
             if (isSingletonOrSystemUserOnly(cpi) && app.userId != UserHandle.USER_SYSTEM) {

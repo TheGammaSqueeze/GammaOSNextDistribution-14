@@ -875,6 +875,8 @@ private:
     bool mOverlayPagesLocked = true;  // overlay RSS pinned by the startup mlockall; released by
                                       // munlockall once parked behind an app, then left reclaimable
                                       // (demand-faults from zram on raise; NOT re-locked - see overlayShow)
+    bool mOverlayGpuParked = false;   // XMB GPU assets dropped while parked behind an app (overlayGpuPark);
+                                      // rebuilt by overlayGpuUnpark on the next raise
     // OSK-over-app: an app (GammaBrowser web fields) requests nano's lightweight OSK
     // because the framework leanback IME (~130MB) gets OOM-killed on this 1GB device
     // under a heavy WebView. We raise the overlay in an OSK-only mode and hand the
@@ -917,6 +919,12 @@ private:
     void overlayOskPoll();            // watch osk_req; host an app's OSK over the live app
     void overlayShow();               // raise layer + drop_input=1 + reset to XMB top
     void overlayHide();               // hide layer + drop_input=0
+    bool mupenDirectIntent(const std::string& pkg, const std::string& romPath,
+                           const std::string& contentUri, bool tabbed, std::string& out);
+    void overlayGpuPark();            // drop the XMB GPU working set while an app is in front
+    void overlayGpuUnpark();          // rebuild it (lazily where possible) before the overlay draws
+    void overlayPageOutSelf();        // push this process's anonymous pages to zram (parked overlay)
+    static void nanoDropReclaimableCaches();   // free the kernel dentry/inode caches (app launch hand-off)
     // Apply the mode-dependent presentation state (layer opaque flag + EGL swap
     // interval) for the CURRENT mOverlayWallpaper. Must run on the render thread
     // (eglSwapInterval needs the context current). Called from overlayShow and
@@ -2975,6 +2983,7 @@ private:
     void   iconGridNav(int dx, int dy);        // 2D cursor movement
     void   iconGridSelect();                   // assign the highlighted icon to the system
     void   iconGridResetCache();               // drop all thumbnail textures
+    void   glassScratchFree();                 // release the half-res glass icon scratch FBO (parked overlay)
     void   gsOpenIconFilePicker();             // open the file browser to import a custom PNG icon (folder-picker target 6)
     void   gsIconFileSelect(const std::string& path); // copy the chosen image into nano_user_icons and set a file: iconRef
 
@@ -5024,6 +5033,7 @@ private:
 
     // Icon rendering
     void initIconTextures();
+    void ps3LoadCatIcons();          // (re)load the 7 category icon textures + their glass normal maps
     void drawIcon(int iconIdx, float x, float y, float size,
                   float r, float g, float b, float a);
     // Draw an arbitrary GL texture handle (PS3 category icons live outside

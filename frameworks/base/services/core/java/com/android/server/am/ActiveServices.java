@@ -909,6 +909,34 @@ public final class ActiveServices {
                 false /* isSdkSandboxService */, INVALID_UID, null, null);
     }
 
+
+    // GammaOS Nano: Mupen64Plus AE (the ad-supported build shipped for N64) drags a whole
+    // app-shell along with the emulator on every game launch: the Google Mobile Ads SDK
+    // spawns a WebView sandbox process (up to 77 MB) for a banner that never shows without
+    // Play Services, Firebase Sessions binds a service that resurrects the cached main
+    // process after the low memory killer reaps it (that resurrection aborted in the
+    // Analytics thread), and AppMeasurement schedules jobs. On the 1 GB RG DS all of that
+    // thrashes the game for tens of seconds. Refuse those component starts and binds for
+    // this package family; the SDKs treat a failed bind as "unavailable" and carry on.
+    static final String[] NANO_SHELL_BLOCKED_PKGS = { "org.mupen64plusae.v3." };
+    static boolean nanoIsShellBlockedCaller(String callingPackage) {
+        if (callingPackage == null) return false;
+        for (String p : NANO_SHELL_BLOCKED_PKGS) if (callingPackage.startsWith(p)) return true;
+        return false;
+    }
+    static boolean nanoShouldBlockService(String callingPackage, Intent service) {
+        if (!nanoIsShellBlockedCaller(callingPackage) || service == null) return false;
+        final ComponentName cn = service.getComponent();
+        final String pkg = cn != null ? cn.getPackageName() : service.getPackage();
+        final String cls = cn != null ? cn.getClassName() : "";
+        if (pkg != null && (pkg.equals("com.android.webview") || pkg.startsWith("com.google.android.webview")))
+            return true;
+        if (cls != null && (cls.startsWith("com.google.firebase.")
+                || cls.startsWith("com.google.android.gms.measurement")
+                || cls.startsWith("com.google.android.gms.ads")))
+            return true;
+        return false;
+    }
     ComponentName startServiceLocked(IApplicationThread caller, Intent service, String resolvedType,
             int callingPid, int callingUid, boolean fgRequired,
             String callingPackage, @Nullable String callingFeatureId, final int userId,
@@ -917,6 +945,11 @@ public final class ActiveServices {
             throws TransactionTooLargeException {
         if (DEBUG_DELAYED_STARTS) Slog.v(TAG_SERVICE, "startService: " + service
                 + " type=" + resolvedType + " args=" + service.getExtras());
+        if (nanoShouldBlockService(callingPackage, service)) {
+            Slog.i(TAG, "GammaOS Nano: refusing service start " + service.getComponent()
+                    + " for " + callingPackage);
+            return null;
+        }
 
         final boolean callerFg;
         if (caller != null) {
@@ -3868,6 +3901,11 @@ public final class ActiveServices {
                 + " flags=0x" + Long.toHexString(flags));
         final int callingPid = mAm.mInjector.getCallingPid();
         final int callingUid = mAm.mInjector.getCallingUid();
+        if (nanoShouldBlockService(callingPackage, service)) {
+            Slog.i(TAG, "GammaOS Nano: refusing service bind " + service.getComponent()
+                    + " for " + callingPackage);
+            return 0;
+        }
         final ProcessRecord callerApp = mAm.getRecordForAppLOSP(caller);
         if (callerApp == null) {
             throw new SecurityException(

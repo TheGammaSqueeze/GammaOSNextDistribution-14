@@ -279,6 +279,15 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
 PRODUCT_PRODUCT_PROPERTIES += \
     persist.settings.large_screen_opt.enabled=true
 
+# GammaOS: do not have ART madvise(MADV_WILLNEED) an app's whole odex and vdex at process
+# start (the platform default reads up to 100 MB of each synchronously from flash before
+# the app runs). On a 1 GB handheld that is the black screen on every launch of a large
+# app: Mupen64Plus AE's 76 MB odex plus 27 MB vdex were read twice (main and emulation
+# process) while the kernel was already thrashing. Pages fault in on demand instead.
+PRODUCT_PRODUCT_PROPERTIES += \
+    dalvik.vm.madvise.vdexfile.size=0 \
+    dalvik.vm.madvise.odexfile.size=0
+
 # Hide display cutout
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.support_hide_display_cutout=true

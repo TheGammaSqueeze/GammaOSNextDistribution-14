@@ -1231,6 +1231,13 @@ bool NanoMenu::decodeRetroIconRGBA(const std::string& name, std::vector<uint8_t>
 // dramatic half-res-icon slowdown, and is pathological on a tiler (each status query flushes tiles).
 static GLuint sGlassScratchFbo = 0, sGlassScratchTex = 0;
 static int    sGlassScratchW = 0, sGlassScratchH = 0;   // allocated (>= requested) size
+// Release the scratch FBO while the overlay is parked behind an app (overlayGpuPark);
+// glassScratchEnsure recreates it on the next half-res icon draw.
+void NanoMenu::glassScratchFree() {
+    if (sGlassScratchFbo) { glDeleteFramebuffers(1, &sGlassScratchFbo); sGlassScratchFbo = 0; }
+    if (sGlassScratchTex) { glDeleteTextures(1, &sGlassScratchTex); sGlassScratchTex = 0; }
+    sGlassScratchW = sGlassScratchH = 0;
+}
 static bool glassScratchEnsure(int w, int h) {
     if (w < 1) w = 1;
     if (h < 1) h = 1;

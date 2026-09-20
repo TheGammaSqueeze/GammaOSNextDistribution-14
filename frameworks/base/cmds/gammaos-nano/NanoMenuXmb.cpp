@@ -46,6 +46,171 @@
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuShaders.h"
 #include "NanoJson.h"
+#include <openssl/md5.h>
+#include <fstream>
+
+// ---------------------------------------------------------------------------
+// Mupen64Plus AE direct launch. The stock VIEW intent goes SplashActivity ->
+// GalleryActivity -> GameActivity: two activities in the app's main process (which
+// then only exists to be reaped by the low memory killer) that on the 1 GB RG DS cost
+// 10 to 20 s of black screen before the game process even starts. GameActivity itself
+// only needs what the gallery computes from the ROM: its MD5 over the byte-order
+// normalised (z64) image, the header CRC pair, the internal header name and the
+// mupen64plus.ini good name. Compute those here and start GameActivity directly, so
+// only the :EmulationProcess is created. Measured: game running 17 s after the intent
+// instead of 35 to 45 s. Zips and 7z archives keep the stock path (the gallery extracts
+// them); any read failure also falls back to the stock intent.
+// ---------------------------------------------------------------------------
+static std::string mupenShq(const std::string& v) {   // POSIX shell single-quote
+    std::string o = "'";
+    for (char c : v) { if (c == '\'') o += "'\\''"; else o += c; }
+    return o + "'";
+}
+
+static bool mupenRomMeta(const std::string& romPath, std::string& md5Hex, std::string& crc,
+                         std::string& headerName) {
+    int fd = open(romPath.c_str(), O_RDONLY | O_CLOEXEC);
+    if (fd < 0) return false;
+    struct stat st;
+    if (fstat(fd, &st) != 0 || st.st_size < 0x1000) { close(fd); return false; }
+    uint8_t hdr[4];
+    if (read(fd, hdr, 4) != 4) { close(fd); return false; }
+    // 80371240 = z64 (big-endian, native); 37804012 = v64 (16-bit swapped); 40123780 = n64 (32-bit LE)
+    enum { Z64, V64, N64 } fmt;
+    if (hdr[0] == 0x80 && hdr[1] == 0x37) fmt = Z64;
+    else if (hdr[0] == 0x37 && hdr[1] == 0x80) fmt = V64;
+    else if (hdr[0] == 0x40 && hdr[1] == 0x12) fmt = N64;
+    else { close(fd); return false; }
+    // md5 cache: path|size|mtime|md5|crc|name (one ROM per line)
+    const char* cachePath = "/data/system/nano_mupen_rom_cache.txt";
+    char key[640];
+    snprintf(key, sizeof key, "%s|%lld|%lld|", romPath.c_str(), (long long)st.st_size, (long long)st.st_mtime);
+    {
+        std::ifstream cf(cachePath);
+        std::string line;
+        while (std::getline(cf, line)) {
+            if (line.compare(0, strlen(key), key) == 0) {
+                std::string rest = line.substr(strlen(key));
+                size_t a = rest.find('|'), b = (a == std::string::npos) ? a : rest.find('|', a + 1);
+                if (a != std::string::npos && b != std::string::npos) {
+                    md5Hex = rest.substr(0, a); crc = rest.substr(a + 1, b - a - 1); headerName = rest.substr(b + 1);
+                    close(fd);
+                    return true;
+                }
+            }
+        }
+    }
+    lseek(fd, 0, SEEK_SET);
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    std::vector<uint8_t> buf(1 << 20);
+    std::vector<uint8_t> first(64);
+    bool haveFirst = false;
+    for (;;) {
+        ssize_t n = read(fd, buf.data(), buf.size());
+        if (n < 0) { close(fd); return false; }
+        if (n == 0) break;
+        size_t len = (size_t)n & ~(size_t)3;   // ROMs are 4-byte multiples; drop any stray tail
+        if (fmt == V64) {
+            for (size_t i = 0; i + 1 < len; i += 2) std::swap(buf[i], buf[i + 1]);
+        } else if (fmt == N64) {
+            for (size_t i = 0; i + 3 < len; i += 4) { std::swap(buf[i], buf[i + 3]); std::swap(buf[i + 1], buf[i + 2]); }
+        }
+        if (!haveFirst) { memcpy(first.data(), buf.data(), 64); haveFirst = true; }
+        MD5_Update(&ctx, buf.data(), len);
+    }
+    close(fd);
+    unsigned char dig[16];
+    MD5_Final(dig, &ctx);
+    char hex[33];
+    for (int i = 0; i < 16; i++) snprintf(hex + 2 * i, 3, "%02X", dig[i]);
+    md5Hex = hex;
+    char crcbuf[24];
+    uint32_t c1 = ((uint32_t)first[0x10] << 24) | ((uint32_t)first[0x11] << 16) | ((uint32_t)first[0x12] << 8) | first[0x13];
+    uint32_t c2 = ((uint32_t)first[0x14] << 24) | ((uint32_t)first[0x15] << 16) | ((uint32_t)first[0x16] << 8) | first[0x17];
+    snprintf(crcbuf, sizeof crcbuf, "%08X %08X", c1, c2);
+    crc = crcbuf;
+    headerName.assign((const char*)first.data() + 0x20, 20);
+    while (!headerName.empty() && (headerName.back() == ' ' || headerName.back() == '\0')) headerName.pop_back();
+    for (char& ch : headerName) if (ch == '\t' || ch == '\n' || ch == '|') ch = ' ';
+    {
+        std::ofstream cf(cachePath, std::ios::app);
+        cf << key << md5Hex << '|' << crc << '|' << headerName << '\n';
+    }
+    return true;
+}
+
+static std::string mupenGoodName(const std::string& pkg, const std::string& md5Hex) {
+    std::string ini = "/data/data/" + pkg + "/files/mupen64plus.ini";
+    std::ifstream f(ini);
+    if (!f) return "";
+    std::string line, want = "[" + md5Hex + "]";
+    bool in = false;
+    while (std::getline(f, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (!line.empty() && line[0] == '[') { in = (line == want); continue; }
+        if (in && line.compare(0, 9, "GoodName=") == 0) return line.substr(9);
+    }
+    return "";
+}
+
+// Build the GameActivity intent arguments. tabbed=true yields the tab separated token
+// list the framework's nano intent file expects (RootWindowContainer.parseAmIntent);
+// tabbed=false yields a shell-quoted `am start` argument string.
+bool android::NanoMenu::mupenDirectIntent(const std::string& pkg, const std::string& romPath,
+                                 const std::string& contentUri, bool tabbed, std::string& out) {
+    if (pkg.compare(0, 18, "org.mupen64plusae.") != 0) return false;
+    std::string lower = romPath;
+    for (char& c : lower) c = (char)tolower((unsigned char)c);
+    if (lower.size() > 4 && (lower.compare(lower.size() - 4, 4, ".zip") == 0 || lower.compare(lower.size() - 3, 3, ".7z") == 0))
+        return false;
+    std::string md5, crc, hname;
+    if (!mupenRomMeta(romPath, md5, crc, hname)) return false;
+    std::string good = mupenGoodName(pkg, md5);
+    std::string display = romPath;
+    { size_t ls = display.rfind('/'); if (ls != std::string::npos) display = display.substr(ls + 1);
+      size_t dot = display.rfind('.'); if (dot != std::string::npos) display.erase(dot); }
+    if (good.empty()) good = display;
+    // Hand the ROM over as a file URI on the app-visible path, not a SAF content URI:
+    // GammaOS relaxes storage access, so the emulator opens the file directly, nothing
+    // is copied, and the ExternalStorageProvider process (about 45 MB) is never started.
+    std::string appPath = romPath;
+    if (appPath.rfind("/data/media/0/", 0) == 0) appPath = "/storage/emulated/0/" + appPath.substr(14);
+    else if (appPath.rfind("/mnt/media_rw/", 0) == 0) appPath = "/storage/" + appPath.substr(14);
+    std::string fileUri = "file://";
+    for (unsigned char c : appPath) {
+        if (isalnum(c) || c == '/' || c == '.' || c == '-' || c == '_' || c == '~') fileUri += (char)c;
+        else { char e[4]; snprintf(e, sizeof e, "%%%02X", c); fileUri += e; }
+    }
+    (void)contentUri;
+    const std::string K = "paulscode.android.mupen64plusae.ActivityHelper.Keys.";
+    std::vector<std::string> tok = {
+        "-n", pkg + "/paulscode.android.mupen64plusae.game.GameActivity",
+        "-a", "android.intent.action.MAIN",
+        "-d", fileUri,
+        "-es", K + "ROM_PATH", fileUri,
+        "-es", K + "ROM_MD5", md5,
+        "-es", K + "ROM_CRC", crc,
+        "-es", K + "ROM_HEADER_NAME", hname,
+        "-es", K + "ROM_GOOD_NAME", good,
+        "-es", K + "ROM_DISPLAY_NAME", display,
+        "-es", K + "ROM_ART_PATH", "",
+    };
+    out.clear();
+    for (size_t i = 0; i < tok.size(); i++) {
+        if (tabbed) {
+            if (i) out += '\t';
+            out += tok[i];
+        } else {
+            if (i) out += ' ';
+            if (tok[i] == "-es") { out += "--es"; continue; }
+            out += (tok[i].compare(0, 1, "-") == 0) ? tok[i] : mupenShq(tok[i]);
+        }
+    }
+    ALOGI("NanoMenu: mupen direct launch md5=%s crc=%s name='%s' good='%s'", md5.c_str(), crc.c_str(),
+          hname.c_str(), good.c_str());
+    return true;
+}
 
 namespace android {
 
@@ -2323,6 +2488,7 @@ void NanoMenu::launchXmbGame() {
             size_t pos = intent.find("{file.uri}");
             if (pos != std::string::npos) intent.replace(pos, 10, contentUri);
             std::string tabIntent;
+            if (!mupenDirectIntent(re.launchPkg, re.romPath, contentUri, true, tabIntent))
             { const char* p = intent.c_str(); while (*p) { while (*p == ' ') p++;
               if (!*p) break; if (!tabIntent.empty()) tabIntent += '\t';
               const char* s = p; while (*p && *p != ' ') p++; tabIntent.append(s, p - s); } }
@@ -2495,6 +2661,7 @@ void NanoMenu::launchXmbGame() {
             subst("{file.mime}", "application/octet-stream");
         }
         std::string tabIntent;
+        if (!mupenDirectIntent(sys.launchPkg, fullRomPath, contentUri, true, tabIntent))
         {
             const char* p = intent.c_str();
             while (*p) {

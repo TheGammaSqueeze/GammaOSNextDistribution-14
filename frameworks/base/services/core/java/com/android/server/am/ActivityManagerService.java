@@ -3573,6 +3573,26 @@ public class ActivityManagerService extends IActivityManager.Stub
                                         + "), not raising the overlay");
                                 return;
                             }
+                            // The app may run its game in ANOTHER process of the same uid:
+                            // Mupen64Plus AE hosts GameActivity in ":EmulationProcess" and
+                            // its main process is then merely cached, so the low memory
+                            // killer reaps it mid-game on a 1 GB device. That death is not
+                            // an exit: the top app is still this uid. Raising the overlay
+                            // here put the home over the running game and rebuilt its whole
+                            // GPU working set behind it (observed: N64 launches taking a
+                            // minute, the home popping up over the game on re-entry).
+                            final com.android.server.wm.WindowProcessController top =
+                                    mAtmInternal.getTopApp();
+                            final ProcessRecord topProc = (top == null) ? null
+                                    : mPidsSelfLocked.get(top.getPid());
+                            if (topProc != null && topProc.uid == nanoDeadUid
+                                    && top.getPid() != nanoDeadPid) {
+                                Slog.i(TAG, "GammaOS Nano: launched app " + nanoDeadPkg
+                                        + " main process died but its uid still owns the top"
+                                        + " app (pid " + top.getPid()
+                                        + "), not raising the overlay");
+                                return;
+                            }
                             Slog.i(TAG, "GammaOS Nano: overlay-home launched app " + nanoDeadPkg
                                     + " did not come back, raising the overlay launcher directly");
                             // Clear launch state so the death-cascade startHome cannot re-launch

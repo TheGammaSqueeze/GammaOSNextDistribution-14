@@ -579,6 +579,29 @@ NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d, const std::string
     return it;
 }
 
+// The 7 category icon textures (6 web DATA categories + the Quick Menu power glyph)
+// and their glass normal maps. Called by initPs3Menu, and again by overlayGpuUnpark
+// after the parked overlay dropped them: any previous texture is deleted first and the
+// normal maps come back through nmapForIcon's cache (refilled on a miss). Callers that
+// copied the old handles into Ps3Cat/Ps3Item entries must rebuild them (buildPs3Cats).
+void NanoMenu::ps3LoadCatIcons() {
+    static const char* kCatIconFiles[6] = {
+        "xmb_icon_001.png", "xmb_icon_002.png", "xmb_icon_003.png",
+        "xmb_icon_004.png", "xmb_icon_005.png", "xmb_icon_006.png",
+    };
+    const int catCap = ps3::iconTexCap(mWidth, mHeight, ps3::CAT_ICON_ACTIVE, 512);
+    for (int i = 0; i < 6; i++) {
+        if (mPs3CatTex[i]) glDeleteTextures(1, &mPs3CatTex[i]);
+        mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i], catCap);
+        mPs3CatNmap[i] = nmapForIcon(i + 1);   // category icons are xmb_icon 1..6
+    }
+    // Quick Menu category icon (free slot 6): the xmb_icon_054 power glyph + its
+    // glass normal map, so the new category renders the live-wave glass effect.
+    if (mPs3CatTex[6]) glDeleteTextures(1, &mPs3CatTex[6]);
+    mPs3CatTex[6]  = loadPs3IconTex("xmb_icon_054.png", catCap);
+    mPs3CatNmap[6] = nmapForIcon(54);
+}
+
 void NanoMenu::initPs3Menu() {
     if (mPs3MenuBuilt) return;
     // Clear any stale BT receive-mode flag left by a prior session that exited
@@ -593,19 +616,7 @@ void NanoMenu::initPs3Menu() {
     if (mPs3UiScale < 0.5f || mPs3UiScale > 2.0f) mPs3UiScale = 1.12f;
     loadCatOrder();   // home category order + visibility (before buildPs3Cats below)
     initGlassIcons();
-    static const char* kCatIconFiles[6] = {
-        "xmb_icon_001.png", "xmb_icon_002.png", "xmb_icon_003.png",
-        "xmb_icon_004.png", "xmb_icon_005.png", "xmb_icon_006.png",
-    };
-    const int catCap = ps3::iconTexCap(mWidth, mHeight, ps3::CAT_ICON_ACTIVE, 512);
-    for (int i = 0; i < 6; i++) {
-        mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i], catCap);
-        mPs3CatNmap[i] = nmapForIcon(i + 1);   // category icons are xmb_icon 1..6
-    }
-    // Quick Menu category icon (free slot 6): the xmb_icon_054 power glyph + its
-    // glass normal map, so the new category renders the live-wave glass effect.
-    mPs3CatTex[6]  = loadPs3IconTex("xmb_icon_054.png", catCap);
-    mPs3CatNmap[6] = nmapForIcon(54);
+    ps3LoadCatIcons();
     buildPs3Cats();
     // Pre-warm everything the first draw of any submenu would otherwise build
     // lazily inside a single frame: the glass normal maps for every icon in
