@@ -314,3 +314,9 @@ on property:sys.gammaos.nano.dosleep=1
 on property:sys.gammaos.nano.dowake=1
     start nano-dowake
     setprop sys.gammaos.nano.dowake 0
+
+# Parked-home fallback: the resident home could not take the panel back after a
+# drastic-nano session (NanoMenu::drasticParkSession); restart it cold.
+on property:sys.gammaos.nano.park_restart=1
+    setprop sys.gammaos.nano.park_restart 0
+    restart gammaos-nano

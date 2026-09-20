@@ -4586,6 +4586,12 @@ if (sRingPrimedCount >= 2) {
             setLaunchRomPath("");
             android::base::SetProperty("sys.gammaos.nano.launch_core", "");
             // setDrasticNanoRomPath() already wrote the ROM file; pull the trigger.
+            // Resident home: park in-process for the session and come back on
+            // the same menu state (no cold start after the game).
+            if (drasticParkEnabled()) {
+                drasticParkSession();
+                continue;
+            }
             property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);
         }

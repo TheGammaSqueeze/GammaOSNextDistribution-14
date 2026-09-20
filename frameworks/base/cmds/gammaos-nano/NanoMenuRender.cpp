@@ -2230,8 +2230,11 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         const float tkTopR = dk ? 0.62f : 0.510f, tkTopG = dk ? 0.66f : 0.541f, tkTopB = dk ? 0.62f : 0.510f;  // beveled square top
         const float tkEdR  = dk ? 0.50f : 0.349f, tkEdG  = dk ? 0.55f : 0.412f, tkEdB  = dk ? 0.50f : 0.349f;  // edges + bottom
         const float tkFlat = dk ? 0.62f : 0.510f;                                                             // flat first tick
+        const float pillStep = ndsPillStep(nItems);
+        const int   tickEvery = ndsTickEvery(pillStep);
         auto drawTick = [&](int i){
-            float cx = 33.0f + 5.0f * (float)i;
+            if (i > 1 && (i % tickEvery) != 0) return;          // compressed rail: thin the ticks
+            float cx = 33.0f + pillStep * (float)i;
             if (SBX(cx) > SBX(236.0f)) return;
             if (i == 0) {                                       // anchor: per-pixel 3D dot, x32..35 y180..183
                 static const float an[4][4] = {   // rows y180..183, cols x32..35 (grey level /255)
@@ -2265,7 +2268,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // they show through the pill. Idle = opaque glossy white (e3->fb->d3); held = the
         // pressed light-blue translucent window. Either way the ticks read through it.
         if (nItems > 0) {
-            float tlDS = 19.0f + 5.0f * camera;
+            float tlDS = 19.0f + pillStep * camera;
             if (tlDS < 19.0f)  tlDS = 19.0f;
             if (tlDS > 208.0f) tlDS = 208.0f;
             float tx = SBX(tlDS), tw = SBS(29.0f);
@@ -2300,7 +2303,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             }
             // ticks through the window: redraw the ones under the pill on top (web clips to it).
             for (int i = 0; i < nItems; i++) {
-                float cxi = 33.0f + 5.0f * (float)i;
+                float cxi = 33.0f + pillStep * (float)i;
                 if (cxi + 2.0f < ixDS || cxi - 1.0f > ixDS + iwDS) continue;     // fully outside the window
                 drawTick(i);
             }
@@ -5324,6 +5327,7 @@ void NanoMenu::startRenderWatchdog() {
             // GPU wedge: skip the stall check while an app is up. On app exit app_launched
             // clears, the exemption lifts, and a still-stalled nano recovers normally.
             if (mInDrmSleep.load(std::memory_order_relaxed)
+                || mDrasticParked.load(std::memory_order_relaxed)   // parked behind a drastic-nano session
                 || mVidTeardownExempt.load(std::memory_order_relaxed)
                 // First-boot SetupWizard: the render thread legitimately stalls under the extract +
                 // dexopt IO/memory storm (blocking present ioctl on a starved composer, or a page

@@ -341,6 +341,8 @@ void drmResumeRecommit();
 // wake so that cycle is not reported again.
 bool drmSuspendCycleDetected();
 void drmSuspendMarkSeen();
+// Parked home: take DRM master back after drastic-nano exited and rebuild the ring.
+bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs);
 
 } // namespace android
 

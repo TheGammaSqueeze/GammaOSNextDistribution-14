@@ -51,6 +51,18 @@ on property:sys.gammaos.drastic_nano.start=1
     stop gammaos-nano-overlay
     start drastic-nano
 
+# Resident-home variant of the start trigger. The DRM home PARKS in-process for
+# the session (NanoMenu::drasticParkSession: it dropped DRM master, freed its
+# scanout ring and unlocked its memory before firing this), so it must NOT be
+# stopped here; on session_done the `start gammaos-nano` below is a no-op for
+# the still-running service and the parked home wakes itself on the session
+# property. The overlay stop stays for parity with start=1.
+on property:sys.gammaos.drastic_nano.start=2
+    setprop sys.gammaos.drastic_nano.start 0
+    setprop sys.gammaos.drastic_nano.session_done 0
+    stop gammaos-nano-overlay
+    start drastic-nano
+
 # drastic-nano start trigger for SurfaceFlinger mode (backend=sf). This ONLY
 # starts the binary -- it must NOT stop the home (gammaos-nano) or the overlay.
 # In SF mode the DrasticSf host activity is launched as a normal app (launch_app),

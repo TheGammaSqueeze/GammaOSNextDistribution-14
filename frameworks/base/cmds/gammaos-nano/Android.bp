@@ -84,6 +84,7 @@ cc_binary {
         "NanoHalChime.cpp",
         "NanoOtaCheck.cpp",
         "NanoMenuOta.cpp",
+        "NanoMenuDrasticPark.cpp",
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
         "NanoBtStable.cpp",

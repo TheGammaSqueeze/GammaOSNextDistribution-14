@@ -3081,6 +3081,57 @@ void drmStop() {
     }
 }
 
+// Take the panel back for a home that PARKED in-process while drastic-nano ran
+// the session (NanoMenu::drasticParkSession). drmStop() dropped master, freed
+// the AHB ring and closed the fd; drastic-nano has since exited and released
+// its own master. Re-open card0 and become master (retrying while the old
+// master's fd is still being reaped), re-enumerate the CRTCs with the splash
+// modeset, rebuild the zero-copy ring on the SAME EGL context, and put back
+// the install matrix drmStop() reset. Returns false when the panel could not
+// be reclaimed; the caller then falls back to a fresh home process.
+bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs) {
+    // The matrix initShaders() computed (rotation + user flips + the PRIME
+    // Y-flip drmSetupZeroCopy() folded in) is already what this context draws
+    // with; drmStop() reset it, so keep a copy and restore it after the
+    // re-setup. sDrmYFlipForPrime stays true so the flip is not applied twice.
+    float rot[4] = { sDrmRotMat[0], sDrmRotMat[1], sDrmRotMat[2], sDrmRotMat[3] };
+    const bool glRot = sDrmGlRotation;
+    const bool yFlip = sDrmYFlipForPrime;
+    const int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+    int fd = -1;
+    for (;;) {
+        fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+        if (fd >= 0) {
+            if (ioctl(fd, DRM_IOCTL_SET_MASTER, 0) == 0) break;
+            close(fd);
+            fd = -1;
+        }
+        if (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - t0 > timeoutMs) {
+            ALOGE("NanoMenu DRM: could not take master back within %d ms", timeoutMs);
+            return false;
+        }
+        usleep(20000);
+    }
+    sDrmRotMat[0] = rot[0]; sDrmRotMat[1] = rot[1]; sDrmRotMat[2] = rot[2]; sDrmRotMat[3] = rot[3];
+    sDrmGlRotation = glRot;
+    sDrmYFlipForPrime = yFlip;
+    drmEarlySplash(fd);
+    if (!sDrmActive) {
+        ALOGE("NanoMenu DRM: re-splash found no displays after the drastic session");
+        return false;
+    }
+    drmSetupZeroCopy(eglDpy);
+    // drmSetupZeroCopy only touches the matrix when it applies the PRIME flip
+    // for the first time; restore explicitly in case anything reset it.
+    sDrmRotMat[0] = rot[0]; sDrmRotMat[1] = rot[1]; sDrmRotMat[2] = rot[2]; sDrmRotMat[3] = rot[3];
+    sDrmGlRotation = glRot;
+    sDrmYFlipForPrime = yFlip;
+    drmSuspendMarkSeen();
+    ALOGW("NanoMenu DRM: master re-acquired for the parked home in %lld ms (zc=%d)",
+          (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - t0), sDrmZeroCopy ? 1 : 0);
+    return true;
+}
+
 // Re-commit the DRM output state after a kernel suspend/resume cycle.
 //
 // Suspend runs vop2_crtc_atomic_disable on every CRTC; resume re-enables the

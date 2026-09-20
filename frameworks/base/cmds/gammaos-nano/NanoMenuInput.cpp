@@ -1371,13 +1371,14 @@ void NanoMenu::ndsTouchFrame() {
             if (dsX <= 18.0f)       { mNdsDragMode = 3; selStep(-1); }   // L arrow
             else if (dsX >= 237.0f) { mNdsDragMode = 4; selStep(+1); }   // R arrow
             else {
-                float thumbLeft = 19.0f + 5.0f * mNdsCamera;
+                const float pillStep = ndsPillStep(nItems);
+                float thumbLeft = 19.0f + pillStep * mNdsCamera;
                 if (thumbLeft < 19.0f) thumbLeft = 19.0f; if (thumbLeft > 208.0f) thumbLeft = 208.0f;
                 if (dsX >= thumbLeft && dsX < thumbLeft + 29.0f) {        // grab the pill
-                    mNdsDragMode = 2; mNdsThumbHeld = true; scrub((dsX - 33.0f) / 5.0f);
+                    mNdsDragMode = 2; mNdsThumbHeld = true; scrub((dsX - 33.0f) / pillStep);
                 } else {                                                 // blank track -> fast glide to slot
                     mNdsDragMode = 5;
-                    int slot = (int)lroundf((dsX - 33.0f) / 5.0f);
+                    int slot = (int)lroundf((dsX - 33.0f) / pillStep);
                     if (slot < 0) slot = 0; if (slot > (int)camMax) slot = (int)camMax;
                     // launcher.scrollTo: the pill glides to the pressed slot with the DS's FAST
                     // momentum (ease-out ~40%/frame), NOT the slow nav slide. Only when it moves.
@@ -1413,7 +1414,7 @@ void NanoMenu::ndsTouchFrame() {
                 else if (dy < -40.0f) { mNdsTouchMoved = true; ndsNavBack(); }          // swipe down -> back up a level
             }
         } else if (mNdsDragMode == 2) {                     // thumb absolute follow
-            scrub((dsX - 33.0f) / 5.0f);
+            scrub((dsX - 33.0f) / ndsPillStep(nItems));
         }
     } else if (upEdge) {                                    // ---- release ----
         int mode = mNdsDragMode; mNdsDragMode = 0;

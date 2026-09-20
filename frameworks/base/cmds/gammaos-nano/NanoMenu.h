@@ -17,6 +17,7 @@
 #ifndef GAMMAOS_NANO_MENU_H
 #define GAMMAOS_NANO_MENU_H
 
+#include <math.h>
 #include <stdint.h>
 #include <functional>
 #include <string>
@@ -349,6 +350,12 @@ private:
     // and the lid-close handlers. Returns false if the legacy
     // pre-boot_completed timeout initiated a shutdown (caller returns).
     bool enterDrmSleep();
+    // In-process park across a drastic-nano DRM session (NanoMenuDrasticPark.cpp):
+    // frees the panel/ring/memory for the game, blocks until session_done, then
+    // takes the panel back on the same EGL context and resumes this menu state.
+    bool drasticParkEnabled() const;
+    bool drasticParkSession();
+    std::atomic<bool> mDrasticParked{false};
     // CPU clock/governor while the screen is off: drop to powersave on screen-off and
     // re-apply the user's persisted performance mode on wake (NanoMenu.cpp).
     void nanoApplyPerfClock(const char* mode);   // run /vendor/bin/setclock_<mode>.sh (validated)
@@ -1912,6 +1919,19 @@ private:
     float mNdsDragLastCam = 0.0f; // camera last move (for release velocity)
     float mNdsFlingVel = 0.0f;    // active momentum fling velocity (slot units/frame), 0 = idle
     bool  mNdsScrubbing = false;  // finger (or fling) owns the camera -> skip the nav lerp
+    // Carousel scrollbar pitch (DS px per card). The DSi rail is 5 px per card, which
+    // saturates the pill travel (x19..208) after 38 cards; longer lists compress the
+    // pitch so the pill reaches the right end exactly on the last card.
+    static float ndsPillStep(int nItems) {
+        if (nItems <= 1) return 5.0f;
+        const float fit = 189.0f / (float)(nItems - 1);
+        return fit < 5.0f ? fit : 5.0f;
+    }
+    // Ticks stay at least 5 px apart: on a compressed rail only every k-th card gets one.
+    static int ndsTickEvery(float step) {
+        if (step >= 5.0f) return 1;
+        return (int)ceilf(5.0f / step);
+    }
     bool  mNdsThumbHeld = false;  // scrollbar pill grabbed -> pressed light-blue window, frame hidden
     bool  mNdsFastScroll = false; // scrollbar blank-track press -> fast ease-out glide (launcher.scrollTo)
     // DSi boot->carousel entrance cascade (launcher._introFall): icons spring-fall in,
