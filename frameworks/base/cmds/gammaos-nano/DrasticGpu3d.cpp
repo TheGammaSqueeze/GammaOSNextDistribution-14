@@ -111,7 +111,10 @@ static std::atomic<int> gDbgArm{0}; static int gDbgFrame = 0; static int gDbgHit
 extern "C" void gpu3dDbgArm() { gDbgArm.store(1, std::memory_order_relaxed); }
 static int gPersp = 1;    // sys gpu3d_persp: perspective-correct interpolation from the vertex W (default on)
 static int gTexDbg = 0;   // sys gpu3d_texdump: log converted entries, their GL readback and the polygons using them
-struct Stream { std::vector<Vtx> v[8]; std::vector<uint16_t> polyLen[8]; };   // [deq | dwrite<<1 | nodiscard<<2]; polyLen = vertices per polygon, list order
+// One translucent polygon in DS list (submission) order: which group it went to, where its
+// vertices start inside that group's array, how many, and its polygon id.
+struct OrdPoly { uint32_t start; uint16_t n; uint16_t pi; uint8_t grp, id, pa; };   // pi = polygon bank index = DS submission order; pa = polygon alpha
+struct Stream { std::vector<Vtx> v[8]; std::vector<uint16_t> polyLen[8]; std::vector<uint8_t> polyId[8]; std::vector<OrdPoly> ord; };   // [deq | dwrite<<1 | nodiscard<<2]; polyLen = vertices per polygon, polyId = its 6-bit DS polygon id, list order; ord = translucent polys in list order
 // Shadow polygons (mode 3), in list order: id 0 = mask (stencil where the depth test fails),
 // others draw where the stencil is set. Consecutive polygons of one kind form a segment.
 struct ShadowSeg { uint32_t start, count; bool mask, deq; };
@@ -1279,8 +1282,11 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         v[k].s = s / 16.0f; v[k].t = tt / 16.0f;
         memcpy(v[k].tex0, tex0, sizeof tex0); memcpy(v[k].tex1, tex1, sizeof tex1);
     }
+    const uint32_t vStart = (uint32_t)dst.size();
     for (int k = 1; k + 1 < n; k++) { dst.push_back(v[0]); dst.push_back(v[k]); dst.push_back(v[k + 1]); }
     out.polyLen[grpIdx].push_back((uint16_t)(3 * (n - 2)));
+    out.polyId[grpIdx].push_back((uint8_t)((pattr >> 24) & 63));
+    if (translucent) out.ord.push_back({ vStart, (uint16_t)(3 * (n - 2)), 0, (uint8_t)grpIdx, (uint8_t)((pattr >> 24) & 63), (uint8_t)((pattr >> 16) & 31) });
     if (gTexDbg) {
         // Suspect polygons: a screen extent under 3 px with a texel extent above 8 (collapsed vertices)
         float minx = 1e9f, maxx = -1e9f, miny = 1e9f, maxy = -1e9f, mins = 1e9f, maxs = -1e9f;
@@ -1339,6 +1345,9 @@ uint32_t polyMinDepth(const uint8_t* rec, const uint8_t* vb, const uint32_t* sha
     return best;
 }
 
+static uint32_t gPrepassSkipped = 0;   // census: translucent depth pre-passes skipped as provably empty
+static int gPrepassSkip = 1;   // sys gpu3d_transl_prepass_skip 0 draws the empty pre-pass anyway (A/B)
+
 void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const uint32_t* shapeTbl,
                bool wbuf, bool translucent, bool texEnabled, Stream& out) {
     if (gSeen.size() < 2048) gSeen.assign(2048, 0);
@@ -1353,11 +1362,15 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
             if (gSeen[pi] == stamp) continue;
             gSeen[pi] = stamp;
             const uint8_t* rec = pb + pi * 32;
-            if (translucent) emitPoly(rec, vb, shapeTbl, wbuf, true, texEnabled, out, lastTex, lastTexp, lastT);
+            if (translucent) { const size_t before = out.ord.size(); emitPoly(rec, vb, shapeTbl, wbuf, true, texEnabled, out, lastTex, lastTexp, lastT); if (out.ord.size() > before) out.ord.back().pi = pi; }
             else if (((*reinterpret_cast<const uint32_t*>(rec + 4) >> 4) & 3) == 3) emitPoly(rec, vb, shapeTbl, wbuf, false, texEnabled, out, lastTex, lastTexp, lastT);   // shadow: list order
             else gRefs.push_back({ polyMinDepth(rec, vb, shapeTbl, wbuf), pi });
         }
     }
+    // The bands hand polygons over in first-band-seen order; the DS blends each pixel's translucent
+    // polygons in submission order, which is the polygon bank index. A global draw in ascending pi
+    // reproduces that per pixel (a pixel only sees the polygons covering it).
+    if (translucent) std::stable_sort(out.ord.begin(), out.ord.end(), [](const OrdPoly& a, const OrdPoly& b) { return a.pi < b.pi; });
     if (!translucent) {
         // Opaque polygons with the plain LESS test are order independent apart from exact depth
         // ties, so draw them nearest first: early depth rejection then skips the overdraw.
@@ -1380,22 +1393,73 @@ void useProgram(GLuint prog, bool blend) {
 // where it is set. Per polygon, so a polygon never blends over its own first pass. The fetch path
 // does the same arithmetic in the shader and needs none of this.
 static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
-static void drawTranslDs(const std::vector<uint16_t>& lens, size_t base) {
+static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-polygon-id translucent rejection
+static int gTranslListOrder = 1;   // sys gpu3d_transl_listorder: draw the translucent list in DS submission order (see drawStream)
+// The stencil holds the DS "drawn" flag in bit 0x80 and, when the same-id rule is on, the last
+// writer's 6-bit polygon id (shifted into bits 0x7E; bit 0x01 stays the shadow plane). The DS does
+// not draw a translucent fragment whose destination polygon id equals its own (so a translucent
+// surface never blends over itself). GTA Chinatown Wars draws its distant haze as ~147 overlapping
+// translucent layers ALL sharing polygon id 62; without the rule they all blend and the scene goes
+// dark (midtones ~0.69), while the DS blends only the frontmost. With the rule, a translucent poly
+// with id P: pass 1 replaces where nothing is drawn (writing drawn + id P), pass 2 blends only where
+// something is drawn AND its stored id differs from P (writing id P), and same-id fragments are
+// skipped. Opaque leaves the id bits 0, so translucent over opaque (id != 0) always blends.
+static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<uint8_t>& ids, size_t base) {
     size_t off = base;
-    for (uint16_t n : lens) {
-        // replace where nothing is drawn yet (stencil 0): ref 1 GREATER stencil, set the flag
-        // replace where nothing is drawn yet (drawn bit clear), setting the bit
-        glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    if (!gTranslSameId) {
+        for (uint16_t n : lens) {
+            glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            glDisable(GL_BLEND);
+            glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
+            glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            glEnable(GL_BLEND);
+            glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
+            off += n;
+        }
+        glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0x80);
+        g.curBlend = true;
+        return;
+    }
+    glStencilMask(0xfe);   // write the drawn flag (0x80) and the id (0x7e); never the shadow bit (0x01)
+    for (size_t i = 0; i < lens.size(); i++) {
+        const uint16_t n = lens[i];
+        const GLint ref = (GLint)(0x80 | ((i < ids.size() ? ids[i] : 0) << 1));
+        // pass 1: replace where nothing is drawn (drawn bit clear), writing drawn + this id
+        glStencilFunc(GL_NOTEQUAL, ref, 0x80);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDisable(GL_BLEND);
         glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
-        // blend where drawn (drawn bit set), alpha = max
-        glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        // pass 2: blend where something is drawn AND its id differs from this id, writing this id
+        glStencilFunc(GL_NOTEQUAL, ref, 0xfe);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glEnable(GL_BLEND);
         glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
         off += n;
     }
     glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilMask(0x80);   // restore for subsequent non-translucent draws (drawn flag only)
     g.curBlend = true;   // left enabled; useProgram tracks it from here
+}
+// One translucent polygon under the DS blend rule (the per-polygon body of drawTranslDs), self
+// contained: sets its stencil state and restores the plain drawn-flag state after, so plain draws
+// interleaved with it see the right stencil function.
+static void drawOnePolyDs(GLint off, GLsizei n, int id) {
+    if (!gTranslSameId) {
+        glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glDisable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
+        glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glEnable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
+    } else {
+        const GLint ref = (GLint)(0x80 | ((id & 63) << 1));
+        glStencilMask(0xfe);
+        glStencilFunc(GL_NOTEQUAL, ref, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glDisable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
+        glStencilFunc(GL_NOTEQUAL, ref, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glEnable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
+    }
+    glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); glStencilMask(0x80);
+    g.curBlend = true;
 }
 void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint mainProg, bool mainBlend) {
     // vertices of all eight groups were uploaded contiguously; draw each group with its state.
@@ -1405,6 +1469,39 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
         const GLenum bufsOpaque[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         const GLenum bufsTransl[2] = { GL_COLOR_ATTACHMENT0, GL_NONE };
         glDrawBuffers(2, (translucent || !g.attrWanted) ? bufsTransl : bufsOpaque);
+    }
+    // Translucent list in DS submission order. The DS blends translucent polygons one after another
+    // in the order the game submitted them; drawing them grouped by depth flags (all of group 0, then
+    // group 1, ...) reorders overlapping polygons from different groups. GTA Chinatown Wars' cloud
+    // scene: its white a5i3 clouds are group 0 and its grey pal16 haze group 3, so the grouped draw
+    // put every haze polygon over every cloud and darkened the clouds (63 -> ~30, the whole layer
+    // ~0.7 of the CPU rasterizer). Per polygon in list order, switching the depth function, depth
+    // mask and the DS blend rule as the group changes, matches the CPU rasterizer. The opaque list
+    // stays grouped (order independent under the depth test). sys gpu3d_transl_listorder 0 restores
+    // the grouped translucent draw for A/B.
+    if (translucent && issue && gTranslListOrder && !st.ord.empty()) {
+        size_t goff[8]; { size_t b = base; for (int i = 0; i < 8; i++) { goff[i] = b; b += st.v[i].size(); } }
+        int curGrp = -1;
+        for (const OrdPoly& p : st.ord) {
+            const int grp = p.grp;
+            if (grp != curGrp) { curGrp = grp; useProgram(mainProg, mainBlend); glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS); }
+            const bool dwrite = (grp >> 1) & 1;
+            const GLint off = (GLint)(goff[grp] + p.start);
+            if (dwrite) {
+                glDepthMask(GL_TRUE); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                if (gDsBlend) drawOnePolyDs(off, p.n, p.id); else glDrawArrays(GL_TRIANGLES, off, p.n);
+            } else {
+                // The depth-writing pass keeps only alpha 31 fragments: alpha = (texel alpha *
+                // (polygon alpha + 1)) >> 5 never reaches 31 when the polygon alpha is below 31,
+                // so for such a polygon the pass discards everything and is skipped.
+                if (p.pa >= 31 || !gPrepassSkip) { glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1); glDrawArrays(GL_TRIANGLES, off, p.n); } else gPrepassSkipped++;
+                glDepthMask(GL_FALSE); glUniform1i(g.uPass, 2);
+                if (gDsBlend) drawOnePolyDs(off, p.n, p.id); else glDrawArrays(GL_TRIANGLES, off, p.n);
+                glUniform1i(g.uPass, 0);
+            }
+        }
+        for (int i = 0; i < 8; i++) base += st.v[i].size();
+        return;
     }
     for (int grp = 0; grp < 8; grp++) {
         std::vector<Vtx>& vv = st.v[grp];
@@ -1416,13 +1513,13 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
             bool dwrite = (grp >> 1) & 1;   // opaque stream: the partial-alpha texel flag instead
             if (!translucent || dwrite || noDiscard) {
                 glDepthMask(GL_TRUE); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
-                if (gDsBlend && (translucent || (dwrite && !noDiscard))) drawTranslDs(st.polyLen[grp], base);
+                if (gDsBlend && (translucent || (dwrite && !noDiscard))) drawTranslDs(st.polyLen[grp], st.polyId[grp], base);
                 else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
             } else {
                 glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1);
                 glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
                 glDepthMask(GL_FALSE); glUniform1i(g.uPass, 2);
-                if (gDsBlend) drawTranslDs(st.polyLen[grp], base);
+                if (gDsBlend) drawTranslDs(st.polyLen[grp], st.polyId[grp], base);
                 else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
                 glUniform1i(g.uPass, 0);
             }
@@ -1581,6 +1678,7 @@ void renderJob(Job& j) {
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
       gDsBlend = mainBlend && dsKnob != 0; g.blendAlpha = mainBlend;
+      if ((g.glFrames & 63) == 0) { gTranslSameId = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_sameid", 1); gTranslListOrder = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_listorder", 1); gPrepassSkip = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_prepass_skip", 1); }
       // The stencil holds two independent planes: bit 0x80 is the DS blend rule's per-sample "drawn"
       // flag, bit 0x01 the stencil shadow mask. Each user limits its writes (and its clears: glClear
       // honours the stencil write mask) to its own plane, so the shadow pass no longer wipes the
@@ -1881,6 +1979,7 @@ void renderJob(Job& j) {
                   g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
                   g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames, chunks,
                   g.sumBuildUs / 1000.0 / g.frames, g.sumWaitUs / 1000.0 / g.frames, g.vertCount, g.texReuploads, g.maxUs / 1000.0, g.texCache.size());
+            ALOGI("gpu3d: census translucent depth pre-passes skipped %u", gPrepassSkipped); gPrepassSkipped = 0;
             ALOGI("gpu3d: census polys by mode modulate %u decal %u toon %u shadow %u, fog bit %u, tex holdovers %u, tex misses %u, stale-converted %u; textures by fmt none %u a3i5 %u pal4 %u pal16 %u pal256 %u comp %u a5i3 %u direct %u",
                   g.modeCount[0], g.modeCount[1], g.modeCount[2], g.modeCount[3], g.fogPolys, g.texHoldovers, g.texMisses, g.texUnconverted, g.fmtCount[0], g.fmtCount[1], g.fmtCount[2], g.fmtCount[3], g.fmtCount[4], g.fmtCount[5], g.fmtCount[6], g.fmtCount[7]);
             memset(g.modeCount, 0, sizeof g.modeCount); memset(g.fmtCount, 0, sizeof g.fmtCount); g.fogPolys = 0; g.texHoldovers = 0; g.texMisses = 0; g.texUnconverted = 0;
@@ -1988,6 +2087,7 @@ void renderJob(Job& j) {
               g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
               g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames,
               g.sumBuildUs / 1000.0 / g.frames, g.sumWaitUs / 1000.0 / g.frames, g.vertCount, g.texReuploads, g.maxUs / 1000.0, g.texCache.size());
+        ALOGI("gpu3d: census translucent depth pre-passes skipped %u", gPrepassSkipped); gPrepassSkipped = 0;
         ALOGI("gpu3d: census polys by mode modulate %u decal %u toon %u shadow %u, fog bit %u, tex holdovers %u, tex misses %u, stale-converted %u; textures by fmt none %u a3i5 %u pal4 %u pal16 %u pal256 %u comp %u a5i3 %u direct %u",
               g.modeCount[0], g.modeCount[1], g.modeCount[2], g.modeCount[3], g.fogPolys, g.texHoldovers, g.texMisses, g.texUnconverted, g.fmtCount[0], g.fmtCount[1], g.fmtCount[2], g.fmtCount[3], g.fmtCount[4], g.fmtCount[5], g.fmtCount[6], g.fmtCount[7]);
         memset(g.modeCount, 0, sizeof g.modeCount); memset(g.fmtCount, 0, sizeof g.fmtCount); g.fogPolys = 0; g.texHoldovers = 0; g.texMisses = 0; g.texUnconverted = 0;
@@ -2505,7 +2605,8 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     Job& job = *jp; g.jobIdx = (g.jobIdx + 1) % 3;
     job.cancel = false;
     g.cur = &job;
-    for (int i = 0; i < 8; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); job.opaque.polyLen[i].clear(); job.transl.polyLen[i].clear(); }
+    for (int i = 0; i < 8; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); job.opaque.polyLen[i].clear(); job.transl.polyLen[i].clear(); job.opaque.polyId[i].clear(); job.transl.polyId[i].clear(); }
+    job.opaque.ord.clear(); job.transl.ord.clear();
     job.shadow.clear(); job.shadowSegs.clear(); job.cancel = false;
     job.uploads.clear();
     job.target = target; job.clearC = clearC; job.clearD = clearD; job.decoupled = useDecoupled;
