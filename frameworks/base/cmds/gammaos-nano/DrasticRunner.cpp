@@ -3540,6 +3540,7 @@ void DrasticRunner::installGlActiveTextureGuard(uint8_t* base) {
 static void aaStopDrasticPlayer();
 static void aaStartOpener();
 static void aaRestartDrasticPlayer();
+static void aaCloseSink();
 void DrasticRunner::installVblankPacing(uint8_t* base) {
     if (!base || mPanelHz <= 1.0) return;
     if (!property_get_bool("persist.gammaos.drastic_nano.vblank_pace", true)) return;
@@ -4845,6 +4846,22 @@ static int aaOpen() {
 // submit hook handles the clock difference); a pending state-load fill (gQFillTarget, chunks of
 // 33 ms) is pursued every frame, then drained quickly with holds for a few seconds.
 extern std::atomic<int> gQFillTarget;
+// Orderly teardown of the exclusive stream. Exiting with the stream still started leaves the
+// teardown to the process-death path, and on this device that left AudioFlinger's MMAP output
+// thread alive and out of standby with no client: its HAL stream kept contending for the speaker
+// PCM with the normal mixer afterwards, and the home's audio cut in and out until a sleep/wake put
+// it into standby. Stop first (the callback thread drains), then close, on the thread that quits.
+static void aaCloseSink() {
+    AAudioStream* st = gAaStream;
+    if (!st) return;
+    gAaudioSink.store(0, std::memory_order_release);
+    gAaStream = nullptr;
+    AAudioStream_requestStop(st);
+    aaudio_stream_state_t next = AAUDIO_STREAM_STATE_UNINITIALIZED;
+    AAudioStream_waitForStateChange(st, AAUDIO_STREAM_STATE_STOPPING, &next, 200000000LL);   // up to 200 ms
+    const aaudio_result_t r = AAudioStream_close(st);
+    ALOGI("DrasticRunner: AAudio sink stopped and closed (%d)", r);
+}
 static int aaKeeperDecide(int64_t nowUs) {
     static int64_t sLastAdjUs = 0, sFillEndUs = 0, sLogUs = 0; static bool sFilling = false;
     const int fill = gQFillTarget.load(std::memory_order_relaxed);
@@ -10861,6 +10878,7 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
 }
 
 void DrasticRunner::shutdown() {
+    aaCloseSink();   // release the exclusive MMAP stream before drastic's own teardown
     // Stop the background pixel-pull thread FIRST so it unblocks
     // from getScreenBuffers and stops calling into drastic state
     // that we're about to pause. The thread is detached, so we

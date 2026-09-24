@@ -17,6 +17,7 @@
 #define LOG_TAG "AudioStreamBuilder"
 //#define LOG_NDEBUG 0
 #include <utils/Log.h>
+#include <cutils/properties.h>
 
 #include <new>
 #include <stdint.h>
@@ -161,6 +162,20 @@ aaudio_result_t AudioStreamBuilder::build(AudioStream** streamPtr) {
 
     bool allowMMap = mmapPolicy != AAUDIO_POLICY_NEVER;
     bool allowLegacy = mmapPolicy != AAUDIO_POLICY_ALWAYS;
+
+    // GammaOS: a SHARED low latency stream is served through an MMAP stream that AAudioService
+    // opens on the HAL for its shared endpoint. On the RK3568 handhelds the primary HAL cannot open
+    // a second PCM on the speaker card while its mixer output holds it, and its failure path
+    // deadlocks until the audio watchdog kills audioserver: the home's own sound effects, or any
+    // app asking for low latency, silenced all audio for seconds at a time. Only EXCLUSIVE requests
+    // take the MMAP path (the client that asks for it opens when the card is free and falls back
+    // itself); shared streams stay on the legacy path. aaudio.mmap_shared_policy=2 restores the
+    // shared MMAP endpoint for platforms whose HAL can serve it.
+    if (allowMMap && sharingMode == AAUDIO_SHARING_MODE_SHARED
+            && property_get_int32("aaudio.mmap_shared_policy", AAUDIO_POLICY_NEVER) == AAUDIO_POLICY_NEVER) {
+        ALOGD("%s() MMAP not used for a SHARED stream (aaudio.mmap_shared_policy)", __func__);
+        allowMMap = false;
+    }
 
     // TODO Support other performance settings in MMAP mode.
     // Disable MMAP if low latency not requested.
