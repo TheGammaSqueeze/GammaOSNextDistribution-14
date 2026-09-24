@@ -45,6 +45,8 @@ extern "C" void gpu3dResetTextures();                          // DrasticGpu3d.c
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
+#include <aaudio/AAudio.h>
+#include "GammaEqDsp.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
@@ -3535,6 +3537,9 @@ void DrasticRunner::installGlActiveTextureGuard(uint8_t* base) {
     ALOGW("DrasticRunner: glActiveTexture guard: import not found");
 }
 
+static void aaStopDrasticPlayer();
+static void aaStartOpener();
+static void aaRestartDrasticPlayer();
 void DrasticRunner::installVblankPacing(uint8_t* base) {
     if (!base || mPanelHz <= 1.0) return;
     if (!property_get_bool("persist.gammaos.drastic_nano.vblank_pace", true)) return;
@@ -3775,6 +3780,30 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             __builtin___clear_cache((char*)(base + site), (char*)(base + site + 4));
             mprotect(sitePg2, (size_t)ps, PROT_READ | PROT_EXEC);
             ALOGI("DrasticRunner: audio submit probe installed");
+            // AAudio sink: drastic's OpenSL player keeps AudioFlinger's mixer awake from the moment it
+            // exists (its refill callback enqueues silence), and the mixer holds the PCM the exclusive
+            // stream needs until its standby delay passes. Stop and stub the player right here when it
+            // already exists, so the mixer can release the PCM before the first chunk is submitted.
+            if (property_get_int32("persist.gammaos.drastic_nano.audio_aaudio", 1)) {
+                if (*reinterpret_cast<uintptr_t*>(base + 0x3c7d030) != 0) aaStopDrasticPlayer();
+                else {
+                    // The player does not exist yet: its creation routine (+0x1d760) ends with
+                    // SetPlayState(PLAYING) at +0x1d9a0 (blr x8), which is what wakes the mixer and
+                    // makes it take the PCM. Replace that call with a nop so the player is created
+                    // but never started; the fallback path starts it itself if the sink never opens.
+                    const uintptr_t playSite = 0x1d9a0;
+                    uint32_t* ins = reinterpret_cast<uint32_t*>(base + playSite);
+                    if (*ins == 0xd63f0100u) {   // blr x8
+                        uint8_t* pg = (uint8_t*)((uintptr_t)ins & ~(uintptr_t)(ps - 1));
+                        mprotect(pg, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+                        *ins = 0xd503201fu;      // nop
+                        __builtin___clear_cache((char*)ins, (char*)ins + 4);
+                        mprotect(pg, (size_t)ps, PROT_READ | PROT_EXEC);
+                        ALOGI("DrasticRunner: AAudio sink: OpenSL player start at +0x1d9a0 disabled, the mixer stays in standby");
+                    } else ALOGW("DrasticRunner: AAudio sink: +0x1d9a0 unexpected (0x%08x), the player will start and be stopped at the first submit", *ins);
+                }
+                aaStartOpener();
+            }
         } else ALOGW("DrasticRunner: audio submit site +0x2cc20 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + site));
         // Buffer queue refill callback (+0x1d650, called by OpenSL each time
         // a chunk finishes): when its queued count is zero it enqueues a
@@ -4691,6 +4720,247 @@ std::atomic<bool> gClockMatchOn{false};      // the submit-hook clock match is a
 std::atomic<int>  gClockMatchRatioPpm{0};   // current trim, ppm below 1.0 (telemetry)
 std::atomic<uint32_t> gAudCeilDefers{0};     // submits deferred because the sink was at its ceiling
 std::atomic<uint32_t> gAudMaxQ{0}, gAudPassthru{0};   // deepest sink seen, submits that bypassed the drain
+// AAudio sink. drastic plays through an OpenSL buffer queue (8 x 33 ms chunks) on AudioFlinger's
+// normal mixer, about 180 ms of track latency plus the 100 to 170 ms the queue keeper holds in the
+// sink. With the vendor side declaring an MMAP_NOIRQ output port, an AAudio EXCLUSIVE low latency
+// stream at 48 kHz goes straight to the HAL's 5 ms period. Every chunk drastic submits is taken
+// here in the submit hook, resampled to 48 kHz into a ring the stream's callback drains, and
+// drastic's own copy is discarded through its skip byte; its OpenSL player is stopped and its
+// play interface stubbed so nothing else ever holds the PCM. A small controller keeps the ring at
+// about one and a half emulated frames: a trim on the resample ratio for the clock difference,
+// an extra or held emulated frame (the limiter deadline) for anything larger.
+// persist.gammaos.drastic_nano.audio_aaudio 0 restores the OpenSL path.
+static std::atomic<int> gAaudioSink{0};       // 1 once the stream is open and carrying the audio
+static AAudioStream* gAaStream = nullptr;
+enum { kAaRingFrames = 32768 };
+static int16_t gAaRing[kAaRingFrames * 2];
+static std::atomic<uint32_t> gAaHead{0}, gAaTail{0};   // frames written / read (free running, masked)
+static std::atomic<uint32_t> gAaXruns{0}, gAaCallbacks{0}, gAaUnderFrames{0}, gAaOverflowFrames{0}, gAaTopUps{0}, gAaHolds{0};
+static std::atomic<int> gAaTrimPpm{0};
+static std::atomic<uint32_t> gAaTrough{0};           // ring level just before each chunk is added (a fixed phase)
+static std::atomic<int> gAaLowRun{0}, gAaHighRun{0}; // consecutive chunks with the trough under / over the band
+static std::atomic<int> gAaReopen{0};                // error callback asked for a reopen (route change)
+static std::atomic<uint32_t> gAaCbGapMaxUs{0};       // longest gap between data callbacks this second
+static std::atomic<int> gAaCbRt{-1};                 // callback thread scheduling: 1 FIFO, 0 CFS, -1 unknown
+static std::atomic<int> gAaHoldTicks{0};             // locked mode: vblank ticks the pacer must skip (a held frame)
+static std::atomic<uint32_t> gAaFlushTo{0};          // consumer applies: drop everything older than this head position
+static std::atomic<int> gAaFlushArmed{0};
+static std::atomic<uint32_t> gAaStalls{0};           // watchdog: callbacks stopped while the stream said it was running
+static std::atomic<uint32_t> gAaEqFrames{0};         // frames the GammaEQ chain processed this second
+static double gAaOutPerChunk = 800.0;         // 48 kHz frames per emulated frame (vblankTick updates it)
+static int gAaTargetFrames = 720;             // base ring level (sys audio_aaudio_target)
+static std::atomic<int> gAaTargetBoost{0};    // added after underruns, decays while the ring stays fed
+static std::atomic<int64_t> gAaLastXrunUs{0};
+static std::atomic<uint32_t> gAaChunkGapMaxUs{0};   // longest wait between two submitted chunks this second
+static inline int aaTarget() { return gAaTargetFrames + gAaTargetBoost.load(std::memory_order_relaxed); }
+//            // ring level the controller holds (sys audio_aaudio_target)
+static int gAaBurst = 0, gAaBufFrames = 0, gAaBufCap = 0, gAaSharing = -1, gAaPerf = -1, gAaRateGot = 0;
+static inline uint32_t aaLevel() { return gAaHead.load(std::memory_order_acquire) - gAaTail.load(std::memory_order_acquire); }
+static aaudio_data_callback_result_t aaDataCallback(AAudioStream*, void*, void* audioData, int32_t numFrames) {
+    gAaCallbacks.fetch_add(1, std::memory_order_relaxed);
+    {   // The HAL's mmap buffer is 10 ms (5 ms x 2): a callback later than one period lets the DMA replay
+        // it. Make sure this thread is real time (AAudio asks the scheduling policy service for it;
+        // if that was refused, take SCHED_FIFO directly) and watch the gap between callbacks.
+        static thread_local bool checked = false; static thread_local int64_t lastUs = 0;
+        if (!checked) { checked = true;
+            // AAudio's own request lands at FIFO 2 while the pacer, the flip thread, binder and the
+            // mali worker threads of this process all run at FIFO 80: under a GPU job the callback was
+            // preempted for 11 to 14 ms, past the 10 ms HAL mmap buffer, and the DMA replayed it (a
+            // buzz that no counter on our side sees). It goes above all of them.
+            struct sched_param sp = {}; sp.sched_priority = property_get_int32("sys.gammaos.drastic_nano.audio_aaudio_rtprio", 90);
+            int pol = sched_setscheduler(0, SCHED_FIFO, &sp) == 0 ? SCHED_FIFO : sched_getscheduler(0);
+            gAaCbRt.store(pol == SCHED_FIFO || pol == SCHED_RR ? sp.sched_priority : 0, std::memory_order_relaxed);
+        }
+        struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts); const int64_t now = (int64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+        if (lastUs) { const uint32_t gap = (uint32_t)(now - lastUs); uint32_t m = gAaCbGapMaxUs.load(std::memory_order_relaxed); while (gap > m && !gAaCbGapMaxUs.compare_exchange_weak(m, gap)) {} }
+        lastUs = now;
+    }
+    int16_t* out = static_cast<int16_t*>(audioData);
+    uint32_t tail = gAaTail.load(std::memory_order_relaxed);
+    if (gAaFlushArmed.exchange(0, std::memory_order_acq_rel)) {   // a burst overfilled the ring: keep only the newest audio
+        const uint32_t to = gAaFlushTo.load(std::memory_order_relaxed);
+        if ((int32_t)(to - tail) > 0) tail = to;
+    }
+    uint32_t avail = gAaHead.load(std::memory_order_acquire) - tail;
+    uint32_t n = (uint32_t)numFrames; if (avail > n) avail = n;
+    for (uint32_t i = 0; i < avail; i++) { const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2; out[i * 2] = gAaRing[k]; out[i * 2 + 1] = gAaRing[k + 1]; }
+    if (avail < n) {
+        memset(out + avail * 2, 0, (size_t)(n - avail) * 4);
+        if (gAaHead.load(std::memory_order_relaxed) != 0) {   // silence before the first chunk is not an underrun
+            gAaXruns.fetch_add(1, std::memory_order_relaxed); gAaUnderFrames.fetch_add(n - avail, std::memory_order_relaxed);
+            // The emulator was late with a chunk: hold more audio for a while (one burst per underrun
+            // callback, at most 1200 extra frames), and let it decay once the ring stays fed.
+            struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts); const int64_t now = (int64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+            if (now - gAaLastXrunUs.load(std::memory_order_relaxed) > 200000) { int b = gAaTargetBoost.load(std::memory_order_relaxed) + 240; if (b > 1200) b = 1200; gAaTargetBoost.store(b, std::memory_order_relaxed); }
+            gAaLastXrunUs.store(now, std::memory_order_relaxed);
+        }
+    }
+    gAaTail.store(tail + avail, std::memory_order_release);
+    return AAUDIO_CALLBACK_RESULT_CONTINUE;
+}
+static void aaErrorCallback(AAudioStream*, void*, aaudio_result_t err) { ALOGW("DrasticRunner: AAudio sink error %d (%s), reopening", err, AAudio_convertResultToText(err)); gAaReopen.store(1, std::memory_order_release); }
+// 1 = up, 0 = failed for now (retry), -1 = this device has no exclusive low-latency path (fall back to OpenSL).
+static int aaOpen() {
+    AAudioStreamBuilder* b = nullptr;
+    if (property_get_int32("sys.gammaos.drastic_nano.audio_aaudio_force_fallback", 0)) { ALOGW("DrasticRunner: AAudio sink: fallback forced by property"); return -1; }   // test knob: behave like a device without the fast path
+    if (AAudio_createStreamBuilder(&b) != AAUDIO_OK || !b) return -1;
+    AAudioStreamBuilder_setDirection(b, AAUDIO_DIRECTION_OUTPUT);
+    AAudioStreamBuilder_setFormat(b, AAUDIO_FORMAT_PCM_I16);
+    AAudioStreamBuilder_setChannelCount(b, 2);
+    AAudioStreamBuilder_setSampleRate(b, 48000);
+    AAudioStreamBuilder_setUsage(b, AAUDIO_USAGE_GAME);
+    AAudioStreamBuilder_setContentType(b, AAUDIO_CONTENT_TYPE_MUSIC);
+    AAudioStreamBuilder_setPerformanceMode(b, AAUDIO_PERFORMANCE_MODE_LOW_LATENCY);
+    AAudioStreamBuilder_setDataCallback(b, aaDataCallback, nullptr);
+    AAudioStreamBuilder_setErrorCallback(b, aaErrorCallback, nullptr);
+    AAudioStream* st = nullptr;
+    AAudioStreamBuilder_setSharingMode(b, AAUDIO_SHARING_MODE_EXCLUSIVE);
+    aaudio_result_t r = AAudioStreamBuilder_openStream(b, &st);
+    AAudioStreamBuilder_delete(b);
+    if (r != AAUDIO_OK || !st) {
+        static int logged = 0; if (logged++ < 4) ALOGW("DrasticRunner: AAudio exclusive open failed %d %s", r, AAudio_convertResultToText(r));
+        return 0;
+    }
+    // A shared or non low-latency stream would run through AudioFlinger's normal mixer, which is
+    // no better than the OpenSL path drastic already has: only the exclusive MMAP path is worth it.
+    if (AAudioStream_getSharingMode(st) != AAUDIO_SHARING_MODE_EXCLUSIVE || AAudioStream_getPerformanceMode(st) != AAUDIO_PERFORMANCE_MODE_LOW_LATENCY || AAudioStream_getSampleRate(st) != 48000 || AAudioStream_getFormat(st) != AAUDIO_FORMAT_PCM_I16 || AAudioStream_getChannelCount(st) != 2) {
+        ALOGW("DrasticRunner: AAudio gave sharing %d perf %d rate %d format %d channels %d: no exclusive low-latency path on this device, staying on OpenSL",
+              AAudioStream_getSharingMode(st), AAudioStream_getPerformanceMode(st), AAudioStream_getSampleRate(st), AAudioStream_getFormat(st), AAudioStream_getChannelCount(st));
+        AAudioStream_close(st); return -1;
+    }
+    gAaBurst = AAudioStream_getFramesPerBurst(st);
+    const int bursts = property_get_int32("sys.gammaos.drastic_nano.audio_aaudio_bursts", 2);
+    AAudioStream_setBufferSizeInFrames(st, gAaBurst * (bursts < 1 ? 1 : bursts));
+    gAaBufFrames = AAudioStream_getBufferSizeInFrames(st); gAaBufCap = AAudioStream_getBufferCapacityInFrames(st); gAaSharing = AAudioStream_getSharingMode(st); gAaPerf = AAudioStream_getPerformanceMode(st); gAaRateGot = AAudioStream_getSampleRate(st);
+    gAaTargetFrames = property_get_int32("sys.gammaos.drastic_nano.audio_aaudio_target", 720);
+    r = AAudioStream_requestStart(st);
+    if (r != AAUDIO_OK) { ALOGW("DrasticRunner: AAudio start failed %d", r); AAudioStream_close(st); return 0; }
+    gAaStream = st;
+    ALOGI("DrasticRunner: AAudio sink open: rate %d, burst %d, buffer %d of %d frames, sharing %s, perf %s, ring target %d frames",
+          gAaRateGot, gAaBurst, gAaBufFrames, gAaBufCap, gAaSharing == AAUDIO_SHARING_MODE_EXCLUSIVE ? "EXCLUSIVE" : "SHARED", gAaPerf == AAUDIO_PERFORMANCE_MODE_LOW_LATENCY ? "LOW_LATENCY" : "other", gAaTargetFrames);
+    return 1;
+}
+// Ring keeper, one decision per vblank in either pacing mode: +1 = run one extra emulated frame,
+// -1 = hold one, 0 = nothing. Works on runs of chunk troughs outside the band (the trim in the
+// submit hook handles the clock difference); a pending state-load fill (gQFillTarget, chunks of
+// 33 ms) is pursued every frame, then drained quickly with holds for a few seconds.
+extern std::atomic<int> gQFillTarget;
+static int aaKeeperDecide(int64_t nowUs) {
+    static int64_t sLastAdjUs = 0, sFillEndUs = 0, sLogUs = 0; static bool sFilling = false;
+    const int fill = gQFillTarget.load(std::memory_order_relaxed);
+    if (fill > 0) sFilling = true; else if (sFilling) { sFilling = false; sFillEndUs = nowUs; }
+    const double trough = (double)gAaTrough.load(std::memory_order_relaxed);
+    int d = 0;
+    if (fill > 0) { if (trough < (double)fill * 1600.0 && nowUs - sLastAdjUs > 16000) d = 1; }
+    else if (gAaLowRun.load(std::memory_order_relaxed) >= 3 && nowUs - sLastAdjUs > 150000) d = 1;
+    else if (gAaHighRun.load(std::memory_order_relaxed) >= 3 && nowUs - sLastAdjUs > (nowUs - sFillEndUs < 4000000 ? 50000 : 150000)) d = -1;
+    if (d) { sLastAdjUs = nowUs; gAaLowRun.store(0); gAaHighRun.store(0); if (d > 0) gAaTopUps.fetch_add(1); else gAaHolds.fetch_add(1); }
+    {   // boost decay: one burst every 15 s without an underrun
+        static int64_t sDecayUs = 0; const int64_t lastX = gAaLastXrunUs.load(std::memory_order_relaxed);
+        if (lastX > sDecayUs) sDecayUs = lastX;
+        if (nowUs - sDecayUs > 15000000) { sDecayUs = nowUs; int b = gAaTargetBoost.load(std::memory_order_relaxed) - 240; if (b < 0) b = 0; gAaTargetBoost.store(b, std::memory_order_relaxed); }
+    }
+    if (nowUs - sLogUs > 1000000) { sLogUs = nowUs;
+        ALOGI("AAUDIO trough %u frames (target %d+%d) chunkgap %u us trim %d ppm xruns %u (%u frames) callbacks %u cbgap %u us rt %d overflow %u topups %u holds %u stalls %u eq %u burst %d buffer %d %s",
+              (unsigned)trough, gAaTargetFrames, gAaTargetBoost.load(), gAaChunkGapMaxUs.exchange(0), gAaTrimPpm.load(), gAaXruns.load(), gAaUnderFrames.load(), gAaCallbacks.load(), gAaCbGapMaxUs.exchange(0), gAaCbRt.load(), gAaOverflowFrames.load(), gAaTopUps.load(), gAaHolds.load(), gAaStalls.load(), gAaEqFrames.exchange(0), gAaBurst, gAaBufFrames, gAaSharing == AAUDIO_SHARING_MODE_EXCLUSIVE ? "EXCLUSIVE" : "SHARED"); }
+    return d;
+}
+// GammaEQ on the sink: the same gates and chain as AudioFlinger's normal mixer write.
+static void aaApplyGammaEq(int16_t* x, size_t frames) {
+    using namespace gammaeq;
+    static SpeakerPEQ sPEQ; static StereoWidenerHB sWide; static CrystalizerLite sCryst; static LowBandProtector sLBP; static MidProtector sMP;
+    static int64_t sGateNs = 0; static bool sOn = false;
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (now - sGateNs > 500000000LL) {   // the gates read properties: half a second is plenty
+        sGateNs = now;
+        sOn = gammaeqMasterEnabled() && (gammaeqForceAllOutputs() || !gammaeqSpeakerOnlyEnabled() || isSpeakerRoutedNow());
+    }
+    if (!sOn || frames == 0) return;
+    maybeReloadPEQ(sPEQ); wideMaybeReload(sWide); crystMaybeReload(sCryst); lbpMaybeReload(sLBP); mpMaybeReload(sMP);
+    const float preamp = getGlobalPreampLin(), postamp = getGlobalPostampLin();
+    if (!sPEQ.enabled && !sWide.enabled && !sCryst.enabled && !sLBP.enabled && !sMP.enabled && preamp == 1.0f && postamp == 1.0f) return;
+    static thread_local std::vector<float> tmp; const size_t n = frames * 2; tmp.resize(n);
+    for (size_t i = 0; i < n; i++) tmp[i] = (float)x[i] * (1.0f / 32768.0f);
+    if (preamp != 1.0f) for (size_t i = 0; i < n; i++) tmp[i] *= preamp;
+    sPEQ.process(tmp.data(), frames, 2);
+    sCryst.updateCoef(48000); sCryst.process(tmp.data(), frames, 2);
+    sLBP.updateCoef(48000);   sLBP.process(tmp.data(), frames, 2);
+    sMP.updateCoef(48000);    sMP.process(tmp.data(), frames, 2);
+    sWide.updateCoef(48000);  sWide.process(tmp.data(), frames, 2);
+    if (postamp != 1.0f) for (size_t i = 0; i < n; i++) tmp[i] *= postamp;
+    for (size_t i = 0; i < n; i++) { float v = tmp[i] * 32768.0f; v = v > 32767.0f ? 32767.0f : (v < -32768.0f ? -32768.0f : v); x[i] = (int16_t)lrintf(v); }
+    gAaEqFrames.fetch_add((uint32_t)frames, std::memory_order_relaxed);
+}
+// drastic's SLPlayItf lives at .bss +0x3c7d030 (its stop routine at +0x1e320 calls vtable[0] on it
+// with SL_PLAYSTATE_STOPPED). Stop the real player once, then hand drastic a copy of the interface
+// whose SetPlayState does nothing, so its restart after a state load cannot bring the OpenSL track
+// back and reclaim the PCM from the exclusive stream.
+static void* gAaStubVt[16];                 // copy of drastic's SLPlayItf vtable with SetPlayState stubbed
+static void** gAaStubObj = gAaStubVt;       // the interface object: its one word is the vtable pointer
+static uint32_t aaStubSetPlayState(void*, uint32_t) { return 0; }
+static void* gAaRealPlayItf = nullptr;
+// The exclusive MMAP open must never run while another client holds the playback PCM: the HAL's
+// createMmapBuffer fails, and its close path then deadlocks AudioFlinger until the audio watchdog
+// aborts audioserver (seen as a 12 s silent start). Both playback cards (speaker amp and the
+// rk817 jack) must show the substream closed before an attempt is made.
+static bool aaPcmFree() {
+    static const char* const files[] = { "/proc/asound/card0/pcm0p/sub0/status", "/proc/asound/card1/pcm0p/sub0/status" };
+    for (const char* f : files) {
+        char buf[64] = {0}; const int fd = open(f, O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        const ssize_t n = read(fd, buf, sizeof buf - 1); close(fd);
+        if (n < 6 || strncmp(buf, "closed", 6) != 0) return false;
+    }
+    return true;
+}
+static std::atomic<int> gAaOpenState{0};   // 0 opening, 1 up, -1 gave up (OpenSL path restored)
+static void aaStartOpener() {
+    static bool sOnce = false; if (sOnce) return; sOnce = true;
+    std::thread([] {
+        pthread_setname_np(pthread_self(), "dn-aaudio-open");
+        const auto ms = [] { return (int64_t)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); };
+        const int64_t t0 = ms(); int attempt = 0, waits = 0;
+        for (;;) {
+            if (!aaPcmFree()) { waits++; }
+            else {
+                attempt++;
+                const int o = aaOpen();
+                if (o > 0) { gAaudioSink.store(1, std::memory_order_release); gAaOpenState.store(1);
+                    ALOGI("DrasticRunner: AAudio sink up after %d attempts, %d busy polls, %lld ms", attempt, waits, (long long)(ms() - t0)); return; }
+                if (o < 0) { ALOGW("DrasticRunner: AAudio sink: no fast path here, drastic's OpenSL player takes over"); aaRestartDrasticPlayer(); gAaOpenState.store(-1); return; }
+                usleep(400000);   // the PCM looked free and the open still failed: do not hammer the service
+            }
+            if (ms() - t0 > 20000) {
+                ALOGW("DrasticRunner: AAudio sink unavailable after %d attempts (%d busy polls), staying on the OpenSL path", attempt, waits);
+                aaRestartDrasticPlayer(); gAaOpenState.store(-1); return; }
+            usleep(10000);
+        }
+    }).detach();
+}
+static std::atomic<int> gAaFallbackPending{0};   // OpenSL path chosen before drastic created its player: start it at the first submit
+static void aaRestartDrasticPlayer() {   // give the OpenSL path back: real interface and PLAYING
+    if (!gAudLibBase) return;
+    uintptr_t* slot = reinterpret_cast<uintptr_t*>(gAudLibBase + 0x3c7d030);
+    if (gAaRealPlayItf) *slot = (uintptr_t)gAaRealPlayItf;
+    else if (*slot == 0) { gAaFallbackPending.store(1); ALOGI("DrasticRunner: OpenSL player not created yet, it starts at the first submit"); return; }
+    void** itf = reinterpret_cast<void**>(*slot); void** vt = reinterpret_cast<void**>(*itf);
+    typedef uint32_t (*SetPlayStateFn)(void*, uint32_t);
+    const uint32_t r = reinterpret_cast<SetPlayStateFn>(vt[0])(itf, 3u /* SL_PLAYSTATE_PLAYING */);
+    gAaFallbackPending.store(0);
+    ALOGI("DrasticRunner: drastic's OpenSL player playing (%u)", r);
+}
+static void aaStopDrasticPlayer() {
+    if (!gAudLibBase) return;
+    uintptr_t* slot = reinterpret_cast<uintptr_t*>(gAudLibBase + 0x3c7d030);   // holds the SLPlayItf
+    if (*slot == 0 || *slot == (uintptr_t)&gAaStubObj) return;
+    void** itf = reinterpret_cast<void**>(*slot); gAaRealPlayItf = itf;
+    void** vt = reinterpret_cast<void**>(*itf);
+    typedef uint32_t (*SetPlayStateFn)(void*, uint32_t);
+    const uint32_t r = reinterpret_cast<SetPlayStateFn>(vt[0])(itf, 1u /* SL_PLAYSTATE_STOPPED */);
+    memcpy(gAaStubVt, vt, sizeof gAaStubVt); gAaStubVt[0] = reinterpret_cast<void*>(&aaStubSetPlayState);
+    *slot = (uintptr_t)&gAaStubObj;
+    ALOGI("DrasticRunner: drastic's OpenSL player stopped (%u) and its play interface stubbed", r);
+}
 std::atomic<uint32_t> gAudResyncs{0};                 // counter corrections from the OpenSL queue state
 std::atomic<uint32_t> gClockMatchSkips{0};   // submits handed to drastic's discard path by the clock match
 std::atomic<int>  gClockMatchAvgX100{150};   // last 4 s average queue depth, chunks x100 (gates the emergency top-up)
@@ -4720,6 +4990,104 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
         ctx[0x40027] = 1;
         gRaStatAudioSkipped.fetch_add(1, std::memory_order_relaxed);
         return;
+    }
+    {   // AAudio sink: take the chunk, resample it into the ring, let drastic discard its copy.
+        static int sAaKnob = -1; if (sAaKnob < 0) sAaKnob = property_get_int32("persist.gammaos.drastic_nano.audio_aaudio", 1);
+        static bool sAaSetSkip = false;
+        if (sAaSetSkip) { ctx[0x40027] = 0; sAaSetSkip = false; }   // the discard we asked for on the previous call
+        // The sink opens on its own thread (aaStartOpener, normally started when the probe was
+        // installed, before drastic created its player). Drastic's player is stopped and stubbed at
+        // the first submit in case it exists; chunks are dropped until the sink is up.
+        static bool sAaStarted = false;
+        if (sAaKnob && !sAaStarted) {
+            sAaStarted = true;
+            if (gAaOpenState.load(std::memory_order_acquire) < 0) aaRestartDrasticPlayer();   // fell back before the player existed
+            else { aaStopDrasticPlayer(); aaStartOpener(); }
+        }
+        if (sAaKnob && gAaFallbackPending.load(std::memory_order_acquire)) aaRestartDrasticPlayer();
+        if (sAaKnob && gAaOpenState.load(std::memory_order_acquire) == 0) {   // opening: drop this chunk rather than let the stopped player queue it
+            ctx[0x40027] = 1; sAaSetSkip = true;
+            return;
+        }
+
+        const uint32_t rawIn = *reinterpret_cast<uint32_t*>(ctx + 0x4000c);
+        const uint32_t nin = rawIn & 0x7fffffffu;
+        if (gAaudioSink.load(std::memory_order_relaxed) && nin >= 4 && nin < 0x10000 && (nin & 1u) == 0 && ctx[0x40027] == 0) {
+            { static int logged = 0; if (logged++ < 3) ALOGI("DrasticRunner: AAudio sink chunk %u frames, out per chunk %.1f", nin / 2, gAaOutPerChunk); }
+            static int16_t sLast[2] = {0, 0}; static double sPhase = 0.0; static double sInteg = 0.0, sTrim = 0.0;
+            {   // Stall watchdog: the mmap buffer is 10 ms, so a callback thread that stops being serviced
+                // leaves the DMA replaying it (a buzz) with no error from the service. If no callback landed
+                // for 100 ms while the stream claims to run, log everything the stream will tell and reopen.
+                static uint32_t sSeenCb = 0; static int64_t sSeenUs = 0;
+                const uint32_t cb = gAaCallbacks.load(std::memory_order_relaxed);
+                const int64_t nowUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+                if (cb != sSeenCb || sSeenUs == 0) { sSeenCb = cb; sSeenUs = nowUs; }
+                else if (gAaStream && ((AAudioStream_getState(gAaStream) == AAUDIO_STREAM_STATE_STARTED && nowUs - sSeenUs > 100000) || nowUs - sSeenUs > 3000000)) {
+                    // A stream reports STARTING for up to a second before its first callback (the
+                    // mixer that held the PCM is still going to standby); only a STARTED stream that
+                    // goes quiet, or a start that never completes, is a stall.
+                    int64_t fp = 0, tn = 0; const aaudio_result_t tr = AAudioStream_getTimestamp(gAaStream, CLOCK_MONOTONIC, &fp, &tn);
+                    ALOGW("DrasticRunner: AAudio sink stalled: no callback for %lld ms, state %s, xruns %d, framesWritten %lld framesRead %lld, timestamp %d (pos %lld), ring %u; reopening",
+                          (long long)((nowUs - sSeenUs) / 1000), AAudio_convertStreamStateToText(AAudioStream_getState(gAaStream)), AAudioStream_getXRunCount(gAaStream),
+                          (long long)AAudioStream_getFramesWritten(gAaStream), (long long)AAudioStream_getFramesRead(gAaStream), tr, (long long)fp, aaLevel());
+                    gAaStalls.fetch_add(1); gAaReopen.store(1, std::memory_order_release); sSeenUs = nowUs;
+                }
+            }
+            if (gAaReopen.load(std::memory_order_acquire)) {   // route change or stall: the stream is rebuilt
+                gAaReopen.store(0, std::memory_order_relaxed);
+                if (gAaStream) { AAudioStream_close(gAaStream); gAaStream = nullptr; }
+                gAaHead.store(0); gAaTail.store(0);
+                if (aaOpen() <= 0) { gAaudioSink.store(0, std::memory_order_release); ALOGW("DrasticRunner: AAudio sink reopen failed, audio stops until the next session"); return; }
+            }
+            const uint32_t fin = nin / 2;
+            const int16_t* in = reinterpret_cast<const int16_t*>(ctx);
+            // The ring level just before this chunk goes in is the trough of its saw-tooth, a fixed
+            // phase: the controller works on that. A slow trim on the output count of this chunk
+            // follows the clock difference (slew limited so the pitch never steps audibly); runs of
+            // troughs outside the band are what the keeper in vblankTick acts on with a whole frame.
+            const uint32_t trough = aaLevel(); gAaTrough.store(trough, std::memory_order_relaxed);
+            {   static int64_t sPrevChunkUs = 0; struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts); const int64_t now = (int64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+                if (sPrevChunkUs) { const uint32_t g = (uint32_t)(now - sPrevChunkUs); uint32_t m = gAaChunkGapMaxUs.load(std::memory_order_relaxed); while (g > m && !gAaChunkGapMaxUs.compare_exchange_weak(m, g)) {} }
+                sPrevChunkUs = now; }
+            const int target = aaTarget();
+            const double err = (double)trough - (double)target;
+            if (err < -(double)target * 0.5) { gAaLowRun.fetch_add(1); gAaHighRun.store(0); } else if (err > 900.0) { gAaHighRun.fetch_add(1); gAaLowRun.store(0); } else { gAaLowRun.store(0); gAaHighRun.store(0); }
+            sInteg += err; if (sInteg > 60000.0) sInteg = 60000.0; if (sInteg < -60000.0) sInteg = -60000.0;
+            double want = -(err * 0.0015 + sInteg * 0.00001) / 800.0;   // 1 frame of error = 0.15 percent
+            if (want > 0.003) want = 0.003; if (want < -0.003) want = -0.003;
+            const double slew = 0.00003;                                // 30 ppm per chunk
+            if (want > sTrim + slew) sTrim += slew; else if (want < sTrim - slew) sTrim -= slew; else sTrim = want;
+            const double trim = sTrim;
+            gAaTrimPpm.store((int)(trim * 1e6), std::memory_order_relaxed);
+            const double outN = gAaOutPerChunk * (1.0 + trim);
+            const double step = (double)fin / outN;    // input frames per output frame
+            uint32_t head = gAaHead.load(std::memory_order_relaxed);
+            uint32_t room = kAaRingFrames - (head - gAaTail.load(std::memory_order_acquire));
+            if (room < 2048 || (int)trough > target + 8000) {   // a launch or fast-forward burst: keep the newest audio, the consumer drops the rest
+                gAaFlushTo.store(head - (uint32_t)target, std::memory_order_relaxed); gAaFlushArmed.store(1, std::memory_order_release);
+                gAaOverflowFrames.fetch_add(kAaRingFrames - room - (uint32_t)target, std::memory_order_relaxed);
+                room = kAaRingFrames;   // the flush lands before the callback reads past this chunk
+            }
+            double pos = sPhase; uint32_t produced = 0;
+            static int16_t stage[4096 * 2];
+            while (pos < (double)fin && produced < room && produced < 4096) {
+                const int i = (int)floor(pos); const double fr = pos - i;
+                const int16_t* a = (i < 0) ? sLast : &in[(size_t)i * 2];
+                const int16_t* b = (i + 1 < (int)fin) ? &in[(size_t)(i + 1) * 2] : &in[(size_t)(fin - 1) * 2];
+                for (int ch = 0; ch < 2; ch++) { const long v = lrint(a[ch] + (b[ch] - a[ch]) * fr); stage[produced * 2 + ch] = (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v)); }
+                produced++; pos += step;
+            }
+            aaApplyGammaEq(stage, produced);
+            for (uint32_t j = 0; j < produced; j++, head++) { const uint32_t k = (head & (kAaRingFrames - 1)) * 2; gAaRing[k] = stage[j * 2]; gAaRing[k + 1] = stage[j * 2 + 1]; }
+            if (pos < (double)fin) gAaOverflowFrames.fetch_add((uint32_t)((fin - pos) / step), std::memory_order_relaxed);
+            gAaHead.store(head, std::memory_order_release);
+            sLast[0] = in[(size_t)(fin - 1) * 2]; sLast[1] = in[(size_t)(fin - 1) * 2 + 1];
+            sPhase = pos - (double)fin;
+            ctx[0x40027] = 1; sAaSetSkip = true;   // drastic discards its copy; cleared again on our next call
+            gAudSubmitCalls.fetch_add(1, std::memory_order_relaxed);
+            gAudSubmitPub.store(gAudSubmitCalls.load(std::memory_order_relaxed), std::memory_order_relaxed);
+            return;
+        }
     }
     // Native-rate resampler: with native_mix the core mixes at 32729 Hz and hands over ~546 stereo frames per video frame;
     // convert each chunk to 44100 Hz here (before the frame-size normaliser and the dump). 16-tap Hann-windowed sinc,
@@ -4838,7 +5206,7 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
     }
     static bool sSkipSet = false;
     if (sSkipSet) { ctx[0x40027] = 0; sSkipSet = false; }   // clear the discard we asked for last call
-    if (gAudLibBase && gAudioChunks8.load(std::memory_order_relaxed)) {
+    if (gAudLibBase && gAudioChunks8.load(std::memory_order_relaxed) && !gAaudioSink.load(std::memory_order_relaxed)) {
         // Resync drastic's outstanding-chunk counter (+0x3c7d070) from the OpenSL buffer queue. The
         // queue callback (+0x1d650) decrements the counter for every completed buffer, the silence
         // buffers it enqueues on underruns included, so after each underrun the counter under-reads
@@ -5167,7 +5535,11 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                 // skipped panel frame, acceptable at a load). The 4 s average band then holds it.
                 volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
                 const uint32_t qnow = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
-                if (gClockMatchOn.load(std::memory_order_relaxed)) {
+                gAaOutPerChunk = 48000.0 / mPanelHz;
+                if (gAaudioSink.load(std::memory_order_relaxed)) {
+                    const int d = aaKeeperDecide(vblankUs);   // the limiter deadline moves one period either way
+                    if (d > 0) *deadline -= units; else if (d < 0) *deadline += units;
+                } else if (gClockMatchOn.load(std::memory_order_relaxed)) {
                     // Experiment (sys gpu3d-era knob q_fill_target, default 0 = off): can a fill
                     // driven from here, with presentation still running, reach a deep queue? The
                     // pre-load boost cannot, because it sleeps the render thread and production is
@@ -5554,7 +5926,22 @@ static int raAudioLeadFrames() {
 void DrasticRunner::audioLeadExtraTick(int64_t nowUs) {
     static int sLeadFrames = -1; static int64_t sLastTopUpUs = 0;
     if (sLeadFrames < 0) sLeadFrames = raAudioLeadFrames();
-    if (sLeadFrames <= 0 || !mArm64Base || !gPaceOn.load() || gRaBurst.load()) return;
+    if (!mArm64Base || !gPaceOn.load() || gRaBurst.load()) return;
+    if (sLeadFrames <= 0 && !gAaudioSink.load(std::memory_order_relaxed)) return;
+    if (gAaudioSink.load(std::memory_order_relaxed)) {
+        // AAudio sink: the OpenSL counter is always 0 here (every chunk is diverted), so the ring
+        // keeper decides; an extra frame goes through the lead debt below, a held one through the
+        // pacer (gAaHoldTicks).
+        const int d = aaKeeperDecide(nowUs);
+        if (d > 0 && gAudioLeadDebt.load() <= 0) gAudioLeadDebt.store(1);
+        else if (d < 0) gAaHoldTicks.fetch_add(1);
+        if (gAudioLeadDebt.load() <= 0) return;
+        if (!waitEmuParked(12000)) return;
+        gAudioLeadDebt.fetch_sub(1); gAudioLeadExtra.fetch_add(1);
+        { std::lock_guard<std::mutex> lk(gPaceMu); gVblSeq.fetch_add(1, std::memory_order_acq_rel); }
+        gPaceCv.notify_all();
+        return;
+    }
     const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
     // Top up while one chunk (67 ms) is still queued: at 0 the output thread
     // may already be starving. Measured on Golden Sun slot 1: late frames
@@ -5662,7 +6049,8 @@ void DrasticRunner::pacerThread() {
             if (on && !prevPaceOn) gAudioLeadDebt.store(raAudioLeadFrames());
             prevPaceOn = on;
         }
-        if (!gClockMatchOn.load(std::memory_order_relaxed) && audioLeadHoldTick(target)) continue;   // queue at its ceiling: no emulated frame this vblank (the clock match trims the rate instead)
+        if (gAaudioSink.load(std::memory_order_relaxed)) { int h = gAaHoldTicks.load(); if (h > 0 && gAaHoldTicks.compare_exchange_strong(h, h - 1)) continue; }   // ring keeper hold: no emulated frame this vblank
+        else if (!gClockMatchOn.load(std::memory_order_relaxed) && audioLeadHoldTick(target)) continue;   // queue at its ceiling: no emulated frame this vblank (the clock match trims the rate instead)
         if (gRaMode.load() == 2) {
             int64_t p0 = pacerNowUs();
             runAheadPacerTick();   // replay burst if the input changed, then the shown frame
@@ -6926,7 +7314,9 @@ bool DrasticRunner::requestLoadStateSlot(int slot) {
     mPendLoadSlot = slot;
     mPendLoadUntilUs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count() + kFillMaxMs;
-    setAudioFillTarget(kFillChunks);
+    // AAudio sink: the ring's drain after the load costs a held frame per 800 frames, so fill only
+    // as much as covers the restore stall (sys audio_aaudio_fill_chunks, 33 ms each, default 4).
+    setAudioFillTarget(gAaudioSink.load(std::memory_order_relaxed) ? property_get_int32("sys.gammaos.drastic_nano.audio_aaudio_fill_chunks", 4) : kFillChunks);
     return true;
 }
 int DrasticRunner::serviceDeferredLoad() {
@@ -6934,7 +7324,8 @@ int DrasticRunner::serviceDeferredLoad() {
     const int64_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
     const int q = audioQueueChunks();
-    if (q < kFillChunks - 1 && nowMs < mPendLoadUntilUs) return -1;
+    const int want = gAaudioSink.load(std::memory_order_relaxed) ? gQFillTarget.load(std::memory_order_relaxed) : kFillChunks;
+    if (q < want - 1 && nowMs < mPendLoadUntilUs) return -1;
     const int slot = mPendLoadSlot; mPendLoadSlot = -1;
     setAudioFillTarget(0);
     ALOGI("DrasticRunner: deferred load_state slot %d, sink %d chunks", slot, q);
@@ -10048,6 +10439,7 @@ uint16_t DrasticRunner::dsEmulatedFrameCounter() {
 // on flips.
 void DrasticRunner::setAudioFillTarget(int chunks) { gQFillTarget.store(chunks, std::memory_order_relaxed); }
 int DrasticRunner::audioQueueChunks() const {
+    if (gAaudioSink.load(std::memory_order_relaxed)) return (int)(aaLevel() / 1600u);   // 33 ms chunk equivalents
     return mArm64Base ? (int)*reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff) : -1;
 }
 uint32_t DrasticRunner::producerFrameCount() const {
