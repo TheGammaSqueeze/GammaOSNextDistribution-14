@@ -126,6 +126,7 @@ struct Job {
     uint32_t clearC = 0, clearD = 0, clearId = 0;
     int wbufDepth = 0;   // this frame is W buffered, so the depth must be perspective correct
     uint32_t earlyMask = 0;   // bands marked complete at hand-off (no-wait policy)
+    int noBlend = 0;   // DISP3DCNT bit 3 clear: translucent fragments replace instead of blending
     int fog = 0, fogShift = 0, fogOffset = 0; uint32_t fogColor = 0; int fogTable[32] = {}; int fogDelta[32] = {};
     // Toon / highlight shading (polygon mode 2): 32 entry table from gx+0x9934, lanes expanded
     // to the 6 bit range the vertex colours use. toonHighlight mirrors DISP3DCNT bit 1.
@@ -323,6 +324,33 @@ in vec3 vCol;
 in vec2 vUv;
 in float vDepth;
 uniform int uDepthMode;   // 0 = screen linear (the shipped setup), 1 = perspective correct
+// The DS "depth equal" test (polygon attribute bit 14) passes a fragment whose depth is within a
+// band of the stored one, 0x200 24-bit units in Z-buffer mode and 0xFF in W-buffer mode, rather
+// than only at or in front of it. Such polygons are decals and stencil shadows lying on their
+// surface; with a plain LEQUAL only the pixels where rounding put them in front survived (Mario
+// Kart's kart shadow came out as a sliver). Their depth is pulled toward the camera by the band
+// so LEQUAL passes the whole band behind the surface. uDeqTol is that band in [0,1] depth units.
+uniform float uDeqTol;
+// The DS "less" test is not strict for a front facing polygon: it passes at EQUAL depth when the
+// destination holds an opaque front facing polygon (melonDS DepthTest_LessThan_FrontFacing). A
+// stencil shadow's front faces lie exactly on the floor they shade, so the DS draws them at
+// equality; a strict LESS drew Mario Kart's kart shadow as a sliver. Front facing polygons (flag in
+// bit 9 of the third tex1 lane, from the screen winding) get half a 24-bit unit toward the camera.
+// The destination condition is not checked (no per-pixel attribute on the multisampled target).
+// A back facing polygon keeps the strict test, so at equal depth it must FAIL: it is pushed half a
+// unit away instead. A shadow volume's bottom face is coplanar with the floor it stands on; the
+// strict test failing there is what sets the mask's stencil across the shadow's footprint (Mario
+// Kart's kart shadow), and the DS integer depths make that outcome deterministic where float
+// interpolation of two coplanar polygons would leave it to rounding.
+const float kFrontBias = 0.5 / 16777215.0;
+// DISP3DCNT bit 3 off (alpha blending disabled): a translucent fragment's colour is written in
+// place of the destination instead of being blended, and the pixel keeps the larger of the two
+// alphas, exactly as the blended case does (Mario Kart's character select draws its black kart
+// shadow with blending off: the CPU rasterizer's shadow is opaque black over the opaque disc,
+// while the disc's translucent top keeps its own alpha; the GPU path blended the shadow to a
+// one-third darkening). The pass split is unchanged, so translucent depth writes stay as they were.
+// On the GL-blend path the same rule is the blend state (colour ONE/ZERO, alpha MAX).
+uniform int uNoBlend;
 in vec3 vColW;
 in vec3 vUvW;
 uniform int uInterp;   // bit 0: affine colour, bit 1: affine texcoords (A/B knob, default perspective)
@@ -461,13 +489,14 @@ const char* kFragDiscard = R"(
 const char* kFragFetch = R"(
     vec4 d = fragColor;
     float da = floor(d.a * 255.0 + 0.5);
-    if (a < 31.0 && da > 0.0) {
+    if (uNoBlend != 0) { if (a < 31.0 && da > 0.0) a = max(a, da); }
+    else if (a < 31.0 && da > 0.0) {
         vec3 dc = floor(d.rgb * 255.0 + 0.5);
         float w1 = a + 1.0, w0 = 31.0 - a;
         r = floor((r * w1 + dc.r * w0) * (1.0 / 32.0)); gg = floor((gg * w1 + dc.g * w0) * (1.0 / 32.0)); b = floor((b * w1 + dc.b * w0) * (1.0 / 32.0));
         a = max(a, da);
     }
-    if (uDepthMode != 0) gl_FragDepth = vDepth;
+    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -kFrontBias : kFrontBias);
     fragColor = vec4(r, gg, b, a) * (1.0 / 255.0);
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
@@ -477,7 +506,7 @@ const char* kFragFetch = R"(
 )";
 
 const char* kFragNoFetch = R"(
-    if (uDepthMode != 0) gl_FragDepth = vDepth;
+    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -kFrontBias : kFrontBias);
     fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
@@ -1248,6 +1277,9 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
             v[k].s = s / 16.0f; v[k].t = tt / 16.0f;
             memcpy(v[k].tex0, tex0, sizeof tex0); memcpy(v[k].tex1, tex1, sizeof tex1);
         }
+        { float area = 0.f; for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area += v[k].x * v[k2].y - v[k2].x * v[k].y; }
+          if (area < 0.f) for (int k = 0; k < n; k++) v[k].tex1[2] |= 1 << 9;
+        }
         for (int k = 1; k + 1 < n; k++) { sv.push_back(v[0]); sv.push_back(v[k]); sv.push_back(v[k + 1]); }
         segs.back().count = (uint32_t)sv.size() - segs.back().start;
         return;
@@ -1286,6 +1318,11 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         v[k].r = (float)((c5r << 1) | (c5r >> 4)); v[k].g = (float)((c5g << 1) | (c5g >> 4)); v[k].b = (float)((c5b << 1) | (c5b >> 4));
         v[k].s = s / 16.0f; v[k].t = tt / 16.0f;
         memcpy(v[k].tex0, tex0, sizeof tex0); memcpy(v[k].tex1, tex1, sizeof tex1);
+    }
+    {   // DS facing from the screen winding (y down): the shadow front faces of Mario Kart's kart
+        // volume come out clockwise here, and those are the faces the DS draws at equal depth.
+        float area = 0.f; for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area += v[k].x * v[k2].y - v[k2].x * v[k].y; }
+        if (area < 0.f) for (int k = 0; k < n; k++) v[k].tex1[2] |= 1 << 9;
     }
     const uint32_t vStart = (uint32_t)dst.size();
     for (int k = 1; k + 1 < n; k++) { dst.push_back(v[0]); dst.push_back(v[k]); dst.push_back(v[k + 1]); }
@@ -1863,7 +1900,11 @@ void renderJob(Job& j) {
         // 0 restores the screen linear depth for A/B.
         { static int dmKnob = -1; if ((g.glFrames & 15) == 0) dmKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
           const int dm = dmKnob >= 0 ? dmKnob : 1; (void)j.wbufDepth;
-          const GLint ld = glGetUniformLocation(pr, "uDepthMode"); if (ld >= 0) glUniform1i(ld, dm); }
+          const GLint ld = glGetUniformLocation(pr, "uDepthMode"); if (ld >= 0) glUniform1i(ld, dm);
+          static int tolKnob = -1; if ((g.glFrames & 15) == 0) tolKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_deq_tol", -1);   // A/B: band in 24-bit units
+          const int tol = tolKnob >= 0 ? tolKnob : (j.wbufDepth ? 0xFF : 0x200);
+          const GLint lt = glGetUniformLocation(pr, "uDeqTol"); if (lt >= 0) glUniform1f(lt, tol / 16777215.0f);
+          const GLint lnb = glGetUniformLocation(pr, "uNoBlend"); if (lnb >= 0) glUniform1i(lnb, j.noBlend); }
         const GLint lf = glGetUniformLocation(pr, "uFog");
         if (lf < 0) continue;
         glUniform1i(lf, j.fog);
@@ -1885,7 +1926,8 @@ void renderJob(Job& j) {
             }
         }
     }
-    if (gDsBlend) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
+    if (j.noBlend && mainBlend) { glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }   // blending disabled: colour replaced, alpha kept at the larger value
+    else if (gDsBlend) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
     else { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); }
     g.curProg = 0; g.curBlend = false; glDisable(GL_BLEND);
     if (gDsBlend) { glEnable(GL_STENCIL_TEST); glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
@@ -2835,6 +2877,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
               *reinterpret_cast<uint32_t*>(regs + 4), *reinterpret_cast<uint32_t*>(regs + 8), *reinterpret_cast<uint32_t*>(regs + 12));
     }
     job.wbufDepth = wbuf ? 1 : 0;
+    job.noBlend = ((disp3d >> 3) & 1) ? 0 : 1;
     job.clearId = *reinterpret_cast<uint32_t*>(regs + 12) >> 24;   // clear depth word carries the clear polygon id in bits 24-29
     // Fog: drastic's band post pass (+0x5829c) reads the density table at gx+0x9974, the colour word
     // at gx+0x9a9c (r, g, b 6-bit, a 5-bit bytes), the offset halfword at gx+0x9aaa and the shift
