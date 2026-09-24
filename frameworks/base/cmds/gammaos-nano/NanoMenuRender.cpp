@@ -5501,6 +5501,18 @@ void NanoMenu::render() {
     // step-only gate would miss the exact window we must throttle. Keep the step as a fallback.
     const bool setupInstalling = setupBlankDual &&
                                  (mSetupScriptRunning || mSetupStep == SETUP_INSTALLING);
+    // Dual-screen wizard: once every ring slot of the (blank) secondary panel holds a black
+    // frame, stop flipping the secondary at all. On the RG DS the two DSI panels are not
+    // phase-locked and the bottom panel's flip lands ~18 ms after the top one, so the
+    // page-flip drain that paces the frame waited on it every frame and the wizard ran at
+    // 26 to 30 fps even when the render itself fit a vblank. With the secondary skipped the
+    // frame is gated by the top panel alone; the bottom panel simply keeps its last (black)
+    // pixels. The cold-boot intro is excluded (setupBlankDual already is). Also skips the
+    // secondary render pass below: nothing is drawn there during setup anyway.
+    static int sSetupSecondaryBlackFrames = 0;
+    if (setupBlankDual) { if (sSetupSecondaryBlackFrames < 64) sSetupSecondaryBlackFrames++; }
+    else sSetupSecondaryBlackFrames = 0;
+    const bool setupSkipSecondary = setupBlankDual && sSetupSecondaryBlackFrames > AHB_RING_DEPTH + 2;
     // Reap async-freed decoders every frame on BOTH themes (renderPs3Xmb reaps only on the XMB path; the
     // DSi carousel home never calls it). Without this, a video-wallpaper teardown on the DSi theme leaves
     // mVidPrevCodecFreed stuck false, so the wallpaper never re-opens and the decoder leaks. Idempotent.
@@ -5690,7 +5702,8 @@ void NanoMenu::render() {
     // The XMB ribbon / procedural effects are cheap fullscreen shaders on
     // Mali-G52, so rendering them twice (once here, once on the primary AHB
     // below) costs well under a millisecond total on 640x480.
-    if (sDrmActive && sDrmZeroCopy && sAhbTargetSecondary.glFbo != 0 && !setupInstalling) {
+    if (sDrmActive && sDrmZeroCopy && sAhbTargetSecondary.glFbo != 0 && !setupInstalling
+        && !setupSkipSecondary) {
         glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
         glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
         uploadRotationMatrices();
@@ -6633,7 +6646,7 @@ void NanoMenu::render() {
 // races on the DRM PRIME path.
 if (sRingPrimedCount >= 2) {
                     const int presentIdxNow = sRingPresentIdx;
-                    drmFlipRingSlot(presentIdxNow);
+                    drmFlipRingSlot(presentIdxNow, setupSkipSecondary);
                     sRingPresentIdx =
                             (presentIdxNow + 1) % AHB_RING_DEPTH;
                 } else {

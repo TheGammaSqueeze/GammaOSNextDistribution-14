@@ -138,6 +138,28 @@ void NanoMenu::startSetupWizard() {
     // "waiting for Android services" step takes no user input, so the device would sleep
     // mid-setup. PowerManagerService.isNanoDisplayForcedOn honours this prop.
     property_set("sys.gammaos.nano.setup_active", "1");
+    // Run the whole first-boot setup at the Max performance mode: the wizard shares the
+    // SoC with system_server coming up, setup.sh extracting and installing the app
+    // payloads and dexopt, and on the 1 GB microSD devices the stock clocks left the
+    // wizard visibly choppy. The user's own mode is saved in a persist marker (not just a
+    // member) so a nano restart mid-setup still restores the original rather than the
+    // "max" the interrupted run left behind; finishSetupWizard() puts it back and clears
+    // the marker. Applied directly through the clock script as well as the property:
+    // the vendor trigger (init.gammaos_power.rc) is gated on sys.screen.state=on, which
+    // the framework has not set this early in the first boot.
+    {
+        char prev[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.setup_prev_perf", prev, "");
+        if (!prev[0]) {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.performance_mode", cur, "stock");
+            property_set("persist.gammaos.nano.setup_prev_perf", cur[0] ? cur : "stock");
+        }
+        property_set("persist.gammaos.performance_mode", "max");
+        nanoApplyPerfClock("max");
+        ALOGI("NanoMenu: setup wizard - performance mode max for the wizard (restores %s after)",
+              prev[0] ? prev : "the current mode");
+    }
     mSetupStep = SETUP_WELCOME;
     mSetupTransitionAlpha = 1.0f;
     mSetupSlideOffset = 0.0f;
@@ -185,6 +207,18 @@ void NanoMenu::finishSetupWizard() {
 
     // Fast-path property for next boot
     property_set("persist.gammaos.nano.setup_done", "1");
+    // Give the performance mode back to the user (see startSetupWizard). The property
+    // change fires the vendor clock trigger now that the screen state is on; apply the
+    // script directly too so the clocks follow even if that edge does not fire.
+    {
+        char prev[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.setup_prev_perf", prev, "");
+        if (!prev[0]) strcpy(prev, "stock");
+        property_set("persist.gammaos.performance_mode", prev);
+        nanoApplyPerfClock(prev);
+        property_set("persist.gammaos.nano.setup_prev_perf", "");
+        ALOGI("NanoMenu: setup wizard finished - performance mode restored to %s", prev);
+    }
     // Setup finished cleanly: clear the "device_provisioned set by an in-progress wizard"
     // marker so a later nano boot trusts the now-complete provisioning (see the boot check
     // in the main loop and where dp_wizard is set at boot_completed).
