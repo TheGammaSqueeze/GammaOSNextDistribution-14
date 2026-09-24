@@ -7760,7 +7760,35 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // notification sounds never drift apart) and publishes the index + max so the
     // nano launcher's own slider shows the exact same value across the XMB, cold
     // boot, the wallpaper-home and in-app.
+    //
+    // Runs on the background thread: this is called from interceptKeyBeforeQueueing on the
+    // input dispatch thread, and the five AudioService binder calls plus the two persist
+    // property writes (each a synchronous round trip to init, which also rewrites the
+    // persistent property store) took up to 3 s there on the RG DS Plus, so the volume
+    // moved seconds after the press while nano's own slider had already shown it. The
+    // presses are serialized on one handler, so each step reads the level the previous
+    // one set.
+    // Its own thread, not BackgroundThread: on the RG DS Plus the shared android.bg
+    // handler was found holding a queued volume step for over 12 s behind other work,
+    // so the press never landed while nano's slider had already moved.
+    private android.os.Handler mNanoVolumeHandler;
+
+    private synchronized android.os.Handler nanoVolumeHandler() {
+        if (mNanoVolumeHandler == null) {
+            android.os.HandlerThread t = new android.os.HandlerThread("nano-volume",
+                    android.os.Process.THREAD_PRIORITY_FOREGROUND);
+            t.start();
+            mNanoVolumeHandler = new android.os.Handler(t.getLooper());
+        }
+        return mNanoVolumeHandler;
+    }
+
     private void nanoSyncAllStreamsVolume(int direction) {
+        Log.i(TAG, "Nano: volume key " + (direction > 0 ? "up" : "down") + " queued");
+        nanoVolumeHandler().post(() -> nanoSyncAllStreamsVolumeNow(direction));
+    }
+
+    private void nanoSyncAllStreamsVolumeNow(int direction) {
         try {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if (am == null) return;
@@ -7783,6 +7811,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             android.os.SystemProperties.set("persist.gammaos.nano.volume", Integer.toString(next));
             android.os.SystemProperties.set("persist.gammaos.nano.volmax", Integer.toString(musMax));
+            Log.i(TAG, "Nano: volume " + cur + " -> " + next + " of " + musMax + " applied to all streams");
         } catch (Exception e) {
             Log.e(TAG, "Nano: all-stream volume sync failed", e);
         }
