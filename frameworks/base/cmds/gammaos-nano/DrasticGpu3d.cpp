@@ -149,7 +149,8 @@ struct Gpu3d {
     Job* rendering = nullptr;   // job inside renderJob (cannot be cancelled any more)
     Job* queue[2] = {}; int qHead = 0, qCount = 0;   // jobs handed to the GL thread, in order (decoupled mode: up to two)
     bool quit = false;
-    Job jobs[3]; int jobIdx = 0;
+    Job jobs[4]; int jobIdx = 0;   // rendering, queued, pending readback, and the one being built
+    uint8_t* bufD = nullptr;        // fourth decoupled output buffer: latest, pending, rendering and the next target
     uint32_t bpDrops = 0;   // decoupled frames dropped under back-pressure (gpu3d_drop_bp)
     uint32_t bpUploadsCarried = 0;   // texture uploads moved from a dropped job to the one that replaced it
     std::atomic<uint8_t*> latest{nullptr};   // newest fully rendered target buffer (decoupled mode)
@@ -1698,6 +1699,46 @@ static void applyMsaaTarget() {
 }
 
 // ---- GL thread: owns the context, renders one Job at a time.
+// Pipelined finish (decoupled jobs, sys gpu3d_pipeline, default 1): the GL thread keeps the fence
+// wait and the synchronous read of the resolved frame (a pixel buffer read on this Mali is not
+// asynchronous: its fence does not signal until the buffer is mapped, and the map then stalls for
+// the whole transfer), but hands the CPU finish of the frame (the alpha lanes and the scatter into
+// drastic's buffer, about 2 ms) to a helper thread with double-buffered readback memory, so the GL
+// thread moves on to the next job's draws while the previous frame is being scattered and
+// published. The 3D layer's timing is unchanged for a job that fits its frame; a job that would
+// otherwise miss the next kick by up to that CPU finish now makes it.
+struct PendingRb { uint8_t* src = nullptr; int srcIdx = -1; uint8_t* target = nullptr; Job* job = nullptr; bool blendAlpha = false; };
+static std::atomic<Job*> gPendJob{nullptr}; static std::atomic<uint8_t*> gPendTarget{nullptr};
+static int gPipeline = 1;
+static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, int64_t t4, int64_t t5);
+static std::vector<uint8_t> gRb[2]; static std::atomic<int> gRbBusy[2] = { {0}, {0} }; static int gRbIdx = 0;
+static std::mutex gScMtx; static std::condition_variable gScCv; static PendingRb gScWork; static bool gScHas = false, gScQuit = false; static std::thread gScThread; static bool gScStarted = false;
+static void scatterThreadMain() {
+    pthread_setname_np(pthread_self(), "dn-gpu3d-scat");
+    std::unique_lock<std::mutex> lk(gScMtx);
+    while (!gScQuit) {
+        gScCv.wait(lk, [] { return gScHas || gScQuit; });
+        if (gScQuit) break;
+        PendingRb w = gScWork; gScHas = false;
+        lk.unlock();
+        if (w.blendAlpha) alphaToDs(w.src, 0, kH);
+        scatterRows(w.src, w.target, 0, kH);
+        {
+            std::lock_guard<std::mutex> gl(g.mtx);
+            g.latest.store(w.target, std::memory_order_release);
+            gPendJob.store(nullptr, std::memory_order_release); gPendTarget.store(nullptr, std::memory_order_release);
+            g.cvDone.notify_all();
+        }
+        gRbBusy[w.srcIdx].store(0, std::memory_order_release);
+        lk.lock();
+        gScCv.notify_all();
+    }
+}
+// Wait until the helper has published the pending frame (GL teardown, a join, a buffer reuse).
+static void scatterDrain() {
+    std::unique_lock<std::mutex> lk(gScMtx);
+    gScCv.wait(lk, [] { return !gScHas && gPendJob.load(std::memory_order_acquire) == nullptr; });
+}
 void renderJob(Job& j) {
     const int64_t t0 = nowUs();
     g.glFrames++;   // GL-thread-owned counter for the knob polls (g.frame is the worker's and races)
@@ -2141,7 +2182,30 @@ void renderJob(Job& j) {
     const int64_t t2 = nowUs();
     g.sumUploadUs += t2 - t1;
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
-    static int rbTest = -1; if ((g.glFrames & 63) == 0) rbTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0);
+    static int rbTest = -1; if ((g.glFrames & 63) == 0) { rbTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0); gPipeline = property_get_int32("sys.gammaos.drastic_nano.gpu3d_pipeline", 1); }
+    if (j.decoupled && gPipeline && rbTest != 5) {
+        if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gRb[0].resize((size_t)kW * kH * 4); gRb[1].resize((size_t)kW * kH * 4); }
+        GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        glFlush();
+        for (int i = 0; i < 400; i++) { GLenum r = glClientWaitSync(fence, 0, 0); if (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED) break; usleep(100); }
+        glDeleteSync(fence);
+        const int64_t t3 = nowUs();
+        g.sumDrawUs += t3 - t2;
+        if (timing) { GLuint av = 0; pGetQ(g.tq, 0x8867, &av); if (av) { GLuint64 ns = 0; pGetQ64(g.tq, 0x8866, &ns); g.sumGpuNs += (int64_t)ns; g.gpuSamples++; } }
+        if (msaa) glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
+        const int k = gRbIdx; gRbIdx ^= 1;
+        if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();   // the helper is still on this half (rare: it takes ~2 ms)
+        glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, gRb[k].data());
+        const int64_t t4 = nowUs();
+        g.sumReadUs += t4 - t3;
+        gRbBusy[k].store(1, std::memory_order_release);
+        gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release);
+        { std::lock_guard<std::mutex> lk(gScMtx); gScWork = { gRb[k].data(), k, j.target, &j, g.blendAlpha }; gScHas = true; }
+        gScCv.notify_all();
+        gpu3dSetBandMask(0xfffu); gpu3dSetPending(0);
+        jobEpilogue(j, t0, t1, t2, t3, t4, t4);
+        return;
+    }
     if (rbTest != 5) {
         // Sleep on a fence instead of letting glReadPixels spin a core while the GPU finishes.
         GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -2166,6 +2230,9 @@ void renderJob(Job& j) {
     scatterRows(src, target, 0, kH);
     const int64_t t5 = nowUs();
     g.sumScatterUs += t5 - t4;
+    jobEpilogue(j, t0, t1, t2, t3, t4, t5);
+}
+static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, int64_t t4, int64_t t5) {
     gpu3dSetBandMask(0xfffu);
     gpu3dSetPending(0);
     const int64_t dt = t5 - t0;
@@ -2206,6 +2273,7 @@ void renderJob(Job& j) {
 // program, buffer and the context go, and initGl builds them fresh at the new size. The EGL
 // display stays initialised (the presenter shares it in this process).
 static void destroyGl() {
+    if (gScStarted && gPendJob.load(std::memory_order_acquire)) scatterDrain();
     if (g.dpy == EGL_NO_DISPLAY) return;
     if (g.ctx != EGL_NO_CONTEXT) {
         glFinish();
@@ -2342,7 +2410,7 @@ void glThreadMain() {
         }
         lk.lock();
         g.qHead ^= 1; g.qCount--;
-        if (!skip) g.latest.store(j->target, std::memory_order_release);
+        if (!skip && gPendJob.load(std::memory_order_acquire) != j) g.latest.store(j->target, std::memory_order_release);   // a pipelined job is published by the scatter helper
         g.rendering = nullptr;
         g.pending = nullptr;
         g.cvDone.notify_all();
@@ -2364,8 +2432,8 @@ void joinPrevious(bool cancelQueued = false) {
     // needs this join (a synchronous frame after an engine swap) cannot afford it. Measured on
     // Pokemon: the swap frame ran past the 40 ms band wait and drained the audio queue (960
     // underrun frames in a 10 minute soak).
-    if (g.qCount > 0) { g.joinWanted = true; g.cvPresent.notify_all(); }
-    while (g.qCount > 0) g.cvDone.wait(lk);
+    if (g.qCount > 0 || gPendJob.load(std::memory_order_acquire)) { g.joinWanted = true; g.cvPresent.notify_all(); g.cvSubmit.notify_all(); }
+    while (g.qCount > 0 || gPendJob.load(std::memory_order_acquire)) g.cvDone.wait(lk);
     g.joinWanted = false;
     g.latest.store(nullptr, std::memory_order_release);
     g.decoupledActive.store(false, std::memory_order_release);
@@ -2598,6 +2666,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     const bool decoupled = gDecoupleWanted && threaded && !capSync;
     if (decoupled) {
         if (!g.bufC) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufC = (uint8_t*)m; } }
+        if (!g.bufD) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufD = (uint8_t*)m; } }
     }
     // Back-pressure policy. Default: waitQueueRoom stalls the emulator until the GL queue drains,
     // which on the heaviest scenes costs ~13 ms while the 3D fence is stuck behind the panel
@@ -2638,12 +2707,13 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             if (readBuf == sLastRead) gDcLayerRep.fetch_add(1, std::memory_order_relaxed); else gDcLayerAdv.fetch_add(1, std::memory_order_relaxed);
             sLastRead = readBuf;
         }
-        uint8_t* busy = nullptr;
-        { std::lock_guard<std::mutex> lk(g.mtx); if (g.qCount > 0) busy = g.queue[g.qHead]->target; }
-        uint8_t* cands[3] = { bufA, bufB, g.bufC };
+        uint8_t* busy[3] = { nullptr, nullptr, nullptr };
+        { std::lock_guard<std::mutex> lk(g.mtx); for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target; if (g.rendering) busy[2] = g.rendering->target; }
+        uint8_t* pendT = gPendTarget.load(std::memory_order_acquire);
+        uint8_t* cands[4] = { bufA, bufB, g.bufC, g.bufD };
         target = nullptr;
-        for (uint8_t* c : cands) if (c != readBuf && c != busy) { target = c; break; }
-        if (!target) target = g.bufC;   // cannot happen with three buffers
+        for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != pendT) { target = c; break; }
+        if (!target) target = g.bufD ? g.bufD : g.bufC;   // cannot happen with four buffers
         *reinterpret_cast<uint8_t**>(regs + 24) = readBuf;
         g.decoupledActive.store(true, std::memory_order_release);
         gpu3dSetPending(0);
@@ -2710,11 +2780,11 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     Job* jp = &g.jobs[g.jobIdx];
     if (dropBp) {
         std::lock_guard<std::mutex> lk(g.mtx);
-        for (int i = 0; i < 3; i++) { Job* c = &g.jobs[i]; if (c == g.rendering) continue; bool inq = false;
+        for (int i = 0; i < 4; i++) { Job* c = &g.jobs[i]; if (c == g.rendering || c == gPendJob.load(std::memory_order_acquire)) continue; bool inq = false;
             for (int k = 0; k < g.qCount; k++) if (g.queue[(g.qHead + k) & 1] == c) inq = true;
             if (!inq) { jp = c; break; } }
     }
-    Job& job = *jp; g.jobIdx = (g.jobIdx + 1) % 3;
+    Job& job = *jp; g.jobIdx = (g.jobIdx + 1) % 4;
     job.cancel = false;
     g.cur = &job;
     for (int i = 0; i < 8; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); job.opaque.polyLen[i].clear(); job.transl.polyLen[i].clear(); job.opaque.polyId[i].clear(); job.transl.polyId[i].clear(); }
