@@ -105,8 +105,12 @@ struct Job {
     std::vector<Upload> uploads;
     uint8_t* target = nullptr;
     uint32_t clearC = 0, clearD = 0, clearId = 0;
+    int wbufDepth = 0;   // this frame is W buffered, so the depth must be perspective correct
     uint32_t earlyMask = 0;   // bands marked complete at hand-off (no-wait policy)
     int fog = 0, fogShift = 0, fogOffset = 0; uint32_t fogColor = 0; int fogTable[32] = {}; int fogDelta[32] = {};
+    // Toon / highlight shading (polygon mode 2): 32 entry table from gx+0x9934, lanes expanded
+    // to the 6 bit range the vertex colours use. toonHighlight mirrors DISP3DCNT bit 1.
+    bool toonUsed = false; int toonR[32] = {}, toonG[32] = {}, toonB[32] = {}; int toonHighlight = 0;
     bool decoupled = false;   // whole-frame job into a buffer the compositor is not reading
     bool cancel = false;      // dropped before rendering (a decoupled frame overtaken by a synchronous one)
     uint32_t presentSeqAtQueue = 0;   // presents seen when the job was queued (decoupled: run after the next one)
@@ -117,6 +121,7 @@ struct Job {
 
 struct Gpu3d {
     bool inited = false, failed = false;
+    std::atomic<bool> initSettled{false};   // GL init has finished, so `failed` is now the verdict
     // GL thread hand-off: the worker builds a Job, the GL thread renders it and marks the bands
     std::thread glThread; bool threadStarted = false;
     std::mutex mtx; std::condition_variable cvSubmit, cvDone;
@@ -151,6 +156,10 @@ struct Gpu3d {
     GLint uIdx = -1, uPal = -1, uPass = -1;
     // layer allocators: texels live in two 2D arrays (256x256 and 1024x1024 layers), palettes in
     // a 256x1 array; one layer per slot so an update never touches memory another layer uses
+    std::atomic<bool> pendingTexReset{false};   // a state restore replaced drastic's texture memory
+    uint32_t texUnconverted = 0;   // entries whose "converted" marker was stale (see texFor)
+    uint32_t texMisses = 0;      // textured polygons that got no texture entry (drawn with vertex colour)
+    uint32_t texHoldovers = 0;   // frames an entry was served from the previous upload (see texFor)
     uint32_t fogPolys = 0;   // polygons with the fog bit (census)
     int smallNext = 0, bigNext = 0, palNext = 0, dirNext = 0, dirBigNext = 0;
     std::vector<int> freeSmall, freeBig, freePal, freeDir, freeDirBig;   // layers released by evicted entries
@@ -201,6 +210,13 @@ static void glStage(int st) { gGlStage.store(st, std::memory_order_relaxed); gGl
 // Lock the file-backed, non-writable mappings of one library as their pages fault in
 // (MLOCK_ONFAULT: nothing is read ahead). Knob sys gpu3d_lock_libs 0 disables.
 extern "C" void drasticLockLibrary(const char* nameSubstr) {
+    // ONLY in the game process. The resident nano home links the same runner and opens the same
+    // libraries for its preview path, and pinning pages there is what made its render thread
+    // stall for 30 s and the watchdog abort it, in a crash loop (seen 2026-09-22 when the home
+    // was bind-mounted, and the same signature is on record from an earlier blanket mlockall in
+    // the home). The home must stay fully reclaimable.
+    const char* prog = getprogname();
+    if (!prog || strcmp(prog, "drastic-nano") != 0) return;
     if (!property_get_int32("sys.gammaos.drastic_nano.gpu3d_lock_libs", 1)) return;
     FILE* f = fopen("/proc/self/maps", "r"); if (!f) return;
     char line[512]; size_t total = 0; int segs = 0, fails = 0;
@@ -238,6 +254,7 @@ layout(location = 3) in ivec4 aTex0;
 layout(location = 4) in ivec4 aTex1;
 out vec3 vCol;
 out vec2 vUv;
+out float vDepth; // raw depth, interpolated perspective-correctly (depth mode A/B)
 out vec3 vColW;   // colour * W and W: their perspective-correct ratio is the affine interpolant (uInterp bits)
 out vec3 vUvW;
 flat out ivec4 vTex0;
@@ -245,6 +262,7 @@ flat out ivec4 vTex1;
 void main() {
     vCol = aCol;
     vUv = aUv;
+    vDepth = aPos.z;
     vColW = aCol * aPos.w;
     vUvW = vec3(aUv * aPos.w, aPos.w);
     vTex0 = aTex0;
@@ -269,6 +287,8 @@ precision highp usampler2DArray;
 precision highp sampler2DArray;
 in vec3 vCol;
 in vec2 vUv;
+in float vDepth;
+uniform int uDepthMode;   // 0 = screen linear (the shipped setup), 1 = perspective correct
 in vec3 vColW;
 in vec3 vUvW;
 uniform int uInterp;   // bit 0: affine colour, bit 1: affine texcoords (A/B knob, default perspective)
@@ -291,6 +311,13 @@ uniform vec4 uFogColor;
 uniform int uFogTable[32];
 uniform int uFogDelta[32];
 uniform float uAlphaMul;   // alpha lane scale: 1/255 stores the 5-bit value, 1/31 makes it a blend factor
+// Toon / highlight (polygon mode 2). The vertex colour's red lane is an index into this table,
+// not a colour. uToonHighlight is DISP3DCNT bit 1: 0 = toon (the entry replaces the vertex
+// colour), 1 = highlight (the entry is added to the modulated result).
+uniform int uToonR[32];
+uniform int uToonG[32];
+uniform int uToonB[32];
+uniform int uToonHighlight;
 )";
 
 const char* kFragBody = R"(
@@ -340,12 +367,22 @@ void main() {
     vec3 vcIn = ((uInterp & 1) != 0) ? vColW / vUvW.z : vCol;
     if ((uUvOff & 16) != 0) vcIn -= 0.5 * (dFdx(vcIn) + dFdy(vcIn));   // colour at the pixel corner too (bit 4)
     vec3 vc = floor(vcIn + 0.5);
+    vec3 toon = vec3(0.0);
+    bool toonMode = (mode == 2);
+    if (toonMode) {
+        int ti = clamp(int(vc.r) >> 1, 0, 31);
+        toon = vec3(float(uToonR[ti]), float(uToonG[ti]), float(uToonB[ti]));
+        if (uToonHighlight == 0) vc = toon;   // toon: the table colour IS the vertex colour
+    }
     float r, gg, b;
     if (mode == 1 && texOn) {
         r = floor((tr * ta + vc.r * (31.0 - ta)) / 31.0); gg = floor((tg * ta + vc.g * (31.0 - ta)) / 31.0); b = floor((tb * ta + vc.b * (31.0 - ta)) / 31.0);
         ta = 31.0;
     } else {
         r = floor(tr * (vc.r + 1.0) * (1.0 / 64.0)); gg = floor(tg * (vc.g + 1.0) * (1.0 / 64.0)); b = floor(tb * (vc.b + 1.0) * (1.0 / 64.0));
+        if (toonMode && uToonHighlight != 0) {   // highlight: add the table colour, clamped
+            r = min(r + toon.r, 63.0); gg = min(gg + toon.g, 63.0); b = min(b + toon.b, 63.0);
+        }
     }
     float a = floor(ta * (polyA + 1.0) * (1.0 / 32.0));
     if (uFog != 0 && fogPoly != 0) {
@@ -381,6 +418,7 @@ const char* kFragFetch = R"(
         r = floor((r * w1 + dc.r * w0) * (1.0 / 32.0)); gg = floor((gg * w1 + dc.g * w0) * (1.0 / 32.0)); b = floor((b * w1 + dc.b * w0) * (1.0 / 32.0));
         a = max(a, da);
     }
+    if (uDepthMode != 0) gl_FragDepth = vDepth;
     fragColor = vec4(r, gg, b, a) * (1.0 / 255.0);
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
@@ -390,6 +428,7 @@ const char* kFragFetch = R"(
 )";
 
 const char* kFragNoFetch = R"(
+    if (uDepthMode != 0) gl_FragDepth = vDepth;
     fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
@@ -532,7 +571,7 @@ bool initGl() {
             if (expt == 6) {   // keep the index fetch, drop the palette fetch
                 swapStmt("vec4 pc = texelFetch(uPal", "vec4 pc = vec4(float(idx & 63u) / 255.0, 0.1, 0.2, 1.0);");
             } else if (expt == 7) {   // no texture fetch at all
-                swapStmt("uint raw = (vTex0.y != 0)", "uint raw = uint(s + t) & 255u;");
+                swapStmt("uint raw = ((vTex0.y & 1) != 0)", "uint raw = uint(s + t) & 255u;");
                 swapStmt("vec4 pc = texelFetch(uPal", "vec4 pc = vec4(float(idx & 63u) / 255.0, 0.1, 0.2, 1.0);");
             }
             frag += body; frag += fetch ? kFragFetch : kFragNoFetch;
@@ -788,11 +827,39 @@ TexEntry* texFor(uint64_t entryPtr, uint32_t texp) {
     // distinct colours, converts the words in place to one palette index per texel with a
     // private palette at +24 (count at +0x48, index 0 = transparent) and sets the entry's
     // format byte at +0x4b to 8. Only a texture with more colours keeps the colour words.
+    // drastic marks a converted entry by writing 8 to the format byte at +0x4b AFTER the
+    // conversion, but it does NOT clear that byte when the same entry is re-decoded for a new
+    // texture of the same format (the fill at +0x70f5c only rewrites it when the format
+    // changes). So between "colour words written" and "converted", the marker still says
+    // converted while the bytes are still colour words. Reading those as palette indices puts
+    // almost all of them past the end of the private palette, which samples black: that is the
+    // kart turning into a black silhouette for about a second after a save-state restore
+    // (reported 2026-09-22; the shipped build showed the pre-existing rainbow instead, because
+    // it always took the direct path). Trust the marker only if the indices actually fit the
+    // palette, and fall back to the direct path when they do not.
     const int stored = e[0x4b];
-    const bool converted = (fmt == 5 || fmt == 7) && stored == 8;
+    bool converted = (fmt == 5 || fmt == 7) && stored == 8;
+    // sys gpu3d_conv 0 forces the pre-021736b52cc behaviour (always the direct colour-word path)
+    // so the converted-palette handling can be A/B'd against it.
+    { static int convKnob = 1; if ((g.frame & 63) == 0) convKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_conv", 1);
+      if (!convKnob) converted = false; }
+    int convPal = converted ? *reinterpret_cast<const uint16_t*>(e + 0x48) : 0;
     const bool direct = (fmt == 5 || fmt == 7) && !converted;
-    const int convPal = converted ? *reinterpret_cast<const uint16_t*>(e + 0x48) : 0;
-    if (!dataPtr || (!palPtr && !direct) || (converted && (convPal < 1 || convPal > 256))) return nullptr;
+    // An entry can look unusable for a frame or two after a save-state restore, while drastic is
+    // rebuilding its texture cache: the format byte already says "converted" but the palette
+    // count is not filled in yet. Returning nullptr here draws the polygon UNTEXTURED, i.e. a
+    // black silhouette (reported 2026-09-22: Mario turns black for about a second after loading
+    // a state). Keep serving the previous upload for that entry instead, which is at worst one
+    // stale frame, and only give up when we have never had one.
+    if (!dataPtr || (!palPtr && !direct) || (converted && (convPal < 1 || convPal > 256))) {
+        auto it = g.texCache.find(entryPtr);
+        if (it != g.texCache.end() && it->second.layer >= 0) {
+            g.texHoldovers++;
+            it->second.stamp = g.frame;
+            return &it->second;
+        }
+        return nullptr;
+    }
     TexEntry& t = g.texCache[entryPtr];
     // layers are fixed size, so an entry that changes dimensions keeps its layers unless it
     // crosses between the small and big arrays
@@ -919,6 +986,9 @@ std::vector<uint32_t> gSeen;   // per poly index, stamped when appended
 
 struct PolyRef { uint32_t key; uint16_t pi; };
 std::vector<PolyRef> gRefs;
+// Set by emitPoly while the worker builds a frame: this frame has mode 2 polygons, so the toon
+// table has to be uploaded with it. Worker thread only, cleared before each build.
+bool gToonSeen = false;
 
 void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, bool wbuf, bool translucent, bool texEnabled,
               Stream& out, uint64_t& lastTex, uint32_t& lastTexp, TexEntry*& lastT) {
@@ -932,10 +1002,23 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     uint32_t order = shapeTbl[(ra >> 16) & 0x7f];
     int fmt = (texp >> 26) & 7;
     g.modeCount[(pattr >> 4) & 3]++; g.fmtCount[fmt]++; if ((pattr >> 15) & 1) g.fogPolys++;
+    if (((pattr >> 4) & 3) == 2) gToonSeen = true;   // toon / highlight: the job must carry the table
     // Shadow polygons (mode 3) are a two-pass stencil effect on the DS (id 0 polygons write the
     // mask, others draw only where the mask is set); drawn as plain polygons they cover the scene
     // in black (Mario Kart slot 0). Skipped until the stencil pass exists: shadows are missing,
     // the scene is right. sys gpu3d_shadow=1 draws them anyway.
+    // Debug visualisation: sys gpu3d_dbg_skipfmt is a bitmask of texture formats to drop
+    // (bit N = format N), and gpu3d_dbg_skipmode a bitmask of polygon modes. Lets a class of
+    // geometry be removed from the frame to see what it was drawing. 0 = draw everything.
+    {
+        static int skipFmt = 0, skipMode = 0; static uint32_t polls = 0;
+        if ((polls++ & 255) == 0) {
+            skipFmt = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_skipfmt", 0);
+            skipMode = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_skipmode", 0);
+        }
+        if (skipFmt & (1 << fmt)) return;
+        if (skipMode & (1 << (int)((pattr >> 4) & 3))) return;
+    }
     const bool shadowPoly = ((pattr >> 4) & 3) == 3;
     if (shadowPoly) {
         // Off by default: drastic's own rasterizer draws no shadow polygons (Mario Kart's karts
@@ -951,6 +1034,17 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         if (tex == lastTex && texp == lastTexp && lastGen == g.atlasGen) t = lastT;
         else { t = texFor(tex, texp); lastTex = tex; lastTexp = texp; lastT = t; lastGen = g.atlasGen; }
     } else t = nullptr;
+    // A textured polygon that ends up with no texture entry renders with vertex colour only,
+    // which is a black silhouette when the model's vertex colours are dark. Count it, and log a
+    // few, so "the model went black" can be told apart from a bad upload.
+    if (texEnabled && fmt != 0 && !t) {
+        g.texMisses++;
+        static int logged = 0;
+        if (gTexDbg && logged < 8) { logged++;
+            ALOGW("gpu3d: texdbg MISS fmt %d texp %08x tex %p pattr %08x vcol %.0f,%.0f,%.0f", fmt, texp, (void*)(uintptr_t)tex, pattr,
+                  (float)((*reinterpret_cast<const uint16_t*>(vb + (vbase + (order & 15)) * 16 + 10)) & 31), 0.f, 0.f);
+        }
+    }
     int32_t tex0[4] = { t ? t->layer : 0, t ? (t->big | (t->direct << 1)) : 0, t ? t->w : 0, t ? t->h : 0 };
     int32_t tex1[4] = { (int32_t)(fmt | (((texp >> 29) & 1) << 3) | (((texp >> 16) & 15) << 4) |
                                   ((((texp >> 20) & 7) + 3) << 8) | ((((texp >> 23) & 7) + 3) << 12) |
@@ -1030,7 +1124,11 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         if (dx < 0.f) { dx = (float)property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_x", 50); dy = (float)property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_y", 230); }
         static uint32_t dbgTexp = 0; static bool dbgTexpRead = false;
         if (!dbgTexpRead) { dbgTexpRead = true; char tb[PROPERTY_VALUE_MAX] = {}; property_get("sys.gammaos.drastic_nano.gpu3d_dbg_texp", tb, "0"); dbgTexp = (uint32_t)strtoul(tb, nullptr, 16); }
-        const bool hit = dbgTexp ? ((texp & 0x3ff0ffffu) == (dbgTexp & 0x3ff0ffffu)) : (minx <= dx && maxx >= dx && miny <= dy && maxy >= dy);
+        static int dbgSpan = -1;
+        if (dbgSpan < 0) dbgSpan = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_span", 0);
+        const bool small = dbgSpan <= 0 || ((maxx - minx) <= (float)dbgSpan && (maxy - miny) <= (float)dbgSpan);
+        const bool hit = dbgTexp ? ((texp & 0x3ff0ffffu) == (dbgTexp & 0x3ff0ffffu))
+                                 : (small && minx <= dx && maxx >= dx && miny <= dy && maxy >= dy);
         if (gDbgFrame && hits++ < 3) ALOGW("gpu3d: texdbg dump-frame poly texp %08x dbgTexp %08x hit %d", texp, dbgTexp, hit ? 1 : 0);
         if (hit && gDbgFrame && gDbgHits++ < 60) {
             char buf[640]; int o = 0;
@@ -1038,7 +1136,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
                 const uint8_t* vr = vb + (vbase + ((order >> (4 * k)) & 15)) * 16;
                 o += snprintf(buf + o, sizeof buf - o, " [%.0f,%.0f W%u s%.2f t%.2f c%.0f,%.0f,%.0f]", v[k].x, v[k].y, *reinterpret_cast<const uint32_t*>(vr), v[k].s, v[k].t, v[k].r, v[k].g, v[k].b);
             }
-            ALOGW("gpu3d: texdbg AT(%.0f,%.0f) poly n %d texp %08x pattr %08x fmt %d tex %dx%d entry %p transl %d:%s", dx, dy, n, texp, pattr, fmt, t ? t->w : 0, t ? t->h : 0, (void*)(uintptr_t)tex, translucent ? 1 : 0, buf);
+            ALOGW("gpu3d: texdbg AT(%.0f,%.0f) n %d texp %08x pattr %08x fmt %d mode %d alpha %d id %d tex %dx%d layer %d pal %d transl %d:%s", dx, dy, n, texp, pattr, fmt, (int)((pattr >> 4) & 3), (int)((pattr >> 16) & 31), (int)((pattr >> 24) & 63), t ? t->w : 0, t ? t->h : 0, t ? t->layer : -1, t ? t->palRow : -1, translucent ? 1 : 0, buf);
         }
         static int ok = 0;
         if (maxx - minx > 20.f && ok++ < 4) {
@@ -1245,6 +1343,14 @@ void renderJob(Job& j) {
           const GLint lo = glGetUniformLocation(pr, "uUvOff"); if (lo >= 0) glUniform1i(lo, uvoff);
           static int vsh = 2; if ((g.glFrames & 15) == 0) vsh = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
           const GLint lv = glGetUniformLocation(pr, "uVtxShift"); if (lv >= 0) glUniform2f(lv, vsh * 0.25f, vsh * 0.25f); }
+        // W buffered frames need a perspective correct depth, Z buffered frames must NOT write
+        // gl_FragDepth or they lose early depth rejection. drastic's own rasterizer makes exactly
+        // this distinction: its Z span is a linear fixed point DDA (lib+0x8c558) while its W span
+        // and W edge walk build a reciprocal and interpolate hyperbolically (lib+0x8c4e4 and
+        // lib+0x8d320), which works out to W_A*W_B / ((1-t)*W_B + t*W_A).
+        { static int dmKnob = -1; if ((g.glFrames & 15) == 0) dmKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
+          const int dm = dmKnob >= 0 ? dmKnob : j.wbufDepth;
+          const GLint ld = glGetUniformLocation(pr, "uDepthMode"); if (ld >= 0) glUniform1i(ld, dm); }
         const GLint lf = glGetUniformLocation(pr, "uFog");
         if (lf < 0) continue;
         glUniform1i(lf, j.fog);
@@ -1255,6 +1361,15 @@ void renderJob(Job& j) {
             glUniform4f(glGetUniformLocation(pr, "uFogColor"), (float)(j.fogColor & 255), (float)((j.fogColor >> 8) & 255), (float)((j.fogColor >> 16) & 255), (float)((j.fogColor >> 24) & 255));
             glUniform1iv(glGetUniformLocation(pr, "uFogTable"), 32, j.fogTable);
             glUniform1iv(glGetUniformLocation(pr, "uFogDelta"), 32, j.fogDelta);
+        }
+        if (j.toonUsed) {
+            const GLint lt = glGetUniformLocation(pr, "uToonR");
+            if (lt >= 0) {
+                glUniform1iv(lt, 32, j.toonR);
+                glUniform1iv(glGetUniformLocation(pr, "uToonG"), 32, j.toonG);
+                glUniform1iv(glGetUniformLocation(pr, "uToonB"), 32, j.toonB);
+                glUniform1i(glGetUniformLocation(pr, "uToonHighlight"), j.toonHighlight);
+            }
         }
     }
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1473,9 +1588,9 @@ void renderJob(Job& j) {
                   g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
                   g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames, chunks,
                   g.sumBuildUs / 1000.0 / g.frames, g.sumWaitUs / 1000.0 / g.frames, g.vertCount, g.texReuploads, g.maxUs / 1000.0, g.texCache.size());
-            ALOGI("gpu3d: census polys by mode modulate %u decal %u toon %u shadow %u, fog bit %u; textures by fmt none %u a3i5 %u pal4 %u pal16 %u pal256 %u comp %u a5i3 %u direct %u",
-                  g.modeCount[0], g.modeCount[1], g.modeCount[2], g.modeCount[3], g.fogPolys, g.fmtCount[0], g.fmtCount[1], g.fmtCount[2], g.fmtCount[3], g.fmtCount[4], g.fmtCount[5], g.fmtCount[6], g.fmtCount[7]);
-            memset(g.modeCount, 0, sizeof g.modeCount); memset(g.fmtCount, 0, sizeof g.fmtCount); g.fogPolys = 0;
+            ALOGI("gpu3d: census polys by mode modulate %u decal %u toon %u shadow %u, fog bit %u, tex holdovers %u, tex misses %u, stale-converted %u; textures by fmt none %u a3i5 %u pal4 %u pal16 %u pal256 %u comp %u a5i3 %u direct %u",
+                  g.modeCount[0], g.modeCount[1], g.modeCount[2], g.modeCount[3], g.fogPolys, g.texHoldovers, g.texMisses, g.texUnconverted, g.fmtCount[0], g.fmtCount[1], g.fmtCount[2], g.fmtCount[3], g.fmtCount[4], g.fmtCount[5], g.fmtCount[6], g.fmtCount[7]);
+            memset(g.modeCount, 0, sizeof g.modeCount); memset(g.fmtCount, 0, sizeof g.fmtCount); g.fogPolys = 0; g.texHoldovers = 0; g.texMisses = 0; g.texUnconverted = 0;
             g.sumUs = 0; g.maxUs = 0; g.frames = 0; g.sumTexUs = g.sumUploadUs = g.sumDrawUs = g.sumReadUs = g.sumScatterUs = g.sumBuildUs = g.sumWaitUs = 0; g.texReuploads = 0;
         }
         return;
@@ -1569,9 +1684,9 @@ void renderJob(Job& j) {
               g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
               g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames,
               g.sumBuildUs / 1000.0 / g.frames, g.sumWaitUs / 1000.0 / g.frames, g.vertCount, g.texReuploads, g.maxUs / 1000.0, g.texCache.size());
-        ALOGI("gpu3d: census polys by mode modulate %u decal %u toon %u shadow %u, fog bit %u; textures by fmt none %u a3i5 %u pal4 %u pal16 %u pal256 %u comp %u a5i3 %u direct %u",
-              g.modeCount[0], g.modeCount[1], g.modeCount[2], g.modeCount[3], g.fogPolys, g.fmtCount[0], g.fmtCount[1], g.fmtCount[2], g.fmtCount[3], g.fmtCount[4], g.fmtCount[5], g.fmtCount[6], g.fmtCount[7]);
-        memset(g.modeCount, 0, sizeof g.modeCount); memset(g.fmtCount, 0, sizeof g.fmtCount); g.fogPolys = 0;
+        ALOGI("gpu3d: census polys by mode modulate %u decal %u toon %u shadow %u, fog bit %u, tex holdovers %u, tex misses %u, stale-converted %u; textures by fmt none %u a3i5 %u pal4 %u pal16 %u pal256 %u comp %u a5i3 %u direct %u",
+              g.modeCount[0], g.modeCount[1], g.modeCount[2], g.modeCount[3], g.fogPolys, g.texHoldovers, g.texMisses, g.texUnconverted, g.fmtCount[0], g.fmtCount[1], g.fmtCount[2], g.fmtCount[3], g.fmtCount[4], g.fmtCount[5], g.fmtCount[6], g.fmtCount[7]);
+        memset(g.modeCount, 0, sizeof g.modeCount); memset(g.fmtCount, 0, sizeof g.fmtCount); g.fogPolys = 0; g.texHoldovers = 0; g.texMisses = 0; g.texUnconverted = 0;
         g.sumUs = 0; g.maxUs = 0; g.frames = 0; g.sumTexUs = g.sumUploadUs = g.sumDrawUs = g.sumReadUs = g.sumScatterUs = g.sumBuildUs = g.sumWaitUs = 0; g.texReuploads = 0;
     }
 }
@@ -1588,6 +1703,20 @@ void glThreadMain() {
         ALOGI("gpu3d: GL thread scheduling %s %d (rc %d)", prio > 0 ? "FIFO" : "OTHER", prio, rc);
     }
     initGl();
+    // Publish the outcome. A failed GL init (a shader that does not compile, a missing
+    // extension) makes every gpu3dFrame fall straight through to the CPU rasterizer for the
+    // rest of the session, which looks exactly like a working GPU path from the outside: the
+    // game runs, 4x and the presentation shaders still work, and nothing says the 3D rasterizer
+    // is gone. A toon shader that referenced undeclared uniforms hid behind that for two days of
+    // measurements. Say so once, loudly, and leave a property the test harness can read.
+    if (g.failed || !g.inited) {
+        ALOGE("gpu3d: GL init FAILED, the DS 3D rasterizer is running on the CPU for this whole "
+              "session (the GPU setting is on but has no effect)");
+    } else {
+        ALOGI("gpu3d: GL init ok, the DS 3D rasterizer is running on the GPU");
+    }
+    property_set("sys.gammaos.drastic_nano.gpu3d_active", g.failed || !g.inited ? "0" : "1");
+    g.initSettled.store(true, std::memory_order_release);
     std::unique_lock<std::mutex> lk(g.mtx);
     g.cvDone.notify_all();   // init outcome visible
     while (!g.quit) {
@@ -1741,7 +1870,14 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     }
     // Do not block the 3D worker while the GL thread initialises and warms up (~300 ms): the
     // CPU rasterizer keeps running until the GPU path is ready.
-    if (!g.inited) return false;
+    if (!g.inited) {
+        if (g.failed && g.initSettled.load(std::memory_order_acquire)) {
+            static uint32_t nf = 0;
+            if ((nf++ % 3600) == 0)
+                ALOGE("gpu3d: still on the CPU rasterizer, GL init failed (see the earlier error)");
+        }
+        return false;
+    }
     if ((g.frame & 63) == 0 || g.frame < 3) {
         // From the settings, not from the GL thread's g.ss (unset on the first frames: the
         // budget guard then ran with the 6 ms progressive budget and tripped on the first
@@ -1780,8 +1916,15 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         } else if (g.emaUs <= budgetMs * 1000.f) g.overBudget = 0;
     }
     if ((g.frame & 15) == 0) { gTexDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_texdump", 0); gPersp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_persp", 1); }
-    gDbgFrame = gDbgArm.exchange(0, std::memory_order_relaxed); gDbgHits = 0;
+    // Debug-log one frame a second while tracing is on, as well as the frame a dump arms, so the
+    // polygon inspector works without having to land a frame-counted dump first.
+    gDbgFrame = gDbgArm.exchange(0, std::memory_order_relaxed) || (gTexDbg && (g.frame % 60) == 0);
+    gDbgHits = 0;
     if (gDbgFrame) ALOGW("gpu3d: texdbg dump frame %u (texdbg %d)", g.frame, gTexDbg);
+    if (g.pendingTexReset.exchange(false, std::memory_order_acq_rel)) {
+        ALOGI("gpu3d: state restore, dropping %zu cached textures", g.texCache.size());
+        resetAtlas();
+    }
     uint8_t* S = R + 0x3606e8;
     uint8_t* gSide = *reinterpret_cast<uint8_t**>(S);
     uint8_t* regs = R + 0x34eb40;
@@ -1958,6 +2101,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
               (disp3d >> 6) & 1, (disp3d >> 7) & 1, (disp3d >> 8) & 15, (disp3d >> 14) & 1,
               *reinterpret_cast<uint32_t*>(regs + 4), *reinterpret_cast<uint32_t*>(regs + 8), *reinterpret_cast<uint32_t*>(regs + 12));
     }
+    job.wbufDepth = wbuf ? 1 : 0;
     job.clearId = *reinterpret_cast<uint32_t*>(regs + 12) >> 24;   // clear depth word carries the clear polygon id in bits 24-29
     // Fog: drastic's band post pass (+0x5829c) reads the density table at gx+0x9974, the colour word
     // at gx+0x9a9c (r, g, b 6-bit, a 5-bit bytes), the offset halfword at gx+0x9aaa and the shift
@@ -1973,14 +2117,29 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         static int fogLogs = 0;
         if (fogLogs < 3) { fogLogs++; ALOGI("gpu3d: fog on: mode %d shift %d offset(+step) %d colour %08x table %d..%d", job.fog, job.fogShift, job.fogOffset, job.fogColor, job.fogTable[0], job.fogTable[31]); }
     }
+    // Toon / highlight table: 32 BGR555 halfwords at gx+0x9934, immediately before the fog table
+    // (getter lib+0x68bf0, 64 byte clear lib+0x69e44). Expanded to 6 bit the same way vertex
+    // colours are, so the shader can use it without a second scale.
+    {
+        const uint16_t* tt = reinterpret_cast<const uint16_t*>(gx + 0x9934);
+        for (int i = 0; i < 32; i++) {
+            const int c5r = tt[i] & 31, c5g = (tt[i] >> 5) & 31, c5b = (tt[i] >> 10) & 31;
+            job.toonR[i] = (c5r << 1) | (c5r >> 4);
+            job.toonG[i] = (c5g << 1) | (c5g >> 4);
+            job.toonB[i] = (c5b << 1) | (c5b >> 4);
+        }
+        job.toonHighlight = (disp3d >> 1) & 1;
+    }
     memcpy(job.edgeTbl, gx + 0x99b4, sizeof job.edgeTbl);   // edge colour table, u32 r6 g6 b6 (+0x5c9d4 reads gx+0x99b4)
     if (g.frame < 3) ALOGI("gpu3d: edge %d clearId %x table %08x %08x %08x %08x %08x %08x %08x %08x", job.edge, job.clearId,
                            job.edgeTbl[0], job.edgeTbl[1], job.edgeTbl[2], job.edgeTbl[3], job.edgeTbl[4], job.edgeTbl[5], job.edgeTbl[6], job.edgeTbl[7]);
     gStage = 7;
     g.texUsFrame = 0;
     const int64_t tb0 = nowUs();
+    gToonSeen = false;
     buildList(R + 0x2856c0, pbo, vb, shapeTbl, wbuf, false, texEnabled, job.opaque);
     buildList(R + 0x2916f0, pbt, vb, shapeTbl, wbuf, true, texEnabled, job.transl);
+    job.toonUsed = gToonSeen;   // upload the table only for frames that actually shade with it
     g.sumBuildUs += nowUs() - tb0;
     g.cur = nullptr;
     gStage = 8;
@@ -2041,6 +2200,19 @@ extern "C" void gpu3dJoinForDump() {
     if (!g.threadStarted) return;
     std::unique_lock<std::mutex> lk(g.mtx);
     while (g.qCount > 0) g.cvDone.wait(lk);
+}
+// A save-state restore replaces drastic's whole texture/palette memory. Our cache keys on the
+// cache-entry pointer plus a content hash, so an entry that lands at the same address with the
+// same hash would keep a pre-restore upload. Drop everything and re-upload on the next frame.
+extern "C" void gpu3dResetTextures() {
+    if (!g.threadStarted) return;
+    // OFF by default (sys gpu3d_texreset 1 enables it). This was added on the theory that a
+    // restore could leave a stale upload behind, but the cache already keys on the entry's
+    // content hash, so changed texture memory re-uploads on its own. Measured: with it off,
+    // every frame after a restore is pixel identical to the CPU rasterizer, so it buys nothing
+    // and costs a full re-upload of every texture after every state load.
+    if (!property_get_int32("sys.gammaos.drastic_nano.gpu3d_texreset", 0)) return;
+    g.pendingTexReset.store(true, std::memory_order_release);
 }
 extern "C" void gpu3dOff() {
     if (!g.threadStarted) return;

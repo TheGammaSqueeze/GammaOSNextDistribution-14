@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <sys/mman.h>
 extern "C" void drasticLockLibrary(const char* nameSubstr);   // DrasticGpu3d.cpp: mlock2(ONFAULT) a library's file-backed segments
+extern "C" void gpu3dResetTextures();                          // DrasticGpu3d.cpp: drop the texture cache after a state restore
 #include <sys/uio.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
@@ -6991,6 +6992,7 @@ bool DrasticRunner::loadStateSlot(int slot, bool preFilled) {
     const int64_t t0 = std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
     int rc = mLoadState(mFakeEnv, mFakeCls, slot);
+    gpu3dResetTextures();   // drastic's texture and palette memory is replaced by the restore
     ALOGI("DrasticRunner::loadStateSlot(%d) = %d", slot, rc);
     runAheadReset();   // the ring belongs to the old timeline
     // Completion: the emulator thread clears the request byte at

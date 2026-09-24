@@ -173,6 +173,9 @@ bool NanoMenu::drasticParkSession() {
     // init predates that rule (an older image with a newer nano), the value
     // stays at 2: fall back to the classic trigger, which stops this process
     // and starts the game exactly as before.
+    // A relaunch ("Restart Game", a hardcore toggle, a restart-required setting) brings us
+    // back here instead of waking the menu, so the session loop below can run more than once.
+  for (;;) {
     property_set("sys.gammaos.drastic_nano.start", "2");
     if (!waitPropEquals("sys.gammaos.drastic_nano.start", "0", 3000)) {
         ALOGW("NanoMenu: init has no start=2 rule; falling back to the cold hand-off");
@@ -214,6 +217,21 @@ bool NanoMenu::drasticParkSession() {
         const int64_t t0 = uptimeMillis();
         while (processAlive("drastic-nano") && uptimeMillis() - t0 < 15000) usleep(20000);
     }
+
+    // "Restart Game", a hardcore toggle and the restart-required settings rows all exit
+    // drastic-nano with auto_relaunch=1 and expect the ROM to come straight back.
+    // gammaos-nano's main() honours that, but a PARKED home never re-enters main(), so the
+    // request was dropped and the user was returned to the menu instead (reported 2026-09-22:
+    // "Restart option in the drastic menu just kicks me back to nano menu"). Handle it here:
+    // stay parked and fire the launch again, with no menu frame in between.
+    if (property_get_bool("persist.gammaos.nano.drastic_nano", false) &&
+        property_get_bool("sys.gammaos.drastic_nano.auto_relaunch", false)) {
+        property_set("sys.gammaos.drastic_nano.auto_relaunch", "0");
+        ALOGI("NanoMenu: drastic-nano relaunch requested while parked; re-firing the launch");
+        continue;
+    }
+    break;
+  }
     const int64_t tWake = uptimeMillis();
 
     // SurfaceFlinger's composition gate: drastic-nano set drm_active=1 for its
