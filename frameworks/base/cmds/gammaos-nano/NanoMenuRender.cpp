@@ -853,7 +853,7 @@ void NanoMenu::ndsCommitSelect(int slot) {
 bool NanoMenu::ndsInModal() const {
     return mPs3OptActive || mPs3DlgActive || mOskActive || mVidActive || mMpActive || mPvActive
         || mGSearchActive || mPs3WizActive || mPs3TzActive || mPs3LangActive || mPs3BrightSlider
-        || mPhotoMultiActive || mScrapeProgActive || mPvPlChooserActive || mVidPlChooserActive
+        || mPhotoMultiActive || mScrapeProgActive || mMtpActive || mPvPlChooserActive || mVidPlChooserActive
         || mMpPlChooserActive || mEsdeMenuActive || mEsdeMenuClosing
         || ps3TopScreenKind() == PHOTO_GRID;
 }
@@ -6252,6 +6252,7 @@ void NanoMenu::render() {
         else if (mGpCaptureActive) renderGamepadCapture();
         else if (mCpActive) renderColorPicker();
         renderScrapeProgress();   // boxart-scraper progress / result modal, over the XMB
+        renderMtpScreen();        // MTP active screen, every theme, over everything but the OSK
         // Dual-screen: the home OSK (search / Wi-Fi password / System Name) draws on the BOTTOM touch
         // panel via the secondary pass (oskOnSecondary hoisted above the setup-wizard branch); a
         // single-panel device draws it here on the only panel.

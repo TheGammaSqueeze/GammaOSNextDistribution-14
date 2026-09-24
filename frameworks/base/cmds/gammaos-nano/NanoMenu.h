@@ -3358,6 +3358,24 @@ private:
     void scraperDrainResults();            // render thread: merge finished art + progress
     void scraperCancel();
     void renderScrapeProgress();           // the progress / result modal
+    // MTP active screen (NanoMenuMtp.cpp): modal until Back stops the transfer.
+    void openMtpScreen();
+    void closeMtpScreen();
+    void mtpTick();
+    void renderMtpScreen();
+    void mtpRejigAsync(const char* reason);
+    bool mMtpActive = false;               // modal shown; blocks every exit but Back
+    std::atomic<bool> mMtpRejigging{false};   // gadget rejig worker running
+    bool mMtpUsbConnected = false;         // cable present (power_supply usb online)
+    bool mMtpFailed = false;               // last rejig gave up (under mMtpMutex)
+    int  mMtpPollFrames = 0;
+    int  mMtpGen = 0;                      // bumps on close so a stale worker stops
+    int  mMtpMediaPid = 0;                 // pinned MediaProvider module pid (0 = none)
+    int64_t mMtpLastRejigMs = 0;
+    int64_t mMtpLastPollMs = 0, mMtpLastWatchMs = 0;   // wall-clock pacing of mtpTick
+    int  mMtpMissCount = 0;                // consecutive watchdog checks with no host process
+    std::mutex mMtpMutex;
+    std::string mMtpStatus;                // status line (under mMtpMutex)
     // scrape worker state
     std::mutex mScrapeMutex;
     bool mScrapeRunning = false;           // worker alive

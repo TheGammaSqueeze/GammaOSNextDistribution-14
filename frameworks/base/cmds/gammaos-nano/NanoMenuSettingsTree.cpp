@@ -1113,13 +1113,9 @@ void NanoMenu::handleSettingsTreeSelect() {
             // gammaos-net (not `svc usb` directly): nano runs in init's bootstrap mount namespace
             // where /apex/com.android.art is absent, so app_process - which `svc` launches - cannot
             // start and the switch silently no-ops. gammaos-net.sh nsenters into the full namespace.
-            (void)system("gammaos-net usb mtp 2>/dev/null");
-            // Say so on screen. The switch itself is silent (the gadget re-enumerates and the
-            // desktop side reacts, nothing on the device does), so without this the row looks
-            // like it did nothing. The centred launch-toast panel is drawn by the main render
-            // path for every theme, so the same notification appears on all of them.
-            showXmbMessage(trDyn("USB: File Transfer (MTP)"),
-                           trDyn("Connect to a computer to transfer files"), 240);
+            // The MTP screen does the switch itself (a none -> mtp rejig, which is what actually
+            // starts MtpService), keeps it alive, and holds the display until Back stops it.
+            openMtpScreen();
         } else if (node.id == "usb_charge") {
             (void)system("gammaos-net usb none 2>/dev/null");   // back to charge-only
             showXmbMessage(trDyn("USB: Charge Only"),

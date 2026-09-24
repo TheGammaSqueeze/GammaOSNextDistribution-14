@@ -6102,6 +6102,14 @@ void NanoMenu::ps3XmbSelect() {
                     // exactly like the wifi/bt controls. Run detached so the round-trip never stalls
                     // the render thread. ADB, when enabled, is re-added by the USB stack.
                     std::string fn = it.payloadStr;
+                    if (fn == "mtp") {
+                        // MTP gets its own screen: it performs the switch as a none -> mtp rejig
+                        // (the plain switch links the function but does not start MtpService),
+                        // keeps the service alive, and holds the display until Back stops it.
+                        if (!mPs3Stack.empty()) { buildUsbSubmenu(mPs3Stack.back(), 1); mPs3Stack.back().sel = 1; }
+                        openMtpScreen();
+                        mDisplayDirty = true; return;
+                    }
                     std::string cmd = "gammaos-net usb " + (fn.empty() ? std::string("none") : fn)
                                     + " 2>/dev/null";
                     std::thread([cmd]{ system(cmd.c_str()); }).detach();

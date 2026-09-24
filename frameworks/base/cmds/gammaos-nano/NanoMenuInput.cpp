@@ -281,6 +281,8 @@ void NanoMenu::handleBack() {
     // before the system was ready. Without this, mLaunchPending
     // would still re-fire handleSelect() once isLaunchReady() flips.
     cancelPendingLaunch();
+    // MTP screen: Back is the one way out, and it stops the transfer.
+    if (mMtpActive) { closeMtpScreen(); return; }
     // Boxart scraper modal: O cancels an in-flight scrape, or closes the summary.
     if (mScrapeProgActive) {
         if (mScrapeRunning) scraperCancel();
@@ -350,6 +352,7 @@ void NanoMenu::handleBack() {
 void NanoMenu::handleSelect() {
     // Clock is up: block XMB/menu selection (launch/open) behind it - the clock owns the screen.
     if (mPspClockOn || mPspClockReveal > 0.0f) return;
+    if (mMtpActive) return;   // MTP screen: nothing to select
     // Boxart scraper modal: X closes the summary once the scrape has finished.
     if (mScrapeProgActive) {
         if (!mScrapeRunning) { mScrapeProgActive = false; mDisplayDirty = true; }
@@ -535,7 +538,7 @@ void NanoMenu::handleSelect() {
 }
 
 void NanoMenu::handleUp() {
-    if (mScrapeProgActive) return;   // modal swallows navigation
+    if (mScrapeProgActive || mMtpActive) return;   // modal swallows navigation
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
     if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD && !mPs3WizActive) {
@@ -599,7 +602,7 @@ void NanoMenu::handleUp() {
 }
 
 void NanoMenu::handleDown() {
-    if (mScrapeProgActive) return;   // modal swallows navigation
+    if (mScrapeProgActive || mMtpActive) return;   // modal swallows navigation
     // GammaOS Nano: navigating cancels any queued launch.
     cancelPendingLaunch();
     if (mSetupWizardActive && mMenuState == MENU_SETUP_WIZARD && !mPs3WizActive) {
@@ -1983,6 +1986,10 @@ void NanoMenu::pollInput() {
                     mLaunchFadeStart = uptimeMillis();
             }
             else if (!strcmp(navbuf, "back"))  handleBack();
+            // Open the MTP active screen directly (test hook: it is the same call the USB rows make).
+            else if (!strcmp(navbuf, "mtp"))   openMtpScreen();
+            // Quick Menu > System Settings, the same call its row makes (test hook for the hand-off path).
+            else if (!strcmp(navbuf, "settings")) launchAndroidSettings();
             // OSK scripting for 1:1 verification: `type:<text>` inserts each ASCII
             // character at the caret, `submit` commits the on-screen keyboard.
             else if (!strncmp(navbuf, "type:", 5)) {
@@ -2775,6 +2782,12 @@ void NanoMenu::pollInput() {
                     // hold-to-repeat tick can drive continuous scrolling while
                     // the key stays down; the release is handled separately
                     // (ev.value == 0 branch below).
+                    // MTP screen: only Back / B leaves it (and stops MTP); every other button is
+                    // swallowed so the user cannot navigate away with the transfer still up.
+                    if (mMtpActive) {
+                        if (ev.code == BTN_EAST || ev.code == KEY_BACK || ev.code == KEY_ESC) handleBack();
+                        continue;
+                    }
                     switch (ev.code) {
                     case KEY_UP:
                         navPress(NavDir::Up); break;
