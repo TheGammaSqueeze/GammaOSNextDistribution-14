@@ -113,7 +113,7 @@ static int gPersp = 1;    // sys gpu3d_persp: perspective-correct interpolation 
 static int gTexDbg = 0;   // sys gpu3d_texdump: log converted entries, their GL readback and the polygons using them
 // One translucent polygon in DS list (submission) order: which group it went to, where its
 // vertices start inside that group's array, how many, and its polygon id.
-struct OrdPoly { uint32_t start; uint16_t n; uint16_t pi; uint8_t grp, id, pa; };   // pi = polygon bank index = DS submission order; pa = polygon alpha
+struct OrdPoly { uint32_t start; uint16_t n; uint16_t pi; uint8_t grp, id, pa; int16_t bx0, by0, bx1, by1; };   // b* = screen bounding box in target pixels (inclusive), for order-safe batching   // pi = polygon bank index = DS submission order; pa = polygon alpha
 struct Stream { std::vector<Vtx> v[8]; std::vector<uint16_t> polyLen[8]; std::vector<uint8_t> polyId[8]; std::vector<OrdPoly> ord; };   // [deq | dwrite<<1 | nodiscard<<2]; polyLen = vertices per polygon, polyId = its 6-bit DS polygon id, list order; ord = translucent polys in list order
 // Shadow polygons (mode 3), in list order: id 0 = mask (stencil where the depth test fails),
 // others draw where the stencil is set. Consecutive polygons of one kind form a segment.
@@ -429,6 +429,8 @@ void main() {
     // the trees came out as blue quads at alpha 1, and the DS shows any non-zero 3D pixel when
     // 3D blending is off). The depth-write split (uPass) is also decided on the pre-fog alpha.
     float a0 = a;
+    if (uPass == 1 && a0 != 31.0) discard;
+    if (uPass == 2 && a0 == 31.0) discard;
 //DISCARD0//
     if (uFog != 0 && fogPoly != 0) {
         int dz = int(floor(gl_FragCoord.z * 16777215.0 + 0.5)) + uFogTune.x;
@@ -449,8 +451,6 @@ void main() {
 //DISCARD//
 )";
 const char* kFragDiscard = R"(
-    if (uPass == 1 && a0 != 31.0) discard;
-    if (uPass == 2 && a0 == 31.0) discard;
     if (uShadowPass == 1) {
         int did = int(texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r * 255.0 + 0.5) - 1;
         if (did == ((vTex1.x >> 16) & 63)) discard;
@@ -1287,7 +1287,12 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     for (int k = 1; k + 1 < n; k++) { dst.push_back(v[0]); dst.push_back(v[k]); dst.push_back(v[k + 1]); }
     out.polyLen[grpIdx].push_back((uint16_t)(3 * (n - 2)));
     out.polyId[grpIdx].push_back((uint8_t)((pattr >> 24) & 63));
-    if (translucent) out.ord.push_back({ vStart, (uint16_t)(3 * (n - 2)), 0, (uint8_t)grpIdx, (uint8_t)((pattr >> 24) & 63), (uint8_t)((pattr >> 16) & 31) });
+    if (translucent) {
+        float bx0 = v[0].x, by0 = v[0].y, bx1 = v[0].x, by1 = v[0].y;
+        for (int k = 1; k < n; k++) { bx0 = std::min(bx0, v[k].x); by0 = std::min(by0, v[k].y); bx1 = std::max(bx1, v[k].x); by1 = std::max(by1, v[k].y); }
+        out.ord.push_back({ vStart, (uint16_t)(3 * (n - 2)), 0, (uint8_t)grpIdx, (uint8_t)((pattr >> 24) & 63), (uint8_t)((pattr >> 16) & 31),
+                            (int16_t)floorf(bx0), (int16_t)floorf(by0), (int16_t)ceilf(bx1), (int16_t)ceilf(by1) });
+    }
     if (gTexDbg) {
         // Suspect polygons: a screen extent under 3 px with a texel extent above 8 (collapsed vertices)
         float minx = 1e9f, maxx = -1e9f, miny = 1e9f, maxy = -1e9f, mins = 1e9f, maxs = -1e9f;
@@ -1371,7 +1376,30 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
     // The bands hand polygons over in first-band-seen order; the DS blends each pixel's translucent
     // polygons in submission order, which is the polygon bank index. A global draw in ascending pi
     // reproduces that per pixel (a pixel only sees the polygons covering it).
-    if (translucent) std::stable_sort(out.ord.begin(), out.ord.end(), [](const OrdPoly& a, const OrdPoly& b) { return a.pi < b.pi; });
+    if (translucent) {
+        std::stable_sort(out.ord.begin(), out.ord.end(), [](const OrdPoly& a, const OrdPoly& b) { return a.pi < b.pi; });
+        // Re-pack each group's vertices (and its per-polygon length and id lists) into list order,
+        // so consecutive list entries of one group are contiguous in the buffer and the ordered
+        // draw can merge screen-disjoint runs into single draws (the runs broke on contiguity
+        // 167 times a frame on Pokemon White 2's town before this).
+        static std::vector<Vtx> tmpV; static std::vector<uint16_t> tmpL; static std::vector<uint8_t> tmpI; static std::vector<uint32_t> tmpIdx;
+        for (int grp = 0; grp < 8; grp++) {
+            std::vector<Vtx>& vv = out.v[grp];
+            if (vv.empty()) continue;
+            tmpV.clear(); tmpV.reserve(vv.size()); tmpL.clear(); tmpI.clear();
+            // Map from a polygon's vertex start to its index in polyLen/polyId (emission order).
+            tmpIdx.clear(); { uint32_t st = 0; for (size_t i = 0; i < out.polyLen[grp].size(); i++) { tmpIdx.push_back(st); st += out.polyLen[grp][i]; } }
+            for (OrdPoly& o : out.ord) {
+                if (o.grp != grp) continue;
+                const size_t pi = (size_t)(std::lower_bound(tmpIdx.begin(), tmpIdx.end(), o.start) - tmpIdx.begin());
+                const uint32_t ns = (uint32_t)tmpV.size();
+                tmpV.insert(tmpV.end(), vv.begin() + o.start, vv.begin() + o.start + o.n);
+                if (pi < out.polyLen[grp].size()) { tmpL.push_back(out.polyLen[grp][pi]); tmpI.push_back(out.polyId[grp][pi]); }
+                o.start = ns;
+            }
+            if (tmpV.size() == vv.size()) { vv.swap(tmpV); out.polyLen[grp].swap(tmpL); out.polyId[grp].swap(tmpI); }
+        }
+    }
     if (!translucent) {
         // Opaque polygons with the plain LESS test are order independent apart from exact depth
         // ties, so draw them nearest first: early depth rejection then skips the overdraw.
@@ -1393,6 +1421,8 @@ void useProgram(GLuint prog, bool blend) {
 // then drawn twice in list order, first unblended where the flag is clear (setting it), then blended
 // where it is set. Per polygon, so a polygon never blends over its own first pass. The fetch path
 // does the same arithmetic in the shader and needs none of this.
+static std::atomic<uint32_t> gDcLayerAdv{0}, gDcLayerRep{0};   // decoupled composites that read a new / the same 3D frame (emulator thread)
+static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0;   // per-300-frame draw census
 static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
 static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-polygon-id translucent rejection
 // Stencil code of a translucent writer's polygon id: id + 1 (63 shares 62's code, the six bits
@@ -1429,9 +1459,18 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<ui
         return;
     }
     glStencilMask(0xfe);   // write the drawn flag (0x80) and the id (0x7e); never the shadow bit (0x01)
-    for (size_t i = 0; i < lens.size(); i++) {
-        const uint16_t n = lens[i];
-        const GLint ref = (GLint)(0x80 | (translIdCode(i < ids.size() ? ids[i] : 0) << 1));
+    // Consecutive polygons with the same id code form one draw pair. Exact: pass 1 only touches
+    // undrawn pixels and pass 2 only pixels drawn by another id, and a same-id polygon's own
+    // pixels are skipped by both, so the pixel sets the two passes of a run act on are disjoint
+    // and their relative order across the run's polygons cannot change any pixel. On Pokemon
+    // White 2's town (about 2000 polygons) the per-polygon pairs cost 10 ms of CPU submission and
+    // pushed the 3D job past a frame (the 3D layer fell to 30 fps); meshes share ids, so runs are long.
+    for (size_t i = 0; i < lens.size();) {
+        const int code = translIdCode(i < ids.size() ? ids[i] : 0);
+        GLsizei n = lens[i]; size_t k = i + 1;
+        while (k < lens.size() && translIdCode(k < ids.size() ? ids[k] : 0) == code) { n += lens[k]; k++; }
+        i = k; gDcDsPairs++;
+        const GLint ref = (GLint)(0x80 | (code << 1));
         // pass 1: replace where nothing is drawn (drawn bit clear), writing drawn + this id
         glStencilFunc(GL_NOTEQUAL, ref, 0x80);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -1452,6 +1491,7 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<ui
 // contained: sets its stencil state and restores the plain drawn-flag state after, so plain draws
 // interleaved with it see the right stencil function.
 static void drawOnePolyDs(GLint off, GLsizei n, int id) {
+    gDcDsPairs++;
     if (!gTranslSameId) {
         glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDisable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
@@ -1468,6 +1508,33 @@ static void drawOnePolyDs(GLint off, GLsizei n, int id) {
     // Opaque and alpha 31 writes that follow set the drawn flag and clear the stored id.
     glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); glStencilMask(0xfe);
     g.curBlend = true;
+}
+// Convex screen-space overlap of two ordered polygons (their vertex rings recovered from the
+// fan triangles). Separating axis over both rings' edge normals; a shared edge or touching
+// corner separates (projections meet without overlapping), and GL's watertight rasterization
+// gives such neighbours no common sample, so their draw order cannot change any sample.
+static inline int ordRing(const std::vector<Vtx>& vv, const OrdPoly& p, float* px, float* py) {
+    const int m = p.n / 3 + 2; if (m < 3 || m > 12) return 0;
+    px[0] = vv[p.start].x; py[0] = vv[p.start].y; px[1] = vv[p.start + 1].x; py[1] = vv[p.start + 1].y;
+    for (int i = 0; i + 2 < m; i++) { px[i + 2] = vv[p.start + 3 * i + 2].x; py[i + 2] = vv[p.start + 3 * i + 2].y; }
+    return m;
+}
+static bool ordOverlap(const std::vector<Vtx>& vv, const OrdPoly& a, const OrdPoly& b) {
+    if (!(a.bx0 < b.bx1 && b.bx0 < a.bx1 && a.by0 < b.by1 && b.by0 < a.by1)) return false;   // boxes disjoint
+    float ax[12], ay[12], bx[12], by[12];
+    const int na = ordRing(vv, a, ax, ay), nb = ordRing(vv, b, bx, by);
+    if (!na || !nb) return true;   // unknown shape: treat as overlapping (no merge)
+    const float* xs[2] = { ax, bx }; const float* ys[2] = { ay, by }; const int ns[2] = { na, nb };
+    for (int r = 0; r < 2; r++) for (int e = 0; e < ns[r]; e++) {
+        const int e2 = (e + 1) % ns[r];
+        const float nx = ys[r][e2] - ys[r][e], ny = xs[r][e] - xs[r][e2];   // edge normal
+        if (nx == 0.f && ny == 0.f) continue;
+        float amin = 1e30f, amax = -1e30f, bmin = 1e30f, bmax = -1e30f;
+        for (int i = 0; i < na; i++) { const float d = ax[i] * nx + ay[i] * ny; amin = std::min(amin, d); amax = std::max(amax, d); }
+        for (int i = 0; i < nb; i++) { const float d = bx[i] * nx + by[i] * ny; bmin = std::min(bmin, d); bmax = std::max(bmax, d); }
+        if (amax <= bmin || bmax <= amin) return false;   // separated (touching counts as separated)
+    }
+    return true;
 }
 void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint mainProg, bool mainBlend) {
     // vertices of all eight groups were uploaded contiguously; draw each group with its state.
@@ -1490,21 +1557,47 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
     if (translucent && issue && gTranslListOrder && !st.ord.empty()) {
         size_t goff[8]; { size_t b = base; for (int i = 0; i < 8; i++) { goff[i] = b; b += st.v[i].size(); } }
         int curGrp = -1;
-        for (const OrdPoly& p : st.ord) {
+        gDcOrdPolys += (uint32_t)st.ord.size();
+        // Batching that keeps the list order exact: a run of consecutive entries with the same
+        // group, the same polygon id (one stencil reference per draw) and the same pre-pass class,
+        // contiguous in the group's vertices, whose screen boxes are pairwise disjoint. Disjoint
+        // boxes mean no pixel is touched by two polygons of the run, so however the GPU interleaves
+        // their fragments every pixel sees exactly the per-polygon sequence. Pokemon White 2's town
+        // has ~200 such polygons a frame (a5i3 fences, trees, faces), and drawn one by one (pre-pass
+        // plus the two-pass rule, 600 draws) the job took 32 ms and the 3D layer fell to 30 fps.
+        for (size_t oi = 0; oi < st.ord.size();) {
+            const OrdPoly& p = st.ord[oi]; gDcTranslDraws++;
             const int grp = p.grp;
             if (grp != curGrp) { curGrp = grp; useProgram(mainProg, mainBlend); glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS); }
             const bool dwrite = (grp >> 1) & 1;
+            const bool pre = !dwrite && (p.pa >= 31 || !gPrepassSkip);
             const GLint off = (GLint)(goff[grp] + p.start);
+            GLsizei n = p.n; size_t k = oi + 1; uint32_t next = p.start + p.n;
+            for (; k < st.ord.size(); k++) {
+                const OrdPoly& q = st.ord[k];
+                if (k - oi >= 256) break;
+                if (q.grp != p.grp) break;
+                if (q.start != next) break;
+                if (gDsBlend && q.id != p.id) break;
+                if (!dwrite && ((q.pa >= 31 || !gPrepassSkip) != pre)) break;
+                // Boxes are half open in pixels: [bx0, bx1) x [by0, by1) with bx1 = ceil(max x), so
+                // two polygons meeting on a pixel boundary share no pixel and count as disjoint.
+                bool disjoint = true;
+                for (size_t m = oi; m < k && disjoint; m++) if (ordOverlap(st.v[grp], q, st.ord[m])) disjoint = false;
+                if (!disjoint) break;
+                n += q.n; next += q.n;
+            }
+            oi = k;
             if (dwrite) {
                 glDepthMask(GL_TRUE); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
-                if (gDsBlend) drawOnePolyDs(off, p.n, p.id); else glDrawArrays(GL_TRIANGLES, off, p.n);
+                if (gDsBlend) drawOnePolyDs(off, n, p.id); else glDrawArrays(GL_TRIANGLES, off, n);
             } else {
                 // The depth-writing pass keeps only alpha 31 fragments: alpha = (texel alpha *
                 // (polygon alpha + 1)) >> 5 never reaches 31 when the polygon alpha is below 31,
                 // so for such a polygon the pass discards everything and is skipped.
-                if (p.pa >= 31 || !gPrepassSkip) { glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1); glDrawArrays(GL_TRIANGLES, off, p.n); } else gPrepassSkipped++;
+                if (pre) { gDcPrepass++; glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1); glDrawArrays(GL_TRIANGLES, off, n); } else gPrepassSkipped++;
                 glDepthMask(GL_FALSE); glUniform1i(g.uPass, 2);
-                if (gDsBlend) drawOnePolyDs(off, p.n, p.id); else glDrawArrays(GL_TRIANGLES, off, p.n);
+                if (gDsBlend) drawOnePolyDs(off, n, p.id); else glDrawArrays(GL_TRIANGLES, off, n);
                 glUniform1i(g.uPass, 0);
             }
         }
@@ -1514,7 +1607,7 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
     for (int grp = 0; grp < 8; grp++) {
         std::vector<Vtx>& vv = st.v[grp];
         if (vv.empty()) continue;
-        if (issue) {
+        if (issue) { if (translucent) gDcTranslDraws++; else gDcOpaqueDraws++; if (gDsBlend && (translucent || (((grp >> 1) & 1) && !((grp >> 2) & 1)))) gDcOpaqueDraws += (uint32_t)st.polyLen[grp].size();
             const bool noDiscard = (grp >> 2) & 1;
             useProgram(noDiscard ? g.progOpaque : mainProg, noDiscard ? false : mainBlend);
             glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS);
@@ -2094,6 +2187,9 @@ void renderJob(Job& j) {
     g.sumUs += dt; if (dt > g.maxUs) g.maxUs = dt; g.frames++;
     if (g.frames % 300 == 0) {
         if (g.gpuSamples) { ALOGI("gpu3d: GPU time elapsed (timer query) %.2f ms avg over %u frames (single-shot)", g.sumGpuNs / 1e6 / g.gpuSamples, g.gpuSamples); g.sumGpuNs = 0; g.gpuSamples = 0; }
+        ALOGI("gpu3d: draw census per frame: opaque groups+polys %.1f, transl ord polys %.1f, transl draws %.1f, prepasses %.1f, ds pairs %.1f", gDcOpaqueDraws / 300.0, gDcOrdPolys / 300.0, gDcTranslDraws / 300.0, gDcPrepass / 300.0, gDcDsPairs / 300.0);
+        { const uint32_t a = gDcLayerAdv.exchange(0), r = gDcLayerRep.exchange(0); if (a + r) ALOGI("gpu3d: 3D layer over %u composites: advanced %u, repeated %u (%.1f new 3D frames per 60 composites)", a + r, a, r, 60.0 * a / (a + r)); }
+        gDcOpaqueDraws = gDcOrdPolys = gDcTranslDraws = gDcPrepass = gDcDsPairs = 0;
         ALOGI("gpu3d: %u frames, GL thread %.2f ms (tex %.2f, upload+draw %.2f, gpu wait %.2f, readback %.2f, scatter %.2f), worker build %.2f ms, worker join wait %.2f ms, %zu verts, %u tex reuploads, max %.2f ms, %zu textures cached",
               g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
               g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames,
@@ -2537,6 +2633,11 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         // the target of the job still in the GL queue.
         uint8_t* latest = g.latest.load(std::memory_order_acquire);
         uint8_t* readBuf = latest ? latest : (prevDrawn ? prevDrawn : bufA);
+        {   // 3D layer rate census: did the frame the compositor reads advance since the last composite?
+            static uint8_t* sLastRead = nullptr;
+            if (readBuf == sLastRead) gDcLayerRep.fetch_add(1, std::memory_order_relaxed); else gDcLayerAdv.fetch_add(1, std::memory_order_relaxed);
+            sLastRead = readBuf;
+        }
         uint8_t* busy = nullptr;
         { std::lock_guard<std::mutex> lk(g.mtx); if (g.qCount > 0) busy = g.queue[g.qHead]->target; }
         uint8_t* cands[3] = { bufA, bufB, g.bufC };
