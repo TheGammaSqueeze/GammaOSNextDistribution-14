@@ -2808,9 +2808,22 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             if (sFpsWinMs == 0) sFpsWinMs = android::elapsedRealtime();
             sFpsFrames++;
             const int64_t fpsNowMs = android::elapsedRealtime();
+            // Frame pacing histogram (diagnostic, sys.gammaos.drastic_nano.pace_hist=1): count the
+            // loop intervals by bucket so one logcat line per second shows how consistent the
+            // presented cadence is, not only the average fps and the single worst frame.
+            // Buckets: <13 ms (double present), 13-20 (one vblank at 60 Hz), 20-29, 29-38
+            // (a dropped vblank), >38 ms. Sum of the absolute deviation from 16.67 ms too.
+            static int      sPaceOn = 0;
+            static uint32_t sPaceHist[5] = {};
+            static int64_t  sPaceDevUs = 0;
             if (sPrevFrameMs != 0) {
                 const int64_t d = fpsNowMs - sPrevFrameMs;
                 if (d > sMaxFrameMs) sMaxFrameMs = d;
+                if (sPaceOn) {
+                    sPaceHist[d < 13 ? 0 : d < 20 ? 1 : d < 29 ? 2 : d < 38 ? 3 : 4]++;
+                    const int64_t dev = d * 1000 - 16667;
+                    sPaceDevUs += dev < 0 ? -dev : dev;
+                }
             }
             sPrevFrameMs = fpsNowMs;
             if (fpsNowMs - sFpsWinMs >= 1000) {
@@ -2865,6 +2878,14 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                          (long long)(sStgRdMaxNs / 1000000LL),
                          (long long)(sStgPbMaxNs / 1000000LL), sEmuFps, dr->producerFrameCount());
                 metricsPublish(m, ml);
+                if (sPaceOn) {
+                    const uint32_t tot = sPaceHist[0]+sPaceHist[1]+sPaceHist[2]+sPaceHist[3]+sPaceHist[4];
+                    ALOGI("drastic-nano pace: n=%u lt13=%u v1=%u b20=%u v2=%u gt38=%u dev=%.2fms",
+                          tot, sPaceHist[0], sPaceHist[1], sPaceHist[2], sPaceHist[3], sPaceHist[4],
+                          tot ? (double)sPaceDevUs / 1000.0 / tot : 0.0);
+                    memset(sPaceHist, 0, sizeof(sPaceHist)); sPaceDevUs = 0;
+                }
+                sPaceOn = property_get_bool("sys.gammaos.drastic_nano.pace_hist", false) ? 1 : 0;
                 sFpsFrames = 0;
                 sFpsWinMs = fpsNowMs;
                 sMaxFrameMs = 0;
