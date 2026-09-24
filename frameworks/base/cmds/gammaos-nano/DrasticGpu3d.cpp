@@ -1395,6 +1395,12 @@ void useProgram(GLuint prog, bool blend) {
 // does the same arithmetic in the shader and needs none of this.
 static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
 static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-polygon-id translucent rejection
+// Stencil code of a translucent writer's polygon id: id + 1 (63 shares 62's code, the six bits
+// cannot hold 65 states), so that 0 means "last written by an opaque or alpha 31 fragment". The DS
+// rejects a translucent fragment only over a pixel a translucent polygon with the same id wrote;
+// with the raw id stored, translucent id 0 over opaque ground (Pokemon White 2's pond water) was
+// rejected as "same id" and the water never appeared.
+static inline int translIdCode(int id) { return id >= 62 ? 63 : id + 1; }
 static int gTranslListOrder = 1;   // sys gpu3d_transl_listorder: draw the translucent list in DS submission order (see drawStream)
 // The stencil holds the DS "drawn" flag in bit 0x80 and, when the same-id rule is on, the last
 // writer's 6-bit polygon id (shifted into bits 0x7E; bit 0x01 stays the shadow plane). The DS does
@@ -1425,7 +1431,7 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<ui
     glStencilMask(0xfe);   // write the drawn flag (0x80) and the id (0x7e); never the shadow bit (0x01)
     for (size_t i = 0; i < lens.size(); i++) {
         const uint16_t n = lens[i];
-        const GLint ref = (GLint)(0x80 | ((i < ids.size() ? ids[i] : 0) << 1));
+        const GLint ref = (GLint)(0x80 | (translIdCode(i < ids.size() ? ids[i] : 0) << 1));
         // pass 1: replace where nothing is drawn (drawn bit clear), writing drawn + this id
         glStencilFunc(GL_NOTEQUAL, ref, 0x80);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -1438,8 +1444,8 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<ui
         glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
         off += n;
     }
-    glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilMask(0x80);   // restore for subsequent non-translucent draws (drawn flag only)
+    glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilMask(0xfe);   // restore for subsequent non-translucent draws: drawn flag set, stored id cleared
     g.curBlend = true;   // left enabled; useProgram tracks it from here
 }
 // One translucent polygon under the DS blend rule (the per-polygon body of drawTranslDs), self
@@ -1452,14 +1458,15 @@ static void drawOnePolyDs(GLint off, GLsizei n, int id) {
         glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         glEnable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
     } else {
-        const GLint ref = (GLint)(0x80 | ((id & 63) << 1));
+        const GLint ref = (GLint)(0x80 | (translIdCode(id) << 1));
         glStencilMask(0xfe);
         glStencilFunc(GL_NOTEQUAL, ref, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDisable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
         glStencilFunc(GL_NOTEQUAL, ref, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glEnable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
     }
-    glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); glStencilMask(0x80);
+    // Opaque and alpha 31 writes that follow set the drawn flag and clear the stored id.
+    glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); glStencilMask(0xfe);
     g.curBlend = true;
 }
 void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint mainProg, bool mainBlend) {
@@ -1709,13 +1716,16 @@ void renderJob(Job& j) {
           const GLint lo = glGetUniformLocation(pr, "uUvOff"); if (lo >= 0) glUniform1i(lo, uvoff);
           static int vsh = 2; if ((g.glFrames & 15) == 0) vsh = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
           const GLint lv = glGetUniformLocation(pr, "uVtxShift"); if (lv >= 0) glUniform2f(lv, vsh * 0.25f, vsh * 0.25f); }
-        // W buffered frames need a perspective correct depth, Z buffered frames must NOT write
-        // gl_FragDepth or they lose early depth rejection. drastic's own rasterizer makes exactly
-        // this distinction: its Z span is a linear fixed point DDA (lib+0x8c558) while its W span
-        // and W edge walk build a reciprocal and interpolate hyperbolically (lib+0x8c4e4 and
-        // lib+0x8d320), which works out to W_A*W_B / ((1-t)*W_B + t*W_A).
+        // Depth is interpolated perspective correctly in both buffer modes. W buffered frames need
+        // it by definition; Z buffered frames turned out to need it too: with the vertex z (the
+        // 16-bit value drastic's edge setup shifts by 9, lib+0x555bc) interpolated linearly on
+        // screen, Pokemon White 2's town ground lost the depth test to a far reflection quad over
+        // the right half of the screen (40k of 197k pixels wrong against the CPU rasterizer);
+        // perspective correct interpolation brings it to the class of the other games. The cost
+        // is gl_FragDepth on Z buffered frames (no early depth rejection); sys gpu3d_depth_mode
+        // 0 restores the screen linear depth for A/B.
         { static int dmKnob = -1; if ((g.glFrames & 15) == 0) dmKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
-          const int dm = dmKnob >= 0 ? dmKnob : j.wbufDepth;
+          const int dm = dmKnob >= 0 ? dmKnob : 1; (void)j.wbufDepth;
           const GLint ld = glGetUniformLocation(pr, "uDepthMode"); if (ld >= 0) glUniform1i(ld, dm); }
         const GLint lf = glGetUniformLocation(pr, "uFog");
         if (lf < 0) continue;
@@ -1741,7 +1751,7 @@ void renderJob(Job& j) {
     if (gDsBlend) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
     else { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); }
     g.curProg = 0; g.curBlend = false; glDisable(GL_BLEND);
-    if (gDsBlend) { glEnable(GL_STENCIL_TEST); glStencilMask(0x80); glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    if (gDsBlend) { glEnable(GL_STENCIL_TEST); glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
     else glDisable(GL_STENCIL_TEST);
     useProgram(useProg, mainBlend);
     glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
@@ -1819,7 +1829,7 @@ void renderJob(Job& j) {
             prevMask = sg.mask; first = false;
         }
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_TRUE);
-        if (gDsBlend) { glStencilMask(0x80); glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+        if (gDsBlend) { glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
         else glDisable(GL_STENCIL_TEST);
         if (haveId) {
             glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, 0); glActiveTexture(GL_TEXTURE0);
