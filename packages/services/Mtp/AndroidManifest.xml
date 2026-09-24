@@ -15,7 +15,12 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
-    <application android:process="android.process.media"
+    <!-- Persistent so the low memory killer never reaps the MTP server mid session. On a 1 GB
+         device with ro.lmk.critical=200 the plain service tier (adj 500) is killed under moderate
+         pressure, and every kill drops the host PC's connection and restarts the server with a
+         growing backoff, which shows up as blank or intermittent MTP storage. -->
+    <application android:persistent="true"
+        android:process="android.process.media"
          android:label="@string/app_label"
          android:allowBackup="false"
          android:usesCleartextTraffic="true">
