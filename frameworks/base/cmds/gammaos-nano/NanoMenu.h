@@ -355,6 +355,7 @@ private:
     // takes the panel back on the same EGL context and resumes this menu state.
     bool drasticParkEnabled() const;
     bool drasticParkSession();
+    void drasticParkPageOutAll();   // park: every mapping to zram, file-backed included
     std::atomic<bool> mDrasticParked{false};
     // CPU clock/governor while the screen is off: drop to powersave on screen-off and
     // re-apply the user's persisted performance mode on wake (NanoMenu.cpp).

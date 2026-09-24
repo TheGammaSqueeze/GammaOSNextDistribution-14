@@ -19,6 +19,7 @@
 #include <sched.h>
 #include <condition_variable>
 #include <mutex>
+#include <atomic>
 #include <algorithm>
 #include <vector>
 #include <thread>
@@ -252,6 +253,13 @@ static bool sDrmDeferActive = false;
 static int64_t sDrmLastCommitUs = 0, sDrmPrevCommitUs = 0;
 static int64_t sDrmLastEnterUs = 0;   // when drmFlipRingSlot was entered for the last commit (render just submitted)
 static int sDrmGpuSlowFrames = 0, sDrmGpuFastFrames = 0;
+static int64_t sDrmDeferLastOffUs = 0; static int sDrmDeferFastNeed = 0;   // OFF backoff (see drmDeferDrainUpdate)
+// An OFF undone within a second counts against the session: the second one pins the deferral.
+static void drmDeferNoteUndoneOff(int64_t nowUs, int fastBase) {
+    if (sDrmDeferLastOffUs > 0 && nowUs - sDrmDeferLastOffUs < 1000000) {
+        sDrmDeferFastNeed = sDrmDeferFastNeed >= fastBase * 2 ? (1 << 30) : fastBase * 2;
+    } else sDrmDeferFastNeed = fastBase;
+}
 static bool drmDeferDrainOn() {
     static int sCount = 0;
     if ((sCount++ % 120) == 0)
@@ -276,7 +284,11 @@ static void drmDeferDrainUpdate(int64_t enterUs, int64_t doneUs) {
     // mode and costs a second at half rate each time.
     if (!sDrmPacerLocked) {
         sDrmGpuFastFrames = 0;
-        if (!sDrmDeferActive) { sDrmDeferActive = true; ALOGW("NanoMenu DRM AFBC: deferred drain ON (pacer bypassed)"); }
+        if (!sDrmDeferActive) {
+            sDrmDeferActive = true;
+            drmDeferNoteUndoneOff(systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL, property_get_int32("sys.gammaos.drastic_nano.defer_drain_fast_frames", 120));
+            ALOGW("NanoMenu DRM AFBC: deferred drain ON (pacer bypassed%s)", sDrmDeferFastNeed >= (1 << 30) ? ", pinned for the session" : "");
+        }
         return;
     }
     if (doneUs <= 0 || enterUs <= 0 || sDrmLastVblankUs <= 0) return;
@@ -289,11 +301,26 @@ static void drmDeferDrainUpdate(int64_t enterUs, int64_t doneUs) {
     if (slow) { sDrmGpuSlowFrames++; sDrmGpuFastFrames = 0; }
     else { sDrmGpuFastFrames++; sDrmGpuSlowFrames = 0; }
     const int64_t gpuLatUs = doneUs - enterUs;
+    // Switching the deferral off while the fence is only just fast enough costs a missed vblank
+    // and the deferral comes straight back (measured on Pokemon at 4x: OFF, a miss 17 ms later,
+    // ON again 150 ms later, every 2 to 7 s: the periodic 25 to 31 ms flips). An OFF that is
+    // undone within a second doubles the clean-frame requirement for the next attempt, up to a
+    // minute, so a scene that cannot hold the immediate drain stops paying for the retries.
+    // (backoff state at file scope: sDrmDeferLastOffUs / sDrmDeferFastNeed, shared with the bypass path)
+    const int fastBase = property_get_int32("sys.gammaos.drastic_nano.defer_drain_fast_frames", 120);
+    if (sDrmDeferFastNeed < fastBase) sDrmDeferFastNeed = fastBase;
     if (!sDrmDeferActive && sDrmGpuSlowFrames >= 2) {
         sDrmDeferActive = true;
-        ALOGW("NanoMenu DRM AFBC: deferred drain ON (GPU fence %lld us after commit)", (long long)gpuLatUs);
-    } else if (sDrmDeferActive && sDrmGpuFastFrames >= property_get_int32("sys.gammaos.drastic_nano.defer_drain_fast_frames", 120)) {
-        sDrmDeferActive = false;
+        // Measured with margins of 0.8 and 3 ms: every OFF was followed by a missed vblank within
+        // 100 ms (3 of 3, 1 of 1), so the switch itself costs the frame. Two undone OFFs in a
+        // session and the deferral stays on for good (a frame of latency instead of a lost frame
+        // every backoff cycle).
+        drmDeferNoteUndoneOff(doneUs, fastBase);
+
+        if (sDrmDeferFastNeed >= (1 << 30)) ALOGW("NanoMenu DRM AFBC: deferred drain ON for the session (GPU fence %lld us after commit)", (long long)gpuLatUs);
+        else ALOGW("NanoMenu DRM AFBC: deferred drain ON (GPU fence %lld us after commit, next OFF after %d clean frames)", (long long)gpuLatUs, sDrmDeferFastNeed);
+    } else if (sDrmDeferActive && sDrmGpuFastFrames >= sDrmDeferFastNeed) {
+        sDrmDeferActive = false; sDrmDeferLastOffUs = doneUs;
         ALOGW("NanoMenu DRM AFBC: deferred drain OFF (GPU fence %lld us after commit)", (long long)gpuLatUs);
     }
 }
@@ -927,8 +954,8 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
 
     glGenTextures(1, &target->glTexture);
     glBindTexture(GL_TEXTURE_2D, target->glTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     sGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)target->eglImage);
@@ -1831,13 +1858,18 @@ static int drmAtomicDualFlip(int fd, const uint32_t* fbs) {
 struct FlipJob {
     uint32_t objs[4]; uint32_t counts[4]; uint32_t props[64]; uint64_t vals[64];
     size_t no; uint64_t userData; int fenceFd;
+    bool objPrimary[4]; int objSlot[4];   // per object: primary display?, CRTC slot (split commits)
 };
+static bool sFlipSecSkipped = false; static int sFlipSecSlot = -1;   // flip thread -> main thread (under sFlipMu)
+static uint32_t sFlipSecSkips = 0; static bool sFlipSplitOff = false;
 static std::mutex sFlipMu;
 static std::condition_variable sFlipCv;
 static bool sFlipBusy = false, sFlipThreadStarted = false;
 static FlipJob sFlipJob;
 static int sFlipResult = 0, sFlipErrno = 0;
 static int sFlipGuardHolds = 0;
+static int sPresLogCount = 0, sPairLogCount = 0;   // flip_pair_log caps, re-armed when the prop toggles
+static std::atomic<bool> sPairLogOnFlipThread{false};
 int drmFlipGuardHolds() { return sFlipGuardHolds; }
 static void drmFlipThreadMain() {
     sched_param sp = {}; sp.sched_priority = 80;
@@ -1857,9 +1889,12 @@ static void drmFlipThreadMain() {
         // the other, and a vblank falling between them latches the panels one
         // frame apart. If the edge is within flip_guard_us, wait until just
         // past it (the frame lands on the following vblank either way).
+        int64_t fenceWaitUs = 0;
         if (job.fenceFd >= 0) {
+            const int64_t tf0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
             struct pollfd pfd = { job.fenceFd, POLLIN, 0 };
             for (int t = 0; t < 100; t++) { if (poll(&pfd, 1, 20) > 0) break; }
+            fenceWaitUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL - tf0;
         }
         {
             const int64_t guardUs = property_get_int32("sys.gammaos.drastic_nano.flip_guard_us", 1000);
@@ -1875,19 +1910,74 @@ static void drmFlipThreadMain() {
                 }
             }
         }
-        struct drm_mode_atomic atomic = {};
-        atomic.flags = DRM_MODE_PAGE_FLIP_EVENT;   // blocking: returns once the flip has landed
-        atomic.count_objs = (uint32_t)job.no;
-        atomic.objs_ptr = (uint64_t)(uintptr_t)job.objs;
-        atomic.count_props_ptr = (uint64_t)(uintptr_t)job.counts;
-        atomic.props_ptr = (uint64_t)(uintptr_t)job.props;
-        atomic.prop_values_ptr = (uint64_t)(uintptr_t)job.vals;
-        atomic.user_data = job.userData;
-        errno = 0;
-        const int ret = ioctl(sDrmFd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+        // Pair diagnostic: the moment the ioctl is issued (after the fence poll and the guard).
+        {
+            static int sAtomLog = 0; static bool sAtomWasOn = false;
+            const bool on = sPairLogOnFlipThread.load(std::memory_order_relaxed);
+            if (on && !sAtomWasOn) sAtomLog = 0;   // re-armed with the prop, like the other two counters
+            sAtomWasOn = on;
+            if (on && sAtomLog < 600) { sAtomLog++; ALOGW("ATOMT ud=%llu t=%lld fence=%lld", (unsigned long long)job.userData, (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL), (long long)fenceWaitUs); }
+        }
+        // Split commit (sys flip_split, default off, no measured gain yet): the secondary CRTC gets its own nonblocking
+        // commit first, the primary its blocking one. A commit that reaches the kernel within
+        // about 2.3 ms of the vblank latches the primary on that edge but the secondary one
+        // vblank later (the VOP flushes the CRTCs one after the other); with one combined
+        // blocking commit the return then came a frame late and the next flip missed too
+        // (measured: 25 to 31 ms flip spans every few seconds, 0.2 to 1.5% of commits). With
+        // the split the primary never waits for the secondary; a secondary still pending at
+        // the next frame is skipped for that frame (bottom screen one frame stale).
+        static int splitKnob = -1; static uint32_t knobPolls = 0;
+        if ((knobPolls++ & 63) == 0 || splitKnob < 0) splitKnob = property_get_int32("sys.gammaos.drastic_nano.flip_split", 0);
+        bool secSkipped = false; int ret = 0; int err = 0;
+        int secIdx = -1, primIdx = -1;
+        if (job.no == 2) { for (int i = 0; i < 2; i++) { if (job.objPrimary[i]) primIdx = i; else secIdx = i; } }
+        if (splitKnob > 0 && !sFlipSplitOff && secIdx >= 0 && primIdx >= 0) {
+            const uint32_t off[2] = { 0, job.counts[0] };
+            struct drm_mode_atomic a1 = {};
+            a1.flags = DRM_MODE_PAGE_FLIP_EVENT | DRM_MODE_ATOMIC_NONBLOCK;
+            a1.count_objs = 1;
+            a1.objs_ptr = (uint64_t)(uintptr_t)&job.objs[secIdx];
+            a1.count_props_ptr = (uint64_t)(uintptr_t)&job.counts[secIdx];
+            a1.props_ptr = (uint64_t)(uintptr_t)(job.props + off[secIdx]);
+            a1.prop_values_ptr = (uint64_t)(uintptr_t)(job.vals + off[secIdx]);
+            a1.user_data = job.userData;
+            errno = 0;
+            const int r1 = ioctl(sDrmFd, DRM_IOCTL_MODE_ATOMIC, &a1);
+            if (r1 != 0) {
+                if (errno == EBUSY) { secSkipped = true; }
+                else { sFlipSplitOff = true; ALOGW("NanoMenu DRM AFBC: split commit: secondary commit failed: %s, combined commits from here", strerror(errno)); }
+            }
+            if (!sFlipSplitOff) {
+                { static bool once = false; if (!once) { once = true; ALOGW("NanoMenu DRM AFBC: split commits active (secondary nonblocking, primary blocking)"); } }
+                struct drm_mode_atomic a2 = {};
+                a2.flags = DRM_MODE_PAGE_FLIP_EVENT;   // blocking: returns once the primary flip has landed
+                a2.count_objs = 1;
+                a2.objs_ptr = (uint64_t)(uintptr_t)&job.objs[primIdx];
+                a2.count_props_ptr = (uint64_t)(uintptr_t)&job.counts[primIdx];
+                a2.props_ptr = (uint64_t)(uintptr_t)(job.props + off[primIdx]);
+                a2.prop_values_ptr = (uint64_t)(uintptr_t)(job.vals + off[primIdx]);
+                a2.user_data = job.userData;
+                errno = 0;
+                ret = ioctl(sDrmFd, DRM_IOCTL_MODE_ATOMIC, &a2); err = errno;
+                if (ret != 0) { ALOGW("NanoMenu DRM AFBC: split commit: primary commit failed: %s", strerror(err)); }
+            }
+        }
+        if (!(splitKnob > 0 && !sFlipSplitOff && secIdx >= 0 && primIdx >= 0)) {
+            struct drm_mode_atomic atomic = {};
+            atomic.flags = DRM_MODE_PAGE_FLIP_EVENT;   // blocking: returns once the flip has landed
+            atomic.count_objs = (uint32_t)job.no;
+            atomic.objs_ptr = (uint64_t)(uintptr_t)job.objs;
+            atomic.count_props_ptr = (uint64_t)(uintptr_t)job.counts;
+            atomic.props_ptr = (uint64_t)(uintptr_t)job.props;
+            atomic.prop_values_ptr = (uint64_t)(uintptr_t)job.vals;
+            atomic.user_data = job.userData;
+            errno = 0;
+            ret = ioctl(sDrmFd, DRM_IOCTL_MODE_ATOMIC, &atomic); err = errno;
+        }
         {
             std::lock_guard<std::mutex> lk(sFlipMu);
-            sFlipResult = ret; sFlipErrno = errno; sFlipBusy = false;
+            sFlipResult = ret; sFlipErrno = err; sFlipBusy = false;
+            if (secSkipped) { sFlipSecSkipped = true; sFlipSecSlot = job.objSlot[secIdx]; }
         }
         sFlipCv.notify_all();
     }
@@ -1895,6 +1985,16 @@ static void drmFlipThreadMain() {
 static void drmFlipThreadWaitIdle() {
     std::unique_lock<std::mutex> lk(sFlipMu);
     sFlipCv.wait(lk, [] { return !sFlipBusy; });
+    // A skipped secondary (split commit, previous flip still pending) never sends an event:
+    // take it back out of the pending counts here, on the thread that owns them.
+    if (sFlipSecSkipped) {
+        sFlipSecSkipped = false;
+        if (sFlipSecSlot >= 0 && sCrtcPending[sFlipSecSlot] > 0) sCrtcPending[sFlipSecSlot]--;
+        if (sPendingFlipEvents > 0) sPendingFlipEvents--;
+        sFlipSecSkips++;
+        if (sFlipSecSkips == 1 || (sFlipSecSkips % 100) == 0)
+            ALOGW("NanoMenu DRM AFBC: split commit: secondary skipped (%u so far)", sFlipSecSkips);
+    }
 }
 static bool drmFlipThreadOn() {
     static int sCount = 0; static bool sOn = true;
@@ -1918,6 +2018,7 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
 
     uint32_t objs[4]; uint32_t counts[4];
     uint32_t props[64]; uint64_t vals[64];
+    bool objPrimary[4] = {}; int objSlot[4] = { -1, -1, -1, -1 };
     size_t no = 0, np = 0;
     // Region assignment for the combined buffer: the primary display (VP that
     // shows the DS TOP screen) crops rows [0,H); the secondary crops [H,2H).
@@ -1939,6 +2040,7 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
         if (property_get_bool("sys.gammaos.drastic_nano.afbc_both_top", false))
             srcY = 0u;
         objs[no] = d.clPlaneId; size_t start = np;
+        objPrimary[no] = ((int)i == sDrmPrimaryIdx); objSlot[no] = drmCrtcSlot(d.crtcId);
         props[np] = d.clFbIdProp;  vals[np++] = fbs[i];
         // GPU completion handed to the kernel: the commit is queued now and
         // latches on the first vblank after the fence signals, so the CPU
@@ -1985,6 +2087,7 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
             std::lock_guard<std::mutex> lk(sFlipMu);
             memcpy(sFlipJob.objs, objs, sizeof(objs)); memcpy(sFlipJob.counts, counts, sizeof(counts));
             memcpy(sFlipJob.props, props, sizeof(props)); memcpy(sFlipJob.vals, vals, sizeof(vals));
+            memcpy(sFlipJob.objPrimary, objPrimary, sizeof(objPrimary)); memcpy(sFlipJob.objSlot, objSlot, sizeof(objSlot));
             sFlipJob.no = no; sFlipJob.userData = sDrmCommitSeq; sFlipJob.fenceFd = inFenceFd; sFlipBusy = true;
         }
         sFlipCv.notify_all();
@@ -2125,8 +2228,16 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     bool verbose = true; // always capture timing; filter at print time
     int64_t t0 = (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL);
     sDrmCommitSeq++;
-    if (property_get_bool("sys.gammaos.drastic_nano.flip_pair_log", false)) {
-        static int sPresLog = 0;
+    // Pair diagnostic (sys flip_pair_log): commit time here, each CRTC's flip-complete time in
+    // drmDrainPageFlipEvents. The caps re-arm every time the prop is switched off and on again
+    // so a session can be sampled more than once.
+    static bool sPairLogOn = false;
+    const bool pairLogNow = property_get_bool("sys.gammaos.drastic_nano.flip_pair_log", false);
+    if (pairLogNow && !sPairLogOn) { sPresLogCount = 0; sPairLogCount = 0; }
+    sPairLogOn = pairLogNow;
+    sPairLogOnFlipThread.store(pairLogNow, std::memory_order_relaxed);
+    if (pairLogNow) {
+        int& sPresLog = sPresLogCount;
         if (sPresLog < 600) {
             ALOGW("PRES ud=%llu idx=%d secidx=%d t=%lld ll=%d fs=%d afbc=%d",
                   (unsigned long long)sDrmCommitSeq, idx,
@@ -2783,7 +2894,7 @@ void drmDrainPageFlipEvents() {
                         sDrmLastVblankUs = (int64_t)vb->tv_sec * 1000000LL + vb->tv_usec;
                     if (property_get_bool(
                                 "sys.gammaos.drastic_nano.flip_pair_log", false)) {
-                        static int sPairLog = 0;
+                        int& sPairLog = sPairLogCount;
                         if (sPairLog < 3000) {
                             ALOGW("FLIPP ud=%llu crtc=%u seq=%u tv=%lld",
                                   (unsigned long long)vb->user_data, vb->crtc_id,

@@ -25,6 +25,9 @@
 #include <dlfcn.h>
 #include <utils/Log.h>
 
+extern "C" void gpu3dPresenterTimerBegin();   // DrasticGpu3d.cpp presenter GPU probe
+extern "C" void gpu3dPresenterTimerEnd();
+
 namespace android {
 
 class DrasticRunner {
@@ -207,6 +210,7 @@ public:
     // (portrait) panel, avoiding the stretch a direct rotated layout produces.
     // Saves and restores the rotation matrix so it does not disturb the loop.
     void blitFullTexture(unsigned int tex, const float rotMat[4]) {
+        struct PresProbe { PresProbe() { gpu3dPresenterTimerBegin(); } ~PresProbe() { gpu3dPresenterTimerEnd(); } } presProbe;
         float saved[4] = {mRotationMatrix[0], mRotationMatrix[1],
                           mRotationMatrix[2], mRotationMatrix[3]};
         for (int i = 0; i < 4; i++) mRotationMatrix[i] = rotMat[i];
@@ -983,6 +987,7 @@ private:
     bool setupDsAhbTextures(int w, int h);
     void patchFxUpload(bool disableUpload);
     void installVblankPacing(uint8_t* base);
+    void installGlActiveTextureGuard(uint8_t* base);   // libdrastic's glActiveTexture import: invalid units dropped, not logged by Mali
     void installThreaded3dSync(uint8_t* base);
     bool mT3dSyncInstalled = false;
     void pacerThread();

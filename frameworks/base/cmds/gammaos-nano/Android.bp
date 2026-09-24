@@ -119,6 +119,7 @@ cc_binary {
         "LibretroRunner.cpp",
         "FakeJNI.cpp",
         "DrasticRunner.cpp",
+        "DrasticGpu3d.cpp",
     ],
 
     // Vendored liba52 public header (a52.h) for NanoAc3.cpp; nanosvg headers for the
@@ -155,6 +156,7 @@ cc_binary {
         "libgui",
         "libEGL",
         "libGLESv2",
+        "libGLESv3",
         "libft2",
         "libpng",
         "libz",
@@ -563,6 +565,7 @@ filegroup {
     srcs: [
         "NanoMenuDrm.cpp",
         "DrasticRunner.cpp",
+        "DrasticGpu3d.cpp",
         "FakeJNI.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",

@@ -124,7 +124,13 @@ int countWithExt(const std::string& dir, const char* ext) {
     struct dirent* e;
     while ((e = readdir(d)) != nullptr) {
         size_t l = strlen(e->d_name);
-        if (l > el && strcasecmp(e->d_name + l - el, ext) == 0) n++;
+        if (l > el && strcasecmp(e->d_name + l - el, ext) == 0) {
+            // Only count files with content. DraStic leaves zero-byte .dsv placeholders
+            // behind for games it merely opened (the bundled demos on a fresh device),
+            // and those would offer an import of nothing on the very first launch.
+            struct stat st;
+            if (stat((dir + "/" + e->d_name).c_str(), &st) == 0 && st.st_size > 0) n++;
+        }
     }
     closedir(d);
     return n;

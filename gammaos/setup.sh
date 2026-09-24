@@ -353,6 +353,10 @@ post_drastic() {
           /data/data/com.dsemu.drastic/files/DraStic/shaders/Scanline.dfx \
           /data/data/com.dsemu.drastic/files/DraStic/shaders/scanline.dsd
     rm -rf /data/data/com.dsemu.drastic/files/DraStic/shaders/smaa
+    # The payload carries two zero-byte .dsv placeholders DraStic left behind for its
+    # bundled demos; drastic-nano offered to "move DraStic saves to the SD card" for them
+    # on the very first launch of a fresh device. Drop empty saves.
+    find /data/data/com.dsemu.drastic/files/DraStic/backup -type f -size 0 -delete 2>/dev/null
     own_app_data com.dsemu.drastic
     run pm grant com.dsemu.drastic android.permission.RECORD_AUDIO
     run pm grant com.dsemu.drastic android.permission.BLUETOOTH_CONNECT

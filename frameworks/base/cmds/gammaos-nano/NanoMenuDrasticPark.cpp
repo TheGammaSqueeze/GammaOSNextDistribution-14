@@ -97,6 +97,24 @@ bool NanoMenu::drasticParkEnabled() const {
             && property_get_bool("persist.gammaos.nano.drastic_park", true);
 }
 
+void NanoMenu::drasticParkPageOutAll() {
+    FILE* f = fopen("/proc/self/maps", "re");
+    if (!f) return;
+    char line[512];
+    size_t total = 0, failed = 0;
+    while (fgets(line, sizeof line, f)) {
+        unsigned long lo = 0, hi = 0; char perms[8] = {0}; unsigned long off = 0; char dev[16] = {0}; unsigned long ino = 0;
+        int n = 0;
+        if (sscanf(line, "%lx-%lx %7s %lx %15s %lu %n", &lo, &hi, perms, &off, dev, &ino, &n) < 6) continue;
+        const char* path = line + n;
+        if (strstr(path, "[stack") || strstr(path, "[vvar]") || strstr(path, "[vdso]") || strstr(path, "/dev/")) continue;
+        if (hi - lo < 16 * 1024) continue;
+        if (madvise((void*)lo, hi - lo, MADV_PAGEOUT) == 0) total += hi - lo; else failed++;
+    }
+    fclose(f);
+    ALOGI("NanoMenu: park paged out %zu MB of mappings (%zu ranges refused)", total >> 20, failed);
+}
+
 bool NanoMenu::drasticParkSession() {
     const int64_t tPark = uptimeMillis();
     ALOGW("NanoMenu: parking the home for the drastic-nano session (in-process)");
@@ -115,6 +133,16 @@ bool NanoMenu::drasticParkSession() {
     // scratch (both rebuilt lazily on the next live frame, like the overlay park).
     ps3bg::freeWaveSeq();
     freeGlassScratch();
+    // The whole XMB GPU working set (icons, normal maps, boxart, DSi sprites, the wave
+    // scene): 120 MB of Mali memory that madvise cannot page out, and on the 1 GB Plus
+    // it sat resident through the game's whole launch window while the kernel cycled the
+    // game's own pages through zram. Same drop as the overlay park; overlayGpuUnpark
+    // rebuilds it before the home draws again. sys.gammaos.nano.park_gpu=0 keeps it.
+    // DEFAULT OFF until verified on screen: the home came back black after a session on the
+    // first build with this (render loop idle at 0% CPU after "GPU working set rebuilt").
+    // Suspect: overlayGpuUnpark builds the whole PS3 menu on a DSi-theme home where it was
+    // never built. sys.gammaos.nano.park_gpu=1 enables it for a test.
+    if (property_get_bool("sys.gammaos.nano.park_gpu", false)) overlayGpuPark();
     glFinish();
 
     // The panel (DRM-direct home): drop DRM master, free the AHB scanout ring
@@ -131,6 +159,14 @@ bool NanoMenu::drasticParkSession() {
     // the stall that crashed the overlay); pages demand-fault from zram instead.
     munlockall();
     mallopt(M_PURGE_ALL, 0);
+    // Push every page out now, file-backed ones included (the overlay park only pages out
+    // its anonymous memory). Measured on the 1 GB Plus: the parked home sat at 112 to 141 MB
+    // resident for the whole first minute of a Pokemon session while the kernel (swappiness
+    // 180) cycled drastic-nano's and system_server's anonymous pages through zram at
+    // thousands of swap-ins a second, and every 50 to 500 ms panel blit hang of the session
+    // fell in that window. The parked thread waits on a property, so nothing here is needed
+    // until the wake, and it demand-faults back then. sys.gammaos.nano.park_pageout=0 skips it.
+    if (property_get_bool("sys.gammaos.nano.park_pageout", true)) drasticParkPageOutAll();
 
     // Fire the start trigger variant that does NOT `stop gammaos-nano`. init
     // consumes it at once (its rule resets the property to 0). If the running
@@ -192,6 +228,9 @@ bool NanoMenu::drasticParkSession() {
         property_set("sys.gammaos.nano.park_restart", "1");
         for (;;) sleep(1);   // init restarts this service
     }
+
+    // GPU working set back before the first frame (a no-op when it was kept).
+    if (mOverlayGpuParked) overlayGpuUnpark();
 
     // Input: nothing read the evdev fds while parked, so drop whatever the
     // game session queued (a queued press must not act on the menu).

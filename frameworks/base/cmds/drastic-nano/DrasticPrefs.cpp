@@ -503,6 +503,8 @@ void applyProps(Prefs* p) {
     applyBool ("hires3d",           p->hires3d);
     applyBool ("threaded3d",        p->threaded3d);
     applyBool ("disable_edge",      p->disableEdge);
+    applyBool ("gpu3d",             p->gpu3d);
+    applyBool ("gpu3d_ss",          p->gpu3dSs);
     applyBool ("sound",             p->soundEnabled);
     applyInt  ("volume",            p->volume);
     applyInt  ("audio_latency",     p->audioLatency);
@@ -523,7 +525,7 @@ void applyProps(Prefs* p) {
     applyInt  ("fw_bday_day",       p->firmwareBdayDay);
     applyStr  ("fw_nick",           p->firmwareNick);
     for (int a = 0; a < kNumActions; a++) applyInt(keyName(a).c_str(), p->keymap[0][a]);
-    if (p->currentFx.empty()) p->currentFx = "Linear";
+    if (p->currentFx.empty()) p->currentFx = "None";
 }
 
 int writeProps(const Prefs& p, const Prefs* prev) {
@@ -536,6 +538,8 @@ int writeProps(const Prefs& p, const Prefs* prev) {
     W("hires3d",           hires3d,          b2s);
     W("threaded3d",        threaded3d,       b2s);
     W("disable_edge",      disableEdge,      b2s);
+    W("gpu3d",             gpu3d,            b2s);
+    W("gpu3d_ss",          gpu3dSs,          b2s);
     W("sound",             soundEnabled,     b2s);
     W("volume",            volume,           i2s);
     W("audio_latency",     audioLatency,     i2s);

@@ -2595,6 +2595,66 @@ void OverlayMenu::rebuildVideo() {
             "persist.gammaos.drastic_nano.threaded3d");
     addBool("Disable Edge Marking",mPrefs.disableEdge,  false,
             "persist.gammaos.drastic_nano.disable_edge");
+    // GPU 3D: the hi-res 3D layer is rasterized with GLES on a helper thread instead of
+    // libdrastic's three CPU raster threads (DrasticGpu3d.cpp). Both apply live; the GPU
+    // module re-reads the props every 64 frames. 4x renders at 1024x768 and box-filters into
+    // the 2x layer (smoother polygon edges; heavy scenes may not fit the frame budget).
+    if (mPrefs.hires3d) {
+        {
+            // Turning it on asks first: the 3D layer is drawn a frame ahead on the GPU, so it
+            // shows one frame late at either setting (two on the heaviest frames).
+            RowAction g;
+            g.label = "GPU 3D Renderer (experimental)";
+            g.value = trDyn(mPrefs.gpu3d ? "On" : "Off");
+            auto toggleGpu = [this]() {
+                if (mPrefs.gpu3d) {
+                    mPrefs.gpu3d = false;
+                    property_set("persist.gammaos.drastic_nano.gpu3d", "0");
+                    mDirty = true;
+                    return;
+                }
+                openConfirm("Enable the GPU 3D Renderer?", [this]() {
+                    mPrefs.gpu3d = true;
+                    property_set("persist.gammaos.drastic_nano.gpu3d", "1");
+                    mDirty = true;
+                }, {
+                    "Renders the DS 3D layer on the GPU instead of the CPU, freeing CPU time for the emulation.",
+                    "The 3D layer is shown one frame late (two on the heaviest frames) to keep a smooth frame rate.",
+                    "Turn it off if a game renders wrongly or stutters. This feature is experimental.",
+                });
+            };
+            g.onAdjust = [toggleGpu](int) { toggleGpu(); };
+            g.onAccept = toggleGpu;
+            mRows.push_back(std::move(g));
+        }
+        if (mPrefs.gpu3d) {
+            // 4x asks first (like Run-Ahead): the fill cost is four times the 2x path and
+            // the video filter shaders on top of it are what pushes heavy scenes over budget.
+            RowAction r;
+            r.label = "GPU 3D 4x Supersampling";
+            r.value = trDyn(mPrefs.gpu3dSs ? "On" : "Off");
+            auto toggle = [this]() {
+                if (mPrefs.gpu3dSs) {
+                    mPrefs.gpu3dSs = false;
+                    property_set("persist.gammaos.drastic_nano.gpu3d_ss", "0");
+                    mDirty = true;
+                    return;
+                }
+                openConfirm("Enable GPU 3D 4x Supersampling?", [this]() {
+                    mPrefs.gpu3dSs = true;
+                    property_set("persist.gammaos.drastic_nano.gpu3d_ss", "1");
+                    mDirty = true;
+                }, {
+                    "Renders the 3D layer with 4x anti-aliasing, for smoother polygon edges.",
+                    "Shaders greatly impact performance with this on: it is recommended to turn shaders off.",
+                    "Turn it off if the game stutters. This feature is experimental.",
+                });
+            };
+            r.onAdjust = [toggle](int) { toggle(); };
+            r.onAccept = toggle;
+            mRows.push_back(std::move(r));
+        }
+    }
     // Frame Sync: live toggle. Updates the DRM flip-path global
     // immediately so the next submitted frame picks up the new
     // behavior. No restart needed -- the ring already has the spare

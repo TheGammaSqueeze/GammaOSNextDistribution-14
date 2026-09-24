@@ -13,6 +13,7 @@
 #include <GLES2/gl2.h>
 
 #include <utils/SystemClock.h>
+#include <cutils/properties.h>
 
 #include "DisplayBackend.h"     // drastic_nano::IDisplayBackend / FrameTargets
 #include "NanoMenuDrm.h"        // android::sAhbRing* / sDrmRotMat / drmFlipAll
@@ -194,8 +195,23 @@ void LoadingScreen::frame(const char* label, float progress) {
             return;
         const int pw = (int)android::sAhbRingPrimary[0].w;
         const int ph = (int)android::sAhbRingPrimary[0].h;
+        // The primary ring may scan to the panel mounted turned 180 degrees (VOP port 1 on
+        // the RG DS, the top screen). The game path draws that panel with the 180-turned
+        // matrix (main.cpp, afbc_rot180_crtc / sDrmSeamRotCrtc); do the same here or the
+        // loading and import prompt frames come up upside down on it.
+        const float* rot = android::sDrmRotMat;
+        float rot180[4] = { -android::sDrmRotMat[0], -android::sDrmRotMat[1],
+                            -android::sDrmRotMat[2], -android::sDrmRotMat[3] };
+        {
+            int rotCrtc = property_get_int32("sys.gammaos.drastic_nano.afbc_rot180_crtc", 0);
+            if (rotCrtc == 0) rotCrtc = (int)android::sDrmSeamRotCrtc;
+            if (rotCrtc > 0 && android::sDrmPrimaryIdx >= 0 &&
+                android::sDrmPrimaryIdx < (int)android::sDrmDisplays.size() &&
+                (int)android::sDrmDisplays[android::sDrmPrimaryIdx].crtcId == rotCrtc)
+                rot = rot180;
+        }
         glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingPrimary[0].glFbo);
-        drawInto(pw, ph, pw, ph, android::sDrmRotMat, label, progress);
+        drawInto(pw, ph, pw, ph, rot, label, progress);
         if (android::sAhbRingSecondary[0].glFbo != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingSecondary[0].glFbo);
             glViewport(0, 0, (int)android::sAhbRingSecondary[0].w,

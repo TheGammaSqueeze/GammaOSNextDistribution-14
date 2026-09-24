@@ -11,6 +11,8 @@
 
 #include <dirent.h>
 #include <dlfcn.h>
+#include <elf.h>
+#include <link.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <jni.h>
@@ -21,6 +23,7 @@
 #include <ucontext.h>
 #include <stdio.h>
 #include <sys/mman.h>
+extern "C" void drasticLockLibrary(const char* nameSubstr);   // DrasticGpu3d.cpp: mlock2(ONFAULT) a library's file-backed segments
 #include <sys/uio.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
@@ -338,7 +341,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
     maybeStartThreadTracer();
     mCacheDir = cacheDir;
     mAutoLoadSlot = autoLoadSlot;
-    mInitialShader = initialShader.empty() ? std::string("Linear")
+    mInitialShader = initialShader.empty() ? std::string("None")
                                            : initialShader;
     const std::string& effectiveLibs = libsDir.empty() ? cacheDir : libsDir;
     ALOGI("DrasticRunner: init cacheDir=%s libsDir=%s rom=%s sound=%d "
@@ -359,6 +362,12 @@ bool DrasticRunner::init(const std::string& cacheDir,
     }
 
     mArm64Handle = dlopen(arm64Path.c_str(), RTLD_NOW);
+    // main()'s mlockall(MCL_CURRENT) ran before this dlopen, so the emulator's own code stayed
+    // evictable: on the 1 GB RG DS Plus its text sat at 368 kB resident of 1.5 MB and the GL
+    // library at 908 kB of 38 MB, both re-read from the SD card at every fault (a thread in
+    // filemap_fault while the card served a state load: multi-second stalls). Lock the pages
+    // as they fault in (no up-front read of the whole file).
+    if (mArm64Handle) drasticLockLibrary("libdrastic_arm64.so");
     if (!mArm64Handle) {
         ALOGE("DrasticRunner: dlopen(%s) failed: %s",
               arm64Path.c_str(), dlerror());
@@ -400,6 +409,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
             mArm64Base = base;
             installVblankPacing(base);
             installThreaded3dSync(base);
+            installGlActiveTextureGuard(base);
         } else {
             ALOGW("DrasticRunner: dladdr(JNI_OnLoad) failed, skip "
                   "longjmp patches");
@@ -1604,10 +1614,10 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
             // fxLoad takes an absolute filesystem path to the .dfx
             // shader file. Name is taken from mInitialShader which
             // drastic-nano populates from the user's _CurrentFx pref
-            // (gammaos-nano passes empty -> defaults to "Linear").
+            // (gammaos-nano passes empty -> defaults to "None", nearest neighbour).
             // Try the drastic-app layout first; if the file is
             // missing, fall back to the nano_cache layout, and
-            // finally fall back to Linear.dfx if the requested
+            // finally fall back to None.dfx (nearest) if the requested
             // shader isn't installed at all.
             auto tryPath = [&](const std::string& name) -> std::string {
                 std::string a = mCacheDir + "/shaders/" + name + ".dfx";
@@ -1619,9 +1629,9 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
             std::string sp = tryPath(mInitialShader);
             if (sp.empty()) {
                 ALOGW("DrasticRunner::initSurface: shader '%s' not "
-                      "found, falling back to Linear",
+                      "found, falling back to None",
                       mInitialShader.c_str());
-                sp = tryPath("Linear");
+                sp = tryPath("None");
             }
             if (sp.empty()) {
                 ALOGE("DrasticRunner::initSurface: no .dfx shader "
@@ -2120,6 +2130,173 @@ std::atomic<int> gRaFrames{0}, gRaRingNext{0}, gRaRingCount{0};
 void raRunParkedOp();
 uint32_t raPatchInsn(uint8_t* base, uintptr_t off, uint32_t insn);
 extern "C" void raAudioSubmitHook(uint8_t* ctx);
+// GX dump probes (see installVblankPacing): sys.gammaos.drastic_nano.gxdump=1 snapshots
+// the next 3D frame's polygon banks (pre) and the published image (post) to
+// /data/local/tmp/gxdump_pre.bin and gxdump_post.bin, then resets the property.
+static uint8_t* gGxLibBase = nullptr;
+static volatile int gGxDumpArmed = 0;
+extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1);
+extern "C" void gpu3dDbgArm();
+extern "C" void drasticLockLibrary(const char* nameSubstr);   // DrasticGpu3d.cpp: mlock2(ONFAULT) a mapped library's file-backed segments
+extern "C" void gpu3dStallReport(uint32_t bandMask, int pending);   // DrasticGpu3d.cpp: GL thread state on a band wait timeout                                    // DrasticGpu3d.cpp: debug-log the next frame's polygons
+extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib);   // DrasticGpu3d.cpp
+extern "C" void gpu3dLatchRead(uint8_t* R);                        // DrasticGpu3d.cpp: decoupled mode read pointer
+extern "C" void gpu3dOff();                                        // DrasticGpu3d.cpp: GPU path not in use this frame
+extern "C" void gpu3dJoinForDump();                                // DrasticGpu3d.cpp: wait for the GL queue (keeps the decoupled state)
+extern "C" void gpu3dSetFastForward(bool on);
+extern "C" void gpu3dPresenterTimerBegin();
+extern "C" void gpu3dPresenterTimerEnd();
+extern std::atomic<int> gFfOnForHook;   // defined below (fast-forward state for the hooks)
+// Frame dispatcher behind the +0x5f3c4 cave: GPU rasterizer when
+// sys.gammaos.drastic_nano.gpu3d=1 (re-read every 64 frames, runtime only), else the
+// original CPU worker frame (+0x5eebc); then the one-shot dump probe.
+static int gGpu3dEnabled = 0;
+static uint32_t gGpu3dPollCount = 0;
+extern "C" void gxFrameEntry(uint8_t* R, uint32_t arg1) {
+    if ((gGpu3dPollCount++ & 63) == 0) {
+        // sys.* is the session override for tests; persist.* is the user's setting (menu row)
+        const int ov = property_get_int32("sys.gammaos.drastic_nano.gpu3d", -1);
+        gGpu3dEnabled = ov >= 0 ? ov : property_get_bool("persist.gammaos.drastic_nano.gpu3d", false);
+    }
+    bool done = false;
+    // Fast forward: the GPU path cannot keep up with a several-hundred-frame-per-second kick
+    // rate and would only trip the budget guard for the session; tell it to hand the frame to
+    // the CPU rasterizer (it joins its pending job first) and to leave its budget average alone.
+    gpu3dSetFastForward(gFfOnForHook.load(std::memory_order_relaxed) != 0);
+    if (gGpu3dEnabled && gGxLibBase) done = gpu3dFrame(R, arg1, gGxLibBase);
+    else gpu3dOff();   // setting turned off: drain the GL queue and drop the decoupled read pointer
+    if (!done) {
+        // CPU path, timed the same way as the GPU path for an honest comparison
+        static int64_t sumUs = 0, maxUs = 0; static uint32_t n = 0;
+        struct timespec a, b; clock_gettime(CLOCK_MONOTONIC, &a);
+        reinterpret_cast<void (*)(uint8_t*, uint32_t)>(gGxLibBase + 0x5eebc)(R, arg1);
+        clock_gettime(CLOCK_MONOTONIC, &b);
+        int64_t dt = ((int64_t)b.tv_sec - a.tv_sec) * 1000000 + ((int64_t)b.tv_nsec - a.tv_nsec) / 1000;
+        sumUs += dt; if (dt > maxUs) maxUs = dt;
+        if (++n == 300) { ALOGI("cpu3d: 300 frames, avg %.2f ms, max %.2f ms", sumUs / 300000.0, maxUs / 1000.0); sumUs = maxUs = 0; n = 0; }
+    }
+    gxFrameHook(R, arg1);
+}
+// Frame-counted arming (sys gxdump_after_load=N, read at load_state): the dump fires on the Nth 3D
+// frame after the load on either path, so CPU and GPU captures of a scene are the same frame.
+static volatile int gGxDumpAt = 0, gGxFramesSinceLoad = 0;
+extern "C" void gxDumpArmAfterFrames(int n) { gGxFramesSinceLoad = 0; gGxDumpAt = n; }
+extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
+    if (!gGxLibBase) return;
+    if (gGxDumpArmed == 1) {   // frame after the dump: the previous frame is complete in "last drawn"
+        gGxDumpArmed = 0;
+        // Decoupled GPU path: "last drawn" is this frame's job, still in the GL queue; wait for it.
+        if (gGpu3dEnabled) gpu3dJoinForDump();
+        uint8_t* pub = *reinterpret_cast<uint8_t**>(R + 0x34eb40 + 40);
+        // sys gxdump_frames=N (default 1): N consecutive frames, gxdump_post.bin, gxdump_post2.bin, ...
+        // (games that alternate two views every 3D frame need a parity match against the other path).
+        static int more = 0, idx = 0;
+        if (idx == 0) more = property_get_int32("sys.gammaos.drastic_nano.gxdump_frames", 1) - 1;
+        char path[64]; if (idx == 0) snprintf(path, sizeof path, "/data/local/tmp/gxdump_post.bin"); else snprintf(path, sizeof path, "/data/local/tmp/gxdump_post%d.bin", idx + 1);
+        if (more > 0) { more--; idx++; gGxDumpArmed = 1; gpu3dDbgArm(); } else idx = 0;
+        FILE* pf = fopen(path, "wb");
+        if (pf) {
+            struct Hdr { char magic[8]; uint64_t pub, tgt; uint32_t bytes; } h{};
+            memcpy(h.magic, "GXPOST02", 8); h.pub = (uint64_t)(uintptr_t)pub; h.tgt = h.pub; h.bytes = 0xc0000;
+            fwrite(&h, sizeof h, 1, pf);
+            if (pub) fwrite(pub, 1, 0xc0000, pf);
+            fclose(pf);
+            ALOGI("gxdump: post written (last drawn %p)", pub);
+        }
+        return;
+    }
+    bool arm = property_get_int32("sys.gammaos.drastic_nano.gxdump", 0) == 1;
+    if (gGxDumpAt > 0 && ++gGxFramesSinceLoad == gGxDumpAt) { gGxDumpAt = 0; arm = true; ALOGI("gxdump: frame-counted arm at 3D frame %d after the load", gGxFramesSinceLoad); }
+    if (!arm) return;
+    property_set("sys.gammaos.drastic_nano.gxdump", "0");
+    gGxDumpArmed = 1;
+    gpu3dDbgArm();   // the GPU path logs the polygons of the frame the dump will hold (next frame)
+    // Raster context = R + 0x29d740; its +0x24000 = R, +0x24008 = gx (geometry banks).
+    uint8_t* rc = R + 0x29d740;
+    uint8_t* R2 = *reinterpret_cast<uint8_t**>(rc + 0x24000);
+    uint8_t* gx = *reinterpret_cast<uint8_t**>(rc + 0x24008);
+    FILE* f = fopen("/data/local/tmp/gxdump_pre.bin", "wb");
+    if (!f) { ALOGW("gxdump: open failed: %s", strerror(errno)); return; }
+    struct Hdr { char magic[8]; uint64_t R, R2, gx, lib; uint32_t arg1, bank; uint64_t off[12]; } h{};
+    memcpy(h.magic, "GXDUMP02", 8);
+    h.R = (uint64_t)(uintptr_t)R; h.R2 = (uint64_t)(uintptr_t)R2; h.gx = (uint64_t)(uintptr_t)gx;
+    h.lib = (uint64_t)(uintptr_t)gGxLibBase; h.arg1 = arg1; h.bank = gx[0x9ac0];
+    // sections: [0] 3D regs R+0x34eb40 (0x400), [1] gx header 0x9a00..0x9ad4 (0xd4),
+    // [2] vertex banks gx+0x9ad4 (2*0x18004, 16 B records: colour, x, y, z, w, s, t),
+    // [3] poly banks gx+0x39ae0 (opaque b0,b1 then translucent b0,b1; 4*0x10008, 32 B records),
+    // [4] opaque band lists R+0x2856c0 (13*0x1004), [5] translucent R+0x2916f0 (13*0x1004),
+    // [6] shape table lib+0x10e57c (0x200), [7] rc+0x23f00..+0x24100 (0x200),
+    // [8] raster ctx scratch rc+0..0x20000 (colour + depth planes), [9] gx 0x9a00..0xa000,
+    // [10] R+0x1056c0..+0x1076c0 (the publish struct P), [11] *(R+8) struct first 0x800
+    uint8_t* r8 = *reinterpret_cast<uint8_t**>(R + 8);
+    struct Sec { const uint8_t* p; size_t n; } secs[12] = {
+        { R + 0x34eb40, 0x400 }, { gx + 0x9a00, 0xd4 }, { gx + 0x9ad4, 2 * 0x18004 },
+        { gx + 0x39ae0, 4 * 0x10008 }, { R + 0x2856c0, 13 * 0x1004 }, { R + 0x2916f0, 13 * 0x1004 },
+        { gGxLibBase + 0x10e57c, 0x200 }, { rc + 0x23f00, 0x200 }, { rc, 0x20000 }, { gx + 0x9a00, 0x600 },
+        { R + 0x1056c0, 0x2000 }, { r8, r8 ? (size_t)0x800 : (size_t)0 } };
+    for (int i = 0; i < 12; i++) h.off[i] = secs[i].n;
+    fwrite(&h, sizeof h, 1, f);
+    for (int i = 0; i < 12; i++) if (secs[i].n) fwrite(secs[i].p, 1, secs[i].n, f);
+    fclose(f);
+    // Texture cache entries: every distinct +16 pointer of a referenced polygon, the 256 bytes
+    // before it (entry header) and up to 1 MB from it, clamped to the mapping it lives in.
+    {
+        struct Map { uintptr_t lo, hi; };
+        std::vector<Map> maps;
+        if (FILE* mf = fopen("/proc/self/maps", "r")) {
+            char line[512];
+            while (fgets(line, sizeof line, mf)) {
+                unsigned long lo, hi; char perms[8] = {};
+                if (sscanf(line, "%lx-%lx %7s", &lo, &hi, perms) == 3 && perms[0] == 'r') maps.push_back({lo, hi});
+            }
+            fclose(mf);
+        }
+        auto clampRead = [&](uintptr_t a, size_t want) -> size_t {
+            for (const Map& m : maps) if (a >= m.lo && a < m.hi) return std::min(want, (size_t)(m.hi - a));
+            return 0;
+        };
+        FILE* tf = fopen("/data/local/tmp/gxdump_tex.bin", "wb");
+        if (tf) {
+            uint32_t rbank = h.bank ^ 1;
+            std::vector<uint64_t> seen;
+            for (int list = 0; list < 2 && seen.size() < 24; list++) {
+                const uint8_t* lists = R + (list ? 0x2916f0 : 0x2856c0);
+                const uint8_t* pb = gx + (list ? 0x59af0 : 0x39ae0) + rbank * 0x10008;
+                for (int band = 0; band < 12; band++) {
+                    uint32_t cnt = *reinterpret_cast<const uint32_t*>(lists + band * 0x1004 + 0x1000);
+                    for (uint32_t i = 0; i < cnt && i < 2048; i++) {
+                        uint16_t pi = *reinterpret_cast<const uint16_t*>(lists + band * 0x1004 + 2 * i);
+                        const uint8_t* rec = pb + pi * 32;
+                        uint64_t ptr = *reinterpret_cast<const uint64_t*>(rec + 16) & 0x00ffffffffffffffull;   // strip the heap tag byte
+                        if (!ptr || std::find(seen.begin(), seen.end(), ptr) != seen.end()) continue;
+                        seen.push_back(ptr);
+                        uint32_t texp = *reinterpret_cast<const uint32_t*>(rec + 0);
+                        // ptr = texture cache entry (0x2a0 bytes, +0 texparam, +16 pixel data pointer).
+                        size_t en = clampRead(ptr, 0x2a0);
+                        uint64_t px = en >= 24 ? (*reinterpret_cast<const uint64_t*>(ptr + 16) & 0x00ffffffffffffffull) : 0;
+                        uint32_t tw = 8u << ((texp >> 20) & 7), th_ = 8u << ((texp >> 23) & 7);
+                        // +16 = raw DS texel copy (format from texparam bits 26-28), +24 = palette pointer.
+                        uint64_t pal = en >= 32 ? (*reinterpret_cast<const uint64_t*>(ptr + 24) & 0x00ffffffffffffffull) : 0;
+                        size_t want = (size_t)tw * th_ * 2;
+                        size_t n = px ? clampRead(px, want) : 0;
+                        size_t pn = pal ? clampRead(pal, 0x2000) : 0;
+                        struct TH { char magic[8]; uint64_t ptr, px, pal; uint32_t texp, en, n, pn, slot, pad; } th{};
+                        memcpy(th.magic, "GXTEX003", 8); th.ptr = ptr; th.px = px; th.pal = pal; th.texp = texp;
+                        th.en = (uint32_t)en; th.n = (uint32_t)n; th.pn = (uint32_t)pn;
+                        th.slot = *reinterpret_cast<const uint16_t*>(rec + 24);
+                        fwrite(&th, sizeof th, 1, tf);
+                        if (en) fwrite(reinterpret_cast<const void*>(ptr), 1, en, tf);
+                        if (n) fwrite(reinterpret_cast<const void*>(px), 1, n, tf);
+                        if (pn) fwrite(reinterpret_cast<const void*>(pal), 1, pn, tf);
+                    }
+                }
+            }
+            fclose(tf);
+            ALOGI("gxdump: tex written (%zu entries)", seen.size());
+        }
+    }
+    ALOGI("gxdump: pre written (bank %u, arg1 %u, R=%p gx=%p)", h.bank, arg1, R, gx);
+}
 // SPU mix trace (sys.gammaos.drastic_nano.spu_trace=1): one record per mixer call from the
 // scanline cave, with the two capture units' state and the ring buffers they write, so the
 // emulated timeline of a capture-fed delay line can be reconstructed offline.
@@ -2709,7 +2886,8 @@ struct T3dAdapt {
 // Mode 5 (per-band pipeline) state. gT3dBands is written by the rasterizer band cave
 // (+0x5ee64: bands completed in the in-flight target buffer, 32 hi-res lines each) and
 // reset by the kick cave (+0x2c9c4) at scanline 214 when the next frame is queued.
-alignas(8) volatile uint32_t gT3dBandMask = 0;   // bit b set when global band b is rendered+edge-fixed
+alignas(8) volatile uint32_t gT3dBandMaskStorage = 0;
+volatile int gGpu3dPendingStorage = 0;   // a GPU frame is still being rendered into the target buffer   // bit b set when global band b is rendered+edge-fixed
 int gT3dMode = 0;
 struct T3dPipe {
     uint32_t chunks = 0, waited = 0, timeouts = 0, startWaits = 0, idleSkips = 0, fullWaits = 0;
@@ -2729,7 +2907,7 @@ extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
     if (gT3dMode >= 5) {
         // Per-band pipeline for the multi-threaded rasterizer. Frame N's render was kicked
         // at scanline 214 of N-1; nth rasterizer threads render interleaved 32-line bands
-        // out of order, each setting its bit in gT3dBandMask (band cave +0x5ee64) after it
+        // out of order, each setting its bit in gT3dBandMaskStorage (band cave +0x5ee64) after it
         // has rendered and edge-fixed that band; the kick cave (+0x2c9c4) clears the mask.
         // The 3D line fetch reads the in-flight target buffer (csel patches), so a compose
         // chunk [first,last] only waits until every band it covers is set, or the worker is
@@ -2754,16 +2932,17 @@ extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
             need = (top >= 31) ? 0xffffffffu : ((1u << (top + 1)) - 1u);        // bands 0..top
         }
         bool waited = false;
-        while ((__atomic_load_n(&gT3dBandMask, __ATOMIC_ACQUIRE) & need) != need) {
-            if (!*work && !*busy) { if (!waited) gT3dPipe.idleSkips++; break; }
+        while ((__atomic_load_n(&gT3dBandMaskStorage, __ATOMIC_ACQUIRE) & need) != need) {
+            if (!*work && !*busy && !__atomic_load_n(&gGpu3dPendingStorage, __ATOMIC_ACQUIRE)) { if (!waited) gT3dPipe.idleSkips++; break; }
             waited = true;
-            if (t3dNowUs() - t0 > 40000) { gT3dPipe.timeouts++; break; }
+            if (t3dNowUs() - t0 > 40000) { gT3dPipe.timeouts++; gpu3dStallReport(__atomic_load_n(&gT3dBandMaskStorage, __ATOMIC_ACQUIRE), __atomic_load_n(&gGpu3dPendingStorage, __ATOMIC_ACQUIRE)); break; }
             sched_yield();
         }
         if (waited) {
             const int64_t w = t3dNowUs() - t0;
             gT3dPipe.waited++; gT3dPipe.sumUs += w; if (w > gT3dPipe.maxUs) gT3dPipe.maxUs = w;
         }
+        if (first == 0) gpu3dLatchRead(render);   // decoupled GPU mode: read the newest finished frame
         return;
     }
     if (first != 0) return;   // later chunks read whatever the first chunk left published
@@ -3272,6 +3451,66 @@ extern "C" void drasticVWait(unsigned usec) {
     }
 }
 } // namespace
+extern "C" void gpu3dSetBandMask(uint32_t m) { __atomic_store_n(&gT3dBandMaskStorage, m, __ATOMIC_RELEASE); }
+extern "C" void gpu3dSetPending(int p) { __atomic_store_n(&gGpu3dPendingStorage, p, __ATOMIC_RELEASE); }
+
+// drastic's fx pass calls glActiveTexture with a unit that is not a GL_TEXTUREi enum once per
+// frame (the unit_enum normalisation in patchFinalPassFbo does not reach it), and the Mali driver
+// logs GL_INVALID_ENUM for every call: 60 logd writes a second for a call that changes nothing.
+// Route libdrastic's glActiveTexture import through a guard that drops invalid units (the same GL
+// state the failed call left) and logs the first few callers so the origin can be found.
+namespace {
+uint8_t* gGlGuardBase = nullptr;
+std::atomic<uint32_t> gGlGuardDropped{0};
+void glActiveTextureGuard(GLenum unit) {
+    if (unit < GL_TEXTURE0 || unit > GL_TEXTURE0 + 31) {
+        const uint32_t n = gGlGuardDropped.fetch_add(1, std::memory_order_relaxed);
+        if (n < 6) {
+            const uintptr_t ra = (uintptr_t)__builtin_return_address(0);
+            ALOGW("DrasticRunner: glActiveTexture(0x%x) dropped, caller lib+0x%lx", unit,
+                  (unsigned long)(gGlGuardBase && ra > (uintptr_t)gGlGuardBase ? ra - (uintptr_t)gGlGuardBase : ra));
+        }
+        return;
+    }
+    glActiveTexture(unit);
+}
+}  // namespace
+uint32_t drasticGlActiveTextureDropped() { return gGlGuardDropped.load(std::memory_order_relaxed); }
+void DrasticRunner::installGlActiveTextureGuard(uint8_t* base) {
+    if (!base || !property_get_bool("sys.gammaos.drastic_nano.gl_active_guard", true)) return;
+    const ElfW(Ehdr)* eh = reinterpret_cast<const ElfW(Ehdr)*>(base);
+    if (memcmp(eh->e_ident, ELFMAG, SELFMAG) != 0) { ALOGW("DrasticRunner: glActiveTexture guard: no ELF header at base"); return; }
+    const ElfW(Phdr)* ph = reinterpret_cast<const ElfW(Phdr)*>(base + eh->e_phoff);
+    const ElfW(Dyn)* dyn = nullptr;
+    for (int i = 0; i < eh->e_phnum; i++) if (ph[i].p_type == PT_DYNAMIC) dyn = reinterpret_cast<const ElfW(Dyn)*>(base + ph[i].p_vaddr);
+    if (!dyn) { ALOGW("DrasticRunner: glActiveTexture guard: no PT_DYNAMIC"); return; }
+    const ElfW(Rela)* jmprel = nullptr; size_t jmprelSz = 0; const ElfW(Sym)* symtab = nullptr; const char* strtab = nullptr;
+    for (const ElfW(Dyn)* d = dyn; d->d_tag != DT_NULL; d++) {
+        switch (d->d_tag) {
+            case DT_JMPREL:   jmprel = reinterpret_cast<const ElfW(Rela)*>(base + d->d_un.d_ptr); break;
+            case DT_PLTRELSZ: jmprelSz = d->d_un.d_val; break;
+            case DT_SYMTAB:   symtab = reinterpret_cast<const ElfW(Sym)*>(base + d->d_un.d_ptr); break;
+            case DT_STRTAB:   strtab = reinterpret_cast<const char*>(base + d->d_un.d_ptr); break;
+            default: break;
+        }
+    }
+    if (!jmprel || !symtab || !strtab) { ALOGW("DrasticRunner: glActiveTexture guard: dynamic tables missing"); return; }
+    for (size_t i = 0; i < jmprelSz / sizeof(ElfW(Rela)); i++) {
+        if (ELF64_R_TYPE(jmprel[i].r_info) != R_AARCH64_JUMP_SLOT) continue;
+        const char* name = strtab + symtab[ELF64_R_SYM(jmprel[i].r_info)].st_name;
+        if (strcmp(name, "glActiveTexture") != 0) continue;
+        uintptr_t* slot = reinterpret_cast<uintptr_t*>(base + jmprel[i].r_offset);
+        const long ps = sysconf(_SC_PAGESIZE) > 0 ? sysconf(_SC_PAGESIZE) : 4096;
+        void* page = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(slot) & ~(uintptr_t)(ps - 1));
+        if (mprotect(page, ps, PROT_READ | PROT_WRITE) != 0) { ALOGW("DrasticRunner: glActiveTexture guard: mprotect failed: %s", strerror(errno)); return; }
+        gGlGuardBase = base;
+        *slot = reinterpret_cast<uintptr_t>(&glActiveTextureGuard);
+        mprotect(page, ps, PROT_READ);
+        ALOGI("DrasticRunner: glActiveTexture guard installed (GOT slot lib+0x%lx)", (unsigned long)jmprel[i].r_offset);
+        return;
+    }
+    ALOGW("DrasticRunner: glActiveTexture guard: import not found");
+}
 
 void DrasticRunner::installVblankPacing(uint8_t* base) {
     if (!base || mPanelHz <= 1.0) return;
@@ -3384,6 +3623,38 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     };
     for (int i = 0; i < 2; i++) { patchBl(kTimeSites[i].off, kCaveTime); patchBl(kWaitSites[i].off, kCaveWait); }
     patchBl(kFlipSite.off, kCaveFlip);
+    // GX dump probes (GPU rasterizer work): wrap the 3D worker's per-frame entry
+    // (+0x5f3c4: bl +0x5eebc) and the publish (+0x3d2dc: bl +0x5f4b4) so a one-shot
+    // property can snapshot the polygon banks and the finished 3D frame to files.
+    {
+        const uintptr_t kCaveGxPre = 0x132e80;   // 56 bytes used
+        // Only the worker frame site is patched. The publish site (+0x3d2dc) must keep its
+        // original bytes: installThreaded3dSync verifies them and leaves the mode-5 pipeline
+        // off otherwise (that happened while the probe patched it; the post image is now
+        // taken at the next frame from the "last drawn" pointer instead).
+        if (*reinterpret_cast<uint32_t*>(base + 0x5f3c4) == 0x97fffebeu) {
+            uint8_t* pgA = (uint8_t*)((uintptr_t)(base + 0x5f3c4) & ~(uintptr_t)(ps - 1));
+            mprotect(pgA, ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+            // pre cave: save x0,x1,x30; blr gxFrameEntry(x0,x1); restore; ret
+            uint32_t* w = reinterpret_cast<uint32_t*>(base + kCaveGxPre);
+            w[0] = 0xa9bf07e0u;   // stp x0, x1, [sp, #-16]!
+            w[1] = 0xf81f0ffeu;   // str x30, [sp, #-16]!
+            w[2] = 0x58000110u;   // ldr x16, [pc, #32] (literal at cave+40)
+            w[3] = 0xd63f0200u;   // blr x16
+            w[4] = 0xf84107feu;   // ldr x30, [sp], #16
+            w[5] = 0xa8c107e0u;   // ldp x0, x1, [sp], #16
+            w[6] = 0xd65f03c0u;   // ret
+            w[7] = 0xd503201fu; w[8] = 0xd503201fu; w[9] = 0xd503201fu;
+            *reinterpret_cast<uint64_t*>(base + kCaveGxPre + 40) = (uint64_t)(uintptr_t)&gxFrameEntry;
+            patchBl(0x5f3c4, kCaveGxPre);
+            __builtin___clear_cache((char*)(base + kCaveGxPre), (char*)(base + kCaveGxPre + 64));
+            __builtin___clear_cache((char*)pgA, (char*)pgA + ps);
+            gGxLibBase = base;
+            ALOGI("DrasticRunner: gx dump probes installed");
+        } else {
+            ALOGW("DrasticRunner: gx dump probes: unexpected code at the sites, skipped");
+        }
+    }
     __builtin___clear_cache((char*)cavePg, (char*)cavePg + ps);
     __builtin___clear_cache((char*)sitePg, (char*)sitePg + ps);
     // Audio output rate: drastic generates 735 samples per emulated frame
@@ -4194,7 +4465,7 @@ void DrasticRunner::installThreaded3dSync(uint8_t* base) {
     for (int i = 0; i < 110; i++) c[i] = kBlob[i];
     const uint64_t statsAddr = (uint64_t)(uintptr_t)gT3dStats;
     const uint64_t hookAddr  = (uint64_t)(uintptr_t)&t3dComposeHook;
-    const uint64_t bandsAddr = (uint64_t)(uintptr_t)&gT3dBandMask;
+    const uint64_t bandsAddr = (uint64_t)(uintptr_t)&gT3dBandMaskStorage;
     memcpy(&c[kFeLit], &statsAddr, 8);
     memcpy(&c[kALit], &statsAddr, 8);
     memcpy(&c[kCLit], &hookAddr, 8);
@@ -4907,11 +5178,27 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         }
         // With run-ahead on the lock is retried on heavy scenes; if it then
         // costs presented frames (pacing misses), drop it again and back off.
-        static uint32_t sMissBase = 0; static int64_t sMissWindowUs = 0; static bool sMissTrip = false;
+        // Without run-ahead the lock is also dropped when it misses steadily: Sonic Rush's title
+        // screen (2 ms emulated frames) latched every other flip a vblank late under the lock
+        // (30 misses a second for 20 s, 30 fps presented) and ran 59.8 at the panel rate.
+        // pace_miss_trip misses within a second (default 5: the title screen misses every flip, so five arrive in 170 ms; Pokemon under the lock showed at most 5 in a second and lives in the bypass anyway) hand it to the bypass; the light-scene
+        // re-probe then backs off exponentially like the run-ahead retry so it cannot flip-flop.
+        static uint32_t sMissBase = 0; static int64_t sMissWindowUs = 0; static bool sMissTrip = false, sLastDropMiss = false;
+        static int sMissTripN = 10;
+        // Checked every tick against a one-second window (not only at the window's end): a
+        // title screen that misses every other vblank reaches the trip in a third of a second
+        // instead of up to a second later.
         if (vblankUs - sMissWindowUs > 1000000) {
+            sMissTripN = property_get_int32("sys.gammaos.drastic_nano.pace_miss_trip", 5);
+            sMissBase = gMissCount.load(); sMissWindowUs = vblankUs;
+        }
+        if (!sMissTrip && gPaceOn.load() && !gPaceBypass.load()) {
             const uint32_t m = gMissCount.load();
-            sMissTrip = gPaceOn.load() && !gPaceBypass.load() && gRaMode.load() == 2 && (m - sMissBase) >= 4;
-            sMissBase = m; sMissWindowUs = vblankUs;
+            const uint32_t need = gRaMode.load() == 2 ? 4u : (uint32_t)(sMissTripN > 0 ? sMissTripN : 1000000);
+            if (m - sMissBase >= need) {
+                sMissTrip = true;
+                ALOGW("PACE bypass: miss trip (%u misses in %lld ms)", m - sMissBase, (long long)((vblankUs - sMissWindowUs) / 1000));
+            }
         }
         // Catch-up trip: a lock that keeps losing ticks (each one a late frame run back to back) on a
         // scene whose average frame sits just under the bypass threshold is failing all the same;
@@ -4937,11 +5224,12 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                 // must not demand a lighter scene or the lock never returns and
                 // run-ahead stays idle for the session (seen: 0 bursts).
                 sEmuAtDrop = (emu > sBypassUs) ? emu : 0;
+                sLastDropMiss = emu <= sBypassUs;   // dropped by a miss or catch-up trip, not by frame time
                 ALOGW("PACE bypass: emulator %lld us per frame", (long long)emu);
                 setVblankPacing(mPaceWanted);
             }
         } else if (sProbeSinceUs == 0 && vblankUs - sBypassSinceUs > 3000000 &&
-                   (gEmuCpuLightSecs.load() >= 3 ||
+                   ((gEmuCpuLightSecs.load() >= 3 && (!sLastDropMiss || vblankUs - sBypassSinceUs > sRaRetryUs)) ||
                     // run-ahead needs the lock: retry with exponential backoff
                     // (4, 8, 16 .. 64 s), but only while the emulator's average
                     // frame sits near the threshold. A scene well over it can
@@ -5045,7 +5333,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                 ALOGW("PACE t3d5 chunks=%u waited=%u sum=%lld max=%lld start=%u startus=%lld idle=%u full=%u to=%u bands=%u",
                       gT3dPipe.chunks, gT3dPipe.waited, (long long)gT3dPipe.sumUs, (long long)gT3dPipe.maxUs,
                       gT3dPipe.startWaits, (long long)gT3dPipe.sumStartUs, gT3dPipe.idleSkips,
-                      gT3dPipe.fullWaits, gT3dPipe.timeouts, __atomic_load_n(&gT3dBandMask, __ATOMIC_RELAXED));
+                      gT3dPipe.fullWaits, gT3dPipe.timeouts, __atomic_load_n(&gT3dBandMaskStorage, __ATOMIC_RELAXED));
             else if (mT3dSyncInstalled)
                 ALOGW("PACE t3d joins=%u partial=%u blocked=%u ajoins=%u ablocked=%u split=%u "
                       "whole=%u ffree=%u fwait=%u fskip=%u ema=%lld max=%lld sum=%lld sw=%u lag=%d tog=%u alt=%d cap=%u/%u modeA=%u modeB=%u",
@@ -6182,6 +6470,7 @@ void DrasticRunner::renderDsToOffscreen() {
 
 bool DrasticRunner::renderSlotShaded(int which, unsigned int targetFbo,
                                      int vx, int vy, int vw, int vh) {
+    struct PresProbe { PresProbe() { gpu3dPresenterTimerBegin(); } ~PresProbe() { gpu3dPresenterTimerEnd(); } } presProbe;
     // Shader-enabled per-slot render. Falls back (returns false) when the
     // .dfx path is inactive (QR preview / missing fxRender) so the caller can
     // use the re-sampled renderTop/BottomScreen blit instead. Only the single-
@@ -6349,6 +6638,7 @@ void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
 }
 
 void DrasticRunner::renderTopScreen(float saturation, float gradient) {
+    struct PresProbe { PresProbe() { gpu3dPresenterTimerBegin(); } ~PresProbe() { gpu3dPresenterTimerEnd(); } } presProbe;
     if (mUseRenderFrame) {
         if (mFxRender && mOffscreenTex != 0) {
             // fxRender wrote the shader-composited top-on-top,
@@ -6368,6 +6658,7 @@ void DrasticRunner::renderTopScreen(float saturation, float gradient) {
 }
 
 void DrasticRunner::renderBottomScreen(float saturation, float gradient) {
+    struct PresProbe { PresProbe() { gpu3dPresenterTimerBegin(); } ~PresProbe() { gpu3dPresenterTimerEnd(); } } presProbe;
     if (mUseRenderFrame) {
         if (mFxRender && mOffscreenTex != 0) {
             drawDsQuad(mOffscreenTex, 0.5f, 1.0f, saturation, gradient);

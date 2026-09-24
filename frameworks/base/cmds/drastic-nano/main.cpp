@@ -157,6 +157,7 @@ static int64_t sStgFlipMaxNs  = 0;   // max drmFlipRingSlot span
 static int64_t sStgDrainMaxNs = 0;   // max drmDrainPageFlipEvents span
 static int64_t sStgRdMaxNs    = 0;   // max renderDsToOffscreen span (DS upload+shade)
 static int64_t sStgPbMaxNs    = 0;   // max panel-blit span (half-res render to panels)
+static int64_t sPbMark[3] = {0, 0, 0};   // panel blit checkpoints for the hang log (panels, overlay, rest)
 
 // drastic's installed data dir. FakeJNI points here directly so
 // DraStic/system/* and User/config|backup|savestates|cheats|... all
@@ -705,6 +706,11 @@ void installCrashHandler() {
 // ------------------------------------------------------------------
 // DRM + EGL bootstrap (no SurfaceFlinger)
 // ------------------------------------------------------------------
+
+extern "C" void gpu3dPresenterTimerBegin();   // DrasticGpu3d.cpp: presenter GPU time probe
+extern "C" void gpu3dPresenterTimerEnd();
+extern "C" void gpu3dNotePresent();
+extern "C" void gxDumpArmAfterFrames(int n);
 
 struct Display {
     EGLDisplay eglDpy;
@@ -2065,6 +2071,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 if (slot >= 0 && slot <= 9) {
                     ALOGI("drastic-nano: external load_state slot %d", slot);
                     dr->loadStateSlot(slot);
+                    // Test hook: dump the 3D layer on the Nth 3D frame after this load (same frame
+                    // on the CPU and GPU paths). Read once per load; never persisted.
+                    { const int n = property_get_int32("sys.gammaos.drastic_nano.gxdump_after_load", 0); if (n > 0) gxDumpArmAfterFrames(n); }
                 }
             }
         }
@@ -2682,9 +2691,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // Composite the overlay onto the primary panel. Drawing
         // happens even when the menu is closed so toast messages
         // (e.g. from quick save/load hotkeys) still appear.
+        sPbMark[0] = android::elapsedRealtimeNano();   // panel renders done
         bindPrimaryPass();
         gfx.beginFrame();
         overlay.draw(gfx);
+        sPbMark[1] = android::elapsedRealtimeNano();   // overlay drawn
         if (input.cursorMode && !overlay.isOpen() && !hasDualDisplay) {
             drastic_nano::LayoutConfig cc =
                     readSfLayoutConfig(drmLogicalW, drmLogicalH);
@@ -2914,6 +2925,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             }
             property_set("sys.gammaos.drastic_nano.shot", "0");
         }
+        sPbMark[2] = android::elapsedRealtimeNano();   // bottom passes, cursor, shot done
 
         if (tripleBuffer) {
             {
@@ -2922,6 +2934,28 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 const int64_t pb = sPreFlipNs - sRdT1;
                 if (rd > sStgRdMaxNs) sStgRdMaxNs = rd;
                 if (pb > sStgPbMaxNs) sStgPbMaxNs = pb;
+                // A panel blit over 50 ms is a hang, not a slow frame (one 303 ms case seen on
+                // Pokemon at 4x with nothing else in the log): timestamp it for the next capture.
+                // The render thread's own faults and switches across the blit tell reclaim (major
+                // faults), CPU starvation (involuntary switches) and a plain GPU wait apart.
+                struct rusage ruNow; getrusage(RUSAGE_THREAD, &ruNow);
+                static struct rusage sRuPrev; static bool sRuInit = false;
+                if (pb > 50000000LL && sRuInit) {
+                    static int64_t sLastPbLogNs = 0;
+                    if (sPreFlipNs - sLastPbLogNs > 1000000000LL) {
+                        sLastPbLogNs = sPreFlipNs;
+                        struct timespec rt; clock_gettime(CLOCK_REALTIME, &rt);
+                        ALOGW("drastic-nano: panel blit took %lld ms (ds render %lld ms; panels %lld, overlay %lld, rest %lld ms) ending at %02lld:%02lld:%06.3f; render thread over the frame: minflt %ld majflt %ld nvcsw %ld nivcsw %ld cpu %ld ms",
+                              (long long)(pb / 1000000LL), (long long)(rd / 1000000LL),
+                              (long long)((sPbMark[0] - sRdT1) / 1000000LL), (long long)((sPbMark[1] - sPbMark[0]) / 1000000LL), (long long)((sPreFlipNs - sPbMark[1]) / 1000000LL),
+                              (long long)((rt.tv_sec / 3600) % 24), (long long)((rt.tv_sec / 60) % 60), (rt.tv_sec % 60) + rt.tv_nsec / 1e9,
+                              ruNow.ru_minflt - sRuPrev.ru_minflt, ruNow.ru_majflt - sRuPrev.ru_majflt,
+                              ruNow.ru_nvcsw - sRuPrev.ru_nvcsw, ruNow.ru_nivcsw - sRuPrev.ru_nivcsw,
+                              (long)((ruNow.ru_utime.tv_sec - sRuPrev.ru_utime.tv_sec + ruNow.ru_stime.tv_sec - sRuPrev.ru_stime.tv_sec) * 1000 +
+                                     (ruNow.ru_utime.tv_usec - sRuPrev.ru_utime.tv_usec + ruNow.ru_stime.tv_usec - sRuPrev.ru_stime.tv_usec) / 1000));
+                    }
+                }
+                sRuPrev = ruNow; sRuInit = true;
             }
             // Unbind before fence-create so the kick point is
             // unambiguous. eglCreateSyncKHR with NATIVE_FENCE
@@ -3034,6 +3068,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     }
                     android::drmSetPacerLocked(dr->vblankPacingActive());
                     android::drmFlipRingSlot(presentIdx, false);
+                    gpu3dNotePresent();
                     if (gLatCount > age) gLatFlipUs[(gLatCount - 1 - age) % kLatFrames] = android::elapsedRealtimeNano() / 1000;
                     // The flip returned on the vblank that latched it. A gap of
                     // more than 1.5 periods since the previous latch means this
@@ -4475,7 +4510,7 @@ int main(int argc, char** argv) {
     // The analog stylus / deadzone and the video settings are ordinary
     // properties now (applyProps above), so a vendor build.prop default or an
     // in-menu change is the same mechanism.
-    if (prefs.currentFx.empty()) prefs.currentFx = "Linear";
+    if (prefs.currentFx.empty()) prefs.currentFx = "None";
 
     // Carry the frame-sync flag into the DRM flip path. Read at session
     // start rather than per-iter so the ring-depth assumption (enabled

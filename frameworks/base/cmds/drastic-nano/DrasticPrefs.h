@@ -59,6 +59,9 @@ struct Prefs {
     bool threaded3d    = true;
     bool disableEdge   = true;
     bool soundEnabled  = true;
+    // GPU 3D rasterizer (DrasticGpu3d.cpp): live toggles, nano-side only (no drastic config bit).
+    bool gpu3d         = false;      // render the hi-res 3D layer on the GPU instead of libdrastic's CPU rasterizer
+    bool gpu3dSs       = false;      // GPU path renders at 4x (1024x768) and resolves to the 2x layer
 
     // Runtime-adjustable knobs.
     int  volume        = 10;         // _Volume 0..10, pinned at max (system volume is the control)
