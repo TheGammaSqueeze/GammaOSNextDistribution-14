@@ -880,7 +880,7 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         if (mRunner) {
             if (a.actQuickSave) mRunner->saveStateSlot(0);
             // Quick-load is a save-state load, disabled in hardcore.
-            if (a.actQuickLoad && !mRaHardcore) mRunner->loadStateSlot(0);
+            if (a.actQuickLoad && !mRaHardcore) mRunner->requestLoadStateSlot(0);
         }
         return;
     }
@@ -1211,7 +1211,7 @@ void OverlayMenu::rebuildGeneral() {
         r.onAccept = [this]() {
             if (!mRunner) return;
             if (!slotFileExists(0)) { toast(trDyn("No quick save yet")); return; }
-            if (mRunner->loadStateSlot(0)) {
+            if (mRunner->requestLoadStateSlot(0)) {
                 toast(trDyn("Quick loaded"));
                 closeMenu();
             } else {
@@ -1472,7 +1472,7 @@ void OverlayMenu::rebuildSave() {
                 toast("Empty slot");
                 return;
             }
-            if (mRunner->loadStateSlot(slot)) {
+            if (mRunner->requestLoadStateSlot(slot)) {
                 char msg[64];
                 snprintf(msg, sizeof(msg), trDyn("Loaded slot %d"), slot);
                 toast(msg);

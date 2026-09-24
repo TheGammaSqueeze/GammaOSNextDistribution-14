@@ -108,6 +108,8 @@ public:
     // per-second delta gives the true emulation FPS. 0 until the pacing hooks
     // are installed (installVblankPacing); read-only, safe from any thread.
     uint32_t producerFrameCount() const;
+    void setAudioFillTarget(int chunks);   // fill the audio sink to this depth from the vblank tick (0 = off)
+    int audioQueueChunks() const;          // current sink depth in chunks, -1 if unknown
     uint32_t audioSubmitCount() const;   // per-frame audio submits (hidden replay frames skip theirs)
     // Emulated-frame count from the frame-limiter hook (drasticVWait): advances
     // once per emulated frame in every mode, before render frame-skip, so its
@@ -260,7 +262,16 @@ public:
     // underlying JNI call was invoked (not whether drastic actually
     // produced a valid state -- drastic has no ABI for that).
     bool saveStateSlot(int slot);
-    bool loadStateSlot(int slot);
+    bool loadStateSlot(int slot, bool preFilled = false);   // preFilled: the caller already filled the audio sink, skip the internal boost
+    // Preferred entry point for a save-state restore. Arms the audio fill and defers the restore
+    // by a few frames so the render loop keeps presenting while the sink fills; returns whether
+    // the request was accepted (the restore itself always completed asynchronously anyway).
+    bool requestLoadStateSlot(int slot);
+    // Call once per rendered frame from the render loop. Performs a pending restore once the sink
+    // is deep enough or the grace period expires. Returns the slot just loaded, or -1.
+    int serviceDeferredLoad();
+    int mPendLoadSlot = -1;
+    int64_t mPendLoadUntilUs = 0;
 
     // ---- Run-ahead primitives (RAM-backed savestate + single-stepping) ----
     //

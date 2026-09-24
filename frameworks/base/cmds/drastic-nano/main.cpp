@@ -72,6 +72,7 @@
 #include <cstdlib>
 #include <atomic>
 #include <cstring>
+#include <condition_variable>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -157,7 +158,59 @@ static int64_t sStgFlipMaxNs  = 0;   // max drmFlipRingSlot span
 static int64_t sStgDrainMaxNs = 0;   // max drmDrainPageFlipEvents span
 static int64_t sStgRdMaxNs    = 0;   // max renderDsToOffscreen span (DS upload+shade)
 static int64_t sStgPbMaxNs    = 0;   // max panel-blit span (half-res render to panels)
-static int64_t sPbMark[3] = {0, 0, 0};   // panel blit checkpoints for the hang log (panels, overlay, rest)
+static int64_t sPbMark[4] = {0, 0, 0, 0};   // panel blit checkpoints for the hang log (panels, overlay, metrics, bottom)
+
+// Once-a-second metrics publishing moved OFF the render thread. property_set is a synchronous
+// round trip to init and ALOGI a write to logd; either can park the caller for tens or hundreds
+// of milliseconds when those services are busy (every panel-blit hang logged so far, 51 to 1588
+// ms, landed in this window with no page faults, no involuntary switches and 4 ms of CPU: the
+// thread slept). The render thread now only formats the strings; this thread does the talking.
+namespace {
+struct MetricsPub {
+    std::mutex mtx;
+    std::condition_variable cv;
+    char prop[92] = {};
+    char line[256] = {};
+    uint32_t seq = 0, done = 0;
+    bool started = false, quit = false;
+    FILE* file = nullptr;
+    bool fileTried = false;
+};
+MetricsPub sMp;
+void metricsPubThread() {
+    pthread_setname_np(pthread_self(), "dn-metrics");
+    setpriority(PRIO_PROCESS, 0, 10);   // never compete with the render or emulator threads
+    char prop[92], line[256];
+    for (;;) {
+        {
+            std::unique_lock<std::mutex> lk(sMp.mtx);
+            sMp.cv.wait(lk, [] { return sMp.seq != sMp.done || sMp.quit; });
+            if (sMp.quit) return;
+            memcpy(prop, sMp.prop, sizeof prop);
+            memcpy(line, sMp.line, sizeof line);
+            sMp.done = sMp.seq;
+        }
+        property_set("sys.gammaos.drastic_nano.metrics", prop);
+        ALOGI("%s", line);
+        if (!sMp.fileTried) {
+            sMp.fileTried = true;
+            char pth[PROPERTY_VALUE_MAX] = {0};
+            property_get("sys.gammaos.drastic_nano.metrics_file", pth, "");
+            if (pth[0]) sMp.file = fopen(pth, "we");
+        }
+        if (sMp.file) { fprintf(sMp.file, "%s\n", line); fflush(sMp.file); }
+    }
+}
+// Called from the render thread: copy the two formatted strings and wake the publisher.
+void metricsPublish(const char* prop, const char* line) {
+    std::lock_guard<std::mutex> lk(sMp.mtx);
+    snprintf(sMp.prop, sizeof sMp.prop, "%s", prop);
+    snprintf(sMp.line, sizeof sMp.line, "%s", line);
+    sMp.seq++;
+    if (!sMp.started) { sMp.started = true; std::thread(metricsPubThread).detach(); }
+    sMp.cv.notify_one();
+}
+}  // namespace
 
 // drastic's installed data dir. FakeJNI points here directly so
 // DraStic/system/* and User/config|backup|savestates|cheats|... all
@@ -1922,6 +1975,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             property_set("sys.gammaos.drastic_nano.menu", "0");
             actions.menuToggle = true;
         }
+        // Automation hook: sys.gammaos.drastic_nano.quickload=1 raises the quick-load action
+        // once, so the overlay's real save-state path (the same one the hotkey drives) can be
+        // exercised without the physical button.
+        if (property_get_bool("sys.gammaos.drastic_nano.quickload", false)) {
+            property_set("sys.gammaos.drastic_nano.quickload", "0");
+            actions.actQuickLoad = true;
+        }
         overlay.update(actions, &input);
 
         // Publish overlay state to the fast-input thread. On an open->close
@@ -2070,10 +2130,15 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 property_set("sys.gammaos.drastic_nano.load_state", "");
                 if (slot >= 0 && slot <= 9) {
                     ALOGI("drastic-nano: external load_state slot %d", slot);
-                    dr->loadStateSlot(slot);
-                    // Test hook: dump the 3D layer on the Nth 3D frame after this load (same frame
-                    // on the CPU and GPU paths). Read once per load; never persisted.
-                    { const int n = property_get_int32("sys.gammaos.drastic_nano.gxdump_after_load", 0); if (n > 0) gxDumpArmAfterFrames(n); }
+                    // Fill the audio sink BEFORE the restore, from the vblank tick, while this loop
+                    // keeps presenting. The restore stalls audio production for 155 to 900 ms
+                    // (measured over twenty), against roughly 100 ms queued, and AudioFlinger pads
+                    // the difference. loadStateSlot's own fill cannot help: it sleeps this thread,
+                    // presentation stops, production is gated on flips, and the sink drains to zero
+                    // instead of filling. Driven from the vblank tick it reaches 7 to 8 chunks with
+                    // no measured cost. The restore is deferred at most kLoadFillMaxMs, which is far
+                    // less than the 600 ms freeze it replaces, and the game keeps running meanwhile.
+                    dr->requestLoadStateSlot(slot);
                 }
             }
         }
@@ -2706,6 +2771,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             drawTouchCursor(gfx, cbr, input.cursorX, input.cursorY,
                             (input.dsBtnMask & DrasticRunner::kDsBtnA) != 0);
         }
+        // Perform a deferred state restore once the audio sink is deep enough, or when the short
+        // grace period expires. Presentation has been running normally throughout.
+        { const int done = dr->serviceDeferredLoad();
+          // Test hook: dump the 3D layer on the Nth 3D frame after this load (same frame on the
+          // CPU and GPU paths). Read once per load; never persisted.
+          if (done >= 0) { const int n = property_get_int32("sys.gammaos.drastic_nano.gxdump_after_load", 0); if (n > 0) gxDumpArmAfterFrames(n); } }
+
         // Optional on-screen FPS counter (DRM path parity with runLoopSf). The RG DS dual-screen
         // path uses THIS loop, not runLoopSf, so the counter must be drawn here too or it never shows
         // on that device. Count rendered frames over a rolling ~1s window (this loop has no shared
@@ -2774,26 +2846,14 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                          (drmHalfRes > 1 ? drmHalfW : drmLogicalW),
                          (drmHalfRes > 1 ? drmHalfH : drmLogicalH),
                          drmPanelW, drmPanelH, drmHalfRes);
-                property_set("sys.gammaos.drastic_nano.metrics", m);
-                ALOGI("drastic-nano metrics: %s rd=%lld pb=%lld emu=%.1f producer=%u", m,
-                      (long long)(sStgRdMaxNs / 1000000LL),
-                      (long long)(sStgPbMaxNs / 1000000LL), sEmuFps, dr->producerFrameCount());
-                // Reliable test hook: append the metrics line to a file once/sec. Immune to
-                // adbd starvation (mode 5 saturates the SoC), the metrics-prop not persisting,
-                // and logcat rotation. Off unless the test path is armed.
-                {
-                    static FILE* sMf = nullptr;
-                    static bool sMfTried = false;
-                    if (!sMfTried) {
-                        sMfTried = true;
-                        char pth[PROPERTY_VALUE_MAX] = {0};
-                        property_get("sys.gammaos.drastic_nano.metrics_file", pth, "");
-                        if (pth[0]) sMf = fopen(pth, "we");
-                    }
-                    if (sMf) { fprintf(sMf, "%s rd=%lld pb=%lld\n", m,
-                                       (long long)(sStgRdMaxNs / 1000000LL),
-                                       (long long)(sStgPbMaxNs / 1000000LL)); fflush(sMf); }
-                }
+                // Format here (pure CPU), publish on the metrics thread: property_set and
+                // ALOGI both block on another process. The file hook lives there too.
+                char ml[256];
+                snprintf(ml, sizeof(ml),
+                         "drastic-nano metrics: %s rd=%lld pb=%lld emu=%.1f producer=%u", m,
+                         (long long)(sStgRdMaxNs / 1000000LL),
+                         (long long)(sStgPbMaxNs / 1000000LL), sEmuFps, dr->producerFrameCount());
+                metricsPublish(m, ml);
                 sFpsFrames = 0;
                 sFpsWinMs = fpsNowMs;
                 sMaxFrameMs = 0;
@@ -2803,6 +2863,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 sStgRdMaxNs = 0;
                 sStgPbMaxNs = 0;
             }
+            sPbMark[2] = android::elapsedRealtimeNano();   // per-second metrics block done
             // Fast-forward badge is independent of the FPS counter prop.
             drawFfBadge(gfx, dr->fastForwardActive());
             if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false))
@@ -2925,7 +2986,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             }
             property_set("sys.gammaos.drastic_nano.shot", "0");
         }
-        sPbMark[2] = android::elapsedRealtimeNano();   // bottom passes, cursor, shot done
+        sPbMark[3] = android::elapsedRealtimeNano();   // bottom passes, cursor, shot done
 
         if (tripleBuffer) {
             {
@@ -2945,9 +3006,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     if (sPreFlipNs - sLastPbLogNs > 1000000000LL) {
                         sLastPbLogNs = sPreFlipNs;
                         struct timespec rt; clock_gettime(CLOCK_REALTIME, &rt);
-                        ALOGW("drastic-nano: panel blit took %lld ms (ds render %lld ms; panels %lld, overlay %lld, rest %lld ms) ending at %02lld:%02lld:%06.3f; render thread over the frame: minflt %ld majflt %ld nvcsw %ld nivcsw %ld cpu %ld ms",
+                        ALOGW("drastic-nano: panel blit took %lld ms (ds render %lld ms; panels %lld, overlay %lld, metrics %lld, bottom %lld, tail %lld ms) ending at %02lld:%02lld:%06.3f; render thread over the frame: minflt %ld majflt %ld nvcsw %ld nivcsw %ld cpu %ld ms",
                               (long long)(pb / 1000000LL), (long long)(rd / 1000000LL),
-                              (long long)((sPbMark[0] - sRdT1) / 1000000LL), (long long)((sPbMark[1] - sPbMark[0]) / 1000000LL), (long long)((sPreFlipNs - sPbMark[1]) / 1000000LL),
+                              (long long)((sPbMark[0] - sRdT1) / 1000000LL), (long long)((sPbMark[1] - sPbMark[0]) / 1000000LL),
+                              (long long)((sPbMark[2] - sPbMark[1]) / 1000000LL), (long long)((sPbMark[3] - sPbMark[2]) / 1000000LL), (long long)((sPreFlipNs - sPbMark[3]) / 1000000LL),
                               (long long)((rt.tv_sec / 3600) % 24), (long long)((rt.tv_sec / 60) % 60), (rt.tv_sec % 60) + rt.tv_nsec / 1e9,
                               ruNow.ru_minflt - sRuPrev.ru_minflt, ruNow.ru_majflt - sRuPrev.ru_majflt,
                               ruNow.ru_nvcsw - sRuPrev.ru_nvcsw, ruNow.ru_nivcsw - sRuPrev.ru_nivcsw,
@@ -3569,6 +3631,13 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             property_set("sys.gammaos.drastic_nano.menu", "0");
             actions.menuToggle = true;
         }
+        // Automation hook: sys.gammaos.drastic_nano.quickload=1 raises the quick-load action
+        // once, so the overlay's real save-state path (the same one the hotkey drives) can be
+        // exercised without the physical button.
+        if (property_get_bool("sys.gammaos.drastic_nano.quickload", false)) {
+            property_set("sys.gammaos.drastic_nano.quickload", "0");
+            actions.actQuickLoad = true;
+        }
         overlay.update(actions, &input);
 
         if (!raInited && dr->isFrameReady()) {
@@ -3667,10 +3736,16 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
                 property_set("sys.gammaos.drastic_nano.load_state", "");
                 if (slot >= 0 && slot <= 9) {
                     ALOGI("drastic-nano: external load_state slot %d (SF)", slot);
-                    dr->loadStateSlot(slot);
+                    dr->requestLoadStateSlot(slot);
                 }
             }
         }
+
+        // Service a deferred restore (this loop presents while the audio sink fills). Required
+        // here too: the overlay menu's load rows go through requestLoadStateSlot on every path,
+        // so without this the restore would never run on the SurfaceFlinger devices.
+        { const int done = dr->serviceDeferredLoad();
+          if (done >= 0) { const int n = property_get_int32("sys.gammaos.drastic_nano.gxdump_after_load", 0); if (n > 0) gxDumpArmAfterFrames(n); } }
 
         {
             // Adb/harness override: sys.gammaos.drastic_nano.force_ff forces FF on

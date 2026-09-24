@@ -3095,7 +3095,9 @@ std::atomic<int> gCapToggling{0};   // the game swaps the engines every frame (P
 std::atomic<int> gFfStageWant{0};
 std::atomic<int> gFfStagePub{-1};
 static int gFfStageNext = 0;
-static int gFfStageFd = -1;
+static int gFfStageFd = -1;   // -1 not allocated yet, -2 unavailable (never retried), else the dma-buf fd
+static std::atomic<int> gFfStageAlloc{0};    // 0 idle, 1 worker running, 2 result ready
+static std::atomic<int> gFfStageResFd{-2};   // what the worker produced
 std::atomic<uint8_t*> gFfStageMap{nullptr};
 extern "C" uint64_t ffCapHook(uint32_t cap, uint32_t flag, uint8_t* hm) {
     static bool prevOn = false, pending = false;
@@ -5057,6 +5059,7 @@ extern "C" void raAudioCallbackHook() {
 }
 // Audio lead state (see audioLeadExtraTick).
 constexpr uintptr_t kAudioQueuedOff = 0x3c7d070;
+std::atomic<int> gQFillTarget{0};   // armed before a state load: fill the sink to this depth from the vblank tick
 std::atomic<int> gAudioLeadDebt{0};
 std::atomic<uint32_t> gAudioLeadExtra{0}, gAudioLeadTopUps{0}, gAudioLeadHolds{0};
 
@@ -5140,7 +5143,17 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                 volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
                 const uint32_t qnow = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
                 if (gClockMatchOn.load(std::memory_order_relaxed)) {
-                    if (qnow < 3 && vblankUs - sLastAdjUs > 100000) {
+                    // Experiment (sys gpu3d-era knob q_fill_target, default 0 = off): can a fill
+                    // driven from here, with presentation still running, reach a deep queue? The
+                    // pre-load boost cannot, because it sleeps the render thread and production is
+                    // gated on flips. If this reaches its target without costing frames, deferring
+                    // a state load until it does is worth building; if it cannot, that design is dead.
+                    static int sFillKnob = 0; static int64_t sFillReadUs = 0;
+                    if (vblankUs - sFillReadUs > 1000000) { sFillReadUs = vblankUs; sFillKnob = property_get_int32("sys.gammaos.drastic_nano.q_fill_target", 0); }
+                    const int sFillTarget = gQFillTarget.load(std::memory_order_relaxed) > 0 ? gQFillTarget.load(std::memory_order_relaxed) : sFillKnob;
+                    if (sFillTarget > 0 && (int)qnow < sFillTarget && vblankUs - sLastAdjUs > 16000) {
+                        *deadline -= units; sLastAdjUs = vblankUs; gBypassTopUps.fetch_add(1);
+                    } else if (qnow < 3 && vblankUs - sLastAdjUs > 100000) {
                         *deadline -= units; sLastAdjUs = vblankUs; gBypassTopUps.fetch_add(1);
                     } else if (qnow >= 3 && vblankUs - sLastAdjUs > 5000000) {
                         if (avg < lo) { *deadline -= units; sLastAdjUs = vblankUs; gBypassTopUps.fetch_add(1); ALOGW("AUDIOMARK topup at submit %u", gAudSubmitPub.load()); }
@@ -6063,18 +6076,36 @@ bool DrasticRunner::zeroCopyBindFront() {
         if (sFfStage < 0) sFfStage = property_get_int32("persist.gammaos.drastic_nano.ff_stage", 1);
         const int rt = property_get_int32("sys.gammaos.drastic_nano.ff_stage_rt", -1);
         bool want = mFastForwardOn && (rt >= 0 ? rt > 0 : sFfStage > 0);
-        if (want && gFfStageFd < 0) {
-            // lazily allocate the staging dma-buf on the first FF use
-            int heap = open("/dev/dma_heap/system", O_RDONLY | O_CLOEXEC);
-            struct dma_heap_allocation_data ad = {};
-            ad.len = 0x300000; ad.fd_flags = O_RDWR | O_CLOEXEC;
-            if (heap >= 0 && ioctl(heap, DMA_HEAP_IOCTL_ALLOC, &ad) == 0 && (int)ad.fd >= 0) {
-                void* m = mmap(nullptr, 0x300000, PROT_READ | PROT_WRITE, MAP_SHARED, (int)ad.fd, 0);
-                if (m == MAP_FAILED) { close((int)ad.fd); gFfStageFd = -2; }
-                else { memset(m, 0, 0x300000); gFfStageFd = (int)ad.fd; gFfStageMap.store((uint8_t*)m, std::memory_order_release); }
-            } else gFfStageFd = -2;
-            if (heap >= 0) close(heap);
-            ALOGW("DrasticRunner: FF staging dma-buf %s", gFfStageFd >= 0 ? "allocated" : "unavailable, staging off");
+        // The staging dma-buf is allocated once, on a worker, never on this thread: a 3 MB
+        // dma_heap allocation plus the 3 MB memset that faults it in can sit in direct reclaim
+        // for a long time on a 1 GB device whose swap lives on the microSD, and this runs inside
+        // the composed frame. Staging simply stays off until the buffer lands, which is what the
+        // gFfStageFd < 0 test below already does. -2 is sticky: before this, a failed allocation
+        // (or the import failure further down) re-ran the heap open and ioctl on EVERY frame for
+        // as long as fast forward was held.
+        if (want && gFfStageFd == -1) {
+            const int st = gFfStageAlloc.load(std::memory_order_acquire);
+            if (st == 0) {
+                gFfStageAlloc.store(1, std::memory_order_release);
+                std::thread([] {
+                    int fd = -2; void* m = nullptr;
+                    int heap = open("/dev/dma_heap/system", O_RDONLY | O_CLOEXEC);
+                    struct dma_heap_allocation_data ad = {};
+                    ad.len = 0x300000; ad.fd_flags = O_RDWR | O_CLOEXEC;
+                    if (heap >= 0 && ioctl(heap, DMA_HEAP_IOCTL_ALLOC, &ad) == 0 && (int)ad.fd >= 0) {
+                        m = mmap(nullptr, 0x300000, PROT_READ | PROT_WRITE, MAP_SHARED, (int)ad.fd, 0);
+                        if (m == MAP_FAILED) { close((int)ad.fd); m = nullptr; }
+                        else { memset(m, 0, 0x300000); fd = (int)ad.fd; }
+                    }
+                    if (heap >= 0) close(heap);
+                    if (m) gFfStageMap.store((uint8_t*)m, std::memory_order_release);
+                    gFfStageResFd.store(fd, std::memory_order_release);
+                    gFfStageAlloc.store(2, std::memory_order_release);
+                    ALOGW("DrasticRunner: FF staging dma-buf %s", fd >= 0 ? "allocated" : "unavailable, staging off");
+                }).detach();
+            } else if (st == 2) {
+                gFfStageFd = gFfStageResFd.load(std::memory_order_acquire);
+            }
         }
         if (gFfStageFd < 0) want = false;
         gFfStageWant.store(want ? 1 : 0, std::memory_order_relaxed);
@@ -6857,7 +6888,33 @@ bool DrasticRunner::saveAutosave() {
     return true;
 }
 
-bool DrasticRunner::loadStateSlot(int slot) {
+// Deferred restore. The audio sink must be full BEFORE production stalls, and it can only be
+// filled from the vblank tick: filling by sleeping in loadStateSlot stops presentation, and since
+// production is gated on flips the sink drains instead. So arm the fill, let the caller's loop
+// keep presenting, and restore once it is deep enough.
+namespace { constexpr int kFillChunks = 8; constexpr int64_t kFillMaxMs = 400; }
+bool DrasticRunner::requestLoadStateSlot(int slot) {
+    if (!mInitialized || !mLoadState) return false;
+    if (slot < 0 || slot > 9) return false;
+    mPendLoadSlot = slot;
+    mPendLoadUntilUs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count() + kFillMaxMs;
+    setAudioFillTarget(kFillChunks);
+    return true;
+}
+int DrasticRunner::serviceDeferredLoad() {
+    if (mPendLoadSlot < 0) return -1;
+    const int64_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+    const int q = audioQueueChunks();
+    if (q < kFillChunks - 1 && nowMs < mPendLoadUntilUs) return -1;
+    const int slot = mPendLoadSlot; mPendLoadSlot = -1;
+    setAudioFillTarget(0);
+    ALOGI("DrasticRunner: deferred load_state slot %d, sink %d chunks", slot, q);
+    loadStateSlot(slot, true);
+    return slot;
+}
+bool DrasticRunner::loadStateSlot(int slot, bool preFilled) {
     if (!mInitialized || !mLoadState) {
         ALOGW("DrasticRunner::loadStateSlot: not available "
               "(initialized=%d, mLoadState=%p)",
@@ -6873,29 +6930,53 @@ bool DrasticRunner::loadStateSlot(int slot) {
     // one chunk of silence at the cut. Run a few extra emulated frames now (deadline moved back two
     // periods at a time, the audio drains through the FIFO) until the sink holds 6 chunks or 600 ms
     // pass; a handful of skipped panel frames at a load is accepted for a clean cut.
-    if (mArm64Base && gBypassPeriodSet.load() && gClockMatchOn.load(std::memory_order_relaxed) && mPanelHz > 1.0 &&
-        property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6) > 0) {
+    // Depth of the pre-load sink fill. The persisted value is the user's; sys ..._rt overrides it
+    // for a measurement without touching any persisted setting.
+    auto loadBoostChunks = [] {
+        const int rt = property_get_int32("sys.gammaos.drastic_nano.load_boost_chunks_rt", -1);
+        return rt >= 0 ? rt : property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6);
+    };
+    // preFilled: the caller filled the sink from the vblank tick already, which works; this
+    // internal boost does not, because it sleeps the presenting thread and the sink drains
+    // (traced 5 chunks down to 0 over its 600 ms cap). Skip it rather than undo the caller's work.
+    if (!preFilled && mArm64Base && gBypassPeriodSet.load() && gClockMatchOn.load(std::memory_order_relaxed) && mPanelHz > 1.0 &&
+        loadBoostChunks() > 0) {
         uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
-        const int want = property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6);
+        const int want = loadBoostChunks();
         if (hm) {
             volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
             const uint32_t units = (uint32_t)llround(3000000.0 / mPanelHz);
             const int64_t tb = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
             int extra = 0; uint32_t q = 0;
+            char trace[192]; int to = 0; const uint32_t q0 = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
+            int iter = 0; const char* why = "reached target"; uint32_t fPrev = 0;
             for (;;) {
                 q = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
+                // Also record how many emulated frames actually ran in the 50 ms since the last
+                // poke: the poke is supposed to buy two extra, so a healthy iteration shows about
+                // five (three at the 60 Hz baseline plus two), and three means the poke did nothing.
+                { const uint32_t f = gEmuFrames.load(); const uint32_t df = fPrev ? f - fPrev : 0; fPrev = f;
+                  if (to < (int)sizeof trace - 9) to += snprintf(trace + to, sizeof trace - to, "%u/%u ", q, df); }
                 const int64_t el = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - tb;
-                if ((int)q >= want || el > 600000) break;
-                *deadline -= 2 * (int64_t)units; extra += 2;
+                if ((int)q >= want) break;
+                if (el > 600000) { why = "timed out"; break; }
+                // Measured 2026-09-22: in the panel-rate bypass the deadline poke does not make
+                // the emulator run ahead, so the sink DRAINS through this loop (traced as
+                // "q0 3, per-iteration 3 4 3 3 2 2 1 0 0 0 0 0 0"). Bailing out as soon as it
+                // drains was tried and did NOT reduce the gap (6 of 20 loads against 3 of 20 at
+                // baseline, no improvement), so the drain is not the cause and the early exit was
+                // reverted. Left as it was, with the trace, until the restore stall is measured.
+                *deadline -= 2 * (int64_t)units; extra += 2; iter++;
                 usleep(50000);
             }
-            ALOGI("DrasticRunner::loadStateSlot: pre-load boost %d extra frames, queue %u chunks", extra, q);
+            ALOGI("DrasticRunner::loadStateSlot: pre-load boost %d extra frames, queue %u chunks, %s (want %d, q0 %u, paceon %d byp %d, per-iteration q/frames: %s)",
+                  extra, q, why, want, q0, gPaceOn.load() ? 1 : 0, gBypassPeriodSet.load() ? 1 : 0, trace);
         }
-    } else if (mArm64Base && gPaceOn.load() && gClockMatchOn.load(std::memory_order_relaxed) &&
-               property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6) > 0) {
+    } else if (!preFilled && mArm64Base && gPaceOn.load() && gClockMatchOn.load(std::memory_order_relaxed) &&
+               loadBoostChunks() > 0) {
         // Locked: the pacer runs extra ticks for an audio lead debt; request enough to reach the
         // target depth and give it up to 600 ms (each extra tick is one skipped panel frame).
-        const int want = property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6);
+        const int want = loadBoostChunks();
         uint32_t q = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
         const int need = (want - (int)q) * 2;   // two emulated frames per 33 ms chunk
         if (need > 0) {
@@ -9933,6 +10014,14 @@ uint16_t DrasticRunner::dsEmulatedFrameCounter() {
 // file-scope atomic bumped once per DS core frame in drasticSlotFlipHook(),
 // so it tracks the emulation rate (and rises during fast-forward) even on the
 // renderDsToOffscreen() path where the other counters freeze.
+// Fill the audio sink to `chunks` from the vblank tick (0 = off). Used before a state restore:
+// the restore stalls production for 155 to 900 ms, and filling by sleeping inside loadStateSlot
+// throttles the emulator instead, because that sleep stops presentation and production is gated
+// on flips.
+void DrasticRunner::setAudioFillTarget(int chunks) { gQFillTarget.store(chunks, std::memory_order_relaxed); }
+int DrasticRunner::audioQueueChunks() const {
+    return mArm64Base ? (int)*reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff) : -1;
+}
 uint32_t DrasticRunner::producerFrameCount() const {
     return gFlipHookCount.load();
 }
