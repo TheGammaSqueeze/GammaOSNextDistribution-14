@@ -2154,6 +2154,7 @@ extern std::atomic<int> gFfOnForHook;   // defined below (fast-forward state for
 // original CPU worker frame (+0x5eebc); then the one-shot dump probe.
 static int gGpu3dEnabled = 0;
 static uint32_t gGpu3dPollCount = 0;
+extern volatile int gGpu3dOwnsMaskStorage;   // defined with the band pipeline state below
 extern "C" void gxFrameEntry(uint8_t* R, uint32_t arg1) {
     if ((gGpu3dPollCount++ & 63) == 0) {
         // sys.* is the session override for tests; persist.* is the user's setting (menu row)
@@ -2167,11 +2168,16 @@ extern "C" void gxFrameEntry(uint8_t* R, uint32_t arg1) {
     gpu3dSetFastForward(gFfOnForHook.load(std::memory_order_relaxed) != 0);
     if (gGpu3dEnabled && gGxLibBase) done = gpu3dFrame(R, arg1, gGxLibBase);
     else gpu3dOff();   // setting turned off: drain the GL queue and drop the decoupled read pointer
+    __atomic_store_n(&gGpu3dOwnsMaskStorage, done ? 1 : 0, __ATOMIC_RELEASE);
     if (!done) {
-        // CPU path, timed the same way as the GPU path for an honest comparison
+        // CPU path, timed the same way as the GPU path for an honest comparison. libdrastic picks
+        // its rasterizer by the live hi-res 3D flag (cfg+1184, the branch just before both hooked
+        // sites): +0x5eebc draws 512x384, +0x59bb4 native 256x192.
         static int64_t sumUs = 0, maxUs = 0; static uint32_t n = 0;
         struct timespec a, b; clock_gettime(CLOCK_MONOTONIC, &a);
-        reinterpret_cast<void (*)(uint8_t*, uint32_t)>(gGxLibBase + 0x5eebc)(R, arg1);
+        uint8_t* cfg = *reinterpret_cast<uint8_t**>(R + 8);
+        const bool hires = *reinterpret_cast<uint32_t*>(cfg + 1184) != 0;
+        reinterpret_cast<void (*)(uint8_t*, uint32_t)>(gGxLibBase + (hires ? 0x5eebc : 0x59bb4))(R, arg1);
         clock_gettime(CLOCK_MONOTONIC, &b);
         int64_t dt = ((int64_t)b.tv_sec - a.tv_sec) * 1000000 + ((int64_t)b.tv_nsec - a.tv_nsec) / 1000;
         sumUs += dt; if (dt > maxUs) maxUs = dt;
@@ -2194,6 +2200,9 @@ extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
         // Decoupled GPU path: "last drawn" is this frame's job, still in the GL queue; wait for it.
         if (gGpu3dEnabled) gpu3dJoinForDump();
         uint8_t* pub = *reinterpret_cast<uint8_t**>(R + 0x34eb40 + 40);
+        // Output size follows the hi-res 3D flag: 512x384 column de-interleaved (0xc0000) or the
+        // native linear 256x192 (0x30000). The header's byte count tells the tools which.
+        const uint32_t outBytes = *reinterpret_cast<uint32_t*>(*reinterpret_cast<uint8_t**>(R + 8) + 1184) != 0 ? 0xc0000u : 0x30000u;
         // sys gxdump_frames=N (default 1): N consecutive frames, gxdump_post.bin, gxdump_post2.bin, ...
         // (games that alternate two views every 3D frame need a parity match against the other path).
         static int more = 0, idx = 0;
@@ -2203,9 +2212,9 @@ extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
         FILE* pf = fopen(path, "wb");
         if (pf) {
             struct Hdr { char magic[8]; uint64_t pub, tgt; uint32_t bytes; } h{};
-            memcpy(h.magic, "GXPOST02", 8); h.pub = (uint64_t)(uintptr_t)pub; h.tgt = h.pub; h.bytes = 0xc0000;
+            memcpy(h.magic, "GXPOST02", 8); h.pub = (uint64_t)(uintptr_t)pub; h.tgt = h.pub; h.bytes = outBytes;
             fwrite(&h, sizeof h, 1, pf);
-            if (pub) fwrite(pub, 1, 0xc0000, pf);
+            if (pub) fwrite(pub, 1, outBytes, pf);
             fclose(pf);
             ALOGI("gxdump: post written (last drawn %p)", pub);
         }
@@ -2895,6 +2904,7 @@ struct T3dAdapt {
 // reset by the kick cave (+0x2c9c4) at scanline 214 when the next frame is queued.
 alignas(8) volatile uint32_t gT3dBandMaskStorage = 0;
 volatile int gGpu3dPendingStorage = 0;   // a GPU frame is still being rendered into the target buffer   // bit b set when global band b is rendered+edge-fixed
+volatile int gGpu3dOwnsMaskStorage = 0;  // the GPU rasterizer took the latest 3D frame, so the band mask is its (set in gxFrameEntry)
 int gT3dMode = 0;
 struct T3dPipe {
     uint32_t chunks = 0, waited = 0, timeouts = 0, startWaits = 0, idleSkips = 0, fullWaits = 0;
@@ -2931,7 +2941,11 @@ extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
           if (w) { gT3dPipe.startWaits++; gT3dPipe.sumStartUs += t3dNowUs() - t0; } }
         uint32_t need;
         const uint32_t ctl = *reinterpret_cast<uint32_t*>(render + 0x34eb40);
-        if (!hires) { need = 0xffffffffu; gT3dPipe.fullWaits++; }   // lo-res rasterizer: no band mask, wait for idle
+        // The native (lo-res) CPU rasterizer sets no band bits: wait for idle. The GPU rasterizer
+        // marks bands at either size (16 DS lines per band both ways), so while it owns the frames
+        // the band mask applies at native too (decoupled frames publish a full mask and must not
+        // wait for the worker, which is busy building the next frame).
+        if (!hires && !__atomic_load_n(&gGpu3dOwnsMaskStorage, __ATOMIC_ACQUIRE)) { need = 0xffffffffu; gT3dPipe.fullWaits++; }
         else {
             const uint32_t bnd = last / 16;              // band holding DS line `last`
             uint32_t top = bnd;
@@ -3656,6 +3670,10 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             w[7] = 0xd503201fu; w[8] = 0xd503201fu; w[9] = 0xd503201fu;
             *reinterpret_cast<uint64_t*>(base + kCaveGxPre + 40) = (uint64_t)(uintptr_t)&gxFrameEntry;
             patchBl(0x5f3c4, kCaveGxPre);
+            // The native 3D site right after it (+0x5f3cc: bl +0x59bb4, taken when hi-res 3D is
+            // off) goes through the same cave; gxFrameEntry picks the original by the flag.
+            if (*reinterpret_cast<uint32_t*>(base + 0x5f3cc) == 0x97ffe9fau) patchBl(0x5f3cc, kCaveGxPre);
+            else ALOGW("DrasticRunner: gx dump probes: unexpected code at the native 3D site, native frames stay on the CPU");
             __builtin___clear_cache((char*)(base + kCaveGxPre), (char*)(base + kCaveGxPre + 64));
             __builtin___clear_cache((char*)pgA, (char*)pgA + ps);
             gGxLibBase = base;

@@ -964,7 +964,7 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     }
     // Automation hook (headless menu shots, this platform cannot inject controller
     // input): sys.gammaos.drastic_nano.menu_nav = up|down|left|right|accept|cancel|
-    // tab|section:N, consumed once per frame; only while the menu is open.
+    // tab|section:N|row:<label prefix>, consumed once per frame; only while the menu is open.
     if (mOpen) {
         char nv[PROPERTY_VALUE_MAX] = {};
         property_get("sys.gammaos.drastic_nano.menu_nav", nv, "");
@@ -979,6 +979,10 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
             else if (!strcmp(nv, "cancel")) b.navCancel = true;
             else if (!strcmp(nv, "tab")) b.navNextTab = true;
             else if (!strncmp(nv, "section:", 8)) { mSection = (Section)(atoi(nv + 8) % kSec_COUNT); rebuildRows(); }
+            else if (!strncmp(nv, "row:", 4)) {   // select the first row whose label starts with the text
+                for (int i = 0; i < (int)mRows.size(); i++)
+                    if (!strncmp(mRows[i].label.c_str(), nv + 4, strlen(nv + 4))) { mCursor[mSection] = i; break; }
+            }
             if (b.navAccept || b.navCancel || b.navNextTab || b.navUpHeld || b.navDownHeld || b.navLeftHeld || b.navRightHeld) {
                 mNavHeldDir = NavDir::None;   // the synthetic press is a fresh edge
                 update(b, input);
@@ -2740,11 +2744,12 @@ void OverlayMenu::rebuildVideo() {
             "persist.gammaos.drastic_nano.threaded3d");
     addBool("Disable Edge Marking",mPrefs.disableEdge,  false,
             "persist.gammaos.drastic_nano.disable_edge");
-    // GPU 3D: the hi-res 3D layer is rasterized with GLES on a helper thread instead of
-    // libdrastic's three CPU raster threads (DrasticGpu3d.cpp). Both apply live; the GPU
-    // module re-reads the props every 64 frames. 4x renders at 1024x768 and box-filters into
-    // the 2x layer (smoother polygon edges; heavy scenes may not fit the frame budget).
-    if (mPrefs.hires3d) {
+    // GPU 3D: the 3D layer is rasterized with GLES on a helper thread instead of libdrastic's
+    // CPU raster threads (DrasticGpu3d.cpp), at either resolution setting: 512x384 with hi-res
+    // 3D on, native 256x192 with it off (the GL state is rebuilt when the setting flips). Both
+    // rows apply live; the GPU module re-reads the props every 64 frames. 4x supersampling is
+    // multisampling on the target: 2 samples on the 2x hi-res target, 4 on the native one.
+    {
         {
             // Turning it on asks first: the 3D layer is drawn a frame ahead on the GPU, so it
             // shows one frame late at either setting (two on the heaviest frames).

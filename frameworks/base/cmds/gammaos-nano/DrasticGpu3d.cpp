@@ -22,6 +22,13 @@
  *                     u16 poly indices with the count at +0x1000 (stride 0x1004)
  *   output            0xc0000 bytes, pixel (x,y) at (2y + (x&1))*0x400 + (x>>1)*4,
  *                     bytes r6 g6 b6 a5
+ *
+ * Native 3D (hi-res 3D off, cfg+1184 == 0): libdrastic dispatches to a second rasterizer
+ * (+0x59bb4) whose binning (+0x559bc opaque, +0x561ec translucent) is the same code with a
+ * 192 line screen and 16 line bands; the vertex bank then holds 256x192 screen coordinates and
+ * the output is 0x30000 bytes, pixel (x,y) at y*0x400 + x*4 (the compositor's line fetch
+ * +0x59f74 reads base + y*0x400). Both sites are hooked; this module renders at whichever size
+ * the setting selects and rebuilds its GL state from scratch when it changes.
  */
 
 #define LOG_TAG "GammaOSNano.Gpu3d"
@@ -64,7 +71,16 @@ extern "C" void gpu3dSetPending(int p);         // DrasticRunner.cpp: compose ho
 
 namespace {
 
-constexpr int kW = 512, kH = 384;
+// Target size follows drastic's live hi-res 3D setting: 512x384 when it is on, native 256x192
+// when it is off. Owned by the GL thread: set before initGl builds the targets and changed only
+// through a full teardown + fresh init (a multisample attachment rebuilt mid-session renders
+// dark on this Mali, so nothing is resized in place). The worker reads gResCur to know which
+// size the GL state currently serves and hands frames of the other size to the CPU rasterizer.
+static int kW = 512, kH = 384;
+static std::atomic<int> gResCur{-1};    // 1 hi-res, 0 native: the size the GL state was built for (set after init)
+static std::atomic<int> gResWant{1};    // the size drastic's config asks for (written by the worker)
+static inline int bandRows() { return kH / 12; }                          // rows per band: 32 hi-res, 16 native
+static inline size_t outBytes(int hires) { return hires ? 0xc0000 : 0x30000; }
 
 struct Vtx {
     float x, y, depth, w;   // screen px, depth 0..1, clip W (perspective-correct texel and colour interpolation; 1 = affine)
@@ -260,6 +276,7 @@ std::mutex gPhaseMtx;
 const char* kVert = R"(#version 300 es
 layout(location = 0) in vec4 aPos;   // x, y, depth, clip W
 uniform vec2 uVtxShift;              // screen-space vertex shift in pixels (sampling position A/B knob)
+uniform vec2 uHalfScreen;            // half the target size in pixels (256,192 hi-res; 128,96 native)
 layout(location = 1) in vec3 aCol;
 layout(location = 2) in vec2 aUv;
 layout(location = 3) in ivec4 aTex0;
@@ -282,7 +299,7 @@ void main() {
     // Screen-space vertices with the DS clip W as the homogeneous coordinate: the GPU then
     // interpolates texels and colours perspective-correctly (attribute / W linear on screen) the
     // way the DS and drastic's rasterizer do, while depth (z / w) stays linear on screen.
-    gl_Position = vec4(((aPos.x + uVtxShift.x) / 256.0 - 1.0) * aPos.w, ((aPos.y + uVtxShift.y) / 192.0 - 1.0) * aPos.w, (aPos.z * 2.0 - 1.0) * aPos.w, aPos.w);
+    gl_Position = vec4(((aPos.x + uVtxShift.x) / uHalfScreen.x - 1.0) * aPos.w, ((aPos.y + uVtxShift.y) / uHalfScreen.y - 1.0) * aPos.w, (aPos.z * 2.0 - 1.0) * aPos.w, aPos.w);
 }
 )";
 
@@ -658,6 +675,7 @@ bool initGl() {
         glUniform1i(glGetUniformLocation(pr, "uIdx"), 0); glUniform1i(glGetUniformLocation(pr, "uPal"), 1); glUniform1i(glGetUniformLocation(pr, "uBig"), 2);
         GLint am = glGetUniformLocation(pr, "uAlphaMul"); if (am >= 0) glUniform1f(am, 1.0f / 255.0f);
         GLint at = glGetUniformLocation(pr, "uAttr"); if (at >= 0) glUniform1i(at, 7);
+        GLint hs = glGetUniformLocation(pr, "uHalfScreen"); if (hs >= 0) glUniform2f(hs, kW * 0.5f, kH * 0.5f);
         return pr;
     };
     g.prog = build(g.fbFetch, false);
@@ -717,7 +735,17 @@ bool initGl() {
         // SSAA (ss 2) buffers are allocated lazily by ensureSsaaBuffers() the first time SSAA is
         // selected; the 4x MSAA config never uses them, so init skips their ~12 MB here.
         GLint maxS = 0; glGetIntegerv(GL_MAX_SAMPLES, &maxS);
-        g.msSamples = maxS >= 4 ? 4 : maxS;
+        // Sample count follows the base resolution (user rule): 2 samples on the 2x (512x384) hi-res
+        // target, 4 on a native 1x target. Fresh 2-sample sessions are pixel identical to 4 on
+        // Sonic Rush and Mario Kart (frame counted dumps) and halve the 3D GPU time; the 4 samples
+        // on top of a 2x base were 16 coverage samples per DS pixel, more than the edges need.
+        const int wantByRes = (kW >= 512) ? 2 : 4;
+        g.msSamples = maxS >= wantByRes ? wantByRes : maxS;
+        // sys gpu3d_msaa_samples 2 or 4 (read once at GL init) pins the multisample count of the
+        // targets created here, so a session can be started fresh at 2 samples for A/B (a
+        // runtime rebuild renders dark, so this is the only valid way to compare counts).
+        { const int want = property_get_int32("sys.gammaos.drastic_nano.gpu3d_msaa_samples", 0);
+          if ((want == 2 || want == 4) && want <= maxS) g.msSamples = want; }
         const char* glext = (const char*)glGetString(GL_EXTENSIONS);
         auto pFbTex2DMs = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
         auto pRbMsExt = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)eglGetProcAddress("glRenderbufferStorageMultisampleEXT");
@@ -782,14 +810,16 @@ bool initGl() {
     if (!g.fbFetch) { glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }
     g.readback.resize(kW * kH * 4);
     g.verts.reserve(65536);
-    { struct sigaction sa{}; sa.sa_sigaction = segvHandler; sa.sa_flags = SA_SIGINFO | SA_NODEFER; sigemptyset(&sa.sa_mask);
-      sigaction(SIGSEGV, &sa, &gPrevSegv); }
+    { static bool segvInstalled = false;   // once per process: a rebuild must not chain the handler to itself
+      if (!segvInstalled) { segvInstalled = true;
+          struct sigaction sa{}; sa.sa_sigaction = segvHandler; sa.sa_flags = SA_SIGINFO | SA_NODEFER; sigemptyset(&sa.sa_mask);
+          sigaction(SIGSEGV, &sa, &gPrevSegv); } }
     // Warm-up: the driver allocates the render targets, the texture arrays and the pipelines
     // on first use, which cost 755 ms on the first real frame; do it now on the GL thread.
     {
         const int64_t w0 = nowUs();
         Vtx tri[3] = {};
-        tri[0].x = 0; tri[0].y = 0; tri[1].x = 512; tri[1].y = 0; tri[2].x = 0; tri[2].y = 384;
+        tri[0].x = 0; tri[0].y = 0; tri[1].x = (float)kW; tri[1].y = 0; tri[2].x = 0; tri[2].y = (float)kH;
         for (int i = 0; i < 3; i++) { tri[i].depth = 0.5f; tri[i].w = 1.f; tri[i].r = tri[i].g = tri[i].b = 63.f; tri[i].tex0[2] = 0; }
         std::vector<uint8_t> z((size_t)kSmall * kSmall, 0);
         glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D_ARRAY, g.smallTex);
@@ -868,9 +898,9 @@ bool initGl() {
                     for (int pass = 0; pass <= 2; pass++) {
                         if (lp >= 0) glUniform1i(lp, pass);
                         glEnable(GL_BLEND);
-                        glStencilFunc(GL_GREATER, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+                        glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
                         glDrawArrays(GL_TRIANGLES, 0, 3);
-                        glStencilFunc(GL_EQUAL, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+                        glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
                         glDrawArrays(GL_TRIANGLES, 0, 3);
                         glDisable(GL_BLEND);
                         glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -1077,6 +1107,20 @@ TexEntry* texFor(uint64_t entryPtr, uint32_t texp) {
             // (bytes w*h are what texFor uploads; the palette row holds 256 words).
             int mx = 0; for (int i = 0; i < w * h; i++) if (db[i] > mx) mx = db[i];
             int lastNz = -1; for (int i = 0; i < 1024; i++) if (pw[i]) lastNz = i;
+            if (direct) {
+                // Colour-word entry (more than 256 colours, no private palette): lane ranges and the
+                // alpha byte histogram over every texel, so the stored lane format can be read off.
+                int mr = 0, mg = 0, mb = 0; uint32_t hist[8] = {}; uint32_t a0 = 0, a31 = 0, aOther = 0; int aMax = 0;
+                for (int i = 0; i < w * h; i++) {
+                    const uint8_t* q = db + i * 4;
+                    if (q[0] > mr) mr = q[0]; if (q[1] > mg) mg = q[1]; if (q[2] > mb) mb = q[2];
+                    if (q[3] > aMax) aMax = q[3];
+                    if (q[3] == 0) a0++; else if (q[3] == 31) a31++; else aOther++;
+                    hist[q[3] >> 5]++;
+                }
+                ALOGW("gpu3d: fmt %d DIRECT %dx%d lane max r %d g %d b %d a %d; alpha 0: %u, 31: %u, other: %u; alpha>>5 hist %u %u %u %u %u %u %u %u",
+                      fmt, w, h, mr, mg, mb, aMax, a0, a31, aOther, hist[0], hist[1], hist[2], hist[3], hist[4], hist[5], hist[6], hist[7]);
+            }
             const uint16_t* dw = reinterpret_cast<const uint16_t*>(dataPtr); int mx16 = 0; for (int i = 0; i < w * h; i++) if (dw[i] > mx16) mx16 = dw[i];
             ALOGW("gpu3d: fmt %d texel byte max %d over %d texels (as halfwords max %d); last nonzero palette word within 1024: %d", fmt, mx, w * h, mx16, lastNz);
             // Whole entry to a file for the host-side layout check: header, entry bytes, texels, palette.
@@ -1340,16 +1384,17 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, size_t base) {
     size_t off = base;
     for (uint16_t n : lens) {
         // replace where nothing is drawn yet (stencil 0): ref 1 GREATER stencil, set the flag
-        glStencilFunc(GL_GREATER, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        // replace where nothing is drawn yet (drawn bit clear), setting the bit
+        glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDisable(GL_BLEND);
         glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
-        // blend where drawn (stencil 1), alpha = max
-        glStencilFunc(GL_EQUAL, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        // blend where drawn (drawn bit set), alpha = max
+        glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         glEnable(GL_BLEND);
         glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
         off += n;
     }
-    glStencilFunc(GL_ALWAYS, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     g.curBlend = true;   // left enabled; useProgram tracks it from here
 }
 void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint mainProg, bool mainBlend) {
@@ -1403,8 +1448,14 @@ void alphaToDs(uint8_t* buf, int y0, int y1) {
 #endif
 }
 
-// Scatter rows [y0,y1) of the 512-wide readback into the column de-interleaved target.
+// Scatter rows [y0,y1) of the readback into drastic's output buffer. Hi-res (512 wide): the
+// column de-interleaved layout (even columns of line y in row 2y, odd in row 2y+1, 256 words
+// each). Native (256 wide): one linear 256-word row per line, a straight copy.
 void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) {
+    if (kW == 256) {
+        memcpy(target + (size_t)y0 * 0x400, src + (size_t)y0 * 0x400, (size_t)(y1 - y0) * 0x400);
+        return;
+    }
     for (int y = y0; y < y1; y++) {
         const uint32_t* row = reinterpret_cast<const uint32_t*>(src + y * kW * 4);
         uint32_t* even = reinterpret_cast<uint32_t*>(target + (2 * y) * 0x400);
@@ -1530,7 +1581,12 @@ void renderJob(Job& j) {
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
       gDsBlend = mainBlend && dsKnob != 0; g.blendAlpha = mainBlend;
-      glClearStencil(gDsBlend && ((j.clearC >> 24) & 0x1f) != 0 ? 1 : 0); glStencilMask(0xff); }
+      // The stencil holds two independent planes: bit 0x80 is the DS blend rule's per-sample "drawn"
+      // flag, bit 0x01 the stencil shadow mask. Each user limits its writes (and its clears: glClear
+      // honours the stencil write mask) to its own plane, so the shadow pass no longer wipes the
+      // drawn flag and the drawn flag no longer satisfies the shadow's EQUAL test everywhere
+      // (Mario Kart: the kart's shadow was drawn over the whole kart on the GPU path).
+      glClearStencil(gDsBlend && ((j.clearC >> 24) & 0x1f) != 0 ? 0x80 : 0); glStencilMask(0xff); }
     glClearColor((j.clearC & 0x3f) / 255.0f, ((j.clearC >> 8) & 0x3f) / 255.0f, ((j.clearC >> 16) & 0x3f) / 255.0f,
                  ((j.clearC >> 24) & 0x1f) / (mainBlend ? 31.0f : 255.0f));
     glClearDepthf((float)j.clearD / 16777215.0f);
@@ -1586,7 +1642,7 @@ void renderJob(Job& j) {
     if (gDsBlend) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
     else { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); }
     g.curProg = 0; g.curBlend = false; glDisable(GL_BLEND);
-    if (gDsBlend) { glEnable(GL_STENCIL_TEST); glStencilFunc(GL_ALWAYS, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    if (gDsBlend) { glEnable(GL_STENCIL_TEST); glStencilMask(0x80); glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
     else glDisable(GL_STENCIL_TEST);
     useProgram(useProg, mainBlend);
     glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
@@ -1643,19 +1699,19 @@ void renderJob(Job& j) {
             glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, attr); glActiveTexture(GL_TEXTURE0);
         }
         glEnable(GL_STENCIL_TEST);
-        glStencilMask(0xff);
+        glStencilMask(0x01);   // the shadow plane only: never touch the DS blend rule's drawn bit (0x80)
         bool prevMask = false, first = true;
         for (const ShadowSeg& sg : j.shadowSegs) {
             if (!sg.count) continue;
             glDepthFunc(sg.deq ? GL_LEQUAL : GL_LESS);
             if (sg.mask) {
-                if (first || !prevMask) glClear(GL_STENCIL_BUFFER_BIT);   // a new mask group starts with a clean stencil
+                if (first || !prevMask) glClear(GL_STENCIL_BUFFER_BIT);   // clears bit 0 only (write mask 0x01)
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
-                glStencilFunc(GL_ALWAYS, 1, 0xff); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
+                glStencilFunc(GL_ALWAYS, 0x01, 0x01); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
                 useProgram(g.progOpaque, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
             } else {
                 glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_FALSE);
-                glStencilFunc(GL_EQUAL, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+                glStencilFunc(GL_EQUAL, 0x01, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
                 useProgram(mainProg, mainBlend); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 if (uShadow >= 0) glUniform1i(uShadow, shadowMode);
             }
@@ -1664,7 +1720,8 @@ void renderJob(Job& j) {
             prevMask = sg.mask; first = false;
         }
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_TRUE);
-        glDisable(GL_STENCIL_TEST);
+        if (gDsBlend) { glStencilMask(0x80); glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+        else glDisable(GL_STENCIL_TEST);
         if (haveId) {
             glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, 0); glActiveTexture(GL_TEXTURE0);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0);
@@ -1707,7 +1764,7 @@ void renderJob(Job& j) {
         auto issue = [&](int c) {
             int b0, b1; bandRange(c, b0, b1);
             if (b0 == b1) return;
-            glScissor(0, b0 * 32, kW, (b1 - b0) * 32);
+            glScissor(0, b0 * bandRows(), kW, (b1 - b0) * bandRows());
             const int64_t d0 = nowUs();
             if (total) {
                 size_t base = 0;
@@ -1729,7 +1786,7 @@ void renderJob(Job& j) {
         for (int c = 0; c < chunks; c++) {
             int b0, b1; bandRange(c, b0, b1);
             if (b0 == b1) continue;
-            const int y0 = b0 * 32, y1 = b1 * 32;
+            const int y0 = b0 * bandRows(), y1 = b1 * bandRows();
             if (pipelined == 0 && c > 0) issue(c);
             if (pipelined == 2 && c == 1) for (int k = 1; k < chunks; k++) issue(k);
             const int64_t ta = nowUs();
@@ -1938,6 +1995,40 @@ void renderJob(Job& j) {
     }
 }
 
+// Full GL teardown on the GL thread, for a resolution change: every target, texture array,
+// program, buffer and the context go, and initGl builds them fresh at the new size. The EGL
+// display stays initialised (the presenter shares it in this process).
+static void destroyGl() {
+    if (g.dpy == EGL_NO_DISPLAY) return;
+    if (g.ctx != EGL_NO_CONTEXT) {
+        glFinish();
+        auto delTex = [](GLuint& t) { if (t) { glDeleteTextures(1, &t); t = 0; } };
+        auto delRb = [](GLuint& r) { if (r) { glDeleteRenderbuffers(1, &r); r = 0; } };
+        auto delFb = [](GLuint& f) { if (f) { glDeleteFramebuffers(1, &f); f = 0; } };
+        auto delPr = [](GLuint& p) { if (p) { glDeleteProgram(p); p = 0; } };
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        delFb(g.fbo); delFb(g.edgeFbo); delFb(g.ssFbo); delFb(g.ssEdgeFbo); delFb(g.msFbo); delFb(g.msFbo2x);
+        delTex(g.colorTex); delTex(g.attrTex); delTex(g.edgeTex); delTex(g.ssColor); delTex(g.ssAttr); delTex(g.ssEdgeTex);
+        delTex(g.smallTex); delTex(g.bigTex); delTex(g.palTex); delTex(g.dirTex); delTex(g.dirBigTex);
+        delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
+        delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progExp6); delPr(g.progExp7);
+        delPr(g.edgeProg); delPr(g.resolveProg);
+        if (g.vao) { glDeleteVertexArrays(1, &g.vao); g.vao = 0; }
+        if (g.edgeVao) { glDeleteVertexArrays(1, &g.edgeVao); g.edgeVao = 0; }
+        if (g.vbo) { glDeleteBuffers(1, &g.vbo); g.vbo = 0; }
+        if (g.tq) { auto pDelQ = (PFNGLDELETEQUERIESEXTPROC)eglGetProcAddress("glDeleteQueriesEXT"); if (pDelQ) pDelQ(1, &g.tq); g.tq = 0; }
+        glFinish();
+        eglMakeCurrent(g.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        eglDestroyContext(g.dpy, g.ctx); g.ctx = EGL_NO_CONTEXT;
+    }
+    if (g.surf != EGL_NO_SURFACE) { eglDestroySurface(g.dpy, g.surf); g.surf = EGL_NO_SURFACE; }
+    g.msSamples = 0; g.msBaseSamples = 0; g.msTargetSamples.store(0); g.msImplicit = false;
+    g.curProg = 0; g.curBlend = false; g.ss = 1; g.uPass = -1;
+    g.readback.clear();
+    resetAtlas();
+    g.inited = false; g.failed = false;
+}
+
 void glThreadMain() {
     // The thread is spawned from the 3D worker and inherits its SCHED_FIFO 80; its CPU phases
     // (readback copies, scatter, texture staging) must not compete with the emulation and
@@ -1949,26 +2040,51 @@ void glThreadMain() {
         const int rc = pthread_setschedparam(pthread_self(), prio > 0 ? SCHED_FIFO : SCHED_OTHER, &sp);
         ALOGI("gpu3d: GL thread scheduling %s %d (rc %d)", prio > 0 ? "FIFO" : "OTHER", prio, rc);
     }
-    initGl();
-    // Publish the outcome. A failed GL init (a shader that does not compile, a missing
-    // extension) makes every gpu3dFrame fall straight through to the CPU rasterizer for the
-    // rest of the session, which looks exactly like a working GPU path from the outside: the
-    // game runs, 4x and the presentation shaders still work, and nothing says the 3D rasterizer
-    // is gone. A toon shader that referenced undeclared uniforms hid behind that for two days of
-    // measurements. Say so once, loudly, and leave a property the test harness can read.
-    if (g.failed || !g.inited) {
-        ALOGE("gpu3d: GL init FAILED, the DS 3D rasterizer is running on the CPU for this whole "
-              "session (the GPU setting is on but has no effect)");
-    } else {
-        ALOGI("gpu3d: GL init ok, the DS 3D rasterizer is running on the GPU");
-    }
-    property_set("sys.gammaos.drastic_nano.gpu3d_active", g.failed || !g.inited ? "0" : "1");
-    g.initSettled.store(true, std::memory_order_release);
+    // Build the GL state at the size drastic's setting asks for (the worker wrote gResWant
+    // before starting this thread), and publish which size it serves once it is up.
+    auto buildFor = [](int hires) {
+        const int64_t r0 = nowUs();
+        kW = hires ? 512 : 256; kH = hires ? 384 : 192;
+        initGl();
+        // Publish the outcome. A failed GL init (a shader that does not compile, a missing
+        // extension) makes every gpu3dFrame fall straight through to the CPU rasterizer for the
+        // rest of the session, which looks exactly like a working GPU path from the outside: the
+        // game runs, 4x and the presentation shaders still work, and nothing says the 3D rasterizer
+        // is gone. A toon shader that referenced undeclared uniforms hid behind that for two days of
+        // measurements. Say so once, loudly, and leave a property the test harness can read.
+        if (g.failed || !g.inited) {
+            ALOGE("gpu3d: GL init FAILED at %dx%d, the DS 3D rasterizer is running on the CPU for this whole "
+                  "session (the GPU setting is on but has no effect)", kW, kH);
+        } else {
+            ALOGI("gpu3d: GL init ok, the DS 3D rasterizer is running on the GPU at %dx%d (%s, %d sample MSAA) in %.1f ms",
+                  kW, kH, hires ? "hi-res 3D" : "native 3D", g.msSamples, (nowUs() - r0) / 1000.0);
+        }
+        property_set("sys.gammaos.drastic_nano.gpu3d_active", g.failed || !g.inited ? "0" : "1");
+        property_set("sys.gammaos.drastic_nano.gpu3d_res", hires ? "2" : "1");
+        gResCur.store(hires, std::memory_order_release);
+        g.initSettled.store(true, std::memory_order_release);
+    };
+    buildFor(gResWant.load(std::memory_order_acquire));
     std::unique_lock<std::mutex> lk(g.mtx);
     g.cvDone.notify_all();   // init outcome visible
     while (!g.quit) {
-        g.cvSubmit.wait(lk, [] { return g.qCount > 0 || g.quit; });
+        g.cvSubmit.wait(lk, [] { return g.qCount > 0 || g.quit || gResWant.load(std::memory_order_acquire) != gResCur.load(std::memory_order_relaxed); });
         if (g.quit) break;
+        if (g.qCount == 0) {
+            // Resolution change (the worker drained the queue first): tear everything down and
+            // build it again at the new size. The worker keeps handing frames to the CPU
+            // rasterizer until gResCur says the new state is up.
+            const int want = gResWant.load(std::memory_order_acquire);
+            if (want == gResCur.load(std::memory_order_relaxed)) continue;
+            lk.unlock();
+            g.initSettled.store(false, std::memory_order_release);
+            destroyGl();
+            ALOGI("gpu3d: hi-res 3D setting changed, rebuilding the GL state for %s", want ? "512x384" : "native 256x192");
+            buildFor(want);
+            lk.lock();
+            g.cvDone.notify_all();
+            continue;
+        }
         Job* j = g.queue[g.qHead];
         g.pending = j;
         // Decoupled mode: start the job only after the next flip has landed (gpu3dNotePresent),
@@ -2112,6 +2228,8 @@ extern "C" void gpu3dNotePresent() {
 extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     if (!g.threadStarted) {
         g.threadStarted = true;
+        { uint8_t* cfg0 = *reinterpret_cast<uint8_t**>(R + 8);
+          gResWant.store(*reinterpret_cast<uint32_t*>(cfg0 + 1184) != 0 ? 1 : 0, std::memory_order_release); }
         g.glThread = std::thread(glThreadMain);
         g.glThread.detach();
     }
@@ -2165,8 +2283,12 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             // is truly over. Non-MSAA sessions (e.g. plain 2x hi-res, ss 1) keep the original
             // CPU-rasterizer backoff after ~1.5 s, since there is no MSAA level to shed.
             const float overMs = g.emaUs / 1000.f;
-            const bool msaaMode = (g.ss == 3 && g.msImplicit);   // only the implicit path can shed (a rebuilt explicit attachment renders dark)
-            if (msaaMode && g.msSamples > 2 && g.msTargetSamples.load() > 2) {
+            // A multisampled session never falls back to the CPU rasterizer (the user asked for MSAA
+            // to always take effect): the implicit path sheds 4x -> 2x, the explicit (exact) path has
+            // no clean shed (a rebuilt attachment renders dark) and simply stays at 4x and rides out
+            // the heavy scene. Only the non-multisampled sessions keep the CPU backoff.
+            const bool msaaMode = (g.ss == 3 && g.msFbo != 0);
+            if (msaaMode && g.msImplicit && g.msSamples > 2 && g.msTargetSamples.load() > 2) {
                 g.msTargetSamples.store(2); g.overBudget = 0; g.emaUs = 0.f; g.msaaUnder = 0;
                 ALOGW("gpu3d: %.1f ms sustained over the %d ms budget, dropping MSAA to 2x (was 4x)", overMs, budgetMs);
             } else if (!msaaMode && g.overBudget >= 90) {
@@ -2206,6 +2328,28 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     uint8_t* bufA = R + 0x1056c0;
     uint8_t* bufB = R + 0x1c56c0;
     uint8_t* gx = R + 0x356cb0;
+    // Hi-res 3D toggle (cfg+1184, the live menu setting): 512x384 on, native 256x192 off. The GL
+    // state serves one size; when the setting differs from it, drain the GL queue, ask the GL
+    // thread for a fresh build at the new size (full teardown: nothing is resized in place, see
+    // gResCur) and hand the frames to the CPU rasterizer until it is ready. drastic itself
+    // dispatches to a different rasterizer and binning per size, so the frame below picks the
+    // matching binning functions and output size from the same flag.
+    const bool hires3d = *reinterpret_cast<uint32_t*>(cfg + 1184) != 0;
+    const int resWant = hires3d ? 1 : 0;
+    { static int lastWant = -1;
+      if (resWant != lastWant) {
+          lastWant = resWant;
+          ALOGI("gpu3d: hi-res 3D %s, %s on the GPU rasterizer", hires3d ? "on" : "off", hires3d ? "512x384" : "native 256x192");
+      }
+      if (gResWant.load(std::memory_order_relaxed) != resWant) {
+          joinPrevious();
+          g.emaUs = 0.f; g.overBudget = 0; g.backoffFrames = 0; g.backoffElapsed = 0; g.msaaUnder = 0;
+          gResWant.store(resWant, std::memory_order_release);
+          { std::lock_guard<std::mutex> lk(g.mtx); }
+          g.cvSubmit.notify_one();
+      }
+      if (gResCur.load(std::memory_order_acquire) != resWant || !g.inited) return false; }
+    const size_t outSize = outBytes(resWant);
     const bool threaded = *reinterpret_cast<uint32_t*>(cfg + 1128) != 0;
     // Decoupled mode: the compositor reads the newest finished frame while the GL thread renders
     // the next one into another buffer, so the emulator never waits for the GPU. Measured on
@@ -2264,8 +2408,11 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     gStage = 1;
     auto fnDirty = reinterpret_cast<uint32_t (*)(uint8_t*)>(lib + 0x714ec);
     auto fnFog = reinterpret_cast<void (*)(uint8_t*, uint8_t*)>(lib + 0x545cc);
-    auto fnBinOpaque = reinterpret_cast<void (*)(uint8_t*, uint8_t*, const uint8_t*, const uint8_t*, uint32_t)>(lib + 0x5b144);
-    auto fnBinTransl = reinterpret_cast<void (*)(uint8_t*, uint8_t*, const uint8_t*, const uint8_t*, uint32_t)>(lib + 0x5b71c);
+    // Binning: the same code twice in the library, one copy per screen height (384 lines and 32
+    // line bands for hi-res, 192 lines and 16 line bands native). Both read the shared vertex bank
+    // and fill the same 12 band lists.
+    auto fnBinOpaque = reinterpret_cast<void (*)(uint8_t*, uint8_t*, const uint8_t*, const uint8_t*, uint32_t)>(lib + (hires3d ? 0x5b144 : 0x559bc));
+    auto fnBinTransl = reinterpret_cast<void (*)(uint8_t*, uint8_t*, const uint8_t*, const uint8_t*, uint32_t)>(lib + (hires3d ? 0x5b71c : 0x561ec));
 
     // Bookkeeping exactly as the worker frame (+0x5eebc) does before rasterizing.
     const bool rearDirty = (regs[1] & 0x40) ? (*reinterpret_cast<uint16_t*>(gSide + 0x8012) != 0) : false;
@@ -2302,7 +2449,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     if (arg1 || ((dirty | (rearDirty ? 1u : 0u)) == 0 && S[151] == 0)) {
         uint8_t* last = *reinterpret_cast<uint8_t**>(regs + 40);
         static int reuseLogs = 0; if (reuseLogs < 3) { reuseLogs++; ALOGI("gpu3d: frame reuse: arg1 %u dirty %u rear %d geom %u target %p last %p", arg1, dirty, rearDirty, S[151], target, last); }
-        if (!useDecoupled && threaded && target != last && last) memcpy(target, last, 0xc0000);
+        if (!useDecoupled && threaded && target != last && last) memcpy(target, last, outSize);
         gpu3dSetBandMask(0xfffu);
         return true;
     }
@@ -2475,7 +2622,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     uint32_t earlyMask = 0;
     if (useDecoupled) earlyMask = 0xfffu;
     else if (nowaitBands > 0 && prevDrawn && prevDrawn != target) {
-        memcpy(target, prevDrawn, (size_t)nowaitBands * 32 * 0x800);
+        memcpy(target, prevDrawn, (size_t)nowaitBands * (outSize / 12));
         earlyMask = (nowaitBands >= 12) ? 0xfffu : ((1u << nowaitBands) - 1u);
     }
     job.earlyMask = earlyMask;
