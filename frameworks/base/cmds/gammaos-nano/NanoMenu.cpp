@@ -4796,6 +4796,7 @@ if (sRingPrimedCount >= 2) {
             }
         }
         pollInput();
+        idleSleepTick();   // Android Screen Timeout on the menu (and the boot intro/disclaimer)
         checkInputHotplug();
         // Offer the "Run on primary screen" prompt when system_server has flagged a dual-screen
         // app. Self-guards to the home root with no other modal up and no app foreground.

@@ -233,6 +233,10 @@ bool NanoMenu::drasticParkSession() {
     break;
   }
     const int64_t tWake = uptimeMillis();
+    // The render thread was parked in this function for the whole session, so the
+    // idle-sleep tick never saw the game as an unfocused state: restart the Screen
+    // Timeout from the moment the home is back (it slept right after a long game).
+    mLastInputMs = mLastPointerMs = tWake;
 
     // SurfaceFlinger's composition gate: drastic-nano set drm_active=1 for its
     // DRM session and a fresh home start would clear it in main(). On the SF

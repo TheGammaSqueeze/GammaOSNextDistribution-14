@@ -2246,6 +2246,14 @@ private:
     // watchdog must skip its stall check or it would abort the whole process (which
     // also kills background music) on every power-button sleep.
     std::atomic<bool> mInDrmSleep{false};
+    // Idle sleep after the Android Screen Timeout (Settings.System screen_off_timeout).
+    // PowerManager pins the panel on while the nano menu is visible (menu_active: the
+    // framework never sees nano's pad input), so nano times the idle itself, the boot
+    // intro and its disclaimer included. Cached value in ms, -1 = Never, -2 = not read yet.
+    std::atomic<int64_t> mIdleSleepTimeoutMs{-2};
+    std::atomic<bool>    mIdleSleepReading{false};
+    int64_t              mIdleSleepReadMs = 0;      // uptime of the last cache refresh
+    void idleSleepTick();                           // NanoMenuInput.cpp; render thread, after pollInput()
     // True while opening a video on the render thread. NanoVideo::open() (and track
     // Async video open (no UI freeze on warmup). The blocking open work (extractor build,
     // codec create/configure/start, NanoHls network) runs on mVidOpenThread OFF the render

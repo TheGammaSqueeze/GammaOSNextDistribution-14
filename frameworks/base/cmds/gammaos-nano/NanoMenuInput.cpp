@@ -54,6 +54,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 
 #include "NanoBacklight.h"
 #include "NanoMenu.h"
+#include "NanoMenuSettingsTree.h"
 #include "NanoMenuDrm.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuUtils.h"
@@ -953,6 +954,80 @@ void nanoBtLpmSuspendGate(bool screenOff, bool& disabled) {
 // Defined later in this file; forward-declared so the DRM sleep wait loop can honour
 // a slide-open "wake" action.
 static bool slideActionHas(const char* list, const char* act);
+
+// Sleep the device after the Android Screen Timeout with no input on the menu.
+// PowerManagerService.isNanoDisplayForcedOn keeps the panel lit while the menu
+// is visible (the framework never sees the pad on a DRM-direct home), so its
+// own timeout never fires on the menu; this is the menu-side equivalent. It also
+// covers the cold-boot intro and the disclaimer it waits on (NDS and Minima
+// themes), which used to sit lit forever. Runs on the render thread right after
+// pollInput(), which stamps mLastInputMs / mLastPointerMs for every kind of input.
+void NanoMenu::idleSleepTick() {
+    // The resident overlay coexists with a running app: the framework owns that
+    // display and its timeout works there.
+    if (mOverlayMode) return;
+    if (mInDrmSleep.load(std::memory_order_relaxed)) return;
+    if (!property_get_bool("sys.boot_completed", false)) return;   // settings + PowerManager not up
+
+    // The setting is read through the settings shell (a popen), never on the
+    // render thread: refresh it from a short-lived worker every 15 s so a change
+    // made in Display Settings takes effect within that.
+    const int64_t nowMs = android::uptimeMillis();
+    if ((mIdleSleepTimeoutMs.load() == -2 || nowMs - mIdleSleepReadMs >= 15000)
+        && !mIdleSleepReading.exchange(true)) {
+        mIdleSleepReadMs = nowMs;
+        std::thread([this]() {
+            std::string v = readSettingValue(SettingSource::kSystem, "screen_off_timeout", "60000");
+            long long ms = atoll(v.c_str());
+            // -1 (nano's Never) and Integer.MAX_VALUE (Android's Never) both disable it.
+            if (ms <= 0 || ms >= 2147483647LL) ms = -1;
+            mIdleSleepTimeoutMs.store((int64_t)ms);
+            mIdleSleepReading.store(false);
+        }).detach();
+    }
+    const int64_t timeoutMs = mIdleSleepTimeoutMs.load();
+    if (timeoutMs <= 0) return;   // unknown yet, or Never
+
+    // Everything the framework side already exempts, plus the menu states where a
+    // sleep would cut something the user is watching or waiting for. While the
+    // home is not the thing in focus (a game or app runs, a launch is in flight,
+    // the wizard, a video) nothing stamps mLastInputMs, so the timer restarts
+    // when focus comes back: without that the home slept the instant a long
+    // game session ended (reported 2026-09-22).
+    static bool sIdleSleepUnfocused = false;
+    const bool unfocused =
+            mSetupWizardActive || mDrasticParked.load(std::memory_order_relaxed)
+            || property_get_bool("sys.gammaos.nano.app_launched", false)
+            || property_get_bool("sys.gammaos.nano.media_playing", false)   // in-process video
+            || (mVidActive && mVidPlaying && !mVidStopped)
+            || mLaunchFadeStart != 0 || mOverlayLaunchPending || mShowLaunchBusy || mWaitForRelease
+            || mPowerPressTime != 0;
+    if (unfocused) { sIdleSleepUnfocused = true; return; }
+    if (sIdleSleepUnfocused) {
+        sIdleSleepUnfocused = false;
+        mLastInputMs = mLastPointerMs = nowMs;   // focus regained: the timeout counts from here
+        return;
+    }
+
+    const int64_t lastMs = mLastInputMs > mLastPointerMs ? mLastInputMs : mLastPointerMs;
+    if (nowMs - lastMs < timeoutMs) return;
+
+    ALOGI("NanoMenu: no input for %lld ms (screen timeout %lld ms) -> sleeping%s",
+          (long long)(nowMs - lastMs), (long long)timeoutMs,
+          mPs3BootActive ? " (boot intro)" : "");
+    if (sDrmActive) {
+        // DRM-direct home: the same path as the power button and the lid. It
+        // blanks our panels, drives PowerManager standby, and on wake stamps
+        // mLastInputMs so the timer restarts (a false return means it shut down).
+        enterDrmSleep();
+    } else {
+        // SurfaceFlinger-hosted home: the framework owns the display; ask it to
+        // sleep (KEYCODE_SLEEP via the nano-dosleep service) and let the render
+        // loop follow sys.screen.state as it does for a framework-driven sleep.
+        property_set("sys.gammaos.nano.dosleep", "1");
+    }
+    mLastInputMs = mLastPointerMs = android::uptimeMillis();
+}
 
 bool NanoMenu::enterDrmSleep() {
     // The render thread is about to block in the wait loop below, so the render
