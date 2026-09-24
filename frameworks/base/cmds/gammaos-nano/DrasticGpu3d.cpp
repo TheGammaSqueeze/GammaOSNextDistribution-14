@@ -151,6 +151,7 @@ struct Gpu3d {
     bool quit = false;
     Job jobs[3]; int jobIdx = 0;
     uint32_t bpDrops = 0;   // decoupled frames dropped under back-pressure (gpu3d_drop_bp)
+    uint32_t bpUploadsCarried = 0;   // texture uploads moved from a dropped job to the one that replaced it
     std::atomic<uint8_t*> latest{nullptr};   // newest fully rendered target buffer (decoupled mode)
     uint8_t* bufC = nullptr;                 // third target buffer: the GL thread never writes what the compositor reads
     std::atomic<bool> decoupledActive{false};
@@ -2728,7 +2729,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     }
     job.earlyMask = earlyMask;
     if ((g.frame % 300) == 2) ALOGI("gpu3d: policy: nowait %d, ss %d, decoupled %d, prevDrawn %p target %p, early mask %03x, queue room wait %.2f ms avg, present wait %.2f ms avg (%u timeouts, %u skipped as not fitting)", nowaitBands, g.ss, useDecoupled ? 1 : 0, prevDrawn, target, earlyMask, g.sumRoomUs / 300000.0, g.sumPresentWaitUs / 300000.0, g.presentWaitTimeouts, g.presentWaitSkips);
-    if ((g.frame % 300) == 2 && g.bpDrops) { ALOGI("gpu3d: back-pressure drops %u (cumulative)", g.bpDrops); }
+    if ((g.frame % 300) == 2 && g.bpDrops) { ALOGI("gpu3d: back-pressure drops %u (cumulative), texture uploads carried over %u", g.bpDrops, g.bpUploadsCarried); }
     if ((g.frame % 300) == 2) { g.sumRoomUs = 0; g.sumPresentWaitUs = 0; g.presentWaitTimeouts = 0; g.presentWaitSkips = 0; }
     {
         std::lock_guard<std::mutex> lk(g.mtx);
@@ -2738,7 +2739,21 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             // its slot. The GL thread is stuck on the rendering job's fence; the dropped frame is
             // never rendered, its buffer is free for reuse, and the emulator does not wait.
             const int ws = (g.qHead + 1) & 1;
-            if (g.queue[ws] != g.rendering) { g.queue[ws]->cancel = true; g.queue[ws] = &job; g.bpDrops++; }
+            if (g.queue[ws] != g.rendering) {
+                Job* old = g.queue[ws]; old->cancel = true;
+                // The dropped job's texture uploads must still land: texFor already marked those
+                // entries as uploaded, so nothing would ever upload them again and their layer and
+                // palette row would stay zero (a pal16 texel then decodes to opaque black; Pokemon
+                // White 2's title model drew black feet for half a minute after a state load, when
+                // the new scene's uploads coincide with the drops of a heavy scene). Carry them over
+                // ahead of this job's own uploads so a re-upload of the same layer still wins.
+                if (!old->uploads.empty()) {
+                    g.bpUploadsCarried += (uint32_t)old->uploads.size();
+                    job.uploads.insert(job.uploads.begin(), std::make_move_iterator(old->uploads.begin()), std::make_move_iterator(old->uploads.end()));
+                    old->uploads.clear();
+                }
+                g.queue[ws] = &job; g.bpDrops++;
+            }
             else { g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++; }   // both slots rendering: cannot happen, fall back
         } else {
             g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++;
