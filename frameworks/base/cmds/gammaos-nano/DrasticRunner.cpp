@@ -2182,6 +2182,10 @@ extern "C" void gxFrameEntry(uint8_t* R, uint32_t arg1) {
 // Frame-counted arming (sys gxdump_after_load=N, read at load_state): the dump fires on the Nth 3D
 // frame after the load on either path, so CPU and GPU captures of a scene are the same frame.
 static volatile int gGxDumpAt = 0, gGxFramesSinceLoad = 0;
+// Test hook: the panel screenshot fires on the frame the 3D dump was written for, so a CPU and a
+// GPU capture of the same 3D frame after a load can be compared as displayed composites.
+static std::atomic<int> gGxShotPending{0};
+extern "C" bool gxShotTake() { return gGxShotPending.exchange(0, std::memory_order_relaxed) != 0; }
 extern "C" void gxDumpArmAfterFrames(int n) { gGxFramesSinceLoad = 0; gGxDumpAt = n; }
 extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
     if (!gGxLibBase) return;
@@ -2205,6 +2209,7 @@ extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
             fclose(pf);
             ALOGI("gxdump: post written (last drawn %p)", pub);
         }
+        if (property_get_int32("sys.gammaos.drastic_nano.gxdump_shot", 0) != 0) gGxShotPending.store(1, std::memory_order_relaxed);
         return;
     }
     bool arm = property_get_int32("sys.gammaos.drastic_nano.gxdump", 0) == 1;

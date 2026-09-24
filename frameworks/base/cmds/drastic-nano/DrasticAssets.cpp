@@ -244,9 +244,21 @@ bool seedRoot(const std::string& root) {
         ensureLink(pr.first, pr.second);
     }
 
-    // Read-only databases: linked (13.7 MB of cheats never copied).
+    // The game database is read-only: linked. The cheat database is NOT: libdrastic's
+    // updateCheats opens User/usrcheat.dat with "rb+" to store the enabled flags, and
+    // a link into the read-only system image made every cheat apply fail with EROFS
+    // (reported 2026-09-22: "cheats no longer work"). Copy it once (13.7 MB), replace
+    // an older link, and refresh it when the image changes like the BIOS files.
     ensureLink(root + "/game_database.xml", systemDir() + "/game_database.xml");
-    ensureLink(root + "/usrcheat.dat",      systemDir() + "/usrcheat.dat");
+    {
+        const std::string t = root + "/usrcheat.dat";
+        const bool imageChanged = readSmall(root + "/.seed") != seedStamp();
+        if (isLink(t) || imageChanged || !isFile(t)) {
+            unlink(t.c_str());
+            if (!copyFile(systemDir() + "/usrcheat.dat", t))
+                ALOGE("drastic-nano assets: copy usrcheat.dat failed: %s", strerror(errno));
+        }
+    }
 
     // BIOS, firmware and the default layout: copied so libdrastic may open them
     // for writing (the firmware carries the user settings). Refreshed when the

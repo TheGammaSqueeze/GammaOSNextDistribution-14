@@ -469,6 +469,9 @@ private:
     void applyConfigLive();
     void scanShaders();
     bool slotFileExists(int slot) const;
+    bool mCloseReapplyPending = false;         // closeMenu: applyConfigLive once the unpause is done
+    bool mCloseCheatsPending = false;          // closeMenu: applyCheats once the unpause is done
+    std::atomic<bool> mUnpauseDone{true};      // set by the worker after pauseToggle(false)
     mutable bool mSlotCacheValid = false;      // per-open cache of slotFileExists (FUSE stats)
     mutable uint32_t mSlotCacheKnown = 0, mSlotCacheExists = 0;
     void toast(const std::string& msg, int64_t ms = 1500);

@@ -95,7 +95,7 @@ static std::atomic<int> gDbgArm{0}; static int gDbgFrame = 0; static int gDbgHit
 extern "C" void gpu3dDbgArm() { gDbgArm.store(1, std::memory_order_relaxed); }
 static int gPersp = 1;    // sys gpu3d_persp: perspective-correct interpolation from the vertex W (default on)
 static int gTexDbg = 0;   // sys gpu3d_texdump: log converted entries, their GL readback and the polygons using them
-struct Stream { std::vector<Vtx> v[8]; };   // [deq | dwrite<<1 | nodiscard<<2]
+struct Stream { std::vector<Vtx> v[8]; std::vector<uint16_t> polyLen[8]; };   // [deq | dwrite<<1 | nodiscard<<2]; polyLen = vertices per polygon, list order
 // Shadow polygons (mode 3), in list order: id 0 = mask (stencil where the depth test fails),
 // others draw where the stencil is set. Consecutive polygons of one kind form a segment.
 struct ShadowSeg { uint32_t start, count; bool mask, deq; };
@@ -117,6 +117,7 @@ struct Job {
     bool edge = false;
     uint32_t edgeTbl[8] = {};
     size_t verts = 0;
+    bool syncLo2x = false;   // transient engine-swap sync frame: render into the always-2x MSAA FBO
 };
 
 struct Gpu3d {
@@ -130,6 +131,7 @@ struct Gpu3d {
     Job* queue[2] = {}; int qHead = 0, qCount = 0;   // jobs handed to the GL thread, in order (decoupled mode: up to two)
     bool quit = false;
     Job jobs[3]; int jobIdx = 0;
+    uint32_t bpDrops = 0;   // decoupled frames dropped under back-pressure (gpu3d_drop_bp)
     std::atomic<uint8_t*> latest{nullptr};   // newest fully rendered target buffer (decoupled mode)
     uint8_t* bufC = nullptr;                 // third target buffer: the GL thread never writes what the compositor reads
     std::atomic<bool> decoupledActive{false};
@@ -141,13 +143,23 @@ struct Gpu3d {
     EGLContext ctx = EGL_NO_CONTEXT;
     EGLSurface surf = EGL_NO_SURFACE;
     GLuint progNoFetch = 0, progTrivial = 0, progOpaque = 0, progExp6 = 0, progExp7 = 0, uPassNoFetch = 0;
-    GLuint curProg = 0; bool curBlend = false;
+    GLuint curProg = 0; bool curBlend = false; bool blendAlpha = false;   // this job stores alpha as a blend factor (GL-blend path)
     GLuint prog = 0, fbo = 0, colorTex = 0, depthRb = 0, vbo = 0, vao = 0, smallTex = 0, bigTex = 0, palTex = 0;
     GLuint attrTex = 0, edgeProg = 0, edgeFbo = 0, edgeTex = 0, edgeVao = 0;
     // 4x supersampling: a second set of targets at 1024x768 and a resolve pass into the 2x ones
     GLuint ssFbo = 0, ssColor = 0, ssAttr = 0, ssDepth = 0, ssEdgeFbo = 0, ssEdgeTex = 0, resolveProg = 0;
     GLuint msFbo = 0, msColor = 0, msDepth = 0; int msSamples = 0;   // 4x MSAA on the 2x target
+    GLuint msFbo2x = 0, msDepth2x = 0;   // a second, always-2-sample MSAA target sharing colorTex,
+                                         // bound for transient sync frames without a depth-RB rebuild
     bool msImplicit = false;   // EXT_multisampled_render_to_texture: resolved in-tile, no blit
+    // Adaptive MSAA: 4x by default, drop to 2x only on a scene that is sustained over the frame
+    // budget at 4x, restore 4x when it comfortably fits again. The worker sets msTargetSamples
+    // from the budget guard; the GL thread rebuilds the (implicit) MSAA depth RB to match. Same
+    // colorTex, same resolution, so only edge anti-aliasing softens on the heaviest scenes.
+    int msBaseSamples = 0;                    // the max sample count the device gives (4)
+    std::atomic<int> msTargetSamples{0};      // requested by the worker, applied by the GL thread
+    uint32_t msaaUnder = 0;                   // consecutive comfortable frames (restore hysteresis)
+    void* pRbMsExt = nullptr; void* pFbTex2DMs = nullptr;   // saved for the runtime rebuild
     int ss = 1;   // 1 plain, 2 supersampled 1024x768, 3 MSAA 4x at 512x384
     GLint uAlphaMulNoFetch = -1, uAlphaMulOpaque = -1;
     bool attrWanted = false;   // the current job runs the edge pass
@@ -318,6 +330,12 @@ uniform int uToonR[32];
 uniform int uToonG[32];
 uniform int uToonB[32];
 uniform int uToonHighlight;
+// Shadow pass (polygon mode 3): the DS skips a shadow fragment whose destination polygon id
+// equals the shadow polygon's own id (a caster never darkens itself, and the shadow volume's
+// front faces sit in front of the caster). uAttr is the opaque pass's id attachment
+// (attrOut.r = id + 1), read back here with the attachment detached for the pass.
+uniform sampler2D uAttr;
+uniform int uShadowPass;
 )";
 
 const char* kFragBody = R"(
@@ -385,6 +403,12 @@ void main() {
         }
     }
     float a = floor(ta * (polyA + 1.0) * (1.0 / 32.0));
+    // Fog is drastic's post pass over the pixels the rasterizer drew: a fragment that is not drawn
+    // (alpha 0) must go before fog can raise its alpha (Mario Kart: fogged transparent texels of
+    // the trees came out as blue quads at alpha 1, and the DS shows any non-zero 3D pixel when
+    // 3D blending is off). The depth-write split (uPass) is also decided on the pre-fog alpha.
+    float a0 = a;
+//DISCARD0//
     if (uFog != 0 && fogPoly != 0) {
         int dz = int(floor(gl_FragCoord.z * 16777215.0 + 0.5)) + uFogTune.x;
         int z16 = (dz >> 9) & 0x7fff;
@@ -404,9 +428,12 @@ void main() {
 //DISCARD//
 )";
 const char* kFragDiscard = R"(
-    if (a == 0.0) discard;
-    if (uPass == 1 && a != 31.0) discard;
-    if (uPass == 2 && a == 31.0) discard;
+    if (uPass == 1 && a0 != 31.0) discard;
+    if (uPass == 2 && a0 == 31.0) discard;
+    if (uShadowPass == 1) {
+        int did = int(texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r * 255.0 + 0.5) - 1;
+        if (did == ((vTex1.x >> 16) & 63)) discard;
+    }
 )";
 
 const char* kFragFetch = R"(
@@ -510,6 +537,33 @@ GLuint compile(GLenum type, const std::string& src) {
     return sh;
 }
 
+// The SSAA path (internal ss 2, a 1024x768 supersampled target) needs three 1024x768 RGBA8
+// textures plus a 1024x768 depth buffer, about 12 MB. The 4x MSAA config (the shipped 4x setting,
+// internal ss 3) never touches them, so allocate them the first time SSAA is actually selected
+// instead of unconditionally at init. Runs on the GL thread. Returns false if the FBO is
+// incomplete (the caller then falls back to the plain path for that frame).
+bool ensureSsaaBuffers() {
+    if (g.ssFbo) return true;
+    auto tex2d = [](GLuint& t, int w, int h) {
+        glGenTextures(1, &t); glBindTexture(GL_TEXTURE_2D, t);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    };
+    tex2d(g.ssColor, kW * 2, kH * 2); tex2d(g.ssAttr, kW * 2, kH * 2); tex2d(g.ssEdgeTex, kW * 2, kH * 2);
+    glGenRenderbuffers(1, &g.ssDepth); glBindRenderbuffer(GL_RENDERBUFFER, g.ssDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, kW * 2, kH * 2);
+    glGenFramebuffers(1, &g.ssFbo); glBindFramebuffer(GL_FRAMEBUFFER, g.ssFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.ssColor, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.ssAttr, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.ssDepth);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { ALOGE("gpu3d: SSAA FBO incomplete"); glDeleteFramebuffers(1, &g.ssFbo); g.ssFbo = 0; return false; }
+    glGenFramebuffers(1, &g.ssEdgeFbo); glBindFramebuffer(GL_FRAMEBUFFER, g.ssEdgeFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.ssEdgeTex, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { ALOGE("gpu3d: SSAA edge FBO incomplete"); glDeleteFramebuffers(1, &g.ssFbo); g.ssFbo = 0; return false; }
+    ALOGI("gpu3d: SSAA buffers allocated on demand");
+    return true;
+}
+
 bool initGl() {
     if (g.inited) return true;
     if (g.failed) return false;
@@ -534,11 +588,22 @@ bool initGl() {
     const bool hasPrio = eglExt && strstr(eglExt, "EGL_IMG_context_priority");
     int prioSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_prio", -1);
     if (prioSel < 0) {
-        // Decoupled is the default at both settings now, so LOW unless the wait policy is forced.
-        // (Left on the old 4x-only rule the 2x path got HIGH: Pokemon 59.2 / 55.5 with 25 long-flip
-        // seconds per 90 against 59.8 / 59.3 with LOW.)
+        // Decoupled is the default at both settings. Priority is fixed for the whole session
+        // (the EGL context is created once), so key it on the session's supersampling setting:
+        //   - 4x supersampling on: the 3D frame is the heavy GPU client, and at LOW it yielded
+        //     ~4 ms per frame to the panel-blit + LCD shader context (measured on Sonic Rush
+        //     attract: GPU-elapsed 11-14 ms but fence wait 14-17 ms). MEDIUM removed most of that
+        //     with no audio cost: sub-58 seconds 26/174 -> 3/172, underruns still 0, and Pokemon
+        //     4x underruns still 0. HIGH is avoided (it starves the presenter: 42 fps).
+        //   - 4x off (plain 2x hi-res): keep LOW, the value tuned for that path (the old 4x-only
+        //     rule once gave the 2x path HIGH: Pokemon 59.2 / 55.5 with 25 long-flip seconds per
+        //     90 against 59.8 / 59.3 with LOW). Pokemon 2x underruns are 0 at both LOW and MEDIUM.
         const int dk = property_get_int32("sys.gammaos.drastic_nano.gpu3d_decouple", -1);
-        prioSel = (dk >= 0 ? dk != 0 : true) ? 2 : 1;
+        const bool decoup = (dk >= 0 ? dk != 0 : true);
+        int ssSet = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ss", -1);
+        if (ssSet < 0) ssSet = property_get_bool("persist.gammaos.drastic_nano.gpu3d_ss", false) ? 2 : 1;
+        const bool superSample = ssSet >= 2;
+        prioSel = !decoup ? 1 : (superSample ? 0 /* medium */ : 2 /* low */);
     }
     const bool prio = hasPrio && prioSel != 0;
     const EGLint caPrio[] = { EGL_CONTEXT_CLIENT_VERSION, 3, 0x3100 /* EGL_CONTEXT_PRIORITY_LEVEL_IMG */, prioSel == 2 ? 0x3103 /* LOW */ : 0x3101 /* HIGH */, EGL_NONE };
@@ -563,6 +628,8 @@ bool initGl() {
             std::string body = kFragBody;
             size_t m = body.find("//DISCARD//");
             body.replace(m, 11, noDiscard ? "" : kFragDiscard);
+            m = body.find("//DISCARD0//");
+            body.replace(m, 12, noDiscard ? "" : "    if (a0 == 0.0) discard;");
             auto swapStmt = [&](const char* anchor, const char* repl) {
                 size_t q = body.find(anchor);
                 if (q == std::string::npos) { ALOGE("gpu3d: experiment anchor missing: %s", anchor); return; }
@@ -590,6 +657,7 @@ bool initGl() {
         glUniform1i(glGetUniformLocation(pr, "uDir"), 5); glUniform1i(glGetUniformLocation(pr, "uDirBig"), 6);
         glUniform1i(glGetUniformLocation(pr, "uIdx"), 0); glUniform1i(glGetUniformLocation(pr, "uPal"), 1); glUniform1i(glGetUniformLocation(pr, "uBig"), 2);
         GLint am = glGetUniformLocation(pr, "uAlphaMul"); if (am >= 0) glUniform1f(am, 1.0f / 255.0f);
+        GLint at = glGetUniformLocation(pr, "uAttr"); if (at >= 0) glUniform1i(at, 7);
         return pr;
     };
     g.prog = build(g.fbFetch, false);
@@ -646,28 +714,20 @@ bool initGl() {
         glGenVertexArrays(1, &g.edgeVao);
     }
     {
-        auto tex2d = [](GLuint& t, int w, int h) {
-            glGenTextures(1, &t); glBindTexture(GL_TEXTURE_2D, t);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        };
-        tex2d(g.ssColor, kW * 2, kH * 2); tex2d(g.ssAttr, kW * 2, kH * 2); tex2d(g.ssEdgeTex, kW * 2, kH * 2);
-        glGenRenderbuffers(1, &g.ssDepth); glBindRenderbuffer(GL_RENDERBUFFER, g.ssDepth);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, kW * 2, kH * 2);
-        glGenFramebuffers(1, &g.ssFbo); glBindFramebuffer(GL_FRAMEBUFFER, g.ssFbo);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.ssColor, 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.ssAttr, 0);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.ssDepth);
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { ALOGE("gpu3d: 4x FBO incomplete"); return false; }
-        glGenFramebuffers(1, &g.ssEdgeFbo); glBindFramebuffer(GL_FRAMEBUFFER, g.ssEdgeFbo);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.ssEdgeTex, 0);
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { ALOGE("gpu3d: 4x edge FBO incomplete"); return false; }
+        // SSAA (ss 2) buffers are allocated lazily by ensureSsaaBuffers() the first time SSAA is
+        // selected; the 4x MSAA config never uses them, so init skips their ~12 MB here.
         GLint maxS = 0; glGetIntegerv(GL_MAX_SAMPLES, &maxS);
         g.msSamples = maxS >= 4 ? 4 : maxS;
         const char* glext = (const char*)glGetString(GL_EXTENSIONS);
         auto pFbTex2DMs = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
         auto pRbMsExt = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)eglGetProcAddress("glRenderbufferStorageMultisampleEXT");
         g.msImplicit = glext && strstr(glext, "GL_EXT_multisampled_render_to_texture") && pFbTex2DMs && pRbMsExt;
+        // Default is the explicit multisampled renderbuffer + blit resolve: through the implicit
+        // resolve extension this Mali renders GTA Chinatown Wars' layered sky dark and faceted
+        // (185k pixels off the CPU rasterizer on one frame) while the explicit path is exact.
+        // sys gpu3d_msaa_implicit 1 (read at GL init) restores the extension for A/B.
+        if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_msaa_implicit", 0) == 0) g.msImplicit = false;
+        g.pRbMsExt = (void*)pRbMsExt; g.pFbTex2DMs = (void*)pFbTex2DMs;
         if (g.msSamples >= 2 && g.msImplicit) {
             // colour resolves into the plain colorTex at tile write-out; only depth is multisampled
             glGenRenderbuffers(1, &g.msDepth); glBindRenderbuffer(GL_RENDERBUFFER, g.msDepth);
@@ -676,6 +736,19 @@ bool initGl() {
             pFbTex2DMs(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex, 0, g.msSamples);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.msDepth);
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { ALOGW("gpu3d: implicit MSAA FBO incomplete, falling back to explicit"); g.msImplicit = false; glDeleteFramebuffers(1, &g.msFbo); g.msFbo = 0; }
+            // Second target, fixed at 2 samples, sharing the same resolved colorTex. Engine-swap
+            // sync frames render whole while the emulator waits and cost ~48 ms at 4x; binding this
+            // instead drops them to 2x with no depth-RB rebuild (the per-frame rebuild sank the
+            // earlier attempt). Only worth it when the base is 4x. Its 2-sample depth RB is ~1.5 MB,
+            // far less than the SSAA buffers this build now allocates lazily.
+            if (g.msImplicit && g.msSamples >= 4) {
+                glGenRenderbuffers(1, &g.msDepth2x); glBindRenderbuffer(GL_RENDERBUFFER, g.msDepth2x);
+                pRbMsExt(GL_RENDERBUFFER, 2, GL_DEPTH24_STENCIL8, kW, kH);
+                glGenFramebuffers(1, &g.msFbo2x); glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo2x);
+                pFbTex2DMs(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex, 0, 2);
+                glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.msDepth2x);
+                if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { ALOGW("gpu3d: 2x sync FBO incomplete, sync frames stay at 4x"); glDeleteFramebuffers(1, &g.msFbo2x); g.msFbo2x = 0; }
+            }
         }
         if (g.msSamples >= 2 && !g.msImplicit) {
             glGenRenderbuffers(1, &g.msColor); glBindRenderbuffer(GL_RENDERBUFFER, g.msColor);
@@ -687,6 +760,7 @@ bool initGl() {
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.msDepth);
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { ALOGW("gpu3d: MSAA FBO incomplete, MSAA off"); g.msSamples = 0; }
         }
+        g.msBaseSamples = g.msSamples; g.msTargetSamples.store(g.msSamples);
         ALOGI("gpu3d: MSAA implicit resolve %d", g.msImplicit);
         ALOGI("gpu3d: MSAA samples %d (max %d)", g.msSamples, maxS);
         GLuint vs = compile(GL_VERTEX_SHADER, kEdgeVert), fs = compile(GL_FRAGMENT_SHADER, kResolveFrag);
@@ -732,9 +806,9 @@ bool initGl() {
         uint8_t pal[1024] = {};
         glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D_ARRAY, g.palTex);
         for (int l = 0; l < kPalRows; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, 256, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pal);
-        for (GLuint fb : { g.fbo, g.ssFbo }) {
+        for (GLuint fb : { g.fbo }) {   // ssFbo is now allocated lazily and warmed on first SSAA use
             glBindFramebuffer(GL_FRAMEBUFFER, fb);
-            glViewport(0, 0, fb == g.ssFbo ? kW * 2 : kW, fb == g.ssFbo ? kH * 2 : kH);
+            glViewport(0, 0, kW, kH);
             const GLenum bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
             glDrawBuffers(2, bufs);
             glClearColor(0, 0, 0, 0); glClearDepthf(1.f); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -757,6 +831,14 @@ bool initGl() {
             glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
             glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
         }
+        if (g.msFbo2x) {   // warm the 2-sample sync target so the first engine swap does not stall
+            glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo2x); glViewport(0, 0, kW, kH);
+            { const GLenum b1[1] = { GL_COLOR_ATTACHMENT0 }; glDrawBuffers(1, b1); }
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            glBindVertexArray(g.vao); glUseProgram(g.progNoFetch); glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
+            glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
+        }
         // Full-size read of the plain target as well (the 2x path and the no-MSAA fallback).
         glBindFramebuffer(GL_FRAMEBUFFER, g.fbo); glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
         glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
@@ -764,6 +846,46 @@ bool initGl() {
         glBindFramebuffer(GL_FRAMEBUFFER, g.edgeFbo); glUseProgram(g.edgeProg); glBindVertexArray(g.edgeVao); glDrawArrays(GL_TRIANGLES, 0, 3);
         glUseProgram(g.resolveProg); glDrawArrays(GL_TRIANGLES, 0, 3);
         glReadPixels(0, 0, 8, 8, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
+        // Warm the render pipeline STATES a real frame uses, so the first encounter of each does not
+        // stall the GL thread mid-attract (a 118 ms upload+draw spike was one such first-use stall,
+        // which on a shallow audio buffer showed as a one-off underrun). Exercise, on the MSAA
+        // target: the MAX-alpha blend + separate func, the stencil replace/equal translucent path,
+        // and both depth modes, across the three draw programs.
+        if (g.msFbo) {
+            glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo); glViewport(0, 0, kW, kH);
+            { const GLenum b1[1] = { GL_COLOR_ATTACHMENT0 }; glDrawBuffers(1, b1); }
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            glEnable(GL_DEPTH_TEST);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX);
+            glEnable(GL_STENCIL_TEST); glStencilMask(0xff);
+            for (GLuint pr : { g.progNoFetch, g.progOpaque }) {
+                glUseProgram(pr);
+                const GLint ld = glGetUniformLocation(pr, "uDepthMode");
+                const GLint lp = glGetUniformLocation(pr, "uPass");
+                for (int dm = 0; dm <= 1; dm++) {
+                    if (ld >= 0) glUniform1i(ld, dm);
+                    for (int pass = 0; pass <= 2; pass++) {
+                        if (lp >= 0) glUniform1i(lp, pass);
+                        glEnable(GL_BLEND);
+                        glStencilFunc(GL_GREATER, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+                        glDrawArrays(GL_TRIANGLES, 0, 3);
+                        glStencilFunc(GL_EQUAL, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+                        glDrawArrays(GL_TRIANGLES, 0, 3);
+                        glDisable(GL_BLEND);
+                        glDrawArrays(GL_TRIANGLES, 0, 3);
+                    }
+                    if (ld >= 0) glUniform1i(ld, 0);
+                    if (lp >= 0) glUniform1i(lp, 0);
+                }
+            }
+            glDisable(GL_STENCIL_TEST);
+            glBlendEquation(GL_FUNC_ADD); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            if (!g.msImplicit) { glBindFramebuffer(GL_READ_FRAMEBUFFER, g.msFbo); glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g.fbo); glBlitFramebuffer(0, 0, kW, kH, 0, 0, kW, kH, GL_COLOR_BUFFER_BIT, GL_NEAREST); }
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo); glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
+            glFinish();
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
         glViewport(0, 0, kW, kH);
         ALOGI("gpu3d: warm-up took %.1f ms", (nowUs() - w0) / 1000.0);
     }
@@ -1004,9 +1126,8 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     g.modeCount[(pattr >> 4) & 3]++; g.fmtCount[fmt]++; if ((pattr >> 15) & 1) g.fogPolys++;
     if (((pattr >> 4) & 3) == 2) gToonSeen = true;   // toon / highlight: the job must carry the table
     // Shadow polygons (mode 3) are a two-pass stencil effect on the DS (id 0 polygons write the
-    // mask, others draw only where the mask is set); drawn as plain polygons they cover the scene
-    // in black (Mario Kart slot 0). Skipped until the stencil pass exists: shadows are missing,
-    // the scene is right. sys gpu3d_shadow=1 draws them anyway.
+    // mask, others draw only where the mask is set and the destination polygon id differs);
+    // drawn as plain polygons they cover the scene in black (Mario Kart slot 0). See drawShadows.
     // Debug visualisation: sys gpu3d_dbg_skipfmt is a bitmask of texture formats to drop
     // (bit N = format N), and gpu3d_dbg_skipmode a bitmask of polygon modes. Lets a class of
     // geometry be removed from the frame to see what it was drawing. 0 = draw everything.
@@ -1021,11 +1142,11 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     }
     const bool shadowPoly = ((pattr >> 4) & 3) == 3;
     if (shadowPoly) {
-        // Off by default: drastic's own rasterizer draws no shadow polygons (Mario Kart's karts
-        // cast none on the CPU path), and the GPU path matches it. sys gpu3d_shadow 1 draws
-        // them with the stencil passes below.
-        static int shadowKnob = 0; static uint32_t polls = 0;
-        if ((polls++ & 1023) == 0) shadowKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow", 0);
+        // On by default: drastic's rasterizer does draw shadow polygons (Mario Kart's kart casts
+        // a translucent blob, hidden under the kart on the start line, which is where the
+        // earlier "no shadows" reading came from). sys gpu3d_shadow 0 skips them.
+        static int shadowKnob = 1; static uint32_t polls = 0;
+        if ((polls++ & 1023) == 0) shadowKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow", 1);
         if (!shadowKnob || !g.cur) return;
     }
     TexEntry* t;
@@ -1084,7 +1205,14 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     // the no-discard program so the GPU can reject hidden fragments before shading.
     const bool mayDiscard = translucent || ((pattr >> 16) & 31) != 31 ||
                             (t && (fmt == 1 || fmt == 6 || fmt == 5 || fmt == 7 || ((texp >> 29) & 1)));
-    std::vector<Vtx>& dst = out.v[deq | (dwrite << 1) | ((mayDiscard ? 0 : 1) << 2)];
+    // Opaque list: bit 1 (always depth-write there) instead marks polygons whose texels can carry
+    // a partial alpha (a3i5 / a5i3): on the GL-blend path those fragments follow the DS translucent
+    // rule too (replace over an undrawn pixel, blend otherwise), drawn per polygon like the
+    // translucent list. GTA Chinatown Wars draws its cloud layers as such polygons in the opaque
+    // list; blended against the transparent rear plane they came out dark and faceted.
+    const bool partialA = !translucent && t && (fmt == 1 || fmt == 6);
+    const int grpIdx = deq | ((translucent ? dwrite : (partialA ? 1 : 0)) << 1) | ((mayDiscard ? 0 : 1) << 2);
+    std::vector<Vtx>& dst = out.v[grpIdx];
     Vtx v[16];
     for (int k = 0; k < n; k++) {
         int kk = (order >> (4 * k)) & 15;
@@ -1108,6 +1236,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         memcpy(v[k].tex0, tex0, sizeof tex0); memcpy(v[k].tex1, tex1, sizeof tex1);
     }
     for (int k = 1; k + 1 < n; k++) { dst.push_back(v[0]); dst.push_back(v[k]); dst.push_back(v[k + 1]); }
+    out.polyLen[grpIdx].push_back((uint16_t)(3 * (n - 2)));
     if (gTexDbg) {
         // Suspect polygons: a screen extent under 3 px with a texel extent above 8 (collapsed vertices)
         float minx = 1e9f, maxx = -1e9f, miny = 1e9f, maxy = -1e9f, mins = 1e9f, maxs = -1e9f;
@@ -1198,6 +1327,31 @@ void useProgram(GLuint prog, bool blend) {
     if (blend != g.curBlend) { if (blend) glEnable(GL_BLEND); else glDisable(GL_BLEND); g.curBlend = blend; }
 }
 
+// GL-blend (no framebuffer fetch) path, DS translucent rule. The DS writes a translucent fragment
+// unblended over a pixel nothing has been drawn to (destination alpha 0) and blends it otherwise,
+// with the destination alpha becoming max(src, dst). GL blending cannot branch on the destination
+// alpha, so the stencil buffer carries a per-sample "drawn" flag: the rear plane (when its alpha is
+// not 0), every opaque fragment and every alpha 31 fragment set it; each translucent polygon is
+// then drawn twice in list order, first unblended where the flag is clear (setting it), then blended
+// where it is set. Per polygon, so a polygon never blends over its own first pass. The fetch path
+// does the same arithmetic in the shader and needs none of this.
+static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
+static void drawTranslDs(const std::vector<uint16_t>& lens, size_t base) {
+    size_t off = base;
+    for (uint16_t n : lens) {
+        // replace where nothing is drawn yet (stencil 0): ref 1 GREATER stencil, set the flag
+        glStencilFunc(GL_GREATER, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glDisable(GL_BLEND);
+        glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
+        // blend where drawn (stencil 1), alpha = max
+        glStencilFunc(GL_EQUAL, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glEnable(GL_BLEND);
+        glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
+        off += n;
+    }
+    glStencilFunc(GL_ALWAYS, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    g.curBlend = true;   // left enabled; useProgram tracks it from here
+}
 void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint mainProg, bool mainBlend) {
     // vertices of all eight groups were uploaded contiguously; draw each group with its state.
     // Only the opaque list writes the polygon id / depth attachment, and only when the edge
@@ -1214,15 +1368,17 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
             const bool noDiscard = (grp >> 2) & 1;
             useProgram(noDiscard ? g.progOpaque : mainProg, noDiscard ? false : mainBlend);
             glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS);
-            bool dwrite = (grp >> 1) & 1;
+            bool dwrite = (grp >> 1) & 1;   // opaque stream: the partial-alpha texel flag instead
             if (!translucent || dwrite || noDiscard) {
                 glDepthMask(GL_TRUE); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
-                glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                if (gDsBlend && (translucent || (dwrite && !noDiscard))) drawTranslDs(st.polyLen[grp], base);
+                else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
             } else {
                 glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1);
                 glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
                 glDepthMask(GL_FALSE); glUniform1i(g.uPass, 2);
-                glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                if (gDsBlend) drawTranslDs(st.polyLen[grp], base);
+                else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
                 glUniform1i(g.uPass, 0);
             }
         }
@@ -1265,17 +1421,55 @@ void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) {
     }
 }
 
+// GL thread: apply a pending adaptive-MSAA sample-count change (implicit-resolve path only).
+// Rebuilds the multisampled depth renderbuffer and re-attaches colorTex at the new sample count,
+// replacing the old depth RB (no steady extra memory). Colour target and resolution are unchanged.
+static void applyMsaaTarget() {
+    int tgt = g.msTargetSamples.load(std::memory_order_relaxed);
+    // sys gpu3d_msaa_force 1/2/4 pins the sample count (A/B: 1 = the same target and pipeline with
+    // a single sample, which separates multisampling from everything else on this path).
+    { static int force = 0; if ((g.glFrames & 15) == 0) force = property_get_int32("sys.gammaos.drastic_nano.gpu3d_msaa_force", 0);
+      if (force == 1 || force == 2 || force == 4) tgt = force; }
+    if (!g.msImplicit || !g.msFbo || tgt < 1 || tgt == g.msSamples) return;
+    auto pRb = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)g.pRbMsExt;
+    auto pFb = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)g.pFbTex2DMs;
+    if (!pRb || !pFb) return;
+    glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
+    if (g.msDepth) glDeleteRenderbuffers(1, &g.msDepth);
+    glGenRenderbuffers(1, &g.msDepth); glBindRenderbuffer(GL_RENDERBUFFER, g.msDepth);
+    pRb(GL_RENDERBUFFER, tgt, GL_DEPTH24_STENCIL8, kW, kH);
+    pFb(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex, 0, tgt);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.msDepth);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+        ALOGI("gpu3d: adaptive MSAA now %dx", tgt); g.msSamples = tgt;
+    } else {
+        ALOGW("gpu3d: adaptive MSAA rebuild to %dx incomplete, keeping %dx", tgt, g.msSamples);
+        g.msTargetSamples.store(g.msSamples);
+    }
+}
+
 // ---- GL thread: owns the context, renders one Job at a time.
 void renderJob(Job& j) {
     const int64_t t0 = nowUs();
     g.glFrames++;   // GL-thread-owned counter for the knob polls (g.frame is the worker's and races)
+    // Skip the redundant glBindTexture when the same array is already bound to a unit. A scene
+    // transition uploads a whole new working set (Sonic attract: 243 in one frame), and the old
+    // per-upload rebind issued ~2 binds each (the array + the palette); a run of same-target
+    // uploads now binds each array once. glActiveTexture stays per upload (it selects which unit
+    // the glTexSubImage3D writes, and the palette upload switches the active unit), but it is a
+    // cheap selector, not the driver-validated bind. Correct for any upload order.
+    GLuint bnd0 = 0, bnd1 = 0, bnd2 = 0, bnd5 = 0, bnd6 = 0;   // 0 = unknown, force first bind
     for (Upload& u : j.uploads) {
         if (u.direct) {
-            glActiveTexture(u.big ? GL_TEXTURE6 : GL_TEXTURE5); glBindTexture(GL_TEXTURE_2D_ARRAY, u.big ? g.dirBigTex : g.dirTex);
+            const GLuint tex = u.big ? g.dirBigTex : g.dirTex; GLuint& cache = u.big ? bnd6 : bnd5;
+            glActiveTexture(u.big ? GL_TEXTURE6 : GL_TEXTURE5);
+            if (cache != tex) { glBindTexture(GL_TEXTURE_2D_ARRAY, tex); cache = tex; }
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, u.layer, u.w, u.h, 1, GL_RGBA, GL_UNSIGNED_BYTE, u.data.data());
             continue;
         }
-        glActiveTexture(u.big ? GL_TEXTURE2 : GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D_ARRAY, u.big ? g.bigTex : g.smallTex);
+        { const GLuint tex = u.big ? g.bigTex : g.smallTex; GLuint& cache = u.big ? bnd2 : bnd0;
+          glActiveTexture(u.big ? GL_TEXTURE2 : GL_TEXTURE0);
+          if (cache != tex) { glBindTexture(GL_TEXTURE_2D_ARRAY, tex); cache = tex; } }
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, u.layer, u.w, u.h, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, u.data.data());
         if (u.dbg) {
             GLuint fbo = 0; glGenFramebuffers(1, &fbo); glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
@@ -1287,7 +1481,7 @@ void renderJob(Job& j) {
                   px[0], px[4], px[8], px[12], px[16], px[20], px[24], px[28], py[0], py[4], py[8], py[12], py[16], py[20], py[24], py[28], u.data[u.w], u.data[u.w + 1], u.data[u.w + 2], u.data[u.w + 3]);
             glBindFramebuffer(GL_READ_FRAMEBUFFER, 0); glDeleteFramebuffers(1, &fbo);
         }
-        glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D_ARRAY, g.palTex);
+        glActiveTexture(GL_TEXTURE1); if (bnd1 != g.palTex) { glBindTexture(GL_TEXTURE_2D_ARRAY, g.palTex); bnd1 = g.palTex; }
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, u.palRow, 256, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, u.pal);
     }
     const int64_t t1 = nowUs();
@@ -1302,34 +1496,51 @@ void renderJob(Job& j) {
             if (strcmp(mode, "ssaa") != 0 && g.msSamples >= 2) ssOpt = 3;   // 4x MSAA on the 2x target (default)
         }
     }
+    if (ssOpt == 2 && !ensureSsaaBuffers()) ssOpt = 1;   // SSAA buffers are lazy; fall back if they fail
     g.ss = ssOpt;
     const bool msaa = g.ss == 3;
+    // A transient engine-swap sync frame renders into the always-2-sample target (no depth-RB
+    // rebuild), so its whole-frame cost that blocks the emulator drops from ~48 ms toward ~24 ms.
+    const bool syncLo = msaa && g.msImplicit && g.msFbo2x && j.syncLo2x;
+    if (msaa && !syncLo && g.msImplicit) applyMsaaTarget();   // apply a pending adaptive 4x<->2x switch on the GL thread (implicit only)
+    const GLuint mfbo = syncLo ? g.msFbo2x : g.msFbo;
     const int rw = g.ss == 2 ? kW * 2 : kW, rh = g.ss == 2 ? kH * 2 : kH;
     glViewport(0, 0, rw, rh);
-    glBindFramebuffer(GL_FRAMEBUFFER, msaa ? g.msFbo : g.ss == 2 ? g.ssFbo : g.fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, msaa ? mfbo : g.ss == 2 ? g.ssFbo : g.fbo);
     glDepthMask(GL_TRUE);
     if (msaa) j.edge = false;   // no id attachment on the multisampled target
-    g.attrWanted = j.edge;
+    // The id attachment feeds the edge marking pass and the shadow pass's self-shadow id
+    // test. On the multisampled target there is no id attachment, so the shadow pass still
+    // runs (stencil mask + shadow) but without the id refinement.
+    g.attrWanted = j.edge || (!j.shadowSegs.empty() && !msaa);
     if (g.attrWanted) {
         const GLenum bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, bufs);
         const GLfloat attrClear[4] = { 0.f, 0.f, 0.f, 0.f };
         glClearBufferfv(GL_COLOR, 1, attrClear);
     }
-    glClearColor((j.clearC & 0x3f) / 255.0f, ((j.clearC >> 8) & 0x3f) / 255.0f, ((j.clearC >> 16) & 0x3f) / 255.0f,
-                 ((j.clearC >> 24) & 0x1f) / 255.0f);
-    glClearDepthf((float)j.clearD / 16777215.0f);
-    { const GLenum bufs0[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, bufs0); }
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    // The rear plane's alpha follows the same lane convention as the polygons: the fetch path
+    // stores the 5-bit value in the byte (a/255), the MSAA / GL-blend path stores a blend factor
+    // (a/31) that alphaToDs turns back into the 5-bit value. Clearing with a/255 on MSAA left an
+    // opaque rear plane at 4 of 31 (Sonic Rush stage intro: the white card composed as clear).
     static int progSel = 0; if ((g.glFrames & 63) == 0) progSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0);
     GLuint useProg = progSel == 3 ? g.progNoFetch : progSel == 4 ? g.progTrivial : progSel == 6 ? g.progExp6 : progSel == 7 ? g.progExp7 : g.prog;
     bool mainBlend = progSel == 3 || !g.fbFetch;
     if (msaa) { useProg = g.progNoFetch; mainBlend = true; }
+    // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
+    { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
+      gDsBlend = mainBlend && dsKnob != 0; g.blendAlpha = mainBlend;
+      glClearStencil(gDsBlend && ((j.clearC >> 24) & 0x1f) != 0 ? 1 : 0); glStencilMask(0xff); }
+    glClearColor((j.clearC & 0x3f) / 255.0f, ((j.clearC >> 8) & 0x3f) / 255.0f, ((j.clearC >> 16) & 0x3f) / 255.0f,
+                 ((j.clearC >> 24) & 0x1f) / (mainBlend ? 31.0f : 255.0f));
+    glClearDepthf((float)j.clearD / 16777215.0f);
+    { const GLenum bufs0[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, bufs0); }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     // Both no-fetch programs draw in the MSAA path (the opaque stream through progOpaque), so
     // both take the blend-factor alpha scale there; with only progNoFetch set, opaque polygons
     // landed with alpha 31/255 -> 4 of 31 after the readback (Sonic transparent at 4x).
-    glUseProgram(g.progNoFetch); glUniform1f(g.uAlphaMulNoFetch, msaa ? 1.0f / 31.0f : 1.0f / 255.0f);
-    glUseProgram(g.progOpaque); glUniform1f(g.uAlphaMulOpaque, msaa ? 1.0f / 31.0f : 1.0f / 255.0f);
+    glUseProgram(g.progNoFetch); glUniform1f(g.uAlphaMulNoFetch, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
+    glUseProgram(g.progOpaque); glUniform1f(g.uAlphaMulOpaque, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
     for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque }) {
         glUseProgram(pr);
         { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 1);   // colour affine, texels perspective: closest to drastic on Golden Sun and Mario Kart
@@ -1372,8 +1583,11 @@ void renderJob(Job& j) {
             }
         }
     }
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (gDsBlend) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
+    else { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); }
     g.curProg = 0; g.curBlend = false; glDisable(GL_BLEND);
+    if (gDsBlend) { glEnable(GL_STENCIL_TEST); glStencilFunc(GL_ALWAYS, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    else glDisable(GL_STENCIL_TEST);
     useProgram(useProg, mainBlend);
     glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D_ARRAY, g.smallTex);
@@ -1413,6 +1627,21 @@ void renderJob(Job& j) {
     // Shadow pass, after the translucent list: stencil masks then shadow polygons per segment.
     auto drawShadows = [&](GLuint mainProg, bool mainBlend) {
         if (j.shadowSegs.empty()) return;
+        // The self-shadow polygon-id test needs the opaque pass's id attachment (attachment 1).
+        // It exists on the plain and 2x-supersampled targets but NOT the multisampled one, so
+        // on MSAA the shadow still draws (stencil mask + shadow) without the id refinement.
+        static int idTest = 1; if ((g.glFrames & 63) == 0) idTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_idtest", 1);
+        const bool haveId = g.attrWanted && g.ss != 3 && idTest;
+        const int shadowMode = haveId ? 1 : 2;
+        const GLuint attr = g.ss == 2 ? g.ssAttr : g.attrTex;
+        const GLint uShadow = glGetUniformLocation(mainProg, "uShadowPass");
+        if (haveId) {
+            // A texture may not be sampled while attached to the framebuffer being drawn:
+            // detach the id attachment for the pass, sample it as uAttr, then put it back.
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
+            { const GLenum b1[1] = { GL_COLOR_ATTACHMENT0 }; glDrawBuffers(1, b1); }
+            glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, attr); glActiveTexture(GL_TEXTURE0);
+        }
         glEnable(GL_STENCIL_TEST);
         glStencilMask(0xff);
         bool prevMask = false, first = true;
@@ -1428,12 +1657,19 @@ void renderJob(Job& j) {
                 glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_FALSE);
                 glStencilFunc(GL_EQUAL, 1, 0xff); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
                 useProgram(mainProg, mainBlend); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                if (uShadow >= 0) glUniform1i(uShadow, shadowMode);
             }
             glDrawArrays(GL_TRIANGLES, (GLint)(shadowBase + sg.start), (GLsizei)sg.count);
+            if (!sg.mask && uShadow >= 0) glUniform1i(uShadow, 0);
             prevMask = sg.mask; first = false;
         }
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_TRUE);
         glDisable(GL_STENCIL_TEST);
+        if (haveId) {
+            glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, 0); glActiveTexture(GL_TEXTURE0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0);
+            { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, b2); }
+        }
     };
     static int gpuTime = 0; if ((g.glFrames & 63) == 0) gpuTime = property_get_int32("sys.gammaos.drastic_nano.gpu3d_gputime", 0);
     static PFNGLGENQUERIESEXTPROC pGenQ = nullptr; static PFNGLBEGINQUERYEXTPROC pBeginQ = nullptr; static PFNGLENDQUERYEXTPROC pEndQ = nullptr;
@@ -1523,7 +1759,7 @@ void renderJob(Job& j) {
             glReadPixels(0, y0, kW, y1 - y0, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data() + (size_t)y0 * kW * 4);
             if (msaa) glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
             const int64_t tc = nowUs(); rbUs += tc - tb;
-            if (msaa) alphaToDs(g.readback.data(), y0, y1);
+            if (g.blendAlpha) alphaToDs(g.readback.data(), y0, y1);
             scatterRows(g.readback.data(), j.target, y0, y1);
             scUs += nowUs() - tc;
             for (int b = b0; b < b1; b++) maskDone |= 1u << b;
@@ -1634,6 +1870,14 @@ void renderJob(Job& j) {
         glEnable(GL_DEPTH_TEST);
         glBindVertexArray(g.vao);
     }
+    if (timing) pEndQ(0x88BF /* GL_TIME_ELAPSED_EXT */);
+    // Explicit MSAA: queue the resolve blit with the draws, so the one fence below covers it. Issued
+    // after the fence it was a second GPU round trip that glReadPixels then blocked on (readback
+    // 6 to 8 ms a frame on the heavy Sonic Rush attract scenes against 1.2 on the implicit path).
+    if (msaa && !g.msImplicit) {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, g.msFbo); glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g.fbo);
+        glBlitFramebuffer(0, 0, kW, kH, 0, 0, kW, kH, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    }
     const int64_t t2 = nowUs();
     g.sumUploadUs += t2 - t1;
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
@@ -1651,15 +1895,10 @@ void renderJob(Job& j) {
     }
     const int64_t t3 = nowUs();
     g.sumDrawUs += t3 - t2;
-    if (msaa && !g.msImplicit) {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, g.msFbo); glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g.fbo);
-        glBlitFramebuffer(0, 0, kW, kH, 0, 0, kW, kH, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
-    } else if (msaa) {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
-    }
+    if (timing) { GLuint av = 0; pGetQ(g.tq, 0x8867 /* QUERY_RESULT_AVAILABLE */, &av); if (av) { GLuint64 ns = 0; pGetQ64(g.tq, 0x8866 /* QUERY_RESULT */, &ns); g.sumGpuNs += (int64_t)ns; g.gpuSamples++; } }
+    if (msaa) glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);   // resolved colour (explicit blit above, or in-tile)
     glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
-    if (msaa) alphaToDs(g.readback.data(), 0, kH);
+    if (g.blendAlpha) alphaToDs(g.readback.data(), 0, kH);
     const int64_t t4 = nowUs();
     g.sumReadUs += t4 - t3;
     const uint8_t* src = g.readback.data();
@@ -1678,8 +1917,16 @@ void renderJob(Job& j) {
         if (pairLog && pairLogN < 3000) { pairLogN++; ALOGW("JOB3D s=%lld e=%lld gpu=%lld", (long long)t0, (long long)t5, (long long)(t3 - t2)); }
     }
     g.emaUs = g.emaUs == 0.f ? (float)dt : g.emaUs * 0.9f + (float)dt * 0.1f;
+    if (dt > 30000) {   // spike: log its breakdown so scene-transition stalls can be attributed
+        static int64_t sLastSpike = 0; static int sSpikeN = 0;
+        if (t5 - sLastSpike > 200000 && sSpikeN < 200) { sLastSpike = t5; sSpikeN++;
+            ALOGW("gpu3d: SPIKE %.1f ms (tex %.1f, upload+draw %.1f, gpu wait %.1f, readback %.1f, scatter %.1f) uploads %zu verts %u",
+                  dt / 1000.0, (t1 - t0) / 1000.0, (t2 - t1) / 1000.0, (t3 - t2) / 1000.0, (t4 - t3) / 1000.0, (t5 - t4) / 1000.0,
+                  j.uploads.size(), (unsigned)(j.opaque.v[0].size() + j.transl.v[0].size())); }
+    }
     g.sumUs += dt; if (dt > g.maxUs) g.maxUs = dt; g.frames++;
     if (g.frames % 300 == 0) {
+        if (g.gpuSamples) { ALOGI("gpu3d: GPU time elapsed (timer query) %.2f ms avg over %u frames (single-shot)", g.sumGpuNs / 1e6 / g.gpuSamples, g.gpuSamples); g.sumGpuNs = 0; g.gpuSamples = 0; }
         ALOGI("gpu3d: %u frames, GL thread %.2f ms (tex %.2f, upload+draw %.2f, gpu wait %.2f, readback %.2f, scatter %.2f), worker build %.2f ms, worker join wait %.2f ms, %zu verts, %u tex reuploads, max %.2f ms, %zu textures cached",
               g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
               g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames,
@@ -1908,12 +2155,39 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             if (retryFrames > 0 && ++g.backoffElapsed >= (uint32_t)retryFrames) {
                 g.backoffFrames = 0; g.backoffElapsed = 0; g.emaUs = 0.f; ALOGI("gpu3d: retrying the GPU path");
             } else { joinPrevious(); return false; }
-        } else if (budgetMs > 0 && g.frame > 30 && g.emaUs > budgetMs * 1000.f && ++g.overBudget >= 90) {   // ~1.5 s sustained
-            g.backoffFrames = 1; g.backoffElapsed = 0; g.backoffs++;
-            ALOGW("gpu3d: first quarter / frame %.1f ms over the %d ms budget, CPU rasterizer for the rest of the session (backoff %u)",
-                  g.emaUs / 1000.f, budgetMs, g.backoffs);
-            joinPrevious(); return false;
-        } else if (g.emaUs <= budgetMs * 1000.f) g.overBudget = 0;
+        } else if (budgetMs > 0 && g.frame > 30 && g.emaUs > budgetMs * 1000.f && ++g.overBudget >= 30) {
+            // Heavy-scene fallback ladder. On the MSAA supersampling path (ss 3), a scene that
+            // cannot hold 60 at 4x sheds to 2x (still supersampled, same resolution) and STAYS at
+            // 2x: 2x on the GPU is a smaller quality step than the CPU rasterizer (native, no
+            // supersampling), so the MSAA path never falls back to the CPU. The EMA only reaches
+            // the budget on a genuinely heavy scene (light scenes sit at 4 to 8 ms), so this never
+            // false-fires on brief spikes; the 30 frame gate (~0.5 s) just responds once a scene
+            // is truly over. Non-MSAA sessions (e.g. plain 2x hi-res, ss 1) keep the original
+            // CPU-rasterizer backoff after ~1.5 s, since there is no MSAA level to shed.
+            const float overMs = g.emaUs / 1000.f;
+            const bool msaaMode = (g.ss == 3 && g.msImplicit);   // only the implicit path can shed (a rebuilt explicit attachment renders dark)
+            if (msaaMode && g.msSamples > 2 && g.msTargetSamples.load() > 2) {
+                g.msTargetSamples.store(2); g.overBudget = 0; g.emaUs = 0.f; g.msaaUnder = 0;
+                ALOGW("gpu3d: %.1f ms sustained over the %d ms budget, dropping MSAA to 2x (was 4x)", overMs, budgetMs);
+            } else if (!msaaMode && g.overBudget >= 90) {
+                g.backoffFrames = 1; g.backoffElapsed = 0; g.backoffs++;
+                ALOGW("gpu3d: first quarter / frame %.1f ms over the %d ms budget, CPU rasterizer for the rest of the session (backoff %u)",
+                      overMs, budgetMs, g.backoffs);
+                joinPrevious(); return false;
+            }
+            // msaaMode already at 2x and still over budget: stay at 2x (accept the residual dip);
+            // the restore path below returns to 4x when the scene lightens.
+        } else if (g.emaUs <= budgetMs * 1000.f) {
+            g.overBudget = 0;
+            // Restore 4x once the scene has comfortably fit (well under budget) for ~3 s, so a
+            // brief lull does not ping-pong the sample count. Measured at the current sample
+            // count, so the hysteresis gap (drop at budget, restore at 70% of it) exceeds the
+            // 2x->4x cost step and cannot oscillate.
+            if (g.msImplicit && g.msTargetSamples.load() == 2 && g.emaUs > 0.f && g.emaUs < budgetMs * 700.f) {
+                if (++g.msaaUnder >= 180) { g.msTargetSamples.store(g.msBaseSamples); g.msaaUnder = 0; g.emaUs = 0.f;
+                    ALOGI("gpu3d: scene comfortably fits, restoring MSAA to %dx", g.msBaseSamples); }
+            } else g.msaaUnder = 0;
+        }
     }
     if ((g.frame & 15) == 0) { gTexDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_texdump", 0); gPersp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_persp", 1); }
     // Debug-log one frame a second while tracing is on, as well as the frame a dump arms, so the
@@ -1974,8 +2248,18 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     if (decoupled) {
         if (!g.bufC) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufC = (uint8_t*)m; } }
     }
+    // Back-pressure policy. Default: waitQueueRoom stalls the emulator until the GL queue drains,
+    // which on the heaviest scenes costs ~13 ms while the 3D fence is stuck behind the panel
+    // composite, and that late frame is the dropped vblank. gpu3d_drop_bp routes it differently:
+    // do NOT stall; if the queue is full, drop the STALE queued 3D frame and put this one in its
+    // place (below, at queue time). The 3D layer goes one frame stale (the compositor keeps showing
+    // the last finished frame, imperceptible), the emulator never waits so audio and the present
+    // stay on time, and no extra buffer or latency is added. Quality is unchanged (a dropped 3D
+    // frame, not a lower-quality one). Off by default until measured.
+    static int dropBpKnob = 1; if ((g.frame & 63) == 0) dropBpKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_drop_bp", 1);
+    const bool dropBp = decoupled && g.bufC && dropBpKnob != 0;
     if (!decoupled || !g.bufC) joinPrevious(capSync);   // the previous GPU frame must be in the buffers before regs/target move on
-    else waitQueueRoom();
+    else if (!dropBp) waitQueueRoom();
     const int64_t t0 = nowUs();
     gStage = 1;
     auto fnDirty = reinterpret_cast<uint32_t (*)(uint8_t*)>(lib + 0x714ec);
@@ -2060,9 +2344,21 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     const uint32_t clearD = *reinterpret_cast<uint32_t*>(regs + 12) & 0xffffff;
     g.frame++;
     gStage = 6;
-    Job& job = g.jobs[g.jobIdx]; g.jobIdx = (g.jobIdx + 1) % 3;
+    // Struct allocation. Normally the 3-entry round-robin is safe because waitQueueRoom bounds
+    // in-flight jobs to two, so jobs[jobIdx] is always the free one. In drop mode there is no wait,
+    // so pick a struct that is neither rendering nor queued (the round-robin index could otherwise
+    // land on the still-rendering job and corrupt it).
+    Job* jp = &g.jobs[g.jobIdx];
+    if (dropBp) {
+        std::lock_guard<std::mutex> lk(g.mtx);
+        for (int i = 0; i < 3; i++) { Job* c = &g.jobs[i]; if (c == g.rendering) continue; bool inq = false;
+            for (int k = 0; k < g.qCount; k++) if (g.queue[(g.qHead + k) & 1] == c) inq = true;
+            if (!inq) { jp = c; break; } }
+    }
+    Job& job = *jp; g.jobIdx = (g.jobIdx + 1) % 3;
+    job.cancel = false;
     g.cur = &job;
-    for (int i = 0; i < 8; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); }
+    for (int i = 0; i < 8; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); job.opaque.polyLen[i].clear(); job.transl.polyLen[i].clear(); }
     job.shadow.clear(); job.shadowSegs.clear(); job.cancel = false;
     job.uploads.clear();
     job.target = target; job.clearC = clearC; job.clearD = clearD; job.decoupled = useDecoupled;
@@ -2078,6 +2374,10 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         edgeOpt = ov >= 0 ? ov : !property_get_bool("persist.gammaos.drastic_nano.disable_edge", true);
     }
     job.edge = (disp3d & 0x20) != 0 && edgeOpt;
+    // Transient engine-swap / displayed-capture sync frames render whole and block the emulator;
+    // shed them to the always-2x MSAA target (rebuild-free). gpu3d_sync_2x 0 disables for A/B.
+    { static int syncLo = -1; if ((g.frame & 63) == 0) syncLo = property_get_int32("sys.gammaos.drastic_nano.gpu3d_sync_2x", 0);
+      job.syncLo2x = capSync && syncLo != 0; }
     // Clear colour source check (sys gpu3d_clearlog=1): regs+4 against the gx register mirror
     // around CLEAR_COLOR (gx+0x9964 if the mirror is linear like the fog table at +0x9974).
     {
@@ -2115,7 +2415,9 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         const uint8_t* ft = gx + 0x9974;
         for (int i = 0; i < 32; i++) { job.fogTable[i] = ft[i]; job.fogDelta[i] = i < 31 ? (int)ft[i + 1] - (int)ft[i] : 0; }
         static int fogLogs = 0;
-        if (fogLogs < 3) { fogLogs++; ALOGI("gpu3d: fog on: mode %d shift %d offset(+step) %d colour %08x table %d..%d", job.fog, job.fogShift, job.fogOffset, job.fogColor, job.fogTable[0], job.fogTable[31]); }
+        if (fogLogs < 3 || (g.frame % 300) == 7) { fogLogs++;
+            char tb[160]; int n = 0; for (int i = 0; i < 32; i++) n += snprintf(tb + n, sizeof tb - n, "%d%s", job.fogTable[i], i < 31 ? "," : "");
+            ALOGI("gpu3d: fog on: mode %d shift %d offset(+step) %d colour %08x table %s", job.fog, job.fogShift, job.fogOffset, job.fogColor, tb); }
     }
     // Toon / highlight table: 32 BGR555 halfwords at gx+0x9934, immediately before the fog table
     // (getter lib+0x68bf0, 64 byte clear lib+0x69e44). Expanded to 6 bit the same way vertex
@@ -2178,11 +2480,21 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     }
     job.earlyMask = earlyMask;
     if ((g.frame % 300) == 2) ALOGI("gpu3d: policy: nowait %d, ss %d, decoupled %d, prevDrawn %p target %p, early mask %03x, queue room wait %.2f ms avg, present wait %.2f ms avg (%u timeouts, %u skipped as not fitting)", nowaitBands, g.ss, useDecoupled ? 1 : 0, prevDrawn, target, earlyMask, g.sumRoomUs / 300000.0, g.sumPresentWaitUs / 300000.0, g.presentWaitTimeouts, g.presentWaitSkips);
+    if ((g.frame % 300) == 2 && g.bpDrops) { ALOGI("gpu3d: back-pressure drops %u (cumulative)", g.bpDrops); }
     if ((g.frame % 300) == 2) { g.sumRoomUs = 0; g.sumPresentWaitUs = 0; g.presentWaitTimeouts = 0; g.presentWaitSkips = 0; }
     {
         std::lock_guard<std::mutex> lk(g.mtx);
         job.presentSeqAtQueue = g.presentSeq;
-        g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++;
+        if (dropBp && g.qCount >= 2) {
+            // Queue full and not stalling: drop the stale queued (non-rendering) 3D frame and take
+            // its slot. The GL thread is stuck on the rendering job's fence; the dropped frame is
+            // never rendered, its buffer is free for reuse, and the emulator does not wait.
+            const int ws = (g.qHead + 1) & 1;
+            if (g.queue[ws] != g.rendering) { g.queue[ws]->cancel = true; g.queue[ws] = &job; g.bpDrops++; }
+            else { g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++; }   // both slots rendering: cannot happen, fall back
+        } else {
+            g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++;
+        }
     }
     g.cvSubmit.notify_one();
     if (earlyMask) gpu3dSetBandMask(earlyMask);

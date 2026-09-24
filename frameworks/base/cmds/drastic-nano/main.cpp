@@ -1254,7 +1254,9 @@ struct RunLoopResult {
 // on-screen keyboard, which renders on the bottom panel). Both DS panels are
 // captured: the top (primary, with the overlay) and the bottom (secondary,
 // with the on-screen keyboard).
+extern "C" bool gxShotTake();   // DrasticRunner.cpp: a shot armed by the frame counted 3D dump (gxdump_shot)
 static bool shotRequested() {
+    if (gxShotTake()) return true;
     char shot[PROPERTY_VALUE_MAX] = {};
     property_get("sys.gammaos.drastic_nano.shot", shot, "");
     return shot[0] == '1';

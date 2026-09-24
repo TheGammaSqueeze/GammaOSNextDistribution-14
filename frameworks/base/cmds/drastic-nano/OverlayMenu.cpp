@@ -283,16 +283,18 @@ void OverlayMenu::closeMenu() {
         // emulation reliably picks them up), and flush cheat enables
         // (updateCheats(1) wrote the per-game .cht; applyCheats schedules the
         // live re-apply, batched once here rather than per toggle).
+        // Only the unpause goes to the worker. The config re-apply and the cheat
+        // flush call into libdrastic through FakeJNI, whose path translation only
+        // works on the render thread (from the worker, updateCheats could not open
+        // User/usrcheat.dat and wrote no .cht: "cheats stopped working"). They run
+        // on the render thread on the first frame after the worker reports the
+        // unpause done (see update()).
         DrasticRunner* r = mRunner;
-        const bool reapply = mDirty;
-        const bool cheats = mCheatsDirty;
-        const long bits = reapply ? drastic_prefs::applyConfigBitsFrom(mPrefs) : 0;
+        mCloseReapplyPending = mDirty;
+        mCloseCheatsPending = mCheatsDirty;
         mCheatsDirty = false;
-        postAsync([r, reapply, cheats, bits]() {
-            r->pauseToggle(false);
-            if (reapply) { r->applyVideoConfigLive(bits); r->requestDsReDim(); }
-            if (cheats) r->applyCheats();
-        });
+        mUnpauseDone = false;
+        postAsync([this, r]() { r->pauseToggle(false); mUnpauseDone = true; });
     }
     ALOGI("OverlayMenu: closed");
 }
@@ -984,6 +986,12 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
             }
             return;
         }
+    }
+    // Deferred close work (render thread, see closeMenu): once the worker has
+    // unpaused the emulator, re-assert the live config and flush cheat enables.
+    if (!mOpen && mUnpauseDone.load() && (mCloseReapplyPending || mCloseCheatsPending)) {
+        if (mCloseReapplyPending) { mCloseReapplyPending = false; applyConfigLive(); }
+        if (mCloseCheatsPending && mRunner) { mCloseCheatsPending = false; mRunner->applyCheats(); }
     }
     // Short-press BACK toggles menu open/close regardless of state.
     if (a.menuToggle) {
