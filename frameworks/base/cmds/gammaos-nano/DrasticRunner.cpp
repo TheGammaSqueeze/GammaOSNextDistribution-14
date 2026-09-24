@@ -52,6 +52,7 @@ extern "C" void gpu3dResetTextures();                          // DrasticGpu3d.c
 #include "NanoMenuDrm.h"
 #include <cutils/properties.h>
 #include <utils/Log.h>
+#include <utils/SystemClock.h>
 
 namespace android {
 extern int sRingRenderIdx;
@@ -6851,9 +6852,11 @@ void DrasticRunner::pauseDrastic() {
 void DrasticRunner::pauseToggle(bool pause) {
     if (!mInitialized || !mPauseSystem) return;
     if (pause == mPaused) return;
+    const int64_t t0 = android::elapsedRealtimeNano();
     mPauseSystem(mFakeEnv, mFakeCls, pause ? 1 : 0);
     mPaused = pause;
-    ALOGI("DrasticRunner::pauseToggle: paused=%d", pause ? 1 : 0);
+    ALOGI("DrasticRunner::pauseToggle: paused=%d (%.1f ms)", pause ? 1 : 0,
+          (android::elapsedRealtimeNano() - t0) / 1e6);
 }
 
 bool DrasticRunner::saveStateSlot(int slot) {
@@ -10200,9 +10203,10 @@ void DrasticRunner::applyVideoConfigLive(long callerBits) {
     mBaseConfigBits = callerBits;
     long bits = callerBits;
     applyFfBits(bits, mFastForwardOn);
+    const int64_t t0 = android::elapsedRealtimeNano();
     mApplyConfig(mFakeEnv, mFakeCls, bits);
-    ALOGI("DrasticRunner::applyVideoConfigLive: applyConfig=0x%lx (ff=%d)",
-          bits, mFastForwardOn ? 1 : 0);
+    ALOGI("DrasticRunner::applyVideoConfigLive: applyConfig=0x%lx (ff=%d) took %.1f ms",
+          bits, mFastForwardOn ? 1 : 0, (android::elapsedRealtimeNano() - t0) / 1e6);
     // Same converter-clobber repair as setFastForward: applyConfig resets
     // the 13 GPU fast-path scalars, so re-assert the master-state patch or
     // the BG-layer priority glitch returns on every game.

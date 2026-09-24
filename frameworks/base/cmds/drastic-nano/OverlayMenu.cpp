@@ -5,6 +5,14 @@
 #define LOG_TAG "DrasticNano.Overlay"
 
 #include "OverlayMenu.h"
+
+#include <thread>
+#include <string>
+#include <unordered_map>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <deque>
 #include "DsScreenLayout.h"   // presetCount()/presetName() for the Layout Preset row
 #include "NanoI18n.h"   // trDyn() shared nano UI translations
 #include "NanoRetroAchievements.h"   // RaUiEvent
@@ -46,6 +54,64 @@
 
 namespace android {
 namespace drastic_overlay {
+
+// ---------------------------------------------------------------------------
+// Off-render-thread work. Every persist property write is a synchronous round
+// trip to init's property service (15 ms when init is idle, hundreds of ms when
+// it is busy), the light and health HALs are binder calls, and `settings put`
+// is a fork+exec: none of that belongs on the thread that presents the frame.
+// One FIFO worker keeps the order of writes (a rapid left/right on a row lands
+// in sequence), and a shadow of every value written through it lets the row
+// builders read back the new value at once instead of the stale property.
+// ---------------------------------------------------------------------------
+namespace {
+std::mutex gWorkMu;
+std::condition_variable gWorkCv;
+std::deque<std::function<void()>> gWork;
+bool gWorkStarted = false;
+std::unordered_map<std::string, std::string> gPropShadow;   // guarded by gWorkMu
+
+void workerMain() {
+    for (;;) {
+        std::function<void()> job;
+        {
+            std::unique_lock<std::mutex> lk(gWorkMu);
+            gWorkCv.wait(lk, [] { return !gWork.empty(); });
+            job = std::move(gWork.front()); gWork.pop_front();
+        }
+        job();
+    }
+}
+
+void postAsync(std::function<void()> job) {
+    std::lock_guard<std::mutex> lk(gWorkMu);
+    if (!gWorkStarted) { gWorkStarted = true; std::thread(workerMain).detach(); }
+    gWork.push_back(std::move(job));
+    gWorkCv.notify_one();
+}
+
+// property_set replacement for the menu: shadow the value now, write it later.
+void setPropAsync(const char* key, const char* val) {
+    std::string k(key), v(val ? val : "");
+    { std::lock_guard<std::mutex> lk(gWorkMu); gPropShadow[k] = v; }
+    postAsync([k, v]() { property_set(k.c_str(), v.c_str()); });
+}
+
+// property_get replacement for the menu: a value written through setPropAsync
+// reads back immediately, everything else comes from the property service.
+int shadowPropGet(const char* key, char* out, const char* def) {
+    {
+        std::lock_guard<std::mutex> lk(gWorkMu);
+        auto it = gPropShadow.find(key);
+        if (it != gPropShadow.end()) {
+            strlcpy(out, it->second.c_str(), PROPERTY_VALUE_MAX);
+            return (int)strlen(out);
+        }
+    }
+    return property_get(key, out, def);
+}
+} // namespace
+
 
 using drastic_gfx::Color;
 using drastic_gfx::rgba;
@@ -160,24 +226,43 @@ void OverlayMenu::scanShaders() {
 
 bool OverlayMenu::slotFileExists(int slot) const {
     if (mRomBase.empty() || mSavestatesDir.empty()) return false;
+    if (slot < 0 || slot > 9) return false;
+    // The savestates dir lives on the FUSE shared storage; a stat there can take
+    // tens of ms under load and the row builders ask for every slot on every
+    // rebuild (each adjust). Cache per menu open; a save invalidates.
+    if (mSlotCacheValid && (mSlotCacheKnown & (1u << slot))) return (mSlotCacheExists >> slot) & 1u;
     char path[512];
     snprintf(path, sizeof(path), "%s/%s_%d.dss",
              mSavestatesDir.c_str(), mRomBase.c_str(), slot);
     struct stat st;
-    return stat(path, &st) == 0 && st.st_size > 0;
+    const bool exists = stat(path, &st) == 0 && st.st_size > 0;
+    if (!mSlotCacheValid) { mSlotCacheValid = true; mSlotCacheKnown = 0; mSlotCacheExists = 0; }
+    mSlotCacheKnown |= (1u << slot);
+    if (exists) mSlotCacheExists |= (1u << slot); else mSlotCacheExists &= ~(1u << slot);
+    return exists;
 }
 
 void OverlayMenu::openMenu() {
     if (mOpen) return;
     mOpen = true;
+    // The slot cache stays valid across opens: only this process writes states
+    // (menu rows and hotkeys, which invalidate it), and a fresh FUSE stat pass
+    // per open cost up to 120 ms on the RG DS Plus.
     mSavedPrefs = mPrefs;
     // Re-enumerate cheats fresh each open (cheap; the model caches names so
     // per-input rebuilds don't re-allocate).
     mCheatModelValid = false;
     navRelease();   // clear any stale held-direction from a prior session
-    if (mRunner) mRunner->pauseToggle(true);
+    // libdrastic's pauseSystem stops and restarts its audio player through
+    // audioserver (a binder round trip that took 200 to 5600 ms on the RG DS Plus
+    // when audioserver was cold) and synchronises with the emulator thread. The
+    // DraStic app calls it from its UI thread, never the GL thread; do the same:
+    // the worker runs it in order with the other menu side effects, and the
+    // menu frame is never held on it.
+    const int64_t t0 = android::elapsedRealtimeNano();
+    if (mRunner) { DrasticRunner* r = mRunner; postAsync([r]() { r->pauseToggle(true); }); }
     rebuildRows();
-    ALOGI("OverlayMenu: opened");
+    ALOGI("OverlayMenu: opened (rows %.1f ms)", (android::elapsedRealtimeNano() - t0) / 1e6);
 }
 
 void OverlayMenu::closeMenu() {
@@ -191,20 +276,23 @@ void OverlayMenu::closeMenu() {
     mRaOpenLbId = 0; mRaBottomScroll = 0.0f; mRaScrollVel = 0.0f;
     mRaView = 0;   // single-screen drill-in returns to the achievement list
     if (mRunner) {
-        mRunner->pauseToggle(false);
-        // Re-assert the live config on the now-running emulator. Live
-        // changes made while the overlay had the game paused (e.g.
-        // Threaded 3D) are applied through the converter again here, after
-        // unpause, so the running emulation reliably picks them up.
-        if (mDirty) applyConfigLive();
-        // Flush cheat enables: updateCheats(1) writes the per-game .cht and
-        // schedules a live re-apply. Batched here (once) rather than per
-        // toggle. Persists across ROM loads (drastic reloads the .cht at
-        // startGame).
-        if (mCheatsDirty) {
-            mRunner->applyCheats();
-            mCheatsDirty = false;
-        }
+        // Unpause on the worker (see openMenu), then, in the same ordered job:
+        // re-assert the live config on the now-running emulator (live changes
+        // made while the overlay had the game paused, e.g. Threaded 3D, are
+        // applied through the converter again after unpause so the running
+        // emulation reliably picks them up), and flush cheat enables
+        // (updateCheats(1) wrote the per-game .cht; applyCheats schedules the
+        // live re-apply, batched once here rather than per toggle).
+        DrasticRunner* r = mRunner;
+        const bool reapply = mDirty;
+        const bool cheats = mCheatsDirty;
+        const long bits = reapply ? drastic_prefs::applyConfigBitsFrom(mPrefs) : 0;
+        mCheatsDirty = false;
+        postAsync([r, reapply, cheats, bits]() {
+            r->pauseToggle(false);
+            if (reapply) { r->applyVideoConfigLive(bits); r->requestDsReDim(); }
+            if (cheats) r->applyCheats();
+        });
     }
     ALOGI("OverlayMenu: closed");
 }
@@ -557,13 +645,23 @@ void OverlayMenu::refreshBattery() {
     if (now < mBatteryNextPollMs && mBatteryPercent >= 0) return;
     mBatteryNextPollMs = now + 1000; // refresh at most 1/s
 
-    int pct = -1;
-    bool charging = false;
-    if (queryHealthHal(&pct, &charging)) {
-        mBatteryPercent = pct;
-        mBatteryCharging = charging;
-        return;
+    // The health HAL is a binder call that took 100 to 200 ms on the RG DS Plus
+    // (a visible hitch once a second while the menu was open): query it on the
+    // worker and let the indicator pick the result up on a later frame.
+    if (!mBatteryPolling.exchange(true)) {
+        postAsync([this]() {
+            int pct = -1;
+            bool charging = false;
+            if (queryHealthHal(&pct, &charging)) {
+                mBatteryPercent = pct;
+                mBatteryCharging = charging;
+            } else {
+                mBatteryHalFailed = true;
+            }
+            mBatteryPolling = false;
+        });
     }
+    if (!mBatteryHalFailed) return;
 
     // Fallback: read the standard power_supply sysfs nodes. The ::close
     // qualifier is deliberate -- OverlayMenu has a member close() method
@@ -679,12 +777,38 @@ void OverlayMenu::drawTimeIndicator(drastic_gfx::OverlayGfx& gfx,
 
 void OverlayMenu::writePrefsSafe() {
     // Configuration lives in persist.gammaos.drastic_nano.* properties; only the
-    // fields that changed since the last write are stored (each persist write
-    // is a synchronous store).
-    drastic_prefs::writeProps(mPrefs, &mWrittenPrefs);
+    // fields that changed since the last write are stored. Each persist write is
+    // a synchronous round trip to init's property service (15 to 20 ms, and it
+    // queues behind whatever init is doing), so the writes run on a short-lived
+    // worker: closing the menu after a few changes used to hold the render
+    // thread for 100 ms or more. The copies are taken now, so a later change
+    // is written by a later call in order (each worker writes its own delta).
+    const drastic_prefs::Prefs cur = mPrefs;
+    const drastic_prefs::Prefs prev = mWrittenPrefs;
+    std::thread([cur, prev]() { drastic_prefs::writeProps(cur, &prev); }).detach();
     mWrittenPrefs = mPrefs;
     mDirty = false;
     toast("Saved");
+}
+
+// Draw every page once in raster-only mode so the glyph atlas holds the whole
+// menu's glyph set before the first real open. Runs at session start on the
+// render thread (the GL context is current); nothing reaches the panel.
+void OverlayMenu::prewarmGlyphs(drastic_gfx::OverlayGfx& gfx) {
+    if (mOpen) return;
+    const Section savedSection = mSection;
+    mOpen = true;
+    gfx.setRasterOnly(true);
+    for (int sec = 0; sec < (int)kSec_COUNT; sec++) {
+        mSection = (Section)sec;
+        rebuildRows();
+        draw(gfx);
+    }
+    gfx.setRasterOnly(false);
+    mOpen = false;
+    mSection = savedSection;
+    rebuildRows();
+    mToast.clear();
 }
 
 void OverlayMenu::commitAndMaybeRelaunch() {
@@ -765,8 +889,14 @@ void OverlayMenu::openConfirm(const std::string& question, std::function<void()>
 void OverlayMenu::adjustCurrent(int dir) {
     int cur = mCursor[mSection];
     if (cur >= 0 && cur < (int)mRows.size() && mRows[cur].onAdjust) {
-        mRows[cur].onAdjust(dir);
-        rebuildRows();
+        {
+            const int64_t t0 = android::elapsedRealtimeNano();
+            mRows[cur].onAdjust(dir);
+            const int64_t t1 = android::elapsedRealtimeNano();
+            rebuildRows();
+            ALOGI("OverlayMenu: adjust '%s' %.1f ms, rebuild %.1f ms", mRows[cur].label.c_str(),
+                  (t1 - t0) / 1e6, (android::elapsedRealtimeNano() - t1) / 1e6);
+        }
     }
 }
 void OverlayMenu::fireNav(NavDir dir) {
@@ -823,7 +953,7 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     // platform cannot inject controller input). Gated; default off.
     {
         char md[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic_nano.menu_dbg", md, "0");
+        shadowPropGet("persist.gammaos.drastic_nano.menu_dbg", md, "0");
         if (md[0] == '1' && (!mOpen || mSection != kSec_Achievements)) {
             mOpen = true;
             mSection = kSec_Achievements;
@@ -878,7 +1008,7 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         // edge flags; treat them as implicit overlay commands even
         // when the menu isn't visible.
         if (mRunner) {
-            if (a.actQuickSave) mRunner->saveStateSlot(0);
+            if (a.actQuickSave) { mRunner->saveStateSlot(0); mSlotCacheValid = false; }
             // Quick-load is a save-state load, disabled in hardcore.
             if (a.actQuickLoad && !mRaHardcore) mRunner->requestLoadStateSlot(0);
         }
@@ -1181,6 +1311,7 @@ void OverlayMenu::rebuildGeneral() {
         r.onAccept = [this]() {
             if (!mRunner) return;
             if (mRunner->saveStateSlot(0)) {
+                mSlotCacheValid = false;
                 toast(trDyn("Quick saved"));
                 // Hand the new .dss to the real drastic app, exactly like the Save
                 // States tab does, so a later load from the full app can read it.
@@ -1240,7 +1371,7 @@ void OverlayMenu::rebuildGeneral() {
         static const int kModeCount = 3;
         auto currentIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.performance_mode", cur, "max");
+            shadowPropGet("persist.gammaos.performance_mode", cur, "max");
             for (int i = 0; i < kModeCount; i++) {
                 if (strcmp(cur, kModes[i]) == 0) return i;
             }
@@ -1251,8 +1382,8 @@ void OverlayMenu::rebuildGeneral() {
         r.onAdjust = [currentIdx](int dir) {
             int idx = currentIdx();
             idx = (idx + dir + kModeCount) % kModeCount;
-            property_set("persist.gammaos.performance_mode", kModes[idx]);
-            property_set("ctl.start", kSvcs[idx]);
+            setPropAsync("persist.gammaos.performance_mode", kModes[idx]);
+            setPropAsync("ctl.start", kSvcs[idx]);
             ALOGI("drastic-nano: overlay switched to %s", kModes[idx]);
         };
         mRows.push_back(std::move(r));
@@ -1413,7 +1544,7 @@ void OverlayMenu::rebuildSave() {
         auto toggle = [this]() {
             bool cur = property_get_bool(
                     "persist.gammaos.drastic_nano.autoload", true);
-            property_set("persist.gammaos.drastic_nano.autoload",
+            setPropAsync("persist.gammaos.drastic_nano.autoload",
                          cur ? "0" : "1");
             toast(cur ? "Auto load: Off" : "Auto load: On");
             rebuildRows();   // refresh the On/Off value
@@ -1435,6 +1566,7 @@ void OverlayMenu::rebuildSave() {
         r.onAccept = [this, slot]() {
             if (!mRunner) return;
             if (mRunner->saveStateSlot(slot)) {
+                mSlotCacheValid = false;
                 char msg[64];
                 snprintf(msg, sizeof(msg), trDyn("Saved slot %d"), slot);
                 toast(msg);
@@ -1616,11 +1748,11 @@ void OverlayMenu::adjustVolume(int dir) {
     // while PWM catches up and re-publishes. This path only runs on the DRM backend;
     // in SF mode the overlay draws the slider and main does not call us.
     char vmax[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.nano.volmax", vmax, "");
+    shadowPropGet("persist.gammaos.nano.volmax", vmax, "");
     if (vmax[0]) { int m = atoi(vmax); if (m > 0) mSysVolMax = m; }
     if (mVolHudTimer <= 0) {   // burst start: re-sync from PWM's real index
         char cur[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.volume", cur, "");
+        shadowPropGet("persist.gammaos.nano.volume", cur, "");
         if (cur[0]) mSysVol = atoi(cur);
     }
     mSysVol += dir;
@@ -1675,7 +1807,11 @@ void OverlayMenu::adjustBrightness(int dir) {
     // AND the ILights HAL. The Brick routes the panel backlight through the HAL
     // only, so the sysfs write alone no-ops (matches the nano home's applyBrightness,
     // and the sleep/wake path here already uses the HAL).
-    android::nanobl::nanoBacklightSet(mBrightLevel);
+    android::nanobl::nanoBacklightSet(mBrightLevel);   // sysfs: immediate, cheap
+    // The HALs, the persist write and the settings exec take 400 to 700 ms on the
+    // RG DS Plus; the panel is already relit through sysfs, so they go to the worker.
+    const int level = mBrightLevel;
+    postAsync([level]() {
     bool halApplied = false;
     {
         using aidl::android::hardware::light::ILights;
@@ -1692,8 +1828,8 @@ void OverlayMenu::adjustBrightness(int dir) {
                 for (const auto& light : lights) {
                     if (light.type == LightType::BACKLIGHT) {
                         HwLightState state{};
-                        state.color = 0xFF000000 | (mBrightLevel << 16) |
-                                      (mBrightLevel << 8) | mBrightLevel;
+                        state.color = 0xFF000000 | (level << 16) |
+                                      (level << 8) | level;
                         hal->setLightState(light.id, state);
                         halApplied = true;
                     }
@@ -1714,19 +1850,20 @@ void OverlayMenu::adjustBrightness(int dir) {
         android::sp<ILight> hal = ILight::getService();
         if (hal != nullptr) {
             LightState st{};
-            st.color = 0xFF000000 | (mBrightLevel << 16) |
-                       (mBrightLevel << 8) | mBrightLevel;
+            st.color = 0xFF000000 | (level << 16) |
+                       (level << 8) | level;
             st.flashMode = Flash::NONE;
             st.brightnessMode = Brightness::USER;
             hal->setLight(Type::BACKLIGHT, st);
         }
     }
     char buf[16];
-    snprintf(buf, sizeof(buf), "%d", mBrightLevel);
+    snprintf(buf, sizeof(buf), "%d", level);
     property_set("persist.gammaos.nano.brightness", buf);
     // Persist system-wide so the level survives leaving the game, a reboot, and is
     // visible to other apps (not just nano's own private property + volatile nodes).
-    pushBrightnessToSettings(mBrightLevel);
+    pushBrightnessToSettings(level);
+    });
     mBrightHudTimer = 90;
 }
 
@@ -1875,7 +2012,7 @@ void OverlayMenu::rebuildAchievements() {
         auto toggle = [this]() {
             bool cur = property_get_bool(
                     "persist.gammaos.drastic_nano.ra_show_progress_toast", true);
-            property_set("persist.gammaos.drastic_nano.ra_show_progress_toast",
+            setPropAsync("persist.gammaos.drastic_nano.ra_show_progress_toast",
                          cur ? "0" : "1");
             toast(cur ? "Progress toast off" : "Progress toast on");
             rebuildRows();
@@ -1898,7 +2035,7 @@ void OverlayMenu::rebuildAchievements() {
         auto toggle = [this]() {
             bool cur = property_get_bool(
                     "persist.gammaos.drastic_nano.ra_show_challenge_badges", true);
-            property_set("persist.gammaos.drastic_nano.ra_show_challenge_badges",
+            setPropAsync("persist.gammaos.drastic_nano.ra_show_challenge_badges",
                          cur ? "0" : "1");
             toast(cur ? "Challenge badges off" : "Challenge badges on");
             rebuildRows();
@@ -2255,7 +2392,7 @@ void OverlayMenu::rebuildVideo() {
         static const int kCount = 4;
         auto curIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.orientation", cur, "auto");
+            shadowPropGet("persist.gammaos.drastic_nano.orientation", cur, "auto");
             for (int i = 0; i < kCount; i++)
                 if (strcmp(cur, kVals[i]) == 0) return i;
             return 0;
@@ -2263,7 +2400,7 @@ void OverlayMenu::rebuildVideo() {
         r.value = kLabels[curIdx()];
         r.onAdjust = [curIdx](int dir) {
             int idx = (curIdx() + dir + kCount) % kCount;
-            property_set("persist.gammaos.drastic_nano.orientation", kVals[idx]);
+            setPropAsync("persist.gammaos.drastic_nano.orientation", kVals[idx]);
         };
         mRows.push_back(std::move(r));
     }
@@ -2279,18 +2416,18 @@ void OverlayMenu::rebuildVideo() {
         int idx;
         {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.layout_preset", cur, "-1");
+            shadowPropGet("persist.gammaos.drastic_nano.layout_preset", cur, "-1");
             idx = atoi(cur);
         }
         r.value = (idx >= 0 && idx < n) ? drastic_nano::presetName(idx) : "Off";
         r.onAdjust = [n](int dir) {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.layout_preset", cur, "-1");
+            shadowPropGet("persist.gammaos.drastic_nano.layout_preset", cur, "-1");
             int i = atoi(cur) + dir;
             if (i < -1) i = n - 1; else if (i >= n) i = -1;
             char buf[16];
             snprintf(buf, sizeof(buf), "%d", i);
-            property_set("persist.gammaos.drastic_nano.layout_preset", buf);
+            setPropAsync("persist.gammaos.drastic_nano.layout_preset", buf);
         };
         mRows.push_back(std::move(r));
     }
@@ -2305,7 +2442,7 @@ void OverlayMenu::rebuildVideo() {
         static const int kACount = 4;
         auto curIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.pip_alpha", cur, "100");
+            shadowPropGet("persist.gammaos.drastic_nano.pip_alpha", cur, "100");
             for (int i = 0; i < kACount; i++)
                 if (strcmp(cur, kAVals[i]) == 0) return i;
             return 0;
@@ -2313,7 +2450,7 @@ void OverlayMenu::rebuildVideo() {
         r.value = kALabels[curIdx()];
         r.onAdjust = [curIdx](int dir) {
             int idx = (curIdx() + dir + kACount) % kACount;
-            property_set("persist.gammaos.drastic_nano.pip_alpha", kAVals[idx]);
+            setPropAsync("persist.gammaos.drastic_nano.pip_alpha", kAVals[idx]);
         };
         mRows.push_back(std::move(r));
     }
@@ -2331,7 +2468,7 @@ void OverlayMenu::rebuildVideo() {
         static const int kCCount = 4;
         auto curIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.pip_corner", cur, "br");
+            shadowPropGet("persist.gammaos.drastic_nano.pip_corner", cur, "br");
             for (int i = 0; i < kCCount; i++)
                 if (strcmp(cur, kCVals[i]) == 0) return i;
             return 0;
@@ -2339,7 +2476,7 @@ void OverlayMenu::rebuildVideo() {
         r.value = kCLabels[curIdx()];
         r.onAdjust = [curIdx](int dir) {
             int idx = (curIdx() + dir + kCCount) % kCCount;
-            property_set("persist.gammaos.drastic_nano.pip_corner", kCVals[idx]);
+            setPropAsync("persist.gammaos.drastic_nano.pip_corner", kCVals[idx]);
         };
         mRows.push_back(std::move(r));
     }
@@ -2355,7 +2492,7 @@ void OverlayMenu::rebuildVideo() {
         static const int kRCount = 4;
         auto curIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.display_rotate", cur, "0");
+            shadowPropGet("persist.gammaos.drastic_nano.display_rotate", cur, "0");
             for (int i = 0; i < kRCount; i++)
                 if (strcmp(cur, kRVals[i]) == 0) return i;
             return 0;
@@ -2363,7 +2500,7 @@ void OverlayMenu::rebuildVideo() {
         r.value = kRLabels[curIdx()];
         r.onAdjust = [curIdx](int dir) {
             int idx = (curIdx() + dir + kRCount) % kRCount;
-            property_set("persist.gammaos.drastic_nano.display_rotate", kRVals[idx]);
+            setPropAsync("persist.gammaos.drastic_nano.display_rotate", kRVals[idx]);
         };
         mRows.push_back(std::move(r));
     }
@@ -2376,7 +2513,7 @@ void OverlayMenu::rebuildVideo() {
         static const int kCount = 4;
         auto curIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.scaling", cur, "stretch");
+            shadowPropGet("persist.gammaos.drastic_nano.scaling", cur, "stretch");
             for (int i = 0; i < kCount; i++)
                 if (strcmp(cur, kVals[i]) == 0) return i;
             return 0;
@@ -2384,7 +2521,7 @@ void OverlayMenu::rebuildVideo() {
         r.value = kLabels[curIdx()];
         r.onAdjust = [curIdx](int dir) {
             int idx = (curIdx() + dir + kCount) % kCount;
-            property_set("persist.gammaos.drastic_nano.scaling", kVals[idx]);
+            setPropAsync("persist.gammaos.drastic_nano.scaling", kVals[idx]);
         };
         mRows.push_back(std::move(r));
     }
@@ -2400,7 +2537,7 @@ void OverlayMenu::rebuildVideo() {
         static const int kGCount = 4;
         auto curIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.screen_gap", cur, "0");
+            shadowPropGet("persist.gammaos.drastic_nano.screen_gap", cur, "0");
             for (int i = 0; i < kGCount; i++)
                 if (strcmp(cur, kGVals[i]) == 0) return i;
             return 0;
@@ -2408,7 +2545,7 @@ void OverlayMenu::rebuildVideo() {
         r.value = kGLabels[curIdx()];
         r.onAdjust = [curIdx](int dir) {
             int idx = (curIdx() + dir + kGCount) % kGCount;
-            property_set("persist.gammaos.drastic_nano.screen_gap", kGVals[idx]);
+            setPropAsync("persist.gammaos.drastic_nano.screen_gap", kGVals[idx]);
         };
         mRows.push_back(std::move(r));
     }
@@ -2443,7 +2580,7 @@ void OverlayMenu::rebuildVideo() {
                 if (n < lo) n = lo; else if (n > hi) n = hi;
                 char nb[16];
                 snprintf(nb, sizeof(nb), "%d", n);
-                property_set(key, nb);
+                setPropAsync(key, nb);
             };
             mRows.push_back(std::move(r));
         };
@@ -2461,9 +2598,9 @@ void OverlayMenu::rebuildVideo() {
         RowAction r;
         r.label = "Reset Layout Tuning";
         auto reset = [this]() {
-            property_set("persist.gammaos.drastic_nano.ltune_dx", "0");
-            property_set("persist.gammaos.drastic_nano.ltune_dy", "0");
-            property_set("persist.gammaos.drastic_nano.ltune_scale", "100");
+            setPropAsync("persist.gammaos.drastic_nano.ltune_dx", "0");
+            setPropAsync("persist.gammaos.drastic_nano.ltune_dy", "0");
+            setPropAsync("persist.gammaos.drastic_nano.ltune_scale", "100");
             toast("Layout tuning reset");
         };
         r.onAccept = reset;
@@ -2478,7 +2615,7 @@ void OverlayMenu::rebuildVideo() {
         auto flip = []() {
             bool cur = property_get_bool(
                     "persist.gammaos.drastic_nano.swap", false);
-            property_set("persist.gammaos.drastic_nano.swap", cur ? "0" : "1");
+            setPropAsync("persist.gammaos.drastic_nano.swap", cur ? "0" : "1");
         };
         r.onAccept = flip;
         r.onAdjust = [flip](int) { flip(); };
@@ -2496,7 +2633,7 @@ void OverlayMenu::rebuildVideo() {
         auto flip = []() {
             bool cur = property_get_bool(
                     "persist.gammaos.drastic_nano.sf_half_res", false);
-            property_set("persist.gammaos.drastic_nano.sf_half_res", cur ? "0" : "1");
+            setPropAsync("persist.gammaos.drastic_nano.sf_half_res", cur ? "0" : "1");
         };
         r.onAccept = flip;
         r.onAdjust = [flip](int) { flip(); };
@@ -2515,7 +2652,7 @@ void OverlayMenu::rebuildVideo() {
         auto flip = [this]() {
             bool cur = property_get_bool(
                     "persist.gammaos.drastic_nano.drm_half_res", false);
-            property_set("persist.gammaos.drastic_nano.drm_half_res", cur ? "0" : "1");
+            setPropAsync("persist.gammaos.drastic_nano.drm_half_res", cur ? "0" : "1");
             mRelaunch = true;
         };
         r.onAccept = flip;
@@ -2537,7 +2674,7 @@ void OverlayMenu::rebuildVideo() {
         auto flip = []() {
             bool cur = property_get_bool(
                     "persist.gammaos.drastic_nano.sf_16bit", false);
-            property_set("persist.gammaos.drastic_nano.sf_16bit", cur ? "0" : "1");
+            setPropAsync("persist.gammaos.drastic_nano.sf_16bit", cur ? "0" : "1");
         };
         r.onAccept = flip;
         r.onAdjust = [flip](int) { flip(); };
@@ -2555,7 +2692,7 @@ void OverlayMenu::rebuildVideo() {
         auto flip = []() {
             bool cur = property_get_bool(
                     "persist.gammaos.drastic_nano.fps_counter", false);
-            property_set("persist.gammaos.drastic_nano.fps_counter", cur ? "0" : "1");
+            setPropAsync("persist.gammaos.drastic_nano.fps_counter", cur ? "0" : "1");
         };
         r.onAccept = flip;
         r.onAdjust = [flip](int) { flip(); };
@@ -2575,7 +2712,7 @@ void OverlayMenu::rebuildVideo() {
             // Mirror the change into its prop so it persists over a vendor
             // build.prop default (the launch loader applies the prop over the
             // DraStic XML). unset prop = honor the XML as before.
-            if (prop) property_set(prop, field ? "1" : "0");
+            if (prop) setPropAsync(prop, field ? "1" : "0");
             if (!requiresRestart) applyConfigLive();
         };
         r.onAccept = flip;
@@ -2609,13 +2746,13 @@ void OverlayMenu::rebuildVideo() {
             auto toggleGpu = [this]() {
                 if (mPrefs.gpu3d) {
                     mPrefs.gpu3d = false;
-                    property_set("persist.gammaos.drastic_nano.gpu3d", "0");
+                    setPropAsync("persist.gammaos.drastic_nano.gpu3d", "0");
                     mDirty = true;
                     return;
                 }
                 openConfirm("Enable the GPU 3D Renderer?", [this]() {
                     mPrefs.gpu3d = true;
-                    property_set("persist.gammaos.drastic_nano.gpu3d", "1");
+                    setPropAsync("persist.gammaos.drastic_nano.gpu3d", "1");
                     mDirty = true;
                 }, {
                     "Renders the DS 3D layer on the GPU instead of the CPU, freeing CPU time for the emulation.",
@@ -2636,13 +2773,13 @@ void OverlayMenu::rebuildVideo() {
             auto toggle = [this]() {
                 if (mPrefs.gpu3dSs) {
                     mPrefs.gpu3dSs = false;
-                    property_set("persist.gammaos.drastic_nano.gpu3d_ss", "0");
+                    setPropAsync("persist.gammaos.drastic_nano.gpu3d_ss", "0");
                     mDirty = true;
                     return;
                 }
                 openConfirm("Enable GPU 3D 4x Supersampling?", [this]() {
                     mPrefs.gpu3dSs = true;
-                    property_set("persist.gammaos.drastic_nano.gpu3d_ss", "1");
+                    setPropAsync("persist.gammaos.drastic_nano.gpu3d_ss", "1");
                     mDirty = true;
                 }, {
                     "Renders the 3D layer with 4x anti-aliasing, for smoother polygon edges.",
@@ -2720,15 +2857,15 @@ void OverlayMenu::rebuildVideo() {
         auto toggle = [this]() {
             const bool cur = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) == 2;
             if (cur) {
-                property_set("persist.gammaos.drastic_nano.runahead_mode", "0");
+                setPropAsync("persist.gammaos.drastic_nano.runahead_mode", "0");
                 mDirty = true;
                 return;
             }
             // Enabling asks first, like Power Off: the feature has limits the
             // player should know before turning it on.
             openConfirm("Enable Run-Ahead?", [this]() {
-                property_set("persist.gammaos.drastic_nano.runahead_mode", "2");
-                property_set("persist.gammaos.drastic_nano.runahead_frames", "1");
+                setPropAsync("persist.gammaos.drastic_nano.runahead_mode", "2");
+                setPropAsync("persist.gammaos.drastic_nano.runahead_frames", "1");
                 mDirty = true;
             }, {
                 "Fixed at 1 frame of run-ahead.",
@@ -2892,7 +3029,7 @@ void OverlayMenu::rebuildControls() {
         static const int kPCount = 4;
         auto curIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.portrait_controls", cur, "0");
+            shadowPropGet("persist.gammaos.drastic_nano.portrait_controls", cur, "0");
             for (int i = 0; i < kPCount; i++)
                 if (strcmp(cur, kPVals[i]) == 0) return i;
             return 0;
@@ -2900,7 +3037,7 @@ void OverlayMenu::rebuildControls() {
         r.value = kPLabels[curIdx()];
         r.onAdjust = [curIdx](int dir) {
             int idx = (curIdx() + dir + kPCount) % kPCount;
-            property_set("persist.gammaos.drastic_nano.portrait_controls", kPVals[idx]);
+            setPropAsync("persist.gammaos.drastic_nano.portrait_controls", kPVals[idx]);
         };
         mRows.push_back(std::move(r));
     }
@@ -2917,7 +3054,7 @@ void OverlayMenu::rebuildControls() {
         static const int kLCount = 2;
         auto curIdx = []() {
             char cur[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.portrait_layout", cur, "0");
+            shadowPropGet("persist.gammaos.drastic_nano.portrait_layout", cur, "0");
             for (int i = 0; i < kLCount; i++)
                 if (strcmp(cur, kLVals[i]) == 0) return i;
             return 0;
@@ -2925,7 +3062,7 @@ void OverlayMenu::rebuildControls() {
         r.value = kLLabels[curIdx()];
         r.onAdjust = [curIdx](int dir) {
             int idx = (curIdx() + dir + kLCount) % kLCount;
-            property_set("persist.gammaos.drastic_nano.portrait_layout", kLVals[idx]);
+            setPropAsync("persist.gammaos.drastic_nano.portrait_layout", kLVals[idx]);
         };
         mRows.push_back(std::move(r));
     }

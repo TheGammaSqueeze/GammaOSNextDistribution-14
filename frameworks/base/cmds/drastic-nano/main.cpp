@@ -106,6 +106,9 @@
 #include "SfDisplayBackend.h"
 #include "DsScreenLayout.h"
 
+// libEGL (ANDROID_API): names the on-disk file for the driver program cache.
+namespace android { void egl_set_cache_filename(const char* filename); }
+
 using android::DrasticRunner;
 
 namespace {
@@ -1782,6 +1785,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // (RG DS): single-panel devices get the on-screen Achievements drill-in.
     overlay.setSingleScreen(!hasDualDisplay);
     overlay.setSfMode(false);
+    // Rasterize every menu page's glyphs into the atlas now, while nothing is
+    // on screen yet, so the first open does not spend a frame doing it.
+    overlay.prewarmGlyphs(gfx);
     bool raInited = false;
     bool raPrevOverlayOpen = false;
 
@@ -2444,7 +2450,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         const bool vblPace = android::sDrmLowLatency && android::sDrmAfbcMode &&
                              tripleBuffer && !flipFirst;
         dr->setVblankPacing(vblPace);
-        if (vblPace && dr->vblankPacingInstalled()) {
+        // With the overlay menu open the emulator is paused and produces nothing:
+        // waiting here burned the whole timeout every frame and held the menu at
+        // ~45 fps. The menu frames just present the last game frame under the UI.
+        if (vblPace && dr->vblankPacingInstalled() && !overlay.isOpen()) {
             // No new emulated frame in time: this present would repeat the
             // previous one, so treat it as a pacing miss and back the lead
             // off a little.
@@ -4339,6 +4348,15 @@ int main(int argc, char** argv) {
     std::unique_ptr<drastic_nano::IDisplayBackend> sfBackend;
     bool sfMode = false;
     bool drmUp  = false;
+    // Persistent GL program cache for this process. libEGL keeps the driver's
+    // blob cache in memory only unless a file is named (the app framework names
+    // one per app); without it every .dfx shader switch recompiles from source,
+    // 800 ms on the RG DS Plus for a 4x LCD shader. With the file, a shader the
+    // user has picked before comes back as a cached binary.
+    {
+        const std::string cachePath = gDrasticDataDir + "/config/egl_program_cache";
+        ::android::egl_set_cache_filename(cachePath.c_str());
+    }
     {
         char backendProp[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.drastic_nano.backend", backendProp, "auto");

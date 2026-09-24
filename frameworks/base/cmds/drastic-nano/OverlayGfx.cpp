@@ -13,8 +13,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <sys/system_properties.h>
+#include <cutils/properties.h>
 
 #include <utils/Log.h>
+#include <utils/SystemClock.h>
 
 namespace android {
 namespace drastic_gfx {
@@ -28,21 +30,27 @@ namespace {
 //
 // Vertex shader for solid-colored geometry. Accepts NDC-space vertices
 // (we precompute NDC on the CPU so the shader is trivial).
+// Solid geometry carries its colour per vertex so a whole frame of rects,
+// outlines and triangles is one client-side array and one draw (see
+// flushSolids); a uniform colour would force a draw per rect.
 const char kSolidVS[] =
     "precision highp float;\n"
     "attribute vec2 aPos;\n"
+    "attribute vec4 aColor;\n"
+    "varying vec4 vColor;\n"
     "uniform vec2 uViewport;\n"
     "uniform mat2 uRot;\n"
     "void main() {\n"
+    "  vColor = aColor;\n"
     "  vec2 ndc = aPos / uViewport * 2.0 - 1.0;\n"
     "  ndc.y = -ndc.y;\n"
     "  gl_Position = vec4(uRot * ndc, 0.0, 1.0);\n"
     "}\n";
 const char kSolidFS[] =
     "precision mediump float;\n"
-    "uniform vec4 uColor;\n"
+    "varying vec4 vColor;\n"
     "void main() {\n"
-    "  gl_FragColor = uColor;\n"
+    "  gl_FragColor = vColor;\n"
     "}\n";
 
 // Text vertex shader: per-vertex UV.
@@ -149,6 +157,7 @@ GLuint link(GLuint vs, GLuint fs) {
     glBindAttribLocation(p, 0, "aPos");
     glBindAttribLocation(p, 1, "aUv");
     glBindAttribLocation(p, 1, "aLocal");   // round program reuses slot 1
+    glBindAttribLocation(p, 1, "aColor");   // solid program: per-vertex colour in slot 1
     glLinkProgram(p);
     GLint ok = 0;
     glGetProgramiv(p, GL_LINK_STATUS, &ok);
@@ -189,7 +198,7 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
     if (!mTextProgram) return false;
 
     mSolidLocPos      = glGetAttribLocation(mSolidProgram, "aPos");
-    mSolidLocColor    = glGetUniformLocation(mSolidProgram, "uColor");
+    mSolidLocColor    = glGetAttribLocation(mSolidProgram, "aColor");
     mSolidLocViewport = glGetUniformLocation(mSolidProgram, "uViewport");
     mSolidLocRot      = glGetUniformLocation(mSolidProgram, "uRot");
 
@@ -290,10 +299,9 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
 }
 
 void OverlayGfx::shutdown() {
-    for (auto& kv : mGlyphs) {
-        if (kv.second.tex) glDeleteTextures(1, &kv.second.tex);
-    }
     mGlyphs.clear();
+    if (mAtlasTex) { glDeleteTextures(1, &mAtlasTex); mAtlasTex = 0; }
+    mAtlasX = mAtlasY = mAtlasShelfH = 0;
     if (mQuadVbo) { glDeleteBuffers(1, &mQuadVbo); mQuadVbo = 0; }
     if (mTextVbo) { glDeleteBuffers(1, &mTextVbo); mTextVbo = 0; }
     if (mSolidProgram) { glDeleteProgram(mSolidProgram); mSolidProgram = 0; }
@@ -312,6 +320,7 @@ void OverlayGfx::shutdown() {
 }
 
 void OverlayGfx::setRotationMatrix(const float rot[4]) {
+    flushSolids();   // queued geometry belongs to the previous matrix
     for (int i = 0; i < 4; i++) mRot[i] = rot[i];
 }
 
@@ -320,37 +329,71 @@ void OverlayGfx::beginFrame() {
     GLint cur = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
     mDrasticProgram = (GLuint)cur;
+    mCurProgram = 0;   // drastic owned the binding since our last frame
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void OverlayGfx::endFrame() {
+    flushSolids();
+    // Frame probe (diagnostic, off by default): sys.gammaos.drastic_nano.overlay_probe=1.
+    static int sProbe = -1;
+    if (sProbe < 0 || (mDbgFlushes & 63) == 0) sProbe = property_get_bool("sys.gammaos.drastic_nano.overlay_probe", false) ? 1 : 0;
+    if (sProbe && (mDbgUploads || mDbgFlushNs > 2000000 || mDbgTextNs > 2000000)) {
+        ALOGI("OverlayGfx frame: glyph uploads %d (%.2f ms), solid flushes %d (%.2f ms), text draws %d (%.2f ms)",
+              mDbgUploads, mDbgUploadNs / 1e6, mDbgFlushes, mDbgFlushNs / 1e6, mDbgTexts, mDbgTextNs / 1e6);
+    }
+    mDbgUploads = mDbgFlushes = mDbgTexts = 0; mDbgUploadNs = mDbgFlushNs = mDbgTextNs = 0;
     if (mDrasticProgram) glUseProgram(mDrasticProgram);
+    mCurProgram = 0;
     glDisable(GL_BLEND);
 }
 
+// Bind a program only when it is not already the one we bound last. The
+// per-primitive viewport/rotation uniforms are re-uploaded on every real bind
+// by the callers, so a skipped bind never leaves a stale matrix behind.
+void OverlayGfx::useProgram(GLuint prog) {
+    if (prog == mCurProgram) return;
+    glUseProgram(prog);
+    mCurProgram = prog;
+}
+
+// Solid geometry is accumulated per frame and drawn in one client-side array
+// (no VBO upload per rect). The batch is flushed before anything that must
+// paint over it (text, rounded rects, images), around scissor changes, and at
+// endFrame, so painter order is preserved. Measured on the RG DS Plus: the
+// per-rect glBufferData + draw scheme spent most of a 20 ms menu frame in the
+// kernel's DMA cache maintenance for those tiny uploads.
+void OverlayGfx::pushSolidVertex(float x, float y, Color c) {
+    mSolidVerts.push_back(x); mSolidVerts.push_back(y);
+    mSolidVerts.push_back(c.r); mSolidVerts.push_back(c.g);
+    mSolidVerts.push_back(c.b); mSolidVerts.push_back(c.a);
+}
+
 void OverlayGfx::drawSolidQuad(float x, float y, float w, float h, Color c) {
-    glUseProgram(mSolidProgram);
+    if (mRasterOnly) return;
+    pushSolidVertex(x,     y,     c); pushSolidVertex(x + w, y,     c); pushSolidVertex(x,     y + h, c);
+    pushSolidVertex(x + w, y,     c); pushSolidVertex(x + w, y + h, c); pushSolidVertex(x,     y + h, c);
+}
+
+void OverlayGfx::flushSolids() {
+    if (mSolidVerts.empty()) return;
+    const int64_t t0 = android::elapsedRealtimeNano();
+    mDbgFlushes++;
+    useProgram(mSolidProgram);
     glUniform2f(mSolidLocViewport, (float)mViewportW, (float)mViewportH);
     glUniformMatrix2fv(mSolidLocRot, 1, GL_FALSE, mRot);
-    glUniform4f(mSolidLocColor, c.r, c.g, c.b, c.a);
-
-    const float verts[] = {
-        x,     y,
-        x + w, y,
-        x,     y + h,
-        x + w, y + h,
-    };
-    glBindBuffer(GL_ARRAY_BUFFER, mQuadVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
-    glEnableVertexAttribArray(mSolidLocPos);
-    glVertexAttribPointer(mSolidLocPos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glDisableVertexAttribArray(mSolidLocPos);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glEnableVertexAttribArray(mSolidLocPos);
+    glVertexAttribPointer(mSolidLocPos, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), mSolidVerts.data());
+    glEnableVertexAttribArray(mSolidLocColor);
+    glVertexAttribPointer(mSolidLocColor, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), mSolidVerts.data() + 2);
+    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(mSolidVerts.size() / 6));
+    glDisableVertexAttribArray(mSolidLocPos);
+    glDisableVertexAttribArray(mSolidLocColor);
+    mSolidVerts.clear();
+    mDbgFlushNs += android::elapsedRealtimeNano() - t0;
 }
 
 void OverlayGfx::fillRect(float x, float y, float w, float h, Color c) {
@@ -362,6 +405,7 @@ void OverlayGfx::clipBegin(float x, float y, float w, float h) {
     // uRot, so the scissor box must go through the same transform: rotate
     // the rectangle's corners in NDC and take their bounding box in window
     // (bottom-left based) pixels.
+    flushSolids();   // what was queued before the clip must not be clipped
     if (w <= 0.0f || h <= 0.0f) { glScissor(0, 0, 0, 0); glEnable(GL_SCISSOR_TEST); return; }
     const float vw = (float)mViewportW, vh = (float)mViewportH;
     float minX = 1e9f, minY = 1e9f, maxX = -1e9f, maxY = -1e9f;
@@ -387,6 +431,7 @@ void OverlayGfx::clipBegin(float x, float y, float w, float h) {
 }
 
 void OverlayGfx::clipEnd() {
+    flushSolids();   // clipped geometry is drawn while the scissor is still on
     glDisable(GL_SCISSOR_TEST);
 }
 
@@ -404,7 +449,8 @@ void OverlayGfx::panel(float x, float y, float w, float h, Color bg, Color edge)
 
 void OverlayGfx::roundedRect(float x, float y, float w, float h,
                              float radius, Color c) {
-    if (w <= 0.0f || h <= 0.0f) return;
+    if (w <= 0.0f || h <= 0.0f || mRasterOnly) return;
+    flushSolids();
     const float hw = w * 0.5f;
     const float hh = h * 0.5f;
     float r = radius;
@@ -413,6 +459,7 @@ void OverlayGfx::roundedRect(float x, float y, float w, float h,
     if (r < 0.0f) r = 0.0f;
 
     glUseProgram(mRoundProgram);
+    mCurProgram = mRoundProgram;
     glUniform2f(mRoundLocViewport, (float)mViewportW, (float)mViewportH);
     glUniformMatrix2fv(mRoundLocRot, 1, GL_FALSE, mRot);
     glUniform4f(mRoundLocColor, c.r, c.g, c.b, c.a);
@@ -442,19 +489,8 @@ void OverlayGfx::roundedRect(float x, float y, float w, float h,
 
 void OverlayGfx::triangle(float x0, float y0, float x1, float y1,
                           float x2, float y2, Color c) {
-    glUseProgram(mSolidProgram);
-    glUniform2f(mSolidLocViewport, (float)mViewportW, (float)mViewportH);
-    glUniformMatrix2fv(mSolidLocRot, 1, GL_FALSE, mRot);
-    glUniform4f(mSolidLocColor, c.r, c.g, c.b, c.a);
-
-    const float verts[] = { x0, y0, x1, y1, x2, y2 };
-    glBindBuffer(GL_ARRAY_BUFFER, mQuadVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
-    glEnableVertexAttribArray(mSolidLocPos);
-    glVertexAttribPointer(mSolidLocPos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDisableVertexAttribArray(mSolidLocPos);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    if (mRasterOnly) return;
+    pushSolidVertex(x0, y0, c); pushSolidVertex(x1, y1, c); pushSolidVertex(x2, y2, c);
 }
 
 void OverlayGfx::star(float cx, float cy, float r, Color c) {
@@ -494,8 +530,10 @@ GLuint OverlayGfx::createImageTexture(const uint8_t* rgba, int w, int h) {
 
 void OverlayGfx::drawImage(GLuint tex, float x, float y, float w, float h,
                            float alpha) {
-    if (!tex || !mImageProgram) return;
+    if (!tex || !mImageProgram || mRasterOnly) return;
+    flushSolids();
     glUseProgram(mImageProgram);
+    mCurProgram = mImageProgram;
     glUniform2f(mImgLocViewport, (float)mViewportW, (float)mViewportH);
     glUniformMatrix2fv(mImgLocRot, 1, GL_FALSE, mRot);
     glUniform1f(mImgLocAlpha, alpha);
@@ -550,6 +588,38 @@ void* OverlayGfx::faceForCp(uint32_t cp) const {
     return mFtNumFaces > 0 ? mFtFaces[0] : nullptr;   // primary (renders .notdef)
 }
 
+bool OverlayGfx::ensureAtlas() const {
+    if (mAtlasTex) return true;
+    glGenTextures(1, &mAtlasTex);
+    if (!mAtlasTex) return false;
+    glBindTexture(GL_TEXTURE_2D, mAtlasTex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    // Single-channel, 1 MB. Replaces one GL texture per glyph (each of which the
+    // driver page-aligned), so the working set is smaller, not larger.
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, kAtlasW, kAtlasH, 0,
+                 GL_LUMINANCE, GL_UNSIGNED_BYTE, nullptr);
+    // Glyphs are rasterized at the display pixel size and drawn 1:1 on the pixel
+    // grid, so nearest-neighbour sampling keeps them pixel-perfect and crisp.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    mAtlasX = mAtlasY = mAtlasShelfH = 0;
+    return true;
+}
+
+// Atlas full: drop every cached glyph and start packing from the top again.
+// Stale pixels are never referenced once their cache entries are gone, and new
+// packs overwrite them. The visible menu is a few hundred glyphs against a
+// 1024x1024 atlas, so this is rare (a long session that visits every page at
+// every size).
+void OverlayGfx::resetAtlas() const {
+    mGlyphs.clear();
+    mAtlasX = mAtlasY = mAtlasShelfH = 0;
+    ALOGI("OverlayGfx: glyph atlas recycled");
+}
+
 bool OverlayGfx::loadGlyph(uint32_t cp, int pxSize, Glyph* out) const {
     FT_Face face = (FT_Face)faceForCp(cp);
     if (!face) return false;
@@ -563,25 +633,45 @@ bool OverlayGfx::loadGlyph(uint32_t cp, int pxSize, Glyph* out) const {
     out->bearingX = g->bitmap_left;
     out->bearingY = g->bitmap_top;
     out->advance  = g->advance.x >> 6;
-    if (out->w == 0 || out->h == 0) {
-        out->tex = 0;
-        return true;
+    out->u0 = out->v0 = out->u1 = out->v1 = 0.0f;
+    if (out->w == 0 || out->h == 0) return true;   // blank (space): metrics only
+    if (!ensureAtlas()) return false;
+    const int pad = 1;   // one clear texel between glyphs so nearest sampling never bleeds
+    const int gw = out->w + pad, gh = out->h + pad;
+    if (gw > kAtlasW || gh > kAtlasH) return false;
+    // Shelf packer: glyphs go left to right on the current shelf; a glyph that
+    // does not fit opens a new shelf below. A miss at the bottom recycles.
+    if (mAtlasX + gw > kAtlasW) { mAtlasX = 0; mAtlasY += mAtlasShelfH; mAtlasShelfH = 0; }
+    if (mAtlasY + gh > kAtlasH) {
+        resetAtlas();
+        // The caller's earlier glyphs in this run are gone too; they are
+        // re-rasterized on the next text() pass (mGlyphs is empty now).
     }
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE,
-                 out->w, out->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                 g->bitmap.buffer);
-    // Glyphs are rasterized at the display pixel size and drawn 1:1 on the pixel
-    // grid, so nearest-neighbour sampling keeps them pixel-perfect and crisp.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    out->tex = tex;
+    {
+        const int64_t t0 = android::elapsedRealtimeNano();
+        glBindTexture(GL_TEXTURE_2D, mAtlasTex);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, mAtlasX, mAtlasY, out->w, out->h,
+                        GL_LUMINANCE, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        mDbgUploads++; mDbgUploadNs += android::elapsedRealtimeNano() - t0;
+    }
+    out->u0 = (float)mAtlasX / (float)kAtlasW;
+    out->v0 = (float)mAtlasY / (float)kAtlasH;
+    out->u1 = (float)(mAtlasX + out->w) / (float)kAtlasW;
+    out->v1 = (float)(mAtlasY + out->h) / (float)kAtlasH;
+    mAtlasX += gw;
+    if (gh > mAtlasShelfH) mAtlasShelfH = gh;
     return true;
+}
+
+const OverlayGfx::Glyph* OverlayGfx::ensureGlyph(uint32_t cp, int pxSize) const {
+    const uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
+    auto it = mGlyphs.find(key);
+    if (it != mGlyphs.end()) return &it->second;
+    Glyph g{};
+    if (!loadGlyph(cp, pxSize, &g)) return nullptr;
+    return &mGlyphs.emplace(key, g).first->second;
 }
 
 namespace {
@@ -618,82 +708,80 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
     if (pxSize < 4) pxSize = 4;
     if (pxSize > 256) pxSize = 256;
 
-    // Pre-cache pass: rasterize every glyph in the run BEFORE issuing any
-    // glDrawArrays below. loadGlyph creates a GL texture (glGenTextures +
-    // glTexImage2D); creating textures BETWEEN the per-glyph draw calls churns
-    // GL resources mid-draw, which corrupts the PowerVR (Rogue) tile-based
-    // deferred renderer and makes a later glDrawArrays dispatch through a garbage
-    // pointer -- observed as a SIGILL in libGLESv2_POWERVR_ROGUE from the
-    // achievement banner, which introduces new glyph sizes over a live game.
-    // Allocating them all up front keeps the draw loop free of resource creation.
-    {
+    // Pass 1: make sure every glyph of the run is in the atlas. Uploads happen
+    // here, before any draw, and a recycle mid-run simply re-rasterizes the
+    // run's earlier glyphs on the next pass (they are looked up again below).
+    const char* end = s + strlen(s);
+    for (int attempt = 0; attempt < 2; attempt++) {
+        const size_t before = mGlyphs.size();
         const char* cp0 = s;
-        const char* cend = s + strlen(s);
-        while (cp0 < cend) {
-            uint32_t cp = decodeUtf8(&cp0, cend);
+        while (cp0 < end) {
+            uint32_t cp = decodeUtf8(&cp0, end);
             if (!cp) break;
-            uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
-            if (mGlyphs.find(key) == mGlyphs.end()) {
-                Glyph g{};
-                if (loadGlyph(cp, pxSize, &g)) mGlyphs.emplace(key, g);
-            }
+            ensureGlyph(cp, pxSize);
         }
+        // A recycle during the pass empties the cache; run it once more so the
+        // whole run is resident before drawing.
+        if (mGlyphs.size() >= before) break;
     }
+    if (mRasterOnly) return measure(s, scale);
 
-    glUseProgram(mTextProgram);
-    glUniform2f(mTextLocViewport, (float)mViewportW, (float)mViewportH);
-    glUniformMatrix2fv(mTextLocRot, 1, GL_FALSE, mRot);
-    glUniform4f(mTextLocColor, c.r, c.g, c.b, c.a);
-    glActiveTexture(GL_TEXTURE0);
-    glUniform1i(mTextLocSampler, 0);
-
+    // Pass 2: one vertex array for the whole run, one upload, one draw.
     // Snap the pen and baseline to whole pixels. Each glyph is rasterized at an
     // integer pixel size and drawn 1:1, so if it were placed at a fractional
-    // coordinate the bitmap would straddle the pixel grid and GL_LINEAR would
-    // blur it, which is the "badly scaled" look on low-resolution panels.
-    // Advances and bearings are already whole pixels, so once the pen starts on
-    // an integer every glyph in the run lands on the grid and stays crisp.
+    // coordinate the bitmap would straddle the pixel grid and blur, which is the
+    // "badly scaled" look on low-resolution panels. Advances and bearings are
+    // already whole pixels, so once the pen starts on an integer every glyph in
+    // the run lands on the grid and stays crisp.
     float penX = floorf(x + 0.5f);
     const float baseline = floorf(y + mAscent * scale + 0.5f);
+    mTextVerts.clear();
     const char* p = s;
-    const char* end = s + strlen(s);
     while (p < end) {
         uint32_t cp = decodeUtf8(&p, end);
         if (!cp) break;
-        uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
+        const uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
         auto it = mGlyphs.find(key);
-        if (it == mGlyphs.end()) continue;   // pre-cached above; skip if that failed
+        if (it == mGlyphs.end()) continue;   // rasterized above; skip if that failed
         const Glyph& g = it->second;
-        if (g.tex) {
-            // Metrics are already at the display pixel size -> draw 1:1.
-            float gx = penX + g.bearingX;
-            float gy = baseline - g.bearingY;
-            float gw = g.w;
-            float gh = g.h;
-            const float verts[] = {
-                gx,      gy,      0.0f, 0.0f,
-                gx + gw, gy,      1.0f, 0.0f,
-                gx,      gy + gh, 0.0f, 1.0f,
-                gx + gw, gy + gh, 1.0f, 1.0f,
+        if (g.w > 0 && g.h > 0) {
+            const float gx = penX + g.bearingX, gy = baseline - g.bearingY;
+            const float gw = g.w, gh = g.h;
+            const float q[24] = {
+                gx,      gy,      g.u0, g.v0,
+                gx + gw, gy,      g.u1, g.v0,
+                gx,      gy + gh, g.u0, g.v1,
+                gx + gw, gy,      g.u1, g.v0,
+                gx + gw, gy + gh, g.u1, g.v1,
+                gx,      gy + gh, g.u0, g.v1,
             };
-            glBindBuffer(GL_ARRAY_BUFFER, mTextVbo);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
-            glEnableVertexAttribArray(mTextLocPos);
-            glVertexAttribPointer(mTextLocPos, 2, GL_FLOAT, GL_FALSE,
-                                  4 * sizeof(float), nullptr);
-            glEnableVertexAttribArray(mTextLocUv);
-            glVertexAttribPointer(mTextLocUv, 2, GL_FLOAT, GL_FALSE,
-                                  4 * sizeof(float),
-                                  (void*)(2 * sizeof(float)));
-            glBindTexture(GL_TEXTURE_2D, g.tex);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            glDisableVertexAttribArray(mTextLocPos);
-            glDisableVertexAttribArray(mTextLocUv);
+            mTextVerts.insert(mTextVerts.end(), q, q + 24);
         }
         penX += g.advance;
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    if (!mTextVerts.empty() && mAtlasTex) {
+        flushSolids();   // text paints over the rects queued before it
+        const int64_t t0 = android::elapsedRealtimeNano();
+        mDbgTexts++;
+        useProgram(mTextProgram);
+        glUniform2f(mTextLocViewport, (float)mViewportW, (float)mViewportH);
+        glUniformMatrix2fv(mTextLocRot, 1, GL_FALSE, mRot);
+        glUniform4f(mTextLocColor, c.r, c.g, c.b, c.a);
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(mTextLocSampler, 0);
+        glBindTexture(GL_TEXTURE_2D, mAtlasTex);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glEnableVertexAttribArray(mTextLocPos);
+        glVertexAttribPointer(mTextLocPos, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), mTextVerts.data());
+        glEnableVertexAttribArray(mTextLocUv);
+        glVertexAttribPointer(mTextLocUv, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+                              mTextVerts.data() + 2);
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(mTextVerts.size() / 4));
+        glDisableVertexAttribArray(mTextLocPos);
+        glDisableVertexAttribArray(mTextLocUv);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        mDbgTextNs += android::elapsedRealtimeNano() - t0;
+    }
     return penX - x;
 }
 
@@ -708,17 +796,11 @@ float OverlayGfx::measure(const char* s, float scale) const {
     while (p < end) {
         uint32_t cp = decodeUtf8(&p, end);
         if (!cp) break;
-        uint64_t key = ((uint64_t)cp << 20) | (uint32_t)pxSize;
-        auto it = mGlyphs.find(key);
-        if (it != mGlyphs.end()) { penX += it->second.advance; continue; }
-        // Not cached: ask FT for the advance at this size without rendering
-        // (same script-fallback face selection as loadGlyph, so CJK/Arabic
-        // advances match what actually gets drawn).
-        FT_Face face = (FT_Face)faceForCp(cp);
-        if (!face) continue;
-        FT_Set_Pixel_Sizes(face, 0, pxSize);
-        if (FT_Load_Char(face, cp, FT_LOAD_DEFAULT) != 0) continue;
-        penX += (face->glyph->advance.x >> 6);
+        // Measure through the same cache the draw uses: a miss rasterizes the
+        // glyph into the atlas once (the run is about to be drawn anyway), so
+        // a right-aligned value is never re-shaped by FreeType every frame.
+        const Glyph* g = ensureGlyph(cp, pxSize);
+        if (g) penX += g->advance;
     }
     return penX;
 }

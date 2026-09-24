@@ -16,6 +16,7 @@
 #include <deque>
 #include <functional>
 #include <map>
+#include <atomic>
 #include <string>
 #include <sys/types.h>
 #include <vector>
@@ -181,6 +182,9 @@ public:
 
     // Force-close the menu (used when drastic-nano is shutting down).
     void close();
+    // Draw every page once in raster-only mode so the glyph atlas holds the whole
+    // menu before the first real open (session start, render thread).
+    void prewarmGlyphs(drastic_gfx::OverlayGfx& gfx);
 
 private:
     enum Section { kSec_General = 0, kSec_Save, kSec_Video, kSec_Audio,
@@ -283,8 +287,10 @@ private:
     std::vector<std::string> mShaders;
 
     // Battery indicator state (refreshed lazily while the menu is open).
-    int     mBatteryPercent = -1;   // -1 until first successful read
-    bool    mBatteryCharging = false;
+    std::atomic<int>  mBatteryPercent{-1};   // -1 until first successful read (worker writes)
+    std::atomic<bool> mBatteryCharging{false};
+    std::atomic<bool> mBatteryPolling{false};   // a health HAL query is queued on the worker
+    std::atomic<bool> mBatteryHalFailed{false}; // HAL unavailable: use the sysfs fallback
     int64_t mBatteryNextPollMs = 0; // elapsedRealtime() of next refresh
 
     // Cached per-section row lists. Rebuilt when state changes.
@@ -463,6 +469,8 @@ private:
     void applyConfigLive();
     void scanShaders();
     bool slotFileExists(int slot) const;
+    mutable bool mSlotCacheValid = false;      // per-open cache of slotFileExists (FUSE stats)
+    mutable uint32_t mSlotCacheKnown = 0, mSlotCacheExists = 0;
     void toast(const std::string& msg, int64_t ms = 1500);
     void writePrefsSafe();
     void commitAndMaybeRelaunch();

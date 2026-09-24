@@ -109,7 +109,7 @@ public:
     // Override the logical viewport (pixel->NDC denominator). Lets the same
     // OverlayGfx draw into a differently-sized FBO (e.g. the bottom DS panel
     // for the OSK) for one pass; restore the primary size afterwards.
-    void setViewport(int w, int h) { mViewportW = w; mViewportH = h; }
+    void setViewport(int w, int h) { flushSolids(); mViewportW = w; mViewportH = h; }
 
     // Bitmap text rendering. scale=1.0 renders at the FreeType base
     // pixel size (set at init). Larger scale oversamples the atlas.
@@ -119,6 +119,14 @@ public:
 
     // Measure-only variant (no draw). Same math as text().
     float measure(const char* s, float scale) const;
+
+    // Raster-only mode: text() rasterizes and caches every glyph of the run in
+    // the atlas but issues no draw, and the solid/round/image primitives draw
+    // nothing. The menu uses it once at start-up to draw every page "blind" so
+    // the atlas already holds the whole menu's glyph set and the first real open
+    // does not spend a frame rasterizing (measured 57 ms on the RG DS Plus).
+    void setRasterOnly(bool on) { mRasterOnly = on; }
+    bool rasterOnly() const { return mRasterOnly; }
 
     // Font metrics.
     int fontAscent() const  { return mAscent; }
@@ -167,18 +175,39 @@ private:
     int   mLineH  = 0;
 
     struct Glyph {
-        GLuint tex = 0;
         int  w = 0, h = 0;
         int  bearingX = 0, bearingY = 0;
         int  advance = 0;     // metrics are in pixels at the rasterized size
+        float u0 = 0.f, v0 = 0.f, u1 = 0.f, v1 = 0.f;   // atlas rect (empty for blanks)
     };
     // Size-aware cache keyed by (codepoint, pixelSize): each glyph is
     // rasterized at its actual display size and drawn 1:1, so scaled-up text
     // (e.g. big OSK keys) stays crisp instead of magnifying a small atlas.
+    // All glyphs live in ONE atlas texture (shelf packed) so a text run is a
+    // single vertex upload and a single draw call; the earlier one-texture-
+    // per-glyph scheme cost a bind, a buffer upload and a draw per glyph and
+    // put a full menu page at ~1000 draw calls (24 ms a frame on the RG DS).
     mutable std::unordered_map<uint64_t, Glyph> mGlyphs;
+    static const int kAtlasW = 1024, kAtlasH = 1024;
+    mutable GLuint mAtlasTex = 0;
+    mutable int mAtlasX = 0, mAtlasY = 0, mAtlasShelfH = 0;   // shelf packer cursor
+    mutable std::vector<float> mTextVerts;                    // scratch, reused per run
+    bool mRasterOnly = false;
+    GLuint mCurProgram = 0;   // last program this renderer bound (skips redundant re-binds)
 
     void drawSolidQuad(float x, float y, float w, float h, Color c);
+    void pushSolidVertex(float x, float y, Color c);
+    void flushSolids();
+    std::vector<float> mSolidVerts;   // per-frame solid batch: x, y, r, g, b, a
+    mutable int mDbgUploads = 0; mutable int64_t mDbgUploadNs = 0;   // per-frame probes (endFrame log)
+    int mDbgFlushes = 0; int64_t mDbgFlushNs = 0; int mDbgTexts = 0; int64_t mDbgTextNs = 0;
     bool loadGlyph(uint32_t codepoint, int pxSize, Glyph* out) const;
+    // Cached lookup, rasterizing into the atlas on a miss. Needs a current GL
+    // context (all callers are on the render thread). Returns null on failure.
+    const Glyph* ensureGlyph(uint32_t codepoint, int pxSize) const;
+    bool ensureAtlas() const;
+    void resetAtlas() const;
+    void useProgram(GLuint prog);
     // Pick the first loaded face that has a glyph for this codepoint (script
     // fallback), or the primary face if none does. Returns an FT_Face (void*).
     void* faceForCp(uint32_t cp) const;
