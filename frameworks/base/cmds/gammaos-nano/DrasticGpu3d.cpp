@@ -174,6 +174,7 @@ struct Gpu3d {
     GLuint msFbo2x = 0, msDepth2x = 0;   // a second, always-2-sample MSAA target sharing colorTex,
                                          // bound for transient sync frames without a depth-RB rebuild
     bool msImplicit = false;   // EXT_multisampled_render_to_texture: resolved in-tile, no blit
+    bool msAttr = false;       // the id attachment is on the in-tile MSAA target too (EXT_multisampled_render_to_texture2)
     // Adaptive MSAA: 4x by default, drop to 2x only on a scene that is sustained over the frame
     // budget at 4x, restore 4x when it comfortably fits again. The worker sets msTargetSamples
     // from the budget guard; the GL thread rebuilds the (implicit) MSAA depth RB to match. Same
@@ -800,6 +801,16 @@ bool initGl() {
             glGenFramebuffers(1, &g.msFbo); glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
             pFbTex2DMs(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex, 0, g.msSamples);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.msDepth);
+            // The polygon id + depth attachment (the shadow pass's self-shadow id test and edge
+            // marking read it): EXT_multisampled_render_to_texture2 allows it on attachment 1 of
+            // the in-tile target. Without it a stencil shadow darkened its own caster on the MSAA
+            // path (Mario Kart's kart underside), as the DS skips a shadow over its own polygon id.
+            if (glext && strstr(glext, "GL_EXT_multisampled_render_to_texture2") && g.attrTex) {
+                pFbTex2DMs(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.attrTex, 0, g.msSamples);
+                g.msAttr = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+                if (!g.msAttr) { glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0); ALOGW("gpu3d: id attachment on the MSAA target refused, shadows keep the no-id path"); }
+                else ALOGI("gpu3d: id attachment on the in-tile MSAA target");
+            }
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { ALOGW("gpu3d: implicit MSAA FBO incomplete, falling back to explicit"); g.msImplicit = false; glDeleteFramebuffers(1, &g.msFbo); g.msFbo = 0; }
             // Second target, fixed at 2 samples, sharing the same resolved colorTex. Engine-swap
             // sync frames render whole while the emulator waits and cost ~48 ms at 4x; binding this
@@ -1729,6 +1740,7 @@ static void applyMsaaTarget() {
     glGenRenderbuffers(1, &g.msDepth); glBindRenderbuffer(GL_RENDERBUFFER, g.msDepth);
     pRb(GL_RENDERBUFFER, tgt, GL_DEPTH24_STENCIL8, kW, kH);
     pFb(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex, 0, tgt);
+    if (g.msAttr) pFb(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.attrTex, 0, tgt);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.msDepth);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
         ALOGI("gpu3d: adaptive MSAA now %dx", tgt); g.msSamples = tgt;
@@ -1842,7 +1854,8 @@ void renderJob(Job& j) {
     // The id attachment feeds the edge marking pass and the shadow pass's self-shadow id
     // test. On the multisampled target there is no id attachment, so the shadow pass still
     // runs (stencil mask + shadow) but without the id refinement.
-    g.attrWanted = j.edge || (!j.shadowSegs.empty() && !msaa);
+    const bool msaaAttr = msaa && g.msImplicit && g.msAttr && !syncLo;   // the 2x sync target has no id attachment
+    g.attrWanted = j.edge || (!j.shadowSegs.empty() && (!msaa || msaaAttr));
     if (g.attrWanted) {
         const GLenum bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, bufs);
@@ -1975,14 +1988,14 @@ void renderJob(Job& j) {
         // It exists on the plain and 2x-supersampled targets but NOT the multisampled one, so
         // on MSAA the shadow still draws (stencil mask + shadow) without the id refinement.
         static int idTest = 1; if ((g.glFrames & 63) == 0) idTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_idtest", 1);
-        const bool haveId = g.attrWanted && g.ss != 3 && idTest;
+        const bool haveId = g.attrWanted && (g.ss != 3 || (g.msImplicit && g.msAttr && !syncLo)) && idTest;
         const int shadowMode = haveId ? 1 : 2;
         const GLuint attr = g.ss == 2 ? g.ssAttr : g.attrTex;
         const GLint uShadow = glGetUniformLocation(mainProg, "uShadowPass");
         if (haveId) {
             // A texture may not be sampled while attached to the framebuffer being drawn:
             // detach the id attachment for the pass, sample it as uAttr, then put it back.
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);   // detach with the core call (the multisampled entry point with texture 0 faulted in the driver)
             { const GLenum b1[1] = { GL_COLOR_ATTACHMENT0 }; glDrawBuffers(1, b1); }
             glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, attr); glActiveTexture(GL_TEXTURE0);
         }
@@ -2012,7 +2025,8 @@ void renderJob(Job& j) {
         else glDisable(GL_STENCIL_TEST);
         if (haveId) {
             glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, 0); glActiveTexture(GL_TEXTURE0);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0);
+            if (g.ss == 3) ((PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)g.pFbTex2DMs)(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0, g.msSamples);
+            else glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0);
             { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, b2); }
         }
     };
