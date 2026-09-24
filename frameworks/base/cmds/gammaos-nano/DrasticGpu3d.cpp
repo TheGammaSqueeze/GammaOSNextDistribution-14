@@ -755,11 +755,14 @@ bool initGl() {
         auto pFbTex2DMs = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
         auto pRbMsExt = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)eglGetProcAddress("glRenderbufferStorageMultisampleEXT");
         g.msImplicit = glext && strstr(glext, "GL_EXT_multisampled_render_to_texture") && pFbTex2DMs && pRbMsExt;
-        // Default is the explicit multisampled renderbuffer + blit resolve: through the implicit
-        // resolve extension this Mali renders GTA Chinatown Wars' layered sky dark and faceted
-        // (185k pixels off the CPU rasterizer on one frame) while the explicit path is exact.
-        // sys gpu3d_msaa_implicit 1 (read at GL init) restores the extension for A/B.
-        if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_msaa_implicit", 0) == 0) g.msImplicit = false;
+        // Default is the implicit in-tile resolve (EXT_multisampled_render_to_texture): no
+        // multisampled colour write-out and no blit, about 3 ms less GPU time per frame on Pokemon
+        // White 2's town. It once rendered GTA Chinatown Wars' layered sky dark and faceted (185k
+        // pixels off the CPU rasterizer), which is why the explicit renderbuffer + blit path was the
+        // default; with the alpha lane scaling of the GL-blend path in place the two now agree on
+        // that scene to within a dozen bytes at both resolutions (2 samples hi-res, 4 native).
+        // sys gpu3d_msaa_implicit 0 (read at GL init) restores the explicit path for A/B.
+        if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_msaa_implicit", 1) == 0) g.msImplicit = false;
         g.pRbMsExt = (void*)pRbMsExt; g.pFbTex2DMs = (void*)pFbTex2DMs;
         if (g.msSamples >= 2 && g.msImplicit) {
             // colour resolves into the plain colorTex at tile write-out; only depth is multisampled
