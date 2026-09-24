@@ -483,8 +483,16 @@ void applyStr(const char* key, std::string& f) {
     f = v;
 }
 
-int setIfChanged(const char* key, const std::string& val, const std::string* prevVal) {
+int setIfChanged(const char* key, const std::string& val, const std::string* prevVal,
+                 bool onlyUnset) {
     if (prevVal && *prevVal == val) return 0;
+    if (onlyUnset) {
+        // A property that already holds a value is the device's shipped default
+        // (vendor build.prop) or an earlier user choice: the import never
+        // replaces it, it only fills in what nothing has set yet.
+        char cur[PROPERTY_VALUE_MAX] = {};
+        if (property_get(propName(key).c_str(), cur, "") > 0) return 0;
+    }
     // PROPERTY_VALUE_MAX includes the terminator.
     std::string v = val.size() >= PROPERTY_VALUE_MAX ? val.substr(0, PROPERTY_VALUE_MAX - 1) : val;
     property_set(propName(key).c_str(), v.c_str());
@@ -528,10 +536,10 @@ void applyProps(Prefs* p) {
     if (p->currentFx.empty()) p->currentFx = "None";
 }
 
-int writeProps(const Prefs& p, const Prefs* prev) {
+int writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset) {
     int n = 0;
     auto S = [&](const char* key, const std::string& cur, const std::string& old) {
-        n += setIfChanged(key, cur, prev ? &old : nullptr);
+        n += setIfChanged(key, cur, prev ? &old : nullptr, onlyUnset);
     };
 #define W(key, field, conv) S(key, conv(p.field), prev ? conv(prev->field) : std::string())
     W("shader",            currentFx,        std::string);
@@ -562,8 +570,7 @@ int writeProps(const Prefs& p, const Prefs* prev) {
 #undef W
     for (int a = 0; a < kNumActions; a++) {
         if (prev && prev->keymap[0][a] == p.keymap[0][a]) continue;
-        property_set(propName(keyName(a).c_str()).c_str(), i2s(p.keymap[0][a]).c_str());
-        n++;
+        n += setIfChanged(keyName(a).c_str(), i2s(p.keymap[0][a]), nullptr, onlyUnset);
     }
     return n;
 }

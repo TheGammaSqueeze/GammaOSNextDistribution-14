@@ -4534,7 +4534,13 @@ int main(int argc, char** argv) {
     if (!android::drastic_prefs::propsSeeded()) {
         android::drastic_prefs::Prefs legacy = prefs;
         if (android::drastic_prefs::readPrefs(prefsPath, &legacy)) {
-            int n = android::drastic_prefs::writeProps(legacy, nullptr);
+            // Carry over only what the XML actually changed, and only into
+            // properties nothing has set yet. The XML on a fresh device is the
+            // DraStic app's own seed, not a user choice, and it lacks the
+            // nano-only keys (_LowLatency, _FrameSync): writing every field
+            // used to replace the vendor build.prop defaults with the struct
+            // defaults on the very first launch after a factory reset.
+            int n = android::drastic_prefs::writeProps(legacy, &prefs, /*onlyUnset=*/true);
             ALOGI("drastic-nano: imported %d settings from the DraStic app config into properties", n);
         }
         android::drastic_prefs::markPropsSeeded();
@@ -4587,6 +4593,16 @@ int main(int argc, char** argv) {
     // in-menu change is the same mechanism.
     if (prefs.currentFx.empty()) prefs.currentFx = "None";
 
+    // The DRM ring was allocated before the prefs were resolved (drmSetupZeroCopy
+    // reads the persisted Low Latency flag itself). An AFBC ring can only be
+    // scanned by the atomic Cluster commit, which the flip path runs only with
+    // Low Latency on; if the two disagree the panels keep the splash buffer
+    // forever while the game plays. Keep the session consistent with the ring.
+    if (!sfMode && android::sDrmAfbcMode && !prefs.lowLatency) {
+        ALOGW("drastic-nano: AFBC ring allocated but Low Latency resolved off; "
+              "forcing Low Latency on for this session");
+        prefs.lowLatency = true;
+    }
     // Carry the frame-sync flag into the DRM flip path. Read at session
     // start rather than per-iter so the ring-depth assumption (enabled
     // adds one hold-slot to the working set) holds for the whole run.

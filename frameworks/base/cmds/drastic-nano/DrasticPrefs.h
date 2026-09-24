@@ -151,10 +151,15 @@ struct Prefs {
 //                  so a caller may pre-fill device-specific defaults first).
 //   writeProps   : persist every field of p that differs from prev (each
 //                  persist write is a synchronous store, so only the delta is
-//                  written); prev == nullptr writes everything.
+//                  written); prev == nullptr writes everything. With onlyUnset
+//                  a property that already has a value is left alone, so the
+//                  one-time XML import fills gaps and never replaces a vendor
+//                  build.prop default (the first launch after a factory reset
+//                  used to overwrite low_latency=1 with the struct default and
+//                  strand the AFBC ring with no atomic flip path: red panels).
 //   propsSeeded  : the one-time import marker from the legacy DraStic XML.
 void applyProps(Prefs* p);
-int  writeProps(const Prefs& p, const Prefs* prev);
+int  writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset = false);
 bool propsSeeded();
 void markPropsSeeded();
 
