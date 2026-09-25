@@ -108,6 +108,8 @@ constexpr int kSmall = 256, kSmallLayers = 128, kBig = 1024, kBigLayers = 4, kPa
 // word per texel (its bytes-per-texel table, lib+0x10ebfc: 4 for both), r, g, b 6-bit and a 5-bit
 // bytes like the palette words. They live in two RGBA8 arrays of their own.
 constexpr int kDirLayers = 64, kDirBigLayers = 2;   // 64 small RGBA layers (16 MB): Mario Kart slot 0 needs about 45 entries
+static bool sBigPool = false, sDirPool = false, sDirBigPool = false;   // pool storage created (ensurePool)
+static void ensurePool(bool direct, bool big);
 
 struct Upload { bool big; bool direct; bool dbg; int layer, palRow, w, h; std::vector<uint8_t> data; uint8_t pal[256 * 4]; };
 static std::atomic<int> gDbgArm{0}; static int gDbgFrame = 0; static int gDbgHits = 0;   // polygon logging on the dumped frame
@@ -835,9 +837,15 @@ bool initGl() {
     };
     arr(g.smallTex, GL_TEXTURE0, GL_R8UI, kSmall, kSmall, kSmallLayers);
     arr(g.palTex, GL_TEXTURE1, GL_RGBA8, 256, 1, kPalRows);
-    arr(g.bigTex, GL_TEXTURE2, GL_R8UI, kBig, kBig, kBigLayers);
-    arr(g.dirTex, GL_TEXTURE5, GL_RGBA8, kSmall, kSmall, kDirLayers);
-    arr(g.dirBigTex, GL_TEXTURE6, GL_RGBA8, kBig, kBig, kDirBigLayers);
+    // The big and direct-colour pools (4 + 16 + 8 MB of Mali memory, which nothing can page out)
+    // get their storage the first time a game asks for a layer (ensurePool, GL thread); most games
+    // never do. Until then the units hold texture objects without storage, which sample as zero.
+    auto lazy = [](GLuint& tex, GLenum unit) {
+        glGenTextures(1, &tex); glActiveTexture(unit); glBindTexture(GL_TEXTURE_2D_ARRAY, tex);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    };
+    lazy(g.bigTex, GL_TEXTURE2); lazy(g.dirTex, GL_TEXTURE5); lazy(g.dirBigTex, GL_TEXTURE6);
+    sBigPool = sDirPool = sDirBigPool = false;
     glGenTextures(1, &g.colorTex); glBindTexture(GL_TEXTURE_2D, g.colorTex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kW, kH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -976,15 +984,7 @@ bool initGl() {
         std::vector<uint8_t> z((size_t)kSmall * kSmall, 0);
         glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D_ARRAY, g.smallTex);
         for (int l = 0; l < kSmallLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, kSmall, kSmall, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, z.data());
-        std::vector<uint8_t> zb((size_t)kBig * kBig, 0);
-        glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D_ARRAY, g.bigTex);
-        for (int l = 0; l < kBigLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, kBig, kBig, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, zb.data());
-        { std::vector<uint8_t> zd((size_t)kSmall * kSmall * 4, 0);
-          glActiveTexture(GL_TEXTURE5); glBindTexture(GL_TEXTURE_2D_ARRAY, g.dirTex);
-          for (int l = 0; l < kDirLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, kSmall, kSmall, 1, GL_RGBA, GL_UNSIGNED_BYTE, zd.data());
-          std::vector<uint8_t> zdb((size_t)kBig * kBig * 4, 0);
-          glActiveTexture(GL_TEXTURE6); glBindTexture(GL_TEXTURE_2D_ARRAY, g.dirBigTex);
-          for (int l = 0; l < kDirBigLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, kBig, kBig, 1, GL_RGBA, GL_UNSIGNED_BYTE, zdb.data()); }
+        // (the big and direct-colour pools are filled when ensurePool creates them)
         uint8_t pal[1024] = {};
         glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D_ARRAY, g.palTex);
         for (int l = 0; l < kPalRows; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, 256, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pal);
@@ -1088,6 +1088,26 @@ static bool takeLayer(std::vector<int>& freeList, int& next, int limit, int& out
     if (!freeList.empty()) { out = freeList.back(); freeList.pop_back(); return true; }
     if (next >= limit) return false;
     out = next++; return true;
+}
+// Storage for the big (1024x1024 R8, 4 layers) and direct-colour (256x256 and 1024x1024 RGBA)
+// pools, created on the GL thread the first time an upload needs one and zeroed like the eager
+// pools. On the 1 GB Plus the GPU path already costs the emulator about 175 MB over the CPU
+// rasterizer and the kernel pages its working set through zram all session; 28 MB of Mali
+// memory that most games never touch is not paid up front.
+static void ensurePool(bool direct, bool big) {
+    bool& ready = direct ? (big ? sDirBigPool : sDirPool) : sBigPool;
+    if (ready) return;
+    const GLenum unit = direct ? (big ? GL_TEXTURE6 : GL_TEXTURE5) : GL_TEXTURE2;
+    const GLuint tex = direct ? (big ? g.dirBigTex : g.dirTex) : g.bigTex;
+    const int dim = big ? kBig : kSmall;
+    const int layers = direct ? (big ? kDirBigLayers : kDirLayers) : kBigLayers;
+    glActiveTexture(unit); glBindTexture(GL_TEXTURE_2D_ARRAY, tex);
+    glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, direct ? GL_RGBA8 : GL_R8UI, dim, dim, layers);
+    std::vector<uint8_t> z((size_t)dim * dim * (direct ? 4 : 1), 0);
+    for (int l = 0; l < layers; l++)
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, dim, dim, 1, direct ? GL_RGBA : GL_RED_INTEGER, GL_UNSIGNED_BYTE, z.data());
+    ready = true;
+    ALOGI("gpu3d: %s%s texture pool created (%d x %d x %d layers)", direct ? "direct " : "", big ? "big" : "small", dim, dim, layers);
 }
 bool allocLayer(bool big, int& layer, int& pal, bool direct = false) {
     if (direct) {
@@ -1991,12 +2011,14 @@ void renderJob(Job& j) {
     for (Upload& u : j.uploads) {
         if (u.direct) {
             const GLuint tex = u.big ? g.dirBigTex : g.dirTex; GLuint& cache = u.big ? bnd6 : bnd5;
+            ensurePool(true, u.big);
             glActiveTexture(u.big ? GL_TEXTURE6 : GL_TEXTURE5);
             if (cache != tex) { glBindTexture(GL_TEXTURE_2D_ARRAY, tex); cache = tex; }
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, u.layer, u.w, u.h, 1, GL_RGBA, GL_UNSIGNED_BYTE, u.data.data());
             continue;
         }
         { const GLuint tex = u.big ? g.bigTex : g.smallTex; GLuint& cache = u.big ? bnd2 : bnd0;
+          if (u.big) ensurePool(false, true);
           glActiveTexture(u.big ? GL_TEXTURE2 : GL_TEXTURE0);
           if (cache != tex) { glBindTexture(GL_TEXTURE_2D_ARRAY, tex); cache = tex; } }
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, u.layer, u.w, u.h, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, u.data.data());
@@ -2665,6 +2687,7 @@ static void destroyGl() {
         delFb(g.fbo); delFb(g.edgeFbo); delFb(g.ssFbo); delFb(g.ssEdgeFbo); delFb(g.msFbo); delFb(g.msFbo2x);
         delTex(g.colorTex); delTex(g.attrTex); delTex(g.edgeTex); delTex(g.ssColor); delTex(g.ssAttr); delTex(g.ssEdgeTex);
         delTex(g.smallTex); delTex(g.bigTex); delTex(g.palTex); delTex(g.dirTex); delTex(g.dirBigTex);
+        sBigPool = sDirPool = sDirBigPool = false;
         delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
         delPr(g.edgeProg); delPr(g.resolveProg);
