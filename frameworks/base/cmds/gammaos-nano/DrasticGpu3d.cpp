@@ -177,6 +177,8 @@ struct Gpu3d {
     EGLContext ctx = EGL_NO_CONTEXT;
     EGLSurface surf = EGL_NO_SURFACE;
     GLuint progNoFetch = 0, progTrivial = 0, progOpaque = 0, progExp6 = 0, progExp7 = 0, uPassNoFetch = 0;
+    GLuint progNoFetchNF = 0, progOpaqueNF = 0;   // the same two without the fog block, for frames with fog off
+    GLuint opq = 0;                               // this job's opaque (no-discard) program: progOpaque or progOpaqueNF
     GLuint progShadowMs = 0; GLint uAlphaMulShadowMs = -1;   // MSAA shadow pass: reads the id attachment by framebuffer fetch (no detach)
     GLuint curProg = 0; bool curBlend = false; bool blendAlpha = false;   // this job stores alpha as a blend factor (GL-blend path)
     GLuint prog = 0, fbo = 0, colorTex = 0, depthRb = 0, vbo = 0, vao = 0, smallTex = 0, bigTex = 0, palTex = 0;
@@ -197,7 +199,7 @@ struct Gpu3d {
     uint32_t msaaUnder = 0;                   // consecutive comfortable frames (restore hysteresis)
     void* pRbMsExt = nullptr; void* pFbTex2DMs = nullptr;   // saved for the runtime rebuild
     int ss = 1;   // 1 plain, 2 supersampled 1024x768, 3 MSAA 4x at 512x384
-    GLint uAlphaMulNoFetch = -1, uAlphaMulOpaque = -1;
+    GLint uAlphaMulNoFetch = -1, uAlphaMulOpaque = -1, uAlphaMulNoFetchNF = -1, uAlphaMulOpaqueNF = -1;
     bool attrWanted = false;   // the current job runs the edge pass
     bool attrAllPasses = false;   // in-tile MSAA: attachment 1 stays a draw buffer for the whole frame (a draw-buffer change splits the tile pass)
     GLuint casterEbo = 0;   // element buffer for the shadow caster redraw (two indexed draws per shadow id)
@@ -740,7 +742,7 @@ bool initGl() {
     g.timerExt = ext && strstr(ext, "GL_EXT_disjoint_timer_query");
     ALOGI("gpu3d: %s / %s, framebuffer fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.timerExt);
 
-    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false) -> GLuint {
+    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false) -> GLuint {
         std::string frag = kFragHead;
         if (fetch || fetchAttr) frag += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
         frag += fetch ? "layout(location = 0) inout vec4 fragColor;\n" : "layout(location = 0) out vec4 fragColor;\n";
@@ -761,6 +763,10 @@ bool initGl() {
                 if (q == std::string::npos) { ALOGE("gpu3d: experiment anchor missing: %s", anchor); return; }
                 body.replace(q, body.find(';', q) + 1 - q, repl);
             };
+            if (noFog) {   // frames without fog: the same program minus the fog block (uFog is 0 there, but the
+                           // skipped block still cost 0.5 ms a frame on Pokemon White 2's title; measured by this swap)
+                size_t q = body.find("if (uFog != 0 && fogPoly != 0) {"); if (q != std::string::npos) body.replace(q, 32, "if (false) {");
+            }
             if (expt == 6) {   // keep the index fetch, drop the palette fetch
                 swapStmt("vec4 pc = texelFetch(uPal", "vec4 pc = vec4(float(idx & 63u) / 255.0, 0.1, 0.2, 1.0);");
             } else if (expt == 7) {   // no texture fetch at all
@@ -803,7 +809,8 @@ bool initGl() {
     g.prog = build(g.fbFetch, false);
     g.progNoFetch = build(false, false);
     g.progTrivial = build(false, true);
-    g.progOpaque = build(false, false, true);   // no discard, no fetch (its gl_FragDepth write still rules out early depth rejection; measured inside noise without it)
+    g.progOpaque = build(false, false, true);
+    g.progNoFetchNF = build(false, false, false, 0, false, true); g.progOpaqueNF = build(false, false, true, 0, false, true);   // fog-free variants   // no discard, no fetch (its gl_FragDepth write still rules out early depth rejection; measured inside noise without it)
     g.progExp6 = build(false, false, false, 6); g.progExp7 = build(false, false, false, 7);   // probes: no framebuffer fetch (48 fps on the MSAA target) so they time the shader, not the fetch
     // Only the id-attachment self-shadow test (gpu3d_shadow_idtest 2) needs this program; the
     // default test redraws the caster and never samples an attachment, so it is not built.
@@ -812,9 +819,10 @@ bool initGl() {
         if (g.progShadowMs) g.uAlphaMulShadowMs = glGetUniformLocation(g.progShadowMs, "uAlphaMul");
         else ALOGW("gpu3d: id-fetch shadow program failed, MSAA shadows detach the id attachment");
     }
-    if (!g.prog || !g.progNoFetch || !g.progTrivial || !g.progOpaque) return false;
+    if (!g.prog || !g.progNoFetch || !g.progTrivial || !g.progOpaque || !g.progNoFetchNF || !g.progOpaqueNF) return false;
     g.uAlphaMulNoFetch = glGetUniformLocation(g.progNoFetch, "uAlphaMul");
     g.uAlphaMulOpaque = glGetUniformLocation(g.progOpaque, "uAlphaMul");
+    g.uAlphaMulNoFetchNF = glGetUniformLocation(g.progNoFetchNF, "uAlphaMul"); g.uAlphaMulOpaqueNF = glGetUniformLocation(g.progOpaqueNF, "uAlphaMul");
     glUseProgram(g.prog);
     g.uPass = glGetUniformLocation(g.prog, "uPass");
     glUniform1i(g.uPass, 0);
@@ -987,7 +995,7 @@ bool initGl() {
             glClearColor(0, 0, 0, 0); glClearDepthf(1.f); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
             glBufferData(GL_ARRAY_BUFFER, sizeof tri, tri, GL_STREAM_DRAW);
-            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
+            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
             glReadPixels(0, 0, 8, 8, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
         }
         if (g.msFbo) {   // the MSAA target too, read back exactly as renderJob does, full size:
@@ -1032,7 +1040,7 @@ bool initGl() {
             glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
             glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX);
             glEnable(GL_STENCIL_TEST); glStencilMask(0xff);
-            for (GLuint pr : { g.progNoFetch, g.progOpaque }) {
+            for (GLuint pr : { g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF }) {
                 glUseProgram(pr);
                 const GLint ld = glGetUniformLocation(pr, "uDepthMode");
                 const GLint lp = glGetUniformLocation(pr, "uPass");
@@ -1779,7 +1787,7 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
         if (vv.empty()) continue;
         if (issue) { if (translucent) gDcTranslDraws++; else gDcOpaqueDraws++; if (gDsBlend && (translucent || (((grp >> 1) & 1) && !((grp >> 2) & 1)))) gDcOpaqueDraws += (uint32_t)st.polyLen[grp].size();
             const bool noDiscard = (grp >> 2) & 1;
-            useProgram(noDiscard ? g.progOpaque : mainProg, noDiscard ? false : mainBlend);
+            useProgram(noDiscard ? g.opq : mainProg, noDiscard ? false : mainBlend);
             glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS);
             bool dwrite = (grp >> 1) & 1;   // opaque stream: the partial-alpha texel flag instead
             if (!translucent || dwrite || noDiscard) {
@@ -2055,7 +2063,8 @@ void renderJob(Job& j) {
     static int progSel = 0; if ((g.glFrames & 63) == 0) progSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0);
     GLuint useProg = progSel == 3 ? g.progNoFetch : progSel == 4 ? g.progTrivial : progSel == 6 ? g.progExp6 : progSel == 7 ? g.progExp7 : g.prog;
     bool mainBlend = progSel == 3 || !g.fbFetch;
-    if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = g.progNoFetch; mainBlend = true; }   // probes 4/6/7 keep their program on the MSAA path (timing only)
+    if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = j.fog ? g.progNoFetch : g.progNoFetchNF; mainBlend = true; }
+    g.opq = j.fog ? g.progOpaque : g.progOpaqueNF;   // probes 4/6/7 keep their program on the MSAA path (timing only)
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
       gDsBlend = mainBlend && dsKnob != 0; g.blendAlpha = mainBlend;
@@ -2077,8 +2086,10 @@ void renderJob(Job& j) {
     // landed with alpha 31/255 -> 4 of 31 after the readback (Sonic transparent at 4x).
     glUseProgram(g.progNoFetch); glUniform1f(g.uAlphaMulNoFetch, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
     glUseProgram(g.progOpaque); glUniform1f(g.uAlphaMulOpaque, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
+    glUseProgram(g.progNoFetchNF); glUniform1f(g.uAlphaMulNoFetchNF, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
+    glUseProgram(g.progOpaqueNF); glUniform1f(g.uAlphaMulOpaqueNF, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
     if (g.progShadowMs) { glUseProgram(g.progShadowMs); glUniform1f(g.uAlphaMulShadowMs, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
-    for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progShadowMs ? g.progShadowMs : g.progOpaque }) {
+    for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progShadowMs ? g.progShadowMs : g.progOpaque }) {
         glUseProgram(pr);
         { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 1);   // colour affine, texels perspective: closest to drastic on Golden Sun and Mario Kart
           const GLint li = glGetUniformLocation(pr, "uInterp"); if (li >= 0) glUniform1i(li, interp);
@@ -2207,7 +2218,7 @@ void renderJob(Job& j) {
         // is the outcome the DS's integer depths always reach. Moving the shadow polygons toward
         // the camera as well measured worse, so only the mask is biased.
         // sys gpu3d_shadow_bias, in 24-bit depth units, 0 disables it.
-        const GLint uMaskBias = glGetUniformLocation(g.progOpaque, "uShadowBias");
+        const GLint uMaskBias = glGetUniformLocation(g.opq, "uShadowBias");
         static int shadowBias = -1; if ((g.glFrames & 63) == 0) shadowBias = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_bias", 1024);
         const float maskBias = (float)shadowBias;
         if (fetchId) { if (!g.attrAllPasses) { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 }; glDrawBuffers(2, b2); } }
@@ -2279,7 +2290,7 @@ void renderJob(Job& j) {
             glStencilFunc(GL_ALWAYS, 0x00, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);   // depth-pass fragments clear the plane bit
             for (int cls = 0; cls < 2; cls++) {
                 if (!c->count[cls]) continue;
-                useProgram(cls == 0 ? g.progOpaque : mainProg, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                useProgram(cls == 0 ? g.opq : mainProg, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 glDrawElements(GL_TRIANGLES, (GLsizei)c->count[cls], GL_UNSIGNED_INT, (const void*)(uintptr_t)(c->start[cls] * sizeof(uint32_t))); gDcShadowCasterDraws++;
             }
             glDisable(GL_SCISSOR_TEST);
@@ -2313,7 +2324,7 @@ void renderJob(Job& j) {
                 }
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
                 glStencilFunc(GL_ALWAYS, 0x01, 0x01); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
-                useProgram(g.progOpaque, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                useProgram(g.opq, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 if (uMaskBias >= 0) glUniform1f(uMaskBias, maskBias / 16777215.0f);   // away from the camera: the mask must fail over the floor
             } else {
                 glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_FALSE);
@@ -2654,7 +2665,7 @@ static void destroyGl() {
         delTex(g.colorTex); delTex(g.attrTex); delTex(g.edgeTex); delTex(g.ssColor); delTex(g.ssAttr); delTex(g.ssEdgeTex);
         delTex(g.smallTex); delTex(g.bigTex); delTex(g.palTex); delTex(g.dirTex); delTex(g.dirBigTex);
         delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
-        delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progExp6); delPr(g.progExp7);
+        delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
         delPr(g.edgeProg); delPr(g.resolveProg);
         if (g.vao) { glDeleteVertexArrays(1, &g.vao); g.vao = 0; }
         if (g.casterEbo) { glDeleteBuffers(1, &g.casterEbo); g.casterEbo = 0; }

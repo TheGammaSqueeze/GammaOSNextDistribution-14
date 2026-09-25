@@ -2491,6 +2491,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             directArmed = true;
         }
         const int64_t sRdT0 = android::elapsedRealtimeNano();
+        gpu3dPresenterTimerBegin();   // presenter GPU share probe (sys gpu3d_gputime): the DS render and both panel passes
         sGpuTimer.frameBegin();
         sGpuTimer.beginPass(0);
         if (renderDs && !drmSingleLayout) dr->renderDsToOffscreen();
@@ -3019,6 +3020,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             property_set("sys.gammaos.drastic_nano.shot", "0");
         }
         sPbMark[3] = android::elapsedRealtimeNano();   // bottom passes, cursor, shot done
+        gpu3dPresenterTimerEnd();
 
         if (tripleBuffer) {
             {
