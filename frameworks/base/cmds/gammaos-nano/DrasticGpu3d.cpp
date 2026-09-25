@@ -117,7 +117,8 @@ struct OrdPoly { uint32_t start; uint16_t n; uint16_t pi; uint8_t grp, id, pa; i
 struct Stream { std::vector<Vtx> v[8]; std::vector<uint16_t> polyLen[8]; std::vector<uint8_t> polyId[8]; std::vector<OrdPoly> ord; };   // [deq | dwrite<<1 | nodiscard<<2]; polyLen = vertices per polygon, polyId = its 6-bit DS polygon id, list order; ord = translucent polys in list order
 // Shadow polygons (mode 3), in list order: id 0 = mask (stencil where the depth test fails),
 // others draw where the stencil is set. Consecutive polygons of one kind form a segment.
-struct ShadowSeg { uint32_t start, count; bool mask, deq; };
+static int gFrontBias = 1;      // sys gpu3d_front_bias: 0 off, 1 shadow polygons only (default), 2 every polygon
+struct ShadowSeg { uint32_t start, count; bool mask, deq; uint8_t id; };   // id: the shadow's 6-bit polygon id (0 for a mask)
 struct Job {
     Stream opaque, transl;
     std::vector<Vtx> shadow; std::vector<ShadowSeg> shadowSegs;
@@ -165,6 +166,7 @@ struct Gpu3d {
     EGLContext ctx = EGL_NO_CONTEXT;
     EGLSurface surf = EGL_NO_SURFACE;
     GLuint progNoFetch = 0, progTrivial = 0, progOpaque = 0, progExp6 = 0, progExp7 = 0, uPassNoFetch = 0;
+    GLuint progShadowMs = 0; GLint uAlphaMulShadowMs = -1;   // MSAA shadow pass: reads the id attachment by framebuffer fetch (no detach)
     GLuint curProg = 0; bool curBlend = false; bool blendAlpha = false;   // this job stores alpha as a blend factor (GL-blend path)
     GLuint prog = 0, fbo = 0, colorTex = 0, depthRb = 0, vbo = 0, vao = 0, smallTex = 0, bigTex = 0, palTex = 0;
     GLuint attrTex = 0, edgeProg = 0, edgeFbo = 0, edgeTex = 0, edgeVao = 0;
@@ -186,6 +188,8 @@ struct Gpu3d {
     int ss = 1;   // 1 plain, 2 supersampled 1024x768, 3 MSAA 4x at 512x384
     GLint uAlphaMulNoFetch = -1, uAlphaMulOpaque = -1;
     bool attrWanted = false;   // the current job runs the edge pass
+    bool attrAllPasses = false;   // in-tile MSAA: attachment 1 stays a draw buffer for the whole frame (a draw-buffer change splits the tile pass)
+    GLuint casterEbo = 0;   // element buffer for the shadow caster redraw (two indexed draws per shadow id)
     bool timerExt = false; GLuint tq = 0; int64_t sumGpuNs = 0; uint32_t gpuSamples = 0;
     GLint uEdgeTbl = -1, uEdgeClear = -1, uEdgeSize = -1;
     GLint uIdx = -1, uPal = -1, uPass = -1;
@@ -332,18 +336,35 @@ uniform int uDepthMode;   // 0 = screen linear (the shipped setup), 1 = perspect
 // Kart's kart shadow came out as a sliver). Their depth is pulled toward the camera by the band
 // so LEQUAL passes the whole band behind the surface. uDeqTol is that band in [0,1] depth units.
 uniform float uDeqTol;
-// The DS "less" test is not strict for a front facing polygon: it passes at EQUAL depth when the
-// destination holds an opaque front facing polygon (melonDS DepthTest_LessThan_FrontFacing). A
-// stencil shadow's front faces lie exactly on the floor they shade, so the DS draws them at
-// equality; a strict LESS drew Mario Kart's kart shadow as a sliver. Front facing polygons (flag in
-// bit 9 of the third tex1 lane, from the screen winding) get half a 24-bit unit toward the camera.
-// The destination condition is not checked (no per-pixel attribute on the multisampled target).
-// A back facing polygon keeps the strict test, so at equal depth it must FAIL: it is pushed half a
-// unit away instead. A shadow volume's bottom face is coplanar with the floor it stands on; the
-// strict test failing there is what sets the mask's stencil across the shadow's footprint (Mario
-// Kart's kart shadow), and the DS integer depths make that outcome deterministic where float
-// interpolation of two coplanar polygons would leave it to rounding.
-const float kFrontBias = 0.5 / 16777215.0;
+// The DS "less" test is not strict for a FRONT facing polygon drawn over a destination pixel whose
+// last opaque writer was BACK facing: that pair passes at equal depth (melonDS
+// DepthTest_LessThan_FrontFacing, dstattr bit 4 set for a back facing writer). Every other pair
+// keeps the strict test. A shadow volume's faces lie exactly on the floor they shade, and which of
+// the two outcomes the DS takes there decides whether the mask's stencil is set across the
+// shadow's footprint; a strict LESS everywhere drew Mario Kart's kart shadow as a sliver.
+// uFrontBias approximates the relaxation by moving a front facing polygon half a 24-bit unit
+// toward the camera (facing is bit 9 of the third tex1 lane, from the screen winding) and a back
+// facing one half a unit away. The destination half of the condition cannot be checked here (no
+// per-pixel attribute survives on the multisampled target), so the approximation is applied to
+// SHADOW polygons only. Applied to every polygon it shifted the whole scene half a unit either way
+// by winding and set coplanar surfaces fighting: Mario Kart's character select grew black spikes
+// and a bar over the kart and its disc that moved as the kart rotated.
+// sys gpu3d_front_bias: 0 off, 1 shadow polygons (the default), 2 every polygon.
+uniform float uFrontBias;
+// Shadow mask depth bias, in [0,1] depth units, added away from the camera and only while the
+// stencil mask is drawn. The mask sets the stencil where its LESS test FAILS, and a shadow volume's
+// bottom face is coplanar with the floor it stands on, so on the DS's integer depths the whole
+// footprint fails and is marked. This rasterizer's depth for those near edge on faces lands a few
+// hundred 24-bit units off the hardware's, enough for part of the footprint to pass instead and
+// lose its shadow (Mario Kart's kart shadow covered 2262 of the 3230 pixels the CPU rasterizer
+// shades). Pushing the mask away by a fraction of the DS's own W mode coplanar band restores it.
+uniform float uShadowBias;
+// Slope term for the same bias, in multiples of the depth change across one pixel. The volume's
+// faces meet the floor nearly edge on, where depth moves hundreds of units per pixel, so a flat
+// bias cannot separate the pair there while staying small elsewhere. fwidth(vDepth) is that local
+// gradient. sys gpu3d_shadow_slope, in tenths (10 = one pixel of depth change), off by default:
+// the constant alone was measured at two kart angles and the slope term was not.
+uniform float uShadowSlope;
 // DISP3DCNT bit 3 off (alpha blending disabled): a translucent fragment's colour is written in
 // place of the destination instead of being blended, and the pixel keeps the larger of the two
 // alphas, exactly as the blended case does (Mario Kart's character select draws its black kart
@@ -497,7 +518,7 @@ const char* kFragFetch = R"(
         r = floor((r * w1 + dc.r * w0) * (1.0 / 32.0)); gg = floor((gg * w1 + dc.g * w0) * (1.0 / 32.0)); b = floor((b * w1 + dc.b * w0) * (1.0 / 32.0));
         a = max(a, da);
     }
-    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -kFrontBias : kFrontBias);
+    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth)));
     fragColor = vec4(r, gg, b, a) * (1.0 / 255.0);
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
@@ -507,7 +528,7 @@ const char* kFragFetch = R"(
 )";
 
 const char* kFragNoFetch = R"(
-    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -kFrontBias : kFrontBias);
+    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth)));
     fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
@@ -670,11 +691,15 @@ bool initGl() {
     g.timerExt = ext && strstr(ext, "GL_EXT_disjoint_timer_query");
     ALOGI("gpu3d: %s / %s, framebuffer fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.timerExt);
 
-    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0) -> GLuint {
+    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false) -> GLuint {
         std::string frag = kFragHead;
-        if (fetch) frag += "#extension GL_EXT_shader_framebuffer_fetch : require\nlayout(location = 0) inout vec4 fragColor;\n";
-        else frag += "layout(location = 0) out vec4 fragColor;\n";
-        frag += "layout(location = 1) out vec4 attrOut;\n";
+        if (fetch || fetchAttr) frag += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
+        frag += fetch ? "layout(location = 0) inout vec4 fragColor;\n" : "layout(location = 0) out vec4 fragColor;\n";
+        // fetchAttr: the shadow pass on the in-tile MSAA target reads the destination polygon id
+        // straight from attachment 1 (framebuffer fetch) instead of detaching it and sampling it as
+        // uAttr: the detach/reattach split the tile pass (a full resolve and reload of the
+        // multisampled target every frame with a shadow), which doubled Mario Kart's GL job.
+        frag += fetchAttr ? "layout(location = 1) inout vec4 attrOut;\n" : "layout(location = 1) out vec4 attrOut;\n";
         if (trivial) frag += "void main() { fragColor = vec4(vCol / 255.0, 31.0 / 255.0); attrOut = vec4(0.0); }\n";
         else {
             std::string body = kFragBody;
@@ -694,8 +719,13 @@ bool initGl() {
                 swapStmt("vec4 pc = texelFetch(uPal", "vec4 pc = vec4(float(idx & 63u) / 255.0, 0.1, 0.2, 1.0);");
             }
             frag += body; frag += fetch ? kFragFetch : kFragNoFetch;
+            if (fetchAttr) {
+                size_t q = frag.find("void main() {"); frag.insert(q + 13, "\n    vec4 attrIn = attrOut;");
+                q = frag.find("texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r"); if (q != std::string::npos) frag.replace(q, 46, "attrIn.r");
+                q = frag.rfind("attrOut = vec4(float("); q = frag.find('\n', q) + 1; frag.insert(q, "    if (uShadowPass != 0) attrOut = attrIn;   // a shadow keeps the destination's opaque id and depth (DS attribute rule)\n");
+            }
         }
-        if (fetch) {   // #extension must precede other declarations: move it right after #version
+        if (fetch || fetchAttr) {   // #extension must precede other declarations: move it right after #version
             size_t p = frag.find("#extension"); std::string e = frag.substr(p, frag.find('\n', p) - p + 1);
             frag.erase(p, e.size());
             size_t v = frag.find('\n') + 1; frag.insert(v, e);
@@ -718,6 +748,13 @@ bool initGl() {
     g.progTrivial = build(false, true);
     g.progOpaque = build(false, false, true);   // no discard, no fetch: early depth rejection works
     g.progExp6 = build(g.fbFetch, false, false, 6); g.progExp7 = build(g.fbFetch, false, false, 7);
+    // Only the id-attachment self-shadow test (gpu3d_shadow_idtest 2) needs this program; the
+    // default test redraws the caster and never samples an attachment, so it is not built.
+    if (g.fbFetch && property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_idtest", 1) == 2) {
+        g.progShadowMs = build(false, false, false, 0, true);
+        if (g.progShadowMs) g.uAlphaMulShadowMs = glGetUniformLocation(g.progShadowMs, "uAlphaMul");
+        else ALOGW("gpu3d: id-fetch shadow program failed, MSAA shadows detach the id attachment");
+    }
     if (!g.prog || !g.progNoFetch || !g.progTrivial || !g.progOpaque) return false;
     g.uAlphaMulNoFetch = glGetUniformLocation(g.progNoFetch, "uAlphaMul");
     g.uAlphaMulOpaque = glGetUniformLocation(g.progOpaque, "uAlphaMul");
@@ -805,7 +842,7 @@ bool initGl() {
             // marking read it): EXT_multisampled_render_to_texture2 allows it on attachment 1 of
             // the in-tile target. Without it a stencil shadow darkened its own caster on the MSAA
             // path (Mario Kart's kart underside), as the DS skips a shadow over its own polygon id.
-            if (glext && strstr(glext, "GL_EXT_multisampled_render_to_texture2") && g.attrTex) {
+            if (glext && strstr(glext, "GL_EXT_multisampled_render_to_texture2") && g.attrTex && property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_idtest", 1) == 2) {
                 pFbTex2DMs(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.attrTex, 0, g.msSamples);
                 g.msAttr = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
                 if (!g.msAttr) { glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0); ALOGW("gpu3d: id attachment on the MSAA target refused, shadows keep the no-id path"); }
@@ -848,6 +885,7 @@ bool initGl() {
     }
     glGenVertexArrays(1, &g.vao); glBindVertexArray(g.vao);
     glGenBuffers(1, &g.vbo); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
+    glGenBuffers(1, &g.casterEbo); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g.casterEbo);   // shadow caster redraw indices (VAO state)
     glEnableVertexAttribArray(0); glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vtx), (void*)0);
     glEnableVertexAttribArray(1); glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vtx), (void*)(4 * sizeof(float)));
     glEnableVertexAttribArray(2); glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vtx), (void*)(7 * sizeof(float)));
@@ -892,7 +930,7 @@ bool initGl() {
             glClearColor(0, 0, 0, 0); glClearDepthf(1.f); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
             glBufferData(GL_ARRAY_BUFFER, sizeof tri, tri, GL_STREAM_DRAW);
-            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
+            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
             glReadPixels(0, 0, 8, 8, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
         }
         if (g.msFbo) {   // the MSAA target too, read back exactly as renderJob does, full size:
@@ -1269,9 +1307,9 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         // the shadow polygons (id 1..63) blend where the mask is set and their own depth test
         // passes. (The DS also skips pixels whose polygon id equals the shadow's, so a caster
         // never darkens itself; that needs the destination id per pixel and is not done here.)
-        const bool mask = ((pattr >> 24) & 63) == 0;
+        const uint8_t sid = (uint8_t)((pattr >> 24) & 63); const bool mask = sid == 0;
         std::vector<Vtx>& sv = g.cur->shadow; std::vector<ShadowSeg>& segs = g.cur->shadowSegs;
-        if (segs.empty() || segs.back().mask != mask || segs.back().deq != (deq != 0)) segs.push_back({ (uint32_t)sv.size(), 0, mask, deq != 0 });
+        if (segs.empty() || segs.back().mask != mask || segs.back().deq != (deq != 0) || segs.back().id != sid) segs.push_back({ (uint32_t)sv.size(), 0, mask, deq != 0, sid });
         Vtx v[16];
         for (int k = 0; k < n; k++) {
             int kk = (order >> (4 * k)) & 15;
@@ -1288,7 +1326,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
             v[k].s = s / 16.0f; v[k].t = tt / 16.0f;
             memcpy(v[k].tex0, tex0, sizeof tex0); memcpy(v[k].tex1, tex1, sizeof tex1);
         }
-        { float area = 0.f; for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area += v[k].x * v[k2].y - v[k2].x * v[k].y; }
+        if (gFrontBias) { float area = 0.f; for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area += v[k].x * v[k2].y - v[k2].x * v[k].y; }
           if (area < 0.f) for (int k = 0; k < n; k++) v[k].tex1[2] |= 1 << 9;
         }
         for (int k = 1; k + 1 < n; k++) { sv.push_back(v[0]); sv.push_back(v[k]); sv.push_back(v[k + 1]); }
@@ -1330,8 +1368,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         v[k].s = s / 16.0f; v[k].t = tt / 16.0f;
         memcpy(v[k].tex0, tex0, sizeof tex0); memcpy(v[k].tex1, tex1, sizeof tex1);
     }
-    {   // DS facing from the screen winding (y down): the shadow front faces of Mario Kart's kart
-        // volume come out clockwise here, and those are the faces the DS draws at equal depth.
+    if (gFrontBias >= 2) {   // DS facing from the screen winding (y down); only with the bias on every polygon
         float area = 0.f; for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area += v[k].x * v[k2].y - v[k2].x * v[k].y; }
         if (area < 0.f) for (int k = 0; k < n; k++) v[k].tex1[2] |= 1 << 9;
     }
@@ -1474,7 +1511,7 @@ void useProgram(GLuint prog, bool blend) {
 // where it is set. Per polygon, so a polygon never blends over its own first pass. The fetch path
 // does the same arithmetic in the shader and needs none of this.
 static std::atomic<uint32_t> gDcLayerAdv{0}, gDcLayerRep{0};   // decoupled composites that read a new / the same 3D frame (emulator thread)
-static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0;   // per-300-frame draw census
+static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0, gDcShadowCasterDraws = 0;   // per-300-frame draw census
 static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
 static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-polygon-id translucent rejection
 // Stencil code of a translucent writer's polygon id: id + 1 (63 shares 62's code, the six bits
@@ -1595,7 +1632,7 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
     if (issue) {
         const GLenum bufsOpaque[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         const GLenum bufsTransl[2] = { GL_COLOR_ATTACHMENT0, GL_NONE };
-        glDrawBuffers(2, (translucent || !g.attrWanted) ? bufsTransl : bufsOpaque);
+        glDrawBuffers(2, ((translucent && !g.attrAllPasses) || !g.attrWanted) ? bufsTransl : bufsOpaque);
     }
     // Translucent list in DS submission order. The DS blends translucent polygons one after another
     // in the order the game submitted them; drawing them grouped by depth flags (all of group 0, then
@@ -1855,7 +1892,15 @@ void renderJob(Job& j) {
     // test. On the multisampled target there is no id attachment, so the shadow pass still
     // runs (stencil mask + shadow) but without the id refinement.
     const bool msaaAttr = msaa && g.msImplicit && g.msAttr && !syncLo;   // the 2x sync target has no id attachment
-    g.attrWanted = j.edge || (!j.shadowSegs.empty() && (!msaa || msaaAttr));
+    static int idTestJob = 1; if ((g.glFrames & 63) == 0) idTestJob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_idtest", 1);
+    g.attrWanted = j.edge || (idTestJob == 2 && !j.shadowSegs.empty() && (!msaa || msaaAttr));
+    // On the in-tile MSAA target every draw-buffer change (opaque {0,1} -> translucent {0,NONE} ->
+    // shadow) ended the tile pass: a full resolve and reload of the multisampled target, which
+    // took Mario Kart's GL job from 13 to 29 ms. With the id attachment on that target it stays
+    // a draw buffer for the whole frame; translucent fragments then write their own id and depth
+    // into it, which is what the DS attribute buffer holds too (a shadow over a translucent
+    // pixel is tested against the translucent id).
+    g.attrAllPasses = g.attrWanted && msaaAttr && g.progShadowMs != 0;
     if (g.attrWanted) {
         const GLenum bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, bufs);
@@ -1873,7 +1918,7 @@ void renderJob(Job& j) {
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
       gDsBlend = mainBlend && dsKnob != 0; g.blendAlpha = mainBlend;
-      if ((g.glFrames & 63) == 0) { gTranslSameId = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_sameid", 1); gTranslListOrder = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_listorder", 1); gPrepassSkip = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_prepass_skip", 1); }
+      if ((g.glFrames & 63) == 0) { gFrontBias = property_get_int32("sys.gammaos.drastic_nano.gpu3d_front_bias", 1); gTranslSameId = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_sameid", 1); gTranslListOrder = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_listorder", 1); gPrepassSkip = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_prepass_skip", 1); }
       // The stencil holds two independent planes: bit 0x80 is the DS blend rule's per-sample "drawn"
       // flag, bit 0x01 the stencil shadow mask. Each user limits its writes (and its clears: glClear
       // honours the stencil write mask) to its own plane, so the shadow pass no longer wipes the
@@ -1890,7 +1935,8 @@ void renderJob(Job& j) {
     // landed with alpha 31/255 -> 4 of 31 after the readback (Sonic transparent at 4x).
     glUseProgram(g.progNoFetch); glUniform1f(g.uAlphaMulNoFetch, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
     glUseProgram(g.progOpaque); glUniform1f(g.uAlphaMulOpaque, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque }) {
+    if (g.progShadowMs) { glUseProgram(g.progShadowMs); glUniform1f(g.uAlphaMulShadowMs, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
+    for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progShadowMs ? g.progShadowMs : g.progOpaque }) {
         glUseProgram(pr);
         { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 1);   // colour affine, texels perspective: closest to drastic on Golden Sun and Mario Kart
           const GLint li = glGetUniformLocation(pr, "uInterp"); if (li >= 0) glUniform1i(li, interp);
@@ -1917,6 +1963,10 @@ void renderJob(Job& j) {
           static int tolKnob = -1; if ((g.glFrames & 15) == 0) tolKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_deq_tol", -1);   // A/B: band in 24-bit units
           const int tol = tolKnob >= 0 ? tolKnob : (j.wbufDepth ? 0xFF : 0x200);
           const GLint lt = glGetUniformLocation(pr, "uDeqTol"); if (lt >= 0) glUniform1f(lt, tol / 16777215.0f);
+          const GLint lfb = glGetUniformLocation(pr, "uFrontBias"); if (lfb >= 0) glUniform1f(lfb, 0.5f / 16777215.0f);
+          const GLint lsb = glGetUniformLocation(pr, "uShadowBias"); if (lsb >= 0) glUniform1f(lsb, 0.0f);
+          static int slopeKnob = -1; if ((g.glFrames & 63) == 0) slopeKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
+          const GLint lss = glGetUniformLocation(pr, "uShadowSlope"); if (lss >= 0) glUniform1f(lss, slopeKnob / 10.0f);
           const GLint lnb = glGetUniformLocation(pr, "uNoBlend"); if (lnb >= 0) glUniform1i(lnb, j.noBlend); }
         const GLint lf = glGetUniformLocation(pr, "uFog");
         if (lf < 0) continue;
@@ -1987,43 +2037,121 @@ void renderJob(Job& j) {
         // The self-shadow polygon-id test needs the opaque pass's id attachment (attachment 1).
         // It exists on the plain and 2x-supersampled targets but NOT the multisampled one, so
         // on MSAA the shadow still draws (stencil mask + shadow) without the id refinement.
+        // sys gpu3d_shadow_idtest: 0 none, 1 caster redraw (default), 2 the id attachment (edge marking's, sampled)
         static int idTest = 1; if ((g.glFrames & 63) == 0) idTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_idtest", 1);
-        const bool haveId = g.attrWanted && (g.ss != 3 || (g.msImplicit && g.msAttr && !syncLo)) && idTest;
+        const bool haveId = g.attrWanted && (g.ss != 3 || (g.msImplicit && g.msAttr && !syncLo)) && idTest == 2;
         const int shadowMode = haveId ? 1 : 2;
         const GLuint attr = g.ss == 2 ? g.ssAttr : g.attrTex;
-        const GLint uShadow = glGetUniformLocation(mainProg, "uShadowPass");
-        if (haveId) {
+        // On the in-tile MSAA target the id attachment stays attached and the shadow program reads
+        // it by framebuffer fetch (attachment 1 kept as a draw buffer so the fetch is defined; the
+        // program writes the fetched value back). Detaching it here split the tile pass.
+        const bool fetchId = haveId && g.ss == 3 && g.progShadowMs != 0;
+        const GLuint shadowProg = fetchId ? g.progShadowMs : mainProg;
+        const GLint uShadow = glGetUniformLocation(shadowProg, "uShadowPass");
+        // A shadow volume's bottom face is coplanar with the floor it stands on. The DS decides
+        // that pair on integer depths, so the whole footprint fails the mask's test and is marked,
+        // and the shadow then passes over all of it. Here the two depths are floats a few hundred
+        // 24-bit units apart in either direction, and on the multisampled target the comparison is
+        // per sample, so one sample of the pair typically fails and the other passes: the resolve
+        // then mixes black with the floor (Mario Kart's kart shadow came out at 57 percent of the
+        // disc colour instead of black) and drops the pixels where neither sample marked. Pushing
+        // the mask away from the camera makes every sample of a coplanar pair fail together, which
+        // is the outcome the DS's integer depths always reach. Moving the shadow polygons toward
+        // the camera as well measured worse, so only the mask is biased.
+        // sys gpu3d_shadow_bias, in 24-bit depth units, 0 disables it.
+        const GLint uMaskBias = glGetUniformLocation(g.progOpaque, "uShadowBias");
+        static int shadowBias = -1; if ((g.glFrames & 63) == 0) shadowBias = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_bias", 1024);
+        const float maskBias = (float)shadowBias;
+        if (fetchId) { if (!g.attrAllPasses) { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 }; glDrawBuffers(2, b2); } }
+        else if (haveId) {
             // A texture may not be sampled while attached to the framebuffer being drawn:
             // detach the id attachment for the pass, sample it as uAttr, then put it back.
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);   // detach with the core call (the multisampled entry point with texture 0 faulted in the driver)
             { const GLenum b1[1] = { GL_COLOR_ATTACHMENT0 }; glDrawBuffers(1, b1); }
             glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, attr); glActiveTexture(GL_TEXTURE0);
         }
+        // Self-shadow test without an id attachment (idTest 1, the default): the DS skips a shadow
+        // fragment whose destination carries the shadow's own polygon id. Before a shadow segment
+        // with id S, the opaque polygons with id S (and the depth-writing translucent ones) are
+        // drawn again through the programs and uniforms that drew them, colour and depth masked,
+        // with GL_EQUAL: only their visible fragments pass (same program, same inputs, same
+        // gl_FragDepth bit for bit), and each clears the shadow plane bit there. The shadow then
+        // cannot darken its caster. A second multisampled id attachment for this test cost the
+        // in-tile MSAA target 10 to 15 ms a frame in Mario Kart; the redraw is a few draws of the
+        // caster's own polygons. The shadow draw also clears the plane bit where it lands, which is
+        // the DS rejecting a second shadow fragment of the same translucent id over the pixel.
+        const bool casterTest = idTest == 1 && !haveId;
+        size_t goff[16]; { size_t b = 0; for (int i = 0; i < 8; i++) { goff[i] = b; b += j.opaque.v[i].size(); } for (int i = 0; i < 8; i++) { goff[8 + i] = b; b += j.transl.v[i].size(); } }
+        // The caster's triangles for each shadow id are gathered once per job into an index list,
+        // two ranges per id (the no-discard program's groups and the discard program's), so a
+        // caster costs two indexed draws however many polygon runs it is spread over (the race
+        // scene ran 55 caster draws a frame as one draw per run).
+        struct CasterIdx { uint8_t id; uint32_t start[2], count[2]; };
+        static std::vector<CasterIdx> casterIdx; static std::vector<uint32_t> casterElems; static uint32_t casterFrame = ~0u;   // job slots are reused: key on the GL frame counter
+        if (casterTest && casterFrame != g.glFrames) {
+            casterFrame = g.glFrames; casterIdx.clear(); casterElems.clear();
+            for (const ShadowSeg& sg : j.shadowSegs) {
+                if (sg.mask) continue;
+                bool have = false; for (const CasterIdx& c : casterIdx) if (c.id == sg.id) { have = true; break; }
+                if (have) continue;
+                CasterIdx c{ sg.id, { 0, 0 }, { 0, 0 } };
+                for (int cls = 0; cls < 2; cls++) {   // 0 = no-discard groups (progOpaque), 1 = discard groups (mainProg)
+                    c.start[cls] = (uint32_t)casterElems.size();
+                    for (int gi = 0; gi < 16; gi++) {
+                        const Stream& st = gi < 8 ? j.opaque : j.transl; const int grp = gi & 7;
+                        if (gi >= 8 && !((grp >> 1) & 1)) continue;   // translucent without depth write: nothing to match
+                        if ((((grp >> 2) & 1) != 0) != (cls == 0)) continue;
+                        const std::vector<uint16_t>& lens = st.polyLen[grp]; const std::vector<uint8_t>& ids = st.polyId[grp];
+                        uint32_t off = (uint32_t)goff[gi];
+                        for (size_t i = 0; i < lens.size(); i++) { if (ids[i] == sg.id) for (uint16_t k = 0; k < lens[i]; k++) casterElems.push_back(off + k); off += lens[i]; }
+                    }
+                    c.count[cls] = (uint32_t)casterElems.size() - c.start[cls];
+                }
+                casterIdx.push_back(c);
+            }
+            if (!casterElems.empty()) glBufferData(GL_ELEMENT_ARRAY_BUFFER, casterElems.size() * sizeof(uint32_t), casterElems.data(), GL_STREAM_DRAW);
+        }
+        auto clearCaster = [&](uint8_t sid) {
+            const CasterIdx* c = nullptr; for (const CasterIdx& ci : casterIdx) if (ci.id == sid) { c = &ci; break; }
+            if (!c || (c->count[0] == 0 && c->count[1] == 0)) return;
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
+            glDepthFunc(GL_EQUAL);
+            glStencilFunc(GL_ALWAYS, 0x00, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);   // depth-pass fragments clear the plane bit
+            for (int cls = 0; cls < 2; cls++) {
+                if (!c->count[cls]) continue;
+                useProgram(cls == 0 ? g.progOpaque : mainProg, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                glDrawElements(GL_TRIANGLES, (GLsizei)c->count[cls], GL_UNSIGNED_INT, (const void*)(uintptr_t)(c->start[cls] * sizeof(uint32_t))); gDcShadowCasterDraws++;
+            }
+        };
         glEnable(GL_STENCIL_TEST);
         glStencilMask(0x01);   // the shadow plane only: never touch the DS blend rule's drawn bit (0x80)
         bool prevMask = false, first = true;
         for (const ShadowSeg& sg : j.shadowSegs) {
             if (!sg.count) continue;
+            if (!sg.mask && casterTest) clearCaster(sg.id);
             glDepthFunc(sg.deq ? GL_LEQUAL : GL_LESS);
             if (sg.mask) {
                 if (first || !prevMask) glClear(GL_STENCIL_BUFFER_BIT);   // clears bit 0 only (write mask 0x01)
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
                 glStencilFunc(GL_ALWAYS, 0x01, 0x01); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
                 useProgram(g.progOpaque, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                if (uMaskBias >= 0) glUniform1f(uMaskBias, maskBias / 16777215.0f);   // away from the camera: the mask must fail over the floor
             } else {
                 glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_FALSE);
-                glStencilFunc(GL_EQUAL, 0x01, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-                useProgram(mainProg, mainBlend); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                glStencilFunc(GL_EQUAL, 0x01, 0x01); glStencilOp(GL_KEEP, GL_KEEP, casterTest ? GL_ZERO : GL_KEEP);
+                useProgram(shadowProg, mainBlend); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 if (uShadow >= 0) glUniform1i(uShadow, shadowMode);
             }
             glDrawArrays(GL_TRIANGLES, (GLint)(shadowBase + sg.start), (GLsizei)sg.count);
-            if (!sg.mask && uShadow >= 0) glUniform1i(uShadow, 0);
+            if (sg.mask) { if (uMaskBias >= 0) glUniform1f(uMaskBias, 0.f); }
+            else if (uShadow >= 0) glUniform1i(uShadow, 0);
             prevMask = sg.mask; first = false;
         }
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_TRUE);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_TRUE); glDepthFunc(GL_LESS);
         if (gDsBlend) { glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
         else glDisable(GL_STENCIL_TEST);
-        if (haveId) {
+        if (fetchId) { if (!g.attrAllPasses) { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, b2); } }
+        else if (haveId) {
             glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, 0); glActiveTexture(GL_TEXTURE0);
             if (g.ss == 3) ((PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)g.pFbTex2DMs)(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0, g.msSamples);
             else glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0);
@@ -2313,9 +2441,9 @@ static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, 
     g.sumUs += dt; if (dt > g.maxUs) g.maxUs = dt; g.frames++;
     if (g.frames % 300 == 0) {
         if (g.gpuSamples) { ALOGI("gpu3d: GPU time elapsed (timer query) %.2f ms avg over %u frames (single-shot)", g.sumGpuNs / 1e6 / g.gpuSamples, g.gpuSamples); g.sumGpuNs = 0; g.gpuSamples = 0; }
-        ALOGI("gpu3d: draw census per frame: opaque groups+polys %.1f, transl ord polys %.1f, transl draws %.1f, prepasses %.1f, ds pairs %.1f", gDcOpaqueDraws / 300.0, gDcOrdPolys / 300.0, gDcTranslDraws / 300.0, gDcPrepass / 300.0, gDcDsPairs / 300.0);
+        ALOGI("gpu3d: draw census per frame: opaque groups+polys %.1f, transl ord polys %.1f, transl draws %.1f, prepasses %.1f, ds pairs %.1f, shadow caster draws %.1f", gDcOpaqueDraws / 300.0, gDcOrdPolys / 300.0, gDcTranslDraws / 300.0, gDcPrepass / 300.0, gDcDsPairs / 300.0, gDcShadowCasterDraws / 300.0);
         { const uint32_t a = gDcLayerAdv.exchange(0), r = gDcLayerRep.exchange(0); if (a + r) ALOGI("gpu3d: 3D layer over %u composites: advanced %u, repeated %u (%.1f new 3D frames per 60 composites)", a + r, a, r, 60.0 * a / (a + r)); }
-        gDcOpaqueDraws = gDcOrdPolys = gDcTranslDraws = gDcPrepass = gDcDsPairs = 0;
+        gDcOpaqueDraws = gDcOrdPolys = gDcTranslDraws = gDcPrepass = gDcDsPairs = gDcShadowCasterDraws = 0;
         ALOGI("gpu3d: %u frames, GL thread %.2f ms (tex %.2f, upload+draw %.2f, gpu wait %.2f, readback %.2f, scatter %.2f), worker build %.2f ms, worker join wait %.2f ms, %zu verts, %u tex reuploads, max %.2f ms, %zu textures cached",
               g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
               g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames,
@@ -2348,6 +2476,7 @@ static void destroyGl() {
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progExp6); delPr(g.progExp7);
         delPr(g.edgeProg); delPr(g.resolveProg);
         if (g.vao) { glDeleteVertexArrays(1, &g.vao); g.vao = 0; }
+        if (g.casterEbo) { glDeleteBuffers(1, &g.casterEbo); g.casterEbo = 0; }
         if (g.edgeVao) { glDeleteVertexArrays(1, &g.edgeVao); g.edgeVao = 0; }
         if (g.vbo) { glDeleteBuffers(1, &g.vbo); g.vbo = 0; }
         if (g.tq) { auto pDelQ = (PFNGLDELETEQUERIESEXTPROC)eglGetProcAddress("glDeleteQueriesEXT"); if (pDelQ) pDelQ(1, &g.tq); g.tq = 0; }
