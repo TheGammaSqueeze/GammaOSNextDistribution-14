@@ -3214,6 +3214,18 @@ extern "C" uint64_t ffCapHook(uint32_t cap, uint32_t flag, uint8_t* hm) {
         } else { render = flag == 0; idx = 0; cnt = 0; secStart = 0; }
         pending = false;
     }
+    else if (!gFfOnForHook.load(std::memory_order_relaxed)) {
+        // FF is OFF but the game is still capturing and swapping the engines
+        // every frame (Golden Sun's dialog scenes): render every frame the
+        // limiter wanted, exactly like the non-toggling branch does at 1x. The
+        // pair-skip pattern below is a fast-forward cadence only; leaving it on
+        // after FF stopped skipped half the frames, so the engine-swap frames
+        // were presented without their partners and the top screen strobed
+        // between the two screens while the bottom juddered, until the next
+        // scene stopped the per-frame swap.
+        render = (flag == 0);
+        pending = false;
+    }
     else if (pow15 == gFfPairPhase) {
         // Engine-swapping games: the pair pattern alone sets the cadence
         // (the limiter's own frames would start extra pairs and cost a
