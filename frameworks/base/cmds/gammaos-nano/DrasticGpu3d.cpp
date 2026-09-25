@@ -297,6 +297,7 @@ out vec2 vUv;
 out float vDepth; // raw depth, interpolated perspective-correctly (depth mode A/B)
 out vec3 vColW;   // colour * W and W: their perspective-correct ratio is the affine interpolant (uInterp bits)
 out vec3 vUvW;
+out float vDepthW; // depth * W: its perspective-correct ratio to vUvW.z is the depth interpolated linearly on screen (Z-buffer mode)
 flat out ivec4 vTex0;
 flat out ivec4 vTex1;
 void main() {
@@ -305,6 +306,7 @@ void main() {
     vDepth = aPos.z;
     vColW = aCol * aPos.w;
     vUvW = vec3(aUv * aPos.w, aPos.w);
+    vDepthW = aPos.z * aPos.w;
     vTex0 = aTex0;
     vTex1 = aTex1;
     // Screen-space vertices with the DS clip W as the homogeneous coordinate: the GPU then
@@ -328,7 +330,16 @@ precision highp sampler2DArray;
 in vec3 vCol;
 in vec2 vUv;
 in float vDepth;
-uniform int uDepthMode;   // 0 = screen linear (the shipped setup), 1 = perspective correct
+// 0 = fixed function depth (gl_FragCoord.z, no bias terms; A/B only), 1 = gl_FragDepth from the
+// perspective-correct vertex depth (W-buffer mode: the depth IS the clip W, which the DS interpolates
+// perspective-correctly), 2 = gl_FragDepth from the screen-linear vertex depth (Z-buffer mode: the
+// DS and drastic step the 16-bit z linearly along edges and spans, lib+0x555bc onwards; measured on
+// Pokemon White 2's bedroom, where the round cushion sits 0.5 to 0.7 z units in front of the floor
+// under linear interpolation and 0.13 to 0.17 units BEHIND it under perspective-correct interpolation,
+// so the perspective depth lost the whole cushion to the floor in a third of the walking frames).
+// The linear value is vDepthW / vUvW.z: depth * W and W are both interpolated perspective-correctly,
+// and their ratio is the screen-affine interpolant, the same trick as the colour and texel lanes.
+uniform int uDepthMode;
 // The DS "depth equal" test (polygon attribute bit 14) passes a fragment whose depth is within a
 // band of the stored one, 0x200 24-bit units in Z-buffer mode and 0xFF in W-buffer mode, rather
 // than only at or in front of it. Such polygons are decals and stencil shadows lying on their
@@ -385,6 +396,7 @@ uniform float uTranslZBias;
 uniform int uNoBlend;
 in vec3 vColW;
 in vec3 vUvW;
+in float vDepthW;
 uniform int uInterp;   // bit 0: affine colour, bit 1: affine texcoords (A/B knob, default perspective)
 uniform int uUvOff;    // A/B knob: sample the texcoord half a pixel off centre: bit 0 -x, bit 1 -y, bit 2 +x, bit 3 +y
 flat in ivec4 vTex0;
@@ -528,9 +540,10 @@ const char* kFragFetch = R"(
         r = floor((r * w1 + dc.r * w0) * (1.0 / 32.0)); gg = floor((gg * w1 + dc.g * w0) * (1.0 / 32.0)); b = floor((b * w1 + dc.b * w0) * (1.0 / 32.0));
         a = max(a, da);
     }
-    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth))) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
+    if (uDepthMode != 0) gl_FragDepth = ((uDepthMode == 2) ? vDepthW / vUvW.z : vDepth) - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth))) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
     fragColor = vec4(r, gg, b, a) * (1.0 / 255.0);
     if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0), mod(floor(q / 64.0), 64.0), floor(q / 4096.0), 63.0) * (4.0 / 255.0); }
+    if (uDbgDepth == 2) fragColor = vec4(fract(uv.x), fract(uv.y), mod(floor(uv.x), 64.0) / 64.0, 1.0);   // diagnostic: texel coordinate fraction
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
     float d0 = mod(dz, 256.0), d1 = mod(floor(dz / 256.0), 256.0), d2 = floor(dz / 65536.0);
@@ -539,9 +552,10 @@ const char* kFragFetch = R"(
 )";
 
 const char* kFragNoFetch = R"(
-    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth))) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
+    if (uDepthMode != 0) gl_FragDepth = ((uDepthMode == 2) ? vDepthW / vUvW.z : vDepth) - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth))) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
     fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
     if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0) * (4.0 / 255.0), mod(floor(q / 64.0), 64.0) * (4.0 / 255.0), floor(q / 4096.0) * (4.0 / 255.0), 31.0 * uAlphaMul); }
+    if (uDbgDepth == 2) fragColor = vec4(fract(uv.x), fract(uv.y), mod(floor(uv.x), 64.0) / 64.0, 31.0 * uAlphaMul);   // diagnostic: texel coordinate fraction
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
     float d0 = mod(dz, 256.0), d1 = mod(floor(dz / 256.0), 256.0), d2 = floor(dz / 65536.0);
@@ -991,7 +1005,7 @@ bool initGl() {
                 glUseProgram(pr);
                 const GLint ld = glGetUniformLocation(pr, "uDepthMode");
                 const GLint lp = glGetUniformLocation(pr, "uPass");
-                for (int dm = 0; dm <= 1; dm++) {
+                for (int dm = 0; dm <= 2; dm++) {
                     if (ld >= 0) glUniform1i(ld, dm);
                     for (int pass = 0; pass <= 2; pass++) {
                         if (lp >= 0) glUniform1i(lp, pass);
@@ -1984,16 +1998,14 @@ void renderJob(Job& j) {
           const GLint lo = glGetUniformLocation(pr, "uUvOff"); if (lo >= 0) glUniform1i(lo, uvoff);
           static int vsh = 2; if ((g.glFrames & 15) == 0) vsh = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
           const GLint lv = glGetUniformLocation(pr, "uVtxShift"); if (lv >= 0) glUniform2f(lv, vsh * 0.25f, vsh * 0.25f); }
-        // Depth is interpolated perspective correctly in both buffer modes. W buffered frames need
-        // it by definition; Z buffered frames turned out to need it too: with the vertex z (the
-        // 16-bit value drastic's edge setup shifts by 9, lib+0x555bc) interpolated linearly on
-        // screen, Pokemon White 2's town ground lost the depth test to a far reflection quad over
-        // the right half of the screen (40k of 197k pixels wrong against the CPU rasterizer);
-        // perspective correct interpolation brings it to the class of the other games. The cost
-        // is gl_FragDepth on Z buffered frames (no early depth rejection); sys gpu3d_depth_mode
-        // 0 restores the screen linear depth for A/B.
+        // Depth: W buffered frames interpolate the vertex W perspective correctly (mode 1), Z
+        // buffered frames interpolate the 16-bit z (shifted by 9, lib+0x555bc) linearly on screen
+        // (mode 2), both through gl_FragDepth so the bias terms apply; see uDepthMode in the shader.
+        // Mode 0 (fixed function depth, no bias terms) is the A/B control; it lost Pokemon White 2's
+        // town ground to a far reflection quad, which is why mode 1 was once applied to Z frames too,
+        // until the bedroom cushion showed the linear rule is the DS's. sys gpu3d_depth_mode overrides.
         { static int dmKnob = -1; if ((g.glFrames & 15) == 0) dmKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
-          const int dm = dmKnob >= 0 ? dmKnob : 1; (void)j.wbufDepth;
+          const int dm = dmKnob >= 0 ? dmKnob : (j.wbufDepth ? 1 : 2);
           const GLint ld = glGetUniformLocation(pr, "uDepthMode"); if (ld >= 0) glUniform1i(ld, dm);
           static int tolKnob = -1; if ((g.glFrames & 15) == 0) tolKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_deq_tol", -1);   // A/B: band in 24-bit units
           const int tol = tolKnob >= 0 ? tolKnob : (j.wbufDepth ? 0xFF : 0x200);

@@ -2197,6 +2197,7 @@ extern "C" bool gxShotTake() { return gGxShotPending.exchange(0, std::memory_ord
 extern "C" void gxDumpArmAfterFrames(int n) { gGxFramesSinceLoad = 0; gGxDumpAt = n; }
 extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
     if (!gGxLibBase) return;
+    bool rearm = false; int preIdx = 0;
     if (gGxDumpArmed == 1) {   // frame after the dump: the previous frame is complete in "last drawn"
         gGxDumpArmed = 0;
         // Decoupled GPU path: "last drawn" is this frame's job, still in the GL queue; wait for it.
@@ -2210,7 +2211,9 @@ extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
         static int more = 0, idx = 0;
         if (idx == 0) more = property_get_int32("sys.gammaos.drastic_nano.gxdump_frames", 1) - 1;
         char path[64]; if (idx == 0) snprintf(path, sizeof path, "/data/local/tmp/gxdump_post.bin"); else snprintf(path, sizeof path, "/data/local/tmp/gxdump_post%d.bin", idx + 1);
-        if (more > 0) { more--; idx++; gGxDumpArmed = 1; gpu3dDbgArm(); } else idx = 0;
+        // sys gxdump_geom_all=1: every frame of the run also gets its geometry file (gxdump_pre2.bin ...),
+        // by falling through to the arming path below instead of just re-arming.
+        if (more > 0) { more--; idx++; if (property_get_int32("sys.gammaos.drastic_nano.gxdump_geom_all", 0)) rearm = true; else { gGxDumpArmed = 1; gpu3dDbgArm(); } } else idx = 0;
         FILE* pf = fopen(path, "wb");
         if (pf) {
             struct Hdr { char magic[8]; uint64_t pub, tgt; uint32_t bytes; } h{};
@@ -2221,9 +2224,10 @@ extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
             ALOGI("gxdump: post written (last drawn %p)", pub);
         }
         if (property_get_int32("sys.gammaos.drastic_nano.gxdump_shot", 0) != 0) gGxShotPending.store(1, std::memory_order_relaxed);
-        return;
+        if (!rearm) return;
+        preIdx = idx;
     }
-    bool arm = property_get_int32("sys.gammaos.drastic_nano.gxdump", 0) == 1;
+    bool arm = rearm || property_get_int32("sys.gammaos.drastic_nano.gxdump", 0) == 1;
     if (gGxDumpAt > 0 && ++gGxFramesSinceLoad == gGxDumpAt) { gGxDumpAt = 0; arm = true; ALOGI("gxdump: frame-counted arm at 3D frame %d after the load", gGxFramesSinceLoad); }
     if (!arm) return;
     property_set("sys.gammaos.drastic_nano.gxdump", "0");
@@ -2233,7 +2237,8 @@ extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
     uint8_t* rc = R + 0x29d740;
     uint8_t* R2 = *reinterpret_cast<uint8_t**>(rc + 0x24000);
     uint8_t* gx = *reinterpret_cast<uint8_t**>(rc + 0x24008);
-    FILE* f = fopen("/data/local/tmp/gxdump_pre.bin", "wb");
+    char prePath[64]; if (preIdx == 0) snprintf(prePath, sizeof prePath, "/data/local/tmp/gxdump_pre.bin"); else snprintf(prePath, sizeof prePath, "/data/local/tmp/gxdump_pre%d.bin", preIdx + 1);
+    FILE* f = fopen(prePath, "wb");
     if (!f) { ALOGW("gxdump: open failed: %s", strerror(errno)); return; }
     struct Hdr { char magic[8]; uint64_t R, R2, gx, lib; uint32_t arg1, bank; uint64_t off[12]; } h{};
     memcpy(h.magic, "GXDUMP02", 8);
