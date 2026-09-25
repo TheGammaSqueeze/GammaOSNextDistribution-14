@@ -181,7 +181,9 @@ struct Gpu3d {
     EGLSurface surf = EGL_NO_SURFACE;
     GLuint progNoFetch = 0, progTrivial = 0, progOpaque = 0, progExp6 = 0, progExp7 = 0, uPassNoFetch = 0;
     GLuint progNoFetchNF = 0, progOpaqueNF = 0;   // the same two without the fog block, for frames with fog off
+    GLuint progNoFetchVZ = 0, progOpaqueVZ = 0, progNoFetchNFVZ = 0, progOpaqueNFVZ = 0;   // vertex-depth variants (Z-buffer frames, early depth rejection)
     GLuint opq = 0;                               // this job's opaque (no-discard) program: progOpaque or progOpaqueNF
+    bool vzJob = false;                           // this job draws with the vertex-depth programs
     GLuint progShadowMs = 0; GLint uAlphaMulShadowMs = -1;   // MSAA shadow pass: reads the id attachment by framebuffer fetch (no detach)
     GLuint curProg = 0; bool curBlend = false; bool blendAlpha = false;   // this job stores alpha as a blend factor (GL-blend path)
     GLuint prog = 0, fbo = 0, colorTex = 0, depthRb = 0, vbo = 0, vao = 0, smallTex = 0, bigTex = 0, palTex = 0;
@@ -203,6 +205,7 @@ struct Gpu3d {
     void* pRbMsExt = nullptr; void* pFbTex2DMs = nullptr;   // saved for the runtime rebuild
     int ss = 1;   // 1 plain, 2 supersampled 1024x768, 3 MSAA 4x at 512x384
     GLint uAlphaMulNoFetch = -1, uAlphaMulOpaque = -1, uAlphaMulNoFetchNF = -1, uAlphaMulOpaqueNF = -1;
+    GLint uAlphaMulNoFetchVZ = -1, uAlphaMulOpaqueVZ = -1, uAlphaMulNoFetchNFVZ = -1, uAlphaMulOpaqueNFVZ = -1;
     bool attrWanted = false;   // the current job runs the edge pass
     bool attrAllPasses = false;   // in-tile MSAA: attachment 1 stays a draw buffer for the whole frame (a draw-buffer change splits the tile pass)
     GLuint casterEbo = 0;   // element buffer for the shadow caster redraw (two indexed draws per shadow id)
@@ -316,6 +319,17 @@ out vec3 vUvW;
 out float vDepthW; // depth * W: its perspective-correct ratio to vUvW.z is the depth interpolated linearly on screen (Z-buffer mode)
 flat out ivec4 vTex0;
 flat out ivec4 vTex1;
+// Vertex-depth programs (VZ, Z-buffer mode): the per-polygon depth bias terms the fragment
+// shader adds to gl_FragDepth are constants of the polygon, so they go into the clip z here
+// and the fragment shader writes no depth at all. The fixed-function depth then IS the
+// screen-linear biased z (z / w interpolated linearly on screen), and the GPU can reject hidden
+// fragments before shading them, which a gl_FragDepth write rules out. The slope term of the
+// shadow mask bias (uShadowSlope, off by default) needs a fragment derivative and stays on the
+// fragment-depth programs.
+uniform float uDeqTol;
+uniform float uFrontBias;
+uniform float uTranslZBias;
+uniform float uShadowBias;
 void main() {
     vCol = aCol;
     vUv = aUv;
@@ -328,7 +342,11 @@ void main() {
     // Screen-space vertices with the DS clip W as the homogeneous coordinate: the GPU then
     // interpolates texels and colours perspective-correctly (attribute / W linear on screen) the
     // way the DS and drastic's rasterizer do, while depth (z / w) stays linear on screen.
-    gl_Position = vec4(((aPos.x + uVtxShift.x) / uHalfScreen.x - 1.0) * aPos.w, ((aPos.y + uVtxShift.y) / uHalfScreen.y - 1.0) * aPos.w, (aPos.z * 2.0 - 1.0) * aPos.w, aPos.w);
+    float dz = aPos.z;
+#ifdef VZ
+    dz = dz - ((((aTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((aTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) - ((((aTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0) + uShadowBias;
+#endif
+    gl_Position = vec4(((aPos.x + uVtxShift.x) / uHalfScreen.x - 1.0) * aPos.w, ((aPos.y + uVtxShift.y) / uHalfScreen.y - 1.0) * aPos.w, (dz * 2.0 - 1.0) * aPos.w, aPos.w);
 }
 )";
 
@@ -745,7 +763,7 @@ bool initGl() {
     g.timerExt = ext && strstr(ext, "GL_EXT_disjoint_timer_query");
     ALOGI("gpu3d: %s / %s, framebuffer fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.timerExt);
 
-    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false) -> GLuint {
+    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false, bool vz = false) -> GLuint {
         std::string frag = kFragHead;
         if (fetch || fetchAttr) frag += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
         frag += fetch ? "layout(location = 0) inout vec4 fragColor;\n" : "layout(location = 0) out vec4 fragColor;\n";
@@ -796,7 +814,16 @@ bool initGl() {
             frag.erase(p, e.size());
             size_t v = frag.find('\n') + 1; frag.insert(v, e);
         }
-        GLuint vs = compile(GL_VERTEX_SHADER, kVert), fs = compile(GL_FRAGMENT_SHADER, frag);
+        std::string vert = kVert;
+        if (vz) {
+            // Vertex-depth variant: the fragment shader writes no depth (the biased z is in the clip
+            // position), and its depth-derived outputs read the fixed-function depth instead.
+            size_t q = frag.find("    if (uDepthMode != 0) gl_FragDepth"); if (q != std::string::npos) frag.erase(q, frag.find('\n', q) + 1 - q);
+            for (size_t r; (r = frag.find("floor(gl_FragDepth * 16777215.0 + 0.5)")) != std::string::npos;) frag.replace(r, 38, "floor(gl_FragCoord.z * 16777215.0 + 0.5)");
+            const size_t v = vert.find('\n') + 1; vert.insert(v, "#define VZ\n");
+            if (frag.find("gl_FragDepth =") != std::string::npos) ALOGW("gpu3d: vertex-depth program still writes gl_FragDepth");   // the name also appears in the shader's comments
+        }
+        GLuint vs = compile(GL_VERTEX_SHADER, vert.c_str()), fs = compile(GL_FRAGMENT_SHADER, frag);
         if (!vs || !fs) return 0;
         GLuint pr = glCreateProgram(); glAttachShader(pr, vs); glAttachShader(pr, fs); glLinkProgram(pr);
         GLint ok = 0; glGetProgramiv(pr, GL_LINK_STATUS, &ok);
@@ -826,6 +853,20 @@ bool initGl() {
     g.uAlphaMulNoFetch = glGetUniformLocation(g.progNoFetch, "uAlphaMul");
     g.uAlphaMulOpaque = glGetUniformLocation(g.progOpaque, "uAlphaMul");
     g.uAlphaMulNoFetchNF = glGetUniformLocation(g.progNoFetchNF, "uAlphaMul"); g.uAlphaMulOpaqueNF = glGetUniformLocation(g.progOpaqueNF, "uAlphaMul");
+    // Vertex-depth variants for Z-buffered frames (sys gpu3d_vz, default on). A failure here only
+    // costs the early depth rejection: the job falls back to the fragment-depth programs.
+    if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_vz", 1)) {
+        g.progNoFetchVZ = build(false, false, false, 0, false, false, true); g.progOpaqueVZ = build(false, false, true, 0, false, false, true);
+        g.progNoFetchNFVZ = build(false, false, false, 0, false, true, true); g.progOpaqueNFVZ = build(false, false, true, 0, false, true, true);
+        if (!g.progNoFetchVZ || !g.progOpaqueVZ || !g.progNoFetchNFVZ || !g.progOpaqueNFVZ) {
+            ALOGW("gpu3d: vertex-depth programs failed to build, Z-buffered frames keep the fragment depth write");
+            g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
+        } else {
+            g.uAlphaMulNoFetchVZ = glGetUniformLocation(g.progNoFetchVZ, "uAlphaMul"); g.uAlphaMulOpaqueVZ = glGetUniformLocation(g.progOpaqueVZ, "uAlphaMul");
+            g.uAlphaMulNoFetchNFVZ = glGetUniformLocation(g.progNoFetchNFVZ, "uAlphaMul"); g.uAlphaMulOpaqueNFVZ = glGetUniformLocation(g.progOpaqueNFVZ, "uAlphaMul");
+            ALOGI("gpu3d: vertex-depth programs built: Z-buffered frames run with early depth rejection");
+        }
+    }
     glUseProgram(g.prog);
     g.uPass = glGetUniformLocation(g.prog, "uPass");
     glUniform1i(g.uPass, 0);
@@ -2088,6 +2129,17 @@ void renderJob(Job& j) {
     bool mainBlend = progSel == 3 || !g.fbFetch;
     if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = j.fog ? g.progNoFetch : g.progNoFetchNF; mainBlend = true; }
     g.opq = j.fog ? g.progOpaque : g.progOpaqueNF;   // probes 4/6/7 keep their program on the MSAA path (timing only)
+    // Z-buffered frames (depth mode 2) take the vertex-depth programs: same maths, biases folded
+    // into the clip z, no gl_FragDepth, so hidden fragments are rejected before they are shaded
+    // (Pokemon White 2's title: late depth 2.4 ms plus about 1 ms of hidden shading out of 18).
+    // The shadow mask slope knob needs a fragment derivative and keeps the fragment-depth programs.
+    { static int dmKnobSel = -1, slopeSel = 0; if ((g.glFrames & 15) == 0) { dmKnobSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1); slopeSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0); }
+      const int dmSel = dmKnobSel >= 0 ? dmKnobSel : (j.wbufDepth ? 1 : 2);
+      const bool vzJob = dmSel == 2 && slopeSel == 0 && g.progNoFetchVZ && msaa && progSel != 4 && progSel != 6 && progSel != 7;
+      if (vzJob) { useProg = j.fog ? g.progNoFetchVZ : g.progNoFetchNFVZ; g.opq = j.fog ? g.progOpaqueVZ : g.progOpaqueNFVZ; }
+      { static uint32_t vzJobs = 0, fdJobs = 0; if (vzJob) vzJobs++; else fdJobs++;
+        if (((vzJobs + fdJobs) & 1023) == 1) ALOGI("gpu3d: depth programs: %u jobs vertex-depth, %u fragment-depth (this job: mode %d, %s)", vzJobs, fdJobs, dmSel, vzJob ? "vertex" : "fragment"); }
+      g.vzJob = vzJob; }
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
       gDsBlend = mainBlend && dsKnob != 0; g.blendAlpha = mainBlend;
@@ -2111,8 +2163,16 @@ void renderJob(Job& j) {
     glUseProgram(g.progOpaque); glUniform1f(g.uAlphaMulOpaque, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
     glUseProgram(g.progNoFetchNF); glUniform1f(g.uAlphaMulNoFetchNF, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
     glUseProgram(g.progOpaqueNF); glUniform1f(g.uAlphaMulOpaqueNF, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
+    if (g.progNoFetchVZ) {
+        glUseProgram(g.progNoFetchVZ); glUniform1f(g.uAlphaMulNoFetchVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
+        glUseProgram(g.progOpaqueVZ); glUniform1f(g.uAlphaMulOpaqueVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
+        glUseProgram(g.progNoFetchNFVZ); glUniform1f(g.uAlphaMulNoFetchNFVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
+        glUseProgram(g.progOpaqueNFVZ); glUniform1f(g.uAlphaMulOpaqueNFVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
+    }
     if (g.progShadowMs) { glUseProgram(g.progShadowMs); glUniform1f(g.uAlphaMulShadowMs, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
-    for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progShadowMs ? g.progShadowMs : g.progOpaque }) {
+    for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progShadowMs ? g.progShadowMs : g.progOpaque,
+                       g.progNoFetchVZ ? g.progNoFetchVZ : g.progOpaque, g.progOpaqueVZ ? g.progOpaqueVZ : g.progOpaque,
+                       g.progNoFetchNFVZ ? g.progNoFetchNFVZ : g.progOpaque, g.progOpaqueNFVZ ? g.progOpaqueNFVZ : g.progOpaque }) {
         glUseProgram(pr);
         { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 1);   // colour affine, texels perspective: closest to drastic on Golden Sun and Mario Kart
           const GLint li = glGetUniformLocation(pr, "uInterp"); if (li >= 0) glUniform1i(li, interp);
@@ -2690,6 +2750,7 @@ static void destroyGl() {
         sBigPool = sDirPool = sDirBigPool = false;
         delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
+        delPr(g.progNoFetchVZ); delPr(g.progOpaqueVZ); delPr(g.progNoFetchNFVZ); delPr(g.progOpaqueNFVZ); g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
         delPr(g.edgeProg); delPr(g.resolveProg);
         if (g.vao) { glDeleteVertexArrays(1, &g.vao); g.vao = 0; }
         if (g.casterEbo) { glDeleteBuffers(1, &g.casterEbo); g.casterEbo = 0; }
@@ -2826,7 +2887,9 @@ void glThreadMain() {
                 // reading the job of the PREVIOUS kick (one frame of 3D lag, a whole extra period of
                 // slack), and 600 consecutive jobs (10 s) done within 14 ms of their kick switch it
                 // back. Constant lag is smooth; lag that flips frame by frame is the stutter.
-                { static int lagKnob = 1; if ((n & 63) == 0) lagKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_lag", 1);
+                // Default 0 (never): the user does not accept added video latency; the knob stays
+                // for measurements (1 automatic, 2 always).
+                { static int lagKnob = 0; if ((n & 63) == 0) lagKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_lag", 0);
                   g.lagMissWin = (g.lagMissWin << 1) | (el > 16700 ? 1u : 0u);   // last 32 jobs
                   static uint32_t missHist[4] = {}; static int mh = 0; if ((n & 31) == 0) { missHist[mh & 3] = 0; mh++; } missHist[mh & 3] += (el > 16700) ? 1 : 0;
                   const uint32_t misses120 = missHist[0] + missHist[1] + missHist[2] + missHist[3];
