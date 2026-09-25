@@ -3626,9 +3626,94 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
 
     drawNdsStatusBar(cx, offY, scale);
 
-    // (The DSi camera-scrim L/R shoulder bar is intentionally omitted: the L/R buttons only
-    // surface where they DO something - the game Information page's page turn. Showing them on
-    // the idle top screen implied an action that does not exist here.)
+    // Bottom-corner button legends, like the DSi home menu's "L Camera / Camera R" shoulder
+    // hints: X = Options at the bottom-left, Y = Sort at the bottom-right. Each is shown ONLY
+    // where its button actually does that in the current menu, mirroring the BTN_NORTH / BTN_WEST
+    // handlers in NanoMenuInput.cpp, so the legend never implies an action that is not live here.
+    {
+        const bool ndsModal = mPs3OptActive || mPs3DlgActive || mOskActive || mMpActive
+                              || mPvActive || mVidActive || mPs3WizActive || mPs3TzActive;
+        const int tsk = ps3TopScreenKind();
+        const char* catNm = (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size())
+                          ? mPs3Cats[mPs3CatIdx].name.c_str() : "";
+        // Focused browsing item (same lookup as the Minima legend): the current stack row, else the
+        // current category's item. Used to name what Y does on it (Pin / Info).
+        const Ps3Item* foc = nullptr;
+        if (!ndsModal) {
+            if (!mPs3Stack.empty()) {
+                const auto& its = mPs3Stack.back().items; int s = mPs3Stack.back().sel;
+                if (s >= 0 && s < (int)its.size()) foc = &its[s];
+            } else if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()) {
+                const auto& its = mPs3Cats[mPs3CatIdx].items;
+                if (mPs3ItemIdx >= 0 && mPs3ItemIdx < (int)its.size()) foc = &its[mPs3ItemIdx];
+            }
+        }
+        // Y = Sort: only where Y cycles a Sort order - the photo thumbnail grid, or a media / game
+        // column root with content loaded (see NanoMenuInput.cpp BTN_WEST).
+        const bool sortLegend = mPs3Xmb && !ndsModal && (
+            tsk == PHOTO_GRID ||
+            (mPs3Stack.empty() && (
+                !strcmp(catNm, "Game") ||
+                (!strcmp(catNm, "Photo") && mPhotoLoaded) ||
+                (!strcmp(catNm, "Video") && mVideoLoaded && !mVideos.empty()) ||
+                (!strcmp(catNm, "Music") && mMusicLoaded && !mMusicTracks.empty()))));
+        // Y label, in the exact precedence the BTN_WEST handler uses: Sort first, then Pin/Unpin on a
+        // focused app, then Info on a focused game with scraped art. Empty when Y does nothing here.
+        const char* yLabel = nullptr;
+        if (sortLegend) yLabel = "Sort";
+        else if (mPs3Xmb && !ndsModal && tsk == GS_NONE && foc
+                 && foc->kind == PS3_APP && !foc->payloadStr.empty())
+            yLabel = isAppPinned(foc->payloadStr) ? "Unpin" : "Pin";
+        else if (mPs3Xmb && !ndsModal && tsk == GS_NONE && focusedScrapeEntry())
+            yLabel = "Info";
+        // X = Options: normal XMB browsing with a focused item (X opens its per-item option menu).
+        // The editor / list sub-screens (GS_LIST, CAT_ORDER, ...) give X a different toggle, so the
+        // legend is limited to plain browsing (GS_NONE).
+        const bool optLegend = mPs3Xmb && !ndsModal && tsk == GS_NONE && foc != nullptr;
+        if (yLabel || optLegend) {
+            const float fs = S(9.0f) / (float)FONT_CHAR_H;
+            const float th = S(9.0f);
+            const float gap = S(3.0f), padIn = S(6.0f);
+            const float glyphR = S(5.5f), glw = fmaxf(1.4f, S(1.1f));
+            // The DSi draws its L/R camera hints on a glossy translucent scrim at the very bottom of
+            // the top screen (webapp src/topscreen.js _cameraScrim: y171..192, a grey gradient with a
+            // sheen band, flush to the screen edge). Mirror that so the X/Y hints match the theme and
+            // stay legible over the field, dark-theme aware (light scrim + dark ink on the light DSi
+            // top; dark scrim + light ink on the dark theme). The face glyphs use drawFaceGlyph with
+            // Nintendo letters forced (these ARE the X / Y face buttons) so they read as the real
+            // DS button prompts regardless of the global PlayStation/Nintendo prompt preference.
+            const float scTop = Y(170.0f), scBot = Y(192.0f), scH = scBot - scTop, scRad = S(3.0f);
+            const float gcy = scTop + scH * 0.5f;          // glyph + text vertical centre
+            const float tvy = gcy - th * 0.5f;             // label top so the text centres on the scrim
+            const float scGrey = mNdsDark ? 0.16f : 0.941f;
+            const float scAlpha = mNdsDark ? 0.72f : 0.86f;
+            const float sheenA  = mNdsDark ? 0.10f : 0.42f;
+            auto drawScrim = [&](float x0, float x1) {
+                if (x1 <= x0) return;
+                drawRoundedRect(x0, scTop, x1 - x0, scH + S(2.0f), scRad, scGrey, scGrey, scGrey, scAlpha);
+                drawQuad(x0, scTop + scH * 0.20f, x1 - x0, fmaxf(1.0f, S(1.0f)), 1.0f, 1.0f, 1.0f, sheenA);  // glossy sheen
+            };
+            const bool prevFaceLetters = mFaceLetters; mFaceLetters = true;   // NDS theme: real X/Y letters
+            auto drawLegend = [&](int glyphRole, const char* label, bool rightSide) {
+                const float lw = measureText(label, fs);
+                const float contentW = glyphR * 2.0f + gap + lw;
+                float gcx, lx, sx0, sx1;
+                if (!rightSide) {   // (X) Options, flush to the left edge
+                    gcx = X(0.0f) + padIn + glyphR; lx = gcx + glyphR + gap;
+                    sx0 = fmaxf(rx, X(-6.0f)); sx1 = X(0.0f) + padIn + contentW + padIn;
+                } else {            // Sort (Y), flush to the right edge
+                    gcx = X(255.0f) - padIn - glyphR; lx = gcx - glyphR - gap - lw;
+                    sx0 = X(255.0f) - padIn - contentW - padIn; sx1 = fminf(rx + rw, X(261.0f));
+                }
+                drawScrim(sx0, sx1);
+                drawFaceGlyph(glyphRole, gcx, gcy, glyphR, glw, 1.0f, tpal.ink, tpal.ink, tpal.ink);   // 2 = Y, 3 = X
+                drawText(label, lx, tvy, fs, tpal.ink, tpal.ink, tpal.ink, 1.0f);
+            };
+            if (optLegend)  drawLegend(3, "Options", false);   // X
+            if (yLabel)     drawLegend(2, yLabel, true);       // Y
+            mFaceLetters = prevFaceLetters;
+        }
+    }
     // launch white-wash (top screen): ramps over frames 6..47 (launcher.launchWhiteAlpha:
     // the top screen lags the bottom by 3f), holding white until nano exits to the app. The
     // generic render() fade is gated off for the NDS theme so each screen washes at its own rate.
