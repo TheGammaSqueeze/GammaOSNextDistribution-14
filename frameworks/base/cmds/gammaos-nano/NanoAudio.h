@@ -255,6 +255,7 @@ public:
     int32_t fillCb(void* audioData, int32_t numFrames);       // AAudio data callback (public for the trampoline)
 private:
     bool openStreamLocked();
+    void recoverStream();               // reopen on the new device after a route-change disconnect
     std::vector<int16_t> mPcm;          // stereo interleaved S16, master gain baked in
     int   mRate = 48000;
     void* mStream = nullptr;            // AAudioStream*

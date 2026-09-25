@@ -1064,12 +1064,40 @@ bool NanoSfxPlayer::openStreamLocked() {        // mStreamM held
     AAudioStreamBuilder_setDataCallback(b, [](AAudioStream*, void* u, void* data, int32_t n) {
         return (aaudio_data_callback_result_t)static_cast<NanoSfxPlayer*>(u)->fillCb(data, n);
     }, this);
+    // Route-change recovery: on a headphone plug/unplug AAudio disconnects the stream and stops
+    // delivering callbacks, so without this the SFX went silent until the app restarted. Reopen on
+    // the new device, the same way NanoAudioPlayer does for the music stream.
+    AAudioStreamBuilder_setErrorCallback(b, [](AAudioStream*, void* u, aaudio_result_t err) {
+        NanoSfxPlayer* self = static_cast<NanoSfxPlayer*>(u);
+        if (err != AAUDIO_ERROR_DISCONNECTED || self->mShutdown.load()) return;
+        std::thread(&NanoSfxPlayer::recoverStream, self).detach();
+    }, this);
     AAudioStream* s = nullptr;
     aaudio_result_t r = AAudioStreamBuilder_openStream(b, &s);
     AAudioStreamBuilder_delete(b);
     if (r != AAUDIO_OK || !s) { ALOGW("NanoSfx: open stream failed (%d)", (int)r); return false; }
     mStream = s;
     return true;
+}
+
+// Reopen the SFX stream after an AAUDIO_ERROR_DISCONNECTED (output device changed). Runs on a
+// detached one-shot thread. The old stream is dead, so close it and build a fresh one on the new
+// device; restart it if playback was running so queued voices keep sounding.
+void NanoSfxPlayer::recoverStream() {
+    std::lock_guard<std::mutex> lk(mStreamM);
+    if (mShutdown.load()) return;
+    const bool wasRunning = mRunning.load();
+    if (mStream) {
+        AAudioStream* s = static_cast<AAudioStream*>(mStream);
+        AAudioStream_requestStop(s);
+        AAudioStream_close(s);
+        mStream = nullptr;
+    }
+    mRunning.store(false);
+    if (!openStreamLocked()) { ALOGW("NanoSfx: stream reopen after route change failed"); return; }
+    if (wasRunning && AAudioStream_requestStart(static_cast<AAudioStream*>(mStream)) == AAUDIO_OK)
+        mRunning.store(true);
+    ALOGI("NanoSfx: stream recovered after route change (playing=%d)", (int)mRunning.load());
 }
 
 void NanoSfxPlayer::trigger() {
