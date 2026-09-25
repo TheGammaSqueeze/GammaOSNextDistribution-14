@@ -4867,10 +4867,37 @@ static aaudio_data_callback_result_t aaDataCallback(AAudioStream*, void*, void* 
     return AAUDIO_CALLBACK_RESULT_CONTINUE;
 }
 static void aaErrorCallback(AAudioStream*, void*, aaudio_result_t err) { ALOGW("DrasticRunner: AAudio sink error %d (%s), reopening", err, AAudio_convertResultToText(err)); gAaReopen.store(1, std::memory_order_release); }
+// The 3.5mm jack is on the RK817 codec card; the speaker amp is a separate card. This vendor HAL's
+// MMAP path binds the speaker card when it creates the buffer (AAudio opens the stream with device=0,
+// so the HAL never learns the route) and never re-opens on the later routing patch, so an exclusive
+// MMAP sink always plays out the speaker and a plugged-in jack stays silent. The normal mixer path,
+// by contrast, routes to the jack card correctly. So while a wired headset/headphone is connected we
+// keep drastic on its OpenSL mixer sink and use the MMAP low-latency sink only on the speaker. The
+// kernel exposes the jack on the rk817-sound extcon node, which carries both HEADPHONE= and
+// MICROPHONE= lines. The same plug reports HEADPHONE=1 as a 3-pole headphone and MICROPHONE=1
+// (HEADPHONE=0) as a 4-pole headset, so either 1 on a node that has a HEADPHONE= line means the
+// jack is occupied. The USB extcon nodes have no HEADPHONE= line; the speaker-amp node reports
+// both 0. So the presence of "HEADPHONE=" gates to the sound jack and either field being 1 means in.
+static bool aaWiredHeadset() {
+    for (int i = 0; i < 8; i++) {
+        char p[64]; snprintf(p, sizeof(p), "/sys/class/extcon/extcon%d/state", i);
+        const int fd = open(p, O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        char buf[256]; const ssize_t n = read(fd, buf, sizeof(buf) - 1); close(fd);
+        if (n <= 0) continue;
+        buf[n] = 0;
+        if (!strstr(buf, "HEADPHONE=")) continue;   // not a sound jack node (e.g. USB)
+        if (strstr(buf, "HEADPHONE=1") || strstr(buf, "MICROPHONE=1")) return true;
+    }
+    return false;
+}
+static std::atomic<int> gAaHpConnected{-1};      // -1 unknown, 0 speaker, 1 wired headset/headphone
+static std::atomic<bool> gAaHpSwitching{false};  // a plug/unplug transition is being applied off-thread
 // 1 = up, 0 = failed for now (retry), -1 = this device has no exclusive low-latency path (fall back to OpenSL).
 static int aaOpen() {
     AAudioStreamBuilder* b = nullptr;
     if (property_get_int32("sys.gammaos.drastic_nano.audio_aaudio_force_fallback", 0)) { ALOGW("DrasticRunner: AAudio sink: fallback forced by property"); return -1; }   // test knob: behave like a device without the fast path
+    if (aaWiredHeadset()) { static int logged = 0; if (logged++ < 4) ALOGI("DrasticRunner: AAudio sink: wired headset connected, staying on the mixer path (MMAP is speaker-only on this HAL)"); return -1; }
     if (AAudio_createStreamBuilder(&b) != AAUDIO_OK || !b) return -1;
     AAudioStreamBuilder_setDirection(b, AAUDIO_DIRECTION_OUTPUT);
     AAudioStreamBuilder_setFormat(b, AAUDIO_FORMAT_PCM_I16);
@@ -5124,6 +5151,35 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
             sAaStarted = true;
             if (gAaOpenState.load(std::memory_order_acquire) < 0) aaRestartDrasticPlayer();   // fell back before the player existed
             else { aaStopDrasticPlayer(); aaStartOpener(); }
+        }
+        if (sAaKnob) {   // wired-jack hot-plug: MMAP is speaker-only on this HAL, so hand the jack to the mixer path and take MMAP back on unplug
+            static int64_t sHpChkUs = 0;
+            const int64_t nowUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+            if (nowUs - sHpChkUs > 200000 && !gAaHpSwitching.load(std::memory_order_acquire)) {
+                sHpChkUs = nowUs;
+                const int hp = aaWiredHeadset() ? 1 : 0;
+                const int prev = gAaHpConnected.exchange(hp, std::memory_order_acq_rel);
+                if (prev != -1 && prev != hp && !gAaHpSwitching.exchange(true)) {
+                    // Do the stream teardown/reopen off the audio thread: aaCloseSink can block up to
+                    // 200 ms waiting for the stream to stop, which would underrun the sink here.
+                    std::thread([hp] {
+                        pthread_setname_np(pthread_self(), "dn-aaudio-hp");
+                        struct Done { ~Done() { gAaHpSwitching.store(false, std::memory_order_release); } } done;
+                        if (hp) {   // jack in: drop the MMAP sink and hand playback back to drastic's OpenSL player (routes to the jack card)
+                            ALOGI("DrasticRunner: wired headset connected, switching to the mixer path");
+                            if (gAaudioSink.load(std::memory_order_acquire)) aaCloseSink();
+                            gAaudioSink.store(0, std::memory_order_release);
+                            gAaOpenState.store(-1, std::memory_order_release);
+                            aaRestartDrasticPlayer();
+                        } else {    // jack out: bring the MMAP low-latency sink back on the speaker
+                            ALOGI("DrasticRunner: wired headset removed, restoring the MMAP low-latency sink");
+                            gAaOpenState.store(0, std::memory_order_release);
+                            aaStopDrasticPlayer();
+                            aaStartOpener();
+                        }
+                    }).detach();
+                }
+            }
         }
         if (sAaKnob && gAaFallbackPending.load(std::memory_order_acquire)) aaRestartDrasticPlayer();
         if (sAaKnob && gAaOpenState.load(std::memory_order_acquire) == 0) {   // opening: drop this chunk rather than let the stopped player queue it
