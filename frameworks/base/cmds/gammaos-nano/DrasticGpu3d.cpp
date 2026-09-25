@@ -1600,7 +1600,7 @@ void useProgram(GLuint prog, bool blend) {
 // does the same arithmetic in the shader and needs none of this.
 static std::atomic<uint32_t> gDcLayerAdv{0}, gDcLayerRep{0};   // decoupled composites that read a new / the same 3D frame (emulator thread)
 static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0, gDcShadowCasterDraws = 0;   // per-300-frame draw census
-static int gProbe = 0;   // sys gpu3d_probe timing probes (A/B only, wrong output): 1 plain blend equation, 2 no drawn plane, 4 no shadow pass, 8 no caster redraw, 16 full stencil clears
+static int gProbe = 0;   // sys gpu3d_probe timing probes (A/B only, wrong output): 1 plain blend equation, 2 no drawn plane, 4 no shadow pass, 8 no caster redraw, 16 full stencil clears, 32 no translucent stream, 64 no opaque stream, 128 quarter-size viewport
 static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
 static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-polygon-id translucent rejection
 // Stencil code of a translucent writer's polygon id: id + 1 (63 shares 62's code, the six bits
@@ -2033,7 +2033,7 @@ void renderJob(Job& j) {
     if (msaa && !syncLo && g.msImplicit) applyMsaaTarget();   // apply a pending adaptive 4x<->2x switch on the GL thread (implicit only)
     const GLuint mfbo = syncLo ? g.msFbo2x : g.msFbo;
     const int rw = g.ss == 2 ? kW * 2 : kW, rh = g.ss == 2 ? kH * 2 : kH;
-    glViewport(0, 0, rw, rh);
+    if (gProbe & 128) glViewport(0, 0, rw / 2, rh / 2); else glViewport(0, 0, rw, rh);
     glBindFramebuffer(GL_FRAMEBUFFER, msaa ? mfbo : g.ss == 2 ? g.ssFbo : g.fbo);
     glDepthMask(GL_TRUE);
     if (msaa) j.edge = false;   // no id attachment on the multisampled target
@@ -2513,8 +2513,8 @@ void renderJob(Job& j) {
     }
     if (total) {
         size_t base = 0;
-        drawStream(j.opaque, false, base, true, useProg, mainBlend);
-        drawStream(j.transl, true, base, true, useProg, mainBlend);
+        if (!(gProbe & 64)) drawStream(j.opaque, false, base, true, useProg, mainBlend); else { for (int i = 0; i < 8; i++) base += j.opaque.v[i].size(); }
+        if (!(gProbe & 32)) drawStream(j.transl, true, base, true, useProg, mainBlend);
         if (timeShadow) pBeginQ(0x88BF, g.tq);
         drawShadows(useProg, mainBlend);
         if (timeShadow) pEndQ(0x88BF);
@@ -2864,7 +2864,7 @@ static void waitQueueRoom() {
 // timer query per frame, results read one frame late, logged every 300 frames when the
 // sys gpu3d_gputime knob is set. Sizes the contention with the 3D job on the shared Mali.
 namespace {
-struct PresTimer { GLuint q[2] = {}; int cur = 0; bool inited = false, ext = false; int64_t sumNs = 0; uint32_t n = 0; uint32_t polls = 0; int on = 0; };
+struct PresTimer { GLuint q[4] = {}; int cur = 0; bool inited = false, ext = false; int64_t sumNs = 0; uint32_t n = 0; uint32_t polls = 0; int on = 0; uint32_t ended = 0; };   // ring of four: a result is read three frames after its query ends (one frame later it is never available on this driver)
 PresTimer gPres;
 PFNGLGENQUERIESEXTPROC pqGen = nullptr; PFNGLBEGINQUERYEXTPROC pqBegin = nullptr; PFNGLENDQUERYEXTPROC pqEnd = nullptr;
 PFNGLGETQUERYOBJECTUI64VEXTPROC pqGet64 = nullptr; PFNGLGETQUERYOBJECTUIVEXTPROC pqGet = nullptr;
@@ -2881,22 +2881,21 @@ extern "C" void gpu3dPresenterTimerBegin() {
             pqGen = (PFNGLGENQUERIESEXTPROC)eglGetProcAddress("glGenQueriesEXT"); pqBegin = (PFNGLBEGINQUERYEXTPROC)eglGetProcAddress("glBeginQueryEXT");
             pqEnd = (PFNGLENDQUERYEXTPROC)eglGetProcAddress("glEndQueryEXT"); pqGet64 = (PFNGLGETQUERYOBJECTUI64VEXTPROC)eglGetProcAddress("glGetQueryObjectui64vEXT");
             pqGet = (PFNGLGETQUERYOBJECTUIVEXTPROC)eglGetProcAddress("glGetQueryObjectuivEXT");
-            if (pqGen) pqGen(2, gPres.q);
+            if (pqGen) pqGen(4, gPres.q);
         }
-        ALOGI("gpu3d: presenter probe on the render thread: timer query ext %d, queries %u %u", gPres.ext, gPres.q[0], gPres.q[1]);
+        ALOGI("gpu3d: presenter probe on the render thread: timer query ext %d, queries %u %u %u %u", gPres.ext, gPres.q[0], gPres.q[1], gPres.q[2], gPres.q[3]);
     }
     if (!gPres.ext || !gPres.q[0]) return;
-    // collect the previous frame's result without blocking
-    GLuint other = gPres.q[gPres.cur ^ 1]; GLuint avail = 0;
-    if (gPres.n || gPres.polls > 2) { pqGet(other, 0x8867, &avail); if (avail) { GLuint64 ns = 0; pqGet64(other, 0x8866, &ns); gPres.sumNs += (int64_t)ns; gPres.n++; } }
+    // collect the result of the query that ended three frames ago without blocking
+    if (gPres.ended >= 3) { GLuint old = gPres.q[(gPres.cur + 1) & 3]; GLuint avail = 0; pqGet(old, 0x8867, &avail); if (avail) { GLuint64 ns = 0; pqGet64(old, 0x8866, &ns); gPres.sumNs += (int64_t)ns; gPres.n++; } }
     pqBegin(0x88BF, gPres.q[gPres.cur]);
 }
 extern "C" void gpu3dPresenterTimerEnd() {
     if (!gPres.on || !gPres.ext || !gPres.q[0]) return;
     pqEnd(0x88BF);
-    gPres.cur ^= 1;
+    gPres.cur = (gPres.cur + 1) & 3; gPres.ended++;
     static uint32_t passes = 0;
-    if (++passes % 600 == 0) { ALOGI("gpu3d: presenter GPU time %.2f ms avg per screen pass over %u measured passes of 600 (two per frame)", gPres.n ? gPres.sumNs / 1e6 / gPres.n : 0.0, gPres.n); gPres.sumNs = 0; gPres.n = 0; }
+    if (++passes % 600 == 0) { ALOGI("gpu3d: presenter GPU time %.2f ms avg per screen pass over %u measured passes of 600 (one per frame on the AFBC path)", gPres.n ? gPres.sumNs / 1e6 / gPres.n : 0.0, gPres.n); gPres.sumNs = 0; gPres.n = 0; }
 }
 
 static volatile int gFastForward = 0;
