@@ -43,6 +43,9 @@
 #include <stdint.h>
 #include <time.h>
 #include <unistd.h>
+#include <poll.h>
+#include <errno.h>
+#include <string.h>
 #include <math.h>
 #include <string>
 #include <vector>
@@ -135,6 +138,8 @@ struct Job {
     bool decoupled = false;   // whole-frame job into a buffer the compositor is not reading
     bool cancel = false;      // dropped before rendering (a decoupled frame overtaken by a synchronous one)
     uint32_t presentSeqAtQueue = 0;   // presents seen when the job was queued (decoupled: run after the next one)
+    int64_t kickUs = 0;               // when the emulator queued the job (latency census)
+    uint32_t seq = 0;                 // kick sequence number (the compositor's lag rule)
     bool edge = false;
     uint32_t edgeTbl[8] = {};
     size_t verts = 0;
@@ -156,6 +161,12 @@ struct Gpu3d {
     uint32_t bpDrops = 0;   // decoupled frames dropped under back-pressure (gpu3d_drop_bp)
     uint32_t bpUploadsCarried = 0;   // texture uploads moved from a dropped job to the one that replaced it
     std::atomic<uint8_t*> latest{nullptr};   // newest fully rendered target buffer (decoupled mode)
+    // Lag rule state (g.mtx): the sequence of the newest finished job, the finished job before it,
+    // the sequence of the job kicked this frame, and the lag mode the compositor reads with.
+    uint32_t latestSeq = 0; uint8_t* prevTarget = nullptr; uint32_t prevSeq = 0; uint32_t kickSeq = 0;
+    struct Fin { uint8_t* t = nullptr; uint32_t seq = 0; } fin[4]; unsigned finN = 0;   // the last four finished jobs, newest at (finN - 1) & 3
+    uint8_t* bufE = nullptr;        // fifth decoupled buffer: with the lag rule two finished frames stay readable
+    std::atomic<uint32_t> curSeq{0}; std::atomic<int> lagMode{0}; uint32_t lagMissWin = 0, lagClean = 0, lagRuleEnters = 0;
     uint8_t* bufC = nullptr;                 // third target buffer: the GL thread never writes what the compositor reads
     std::atomic<bool> decoupledActive{false};
     uint32_t presentSeq = 0; std::condition_variable cvPresent;   // flips landed (gpu3dNotePresent)
@@ -190,7 +201,7 @@ struct Gpu3d {
     bool attrWanted = false;   // the current job runs the edge pass
     bool attrAllPasses = false;   // in-tile MSAA: attachment 1 stays a draw buffer for the whole frame (a draw-buffer change splits the tile pass)
     GLuint casterEbo = 0;   // element buffer for the shadow caster redraw (two indexed draws per shadow id)
-    bool timerExt = false; GLuint tq = 0; int64_t sumGpuNs = 0; uint32_t gpuSamples = 0;
+    bool timerExt = false; GLuint tq = 0; int64_t sumGpuNs = 0; uint32_t gpuSamples = 0; int64_t lastGpuNs = -1;   // lastGpuNs: this job's GPU time when the timer query is on
     GLint uEdgeTbl = -1, uEdgeClear = -1, uEdgeSize = -1;
     GLint uIdx = -1, uPal = -1, uPass = -1;
     // layer allocators: texels live in two 2D arrays (256x256 and 1024x1024 layers), palettes in
@@ -745,6 +756,14 @@ bool initGl() {
                 swapStmt("vec4 pc = texelFetch(uPal", "vec4 pc = vec4(float(idx & 63u) / 255.0, 0.1, 0.2, 1.0);");
             }
             frag += body; frag += fetch ? kFragFetch : kFragNoFetch;
+            // Probe (sys gpu3d_ezprobe=1 at program build): strip the shader depth write from the no-discard
+            // opaque program so the GPU can reject hidden fragments early. Depth order is then the fixed
+            // function value (wrong for W-buffered frames); timing only.
+            if (noDiscard && property_get_int32("sys.gammaos.drastic_nano.gpu3d_ezprobe", 0) != 0) {
+                size_t q = frag.find("    if (uDepthMode != 0) gl_FragDepth"); if (q != std::string::npos) frag.erase(q, frag.find('\n', q) + 1 - q);
+                for (size_t r; (r = frag.find("floor(gl_FragDepth * 16777215.0 + 0.5)")) != std::string::npos;) frag.replace(r, 38, "floor(gl_FragCoord.z * 16777215.0 + 0.5)");
+                ALOGI("gpu3d: ezprobe: opaque program built without a depth write (%s)", frag.find("gl_FragDepth") == std::string::npos ? "clean" : "gl_FragDepth still referenced");
+            }
             if (fetchAttr) {
                 size_t q = frag.find("void main() {"); frag.insert(q + 13, "\n    vec4 attrIn = attrOut;");
                 q = frag.find("texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r"); if (q != std::string::npos) frag.replace(q, 46, "attrIn.r");
@@ -772,7 +791,7 @@ bool initGl() {
     g.prog = build(g.fbFetch, false);
     g.progNoFetch = build(false, false);
     g.progTrivial = build(false, true);
-    g.progOpaque = build(false, false, true);   // no discard, no fetch: early depth rejection works
+    g.progOpaque = build(false, false, true);   // no discard, no fetch (its gl_FragDepth write still rules out early depth rejection; measured inside noise without it)
     g.progExp6 = build(g.fbFetch, false, false, 6); g.progExp7 = build(g.fbFetch, false, false, 7);
     // Only the id-attachment self-shadow test (gpu3d_shadow_idtest 2) needs this program; the
     // default test redraws the caster and never samples an attachment, so it is not built.
@@ -1847,6 +1866,20 @@ static void applyMsaaTarget() {
 // otherwise miss the next kick by up to that CPU finish now makes it.
 struct PendingRb { uint8_t* src = nullptr; int srcIdx = -1; uint8_t* target = nullptr; Job* job = nullptr; bool blendAlpha = false; };
 static std::atomic<Job*> gPendJob{nullptr}; static std::atomic<uint8_t*> gPendTarget{nullptr};
+// Publish a finished job (g.mtx held): the previous newest becomes the "one before" the lag rule may read.
+static void publishLatest(uint8_t* target, uint32_t seq) {
+    g.prevTarget = g.latest.load(std::memory_order_acquire); g.prevSeq = g.latestSeq;
+    g.latest.store(target, std::memory_order_release); g.latestSeq = seq;
+    g.fin[g.finN & 3] = { target, seq }; g.finN++;
+}
+// The buffer the compositor reads for kick k (g.mtx held): the newest finished job whose kick is
+// at most k - back. Lag 0 reads back 0 (the job of this kick when it is already done, else the one
+// before); the lag rule reads back 2, one whole period of extra slack for the GL job.
+static uint8_t* lagRead(uint32_t k, unsigned back) {
+    uint8_t* best = nullptr; uint32_t bestSeq = 0;
+    for (unsigned i = 0; i < 4 && i < g.finN; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + back <= k && (!best || f.seq > bestSeq)) { best = f.t; bestSeq = f.seq; } }
+    return best ? best : g.latest.load(std::memory_order_acquire);
+}
 static int gPipeline = 1;
 static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, int64_t t4, int64_t t5);
 static std::vector<uint8_t> gRb[2]; static std::atomic<int> gRbBusy[2] = { {0}, {0} }; static int gRbIdx = 0;
@@ -1863,7 +1896,7 @@ static void scatterThreadMain() {
         scatterRows(w.src, w.target, 0, kH);
         {
             std::lock_guard<std::mutex> gl(g.mtx);
-            g.latest.store(w.target, std::memory_order_release);
+            publishLatest(w.target, w.job ? w.job->seq : 0);
             gPendJob.store(nullptr, std::memory_order_release); gPendTarget.store(nullptr, std::memory_order_release);
             g.cvDone.notify_all();
         }
@@ -1877,6 +1910,52 @@ static void scatterDrain() {
     std::unique_lock<std::mutex> lk(gScMtx);
     gScCv.wait(lk, [] { return !gScHas && gPendJob.load(std::memory_order_acquire) == nullptr; });
 }
+// Wait for a fence by sleeping in the driver (woken by the GPU's completion interrupt), not by
+// polling. The 100 us poll loops this replaced cost the GL thread 57 percent of a core (141k
+// context switches per 10 s) and, at SCHED_FIFO 40 under threads at 80, each poll wake-up queued
+// behind them: the "gpu wait" ran 16 to 31 ms on frames whose GPU time was a flat 9 ms, and the 3D
+// layer repeated frames the GPU had long finished. sys gpu3d_fence_poll 1 restores the poll for A/B.
+// Native fence wait: an EGL_ANDROID_native_fence_sync fence dup'd to a sync file, slept on with
+// poll(). The kernel wakes the poll from the GPU completion path itself; glClientWaitSync on this
+// driver wakes on its own schedule (measured: the same 9 ms GPU job "took" 20 to 36 ms through the
+// blocking client wait against 16 to 31 through 100 us polling). Returns false when unavailable.
+static bool nativeFenceWait(int capMs) {
+    static bool probed = false; static PFNEGLCREATESYNCKHRPROC cs = nullptr; static PFNEGLDESTROYSYNCKHRPROC ds = nullptr; static PFNEGLDUPNATIVEFENCEFDANDROIDPROC dupFd = nullptr;
+    if (!probed) {
+        probed = true;
+        const char* ext = eglQueryString(g.dpy, EGL_EXTENSIONS);
+        if (ext && strstr(ext, "EGL_ANDROID_native_fence_sync")) {
+            cs = (PFNEGLCREATESYNCKHRPROC)eglGetProcAddress("eglCreateSyncKHR"); ds = (PFNEGLDESTROYSYNCKHRPROC)eglGetProcAddress("eglDestroySyncKHR");
+            dupFd = (PFNEGLDUPNATIVEFENCEFDANDROIDPROC)eglGetProcAddress("eglDupNativeFenceFDANDROID");
+        }
+        ALOGI("gpu3d: native fence sync %s", cs && ds && dupFd ? "available" : "unavailable");
+    }
+    if (!cs || !ds || !dupFd) return false;
+    EGLSyncKHR sync = cs(g.dpy, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
+    if (sync == EGL_NO_SYNC_KHR) return false;
+    const int fd = dupFd(g.dpy, sync);   // flushes the context so the fence is submitted
+    if (fd < 0) { ds(g.dpy, sync); return false; }
+    struct pollfd pfd = { fd, POLLIN, 0 };
+    const int64_t deadline = nowUs() + (int64_t)capMs * 1000;
+    for (;;) {
+        const int64_t left = deadline - nowUs(); if (left <= 0) break;
+        const int r = poll(&pfd, 1, (int)((left + 999) / 1000));
+        if (r > 0 || (r < 0 && errno != EINTR)) break;
+        if (r == 0) break;
+    }
+    close(fd); ds(g.dpy, sync);
+    return true;
+}
+static void fenceWait(GLsync fence) {
+    static int mode = 0; if ((g.glFrames & 63) == 0) mode = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fence_poll", 0);   // 0 native fence, 1 poll, 2 blocking client wait
+    if (mode == 1) { for (int i = 0; i < 400; i++) { GLenum r = glClientWaitSync(fence, 0, 0); if (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED) return; usleep(100); } return; }
+    if (mode == 0 && nativeFenceWait(200)) return;
+    for (int i = 0; i < 5; i++) {   // 5 x 40 ms cap: a lost fence cannot hang the thread
+        const GLenum r = glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 40000000ull);
+        if (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED || r == GL_WAIT_FAILED) return;
+    }
+}
+
 void renderJob(Job& j) {
     const int64_t t0 = nowUs();
     g.glFrames++;   // GL-thread-owned counter for the knob polls (g.frame is the worker's and races)
@@ -2444,11 +2523,12 @@ void renderJob(Job& j) {
         if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gRb[0].resize((size_t)kW * kH * 4); gRb[1].resize((size_t)kW * kH * 4); }
         GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         glFlush();
-        for (int i = 0; i < 400; i++) { GLenum r = glClientWaitSync(fence, 0, 0); if (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED) break; usleep(100); }
+        fenceWait(fence);
         glDeleteSync(fence);
         const int64_t t3 = nowUs();
         g.sumDrawUs += t3 - t2;
-        if (timing) { GLuint av = 0; pGetQ(g.tq, 0x8867, &av); if (av) { GLuint64 ns = 0; pGetQ64(g.tq, 0x8866, &ns); g.sumGpuNs += (int64_t)ns; g.gpuSamples++; } }
+        g.lastGpuNs = -1;
+        if (timing) { GLuint av = 0; pGetQ(g.tq, 0x8867, &av); if (av) { GLuint64 ns = 0; pGetQ64(g.tq, 0x8866, &ns); g.sumGpuNs += (int64_t)ns; g.gpuSamples++; g.lastGpuNs = (int64_t)ns; } }
         if (msaa) glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
         const int k = gRbIdx; gRbIdx ^= 1;
         if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();   // the helper is still on this half (rare: it takes ~2 ms)
@@ -2467,11 +2547,7 @@ void renderJob(Job& j) {
         // Sleep on a fence instead of letting glReadPixels spin a core while the GPU finishes.
         GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         glFlush();
-        for (int i = 0; i < 400; i++) {
-            GLenum r = glClientWaitSync(fence, 0, 0);
-            if (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED) break;
-            usleep(100);
-        }
+        fenceWait(fence);
         glDeleteSync(fence);
     }
     const int64_t t3 = nowUs();
@@ -2501,13 +2577,14 @@ static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, 
         if (pairLog && pairLogN < 3000) { pairLogN++; ALOGW("JOB3D s=%lld e=%lld gpu=%lld", (long long)t0, (long long)t5, (long long)(t3 - t2)); }
     }
     g.emaUs = g.emaUs == 0.f ? (float)dt : g.emaUs * 0.9f + (float)dt * 0.1f;
-    if (dt > 30000) {   // spike: log its breakdown so scene-transition stalls can be attributed
+    { static int spikeUs = 30000; if ((g.glFrames & 63) == 0) spikeUs = property_get_int32("sys.gammaos.drastic_nano.gpu3d_spike_us", 30000);
+    if (dt > spikeUs) {   // spike: log its breakdown so scene-transition stalls can be attributed
         static int64_t sLastSpike = 0; static int sSpikeN = 0;
-        if (t5 - sLastSpike > 200000 && sSpikeN < 200) { sLastSpike = t5; sSpikeN++;
-            ALOGW("gpu3d: SPIKE %.1f ms (tex %.1f, upload+draw %.1f, gpu wait %.1f, readback %.1f, scatter %.1f) uploads %zu verts %u",
+        if (t5 - sLastSpike > 200000 && sSpikeN < 400) { sLastSpike = t5; sSpikeN++;
+            ALOGW("gpu3d: SPIKE %.1f ms (tex %.1f, upload+draw %.1f, gpu wait %.1f, readback %.1f, scatter %.1f) uploads %zu verts %u, GPU timer %.1f ms",
                   dt / 1000.0, (t1 - t0) / 1000.0, (t2 - t1) / 1000.0, (t3 - t2) / 1000.0, (t4 - t3) / 1000.0, (t5 - t4) / 1000.0,
-                  j.uploads.size(), (unsigned)(j.opaque.v[0].size() + j.transl.v[0].size())); }
-    }
+                  j.uploads.size(), (unsigned)(j.opaque.v[0].size() + j.transl.v[0].size()), g.lastGpuNs / 1e6); }
+    } }
     g.sumUs += dt; if (dt > g.maxUs) g.maxUs = dt; g.frames++;
     if (g.frames % 300 == 0) {
         if (g.gpuSamples) { ALOGI("gpu3d: GPU time elapsed (timer query) %.2f ms avg over %u frames (single-shot)", g.sumGpuNs / 1e6 / g.gpuSamples, g.gpuSamples); g.sumGpuNs = 0; g.gpuSamples = 0; }
@@ -2662,13 +2739,44 @@ void glThreadMain() {
         lk.unlock();
         if (!skip) {
             glStage(2);
+            const int64_t ts = nowUs();
             if (g.inited) renderJob(*j);
             else { gpu3dSetBandMask(0xfffu); gpu3dSetPending(0); }
             glStage(40);
+            // Latency census: kick (emulator queued the job) to start and to completion. The
+            // compositor's census counts a repeat when the job of the previous kick was not finished
+            // by the next kick, so completion beyond one period is the number that matters.
+            if (j->decoupled && j->kickUs) {
+                const int64_t te = nowUs(), sl = ts - j->kickUs, el = te - j->kickUs, du = te - ts;
+                static int64_t n = 0, slSum = 0, slMax = 0, elMax = 0, duMax = 0, late = 0, late20 = 0, slLate = 0;
+                n++; slSum += sl; if (sl > slMax) slMax = sl; if (el > elMax) elMax = el; if (du > duMax) duMax = du;
+                if (el > 16700) { late++; if (sl > 3000) slLate++; } if (el > 20000) late20++;
+                // Lag rule controller (sys gpu3d_lag: 0 never lag, 1 automatic (default), 2 always one frame).
+                // A job that finishes later than one period after its kick is a frame the compositor
+                // would repeat at lag 0; two such misses within 120 kicks switch the compositor to
+                // reading the job of the PREVIOUS kick (one frame of 3D lag, a whole extra period of
+                // slack), and 600 consecutive jobs (10 s) done within 14 ms of their kick switch it
+                // back. Constant lag is smooth; lag that flips frame by frame is the stutter.
+                { static int lagKnob = 1; if ((n & 63) == 0) lagKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_lag", 1);
+                  g.lagMissWin = (g.lagMissWin << 1) | (el > 16700 ? 1u : 0u);   // last 32 jobs
+                  static uint32_t missHist[4] = {}; static int mh = 0; if ((n & 31) == 0) { missHist[mh & 3] = 0; mh++; } missHist[mh & 3] += (el > 16700) ? 1 : 0;
+                  const uint32_t misses120 = missHist[0] + missHist[1] + missHist[2] + missHist[3];
+                  if (el <= 14000) g.lagClean++; else g.lagClean = 0;
+                  int want = g.lagMode.load(std::memory_order_relaxed);
+                  if (lagKnob == 0) want = 0; else if (lagKnob == 2) want = 1;
+                  else if (want == 0 && misses120 >= 2) { want = 1; g.lagRuleEnters++; ALOGI("gpu3d: 3D layer lag 1: %u jobs of the last 120 finished later than a period after their kick (enter %u)", misses120, g.lagRuleEnters); }
+                  else if (want == 1 && g.lagClean >= 600) { want = 0; ALOGI("gpu3d: 3D layer lag 0: 600 jobs done within 14 ms of their kick"); }
+                  if (want != g.lagMode.load(std::memory_order_relaxed)) { g.lagMode.store(want, std::memory_order_relaxed); g.lagClean = 0; for (auto& v : missHist) v = 0; } }
+                if (n >= 60) {
+                    ALOGI("gpu3d: lat: %lld jobs, start after kick avg %.2f max %.2f ms, job max %.2f ms, done after kick max %.2f ms, done later than 16.7 ms: %lld (%lld of them started over 3 ms late), later than 20 ms: %lld, queue %d, bp drops %u",
+                          (long long)n, slSum / 1000.0 / n, slMax / 1000.0, duMax / 1000.0, elMax / 1000.0, (long long)late, (long long)slLate, (long long)late20, g.qCount, g.bpDrops);
+                    n = slSum = slMax = elMax = duMax = late = late20 = slLate = 0;
+                }
+            }
         }
         lk.lock();
         g.qHead ^= 1; g.qCount--;
-        if (!skip && gPendJob.load(std::memory_order_acquire) != j) g.latest.store(j->target, std::memory_order_release);   // a pipelined job is published by the scatter helper
+        if (!skip && gPendJob.load(std::memory_order_acquire) != j) publishLatest(j->target, j->seq);   // a pipelined job is published by the scatter helper
         g.rendering = nullptr;
         g.pending = nullptr;
         g.cvDone.notify_all();
@@ -2925,6 +3033,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     if (decoupled) {
         if (!g.bufC) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufC = (uint8_t*)m; } }
         if (!g.bufD) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufD = (uint8_t*)m; } }
+        if (!g.bufE) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufE = (uint8_t*)m; } }
     }
     // Back-pressure policy. Default: waitQueueRoom stalls the emulator until the GL queue drains,
     // which on the heaviest scenes costs ~13 ms while the 3D fence is stuck behind the panel
@@ -2959,19 +3068,19 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         // first GPU frame lands). Write buffer: one of the three that is neither read now nor
         // the target of the job still in the GL queue.
         uint8_t* latest = g.latest.load(std::memory_order_acquire);
+        // What the compositor may read this frame and the next under the lag rule: the finished jobs
+        // of the last two kicks; both stay off the target list (five buffers make that always fit).
+        uint8_t* keep[2] = { nullptr, nullptr };
+        { std::lock_guard<std::mutex> lk(g.mtx); const uint32_t k = g.kickSeq + 1; unsigned kn = 0;
+          for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; } }
         uint8_t* readBuf = latest ? latest : (prevDrawn ? prevDrawn : bufA);
-        {   // 3D layer rate census: did the frame the compositor reads advance since the last composite?
-            static uint8_t* sLastRead = nullptr;
-            if (readBuf == sLastRead) gDcLayerRep.fetch_add(1, std::memory_order_relaxed); else gDcLayerAdv.fetch_add(1, std::memory_order_relaxed);
-            sLastRead = readBuf;
-        }
         uint8_t* busy[3] = { nullptr, nullptr, nullptr };
         { std::lock_guard<std::mutex> lk(g.mtx); for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target; if (g.rendering) busy[2] = g.rendering->target; }
         uint8_t* pendT = gPendTarget.load(std::memory_order_acquire);
-        uint8_t* cands[4] = { bufA, bufB, g.bufC, g.bufD };
+        uint8_t* cands[5] = { bufA, bufB, g.bufC, g.bufD, g.bufE };
         target = nullptr;
-        for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != pendT) { target = c; break; }
-        if (!target) target = g.bufD ? g.bufD : g.bufC;   // cannot happen with four buffers
+        for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != pendT && c != keep[0] && c != keep[1]) { target = c; break; }
+        if (!target) target = g.bufE ? g.bufE : g.bufD ? g.bufD : g.bufC;   // cannot happen with five buffers
         *reinterpret_cast<uint8_t**>(regs + 24) = readBuf;
         g.decoupledActive.store(true, std::memory_order_release);
         gpu3dSetPending(0);
@@ -3173,7 +3282,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     if ((g.frame % 300) == 2) { g.sumRoomUs = 0; g.sumPresentWaitUs = 0; g.presentWaitTimeouts = 0; g.presentWaitSkips = 0; }
     {
         std::lock_guard<std::mutex> lk(g.mtx);
-        job.presentSeqAtQueue = g.presentSeq;
+        job.presentSeqAtQueue = g.presentSeq; job.kickUs = nowUs(); job.seq = ++g.kickSeq; g.curSeq.store(job.seq, std::memory_order_relaxed);
         if (dropBp && g.qCount >= 2) {
             // Queue full and not stalling: drop the stale queued (non-rendering) 3D frame and take
             // its slot. The GL thread is stuck on the rendering job's fence; the dropped frame is
@@ -3235,10 +3344,17 @@ extern "C" void gpu3dOff() {
 }
 extern "C" void gpu3dLatchRead(uint8_t* R) {
     if (!g.decoupledActive.load(std::memory_order_acquire)) return;
-    uint8_t* latest = g.latest.load(std::memory_order_acquire);
-    if (!latest) return;
+    const uint32_t k = g.curSeq.load(std::memory_order_relaxed);
+    uint8_t* rdBuf;
+    { std::lock_guard<std::mutex> lk(g.mtx); rdBuf = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
+    if (!rdBuf) return;
+    {   // 3D layer rate census: did the frame the compositor reads advance since the last composite?
+        static uint8_t* sLastRead = nullptr;
+        if (rdBuf == sLastRead) gDcLayerRep.fetch_add(1, std::memory_order_relaxed); else gDcLayerAdv.fetch_add(1, std::memory_order_relaxed);
+        sLastRead = rdBuf;
+    }
     uint8_t** rd = reinterpret_cast<uint8_t**>(R + 0x34eb40 + 24);
-    if (*rd != latest) *rd = latest;
+    if (*rd != rdBuf) *rd = rdBuf;
 }
 
 }  // namespace android
