@@ -777,11 +777,11 @@ bool initGl() {
             // Probe (sys gpu3d_ezprobe=1 at program build): strip the shader depth write from the no-discard
             // opaque program so the GPU can reject hidden fragments early. Depth order is then the fixed
             // function value (wrong for W-buffered frames); timing only.
-            if (noDiscard && property_get_int32("sys.gammaos.drastic_nano.gpu3d_ezprobe", 0) != 0) {
+            { const int ez = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ezprobe", 0); if ((noDiscard && ez != 0) || ez == 2) {   // 2: every program (the whole frame on fixed-function depth)
                 size_t q = frag.find("    if (uDepthMode != 0) gl_FragDepth"); if (q != std::string::npos) frag.erase(q, frag.find('\n', q) + 1 - q);
                 for (size_t r; (r = frag.find("floor(gl_FragDepth * 16777215.0 + 0.5)")) != std::string::npos;) frag.replace(r, 38, "floor(gl_FragCoord.z * 16777215.0 + 0.5)");
                 ALOGI("gpu3d: ezprobe: opaque program built without a depth write (%s)", frag.find("gl_FragDepth") == std::string::npos ? "clean" : "gl_FragDepth still referenced");
-            }
+            } }
             if (fetchAttr) {
                 size_t q = frag.find("void main() {"); frag.insert(q + 13, "\n    vec4 attrIn = attrOut;");
                 q = frag.find("texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r"); if (q != std::string::npos) frag.replace(q, 46, "attrIn.r");
