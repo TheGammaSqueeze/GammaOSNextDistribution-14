@@ -146,6 +146,11 @@ struct Job {
     uint32_t edgeTbl[8] = {};
     size_t verts = 0;
     bool syncLo2x = false;   // transient engine-swap sync frame: render into the always-2x MSAA FBO
+    // Two-in-flight pipeline (GL thread only): which target set the job draws into, whether the
+    // loop allowed it to return after submission, and what it left behind for completeJob.
+    int set = 0; bool pipe2 = false, submitted = false, sBlendAlpha = false;
+    uint32_t classMask = 0;   // polygon classes present (bit 0 direct-colour texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal): a clear mask takes the specialised programs
+    GLsync fence = nullptr; int fenceFd = -1; int64_t st0 = 0, st1 = 0, st2 = 0;
 };
 
 struct Gpu3d {
@@ -156,6 +161,10 @@ struct Gpu3d {
     std::mutex mtx; std::condition_variable cvSubmit, cvDone;
     Job* pending = nullptr;     // job being processed by the GL thread
     Job* rendering = nullptr;   // job inside renderJob (cannot be cancelled any more)
+    Job* rendering2 = nullptr;  // two-in-flight pipeline: the job submitted earlier whose GPU work is still running
+    // Second render target set for that pipeline: own colour and edge textures and FBOs; the
+    // depth/stencil buffer and the id attachment are shared (fragment work runs in order on the GPU).
+    GLuint colorTex2 = 0, edgeTex2 = 0, fbo2 = 0, msFbo2 = 0, edgeFbo2 = 0; int setIdx = 0; bool set2Ok = false, set2Tried = false;
     Job* queue[2] = {}; int qHead = 0, qCount = 0;   // jobs handed to the GL thread, in order (decoupled mode: up to two)
     bool quit = false;
     Job jobs[4]; int jobIdx = 0;   // rendering, queued, pending readback, and the one being built
@@ -182,6 +191,7 @@ struct Gpu3d {
     GLuint progNoFetch = 0, progTrivial = 0, progOpaque = 0, progExp6 = 0, progExp7 = 0, uPassNoFetch = 0;
     GLuint progNoFetchNF = 0, progOpaqueNF = 0;   // the same two without the fog block, for frames with fog off
     GLuint progNoFetchVZ = 0, progOpaqueVZ = 0, progNoFetchNFVZ = 0, progOpaqueNFVZ = 0;   // vertex-depth variants (Z-buffer frames, early depth rejection)
+    GLuint progSp[2][2][2] = {}; GLint uAlphaMulSp[2][2][2] = {}; bool specOk = false;   // specialised programs [vertex depth][no fog][opaque]: frames without direct/format 1/5/7/toon/decal polygons
     GLuint opq = 0;                               // this job's opaque (no-discard) program: progOpaque or progOpaqueNF
     bool vzJob = false;                           // this job draws with the vertex-depth programs
     GLuint progShadowMs = 0; GLint uAlphaMulShadowMs = -1;   // MSAA shadow pass: reads the id attachment by framebuffer fetch (no detach)
@@ -763,7 +773,7 @@ bool initGl() {
     g.timerExt = ext && strstr(ext, "GL_EXT_disjoint_timer_query");
     ALOGI("gpu3d: %s / %s, framebuffer fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.timerExt);
 
-    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false, bool vz = false) -> GLuint {
+    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false, bool vz = false, bool spec = false) -> GLuint {
         std::string frag = kFragHead;
         if (fetch || fetchAttr) frag += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
         frag += fetch ? "layout(location = 0) inout vec4 fragColor;\n" : "layout(location = 0) out vec4 fragColor;\n";
@@ -788,6 +798,17 @@ bool initGl() {
                            // skipped block still cost 0.5 ms a frame on Pokemon White 2's title; measured by this swap)
                 size_t q = body.find("if (uFog != 0 && fogPoly != 0) {"); if (q != std::string::npos) body.replace(q, 32, "if (false) {");
             }
+            // Probe (sys gpu3d_probe bit 1024 at program build, timing only): the specialisation ceiling.
+            // Removes the per-polygon branches Pokemon White 2's title never takes (direct-colour
+            // textures, formats 1/5/7, toon, decal) to measure what a per-frame specialised program
+            // could save; wrong output on any frame that uses them.
+            if (spec || (property_get_int32("sys.gammaos.drastic_nano.gpu3d_probe", 0) & 1024)) {
+                for (auto pr : { std::pair<const char*, const char*>{"if ((vTex0.y & 2) != 0) {", "if (false) {"},
+                                 {"if (fmt == 1) {", "if (false) {"}, {"else if (fmt == 5 || fmt == 7) {", "else if (false) {"},
+                                 {"bool toonMode = (mode == 2);", "bool toonMode = false;"}, {"if (mode == 1 && texOn) {", "if (false) {"} }) {
+                    size_t q = body.find(pr.first); if (q == std::string::npos) ALOGW("gpu3d: spec probe anchor missing: %s", pr.first); else body.replace(q, strlen(pr.first), pr.second);
+                }
+            }
             if (expt == 6) {   // keep the index fetch, drop the palette fetch
                 swapStmt("vec4 pc = texelFetch(uPal", "vec4 pc = vec4(float(idx & 63u) / 255.0, 0.1, 0.2, 1.0);");
             } else if (expt == 7) {   // no texture fetch at all
@@ -808,6 +829,13 @@ bool initGl() {
                 q = frag.find("texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r"); if (q != std::string::npos) frag.replace(q, 46, "attrIn.r");
                 q = frag.rfind("attrOut = vec4(float("); q = frag.find('\n', q) + 1; frag.insert(q, "    if (uShadowPass != 0) attrOut = attrIn;   // a shadow keeps the destination's opaque id and depth (DS attribute rule)\n");
             }
+        }
+        // Probe (sys gpu3d_probe bit 2048 at program build, timing only): does reading the stored depth
+        // (ARM_shader_framebuffer_fetch_depth_stencil) force per-sample shading on the MSAA target the
+        // way the colour fetch does? A read with no effect on the output; compare the GL job time.
+        if (!fetch && (property_get_int32("sys.gammaos.drastic_nano.gpu3d_probe", 0) & 2048)) {
+            size_t v = frag.find('\n') + 1; frag.insert(v, "#extension GL_ARM_shader_framebuffer_fetch_depth_stencil : enable\n");
+            size_t q = frag.find("    float dOut = "); if (q != std::string::npos) frag.insert(q, "    if (gl_LastFragDepthARM < -1.0) discard;\n");
         }
         if (fetch || fetchAttr) {   // #extension must precede other declarations: move it right after #version
             size_t p = frag.find("#extension"); std::string e = frag.substr(p, frag.find('\n', p) - p + 1);
@@ -866,6 +894,22 @@ bool initGl() {
             g.uAlphaMulNoFetchNFVZ = glGetUniformLocation(g.progNoFetchNFVZ, "uAlphaMul"); g.uAlphaMulOpaqueNFVZ = glGetUniformLocation(g.progOpaqueNFVZ, "uAlphaMul");
             ALOGI("gpu3d: vertex-depth programs built: Z-buffered frames run with early depth rejection");
         }
+    }
+    // Specialised programs (sys gpu3d_spec, default on): the same programs without the per-polygon
+    // branches for direct-colour textures, formats 1/5/7, toon and decal. A job whose polygons use
+    // none of them (Job::classMask == 0) draws with these; the output is identical because the
+    // removed paths are never taken. Pokemon White 2's title: GL job 17.9 -> 14.6 ms.
+    if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_spec", 1)) {
+        bool ok = true;
+        for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) {
+            if (vzi && !g.progNoFetchVZ) continue;
+            GLuint pr = build(false, false, op == 1, 0, false, nf == 1, vzi == 1, true);
+            if (!pr) ok = false;
+            g.progSp[vzi][nf][op] = pr; g.uAlphaMulSp[vzi][nf][op] = pr ? glGetUniformLocation(pr, "uAlphaMul") : -1;
+        }
+        g.specOk = ok;
+        if (!ok) { ALOGW("gpu3d: specialised programs failed to build, every frame keeps the full programs"); for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) c = 0; }
+        else ALOGI("gpu3d: specialised programs built for frames without direct/format 1/5/7/toon/decal polygons");
     }
     glUseProgram(g.prog);
     g.uPass = glGetUniformLocation(g.prog, "uPass");
@@ -1369,6 +1413,7 @@ static std::vector<uint16_t> gShadowRefs;   // shadow polygon indices of the lis
 // Set by emitPoly while the worker builds a frame: this frame has mode 2 polygons, so the toon
 // table has to be uploaded with it. Worker thread only, cleared before each build.
 bool gToonSeen = false;
+uint32_t gClassSeen = 0;   // emitPoly: classes of this frame's polygons (Job::classMask)
 
 void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, bool wbuf, bool translucent, bool texEnabled,
               Stream& out, uint64_t& lastTex, uint32_t& lastTexp, TexEntry*& lastT) {
@@ -1383,6 +1428,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     int fmt = (texp >> 26) & 7;
     g.modeCount[(pattr >> 4) & 3]++; g.fmtCount[fmt]++; if ((pattr >> 15) & 1) g.fogPolys++;
     if (((pattr >> 4) & 3) == 2) gToonSeen = true;   // toon / highlight: the job must carry the table
+    { const int pm = (pattr >> 4) & 3; gClassSeen |= (fmt == 1 ? 2u : 0u) | ((fmt == 5 || fmt == 7) ? 4u : 0u) | (pm == 2 ? 8u : 0u) | (pm == 1 ? 16u : 0u); }
     // Shadow polygons (mode 3) are a two-pass stencil effect on the DS (id 0 polygons write the
     // mask, others draw only where the mask is set and the destination polygon id differs);
     // drawn as plain polygons they cover the scene in black (Mario Kart slot 0). See drawShadows.
@@ -1416,6 +1462,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     // A textured polygon that ends up with no texture entry renders with vertex colour only,
     // which is a black silhouette when the model's vertex colours are dark. Count it, and log a
     // few, so "the model went black" can be told apart from a bad upload.
+    if (t && t->direct) gClassSeen |= 1u;
     if (texEnabled && fmt != 0 && !t) {
         g.texMisses++;
         static int logged = 0;
@@ -2039,9 +2086,81 @@ static void fenceWait(GLsync fence) {
     }
 }
 
+// Two-in-flight pipeline helpers. A native fence created right after a job's flush is what lets
+// the GL thread submit the NEXT job while this one runs and still learn when THIS one is done
+// (nativeFenceWait creates its fence at wait time, which would cover everything queued since).
+static int nativeFenceCreate() {
+    static bool probed = false; static PFNEGLCREATESYNCKHRPROC cs = nullptr; static PFNEGLDESTROYSYNCKHRPROC ds = nullptr; static PFNEGLDUPNATIVEFENCEFDANDROIDPROC dupFd = nullptr;
+    if (!probed) {
+        probed = true;
+        const char* ext = eglQueryString(g.dpy, EGL_EXTENSIONS);
+        if (ext && strstr(ext, "EGL_ANDROID_native_fence_sync")) {
+            cs = (PFNEGLCREATESYNCKHRPROC)eglGetProcAddress("eglCreateSyncKHR"); ds = (PFNEGLDESTROYSYNCKHRPROC)eglGetProcAddress("eglDestroySyncKHR");
+            dupFd = (PFNEGLDUPNATIVEFENCEFDANDROIDPROC)eglGetProcAddress("eglDupNativeFenceFDANDROID");
+        }
+    }
+    if (!cs || !ds || !dupFd) return -1;
+    EGLSyncKHR sync = cs(g.dpy, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
+    if (sync == EGL_NO_SYNC_KHR) return -1;
+    const int fd = dupFd(g.dpy, sync);   // flushes the context so the fence is submitted
+    ds(g.dpy, sync);                     // the dup'd fd outlives the sync object
+    return fd;
+}
+static bool nativeFenceReady(int fd) { struct pollfd pfd = { fd, POLLIN, 0 }; return poll(&pfd, 1, 0) > 0; }
+static void nativeFenceWaitFd(int fd, int capMs) {
+    struct pollfd pfd = { fd, POLLIN, 0 };
+    const int64_t deadline = nowUs() + (int64_t)capMs * 1000;
+    for (;;) {
+        const int64_t left = deadline - nowUs(); if (left <= 0) break;
+        const int r = poll(&pfd, 1, (int)((left + 999) / 1000));
+        if (r > 0 || r == 0 || (r < 0 && errno != EINTR)) break;
+    }
+}
+// The job's target set: 0 is the set initGl built, 1 the second set. The render code addresses
+// g.colorTex / g.fbo / g.msFbo / g.edgeTex / g.edgeFbo, so selecting a set swaps those names.
+static void useSet(int s) {
+    if (s == g.setIdx) return;
+    std::swap(g.colorTex, g.colorTex2); std::swap(g.edgeTex, g.edgeTex2); std::swap(g.fbo, g.fbo2);
+    std::swap(g.msFbo, g.msFbo2); std::swap(g.edgeFbo, g.edgeFbo2);
+    g.setIdx = s;
+}
+static bool ensureSet2() {
+    if (g.set2Tried) return g.set2Ok;
+    g.set2Tried = true;
+    if (g.msFbo && !g.msImplicit) { ALOGI("gpu3d: two-in-flight pipeline off: the explicit MSAA target shares its colour renderbuffer"); return false; }
+    auto tex2d = [](GLuint& t) {
+        glGenTextures(1, &t); glBindTexture(GL_TEXTURE_2D, t);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kW, kH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    };
+    tex2d(g.colorTex2); tex2d(g.edgeTex2);
+    bool ok = true;
+    glGenFramebuffers(1, &g.fbo2); glBindFramebuffer(GL_FRAMEBUFFER, g.fbo2);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex2, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.attrTex, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.depthRb);
+    ok = ok && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    glGenFramebuffers(1, &g.edgeFbo2); glBindFramebuffer(GL_FRAMEBUFFER, g.edgeFbo2);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.edgeTex2, 0);
+    ok = ok && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    if (g.msFbo && g.msImplicit) {
+        auto pFbTex2DMs = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)g.pFbTex2DMs;
+        glGenFramebuffers(1, &g.msFbo2); glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo2);
+        pFbTex2DMs(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex2, 0, g.msSamples);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, g.msDepth);
+        if (g.msAttr) pFbTex2DMs(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.attrTex, 0, g.msSamples);
+        ok = ok && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    }
+    g.set2Ok = ok;
+    ALOGI("gpu3d: two-in-flight pipeline: second target set %s", ok ? "ready" : "FAILED, staying single");
+    return ok;
+}
+
 void renderJob(Job& j) {
     const int64_t t0 = nowUs();
     g.glFrames++;   // GL-thread-owned counter for the knob polls (g.frame is the worker's and races)
+    if (j.pipe2 && !ensureSet2()) { j.pipe2 = false; j.set = 0; }   // first attempt happens with nothing in flight (the loop only pipelines once the set exists)
+    useSet(j.set);
     // Skip the redundant glBindTexture when the same array is already bound to a unit. A scene
     // transition uploads a whole new working set (Sonic attract: 243 in one frame), and the old
     // per-upload rebind issued ~2 binds each (the array + the palette); a run of same-target
@@ -2137,8 +2256,10 @@ void renderJob(Job& j) {
       const int dmSel = dmKnobSel >= 0 ? dmKnobSel : (j.wbufDepth ? 1 : 2);
       const bool vzJob = dmSel == 2 && slopeSel == 0 && g.progNoFetchVZ && msaa && progSel != 4 && progSel != 6 && progSel != 7;
       if (vzJob) { useProg = j.fog ? g.progNoFetchVZ : g.progNoFetchNFVZ; g.opq = j.fog ? g.progOpaqueVZ : g.progOpaqueNFVZ; }
-      { static uint32_t vzJobs = 0, fdJobs = 0; if (vzJob) vzJobs++; else fdJobs++;
-        if (((vzJobs + fdJobs) & 1023) == 1) ALOGI("gpu3d: depth programs: %u jobs vertex-depth, %u fragment-depth (this job: mode %d, %s)", vzJobs, fdJobs, dmSel, vzJob ? "vertex" : "fragment"); }
+      const bool specJob = g.specOk && (j.classMask & 0x1f) == 0 && msaa && progSel != 4 && progSel != 6 && progSel != 7;
+      if (specJob) { const int vzi = vzJob ? 1 : 0, nf = j.fog ? 0 : 1; if (g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; } }
+      { static uint32_t vzJobs = 0, fdJobs = 0, spJobs = 0; if (vzJob) vzJobs++; else fdJobs++; if (specJob) spJobs++;
+        if (((vzJobs + fdJobs) & 1023) == 1) ALOGI("gpu3d: depth programs: %u jobs vertex-depth, %u fragment-depth, %u specialised (this job: mode %d, %s, classes 0x%x)", vzJobs, fdJobs, spJobs, dmSel, vzJob ? "vertex" : "fragment", j.classMask); }
       g.vzJob = vzJob; }
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
@@ -2169,10 +2290,16 @@ void renderJob(Job& j) {
         glUseProgram(g.progNoFetchNFVZ); glUniform1f(g.uAlphaMulNoFetchNFVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
         glUseProgram(g.progOpaqueNFVZ); glUniform1f(g.uAlphaMulOpaqueNFVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
     }
+    if (g.specOk) for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) if (g.progSp[vzi][nf][op]) { glUseProgram(g.progSp[vzi][nf][op]); glUniform1f(g.uAlphaMulSp[vzi][nf][op], mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
     if (g.progShadowMs) { glUseProgram(g.progShadowMs); glUniform1f(g.uAlphaMulShadowMs, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
-    for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progShadowMs ? g.progShadowMs : g.progOpaque,
-                       g.progNoFetchVZ ? g.progNoFetchVZ : g.progOpaque, g.progOpaqueVZ ? g.progOpaqueVZ : g.progOpaque,
-                       g.progNoFetchNFVZ ? g.progNoFetchNFVZ : g.progOpaque, g.progOpaqueNFVZ ? g.progOpaqueNFVZ : g.progOpaque }) {
+    // Per-job uniforms go only to the programs this job draws with (the main, opaque and shadow
+    // programs chosen above); with 18 programs built, setting every one cost about a millisecond
+    // of CPU per job on Mario Kart.
+    GLuint usedProgs[3] = { useProg, g.opq, g.progShadowMs ? g.progShadowMs : 0 };
+    for (int ui = 0; ui < 3; ui++) {
+        const GLuint pr = usedProgs[ui]; if (!pr) continue;
+        bool dup = false; for (int uj = 0; uj < ui; uj++) if (usedProgs[uj] == pr) dup = true;
+        if (dup) continue;
         glUseProgram(pr);
         { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 1);   // colour affine, texels perspective: closest to drastic on Golden Sun and Mario Kart
           const GLint li = glGetUniformLocation(pr, "uInterp"); if (li >= 0) glUniform1i(li, interp);
@@ -2602,6 +2729,17 @@ void renderJob(Job& j) {
         drawShadows(useProg, mainBlend);
         if (timeShadow) pEndQ(0x88BF);
     }
+    // End of the main pass: nothing after this point reads the depth/stencil buffer (every job
+    // clears it first), and nothing reads the id attachment unless the edge or shadow pass
+    // wanted it. Without an invalidate a tile-based GPU writes both back to memory at the end
+    // of the pass, for the multisampled target twice 512x384 x 4 bytes of depth/stencil plus the
+    // id texture every frame. sys gpu3d_probe bit 256 keeps the write-back (A/B only).
+    if (!(gProbe & 256)) {
+        GLenum inv[2]; int ni = 0;
+        inv[ni++] = GL_DEPTH_STENCIL_ATTACHMENT;
+        if (!g.attrWanted) inv[ni++] = GL_COLOR_ATTACHMENT1;
+        glInvalidateFramebuffer(GL_FRAMEBUFFER, ni, inv);
+    }
     GLuint finalColor = g.ss == 2 ? g.ssColor : g.colorTex;
     if (j.edge) {
         glBindFramebuffer(GL_FRAMEBUFFER, g.ss == 2 ? g.ssEdgeFbo : g.edgeFbo);
@@ -2650,7 +2788,39 @@ void renderJob(Job& j) {
     if (j.decoupled && gPipeline && rbTest != 5) {
         if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gRb[0].resize((size_t)kW * kH * 4); gRb[1].resize((size_t)kW * kH * 4); }
         GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        if (gProbe & 512) {
+            // Pipelining feasibility probe (timing only): queue several milliseconds of unrelated GPU
+            // work on a scratch target AFTER this job's fence and BEFORE its readback. If the readback
+            // column stays at its usual value the driver reads a finished target without draining the
+            // queue behind it, and the next job's submission can overlap this job's GPU time; if the
+            // readback grows by the scratch work, it cannot. sys gpu3d_pipeprobe_draws sets the amount.
+            static GLuint sFbo = 0, sTex = 0; static int draws = -1;
+            if (draws < 0 || (g.glFrames & 63) == 0) draws = property_get_int32("sys.gammaos.drastic_nano.gpu3d_pipeprobe_draws", 40);
+            glFlush();   // submit this job as its own chain, so its fence does not cover the scratch work (a real pipeline flushes between jobs the same way)
+            if (!sFbo) {
+                glGenTextures(1, &sTex); glBindTexture(GL_TEXTURE_2D, sTex);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kW, kH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glGenFramebuffers(1, &sFbo); glBindFramebuffer(GL_FRAMEBUFFER, sFbo);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sTex, 0);
+            }
+            glBindFramebuffer(GL_FRAMEBUFFER, sFbo);
+            { const GLenum b1[1] = { GL_COLOR_ATTACHMENT0 }; glDrawBuffers(1, b1); }
+            glViewport(0, 0, kW, kH); glDisable(GL_DEPTH_TEST); glDisable(GL_BLEND); glDisable(GL_STENCIL_TEST);
+            glUseProgram(g.resolveProg); glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, g.edgeTex);   // a source this job never wrote
+            glBindVertexArray(g.edgeVao);
+            for (int i = 0; i < draws; i++) glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST); g.curProg = 0;
+        }
         glFlush();
+        if (j.pipe2 && !timing) {
+            // Two-in-flight pipeline: hand the finished submission back to the loop, which submits
+            // the next queued job into the other target set while the GPU runs this one and calls
+            // completeJob when this fence signals. The native fence is created now, after the flush,
+            // so it covers exactly this job.
+            j.fence = fence; j.fenceFd = nativeFenceCreate(); j.st0 = t0; j.st1 = t1; j.st2 = t2; j.sBlendAlpha = g.blendAlpha; j.submitted = true;
+            return;
+        }
         fenceWait(fence);
         glDeleteSync(fence);
         const int64_t t3 = nowUs();
@@ -2744,13 +2914,16 @@ static void destroyGl() {
         auto delFb = [](GLuint& f) { if (f) { glDeleteFramebuffers(1, &f); f = 0; } };
         auto delPr = [](GLuint& p) { if (p) { glDeleteProgram(p); p = 0; } };
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        useSet(0);
         delFb(g.fbo); delFb(g.edgeFbo); delFb(g.ssFbo); delFb(g.ssEdgeFbo); delFb(g.msFbo); delFb(g.msFbo2x);
         delTex(g.colorTex); delTex(g.attrTex); delTex(g.edgeTex); delTex(g.ssColor); delTex(g.ssAttr); delTex(g.ssEdgeTex);
+        delFb(g.fbo2); delFb(g.edgeFbo2); delFb(g.msFbo2); delTex(g.colorTex2); delTex(g.edgeTex2); g.set2Ok = g.set2Tried = false;
         delTex(g.smallTex); delTex(g.bigTex); delTex(g.palTex); delTex(g.dirTex); delTex(g.dirBigTex);
         sBigPool = sDirPool = sDirBigPool = false;
         delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
         delPr(g.progNoFetchVZ); delPr(g.progOpaqueVZ); delPr(g.progNoFetchNFVZ); delPr(g.progOpaqueNFVZ); g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
+        for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.specOk = false;
         delPr(g.edgeProg); delPr(g.resolveProg);
         if (g.vao) { glDeleteVertexArrays(1, &g.vao); g.vao = 0; }
         if (g.casterEbo) { glDeleteBuffers(1, &g.casterEbo); g.casterEbo = 0; }
@@ -2767,6 +2940,35 @@ static void destroyGl() {
     g.readback.clear();
     resetAtlas();
     g.inited = false; g.failed = false;
+}
+
+// Second half of a pipelined job: wait for its own fence, read its target back and hand the
+// frame to the scatter helper, exactly what renderJob does inline when it does not return early.
+static void completeJob(Job& j) {
+    useSet(j.set);
+    if (j.fenceFd >= 0) { nativeFenceWaitFd(j.fenceFd, 200); close(j.fenceFd); j.fenceFd = -1; }
+    else for (int i = 0; i < 5; i++) { const GLenum r = glClientWaitSync(j.fence, GL_SYNC_FLUSH_COMMANDS_BIT, 40000000ull); if (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED || r == GL_WAIT_FAILED) break; }
+    glDeleteSync(j.fence); j.fence = nullptr; j.submitted = false;
+    const int64_t t3 = nowUs();
+    g.sumDrawUs += t3 - j.st2;
+    g.lastGpuNs = -1;
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);   // this set's resolved colour
+    const int k = gRbIdx; gRbIdx ^= 1;
+    if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();
+    glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, gRb[k].data());
+    const int64_t t4 = nowUs();
+    g.sumReadUs += t4 - t3;
+    gRbBusy[k].store(1, std::memory_order_release);
+    gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release);
+    { std::lock_guard<std::mutex> lk(gScMtx); gScWork = { gRb[k].data(), k, j.target, &j, j.sBlendAlpha }; gScHas = true; }
+    gScCv.notify_all();
+    gpu3dSetBandMask(0xfffu); gpu3dSetPending(0);
+    static int64_t sLastDone = 0; const int64_t t0eff = j.st0 > sLastDone ? j.st0 : sLastDone; sLastDone = t4;
+    jobEpilogue(j, t0eff, t0eff + (j.st1 - j.st0), t0eff + (j.st2 - j.st0), t3, t4, t4);
+}
+static bool jobDone(const Job& j) {
+    if (j.fenceFd >= 0) return nativeFenceReady(j.fenceFd);
+    const GLenum r = glClientWaitSync(j.fence, 0, 0); return r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED;
 }
 
 void glThreadMain() {
@@ -2807,8 +3009,9 @@ void glThreadMain() {
     buildFor(gResWant.load(std::memory_order_acquire));
     std::unique_lock<std::mutex> lk(g.mtx);
     g.cvDone.notify_all();   // init outcome visible
+    Job* inflight = nullptr;   // two-in-flight pipeline: the submitted job whose GPU work is still running
     while (!g.quit) {
-        g.cvSubmit.wait(lk, [] { return g.qCount > 0 || g.quit || gResWant.load(std::memory_order_acquire) != gResCur.load(std::memory_order_relaxed); });
+        if (!inflight) g.cvSubmit.wait(lk, [] { return g.qCount > 0 || g.quit || gResWant.load(std::memory_order_acquire) != gResCur.load(std::memory_order_relaxed); });
         if (g.quit) break;
         if (g.qCount == 0) {
             // Resolution change (the worker drained the queue first): tear everything down and
@@ -2825,59 +3028,25 @@ void glThreadMain() {
             g.cvDone.notify_all();
             continue;
         }
-        Job* j = g.queue[g.qHead];
-        g.pending = j;
-        // Decoupled mode: start the job only after the next flip has landed (gpu3dNotePresent),
-        // so the presenter's frame is on the GPU before the 8 ms 3D job. Measured otherwise: the
-        // presenter's fence waited 5 to 14 ms whenever a 3D job started 3 to 6 ms into its wait
-        // (98 of 98 slow fences in one capture), a 25 to 31 ms flip every 20 to 30 s. The job
-        // has a frame of slack (kick to next kick); a present that never comes is bounded by
-        // gpu3d_present_wait_us (default 16000, a whole period, 0 disables).
-        // Only worth it when the present is due soon enough for the job to still land before the
-        // next kick: Pokemon's kick sits 2 to 3 ms before the flip (wait, then render), Sonic's 7 to
-        // 12 ms before it (waiting there pushed the job past the next kick: 34 stall seconds per 90
-        // against 24 without). Predicted from the last two presents; sys gpu3d_present_wait_fit_us
-        // adds margin (default 4000: with it Sonic skips the wait on 298 of 300 jobs and Pokemon on 294, both at their best stall counts, so the wait now only covers a present due within about 3 ms).
-        if (j->decoupled) {
-            // Fit margin: 4 ms with the 4x job (8 to 13 ms), 1.5 ms with the 2x job (7 ms; the 4 ms
-            // margin skipped a third of the waits there and measured min 58.2 against 59.3).
-            static int waitUs = 16000, fitUs = 4000;
-            if ((g.glFrames & 63) == 0) { waitUs = property_get_int32("sys.gammaos.drastic_nano.gpu3d_present_wait_us", 16000); fitUs = property_get_int32("sys.gammaos.drastic_nano.gpu3d_present_wait_fit_us", g.ss == 1 ? 1500 : 4000); }
-            bool fits = true;
-            if (waitUs > 0) {
-                int64_t lastP = 0, prevP = 0;
-                { std::lock_guard<std::mutex> pl(gPhaseMtx); if (gPresentN >= 2) { lastP = gPresentTs[(gPresentN - 1) & 63]; prevP = gPresentTs[(gPresentN - 2) & 63]; } }
-                if (lastP > 0) {
-                    int64_t per = lastP - prevP; if (per < 8000 || per > 40000) per = 16700;
-                    const int64_t now = nowUs();
-                    int64_t due = lastP + per - now; if (due < 0) due = 0;
-                    const int64_t jobUs = g.emaUs > 0.f ? (int64_t)g.emaUs : 9000;
-                    fits = due + jobUs + fitUs <= per;
-                    if (!fits) g.presentWaitSkips++;
-                }
-            }
-            if (waitUs > 0 && fits && g.presentSeq == j->presentSeqAtQueue) {
-                glStage(1);
-                const int64_t w0 = nowUs();
-                const bool ok = g.cvPresent.wait_for(lk, std::chrono::microseconds(waitUs), [j] { return g.presentSeq != j->presentSeqAtQueue || g.quit || g.joinWanted; });
-                g.sumPresentWaitUs += nowUs() - w0; if (!ok) g.presentWaitTimeouts++;
-                if (g.quit) break;
-            }
-        }
-        const bool skip = j->cancel;
-        if (!skip) g.rendering = j;
-        lk.unlock();
-        if (!skip) {
-            glStage(2);
-            const int64_t ts = nowUs();
-            if (g.inited) renderJob(*j);
-            else { gpu3dSetBandMask(0xfffu); gpu3dSetPending(0); }
-            glStage(40);
+        // Two-in-flight pipeline (sys gpu3d_pipe2, default 1): a decoupled job returns from renderJob
+        // right after its submission, and if the NEXT job is already queued it is submitted into the
+        // other target set while the GPU runs the first; the first is completed (fence, readback,
+        // scatter) afterwards. Nothing ever waits for a next job: with only one job queued the loop
+        // completes it as soon as its fence signals, as before. Measured on Pokemon White 2's title:
+        // 2.1 to 2.8 ms of CPU submission per job sat in series with 12 to 16 ms of GPU time.
+        // Default OFF: measured on the title the GPU is saturated (3D job 13 to 16 ms plus the
+        // presenter's 2.3 ms per 16.7 ms period), so overlapping the CPU submission only took away
+        // the gaps the presenter's frame was using: two-period presents 26 -> 238 per 100 s and
+        // the presented rate 59.6 -> 57.6 fps, for a 3D rate no better on average (44 to 60 vs 47
+        // to 57 new frames per 60). Kept as an opt-in for scenes that leave the GPU idle time.
+        static int pipe2Knob = 0; if ((g.glFrames & 63) == 0) pipe2Knob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_pipe2", 0);
+        auto pipeAllowed = [&](Job* q) { return pipe2Knob && q->decoupled && !q->syncLo2x && !q->cancel && g.ss != 2 && (!g.set2Tried || g.set2Ok); };
+        auto latCensus = [&](Job* j, int64_t ts, int64_t te) {
             // Latency census: kick (emulator queued the job) to start and to completion. The
             // compositor's census counts a repeat when the job of the previous kick was not finished
             // by the next kick, so completion beyond one period is the number that matters.
-            if (j->decoupled && j->kickUs) {
-                const int64_t te = nowUs(), sl = ts - j->kickUs, el = te - j->kickUs, du = te - ts;
+            if (j->decoupled && j->kickUs) { (void)0;
+                const int64_t sl = ts - j->kickUs, el = te - j->kickUs, du = te - ts;
                 static int64_t n = 0, slSum = 0, slMax = 0, elMax = 0, duMax = 0, late = 0, late20 = 0, slLate = 0;
                 n++; slSum += sl; if (sl > slMax) slMax = sl; if (el > elMax) elMax = el; if (du > duMax) duMax = du;
                 if (el > 16700) { late++; if (sl > 3000) slLate++; } if (el > 20000) late20++;
@@ -2905,14 +3074,90 @@ void glThreadMain() {
                     n = slSum = slMax = elMax = duMax = late = late20 = slLate = 0;
                 }
             }
+        };
+        // finish: complete the in-flight job (lock held on entry and exit), pop it from the queue head.
+        auto finish = [&](Job*& inflight) {
+            Job* f = inflight; inflight = nullptr;
+            lk.unlock();
+            const int64_t ts = f->st0;
+            completeJob(*f);
+            latCensus(f, ts, nowUs());
+            lk.lock();
+            g.qHead ^= 1; g.qCount--;
+            if (gPendJob.load(std::memory_order_acquire) != f) publishLatest(f->target, f->seq);
+            g.rendering2 = nullptr;
+            g.cvDone.notify_all();
+        };
+        Job* j = nullptr;
+        if (inflight) {
+            // Wait for the job behind the in-flight one or for the in-flight fence, whichever first.
+            while (g.qCount < 2 && !g.quit && !jobDone(*inflight)) g.cvSubmit.wait_for(lk, std::chrono::microseconds(500));
+            if (g.qCount < 2 || g.quit) { finish(inflight); continue; }
+            j = g.queue[(g.qHead + 1) & 1];
+            if (!pipeAllowed(j)) { finish(inflight); j = g.queue[g.qHead]; }
+        } else {
+            j = g.queue[g.qHead];
+        }
+        g.pending = j;
+        {   // the present-wait applies to a pipelined second job too: submitted right behind the first, its GPU work sat in front of the presenter's frame (flip 14 -> 29 ms, presented 60 -> 50 fps)
+            if (j->decoupled) {
+                // Fit margin: 4 ms with the 4x job (8 to 13 ms), 1.5 ms with the 2x job (7 ms; the 4 ms
+                // margin skipped a third of the waits there and measured min 58.2 against 59.3).
+                static int waitUs = 16000, fitUs = 4000;
+                if ((g.glFrames & 63) == 0) { waitUs = property_get_int32("sys.gammaos.drastic_nano.gpu3d_present_wait_us", 16000); fitUs = property_get_int32("sys.gammaos.drastic_nano.gpu3d_present_wait_fit_us", g.ss == 1 ? 1500 : 4000); }
+                bool fits = true;
+                if (waitUs > 0) {
+                    int64_t lastP = 0, prevP = 0;
+                    { std::lock_guard<std::mutex> pl(gPhaseMtx); if (gPresentN >= 2) { lastP = gPresentTs[(gPresentN - 1) & 63]; prevP = gPresentTs[(gPresentN - 2) & 63]; } }
+                    if (lastP > 0) {
+                        int64_t per = lastP - prevP; if (per < 8000 || per > 40000) per = 16700;
+                        const int64_t now = nowUs();
+                        int64_t due = lastP + per - now; if (due < 0) due = 0;
+                        const int64_t jobUs = g.emaUs > 0.f ? (int64_t)g.emaUs : 9000;
+                        fits = due + jobUs + fitUs <= per;
+                        if (!fits) g.presentWaitSkips++;
+                    }
+                }
+                if (waitUs > 0 && (fits || inflight) && g.presentSeq == j->presentSeqAtQueue) {   // behind an in-flight job the wait is unconditional: the GPU is busy anyway, and the presenter needs the flip slot
+                    glStage(1);
+                    const int64_t w0 = nowUs();
+                    const bool ok = g.cvPresent.wait_for(lk, std::chrono::microseconds(waitUs), [j] { return g.presentSeq != j->presentSeqAtQueue || g.quit || g.joinWanted; });
+                    g.sumPresentWaitUs += nowUs() - w0; if (!ok) g.presentWaitTimeouts++;
+                    if (g.quit) break;
+                }
+            }
+        }
+        const bool skip = j->cancel;
+        if (!skip) g.rendering = j;
+        j->pipe2 = !skip && pipeAllowed(j);
+        j->set = inflight ? (inflight->set ^ 1) : 0;
+        j->submitted = false;
+        lk.unlock();
+        int64_t ts = 0;
+        if (!skip) {
+            glStage(2);
+            ts = nowUs();
+            if (g.inited) renderJob(*j);
+            else { gpu3dSetBandMask(0xfffu); gpu3dSetPending(0); }
+            glStage(40);
+            if (!j->submitted) latCensus(j, ts, nowUs());
         }
         lk.lock();
+        if (j->submitted) {
+            // j stays in the queue (second slot, or head once the older job is popped)
+            if (inflight) finish(inflight);
+            inflight = j; g.rendering2 = j;
+            g.rendering = nullptr; g.pending = nullptr;
+            continue;
+        }
+        if (inflight) finish(inflight);   // a synchronous job behind an in-flight one: the older frame publishes first
         g.qHead ^= 1; g.qCount--;
         if (!skip && gPendJob.load(std::memory_order_acquire) != j) publishLatest(j->target, j->seq);   // a pipelined job is published by the scatter helper
         g.rendering = nullptr;
         g.pending = nullptr;
         g.cvDone.notify_all();
     }
+    if (inflight) { lk.unlock(); completeJob(*inflight); lk.lock(); g.qHead ^= 1; g.qCount--; g.rendering2 = nullptr; g.cvDone.notify_all(); }
 }
 
 static bool gDecoupleWanted = false;   // decoupled mode selected (knob or the 4x setting)
@@ -2925,7 +3170,7 @@ void joinPrevious(bool cancelQueued = false) {
     // A synchronous frame after an engine swap: the queued decoupled frame (not yet rendering)
     // would show on the wrong screen anyway, and rendering it first cost 40 to 60 ms of GL time
     // at the transition. Drop it.
-    if (cancelQueued) for (int i = 0; i < g.qCount; i++) { Job* q = g.queue[(g.qHead + i) & 1]; if (q != g.rendering) q->cancel = true; }
+    if (cancelQueued) for (int i = 0; i < g.qCount; i++) { Job* q = g.queue[(g.qHead + i) & 1]; if (q != g.rendering && q != g.rendering2) q->cancel = true; }
     // A queued decoupled job may be sitting in its present wait (up to 16 ms): the frame that
     // needs this join (a synchronous frame after an engine swap) cannot afford it. Measured on
     // Pokemon: the swap frame ran past the 40 ms band wait and drained the audio queue (960
@@ -3210,12 +3455,12 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
           for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; }
           keep[2] = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
         uint8_t* readBuf = latest ? latest : (prevDrawn ? prevDrawn : bufA);
-        uint8_t* busy[3] = { nullptr, nullptr, nullptr };
-        { std::lock_guard<std::mutex> lk(g.mtx); for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target; if (g.rendering) busy[2] = g.rendering->target; }
+        uint8_t* busy[4] = { nullptr, nullptr, nullptr, nullptr };
+        { std::lock_guard<std::mutex> lk(g.mtx); for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target; if (g.rendering) busy[2] = g.rendering->target; if (g.rendering2) busy[3] = g.rendering2->target; }
         uint8_t* pendT = gPendTarget.load(std::memory_order_acquire);
         uint8_t* cands[6] = { bufA, bufB, g.bufC, g.bufD, g.bufE, g.bufF };
         target = nullptr;
-        for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != pendT && c != keep[0] && c != keep[1] && c != keep[2]) { target = c; break; }
+        for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != busy[3] && c != pendT && c != keep[0] && c != keep[1] && c != keep[2]) { target = c; break; }
         if (!target) { target = g.bufF ? g.bufF : g.bufE ? g.bufE : g.bufD ? g.bufD : g.bufC; ALOGW("gpu3d: no free target buffer (cannot happen with six)"); }
         *reinterpret_cast<uint8_t**>(regs + 24) = readBuf;
         g.decoupledActive.store(true, std::memory_order_release);
@@ -3283,7 +3528,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     Job* jp = &g.jobs[g.jobIdx];
     if (dropBp) {
         std::lock_guard<std::mutex> lk(g.mtx);
-        for (int i = 0; i < 4; i++) { Job* c = &g.jobs[i]; if (c == g.rendering || c == gPendJob.load(std::memory_order_acquire)) continue; bool inq = false;
+        for (int i = 0; i < 4; i++) { Job* c = &g.jobs[i]; if (c == g.rendering || c == g.rendering2 || c == gPendJob.load(std::memory_order_acquire)) continue; bool inq = false;
             for (int k = 0; k < g.qCount; k++) if (g.queue[(g.qHead + k) & 1] == c) inq = true;
             if (!inq) { jp = c; break; } }
     }
@@ -3372,10 +3617,11 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     gStage = 7;
     g.texUsFrame = 0;
     const int64_t tb0 = nowUs();
-    gToonSeen = false;
+    gToonSeen = false; gClassSeen = 0;
     buildList(R + 0x2856c0, pbo, vb, shapeTbl, wbuf, false, texEnabled, job.opaque);
     buildList(R + 0x2916f0, pbt, vb, shapeTbl, wbuf, true, texEnabled, job.transl);
     job.toonUsed = gToonSeen;   // upload the table only for frames that actually shade with it
+    job.classMask = gClassSeen;
     g.sumBuildUs += nowUs() - tb0;
     g.cur = nullptr;
     gStage = 8;
