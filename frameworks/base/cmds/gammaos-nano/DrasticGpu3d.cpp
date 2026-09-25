@@ -118,7 +118,7 @@ struct Stream { std::vector<Vtx> v[8]; std::vector<uint16_t> polyLen[8]; std::ve
 // Shadow polygons (mode 3), in list order: id 0 = mask (stencil where the depth test fails),
 // others draw where the stencil is set. Consecutive polygons of one kind form a segment.
 static int gFrontBias = 1;      // sys gpu3d_front_bias: 0 off, 1 shadow polygons only (default), 2 every polygon
-struct ShadowSeg { uint32_t start, count; bool mask, deq; uint8_t id; };   // id: the shadow's 6-bit polygon id (0 for a mask)
+struct ShadowSeg { uint32_t start, count; bool mask, deq; uint8_t id; int16_t x0, y0, x1, y1; };   // id: the shadow's 6-bit polygon id (0 for a mask); x0..y1 its screen box
 struct Job {
     Stream opaque, transl;
     std::vector<Vtx> shadow; std::vector<ShadowSeg> shadowSegs;
@@ -1309,7 +1309,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         // never darkens itself; that needs the destination id per pixel and is not done here.)
         const uint8_t sid = (uint8_t)((pattr >> 24) & 63); const bool mask = sid == 0;
         std::vector<Vtx>& sv = g.cur->shadow; std::vector<ShadowSeg>& segs = g.cur->shadowSegs;
-        if (segs.empty() || segs.back().mask != mask || segs.back().deq != (deq != 0) || segs.back().id != sid) segs.push_back({ (uint32_t)sv.size(), 0, mask, deq != 0, sid });
+        if (segs.empty() || segs.back().mask != mask || segs.back().deq != (deq != 0) || segs.back().id != sid) segs.push_back({ (uint32_t)sv.size(), 0, mask, deq != 0, sid, 32767, 32767, -32768, -32768 });
         Vtx v[16];
         for (int k = 0; k < n; k++) {
             int kk = (order >> (4 * k)) & 15;
@@ -1330,6 +1330,12 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
           if (area < 0.f) for (int k = 0; k < n; k++) v[k].tex1[2] |= 1 << 9;
         }
         for (int k = 1; k + 1 < n; k++) { sv.push_back(v[0]); sv.push_back(v[k]); sv.push_back(v[k + 1]); }
+        { ShadowSeg& sg = segs.back();   // screen box of the segment, for the caster redraw's scissor
+          for (int k = 0; k < n; k++) {
+              const int16_t px = (int16_t)v[k].x, py = (int16_t)v[k].y;
+              if (px < sg.x0) sg.x0 = px; if (px > sg.x1) sg.x1 = px;
+              if (py < sg.y0) sg.y0 = py; if (py > sg.y1) sg.y1 = py;
+          } }
         segs.back().count = (uint32_t)sv.size() - segs.back().start;
         return;
     }
@@ -2111,9 +2117,21 @@ void renderJob(Job& j) {
             }
             if (!casterElems.empty()) glBufferData(GL_ELEMENT_ARRAY_BUFFER, casterElems.size() * sizeof(uint32_t), casterElems.data(), GL_STREAM_DRAW);
         }
-        auto clearCaster = [&](uint8_t sid) {
+        // The clear only matters where the mask set the shadow plane, so it is scissored to the box
+        // that the mask and shadow segments cover. A caster is a whole kart and its shadow is a patch
+        // of ground: without this the race redraws every kart's geometry full screen and the heaviest
+        // frames gained 10 to 20 ms of fence wait.
+        auto clearCaster = [&](uint8_t sid, const ShadowSeg& sg, const ShadowSeg* maskSeg) {
             const CasterIdx* c = nullptr; for (const CasterIdx& ci : casterIdx) if (ci.id == sid) { c = &ci; break; }
             if (!c || (c->count[0] == 0 && c->count[1] == 0)) return;
+            int bx0 = sg.x0, by0 = sg.y0, bx1 = sg.x1, by1 = sg.y1;
+            if (maskSeg) { bx0 = std::min<int>(bx0, maskSeg->x0); by0 = std::min<int>(by0, maskSeg->y0);
+                           bx1 = std::max<int>(bx1, maskSeg->x1); by1 = std::max<int>(by1, maskSeg->y1); }
+            const int sc = rw / kW;   // render scale (1, or 2 on the supersampled target)
+            bx0 = std::max(0, bx0 - 1) * sc; by0 = std::max(0, by0 - 1) * sc;
+            bx1 = std::min(kW, bx1 + 2) * sc; by1 = std::min(kH, by1 + 2) * sc;
+            if (bx1 <= bx0 || by1 <= by0) return;
+            glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
             glDepthFunc(GL_EQUAL);
             glStencilFunc(GL_ALWAYS, 0x00, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);   // depth-pass fragments clear the plane bit
@@ -2122,13 +2140,14 @@ void renderJob(Job& j) {
                 useProgram(cls == 0 ? g.progOpaque : mainProg, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 glDrawElements(GL_TRIANGLES, (GLsizei)c->count[cls], GL_UNSIGNED_INT, (const void*)(uintptr_t)(c->start[cls] * sizeof(uint32_t))); gDcShadowCasterDraws++;
             }
+            glDisable(GL_SCISSOR_TEST);
         };
         glEnable(GL_STENCIL_TEST);
         glStencilMask(0x01);   // the shadow plane only: never touch the DS blend rule's drawn bit (0x80)
-        bool prevMask = false, first = true;
+        bool prevMask = false, first = true; const ShadowSeg* lastMask = nullptr;
         for (const ShadowSeg& sg : j.shadowSegs) {
             if (!sg.count) continue;
-            if (!sg.mask && casterTest) clearCaster(sg.id);
+            if (!sg.mask && casterTest) clearCaster(sg.id, sg, lastMask);
             glDepthFunc(sg.deq ? GL_LEQUAL : GL_LESS);
             if (sg.mask) {
                 if (first || !prevMask) glClear(GL_STENCIL_BUFFER_BIT);   // clears bit 0 only (write mask 0x01)
@@ -2145,6 +2164,7 @@ void renderJob(Job& j) {
             glDrawArrays(GL_TRIANGLES, (GLint)(shadowBase + sg.start), (GLsizei)sg.count);
             if (sg.mask) { if (uMaskBias >= 0) glUniform1f(uMaskBias, 0.f); }
             else if (uShadow >= 0) glUniform1i(uShadow, 0);
+            if (sg.mask) lastMask = &sg;
             prevMask = sg.mask; first = false;
         }
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_TRUE); glDepthFunc(GL_LESS);
