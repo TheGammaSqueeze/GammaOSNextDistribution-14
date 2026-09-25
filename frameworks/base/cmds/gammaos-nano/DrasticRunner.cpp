@@ -2277,7 +2277,7 @@ extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
         if (tf) {
             uint32_t rbank = h.bank ^ 1;
             std::vector<uint64_t> seen;
-            for (int list = 0; list < 2 && seen.size() < 24; list++) {
+            for (int list = 0; list < 2 && seen.size() < 96; list++) {
                 const uint8_t* lists = R + (list ? 0x2916f0 : 0x2856c0);
                 const uint8_t* pb = gx + (list ? 0x59af0 : 0x39ae0) + rbank * 0x10008;
                 for (int band = 0; band < 12; band++) {

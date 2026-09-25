@@ -87,7 +87,7 @@ struct Vtx {
     float r, g, b;          // 0..63
     float s, t;             // texels
     int32_t tex0[4];        // layer, big array flag, tex w, tex h (w = 0: untextured)
-    int32_t tex1[4];        // fmt | c0t<<3 | wrap<<4, palette row, poly alpha, mode
+    int32_t tex1[4];        // fmt | c0t<<3 | wrap<<4 | sizes | id<<16, palette row, poly alpha | fog<<8 | front<<9 | deq<<10, mode
 };
 
 struct TexEntry {
@@ -366,6 +366,15 @@ uniform float uShadowBias;
 // the constant alone was measured at two kart angles and the slope term was not.
 uniform float uShadowSlope;
 uniform int uDbgDepth;   // diagnostic: write the fragment's depth into the colour lanes (6-bit lanes, 64 W-unit steps)
+// Z-buffer mode only: translucent-list polygons are depth tested this much nearer the camera, in
+// [0,1] depth units. drastic's rasterizer accepts a translucent fragment up to about two 16-bit Z
+// units (0x400 of 24-bit depth) behind what the depth buffer holds, measured pixel by pixel on
+// Pokemon White 2's bedroom against this path's own depth buffer: the bed's shadow quads sit one to
+// three units behind the floor they shade and the CPU draws them, a strict LESS does not. Games
+// rely on it for decals and shadows laid on the floor. One unit here plus the depth-equal band no
+// longer being applied to fogged polygons matches the CPU's footprint; larger values start drawing
+// translucent polygons the CPU rejects. sys gpu3d_transl_zbias, 24-bit units, default 512.
+uniform float uTranslZBias;
 // DISP3DCNT bit 3 off (alpha blending disabled): a translucent fragment's colour is written in
 // place of the destination instead of being blended, and the pixel keeps the larger of the two
 // alphas, exactly as the blended case does (Mario Kart's character select draws its black kart
@@ -519,7 +528,7 @@ const char* kFragFetch = R"(
         r = floor((r * w1 + dc.r * w0) * (1.0 / 32.0)); gg = floor((gg * w1 + dc.g * w0) * (1.0 / 32.0)); b = floor((b * w1 + dc.b * w0) * (1.0 / 32.0));
         a = max(a, da);
     }
-    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth)));
+    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth))) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
     fragColor = vec4(r, gg, b, a) * (1.0 / 255.0);
     if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0), mod(floor(q / 64.0), 64.0), floor(q / 4096.0), 63.0) * (4.0 / 255.0); }
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
@@ -530,7 +539,7 @@ const char* kFragFetch = R"(
 )";
 
 const char* kFragNoFetch = R"(
-    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth)));
+    if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth))) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
     fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
     if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0) * (4.0 / 255.0), mod(floor(q / 64.0), 64.0) * (4.0 / 255.0), floor(q / 4096.0) * (4.0 / 255.0), 31.0 * uAlphaMul); }
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
@@ -1304,7 +1313,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     int32_t tex1[4] = { (int32_t)(fmt | (((texp >> 29) & 1) << 3) | (((texp >> 16) & 15) << 4) |
                                   ((((texp >> 20) & 7) + 3) << 8) | ((((texp >> 23) & 7) + 3) << 12) |
                                   (((pattr >> 24) & 63) << 16)),
-                        t ? t->palRow : 0, (int32_t)(((pattr >> 16) & 31) | (((pattr >> 15) & 1) << 8)), (int32_t)((pattr >> 4) & 3) };
+                        t ? t->palRow : 0, (int32_t)(((pattr >> 16) & 31) | (((pattr >> 15) & 1) << 8) | (((pattr >> 14) & 1) << 10) | ((translucent ? 1 : 0) << 11)), (int32_t)((pattr >> 4) & 3) };
     int deq = (pattr >> 14) & 1, dwrite = translucent ? ((pattr >> 11) & 1) : 1;
     if (shadowPoly) {
         // Stencil shadows: the mask (polygon id 0) marks pixels where it fails the depth test,
@@ -1991,6 +2000,8 @@ void renderJob(Job& j) {
           const GLint lt = glGetUniformLocation(pr, "uDeqTol"); if (lt >= 0) glUniform1f(lt, tol / 16777215.0f);
           const GLint lfb = glGetUniformLocation(pr, "uFrontBias"); if (lfb >= 0) glUniform1f(lfb, 0.5f / 16777215.0f);
           const GLint lsb = glGetUniformLocation(pr, "uShadowBias"); if (lsb >= 0) glUniform1f(lsb, 0.0f);
+          static int tzb = -1; if ((g.glFrames & 15) == 0) tzb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_zbias", 512);
+          const GLint ltz = glGetUniformLocation(pr, "uTranslZBias"); if (ltz >= 0) glUniform1f(ltz, j.wbufDepth ? 0.0f : tzb / 16777215.0f);
           static int slopeKnob = -1; if ((g.glFrames & 63) == 0) slopeKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
           const GLint lss = glGetUniformLocation(pr, "uShadowSlope"); if (lss >= 0) glUniform1f(lss, slopeKnob / 10.0f);
           static int dbgDepth = 0; if ((g.glFrames & 63) == 0) dbgDepth = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_depth", 0);
