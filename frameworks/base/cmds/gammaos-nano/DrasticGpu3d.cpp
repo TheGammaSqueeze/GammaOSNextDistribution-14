@@ -387,6 +387,7 @@ uniform float uShadowBias;
 // gradient. sys gpu3d_shadow_slope, in tenths (10 = one pixel of depth change), off by default:
 // the constant alone was measured at two kart angles and the slope term was not.
 uniform float uShadowSlope;
+uniform int uAttrDepth;  // 1: write the 24-bit depth into the attribute output (edge marking, id-attachment shadow test)
 uniform int uDbgDepth;   // diagnostic: write the fragment's depth into the colour lanes (6-bit lanes, 64 W-unit steps)
 // Z-buffer mode only: translucent-list polygons are depth tested this much nearer the camera, in
 // [0,1] depth units. drastic's rasterizer accepts a translucent fragment up to about two 16-bit Z
@@ -499,7 +500,10 @@ void main() {
     }
     float r, gg, b;
     if (mode == 1 && texOn) {
-        r = floor((tr * ta + vc.r * (31.0 - ta)) / 31.0); gg = floor((tg * ta + vc.g * (31.0 - ta)) / 31.0); b = floor((tb * ta + vc.b * (31.0 - ta)) / 31.0);
+        // Divisions by 31 as multiplications: the operands are integers up to 63 * 31, so the
+        // product's error is under 2e-4 while the true fractions are multiples of 1/31; the 0.01
+        // nudge keeps floor exact. Three divides per fragment were 2.4 ms of Pokemon White 2's title.
+        r = floor((tr * ta + vc.r * (31.0 - ta)) * (1.0 / 31.0) + 0.01); gg = floor((tg * ta + vc.g * (31.0 - ta)) * (1.0 / 31.0) + 0.01); b = floor((tb * ta + vc.b * (31.0 - ta)) * (1.0 / 31.0) + 0.01);
         ta = 31.0;
     } else {
         r = floor(tr * (vc.r + 1.0) * (1.0 / 64.0)); gg = floor(tg * (vc.g + 1.0) * (1.0 / 64.0)); b = floor(tb * (vc.b + 1.0) * (1.0 / 64.0));
@@ -551,26 +555,34 @@ const char* kFragFetch = R"(
         r = floor((r * w1 + dc.r * w0) * (1.0 / 32.0)); gg = floor((gg * w1 + dc.g * w0) * (1.0 / 32.0)); b = floor((b * w1 + dc.b * w0) * (1.0 / 32.0));
         a = max(a, da);
     }
-    if (uDepthMode != 0) gl_FragDepth = ((uDepthMode == 2) ? vDepthW / vUvW.z : vDepth) - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth))) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
+    float dOut = ((uDepthMode == 2) ? vDepthW / vUvW.z : vDepth) - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
+    if (uShadowBias != 0.0) dOut += sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth));   // a branch, so the derivative is not evaluated on every fragment
+    if (uDepthMode != 0) gl_FragDepth = dOut;
     fragColor = vec4(r, gg, b, a) * (1.0 / 255.0);
     if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0), mod(floor(q / 64.0), 64.0), floor(q / 4096.0), 63.0) * (4.0 / 255.0); }
     if (uDbgDepth == 2) fragColor = vec4(fract(uv.x), fract(uv.y), mod(floor(uv.x), 64.0) / 64.0, 1.0);   // diagnostic: texel coordinate fraction
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
-    float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
-    float d0 = mod(dz, 256.0), d1 = mod(floor(dz / 256.0), 256.0), d2 = floor(dz / 65536.0);
-    attrOut = vec4(float(((vTex1.x >> 16) & 63) + 1), d0, d1, d2) / 255.0;
+    if (uAttrDepth != 0) {   // the depth bytes feed edge marking and the id-attachment shadow test only
+        float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
+        float d0 = mod(dz, 256.0), d1 = mod(floor(dz / 256.0), 256.0), d2 = floor(dz / 65536.0);
+        attrOut = vec4(float(((vTex1.x >> 16) & 63) + 1), d0, d1, d2) / 255.0;
+    } else attrOut = vec4(float(((vTex1.x >> 16) & 63) + 1) / 255.0, 0.0, 0.0, 0.0);
 }
 )";
 
 const char* kFragNoFetch = R"(
-    if (uDepthMode != 0) gl_FragDepth = ((uDepthMode == 2) ? vDepthW / vUvW.z : vDepth) - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth))) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
+    float dOut = ((uDepthMode == 2) ? vDepthW / vUvW.z : vDepth) - ((((vTex1.z >> 10) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) - ((((vTex1.z >> 11) & 1) != 0) ? uTranslZBias : 0.0);
+    if (uShadowBias != 0.0) dOut += sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth));   // a branch, so the derivative is not evaluated on every fragment
+    if (uDepthMode != 0) gl_FragDepth = dOut;
     fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
     if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0) * (4.0 / 255.0), mod(floor(q / 64.0), 64.0) * (4.0 / 255.0), floor(q / 4096.0) * (4.0 / 255.0), 31.0 * uAlphaMul); }
     if (uDbgDepth == 2) fragColor = vec4(fract(uv.x), fract(uv.y), mod(floor(uv.x), 64.0) / 64.0, 31.0 * uAlphaMul);   // diagnostic: texel coordinate fraction
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
-    float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
-    float d0 = mod(dz, 256.0), d1 = mod(floor(dz / 256.0), 256.0), d2 = floor(dz / 65536.0);
-    attrOut = vec4(float(((vTex1.x >> 16) & 63) + 1), d0, d1, d2) / 255.0;
+    if (uAttrDepth != 0) {   // the depth bytes feed edge marking and the id-attachment shadow test only
+        float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
+        float d0 = mod(dz, 256.0), d1 = mod(floor(dz / 256.0), 256.0), d2 = floor(dz / 65536.0);
+        attrOut = vec4(float(((vTex1.x >> 16) & 63) + 1), d0, d1, d2) / 255.0;
+    } else attrOut = vec4(float(((vTex1.x >> 16) & 63) + 1) / 255.0, 0.0, 0.0, 0.0);
 }
 )";
 
@@ -792,7 +804,7 @@ bool initGl() {
     g.progNoFetch = build(false, false);
     g.progTrivial = build(false, true);
     g.progOpaque = build(false, false, true);   // no discard, no fetch (its gl_FragDepth write still rules out early depth rejection; measured inside noise without it)
-    g.progExp6 = build(g.fbFetch, false, false, 6); g.progExp7 = build(g.fbFetch, false, false, 7);
+    g.progExp6 = build(false, false, false, 6); g.progExp7 = build(false, false, false, 7);   // probes: no framebuffer fetch (48 fps on the MSAA target) so they time the shader, not the fetch
     // Only the id-attachment self-shadow test (gpu3d_shadow_idtest 2) needs this program; the
     // default test redraws the caster and never samples an attachment, so it is not built.
     if (g.fbFetch && property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_idtest", 1) == 2) {
@@ -1580,6 +1592,7 @@ void useProgram(GLuint prog, bool blend) {
 // does the same arithmetic in the shader and needs none of this.
 static std::atomic<uint32_t> gDcLayerAdv{0}, gDcLayerRep{0};   // decoupled composites that read a new / the same 3D frame (emulator thread)
 static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0, gDcShadowCasterDraws = 0;   // per-300-frame draw census
+static int gProbe = 0;   // sys gpu3d_probe timing probes (A/B only, wrong output): 1 plain blend equation, 2 no drawn plane, 4 no shadow pass, 8 no caster redraw, 16 full stencil clears
 static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
 static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-polygon-id translucent rejection
 // Stencil code of a translucent writer's polygon id: id + 1 (63 shares 62's code, the six bits
@@ -2042,10 +2055,11 @@ void renderJob(Job& j) {
     static int progSel = 0; if ((g.glFrames & 63) == 0) progSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0);
     GLuint useProg = progSel == 3 ? g.progNoFetch : progSel == 4 ? g.progTrivial : progSel == 6 ? g.progExp6 : progSel == 7 ? g.progExp7 : g.prog;
     bool mainBlend = progSel == 3 || !g.fbFetch;
-    if (msaa) { useProg = g.progNoFetch; mainBlend = true; }
+    if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = g.progNoFetch; mainBlend = true; }   // probes 4/6/7 keep their program on the MSAA path (timing only)
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
       gDsBlend = mainBlend && dsKnob != 0; g.blendAlpha = mainBlend;
+      if ((g.glFrames & 63) == 0) gProbe = property_get_int32("sys.gammaos.drastic_nano.gpu3d_probe", 0);
       if ((g.glFrames & 63) == 0) { gFrontBias = property_get_int32("sys.gammaos.drastic_nano.gpu3d_front_bias", 1); gTranslSameId = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_sameid", 1); gTranslListOrder = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_listorder", 1); gPrepassSkip = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_prepass_skip", 1); }
       // The stencil holds two independent planes: bit 0x80 is the DS blend rule's per-sample "drawn"
       // flag, bit 0x01 the stencil shadow mask. Each user limits its writes (and its clears: glClear
@@ -2097,6 +2111,7 @@ void renderJob(Job& j) {
           const GLint lss = glGetUniformLocation(pr, "uShadowSlope"); if (lss >= 0) glUniform1f(lss, slopeKnob / 10.0f);
           static int dbgDepth = 0; if ((g.glFrames & 63) == 0) dbgDepth = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_depth", 0);
           const GLint ldd = glGetUniformLocation(pr, "uDbgDepth"); if (ldd >= 0) glUniform1i(ldd, dbgDepth);
+          const GLint lad = glGetUniformLocation(pr, "uAttrDepth"); if (lad >= 0) glUniform1i(lad, (j.edge || g.attrWanted) ? 1 : 0);
           const GLint lnb = glGetUniformLocation(pr, "uNoBlend"); if (lnb >= 0) glUniform1i(lnb, j.noBlend); }
         const GLint lf = glGetUniformLocation(pr, "uFog");
         if (lf < 0) continue;
@@ -2120,10 +2135,10 @@ void renderJob(Job& j) {
         }
     }
     if (j.noBlend && mainBlend) { glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }   // blending disabled: colour replaced, alpha kept at the larger value
-    else if (gDsBlend) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
+    else if (gDsBlend && !(gProbe & 1)) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
     else { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); }
     g.curProg = 0; g.curBlend = false; glDisable(GL_BLEND);
-    if (gDsBlend) { glEnable(GL_STENCIL_TEST); glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    if (gDsBlend && !(gProbe & 2)) { glEnable(GL_STENCIL_TEST); glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
     else glDisable(GL_STENCIL_TEST);
     useProgram(useProg, mainBlend);
     glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
@@ -2163,7 +2178,7 @@ void renderJob(Job& j) {
     }
     // Shadow pass, after the translucent list: stencil masks then shadow polygons per segment.
     auto drawShadows = [&](GLuint mainProg, bool mainBlend) {
-        if (j.shadowSegs.empty()) return;
+        if (j.shadowSegs.empty() || (gProbe & 4)) return;
         // The self-shadow polygon-id test needs the opaque pass's id attachment (attachment 1).
         // It exists on the plain and 2x-supersampled targets but NOT the multisampled one, so
         // on MSAA the shadow still draws (stencil mask + shadow) without the id refinement.
@@ -2272,14 +2287,30 @@ void renderJob(Job& j) {
         glEnable(GL_STENCIL_TEST);
         glStencilMask(0x01);   // the shadow plane only: never touch the DS blend rule's drawn bit (0x80)
         bool prevMask = false, first = true; const ShadowSeg* lastMask = nullptr;
-        for (const ShadowSeg& sg : j.shadowSegs) {
+        // Clear the shadow plane only over the volume's own box (mask polygons and the shadow
+        // polygons that follow them) instead of the whole target: a full clear per volume is a
+        // full-screen per-sample write on the tile path, the race has eight to twelve a frame, and
+        // the shadow draw tests the bit only inside its own polygons. Measured 0.5 ms a frame on the
+        // race (in-run A/B). Probe 16 restores the full clear.
+        const size_t nSeg = j.shadowSegs.size();
+        for (size_t si = 0; si < nSeg; si++) {
+            const ShadowSeg& sg = j.shadowSegs[si];
             if (!sg.count) continue;
-            if (!sg.mask && casterTest) clearCaster(sg.id, sg, lastMask);
+            if (!sg.mask && casterTest && !(gProbe & 8)) clearCaster(sg.id, sg, lastMask);
             glDepthFunc(sg.deq ? GL_LEQUAL : GL_LESS);
             if (sg.mask && (shDbg & 2)) glDepthFunc(GL_NEVER);       // every covered sample "fails": stencil set everywhere
             if (!sg.mask && (shDbg & 1)) glDepthFunc(GL_ALWAYS);     // shadow ignores depth
             if (sg.mask) {
-                if (first || !prevMask) glClear(GL_STENCIL_BUFFER_BIT);   // clears bit 0 only (write mask 0x01)
+                if (first || !prevMask) {
+                    if (!(gProbe & 16)) {
+                        int bx0 = sg.x0, by0 = sg.y0, bx1 = sg.x1, by1 = sg.y1; bool seenShadow = false;
+                        for (size_t k = si + 1; k < nSeg; k++) { const ShadowSeg& t = j.shadowSegs[k]; if (!t.count) continue; if (t.mask && seenShadow) break; if (!t.mask) seenShadow = true;
+                            bx0 = std::min<int>(bx0, t.x0); by0 = std::min<int>(by0, t.y0); bx1 = std::max<int>(bx1, t.x1); by1 = std::max<int>(by1, t.y1); }
+                        const int sc = rw / kW;
+                        bx0 = std::max(0, bx0 - 1) * sc; by0 = std::max(0, by0 - 1) * sc; bx1 = std::min(kW, bx1 + 2) * sc; by1 = std::min(kH, by1 + 2) * sc;
+                        if (bx1 > bx0 && by1 > by0) { glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0); glClear(GL_STENCIL_BUFFER_BIT); glDisable(GL_SCISSOR_TEST); }
+                    } else glClear(GL_STENCIL_BUFFER_BIT);   // probe: the old full clear (bit 0 only, write mask 0x01)
+                }
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
                 glStencilFunc(GL_ALWAYS, 0x01, 0x01); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
                 useProgram(g.progOpaque, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
@@ -2317,7 +2348,8 @@ void renderJob(Job& j) {
         if (pGenQ) pGenQ(1, &g.tq);
     }
     const bool timing = gpuTime && g.tq && pBeginQ;
-    if (timing) pBeginQ(0x88BF /* GL_TIME_ELAPSED_EXT */, g.tq);
+    const bool timeShadow = timing && gpuTime == 2;   // 2: time the shadow pass only
+    if (timing && !timeShadow) pBeginQ(0x88BF /* GL_TIME_ELAPSED_EXT */, g.tq);
     if (progressive) {
         // Draw the whole list once per band group under a scissor, then fence + read back just
         // those rows and mark their bands, so the compositor's early chunks stop waiting for
@@ -2472,7 +2504,9 @@ void renderJob(Job& j) {
         size_t base = 0;
         drawStream(j.opaque, false, base, true, useProg, mainBlend);
         drawStream(j.transl, true, base, true, useProg, mainBlend);
+        if (timeShadow) pBeginQ(0x88BF, g.tq);
         drawShadows(useProg, mainBlend);
+        if (timeShadow) pEndQ(0x88BF);
     }
     GLuint finalColor = g.ss == 2 ? g.ssColor : g.colorTex;
     if (j.edge) {
@@ -2507,7 +2541,7 @@ void renderJob(Job& j) {
         glEnable(GL_DEPTH_TEST);
         glBindVertexArray(g.vao);
     }
-    if (timing) pEndQ(0x88BF /* GL_TIME_ELAPSED_EXT */);
+    if (timing && !timeShadow) pEndQ(0x88BF /* GL_TIME_ELAPSED_EXT */);
     // Explicit MSAA: queue the resolve blit with the draws, so the one fence below covers it. Issued
     // after the fence it was a second GPU round trip that glReadPixels then blocked on (readback
     // 6 to 8 ms a frame on the heavy Sonic Rush attract scenes against 1.2 on the implicit path).
@@ -2587,7 +2621,7 @@ static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, 
     } }
     g.sumUs += dt; if (dt > g.maxUs) g.maxUs = dt; g.frames++;
     if (g.frames % 300 == 0) {
-        if (g.gpuSamples) { ALOGI("gpu3d: GPU time elapsed (timer query) %.2f ms avg over %u frames (single-shot)", g.sumGpuNs / 1e6 / g.gpuSamples, g.gpuSamples); g.sumGpuNs = 0; g.gpuSamples = 0; }
+        if (g.gpuSamples) { ALOGI("gpu3d: GPU time elapsed (timer query) %.2f ms avg over %u frames (single-shot) probe %d", g.sumGpuNs / 1e6 / g.gpuSamples, g.gpuSamples, gProbe); g.sumGpuNs = 0; g.gpuSamples = 0; }
         ALOGI("gpu3d: draw census per frame: opaque groups+polys %.1f, transl ord polys %.1f, transl draws %.1f, prepasses %.1f, ds pairs %.1f, shadow caster draws %.1f", gDcOpaqueDraws / 300.0, gDcOrdPolys / 300.0, gDcTranslDraws / 300.0, gDcPrepass / 300.0, gDcDsPairs / 300.0, gDcShadowCasterDraws / 300.0);
         { const uint32_t a = gDcLayerAdv.exchange(0), r = gDcLayerRep.exchange(0); if (a + r) ALOGI("gpu3d: 3D layer over %u composites: advanced %u, repeated %u (%.1f new 3D frames per 60 composites)", a + r, a, r, 60.0 * a / (a + r)); }
         gDcOpaqueDraws = gDcOrdPolys = gDcTranslDraws = gDcPrepass = gDcDsPairs = gDcShadowCasterDraws = 0;
