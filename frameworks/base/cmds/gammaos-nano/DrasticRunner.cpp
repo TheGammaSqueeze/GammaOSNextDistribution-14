@@ -4966,7 +4966,7 @@ static bool aaPcmFree() {
 // patch bookkeeping walks freed memory when an MMAP stream opens under an active mixer, and a
 // closed ALSA substream does not prove the mixer is idle (its writer retries a failed open every
 // 10 ms). One dumpsys of AudioFlinger answers it; polled every 500 ms only while opening.
-static bool aaMixerInStandby() {
+[[maybe_unused]] static bool aaMixerInStandby() {   // kept as a diagnostic; the opener no longer gates on it (HAL fixed)
     FILE* f = popen("/system/bin/dumpsys media.audio_flinger 2>/dev/null", "r");
     if (!f) return false;
     char line[512]; bool inMixer = false, standby = false, seen = false;
@@ -4988,24 +4988,28 @@ static void aaStartOpener() {
     std::thread([] {
         pthread_setname_np(pthread_self(), "dn-aaudio-open");
         struct Done { ~Done() { gAaOpenerRunning.store(false); } } done;
+        // The open runs while the ROM boots, with the emulator and GL threads at SCHED_FIFO on
+        // four cores; as an ordinary thread this one saw the service finish the open and then
+        // waited a second for a core before it could read the answer (the START round trip the
+        // same). It sleeps almost all the time, so a low realtime priority costs nothing.
+        { struct sched_param sp = {}; sp.sched_priority = 40; pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp); }
         const auto ms = [] { return (int64_t)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); };
-        const int64_t t0 = ms(); int attempt = 0, waits = 0, freeRun = 0; int64_t lastMixerCheck = 0; bool mixerIdle = false;
+        const int64_t t0 = ms(); int attempt = 0, waits = 0;
+        // The vendor HAL no longer frees the primary output on an MMAP open and no longer wedges
+        // its mixer stream after a failed pcm open (both patched in the HAL), so the exclusive
+        // open is safe at any time: it simply fails with EBUSY while the mixer still holds the
+        // card. Try as soon as the substream reads closed and retry on failure; the earlier
+        // 300 ms closed-run plus a dumpsys of AudioFlinger every 500 ms added 2 to 3 s of silence
+        // at every launch on top of the mixer's own standby delay.
         for (;;) {
-            bool ready = aaPcmFree();
-            if (!ready) { waits++; freeRun = 0; }
-            else if (++freeRun < 30) { ready = false; }   // the substream must stay closed for 300 ms running
-            else {
-                if (ms() - lastMixerCheck >= 500) { mixerIdle = aaMixerInStandby(); lastMixerCheck = ms(); }
-                if (!mixerIdle) { ready = false; waits++; }
-            }
-            if (!ready) { }
+            if (!aaPcmFree()) waits++;
             else {
                 attempt++;
                 const int o = aaOpen();
                 if (o > 0) { gAaudioSink.store(1, std::memory_order_release); gAaOpenState.store(1);
                     ALOGI("DrasticRunner: AAudio sink up after %d attempts, %d busy polls, %lld ms", attempt, waits, (long long)(ms() - t0)); return; }
                 if (o < 0) { ALOGW("DrasticRunner: AAudio sink: no fast path here, drastic's OpenSL player takes over"); aaRestartDrasticPlayer(); gAaOpenState.store(-1); return; }
-                usleep(400000);   // the PCM looked free and the open still failed: do not hammer the service
+                usleep(100000);   // the substream looked free and the open still failed (the mixer took it back): do not hammer the service
             }
             if (ms() - t0 > 20000) {
                 ALOGW("DrasticRunner: AAudio sink unavailable after %d attempts (%d busy polls), staying on the OpenSL path", attempt, waits);
