@@ -2123,7 +2123,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             result.exitToHome = true;
             exitRequested = true;
         }
-        if (exitRequested) break;
+        if (exitRequested) { drasticQuiesceAudio(); break; }
 
         // External load-state channel (optimization/testing): set
         // sys.gammaos.drastic_nano.load_state=<slot 0..8> to reload that
@@ -3757,7 +3757,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             result.exitToHome = true;
             exitRequested = true;
         }
-        if (exitRequested) break;
+        if (exitRequested) { drasticQuiesceAudio(); break; }
 
         // External load-state channel (parity with the DRM loop): reload a
         // save-state slot mid-session over adb via

@@ -4893,6 +4893,7 @@ static bool aaWiredHeadset() {
 }
 static std::atomic<int> gAaHpConnected{-1};      // -1 unknown, 0 speaker, 1 wired headset/headphone
 static std::atomic<bool> gAaHpSwitching{false};  // a plug/unplug transition is being applied off-thread
+static std::atomic<bool> gAudioQuiesce{false};   // exit in progress: stop the sink and drop every chunk
 // 1 = up, 0 = failed for now (retry), -1 = this device has no exclusive low-latency path (fall back to OpenSL).
 static int aaOpen() {
     AAudioStreamBuilder* b = nullptr;
@@ -5109,6 +5110,17 @@ static void aaStopDrasticPlayer() {
     *slot = (uintptr_t)&gAaStubObj;
     ALOGI("DrasticRunner: drastic's OpenSL player stopped (%u) and its play interface stubbed", r);
 }
+// Exit in progress: stop the output device now so the decaying, looping tail the emulator emits
+// during its save/teardown (measured at exit, ~0.95 self-correlation) never reaches the speaker as
+// a screech. It is worst on the back-hold exit-to-home. One-way for the rest of the session; the
+// submit hook then drops every chunk. Safe to call from the main/exit thread (aaCloseSink blocks
+// briefly to stop the stream, which is fine while quitting).
+extern "C" void drasticQuiesceAudio() {
+    if (gAudioQuiesce.exchange(true)) return;
+    ALOGI("DrasticRunner: quiescing audio for exit");
+    if (gAaudioSink.load(std::memory_order_acquire)) aaCloseSink();
+    aaStopDrasticPlayer();
+}
 std::atomic<uint32_t> gAudResyncs{0};                 // counter corrections from the OpenSL queue state
 std::atomic<uint32_t> gClockMatchSkips{0};   // submits handed to drastic's discard path by the clock match
 std::atomic<int>  gClockMatchAvgX100{150};   // last 4 s average queue depth, chunks x100 (gates the emergency top-up)
@@ -5125,6 +5137,7 @@ extern "C" void raAudioSubmitPost(uint8_t* ctx) {
 std::atomic<uint32_t> gAudSkipped{0};   // frames drastic discards itself (skip byte at ctx+0x40027)
 std::atomic<uint32_t> gRaStatAudioSkipped{0};   // burst submits (load present + hidden frames) discarded here
 extern "C" void raAudioSubmitHook(uint8_t* ctx) {
+    if (gAudioQuiesce.load(std::memory_order_acquire)) { ctx[0x40027] = 1; return; }   // exiting: drop the chunk so the teardown tail never reaches the sink
     // Run-ahead burst in flight (the parked load's present of the restored
     // frame and the hidden replay frame): none of that audio is game time,
     // the visible frame after the burst submits the real chunk. The burst

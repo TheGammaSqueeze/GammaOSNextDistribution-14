@@ -27,6 +27,7 @@
 
 extern "C" void gpu3dPresenterTimerBegin();   // DrasticGpu3d.cpp presenter GPU probe
 extern "C" void gpu3dPresenterTimerEnd();
+extern "C" void drasticQuiesceAudio();        // stop the sink on exit so the teardown tail is not heard
 
 namespace android {
 
