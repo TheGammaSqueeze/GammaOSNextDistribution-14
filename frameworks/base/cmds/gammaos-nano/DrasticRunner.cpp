@@ -3546,6 +3546,38 @@ static void aaStopDrasticPlayer();
 static void aaStartOpener();
 static void aaRestartDrasticPlayer();
 static void aaCloseSink();
+
+// libdrastic's SetPlayState(PLAYING) call sites (each a `blr x8` right after `mov w1, #3` with x0
+// loaded from the SLPlayItf slot at +0x3c7d030): end of the player creation routine, the
+// prime-and-start when emulation begins, and the two resume-after-pause paths. While the AAudio
+// sink is wanted they are nops, so no drastic path can put a track on AudioFlinger's mixer behind
+// the exclusive stream; the fallback restores them.
+static const uintptr_t kAaPlaySites[] = {0x1d9a0, 0x1db74, 0x1e4fc, 0x1e5e0};
+static uint32_t gAaPlaySiteOrig[4];
+static bool gAaPlaySitesDisabled = false;
+static void aaPatchPlaySites(uint8_t* base, long ps, bool disable) {
+    int done = 0;
+    for (size_t i = 0; i < sizeof kAaPlaySites / sizeof kAaPlaySites[0]; i++) {
+        uint32_t* ins = reinterpret_cast<uint32_t*>(base + kAaPlaySites[i]);
+        const uint32_t* prev = ins - 3;   // mov w1, #0x3 sits three words before the blr
+        if (disable) {
+            if (*ins != 0xd63f0100u || *prev != 0x52800061u) {   // blr x8 / mov w1, #3
+                ALOGW("DrasticRunner: AAudio sink: play site +0x%zx unexpected (0x%08x 0x%08x), left alone", (size_t)kAaPlaySites[i], *prev, *ins);
+                gAaPlaySiteOrig[i] = 0; continue;
+            }
+            gAaPlaySiteOrig[i] = *ins;
+        } else if (gAaPlaySiteOrig[i] == 0) continue;
+        uint8_t* pg = (uint8_t*)((uintptr_t)ins & ~(uintptr_t)(ps - 1));
+        mprotect(pg, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
+        *ins = disable ? 0xd503201fu : gAaPlaySiteOrig[i];   // nop, or the original blr x8
+        __builtin___clear_cache((char*)ins, (char*)ins + 4);
+        mprotect(pg, (size_t)ps, PROT_READ | PROT_EXEC);
+        done++;
+    }
+    gAaPlaySitesDisabled = disable;
+    ALOGI("DrasticRunner: AAudio sink: %d OpenSL player start sites %s", done, disable ? "disabled, the mixer stays in standby" : "restored");
+}
+static void aaDisableDrasticPlayStarts(uint8_t* base, long ps) { aaPatchPlaySites(base, ps, true); }
 void DrasticRunner::installVblankPacing(uint8_t* base) {
     if (!base || mPanelHz <= 1.0) return;
     if (!property_get_bool("persist.gammaos.drastic_nano.vblank_pace", true)) return;
@@ -3792,22 +3824,16 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             // already exists, so the mixer can release the PCM before the first chunk is submitted.
             if (property_get_int32("persist.gammaos.drastic_nano.audio_aaudio", 1)) {
                 if (*reinterpret_cast<uintptr_t*>(base + 0x3c7d030) != 0) aaStopDrasticPlayer();
-                else {
-                    // The player does not exist yet: its creation routine (+0x1d760) ends with
-                    // SetPlayState(PLAYING) at +0x1d9a0 (blr x8), which is what wakes the mixer and
-                    // makes it take the PCM. Replace that call with a nop so the player is created
-                    // but never started; the fallback path starts it itself if the sink never opens.
-                    const uintptr_t playSite = 0x1d9a0;
-                    uint32_t* ins = reinterpret_cast<uint32_t*>(base + playSite);
-                    if (*ins == 0xd63f0100u) {   // blr x8
-                        uint8_t* pg = (uint8_t*)((uintptr_t)ins & ~(uintptr_t)(ps - 1));
-                        mprotect(pg, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
-                        *ins = 0xd503201fu;      // nop
-                        __builtin___clear_cache((char*)ins, (char*)ins + 4);
-                        mprotect(pg, (size_t)ps, PROT_READ | PROT_EXEC);
-                        ALOGI("DrasticRunner: AAudio sink: OpenSL player start at +0x1d9a0 disabled, the mixer stays in standby");
-                    } else ALOGW("DrasticRunner: AAudio sink: +0x1d9a0 unexpected (0x%08x), the player will start and be stopped at the first submit", *ins);
-                }
+                // Every SetPlayState(PLAYING) drastic can issue is disabled, not only the one at the
+                // end of the creation routine (+0x1d760 -> +0x1d9a0): the prime-and-start at +0x1db74
+                // and the two resume paths (+0x1e4fc, +0x1e5e0) run when emulation starts or comes
+                // back from a pause, which is AFTER the exclusive stream has taken the PCM. A track
+                // started then and stopped at the first submit stays on the mixer for the whole
+                // session (AudioFlinger drains a stopped track from HAL timestamps, and the HAL cannot
+                // open its PCM behind the MMAP stream), the mixer never sleeps and the HAL retries
+                // that open every 10 ms. The player is created but never started; the fallback path
+                // restores these words and starts it itself if the sink never opens.
+                aaDisableDrasticPlayStarts(base, ps);
                 aaStartOpener();
             }
         } else ALOGW("DrasticRunner: audio submit site +0x2cc20 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + site));
@@ -4952,10 +4978,16 @@ static bool aaMixerInStandby() {
     return seen ? standby : true;   // no mixer thread at all (audioserver restarting): nothing is writing
 }
 static std::atomic<int> gAaOpenState{0};   // 0 opening, 1 up, -1 gave up (OpenSL path restored)
+static std::atomic<bool> gAaOpenerRunning{false};   // one opener thread at a time; a reopen starts a new one once it has exited
 static void aaStartOpener() {
-    static bool sOnce = false; if (sOnce) return; sOnce = true;
+    // Nothing to open while the sink is up or the OpenSL path has been chosen for good: the first
+    // submit calls this after a successful early open, and a second opener would never see the PCM
+    // free (the sink holds it), time out and hand drastic's player back under a live sink.
+    if (gAaudioSink.load(std::memory_order_acquire) || gAaOpenState.load(std::memory_order_acquire) != 0) return;
+    if (gAaOpenerRunning.exchange(true)) return;
     std::thread([] {
         pthread_setname_np(pthread_self(), "dn-aaudio-open");
+        struct Done { ~Done() { gAaOpenerRunning.store(false); } } done;
         const auto ms = [] { return (int64_t)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); };
         const int64_t t0 = ms(); int attempt = 0, waits = 0, freeRun = 0; int64_t lastMixerCheck = 0; bool mixerIdle = false;
         for (;;) {
@@ -4985,6 +5017,10 @@ static void aaStartOpener() {
 static std::atomic<int> gAaFallbackPending{0};   // OpenSL path chosen before drastic created its player: start it at the first submit
 static void aaRestartDrasticPlayer() {   // give the OpenSL path back: real interface and PLAYING
     if (!gAudLibBase) return;
+    if (gAaPlaySitesDisabled) {   // drastic's own start and resume paths work again
+        const long ps = sysconf(_SC_PAGESIZE) > 0 ? sysconf(_SC_PAGESIZE) : 4096;
+        aaPatchPlaySites(gAudLibBase, ps, false);
+    }
     uintptr_t* slot = reinterpret_cast<uintptr_t*>(gAudLibBase + 0x3c7d030);
     if (gAaRealPlayItf) *slot = (uintptr_t)gAaRealPlayItf;
     else if (*slot == 0) { gAaFallbackPending.store(1); ALOGI("DrasticRunner: OpenSL player not created yet, it starts at the first submit"); return; }
@@ -5082,7 +5118,17 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
                 gAaReopen.store(0, std::memory_order_relaxed);
                 if (gAaStream) { AAudioStream_close(gAaStream); gAaStream = nullptr; }
                 gAaHead.store(0); gAaTail.store(0);
-                if (aaOpen() <= 0) { gAaudioSink.store(0, std::memory_order_release); ALOGW("DrasticRunner: AAudio sink reopen failed, audio stops until the next session"); return; }
+                if (aaOpen() <= 0) {
+                    // The service is gone (audioserver or the HAL restarting) or the PCM is busy: the
+                    // opener thread retries with its busy/standby gating and, if the fast path never
+                    // returns, restores drastic's own player. Chunks drop while it works, the same as
+                    // during the first open; the sink no longer stays dead for the rest of the session.
+                    gAaudioSink.store(0, std::memory_order_release); gAaOpenState.store(0);
+                    ALOGW("DrasticRunner: AAudio sink reopen failed, the opener thread retries");
+                    aaStartOpener();
+                    ctx[0x40027] = 1; sAaSetSkip = true;
+                    return;
+                }
             }
             const uint32_t fin = nin / 2;
             const int16_t* in = reinterpret_cast<const int16_t*>(ctx);
