@@ -18,6 +18,7 @@
 
 #include <binder/IActivityManager.h>
 #include <binder/IPCThreadState.h>
+#include <private/android_filesystem_config.h>
 #include <binder/IServiceManager.h>
 #include <media/MediaMetricsItem.h>
 
@@ -71,6 +72,10 @@ public:
                     AMEDIAMETRICS_PROP_EVENT_VALUE_BEGINAUDIOINTERVALGROUP, devices.c_str());
         }
         ++mIntervalCount;
+        // The foreground-service API log is for apps; a native client (uid below the first app
+        // uid) has no FGS and the call is a binder round trip into system_server that took over
+        // a second on a 1 GB device with a game running, in the middle of the stream start.
+        if (mUid < AID_APP_START) return;
         const auto& mActivityManager = getActivityManager();
         if (mActivityManager) {
             if (mIsOut) {

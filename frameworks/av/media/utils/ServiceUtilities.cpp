@@ -21,6 +21,7 @@
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
 #include <binder/PermissionCache.h>
+#include <private/android_filesystem_config.h>
 #include "mediautils/ServiceUtilities.h"
 #include <system/audio-hal-enums.h>
 #include <media/AidlConversion.h>
@@ -432,6 +433,11 @@ sp<content::pm::IPackageManagerNative> MediaPackageManager::retrievePackageManag
 }
 
 std::optional<bool> MediaPackageManager::doIsAllowed(uid_t uid) {
+    // Native daemons (uid below the first app uid) have no package, so the answer is always
+    // "denied", and asking is not free: getPackagesForUid is a binder round trip into
+    // system_server, which on a 1 GB device running a game sits paged out and takes seconds
+    // to answer. drastic-nano's exclusive stream open went through this on every launch.
+    if (uid < AID_APP_START) return std::nullopt;
     if (mPackageManager == nullptr) {
         /** Can not fetch package manager at construction it may not yet be registered. */
         mPackageManager = retrievePackageManager();

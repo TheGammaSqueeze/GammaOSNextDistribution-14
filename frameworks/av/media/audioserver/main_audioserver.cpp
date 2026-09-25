@@ -19,7 +19,10 @@
 
 #include <algorithm>
 
+#include <errno.h>
 #include <fcntl.h>
+#include <string.h>
+#include <sys/mman.h>
 #include <sys/prctl.h>
 #include <sys/wait.h>
 #include <cutils/properties.h>
@@ -59,6 +62,16 @@ int main(int argc __unused, char **argv)
         20 /* upper limit as percentage of physical RAM */);
 
     signal(SIGPIPE, SIG_IGN);
+
+    // Keep the pages this process touches resident. On the 1 GB GammaOS handhelds a game
+    // session pushes audioserver almost entirely into zram (3 to 4 MB resident), and the next
+    // stream open or start then page-faults its way through the policy manager, AudioFlinger
+    // and the AAudio service: 2 to 3 s for an open that takes 0.4 s of work, sometimes past
+    // the 5 s AAudio command timeout. MCL_ONFAULT locks only what is actually used (the
+    // working set is 10 to 20 MB), never the whole mapped image.
+    if (mlockall(MCL_CURRENT | MCL_FUTURE | MCL_ONFAULT) != 0) {
+        ALOGW("%s: mlockall failed: %s", __func__, strerror(errno));
+    }
 
 #if 1
     // FIXME See bug 165702394 and bug 168511485

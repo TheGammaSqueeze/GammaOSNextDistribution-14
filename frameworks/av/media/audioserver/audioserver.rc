@@ -6,6 +6,9 @@ service audioserver /system/bin/audioserver
     capabilities BLOCK_SUSPEND
     # match rtprio cur / max with sensor service as we handle AR/VR HID sensor data.
     rlimit rtprio 10 10
+    # main_audioserver.cpp locks its touched pages (mlockall MCL_ONFAULT) so a game session on a
+    # 1 GB device cannot page the audio server out; the default 64 KB lock limit refuses that.
+    rlimit memlock -1 -1
     ioprio rt 4
     task_profiles ProcessCapacityHigh HighPerformance
     onrestart restart vendor.audio-hal
