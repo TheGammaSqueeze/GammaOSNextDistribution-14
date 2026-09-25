@@ -2357,7 +2357,9 @@ static inline bool ringRepairTarget(uint8_t* spu, int u, uint8_t** out, uint32_t
               (cnt & 0x08) ? "pcm8" : "pcm16", (cnt & 0x04) ? "oneshot" : "loop", (cnt & 0x01) ? 1 : 0, ok ? "repair" : "skip");
     }
     if (!ok) return false;
-    *out = p; *len = L; *width = (cnt & 0x08) ? 1 : 2;
+    // DraStic keeps the capture length in 16-bit units whatever the format (Golden Sun's 340-word
+    // PCM16 ring reads 680 here); a PCM8 ring holds twice as many one-byte samples.
+    *out = p; *width = (cnt & 0x08) ? 1 : 2; *len = (cnt & 0x08) ? L * 2 : L;
     return true;
 }
 template <typename T> static uint32_t ringInterpFill(T* r, uint32_t L) {
@@ -2601,9 +2603,16 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
         uint64_t pos = *reinterpret_cast<uint64_t*>(rec + 0x00);
         const uint64_t step = *reinterpret_cast<uint64_t*>(rec + 0x08);
         uint8_t* dst = *reinterpret_cast<uint8_t**>(rec + 0x10);
-        const uint32_t len = *reinterpret_cast<uint32_t*>(rec + 0x18);
-        if (!dst || len == 0 || len > 65536) continue;
+        const uint32_t len16 = *reinterpret_cast<uint32_t*>(rec + 0x18);
+        if (!dst || len16 == 0 || len16 > 65536) continue;
         const bool pcm8 = (c & 0x08) != 0, oneshot = (c & 0x04) != 0;
+        // DraStic's length field counts 16-bit units for every format. A PCM8 ring therefore holds
+        // len16 * 2 samples: Yoshi's Island DS routes ALL of its sound through two 512-word PCM8
+        // capture rings (2048 bytes apart in RAM, SOUNDCNT left = ch1, right = ch3), and with the
+        // wrap at 1024 the second half of each ring was never refreshed while the channels read all
+        // 2048 slots: a discontinuity every ring revolution (92.7 ms click train, growing DC, no
+        // music) instead of the game's echo.
+        const uint32_t len = pcm8 ? len16 * 2 : len16;
         if (shadowLen[u] != len) { free(shadow[u]); shadow[u] = static_cast<int16_t*>(calloc(len, sizeof(int16_t))); shadowLen[u] = shadow[u] ? len : 0; }
         int16_t* sh = shadow[u];
         static int sShift = -1; if (sShift < 0) sShift = property_get_int32("persist.gammaos.drastic_nano.hw_route_capshift", 12);   // capture scale: acc >> shift
@@ -2688,8 +2697,12 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
             if (idx < len) {
                 if (!pcm8 && !sh && nextSlot >= 0 && (int32_t)idx > nextSlot) for (uint32_t j = (uint32_t)nextSlot; j < idx; j++) d16[j] = (int16_t)v;   // skipped slots
                 if (pcm8) {
+                    // Overwrite unless the shadow-add mode is on, exactly like the PCM16 branch below.
+                    // Without the guard the ring's current sample was added to every new one, a
+                    // unity-feedback echo: Yoshi's Island DS (PCM8 rings carrying all its sound) looped
+                    // the pipe sound forever, drifted into DC and clipped at -128.
                     const int32_t cur = (int8_t)dst[idx], old = sh ? (int8_t)(sh[idx] >> 8) : 0;
-                    int32_t nv = (v >> 8) + (cur - old); if (nv > 127) nv = 127; else if (nv < -128) nv = -128;
+                    int32_t nv = (v >> 8) + (sh ? (cur - old) : 0); if (nv > 127) nv = 127; else if (nv < -128) nv = -128;
                     dst[idx] = (uint8_t)(int8_t)nv; if (sh) sh[idx] = (int16_t)((v >> 8) << 8);
                 } else {
                     const int32_t cur = d16[idx], old = sh ? sh[idx] : 0;
@@ -2711,6 +2724,10 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
         sNext[u] = nextSlot;
         *reinterpret_cast<uint64_t*>(rec + 0x00) = pos;
         gHwRouteCapt.fetch_add(n, std::memory_order_relaxed);
+        if (gSpuTrace && u == 0 && len <= 4096) {   // (diagnostic) unit 0 ring after this mix: heads + the whole ring
+            static FILE* rf = nullptr; static int ri = 0; if (!ri) { ri = 1; rf = fopen("/data/local/tmp/ring0.bin", "wb"); }
+            if (rf) { const uint32_t hdr[4] = { len, (uint32_t)(pos >> 32), (uint32_t)(*reinterpret_cast<uint64_t*>(ch + (u ? 3 : 1) * 0xc8 + 128) >> 32), n }; fwrite(hdr, 4, 4, rf); fwrite(dst, 1, pcm8 ? len : len * 2, rf); }
+        }
     }
     if (gSpuTrace) {   // (diagnostic) dump both accumulators: A = capture source, B = ch1/ch3 output (pre >>12)
         static FILE* bf = nullptr; static FILE* af = nullptr; static int bi = 0;
@@ -5097,6 +5114,14 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
 
         const uint32_t rawIn = *reinterpret_cast<uint32_t*>(ctx + 0x4000c);
         const uint32_t nin = rawIn & 0x7fffffffu;
+        // Diagnostic (sys.gammaos.drastic_nano.audio_dump=path, read once at the first submit): the
+        // exact emulator output handed to the submit, ahead of every sink, so the AAudio path is
+        // covered too (the older dump below sits past that path's early return).
+        {
+            static FILE* sDumpA = nullptr; static int sDumpATried = 0;
+            if (!sDumpATried) { sDumpATried = 1; char path[PROP_VALUE_MAX] = {0}; if (property_get("sys.gammaos.drastic_nano.audio_dump", path, "") > 0) { sDumpA = fopen(path, "wb"); ALOGI("DrasticRunner: audio dump %s -> %s", path, sDumpA ? "open" : strerror(errno)); } }
+            if (sDumpA && nin >= 4 && nin < 0x10000 && ctx[0x40027] == 0) { fwrite(ctx, 2, nin, sDumpA); static uint32_t nfl = 0; if ((++nfl & 255) == 0) fflush(sDumpA); }
+        }
         if (gAaudioSink.load(std::memory_order_relaxed) && nin >= 4 && nin < 0x10000 && (nin & 1u) == 0 && ctx[0x40027] == 0) {
             { static int logged = 0; if (logged++ < 3) ALOGI("DrasticRunner: AAudio sink chunk %u frames, out per chunk %.1f", nin / 2, gAaOutPerChunk); }
             static int16_t sLast[2] = {0, 0}; static double sPhase = 0.0; static double sInteg = 0.0, sTrim = 0.0;
