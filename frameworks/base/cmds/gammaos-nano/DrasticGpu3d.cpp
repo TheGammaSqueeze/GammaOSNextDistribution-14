@@ -166,6 +166,7 @@ struct Gpu3d {
     uint32_t latestSeq = 0; uint8_t* prevTarget = nullptr; uint32_t prevSeq = 0; uint32_t kickSeq = 0;
     struct Fin { uint8_t* t = nullptr; uint32_t seq = 0; } fin[4]; unsigned finN = 0;   // the last four finished jobs, newest at (finN - 1) & 3
     uint8_t* bufE = nullptr;        // fifth decoupled buffer: with the lag rule two finished frames stay readable
+    uint8_t* bufF = nullptr;        // sixth: the buffer the lag rule would read right now stays protected as well
     std::atomic<uint32_t> curSeq{0}; std::atomic<int> lagMode{0}; uint32_t lagMissWin = 0, lagClean = 0, lagRuleEnters = 0;
     uint8_t* bufC = nullptr;                 // third target buffer: the GL thread never writes what the compositor reads
     std::atomic<bool> decoupledActive{false};
@@ -3078,6 +3079,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         if (!g.bufC) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufC = (uint8_t*)m; } }
         if (!g.bufD) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufD = (uint8_t*)m; } }
         if (!g.bufE) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufE = (uint8_t*)m; } }
+        if (!g.bufF) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufF = (uint8_t*)m; } }
     }
     // Back-pressure policy. Default: waitQueueRoom stalls the emulator until the GL queue drains,
     // which on the heaviest scenes costs ~13 ms while the 3D fence is stuck behind the panel
@@ -3112,19 +3114,23 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         // first GPU frame lands). Write buffer: one of the three that is neither read now nor
         // the target of the job still in the GL queue.
         uint8_t* latest = g.latest.load(std::memory_order_acquire);
-        // What the compositor may read this frame and the next under the lag rule: the finished jobs
-        // of the last two kicks; both stay off the target list (five buffers make that always fit).
-        uint8_t* keep[2] = { nullptr, nullptr };
+        // What the compositor may read at this frame's latch and the next: the finished jobs of the
+        // last two kicks, and the buffer the lag rule would read right now (after a back-pressure
+        // drop that is an older one: it was left off this list and the next job rendered into the
+        // buffer being composed, a tear across the 3D layer on Pokemon White 2's title). Six buffers
+        // make the exclusion always fit.
+        uint8_t* keep[3] = { nullptr, nullptr, nullptr };
         { std::lock_guard<std::mutex> lk(g.mtx); const uint32_t k = g.kickSeq + 1; unsigned kn = 0;
-          for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; } }
+          for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; }
+          keep[2] = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
         uint8_t* readBuf = latest ? latest : (prevDrawn ? prevDrawn : bufA);
         uint8_t* busy[3] = { nullptr, nullptr, nullptr };
         { std::lock_guard<std::mutex> lk(g.mtx); for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target; if (g.rendering) busy[2] = g.rendering->target; }
         uint8_t* pendT = gPendTarget.load(std::memory_order_acquire);
-        uint8_t* cands[5] = { bufA, bufB, g.bufC, g.bufD, g.bufE };
+        uint8_t* cands[6] = { bufA, bufB, g.bufC, g.bufD, g.bufE, g.bufF };
         target = nullptr;
-        for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != pendT && c != keep[0] && c != keep[1]) { target = c; break; }
-        if (!target) target = g.bufE ? g.bufE : g.bufD ? g.bufD : g.bufC;   // cannot happen with five buffers
+        for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != pendT && c != keep[0] && c != keep[1] && c != keep[2]) { target = c; break; }
+        if (!target) { target = g.bufF ? g.bufF : g.bufE ? g.bufE : g.bufD ? g.bufD : g.bufC; ALOGW("gpu3d: no free target buffer (cannot happen with six)"); }
         *reinterpret_cast<uint8_t**>(regs + 24) = readBuf;
         g.decoupledActive.store(true, std::memory_order_release);
         gpu3dSetPending(0);
