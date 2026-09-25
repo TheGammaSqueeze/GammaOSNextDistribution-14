@@ -365,6 +365,7 @@ uniform float uShadowBias;
 // gradient. sys gpu3d_shadow_slope, in tenths (10 = one pixel of depth change), off by default:
 // the constant alone was measured at two kart angles and the slope term was not.
 uniform float uShadowSlope;
+uniform int uDbgDepth;   // diagnostic: write the fragment's depth into the colour lanes (6-bit lanes, 64 W-unit steps)
 // DISP3DCNT bit 3 off (alpha blending disabled): a translucent fragment's colour is written in
 // place of the destination instead of being blended, and the pixel keeps the larger of the two
 // alphas, exactly as the blended case does (Mario Kart's character select draws its black kart
@@ -520,6 +521,7 @@ const char* kFragFetch = R"(
     }
     if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth)));
     fragColor = vec4(r, gg, b, a) * (1.0 / 255.0);
+    if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0), mod(floor(q / 64.0), 64.0), floor(q / 4096.0), 63.0) * (4.0 / 255.0); }
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
     float d0 = mod(dz, 256.0), d1 = mod(floor(dz / 256.0), 256.0), d2 = floor(dz / 65536.0);
@@ -530,6 +532,7 @@ const char* kFragFetch = R"(
 const char* kFragNoFetch = R"(
     if (uDepthMode != 0) gl_FragDepth = vDepth - ((((vTex1.z >> 8) & 1) != 0) ? uDeqTol : 0.0) + ((((vTex1.z >> 9) & 1) != 0) ? -uFrontBias : uFrontBias) + (uShadowBias == 0.0 ? 0.0 : sign(uShadowBias) * (abs(uShadowBias) + uShadowSlope * fwidth(vDepth)));
     fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
+    if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0) * (4.0 / 255.0), mod(floor(q / 64.0), 64.0) * (4.0 / 255.0), floor(q / 4096.0) * (4.0 / 255.0), 31.0 * uAlphaMul); }
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
     float d0 = mod(dz, 256.0), d1 = mod(floor(dz / 256.0), 256.0), d2 = floor(dz / 65536.0);
@@ -1238,6 +1241,7 @@ std::vector<uint32_t> gSeen;   // per poly index, stamped when appended
 
 struct PolyRef { uint32_t key; uint16_t pi; };
 std::vector<PolyRef> gRefs;
+static std::vector<uint16_t> gShadowRefs;   // shadow polygon indices of the list being built, emitted in submission order
 // Set by emitPoly while the worker builds a frame: this frame has mode 2 polygons, so the toon
 // table has to be uploaded with it. Worker thread only, cleared before each build.
 bool gToonSeen = false;
@@ -1454,7 +1458,7 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
     if (gSeen.size() < 2048) gSeen.assign(2048, 0);
     const uint32_t stamp = gSeenStamp++;
     uint64_t lastTex = 0; uint32_t lastTexp = 0; TexEntry* lastT = nullptr;
-    gRefs.clear();
+    gRefs.clear(); gShadowRefs.clear();
     for (int band = 0; band < 12; band++) {
         uint32_t cnt = *reinterpret_cast<const uint32_t*>(lists + band * 0x1004 + 0x1000);
         const uint16_t* ids = reinterpret_cast<const uint16_t*>(lists + band * 0x1004);
@@ -1463,8 +1467,20 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
             if (gSeen[pi] == stamp) continue;
             gSeen[pi] = stamp;
             const uint8_t* rec = pb + pi * 32;
-            if (translucent) { const size_t before = out.ord.size(); emitPoly(rec, vb, shapeTbl, wbuf, true, texEnabled, out, lastTex, lastTexp, lastT); if (out.ord.size() > before) out.ord.back().pi = pi; }
-            else if (((*reinterpret_cast<const uint32_t*>(rec + 4) >> 4) & 3) == 3) emitPoly(rec, vb, shapeTbl, wbuf, false, texEnabled, out, lastTex, lastTexp, lastT);   // shadow: list order
+            if (translucent) {
+                // Stencil shadows (polygon mode 3) are collected and emitted below in submission
+                // order. The DS runs the mask polygons and the shadow polygons in list order, and a
+                // shadow reads the stencil the mask run before it wrote; emitting them here, in the
+                // order the scanline bands first mention them, interleaved masks and shadows (Mario
+                // Kart's kart at one angle: masks 32,34..39, shadows 42..45,48,50, mask 33, shadows
+                // 46,47,49, masks 40,41, shadows 51..53), and every mask run after a shadow run
+                // cleared the stencil, so the volume's big front face drew with only one thin mask
+                // behind it and its bottom faces with only the two marginal ones. That was the kart
+                // shadow losing a band along its front edge that moved as the kart turned.
+                if (((*reinterpret_cast<const uint32_t*>(rec + 4) >> 4) & 3) == 3) { gShadowRefs.push_back(pi); continue; }
+                const size_t before = out.ord.size(); emitPoly(rec, vb, shapeTbl, wbuf, true, texEnabled, out, lastTex, lastTexp, lastT); if (out.ord.size() > before) out.ord.back().pi = pi;
+            }
+            else if (((*reinterpret_cast<const uint32_t*>(rec + 4) >> 4) & 3) == 3) gShadowRefs.push_back(pi);   // shadow: emitted in list order below
             else gRefs.push_back({ polyMinDepth(rec, vb, shapeTbl, wbuf), pi });
         }
     }
@@ -1472,6 +1488,8 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
     // polygons in submission order, which is the polygon bank index. A global draw in ascending pi
     // reproduces that per pixel (a pixel only sees the polygons covering it).
     if (translucent) {
+        std::sort(gShadowRefs.begin(), gShadowRefs.end());
+        for (uint16_t spi : gShadowRefs) emitPoly(pb + spi * 32, vb, shapeTbl, wbuf, true, texEnabled, out, lastTex, lastTexp, lastT);   // shadows: DS list order
         std::stable_sort(out.ord.begin(), out.ord.end(), [](const OrdPoly& a, const OrdPoly& b) { return a.pi < b.pi; });
         // Re-pack each group's vertices (and its per-polygon length and id lists) into list order,
         // so consecutive list entries of one group are contiguous in the buffer and the ordered
@@ -1500,6 +1518,8 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
         // ties, so draw them nearest first: early depth rejection then skips the overdraw.
         std::stable_sort(gRefs.begin(), gRefs.end(), [](const PolyRef& a, const PolyRef& b) { return a.key < b.key; });
         for (const PolyRef& r : gRefs) emitPoly(pb + r.pi * 32, vb, shapeTbl, wbuf, false, texEnabled, out, lastTex, lastTexp, lastT);
+        std::sort(gShadowRefs.begin(), gShadowRefs.end());
+        for (uint16_t spi : gShadowRefs) emitPoly(pb + spi * 32, vb, shapeTbl, wbuf, false, texEnabled, out, lastTex, lastTexp, lastT);
     }
 }
 
@@ -1973,6 +1993,8 @@ void renderJob(Job& j) {
           const GLint lsb = glGetUniformLocation(pr, "uShadowBias"); if (lsb >= 0) glUniform1f(lsb, 0.0f);
           static int slopeKnob = -1; if ((g.glFrames & 63) == 0) slopeKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
           const GLint lss = glGetUniformLocation(pr, "uShadowSlope"); if (lss >= 0) glUniform1f(lss, slopeKnob / 10.0f);
+          static int dbgDepth = 0; if ((g.glFrames & 63) == 0) dbgDepth = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_depth", 0);
+          const GLint ldd = glGetUniformLocation(pr, "uDbgDepth"); if (ldd >= 0) glUniform1i(ldd, dbgDepth);
           const GLint lnb = glGetUniformLocation(pr, "uNoBlend"); if (lnb >= 0) glUniform1i(lnb, j.noBlend); }
         const GLint lf = glGetUniformLocation(pr, "uFog");
         if (lf < 0) continue;
@@ -2045,6 +2067,9 @@ void renderJob(Job& j) {
         // on MSAA the shadow still draws (stencil mask + shadow) without the id refinement.
         // sys gpu3d_shadow_idtest: 0 none, 1 caster redraw (default), 2 the id attachment (edge marking's, sampled)
         static int idTest = 1; if ((g.glFrames & 63) == 0) idTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_idtest", 1);
+        // Diagnostic (sys gpu3d_shadow_dbg): 1 = shadow polygons ignore depth (draw wherever the
+        // stencil is set), 2 = mask polygons mark everywhere they cover (ignore depth), 3 = both.
+        static int shDbg = 0; if ((g.glFrames & 63) == 0) shDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_dbg", 0);
         const bool haveId = g.attrWanted && (g.ss != 3 || (g.msImplicit && g.msAttr && !syncLo)) && idTest == 2;
         const int shadowMode = haveId ? 1 : 2;
         const GLuint attr = g.ss == 2 ? g.ssAttr : g.attrTex;
@@ -2149,6 +2174,8 @@ void renderJob(Job& j) {
             if (!sg.count) continue;
             if (!sg.mask && casterTest) clearCaster(sg.id, sg, lastMask);
             glDepthFunc(sg.deq ? GL_LEQUAL : GL_LESS);
+            if (sg.mask && (shDbg & 2)) glDepthFunc(GL_NEVER);       // every covered sample "fails": stencil set everywhere
+            if (!sg.mask && (shDbg & 1)) glDepthFunc(GL_ALWAYS);     // shadow ignores depth
             if (sg.mask) {
                 if (first || !prevMask) glClear(GL_STENCIL_BUFFER_BIT);   // clears bit 0 only (write mask 0x01)
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
