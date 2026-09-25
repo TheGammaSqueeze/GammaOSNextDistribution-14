@@ -135,15 +135,15 @@ bool NanoMenu::drasticParkSession() {
     ps3bg::freeWaveSeq();
     freeGlassScratch();
     // The whole XMB GPU working set (icons, normal maps, boxart, DSi sprites, the wave
-    // scene): 120 MB of Mali memory that madvise cannot page out, and on the 1 GB Plus
-    // it sat resident through the game's whole launch window while the kernel cycled the
-    // game's own pages through zram. Same drop as the overlay park; overlayGpuUnpark
-    // rebuilds it before the home draws again. sys.gammaos.nano.park_gpu=0 keeps it.
-    // DEFAULT OFF until verified on screen: the home came back black after a session on the
-    // first build with this (render loop idle at 0% CPU after "GPU working set rebuilt").
-    // Suspect: overlayGpuUnpark builds the whole PS3 menu on a DSi-theme home where it was
-    // never built. sys.gammaos.nano.park_gpu=1 enables it for a test.
-    if (property_get_bool("sys.gammaos.nano.park_gpu", false)) overlayGpuPark();
+    // scene): 100 MB of Mali memory that madvise cannot page out, and on the 1 GB Plus
+    // it sat resident through the whole session while the kernel cycled the game's own
+    // pages through zram (measured 2026-09-25, GPU 3D path, Mario Kart attract: about a
+    // thousand pages swapped in and out per second and a third of a core in iowait with the
+    // set resident; a quarter of that with it dropped, home Mali 100 MB to 45 MB). Same drop
+    // as the overlay park; overlayGpuUnpark rebuilds it before the home draws again, verified
+    // on screen across repeated sessions on the DSi theme. sys.gammaos.nano.park_gpu=0 keeps
+    // the set resident if a theme ever comes back wrong.
+    if (property_get_bool("sys.gammaos.nano.park_gpu", true)) overlayGpuPark();
     glFinish();
 
     // The panel (DRM-direct home): drop DRM master, free the AHB scanout ring
