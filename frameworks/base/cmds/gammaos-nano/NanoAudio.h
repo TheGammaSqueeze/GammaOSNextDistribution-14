@@ -250,6 +250,7 @@ public:
     bool    load(const std::string& wavPath, float master);   // decode once (mono upmixed); cheap, bg-callable
     void    trigger();                                        // fire one playback; non-blocking (render-thread safe)
     void    shutdown();
+    void    release();                                        // stop and close the stream; the clip stays loaded and a later trigger reopens it
     bool    loaded() const { return mLoaded.load(); }
     int32_t fillCb(void* audioData, int32_t numFrames);       // AAudio data callback (public for the trampoline)
 private:

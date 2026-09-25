@@ -4930,15 +4930,38 @@ static bool aaPcmFree() {
     }
     return true;
 }
+// AudioFlinger's primary mixer thread must be in standby (not writing) when the exclusive stream
+// opens or closes: this HAL's mixer writer faults (out_write -> audio_effect_process) and its
+// patch bookkeeping walks freed memory when an MMAP stream opens under an active mixer, and a
+// closed ALSA substream does not prove the mixer is idle (its writer retries a failed open every
+// 10 ms). One dumpsys of AudioFlinger answers it; polled every 500 ms only while opening.
+static bool aaMixerInStandby() {
+    FILE* f = popen("/system/bin/dumpsys media.audio_flinger 2>/dev/null", "r");
+    if (!f) return false;
+    char line[512]; bool inMixer = false, standby = false, seen = false;
+    while (fgets(line, sizeof line, f)) {
+        if (strstr(line, "Output thread") && strstr(line, "(MIXER)")) { inMixer = true; seen = true; continue; }
+        if (inMixer && strstr(line, "Standby:")) { standby = strstr(line, "Standby: yes") != nullptr; inMixer = false; if (!standby) break; }
+    }
+    pclose(f);
+    return seen ? standby : true;   // no mixer thread at all (audioserver restarting): nothing is writing
+}
 static std::atomic<int> gAaOpenState{0};   // 0 opening, 1 up, -1 gave up (OpenSL path restored)
 static void aaStartOpener() {
     static bool sOnce = false; if (sOnce) return; sOnce = true;
     std::thread([] {
         pthread_setname_np(pthread_self(), "dn-aaudio-open");
         const auto ms = [] { return (int64_t)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); };
-        const int64_t t0 = ms(); int attempt = 0, waits = 0;
+        const int64_t t0 = ms(); int attempt = 0, waits = 0, freeRun = 0; int64_t lastMixerCheck = 0; bool mixerIdle = false;
         for (;;) {
-            if (!aaPcmFree()) { waits++; }
+            bool ready = aaPcmFree();
+            if (!ready) { waits++; freeRun = 0; }
+            else if (++freeRun < 30) { ready = false; }   // the substream must stay closed for 300 ms running
+            else {
+                if (ms() - lastMixerCheck >= 500) { mixerIdle = aaMixerInStandby(); lastMixerCheck = ms(); }
+                if (!mixerIdle) { ready = false; waits++; }
+            }
+            if (!ready) { }
             else {
                 attempt++;
                 const int o = aaOpen();

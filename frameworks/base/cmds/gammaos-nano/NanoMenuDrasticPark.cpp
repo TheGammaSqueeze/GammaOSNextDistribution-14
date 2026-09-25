@@ -127,6 +127,7 @@ bool NanoMenu::drasticParkSession() {
     if (mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
     if (!mAmbianceOpening) mAmbiancePlayer.release();
     if (!mSfxOpening.load()) mSfxPlayer.release();
+    mNavSfx.release();   // the DSi navigation and launch sounds: their stream kept the mixer awake into the game's exclusive open
     if (!mMpQueue.empty() && mMusicPlayer.isPlaying()) mpAudioCmd(MpAudioCmd::Stop);
 
     // GPU memory the game cannot page out: the wave keyframe VBO and the glass

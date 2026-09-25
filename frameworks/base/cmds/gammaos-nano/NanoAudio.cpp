@@ -1088,6 +1088,20 @@ void NanoSfxPlayer::trigger() {
     }
 }
 
+// Park: the game must find AudioFlinger's mixer in standby before its exclusive stream opens, so
+// the home closes this stream (the idle stop alone leaves it open for 1.5 s and the mixer for 3 s
+// more). A later trigger reopens it as usual.
+void NanoSfxPlayer::release() {
+    // A trigger opens the stream on its own thread, so an open started just before this call (the
+    // launch sound, most of the time) would otherwise land after the close and leave the mixer
+    // awake. Wait for it, bounded.
+    for (int i = 0; i < 40 && mStarting.load(); i++) usleep(5000);
+    std::lock_guard<std::mutex> lk(mStreamM);
+    if (mStream) { AAudioStream_requestStop((AAudioStream*)mStream); AAudioStream_close((AAudioStream*)mStream); mStream = nullptr; }
+    mRunning.store(false); mStarting.store(false);
+    for (int v = 0; v < kVoices; v++) mVoiceOn[v].store(false);
+}
+
 void NanoSfxPlayer::shutdown() {
     mShutdown.store(true);
     std::lock_guard<std::mutex> lk(mStreamM);
