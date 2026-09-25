@@ -2408,26 +2408,34 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
     static int sOn = -1;
     if (sOn < 0) sOn = property_get_bool("persist.gammaos.drastic_nano.hw_route", true) ? 1 : 0;
     if (!sOn || n == 0 || n > 8192) return 0;
-    // Register mirror: the channel mix loads it as *(spu+0x40cd8) and reads master volume at +0x100,
-    // i.e. the mirror starts at IO 0x04000400 and SOUNDCNT (0x04000500) is at +0x100.
-    uint8_t* regs = *reinterpret_cast<uint8_t**>(spu + 0x40cd8);
+    // ARM7 IO mirror from 0x04000400: the channel mix (+0x71bf0) loads it as *((spu+0x40010)+0xcd8), i.e.
+    // *(spu+0x40ce8), and reads the master volume from its +0x100 (SOUNDCNT, IO 0x04000500); the capture
+    // start (+0x72d7c) reads SNDCAPxDAD/LEN from the same mirror at +0x110/+0x114. The full 16-bit register
+    // is the game's own routing: bits 8-9 / 10-11 select the left / right output, 12-13 drop ch1/ch3 from
+    // the mixer. (An earlier revision read the neighbouring pointer at +0x40cd8, saw garbage, and fixed the
+    // value to Golden Sun's 0xB97F, which forced every capture-running game into ring-only output.)
+    uint8_t* regs = *reinterpret_cast<uint8_t**>(spu + 0x40ce8);
     if (!regs) return 0;
-    const uint16_t cntRaw = *reinterpret_cast<uint16_t*>(regs + 0x100);   // NOT the register (garbage); logged only
-    static int sFixed = -1; if (sFixed < 0) sFixed = property_get_int32("persist.gammaos.drastic_nano.hw_route_cnt", 0xB97F);
-    const uint16_t cnt = (uint16_t)sFixed;                                  // hardware-verified value for this routing class
-    gHwLastCnt = cntRaw;
-    {   // find SOUNDCNT empirically: scan the first 0x1000 bytes of the mirror for the 0x?97F pattern the game
-        // uses (bit15 set, vol 0x7f, drop bits 12/13 set) and log where it lives; also trace the ring here.
-        static int shots = 0;
-        if (shots < 4 && (gHwRouteMixes.load() % 900) == 0) { shots++;
-            char lg[400]; int n = 0;
-            for (int o = 0; o < 0x1000 && n < 300; o += 2) { uint16_t v = *reinterpret_cast<uint16_t*>(regs + o); if ((v & 0xb07f) == 0xb07f) n += snprintf(lg + n, sizeof(lg) - n, " +%x:%04x", o, v); }
-            ALOGI("DrasticRunner: HWROUTE regs=%p candidates(bit15,12,13,vol7f):%s", regs, lg[0] ? lg : " none"); }
-        if (gSpuTrace) spuMixTrace(master);
+    static int sFixed = -1; if (sFixed < 0) sFixed = property_get_int32("persist.gammaos.drastic_nano.hw_route_cnt", 0);   // nonzero = override the register (diagnostic)
+    const uint16_t cnt = sFixed ? (uint16_t)sFixed : *reinterpret_cast<uint16_t*>(regs + 0x100);
+    static uint32_t sLastRingKey = 0;
+    const uint32_t ringKey = ((uint32_t)*reinterpret_cast<uint16_t*>(regs + 0x18) << 16) | *reinterpret_cast<uint16_t*>(regs + 0x114) | ((uint32_t)regs[0x108] << 8 & 0x8000);
+    if (cnt != gHwLastCnt || ringKey != sLastRingKey) {
+        sLastRingKey = ringKey;
+        static uint32_t logged = 0;
+        if (logged++ < 16) ALOGI("DrasticRunner: HWROUTE SOUNDCNT %04x -> %04x (selL=%u selR=%u drop1=%u drop3=%u) SOUND1CNT=%08x TMR1=%04x TMR3=%04x CAP0=%02x LEN0=%04x CAP1=%02x LEN1=%04x",
+                                 gHwLastCnt, cnt, (cnt >> 8) & 3, (cnt >> 10) & 3, (cnt >> 12) & 1, (cnt >> 13) & 1,
+                                 *reinterpret_cast<uint32_t*>(regs + 0x10), *reinterpret_cast<uint16_t*>(regs + 0x18), *reinterpret_cast<uint16_t*>(regs + 0x38),
+                                 regs[0x108], *reinterpret_cast<uint16_t*>(regs + 0x114), regs[0x109], *reinterpret_cast<uint16_t*>(regs + 0x11c));
+        gHwLastCnt = cnt;
     }
+    if (gSpuTrace) spuMixTrace(master);
     const int selL = (cnt >> 8) & 3, selR = (cnt >> 10) & 3;
     const bool cap0 = (spu[0x40cc4] & 0x80) != 0, cap1 = (spu[0x40cc4 + 32] & 0x80) != 0;
-    if ((selL == 0 && selR == 0) || !(cap0 || cap1)) return 0;         // plain mixer output: nothing to emulate
+    if (!(cap0 || cap1) || !(cnt & 0x8000)) return 0;                    // no capture running (or SPU off): nothing to emulate
+    // Output select 0/0 with a capture running (Yoshi's Island DS caves: 0x807F) is the plain mixer feeding
+    // both the speaker and the rings, with ch1/ch3 looping those rings back into the mixer as the echo.
+    const bool mixerOut = (selL == 0 && selR == 0);
     if (!gHwAccA) gHwAccA = static_cast<int32_t*>(calloc(8192 * 2, sizeof(int32_t)));
     if (!gHwAccA) return 0;
     gCubicActive = 1;                                                     // routing this game: let the cubic PCM16 interp run (reset below)
@@ -2494,11 +2502,34 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
             ALOGI("DrasticRunner: HWROUTE perch n=%u (rms/diff-ratio; higher ratio = more HF)%s fmt1=%d", n, lg, fmt1);
         }
     }
+    const bool drop1 = (cnt >> 12) & 1, drop3 = (cnt >> 13) & 1;
+    static uint8_t started[2] = {0, 0};                        // our persistent "started" state for ch1/ch3
+    // ch1/ch3 are keyed on (SOUNDxCNT bit 31) but DraStic never started them (+190 stays 0, so the mixer
+    // skips them: it knows its own capture rings are silent). Start them the way DraStic's own key-on does
+    // (+190 = has-samples, loop entry) whenever they are audible: selected as an output, or part of a mixer
+    // output that does not drop them. The mixer then decodes the ring itself via its refill path.
+    auto playing = [&](int c) { uint32_t* rp = *reinterpret_cast<uint32_t**>(ch + c * 0xc8 + 152); return rp && (*rp & 0x80000000u); };
+    static int sForce = -1; if (sForce < 0) sForce = property_get_int32("persist.gammaos.drastic_nano.hw_route_force", 1);
+    auto startRingChannel = [&](int c, bool audible) {
+        uint8_t* rc = ch + c * 0xc8;
+        if (audible && sForce && playing(c)) { rc[190] = 1; started[c == 3] = 1; }
+        else { rc[190] = save[c]; if (!playing(c)) started[c == 3] = 0; }
+    };
+    if (mixerOut) {
+        // One pass: the mixer (minus any dropped ring channel) is both the speaker output and the capture
+        // source, and it includes ch1/ch3 reading the rings, so the echo decays through the channels' own
+        // volume exactly as the game tuned it. Without this the game heard its dry music only (DraStic never
+        // started the ring channels) and no echo at all.
+        startRingChannel(1, !drop1);
+        startRingChannel(3, !drop3);
+        chanmix(spu, acc, n);
+        memcpy(gHwAccA, acc, n * 2 * sizeof(int32_t));
+        for (int i = 0; i < 16; i++) if (i != 1 && i != 3) save[i] = ch[i * 0xc8 + 190];
+        save[1] = started[0] ? 1 : save[1]; save[3] = started[1] ? 1 : save[3];
+    } else {
     // A: capture source = mixer without ch1/ch3 (SOUNDCNT bits 12/13 drop them from the mixer; the
     // routing case only matters when the game also excludes them, which Golden Sun does: 0xB97F).
     memset(gHwAccA, 0, n * 2 * sizeof(int32_t));
-    const bool drop1 = (cnt >> 12) & 1, drop3 = (cnt >> 13) & 1;
-    static uint8_t started[2] = {0, 0};                        // our persistent "started" state for ch1/ch3
     if (drop1) ch[1 * 0xc8 + 190] = 0;
     if (drop3) ch[3 * 0xc8 + 190] = 0;
     chanmix(spu, gHwAccA, n);
@@ -2520,35 +2551,23 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
     }
     // B: output = only the selected channels, into the mixer's own accumulator (already zeroed by the mixer)
     for (int i = 0; i < 16; i++) ch[i * 0xc8 + 190] = 0;
-    // ch1/ch3 are keyed on (SOUNDxCNT bit 31) but DraStic never started them (+190 stays 0, so the mixer
-    // skips them: it knows its own capture rings are silent). Start them for the output pass when the
-    // routing selects them; the mixer then decodes the ring itself via its refill path.
-    auto playing = [&](int c) { uint32_t* rp = *reinterpret_cast<uint32_t**>(ch + c * 0xc8 + 152); return rp && (*rp & 0x80000000u); };
-    static int sForce = -1; if (sForce < 0) sForce = property_get_int32("persist.gammaos.drastic_nano.hw_route_force", 1);
-    // Start ch1/ch3 the way DraStic's own key-on does: +190 = has-samples (loop entry), +192 = playing
-    // (the decoder +0x71740 gates on it; without it the position stalls at the key-on value and the
-    // channel never advances, which is what left the read head frozen at one slot).
-    for (int c : {1, 3}) {
-        const bool sel = (c == 1) ? ((selL & 1) || (selR & 1)) : ((selL & 2) || (selR & 2));
-        uint8_t* rc = ch + c * 0xc8;
-        if (sel && sForce && playing(c)) { rc[190] = 1; started[c == 3] = 1; }
-        else { rc[190] = save[c]; if (!playing(c)) started[c == 3] = 0; }
-    }
+    startRingChannel(1, (selL & 1) || (selR & 1));
+    startRingChannel(3, (selL & 2) || (selR & 2));
     chanmix(spu, acc, n);
-    // Self-correction: the SOUNDCNT is hardcoded to Golden Sun's 0xB97F (ch1/ch3 routing). A different game that
-    // trips the capture activation but does NOT use this routing gets ch1/ch3 forced as its only output, and if
-    // those channels carry nothing the whole frame is silenced (measured on NFS Underground 2). When the routed
-    // output is essentially silent, fall back to gHwAccA (the mix without ch1/ch3, already computed for capture,
-    // no channel re-advance) so hw_route never mutes a title it does not actually apply to. Early-exit the energy
-    // sum as soon as it clears the silence threshold (the common, audible case) instead of summing the whole frame.
+    // Self-correction: a game whose register selects ch1/ch3 as the output while those channels carry nothing
+    // would get a silent frame (measured on NFS Underground 2 when the value was still hardcoded). When the
+    // routed output is essentially silent, fall back to gHwAccA (the mix without ch1/ch3, already computed for
+    // capture, no channel re-advance) so hw_route never mutes a title. Early-exit the energy sum as soon as it
+    // clears the silence threshold (the common, audible case) instead of summing the whole frame.
     {
         const double thr = (double)n * 64.0;
         double eb = 0; for (uint32_t i = 0; i < n * 2; i++) { eb += (double)acc[i] * acc[i]; if (eb >= thr) break; }
         if (eb < thr) {   // avg |acc| < ~5.7, i.e. below ~0.001 FS: the routing produced silence
             memcpy(acc, gHwAccA, n * 2 * sizeof(int32_t));
             const uint32_t k = gHwFallback.fetch_add(1, std::memory_order_relaxed);
-            if (k < 4) ALOGI("DrasticRunner: HWROUTE routed output silent, using normal mix (this title is not Golden-Sun-routed)");
+            if (k < 4) ALOGI("DrasticRunner: HWROUTE routed output silent, using normal mix (ch1/ch3 selected but empty)");
         }
+    }
     }
     // put every channel back to DraStic's own flags; the forced-on ch1/ch3 state is per-pass only, so the
     // next mix's capture pass never sees the ring channels as sources (that leak fed the ring back into
