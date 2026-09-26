@@ -1072,6 +1072,7 @@ enum {
     QA_SLIDE_EVENT_MENU, // Slide Behaviour: open the slide-trigger event/code chooser
     QA_SLIDE_EVENT_SET,  // set key_code (it.b) + key_type (it.value = "1"/"5")
     QA_BROWSER_SET,      // set persist.gammaos.nano.browser_pkg (it.value = package)
+    QA_BOOTTO_SET,       // set persist.gammaos.nano.boot_to startup target (it.value = "", "cat:<id>" or "sys:<id>")
     QA_LAUNCH_PICK_APP,  // Slide Launch Target: drill from the app row (it.value = pkg) into its activities
     QA_LAUNCH_SET,       // Slide Launch Target: set rotate.launch_target (it.value = "pkg" or "pkg/Activity")
     QA_BLACKLIST_MENU,   // open the passthrough-blacklist button multi-select
@@ -1633,9 +1634,14 @@ void NanoMenu::buildPs3Cats() {
         mPs3CatItemSel[c] = s < 0 ? 0 : s;
     }
     if (mPs3CatIdx < 0 || mPs3CatIdx >= (int)mPs3Cats.size()) {
-        // First build: land on Game by default.
-        mPs3CatIdx = (gameCatRuntimeIdx >= 0) ? gameCatRuntimeIdx : 0;
-        mPs3ItemIdx = 0;
+        // First build (a fresh boot/restart): honour the user's Startup Menu choice (a category, or
+        // drill straight into a game system), else land on Game by default. On the DSi theme an
+        // app-exit return path (ndsRestoreReturnPath, called from initPs3Menu) still overrides this.
+        if (!applyBootToTarget()) {
+            mPs3CatIdx = (gameCatRuntimeIdx >= 0) ? gameCatRuntimeIdx : 0;
+            mPs3ItemIdx = 0;
+        }
+        if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3CatItemSel.size()) mPs3CatItemSel[mPs3CatIdx] = mPs3ItemIdx;
     } else {
         int n = (int)mPs3Cats[mPs3CatIdx].items.size();
         if (mPs3ItemIdx >= n) mPs3ItemIdx = n > 0 ? n - 1 : 0;
@@ -3376,6 +3382,79 @@ void NanoMenu::buildDefaultBrowserSubmenu(Ps3Level& out) {
         out.items.push_back(it);
         if (b.packageName == cur) out.sel = (int)out.items.size() - 1;
     }
+}
+
+// "Startup Menu" picker: what the home opens on a fresh boot/restart. Rows are Default, then each
+// top-level category that exists at runtime, then each enabled game system (drill straight into its
+// game list). The stored value is "" (Default), "cat:<Name>" or "sys:<id>"; applyBootToTarget reads
+// it in buildPs3Cats. QA_BOOTTO_SET commits the pick.
+void NanoMenu::buildBootToSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0; out.title = "Startup Menu";
+    const std::string cur = readSettingValue(SettingSource::kProp, "persist.gammaos.nano.boot_to", "");
+    { Ps3Item it; it.kind = PS3_QUICK; it.a = QA_BOOTTO_SET; it.value = ""; it.label = "Default";
+      it.iconTex = iconTexForIcon(15); it.nmapTex = nmapForIcon(15);
+      it.iconR = it.iconG = it.iconB = 1.0f; out.items.push_back(it);
+      if (cur.empty() || cur == "default") out.sel = 0; }
+    // Top-level categories, in the stable data order, that are present in the runtime column list.
+    for (const auto& dc : kPs3DataCats) {
+        int rc = -1;
+        for (size_t i = 0; i < mPs3Cats.size(); i++) if (mPs3Cats[i].name == dc.name) { rc = (int)i; break; }
+        if (rc < 0) continue;
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_BOOTTO_SET;
+        it.value = std::string("cat:") + dc.name; it.label = dc.name;
+        it.iconTex = mPs3Cats[rc].iconTex; it.nmapTex = mPs3Cats[rc].nmapTex;
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+        if (it.value == cur) out.sel = (int)out.items.size() - 1;
+    }
+    // Game systems (same visibility rule as the Game column: enabled, and built-ins only once they
+    // have ROMs). Selecting one boots straight into that system's game list.
+    for (size_t s = 0; s < mXmbSystems.size(); s++) {
+        const XmbSystem& sys = mXmbSystems[s];
+        if (!sys.enabled) continue;
+        if (sys.roms.empty() && sys.builtin) continue;
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_BOOTTO_SET;
+        it.value = std::string("sys:") + sys.id; it.label = sys.name;
+        resolveSystemIcon(sys.iconRef, &it.iconTex, &it.nmapTex);
+        it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
+        out.items.push_back(it);
+        if (it.value == cur) out.sel = (int)out.items.size() - 1;
+    }
+}
+
+// Navigate to the saved Startup Menu target on a fresh build. Returns true if it set the landing
+// (caller then skips the default Game landing). "cat:<Name>" lands on that category; "sys:<id>"
+// lands on Game with the system tile focused and its game list pushed. Empty / unknown = false.
+bool NanoMenu::applyBootToTarget() {
+    const std::string v = readSettingValue(SettingSource::kProp, "persist.gammaos.nano.boot_to", "");
+    if (v.empty() || v == "default") return false;
+    if (v.rfind("cat:", 0) == 0) {
+        const std::string nm = v.substr(4);
+        for (size_t i = 0; i < mPs3Cats.size(); i++) if (mPs3Cats[i].name == nm) {
+            mPs3CatIdx = (int)i; mPs3ItemIdx = 0; return true;
+        }
+        return false;
+    }
+    if (v.rfind("sys:", 0) == 0) {
+        const std::string id = v.substr(4);
+        int sysIdx = -1;
+        for (size_t s = 0; s < mXmbSystems.size(); s++) if (mXmbSystems[s].id == id) { sysIdx = (int)s; break; }
+        if (sysIdx < 0) return false;
+        int game = -1;
+        for (size_t i = 0; i < mPs3Cats.size(); i++) if (mPs3Cats[i].name == "Game") { game = (int)i; break; }
+        if (game < 0) return false;
+        mPs3CatIdx = game;
+        mPs3ItemIdx = 0;
+        for (size_t j = 0; j < mPs3Cats[game].items.size(); j++) {
+            const Ps3Item& gi = mPs3Cats[game].items[j];
+            if (gi.kind == PS3_SYSTEM && gi.a == sysIdx) { mPs3ItemIdx = (int)j; break; }
+        }
+        Ps3Level lvl; buildRomSubmenu(sysIdx, lvl);
+        mPs3Stack.clear(); mPs3Stack.push_back(lvl);
+        mNdsAtRoot = false;
+        return true;
+    }
+    return false;
 }
 
 // Slide "Launch Target" step 1: pick an app. Each row (PS3_QUICK / QA_LAUNCH_PICK_APP, value = pkg)
@@ -6028,6 +6107,15 @@ void NanoMenu::ps3XmbSelect() {
                     if (!mPs3Stack.empty()) {
                         buildDefaultBrowserSubmenu(mPs3Stack.back());
                     }
+                    mDisplayDirty = true; return;
+                }
+                case QA_BOOTTO_SET: {
+                    // Pick the startup target. Persist it, drop the "Startup Menu" bind cache so its
+                    // parent row re-reads the label, and rebuild the picker in place so the check
+                    // moves to the chosen row. Applied on the next boot by applyBootToTarget.
+                    writeSettingValue(SettingSource::kProp, "persist.gammaos.nano.boot_to", it.value);
+                    mPs3BindCache.erase("Startup Menu");
+                    if (!mPs3Stack.empty()) buildBootToSubmenu(mPs3Stack.back());
                     mDisplayDirty = true; return;
                 }
                 case QA_LAUNCH_PICK_APP: {
@@ -8782,6 +8870,11 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // closePs3Dialog. "0"/empty = GammaOS XMB, "1" = the DSi Menu theme.
     {"Home Theme", SettingSource::kProp, "persist.gammaos.nano.ndstheme", "0",
      "0:GammaOS XMB,1:DSi Menu,2:Minima,3:Custom / ES-DE"},
+    // Startup target: what the home opens on a fresh boot/restart. The value is dynamic (a category
+    // id or a game-system id), so this uses the @bootto pushed picker rather than a static list; the
+    // row's current-value label is computed in resolvePs3ItemValue and the landing applied in
+    // buildPs3Cats (applyBootToTarget). Empty = Default.
+    {"Startup Menu", SettingSource::kProp, "persist.gammaos.nano.boot_to", "", "@bootto"},
     // DSi theme dark variant. mNdsDark is read live by ndsPal() in every DSi renderer, so this
     // applies immediately (no home restart) - see the "DSi Dark Theme" hook in closePs3Dialog.
     // Only meaningful while the DSi Menu theme is selected.
@@ -9269,6 +9362,15 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
         mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
         return;
     }
+    if (!strcmp(b->options, "@bootto")) {
+        // Startup Menu: drill into a picker of Default + top-level categories + game systems.
+        std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+        Ps3Level lvl; buildBootToSubmenu(lvl); mPs3Stack.push_back(lvl);
+        mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+        mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+        mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+        return;
+    }
     if (!strcmp(b->options, "@launchtarget")) {
         // Slide Launch Target: drill into an app -> activity picker (Default activity first).
         std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
@@ -9411,6 +9513,19 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         if (dd[0] != '/') return std::string(trDyn("Default"));
         std::string p = dd; size_t sl = p.rfind('/');
         return (sl == std::string::npos || sl + 1 >= p.size()) ? p : p.substr(sl + 1);
+    }
+    // Startup Menu row: show the friendly name of the saved boot target (a category name or a game
+    // system's display name), or "Default". Read live so a just-picked target shows immediately.
+    if (n == "Startup Menu") {
+        const std::string v = readSettingValue(SettingSource::kProp, "persist.gammaos.nano.boot_to", "");
+        if (v.empty() || v == "default") return std::string(trDyn("Default"));
+        if (v.rfind("cat:", 0) == 0) return v.substr(4);
+        if (v.rfind("sys:", 0) == 0) {
+            const std::string id = v.substr(4);
+            for (const auto& sys : mXmbSystems) if (sys.id == id) return sys.name;
+            return std::string(trDyn("Default"));   // system no longer present
+        }
+        return v;
     }
     // GammaShader discrete-option row: it.value holds the "key|opts|title" spec; show
     // the label of the current value instead of the raw spec.

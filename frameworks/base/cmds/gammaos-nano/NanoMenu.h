@@ -2837,6 +2837,8 @@ private:
     void buildSlideDeviceSubmenu(Ps3Level& out);          // Slide Behaviour: trigger-device single-select
     void buildSlideEventSubmenu(Ps3Level& out);           // Slide Behaviour: trigger event/code single-select
     void buildDefaultBrowserSubmenu(Ps3Level& out);       // "Default Browser" single-select picker
+    void buildBootToSubmenu(Ps3Level& out);               // "Startup Menu" picker: Default / a category / a game system
+    bool applyBootToTarget();                             // navigate to the saved startup target on a fresh build; true if it did
     void buildBlacklistSubmenu(Ps3Level& out);            // passthrough-blacklist button multi-select
     void buildSlideActionSubmenu(Ps3Level& out, bool up); // Slide Behaviour: multi-select of slide-down/up actions
     void buildComboSubmenu(Ps3Level& out);                // combo_map list editor (add-flow state machine)
