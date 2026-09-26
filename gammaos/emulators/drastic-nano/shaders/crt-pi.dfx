@@ -1,0 +1,30 @@
+// crt-pi: RetroArch crt/crt-pi preset. davej, GPL v2: Raspberry Pi CRT with multisampled scanlines, gamma, bloom and green/magenta mask.
+// Ported for drastic-nano: one pass at the panel resolution, LINEAR fetch, scanline
+// and mask phase in DS pixel space (256x192) so hi-res 3D (512x384 input) does not
+// double the pattern; texel addressing keeps the real input texture size.
+=============================================
+<options>
+name=crt-pi
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_LINEAR
+mag_filter=GL_LINEAR
+</texture>
+
+<pass>
+shader=crt-pi.dsd
+sampler:u_texture=0
+</pass>

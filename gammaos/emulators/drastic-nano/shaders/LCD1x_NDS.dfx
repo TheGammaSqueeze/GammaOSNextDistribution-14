@@ -1,0 +1,30 @@
+// LCD1x_NDS: RetroArch handheld/lcd1x_nds (jdgleaver, GPL v2): the lcd1x scanline
+// and pixel grid plus the NDS colour correction (hunterk / Pokefan531 nds_color:
+// gamma 1.91 and the DS panel colour matrix). Ported for drastic-nano: one pass
+// at the panel resolution, NEAREST fetch, the grid in DS pixel space (256x192).
+=============================================
+<options>
+name=LCD1x_NDS
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_NEAREST
+mag_filter=GL_NEAREST
+</texture>
+
+<pass>
+shader=lcd1x_nds.dsd
+sampler:u_texture=0
+</pass>

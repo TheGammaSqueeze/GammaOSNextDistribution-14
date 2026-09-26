@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   lcd1x shader (RetroArch handheld/shaders/lcd1x.glsl)
+   A slightly tweaked version of lcd3x, original code written by Gigaherz
+   and released into the public domain:
+   > Omits LCD 'colour seperation' effect
+   > Has 'properly' aligned scanlines
+   Edited by jdgleaver. GPL v2 or later.
+   drastic-nano port: the grid is generated in DS pixel space (256x192) instead
+   of the RetroArch input size, so hi-res 3D and Half Resolution do not change it.
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters (higher values mean a brighter image but a shallower effect) */
+	const float BRIGHTEN_SCANLINES = 16.0;   /* 1.0 .. 32.0 */
+	const float BRIGHTEN_LCD = 4.0;          /* 1.0 .. 12.0 */
+
+	const float PI = 3.141592654;
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	void main() {
+		/* Note the 0.25 pixel offset: required so the scanlines fall BETWEEN pixels. */
+		vec2 angle = 2.0 * PI * (v_texture_coordinate * DS_SCREEN - 0.25);
+		float yfactor = (BRIGHTEN_SCANLINES + sin(angle.y)) / (BRIGHTEN_SCANLINES + 1.0);
+		float xfactor = (BRIGHTEN_LCD + sin(angle.x)) / (BRIGHTEN_LCD + 1.0);
+		vec3 colour = texture2D(u_texture, v_texture_coordinate).rgb;
+		gl_FragColor = vec4(yfactor * xfactor * colour, 1.0);
+	}
+</fragment>

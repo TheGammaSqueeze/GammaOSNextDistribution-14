@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   crt-pi-vertical - A Raspberry Pi friendly CRT shader. (RetroArch crt/shaders/crt-pi-vertical.glsl)
+   For use with portrait mode games on landscape mode screens (or landscape mode games
+   on portrait mode screens).
+   Copyright (C) 2015-2016 davej
+   GPL v2 or later.
+   Compile-time options as shipped: SCANLINES, MULTISAMPLE, GAMMA, MASK_TYPE 1
+   (green/magenta, along the output y axis); CURVATURE, SHARPER and FAKE_GAMMA off.
+   drastic-nano port: the scanline position and the multisample filter width are
+   computed in DS pixel space (256x192) so hi-res 3D does not double the scanlines; the
+   vertical fetch sharpening keeps the real texel size. Mask stays on output pixels.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float CURVATURE_X = 0.10;               /* Screen curvature - horizontal 0.0 .. 1.0 (unused, CURVATURE off) */
+	const float CURVATURE_Y = 0.15;               /* Screen curvature - vertical   0.0 .. 1.0 (unused, CURVATURE off) */
+	const float MASK_BRIGHTNESS = 0.70;           /* Mask brightness               0.0 .. 1.0  */
+	const float SCANLINE_WEIGHT = 6.0;            /* Scanline weight               0.0 .. 15.0 */
+	const float SCANLINE_GAP_BRIGHTNESS = 0.12;   /* Scanline gap brightness       0.0 .. 1.0  */
+	const float BLOOM_FACTOR = 1.5;               /* Bloom factor                  0.0 .. 5.0  */
+	const float INPUT_GAMMA = 2.4;                /* Input gamma                   0.0 .. 5.0  */
+	const float OUTPUT_GAMMA = 2.2;               /* Output gamma                  0.0 .. 5.0  */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	float CalcScanLineWeight(float dist) {
+		return max(1.0 - dist * dist * SCANLINE_WEIGHT, SCANLINE_GAP_BRIGHTNESS);
+	}
+
+	float CalcScanLine(float dy, float filterWidth) {
+		float scanLineWeight = CalcScanLineWeight(dy);
+		/* MULTISAMPLE */
+		scanLineWeight += CalcScanLineWeight(dy - filterWidth);
+		scanLineWeight += CalcScanLineWeight(dy + filterWidth);
+		scanLineWeight *= 0.3333333;
+		return scanLineWeight;
+	}
+
+	void main() {
+		vec2 texcoord = v_texture_coordinate;
+		/* source lines per output pixel, in DS pixel space */
+		float filterWidth = (DS_SCREEN.y / u_target_size.y) / 3.0;
+
+		/* scanline position in DS pixel space */
+		float pixY = texcoord.y * DS_SCREEN.y;
+		float dyScan = pixY - (floor(pixY) + 0.5);
+		float scanLineWeight = CalcScanLine(dyScan, filterWidth);
+
+		/* vertical fetch sharpening in texel space */
+		float texY = texcoord.y * u_texture_size.w;
+		float tempY = floor(texY) + 0.5;
+		float yCoord = tempY * u_texture_size.y;
+		float dy = texY - tempY;
+		float signY = sign(dy);
+		dy = dy * dy;
+		dy = dy * dy;
+		dy *= 8.0;
+		dy *= u_texture_size.y;
+		dy *= signY;
+		vec2 tc = vec2(texcoord.x, yCoord + dy);
+
+		vec3 colour = texture2D(u_texture, tc).rgb;
+
+		/* SCANLINES inside GAMMA */
+		colour = pow(colour, vec3(INPUT_GAMMA));
+		scanLineWeight *= BLOOM_FACTOR;
+		colour *= scanLineWeight;
+		colour = pow(colour, vec3(1.0 / OUTPUT_GAMMA));
+
+		/* MASK_TYPE 1 along the output y axis */
+		float whichMask = fract(gl_FragCoord.y * 0.5);
+		vec3 mask;
+		if (whichMask < 0.5)
+			mask = vec3(MASK_BRIGHTNESS, 1.0, MASK_BRIGHTNESS);
+		else
+			mask = vec3(1.0, MASK_BRIGHTNESS, 1.0);
+
+		gl_FragColor = vec4(colour * mask, 1.0);
+	}
+</fragment>

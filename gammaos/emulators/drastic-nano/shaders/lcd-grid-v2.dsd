@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   lcd-grid-v2 shader (RetroArch handheld/shaders/lcd-cgwg/lcd-grid-v2.glsl)
+   Author: cgwg (no licence header in the original; distributed with the
+   RetroArch shader repository under its GPL terms)
+   Parameter values baked in from handheld/lcd-grid-v2.glslp:
+   RSUBPIX/GSUBPIX/BSUBPIX diagonal 0.75, gain 1.5, gamma 2.2, blacklevel 0.0,
+   ambient 0.0, BGR 0 (outgamma keeps its default 2.2).
+   drastic-nano port: GLSL ES 1.00 has no texelFetchOffset and no array
+   initialisers, so the cell fetch is a texture2D at the texel centre and the
+   two smear polynomials are written out. The LCD cell grid (cell index, subpixel
+   phase, output pixel footprint in cells) is generated in DS pixel space (256x192)
+   instead of the input texture size, so hi-res 3D does not double it; the fetch
+   of a cell's colour still addresses a real texel of the input texture (the one
+   under the cell centre). Alpha is forced to 1.0 (the original writes 0.0).
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters (preset values) */
+	const float RSUBPIX_R  = 0.75;   /* "Colour of R subpixel: R" 0.0 .. 1.0 */
+	const float RSUBPIX_G  = 0.0;    /* "Colour of R subpixel: G" 0.0 .. 1.0 */
+	const float RSUBPIX_B  = 0.0;    /* "Colour of R subpixel: B" 0.0 .. 1.0 */
+	const float GSUBPIX_R  = 0.0;    /* "Colour of G subpixel: R" 0.0 .. 1.0 */
+	const float GSUBPIX_G  = 0.75;   /* "Colour of G subpixel: G" 0.0 .. 1.0 */
+	const float GSUBPIX_B  = 0.0;    /* "Colour of G subpixel: B" 0.0 .. 1.0 */
+	const float BSUBPIX_R  = 0.0;    /* "Colour of B subpixel: R" 0.0 .. 1.0 */
+	const float BSUBPIX_G  = 0.0;    /* "Colour of B subpixel: G" 0.0 .. 1.0 */
+	const float BSUBPIX_B  = 0.75;   /* "Colour of B subpixel: B" 0.0 .. 1.0 */
+	const float gain       = 1.5;    /* "Gain" 0.5 .. 2.0 */
+	const float gamma      = 2.2;    /* "LCD Input Gamma" 0.5 .. 5.0 */
+	const float outgamma   = 2.2;    /* "LCD Output Gamma" 0.5 .. 5.0 */
+	const float blacklevel = 0.0;    /* "Black level" 0.0 .. 0.5 */
+	const float ambient    = 0.0;    /* "Ambient" 0.0 .. 0.5 */
+	const float BGR        = 0.0;    /* "BGR" 0 .. 1 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+	const vec2 CELL_SIZE = vec2(1.0 / 256.0, 1.0 / 192.0);
+
+	/* texelFetchOffset(Source, cell, 0, offset): the texel under the centre of DS cell (cell + offset) */
+	vec3 fetch_offset(vec2 cell, vec2 offset)
+	{
+		vec2 centre = (cell + offset + 0.5) * CELL_SIZE;
+		vec2 tc = (floor(centre * u_texture_size.zw) + 0.5) * u_texture_size.xy;
+		return pow(vec3(gain) * texture2D(u_texture, tc).rgb + vec3(blacklevel), vec3(gamma)) + vec3(ambient);
+	}
+
+	/* integral of (1 - x^2 - x^4 + x^6)^2, coefficients 1, -2/3, -1/5, 4/7, -1/9, -2/11, 1/13 */
+	float intsmear_func_x(float z)
+	{
+		float z2 = z*z;
+		float z3 = z*z2;
+		float z5 = z3*z2;
+		float z7 = z5*z2;
+		float z9 = z7*z2;
+		float z11 = z9*z2;
+		float z13 = z11*z2;
+		return z - 2.0/3.0*z3 - 1.0/5.0*z5 + 4.0/7.0*z7 - 1.0/9.0*z9 - 2.0/11.0*z11 + 1.0/13.0*z13;
+	}
+
+	/* integral of (1 - 2x^4 + x^6)^2, coefficients 1, 0, -4/5, 2/7, 4/9, -4/11, 1/13 */
+	float intsmear_func_y(float z)
+	{
+		float z2 = z*z;
+		float z3 = z*z2;
+		float z5 = z3*z2;
+		float z7 = z5*z2;
+		float z9 = z7*z2;
+		float z11 = z9*z2;
+		float z13 = z11*z2;
+		return z - 4.0/5.0*z5 + 2.0/7.0*z7 + 4.0/9.0*z9 - 4.0/11.0*z11 + 1.0/13.0*z13;
+	}
+
+	float intsmear_x(float x, float dx, float d)
+	{
+		float zl = clamp((x-dx*0.5)/d,-1.0,1.0);
+		float zh = clamp((x+dx*0.5)/d,-1.0,1.0);
+		return d * ( intsmear_func_x(zh) - intsmear_func_x(zl) )/dx;
+	}
+
+	float intsmear_y(float x, float dx, float d)
+	{
+		float zl = clamp((x-dx*0.5)/d,-1.0,1.0);
+		float zh = clamp((x+dx*0.5)/d,-1.0,1.0);
+		return d * ( intsmear_func_y(zh) - intsmear_func_y(zl) )/dx;
+	}
+
+	void main()
+	{
+		vec2 vTexCoord = v_texture_coordinate;
+		/* the LCD cell is one DS pixel */
+		vec2 texelSize = CELL_SIZE;
+		/* InputSize / (OutputSize * TextureSize) == one output pixel in texture coordinates */
+		vec2 range = 1.0 / u_target_size;
+
+		vec3 cred   = pow(vec3(RSUBPIX_R, RSUBPIX_G, RSUBPIX_B), vec3(outgamma));
+		vec3 cgreen = pow(vec3(GSUBPIX_R, GSUBPIX_G, GSUBPIX_B), vec3(outgamma));
+		vec3 cblue  = pow(vec3(BSUBPIX_R, BSUBPIX_G, BSUBPIX_B), vec3(outgamma));
+
+		vec2 tli = floor(vTexCoord/texelSize-vec2(0.4999));
+
+		vec3 lcol, rcol;
+		float subpix = (vTexCoord.x/texelSize.x - 0.4999 - tli.x)*3.0;
+		float rsubpix = range.x/texelSize.x * 3.0;
+
+		lcol = vec3(intsmear_x(subpix+1.0, rsubpix, 1.5),
+		            intsmear_x(subpix    , rsubpix, 1.5),
+		            intsmear_x(subpix-1.0, rsubpix, 1.5));
+		rcol = vec3(intsmear_x(subpix-2.0, rsubpix, 1.5),
+		            intsmear_x(subpix-3.0, rsubpix, 1.5),
+		            intsmear_x(subpix-4.0, rsubpix, 1.5));
+
+		if (BGR > 0.5) {
+			lcol.rgb = lcol.bgr;
+			rcol.rgb = rcol.bgr;
+		}
+
+		float tcol, bcol;
+		subpix = vTexCoord.y/texelSize.y - 0.4999 - tli.y;
+		rsubpix = range.y/texelSize.y;
+		tcol = intsmear_y(subpix    ,rsubpix, 0.63);
+		bcol = intsmear_y(subpix-1.0,rsubpix, 0.63);
+
+		vec3 topLeftColor     = fetch_offset(tli, vec2(0.0,0.0)) * lcol * vec3(tcol);
+		vec3 bottomRightColor = fetch_offset(tli, vec2(1.0,1.0)) * rcol * vec3(bcol);
+		vec3 bottomLeftColor  = fetch_offset(tli, vec2(0.0,1.0)) * lcol * vec3(bcol);
+		vec3 topRightColor    = fetch_offset(tli, vec2(1.0,0.0)) * rcol * vec3(tcol);
+
+		vec3 averageColor = topLeftColor + bottomRightColor + bottomLeftColor + topRightColor;
+
+		averageColor = mat3(cred, cgreen, cblue) * averageColor;
+
+		gl_FragColor = vec4(pow(averageColor, vec3(1.0/outgamma)), 1.0);
+	}
+</fragment>

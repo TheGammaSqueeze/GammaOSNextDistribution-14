@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   lcd-grid shader (RetroArch handheld/shaders/lcd-cgwg/lcd-grid.glsl)
+   Author: cgwg (no licence header in the original; distributed with the
+   RetroArch shader repository under its GPL terms)
+   drastic-nano port: the LCD cell and subpixel grid (cell width, subpixel phase,
+   the horizontal grid line) is generated in DS pixel space (256x192) instead of
+   the input texture size, so hi-res 3D does not double it; the texel fetches at
+   the footprint corners still address the real input texture. Alpha is forced
+   to 1.0 (the original passes the gamma-mapped framebuffer alpha through).
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float GRID_STRENGTH = 0.05;   /* "LCD Grid Strength" 0.0 .. 1.0 */
+	const float gamma = 2.2;            /* "LCD Input Gamma" 1.0 .. 5.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	float intsmear_func(float z)
+	{
+		float z2 = z*z;
+		float z4 = z2*z2;
+		float z8 = z4*z4;
+		return z - 2.0/3.0*z*z2 - 1.0/5.0*z*z4 + 4.0/7.0*z*z2*z4 - 1.0/9.0*z*z8
+			- 2.0/11.0*z*z2*z8 + 1.0/13.0*z*z4*z8;
+	}
+
+	float intsmear(float x, float dx)
+	{
+		const float d = 1.5;
+		float zl = clamp((x-dx)/d,-1.0,1.0);
+		float zh = clamp((x+dx)/d,-1.0,1.0);
+		return d * ( intsmear_func(zh) - intsmear_func(zl) )/(2.0*dx);
+	}
+
+	vec4 TEX2D(vec2 c)
+	{
+		return pow(texture2D(u_texture, c), vec4(gamma));
+	}
+
+	void main()
+	{
+		vec2 vTexCoord = v_texture_coordinate;
+		/* texelSize addresses the input texture; cellSize is one DS pixel (the LCD cell). */
+		vec2 texelSize = u_texture_size.xy;
+		vec2 cellSize = 1.0 / DS_SCREEN;
+		vec2 subcellSize = cellSize / vec2(3.0,1.0);
+		/* InputSize / (OutputSize * TextureSize) == one output pixel in texture coordinates */
+		vec2 range = 1.0 / u_target_size;
+
+		float left   = vTexCoord.x - cellSize.x*0.4999;
+		float top    = vTexCoord.y + range.y;
+		float right  = vTexCoord.x + cellSize.x*0.4999;
+		float bottom = vTexCoord.y - range.y;
+
+		vec4 lcol, rcol;
+		float subpix = mod(vTexCoord.x/subcellSize.x+1.5,3.0);
+		float rsubpix = range.x/subcellSize.x;
+		lcol = vec4(intsmear(subpix+1.0,rsubpix),intsmear(subpix    ,rsubpix),
+		            intsmear(subpix-1.0,rsubpix),0.0);
+		rcol = vec4(intsmear(subpix-2.0,rsubpix),intsmear(subpix-3.0,rsubpix),
+		            intsmear(subpix-4.0,rsubpix),0.0);
+
+		vec4 topLeftColor     = TEX2D((floor(vec2(left, top)     / texelSize) + 0.4999) * texelSize) * lcol;
+		vec4 bottomRightColor = TEX2D((floor(vec2(right, bottom) / texelSize) + 0.4999) * texelSize) * rcol;
+		vec4 bottomLeftColor  = TEX2D((floor(vec2(left, bottom)  / texelSize) + 0.4999) * texelSize) * lcol;
+		vec4 topRightColor    = TEX2D((floor(vec2(right, top)    / texelSize) + 0.4999) * texelSize) * rcol;
+
+		/* round(x) == floor(x + 0.5) */
+		vec2 border = floor(vTexCoord.st/subcellSize + 0.5);
+		vec2 bordert = clamp((border+vec2(0.0,+GRID_STRENGTH)) * subcellSize,
+		                     vec2(left, bottom), vec2(right, top));
+		vec2 borderb = clamp((border+vec2(0.0,-GRID_STRENGTH)) * subcellSize,
+		                     vec2(left, bottom), vec2(right, top));
+		float totalArea = 2.0 * range.y;
+
+		vec4 averageColor;
+		averageColor  = ((top - bordert.y)    / totalArea) * topLeftColor;
+		averageColor += ((borderb.y - bottom) / totalArea) * bottomRightColor;
+		averageColor += ((borderb.y - bottom) / totalArea) * bottomLeftColor;
+		averageColor += ((top - bordert.y)    / totalArea) * topRightColor;
+
+		vec4 result = pow(averageColor,vec4(1.0/gamma));
+		/* GL_ES branch of the original: black out the outermost edge */
+		if (!(vTexCoord.x > 0.0007 && vTexCoord.x < 0.9999 && vTexCoord.y > 0.0007 && vTexCoord.y < 0.9999))
+			result = vec4(0.0);
+		gl_FragColor = vec4(result.rgb, 1.0);
+	}
+</fragment>

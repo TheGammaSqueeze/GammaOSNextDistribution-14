@@ -1,0 +1,31 @@
+// crt-nobody: RetroArch crt/crt-nobody (Hyllian, MIT): a four-tap cubic-weighted
+// pixel reconstruction where the vertical weight window doubles as the scanline
+// (SCAN_SIZE), with gamma in/out and a colour boost. Ported for drastic-nano: one
+// pass at the panel resolution, NEAREST fetch, the pixel/scanline window and its
+// neighbour offsets in DS pixel space (256x192) so hi-res 3D does not double it.
+=============================================
+<options>
+name=crt-nobody
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_NEAREST
+mag_filter=GL_NEAREST
+</texture>
+
+<pass>
+shader=crt-nobody.dsd
+sampler:u_texture=0
+</pass>

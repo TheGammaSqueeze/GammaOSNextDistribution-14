@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   gizmo98 slotmask crt shader (RetroArch crt/shaders/gizmo-slotmask-crt.glsl, version 0.1, 10.05.2023)
+   Copyright (C) 2023 gizmo98
+   https://github.com/gizmo98/gizmo-crt-shader
+   GPL v2 or later.
+   Uses parts of the CRT-PI curvator from davej, the texture anti-aliasing shader
+   from Ikaros (shadertoy ldsSRX) and the gold noise shader from dcerisano
+   (shadertoy ltB3zD).
+   Preset gizmo-slotmask-crt.glslp values baked in (curvature 0.15, horizontal
+   blur on, blur offset 0.65, SNR 2.6, colour bleeding 0.15, grid 0.30, slot mask on).
+   drastic-nano port: the scanline phase and the scanline/grid strength scales are
+   computed in DS pixel space (256x192) instead of the input texture size, so
+   hi-res 3D does not double the pattern; texel anti-aliasing, blur offsets and
+   the SHRINK maths keep the real texture size. The slot mask stays keyed to
+   output pixels (gl_FragCoord) as in the original.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	uniform vec2 u_target_size;
+	uniform float u_time;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters (preset gizmo-slotmask-crt.glslp) */
+	const float CURVATURE_X = 0.15;      /* Screen curvature - horizontal 0.0 .. 1.0 */
+	const float CURVATURE_Y = 0.15;      /* Screen curvature - vertical 0.0 .. 1.0 */
+	const float BRIGHTNESS = 0.5;        /* Scanline Intensity 0.05 .. 1.0 */
+	const float HORIZONTAL_BLUR = 1.0;   /* Horizontal Blur 0.0 .. 1.0 */
+	const float VERTICAL_BLUR = 0.0;     /* Vertical Blur 0.0 .. 1.0 */
+	const float BLUR_OFFSET = 0.65;      /* Blur Intensity 0.0 .. 1.0 */
+	const float BGR_LCD_PATTERN = 0.0;   /* BGR output pattern 0.0 .. 1.0 */
+	const float SHRINK = 0.0;            /* Horizontal scale 0.0 .. 1.0 */
+	const float SNR = 2.6;               /* Noise intensity 0.0 .. 3.0 */
+	const float COLOUR_BLEEDING = 0.15;  /* Colour bleeding intensity 0.0 .. 3.0 */
+	const float GRID = 0.30;             /* Grid intensity 0.0 .. 3.0 */
+	const float SLOTMASK = 1.0;          /* Use slot mask 0.0 .. 1.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+	const float PHI = 1.61803398874989484820459;  /* Golden Ratio */
+
+	float gold_noise(vec2 xy, float seed) {
+		return fract(tan(distance(xy * PHI, xy) * seed) * xy.x);
+	}
+
+	vec2 saturateA(vec2 x) {
+		return clamp(x, 0.0, 1.0);
+	}
+
+	vec2 magnify(vec2 uv, vec2 res) {
+		uv *= res;
+		return (saturateA(fract(uv) / saturateA(fwidth(uv))) + floor(uv) - 0.5) / res.xy;
+	}
+
+	vec4 textureAABlur(vec2 uv) {
+		vec2 ts = u_texture_size.zw;
+		uv = magnify(uv, ts);
+		uv = uv * ts + 0.5;
+
+		if (HORIZONTAL_BLUR == 1.0) {
+			vec2 uv1 = (uv + vec2(-0.5, -0.5)) / ts;
+			vec2 uv2 = (uv + vec2(-0.5 - BLUR_OFFSET, -0.5)) / ts;
+			vec4 col1 = texture2D(u_texture, uv1);
+			vec4 col2 = texture2D(u_texture, uv2);
+			vec4 col = (col1 + col2) / vec4(2.0);
+			if (VERTICAL_BLUR == 1.0) {
+				vec2 uv3 = (uv + vec2(-0.5, -0.5 - BLUR_OFFSET)) / ts;
+				vec2 uv4 = (uv + vec2(-0.5 - BLUR_OFFSET, -0.5 - BLUR_OFFSET)) / ts;
+				vec4 col3 = texture2D(u_texture, uv3);
+				vec4 col4 = texture2D(u_texture, uv4);
+				col = (((col3 + col4) / vec4(2.0)) + col) / vec4(2.0);
+			}
+			return col;
+		} else {
+			uv = (uv + vec2(-0.5, -0.5)) / ts;
+			return texture2D(u_texture, uv);
+		}
+	}
+
+	vec4 textureSubpixelScaling(vec2 uvr, vec2 uvg, vec2 uvb) {
+		return vec4(textureAABlur(uvr).r, textureAABlur(uvg).g, textureAABlur(uvb).b, 1.0);
+	}
+
+	/* Scanline phase: DS pixel space */
+	float GetFuv(vec2 uv) {
+		uv = uv * DS_SCREEN + 0.5;
+		vec2 iuv = floor(uv);
+		vec2 fuv = uv - iuv;
+		return abs((fuv * fuv * fuv * (fuv * (fuv * 6.0 - 15.0) + 10.0)).y - 0.5);
+	}
+
+	vec4 AddNoise(vec4 col, vec2 coord) {
+		/* Add some subpixel noise which simulates small CRT color variations */
+		float iGlobalTime = floor(u_time * 60.0) * 0.025;
+		float snr = SNR * 0.03125;
+		return clamp(col + gold_noise(coord, sin(iGlobalTime)) * snr - snr / 2.0, 0.0, 1.0);
+	}
+
+	vec4 AddScanlines(vec4 col, vec2 uvr, vec2 uvg, vec2 uvb) {
+		/* Add scanlines which are wider for dark colors.
+		   You cannot see scanlines if color is bright. */
+		float brightness = 0.1 / BRIGHTNESS;
+		float scale = (u_target_size.y / DS_SCREEN.y) * 0.25;
+		float dim = brightness * scale;
+		col.rgb -= dim * (abs((1.0 - 0.5 * col.rgb) * (1.0 - vec3(GetFuv(uvr), GetFuv(uvg), GetFuv(uvb)))));
+		return col;
+	}
+
+	vec4 AddGrid(vec4 col, vec2 coord) {
+		float scale = (u_target_size.x / DS_SCREEN.y) * 0.25;
+		if (mod(floor(coord.x * 1.0), 3.0) == 0.0) {
+			col = mix(col, vec4(0.0, 0.0, 0.0, 0.5 * scale), GRID);
+		} else {
+			if (SLOTMASK == 1.0) {
+				float field = fract(coord.x / 6.0);
+				if (((field >= 0.166 && field <= 0.5) && (mod(floor(coord.y * 1.0 + 1.0), 3.0) == 0.0)) ||
+				    ((field >= 0.666 && field <= 1.0) && (mod(floor(coord.y * 1.0), 3.0) == 0.0)))
+					col = mix(col, vec4(0.0, 0.0, 0.0, 0.5 * scale), GRID * 0.3);
+			}
+		}
+		return col;
+	}
+
+	vec3 XCoords(float coord, float factor) {
+		float spread = 0.333 + COLOUR_BLEEDING;
+		vec3 coords = vec3(coord);
+		if (BGR_LCD_PATTERN == 1.0)
+			coords.r += spread * 2.0;
+		else
+			coords.b += spread * 2.0;
+		coords.g += spread;
+		coords *= factor;
+		return coords;
+	}
+
+	float YCoord(float coord, float factor) {
+		return coord * factor;
+	}
+
+	vec2 Distort(vec2 coord) {
+		vec2 CURVATURE_DISTORTION = vec2(CURVATURE_X, CURVATURE_Y);
+		/* Barrel distortion shrinks the display area a bit, this will allow us to counteract that. */
+		vec2 barrelScale = 1.0 - (0.23 * CURVATURE_DISTORTION);
+		/* screenScale = TextureSize / InputSize = 1.0 for the DS core */
+		coord -= vec2(0.5);
+		float rsq = coord.x * coord.x + coord.y * coord.y;
+		coord += coord * (CURVATURE_DISTORTION * rsq);
+		coord *= barrelScale;
+		if (abs(coord.x) >= 0.5 || abs(coord.y) >= 0.5)
+			coord = vec2(-1.0);  /* If out of bounds, return an invalid value. */
+		else
+			coord += vec2(0.5);
+		return coord;
+	}
+
+	vec2 Jitter(vec2 coord) {
+		float iGlobalTime = floor(u_time * 60.0) * 0.025;
+		coord.y += sin(iGlobalTime * 220.1) * 0.10;
+		return coord;
+	}
+
+	void main() {
+		vec2 texcoord = v_texture_coordinate;
+
+		if (SHRINK > 0.0) {
+			texcoord.x *= u_texture_size.z;
+			texcoord.x -= 0.5;
+			texcoord.x *= 1.0 + SHRINK;
+			texcoord.x += 0.5;
+			texcoord.x *= u_texture_size.x;
+		}
+
+		texcoord = Distort(texcoord);
+		if (texcoord.x < 0.0) {
+			gl_FragColor = vec4(0.0);
+			return;
+		}
+
+		vec2 fragCoord = texcoord.xy * u_target_size.xy;
+		vec2 factor = u_texture_size.zw / u_target_size.xy;
+
+		fragCoord = Jitter(fragCoord);
+
+		float yCoord = YCoord(fragCoord.y, factor.y);
+		vec3 xCoords = XCoords(fragCoord.x, factor.x);
+
+		vec2 coord_r = vec2(xCoords.r, yCoord) * u_texture_size.xy;
+		vec2 coord_g = vec2(xCoords.g, yCoord) * u_texture_size.xy;
+		vec2 coord_b = vec2(xCoords.b, yCoord) * u_texture_size.xy;
+
+		vec4 col = textureSubpixelScaling(coord_r, coord_g, coord_b);
+		col = AddNoise(col, fragCoord);
+		col = AddScanlines(col, coord_r, coord_g, coord_b);
+		col = AddGrid(col, gl_FragCoord.xy);
+		gl_FragColor = col;
+	}
+</fragment>

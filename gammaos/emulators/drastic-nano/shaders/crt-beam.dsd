@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   CRT-Beam shader (RetroArch crt/shaders/CRT-Beam.glsl)
+   crt-beam
+   for best results use integer scale 5x or more
+   (RetroArch glsl-shaders, no explicit author/licence header in the original;
+   the mask code descends from Timothy Lottes' public domain CRT shader.)
+   drastic-nano port: the scanline phase (fract of the source row) is computed in DS
+   pixel space (256x192) instead of the input texture size, so hi-res 3D does not
+   double the scanlines; the texel-centre snap of the fetch, the glow taps and the
+   output-pixel mask keep their original addressing. Parameter values are the
+   #pragma defaults RetroArch uses (not the #else fallbacks).
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+	varying vec2 fragpos;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+		fragpos = v_texture_coordinate.xy * u_target_size.xy;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	varying vec2 v_texture_coordinate;
+	varying vec2 fragpos;
+
+	/* RetroArch parameters */
+	const float blur = 0.6;        /* Horizontal Blur/Beam shape 0.0 .. 1.0 */
+	const float Scanline = 0.2;    /* Scanline thickness 0.0 .. 1.0 */
+	const float weightr = 0.8;     /* Scanline Red brightness 0.0 .. 1.0 */
+	const float weightg = 0.8;     /* Scanline Green brightness 0.0 .. 1.0 */
+	const float weightb = 0.8;     /* Scanline Blue brightness 0.0 .. 1.0 */
+	const float mask = 3.0;        /* Mask 0:CGWG,1-2:Lottes,3-4 Gray,5-6:CGWG slot,7 VGA  -1.0 .. 7.0 */
+	const float msk_size = 1.0;    /* Mask size 1.0 .. 2.0 */
+	const float scale = 2.0;       /* VGA Mask Vertical Scale 2.0 .. 10.0 */
+	const float MaskDark = 0.7;    /* Lottes Mask Dark 0.0 .. 2.0 */
+	const float MaskLight = 1.0;   /* Lottes Mask Light 0.0 .. 2.0 */
+	const float sat = 1.0;         /* Saturation 0.0 .. 2.0 */
+	const float bright = 1.0;      /* Boost bright 1.0 .. 2.0 */
+	const float dark = 1.45;       /* Boost dark 1.0 .. 2.0 */
+	const float glow = 0.08;       /* Glow Strength 0.0 .. 0.5 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	vec4 Mask(vec2 p)
+	{
+		p = floor(p / msk_size);
+		float mf = fract(p.x * 0.5);
+		float m = MaskDark;
+		vec3 msk = vec3(MaskDark);
+
+		/* Phosphor. */
+		if (mask == 0.0)
+		{
+			if (mf < 0.5) return vec4(MaskLight, m, MaskLight, 1.0);
+			else return vec4(m, MaskLight, m, 1.0);
+		}
+
+		/* Very compressed TV style shadow mask. */
+		else if (mask == 1.0)
+		{
+			float line = MaskLight;
+			float odd = 0.0;
+
+			if (fract(p.x / 6.0) < 0.5)
+				odd = 1.0;
+			if (fract((p.y + odd) / 2.0) < 0.5)
+				line = MaskDark;
+
+			p.x = fract(p.x / 3.0);
+
+			if      (p.x < 0.333) msk.r = MaskLight;
+			else if (p.x < 0.666) msk.g = MaskLight;
+			else                  msk.b = MaskLight;
+
+			msk *= line;
+			return vec4(msk.r, msk.g, msk.b, 1.0);
+		}
+
+		/* Aperture-grille. */
+		else if (mask == 2.0)
+		{
+			p.x = fract(p.x / 3.0);
+
+			if      (p.x < 0.333) msk.r = MaskLight;
+			else if (p.x < 0.666) msk.g = MaskLight;
+			else                  msk.b = MaskLight;
+			return vec4(msk.r, msk.g, msk.b, 1.0);
+		}
+		/* gray */
+		else if (mask == 3.0)
+		{
+			if (mf < 0.5) return vec4(MaskLight, MaskLight, MaskLight, 1.0);
+			else return vec4(m, m, m, 1.0);
+		}
+		/* gray 3px */
+		else if (mask == 4.0)
+		{
+			float mf3 = fract(p.x * 0.3333);
+			if (mf3 < 0.6666) return vec4(MaskLight, MaskLight, MaskLight, 1.0);
+			else return vec4(m, m, m, 1.0);
+		}
+		/* cgwg slot */
+		else if (mask == 5.0)
+		{
+			float line = MaskLight;
+			float odd = 0.0;
+
+			if (fract(p.x / 4.0) < 0.5)
+				odd = 1.0;
+			if (fract((p.y + odd) / 2.0) < 0.5)
+				line = MaskDark;
+
+			p.x = fract(p.x / 2.0);
+
+			if (p.x < 0.5) { msk.r = 1.0; msk.b = 1.0; }
+			else msk.g = 1.0;
+			msk *= line;
+			return vec4(msk.r, msk.g, msk.b, 1.0);
+		}
+
+		/* cgwg slot 1440p */
+		else if (mask == 6.0)
+		{
+			float line = MaskLight;
+			float odd = 0.0;
+
+			if (fract(p.x / 6.0) < 0.5)
+				odd = 1.0;
+			if (fract((p.y + odd) / 3.0) < 0.5)
+				line = MaskDark;
+
+			p.x = fract(p.x / 2.0);
+
+			if (p.x < 0.5) { msk.r = MaskLight; msk.b = MaskLight; }
+			else { msk.g = MaskLight; }
+
+			msk *= line;
+			return vec4(msk.r, msk.g, msk.b, 1.0);
+		}
+
+		/* PC CRT VGA style mask */
+		else if (mask == 7.0)
+		{
+			float line = 1.0;
+			p.x = fract(p.x / 2.0);
+
+			if (fract(p.y / scale) < 0.5)
+			{
+				if (p.x < 0.5) { msk.r = 1.0; msk.b = 1.0; }
+				else { msk.g = 1.0; }
+			}
+			else
+			{
+				if (p.x < 0.5) { msk.g = 1.0; }
+				else { msk.r = 1.0; msk.b = 1.0; }
+			}
+			msk *= line;
+			return vec4(msk.r, msk.g, msk.b, 1.0);
+		}
+		else return vec4(1.0);
+	}
+
+	vec3 booster(vec2 pos)
+	{
+		vec2 dx = vec2(u_texture_size.x, 0.0);
+		vec2 dy = vec2(0.0, u_texture_size.y);
+
+		vec4 c00 = texture2D(u_texture, pos);
+		vec4 c01 = texture2D(u_texture, pos + dx);
+		vec4 c02 = texture2D(u_texture, pos + dy);
+		vec4 c03 = texture2D(u_texture, pos + dx + dy);
+
+		vec4 gl = (c00 + c01 + c02 + c03) / 4.0; gl *= gl;
+		vec3 gl0 = gl.rgb;
+		return gl0 * glow;
+	}
+
+	void main()
+	{
+		vec2 pos = v_texture_coordinate;
+		/* texel addressing: snap the fetch to the texel centre of the real input */
+		vec2 OGL2Pos = pos * u_texture_size.zw;
+		vec2 cent = (floor(OGL2Pos) + 0.5) * u_texture_size.xy;
+		float xcoord = mix(cent.x, v_texture_coordinate.x, blur);
+		vec2 coords = vec2(xcoord, cent.y);
+
+		vec3 res = texture2D(u_texture, coords).rgb;
+
+		float lum = max(max(res.r * weightr, res.g * weightg), res.b * weightb);
+		/* source-pixel period: the scanline phase in DS pixel space */
+		float f = fract(pos.y * DS_SCREEN.y);
+
+		res *= 1.0 - (f - 0.5) * (f - 0.5) * 45.0 * (Scanline * (1.0 - lum));
+		res = clamp(res, 0.0, 1.0);
+
+		float l = dot(res, vec3(0.3, 0.6, 0.1));
+		res = mix(vec3(l), res, sat);
+		res += booster(coords);
+		vec4 res0 = vec4(res, 1.0);
+		res0 *= Mask(fragpos * 1.0001);
+		res0 *= mix(dark, bright, l);
+
+		gl_FragColor = res0;
+	}
+</fragment>

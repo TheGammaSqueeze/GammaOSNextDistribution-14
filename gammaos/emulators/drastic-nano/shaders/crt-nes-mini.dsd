@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   crt-nes-mini shader (RetroArch crt/shaders/crt-nes-mini.glsl)
+   Recreation of the NES Classic Mini CRT filter (RetroArch common-shaders,
+   no explicit licence header in the original).
+   drastic-nano port: the scanline parity is computed in DS pixel space (256x192)
+   instead of the input texture size, so hi-res 3D does not double the scanlines.
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float SCANTHICK = 2.0;     /* Scanline Thickness 2.0 .. 4.0 step 2.0 */
+	const float INTENSITY = 0.15;    /* Scanline Intensity 0.0 .. 1.0 */
+	const float BRIGHTBOOST = 0.15;  /* Luminance Boost 0.0 .. 1.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	void main() {
+		vec3 texel = texture2D(u_texture, v_texture_coordinate).rgb;
+		vec3 pixelHigh = ((1.0 + BRIGHTBOOST) - (0.2 * texel)) * texel;
+		vec3 pixelLow  = ((1.0 - INTENSITY) + (0.1 * texel)) * texel;
+		float selectY = mod(v_texture_coordinate.y * SCANTHICK * DS_SCREEN.y, 2.0);
+		float selectHigh = step(1.0, selectY);
+		float selectLow = 1.0 - selectHigh;
+		vec3 pixelColor = (selectLow * pixelLow) + (selectHigh * pixelHigh);
+
+		gl_FragColor = vec4(pixelColor, 1.0);
+	}
+</fragment>

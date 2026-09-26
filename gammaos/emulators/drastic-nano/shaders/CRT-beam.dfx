@@ -1,0 +1,31 @@
+// CRT-beam: RetroArch crt/CRT-beam: a beam-shaped scanline whose depth follows the
+// per-channel luminance, an optional horizontal blur, a selectable phosphor mask
+// (default: gray 2px), a four-tap glow and saturation/brightness boosts. Ported for
+// drastic-nano: one pass at the panel resolution, LINEAR fetch, the scanline phase in
+// DS pixel space (256x192), the mask in output pixels as in the original.
+=============================================
+<options>
+name=CRT-beam
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_LINEAR
+mag_filter=GL_LINEAR
+</texture>
+
+<pass>
+shader=crt-beam.dsd
+sampler:u_texture=0
+</pass>

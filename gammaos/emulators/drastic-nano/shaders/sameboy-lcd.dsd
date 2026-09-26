@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   SameBoy LCD shader (RetroArch handheld/shaders/sameboy-lcd.glsl)
+   Author: LIJI32
+   License: MIT
+   Copyright (c) 2015-2016 Lior Halphon
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+   drastic-nano port: the pixel and 6x6 subpixel grid (pos, sub_pos) is
+   generated in DS pixel space (256x192) instead of the input texture size, so
+   hi-res 3D does not double it. The left/right/up/down fetches are the
+   neighbouring LCD pixels' colours, so they step one DS pixel, not one texel
+   (under hi-res 3D one texel would stay inside the same pixel and the subpixel
+   colour bleed would vanish).
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float COLOR_LOW = 0.8;        /* "Color Low" 0.0 .. 1.5 */
+	const float COLOR_HIGH = 1.0;       /* "Color High" 0.0 .. 1.5 */
+	const float SCANLINE_DEPTH = 0.1;   /* "Scanline Depth" 0.0 .. 2.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+	/* one LCD pixel step in texture coordinates */
+	const vec2 PIXEL = vec2(1.0 / 256.0, 1.0 / 192.0);
+
+	void main()
+	{
+		vec2 vTexCoord = v_texture_coordinate;
+		vec2 pos = fract(vTexCoord * DS_SCREEN);
+		vec2 sub_pos = fract(vTexCoord * DS_SCREEN * 6.0);
+
+		vec4 center = texture2D(u_texture, vTexCoord);
+		vec4 left = texture2D(u_texture, vTexCoord - vec2(PIXEL.x, 0.0));
+		vec4 right = texture2D(u_texture, vTexCoord + vec2(PIXEL.x, 0.0));
+
+		if (pos.y < 1.0 / 6.0) {
+			center = mix(center, texture2D(u_texture, vTexCoord + vec2(0.0, -PIXEL.y)), 0.5 - sub_pos.y / 2.0);
+			left =   mix(left,   texture2D(u_texture, vTexCoord + vec2(-PIXEL.x, -PIXEL.y)), 0.5 - sub_pos.y / 2.0);
+			right =  mix(right,  texture2D(u_texture, vTexCoord + vec2( PIXEL.x, -PIXEL.y)), 0.5 - sub_pos.y / 2.0);
+			center *= sub_pos.y * SCANLINE_DEPTH + (1.0 - SCANLINE_DEPTH);
+			left *= sub_pos.y * SCANLINE_DEPTH + (1.0 - SCANLINE_DEPTH);
+			right *= sub_pos.y * SCANLINE_DEPTH + (1.0 - SCANLINE_DEPTH);
+		}
+		else if (pos.y > 5.0 / 6.0) {
+			center = mix(center, texture2D(u_texture, vTexCoord + vec2(0.0, PIXEL.y)), sub_pos.y / 2.0);
+			left =   mix(left,   texture2D(u_texture, vTexCoord + vec2(-PIXEL.x, PIXEL.y)), sub_pos.y / 2.0);
+			right =  mix(right,  texture2D(u_texture, vTexCoord + vec2( PIXEL.x, PIXEL.y)), sub_pos.y / 2.0);
+			center *= (1.0 - sub_pos.y) * SCANLINE_DEPTH + (1.0 - SCANLINE_DEPTH);
+			left *= (1.0 - sub_pos.y) * SCANLINE_DEPTH + (1.0 - SCANLINE_DEPTH);
+			right *= (1.0 - sub_pos.y) * SCANLINE_DEPTH + (1.0 - SCANLINE_DEPTH);
+		}
+
+		vec4 midleft = mix(left, center, 0.5);
+		vec4 midright = mix(right, center, 0.5);
+
+		vec4 ret;
+		if (pos.x < 1.0 / 6.0) {
+			ret = mix(vec4(COLOR_HIGH * center.r, COLOR_LOW * center.g, COLOR_HIGH * left.b, 1.0),
+			          vec4(COLOR_HIGH * center.r, COLOR_LOW * center.g, COLOR_LOW  * left.b, 1.0),
+			          sub_pos.x);
+		}
+		else if (pos.x < 2.0 / 6.0) {
+			ret = mix(vec4(COLOR_HIGH * center.r, COLOR_LOW  * center.g, COLOR_LOW * left.b, 1.0),
+			          vec4(COLOR_HIGH * center.r, COLOR_HIGH * center.g, COLOR_LOW * midleft.b, 1.0),
+			          sub_pos.x);
+		}
+		else if (pos.x < 3.0 / 6.0) {
+			ret = mix(vec4(COLOR_HIGH * center.r  , COLOR_HIGH * center.g, COLOR_LOW * midleft.b, 1.0),
+			          vec4(COLOR_LOW  * midright.r, COLOR_HIGH * center.g, COLOR_LOW * center.b, 1.0),
+			          sub_pos.x);
+		}
+		else if (pos.x < 4.0 / 6.0) {
+			ret = mix(vec4(COLOR_LOW * midright.r, COLOR_HIGH * center.g , COLOR_LOW  * center.b, 1.0),
+			          vec4(COLOR_LOW * right.r   , COLOR_HIGH  * center.g, COLOR_HIGH * center.b, 1.0),
+			          sub_pos.x);
+		}
+		else if (pos.x < 5.0 / 6.0) {
+			ret = mix(vec4(COLOR_LOW * right.r, COLOR_HIGH * center.g  , COLOR_HIGH * center.b, 1.0),
+			          vec4(COLOR_LOW * right.r, COLOR_LOW  * midright.g, COLOR_HIGH * center.b, 1.0),
+			          sub_pos.x);
+		}
+		else {
+			ret = mix(vec4(COLOR_LOW  * right.r, COLOR_LOW * midright.g, COLOR_HIGH * center.b, 1.0),
+			          vec4(COLOR_HIGH * right.r, COLOR_LOW * right.g  ,  COLOR_HIGH * center.b, 1.0),
+			          sub_pos.x);
+		}
+
+		gl_FragColor = ret;
+	}
+</fragment>

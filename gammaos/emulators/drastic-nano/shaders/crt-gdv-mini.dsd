@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   CRT - Guest mini (RetroArch crt/shaders/crt-gdv-mini.glsl)
+   edited by metallic77
+   Copyright (C) 2017-2018 guest(r) - guest.r@gmail.com
+   GPL v2 or later (see the original header for the full notice).
+   drastic-nano port: the scanline phase (which source line the fragment is on)
+   is computed in DS pixel space (256x192) instead of the input texture size, so
+   hi-res 3D does not double the scanlines; the texel fetches and horizontal
+   sharpness weights keep the real texture size. The mask stays keyed to output
+   pixels. TextureSize / InputSize is 1.0 for the DS core, so the scale varying
+   was folded away.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters (defaults) */
+	const float brightboost = 1.25;  /* Bright boost 0.5 .. 2.0 */
+	const float sat = 1.15;          /* Saturation adjustment 0.0 .. 2.0 */
+	const float scanline = 8.0;      /* Scanline adjust 1.0 .. 15.0 */
+	const float beam_min = 1.35;     /* Scanline dark 0.5 .. 3.0 */
+	const float beam_max = 1.05;     /* Scanline bright 0.5 .. 3.0 */
+	const float h_sharp = 2.00;      /* Horizontal sharpness 1.0 .. 5.0 */
+	const float gamma_out = 0.55;    /* Gamma out 0.2 .. 0.6 */
+	const float shadowMask = 0.0;    /* CRT Mask: 0:CGWG, 1-4:Lottes, 5-6:'Trinitron' -1.0 .. 10.0 */
+	const float masksize = 1.0;      /* CRT Mask Size (2.0 is nice in 4k) 1.0 .. 2.0 */
+	const float mcut = 0.25;         /* Mask 5-7-10 cutoff 0.0 .. 0.5 */
+	const float maskDark = 0.5;      /* Lottes maskDark 0.0 .. 2.0 */
+	const float maskLight = 1.5;     /* Lottes maskLight 0.0 .. 2.0 */
+	const float CGWG = 0.3;          /* CGWG Mask Str. 0.0 .. 1.0 */
+	const float warpX = 0.0;         /* warpX 0.0 .. 0.125 */
+	const float warpY = 0.0;         /* warpY 0.0 .. 0.125 */
+	const float vignette = 0.0;      /* Vignette On/Off 0.0 .. 1.0 */
+
+	const vec3 lumweight = vec3(0.30, 0.59, 0.11);
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	float sw(float y, float l, float v) {
+		float scan = mix(scanline - 2.0, scanline, y);
+		float tmp = mix(beam_min + v, beam_max + v, l);
+		float ex = y * tmp;
+		return exp2(-scan * ex * ex);
+	}
+
+	/* Shadow mask (1-4 from PD CRT Lottes shader). */
+	vec3 Mask(vec2 pos, vec3 c) {
+		pos = floor(pos / masksize);
+		vec3 mask = vec3(maskDark);
+
+		/* No mask */
+		if (shadowMask == -1.0) {
+			mask = vec3(1.0);
+		}
+		/* Phosphor. */
+		else if (shadowMask == 0.0) {
+			pos.x = fract(pos.x * 0.5);
+			float mc = 1.0 - CGWG;
+			if (pos.x < 0.5) { mask.r = 1.0; mask.g = mc; mask.b = 1.0; }
+			else { mask.r = mc; mask.g = 1.0; mask.b = mc; }
+		}
+		/* Very compressed TV style shadow mask. */
+		else if (shadowMask == 1.0) {
+			float line = maskLight;
+			float odd = 0.0;
+			if (fract(pos.x / 6.0) < 0.5)
+				odd = 1.0;
+			if (fract((pos.y + odd) / 2.0) < 0.5)
+				line = maskDark;
+			pos.x = fract(pos.x / 3.0);
+			if      (pos.x < 0.3333) mask.b = maskLight;
+			else if (pos.x < 0.6666) mask.g = maskLight;
+			else                     mask.r = maskLight;
+			mask *= line;
+		}
+		/* Aperture-grille. */
+		else if (shadowMask == 2.0) {
+			pos.x = fract(pos.x / 3.0);
+			if      (pos.x < 0.3333) mask.b = maskLight;
+			else if (pos.x < 0.6666) mask.g = maskLight;
+			else                     mask.r = maskLight;
+		}
+		/* Stretched VGA style shadow mask (same as prior shaders). */
+		else if (shadowMask == 3.0) {
+			pos.x += pos.y * 3.0;
+			pos.x = fract(pos.x / 6.0);
+			if      (pos.x < 0.3333) mask.r = maskLight;
+			else if (pos.x < 0.6666) mask.g = maskLight;
+			else                     mask.b = maskLight;
+		}
+		/* VGA style shadow mask. */
+		else if (shadowMask == 4.0) {
+			pos.xy = floor(pos.xy * vec2(1.0, 0.5));
+			pos.x += pos.y * 3.0;
+			pos.x = fract(pos.x / 6.0);
+			if      (pos.x < 0.3333) mask.r = maskLight;
+			else if (pos.x < 0.6666) mask.g = maskLight;
+			else                     mask.b = maskLight;
+		}
+		/* Alternate mask 5 */
+		else if (shadowMask == 5.0) {
+			float mx = max(max(c.r, c.g), c.b);
+			vec3 maskTmp = vec3(min(1.25 * max(mx - mcut, 0.0) / (1.0 - mcut), maskDark + 0.2 * (1.0 - maskDark) * mx));
+			float adj = 0.80 * maskLight - 0.5 * (0.80 * maskLight - 1.0) * mx + 0.75 * (1.0 - mx);
+			mask = maskTmp;
+			pos.x = fract(pos.x / 2.0);
+			if (pos.x < 0.5) { mask.r = adj; mask.b = adj; }
+			else mask.g = adj;
+		}
+		/* Alternate mask 6 */
+		else if (shadowMask == 6.0) {
+			float mx = max(max(c.r, c.g), c.b);
+			vec3 maskTmp = vec3(min(1.33 * max(mx - mcut, 0.0) / (1.0 - mcut), maskDark + 0.225 * (1.0 - maskDark) * mx));
+			float adj = 0.80 * maskLight - 0.5 * (0.80 * maskLight - 1.0) * mx + 0.75 * (1.0 - mx);
+			mask = maskTmp;
+			pos.x = fract(pos.x / 3.0);
+			if      (pos.x < 0.3333) mask.r = adj;
+			else if (pos.x < 0.6666) mask.g = adj;
+			else                     mask.b = adj;
+		}
+		/* Alternate mask 7 */
+		else if (shadowMask == 7.0) {
+			float mc = 1.0 - CGWG;
+			float mx = max(max(c.r, c.g), c.b);
+			float maskTmp = min(1.6 * max(mx - mcut, 0.0) / (1.0 - mcut), mc);
+			mask = vec3(maskTmp);
+			pos.x = fract(pos.x / 2.0);
+			if (pos.x < 0.5) mask = vec3(1.0 + 0.6 * (1.0 - mx));
+		}
+		else if (shadowMask == 8.0) {
+			float line = maskLight;
+			float odd = 0.0;
+			if (fract(pos.x / 4.0) < 0.5)
+				odd = 1.0;
+			if (fract((pos.y + odd) / 2.0) < 0.5)
+				line = maskDark;
+			pos.x = fract(pos.x / 2.0);
+			if (pos.x < 0.5) { mask.r = maskLight; mask.b = maskLight; }
+			else mask.g = maskLight;
+			mask *= line;
+		}
+		else if (shadowMask == 9.0) {
+			vec3 mask9 = vec3(maskDark);
+			float bright = maskLight;
+			float left = 0.0;
+			if (fract(pos.x / 6.0) < 0.5)
+				left = 1.0;
+			float m = fract(pos.x / 3.0);
+			if      (m < 0.3333) mask9.b = 0.9;
+			else if (m < 0.6666) mask9.g = 0.9;
+			else                 mask9.r = 0.9;
+			if (mod(pos.y, 2.0) == 1.0 && left == 1.0 || mod(pos.y, 2.0) == 0.0 && left == 0.0) mask9 *= bright;
+			return mask9;
+		}
+		else if (shadowMask == 10.0) {
+			vec3 mask10 = vec3(maskDark);
+			float line = maskLight;
+			float odd = 0.0;
+			if (fract(pos.x / 6.0) < 0.5)
+				odd = 1.0;
+			if (fract((pos.y + odd) / 2.0) < 0.5)
+				line = 1.0;
+			float m = fract(pos.x / 3.0);
+			if      (m > 0.3333) { mask10.r = 1.0; mask10.b = 1.0; }
+			else if (m > 0.6666) mask10.g = 1.0;
+			else                 mask10 = vec3(mcut);
+			if (m > 0.333) mask10 *= line;
+			return mask10;
+		}
+
+		return mask;
+	}
+
+	/* Distortion of scanlines, and end of screen alpha. */
+	vec2 Warp(vec2 pos) {
+		pos = (pos * 2.0) - 1.0;
+		pos *= vec2(1.0 + (pos.y * pos.y) * warpX, 1.0 + (pos.x * pos.x) * warpY);
+		return (pos * 0.5) + 0.5;
+	}
+
+	void main() {
+		vec2 warp = v_texture_coordinate;
+		vec2 pos = Warp(warp);
+		vec2 fragpos = v_texture_coordinate * u_target_size;
+		vec2 ps = u_texture_size.xy;
+
+		/* texel addressing */
+		vec2 OGL2Pos = pos * u_texture_size.zw;
+		vec2 fp = fract(OGL2Pos);
+		vec2 dx = vec2(ps.x, 0.0);
+		vec2 dy = vec2(0.0, ps.y);
+		vec2 pC4 = floor(OGL2Pos) * ps + 0.5 * ps;
+
+		/* scanline phase: DS pixel space */
+		float f = fract(pos.y * DS_SCREEN.y) - 0.5;
+		if (DS_SCREEN.y > 400.0) f = 1.0;
+		vec3 color;
+
+		/* Reading the texels */
+		vec3 ul = texture2D(u_texture, pC4).xyz;
+		vec3 ur = texture2D(u_texture, pC4 - dx).xyz;
+		vec3 dl = texture2D(u_texture, pC4 + dy).xyz;
+		vec3 dr = texture2D(u_texture, pC4 + vec2(-ps.x, ps.y)).xyz;
+
+		float lx = fp.x;        lx = pow(lx, h_sharp);
+		float rx = 1.0 - fp.x;  rx = pow(rx, h_sharp);
+
+		vec3 color1 = (ur * rx + ul * lx) / (lx + rx);
+		vec3 color2 = (dr * rx + dl * lx) / (lx + rx);
+		color1 *= color1; color2 *= color2;
+
+		/* calculating scanlines */
+		float lum = dot(color1, lumweight);
+		float lum2 = dot(color2, lumweight);
+
+		float v = 0.0;
+		/* vignette */
+		if (vignette > 0.0) {
+			v = (warp.x - 0.5);  /* range -0.5 to 0.5, 0.0 being center of screen */
+			v = v * v;           /* curved response: higher values (more far from center) get higher results. */
+		}
+		color = color1 * sw(f, lum, v) + color2 * sw(1.0 - f, lum2, v);
+		color = color * Mask(fragpos, color);
+
+		color = pow(color, vec3(gamma_out));
+
+		color *= mix(1.0, brightboost, lum);
+		color = mix(vec3(lum), color, sat);
+
+		/* hacky clamp fix for GLES */
+		vec2 bordertest = pos;
+		if (bordertest.x > 0.0001 && bordertest.x < 0.9999 && bordertest.y > 0.0001 && bordertest.y < 0.9999)
+			color = color;
+		else
+			color = vec3(0.0);
+
+		gl_FragColor = vec4(color, 1.0);
+	}
+</fragment>

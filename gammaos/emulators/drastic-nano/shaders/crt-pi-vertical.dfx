@@ -1,0 +1,30 @@
+// crt-pi-vertical: RetroArch crt/crt-pi-vertical preset. davej, GPL v2: crt-pi for portrait games, mask along the output y axis.
+// Ported for drastic-nano: one pass at the panel resolution, LINEAR fetch, scanline
+// and mask phase in DS pixel space (256x192) so hi-res 3D (512x384 input) does not
+// double the pattern; texel addressing keeps the real input texture size.
+=============================================
+<options>
+name=crt-pi-vertical
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_LINEAR
+mag_filter=GL_LINEAR
+</texture>
+
+<pass>
+shader=crt-pi-vertical.dsd
+sampler:u_texture=0
+</pass>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   dot shader (RetroArch handheld/shaders/dot.glsl)
+   Author: Themaister
+   License: Public domain
+   drastic-nano port: the dot grid (pixel_no) is generated in DS pixel space
+   (256x192) instead of the input texture size, so hi-res 3D does not double it.
+   The "soft" neighbour offsets are in dot units in the original (soft = 1
+   reaches the neighbouring dot), so they are DS pixel offsets here too; with
+   the default soft = 0.0 every fetch is at the fragment's own coordinate.
+   TextureSize / InputSize and OrigInputSize ratios are 1.0 for the DS core.
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+	varying vec4 c00_10;
+	varying vec4 c20_01;
+	varying vec4 c21_02;
+	varying vec4 c12_22;
+	varying vec2 c11;
+	varying vec2 pixel_no;
+
+	/* RetroArch parameter */
+	const float soft = 0.0;   /* "Dot Soft" 0.0 .. 1.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+
+		pixel_no = a_texture_coordinate.xy * DS_SCREEN;
+		vec2 d = 1.0 / DS_SCREEN;
+
+		c00_10 = vec4((pixel_no + vec2(-1.0, -1.0) * soft) * d,
+		              (pixel_no + vec2( 0.0, -1.0) * soft) * d);
+		c20_01 = vec4((pixel_no + vec2( 1.0, -1.0) * soft) * d,
+		              (pixel_no + vec2(-1.0,  0.0) * soft) * d);
+		c21_02 = vec4((pixel_no + vec2( 1.0,  0.0) * soft) * d,
+		              (pixel_no + vec2(-1.0,  1.0) * soft) * d);
+		c12_22 = vec4((pixel_no + vec2( 0.0,  1.0) * soft) * d,
+		              (pixel_no + vec2( 1.0,  1.0) * soft) * d);
+		c11 = pixel_no * d;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	varying vec2 v_texture_coordinate;
+	varying vec4 c00_10;
+	varying vec4 c20_01;
+	varying vec4 c21_02;
+	varying vec4 c12_22;
+	varying vec2 c11;
+	varying vec2 pixel_no;
+
+	/* RetroArch parameters */
+	const float gamma = 2.4;   /* "Dot Gamma" 0.0 .. 5.0 */
+	const float shine = 0.05;  /* "Dot Shine" 0.0 .. 0.5 */
+	const float blend = 0.65;  /* "Dot Blend" 0.0 .. 1.0 */
+
+	mediump float dist(vec2 coord, vec2 source)
+	{
+		vec2 delta = coord - source;
+		return sqrt(dot(delta, delta));
+	}
+
+	mediump float color_bloom(vec3 color)
+	{
+		const vec3 gray_coeff = vec3(0.30, 0.59, 0.11);
+		float bright = dot(color, gray_coeff);
+		return mix(1.0 + shine, 1.0 - shine, bright);
+	}
+
+	vec3 lookup(vec2 pno, float offset_x, float offset_y, vec3 color)
+	{
+		vec2 offset = vec2(offset_x, offset_y);
+		float delta = dist(fract(pno), offset + vec2(0.5, 0.5));
+		return color * exp(-gamma * delta * color_bloom(color));
+	}
+
+	vec3 TEX(vec2 coord)
+	{
+		return texture2D(u_texture, coord).rgb;
+	}
+
+	void main()
+	{
+		vec3 mid_color = lookup(pixel_no, 0.0, 0.0, TEX(c11));
+		vec3 color = vec3(0.0, 0.0, 0.0);
+		color += lookup(pixel_no, -1.0, -1.0, TEX(c00_10.xy));
+		color += lookup(pixel_no,  0.0, -1.0, TEX(c00_10.zw));
+		color += lookup(pixel_no,  1.0, -1.0, TEX(c20_01.xy));
+		color += lookup(pixel_no, -1.0,  0.0, TEX(c20_01.zw));
+		color += mid_color;
+		color += lookup(pixel_no,  1.0,  0.0, TEX(c21_02.xy));
+		color += lookup(pixel_no, -1.0,  1.0, TEX(c21_02.zw));
+		color += lookup(pixel_no,  0.0,  1.0, TEX(c12_22.xy));
+		color += lookup(pixel_no,  1.0,  1.0, TEX(c12_22.zw));
+		vec3 out_color = mix(1.2 * mid_color, color, blend);
+
+		gl_FragColor = vec4(out_color, 1.0);
+	}
+</fragment>

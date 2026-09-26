@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Phosphor shader - Copyright (C) 2011 caligari. (RetroArch crt/shaders/crt-caligari.glsl)
+   Ported by Hyllian.
+   This program is free software; you can redistribute it and/or modify it under the
+   terms of the GNU General Public License as published by the Free Software Foundation;
+   either version 2 of the License, or (at your option) any later version.
+   This program is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+   PARTICULAR PURPOSE. See the GNU General Public License for more details.
+   drastic-nano port: the phosphor spot grid (pixel centre, spot weights and the
+   neighbour spot offsets onex/oney) is in DS pixel space (256x192) so hi-res 3D does
+   not double the spots; the colour of the current spot is fetched at the texel under
+   the fragment (snapped to a texel centre), so at native resolution this is identical
+   to the original and under hi-res 3D the neighbour blend stays one DS pixel away,
+   consistent with the weights.
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters
+	   0.5 = the spot stays inside the original pixel
+	   1.0 = the spot bleeds up to the center of next pixel */
+	const float SPOT_WIDTH = 0.9;     /* CRTCaligari Spot Width    0.5 .. 1.5 */
+	const float SPOT_HEIGHT = 0.65;   /* CRTCaligari Spot Height   0.5 .. 1.5 */
+	/* Used to counteract the desaturation effect of weighting. */
+	const float COLOR_BOOST = 1.45;   /* CRTCaligari Color Boost   1.0 .. 2.0 */
+	/* Constants used with gamma correction. */
+	const float InputGamma = 2.4;     /* CRTCaligari Input Gamma   0.0 .. 5.0 */
+	const float OutputGamma = 2.2;    /* CRTCaligari Output Gamma  0.0 .. 5.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	vec4 GAMMA_IN(vec4 color) {
+		return pow(color, vec4(InputGamma));
+	}
+
+	vec4 GAMMA_OUT(vec4 color) {
+		return pow(color, vec4(1.0 / OutputGamma));
+	}
+
+	vec4 TEX2D(vec2 coords) {
+		return GAMMA_IN(texture2D(u_texture, coords));
+	}
+
+	/* weights computing */
+	float WEIGHT(float w) {
+		if (w > 1.0) w = 1.0;
+		w = 1.0 - w * w;
+		w = w * w;
+		return w;
+	}
+
+	void main() {
+		/* spot grid in DS pixel space */
+		vec2 coords = v_texture_coordinate * DS_SCREEN;
+		vec2 pixel_center = floor(coords) + vec2(0.5, 0.5);
+		vec2 onex = vec2(1.0 / DS_SCREEN.x, 0.0);
+		vec2 oney = vec2(0.0, 1.0 / DS_SCREEN.y);
+
+		/* colour of the current spot: the texel under the fragment */
+		vec2 texture_coords = (floor(v_texture_coordinate * u_texture_size.zw) + vec2(0.5, 0.5)) * u_texture_size.xy;
+
+		vec4 color = TEX2D(texture_coords);
+
+		float dx = coords.x - pixel_center.x;
+
+		float h_weight_00 = WEIGHT(dx / SPOT_WIDTH);
+
+		color *= vec4(h_weight_00, h_weight_00, h_weight_00, h_weight_00);
+
+		/* get closest horizontal neighbour to blend */
+		vec2 coords01;
+		if (dx > 0.0) {
+			coords01 = onex;
+			dx = 1.0 - dx;
+		} else {
+			coords01 = -onex;
+			dx = 1.0 + dx;
+		}
+		vec4 colorNB = TEX2D(texture_coords + coords01);
+
+		float h_weight_01 = WEIGHT(dx / SPOT_WIDTH);
+
+		color = color + colorNB * vec4(h_weight_01);
+
+		/* Vertical Blending */
+		float dy = coords.y - pixel_center.y;
+		float v_weight_00 = WEIGHT(dy / SPOT_HEIGHT);
+		color *= vec4(v_weight_00);
+
+		/* get closest vertical neighbour to blend */
+		vec2 coords10;
+		if (dy > 0.0) {
+			coords10 = oney;
+			dy = 1.0 - dy;
+		} else {
+			coords10 = -oney;
+			dy = 1.0 + dy;
+		}
+		colorNB = TEX2D(texture_coords + coords10);
+
+		float v_weight_10 = WEIGHT(dy / SPOT_HEIGHT);
+
+		color = color + colorNB * vec4(v_weight_10 * h_weight_00);
+
+		colorNB = TEX2D(texture_coords + coords01 + coords10);
+
+		color = color + colorNB * vec4(v_weight_10 * h_weight_01);
+
+		color *= vec4(COLOR_BOOST);
+
+		gl_FragColor = clamp(GAMMA_OUT(color), 0.0, 1.0);
+	}
+</fragment>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Hyllian - Retro Shader - 2013 (RetroArch handheld/shaders/retro-v2.glsl)
+   A re-implementation from the original made by Hyllian and DOLLS!
+   GPL v2 or later (see the original for the full notice).
+   drastic-nano port: the pixel cell position (fract of the pixel coordinate)
+   and the output pixel size in source pixels (InputSize / OutputSize) are
+   computed in DS pixel space (256x192) instead of the input texture size, so
+   hi-res 3D does not double the pixel gaps.
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameter: between 0.0 (totally black) and 1.0 (nearest neighbor) */
+	const float RETRO_PIXEL_SIZE = 0.84;   /* "Retro Pixel Size" 0.0 .. 1.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	void main()
+	{
+		/* Reading the texel */
+		vec3 E = pow(texture2D(u_texture, v_texture_coordinate).xyz, vec3(2.4));
+
+		vec2 fp = fract(v_texture_coordinate*DS_SCREEN);
+		/* InputSize / OutputSize: one output pixel measured in DS pixels */
+		vec2 ps = DS_SCREEN / u_target_size;
+
+		vec2 f = clamp(clamp(fp + 0.5*ps, 0.0, 1.0) - RETRO_PIXEL_SIZE, vec2(0.0), ps)/ps;
+
+		float max_coord =  max(f.x, f.y);
+
+		vec3 res = mix(E*(1.04+fp.x*fp.y), E*0.36, max_coord);
+
+		/* Product interpolation */
+		gl_FragColor = vec4(clamp( pow(res, vec3(1.0 / 2.2)), 0.0, 1.0 ), 1.0);
+	}
+</fragment>

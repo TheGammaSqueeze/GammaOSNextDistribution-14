@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   crt-lottes-fast shader (RetroArch crt/shaders/crt-lottes-fast.glsl)
+
+   [CRTS] PUBLIC DOMAIN CRT-STYLED SCALAR - 20180120b
+   by Timothy Lottes
+   https://www.shadertoy.com/view/MtSfRK
+   adapted for RetroArch by hunterk
+
+   LICENSE = UNLICENSE (aka PUBLIC DOMAIN)
+   This is free and unencumbered software released into the public domain.
+   Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
+   software, either in source code form or as a compiled binary, for any purpose,
+   commercial or non-commercial, and by any means.
+   In jurisdictions that recognize copyright laws, the author or authors of this
+   software dedicate any and all copyright interest in the software to the public
+   domain. We make this dedication for the benefit of the public at large and to the
+   detriment of our heirs and successors. We intend this dedication to be an overt
+   act of relinquishment in perpetuity of all present and future rights to this
+   software under copyright law.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+   FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+   CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   For more information, please refer to <http://unlicense.org/>
+
+   Build settings of the original kept: CRTS_TONE, CRTS_WARP, 8-tap filter (no
+   CRTS_2_TAP), CRTS_CONTRAST and CRTS_SATURATION defined (to 0, so their pow()
+   steps with exponent 1.0 are applied as in the original), no CRTS_DEBUG.
+   drastic-nano port: the CRTS filter's "input size" (scanline snap and phase, the
+   four gaussian tap positions, the vignette height) is the DS screen (256x192)
+   instead of the input texture size, so hi-res 3D does not double the scanlines;
+   the taps then land on DS pixel centres, which under hi-res 3D fall on hi-res texel
+   boundaries and the LINEAR sampler averages the pair. The -16.0 LOD bias of the
+   original fetch is dropped (the input has no mipmaps). The phosphor mask stays keyed
+   to output pixels.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float MASK = 1.0;               /* Mask Type 0.0 .. 3.0 */
+	const float MASK_INTENSITY = 0.5;     /* Mask Intensity 0.0 .. 1.0 */
+	const float SCANLINE_THINNESS = 0.5;  /* Scanline Intensity 0.0 .. 1.0 */
+	const float SCAN_BLUR = 2.5;          /* Sharpness 1.0 .. 6.0 */
+	const float CURVATURE = 0.02;         /* Curvature 0.0 .. 0.25 */
+	const float TRINITRON_CURVE = 0.0;    /* Trinitron-style Curve 0.0 .. 1.0 */
+	const float CORNER = 3.0;             /* Corner Round 0.0 .. 11.0 */
+	const float CRT_GAMMA = 2.4;          /* CRT Gamma 0.0 .. 51.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	/* Scanline thinness: 0.50 = fused, 0.70 = recommended default, 1.00 = too thin */
+	const float INPUT_THIN = 0.5 + (0.5 * SCANLINE_THINNESS);
+	/* Horizontal scan blur: -3.0 = pixely, -2.5 = default, -2.0 = smooth, -1.0 = too blurry */
+	const float INPUT_BLUR = -1.0 * SCAN_BLUR;
+	/* Shadow mask effect: 0.25 = large amount, 0.50 = recommended default, 1.00 = none */
+	const float INPUT_MASK = 1.0 - MASK_INTENSITY;
+
+	/* ---------------------- GAMMA FUNCTIONS ---------------------- */
+	/* Since shadertoy doesn't have sRGB textures and we need linear input */
+	float FromSrgb1(float c) {
+		return (c <= 0.04045) ? c * (1.0 / 12.92) :
+			pow(c * (1.0 / 1.055) + (0.055 / 1.055), CRT_GAMMA);
+	}
+
+	vec3 FromSrgb(vec3 c) {
+		return vec3(FromSrgb1(c.r), FromSrgb1(c.g), FromSrgb1(c.b));
+	}
+
+	/* Convert from linear to sRGB */
+	float ToSrgb1(float c) {
+		return (c < 0.0031308 ? c * 12.92 : 1.055 * pow(c, 0.41666) - 0.055);
+	}
+
+	vec3 ToSrgb(vec3 c) {
+		return vec3(ToSrgb1(c.r), ToSrgb1(c.g), ToSrgb1(c.b));
+	}
+
+	/* Setup the function which returns input image color (linear) */
+	vec3 CrtsFetch(vec2 uv) {
+		return FromSrgb(texture2D(u_texture, uv.xy).rgb);
+	}
+
+	float CrtsMax3F1(float a, float b, float c) {
+		return max(a, max(b, c));
+	}
+
+	/* ------------- TONAL CONTROL CONSTANT GENERATION ------------- */
+	vec4 CrtsTone(float contrast, float saturation, float thin, float mask) {
+		if (MASK == 0.0) mask = 1.0;
+
+		if (MASK == 1.0) {
+			/* Normal R mask is {1.0,mask,mask}
+			   LITE   R mask is {mask,1.0,1.0} */
+			mask = 0.5 + mask * 0.5;
+		}
+
+		vec4 ret;
+		float midOut = 0.18 / ((1.5 - thin) * (0.5 * mask + 0.5));
+		float pMidIn = pow(0.18, contrast);
+		ret.x = contrast;
+		ret.y = ((-pMidIn) + midOut) / ((1.0 - pMidIn) * midOut);
+		ret.z = ((-pMidIn) * midOut + pMidIn) / (midOut * (-pMidIn) + midOut);
+		ret.w = contrast + saturation;
+		return ret;
+	}
+
+	/* ---------------------------- MASK ---------------------------- */
+	/* 'pos' is fragCoord.xy, 'dark' the exposure of the masked channel */
+	vec3 CrtsMask(vec2 pos, float dark) {
+		if (MASK == 2.0) {
+			vec3 m = vec3(dark, dark, dark);
+			float x = fract(pos.x * (1.0 / 3.0));
+			if (x < (1.0 / 3.0)) m.r = 1.0;
+			else if (x < (2.0 / 3.0)) m.g = 1.0;
+			else m.b = 1.0;
+			return m;
+		}
+
+		if (MASK == 1.0) {
+			vec3 m = vec3(1.0, 1.0, 1.0);
+			float x = fract(pos.x * (1.0 / 3.0));
+			if (x < (1.0 / 3.0)) m.r = dark;
+			else if (x < (2.0 / 3.0)) m.g = dark;
+			else m.b = dark;
+			return m;
+		}
+
+		if (MASK == 0.0) {
+			return vec3(1.0, 1.0, 1.0);
+		}
+
+		if (MASK == 3.0) {
+			pos.x += pos.y * 2.9999;
+			vec3 m = vec3(dark, dark, dark);
+			float x = fract(pos.x * (1.0 / 6.0));
+			if (x < (1.0 / 3.0)) m.r = 1.0;
+			else if (x < (2.0 / 3.0)) m.g = 1.0;
+			else m.b = 1.0;
+			return m;
+		}
+		/* unreachable for MASK in 0..3; the original has no return here */
+		return vec3(1.0, 1.0, 1.0);
+	}
+
+	/* ------------------------ FILTER ENTRY ------------------------ */
+	vec3 CrtsFilter(
+		vec2 ipos,                    /* fragCoord.xy */
+		vec2 inputSizeDivOutputSize,  /* inputSize / outputSize (in pixels) */
+		vec2 halfInputSize,           /* 0.5 * inputSize (in pixels) */
+		vec2 rcpInputSize,            /* 1.0 / inputSize (in pixels) */
+		vec2 rcpOutputSize,           /* 1.0 / outputSize (in pixels) */
+		vec2 twoDivOutputSize,        /* 2.0 / outputSize (in pixels) */
+		float inputHeight,            /* inputSize.y */
+		vec2 warp,                    /* warp scanlines but not phosphor mask */
+		float thin,                   /* scanline thinness */
+		float blur,                   /* horizontal scan blur */
+		float mask,                   /* shadow mask effect */
+		vec4 tone                     /* tonal curve parameters from CrtsTone() */
+	) {
+		/* Apply warp */
+		vec2 pos;
+		/* Convert to {-1 to 1} range */
+		pos = ipos * twoDivOutputSize - vec2(1.0, 1.0);
+		/* Distort pushes image outside {-1 to 1} range */
+		pos *= vec2(
+			1.0 + (pos.y * pos.y) * warp.x,
+			1.0 + (pos.x * pos.x) * warp.y);
+		/* Vignette */
+		float vin = (1.0 - (
+			(1.0 - clamp(pos.x * pos.x, 0.0, 1.0)) * (1.0 - clamp(pos.y * pos.y, 0.0, 1.0)))) * (0.998 + (0.001 * CORNER));
+		vin = clamp((-vin) * inputHeight + inputHeight, 0.0, 1.0);
+		/* Leave in {0 to inputSize} */
+		pos = pos * halfInputSize + halfInputSize;
+
+		/* Snap to center of first scanline */
+		float y0 = floor(pos.y - 0.5) + 0.5;
+		/* Snap to center of one of four pixels */
+		float x0 = floor(pos.x - 1.5) + 0.5;
+		/* Initial UV position */
+		vec2 p = vec2(x0 * rcpInputSize.x, y0 * rcpInputSize.y);
+		/* Fetch 4 nearest texels from 2 nearest scanlines */
+		vec3 colA0 = CrtsFetch(p);
+		p.x += rcpInputSize.x;
+		vec3 colA1 = CrtsFetch(p);
+		p.x += rcpInputSize.x;
+		vec3 colA2 = CrtsFetch(p);
+		p.x += rcpInputSize.x;
+		vec3 colA3 = CrtsFetch(p);
+		p.y += rcpInputSize.y;
+		vec3 colB3 = CrtsFetch(p);
+		p.x -= rcpInputSize.x;
+		vec3 colB2 = CrtsFetch(p);
+		p.x -= rcpInputSize.x;
+		vec3 colB1 = CrtsFetch(p);
+		p.x -= rcpInputSize.x;
+		vec3 colB0 = CrtsFetch(p);
+
+		/* Vertical filter: scanline intensity is using sine wave */
+		float off = pos.y - y0;
+		float pi2 = 6.28318530717958;
+		float hlf = 0.5;
+		float scanA = cos(min(0.5,   off  * thin       ) * pi2) * hlf + hlf;
+		float scanB = cos(min(0.5, (-off) * thin + thin) * pi2) * hlf + hlf;
+
+		/* Horizontal kernel is simple gaussian filter */
+		float off0 = pos.x - x0;
+		float off1 = off0 - 1.0;
+		float off2 = off0 - 2.0;
+		float off3 = off0 - 3.0;
+		float pix0 = exp2(blur * off0 * off0);
+		float pix1 = exp2(blur * off1 * off1);
+		float pix2 = exp2(blur * off2 * off2);
+		float pix3 = exp2(blur * off3 * off3);
+		float pixT = 1.0 / (pix0 + pix1 + pix2 + pix3);
+		/* Get rid of wrong pixels on edge */
+		pixT *= vin;
+		scanA *= pixT;
+		scanB *= pixT;
+		/* Apply horizontal and vertical filters */
+		vec3 color =
+			(colA0 * pix0 + colA1 * pix1 + colA2 * pix2 + colA3 * pix3) * scanA +
+			(colB0 * pix0 + colB1 * pix1 + colB2 * pix2 + colB3 * pix3) * scanB;
+
+		/* Apply phosphor mask */
+		color *= CrtsMask(ipos, mask);
+
+		/* Tonal control, start by protecting from /0 */
+		float peak = max(1.0 / (256.0 * 65536.0),
+			CrtsMax3F1(color.r, color.g, color.b));
+		/* Compute the ratios of {R,G,B} */
+		vec3 ratio = color * (1.0 / peak);
+		/* Apply tonal curve to peak value (CRTS_CONTRAST) */
+		peak = pow(peak, tone.x);
+		peak = peak * (1.0 / (peak * tone.y + tone.z));
+		/* Apply saturation (CRTS_SATURATION) */
+		ratio = pow(ratio, vec3(tone.w, tone.w, tone.w));
+		/* Reconstruct color */
+		return ratio * peak;
+	}
+
+	void main()
+	{
+		vec2 warp_factor;
+		warp_factor.x = CURVATURE;
+		warp_factor.y = (3.0 / 4.0) * warp_factor.x; /* assume 4:3 aspect */
+		warp_factor.x *= (1.0 - TRINITRON_CURVE);
+		vec3 col = CrtsFilter(v_texture_coordinate.xy * u_target_size.xy,
+			DS_SCREEN / u_target_size.xy,
+			DS_SCREEN * vec2(0.5, 0.5),
+			1.0 / DS_SCREEN,
+			1.0 / u_target_size.xy,
+			2.0 / u_target_size.xy,
+			DS_SCREEN.y,
+			warp_factor,
+			INPUT_THIN,
+			INPUT_BLUR,
+			INPUT_MASK,
+			CrtsTone(1.0, 0.0, INPUT_THIN, INPUT_MASK));
+
+		/* Shadertoy outputs non-linear color */
+		gl_FragColor = vec4(ToSrgb(col), 1.0);
+	}
+</fragment>

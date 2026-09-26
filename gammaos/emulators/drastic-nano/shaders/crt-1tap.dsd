@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   crt-1tap v1.2 by fishku (RetroArch crt/shaders/crt-1tap.glsl)
+   Copyright (C) 2023
+   Ported by dariusg to GLSL
+   Public domain license (CC0)
+   Extremely fast and lightweight dynamic scanline shader. Uses a single texture "tap"
+   per pixel: bilinear interpolation plus local coordinate distortion shape the scanline,
+   a pseudo-sigmoid with configurable slope controls horizontal smoothness, a clamped
+   linear function anti-aliases the scanline edge and a gamma-like operation shapes the
+   final thickness. The scanline subpixel position tunes sharpness for even/odd scaling.
+   drastic-nano port: the scanline shape (src_y_fract) is computed in DS pixel space
+   (256x192) so hi-res 3D does not double the scanlines; the tap coordinate (horizontal
+   sigmoid and the row snap) keeps the real texel size. Alpha is written as 1.0.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float MIN_THICK = 0.3;       /* Scanline thickness of dark pixels           0.0 .. 1.4 */
+	const float MAX_THICK = 0.9;       /* Scanline thickness of bright pixels         0.0 .. 1.4 */
+	const float V_SHARP = 0.5;         /* Vertical sharpness of the scanline          0.0 .. 1.0 */
+	const float H_SHARP = 0.15;        /* Horizontal sharpness of pixel transitions   0.0 .. 1.0 */
+	const float SUBPX_POS = 0.3;       /* Scanline subpixel position                 -0.5 .. 0.5 */
+	const float THICK_FALLOFF = 0.65;  /* Reduction / increase of thinner scanlines   0.2 .. 2.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	void main() {
+		/* tap coordinate in texel space */
+		vec2 cent = v_texture_coordinate * u_texture_size.zw;
+		float src_x_fract = fract(cent.x - 0.5);
+		float src_x_int = floor(cent.x - 0.5);
+		float src_y_int = floor(cent.y - SUBPX_POS);
+
+		/* scanline shape in DS pixel space */
+		float cent_ds_y = v_texture_coordinate.y * DS_SCREEN.y;
+		float src_y_fract = fract(cent_ds_y - SUBPX_POS) - 0.5;
+
+		/* Function similar to smoothstep and sigmoid. */
+		float s = sign(src_x_fract - 0.5);
+		float o = (1.0 + s) * 0.5;
+		float src_x = src_x_int + o - 0.5 * s * pow(2.0 * (o - s * src_x_fract), mix(1.0, 6.0, H_SHARP));
+
+		vec3 signal = texture2D(u_texture, vec2((src_x + 0.5) * u_texture_size.x, (src_y_int + 0.5) * u_texture_size.y)).rgb;
+
+		/* Vectorize operations for speed. */
+		float eff_v_sharp = 3.0 + 50.0 * V_SHARP * V_SHARP;
+		vec3 thickmin = vec3(MIN_THICK);
+		vec3 thickmax = vec3(MAX_THICK);
+		vec3 thickfall = vec3(THICK_FALLOFF);
+		vec3 radius = pow(mix(thickmin, thickmax, signal), thickfall) * 0.5;
+
+		gl_FragColor = vec4(signal * clamp(0.25 - eff_v_sharp * (src_y_fract * src_y_fract - radius * radius), 0.0, 1.0), 1.0);
+	}
+</fragment>

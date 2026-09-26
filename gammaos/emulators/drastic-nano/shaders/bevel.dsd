@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Hyllian's Bevel Shader (RetroArch handheld/shaders/bevel.glsl)
+   Copyright (C) 2011-2014 Hyllian/Jararaca - sergiogdb@gmail.com
+   GPL v2 or later (see the original for the full notice).
+   drastic-nano port: the pixel cell position (fract of the pixel coordinate) is
+   generated in DS pixel space (256x192) instead of the input texture size, so
+   hi-res 3D does not double the bevels; the 1.0000001 texcoord fudge is dropped.
+-->
+<options>
+filter=nearest
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float BEVEL_LEVEL = 0.2;   /* "Bevel Level" 0.0 .. 0.5 */
+	const float InputGamma = 2.4;    /* "Input Gamma" 0.1 .. 5.0 */
+	const float OutputGamma = 2.2;   /* "Output Gamma" 0.1 .. 5.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	vec3 GAMMA_IN(vec3 color)
+	{
+		return pow(color, vec3(InputGamma, InputGamma, InputGamma));
+	}
+
+	vec3 GAMMA_OUT(vec3 color)
+	{
+		return pow(color, vec3(1.0 / OutputGamma, 1.0 / OutputGamma, 1.0 / OutputGamma));
+	}
+
+	vec3 bevel(vec2 pos, vec3 color)
+	{
+		vec3 weight;
+
+		float r = sqrt(dot(pos, vec2(1.0)));
+
+		vec3 delta = mix(vec3(BEVEL_LEVEL), vec3(1.0-BEVEL_LEVEL), color);
+
+		weight = delta*(1.0-r);
+
+		return color+weight;
+	}
+
+	void main()
+	{
+		vec2 position = fract(v_texture_coordinate*DS_SCREEN);
+
+		vec3 color = GAMMA_IN(texture2D(u_texture, v_texture_coordinate).rgb);
+
+		color = clamp(bevel(position, color), 0.0, 1.0);
+
+		gl_FragColor = vec4(GAMMA_OUT(color), 1.0);
+	}
+</fragment>

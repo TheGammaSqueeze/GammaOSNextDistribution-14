@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   zfast_crt_standard - A simple, fast CRT shader. (RetroArch crt/shaders/zfast_crt.glsl)
+   Copyright (C) 2017 Greg Hogan (SoltanGris42)
+   GPL v2 or later.
+   Notes: scaling with a weighted linear filter for adjustable sharpness on the x and y
+   axes based on the algorithm by Inigo Quilez, modified to be sharper. Then a scanline
+   effect that varies with pixel brightness, plus a monochrome aperture mask (FINEMASK).
+   drastic-nano port: the scanline phase is computed in DS pixel space (256x192) so
+   hi-res 3D does not double the scanlines; the Quilez fetch sharpening and the mask
+   (output pixels) are unchanged. TextureSize/InputSize ratio is 1 on the DS.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float BLURSCALEX = 0.30;    /* Blur Amount X-Axis          0.0 .. 1.0  */
+	const float LOWLUMSCAN = 6.0;     /* Scanline Darkness - Low     0.0 .. 10.0 */
+	const float HILUMSCAN = 8.0;      /* Scanline Darkness - High    0.0 .. 50.0 */
+	const float BRIGHTBOOST = 1.25;   /* Dark Pixel Brightness Boost 0.5 .. 1.5  */
+	const float MASK_DARK = 0.25;     /* Mask Effect Amount          0.0 .. 1.0  */
+	const float MASK_FADE = 0.8;      /* Mask/Scanline Fade          0.0 .. 1.0  */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	void main() {
+		float maskFade = 0.3333 * MASK_FADE;
+		vec2 invDims = u_texture_size.xy;
+
+		/* This is just like "Quilez Scaling" but sharper (texel addressing) */
+		vec2 p = v_texture_coordinate * u_texture_size.zw;
+		vec2 i = floor(p) + 0.50;
+		vec2 f = p - i;
+		p = (i + 4.0 * f * f * f) * invDims;
+		p.x = mix(p.x, v_texture_coordinate.x, BLURSCALEX);
+
+		/* Scanline phase in DS pixel space */
+		float pd = v_texture_coordinate.y * DS_SCREEN.y;
+		float fd = pd - (floor(pd) + 0.50);
+		float Y = fd * fd;
+		float YY = Y * Y;
+
+		/* FINEMASK: 2 pixel monochrome aperture mask on output pixels */
+		float whichmask = floor(v_texture_coordinate.x * u_target_size.x) * -0.5;
+		float mask = 1.0 + float(fract(whichmask) < 0.5) * -MASK_DARK;
+
+		vec3 colour = texture2D(u_texture, p).rgb;
+
+		float scanLineWeight = (BRIGHTBOOST - LOWLUMSCAN * (Y - 2.05 * YY));
+		float scanLineWeightB = 1.0 - HILUMSCAN * (YY - 2.8 * YY * Y);
+
+		gl_FragColor = vec4(colour.rgb * mix(scanLineWeight * mask, scanLineWeightB, dot(colour.rgb, vec3(maskFade))), 1.0);
+	}
+</fragment>

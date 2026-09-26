@@ -1,0 +1,31 @@
+// fakelottes-geom-mini: RetroArch crt/fakelottes-geom-mini (Rogalian aka cools):
+// fakelottes' crt-lottes curvature and phosphor mask in linear gamma plus the
+// fake-crt-geom smooth border and rounded corners, with the scanline effect
+// stripped for low-resolution devices. Ported for drastic-nano: one pass at the
+// panel resolution, LINEAR fetch, the mask in output pixels as in the original.
+=============================================
+<options>
+name=fakelottes-geom-mini
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_LINEAR
+mag_filter=GL_LINEAR
+</texture>
+
+<pass>
+shader=fakelottes-geom-mini.dsd
+sampler:u_texture=0
+</pass>

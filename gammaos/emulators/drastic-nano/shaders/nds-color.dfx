@@ -1,0 +1,31 @@
+// nds-color: RetroArch handheld/nds-color (hunterk's Color Mangler, modified by
+// Pokefan531, public domain): colour correction replicating the LCD dynamics of
+// a Nintendo DS Phat (gamma 1.91, luminance 0.89, channel mixing matrix).
+// Ported for drastic-nano: one pass at the panel resolution, NEAREST fetch, no
+// spatial pattern so no pixel-space handling is needed.
+=============================================
+<options>
+name=nds-color
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_NEAREST
+mag_filter=GL_NEAREST
+</texture>
+
+<pass>
+shader=nds-color.dsd
+sampler:u_texture=0
+</pass>

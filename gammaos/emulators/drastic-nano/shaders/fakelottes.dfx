@@ -1,0 +1,30 @@
+// fakelottes: RetroArch crt/fakelottes (hunterk): simple sine scanlines with the
+// barrel curvature and phosphor mask lifted from crt-lottes, mask applied in linear
+// gamma. Ported for drastic-nano: one pass at the panel resolution, LINEAR fetch,
+// the scanline in DS pixel space (256x192), the mask in output pixels as original.
+=============================================
+<options>
+name=fakelottes
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_LINEAR
+mag_filter=GL_LINEAR
+</texture>
+
+<pass>
+shader=fakelottes.dsd
+sampler:u_texture=0
+</pass>

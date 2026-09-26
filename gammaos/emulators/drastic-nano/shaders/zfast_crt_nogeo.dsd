@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   zfast_crt_nogeo - A simple, fast CRT shader. (RetroArch crt/shaders/zfast_crt_nogeo.glsl)
+   Copyright (C) 2017 Greg Hogan (SoltanGris42)
+   Copyright (C) 2023 Jose Linares (Dogway)
+   GPL v2 or later.
+   Notes: weighted linear filter based on the algorithm by Inigo Quilez, modified to be
+   sharper, then a brightness dependent scanline and a monochrome aperture mask.
+   Dogway: the same as zfast_crt_geo but without the screen curvature for extra performance.
+   drastic-nano port: the scanline phase is computed in DS pixel space (256x192) so
+   hi-res 3D does not double the scanlines; the Quilez fetch snap keeps the texel size.
+   TextureSize/InputSize ratio ("scale") is 1 on the DS.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float SCANLINE_WEIGHT = 9.0;   /* Scanline Amount     0.0 .. 15.0 */
+	const float MASK_DARK = 0.4;         /* Mask Effect Amount  0.0 .. 1.0  */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	/* This compensates the scanline+mask embedded gamma from the beam dynamics */
+	const vec3 pwr = vec3(1.0 / ((-0.0325 * SCANLINE_WEIGHT + 1.0) * (-0.311 * MASK_DARK + 1.0)) - 1.2);
+
+	/* NTSC-J (D93) -> Rec709 D65 Joint Matrix (with D93 simulation)
+	   This is compensated for a linearization hack (RGB*RGB and then sqrt()) */
+	const mat3 P22D93 = mat3(
+	     1.00000, 0.00000, -0.06173,
+	     0.07111, 0.96887, -0.01136,
+	     0.00000, 0.08197,  1.07280);
+
+	/* Returns gamma corrected output, compensated for scanline+mask embedded gamma */
+	vec3 inv_gamma(vec3 col, vec3 power) {
+		vec3 cir = col - 1.0;
+		cir *= cir;
+		col = mix(sqrt(col), sqrt(1.0 - cir), power);
+		return col;
+	}
+
+	void main() {
+		float MSCL = (u_target_size.y > 1499.0) ? 0.3333 : 0.5;
+
+		vec2 vpos = v_texture_coordinate;
+
+		vpos *= (1.0 - vpos.xy);
+		float vig = vpos.x * vpos.y * 46.0;
+		vig = min(sqrt(vig), 1.0);
+
+		/* This is just like "Quilez Scaling" but sharper (texel addressing) */
+		float p = v_texture_coordinate.y * u_texture_size.w;
+		/* Snap to the center of the underlying texel. */
+		float i = floor(p) + 0.5;
+		float f = p - i;
+		p = (i + 4.0 * f * f * f) * u_texture_size.y;
+
+		/* Scanline phase in DS pixel space */
+		float pd = v_texture_coordinate.y * DS_SCREEN.y;
+		float fd = pd - (floor(pd) + 0.5);
+		float Y = fd * fd;
+
+		float whichmask = floor(v_texture_coordinate.x * u_target_size.x) * -MSCL;
+		float mask = 1.0 + float(fract(whichmask) < MSCL) * -MASK_DARK;
+		vec3 colour = texture2D(u_texture, vec2(v_texture_coordinate.x, p)).rgb;
+
+		colour = max((colour * colour) * (P22D93 * vig), 0.0);
+
+		float scanLineWeight = (1.5 - SCANLINE_WEIGHT * (Y - Y * Y));
+
+		gl_FragColor = vec4(inv_gamma(colour.rgb * mix(scanLineWeight * mask, 1.0, colour.r * 0.26667 + colour.g * 0.26667 + colour.b * 0.26667), pwr), 1.0);
+	}
+</fragment>

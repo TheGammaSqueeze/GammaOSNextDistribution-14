@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   zfast_lcd_standard shader (RetroArch handheld/shaders/zfast_lcd.glsl)
+   A very simple LCD shader meant to be used at 1080p on the raspberry pi 3.
+   Copyright (C) 2017 Greg Hogan (SoltanGris42)
+   GPL v2 or later.
+   Notes: This shader just does nearest neighbor scaling of the game and then
+   darkens the border pixels to imitate an LCD screen. You can change the
+   amount of darkening and the thickness of the borders. You can also do
+   basic gamma adjustment.
+   drastic-nano port: the pixel cells (texcoordInPixels, centerCoord) are
+   generated in DS pixel space (256x192) instead of the input texture size, so
+   hi-res 3D does not double the grid; the fetch lands on the DS pixel centre
+   (which the linear filter averages over the hi-res texels there). The invSize
+   varying is folded into the fragment as a constant.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float BORDERMULT = 14.0;   /* "Border Multiplier" -40.0 .. 40.0 */
+	const float GBAGAMMA = 1.0;      /* "GBA Gamma Hack" 0.0 .. 1.0 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+	const vec2 invSize = vec2(1.0 / 256.0, 1.0 / 192.0);
+
+	void main()
+	{
+		mediump vec2 texcoordInPixels = v_texture_coordinate.xy * DS_SCREEN;
+		mediump vec2 centerCoord = floor(texcoordInPixels.xy)+vec2(0.5,0.5);
+		mediump vec2 distFromCenter = abs(centerCoord - texcoordInPixels);
+
+		mediump float Y = max(distFromCenter.x,(distFromCenter.y));
+
+		Y=Y*Y;
+		mediump float YY = Y*Y;
+		mediump float YYY = YY*Y;
+
+		mediump float LineWeight = YY - 2.7*YYY;
+		LineWeight = 1.0 - BORDERMULT*LineWeight;
+
+		mediump vec3 colour = texture2D(u_texture, invSize*centerCoord).rgb*LineWeight;
+
+		if (GBAGAMMA > 0.5)
+			colour.rgb*=0.6+0.4*(colour.rgb); /* fake gamma because the pi is too slow! */
+
+		gl_FragColor = vec4(colour.rgb , 1.0);
+	}
+</fragment>

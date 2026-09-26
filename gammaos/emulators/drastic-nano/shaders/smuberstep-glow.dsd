@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   SmuberStep - Like SmoothestStep but even Smoothester
+   with cheap glow-like effect and dotmask on top
+   by torridgristle (RetroArch crt/shaders/smuberstep-glow.glsl, no licence
+   header in the original file). Lottes mask code from the PD CRT Lottes shader,
+   cgwg dot mask emulation.
+   drastic-nano port: the scanline angle is computed in DS pixel space (256x192)
+   instead of the input texture size, so hi-res 3D does not double the
+   scanlines; the smootherstep fetch coordinate and the glow taps keep the real
+   texture size. The masks stay keyed to output pixels.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+	varying float angle;
+
+	const float PHASE = 1.0;   /* Phase -2.0 .. 2.0 */
+	const float freq = 1.0;
+	const float PI = 3.141592654;
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+	const float omega = 2.0 * PI * freq;  /* Angular frequency */
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+		/* scanline phase: DS line space */
+		angle = a_texture_coordinate.y * DS_SCREEN.y * omega - PHASE;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec4 u_texture_size;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+	varying float angle;
+
+	/* RetroArch parameters (defaults) */
+	const float AMPLITUDE = 1.0;         /* Scanlines Depth 0.0 .. 4.0 */
+	const float LINES_BLACK = 0.9;       /* Lines Blacks -1.0 .. 1.0 */
+	const float LINES_WHITE = 1.5;       /* Lines Whites 0.0 .. 2.0 */
+	const float shadowMask = 3.0;        /* Mask Style -1.0 .. 4.0 */
+	const float DOTMASK_STRENGTH = 0.3;  /* CGWG Dot Mask Strength 0.0 .. 1.0 */
+	const float maskDark = 0.5;          /* Lottes maskDark 0.0 .. 2.0 */
+	const float maskLight = 1.5;         /* Lottes maskLight 0.0 .. 2.0 */
+
+	const float Pi = 3.1415926536;
+
+	/* Shadow mask. */
+	vec3 Mask(vec2 pos) {
+		vec3 mask = vec3(maskDark, maskDark, maskDark);
+
+		/* Very compressed TV style shadow mask. */
+		if (shadowMask == 1.0) {
+			float line = maskLight;
+			float odd = 0.0;
+			if (fract(pos.x / 6.0) < 0.5)
+				odd = 1.0;
+			if (fract((pos.y + odd) / 2.0) < 0.5)
+				line = maskDark;
+			pos.x = fract(pos.x / 3.0);
+			if      (pos.x < 0.333) mask.r = maskLight;
+			else if (pos.x < 0.666) mask.g = maskLight;
+			else                    mask.b = maskLight;
+			mask *= line;
+		}
+		/* Aperture-grille. */
+		else if (shadowMask == 2.0) {
+			pos.x = fract(pos.x / 3.0);
+			if      (pos.x < 0.333) mask.r = maskLight;
+			else if (pos.x < 0.666) mask.g = maskLight;
+			else                    mask.b = maskLight;
+		}
+		/* Stretched VGA style shadow mask (same as prior shaders). */
+		else if (shadowMask == 3.0) {
+			pos.x += pos.y * 3.0;
+			pos.x = fract(pos.x / 6.0);
+			if      (pos.x < 0.333) mask.r = maskLight;
+			else if (pos.x < 0.666) mask.g = maskLight;
+			else                    mask.b = maskLight;
+		}
+		/* VGA style shadow mask. */
+		else if (shadowMask == 4.0) {
+			pos.xy = floor(pos.xy * vec2(1.0, 0.5));
+			pos.x += pos.y * 3.0;
+			pos.x = fract(pos.x / 6.0);
+			if      (pos.x < 0.333) mask.r = maskLight;
+			else if (pos.x < 0.666) mask.g = maskLight;
+			else                    mask.b = maskLight;
+		}
+
+		return mask;
+	}
+
+	/* torridgristle's shadowmask code */
+	vec3 SinPhosphor(vec3 image) {
+		vec2 tc = v_texture_coordinate;
+		float MaskR = sin(u_target_size.x * tc.x * Pi * 1.0 + Pi * 0.00000 + tc.y * u_target_size.y * Pi * 0.5) * 0.5 + 0.5;
+		float MaskG = sin(u_target_size.x * tc.x * Pi * 1.0 + Pi * 1.33333 + tc.y * u_target_size.y * Pi * 0.5) * 0.5 + 0.5;
+		float MaskB = sin(u_target_size.x * tc.x * Pi * 1.0 + Pi * 0.66667 + tc.y * u_target_size.y * Pi * 0.5) * 0.5 + 0.5;
+
+		vec3 msk = vec3(MaskR, MaskG, MaskB);
+		msk = min(msk * 2.0, 1.0);
+		return vec3(msk * image);
+	}
+
+	void main() {
+		/* smootherstep fetch coordinate: texel space */
+		vec2 SStep = v_texture_coordinate * u_texture_size.zw + 0.4999;
+		vec2 SStepInt = floor(SStep);
+		vec2 SStepFra = SStep - SStepInt;
+
+		SStep = ((924.0 * pow(SStepFra, vec2(13.0)) - 6006.0 * pow(SStepFra, vec2(12.0)) + 16380.0 * pow(SStepFra, vec2(11.0)) - 24024.0 * pow(SStepFra, vec2(10.0)) + 20020.0 * pow(SStepFra, vec2(9.0)) - 9009.0 * pow(SStepFra, vec2(8.0)) + 1716.0 * pow(SStepFra, vec2(7.0))) + SStepInt - 0.5) * u_texture_size.xy;
+
+		vec3 Picture = texture2D(u_texture, SStep).xyz;
+
+		float Lum = ((0.299 * Picture.x) + (0.587 * Picture.y) + (0.114 * Picture.z));
+		Lum = 1.0 - Lum;
+		Lum = Lum * 0.5;
+
+		vec3 PictureBlur = pow(texture2D(u_texture, SStep + u_texture_size.xy * vec2( Lum,  Lum)).xyz, vec3(2.2));
+		PictureBlur += pow(texture2D(u_texture, SStep + u_texture_size.xy * vec2(-Lum,  Lum)).xyz, vec3(2.2));
+		PictureBlur += pow(texture2D(u_texture, SStep + u_texture_size.xy * vec2( Lum, -Lum)).xyz, vec3(2.2));
+		PictureBlur += pow(texture2D(u_texture, SStep + u_texture_size.xy * vec2(-Lum, -Lum)).xyz, vec3(2.2));
+		PictureBlur *= 0.25;
+
+		float lines;
+		lines = sin(angle);
+		lines *= AMPLITUDE;
+		lines = clamp(lines, 0.0, 1.0);
+		lines *= LINES_WHITE - LINES_BLACK;
+		lines += LINES_BLACK;
+
+		PictureBlur *= lines;
+
+		float mask = 1.0 - DOTMASK_STRENGTH;
+
+		/* cgwg's dotmask emulation:
+		   Output pixels are alternately tinted green and magenta */
+		float mod_factor = v_texture_coordinate.x * u_target_size.x;
+		vec3 dotMaskWeights = mix(vec3(1.0, mask, 1.0),
+		                          vec3(mask, 1.0, mask),
+		                          floor(mod(mod_factor, 2.0)));
+		if (shadowMask > 0.5) {
+			PictureBlur *= Mask(floor(1.000001 * gl_FragCoord.xy + vec2(0.5, 0.5)));
+			gl_FragColor = vec4(pow(PictureBlur, vec3(1.0 / 2.2)), 1.0);
+			return;
+		} else if (shadowMask == 0.0) {
+			PictureBlur = pow(PictureBlur, vec3(1.0 / 2.2));
+			PictureBlur *= dotMaskWeights;
+			gl_FragColor = vec4(PictureBlur, 1.0);
+			return;
+		} else {
+			PictureBlur = pow(PictureBlur, vec3(1.0 / 2.2));
+			PictureBlur = pow(PictureBlur, vec3(1.0 / 2.2));  /* dunno why this needed double delinearization but whatever */
+			PictureBlur *= SinPhosphor(PictureBlur);
+			gl_FragColor = vec4(PictureBlur, 1.0);
+		}
+	}
+</fragment>

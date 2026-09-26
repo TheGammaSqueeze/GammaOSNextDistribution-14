@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   fakelottes-geom shader (RetroArch crt/shaders/fakelottes-geom.glsl)
+   Corners lifted from fake-crt-geom. Defaults set nicely.
+   Parameter range extended to allow brightness compensation
+   by Rogalian aka cools
+   On sub-HD resolution devices, suggest Scanline Intensity: 0.0
+
+   Simple scanlines with curvature and mask effects lifted from crt-lottes
+   by hunterk
+   (crt-lottes by Timothy Lottes is public domain.)
+   Build settings of the original kept: MASK, CURVATURE, SCANLINES, EXTRA_MASKS,
+   BORDER on, ROTATE_SCANLINES off.
+   drastic-nano port: the scanline frequency and its quarter-pixel offset are
+   computed in DS pixel space (256x192) instead of the input texture size, so hi-res
+   3D does not double the scanlines; the mask stays keyed to gl_FragCoord.
+-->
+<options>
+filter=linear
+</options>
+
+<vertex>
+	attribute vec2 a_vertex_coordinate;
+	attribute vec2 a_texture_coordinate;
+	varying vec2 v_texture_coordinate;
+
+	void main() {
+		gl_Position = vec4(a_vertex_coordinate.xy, 0.0, 1.0);
+		v_texture_coordinate = a_texture_coordinate;
+	}
+</vertex>
+
+<fragment>
+	uniform sampler2D u_texture;
+	uniform vec2 u_target_size;
+	varying vec2 v_texture_coordinate;
+
+	/* RetroArch parameters */
+	const float SCANLINE_SINE_COMP_B = 0.4;       /* Scanline Intensity 0.0 .. 1.0 */
+	const float shadowMask = 1.0;                 /* shadowMask 0.0 .. 4.0 */
+	const float warpX = 0.031;                    /* warpX 0.0 .. 0.125 */
+	const float warpY = 0.041;                    /* warpY 0.0 .. 0.125 */
+	const float maskDark = 0.5;                   /* maskDark 0.0 .. 2.0 */
+	const float maskLight = 1.5;                  /* maskLight 0.0 .. 2.0 */
+	const float crt_gamma = 2.5;                  /* CRT Gamma 1.0 .. 4.0 */
+	const float monitor_gamma = 2.2;              /* Monitor Gamma 1.0 .. 4.0 */
+	const float SCANLINE_SINE_COMP_A = 0.0;       /* Scanline Sine Comp A 0.0 .. 0.10 */
+	const float SCANLINE_BASE_BRIGHTNESS = 0.95;  /* Scanline Base Brightness 0.0 .. 3.0 */
+	const float bsmooth = 150.0;                  /* Border Smoothness 40.0 .. 1000.0 */
+	const float a_corner = 0.03;                  /* Corner Roundness 0.0 .. 0.2 */
+
+	const vec2 DS_SCREEN = vec2(256.0, 192.0);
+
+	vec4 scanline(vec2 coord, vec4 frame)
+	{
+		vec2 omega = vec2(3.1415 * u_target_size.x, 2.0 * 3.1415 * DS_SCREEN.y);
+		vec2 sine_comp = vec2(SCANLINE_SINE_COMP_A, SCANLINE_SINE_COMP_B);
+		vec3 res = frame.xyz;
+
+		/* -0.25 fixes scanline misplacement on pixels */
+		vec3 scanline = res * (SCANLINE_BASE_BRIGHTNESS + dot(sine_comp * sin((coord - vec2(0.0, 0.25 / DS_SCREEN.y)) * omega), vec2(1.0, 1.0)));
+
+		return vec4(scanline.x, scanline.y, scanline.z, 1.0);
+	}
+
+	/* Distortion of scanlines, and end of screen alpha. */
+	vec2 Warp(vec2 pos)
+	{
+		pos  = pos * 2.0 - 1.0;
+		pos *= vec2(1.0 + (pos.y * pos.y) * warpX, 1.0 + (pos.x * pos.x) * warpY);
+
+		return pos * 0.5 + 0.5;
+	}
+
+	/* Shadow mask. */
+	vec4 Mask(vec2 pos)
+	{
+		vec3 mask = vec3(maskDark, maskDark, maskDark);
+
+		/* Very compressed TV style shadow mask. */
+		if (shadowMask == 1.0)
+		{
+			float line = maskLight;
+			float odd = 0.0;
+
+			if (fract(pos.x * 0.166666666) < 0.5) odd = 1.0;
+			if (fract((pos.y + odd) * 0.5) < 0.5) line = maskDark;
+
+			pos.x = fract(pos.x * 0.333333333);
+
+			if      (pos.x < 0.333) mask.r = maskLight;
+			else if (pos.x < 0.666) mask.g = maskLight;
+			else                    mask.b = maskLight;
+			mask *= line;
+		}
+
+		/* Aperture-grille. */
+		else if (shadowMask == 2.0)
+		{
+			pos.x = fract(pos.x * 0.333333333);
+
+			if      (pos.x < 0.333) mask.r = maskLight;
+			else if (pos.x < 0.666) mask.g = maskLight;
+			else                    mask.b = maskLight;
+		}
+
+		/* Stretched VGA style shadow mask (same as prior shaders). */
+		else if (shadowMask == 3.0)
+		{
+			pos.x += pos.y * 3.0;
+			pos.x  = fract(pos.x * 0.166666666);
+
+			if      (pos.x < 0.333) mask.r = maskLight;
+			else if (pos.x < 0.666) mask.g = maskLight;
+			else                    mask.b = maskLight;
+		}
+
+		/* VGA style shadow mask. */
+		else if (shadowMask == 4.0)
+		{
+			pos.xy  = floor(pos.xy * vec2(1.0, 0.5));
+			pos.x  += pos.y * 3.0;
+			pos.x   = fract(pos.x * 0.166666666);
+
+			if      (pos.x < 0.333) mask.r = maskLight;
+			else if (pos.x < 0.666) mask.g = maskLight;
+			else                    mask.b = maskLight;
+		}
+
+		else mask = vec3(1.0, 1.0, 1.0);
+
+		return vec4(mask, 1.0);
+	}
+
+	float corner(vec2 coord)
+	{
+		coord = min(coord, vec2(1.0) - coord);
+		vec2 cdist = vec2(a_corner);
+		coord = (cdist - min(coord, cdist));
+		float dist = sqrt(dot(coord, coord));
+		return clamp((cdist.x - dist) * bsmooth, 0.0, 1.0);
+	}
+
+	void main()
+	{
+		vec2 pos = Warp(v_texture_coordinate.xy);
+
+		/* mask effects look bad unless applied in linear gamma space */
+		vec4 in_gamma = vec4(crt_gamma, crt_gamma, crt_gamma, 1.0);
+		vec4 out_gamma = vec4(1.0 / monitor_gamma, 1.0 / monitor_gamma, 1.0 / monitor_gamma, 1.0);
+		vec4 res = pow(texture2D(u_texture, pos), in_gamma);
+
+		/* apply the mask; looks bad with vert scanlines so make them mutually exclusive */
+		res *= Mask(gl_FragCoord.xy * 1.0001);
+
+		/* hacky clamp fix for GLES */
+		vec2 bordertest = (pos);
+		if (bordertest.x > 0.0001 && bordertest.x < 0.9999 && bordertest.y > 0.0001 && bordertest.y < 0.9999)
+			res = res;
+		else
+			res = vec4(0.0, 0.0, 0.0, 0.0);
+
+		/* the original scales by SourceSize / InputSize, which is 1.0 here */
+		if (a_corner > 0.0) res *= corner(pos);
+
+		/* re-apply the gamma curve for the mask path */
+		gl_FragColor = pow(scanline(pos, res), out_gamma);
+	}
+</fragment>
