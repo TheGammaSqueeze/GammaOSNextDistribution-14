@@ -2781,6 +2781,8 @@ private:
     void buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out, const std::string& hidePrefix = std::string());
     bool themeSettingRowVisible(const char* name) const;   // hide theme-irrelevant appearance rows per active theme
     void buildRomSubmenu(int sysIdx, Ps3Level& out);
+    std::string openRomLevelSelectedPath(int sysIdx) const;   // highlighted ROM path of an open ROM level (empty if none)
+    void rebuildOpenRomLevels(int sysIdx, const std::string& keepPath);   // rebuild open ROM levels in place, highlight kept on keepPath
     // Quick Menu (nano legacy global actions): the Power submenu builder, the
     // performance-mode side-panel chooser, and the kill-apps backend.
     void buildQuickPowerSubmenu(Ps3Level& out);

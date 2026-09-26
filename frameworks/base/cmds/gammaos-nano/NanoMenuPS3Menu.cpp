@@ -815,6 +815,50 @@ void NanoMenu::buildRomSubmenu(int sysIdx, Ps3Level& out) {
     }
 }
 
+// The ROM path highlighted in an OPEN ROM list level of this system (empty if none is open).
+// Read BEFORE a call that re-sorts the system's ROM vector (applyRomNameOverrides after a
+// rename or a banner title landing): the level's items index the vector by position, so the
+// index is meaningless once the order changed and only the path identifies the game.
+std::string NanoMenu::openRomLevelSelectedPath(int sysIdx) const {
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return std::string();
+    const XmbSystem& sys = mXmbSystems[sysIdx];
+    for (const auto& lvl : mPs3Stack) {
+        if (lvl.sysIdx != sysIdx) continue;
+        if (lvl.sel < 0 || lvl.sel >= (int)lvl.items.size()) continue;
+        const Ps3Item& it = lvl.items[lvl.sel];
+        if (it.kind != PS3_ROM || it.b < 0 || it.b >= (int)sys.roms.size()) continue;
+        return sys.roms[it.b];
+    }
+    return std::string();
+}
+
+// Rebuild every OPEN ROM list level of this system in place (labels and order from the
+// system's current display names) and put the highlight back on keepPath, falling back to
+// the old index when that game is gone. Both the rename and the DS banner titles re-sort the
+// list under an open level; before this the level kept its old labels (or a stale index)
+// until the user backed out and re-entered. In the DSi theme the list scroll snaps to the
+// restored highlight instead of easing across the whole list.
+void NanoMenu::rebuildOpenRomLevels(int sysIdx, const std::string& keepPath) {
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
+    const XmbSystem& sys = mXmbSystems[sysIdx];
+    for (auto& lvl : mPs3Stack) {
+        if (lvl.sysIdx != sysIdx) continue;
+        int keep = lvl.sel;
+        buildRomSubmenu(sysIdx, lvl);
+        const int n = (int)lvl.items.size();
+        int found = -1;
+        if (!keepPath.empty()) {
+            for (int i = 0; i < n; i++) {
+                const Ps3Item& it = lvl.items[i];
+                if (it.kind == PS3_ROM && it.b >= 0 && it.b < (int)sys.roms.size() && sys.roms[it.b] == keepPath) { found = i; break; }
+            }
+        }
+        if (found >= 0) { lvl.sel = found; if (mNdsTheme) mListWrapSnap = true; }
+        else { if (keep >= n) keep = n - 1; lvl.sel = keep < 0 ? 0 : keep; }
+    }
+    mDisplayDirty = true;
+}
+
 // The in-launcher User Guide: a plain, scrollable help page opened from Settings > User Guide.
 // Reuses the game-info page infrastructure (mPs3DlgGameInfo) so DSi (renderNdsInfoPage) and Minima
 // (renderMinimaInfoPage) get their full-screen paged renderers with L/R paging, and XMB uses the
@@ -13357,17 +13401,9 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             }
             // If the renamed game's ROM column is currently open, rebuild it in place so
             // the new label shows immediately (mPs3CatsStale only rebuilds the category
-            // tops, not open stack levels). Mirrors the bg-scan publish (NanoMenu.cpp).
-            if (owner >= 0) {
-                for (auto& lvl : mPs3Stack) {
-                    if (lvl.sysIdx != owner) continue;
-                    int keep = lvl.sel;
-                    buildRomSubmenu(owner, lvl);
-                    int nn2 = (int)lvl.items.size();
-                    if (keep >= nn2) keep = nn2 - 1;
-                    lvl.sel = keep < 0 ? 0 : keep;
-                }
-            }
+            // tops, not open stack levels), with the highlight kept on the renamed game:
+            // the new title re-sorts the list, so its old index points at another game.
+            if (owner >= 0) rebuildOpenRomLevels(owner, romPath);
             // Also rebuild an open Recently Played list in place (it is not sysIdx-tagged;
             // identify it by its first item being a PS3_RECENT row).
             for (auto& lvl : mPs3Stack) {

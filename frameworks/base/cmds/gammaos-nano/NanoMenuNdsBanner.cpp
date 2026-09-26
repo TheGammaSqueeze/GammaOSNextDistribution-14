@@ -277,9 +277,17 @@ void NanoMenu::ndsBannerTick() {
     }
     mNdsBannerLanded.store(false);
     if (!ndsRomTitleEnabled()) return;
-    for (auto& sys : mXmbSystems) {
+    for (size_t s = 0; s < mXmbSystems.size(); s++) {
+        XmbSystem& sys = mXmbSystems[s];
         std::string dir = sys.romDir; for (auto& c : dir) if (c >= 'A' && c <= 'Z') c = (char)(c + 32);
-        if (dir == "nds" || sys.shortname == "NDS") applyRomNameOverrides(sys);
+        if (dir != "nds" && sys.shortname != "NDS") continue;
+        // The titles re-sort the list. An OPEN DS list (the Startup Menu can boot straight
+        // into it) kept its pre-sort labels and indices until the user backed out and
+        // re-entered (wrong title on every tile after a reboot); rebuild it in place with
+        // the highlight kept on the same game. mPs3CatsStale only refreshes the root.
+        const std::string keep = openRomLevelSelectedPath((int)s);
+        applyRomNameOverrides(sys);
+        rebuildOpenRomLevels((int)s, keep);
     }
     applyRomNameOverridesToRecents();
     mPs3CatsStale = true;
