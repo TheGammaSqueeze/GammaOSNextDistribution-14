@@ -693,10 +693,15 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
         } else if (mDsiBootPhase == DSI_WAIT) {
             if (mDsiWantProceed) {                                  // proceed() on touch/press
                 mDsiWantProceed = false;
-                if (bootSoundOn()) dsiBootSound(DsiSfx::Touch);
+                // On a fresh-setup boot the setup wizard takes over right after the
+                // warning is dismissed and cuts the touch + menu-entry theme off a moment
+                // in, which sounded like a broken partial transition. Dismiss silently
+                // there; a normal boot keeps both sounds.
+                const bool dismissSounds = bootSoundOn() && !mPs3BootWizardAfter;
+                if (dismissSounds) dsiBootSound(DsiSfx::Touch);
                 mDsiBootPhase = DSI_ENTERING;
                 mDsiEnterStart = f;
-                if (bootSoundOn()) dsiBootSound(DsiSfx::Enter);
+                if (dismissSounds) dsiBootSound(DsiSfx::Enter);
                 mDsiEnterAudioStartMs = (int64_t)android::uptimeMillis();
             }
         } else if (mDsiBootPhase == DSI_ENTERING) {
