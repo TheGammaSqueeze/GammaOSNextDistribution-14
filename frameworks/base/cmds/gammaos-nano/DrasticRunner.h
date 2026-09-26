@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <functional>
 #include <string>
 #include <thread>
 #include <atomic>
@@ -273,6 +274,11 @@ public:
     // by a few frames so the render loop keeps presenting while the sink fills; returns whether
     // the request was accepted (the restore itself always completed asynchronously anyway).
     bool requestLoadStateSlot(int slot);
+    // One-shot completion hook for the NEXT state load (direct or deferred):
+    // runs on a helper thread once drastic's worker has finished restoring the
+    // state, so a caller that swapped files around the load may put them back.
+    void setNextLoadDoneHook(std::function<void(int slot)> fn) { mNextLoadDoneHook = std::move(fn); }
+    std::function<void(int slot)> mNextLoadDoneHook;
     // Call once per rendered frame from the render loop. Performs a pending restore once the sink
     // is deep enough or the grace period expires. Returns the slot just loaded, or -1.
     int serviceDeferredLoad();

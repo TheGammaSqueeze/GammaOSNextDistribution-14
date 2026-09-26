@@ -7642,10 +7642,12 @@ bool DrasticRunner::loadStateSlot(int slot, bool preFilled) {
     gpu3dResetTextures();   // drastic's texture and palette memory is replaced by the restore
     ALOGI("DrasticRunner::loadStateSlot(%d) = %d", slot, rc);
     runAheadReset();   // the ring belongs to the old timeline
+    std::function<void(int)> doneHook = std::move(mNextLoadDoneHook);
+    mNextLoadDoneHook = nullptr;
     // Completion: the emulator thread clears the request byte at
     // master+0x4b6 once the state is restored.
     if (mArm64Base) {
-        std::thread([this, t0, slot] {
+        std::thread([this, t0, slot, doneHook] {
             volatile uint8_t* req = mArm64Base + 0x14c000 + 0x4b6;
             int spins = 0;
             while (*req != 0 && spins++ < 1000000) usleep(10);
@@ -7662,7 +7664,10 @@ bool DrasticRunner::loadStateSlot(int slot, bool preFilled) {
             const int64_t t1 = std::chrono::duration_cast<std::chrono::microseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count();
             ALOGW("STATELOAD slot %d done in %lld us", slot, (long long)(t1 - t0));
+            if (doneHook) doneHook(slot);
         }).detach();
+    } else if (doneHook) {
+        doneHook(slot);
     }
     return true;
 }

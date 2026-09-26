@@ -473,6 +473,22 @@ private:
     void applyConfigLive();
     void scanShaders();
     bool slotFileExists(int slot) const;
+    // Quick Save / Quick Load with undo. A quick save moves the slot-0 file it
+    // replaces to <rom>_0.dss.undosave; a quick load first saves the running
+    // state to <rom>_0.dss.undoload. Undo Quick Save swaps the two slot-0 files
+    // back (so it can be undone again); Undo Quick Load restores the pre-load
+    // state and is consumed. Both are file renames on the FUSE savestates dir,
+    // done here while the game is paused under the menu, plus the deferred
+    // load's completion hook for the file put back after a load.
+    std::string slot0Path() const;
+    std::string undoSavePath() const { return slot0Path() + ".undosave"; }
+    std::string undoLoadPath() const { return slot0Path() + ".undoload"; }
+    void quickSave(bool fromMenu);
+    void quickLoad(bool fromMenu);
+    void undoQuickSave();
+    void undoQuickLoad();
+    bool fileExists(const std::string& path) const;
+    std::atomic<bool> mQuickBusy{false};       // a quick load with a file swap is in flight
     bool mCloseReapplyPending = false;         // closeMenu: applyConfigLive once the unpause is done
     bool mCloseCheatsPending = false;          // closeMenu: applyCheats once the unpause is done
     std::atomic<bool> mUnpauseDone{true};      // set by the worker after pauseToggle(false)

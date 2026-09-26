@@ -1104,9 +1104,9 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         // edge flags; treat them as implicit overlay commands even
         // when the menu isn't visible.
         if (mRunner) {
-            if (a.actQuickSave) { mRunner->saveStateSlot(0); mSlotCacheValid = false; }
+            if (a.actQuickSave) quickSave(false);
             // Quick-load is a save-state load, disabled in hardcore.
-            if (a.actQuickLoad && !mRaHardcore) mRunner->requestLoadStateSlot(0);
+            if (a.actQuickLoad && !mRaHardcore) quickLoad(false);
         }
         return;
     }
@@ -1369,6 +1369,130 @@ void OverlayMenu::rebuildRows() {
     }
 }
 
+std::string OverlayMenu::slot0Path() const {
+    return mSavestatesDir + "/" + mRomBase + "_0.dss";
+}
+
+bool OverlayMenu::fileExists(const std::string& path) const {
+    struct stat st;
+    return stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode) && st.st_size > 0;
+}
+
+namespace {
+// The real DraStic app must be able to read a slot file we wrote (same as the
+// Save States tab).
+void handSlotToApp(const std::string& path, uid_t uid, gid_t gid) {
+    if (uid == 0) return;
+    chown(path.c_str(), uid, gid);
+    chmod(path.c_str(), 0660);
+}
+}  // namespace
+
+void OverlayMenu::quickSave(bool fromMenu) {
+    if (!mRunner) return;
+    if (mQuickBusy.load()) { if (fromMenu) toast(trDyn("Please wait")); return; }
+    // Keep the slot-0 file this save replaces so the save can be undone.
+    const std::string slot0 = slot0Path();
+    if (fileExists(slot0) && rename(slot0.c_str(), undoSavePath().c_str()) != 0) {
+        ALOGW("OverlayMenu: cannot keep %s for undo: %s", slot0.c_str(), strerror(errno));
+    }
+    if (mRunner->saveStateSlot(0)) {
+        mSlotCacheValid = false;
+        handSlotToApp(slot0, mAppUid, mAppGid);
+        if (fromMenu) { toast(trDyn("Quick saved")); closeMenu(); }
+    } else {
+        // Put the previous quick save back; nothing was written.
+        rename(undoSavePath().c_str(), slot0.c_str());
+        if (fromMenu) toast(trDyn("Save failed"));
+    }
+}
+
+void OverlayMenu::undoQuickSave() {
+    // Swap slot 0 and its undo file, so a second Undo brings the newer save back.
+    const std::string slot0 = slot0Path(), undo = undoSavePath(), tmp = slot0 + ".swap";
+    if (!fileExists(undo)) { toast(trDyn("Nothing to undo")); return; }
+    unlink(tmp.c_str());
+    const bool hadCur = fileExists(slot0);
+    if (hadCur && rename(slot0.c_str(), tmp.c_str()) != 0) { toast(trDyn("Undo failed")); return; }
+    if (rename(undo.c_str(), slot0.c_str()) != 0) {
+        if (hadCur) rename(tmp.c_str(), slot0.c_str());
+        toast(trDyn("Undo failed"));
+        return;
+    }
+    if (hadCur) rename(tmp.c_str(), undo.c_str());
+    handSlotToApp(slot0, mAppUid, mAppGid);
+    mSlotCacheValid = false;
+    toast(trDyn("Previous quick save restored"));
+    rebuildRows();
+}
+
+void OverlayMenu::quickLoad(bool fromMenu) {
+    if (!mRunner) return;
+    if (mQuickBusy.load()) { if (fromMenu) toast(trDyn("Please wait")); return; }
+    const std::string slot0 = slot0Path(), undo = undoLoadPath(), aside = slot0 + ".loadsrc";
+    if (!fileExists(slot0)) { if (fromMenu) toast(trDyn("No quick save yet")); return; }
+    // Save the running state first so the load can be undone: drastic only
+    // writes by slot number, so move the quick save aside, save the current
+    // state into slot 0, and move both files to where they belong.
+    unlink(aside.c_str());
+    bool undoPoint = false;
+    if (rename(slot0.c_str(), aside.c_str()) == 0) {
+        if (mRunner->saveStateSlot(0) && fileExists(slot0) && rename(slot0.c_str(), undo.c_str()) == 0) {
+            undoPoint = true;
+        } else {
+            unlink(slot0.c_str());
+        }
+        if (rename(aside.c_str(), slot0.c_str()) != 0) {
+            ALOGE("OverlayMenu: quick save file lost while making the undo point: %s", strerror(errno));
+            if (fromMenu) toast(trDyn("Load failed"));
+            return;
+        }
+    }
+    if (!undoPoint) ALOGW("OverlayMenu: quick load without an undo point");
+    if (mRunner->requestLoadStateSlot(0)) {
+        if (fromMenu) { toast(trDyn("Quick loaded")); closeMenu(); }
+    } else if (fromMenu) {
+        toast(trDyn("Load failed"));
+    }
+}
+
+void OverlayMenu::undoQuickLoad() {
+    if (!mRunner) return;
+    if (mQuickBusy.load()) { toast(trDyn("Please wait")); return; }
+    const std::string slot0 = slot0Path(), undo = undoLoadPath(), aside = slot0 + ".loadsrc";
+    if (!fileExists(undo)) { toast(trDyn("Nothing to undo")); return; }
+    // Put the pre-load state in slot 0's place, load it, and once drastic's
+    // worker has finished restoring (the load is deferred and asynchronous),
+    // put the quick save back and drop the consumed undo point.
+    unlink(aside.c_str());
+    const bool hadCur = fileExists(slot0);
+    if (hadCur && rename(slot0.c_str(), aside.c_str()) != 0) { toast(trDyn("Undo failed")); return; }
+    if (rename(undo.c_str(), slot0.c_str()) != 0) {
+        if (hadCur) rename(aside.c_str(), slot0.c_str());
+        toast(trDyn("Undo failed"));
+        return;
+    }
+    mQuickBusy.store(true);
+    mSlotCacheValid = false;
+    mRunner->setNextLoadDoneHook([this, slot0, aside, hadCur](int) {
+        unlink(slot0.c_str());   // the undo point, now consumed
+        if (hadCur && rename(aside.c_str(), slot0.c_str()) != 0) {
+            ALOGE("OverlayMenu: cannot put the quick save back: %s", strerror(errno));
+        }
+        mQuickBusy.store(false);
+    });
+    if (mRunner->requestLoadStateSlot(0)) {
+        toast(trDyn("Quick load undone"));
+        closeMenu();
+    } else {
+        mRunner->setNextLoadDoneHook(nullptr);
+        unlink(slot0.c_str());
+        if (hadCur) rename(aside.c_str(), slot0.c_str());
+        mQuickBusy.store(false);
+        toast(trDyn("Undo failed"));
+    }
+}
+
 void OverlayMenu::rebuildGeneral() {
     // The General page is the default landing tab: the everyday knobs and the
     // game/power lifecycle actions, all in one place so they are the first thing
@@ -1405,25 +1529,7 @@ void OverlayMenu::rebuildGeneral() {
         RowAction r;
         r.label = "Quick Save";
         if (slotFileExists(0)) r.label += trDyn(" (overwrite)");
-        r.onAccept = [this]() {
-            if (!mRunner) return;
-            if (mRunner->saveStateSlot(0)) {
-                mSlotCacheValid = false;
-                toast(trDyn("Quick saved"));
-                // Hand the new .dss to the real drastic app, exactly like the Save
-                // States tab does, so a later load from the full app can read it.
-                if (mAppUid != 0) {
-                    char path[512];
-                    snprintf(path, sizeof(path), "%s/%s_0.dss",
-                             mSavestatesDir.c_str(), mRomBase.c_str());
-                    chown(path, mAppUid, mAppGid);
-                    chmod(path, 0660);
-                }
-                closeMenu();
-            } else {
-                toast(trDyn("Save failed"));
-            }
-        };
+        r.onAccept = [this]() { quickSave(true); };
         mRows.push_back(std::move(r));
     }
     // RetroAchievements hardcore forbids loading save states (saving stays allowed),
@@ -1436,16 +1542,21 @@ void OverlayMenu::rebuildGeneral() {
         RowAction r;
         r.label = "Quick Load";
         r.value = slotFileExists(0) ? trDyn("ready") : trDyn("empty");
-        r.onAccept = [this]() {
-            if (!mRunner) return;
-            if (!slotFileExists(0)) { toast(trDyn("No quick save yet")); return; }
-            if (mRunner->requestLoadStateSlot(0)) {
-                toast(trDyn("Quick loaded"));
-                closeMenu();
-            } else {
-                toast(trDyn("Load failed"));
-            }
-        };
+        r.onAccept = [this]() { quickLoad(true); };
+        mRows.push_back(std::move(r));
+    }
+    // Undo rows appear only while there is something to undo (one FUSE stat each,
+    // per menu open like the slot cache).
+    if (fileExists(undoSavePath())) {
+        RowAction r;
+        r.label = "Undo Quick Save";
+        r.onAccept = [this]() { undoQuickSave(); };
+        mRows.push_back(std::move(r));
+    }
+    if (!mRaHardcore && fileExists(undoLoadPath())) {
+        RowAction r;
+        r.label = "Undo Quick Load";
+        r.onAccept = [this]() { undoQuickLoad(); };
         mRows.push_back(std::move(r));
     }
 
