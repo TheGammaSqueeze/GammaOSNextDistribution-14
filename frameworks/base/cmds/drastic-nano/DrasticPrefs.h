@@ -20,6 +20,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <sys/types.h>
 
 namespace android {
@@ -163,6 +164,14 @@ void applyProps(Prefs* p);
 int  writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset = false);
 bool propsSeeded();
 void markPropsSeeded();
+// Short property keys (no prefix) of every user-facing setting: the contents of
+// a per-game override file (see DrasticSettings.h).
+std::vector<std::string> overrideKeys();
+// The launch-time defaults main.cpp fills in BEFORE applyProps (struct defaults
+// plus device tuning): the base the overlay rebuilds from when a per-game
+// override is deleted and the global properties apply again.
+void setLaunchDefaults(const Prefs& p);
+const Prefs& launchDefaults();
 
 // Read the XML at xmlPath into out. Returns true if the file was
 // parsed (at least opened and read); unknown or missing keys keep

@@ -12,6 +12,7 @@
 #define LOG_TAG "DrasticNano.Overlay"
 
 #include "OverlayMenu.h"
+#include "DrasticSettings.h"
 #include "NanoRetroAchievements.h"
 #include "NanoI18n.h"   // trDyn() for translatable header / menu labels
 
@@ -68,7 +69,7 @@ void OverlayMenu::drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float /*sf*/) {
     // Gated by the "Challenge Indicators" toggle (rebuildAchievements); the
     // progress toast and the top-right unlock banner are independent. Default on.
     if (!mRaChallenge.empty() &&
-        property_get_bool("persist.gammaos.drastic_nano.ra_show_challenge_badges", true)) {
+        android::drastic_settings::getBool("persist.gammaos.drastic_nano.ra_show_challenge_badges", true)) {
         const float sz  = floorf(lineH * 1.7f);
         const float gap = floorf(sz * 0.18f);
         const float x   = floorf(vw * 0.012f);
@@ -89,7 +90,7 @@ void OverlayMenu::drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float /*sf*/) {
     // the challenge badges above and the top-right unlock banner are separate and
     // stay on. Default on.
     if (mRaProgressId && now < mRaProgressUntilMs && !mRaProgressText.empty() &&
-        property_get_bool("persist.gammaos.drastic_nano.ra_show_progress_toast", true)) {
+        android::drastic_settings::getBool("persist.gammaos.drastic_nano.ra_show_progress_toast", true)) {
         const float pad   = fmaxf(5.0f, lineH * 0.40f);
         const float sz    = lineH * 1.55f;
         const float txtPx = lineH * 0.62f;

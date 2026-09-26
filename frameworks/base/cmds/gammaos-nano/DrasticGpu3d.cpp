@@ -33,6 +33,7 @@
 
 #define LOG_TAG "GammaOSNano.Gpu3d"
 
+#include "DrasticSettings.h"
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
@@ -756,7 +757,7 @@ bool initGl() {
         const int dk = property_get_int32("sys.gammaos.drastic_nano.gpu3d_decouple", -1);
         const bool decoup = (dk >= 0 ? dk != 0 : true);
         int ssSet = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ss", -1);
-        if (ssSet < 0) ssSet = property_get_bool("persist.gammaos.drastic_nano.gpu3d_ss", false) ? 2 : 1;
+        if (ssSet < 0) ssSet = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_ss", false) ? 2 : 1;
         const bool superSample = ssSet >= 2;
         prioSel = !decoup ? 1 : (superSample ? 0 /* medium */ : 2 /* low */);
     }
@@ -2200,7 +2201,7 @@ void renderJob(Job& j) {
     static int ssOpt = 1;
     if ((g.glFrames & 63) == 0) {
         const int ov = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ss", -1);   // session override: 2 = on, 1 = off
-        ssOpt = ov >= 0 ? (ov >= 2 ? 2 : 1) : (property_get_bool("persist.gammaos.drastic_nano.gpu3d_ss", false) ? 2 : 1);
+        ssOpt = ov >= 0 ? (ov >= 2 ? 2 : 1) : (android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_ss", false) ? 2 : 1);
         if (ssOpt == 2) {
             char mode[PROPERTY_VALUE_MAX] = {};
             property_get("sys.gammaos.drastic_nano.gpu3d_ss_mode", mode, "msaa");
@@ -3549,7 +3550,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     static int edgeOpt = 0;
     if ((g.frame & 63) == 1) {
         const int ov = property_get_int32("sys.gammaos.drastic_nano.gpu3d_edge", -1);
-        edgeOpt = ov >= 0 ? ov : !property_get_bool("persist.gammaos.drastic_nano.disable_edge", true);
+        edgeOpt = ov >= 0 ? ov : !android::drastic_settings::getBool("persist.gammaos.drastic_nano.disable_edge", true);
     }
     job.edge = (disp3d & 0x20) != 0 && edgeOpt;
     // Transient engine-swap / displayed-capture sync frames render whole and block the emulator;

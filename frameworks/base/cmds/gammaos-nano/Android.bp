@@ -121,6 +121,7 @@ cc_binary {
         "FakeJNI.cpp",
         "DrasticRunner.cpp",
         "DrasticGpu3d.cpp",
+        "DrasticSettings.cpp",
     ],
 
     // Vendored liba52 public header (a52.h) for NanoAc3.cpp; nanosvg headers for the
@@ -567,6 +568,7 @@ filegroup {
         "NanoMenuDrm.cpp",
         "DrasticRunner.cpp",
         "DrasticGpu3d.cpp",
+        "DrasticSettings.cpp",
         "FakeJNI.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",

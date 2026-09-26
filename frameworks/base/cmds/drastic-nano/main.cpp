@@ -91,6 +91,7 @@
 
 #include "DrasticRunner.h"
 #include "DrasticPrefs.h"
+#include "DrasticSettings.h"
 #include "FakeJNI.h"
 #include "InputMap.h"
 #include "NanoBacklight.h"
@@ -601,13 +602,13 @@ static int setEmuThreadsPrio(int prio) {
 void setRtThrottleForFf(bool ffActive) {
     const char* kPath = "/proc/sys/kernel/sched_rt_runtime_us";
     if (ffActive && !sRtThrottled) {
-        if (property_get_bool("persist.gammaos.drastic_nano.ff_emu_demote", true)) {
+        if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.ff_emu_demote", true)) {
             const int n = setEmuThreadsPrio(79);
             ALOGI("drastic-nano: fast-forward: %d emulator threads moved to SCHED_FIFO 79 (input readers stay above)", n);
         }
-        if (!property_get_bool("persist.gammaos.drastic_nano.rt_throttle", true)) return;
+        if (!android::drastic_settings::getBool("persist.gammaos.drastic_nano.rt_throttle", true)) return;
         long period = readLongFile("/proc/sys/kernel/sched_rt_period_us", 1000000);
-        long want = property_get_int32("persist.gammaos.drastic_nano.rt_runtime_us",
+        long want = android::drastic_settings::getInt("persist.gammaos.drastic_nano.rt_runtime_us",
                                        (int)(period * 95 / 100));
         sSavedRtRuntimeUs = readLongFile(kPath, -1);
         sRtThrottled = true;   // set before write so a restore always runs
@@ -741,7 +742,7 @@ void installCrashHandler() {
     // writes a full /data/tombstones stack trace (our handler otherwise re-raises
     // with SIG_DFL, which bypasses debuggerd and leaves no tombstone). Default off:
     // production keeps the session_done-then-reraise behavior that returns the home.
-    if (!property_get_bool("persist.gammaos.drastic_nano.crash_tombstone", false)) {
+    if (!android::drastic_settings::getBool("persist.gammaos.drastic_nano.crash_tombstone", false)) {
         sigaction(SIGBUS,  &sa, nullptr);
         sigaction(SIGSEGV, &sa, nullptr);
         sigaction(SIGABRT, &sa, nullptr);
@@ -1001,7 +1002,7 @@ void boostAudioServer() {
                            "audioserver");
     boostPeerAudioThreads("init.svc_debug_pid.vendor.audio-hal",
                            "vendor.audio-hal");
-    if (property_get_bool("persist.gammaos.drastic_nano.audio_own_boost", true)) boostOwnAudioThreads();
+    if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.audio_own_boost", true)) boostOwnAudioThreads();
 }
 
 // ------------------------------------------------------------------
@@ -1487,7 +1488,7 @@ static void drawFfBadge(android::drastic_gfx::OverlayGfx& gfx, bool ffActive) {
 // via persist.gammaos.drastic_nano.emu_fps_src: 1=total, 2=rendered, 3=DS VCOUNT,
 // 4=producer/slot-flip.
 static uint32_t emuFrameSource(DrasticRunner* dr) {
-    switch (property_get_int32("persist.gammaos.drastic_nano.emu_fps_src", 0)) {
+    switch (android::drastic_settings::getInt("persist.gammaos.drastic_nano.emu_fps_src", 0)) {
         case 1:  return dr->coreTotalFrames();
         case 2:  return dr->coreRenderedFrames();
         case 3:  return dr->dsEmulatedFrameCounter();
@@ -1575,7 +1576,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // resolution into the combined buffer, so the render-scale prop is ignored
     // there; with it on, the half-size offscreen is exactly what is wanted.
     if (hasDualDisplay &&
-        !property_get_bool("persist.gammaos.drastic_nano.drm_half_res", false)) {
+        !android::drastic_settings::getBool("persist.gammaos.drastic_nano.drm_half_res", false)) {
         dr->setFxRenderScale(1);
     }
     dr->initSurface(dpy->width, dpy->height, hasDualDisplay);
@@ -1590,7 +1591,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // renderBothScreens (fixed stack) stays the default for every device that relies on it.
     const bool drmSingleLayout =
             !hasDualDisplay &&
-            property_get_bool("persist.gammaos.drastic_nano.drm_single_layout", false);
+            android::drastic_settings::getBool("persist.gammaos.drastic_nano.drm_single_layout", false);
     // The panel's native FBO size (what the AHB ring scans out).
     const int drmPanelW = (android::sAhbRingPrimary[0].glFbo != 0)
                           ? (int)android::sAhbRingPrimary[0].w : dpy->width;
@@ -1609,7 +1610,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     int drmDisplayRotate = 0;
     {
         char drp[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic_nano.display_rotate", drp, "0");
+        android::drastic_settings::get("persist.gammaos.drastic_nano.display_rotate", drp, "0");
         drmDisplayRotate = atoi(drp);
     }
     int drmEffRot = ((android::sDrmRotationDeg + drmDisplayRotate) % 360 + 360) % 360;
@@ -1678,7 +1679,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // fill-bound 1024x768 panels the device cannot drive at full res. Off by default.
     // persist.gammaos.drastic_nano.drm_half_res.
     const int drmHalfRes =
-            property_get_int32("persist.gammaos.drastic_nano.drm_half_res", 0) != 0 ? 2 : 1;
+            android::drastic_settings::getInt("persist.gammaos.drastic_nano.drm_half_res", 0) != 0 ? 2 : 1;
     int drmHalfW = drmLogicalW / drmHalfRes;
     int drmHalfH = drmLogicalH / drmHalfRes;
     if (drmHalfW < 256) drmHalfW = drmLogicalW;   // too small -> fall back to full
@@ -2049,13 +2050,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // login path (enable RA on demand + start the client). Inert when unset.
         {
             char ld[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.ra_login_dbg", ld, "");
+            android::drastic_settings::get("persist.gammaos.drastic_nano.ra_login_dbg", ld, "");
             if (ld[0]) {
                 std::string s(ld);
                 size_t c = s.find(':');
                 if (c != std::string::npos && c + 1 < s.size())
                     ra.requestLogin(s.substr(0, c), s.substr(c + 1));
-                property_set("persist.gammaos.drastic_nano.ra_login_dbg", "");
+                android::drastic_settings::set("persist.gammaos.drastic_nano.ra_login_dbg", "");
             }
         }
 
@@ -2194,10 +2195,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 static bool sRaPrepared = false;
                 if (!sRaPrepared && dr->vblankPacingInstalled()) {
                     sRaPrepared = true;
-                    if (property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) == 2 ||
+                    if (android::drastic_settings::getInt("persist.gammaos.drastic_nano.runahead_mode", 0) == 2 ||
                         property_get_int32("sys.gammaos.drastic_nano.runahead", -1) >= 2) {
                         int f = property_get_int32("sys.gammaos.drastic_nano.runahead_frames", -1);
-                        if (f < 0) { f = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 1); if (f > 1) f = 1; }
+                        if (f < 0) { f = android::drastic_settings::getInt("persist.gammaos.drastic_nano.runahead_frames", 1); if (f > 1) f = 1; }
                         dr->runAheadPrepare(f);
                     }
                 }
@@ -2212,9 +2213,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 if (nowRa - sRaCheckUs > 500000) {
                     sRaCheckUs = nowRa;
                     int mode = property_get_int32("sys.gammaos.drastic_nano.runahead", -1);
-                    if (mode < 0) mode = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0);
+                    if (mode < 0) mode = android::drastic_settings::getInt("persist.gammaos.drastic_nano.runahead_mode", 0);
                     int frames = property_get_int32("sys.gammaos.drastic_nano.runahead_frames", -1);
-                    if (frames < 0) { frames = property_get_int32("persist.gammaos.drastic_nano.runahead_frames", 1); if (frames > 1) frames = 1; }   // shipped depth is one frame; the sys override may test deeper
+                    if (frames < 0) { frames = android::drastic_settings::getInt("persist.gammaos.drastic_nano.runahead_frames", 1); if (frames > 1) frames = 1; }   // shipped depth is one frame; the sys override may test deeper
                     const bool allow = !ffWant && !overlay.isOpen() && !ra.hardcoreRestrictionsActive() &&
                                        dr->vblankPacingInstalled();
                     dr->setRunAhead(allow ? mode : 0, frames);
@@ -2247,7 +2248,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // changes it in Video settings. Runs before touch + render so both follow.
         if (drmSingleLayout) {
             char drp[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.display_rotate", drp, "0");
+            android::drastic_settings::get("persist.gammaos.drastic_nano.display_rotate", drp, "0");
             int eff = ((android::sDrmRotationDeg + atoi(drp)) % 360 + 360) % 360;
             if (eff != drmEffRot) applyDrmRotation(eff);
         }
@@ -2529,8 +2530,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // pair to mTopTex/mBotTex so renderTop/BottomScreen sample a single
             // coherent frame (no shader). Tells us if drastic can deliver both
             // screens from one frame -> zero-latency sync possible.
-            if (property_get_bool(
-                    "persist.gammaos.drastic_nano.afbc_coherent_test", false)) {
+            if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.afbc_coherent_test", false)) {
                 dr->updatePixels();
             }
             dr->setRotationMatrix(android::sDrmRotMat);
@@ -2910,7 +2910,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             sPbMark[2] = android::elapsedRealtimeNano();   // per-second metrics block done
             // Fast-forward badge is independent of the FPS counter prop.
             drawFfBadge(gfx, dr->fastForwardActive());
-            if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false))
+            if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.fps_counter", false))
                 drawFpsHud(gfx, sFpsDisplay, sEmuFps, dr->fastForwardActive());
         }
         gfx.endFrame();
@@ -2946,7 +2946,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // fall back to drawing it over the primary. The keyboard is drawn after
         // the DS frames and the top overlay, before the slot fence.
         { char od[PROPERTY_VALUE_MAX] = {};
-          property_get("persist.gammaos.drastic_nano.osk_dbg", od, "0");
+          android::drastic_settings::get("persist.gammaos.drastic_nano.osk_dbg", od, "0");
           if (od[0] == '1') overlay.debugOpenOsk(); }
         if (overlay.oskActive()) {
             if (hasDualDisplay) {
@@ -3272,24 +3272,24 @@ static drastic_nano::LayoutConfig readSfLayoutConfig(int surfaceW, int surfaceH)
     drastic_nano::LayoutConfig cfg;
     char buf[PROPERTY_VALUE_MAX] = {};
 
-    property_get("persist.gammaos.drastic_nano.orientation", buf, "auto");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.orientation", buf, "auto");
     if (!strcmp(buf, "horizontal"))    cfg.orient = drastic_nano::Orientation::Horizontal;
     else if (!strcmp(buf, "vertical")) cfg.orient = drastic_nano::Orientation::Vertical;
     else if (!strcmp(buf, "single"))   cfg.orient = drastic_nano::Orientation::Single;
     else cfg.orient = (surfaceW >= surfaceH) ? drastic_nano::Orientation::Horizontal
                                              : drastic_nano::Orientation::Vertical;  // auto
 
-    property_get("persist.gammaos.drastic_nano.scaling", buf, "stretch");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.scaling", buf, "stretch");
     if (!strcmp(buf, "none"))        cfg.scaling = drastic_nano::Scaling::None;
     else if (!strcmp(buf, "1x2x"))   cfg.scaling = drastic_nano::Scaling::S1x2x;
     else if (!strcmp(buf, "2x1x"))   cfg.scaling = drastic_nano::Scaling::S2x1x;
     else                             cfg.scaling = drastic_nano::Scaling::Stretch;
 
-    cfg.swap = property_get_bool("persist.gammaos.drastic_nano.swap", false);
+    cfg.swap = android::drastic_settings::getBool("persist.gammaos.drastic_nano.swap", false);
 
     // Screen gap: stored as a percent (0..50) of the leading screen's stacking
     // dimension, applied between the two screens in any two-screen layout.
-    property_get("persist.gammaos.drastic_nano.screen_gap", buf, "0");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.screen_gap", buf, "0");
     int gapPct = atoi(buf);
     if (gapPct < 0) gapPct = 0; else if (gapPct > 50) gapPct = 50;
     cfg.gap = (float)gapPct / 100.0f;
@@ -3297,13 +3297,13 @@ static drastic_nano::LayoutConfig readSfLayoutConfig(int surfaceW, int surfaceH)
     // Predetermined handheld layout preset. -1 (default) keeps the parametric
     // orientation/scaling above; 0..presetCount-1 selects a preset that overrides
     // them (Full Screen, Side by Side, PiP, Big+Small, Stacked, ...).
-    property_get("persist.gammaos.drastic_nano.layout_preset", buf, "-1");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.layout_preset", buf, "-1");
     int presetIdx = atoi(buf);
     if (presetIdx >= 0 && presetIdx < drastic_nano::presetCount()) cfg.preset = presetIdx;
 
     // PiP inset opacity (percent, 0..100) for the picture-in-picture presets, so
     // the big screen shows through the overlapping inset. Default 100 (opaque).
-    property_get("persist.gammaos.drastic_nano.pip_alpha", buf, "100");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.pip_alpha", buf, "100");
     int pipPct = atoi(buf);
     if (pipPct < 0) pipPct = 0; else if (pipPct > 100) pipPct = 100;
     cfg.pipAlpha = (float)pipPct / 100.0f;
@@ -3311,7 +3311,7 @@ static drastic_nano::LayoutConfig readSfLayoutConfig(int surfaceW, int surfaceH)
     // Which corner the overlapping picture-in-picture inset sits in. Default
     // "br" (bottom-right, the original placement). Only affects the PiP presets
     // when the inset overlaps the big screen (a 4:3 / portrait panel).
-    property_get("persist.gammaos.drastic_nano.pip_corner", buf, "br");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.pip_corner", buf, "br");
     if      (!strcmp(buf, "bl")) cfg.pipCorner = drastic_nano::PipCorner::BottomLeft;
     else if (!strcmp(buf, "tr")) cfg.pipCorner = drastic_nano::PipCorner::TopRight;
     else if (!strcmp(buf, "tl")) cfg.pipCorner = drastic_nano::PipCorner::TopLeft;
@@ -3322,17 +3322,17 @@ static drastic_nano::LayoutConfig readSfLayoutConfig(int surfaceW, int surfaceH)
     // computed layout, so it rides on top of any preset or the parametric layout.
     // Offsets are a signed percent of the surface width/height (-50..50);
     // scale is a percent (50..150, 100 = unchanged). Identity by default.
-    property_get("persist.gammaos.drastic_nano.ltune_dx", buf, "0");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.ltune_dx", buf, "0");
     int tdx = atoi(buf);
     if (tdx < -50) tdx = -50; else if (tdx > 50) tdx = 50;
     cfg.tuneDx = (float)tdx / 100.0f;
 
-    property_get("persist.gammaos.drastic_nano.ltune_dy", buf, "0");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.ltune_dy", buf, "0");
     int tdy = atoi(buf);
     if (tdy < -50) tdy = -50; else if (tdy > 50) tdy = 50;
     cfg.tuneDy = (float)tdy / 100.0f;
 
-    property_get("persist.gammaos.drastic_nano.ltune_scale", buf, "100");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.ltune_scale", buf, "100");
     int tsc = atoi(buf);
     if (tsc < 50) tsc = 50; else if (tsc > 150) tsc = 150;
     cfg.tuneScale = (float)tsc / 100.0f;
@@ -3396,7 +3396,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     float sfBlitMat[4] = {1.0f, 0.0f, 0.0f, -1.0f};
     auto sfReadRotate = []() -> int {
         char v[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic_nano.display_rotate", v, "0");
+        android::drastic_settings::get("persist.gammaos.drastic_nano.display_rotate", v, "0");
         int r = atoi(v);
         return ((r % 360) + 360) % 360;
     };
@@ -3407,7 +3407,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // softer pixel-doubled image. Toggled live from the overlay menu; default off.
     // DRM is untouched.
     auto sfReadRenderScale = []() -> int {
-        return property_get_int32("persist.gammaos.drastic_nano.sf_half_res", 0)
+        return android::drastic_settings::getInt("persist.gammaos.drastic_nano.sf_half_res", 0)
                        != 0
                        ? 2
                        : 1;
@@ -3424,7 +3424,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // Framebuffers" (SF only; the DRM layout tex is untouched); re-read live below
     // so it applies from the next frame, and A/B-able or off if a panel bands badly.
     auto sfReadFb16 = []() -> bool {
-        return property_get_int32("persist.gammaos.drastic_nano.sf_16bit", 0) != 0;
+        return android::drastic_settings::getInt("persist.gammaos.drastic_nano.sf_16bit", 0) != 0;
     };
     bool sfFb16 = sfReadFb16();
     // GPU profiling (gated behind the existing fx debug prop): glFinish around the
@@ -3432,7 +3432,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // the layout->window copy vs everything else, so the next optimisation targets
     // the real cost. Off by default (glFinish would otherwise serialise the pipe).
     const bool sfProfile =
-            property_get_int32("persist.gammaos.drastic_nano.fxdebug", 0) != 0;
+            android::drastic_settings::getInt("persist.gammaos.drastic_nano.fxdebug", 0) != 0;
     int64_t profBlitNs = 0, profFrameNs = 0;
     int     profFrames = 0;
     int64_t profWindowStartMs = android::elapsedRealtime();
@@ -3476,7 +3476,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
                 glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
                 ALOGW("drastic-nano: SF 565 offscreen incomplete -- falling back to 8888");
                 sfFb16 = false;
-                property_set("persist.gammaos.drastic_nano.sf_16bit", "0");
+                android::drastic_settings::set("persist.gammaos.drastic_nano.sf_16bit", "0");
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sfRenderW, sfRenderH, 0,
                              GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -3576,7 +3576,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     // sf_vsync=0) the nanosleep remains the rate cap. SF path only; DRM paces on
     // its own vblank ioctl and never runs this loop.
     const bool sfVsyncLocked =
-            property_get_int32("persist.gammaos.drastic_nano.sf_vsync", 0) != 0;
+            android::drastic_settings::getInt("persist.gammaos.drastic_nano.sf_vsync", 0) != 0;
     while (!exitRequested) {
         const int64_t _frameStartNs = android::elapsedRealtimeNano();
 
@@ -3714,13 +3714,13 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         // path on the SF backend (the path the Brick always uses). Inert when unset.
         {
             char ld[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.ra_login_dbg", ld, "");
+            android::drastic_settings::get("persist.gammaos.drastic_nano.ra_login_dbg", ld, "");
             if (ld[0]) {
                 std::string s(ld);
                 size_t c = s.find(':');
                 if (c != std::string::npos && c + 1 < s.size())
                     ra.requestLogin(s.substr(0, c), s.substr(c + 1));
-                property_set("persist.gammaos.drastic_nano.ra_login_dbg", "");
+                android::drastic_settings::set("persist.gammaos.drastic_nano.ra_login_dbg", "");
             }
         }
 
@@ -4006,7 +4006,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         // Fast-forward badge is independent of the FPS counter prop.
         drawFfBadge(gfx, dr->fastForwardActive());
         // Optional on-screen FPS counter, top-right (panel rate + emulation rate).
-        if (property_get_bool("persist.gammaos.drastic_nano.fps_counter", false))
+        if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.fps_counter", false))
             drawFpsHud(gfx, fpsDisplay, emuFpsDisplay, dr->fastForwardActive());
         gfx.endFrame();
 
@@ -4031,7 +4031,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         // the bottom screen's layout rect for a single window so the keys sit over
         // the touch screen.
         { char od[PROPERTY_VALUE_MAX] = {};
-          property_get("persist.gammaos.drastic_nano.osk_dbg", od, "0");
+          android::drastic_settings::get("persist.gammaos.drastic_nano.osk_dbg", od, "0");
           if (od[0] == '1') overlay.debugOpenOsk(); }
         if (overlay.oskActive()) {
             if (dual) {
@@ -4390,7 +4390,7 @@ int main(int argc, char** argv) {
     }
     {
         char backendProp[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic_nano.backend", backendProp, "auto");
+        android::drastic_settings::get("persist.gammaos.drastic_nano.backend", backendProp, "auto");
         const bool forceDrm = (strcmp(backendProp, "drm") == 0);
         const bool forceSf  = (strcmp(backendProp, "sf") == 0);
 
@@ -4548,6 +4548,30 @@ int main(int argc, char** argv) {
         }
     }
 
+    // Per-game settings override: <user data folder>/overrides/<rom base>.cfg,
+    // keyed by the same ROM basename as the save states (so a zip resolves to
+    // its extracted ROM first). When the file exists it is the source of truth
+    // for every setting it holds from here on: every read below and in the run
+    // loops goes through drastic_settings and never sees the global properties
+    // for those keys, and every write lands in the file. The globals are never
+    // touched (see DrasticSettings.h).
+    {
+        const size_t slash = romPath.find_last_of('/');
+        std::string base = slash == std::string::npos ? romPath : romPath.substr(slash + 1);
+        const size_t dot = base.find_last_of('.');
+        if (dot != std::string::npos) base = base.substr(0, dot);
+        android::drastic_settings::setOverridePath(
+                android::drastic_assets::userDir() + "/overrides/" + base + ".cfg");
+        if (!android::drastic_settings::load()) {
+            if (android::drastic_settings::overrideUnreadable()) {
+                ALOGW("drastic-nano: per-game override for %s is unreadable (%s), global settings apply this session",
+                      base.c_str(), android::drastic_settings::overrideError().c_str());
+            } else {
+                ALOGI("drastic-nano: no per-game override for %s, global settings apply", base.c_str());
+            }
+        }
+    }
+
     // Read the user's drastic SharedPreferences so the overlay menu
     // starts with the right values and applyConfig uses the user's
     // real video settings (shader, hi-res, threaded 3d, edge marking,
@@ -4594,6 +4618,10 @@ int main(int argc, char** argv) {
         }
         android::drastic_prefs::markPropsSeeded();
     }
+    // The pre-property defaults (struct defaults plus the dual-screen tuning
+    // above): what "unset" means when the overlay rebuilds the prefs from the
+    // global properties after a per-game override is deleted mid-session.
+    android::drastic_prefs::setLaunchDefaults(prefs);
     android::drastic_prefs::applyProps(&prefs);
     {
         // Runtime-only experiment override for the hi-res 3D bit (sys prop,
@@ -4624,7 +4652,7 @@ int main(int argc, char** argv) {
     // Session-local: never persisted back to the XML.
     {
         char fs[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic_nano.frameskip", fs, "-1");
+        android::drastic_settings::get("persist.gammaos.drastic_nano.frameskip", fs, "-1");
         int fsv = atoi(fs);
         if (fsv == 0) {
             prefs.frameskipType  = 0;
@@ -4694,8 +4722,8 @@ int main(int argc, char** argv) {
     // launch auto-resume, so a hardcore session always boots fresh. Hardcore is
     // a per-session setting fixed at launch, so reading the props here matches
     // what the client will enforce.
-    bool raHardcore = property_get_bool("persist.gammaos.drastic_nano.ra_enabled", false) &&
-                      property_get_bool("persist.gammaos.drastic_nano.ra_hardcore", false);
+    bool raHardcore = android::drastic_settings::getBool("persist.gammaos.drastic_nano.ra_enabled", false) &&
+                      android::drastic_settings::getBool("persist.gammaos.drastic_nano.ra_hardcore", false);
     // Quick Resume boot: nano set sys.gammaos.drastic_nano.qr_resume on the resume
     // handoff. A resume loads slot 9 even if boot_fresh would otherwise force a
     // fresh boot -- but NOT under RA hardcore, which always boots fresh (below).
@@ -4718,8 +4746,7 @@ int main(int argc, char** argv) {
     } else if (bootFresh) {
         autoLoadSlot = -1;
     } else {
-        autoLoadSlot = property_get_bool(
-                "persist.gammaos.drastic_nano.autoload", true) ? 9 : -1;
+        autoLoadSlot = android::drastic_settings::getBool("persist.gammaos.drastic_nano.autoload", true) ? 9 : -1;
     }
     // Validate / quarantine slot 9 before we ever hand it to the drastic core. A
     // corrupt (empty, truncated, or half-written) .dss crashes the boot-load, and
@@ -4781,7 +4808,7 @@ int main(int argc, char** argv) {
     // keeps an "Import DraStic saves" row for anything left behind (a skipped
     // duplicate, or files the app writes later).
     if (gOwnDataRoot &&
-        !property_get_bool("persist.gammaos.drastic_nano.import_prompted", false)) {
+        !android::drastic_settings::getBool("persist.gammaos.drastic_nano.import_prompted", false)) {
         const android::drastic_assets::LegacyCount lc = android::drastic_assets::scanLegacy();
         if (lc.saves + lc.states > 0) {
             char detail[160];
@@ -4821,7 +4848,7 @@ int main(int argc, char** argv) {
                 usleep(16000);
             }
             android::drastic_input::closeInputDevices(&pin);
-            property_set("persist.gammaos.drastic_nano.import_prompted", "1");
+            android::drastic_settings::set("persist.gammaos.drastic_nano.import_prompted", "1");
             if (decided == 0) {
                 android::drastic_assets::ImportResult r = android::drastic_assets::importLegacy(
                         [&](const char* label, float p) { loadScr.frameThrottled(label, p); });
@@ -4858,7 +4885,7 @@ int main(int argc, char** argv) {
     }
     {
         // Back-hold timeout = the system long-press timeout (see gBackHoldMs).
-        int64_t ms = property_get_int32("persist.gammaos.drastic_nano.back_hold_ms", 0);
+        int64_t ms = android::drastic_settings::getInt("persist.gammaos.drastic_nano.back_hold_ms", 0);
         if (ms <= 0) {
             FILE* pf = popen("settings get secure long_press_timeout 2>/dev/null", "r");
             if (pf) { char b[32] = {0}; if (fgets(b, sizeof(b), pf)) ms = atol(b); pclose(pf); }
@@ -4965,7 +4992,7 @@ int main(int argc, char** argv) {
     dr.setVolumeRuntime(0);
     if (!rlr.restartFresh &&
         (forceSlot9 ||
-         property_get_bool("persist.gammaos.drastic_nano.autoload", true))) {
+         android::drastic_settings::getBool("persist.gammaos.drastic_nano.autoload", true))) {
         const std::string slot9 = slot9Stem(savestatesDir, romPath) + ".dss";
         struct stat before {};
         bool had = (stat(slot9.c_str(), &before) == 0);
@@ -5081,6 +5108,9 @@ int main(int argc, char** argv) {
 
     restoreDeepCpuIdle();
     setRtThrottleForFf(false);   // ensure full RT restored if we exit during fast-forward
+    // A per-game override write is coalesced on a worker; make sure the last
+    // setting change of the session is on disk before we leave.
+    android::drastic_settings::flush();
 
     // Quick Resume power off / reboot. drastic-nano owns the save + power action
     // here because gammaos-nano is stopped during a DRM session (and in SF the

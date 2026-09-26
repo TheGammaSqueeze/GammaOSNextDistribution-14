@@ -17,6 +17,7 @@
 #include "NanoI18n.h"   // trDyn() shared nano UI translations
 #include "NanoRetroAchievements.h"   // RaUiEvent
 #include "DrasticAssets.h"   // legacy DraStic saves import
+#include "DrasticSettings.h"   // per-game override aware property access
 
 #include <dirent.h>
 #include <errno.h>
@@ -95,7 +96,27 @@ void postAsync(std::function<void()> job) {
 void setPropAsync(const char* key, const char* val) {
     std::string k(key), v(val ? val : "");
     { std::lock_guard<std::mutex> lk(gWorkMu); gPropShadow[k] = v; }
-    postAsync([k, v]() { property_set(k.c_str(), v.c_str()); });
+    postAsync([k, v]() { android::drastic_settings::set(k.c_str(), v.c_str()); });
+}
+
+// Forget every shadowed value: after a per-game override is created or deleted
+// the source of truth changed under the shadow, so the rows must read afresh.
+void clearPropShadow() {
+    std::lock_guard<std::mutex> lk(gWorkMu);
+    gPropShadow.clear();
+}
+
+// Re-issue every shadowed drastic_nano write through the settings layer. Used
+// right after a per-game override is created: a toggle made moments earlier may
+// still be queued on the worker as a property write, so the snapshot taken from
+// the properties would miss it; replaying the shadow lands it in the file.
+void replayPropShadow() {
+    std::unordered_map<std::string, std::string> copy;
+    { std::lock_guard<std::mutex> lk(gWorkMu); copy = gPropShadow; }
+    for (const auto& kv : copy) {
+        if (kv.first.compare(0, strlen(android::drastic_settings::kPrefix), android::drastic_settings::kPrefix) == 0)
+            android::drastic_settings::set(kv.first.c_str(), kv.second.c_str());
+    }
 }
 
 // property_get replacement for the menu: a value written through setPropAsync
@@ -109,7 +130,7 @@ int shadowPropGet(const char* key, char* out, const char* def) {
             return (int)strlen(out);
         }
     }
-    return property_get(key, out, def);
+    return android::drastic_settings::get(key, out, def);
 }
 // Typed wrappers over shadowPropGet. Every setting row must read its value through the
 // shadow, never property_get_bool/property_get_int32 directly: setPropAsync posts the real
@@ -811,6 +832,51 @@ void OverlayMenu::writePrefsSafe() {
     toast("Saved");
 }
 
+void OverlayMenu::createPerGameOverride() {
+    // Snapshot the effective settings (the global properties) into the file, then
+    // write the staged prefs on top so an edit made in this menu visit is in the
+    // file too (writeProps routes to the file now that the override is active).
+    // The file write itself is one synchronous FUSE write while the game is paused
+    // under the menu; every later change is coalesced on a worker.
+    if (!drastic_settings::create(drastic_prefs::overrideKeys())) {
+        toast("Could not create the override file");
+        return;
+    }
+    drastic_prefs::writeProps(mPrefs, nullptr);
+    replayPropShadow();
+    mWrittenPrefs = mPrefs;
+    mDirty = false;
+    clearPropShadow();
+    toast("Per-game override created");
+}
+
+void OverlayMenu::deletePerGameOverride() {
+    // The global settings apply again immediately: rebuild the prefs from the
+    // launch defaults plus the global properties and push them to the running
+    // emulator (config word, shader, input map); the property-backed rows and the
+    // run loops read the globals on their next poll.
+    drastic_settings::remove();
+    clearPropShadow();
+    drastic_prefs::Prefs p = drastic_prefs::launchDefaults();
+    drastic_prefs::applyProps(&p);
+    const std::string prevFx = mPrefs.currentFx;
+    mPrefs = p;
+    mWrittenPrefs = p;   // the properties already hold exactly this
+    mDirty = false;
+    mInputReapplyPending = true;
+    if (mRunner) {
+        applyConfigLive();
+        if (mPrefs.currentFx != prevFx) {
+            const std::string path = mShadersDir + "/" + mPrefs.currentFx + ".dfx";
+            if (!mRunner->setShaderRuntime(path)) toast("Shader load failed");
+        }
+    }
+    // A setting that only applies at launch (audio latency, firmware language)
+    // may differ between the deleted override and the globals; the usual
+    // relaunch handshake covers it when the menu closes.
+    toast("Override deleted, global settings apply");
+}
+
 // Draw every page once in raster-only mode so the glyph atlas holds the whole
 // menu's glyph set before the first real open. Runs at session start on the
 // render thread (the GL context is current); nothing reaches the panel.
@@ -1269,7 +1335,8 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     // Keep the input layer in sync with any deadzone / analog-touch
     // change made via the Controls tab this frame. Cheap: rebuilds
     // the 29-entry keymap lookup.
-    if (input && mDirty) {
+    if (input && (mDirty || mInputReapplyPending)) {
+        mInputReapplyPending = false;
         drastic_input::applyPrefs(input, mPrefs);
     }
 }
@@ -1486,6 +1553,44 @@ void OverlayMenu::rebuildGeneral() {
     // slot 9 (and arms Quick Resume when enabled) before the power action.
     // Saves / save states still in the DraStic app's folder: offer the move here
     // too (the launch prompt stops asking once the user declined it).
+    // Per-game settings override (see DrasticSettings.h). Create snapshots the
+    // current settings into <data folder>/overrides/<rom>.cfg and makes that file
+    // the source of truth for this game; every later change goes to the file and
+    // the global settings are neither read nor written. Delete removes the file
+    // and re-applies the global settings at once.
+    if (!drastic_settings::overridePath().empty()) {
+        RowAction r;
+        if (drastic_settings::overrideUnreadable()) {
+            // The file is there but could not be read (corrupt, empty, permission,
+            // storage not mounted): the global settings are in use. Offer to delete
+            // it; Create then appears again for a fresh snapshot.
+            r.label = "Per-Game Override";
+            r.value = "Unreadable";
+            r.onAccept = [this]() {
+                openConfirm("This game's settings override could not be read. Delete it and keep using the global settings?",
+                            [this]() {
+                                if (drastic_settings::remove()) toast("Override deleted");
+                                else toast("Could not delete the override file");
+                            },
+                            {drastic_settings::overrideError(), drastic_settings::overridePath()});
+            };
+        } else if (drastic_settings::overrideActive()) {
+            r.label = "Delete Per-Game Override";
+            r.tag = kRowActive;   // green: an override is in force for this game
+            r.onAccept = [this]() {
+                openConfirm("Delete this game's settings override and go back to the global settings?",
+                            [this]() { deletePerGameOverride(); });
+            };
+        } else {
+            r.label = "Create Per-Game Override";
+            r.onAccept = [this]() {
+                openConfirm("Save this game's settings as a per-game override?", [this]() { createPerGameOverride(); },
+                            {"Settings changed from now on apply to this game only",
+                             "Stored in " + drastic_settings::overridePath()});
+            };
+        }
+        mRows.push_back(std::move(r));
+    }
     {
         const drastic_assets::LegacyCount lc = drastic_assets::scanLegacy();
         if (lc.saves + lc.states > 0) {
@@ -3279,60 +3384,75 @@ void OverlayMenu::drawConfirm(drastic_gfx::OverlayGfx& gfx, float vw, float vh, 
     const float ds = kRowBaseScale * 0.9f * sf;
     const char* q = trDyn(mConfirm.question.c_str());
     const char* opt[2] = { trDyn("Confirm"), trDyn("Cancel") };
-    const float qw = gfx.measure(q, qs);
     const float ow0 = gfx.measure(opt[0], bs), ow1 = gfx.measure(opt[1], bs);
     const float pad = 28.0f * sf, gapX = 48.0f * sf, gapY = 26.0f * sf;
     const float lineQ = gfx.fontLineH() * qs, lineO = gfx.fontLineH() * bs, lineD = gfx.fontLineH() * ds;
     const float maxW = vw - 2.0f * pad;
-    float cardW = fmaxf(qw, ow0 + gapX + ow1) + 2.0f * pad;
-    if (!mConfirm.details.empty()) cardW = fmaxf(cardW, fminf(maxW, vw * 0.8f));
-    if (cardW > maxW) cardW = maxW;
-    // Wrap each detail line as a bullet to the card's inner width.
-    std::vector<std::string> lines;
-    const float bullet = gfx.measure("- ", ds);
-    const float innerW = cardW - 2.0f * pad;
-    for (const std::string& d : mConfirm.details) {
-        std::string text = trDyn(d.c_str());
+    // Word-wrap text to a width at a scale; a prefix goes on the first line and
+    // an indent on the continuation lines (the bullets); a run without spaces
+    // wider than the width (CJK text) breaks on UTF-8 character boundaries.
+    auto wrap = [&](const std::string& text, float scale, float width,
+                    const char* prefix, const char* indent, std::vector<std::string>& out) {
+        const float lead = gfx.measure(prefix, scale);
         std::string cur; size_t pos = 0; bool first = true;
+        auto emit = [&](const std::string& l) { out.push_back((first ? prefix : indent) + l); first = false; };
         while (pos <= text.size()) {
             size_t sp = text.find(' ', pos);
             if (sp == std::string::npos) sp = text.size();
             std::string word = text.substr(pos, sp - pos);
-            // A run without spaces wider than the card (CJK text): break it
-            // on UTF-8 character boundaries at the widest fitting prefix.
-            while (bullet + gfx.measure(word.c_str(), ds) > innerW && word.size() > 1) {
+            while (lead + gfx.measure(word.c_str(), scale) > width && word.size() > 1) {
                 size_t cut = word.size();
                 while (cut > 1) {
                     size_t c = cut - 1;
                     while (c > 0 && (static_cast<unsigned char>(word[c]) & 0xC0) == 0x80) c--;
                     cut = c;
-                    if (bullet + gfx.measure(word.substr(0, cut).c_str(), ds) <= innerW) break;
+                    if (lead + gfx.measure(word.substr(0, cut).c_str(), scale) <= width) break;
                 }
                 if (cut == 0) break;
-                if (!cur.empty()) { lines.push_back((first ? "- " : "  ") + cur); first = false; cur.clear(); }
-                lines.push_back((first ? "- " : "  ") + word.substr(0, cut)); first = false;
+                if (!cur.empty()) { emit(cur); cur.clear(); }
+                emit(word.substr(0, cut));
                 word = word.substr(cut);
             }
             const std::string cand = cur.empty() ? word : cur + " " + word;
-            if (!cur.empty() && bullet + gfx.measure(cand.c_str(), ds) > innerW) {
-                lines.push_back((first ? "- " : "  ") + cur); first = false; cur = word;
+            if (!cur.empty() && lead + gfx.measure(cand.c_str(), scale) > width) {
+                emit(cur); cur = word;
             } else cur = cand;
             pos = sp + 1;
         }
-        if (!cur.empty()) lines.push_back((first ? "- " : "  ") + cur);
-    }
+        if (!cur.empty()) emit(cur);
+    };
+    // The question wraps to the widest card that fits the screen; the card then
+    // shrinks to the widest wrapped line so a short question keeps a small card.
+    std::vector<std::string> qlines;
+    wrap(q, qs, maxW - 2.0f * pad, "", "", qlines);
+    float qw = 0.0f;
+    for (const std::string& l : qlines) qw = fmaxf(qw, gfx.measure(l.c_str(), qs));
+    float cardW = fmaxf(qw, ow0 + gapX + ow1) + 2.0f * pad;
+    if (!mConfirm.details.empty()) cardW = fmaxf(cardW, fminf(maxW, vw * 0.8f));
+    if (cardW > maxW) cardW = maxW;
+    // Wrap each detail line as a bullet to the card's inner width.
+    std::vector<std::string> lines;
+    const float innerW = cardW - 2.0f * pad;
+    for (const std::string& d : mConfirm.details) wrap(trDyn(d.c_str()), ds, innerW, "- ", "  ", lines);
+    const float questionH = qlines.size() * lineQ;
     const float detH = lines.empty() ? 0.0f : (lines.size() * lineD + gapY * 0.6f);
-    const float cardH = pad + lineQ + detH + gapY + lineO + pad;
+    const float cardH = pad + questionH + detH + gapY + lineO + pad;
     const float cx = (vw - cardW) / 2.0f, cy = (vh - cardH) / 2.0f;
     gfx.fillRect(cx, cy, cardW, cardH, rgba(0.08f, 0.09f, 0.12f, 0.97f));
     gfx.outline(cx, cy, cardW, cardH, 2.0f * sf, rgba(0.35f, 0.75f, 1.0f, 0.9f));
-    gfx.text(q, cx + (cardW - qw) / 2.0f, cy + pad, qs, rgba(1, 1, 1, 1));
-    float ly = cy + pad + lineQ + gapY * 0.6f;
+    {
+        float qy = cy + pad;
+        for (const std::string& l : qlines) {
+            gfx.text(l.c_str(), cx + (cardW - gfx.measure(l.c_str(), qs)) / 2.0f, qy, qs, rgba(1, 1, 1, 1));
+            qy += lineQ;
+        }
+    }
+    float ly = cy + pad + questionH + gapY * 0.6f;
     for (const std::string& l : lines) {
         gfx.text(l.c_str(), cx + pad, ly, ds, rgba(0.85f, 0.87f, 0.92f, 0.95f));
         ly += lineD;
     }
-    const float oy = cy + pad + lineQ + detH + gapY;
+    const float oy = cy + pad + questionH + detH + gapY;
     const float totalW = ow0 + gapX + ow1;
     float ox = cx + (cardW - totalW) / 2.0f;
     for (int i = 0; i < 2; i++) {
@@ -3442,6 +3562,7 @@ void OverlayMenu::drawList(drastic_gfx::OverlayGfx& gfx, float vw,
                 case kRowUnlocked: fg = rgba(0.99f, 0.83f, 0.32f, 0.95f); break;
                 case kRowLocked:   fg = rgba(0.56f, 0.58f, 0.65f, 0.55f); break;
                 case kRowHeader:   fg = rgba(0.45f, 0.74f, 1.00f, 0.92f); break;
+                case kRowActive:   fg = rgba(0.25f, 0.90f, 0.35f, 0.95f); break;
                 default:           fg = rgba(0.65f, 0.66f, 0.72f, 0.70f); break;
             }
         }

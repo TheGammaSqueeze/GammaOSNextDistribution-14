@@ -7,6 +7,7 @@
 #define LOG_TAG "GammaOSNano.Drastic"
 
 #include "DrasticRunner.h"
+#include "DrasticSettings.h"
 #include "FakeJNI.h"
 
 #include <dirent.h>
@@ -1298,7 +1299,7 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
     // which grabs BOTH DS screens as one atomic coherent pair (pixel-pull ->
     // updatePixels -> mTopTex/mBotTex), instead of fxRender. Used to determine
     // whether drastic can hand us both screens from one frame (no shader).
-    if (property_get_bool("persist.gammaos.drastic_nano.afbc_coherent_test", false)) {
+    if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.afbc_coherent_test", false)) {
         mUseRenderFrame = false;
         ALOGW("DrasticRunner: afbc_coherent_test ON -- forcing legacy "
               "getScreenBuffers (coherent pair, no shader)");
@@ -1881,7 +1882,7 @@ void DrasticRunner::patchFinalPassFbo(unsigned int targetFbo) {
     // emulator. Gate behind an opt-in debug prop (default off); the pass-list
     // walk, the sampler normalize and the FBO patch above always run.
     static const bool kFxDebug =
-            property_get_int32("persist.gammaos.drastic_nano.fxdebug", 0) != 0;
+            android::drastic_settings::getInt("persist.gammaos.drastic_nano.fxdebug", 0) != 0;
     if (kFxDebug) {
         uint32_t program    = *reinterpret_cast<uint32_t*>(last + 0);
         uint32_t posAttrib  = *reinterpret_cast<uint32_t*>(last + 4);
@@ -2161,7 +2162,7 @@ extern "C" void gxFrameEntry(uint8_t* R, uint32_t arg1) {
     if ((gGpu3dPollCount++ & 63) == 0) {
         // sys.* is the session override for tests; persist.* is the user's setting (menu row)
         const int ov = property_get_int32("sys.gammaos.drastic_nano.gpu3d", -1);
-        gGpu3dEnabled = ov >= 0 ? ov : property_get_bool("persist.gammaos.drastic_nano.gpu3d", false);
+        gGpu3dEnabled = ov >= 0 ? ov : android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d", false);
     }
     bool done = false;
     // Fast forward: the GPU path cannot keep up with a several-hundred-frame-per-second kick
@@ -2406,7 +2407,7 @@ static uint16_t gHwLastCnt = 0;
 extern "C" void spuMixTrace(uint8_t* master);
 extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* master, void (*chanmix)(uint8_t*, int32_t*, uint32_t)) {
     static int sOn = -1;
-    if (sOn < 0) sOn = property_get_bool("persist.gammaos.drastic_nano.hw_route", true) ? 1 : 0;
+    if (sOn < 0) sOn = android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route", true) ? 1 : 0;
     if (!sOn || n == 0 || n > 8192) return 0;
     // ARM7 IO mirror from 0x04000400: the channel mix (+0x71bf0) loads it as *((spu+0x40010)+0xcd8), i.e.
     // *(spu+0x40ce8), and reads the master volume from its +0x100 (SOUNDCNT, IO 0x04000500); the capture
@@ -2416,7 +2417,7 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
     // value to Golden Sun's 0xB97F, which forced every capture-running game into ring-only output.)
     uint8_t* regs = *reinterpret_cast<uint8_t**>(spu + 0x40ce8);
     if (!regs) return 0;
-    static int sFixed = -1; if (sFixed < 0) sFixed = property_get_int32("persist.gammaos.drastic_nano.hw_route_cnt", 0);   // nonzero = override the register (diagnostic)
+    static int sFixed = -1; if (sFixed < 0) sFixed = android::drastic_settings::getInt("persist.gammaos.drastic_nano.hw_route_cnt", 0);   // nonzero = override the register (diagnostic)
     const uint16_t cnt = sFixed ? (uint16_t)sFixed : *reinterpret_cast<uint16_t*>(regs + 0x100);
     static uint32_t sLastRingKey = 0;
     const uint32_t ringKey = ((uint32_t)*reinterpret_cast<uint16_t*>(regs + 0x18) << 16) | *reinterpret_cast<uint16_t*>(regs + 0x114) | ((uint32_t)regs[0x108] << 8 & 0x8000);
@@ -2443,7 +2444,7 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
     uint8_t save[16];
     for (int i = 0; i < 16; i++) save[i] = ch[i * 0xc8 + 190];
     if (gSpuTrace) {   // (diagnostic, persist.gammaos.drastic_nano.hw_route_diffdump) ch4 contribution by DIFFERENCE of two full mixes
-        static int sDD = -1; if (sDD < 0) sDD = property_get_bool("persist.gammaos.drastic_nano.hw_route_diffdump", false) ? 1 : 0;
+        static int sDD = -1; if (sDD < 0) sDD = android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route_diffdump", false) ? 1 : 0;
         static FILE* fd_ = nullptr; static FILE* fs_ = nullptr; static int di = 0;
         if (sDD) {
             if (!di) { di = 1; fd_ = fopen("/data/local/tmp/ch4_diff.bin", "wb"); fs_ = fopen("/data/local/tmp/ch4_src2.bin", "wb"); }
@@ -2464,7 +2465,7 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
         }
     }
     if (gSpuTrace) {   // (diagnostic, persist.gammaos.drastic_nano.hw_route_bufdump) ch4 decode buffer vs its mixed contribution
-        static int sBD = -1; if (sBD < 0) sBD = property_get_bool("persist.gammaos.drastic_nano.hw_route_bufdump", false) ? 1 : 0;
+        static int sBD = -1; if (sBD < 0) sBD = android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route_bufdump", false) ? 1 : 0;
         static FILE* fb = nullptr; static FILE* fm = nullptr; static int bi = 0;
         if (sBD) {
             if (!bi) { bi = 1; fb = fopen("/data/local/tmp/ch4_buf.bin", "wb"); fm = fopen("/data/local/tmp/ch4_mix.bin", "wb"); }
@@ -2482,7 +2483,7 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
         }
     }
     {   // (diagnostic, persist.gammaos.drastic_nano.hw_route_perch) per-channel solo mix: rms and HF share of each channel
-        static int sPer = -1; if (sPer < 0) sPer = property_get_bool("persist.gammaos.drastic_nano.hw_route_perch", false) ? 1 : 0;
+        static int sPer = -1; if (sPer < 0) sPer = android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route_perch", false) ? 1 : 0;
         static uint32_t cnt_ = 0;
         if (sPer && (++cnt_ % 200) == 0 && n >= 32) {
             static int32_t* scratch = nullptr; if (!scratch) scratch = static_cast<int32_t*>(calloc(8192 * 2, sizeof(int32_t)));
@@ -2509,7 +2510,7 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
     // (+190 = has-samples, loop entry) whenever they are audible: selected as an output, or part of a mixer
     // output that does not drop them. The mixer then decodes the ring itself via its refill path.
     auto playing = [&](int c) { uint32_t* rp = *reinterpret_cast<uint32_t**>(ch + c * 0xc8 + 152); return rp && (*rp & 0x80000000u); };
-    static int sForce = -1; if (sForce < 0) sForce = property_get_int32("persist.gammaos.drastic_nano.hw_route_force", 1);
+    static int sForce = -1; if (sForce < 0) sForce = android::drastic_settings::getInt("persist.gammaos.drastic_nano.hw_route_force", 1);
     auto startRingChannel = [&](int c, bool audible) {
         uint8_t* rc = ch + c * 0xc8;
         if (audible && sForce && playing(c)) { rc[190] = 1; started[c == 3] = 1; }
@@ -2542,7 +2543,7 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
     // interpolation right before ch1/ch3 read the ring (same repair as ring_repair, applied in place; the
     // capture pass below then overwrites the bridged slots with real samples on its next revolution).
     {
-        static int sRep = -1; if (sRep < 0) sRep = property_get_bool("persist.gammaos.drastic_nano.hw_route_repair", false) ? 1 : 0;
+        static int sRep = -1; if (sRep < 0) sRep = android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route_repair", false) ? 1 : 0;
         if (sRep) for (int u = 0; u < 2; u++) {
             uint8_t* rec = spu + 0x40ca8 + u * 32; if (!(rec[0x1c] & 0x80)) continue;
             uint8_t* dst = *reinterpret_cast<uint8_t**>(rec + 0x10); const uint32_t len = *reinterpret_cast<uint32_t*>(rec + 0x18);
@@ -2591,7 +2592,7 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
     // filter folds 16.4-22 kHz back into 10-16 kHz (measured +6 dB at 8-12 kHz vs melonDS). Same elliptic
     // 16 kHz design as the output lowpass; state kept per accumulator channel across mixes.
     {
-        static int sAA = -1; if (sAA < 0) sAA = property_get_bool("persist.gammaos.drastic_nano.hw_route_aa", false) ? 1 : 0;   // refuted offline: unfiltered decimation matches the reference
+        static int sAA = -1; if (sAA < 0) sAA = android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route_aa", false) ? 1 : 0;   // refuted offline: unfiltered decimation matches the reference
         if (sAA) {
             static double z[2][4][2] = {};
             static const double kSos[4][6] = {
@@ -2634,8 +2635,8 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
         const uint32_t len = pcm8 ? len16 * 2 : len16;
         if (shadowLen[u] != len) { free(shadow[u]); shadow[u] = static_cast<int16_t*>(calloc(len, sizeof(int16_t))); shadowLen[u] = shadow[u] ? len : 0; }
         int16_t* sh = shadow[u];
-        static int sShift = -1; if (sShift < 0) sShift = property_get_int32("persist.gammaos.drastic_nano.hw_route_capshift", 12);   // capture scale: acc >> shift
-        static int sCapMode = -1; if (sCapMode < 0) sCapMode = property_get_int32("persist.gammaos.drastic_nano.hw_route_cap", 0);   // 0 = overwrite (default, best), 1 = shadow-add, 3 = slot-walk lerp
+        static int sShift = -1; if (sShift < 0) sShift = android::drastic_settings::getInt("persist.gammaos.drastic_nano.hw_route_capshift", 12);   // capture scale: acc >> shift
+        static int sCapMode = -1; if (sCapMode < 0) sCapMode = android::drastic_settings::getInt("persist.gammaos.drastic_nano.hw_route_cap", 0);   // 0 = overwrite (default, best), 1 = shadow-add, 3 = slot-walk lerp
         if (sCapMode == 0 || sCapMode == 3) sh = nullptr;
         if (sCapMode == 3 && !pcm8) {
             // Walk the ring slots this mix covers (pos .. pos + step*n) and sample the 44.1 kHz source A at the
@@ -2678,8 +2679,8 @@ extern "C" int spuHwRoute(uint8_t* spu, int32_t* acc, uint32_t n, uint8_t* maste
             // (direct memory, no FIFOs) started the capture 176 slots late relative to ch1 (lead 506 instead of ~670),
             // so the game processed 150 of every 340 slots before they were captured and the capture then erased its
             // work: the voice defect. Reader k slots ahead of the writer reproduces the hardware order.
-            static int sLock = -1; if (sLock < 0) sLock = property_get_int32("persist.gammaos.drastic_nano.hw_route_lock", 2);
-            static int sLeadK = -1; if (sLeadK < 0) sLeadK = property_get_int32("persist.gammaos.drastic_nano.hw_route_lead_k", 10);
+            static int sLock = -1; if (sLock < 0) sLock = android::drastic_settings::getInt("persist.gammaos.drastic_nano.hw_route_lock", 2);
+            static int sLeadK = -1; if (sLeadK < 0) sLeadK = android::drastic_settings::getInt("persist.gammaos.drastic_nano.hw_route_lead_k", 10);
             const uint64_t sdiff = cstep > step ? cstep - step : step - cstep;
             const bool lockOk = sLock && sdiff < (1ull << 20) && step && (crec[190] || started[u]) && (uint32_t)(cpos >> 32) < len;
             static uint32_t seen[2] = {0, 0}; const bool periodic = (seen[u]++ % 2000) == 0 && seen[u] < 40000;
@@ -2767,7 +2768,7 @@ extern "C" void spuRingRepairPre(uint8_t* master) {
     gRingRepairCalls.fetch_add(1, std::memory_order_relaxed);
     { static int n = 0; if (n++ < 40) ALOGW("AUDIOMARK ringrepair at submit %u", gAudSubmitPub.load(std::memory_order_relaxed)); }
     static int sHw = -1;
-    if (sHw < 0) sHw = property_get_bool("persist.gammaos.drastic_nano.hw_route", true) && !property_get_bool("persist.gammaos.drastic_nano.hw_route_repair", false) ? 1 : 0;
+    if (sHw < 0) sHw = android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route", true) && !android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route_repair", false) ? 1 : 0;
     if (sHw) { gRingSaveBytes[0] = gRingSaveBytes[1] = 0; return; }   // the rings hold real captured audio now
     for (int u = 0; u < 2; u++) {
         gRingSaveBytes[u] = 0;
@@ -2778,7 +2779,7 @@ extern "C" void spuRingRepairPre(uint8_t* master) {
         // ring_mode: 0 = interpolate the gaps (the fix), 1 = silence the ring for this read only
         // (diagnostic: whatever still reaches the speaker did NOT come through channels 1/3).
         static int sRingMode = -1;
-        if (sRingMode < 0) sRingMode = property_get_int32("persist.gammaos.drastic_nano.ring_mode", 0);
+        if (sRingMode < 0) sRingMode = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ring_mode", 0);
         if (sRingMode == 1) { memset(p, 0, bytes); continue; }
         const uint32_t filled = (w == 2) ? ringInterpFill(reinterpret_cast<int16_t*>(p), L) : ringInterpFill(reinterpret_cast<int8_t*>(p), L);
         if (filled) gRingRepairFilled.fetch_add(filled, std::memory_order_relaxed);
@@ -3412,8 +3413,8 @@ extern "C" void drasticVWait(unsigned usec) {
     static bool sSkipActive = false;
     if (gLastParkUs.load() - sCatchUpReadUs > 1000000) {
         sCatchUpReadUs = gLastParkUs.load();
-        sCatchUp = property_get_int32("persist.gammaos.drastic_nano.pace_catchup", 1);
-        sCatchUpMax = property_get_int32("persist.gammaos.drastic_nano.pace_catchup_max", 2);
+        sCatchUp = android::drastic_settings::getInt("persist.gammaos.drastic_nano.pace_catchup", 1);
+        sCatchUpMax = android::drastic_settings::getInt("persist.gammaos.drastic_nano.pace_catchup_max", 2);
         // Full-render catch-up ceiling: an isolated stall this many ticks or fewer is
         // caught up (owed frames run back to back), so its audio is produced and the
         // output queue refills instead of starving (the heavy-scene pop). The picture
@@ -3422,13 +3423,13 @@ extern "C" void drasticVWait(unsigned usec) {
         // stall (a state load is behind 8..10 and ~140 ms of CPU) to the drop path: its
         // audio is silence during the load anyway, and a slow full-render catch-up of a
         // backlog that big drains the output queue far worse than an instant resync.
-        sCatchCeil = property_get_int32("persist.gammaos.drastic_nano.pace_catchup_ceiling", 5);
+        sCatchCeil = android::drastic_settings::getInt("persist.gammaos.drastic_nano.pace_catchup_ceiling", 5);
         // Render-skip the extension frames (compose + 3D kick): cheaper catch-up, but it
         // leaves a STATIC panel (the DS bottom screen) un-redrawn and blank, so it is OFF
         // by default. Only for experiments.
-        sRenderSkip = property_get_int32("persist.gammaos.drastic_nano.pace_render_catchup", 0);
-        sCatchMask = property_get_int32("persist.gammaos.drastic_nano.pace_catchup_mask", 3);
-        sStallDiag = property_get_int32("persist.gammaos.drastic_nano.pace_stall_diag", 0);
+        sRenderSkip = android::drastic_settings::getInt("persist.gammaos.drastic_nano.pace_render_catchup", 0);
+        sCatchMask = android::drastic_settings::getInt("persist.gammaos.drastic_nano.pace_catchup_mask", 3);
+        sStallDiag = android::drastic_settings::getInt("persist.gammaos.drastic_nano.pace_stall_diag", 0);
     }
     if (sConsumedValid) {
         const int32_t behind = (int32_t)(seen - sConsumedSeq);   // ticks that fired during the frame
@@ -3447,7 +3448,7 @@ extern "C" void drasticVWait(unsigned usec) {
                 uint32_t pc = gStallMaxCpuMs.load(std::memory_order_relaxed);
                 if (cms > pc) gStallMaxCpuMs.store(cms, std::memory_order_relaxed);
                 static int64_t sLastStallLogUs = 0;
-                const int stallLogGap = property_get_int32("persist.gammaos.drastic_nano.pace_stall_log_us", 1000000);
+                const int stallLogGap = android::drastic_settings::getInt("persist.gammaos.drastic_nano.pace_stall_log_us", 1000000);
                 if (nowUs - sLastStallLogUs > stallLogGap) {
                     sLastStallLogUs = nowUs;
                     ALOGW("PACE stall behind=%d wall=%u ms cpu=%u ms nvcsw=%ld nivcsw=%ld majflt=%ld %s",
@@ -3628,13 +3629,13 @@ static void aaPatchPlaySites(uint8_t* base, long ps, bool disable) {
 static void aaDisableDrasticPlayStarts(uint8_t* base, long ps) { aaPatchPlaySites(base, ps, true); }
 void DrasticRunner::installVblankPacing(uint8_t* base) {
     if (!base || mPanelHz <= 1.0) return;
-    if (!property_get_bool("persist.gammaos.drastic_nano.vblank_pace", true)) return;
+    if (!android::drastic_settings::getBool("persist.gammaos.drastic_nano.vblank_pace", true)) return;
     const long ps = sysconf(_SC_PAGESIZE) > 0 ? sysconf(_SC_PAGESIZE) : 4096;
     // 1. OpenSL PCM sample rate (rodata, milliHz): both format tables. With native_mix the SPU mixes at 32824 Hz and
     // hands 547 stereo frames per video frame; open the player at 32824 too so the frames go out untouched and
     // AudioFlinger does the 32824->48000 conversion with its own (off-thread, optimised) resampler. This is what lets
     // native_mix avoid a per-sample software resampler on the emulation thread, which starved the OpenSL queue.
-    const bool nativeMixRate = property_get_bool("persist.gammaos.drastic_nano.native_mix", false);
+    const bool nativeMixRate = android::drastic_settings::getBool("persist.gammaos.drastic_nano.native_mix", false);
     const uint32_t rate = (uint32_t)llround((nativeMixRate ? 32824000.0 : 44100000.0) * mPanelHz / 60.0);
     static const uintptr_t kRateOffs[2] = { 0x10a08c, 0x10a0c0 };
     for (uintptr_t off : kRateOffs) {
@@ -3870,7 +3871,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             // exists (its refill callback enqueues silence), and the mixer holds the PCM the exclusive
             // stream needs until its standby delay passes. Stop and stub the player right here when it
             // already exists, so the mixer can release the PCM before the first chunk is submitted.
-            if (property_get_int32("persist.gammaos.drastic_nano.audio_aaudio", 1)) {
+            if (android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_aaudio", 1)) {
                 if (*reinterpret_cast<uintptr_t*>(base + 0x3c7d030) != 0) aaStopDrasticPlayer();
                 // Every SetPlayState(PLAYING) drastic can issue is disabled, not only the one at the
                 // end of the creation routine (+0x1d760 -> +0x1d9a0): the prime-and-start at +0x1db74
@@ -3946,7 +3947,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // hardware (and melonDS) never clear it. drastic clearing it leaves zero gaps between the
         // consumed region and the capture/DSP write heads, and those gaps are the scratch. NOP the
         // four stores so the ring keeps its samples, exactly as on hardware.
-        if (property_get_bool("persist.gammaos.drastic_nano.no_ring_clear", false)) {
+        if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.no_ring_clear", false)) {
             const uintptr_t clr[4] = {0x7258c, 0x725b8, 0x72658, 0x72680};
             const uint32_t exp[4] = {0x782a69bfu, 0x783069bfu, 0x382a69bfu, 0x383069bfu};
             int ok = 0;
@@ -3959,7 +3960,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             mprotect(pg0, (size_t)ps * 2, PROT_READ | PROT_EXEC);
             ALOGI("DrasticRunner: SPU ring-clear removal patched %d/4 stores", ok);
         }
-        const int mixLines = property_get_int32("persist.gammaos.drastic_nano.spu_mix_lines", 0);
+        const int mixLines = android::drastic_settings::getInt("persist.gammaos.drastic_nano.spu_mix_lines", 0);
         const uintptr_t lineEntry = 0x2c8f8;
         if (sProbePage && mixLines > 0 && *reinterpret_cast<uint32_t*>(base + lineEntry) == 0xf81a0ffbu) {   // str x27, [sp, #-96]!
             uint8_t* cavePg4 = sProbePage;
@@ -4019,7 +4020,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             ALOGI("DrasticRunner: SPU trace buffer %s (early)", gSpuTrace ? "ready" : "FAILED");
         }
         const uintptr_t rrSite = 0x72858;
-        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.hw_route", true) &&
+        if (sProbePage && android::drastic_settings::getBool("persist.gammaos.drastic_nano.hw_route", true) &&
             *reinterpret_cast<uint32_t*>(base + rrSite) == 0x97fffce6u) {   // bl +0x71bf0
             // Hardware routing cave (probe page +768, scratchpad/gs/caveRoute.s): hands the whole mix to
             // spuHwRoute; on 1 it skips the original channel-mix + two capture calls (continues at
@@ -4051,7 +4052,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             __builtin___clear_cache((char*)(base + rrSite), (char*)(base + rrSite + 4));
             mprotect(sp2, (size_t)ps, PROT_READ | PROT_EXEC);
             ALOGI("DrasticRunner: SPU hardware output routing + real capture installed (cave +0x%zx)", (size_t)cave);
-        } else if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.ring_repair", true) &&
+        } else if (sProbePage && android::drastic_settings::getBool("persist.gammaos.drastic_nano.ring_repair", true) &&
             *reinterpret_cast<uint32_t*>(base + rrSite) == 0x97fffce6u) {   // bl +0x71bf0
             uint8_t* cavePg5 = sProbePage;
             const uintptr_t cave4 = (uintptr_t)sProbePage - (uintptr_t)base + 512;
@@ -4078,7 +4079,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             __builtin___clear_cache((char*)(base + rrSite), (char*)(base + rrSite + 4));
             mprotect(sitePg5, (size_t)ps, PROT_READ | PROT_EXEC);
             ALOGI("DrasticRunner: SPU ring interpolation repair installed (cave +0x%zx)", (size_t)cave4);
-        } else if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.ring_repair", true))
+        } else if (sProbePage && android::drastic_settings::getBool("persist.gammaos.drastic_nano.ring_repair", true))
             ALOGW("DrasticRunner: mixer channel-mix site +0x72858 unexpected (0x%08x)", *reinterpret_cast<uint32_t*>(base + rrSite));
         // PCM channel linear interpolation (persist.gammaos.drastic_nano.pcm_interp): DraStic's channel mixer
         // resamples every channel from its own rate to 44.1 kHz by nearest neighbour: the PCM16 fetch at
@@ -4090,7 +4091,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // stale), i.e. linear interpolation with a one-source-sample delay. The first sample of a channel
         // (position 0) is fetched plain so a stale buf[i-1] cannot click. x16/x17 are scratch; x30 is not
         // live across the loop (it already calls the decoder). Caves at probe page +640 and +704.
-        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.pcm_interp", false)) {
+        if (sProbePage && android::drastic_settings::getBool("persist.gammaos.drastic_nano.pcm_interp", false)) {
             static const uint32_t kLerp21[] = {0xd360feb1u,0x34000191u,0x78e87ad0u,0x51000511u,0x12001631u,0x78f17ad1u,0xd350fea8u,0x12003d08u,
                                                0x4b110210u,0x9b287e10u,0x9350fe10u,0x0b100228u,0xd65f03c0u,0x78e87ac8u,0xd65f03c0u};
             static const uint32_t kLerp23[] = {0xd360fef1u,0x34000191u,0x78e87ad0u,0x51000511u,0x12001631u,0x78f17ad1u,0xd350fee8u,0x12003d08u,
@@ -4125,7 +4126,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // pass-B accumulator). One cave lerps s_i and s_{i+1} by the 16-bit fraction, wrapping s_{i+1} to the
         // loop start at the loop length (x27), so a circular ring interpolates across its seam. x16/x17 are
         // free in that loop. Probe page +896.
-        const int sInterpMode = property_get_int32("persist.gammaos.drastic_nano.pcm16_interp", 2);
+        const int sInterpMode = android::drastic_settings::getInt("persist.gammaos.drastic_nano.pcm16_interp", 2);
         if (sProbePage && sInterpMode >= 1) {
             // The PCM16 channels are read at 44.1 kHz with a fractional step, so they image (nearest-neighbour = the
             // harsh grinding). melonDS mixes at 32.7 kHz where these channels have step 1.0 and never resample. mode 1 =
@@ -4179,7 +4180,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // tail is bit-exact by construction) or to the ret when nothing remains (the do-while would run once more). It is
         // reached by a plain b from +0x48354 (the last constant-setup mov, which the cave repeats): this leaf returns
         // through LR, so no bl. The two trailing placeholders are patched here to the real targets.
-        if (sProbePage && property_get_int32("persist.gammaos.drastic_nano.lerp_neon", 1) > 0) {
+        if (sProbePage && android::drastic_settings::getInt("persist.gammaos.drastic_nano.lerp_neon", 1) > 0) {
             static const uint32_t kLerp555[] = {0x528f800du,0x7940980eu,0x4e040d50u,0x4e040d11u,0x52807fefu,0x4e040df2u,0x4f0007f3u,0x5290000fu,0x4e040df4u,0x4b0901d0u,0x7100121fu,0x54000543u,0xd37ff92fu,0xfc6f6840u,0x2f10a400u,0x4e331c01u,0x6f3b0402u,0x4e331c42u,0x6f360403u,0x4e331c63u,0x8b090070u,0xbd400204u,0xbd410205u,0xbd420206u,0x2f08a484u,0x2f10a484u,0x2f08a4a5u,0x2f10a4a5u,0x2f08a4c6u,0x2f10a4c6u,0x4eb09c21u,0x4eb19481u,0x4eb09c42u,0x4eb194a2u,0x4eb09c63u,0x4eb194c3u,0x6eb26c21u,0x6eb26c42u,0x6eb26c63u,0x6f3b0421u,0x6f3b0442u,0x6f3b0463u,0x4f255442u,0x4f2a5463u,0x4ea21c21u,0x4ea31c21u,0x4eb41c21u,0x0e612821u,0xfc2f6821u,0x91001129u,0x4b0901d0u,0x7100121fu,0x54fffb02u,0x6b0e013fu,0x54000042u,0x14000000u,0x14000000u};
             const uintptr_t kSite = 0x48354, kTail = 0x48358, kRet = 0x48430;
             const size_t nw = sizeof(kLerp555) / sizeof(kLerp555[0]);
@@ -4211,7 +4212,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // for the whole next loop: the channel replays a frozen 64-sample decode window (confirmed in stock: 0 skips before
         // the first wrap, 27% after, forever = the grinding on looping ADPCM channels). The cave re-executes the rebase,
         // rebases +144 by the same length, and restores the loop-start predictor DraStic saved at the first boundary hit.
-        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.adpcm_loop_fix", false)) {   // REFUTED: refills run fine in stock (gap 7-8); default off
+        if (sProbePage && android::drastic_settings::getBool("persist.gammaos.drastic_nano.adpcm_loop_fix", false)) {   // REFUTED: refills run fine in stock (gap 7-8); default off
             static const uint32_t kWF[] = {0xcb0b82b5u,0xb94092d0u,0x4b0b0210u,0xb90092d0u,0x794172d0u,0x790176d0u,0x3942fed0u,0x390302d0u,0x580000d0u,0xb9400211u,0x11000631u,0xb9000211u,0xd65f03c0u,0xd503201fu,0u,0u};
             const uintptr_t sites[2] = {0x71ecc, 0x71f28};
             mprotect(sProbePage, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC);
@@ -4239,7 +4240,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // 32728.5/32824 * 1.002907 = 1.000002); the submit hook maps each chunk (547 frames) onto 735 output frames.
         // Two in-place immediates: the SPU init "mov w10, #0xac44" (+0x72ff8) -> 32824, and the per-frame stereo
         // sample constant "add w9, w8, #0x5be" (+0x1dedc, 1470) -> 1094. Patched before the core initialises.
-        if (property_get_bool("persist.gammaos.drastic_nano.native_mix", false)) {
+        if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.native_mix", false)) {
             const struct { uintptr_t site; uint32_t expect, patch; const char* what; } imm[2] = {
                 {0x72ff8, 0x5295888au, 0x52800000u | (32824u << 5) | 10u, "SPU mix rate 44100->32824"},   // mov w10, #32824
                 {0x1dedc, 0x1116f909u, 0x11000000u | (1094u << 10) | (8u << 5) | 9u, "frame stereo samples 1470->1094"},   // add w9, w8, #1094
@@ -4259,7 +4260,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             // preload before this session's native_mix prop was known, so without this the mixer runs at 32824 while the
             // player still expects 44100 and the queue drains (the choppiness). Unless native_resample is on (the old
             // in-hook resampler still produces 44100), match the player to the 32824 mix. Both format tables, milliHz.
-            if (gNativeMix && !property_get_bool("persist.gammaos.drastic_nano.native_resample", false)) {
+            if (gNativeMix && !android::drastic_settings::getBool("persist.gammaos.drastic_nano.native_resample", false)) {
                 const uint32_t nrate = (uint32_t)llround(32824000.0 * mPanelHz / 60.0);
                 static const uintptr_t kRateOffs[2] = { 0x10a08c, 0x10a0c0 };
                 for (uintptr_t off : kRateOffs) {
@@ -4284,7 +4285,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // fails player creation and stalls the audio init). Every read/literal in the audio code (+0x1d600..+0x1e700)
         // becomes the matching immediate; the [ctx+0x70] field itself is left alone since all its reads are patched. The per-chunk fill counters at ctx+0x1dff8 extend into
         // ctx+0x1e000..0x1e01f, which no code touches. All-or-nothing: every original word is verified first.
-        if (property_get_int32("persist.gammaos.drastic_nano.audio_chunks_8", 1) > 0) {
+        if (android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_chunks_8", 1) > 0) {
             struct P { uintptr_t off; uint32_t expect, patched; const char* what; };
             static const P kChunks8[] = {
                 {0x1d888, 0xb9406e6au, 0x5280010au, "count read"}, {0x1d9b8, 0xb9406e68u, 0x52800108u, "count read"},
@@ -4313,15 +4314,15 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // discontinuity in the output = the click on every state load. Replacing the call with "mov w0, #1" keeps the
         // player running across the load (the audio content of a same-game slot is continuous, so no flush is needed).
         // This is the same site the run-ahead path patches; only apply it here when run-ahead is NOT managing it.
-        if (property_get_bool("persist.gammaos.drastic_nano.skip_load_audio_flush", true) &&
-            property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) != 2 &&
+        if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.skip_load_audio_flush", true) &&
+            android::drastic_settings::getInt("persist.gammaos.drastic_nano.runahead_mode", 0) != 2 &&
             *reinterpret_cast<uint32_t*>(base + 0x7a48c) == 0x97fe8fa5u) {   // bl 0x1e320 (kRaLoadJitFlushSite)
             const uint32_t was = raPatchInsn(base, 0x7a48c, 0x52800020u);    // mov w0, #1 (kRaMovW0One)
             ALOGI("DrasticRunner: state-load audio stop/flush skipped (site was 0x%08x)", was);
         }
         // Refill-log diagnostic (persist.gammaos.drastic_nano.refill_log=1): after every ADPCM refill call (+0x71df4) log
         // (rec, pos>>32, +144, +172) so a position rebase inside the refill shows up as pos dropping across the call.
-        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.refill_log", false) && *reinterpret_cast<uint32_t*>(base + 0x71df4) == 0xb94092c8u) {
+        if (sProbePage && android::drastic_settings::getBool("persist.gammaos.drastic_nano.refill_log", false) && *reinterpret_cast<uint32_t*>(base + 0x71df4) == 0xb94092c8u) {
             static const uint32_t kRL[] = {0xb94092c8u,0xa9bf47f0u,0x580002d0u,0xb9400a11u,0x52861a90u,0x72a00070u,0x6b10023fu,0x540001c2u,0x58000210u,0x8b111211u,0x91004231u,0xb9000236u,0xd360feb0u,0xb9000630u,0xb9000a28u,0xb940aed0u,0xb9000e30u,0x580000f0u,0xb9400a11u,0x11000631u,0xb9000a11u,0xa8c147f0u,0xd65f03c0u,0xd503201fu,0u,0u};
             gRefillLog = static_cast<uint8_t*>(calloc(16 + 16 * 200000, 1));
             if (gRefillLog) {
@@ -4340,7 +4341,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         }
         // Wrap-log diagnostic (persist.gammaos.drastic_nano.wrap_log=1): logs the channel state at BOTH ADPCM loop-wrap
         // paths (+0x71da8 catch-up, +0x71e4c first-wrap) into one 32-byte-entry block; dumped at spu_trace_dump.
-        if (sProbePage && property_get_bool("persist.gammaos.drastic_nano.wrap_log", false) &&
+        if (sProbePage && android::drastic_settings::getBool("persist.gammaos.drastic_nano.wrap_log", false) &&
             *reinterpret_cast<uint32_t*>(base + 0x71da8) == 0xb94092c9u && *reinterpret_cast<uint32_t*>(base + 0x71e4c) == 0x0b1b011bu) {
             static const uint32_t kWA[] = {0xb94092c9u,0xa9bf47f0u,0xa9bf2feau,0x58000370u,0xb9400a11u,0x713e823fu,0x54000282u,0xd37bea2au,0x8b0a020au,0x9100414au,0xb9000156u,0xd360feabu,0xb900054bu,0xb9000949u,0xb9000d48u,0xb900115bu,0x794172cbu,0x7900294bu,0x3942fecbu,0x3900594bu,0x394306cbu,0x39005d4bu,0xb940b2cbu,0xb900194bu,0x11000631u,0xb9000a11u,0xa8c12feau,0xa8c147f0u,0xd65f03c0u,0xd503201fu,0u,0u};
             static const uint32_t kWB[] = {0xa9bf47f0u,0xa9bf2feau,0x580003d0u,0xb9400a11u,0x713e823fu,0x540002c2u,0xd37bea2au,0x8b0a020au,0x9100414au,0x320102cbu,0xb900014bu,0xd360feabu,0xb900054bu,0xb94092cbu,0xb900094bu,0xb9000d48u,0xb900115bu,0x794176cbu,0x7900294bu,0x394302cbu,0x3900594bu,0x394306cbu,0x39005d4bu,0xb940aecbu,0xb900194bu,0x11000631u,0xb9000a11u,0xa8c12feau,0xa8c147f0u,0x0b1b011bu,0xd65f03c0u,0xd503201fu,0u,0u};
@@ -4368,7 +4369,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // +0x71e04 for one channel record (pos>>32, fetched s16) into a control block, so the fetch sequence can be
         // compared against the channel's decode buffer offline. Probe page +1024 (cave) with the log block after it.
         {
-            const int fl = property_get_int32("persist.gammaos.drastic_nano.fetch_log", -1);
+            const int fl = android::drastic_settings::getInt("persist.gammaos.drastic_nano.fetch_log", -1);
             if (sProbePage && fl >= 0 && fl < 16 && *reinterpret_cast<uint32_t*>(base + 0x71e04) == 0x78e87ac8u) {
                 static const uint32_t kFL[] = {0x78e87ac8u,0x580001f0u,0xb9400a11u,0xb9400e09u,0x0a090231u,0xd503201fu,0x91004209u,0x8b111529u,0xb9000136u,0xf9000535u,0xf9000937u,0x79003128u,0x58000090u,0x11000631u,0xb9000a11u,0xd65f03c0u,0u,0u};
                 gFetchLog = static_cast<uint8_t*>(calloc(16 + 32 * 262144, 1));   // control (16) + 256k entries, circular (index masked in the cave)
@@ -4407,7 +4408,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         // Off by default: measured on Golden Sun slot 1 it did not change the
         // player rate (43971, set elsewhere) and raised empty-queue top-ups
         // and pacer misses (29 vs 10 per 30 s). Kept as an experiment knob.
-        if (!sRateDone && property_get_bool("persist.gammaos.drastic_nano.audio_rate_fix", false)) {
+        if (!sRateDone && android::drastic_settings::getBool("persist.gammaos.drastic_nano.audio_rate_fix", false)) {
             sRateDone = true;
             struct Q { uintptr_t off; uint32_t expect; uint32_t patched; };
             // movz/movk keep every field but imm16, so the encodings differ only in bits 20:5
@@ -4478,7 +4479,7 @@ void DrasticRunner::installThreaded3dSync(uint8_t* base) {
     // consecutive frames. Later chunks never join, so a frame is never mixed.
     // 5 = per-band pipeline (see t3dComposeHook): universal, no lag, 3D overlaps the
     // CPU emulation; the default.
-    int mode = property_get_int32("persist.gammaos.drastic_nano.t3d_sync", 5);
+    int mode = android::drastic_settings::getInt("persist.gammaos.drastic_nano.t3d_sync", 5);
     { const int rt = property_get_int32("sys.gammaos.drastic_nano.t3d_sync_rt", -1); if (rt >= 0) mode = rt; }   // A/B override
     gT3dMode = mode;
     if (mode <= 0) {
@@ -5165,7 +5166,7 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
         return;
     }
     {   // AAudio sink: take the chunk, resample it into the ring, let drastic discard its copy.
-        static int sAaKnob = -1; if (sAaKnob < 0) sAaKnob = property_get_int32("persist.gammaos.drastic_nano.audio_aaudio", 1);
+        static int sAaKnob = -1; if (sAaKnob < 0) sAaKnob = android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_aaudio", 1);
         static bool sAaSetSkip = false;
         if (sAaSetSkip) { ctx[0x40027] = 0; sAaSetSkip = false; }   // the discard we asked for on the previous call
         // The sink opens on its own thread (aaStartOpener, normally started when the probe was
@@ -5322,11 +5323,11 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
         // Default: play the 32824 Hz mix as-is and let AudioFlinger resample it (native_resample=0). The old submit-hook
         // sinc resampler (native_resample=1) is kept only as a fallback; on this SoC it could not finish before the
         // OpenSL refill callback and starved the queue (choppy audio) at any useful tap count.
-        static int sResample = -1; if (sResample < 0) sResample = property_get_int32("persist.gammaos.drastic_nano.native_resample", 0);
+        static int sResample = -1; if (sResample < 0) sResample = android::drastic_settings::getInt("persist.gammaos.drastic_nano.native_resample", 0);
         if (sResample && m >= 2 && m < 0x8000 && ctx[0x40027] == 0) {
             enum { H = 32, OUTF = 735, PRE = 32, MAXPEND = 64, FIFOSZ = 2048, TAPMAX = 32 };
             static int TAPS = -1, LB = 0, LA = 0;
-            if (TAPS < 0) { int t = property_get_int32("persist.gammaos.drastic_nano.native_taps", 16); if (t < 2) t = 2; if (t > TAPMAX) t = TAPMAX; t &= ~1; TAPS = t; LB = t / 2 - 1; LA = t / 2 + 1; }
+            if (TAPS < 0) { int t = android::drastic_settings::getInt("persist.gammaos.drastic_nano.native_taps", 16); if (t < 2) t = 2; if (t > TAPMAX) t = TAPMAX; t &= ~1; TAPS = t; LB = t / 2 - 1; LA = t / 2 + 1; }
             static int16_t hist[H][2] = {};
             static int64_t pos = 0;                     // 32.32 centre of this chunk's first output, relative to buf[0]
             static int64_t pend[MAXPEND]; static int npend = 0;   // (unused with the constant-ratio loop; outputs simply wait for lookahead)
@@ -5407,18 +5408,18 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
     // interpolation is sub-LSB and needs no filter; ~1470 lerps per frame. Skipped under native_mix.
     static int sClockMatch = -1; static double sRatioBase = 1.0, sRatioKp = 0.0, sRatioKi = 0.0, sTargetQ = 1.5;
     if (sClockMatch < 0) {
-        sClockMatch = property_get_int32("persist.gammaos.drastic_nano.clock_match", 1);
-        sRatioBase = 1.0 - property_get_int32("persist.gammaos.drastic_nano.clock_match_ppm", 2700) * 1e-6;
-        sRatioKp = property_get_int32("persist.gammaos.drastic_nano.clock_match_kp_ppm", 120) * 1e-6;   // per chunk of error
-        sRatioKi = property_get_int32("persist.gammaos.drastic_nano.clock_match_ki_ppm", 8) * 1e-6;     // per chunk, per window
+        sClockMatch = android::drastic_settings::getInt("persist.gammaos.drastic_nano.clock_match", 1);
+        sRatioBase = 1.0 - android::drastic_settings::getInt("persist.gammaos.drastic_nano.clock_match_ppm", 2700) * 1e-6;
+        sRatioKp = android::drastic_settings::getInt("persist.gammaos.drastic_nano.clock_match_kp_ppm", 120) * 1e-6;   // per chunk of error
+        sRatioKi = android::drastic_settings::getInt("persist.gammaos.drastic_nano.clock_match_ki_ppm", 8) * 1e-6;     // per chunk, per window
         // Target queue depth in 67 ms chunks. maxq is 4 INCLUDING the chunk playing and the counter toggles
         // +-1 per chunk, so an average above ~2 lets the peak touch the ceiling (a dropped submit); 1.5
         // reads 1..2: never empty, never full.
-        sTargetQ = property_get_int32("persist.gammaos.drastic_nano.clock_match_target_x10", 13) / 10.0;
+        sTargetQ = android::drastic_settings::getInt("persist.gammaos.drastic_nano.clock_match_target_x10", 13) / 10.0;
         // 33 ms chunks: the ceiling (8) is far, so the target can sit a little deeper (~107 ms) to keep the
         // trough off zero on a hiccup; still nowhere near a drop.
         if (gAudioChunks8.load(std::memory_order_relaxed))
-            sTargetQ = property_get_int32("persist.gammaos.drastic_nano.clock_match_target8_x10", 32) / 10.0;
+            sTargetQ = android::drastic_settings::getInt("persist.gammaos.drastic_nano.clock_match_target8_x10", 32) / 10.0;
         {   // runtime-only experiment override (sys prop): the queue depth the clock match holds, in chunks x10
             const int t = property_get_int32("sys.gammaos.drastic_nano.clock_match_target_override_x10", -1);
             if (t > 0) { sTargetQ = t / 10.0; ALOGW("DrasticRunner: clock match target overridden to %.1f chunks (runtime prop)", sTargetQ); }
@@ -5534,7 +5535,7 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
         gSpuMixCtl[1] = gSpuMixLines;   // arm the per-scanline mixing once frame-end mixing has run
         ALOGI("DrasticRunner: SPU mix every %u scanlines armed", gSpuMixLines);
     }
-    if (sAudFrameFix < 0) sAudFrameFix = property_get_int32("persist.gammaos.drastic_nano.audio_frame_fix", 1);
+    if (sAudFrameFix < 0) sAudFrameFix = android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_frame_fix", 1);
     static int sAudDebug = -1;
     if (sAudDebug < 0) sAudDebug = property_get_int32("sys.gammaos.drastic_nano.audio_debug", 0);
     if (ctx[0x40027] != 0) {
@@ -5549,7 +5550,7 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
     }
     // Target one video frame's worth of samples: 735 stereo at 44100, or 547 (1094) at the 32824 native-mix rate when
     // native_mix plays through AudioFlinger without the hook resampler.
-    const uint32_t nTarget = (gNativeMix && !property_get_bool("persist.gammaos.drastic_nano.native_resample", false)) ? 1094u : 1470u;
+    const uint32_t nTarget = (gNativeMix && !android::drastic_settings::getBool("persist.gammaos.drastic_nano.native_resample", false)) ? 1094u : 1470u;
     if (sAudFrameFix > 0 && n != nTarget && n < 0x10000) {
         int16_t* pcm = reinterpret_cast<int16_t*>(ctx);
         if (n > nTarget) {
@@ -5602,7 +5603,7 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
             {1, 1.61010735757, 1, 1, 1.11201121842, 0.828723891871},
             {1, 1.52945492835, 1, 1, 1.28681505201, 0.955182739885},
         };
-        if (sLowpass < 0) sLowpass = property_get_bool("persist.gammaos.drastic_nano.lowpass", false) ? 1 : 0;
+        if (sLowpass < 0) sLowpass = android::drastic_settings::getBool("persist.gammaos.drastic_nano.lowpass", false) ? 1 : 0;
         if (sLowpass) {
             const uint32_t m = *reinterpret_cast<uint32_t*>(ctx + 0x4000c) & 0x7fffffffu;
             if (m < 0x10000 && ctx[0x40027] == 0) {
@@ -5693,7 +5694,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         static int sRt = -2; static int64_t sReadUs = 0;
         if (vblankUs - sReadUs > 1000000) { sReadUs = vblankUs; sRt = property_get_int32("sys.gammaos.drastic_nano.bypass_panel_rate_rt", -1); }
         static int sPersist = -1;
-        if (sPersist < 0) sPersist = property_get_bool("persist.gammaos.drastic_nano.bypass_panel_rate", true) ? 1 : 0;
+        if (sPersist < 0) sPersist = android::drastic_settings::getBool("persist.gammaos.drastic_nano.bypass_panel_rate", true) ? 1 : 0;
         const bool want = !gPaceOn.load() && !mFastForwardOn && mPanelHz > 1.0 && (sRt >= 0 ? sRt > 0 : sPersist > 0);
         volatile uint32_t* period = reinterpret_cast<volatile uint32_t*>(mArm64Base + 0x14c000);
         uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
@@ -6056,7 +6057,7 @@ void DrasticRunner::audioRateApply() {
     // Off by default: the search never found the track (libwilhelm keeps it
     // behind more indirection) and its thousands of process_vm_readv calls
     // per attempt stalled the pacer once a second for the first minute.
-    if (sWant < 0) sWant = property_get_int32("persist.gammaos.drastic_nano.audio_rate_fix", 0) ? property_get_int32("persist.gammaos.drastic_nano.audio_rate_hz", 44100) : 0;
+    if (sWant < 0) sWant = android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_rate_fix", 0) ? android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_rate_hz", 44100) : 0;
     if (sWant <= 0) { gAudioRateApplied.store(true); return; }
     sTries++;
     typedef int (*setRate_t)(void*, uint32_t);
@@ -6115,7 +6116,7 @@ void DrasticRunner::audioRateApply() {
 bool DrasticRunner::audioLeadHoldTick(int64_t nowUs) {
     static double sSum = 0; static int sN = 0; static int64_t sWinStartUs = 0, sLastActUs = 0;
     static int sHi = -1, sLo = -1;
-    if (sHi < 0) { sHi = property_get_int32("persist.gammaos.drastic_nano.audio_lead_hi_x10", 26); sLo = property_get_int32("persist.gammaos.drastic_nano.audio_lead_lo_x10", 14); }
+    if (sHi < 0) { sHi = android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_lead_hi_x10", 26); sLo = android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_lead_lo_x10", 14); }
     if (!mArm64Base || !gPaceOn.load() || gRaBurst.load()) return false;
     const uint32_t queued = *reinterpret_cast<volatile uint32_t*>(mArm64Base + kAudioQueuedOff);
     sSum += queued; sN++;
@@ -6141,7 +6142,7 @@ bool DrasticRunner::audioLeadHoldTick(int64_t nowUs) {
 static int raAudioLeadFrames() {
     const int o = property_get_int32("sys.gammaos.drastic_nano.audio_lead_override", -1);
     if (o >= 0) { static bool logged = false; if (!logged) { logged = true; ALOGW("DrasticRunner: audio lead frames overridden to %d (runtime prop)", o); } return o; }
-    return property_get_int32("persist.gammaos.drastic_nano.audio_lead_frames", 2);
+    return android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_lead_frames", 2);
 }
 void DrasticRunner::audioLeadExtraTick(int64_t nowUs) {
     static int sLeadFrames = -1; static int64_t sLastTopUpUs = 0;
@@ -6668,7 +6669,7 @@ static const uint32_t kDrmFormatAbgr8888 = 0x34324241u;   // 'AB24': R,G,B,A byt
 bool DrasticRunner::setupZeroCopySlots() {
     if (mZcOn) return true;
     if (!mArm64Base || !sEglCreateImageKHR || !sGlEGLImageTargetTexture2DOES) return false;
-    if (!property_get_bool("persist.gammaos.drastic_nano.zero_copy", true)) return false;
+    if (!android::drastic_settings::getBool("persist.gammaos.drastic_nano.zero_copy", true)) return false;
     if (!mZcTried) {
         mZcTried = true;
         int heap = open("/dev/dma_heap/system", O_RDONLY | O_CLOEXEC);
@@ -6706,7 +6707,7 @@ bool DrasticRunner::zeroCopyBindFront() {
     if (gRaMode.load() == 2 && gRaShownFront.load() >= 0 && property_get_bool("sys.gammaos.drastic_nano.ra_front_pin", true)) front = gRaShownFront.load();
     {
         static int sFfStage = -1;
-        if (sFfStage < 0) sFfStage = property_get_int32("persist.gammaos.drastic_nano.ff_stage", 1);
+        if (sFfStage < 0) sFfStage = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_stage", 1);
         const int rt = property_get_int32("sys.gammaos.drastic_nano.ff_stage_rt", -1);
         bool want = mFastForwardOn && (rt >= 0 ? rt > 0 : sFfStage > 0);
         // The staging dma-buf is allocated once, on a worker, never on this thread: a 3 MB
@@ -6820,7 +6821,7 @@ void DrasticRunner::fastUploadFrame() {
     if (mZcOn || setupZeroCopySlots()) {
         if (zeroCopyBindFront()) return;
         // view creation failed: fall back to the copy path for good
-        mZcOn = false; property_set("persist.gammaos.drastic_nano.zero_copy", "0");
+        mZcOn = false; android::drastic_settings::set("persist.gammaos.drastic_nano.zero_copy", "0");
     }
     for (int i = 0; i < 2; i++) {
         void* dst = nullptr;
@@ -6911,7 +6912,7 @@ void DrasticRunner::renderDsToOffscreen() {
     if (mFastForwardOn && mOffscreenTex != 0 && mOffscreenFbo != 0 &&
             mFfBlendProgram != 0 &&
             (property_get_int32("sys.gammaos.drastic_nano.ff_blend_rt", -1) < 0
-                 ? property_get_int32("persist.gammaos.drastic_nano.ff_blend", 0)
+                 ? android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_blend", 0)
                  : property_get_int32("sys.gammaos.drastic_nano.ff_blend_rt", 0))) {
         if (mFfPrevTex == 0) {
             glGenTextures(1, &mFfPrevTex);
@@ -6934,8 +6935,7 @@ void DrasticRunner::renderDsToOffscreen() {
         // the very first FF frame so no stale content flashes).
         mFfBlendThisFrame = mFfPrevValid;
         mFfPrevValid = true;
-        int a = property_get_int32(
-                "persist.gammaos.drastic_nano.ff_blend_alpha", 50);
+        int a = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_blend_alpha", 50);
         if (a < 0)   a = 0;
         if (a > 100) a = 100;
         mFfBlendAlpha = (float)a / 100.0f;
@@ -6959,7 +6959,7 @@ void DrasticRunner::renderDsToOffscreen() {
     static int sFfCoherent = -1;
     if (sFfCoherent < 0) sFfCoherent = property_get_int32("sys.gammaos.drastic_nano.ff_coherent", 0);
     if (mWaitScreen &&
-        (property_get_int32("persist.gammaos.drastic_nano.frame_coherent", 0) ||
+        (android::drastic_settings::getInt("persist.gammaos.drastic_nano.frame_coherent", 0) ||
          (mFastForwardOn && sFfCoherent > 0))) {
         mWaitScreen(mFakeEnv, mFakeCls);
     }
@@ -6975,7 +6975,7 @@ void DrasticRunner::renderDsToOffscreen() {
     // before drawing -- adds 5-7 ms to glFinish during sustained
     // frames.
     static int sFfDirect = -1;
-    if (sFfDirect < 0) sFfDirect = property_get_int32("persist.gammaos.drastic_nano.ff_direct", 1);
+    if (sFfDirect < 0) sFfDirect = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_direct", 1);
     const int ffDirectRt = property_get_int32("sys.gammaos.drastic_nano.ff_direct_rt", -1);
     const bool ffDirectOk = ffDirectRt >= 0 ? ffDirectRt > 0 : sFfDirect > 0;
     // Under FF the direct panel path is allowed when the frame is not being
@@ -6986,7 +6986,7 @@ void DrasticRunner::renderDsToOffscreen() {
     // all-black panel was presented (part of the FF flicker, read as "screen swapping"). Keep the previous
     // frame in the offscreen instead: fxRender overwrites it whenever it does draw. 1x is untouched.
     static int sFfNoClear = -1;
-    if (sFfNoClear < 0) sFfNoClear = property_get_int32("persist.gammaos.drastic_nano.ff_noclear", 1);
+    if (sFfNoClear < 0) sFfNoClear = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_noclear", 1);
     const int ncRt = property_get_int32("sys.gammaos.drastic_nano.ff_noclear_rt", -1);
     const bool skipClear = mFastForwardOn && (ncRt >= 0 ? ncRt > 0 : sFfNoClear > 0);
     if (mOffscreenFbo != 0 && !direct) {
@@ -7039,7 +7039,7 @@ void DrasticRunner::renderDsToOffscreen() {
         const bool probing = slotProbeArm();
         if (probing) slotProbePre(probe);
         if (!mFastUploadOn && !mFastUploadTried && mArm64Base && mDsTexW > 0 &&
-            property_get_bool("persist.gammaos.drastic_nano.fast_upload", true)) {
+            android::drastic_settings::getBool("persist.gammaos.drastic_nano.fast_upload", true)) {
             mFastUploadTried = true;
             if (setupDsAhbTextures(mDsTexW, mDsTexH)) {
                 patchFxUpload(true);
@@ -7124,7 +7124,7 @@ void DrasticRunner::renderDsToOffscreen() {
     // handshake is half-open (frame never released) -> stutter, which is what a
     // lone waitScreen produced.
     if (mSignalScreen &&
-        property_get_int32("persist.gammaos.drastic_nano.frame_coherent", 0)) {
+        android::drastic_settings::getInt("persist.gammaos.drastic_nano.frame_coherent", 0)) {
         mSignalScreen(mFakeEnv, mFakeCls);
     }
 
@@ -7582,7 +7582,7 @@ bool DrasticRunner::loadStateSlot(int slot, bool preFilled) {
     // for a measurement without touching any persisted setting.
     auto loadBoostChunks = [] {
         const int rt = property_get_int32("sys.gammaos.drastic_nano.load_boost_chunks_rt", -1);
-        return rt >= 0 ? rt : property_get_int32("persist.gammaos.drastic_nano.load_boost_chunks", 6);
+        return rt >= 0 ? rt : android::drastic_settings::getInt("persist.gammaos.drastic_nano.load_boost_chunks", 6);
     };
     // preFilled: the caller filled the sink from the vblank tick already, which works; this
     // internal boost does not, because it sleeps the presenting thread and the sink drains
@@ -7655,8 +7655,8 @@ bool DrasticRunner::loadStateSlot(int slot, bool preFilled) {
             // emulated frames (default 0: measured not to execute reliably after a load and, while pending, it gated
             // off the once-per-second emergency top-up; kept as a knob) that the pacer runs over the next vblanks, at the
             // load cut where a hitch already exists.
-            if (property_get_int32("persist.gammaos.drastic_nano.clock_match", 1) > 0) {
-                const int prime = property_get_int32("persist.gammaos.drastic_nano.clock_match_load_prime", 0);
+            if (android::drastic_settings::getInt("persist.gammaos.drastic_nano.clock_match", 1) > 0) {
+                const int prime = android::drastic_settings::getInt("persist.gammaos.drastic_nano.clock_match_load_prime", 0);
                 if (prime > 0) gAudioLeadDebt.store(prime);
             }
             const int64_t t1 = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -9656,7 +9656,7 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
             if (sFit < 0 || nowF - sFitReadUs > 2000000) {
                 sFitReadUs = nowF;
                 const int sys = property_get_int32("sys.gammaos.drastic_nano.ra_fit", -1);
-                sFit = sys >= 0 ? sys : (property_get_bool("persist.gammaos.drastic_nano.runahead_strict", false) ? 0 : 2);
+                sFit = sys >= 0 ? sys : (android::drastic_settings::getBool("persist.gammaos.drastic_nano.runahead_strict", false) ? 0 : 2);
             }
         }
         const int64_t est = gRaBurstEstUs.load();
@@ -10199,8 +10199,8 @@ void DrasticRunner::lagProbe(int mask) {
 void DrasticRunner::runaheadProbe(int iters) {
     pthread_setname_np(pthread_self(), "dn-raprobe");
     ALOGW("RAPROBE start iters=%d t3d_sync=%d threaded3d=%d", iters,
-          property_get_int32("persist.gammaos.drastic_nano.t3d_sync", 3),
-          property_get_int32("persist.gammaos.drastic_nano.threaded3d", -1));
+          android::drastic_settings::getInt("persist.gammaos.drastic_nano.t3d_sync", 3),
+          android::drastic_settings::getInt("persist.gammaos.drastic_nano.threaded3d", -1));
     if (!setStepMode(true)) { ALOGW("RAPROBE: cannot enter step mode"); return; }
     // Raw (uncompressed) states for the probe, restored at the end.
     // The save path reads the switch from the heap master struct, whose
@@ -10714,7 +10714,7 @@ uint32_t DrasticRunner::emuFrameCount() const {
 // so the 3D worker is never starved by the faster producer.
 static void applyFfBits(long& bits, bool ffOn) {
     if (!ffOn) return;
-    int cap = property_get_int32("persist.gammaos.drastic_nano.ffspeed", 5);
+    int cap = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ffspeed", 5);
     { const int rt = property_get_int32("sys.gammaos.drastic_nano.ffspeed_rt", -1); if (rt >= 0) cap = rt; }   // A/B override
     if (cap < 0)  cap = 0;
     if (cap > 15) cap = 15;
@@ -10722,8 +10722,7 @@ static void applyFfBits(long& bits, bool ffOn) {
     bits = (bits & ~0xF000L) | ((long)cap << 12); // _FfwdSpeed index
     // Runtime override for A/B (sys.gammaos.drastic_nano.ff_no_threaded3d_rt: -1 follow the persist knob).
     const int rtNoT3d = property_get_int32("sys.gammaos.drastic_nano.ff_no_threaded3d_rt", -1);
-    if (rtNoT3d > 0 || (rtNoT3d < 0 && property_get_int32(
-            "persist.gammaos.drastic_nano.ff_no_threaded3d", 0))) {
+    if (rtNoT3d > 0 || (rtNoT3d < 0 && android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_no_threaded3d", 0))) {
         bits &= ~0x10000000L;                     // clear _Threaded3D
     }
 }
@@ -10757,7 +10756,7 @@ void DrasticRunner::setFastForward(bool on) {
     // Golden Sun 2.0x at full speed).
     {
         static int sCapFix = -1;
-        if (sCapFix < 0) sCapFix = property_get_int32("persist.gammaos.drastic_nano.ff_capfix", 1);
+        if (sCapFix < 0) sCapFix = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_capfix", 1);
         const int rt = property_get_int32("sys.gammaos.drastic_nano.ff_capfix_rt", -1);
         const bool wantC = on && (rt >= 0 ? rt > 0 : sCapFix > 0);
         static bool sCapApplied = false;
@@ -10765,12 +10764,12 @@ void DrasticRunner::setFastForward(bool on) {
         const uint32_t kSiteExpect = 0x39400358u;   // ldrb w24, [x26]
         if (wantC && !sCapApplied && mArm64Base && gProbePage) {
             uint32_t* site = reinterpret_cast<uint32_t*>(mArm64Base + kSite);
-            gFfPairPeriod = property_get_int32("persist.gammaos.drastic_nano.ff_pair_period", 8);
+            gFfPairPeriod = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_pair_period", 8);
             { const int rt = property_get_int32("sys.gammaos.drastic_nano.ff_skip_period_rt", -2);
-              gFfSkipPeriod = rt >= -1 ? rt : property_get_int32("persist.gammaos.drastic_nano.ff_skip_period", 0); }
+              gFfSkipPeriod = rt >= -1 ? rt : android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_skip_period", 0); }
             if (gFfPairPeriod < 2) gFfPairPeriod = 2;
             gFfPairPhase = property_get_int32("sys.gammaos.drastic_nano.ff_pair_phase_rt", -1);
-            if (gFfPairPhase < 0) gFfPairPhase = property_get_int32("persist.gammaos.drastic_nano.ff_pair_phase", 0) ? 1 : 0;
+            if (gFfPairPhase < 0) gFfPairPhase = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_pair_phase", 0) ? 1 : 0;
             if (*site == kSiteExpect) {
                 // cave at probe page +2048: w0 = DISPCAPCNT (w8), w1 = skip flag, x2 = heapMaster (x19);
                 // x16 is unused in the compose entry so it carries the result across the restores.
@@ -10826,8 +10825,7 @@ void DrasticRunner::setFastForward(bool on) {
     // persist.gammaos.drastic_nano.ff_mute (default 1).
     if (mSetAudioVolume) {
         if (on) {
-            if (property_get_int32(
-                    "persist.gammaos.drastic_nano.ff_mute", 1)) {
+            if (android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_mute", 1)) {
                 mPreFfVolume = mCurVolume;
                 setVolumeRuntime(0);
             }

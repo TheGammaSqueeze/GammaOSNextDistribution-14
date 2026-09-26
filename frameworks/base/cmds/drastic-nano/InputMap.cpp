@@ -19,6 +19,7 @@
 #include <utils/SystemClock.h>
 
 #include "DrasticRunner.h"
+#include "DrasticSettings.h"
 
 namespace android {
 namespace drastic_input {
@@ -456,10 +457,10 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                 // still sleeps the device. An open edge signals the DS lid open and cancels the arm.
                 const bool closed = (ev.value != 0);
                 if (closed != st->lidClosed) {
-                    if (property_get_bool("persist.gammaos.drastic_nano.phys_lid_close", false)) {
+                    if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.phys_lid_close", false)) {
                         if (closed) {
                             out->physLidClose = true;
-                            int delayMs = property_get_int32("persist.gammaos.drastic_nano.lid_sleep_delay_ms", 2500);
+                            int delayMs = android::drastic_settings::getInt("persist.gammaos.drastic_nano.lid_sleep_delay_ms", 2500);
                             if (delayMs < 0) delayMs = 0;
                             st->lidSleepDueMs = android::elapsedRealtime() + delayMs;
                         } else {
@@ -758,7 +759,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     // non-default prop so it is inert in normal use.
     {
         char cdbg[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic_nano.cursor_dbg", cdbg, "0");
+        android::drastic_settings::get("persist.gammaos.drastic_nano.cursor_dbg", cdbg, "0");
         if (cdbg[0] == '1') st->cursorMode = true;
     }
 
@@ -824,11 +825,11 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         //   portrait_layout    = 0 right-stick D-Pad / 1 D-Pad-as-face
         {
             char pc[PROPERTY_VALUE_MAX] = {};
-            property_get("persist.gammaos.drastic_nano.portrait_controls", pc, "0");
+            android::drastic_settings::get("persist.gammaos.drastic_nano.portrait_controls", pc, "0");
             int pcRot = atoi(pc);
             if (pcRot != 0) {
                 char sl[PROPERTY_VALUE_MAX] = {};
-                property_get("persist.gammaos.drastic_nano.portrait_layout", sl, "0");
+                android::drastic_settings::get("persist.gammaos.drastic_nano.portrait_layout", sl, "0");
                 raw = applyPortraitControls(st, physMask, lsDpad, pcRot, atoi(sl));
             }
         }

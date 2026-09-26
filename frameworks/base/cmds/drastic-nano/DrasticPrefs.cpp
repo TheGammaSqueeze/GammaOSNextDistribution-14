@@ -5,6 +5,7 @@
 #define LOG_TAG "DrasticNano.Prefs"
 
 #include "DrasticPrefs.h"
+#include "DrasticSettings.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -453,7 +454,7 @@ std::string propName(const char* key) { return std::string(kP) + key; }
 
 bool propIsSet(const char* key, char* out) {
     out[0] = 0;
-    property_get(propName(key).c_str(), out, "");
+    drastic_settings::get(propName(key).c_str(), out, "");
     return out[0] != 0;
 }
 
@@ -491,11 +492,11 @@ int setIfChanged(const char* key, const std::string& val, const std::string* pre
         // (vendor build.prop) or an earlier user choice: the import never
         // replaces it, it only fills in what nothing has set yet.
         char cur[PROPERTY_VALUE_MAX] = {};
-        if (property_get(propName(key).c_str(), cur, "") > 0) return 0;
+        if (drastic_settings::get(propName(key).c_str(), cur, "") > 0) return 0;
     }
     // PROPERTY_VALUE_MAX includes the terminator.
     std::string v = val.size() >= PROPERTY_VALUE_MAX ? val.substr(0, PROPERTY_VALUE_MAX - 1) : val;
-    property_set(propName(key).c_str(), v.c_str());
+    drastic_settings::set(propName(key).c_str(), v.c_str());
     return 1;
 }
 std::string b2s(bool b) { return b ? "1" : "0"; }
@@ -577,6 +578,34 @@ int writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset) {
 
 bool propsSeeded() { return property_get_bool("persist.gammaos.drastic_nano.cfg_seeded", false); }
 void markPropsSeeded() { property_set("persist.gammaos.drastic_nano.cfg_seeded", "1"); }
+
+namespace { Prefs gLaunchDefaults; }
+void setLaunchDefaults(const Prefs& p) { gLaunchDefaults = p; }
+const Prefs& launchDefaults() { return gLaunchDefaults; }
+
+std::vector<std::string> overrideKeys() {
+    // Every user-facing setting: the Prefs fields (writeProps), the key bindings,
+    // and the settings the overlay stores straight into their own properties.
+    // Bookkeeping, one-shot markers, diagnostics and the RetroAchievements
+    // account are deliberately absent: they are not per-game choices.
+    std::vector<std::string> keys = {
+        "shader", "hires3d", "threaded3d", "disable_edge", "gpu3d", "gpu3d_ss",
+        "sound", "volume", "audio_latency", "mic", "mic_level",
+        "frameskip_type", "frameskip_value", "frameskip_safe",
+        "analog_touch", "analog_triggers", "analog_stick_mode", "analog_deadzone",
+        "frame_sync", "low_latency",
+        "fw_language", "fw_color", "fw_bday_month", "fw_bday_day", "fw_nick",
+        // Overlay rows backed directly by a property.
+        "autoload", "fps_counter", "swap", "orientation", "scaling", "screen_gap",
+        "layout_preset", "pip_alpha", "pip_corner", "ltune_dx", "ltune_dy", "ltune_scale",
+        "portrait_controls", "portrait_layout", "display_rotate",
+        "sf_half_res", "sf_16bit", "drm_half_res",
+        "runahead_mode", "runahead_frames", "phys_lid_close", "lid_sleep_delay_ms",
+        "ra_show_challenge_badges", "ra_show_progress_toast",
+    };
+    for (int a = 0; a < kNumActions; a++) keys.push_back(keyName(a));
+    return keys;
+}
 
 long applyConfigBitsFrom(const Prefs& p) {
     // Packed applyConfig config word. Bit positions verified against the

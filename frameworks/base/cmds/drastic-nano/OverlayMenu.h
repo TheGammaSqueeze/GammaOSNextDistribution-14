@@ -207,7 +207,8 @@ private:
         // pull the badge for the bottom-screen detail panel.
         uint32_t raAchId = 0;
     };
-    enum { kRowNormal = 0, kRowUnlocked = 1, kRowLocked = 2, kRowHeader = 3, kRowDivider = 4 };
+    enum { kRowNormal = 0, kRowUnlocked = 1, kRowLocked = 2, kRowHeader = 3, kRowDivider = 4,
+           kRowActive = 5 };   // green: a state in force (per-game override)
 
     // Modal confirm prompt (Power Off / Reboot): drawn over the list, Confirm
     // is the default choice, B or Cancel dismisses, A runs the action.
@@ -420,6 +421,9 @@ private:
     void openMenu();
     void closeMenu();
     void rebuildRows();
+    void createPerGameOverride();
+    void deletePerGameOverride();
+    bool mInputReapplyPending = false;   // re-run drastic_input::applyPrefs on the next update
     void rebuildGeneral();
     void rebuildSave();
     void rebuildVideo();

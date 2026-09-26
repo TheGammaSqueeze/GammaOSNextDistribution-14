@@ -26,6 +26,7 @@
 #include <ui/Size.h>
 
 #include "NanoMenuDrm.h"   // android::getEglConfig(EGLDisplay, bool)
+#include "DrasticSettings.h"
 
 using android::sp;
 using android::String8;
@@ -186,7 +187,7 @@ bool SfDisplayBackend::createContext(DisplayEnv* env) {
     // (drop the layout-offscreen blit + the twice-per-frame fxSetup + 16-bit fb);
     // then flipping this to 1 gives a clean locked 60. Kept as a ready toggle.
     mSfSwapInterval =
-            property_get_int32("persist.gammaos.drastic_nano.sf_vsync", 0) != 0
+            android::drastic_settings::getInt("persist.gammaos.drastic_nano.sf_vsync", 0) != 0
                     ? 1
                     : 0;
 
@@ -294,7 +295,7 @@ bool SfDisplayBackend::createContext(DisplayEnv* env) {
     }
 
     char modeProp[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.drastic_nano.screen_mode", modeProp, "auto");
+    android::drastic_settings::get("persist.gammaos.drastic_nano.screen_mode", modeProp, "auto");
     const bool forceSingle = (strcmp(modeProp, "single") == 0);
     const bool forceDual   = (strcmp(modeProp, "dual") == 0);
 
