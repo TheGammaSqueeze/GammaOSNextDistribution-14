@@ -447,12 +447,28 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         struct input_event ev;
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
             if (ev.type == EV_SW && ev.code == SW_LID) {
-                // Hall-effect lid switch. value 1 = lid closed. A close
-                // edge requests sleep (same as a short power press); the
-                // open edge is consumed by the sleep loop as the wake.
+                // Hall-effect lid switch. value 1 = lid closed. By default a close edge requests
+                // sleep immediately (same as a short power press); the open edge is consumed by the
+                // sleep loop as the wake. With persist.gammaos.drastic_nano.phys_lid_close on, a
+                // close edge instead signals the EMULATED DS lid closed right away (the game sleeps
+                // in-emulator) AND arms a delayed device sleep, so a quick close-then-open just
+                // pauses and resumes the game without a full sleep/wake, while a sustained close
+                // still sleeps the device. An open edge signals the DS lid open and cancels the arm.
                 const bool closed = (ev.value != 0);
-                if (closed && !st->lidClosed) {
-                    out->sleepRequested = true;
+                if (closed != st->lidClosed) {
+                    if (property_get_bool("persist.gammaos.drastic_nano.phys_lid_close", false)) {
+                        if (closed) {
+                            out->physLidClose = true;
+                            int delayMs = property_get_int32("persist.gammaos.drastic_nano.lid_sleep_delay_ms", 2500);
+                            if (delayMs < 0) delayMs = 0;
+                            st->lidSleepDueMs = android::elapsedRealtime() + delayMs;
+                        } else {
+                            out->physLidOpen = true;
+                            st->lidSleepDueMs = 0;   // cancel the pending device sleep
+                        }
+                    } else if (closed) {
+                        out->sleepRequested = true;
+                    }
                 }
                 st->lidClosed = closed;
                 continue;
@@ -617,6 +633,9 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         // is closed, driving DrasticRunner save/loadStateSlot(0).
                         case 29: if (pressed) out->actQuickSave = true; break;
                         case 30: if (pressed) out->actQuickLoad = true; break;
+                        // Close Lid: edge action (fire once on press). The run loop toggles the
+                        // emulated DS hinge, so one press closes the lid and the next opens it.
+                        case 31: if (pressed) out->actCloseLid = true; break;
                         // Menu action: SAME short-press-overlay /
                         // hold-exit semantics as the literal KEY_BACK
                         // button. The physical Back button on this
@@ -821,6 +840,13 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         out->touchHeld = st->touchHeld || st->stylusBtnHeld;
         // Reflect the toggled state of the fast-forward button.
         out->actFastFwd = st->ffToggled;
+    }
+    // Delayed device sleep: when the physical lid armed a sleep (it also signalled the emulated DS
+    // lid closed), fire it once the deadline passes while the lid is still shut. A close-then-open
+    // within the delay cleared lidSleepDueMs, so only a sustained close reaches here.
+    if (st->lidSleepDueMs && st->lidClosed && android::elapsedRealtime() >= st->lidSleepDueMs) {
+        out->sleepRequested = true;
+        st->lidSleepDueMs = 0;
     }
 }
 

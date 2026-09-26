@@ -3089,6 +3089,7 @@ void OverlayMenu::rebuildControls() {
         20,                            // Menu
         28,                            // Touch Cursor
         29, 30,                        // Save State / Load State
+        31,                            // Close Lid (toggles the emulated DS hinge)
     };
     for (int a : kKnownActionSlots) {
         RowAction r;
@@ -3106,6 +3107,28 @@ void OverlayMenu::rebuildControls() {
                 mPrefs.keymap[0][a] = -1;
                 mDirty = true;
             }
+        };
+        mRows.push_back(std::move(r));
+    }
+    // Physical lid (hall sensor). Off (default) keeps the shipped behaviour: closing the lid sleeps
+    // the whole device immediately. On signals the emulated DS lid closed the moment the lid shuts
+    // (the game pauses in-emulator) and then sleeps the device after a short delay, so a quick
+    // close-then-open just pauses and resumes without a full sleep/wake while a sustained close still
+    // sleeps. Read live in InputMap's SW_LID handler (delay: lid_sleep_delay_ms), no restart needed.
+    {
+        RowAction r;
+        r.label = "Physical Lid Closes DS Lid";
+        bool cur = property_get_bool("persist.gammaos.drastic_nano.phys_lid_close", false);
+        r.value = cur ? "On" : "Off";
+        r.onAccept = [this]() {
+            bool c = property_get_bool("persist.gammaos.drastic_nano.phys_lid_close", false);
+            setPropAsync("persist.gammaos.drastic_nano.phys_lid_close", c ? "0" : "1");
+            rebuildRows();
+        };
+        r.onAdjust = [this](int) {
+            bool c = property_get_bool("persist.gammaos.drastic_nano.phys_lid_close", false);
+            setPropAsync("persist.gammaos.drastic_nano.phys_lid_close", c ? "0" : "1");
+            rebuildRows();
         };
         mRows.push_back(std::move(r));
     }

@@ -70,6 +70,10 @@ struct InputState {
     // Lid (hall-effect) switch state, EV_SW/SW_LID. value 1 = closed.
     // Tracked as a level so a close edge sleeps and an open edge wakes.
     bool lidClosed = false;
+    // When the physical lid drives the emulated DS lid (persist.gammaos.drastic_nano.phys_lid_close),
+    // a close edge arms a delayed device sleep at this elapsedRealtime() deadline; an open edge clears
+    // it. 0 = no pending sleep. The event poll requests the sleep once the deadline passes.
+    int64_t lidSleepDueMs = 0;
 
     // Touchscreen state. A unit can expose more than one touch node for
     // the same panel (for example a MediaTek "mtk-tpd" alongside the
@@ -214,6 +218,13 @@ struct InputActions {
     bool actQuickLoad  = false;
     bool actSwapScreens = false;
     bool actToggleMic  = false;
+    // Close Lid: the mapped "Close Lid" button toggles the emulated DS hinge (an edge). When the
+    // physical-lid toggle (persist.gammaos.drastic_nano.phys_lid_close) is on, the hall sensor sets
+    // the emulated lid absolutely instead of sleeping the device: physLidClose on a close edge,
+    // physLidOpen on an open edge. The run loop folds all three into the DS lid state.
+    bool actCloseLid   = false;
+    bool physLidClose  = false;
+    bool physLidOpen   = false;
 
     // When true (overlay in capture-key mode), the last keydown
     // Android keycode is exposed here. The overlay consumes it by

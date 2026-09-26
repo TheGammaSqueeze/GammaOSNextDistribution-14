@@ -240,6 +240,11 @@ public:
     void setInputWithTouch(int bitmask, int touchX, int touchY,
                            bool touchHeld);
 
+    // Set the emulated DS lid/hinge state. closed = the DS sleeps in the emulator (screens off,
+    // game paused) until opened, like closing a physical DS lid. Driven by the mappable "Close Lid"
+    // button and, when enabled, the physical hall sensor. Idempotent; safe to call every frame.
+    void setLidClosed(bool closed);
+
     // Park drastic's worker threads without tearing down the loaded
     // libraries. Matches shutdown()'s pauseSystem call but skips the
     // destructive quitSystem step, so the state is recoverable if we

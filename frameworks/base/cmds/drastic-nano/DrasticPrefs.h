@@ -41,11 +41,11 @@ static constexpr int kNumPlayers = 3;
 //   28:     Touch Cursor (toggles the virtual touch cursor; default R3)
 //   29:     Save State (quick-save to slot 0; drastic-nano-local, unmapped by default)
 //   30:     Load State (quick-load from slot 0; drastic-nano-local, unmapped by default)
-// 29 and 30 are drastic-nano-local action slots (the real drastic app does
-// not use them), handled entirely inside drastic-nano via DrasticRunner's
-// saveStateSlot/loadStateSlot. They round-trip through the shared_prefs XML
-// as _KeyMapConfigs_0_29 / _0_30 so a bound button persists across launches.
-static constexpr int kNumActions = 31;
+// 29, 30 and 31 are drastic-nano-local action slots (the real drastic app does
+// not use them): 29/30 save/load state via DrasticRunner, 31 = Close Lid (toggles
+// the emulated DS hinge). They round-trip through the shared_prefs XML as
+// _KeyMapConfigs_0_29 / _0_30 / _0_31 so a bound button persists across launches.
+static constexpr int kNumActions = 32;
 
 struct Prefs {
     // Video filter: basename of the .dfx file (no path, no extension).
@@ -136,7 +136,8 @@ struct Prefs {
             4,                                        // Menu (Back)
             -1, -1, -1, -1, -1, -1, -1,
             107,                                      // Touch Cursor (R3)
-            -1, -1                                    // Save State, Load State
+            -1, -1,                                   // Save State, Load State
+            -1                                        // Close Lid (unmapped by default)
         };
         for (int a = 0; a < kNumActions; a++) keymap[0][a] = kSeedKeymap0[a];
     }

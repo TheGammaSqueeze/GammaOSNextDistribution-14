@@ -1845,6 +1845,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // implement it here by swapping which render call goes to which
     // viewport each frame.
     bool screensSwapped = false;
+    bool lidClosed = false;   // emulated DS lid/hinge state (Close Lid button / physical lid)
 
     // audioserver spawns its output thread after our first buffer
     // enqueue. Sweep after 1 s, 3 s, 5 s so we catch it regardless
@@ -1966,6 +1967,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // sleep (doSleep only resumes what it paused itself).
         if (actions.sleepRequested) {
             doSleep(&input, dr, overlay.isOpen());
+            // Woke (lid opened or power press). The sleep loop consumes the lid-open event itself,
+            // so clear the emulated DS lid here or it would stay "closed" after a physical-lid sleep.
+            lidClosed = false; dr->setLidClosed(false);
             continue;
         }
         // Power hold = raise drastic's own in-game overlay menu (the
@@ -2232,6 +2236,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             screensSwapped = !screensSwapped;
             ALOGI("drastic-nano: screen swap = %d", screensSwapped);
         }
+        // Emulated DS lid: the mapped "Close Lid" button toggles it; the physical hall sensor sets
+        // it absolutely when routed (persist.gammaos.drastic_nano.phys_lid_close). Push the state
+        // every frame (idempotent) so the core keeps the hinge bit latched while the lid is closed.
+        if (actions.actCloseLid) { lidClosed = !lidClosed; ALOGI("drastic-nano: emulated lid = %d", lidClosed); }
+        if (actions.physLidClose) lidClosed = true;
+        if (actions.physLidOpen)  lidClosed = false;
+        dr->setLidClosed(lidClosed);
         // Live Display Rotation: re-lay-out the single-panel output when the user
         // changes it in Video settings. Runs before touch + render so both follow.
         if (drmSingleLayout) {
@@ -3521,6 +3532,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
     const float gradient   = 0.0f;
     int  fsCounter = 0;
     bool screensSwapped = false;
+    bool lidClosed = false;   // emulated DS lid/hinge state (Close Lid button / physical lid)
     // Screen-off pause state (SF path). true once we paused the DS core for a
     // framework-driven sleep, so wake only resumes what we paused (never undoing
     // an overlay-menu-held pause). See the screen_off handling in the loop below.
@@ -3790,6 +3802,11 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             setRtThrottleForFf(ffWant);   // reserve CPU for input only while FF is on
         }
         if (actions.actSwapScreens) screensSwapped = !screensSwapped;
+        // Emulated DS lid (see the DRM loop above for the rationale).
+        if (actions.actCloseLid) { lidClosed = !lidClosed; ALOGI("drastic-nano: emulated lid = %d", lidClosed); }
+        if (actions.physLidClose) lidClosed = true;
+        if (actions.physLidOpen)  lidClosed = false;
+        dr->setLidClosed(lidClosed);
 
         // Touch maps to the bottom (touch) DS screen. In dual mode the touch
         // panel already is the bottom screen, so the input layer's coordinates

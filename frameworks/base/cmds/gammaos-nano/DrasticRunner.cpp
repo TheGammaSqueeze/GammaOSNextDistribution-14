@@ -7469,6 +7469,16 @@ void DrasticRunner::setInputWithTouch(int bitmask, int touchX, int touchY,
     }
 }
 
+// Emulated DS lid / hinge. The button bitmask in setInputWithTouch is clamped to bits 0..11, so the
+// lid cannot ride it; instead the core sources the hinge from the byte at master+0x4c0, which the
+// live-input latch folds into internal bit 0x1000 each frame (see setInputWithTouch's latch and the
+// RA relatch path). Closing the lid puts the DS to sleep in the emulator (screens off, game paused)
+// until it is opened, exactly as a physical DS lid does. Idempotent; safe to call every frame.
+void DrasticRunner::setLidClosed(bool closed) {
+    if (!mInitialized || !mArm64Base) return;
+    mArm64Base[0x14c000 + 0x4c0] = closed ? 1 : 0;
+}
+
 void DrasticRunner::pauseDrastic() {
     if (!mInitialized || !mPauseSystem) return;
     // Reuse the cached fake env/cls — the render thread calls this
