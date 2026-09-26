@@ -2738,6 +2738,20 @@ public final class SystemServer implements Dumpable {
                                 Slog.w(TAG, "GammaOS Nano: swallowed "
                                         + cursor.getClass().getSimpleName()
                                         + " on " + th.getName(), ex);
+                                // Swallowing the exception keeps system_server alive, but
+                                // the exception has already unwound Looper.loop(), so
+                                // returning here ends the thread: android.bg was gone for
+                                // the rest of the uptime and every BackgroundThread post
+                                // in system_server was dropped silently (the display
+                                // brightness store never reached disk, so every boot came
+                                // up at the default brightness). This handler runs on the
+                                // dying thread with its Looper intact, so re-enter the
+                                // loop and keep serving the queue instead.
+                                if (Looper.myLooper() != null && th == Thread.currentThread()) {
+                                    Slog.w(TAG, "GammaOS Nano: resuming " + th.getName()
+                                            + " message loop after the swallowed exception");
+                                    Looper.loop();
+                                }
                                 return;
                             }
                             cursor = cursor.getCause();
@@ -2749,6 +2763,20 @@ public final class SystemServer implements Dumpable {
                     Slog.i(TAG, "GammaOS Nano: android.bg tolerant handler armed");
                 } catch (Throwable e) {
                     Slog.e(TAG, "GammaOS Nano: failed to arm android.bg handler", e);
+                }
+                // TimeDetectorService lives in the skipped !minimalBoot block, but
+                // SystemClock.currentNetworkTimeMillis() throws a DeadSystemException
+                // when it is absent, and NetworkStatsService's BestClock only catches
+                // DateTimeException. StatsPullAtomService's boot-phase network stats
+                // pull hit exactly that on android.bg on every boot (see the tolerant
+                // handler above). Start it first so network time simply reports
+                // "not available" the way it does on a full boot.
+                try {
+                    Slog.i(TAG, "GammaOS Nano: starting TimeDetectorService");
+                    mSystemServiceManager.startService(TIME_DETECTOR_SERVICE_CLASS);
+                    Slog.i(TAG, "GammaOS Nano: TimeDetectorService ready");
+                } catch (Throwable e) {
+                    Slog.e(TAG, "GammaOS Nano: TimeDetectorService failed", e);
                 }
                 try {
                     Slog.i(TAG, "GammaOS Nano: starting StatsCompanion");
