@@ -2073,6 +2073,13 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             }
 
             private static void applySplitOnDisable(boolean wasEnabled) {
+                // Only a real enabled -> disabled transition needs the panels unified.
+                // At boot (initIfNeeded forces this path with split off) nothing has
+                // driven the panels through split mode yet, and there is no known
+                // level: the old code fell through to DEFAULT_UNKNOWN_BRIGHTNESS and
+                // wrote 120 to both backlight nodes, a visible flash to 47% between
+                // the early nano level and the framework's own brightness.
+                if (!wasEnabled) return;
                 int d0 = SystemProperties.getInt(PROP_D0_CUR, -1);
                 if (d0 < 1 || d0 > 255) {
                     d0 = SystemProperties.getInt(PROP_LAST_D0, DEFAULT_UNKNOWN_BRIGHTNESS);

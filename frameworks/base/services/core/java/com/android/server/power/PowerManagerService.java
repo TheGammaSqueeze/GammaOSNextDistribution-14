@@ -4092,6 +4092,20 @@ public final class PowerManagerService extends SystemService
     }
 
     /**
+     * GammaOS: the brightness to hold before boot completes. The nano home seeds
+     * persist.gammaos.nano.brightness (1..255) from the user's setting and drives
+     * the panel with it from early boot; matching it here keeps the panel steady
+     * through the framework start. Falls back to the default when unset.
+     */
+    private float gammaBootBrightnessOverride() {
+        final int level = SystemProperties.getInt("persist.gammaos.nano.brightness", -1);
+        if (level >= 1 && level <= 255) {
+            return BrightnessSynchronizer.brightnessIntToFloat(level);
+        }
+        return mScreenBrightnessDefault;
+    }
+
+    /**
      * Updates the state of all {@link PowerGroup}s asynchronously.
      * When the update is finished, the ready state of the {@link PowerGroup} will be updated.
      * The display controllers post a message to tell us when the actual display power state
@@ -4125,7 +4139,12 @@ public final class PowerManagerService extends SystemService
                 if (!mBootCompleted) {
                     // Keep the brightness steady during boot. This requires the
                     // bootloader brightness and the default brightness to be identical.
-                    screenBrightnessOverride = mScreenBrightnessDefault;
+                    // GammaOS: the nano home is already on screen at the user's level
+                    // (persist.gammaos.nano.brightness, applied to the backlight nodes
+                    // long before system_server is up), so holding the framework default
+                    // here was a visible jump to 40% for the few seconds until boot
+                    // completed. Hold the user's level instead when it is known.
+                    screenBrightnessOverride = gammaBootBrightnessOverride();
                 } else if (isValidBrightness(mScreenBrightnessOverrideFromWindowManager)) {
                     screenBrightnessOverride = mScreenBrightnessOverrideFromWindowManager;
                 } else {
