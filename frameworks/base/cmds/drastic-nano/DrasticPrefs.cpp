@@ -600,7 +600,7 @@ std::vector<std::string> overrideKeys() {
         "layout_preset", "pip_alpha", "pip_corner", "ltune_dx", "ltune_dy", "ltune_scale",
         "portrait_controls", "portrait_layout", "display_rotate",
         "sf_half_res", "sf_16bit", "drm_half_res",
-        "runahead_mode", "runahead_frames", "phys_lid_close", "lid_sleep_delay_ms",
+        "runahead_mode", "runahead_frames", "phys_lid_close", "lid_sleep_delay_ms", "ff_limit",
         "ra_show_challenge_badges", "ra_show_progress_toast",
     };
     for (int a = 0; a < kNumActions; a++) keys.push_back(keyName(a));

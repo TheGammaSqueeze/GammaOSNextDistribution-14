@@ -3091,6 +3091,33 @@ void OverlayMenu::rebuildVideo() {
     // input before the next shown frame, so an admitted press reaches the
     // panel one presented frame sooner (measured with the in-process latency
     // probe: reaction at presented frame +1 instead of +3 on Sonic Rush).
+    // Fast Forward Speed: the ceiling while the fast-forward button is held, as a
+    // percentage of full speed. 10% .. 300% in steps of 10 (below 100% is a slow
+    // motion), then Uncapped. Paced by the engine (DrasticRunner gFfLimitPct); the
+    // actual speed on a heavy scene may be lower than the ceiling. Read on every
+    // fast-forward entry, so it applies the next time the button is held.
+    {
+        RowAction r;
+        r.label = "Fast Forward Speed";
+        const int pct = shadowPropGetInt("persist.gammaos.drastic_nano.ff_limit", 300);
+        if (pct <= 0) r.value = trDyn("Uncapped");
+        else { char b[16]; snprintf(b, sizeof(b), "%d%%", pct); r.value = b; }
+        auto step = [this](int dir) {
+            int cur = shadowPropGetInt("persist.gammaos.drastic_nano.ff_limit", 300);
+            // Positions: 10, 20, ... 300 (30 steps), then 0 = Uncapped, wrapping.
+            int pos = cur <= 0 ? 30 : (cur / 10) - 1;
+            if (pos < 0) pos = 0;
+            if (pos > 30) pos = 30;
+            pos = (pos + dir + 31) % 31;
+            const int next = pos == 30 ? 0 : (pos + 1) * 10;
+            char b[16]; snprintf(b, sizeof(b), "%d", next);
+            setPropAsync("persist.gammaos.drastic_nano.ff_limit", b);
+            mDirty = true;
+        };
+        r.onAdjust = step;
+        r.onAccept = [step]() { step(1); };
+        mRows.push_back(std::move(r));
+    }
     // Adaptive: a replay is admitted only when it fits before the presenter
     // deadline with spare, so it never repeats a frame or speeds the game
     // up; heavy scenes (Golden Sun) simply get no replays. Needs the vblank

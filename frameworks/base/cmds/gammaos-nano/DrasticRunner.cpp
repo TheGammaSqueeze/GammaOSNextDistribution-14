@@ -2152,6 +2152,9 @@ extern "C" void gpu3dSetFastForward(bool on);
 extern "C" void gpu3dPresenterTimerBegin();
 extern "C" void gpu3dPresenterTimerEnd();
 extern std::atomic<int> gFfOnForHook;   // defined below (fast-forward state for the hooks)
+extern std::atomic<int> gFfLimitPct;    // defined below (fast-forward speed limit, percent, 0 = uncapped)
+extern std::atomic<uint32_t> gEmuFrames;   // defined below (true emulated-frame counter)
+extern int64_t gFfVirtBaseUs, gFfVirtFrames, gFfIntervalUs, gFfRealDeadlineUs;   // defined below
 // Frame dispatcher behind the +0x5f3c4 cave: GPU rasterizer when
 // sys.gammaos.drastic_nano.gpu3d=1 (re-read every 64 frames, runtime only), else the
 // original CPU worker frame (+0x5eebc); then the one-shot dump probe.
@@ -3083,6 +3086,35 @@ static inline uint64_t realClockUs() {
 std::atomic<uint32_t> gVTimeCount{0};
 extern "C" void drasticVTime(uint64_t* out) {
     gVTimeCount.fetch_add(1, std::memory_order_relaxed);
+    if (gFfOnForHook.load(std::memory_order_relaxed) && gFfLimitPct.load(std::memory_order_relaxed) > 0) {
+        // Capped fast-forward. drastic's limiter does not reach the hooked sleep in FF
+        // (measured: the limiter wait is never called while fast-forwarding), but it
+        // reads this clock a fixed number of times per emulated frame, on the emulator
+        // thread, in every mode. So the real-time pacing lives here: on the first read
+        // of each new emulated frame, sleep to a deadline of 16.667 ms * 100 / pct per
+        // frame. drastic itself sees a virtual clock that lands exactly on its own
+        // deadline every frame, so it never sees itself behind, never sets the
+        // frameskip flag, and renders every frame (a 50% slow motion is a smooth
+        // 30 fps, not two frames in eight).
+        static uint32_t sLastEmu = 0;
+        const uint32_t ef = gEmuFrames.load(std::memory_order_relaxed);
+        if (ef != sLastEmu) {
+            sLastEmu = ef;
+            gFfVirtFrames++;
+            const int pct = gFfLimitPct.load(std::memory_order_relaxed);
+            const int64_t period = 1666667LL / pct;
+            const int64_t nowUs = (int64_t)realClockUs();
+            // A gap of more than a few periods (menu, state load) resyncs instead of bursting.
+            if (gFfRealDeadlineUs == 0 || nowUs - gFfRealDeadlineUs > 4 * period) gFfRealDeadlineUs = nowUs;
+            gFfRealDeadlineUs += period;
+            const int64_t wait = gFfRealDeadlineUs - nowUs;
+            if (wait > 0) usleep((useconds_t)(wait > 500000 ? 500000 : wait));
+            { static int64_t sLogUs = 0; static uint32_t sFrames = 0; sFrames++;
+              if (nowUs - sLogUs > 1000000) { ALOGI("DrasticRunner: ff pacer: %u frames/s at %d%% (period %lld us)", sFrames, pct, (long long)period); sLogUs = nowUs; sFrames = 0; } }
+        }
+        *out = (uint64_t)(gFfVirtBaseUs + gFfVirtFrames * gFfIntervalUs);
+        return;
+    }
     if (gPaceOn.load(std::memory_order_relaxed)) {
         const uint32_t seq = gVblSeq.load(std::memory_order_acquire);
         *out = (uint64_t)gVirtBaseUs.load() +
@@ -3144,6 +3176,20 @@ static int gFfPairPeriod = 8;
 static int gFfPairPhase = 0;    // POWCNT1 bit 15 value that starts a rendered pair
 static int gFfSkipPeriod = 0;   // non-swapping games under FF: 0 = the limiter's cadence, -1 adaptive, N fixed
 std::atomic<int> gFfOnForHook{0};
+// Fast-forward speed limit (persist.gammaos.drastic_nano.ff_limit, percent of full speed,
+// 0 = uncapped; read on every FF entry). drastic's own limiter only knows the six intervals
+// of its table (see applyFfBits), so a capped speed is paced here instead: drasticVWait
+// sleeps to a real-time deadline of 16.667 ms * 100 / percent per emulated frame, and
+// drasticVTime feeds drastic a virtual clock that advances by exactly its interval per
+// frame, so it is never "behind" its deadline, never sets the frameskip flag, and every
+// frame is rendered (a 50% slow motion is a smooth 30 fps, not two frames in eight).
+// Uncapped keeps the real clock and skips the sleep: drastic runs flat out and its
+// capture-aware pair frameskip (ffCapHook) trims the rendering as before.
+std::atomic<int> gFfLimitPct{300};
+int64_t gFfVirtBaseUs = 0;       // virtual clock at FF entry (drastic's deadline, us)
+int64_t gFfVirtFrames = 0;       // emulated frames since FF entry
+int64_t gFfIntervalUs = 5000;    // drastic's table interval for the FF index in use
+int64_t gFfRealDeadlineUs = 0;   // our real-time pacing deadline
 static int gLastPhase = 0;          // POWCNT1 bit 15 of the frame last seen by the hook
 std::atomic<int> gLastRender{1};    // the hook rendered the frame last seen
 std::atomic<int> gCapToggling{0};   // the game swaps the engines every frame (POWCNT1 bit 15)
@@ -3389,11 +3435,16 @@ extern "C" void drasticVWait(unsigned usec) {
     }
     raDirtyApplyWant();   // emulator thread at a frame boundary: dirty tracking follows run-ahead and the pacer lock
     if (!gPaceOn.load(std::memory_order_relaxed)) {
+        sEmuRunStartUs = 0;
+        if (gFfOnForHook.load(std::memory_order_relaxed)) {
+            // Fast-forward: never sleep here. A capped speed is paced from the clock
+            // read (drasticVTime, see gFfLimitPct); uncapped runs flat out.
+            return;
+        }
         // Unpaced: drastic's own limiter sleeps the remainder. Clamp it: a
         // deadline from the other time base (seen once after a burst load
         // that raced a lock/bypass switch) asked for a sleep of minutes and
         // froze the emulator; nothing legitimate waits more than a frame or two.
-        sEmuRunStartUs = 0;
         usleep(usec > 50000 ? 50000 : usec);
         return;
     }
@@ -10736,6 +10787,27 @@ void DrasticRunner::setFastForward(bool on) {
     if (!mInitialized || !mApplyConfig) return;
     if (on == mFastForwardOn) return;
     mFastForwardOn = on;
+    if (on) {
+        int pct = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_limit", 300);
+        if (pct < 0) pct = 0;
+        if (pct > 0 && pct < 10) pct = 10;
+        if (pct > 1000) pct = 1000;
+        // The interval drastic's converter will select for the FF index (applyFfBits).
+        static const int64_t kIntervals[6] = { 100000, 33333, 25000, 16666, 12500, 5000 };
+        int idx = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ffspeed", 5);
+        { const int rt = property_get_int32("sys.gammaos.drastic_nano.ffspeed_rt", -1); if (rt >= 0) idx = rt; }
+        gFfIntervalUs = (idx >= 0 && idx <= 5) ? kIntervals[idx] : 16666;
+        // Start the virtual clock exactly on drastic's current deadline (1/3 us units) so
+        // it is on time from the first frame; the first drasticVWait then paces for real.
+        int64_t base = (int64_t)realClockUs();
+        if (mArm64Base) {
+            uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
+            if (hm) base = *reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908) / 3;
+        }
+        gFfVirtBaseUs = base; gFfVirtFrames = 0; gFfRealDeadlineUs = 0;
+        gFfLimitPct.store(pct, std::memory_order_relaxed);
+        ALOGI("DrasticRunner::setFastForward: limit %d%% (%s)", pct, pct > 0 ? "paced here" : "uncapped");
+    }
     gFfOnForHook.store(on ? 1 : 0, std::memory_order_relaxed);
     setVblankPacing(mPaceWanted);
     // mBaseConfigBits holds the user's current (non-FF) settings, kept up
