@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -109,6 +110,23 @@ int shadowPropGet(const char* key, char* out, const char* def) {
         }
     }
     return property_get(key, out, def);
+}
+// Typed wrappers over shadowPropGet. Every setting row must read its value through the
+// shadow, never property_get_bool/property_get_int32 directly: setPropAsync posts the real
+// property_set to a worker, and the input dispatcher rebuilds the rows immediately after a
+// toggle, so a direct read on that rebuild still saw the OLD value and the row showed the
+// stale On/Off until the page was re-entered (Run-Ahead and every other prop-backed toggle).
+// The shadow holds what we last wrote, so the rebuilt row is right at once.
+bool shadowPropGetBool(const char* key, bool def) {
+    char v[PROPERTY_VALUE_MAX] = {};
+    if (shadowPropGet(key, v, def ? "1" : "0") <= 0) return def;
+    return !strcmp(v, "1") || !strcasecmp(v, "true") || !strcasecmp(v, "on") || !strcasecmp(v, "y") || !strcasecmp(v, "yes");
+}
+int shadowPropGetInt(const char* key, int def) {
+    char v[PROPERTY_VALUE_MAX] = {};
+    if (shadowPropGet(key, v, "") <= 0 || !v[0]) return def;
+    char* end = nullptr; long n = strtol(v, &end, 10);
+    return (end && *end == '\0') ? (int)n : def;
 }
 } // namespace
 
@@ -1108,9 +1126,9 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         // sliding while held just moves the focus. touchDs is 0..255 / 0..191.
         if (input) {
             if (!mOskTouchInit) {
-                mOskTouchFlipX = property_get_bool(
+                mOskTouchFlipX = shadowPropGetBool(
                         "persist.gammaos.drastic_nano.osk_touch_flipx", false);
-                mOskTouchFlipY = property_get_bool(
+                mOskTouchFlipY = shadowPropGetBool(
                         "persist.gammaos.drastic_nano.osk_touch_flipy", false);
                 mOskTouchInit = true;
             }
@@ -1147,9 +1165,9 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     // The bottom DS panel is the touch panel; only real finger touches count.
     if (wantsRaBottomPanel() && input) {
         if (!mOskTouchInit) {
-            mOskTouchFlipX = property_get_bool(
+            mOskTouchFlipX = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.osk_touch_flipx", false);
-            mOskTouchFlipY = property_get_bool(
+            mOskTouchFlipY = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.osk_touch_flipy", false);
             mOskTouchInit = true;
         }
@@ -1298,7 +1316,7 @@ void OverlayMenu::rebuildGeneral() {
         RowAction r;
         r.label = "Brightness";
         if (!mBrightInit) {
-            mBrightLevel = property_get_int32(
+            mBrightLevel = shadowPropGetInt(
                     "persist.gammaos.nano.brightness", 128);
             mBrightInit = true;
         }
@@ -1548,13 +1566,13 @@ void OverlayMenu::rebuildSave() {
     // on, the next launch of a game restores its most recent save slot
     // (see the auto-load hook in main.cpp's run loop).
     {
-        bool autoLoad = property_get_bool(
+        bool autoLoad = shadowPropGetBool(
                 "persist.gammaos.drastic_nano.autoload", true);
         RowAction r;
         r.label = "Auto Load State on Launch";
         r.value = autoLoad ? "On" : "Off";
         auto toggle = [this]() {
-            bool cur = property_get_bool(
+            bool cur = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.autoload", true);
             setPropAsync("persist.gammaos.drastic_nano.autoload",
                          cur ? "0" : "1");
@@ -1807,7 +1825,7 @@ static void pushBrightnessToSettings(int level) {
 
 void OverlayMenu::adjustBrightness(int dir) {
     if (!mBrightInit) {
-        mBrightLevel = property_get_int32(
+        mBrightLevel = shadowPropGetInt(
                 "persist.gammaos.nano.brightness", 128);
         mBrightInit = true;
     }
@@ -2018,11 +2036,11 @@ void OverlayMenu::rebuildAchievements() {
         // Default on. Read/gated in drawRaIndicators (OverlayMenuRa.cpp).
         RowAction r;
         r.label = "Achievement Progress Toast";
-        const bool on = property_get_bool(
+        const bool on = shadowPropGetBool(
                 "persist.gammaos.drastic_nano.ra_show_progress_toast", true);
         r.value = on ? "On" : "Off";
         auto toggle = [this]() {
-            bool cur = property_get_bool(
+            bool cur = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.ra_show_progress_toast", true);
             setPropAsync("persist.gammaos.drastic_nano.ra_show_progress_toast",
                          cur ? "0" : "1");
@@ -2041,11 +2059,11 @@ void OverlayMenu::rebuildAchievements() {
         // in drawRaIndicators (OverlayMenuRa.cpp).
         RowAction r;
         r.label = "Challenge Indicators";
-        const bool on = property_get_bool(
+        const bool on = shadowPropGetBool(
                 "persist.gammaos.drastic_nano.ra_show_challenge_badges", true);
         r.value = on ? "On" : "Off";
         auto toggle = [this]() {
-            bool cur = property_get_bool(
+            bool cur = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.ra_show_challenge_badges", true);
             setPropAsync("persist.gammaos.drastic_nano.ra_show_challenge_badges",
                          cur ? "0" : "1");
@@ -2577,7 +2595,7 @@ void OverlayMenu::rebuildVideo() {
             char cur[PROPERTY_VALUE_MAX] = {};
             char defs[16];
             snprintf(defs, sizeof(defs), "%d", def);
-            property_get(key, cur, defs);
+            shadowPropGet(key, cur, defs);   // shadow: correct right after a setPropAsync nudge
             int v = atoi(cur);
             if (v < lo) v = lo; else if (v > hi) v = hi;
             char vs[16];
@@ -2587,7 +2605,7 @@ void OverlayMenu::rebuildVideo() {
                 char b[PROPERTY_VALUE_MAX] = {};
                 char defb[16];
                 snprintf(defb, sizeof(defb), "%d", def);
-                property_get(key, b, defb);
+                shadowPropGet(key, b, defb);   // shadow: step from the value we last wrote, not a stale one
                 int n = atoi(b) + dir * step;
                 if (n < lo) n = lo; else if (n > hi) n = hi;
                 char nb[16];
@@ -2622,10 +2640,10 @@ void OverlayMenu::rebuildVideo() {
     {
         RowAction r;
         r.label = "Swap Screens";
-        r.value = property_get_bool("persist.gammaos.drastic_nano.swap", false)
+        r.value = shadowPropGetBool("persist.gammaos.drastic_nano.swap", false)
                           ? "On" : "Off";
         auto flip = []() {
-            bool cur = property_get_bool(
+            bool cur = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.swap", false);
             setPropAsync("persist.gammaos.drastic_nano.swap", cur ? "0" : "1");
         };
@@ -2640,10 +2658,10 @@ void OverlayMenu::rebuildVideo() {
         // next frame; default off.
         RowAction r;
         r.label = "Half Resolution";
-        r.value = property_get_bool("persist.gammaos.drastic_nano.sf_half_res", false)
+        r.value = shadowPropGetBool("persist.gammaos.drastic_nano.sf_half_res", false)
                           ? "On" : "Off";
         auto flip = []() {
-            bool cur = property_get_bool(
+            bool cur = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.sf_half_res", false);
             setPropAsync("persist.gammaos.drastic_nano.sf_half_res", cur ? "0" : "1");
         };
@@ -2659,10 +2677,10 @@ void OverlayMenu::rebuildVideo() {
         // takes effect through the same relaunch the other restart rows use.
         RowAction r;
         r.label = "Half Resolution";
-        r.value = property_get_bool("persist.gammaos.drastic_nano.drm_half_res", false)
+        r.value = shadowPropGetBool("persist.gammaos.drastic_nano.drm_half_res", false)
                           ? "On" : "Off";
         auto flip = [this]() {
-            bool cur = property_get_bool(
+            bool cur = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.drm_half_res", false);
             setPropAsync("persist.gammaos.drastic_nano.drm_half_res", cur ? "0" : "1");
             mRelaunch = true;
@@ -2681,10 +2699,10 @@ void OverlayMenu::rebuildVideo() {
         // to a 565 target.
         RowAction r;
         r.label = "16-bit Framebuffers";
-        r.value = property_get_bool("persist.gammaos.drastic_nano.sf_16bit", false)
+        r.value = shadowPropGetBool("persist.gammaos.drastic_nano.sf_16bit", false)
                           ? "On" : "Off";
         auto flip = []() {
-            bool cur = property_get_bool(
+            bool cur = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.sf_16bit", false);
             setPropAsync("persist.gammaos.drastic_nano.sf_16bit", cur ? "0" : "1");
         };
@@ -2699,10 +2717,10 @@ void OverlayMenu::rebuildVideo() {
         // DRM-direct (dual-screen, e.g. RG DS) paths - both render loops draw it.
         RowAction r;
         r.label = "FPS Counter";
-        r.value = property_get_bool("persist.gammaos.drastic_nano.fps_counter", false)
+        r.value = shadowPropGetBool("persist.gammaos.drastic_nano.fps_counter", false)
                           ? "On" : "Off";
         auto flip = []() {
-            bool cur = property_get_bool(
+            bool cur = shadowPropGetBool(
                     "persist.gammaos.drastic_nano.fps_counter", false);
             setPropAsync("persist.gammaos.drastic_nano.fps_counter", cur ? "0" : "1");
         };
@@ -2865,10 +2883,10 @@ void OverlayMenu::rebuildVideo() {
     {
         RowAction r;
         r.label = "Run-Ahead (Experimental)";
-        const bool raOn = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) == 2;
+        const bool raOn = shadowPropGetInt("persist.gammaos.drastic_nano.runahead_mode", 0) == 2;
         r.value = raOn ? "On" : "Off";
         auto toggle = [this]() {
-            const bool cur = property_get_int32("persist.gammaos.drastic_nano.runahead_mode", 0) == 2;
+            const bool cur = shadowPropGetInt("persist.gammaos.drastic_nano.runahead_mode", 0) == 2;
             if (cur) {
                 setPropAsync("persist.gammaos.drastic_nano.runahead_mode", "0");
                 mDirty = true;
@@ -3118,15 +3136,15 @@ void OverlayMenu::rebuildControls() {
     {
         RowAction r;
         r.label = "Physical Lid Closes DS Lid";
-        bool cur = property_get_bool("persist.gammaos.drastic_nano.phys_lid_close", false);
+        bool cur = shadowPropGetBool("persist.gammaos.drastic_nano.phys_lid_close", false);
         r.value = cur ? "On" : "Off";
         r.onAccept = [this]() {
-            bool c = property_get_bool("persist.gammaos.drastic_nano.phys_lid_close", false);
+            bool c = shadowPropGetBool("persist.gammaos.drastic_nano.phys_lid_close", false);
             setPropAsync("persist.gammaos.drastic_nano.phys_lid_close", c ? "0" : "1");
             rebuildRows();
         };
         r.onAdjust = [this](int) {
-            bool c = property_get_bool("persist.gammaos.drastic_nano.phys_lid_close", false);
+            bool c = shadowPropGetBool("persist.gammaos.drastic_nano.phys_lid_close", false);
             setPropAsync("persist.gammaos.drastic_nano.phys_lid_close", c ? "0" : "1");
             rebuildRows();
         };
