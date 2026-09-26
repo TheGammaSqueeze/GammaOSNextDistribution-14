@@ -169,10 +169,22 @@ std::string systemLibDir() {
     return isFile(d + "/libdrastic_arm64.so") ? d : std::string();
 }
 
+// The user data folder (saves / savestates / shaders). persist.gammaos.drastic.data_dir, when it
+// is an absolute path, relocates it; anything else (unset, relative, "@default") is the default.
+// Trailing slashes are trimmed so "<dir>/saves" joins cleanly.
+std::string userDir() {
+    char dd[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.drastic.data_dir", dd, "");
+    if (dd[0] != '/') return kUserDirDefault;
+    std::string d = dd;
+    while (d.size() > 1 && d.back() == '/') d.pop_back();
+    return d;
+}
+
 void mergeShaders(const std::string& root) {
     const std::string dst = root + "/shaders";
     const std::string sys = systemDir() + "/shaders";
-    const std::string usr = std::string(kUserDir) + "/shaders";
+    const std::string usr = userDir() + "/shaders";
     // The merged dir is entirely ours: rebuild it from scratch.
     removeTree(dst);
     mkdirs(dst);
@@ -221,12 +233,13 @@ bool seedRoot(const std::string& root) {
     // User data on shared storage. FUSE is up by the time a game launches; if
     // it is not (very early boot), the symlinks below still point at the right
     // place and resolve once it mounts.
-    const std::string saves  = std::string(kUserDir) + "/saves";
-    const std::string states = std::string(kUserDir) + "/savestates";
-    mkdirs(std::string(kUserDir));
+    const std::string usr    = userDir();
+    const std::string saves  = usr + "/saves";
+    const std::string states = usr + "/savestates";
+    mkdirs(usr);
     mkdirs(saves);
     mkdirs(states);
-    mkdirs(std::string(kUserDir) + "/shaders");
+    mkdirs(usr + "/shaders");
     // A real backup/ or savestates/ directory left from an older layout: carry
     // its files over before replacing it with the link.
     for (const auto& pr : { std::make_pair(root + "/backup", saves), std::make_pair(root + "/savestates", states) }) {
@@ -323,11 +336,12 @@ ImportResult importLegacy(const std::function<void(const char*, float)>& progres
         }
         closedir(d);
     };
-    collect(std::string(kLegacyRoot) + "/backup",     ".sav", std::string(kUserDir) + "/saves");
-    collect(std::string(kLegacyRoot) + "/backup",     ".dsv", std::string(kUserDir) + "/saves");
-    collect(std::string(kLegacyRoot) + "/savestates", ".dss", std::string(kUserDir) + "/savestates");
-    mkdirs(std::string(kUserDir) + "/saves");
-    mkdirs(std::string(kUserDir) + "/savestates");
+    const std::string usr = userDir();
+    collect(std::string(kLegacyRoot) + "/backup",     ".sav", usr + "/saves");
+    collect(std::string(kLegacyRoot) + "/backup",     ".dsv", usr + "/saves");
+    collect(std::string(kLegacyRoot) + "/savestates", ".dss", usr + "/savestates");
+    mkdirs(usr + "/saves");
+    mkdirs(usr + "/savestates");
     for (size_t i = 0; i < jobs.size(); i++) {
         if (progress) progress("Moving DraStic saves...", (float)i / (float)(jobs.size() ? jobs.size() : 1));
         // Never overwrite real data at the destination. An empty file there is

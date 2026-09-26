@@ -221,16 +221,16 @@ void metricsPublish(const char* prop, const char* line) {
 // runs. Any autosave or savestate produced during a drastic-nano
 // session is picked up by the real drastic app on its next launch.
 //
-// "Match DraStic's own folder": if the user relocated their DraStic data folder (e.g. onto
-// shared storage) and points drastic-nano at it via persist.gammaos.drastic.data_dir, we
-// use that path instead, so backup/savestates/config all resolve to the SAME real folder the
-// standalone DraStic app uses and stay in sync. gDrasticDataDir is set once in main() from the
-// prop (default = this installed path, so an unset prop is byte-for-byte the old behaviour).
-// Default: drastic-nano's own root, seeded from /system/etc/drastic-nano (see
-// DrasticAssets). The DraStic APK and its /data tree are no longer required.
+// The private root: drastic-nano's own DraStic tree, seeded from /system/etc/drastic-nano on
+// every launch (see DrasticAssets) and never relocated. The DraStic APK and its /data tree are
+// no longer required. The user's data (saves, save states, shader overrides) lives in a
+// separate user folder, /sdcard/drastic-nano by default, relocatable to any folder via
+// persist.gammaos.drastic.data_dir (drastic_assets::userDir); this root links backup/ and
+// savestates/ into it and merges its shaders, so the private root can stay on the symlink-safe,
+// non-FUSE partition while the user data goes wherever they chose (SD card, USB, a share).
 static const char* kDrasticDataDirDefault = android::drastic_assets::kRootDefault;
 static std::string gDrasticDataDir = kDrasticDataDirDefault;
-static bool gOwnDataRoot = true;   // false when persist.gammaos.drastic.data_dir points elsewhere
+static bool gOwnDataRoot = true;   // always our own seeded root (the user folder is separate)
 
 // Back hold to exit: the same long-press timeout the framework uses for its
 // own hold-BACK-to-exit (ViewConfiguration / Settings.Secure long_press_timeout,
@@ -4172,17 +4172,11 @@ int main(int argc, char** argv) {
     // a DraStic data folder the user relocated, so backup/savestates/config resolve to the SAME real
     // folder the standalone DraStic app uses and stay in sync. It must be a COMPLETE DraStic folder
     // (system/ holds the BIOS/firmware). Empty or relative keeps the installed app dir (unchanged).
-    {
-        char dd[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic.data_dir", dd, "");
-        if (dd[0] == '/') {
-            gDrasticDataDir = dd;
-            gOwnDataRoot = false;
-            while (gDrasticDataDir.size() > 1 && gDrasticDataDir.back() == '/')
-                gDrasticDataDir.pop_back();   // trim trailing slash so "<dir>/savestates" joins clean
-            ALOGI("drastic-nano: data-dir override -> %s", gDrasticDataDir.c_str());
-        }
-    }
+    // persist.gammaos.drastic.data_dir relocates the USER data folder (saves, save states and
+    // shader overrides; see drastic_assets::userDir), not this private root. The root always stays
+    // here and is always seeded, with its backup/ and savestates/ links pointing into the chosen
+    // folder, so BIOS, config and cheats are provisioned on every launch whatever the user picked.
+    ALOGI("drastic-nano: user data folder -> %s", android::drastic_assets::userDir().c_str());
 
     // Render-thread scheduling: SCHED_FIFO prio 80 (+ nice -20 as a
     // fallback when RT is denied). Matches NanoMenu's QR fast-path
@@ -4305,16 +4299,11 @@ int main(int argc, char** argv) {
     // refuse to start -- without the BIOS + firmware files stored
     // there drastic cannot boot a ROM.
     // Our own root is built from the system assets on every launch (cheap when
-    // warm). A user-relocated DraStic folder must already be complete.
-    if (gOwnDataRoot) {
-        if (!android::drastic_assets::seedRoot(gDrasticDataDir)) {
-            ALOGE("drastic-nano: could not seed %s from %s", gDrasticDataDir.c_str(),
-                  android::drastic_assets::systemDir().c_str());
-            return 3;
-        }
-    } else if (!exists(gDrasticDataDir)) {
-        ALOGE("drastic-nano: %s missing (persist.gammaos.drastic.data_dir must point at a "
-              "complete DraStic folder)", gDrasticDataDir.c_str());
+    // warm); seedRoot also creates the user data folder (wherever the user chose)
+    // and links backup/ and savestates/ into it.
+    if (!android::drastic_assets::seedRoot(gDrasticDataDir)) {
+        ALOGE("drastic-nano: could not seed %s from %s", gDrasticDataDir.c_str(),
+              android::drastic_assets::systemDir().c_str());
         return 3;
     }
 
@@ -4796,9 +4785,10 @@ int main(int argc, char** argv) {
         const android::drastic_assets::LegacyCount lc = android::drastic_assets::scanLegacy();
         if (lc.saves + lc.states > 0) {
             char detail[160];
-            snprintf(detail, sizeof(detail), "%d %s, %d %s  ->  /sdcard/drastic-nano",
+            snprintf(detail, sizeof(detail), "%d %s, %d %s  ->  %s",
                      lc.saves, android::trDyn(lc.saves == 1 ? "save" : "saves"),
-                     lc.states, android::trDyn(lc.states == 1 ? "save state" : "save states"));
+                     lc.states, android::trDyn(lc.states == 1 ? "save state" : "save states"),
+                     android::drastic_assets::userDir().c_str());
             const char* title = android::trDyn("Move DraStic saves to the SD card?");
             const char* optMove = android::trDyn("Move");
             const char* optSkip = android::trDyn("Not now");

@@ -22,8 +22,14 @@ constexpr const char* kSystemDirDefault = "/system/etc/drastic-nano";
 std::string systemDir();
 // The DraStic root libdrastic sees through FakeJNI. Private, root-owned.
 constexpr const char* kRootDefault = "/data/system/drastic-nano/DraStic";
-// User-facing data on shared storage.
-constexpr const char* kUserDir = "/storage/emulated/0/drastic-nano";
+// User-facing data on shared storage: saves, save states and the user's shader overrides.
+// Default /storage/emulated/0/drastic-nano; persist.gammaos.drastic.data_dir (an absolute path)
+// relocates it anywhere the user picks (internal storage, SD card, removable media, a network
+// share). The private root above never moves: it keeps linking backup/ and savestates/ into this
+// folder and merging shaders from it, so BIOS, config and cheats stay on the private (non-FUSE,
+// symlink-capable) partition while the user's data lives wherever they chose.
+constexpr const char* kUserDirDefault = "/storage/emulated/0/drastic-nano";
+std::string userDir();
 // The DraStic app's own data dir, only ever read for the one-time import.
 constexpr const char* kLegacyRoot = "/data/user/0/com.dsemu.drastic/files/DraStic";
 

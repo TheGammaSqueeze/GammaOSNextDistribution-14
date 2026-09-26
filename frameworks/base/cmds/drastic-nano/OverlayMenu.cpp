@@ -1476,7 +1476,7 @@ void OverlayMenu::rebuildGeneral() {
             const int n = lc.saves + lc.states;
             r.value = std::to_string(n) + " " + trDyn(n == 1 ? "file" : "files");
             r.onAccept = [this]() {
-                openConfirm("Move the DraStic app's saves and save states to /sdcard/drastic-nano?", [this]() {
+                openConfirm("Move the DraStic app's saves and save states to " + drastic_assets::userDir() + "?", [this]() {
                     drastic_assets::ImportResult res = drastic_assets::importLegacy(nullptr, mRomBase);
                     char msg[128];
                     snprintf(msg, sizeof(msg), "%s: %d %s (%s)", trDyn("Moved"), res.moved, trDyn(res.moved == 1 ? "file" : "files"),

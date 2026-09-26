@@ -16,6 +16,8 @@
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 
 #include <dirent.h>
+#include <errno.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdio.h>
@@ -604,20 +606,31 @@ void NanoMenu::gsFolderSelect(const std::string& path) {
     buildPs3Cats();
 }
 
-// #90: point the native drastic-nano DS core at the DraStic data/saves/BIOS folder. Writes
-// persist.gammaos.drastic.data_dir, which drastic-nano reads at each DS launch (main.cpp). Empty /
-// "@default" (the "Use Default Folder" row) clears it back to the installed app's own files dir.
-// This lets a user who moved DraStic to scoped / SD storage keep DS games launching via the core
-// that is immune to DraStic's scoped-storage ROM-open failure. Pops the browser back to Game Settings.
+// The DraStic USER data folder (saves, save states, shader overrides). Writes
+// persist.gammaos.drastic.data_dir, which drastic-nano reads at each DS launch: its private root
+// (BIOS, config, cheats) never moves and is always seeded, but its backup/ and savestates/ links and
+// its shader merge point into this folder (drastic_assets::userDir). Any browsable folder is allowed
+// (internal storage, SD card, removable media, a network share); the folder is created if missing
+// and must be writable. Empty / "@default" (the "Use Default Folder" row) resets to
+// /sdcard/drastic-nano. Existing files are not moved. Pops the browser back to Game Settings.
 void NanoMenu::drasticDataFolderSelect(const std::string& path) {
     if (path.empty() || path == "@default") {
         property_set("persist.gammaos.drastic.data_dir", "");
         photoShowBanner(trDyn("DraStic data folder: Default"));
         ALOGI("ps3menu: DraStic data folder reset to default");
     } else {
-        property_set("persist.gammaos.drastic.data_dir", path.c_str());
-        photoShowBanner(trDyn("DraStic data folder set"));
-        ALOGI("ps3menu: DraStic data folder -> %s", path.c_str());
+        std::string p = path;
+        while (p.size() > 1 && p.back() == '/') p.pop_back();
+        struct stat st = {};
+        if (stat(p.c_str(), &st) != 0) ::mkdir(p.c_str(), 0775);
+        if (stat(p.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || access(p.c_str(), W_OK) != 0) {
+            photoShowBanner(trDyn("DraStic data folder: not writable"));
+            ALOGW("ps3menu: DraStic data folder %s rejected: %s", p.c_str(), strerror(errno));
+        } else {
+            property_set("persist.gammaos.drastic.data_dir", p.c_str());
+            photoShowBanner(trDyn("DraStic data folder set (next game launch)"));
+            ALOGI("ps3menu: DraStic data folder -> %s", p.c_str());
+        }
     }
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE) mPs3Stack.pop_back();
     mDisplayDirty = true;
