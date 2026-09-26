@@ -5079,7 +5079,8 @@ private:
                        float saturation, float brightness, float cornerRadius = 0.0f,
                        const float* gradEnd = nullptr, bool gradHoriz = true,
                        bool flipH = false, bool flipV = false);
-    GLuint mIconTextures[21]; // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=app-grid, 19=4-square grid (Applications), 20=push-pin (Pinned Apps)
+    GLuint mIconTextures[21];
+    bool mOverlayIconsDropped = false;   // overlayGpuPark freed mIconTextures; unpark reloads them // 0-14=systems, 15=history, 16=generic game cartridge, 17=setting, 18=app-grid, 19=4-square grid (Applications), 20=push-pin (Pinned Apps)
 
     // On-screen keyboard. mOskActive + mOskQuery are the keep-stable members
     // external code reads/writes directly; all new runtime state is in mOsk.

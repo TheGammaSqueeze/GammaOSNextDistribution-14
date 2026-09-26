@@ -525,6 +525,16 @@ public class ProvidersCache implements ProvidersAccess, LookupApplicationName {
             mCallback = callback;
         }
 
+        private boolean isLowRamDevice() {
+            android.app.ActivityManager am = mContext.getSystemService(android.app.ActivityManager.class);
+            return am != null && am.isLowRamDevice();
+        }
+
+        private static boolean isSystemProvider(SingleProviderUpdateTaskInfo info) {
+            final ApplicationInfo ai = info.providerInfo.applicationInfo;
+            return ai != null && (ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0;
+        }
+
         @Override
         protected Void doInBackground(Void... params) {
             if (!mMultiProviderUpdateTaskSemaphore.tryAcquire()) {
@@ -561,8 +571,20 @@ public class ProvidersCache implements ProvidersAccess, LookupApplicationName {
 
             if (!taskInfos.isEmpty()) {
                 CountDownLatch updateTaskInternalCountDown = new CountDownLatch(taskInfos.size());
+                // GammaOS: on a low-RAM device every provider that is not running is a
+                // process cold start, and starting them all at once (the storage
+                // provider, the media provider and each third-party file manager's
+                // provider) is a memory spike that stalled the picker for half a minute
+                // and got the calling app killed behind it on a 1 GB handheld. Start the
+                // system providers first and no more than two at a time there; every
+                // root still appears, only later.
+                final boolean lowRam = isLowRamDevice();
+                if (lowRam) {
+                    taskInfos.sort((a, b) -> Boolean.compare(!isSystemProvider(a), !isSystemProvider(b)));
+                }
                 ExecutorService executor = MoreExecutors.getExitingExecutorService(
-                        (ThreadPoolExecutor) Executors.newCachedThreadPool());
+                        (ThreadPoolExecutor) (lowRam ? Executors.newFixedThreadPool(2)
+                                                     : Executors.newCachedThreadPool()));
                 for (SingleProviderUpdateTaskInfo taskInfo : taskInfos) {
                     executor.submit(() ->
                             startSingleProviderUpdateTask(

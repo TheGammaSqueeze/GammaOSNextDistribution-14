@@ -661,6 +661,13 @@ void NanoMenu::overlayGpuPark() {
     // overlay behind an app never initialises it either, so the parked Control Center
     // already renders without it in the common case; overlayGpuUnpark re-inits it.
     ps3bg::shutdown();
+    // The 21 console icons (about 7 MB of GPU memory, which cannot be swapped) are XMB
+    // and DSi list art only; the Control Centre draws text and its own static cache.
+    // initIconTextures reloads them on unpark, before the categories are rebuilt.
+    for (int i = 0; i < 21; i++) {
+        if (mIconTextures[i]) { glDeleteTextures(1, &mIconTextures[i]); mIconTextures[i] = 0; }
+    }
+    mOverlayIconsDropped = true;
     glFlush();
     ALOGI("overlay: parked, XMB GPU working set dropped");
     overlayPageOutSelf();
@@ -672,6 +679,7 @@ void NanoMenu::overlayGpuPark() {
 // rebuild the categories so the Ps3Cat/Ps3Item handle copies are fresh. Everything
 // else refills lazily as it is drawn.
 void NanoMenu::overlayGpuUnpark() {
+    if (mOverlayIconsDropped) { initIconTextures(); mOverlayIconsDropped = false; }
     if (!mPs3MenuBuilt) {
         initPs3Menu();
     } else if (mOverlayGpuParked) {

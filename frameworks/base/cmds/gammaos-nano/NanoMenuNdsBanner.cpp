@@ -66,6 +66,60 @@ static std::string cachePathFor(const std::string& rom, const struct stat& st) {
 // path whose size or mtime changed (a copy that finished after the first scan, a replaced file)
 // is parsed again; the disk cache is keyed the same way.
 static uint64_t ndsIdentOf(const struct stat& st) { return ((uint64_t)st.st_size << 20) ^ (uint64_t)st.st_mtime; }
+
+// Path-only copy of the last record parsed for a ROM path: "<dir>/p_<hash of path>.bin".
+// On a fresh boot the ROM's storage (a card through vold, the FUSE view of internal
+// storage) comes up well after nano, so the size/mtime key cannot even be formed and
+// the carousel showed the generic cartridge until the volume arrived. The path copy is
+// served in that window; once the file is reachable its identity is checked as usual
+// and a changed file is parsed again.
+static std::string pathCachePathFor(const std::string& rom) {
+    char key[64];
+    snprintf(key, sizeof(key), "p_%016llx", (unsigned long long)fnv1a64(rom));
+    return std::string(kNdsBannerCacheDir) + "/" + key + ".bin";
+}
+
+// Read one record file. Returns true on a hit (a valid banner, or a known-bad "NDSX" mark).
+static bool readBannerRecord(const std::string& cp, std::string& title, std::vector<uint8_t>& rgba) {
+    bool hit = false;
+    int fd = open(cp.c_str(), O_RDONLY | O_CLOEXEC);
+    if (fd < 0) return false;
+    uint8_t magic[4] = {};
+    if (read(fd, magic, 4) == 4) {
+        if (!memcmp(magic, "NDSX", 4)) hit = true;                       // known bad
+        else if (!memcmp(magic, "NDSB", 4)) {
+            uint32_t tl = 0;
+            if (read(fd, &tl, 4) == 4 && tl <= 256) {
+                std::string t(tl, '\0');
+                std::vector<uint8_t> px(32 * 32 * 4);
+                if ((tl == 0 || read(fd, &t[0], tl) == (ssize_t)tl) && read(fd, px.data(), px.size()) == (ssize_t)px.size()) {
+                    title = t; rgba = std::move(px); hit = true;
+                }
+            }
+        }
+    }
+    close(fd);
+    return hit;
+}
+
+// Write one record file atomically (temp + rename).
+static bool writeBannerRecord(const std::string& cp, bool ok, const std::string& title, const std::vector<uint8_t>& rgba) {
+    const std::string tmp = cp + ".tmp";
+    int wfd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+    if (wfd < 0) return false;
+    bool wok;
+    if (ok && rgba.size() == 32 * 32 * 4) {
+        const uint32_t tl = (uint32_t)title.size();
+        wok = write(wfd, "NDSB", 4) == 4 && write(wfd, &tl, 4) == 4
+              && (tl == 0 || write(wfd, title.data(), tl) == (ssize_t)tl)
+              && write(wfd, rgba.data(), rgba.size()) == (ssize_t)rgba.size();
+    } else {
+        wok = write(wfd, "NDSX", 4) == 4;
+    }
+    close(wfd);
+    if (wok) rename(tmp.c_str(), cp.c_str()); else unlink(tmp.c_str());
+    return wok;
+}
 static const int64_t kNdsBannerRetryMs = 5000;   // storage that is not up yet: try again after this
 
 void NanoMenu::ndsBannerLoad(const std::string& rom) {
@@ -79,8 +133,20 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
     struct stat st{};
     if (stat(rom.c_str(), &st) != 0) {
         // Not reachable right now: the volume it lives on (a card through vold, or the FUSE view
-        // of internal storage) comes up well after nano on a fresh boot. This is not a result,
-        // so drop the claim and let the next prefetch or draw try again shortly.
+        // of internal storage) comes up well after nano on a fresh boot. Serve the last record
+        // cached for this path so the icon and title show from the first frame; the identity is
+        // left unknown (0), so ndsBannerWantsParseLocked re-checks the file once it is reachable
+        // and a replaced file is parsed again. With no path record this is not a result: drop
+        // the claim and let the next prefetch or draw try again shortly.
+        std::string t;
+        std::vector<uint8_t> px;
+        if (readBannerRecord(pathCachePathFor(rom), t, px)) {
+            std::lock_guard<std::mutex> lk(mNdsBannerMu);
+            mNdsBannerTitle[rom] = t;
+            mNdsBannerIdent[rom] = 0;
+            if (!px.empty()) mNdsBannerPix[rom] = std::move(px);
+            return;
+        }
         std::lock_guard<std::mutex> lk(mNdsBannerMu);
         mNdsBannerTitle.erase(rom);
         mNdsBannerRetryAt[rom] = (int64_t)uptimeMillis() + kNdsBannerRetryMs;
@@ -88,46 +154,22 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
     }
     if (S_ISREG(st.st_mode)) {
         const std::string cp = cachePathFor(rom, st);
-        bool hit = false;
-        int fd = open(cp.c_str(), O_RDONLY | O_CLOEXEC);
-        if (fd >= 0) {
-            uint8_t magic[4] = {};
-            if (read(fd, magic, 4) == 4) {
-                if (!memcmp(magic, "NDSX", 4)) hit = true;                       // known bad
-                else if (!memcmp(magic, "NDSB", 4)) {
-                    uint32_t tl = 0;
-                    if (read(fd, &tl, 4) == 4 && tl <= 256) {
-                        std::string t(tl, '\0');
-                        std::vector<uint8_t> px(32 * 32 * 4);
-                        if ((tl == 0 || read(fd, &t[0], tl) == (ssize_t)tl) && read(fd, px.data(), px.size()) == (ssize_t)px.size()) {
-                            title = t; rgba = std::move(px); hit = true;
-                        }
-                    }
-                }
-            }
-            close(fd);
-        }
-        if (!hit) {
+        const std::string pp = pathCachePathFor(rom);
+        bool hit = readBannerRecord(cp, title, rgba);
+        if (hit) {
+            // Keep the path copy current for the next boot (a cheap 4 KB write, once per
+            // record; skipped when it is already this record).
+            struct stat ps{};
+            if (stat(pp.c_str(), &ps) != 0 || ps.st_size != (off_t)(rgba.empty() ? 4 : 8 + title.size() + rgba.size()))
+                writeBannerRecord(pp, !rgba.empty(), title, rgba);
+        } else {
             NdsBannerInfo info;
             const bool ok = ndsReadBanner(rom, info);
             if (ok) { title = info.title; rgba = std::move(info.rgba); }
             mkdir("/data/system/nano_cache", 0755);
             mkdir(kNdsBannerCacheDir, 0755);
-            const std::string tmp = cp + ".tmp";
-            int wfd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
-            if (wfd >= 0) {
-                bool wok;
-                if (ok && rgba.size() == 32 * 32 * 4) {
-                    const uint32_t tl = (uint32_t)title.size();
-                    wok = write(wfd, "NDSB", 4) == 4 && write(wfd, &tl, 4) == 4
-                          && (tl == 0 || write(wfd, title.data(), tl) == (ssize_t)tl)
-                          && write(wfd, rgba.data(), rgba.size()) == (ssize_t)rgba.size();
-                } else {
-                    wok = write(wfd, "NDSX", 4) == 4;
-                }
-                close(wfd);
-                if (wok) rename(tmp.c_str(), cp.c_str()); else unlink(tmp.c_str());
-            }
+            writeBannerRecord(cp, ok, title, rgba);
+            writeBannerRecord(pp, ok, title, rgba);
             ALOGD("ndsbanner: %s -> %s title='%s'", rom.c_str(), ok ? "ok" : "rejected", title.c_str());
         }
     }
@@ -148,6 +190,16 @@ bool NanoMenu::ndsBannerWantsParseLocked(const std::string& rom) {
         if (id == mNdsBannerIdent.end()) return false;   // in flight
         struct stat st{};
         if (stat(rom.c_str(), &st) != 0 || ndsIdentOf(st) == id->second) return false;
+        // Served from the path copy while the storage was down (identity 0): now that the
+        // file is reachable, re-parse only if its record is not the cached one (the keyed
+        // record will hit for an unchanged file, so this is one stat and one open).
+        if (id->second == 0) {
+            std::string t; std::vector<uint8_t> px;
+            if (readBannerRecord(cachePathFor(rom, st), t, px) && t == it->second) {
+                id->second = ndsIdentOf(st);
+                return false;
+            }
+        }
         mNdsBannerTitle.erase(it); mNdsBannerIdent.erase(id); mNdsBannerPix.erase(rom);
         mNdsBannerTexDrop.push_back(rom);
     }
