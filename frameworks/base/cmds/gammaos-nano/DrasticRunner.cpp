@@ -3094,8 +3094,8 @@ extern "C" void drasticVTime(uint64_t* out) {
         // of each new emulated frame, sleep to a deadline of 16.667 ms * 100 / pct per
         // frame. drastic itself sees a virtual clock that lands exactly on its own
         // deadline every frame, so it never sees itself behind, never sets the
-        // frameskip flag, and renders every frame (a 50% slow motion is a smooth
-        // 30 fps, not two frames in eight).
+        // frameskip flag, and renders every frame (150% is a smooth 90 fps, not a
+        // burst with skipped frames).
         static uint32_t sLastEmu = 0;
         const uint32_t ef = gEmuFrames.load(std::memory_order_relaxed);
         if (ef != sLastEmu) {
@@ -3182,7 +3182,9 @@ std::atomic<int> gFfOnForHook{0};
 // sleeps to a real-time deadline of 16.667 ms * 100 / percent per emulated frame, and
 // drasticVTime feeds drastic a virtual clock that advances by exactly its interval per
 // frame, so it is never "behind" its deadline, never sets the frameskip flag, and every
-// frame is rendered (a 50% slow motion is a smooth 30 fps, not two frames in eight).
+// frame is rendered (150% is a smooth 90 fps, not a burst with skipped frames). On exit
+// setFastForward moves drastic's deadline back onto the real clock, because the virtual
+// clock runs slower than real time and the deadline would otherwise be seconds behind.
 // Uncapped keeps the real clock and skips the sleep: drastic runs flat out and its
 // capture-aware pair frameskip (ffCapHook) trims the rendering as before.
 std::atomic<int> gFfLimitPct{300};
@@ -3216,6 +3218,13 @@ extern "C" uint64_t ffCapHook(uint32_t cap, uint32_t flag, uint8_t* hm) {
     static uint32_t pairs = 0;
     const bool capOn = (cap & 0x80000000u) != 0;
     const bool wasOn = prevOn; prevOn = capOn;
+    if (flag != 0 && !gFfOnForHook.load(std::memory_order_relaxed)) {
+        // At 1x the limiter should never ask for a skip; a run of them here is the
+        // "grind" after a fast-forward exit (the limiter thinks it is behind).
+        static uint32_t sSkips = 0; static int64_t sLogUs = 0; sSkips++;
+        const int64_t now = (int64_t)realClockUs();
+        if (now - sLogUs > 1000000) { ALOGW("ffCapHook: %u frames skipped at 1x in the last second", sSkips); sSkips = 0; sLogUs = now; }
+    }
     if (!capOn) {
         // No capture: the limiter's decision. The publish state must follow
         // it too, or a 2D scene after a skipped capture frame would never be
@@ -10811,7 +10820,7 @@ void DrasticRunner::setFastForward(bool on) {
     if (on) {
         int pct = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_limit", 300);
         if (pct < 0) pct = 0;
-        if (pct > 0 && pct < 10) pct = 10;
+        if (pct > 0 && pct < 110) pct = 110;   // the row starts at 110%; older values below it mean 110%
         if (pct > 1000) pct = 1000;
         // The interval drastic's converter will select for the FF index (applyFfBits).
         static const int64_t kIntervals[6] = { 100000, 33333, 25000, 16666, 12500, 5000 };
@@ -10831,6 +10840,29 @@ void DrasticRunner::setFastForward(bool on) {
     }
     gFfOnForHook.store(on ? 1 : 0, std::memory_order_relaxed);
     setVblankPacing(mPaceWanted);
+    if (!on && mArm64Base && gFfLimitPct.load(std::memory_order_relaxed) > 0 &&
+        property_get_int32("sys.gammaos.drastic_nano.ff_rebase_rt", 1) > 0) {
+        // Leaving a capped fast-forward. drastic's limiter deadline (hm+0x3b2f908, 1/3 us)
+        // advanced in the virtual clock of drasticVTime, one table interval (5 ms at the
+        // default index) per emulated frame, while real time advanced 16.667 ms * 100 / pct
+        // per frame: after ten seconds at 150% the deadline sits about five seconds behind
+        // real time (measured: the value left behind is not even in the clock's range). From
+        // here drastic reads the real clock again (or the vblank-locked one, rebased to real
+        // time by setVblankPacing just above), and its limiter asks for a sleep computed from
+        // that stale deadline: in the heavy-scene bypass drasticVWait clamps it to 50 ms per
+        // frame, so a 3D game (Pokemon Diamond title) ground along at 17 emulated frames per
+        // second until the next fast-forward entry rebased the virtual clock onto the stale
+        // deadline. Put the deadline on the clock it is about to be compared with.
+        uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
+        if (hm) {
+            volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
+            const int64_t before = *deadline;
+            uint64_t nowUs = 0; drasticVTime(&nowUs);
+            *deadline = (int64_t)nowUs * 3;
+            ALOGI("DrasticRunner::setFastForward: limiter deadline rebased on exit (%lld -> %lld, was %.1f s behind)",
+                  (long long)before, (long long)*deadline, ((double)nowUs * 3 - (double)before) / 3e6);
+        }
+    }
     // mBaseConfigBits holds the user's current (non-FF) settings, kept up
     // to date by applyVideoConfigLive, so FF composes with live changes.
     long bits = mBaseConfigBits;

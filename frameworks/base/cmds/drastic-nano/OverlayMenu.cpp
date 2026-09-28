@@ -3092,24 +3092,27 @@ void OverlayMenu::rebuildVideo() {
     // panel one presented frame sooner (measured with the in-process latency
     // probe: reaction at presented frame +1 instead of +3 on Sonic Rush).
     // Fast Forward Speed: the ceiling while the fast-forward button is held, as a
-    // percentage of full speed. 10% .. 300% in steps of 10 (below 100% is a slow
-    // motion), then Uncapped. Paced by the engine (DrasticRunner gFfLimitPct); the
-    // actual speed on a heavy scene may be lower than the ceiling. Read on every
-    // fast-forward entry, so it applies the next time the button is held.
+    // percentage of full speed. 110% .. 300% in steps of 10, then Uncapped. Paced by
+    // the engine (DrasticRunner gFfLimitPct); the actual speed on a heavy scene may be
+    // lower than the ceiling. Read on every fast-forward entry, so it applies the next
+    // time the button is held. A stored value below 110 (from the earlier 10% floor)
+    // shows and behaves as 110%.
     {
         RowAction r;
         r.label = "Fast Forward Speed";
-        const int pct = shadowPropGetInt("persist.gammaos.drastic_nano.ff_limit", 300);
+        int pct = shadowPropGetInt("persist.gammaos.drastic_nano.ff_limit", 300);
+        if (pct > 0 && pct < 110) pct = 110;
         if (pct <= 0) r.value = trDyn("Uncapped");
         else { char b[16]; snprintf(b, sizeof(b), "%d%%", pct); r.value = b; }
         auto step = [this](int dir) {
             int cur = shadowPropGetInt("persist.gammaos.drastic_nano.ff_limit", 300);
-            // Positions: 10, 20, ... 300 (30 steps), then 0 = Uncapped, wrapping.
-            int pos = cur <= 0 ? 30 : (cur / 10) - 1;
+            // Positions: 110, 120, ... 300 (20 steps), then 0 = Uncapped, wrapping.
+            constexpr int kSteps = 20;
+            int pos = cur <= 0 ? kSteps : (cur / 10) - 11;
             if (pos < 0) pos = 0;
-            if (pos > 30) pos = 30;
-            pos = (pos + dir + 31) % 31;
-            const int next = pos == 30 ? 0 : (pos + 1) * 10;
+            if (pos > kSteps) pos = kSteps;
+            pos = (pos + dir + kSteps + 1) % (kSteps + 1);
+            const int next = pos == kSteps ? 0 : (pos + 11) * 10;
             char b[16]; snprintf(b, sizeof(b), "%d", next);
             setPropAsync("persist.gammaos.drastic_nano.ff_limit", b);
             mDirty = true;
