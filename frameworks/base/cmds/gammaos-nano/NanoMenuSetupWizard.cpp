@@ -5,10 +5,11 @@
  * Runs before the XMB menu on unprovisioned devices. Steps:
  *   1. Welcome
  *   2. Wi-Fi (reuses existing WiFi screen)
- *   3. Bluetooth (reuses existing BT screen)
- *   4. Timezone selection
- *   5. System configuration (runs setup.sh, shows progress)
- *   6. Finish (marks device provisioned)
+ *   3. Timezone selection
+ *   4. System configuration (runs setup.sh, shows progress)
+ *   5. Finish (marks device provisioned)
+ * (There is no Bluetooth step: a fresh install leaves Bluetooth off, and the user
+ *  turns it on from Bluetooth & Accessories or the Quick Menu when they want it.)
  *
  * The XMB wallpaper renders in the background throughout. Each step
  * transition uses a slide+fade animation.
@@ -484,13 +485,6 @@ void NanoMenu::updateSetupTransition() {
             // intercept stays active and routes to the wiz* handlers.
             mMenuState = MENU_SETUP_WIZARD;
             startNetWizard();
-        } else if (mSetupStep == SETUP_BLUETOOTH) {
-            // The Bluetooth step IS the Manage Bluetooth Devices wizard (1:1 with the
-            // XMB one). Keep MENU_SETUP_WIZARD so the setup input intercept routes to
-            // the wiz* handlers, exactly like the Wi-Fi step.
-            mMenuState = MENU_SETUP_WIZARD;
-            mSetupBtWizSeen = false;
-            startBtWizard(0);
         } else if (mSetupStep == SETUP_INSTALLING) {
             mMenuState = MENU_SETUP_WIZARD;
             // Defer setup.sh until the fade-in completes + a grace period (see
@@ -536,10 +530,6 @@ void NanoMenu::handleSetupSelect() {
         // A in WiFi mode is handled by the WiFi screen
         handleWifiScreenSelect();
         break;
-    case SETUP_BLUETOOTH:
-        // The Manage Bluetooth wizard owns input while active (routed via the
-        // mPs3WizActive branch in pollInput); nothing to do in the fallback.
-        break;
     case SETUP_TIMEZONE:
         // A selects the highlighted timezone and advances
         if (!mTzEntries.empty()) {
@@ -583,11 +573,6 @@ void NanoMenu::handleSetupBack() {
         }
         goBackSetupStep();
         break;
-    case SETUP_BLUETOOTH:
-        // O is handled by the Bluetooth wizard while active; in the fallback just
-        // step back.
-        goBackSetupStep();
-        break;
     case SETUP_TIMEZONE:
         goBackSetupStep();
         break;
@@ -610,8 +595,6 @@ void NanoMenu::handleSetupUp() {
     case SETUP_WIFI:
         handleWifiScreenUp();
         break;
-    case SETUP_BLUETOOTH:
-        break;   // the Bluetooth wizard owns navigation while active
     case SETUP_TIMEZONE:
         tzGlobeNav(-1);   // move selection (wraps) + ease the globe to the new city
         break;
@@ -633,8 +616,6 @@ void NanoMenu::handleSetupDown() {
     case SETUP_WIFI:
         handleWifiScreenDown();
         break;
-    case SETUP_BLUETOOTH:
-        break;   // the Bluetooth wizard owns navigation while active
     case SETUP_TIMEZONE:
         tzGlobeNav(+1);   // move selection (wraps) + ease the globe to the new city
         break;
@@ -674,16 +655,6 @@ void NanoMenu::handleSetupStart() {
                 closeWifiScreen();
                 mMenuState = MENU_SETUP_WIZARD;
             }
-            advanceSetupStep();
-        }
-        break;
-    case SETUP_BLUETOOTH:
-        if (mPs3WizActive) {
-            // Skip the Manage Bluetooth wizard (mSetupBtWizSeen is already set,
-            // so renderSetupWizard advances once it sees the wizard closed).
-            mPs3WizActive = false;
-            mPs3WizExit = 1;
-        } else {
             advanceSetupStep();
         }
         break;
@@ -825,20 +796,6 @@ void NanoMenu::renderSetupWizard() {
             if (mPs3WizExit >= 0) advanceSetupStep(); else goBackSetupStep();
         }
     }
-    // The Bluetooth step IS the Manage Bluetooth Devices wizard. It renders its own
-    // fullscreen chrome, so dispatch it here. Manage is a hub with no terminal
-    // screen, so exiting it (backing out) means "done with Bluetooth" -> advance.
-    if (mSetupStep == SETUP_BLUETOOTH) {
-        if (mPs3WizActive) {
-            mSetupBtWizSeen = true;
-            renderNetWizard();
-            drawSetupSkipHint();        // Start skips the whole Bluetooth step
-            return;
-        } else if (mSetupBtWizSeen) {
-            mSetupBtWizSeen = false;
-            advanceSetupStep();
-        }
-    }
 
 
     // Fade-in when not transitioning (lerp alpha toward 1.0)
@@ -906,7 +863,6 @@ void NanoMenu::renderSetupWizard() {
     case SETUP_LANGUAGE:   renderSetupLanguage();      break;
     case SETUP_WELCOME:    renderSetupWelcome();       break;
     case SETUP_WIFI:       renderSetupWifiStep();      break;
-    case SETUP_BLUETOOTH:  renderSetupBluetoothStep(); break;
     case SETUP_TIMEZONE:   renderSetupTimezone();      break;
     case SETUP_INSTALLING: renderSetupInstalling();    break;
     case SETUP_FINISH:     renderSetupFinish();        break;
@@ -1138,47 +1094,6 @@ void NanoMenu::renderSetupWifiStep() {
              0.9f, 0.9f, 0.95f, alpha * 0.85f);
 }
 
-void NanoMenu::renderSetupBluetoothStep() {
-    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
-    if (sf < 0.5f) sf = 0.5f;
-    float alpha = mSetupTransitionAlpha;
-    float slideX = mSetupSlideOffset;
-
-    float headerScale = 2.8f * sf;
-    const char* header = tr(STR_SETUP_BT_TITLE);
-    float headerW = measureText(header, headerScale);
-    float headerX = ((float)mWidth - headerW) / 2.0f + slideX;
-    float headerY = 15.0f * sf;
-    drawText(header, headerX, headerY, headerScale,
-             0.3f, 0.85f, 1.0f, alpha);
-
-    char btBootDone[PROPERTY_VALUE_MAX] = {};
-    property_get("sys.boot_completed", btBootDone, "0");
-    bool btBooted = (strcmp(btBootDone, "1") == 0);
-
-    if (mMenuState == MENU_BT) {
-        renderBtScreen();
-    }
-
-    if (!btBooted) {
-        float loadScale = 1.6f * sf;
-        const char* spinner[] = {"|", "/", "-", "\\"};
-        int spinIdx = ((int)(elapsedRealtime() / 150)) % 4;
-        char loadMsg[64];
-        snprintf(loadMsg, sizeof(loadMsg), "%s  %s", spinner[spinIdx], trDyn("Loading driver..."));
-        float loadW = measureText(loadMsg, loadScale);
-        drawText(loadMsg, (float)mWidth - loadW - 12.0f * sf,
-                 15.0f * sf + FONT_CHAR_H * 2.8f * sf + 6.0f * sf,
-                 loadScale, 0.9f, 0.8f, 0.2f, alpha * 0.9f);
-    }
-
-    float footScale = 1.3f * sf;
-    const char* footer = tr(STR_SETUP_BT_FOOTER);
-    float footW = measureText(footer, footScale);
-    drawText(footer, ((float)mWidth - footW) / 2.0f,
-             (float)mHeight - 70.0f * sf, footScale,
-             0.9f, 0.9f, 0.95f, alpha * 0.85f);
-}
 
 void NanoMenu::renderSetupTimezone() {
     // The setup wizard timezone step is the 1:1 web 3D-globe selector, shared

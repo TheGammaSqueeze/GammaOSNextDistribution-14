@@ -11,4 +11,8 @@
     <bool name="def_stay_on_while_plugged_in">false</bool>
     <!-- No mobile radio on these devices. -->
     <bool name="def_mobile_data_always_on">false</bool>
+    <!-- A fresh install boots with Bluetooth off. The nano setup wizard has no Bluetooth
+         step, and nothing in the home switches the radio on by itself; the user turns it on
+         from Bluetooth & Accessories or the Quick Menu. -->
+    <bool name="def_bluetooth_on">false</bool>
 </resources>

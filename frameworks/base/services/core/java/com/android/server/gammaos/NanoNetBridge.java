@@ -313,7 +313,10 @@ public final class NanoNetBridge {
     private void startBtDiscovery() {
         if (mBt == null) return;
         synchronized (mDiscovered) { mDiscovered.clear(); }
-        try { if (!mBt.isEnabled()) mBt.enable(); } catch (Throwable ignore) {}
+        // Never switch the radio on for a scan: a scan on an off radio finds nothing, and
+        // the enable here turned Bluetooth back on after the user had turned it off. The
+        // home's Turn On toggle (bt_enable) is the only thing that enables it.
+        try { if (!mBt.isEnabled()) { publishBtList(); return; } } catch (Throwable ignore) {}
         try { if (mBt.isDiscovering()) mBt.cancelDiscovery(); } catch (Throwable ignore) {}
         try { mBt.startDiscovery(); } catch (Throwable t) { Slog.w(TAG, "startDiscovery", t); }
     }

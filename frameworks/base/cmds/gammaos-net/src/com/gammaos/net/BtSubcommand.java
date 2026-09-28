@@ -53,13 +53,20 @@ public final class BtSubcommand {
             System.err.println("gammaos-net bt: no BluetoothAdapter");
             return 3;
         }
-        // Auto-enable the adapter for actions that need an on radio. NOT for
-        // "discoverable" (it manages its own enable for secs>0; discoverable 0 is a
-        // stop and must NOT force BT back on - that would fight a UI radio-off
-        // toggle) and NOT for "confirm" (apply-pairing on an already-on radio).
-        boolean needsOn = !"discoverable".equals(args[1]) && !"confirm".equals(args[1])
-                && !"radio".equals(args[1]);
-        if (needsOn && !adapter.isEnabled()) {
+        // Auto-enable the adapter ONLY for the two actions that name a device the user
+        // just picked (pair, connect): the radio being on is what they asked for. Every
+        // other action leaves an off radio off. scan and list-bonded used to switch it
+        // on as well, so a list refresh, a scan on opening a screen, an unpair or a
+        // disconnect turned Bluetooth back on right after the user had turned it off
+        // (reported 2026-09-27, wizard and normal use). On an off radio scan and
+        // list-bonded now print nothing and return 0; unpair and disconnect need no
+        // radio for what they change.
+        boolean needsOn = "pair".equals(args[1]) || "connect".equals(args[1]);
+        boolean radioOff = !adapter.isEnabled();
+        if (radioOff && ("scan".equals(args[1]) || "list-bonded".equals(args[1]))) {
+            return 0;   // nothing to list or find: the caller shows an empty list
+        }
+        if (needsOn && radioOff) {
             adapter.enable();
             // Give the stack a moment to come up - discovery / pairing
             // fail silently if we call them while the adapter is still

@@ -293,7 +293,6 @@ public:
         SETUP_LANGUAGE,
         SETUP_TIMEZONE,
         SETUP_WIFI,
-        SETUP_BLUETOOTH,
         SETUP_INSTALLING,
         SETUP_FINISH,
         SETUP_STEP_COUNT,
@@ -699,7 +698,6 @@ private:
     void renderSetupNdsBackdrop();
     void renderSetupWelcome();
     void renderSetupWifiStep();
-    void renderSetupBluetoothStep();
     void renderSetupTimezone();
     void renderSetupInstalling();
     void renderSetupFinish();
@@ -4935,7 +4933,6 @@ private:
     bool   mPs3WizActive = false;
     int    mPs3WizExit = 0;               // on close: +1 completed/forward, -1 cancelled/back (for the setup step)
     bool   mSetupNetWizSeen = false;      // setup-wizard tracking of the network step's wizard
-    bool   mSetupBtWizSeen = false;       // setup-wizard tracking of the Bluetooth step's wizard
     bool   mSetupWifiWaitPending = false; // a "next" into the Wi-Fi step is deferred until sys.boot_completed=1
     int    mPs3WizId = 0;                 // current screen (WizScreen enum, file-local)
     std::vector<int> mPs3WizStack;        // back stack of screen ids
