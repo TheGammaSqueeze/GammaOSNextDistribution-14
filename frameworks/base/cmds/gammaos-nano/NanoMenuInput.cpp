@@ -1004,7 +1004,8 @@ void NanoMenu::idleSleepTick() {
             || property_get_bool("sys.gammaos.nano.media_playing", false)   // in-process video
             || (mVidActive && mVidPlaying && !mVidStopped)
             || mLaunchFadeStart != 0 || mOverlayLaunchPending || mShowLaunchBusy || mWaitForRelease
-            || mPowerPressTime != 0;
+            || mPowerPressTime != 0
+            || mScrapeRunning;   // an artwork scrape in progress: the user is waiting on the progress modal
     if (unfocused) { sIdleSleepUnfocused = true; return; }
     if (sIdleSleepUnfocused) {
         sIdleSleepUnfocused = false;
