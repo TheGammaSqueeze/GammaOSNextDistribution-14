@@ -49,7 +49,10 @@ Everything is property driven; no UI starts the service directly.
 - `sys.gammaos.syncthing.restart` = 1: restart the daemon (cleared by init).
 
 The REST API listens on 127.0.0.1:8384 with the API key from
-`/data/misc/syncthing/config.xml` (`<apikey>`). The daemon runs as `system`, so the two Settings
+`/data/misc/syncthing/config.xml` (`<apikey>`). The address is the `<gui><address>` in that
+config, never pinned on the command line: the Web Interface toggle in the clients moves it to
+0.0.0.0:8384 (LAN access with a username and password) and back, and a `--gui-address` flag
+would silently override that setting. The daemon runs as `system`, so the two Settings
 apps (uid system) and the nano menu (root, domain bootanim, allowed by policy) read the key
 directly. The key is deliberately never exported as a property, which any app could read.
 

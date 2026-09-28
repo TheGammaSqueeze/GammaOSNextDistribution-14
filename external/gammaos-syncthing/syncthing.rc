@@ -21,11 +21,17 @@
 # in /etc/ssl and /etc/pki, so it is pointed at Android's CA store explicitly. Without it every
 # https connection (relay directory, global discovery) fails with "certificate signed by unknown
 # authority". Seen on the RG DS Plus, fixed by this line.
+#
+# No --gui-address (and no STGUIADDRESS): that flag overrides the <gui><address> in config.xml
+# for as long as the daemon runs, so the Web Interface toggle in nano, Settings and TV Settings
+# (which writes 0.0.0.0:8384 or 127.0.0.1:8384 to the config and restarts) never took effect and
+# the GUI stayed on loopback. A fresh config defaults to 127.0.0.1:8384, which is what the
+# clients talk to either way.
 
 on post-fs-data
     mkdir /data/misc/syncthing 0700 system system
 
-service syncthing /system/bin/syncthing serve --home=/data/misc/syncthing --no-browser --no-upgrade --no-port-probing --no-restart --gui-address=127.0.0.1:8384
+service syncthing /system/bin/syncthing serve --home=/data/misc/syncthing --no-browser --no-upgrade --no-port-probing --no-restart
     class late_start
     user system
     # media_rw: internal storage under /data/media and the raw card mounts vold makes for it.

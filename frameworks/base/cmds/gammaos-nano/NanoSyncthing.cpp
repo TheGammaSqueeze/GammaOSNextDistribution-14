@@ -31,7 +31,9 @@
 namespace android {
 namespace nanost {
 
-// Fixed by syncthing.rc (--gui-address / --home).
+// The home is fixed by syncthing.rc. The GUI address comes from config.xml (a fresh config is
+// 127.0.0.1:8384; the Web Interface toggle switches it to 0.0.0.0:8384, which still serves
+// loopback), so the clients always reach the API here.
 static const char* kApiHost  = "127.0.0.1";
 static const int   kApiPort  = 8384;
 static const char* kConfigXml = "/data/misc/syncthing/config.xml";
