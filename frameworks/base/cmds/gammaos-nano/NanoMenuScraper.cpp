@@ -641,6 +641,7 @@ void NanoMenu::scraperPollReload() {
 
 void NanoMenu::scraperArtTick() {
     mScrapeBoxartOn = scraperBoxartEnabled();
+    mNdsTileIcon = mNdsTheme && property_get_bool("persist.gammaos.nano.nds.tileicon", false);
     // The ES-DE theme browses games through its own selection (not the shared mPs3CatIdx
     // category rail), so keep boxart alive whenever it is active; otherwise a per-frame
     // free/rebuild would thrash the decode worker and the cover would never land.

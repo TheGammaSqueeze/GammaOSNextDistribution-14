@@ -2349,6 +2349,16 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // #66: a scraped ROM cover replaces the generic cartridge glyph on the tile
         // (user: boxart on the cards too). Aspect-fit into a 44x44 box centred on the
         // 64x64 pillow. romBoxartTex is async/cached and shares the Game free lifecycle.
+        // DS Icons On Tiles (persist.gammaos.nano.nds.tileicon): the cartridge's own banner icon
+        // stays on the tile even when the game has a scraped cover; the cover is still what the
+        // top screen shows for the focused game (renderNdsTop). Requested on Discord 2026-09-27.
+        if (mNdsTileIcon && (it->kind == PS3_ROM || it->kind == PS3_RECENT)) {
+            std::string dsRom;
+            if (ndsIsDsRomItem(*it, &dsRom)) {
+                GLuint bt = ndsBannerTex(dsRom);
+                if (bt) { drawIconTex(bt, dcx - S(16), Y(98.0f) + S(yoffDS), S(32), S(32), 1.0f, 1.0f, 1.0f, 1.0f); return; }
+            }
+        }
         if (mScrapeBoxartOn && (it->kind == PS3_ROM || it->kind == PS3_RECENT)) {
             std::string rp;
             if (it->kind == PS3_ROM && it->a >= 0 && it->a < (int)mXmbSystems.size()
