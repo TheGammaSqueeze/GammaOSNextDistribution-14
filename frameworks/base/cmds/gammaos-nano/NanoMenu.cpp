@@ -150,7 +150,7 @@ NanoMenu::NanoMenu()
       mFrameDt(1.0f / 60.0f),
       mCurrentEffect(1),
       mEffectTime(0.0f),
-      mQuickResumeEnabled(true),
+      mQuickResumeEnabled(false),
       mXmbMode(false), mXmbRecentMax(50), mXmbSystemIndex(0), mXmbGameIndex(0),
       mXmbAnimX(0.0f), mXmbAnimY(0.0f),
       mXmbGameScrollTop(0), mXmbRomScanDone(false),
@@ -216,7 +216,7 @@ NanoMenu::NanoMenu()
     }
     // Load Quick Resume toggle from persistent property
     mQuickResumeEnabled = android::base::GetBoolProperty(
-            "persist.gammaos.nano.quick_resume", true);   // default ON (user decision 2026-07-01)
+            "persist.gammaos.nano.quick_resume", false);   // default OFF (2026-09-28); Game Settings > Quick Resume
 }
 
 void NanoMenu::initSurfaceFlingerPath() {
@@ -1499,7 +1499,7 @@ bool NanoMenu::threadLoop() {
     // Re-read quick resume flag — the constructor runs before persist props
     // are loaded, so the value read there may be stale (always false).
     mQuickResumeEnabled = android::base::GetBoolProperty(
-            "persist.gammaos.nano.quick_resume", true);   // default ON (user decision 2026-07-01)
+            "persist.gammaos.nano.quick_resume", false);   // default OFF (2026-09-28); Game Settings > Quick Resume
     mXmbMode = android::base::GetBoolProperty(
             "persist.gammaos.nano.xmb_mode", false);
     // PS3 XMB layout (NanoMenuPS3Menu.cpp). Dev-gated during build-up; takes

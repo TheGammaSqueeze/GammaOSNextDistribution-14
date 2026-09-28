@@ -8870,6 +8870,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Boot Sound", SettingSource::kProp, "persist.gammaos.nano.boot_sound", "1", "0:Off,1:On"},
     // DSi looping menu ambiance (menu_ambiance.wav) - gated live in the ndsAmbianceTick call (DSi only).
     {"Menu Music", SettingSource::kProp, "persist.gammaos.nano.nds.ambiance", "1", "0:Off,1:On"},
+    // Game Settings: Quick Resume (persist.gammaos.nano.quick_resume, off by default; the home
+    // and drastic-nano read it at every launch and boot). The row applies live via the hook in
+    // closePs3Dialog (mQuickResumeEnabled), the Quick Menu X shortcut flips the same flag.
+    {"Quick Resume", SettingSource::kProp, "persist.gammaos.nano.quick_resume", "0", "0:Off,1:On"},
     {"Titles From ROM", SettingSource::kProp, "persist.gammaos.nano.nds.romtitle", "1", "0:Off,1:On"},
     // DSi carousel tile: a DS game's cartridge banner icon instead of its scraped cover (the cover
     // stays on the top screen). Requested on Discord 2026-09-27; read per frame into mNdsTileIcon.
@@ -11578,6 +11582,8 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     // DS Icons On Tiles: the tile renderer reads mNdsTileIcon (refreshed per frame
                     // from the prop in scraperArtTick); just repaint.
                     if (!strcmp(b->label, "DS Icons On Tiles")) mDisplayDirty = true;
+                    // Quick Resume: the launch paths read mQuickResumeEnabled, so mirror the row now.
+                    if (!strcmp(b->label, "Quick Resume")) mQuickResumeEnabled = (v == "1" || v == "true");
                     // XMB Wave on/off: apply live (the home is the resident overlay on the RG DS, so a
                     // property_set alone would not repaint). renderEffect reads mXmbWave every frame;
                     // mDisplayDirty above forces the repaint. Toggling it is the EXPLICIT user choice

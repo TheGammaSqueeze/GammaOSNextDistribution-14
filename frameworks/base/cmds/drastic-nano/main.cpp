@@ -4982,7 +4982,7 @@ int main(int argc, char** argv) {
     // power action) must leave slot 9 current, else the next boot resumes a stale /
     // missing state when the Auto Load toggle is off.
     bool qrPowerAction = (rlr.powerOffAfter || rlr.rebootAfter || rlr.quitShutdown);
-    bool qrEnabled = property_get_bool("persist.gammaos.nano.quick_resume", true);
+    bool qrEnabled = property_get_bool("persist.gammaos.nano.quick_resume", false);
     // exitToHome (back-hold) is a graceful close, so save slot 9 unconditionally
     // (the point is to preserve progress on the way out), independent of the Quick
     // Resume / Auto Load toggles.
@@ -5123,7 +5123,7 @@ int main(int argc, char** argv) {
     // race sys.powerctl (init acts on nano_action synchronously). This also skips
     // the SF overlay hand-back below, which would fight an in-progress shutdown.
     if (rlr.powerOffAfter || rlr.rebootAfter) {
-        if (property_get_bool("persist.gammaos.nano.quick_resume", true)) {
+        if (property_get_bool("persist.gammaos.nano.quick_resume", false)) {
             // Point the resume at THIS game. nano's boot handoff reads
             // /data/system/nano_qr_rom.txt (getQrRomPath), which can be stale from a
             // prior libretro/other launch, so write the current ROM there durably

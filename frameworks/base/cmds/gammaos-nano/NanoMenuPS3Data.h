@@ -71,6 +71,7 @@ static const Ps3DataItem kGameSettingsCh[] = {
   {"PS Upscaler",22,"Apply upscaling to PlayStation® format software.","Off",0,nullptr,0},
   {"PS/PS2 Smoothing",22,"Smooth out the rough edges of images of PlayStation® and PlayStation®2 format software.","Off",0,nullptr,0},
 #endif
+  {"Quick Resume",22,"Boots straight back into the game you were playing, restored from its save state, instead of the home. Off: every boot starts at the home. Applies from the next game launch.","Off",1,nullptr,0},
   {"Rescan Games",8,"Searches your ROM folders again and rebuilds the game list. Games you have deleted are removed, including from Recently Played.",nullptr,1,nullptr,0},
   {"DraStic Data Folder",62,"Where the DS core keeps your saves, save states and shader overrides. Default is drastic-nano on internal storage; pick any folder on internal storage, the SD card, removable media or a network share and DS games will read and write there. Existing files are not moved. Applies to the next game launch. Pick Use Default Folder to reset.","Default",1,nullptr,0},
   {"Boxart Scraper",25,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},
