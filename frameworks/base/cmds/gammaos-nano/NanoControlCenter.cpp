@@ -162,9 +162,21 @@ void ccReadCpu() {
 
 void ccReadGpu() {
     long long cur = readLLFile("/sys/class/devfreq/fde60000.gpu/cur_freq", 0);
-    long long mx  = readLLFile("/sys/class/devfreq/fde60000.gpu/max_freq", 900000000);
+    // The gauge is clock against the HARDWARE ceiling (the highest OPP), not max_freq: that is
+    // the governor cap the performance mode sets (400 MHz under Stock on the Plus), so a GPU
+    // pinned at its cap would read as a full ring in Stock and a half ring in Max. The OPP table
+    // is fixed, so read it once.
+    static long long sHwMax = 0;
+    if (sHwMax <= 0) {
+        if (FILE* f = fopen("/sys/class/devfreq/fde60000.gpu/available_frequencies", "r")) {
+            long long v;
+            while (fscanf(f, "%lld", &v) == 1) if (v > sHwMax) sHwMax = v;
+            fclose(f);
+        }
+        if (sHwMax <= 0) sHwMax = readLLFile("/sys/class/devfreq/fde60000.gpu/max_freq", 900000000);
+    }
     if (cur > 0) sCc.gpuMhz = (int)(cur / 1000000);
-    if (mx  > 0) sCc.gpuMaxMhz = (int)(mx / 1000000);
+    if (sHwMax > 0) sCc.gpuMaxMhz = (int)(sHwMax / 1000000);
     FILE* f = fopen("/sys/class/devfreq/fde60000.gpu/load", "r");
     if (f) {
         int pct = 0;
@@ -726,9 +738,15 @@ void NanoMenu::renderCcPass(int pass) {
         snprintf(pwrS, sizeof(pwrS), "%.1f", sCc.watts);
         snprintf(ramS, sizeof(ramS), "%.1f", sCc.ramUsedMb / 1024.0f);
         float ramFrac = sCc.ramTotalMb > 0 ? (float)sCc.ramUsedMb / sCc.ramTotalMb : 0;
+        // The CPU and GPU rings show the number they surround: the current clock against the
+        // hardware ceiling (cpuinfo_max_freq, the highest GPU OPP), so a chip at its top clock is
+        // a full ring whatever the performance mode caps it to. Utilisation stays in cpuPct /
+        // gpuPct for other readers.
+        float cpuFrac = sCc.cpuMaxMhz > 0 ? (float)sCc.cpuMhz / sCc.cpuMaxMhz : 0;
+        float gpuFrac = sCc.gpuMaxMhz > 0 ? (float)sCc.gpuMhz / sCc.gpuMaxMhz : 0;
         G gs[4] = {
-            { 440, 312, sCc.cpuPct/100.0f, 0.96f,0.2f,0.56f, cpuS, "GHz", "CPU" },
-            { 560, 312, sCc.gpuPct/100.0f, 0.24f,0.82f,0.98f, gpuS, "MHz", "GPU" },
+            { 440, 312, cpuFrac,           0.96f,0.2f,0.56f, cpuS, "GHz", "CPU" },
+            { 560, 312, gpuFrac,           0.24f,0.82f,0.98f, gpuS, "MHz", "GPU" },
             { 440, 400, sCc.watts/15.0f,   1.0f,0.62f,0.2f,   pwrS, "W",   "PWR" },
             { 560, 400, ramFrac,           0.45f,0.9f,0.42f,  ramS, "GB",  "RAM" },
         };
@@ -742,7 +760,10 @@ void NanoMenu::renderCcPass(int pass) {
                 ringArc(CX, CY, rI, rO, start, start + 2.0f*(float)M_PI*frac, g.r, g.g, g.b, 1.0f);   // arc (no glow pass)
             if (dy) numC(g.big, g.cx, g.cy - 15, 26.0f);
             if (st) textC(g.unit, g.cx, g.cy + 10, 12.0f, 0.62f, 0.66f, 0.76f, 1.0f);
-            if (st) textC(g.label, g.cx, g.cy + 30, 13.0f, g.r, g.g, g.b, 1.0f);
+            // The label sits on the bottom of the ring. In the arc's own colour it vanished once
+            // the arc passed the half-way mark (reported), and baked into the static layer it was
+            // painted over by the dynamic arc, so it is white and drawn after the arc every frame.
+            if (dy) textC(g.label, g.cx, g.cy + 30, 13.0f, 0.95f, 0.96f, 0.98f, 1.0f);
         }
     }
 
