@@ -4681,7 +4681,7 @@ void NanoMenu::buildCatItemVisibilityList(const std::string& catId, Ps3Level& ou
 enum {
     GSF_ENABLED = 0, GSF_NAME, GSF_SHORT, GSF_LTYPE, GSF_EMULATOR, GSF_CORE, GSF_PACKAGE,
     GSF_ARGS, GSF_INTENT, GSF_EXTS, GSF_SCAN, GSF_ICON, GSF_TINT,
-    GSF_SCRAPER, GSF_SCRAPE_USER, GSF_SCRAPE_PASS, GSF_SCRAPE_NOW, GSF_RESET, GSF_DELETE
+    GSF_SCRAPER, GSF_SCRAPE_USER, GSF_SCRAPE_PASS, GSF_SCRAPE_NOW, GSF_CLEAR_ART, GSF_RESET, GSF_DELETE
 };
 
 // Per-system scraper-override row value: "Default" (inherit global) or the chosen
@@ -4758,6 +4758,7 @@ void NanoMenu::buildGameSystemEditor(int sysIdx, Ps3Level& out) {
         sys.scrapePass.empty() ? std::string("Default")
                                : std::string((sys.scrapePass.size() > 8 ? 8 : sys.scrapePass.size()), '*'));
     add("Scrape This System", GSF_SCRAPE_NOW, "");
+    add("Clear Boxart", GSF_CLEAR_ART, "");
     if (sys.builtin) add("Reset to Default", GSF_RESET, "");
     else             add("Delete System", GSF_DELETE, "");
 }
@@ -4797,6 +4798,7 @@ void NanoMenu::gsEditField(int field) {
         case GSF_SCRAPE_USER:  gsEditScraperCred(false); return;
         case GSF_SCRAPE_PASS:  gsEditScraperCred(true); return;
         case GSF_SCRAPE_NOW:   scrapeOneSystem(idx); return;
+        case GSF_CLEAR_ART:    gsOpenClearArtConfirm(); return;
         case GSF_RESET:   gsOpenResetConfirm(); return;
         case GSF_DELETE:  gsOpenRemoveConfirm(idx); return;
         default: break;
@@ -4917,6 +4919,22 @@ void NanoMenu::gsEditScraperCred(bool masked) {
     });
     mOskPasswordMode = masked; mOskPlaintext = !masked;
     mOskQuery = cur; mOsk.caret = (int)mOskQuery.size();
+}
+
+// Clear Boxart: Cancel / Clear chooser (theme key 49). Deletes the edited system's scraped
+// covers, fanart and manifest entries on commit (case 49 in the dialog dispatch).
+void NanoMenu::gsOpenClearArtConfirm() {
+    if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgThemeKey = 49; mPs3DlgTitle = "Clear Boxart";
+    mPs3DlgBody = "Delete the downloaded box art and background art for every game in this system? The games and your saves are not affected. You can scrape the system again at any time.";
+    mPs3DlgOptions.push_back("Cancel");          mPs3DlgSwatch.push_back(-1);
+    mPs3DlgOptions.push_back("Clear Boxart");    mPs3DlgSwatch.push_back(-1);
+    mPs3DlgSel = 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgOrigSel = 0;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
 }
 
 void NanoMenu::gsOpenResetConfirm() {
@@ -5642,6 +5660,7 @@ void NanoMenu::ps3XmbSelect() {
             else if (mFolderPickTarget == 3) videoFolderSelect(it.payloadStr);
             else if (mFolderPickTarget == 4) { mFolderPickTarget = 0; gsAutoAddFromRoot(it.payloadStr); }
             else if (mFolderPickTarget == 5) { mFolderPickTarget = 0; drasticDataFolderSelect(it.payloadStr); }
+            else if (mFolderPickTarget == 7) { mFolderPickTarget = 0; boxartFolderSelect(it.payloadStr); }
             else if (mFolderPickTarget == 6) { stFolderPathSelect(it.payloadStr); }   // Syncthing: new folder path
             else gsFolderSelect(it.payloadStr);
             return;
@@ -5827,8 +5846,10 @@ void NanoMenu::ps3XmbSelect() {
             // storage: the native DS core then follows the moved folder instead of failing to find
             // BIOS and falling back to the scoped-broken standalone launch (#90). Opens the folder
             // browser (target 5); "Use Default Folder" at the roots clears it back to the app default.
-            if (it.label == "DraStic Data Folder") {
-                mFolderPickTarget = 5;
+            // Boxart Scraper: pick the folder scraped covers/fanart live in (persist.gammaos.scraper.dir),
+            // moving the existing art there. Folder browser target 7; "Use Default Folder" moves it back.
+            if (it.label == "Boxart Folder" || it.label == "DraStic Data Folder") {
+                mFolderPickTarget = (it.label == "Boxart Folder") ? 7 : 5;
                 std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
                 Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
                 mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
@@ -9606,9 +9627,9 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
     // #90 DraStic data-folder row: show the current override (its folder name) or "Default" when
     // unset. Read live (no binding/cache) so it reflects a just-picked folder immediately.
-    if (n == "DraStic Data Folder") {
+    if (n == "DraStic Data Folder" || n == "Boxart Folder") {
         char dd[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.drastic.data_dir", dd, "");
+        property_get(n == "Boxart Folder" ? "persist.gammaos.scraper.dir" : "persist.gammaos.drastic.data_dir", dd, "");
         if (dd[0] != '/') return std::string(trDyn("Default"));
         std::string p = dd; size_t sl = p.rfind('/');
         return (sl == std::string::npos || sl + 1 >= p.size()) ? p : p.substr(sl + 1);
@@ -11211,6 +11232,10 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             if (sel == 1 && mGsEditIdx >= 0) gsRemoveSystem(mGsEditIdx);
             break;
         }
+        case 49: {  // Game Systems editor: clear the system's scraped boxart (sel 1 = clear)
+            if (sel == 1 && mGsEditIdx >= 0) gsClearSystemArt(mGsEditIdx);
+            break;
+        }
         case 45: {  // Scan Folders: remove-scan-source confirm (sel 1 = remove the stashed source)
             if (sel == 1 && mGsRemoveSrcIdx >= 0) gsRemoveScanSource(mGsRemoveSrcIdx);
             mGsRemoveSrcIdx = -1;
@@ -11736,7 +11761,7 @@ void NanoMenu::closePs3Dialog(bool apply) {
             // wifi-radio, delete-playlist).
             switch (committedKey) {
                 case 6: case 22: case 23: case 30: case 31: case 32:
-                case 36: case 43: case 44: case 45: case 46: case 47: case 48:
+                case 36: case 43: case 44: case 45: case 46: case 47: case 48: case 49:
                     break;                                   // confirm/action, not a setting
                 default:
                     photoShowBanner(trDyn("Setting changed"));

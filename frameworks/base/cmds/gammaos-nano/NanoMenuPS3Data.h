@@ -58,6 +58,7 @@ static const Ps3DataItem kScraperSettingsCh[] = {
   // like ES-DE, so scraping works out of the box and users never enter them - only
   // the optional account above (ssuser/sspass) for a higher quota. Not in the UI.
   {"TheGamesDB API Key",22,"API key for TheGamesDB. Request one at thegamesdb.net.",nullptr,1,nullptr,0},
+  {"Boxart Folder",62,"Where scraped box art and background art are stored. Default is internal storage; pick a folder on the SD card or removable media to keep the art off internal storage. Existing art is moved to the new folder. If the card is removed the art is hidden until it is back. Pick Use Default Folder to move it back to internal storage.","Default",1,nullptr,0},
   {"Scrape All Systems",22,"Fetch box art and background art for every enabled game system now.",nullptr,1,nullptr,0},
 };
 // Game Settings now holds the two relevant editors (Game Systems, injected at

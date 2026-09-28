@@ -405,7 +405,8 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
         out.title = "Storage";
         // #90 DraStic data-folder picker (target 5): offer a reset-to-default at the top of the roots,
         // since the roots pseudo-folder has no "Select This Folder". Selecting it clears the override.
-        if (mFolderPickTarget == 5) {
+        // Same for the Boxart Folder picker (target 7): "Use Default Folder" moves the art back to internal.
+        if (mFolderPickTarget == 5 || mFolderPickTarget == 7) {
             Ps3Item it; it.label = "Use Default Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = "@default";
             it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
             out.items.push_back(it);

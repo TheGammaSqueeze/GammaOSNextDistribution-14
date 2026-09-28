@@ -3389,7 +3389,24 @@ private:
     std::string mScrapeError;              // terminal message (creds missing / network)
     std::vector<std::pair<std::string, ScrapeEntry>> mScrapePending;  // finished -> merge on drain
     bool mScrapeBox = true, mScrapeFan = true;   // snapshot of the enabled-media toggles for the worker
-    std::string mScrapeCacheDir = "/data/system/nano_scrape";
+    // Where scraped covers/fanart + index.json live. Default is internal storage; the Boxart
+    // Folder setting (persist.gammaos.scraper.dir) moves it to any browsable folder, typically the
+    // SD card. names.json (title overrides) always stays in the default internal dir.
+    static constexpr const char* kScrapeDefaultDir = "/data/system/nano_scrape";
+    std::string mScrapeCacheDir = kScrapeDefaultDir;
+    std::string scrapeIndexPath() const { return mScrapeCacheDir + "/index.json"; }
+    bool mScrapeDirAvail = true;           // the configured folder is reachable (external storage mounted)
+    int64_t mScrapeDirPollMs = 0;          // availability probe throttle (once a second, uptime)
+    std::string mScrapeMoveSrc, mScrapeMoveDst;   // relocation in flight: old/new folder ("" = none)
+    bool mScrapeMoveMode = false;          // the progress modal fronts a relocation (wording), until the next scrape
+    void scraperRefreshDir();              // read persist.gammaos.scraper.dir into mScrapeCacheDir
+    bool scraperDirAvailable() const;      // configured folder exists (default dir always counts)
+    void scraperStorageTick();             // per-frame: load when the SD mounts at boot/hotplug, drop on unplug
+    void boxartFolderSelect(const std::string& path);   // folder-picker target 7: relocate the cache
+    void scrapeMoveThreadFunc(std::vector<std::pair<std::string, ScrapeEntry>> entries,
+                              std::string src, std::string dst);
+    void gsOpenClearArtConfirm();          // Game Systems editor: Clear Boxart confirm (theme key 49)
+    void gsClearSystemArt(int sysIdx);     // delete the edited system's covers/fanart + manifest entries
     // Boxart icon textures: lazy per-ROM cover GL textures that replace the generic
     // cartridge icon, freed when leaving the Game category and on sleep/occlusion.
     struct BoxTex { GLuint tex = 0; float ar = 1.0f; };   // ar = width/height

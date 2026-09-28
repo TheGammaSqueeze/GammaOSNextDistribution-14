@@ -5869,6 +5869,10 @@ if (sRingPrimedCount >= 2) {
                     // nano_music.json if the OTHER nano process edited it. Both set
                     // mMusicCatsStale so the Music column rebuilds below.
                     musicDrainScanResults();
+                    // Boxart folder on the SD card: load it once the card mounts (boot or hotplug),
+                    // hide the art while it is pulled, and follow a folder change made by the other
+                    // nano process. Lives here, not in render(): the idle home draws no frames.
+                    scraperStorageTick();
                     // A scan deferred because external storage was not mounted yet
                     // retries here once the volume becomes reachable.
                     if (mMusicScanPending && !mMusicScanRunning && musicStorageReady())
