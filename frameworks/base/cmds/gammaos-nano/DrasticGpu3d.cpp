@@ -69,6 +69,7 @@
 #endif
 
 namespace android {
+bool drasticRaDirtyFault(void* addr);   // DrasticRunner.cpp: run-ahead dirty-page fault service
 
 extern "C" void gpu3dSetBandMask(uint32_t m);   // DrasticRunner.cpp (mode-5 band pipeline)
 extern "C" void gpu3dSetPending(int p);         // DrasticRunner.cpp: compose hook keeps waiting on bands while set
@@ -259,13 +260,21 @@ Gpu3d g;
 volatile int gStage = 0;          // last stage reached in gpu3dFrame (crash diagnostics)
 struct sigaction gPrevSegv{};
 void segvHandler(int sig, siginfo_t* si, void* uc) {
+    // Run-ahead write-protects its state pages and services the faults by address
+    // (DrasticRunner raDirtyFault). This logger is installed on the first GL init, so when
+    // GPU 3D is turned on AFTER run-ahead it sits above that handler and every expected
+    // dirty-page fault arrived here first; re-raising it lost the fault address and the
+    // process died on the first one (Pokemon White 2, both toggled in one menu visit).
+    if (sig == SIGSEGV && si && drasticRaDirtyFault(si->si_addr)) return;
     ucontext_t* u = static_cast<ucontext_t*>(uc);
     unsigned long pc = u ? u->uc_mcontext.pc : 0, lr = u ? u->uc_mcontext.regs[30] : 0;
     Dl_info di{}; const char* mod = dladdr((void*)pc, &di) && di.dli_fname ? di.dli_fname : "?";
     unsigned long off = di.dli_fbase ? pc - (unsigned long)di.dli_fbase : pc;
     ALOGE("gpu3d: SIGSEGV stage=%d addr=%p pc=%lx (%s+0x%lx) lr=%lx frame=%u", gStage, si ? si->si_addr : nullptr, pc, mod, off, lr, g.frame);
+    // Hand the ORIGINAL fault to whoever was below (debuggerd, or the run-ahead logger):
+    // restore that handler and return so the instruction re-executes into it. A raise()
+    // would deliver a signal with no fault address.
     sigaction(SIGSEGV, &gPrevSegv, nullptr);
-    raise(sig);
 }
 
 inline int64_t nowUs() {

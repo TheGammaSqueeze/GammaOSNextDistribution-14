@@ -8786,6 +8786,10 @@ bool raDumpFile(const char* path, const std::vector<uint8_t>& v) {
 }
 } // namespace
 
+// Exported for the GPU 3D module's crash logger: a write-protect fault that belongs to the
+// run-ahead dirty tracking must be serviced, not reported, whichever handler sits on top.
+bool drasticRaDirtyFault(void* addr) { return raDirtyFault(addr); }
+
 bool DrasticRunner::stepModeActive() const { return gStepMode.load(); }
 
 bool DrasticRunner::setStepMode(bool on) {
@@ -10157,6 +10161,12 @@ void DrasticRunner::raInstallCrashLogger() {
     sa.sa_flags = SA_SIGINFO | SA_NODEFER;
     sa.sa_sigaction = [](int sig, siginfo_t* si, void* uc) {
         if (sig == SIGSEGV && si && raDirtyFault(si->si_addr)) return;
+        // Put the previous handler back so the re-execution below (or a nested fault while
+        // logging) reaches it with the REAL siginfo. Never raise() into it: a raised signal
+        // carries no fault address, so a handler that services faults by address (the dirty
+        // tracking above, when it sits below another logger) cannot claim it and the process
+        // dies on a page fault that was expected (seen when GPU 3D initialised after run-ahead
+        // turned on).
         const struct sigaction& prev = sPrev[sig == SIGBUS ? 1 : 0];
         if ((prev.sa_flags & SA_SIGINFO) && prev.sa_sigaction) sigaction(sig, &prev, nullptr);
         else if (prev.sa_handler && prev.sa_handler != SIG_IGN) sigaction(sig, &prev, nullptr);
@@ -10175,7 +10185,8 @@ void DrasticRunner::raInstallCrashLogger() {
         for (int i = 0; i < kRaMaxRing; i++) if (gRaRing[i]) ALOGE("RAPROBE CRASH ring[%d]=%p len %zu%s", i, gRaRing[i], gRaRingLen[i], (si && (uint8_t*)si->si_addr >= gRaRing[i] && (uint8_t*)si->si_addr <= gRaRing[i] + kRaStateBufSize) ? "  <-- fault" : "");
         ALOGE("RAPROBE CRASH retired %p %p scratch=%p burst=%d parkOp=%d ringNext=%d count=%d loadBuf=%p saveBuf=%p", gRaRetired[0], gRaRetired[1], gRaScratchSlots, gRaBurst.load() ? 1 : 0, gRaParkOp.load(), gRaRingNext.load(), gRaRingCount.load(), gRaLoadBuf.load(), gRaSaveBuf.load());
         raLogGx("CRASH");
-        raise(sig);
+        // Return: the faulting instruction re-executes and the handler restored above (or
+        // the default action) sees the original fault, address included.
     };
     sigaction(SIGSEGV, &sa, &sPrev[0]);
     sigaction(SIGBUS, &sa, &sPrev[1]);
