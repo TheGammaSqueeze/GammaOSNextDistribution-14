@@ -25,6 +25,7 @@
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
+#include <atomic>
 #include <thread>
 #include <unistd.h>
 #include <math.h>
@@ -164,14 +165,35 @@ void NanoMenu::applyBrightness() {
     syncBrightnessToAndroid();
 }
 
+// The Settings.System mirror is a `settings put`, a forked shell plus a Java process: never on
+// the render thread, and never twice for the same level. One helper thread at normal priority
+// pushes the LATEST requested level; a burst of changes (a held brightness key, the boot
+// assertion) collapses into one push of the final value. The persist property, which nano reads
+// itself at boot, is written right away.
 void NanoMenu::syncBrightnessToAndroid() {
-    char cmd[128];
-    snprintf(cmd, sizeof(cmd), "settings put system screen_brightness %d &", mBrightness);
-    system(cmd);
-    // Also persist for early boot before settings provider is up
     char buf[16];
     snprintf(buf, sizeof(buf), "%d", mBrightness);
     property_set("persist.gammaos.nano.brightness", buf);
+    static std::atomic<int> sPending{-1};      // latest level to push (-1 none)
+    static std::atomic<int> sPushed{-1};       // last level handed to `settings put`
+    static std::atomic<bool> sRunning{false};
+    if (sPushed.load() == mBrightness && sPending.load() < 0) return;   // already mirrored
+    sPending.store(mBrightness);
+    if (sRunning.exchange(true)) return;       // the worker drains sPending before it exits
+    std::thread([]() {
+        nanoThreadNormalPriority();
+        for (;;) {
+            const int lvl = sPending.exchange(-1);
+            if (lvl < 0) break;
+            sPushed.store(lvl);
+            char cmd[128];
+            snprintf(cmd, sizeof(cmd), "settings put system screen_brightness %d 2>/dev/null", lvl);
+            (void)system(cmd);
+        }
+        sRunning.store(false);
+        // A level queued between the last exchange and the flag clear is picked up by the next
+        // call (it sees sPending >= 0 and starts a new worker).
+    }).detach();
 }
 
 int NanoMenu::readAndroidBrightness() {

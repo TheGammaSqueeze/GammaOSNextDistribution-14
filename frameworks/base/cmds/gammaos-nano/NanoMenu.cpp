@@ -5355,7 +5355,18 @@ if (sRingPrimedCount >= 2) {
                     applyBrightness();
                     sBootBrightnessAsserted = true;
                 } else if (!sBootBrightnessAsserted) {
-                    applyBrightness();
+                    // Assert once per VALUE, not once per tick. This branch stays live until the
+                    // settings provider confirms the level, and that confirmation is deliberately
+                    // skipped while the setup wizard runs (below), so applyBrightness ran here every
+                    // tick for the whole wizard: each call forked a shell on the render thread that
+                    // ran a Java `settings put` (measured 4 forks a second, 70 to 100 ms frames, the
+                    // wizard and the DSi boot intro at 35 fps on the RG DS Plus). The panel level is
+                    // already asserted by the first call; a changed value re-asserts through it.
+                    static int sBootAssertedValue = -1;
+                    if (sBootAssertedValue != mBrightness) {
+                        sBootAssertedValue = mBrightness;
+                        applyBrightness();
+                    }
                     // Do NOT read back via popen("settings get") on the render thread while the setup
                     // wizard runs. popen forks this mlockall'd process (already slow) + execs a JVM that
                     // binders into a system_server saturated by first-boot pm-install/dexopt, blocking the
