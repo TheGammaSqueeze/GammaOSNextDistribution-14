@@ -312,6 +312,7 @@ void NanoMenu::startSetupScript() {
     }
     mSetupLogScrollTop = 0;
     mSetupScriptDone = false;
+    mSetupScriptDoneMs = 0;
     mSetupScriptRunning = true;
     mSetupLogExitRequested = false;
 
@@ -870,6 +871,20 @@ void NanoMenu::renderSetupWizard() {
         }
     }
 
+    // Auto-advance: once setup.sh has finished, move on to the finish screen by itself after
+    // 10 s. The "Continue" footer hint with its Start glyph left people unsure what to press
+    // (reported 2026-09-27), and there is nothing left to decide on this screen. Pressing
+    // Start still continues at once.
+    if (mSetupStep == SETUP_INSTALLING && mSetupScriptDone && !mSetupTransitioning) {
+        const int64_t now = elapsedRealtime();
+        if (mSetupScriptDoneMs == 0) mSetupScriptDoneMs = now;
+        else if (now - mSetupScriptDoneMs >= 10000) {
+            ALOGI("NanoMenu: setup script finished 10 s ago, continuing to the finish screen");
+            mSetupScriptDoneMs = 0;
+            advanceSetupStep();
+        }
+    }
+
     // Light dim over wallpaper (skip on welcome for clean iOS-style look; skip on
     // the timezone step too - the 3D globe is its own opaque backdrop, matching
     // the web tzglobe screen which draws no dim panel). Under the DSi theme the
@@ -1281,6 +1296,14 @@ void NanoMenu::renderSetupInstalling() {
     float hintY = Y(909.0f);
     if (mSetupScriptDone) {
         ps3DlgHintG(XC(VW * 0.5f), 2, "Continue", hintY, S, alpha);
+        // Countdown to the automatic continue (see renderSetupWizard), so the screen says what
+        // happens next instead of waiting on a glyph the user may not recognise.
+        if (mSetupScriptDoneMs > 0) {
+            int left = (int)((10000 - (elapsedRealtime() - mSetupScriptDoneMs) + 999) / 1000);
+            if (left < 0) left = 0; if (left > 10) left = 10;
+            char buf[64]; snprintf(buf, sizeof(buf), tr(STR_SETUP_INSTALL_AUTO), left);
+            ps3DlgText(buf, XC(VW * 0.5f), Y(946.0f), FS(18.0f), 0.9f, 0.9f, 0.95f, 0.75f * alpha, 1);
+        }
     } else {
         ps3DlgText(tr(STR_SETUP_INSTALL_WAIT), XC(VW * 0.5f), Y(916.0f), FS(20.0f),
                    0.9f, 0.9f, 0.95f, 0.9f * alpha, 1);

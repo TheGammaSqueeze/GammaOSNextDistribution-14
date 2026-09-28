@@ -528,6 +528,8 @@ EN_ONLY("Configuration Complete"),
 EN_ONLY("Please wait..."),
 // STR_SETUP_INSTALL_CONTINUE
 EN_ONLY("Start: Continue"),
+// STR_SETUP_INSTALL_AUTO
+EN_ONLY("Continuing in %d s"),
 // STR_SETUP_INSTALL_STARTING
 EN_ONLY("Starting system configuration..."),
 // STR_SETUP_INSTALL_BOOT_WAIT

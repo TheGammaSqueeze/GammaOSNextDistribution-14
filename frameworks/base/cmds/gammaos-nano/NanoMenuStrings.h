@@ -99,6 +99,7 @@ enum StringId {
     STR_SETUP_INSTALL_DONE,      // "Configuration Complete"
     STR_SETUP_INSTALL_WAIT,      // "Please wait..."
     STR_SETUP_INSTALL_CONTINUE,  // "Start: Continue"
+    STR_SETUP_INSTALL_AUTO,      // "Continuing in %d s"
     STR_SETUP_INSTALL_STARTING,  // "Starting system configuration..."
     STR_SETUP_INSTALL_BOOT_WAIT, // "Waiting for system boot to complete..."
     STR_SETUP_FINISH_TITLE,      // "You're all set!"

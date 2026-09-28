@@ -5356,6 +5356,7 @@ private:
     // spike does not stutter the animation or its final presented frame.
     bool mSetupScriptPending = false;
     int64_t mSetupScriptReadyMs = 0;   // 0 = grace not armed yet
+    int64_t mSetupScriptDoneMs = 0;    // when setup.sh finished (uptime ms); the installing step auto-advances 10 s later
     std::thread mSetupLogThread;
     std::mutex mSetupLogMutex;
     bool mSetupLogExitRequested;
