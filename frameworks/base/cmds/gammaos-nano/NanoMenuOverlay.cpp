@@ -681,7 +681,12 @@ void NanoMenu::overlayGpuUnpark() {
     } else if (mOverlayGpuParked) {
         initGlassIcons();
         ps3LoadCatIcons();
-        buildPs3Cats();
+        // Rebuild by LABEL, not by index. The launch that parked us added the game to
+        // Recently Played (and may have starred, pinned or collected it), which inserts
+        // "Recently Played" / Favorites / Pinned Apps / Collections entries at the front of
+        // the Game column; the plain rebuild kept the old item index, so after the first
+        // ever game the home came back one tile early (a NDS launch landed on N64).
+        rebuildPs3CatsPreserveSel();
     }
     if (mOverlayMode && !ps3bg::ready()) {
         ps3bg::init();

@@ -466,12 +466,28 @@ GLuint NanoMenu::iconTexForIcon(int iconIndex) {
 // Persist the DSi carousel nav path before a launch hands off. nano exits on launch and the
 // post-game launcher / home is a FRESH process, so the path (category + the chain of selected
 // indices down to the launched card) is written to a prop and replayed on the next start so we
-// come back centred on the exact card we launched from. Format: "catIdx|sel0,sel1,sel2,...".
+// come back centred on the exact card we launched from. Format: "catIdx|kind:a:b,kind:a:b,...", see below.
+// Each step is the selected item's IDENTITY "kind:a:b" (a system tile carries its mXmbSystems
+// index in a, a ROM its system and ROM indices in a/b), not its slot in the list: the launch
+// itself adds the game to Recently Played, which inserts a "Recently Played" entry at the front
+// of the Game column on the first ever launch (Favorites / Pinned Apps / Collections appear the
+// same way), so a saved slot index landed one tile early on return (NDS came back as N64).
+// A bare number is the pre-identity format and is still accepted as a slot index.
 void NanoMenu::ndsSaveReturnPath() {
     if (!mNdsTheme || mNdsAtRoot) return;
     if (mPs3CatIdx < 0 || mPs3CatIdx >= (int)mPs3Cats.size()) return;
-    std::string s = std::to_string(mPs3CatIdx) + "|" + std::to_string(mPs3ItemIdx);
-    for (const auto& lvl : mPs3Stack) s += "," + std::to_string(lvl.sel);
+    auto ident = [](const std::vector<Ps3Item>& items, int sel) {
+        if (sel < 0 || sel >= (int)items.size()) return std::string("0");
+        const Ps3Item& it = items[sel];
+        return std::to_string(it.kind) + ":" + std::to_string(it.a) + ":" + std::to_string(it.b);
+    };
+    std::string s = std::to_string(mPs3CatIdx) + "|" + ident(mPs3Cats[mPs3CatIdx].items, mPs3ItemIdx);
+    for (const auto& lvl : mPs3Stack) s += "," + ident(lvl.items, lvl.sel);
+    if (s.size() >= PROPERTY_VALUE_MAX) {   // deeper than the property holds: keep what fits (whole steps)
+        s.resize(PROPERTY_VALUE_MAX - 1);
+        const size_t comma = s.rfind(',');
+        if (comma != std::string::npos) s.resize(comma);
+    }
     property_set("sys.gammaos.nano.nds_return", s.c_str());
 }
 
@@ -502,15 +518,31 @@ void NanoMenu::ndsRestoreReturnPath() {
     *bar = '\0';
     int catIdx = atoi(buf);
     if (catIdx < 0 || catIdx >= (int)mPs3Cats.size()) return;
-    std::vector<int> chain;
-    for (char* tok = strtok(bar + 1, ","); tok; tok = strtok(nullptr, ",")) chain.push_back(atoi(tok));
+    // One step per level: an identity "kind:a:b" (resolved against the level's current items,
+    // so it is immune to entries inserted or removed by the launch) or a legacy slot index.
+    struct Step { bool byId = false; int kind = 0, a = 0, b = 0, slot = 0; };
+    std::vector<Step> chain;
+    for (char* tok = strtok(bar + 1, ","); tok; tok = strtok(nullptr, ",")) {
+        Step st;
+        if (sscanf(tok, "%d:%d:%d", &st.kind, &st.a, &st.b) == 3) st.byId = true;
+        else st.slot = atoi(tok);
+        chain.push_back(st);
+    }
     if (chain.empty()) return;
+    auto resolve = [](const Step& st, const std::vector<Ps3Item>& items) {
+        const int n = (int)items.size();
+        if (st.byId) {
+            for (int i = 0; i < n; i++)
+                if (items[i].kind == st.kind && items[i].a == st.a && items[i].b == st.b) return i;
+            return 0;   // the item is gone (ROM deleted, system hidden): the level's first card
+        }
+        return (st.slot >= 0 && st.slot < n) ? st.slot : 0;
+    };
 
     mNdsAtRoot = false;
     mPs3CatIdx = catIdx;
     mPs3Stack.clear();
-    const int n0 = (int)mPs3Cats[catIdx].items.size();
-    mPs3ItemIdx = (chain[0] >= 0 && chain[0] < n0) ? chain[0] : 0;
+    mPs3ItemIdx = resolve(chain[0], mPs3Cats[catIdx].items);
 
     // Snapshot everything a stray leaf-drill could arm, so the replay can never hand a launch back to
     // the fresh process; restored unconditionally after the loop.
@@ -528,7 +560,7 @@ void NanoMenu::ndsRestoreReturnPath() {
         // A Recently Played level reorders on launch (the just-played game moves to the front of
         // the list), so the saved slot index is stale on return - land on the front card instead.
         bool recentLvl = nk > 0 && mPs3Stack.back().items[0].kind == PS3_RECENT;
-        int want = recentLvl ? 0 : chain[i];
+        int want = recentLvl ? 0 : resolve(chain[i], mPs3Stack.back().items);
         ps3CurSel() = (nk > 0 && want >= 0 && want < nk) ? want : 0;
     }
     // A settings LIST category (Quick Menu / System Settings) must not drop the user INTO the list on
@@ -1709,24 +1741,39 @@ void NanoMenu::buildPs3Cats() {
 // by label after the rebuild. Only called at the settled XMB root.
 void NanoMenu::rebuildPs3CatsPreserveSel() {
     int catIdx = mPs3CatIdx;
-    std::vector<std::string> selLabels(mPs3Cats.size());
+    // Remember each category's focused item by IDENTITY (kind + payload a/b, which is the
+    // mXmbSystems index for a system tile, the action for a Quick Menu row, and so on), with
+    // the label only as a tiebreaker. Two items can share a label (a user-added system named
+    // like a builtin one, two games with the same title), so a label alone can refocus the
+    // wrong one; the identity cannot.
+    struct SelKey { bool valid = false; int kind = 0, a = 0, b = 0; std::string label; };
+    std::vector<SelKey> keys(mPs3Cats.size());
     for (size_t c = 0; c < mPs3Cats.size(); c++) {
         int s = ((int)c == catIdx) ? mPs3ItemIdx
               : (c < mPs3CatItemSel.size() ? mPs3CatItemSel[c] : 0);
-        if (s >= 0 && s < (int)mPs3Cats[c].items.size())
-            selLabels[c] = mPs3Cats[c].items[s].label;
+        if (s >= 0 && s < (int)mPs3Cats[c].items.size()) {
+            const Ps3Item& it = mPs3Cats[c].items[s];
+            keys[c] = { true, it.kind, it.a, it.b, it.label };
+        }
     }
     buildPs3Cats();
     if (catIdx >= 0 && catIdx < (int)mPs3Cats.size()) mPs3CatIdx = catIdx;
-    for (size_t c = 0; c < mPs3Cats.size() && c < selLabels.size(); c++) {
-        if (selLabels[c].empty()) continue;
-        for (size_t i = 0; i < mPs3Cats[c].items.size(); i++) {
-            if (mPs3Cats[c].items[i].label == selLabels[c]) {
-                mPs3CatItemSel[c] = (int)i;
-                if ((int)c == mPs3CatIdx) mPs3ItemIdx = (int)i;
-                break;
-            }
-        }
+    for (size_t c = 0; c < mPs3Cats.size() && c < keys.size(); c++) {
+        const SelKey& k = keys[c];
+        if (!k.valid) continue;
+        const auto& its = mPs3Cats[c].items;
+        int found = -1;
+        // 1. full identity including the label; 2. identity alone (an item relabeled in the
+        // rebuild, e.g. a renamed system); 3. label alone (items whose kind carries no payload).
+        for (size_t i = 0; i < its.size() && found < 0; i++)
+            if (its[i].kind == k.kind && its[i].a == k.a && its[i].b == k.b && its[i].label == k.label) found = (int)i;
+        for (size_t i = 0; i < its.size() && found < 0; i++)
+            if (its[i].kind == k.kind && its[i].a == k.a && its[i].b == k.b) found = (int)i;
+        for (size_t i = 0; i < its.size() && found < 0; i++)
+            if (its[i].label == k.label) found = (int)i;
+        if (found < 0) continue;
+        if (c < mPs3CatItemSel.size()) mPs3CatItemSel[c] = found;
+        if ((int)c == mPs3CatIdx) mPs3ItemIdx = found;
     }
 }
 
