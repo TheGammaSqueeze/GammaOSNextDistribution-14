@@ -106,6 +106,12 @@ struct TexEntry {
     int w = 0, h = 0;
 };
 constexpr int kSmall = 256, kSmallLayers = 128, kBig = 1024, kBigLayers = 4, kPalRows = 512;
+// The small atlas and the palette rows GROW on demand (texFor asks, the GL thread reallocates
+// before the next uploads and copies the old layers across): Mario and Luigi Bowser's Inside
+// Story keeps about 130 textures live in one room, more than the 128 layers, and every polygon
+// that got no layer drew untextured (white floor, missing walls and toads). Games that fit in
+// 128 layers never pay for more Mali memory. 512 layers = 32 MB, the ceiling.
+constexpr int kSmallLayersMax = 512;
 // Compressed (5) and direct colour (7) textures: drastic's cache keeps them decoded to one colour
 // word per texel (its bytes-per-texel table, lib+0x10ebfc: 4 for both), r, g, b 6-bit and a 5-bit
 // bytes like the palette words. They live in two RGBA8 arrays of their own.
@@ -234,6 +240,9 @@ struct Gpu3d {
     uint32_t fogPolys = 0;   // polygons with the fog bit (census)
     int smallNext = 0, bigNext = 0, palNext = 0, dirNext = 0, dirBigNext = 0;
     std::vector<int> freeSmall, freeBig, freePal, freeDir, freeDirBig;   // layers released by evicted entries
+    int smallLayers = kSmallLayers, palRows = kPalRows;   // worker-side capacity (grows, see kSmallLayersMax)
+    int smallLayersGl = kSmallLayers, palRowsGl = kPalRows;   // what the GL thread has allocated
+    std::atomic<int> growWant{0};   // worker -> GL thread: reallocate the small atlas to this many layers
     uint32_t atlasGen = 0;   // bumped by a reset or an eviction pass: cached TexEntry pointers are stale
     GLuint dirTex = 0, dirBigTex = 0;
     bool fbFetch = false;
@@ -933,6 +942,7 @@ bool initGl() {
     };
     arr(g.smallTex, GL_TEXTURE0, GL_R8UI, kSmall, kSmall, kSmallLayers);
     arr(g.palTex, GL_TEXTURE1, GL_RGBA8, 256, 1, kPalRows);
+    g.smallLayersGl = kSmallLayers; g.palRowsGl = kPalRows;
     // The big and direct-colour pools (4 + 16 + 8 MB of Mali memory, which nothing can page out)
     // get their storage the first time a game asks for a layer (ensurePool, GL thread); most games
     // never do. Until then the units hold texture objects without storage, which sample as zero.
@@ -1210,9 +1220,47 @@ bool allocLayer(bool big, int& layer, int& pal, bool direct = false) {
         pal = 0;
         return big ? takeLayer(g.freeDirBig, g.dirBigNext, kDirBigLayers, layer) : takeLayer(g.freeDir, g.dirNext, kDirLayers, layer);
     }
-    if (!takeLayer(g.freePal, g.palNext, kPalRows, pal)) return false;
-    if (!(big ? takeLayer(g.freeBig, g.bigNext, kBigLayers, layer) : takeLayer(g.freeSmall, g.smallNext, kSmallLayers, layer))) { g.freePal.push_back(pal); return false; }
+    if (!takeLayer(g.freePal, g.palNext, g.palRows, pal)) return false;
+    if (!(big ? takeLayer(g.freeBig, g.bigNext, kBigLayers, layer) : takeLayer(g.freeSmall, g.smallNext, g.smallLayers, layer))) { g.freePal.push_back(pal); return false; }
     return true;
+}
+// Worker: the small pool (or the palette rows every entry needs) is full; ask for a bigger one.
+// The capacity takes effect here at once (the indices handed out are valid in the array the GL
+// thread creates before it touches this job's uploads), so the frame that overflowed renders
+// complete.
+static bool growSmallAtlas() {
+    if (g.smallLayers >= kSmallLayersMax) return false;
+    g.smallLayers = std::min(kSmallLayersMax, g.smallLayers * 2);
+    g.palRows = g.smallLayers * (kPalRows / kSmallLayers);   // the shipped ratio (4 rows per layer: two slots per entry, with headroom)
+    g.growWant.store(g.smallLayers, std::memory_order_release);
+    ALOGI("gpu3d: small texture atlas grows to %d layers, %d palette rows (frame %u, %zu entries live)",
+          g.smallLayers, g.palRows, g.frame, g.texCache.size());
+    return true;
+}
+// GL thread, before a job's uploads: reallocate the small atlas and the palette rows to the size
+// the worker asked for, keeping every layer already uploaded (copied on the GPU).
+static void growAtlasIfWanted() {
+    const int want = g.growWant.exchange(0, std::memory_order_acq_rel);
+    if (want <= g.smallLayersGl) return;
+    typedef void (GL_APIENTRY* CopyFn)(GLuint, GLenum, GLint, GLint, GLint, GLint, GLuint, GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei);
+    static CopyFn pCopy = nullptr; static bool looked = false;
+    if (!looked) { looked = true; pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubData"); if (!pCopy) pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubDataEXT"); if (!pCopy) pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubDataOES"); }
+    if (!pCopy) { ALOGW("gpu3d: no glCopyImageSubData, the small texture atlas stays at %d layers", g.smallLayersGl); g.growWant.store(0); return; }
+    const int wantPal = want * (kPalRows / kSmallLayers);   // the same ratio the worker uses for g.palRows
+    auto regrow = [&](GLuint& tex, GLenum unit, GLenum ifmt, GLenum fmt, int w, int h, int oldLayers, int newLayers) {
+        GLuint nt = 0; glGenTextures(1, &nt); glActiveTexture(unit); glBindTexture(GL_TEXTURE_2D_ARRAY, nt);
+        glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, ifmt, w, h, newLayers);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        std::vector<uint8_t> z((size_t)w * h * (ifmt == GL_RGBA8 ? 4 : 1), 0);
+        for (int l = oldLayers; l < newLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, w, h, 1, fmt, GL_UNSIGNED_BYTE, z.data());
+        pCopy(tex, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, nt, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, w, h, oldLayers);
+        glDeleteTextures(1, &tex); tex = nt;
+    };
+    regrow(g.smallTex, GL_TEXTURE0, GL_R8UI, GL_RED_INTEGER, kSmall, kSmall, g.smallLayersGl, want);
+    if (wantPal > g.palRowsGl) regrow(g.palTex, GL_TEXTURE1, GL_RGBA8, GL_RGBA, 256, 1, g.palRowsGl, wantPal);
+    const GLenum err = glGetError();
+    ALOGI("gpu3d: small texture atlas now %d layers and %d palette rows (was %d / %d), gl error 0x%x", want, wantPal > g.palRowsGl ? wantPal : g.palRowsGl, g.smallLayersGl, g.palRowsGl, err);
+    g.smallLayersGl = want; if (wantPal > g.palRowsGl) g.palRowsGl = wantPal;
 }
 // Release both slots of an entry back to the free lists.
 static void releaseEntry(const TexEntry& t) {
@@ -1311,13 +1359,19 @@ TexEntry* texFor(uint64_t entryPtr, uint32_t texp) {
     const bool big = bigNow;
     if (fresh || t.sl[want] < 0) {
         int layer, pal;
-        if (!allocLayer(big, layer, pal, direct)) {
+        bool got = allocLayer(big, layer, pal, direct);
+        // A full small pool (or palette rows) grows before anything is evicted: eviction only
+        // frees entries older than this frame, so a frame that needs more than the pool holds
+        // rendered its remaining textured polygons untextured, every frame (Mario and Luigi).
+        while (!got && !direct && !big && growSmallAtlas()) got = allocLayer(big, layer, pal, direct);
+        if (!got) {
             // Evict entries unused for 120 frames, then anything but this frame's, then reset.
             // The map may rehash on erase, so re-fetch this entry afterwards.
             const size_t before = g.texCache.size();
             size_t ev = evictStale(120);
             if (!ev) ev = evictStale(1);
-            ALOGW("gpu3d: texture layers exhausted at frame %u (%zu entries), evicted %zu", g.frame, before, ev);
+            { static uint32_t sLastFrame = ~0u; if (g.frame != sLastFrame) { sLastFrame = g.frame;   // once per frame, not per polygon
+              ALOGW("gpu3d: texture layers exhausted at frame %u (%zu entries), evicted %zu", g.frame, before, ev); } }
             if (!ev) { resetAtlas(); }
             TexEntry& t2 = g.texCache[entryPtr];
             if (t2.layer >= 0) { releaseEntry(t2); t2.layer = -1; }   // this entry survived the eviction: its old slots come back first
@@ -2178,6 +2232,7 @@ void renderJob(Job& j) {
     // uploads now binds each array once. glActiveTexture stays per upload (it selects which unit
     // the glTexSubImage3D writes, and the palette upload switches the active unit), but it is a
     // cheap selector, not the driver-validated bind. Correct for any upload order.
+    growAtlasIfWanted();   // the worker may have handed out layers past the allocated count
     GLuint bnd0 = 0, bnd1 = 0, bnd2 = 0, bnd5 = 0, bnd6 = 0;   // 0 = unknown, force first bind
     for (Upload& u : j.uploads) {
         if (u.direct) {
@@ -2938,6 +2993,7 @@ static void destroyGl() {
         delFb(g.fbo2); delFb(g.edgeFbo2); delFb(g.msFbo2); delTex(g.colorTex2); delTex(g.edgeTex2); g.set2Ok = g.set2Tried = false;
         delTex(g.smallTex); delTex(g.bigTex); delTex(g.palTex); delTex(g.dirTex); delTex(g.dirBigTex);
         sBigPool = sDirPool = sDirBigPool = false;
+        g.smallLayers = g.smallLayersGl = kSmallLayers; g.palRows = g.palRowsGl = kPalRows; g.growWant.store(0);
         delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
         delPr(g.progNoFetchVZ); delPr(g.progOpaqueVZ); delPr(g.progNoFetchNFVZ); delPr(g.progOpaqueNFVZ); g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
