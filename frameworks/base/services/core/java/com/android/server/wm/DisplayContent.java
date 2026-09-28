@@ -2449,6 +2449,12 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
      * Compute display info and configuration according to the given rotation without changing
      * current display.
      */
+    /** GammaOS: the transient uinput devices gammapad creates for its mouse mode. */
+    private static boolean isGammapadVirtualDevice(InputDevice device) {
+        final String name = device.getName();
+        return name != null && name.startsWith("GammaOS Virtual ");
+    }
+
     DisplayInfo computeScreenConfiguration(Configuration outConfig, int rotation) {
         final boolean rotated = (rotation == ROTATION_90 || rotation == ROTATION_270);
         final int dw = rotated ? mBaseDisplayHeight : mBaseDisplayWidth;
@@ -2560,6 +2566,16 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
             InputDevice device = devices[i];
             // Ignore virtual input device.
             if (device.isVirtual()) {
+                continue;
+            }
+            // GammaOS: gammapad's mouse mode creates a uinput mouse and touchscreen when it is
+            // switched on and destroys them when it is switched off (Select+R1, the Control
+            // Center tile). Counting them here made the display's touchscreen configuration
+            // flip on every toggle, which relaunched every foreground activity that does not
+            // handle the touchscreen config change (native games crashed on the relaunch).
+            // They are helpers for the cursor, not hardware: the configuration follows the
+            // real panels only.
+            if (isGammapadVirtualDevice(device)) {
                 continue;
             }
 
