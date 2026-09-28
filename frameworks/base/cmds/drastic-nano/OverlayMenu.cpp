@@ -6,6 +6,7 @@
 
 #include "OverlayMenu.h"
 
+#include <atomic>
 #include <thread>
 #include <string>
 #include <unordered_map>
@@ -45,6 +46,9 @@
 #include <android/hardware/light/2.0/ILight.h>   // HIDL fallback (Brick backlight)
 #include <android/binder_manager.h>
 #include <cutils/properties.h>
+#include <media/AudioDeviceTypeAddr.h>
+#include <media/AudioSystem.h>
+#include <system/audio.h>
 
 #include "NanoBacklight.h"
 #include "NanoSliderHud.h"   // shared volume/brightness slider spec (gammaos-nano)
@@ -1983,16 +1987,91 @@ void OverlayMenu::addCustomCheatFlow() {
     });
 }
 
+// ---------------------------------------------------------------------------
+// Direct volume. PhoneWindowManager still owns the system volume (it steps every
+// stream from the SAME physical key and publishes persist.gammaos.nano.volume), but
+// its step runs inside system_server: measured on the RG DS Plus in Pokemon White 2,
+// the key reached the policy 100 to 400 ms late and the first press after a pause
+// took 1.2 s to move the music stream, because system_server is starved by the
+// FIFO emulator threads and partly swapped out on 1 GB. So the press also sets the
+// music stream index straight through audioserver from here, within a few ms; the
+// framework's own step then lands on the same index (it reads its cached level and
+// adds the direction, exactly what this computes), so nothing is applied twice.
+// One tiny thread of its own (not the settings worker: a queued persist write was
+// measured at up to 400 ms in game and the press must not wait behind it). Presses
+// are coalesced into one pending delta; the base index is re-read from audioserver
+// at the start of each burst and tracked locally inside it.
+// ---------------------------------------------------------------------------
+namespace {
+std::mutex gVolMu;
+std::condition_variable gVolCv;
+int gVolPendingDelta = 0;        // presses not yet applied (+1 / -1 each)
+bool gVolThreadStarted = false;
+std::atomic<int> gVolApplied{-1};   // last index applied directly (-1 = none yet)
+
+audio_devices_t volDeviceForMusic() {
+    audio_attributes_t attr = AUDIO_ATTRIBUTES_INITIALIZER;
+    attr.usage = AUDIO_USAGE_MEDIA;
+    attr.content_type = AUDIO_CONTENT_TYPE_MUSIC;
+    android::AudioDeviceTypeAddrVector devs;
+    if (android::AudioSystem::getDevicesForAttributes(attr, &devs, true /*forVolume*/) == android::NO_ERROR
+            && !devs.empty() && devs[0].mType != AUDIO_DEVICE_NONE)
+        return devs[0].mType;
+    return AUDIO_DEVICE_OUT_SPEAKER;
+}
+
+void volThreadMain() {
+    int base = -1;                 // index audioserver holds at the start of the burst
+    int64_t lastApplyMs = 0;
+    for (;;) {
+        int delta;
+        {
+            std::unique_lock<std::mutex> lk(gVolMu);
+            gVolCv.wait(lk, [] { return gVolPendingDelta != 0; });
+            delta = gVolPendingDelta; gVolPendingDelta = 0;
+        }
+        const int64_t t0 = android::elapsedRealtime();
+        const audio_devices_t dev = volDeviceForMusic();
+        if (base < 0 || t0 - lastApplyMs > 1500) {   // new burst: re-sync from audioserver
+            int cur = -1;
+            if (android::AudioSystem::getStreamVolumeIndex(AUDIO_STREAM_MUSIC, &cur, dev) == android::NO_ERROR && cur >= 0)
+                base = cur;
+            else if (base < 0) { ALOGW("drastic-nano volume: could not read the music index"); continue; }
+        }
+        int maxIdx = 15;
+        { char v[PROPERTY_VALUE_MAX] = {}; property_get("persist.gammaos.nano.volmax", v, ""); if (v[0] && atoi(v) > 0) maxIdx = atoi(v); }
+        int next = base + delta;
+        if (next < 0) next = 0;
+        if (next > maxIdx) next = maxIdx;
+        const android::status_t st = android::AudioSystem::setStreamVolumeIndex(AUDIO_STREAM_MUSIC, next, dev);
+        lastApplyMs = android::elapsedRealtime();
+        if (st == android::NO_ERROR) { base = next; gVolApplied.store(next, std::memory_order_relaxed); }
+        ALOGI("drastic-nano volume: music index %d (delta %+d, device 0x%x) %s in %lld ms",
+              next, delta, (unsigned)dev, st == android::NO_ERROR ? "applied" : "FAILED", (long long)(lastApplyMs - t0));
+        if (st != android::NO_ERROR) base = -1;    // re-read next time
+    }
+}
+
+void volPressAsync(int dir) {
+    std::lock_guard<std::mutex> lk(gVolMu);
+    if (!gVolThreadStarted) { gVolThreadStarted = true; std::thread(volThreadMain).detach(); }
+    gVolPendingDelta += dir;
+    gVolCv.notify_one();
+}
+} // namespace
+
 void OverlayMenu::adjustVolume(int dir) {
     // The Android system volume is the single authority: PhoneWindowManager sets
     // every audible stream and publishes persist.gammaos.nano.volume/volmax from the
     // SAME physical VOL key we just read (we do not grab input), and the DS core's
-    // output goes through STREAM_MUSIC so that level already controls it. So this is
-    // DISPLAY-ONLY -- we do NOT touch the DS core's internal mixer (pinned at max in
-    // main). Mirror gammaos-nano's slider: re-sync the base from PWM's published
-    // index at the start of a burst, then move optimistically for instant feedback
-    // while PWM catches up and re-publishes. This path only runs on the DRM backend;
-    // in SF mode the overlay draws the slider and main does not call us.
+    // output goes through STREAM_MUSIC so that level already controls it. The DS
+    // core's internal mixer is never touched (pinned at max in main). The music
+    // stream index is ALSO set directly through audioserver (volPressAsync above) so
+    // the level moves within a few ms even when system_server is slow; the HUD
+    // mirrors gammaos-nano's slider: re-sync the base from PWM's published index at
+    // the start of a burst, then move optimistically for instant feedback while PWM
+    // catches up and re-publishes. This path only runs on the DRM backend; in SF
+    // mode the overlay draws the slider and main does not call us.
     char vmax[PROPERTY_VALUE_MAX] = {};
     shadowPropGet("persist.gammaos.nano.volmax", vmax, "");
     if (vmax[0]) { int m = atoi(vmax); if (m > 0) mSysVolMax = m; }
@@ -2000,11 +2079,16 @@ void OverlayMenu::adjustVolume(int dir) {
         char cur[PROPERTY_VALUE_MAX] = {};
         shadowPropGet("persist.gammaos.nano.volume", cur, "");
         if (cur[0]) mSysVol = atoi(cur);
+        // If the direct path applied an index the framework has not published yet,
+        // that is the truer base (PWM publishes seconds late in a heavy scene).
+        const int applied = gVolApplied.load(std::memory_order_relaxed);
+        if (applied >= 0 && applied != mSysVol) mSysVol = applied;
     }
     mSysVol += dir;
     if (mSysVol < 0)          mSysVol = 0;
     if (mSysVol > mSysVolMax) mSysVol = mSysVolMax;
     mVolHudTimer = 90;   // ~1.5s at 60fps
+    volPressAsync(dir);
 }
 
 // Mirror the in-game brightness level into the framework's authoritative store,
