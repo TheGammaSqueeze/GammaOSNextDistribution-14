@@ -202,6 +202,7 @@ struct Gpu3d {
     GLuint attrTex = 0, edgeProg = 0, edgeFbo = 0, edgeTex = 0, edgeVao = 0;
     // 4x supersampling: a second set of targets at 1024x768 and a resolve pass into the 2x ones
     GLuint ssFbo = 0, ssColor = 0, ssAttr = 0, ssDepth = 0, ssEdgeFbo = 0, ssEdgeTex = 0, resolveProg = 0;
+    std::atomic<bool> ssChanged{false};   // GL thread saw a new supersampling option; the emulator side resets the budget guard
     GLuint msFbo = 0, msColor = 0, msDepth = 0; int msSamples = 0;   // 4x MSAA on the 2x target
     GLuint msFbo2x = 0, msDepth2x = 0;   // a second, always-2-sample MSAA target sharing colorTex,
                                          // bound for transient sync frames without a depth-RB rebuild
@@ -2216,6 +2217,13 @@ void renderJob(Job& j) {
             property_get("sys.gammaos.drastic_nano.gpu3d_ss_mode", mode, "msaa");
             if (strcmp(mode, "ssaa") != 0 && g.msSamples >= 2) ssOpt = 3;   // 4x MSAA on the 2x target (default)
         }
+        static int sLogged = -1;
+        if (ssOpt != sLogged) {   // the setting can change mid-session (menu row); say what took effect
+            if (sLogged >= 0) g.ssChanged.store(true, std::memory_order_release);
+            sLogged = ssOpt;
+            ALOGI("gpu3d: supersampling option %d (%s), %d-sample target", ssOpt,
+                  ssOpt == 3 ? "4x MSAA" : ssOpt == 2 ? "SSAA" : "off", g.msSamples);
+        }
     }
     if (ssOpt == 2 && !ensureSsaaBuffers()) ssOpt = 1;   // SSAA buffers are lazy; fall back if they fail
     g.ss = ssOpt;
@@ -3291,6 +3299,14 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         // Decoupled mode (below) renders whole frames into a buffer the compositor is not reading,
         // so its budget is the frame period: a job that stays above 16 ms cannot keep up.
         static int budgetMs = 6; if ((g.frame & 63) == 0 || g.frame < 3) budgetMs = property_get_int32("sys.gammaos.drastic_nano.gpu3d_budget_ms", gDecoupleWanted ? 16 : 6);
+        // A supersampling change is a new configuration: forget the budget history of the old
+        // one (4x over budget counted up while it could not shed, then the first non-MSAA frame
+        // tripped the sticky CPU fallback at once) and give a 4x turned back on its GPU path
+        // again; otherwise the row looked inert for the rest of the session.
+        if (g.ssChanged.exchange(false, std::memory_order_acq_rel)) {
+            if (g.backoffFrames) ALOGI("gpu3d: supersampling changed, leaving the CPU fallback");
+            g.emaUs = 0.f; g.overBudget = 0; g.backoffFrames = 0; g.backoffElapsed = 0; g.msaaUnder = 0;
+        }
         if (g.backoffFrames) {
             // Sticky for the session: a retry costs one over-budget frame and on Pokemon the
             // retry's first GPU frame once stalled for 12 s (fps 50 for 14 s), so a scene that

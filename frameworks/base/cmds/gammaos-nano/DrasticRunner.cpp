@@ -3829,6 +3829,25 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             // off) goes through the same cave; gxFrameEntry picks the original by the flag.
             if (*reinterpret_cast<uint32_t*>(base + 0x5f3cc) == 0x97ffe9fau) patchBl(0x5f3cc, kCaveGxPre);
             else ALOGW("DrasticRunner: gx dump probes: unexpected code at the native 3D site, native frames stay on the CPU");
+            // Threaded 3D OFF: the two sites above belong to the 3D worker thread. Without it
+            // drastic renders through the synchronous dispatcher at +0x5f2b4, which makes the
+            // same hi-res choice and TAIL-CALLS the same two renderers (+0x5f2c0: b +0x5eebc,
+            // +0x5f2c4: b +0x59bb4), and those were never routed here: the GPU 3D renderer only
+            // ever ran with Threaded 3D on, and turning it on from the menu did nothing for
+            // everyone else (reported as "GPU 3D and 4x do not apply"). A plain branch into the
+            // same cave keeps the tail-call contract: x0/x1 are the renderer's arguments and
+            // x30 is the dispatcher's caller, which the cave's ret returns to.
+            auto patchB = [&](uintptr_t site, uintptr_t target) {
+                intptr_t d = (intptr_t)target - (intptr_t)site;
+                *reinterpret_cast<uint32_t*>(base + site) = 0x14000000u | (uint32_t)((d >> 2) & 0x03ffffff);
+            };
+            if (*reinterpret_cast<uint32_t*>(base + 0x5f2c0) == 0x17fffeffu &&
+                *reinterpret_cast<uint32_t*>(base + 0x5f2c4) == 0x17ffea3cu) {
+                patchB(0x5f2c0, kCaveGxPre);
+                patchB(0x5f2c4, kCaveGxPre);
+            } else {
+                ALOGW("DrasticRunner: gx dump probes: unexpected code at the synchronous 3D sites, the GPU renderer needs Threaded 3D");
+            }
             __builtin___clear_cache((char*)(base + kCaveGxPre), (char*)(base + kCaveGxPre + 64));
             __builtin___clear_cache((char*)pgA, (char*)pgA + ps);
             gGxLibBase = base;
