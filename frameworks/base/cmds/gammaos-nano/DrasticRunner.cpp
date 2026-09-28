@@ -3648,11 +3648,14 @@ static void aaRestartDrasticPlayer();
 static void aaCloseSink();
 
 // libdrastic's SetPlayState(PLAYING) call sites (each a `blr x8` right after `mov w1, #3` with x0
-// loaded from the SLPlayItf slot at +0x3c7d030): end of the player creation routine, the
-// prime-and-start when emulation begins, and the two resume-after-pause paths. While the AAudio
-// sink is wanted they are nops, so no drastic path can put a track on AudioFlinger's mixer behind
-// the exclusive stream; the fallback restores them.
-static const uintptr_t kAaPlaySites[] = {0x1d9a0, 0x1db74, 0x1e4fc, 0x1e5e0};
+// loaded from the SLPlayItf slot at +0x3c7d030): end of the player creation routine and the two
+// resume-after-pause paths. While the AAudio sink is wanted they are nops, so no drastic path can
+// put a track on AudioFlinger's mixer behind the exclusive stream; the fallback restores them.
+// +0x1db74 used to be in this list: it matches the same `mov w1, #3` / `blr x8` shape but its x0
+// comes from +0x3c7d048, the SLRecordItf, inside the microphone recorder creator (+0x1da98). It is
+// SetRecordState(SL_RECORDSTATE_RECORDING), and with it stubbed the DS microphone was realized and
+// primed but never started, so no input ever opened while the sink was active (the RG DS Plus).
+static const uintptr_t kAaPlaySites[] = {0x1d9a0, 0x1e4fc, 0x1e5e0};
 static uint32_t gAaPlaySiteOrig[4];
 static bool gAaPlaySitesDisabled = false;
 static void aaPatchPlaySites(uint8_t* base, long ps, bool disable) {
@@ -5190,7 +5193,19 @@ std::atomic<uint32_t> gClockMatchSkips{0};   // submits handed to drastic's disc
 std::atomic<int>  gClockMatchAvgX100{150};   // last 4 s average queue depth, chunks x100 (gates the emergency top-up)
 static int16_t gAudCarry[64]; static uint32_t gAudCarryN = 0;   // emulator thread only
 static int sAudFrameFix = -1;
+// While the AAudio sink owns the output, drastic's own copy of each chunk must not reach its
+// OpenSL player. The skip byte at ctx+0x40027 is NOT the lever for that: it is the first test in
+// the submit (+0x1dd6c) and bails out ahead of the lazy microphone open and the per-frame mic pump
+// (both sit before the output enqueue), so with the byte set every frame the DS microphone never
+// starts (the RG DS Plus, where the MMAP fast path is live; the RG DS falls back to the OpenSL
+// player and the byte stays clear). The word at +0x3c9b048 is drastic's own "sound disabled" flag
+// (written from _SoundEnabled by applyConfig and startGame, read only by the output enqueue at
+// +0x1de80 / +0x1e0dc / +0x1e0fc, after the mic pump) so it skips exactly the output. It is set for
+// the duration of one submit and put back in the post-hook, so a live applyConfig cannot be clobbered.
+static uint32_t sAaOutOffSaved = 0; static bool sAaOutOffSet = false;
+static inline uint32_t* aaSoundOffFlag() { return gAudLibBase ? reinterpret_cast<uint32_t*>(gAudLibBase + 0x3c9b048) : nullptr; }
 extern "C" void raAudioSubmitPost(uint8_t* ctx) {
+    if (sAaOutOffSet) { if (uint32_t* f = aaSoundOffFlag()) *f = sAaOutOffSaved; sAaOutOffSet = false; }
     // The submit zeroed the count (both its copy and its drop path).
     if (gAudCarryN == 0) return;
     if (*reinterpret_cast<uint32_t*>(ctx + 0x4000c) != 0) { gAudCarryN = 0; return; }   // unexpected: do not corrupt
@@ -5220,6 +5235,10 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
         static int sAaKnob = -1; if (sAaKnob < 0) sAaKnob = android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_aaudio", 1);
         static bool sAaSetSkip = false;
         if (sAaSetSkip) { ctx[0x40027] = 0; sAaSetSkip = false; }   // the discard we asked for on the previous call
+        // Drastic's own audio pause (+0x1e320) also sets the discard byte and only its resume entry
+        // at +0x1e490 clears it; the launch hold leaves it set. While the sink owns the output the byte
+        // must never gate the submit (it would also keep the microphone from ever opening), so clear it.
+        if (sAaKnob && gAaudioSink.load(std::memory_order_relaxed)) ctx[0x40027] = 0;
         // The sink opens on its own thread (aaStartOpener, normally started when the probe was
         // installed, before drastic created its player). Drastic's player is stopped and stubbed at
         // the first submit in case it exists; chunks are dropped until the sink is up.
@@ -5355,7 +5374,9 @@ extern "C" void raAudioSubmitHook(uint8_t* ctx) {
             gAaHead.store(head, std::memory_order_release);
             sLast[0] = in[(size_t)(fin - 1) * 2]; sLast[1] = in[(size_t)(fin - 1) * 2 + 1];
             sPhase = pos - (double)fin;
-            ctx[0x40027] = 1; sAaSetSkip = true;   // drastic discards its copy; cleared again on our next call
+            // Let the submit run (microphone open + pump) but skip its output enqueue: see aaSoundOffFlag.
+            if (uint32_t* f = aaSoundOffFlag()) { sAaOutOffSaved = *f; *f = 1; sAaOutOffSet = true; }
+            else { ctx[0x40027] = 1; sAaSetSkip = true; }   // no library base yet: fall back to the discard byte
             gAudSubmitCalls.fetch_add(1, std::memory_order_relaxed);
             gAudSubmitPub.store(gAudSubmitCalls.load(std::memory_order_relaxed), std::memory_order_relaxed);
             return;
