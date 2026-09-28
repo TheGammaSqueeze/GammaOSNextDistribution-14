@@ -406,7 +406,7 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
         // #90 DraStic data-folder picker (target 5): offer a reset-to-default at the top of the roots,
         // since the roots pseudo-folder has no "Select This Folder". Selecting it clears the override.
         // Same for the Boxart Folder picker (target 7): "Use Default Folder" moves the art back to internal.
-        if (mFolderPickTarget == 5 || mFolderPickTarget == 7) {
+        if (mFolderPickTarget == 5 || mFolderPickTarget == 7 || mFolderPickTarget == 8) {
             Ps3Item it; it.label = "Use Default Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = "@default";
             it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
             out.items.push_back(it);
@@ -615,22 +615,32 @@ void NanoMenu::gsFolderSelect(const std::string& path) {
 // and must be writable. Empty / "@default" (the "Use Default Folder" row) resets to
 // /sdcard/drastic-nano. Existing files are not moved. Pops the browser back to Game Settings.
 void NanoMenu::drasticDataFolderSelect(const std::string& path) {
+    drasticFolderSelect("persist.gammaos.drastic.data_dir", "DraStic data folder", path);
+}
+
+// The DraStic cheats folder (the user's usrcheat.dat files), persist.gammaos.drastic.cheats_dir.
+// Default is <data folder>/cheats. Same rules as the data folder; folder-picker target 8.
+void NanoMenu::drasticCheatsFolderSelect(const std::string& path) {
+    drasticFolderSelect("persist.gammaos.drastic.cheats_dir", "DraStic cheats folder", path);
+}
+
+void NanoMenu::drasticFolderSelect(const char* prop, const char* what, const std::string& path) {
     if (path.empty() || path == "@default") {
-        property_set("persist.gammaos.drastic.data_dir", "");
-        photoShowBanner(trDyn("DraStic data folder: Default"));
-        ALOGI("ps3menu: DraStic data folder reset to default");
+        property_set(prop, "");
+        photoShowBanner(trDyn((std::string(what) + ": Default").c_str()));
+        ALOGI("ps3menu: %s reset to default", what);
     } else {
         std::string p = path;
         while (p.size() > 1 && p.back() == '/') p.pop_back();
         struct stat st = {};
         if (stat(p.c_str(), &st) != 0) ::mkdir(p.c_str(), 0775);
         if (stat(p.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || access(p.c_str(), W_OK) != 0) {
-            photoShowBanner(trDyn("DraStic data folder: not writable"));
-            ALOGW("ps3menu: DraStic data folder %s rejected: %s", p.c_str(), strerror(errno));
+            photoShowBanner(trDyn((std::string(what) + ": not writable").c_str()));
+            ALOGW("ps3menu: %s %s rejected: %s", what, p.c_str(), strerror(errno));
         } else {
-            property_set("persist.gammaos.drastic.data_dir", p.c_str());
-            photoShowBanner(trDyn("DraStic data folder set (next game launch)"));
-            ALOGI("ps3menu: DraStic data folder -> %s", p.c_str());
+            property_set(prop, p.c_str());
+            photoShowBanner(trDyn((std::string(what) + " set (next game launch)").c_str()));
+            ALOGI("ps3menu: %s -> %s", what, p.c_str());
         }
     }
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE) mPs3Stack.pop_back();

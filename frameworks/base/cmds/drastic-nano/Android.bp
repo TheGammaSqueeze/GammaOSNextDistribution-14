@@ -59,6 +59,7 @@ cc_binary {
         "main.cpp",
         "DrasticPrefs.cpp",
         "DrasticAssets.cpp",
+        "DrasticCheatDb.cpp",
         "InputMap.cpp",
         "OverlayGfx.cpp",
         "OverlayMenu.cpp",

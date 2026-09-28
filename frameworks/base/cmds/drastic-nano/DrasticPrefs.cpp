@@ -602,6 +602,8 @@ std::vector<std::string> overrideKeys() {
         "sf_half_res", "sf_16bit", "drm_half_res",
         "runahead_mode", "runahead_frames", "phys_lid_close", "lid_sleep_delay_ms", "ff_limit",
         "ra_show_challenge_badges", "ra_show_progress_toast",
+        // The device performance mode for this game (DrasticPerf.h); empty = the global mode.
+        "performance_mode",
     };
     for (int a = 0; a < kNumActions; a++) keys.push_back(keyName(a));
     return keys;

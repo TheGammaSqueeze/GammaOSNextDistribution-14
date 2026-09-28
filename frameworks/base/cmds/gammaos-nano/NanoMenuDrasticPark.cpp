@@ -211,6 +211,9 @@ bool NanoMenu::drasticParkSession() {
             }
         }
     }
+    // A per-game performance mode parks the global one in perf_restore and drastic-nano puts
+    // it back on exit; if the session ended without that (killed, power cut), do it here.
+    drasticPerfRestoreCheck();
     // session_done is set right before the process returns from main; its DRM
     // fd (and master) goes away when the process is gone. Wait for that so the
     // SET_MASTER below does not race the exit.

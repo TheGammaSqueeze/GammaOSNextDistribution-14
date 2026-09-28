@@ -5661,6 +5661,7 @@ void NanoMenu::ps3XmbSelect() {
             else if (mFolderPickTarget == 4) { mFolderPickTarget = 0; gsAutoAddFromRoot(it.payloadStr); }
             else if (mFolderPickTarget == 5) { mFolderPickTarget = 0; drasticDataFolderSelect(it.payloadStr); }
             else if (mFolderPickTarget == 7) { mFolderPickTarget = 0; boxartFolderSelect(it.payloadStr); }
+            else if (mFolderPickTarget == 8) { mFolderPickTarget = 0; drasticCheatsFolderSelect(it.payloadStr); }
             else if (mFolderPickTarget == 6) { stFolderPathSelect(it.payloadStr); }   // Syncthing: new folder path
             else gsFolderSelect(it.payloadStr);
             return;
@@ -5848,8 +5849,10 @@ void NanoMenu::ps3XmbSelect() {
             // browser (target 5); "Use Default Folder" at the roots clears it back to the app default.
             // Boxart Scraper: pick the folder scraped covers/fanart live in (persist.gammaos.scraper.dir),
             // moving the existing art there. Folder browser target 7; "Use Default Folder" moves it back.
-            if (it.label == "Boxart Folder" || it.label == "DraStic Data Folder") {
-                mFolderPickTarget = (it.label == "Boxart Folder") ? 7 : 5;
+            // DraStic Cheats Folder: the user's cheat databases (persist.gammaos.drastic.cheats_dir),
+            // folder browser target 8.
+            if (it.label == "Boxart Folder" || it.label == "DraStic Data Folder" || it.label == "DraStic Cheats Folder") {
+                mFolderPickTarget = (it.label == "Boxart Folder") ? 7 : (it.label == "DraStic Cheats Folder") ? 8 : 5;
                 std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
                 Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
                 mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
@@ -9627,9 +9630,11 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
     const std::string& n = it.label;
     // #90 DraStic data-folder row: show the current override (its folder name) or "Default" when
     // unset. Read live (no binding/cache) so it reflects a just-picked folder immediately.
-    if (n == "DraStic Data Folder" || n == "Boxart Folder") {
+    if (n == "DraStic Data Folder" || n == "Boxart Folder" || n == "DraStic Cheats Folder") {
         char dd[PROPERTY_VALUE_MAX] = {};
-        property_get(n == "Boxart Folder" ? "persist.gammaos.scraper.dir" : "persist.gammaos.drastic.data_dir", dd, "");
+        property_get(n == "Boxart Folder" ? "persist.gammaos.scraper.dir"
+                     : n == "DraStic Cheats Folder" ? "persist.gammaos.drastic.cheats_dir"
+                                                     : "persist.gammaos.drastic.data_dir", dd, "");
         if (dd[0] != '/') return std::string(trDyn("Default"));
         std::string p = dd; size_t sl = p.rfind('/');
         return (sl == std::string::npos || sl + 1 >= p.size()) ? p : p.substr(sl + 1);

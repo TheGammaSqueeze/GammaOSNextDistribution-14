@@ -1254,8 +1254,25 @@ void NanoMenu::nanoRestorePerfClock() {
     nanoApplyPerfClock(mode);
 }
 
+// drastic-nano parks the user's global performance mode in persist.gammaos.drastic.perf_restore
+// while a game with a per-game mode runs and restores it at exit. The home repeats the restore
+// whenever it takes over (a fresh start after session_done, a crashed or killed session, a
+// reboot mid-game), so the user's choice always comes back.
+void NanoMenu::drasticPerfRestoreCheck() {
+    char saved[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.drastic.perf_restore", saved, "");
+    if (!saved[0]) return;
+    if (strcmp(saved, "max") == 0 || strcmp(saved, "stock") == 0 || strcmp(saved, "powersave") == 0) {
+        property_set("persist.gammaos.performance_mode", saved);
+        nanoApplyPerfClock(saved);
+        ALOGI("NanoMenu: restored the global performance mode %s after a per-game override", saved);
+    }
+    property_set("persist.gammaos.drastic.perf_restore", "");
+}
+
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
+    drasticPerfRestoreCheck();
 
     // GammaOS: Real-time boost for the render thread.
     //

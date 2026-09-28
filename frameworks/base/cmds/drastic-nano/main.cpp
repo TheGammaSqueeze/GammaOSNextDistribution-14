@@ -103,6 +103,7 @@
 #include "NanoZipExtract.h"
 #include "NanoLoadingScreen.h"
 #include "DrasticAssets.h"
+#include "DrasticPerf.h"
 #include "DisplayBackend.h"
 #include "SfDisplayBackend.h"
 #include "DsScreenLayout.h"
@@ -692,6 +693,7 @@ void restoreDeepCpuIdle() {
 // context, so we only touch property_set (bionic does an atomic
 // property write) -- no logcat, no locale-dependent functions.
 void crashCleanup(int sig) {
+    android::drastic_perf::restoreGlobal();   // the per-game performance mode must not outlive the game
     property_set(kSessionDoneProp, "1");
     // On the SurfaceFlinger / overlay-home path a crash otherwise leaves
     // app_launched=1 set (runLoopSf re-asserts it every frame), so the resident
@@ -4570,6 +4572,9 @@ int main(int argc, char** argv) {
                 ALOGI("drastic-nano: no per-game override for %s, global settings apply", base.c_str());
             }
         }
+        // A per-game performance mode replaces the global one for this session (the global
+        // value is parked and restored at exit, see DrasticPerf.h).
+        android::drastic_perf::applyOverrideAtLaunch();
     }
 
     // Read the user's drastic SharedPreferences so the overlay menu
@@ -4915,6 +4920,7 @@ int main(int argc, char** argv) {
                  /*firmwareBdayDay=*/prefs.firmwareBdayDay,
                  /*firmwareNick=*/prefs.firmwareNick)) {
         ALOGE("drastic-nano: DrasticRunner::init failed");
+        android::drastic_perf::restoreGlobal();
         property_set(kSessionDoneProp, "1");
         return 7;
     }
@@ -5183,6 +5189,7 @@ int main(int argc, char** argv) {
     // caller's synchronous nano_action -> sys.powerctl. The caller detects our exit
     // by scanning /proc, not by session_done.
     if (rlr.quitShutdown) {
+        android::drastic_perf::restoreGlobal();
         ALOGI("drastic-nano: exit (external shutdown quit, caller owns the power action)");
         return 0;
     }
@@ -5213,6 +5220,7 @@ int main(int argc, char** argv) {
 
     // SF was never stopped, so with that launcher state set the session_done
     // trigger brings nano back up on the XMB.
+    android::drastic_perf::restoreGlobal();
     property_set(kSessionDoneProp, "1");
     ALOGI("drastic-nano: exit");
     return 0;

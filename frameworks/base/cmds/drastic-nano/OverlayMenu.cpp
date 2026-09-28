@@ -18,6 +18,7 @@
 #include "NanoI18n.h"   // trDyn() shared nano UI translations
 #include "NanoRetroAchievements.h"   // RaUiEvent
 #include "DrasticAssets.h"   // legacy DraStic saves import
+#include "DrasticPerf.h"     // per-game performance mode
 #include "DrasticSettings.h"   // per-game override aware property access
 
 #include <dirent.h>
@@ -230,6 +231,7 @@ void OverlayMenu::init(DrasticRunner* runner,
     mSavestatesDir = std::move(savestatesDir);
     mShadersDir = std::move(shadersDir);
 
+    mRomPath = romPath;
     // Rom basename: last path component, no extension.
     size_t slash = romPath.find_last_of('/');
     std::string name = (slash == std::string::npos)
@@ -851,6 +853,14 @@ void OverlayMenu::createPerGameOverride() {
     mWrittenPrefs = mPrefs;
     mDirty = false;
     clearPropShadow();
+    // The performance mode in force right now becomes this game's mode (the snapshot
+    // could only read the empty drastic_nano key), so the game keeps it whatever the
+    // global setting is changed to later.
+    {
+        char cur[PROPERTY_VALUE_MAX] = {};
+        property_get(drastic_perf::kGlobalProp, cur, "stock");
+        drastic_settings::set(drastic_perf::kOverrideProp, cur);
+    }
     toast("Per-game override created");
 }
 
@@ -861,6 +871,7 @@ void OverlayMenu::deletePerGameOverride() {
     // run loops read the globals on their next poll.
     drastic_settings::remove();
     clearPropShadow();
+    drastic_perf::restoreGlobal();   // back to the global performance mode right away
     drastic_prefs::Prefs p = drastic_prefs::launchDefaults();
     drastic_prefs::applyProps(&p);
     const std::string prevFx = mPrefs.currentFx;
@@ -1594,9 +1605,22 @@ void OverlayMenu::rebuildGeneral() {
         r.onAdjust = [currentIdx](int dir) {
             int idx = currentIdx();
             idx = (idx + dir + kModeCount) % kModeCount;
+            if (drastic_settings::overrideActive()) {
+                // Per-game: the choice goes to the override file and the global mode is
+                // parked for restore at exit; the device switches now either way.
+                drastic_settings::set(drastic_perf::kOverrideProp, kModes[idx]);
+                char saved[PROPERTY_VALUE_MAX] = {};
+                property_get(drastic_perf::kRestoreProp, saved, "");
+                if (!saved[0]) {
+                    char cur[PROPERTY_VALUE_MAX] = {};
+                    property_get(drastic_perf::kGlobalProp, cur, "stock");
+                    setPropAsync(drastic_perf::kRestoreProp, cur);
+                }
+            }
             setPropAsync("persist.gammaos.performance_mode", kModes[idx]);
             setPropAsync("ctl.start", kSvcs[idx]);
-            ALOGI("drastic-nano: overlay switched to %s", kModes[idx]);
+            ALOGI("drastic-nano: overlay switched to %s%s", kModes[idx],
+                  drastic_settings::overrideActive() ? " (per-game)" : "");
         };
         mRows.push_back(std::move(r));
     }
@@ -1899,6 +1923,16 @@ void OverlayMenu::buildCheatModel() {
             cf.childNames.push_back(mRunner->cheatName(g));
         }
         mCheatFolders.push_back(std::move(cf));
+    }
+
+    // Built-in versus user-file split of the preloaded list (a game the user's files do
+    // not touch is all built in).
+    {
+        drastic_assets::CheatSplit sp = drastic_assets::cheatSplitFor(
+                drastic_assets::rootDir(), mRomPath, cheatTotal, folderCount);
+        mBuiltinCheats = sp.builtinCheats;
+        mBuiltinFolders = sp.builtinFolders;
+        mUserCheatFiles = sp.userFiles;
     }
 
     // Cache custom cheat names (parallel to index) so per-input rebuilds
@@ -2501,16 +2535,26 @@ void OverlayMenu::rebuildCheats() {
         mRows.push_back(std::move(r));
     }
 
-    // Show filter: All / Enabled / Disabled. Cycle with A or Left/Right.
+    // Show filter: All / Enabled / Disabled / Built-in / Custom. Cycle with A or Left/Right.
+    // Built-in = the shipped database; Custom = the user's cheat files plus cheats added by
+    // hand on this page.
     {
-        static const char* const kShow[] = {"All", "Enabled", "Disabled"};
+        static const char* const kShow[] = {"All", "Enabled", "Disabled", "Built-in", "Custom"};
         RowAction r;
         r.label = "Show";
-        r.value = kShow[mCheatShow % 3];
-        r.onAccept = [this]() { mCheatShow = (mCheatShow + 1) % 3; };
+        r.value = kShow[mCheatShow % kCheatShowCount];
+        r.onAccept = [this]() { mCheatShow = (mCheatShow + 1) % kCheatShowCount; };
         r.onAdjust = [this](int dir) {
-            mCheatShow = (mCheatShow + (dir > 0 ? 1 : 2)) % 3;
+            mCheatShow = (mCheatShow + (dir > 0 ? 1 : kCheatShowCount - 1)) % kCheatShowCount;
         };
+        mRows.push_back(std::move(r));
+    }
+    // Where the user's own databases go (see drastic_assets::cheatsDir). Read only.
+    {
+        RowAction r;
+        r.label = "Cheat files";
+        const std::string dir = drastic_assets::cheatsDir();
+        r.value = std::to_string(mUserCheatFiles) + " in " + dir;
         mRows.push_back(std::move(r));
     }
 
@@ -2561,10 +2605,14 @@ void OverlayMenu::rebuildCheats() {
             const std::string& nm = ci < cf.childNames.size()
                     ? cf.childNames[ci] : std::string();
             if (!cheatMatchesFilter(nm)) continue;
-            if (mCheatShow != 0) {
+            if (mCheatShow == 1 || mCheatShow == 2) {
                 bool on = mRunner->cheatEnabled(cf.children[ci]);
                 if (mCheatShow == 1 && !on) continue;   // Enabled only
                 if (mCheatShow == 2 && on)  continue;   // Disabled only
+            } else if (mCheatShow == 3 || mCheatShow == 4) {
+                bool user = mBuiltinCheats >= 0 && cf.children[ci] >= mBuiltinCheats;
+                if (mCheatShow == 3 && user)  continue;  // Built-in only
+                if (mCheatShow == 4 && !user) continue;  // Custom only
             }
             match.push_back(ci);
         }
@@ -2573,7 +2621,11 @@ void OverlayMenu::rebuildCheats() {
         {
             RowAction h;
             h.label = cf.name.empty() ? "Cheats" : cf.name;
-            h.value = cf.multiSelect ? "" : "(one)";
+            // A folder that came from the user's files is marked so the two sources can be
+            // told apart in the All view; the synthetic Assorted folder is last and unmarked.
+            const bool userFolder = mBuiltinFolders >= 0 && (int)fi >= mBuiltinFolders
+                                    && (int)fi < mRunner->cheatFolderCount();
+            h.value = std::string(cf.multiSelect ? "" : "(one)") + (userFolder ? " (custom)" : "");
             mRows.push_back(std::move(h));
         }
         for (size_t ci : match) {
@@ -2601,7 +2653,8 @@ void OverlayMenu::rebuildCheats() {
 
     // Custom (user) cheats: an Add row + a toggle row per cached custom
     // cheat (filtered). Toggling persists with the preloaded set on close.
-    if (mRunner->hasCustomCheatApi()) {
+    // Hidden under the Built-in view.
+    if (mRunner->hasCustomCheatApi() && mCheatShow != 3) {
         {
             RowAction h;
             h.label = "Custom Cheats";
@@ -2615,7 +2668,7 @@ void OverlayMenu::rebuildCheats() {
         }
         for (size_t i = 0; i < mCustomCheatNames.size(); i++) {
             if (!cheatMatchesFilter(mCustomCheatNames[i])) continue;
-            if (mCheatShow != 0) {
+            if (mCheatShow == 1 || mCheatShow == 2) {
                 bool on = mRunner->customCheatEnabled((int)i);
                 if (mCheatShow == 1 && !on) continue;
                 if (mCheatShow == 2 && on)  continue;

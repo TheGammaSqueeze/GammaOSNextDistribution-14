@@ -308,6 +308,12 @@ private:
     };
     std::vector<CheatFolder> mCheatFolders;
     std::vector<std::string> mCustomCheatNames;  // cached, parallel to index
+    // Where the preloaded list splits between the shipped database and the user's cheat
+    // files (drastic_assets::cheatSplitFor): indices / folders below these are built in.
+    int mBuiltinCheats = -1;
+    int mBuiltinFolders = -1;
+    int mUserCheatFiles = 0;
+    std::string mRomPath;
     bool mCheatModelValid = false;
     bool mCheatsDirty = false;   // a cheat enable changed; flush on close
 
@@ -416,7 +422,8 @@ private:
     std::string mCheatFilter;
     // Show filter: 0 = all, 1 = enabled only, 2 = disabled only. Lets the
     // user quickly see which cheats are already on.
-    int mCheatShow = 0;
+    int mCheatShow = 0;          // index into the Show filter (see rebuildCheats)
+    static constexpr int kCheatShowCount = 5;
 
     void openMenu();
     void closeMenu();

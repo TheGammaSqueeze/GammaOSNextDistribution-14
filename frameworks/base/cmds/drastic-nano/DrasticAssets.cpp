@@ -1,6 +1,7 @@
 #define LOG_TAG "DrasticNano"
 
 #include "DrasticAssets.h"
+#include "DrasticCheatDb.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -10,6 +11,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -214,6 +216,237 @@ void mergeShaders(const std::string& root) {
     ALOGI("drastic-nano assets: shaders merged (%d system, %d user) into %s", nSys, nUsr, dst.c_str());
 }
 
+// ---------------------------------------------------------------------------
+// User cheat databases
+// ---------------------------------------------------------------------------
+std::string cheatsDir() {
+    char dd[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.drastic.cheats_dir", dd, "");
+    if (dd[0] != '/') return userDir() + "/cheats";
+    std::string d = dd;
+    while (d.size() > 1 && d.back() == '/') d.pop_back();
+    return d;
+}
+
+namespace {
+
+std::string readWhole(const std::string& p) {
+    std::string out;
+    int fd = open(p.c_str(), O_RDONLY | O_CLOEXEC);
+    if (fd < 0) return out;
+    char buf[4096];
+    for (;;) {
+        ssize_t n = read(fd, buf, sizeof(buf));
+        if (n <= 0) break;
+        out.append(buf, (size_t)n);
+    }
+    close(fd);
+    return out;
+}
+
+bool writeWhole(const std::string& p, const std::string& text) {
+    int fd = open(p.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+    if (fd < 0) return false;
+    ssize_t n = write(fd, text.data(), text.size());
+    close(fd);
+    return n == (ssize_t)text.size();
+}
+
+// The user's database files, sorted by name so the merge order is stable.
+std::vector<std::string> userCheatFiles(const std::string& dir) {
+    std::vector<std::string> files;
+    if (DIR* d = opendir(dir.c_str())) {
+        struct dirent* e;
+        while ((e = readdir(d)) != nullptr) {
+            if (e->d_name[0] == '.') continue;
+            std::string p = dir + "/" + e->d_name;
+            if (isFile(p) && drastic_cheatdb::isCheatDb(p)) files.push_back(p);
+        }
+        closedir(d);
+    }
+    std::sort(files.begin(), files.end());
+    return files;
+}
+
+// One line per merged game in <root>/.cheatsplit: code crc builtinCheats builtinFolders
+// totalCheats totalFolders. The overlay matches the running game against it.
+const char kSplitFile[] = "/.cheatsplit";
+const char kMergeStamp[] = "/.cheatmerge";
+
+std::string cheatName4(const std::string& romPath) {
+    int fd = open(romPath.c_str(), O_RDONLY | O_CLOEXEC);
+    if (fd < 0) return {};
+    char hdr[0x10] = {};
+    ssize_t n = pread(fd, hdr, sizeof(hdr), 0);
+    close(fd);
+    if (n < 0x10) return {};
+    return std::string(hdr + 0x0c, 4);
+}
+
+// Enabled bits libdrastic wrote into the previous merged file, keyed by
+// "code|crc|folder|cheat" so a rebuild keeps the user's selections.
+void collectEnabled(const drastic_cheatdb::Db& db, std::vector<std::string>* keys) {
+    for (const auto& g : db.games) {
+        const std::string base = g.code + "|" + std::to_string(g.crc) + "|";
+        for (const auto& r : g.records) {
+            if (r.folder) {
+                for (const auto& c : r.children)
+                    if (c.flags & 1) keys->push_back(base + r.name + "|" + c.name);
+            } else if (r.flags & 1) {
+                keys->push_back(base + "|" + r.name);
+            }
+        }
+    }
+}
+
+} // namespace
+
+void mergeCheats(const std::string& root) {
+    const std::string dir = cheatsDir();
+    mkdirs(dir);
+    const std::string readme = dir + "/README.txt";
+    if (!isFile(readme))
+        writeWhole(readme,
+                   "Put cheat database files here (R4 usrcheat.dat format, any file name).\n"
+                   "They are merged with the built-in cheats the next time a DS game starts.\n"
+                   "The in-game menu's Cheats page can show built-in and custom cheats separately.\n");
+
+    const std::vector<std::string> files = userCheatFiles(dir);
+    std::string stamp = "v1|" + seedStamp() + "|" + dir;
+    for (const std::string& f : files) {
+        struct stat st = {};
+        stat(f.c_str(), &st);
+        stamp += "|" + f + ":" + std::to_string((long long)st.st_size) + ":" + std::to_string((long long)st.st_mtime);
+    }
+    const std::string target = root + "/usrcheat.dat";
+    if (readWhole(root + kMergeStamp) == stamp && isFile(target)) return;   // nothing changed
+
+    if (files.empty()) {
+        // Back to the shipped database (the copy seedRoot keeps fresh, unless a previous
+        // merge replaced it).
+        if (isFile(root + kSplitFile) || !isFile(target)) {
+            unlink(target.c_str());
+            if (!copyFile(systemDir() + "/usrcheat.dat", target))
+                ALOGE("drastic-nano cheats: restoring the shipped usrcheat.dat failed: %s", strerror(errno));
+        }
+        unlink((root + kSplitFile).c_str());
+        writeWhole(root + kMergeStamp, stamp);
+        ALOGI("drastic-nano cheats: no user databases in %s, shipped database in use", dir.c_str());
+        return;
+    }
+
+    std::string err;
+    drastic_cheatdb::Db merged;
+    if (!drastic_cheatdb::load(systemDir() + "/usrcheat.dat", &merged, &err)) {
+        ALOGE("drastic-nano cheats: shipped usrcheat.dat unreadable (%s), user files not merged", err.c_str());
+        return;
+    }
+    // Selections libdrastic stored in the file being replaced.
+    std::vector<std::string> enabledKeys;
+    {
+        drastic_cheatdb::Db prev;
+        if (isFile(target) && drastic_cheatdb::load(target, &prev)) collectEnabled(prev, &enabledKeys);
+    }
+    struct Split { std::string code; uint32_t crc; int bc, bf, tc, tf; };
+    std::vector<Split> splits;
+    int addedGames = 0, addedCheats = 0, usedFiles = 0;
+    for (const std::string& f : files) {
+        drastic_cheatdb::Db user;
+        if (!drastic_cheatdb::load(f, &user, &err)) {
+            ALOGW("drastic-nano cheats: skipping %s: %s", f.c_str(), err.c_str());
+            continue;
+        }
+        usedFiles++;
+        for (auto& ug : user.games) {
+            int uc = 0, uf = 0;
+            drastic_cheatdb::countRecords(ug.records, &uc, &uf);
+            if (uc == 0) continue;
+            addedCheats += uc;
+            drastic_cheatdb::Game* target_game = nullptr;
+            for (auto& g : merged.games)
+                if (g.code == ug.code && g.crc == ug.crc) { target_game = &g; break; }
+            Split* sp = nullptr;
+            for (auto& s : splits)
+                if (s.code == ug.code && s.crc == ug.crc) { sp = &s; break; }
+            if (!target_game) {
+                merged.games.push_back(ug);
+                addedGames++;
+                splits.push_back({ug.code, ug.crc, 0, 0, uc, uf});
+            } else {
+                if (!sp) {
+                    int bc = 0, bf = 0;
+                    drastic_cheatdb::countRecords(target_game->records, &bc, &bf);
+                    splits.push_back({ug.code, ug.crc, bc, bf, bc, bf});
+                    sp = &splits.back();
+                }
+                for (auto& r : ug.records) target_game->records.push_back(std::move(r));
+                sp->tc += uc; sp->tf += uf;
+            }
+        }
+    }
+    // Re-apply the stored selections by name.
+    if (!enabledKeys.empty()) {
+        std::sort(enabledKeys.begin(), enabledKeys.end());
+        for (auto& g : merged.games) {
+            const std::string base = g.code + "|" + std::to_string(g.crc) + "|";
+            auto on = [&](const std::string& k) {
+                return std::binary_search(enabledKeys.begin(), enabledKeys.end(), k);
+            };
+            for (auto& r : g.records) {
+                if (r.folder) {
+                    for (auto& c : r.children)
+                        if (on(base + r.name + "|" + c.name)) c.flags |= 1;
+                } else if (on(base + "|" + r.name)) {
+                    r.flags |= 1;
+                }
+            }
+        }
+    }
+    if (!drastic_cheatdb::save(target, merged, &err)) {
+        ALOGE("drastic-nano cheats: writing merged usrcheat.dat failed: %s", err.c_str());
+        return;
+    }
+    std::string splitText;
+    for (const auto& s : splits)
+        splitText += s.code + " " + std::to_string(s.crc) + " " + std::to_string(s.bc) + " "
+                     + std::to_string(s.bf) + " " + std::to_string(s.tc) + " " + std::to_string(s.tf) + "\n";
+    writeWhole(root + kSplitFile, splitText);
+    writeWhole(root + kMergeStamp, stamp);
+    ALOGI("drastic-nano cheats: merged %d user database(s) from %s: %d new games, %d cheats added, %zu games touched",
+          usedFiles, dir.c_str(), addedGames, addedCheats, splits.size());
+}
+
+CheatSplit cheatSplitFor(const std::string& root, const std::string& romPath,
+                         int cheatCount, int folderCount) {
+    CheatSplit out;
+    out.userFiles = (int)userCheatFiles(cheatsDir()).size();
+    out.builtinCheats = cheatCount;
+    out.builtinFolders = folderCount;
+    const std::string code = cheatName4(romPath);
+    if (code.size() != 4) return out;
+    const std::string text = readWhole(root + kSplitFile);
+    size_t pos = 0;
+    while (pos < text.size()) {
+        size_t nl = text.find('\n', pos);
+        if (nl == std::string::npos) nl = text.size();
+        std::string line = text.substr(pos, nl - pos);
+        pos = nl + 1;
+        char c[8] = {};
+        unsigned long crc = 0;
+        int bc = 0, bf = 0, tc = 0, tf = 0;
+        if (sscanf(line.c_str(), "%4s %lu %d %d %d %d", c, &crc, &bc, &bf, &tc, &tf) != 6) continue;
+        if (code != c) continue;
+        // Several revisions of one game code can be listed; the one libdrastic loaded is the
+        // one whose totals match what it reports.
+        if (tc == cheatCount && tf == folderCount) {
+            out.builtinCheats = bc;
+            out.builtinFolders = bf;
+            return out;
+        }
+    }
+    return out;
+}
+
 bool seedRoot(const std::string& root) {
     const std::string sysDir = systemDir();
     if (!isDir(sysDir)) {
@@ -295,6 +528,8 @@ bool seedRoot(const std::string& root) {
 
     // Every launch: cheap (a few dozen links) and picks up shaders the user added.
     mergeShaders(root);
+    // Every launch too: a stamp makes it a directory listing unless a cheat file changed.
+    mergeCheats(root);
 
     if (fresh) {
         int fd = open(stampPath.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);

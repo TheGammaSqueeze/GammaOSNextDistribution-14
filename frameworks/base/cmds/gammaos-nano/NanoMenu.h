@@ -3047,6 +3047,9 @@ private:
     std::vector<std::string> mountedShareNames() const;
     void gsFolderSelect(const std::string& path); // add a folder as a rawpath scan source
     void drasticDataFolderSelect(const std::string& path); // #90: set persist.gammaos.drastic.data_dir (folder-picker target 5)
+    void drasticCheatsFolderSelect(const std::string& path); // persist.gammaos.drastic.cheats_dir (folder-picker target 8)
+    void drasticPerfRestoreCheck();            // put back the global performance mode a per-game one parked
+    void drasticFolderSelect(const char* prop, const char* what, const std::string& path);
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
     void gsDisableDefaultFolder(const std::string& alias);  // remove a default scan folder (alias) from the edited system
     void gsEnableDefaultFolder(const std::string& alias);   // restore a previously-removed default scan folder

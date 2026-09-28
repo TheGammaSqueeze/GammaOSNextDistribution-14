@@ -22,6 +22,7 @@ constexpr const char* kSystemDirDefault = "/system/etc/drastic-nano";
 std::string systemDir();
 // The DraStic root libdrastic sees through FakeJNI. Private, root-owned.
 constexpr const char* kRootDefault = "/data/system/drastic-nano/DraStic";
+inline std::string rootDir() { return kRootDefault; }
 // User-facing data on shared storage: saves, save states and the user's shader overrides.
 // Default /storage/emulated/0/drastic-nano; persist.gammaos.drastic.data_dir (an absolute path)
 // relocates it anywhere the user picks (internal storage, SD card, removable media, a network
@@ -45,6 +46,29 @@ bool seedRoot(const std::string& root);
 
 // Refresh only the merged shaders/ directory (system defaults + user overrides).
 void mergeShaders(const std::string& root);
+
+// The user's cheat files folder: every R4 "usrcheat.dat" style database dropped in it (any
+// name, any number) is merged into the shipped database at launch, adding its games and
+// appending its folders and cheats to games the shipped one already covers. Default
+// <user dir>/cheats; persist.gammaos.drastic.cheats_dir (an absolute path) relocates it.
+std::string cheatsDir();
+// Rebuild <root>/usrcheat.dat from the shipped database plus the user's files when either
+// changed (a stamp in <root>/.cheatmerge remembers the last merge); restores the pristine
+// copy when the folder holds no databases. Enabled flags libdrastic stored in the previous
+// merged file are carried over by cheat name. Called by seedRoot.
+void mergeCheats(const std::string& root);
+
+// Which of the running game's preloaded cheats come from the shipped database and which from
+// the user's files. libdrastic numbers cheats depth-first and folders in order, so the shipped
+// ones are the first builtinCheats / builtinFolders of each list (user records are appended).
+// A game the user's files do not touch reports builtinCheats == cheatCount. userFiles is how
+// many databases the cheats folder holds (0 = the folder is empty).
+struct CheatSplit { int builtinCheats = -1; int builtinFolders = -1; int userFiles = 0; };
+// romPath is the .nds file (already extracted for zips); cheatCount / folderCount are what
+// libdrastic reports for it, used to pick the matching database entry when a game code has
+// several revisions.
+CheatSplit cheatSplitFor(const std::string& root, const std::string& romPath,
+                         int cheatCount, int folderCount);
 
 struct LegacyCount { int saves = 0; int states = 0; };
 // Saves (*.dsv) and save states (*.dss) still sitting in the DraStic app's dir.
