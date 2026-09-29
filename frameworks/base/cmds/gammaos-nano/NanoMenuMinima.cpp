@@ -472,6 +472,10 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
             float fillW = (battBW - 4.0f * sc) * ((float)pct / 100.0f);
             drawRoundedRect(ix + 2.0f * sc, by + 2.0f * sc, fillW, bh - 4.0f * sc, 1.0f * sc, atc, atc, atc, 1.0f);            // charge
             drawQuad(ix + battBW, by + bh * 0.28f, battNub, bh * 0.44f, atc, atc, atc, 1.0f);                     // nub
+            if (mBatteryCharging) {   // charging mark: a solid bolt in the pill colour cut out of the dark fill
+                float bwid = bh * 0.60f;
+                drawBolt(ix + battBW * 0.5f - bwid * 0.5f, by - 1.0f * sc, bwid, bh + 2.0f * sc, ar, ag, ab, 1.0f);
+            }
             ix += battW + gap;
             if (minBattPct) {
                 drawText(battpb, ix, py + (ph - MIN_FONT_S * sc) * 0.5f, fsHint, atc, atc, atc, 1.0f);

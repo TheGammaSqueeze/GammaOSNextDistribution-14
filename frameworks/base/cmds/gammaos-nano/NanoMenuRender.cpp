@@ -721,6 +721,17 @@ void NanoMenu::drawRoundedRing(float x, float y, float w, float h, float radius,
 // Solid-color triangle (3 verts) using the flat-color program. Relies on the
 // frame's uploadRotationMatrices having set uRotation on mShaderProgram, same
 // as drawQuad. Used to compose the backspace icon.
+void NanoMenu::drawBolt(float x, float y, float w, float h, float r, float g, float b, float a) {
+    // Six-point bolt in unit space, split into four triangles (the polygon is not convex).
+    static const float P[6][2] = { {0.62f, 0.00f}, {0.18f, 0.56f}, {0.48f, 0.56f},
+                                   {0.38f, 1.00f}, {0.82f, 0.44f}, {0.52f, 0.44f} };
+    static const int T[4][3] = { {0, 1, 2}, {0, 2, 5}, {2, 3, 5}, {5, 3, 4} };
+    for (const int* t : T)
+        drawTriangle(x + P[t[0]][0] * w, y + P[t[0]][1] * h,
+                     x + P[t[1]][0] * w, y + P[t[1]][1] * h,
+                     x + P[t[2]][0] * w, y + P[t[2]][1] * h, r, g, b, a);
+}
+
 void NanoMenu::drawTriangle(float x0, float y0, float x1, float y1,
                             float x2, float y2,
                             float r, float g, float b, float a) {
@@ -3340,6 +3351,9 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
             else                    { fr = 1.00f; fg = 0.55f; fb = 0.16f; }   // DSi orange
             float fw = iw * ((float)pct / 100.0f);
             if (fw > 0.5f) drawQuad(ix, iy, fw, ih, fr, fg, fb, 1.0f);                             // proportional fill
+            // Charging: a bolt over the fill (the green alone was too easy to miss, user request).
+            if (mBatteryCharging) drawBolt(ix + iw * 0.30f, iy - S(0.5f), iw * 0.40f, ih + S(1.0f),
+                                           sp2.ink, sp2.ink, sp2.ink, 1.0f);
         } } }
 }
 

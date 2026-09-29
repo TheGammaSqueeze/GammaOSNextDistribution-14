@@ -5302,6 +5302,9 @@ private:
                          float r, float g, float b, float a);
     void drawTriangle(float x0, float y0, float x1, float y1, float x2, float y2,
                       float r, float g, float b, float a);
+    // A lightning bolt filling the box (x, y, w, h): the charging mark drawn inside the battery
+    // glyph of every home theme (a colour change alone was reported as too subtle).
+    void drawBolt(float x, float y, float w, float h, float r, float g, float b, float a);
     // Per-vertex-alpha triangle in logical device px, single RGB. Used to build
     // anti-aliased procedural shapes (feathered edges ramp alpha to 0). Emits into
     // the solid batch (per-vertex colour) when active; falls back to a flat solid

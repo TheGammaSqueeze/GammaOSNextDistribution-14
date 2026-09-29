@@ -8273,6 +8273,11 @@ void NanoMenu::drawPs3Clock(float fadeMul) {
             drawQuad(lx + ip, byy + ip, (bodyW - 2.0f * ip) * ((float)pct / 100.0f),
                      bodyH - 2.0f * ip, br, bg, bb, fadeMul);
             rail(lx + bodyW, cyc - capH * 0.5f, capW, capH);
+            if (mBatteryCharging) {   // charging mark: a dark bolt over the fill
+                float bwid = bodyH * 0.55f, bx0 = lx + bodyW * 0.5f - bwid * 0.5f;
+                drawBolt(bx0 + so[0], byy - border + so[1], bwid, bodyH + 2.0f * border, 1.0f, 1.0f, 1.0f, 0.5f * fadeMul);
+                drawBolt(bx0, byy - border, bwid, bodyH + 2.0f * border, 0.0f, 0.0f, 0.0f, 0.85f * fadeMul);
+            }
             lx += bodyW + capW + ps3::devS(5.0f);
             char pctTxt[12]; snprintf(pctTxt, sizeof(pctTxt), "%d%%", pct);
             float ps = ps3::fontScale(ps3::CLOCK_SIZE * 0.82f);
