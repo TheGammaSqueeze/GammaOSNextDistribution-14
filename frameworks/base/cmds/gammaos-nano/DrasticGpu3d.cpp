@@ -124,6 +124,35 @@ static std::atomic<int> gDbgArm{0}; static int gDbgFrame = 0; static int gDbgHit
 extern "C" void gpu3dDbgArm() { gDbgArm.store(1, std::memory_order_relaxed); }
 static int gPersp = 1;    // sys gpu3d_persp: perspective-correct interpolation from the vertex W (default on)
 static int gTexDbg = 0;   // sys gpu3d_texdump: log converted entries, their GL readback and the polygons using them
+// drastic's span sampling on the GPU (sys gpu3d_dsuv, default 1). drastic's rasterizer, like the
+// DS, walks each polygon's left and right edges with the DS slope rules, interpolates the vertex
+// attributes down the two edges to the row (perspective correct), then along the span between
+// the INTEGER span ends, and reads the texel at that position. GL interpolates the true projective
+// mapping at the pixel centre instead; the two differ by a sub pixel amount that changes per row,
+// which picks a different texel wherever a texel boundary falls in between. On minified textures
+// (Crash of the Titans' ferns and flowers: a 128 texel texture on a 35 pixel quad) that is a
+// visibly different pattern from the CPU rasterizer. So each textured polygon carries its DS
+// vertex list in a small table and the fragment shader recomputes the texel coordinate the way
+// drastic does (measured on Crash of the Titans slot 0: 98.5% of the explainable pixels pick the
+// identical texel, against 96% for the DS hardware rule and 40% for GL's mapping). Coverage stays
+// GL's. One fact this rests on: drastic's output (and this path's, read back column for column)
+// shows the DS pixel x at column x + 1, so the fragment's DS position from the vertex data is
+// what the span rule takes, not the window column. The edge walk runs once per polygon row in
+// a point pass (kRowVert, one point per row into a row table); the fragments only read their
+// row's record and interpolate along it, so the cost stays flat: Pokemon White 2's title and
+// Crash of the Titans hold 59.8 fps at hi-res with it on (Crash: GL thread 15.4 -> 18.5 ms,
+// still inside the decoupled budget). On the hi-res target drastic's own vertex data is hi-res
+// too, so the rule matches drastic's hi-res CPU rendering there (fern region mismatches 2214 ->
+// 1250 of 33920). sys gpu3d_dsuv_min: only polygons whose texel density (texels per pixel,
+// times 16) reaches it take the path, 0 = every textured polygon (default).
+static int gDsUv = 1;
+static int gDsUvMin = 0;
+static std::vector<int32_t>* gPolyTab = nullptr;   // the job's polygon table while its lists are built (worker thread)
+static std::vector<int32_t>* gRowOwner = nullptr;  // the job's row owner list while its lists are built
+static int gPolyRows = 0;                           // row table rows handed out so far in this job
+constexpr int kPolyTabW = 16;      // texels per polygon row: header + up to 10 vertices
+constexpr int kPolyTabRows = 4096; // polygons per job (two lists of at most 2048)
+constexpr int kRowTabW = 128, kRowTabH = 512;   // row table: one texel per polygon row, 65536 rows a job
 // One translucent polygon in DS list (submission) order: which group it went to, where its
 // vertices start inside that group's array, how many, and its polygon id.
 struct OrdPoly { uint32_t start; uint16_t n; uint16_t pi; uint8_t grp, id, pa; int16_t bx0, by0, bx1, by1; };   // b* = screen bounding box in target pixels (inclusive), for order-safe batching   // pi = polygon bank index = DS submission order; pa = polygon alpha
@@ -134,6 +163,8 @@ static int gFrontBias = 1;      // sys gpu3d_front_bias: 0 off, 1 shadow polygon
 struct ShadowSeg { uint32_t start, count; bool mask, deq; uint8_t id; int16_t x0, y0, x1, y1; };   // id: the shadow's 6-bit polygon id (0 for a mask); x0..y1 its screen box
 struct Job {
     Stream opaque, transl;
+    std::vector<int32_t> polyTab;   // DS span sampling: kPolyTabW ivec4 per polygon (see gDsUv)
+    std::vector<int32_t> rowOwner;  // DS span sampling: the polygon (index into polyTab) of every row table row
     std::vector<Vtx> shadow; std::vector<ShadowSeg> shadowSegs;
     std::vector<Upload> uploads;
     uint8_t* target = nullptr;
@@ -205,6 +236,8 @@ struct Gpu3d {
     GLuint progShadowMs = 0; GLint uAlphaMulShadowMs = -1;   // MSAA shadow pass: reads the id attachment by framebuffer fetch (no detach)
     GLuint curProg = 0; bool curBlend = false; bool blendAlpha = false;   // this job stores alpha as a blend factor (GL-blend path)
     GLuint prog = 0, fbo = 0, colorTex = 0, depthRb = 0, vbo = 0, vao = 0, smallTex = 0, bigTex = 0, palTex = 0;
+    GLuint polyTex[4] = { 0, 0, 0, 0 }; int polyTexIdx = 0;   // DS span sampling tables, a ring so an upload never waits on the job still reading the previous one
+    GLuint rowTexA = 0, rowTexB = 0, rowFbo = 0, rowProg = 0, rowOwnerTex = 0;   // DS span sampling row table (the point pass writes it, the fragments read it) and the row to polygon map
     GLuint attrTex = 0, edgeProg = 0, edgeFbo = 0, edgeTex = 0, edgeVao = 0;
     // 4x supersampling: a second set of targets at 1024x768 and a resolve pass into the 2x ones
     GLuint ssFbo = 0, ssColor = 0, ssAttr = 0, ssDepth = 0, ssEdgeFbo = 0, ssEdgeTex = 0, resolveProg = 0;
@@ -347,6 +380,7 @@ out float vDepth; // raw depth, interpolated perspective-correctly (depth mode A
 out vec3 vColW;   // colour * W and W: their perspective-correct ratio is the affine interpolant (uInterp bits)
 out vec3 vUvW;
 out float vDepthW; // depth * W: its perspective-correct ratio to vUvW.z is the depth interpolated linearly on screen (Z-buffer mode)
+out vec3 vDsW;     // DS screen position * W and W: their ratio is the fragment's DS position, linear on screen (DS span sampling)
 flat out ivec4 vTex0;
 flat out ivec4 vTex1;
 // Vertex-depth programs (VZ, Z-buffer mode): the per-polygon depth bias terms the fragment
@@ -367,6 +401,7 @@ void main() {
     vColW = aCol * aPos.w;
     vUvW = vec3(aUv * aPos.w, aPos.w);
     vDepthW = aPos.z * aPos.w;
+    vDsW = vec3(aPos.xy * aPos.w, aPos.w);
     vTex0 = aTex0;
     vTex1 = aTex1;
     // Screen-space vertices with the DS clip W as the homogeneous coordinate: the GPU then
@@ -495,6 +530,15 @@ uniform int uToonHighlight;
 // (attrOut.r = id + 1), read back here with the attachment detached for the pass.
 uniform sampler2D uAttr;
 uniform int uShadowPass;
+// DS span sampling (see gDsUv in the C++ side). uPolyTab texel 0 of a polygon's row holds
+// n | vtop << 4 | vbot << 8 | facing << 12, its first row table index, ytop, ybot. The row
+// pass (kRowVert) has already walked the edges for every row: uRowA = (xstart, xend, wl, wr),
+// uRowB = (sl, tl, sr, tr), float bits in the int lanes.
+uniform highp isampler2D uPolyTab;
+uniform highp isampler2D uRowA;
+uniform highp isampler2D uRowB;
+uniform int uDsUv;       // bit 0: sample texels the drastic way (a set bit 3 with bit 0 clear builds the tables without using them: timing A/B)
+in vec3 vDsW;
 )";
 
 const char* kFragBody = R"(
@@ -515,6 +559,26 @@ void main() {
     int mode = vTex1.w;
     bool texOn = vTex0.z > 0;
     vec2 uv = ((uInterp & 2) != 0) ? vUvW.xy / vUvW.z : vUv;
+    // The DS pixel this fragment draws, from the vertices' own DS coordinates (not the window
+    // position: the vertex shift and the target scale are then irrelevant). A native fragment
+    // sits exactly on an integer here, a hi-res one a quarter or three quarters in; the small
+    // nudge keeps the floor of an interpolated integer from landing one pixel low.
+    vec2 dsPos = vDsW.xy / vDsW.z;
+    int dsPx = int(floor(dsPos.x + 0.0625)), dsPy = int(floor(dsPos.y + 0.0625));
+    if ((uDsUv & 1) != 0 && (vTex1.z >> 12) != 0) {
+        ivec4 hdr = texelFetch(uPolyTab, ivec2(0, (vTex1.z >> 12) - 1), 0);
+        if (dsPy >= hdr.z && dsPy < hdr.w) {
+            int L = hdr.y + (dsPy - hdr.z);
+            ivec2 rc = ivec2(L & (128 - 1), L >> 7);
+            vec4 A = intBitsToFloat(texelFetch(uRowA, rc, 0));
+            vec4 B = intBitsToFloat(texelFetch(uRowB, rc, 0));
+            // along the span, the DS way: the left edge value at xstart, the right one at xend
+            float xx = float(dsPx);
+            float a = (xx - A.x) * A.z, b = (A.y - xx) * A.w;
+            float f = (a + b) != 0.0 ? clamp(a / (a + b), 0.0, 1.0) : 0.0;
+            uv = floor((B.xy + (B.zw - B.xy) * f) / 16.0);
+        }
+    }
     if (uUvOff != 0) {
         vec2 ddx = dFdx(uv), ddy = dFdy(uv);
         if ((uUvOff & 1) != 0) uv -= 0.5 * ddx;
@@ -591,6 +655,110 @@ void main() {
     }
 //DISCARD//
 )";
+
+// DS span sampling row pass: one point per (polygon, row). The vertex shader walks the
+// polygon's edges to the row the way the DS and drastic do and writes the span record the
+// fragments read: A = (xstart, xend, wl, wr), B = (sl, tl, sr, tr).
+const char* kRowVert = R"(#version 300 es
+precision highp float;
+precision highp int;
+uniform highp isampler2D uPolyTab;
+uniform highp isampler2D uRowOwner;
+flat out ivec4 vA;
+flat out ivec4 vB;
+// One edge of the polygon at row y, walked the way the DS (and drastic) steps it: x from the
+// 18-bit slope accumulator with the side dependent rounding, then the attribute factor along
+// the edge, perspective correct in exact arithmetic (drastic's fixed point is exact to well
+// past the 12.4 texel precision; the DS's own 9-bit factor is not what drastic does).
+struct DsEdge { int x; int inc; bool neg; bool xmajor; float f; };
+DsEdge dsEdge(ivec2 p0, ivec2 p1, float w0, float w1, int y, int side) {
+    DsEdge e;
+    int xmin, xmax;
+    if (p1.x > p0.x) { xmin = p0.x; xmax = p1.x - 1; e.neg = false; }
+    else if (p1.x < p0.x) { xmin = p1.x; xmax = p0.x - 1; e.neg = true; }
+    else { xmin = p0.x; xmax = p0.x; e.neg = false; }
+    int xlen = xmax + 1 - xmin, ylen = p1.y - p0.y;
+    if (ylen == 0) e.inc = 0;
+    else if (ylen == xlen && xlen != 1) e.inc = 0x40000;
+    else { int yrecip = (1 << 18) / ylen; e.inc = (p1.x - p0.x) * yrecip; if (e.inc < 0) e.inc = -e.inc; }
+    e.xmajor = e.inc > 0x40000;
+    int dx;
+    if (side != 0) { if (e.xmajor) dx = e.neg ? (0x20000 + 0x40000) : (e.inc - 0x20000); else if (e.inc != 0) dx = e.neg ? 0x40000 : 0; else dx = 0; }
+    else           { if (e.xmajor) dx = e.neg ? ((e.inc - 0x20000) + 0x40000) : 0x20000; else if (e.inc != 0) dx = e.neg ? 0x40000 : 0; else dx = 0; }
+    dx += (y - p0.y) * e.inc;
+    int x = e.neg ? p0.x - (dx >> 18) : p0.x + (dx >> 18);
+    e.x = clamp(x, xmin, xmax);
+    int io = (e.inc >= 0x40000 && ((side != 0) != e.neg)) ? 1 : 0;
+    float y0 = float(p0.y - io), y1 = float(p1.y - io);
+    float a = (float(y) - y0) * w0, b = (y1 - float(y)) * w1;
+    e.f = (a + b) != 0.0 ? a / (a + b) : 0.0;
+    return e;
+}
+ivec4 dsVtx(int row, int k) { return texelFetch(uPolyTab, ivec2(1 + k, row), 0); }
+// Returns the 12.4 texel coordinate (xy) and the 6-bit vertex colour (zw packed: r | g << 8 | b << 16 as float bits)
+// drastic's rasterizer produces at DS pixel (px, py) of polygon `row`; ok = false when the row is empty.
+bool dsSpan(int row, int py, out vec4 span, out vec2 stl, out vec2 str) {
+    ivec4 hdr = texelFetch(uPolyTab, ivec2(0, row), 0);
+    int n = hdr.x & 15, vtop = (hdr.x >> 4) & 15, vbot = (hdr.x >> 8) & 15;
+    bool facing = ((hdr.x >> 12) & 1) != 0;
+    if (n < 3) return false;
+    // walk the two chains from the top vertex to the edges that hold row py
+    int curL = vtop, curR = vtop;
+    int nextL = facing ? (curL + 1) % n : (curL + n - 1) % n;
+    int nextR = facing ? (curR + n - 1) % n : (curR + 1) % n;
+    ivec4 vcl = dsVtx(row, curL), vnl = dsVtx(row, nextL);
+    for (int i = 0; i < 12; i++) {
+        if (curL == vbot || py < (vnl.x >> 16)) break;
+        curL = nextL; nextL = facing ? (curL + 1) % n : (curL + n - 1) % n;
+        vcl = vnl; vnl = dsVtx(row, nextL);
+    }
+    ivec4 vcr = dsVtx(row, curR), vnr = dsVtx(row, nextR);
+    for (int i = 0; i < 12; i++) {
+        if (curR == vbot || py < (vnr.x >> 16)) break;
+        curR = nextR; nextR = facing ? (curR + n - 1) % n : (curR + 1) % n;
+        vcr = vnr; vnr = dsVtx(row, nextR);
+    }
+    ivec2 pl0 = ivec2(vcl.x & 0xffff, vcl.x >> 16), pl1 = ivec2(vnl.x & 0xffff, vnl.x >> 16);
+    ivec2 pr0 = ivec2(vcr.x & 0xffff, vcr.x >> 16), pr1 = ivec2(vnr.x & 0xffff, vnr.x >> 16);
+    float wl0 = float(uint(vcl.y)), wl1 = float(uint(vnl.y)), wr0 = float(uint(vcr.y)), wr1 = float(uint(vnr.y));
+    DsEdge L = dsEdge(pl0, pl1, wl0, wl1, py, 0);
+    DsEdge R = dsEdge(pr0, pr1, wr0, wr1, py, 1);
+    int xstart = L.x, xend = R.x;
+    if (R.inc == 0 && (L.inc != 0 || xstart != xend) && xend != 0) xend--;
+    // attributes at the two edge points
+    vec2 sl = vec2(float((vcl.z << 16) >> 16), float(vcl.z >> 16)), snl = vec2(float((vnl.z << 16) >> 16), float(vnl.z >> 16));
+    vec2 sr = vec2(float((vcr.z << 16) >> 16), float(vcr.z >> 16)), snr = vec2(float((vnr.z << 16) >> 16), float(vnr.z >> 16));
+    stl = sl + (snl - sl) * L.f; str = sr + (snr - sr) * R.f;
+    float wl = wl0 + (wl1 - wl0) * L.f, wr = wr0 + (wr1 - wr0) * R.f;
+    if (xstart > xend) { int t = xstart; xstart = xend; xend = t; float tw = wl; wl = wr; wr = tw; vec2 ts = stl; stl = str; str = ts; }
+    span = vec4(float(xstart), float(xend), wl, wr);
+    return true;
+}
+
+void main() {
+    int L = gl_VertexID;   // one point per row table row
+    int p = texelFetch(uRowOwner, ivec2(L & 127, L >> 7), 0).x;
+    ivec4 hdr = texelFetch(uPolyTab, ivec2(0, p), 0);
+    int n = hdr.x & 15, r = L - hdr.y;
+    gl_PointSize = 1.0;
+    vA = ivec4(0); vB = ivec4(0);
+    if (n < 3 || r < 0 || r >= hdr.w - hdr.z) { gl_Position = vec4(-2.0, -2.0, 0.0, 1.0); return; }
+    vec2 stl, str; vec4 span;
+    if (!dsSpan(p, hdr.z + r, span, stl, str)) { gl_Position = vec4(-2.0, -2.0, 0.0, 1.0); return; }
+    vA = floatBitsToInt(span); vB = floatBitsToInt(vec4(stl, str));
+    gl_Position = vec4((float(L & 127) + 0.5) / 128.0 * 2.0 - 1.0, (float(L >> 7) + 0.5) / 512.0 * 2.0 - 1.0, 0.0, 1.0);
+}
+)";
+const char* kRowFrag = R"(#version 300 es
+precision highp float;
+precision highp int;
+flat in ivec4 vA;
+flat in ivec4 vB;
+layout(location = 0) out ivec4 oA;
+layout(location = 1) out ivec4 oB;
+void main() { oA = vA; oB = vB; }
+)";
+
 const char* kFragDiscard = R"(
     if (uShadowPass == 1) {
         int did = int(texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r * 255.0 + 0.5) - 1;
@@ -614,6 +782,7 @@ const char* kFragFetch = R"(
     fragColor = vec4(r, gg, b, a) * (1.0 / 255.0);
     if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0), mod(floor(q / 64.0), 64.0), floor(q / 4096.0), 63.0) * (4.0 / 255.0); }
     if (uDbgDepth == 2) fragColor = vec4(fract(uv.x), fract(uv.y), mod(floor(uv.x), 64.0) / 64.0, 1.0);   // diagnostic: texel coordinate fraction
+    if (uDbgDepth == 3) fragColor = vec4(float(dsPx & 63), float(dsPy & 63), float((vTex1.z >> 12) & 63), 63.0) * (4.0 / 255.0);   // diagnostic: the DS pixel the span sampler uses
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     if (uAttrDepth != 0) {   // the depth bytes feed edge marking and the id-attachment shadow test only
         float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
@@ -630,6 +799,7 @@ const char* kFragNoFetch = R"(
     fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
     if (uDbgDepth != 0) { float q = floor(gl_FragDepth * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0) * (4.0 / 255.0), mod(floor(q / 64.0), 64.0) * (4.0 / 255.0), floor(q / 4096.0) * (4.0 / 255.0), 31.0 * uAlphaMul); }
     if (uDbgDepth == 2) fragColor = vec4(fract(uv.x), fract(uv.y), mod(floor(uv.x), 64.0) / 64.0, 31.0 * uAlphaMul);   // diagnostic: texel coordinate fraction
+    if (uDbgDepth == 3) fragColor = vec4(float(dsPx & 63) * (4.0 / 255.0), float(dsPy & 63) * (4.0 / 255.0), float((vTex1.z >> 12) & 63) * (4.0 / 255.0), 31.0 * uAlphaMul);
     // polygon id + 24-bit depth for the edge marking pass (only the opaque pass keeps this output)
     if (uAttrDepth != 0) {   // the depth bytes feed edge marking and the id-attachment shadow test only
         float dz = floor(gl_FragCoord.z * 16777215.0 + 0.5);
@@ -881,6 +1051,9 @@ bool initGl() {
         glUniform1i(glGetUniformLocation(pr, "uIdx"), 0); glUniform1i(glGetUniformLocation(pr, "uPal"), 1); glUniform1i(glGetUniformLocation(pr, "uBig"), 2);
         GLint am = glGetUniformLocation(pr, "uAlphaMul"); if (am >= 0) glUniform1f(am, 1.0f / 255.0f);
         GLint at = glGetUniformLocation(pr, "uAttr"); if (at >= 0) glUniform1i(at, 7);
+        GLint pt = glGetUniformLocation(pr, "uPolyTab"); if (pt >= 0) glUniform1i(pt, 8);
+        GLint ra = glGetUniformLocation(pr, "uRowA"); if (ra >= 0) glUniform1i(ra, 9);
+        GLint rb = glGetUniformLocation(pr, "uRowB"); if (rb >= 0) glUniform1i(rb, 10);
         GLint hs = glGetUniformLocation(pr, "uHalfScreen"); if (hs >= 0) glUniform2f(hs, kW * 0.5f, kH * 0.5f);
         return pr;
     };
@@ -951,6 +1124,35 @@ bool initGl() {
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     };
     lazy(g.bigTex, GL_TEXTURE2); lazy(g.dirTex, GL_TEXTURE5); lazy(g.dirBigTex, GL_TEXTURE6);
+    for (int i = 0; i < 4; i++) {   // DS span sampling tables (1 MB each, integer, no filtering)
+        glGenTextures(1, &g.polyTex[i]); glActiveTexture(GL_TEXTURE8); glBindTexture(GL_TEXTURE_2D, g.polyTex[i]);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32I, kPolyTabW, kPolyTabRows);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    {   // DS span sampling row table: two integer textures (float bits) the point pass renders into
+        GLuint* rt[3] = { &g.rowTexA, &g.rowTexB, &g.rowOwnerTex }; const GLenum units[3] = { GL_TEXTURE9, GL_TEXTURE10, GL_TEXTURE11 };
+        for (int i = 0; i < 3; i++) {
+            glGenTextures(1, rt[i]); glActiveTexture(units[i]); glBindTexture(GL_TEXTURE_2D, *rt[i]);
+            glTexStorage2D(GL_TEXTURE_2D, 1, i < 2 ? GL_RGBA32I : GL_R32I, kRowTabW, kRowTabH);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
+        glGenFramebuffers(1, &g.rowFbo); glBindFramebuffer(GL_FRAMEBUFFER, g.rowFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.rowTexA, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.rowTexB, 0);
+        const GLenum rowBufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 }; glDrawBuffers(2, rowBufs);
+        const GLenum rst = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        GLuint rvs = compile(GL_VERTEX_SHADER, kRowVert), rfs = compile(GL_FRAGMENT_SHADER, kRowFrag);
+        if (rvs && rfs) {
+            g.rowProg = glCreateProgram(); glAttachShader(g.rowProg, rvs); glAttachShader(g.rowProg, rfs); glLinkProgram(g.rowProg);
+            GLint ok = 0; glGetProgramiv(g.rowProg, GL_LINK_STATUS, &ok);
+            if (!ok) { char log[1024] = {}; glGetProgramInfoLog(g.rowProg, sizeof log, nullptr, log); ALOGE("gpu3d: row pass link failed: %s", log); glDeleteProgram(g.rowProg); g.rowProg = 0; }
+            else { glUseProgram(g.rowProg); glUniform1i(glGetUniformLocation(g.rowProg, "uPolyTab"), 8); glUniform1i(glGetUniformLocation(g.rowProg, "uRowOwner"), 11); }
+        }
+        if (rst != GL_FRAMEBUFFER_COMPLETE || !g.rowProg) { ALOGW("gpu3d: DS span sampling unavailable (row fbo %x, program %u): GL's own texel mapping stays", rst, g.rowProg); g.rowProg = 0; }
+        else ALOGI("gpu3d: DS span sampling ready (row table %d x %d)", kRowTabW, kRowTabH);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    glActiveTexture(GL_TEXTURE0);
     sBigPool = sDirPool = sDirBigPool = false;
     glGenTextures(1, &g.colorTex); glBindTexture(GL_TEXTURE_2D, g.colorTex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kW, kH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -1537,10 +1739,53 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         }
     }
     int32_t tex0[4] = { t ? t->layer : 0, t ? (t->big | (t->direct << 1)) : 0, t ? t->w : 0, t ? t->h : 0 };
+    // DS span sampling (gDsUv): the polygon's DS vertex list goes to the job's table and the
+    // vertices carry its 1-based row in tex1.z bits 12 and up (0 = GL's own interpolation).
+    int32_t dsRow = 0;
+    if (gDsUv && gPolyTab && t && texEnabled && ((pattr >> 4) & 3) != 3 && gPolyTab->size() / (4 * kPolyTabW) < (size_t)kPolyTabRows) {
+        int minx = 1 << 30, maxx = -(1 << 30), miny = 1 << 30, maxy = -(1 << 30), mins = 1 << 30, maxs = -(1 << 30), mint = 1 << 30, maxt = -(1 << 30);
+        for (int k = 0; k < n; k++) {
+            const uint8_t* vr = vb + (vbase + ((order >> (4 * k)) & 15)) * 16;
+            const int x = *reinterpret_cast<const uint16_t*>(vr + 4), y = *reinterpret_cast<const uint16_t*>(vr + 6);
+            const int sv = *reinterpret_cast<const int16_t*>(vr + 12), tv = *reinterpret_cast<const int16_t*>(vr + 14);
+            minx = std::min(minx, x); maxx = std::max(maxx, x); miny = std::min(miny, y); maxy = std::max(maxy, y);
+            mins = std::min(mins, sv); maxs = std::max(maxs, sv); mint = std::min(mint, tv); maxt = std::max(maxt, tv);
+        }
+        // texel density: texels per pixel along the larger extent, times 16 (the texcoords are 12.4)
+        const int64_t px = std::max(maxx - minx, maxy - miny), tx = std::max(maxs - mins, maxt - mint);
+        const bool dense = gDsUvMin <= 0 || (px > 0 && tx >= (int64_t)gDsUvMin * px);
+        if (dense && maxy > miny && gPolyRows + (maxy - miny) <= kRowTabW * kRowTabH) {
+            std::vector<int32_t>& tab = *gPolyTab;
+            dsRow = (int32_t)(tab.size() / (4 * kPolyTabW)) + 1;
+            const size_t base = tab.size(); tab.resize(base + 4 * kPolyTabW, 0);
+            int vtop = 0, vbot = 0, ytop = 1 << 30, ybot = -1, xbot = -1; int64_t area2 = 0;
+            int xs[16], ys[16];
+            for (int k = 0; k < n; k++) {
+                const uint8_t* vr = vb + (vbase + ((order >> (4 * k)) & 15)) * 16;
+                const int x = *reinterpret_cast<const uint16_t*>(vr + 4), y = *reinterpret_cast<const uint16_t*>(vr + 6);
+                const uint32_t Wv = *reinterpret_cast<const uint32_t*>(vr + 0);
+                const int sv = *reinterpret_cast<const int16_t*>(vr + 12), tv = *reinterpret_cast<const int16_t*>(vr + 14);
+                const uint16_t col = *reinterpret_cast<const uint16_t*>(vr + 10);
+                const int c5r = col & 31, c5g = (col >> 5) & 31, c5b = (col >> 10) & 31;
+                xs[k] = x; ys[k] = y;
+                if (y < ytop) { ytop = y; vtop = k; }
+                if (y > ybot || (y == ybot && x > xbot)) { ybot = y; xbot = x; vbot = k; }
+                int32_t* rec = &tab[base + 4 * (1 + k)];
+                rec[0] = x | (y << 16); rec[1] = (int32_t)Wv; rec[2] = (sv & 0xffff) | (tv << 16);
+                rec[3] = ((c5r << 1) | (c5r >> 4)) | (((c5g << 1) | (c5g >> 4)) << 8) | (((c5b << 1) | (c5b >> 4)) << 16);
+            }
+            for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area2 += (int64_t)xs[k] * ys[k2] - (int64_t)xs[k2] * ys[k]; }
+            // the edge walk direction the DS uses for a front facing polygon; screen winding decides here
+            tab[base + 0] = n | (vtop << 4) | (vbot << 8) | ((area2 < 0 ? 1 : 0) << 12);
+            tab[base + 1] = gPolyRows; tab[base + 2] = ytop; tab[base + 3] = ybot;   // its rows in the row table
+            gRowOwner->resize(gRowOwner->size() + (ybot - ytop), dsRow - 1);
+            gPolyRows += ybot - ytop;
+        }
+    }
     int32_t tex1[4] = { (int32_t)(fmt | (((texp >> 29) & 1) << 3) | (((texp >> 16) & 15) << 4) |
                                   ((((texp >> 20) & 7) + 3) << 8) | ((((texp >> 23) & 7) + 3) << 12) |
                                   (((pattr >> 24) & 63) << 16)),
-                        t ? t->palRow : 0, (int32_t)(((pattr >> 16) & 31) | (((pattr >> 15) & 1) << 8) | (((pattr >> 14) & 1) << 10) | ((translucent ? 1 : 0) << 11)), (int32_t)((pattr >> 4) & 3) };
+                        t ? t->palRow : 0, (int32_t)(((pattr >> 16) & 31) | (((pattr >> 15) & 1) << 8) | (((pattr >> 14) & 1) << 10) | ((translucent ? 1 : 0) << 11) | (dsRow << 12)), (int32_t)((pattr >> 4) & 3) };
     int deq = (pattr >> 14) & 1, dwrite = translucent ? ((pattr >> 11) & 1) : 1;
     if (shadowPoly) {
         // Stencil shadows: the mask (polygon id 0) marks pixels where it fails the depth test,
@@ -2224,6 +2469,7 @@ static bool ensureSet2() {
 void renderJob(Job& j) {
     const int64_t t0 = nowUs();
     g.glFrames++;   // GL-thread-owned counter for the knob polls (g.frame is the worker's and races)
+    const bool dsJob = !j.polyTab.empty() && g.rowProg != 0;   // DS span sampling runs for this job
     if (j.pipe2 && !ensureSet2()) { j.pipe2 = false; j.set = 0; }   // first attempt happens with nothing in flight (the loop only pipelines once the set exists)
     useSet(j.set);
     // Skip the redundant glBindTexture when the same array is already bound to a unit. A scene
@@ -2289,6 +2535,27 @@ void renderJob(Job& j) {
     if (msaa && !syncLo && g.msImplicit) applyMsaaTarget();   // apply a pending adaptive 4x<->2x switch on the GL thread (implicit only)
     const GLuint mfbo = syncLo ? g.msFbo2x : g.msFbo;
     const int rw = g.ss == 2 ? kW * 2 : kW, rh = g.ss == 2 ? kH * 2 : kH;
+    if (dsJob) {   // DS span sampling: this job's polygon table into the next texture of the ring, then the row pass
+        g.polyTexIdx = (g.polyTexIdx + 1) & 3;
+        const GLuint pt = g.polyTex[g.polyTexIdx];
+        glActiveTexture(GL_TEXTURE8); glBindTexture(GL_TEXTURE_2D, pt);
+        const int polys = std::min((int)(j.polyTab.size() / (4 * kPolyTabW)), kPolyTabRows);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kPolyTabW, polys, GL_RGBA_INTEGER, GL_INT, j.polyTab.data());
+        glActiveTexture(GL_TEXTURE9); glBindTexture(GL_TEXTURE_2D, g.rowTexA);
+        glActiveTexture(GL_TEXTURE10); glBindTexture(GL_TEXTURE_2D, g.rowTexB);
+        const int rowLines = std::min((int)(j.rowOwner.size() / kRowTabW), kRowTabH);
+        glActiveTexture(GL_TEXTURE11); glBindTexture(GL_TEXTURE_2D, g.rowOwnerTex);
+        if (rowLines) glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kRowTabW, rowLines, GL_RED_INTEGER, GL_INT, j.rowOwner.data());
+        glActiveTexture(GL_TEXTURE0);
+        // one point per row: the vertex shader does the edge walk, the point lands on the row's texel
+        glBindFramebuffer(GL_FRAMEBUFFER, g.rowFbo); glViewport(0, 0, kRowTabW, kRowTabH);
+        glDisable(GL_DEPTH_TEST); glDisable(GL_STENCIL_TEST); glDisable(GL_BLEND); glDisable(GL_SCISSOR_TEST);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glUseProgram(g.rowProg); glBindVertexArray(0);
+        glDrawArrays(GL_POINTS, 0, rowLines * kRowTabW);
+        glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST);   // the job's own target and viewport are bound right below
+        g.curProg = 0; g.curBlend = false;
+    }
     if (gProbe & 128) glViewport(0, 0, rw / 2, rh / 2); else glViewport(0, 0, rw, rh);
     glBindFramebuffer(GL_FRAMEBUFFER, msaa ? mfbo : g.ss == 2 ? g.ssFbo : g.fbo);
     glDepthMask(GL_TRUE);
@@ -2384,7 +2651,8 @@ void renderJob(Job& j) {
           static int uvoff = 0; if ((g.glFrames & 15) == 0) uvoff = property_get_int32("sys.gammaos.drastic_nano.gpu3d_uvoff", 0);
           const GLint lo = glGetUniformLocation(pr, "uUvOff"); if (lo >= 0) glUniform1i(lo, uvoff);
           static int vsh = 2; if ((g.glFrames & 15) == 0) vsh = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
-          const GLint lv = glGetUniformLocation(pr, "uVtxShift"); if (lv >= 0) glUniform2f(lv, vsh * 0.25f, vsh * 0.25f); }
+          const GLint lv = glGetUniformLocation(pr, "uVtxShift"); if (lv >= 0) glUniform2f(lv, vsh * 0.25f, vsh * 0.25f);
+          const GLint lds = glGetUniformLocation(pr, "uDsUv"); if (lds >= 0) glUniform1i(lds, dsJob ? gDsUv : 0); }
         // Depth: W buffered frames interpolate the vertex W perspective correctly (mode 1), Z
         // buffered frames interpolate the 16-bit z (shifted by 9, lib+0x555bc) linearly on screen
         // (mode 2), both through gl_FragDepth so the bias terms apply; see uDepthMode in the shader.
@@ -3410,7 +3678,8 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             } else g.msaaUnder = 0;
         }
     }
-    if ((g.frame & 15) == 0) { gTexDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_texdump", 0); gPersp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_persp", 1); }
+    if ((g.frame & 15) == 0) { gTexDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_texdump", 0); gPersp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_persp", 1);
+                               gDsUv = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dsuv", 1); gDsUvMin = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dsuv_min", 0); }
     // Debug-log one frame a second while tracing is on, as well as the frame a dump arms, so the
     // polygon inspector works without having to land a frame-counted dump first.
     gDbgFrame = gDbgArm.exchange(0, std::memory_order_relaxed) || (gTexDbg && (g.frame % 60) == 0);
@@ -3700,8 +3969,11 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     g.texUsFrame = 0;
     const int64_t tb0 = nowUs();
     gToonSeen = false; gClassSeen = 0;
+    job.polyTab.clear(); job.rowOwner.clear(); gPolyTab = &job.polyTab; gRowOwner = &job.rowOwner; gPolyRows = 0;
     buildList(R + 0x2856c0, pbo, vb, shapeTbl, wbuf, false, texEnabled, job.opaque);
     buildList(R + 0x2916f0, pbt, vb, shapeTbl, wbuf, true, texEnabled, job.transl);
+    gPolyTab = nullptr; gRowOwner = nullptr;
+    if (!job.rowOwner.empty()) job.rowOwner.resize((job.rowOwner.size() + kRowTabW - 1) / kRowTabW * kRowTabW, 0);   // whole texture lines for the upload
     job.toonUsed = gToonSeen;   // upload the table only for frames that actually shade with it
     job.classMask = gClassSeen;
     g.sumBuildUs += nowUs() - tb0;
