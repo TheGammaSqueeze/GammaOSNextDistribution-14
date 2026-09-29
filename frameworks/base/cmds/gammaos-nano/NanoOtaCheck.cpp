@@ -309,17 +309,60 @@ bool otaCheckForUpdate(OtaUpdateInfo& info) {
     // Remove any stale temp file.
     unlink(tmpFile.c_str());
 
+    // The response headers go to a side file so the HTTP status is known: the server
+    // answers 404 for a device/variant it has no build for, which is a successful
+    // "nothing published" check and not a failure. (-f alone folds every HTTP error
+    // into curl exit code 22, which users saw verbatim in the dialog.)
+    std::string hdrFile = tmpFile + ".hdr";
+    unlink(hdrFile.c_str());
     std::vector<std::string> curlArgv = {
         "/system/bin/curl",
-        "-sfL",
+        "-sL",
         "--max-time", "20",
+        "-D", hdrFile,
         "-o", tmpFile,
         url,
     };
     int rc = runProcess(curlArgv);
+    int httpCode = 0;
+    {
+        // Last status line wins (a redirect chain dumps one header block per hop).
+        std::string hdrs;
+        if (readFileToString(hdrFile, &hdrs)) {
+            size_t pos = 0;
+            while ((pos = hdrs.find("HTTP/", pos)) != std::string::npos) {
+                size_t sp = hdrs.find(' ', pos);
+                if (sp != std::string::npos && sp + 3 < hdrs.size())
+                    httpCode = atoi(hdrs.substr(sp + 1, 3).c_str());
+                pos = sp == std::string::npos ? hdrs.size() : sp;
+            }
+        }
+        unlink(hdrFile.c_str());
+    }
     if (rc != 0) {
         unlink(tmpFile.c_str());
-        info.error = "network fetch failed (curl rc " + std::to_string(rc) + ")";
+        switch (rc) {
+        case 6:  info.error = "The update server could not be found. Check the network connection."; break;
+        case 7:  info.error = "Could not connect to the update server. Check the network connection."; break;
+        case 28: info.error = "The update server did not answer in time. Try again later."; break;
+        case 35: case 51: case 53: case 54: case 58: case 59: case 60: case 77: case 82: case 83: case 90: case 91:
+                 info.error = "A secure connection to the update server could not be made. Check the date and time, then try again."; break;
+        case 127: info.error = "The download tool is missing from this system image."; break;
+        default: info.error = "The update server could not be reached (network error " + std::to_string(rc) + ")."; break;
+        }
+        NOC_W("ota: curl rc %d for %s: %s", rc, url.c_str(), info.error.c_str());
+        return false;
+    }
+    if (httpCode == 404) {
+        // No build published for this device/variant: the check itself succeeded.
+        unlink(tmpFile.c_str());
+        NOC_I("ota: server has no build published for %s/%s (HTTP 404)", device.c_str(), variant.c_str());
+        info.available = false;
+        return true;
+    }
+    if (httpCode >= 400) {
+        unlink(tmpFile.c_str());
+        info.error = "The update server returned an error (HTTP " + std::to_string(httpCode) + "). Try again later.";
         NOC_W("ota: %s for %s", info.error.c_str(), url.c_str());
         return false;
     }
