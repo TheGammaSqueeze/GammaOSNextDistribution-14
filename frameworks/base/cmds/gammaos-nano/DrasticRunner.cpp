@@ -5045,15 +5045,36 @@ static int aaKeeperDecide(int64_t nowUs) {
               (unsigned)trough, gAaTargetFrames, gAaTargetBoost.load(), gAaChunkGapMaxUs.exchange(0), gAaTrimPpm.load(), gAaXruns.load(), gAaUnderFrames.load(), gAaCallbacks.load(), gAaCbGapMaxUs.exchange(0), gAaCbRt.load(), gAaOverflowFrames.load(), gAaTopUps.load(), gAaHolds.load(), gAaStalls.load(), gAaEqFrames.exchange(0), gAaBurst, gAaBufFrames, gAaSharing == AAUDIO_SHARING_MODE_EXCLUSIVE ? "EXCLUSIVE" : "SHARED"); }
     return d;
 }
-// GammaEQ on the sink: the same gates and chain as AudioFlinger's normal mixer write.
+// True while a plug sits in the 3.5 mm jack, straight from the kernel's jack extcon (the sound card's
+// node carries HEADPHONE= and MICROPHONE= lines; a 3-pole plug reports HEADPHONE=1, a 4-pole headset
+// MICROPHONE=1, the USB extcon nodes have no HEADPHONE= line at all). This, not AudioFlinger's speaker
+// route flag, gates the sink's EQ: that flag is maintained by the mixer threads, and with only the MMAP
+// stream running it stays at its last value, so the speaker tuning (with its stereo widener) used to
+// run on the headphones and hollow the sound out.
+static bool aaJackPlugged() {
+    for (int i = 0; i < 8; i++) {
+        char p[64]; snprintf(p, sizeof(p), "/sys/class/extcon/extcon%d/state", i);
+        const int fd = open(p, O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        char buf[256]; const ssize_t n = read(fd, buf, sizeof(buf) - 1); close(fd);
+        if (n <= 0) continue;
+        buf[n] = 0;
+        if (!strstr(buf, "HEADPHONE=")) continue;
+        if (strstr(buf, "HEADPHONE=1") || strstr(buf, "MICROPHONE=1")) return true;
+    }
+    return false;
+}
+// GammaEQ on the sink: the same gates and chain as AudioFlinger's normal mixer write, plus the jack.
 static void aaApplyGammaEq(int16_t* x, size_t frames) {
     using namespace gammaeq;
     static SpeakerPEQ sPEQ; static StereoWidenerHB sWide; static CrystalizerLite sCryst; static LowBandProtector sLBP; static MidProtector sMP;
-    static int64_t sGateNs = 0; static bool sOn = false;
+    static int64_t sGateNs = 0; static bool sOn = false; static int sLoggedJack = -1;
     const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
-    if (now - sGateNs > 500000000LL) {   // the gates read properties: half a second is plenty
+    if (now - sGateNs > 500000000LL) {   // the gates read properties and a sysfs file: half a second is plenty
         sGateNs = now;
-        sOn = gammaeqMasterEnabled() && (gammaeqForceAllOutputs() || !gammaeqSpeakerOnlyEnabled() || isSpeakerRoutedNow());
+        const bool jack = aaJackPlugged();
+        if (sLoggedJack != (int)jack) { sLoggedJack = jack; ALOGI("DrasticRunner: AAudio sink: jack %s, speaker EQ %s", jack ? "in" : "out", jack ? "bypassed" : "follows the speaker route"); }
+        sOn = gammaeqMasterEnabled() && (gammaeqForceAllOutputs() || !gammaeqSpeakerOnlyEnabled() || (isSpeakerRoutedNow() && !jack));
     }
     if (!sOn || frames == 0) return;
     maybeReloadPEQ(sPEQ); wideMaybeReload(sWide); crystMaybeReload(sCryst); lbpMaybeReload(sLBP); mpMaybeReload(sMP);
