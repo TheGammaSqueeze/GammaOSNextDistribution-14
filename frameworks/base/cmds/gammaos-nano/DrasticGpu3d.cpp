@@ -93,6 +93,7 @@ struct Vtx {
     float s, t;             // texels
     int32_t tex0[4];        // layer, big array flag, tex w, tex h (w = 0: untextured)
     int32_t tex1[4];        // fmt | c0t<<3 | wrap<<4 | sizes | id<<16, palette row, poly alpha | fog<<8 | front<<9 | deq<<10, mode
+    int32_t ds[2];          // DS span sampling: first row table row, ytop | ybot<<16 | colours-vary<<30 (saves the fragments a dependent header fetch)
 };
 
 struct TexEntry {
@@ -124,7 +125,7 @@ static std::atomic<int> gDbgArm{0}; static int gDbgFrame = 0; static int gDbgHit
 extern "C" void gpu3dDbgArm() { gDbgArm.store(1, std::memory_order_relaxed); }
 static int gPersp = 1;    // sys gpu3d_persp: perspective-correct interpolation from the vertex W (default on)
 static int gTexDbg = 0;   // sys gpu3d_texdump: log converted entries, their GL readback and the polygons using them
-// drastic's span sampling on the GPU (sys gpu3d_dsuv, default 1). drastic's rasterizer, like the
+// drastic's span sampling on the GPU (sys gpu3d_dsuv, default 3 = texels and vertex colours, 1 = texels only). drastic's rasterizer, like the
 // DS, walks each polygon's left and right edges with the DS slope rules, interpolates the vertex
 // attributes down the two edges to the row (perspective correct), then along the span between
 // the INTEGER span ends, and reads the texel at that position. GL interpolates the true projective
@@ -143,10 +144,13 @@ static int gTexDbg = 0;   // sys gpu3d_texdump: log converted entries, their GL 
 // Crash of the Titans hold 59.8 fps at hi-res with it on (Crash: GL thread 15.4 -> 18.5 ms,
 // still inside the decoupled budget). On the hi-res target drastic's own vertex data is hi-res
 // too, so the rule matches drastic's hi-res CPU rendering there (fern region mismatches 2214 ->
-// 1250 of 33920). sys gpu3d_dsuv_min: only polygons whose texel density (texels per pixel,
-// times 16) reaches it take the path, 0 = every textured polygon (default).
-static int gDsUv = 1;
-static int gDsUvMin = 0;
+// 1250 of 33920). sys gpu3d_dsuv_min: only polygons whose texel density (texels per pixel
+// along the larger extent, times 16) reaches it take the path; default 16 = one texel per pixel
+// or denser, where a sub pixel shift actually changes the texel. Measured on Crash at hi-res:
+// every textured polygon cost 2.8 ms of GPU time a frame, the gate 0.5 ms, tables and the row
+// pass alone 0.3 ms; 0 = every textured polygon.
+static int gDsUv = 3;
+static int gDsUvMin = 16;
 static std::vector<int32_t>* gPolyTab = nullptr;   // the job's polygon table while its lists are built (worker thread)
 static std::vector<int32_t>* gRowOwner = nullptr;  // the job's row owner list while its lists are built
 static int gPolyRows = 0;                           // row table rows handed out so far in this job
@@ -237,7 +241,7 @@ struct Gpu3d {
     GLuint curProg = 0; bool curBlend = false; bool blendAlpha = false;   // this job stores alpha as a blend factor (GL-blend path)
     GLuint prog = 0, fbo = 0, colorTex = 0, depthRb = 0, vbo = 0, vao = 0, smallTex = 0, bigTex = 0, palTex = 0;
     GLuint polyTex[4] = { 0, 0, 0, 0 }; int polyTexIdx = 0;   // DS span sampling tables, a ring so an upload never waits on the job still reading the previous one
-    GLuint rowTexA = 0, rowTexB = 0, rowFbo = 0, rowProg = 0, rowOwnerTex = 0;   // DS span sampling row table (the point pass writes it, the fragments read it) and the row to polygon map
+    GLuint rowTexA = 0, rowTexB = 0, rowTexC = 0, rowFbo = 0, rowProg = 0, rowOwnerTex = 0;   // DS span sampling row table (the point pass writes it, the fragments read it) and the row to polygon map
     GLuint attrTex = 0, edgeProg = 0, edgeFbo = 0, edgeTex = 0, edgeVao = 0;
     // 4x supersampling: a second set of targets at 1024x768 and a resolve pass into the 2x ones
     GLuint ssFbo = 0, ssColor = 0, ssAttr = 0, ssDepth = 0, ssEdgeFbo = 0, ssEdgeTex = 0, resolveProg = 0;
@@ -374,6 +378,7 @@ layout(location = 1) in vec3 aCol;
 layout(location = 2) in vec2 aUv;
 layout(location = 3) in ivec4 aTex0;
 layout(location = 4) in ivec4 aTex1;
+layout(location = 5) in ivec2 aDs;
 out vec3 vCol;
 out vec2 vUv;
 out float vDepth; // raw depth, interpolated perspective-correctly (depth mode A/B)
@@ -383,6 +388,7 @@ out float vDepthW; // depth * W: its perspective-correct ratio to vUvW.z is the 
 out vec3 vDsW;     // DS screen position * W and W: their ratio is the fragment's DS position, linear on screen (DS span sampling)
 flat out ivec4 vTex0;
 flat out ivec4 vTex1;
+flat out ivec2 vDs;
 // Vertex-depth programs (VZ, Z-buffer mode): the per-polygon depth bias terms the fragment
 // shader adds to gl_FragDepth are constants of the polygon, so they go into the clip z here
 // and the fragment shader writes no depth at all. The fixed-function depth then IS the
@@ -404,6 +410,7 @@ void main() {
     vDsW = vec3(aPos.xy * aPos.w, aPos.w);
     vTex0 = aTex0;
     vTex1 = aTex1;
+    vDs = aDs;
     // Screen-space vertices with the DS clip W as the homogeneous coordinate: the GPU then
     // interpolates texels and colours perspective-correctly (attribute / W linear on screen) the
     // way the DS and drastic's rasterizer do, while depth (z / w) stays linear on screen.
@@ -501,6 +508,7 @@ uniform int uInterp;   // bit 0: affine colour, bit 1: affine texcoords (A/B kno
 uniform int uUvOff;    // A/B knob: sample the texcoord half a pixel off centre: bit 0 -x, bit 1 -y, bit 2 +x, bit 3 +y
 flat in ivec4 vTex0;
 flat in ivec4 vTex1;
+flat in ivec2 vDs;
 uniform highp usampler2DArray uIdx;   // 256x256 layers
 uniform highp usampler2DArray uBig;   // 1024x1024 layers
 uniform highp sampler2DArray uDir;    // 256x256 RGBA layers (formats 5 and 7, decoded colours)
@@ -537,7 +545,8 @@ uniform int uShadowPass;
 uniform highp isampler2D uPolyTab;
 uniform highp isampler2D uRowA;
 uniform highp isampler2D uRowB;
-uniform int uDsUv;       // bit 0: sample texels the drastic way (a set bit 3 with bit 0 clear builds the tables without using them: timing A/B)
+uniform highp isampler2D uRowC;   // the row's edge vertex colours (6-bit lanes with 4 fraction bits as drastic carries them) as three packed half pairs: (rl|rr, gl|gr, bl|br, 0)
+uniform int uDsUv;       // bit 0: sample texels the drastic way, bit 1: interpolate the vertex colour along the span too (a set bit 3 alone builds the tables without using them: timing A/B)
 in vec3 vDsW;
 )";
 
@@ -565,18 +574,24 @@ void main() {
     // nudge keeps the floor of an interpolated integer from landing one pixel low.
     vec2 dsPos = vDsW.xy / vDsW.z;
     int dsPx = int(floor(dsPos.x + 0.0625)), dsPy = int(floor(dsPos.y + 0.0625));
-    if ((uDsUv & 1) != 0 && (vTex1.z >> 12) != 0) {
-        ivec4 hdr = texelFetch(uPolyTab, ivec2(0, (vTex1.z >> 12) - 1), 0);
-        if (dsPy >= hdr.z && dsPy < hdr.w) {
-            int L = hdr.y + (dsPy - hdr.z);
+    bool dsCol = false; vec3 dsColV = vec3(0.0);
+    if ((uDsUv & 3) != 0 && (vTex1.z >> 12) != 0) {
+        int ytop = vDs.y & 0xffff, ybot = (vDs.y >> 16) & 0x3fff;
+        if (dsPy >= ytop && dsPy < ybot) {
+            int L = vDs.x + (dsPy - ytop);
             ivec2 rc = ivec2(L & (128 - 1), L >> 7);
             vec4 A = intBitsToFloat(texelFetch(uRowA, rc, 0));
-            vec4 B = intBitsToFloat(texelFetch(uRowB, rc, 0));
             // along the span, the DS way: the left edge value at xstart, the right one at xend
             float xx = float(dsPx);
             float a = (xx - A.x) * A.z, b = (A.y - xx) * A.w;
             float f = (a + b) != 0.0 ? clamp(a / (a + b), 0.0, 1.0) : 0.0;
-            uv = floor((B.xy + (B.zw - B.xy) * f) / 16.0);
+            if ((uDsUv & 1) != 0 && (vDs.y & 0x20000000) != 0) { vec4 B = intBitsToFloat(texelFetch(uRowB, rc, 0)); uv = floor((B.xy + (B.zw - B.xy) * f) / 16.0); }
+            if ((uDsUv & 2) != 0 && (vDs.y & 0x40000000) != 0) {   // only polygons whose vertex colours differ carry a colour record
+                ivec4 C = texelFetch(uRowC, rc, 0);
+                vec2 r2 = unpackHalf2x16(uint(C.x)), g2 = unpackHalf2x16(uint(C.y)), b2 = unpackHalf2x16(uint(C.z));
+                vec3 cl = vec3(r2.x, g2.x, b2.x), cr = vec3(r2.y, g2.y, b2.y);
+                dsCol = true; dsColV = floor((cl + (cr - cl) * f) / 16.0);
+            }
         }
     }
     if (uUvOff != 0) {
@@ -607,7 +622,11 @@ void main() {
     }
     vec3 vcIn = ((uInterp & 1) != 0) ? vColW / vUvW.z : vCol;
     if ((uUvOff & 16) != 0) vcIn -= 0.5 * (dFdx(vcIn) + dFdy(vcIn));   // colour at the pixel corner too (bit 4)
-    vec3 vc = floor(vcIn + 0.5);
+    // drastic carries the 6-bit vertex colour lanes with their four fraction bits set (c * 16 + 15)
+    // and floors the interpolated value: a vertex lands on its own value, anything past a
+    // sixteenth of the way to the next level takes it. floor(x + 0.5) sat one level under
+    // drastic on most pixels of a lit surface.
+    vec3 vc = dsCol ? dsColV : floor(vcIn + 0.9375);
     vec3 toon = vec3(0.0);
     bool toonMode = (mode == 2);
     if (toonMode) {
@@ -623,7 +642,9 @@ void main() {
         r = floor((tr * ta + vc.r * (31.0 - ta)) * (1.0 / 31.0) + 0.01); gg = floor((tg * ta + vc.g * (31.0 - ta)) * (1.0 / 31.0) + 0.01); b = floor((tb * ta + vc.b * (31.0 - ta)) * (1.0 / 31.0) + 0.01);
         ta = 31.0;
     } else {
-        r = floor(tr * (vc.r + 1.0) * (1.0 / 64.0)); gg = floor(tg * (vc.g + 1.0) * (1.0 / 64.0)); b = floor(tb * (vc.b + 1.0) * (1.0 / 64.0));
+        // drastic's (and the DS's) modulate is ((t + 1) * (c + 1) - 1) >> 6 on the 6-bit lanes; the
+        // former t * (c + 1) >> 6 came out one level darker on about three quarters of the pixels.
+        r = floor(((tr + 1.0) * (vc.r + 1.0) - 1.0) * (1.0 / 64.0)); gg = floor(((tg + 1.0) * (vc.g + 1.0) - 1.0) * (1.0 / 64.0)); b = floor(((tb + 1.0) * (vc.b + 1.0) - 1.0) * (1.0 / 64.0));
         if (toonMode && uToonHighlight != 0) {   // highlight: add the table colour, clamped
             r = min(r + toon.r, 63.0); gg = min(gg + toon.g, 63.0); b = min(b + toon.b, 63.0);
         }
@@ -666,6 +687,7 @@ uniform highp isampler2D uPolyTab;
 uniform highp isampler2D uRowOwner;
 flat out ivec4 vA;
 flat out ivec4 vB;
+flat out ivec4 vC;
 // One edge of the polygon at row y, walked the way the DS (and drastic) steps it: x from the
 // 18-bit slope accumulator with the side dependent rounding, then the attribute factor along
 // the edge, perspective correct in exact arithmetic (drastic's fixed point is exact to well
@@ -697,7 +719,7 @@ DsEdge dsEdge(ivec2 p0, ivec2 p1, float w0, float w1, int y, int side) {
 ivec4 dsVtx(int row, int k) { return texelFetch(uPolyTab, ivec2(1 + k, row), 0); }
 // Returns the 12.4 texel coordinate (xy) and the 6-bit vertex colour (zw packed: r | g << 8 | b << 16 as float bits)
 // drastic's rasterizer produces at DS pixel (px, py) of polygon `row`; ok = false when the row is empty.
-bool dsSpan(int row, int py, out vec4 span, out vec2 stl, out vec2 str) {
+bool dsSpan(int row, int py, out vec4 span, out vec2 stl, out vec2 str, out vec3 cl, out vec3 cr) {
     ivec4 hdr = texelFetch(uPolyTab, ivec2(0, row), 0);
     int n = hdr.x & 15, vtop = (hdr.x >> 4) & 15, vbot = (hdr.x >> 8) & 15;
     bool facing = ((hdr.x >> 12) & 1) != 0;
@@ -730,7 +752,15 @@ bool dsSpan(int row, int py, out vec4 span, out vec2 stl, out vec2 str) {
     vec2 sr = vec2(float((vcr.z << 16) >> 16), float(vcr.z >> 16)), snr = vec2(float((vnr.z << 16) >> 16), float(vnr.z >> 16));
     stl = sl + (snl - sl) * L.f; str = sr + (snr - sr) * R.f;
     float wl = wl0 + (wl1 - wl0) * L.f, wr = wr0 + (wr1 - wr0) * R.f;
-    if (xstart > xend) { int t = xstart; xstart = xend; xend = t; float tw = wl; wl = wr; wr = tw; vec2 ts = stl; stl = str; str = ts; }
+    vec3 c0 = vec3(float(vcl.w & 255), float((vcl.w >> 8) & 255), float((vcl.w >> 16) & 255));
+    vec3 c1 = vec3(float(vnl.w & 255), float((vnl.w >> 8) & 255), float((vnl.w >> 16) & 255));
+    vec3 c2 = vec3(float(vcr.w & 255), float((vcr.w >> 8) & 255), float((vcr.w >> 16) & 255));
+    vec3 c3 = vec3(float(vnr.w & 255), float((vnr.w >> 8) & 255), float((vnr.w >> 16) & 255));
+    // drastic carries the 6-bit lanes with 4 fraction bits set (c * 16 + 15, 0 stays 0) and floors at the end
+    c0 = mix(c0 * 16.0 + 15.0, vec3(0.0), equal(c0, vec3(0.0))); c1 = mix(c1 * 16.0 + 15.0, vec3(0.0), equal(c1, vec3(0.0)));
+    c2 = mix(c2 * 16.0 + 15.0, vec3(0.0), equal(c2, vec3(0.0))); c3 = mix(c3 * 16.0 + 15.0, vec3(0.0), equal(c3, vec3(0.0)));
+    cl = c0 + (c1 - c0) * L.f; cr = c2 + (c3 - c2) * R.f;
+    if (xstart > xend) { int t = xstart; xstart = xend; xend = t; float tw = wl; wl = wr; wr = tw; vec2 ts = stl; stl = str; str = ts; vec3 tc = cl; cl = cr; cr = tc; }
     span = vec4(float(xstart), float(xend), wl, wr);
     return true;
 }
@@ -741,11 +771,12 @@ void main() {
     ivec4 hdr = texelFetch(uPolyTab, ivec2(0, p), 0);
     int n = hdr.x & 15, r = L - hdr.y;
     gl_PointSize = 1.0;
-    vA = ivec4(0); vB = ivec4(0);
+    vA = ivec4(0); vB = ivec4(0); vC = ivec4(0);
     if (n < 3 || r < 0 || r >= hdr.w - hdr.z) { gl_Position = vec4(-2.0, -2.0, 0.0, 1.0); return; }
-    vec2 stl, str; vec4 span;
-    if (!dsSpan(p, hdr.z + r, span, stl, str)) { gl_Position = vec4(-2.0, -2.0, 0.0, 1.0); return; }
+    vec2 stl, str; vec4 span; vec3 cl, cr;
+    if (!dsSpan(p, hdr.z + r, span, stl, str, cl, cr)) { gl_Position = vec4(-2.0, -2.0, 0.0, 1.0); return; }
     vA = floatBitsToInt(span); vB = floatBitsToInt(vec4(stl, str));
+    vC = ivec4(int(packHalf2x16(vec2(cl.x, cr.x))), int(packHalf2x16(vec2(cl.y, cr.y))), int(packHalf2x16(vec2(cl.z, cr.z))), 0);
     gl_Position = vec4((float(L & 127) + 0.5) / 128.0 * 2.0 - 1.0, (float(L >> 7) + 0.5) / 512.0 * 2.0 - 1.0, 0.0, 1.0);
 }
 )";
@@ -754,9 +785,11 @@ precision highp float;
 precision highp int;
 flat in ivec4 vA;
 flat in ivec4 vB;
+flat in ivec4 vC;
 layout(location = 0) out ivec4 oA;
 layout(location = 1) out ivec4 oB;
-void main() { oA = vA; oB = vB; }
+layout(location = 2) out ivec4 oC;
+void main() { oA = vA; oB = vB; oC = vC; }
 )";
 
 const char* kFragDiscard = R"(
@@ -1054,6 +1087,7 @@ bool initGl() {
         GLint pt = glGetUniformLocation(pr, "uPolyTab"); if (pt >= 0) glUniform1i(pt, 8);
         GLint ra = glGetUniformLocation(pr, "uRowA"); if (ra >= 0) glUniform1i(ra, 9);
         GLint rb = glGetUniformLocation(pr, "uRowB"); if (rb >= 0) glUniform1i(rb, 10);
+        GLint rcu = glGetUniformLocation(pr, "uRowC"); if (rcu >= 0) glUniform1i(rcu, 12);
         GLint hs = glGetUniformLocation(pr, "uHalfScreen"); if (hs >= 0) glUniform2f(hs, kW * 0.5f, kH * 0.5f);
         return pr;
     };
@@ -1130,16 +1164,17 @@ bool initGl() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
     {   // DS span sampling row table: two integer textures (float bits) the point pass renders into
-        GLuint* rt[3] = { &g.rowTexA, &g.rowTexB, &g.rowOwnerTex }; const GLenum units[3] = { GL_TEXTURE9, GL_TEXTURE10, GL_TEXTURE11 };
-        for (int i = 0; i < 3; i++) {
+        GLuint* rt[4] = { &g.rowTexA, &g.rowTexB, &g.rowOwnerTex, &g.rowTexC }; const GLenum units[4] = { GL_TEXTURE9, GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12 };
+        for (int i = 0; i < 4; i++) {
             glGenTextures(1, rt[i]); glActiveTexture(units[i]); glBindTexture(GL_TEXTURE_2D, *rt[i]);
-            glTexStorage2D(GL_TEXTURE_2D, 1, i < 2 ? GL_RGBA32I : GL_R32I, kRowTabW, kRowTabH);
+            glTexStorage2D(GL_TEXTURE_2D, 1, i != 2 ? GL_RGBA32I : GL_R32I, kRowTabW, kRowTabH);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         }
         glGenFramebuffers(1, &g.rowFbo); glBindFramebuffer(GL_FRAMEBUFFER, g.rowFbo);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.rowTexA, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.rowTexB, 0);
-        const GLenum rowBufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 }; glDrawBuffers(2, rowBufs);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, g.rowTexC, 0);
+        const GLenum rowBufs[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 }; glDrawBuffers(3, rowBufs);
         const GLenum rst = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         GLuint rvs = compile(GL_VERTEX_SHADER, kRowVert), rfs = compile(GL_FRAGMENT_SHADER, kRowFrag);
         if (rvs && rfs) {
@@ -1273,6 +1308,7 @@ bool initGl() {
     glEnableVertexAttribArray(2); glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vtx), (void*)(7 * sizeof(float)));
     glEnableVertexAttribArray(3); glVertexAttribIPointer(3, 4, GL_INT, sizeof(Vtx), (void*)(9 * sizeof(float)));
     glEnableVertexAttribArray(4); glVertexAttribIPointer(4, 4, GL_INT, sizeof(Vtx), (void*)(9 * sizeof(float) + 4 * sizeof(int32_t)));
+    glEnableVertexAttribArray(5); glVertexAttribIPointer(5, 2, GL_INT, sizeof(Vtx), (void*)(9 * sizeof(float) + 8 * sizeof(int32_t)));
     glViewport(0, 0, kW, kH);
     glEnable(GL_DEPTH_TEST); glDisable(GL_SCISSOR_TEST); glDisable(GL_CULL_FACE); glDisable(GL_DITHER);
     if (!g.fbFetch) { glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }
@@ -1741,19 +1777,29 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     int32_t tex0[4] = { t ? t->layer : 0, t ? (t->big | (t->direct << 1)) : 0, t ? t->w : 0, t ? t->h : 0 };
     // DS span sampling (gDsUv): the polygon's DS vertex list goes to the job's table and the
     // vertices carry its 1-based row in tex1.z bits 12 and up (0 = GL's own interpolation).
-    int32_t dsRow = 0;
+    int32_t dsRow = 0, dsAttr[2] = { 0, 0 };
     if (gDsUv && gPolyTab && t && texEnabled && ((pattr >> 4) & 3) != 3 && gPolyTab->size() / (4 * kPolyTabW) < (size_t)kPolyTabRows) {
         int minx = 1 << 30, maxx = -(1 << 30), miny = 1 << 30, maxy = -(1 << 30), mins = 1 << 30, maxs = -(1 << 30), mint = 1 << 30, maxt = -(1 << 30);
+        uint16_t col0 = 0; bool colVary = false;
         for (int k = 0; k < n; k++) {
             const uint8_t* vr = vb + (vbase + ((order >> (4 * k)) & 15)) * 16;
             const int x = *reinterpret_cast<const uint16_t*>(vr + 4), y = *reinterpret_cast<const uint16_t*>(vr + 6);
             const int sv = *reinterpret_cast<const int16_t*>(vr + 12), tv = *reinterpret_cast<const int16_t*>(vr + 14);
+            const uint16_t col = *reinterpret_cast<const uint16_t*>(vr + 10);
+            if (k == 0) col0 = col; else if (col != col0) colVary = true;
             minx = std::min(minx, x); maxx = std::max(maxx, x); miny = std::min(miny, y); maxy = std::max(maxy, y);
             mins = std::min(mins, sv); maxs = std::max(maxs, sv); mint = std::min(mint, tv); maxt = std::max(maxt, tv);
         }
-        // texel density: texels per pixel along the larger extent, times 16 (the texcoords are 12.4)
+        // texel density: texels per pixel along the larger extent, times 16 (the texcoords are 12.4).
+        // Dense polygons take the span rule for their texels; any polygon whose vertex colours
+        // differ takes it for the colour (a magnified surface with a lighting gradient came out one
+        // or two levels darker under GL's interpolation, over the whole surface).
         const int64_t px = std::max(maxx - minx, maxy - miny), tx = std::max(maxs - mins, maxt - mint);
         const bool dense = gDsUvMin <= 0 || (px > 0 && tx >= (int64_t)gDsUvMin * px);
+        // Colours ride along only for the dense polygons: running the span colour for every lit
+        // polygon cost Pokemon White 2's title 4 to 6 ms of GPU time a frame. The others get the
+        // perspective-correct colour with drastic's fraction bias (see vcIn below), which is
+        // within a level on the big surfaces.
         if (dense && maxy > miny && gPolyRows + (maxy - miny) <= kRowTabW * kRowTabH) {
             std::vector<int32_t>& tab = *gPolyTab;
             dsRow = (int32_t)(tab.size() / (4 * kPolyTabW)) + 1;
@@ -1776,7 +1822,8 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
             }
             for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area2 += (int64_t)xs[k] * ys[k2] - (int64_t)xs[k2] * ys[k]; }
             // the edge walk direction the DS uses for a front facing polygon; screen winding decides here
-            tab[base + 0] = n | (vtop << 4) | (vbot << 8) | ((area2 < 0 ? 1 : 0) << 12);
+            tab[base + 0] = n | (vtop << 4) | (vbot << 8) | ((area2 < 0 ? 1 : 0) << 12) | ((colVary ? 1 : 0) << 13) | ((dense ? 1 : 0) << 14);
+            dsAttr[0] = gPolyRows; dsAttr[1] = ytop | (ybot << 16) | ((dense ? 1 : 0) << 29) | ((colVary ? 1 : 0) << 30);
             tab[base + 1] = gPolyRows; tab[base + 2] = ytop; tab[base + 3] = ybot;   // its rows in the row table
             gRowOwner->resize(gRowOwner->size() + (ybot - ytop), dsRow - 1);
             gPolyRows += ybot - ytop;
@@ -1857,7 +1904,7 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         v[k].w = (gPersp && Wv > 0) ? (float)Wv * (1.0f / 65536.0f) : 1.0f;
         v[k].r = (float)((c5r << 1) | (c5r >> 4)); v[k].g = (float)((c5g << 1) | (c5g >> 4)); v[k].b = (float)((c5b << 1) | (c5b >> 4));
         v[k].s = s / 16.0f; v[k].t = tt / 16.0f;
-        memcpy(v[k].tex0, tex0, sizeof tex0); memcpy(v[k].tex1, tex1, sizeof tex1);
+        memcpy(v[k].tex0, tex0, sizeof tex0); memcpy(v[k].tex1, tex1, sizeof tex1); memcpy(v[k].ds, dsAttr, sizeof dsAttr);
     }
     if (gFrontBias >= 2) {   // DS facing from the screen winding (y down); only with the bias on every polygon
         float area = 0.f; for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area += v[k].x * v[k2].y - v[k2].x * v[k].y; }
@@ -2543,6 +2590,7 @@ void renderJob(Job& j) {
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kPolyTabW, polys, GL_RGBA_INTEGER, GL_INT, j.polyTab.data());
         glActiveTexture(GL_TEXTURE9); glBindTexture(GL_TEXTURE_2D, g.rowTexA);
         glActiveTexture(GL_TEXTURE10); glBindTexture(GL_TEXTURE_2D, g.rowTexB);
+        glActiveTexture(GL_TEXTURE12); glBindTexture(GL_TEXTURE_2D, g.rowTexC);
         const int rowLines = std::min((int)(j.rowOwner.size() / kRowTabW), kRowTabH);
         glActiveTexture(GL_TEXTURE11); glBindTexture(GL_TEXTURE_2D, g.rowOwnerTex);
         if (rowLines) glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kRowTabW, rowLines, GL_RED_INTEGER, GL_INT, j.rowOwner.data());
@@ -2641,7 +2689,7 @@ void renderJob(Job& j) {
         bool dup = false; for (int uj = 0; uj < ui; uj++) if (usedProgs[uj] == pr) dup = true;
         if (dup) continue;
         glUseProgram(pr);
-        { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 1);   // colour affine, texels perspective: closest to drastic on Golden Sun and Mario Kart
+        { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 0);   // 0: colour and texels perspective correct, as drastic's span interpolation is (bit 0 affine colour was the old default; with the fraction bias above, perspective sits closer on the Crash ground)
           const GLint li = glGetUniformLocation(pr, "uInterp"); if (li >= 0) glUniform1i(li, interp);
           // drastic samples coverage, texcoords and colours at integer pixel positions, GL at the
           // pixel centre. Shifting the vertices half a pixel (uVtxShift, default 2 quarter pixels)
@@ -3679,7 +3727,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         }
     }
     if ((g.frame & 15) == 0) { gTexDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_texdump", 0); gPersp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_persp", 1);
-                               gDsUv = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dsuv", 1); gDsUvMin = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dsuv_min", 0); }
+                               gDsUv = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dsuv", 3); gDsUvMin = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dsuv_min", 16); }
     // Debug-log one frame a second while tracing is on, as well as the frame a dump arms, so the
     // polygon inspector works without having to land a frame-counted dump first.
     gDbgFrame = gDbgArm.exchange(0, std::memory_order_relaxed) || (gTexDbg && (g.frame % 60) == 0);
