@@ -608,6 +608,7 @@ status_t NanoMenu::readyToRun() {
         property_get("persist.gammaos.nano.qr_core", qc, "");
         bool drasticQrPrimed = (strcmp(qp, "1") == 0) &&
                                (strcmp(qc, "drastic") == 0);
+        if (drasticQrPrimed && !mOverlayMode && qrResumeChainBlocked()) drasticQrPrimed = false;
 
         // The resident OVERLAY process must NEVER take the QR fast-path or touch
         // the launch_app/launch_intent props: it runs at every boot and setting
@@ -2037,6 +2038,7 @@ bool NanoMenu::threadLoop() {
             std::string qrRom = getQrRomPath();
             if (!qrRom.empty()) setDrasticNanoRomPath(qrRom);
             property_set("persist.gammaos.nano.qr_prepared", "0");
+            qrResumeChainAdvance();
             property_set("sys.gammaos.drastic_nano.qr_resume", "1");
             if (dnBackend == "sf") {
                 // Explicit SF: launch the DrasticSf host activity, exactly like the
@@ -2994,6 +2996,7 @@ if (sRingPrimedCount >= 2) {
                             // instead of re-entering the preview.
                             property_set(
                                 "persist.gammaos.nano.qr_prepared", "0");
+                            qrResumeChainAdvance();
                             // Tell drastic-nano this launch is a Quick Resume so
                             // it force-loads slot 9 (over boot_fresh/hardcore) and
                             // drops RA hardcore for the resumed session. Volatile;

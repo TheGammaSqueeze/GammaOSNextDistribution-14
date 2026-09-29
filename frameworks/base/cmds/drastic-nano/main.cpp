@@ -215,6 +215,27 @@ void metricsPublish(const char* prop, const char* line) {
     if (!sMp.started) { sMp.started = true; std::thread(metricsPubThread).detach(); }
     sMp.cv.notify_one();
 }
+
+// Quick Resume loop guard, drastic-nano half. The home counts consecutive
+// Quick Resume boots in persist.gammaos.nano.qr_chain and stops resuming once
+// the count says the user could not play the resumed sessions (see the home's
+// qrResumeChainBlocked). A session proves it was playable the moment the user
+// presses a button or touches the panel, so reset the count then. Once per
+// session, off the render thread (a persist write is a blocking round trip to
+// init that has hung panel blits before).
+bool sQrChainReset = false;
+void qrChainNoteUserInput() {
+    if (sQrChainReset || !android::drastic_input::userInputSeen()) return;
+    sQrChainReset = true;
+    std::thread([] {
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.qr_chain", v, "0");
+        if (v[0] && strcmp(v, "0") != 0) {
+            property_set("persist.gammaos.nano.qr_chain", "0");
+            ALOGI("drastic-nano: user input seen, Quick Resume chain %s -> 0", v);
+        }
+    }).detach();
+}
 }  // namespace
 
 // drastic's installed data dir. FakeJNI points here directly so
@@ -730,6 +751,21 @@ static std::string slot9Stem(const std::string& savestatesDir, const std::string
 // the only object safe to touch from a signal handler.
 volatile sig_atomic_t gTermRequested = 0;
 void termCleanup(int) { gTermRequested = 1; }
+
+// The clean exit tail has finished: from here on a fault is a teardown fault (static
+// destructors, driver unload) of a process that already handed its state over, so it
+// must be reported as a plain abort and never as a crashed session. With the handler
+// still armed, a std::terminate in a static destructor (the GPU 3D scatter thread was
+// one) ran crashCleanup, which raised the overlay flag; the DRM home that init then
+// respawned took that flag as "the overlay owns the home" and exited, leaving the
+// panel frozen on the last game frame with no home at all. After a Quick Resume boot
+// that read as buttons that do nothing and a reboot that resumes the game again.
+void disarmCrashHandler() {
+    struct sigaction sa{};
+    sa.sa_handler = SIG_DFL;
+    sigemptyset(&sa.sa_mask);
+    for (int sig : {SIGBUS, SIGSEGV, SIGABRT, SIGILL, SIGFPE}) sigaction(sig, &sa, nullptr);
+}
 
 void installCrashHandler() {
     struct sigaction sa{};
@@ -1906,12 +1942,21 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         android::drastic_input::applyPrefs(&fin, initialPrefs);
         android::drastic_input::scanInputDevices(&fin);
         std::vector<struct pollfd> pfds;
-        for (int fd : fin.fds)      pfds.push_back({fd, POLLIN, (short)0});
-        for (int fd : fin.touchFds) pfds.push_back({fd, POLLIN, (short)0});
+        uint32_t pfdsGen = fin.generation;
+        auto rebuildPfds = [&]() {
+            pfds.clear();
+            for (int fd : fin.fds)      pfds.push_back({fd, POLLIN, (short)0});
+            for (int fd : fin.touchFds) pfds.push_back({fd, POLLIN, (short)0});
+            if (fin.inotifyFd >= 0)     pfds.push_back({fin.inotifyFd, POLLIN, (short)0});
+            pfdsGen = fin.generation;
+        };
+        rebuildPfds();
         while (fastInputRun.load(std::memory_order_relaxed)) {
             // Block until an event lands (8 ms cap so flag changes are seen).
             if (!pfds.empty()) poll(pfds.data(), pfds.size(), 8);
             else               usleep(8000);
+            // A hot-plug rescan inside pollInputMap replaced the fds.
+            if (fin.generation != pfdsGen) rebuildPfds();
             if (fastReapplyPrefs.exchange(false))
                 android::drastic_input::applyPrefs(&fin, overlay.prefs());
             const bool ovOpen =
@@ -1964,6 +2009,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 overlay.isOpen(),
                 overlay.isCapturingKey(),
                 kBackShortMs, kBackHoldMs, kPowerHoldMs, kPowerOffHoldMs, &actions);
+        qrChainNoteUserInput();
         // Short power press = system sleep. Handled before the overlay
         // update so a sleep press while the menu is open does not also
         // feed the menu; the menu's pause state is preserved across the
@@ -3653,6 +3699,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
         android::drastic_input::pollInputMap(
                 &input, overlay.isOpen() || fwOverlayInput, overlay.isCapturingKey(),
                 kBackShortMs, kBackHoldMs, kPowerHoldMs, kPowerOffHoldMs, &actions);
+        qrChainNoteUserInput();
         {
             static bool sInputSuppressed = false;
             const bool suppress = fwOverlayInput && !overlay.isOpen();
@@ -5179,6 +5226,7 @@ int main(int argc, char** argv) {
         ALOGI("drastic-nano: %s after graceful save", action);
         property_set("service.bootanim.nano_action", action);
         ALOGI("drastic-nano: exit (power action)");
+        disarmCrashHandler();
         return 0;
     }
 
@@ -5191,6 +5239,7 @@ int main(int argc, char** argv) {
     if (rlr.quitShutdown) {
         android::drastic_perf::restoreGlobal();
         ALOGI("drastic-nano: exit (external shutdown quit, caller owns the power action)");
+        disarmCrashHandler();
         return 0;
     }
 
@@ -5223,5 +5272,6 @@ int main(int argc, char** argv) {
     android::drastic_perf::restoreGlobal();
     property_set(kSessionDoneProp, "1");
     ALOGI("drastic-nano: exit");
+    disarmCrashHandler();
     return 0;
 }

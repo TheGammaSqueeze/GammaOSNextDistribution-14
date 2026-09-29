@@ -25,6 +25,7 @@
 
 #include <android-base/properties.h>
 #include <cutils/properties.h>
+#include <utils/Log.h>
 
 namespace android {
 
@@ -123,6 +124,33 @@ inline void setLaunchRomPath(const std::string& romPath) {
 inline void setQrRomPath(const std::string& romPath) {
     android::base::SetProperty("persist.gammaos.nano.qr_rom", romPath);
     writePathFile("/data/system/nano_qr_rom.txt", romPath);
+}
+
+// Quick Resume loop guard (drastic). Every boot that hands off to a resumed DS
+// session bumps persist.gammaos.nano.qr_chain (qrResumeChainAdvance); drastic-nano
+// resets it to 0 the moment the user presses a button or touches the panel. So a
+// count of 2 at boot means the last TWO resumed sessions ended (power off, reboot,
+// crash) without the user ever getting an input in: a resume the user cannot
+// interact with, which they can only leave through the power button, and which the
+// power-off path then re-arms. Users reported exactly this as being "stuck in a
+// quick resume loop". Break it: boot to the home instead and disarm the resume.
+// A resume the user merely glanced at and powered off costs one count, not the
+// resume, so normal use never trips it.
+inline bool qrResumeChainBlocked() {
+    int chain = android::base::GetIntProperty("persist.gammaos.nano.qr_chain", 0);
+    if (chain < 2) return false;
+    property_set("persist.gammaos.nano.qr_prepared", "0");
+    property_set("persist.gammaos.nano.qr_chain", "0");
+    ALOGW("Quick Resume: %d resumed sessions in a row saw no user input, "
+          "not resuming again (booting to the home)", chain);
+    return true;
+}
+
+inline void qrResumeChainAdvance() {
+    int chain = android::base::GetIntProperty("persist.gammaos.nano.qr_chain", 0);
+    char v[16];
+    snprintf(v, sizeof v, "%d", chain + 1);
+    property_set("persist.gammaos.nano.qr_chain", v);
 }
 
 inline std::string getQrRomPath() {

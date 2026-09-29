@@ -152,6 +152,16 @@ struct InputState {
     // Options derived from prefs.
     bool  analogTouchEnabled = false;
     float analogDeadzone = 0.15f;
+
+    // Hot-plug: an inotify watch on /dev/input opened by scanInputDevices. A
+    // node appearing or vanishing (gammapad creating its virtual pad and hiding
+    // the physical one, a Bluetooth controller connecting, ueventd recreating a
+    // node) arms rescanDueMs; pollInputMap re-runs the scan once the events
+    // settle. generation counts the rescans so a caller holding its own pollfd
+    // list over fds (the fast input thread) knows to rebuild it.
+    int inotifyFd = -1;
+    int64_t rescanDueMs = 0;
+    uint32_t generation = 0;
 };
 
 // Per-frame output of pollInputMap. All flags are "this frame" (edge-
@@ -260,8 +270,15 @@ void pollInputMap(InputState* st,
                   int64_t powerOffHoldMs,
                   InputActions* out);
 
-// Close all fds owned by state and reset the vector.
+// Close all fds owned by state (devices and the hot-plug watch) and reset the vectors.
 void closeInputDevices(InputState* st);
+
+// True once ANY input state in this process has seen a deliberate user input
+// (a button press, a D-pad or hat move, a touch on the panel). Analog stick
+// values and the power key do not count: sticks jitter at rest and the power
+// key is what a stuck user reaches for. The run loop uses it to tell a played
+// session from one the user could not interact with (Quick Resume loop guard).
+bool userInputSeen();
 
 // Exposed for the overlay's "Controls" section: re-scan the stick
 // calibration on the fly if the user's stick drifts. No-op today

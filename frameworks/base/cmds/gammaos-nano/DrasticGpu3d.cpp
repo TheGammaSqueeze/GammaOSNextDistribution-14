@@ -3175,7 +3175,7 @@ void renderJob(Job& j) {
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     static int rbTest = -1; if ((g.glFrames & 63) == 0) { rbTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0); gPipeline = property_get_int32("sys.gammaos.drastic_nano.gpu3d_pipeline", 1); }
     if (j.decoupled && gPipeline && rbTest != 5) {
-        if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gRb[0].resize((size_t)kW * kH * 4); gRb[1].resize((size_t)kW * kH * 4); }
+        if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gScThread.detach(); gRb[0].resize((size_t)kW * kH * 4); gRb[1].resize((size_t)kW * kH * 4); }
         GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         if (gProbe & 512) {
             // Pipelining feasibility probe (timing only): queue several milliseconds of unrelated GPU

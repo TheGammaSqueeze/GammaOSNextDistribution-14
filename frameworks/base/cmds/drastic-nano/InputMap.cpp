@@ -11,8 +11,11 @@
 #include <fcntl.h>
 #include <linux/input.h>
 #include <string.h>
+#include <sys/inotify.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+#include <atomic>
 
 #include <cutils/properties.h>
 #include <utils/Log.h>
@@ -83,10 +86,36 @@ float normAxis(const InputState::Axis& a, float deadzone) {
 
 } // anonymous namespace
 
-void scanInputDevices(InputState* st) {
+namespace {
+std::atomic<bool> sUserInputSeen{false};
+
+// Close the device fds only; the hot-plug watch stays for a rescan.
+void closeDeviceFds(InputState* st) {
+    for (int fd : st->fds) close(fd);
+    st->fds.clear();
+    for (int fd : st->touchFds) close(fd);
     st->touchFds.clear();
+}
+}  // namespace
+
+bool userInputSeen() { return sUserInputSeen.load(std::memory_order_relaxed); }
+
+void scanInputDevices(InputState* st) {
+    closeDeviceFds(st);
     st->touchPanelW = 0;
     st->touchPanelH = 0;
+    // Watch /dev/input for nodes coming and going so a device that appears after
+    // this scan (see InputState::inotifyFd) is picked up by pollInputMap.
+    if (st->inotifyFd < 0) {
+        st->inotifyFd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
+        if (st->inotifyFd >= 0 &&
+            inotify_add_watch(st->inotifyFd, "/dev/input",
+                              IN_CREATE | IN_DELETE | IN_ATTRIB | IN_MOVED_TO) < 0) {
+            ALOGW("DrasticNano::input: inotify watch on /dev/input failed: %s", strerror(errno));
+            close(st->inotifyFd);
+            st->inotifyFd = -1;
+        }
+    }
     DIR* d = opendir("/dev/input");
     if (!d) return;
     struct dirent* e;
@@ -198,10 +227,12 @@ void applyPrefs(InputState* st, const drastic_prefs::Prefs& p) {
 }
 
 void closeInputDevices(InputState* st) {
-    for (int fd : st->fds) close(fd);
-    st->fds.clear();
-    for (int fd : st->touchFds) close(fd);
-    st->touchFds.clear();
+    closeDeviceFds(st);
+    if (st->inotifyFd >= 0) {
+        close(st->inotifyFd);
+        st->inotifyFd = -1;
+    }
+    st->rescanDueMs = 0;
 }
 
 namespace {
@@ -214,6 +245,7 @@ void drainTouch(InputState* st) {
         if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
             st->touchHeld = (ev.value != 0);
             st->touchReal = (ev.value != 0);
+            if (ev.value != 0) sUserInputSeen.store(true, std::memory_order_relaxed);
         } else if (ev.type == EV_ABS) {
             if (ev.code == ABS_MT_POSITION_X) {
                 st->touchPendingX = ev.value;
@@ -443,10 +475,54 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                   int64_t powerHoldMs, int64_t powerOffHoldMs, InputActions* out) {
     *out = {};
 
+    // ---- Hot-plug: rescan when /dev/input changed ----
+    // Every reader of this state opened its fds once at startup, so a pad that
+    // shows up later (gammapad's virtual pad on a Quick Resume boot that starts
+    // us early, a Bluetooth controller pairing mid-game, ueventd recreating a
+    // node) was invisible for the rest of the session: no buttons, no way to
+    // open the menu or exit. Debounce the burst of inotify events a device
+    // creation produces, then reopen everything and drop any held state, since
+    // a removed pad never sends its releases.
+    if (st->inotifyFd >= 0) {
+        char buf[1024] __attribute__((aligned(__alignof__(struct inotify_event))));
+        ssize_t n;
+        while ((n = read(st->inotifyFd, buf, sizeof(buf))) > 0) {
+            for (ssize_t off = 0; off < n;) {
+                const struct inotify_event* ie =
+                        reinterpret_cast<const struct inotify_event*>(buf + off);
+                if (ie->len > 0 && strncmp(ie->name, "event", 5) == 0) {
+                    st->rescanDueMs = android::elapsedRealtime() + 300;
+                }
+                off += sizeof(struct inotify_event) + ie->len;
+            }
+        }
+    }
+    if (st->rescanDueMs > 0 && android::elapsedRealtime() >= st->rescanDueMs) {
+        st->rescanDueMs = 0;
+        const size_t before = st->fds.size() + st->touchFds.size();
+        scanInputDevices(st);
+        st->generation++;
+        st->dsBtnMask = 0;
+        st->backWasDown = false;
+        st->backPressStartMs = 0;
+        st->powerWasDown = false;
+        st->powerPressStartMs = 0;
+        st->hat0xPrev = 0;
+        st->hat0yPrev = 0;
+        st->btnL2 = st->btnR2 = st->btnL3 = st->btnR3 = false;
+        ALOGI("DrasticNano::input: /dev/input changed, rescanned (%zu -> %zu nodes)",
+              before, st->fds.size() + st->touchFds.size());
+    }
+
     // ---- Drain gamepad event devices ----
     for (int fd : st->fds) {
         struct input_event ev;
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+            if ((ev.type == EV_KEY && ev.value == 1 && ev.code != KEY_POWER) ||
+                (ev.type == EV_ABS && (ev.code == ABS_HAT0X || ev.code == ABS_HAT0Y) &&
+                 ev.value != 0)) {
+                sUserInputSeen.store(true, std::memory_order_relaxed);
+            }
             if (ev.type == EV_SW && ev.code == SW_LID) {
                 // Hall-effect lid switch. value 1 = lid closed. By default a close edge requests
                 // sleep immediately (same as a short power press); the open edge is consumed by the

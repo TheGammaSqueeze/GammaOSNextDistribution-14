@@ -49,6 +49,7 @@
 #include "FakeJNI.h"
 #include "NanoMenu.h"
 #include "NanoMenuDrm.h"
+#include "NanoMenuUtils.h"
 
 using namespace android;
 
@@ -240,6 +241,9 @@ static void runDrasticInitIfNeeded() {
     property_get("persist.gammaos.nano.qr_prepared", qp, "0");
     property_get("persist.gammaos.nano.qr_core", qc, "");
     bool qrActive = (strcmp(qp, "1") == 0) && (strcmp(qc, "drastic") == 0);
+    // Loop guard: this is the first reader of the resume descriptor in the boot
+    // instance, so a blocked chain disarms it here for every later check too.
+    if (qrActive && qrResumeChainBlocked()) qrActive = false;
 
     if (!smokeActive && !qrActive) return;
 
@@ -1052,10 +1056,28 @@ int main(int argc, char** argv) {
         !property_get_bool("persist.gammaos.nano.qr_prepared", false) &&
         (property_get_bool("sys.gammaos.nano.app_launched", false) ||
          property_get_bool("sys.gammaos.nano.show_overlay", false))) {
-        ALOGI("GammaOS Nano: overlay already owns the home in overlay_home mode "
-              "(app_launched/show_overlay set) - this DRM-home respawn is a stray, "
-              "exiting so only the overlay runs (oneshot keeps us down)");
-        return 0;
+        // show_overlay alone only proves an overlay owns the home if one is alive
+        // (or has run this boot, so the rc respawn rule brings it back). After a
+        // DRM-direct session the overlay never ran: nothing else will ever paint
+        // the panel, so exiting here leaves the user on the last game frame with
+        // no home (seen after Quick Resume boots, where a teardown fault in
+        // drastic-nano raised the flag). Treat that as a stale flag: clear it and
+        // carry on as the DRM home.
+        const bool appUp = property_get_bool("sys.gammaos.nano.app_launched", false);
+        char svc[PROPERTY_VALUE_MAX] = {};
+        property_get("init.svc.gammaos-nano-overlay", svc, "");
+        const bool overlayAlive = (strcmp(svc, "running") == 0) ||
+                                  property_get_bool("sys.gammaos.nano.overlay_ran", false);
+        if (appUp || overlayAlive) {
+            ALOGI("GammaOS Nano: overlay already owns the home in overlay_home mode "
+                  "(app_launched/show_overlay set) - this DRM-home respawn is a stray, "
+                  "exiting so only the overlay runs (oneshot keeps us down)");
+            return 0;
+        }
+        ALOGW("GammaOS Nano: show_overlay set but no overlay is alive (svc=%s) and no app "
+              "is up - stale flag, clearing it and running as the DRM home", svc);
+        property_set("sys.gammaos.nano.show_overlay", "0");
+        property_set("sys.gammaos.nano.overlay_wallpaper", "0");
     }
 
     // Grab DRM master early on non-Qualcomm SoCs to beat HWC.
