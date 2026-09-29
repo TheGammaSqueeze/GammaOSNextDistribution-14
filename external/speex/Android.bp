@@ -94,3 +94,36 @@ cc_library_shared {
         misc_undefined: ["bounds"],
     },
 }
+
+// Static libspeex for the Rockchip audio HAL (tinyalsa_hal voice_preprocess.c: speex_preprocess
+// denoise/AGC + speex_resampler). Self-contained (preprocess + resampler + kiss FFT deps). This is
+// a required local build fix and is intentionally NOT committed upstream.
+cc_library_static {
+    name: "libspeex",
+    vendor_available: true,
+    srcs: [
+        "libspeexdsp/preprocess.c",
+        "libspeexdsp/fftwrap.c",
+        "libspeexdsp/filterbank.c",
+        "libspeexdsp/kiss_fft.c",
+        "libspeexdsp/kiss_fftr.c",
+        "libspeexdsp/smallft.c",
+        "libspeexdsp/resample.c",
+    ],
+    cflags: [
+        "-DFIXED_POINT",
+        "-DUSE_KISS_FFT",
+        "-DHAVE_STDINT_H",
+        "-DEXPORT=",
+        "-DRESAMPLE_FULL_SINC_TABLE",
+        "-O3",
+        "-fstrict-aliasing",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-unused-but-set-variable",
+        "-Wno-sign-compare",
+        "-Wno-missing-field-initializers",
+    ],
+    local_include_dirs: ["include", "libspeexdsp"],
+    export_include_dirs: ["include"],
+}
