@@ -1804,6 +1804,29 @@ void OverlayMenu::rebuildSave() {
     // rows and the live knobs (Brightness, Performance) now live on the General
     // page (rebuildGeneral), which is the default tab.
 
+    // Where this game's saves and save states live (the DraStic data folder, relocatable from
+    // the home's Game Settings). Read-only rows; the path rides in the label so the marquee
+    // scrolls a long SD card path when the row is selected (requested on Discord: users could
+    // not tell where their saves were going).
+    {
+        auto friendly = [](const std::string& p) -> std::string {
+            static const char* kInternal = "/storage/emulated/0";
+            if (p.rfind(kInternal, 0) == 0) return std::string(trDyn("Internal storage")) + p.substr(strlen(kInternal));
+            if (p.rfind("/storage/", 0) == 0) {
+                size_t sl = p.find('/', 9);
+                std::string vol = p.substr(9, sl == std::string::npos ? std::string::npos : sl - 9);
+                std::string rest = sl == std::string::npos ? "" : p.substr(sl);
+                if (vol != "self" && vol != "emulated") return std::string(trDyn("SD card")) + " (" + vol + ")" + rest;
+            }
+            return p;
+        };
+        const std::string usr = drastic_assets::userDir();
+        RowAction a; a.label = std::string(trDyn("Saves folder")) + ": " + friendly(usr + "/saves");
+        mRows.push_back(std::move(a));
+        RowAction b; b.label = std::string(trDyn("Save states folder")) + ": " + friendly(usr + "/savestates");
+        mRows.push_back(std::move(b));
+    }
+
     // Auto-load save state on launch. A nano-launcher behaviour (not a
     // real drastic setting), persisted in a system property so it
     // survives reboots without polluting drastic's own prefs XML. When
