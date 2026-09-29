@@ -8,18 +8,21 @@
 # fixes it without holding card0 (which would EBUSY the audio HAL). Runs from init, not
 # nano, so it is independent of nano's render mode. Device-agnostic: writes every codec
 # dailink pmdown_time that exists, retried for a few seconds until the codec is probed.
+# An argument overrides the delay so init can restore the normal delay after setup; leaving
+# it unset preserves the long setup-wizard delay.
 TAG="nano-pmdown"
+PMDOWN_MS="${1:-3600000}"
 i=0
 while [ $i -lt 20 ]; do
     wrote=0
     for f in /sys/devices/platform/*sound*/*/pmdown_time /sys/devices/platform/*sound*/pmdown_time; do
         if [ -w "$f" ]; then
-            echo 3600000 > "$f" 2>/dev/null
+            echo "$PMDOWN_MS" > "$f" 2>/dev/null
             wrote=1
         fi
     done
     if [ "$wrote" = "1" ]; then
-        log -t "$TAG" -p i "raised pmdown_time to keep the speaker amp warm through setup"
+        log -t "$TAG" -p i "set codec pmdown_time to ${PMDOWN_MS} ms"
         exit 0
     fi
     sleep 0.5
