@@ -873,6 +873,10 @@ static std::vector<std::string> getRomFolderAliases(const std::string& romDir) {
         // alias; each CP System board is on its own.
         "arcade,mame,mame2003,mame2010",
         "fbneo,fba",
+        // Vertical (TATE) arcade sets kept apart from the rest: VERTICAL / VARCADE (Anbernic
+        // sets), TATE (Brick set), TateGame (MagicX sets). Their own catalog platform "Arcade
+        // (Vertical)" (varcade) so they auto-add and name as such instead of folding into MAME.
+        "varcade,vertical,tate,tategame,verticalarcade",
         "cps1", "cps2", "cps3",
         "c64,commodore64", "amiga", "amstradcpc,cpc", "zxspectrum,spectrum,zx81",
         "scummvm", "ports", "dos,pc", "fds", "naomi", "atomiswave", "pokemini",

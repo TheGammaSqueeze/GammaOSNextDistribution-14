@@ -262,6 +262,7 @@ static const struct { const char* uid; const char* icon; } kPlatformIconMap[] = 
     { "jaguarcd", "Atari_-_Jaguar_CD" },   // Atari Jaguar CD
     { "lynx", "Atari_-_Lynx" },   // Atari Lynx
     { "mame", "MAME" },   // Arcade (MAME)
+    { "varcade", "MAME" },   // Arcade (Vertical)
     { "master", "Sega_-_Master_System_-_Mark_III" },   // Sega Master System
     { "megaduck", "Welback_-_Mega-Duck" },   // Mega Duck
     { "model3", "MAME" },   // Sega Model 3
