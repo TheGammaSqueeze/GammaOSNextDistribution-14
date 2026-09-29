@@ -71,31 +71,52 @@ void NanoMenu::gsearchBuild(const std::string& q) {
     const size_t kMaxPerSection = 80;   // bound the per-section result count
 
     // --- Games: recents, then ROMs per system, then installed apps ---------
-    size_t gCount = 0;
-    for (size_t i = 0; i < mXmbRecent.size() && gCount < kMaxPerSection; i++) {
+    // Every match is collected first and only then trimmed, ranked by how well it matches
+    // (a label that STARTS with the query beats one that merely contains it). The old loop
+    // stopped at the cap in system order, so with a large library a common word filled the
+    // quota from the built-in systems and games from systems added later (the arcade cores
+    // a user adds by hand sit at the end of the list) never showed up at all (reported
+    // 2026-09-29). The cap is generous: the list scrolls.
+    const size_t kMaxGames = 250;
+    std::vector<GSearchResult> games;
+    for (size_t i = 0; i < mXmbRecent.size(); i++) {
         const XmbRecentEntry& r = mXmbRecent[i];
         if (!ciContains(r.displayName, query)) continue;
         GSearchResult gr; gr.section = 0; gr.label = r.displayName;
         gr.sub = trDyn("Recently Played"); gr.kind = PS3_RECENT; gr.a = (int)i;
-        mGSearchResults.push_back(gr); gCount++;
+        games.push_back(gr);
     }
-    for (size_t s = 0; s < mXmbSystems.size() && gCount < kMaxPerSection; s++) {
+    for (size_t s = 0; s < mXmbSystems.size(); s++) {
         const XmbSystem& sys = mXmbSystems[s];
         if (!sys.enabled) continue;
-        for (size_t i = 0; i < sys.displayNames.size() && gCount < kMaxPerSection; i++) {
+        for (size_t i = 0; i < sys.displayNames.size(); i++) {
             if (!ciContains(sys.displayNames[i], query)) continue;
             GSearchResult gr; gr.section = 0; gr.label = sys.displayNames[i];
             gr.sub = sys.name; gr.kind = PS3_ROM; gr.a = (int)s; gr.b = (int)i;
-            mGSearchResults.push_back(gr); gCount++;
+            games.push_back(gr);
         }
     }
-    for (size_t i = 0; i < mAppEntries.size() && gCount < kMaxPerSection; i++) {
+    for (size_t i = 0; i < mAppEntries.size(); i++) {
         const AppEntry& app = mAppEntries[i];
         if (!ciContains(app.label, query)) continue;
         GSearchResult gr; gr.section = 0; gr.label = app.label;
         gr.sub = trDyn("Application"); gr.kind = PS3_APP; gr.payload = app.packageName;
-        mGSearchResults.push_back(gr); gCount++;
+        games.push_back(gr);
     }
+    if (games.size() > kMaxGames) {
+        auto startsWithQuery = [&](const std::string& label) {
+            return label.size() >= query.size()
+                   && strncasecmp(label.c_str(), query.c_str(), query.size()) == 0;
+        };
+        std::stable_sort(games.begin(), games.end(),
+            [&](const GSearchResult& a, const GSearchResult& b) {
+                const bool pa = startsWithQuery(a.label), pb = startsWithQuery(b.label);
+                if (pa != pb) return pa;
+                return strcasecmp(a.label.c_str(), b.label.c_str()) < 0;
+            });
+        games.resize(kMaxGames);
+    }
+    for (auto& gr : games) mGSearchResults.push_back(std::move(gr));
 
     // --- Music: tracks (title / artist / album) ----------------------------
     musicEnsureLoaded();
