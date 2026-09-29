@@ -26,6 +26,7 @@ OUTPUT=""
 MIN_BATTERY=5
 IMAGES=()
 XZ_THREADS=0  # 0 = auto (all cores)
+DATETIME_OVERRIDE=""  # -T: must equal the shipped system image's ro.build.date.utc
 
 # --- Known partition types ---
 declare -A PART_TYPES=(
@@ -44,7 +45,18 @@ declare -A PART_TYPES=(
     [vbmeta]=physical
     [vbmeta_system]=physical
     [vbmeta_vendor]=physical
+    [uboot]=physical
+    [recovery]=physical
+    [trust]=physical
+    [misc]=physical
+    [baseparameter]=physical
 )
+
+# Physical partitions are written to /dev/block/by-name/<name> and then read back
+# for the whole declared size to verify. Pad the payload out to the real partition
+# size with -p name:bytes, so no tail of the old partition survives and the
+# read-back hash matches what the manifest declares. Example: -p boot:67108864
+declare -A PART_PAD=()
 
 usage() {
     cat <<'EOF'
@@ -57,14 +69,19 @@ Options:
   -o OUTPUT         Output zip path                        [required]
   -b MIN_BATTERY    Minimum battery % required (default: 5)
   -t XZ_THREADS     XZ compression threads (default: all cores)
+  -p NAME:BYTES     Pad a physical partition's payload to BYTES (repeatable)
+  -T DATETIME       Manifest datetime; MUST equal the shipped system image's
+                    ro.build.date.utc or the Updater re-offers this build forever
   -h                Show this help
 
 Each IMAGE should be a raw .img file. The partition name is derived from the
 filename (e.g. "system.img" -> partition "system"). Supported partitions:
   logical:  system, system_ext, system_dlkm, vendor, vendor_dlkm,
             product, odm, odm_dlkm
-  physical: boot, init_boot, vendor_boot, dtbo,
-            vbmeta, vbmeta_system, vbmeta_vendor
+  physical: boot, init_boot, vendor_boot, dtbo, recovery, uboot, trust,
+            misc, baseparameter, vbmeta, vbmeta_system, vbmeta_vendor
+
+An image whose name is not listed above is rejected rather than guessed at.
 
 Example:
   ./gen_ota_package.sh -v 1.3.0 -c 13000 -d pocketairmini -o update.zip \
@@ -74,7 +91,7 @@ EOF
 }
 
 # --- Parse args ---
-while getopts "v:c:d:o:b:t:h" opt; do
+while getopts "v:c:d:o:b:t:p:T:h" opt; do
     case "$opt" in
         v) VERSION="$OPTARG" ;;
         c) VERSION_CODE="$OPTARG" ;;
@@ -82,6 +99,8 @@ while getopts "v:c:d:o:b:t:h" opt; do
         o) OUTPUT="$OPTARG" ;;
         b) MIN_BATTERY="$OPTARG" ;;
         t) XZ_THREADS="$OPTARG" ;;
+        p) PART_PAD["${OPTARG%%:*}"]="${OPTARG##*:}" ;;
+        T) DATETIME_OVERRIDE="$OPTARG" ;;
         h) usage 0 ;;
         *) usage 1 ;;
     esac
@@ -118,12 +137,34 @@ for img in "${IMAGES[@]}"; do
     BASENAME=$(basename "$img")
     PARTNAME="${BASENAME%.img}"
     XZNAME="${PARTNAME}.img.xz"
-    TYPE="${PART_TYPES[$PARTNAME]:-logical}"
+    TYPE="${PART_TYPES[$PARTNAME]:-}"
+    if [ -z "$TYPE" ]; then
+        echo "Error: unknown partition \"$PARTNAME\" (from $BASENAME)." >&2
+        echo "       Add it to PART_TYPES with the correct type. It used to default" >&2
+        echo "       to 'logical', which makes the installer run lptools against a" >&2
+        echo "       physical partition and fail mid-flash." >&2
+        exit 1
+    fi
     SIZE=$(stat -c '%s' "$img")
 
     echo ""
     echo "=== $PARTNAME ($TYPE) ==="
     echo "  Source: $img ($((SIZE / 1024 / 1024)) MB)"
+
+    PAD="${PART_PAD[$PARTNAME]:-}"
+    if [ -n "$PAD" ]; then
+        if [ "$SIZE" -gt "$PAD" ]; then
+            echo "Error: $PARTNAME is $SIZE bytes, larger than its $PAD-byte partition" >&2
+            exit 1
+        fi
+        if [ "$SIZE" -lt "$PAD" ]; then
+            echo "  Padding to partition size: $PAD bytes"
+            cp "$img" "$WORKDIR/$PARTNAME.padded.img"
+            truncate -s "$PAD" "$WORKDIR/$PARTNAME.padded.img"
+            img="$WORKDIR/$PARTNAME.padded.img"
+            SIZE="$PAD"
+        fi
+    fi
 
     # SHA-256 of uncompressed image
     echo -n "  SHA-256 (raw)... "
@@ -166,7 +207,7 @@ $ENTRY"
 done
 
 # --- Generate manifest.json ---
-DATETIME=$(date +%s)
+DATETIME="${DATETIME_OVERRIDE:-$(date +%s)}"
 MANIFEST="$WORKDIR/manifest.json"
 
 cat > "$MANIFEST" <<ENDJSON
