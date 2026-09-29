@@ -189,10 +189,10 @@ void NanoMenu::closeIconGridPicker() {
 }
 
 // Import your own icon (X on the grid). Opens the storage-roots file browser in icon-pick mode
-// (folder-picker target 6), where directories are navigable and PNG/JPG files are selectable.
+// (folder-picker target 9), where directories are navigable and PNG/JPG files are selectable.
 void NanoMenu::gsOpenIconFilePicker() {
     if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
-    mFolderPickTarget = 6;
+    mFolderPickTarget = 9;
     std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
     Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
     mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;

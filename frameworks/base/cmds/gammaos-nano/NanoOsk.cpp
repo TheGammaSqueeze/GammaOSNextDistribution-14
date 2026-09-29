@@ -191,8 +191,9 @@ const char* glyphFor(OskGlyph g, OskShift shift) {
 // Compute the aspect-aware keyboard panel geometry. Pure function of the
 // surface size and the measured action-button label width, so it is
 // deterministic and host-testable.
-OskBox oskComputeBox(int W, int H, float actLabelPx) {
+OskBox oskComputeBox(int W, int H, float actLabelPx, bool promptLine = false) {
     OskBox b{};
+    b.promptLine = promptLine;
     float sf = fminf((float)W / 1080.0f, (float)H / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
     b.sf = sf;
@@ -207,7 +208,10 @@ OskBox oskComputeBox(int W, int H, float actLabelPx) {
 
     float gap        = 12.0f * sf;
     float actPadH    = 16.0f * sf;
-    float previewH   = FONT_CHAR_H * 2.0f * sf + 10.0f * sf;
+    // Field editors put their guidance ("Folder ID (letters, digits, dashes)") on a line of its
+    // own above the typed text, so a long prompt never squeezes the input into the right margin.
+    float promptH    = promptLine ? (FONT_CHAR_H * 1.5f * sf + 6.0f * sf) : 0.0f;
+    float previewH   = FONT_CHAR_H * 2.0f * sf + 10.0f * sf + promptH;
     float footerH    = FONT_CHAR_H * 1.4f * sf + 6.0f * sf;
     float bottomPad  = 16.0f * sf;
     float panelPad   = 10.0f * sf;
@@ -256,7 +260,8 @@ OskBox oskComputeBox(int W, int H, float actLabelPx) {
     // Lay out top-down inside the panel.
     b.kbX = ((float)W - blockW) / 2.0f;
     b.previewX = b.kbX;
-    b.previewY = b.panelY + panelPad;
+    b.promptY  = b.panelY + panelPad;
+    b.previewY = b.promptY + promptH;
     b.kbY = b.previewY + previewH + rowGap;
     if (!b.actBelow) {
         b.actX = b.kbX + kbW + gap;
@@ -740,7 +745,12 @@ OskBox NanoMenu::oskLayoutBox() {
     // reads "Enter", not "Search" - "Search" is only for the free search OSK.
     const char* actLabel = trDyn(mOskPasswordCallback ? "Enter" : "Search");
     float actLabelPx = measureText(actLabel, 1.7f * sf);
-    return oskComputeBox(mWidth, mHeight, actLabelPx);
+    // Field editors (Syncthing labels and IDs, system names, passwords) get their prompt on
+    // its own line; the wizard draws the value into its dialog field and the search OSK keeps
+    // its one-line "Search:" preview.
+    const bool promptLine = (mOskPasswordCallback || mOskPasswordMode) && !mPs3WizActive
+                            && !mOskPasswordPrompt.empty();
+    return oskComputeBox(mWidth, mHeight, actLabelPx, promptLine);
 }
 
 // Clamp focus indices into the current page (defensive after page swaps).
@@ -1525,7 +1535,14 @@ void NanoMenu::renderOsk() {
         std::string label, value;
         float pr, pg, pb;
         if (mOskPasswordCallback || mOskPasswordMode) {
-            label = std::string(mOskPasswordPrompt.empty() ? trDyn("Text") : trDyn(mOskPasswordPrompt.c_str())) + ": ";
+            if (b.promptLine) {
+                // Guidance on its own line, the typed text alone on the next.
+                drawText(trDyn(mOskPasswordPrompt.c_str()), b.previewX, b.promptY, 1.5f * b.sf,
+                         1.0f, 0.78f, 0.40f, 0.9f * fade);
+                label = "";
+            } else {
+                label = std::string(mOskPasswordPrompt.empty() ? trDyn("Text") : trDyn(mOskPasswordPrompt.c_str())) + ": ";
+            }
             value = (mOskPasswordMode && !mOskPlaintext) ? maskPassword(mOskQuery)
                                                          : mOskQuery;
             pr = 1.0f; pg = 0.78f; pb = 0.40f;

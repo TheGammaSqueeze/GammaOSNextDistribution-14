@@ -413,6 +413,7 @@ void NanoMenu::buildStFolder(Ps3Level& out) {
     out.items.push_back(stRow("Folder Type", STR_FOLDER_TYPE, nanost::folderTypeLabel(f.type)));
     std::string shared;
     for (const std::string& id : f.devices) {
+        if (id == s.myID) continue;   // the daemon lists this device itself on every folder
         std::string n = stShortId(id);
         for (const DeviceCfg& d : s.devices) if (d.id == id) n = d.name;
         shared += (shared.empty() ? "" : ", ") + n;

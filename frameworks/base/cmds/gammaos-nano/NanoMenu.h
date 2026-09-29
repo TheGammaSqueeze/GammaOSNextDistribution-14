@@ -3222,7 +3222,7 @@ private:
         std::string m3uPath;              // non-empty: derived from this .m3u (regenerated on scan);
                                           // empty: user-created (preserved across scans)
     };
-    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library, 2 = Photo library, 3 = Video library, 4 = ES-DE bulk auto-add root
+    int mFolderPickTarget = 0;             // 0 = Game Systems scan source, 1 = Music library, 2 = Photo library, 3 = Video library, 4 = ES-DE bulk auto-add root, 5 = DraStic data folder, 6 = Syncthing folder path, 7 = boxart folder, 8 = DraStic cheats folder, 9 = system icon file (lists images)
     std::vector<std::string> mMusicFolders;
     std::vector<MusicTrack>  mMusicTracks;
     std::vector<MusicPlaylist> mMusicPlaylists;

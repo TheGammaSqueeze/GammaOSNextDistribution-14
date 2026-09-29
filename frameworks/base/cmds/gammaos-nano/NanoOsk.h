@@ -62,6 +62,8 @@ struct OskBox {
     float actX, actY, actW, actH;   // action (Done/Search) button rect
     bool  actBelow;                 // action button stacked below grid (portrait)
     float previewX, previewY;       // top-left of the text-preview line
+    bool  promptLine;               // a field prompt is drawn on its own line above the preview
+    float promptY;                  // top of that prompt line (== panel top pad when promptLine)
     float footerY;                  // baseline y for the help footer
     float panelX, panelY, panelW, panelH; // full translucent panel background
     bool  portrait;

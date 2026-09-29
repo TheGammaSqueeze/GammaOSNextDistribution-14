@@ -451,9 +451,11 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
     // which is what let the watchdog abort nano when a folder on an FTP share was opened. The
     // listing is requested once and cached; until it arrives the screen shows "Loading..." and
     // stays fully responsive, so Back still works if the server never answers.
-    // Icon-import picker (target 6) also lists selectable image files, so the user can browse to
-    // their own PNG. Every other picker lists directories only.
-    const bool iconPick = (mFolderPickTarget == 6);
+    // Icon-import picker (target 9) also lists selectable image files, so the user can browse to
+    // their own PNG. Every other picker lists directories only. It used to share target 6 with the
+    // Syncthing folder picker, which therefore listed files and had no "Select This Folder" row:
+    // a Syncthing folder could not be chosen at all (reported 2026-09-28).
+    const bool iconPick = (mFolderPickTarget == 9);
     auto isImageName = [](const std::string& n) {
         size_t dot = n.rfind('.');
         if (dot == std::string::npos) return false;
