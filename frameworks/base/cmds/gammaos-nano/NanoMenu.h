@@ -3049,6 +3049,8 @@ private:
     void drasticDataFolderSelect(const std::string& path); // #90: set persist.gammaos.drastic.data_dir (folder-picker target 5)
     void drasticCheatsFolderSelect(const std::string& path); // persist.gammaos.drastic.cheats_dir (folder-picker target 8)
     void drasticPerfRestoreCheck();            // put back the global performance mode a per-game one parked
+    void mouseModeHomeGuard();                 // gammapad mouse mode off whenever the home is the foreground
+    int64_t mMouseGuardMs = 0;                 // its once-a-second throttle (uptime)
     void drasticFolderSelect(const char* prop, const char* what, const std::string& path);
     void gsRemoveScanSource(int srcIdx);       // drop a scan source from the edited system
     void gsDisableDefaultFolder(const std::string& alias);  // remove a default scan folder (alias) from the edited system

@@ -1270,6 +1270,24 @@ void NanoMenu::drasticPerfRestoreCheck() {
     property_set("persist.gammaos.drastic.perf_restore", "");
 }
 
+// gammapad's mouse mode turns the d-pad and sticks into a pointer. It is meant for an app; when
+// the home is the foreground again (the app quit, crashed, or a DS session ended) the mode must
+// be off, or nothing in the menu can be selected and only a power cycle recovers (reported
+// 2026-09-27: MiXplorer crashed with the mouse tile on). Polled once a second from the home's
+// housekeeping; a property write is all gammapad needs (it polls the flag).
+void NanoMenu::mouseModeHomeGuard() {
+    const int64_t now = android::uptimeMillis();
+    if (now - mMouseGuardMs < 1000) return;
+    mMouseGuardMs = now;
+    if (property_get_int32("sys.gammaos.gamepad.mouse_active", 0) == 0) return;
+    // Overlay home: only when it shows the full wallpaper home with no app in front. The DRM
+    // home owns the panel whenever this loop runs.
+    if (mOverlayMode && (!mOverlayWallpaper || property_get_int32("sys.gammaos.nano.app_launched", 0) != 0))
+        return;
+    property_set("sys.gammaos.gamepad.mouse_active", "0");
+    ALOGI("NanoMenu: mouse mode switched off, the home is the foreground again");
+}
+
 bool NanoMenu::threadLoop() {
     ALOGD("NanoMenu: entering main loop");
     drasticPerfRestoreCheck();
@@ -5890,6 +5908,8 @@ if (sRingPrimedCount >= 2) {
                     // hide the art while it is pulled, and follow a folder change made by the other
                     // nano process. Lives here, not in render(): the idle home draws no frames.
                     scraperStorageTick();
+                    // Mouse mode must not survive an app's exit or crash into the home.
+                    mouseModeHomeGuard();
                     // A scan deferred because external storage was not mounted yet
                     // retries here once the volume becomes reachable.
                     if (mMusicScanPending && !mMusicScanRunning && musicStorageReady())
