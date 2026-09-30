@@ -222,20 +222,39 @@ uint32_t makeLevelsBlob(int fd, const Port& p, const Cal& c) {
     return blob.blob_id;
 }
 
-std::mutex gApplyMu;
+// ---- live apply worker -------------------------------------------------------------------
+//
+// Every change (a slider step included) is handed to one worker thread that commits only the
+// newest values, so the menu and touch input never wait on DRM: a commit made while a page flip is
+// in flight can block for a frame, and a finger drag produces dozens of steps. The worker keeps its
+// DRM handle and the discovered ports, and rebuilds a colour table only when the levels change.
+// This kernel accepts property commits from a client that is not the DRM master (the composer
+// is), so the home and drastic-nano keep presenting meanwhile; the values stay in the kernel state
+// across their sessions.
+std::mutex gWMu;
+std::condition_variable gWCv;
+bool gWPending = false, gWStarted = false;
+Cal gWCal[2];
 
-// One atomic commit for both screens. This kernel accepts property commits from a client that is
-// not the DRM master (the composer is), so nano and drastic-nano sessions keep working while it
-// runs; the values stay in the kernel state across those sessions.
-bool commitCal(const Cal cal[2], Port portsOut[2]) {
-    int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
-    if (fd < 0) { ALOGW("screencal: open card0: %s", strerror(errno)); return false; }
+struct LiveState {
+    int fd = -1;
     Port ports[2];
-    if (!discover(fd, ports)) { close(fd); ALOGW("screencal: DSI ports not found"); return false; }
+    bool haveLast = false;
+    Cal last[2];
+};
+
+bool commitLive(LiveState& st, const Cal cal[2]) {
+    if (st.fd < 0) {
+        st.fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+        if (st.fd < 0) { ALOGW("screencal: open card0: %s", strerror(errno)); return false; }
+        if (!discover(st.fd, st.ports)) { ALOGW("screencal: DSI ports not found"); close(st.fd); st.fd = -1; return false; }
+        st.haveLast = false;
+    }
     std::vector<uint32_t> objs, counts, props, blobs;
     std::vector<uint64_t> vals;
+    bool lutWritten[2] = { false, false };
     for (int s = 0; s < 2; s++) {
-        const Port& p = ports[portOf(s)];
+        Port& p = st.ports[portOf(s)];
         if (!p.valid) continue;
         const Cal& c = cal[s];
         objs.push_back(p.conn); counts.push_back(0);
@@ -244,13 +263,15 @@ bool commitCal(const Cal cal[2], Port portsOut[2]) {
         // Levels: a LUT that is set cannot be switched off again on this kernel (clearing the
         // property leaves the last table active in hardware), so "untouched" is written as an
         // identity table once a table has been set, and not written at all before that.
-        const Prop& lutProp = usesCubic(p) ? p.cubic : p.gamma;
-        if (lutProp.id && (!c.levelsNeutral() || lutProp.value)) {
-            const uint32_t blob = makeLevelsBlob(fd, p, c);
+        Prop& lutProp = usesCubic(p) ? p.cubic : p.gamma;
+        const bool levelsChanged = !st.haveLast || st.last[s].r != c.r || st.last[s].g != c.g || st.last[s].b != c.b;
+        if (lutProp.id && levelsChanged && (!c.levelsNeutral() || lutProp.value)) {
+            const uint32_t blob = makeLevelsBlob(st.fd, p, c);
             if (blob) {
                 blobs.push_back(blob);
                 objs.push_back(p.crtc); counts.push_back(1);
                 props.push_back(lutProp.id); vals.push_back(blob);
+                lutWritten[s] = true;
             }
         }
     }
@@ -260,17 +281,46 @@ bool commitCal(const Cal cal[2], Port portsOut[2]) {
         a.count_objs = (uint32_t)objs.size();
         a.objs_ptr = (uintptr_t)objs.data(); a.count_props_ptr = (uintptr_t)counts.data();
         a.props_ptr = (uintptr_t)props.data(); a.prop_values_ptr = (uintptr_t)vals.data();
-        for (int tries = 0; tries < 25; tries++) {   // a page flip in flight answers EBUSY
-            if (ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &a) == 0) { ok = true; break; }
+        for (int tries = 0; tries < 50; tries++) {   // a page flip in flight answers EBUSY
+            if (ioctl(st.fd, DRM_IOCTL_MODE_ATOMIC, &a) == 0) { ok = true; break; }
             if (errno != EBUSY && errno != EINTR && errno != EAGAIN) break;
             usleep(2000);
         }
         if (!ok) ALOGW("screencal: atomic commit failed: %s", strerror(errno));
     }
-    for (uint32_t b : blobs) { drm_mode_destroy_blob d = { b }; drmIo(fd, DRM_IOCTL_MODE_DESTROYPROPBLOB, &d); }
-    if (portsOut) for (int i = 0; i < 2; i++) portsOut[i] = ports[i];
-    close(fd);
+    for (uint32_t b : blobs) { drm_mode_destroy_blob d = { b }; drmIo(st.fd, DRM_IOCTL_MODE_DESTROYPROPBLOB, &d); }
+    if (ok) {
+        for (int s = 0; s < 2; s++) {
+            if (!lutWritten[s]) continue;
+            Port& p = st.ports[portOf(s)];
+            (usesCubic(p) ? p.cubic : p.gamma).value = 1;   // a table is now set on this port
+        }
+        st.last[0] = cal[0]; st.last[1] = cal[1]; st.haveLast = true;
+    } else {
+        close(st.fd); st.fd = -1;   // re-discover on the next change (connector or CRTC changed)
+    }
     return ok;
+}
+
+void submitLive(const Cal cal[2]) {
+    std::lock_guard<std::mutex> lk(gWMu);
+    gWCal[0] = cal[0]; gWCal[1] = cal[1];
+    gWPending = true;
+    gWCv.notify_all();
+    if (gWStarted) return;
+    gWStarted = true;
+    std::thread([] {
+        LiveState st;
+        std::unique_lock<std::mutex> lk(gWMu);
+        for (;;) {
+            gWCv.wait(lk, [] { return gWPending; });
+            Cal cal[2] = { gWCal[0], gWCal[1] };
+            gWPending = false;
+            lk.unlock();
+            if (!commitLive(st, cal)) commitLive(st, cal);   // one retry with a fresh discovery
+            lk.lock();
+        }
+    }).detach();
 }
 
 // ---- baseparameter -------------------------------------------------------------------------
@@ -446,7 +496,6 @@ void scheduleBaseparameter() {
             Cal cal[2] = { load(kTop), load(kBottom) };
             Port ports[2];
             {
-                std::lock_guard<std::mutex> ak(gApplyMu);
                 int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
                 if (fd >= 0) { discover(fd, ports); close(fd); }
             }
@@ -500,18 +549,14 @@ bool isCalibrationKey(const std::string& key) {
 void applyFromProps() {
     if (!supported()) return;
     Cal cal[2] = { load(kTop), load(kBottom) };
-    {
-        std::lock_guard<std::mutex> lk(gApplyMu);
-        commitCal(cal, nullptr);
-    }
+    submitLive(cal);
     scheduleBaseparameter();
 }
 
 void preview(const std::string& key, const std::string& value) {
     if (!supported() || !isCalibrationKey(key)) return;
     Cal cal[2] = { load(kTop, key, value), load(kBottom, key, value) };
-    std::lock_guard<std::mutex> lk(gApplyMu);
-    commitCal(cal, nullptr);
+    submitLive(cal);
 }
 
 void copyTopToBottom() {

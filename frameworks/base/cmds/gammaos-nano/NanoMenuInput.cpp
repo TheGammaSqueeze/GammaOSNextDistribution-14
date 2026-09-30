@@ -1722,7 +1722,17 @@ void NanoMenu::ndsSidePanelTouch() {
     bool down = mTouchDown, downEdge = down && !mTouchWasDown, upEdge = !down && mTouchWasDown;
 
     if (slider) {                                          // drag the value track (DS x 40..216, y ~108..136)
-        if (down && mapped && dsY >= 104.0f && dsY <= 140.0f) {
+        // A touch that starts on the track drags it (and keeps dragging if the finger drifts off
+        // it vertically); a tap on the bottom bar is Back (left) or OK (right), as in the lists.
+        if (downEdge && mapped) { mNdsTouchDownX = dsX; mNdsTouchDownY = dsY; mNdsTouchMoved = false; }
+        const bool onTrack = mNdsTouchDownY >= 104.0f && mNdsTouchDownY <= 140.0f;
+        if (upEdge && !onTrack && mNdsTouchDownY >= 170.0f) {
+            if (mNdsTouchDownX < 60.0f) ps3XmbBack();
+            else if (mNdsTouchDownX > 196.0f) ps3XmbSelect();   // commit the value, like the D-pad confirm
+            mDisplayDirty = true;
+            mTouchWasDown = mTouchDown; return;
+        }
+        if (down && mapped && onTrack) {
             float t = (dsX - 40.0f) / (216.0f - 40.0f); if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
             float v = mPs3DlgSldMin + t * (mPs3DlgSldMax - mPs3DlgSldMin);
             float steps = roundf((v - mPs3DlgSldMin) / mPs3DlgSldStep);
