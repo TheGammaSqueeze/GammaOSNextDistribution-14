@@ -225,6 +225,27 @@ static const Ps3DataItem kLiveDisplayCh[] = {
   {"Saturation",16,"Adjusts how vivid colours are across the whole screen. 0 is greyscale, 100 is normal.","100",0,nullptr,0},
   {"Reading Mode",16,"Drains the colour out of the screen for comfortable reading.","Off",0,nullptr,0},
 };
+// Screen Calibration (RG DS and RG DS Plus only, see themeSettingRowVisible and NanoScreenCal):
+// the display controller corrects each panel after composition, so unlike LiveDisplay it also
+// reaches DS games in drastic-nano. The rows of the two screens share their display labels and
+// are told apart by their path-scoped bindings ("Top Screen/Brightness", ...).
+#define NANO_SCREENCAL_ROWS(WHICH) \
+  {"Brightness",16,"Brightness of the " WHICH " screen's picture. 50 leaves it unchanged. The backlight is set separately.","50",0,nullptr,0}, \
+  {"Contrast",16,"Contrast of the " WHICH " screen. 50 leaves it unchanged.","50",0,nullptr,0}, \
+  {"Saturation",16,"How vivid the " WHICH " screen's colours are. 0 is greyscale, 50 leaves it unchanged, higher is more vivid.","50",0,nullptr,0}, \
+  {"Hue",16,"Shifts the " WHICH " screen's colours around the colour wheel. 50 leaves it unchanged.","50",0,nullptr,0}, \
+  {"Red",16,"Red level of the " WHICH " screen, for white balance. 100% is the untouched panel.","100",0,nullptr,0}, \
+  {"Green",16,"Green level of the " WHICH " screen, for white balance. 100% is the untouched panel.","100",0,nullptr,0}, \
+  {"Blue",16,"Blue level of the " WHICH " screen, for white balance. Lower it to warm a cold screen. 100% is the untouched panel.","100",0,nullptr,0},
+static const Ps3DataItem kScreenCalTopCh[] = { NANO_SCREENCAL_ROWS("top") };
+static const Ps3DataItem kScreenCalBottomCh[] = { NANO_SCREENCAL_ROWS("bottom") };
+#undef NANO_SCREENCAL_ROWS
+static const Ps3DataItem kScreenCalCh[] = {
+  {"Top Screen",16,"Calibrates the top screen.",nullptr,0,PS3CH(kScreenCalTopCh)},
+  {"Bottom Screen",16,"Calibrates the bottom screen.",nullptr,0,PS3CH(kScreenCalBottomCh)},
+  {"Copy Top Screen to Bottom",16,"Gives the bottom screen the same calibration as the top screen.",nullptr,1,nullptr,0},
+  {"Reset Screen Calibration",16,"Returns both screens to their untouched picture.",nullptr,1,nullptr,0},
+};
 static const Ps3DataItem kDisplayCh[] = {
   // The PS3 firmware video-output rows (connector chooser, SCART cross-colour filter, 50 Hz,
   // RGB range, Super-White, Deep Colour, 1080p24, BD/DVD colour format, HDMI control) were all
@@ -236,6 +257,7 @@ static const Ps3DataItem kDisplayCh[] = {
   // Settings.System screen_brightness, which nano writes but never reads back.
   {"Brightness",22,"Sets the screen brightness.","128",1,nullptr,0},
   {"LiveDisplay",16,"Adjusts the colour of the screen: colour temperature, colour calibration, saturation and reading mode.",nullptr,0,PS3CH(kLiveDisplayCh)},
+  {"Screen Calibration",16,"Calibrates the colour of each screen in the display hardware: brightness, contrast, saturation, hue and white balance. Applies everywhere, DS games included, and is kept across reboots.",nullptr,0,PS3CH(kScreenCalCh)},
   {"Screen Saver",22,"Shows a screen saver while the system is idle and charging.","On",1,nullptr,0},
   {"Screen Timeout",22,"Sets how long the screen stays on while idle.","1 minute",1,nullptr,0},
   {"Font Size",22,"Sets the size of text shown on the screen.","Default",1,nullptr,0},

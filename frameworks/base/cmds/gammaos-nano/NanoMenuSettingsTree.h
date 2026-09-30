@@ -84,6 +84,7 @@ struct Ps3SettingBinding {
     const char* options;     // "value:Label,value:Label,..." (toggle = two entries)
 };
 const Ps3SettingBinding* ps3BindingFor(const std::string& label);
+const Ps3SettingBinding* ps3BindingForItem(const std::string& label, const std::string& path);
 
 class SettingsTreeBuilder {
 public:

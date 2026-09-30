@@ -84,6 +84,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <android/hardware/light/2.0/ILight.h>
 
 #include "NanoMenu.h"
+#include "NanoScreenCal.h"
 #include "NanoBootChime.h"
 #include "NanoMenuShaders.h"
 #include "NanoMenuStrings.h"
@@ -5459,6 +5460,18 @@ if (sRingPrimedCount >= 2) {
                             ALOGI("GammaOS Nano: re-applied display saturation %d", lvl);
                         }
                     }
+                }
+            }
+
+            // RG DS / RG DS Plus Screen Calibration: re-apply the stored calibration once the
+            // system is up (after the composer's own start-up pass over baseparameter), so the
+            // panels always match the settings even if baseparameter was reflashed.
+            {
+                static bool sCalApplied = false;
+                if (!sCalApplied && screencal::supported()) {
+                    char bc[PROPERTY_VALUE_MAX] = {};
+                    property_get("sys.boot_completed", bc, "0");
+                    if (bc[0] == '1') { sCalApplied = true; screencal::applyFromProps(); }
                 }
             }
 

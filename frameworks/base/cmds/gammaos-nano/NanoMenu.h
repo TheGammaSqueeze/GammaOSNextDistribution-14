@@ -2834,6 +2834,7 @@ private:
     void buildRemapTargetSubmenu(Ps3Level& out);          // target chooser for mRemapSrc
     void buildDevicesSubmenu(Ps3Level& out);              // capture-device multi-select
     void buildFfDeviceSubmenu(Ps3Level& out);             // vibration-device single-select
+    void screenCalSliderPreview();                        // Screen Calibration: live slider preview
     void buildSlideDeviceSubmenu(Ps3Level& out);          // Slide Behaviour: trigger-device single-select
     void buildSlideEventSubmenu(Ps3Level& out);           // Slide Behaviour: trigger event/code single-select
     void buildDefaultBrowserSubmenu(Ps3Level& out);       // "Default Browser" single-select picker

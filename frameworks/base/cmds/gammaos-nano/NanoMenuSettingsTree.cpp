@@ -34,6 +34,7 @@
 #include "NanoMenuSettingsTree.h"
 #include "NanoMenuStrings.h"
 #include "NanoI18n.h"
+#include "NanoScreenCal.h"
 
 namespace android {
 
@@ -888,6 +889,11 @@ void writeSettingValue(SettingSource src, const std::string& key,
     // binding; both write font_scale, so this single hook covers both front-ends.
     if (src == SettingSource::kSystem && key == "font_scale") {
         property_set("persist.gammaos.nano.fontscale", val.c_str());
+    }
+    // RG DS / RG DS Plus Screen Calibration: the display controller applies it, so every change
+    // is pushed to the panels at once (and mirrored into baseparameter by the module).
+    if (src == SettingSource::kProp && screencal::isCalibrationKey(key)) {
+        screencal::applyFromProps();
     }
     // Display saturation rides the display colour matrix, which has no persisted setting of its
     // own, so applying it is an explicit call. nano re-applies the prop on boot.

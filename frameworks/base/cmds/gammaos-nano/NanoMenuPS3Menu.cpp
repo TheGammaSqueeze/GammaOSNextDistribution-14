@@ -25,6 +25,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoScreenCal.h"   // RG DS / RG DS Plus Screen Calibration (Display settings)
 #include "NanoScraper.h"   // nanoscraper::cacheKey for the per-game custom boxart cache path
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
@@ -591,7 +592,7 @@ NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d, const std::string
     // Resolve the settings binding once here (the only producer of items whose label
     // can match kPs3Bindings) so resolvePs3ItemValue does not re-scan the table by
     // string-compare for every visible item every frame. nullptr for non-bound rows.
-    it.binding = ps3BindingFor(it.label);
+    it.binding = ps3BindingForItem(it.label, it.payloadStr);
     if (d->desc)  it.desc  = d->desc;
     if (d->value) it.value = d->value;   // static informational default from the DATA tree
     // For a settings-bound row, store the LIVE current value: the DSi list and the Minima
@@ -787,6 +788,8 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
     // once a secondary panel has been seen (const-safe here, unlike hasSecondaryDisplay()).
     if (is("Bottom Clock") || is("Bottom Clock FPS") || is("Bottom Wallpaper")) return mNdsHadSecondary;
+    // Screen Calibration drives the RK356x display controller of the RG DS and RG DS Plus.
+    if (is("Screen Calibration")) return screencal::supported();
     // The Control Centre lives on the dual-screen bottom panel, so its options only make sense there.
     if (is("Control Centre Double Tap") || is("Control Centre Timeout")) return mNdsHadSecondary;
     return true;
@@ -5052,6 +5055,7 @@ void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
             if (v < mPs3DlgSldMin) v = mPs3DlgSldMin;
             if (v > mPs3DlgSldMax) v = mPs3DlgSldMax;
             mPs3DlgSldVal = v;
+            screenCalSliderPreview();
             // GammaShader param slider: apply live so the shader updates in real time.
             if (mShaderParamEdit >= 0 && mShaderParamEdit < (int)mShaderParams.size()) {
                 mShaderParams[mShaderParamEdit].cur = v;
@@ -5842,6 +5846,15 @@ void NanoMenu::ps3XmbSelect() {
             // Game Settings: re-read the ROM folders. The scan rebuilds each system's list from
             // disk, so deleted games disappear, and the Recently Played list is pruned with it.
             if (it.label == "Rescan Games") { gamesRefresh(); return; }
+            // Display > Screen Calibration actions. The rows of the open level re-read their
+            // values so the new calibration shows at once.
+            if (it.label == "Copy Top Screen to Bottom" || it.label == "Reset Screen Calibration") {
+                if (it.label == "Reset Screen Calibration") screencal::resetAll(); else screencal::copyTopToBottom();
+                mPs3BindCache.clear();
+                refreshBoundValuesInStack();
+                mDisplayDirty = true;
+                return;
+            }
             // Game Settings: pick the folder drastic-nano reads DraStic's data/saves/BIOS from
             // (persist.gammaos.drastic.data_dir). Needed when the user moved DraStic to scoped/SD
             // storage: the native DS core then follows the moved folder instead of failing to find
@@ -8858,6 +8871,24 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // write, so nano keeps the chosen level in its own prop and re-applies it on boot.
     {"Saturation", SettingSource::kProp, "persist.gammaos.nano.display.saturation", "100",
      "slider:0:100:5:0"},
+    // ---- Screen Calibration (RG DS / RG DS Plus) --------------------------------------
+    // Path-scoped labels ("<screen>/<row>"): the two screens' rows share display labels with each
+    // other and with LiveDisplay, so they bind by their place in the tree (ps3BindingForItem).
+    // writeSettingValue applies every change through NanoScreenCal; the slider previews live.
+    {"Top Screen/Brightness", SettingSource::kProp, "persist.gammaos.nano.screencal.top.brightness", "50", "slider:0:100:1:0"},
+    {"Top Screen/Contrast", SettingSource::kProp, "persist.gammaos.nano.screencal.top.contrast", "50", "slider:0:100:1:0"},
+    {"Top Screen/Saturation", SettingSource::kProp, "persist.gammaos.nano.screencal.top.saturation", "50", "slider:0:100:1:0"},
+    {"Top Screen/Hue", SettingSource::kProp, "persist.gammaos.nano.screencal.top.hue", "50", "slider:0:100:1:0"},
+    {"Top Screen/Red", SettingSource::kProp, "persist.gammaos.nano.screencal.top.red", "100", "slider:20:100:1:0"},
+    {"Top Screen/Green", SettingSource::kProp, "persist.gammaos.nano.screencal.top.green", "100", "slider:20:100:1:0"},
+    {"Top Screen/Blue", SettingSource::kProp, "persist.gammaos.nano.screencal.top.blue", "100", "slider:20:100:1:0"},
+    {"Bottom Screen/Brightness", SettingSource::kProp, "persist.gammaos.nano.screencal.bottom.brightness", "50", "slider:0:100:1:0"},
+    {"Bottom Screen/Contrast", SettingSource::kProp, "persist.gammaos.nano.screencal.bottom.contrast", "50", "slider:0:100:1:0"},
+    {"Bottom Screen/Saturation", SettingSource::kProp, "persist.gammaos.nano.screencal.bottom.saturation", "50", "slider:0:100:1:0"},
+    {"Bottom Screen/Hue", SettingSource::kProp, "persist.gammaos.nano.screencal.bottom.hue", "50", "slider:0:100:1:0"},
+    {"Bottom Screen/Red", SettingSource::kProp, "persist.gammaos.nano.screencal.bottom.red", "100", "slider:20:100:1:0"},
+    {"Bottom Screen/Green", SettingSource::kProp, "persist.gammaos.nano.screencal.bottom.green", "100", "slider:20:100:1:0"},
+    {"Bottom Screen/Blue", SettingSource::kProp, "persist.gammaos.nano.screencal.bottom.blue", "100", "slider:20:100:1:0"},
     // Network -> Default Browser: which app opens web pages (Internet Browser / Search /
     // Go to URL all launch through it). "@browser" makes the row drill into
     // buildDefaultBrowserSubmenu (the installed-browser list is per device, so it cannot be
@@ -9177,6 +9208,20 @@ static const Ps3SettingBinding kPs3Bindings[] = {
 const Ps3SettingBinding* ps3BindingFor(const std::string& label) {
     for (const auto& b : kPs3Bindings) if (label == b.label) return &b;
     return nullptr;
+}
+
+// Binding for a DATA-tree item: a path-scoped binding ("<parent>/<label>", matched against the
+// end of the item's compound id) wins over the plain label, so identically labelled rows in
+// different submenus can bind to different settings.
+const Ps3SettingBinding* ps3BindingForItem(const std::string& label, const std::string& path) {
+    if (!path.empty()) {
+        for (const auto& b : kPs3Bindings) {
+            const size_t n = strlen(b.label);
+            if (!strchr(b.label, '/') || path.size() <= n) continue;
+            if (path[path.size() - n - 1] == '/' && path.compare(path.size() - n, n, b.label) == 0) return &b;
+        }
+    }
+    return ps3BindingFor(label);
 }
 
 // Match a stored setting value to an option value, treating boolean synonyms as
@@ -9538,7 +9583,9 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
     }
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgThemeKey = 0; mPs3DlgBinding = b;
-    mPs3DlgTitle = b->label; mPs3DlgBody.clear();
+    // A path-scoped binding ("Top Screen/Saturation") titles the dialog with its row name.
+    { const char* sl = strrchr(b->label, '/'); mPs3DlgTitle = sl ? sl + 1 : b->label; }
+    mPs3DlgBody.clear();
     std::string cur = ps3BoundValue(b);
     // Free-text setting: open the on-screen keyboard prefilled with the current
     // value; commit writes the typed string back. No side-panel dialog is shown.
@@ -11483,6 +11530,13 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
     }
 }
 
+// Live preview of a Screen Calibration slider on the panels (nothing is written until the dialog
+// is confirmed; cancel restores the stored calibration in closePs3Dialog).
+void NanoMenu::screenCalSliderPreview() {
+    if (!mPs3DlgBinding || !mPs3DlgSlider || !screencal::isCalibrationKey(mPs3DlgBinding->key)) return;
+    screencal::preview(mPs3DlgBinding->key, std::to_string((int)lroundf(mPs3DlgSldVal)));
+}
+
 void NanoMenu::closePs3Dialog(bool apply) {
     // GammaShader parameter slider (no binding): the value was written live as the
     // user slid; confirm keeps it, cancel reverts to the value at open. Then refresh
@@ -11505,6 +11559,9 @@ void NanoMenu::closePs3Dialog(bool apply) {
         // so the row value updates immediately.
         const Ps3SettingBinding* b = mPs3DlgBinding;
         mPs3DlgBinding = nullptr;
+        // Screen Calibration sliders preview on the panels as they move: cancel puts the
+        // stored calibration back (confirm writes it, which applies it too).
+        if (!apply && screencal::isCalibrationKey(b->key)) screencal::applyFromProps();
         if (apply) {
             if (!strcmp(b->options, "@rgbeffect")) {
                 // Off -> gammargb.control=off; any effect -> control=on + rgb.effect.

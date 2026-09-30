@@ -983,6 +983,7 @@ void NanoMenu::minimaSidePanelTouch() {
             if (v < mPs3DlgSldMin) v = mPs3DlgSldMin; if (v > mPs3DlgSldMax) v = mPs3DlgSldMax;
             if (v != mPs3DlgSldVal) {
                 mPs3DlgSldVal = v; mDisplayDirty = true;
+                screenCalSliderPreview();
                 if (mShaderParamEdit >= 0 && mShaderParamEdit < (int)mShaderParams.size()) {
                     mShaderParams[mShaderParamEdit].cur = v; shaderApplyParamLive(mShaderParamEdit);
                 }

@@ -57,6 +57,7 @@ cc_binary {
         "NanoMenuNet.cpp",
         "NanoMenuSettings.cpp",
         "NanoMenuSettingsTree.cpp",
+        "NanoScreenCal.cpp",
         "NanoMenuSettingsRender.cpp",
         "NanoMenuRender.cpp",
         "NanoMenuOverlay.cpp",
