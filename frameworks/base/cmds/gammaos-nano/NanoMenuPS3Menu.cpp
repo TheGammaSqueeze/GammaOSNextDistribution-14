@@ -10070,13 +10070,37 @@ void NanoMenu::ps3FillCircle(float cx, float cy, float rad, float r, float g, fl
 }
 void NanoMenu::ps3StrokeRing(float cx, float cy, float radX, float radY, float lw,
                              float r, float g, float b, float a) {
-    const int N = 44;
-    float px = cx + radX, py = cy;
+    // One continuous annulus: a solid core of the stroke width with a feathered edge inside and
+    // out, all steps sharing their vertices. It used to be a chain of separate thick lines, which
+    // overlapped on the inside of every joint (alpha blended twice) and left slivers on the outside,
+    // so a thin ring (the face-button badges at DS scale) looked speckled and grainy.
+    const float fw = kPs3EdgeFeatherPx;
+    const float inner = fmaxf(lw * 0.5f - fw * 0.5f, 0.0f);   // solid half-width
+    const float outer = lw * 0.5f + fw * 0.5f;                // feather edge (alpha 0)
+    const float maxR = fmaxf(radX, radY);
+    const int N = (int)fminf(fmaxf(maxR * 1.5f, 48.0f), 180.0f);   // smooth at any size
+    auto pt = [&](float c, float s, float off, float& x, float& y) {
+        x = cx + c * fmaxf(radX + off, 0.0f);
+        y = cy + s * fmaxf(radY + off, 0.0f);
+    };
+    float pc = 1.0f, ps = 0.0f;
     for (int i = 1; i <= N; i++) {
-        float t = (float)i / (float)N * 2.0f * (float)M_PI;
-        float x = cx + cosf(t) * radX, y = cy + sinf(t) * radY;
-        ps3ThickLine(px, py, x, y, lw, r, g, b, a);
-        px = x; py = y;
+        const float t = (float)i / (float)N * 2.0f * (float)M_PI;
+        const float c = cosf(t), s = sinf(t);
+        float aox, aoy, asox, asoy, asix, asiy, aix, aiy;   // previous angle: outer, solid out, solid in, inner
+        float box, boy, bsox, bsoy, bsix, bsiy, bix, biy;   // this angle
+        pt(pc, ps, outer, aox, aoy); pt(pc, ps, inner, asox, asoy); pt(pc, ps, -inner, asix, asiy); pt(pc, ps, -outer, aix, aiy);
+        pt(c, s, outer, box, boy);   pt(c, s, inner, bsox, bsoy);   pt(c, s, -inner, bsix, bsiy);   pt(c, s, -outer, bix, biy);
+        // solid core
+        triAA(asix, asiy, a, asox, asoy, a, bsox, bsoy, a, r, g, b);
+        triAA(asix, asiy, a, bsox, bsoy, a, bsix, bsiy, a, r, g, b);
+        // outer feather (a -> 0)
+        triAA(asox, asoy, a, aox, aoy, 0, box, boy, 0, r, g, b);
+        triAA(asox, asoy, a, box, boy, 0, bsox, bsoy, a, r, g, b);
+        // inner feather (a -> 0)
+        triAA(aix, aiy, 0, asix, asiy, a, bsix, bsiy, a, r, g, b);
+        triAA(aix, aiy, 0, bsix, bsiy, a, bix, biy, 0, r, g, b);
+        pc = c; ps = s;
     }
 }
 void NanoMenu::ps3VGradRect(float x, float y, float w, float h,
