@@ -3084,7 +3084,11 @@ static inline uint64_t realClockUs() {
 // the slot-flip counter, which frame-skips). Divide the per-second delta by the
 // reads-per-frame to get emulated FPS.
 std::atomic<uint32_t> gVTimeCount{0};
-extern "C" void drasticVTime(uint64_t* out) {
+// Pending limiter rebase after a capped fast-forward (see setFastForward): the heap master whose
+// deadline must move back onto the clock, or null. Consumed by drasticVTimeLimiter.
+std::atomic<uint8_t*> gFfRebaseHm{nullptr};
+// Returns true when *out is the capped fast-forward's virtual clock.
+static bool drasticVTimeRead(uint64_t* out) {
     gVTimeCount.fetch_add(1, std::memory_order_relaxed);
     if (gFfOnForHook.load(std::memory_order_relaxed) && gFfLimitPct.load(std::memory_order_relaxed) > 0) {
         // Capped fast-forward. drastic's limiter does not reach the hooked sleep in FF
@@ -3113,15 +3117,40 @@ extern "C" void drasticVTime(uint64_t* out) {
               if (nowUs - sLogUs > 1000000) { ALOGI("DrasticRunner: ff pacer: %u frames/s at %d%% (period %lld us)", sFrames, pct, (long long)period); sLogUs = nowUs; sFrames = 0; } }
         }
         *out = (uint64_t)(gFfVirtBaseUs + gFfVirtFrames * gFfIntervalUs);
-        return;
+        return true;
     }
     if (gPaceOn.load(std::memory_order_relaxed)) {
         const uint32_t seq = gVblSeq.load(std::memory_order_acquire);
         *out = (uint64_t)gVirtBaseUs.load() +
                (uint64_t)(seq - gVirtBaseSeq.load()) * kPaceTickUs;
-        return;
+        return false;
     }
     *out = realClockUs();
+    return false;
+}
+extern "C" void drasticVTime(uint64_t* out) { drasticVTimeRead(out); }
+// The clock read as drastic's limiter sees it (the kCaveTime cave, reached only from the limiter
+// reset +0x1b76c and the limiter +0x1b814, on the emulator thread). Leaving a capped fast-forward
+// the limiter deadline (hm+0x3b2f908) must move from the virtual clock back onto this clock. It
+// is done here and not in setFastForward: the render thread's write raced the emulator's limiter
+// pass (clock read, then a deadline store: +0x1b880 stores "deadline = now" on every FF frame),
+// and a pass in flight stored a virtual-clock deadline over the rebased one. Here the limiter has
+// not loaded its base (+0x1b81c) or deadline (+0x1b834) yet, so it compares against this value.
+// The deadline is relative to the limiter's time base at hm+0x3b2f900 (the reset stores
+// base = clock * 3 and deadline = 0; the limiter's "now" is clock * 3 - base). A pass that still
+// read the virtual clock leaves the rebase pending for the next one.
+extern "C" void drasticVTimeLimiter(uint64_t* out) {
+    const bool virt = drasticVTimeRead(out);
+    if (virt || !gFfRebaseHm.load(std::memory_order_relaxed)) return;
+    uint8_t* hm = gFfRebaseHm.exchange(nullptr, std::memory_order_acq_rel);
+    if (!hm) return;
+    volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
+    const int64_t tbase = *reinterpret_cast<volatile int64_t*>(hm + 0x3b2f900);
+    const int64_t before = *deadline;
+    const int64_t rel = (int64_t)*out * 3 - tbase;
+    *deadline = rel;
+    ALOGI("DrasticRunner: fast-forward exit: limiter deadline rebased (%lld -> %lld, was %.3f s behind)",
+          (long long)before, (long long)rel, ((double)rel - (double)before) / 3e6);
 }
 
 // Emulated-frame counter. Bumped once per emulated frame by the cave installed on
@@ -3664,7 +3693,11 @@ static void aaCloseSink();
 // comes from +0x3c7d048, the SLRecordItf, inside the microphone recorder creator (+0x1da98). It is
 // SetRecordState(SL_RECORDSTATE_RECORDING), and with it stubbed the DS microphone was realized and
 // primed but never started, so no input ever opened while the sink was active (the RG DS Plus).
-static const uintptr_t kAaPlaySites[] = {0x1d9a0, 0x1e4fc, 0x1e5e0};
+// +0x1e5e0 was the same mistake on the resume path: in the resume body (+0x1e4a0) x19 is re-based
+// to +0x3c7d048 at +0x1e560, so after re-enqueueing the two record buffers that site is the
+// recorder's SetRecordState(RECORDING). drastic's pause (+0x1e320, the overlay menu) stops the
+// recorder, and with the restart stubbed the microphone stayed dead after the first menu visit.
+static const uintptr_t kAaPlaySites[] = {0x1d9a0, 0x1e4fc};
 static uint32_t gAaPlaySiteOrig[4];
 static bool gAaPlaySitesDisabled = false;
 static void aaPatchPlaySites(uint8_t* base, long ps, bool disable) {
@@ -3753,7 +3786,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         uint64_t addr = (uint64_t)(uintptr_t)target;
         memcpy(&c[2], &addr, 8);
     };
-    writeCave(kCaveTime, (void*)&drasticVTime);
+    writeCave(kCaveTime, (void*)&drasticVTimeLimiter);
     writeCave(kCaveWait, (void*)&drasticVWait);
     gPaceBase = base;   // drasticVWait uses this for the render-skip catch-up
     gOrigSlotFlip = reinterpret_cast<void (*)()>(base + 0x1cb14);
@@ -3956,9 +3989,10 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             if (android::drastic_settings::getInt("persist.gammaos.drastic_nano.audio_aaudio", 1)) {
                 if (*reinterpret_cast<uintptr_t*>(base + 0x3c7d030) != 0) aaStopDrasticPlayer();
                 // Every SetPlayState(PLAYING) drastic can issue is disabled, not only the one at the
-                // end of the creation routine (+0x1d760 -> +0x1d9a0): the prime-and-start at +0x1db74
-                // and the two resume paths (+0x1e4fc, +0x1e5e0) run when emulation starts or comes
-                // back from a pause, which is AFTER the exclusive stream has taken the PCM. A track
+                // end of the creation routine (+0x1d760 -> +0x1d9a0): the resume path (+0x1e4fc)
+                // runs when emulation starts or comes back from a pause, which is AFTER the
+                // exclusive stream has taken the PCM (+0x1db74 and +0x1e5e0 look the same but start
+                // the microphone recorder, see kAaPlaySites, and must stay). A track
                 // started then and stopped at the first submit stays on the mixer for the whole
                 // session (AudioFlinger drains a stopped track from HAL timestamps, and the HAL cannot
                 // open its PCM behind the MMAP stream), the mixer never sleeps and the HAL retries
@@ -10826,13 +10860,19 @@ void DrasticRunner::setFastForward(bool on) {
         int idx = android::drastic_settings::getInt("persist.gammaos.drastic_nano.ffspeed", 5);
         { const int rt = property_get_int32("sys.gammaos.drastic_nano.ffspeed_rt", -1); if (rt >= 0) idx = rt; }
         gFfIntervalUs = (idx >= 0 && idx <= 5) ? kIntervals[idx] : 16666;
-        // Start the virtual clock exactly on drastic's current deadline (1/3 us units) so
-        // it is on time from the first frame; the first drasticVWait then paces for real.
+        // Start the virtual clock exactly on drastic's current deadline so it is on time
+        // from the first frame. The deadline (hm+0x3b2f908, 1/3 us) is RELATIVE to the
+        // limiter's time base at hm+0x3b2f900: the limiter reset (+0x1b740) stores
+        // base = clock * 3 and deadline = 0, and every limiter pass compares the deadline
+        // with clock * 3 - base (+0x1b818). The clock value that lands on the deadline
+        // is therefore (base + deadline) / 3.
         int64_t base = (int64_t)realClockUs();
         if (mArm64Base) {
             uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
-            if (hm) base = *reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908) / 3;
+            if (hm) base = (*reinterpret_cast<volatile int64_t*>(hm + 0x3b2f900) +
+                            *reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908)) / 3;
         }
+        gFfRebaseHm.store(nullptr, std::memory_order_relaxed);   // an exit rebase not consumed yet is moot now
         gFfVirtBaseUs = base; gFfVirtFrames = 0; gFfRealDeadlineUs = 0;
         gFfLimitPct.store(pct, std::memory_order_relaxed);
         ALOGI("DrasticRunner::setFastForward: limit %d%% (%s)", pct, pct > 0 ? "paced here" : "uncapped");
@@ -10844,23 +10884,20 @@ void DrasticRunner::setFastForward(bool on) {
         // Leaving a capped fast-forward. drastic's limiter deadline (hm+0x3b2f908, 1/3 us)
         // advanced in the virtual clock of drasticVTime, one table interval (5 ms at the
         // default index) per emulated frame, while real time advanced 16.667 ms * 100 / pct
-        // per frame: after ten seconds at 150% the deadline sits about five seconds behind
-        // real time (measured: the value left behind is not even in the clock's range). From
-        // here drastic reads the real clock again (or the vblank-locked one, rebased to real
-        // time by setVblankPacing just above), and its limiter asks for a sleep computed from
-        // that stale deadline: in the heavy-scene bypass drasticVWait clamps it to 50 ms per
-        // frame, so a 3D game (Pokemon Diamond title) ground along at 17 emulated frames per
-        // second until the next fast-forward entry rebased the virtual clock onto the stale
-        // deadline. Put the deadline on the clock it is about to be compared with.
+        // per frame, and drastic's own 32-bit deadline arithmetic under FF leaves it far
+        // outside the clock's range. From here drastic reads the real clock again (or the
+        // vblank-locked one, rebased to real time by setVblankPacing just above), and its
+        // limiter asks for a sleep computed from that stale deadline: in the heavy-scene
+        // bypass drasticVWait clamps it to 50 ms per frame, so the game runs in slow motion
+        // at 17 emulated frames per second (Pokemon Diamond title; HeartGold on the RG DS
+        // Plus, every bypass after the first fast-forward) until the lock takes over again.
+        // The limiter compares deadline and now as 32-bit values, so a deadline off by a
+        // whole time base lands on a pseudo-random offset that drifts with the clocks: the
+        // slow motion comes and goes. Put the deadline on the clock it is about to be
+        // compared with; drasticVTimeLimiter does it on the emulator thread at the next
+        // limiter pass that reads the real or locked clock.
         uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
-        if (hm) {
-            volatile int64_t* deadline = reinterpret_cast<volatile int64_t*>(hm + 0x3b2f908);
-            const int64_t before = *deadline;
-            uint64_t nowUs = 0; drasticVTime(&nowUs);
-            *deadline = (int64_t)nowUs * 3;
-            ALOGI("DrasticRunner::setFastForward: limiter deadline rebased on exit (%lld -> %lld, was %.1f s behind)",
-                  (long long)before, (long long)*deadline, ((double)nowUs * 3 - (double)before) / 3e6);
-        }
+        if (hm) gFfRebaseHm.store(hm, std::memory_order_release);
     }
     // mBaseConfigBits holds the user's current (non-FF) settings, kept up
     // to date by applyVideoConfigLive, so FF composes with live changes.

@@ -569,6 +569,7 @@ void retriggerPowerProfile() {
 // persist.gammaos.drastic_nano.rt_throttle.
 static long sSavedRtRuntimeUs = 0;
 static bool sRtThrottled = false;
+static bool sEmuDemoted = false;   // the fast-forward edge moved the emulator threads to 79
 static long readLongFile(const char* path, long dflt) {
     int fd = open(path, O_RDONLY | O_CLOEXEC);
     if (fd < 0) return dflt;
@@ -623,11 +624,19 @@ static int setEmuThreadsPrio(int prio) {
 // edge. Cheap no-op when the state is unchanged, so it is safe to call every frame.
 void setRtThrottleForFf(bool ffActive) {
     const char* kPath = "/proc/sys/kernel/sched_rt_runtime_us";
+    if (ffActive && !sEmuDemoted &&
+        android::drastic_settings::getBool("persist.gammaos.drastic_nano.ff_emu_demote", true)) {
+        const int n = setEmuThreadsPrio(79);
+        sEmuDemoted = true;
+        ALOGI("drastic-nano: fast-forward: %d emulator threads moved to SCHED_FIFO 79 (input readers stay above)", n);
+    } else if (!ffActive && sEmuDemoted) {
+        // Undone on its own edge: the RT throttle below can be switched off by the user,
+        // and the restore used to live only in its branch, so the demotion stuck.
+        const int n = setEmuThreadsPrio(80);
+        sEmuDemoted = false;
+        ALOGI("drastic-nano: fast-forward off: %d emulator threads back to SCHED_FIFO 80", n);
+    }
     if (ffActive && !sRtThrottled) {
-        if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.ff_emu_demote", true)) {
-            const int n = setEmuThreadsPrio(79);
-            ALOGI("drastic-nano: fast-forward: %d emulator threads moved to SCHED_FIFO 79 (input readers stay above)", n);
-        }
         if (!android::drastic_settings::getBool("persist.gammaos.drastic_nano.rt_throttle", true)) return;
         long period = readLongFile("/proc/sys/kernel/sched_rt_period_us", 1000000);
         long want = android::drastic_settings::getInt("persist.gammaos.drastic_nano.rt_runtime_us",
@@ -645,7 +654,6 @@ void setRtThrottleForFf(bool ffActive) {
     } else if (!ffActive && sRtThrottled) {
         writeLongFile(kPath, sSavedRtRuntimeUs);   // restore full RT for normal play
         sRtThrottled = false;
-        setEmuThreadsPrio(80);
     }
 }
 
