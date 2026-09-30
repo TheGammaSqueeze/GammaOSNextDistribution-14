@@ -82,7 +82,8 @@ public:
               int firmwareColor = -1,
               int firmwareBdayMonth = -1,
               int firmwareBdayDay = -1,
-              const std::string& firmwareNick = std::string());
+              const std::string& firmwareNick = std::string(),
+              int64_t customClockMs = -1);
 
     // Tear down. pauseSystem + quitSystem + dlclose.
     void shutdown();
@@ -749,6 +750,9 @@ private:
     addCustomCheat_t             mAddCustomCheat = nullptr;
     findCustomCheat_t            mFindCustomCheat = nullptr;
     int                  mAutoLoadSlot = 0;   // startGame boot-load slot
+    // startGame's clock argument: epoch milliseconds the DS RTC starts from, -1 = none
+    // (DraSticEmuActivity.run passes _CustomClock when the custom clock is enabled).
+    int64_t              mCustomClockMs = -1;
     fxLoad_t            mFxLoad = nullptr;
     fxSetup_t           mFxSetup = nullptr;
     renderFrame_t       mRenderFrame = nullptr;
@@ -972,6 +976,9 @@ private:
     // when held, clear it when released). Starts at 0 so the first
     // setFastForward call before init becomes a no-op.
     long mBaseConfigBits = 0;
+    // The Slot-2 cartridge bits (43-46) the game booted with. The cartridge is set up
+    // at boot, so a live config apply keeps these and a change waits for the next launch.
+    long mBootSlot2Bits = 0;
     // Cached fast-forward state so we don't hammer applyConfig every
     // frame when the user just holds the button.
     bool mFastForwardOn = false;

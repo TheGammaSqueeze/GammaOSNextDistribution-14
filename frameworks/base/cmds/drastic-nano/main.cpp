@@ -4605,33 +4605,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    // Per-game settings override: <user data folder>/overrides/<rom base>.cfg,
-    // keyed by the same ROM basename as the save states (so a zip resolves to
-    // its extracted ROM first). When the file exists it is the source of truth
-    // for every setting it holds from here on: every read below and in the run
-    // loops goes through drastic_settings and never sees the global properties
-    // for those keys, and every write lands in the file. The globals are never
-    // touched (see DrasticSettings.h).
-    {
-        const size_t slash = romPath.find_last_of('/');
-        std::string base = slash == std::string::npos ? romPath : romPath.substr(slash + 1);
-        const size_t dot = base.find_last_of('.');
-        if (dot != std::string::npos) base = base.substr(0, dot);
-        android::drastic_settings::setOverridePath(
-                android::drastic_assets::userDir() + "/overrides/" + base + ".cfg");
-        if (!android::drastic_settings::load()) {
-            if (android::drastic_settings::overrideUnreadable()) {
-                ALOGW("drastic-nano: per-game override for %s is unreadable (%s), global settings apply this session",
-                      base.c_str(), android::drastic_settings::overrideError().c_str());
-            } else {
-                ALOGI("drastic-nano: no per-game override for %s, global settings apply", base.c_str());
-            }
-        }
-        // A per-game performance mode replaces the global one for this session (the global
-        // value is parked and restored at exit, see DrasticPerf.h).
-        android::drastic_perf::applyOverrideAtLaunch();
-    }
-
     // Read the user's drastic SharedPreferences so the overlay menu
     // starts with the right values and applyConfig uses the user's
     // real video settings (shader, hi-res, threaded 3d, edge marking,
@@ -4677,7 +4650,54 @@ int main(int argc, char** argv) {
             ALOGI("drastic-nano: imported %d settings from the DraStic app config into properties", n);
         }
         android::drastic_prefs::markPropsSeeded();
+        // The import above already carried the System keys: nothing left for the
+        // second one below.
+        android::drastic_prefs::markSystemPropsSeeded();
     }
+    if (!android::drastic_prefs::systemPropsSeeded()) {
+        // Devices imported before the System page existed: the first import did not
+        // carry RTC system time, the custom clock or the Slot-2 cartridge. Import just
+        // those, once, with the same rules (only what the XML changed, only into
+        // properties nothing has set).
+        android::drastic_prefs::Prefs legacy = prefs;
+        if (android::drastic_prefs::readPrefs(prefsPath, &legacy)) {
+            int n = android::drastic_prefs::writeProps(legacy, &prefs, /*onlyUnset=*/true,
+                                                      &android::drastic_prefs::systemPropKeys());
+            ALOGI("drastic-nano: imported %d System settings from the DraStic app config into properties", n);
+        }
+        android::drastic_prefs::markSystemPropsSeeded();
+    }
+
+    // The per-game override loads only after the one-time imports: while it is active
+    // every settings write lands in its file, and the imports must fill the global
+    // properties.
+    // Per-game settings override: <user data folder>/overrides/<rom base>.cfg,
+    // keyed by the same ROM basename as the save states (so a zip resolves to
+    // its extracted ROM first). When the file exists it is the source of truth
+    // for every setting it holds from here on: every read below and in the run
+    // loops goes through drastic_settings and never sees the global properties
+    // for those keys, and every write lands in the file. The globals are never
+    // touched (see DrasticSettings.h).
+    {
+        const size_t slash = romPath.find_last_of('/');
+        std::string base = slash == std::string::npos ? romPath : romPath.substr(slash + 1);
+        const size_t dot = base.find_last_of('.');
+        if (dot != std::string::npos) base = base.substr(0, dot);
+        android::drastic_settings::setOverridePath(
+                android::drastic_assets::userDir() + "/overrides/" + base + ".cfg");
+        if (!android::drastic_settings::load()) {
+            if (android::drastic_settings::overrideUnreadable()) {
+                ALOGW("drastic-nano: per-game override for %s is unreadable (%s), global settings apply this session",
+                      base.c_str(), android::drastic_settings::overrideError().c_str());
+            } else {
+                ALOGI("drastic-nano: no per-game override for %s, global settings apply", base.c_str());
+            }
+        }
+        // A per-game performance mode replaces the global one for this session (the global
+        // value is parked and restored at exit, see DrasticPerf.h).
+        android::drastic_perf::applyOverrideAtLaunch();
+    }
+
     // The pre-property defaults (struct defaults plus the dual-screen tuning
     // above): what "unset" means when the overlay rebuilds the prefs from the
     // global properties after a per-game override is deleted mid-session.
@@ -4973,7 +4993,10 @@ int main(int argc, char** argv) {
                  /*firmwareColor=*/prefs.firmwareColor,
                  /*firmwareBdayMonth=*/prefs.firmwareBdayMonth,
                  /*firmwareBdayDay=*/prefs.firmwareBdayDay,
-                 /*firmwareNick=*/prefs.firmwareNick)) {
+                 /*firmwareNick=*/prefs.firmwareNick,
+                 // DraSticEmuActivity.run: the custom clock only when enabled and set.
+                 /*customClockMs=*/(prefs.customClockEnable && prefs.customClockMs != 0)
+                                       ? prefs.customClockMs : -1)) {
         ALOGE("drastic-nano: DrasticRunner::init failed");
         android::drastic_perf::restoreGlobal();
         property_set(kSessionDoneProp, "1");

@@ -162,7 +162,7 @@ using drastic_gfx::rgba;
 
 namespace {
 constexpr const char* kSectionNames[] = {
-    "General", "Save States", "Video", "Audio", "Controls", "Cheats", "Achievements",
+    "General", "Save States", "Video", "Audio", "Controls", "System", "Cheats", "Achievements",
 };
 // XMB-style layout constants. Coordinates scale with sf =
 // min(vw/1080, vh/720), matching the nano XMB scaling so the overlay
@@ -1364,6 +1364,7 @@ void OverlayMenu::rebuildRows() {
     case kSec_Video:    rebuildVideo();    break;
     case kSec_Audio:    rebuildAudio();    break;
     case kSec_Controls: rebuildControls(); break;
+    case kSec_System:   rebuildSystem();   break;
     case kSec_Cheats:   rebuildCheats();   break;
     case kSec_Achievements: rebuildAchievements(); break;
     default: break;
@@ -1625,34 +1626,6 @@ void OverlayMenu::rebuildGeneral() {
         mRows.push_back(std::move(r));
     }
 
-    // DS Game Language: the firmware language the emulated DS reports to games
-    // that read it (many first-party titles pick their in-game language from the
-    // console setting). It is inherited from the real DraStic app's config at
-    // startup (mPrefs is seeded from _Dra$t1c_Pref$_.xml, DrasticPrefs), so this
-    // row shows the user's existing choice and lets them change it without
-    // opening the full DraStic app - fixing games launched from nano defaulting
-    // to English. The value is packed into the emulated firmware once at init
-    // (setFirmwareUserdata), so it applies on the next launch (requiresRelaunch
-    // surfaces the "Restart to apply changes" row below).
-    {
-        RowAction r;
-        r.label = "DS Game Language";
-        static const char* const kLangLabels[6] = {
-            "Japanese", "English", "French", "German", "Italian", "Spanish" };
-        auto langIdx = [this]() {
-            int v = mPrefs.firmwareLanguage;
-            // 6/7 are DSi-only (Chinese/Korean) and not selectable here; show
-            // them (and any out-of-range value) as English for the label.
-            return (v >= 0 && v <= 5) ? v : 1;
-        };
-        r.value = std::string(kLangLabels[langIdx()]) + trDyn("  (next launch)");
-        r.onAdjust = [this, langIdx](int dir) {
-            mPrefs.firmwareLanguage = (langIdx() + dir + 6) % 6;
-            mDirty = true;   // rebuildRows() refreshes r.value on the next frame
-        };
-        mRows.push_back(std::move(r));
-    }
-
     // Restart Game: reboot the ROM from the title. We do NOT use
     // drastic's in-process soft reset (resetDS): the boot-race longjmp
     // patch at libdrastic+0x17304 (applied at init so a reset-style
@@ -1780,11 +1753,10 @@ void OverlayMenu::rebuildGeneral() {
         mRows.push_back(std::move(r));
     }
 
-    // Shown only when a General-page change needs a fresh launch to take effect
-    // (currently DS Game Language). A firmware-language change is packed into the
+    // Shown when a change needs a fresh launch to take effect (the System page's
+    // firmware settings, see rebuildSystem). Firmware user data is packed into the
     // emulated DS firmware at init (setFirmwareUserdata), but a DS game only
-    // reads the console language at its OWN title boot, so a resume/auto-load
-    // would not show it. Restart FRESH from the title (mRestartFresh forces
+    // reads it at its OWN title boot, so a resume/auto-load would not show it. Restart FRESH from the title (mRestartFresh forces
     // auto-load off), which re-reads the new language end to end. closeMenu()
     // flushes the pref write (mDirty) before the relaunch.
     if (drastic_prefs::requiresRelaunch(mSavedPrefs, mPrefs)) {
@@ -3390,6 +3362,252 @@ void OverlayMenu::rebuildAudio() {
     }
 }
 
+namespace {
+const char* const kMonthNames[12] = {
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+};
+// DraStic's language list (set_fw_languages), each in its own language, index =
+// _FirmwareLanguage.
+const char* const kFwLanguages[6] = {
+    "\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E", "English", "Fran\xC3\xA7" "ais", "Deutsch", "Italiano",
+    "Espa\xC3\xB1" "ol",
+};
+// DraStic's Slot-2 list (set_slot2_cart_type), index = _Slot2Type.
+const char* const kSlot2Types[6] = {
+    "None", "GBA Cart", "SRAM Cart", "Rumble Pack", "Motion Pack (Official)", "Motion Pack (Homebrew)",
+};
+int daysInMonth(int month1, int year) {
+    static const int kDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if (month1 < 1 || month1 > 12) return 31;
+    if (month1 == 2) {
+        // year < 0: a birthday, which has no year, so February 29 is allowed.
+        if (year < 0) return 29;
+        const bool leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+        return leap ? 29 : 28;
+    }
+    return kDays[month1 - 1];
+}
+int wrapInt(int v, int lo, int hi) {
+    const int n = hi - lo + 1;
+    return lo + (((v - lo) % n) + n) % n;
+}
+// The DS RTC holds a two-digit year (drastic stores tm_year - 100 as BCD), so the
+// custom clock stays within 2000..2099.
+constexpr int kRtcYearMin = 2000, kRtcYearMax = 2099;
+} // namespace
+
+void OverlayMenu::editNickname() {
+    mOsk.open("Nickname", mPrefs.firmwareNick, DrasticOsk::Mode::Text,
+              [this](const std::string& text) {
+                  // Trim surrounding spaces; the DS firmware keeps 10 characters.
+                  size_t a = text.find_first_not_of(' ');
+                  size_t b = text.find_last_not_of(' ');
+                  const std::string t = a == std::string::npos ? std::string() : text.substr(a, b - a + 1);
+                  const std::string nick = drastic_prefs::clampNickname(t);
+                  if (nick.empty()) { toast("The nickname cannot be empty"); return; }
+                  if (nick != t) toast("Nickname shortened to 10 characters");
+                  else if (nick != mPrefs.firmwareNick) toast("Applies when the game restarts");
+                  if (nick != mPrefs.firmwareNick) { mPrefs.firmwareNick = nick; mDirty = true; }
+                  rebuildRows();
+              });
+}
+
+void OverlayMenu::rebuildSystem() {
+    // DraStic's System Settings page (res/layout/settings_system.xml), same rows in
+    // the same order. Everything except the RTC mode is boot state (the firmware user
+    // data goes to setFirmwareUserdata before startGame, the custom clock is
+    // startGame's clock argument, the Slot-2 cartridge is set up at boot), so those
+    // changes apply on the next launch; "Restart to apply changes" appears as soon as
+    // one is pending, exactly like the Audio Latency row.
+    // rebuildRows runs after every change, so this is the state before the change:
+    // the hint shows once, when the first boot-time change becomes pending.
+    const bool pendingBefore = drastic_prefs::requiresRelaunch(mSavedPrefs, mPrefs);
+    auto bootChange = [this, pendingBefore]() {
+        mDirty = true;
+        if (!pendingBefore && drastic_prefs::requiresRelaunch(mSavedPrefs, mPrefs))
+            toast("Applies when the game restarts");
+    };
+    {
+        RowAction r;
+        r.label = "Nickname";
+        r.value = mPrefs.firmwareNick;
+        r.rawValue = true;
+        r.onAccept = [this]() { editNickname(); };
+        mRows.push_back(std::move(r));
+    }
+    {
+        RowAction r;
+        r.label = "Birthday Month";
+        const int m = mPrefs.firmwareBdayMonth;
+        r.value = (m >= 1 && m <= 12) ? kMonthNames[m - 1] : std::to_string(m);
+        r.onAdjust = [this, bootChange](int dir) {
+            int m = mPrefs.firmwareBdayMonth;
+            m = (m >= 1 && m <= 12) ? wrapInt(m + dir, 1, 12) : 1;
+            mPrefs.firmwareBdayMonth = m;
+            const int dim = daysInMonth(m, -1);
+            if (mPrefs.firmwareBdayDay > dim) mPrefs.firmwareBdayDay = dim;
+            bootChange();
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        RowAction r;
+        r.label = "Birthday Day";
+        r.value = std::to_string(mPrefs.firmwareBdayDay);
+        r.onAdjust = [this, bootChange](int dir) {
+            const int dim = daysInMonth(mPrefs.firmwareBdayMonth, -1);
+            int d = mPrefs.firmwareBdayDay;
+            mPrefs.firmwareBdayDay = (d >= 1 && d <= dim) ? wrapInt(d + dir, 1, dim) : 1;
+            bootChange();
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        RowAction r;
+        r.label = "Language for Multi-Language Games";
+        const int l = mPrefs.firmwareLanguage;
+        r.value = (l >= 0 && l < 6) ? kFwLanguages[l] : std::to_string(l);
+        r.rawValue = (l >= 0 && l < 6);
+        r.onAdjust = [this, bootChange](int dir) {
+            const int l = mPrefs.firmwareLanguage;
+            mPrefs.firmwareLanguage = (l >= 0 && l < 6) ? wrapInt(l + dir, 0, 5) : 1;
+            bootChange();
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        RowAction r;
+        r.label = "Favorite Color";
+        const int c = mPrefs.firmwareColor;
+        r.value = drastic_prefs::firmwareColorName(c);
+        r.swatch = (int)drastic_prefs::firmwareColorRgb(c);
+        r.onAdjust = [this, bootChange](int dir) {
+            const int c = mPrefs.firmwareColor;
+            mPrefs.firmwareColor = (c >= 0 && c < drastic_prefs::kFirmwareColorCount)
+                    ? wrapInt(c + dir, 0, drastic_prefs::kFirmwareColorCount - 1) : 0;
+            bootChange();
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        RowAction r;
+        r.label = "Slot-2 Cartridge";
+        const int t = mPrefs.slot2Type;
+        r.value = (t >= 0 && t < 6) ? kSlot2Types[t] : std::to_string(t);
+        r.onAdjust = [this, bootChange](int dir) {
+            const int t = mPrefs.slot2Type;
+            mPrefs.slot2Type = (t >= 0 && t < 6) ? wrapInt(t + dir, 0, 5) : 1;
+            bootChange();
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // Config bit 39: the RTC reads the device clock on every access, so loading
+        // a savestate never winds the DS clock back. Applies live.
+        RowAction r;
+        r.label = "Always use System Time for RTC";
+        r.value = mPrefs.rtcSystemTime ? "On" : "Off";
+        r.onAccept = [this]() {
+            mPrefs.rtcSystemTime = !mPrefs.rtcSystemTime;
+            mDirty = true;
+            applyConfigLive();
+        };
+        mRows.push_back(std::move(r));
+    }
+    {
+        // DraStic greys the custom clock out while the RTC follows the system time
+        // (the RTC then never reads it).
+        RowAction r;
+        r.label = "Enable Custom Clock";
+        r.value = mPrefs.customClockEnable ? "On" : "Off";
+        if (mPrefs.rtcSystemTime) {
+            r.tag = kRowLocked;
+            r.onAccept = [this]() { toast("Turn off Always use System Time for RTC to use a custom clock"); };
+        } else {
+            r.onAccept = [this, bootChange]() {
+                if (mPrefs.customClockEnable) {
+                    mPrefs.customClockEnable = false;
+                    bootChange();
+                    return;
+                }
+                // DraStic's warning when the custom clock is switched on.
+                openConfirm("Enable Custom Clock?", [this, bootChange]() {
+                    mPrefs.customClockEnable = true;
+                    if (mPrefs.customClockMs <= 0) {
+                        // Start from the current time (to the minute) rather than 1970.
+                        const time_t now = time(nullptr);
+                        mPrefs.customClockMs = (int64_t)(now - now % 60) * 1000;
+                    }
+                    bootChange();
+                }, {"Setting a custom system time can cause problems if used with savestates.",
+                    "The setting will only take effect after restarting the game."});
+            };
+        }
+        mRows.push_back(std::move(r));
+    }
+    if (mPrefs.customClockEnable && !mPrefs.rtcSystemTime) {
+        // The clock in local time, one row per field (DraStic's date and time pickers).
+        struct tm tm{};
+        {
+            const time_t t = (time_t)(mPrefs.customClockMs / 1000);
+            localtime_r(&t, &tm);
+        }
+        auto adjustClock = [this, bootChange](int field, int dir) {
+            struct tm c{};
+            const time_t t = (time_t)(mPrefs.customClockMs / 1000);
+            localtime_r(&t, &c);
+            int year = c.tm_year + 1900, mon = c.tm_mon + 1;
+            if (year < kRtcYearMin) year = kRtcYearMin;
+            if (year > kRtcYearMax) year = kRtcYearMax;
+            switch (field) {
+            case 0: year += dir; if (year < kRtcYearMin) year = kRtcYearMin; if (year > kRtcYearMax) year = kRtcYearMax; break;
+            case 1: mon = wrapInt(mon + dir, 1, 12); break;
+            case 2: c.tm_mday = wrapInt(c.tm_mday + dir, 1, daysInMonth(mon, year)); break;
+            case 3: c.tm_hour = wrapInt(c.tm_hour + dir, 0, 23); break;
+            case 4: c.tm_min = wrapInt(c.tm_min + dir, 0, 59); break;
+            }
+            const int dim = daysInMonth(mon, year);
+            if (c.tm_mday > dim) c.tm_mday = dim;
+            c.tm_year = year - 1900; c.tm_mon = mon - 1; c.tm_sec = 0;
+            c.tm_isdst = -1;   // let mktime work out daylight saving for the new date
+            const time_t nt = mktime(&c);
+            if (nt == (time_t)-1) return;
+            mPrefs.customClockMs = (int64_t)nt * 1000;
+            bootChange();
+        };
+        char buf[16];
+        static const char* const kLabels[5] = {"Clock Year", "Clock Month", "Clock Day", "Clock Hour", "Clock Minute"};
+        for (int f = 0; f < 5; f++) {
+            RowAction r;
+            r.label = kLabels[f];
+            switch (f) {
+            case 0: snprintf(buf, sizeof buf, "%d", tm.tm_year + 1900); r.value = buf; break;
+            case 1: r.value = kMonthNames[tm.tm_mon]; break;
+            case 2: snprintf(buf, sizeof buf, "%d", tm.tm_mday); r.value = buf; break;
+            case 3: snprintf(buf, sizeof buf, "%02d", tm.tm_hour); r.value = buf; break;
+            case 4: snprintf(buf, sizeof buf, "%02d", tm.tm_min); r.value = buf; break;
+            }
+            if (f != 1) r.rawValue = true;
+            r.onAdjust = [adjustClock, f](int dir) { adjustClock(f, dir); };
+            mRows.push_back(std::move(r));
+        }
+    }
+    if (drastic_prefs::requiresRelaunch(mSavedPrefs, mPrefs)) {
+        // A fresh boot from the title, like General's row and DraStic's "restarting
+        // the game": resuming the autosave would restore the RAM copy of the firmware
+        // user data and the clock the game already read, hiding the change.
+        RowAction r;
+        r.label = "Restart game to apply changes";
+        r.onAccept = [this]() {
+            mRestartFresh = true;
+            closeMenu();
+            toast("Restarting...");
+        };
+        mRows.push_back(std::move(r));
+    }
+}
+
 void OverlayMenu::rebuildControls() {
     {
         RowAction r;
@@ -3884,9 +4102,22 @@ void OverlayMenu::drawList(drastic_gfx::OverlayGfx& gfx, float vw,
 
         float vWidth = 0.0f;
         if (!r.value.empty()) {
-            const char* rv = trDyn(r.value.c_str());
+            const char* rv = r.rawValue ? r.value.c_str() : trDyn(r.value.c_str());
             vWidth = gfx.measure(rv, sc);
             gfx.text(rv, contentRight - vWidth, txtY, sc, fg);
+        }
+        if (r.swatch >= 0) {
+            // Colour chip just left of the value (the Favorite Color row).
+            const float side = txtH * 0.78f;
+            const float gapV = vWidth > 0.0f ? 14.0f * sf : 0.0f;
+            const float sx = contentRight - vWidth - gapV - side;
+            const float sy = txtY + (txtH - side) / 2.0f;
+            gfx.roundedRect(sx - 2.0f * sf, sy - 2.0f * sf, side + 4.0f * sf, side + 4.0f * sf,
+                            side * 0.22f, rgba(1.0f, 1.0f, 1.0f, active ? 0.9f : 0.45f));
+            gfx.roundedRect(sx, sy, side, side, side * 0.18f,
+                            rgba(((r.swatch >> 16) & 0xff) / 255.0f, ((r.swatch >> 8) & 0xff) / 255.0f,
+                                 (r.swatch & 0xff) / 255.0f, 1.0f));
+            vWidth += gapV + side + 2.0f * sf;
         }
         // Label: when it would run into the value (long cheat names) clip it to
         // the free width and, on the selected row, scroll it as a marquee so the

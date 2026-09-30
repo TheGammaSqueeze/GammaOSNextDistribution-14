@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <sys/types.h>
@@ -113,7 +114,22 @@ struct Prefs {
     int firmwareColor     = 0;   // _FirmwareColor (shipped seed)
     int firmwareBdayMonth = 6;   // _FirmwareBdayMonth (1..12)
     int firmwareBdayDay   = 6;   // _FirmwareBdayDay (1..31)
-    std::string firmwareNick = "Dr Drastic";  // _FirmwareNick
+    std::string firmwareNick = "Dr Drastic";  // _FirmwareNick (at most 10 characters)
+
+    // The rest of DraStic's System Settings page (res/layout/settings_system.xml),
+    // defaults as in f0/h.w(). rtcSystemTime is config bit 39 (applies live: the RTC
+    // reads the host time on every access while it is set, hm+0x8ab28). slot2Type is
+    // config bits 43-46 (0 None, 1 GBA Cart = <system>/slot2/<rom>.gba, 2 SRAM Cart,
+    // 3 Rumble Pack, 4 Motion Pack official, 5 Motion Pack homebrew), latched when the
+    // game boots. The custom clock is startGame's last argument: epoch milliseconds of
+    // the RTC at boot, or -1 for none (DraStic passes it only when enabled and nonzero).
+    // On by default, unlike DraStic's code default: the DraStic seed config GammaOS
+    // shipped has it on, and drastic-nano ran with it forced on (the master-state
+    // patch) until this setting existed, so an untouched device keeps its clock.
+    bool    rtcSystemTime     = true;    // _RtcSystemTime
+    bool    customClockEnable = false;   // _CustomClockEnable
+    int64_t customClockMs     = 0;       // _CustomClock (long)
+    int     slot2Type         = 1;       // _Slot2Type
 
     // Per-player action keymap. Each entry is an Android keycode, or
     // -1 for "unmapped". We read all 3 players but only use player 0
@@ -161,9 +177,25 @@ struct Prefs {
 //                  strand the AFBC ring with no atomic flip path: red panels).
 //   propsSeeded  : the one-time import marker from the legacy DraStic XML.
 void applyProps(Prefs* p);
-int  writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset = false);
+int  writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset = false,
+                const std::vector<std::string>* onlyKeys = nullptr);
 bool propsSeeded();
 void markPropsSeeded();
+// Second one-time import from the DraStic XML, for the System Settings keys the
+// first import (propsSeeded) did not carry yet: RTC system time, the custom clock
+// and the Slot-2 cartridge. systemPropKeys() lists their property keys.
+bool systemPropsSeeded();
+void markSystemPropsSeeded();
+const std::vector<std::string>& systemPropKeys();
+// DS firmware nickname rules (the firmware stores 10 UTF-16 units, DraStic's field
+// takes 10 characters): the nickname trimmed to that many code points, never split
+// inside a UTF-8 sequence.
+std::string clampNickname(const std::string& utf8);
+// DraStic's Favorite Color list (res/values/arrays.xml set_fw_colors), index =
+// _FirmwareColor, with the colour its name stands for (0xRRGGBB).
+constexpr int kFirmwareColorCount = 16;
+const char* firmwareColorName(int idx);
+uint32_t firmwareColorRgb(int idx);
 // Short property keys (no prefix) of every user-facing setting: the contents of
 // a per-game override file (see DrasticSettings.h).
 std::vector<std::string> overrideKeys();

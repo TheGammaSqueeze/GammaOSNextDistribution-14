@@ -76,14 +76,11 @@ static bool sDirectUserMode = false;
 // these (via GetObjectField on a NativePathHandleShim) or one that
 // drastic itself allocated.
 //
-// utf16 is an on-demand cache built by FakeGetStringChars when
-// drastic calls setFirmwareUserdata (the only path we've seen so
-// far that needs the UTF16 form). For ASCII input we just zero-
-// extend each byte into a jchar; for non-ASCII we'd need proper
-// UTF-8 → UTF-16 decoding but the preview path never hits that.
+// utf16 is an on-demand cache built by fakeStringBuildUtf16 when
+// drastic reads the UTF-16 form (setFirmwareUserdata: the nickname).
 struct FakeString {
     std::string content;
-    std::vector<jchar> utf16;  // built lazily on first GetStringChars
+    std::vector<jchar> utf16;  // built lazily, NUL-terminated
 };
 
 // NativePathHandleShim: stand-in for the Java NativePathHandle POJO
@@ -748,12 +745,53 @@ static jsize JNICALL FakeGetStringUTFLength(JNIEnv* env, jstring str) {
     return s ? (jsize)s->content.size() : 0;
 }
 
+// Decode the string's modified-or-standard UTF-8 into UTF-16 once (JNI strings are
+// UTF-16). drastic reads the firmware nickname this way (setFirmwareUserdata:
+// GetStringChars + GetStringLength, at most 10 units), so a nickname with accents or
+// kana must arrive as real code units, not as zero-extended UTF-8 bytes. Invalid
+// bytes become U+FFFD; a 4-byte sequence becomes a surrogate pair.
+static void fakeStringBuildUtf16(FakeString* s) {
+    if (!s->utf16.empty()) return;
+    const std::string& in = s->content;
+    s->utf16.reserve(in.size() + 1);
+    size_t i = 0;
+    while (i < in.size()) {
+        const unsigned char c = (unsigned char)in[i];
+        uint32_t cp = 0xFFFD; size_t len = 1;
+        if (c < 0x80) { cp = c; }
+        else if ((c >> 5) == 0x6 || (c >> 4) == 0xE || (c >> 3) == 0x1E) {
+            len = (c >> 5) == 0x6 ? 2 : (c >> 4) == 0xE ? 3 : 4;
+            if (i + len <= in.size()) {
+                cp = c & (len == 2 ? 0x1F : len == 3 ? 0x0F : 0x07);
+                bool ok = true;
+                for (size_t k = 1; k < len; k++) {
+                    const unsigned char cc = (unsigned char)in[i + k];
+                    if ((cc >> 6) != 0x2) { ok = false; break; }
+                    cp = (cp << 6) | (cc & 0x3F);
+                }
+                if (!ok || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF)) { cp = 0xFFFD; len = 1; }
+            } else {
+                len = 1;
+            }
+        }
+        if (cp >= 0x10000) {
+            cp -= 0x10000;
+            s->utf16.push_back((jchar)(0xD800 | (cp >> 10)));
+            s->utf16.push_back((jchar)(0xDC00 | (cp & 0x3FF)));
+        } else {
+            s->utf16.push_back((jchar)cp);
+        }
+        i += len;
+    }
+    s->utf16.push_back(0);   // terminator, not counted by GetStringLength
+}
+
 static jsize JNICALL FakeGetStringLength(JNIEnv* env, jstring str) {
     (void)env;
     FakeString* s = (FakeString*)(void*)str;
-    // Good enough: drastic's use of GetStringLength is rare, and ASCII
-    // paths have length == UTF8 length.
-    return s ? (jsize)s->content.size() : 0;
+    if (!s) return 0;
+    fakeStringBuildUtf16(s);
+    return (jsize)(s->utf16.size() - 1);
 }
 
 static const jchar* JNICALL FakeGetStringChars(JNIEnv* env, jstring str,
@@ -762,17 +800,8 @@ static const jchar* JNICALL FakeGetStringChars(JNIEnv* env, jstring str,
     if (isCopy) *isCopy = JNI_FALSE;
     FakeString* s = (FakeString*)(void*)str;
     if (!s) return nullptr;
-    // Build UTF-16 lazily on first call. For ASCII input (the only
-    // form drastic feeds us for setFirmwareUserdata) zero-extending
-    // each byte to a jchar is correct.
-    if (s->utf16.empty() && !s->content.empty()) {
-        s->utf16.reserve(s->content.size() + 1);
-        for (unsigned char c : s->content) {
-            s->utf16.push_back((jchar)c);
-        }
-        s->utf16.push_back(0);
-    }
-    return s->utf16.empty() ? (const jchar*)u"" : s->utf16.data();
+    fakeStringBuildUtf16(s);
+    return s->utf16.data();
 }
 
 static void JNICALL FakeReleaseStringChars(JNIEnv* env, jstring str,

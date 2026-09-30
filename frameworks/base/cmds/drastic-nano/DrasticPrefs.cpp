@@ -178,10 +178,77 @@ bool parseKeymapName(const std::string& name, int* player, int* action) {
     return true;
 }
 
+// Decode the five predefined XML entities and numeric character references
+// (&#NN; / &#xNN;) of a SharedPreferences text node into UTF-8.
+std::string xmlUnescape(const std::string& s) {
+    std::string out;
+    out.reserve(s.size());
+    for (size_t i = 0; i < s.size(); i++) {
+        if (s[i] != '&') { out += s[i]; continue; }
+        const size_t semi = s.find(';', i + 1);
+        if (semi == std::string::npos || semi - i > 10) { out += s[i]; continue; }
+        const std::string ent = s.substr(i + 1, semi - i - 1);
+        uint32_t cp = 0;
+        if (ent == "amp") cp = '&';
+        else if (ent == "lt") cp = '<';
+        else if (ent == "gt") cp = '>';
+        else if (ent == "quot") cp = '"';
+        else if (ent == "apos") cp = '\'';
+        else if (ent.size() > 1 && ent[0] == '#') {
+            char* end = nullptr;
+            const bool hex = ent[1] == 'x' || ent[1] == 'X';
+            const unsigned long v = strtoul(ent.c_str() + (hex ? 2 : 1), &end, hex ? 16 : 10);
+            if (end && *end == 0 && v > 0 && v <= 0x10FFFF && (v < 0xD800 || v > 0xDFFF)) cp = (uint32_t)v;
+        }
+        if (!cp) { out += s[i]; continue; }
+        if (cp < 0x80) out += (char)cp;
+        else if (cp < 0x800) { out += (char)(0xC0 | (cp >> 6)); out += (char)(0x80 | (cp & 0x3F)); }
+        else if (cp < 0x10000) { out += (char)(0xE0 | (cp >> 12)); out += (char)(0x80 | ((cp >> 6) & 0x3F)); out += (char)(0x80 | (cp & 0x3F)); }
+        else { out += (char)(0xF0 | (cp >> 18)); out += (char)(0x80 | ((cp >> 12) & 0x3F)); out += (char)(0x80 | ((cp >> 6) & 0x3F)); out += (char)(0x80 | (cp & 0x3F)); }
+        i = semi;
+    }
+    return out;
+}
+
 } // anonymous namespace
 
 // ------------------------------------------------------------------
 // Public API
+
+std::string clampNickname(const std::string& utf8) {
+    // Count code points; a supplementary-plane character takes two of the firmware's
+    // ten UTF-16 units, the same as in DraStic's EditText (maxLength counts chars).
+    size_t i = 0, units = 0;
+    while (i < utf8.size()) {
+        const unsigned char c = (unsigned char)utf8[i];
+        size_t len = c < 0x80 ? 1 : (c >> 5) == 0x6 ? 2 : (c >> 4) == 0xE ? 3 : (c >> 3) == 0x1E ? 4 : 1;
+        if (i + len > utf8.size()) break;   // truncated sequence at the end: drop it
+        const size_t need = len == 4 ? 2 : 1;
+        if (units + need > 10) break;
+        units += need;
+        i += len;
+    }
+    return utf8.substr(0, i);
+}
+
+namespace {
+struct FwColor { const char* name; uint32_t rgb; };
+// Names from DraStic (set_fw_colors); each colour is the one its name denotes.
+const FwColor kFwColors[kFirmwareColorCount] = {
+    {"Light Slate Gray", 0x778899}, {"Redwood", 0xA45A52}, {"Deep Chestnut", 0xB94E48},
+    {"Medium Lavender Magenta", 0xDDA0DD}, {"Persian Orange", 0xD99058}, {"Burlywood", 0xDEB887},
+    {"Dark Khaki", 0xBDB76B}, {"Mantis", 0x74C365}, {"Viridian", 0x40826D},
+    {"Dark Sea Green", 0x8FBC8F}, {"Moonstone blue", 0x73A9C2}, {"Tufts Blue", 0x417DC1},
+    {"Dark Cerulean", 0x08457E}, {"Toolbox", 0x746CC0}, {"Rich Lavender", 0xA76BCF},
+    {"Mulberry", 0xC54B8C},
+};
+} // namespace
+const char* firmwareColorName(int idx) {
+    return (idx >= 0 && idx < kFirmwareColorCount) ? kFwColors[idx].name : kFwColors[0].name;
+}
+uint32_t firmwareColorRgb(int idx) {
+    return (idx >= 0 && idx < kFirmwareColorCount) ? kFwColors[idx].rgb : kFwColors[0].rgb;
+}
 // ------------------------------------------------------------------
 
 bool readPrefs(const std::string& xmlPath, Prefs* out) {
@@ -205,6 +272,14 @@ bool readPrefs(const std::string& xmlPath, Prefs* out) {
             else if (e.name == "_AnalogTriggers")   out->analogTriggers = parseBool(e.value, out->analogTriggers);
             else if (e.name == "_FrameSync")        out->frameSync     = parseBool(e.value, out->frameSync);
             else if (e.name == "_LowLatency")       out->lowLatency    = parseBool(e.value, out->lowLatency);
+            else if (e.name == "_RtcSystemTime")    out->rtcSystemTime = parseBool(e.value, out->rtcSystemTime);
+            else if (e.name == "_CustomClockEnable") out->customClockEnable = parseBool(e.value, out->customClockEnable);
+        } else if (e.tag == "long") {
+            if (e.name == "_CustomClock") {
+                char* end = nullptr;
+                const long long v = strtoll(e.value.c_str(), &end, 10);
+                if (end && end != e.value.c_str()) out->customClockMs = (int64_t)v;
+            }
         } else if (e.tag == "int") {
             if (e.name == "_Volume")             out->volume         = parseInt(e.value, out->volume);
             else if (e.name == "_AudioLatency")  out->audioLatency   = parseInt(e.value, out->audioLatency);
@@ -216,6 +291,7 @@ bool readPrefs(const std::string& xmlPath, Prefs* out) {
             else if (e.name == "_FirmwareColor")     out->firmwareColor     = parseInt(e.value, out->firmwareColor);
             else if (e.name == "_FirmwareBdayMonth") out->firmwareBdayMonth = parseInt(e.value, out->firmwareBdayMonth);
             else if (e.name == "_FirmwareBdayDay")   out->firmwareBdayDay   = parseInt(e.value, out->firmwareBdayDay);
+            else if (e.name == "_Slot2Type")         out->slot2Type         = parseInt(e.value, out->slot2Type);
             else {
                 int p, a;
                 if (parseKeymapName(e.name, &p, &a)) {
@@ -226,7 +302,10 @@ bool readPrefs(const std::string& xmlPath, Prefs* out) {
             if (e.name == "_CurrentFx") {
                 if (!e.value.empty()) out->currentFx = e.value;
             } else if (e.name == "_FirmwareNick") {
-                if (!e.value.empty()) out->firmwareNick = e.value;
+                // SharedPreferences escapes the text node (a nickname "Tom & Jo" is stored as
+                // "Tom &amp; Jo").
+                const std::string nick = clampNickname(xmlUnescape(e.value));
+                if (!nick.empty()) out->firmwareNick = nick;
             }
         } else if (e.tag == "float") {
             if (e.name == "_AnalogDeadzone") out->analogDeadzone = parseFloat(e.value, out->analogDeadzone);
@@ -478,6 +557,13 @@ void applyFloat(const char* key, float& f) {
     float n = strtof(v, &end);
     if (end && end != v && n == n) f = n;
 }
+void applyLong(const char* key, int64_t& f) {
+    char v[PROPERTY_VALUE_MAX];
+    if (!propIsSet(key, v)) return;
+    char* end = nullptr;
+    const long long n = strtoll(v, &end, 10);
+    if (end && end != v) f = (int64_t)n;
+}
 void applyStr(const char* key, std::string& f) {
     char v[PROPERTY_VALUE_MAX];
     if (!propIsSet(key, v)) return;
@@ -501,6 +587,7 @@ int setIfChanged(const char* key, const std::string& val, const std::string* pre
 }
 std::string b2s(bool b) { return b ? "1" : "0"; }
 std::string i2s(int i)  { return std::to_string(i); }
+std::string l2s(int64_t i) { return std::to_string((long long)i); }
 std::string f2s(float f) { char b[32]; snprintf(b, sizeof(b), "%.3f", f); return b; }
 std::string keyName(int a) { return "key." + std::to_string(a); }
 
@@ -533,13 +620,24 @@ void applyProps(Prefs* p) {
     applyInt  ("fw_bday_month",     p->firmwareBdayMonth);
     applyInt  ("fw_bday_day",       p->firmwareBdayDay);
     applyStr  ("fw_nick",           p->firmwareNick);
+    applyBool ("rtc_system_time",   p->rtcSystemTime);
+    applyBool ("custom_clock_enable", p->customClockEnable);
+    applyLong ("custom_clock",      p->customClockMs);
+    applyInt  ("slot2_type",        p->slot2Type);
     for (int a = 0; a < kNumActions; a++) applyInt(keyName(a).c_str(), p->keymap[0][a]);
     if (p->currentFx.empty()) p->currentFx = "None";
 }
 
-int writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset) {
+int writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset,
+               const std::vector<std::string>* onlyKeys) {
     int n = 0;
+    auto wanted = [&](const char* key) {
+        if (!onlyKeys) return true;
+        for (const std::string& k : *onlyKeys) if (k == key) return true;
+        return false;
+    };
     auto S = [&](const char* key, const std::string& cur, const std::string& old) {
+        if (!wanted(key)) return;
         n += setIfChanged(key, cur, prev ? &old : nullptr, onlyUnset);
     };
 #define W(key, field, conv) S(key, conv(p.field), prev ? conv(prev->field) : std::string())
@@ -568,9 +666,14 @@ int writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset) {
     W("fw_bday_month",     firmwareBdayMonth, i2s);
     W("fw_bday_day",       firmwareBdayDay,  i2s);
     W("fw_nick",           firmwareNick,     std::string);
+    W("rtc_system_time",   rtcSystemTime,    b2s);
+    W("custom_clock_enable", customClockEnable, b2s);
+    W("custom_clock",      customClockMs,    l2s);
+    W("slot2_type",        slot2Type,        i2s);
 #undef W
     for (int a = 0; a < kNumActions; a++) {
         if (prev && prev->keymap[0][a] == p.keymap[0][a]) continue;
+        if (!wanted(keyName(a).c_str())) continue;
         n += setIfChanged(keyName(a).c_str(), i2s(p.keymap[0][a]), nullptr, onlyUnset);
     }
     return n;
@@ -578,6 +681,14 @@ int writeProps(const Prefs& p, const Prefs* prev, bool onlyUnset) {
 
 bool propsSeeded() { return property_get_bool("persist.gammaos.drastic_nano.cfg_seeded", false); }
 void markPropsSeeded() { property_set("persist.gammaos.drastic_nano.cfg_seeded", "1"); }
+bool systemPropsSeeded() { return property_get_bool("persist.gammaos.drastic_nano.cfg_seeded_system", false); }
+void markSystemPropsSeeded() { property_set("persist.gammaos.drastic_nano.cfg_seeded_system", "1"); }
+const std::vector<std::string>& systemPropKeys() {
+    static const std::vector<std::string> k = {
+        "rtc_system_time", "custom_clock_enable", "custom_clock", "slot2_type",
+    };
+    return k;
+}
 
 namespace { Prefs gLaunchDefaults; }
 void setLaunchDefaults(const Prefs& p) { gLaunchDefaults = p; }
@@ -595,6 +706,7 @@ std::vector<std::string> overrideKeys() {
         "analog_touch", "analog_triggers", "analog_stick_mode", "analog_deadzone",
         "frame_sync", "low_latency",
         "fw_language", "fw_color", "fw_bday_month", "fw_bday_day", "fw_nick",
+        "rtc_system_time", "custom_clock_enable", "custom_clock", "slot2_type",
         // Overlay rows backed directly by a property.
         "autoload", "fps_counter", "swap", "orientation", "scaling", "screen_gap",
         "layout_preset", "pip_alpha", "pip_corner", "ltune_dx", "ltune_dy", "ltune_scale",
@@ -618,8 +730,11 @@ long applyConfigBitsFrom(const Prefs& p) {
     // (see DrasticRunner::applyVideoConfigLive) the way the real drastic
     // app does. Bit 50 (_m0) is always set to match drastic's real-app
     // default. NOTE: bit 40 = _DisableEdgeMarking and bit 41 = _Hires3D
-    // (NEON-extracted together); bit 39 is a different field, do not use
-    // it. Audio latency (bits 8-9) is deliberately NOT packed here: the
+    // (NEON-extracted together); bit 39 is _RtcSystemTime (the converter
+    // stores it at settings+0x4d0, hm+0x8ab28, which the RTC tests on every
+    // read). Bits 43-46 are the Slot-2 cartridge type (settings+0x4bc); the
+    // runner keeps the value the game booted with (applyVideoConfigLive), a
+    // change lands on the next launch. Audio latency (bits 8-9) is deliberately NOT packed here: the
     // converter ignores it and drastic reads it once at startGame when it
     // sizes the OpenSL buffer queue, so it cannot change live.
     long bits = 0x4000000000000L;                  // bit 50 _m0
@@ -631,6 +746,8 @@ long applyConfigBitsFrom(const Prefs& p) {
     bits |= ((long)(p.micLevel & 0x3)) << 37;      // bits 37-38 _MicLevel
     if (p.disableEdge)  bits |= 0x10000000000L;    // bit 40 _DisableEdgeMarking
     if (p.hires3d)      bits |= 0x20000000000L;    // bit 41 _Hires3D
+    if (p.rtcSystemTime) bits |= 0x8000000000L;    // bit 39 _RtcSystemTime
+    bits |= ((long)(p.slot2Type & 0xf)) << 43;     // bits 43-46 _Slot2Type
     if (p.frameskipSafe) bits |= 0x800000000000L;  // bit 47 _FrameskipSafe
     return bits;
 }
@@ -644,8 +761,19 @@ bool requiresRelaunch(const Prefs& a, const Prefs& b) {
     // Everything else applies immediately via applyVideoConfigLive -- including
     // Hi-res 3D, which additionally re-dims the DS textures on the render
     // thread (DrasticRunner::redimDsTextures), so it no longer needs a relaunch.
+    // The rest of the System page is boot state too: the firmware userdata
+    // (nickname, colour, birthday) is handed over before startGame, the custom
+    // clock is startGame's clock argument, and the Slot-2 cartridge is set up
+    // when the game boots. RTC system time is the one live System setting.
     return a.audioLatency != b.audioLatency
-        || a.firmwareLanguage != b.firmwareLanguage;
+        || a.firmwareLanguage != b.firmwareLanguage
+        || a.firmwareColor != b.firmwareColor
+        || a.firmwareBdayMonth != b.firmwareBdayMonth
+        || a.firmwareBdayDay != b.firmwareBdayDay
+        || a.firmwareNick != b.firmwareNick
+        || a.slot2Type != b.slot2Type
+        || a.customClockEnable != b.customClockEnable
+        || (a.customClockEnable && a.customClockMs != b.customClockMs);
 }
 
 // ------------------------------------------------------------------

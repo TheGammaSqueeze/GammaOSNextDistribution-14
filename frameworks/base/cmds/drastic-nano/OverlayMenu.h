@@ -188,7 +188,7 @@ public:
 
 private:
     enum Section { kSec_General = 0, kSec_Save, kSec_Video, kSec_Audio,
-                   kSec_Controls, kSec_Cheats, kSec_Achievements, kSec_COUNT };
+                   kSec_Controls, kSec_System, kSec_Cheats, kSec_Achievements, kSec_COUNT };
     enum class NavDir { None, Up, Down, Left, Right };
 
     struct RowAction {
@@ -206,6 +206,11 @@ private:
         // Achievement id for an Achievements-list row (0 otherwise), used to
         // pull the badge for the bottom-screen detail panel.
         uint32_t raAchId = 0;
+        // The value is user text (a nickname) or already in its own language:
+        // draw it as is, never through the translation table.
+        bool rawValue = false;
+        // 0xRRGGBB colour swatch drawn left of the value (Favorite Color), -1 none.
+        int swatch = -1;
     };
     enum { kRowNormal = 0, kRowUnlocked = 1, kRowLocked = 2, kRowHeader = 3, kRowDivider = 4,
            kRowActive = 5 };   // green: a state in force (per-game override)
@@ -436,6 +441,8 @@ private:
     void rebuildVideo();
     void rebuildAudio();
     void rebuildControls();
+    void rebuildSystem();   // DraStic's System Settings page (firmware user data, RTC, Slot-2)
+    void editNickname();
     void rebuildCheats();
     void rebuildAchievements();
     void startRaLogin();   // chained username + password OSK -> mRa->requestLogin

@@ -145,8 +145,12 @@ DrasticRunner* DrasticRunner::getInstance() {
 // full quad (and because 512-wide rows pack 2 source rows per
 // destination row, the content also appeared horizontally doubled).
 // So: 256x192 per-screen buffers, 256x192 textures, _Hires3D OFF.
+// Config bits 43-46: the Slot-2 cartridge type (the converter +0x17d40 stores it at
+// settings+0x4bc, hm+0x8ab14).
+static constexpr long kSlot2ConfigMask = 0xfL << 43;
 static constexpr long kDefaultConfigBits =
     0x10000000L            // _Threaded3D (bit 28)
+  | 0x8000000000L          // _RtcSystemTime (bit 39): the RTC follows the device clock
   | 0x10000000000L         // _DisableEdgeMarking (bit 40) -- skip 3D edge pass
   | 0x20000000000L         // _Hires3D (bit 41) -- 2x internal 3D resolution
   | 0x4000000000000L;      // _m0 (bit 50) -- sets master+0x4b8=1 via the
@@ -342,10 +346,12 @@ bool DrasticRunner::init(const std::string& cacheDir,
                          int firmwareColor,
                          int firmwareBdayMonth,
                          int firmwareBdayDay,
-                         const std::string& firmwareNick) {
+                         const std::string& firmwareNick,
+                         int64_t customClockMs) {
     maybeStartThreadTracer();
     mCacheDir = cacheDir;
     mAutoLoadSlot = autoLoadSlot;
+    mCustomClockMs = customClockMs > 0 ? customClockMs : -1;
     mInitialShader = initialShader.empty() ? std::string("None")
                                            : initialShader;
     const std::string& effectiveLibs = libsDir.empty() ? cacheDir : libsDir;
@@ -748,6 +754,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
           configBitsOverride != 0 ? "yes" : "no");
     mApplyConfig(env, fakeCls, configBits);
     mBaseConfigBits = configBits;
+    mBootSlot2Bits = configBits & kSlot2ConfigMask;
     ALOGI("DrasticRunner: applyConfig returned");
 
     // ---- Phase 6: startGame on a dedicated thread ----
@@ -777,7 +784,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
     //   startGame
     // setFirmwareUserdata uses GetStringChars (vtable slot 165) +
     // GetStringLength (slot 164); both are now implemented in
-    // FakeJNI. Nick is ASCII ("Player"), color is a non-zero ARGB.
+    // FakeJNI (UTF-8 decoded to UTF-16, drastic keeps at most 10 units).
     if (mSetAudioVolume) {
         ALOGI("DrasticRunner: setAudioVolume(40)");
         mSetAudioVolume(env, fakeCls, 40);
@@ -901,9 +908,15 @@ bool DrasticRunner::init(const std::string& cacheDir,
     //   field which is usually -1 unless _ShortcutAutoResume fired.
     // arg3 (configBits): kDefaultConfigBits -- THE FIX.
     // arg5 (insertMode): 0 = fresh boot (first startGame call path).
-    // arg6 (customClock): 0 = default DS clock (no overclock).
+    // arg6 (customClock): the RTC start time in epoch milliseconds (drastic
+    //   keeps it at lib+0x14c478 and the config converter turns it into
+    //   seconds at hm+0x8ab20 with the enable flag at hm+0x8ab1c), or -1 for
+    //   none: the user's Custom System Clock, as DraSticEmuActivity.run does.
+    const long long startGameClock = (long long)mCustomClockMs;
+    ALOGI("DrasticRunner: startGame clock %lld (%s)", startGameClock,
+          startGameClock >= 0 ? "custom system clock" : "none");
     mStartGameThread = std::thread([this, envCopy, fakeClsCopy, romCopy,
-                                    startGameFn, startGameConfig]() {
+                                    startGameFn, startGameConfig, startGameClock]() {
         // Self-boost BEFORE calling startGameFn, so drastic's own
         // pthread_create calls for rasterizer workers inherit our
         // elevated scheduling class. pthread_create without explicit
@@ -970,7 +983,7 @@ bool DrasticRunner::init(const std::string& cacheDir,
                                         /*arg3 cfg*/   startGameConfig,
                                         /*arg4*/       0,
                                         /*arg5 insrt*/ 0,
-                                        /*arg6 clock*/ -1L);
+                                        /*arg6 clock*/ (long)startGameClock);
         // Reaching here is unexpected -- startGame is drastic's main
         // emulator loop and normally runs until the process exits.
         ALOGW("DrasticRunner: startGame RETURNED (unexpected) rc=%d",
@@ -997,23 +1010,32 @@ bool DrasticRunner::init(const std::string& cacheDir,
     // A/B dump comparison against the real Drastic app identified 13
     // u32 scalars in master that differ between nano and the real app
     // regardless of which game is loaded. Patching them to the real-
-    // app values fixes the BG-layer priority rendering bug.
+    // app values fixes the BG-layer priority rendering bug. Five of them
+    // turned out to be user settings (birthday, RTC mode) and are no longer
+    // forced; the other eight still are.
     //
     // Engine A (near master+0x0):
-    //   +0x00010  android=6 nano=1    (renderer capability, paired)
-    //   +0x00014  android=6 nano=1    (renderer capability, paired)
+    //   +0x00010  android=6 nano=1    (no longer patched: firmware birthday month)
+    //   +0x00014  android=6 nano=1    (no longer patched: firmware birthday day)
     //   +0x09140  android=0 nano=1    (flag, inverted direction)
-    // Second symmetric capability cluster near master+0x8b680:
-    //   +0x8b68c  android=6 nano=1    (mirrors +0x10)
-    //   +0x8b690  android=6 nano=1    (mirrors +0x14)
+    // Second cluster near master+0x8b680:
+    //   +0x8b68c  android=6 nano=1    (no longer patched: birthday month copy)
+    //   +0x8b690  android=6 nano=1    (no longer patched: birthday day copy)
     //   +0x8ba98  android=0 nano=2    (inverted)
+    // The four birthday entries were incidental to the A/B diff: master+0x08..0x14
+    // is where setFirmwareUserdata stores language, colour, month and day
+    // (libdrastic +0x19fe4), +0x8b688..0x8b690 is drastic's copy of colour, month
+    // and day, and the reference app ran with DraStic's default June 6 while nano
+    // passed a fixed January 1 at the time. Forcing them set every user's DS
+    // birthday to June 6; the System page's birthday now reaches the DS.
     //   +0x8bab8  android=1 nano=0
     //   +0x8bad0  android=1 nano=0
     //   +0x8badc  android=1 nano=0
     //   +0x8bae8  android=3 nano=0
     //   +0x8bb00  android=1 nano=0
     //   +0x8bb10  android=1 nano=0
-    //   +0x8bb28  android=1 nano=0
+    //   +0x8bb28  android=1 nano=0    (no longer patched: it is the RTC
+    //             system-time option, config bit 39, see applyMasterStatePatch)
     //
     // Two other diffs from the same methodology are not patched here:
     //   +0x004b8 -- handled cleanly via applyConfig bit 50 (_m0) above
@@ -10701,16 +10723,21 @@ int DrasticRunner::applyMasterStatePatch(const char* reason) {
     uint8_t* master =
             (uint8_t*)((uintptr_t)patchInfo.dli_fbase + 0x14c000);
 
-    // The 13 GPU fast-path feature-flag scalars that fix the BG-layer
+    // The GPU fast-path feature-flag scalars (8 of the 13 A/B diffs) that fix the BG-layer
     // priority rendering bug. See the post-startGame block in init() for
     // the full A/B-derived offset table and rationale.
     struct Target { size_t off; uint32_t value; };
     static const Target targets[] = {
-        { 0x00010, 6 }, { 0x00014, 6 }, { 0x09140, 0 },
-        { 0x8b68c, 6 }, { 0x8b690, 6 }, { 0x8ba98, 0 },
+        // +0x10/+0x14 and +0x8b68c/+0x8b690 are the firmware birthday (month, day)
+        // and drastic's copy of it, see the table in init(): not forced any more.
+        { 0x09140, 0 }, { 0x8ba98, 0 },
         { 0x8bab8, 1 }, { 0x8bad0, 1 }, { 0x8badc, 1 },
         { 0x8bae8, 3 }, { 0x8bb00, 1 }, { 0x8bb10, 1 },
-        { 0x8bb28, 1 },
+        // +0x8bb28 (hm+0x8ab28) used to be forced to 1 here. It is settings+0x4d0, the
+        // RTC "Always use System Time" flag (config bit 39), read only by the RTC
+        // (+0x77764 and the three RTC register paths after it), and the Android
+        // reference it was diffed against had that option on. Forcing it made the
+        // setting dead; the converter now sets it from bit 39 (DrasticPrefs).
     };
     const int kNumTargets = sizeof(targets)/sizeof(targets[0]);
     int rewrote = 0;
@@ -10910,7 +10937,7 @@ void DrasticRunner::setFastForward(bool on) {
     // GPU fast-path feature flags back to fallback-mode defaults and
     // brings back the BG-layer priority rendering glitch (on every game,
     // 2D and 3D). The one-shot init patch already exited, so re-assert
-    // those 13 scalars right now. The logged rewrite count tells us how
+    // those scalars right now. The logged rewrite count tells us how
     // many applyConfig actually clobbered.
     applyMasterStatePatch(on ? "fast-forward on" : "fast-forward off");
 
@@ -11009,6 +11036,8 @@ void DrasticRunner::applyVideoConfigLive(long callerBits) {
     // bits, so keep it as the live base: a later setFastForward composes
     // its lever onto the user's current settings, and a change made while
     // FF is held keeps FF active.
+    // The Slot-2 cartridge stays the one the game booted with (see mBootSlot2Bits).
+    callerBits = (callerBits & ~kSlot2ConfigMask) | mBootSlot2Bits;
     mBaseConfigBits = callerBits;
     long bits = callerBits;
     applyFfBits(bits, mFastForwardOn);
@@ -11017,7 +11046,7 @@ void DrasticRunner::applyVideoConfigLive(long callerBits) {
     ALOGI("DrasticRunner::applyVideoConfigLive: applyConfig=0x%lx (ff=%d) took %.1f ms",
           bits, mFastForwardOn ? 1 : 0, (android::elapsedRealtimeNano() - t0) / 1e6);
     // Same converter-clobber repair as setFastForward: applyConfig resets
-    // the 13 GPU fast-path scalars, so re-assert the master-state patch or
+    // the GPU fast-path scalars, so re-assert the master-state patch or
     // the BG-layer priority glitch returns on every game.
     applyMasterStatePatch("video/audio config change");
 }
