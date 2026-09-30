@@ -520,6 +520,12 @@ void copyTopToBottom() {
     applyFromProps();
 }
 
+void resetScreen(bool top) {
+    if (!supported()) return;
+    store(top ? kTop : kBottom, Cal());
+    applyFromProps();
+}
+
 void resetAll() {
     if (!supported()) return;
     store(kTop, Cal());

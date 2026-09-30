@@ -237,8 +237,12 @@ static const Ps3DataItem kLiveDisplayCh[] = {
   {"Red",16,"Red level of the " WHICH " screen, for white balance. 100% is the untouched panel.","100",0,nullptr,0}, \
   {"Green",16,"Green level of the " WHICH " screen, for white balance. 100% is the untouched panel.","100",0,nullptr,0}, \
   {"Blue",16,"Blue level of the " WHICH " screen, for white balance. Lower it to warm a cold screen. 100% is the untouched panel.","100",0,nullptr,0},
-static const Ps3DataItem kScreenCalTopCh[] = { NANO_SCREENCAL_ROWS("top") };
-static const Ps3DataItem kScreenCalBottomCh[] = { NANO_SCREENCAL_ROWS("bottom") };
+static const Ps3DataItem kScreenCalTopCh[] = { NANO_SCREENCAL_ROWS("top")
+  {"Reset Top Screen",16,"Returns the top screen to its untouched picture.",nullptr,1,nullptr,0},
+};
+static const Ps3DataItem kScreenCalBottomCh[] = { NANO_SCREENCAL_ROWS("bottom")
+  {"Reset Bottom Screen",16,"Returns the bottom screen to its untouched picture.",nullptr,1,nullptr,0},
+};
 #undef NANO_SCREENCAL_ROWS
 static const Ps3DataItem kScreenCalCh[] = {
   {"Top Screen",16,"Calibrates the top screen.",nullptr,0,PS3CH(kScreenCalTopCh)},

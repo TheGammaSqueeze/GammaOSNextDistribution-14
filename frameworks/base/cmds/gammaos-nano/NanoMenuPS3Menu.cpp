@@ -5848,8 +5848,12 @@ void NanoMenu::ps3XmbSelect() {
             if (it.label == "Rescan Games") { gamesRefresh(); return; }
             // Display > Screen Calibration actions. The rows of the open level re-read their
             // values so the new calibration shows at once.
-            if (it.label == "Copy Top Screen to Bottom" || it.label == "Reset Screen Calibration") {
-                if (it.label == "Reset Screen Calibration") screencal::resetAll(); else screencal::copyTopToBottom();
+            if (it.label == "Copy Top Screen to Bottom" || it.label == "Reset Screen Calibration" ||
+                it.label == "Reset Top Screen" || it.label == "Reset Bottom Screen") {
+                if (it.label == "Reset Screen Calibration") screencal::resetAll();
+                else if (it.label == "Reset Top Screen") screencal::resetScreen(true);
+                else if (it.label == "Reset Bottom Screen") screencal::resetScreen(false);
+                else screencal::copyTopToBottom();
                 mPs3BindCache.clear();
                 refreshBoundValuesInStack();
                 mDisplayDirty = true;

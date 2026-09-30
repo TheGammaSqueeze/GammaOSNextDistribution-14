@@ -59,6 +59,7 @@ bool isCalibrationKey(const std::string& key);
 
 // Menu actions.
 void copyTopToBottom();
+void resetScreen(bool top);   // one screen back to untouched
 void resetAll();
 
 }  // namespace screencal
