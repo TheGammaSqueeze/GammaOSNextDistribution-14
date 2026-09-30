@@ -612,6 +612,7 @@
  "GAME MASTERED": "تم إتقان اللعبة",
  "GAMMAOS IS PROVIDED \"AS IS\", WITHOUT WARRANTY OR SUPPORT OF ANY KIND. THE DEVELOPERS ASSUME NO LIABILITY FOR HARDWARE DAMAGE, INOPERABLE DEVICES OR DATA LOSS DURING INSTALLATION OR USE. BY USING THIS SOFTWARE, YOU ACCEPT THESE RISKS.": "يُقدَّم GAMMAOS \"كما هو\" دون أي ضمان أو دعم من أي نوع. لا يتحمل المطورون أي مسؤولية عن تلف الأجهزة أو تعطّل الجهاز أو فقدان البيانات أثناء التثبيت أو الاستخدام. باستخدامك لهذا البرنامج، فإنك تقبل هذه المخاطر.",
  "GBA Cart": "خرطوشة GBA",
+ "GBA Cart: put the .gba file, named like the game, in": "خرطوشة GBA: ضع ملف ‎.gba‎ بنفس اسم اللعبة في",
  "GMT+00:00 Casablanca": "GMT+00:00 الدار البيضاء",
  "GMT+00:00 Dublin": "GMT+00:00 دبلن",
  "GMT+00:00 Lisbon": "GMT+00:00 لشبونة",

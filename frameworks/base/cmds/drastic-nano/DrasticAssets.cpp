@@ -454,7 +454,7 @@ bool seedRoot(const std::string& root) {
         return false;
     }
     static const char* kSubdirs[] = {
-        "system", "config", "cheats", "slot2", "microphone", "input_record",
+        "system", "config", "cheats", "microphone", "input_record",
         "unzip_cache", "users", "backgrounds", "scripts", "virtual_controller", nullptr,
     };
     if (!mkdirs(root)) {
@@ -469,13 +469,19 @@ bool seedRoot(const std::string& root) {
     const std::string usr    = userDir();
     const std::string saves  = usr + "/saves";
     const std::string states = usr + "/savestates";
+    // Slot-2 cartridge files (the System page's Slot-2 Cartridge): drastic opens
+    // <root>/slot2/<rom>.gba for a GBA Cart and <rom>.sav beside it, so the folder
+    // has to be one the user can reach, like the saves.
+    const std::string slot2  = usr + "/slot2";
     mkdirs(usr);
     mkdirs(saves);
     mkdirs(states);
+    mkdirs(slot2);
     mkdirs(usr + "/shaders");
-    // A real backup/ or savestates/ directory left from an older layout: carry
-    // its files over before replacing it with the link.
-    for (const auto& pr : { std::make_pair(root + "/backup", saves), std::make_pair(root + "/savestates", states) }) {
+    // A real backup/, savestates/ or slot2/ directory left from an older layout:
+    // carry its files over before replacing it with the link.
+    for (const auto& pr : { std::make_pair(root + "/backup", saves), std::make_pair(root + "/savestates", states),
+                            std::make_pair(root + "/slot2", slot2) }) {
         if (isDir(pr.first) && !isLink(pr.first)) {
             if (DIR* d = opendir(pr.first.c_str())) {
                 struct dirent* e;

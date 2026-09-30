@@ -611,6 +611,7 @@
  "GAME MASTERED": "マスター達成",
  "GAMMAOS IS PROVIDED \"AS IS\", WITHOUT WARRANTY OR SUPPORT OF ANY KIND. THE DEVELOPERS ASSUME NO LIABILITY FOR HARDWARE DAMAGE, INOPERABLE DEVICES OR DATA LOSS DURING INSTALLATION OR USE. BY USING THIS SOFTWARE, YOU ACCEPT THESE RISKS.": "GAMMAOS は、いかなる保証やサポートもなく「現状のまま」提供されます。開発者は、インストールまたは使用中のハードウェアの損傷、デバイスの動作不能、データの損失について一切の責任を負いません。本ソフトウェアを使用することにより、これらのリスクを承諾したものとみなされます。",
  "GBA Cart": "GBAカートリッジ",
+ "GBA Cart: put the .gba file, named like the game, in": "GBAカートリッジ：ゲームと同じ名前の .gba ファイルを次の場所に置いてください",
  "GMT+00:00 Casablanca": "GMT+00:00 カサブランカ",
  "GMT+00:00 Dublin": "GMT+00:00 ダブリン",
  "GMT+00:00 Lisbon": "GMT+00:00 リスボン",

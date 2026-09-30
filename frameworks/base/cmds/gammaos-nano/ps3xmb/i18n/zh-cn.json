@@ -616,6 +616,7 @@
  "GAME MASTERED": "游戏已精通",
  "GAMMAOS IS PROVIDED \"AS IS\", WITHOUT WARRANTY OR SUPPORT OF ANY KIND. THE DEVELOPERS ASSUME NO LIABILITY FOR HARDWARE DAMAGE, INOPERABLE DEVICES OR DATA LOSS DURING INSTALLATION OR USE. BY USING THIS SOFTWARE, YOU ACCEPT THESE RISKS.": "GAMMAOS 按“原样”提供，不提供任何形式的保证或支持。对于安装或使用过程中造成的硬件损坏、设备无法使用或数据丢失，开发者概不负责。使用本软件即表示您接受这些风险。",
  "GBA Cart": "GBA 卡带",
+ "GBA Cart: put the .gba file, named like the game, in": "GBA 卡带：请将与游戏同名的 .gba 文件放到",
  "GMT+00:00 Casablanca": "GMT+00:00 卡萨布兰卡",
  "GMT+00:00 Dublin": "GMT+00:00 都柏林",
  "GMT+00:00 Lisbon": "GMT+00:00 里斯本",

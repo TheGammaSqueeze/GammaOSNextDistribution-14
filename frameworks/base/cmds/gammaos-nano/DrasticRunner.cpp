@@ -801,13 +801,19 @@ bool DrasticRunner::init(const std::string& cacheDir,
         const char* nickStr = fromPrefs ? firmwareNick.c_str() : "GammaOS";
         int fwPacked;
         if (fromPrefs) {
+            // The month goes over zero-based: drastic's firmware builder stores
+            // month + 1 in the user settings (+0x2ac68), while the setting (and
+            // DraStic's own MM/DD field, which passes it unchanged) is 1..12, so
+            // the DS showed every birthday one month late. Measured with the
+            // system test ROM (tests/nds-systemtest): 1 reached games as 2.
+            const int month = (firmwareBdayMonth >= 1 && firmwareBdayMonth <= 12) ? firmwareBdayMonth : 1;
             fwPacked = ((firmwareBdayDay   & 0xff) << 24)
-                     | ((firmwareBdayMonth & 0xff) << 16)
+                     | (((month - 1)       & 0xff) << 16)
                      | ((firmwareColor     & 0xff) << 8)
                      | (firmwareLanguage   & 0xff);
         } else {
-            // Language: 1=English, Color: 0=grey, Birthday: Jan 1
-            fwPacked = (1 << 24) | (1 << 16) | (0 << 8) | 1; // 0x01010001
+            // Language: 1=English, Color: 0=grey, Birthday: Jan 1 (month zero-based, see above)
+            fwPacked = (1 << 24) | (0 << 16) | (0 << 8) | 1; // 0x01000001
         }
         jstring nick = env->NewStringUTF(nickStr);
         if (nick) {

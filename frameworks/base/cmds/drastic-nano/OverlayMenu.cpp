@@ -3499,6 +3499,11 @@ void OverlayMenu::rebuildSystem() {
             const int t = mPrefs.slot2Type;
             mPrefs.slot2Type = (t >= 0 && t < 6) ? wrapInt(t + dir, 0, 5) : 1;
             bootChange();
+            if (mPrefs.slot2Type == 1) {
+                // drastic loads <user folder>/slot2/<rom>.gba (DrasticAssets links the folder).
+                toast(std::string(trDyn("GBA Cart: put the .gba file, named like the game, in")) + " " +
+                      drastic_assets::userDir() + "/slot2", 5000);
+            }
         };
         mRows.push_back(std::move(r));
     }
