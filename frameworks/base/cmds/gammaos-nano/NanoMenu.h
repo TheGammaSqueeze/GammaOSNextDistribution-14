@@ -3291,6 +3291,14 @@ private:
     // PICO-8 carts (*.p8.png) are their own cover: the cartridge image is the artwork. scrapeEntryFor
     // hands out a copy of the manifest entry with the cart as the cover unless the user picked one.
     static bool isPico8Cart(const std::string& path);
+    // The cart's own label is its cover (shown even with Boxart off, like the DS banner icon),
+    // unless the user picked a cover by hand.
+    bool romUsesCartArt(const std::string& romPath);
+    static constexpr int kCartLabelPx = 128;     // a cart's label is 128x128 PICO-8 pixels
+    // Side of a cart label drawn to stand in for something `target` device px wide, kept to an
+    // integer multiple (or an integer fraction) of the label and no larger than maxSide.
+    static float cartPixelSize(float target, float maxSide);
+    bool romBoxartIsPixel(const std::string& romPath);   // its cached cover is a cart label (draw integer-scaled)
     struct CartArt { ScrapeEntry entry; const ScrapeEntry* src = nullptr; long long srcWhen = 0; std::string srcBox, srcScraper; bool valid = false; };
     std::unordered_map<std::string, CartArt> mCartArt;
     // ES-DE per-game metadata read straight from ES-DE's own gamelist.xml files (the same source
@@ -3422,7 +3430,9 @@ private:
     void gsClearSystemArt(int sysIdx);     // delete the edited system's covers/fanart + manifest entries
     // Boxart icon textures: lazy per-ROM cover GL textures that replace the generic
     // cartridge icon, freed when leaving the Game category and on sleep/occlusion.
-    struct BoxTex { GLuint tex = 0; float ar = 1.0f; };   // ar = width/height
+    // ar = width/height. pixel = a PICO-8 cart label: 128x128 pixel art uploaded NEAREST, drawn at an
+    // integer multiple of its size (cartPixelSize) so every cart pixel stays square.
+    struct BoxTex { GLuint tex = 0; float ar = 1.0f; bool pixel = false; };
     std::unordered_map<std::string, BoxTex> mRomBoxartCache;
     bool mScrapeBoxartOn = false;        // per-frame cache of scraperBoxartEnabled()
     bool mNdsTileIcon = false;           // per-frame cache of persist.gammaos.nano.nds.tileicon (DS Icons On Tiles)
@@ -3447,7 +3457,7 @@ private:
     // the render thread, so opening a Game system or Information never hitches.
     // Lazy-started on the first request; fully stopped+joined (zero threads/CPU at
     // idle) by scraperFreeBoxart on leaving Game / occlusion / the 96-cache backstop.
-    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX, SA_NDS_FAN };
+    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX, SA_NDS_FAN, SA_CART_BOX };
     struct SaDecReq { std::string path; int maxDim = 0; int target = 0; std::string key; uint64_t gen = 0; };
     struct SaDecRes { std::string path; int target = 0; std::string key; int w = 0, h = 0; float ar = 1.0f;
                       uint64_t gen = 0; std::vector<uint8_t> px; };

@@ -182,13 +182,40 @@ void NanoMenu::saveScrapeIndex() {
     else                            unlink(tmp.c_str());
 }
 
-bool NanoMenu::isPico8Cart(const std::string& path) {
-    static const char kExt[] = ".p8.png";
-    const size_t n = sizeof(kExt) - 1;
-    if (path.size() <= n) return false;
+static bool endsWithNoCase(const std::string& s, const char* suf) {
+    const size_t n = strlen(suf);
+    if (s.size() <= n) return false;
     for (size_t i = 0; i < n; i++)
-        if (tolower((unsigned char)path[path.size() - n + i]) != kExt[i]) return false;
+        if (tolower((unsigned char)s[s.size() - n + i]) != suf[i]) return false;
     return true;
+}
+
+// A PICO-8 cart that is a picture: Celeste.p8.png, or a .p8 that is really a PNG. Carts are shared
+// both ways - the .p8 extension is also used for the plain-text source format - so a .p8 is told
+// apart by its PNG signature. Asked for every visible ROM every frame, so the answer for a .p8 is
+// read from the file once and remembered; any other path is answered from its name alone.
+bool NanoMenu::isPico8Cart(const std::string& path) {
+    if (endsWithNoCase(path, ".p8.png")) return true;
+    if (!endsWithNoCase(path, ".p8")) return false;
+    static std::mutex mu;
+    static std::unordered_map<std::string, bool> known;
+    {
+        std::lock_guard<std::mutex> lk(mu);
+        auto it = known.find(path);
+        if (it != known.end()) return it->second;
+    }
+    static const uint8_t kPng[8] = {0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'};
+    uint8_t head[8] = {};
+    bool png = false, readable = false;
+    int fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
+    if (fd >= 0) {
+        readable = true;
+        png = read(fd, head, sizeof(head)) == (ssize_t)sizeof(head) && !memcmp(head, kPng, sizeof(kPng));
+        close(fd);
+    }
+    // Storage that is not up yet (a card still mounting) is asked again later, not cached as text.
+    if (readable) { std::lock_guard<std::mutex> lk(mu); known[path] = png; }
+    return png;
 }
 
 // The cover of a PICO-8 cart is the cart itself (a .p8.png is the cartridge picture with the game
@@ -213,6 +240,29 @@ const NanoMenu::ScrapeEntry* NanoMenu::scrapeEntryFor(const std::string& romPath
         c.valid = true;
     }
     return &c.entry;
+}
+
+bool NanoMenu::romUsesCartArt(const std::string& romPath) {
+    if (!isPico8Cart(romPath)) return false;
+    const ScrapeEntry* e = scrapeIndexLookup(romPath);
+    return !(e && e->scraper == "manual" && !e->box.empty());
+}
+
+float NanoMenu::cartPixelSize(float target, float maxSide) {
+    const float px = (float)kCartLabelPx;
+    int k = (int)lroundf(target / px);                      // nearest integer scale to the target
+    while (k > 1 && px * k > maxSide) k--;                  // ...but it has to fit
+    if (k >= 1 && px * k <= maxSide) return px * k;
+    // Smaller than the label itself: an integer fraction, so pixels still drop out evenly.
+    const float lim = fminf(target, maxSide);
+    int d = 2;
+    while (px / d > lim && d < 64) d++;
+    return px / d;
+}
+
+bool NanoMenu::romBoxartIsPixel(const std::string& romPath) {
+    auto it = mRomBoxartCache.find(romPath);
+    return it != mRomBoxartCache.end() && it->second.pixel;
 }
 
 const NanoMenu::ScrapeEntry* NanoMenu::scrapeIndexLookup(const std::string& romPath) {
@@ -581,6 +631,15 @@ void NanoMenu::saArtThreadFunc() {
         }
         SaDecRes res; res.path = req.path; res.target = req.target; res.key = req.key; res.gen = req.gen;
         bool ok = scraperDecodeRGBACpu(req.path, req.maxDim, &res.w, &res.h, &res.ar, res.px);
+        // A PICO-8 cart picture is 160x205: the cartridge frame, the title, and the game's
+        // 128x128 label at (16,24). The label is the game's own art, so that is the cover.
+        if (ok && req.target == SA_CART_BOX && res.w == 160 && res.h == 205) {
+            const int L = kCartLabelPx, ox = 16, oy = 24;
+            std::vector<uint8_t> lab((size_t)L * L * 4);
+            for (int y = 0; y < L; y++)
+                memcpy(&lab[(size_t)y * L * 4], &res.px[((size_t)(oy + y) * res.w + ox) * 4], (size_t)L * 4);
+            res.px.swap(lab); res.w = res.h = L; res.ar = 1.0f;
+        }
         std::lock_guard<std::mutex> lk(mSaDecMutex);
         mSaDecInFlight.erase(saTagKey(req.target, req.path));
         if (ok && req.gen == mSaDecGen.load()) mSaDecDone.push_back(std::move(res));
@@ -611,15 +670,18 @@ void NanoMenu::saDrainArt() {
         // Fan art (the full-frame hover / dialog background) uses NEAREST so the
         // upscale to fill the frame stays crisp instead of a soft bilinear blur; the
         // small boxart column covers keep LINEAR (NEAREST would alias thumbnails).
-        bool fan = (r.target == SA_CINFO_FAN || r.target == SA_DLG_FAN || r.target == SA_NDS_FAN);
+        bool fan = (r.target == SA_CINFO_FAN || r.target == SA_DLG_FAN || r.target == SA_NDS_FAN
+                    || r.target == SA_CART_BOX);   // cart labels are pixel art: NEAREST too
         GLuint tex = fan ? saUploadRGBA(r.px.data(), r.w, r.h, GL_NEAREST, GL_NEAREST)
                          : saUploadRGBA(r.px.data(), r.w, r.h);
         if (!tex) continue;
         switch (r.target) {
-            case SA_BOX: {
+            case SA_BOX:
+            case SA_CART_BOX: {
                 BoxTex& bt = mRomBoxartCache[r.key];
                 if (bt.tex) glDeleteTextures(1, &bt.tex);
                 bt.tex = tex; bt.ar = r.ar;
+                bt.pixel = (r.target == SA_CART_BOX && r.w == kCartLabelPx && r.h == kCartLabelPx);
                 break;
             }
             case SA_CINFO_FAN:
@@ -664,8 +726,12 @@ GLuint NanoMenu::romBoxartTex(const std::string& romPath, float* outAR) {
     // if the cache grows large (browsing many systems without leaving Game), free it
     // all + stop the worker, then re-request lazily. Normal lifecycle = leave-Game.
     if (mRomBoxartCache.size() >= 96) scraperFreeBoxart();
-    const ScrapeEntry* e = scrapeEntryFor(romPath);
-    if (e && !e->box.empty()) saRequestArt(e->box, 256, SA_BOX, romPath);
+    if (romUsesCartArt(romPath)) {
+        saRequestArt(romPath, 0, SA_CART_BOX, romPath);    // full size: the label is cropped from it
+    } else {
+        const ScrapeEntry* e = scrapeEntryFor(romPath);
+        if (e && !e->box.empty()) saRequestArt(e->box, 256, SA_BOX, romPath);
+    }
     mRomBoxartCache[romPath] = BoxTex{};       // tex=0 placeholder; drain fills it
     if (outAR) *outAR = 1.0f;
     return 0;

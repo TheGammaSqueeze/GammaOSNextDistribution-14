@@ -2363,6 +2363,26 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // DS Icons On Tiles (persist.gammaos.nano.nds.tileicon): the cartridge's own banner icon
         // stays on the tile even when the game has a scraped cover; the cover is still what the
         // top screen shows for the focused game (renderNdsTop). Requested on Discord 2026-09-27.
+        // A PICO-8 cart shows its own label in place of the system glyph, like a DS game's banner
+        // icon: always (Boxart on or off), pixel-exact at an integer scale of the 32 px icon.
+        if (it->kind == PS3_ROM || it->kind == PS3_RECENT) {
+            std::string rp;
+            if (it->kind == PS3_ROM && it->a >= 0 && it->a < (int)mXmbSystems.size()
+                && it->b >= 0 && it->b < (int)mXmbSystems[it->a].roms.size())
+                rp = mXmbSystems[it->a].roms[it->b];
+            else if (it->kind == PS3_RECENT && it->a >= 0 && it->a < (int)mXmbRecent.size())
+                rp = mXmbRecent[it->a].romPath;
+            if (!rp.empty() && romUsesCartArt(rp)) {
+                float bar = 1.0f; GLuint bt = romBoxartTex(rp, &bar);
+                if (bt) {
+                    const float side = cartPixelSize(S(32.0f), S(44.0f));
+                    const float cyt = Y(114.0f) + S(yoffDS);
+                    drawIconTex(bt, floorf(dcx - side * 0.5f), floorf(cyt - side * 0.5f), side, side,
+                                1.0f, 1.0f, 1.0f, 1.0f);
+                    return;
+                }
+            }
+        }
         if (mNdsTileIcon && (it->kind == PS3_ROM || it->kind == PS3_RECENT)) {
             std::string dsRom;
             if (ndsIsDsRomItem(*it, &dsRom)) {
@@ -3481,10 +3501,12 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             romPath = mXmbRecent[selItem->a].romPath;
     }
     GLuint boxTex = 0; float boxAR = 1.0f, fanAR = 1.0f; GLuint fanTex = 0;
-    if (!romPath.empty() && scraperBoxartEnabled()) {
+    // A PICO-8 cart's label is its cover even with Boxart off, as the tile shows it.
+    const bool boxOn = scraperBoxartEnabled();
+    if (!romPath.empty() && (boxOn || romUsesCartArt(romPath))) {
         boxTex = romBoxartTex(romPath, &boxAR);   // async; 0 until the cover lands
         const ScrapeEntry* se = scrapeEntryFor(romPath);
-        std::string fanFile = (se && scraperFanartEnabled()) ? se->fan : std::string();
+        std::string fanFile = (se && boxOn && scraperFanartEnabled()) ? se->fan : std::string();
         if (!fanFile.empty()) {
             if (mNdsFanPath != fanFile) {          // focus changed to a game with fanart: (re)load it
                 mNdsFanPath = fanFile;
@@ -3521,11 +3543,15 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
         else mDisplayDirty = true;
     }
     // Outgoing game's cover (still cached until Game is left), drawn under the new art.
-    GLuint oldBoxTex = 0; float oldBoxAR = 1.0f;
+    GLuint oldBoxTex = 0; float oldBoxAR = 1.0f; bool oldBoxPixel = false;
     if (gt < 1.0f && !mNdsPrevPreviewRom.empty()) {
         auto itc = mRomBoxartCache.find(mNdsPrevPreviewRom);
-        if (itc != mRomBoxartCache.end()) { oldBoxTex = itc->second.tex; oldBoxAR = itc->second.ar; }
+        if (itc != mRomBoxartCache.end()) {
+            oldBoxTex = itc->second.tex; oldBoxAR = itc->second.ar; oldBoxPixel = itc->second.pixel;
+        }
     }
+    bool boxPixel = false;
+    if (boxTex) { auto itc = mRomBoxartCache.find(romPath); boxPixel = itc != mRomBoxartCache.end() && itc->second.pixel; }
     float xf = 0.0f;                                 // 0 = show boxart, 1 = show fanart
     if (boxTex && fanTex) {
         float t = mEffectTime - mNdsPreviewT0; if (t < 0.0f) t += 500.0f;   // mEffectTime wraps at 500s
@@ -3545,16 +3571,24 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
         // of top margin so it clears the panel frame. During a game->game switch the
         // outgoing cover fades out (1-gt) while the incoming art fades in (gt).
         float ax = X(24.0f), ay = Y(31.0f), aw = X(234.0f) - X(24.0f), ah = Y(154.0f) - Y(31.0f);
-        auto drawContain = [&](GLuint tex, float ar, float alpha) {
+        auto drawContain = [&](GLuint tex, float ar, float alpha, bool pixel) {
             if (!tex || alpha <= 0.001f) return;
+            if (pixel) {
+                // PICO-8 cart label: the size of the icon it replaces (S(72), the focused-item
+                // glyph), at an integer scale with NEAREST so the pixel art stays square.
+                const float side = cartPixelSize(S(72.0f), fminf(aw, ah));
+                drawIconTex(tex, floorf(ax + (aw - side) * 0.5f), floorf(ay + (ah - side) * 0.5f),
+                            side, side, 1.0f, 1.0f, 1.0f, alpha);
+                return;
+            }
             float bw = aw, bh = ah;
             if (ar >= aw / ah) bh = aw / ar; else bw = ah * ar;   // contain-fit
             float bx = ax + (aw - bw) * 0.5f, by = ay + (ah - bh) * 0.5f;
             drawIconTex(tex, bx, by, bw, bh, 1.0f, 1.0f, 1.0f, alpha);
         };
-        if (oldBoxTex) drawContain(oldBoxTex, oldBoxAR, 1.0f - gt);
-        if (boxTex) drawContain(boxTex, boxAR, (1.0f - xf) * gt);
-        if (fanTex) drawContain(fanTex, fanAR, (boxTex ? xf : 1.0f) * gt);
+        if (oldBoxTex) drawContain(oldBoxTex, oldBoxAR, 1.0f - gt, oldBoxPixel);
+        if (boxTex) drawContain(boxTex, boxAR, (1.0f - xf) * gt, boxPixel);
+        if (fanTex) drawContain(fanTex, fanAR, (boxTex ? xf : 1.0f) * gt, false);
         // game name below the art, cross-faded like the rest of the DSi selection text.
         // Long titles (e.g. "Tobu Tobu Girl Deluxe") are kept inside the panel by shrinking
         // the caption to fit one line, and word-wrapping to two shrink-to-fit lines only once

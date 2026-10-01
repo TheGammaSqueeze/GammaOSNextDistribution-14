@@ -7274,14 +7274,17 @@ void NanoMenu::renderPs3Xmb() {
             // Scraped boxart cover replaces a ROM's generic cartridge icon when
             // available (lazy GL texture, freed on leaving Game). Aspect-fit inside
             // the icon box (covers are usually portrait) with the XMB drop shadow.
+            // A PICO-8 cart's own label counts as its cover even with Boxart off.
             GLuint boxTex = 0; float boxAR = 1.0f;
-            if (mScrapeBoxartOn && it.kind == PS3_ROM
+            if (it.kind == PS3_ROM
                 && it.a >= 0 && it.a < (int)mXmbSystems.size()
-                && it.b >= 0 && it.b < (int)mXmbSystems[it.a].roms.size())
+                && it.b >= 0 && it.b < (int)mXmbSystems[it.a].roms.size()
+                && (mScrapeBoxartOn || romUsesCartArt(mXmbSystems[it.a].roms[it.b])))
                 boxTex = romBoxartTex(mXmbSystems[it.a].roms[it.b], &boxAR);
-            else if (mScrapeBoxartOn && it.kind == PS3_RECENT
+            else if (it.kind == PS3_RECENT
                      && it.a >= 0 && it.a < (int)mXmbRecent.size()
-                     && !mXmbRecent[it.a].romPath.empty())
+                     && !mXmbRecent[it.a].romPath.empty()
+                     && (mScrapeBoxartOn || romUsesCartArt(mXmbRecent[it.a].romPath)))
                 boxTex = romBoxartTex(mXmbRecent[it.a].romPath, &boxAR);   // boxart in Recently Played too
             if (isFolderKind) {
                 drawFolderIcon(ix, iy, dsz, alpha, folderCover);

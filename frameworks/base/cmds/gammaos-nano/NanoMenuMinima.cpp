@@ -486,13 +486,17 @@ void NanoMenu::renderMinimaList(float rx, float ry, float rw, float rh) {
     }
 
     // ---- focused game boxart, bottom-right, above the A Open pill ----
-    if (minSe && scraperBoxartEnabled() && !minSe->box.empty()) {
+    if (minSe && !minSe->box.empty() && (scraperBoxartEnabled() || romUsesCartArt(focusedRomPath()))) {
         float bar = 0.7f;
         GLuint bt = romBoxartTex(focusedRomPath(), &bar);
         if (bt) {
             float bh = rh * 0.32f, bw = bh * (bar > 0.01f ? bar : 0.7f);
             const float maxbw = rw * 0.30f;
             if (bw > maxbw) { bw = maxbw; bh = bw / (bar > 0.01f ? bar : 0.7f); }
+            if (romBoxartIsPixel(focusedRomPath())) {   // PICO-8 cart label: square pixels
+                const float maxSide = fminf(rh * 0.32f, maxbw);
+                bw = bh = cartPixelSize(maxSide, maxSide);
+            }
             float bx = rx + rw - pad - bw, by = hintTop - btnMg - bh;
             drawRoundedRect(bx - 4.0f * sc, by - 4.0f * sc, bw + 8.0f * sc, bh + 8.0f * sc, 6.0f * sc, 1.0f, 1.0f, 1.0f, 0.12f);
             drawIconTex(bt, bx, by, bw, bh, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -611,7 +615,8 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
             romPath = mXmbRecent[selItem->a].romPath;
     }
     GLuint boxTex = 0; float boxAR = 1.0f;
-    if (!romPath.empty() && scraperBoxartEnabled()) boxTex = romBoxartTex(romPath, &boxAR);
+    if (!romPath.empty() && (scraperBoxartEnabled() || romUsesCartArt(romPath)))
+        boxTex = romBoxartTex(romPath, &boxAR);
     GLuint iconTex = selItem ? selItem->iconTex
                    : (mNdsAtRoot && mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size() ? mPs3Cats[mPs3CatIdx].iconTex : 0);
 
@@ -627,6 +632,10 @@ void NanoMenu::renderMinimaSecondary(float rx, float ry, float rw, float rh) {
         if (boxTex) {
             float ah = artMaxH, aw = artMaxH * boxAR;
             if (aw > artMaxW) { aw = artMaxW; ah = aw / (boxAR > 0.01f ? boxAR : 1.0f); }
+            if (romBoxartIsPixel(romPath)) {   // PICO-8 cart label: square pixels
+                const float maxSide = fminf(artMaxH, artMaxW);
+                aw = ah = cartPixelSize(maxSide, maxSide);
+            }
             float axx = cx - aw * 0.5f, ayy = ry + rh * 0.22f;
             drawRoundedRect(axx - 4.0f * sc, ayy - 4.0f * sc, aw + 8.0f * sc, ah + 8.0f * sc, 8.0f * sc, 1.0f, 1.0f, 1.0f, 0.10f);
             drawIconTex(boxTex, axx, ayy, aw, ah, 1.0f, 1.0f, 1.0f, 1.0f);
