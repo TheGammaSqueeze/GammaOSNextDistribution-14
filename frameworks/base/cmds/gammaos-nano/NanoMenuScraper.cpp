@@ -18,6 +18,7 @@
 // credential/engine resolution, and the progress modal. The network + image
 // fetching lives in NanoScraper.cpp; this file owns the NanoMenu state.
 
+#include <ctype.h>
 #include "NanoMenu.h"
 #include "NanoScraper.h"
 #include "NanoScraperDevCreds.h"   // compiled-in (obfuscated) ScreenScraper dev creds
@@ -181,7 +182,40 @@ void NanoMenu::saveScrapeIndex() {
     else                            unlink(tmp.c_str());
 }
 
+bool NanoMenu::isPico8Cart(const std::string& path) {
+    static const char kExt[] = ".p8.png";
+    const size_t n = sizeof(kExt) - 1;
+    if (path.size() <= n) return false;
+    for (size_t i = 0; i < n; i++)
+        if (tolower((unsigned char)path[path.size() - n + i]) != kExt[i]) return false;
+    return true;
+}
+
+// The cover of a PICO-8 cart is the cart itself (a .p8.png is the cartridge picture with the game
+// data stored in it), which ScreenScraper rarely has and sometimes matches to the wrong game. A cover
+// the user set by hand (scraper "manual") still wins; any scraped metadata and fanart are kept. Called
+// per visible ROM per frame, so the synthesized entry is cached and rebuilt only when its manifest
+// entry changes.
 const NanoMenu::ScrapeEntry* NanoMenu::scrapeEntryFor(const std::string& romPath) {
+    const ScrapeEntry* e = scrapeIndexLookup(romPath);
+    if (!isPico8Cart(romPath)) return e;
+    if (e && e->scraper == "manual" && !e->box.empty()) return e;
+    CartArt& c = mCartArt[romPath];
+    const bool stale = !c.valid || c.src != e ||
+        (e && (c.srcWhen != e->when || c.srcScraper != e->scraper || c.srcBox != e->box));
+    if (stale) {
+        c.entry = e ? *e : ScrapeEntry{};
+        c.entry.box = romPath;
+        c.src = e;
+        c.srcWhen = e ? e->when : 0;
+        c.srcScraper = e ? e->scraper : std::string();
+        c.srcBox = e ? e->box : std::string();
+        c.valid = true;
+    }
+    return &c.entry;
+}
+
+const NanoMenu::ScrapeEntry* NanoMenu::scrapeIndexLookup(const std::string& romPath) {
     scraperEnsureLoaded();
     auto it = mScrapeIndex.find(romPath);
     if (it != mScrapeIndex.end()) return &it->second;

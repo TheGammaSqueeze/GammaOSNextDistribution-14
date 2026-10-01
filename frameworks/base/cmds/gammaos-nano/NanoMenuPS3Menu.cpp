@@ -12272,7 +12272,7 @@ void NanoMenu::openXmbOpt() {
             if (!boxRom.empty()) {
                 add("Set Boxart", "setboxart", false);
                 const ScrapeEntry* be = scrapeEntryFor(boxRom);
-                if (be && !be->box.empty()) add("Reset Boxart", "resetboxart", false);
+                if (be && !be->box.empty() && be->box != boxRom) add("Reset Boxart", "resetboxart", false);   // a PICO-8 cart's own image is not resettable
             }
             // Favourites: one-button toggle on any game (label reflects the current state).
             if (!boxRom.empty())

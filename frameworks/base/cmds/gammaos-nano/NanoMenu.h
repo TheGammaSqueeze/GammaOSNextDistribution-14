@@ -3287,6 +3287,12 @@ private:
     void loadScrapeIndex();
     void saveScrapeIndex();
     const ScrapeEntry* scrapeEntryFor(const std::string& romPath);
+    const ScrapeEntry* scrapeIndexLookup(const std::string& romPath);   // the manifest entry alone (no cart art)
+    // PICO-8 carts (*.p8.png) are their own cover: the cartridge image is the artwork. scrapeEntryFor
+    // hands out a copy of the manifest entry with the cart as the cover unless the user picked one.
+    static bool isPico8Cart(const std::string& path);
+    struct CartArt { ScrapeEntry entry; const ScrapeEntry* src = nullptr; long long srcWhen = 0; std::string srcBox, srcScraper; bool valid = false; };
+    std::unordered_map<std::string, CartArt> mCartArt;
     // ES-DE per-game metadata read straight from ES-DE's own gamelist.xml files (the same source
     // real ES-DE displays), so the ES-DE theme engine shows the identical description / rating /
     // release date / developer / publisher / genre / players as the control, instead of nano's own

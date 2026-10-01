@@ -1262,6 +1262,10 @@ static std::string romDisplayName(const std::string& rom) {
     std::string name = (sl == std::string::npos) ? rom : rom.substr(sl + 1);
     size_t dot = name.rfind('.');
     if (dot != std::string::npos) name.resize(dot);
+    // A PICO-8 cart image (Celeste.p8.png) is named after the cart it holds: drop the .p8 too.
+    if (name.size() > 3 && strcasecmp(name.c_str() + name.size() - 3, ".p8") == 0
+        && strcasecmp(rom.c_str() + rom.size() - 4, ".png") == 0)
+        name.resize(name.size() - 3);
     return name;
 }
 
@@ -1348,9 +1352,14 @@ static void scanSystemDir(const std::string& dir, int depth, int maxDepth,
         std::string ext = name.substr(dot);
         for (size_t i = 0; i < ext.size(); i++)
             if (ext[i] >= 'A' && ext[i] <= 'Z') ext[i] += 32;
-        if (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
+        // A PICO-8 cart can be a PNG (Celeste.p8.png: the cartridge picture with the game stored
+        // in it), so a .png passes when the system takes .png and the name has the cart form;
+        // other images in the folder (covers, screenshots) stay out of the list.
+        const bool pngCart = ext == ".png" && exts.count(ext) && name.size() > 7
+            && strcasecmp(name.c_str() + name.size() - 7, ".p8.png") == 0;
+        if (!pngCart && (ext == ".txt" || ext == ".jpg" || ext == ".png" || ext == ".xml"
             || ext == ".srm" || ext == ".sav" || ext == ".state" || ext == ".rtc"
-            || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log") {
+            || ext == ".dat" || ext == ".bak" || ext == ".cfg" || ext == ".log")) {
             continue;
         }
 
