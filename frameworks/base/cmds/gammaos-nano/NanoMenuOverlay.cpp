@@ -87,6 +87,7 @@ static void overlayTermHandler(int);
 // overlayQuitToHome.
 static std::string overlayShq(const std::string& s);
 static int overlaySignalPackage(const char* pkg, int sig);
+static bool overlayHasForegroundService(const std::string& pkg);
 
 void NanoMenu::overlayInitLayer() {
     // Crash/kill recovery: if a previous overlay instance died while an app was
@@ -924,6 +925,10 @@ void NanoMenu::overlayQuitToHome() {
                 // burning GPU/CPU the cold-boot menu never pays). The 3s ESC
                 // grace above still gives RetroArch/DraStic their clean
                 // save-state exit when they do honor it.
+                if (!isGame && overlayHasForegroundService(p)) {
+                    ALOGI("overlay: quit %s -> overlay launcher (foreground service running, kept alive)", p.c_str());
+                    return;
+                }
                 if (overlaySignalPackage(p.c_str(), 0) > 0) {
                     char c[320];
                     snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
@@ -937,7 +942,12 @@ void NanoMenu::overlayQuitToHome() {
         return;   // stay shown as the launcher (drop_input stays 1)
     }
 
-    // Non-overlay-home: force-stop and let the DRM home XMB take the display back.
+    // Non-overlay-home: force-stop and let the DRM home XMB take the display back. An app running a
+    // foreground service (a server, a download, music) is kept alive like a background app.
+    if (!keepAlive && !isGame && overlayHasForegroundService(pkg)) {
+        keepAlive = true;
+        ALOGI("overlay: quit %s with a foreground service running, keeping it alive", pkg.c_str());
+    }
     if (!pkg.empty() && !keepAlive) {
         char cmd[320];
         snprintf(cmd, sizeof(cmd), "am force-stop %s 2>/dev/null",
@@ -972,6 +982,26 @@ static std::string overlayShq(const std::string& s) {
     }
     r += "'";
     return r;
+}
+
+// True while the package runs a foreground service: an FTP or SMB server (MiXplorer), a
+// download, music playback. Such an app is working in the background on purpose, so quitting
+// it to the menu leaves it running like a "Keep Running in Background" app instead of
+// force-stopping it (which killed MiXplorer's FTP server the moment the user went back home, so
+// every connection from the PC was refused). Games keep their save-and-quit path. Takes a few
+// hundred milliseconds (dumpsys), so callers use it on quit only.
+static bool overlayHasForegroundService(const std::string& pkg) {
+    if (pkg.empty()) return false;
+    char cmd[320];
+    snprintf(cmd, sizeof(cmd), "dumpsys activity services %s 2>/dev/null", overlayShq(pkg).c_str());
+    FILE* f = popen(cmd, "r");
+    if (!f) return false;
+    bool fg = false;
+    char line[512];
+    while (fgets(line, sizeof(line), f))
+        if (strstr(line, "isForeground=true")) fg = true;   // keep reading so dumpsys never sees a broken pipe
+    pclose(f);
+    return fg;
 }
 
 // Run a shell command and return its trimmed stdout (first use: pm path / settings).
@@ -1191,9 +1221,10 @@ void NanoMenu::overlayCloseRunningApp(const std::string& old) {
             usleep(2500000);   // pids unknown: give the ESC time to save and quit
             ALOGI("overlay: ESC-exited %s (pids unknown, fixed wait)", old.c_str());
         }
-    } else if (!old.empty() && !backgroundHas(old)) {
+    } else if (!old.empty() && !backgroundHas(old) && !overlayHasForegroundService(old)) {
         // Do NOT force-stop a "Keep Running in Background" app when switching away from it -
-        // it must stay alive so re-selecting it later resumes warm.
+        // it must stay alive so re-selecting it later resumes warm. Same for an app running a
+        // foreground service (see overlayHasForegroundService).
         char c[320];
         snprintf(c, sizeof(c), "am force-stop %s 2>/dev/null",
                  overlayShq(old).c_str());

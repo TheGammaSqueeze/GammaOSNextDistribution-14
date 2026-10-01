@@ -797,7 +797,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // Clear drop_input unconditionally so nano menu can receive input
             android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
             if (appLaunched) {
-                nanoKillAppAndRestart();
+                nanoKillAppAndRestart(true);
             } else if (!nanoRaiseOverlayHome()) {
                 // Just restart nano menu (overlay-home raises the overlay instead)
                 android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
@@ -2453,7 +2453,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
                 && "1".equals(android.os.SystemProperties.get(
                         "sys.gammaos.nano.app_launched", "0"))) {
-            nanoKillAppAndRestart();
+            nanoKillAppAndRestart(false);
             return;
         }
 
@@ -2513,14 +2513,48 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return true;
     }
 
-    private void nanoKillAppAndRestart() {
+    // GammaOS Nano: leave the app running on HOME when the user marked it "Keep Running in
+    // Background" (persist.gammaos.nano.background_pkgs, comma list continued in _1, _2, ...) or
+    // while it runs a foreground service (an FTP or SMB server, a download, music). Force-stopping
+    // those killed e.g. MiXplorer's FTP server the moment the user pressed HOME, so every connection
+    // from the PC was refused. Emulators keep the quit-to-menu behaviour.
+    private boolean nanoKeepAppAlive(String pkg) {
+        if (pkg == null || pkg.isEmpty() || pkg.contains("retroarch") || pkg.contains("drastic")) {
+            return false;
+        }
+        for (int i = 0; ; i++) {
+            String key = i == 0 ? "persist.gammaos.nano.background_pkgs"
+                    : "persist.gammaos.nano.background_pkgs_" + i;
+            String v = android.os.SystemProperties.get(key, "");
+            if (v.isEmpty()) break;
+            for (String tok : v.split(",")) {
+                if (pkg.equals(tok.trim())) return true;
+            }
+        }
+        try {
+            android.app.ActivityManager am = (android.app.ActivityManager)
+                    mContext.getSystemService(android.content.Context.ACTIVITY_SERVICE);
+            for (android.app.ActivityManager.RunningServiceInfo si : am.getRunningServices(256)) {
+                if (si.foreground && si.service != null && pkg.equals(si.service.getPackageName())) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS Nano: running-service query failed", e);
+        }
+        return false;
+    }
+
+    private void nanoKillAppAndRestart(boolean hardKill) {
         // Cancel any pending emergency exit timer
         mHandler.removeCallbacks(mNanoBackEmergencyRunnable);
         mNanoBackEmergencyPending = false;
 
         final String nanoAppPkg = android.os.SystemProperties.get(
                 "sys.gammaos.nano.launch_app", "com.retroarch.aarch64");
-        Slog.i(TAG, "GammaOS Nano: killing " + nanoAppPkg + " and returning to nano menu");
+        final boolean keepAlive = !hardKill && nanoKeepAppAlive(nanoAppPkg);
+        Slog.i(TAG, "GammaOS Nano: " + (keepAlive ? "leaving " + nanoAppPkg + " running"
+                : "killing " + nanoAppPkg) + " and returning to nano menu");
         // Set guard to prevent RootWindowContainer from launching anything
         // while we're tearing down the current app.
         android.os.SystemProperties.set("sys.gammaos.nano.killing", "1");
@@ -2530,12 +2564,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         android.os.SystemProperties.set("sys.gammaos.nano.launch_app",
                 "com.retroarch.aarch64");
         android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
-        try {
-            android.app.ActivityManager am = (android.app.ActivityManager)
-                    mContext.getSystemService(android.content.Context.ACTIVITY_SERVICE);
-            am.forceStopPackage(nanoAppPkg);
-        } catch (Exception e) {
-            Slog.w(TAG, "GammaOS Nano: force-stop failed", e);
+        if (!keepAlive) {
+            try {
+                android.app.ActivityManager am = (android.app.ActivityManager)
+                        mContext.getSystemService(android.content.Context.ACTIVITY_SERVICE);
+                am.forceStopPackage(nanoAppPkg);
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS Nano: force-stop failed", e);
+            }
         }
         // Overlay-home: raise the resident overlay launcher; otherwise trigger
         // the DRM home nano restart via init property.
