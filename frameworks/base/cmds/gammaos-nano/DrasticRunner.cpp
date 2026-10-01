@@ -3727,6 +3727,7 @@ static void aaCloseSink();
 // recorder's SetRecordState(RECORDING). drastic's pause (+0x1e320, the overlay menu) stops the
 // recorder, and with the restart stubbed the microphone stayed dead after the first menu visit.
 static const uintptr_t kAaPlaySites[] = {0x1d9a0, 0x1e4fc};
+static void installMicFix(uint8_t* base, long ps);   // DS microphone: linear curve + capture FIFO
 static uint32_t gAaPlaySiteOrig[4];
 static bool gAaPlaySitesDisabled = false;
 static void aaPatchPlaySites(uint8_t* base, long ps, bool disable) {
@@ -4110,6 +4111,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
             __builtin___clear_cache((char*)(base + site), (char*)(base + site + 4));
             mprotect(sitePg2, (size_t)ps, PROT_READ | PROT_EXEC);
             ALOGI("DrasticRunner: audio submit probe installed");
+            installMicFix(base, ps);
             // AAudio sink: drastic's OpenSL player keeps AudioFlinger's mixer awake from the moment it
             // exists (its refill callback enqueues silence), and the mixer holds the PCM the exclusive
             // stream needs until its standby delay passes. Stop and stub the player right here when it
@@ -5386,9 +5388,271 @@ static int sAudFrameFix = -1;
 // (written from _SoundEnabled by applyConfig and startGame, read only by the output enqueue at
 // +0x1de80 / +0x1e0dc / +0x1e0fc, after the mic pump) so it skips exactly the output. It is set for
 // the duration of one submit and put back in the post-hook, so a live applyConfig cannot be clobbered.
+
+// ---- DS microphone ------------------------------------------------------------------------
+// drastic's microphone path has two faults that together are the "distorted, choppy, crackly"
+// microphone users report (measured with the GammaOS DS mic test ROM against a real DS Lite:
+// a quarter of every loud recording was an exact copy of the audio 83.6 ms earlier, and the
+// transfer curve was square law):
+//
+// 1. Stale buffers. The per-frame mic pump inside the submit (+0x1dd6c) assumes the recorder
+//    finishes exactly one buffer per emulated frame. It hands the game whatever is in the next
+//    of five record buffers (+0x3c94004, 4 KB apart) whether or not the recorder has refilled it,
+//    and enqueues the next one for half a frame of samples (it passes the stereo sample count as
+//    a byte count). The capture runs on its own clock, so whenever the emulator is ahead the game
+//    is given audio from one lap of the ring earlier: 5 frames, 83.6 ms. That is the chopping,
+//    the repeats and, at the edges, the pops.
+// 2. A square-law curve. Each sample becomes sign(x) * gain * x^2 (+0x1dfe4 scalar, +0x1e170
+//    vector), which crushes quiet input and clips anything over half scale. A DS microphone is
+//    linear.
+//
+// The fix leaves drastic's pump in place and corrects what flows through it. The recorder's
+// buffer queue interface (+0x3c7d050) is replaced with a wrapper: drastic's own enqueues are
+// accepted and ignored, the real queue always holds kMicBufs short buffers of our own, and each
+// completed buffer goes, in order, into a lock-free FIFO. After every submit the "current" buffer
+// the pump converts at the start of the next frame (+0x3c9a006) is overwritten with the next
+// frame of FIFO audio, so the game only ever hears samples that were captured, once, in order.
+// The FIFO keeps six frames of latency and absorbs the drift between the emulator's frame rate
+// and the capture clock by stretching each frame's read by up to 3 percent, instead of repeating
+// or dropping blocks. The curve is patched to gain * x and drastic's gain table (Mic Level 0..3)
+// to 1/2/4/8, with the FIFO feeding samples at half level, so the default Mic Level 1 is unity.
+//
+// persist.gammaos.drastic_nano.mic_fix=0 (read at launch) restores drastic's own behaviour.
+
+namespace {
+
+struct MicBqVtbl {   // SLAndroidSimpleBufferQueueItf_ (SLresult and SLuint32 are 32-bit)
+    uint32_t (*Enqueue)(const void* self, const void* buffer, uint32_t size);
+    uint32_t (*Clear)(const void* self);
+    uint32_t (*GetState)(const void* self, void* state);
+    uint32_t (*RegisterCallback)(const void* self, void (*cb)(const void* self, void* ctx), void* ctx);
+};
+typedef const MicBqVtbl* const* MicBqItf;
+
+constexpr int kMicBufs = 4;
+constexpr int kMicBufSamples = 441;               // 10 ms at drastic's 44.1 kHz recorder
+constexpr uint32_t kMicFifo = 1u << 15;            // 0.74 s, power of two
+constexpr uint32_t kMicCurrentMax = 2048;          // the pump's "current" buffer is 4 KB of s16
+
+int16_t gMicBuf[kMicBufs][kMicBufSamples];
+int gMicHead = 0;                                  // next of our buffers to complete (under gMicMu)
+std::mutex gMicMu;
+MicBqItf gMicReal = nullptr;                       // drastic's real recorder queue
+uintptr_t gMicWrapped = 0;                         // the itf value we last replaced
+int16_t gMicFifo[kMicFifo];
+std::atomic<uint32_t> gMicW{0}, gMicR{0};
+std::atomic<bool> gMicFlush{false};
+uint32_t gMicFrameCount = 0;                       // stereo sample count of the frame being submitted
+bool gMicStarted = false;                          // past the initial fill (emulator thread)
+bool gMicEverStarted = false;                      // a fill has completed since the last flush
+int16_t gMicLastOut = 0;                           // last sample handed to the pump (for fades)
+std::atomic<uint32_t> gMicUnderruns{0}, gMicTrims{0}, gMicCaptured{0};
+
+uint32_t micEnqueueAllLocked() {
+    uint32_t r = 0;
+    for (int i = 0; i < kMicBufs && gMicReal; i++)
+        r |= (*gMicReal)->Enqueue(gMicReal, gMicBuf[i], sizeof gMicBuf[i]);
+    gMicHead = 0;
+    return r;
+}
+
+// OpenSL's callback thread: the oldest of our buffers is complete.
+void micRecorded(const void* /*self*/, void* /*ctx*/) {
+    std::lock_guard<std::mutex> lk(gMicMu);
+    if (!gMicReal) return;
+    const int16_t* src = gMicBuf[gMicHead];
+    const uint32_t w = gMicW.load(std::memory_order_relaxed), r = gMicR.load(std::memory_order_acquire);
+    if (kMicFifo - (w - r) >= (uint32_t)kMicBufSamples) {      // room for it (a full FIFO drops it; the consumer trims)
+        for (int i = 0; i < kMicBufSamples; i++) gMicFifo[(w + i) & (kMicFifo - 1)] = src[i];
+        gMicW.store(w + kMicBufSamples, std::memory_order_release);
+        gMicCaptured.fetch_add(kMicBufSamples, std::memory_order_relaxed);
+    }
+    (*gMicReal)->Enqueue(gMicReal, gMicBuf[gMicHead], sizeof gMicBuf[gMicHead]);
+    gMicHead = (gMicHead + 1) % kMicBufs;
+}
+
+uint32_t micFakeEnqueue(const void*, const void*, uint32_t) { return 0; }   // SL_RESULT_SUCCESS
+uint32_t micFakeClear(const void*) {
+    // drastic clears around a pause and before restarting the recorder: drop what is queued and
+    // what is buffered (it predates the pause), and queue our own buffers again.
+    std::lock_guard<std::mutex> lk(gMicMu);
+    if (!gMicReal) return 0;
+    uint32_t r = (*gMicReal)->Clear(gMicReal);
+    r |= micEnqueueAllLocked();
+    gMicFlush.store(true, std::memory_order_release);
+    return r;
+}
+uint32_t micFakeGetState(const void*, void* state) {
+    std::lock_guard<std::mutex> lk(gMicMu);
+    return gMicReal ? (*gMicReal)->GetState(gMicReal, state) : 0;
+}
+uint32_t micFakeRegister(const void*, void (*)(const void*, void*), void*) { return 0; }
+const MicBqVtbl kMicFakeVtbl = { micFakeEnqueue, micFakeClear, micFakeGetState, micFakeRegister };
+const MicBqVtbl* const kMicFakeVtblPtr = &kMicFakeVtbl;
+
+bool micFixEnabled() {
+    static int on = -1;
+    if (on < 0) on = android::drastic_settings::getBool("persist.gammaos.drastic_nano.mic_fix", true) ? 1 : 0;
+    return on == 1;
+}
+
+// Emulator thread, after a submit: take over the recorder queue the first time it exists.
+void micWrapQueue(uint8_t* base) {
+    uintptr_t* slot = reinterpret_cast<uintptr_t*>(base + 0x3c7d050);
+    const uintptr_t cur = *slot;
+    const uintptr_t fake = (uintptr_t)&kMicFakeVtblPtr;
+    static uintptr_t sRefused = 0;                       // a queue we could not take over: leave it be
+    if (cur == fake || cur == sRefused) return;
+    if (cur == 0) { std::lock_guard<std::mutex> lk(gMicMu); gMicReal = nullptr; return; }
+    // OpenSL only takes a buffer queue callback while the recorder is stopped, and drastic starts
+    // it as soon as it is created, so stop it around the takeover. SLRecordItf's first entry is
+    // SetRecordState (1 = stopped, 3 = recording), the call drastic itself makes.
+    typedef uint32_t (*SetRecordStateFn)(const void* self, uint32_t state);
+    const void* rec = *reinterpret_cast<void* const*>(base + 0x3c7d048);
+    SetRecordStateFn setState = rec ? **reinterpret_cast<SetRecordStateFn* const*>(rec) : nullptr;
+    std::lock_guard<std::mutex> lk(gMicMu);
+    gMicReal = reinterpret_cast<MicBqItf>(cur);
+    gMicWrapped = cur;
+    const uint32_t rStop = setState ? setState(rec, 1) : 0xff;
+    const uint32_t rCb = (*gMicReal)->RegisterCallback(gMicReal, micRecorded, nullptr);
+    const uint32_t rClr = (*gMicReal)->Clear(gMicReal);   // drastic's queued buffers: their completions are not ours
+    const uint32_t rEnq = micEnqueueAllLocked();
+    const uint32_t rRun = setState ? setState(rec, 3) : 0xff;
+    *slot = fake;
+    gMicFlush.store(true, std::memory_order_release);
+    ALOGI("DrasticRunner: microphone: recorder queue wrapped (%d x %d samples; stop %u, callback %u, clear %u, enqueue %u, start %u)",
+          kMicBufs, kMicBufSamples, rStop, rCb, rClr, rEnq, rRun);
+    if (rCb != 0) {   // our callback is not in place: give the queue back rather than starve the mic
+        *slot = cur; gMicReal = nullptr; sRefused = cur;
+        ALOGW("DrasticRunner: microphone: could not take over the recorder queue, drastic's own path stays");
+    }
+}
+
+// Emulator thread, after a submit that ran the mic pump: put the next frame of captured audio in
+// drastic's "current" buffer, which the pump converts at the start of the next frame.
+void micFeedFrame(uint8_t* base) {
+    int16_t* cur = reinterpret_cast<int16_t*>(base + 0x3c9a006);
+    uint32_t want = gMicFrameCount / 2;                  // one sample per stereo frame: 44.1 kHz
+    if (want == 0) return;
+    if (want > kMicCurrentMax / 2) want = kMicCurrentMax / 2;
+    // The capture arrives in HAL periods (16.3 ms on the RG DS Plus) and the emulator runs two or
+    // three frames back to back when it catches up, so the cushion is six frames (100 ms): with
+    // three, a catch-up drained it about every six seconds.
+    const uint32_t target = want * 6;
+    uint32_t r = gMicR.load(std::memory_order_relaxed);
+    const uint32_t w = gMicW.load(std::memory_order_acquire);
+    if (gMicFlush.exchange(false, std::memory_order_acq_rel)) { r = w; gMicStarted = false; gMicEverStarted = false; gMicLastOut = 0; }
+    uint32_t fill = w - r;
+    if (fill > target * 3) {                             // a hitch left too much: back to the target
+        r = w - target; fill = target;
+        gMicTrims.fetch_add(1, std::memory_order_relaxed);
+    }
+    // Fade from the last sample to silence, so a gap does not start with a click.
+    auto fadeOut = [&](uint32_t from) {
+        const int32_t last = from ? cur[from - 1] : gMicLastOut;
+        for (uint32_t i = from; i < kMicCurrentMax; i++) {
+            const uint32_t k = i - from;
+            cur[i] = k < 64 ? (int16_t)(last * (int32_t)(64 - k) / 64) : 0;
+        }
+        gMicLastOut = 0;
+    };
+    if (!gMicStarted) {
+        // The first fill waits for the whole cushion; after an underrun two frames are enough to go
+        // on with, and the drift control below builds the cushion back up.
+        if (fill >= (gMicEverStarted ? want * 2 : target)) gMicStarted = gMicEverStarted = true;
+        else { fadeOut(0); gMicR.store(r, std::memory_order_release); return; }
+    }
+    if (fill < want) {                                   // starved: what there is, then fade, and refill
+        uint32_t i = 0;
+        for (; i < fill; i++) cur[i] = (int16_t)(gMicFifo[(r + i) & (kMicFifo - 1)] / 2);
+        fadeOut(i);
+        gMicR.store(r + fill, std::memory_order_release);
+        gMicStarted = false;
+        gMicUnderruns.fetch_add(1, std::memory_order_relaxed);
+        return;
+    }
+    // Drift: read up to 3 percent more or fewer samples than the frame plays, by how far the fill is
+    // from the target, and resample them to the frame linearly.
+    int32_t adj = ((int32_t)fill - (int32_t)target) / 16;
+    const int32_t lim = (int32_t)want / 33;              // 3 percent
+    if (adj > lim) adj = lim;
+    if (adj < -lim) adj = -lim;
+    uint32_t take = (uint32_t)((int32_t)want + adj);
+    if (take > fill) take = fill;
+    if (take < 2) take = 2;
+    const uint32_t step = (uint32_t)(((uint64_t)take << 16) / want);   // 16.16
+    for (uint32_t i = 0; i < want; i++) {
+        const uint32_t pos = i * step, k = pos >> 16, fr = pos & 0xffff;
+        const int32_t a = gMicFifo[(r + k) & (kMicFifo - 1)];
+        const int32_t b = gMicFifo[(r + (k + 1 < fill ? k + 1 : k)) & (kMicFifo - 1)];
+        cur[i] = (int16_t)((a + (((b - a) * (int32_t)fr) >> 16)) / 2);
+    }
+    // Past one frame: the samples that follow, not consumed, in case the game reads a little further.
+    for (uint32_t i = want; i < kMicCurrentMax; i++) {
+        const uint32_t k = take + (i - want);
+        cur[i] = k < fill ? (int16_t)(gMicFifo[(r + k) & (kMicFifo - 1)] / 2) : cur[i - 1];
+    }
+    gMicLastOut = cur[want - 1];
+    gMicR.store(r + take, std::memory_order_release);
+}
+
+}  // namespace
+
+// The pump ran in this submit when drastic did not skip it and its microphone path is live: the
+// recorder opened (ctx+0x40023), no file source (+0x3c9b03c), the record interface exists.
+static void micAfterSubmit(uint8_t* ctx) {
+    uint8_t* base = gAudLibBase;
+    if (!base || !micFixEnabled()) return;
+    if (ctx[0x40027] != 0 || *reinterpret_cast<volatile uint32_t*>(base + 0x3c7d074) != 0) return;
+    if (!ctx[0x40023] || *reinterpret_cast<volatile uint32_t*>(base + 0x3c9b03c) != 0) return;
+    if (*reinterpret_cast<volatile uintptr_t*>(base + 0x3c7d048) == 0) return;
+    micWrapQueue(base);
+    if (!gMicReal) return;
+    micFeedFrame(base);
+    static uint32_t sLogged = 0;
+    if ((++sLogged % 3600) == 0)
+        ALOGI("DrasticRunner: microphone: captured %u, fifo %u, underruns %u, trims %u",
+              gMicCaptured.load(), gMicW.load() - gMicR.load(), gMicUnderruns.load(), gMicTrims.load());
+}
+
+// Linear transfer curve and gain table, installed with the audio probe (the FIFO needs its
+// post-hook; the curve is fixed either way).
+static void installMicFix(uint8_t* base, long ps) {
+    if (!micFixEnabled()) { ALOGI("DrasticRunner: microphone fix off (mic_fix=0)"); return; }
+    struct Site { uintptr_t off; uint32_t expect, repl; };
+    static const Site kCurve[6] = {
+        { 0x1dfec, 0x1e230821u, 0x1e204061u },   // fmul s1, s1, s3   -> fmov s1, s3      (gain * x, not gain * x^2)
+        { 0x1dff0, 0x1e270183u, 0x1e270163u },   // fmov s3, w12      -> fmov s3, w11     (the sign is already in x)
+        { 0x1e180, 0x6e32dce7u, 0x4eb21e47u },   // fmul v7, v7, v18  -> mov v7, v18
+        { 0x1e188, 0x6e33de10u, 0x4eb31e70u },   // fmul v16, v16, v19 -> mov v16, v19
+        { 0x1e19c, 0x6ea0f8f3u, 0x4ea71cf3u },   // fneg v19, v7      -> mov v19, v7
+        { 0x1e1a0, 0x6ea0fa12u, 0x4eb01e12u },   // fneg v18, v16     -> mov v18, v16
+    };
+    for (const Site& st : kCurve) {
+        const uint32_t now = *reinterpret_cast<uint32_t*>(base + st.off);
+        if (now != st.expect && now != st.repl) {
+            ALOGW("DrasticRunner: microphone: unexpected code at +0x%zx (0x%08x), curve left alone", (size_t)st.off, now);
+            return;
+        }
+    }
+    for (const Site& st : kCurve) raPatchInsn(base, st.off, st.repl);
+    uint8_t* table = base + 0x10a080;                  // Mic Level 0..3 gains, read by +0x1d728
+    static const uint8_t kOld[4] = { 2, 4, 8, 16 }, kNew[4] = { 1, 2, 4, 8 };
+    if (!memcmp(table, kOld, 4)) {
+        uint8_t* pg = (uint8_t*)((uintptr_t)table & ~(uintptr_t)(ps - 1));
+        if (mprotect(pg, (size_t)ps, PROT_READ | PROT_WRITE) == 0) {
+            memcpy(table, kNew, 4);
+            mprotect(pg, (size_t)ps, PROT_READ);
+        }
+    }
+    // This runs at library load, ahead of the first applyConfig, so the gain drastic derives from
+    // Mic Level comes from the new table.
+    ALOGI("DrasticRunner: microphone: linear curve installed");
+}
 static uint32_t sAaOutOffSaved = 0; static bool sAaOutOffSet = false;
 static inline uint32_t* aaSoundOffFlag() { return gAudLibBase ? reinterpret_cast<uint32_t*>(gAudLibBase + 0x3c9b048) : nullptr; }
 extern "C" void raAudioSubmitPost(uint8_t* ctx) {
+    micAfterSubmit(ctx);
     if (sAaOutOffSet) { if (uint32_t* f = aaSoundOffFlag()) *f = sAaOutOffSaved; sAaOutOffSet = false; }
     // The submit zeroed the count (both its copy and its drop path).
     if (gAudCarryN == 0) return;
@@ -5399,7 +5663,12 @@ extern "C" void raAudioSubmitPost(uint8_t* ctx) {
 }
 std::atomic<uint32_t> gAudSkipped{0};   // frames drastic discards itself (skip byte at ctx+0x40027)
 std::atomic<uint32_t> gRaStatAudioSkipped{0};   // burst submits (load present + hidden frames) discarded here
+static void raAudioSubmitHookBody(uint8_t* ctx);
 extern "C" void raAudioSubmitHook(uint8_t* ctx) {
+    raAudioSubmitHookBody(ctx);
+    gMicFrameCount = *reinterpret_cast<uint32_t*>(ctx + 0x4000c) & 0x7fffffffu;   // what the mic pump will see
+}
+static void raAudioSubmitHookBody(uint8_t* ctx) {
     if (gAudioQuiesce.load(std::memory_order_acquire)) { ctx[0x40027] = 1; return; }   // exiting: drop the chunk so the teardown tail never reaches the sink
     // Run-ahead burst in flight (the parked load's present of the restored
     // frame and the hidden replay frame): none of that audio is game time,
