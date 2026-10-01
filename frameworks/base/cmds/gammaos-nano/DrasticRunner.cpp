@@ -5413,7 +5413,7 @@ static int sAudFrameFix = -1;
 // the pump converts at the start of the next frame (+0x3c9a006) is overwritten with the next
 // frame of FIFO audio, so the game only ever hears samples that were captured, once, in order.
 // The FIFO keeps six frames of latency and absorbs the drift between the emulator's frame rate
-// and the capture clock by stretching each frame's read by up to 3 percent, instead of repeating
+// and the capture clock with a slow, continuous resample (at most 1 percent), instead of repeating
 // or dropping blocks. The curve is patched to gain * x and drastic's gain table (Mic Level 0..3)
 // to 1/2/4/8, with the FIFO feeding samples at half level, so the default Mic Level 1 is unity.
 //
@@ -5446,6 +5446,8 @@ uint32_t gMicFrameCount = 0;                       // stereo sample count of the
 bool gMicStarted = false;                          // past the initial fill (emulator thread)
 bool gMicEverStarted = false;                      // a fill has completed since the last flush
 int16_t gMicLastOut = 0;                           // last sample handed to the pump (for fades)
+double gMicFillAvg = 0.0;                          // FIFO fill averaged over about a second
+double gMicPhase = 0.0;                            // fractional read position carried across frames
 std::atomic<uint32_t> gMicUnderruns{0}, gMicTrims{0}, gMicCaptured{0};
 
 uint32_t micEnqueueAllLocked() {
@@ -5559,7 +5561,11 @@ void micFeedFrame(uint8_t* base) {
     if (!gMicStarted) {
         // The first fill waits for the whole cushion; after an underrun two frames are enough to go
         // on with, and the drift control below builds the cushion back up.
-        if (fill >= (gMicEverStarted ? want * 2 : target)) gMicStarted = gMicEverStarted = true;
+        if (fill >= (gMicEverStarted ? want * 2 : target)) {
+            gMicStarted = gMicEverStarted = true;
+            gMicFillAvg = (double)target;               // steer from the target, not from the low restart level
+            gMicPhase = 0.0;
+        }
         else { fadeOut(0); gMicR.store(r, std::memory_order_release); return; }
     }
     if (fill < want) {                                   // starved: what there is, then fade, and refill
@@ -5571,27 +5577,34 @@ void micFeedFrame(uint8_t* base) {
         gMicUnderruns.fetch_add(1, std::memory_order_relaxed);
         return;
     }
-    // Drift: read up to 3 percent more or fewer samples than the frame plays, by how far the fill is
-    // from the target, and resample them to the frame linearly.
-    int32_t adj = ((int32_t)fill - (int32_t)target) / 16;
-    const int32_t lim = (int32_t)want / 33;              // 3 percent
-    if (adj > lim) adj = lim;
-    if (adj < -lim) adj = -lim;
-    uint32_t take = (uint32_t)((int32_t)want + adj);
+    // Drift: the capture clock and the emulator's frame rate differ by a fraction of a percent (0.55
+    // percent measured on the RG DS Plus), so the read runs at 1 + e times the frame's rate, with e
+    // from how far the AVERAGE fill is from the target. The fill itself swings by a HAL period every
+    // couple of frames (the capture arrives in 16 ms blocks); steering on it moved the rate by
+    // percents from frame to frame, a flutter heard as regular micro-gaps. The average (about a
+    // second) and a 1 percent limit leave only the slow correction. The read position keeps its
+    // fraction from frame to frame, so a frame boundary is not a seam in the resampling either.
+    gMicFillAvg += ((double)fill - gMicFillAvg) / 64.0;
+    double e = 0.05 * (gMicFillAvg - (double)target) / (double)target;
+    if (e > 0.01) e = 0.01;
+    if (e < -0.01) e = -0.01;
+    const double ratio = 1.0 + e;
+    auto at = [&](double pos) -> int32_t {               // linear interpolation inside what is there
+        uint32_t k = (uint32_t)pos;
+        if (k + 1 >= fill) return gMicFifo[(r + (fill - 1)) & (kMicFifo - 1)];
+        const double fr = pos - (double)k;
+        const int32_t a = gMicFifo[(r + k) & (kMicFifo - 1)], b = gMicFifo[(r + k + 1) & (kMicFifo - 1)];
+        return (int32_t)lrint((double)a + (double)(b - a) * fr);
+    };
+    for (uint32_t i = 0; i < want; i++) cur[i] = (int16_t)(at(gMicPhase + (double)i * ratio) / 2);
+    const double end = gMicPhase + (double)want * ratio;
+    uint32_t take = (uint32_t)end;
     if (take > fill) take = fill;
-    if (take < 2) take = 2;
-    const uint32_t step = (uint32_t)(((uint64_t)take << 16) / want);   // 16.16
-    for (uint32_t i = 0; i < want; i++) {
-        const uint32_t pos = i * step, k = pos >> 16, fr = pos & 0xffff;
-        const int32_t a = gMicFifo[(r + k) & (kMicFifo - 1)];
-        const int32_t b = gMicFifo[(r + (k + 1 < fill ? k + 1 : k)) & (kMicFifo - 1)];
-        cur[i] = (int16_t)((a + (((b - a) * (int32_t)fr) >> 16)) / 2);
-    }
+    gMicPhase = end - (double)take;
+    if (gMicPhase < 0.0 || gMicPhase >= 1.0) gMicPhase = 0.0;
     // Past one frame: the samples that follow, not consumed, in case the game reads a little further.
-    for (uint32_t i = want; i < kMicCurrentMax; i++) {
-        const uint32_t k = take + (i - want);
-        cur[i] = k < fill ? (int16_t)(gMicFifo[(r + k) & (kMicFifo - 1)] / 2) : cur[i - 1];
-    }
+    for (uint32_t i = want; i < kMicCurrentMax; i++)
+        cur[i] = (int16_t)(at((double)take + gMicPhase + (double)(i - want) * ratio) / 2);
     gMicLastOut = cur[want - 1];
     gMicR.store(r + take, std::memory_order_release);
 }
@@ -5611,8 +5624,8 @@ static void micAfterSubmit(uint8_t* ctx) {
     micFeedFrame(base);
     static uint32_t sLogged = 0;
     if ((++sLogged % 3600) == 0)
-        ALOGI("DrasticRunner: microphone: captured %u, fifo %u, underruns %u, trims %u",
-              gMicCaptured.load(), gMicW.load() - gMicR.load(), gMicUnderruns.load(), gMicTrims.load());
+        ALOGI("DrasticRunner: microphone: captured %u, fifo %u (average %.0f), underruns %u, trims %u",
+              gMicCaptured.load(), gMicW.load() - gMicR.load(), gMicFillAvg, gMicUnderruns.load(), gMicTrims.load());
 }
 
 // Linear transfer curve and gain table, installed with the audio probe (the FIFO needs its
