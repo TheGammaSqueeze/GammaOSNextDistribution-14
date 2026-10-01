@@ -69,7 +69,7 @@ struct Prefs {
     int  volume        = 10;         // _Volume 0..10, pinned at max (system volume is the control)
     int  audioLatency  = 1;          // _AudioLatency 0..4 (shipped seed)
     bool micEnabled    = true;       // _MicEnabled (shipped seed)
-    int  micLevel      = 1;          // _MicLevel 0..2
+    int  micLevel      = 0;          // _MicLevel 0..2: 0 = the game's own amplifier gain halved, 1 = as is, 2 = doubled
 
     // Frameskip: type 0 = fixed value, 1 = auto. Value is used when
     // type=0.

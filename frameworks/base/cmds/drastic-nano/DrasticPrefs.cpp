@@ -595,6 +595,14 @@ std::string keyName(int a) { return "key." + std::to_string(a); }
 
 void applyProps(Prefs* p) {
     if (!p) return;
+    // Mic Level became a trim on the gain the game sets (DrasticRunner micAmpGain) and its default
+    // moved from 1 to 0, which recognises speech best (Brain Age's colour test). Everyone who ran an
+    // earlier build has the old default stored, so move the global setting once; a level chosen
+    // after this, and per-game overrides, are left alone.
+    if (!property_get_bool("persist.gammaos.drastic_nano.mic_level_v2", false)) {
+        property_set(propName("mic_level").c_str(), "0");
+        property_set("persist.gammaos.drastic_nano.mic_level_v2", "1");
+    }
     applyStr  ("shader",            p->currentFx);
     applyBool ("hires3d",           p->hires3d);
     applyBool ("threaded3d",        p->threaded3d);
