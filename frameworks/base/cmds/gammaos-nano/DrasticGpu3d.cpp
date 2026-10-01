@@ -71,6 +71,7 @@
 namespace android {
 bool drasticRaDirtyFault(void* addr);   // DrasticRunner.cpp: run-ahead dirty-page fault service
 
+extern "C" uint32_t gDispLatch[2];               // DrasticRunner.cpp: DISP3DCNT latched at vblank start ([1] = valid)
 extern "C" void gpu3dSetBandMask(uint32_t m);   // DrasticRunner.cpp (mode-5 band pipeline)
 extern "C" void gpu3dSetPending(int p);         // DrasticRunner.cpp: compose hook keeps waiting on bands while set
 
@@ -3870,7 +3871,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         target = (pub == bufA) ? bufB : bufA;
         *reinterpret_cast<uint8_t**>(regs + 24) = target;
     } else {
-        uint32_t v = *reinterpret_cast<uint32_t*>(S + 80);
+        uint32_t v = gDispLatch[1] ? gDispLatch[0] : *reinterpret_cast<uint32_t*>(S + 80);
         *reinterpret_cast<uint32_t*>(regs) = v;
         *reinterpret_cast<uint32_t*>(regs + 4) = (v & 4) ? S[135] : 0;
         target = *reinterpret_cast<uint8_t**>(regs + 24);

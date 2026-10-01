@@ -2310,7 +2310,8 @@ extern "C" void gxFrameHook(uint8_t* R, uint32_t arg1) {
             for (const Map& m : maps) if (a >= m.lo && a < m.hi) return std::min(want, (size_t)(m.hi - a));
             return 0;
         };
-        FILE* tf = fopen("/data/local/tmp/gxdump_tex.bin", "wb");
+        char texPath[64]; if (preIdx == 0) snprintf(texPath, sizeof texPath, "/data/local/tmp/gxdump_tex.bin"); else snprintf(texPath, sizeof texPath, "/data/local/tmp/gxdump_tex%d.bin", preIdx + 1);
+        FILE* tf = fopen(texPath, "wb");
         if (tf) {
             uint32_t rbank = h.bank ^ 1;
             std::vector<uint64_t> seen;
@@ -3751,6 +3752,41 @@ static void aaPatchPlaySites(uint8_t* base, long ps, bool disable) {
     ALOGI("DrasticRunner: AAudio sink: %d OpenSL player start sites %s", done, disable ? "disabled, the mixer stays in standby" : "restored");
 }
 static void aaDisableDrasticPlayStarts(uint8_t* base, long ps) { aaPatchPlaySites(base, ps, true); }
+// DISP3DCNT latched at vblank start (see installVblankPacing): [0] value, [1] valid.
+extern "C" { uint32_t gDispLatch[2] = { 0, 0 }; }
+// An executable page within branch range (+-120 MB) of `near`, for caves that do not fit in the
+// library's padding. Walks /proc/self/maps for a gap and maps a page there.
+static uint8_t* allocCodePageNear(uint8_t* near) {
+    const long ps = sysconf(_SC_PAGESIZE) > 0 ? sysconf(_SC_PAGESIZE) : 4096;
+    const uintptr_t at = (uintptr_t)near;
+    const uintptr_t lo = at > 120u * 0x100000u ? (at - 120u * 0x100000u) & ~(uintptr_t)(ps - 1) : (uintptr_t)ps;
+    const uintptr_t hi = at + 120u * 0x100000u;
+    std::vector<std::pair<uintptr_t, uintptr_t>> used;
+    if (FILE* mf = fopen("/proc/self/maps", "r")) {
+        char line[512];
+        while (fgets(line, sizeof line, mf)) {
+            unsigned long a = 0, b = 0;
+            if (sscanf(line, "%lx-%lx", &a, &b) == 2 && b > lo && a < hi) used.emplace_back((uintptr_t)a, (uintptr_t)b);
+        }
+        fclose(mf);
+    }
+    std::sort(used.begin(), used.end());
+    std::vector<uintptr_t> cands;
+    uintptr_t cursor = lo;
+    for (const auto& r : used) {
+        if (r.first > cursor && r.first - cursor >= (uintptr_t)ps) cands.push_back(r.first - ps);
+        if (r.second > cursor) cursor = r.second;
+    }
+    if (hi > cursor + ps) cands.push_back(cursor);
+    for (uintptr_t want : cands) {
+        if (want < lo || want + ps > hi) continue;
+        void* pg = mmap((void*)want, (size_t)ps, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE, -1, 0);
+        if (pg == MAP_FAILED) continue;
+        if (pg != (void*)want) { munmap(pg, (size_t)ps); continue; }
+        return static_cast<uint8_t*>(pg);
+    }
+    return nullptr;
+}
 void DrasticRunner::installVblankPacing(uint8_t* base) {
     if (!base || mPanelHz <= 1.0) return;
     if (!android::drastic_settings::getBool("persist.gammaos.drastic_nano.vblank_pace", true)) return;
@@ -3940,6 +3976,55 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     } else {
         ALOGW("DrasticRunner: hi-res capture shadow site +0x3cc70 is 0x%08x, not patched",
               *reinterpret_cast<uint32_t*>(base + 0x3cc70));
+    }
+    // 3D render state latched at the start of vblank, like the DS. The hardware takes the
+    // rendering parameters (DISP3DCNT and the other render registers) for the next frame at
+    // line 192, together with the geometry swap (melonDS GPU3D::VBlank latches RenderDispCnt
+    // there). drastic reads DISP3DCNT from its register shadow (worker state + 80) only when the
+    // frame is kicked at line 214 (+0x5f470, threaded) or when the synchronous frame starts
+    // (+0x59da8 native, +0x5f0b0 hi-res), after the game's vblank handler has already written the
+    // value meant for the frame after. Games that change DISP3DCNT every frame then render each
+    // frame with its neighbour's settings: Hotel Dusk alternates alpha blending between its two
+    // top-screen passes, so one of them lost its blur every other frame (the background bobbing and
+    // the head crossfade jumping back). A cave at the line 192 entry (+0x2c9fc) copies the shadow
+    // into gDispLatch; the three reads take the latched value (the live one until the first latch).
+    // One load and store per frame. sys.gammaos.drastic_nano.disp3d_latch=0 (read at launch) turns
+    // it off for A/B.
+    if (property_get_int32("sys.gammaos.drastic_nano.disp3d_latch", 1) > 0) {
+        struct Site { uintptr_t off; uint32_t expect; int cave; };
+        static const Site kSites[4] = {
+            { 0x2c9fc, 0x91314260u, 0 },   // add x0, x19, #0xc50   (line 191 -> 192 branch of the scanline handler)
+            { 0x5f470, 0xb94002e8u, 1 },   // ldr w8, [x23]          (threaded kick)
+            { 0x59da8, 0xb94052cau, 2 },   // ldr w10, [x22, #0x50]  (synchronous native frame)
+            { 0x5f0b0, 0xb94052cau, 2 },   // ldr w10, [x22, #0x50]  (synchronous hi-res frame)
+        };
+        bool ok = true;
+        for (const Site& st : kSites) if (*reinterpret_cast<uint32_t*>(base + st.off) != st.expect) ok = false;
+        uint8_t* page = ok ? allocCodePageNear(base + 0x2c9fc) : nullptr;
+        if (page) {
+            static const uint32_t kBlob[30] = {
+                // latch (+0x00): x16 = &gDispLatch; [x19 + 0x3a375f8] = DISP3DCNT shadow
+                0x58000150u, 0xd28ebf11u, 0xf2a07471u, 0x8b110271u, 0xb9400231u, 0xb9000211u,
+                0x52800031u, 0xb9000611u, 0x91314260u, 0xd65f03c0u, 0u, 0u,
+                // use, threaded kick (+0x30)
+                0x580000f0u, 0xb9400611u, 0x34000071u, 0xb9400208u, 0xd65f03c0u, 0xb94002e8u, 0xd65f03c0u, 0u, 0u,
+                // use, synchronous frame (+0x54)
+                0x580000f0u, 0xb9400611u, 0x34000071u, 0xb940020au, 0xd65f03c0u, 0xb94052cau, 0xd65f03c0u, 0u, 0u,
+            };
+            static const size_t kCaveOff[3] = { 0x00, 0x30, 0x54 }, kLitOff[3] = { 0x28, 0x4c, 0x70 };
+            memcpy(page, kBlob, sizeof kBlob);
+            const uint64_t latchAddr = (uint64_t)(uintptr_t)gDispLatch;
+            for (size_t l : kLitOff) memcpy(page + l, &latchAddr, 8);
+            __builtin___clear_cache((char*)page, (char*)page + sizeof kBlob);
+            mprotect(page, (size_t)ps, PROT_READ | PROT_EXEC);
+            for (const Site& st : kSites) {
+                const intptr_t d = (intptr_t)(page + kCaveOff[st.cave]) - (intptr_t)(base + st.off);
+                raPatchInsn(base, st.off, 0x94000000u | (uint32_t)((d >> 2) & 0x03ffffff));
+            }
+            ALOGI("DrasticRunner: DISP3DCNT latched at vblank start (caves at %p)", page);
+        } else {
+            ALOGW("DrasticRunner: DISP3DCNT latch not installed (%s)", ok ? "no code page in range" : "unexpected code");
+        }
     }
     // Audio submit hook (audio_probe, default on): wraps every per-frame
     // submit for the frame normalisation below and counts refill underruns.
