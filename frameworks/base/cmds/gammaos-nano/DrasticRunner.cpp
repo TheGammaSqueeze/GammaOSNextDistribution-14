@@ -3926,6 +3926,21 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     // rate leaves a 0.29% surplus that drifts the buffer queue to full, where
     // the submit (+0x1de98) drops whole frames. Play at 44100: production and
     // consumption match exactly (pitch +0.29%, inaudible).
+    // Hi-res 3D display capture overruns its per-bank shadow buffer (Hotel Dusk crashed on the first frame after a
+    // state load with Hi-res 3D on). With hi-res on, drastic gives every captured VRAM bank a 0x60000-byte shadow
+    // (memalign at +0x3cc74), and the capture writer (+0x4a5e8) maps the line starting at bank pixel `off` to
+    // shadow + off*6, writing three runs of `width` pixels at +0, +0x200 and +0x400. Those run offsets are fixed
+    // for a 256-pixel capture; with a 128x128 capture the line stride is only 0x300, so the runs of consecutive
+    // lines interleave and the last line of the bank puts its third run at 0x60100..0x60200, past the end. Under
+    // scudo that is the guard page. Readers use the same mapping, so giving the shadow slack keeps both sides
+    // consistent: 0x70000 covers the worst case (128 wide ending at the bank end, 0x200 over) with room to spare.
+    if (*reinterpret_cast<uint32_t*>(base + 0x3cc70) == 0x52a000c1u) {        // mov w1, #0x60000
+        raPatchInsn(base, 0x3cc70, 0x52a000e1u);                               // mov w1, #0x70000
+        ALOGI("DrasticRunner: hi-res capture shadow allocation widened to 0x70000");
+    } else {
+        ALOGW("DrasticRunner: hi-res capture shadow site +0x3cc70 is 0x%08x, not patched",
+              *reinterpret_cast<uint32_t*>(base + 0x3cc70));
+    }
     // Audio submit hook (audio_probe, default on): wraps every per-frame
     // submit for the frame normalisation below and counts refill underruns.
     if (property_get_bool("sys.gammaos.drastic_nano.audio_probe", true)) {
