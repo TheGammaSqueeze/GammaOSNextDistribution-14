@@ -5415,7 +5415,8 @@ static int sAudFrameFix = -1;
 // The FIFO keeps six frames of latency and absorbs the drift between the emulator's frame rate
 // and the capture clock with a slow, continuous resample (at most 1 percent), instead of repeating
 // or dropping blocks. The curve is patched to gain * x and drastic's gain table (Mic Level 0..3)
-// to 1/2/4/8, with the FIFO feeding samples at half level, so the default Mic Level 1 is unity.
+// to 1/2/4/8, with the FIFO feeding samples at half level, so the default Mic Level 1 is unity
+// times the microphone amplifier gain the game set (micAmpGain), which drastic otherwise ignores.
 //
 // persist.gammaos.drastic_nano.mic_fix=0 (read at launch) restores drastic's own behaviour.
 
@@ -5532,11 +5533,50 @@ void micWrapQueue(uint8_t* base) {
 
 // Emulator thread, after a submit that ran the mic pump: put the next frame of captured audio in
 // drastic's "current" buffer, which the pump converts at the start of the next frame.
+// The microphone amplifier gain the game has set, as a factor on the captured level.
+//
+// drastic ignores it: the DS power management device's register 3 (0..3 = 20x, 40x, 80x, 160x,
+// SPI handler +0x77238, registers at io + 0x244c, io = master + 0x8170 with a back pointer to the
+// master at io + 0x2458). Games pick their gain for their recogniser; Brain Age uses 160x and could
+// not tell "blue" at drastic's fixed level. Calibrated on the RG DS Plus against a DS Lite with the
+// mic test ROM, the same voice at 160x: the DS Lite's voiced RMS and peak were 1.75 times the
+// capture at unity, so 160x maps to 1.75 and the others scale with the amplifier.
+float micAmpGain(uint8_t* base) {
+    static const float kGain[4] = { 1.75f * 20 / 160, 1.75f * 40 / 160, 1.75f * 80 / 160, 1.75f };
+    const uintptr_t master = *reinterpret_cast<volatile uintptr_t*>(base + 0x14c000);
+    if (!master) return 1.0f;
+    const uint8_t* io = reinterpret_cast<const uint8_t*>(master + 0x8170);
+    if (*reinterpret_cast<const volatile uintptr_t*>(io + 0x2458) != master) {
+        static bool sWarned = false;
+        if (!sWarned) { sWarned = true; ALOGW("DrasticRunner: microphone: power management registers not found, gain left at unity"); }
+        return 1.0f;
+    }
+    const uint8_t reg3 = *reinterpret_cast<const volatile uint8_t*>(io + 0x244f) & 3;
+    static int sLast = -1;
+    if (reg3 != sLast) { sLast = reg3; ALOGI("DrasticRunner: microphone: game set the amplifier to %dx", 20 << reg3); }
+    return kGain[reg3];
+}
+
 void micFeedFrame(uint8_t* base) {
     int16_t* cur = reinterpret_cast<int16_t*>(base + 0x3c9a006);
-    uint32_t want = gMicFrameCount / 2;                  // one sample per stereo frame: 44.1 kHz
-    if (want == 0) return;
+    if (gMicFrameCount == 0) return;
+    // The game reads the ring at 44.1 kHz of emulated time from the start of each frame (+0x723a4),
+    // 737.13 samples per DS frame (59.8261 Hz). The audio output count differs from that (it follows
+    // the pacing), and feeding it left a couple of samples per frame read twice.
+    static double sWantAcc = 0.0;
+    sWantAcc += 44100.0 / 59.8261;
+    uint32_t want = (uint32_t)sWantAcc;
+    sWantAcc -= (double)want;
     if (want > kMicCurrentMax / 2) want = kMicCurrentMax / 2;
+    // Level: the game's amplifier gain, times half (drastic's own Mic Level gain follows in the pump,
+    // 1/2/4 for levels 0/1/2, so level 1 is the hardware level).
+    const int32_t gainQ16 = (int32_t)lrintf(micAmpGain(base) * 0.5f * 65536.0f);
+    auto lvl = [gainQ16](int32_t v) -> int16_t {
+        int64_t x = ((int64_t)v * gainQ16) >> 16;
+        if (x > 32767) x = 32767;
+        if (x < -32768) x = -32768;
+        return (int16_t)x;
+    };
     // The capture arrives in HAL periods (16.3 ms on the RG DS Plus) and the emulator runs two or
     // three frames back to back when it catches up, so the cushion is six frames (100 ms): with
     // three, a catch-up drained it about every six seconds.
@@ -5570,7 +5610,7 @@ void micFeedFrame(uint8_t* base) {
     }
     if (fill < want) {                                   // starved: what there is, then fade, and refill
         uint32_t i = 0;
-        for (; i < fill; i++) cur[i] = (int16_t)(gMicFifo[(r + i) & (kMicFifo - 1)] / 2);
+        for (; i < fill; i++) cur[i] = lvl(gMicFifo[(r + i) & (kMicFifo - 1)]);
         fadeOut(i);
         gMicR.store(r + fill, std::memory_order_release);
         gMicStarted = false;
@@ -5596,7 +5636,7 @@ void micFeedFrame(uint8_t* base) {
         const int32_t a = gMicFifo[(r + k) & (kMicFifo - 1)], b = gMicFifo[(r + k + 1) & (kMicFifo - 1)];
         return (int32_t)lrint((double)a + (double)(b - a) * fr);
     };
-    for (uint32_t i = 0; i < want; i++) cur[i] = (int16_t)(at(gMicPhase + (double)i * ratio) / 2);
+    for (uint32_t i = 0; i < want; i++) cur[i] = lvl(at(gMicPhase + (double)i * ratio));
     const double end = gMicPhase + (double)want * ratio;
     uint32_t take = (uint32_t)end;
     if (take > fill) take = fill;
@@ -5604,7 +5644,7 @@ void micFeedFrame(uint8_t* base) {
     if (gMicPhase < 0.0 || gMicPhase >= 1.0) gMicPhase = 0.0;
     // Past one frame: the samples that follow, not consumed, in case the game reads a little further.
     for (uint32_t i = want; i < kMicCurrentMax; i++)
-        cur[i] = (int16_t)(at((double)take + gMicPhase + (double)(i - want) * ratio) / 2);
+        cur[i] = lvl(at((double)take + gMicPhase + (double)(i - want) * ratio));
     gMicLastOut = cur[want - 1];
     gMicR.store(r + take, std::memory_order_release);
 }
