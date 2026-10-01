@@ -35,6 +35,7 @@
 #define KEY_LEFT   (1 << 5)
 #define KEY_UP     (1 << 6)
 #define KEY_DOWN   (1 << 7)
+#define KEY_R      (1 << 8)
 
 /* 3 seconds of test tone at the fastest rate, clear of the recording and the shared block. */
 #define TONE_BUF     ((volatile s16*)0x02310000)
@@ -114,12 +115,66 @@ typedef struct {
     u32 lowBitsUsed;         /* OR of the low 4 bits over the recording (0 = 8-bit data) */
     u32 levels;              /* distinct 12-bit values seen */
     u32 late;                /* ARM7 deadlines met late */
+    /* Tone of the voiced parts (where the envelope stands well above the noise floor), the
+     * features a simple speech recogniser works from. */
+    u32 noiseRms;            /* RMS of the first quarter second, before speaking */
+    u32 voiceRms;            /* RMS of the voiced samples */
+    u32 voicePeak;
+    u32 zcHz;                /* zero crossings per second / 2: the "frequency" they imply */
+    u32 brightHz;            /* fs / (2 pi) * sqrt(E[diff^2] / E[x^2]), a spectral centroid estimate */
+    u32 voicedMs;
+    /* Energy in one-octave bands, in tenths of a dB relative to the strongest band (0 for that
+     * one, negative below it), over the whole recording. */
+    int bandDb10[7];
+    u32 bandsValid;
 } Stats;
 
 #define JUMP_LIMIT 1024      /* a quarter of full scale in one sample */
 #define HELD_RUN   16
 
 static Stats gStats;
+
+/* ---- octave bands ---------------------------------------------------------------------- */
+
+static const u32 kBandHz[7] = { 125, 250, 500, 1000, 2000, 4000, 8000 };
+
+static double sinSeries(double x) { double t = x, s = x; for (int k = 1; k < 14; k++) { t *= -x * x / (double)((2 * k) * (2 * k + 1)); s += t; } return s; }
+static double cosSeries(double x) { double t = 1.0, s = 1.0; for (int k = 1; k < 14; k++) { t *= -x * x / (double)((2 * k - 1) * (2 * k)); s += t; } return s; }
+static double expSeries(double x) { double t = 1.0, s = 1.0; for (int k = 1; k < 24; k++) { t *= x / (double)k; s += t; } return s; }
+
+/* 10 * log10(v) * 10 (tenths of a dB), from an integer log2 with a linear mantissa: within 0.1 dB. */
+static int db10(u64 v) {
+    if (!v) return -1200;
+    int e = 63; while (!(v >> e)) e--;
+    const u32 frac = e >= 16 ? (u32)((v >> (e - 16)) & 0xffff) : (u32)((v << (16 - e)) & 0xffff);
+    /* log2(1+f) ~ f + 0.3443 f (1 - f), good to 0.004 */
+    const double f = (double)frac / 65536.0;
+    const double l2 = (double)e + f + 0.3443 * f * (1.0 - f);
+    return (int)(l2 * 30.103);   /* 10 * log10(2) = 3.0103 dB per octave of v, in tenths */
+}
+
+/* RBJ band-pass, one octave wide, 0 dB at the centre, run in fixed point (Q30 coefficients, the
+ * input scaled by 64). Fast enough on the ARM9 for a whole recording per band. */
+static u64 bandEnergy(volatile s16* x, u32 n, u32 rate, u32 f0) {
+    const double w0 = 2.0 * 3.14159265358979323846 * (double)f0 / (double)rate;
+    const double sn = sinSeries(w0), cs = cosSeries(w0);
+    const double a = 0.34657359027997264 * w0 / sn;       /* ln(2)/2 * BW(1) * w0 / sin(w0) */
+    const double alpha = sn * (expSeries(a) - expSeries(-a)) / 2.0;
+    const double a0 = 1.0 + alpha;
+    const s64 b0 = (s64)(alpha / a0 * 1073741824.0);
+    const s64 a1 = (s64)(-2.0 * cs / a0 * 1073741824.0);
+    const s64 a2 = (s64)((1.0 - alpha) / a0 * 1073741824.0);
+    s64 x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+    u64 e = 0;
+    for (u32 i = 0; i < n; i++) {
+        const s64 xi = (s64)(x[i] / 16) * 64;
+        const s64 y = (b0 * (xi - x2) - a1 * y1 - a2 * y2) >> 30;
+        x2 = x1; x1 = xi; y2 = y1; y1 = y;
+        const s64 yy = y >> 6;
+        e += (u64)(yy * yy);
+    }
+    return e;
+}
 static u8 gSeen[4096 / 8];
 static s16 gEnvMin[256], gEnvMax[256];
 
@@ -187,7 +242,53 @@ static void analyseAndConvert(u32 n, u32 period, u32 late) {
         if (v > gEnvMax[col]) gEnvMax[col] = (s16)v;
     }
     s.rms = n ? isqrt64(sq / n) : 0;
+
+    /* Voice tone. The noise floor comes from the first quarter second; a sample counts as voiced
+     * while a decaying envelope of |x| is above eight times that floor (and above 40). */
+    {
+        const u32 rate = MIC_CLOCK / period;
+        u32 nq = rate / 4; if (nq > n) nq = n;
+        u64 nsq = 0;
+        for (u32 i = 0; i < nq; i++) { const s32 v = out[i] / 16; nsq += (u64)(u32)(v * v); }
+        s.noiseRms = nq ? isqrt64(nsq / nq) : 0;
+        s32 thr = (s32)s.noiseRms * 8; if (thr < 40) thr = 40;
+        u64 vsq = 0, dsq = 0; u32 cnt = 0, zc = 0, peak = 0;
+        s32 env = 0, prev = 0; int prevSign = 0;
+        for (u32 i = 0; i < n; i++) {
+            const s32 v = out[i] / 16;
+            const s32 a = v < 0 ? -v : v;
+            env = a > env ? a : env - (env >> 9) - 1;
+            if (env < 0) env = 0;
+            if (env > thr) {
+                vsq += (u64)(u32)(v * v);
+                const s32 d = v - prev; dsq += (u64)(u32)(d * d);
+                const int sign = v > 0 ? 1 : (v < 0 ? -1 : prevSign);
+                if (prevSign && sign && sign != prevSign) zc++;
+                prevSign = sign;
+                if ((u32)a > peak) peak = (u32)a;
+                cnt++;
+            }
+            prev = v;
+        }
+        s.voicedMs = (u32)((u64)cnt * 1000 / rate);
+        if (cnt) {
+            s.voiceRms = isqrt64(vsq / cnt);
+            s.voicePeak = peak;
+            s.zcHz = (u32)((u64)zc * rate / cnt / 2);
+            if (vsq) s.brightHz = (u32)((double)rate / 6.283185307179586 * (double)isqrt64(dsq * 65536 / vsq) / 256.0);
+        }
+    }
     s.valid = 1;
+    {   /* octave bands; a band above the Nyquist limit is left out */
+        u64 be[7]; u64 mx = 0;
+        for (int b = 0; b < 7; b++) {
+            be[b] = (kBandHz[b] * 2 < MIC_CLOCK / period * 9 / 10) ? bandEnergy(out, n, MIC_CLOCK / period, kBandHz[b]) : 0;
+            if (be[b] > mx) mx = be[b];
+        }
+        const int top = db10(mx);
+        for (int b = 0; b < 7; b++) s.bandDb10[b] = be[b] ? db10(be[b]) - top : -999;
+        s.bandsValid = 1;
+    }
     gStats = s;
 }
 
@@ -231,12 +332,15 @@ void main9(void) {
     int rateIdx = 1, gain = 2;   /* 32.7 kHz, 80x: a safe start; both change with the d-pad */
     c->period = kMicPeriod[rateIdx];
     c->gain = (u32)gain;
+    /* The ARM7 may have programmed the amplifier before these were written: send them. */
+    sendCmd(c, CMD_SETUP);
 
     const u16 bg = RGB(2, 3, 6), white = RGB(31, 31, 31), grey = RGB(18, 18, 20),
               gold = RGB(31, 26, 8), green = RGB(10, 31, 12), red = RGB(31, 8, 8),
               blue = RGB(10, 18, 31), dim = RGB(6, 7, 10), amber = RGB(31, 20, 4);
 
     u16 prevKeys = 0;
+    int page = 0;                  /* 0 = statistics, 1 = octave bands (R toggles) */
     int converted = 1;             /* no recording yet: nothing to convert */
     int haveRec = 0, playingTone = 0;
     u32 recN = 0, recPeriod = 0;
@@ -245,6 +349,7 @@ void main9(void) {
         const u16 keys = (u16)(~KEYINPUT & 0x3FF);
         const u16 down = (u16)(keys & ~prevKeys);
         prevKeys = keys;
+        if (down & KEY_R) page ^= 1;
         const u32 st = (c->magic == MIC_MAGIC) ? c->state : ST_BOOT;
         const int idle = (st == ST_MONITOR);
 
@@ -290,7 +395,7 @@ void main9(void) {
 
         /* ---- draw ---- */
         clear(bg);
-        puts8(0, 0, "GammaOS DS mic test v1", gold);
+        puts8(0, 0, "GammaOS DS mic test v4", gold);
         int col;
         col = puts8(0, 2, "State: ", grey);
         if (st == ST_BOOT) puts8(col, 2, "waiting for ARM7", red);
@@ -349,6 +454,24 @@ void main9(void) {
             rect(0, 110, (int)((u64)c->samples * 256 / (max ? max : 1)), 3, red);
         }
 
+        /* Octave bands of the last recording (R toggles this page). */
+        if (gStats.valid && page == 1 && gStats.bandsValid) {
+            puts8(0, 14, "Octave bands, dB below the top", grey);
+            for (int bnd = 0; bnd < 7; bnd++) {
+                const int row = 15 + bnd;
+                const u32 hz = kBandHz[bnd];
+                if (hz >= 1000) { col = dec(0, row, hz / 1000, 1, white); col = puts8(col, row, "k", white); }
+                else col = dec(0, row, hz, 1, white);
+                const int d = gStats.bandDb10[bnd];
+                if (d <= -999) { puts8(6, row, "--", dim); continue; }
+                const int ad = -d;                                   /* tenths below the top */
+                putc8(6, row, ad ? '-' : ' ', white);
+                col = dec(7, row, (u32)ad / 10, 1, gold); putc8(col++, row, '.', gold); dec(col, row, (u32)ad % 10, 1, gold);
+                int len = 120 - ad * 120 / 400; if (len < 0) len = 0;   /* bar: 0 to -40 dB */
+                rect(104, row * 8 + 1, 120, 6, dim);
+                rect(104, row * 8 + 1, len, 6, ad == 0 ? green : blue);
+            }
+        } else
         /* Analysis of the last recording. */
         if (gStats.valid) {
             const Stats* s = &gStats;
@@ -380,8 +503,19 @@ void main9(void) {
                   s->lowBitsUsed ? green : red);
         }
 
-        puts8(0, 22, "A rec  B stop  START play", dim);
-        puts8(0, 23, "SELECT 1kHz tone", dim);
+        if (gStats.valid && page == 0) {
+            const Stats* s = &gStats;
+            col = puts8(0, 21, "Voice ", grey); col = dec(col, 21, s->voiceRms, 1, white);
+            col = puts8(col, 21, "/", grey); col = dec(col, 21, s->voicePeak, 1, white);
+            col = puts8(col + 1, 21, "noise ", grey); col = dec(col, 21, s->noiseRms, 1, white);
+            col = puts8(col + 1, 21, "ms ", grey); dec(col, 21, s->voicedMs, 1, white);
+            col = puts8(0, 22, "ZC ", grey); col = dec(col, 22, s->zcHz, 1, gold);
+            col = puts8(col, 22, "Hz  bright ", grey); col = dec(col, 22, s->brightHz, 1, gold);
+            puts8(col, 22, "Hz", grey);
+        } else if (!gStats.valid) {
+            puts8(0, 22, "SELECT 1kHz tone", dim);
+        }
+        puts8(0, 23, gStats.valid ? "A rec B stop START play R page" : "A rec B stop START play", dim);
 
         waitVblank();
         for (int i = 0; i < 256 * 192; i++) FB[i] = gBack[i];

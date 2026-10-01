@@ -17,6 +17,7 @@ Build: `./build.sh out.nds [any-ds-rom.nds]` (the optional ROM only lends its he
 | SELECT | play a 1 kHz test tone through the same output |
 | LEFT / RIGHT | sample rate: 47605, 32728, 21819, 16364, 8182 Hz |
 | UP / DOWN | microphone amplifier gain: 20x, 40x, 80x, 160x |
+| R | switch between the statistics and the octave band page |
 
 The level bar turns red and shows CLIP when the input reaches full scale.
 
@@ -38,6 +39,18 @@ converted in place to signed 16-bit with its DC offset removed.
 - Jumps: steps of more than a quarter of full scale between neighbouring samples (clicks, pops).
 - late: sample deadlines the ARM7 met late (should be 0).
 - Low 4 bits: whether the data really is 12-bit or 8-bit data padded out.
+- Voice: RMS and peak of the voiced samples (where a decaying envelope stands eight times above
+  the noise floor), the noise floor itself (the first quarter second, so start speaking after a
+  pause) and how long the voiced parts last.
+- ZC and bright: the zero-crossing rate of the voiced parts as a frequency, and a spectral
+  centroid estimate, the features a simple speech recogniser works from.
+
+The R page shows the energy in seven one-octave bands (125 Hz to 8 kHz) in dB below the strongest
+band. Recording the same sound on a real DS and on another device at the same moment and comparing
+the two pages gives the difference in the microphones' frequency response.
+
+The text uses the 8x8 VGA console font (Lat15-VGA8 from console-setup, public domain), generated
+into `font8x8.h` by `genfont.py`.
 
 ## Reading the recording out of an emulator
 

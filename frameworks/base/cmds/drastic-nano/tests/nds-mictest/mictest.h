@@ -14,6 +14,7 @@ typedef unsigned int u32;
 typedef signed short s16;
 typedef signed int s32;
 typedef unsigned long long u64;
+typedef signed long long s64;
 
 #define MIC_MAGIC        0x43494d47u     /* "GMIC" */
 #define MIC_MAX_SECONDS  30
