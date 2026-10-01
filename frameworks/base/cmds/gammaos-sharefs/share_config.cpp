@@ -19,6 +19,7 @@
  *   persist.gammaos.share.<n>.pass      encrypted, see encryptSecret
  *   persist.gammaos.share.<n>.domain    SMB workgroup, optional
  *   persist.gammaos.share.<n>.tls       1 = https (WebDAV) / ftps (FTP)
+ *   persist.gammaos.share.<n>.insecure  1 = with tls, accept a self-signed certificate
  *   persist.gammaos.share.<n>.ro        1 = mount read-only
  *   persist.gammaos.share.<n>.enabled   1 = init should mount it
  */
@@ -192,6 +193,7 @@ bool loadShare(int slot, ShareConfig* out) {
     c.port = atoi(shareProp(slot, "port", "0").c_str());
     c.readOnly = (shareProp(slot, "ro", "0") == "1");
     c.useTls = (shareProp(slot, "tls", "0") == "1");
+    c.allowSelfSigned = (shareProp(slot, "insecure", "0") == "1");
     c.enabled = (shareProp(slot, "enabled", "0") == "1");
     *out = std::move(c);
     return true;
@@ -218,6 +220,7 @@ void saveShare(const ShareConfig& cfg) {
     setShareProp(cfg.slot, "port", cfg.port > 0 ? std::to_string(cfg.port) : "0");
     setShareProp(cfg.slot, "ro", cfg.readOnly ? "1" : "0");
     setShareProp(cfg.slot, "tls", cfg.useTls ? "1" : "0");
+    setShareProp(cfg.slot, "insecure", cfg.allowSelfSigned ? "1" : "0");
     // enabled is written by setShareEnabled, which is also what starts and stops the mount, so a
     // plain edit of an already-running share does not silently restart it under the user.
 }
@@ -233,7 +236,8 @@ void deleteShare(int slot) {
     if (slot < 1 || slot > kMaxShares) return;
     setShareEnabled(slot, false);   // stop the mount before the config it needs disappears
     static const char* kFields[] = {"name", "type", "host", "path", "user",
-                                    "domain", "pass", "port", "ro", "tls"};
+                                    "domain", "pass", "port", "ro", "tls",
+                                    "insecure"};
     for (const char* f : kFields) setShareProp(slot, f, "");
 }
 
@@ -286,6 +290,100 @@ std::string shareProblem(const ShareConfig& cfg) {
     if (cfg.type == ShareType::kNfs && cfg.path.empty())
         return "Enter the exported path on the server";
     return std::string();
+}
+
+namespace {
+
+struct ErrorName {
+    ShareError  error;
+    const char* key;
+    const char* label;
+};
+
+constexpr ErrorName kErrorNames[] = {
+    {ShareError::kUnreachable, "unreachable", "Server not reachable"},
+    {ShareError::kSignIn,      "signin",      "Sign-in refused"},
+    {ShareError::kNotFound,    "notfound",    "Not found"},
+    {ShareError::kDenied,      "denied",      "Access denied"},
+    {ShareError::kCertificate, "certificate", "Certificate not trusted"},
+    {ShareError::kTls,         "tls",         "Encryption failed"},
+    {ShareError::kProtocol,    "protocol",    "Unexpected answer"},
+    {ShareError::kFailed,      "failed",      "Could not connect"},
+};
+
+std::string errorPropKey(int slot) {
+    char key[64];
+    snprintf(key, sizeof(key), "sys.gammaos.share.%d.error", slot);
+    return key;
+}
+
+}  // namespace
+
+const char* shareErrorKey(ShareError e) {
+    for (const ErrorName& n : kErrorNames)
+        if (n.error == e) return n.key;
+    return "";
+}
+
+ShareError shareErrorFromKey(const std::string& key) {
+    if (key.empty()) return ShareError::kNone;
+    for (const ErrorName& n : kErrorNames)
+        if (key == n.key) return n.error;
+    return ShareError::kFailed;   // a key from a newer daemon is still a failure
+}
+
+void setShareError(int slot, ShareError e) {
+    if (slot < 1 || slot > kMaxShares) return;
+    property_set(errorPropKey(slot).c_str(), shareErrorKey(e));
+}
+
+ShareError shareError(int slot) {
+    if (slot < 1 || slot > kMaxShares) return ShareError::kNone;
+    char val[PROPERTY_VALUE_MAX] = {};
+    property_get(errorPropKey(slot).c_str(), val, "");
+    return shareErrorFromKey(val);
+}
+
+const char* shareErrorLabel(ShareError e) {
+    for (const ErrorName& n : kErrorNames)
+        if (n.error == e) return n.label;
+    return "";
+}
+
+std::string shareErrorHint(ShareError e, ShareType type) {
+    const bool webdav = (type == ShareType::kWebdav);
+    switch (e) {
+        case ShareError::kNone:
+            return std::string();
+        case ShareError::kUnreachable:
+            return "Nothing answered at this address and port. Check the server address, the port, "
+                   "and that the server is switched on and on the same network.";
+        case ShareError::kSignIn:
+            return "The server did not accept the user name or password.";
+        case ShareError::kNotFound:
+            return type == ShareType::kSmb ? "The server has no share by that name."
+                                           : "The server has no folder at this path.";
+        case ShareError::kDenied:
+            return type == ShareType::kNfs
+                       ? "The server does not export this path to this device. Allow this "
+                         "device's address in the server's export settings."
+                       : "The server refused access to this share or folder.";
+        case ShareError::kCertificate:
+            return "The server's certificate is self-signed or made for another name. Turn on "
+                   "Allow Self-Signed Certificate if you trust this server.";
+        case ShareError::kTls:
+            return webdav ? "The secure connection could not be set up. Check that the server "
+                            "offers HTTPS on this port."
+                          : "The secure connection could not be set up. Check that the server "
+                            "offers FTP over TLS on this port.";
+        case ShareError::kProtocol:
+            return std::string("Something answered at this address, but not as a ") +
+                   shareTypeName(type) + " server. Check the port" +
+                   (webdav || type == ShareType::kFtp ? " and the encryption setting." : ".");
+        case ShareError::kFailed:
+            break;
+    }
+    return "The connection failed. Check the server address and sign-in details.";
 }
 
 }  // namespace sharefs

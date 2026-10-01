@@ -3107,6 +3107,7 @@ private:
     enum NsField {
         NSF_ENABLED = 0, NSF_NAME, NSF_TYPE, NSF_HOST, NSF_PORT, NSF_PATH,
         NSF_USER, NSF_PASS, NSF_DOMAIN, NSF_TLS, NSF_READONLY, NSF_STATUS, NSF_DELETE,
+        NSF_SELFSIGNED,
     };
     int  mNsEditSlot = 0;                       // slot being edited (1..kMaxShares), 0 = none
     bool mNsEditIsNew = false;                  // editing a share that is not saved yet

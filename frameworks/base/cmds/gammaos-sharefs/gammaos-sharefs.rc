@@ -54,29 +54,35 @@ service gammaos-sharefs-4 /system/bin/gammaos-sharefs --share ${persist.gammaos.
 # Without it, a share turned off in the menu stayed behind as a broken /storage/<name> that failed
 # every access until the next reboot.
 
-# Mount / unmount follows the enabled flag, so toggling a share in any of the UIs is enough.
+# Mount / unmount follows the enabled flag, so toggling a share in any of the UIs is enough. The
+# error a failed connection left behind (sys.gammaos.share.<n>.error) describes a share that is
+# meant to be on, so it goes when the share is switched off.
 on property:persist.gammaos.share.1.enabled=1
     start gammaos-sharefs-1
 on property:persist.gammaos.share.1.enabled=0
     stop gammaos-sharefs-1
+    setprop sys.gammaos.share.1.error ""
     start gammaos-sharefs-clean
 
 on property:persist.gammaos.share.2.enabled=1
     start gammaos-sharefs-2
 on property:persist.gammaos.share.2.enabled=0
     stop gammaos-sharefs-2
+    setprop sys.gammaos.share.2.error ""
     start gammaos-sharefs-clean
 
 on property:persist.gammaos.share.3.enabled=1
     start gammaos-sharefs-3
 on property:persist.gammaos.share.3.enabled=0
     stop gammaos-sharefs-3
+    setprop sys.gammaos.share.3.error ""
     start gammaos-sharefs-clean
 
 on property:persist.gammaos.share.4.enabled=1
     start gammaos-sharefs-4
 on property:persist.gammaos.share.4.enabled=0
     stop gammaos-sharefs-4
+    setprop sys.gammaos.share.4.error ""
     start gammaos-sharefs-clean
 
 service gammaos-sharefs-clean /system/bin/gammaos-sharefs --cleanup

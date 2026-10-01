@@ -83,6 +83,12 @@ public:
 
     // True when the connection has dropped and the mount should be torn down.
     virtual bool isDead() const = 0;
+
+    // Why the last connect() failed, for the editors to show. Only meaningful after it failed.
+    ShareError connectError() const { return mConnectError; }
+
+protected:
+    ShareError mConnectError = ShareError::kFailed;
 };
 
 Backend* makeSmbBackend(const ShareConfig& cfg);

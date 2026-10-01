@@ -54,6 +54,10 @@ struct ShareConfig {
     // of its own (Synology's default is 5006) and inferring from 443 would make that unreachable.
     // Ignored by SMB, which negotiates its own encryption, and by NFS.
     bool        useTls = false;
+    // With useTls, accept a server certificate that does not chain to a system CA or does not
+    // match the host name. Home NAS boxes and self-hosted servers almost always present a
+    // self-signed certificate, which would otherwise make the encrypted option unusable.
+    bool        allowSelfSigned = false;
 };
 
 // How many shares the system offers. Kept small deliberately: each one is a resident process
@@ -91,6 +95,33 @@ bool isShareMounted(const std::string& name);
 // Everything wrong with this share that would stop it mounting, as a short sentence, or "" when it
 // looks complete. Used to explain a greyed-out Enable rather than letting the mount fail silently.
 std::string shareProblem(const ShareConfig& cfg);
+
+// Why a share that is switched on is not mounted. Its daemon records the reason after every failed
+// connection attempt, so the editors can say what is wrong instead of sitting on "Connecting..."
+// while init retries in the background. It is a sys. property rather than persist. because it only
+// describes this boot's attempts; the daemon clears it once the share mounts and init clears it
+// when the share is switched off.
+//
+//   sys.gammaos.share.<n>.error   one of the keys below, or empty
+enum class ShareError {
+    kNone = 0,
+    kUnreachable,   // nothing answered at the address and port
+    kSignIn,        // the server refused the user name or password
+    kNotFound,      // no such SMB share, or no such folder on the server
+    kDenied,        // signed in (or NFS) but the server refused access
+    kCertificate,   // TLS certificate not trusted: self-signed or for another name
+    kTls,           // the encrypted connection could not be set up at all
+    kProtocol,      // something answered, but not as the chosen protocol
+    kFailed,        // anything else
+};
+
+const char* shareErrorKey(ShareError e);              // as stored, "" for kNone
+ShareError shareErrorFromKey(const std::string& key);
+void setShareError(int slot, ShareError e);
+ShareError shareError(int slot);
+// A short label for the status row ("Sign-in refused") and a sentence on what to do about it.
+const char* shareErrorLabel(ShareError e);
+std::string shareErrorHint(ShareError e, ShareType type);
 
 }  // namespace sharefs
 }  // namespace gammaos

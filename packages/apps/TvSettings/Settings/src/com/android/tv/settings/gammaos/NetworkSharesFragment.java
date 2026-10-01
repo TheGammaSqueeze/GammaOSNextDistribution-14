@@ -142,7 +142,9 @@ public class NetworkSharesFragment extends SettingsPreferenceFragment {
         } else if (GammaShareConfig.isMounted(s.name)) {
             sb.append(getString(R.string.network_shares_state_connected));
         } else {
-            sb.append(getString(R.string.network_shares_state_connecting));
+            // A failed attempt says why; the editor explains what to do about it.
+            final String error = NetworkShareErrors.label(getContext(), s);
+            sb.append(error != null ? error : getString(R.string.network_shares_state_connecting));
         }
         return sb.toString();
     }

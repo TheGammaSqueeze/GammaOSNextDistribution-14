@@ -252,6 +252,7 @@ private:
         if (smb2_connect_share(mSmb, server.c_str(), mCfg.path.c_str(), user) < 0) {
             ALOGE("SMB connect to //%s/%s failed: %s", server.c_str(), mCfg.path.c_str(),
                   smb2_get_error(mSmb));
+            mConnectError = classifyConnectFailure(static_cast<uint32_t>(smb2_get_nterror(mSmb)));
             smb2_destroy_context(mSmb);
             mSmb = nullptr;
             mDead = true;
@@ -262,11 +263,49 @@ private:
         return 0;
     }
 
+    // What a failed smb2_connect_share means for the user. The session setup and tree connect
+    // steps record the server's status; a failure before any reply (no route, refused, timed out)
+    // leaves none, because the context is new for every attempt.
+    static ShareError classifyConnectFailure(uint32_t status) {
+        switch (status) {
+            case 0:
+                return ShareError::kUnreachable;
+            case SMB2_STATUS_LOGON_FAILURE:
+            case SMB2_STATUS_WRONG_PASSWORD:
+            case SMB2_STATUS_NO_SUCH_USER:
+            case SMB2_STATUS_ACCOUNT_DISABLED:
+            case SMB2_STATUS_ACCOUNT_LOCKED_OUT:
+            case SMB2_STATUS_ACCOUNT_RESTRICTION:
+            case SMB2_STATUS_PASSWORD_EXPIRED:
+                return ShareError::kSignIn;
+            case SMB2_STATUS_BAD_NETWORK_NAME:
+            case SMB2_STATUS_BAD_NETWORK_PATH:
+            case SMB2_STATUS_OBJECT_NAME_NOT_FOUND:
+                return ShareError::kNotFound;
+            case SMB2_STATUS_ACCESS_DENIED:
+            case SMB2_STATUS_NETWORK_ACCESS_DENIED:
+                return ShareError::kDenied;
+            case SMB2_STATUS_IO_TIMEOUT:
+                return ShareError::kUnreachable;
+            default:
+                return ShareError::kFailed;
+        }
+    }
+
     // Reconnect once if the session has dropped, so a NAS that sleeps does not permanently kill
     // the mount; the user should not have to re-add the share because the server took a nap.
     int ensureLocked() {
-        if (mSmb && !mDead) return 0;
-        return connectLocked();
+        if (!mSmb || mDead) {
+            if (int rc = connectLocked(); rc != 0) return rc;
+        }
+        if (mSmb) {
+            // libsmb2 only writes its error text when a call fails in certain places (a failed
+            // stat, for one, returns -ENOENT and leaves the text alone), so whatever an earlier
+            // call left behind would otherwise be read by mapError as this call's reason. Every
+            // operation comes through here first, so start each one with a clean slate.
+            smb2_set_error(mSmb, "%s", "");
+        }
+        return 0;
     }
 
     struct smb2fh* openCachedLocked(const std::string& path, int flags) {
@@ -302,7 +341,20 @@ private:
         const char* e = mSmb ? smb2_get_error(mSmb) : "no context";
         if (!e) e = "";
 
-        // Errors that say something about the file, not about the connection.
+        // The library's own return value, where it gave us one, is the most precise answer and is
+        // always about this call. It comes first: the text below can be left over from an earlier
+        // failure, and reading it first turned every lookup of a file that does not exist yet into
+        // "access denied", so nothing could be created on the share.
+        if (rc < 0 && rc != -1) {
+            switch (-rc) {
+                case ENOENT: case EACCES: case EEXIST: case ENOTDIR:
+                case EISDIR: case ENOSPC: case ENOTEMPTY:
+                    return rc;      // semantic, session is fine
+                default: break;
+            }
+        }
+
+        // Calls that report failure as a null handle or -1 leave only the text.
         if (strstr(e, "NO_SUCH_FILE") || strstr(e, "OBJECT_NAME_NOT_FOUND") ||
             strstr(e, "PATH_NOT_FOUND")) {
             return -ENOENT;
@@ -313,16 +365,6 @@ private:
         if (strstr(e, "COLLISION") || strstr(e, "EXISTS")) return -EEXIST;
         if (strstr(e, "DISK_FULL")) return -ENOSPC;
         if (strstr(e, "DIRECTORY_NOT_EMPTY")) return -ENOTEMPTY;
-
-        // The library's own return value, where it gave us one, is more precise than its message.
-        if (rc < 0 && rc != -1) {
-            switch (-rc) {
-                case ENOENT: case EACCES: case EEXIST: case ENOTDIR:
-                case EISDIR: case ENOSPC: case ENOTEMPTY:
-                    return rc;      // semantic, session is fine
-                default: break;     // anything else is treated as a lost session below
-            }
-        }
 
         // Everything else: assume the session is gone so the next call reconnects.
         ALOGW("SMB error on %s, dropping the session to force a reconnect: %s",

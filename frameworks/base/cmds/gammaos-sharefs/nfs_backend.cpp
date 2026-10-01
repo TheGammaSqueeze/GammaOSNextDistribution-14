@@ -202,40 +202,83 @@ public:
     bool isDead() const override { return mDead; }
 
 private:
-    int connectLocked() {
-        closeCachedLocked();
-        if (mNfs) { nfs_destroy_context(mNfs); mNfs = nullptr; }
-
-        mNfs = nfs_init_context();
-        if (!mNfs) {
-            ALOGE("nfs_init_context failed for %s", mCfg.name.c_str());
-            return -ENOMEM;
-        }
+    // A context set up for one NFS version, or null when libnfs cannot allocate one.
+    struct nfs_context* newContext(int version) {
+        struct nfs_context* nfs = nfs_init_context();
+        if (!nfs) return nullptr;
         // The uid/gid sent to the server decide what the export lets us touch. Present the same
         // media_rw identity the mount is shown as, so what the menu can see it can also write.
-        nfs_set_uid(mNfs, 1023);
-        nfs_set_gid(mNfs, 1023);
+        nfs_set_uid(nfs, 1023);
+        nfs_set_gid(nfs, 1023);
         // libnfs waits a full minute by default. That is far too long to sit in front of: the menu
         // is single threaded over this mount, so an unreachable server would look like the whole UI
         // had frozen. Ten seconds matches what the curl backends use to connect, and is long enough
         // to ride out a brief wifi stall without giving up on a server that is merely slow.
-        nfs_set_timeout(mNfs, 10000);
+        nfs_set_timeout(nfs, 10000);
         // Let libnfs re-establish the session itself where it can, on top of our own reconnect.
-        nfs_set_autoreconnect(mNfs, 1);
+        nfs_set_autoreconnect(nfs, 1);
+        nfs_set_version(nfs, version);
+        return nfs;
+    }
 
-        if (nfs_mount(mNfs, mCfg.host.c_str(), mCfg.path.c_str()) < 0) {
-            // Being refused here almost always means the export does not list this device, which
-            // is not something the user can fix on the handheld, so say so plainly.
-            ALOGE("NFS mount of %s:%s failed: %s (check the export allows this device's address)",
-                  mCfg.host.c_str(), mCfg.path.c_str(), nfs_get_error(mNfs));
-            nfs_destroy_context(mNfs);
-            mNfs = nullptr;
-            mDead = true;
-            return -EACCES;
+    // What one failed nfs_mount means. A MOUNT (v3) or LOOKUP (v4) reply carries the server's
+    // answer as the errno; a failure before any reply (portmapper, connect, timeout) means the
+    // server was never reached.
+    static ShareError classifyMountFailure(int rc, const std::string& err) {
+        if (rc == -EACCES || rc == -EPERM) return ShareError::kDenied;
+        if (rc == -ENOENT || rc == -ENOTDIR) return ShareError::kNotFound;
+        if (err.find("Mount failed") != std::string::npos ||
+            err.find("NFS4ERR") != std::string::npos) {
+            return ShareError::kFailed;
         }
-        mDead = false;
-        ALOGI("NFS mounted %s:%s", mCfg.host.c_str(), mCfg.path.c_str());
-        return 0;
+        return ShareError::kUnreachable;
+    }
+
+    // Mount the export, trying NFSv3 and then NFSv4.
+    //
+    // Both, because a server may offer only one: v3 is what most home NAS boxes serve, while a
+    // v4-only server need not run the portmapper v3 depends on. libnfs can fall back by itself,
+    // but it then reports only the v4 attempt, both as the error code and as the text (which it
+    // overwrites with an often empty RPC message). A Linux server refusing a v3 mount of a path
+    // it does not export answers "access denied", and the v4 lookup of the same path answers
+    // "not found", so the user was told the folder did not exist when the real problem was the
+    // export list. The attempts are made explicitly here and the more telling answer kept.
+    int connectLocked() {
+        closeCachedLocked();
+        if (mNfs) { nfs_destroy_context(mNfs); mNfs = nullptr; }
+
+        // A reconnect goes straight to the version that worked before.
+        const int order[2] = {mVersion == 4 ? 4 : NFS_V3, mVersion == 4 ? NFS_V3 : 4};
+        ShareError why = ShareError::kUnreachable;
+        for (int version : order) {
+            struct nfs_context* nfs = newContext(version);
+            if (!nfs) {
+                ALOGE("nfs_init_context failed for %s", mCfg.name.c_str());
+                return -ENOMEM;
+            }
+            const int rc = nfs_mount(nfs, mCfg.host.c_str(), mCfg.path.c_str());
+            if (rc == 0) {
+                mNfs = nfs;
+                mVersion = version;
+                mDead = false;
+                ALOGI("NFS mounted %s:%s (v%d)", mCfg.host.c_str(), mCfg.path.c_str(), version);
+                return 0;
+            }
+            const std::string err = nfs_get_error(nfs) ? nfs_get_error(nfs) : "";
+            ALOGW("NFSv%d mount of %s:%s failed: %d %s", version, mCfg.host.c_str(),
+                  mCfg.path.c_str(), rc, err.c_str());
+            nfs_destroy_context(nfs);
+            // Keep the first answer that came from the server itself; "could not reach it" from
+            // one version says nothing when the other version did get an answer.
+            if (why == ShareError::kUnreachable) why = classifyMountFailure(rc, err);
+        }
+        // Being refused here almost always means the export does not list this device, which is
+        // not something the user can fix on the handheld, so say so plainly.
+        ALOGE("NFS mount of %s:%s failed (check the export allows this device's address)",
+              mCfg.host.c_str(), mCfg.path.c_str());
+        mConnectError = why;
+        mDead = true;
+        return why == ShareError::kUnreachable ? -EHOSTUNREACH : -EACCES;
     }
 
     int ensureLocked() {
@@ -294,6 +337,7 @@ private:
     struct nfs_context* mNfs = nullptr;
     // Atomic because isDead() is read by the FUSE threads without taking mLock (it is the
     // cheap 'should I retry this operation' check), while every write happens under it.
+    int mVersion = 0;   // the NFS version that last mounted, 0 before the first success
     std::atomic<bool> mDead {false};
 
     struct nfsfh* mCachedFh = nullptr;

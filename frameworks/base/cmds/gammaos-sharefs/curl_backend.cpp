@@ -45,6 +45,12 @@ struct Buffer {
     char*  out = nullptr;
     size_t cap = 0;
     size_t got = 0;
+    // HTTP ranged reads: the handle (to read the status once the headers are in), the offset the
+    // Range asked for, and how much of the body still has to be dropped (see writeToBuffer).
+    CURL*    http = nullptr;
+    uint64_t rangeStart = 0;
+    uint64_t skip = 0;
+    bool     statusSeen = false;
 };
 
 // Accumulate a response body, with a ceiling.
@@ -67,6 +73,26 @@ size_t writeToString(char* ptr, size_t sz, size_t nm, void* user) {
 size_t writeToBuffer(char* ptr, size_t sz, size_t nm, void* user) {
     auto* b = static_cast<Buffer*>(user);
     size_t n = sz * nm;
+    if (b->http && !b->statusSeen) {
+        // The first body bytes arrive after the status line, so the status is known here. An
+        // error page (401, 404, 500 ...) is not file data: abort before any of it lands in the
+        // read, and readFile maps the status to the matching errno. A 200 to a request with a Range
+        // means the server ignored the Range and sends the file from its start, so drop everything
+        // before the offset that was asked for instead of returning it as the data at that offset.
+        b->statusSeen = true;
+        long code = 0;
+        curl_easy_getinfo(b->http, CURLINFO_RESPONSE_CODE, &code);
+        if (code >= 400) return 0;
+        if (code == 200) b->skip = b->rangeStart;
+    }
+    if (b->skip) {
+        const size_t drop = static_cast<size_t>(std::min<uint64_t>(b->skip, n));
+        b->skip -= drop;
+        ptr += drop;
+        n -= drop;
+        if (!n) return sz * nm;
+    }
+    const size_t total = sz * nm, offered = n;
     if (b->got + n > b->cap) n = b->cap - b->got;
     if (n) {
         memcpy(b->out + b->got, ptr, n);
@@ -75,7 +101,7 @@ size_t writeToBuffer(char* ptr, size_t sz, size_t nm, void* user) {
     // Returning short deliberately aborts the transfer with CURLE_WRITE_ERROR. That is the only way
     // to stop a server that ignored the Range header from streaming the whole file into a buffer
     // sized for one read; readFile treats a full buffer as success, so the abort is not an error.
-    return n;
+    return n == offered ? total : n;
 }
 
 struct UploadCtx {
@@ -169,10 +195,13 @@ public:
         // Prove the server answers before the mount is published, so a wrong address or password is
         // reported when the share is enabled rather than as mysterious IO errors later.
         std::vector<DirEntry> tmp;
+        mLastCode = CURLE_OK;
+        mLastReply = 0;
         int rc = readDirLocked("/", &tmp);
         if (rc != 0) {
             ALOGE("%s share '%s' failed to list its root: %d",
                   mWebdav ? "WebDAV" : "FTP", mCfg.name.c_str(), rc);
+            mConnectError = classifyConnectFailure();
             mDead = true;
             return rc;
         }
@@ -292,10 +321,13 @@ public:
                  static_cast<unsigned long long>(want + window - 1));
 
         prepare(url(path));
+        if (mWebdav) { b.http = mCurl; b.rangeStart = want; }
         curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, writeToBuffer);
         curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, &b);
         curl_easy_setopt(mCurl, CURLOPT_RANGE, range);
         CURLcode rc = curl_easy_perform(mCurl);
+        // An error status with an empty body never reaches writeToBuffer; catch it here.
+        if (rc == CURLE_OK && mWebdav && httpError()) rc = CURLE_HTTP_RETURNED_ERROR;
 
         // A short read at end of file, and the deliberate abort once the buffer is full, are both
         // successful reads as far as the caller is concerned.
@@ -473,14 +505,31 @@ private:
         curl_easy_setopt(mCurl, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(size));
         CURLcode rc = curl_easy_perform(mCurl);
         if (rc != CURLE_OK) return mapError(rc);
+        // A PUT the server refused (403 on a read-only share, 507 when it is full) still completes
+        // as a transfer; without this the write was reported as saved when nothing was.
+        if (mWebdav && httpError()) return mapError(CURLE_HTTP_RETURNED_ERROR);
         return 0;
+    }
+
+    // True when the last HTTP request on mCurl ended with an error status (400 and up). curl only
+    // reports those as a failed transfer with CURLOPT_FAILONERROR, which its documentation says is
+    // not dependable around authentication, so the status is checked by hand on every request.
+    bool httpError() {
+        long http = 0;
+        curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &http);
+        return http >= 400;
     }
 
     // ---- URL construction ----
 
     const char* scheme() const {
         if (mWebdav) return mCfg.useTls ? "https://" : "http://";
-        return mCfg.useTls ? "ftps://" : "ftp://";
+        // Always ftp://, also with TLS on: to libcurl, ftps:// is IMPLICIT FTPS (TLS from the first
+        // byte, the old port 990 scheme), and against the explicit FTPS that servers offering "FTP
+        // over TLS" speak, which greets in plain text and upgrades on AUTH TLS, the handshake read
+        // the 220 greeting and failed with WRONG_VERSION_NUMBER. CURLOPT_USE_SSL in prepare() is
+        // what asks for TLS, on the standard port.
+        return "ftp://";
     }
 
     // The share's root on the server, always starting with '/' and never ending with one.
@@ -522,6 +571,8 @@ private:
     void prepare(const std::string& u) {
         freeLists();
         curl_easy_reset(mCurl);
+        mErrBuf[0] = 0;
+        curl_easy_setopt(mCurl, CURLOPT_ERRORBUFFER, mErrBuf);
         curl_easy_setopt(mCurl, CURLOPT_URL, u.c_str());
         curl_easy_setopt(mCurl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(mCurl, CURLOPT_CONNECTTIMEOUT, 10L);
@@ -551,6 +602,12 @@ private:
             // over TLS" mean. Implicit FTPS on 990 is rare enough not to be worth a second toggle.
             curl_easy_setopt(mCurl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
         }
+        if (mCfg.useTls && mCfg.allowSelfSigned) {
+            // The connection stays encrypted, only the identity check is skipped: the user
+            // opted in for a server whose certificate is self-signed or issued for another name.
+            curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYPEER, 0L);
+            curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYHOST, 0L);
+        }
     }
 
     void freeLists() {
@@ -573,6 +630,8 @@ private:
         CURLcode rc = curl_easy_perform(mCurl);
         // No handle reset here, unlike the FTP paths: HTTP carries no per-connection command
         // state, so a failed verb leaves nothing out of step for the next request to trip over.
+        // A DELETE, MKCOL or MOVE the server refused is a completed transfer with an error status.
+        if (rc == CURLE_OK && httpError()) rc = CURLE_HTTP_RETURNED_ERROR;
         return rc == CURLE_OK ? 0 : mapError(rc);
     }
 
@@ -629,8 +688,21 @@ private:
             return err;
         }
 
-        if (mWebdav) parseWebdav(b.data, path, out);
-        else         parseFtpList(b.data, out);
+        if (mWebdav) {
+            // A listing is a 207 Multi-Status. Anything else is not one: 401 with a wrong
+            // password, 404 for a wrong path, or a 200 page from a server that does not speak
+            // WebDAV at that URL. Parsing those as an empty folder made a share with a typo in its
+            // password mount as "Connected" with nothing in it.
+            long http = 0;
+            curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &http);
+            if (http != 207) {
+                ALOGW("PROPFIND %s answered %ld, not a WebDAV listing", path.c_str(), http);
+                return http >= 400 ? mapError(CURLE_HTTP_RETURNED_ERROR) : -ENOTSUP;
+            }
+            parseWebdav(b.data, path, out);
+        } else {
+            parseFtpList(b.data, out);
+        }
         return 0;
     }
 
@@ -829,9 +901,53 @@ static time_t dosListTime(const std::string& date, const std::string& tm) {
         return true;
     }
 
+    // What a failed first listing means for the user, from the request that failed (recorded by
+    // mapError). A failure with no curl error behind it is a listing that came back but was not
+    // one: the address answered as some other kind of web server.
+    ShareError classifyConnectFailure() const {
+        if (mLastCode == CURLE_OK && mLastReply < 400) return ShareError::kProtocol;
+        if (mWebdav && mLastReply >= 400) {
+            if (mLastReply == 401) return ShareError::kSignIn;
+            if (mLastReply == 403) return ShareError::kDenied;
+            if (mLastReply == 404 || mLastReply == 409 || mLastReply == 410)
+                return ShareError::kNotFound;
+            if (mLastReply == 405 || mLastReply == 501) return ShareError::kProtocol;
+            return ShareError::kFailed;
+        }
+        switch (mLastCode) {
+            case CURLE_COULDNT_RESOLVE_HOST:
+            case CURLE_COULDNT_CONNECT:
+            case CURLE_OPERATION_TIMEDOUT:
+                return ShareError::kUnreachable;
+            case CURLE_PEER_FAILED_VERIFICATION:
+                return ShareError::kCertificate;
+            case CURLE_SSL_CONNECT_ERROR:
+            case CURLE_USE_SSL_FAILED:
+                return ShareError::kTls;
+            case CURLE_LOGIN_DENIED:
+            case CURLE_AUTH_ERROR:
+                return ShareError::kSignIn;
+            case CURLE_REMOTE_ACCESS_DENIED:
+                // For FTP this is the CWD into the share's path being refused, and servers answer
+                // 550 both for a folder that does not exist and for one that may not be entered.
+                return mLastReply == 550 ? ShareError::kNotFound : ShareError::kDenied;
+            case CURLE_REMOTE_FILE_NOT_FOUND:
+                return ShareError::kNotFound;
+            case CURLE_WEIRD_SERVER_REPLY:
+            case CURLE_GOT_NOTHING:
+            case CURLE_RECV_ERROR:
+            case CURLE_UNSUPPORTED_PROTOCOL:
+                return ShareError::kProtocol;
+            default:
+                return ShareError::kFailed;
+        }
+    }
+
     int mapError(CURLcode rc) {
         long http = 0;
         curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &http);
+        mLastCode = rc;
+        mLastReply = http;
         // For FTP this is the reply code, so the HTTP mappings below are guarded on the range.
         if (http >= 400 && http < 600) {
             if (http == 404 || http == 410) return -ENOENT;
@@ -861,12 +977,17 @@ static time_t dosListTime(const std::string& date, const std::string& tm) {
             case CURLE_REMOTE_FILE_EXISTS:
                 return -EEXIST;
             case CURLE_UNSUPPORTED_PROTOCOL:
-                // Would mean libcurl was built without this protocol, which the share UI offers.
-                ALOGE("libcurl has no support for %s", scheme());
+                // libcurl is built with every protocol the share UI offers, so in practice this is
+                // a server that answered with something curl will not accept as HTTP: an FTP or
+                // other non-web server on the WebDAV port sends a banner that reads as HTTP/0.9.
+                ALOGW("%s server for '%s' answered in another protocol%s%s",
+                      mWebdav ? "WebDAV" : "FTP", mCfg.name.c_str(),
+                      mErrBuf[0] ? ": " : "", mErrBuf);
                 return -ENOTSUP;
             default:
-                ALOGW("%s error on '%s': %s (code %ld)", mWebdav ? "WebDAV" : "FTP",
-                      mCfg.name.c_str(), curl_easy_strerror(rc), http);
+                ALOGW("%s error on '%s': %s (code %ld)%s%s", mWebdav ? "WebDAV" : "FTP",
+                      mCfg.name.c_str(), curl_easy_strerror(rc), http,
+                      mErrBuf[0] ? ": " : "", mErrBuf);
                 return -EIO;
         }
     }
@@ -875,6 +996,13 @@ static time_t dosListTime(const std::string& date, const std::string& tm) {
     bool        mWebdav;
     std::mutex  mLock;
     CURL*       mCurl = nullptr;
+    // curl's own description of the last failure ("SSL certificate problem: self-signed
+    // certificate", "Access denied: 530"), which says far more than curl_easy_strerror().
+    char        mErrBuf[CURL_ERROR_SIZE] = {};
+    // The curl result and server reply code of the last failed request, for
+    // classifyConnectFailure.
+    CURLcode    mLastCode = CURLE_OK;
+    long        mLastReply = 0;
     curl_slist* mQuote = nullptr;
     curl_slist* mHeaders = nullptr;
     // Atomic because isDead() is read by the FUSE threads without taking mLock (it is the

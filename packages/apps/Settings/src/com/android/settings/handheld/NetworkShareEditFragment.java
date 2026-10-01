@@ -225,6 +225,26 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
                 return true;
             });
             screen.addPreference(tls);
+
+            if (s.useTls) {
+                SwitchPreference self = new SwitchPreference(getPrefContext());
+                self.setKey("share_self_signed");
+                self.setTitle(R.string.network_shares_self_signed);
+                self.setSummary(R.string.network_shares_self_signed_summary);
+                self.setChecked(s.allowSelfSigned);
+                self.setOnPreferenceChangeListener((p, v) -> {
+                    s.allowSelfSigned = (Boolean) v;
+                    GammaShareConfig.save(s);
+                    // Certificate checks happen when the connection is made, as with the scheme.
+                    if (s.enabled && GammaShareConfig.isMounted(s.name)) {
+                        GammaShareConfig.setEnabled(mSlot, false);
+                        GammaShareConfig.setEnabled(mSlot, true);
+                    }
+                    refresh();
+                    return true;
+                });
+                screen.addPreference(self);
+            }
         }
 
         SwitchPreference ro = new SwitchPreference(getPrefContext());
@@ -275,7 +295,8 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
         if (GammaShareConfig.isMounted(s.name)) {
             return getString(R.string.network_shares_state_at, s.mountPoint());
         }
-        return getString(R.string.network_shares_state_connecting_hint);
+        final String error = NetworkShareErrors.summary(getContext(), s);
+        return error != null ? error : getString(R.string.network_shares_state_connecting_hint);
     }
 
     private interface Commit {

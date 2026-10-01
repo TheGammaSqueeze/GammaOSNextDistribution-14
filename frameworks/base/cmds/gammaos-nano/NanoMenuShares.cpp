@@ -32,6 +32,7 @@ namespace android {
 
 using gammaos::sharefs::ShareConfig;
 using gammaos::sharefs::ShareType;
+using gammaos::sharefs::ShareError;
 using gammaos::sharefs::kMaxShares;
 
 // Dialog theme keys owned by this screen (see applyThemeSetting).
@@ -90,8 +91,11 @@ void NanoMenu::buildSharesList(Ps3Level& out) {
                   (c.path.empty() ? std::string() : "/" + c.path);
         // Distinguish "the user turned this off" from "it is on but not connected": the second is
         // a problem to look at, the first is not.
+        // A failed attempt is reported by its label ("Sign-in refused"); the editor explains it.
+        const ShareError err = gammaos::sharefs::shareError(c.slot);
         if (!c.enabled)                                       it.value = "Off";
         else if (gammaos::sharefs::isShareMounted(c.name))    it.value = "Connected";
+        else if (err != ShareError::kNone)                    it.value = gammaos::sharefs::shareErrorLabel(err);
         else                                                  it.value = "Connecting...";
         it.iconTex = nicon; it.nmapTex = nmap;
         it.iconR = it.iconG = it.iconB = 1.0f;
@@ -204,6 +208,15 @@ void NanoMenu::buildShareEditor(Ps3Level& out) {
                       : "Connect with FTP over TLS.";
         it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
+        if (c.useTls) {
+            Ps3Item ss; ss.label = "Allow Self-Signed Certificate";
+            ss.kind = PS3_NS_FIELD; ss.a = NSF_SELFSIGNED;
+            ss.value = c.allowSelfSigned ? "On" : "Off";
+            ss.desc = "Accept a server certificate that is self-signed or made for another "
+                      "name, as most home NAS boxes use. The connection stays encrypted.";
+            ss.iconTex = 0; ss.nmapTex = 0; ss.iconR = ss.iconG = ss.iconB = 1.0f;
+            out.items.push_back(ss);
+        }
     }
 
     add("Read Only", NSF_READONLY, c.readOnly ? "On" : "Off");
@@ -215,6 +228,11 @@ void NanoMenu::buildShareEditor(Ps3Level& out) {
       else if (gammaos::sharefs::isShareMounted(c.name)) {
           it.value = "Connected";
           it.desc = "Available at /mnt/shares/" + c.name;
+      } else if (const ShareError e = gammaos::sharefs::shareError(c.slot);
+                 e != ShareError::kNone) {
+          // The daemon's last attempt failed and init will try again; say why it failed.
+          it.value = gammaos::sharefs::shareErrorLabel(e);
+          it.desc = gammaos::sharefs::shareErrorHint(e, c.type);
       } else {
           it.value = "Connecting...";
           it.desc = "If this does not change, check the server address and sign-in details.";
@@ -271,7 +289,8 @@ void NanoMenu::nsDiscardIfUnconfigured() {
 // Enabling a share only sets a property; init then starts the daemon, which connects to the server,
 // which can take seconds. Rebuilding on a timer alone would fight the user (it resets nothing, but
 // it would rebuild 60 times a second), so the rebuild is gated on the set of mounted shares
-// actually changing. Reading /proc/self/mountinfo once a second is cheap and never blocks.
+// or their reported errors actually changing. Reading /proc/self/mountinfo and four properties
+// once a second is cheap and never blocks.
 void NanoMenu::nsTick() {
     if (mPs3Stack.empty()) return;
     const int kind = mPs3Stack.back().screenKind;
@@ -279,8 +298,14 @@ void NanoMenu::nsTick() {
     if (mEffectTime < mNsNextPoll) return;
     mNsNextPoll = mEffectTime + 1.0f;
 
+    // The error each slot's daemon last reported is part of it, so a failure to connect shows up
+    // while the screen is open instead of after leaving and coming back.
     std::string sig;
     for (const std::string& n : mountedShareNames()) { sig += n; sig += '\n'; }
+    for (int slot = 1; slot <= gammaos::sharefs::kMaxShares; slot++) {
+        sig += gammaos::sharefs::shareErrorKey(gammaos::sharefs::shareError(slot));
+        sig += '\n';
+    }
     if (sig == mNsMountSig) return;
     mNsMountSig = std::move(sig);
     nsRefreshStackLevels();
@@ -375,12 +400,14 @@ void NanoMenu::nsEditField(int field) {
         case NSF_STATUS:   return;   // inert
         case NSF_DELETE:   nsOpenRemoveConfirm(); return;
         case NSF_TLS:
+        case NSF_SELFSIGNED:
         case NSF_READONLY: {
             ShareConfig c = cur;
-            if (field == NSF_TLS) c.useTls = !c.useTls;
-            else                  c.readOnly = !c.readOnly;
+            if (field == NSF_TLS)             c.useTls = !c.useTls;
+            else if (field == NSF_SELFSIGNED) c.allowSelfSigned = !c.allowSelfSigned;
+            else                              c.readOnly = !c.readOnly;
             gammaos::sharefs::saveShare(c);
-            // Both flags are applied when the connection is made, so a running share has to be
+            // These flags are applied when the connection is made, so a running share has to be
             // restarted to pick the change up. Do that only when it is actually up.
             if (c.enabled && gammaos::sharefs::isShareMounted(c.name)) {
                 gammaos::sharefs::setShareEnabled(c.slot, false);

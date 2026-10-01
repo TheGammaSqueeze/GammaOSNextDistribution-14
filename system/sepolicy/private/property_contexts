@@ -1690,6 +1690,7 @@ persist.gammargb.   u:object_r:persist_gammaos_prop:s0  prefix
 persist.gamma.      u:object_r:persist_gammaos_prop:s0  prefix
 sys.gammaos.        u:object_r:persist_gammaos_prop:s0  prefix
 sys.gammaos.ota.    u:object_r:gammaosota_prop:s0  prefix
+sys.gammaos.share.  u:object_r:gammaos_share_state_prop:s0  prefix
 ro.gammaos.         u:object_r:persist_gammaos_prop:s0  prefix
 sys.gamma_tweak_update  u:object_r:persist_gammaos_prop:s0  exact
 

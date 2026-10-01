@@ -767,3 +767,5 @@ type gammaosota_prop, property_type;
 # app-writable). Only the settings surfaces + nano write it; gammapad reads it.
 type gammaos_gpaction_prop, property_type;
 type ctl_gammaosota_prop, property_type;
+# gammaos-sharefs connection state (sys.gammaos.share.<n>.error): written only by the daemon.
+type gammaos_share_state_prop, property_type;

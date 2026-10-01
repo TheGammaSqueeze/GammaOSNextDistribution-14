@@ -3105,6 +3105,8 @@
     <string name="network_shares_https_summary">Connect with https instead of http</string>
     <string name="network_shares_ftps">Use FTPS</string>
     <string name="network_shares_ftps_summary">Connect with FTP over TLS</string>
+    <string name="network_shares_self_signed">Allow self-signed certificate</string>
+    <string name="network_shares_self_signed_summary">Accept a certificate that is self-signed or made for another name, as most home NAS boxes use. The connection stays encrypted</string>
     <string name="network_shares_readonly">Read only</string>
     <string name="network_shares_readonly_summary">Never write to this server</string>
     <string name="network_shares_remove">Remove</string>
@@ -3116,6 +3118,26 @@
     <string name="network_shares_state_connecting">Connecting…</string>
     <string name="network_shares_state_connecting_hint">Connecting… If this does not change, check the server address and sign-in details.</string>
     <string name="network_shares_state_at">Connected. Available at %1$s</string>
+    <string name="network_shares_error_unreachable">Server not reachable</string>
+    <string name="network_shares_error_unreachable_hint">Nothing answered at this address and port. Check the server address, the port, and that the server is switched on and on the same network.</string>
+    <string name="network_shares_error_signin">Sign-in refused</string>
+    <string name="network_shares_error_signin_hint">The server did not accept the user name or password.</string>
+    <string name="network_shares_error_notfound">Not found</string>
+    <string name="network_shares_error_notfound_hint_share">The server has no share by that name.</string>
+    <string name="network_shares_error_notfound_hint_folder">The server has no folder at this path.</string>
+    <string name="network_shares_error_denied">Access denied</string>
+    <string name="network_shares_error_denied_hint">The server refused access to this share or folder.</string>
+    <string name="network_shares_error_denied_hint_nfs">The server does not export this path to this device. Allow this device\'s address in the server\'s export settings.</string>
+    <string name="network_shares_error_certificate">Certificate not trusted</string>
+    <string name="network_shares_error_certificate_hint">The server\'s certificate is self-signed or made for another name. Turn on Allow self-signed certificate if you trust this server.</string>
+    <string name="network_shares_error_tls">Encryption failed</string>
+    <string name="network_shares_error_tls_hint_https">The secure connection could not be set up. Check that the server offers HTTPS on this port.</string>
+    <string name="network_shares_error_tls_hint_ftps">The secure connection could not be set up. Check that the server offers FTP over TLS on this port.</string>
+    <string name="network_shares_error_protocol">Unexpected answer</string>
+    <string name="network_shares_error_protocol_hint">Something answered at this address, but not as a %1$s server. Check the port.</string>
+    <string name="network_shares_error_protocol_hint_tls">Something answered at this address, but not as a %1$s server. Check the port and the encryption setting.</string>
+    <string name="network_shares_error_failed">Could not connect</string>
+    <string name="network_shares_error_failed_hint">The connection failed. Check the server address and sign-in details.</string>
 
     <!-- GammaOS screen orientation (normal Android) -->
     <string name="display_orientation_title">Screen orientation</string>

@@ -93,6 +93,11 @@ public final class GammaShareConfig {
          * Ignored by SMB, which negotiates its own encryption, and by NFS.
          */
         public boolean useTls;
+        /**
+         * With {@link #useTls}, accept a server certificate that is self-signed or issued for
+         * another name. Home NAS boxes and self-hosted servers almost always present one.
+         */
+        public boolean allowSelfSigned;
 
         /** True when this protocol can be encrypted by the {@link #useTls} flag. */
         public boolean supportsTls() {
@@ -146,6 +151,28 @@ public final class GammaShareConfig {
         SystemProperties.set(PREFIX + slot + "." + field, value == null ? "" : value);
     }
 
+    // ---- connection errors ------------------------------------------------
+
+    /*
+     * Why a share that is switched on is not mounted, as the daemon reports it after a failed
+     * connection attempt in sys.gammaos.share.<n>.error. Mirrors ShareError in share_config.h; the
+     * daemon clears it once the share mounts and init clears it when the share is switched off.
+     */
+    public static final String ERROR_UNREACHABLE = "unreachable";
+    public static final String ERROR_SIGNIN = "signin";
+    public static final String ERROR_NOT_FOUND = "notfound";
+    public static final String ERROR_DENIED = "denied";
+    public static final String ERROR_CERTIFICATE = "certificate";
+    public static final String ERROR_TLS = "tls";
+    public static final String ERROR_PROTOCOL = "protocol";
+    public static final String ERROR_FAILED = "failed";
+
+    /** The reason the last connection attempt for this slot failed, or "" when there is none. */
+    public static String connectError(int slot) {
+        if (slot < 1 || slot > MAX_SHARES) return "";
+        return SystemProperties.get("sys.gammaos.share." + slot + ".error", "");
+    }
+
     /** Reads one slot, or returns null when that slot holds no share. */
     public static Share load(int slot) {
         if (slot < 1 || slot > MAX_SHARES) return null;
@@ -167,6 +194,7 @@ public final class GammaShareConfig {
         }
         s.readOnly = "1".equals(prop(slot, "ro", "0"));
         s.useTls = "1".equals(prop(slot, "tls", "0"));
+        s.allowSelfSigned = "1".equals(prop(slot, "insecure", "0"));
         s.enabled = "1".equals(prop(slot, "enabled", "0"));
         return s;
     }
@@ -197,6 +225,7 @@ public final class GammaShareConfig {
         setProp(s.slot, "port", s.port > 0 ? Integer.toString(s.port) : "0");
         setProp(s.slot, "ro", s.readOnly ? "1" : "0");
         setProp(s.slot, "tls", s.useTls ? "1" : "0");
+        setProp(s.slot, "insecure", s.allowSelfSigned ? "1" : "0");
     }
 
     /** Starts or stops the mount by setting the flag init watches. */
@@ -211,7 +240,7 @@ public final class GammaShareConfig {
         setEnabled(slot, false);
         for (String f : new String[] {
                 "name", "type", "host", "path", "user", "domain", "pass", "port", "ro",
-                "tls" }) {
+                "tls", "insecure" }) {
             setProp(slot, f, "");
         }
     }

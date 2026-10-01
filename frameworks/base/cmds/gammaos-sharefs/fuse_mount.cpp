@@ -327,7 +327,11 @@ int runMount(const ShareConfig& cfg, const std::string& mountPoint, bool debug) 
     // Connect before mounting. Publishing a mount that cannot serve anything would leave a
     // directory that hangs on every access, which is worse than reporting the failure now.
     if (int rc = backend->connect(); rc != 0) {
-        ALOGE("share '%s' could not connect (%d)", cfg.name.c_str(), rc);
+        const ShareError why = backend->connectError();
+        ALOGE("share '%s' could not connect (%d, %s)", cfg.name.c_str(), rc, shareErrorKey(why));
+        // init restarts us and we try again, so without this the editors could only ever say
+        // "Connecting...". Left in place across the retries; the first success clears it.
+        setShareError(cfg.slot, why);
         return 3;
     }
 

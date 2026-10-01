@@ -48,6 +48,14 @@ allow gammaos_sharefs system_security_cacerts_file:file r_file_perms;
 # daemon only reads: init owns starting and stopping it, so it never has cause to write one back.
 get_prop(gammaos_sharefs, persist_gammaos_prop)
 
+# Why a share that is switched on is not mounted (sys.gammaos.share.<n>.error), so the editors can
+# say what is wrong rather than showing "Connecting..." while init retries. Its own type so that
+# writing it does not also let the daemon rewrite the share list above. Read by the nano menu and
+# by Settings / TvSettings (system_app, part of appdomain); init clears it on switch-off.
+set_prop(gammaos_sharefs, gammaos_share_state_prop)
+get_prop(bootanim, gammaos_share_state_prop)
+get_prop(appdomain, gammaos_share_state_prop)
+
 # The key the stored password is obfuscated with is derived from the head of build.prop.
 allow gammaos_sharefs system_file:file r_file_perms;
 

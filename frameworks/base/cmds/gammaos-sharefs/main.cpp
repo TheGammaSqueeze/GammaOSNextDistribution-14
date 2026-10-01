@@ -16,6 +16,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <pthread.h>
 #include <log/log.h>
 #include <signal.h>
 #include <stdio.h>
@@ -192,15 +193,27 @@ void cleanupStaleShares() {
     // alive on the first look. Quiet passes are counted rather than live shares: a share that is
     // simply up is the normal case and must not keep this spinning, whereas a share that is on its
     // way out shows up as stale a moment later. Two consecutive passes with nothing to do means
-    // the situation has settled.
+    // the situation has settled - except while a share that has been switched off (or deleted)
+    // is still mounted: its daemon is on its way out, and the kernel can take longer than two
+    // passes to drop the FUSE connection of a killed daemon (seen with a request still in
+    // flight). Giving up then left a dead /storage/<name> behind until the next cleanup, so those
+    // are waited for, up to ten seconds.
+    auto switchedOff = [](const std::string& name) {
+        for (const ShareConfig& c : loadShares())
+            if (c.name == name) return !c.enabled;
+        return true;   // no share by that name any more: deleted
+    };
     int quiet = 0;
-    for (int attempt = 0; attempt < 6 && quiet < 2; attempt++) {
+    for (int attempt = 0; attempt < 20 && quiet < 2; attempt++) {
         if (attempt > 0) usleep(500 * 1000);
         const std::vector<std::string> names = mountedShareNames();
         if (names.empty()) return;
-        bool removedAny = false;
+        bool removedAny = false, waiting = false;
         for (const std::string& name : names) {
-            if (!isStaleFuseMount("/mnt/shares/" + name)) continue;   // still served, leave it
+            if (!isStaleFuseMount("/mnt/shares/" + name)) {   // still served, leave it
+                if (switchedOff(name)) waiting = true;         // ...for now: its daemon is stopping
+                continue;
+            }
             const std::string bind = userBindPath(name);
             const std::string mnt = "/mnt/shares/" + name;
             // MNT_DETACH rather than a plain unmount: there is no server left, so anything still
@@ -213,7 +226,7 @@ void cleanupStaleShares() {
             ALOGI("removed the leftover mount for share '%s'", name.c_str());
             removedAny = true;
         }
-        quiet = removedAny ? 0 : quiet + 1;
+        quiet = (removedAny || waiting) ? 0 : quiet + 1;
     }
 }
 
@@ -225,6 +238,37 @@ void forceUnmountStale(const std::string& path) {
     if (umount2(path.c_str(), MNT_DETACH) != 0) {
         ALOGE("could not clear stale mount %s: %s", path.c_str(), strerror(errno));
     }
+}
+
+// Take SIGTERM on a thread of our own and tear the mounts down at once.
+//
+// init's gentle_kill sends SIGTERM and follows it with SIGKILL 200 ms later. libfuse's own handler
+// only sets an exit flag, which its worker threads do not see while they sit in read() on
+// /dev/fuse, so the daemon never made the deadline: it was always killed, the mount and its
+// /storage bind were left without a server, and /storage/<name> failed every access for the
+// seconds it took cleanupStaleShares to notice. Detaching both here, while the daemon is still
+// alive, makes switching a share off take effect immediately. MNT_DETACH because an app may still
+// hold a file open on the share, which would make a plain unmount fail with EBUSY.
+//
+// Must be called before any other thread is started, so that every thread inherits the blocked
+// mask and the signal can only be taken by sigwait below.
+void handleStopSignal(const std::string& name, const std::string& mnt) {
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGTERM);
+    if (pthread_sigmask(SIG_BLOCK, &set, nullptr) != 0) return;   // libfuse's handler then applies
+    std::thread([set, name, mnt]() {
+        int sig = 0;
+        if (sigwait(&set, &sig) != 0) return;
+        ALOGI("share '%s' switched off, unmounting", name.c_str());
+        const std::string bind = userBindPath(name);
+        umount2(bind.c_str(), MNT_DETACH);
+        rmdir(bind.c_str());
+        umount2(mnt.c_str(), MNT_DETACH);
+        rmdir(mnt.c_str());
+        // Nothing else is worth waiting for: the connection to the server closes with the process.
+        _exit(0);
+    }).detach();
 }
 
 }  // namespace
@@ -262,6 +306,7 @@ int main(int argc, char** argv) {
         }
 
         const std::string mnt = "/mnt/shares/" + c.name;
+        handleStopSignal(c.name, mnt);
 
         // Clear a stale mount left by a previous instance before trying to mount over it.
         //
@@ -287,13 +332,14 @@ int main(int argc, char** argv) {
         // Publishing has to happen after the FUSE mount exists, and runMount blocks for the life
         // of the share, so do it from a helper thread that waits for the mount to appear. Binding
         // an empty directory would give apps a permanently empty share.
-        std::thread([name = c.name, mnt]() {
+        std::thread([name = c.name, slot = c.slot, mnt]() {
             for (int i = 0; i < 60; i++) {
                 struct stat st;
                 if (stat(mnt.c_str(), &st) == 0 && st.st_ino == 1) {
                     // st_ino 1 is the FUSE root, so the daemon is serving it rather than this
                     // being the bare directory it created earlier.
                     publishToStorage(name, mnt);
+                    setShareError(slot, ShareError::kNone);   // a failed earlier attempt is history
                     return;
                 }
                 usleep(250 * 1000);
@@ -304,6 +350,9 @@ int main(int argc, char** argv) {
 
         const int rc = runMount(c, mnt, debug);
         unpublishFromStorage(c.name);
+        // The mount point is ours too. rmdir only succeeds once nothing is mounted on it, so a
+        // share that failed to come down cleanly keeps its directory for cleanupStaleShares.
+        rmdir(mnt.c_str());
         return rc;
     }
 
