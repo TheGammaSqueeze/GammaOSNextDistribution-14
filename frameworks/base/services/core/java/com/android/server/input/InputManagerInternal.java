@@ -37,6 +37,13 @@ import java.util.List;
 public abstract class InputManagerInternal {
 
     /**
+     * GammaOS: the state of a key right now (AKEY_STATE_*), read from the input devices
+     * themselves rather than from the events delivered so far, so it stays right when a key-up
+     * was lost or another process holds an exclusive grab on the device. deviceId -1 = any device.
+     */
+    public abstract int getKeyCodeState(int deviceId, int sourceMask, int keyCode);
+
+    /**
      * Called by the display manager to set information about the displays as needed
      * by the input system.  The input system must copy this information to retain it.
      */

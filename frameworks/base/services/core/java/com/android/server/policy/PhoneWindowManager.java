@@ -2766,6 +2766,25 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // it is deliberately NOT folded into ensureRetroarchEntryState(), which only runs on the first
     // key from each device (consumedKeys==null) - that made the reset fire once and then never
     // again, so the stuck state came back on the second exit.
+    // GammaOS Nano: whether the gamepad Select is physically held right now, on any device. Read
+    // from the devices (EVIOCGKEY through InputReader), so it is right whatever happened to the
+    // key events: an emulator that grabs the pad and eats the key-up cannot leave it "held", and
+    // the stale-combo reset below cannot forget a Select that really is held.
+    private boolean gammaSelectPhysicallyHeld() {
+        if (mInputManagerInternal == null) return mSelectPressed;
+        return mInputManagerInternal.getKeyCodeState(-1, android.view.InputDevice.SOURCE_ANY,
+                KeyEvent.KEYCODE_BUTTON_SELECT) == 1 /* AKEY_STATE_DOWN */;
+    }
+
+    // GammaOS Nano: nano (the home, its overlay, or a drastic-nano DS session presenting as the
+    // overlay) is in front rather than an Android app. nano reads the keys itself there.
+    private boolean gammaNanoForeground() {
+        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return false;
+        final boolean overlayUp = "1".equals(SystemProperties.get("sys.gammaos.nano.show_overlay", "0"));
+        final boolean appUp = "1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"));
+        return overlayUp || !appUp;
+    }
+
     private void gammaClearStaleCombosIfNanoForeground() {
         if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return;
         final boolean overlayUp = "1".equals(SystemProperties.get("sys.gammaos.nano.show_overlay", "0"));
@@ -7066,7 +7085,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     final boolean drmOwnsPanel = android.os.SystemProperties
                             .getBoolean("sys.gammaos.nano.drm_active", false);
                     if (down && keyCode != KeyEvent.KEYCODE_VOLUME_MUTE) {
-                        if (mSelectPressed) {
+                        // Select held: brightness, never volume. The held state is read from
+                        // the pad itself: the tracked flag is cleared on every key while nano is
+                        // in front (stale-combo reset), which turned a real Select+Volume into a
+                        // plain volume change on top of nano's brightness change.
+                        final boolean selectHeld = gammaSelectPhysicallyHeld();
+                        if (selectHeld && gammaNanoForeground()) {
+                            // nano (home, overlay or drastic-nano) reads the same keys, adjusts
+                            // the brightness and draws its own slider. Leave it to nano, or the
+                            // brightness would move twice per press.
+                            Slog.d(TAG, "GammaOS Nano: Select+Volume left to nano (brightness)");
+                        } else if (selectHeld) {
                             // SELECT + volume = brightness adjustment
                             int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
                             adjustScreenBrightness(direction);

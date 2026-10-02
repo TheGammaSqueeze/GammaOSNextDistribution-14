@@ -3269,6 +3269,11 @@ public class InputManagerService extends IInputManager.Stub
 
     private final class LocalService extends InputManagerInternal {
         @Override
+        public int getKeyCodeState(int deviceId, int sourceMask, int keyCode) {
+            return InputManagerService.this.getKeyCodeState(deviceId, sourceMask, keyCode);
+        }
+
+        @Override
         public void setDisplayViewports(List<DisplayViewport> viewports) {
             setDisplayViewportsInternal(viewports);
         }
