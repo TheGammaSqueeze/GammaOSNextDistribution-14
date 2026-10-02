@@ -109,3 +109,11 @@ allow gammaosota shell_test_data_file:dir { search read getattr };
 # Logging
 allow gammaosota logdr_socket:sock_file write;
 allow gammaosota logd:unix_stream_socket connectto;
+
+# Pinning the running code before system and vendor are rewritten (OtaFlasher::pinRunningCode):
+# read every process's /proc/<pid>/maps, then map the same executables and libraries read-only and
+# mlock them, so no process page-faults its instructions back in from a partition being rewritten.
+allow gammaosota domain:dir search;
+allow gammaosota domain:file { read open getattr };
+allow gammaosota self:capability ipc_lock;
+allow gammaosota { exec_type system_file_type vendor_file_type }:file { read open getattr map };

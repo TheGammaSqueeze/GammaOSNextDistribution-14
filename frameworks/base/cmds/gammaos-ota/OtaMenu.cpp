@@ -26,6 +26,9 @@
 #include <math.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <setjmp.h>
+#include <signal.h>
+#include <chrono>
 
 #include <binder/IPCThreadState.h>
 #include <cutils/properties.h>
@@ -41,6 +44,7 @@
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
 
+#include <sys/system_properties.h>
 #include <GLES2/gl2.h>
 #include <EGL/eglext.h>
 
@@ -53,6 +57,15 @@ using ui::DisplayMode;
 // ---------------------------------------------------------------------------
 // Shaders (same as NanoMenu)
 // ---------------------------------------------------------------------------
+
+// sys.gammaos.ota.result carries "failed:<stage>:<message>". A system property value is capped at
+// 91 bytes and a longer one is refused outright, so the long failure messages never reached the
+// property at all. Cut the message to fit instead (it is also in ota.log in full).
+static void setResult(const std::string& value) {
+    std::string v = value.substr(0, PROP_VALUE_MAX - 1);
+    if (!android::base::SetProperty("sys.gammaos.ota.result", v))
+        ALOGE("Could not set sys.gammaos.ota.result to '%s'", v.c_str());
+}
 
 static const char VERTEX_SHADER[] = R"(
     attribute vec4 aPosition;
@@ -274,7 +287,14 @@ status_t OtaMenu::readyToRun() {
 
     // Setup flasher callback
     mFlasher.setStatusCallback([this](const FlashStatus& status) {
-        std::lock_guard<std::mutex> lock(mStatusMutex);
+        // Never block the flash on the UI: drop an update rather than wait for a stuck renderer.
+        // FAILED and COMPLETE carry what the end screen shows, so those wait a little longer.
+        const bool final = status.phase == FlashPhase::FAILED || status.phase == FlashPhase::COMPLETE;
+        std::unique_lock<std::timed_mutex> lock(mStatusMutex, std::defer_lock);
+        if (!lock.try_lock_for(std::chrono::milliseconds(final ? 2000 : 100))) {
+            if (final) mCurrentStatus = status;   // renderer stuck holding the lock: write it anyway
+            return;
+        }
         mCurrentStatus = status;
     });
 
@@ -293,8 +313,7 @@ status_t OtaMenu::readyToRun() {
             auto extracted = extractZipHelper(mPackagePath);
             if (!extracted.second.empty()) {
                 mErrorMessage = "Failed to extract update package: " + extracted.second;
-                android::base::SetProperty("sys.gammaos.ota.result",
-                                           "failed:extraction:" + extracted.second);
+                setResult("failed:extraction:" + extracted.second);
                 mState = STATE_FAILED;
                 return NO_ERROR;
             }
@@ -313,8 +332,7 @@ status_t OtaMenu::readyToRun() {
             }
         } else {
             mErrorMessage = "Failed to parse manifest from: " + pkgDir;
-            android::base::SetProperty("sys.gammaos.ota.result",
-                                       "failed:manifest:" + mErrorMessage);
+            setResult("failed:manifest:" + mErrorMessage);
             mState = STATE_FAILED;
         }
     } else {
@@ -872,13 +890,16 @@ void OtaMenu::runFlashSequence() {
                           mManifest.version.c_str(), mManifest.partitions.size(),
                           mBackupRequested ? "yes" : "no");
 
+    // One plan for the whole run, so the bar shows the update end to end (a Retry starts a new one).
+    mFlasher.planProgress(mManifest, mBackupRequested);
+
     // Preflight
     OtaFlasher::logToFile("INFO", "--- Phase: PREFLIGHT ---");
     std::string err = mFlasher.preflight(mManifest);
     if (!err.empty()) {
         OtaFlasher::logToFile("ERROR", "Preflight FAILED: %s", err.c_str());
         mErrorMessage = err;
-        android::base::SetProperty("sys.gammaos.ota.result", "failed:preflight:" + err);
+        setResult("failed:preflight:" + err);
         mState = STATE_FAILED;
         return;
     }
@@ -890,7 +911,7 @@ void OtaMenu::runFlashSequence() {
         if (!mFlasher.backup(mManifest)) {
             OtaFlasher::logToFile("ERROR", "Backup FAILED");
             mErrorMessage = "Backup failed";
-            android::base::SetProperty("sys.gammaos.ota.result", "failed:backup:Backup failed");
+            setResult("failed:backup:Backup failed");
             mState = STATE_FAILED;
             return;
         }
@@ -901,21 +922,22 @@ void OtaMenu::runFlashSequence() {
     OtaFlasher::logToFile("INFO", "--- Phase: FLASH ---");
     mState = STATE_FLASHING;
     if (!mFlasher.flash(mManifest)) {
-        std::lock_guard<std::mutex> lock(mStatusMutex);
+        std::unique_lock<std::timed_mutex> lock(mStatusMutex, std::defer_lock);
+        const bool locked = lock.try_lock_for(std::chrono::seconds(1));
+        if (!locked) OtaFlasher::logToFile("WARN", "Status lock unavailable (renderer stuck); reading the status anyway");
         OtaFlasher::logToFile("ERROR", "Flash FAILED: %s", mCurrentStatus.errorMsg.c_str());
         mErrorMessage = mCurrentStatus.errorMsg;
-        android::base::SetProperty("sys.gammaos.ota.result",
-                                   "failed:flash:" + mCurrentStatus.errorMsg);
+        setResult("failed:flash:" + mCurrentStatus.errorMsg);
         mState = STATE_FAILED;
         return;
     }
 
-    // Skip post-flash verification entirely — it causes OOM/kernel panic on
-    // devices with limited RAM when reading back large partitions.
-    // Data integrity is ensured by: XZ internal checksums, compressed SHA-256
-    // verified in preflight, and staging file written from verified source.
-    // Boot success is the definitive verification.
-    OtaFlasher::logToFile("INFO", "--- Phase: VERIFY (skipped — boot is verification) ---");
+    // flash() has already proven every partition: the staging copies against the manifest, each
+    // write by reading it back past the page cache, and finally every partition again the way the
+    // next boot will read it (logical ones through the super metadata). It only returns true when
+    // all of that matched, so nothing unverified is booted.
+    OtaFlasher::logToFile("INFO", "--- Phase: VERIFY (done inside flash, every partition read back) ---");
+    mFlasher.finishProgress();
     OtaFlasher::logToFile("INFO", "=== OTA FLASH SEQUENCE: SUCCESS ===");
     OtaFlasher::logToFile("INFO", "========================================");
     mState = STATE_SUCCESS;
@@ -1026,7 +1048,7 @@ void OtaMenu::render() {
         case STATE_VERIFYING: {
             FlashStatus status;
             {
-                std::lock_guard<std::mutex> lock(mStatusMutex);
+                std::lock_guard<std::timed_mutex> lock(mStatusMutex);
                 status = mCurrentStatus;
             }
 
@@ -1051,6 +1073,18 @@ void OtaMenu::render() {
                 }
             }
             y += lineH * 1.5f;
+
+            // The whole update, start to finish; the rows below show the step in progress.
+            if (status.overallPermille >= 0) {
+                const int overall = std::min(100, std::max(0, status.overallPermille / 10));
+                char pct[16];
+                snprintf(pct, sizeof(pct), "%d%%", overall);
+                const float pctW = measureText("100%", scale) + 20;
+                drawProgressBar(margin, y - mFontSize * 0.5f, mWidth - margin * 2 - pctW, mFontSize * 0.8f,
+                                (float)overall);
+                drawText(pct, mWidth - margin - pctW + 20, y, scale, 1.0f, 1.0f, 1.0f, 1.0f);
+                y += lineH * 1.5f;
+            }
 
             // Show partition list with status
             for (int i = 0; i < (int)mManifest.partitions.size(); i++) {
@@ -1191,7 +1225,7 @@ void OtaMenu::drawThemedProgressBar(float x, float y, float w, float h, float pr
 void OtaMenu::themedFlashInfo(std::string* phaseLabel, int* percent, bool* isWrite) {
     FlashStatus status;
     {
-        std::lock_guard<std::mutex> lock(mStatusMutex);
+        std::lock_guard<std::timed_mutex> lock(mStatusMutex);
         status = mCurrentStatus;
     }
 
@@ -1215,11 +1249,17 @@ void OtaMenu::themedFlashInfo(std::string* phaseLabel, int* percent, bool* isWri
          status.phase == FlashPhase::VERIFYING)) {
         label += " (" + status.currentPartition + ")";
     }
+    if (status.redoing && status.phase != FlashPhase::FAILED && status.phase != FlashPhase::COMPLETE)
+        label += ", retry " + std::to_string(std::min(100, std::max(0, status.progressPercent))) + "%";
 
-    // Overall progress: completed partitions plus the fraction of the current
-    // one, so the bar advances smoothly across the whole flash.
+    // Overall progress across the whole update, from the flasher's plan of every step (preflight
+    // to the final verification), weighted by how long each step takes. The old estimate gave each
+    // partition an equal share and restarted inside it for every step (decompress, write, read
+    // back), so the bar ran up and back down several times per partition.
     int percentVal = status.progressPercent;
-    if (status.partitionCount > 0) {
+    if (status.overallPermille >= 0) {
+        percentVal = std::min(100, std::max(0, status.overallPermille / 10));
+    } else if (status.partitionCount > 0) {
         float per = 100.0f / (float)status.partitionCount;
         float done = (float)status.partitionIndex * per;
         float cur = (per * (float)status.progressPercent) / 100.0f;
@@ -1790,12 +1830,100 @@ void OtaMenu::renderDsi() {
     }
 }
 
+// ---- render fault guard ----------------------------------------------------------------
+// The UI draws through the GPU driver, which lives on vendor. Its code is pinned in memory before
+// vendor is rewritten (OtaFlasher::pinRunningCode), but if the graphics stack still faults (code
+// that could not be pinned, or SurfaceFlinger's side going away), only the display may go: the
+// render thread jumps out of the fault, marks graphics dead and stops drawing, and the flash
+// thread carries on and reboots as normal. A fault on any other thread is handed to the handler
+// that was there before (debuggerd), exactly as without this guard.
+static thread_local sigjmp_buf* tRenderJmp = nullptr;
+static struct sigaction sPrevFaultAction[NSIG];
+static void renderFaultHandler(int sig, siginfo_t* info, void* ucontext) {
+    if (tRenderJmp) {
+        sigjmp_buf* jb = tRenderJmp;
+        tRenderJmp = nullptr;
+        siglongjmp(*jb, sig);
+    }
+    // Not the render thread: restore the previous action. For a synchronous fault the faulting
+    // instruction runs again and reaches it; for anything else, call it directly.
+    sigaction(sig, &sPrevFaultAction[sig], nullptr);
+    if (sig == SIGABRT || (info && info->si_code <= 0)) {
+        const struct sigaction& prev = sPrevFaultAction[sig];
+        if ((prev.sa_flags & SA_SIGINFO) && prev.sa_sigaction) prev.sa_sigaction(sig, info, ucontext);
+        else if (prev.sa_handler != SIG_DFL && prev.sa_handler != SIG_IGN && prev.sa_handler) prev.sa_handler(sig);
+        else raise(sig);
+    }
+}
+static void installRenderFaultGuard() {
+    static bool installed = false;
+    if (installed) return;
+    installed = true;
+    struct sigaction sa = {};
+    sa.sa_sigaction = renderFaultHandler;
+    sa.sa_flags = SA_SIGINFO | SA_ONSTACK;
+    sigemptyset(&sa.sa_mask);
+    for (int sig : { SIGBUS, SIGSEGV, SIGILL, SIGABRT }) sigaction(sig, &sa, &sPrevFaultAction[sig]);
+}
+
 bool OtaMenu::threadLoop() {
     if (mExitRequested) return false;
 
-    pollInput();
+    installRenderFaultGuard();
+    pollInput();   // input stays live without a display (reboot / retry still work)
+    if (mGraphicsDead) {
+        usleep(100000);
+        return true;
+    }
+    sigjmp_buf jb;
+    const int sig = sigsetjmp(jb, 1);
+    if (sig != 0) {
+        tRenderJmp = nullptr;
+        mGraphicsDead = true;
+        OtaFlasher::logToFile("ERROR", "UI: the graphics stack faulted (signal %d); the update carries on without the display", sig);
+        return true;
+    }
+    tRenderJmp = &jb;
+    {   // Fault injection (debuggable builds, ui_crash in /data/gammaos_ota/faults): a real memory
+        // fault in the renderer while the system is being written, to prove the guard.
+        // Checked once the logical writes start: the flasher sets the property when it reads the
+        // fault file, which is after the renderer's first frames.
+        static int sUiCrash = -1;
+        const FlashPhase ph = mCurrentStatus.phase;
+        const bool writing = ph == FlashPhase::DECOMPRESSING || ph == FlashPhase::FLASHING_PHYSICAL ||
+                             ph == FlashPhase::FLASHING_LOGICAL || ph == FlashPhase::VERIFYING;
+        if (sUiCrash < 0 && writing)
+            sUiCrash = android::base::GetBoolProperty("ro.debuggable", false) &&
+                       android::base::GetProperty("sys.gammaos.ota.fault_ui", "") == "1";
+        if (sUiCrash == 1) {
+            sUiCrash = 0;
+            OtaFlasher::logToFile("WARN", "FAULT INJECTED: renderer memory fault");
+            *reinterpret_cast<volatile int*>(0x41) = 1;
+        }
+    }
     render();
-    eglSwapBuffers(mDisplay, mSurface);
+    const EGLBoolean swapped = eglSwapBuffers(mDisplay, mSurface);
+    tRenderJmp = nullptr;
+    {   // Heartbeat in the OTA log, so a report can show whether the display was alive.
+        static int64_t sLastBeat = 0;
+        const int64_t now = (int64_t)time(nullptr);
+        if (now - sLastBeat >= 10) {
+            sLastBeat = now;
+            OtaFlasher::logToFile("INFO", "UI: drawing (state %d, phase %d, overall %d.%d%%%s, swap %s)", (int)mState,
+                                  (int)mCurrentStatus.phase, mCurrentStatus.overallPermille / 10,
+                                  std::abs(mCurrentStatus.overallPermille % 10),
+                                  mCurrentStatus.redoing ? ", retrying" : "", swapped ? "ok" : "failing");
+        }
+    }
+    if (!swapped) {
+        if (++mSwapFailures >= 30) {
+            mGraphicsDead = true;
+            OtaFlasher::logToFile("WARN", "UI: SurfaceFlinger stopped taking frames (EGL 0x%x); continuing without the display",
+                                  eglGetError());
+        }
+    } else {
+        mSwapFailures = 0;
+    }
 
     // ~30fps
     usleep(33333);

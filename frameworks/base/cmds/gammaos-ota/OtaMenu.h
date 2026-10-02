@@ -22,6 +22,7 @@
 #include <set>
 #include <utility>
 #include <unordered_map>
+#include <atomic>
 #include <mutex>
 #include <pthread.h>
 
@@ -156,7 +157,13 @@ private:
     bool mHasBackup;
 
     // Flash status
-    std::mutex mStatusMutex;
+    // Timed: the flash thread posts progress with a bounded wait, so a render thread that stalls
+    // or dies inside the GPU driver can never hold up the update.
+    std::timed_mutex mStatusMutex;
+    // The graphics stack faulted or SurfaceFlinger stopped answering: stop drawing, the flash
+    // goes on without a display.
+    std::atomic<bool> mGraphicsDead{false};
+    int mSwapFailures = 0;
     FlashStatus mCurrentStatus;
     std::vector<std::string> mFailedPartitions;
 

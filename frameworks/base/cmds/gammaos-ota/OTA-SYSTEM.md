@@ -139,7 +139,7 @@ After copying, the binary re-execs itself from tmpfs via `execv()` with:
 - `GAMMAOS_OTA_STAGED=1`
 - `PATH=/dev/gammaos-ota-stage/bin:/system/bin`
 
-All subsequent shell commands use `fork()+execl()` with the staged `/dev/gammaos-ota-stage/bin/sh`, NOT `popen()`/`system()` which hardcode `/system/bin/sh`.
+All subsequent shell commands use `posix_spawn()` with the staged `/data/gammaos-ota-stage/bin/sh`, NOT `popen()`/`system()` which hardcode `/system/bin/sh`, and not `fork()` either (see "Why posix_spawn" below). Each command has a timeout; a command killed by a signal is logged as a crash and retried once.
 
 ### Phase 2: UI Rendering
 
@@ -187,6 +187,10 @@ The OTA binary creates a SurfaceFlinger surface and renders via OpenGL ES 2.0:
 | `DECOMPRESSING` | "Decompressing system... 47%" | Cyan | XZ decompression to staging file with progress |
 | `FLASHING_PHYSICAL` | "Writing... DO NOT POWER OFF" | Yellow | Writing staging file to physical partition |
 | `FLASHING_LOGICAL` | "Writing... DO NOT POWER OFF" | Yellow | Writing staging file to logical partition |
+
+#### Progress bar
+
+The bar shows the whole update, start to finish. Before preflight the flasher makes a plan of every step (hashing the package, the optional backup, stopping the framework, and for each partition decompressing, checking the staging copy, saving the original for physical ones, writing, reading back, and the final verification), each weighted by its measured cost per MB, so a 2 GB system counts for more than a 100 MB recovery. Every status update reports where the update is in that plan (`FlashStatus::overallPermille`). The bar never goes back: a retried or repaired step holds it until the work passes the point already shown, and it reaches 100% only once everything is verified.
 
 #### Input Support
 
@@ -309,7 +313,13 @@ This atomically replaces the dm table, growing the device while it's mounted and
 
 ### Phase 6: Verification
 
-After all writes complete, each partition is read back from the block device and SHA-256 is computed over exactly `size` bytes, then compared against the manifest's `sha256_uncompressed` field.
+Every byte that is written is proven three times:
+
+1. **The staging copy.** After decompression the staging file is fsynced and hashed as it is on the medium (page cache dropped), and must match the manifest's `sha256_uncompressed`. On the SD-card devices `/data` is the card, so a card that corrupts the multi-GB staging write is caught here instead of flashing those bytes. A bad copy is decompressed again (3 attempts).
+2. **Each write.** The bytes sent are hashed while they are written, every `pwrite`, the final `fsync` and `close` are checked (a device that reports EIO only at the flush can no longer pass), and the partition is read back past the page cache and compared. A mismatch is rewritten, up to 3 attempts.
+3. **The final check.** When everything is written, every partition is read once more the way the next boot will see it: logical partitions through the super metadata of the slot being updated (not the live dm table the writes went through), physical ones by name, both slots on A/B. A partition that fails is rewritten (a logical one directly through its metadata ranges on super) and checked again; after two repair rounds the update fails and the device is not rebooted onto it.
+
+Physical partitions are one transaction: each is saved (and the copy verified) before it is written. If one cannot be written reliably, every physical partition already written is restored and verified, and the update stops before system and vendor are touched ("Nothing was changed; it is safe to restart and try again"), and the saved copies are deleted. If the restore itself fails, the screen says not to restart, and the good copies are kept for Retry: Retry restores from them rather than saving the half-written partition over them. A partition that refused every write and still reads as its original (write-protected on that device) is left as it was with a warning, as before.
 
 Both the writes and the read-back use `O_DIRECT`, so the data bypasses the page cache in each direction. This means the verification reads come straight from the flash rather than from a cached copy of what was just written (a cached read could pass even if the physical write was wrong), and it also removes the need to `echo 3 > /proc/sys/vm/drop_caches` between write and read. The earlier switch away from `drop_caches` matters on low-RAM devices: dropping all caches mid-flash used to evict the tmpfs-staged binaries' own pages and stall the UI.
 
@@ -639,8 +649,24 @@ Proven on-device: `dd` can write to `/dev/block/dm-N` while ext4 is mounted read
 ### Why tmpfs staging?
 After overwriting the system partition, any binary or library being demand-paged from it will fault. Running entirely from RAM prevents this.
 
-### Why fork+execl instead of popen?
-`popen()` and `system()` are hardcoded by bionic libc to use `/system/bin/sh`. After system is overwritten, this shell is corrupted. `fork()+execl()` with the staged shell path is the only safe approach.
+### Why posix_spawn instead of popen or fork?
+`popen()` and `system()` are hardcoded by bionic libc to use `/system/bin/sh`. After system is overwritten, this shell is corrupted, so commands run the staged shell. They are started with `posix_spawn()`, not `fork()`: `fork()` runs every `pthread_atfork` child handler, including the GPU driver's, and once vendor has been rewritten that handler's code is gone. That is how the v1.4.3 update failed on the RG DS Plus: the child died with SIGBUS in `libGLES_mali.so` before it could exec `dmctl table vendor_dlkm`, the command reported exit -1, and the flash stopped half way. bionic's `posix_spawn()` does not run atfork handlers.
+
+### Why pin running code?
+While system and vendor are rewritten in place, any process that page-faults code from them reads the new bytes at the old offsets and dies: this process's GPU driver, SurfaceFlinger and the graphics HALs, vold (init reboots the device when vold dies, mid-write) and init. Just before the first write, the flasher maps the same files and `mlock()`s them; the page cache is shared, so every process's code stays resident. On low-RAM devices the budget is a quarter of available memory, at most 192 MB, spent in this order:
+
+1. Everything init maps, code and read-only data (about 10 MB, pinned whatever the budget). init is dynamically linked against about 40 libraries in `/system/lib64`; if it faults, the kernel panics and reboots at once, and a reboot in the middle of the system write leaves a system that does not boot.
+2. The code of this process and of the processes the update and the display depend on (SurfaceFlinger, the composer and allocator HALs, vold, servicemanager, ueventd, lmkd, logd).
+3. Their read-only data. A fault there kills them just the same.
+4. Everyone else's code.
+
+This order matters. Rewriting a running EROFS root makes every uncached page read back as garbage: erofs reports `bogus CBLKCNT` and reads past the end of the device, and the reader gets SIGBUS. With the earlier order (all code first, critical data last) the budget ran out before the critical data, the composer HAL and then init died during the final verification of a 2 GB system update, and the device rebooted (`Kernel panic - not syncing: Attempted to kill init! exitcode=0x7`) before the final check could repair anything.
+
+### Memory on 1 GB devices
+xz 5.6 and later decompress multithreaded by default, about 40 MB per thread for a package made with `-T0` (about 200 MB resident on a quad core). The flasher passes `--memlimit-mt-decompress` at a sixth of available memory (32 to 160 MB), so xz runs fewer threads (down to one) instead of pushing the device into reclaim on top of the pinned code; the output is bound by storage speed either way. An xz that does not know the option (older than 5.4) is run as before.
+
+### What if the graphics stack fails anyway?
+Only the display may go. The render thread runs inside a fault guard: a SIGBUS, SIGSEGV, SIGILL or SIGABRT there stops drawing and the flash thread carries on and reboots normally (faults on other threads go to the previous handler, debuggerd). Repeated `eglSwapBuffers` failures (SurfaceFlinger gone) also stop drawing. Progress updates take the status lock with a bounded wait, so a stuck renderer can never stall the flash.
 
 ### Why not unmount system?
 `umount -l /` on system-as-root GSIs is **catastrophic**: it kills ALL child mounts (`/dev`, `/data`, `/proc`). `pivot_root` and `mount --move` also fail. The solution: don't unmount at all.
@@ -649,7 +675,7 @@ After overwriting the system partition, any binary or library being demand-paged
 Direct framebuffer (fbdev) writes don't update the display on MediaTek HWC: the hardware composer sits between fb0 and the panel. DRM/KMS is similarly blocked. The only reliable way to show progress on all devices is through SurfaceFlinger's EGL to HWC pipeline. Since SF's binary and GPU drivers are already loaded in memory (and their library paths are bind-mounted to tmpfs), SF continues to composite the OTA UI's EGL surface even while the system partition is being overwritten underneath.
 
 ### Why decompress to staging file instead of piping to block device?
-Piping XZ directly to a block device is a point of no return: if decompression fails midway, the partition is corrupted. Decompressing to a staging file on `/data` first means the partition is untouched if decompression fails. The staging file also enables a pre-write SHA-256 check (currently skipped for OOM reasons, but architecturally available).
+Piping XZ directly to a block device is a point of no return: if decompression fails midway, the partition is corrupted. Decompressing to a staging file on `/data` first means the partition is untouched if decompression fails. The staging file is hashed against the manifest before it is written (read with the page cache dropped as it goes, so a multi-GB image does not crowd memory on a low-RAM device).
 
 ### Why dmctl replace for resize?
 `lptools unmap` fails on mounted partitions. `dmctl replace` atomically swaps the dm table, allowing live partition expansion while the filesystem is mounted. Proven working with +200MB expansion on system_a while mounted at `/`.

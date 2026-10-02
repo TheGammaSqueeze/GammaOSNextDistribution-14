@@ -84,6 +84,15 @@ int main(int argc, char** argv) {
         ALOGI("Home released DRM (svc=%s); taking the panel.",
               android::base::GetProperty("init.svc.gammaos-nano", "?").c_str());
     }
+    // SurfaceFlinger only composites while nano reports it is not driving the panel itself. nano
+    // clears the flag when it hands over cleanly, but if it crashed or was stopped, or the wait
+    // above timed out, the flag stays set: SurfaceFlinger never takes a frame and the progress UI
+    // stalls on its first one. Once nano is no longer running, the panel is ours.
+    if (android::base::GetProperty("init.svc.gammaos-nano", "") != "running" &&
+        android::base::GetProperty("sys.gammaos.nano.drm_active", "0") != "0") {
+        ALOGW("nano left drm_active set; clearing it so SurfaceFlinger shows the update");
+        android::base::SetProperty("sys.gammaos.nano.drm_active", "0");
+    }
 
     // Read package path and autoinstall flag from system properties
     std::string packagePath = android::base::GetProperty("sys.gammaos.ota.package", "");

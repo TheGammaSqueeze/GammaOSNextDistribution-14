@@ -32,6 +32,12 @@
 #include <sys/reboot.h>
 #include <sys/mount.h>
 #include <sys/statvfs.h>
+#include <sys/mman.h>
+#include <poll.h>
+#include <signal.h>
+#include <spawn.h>
+#include <algorithm>
+#include <set>
 #include <linux/fs.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -46,6 +52,8 @@
 #include <android-base/strings.h>
 #include <cutils/properties.h>
 #include <utils/Log.h>
+
+extern char** environ;
 
 namespace android {
 
@@ -294,11 +302,131 @@ void OtaFlasher::notifyStatus(FlashPhase phase, const std::string& partition,
         s.partitionCount = count;
         s.progressPercent = progress;
         s.errorMsg = error;
+        if (mPlanTotal > 0) {
+            mStepFrac = std::min(100, std::max(0, progress)) / 100.0;
+            const double pos = mWorkDone + mStepWeight * mStepFrac;
+            const double span = mPlanTotal - mAnchorWork;
+            const double v = span > 0 ? mAnchorShown + (1.0 - mAnchorShown) * (pos - mAnchorWork) / span
+                                      : mAnchorShown;
+            if (v > mOverall) mOverall = v;
+            // 100% is shown only once everything has been proven, not when the last step's
+            // counter happens to reach its end.
+            if (!mProgressDone && mOverall > 0.99) mOverall = 0.99;
+            s.overallPermille = (int)(mOverall * 1000.0 + 0.5);
+            s.redoing = mStepRedo;
+        }
         mCallback(s);
     }
 }
 
+std::vector<std::string> OtaFlasher::physicalDevices(const std::string& name) {
+    // Both slots on A/B, the single partition otherwise (the devices flashPhysical writes).
+    std::vector<std::string> devs;
+    for (const char* sfx : { "_a", "_b" }) {
+        std::string d = "/dev/block/by-name/" + name + sfx;
+        if (access(d.c_str(), F_OK) == 0) devs.push_back(d);
+    }
+    if (devs.empty()) devs.push_back("/dev/block/by-name/" + name);
+    return devs;
+}
+
+void OtaFlasher::planProgress(const OtaManifest& manifest, bool withBackup) {
+    // Seconds per MiB of each kind of step, measured on an RG DS Plus (system on the SD card,
+    // 2 GB EROFS system image): what matters is their ratio, so the bar moves at an even pace
+    // whatever the step, and a 2 GB system counts for more than a 100 MB recovery.
+    constexpr double kHashPackage = 0.022;   // preflight: SHA-256 of each compressed file
+    constexpr double kDecompress  = 0.050;   // xz to the staging file on /data
+    constexpr double kCheck       = 0.022;   // reading the staging copy back
+    constexpr double kWrite       = 0.055;   // writing a partition
+    constexpr double kReadBack    = 0.026;   // reading it back past the page cache
+    constexpr double kSaveOrig    = 0.100;   // saving a physical partition (copy and two hashes)
+    constexpr double kBackup      = 0.080;   // the optional full backup (dd)
+    constexpr double kStop        = 4.0;     // stopping the framework and pinning, in seconds
+    constexpr double kMiB = 1.0 / (1 << 20);
+
+    mPlan.clear();
+    mPlanSeen.clear();
+    mOverall = mWorkDone = mStepWeight = mStepFrac = mAnchorShown = mAnchorWork = 0;
+    mProgressDone = false;
+    double t = 0;
+    auto add = [&](const std::string& key, double w) {
+        if (mPlan.count(key)) return;
+        mPlan[key] = w;
+        t += w;
+    };
+    double compressed = 0;
+    for (const auto& part : manifest.partitions) {
+        struct stat st;
+        if (stat((mPackageDir + "/" + part.file).c_str(), &st) == 0) compressed += (double)st.st_size;
+    }
+    add("preflight", 1.0 + compressed * kMiB * kHashPackage);
+    if (withBackup)
+        for (const auto& part : manifest.partitions) add("backup:" + part.name, part.size * kMiB * kBackup);
+    add("stop", kStop);
+    for (const auto* part : manifest.physicalPartitions()) {
+        const double mb = part->size * kMiB;
+        add("dec:" + part->name, mb * kDecompress);
+        add("check:" + part->name, mb * kCheck);
+        for (const auto& dev : physicalDevices(part->name)) {
+            add("save:" + dev, mb * kSaveOrig);
+            add("write:" + dev, mb * kWrite);
+            add("read:" + dev, mb * kReadBack);
+        }
+    }
+    for (const auto* part : manifest.logicalPartitions()) {
+        const double mb = part->size * kMiB;
+        add("dec:" + part->name, mb * kDecompress);
+        add("check:" + part->name, mb * kCheck);
+        add("write:" + part->name, mb * kWrite);
+        add("read:" + part->name, mb * kReadBack);
+    }
+    for (const auto& part : manifest.partitions) {
+        const size_t copies = part.type == "logical" ? 1 : physicalDevices(part.name).size();
+        add("verify:" + part.name, part.size * kMiB * kReadBack * copies);
+    }
+    mPlanTotal = t;
+    logToFile("INFO", "Progress plan: %zu steps, about %.0f s of work", mPlan.size(), t);
+}
+
+// From here on the unfilled part of the bar covers the work left, whatever the plan now says:
+// shown = anchor + (1 - anchor) * (work since the anchor) / (work left at the anchor).
+void OtaFlasher::progressReanchor() {
+    mAnchorShown = mOverall;
+    mAnchorWork = mWorkDone + mStepWeight * mStepFrac;
+}
+
+void OtaFlasher::progressStage(const std::string& key) {
+    if (mPlanTotal <= 0) return;
+    mWorkDone += mStepWeight;   // the step before this one is over (done, or given up on)
+    mStepWeight = mStepFrac = 0;
+    mStepRedo = false;
+    auto it = mPlan.find(key);
+    if (it == mPlan.end()) return;
+    if (!mPlanSeen.insert(key).second) {
+        // Done before: this is a retry or a repair, work on top of the plan. Late in the update
+        // there is little bar left to stretch over it, so the screen also shows the step's own
+        // percentage while it runs.
+        progressReanchor();
+        mPlanTotal += it->second;
+        mStepRedo = true;
+    }
+    mStepWeight = it->second;
+}
+
+void OtaFlasher::progressSkip(const std::string& key) {
+    auto it = mPlan.find(key);
+    if (mPlanTotal <= 0 || it == mPlan.end() || !mPlanSeen.insert(key).second) return;
+    progressReanchor();
+    mPlanTotal -= it->second;
+}
+
+void OtaFlasher::finishProgress() {
+    mProgressDone = true;
+    mOverall = 1.0;
+}
+
 std::string OtaFlasher::preflight(const OtaManifest& manifest) {
+    progressStage("preflight");
     notifyStatus(FlashPhase::PREFLIGHT);
     logToFile("INFO", "=== PREFLIGHT CHECKS ===");
     logToFile("INFO", "Manifest: version=%s, version_code=%d, partitions=%zu",
@@ -322,6 +450,12 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
 
     // Verify compressed file checksums
     logToFile("INFO", "Verifying compressed file checksums...");
+    uint64_t hashTotal = 0, hashDone = 0;
+    for (const auto& part : manifest.partitions) {
+        struct stat st;
+        if (!part.sha256.empty() && stat((mPackageDir + "/" + part.file).c_str(), &st) == 0)
+            hashTotal += (uint64_t)st.st_size;
+    }
     for (const auto& part : manifest.partitions) {
         std::string path = mPackageDir + "/" + part.file;
         logToFile("INFO", "  Partition: name=%s type=%s size=%llu file=%s",
@@ -337,7 +471,11 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
         logToFile("INFO", "  File exists: %s (%lld bytes)", path.c_str(), (long long)st.st_size);
         if (!part.sha256.empty()) {
             logToFile("INFO", "  Computing SHA-256 for %s...", part.file.c_str());
-            std::string hash = XzDecompressor::sha256File(path);
+            std::string hash = XzDecompressor::sha256File(path, 0, [&](uint64_t r, uint64_t) {
+                notifyStatus(FlashPhase::PREFLIGHT, part.name, 0, 0,
+                             hashTotal ? (int)((hashDone + r) * 100 / hashTotal) : 0);
+            });
+            hashDone += (uint64_t)st.st_size;
             logToFile("INFO", "  SHA-256: expected=%s got=%s", part.sha256.c_str(), hash.c_str());
             if (hash != part.sha256) {
                 std::string err = "Checksum mismatch for " + part.file +
@@ -409,8 +547,16 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
         }
         logToFile("INFO", "/data free space: %llu bytes, largest partition: %llu bytes",
                   (unsigned long long)dataFree, (unsigned long long)maxPartSize);
-        // Need at least the largest image + 100MB buffer for staging
-        uint64_t needed = maxPartSize + (100 * 1024 * 1024);
+        // The largest image is staged at a time, and the original contents of every physical
+        // partition are kept until the update is proven (two copies on A/B), plus a margin.
+        uint64_t originals = 0;
+        for (const auto& part : manifest.partitions) {
+            if (part.type == "logical") continue;
+            const bool ab = access(("/dev/block/by-name/" + part.name + "_a").c_str(), F_OK) == 0;
+            originals += part.size * (ab ? 2 : 1);
+        }
+        logToFile("INFO", "Space for saved physical originals: %llu bytes", (unsigned long long)originals);
+        uint64_t needed = maxPartSize + originals + (100 * 1024 * 1024);
         if (dataFree < needed) {
             std::string err = "Not enough space on /data for staging (need " +
                    std::to_string(needed / 1024 / 1024) + "MB, have " +
@@ -437,6 +583,7 @@ bool OtaFlasher::backup(const OtaManifest& manifest) {
     logToFile("INFO", "Backing up %d partitions, slot=%s", count, slot.c_str());
 
     for (const auto& part : manifest.partitions) {
+        progressStage("backup:" + part.name);
         notifyStatus(FlashPhase::BACKUP, part.name, idx, count, 0);
 
         std::string srcPath;
@@ -464,7 +611,7 @@ bool OtaFlasher::backup(const OtaManifest& manifest) {
         std::string cmd = "dd if=" + srcPath + " of=" + dstPath +
                           " bs=1048576 count=" + std::to_string(size / 1048576 + 1) +
                           " 2>/dev/null";
-        if (!execCommand(cmd)) {
+        if (!execCommand(cmd, nullptr, 3600)) {
             ALOGE("Backup failed for %s", part.name.c_str());
             logToFile("ERROR", "Backup FAILED for %s", part.name.c_str());
             return false;
@@ -517,6 +664,10 @@ void OtaFlasher::stopFramework() {
     logToFile("INFO", "Stopping zygote (keeping SurfaceFlinger for progress display)...");
     property_set("ctl.stop", "zygote");
     usleep(500000); // 500ms for zygote to stop
+
+    // Keep every running process's code resident before system and vendor are rewritten (and
+    // before /vendor is covered by a tmpfs below, which would hide the files to pin).
+    pinRunningCode();
 
     // Bind-mount tmpfs directories over /system paths so nothing reads from
     // the system block device during the flash. This prevents kernel page cache
@@ -578,6 +729,7 @@ void OtaFlasher::dumpSuperMetadata(const char* label) {
 
 bool OtaFlasher::flash(const OtaManifest& manifest) {
     logToFile("INFO", "=== FLASH STARTED ===");
+    loadFaults();
 
     // Dump super metadata before flash for diagnostics
     logToFile("INFO", "=== SUPER METADATA BEFORE FLASH ===");
@@ -624,7 +776,10 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
             // This is the authoritative source — same as what init uses on reboot.
             std::vector<OtaFlasher::CachedExtent> cachedExtents;
             {
-                uint32_t slotNum = 0; // slot _a = 0, _b = 1
+                // The metadata of the slot being updated. This was always slot 0, so on an A/B
+                // device running from _b the cached extents (and the writes made through them)
+                // belonged to the other slot.
+                const uint32_t slotNum = android::fs_mgr::SlotNumberForSlotSuffix(slot);
                 auto metadata = android::fs_mgr::ReadMetadata("/dev/block/by-name/super", slotNum);
                 if (metadata) {
                     for (const auto& p : metadata->partitions) {
@@ -662,35 +817,56 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
     }
 
     // Phase: Stop framework
+    progressStage("stop");
     notifyStatus(FlashPhase::STOPPING_FRAMEWORK);
     stopFramework();
 
-    // Phase: Flash physical partitions (safe — not mounted)
-    // Physical partition failures are non-fatal: log a warning and continue.
-    // The user can still boot if a physical partition fails (e.g. RO-protected boot).
-    std::vector<std::string> physicalFailures;
+    // Phase: Flash physical partitions, as one transaction. Each one is saved first, written,
+    // read back and compared. A partition that cannot be written reliably used to be skipped
+    // ("non-fatal"), which shipped a half-written boot or uboot with a new system on top: an
+    // update that completed and a device that did not boot. Now, if any physical partition fails,
+    // every one already written is put back and verified, and the update stops before system or
+    // vendor are touched, so the device boots exactly as it did.
+    // A previous attempt in this process that could not roll back left its good copies in
+    // mUnrestored: carry them over so this attempt uses them. Anything else in the originals
+    // directory is from an older run (or a run that ended without cleaning up) and is not
+    // trustworthy as "the current contents", so it is dropped to free the space.
+    mPhysicalOriginals = mUnrestored;
+    mUnrestored.clear();
+    if (DIR* d = opendir(ORIGINALS_DIR)) {
+        while (struct dirent* e = readdir(d)) {
+            if (e->d_name[0] == '.') continue;
+            const std::string f = std::string(ORIGINALS_DIR) + "/" + e->d_name;
+            bool keep = false;
+            for (const auto& o : mPhysicalOriginals) keep |= (o.file == f);
+            if (!keep) unlink(f.c_str());
+        }
+        closedir(d);
+    }
+    mLeftUnchanged.clear();
+    mExpectedSha.clear();
     for (const auto* part : physicals) {
         logToFile("INFO", "--- Flashing physical partition %d/%d: %s ---",
                   idx + 1, totalParts, part->name.c_str());
         notifyStatus(FlashPhase::FLASHING_PHYSICAL, part->name, idx, totalParts, 0);
         if (!flashPhysical(*part, idx, totalParts)) {
-            logToFile("WARN", "Physical partition %s: FAILED (non-fatal, continuing)",
-                      part->name.c_str());
-            physicalFailures.push_back(part->name);
-        } else {
-            logToFile("INFO", "Physical partition %s: DONE", part->name.c_str());
+            logToFile("ERROR", "Physical partition %s could not be written reliably: rolling back", part->name.c_str());
+            const bool restored = restorePhysicalOriginals();
+            if (restored) {
+                // Back exactly as before: the copies are no longer needed (100 MB or more on /data).
+                for (const auto& o : mPhysicalOriginals) unlink(o.file.c_str());
+            } else {
+                mUnrestored = mPhysicalOriginals;   // kept for the Retry
+            }
+            mPhysicalOriginals.clear();
+            notifyStatus(FlashPhase::FAILED, part->name, idx, totalParts, 0,
+                         restored ? "Could not write " + part->name + " reliably. Nothing was changed; it is safe to restart and try again."
+                                  : "Could not write " + part->name + " reliably, and restoring it failed. Do not restart; use Retry.");
+            return false;
         }
+        logToFile("INFO", "Physical partition %s: DONE", part->name.c_str());
         notifyStatus(FlashPhase::FLASHING_PHYSICAL, part->name, idx, totalParts, 100);
         idx++;
-    }
-    if (!physicalFailures.empty()) {
-        std::string failList;
-        for (const auto& f : physicalFailures) {
-            if (!failList.empty()) failList += ", ";
-            failList += f;
-        }
-        logToFile("WARN", "Physical partitions that failed: %s (continuing with logical)",
-                  failList.c_str());
     }
 
     // Phase: Flash logical partitions (point of no return)
@@ -718,116 +894,138 @@ bool OtaFlasher::flash(const OtaManifest& manifest) {
     logToFile("INFO", "=== SUPER METADATA AFTER FLASH ===");
     dumpSuperMetadata("AFTER");
 
+    // Final verification, every partition read back once more the way the next boot will see
+    // it: logical partitions through the super metadata (not the live dm table the writes went
+    // through), physical ones by name. Anything that does not match is rewritten and checked
+    // again; the device is only rebooted onto an image that has been proven on the medium.
+    for (const auto& part : manifest.partitions) {
+        if (!takeFault("final:" + part.name)) continue;
+        if (part.type == "logical") {
+            auto ranges = logicalRanges(part.name);
+            if (!ranges.empty()) corruptDevice(ranges[0].device, ranges[0].offset + ranges[0].length / 2);
+        } else {
+            corruptDevice("/dev/block/by-name/" + part.name, part.size / 2);
+        }
+    }
+    for (int round = 0; ; round++) {
+        auto failures = verify(manifest);
+        if (failures.empty()) break;
+        if (round >= 2) {
+            std::string list;
+            for (auto& f : failures) list += (list.empty() ? "" : ", ") + f;
+            logToFile("ERROR", "Final verification still fails for: %s", list.c_str());
+            notifyStatus(FlashPhase::FAILED, failures.front(), 0, totalParts, 0,
+                         "The update could not be written reliably (" + list + "). Do not restart; use Retry.");
+            return false;
+        }
+        int ri = 0;
+        for (const auto& name : failures) {
+            for (const auto& part : manifest.partitions) {
+                if (part.name != name) continue;
+                logToFile("WARN", "Rewriting %s after a failed verification (round %d)", name.c_str(), round + 1);
+                repairPartition(part, ri, (int)failures.size());
+            }
+            ri++;
+        }
+    }
+    // Every physical partition is new and verified: the saved originals are no longer needed.
+    for (const auto& o : mPhysicalOriginals) unlink(o.file.c_str());
+    mPhysicalOriginals.clear();
     return true;
 }
 
 bool OtaFlasher::flashPhysical(const OtaPartition& part, int partIdx, int partCount) {
-    std::string xzPath = mPackageDir + "/" + part.file;
     logToFile("INFO", "flashPhysical: %s, file=%s, size=%llu",
               part.name.c_str(), part.file.c_str(), (unsigned long long)part.size);
 
-    // Decompress to staging file first
-    mkdir(STAGING_DIR, 0700);
-    std::string stagingFile = std::string(STAGING_DIR) + "/" + part.name + ".img";
-    logToFile("INFO", "  Decompressing %s -> %s (staging)", xzPath.c_str(), stagingFile.c_str());
-
-    // Show decompression progress
-    notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, 0);
-    auto decompProgress = [this, &part, partIdx, partCount](uint64_t written, uint64_t total) {
-        int pct = (total > 0) ? (int)((written * 100) / total) : 0;
-        notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, pct);
-    };
-    if (!XzDecompressor::decompressToFile(xzPath, stagingFile, part.size, decompProgress)) {
-        ALOGE("Failed to decompress %s to staging", part.name.c_str());
-        logToFile("ERROR", "XZ decompress to staging FAILED: %s", xzPath.c_str());
-        unlink(stagingFile.c_str());
-        return false;
+    // Target devices: both slots on A/B, the single partition otherwise.
+    std::vector<std::string> devs;
+    for (const char* sfx : { "_a", "_b" }) {
+        std::string d = "/dev/block/by-name/" + part.name + sfx;
+        if (access(d.c_str(), F_OK) == 0) devs.push_back(d);
+    }
+    if (devs.empty()) {
+        std::string d = "/dev/block/by-name/" + part.name;
+        if (access(d.c_str(), F_OK) != 0) {
+            logToFile("ERROR", "Partition not found: %s", d.c_str());
+            return false;
+        }
+        devs.push_back(d);
     }
 
-    // Skip pre-write SHA-256 of decompressed file — reading 3.7GB fills the page
-    // cache and triggers OOM on memory-constrained devices. The compressed file's
-    // SHA-256 was already verified in preflight, and XZ has internal checksums.
-    // The post-write block device read-back is the definitive integrity check.
-    logToFile("INFO", "  Skipping pre-write SHA-256 (compressed SHA verified in preflight, post-write verify will confirm)");
-
-    // No drop_caches: the staging file's page cache will be evicted naturally
-    // as we stream through it; dropping here only widens the race window for
-    // other daemons' text pages backed by /system.
-
-    // Detect A/B vs non-A/B
-    std::string slotA = "/dev/block/by-name/" + part.name + "_a";
-    std::string noSlot = "/dev/block/by-name/" + part.name;
-    bool isAB = (access(slotA.c_str(), F_OK) == 0);
-    logToFile("INFO", "  A/B detection: %s exists=%s → %s device",
-              slotA.c_str(), isAB ? "yes" : "no", isAB ? "A/B" : "non-A/B");
-
-    bool anySlotSucceeded = false;
-
-    if (isAB) {
-        // Flash both slots — if one fails, continue with the other
-        const char* slots[] = {"_a", "_b"};
-        for (const char* slot : slots) {
-            std::string blockDev = "/dev/block/by-name/" + part.name + slot;
-            if (access(blockDev.c_str(), F_OK) != 0) {
-                logToFile("WARN", "  Slot %s not found for %s — skipping", slot, part.name.c_str());
-                continue;
-            }
-
-            // Clear read-only flag if set (physical partitions are often RO-protected)
-            std::string setrwCmd = "blockdev --setrw " + blockDev;
-            std::string setrwOut;
-            if (execCommand(setrwCmd, &setrwOut)) {
-                logToFile("INFO", "  Cleared RO flag on %s", blockDev.c_str());
-            } else {
-                logToFile("WARN", "  Failed to clear RO flag on %s", blockDev.c_str());
-            }
-
-            logToFile("INFO", "  Writing %s -> %s", stagingFile.c_str(), blockDev.c_str());
-            auto physProgress = [this, &part, partIdx, partCount](uint64_t written, uint64_t total) {
-                int pct = (int)((written * 100) / total);
-                notifyStatus(FlashPhase::FLASHING_PHYSICAL, part.name, partIdx, partCount, pct);
-            };
-            if (!XzDecompressor::writeFileToBlock(stagingFile, blockDev, part.size, physProgress)) {
-                ALOGW("Failed to write %s to slot %s (non-fatal)", part.name.c_str(), slot);
-                logToFile("WARN", "  Slot %s write FAILED for %s (continuing)", slot, part.name.c_str());
-            } else {
-                logToFile("INFO", "  Slot %s for %s: write complete", slot, part.name.c_str());
-                anySlotSucceeded = true;
-            }
-        }
-    } else {
-        // Non-A/B: single device
-        std::string blockDev = noSlot;
-        if (access(blockDev.c_str(), F_OK) != 0) {
-            ALOGE("Partition %s not found at %s", part.name.c_str(), blockDev.c_str());
-            logToFile("ERROR", "Partition not found: %s", blockDev.c_str());
+    const std::string stagingFile = std::string(STAGING_DIR) + "/" + part.name + ".img";
+    std::string sha;
+    uint64_t size = 0;
+    if (!prepareStaging(part, stagingFile, partIdx, partCount, &sha, &size)) {
+        logToFile("ERROR", "  No good copy of %s could be staged", part.name.c_str());
+        return false;
+    }
+    for (const auto& dev : devs) {
+        uint64_t devSize = getBlockDevSize(dev);
+        if (devSize < size) {
+            logToFile("ERROR", "  %s is %llu bytes, the image is %llu: it does not fit", dev.c_str(),
+                      (unsigned long long)devSize, (unsigned long long)size);
             unlink(stagingFile.c_str());
             return false;
         }
+    }
 
-        // Clear read-only flag
-        std::string setrwCmd = "blockdev --setrw " + blockDev;
-        std::string setrwOut;
-        execCommand(setrwCmd, &setrwOut);
-
-        logToFile("INFO", "  Writing %s -> %s (non-A/B)", stagingFile.c_str(), blockDev.c_str());
-        auto physProgress = [this, &part, partIdx, partCount](uint64_t written, uint64_t total) {
-            notifyStatus(FlashPhase::FLASHING_PHYSICAL, part.name, partIdx, partCount,
-                         (int)((written * 100) / total));
-        };
-        if (!XzDecompressor::writeFileToBlock(stagingFile, blockDev, part.size, physProgress)) {
-            ALOGW("Failed to write %s (non-fatal)", part.name.c_str());
-            logToFile("WARN", "  Write FAILED for %s (non-A/B, continuing)", part.name.c_str());
+    for (const auto& dev : devs) {
+        PhysicalOriginal orig;
+        // A Retry after a failed rollback: this device holds a half-written image and the good copy
+        // is already saved. Use that copy and restore it if this attempt fails too.
+        const PhysicalOriginal* kept = nullptr;
+        for (const auto& o : mPhysicalOriginals) if (o.device == dev) kept = &o;
+        if (kept) {
+            logToFile("WARN", "  %s was not restored by the last attempt; using the saved original (%s)",
+                      dev.c_str(), kept->sha.c_str());
+            orig = *kept;
+            mPhysicalOriginals.erase(mPhysicalOriginals.begin() + (kept - mPhysicalOriginals.data()));
         } else {
-            logToFile("INFO", "  Partition %s: write complete (non-A/B)", part.name.c_str());
-            anySlotSucceeded = true;
+            progressStage("save:" + dev);
+            if (!savePhysicalOriginal(part.name, dev, size, &orig)) {
+                unlink(stagingFile.c_str());
+                return false;
+            }
+        }
+        if (!kept && orig.sha == sha) {
+            // Already this image (an update re-applied, or a retry after a later failure).
+            logToFile("INFO", "  %s already holds this image, not rewritten", dev.c_str());
+            progressSkip("write:" + dev);
+            progressSkip("read:" + dev);
+            unlink(orig.file.c_str());
+            continue;
+        }
+        mPhysicalOriginals.push_back(orig);
+        WriteResult r = writeVerified(stagingFile, dev, size, sha, part.name, FlashPhase::FLASHING_PHYSICAL,
+                                      partIdx, partCount);
+        if (r == WriteResult::SourceBad) {
+            // The staging copy changed under us: make a new one and try once more.
+            if (prepareStaging(part, stagingFile, partIdx, partCount, &sha, &size))
+                r = writeVerified(stagingFile, dev, size, sha, part.name, FlashPhase::FLASHING_PHYSICAL,
+                                  partIdx, partCount);
+        }
+        if (r != WriteResult::Ok) {
+            const std::string now = XzDecompressor::sha256BlockDev(dev, size);
+            if (now == orig.sha) {
+                // Nothing reached it: a partition this device write-protects. It still holds its
+                // complete original, so it is consistent, just not updated: kept as before
+                // (a warning, the update goes on), as the flasher always treated protected
+                // partitions.
+                logToFile("WARN", "  %s refused every write and is unchanged: left as it was", dev.c_str());
+                mPhysicalOriginals.pop_back();
+                unlink(orig.file.c_str());
+                mLeftUnchanged.insert(part.name);
+                continue;
+            }
+            // Partly written: never leave that behind. The caller restores the original.
+            logToFile("ERROR", "  %s could not be written reliably; it now reads %s (original %s)", dev.c_str(),
+                      now.c_str(), orig.sha.c_str());
+            unlink(stagingFile.c_str());
+            return false;
         }
     }
-
-    if (!anySlotSucceeded) {
-        logToFile("WARN", "  No slots succeeded for %s — partition unchanged", part.name.c_str());
-    }
-
+    mExpectedSha[part.name] = sha;
     unlink(stagingFile.c_str());
     return true;
 }
@@ -947,78 +1145,36 @@ bool OtaFlasher::flashLogical(const OtaPartition& part, int partIdx, int partCou
                   dmPath.c_str(), (unsigned long long)getBlockDevSize(dmPath));
     }
 
-    // No drop_caches before write: O_DIRECT writes don't read through page
-    // cache and we don't want to evict other processes' text pages — see
-    // the comment in stopFramework() and XzDecompressor::writeFileToBlock.
-
-    // Decompress and write
-    std::string xzPath = mPackageDir + "/" + part.file;
-    ALOGI("Flashing %s -> %s", part.file.c_str(), dmPath.c_str());
-
-    // Decompress to staging file first, then write to block device
-    mkdir(STAGING_DIR, 0700);
-    std::string stagingFile = std::string(STAGING_DIR) + "/" + part.name + ".img";
-    logToFile("INFO", "  Decompressing %s -> %s (staging)", xzPath.c_str(), stagingFile.c_str());
-
-    // Show decompression progress — distinct from the "Writing" phase
-    logToFile("INFO", "  UI: Switching to DECOMPRESSING phase");
-    notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, 0);
-    usleep(500000); // 500ms to ensure the render loop draws the initial frame
-    int lastLoggedPct = -1;
-    auto decompProgress = [this, &part, &lastLoggedPct, partIdx, partCount](uint64_t written, uint64_t total) {
-        int pct = (total > 0) ? (int)((written * 100) / total) : 0;
-        notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, pct);
-        // Log every 10%
-        if (pct / 10 > lastLoggedPct / 10) {
-            lastLoggedPct = pct;
-            logToFile("INFO", "  Decompression progress: %d%% (%llu / %llu MB)",
-                      pct, (unsigned long long)(written / (1024*1024)),
-                      (unsigned long long)(total / (1024*1024)));
-        }
-    };
-    if (!XzDecompressor::decompressToFile(xzPath, stagingFile, part.size, decompProgress)) {
-        ALOGE("Failed to decompress %s to staging", part.name.c_str());
-        logToFile("ERROR", "XZ decompress to staging FAILED: %s", xzPath.c_str());
+    // Decompress and prove the staging copy, then write it and prove the write.
+    const std::string stagingFile = std::string(STAGING_DIR) + "/" + part.name + ".img";
+    std::string sha;
+    uint64_t size = 0;
+    if (!prepareStaging(part, stagingFile, partIdx, partCount, &sha, &size)) {
+        logToFile("ERROR", "  No good copy of %s could be staged", part.name.c_str());
+        return false;
+    }
+    const uint64_t devSize = getBlockDevSize(dmPath);
+    if (devSize < size) {
+        logToFile("ERROR", "  %s is %llu bytes, the image is %llu: it does not fit", dmPath.c_str(),
+                  (unsigned long long)devSize, (unsigned long long)size);
         unlink(stagingFile.c_str());
         return false;
     }
-    logToFile("INFO", "  Decompression complete");
 
-    // Skip pre-write SHA-256 — see flashPhysical for rationale (OOM on large images)
-    logToFile("INFO", "  Skipping pre-write SHA-256 (compressed SHA verified in preflight, post-write verify will confirm)");
-
-    // No drop_caches: the staging file's page cache evicts naturally as we
-    // stream through it, and dropping evicts other daemons' /system text
-    // pages which would then refault into the partially-overwritten dm device.
-
-    // Show warning before write — this is the last frame SF will render before
-    // the system partition content changes and SF's state becomes invalid.
-    // The screen will go blank during the write (30-60s), then reboot.
     logToFile("INFO", "  UI: Switching to FLASHING_LOGICAL phase");
     notifyStatus(FlashPhase::FLASHING_LOGICAL, part.name, partIdx, partCount, 0);
-    logToFile("INFO", "  Showing DO NOT POWER OFF warning (last SF frame)...");
-    usleep(500000); // 500ms to ensure the render loop draws the frame
-
-    // Write decompressed file to block device with progress reporting
-    logToFile("INFO", "  Writing %s -> %s (%llu bytes)", stagingFile.c_str(), dmPath.c_str(),
-              (unsigned long long)part.size);
-    auto writeProgress = [this, &part, partIdx, partCount](uint64_t written, uint64_t total) {
-        int pct = (int)((written * 100) / total);
-        notifyStatus(FlashPhase::FLASHING_LOGICAL, part.name, partIdx, partCount, pct);
-        // Update direct display progress (fbdev/DRM)
-        std::string status = "Flashing " + part.name + "...";
-        // Progress is rendered by OtaMenu's EGL render loop via notifyStatus
-    };
-    if (!XzDecompressor::writeFileToBlock(stagingFile, dmPath, part.size, writeProgress)) {
-        ALOGE("Failed to write %s to %s", stagingFile.c_str(), dmPath.c_str());
-        logToFile("ERROR", "Write to block device FAILED: %s -> %s", stagingFile.c_str(), dmPath.c_str());
-        unlink(stagingFile.c_str());
+    WriteResult r = writeVerified(stagingFile, dmPath, size, sha, part.name, FlashPhase::FLASHING_LOGICAL,
+                                  partIdx, partCount);
+    if (r == WriteResult::SourceBad && prepareStaging(part, stagingFile, partIdx, partCount, &sha, &size))
+        r = writeVerified(stagingFile, dmPath, size, sha, part.name, FlashPhase::FLASHING_LOGICAL, partIdx, partCount);
+    unlink(stagingFile.c_str());
+    if (r != WriteResult::Ok) {
+        logToFile("ERROR", "Write of %s to %s could not be verified after %d attempts", part.name.c_str(),
+                  dmPath.c_str(), kWriteAttempts);
         return false;
     }
-
-    // Cleanup staging file
-    unlink(stagingFile.c_str());
-    logToFile("INFO", "  Flash %s: write complete, staging cleaned up", dmName.c_str());
+    mExpectedSha[part.name] = sha;
+    logToFile("INFO", "  Flash %s: written and verified, staging cleaned up", dmName.c_str());
 
     // SHRINKING: resize metadata after write (image already written to larger partition)
     // The smaller image fits in the current partition. After lptools resize, the super metadata
@@ -1220,76 +1376,64 @@ std::vector<std::string> OtaFlasher::verify(const OtaManifest& manifest) {
     notifyStatus(FlashPhase::VERIFYING);
     std::vector<std::string> failures;
     logToFile("INFO", "=== VERIFICATION STARTED ===");
-
     sync();
-    // verify() uses O_DIRECT reads, so no page-cache priming is required.
 
-    std::string slot = getSlotSuffix();
     int idx = 0;
-    int count = (int)manifest.partitions.size();
-
+    const int count = (int)manifest.partitions.size();
     for (const auto& part : manifest.partitions) {
+        progressStage("verify:" + part.name);
         notifyStatus(FlashPhase::VERIFYING, part.name, idx, count, 0);
         logToFile("INFO", "Verifying %d/%d: %s", idx + 1, count, part.name.c_str());
-
-        if (part.sha256_uncompressed.empty()) {
-            ALOGW("No uncompressed checksum for %s, skipping verification", part.name.c_str());
-            logToFile("WARN", "  No sha256_uncompressed for %s — skipping", part.name.c_str());
+        auto prog = [&](uint64_t r, uint64_t t) {
+            notifyStatus(FlashPhase::VERIFYING, part.name, idx, count, t ? (int)(r * 100 / t) : 0);
+        };
+        if (mLeftUnchanged.count(part.name)) {
+            logToFile("WARN", "  %s was write-protected and left as it was: not verified", part.name.c_str());
+            idx++;
+            continue;
+        }
+        auto e = mExpectedSha.find(part.name);
+        const std::string expected = e != mExpectedSha.end() ? e->second : part.sha256_uncompressed;
+        const uint64_t size = part.size;
+        if (expected.empty() || size == 0) {
+            logToFile("WARN", "  No hash or size for %s: cannot verify", part.name.c_str());
             idx++;
             continue;
         }
 
-        // Skip post-write verification for mounted logical partitions (system, vendor).
-        // After writing to a mounted block device, the kernel page cache cannot be fully
-        // invalidated — SHA-256 read-back causes OOM on large partitions.
-        // Boot success is the definitive verification for these partitions.
-        // Data integrity is already ensured by: XZ internal checksums + compressed SHA-256
-        // verified in preflight + staging file written from verified source.
-        if (part.type == "logical" && (part.name == "system" || part.name == "vendor")) {
-            logToFile("INFO", "  Skipping verification for %s (mounted) — boot is the verification",
-                      part.name.c_str());
-            notifyStatus(FlashPhase::VERIFYING, part.name, idx, count, 100);
-            idx++;
-            continue;
-        }
-
-        std::string blockDev;
-        uint64_t size = part.size;
+        bool ok = true;
         if (part.type == "logical") {
-            std::string dmName = part.name + slot;
-            blockDev = getDmDevPath(dmName);
-            if (blockDev.empty() && !slot.empty()) {
-                dmName = part.name;
-                blockDev = getDmDevPath(dmName);
+            // Through the super metadata, so this is what init will map on the next boot. (These
+            // reads go past the page cache in 1 MiB pieces; the old reason for skipping system and
+            // vendor, running out of memory on the read-back, no longer applies.)
+            auto ranges = logicalRanges(part.name);
+            std::string got;
+            if (!ranges.empty()) {
+                got = XzDecompressor::sha256Ranges(ranges, size, prog);
+                logToFile("INFO", "  %s through the metadata (%zu extents): %s", part.name.c_str(), ranges.size(), got.c_str());
+            } else {
+                std::string dm = getDmDevPath(part.name + getSlotSuffix());
+                if (dm.empty()) dm = getDmDevPath(part.name);
+                got = dm.empty() ? "" : XzDecompressor::sha256BlockDev(dm, size, prog);
+                logToFile("WARN", "  %s read through the live dm device %s: %s", part.name.c_str(), dm.c_str(), got.c_str());
             }
-            if (size == 0) size = getBlockDevSize(blockDev);
+            ok = (got == expected);
         } else {
-            // Check A/B first, then non-A/B
-            std::string slotPath = "/dev/block/by-name/" + part.name + slot;
-            std::string noSlotPath = "/dev/block/by-name/" + part.name;
-            blockDev = (access(slotPath.c_str(), F_OK) == 0) ? slotPath : noSlotPath;
-            if (size == 0) size = getBlockDevSize(blockDev);
+            for (const auto& d : physicalDevices(part.name)) {
+                const std::string got = XzDecompressor::sha256BlockDev(d, size, prog);
+                logToFile("INFO", "  %s: %s", d.c_str(), got.c_str());
+                if (got != expected) ok = false;
+            }
         }
-        logToFile("INFO", "  Block device: %s, verify size: %llu bytes",
-                  blockDev.c_str(), (unsigned long long)size);
-        logToFile("INFO", "  Expected SHA-256: %s", part.sha256_uncompressed.c_str());
-
-        std::string hash = XzDecompressor::sha256BlockDev(blockDev, size);
-        logToFile("INFO", "  Computed SHA-256: %s", hash.c_str());
-        if (hash != part.sha256_uncompressed) {
-            ALOGE("Verification FAILED for %s: expected %s, got %s",
-                  part.name.c_str(), part.sha256_uncompressed.c_str(), hash.c_str());
-            logToFile("ERROR", "  VERIFICATION FAILED for %s", part.name.c_str());
-            failures.push_back(part.name);
-        } else {
-            ALOGI("Verified %s: OK", part.name.c_str());
+        if (ok) {
             logToFile("INFO", "  Verified %s: OK", part.name.c_str());
+        } else {
+            logToFile("ERROR", "  VERIFICATION FAILED for %s (expected %s)", part.name.c_str(), expected.c_str());
+            failures.push_back(part.name);
         }
-
         notifyStatus(FlashPhase::VERIFYING, part.name, idx, count, 100);
         idx++;
     }
-
     logToFile("INFO", "=== VERIFICATION %s (%zu failures) ===",
               failures.empty() ? "PASSED" : "FAILED", failures.size());
     return failures;
@@ -1422,8 +1566,8 @@ bool OtaFlasher::restoreFromBackup() {
         ALOGI("Restoring %s -> %s", backupPath.c_str(), blockDev.c_str());
         logToFile("INFO", "Restoring %s -> %s (%lld bytes)",
                   backupPath.c_str(), blockDev.c_str(), (long long)st.st_size);
-        std::string cmd = "dd if=" + backupPath + " of=" + blockDev + " bs=1048576 2>/dev/null";
-        if (!execCommand(cmd)) {
+        std::string cmd = "dd if=" + backupPath + " of=" + blockDev + " bs=1048576 conv=fsync 2>/dev/null";
+        if (!execCommand(cmd, nullptr, 3600)) {
             logToFile("ERROR", "Restore FAILED for %s", partName.c_str());
         } else {
             logToFile("INFO", "Restore %s: complete", partName.c_str());
@@ -1525,77 +1669,487 @@ std::string OtaFlasher::getDmDevPath(const std::string& dmName) {
     return "";
 }
 
-bool OtaFlasher::execCommand(const std::string& cmd, std::string* output) {
-    // Use the staged shell to avoid depending on /system/bin/sh
-    // which may be corrupted after writing to the system block device
-    std::string shellPath = "/system/bin/sh";
-    std::string fullCmd = cmd;
+// ---- reliable writes ------------------------------------------------------------------
 
+void OtaFlasher::loadFaults() {
+    mFaults.clear();
+    if (!android::base::GetBoolProperty("ro.debuggable", false)) return;
+    // A file rather than a property: a property value is limited to 91 characters. Read once and
+    // deleted, so a fault can never carry over to another update.
+    std::string spec;
+    const std::string faultFile = std::string(OTA_DIR) + "/faults";
+    if (!android::base::ReadFileToString(faultFile, &spec)) return;
+    unlink(faultFile.c_str());
+    spec = android::base::Trim(spec);
+    android::base::SetProperty("sys.gammaos.ota.fault_ui", spec.find("ui_crash") != std::string::npos ? "1" : "0");
+    for (const auto& item : android::base::Split(spec, ",")) {
+        if (item.empty()) continue;
+        auto parts = android::base::Split(item, ":");
+        int n = 1;
+        std::string key = parts[0];
+        if (parts.size() >= 2) key += ":" + parts[1];
+        if (parts.size() >= 3) n = atoi(parts[2].c_str());
+        if (parts[0] == "exec_crash" && parts.size() == 2) { key = "exec_crash"; n = atoi(parts[1].c_str()); }
+        mFaults[key] = n;
+        logToFile("WARN", "FAULT INJECTION armed: %s x%d", key.c_str(), n);
+    }
+}
+
+bool OtaFlasher::takeFault(const std::string& key) {
+    auto it = mFaults.find(key);
+    if (it == mFaults.end() || it->second <= 0) return false;
+    it->second--;
+    logToFile("WARN", "FAULT INJECTED: %s (%d left)", key.c_str(), it->second);
+    return true;
+}
+
+void OtaFlasher::corruptDevice(const std::string& dev, uint64_t offset) {
+    // Flip one byte, past every cache, the way a bad write would leave it.
+    offset &= ~(uint64_t)4095;
+    void* p = nullptr;
+    if (posix_memalign(&p, 4096, 4096) != 0) return;
+    int fd = open(dev.c_str(), O_RDWR | O_DIRECT | O_CLOEXEC);
+    if (fd >= 0 && pread(fd, p, 4096, (off_t)offset) == 4096) {
+        static_cast<uint8_t*>(p)[123] ^= 0x5a;
+        if (pwrite(fd, p, 4096, (off_t)offset) == 4096) fsync(fd);
+    }
+    if (fd >= 0) close(fd);
+    free(p);
+    logToFile("WARN", "FAULT: corrupted one byte of %s at %llu", dev.c_str(), (unsigned long long)offset);
+}
+
+
+bool OtaFlasher::prepareStaging(const OtaPartition& part, const std::string& stagingFile,
+                                int partIdx, int partCount, std::string* stagingSha, uint64_t* size) {
+    const std::string xzPath = mPackageDir + "/" + part.file;
+    mkdir(STAGING_DIR, 0700);
+    for (int attempt = 1; attempt <= kWriteAttempts; attempt++) {
+        logToFile("INFO", "  Decompressing %s -> %s (attempt %d)", xzPath.c_str(), stagingFile.c_str(), attempt);
+        progressStage("dec:" + part.name);
+        notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, 0);
+        int lastLogged = -10;
+        auto prog = [&](uint64_t written, uint64_t total) {
+            int pct = total ? (int)(written * 100 / total) : 0;
+            notifyStatus(FlashPhase::DECOMPRESSING, part.name, partIdx, partCount, pct);
+            if (pct >= lastLogged + 10) { lastLogged = pct; logToFile("INFO", "  Decompression %d%%", pct); }
+        };
+        if (!XzDecompressor::decompressToFile(xzPath, stagingFile, part.size, prog)) {
+            logToFile("ERROR", "  Decompression of %s failed (attempt %d)", part.file.c_str(), attempt);
+            continue;
+        }
+        struct stat st;
+        if (stat(stagingFile.c_str(), &st) != 0 || st.st_size <= 0) {
+            logToFile("ERROR", "  Staging file %s missing after decompression", stagingFile.c_str());
+            continue;
+        }
+        const uint64_t n = part.size ? part.size : (uint64_t)st.st_size;
+        if (takeFault("stage:" + part.name)) {
+            int fd = open(stagingFile.c_str(), O_RDWR | O_CLOEXEC);
+            uint8_t c = 0;
+            if (fd >= 0 && pread(fd, &c, 1, (off_t)(n / 2)) == 1) {
+                c ^= 0x5a;
+                if (pwrite(fd, &c, 1, (off_t)(n / 2)) == 1) fsync(fd);
+            }
+            if (fd >= 0) close(fd);
+        }
+        // Hash the staging copy as it is on the medium. On the SD-card devices /data is the card,
+        // and a card that corrupts a multi-GB write would otherwise flash those bytes unchecked:
+        // xz's own check only covers the decompression, not the file it was written to.
+        logToFile("INFO", "  Checking the staging copy (%llu bytes)...", (unsigned long long)n);
+        progressStage("check:" + part.name);
+        const std::string sha = XzDecompressor::sha256File(stagingFile, n, [&](uint64_t r, uint64_t t) {
+            notifyStatus(FlashPhase::VERIFYING, part.name, partIdx, partCount, t ? (int)(r * 100 / t) : 0);
+        });
+        if (sha.empty()) {
+            logToFile("ERROR", "  Staging copy of %s could not be read back", part.name.c_str());
+            continue;
+        }
+        if (!part.sha256_uncompressed.empty() && sha != part.sha256_uncompressed) {
+            logToFile("ERROR", "  Staging copy of %s is corrupt: expected %s got %s", part.name.c_str(),
+                      part.sha256_uncompressed.c_str(), sha.c_str());
+            continue;
+        }
+        logToFile("INFO", "  Staging copy OK: %s%s", sha.c_str(),
+                  part.sha256_uncompressed.empty() ? " (manifest has no uncompressed hash)" : " (matches manifest)");
+        *stagingSha = sha;
+        *size = n;
+        return true;
+    }
+    unlink(stagingFile.c_str());
+    return false;
+}
+
+OtaFlasher::WriteResult OtaFlasher::writeVerified(const std::string& file, const std::string& dev,
+                                                  uint64_t size, const std::string& expected,
+                                                  const std::string& name, FlashPhase phase,
+                                                  int partIdx, int partCount) {
+    for (int attempt = 1; attempt <= kWriteAttempts; attempt++) {
+        logToFile("INFO", "  Writing %s -> %s (%llu bytes, attempt %d/%d)", file.c_str(), dev.c_str(),
+                  (unsigned long long)size, attempt, kWriteAttempts);
+        // Physical partitions are planned per device (both slots on A/B), logical ones by name.
+        const std::string stepKey = phase == FlashPhase::FLASHING_PHYSICAL ? dev : name;
+        progressStage("write:" + stepKey);
+        notifyStatus(phase, name, partIdx, partCount, 0);
+        auto wprog = [&](uint64_t w, uint64_t t) {
+            notifyStatus(phase, name, partIdx, partCount, t ? (int)(w * 100 / t) : 0);
+        };
+        std::string sent;
+        const bool wrote = XzDecompressor::writeFileToBlock(file, dev, size, wprog, &sent);
+        if (sent != expected) {
+            // The bytes read from the source file are not the image: nothing a rewrite from the
+            // same file can fix. The caller re-creates the source.
+            logToFile("ERROR", "  Source %s read back differently while writing (%s, expected %s)",
+                      file.c_str(), sent.c_str(), expected.c_str());
+            return WriteResult::SourceBad;
+        }
+        if (!wrote) {
+            logToFile("ERROR", "  Write of %s to %s reported an error (attempt %d)", name.c_str(), dev.c_str(), attempt);
+            usleep(500000);
+            continue;
+        }
+        if (takeFault("write:" + name)) corruptDevice(dev, size / 2);
+        logToFile("INFO", "  Reading %s back to verify...", dev.c_str());
+        progressStage("read:" + stepKey);
+        notifyStatus(FlashPhase::VERIFYING, name, partIdx, partCount, 0);
+        auto vprog = [&](uint64_t r, uint64_t t) {
+            notifyStatus(FlashPhase::VERIFYING, name, partIdx, partCount, t ? (int)(r * 100 / t) : 0);
+        };
+        const std::string got = XzDecompressor::sha256BlockDev(dev, size, vprog);
+        if (got == expected) {
+            logToFile("INFO", "  Verified %s on %s: %s", name.c_str(), dev.c_str(), got.c_str());
+            return WriteResult::Ok;
+        }
+        logToFile("ERROR", "  Read-back of %s on %s does not match (got '%s', expected %s), attempt %d",
+                  name.c_str(), dev.c_str(), got.c_str(), expected.c_str(), attempt);
+        usleep(500000);
+    }
+    return WriteResult::WriteFailed;
+}
+
+std::vector<ByteRange> OtaFlasher::logicalRanges(const std::string& partName) {
+    std::vector<ByteRange> ranges;
+    const std::string slot = getSlotSuffix();
+    const uint32_t slotNum = android::fs_mgr::SlotNumberForSlotSuffix(slot);
+    auto metadata = android::fs_mgr::ReadMetadata("/dev/block/by-name/super", slotNum);
+    if (!metadata) {
+        logToFile("WARN", "  Cannot read super metadata (slot %u) to locate %s", slotNum, partName.c_str());
+        return ranges;
+    }
+    const std::string names[2] = { partName + slot, partName };
+    for (const std::string& want : names) {
+        for (const auto& p : metadata->partitions) {
+            if (want != android::fs_mgr::GetPartitionName(p)) continue;
+            for (uint32_t i = 0; i < p.num_extents; i++) {
+                const auto& ext = metadata->extents[p.first_extent_index + i];
+                if (ext.target_type != LP_TARGET_TYPE_LINEAR || ext.target_source >= metadata->block_devices.size()) {
+                    logToFile("WARN", "  %s has a non-linear extent: metadata verification not possible", want.c_str());
+                    return {};
+                }
+                const auto& bdev = metadata->block_devices[ext.target_source];
+                ranges.push_back({ "/dev/block/by-name/" + android::fs_mgr::GetBlockDevicePartitionName(bdev),
+                                   ext.target_data * 512ULL, ext.num_sectors * 512ULL });
+            }
+            return ranges;
+        }
+    }
+    logToFile("WARN", "  %s is not in the super metadata (slot %u)", partName.c_str(), slotNum);
+    return ranges;
+}
+
+void OtaFlasher::pinRunningCode() {
+    // While system and vendor are rewritten in place, any process that page-faults code from them
+    // reads the new bytes at the old offsets and dies: this process's GPU driver (the UI), and
+    // outside it SurfaceFlinger, the composer and allocator HALs, vold (init reboots the device
+    // when vold dies, mid-write) and init itself. The page cache is per file and shared, so
+    // mapping the same files here and mlock()ing them keeps every process's code resident: nobody
+    // re-reads it from the device being overwritten.
+    //
+    // These devices can have 1 GB of RAM, and locked pages cannot be reclaimed while xz needs its
+    // own memory to decompress, so the budget is a quarter of what is available, at most 192 MB,
+    // spent in order of how much a crash would cost:
+    //   tier 0: everything init maps (code and read-only data, about 10 MB). init dying is a kernel
+    //           panic and an immediate reboot, mid-write if it happens then, which leaves a
+    //           half-written system that does not boot. Pinned whatever the budget says.
+    //   tier 1: executable code of this process and of the processes the update or the display
+    //           depends on; tier 2: their read-only data (a fault there kills them just the same:
+    //           the composer HAL died of one during a system rewrite while this tier came last and
+    //           found the budget spent); tier 3: everyone else's executable code.
+    static const char* const kRoots[] = { "/system/", "/vendor/", "/apex/", "/odm/", "/product/", "/system_ext/" };
+    static const char* const kCritical[] = { "surfaceflinger", "composer", "allocator", "vold", "servicemanager",
+                                             "ueventd", "lmkd", "logd", "gammaos-ota" };
+    using Ranges = std::map<std::string, std::vector<std::pair<uint64_t, uint64_t>>>;
+    constexpr int kTiers = 4;
+    Ranges want[kTiers];
+    const pid_t self = getpid();
+    DIR* proc = opendir("/proc");
+    if (!proc) return;
+    struct dirent* e;
+    while ((e = readdir(proc)) != nullptr) {
+        if (e->d_name[0] < '0' || e->d_name[0] > '9') continue;
+        const std::string dir = std::string("/proc/") + e->d_name;
+        std::string comm;
+        android::base::ReadFileToString(dir + "/comm", &comm);
+        const bool isInit = atoi(e->d_name) == 1;
+        bool critical = atoi(e->d_name) == self;
+        for (const char* c : kCritical) if (comm.find(c) != std::string::npos) critical = true;
+        FILE* f = fopen((dir + "/maps").c_str(), "re");
+        if (!f) continue;
+        char line[1024];
+        while (fgets(line, sizeof line, f)) {
+            unsigned long lo, hi, off, inode;
+            char perms[8], path[768] = {0};
+            if (sscanf(line, "%lx-%lx %7s %lx %*s %lu %767[^\n]", &lo, &hi, perms, &off, &inode, path) < 6) continue;
+            if (perms[0] != 'r' || inode == 0 || strstr(path, "(deleted)")) continue;
+            bool rooted = false;
+            for (const char* r : kRoots) if (!strncmp(path, r, strlen(r))) { rooted = true; break; }
+            if (!rooted) continue;
+            const bool exec = perms[2] == 'x';
+            const int tier = isInit ? 0 : exec ? (critical ? 1 : 3) : (critical ? 2 : -1);
+            if (tier >= 0) want[tier][path].push_back({ off, off + (hi - lo) });
+        }
+        fclose(f);
+    }
+    closedir(proc);
+
+    uint64_t budget = 64ULL << 20;
+    {
+        std::string mi;
+        android::base::ReadFileToString("/proc/meminfo", &mi);
+        auto pos = mi.find("MemAvailable:");
+        if (pos != std::string::npos) budget = strtoull(mi.c_str() + pos + 13, nullptr, 10) * 1024 / 4;
+        if (budget > (192ULL << 20)) budget = 192ULL << 20;
+    }
+    // A range already pinned by an earlier tier is not pinned twice.
+    std::map<std::string, std::vector<std::pair<uint64_t, uint64_t>>> done;
+    auto covered = [&](const std::string& path, uint64_t a, uint64_t b) {
+        for (auto& r : done[path]) if (r.first <= a && r.second >= b) return true;
+        return false;
+    };
+    uint64_t pinned = 0, skipped = 0;
+    const long ps = sysconf(_SC_PAGESIZE);
+    for (int tier = 0; tier < kTiers; tier++) {
+        for (auto& kv : want[tier]) {
+            auto& iv = kv.second;
+            std::sort(iv.begin(), iv.end());
+            std::vector<std::pair<uint64_t, uint64_t>> merged;
+            for (auto& r : iv) {
+                if (!merged.empty() && r.first <= merged.back().second) merged.back().second = std::max(merged.back().second, r.second);
+                else merged.push_back(r);
+            }
+            int fd = -1;
+            struct stat st = {};
+            for (auto& r : merged) {
+                const uint64_t a = r.first & ~(uint64_t)(ps - 1);
+                if (fd < 0) {
+                    fd = open(kv.first.c_str(), O_RDONLY | O_CLOEXEC);
+                    if (fd < 0) break;
+                    fstat(fd, &st);
+                }
+                const uint64_t b = std::min<uint64_t>(r.second, (uint64_t)st.st_size);
+                if (b <= a || covered(kv.first, a, b)) continue;
+                const size_t len = (size_t)(b - a);
+                if (tier > 0 && pinned + len > budget) { skipped += len; continue; }
+                void* m = mmap(nullptr, len, PROT_READ, MAP_SHARED, fd, (off_t)a);
+                if (m == MAP_FAILED) continue;
+                if (mlock(m, len) != 0) { munmap(m, len); skipped += len; continue; }
+                mPinned.push_back({ m, len });
+                done[kv.first].push_back({ a, b });
+                pinned += len;
+            }
+            if (fd >= 0) close(fd);
+        }
+        logToFile("INFO", "Pinning: after tier %d, %llu MB pinned of a %llu MB budget", tier,
+                  (unsigned long long)(pinned >> 20), (unsigned long long)(budget >> 20));
+    }
+    logToFile("INFO", "Pinned %llu MB of running code (%llu MB left unpinned, over budget)",
+              (unsigned long long)(pinned >> 20), (unsigned long long)(skipped >> 20));
+}
+
+bool OtaFlasher::savePhysicalOriginal(const std::string& name, const std::string& dev, uint64_t size,
+                                      PhysicalOriginal* out) {
+    mkdir(ORIGINALS_DIR, 0700);
+    std::string base = dev.substr(dev.rfind('/') + 1);
+    std::string file = std::string(ORIGINALS_DIR) + "/" + base + ".img";
+    // Copy the partition out (read past the page cache), then hash the copy as stored.
+    int in = open(dev.c_str(), O_RDONLY | O_CLOEXEC);
+    int outFd = open(file.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);
+    bool ok = in >= 0 && outFd >= 0;
+    if (ok) {
+        ioctl(in, BLKFLSBUF, 0);
+        std::vector<uint8_t> buf(1 << 20);
+        uint64_t done = 0;
+        while (ok && done < size) {
+            size_t len = (size_t)std::min<uint64_t>(buf.size(), size - done);
+            ssize_t n = pread(in, buf.data(), len, (off_t)done);
+            if (n < 0 && errno == EINTR) continue;
+            if (n <= 0) { ok = false; break; }
+            size_t w = 0;
+            while (w < (size_t)n) {
+                ssize_t r = write(outFd, buf.data() + w, (size_t)n - w);
+                if (r < 0 && errno == EINTR) continue;
+                if (r <= 0) { ok = false; break; }
+                w += (size_t)r;
+            }
+            // Low-memory devices: neither copy should stay in the page cache.
+            posix_fadvise(in, (off_t)done, n, POSIX_FADV_DONTNEED);
+            done += (uint64_t)n;
+        }
+        if (ok && fsync(outFd) != 0) ok = false;
+        if (outFd >= 0) posix_fadvise(outFd, 0, 0, POSIX_FADV_DONTNEED);
+    }
+    if (in >= 0) close(in);
+    if (outFd >= 0 && close(outFd) != 0) ok = false;
+    std::string sha = ok ? XzDecompressor::sha256File(file, size) : "";
+    std::string devSha = ok ? XzDecompressor::sha256BlockDev(dev, size) : "";
+    if (!ok || sha.empty() || sha != devSha) {
+        logToFile("ERROR", "  Could not save the original %s (%s): copy %s, device %s", name.c_str(), dev.c_str(),
+                  sha.c_str(), devSha.c_str());
+        unlink(file.c_str());
+        return false;
+    }
+    *out = { name, dev, file, sha, size };
+    logToFile("INFO", "  Saved the original %s (%s, %llu bytes): %s", name.c_str(), dev.c_str(),
+              (unsigned long long)size, sha.c_str());
+    return true;
+}
+
+bool OtaFlasher::restorePhysicalOriginals() {
+    bool all = true;
+    for (auto it = mPhysicalOriginals.rbegin(); it != mPhysicalOriginals.rend(); ++it) {
+        logToFile("WARN", "Restoring the original %s on %s", it->name.c_str(), it->device.c_str());
+        if (writeVerified(it->file, it->device, it->size, it->sha, it->name, FlashPhase::FLASHING_PHYSICAL, 0, 1)
+            != WriteResult::Ok) {
+            logToFile("ERROR", "  Restoring the original %s FAILED", it->name.c_str());
+            all = false;
+        }
+    }
+    return all;
+}
+
+bool OtaFlasher::repairPartition(const OtaPartition& part, int partIdx, int partCount) {
+    const std::string stagingFile = std::string(STAGING_DIR) + "/" + part.name + ".img";
+    std::string sha;
+    uint64_t size = 0;
+    if (!prepareStaging(part, stagingFile, partIdx, partCount, &sha, &size)) return false;
+    bool ok = false;
+    if (part.type == "logical") {
+        // Through the metadata ranges: the bytes go exactly where the next boot reads them,
+        // whatever the live dm table says.
+        auto ranges = logicalRanges(part.name);
+        if (!ranges.empty()) {
+            std::string sent;
+            auto prog = [&](uint64_t w, uint64_t t) {
+                notifyStatus(FlashPhase::FLASHING_LOGICAL, part.name, partIdx, partCount, t ? (int)(w * 100 / t) : 0);
+            };
+            progressStage("write:" + part.name);   // again: added to the plan, the bar keeps moving
+            if (XzDecompressor::writeFileToRanges(stagingFile, ranges, size, prog, &sent) && sent == sha) {
+                progressStage("read:" + part.name);
+                ok = XzDecompressor::sha256Ranges(ranges, size, [&](uint64_t r, uint64_t t) {
+                    notifyStatus(FlashPhase::VERIFYING, part.name, partIdx, partCount, t ? (int)(r * 100 / t) : 0);
+                }) == sha;
+            }
+        }
+    } else {
+        ok = true;
+        for (const auto& d : physicalDevices(part.name))
+            if (writeVerified(stagingFile, d, size, sha, part.name, FlashPhase::FLASHING_PHYSICAL, partIdx, partCount)
+                != WriteResult::Ok) ok = false;
+    }
+    unlink(stagingFile.c_str());
+    logToFile(ok ? "INFO" : "ERROR", "  Repair of %s %s", part.name.c_str(), ok ? "succeeded" : "FAILED");
+    return ok;
+}
+
+bool OtaFlasher::execCommand(const std::string& cmd, std::string* output, int timeoutSec) {
+    // The staged shell, never /system/bin/sh: system is being overwritten.
+    std::string shellPath = "/system/bin/sh";
+    std::string pathEnv = "PATH=/system/bin:/vendor/bin";
+    std::string ldEnv;
     if (isRunningFromTmpfs()) {
         shellPath = std::string(STAGE_DIR) + "/bin/sh";
-        std::string binDir = std::string(STAGE_DIR) + "/bin";
-        std::string libDir = std::string(STAGE_DIR) + "/lib64";
-        fullCmd = "export PATH=" + binDir + ":/system/bin:/vendor/bin && "
-                  "export LD_LIBRARY_PATH=" + libDir + ":/system/lib64 && " + cmd;
+        pathEnv = "PATH=" + std::string(STAGE_DIR) + "/bin:/system/bin:/vendor/bin";
+        ldEnv = "LD_LIBRARY_PATH=" + std::string(STAGE_DIR) + "/lib64:/system/lib64";
     }
+    std::vector<std::string> envStore;
+    for (char** e = environ; e && *e; e++) {
+        if (!strncmp(*e, "PATH=", 5) || (!ldEnv.empty() && !strncmp(*e, "LD_LIBRARY_PATH=", 16))) continue;
+        envStore.push_back(*e);
+    }
+    envStore.push_back(pathEnv);
+    if (!ldEnv.empty()) envStore.push_back(ldEnv);
+    std::vector<char*> envp;
+    for (auto& e : envStore) envp.push_back(const_cast<char*>(e.c_str()));
+    envp.push_back(nullptr);
 
     ALOGI("execCommand: %s (shell: %s)", cmd.c_str(), shellPath.c_str());
     logToFile("INFO", "exec: %s", cmd.c_str());
 
-    // Use fork+exec with staged shell instead of popen (which uses /system/bin/sh)
-    int pipefd[2];
-    if (pipe(pipefd) < 0) {
-        ALOGE("pipe() failed: %s", strerror(errno));
-        return false;
-    }
-
-    pid_t pid = fork();
-    if (pid < 0) {
-        ALOGE("fork() failed: %s", strerror(errno));
-        close(pipefd[0]);
+    // posix_spawn, not fork. fork() runs every pthread_atfork child handler, including the GPU
+    // driver's; once vendor has been rewritten that handler's code is gone and the child dies
+    // with SIGBUS before it can exec. That is how the 1.4.3 update on the RG DS Plus failed:
+    // "dmctl table vendor_dlkm" never ran, it reported exit -1, and the flash stopped half way.
+    // bionic's posix_spawn does not run atfork handlers.
+    for (int attempt = 1; attempt <= 2; attempt++) {
+        int pipefd[2];
+        if (pipe2(pipefd, O_CLOEXEC) < 0) {
+            logToFile("ERROR", "pipe2() failed: %s", strerror(errno));
+            return false;
+        }
+        posix_spawn_file_actions_t fa;
+        posix_spawn_file_actions_init(&fa);
+        posix_spawn_file_actions_adddup2(&fa, pipefd[1], STDOUT_FILENO);
+        posix_spawn_file_actions_adddup2(&fa, pipefd[1], STDERR_FILENO);
+        const std::string runCmd = takeFault("exec_crash") ? "kill -SEGV $$; " + cmd : cmd;
+        char* argv[] = { const_cast<char*>("sh"), const_cast<char*>("-c"),
+                         const_cast<char*>(runCmd.c_str()), nullptr };
+        pid_t pid = -1;
+        int rc = posix_spawn(&pid, shellPath.c_str(), &fa, nullptr, argv, envp.data());
+        posix_spawn_file_actions_destroy(&fa);
         close(pipefd[1]);
-        return false;
-    }
-
-    if (pid == 0) {
-        // Child: redirect stdout to pipe, exec staged shell
-        close(pipefd[0]);
-        dup2(pipefd[1], STDOUT_FILENO);
-        dup2(pipefd[1], STDERR_FILENO);
-        close(pipefd[1]);
-
-        // Set LD_LIBRARY_PATH for the shell and its children
-        if (isRunningFromTmpfs()) {
-            std::string libDir = std::string(STAGE_DIR) + "/lib64";
-            setenv("LD_LIBRARY_PATH", (libDir + ":/system/lib64").c_str(), 1);
-            std::string binDir = std::string(STAGE_DIR) + "/bin";
-            setenv("PATH", (binDir + ":/system/bin:/vendor/bin").c_str(), 1);
+        if (rc != 0) {
+            close(pipefd[0]);
+            logToFile("ERROR", "posix_spawn(%s) failed: %s", shellPath.c_str(), strerror(rc));
+            return false;
         }
 
-        execl(shellPath.c_str(), "sh", "-c", cmd.c_str(), nullptr);
-        _exit(127); // execl failed
+        std::string result;
+        bool timedOut = false;
+        const int64_t deadline = (int64_t)time(nullptr) + timeoutSec;
+        char buf[4096];
+        for (;;) {
+            int64_t left = deadline - (int64_t)time(nullptr);
+            if (left <= 0) { timedOut = true; break; }
+            struct pollfd pfd = { pipefd[0], POLLIN, 0 };
+            int pr = poll(&pfd, 1, (int)(left > 5 ? 5000 : left * 1000));
+            if (pr < 0) { if (errno == EINTR) continue; break; }
+            if (pr == 0) continue;
+            ssize_t n = read(pipefd[0], buf, sizeof(buf));
+            if (n < 0) { if (errno == EINTR) continue; break; }
+            if (n == 0) break;
+            result.append(buf, (size_t)n);
+        }
+        close(pipefd[0]);
+        if (timedOut) {
+            kill(pid, SIGKILL);
+            logToFile("ERROR", "exec timed out after %d s, killed: %s", timeoutSec, cmd.c_str());
+        }
+        int status = 0;
+        while (waitpid(pid, &status, 0) < 0 && errno == EINTR) {}
+
+        if (WIFSIGNALED(status) && !timedOut) {
+            // Reported as a crash, never as an ordinary failure. The commands run here only read
+            // state or are idempotent, so a crash is retried once.
+            logToFile("ERROR", "exec child killed by signal %d (attempt %d): %s", WTERMSIG(status), attempt,
+                      result.c_str());
+            if (attempt < 2) { usleep(200000); continue; }
+        }
+        int exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+        ALOGI("execCommand result (%d): %s", exitCode, result.substr(0, 200).c_str());
+        logToFile("INFO", "exec result (exit=%d): %s", exitCode, result.c_str());
+        if (output) *output = result;
+        return !timedOut && WIFEXITED(status) && WEXITSTATUS(status) == 0;
     }
-
-    // Parent: read output from pipe
-    close(pipefd[1]);
-    std::string result;
-    char buf[512];
-    ssize_t n;
-    while ((n = read(pipefd[0], buf, sizeof(buf) - 1)) > 0) {
-        buf[n] = '\0';
-        result += buf;
-    }
-    close(pipefd[0]);
-
-    int status;
-    waitpid(pid, &status, 0);
-
-    int exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
-    ALOGI("execCommand result (%d): %s", exitCode, result.substr(0, 200).c_str());
-    logToFile("INFO", "exec result (exit=%d): %s", exitCode, result.c_str());
-
-    if (output) *output = result;
-    return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+    return false;
 }
 
 } // namespace android
