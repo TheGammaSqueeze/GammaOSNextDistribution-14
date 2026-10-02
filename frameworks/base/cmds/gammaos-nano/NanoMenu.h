@@ -1335,6 +1335,21 @@ private:
     bool isFavorite(const std::string& romPath) const;
     void toggleFavorite(const std::string& romPath);   // add if absent, remove if present; persists
     // buildFavoritesSubmenu takes Ps3Level& so it is declared with the other builders below.
+    // Hidden games: games taken out of every game list without deleting the file. Keyed by
+    // hiddenKey (the same game reached through /data/media/0, /storage/emulated/0 or /sdcard is
+    // one entry) and mapped to the path it was hidden by, persisted one per line to
+    // /data/system/nano_hidden_games.txt. applyRomNameOverrides drops them wherever a system's
+    // list is (re)built, so every theme, count, search, favourite and collection follows; they
+    // are dropped from Recently Played too. Settings > Game Settings > Hidden Games unhides.
+    std::map<std::string, std::string> mHiddenGames;
+    bool loadHiddenGames();                            // true when the set changed
+    void saveHiddenGames();
+    static std::string hiddenKey(const std::string& romPath);
+    bool isHiddenGame(const std::string& romPath) const;
+    void hideGame(const std::string& romPath);         // persists, drops it from every open list
+    void unhideGame(const std::string& key);           // persists, rescans so it returns
+    bool dropHiddenRecents();                          // true when Recently Played lost an entry
+    void refreshListsAfterHide();                      // re-filter systems + rebuild open levels
     std::vector<XmbSystem> mXmbSystems;
     int mXmbSystemIndex;       // Currently selected system
     int mXmbGameIndex;         // Currently selected game in current system
@@ -1429,6 +1444,8 @@ private:
         PS3_ITEMHIDE_ROW,   // a static submenu-item row in the item-visibility editor (payloadStr = compound id, value Shown/Hidden)
         // ---- Pinned Apps (a Game-home shortcut list of user-chosen apps) ----
         PS3_PINNED_APPS_LIST, // "Pinned Apps" entry under Game -> the pinned-apps submenu
+        // ---- Hidden games (Settings > Game Settings > Hidden Games) ----
+        PS3_HIDDEN_GAME,    // a hidden game; select shows it again (payloadStr = hiddenKey)
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -2957,6 +2974,7 @@ private:
     void buildCollectionsSubmenu(Ps3Level& out);            // the list of collections + New Collection...
     void buildCollectionSubmenu(int colIdx, Ps3Level& out); // one collection's games (resolved PS3_ROM rows)
     void buildFavoritesSubmenu(Ps3Level& out);              // the global favourites list (resolved PS3_ROM rows)
+    void buildHiddenGamesSubmenu(Ps3Level& out);            // Game Settings > Hidden Games (PS3_HIDDEN_GAME rows)
     // Game Systems editor (dynamic systems config). The list screen shows every
     // configured system (enabled + disabled) with enable/disable + reorder; later
     // phases add the per-system editor, folder picker, and icon grid.

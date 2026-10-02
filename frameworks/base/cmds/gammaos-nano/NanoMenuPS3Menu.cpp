@@ -912,6 +912,9 @@ void NanoMenu::openHelpPage() {
         "Hide game systems. Open Settings, Game Settings, Game Systems. Every system shows On or Off. "
         "Press X to turn one Off and it leaves the Game list; turn it back On any time. You do not need "
         "to delete the ROMs.\n\n"
+        "Hide a game. On any game press the Options button and choose Hide Game. It leaves every list "
+        "but the file is kept. Settings, Game Settings, Hidden Games lists them; select one to show it "
+        "again.\n\n"
         "Box art. Settings, Game Settings, Boxart Scraper downloads cover art. Scrape All Systems does "
         "the whole library. A free ScreenScraper account raises the daily download limit.\n\n"
         "Multi-disc games. Put the discs in one folder with an .m3u playlist. The launcher shows one "
@@ -5550,6 +5553,20 @@ void NanoMenu::ps3XmbSelect() {
         }
         case PS3_PINNED_APPS_LIST: { Ps3Level lvl; buildPinnedAppsSubmenu(lvl);       mPs3Stack.push_back(lvl); break; }
         case PS3_FAVORITES_LIST:   { Ps3Level lvl; buildFavoritesSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
+        case PS3_HIDDEN_GAME: {
+            // Show the game again: it returns to its system's list once the rescan finds it.
+            const std::string name = it.label;
+            unhideGame(it.payloadStr);
+            if (!mPs3Stack.empty() && mPs3Stack.back().title == "Hidden Games") {
+                int keep = mPs3Stack.back().sel;
+                buildHiddenGamesSubmenu(mPs3Stack.back());
+                const int n = (int)mPs3Stack.back().items.size();
+                mPs3Stack.back().sel = keep >= n ? (n > 0 ? n - 1 : 0) : keep;
+            }
+            showXmbMessage(name + " is shown again", "It returns to its game list in a moment", 200);
+            mDisplayDirty = true;
+            break;
+        }
         case PS3_COLLECTIONS_LIST: { Ps3Level lvl; buildCollectionsSubmenu(lvl);      mPs3Stack.push_back(lvl); break; }
         case PS3_COLLECTION:       { Ps3Level lvl; buildCollectionSubmenu(it.a, lvl); mPs3Stack.push_back(lvl); break; }
         case PS3_COLLECTION_NEW:
@@ -5846,6 +5863,12 @@ void NanoMenu::ps3XmbSelect() {
             // Game Settings: re-read the ROM folders. The scan rebuilds each system's list from
             // disk, so deleted games disappear, and the Recently Played list is pruned with it.
             if (it.label == "Rescan Games") { gamesRefresh(); return; }
+            // Game Settings: the games the user has hidden; selecting one shows it again.
+            if (it.label == "Hidden Games") {
+                Ps3Level lvl; buildHiddenGamesSubmenu(lvl); mPs3Stack.push_back(lvl);
+                mDisplayDirty = true;
+                return;
+            }
             // Display > Screen Calibration actions. The rows of the open level re-read their
             // values so the new calibration shows at once.
             if (it.label == "Copy Top Screen to Bottom" || it.label == "Reset Screen Calibration" ||
@@ -12295,6 +12318,9 @@ void NanoMenu::openXmbOpt() {
             add("Add to Collection", "addcol", false);
             if (!mPs3Stack.empty() && mPs3Stack.back().collectionIdx >= 0)
                 add("Remove from Collection", "rmcol", false);
+            // Take the game out of every list without deleting it (Settings > Game Settings >
+            // Hidden Games brings it back).
+            if (!boxRom.empty()) add("Hide Game", "hidegame", false);
             break;
         }
         case PS3_APP: {
@@ -13282,6 +13308,19 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         }
         buildPs3Cats();   // the Pinned Apps home entry appears with the first pin / vanishes with the last
         mDisplayDirty = true;
+        return;
+    }
+    if (act == "hidegame") {
+        std::string romPath, name = mPs3OptCtxLabel;
+        if (mPs3OptCtxKind == PS3_ROM && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbSystems.size()
+            && mPs3OptCtxB >= 0 && mPs3OptCtxB < (int)mXmbSystems[mPs3OptCtxA].roms.size())
+            romPath = mXmbSystems[mPs3OptCtxA].roms[mPs3OptCtxB];
+        else if (mPs3OptCtxKind == PS3_RECENT && mPs3OptCtxA >= 0 && mPs3OptCtxA < (int)mXmbRecent.size())
+            romPath = mXmbRecent[mPs3OptCtxA].romPath;
+        if (romPath.empty()) return;
+        hideGame(romPath);
+        showXmbMessage(name.empty() ? std::string("Game hidden") : name + " is hidden",
+                       "Show it again in Settings, Game Settings, Hidden Games", 200);
         return;
     }
     if (act == "togfav") {

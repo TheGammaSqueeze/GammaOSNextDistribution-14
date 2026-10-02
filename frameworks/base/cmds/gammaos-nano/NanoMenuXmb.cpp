@@ -292,6 +292,7 @@ static void sortRomEntriesByDisplayName(std::vector<std::string>& roms,
 
 void NanoMenu::initXmbSystems() {
     mXmbSystems.clear();
+    loadHiddenGames();   // before the cached lists below are loaded, so hidden games never show
 
     // Migrate any legacy cache dir ownership: older nano builds ran as
     // uid graphics and left /data/system/nano_xmb_cache/ as 0700
@@ -444,6 +445,24 @@ void NanoMenu::loadRomCacheForSystem(XmbSystem& sys) {
 void NanoMenu::applyRomNameOverrides(std::vector<std::string>& roms,
                                      std::vector<std::string>& displayNames) {
     if (roms.empty()) return;
+    // Hidden games leave the list here, the one step every scan, cache load and rename goes
+    // through, so nothing that reads a system's list can show them (labels stay paired).
+    if (!mHiddenGames.empty()) {
+        const bool paired = displayNames.size() == roms.size();
+        size_t w = 0;
+        for (size_t i = 0; i < roms.size(); i++) {
+            if (mHiddenGames.count(hiddenKey(roms[i]))) continue;
+            if (w != i) {
+                roms[w] = std::move(roms[i]);
+                if (paired) displayNames[w] = std::move(displayNames[i]);
+            }
+            w++;
+        }
+        roms.resize(w);
+        if (paired) displayNames.resize(w);
+        else displayNames.clear();   // rebuilt below
+        if (roms.empty()) { displayNames.clear(); return; }
+    }
     // Display Name view OFF: show and order the list by the raw ROM file name. Rebuild the labels
     // from the file names (dropping any previously-applied scraped/renamed title) and sort by them,
     // which is exactly an order-by-file-name (the labels are the basenames). See mShowDisplayNames.
@@ -1928,6 +1947,7 @@ void NanoMenu::loadXmbRecent() {
         if (pos < content.size() && content[pos] == '\n') pos++;
         mXmbRecent.push_back(std::move(e));
     }
+    if (dropHiddenRecents()) saveXmbRecent();   // a game hidden by the other nano process
     applyRomNameOverridesToRecents();   // patch in any per-game title overrides
     ALOGD("NanoMenu: loaded %zu recent XMB entries", mXmbRecent.size());
 }
@@ -2129,6 +2149,167 @@ void NanoMenu::buildFavoritesSubmenu(Ps3Level& out) {
     }
     if (out.items.empty()) {
         Ps3Item it; it.label = "There are no titles"; it.kind = PS3_DATA_LEAF; it.action = 0;
+        it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+
+// ---- Hidden games (taken out of every game list without deleting the file) ------------------
+static const char* kHiddenGamesFile = "/data/system/nano_hidden_games.txt";
+
+// One key per game whichever mount path it was reached through: the primary storage is seen as
+// /data/media/0, /storage/emulated/0 and /sdcard, and a card as /mnt/media_rw/X or /storage/X
+// (Recently Played stores the app-visible form, the scan the raw one).
+std::string NanoMenu::hiddenKey(const std::string& romPath) {
+    static const std::pair<const char*, const char*> kAlias[] = {
+        { "/data/media/0/", "/sdcard/" },
+        { "/storage/emulated/0/", "/sdcard/" },
+        { "/storage/self/primary/", "/sdcard/" },
+        { "/mnt/media_rw/", "/storage/" },
+    };
+    for (const auto& a : kAlias) {
+        const size_t n = strlen(a.first);
+        if (romPath.compare(0, n, a.first) == 0) return std::string(a.second) + romPath.substr(n);
+    }
+    return romPath;
+}
+
+bool NanoMenu::isHiddenGame(const std::string& romPath) const {
+    return !romPath.empty() && mHiddenGames.count(hiddenKey(romPath)) != 0;
+}
+
+bool NanoMenu::loadHiddenGames() {
+    std::map<std::string, std::string> loaded;
+    if (FILE* f = fopen(kHiddenGamesFile, "re")) {
+        char line[4096];
+        while (fgets(line, sizeof(line), f)) {
+            size_t n = strlen(line);
+            while (n > 0 && (line[n - 1] == '\n' || line[n - 1] == '\r')) line[--n] = 0;
+            if (n == 0) continue;
+            loaded[hiddenKey(line)] = line;
+        }
+        fclose(f);
+    }
+    if (loaded == mHiddenGames) return false;
+    mHiddenGames.swap(loaded);
+    return true;
+}
+
+void NanoMenu::saveHiddenGames() {
+    // Written beside the real file and renamed over it, so a power cut mid-write can never leave
+    // a truncated list that brings every hidden game back (or a half path that hides nothing).
+    const std::string tmp = std::string(kHiddenGamesFile) + ".tmp";
+    int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+    if (fd < 0) { ALOGE("NanoMenu: cannot write %s (errno %d)", tmp.c_str(), errno); return; }
+    bool ok = true;
+    for (const auto& kv : mHiddenGames) {
+        const std::string ln = kv.second + "\n";
+        if (write(fd, ln.c_str(), ln.size()) != (ssize_t)ln.size()) ok = false;
+    }
+    if (fsync(fd) != 0) ok = false;
+    if (close(fd) != 0) ok = false;
+    if (!ok || rename(tmp.c_str(), kHiddenGamesFile) != 0) {
+        ALOGE("NanoMenu: saving the hidden games list failed (errno %d)", errno);
+        unlink(tmp.c_str());
+        return;
+    }
+    chmod(kHiddenGamesFile, 0644);
+}
+
+bool NanoMenu::dropHiddenRecents() {
+    if (mHiddenGames.empty()) return false;
+    const size_t before = mXmbRecent.size();
+    mXmbRecent.erase(std::remove_if(mXmbRecent.begin(), mXmbRecent.end(),
+                                    [this](const XmbRecentEntry& e) { return isHiddenGame(e.romPath); }),
+                     mXmbRecent.end());
+    return mXmbRecent.size() != before;
+}
+
+// Re-filter every system and rebuild whatever list is open, so a hidden game disappears at once.
+// Rows of the open game lists carry indices into the system lists, which have just shifted, so
+// every kind of game list on the stack is rebuilt, not only the one the game was hidden from.
+void NanoMenu::refreshListsAfterHide() {
+    for (size_t s = 0; s < mXmbSystems.size(); s++) {
+        XmbSystem& sys = mXmbSystems[s];
+        const size_t before = sys.roms.size();
+        applyRomNameOverrides(sys);
+        if (sys.roms.size() == before) continue;
+        sys.pathExists = !sys.roms.empty();
+        rebuildOpenRomLevels((int)s, std::string());
+    }
+    if (dropHiddenRecents()) saveXmbRecent();
+    for (auto& lvl : mPs3Stack) {
+        int keep = lvl.sel;
+        if (lvl.collectionIdx >= 0) buildCollectionSubmenu(lvl.collectionIdx, lvl);
+        else if (lvl.title == "Favorites") buildFavoritesSubmenu(lvl);
+        else if (!lvl.items.empty() && lvl.items[0].kind == PS3_RECENT) buildRecentSubmenu(lvl);
+        else continue;
+        const int n = (int)lvl.items.size();
+        if (keep >= n) keep = n - 1;
+        lvl.sel = keep < 0 ? 0 : keep;
+    }
+    mPs3CatsStale = true;   // per-system game counts, and a system whose last game was hidden
+    mDisplayDirty = true;
+}
+
+void NanoMenu::hideGame(const std::string& romPath) {
+    if (romPath.empty()) return;
+    if (!mHiddenGames.emplace(hiddenKey(romPath), romPath).second) return;
+    saveHiddenGames();
+    ALOGI("NanoMenu: hid %s", romPath.c_str());
+    refreshListsAfterHide();
+}
+
+void NanoMenu::unhideGame(const std::string& key) {
+    if (!mHiddenGames.erase(key)) return;
+    saveHiddenGames();
+    ALOGI("NanoMenu: unhid %s", key.c_str());
+    // The lists no longer hold the game at all: a rescan finds it again and the results go
+    // through the normal path (counts, open lists, the ROM cache).
+    forceRescanAllSystems();
+    mPs3CatsStale = true;
+    mDisplayDirty = true;
+}
+
+// Settings > Game Settings > Hidden Games: every hidden game with the system it belongs to.
+// Selecting one shows it again.
+void NanoMenu::buildHiddenGamesSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.title = "Hidden Games";
+    std::vector<Ps3Item> rows;
+    for (const auto& kv : mHiddenGames) {
+        const std::string& path = kv.second;
+        Ps3Item it;
+        const std::string* ov = romNameOverrideFor(path);
+        const ScrapeEntry* se = ov && !ov->empty() ? nullptr : scrapeEntryFor(path);
+        it.label = ov && !ov->empty() ? *ov : (se && !se->title.empty() ? se->title : romDisplayName(path));
+        it.kind = PS3_HIDDEN_GAME;
+        it.payloadStr = kv.first;
+        it.desc = "Select to show this game again.";
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22);
+        it.iconR = it.iconG = it.iconB = 1.0f;
+        // The system: the one whose ROM folder holds the file.
+        const std::string key = kv.first;
+        for (const auto& sys : mXmbSystems) {
+            bool mine = false;
+            for (const auto& ap : sys.activePaths) {
+                const std::string k = hiddenKey(ap + "/");
+                if (!ap.empty() && key.compare(0, k.size(), k) == 0) { mine = true; break; }
+            }
+            if (!mine) continue;
+            it.value = sys.shortname;
+            it.desc = (sys.name.empty() ? sys.shortname : sys.name) + ". Select to show this game again.";
+            GLuint tex = 0, nmap = 0; resolveSystemIcon(sys.iconRef, &tex, &nmap);
+            if (tex) { it.iconTex = tex; it.nmapTex = nmap; it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB; }
+            break;
+        }
+        rows.push_back(it);
+    }
+    std::stable_sort(rows.begin(), rows.end(), [](const Ps3Item& a, const Ps3Item& b) {
+        return strcasecmp(a.label.c_str(), b.label.c_str()) < 0;
+    });
+    out.items = std::move(rows);
+    if (out.items.empty()) {
+        Ps3Item it; it.label = "There are no hidden games"; it.kind = PS3_DATA_LEAF; it.action = 0;
         it.iconTex = 0; it.nmapTex = 0; it.iconR = it.iconG = it.iconB = 1.0f;
         out.items.push_back(it);
     }

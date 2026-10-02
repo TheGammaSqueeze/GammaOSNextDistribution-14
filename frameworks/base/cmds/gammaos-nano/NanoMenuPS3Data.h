@@ -74,6 +74,7 @@ static const Ps3DataItem kGameSettingsCh[] = {
 #endif
   {"Quick Resume",22,"Boots straight back into the game you were playing, restored from its save state, instead of the home. Off: every boot starts at the home. Applies from the next game launch.","Off",1,nullptr,0},
   {"Rescan Games",8,"Searches your ROM folders again and rebuilds the game list. Games you have deleted are removed, including from Recently Played.",nullptr,1,nullptr,0},
+  {"Hidden Games",5,"Games you have hidden with Hide Game in a game's options. They are not deleted. Select a game to show it in its game list again.",nullptr,1,nullptr,0},
   {"DraStic Data Folder",62,"Where the DS core keeps your saves, save states and shader overrides. Default is drastic-nano on internal storage; pick any folder on internal storage, the SD card, removable media or a network share and DS games will read and write there. Existing files are not moved. Applies to the next game launch. Pick Use Default Folder to reset.","Default",1,nullptr,0},
   {"DraStic Cheats Folder",62,"Where you can add your own DS cheat databases (usrcheat.dat files). Every file in this folder is merged with the built-in cheats when a DS game starts, and the in-game Cheats page can show built-in and custom cheats separately. Default is the cheats folder inside the DraStic data folder. Pick Use Default Folder to reset.","Default",1,nullptr,0},
   {"Boxart Scraper",25,"Downloads box art and background art for your games and replaces the game icons.",nullptr,0,PS3CH(kScraperSettingsCh)},

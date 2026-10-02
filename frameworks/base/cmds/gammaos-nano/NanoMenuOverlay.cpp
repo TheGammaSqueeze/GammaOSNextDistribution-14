@@ -496,6 +496,15 @@ void NanoMenu::overlayShow() {
     loadXmbRecent();
     loadCollections();
     loadFavorites();
+    // Games hidden or shown again from the home since the last raise: filter the lists now, and
+    // rescan when one came back (the lists no longer hold it).
+    {
+        const size_t before = mHiddenGames.size();
+        if (loadHiddenGames()) {
+            refreshListsAfterHide();
+            if (mHiddenGames.size() <= before) forceRescanAllSystems();
+        }
+    }
 
     // Isolate the running app's input via the FRAMEWORK drop_input path: while it
     // is set, InputDispatcher drops keys + motion to the app (POWER and BACK are
