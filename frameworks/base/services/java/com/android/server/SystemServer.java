@@ -4301,6 +4301,15 @@ public final class SystemServer implements Dumpable {
                 while (!"1".equals(SystemProperties.get("sys.boot_completed"))) {
                     try { Thread.sleep(200); } catch (InterruptedException ignored) {}
                 }
+                // sys.boot_completed is set before user 0 is unlocked (and is already 1 after a
+                // runtime restart), and until the unlock PackageManager only resolves direct-boot
+                // aware components: the launcher-activity list came out as just Settings, which
+                // emptied the "Show all" Applications grid and the Launch Activity picker.
+                android.os.UserManager um =
+                        mSystemContext.getSystemService(android.os.UserManager.class);
+                while (um != null && !um.isUserUnlocked(android.os.UserHandle.SYSTEM)) {
+                    try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+                }
                 try { Thread.sleep(500); } catch (InterruptedException ignored) {}
 
                 // Initial boot-time write (also establishes apps_generation=1).
@@ -4588,20 +4597,21 @@ public final class SystemServer implements Dumpable {
             fw.close();
             tmpLabels.setReadable(true, false);
             tmpLabels.renameTo(dstLabels);
-            // Signal LAST: every file is on disk before the serial advances, so nano's
-            // reload always sees the complete new label + icon set.
-            int gen = mNanoAppsGeneration.incrementAndGet();
-            SystemProperties.set("sys.gammaos.nano.apps_generation", Integer.toString(gen));
-            Slog.i(TAG, "GammaOS Nano: wrote app cache (" + reason + "): "
-                    + apps.size() + " apps, " + iconCount + " icons, gen=" + gen);
             // The installed-browser list rides the same triggers (boot + package change).
             writeNanoBrowserCache(pm, reason);
             // Every launchable app's FULL activity list (for the nano slide/rotate
             // "Launch Target" app -> activity picker) rides the same triggers.
             writeNanoPackageActivities(pm, reason);
             // The launchable-activity list (for the gamepad remap "Launch Activity"
-            // action) rides the same triggers too.
+            // action) rides the same triggers too. The "Show all" Applications grid is
+            // built from it, so it must be on disk before apps_generation advances.
             writeNanoActivityCache(pm, reason);
+            // Signal LAST: every file is on disk before the serial advances, so nano's
+            // reload always sees the complete new label + icon + activity set.
+            int gen = mNanoAppsGeneration.incrementAndGet();
+            SystemProperties.set("sys.gammaos.nano.apps_generation", Integer.toString(gen));
+            Slog.i(TAG, "GammaOS Nano: wrote app cache (" + reason + "): "
+                    + apps.size() + " apps, " + iconCount + " icons, gen=" + gen);
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS Nano: failed to write app label/icon cache", e);
         }
