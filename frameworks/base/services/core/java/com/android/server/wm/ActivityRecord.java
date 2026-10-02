@@ -5958,6 +5958,13 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
         if (app != null) {
             mTaskSupervisor.onProcessActivityStateChanged(app, false /* forceBatch */);
         }
+        // GammaOS: the activity waiting for this one's result takes its priority from it (see
+        // WindowProcessController#isAwaitingResultFromVisibleTop), so re-evaluate that process too.
+        // The constructor sets the first state before the supervisor is assigned.
+        if (mTaskSupervisor != null && resultTo != null && resultTo.app != null
+                && resultTo.app != app) {
+            mTaskSupervisor.onProcessActivityStateChanged(resultTo.app, false /* forceBatch */);
+        }
 
         switch (state) {
             case RESUMED:

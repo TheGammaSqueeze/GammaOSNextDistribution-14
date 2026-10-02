@@ -1697,6 +1697,20 @@ public class OomAdjuster {
         }
 
         @Override
+        public void onAwaitingResultActivity() {
+            // GammaOS: waiting for the result of the visible top of its task (a picker or
+            // chooser); rank with the visible task so lmkd keeps it. The process state is left
+            // as the activity state set it.
+            if (adj > VISIBLE_APP_ADJ) {
+                adj = VISIBLE_APP_ADJ;
+                mAdjType = "await-result";
+                if (DEBUG_OOM_ADJ_REASON || logUid == appUid) {
+                    reportOomAdjMessageLocked(TAG_OOM_ADJ, "Raise adj to await-result: " + app);
+                }
+            }
+        }
+
+        @Override
         public void onStoppingActivity(boolean finishing) {
             if (adj > PERCEPTIBLE_APP_ADJ) {
                 adj = PERCEPTIBLE_APP_ADJ;

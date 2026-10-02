@@ -289,6 +289,9 @@ public class WindowProcessController extends ConfigurationContainer<Configuratio
     private static final int ACTIVITY_STATE_FLAG_IS_WINDOW_VISIBLE = 1 << 20;
     private static final int ACTIVITY_STATE_FLAG_HAS_RESUMED = 1 << 21;
     private static final int ACTIVITY_STATE_FLAG_HAS_ACTIVITY_IN_VISIBLE_TASK = 1 << 22;
+    // GammaOS: an invisible activity of this process waits for the result of the visible top of
+    // its task, which runs in another process (a file picker or chooser it started for a result).
+    private static final int ACTIVITY_STATE_FLAG_IS_AWAITING_RESULT = 1 << 23;
     private static final int ACTIVITY_STATE_FLAG_MASK_MIN_TASK_LAYER = 0x0000ffff;
 
     /**
@@ -1181,6 +1184,11 @@ public class WindowProcessController extends ConfigurationContainer<Configuratio
         void onPausedActivity();
         void onStoppingActivity(boolean finishing);
         void onOtherActivity();
+        /**
+         * GammaOS: called after the state callback above when the process is not visible but one
+         * of its activities waits for the result of the visible activity on top of its task.
+         */
+        default void onAwaitingResultActivity() {}
     }
 
     /**
@@ -1200,7 +1208,23 @@ public class WindowProcessController extends ConfigurationContainer<Configuratio
         } else {
             callback.onOtherActivity();
         }
+        if ((flags & ACTIVITY_STATE_FLAG_IS_AWAITING_RESULT) != 0) {
+            callback.onAwaitingResultActivity();
+        }
         return flags & ACTIVITY_STATE_FLAG_MASK_MIN_TASK_LAYER;
+    }
+
+    /**
+     * True when {@code r} is not visible but the top activity of its task, which belongs to another
+     * process and is on screen, will deliver its result to {@code r}: the app is waiting on a picker
+     * or chooser it started for a result (FLAG_ACTIVITY_FORWARD_RESULT keeps {@code resultTo}
+     * pointing at the original caller across the chooser).
+     */
+    private boolean isAwaitingResultFromVisibleTop(ActivityRecord r) {
+        final Task task = r.getTask();
+        if (task == null || !task.isVisibleRequested()) return false;
+        final ActivityRecord top = task.getTopNonFinishingActivity();
+        return top != null && top != r && top.resultTo == r && top.app != this;
     }
 
     void computeProcessActivityState() {
@@ -1210,6 +1234,7 @@ public class WindowProcessController extends ConfigurationContainer<Configuratio
         ActivityRecord.State bestInvisibleState = DESTROYED;
         boolean allStoppingFinishing = true;
         boolean visible = false;
+        boolean awaitingResult = false;
         int minTaskLayer = Integer.MAX_VALUE;
         int stateFlags = 0;
         final boolean wasResumed = hasResumedActivity();
@@ -1238,13 +1263,35 @@ public class WindowProcessController extends ConfigurationContainer<Configuratio
                 // continue the loop, in case there are multiple visible activities in
                 // this process, we'd find out the one with the minimal layer, thus it'll
                 // get a higher adj score.
-            } else if (!visible && bestInvisibleState != PAUSING) {
-                if (r.isState(PAUSING, PAUSED)) {
-                    bestInvisibleState = PAUSING;
-                } else if (r.isState(STOPPING)) {
-                    bestInvisibleState = STOPPING;
-                    // Not "finishing" if any of activity isn't finishing.
-                    allStoppingFinishing &= r.finishing;
+            } else {
+                // GammaOS: an app waiting for the result of the activity on top of its task (a
+                // file picker, the share chooser) is part of what the user is doing, so it is
+                // ranked with the visible task instead of as a stopped or cached process. On a 1GB
+                // device the picker alone needs most of the free memory: the waiting app was
+                // killed (as stopping during the hand-off, as cached after it) and the pick
+                // returned to nothing. Only the oom adj is raised; the process state stays that
+                // of a stopped activity, so no while-in-use capability comes with it.
+                final boolean awaiting = isAwaitingResultFromVisibleTop(r);
+                if (awaiting) {
+                    awaitingResult = true;
+                    if (task != null && minTaskLayer > 0) {
+                        final int layer = task.mLayerRank;
+                        if (layer >= 0 && minTaskLayer > layer) {
+                            minTaskLayer = layer;
+                        }
+                    }
+                }
+                if (!visible && bestInvisibleState != PAUSING) {
+                    if (r.isState(PAUSING, PAUSED)) {
+                        bestInvisibleState = PAUSING;
+                    } else if (r.isState(STOPPING)) {
+                        bestInvisibleState = STOPPING;
+                        // Not "finishing" if any of activity isn't finishing.
+                        allStoppingFinishing &= r.finishing;
+                    } else if (awaiting) {
+                        bestInvisibleState = STOPPING;
+                        allStoppingFinishing = false;
+                    }
                 }
             }
         }
@@ -1269,6 +1316,9 @@ public class WindowProcessController extends ConfigurationContainer<Configuratio
             if (allStoppingFinishing) {
                 stateFlags |= ACTIVITY_STATE_FLAG_IS_STOPPING_FINISHING;
             }
+        }
+        if (!visible && awaitingResult) {
+            stateFlags |= ACTIVITY_STATE_FLAG_IS_AWAITING_RESULT;
         }
         mActivityStateFlags = stateFlags;
 
