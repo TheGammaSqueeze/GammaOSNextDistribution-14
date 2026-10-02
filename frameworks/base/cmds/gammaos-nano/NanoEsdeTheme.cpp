@@ -523,90 +523,121 @@ const Element* Theme::element(const std::string& view, const std::string& type,
     return e == v->second.elements.end() ? nullptr : &e->second;
 }
 
-void Theme::walk(XMLElement* node, const std::string& baseDir, bool active,
-                 int layer, int phase, int targetLayer, int depth) {
-    if (!node || depth > 40) return;
-    // ES-DE parses a file's <variables> before its <includes> (parseVariables runs before
-    // parseIncludes), so a variable is available to every include path in the same file even when the
-    // <variables> block appears AFTER the include that references it - artflix defines <rootpath>
-    // below the two ${rootpath}/${system.theme} metadata includes that use it. nano walks children in
-    // document order, so without this the includes resolved with rootpath still empty and the
-    // per-system metadata file (systemDescription, systemReleaseYear, systemManufacturer, ...) never
-    // loaded, blanking every ${...} that reads from it. Collect this node's own <variables> up front
-    // in the variable-gathering pass so sibling includes below them resolve correctly.
-    if (phase == 0 && active) {
-        for (XMLElement* c = node->FirstChildElement(); c; c = c->NextSiblingElement()) {
-            if (strcmp(c->Name(), "variables") != 0) continue;
-            for (XMLElement* v = c->FirstChildElement(); v; v = v->NextSiblingElement()) {
-                std::string vv = v->GetText() ? std::string(v->GetText()) : std::string();
-                if (looksLikeRelPath(vv)) vv = resolvePath(vv, baseDir);
-                mVars[v->Name()] = vv;
-            }
+// A port of ES-DE's ThemeData parse order (loadFile / parseIncludes / parseVariants /
+// parseColorSchemes / parseFontSizes / parseLanguages / parseAspectRatios / parseVariables /
+// parseViews). ES-DE resolves each variable when it is defined and each element property when its
+// view is parsed, using the variables current at that moment, in this fixed order: a file's own
+// variables, its colour scheme / font size / language blocks, its includes (recursively, in the
+// same order), its views, then its variant and aspect-ratio blocks. Which value a property ends up
+// with depends on that order. nano used to collect every variable first, in document order, then
+// parse the views in base < variant < aspect layers; a theme that overrides variables from an
+// included file (Analogue 3D OS Menu sets its 4:3 tile positions inside aspect-ratios.xml, which
+// theme.xml includes before its own views) then got the base values, so its tiles overlapped.
+//
+// ${system.*} stays raw in variables and path properties (keepSystem): nano loads one layout for
+// every system and resolves those per system at draw time.
+void Theme::parseFile(XMLElement* root, const std::string& baseDir, int depth) {
+    if (!root || depth > 40) return;
+    parseVariables(root, baseDir);
+    parseColorSchemes(root, baseDir, depth);
+    parseFontSizes(root, baseDir, depth);
+    parseLanguages(root, baseDir, depth);
+    parseIncludes(root, baseDir, depth);
+    parseViews(root, baseDir);
+    parseVariants(root, baseDir, depth);
+    parseAspectRatios(root, baseDir, depth);
+}
+
+void Theme::parseVariables(XMLElement* node, const std::string& baseDir) {
+    for (XMLElement* c = node->FirstChildElement("variables"); c; c = c->NextSiblingElement("variables")) {
+        for (XMLElement* v = c->FirstChildElement(); v; v = v->NextSiblingElement()) {
+            // Resolved now, against the variables defined so far (ES-DE resolvePlaceholders).
+            std::string vv = trim(subst(v->GetText() ? v->GetText() : "", /*keepSystem=*/true));
+            if (vv.empty()) continue;   // ES-DE ignores an empty definition
+            if (looksLikeRelPath(vv)) vv = resolvePath(vv, baseDir);
+            mVars[v->Name()] = vv;
         }
     }
-    for (XMLElement* c = node->FirstChildElement(); c; c = c->NextSiblingElement()) {
-        std::string tag = c->Name();
+}
 
-        if (tag == "include") {
-            if (!active) continue;
-            const char* txt = c->GetText();
-            if (!txt) continue;
-            // ES-DE resolvePlaceholders() runs on the include text before the path is
-            // resolved, so per-system includes like ./${system.theme}/colors.xml and
-            // ./_inc/systems/_coversize/${systemCoverSize}.xml load correctly.
-            std::string inc = resolvePath(subst(trim(txt), /*keepSystem=*/false), baseDir);
-            XMLElement* iroot = loadThemeRoot(inc, mDocs);
-            if (iroot)
-                walk(iroot, dirOf(inc), active, layer, phase, targetLayer, depth + 1);
+void Theme::parseIncludes(XMLElement* node, const std::string& baseDir, int depth) {
+    for (XMLElement* c = node->FirstChildElement("include"); c; c = c->NextSiblingElement("include")) {
+        const char* txt = c->GetText();
+        if (!txt) continue;
+        // Placeholders are resolved first, so per-system includes like ./${system.theme}/colors.xml
+        // and ./_inc/systems/_coversize/${systemCoverSize}.xml load correctly.
+        std::string inc = resolvePath(subst(trim(txt), /*keepSystem=*/false), baseDir);
+        XMLElement* iroot = loadThemeRoot(inc, mDocs);
+        if (iroot) parseFile(iroot, dirOf(inc), depth + 1);
+    }
+}
 
-        } else if (tag == "variables") {
-            if (phase == 0 && active)
-                for (XMLElement* v = c->FirstChildElement(); v; v = v->NextSiblingElement()) {
-                    const char* t = v->GetText();
-                    std::string vv = t ? std::string(t) : std::string();
-                    if (looksLikeRelPath(vv)) vv = resolvePath(vv, baseDir);
-                    mVars[v->Name()] = vv;
-                }
+void Theme::parseVariants(XMLElement* node, const std::string& baseDir, int depth) {
+    for (XMLElement* c = node->FirstChildElement("variant"); c; c = c->NextSiblingElement("variant")) {
+        for (auto& one : splitNames(c->Attribute("name"))) {
+            if (one != mSelVariant && one != "all") continue;
+            parseVariables(c, baseDir);
+            parseColorSchemes(c, baseDir, depth);
+            parseFontSizes(c, baseDir, depth);
+            parseLanguages(c, baseDir, depth);
+            parseIncludes(c, baseDir, depth);
+            parseViews(c, baseDir);
+            parseAspectRatios(c, baseDir, depth);
+        }
+    }
+}
 
-        } else if (tag == "variant") {
-            bool sel = false;
-            for (auto& one : splitNames(c->Attribute("name")))
-                if (one == mSelVariant || one == "all") sel = true;
-            walk(c, baseDir, active && sel, std::max(layer, 1), phase, targetLayer, depth + 1);
+void Theme::parseColorSchemes(XMLElement* node, const std::string& baseDir, int depth) {
+    // name is a comma/space list. ES-DE has no "all"/"custom" wildcard for colorScheme (unlike
+    // variant): "custom" is a real, selectable scheme name in themes like art-book-next.
+    for (XMLElement* c = node->FirstChildElement("colorScheme"); c; c = c->NextSiblingElement("colorScheme")) {
+        for (auto& one : splitNames(c->Attribute("name"))) {
+            if (one != mSelColorScheme) continue;
+            parseVariables(c, baseDir);
+            parseIncludes(c, baseDir, depth);
+        }
+    }
+}
 
-        } else if (tag == "colorScheme") {
-            // name is a comma/space list; a block applies only if the selected scheme is
-            // one of the listed tokens. ES-DE has no "all"/"custom" wildcard for
-            // colorScheme (unlike variant): "custom" is a real, selectable scheme name in
-            // themes like art-book-next, so treating it as a wildcard would leak that
-            // block into every other scheme.
-            bool sel = false;
-            for (auto& one : splitNames(c->Attribute("name")))
-                if (one == mSelColorScheme) sel = true;
-            walk(c, baseDir, active && sel, layer, phase, targetLayer, depth + 1);
+void Theme::parseFontSizes(XMLElement* node, const std::string& baseDir, int depth) {
+    for (XMLElement* c = node->FirstChildElement("fontSize"); c; c = c->NextSiblingElement("fontSize")) {
+        for (auto& one : splitNames(c->Attribute("name"))) {
+            if (one != mSelFontSize && one != "all") continue;
+            parseVariables(c, baseDir);
+            parseIncludes(c, baseDir, depth);
+        }
+    }
+}
 
-        } else if (tag == "fontSize") {
-            bool sel = false;
-            for (auto& one : splitNames(c->Attribute("name")))
-                if (one == mSelFontSize || one == "all") sel = true;
-            walk(c, baseDir, active && sel, layer, phase, targetLayer, depth + 1);
+void Theme::parseLanguages(XMLElement* node, const std::string& baseDir, int depth) {
+    // One language applies: mSelLanguage, chosen in load() the way ES-DE does.
+    for (XMLElement* c = node->FirstChildElement("language"); c; c = c->NextSiblingElement("language")) {
+        const char* nm = c->Attribute("name");
+        bool sel = !nm;
+        for (auto& one : splitNames(nm)) if (one == mSelLanguage) sel = true;
+        if (!sel) continue;
+        parseVariables(c, baseDir);
+        parseIncludes(c, baseDir, depth);
+    }
+}
 
-        } else if (tag == "language") {
-            const char* nm = c->Attribute("name");
-            bool sel = !nm || strcmp(nm, "en_US") == 0 || strcmp(nm, "en_GB") == 0;
-            walk(c, baseDir, active && sel, layer, phase, targetLayer, depth + 1);
+void Theme::parseAspectRatios(XMLElement* node, const std::string& baseDir, int depth) {
+    // name is a comma/space list (e.g. "4:3,5:4"); match any listed token, as ES-DE does.
+    for (XMLElement* c = node->FirstChildElement("aspectRatio"); c; c = c->NextSiblingElement("aspectRatio")) {
+        for (auto& one : splitNames(c->Attribute("name"))) {
+            if (one != mSelAspect) continue;
+            parseVariables(c, baseDir);
+            parseColorSchemes(c, baseDir, depth);
+            parseFontSizes(c, baseDir, depth);
+            parseLanguages(c, baseDir, depth);
+            parseIncludes(c, baseDir, depth);
+            parseViews(c, baseDir);
+        }
+    }
+}
 
-        } else if (tag == "aspectRatio") {
-            // name is a comma/space list (e.g. "4:3,5:4"); match any listed token, the
-            // same way ES-DE parseAspectRatios splits and compares each viewKey.
-            bool sel = false;
-            for (auto& one : splitNames(c->Attribute("name")))
-                if (one == mSelAspect) sel = true;
-            walk(c, baseDir, active && sel, std::max(layer, 2),
-                 phase, targetLayer, depth + 1);
-
-        } else if (tag == "view") {
-            if (phase != 1 || !active || layer != targetLayer) continue;
+void Theme::parseViews(XMLElement* node, const std::string& baseDir) {
+    for (XMLElement* c = node->FirstChildElement("view"); c; c = c->NextSiblingElement("view")) {
             for (auto& vnameRaw : splitNames(c->Attribute("name"))) {
                 // ES-DE "all" is a wildcard applying the block to both real views.
                 std::vector<std::string> targets;
@@ -671,8 +702,6 @@ void Theme::walk(XMLElement* node, const std::string& baseDir, bool active,
                 }
                 }
             }
-        }
-        // themeName / transitions / other tags: ignored
     }
 }
 
@@ -809,6 +838,18 @@ bool Theme::load(const std::string& themeSetDir, const std::string& systemName,
         }
     }
 
+    // ES-DE ThemeLanguage "automatic": the locale if the theme declares it, else the first declared
+    // language of the same language (en_US for en_GB), else en_US, which every theme with language
+    // support must provide.
+    mSelLanguage.clear();
+    if (!mCaps.languages.empty()) {
+        for (auto& l : mCaps.languages) if (l == mLocale) { mSelLanguage = l; break; }
+        if (mSelLanguage.empty())
+            for (auto& l : mCaps.languages)
+                if (l.compare(0, 2, mLocale, 0, 2) == 0) { mSelLanguage = l; break; }
+        if (mSelLanguage.empty()) mSelLanguage = "en_US";
+    }
+
     mVars = sysVars;
 
     std::string themeFile = themeSetDir + "/" + systemName + "/theme.xml";
@@ -819,9 +860,7 @@ bool Theme::load(const std::string& themeSetDir, const std::string& systemName,
     if (!root) { mError = "theme.xml parse error"; return false; }
     std::string baseDir = dirOf(themeFile);
 
-    walk(root, baseDir, true, 0, /*phase=*/0, 0, 0);                  // collect variables
-    for (int L = 0; L <= 2; L++)
-        walk(root, baseDir, true, 0, /*phase=*/1, /*targetLayer=*/L, 0);   // base<variant<aspect
+    parseFile(root, baseDir, 0);
 
     finalize();
     mValid = true;

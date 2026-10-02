@@ -4817,6 +4817,10 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
 
     glUseProgram(mTextProgram);
     if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, mTextSharp);
+    // uSharpUp is shared with drawIconTex, which sets it per icon (sharp-bilinear upscale of
+    // nearest-filtered ES-DE art). Glyphs are sampled plain: left set, the text after such an
+    // image drew every glyph as a solid block (the ES-DE search keyboard's labels).
+    if (mTextLocSharpUp >= 0) glUniform2f(mTextLocSharpUp, 0.0f, 0.0f);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
     glUniform1i(mTextLocTexture, 0);
@@ -4890,6 +4894,10 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
 
     glUseProgram(mTextProgram);
     if (mTextLocSharp >= 0) glUniform1f(mTextLocSharp, mTextSharp);
+    // uSharpUp is shared with drawIconTex, which sets it per icon (sharp-bilinear upscale of
+    // nearest-filtered ES-DE art). Glyphs are sampled plain: left set, the text after such an
+    // image drew every glyph as a solid block (the ES-DE search keyboard's labels).
+    if (mTextLocSharpUp >= 0) glUniform2f(mTextLocSharpUp, 0.0f, 0.0f);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mGlyphAtlasTex);
     glUniform1i(mTextLocTexture, 0);

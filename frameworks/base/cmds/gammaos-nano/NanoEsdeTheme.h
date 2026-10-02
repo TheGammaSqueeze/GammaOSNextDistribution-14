@@ -190,18 +190,33 @@ public:
     // properties so the renderer can resolve them per system). Public for the parse walk.
     std::string subst(const std::string& in, bool keepSystem = false) const;
 
+    // The UI locale ("en_GB", "de_DE"; "en-GB" is accepted) used to pick a theme's <language>
+    // block the way ES-DE's automatic ThemeLanguage does. Set before load(); default en_US.
+    void setLocale(const std::string& locale) {
+        mLocale = locale;
+        for (auto& c : mLocale) if (c == '-') c = '_';
+        if (mLocale.empty()) mLocale = "en_US";
+    }
+
 private:
-    // Recursive parse walk. phase 0 collects variables, phase 1 processes <view> nodes
-    // whose layer (0 base, 1 variant, 2 aspectRatio) equals targetLayer. Follows
-    // <include>s and honors the selected variant/colorScheme/fontSize/aspectRatio.
-    void walk(tinyxml2::XMLElement* node, const std::string& baseDir, bool active,
-              int layer, int phase, int targetLayer, int depth);
+    // The ES-DE ThemeData parse order (see parseFile): variables, colour scheme / font size /
+    // language blocks, includes, views, then variants and aspect ratios, recursively.
+    void parseFile(tinyxml2::XMLElement* root, const std::string& baseDir, int depth);
+    void parseVariables(tinyxml2::XMLElement* node, const std::string& baseDir);
+    void parseIncludes(tinyxml2::XMLElement* node, const std::string& baseDir, int depth);
+    void parseVariants(tinyxml2::XMLElement* node, const std::string& baseDir, int depth);
+    void parseColorSchemes(tinyxml2::XMLElement* node, const std::string& baseDir, int depth);
+    void parseFontSizes(tinyxml2::XMLElement* node, const std::string& baseDir, int depth);
+    void parseLanguages(tinyxml2::XMLElement* node, const std::string& baseDir, int depth);
+    void parseAspectRatios(tinyxml2::XMLElement* node, const std::string& baseDir, int depth);
+    void parseViews(tinyxml2::XMLElement* node, const std::string& baseDir);
     void finalize();   // build per-view drawOrder
 
     bool mValid = false;
     std::string mError;
     std::string mRootDir;
-    std::string mSelVariant, mSelColorScheme, mSelAspect, mSelFontSize;
+    std::string mSelVariant, mSelColorScheme, mSelAspect, mSelFontSize, mSelLanguage;
+    std::string mLocale = "en_US";   // the UI locale (setLocale), ll_CC
     Capabilities mCaps;
     XsAnim mXsSysToGl = XsAnim::INSTANT;   // resolved enter-gamelist transition (automatic profile)
     XsAnim mXsGlToSys = XsAnim::INSTANT;   // resolved leave-gamelist transition

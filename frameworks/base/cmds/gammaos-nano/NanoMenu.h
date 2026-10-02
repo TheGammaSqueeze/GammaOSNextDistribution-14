@@ -1638,6 +1638,7 @@ private:
     int     mEsdeGridColumns = 1;                 // computed each grid frame; nav reads it for up/down
     int     mEsdeGamelistGrid = -1;               // cache: gamelist primary is a grid (-1 unknown/0/1)
     bool    esdeGamelistIsGrid();                 // true if the loaded gamelist view's primary is a grid
+    bool    esdeGamelistIsHorizontal();           // true if it is a horizontal carousel (L/R scroll games)
     // The single primary navigation element ES-DE would keep for a view: the textlist/carousel/grid
     // with the alphabetically-smallest name (ES-DE instantiates the first, skips the rest). Used so
     // the renderer and the nav model agree on one primary when a variant layers several.

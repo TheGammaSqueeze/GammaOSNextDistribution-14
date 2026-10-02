@@ -413,8 +413,11 @@ void NanoMenu::drawIconTexFx(GLuint tex, float x, float y, float w, float h,
     const float hw = w * 0.5f, hh = h * 0.5f;
     GLfloat local[] = { -hw,hh, hw,hh, hw,-hh, hw,-hh, -hw,-hh, -hw,hh };
     glUseProgram(mEsdeFxProgram);
-    // Vertices are already NDC (rotation baked in), so pin uRotation to identity.
-    if (mEsdeFxLocRotation >= 0) { const GLfloat I[4] = {1,0,0,1}; glUniformMatrix2fv(mEsdeFxLocRotation, 1, GL_FALSE, I); }
+    // The item's own rotation is baked into the vertices; uRotation carries the panel rotation every
+    // other draw gets (sDrmRotMat, as the text/icon program uses). Pinning it to identity drew every
+    // FX image (corner radius, saturation, brightness, gradient) unrotated on a rotated panel: the
+    // RG DS Plus top panel showed them upside down while the rest of the frame was upright.
+    if (mEsdeFxLocRotation >= 0) glUniformMatrix2fv(mEsdeFxLocRotation, 1, GL_FALSE, sDrmRotMat);
     if (mEsdeFxLocSat >= 0)    glUniform1f(mEsdeFxLocSat, saturation);
     if (mEsdeFxLocBright >= 0) glUniform1f(mEsdeFxLocBright, brightness);
     if (mEsdeFxLocHalf >= 0)   glUniform2f(mEsdeFxLocHalf, hw, hh);

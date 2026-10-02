@@ -124,10 +124,46 @@ static void esdeSeedBundledSlate() {
 
 #include "NanoEsdeSystemNames.inc"
 
+// The ES-DE system name for a nano system: what ES-DE themes name their per-system folders and
+// images after (${system.theme}), and what ES-DE's downloaded_media and gamelists folders use. A
+// built-in system already carries it (romDir psx, ngpc, nds), but a system added from a folder is
+// named after the folder, and handheld SD cards are often laid out MinUI style (PS, NGP, FC, MD):
+// themes have no art under those names, so the system showed a blank logo/art and no game media.
+// The folder name is used when it is already an ES-DE name, else its lowercase, else the ES-DE
+// system those layouts mean; anything else is kept as it is.
+static bool esdeKnownSystem(const std::string& n);
+static std::string esdeCanonSystemName(const std::string& romDir, const std::string& shortname) {
+    const std::string raw = romDir.empty() ? shortname : romDir;
+    if (raw.empty() || esdeKnownSystem(raw)) return raw;
+    std::string low = raw;
+    for (auto& c : low) c = (char)tolower((unsigned char)c);
+    if (esdeKnownSystem(low)) return low;
+    static const std::pair<const char*, const char*> kAlias[] = {
+        {"ps", "psx"}, {"ps1", "psx"}, {"psone", "psx"}, {"playstation", "psx"},
+        {"fc", "nes"}, {"sfc", "snes"}, {"md", "megadrive"}, {"gen", "genesis"},
+        {"sms", "mastersystem"}, {"ms", "mastersystem"}, {"gg", "gamegear"},
+        {"pce", "pcengine"}, {"pcecd", "pcenginecd"}, {"gw", "gameandwatch"},
+        {"ws", "wonderswan"}, {"wsc", "wonderswancolor"}, {"vb", "virtualboy"},
+        {"a2600", "atari2600"}, {"a5200", "atari5200"}, {"a7800", "atari7800"},
+        {"a800", "atari800"}, {"lynx", "atarilynx"}, {"poke", "pokemini"}, {"pm", "pokemini"},
+        {"mdcd", "segacd"}, {"scd", "segacd"}, {"32x", "sega32x"}, {"sat", "saturn"},
+        {"dc", "dreamcast"}, {"neocd", "neogeocd"}, {"pico", "pico8"}, {"java", "j2me"},
+        {"sg1000", "sg-1000"}, {"ngpc", "ngpc"}, {"ngp", "ngp"},
+    };
+    for (const auto& a : kAlias)
+        if (low == a.first && esdeKnownSystem(a.second)) return a.second;
+    return raw;
+}
+
 // ES-DE full display name for a system's short name (its ES-DE theme folder / rom dir), e.g.
 // "nes" -> "Nintendo Entertainment System". Empty if unknown, so the caller keeps nano's own
 // name. Mirrors SystemData::getFullName (fed from es_systems.xml), which ES-DE uses for the
 // system carousel/grid/textlist entries and the ${system.fullName} variable.
+static bool esdeKnownSystem(const std::string& n) {
+    for (const auto& kv : kEsdeSystemFullNames) if (n == kv.first) return true;
+    return false;
+}
+
 static std::string esdeSystemFullName(const std::string& esdeName) {
     if (esdeName.empty()) return std::string();
     for (const auto& kv : kEsdeSystemFullNames)
@@ -309,7 +345,7 @@ void NanoMenu::ensureEsdeTheme() {
     int repIdx = -1;
     for (int i = 0; i < (int)mXmbSystems.size(); i++) {
         if (!mXmbSystems[i].enabled) continue;
-        sysTheme = mXmbSystems[i].romDir.empty() ? mXmbSystems[i].shortname : mXmbSystems[i].romDir;
+        sysTheme = esdeCanonSystemName(mXmbSystems[i].romDir, mXmbSystems[i].shortname);
         sysName = mXmbSystems[i].name;
         repIdx = i;
         break;
@@ -322,6 +358,12 @@ void NanoMenu::ensureEsdeTheme() {
     property_get("persist.gammaos.nano.esde.variant", va, "");
     property_get("persist.gammaos.nano.esde.aspectratio", ar, "automatic");
     float aspect = mHeight > 0 ? (float)mWidth / (float)mHeight : 1.7778f;
+    {   // the theme's <language> block follows the device locale, as ES-DE's automatic setting does
+        char loc[PROPERTY_VALUE_MAX] = {0};
+        property_get("persist.sys.locale", loc, "");
+        if (!loc[0]) property_get("ro.product.locale", loc, "en-US");
+        mEsdeDoc.setLocale(loc);
+    }
     bool ok = mEsdeDoc.load(dir, /*systemName=*/"", va, cs, /*aspect=*/ar, fs,
                             aspect, esdeSysVars(sysTheme, sysName));
     // Now that capabilities are parsed, honour the selected variant's noMedia/noVideos trigger
@@ -401,7 +443,7 @@ void NanoMenu::esdeReloadForSystem(int sysIdx) {
     std::string dir = esdeSetDir(mEsdeSetName);
     if (dir.empty()) return;
     const auto& s = mXmbSystems[sysIdx];
-    std::string sysTheme = s.romDir.empty() ? s.shortname : s.romDir;
+    std::string sysTheme = esdeCanonSystemName(s.romDir, s.shortname);
     std::string sysName = s.name;
     char fs[PROPERTY_VALUE_MAX] = {0}, cs[PROPERTY_VALUE_MAX] = {0}, va[PROPERTY_VALUE_MAX] = {0};
     char ar[PROPERTY_VALUE_MAX] = {0};
@@ -438,7 +480,7 @@ void NanoMenu::esdeRebuildSysList() {
     for (int i = 0; i < (int)mXmbSystems.size(); i++) {
         if (!mXmbSystems[i].enabled || mXmbSystems[i].roms.empty()) continue;
         const auto& s = mXmbSystems[i];
-        std::string full = esdeSystemFullName(s.romDir.empty() ? s.shortname : s.romDir);
+        std::string full = esdeSystemFullName(esdeCanonSystemName(s.romDir, s.shortname));
         if (full.empty()) full = s.name;
         for (auto& ch : full) ch = (char)toupper((unsigned char)ch);
         keyed.emplace_back(std::move(full), i);
@@ -470,7 +512,7 @@ void NanoMenu::esdeRebuildSysList() {
             std::string want = go;
             for (int i = 0; i < (int)mEsdeSysList.size(); i++) {
                 const auto& s = mXmbSystems[mEsdeSysList[i]];
-                std::string sn = s.romDir.empty() ? s.shortname : s.romDir;
+                std::string sn = esdeCanonSystemName(s.romDir, s.shortname);
                 if (sn == want) {
                     mEsdeSysSel = i; mEsdeInGamelist = true; mEsdeGameSel = 0;
                     mEsdeGridCursor = -1; mEsdeGridScroll = 0.0f;
@@ -608,7 +650,7 @@ std::string NanoMenu::esdeResolveSystemPath(const std::string& raw, int sysIdx) 
     if (raw.find("${system.") == std::string::npos) return raw;
     if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return raw;
     const auto& s = mXmbSystems[sysIdx];
-    std::string theme = s.romDir.empty() ? s.shortname : s.romDir;
+    std::string theme = esdeCanonSystemName(s.romDir, s.shortname);
     std::string out = raw;
     auto rep = [&](const char* k, const std::string& v) {
         size_t p;
@@ -886,6 +928,23 @@ std::string NanoMenu::esdeGameMediaPath(const std::string& romPath, const std::s
     std::string sys = (sl2 == std::string::npos) ? dir : dir.substr(sl2 + 1);
     if (sys.empty() || base.empty()) { mEsdeMediaPath[cacheKey] = std::string(); return std::string(); }
 
+    // ES-DE names downloaded_media/<system> after the ES-DE system (psx, ngpc, nds), which is not
+    // always the ROM's folder name (an SD card laid out as PS/, NGP/, NDS/). Try the folder as is,
+    // lowercased, and the focused system's ES-DE name.
+    std::vector<std::string> sysDirs = { sys };
+    {
+        std::string low = sys;
+        for (auto& c : low) c = (char)tolower((unsigned char)c);
+        if (low != sys) sysDirs.push_back(low);
+        if (mEsdeSysSel >= 0 && mEsdeSysSel < (int)mEsdeSysList.size()) {
+            const int si = mEsdeSysList[mEsdeSysSel];
+            if (si >= 0 && si < (int)mXmbSystems.size()) {
+                const std::string esn = esdeCanonSystemName(mXmbSystems[si].romDir, mXmbSystems[si].shortname);
+                if (!esn.empty() && std::find(sysDirs.begin(), sysDirs.end(), esn) == sysDirs.end())
+                    sysDirs.push_back(esn);
+            }
+        }
+    }
     // Try each imageType token in order (ES-DE tries the list left-to-right); first present file wins.
     std::string found;
     const std::string root = "/storage/emulated/0/ES-DE/downloaded_media/";
@@ -899,10 +958,13 @@ std::string NanoMenu::esdeGameMediaPath(const std::string& romPath, const std::s
         while (!tok.empty() && (tok.back() == ' ')) tok.pop_back();
         auto it = kSub.find(tok);
         if (it != kSub.end()) {
-            std::string stem = root + sys + "/" + it->second + "/" + base;
-            for (const char* ext : {".png", ".jpg", ".jpeg", ".webp"}) {
-                std::string p = stem + ext;
-                if (access(p.c_str(), R_OK) == 0) { found = p; break; }
+            for (const auto& sd : sysDirs) {
+                std::string stem = root + sd + "/" + it->second + "/" + base;
+                for (const char* ext : {".png", ".jpg", ".jpeg", ".webp"}) {
+                    std::string p = stem + ext;
+                    if (access(p.c_str(), R_OK) == 0) { found = p; break; }
+                }
+                if (!found.empty()) break;
             }
         }
         if (comma == std::string::npos) break;
@@ -942,23 +1004,41 @@ GLuint NanoMenu::esdeGameMediaTex(const std::string& romPath, const std::string&
     }
     std::string found = esdeGameMediaPath(romPath, imageType);
     if (found.empty()) {
-        // No real ES-DE media of this type. nano keeps a single scraped image (the 2D box/cover),
-        // so it is a valid stand-in ONLY when the theme actually asked for a cover/box media type.
-        // For any other type (marquee, screenshot, titlescreen, fanart, ...) ES-DE shows the entry's
-        // TEXT fallback rather than substituting a different media, so returning nano's box here would
-        // diverge (e.g. Artflix's marquee gamelist wheel must show game-name text, not box art). Match
-        // ES-DE: fall back to the cover only for a cover/box-family imageType (the first token of a
-        // comma list), else report no media so the caller draws text.
-        size_t a = imageType.find_first_not_of(" \t\r\n");
-        std::string tok;
-        if (a != std::string::npos) {
-            size_t comma = imageType.find_first_of(", ", a);
-            tok = imageType.substr(a, comma == std::string::npos ? comma : comma - a);
+        // No ES-DE media of any listed type. nano's own scraper keeps two images per game, the 2D
+        // box and a fanart, so they stand in where ES-DE would show the same kind of image: the box
+        // for a cover/box type and for ES-DE's miximage ("image"/"miximage", which is the box art
+        // composited over a screenshot; nano's scraper makes none, so slate's media panel, which
+        // asks for "image", stayed empty for every game), and the fanart for "fanart" (Analogue 3D
+        // OS Menu's background). The list is tried in order, as ES-DE does; any other type
+        // (marquee, screenshot, titlescreen, ...) has no stand-in and the caller draws its text
+        // fallback (Artflix's marquee gamelist wheel shows game names, not box art). An empty
+        // imageType is ES-DE's default, the cover.
+        const ScrapeEntry* se = scrapeEntryFor(romPath);
+        const bool haveBox = romUsesCartArt(romPath) || (se && !se->box.empty());
+        bool any = false;
+        size_t p = 0;
+        while (p <= imageType.size()) {
+            size_t q = imageType.find_first_of(", \t\r\n", p);
+            if (q == std::string::npos) q = imageType.size();
+            const std::string tok = imageType.substr(p, q - p);
+            p = q + 1;
+            if (tok.empty()) continue;
+            any = true;
+            const bool boxLike = tok == "cover" || tok == "boxart" || tok == "box" || tok == "2dbox" ||
+                                 tok == "box2d" || tok == "image" || tok == "miximage";
+            if (boxLike && haveBox) return romBoxartTex(romPath, outAR);
+            if (tok == "fanart" && se && !se->fan.empty()) {
+                EsdeSvg fa = esdeArtTex(se->fan, mWidth, mHeight);
+                if (fa.tex) {
+                    auto fd = mEsdePngDims.find(se->fan);
+                    if (fd != mEsdePngDims.end() && fd->second.second > 0 && outAR)
+                        *outAR = (float)fd->second.first / (float)fd->second.second;
+                    return fa.tex;
+                }
+            }
         }
-        bool boxLike = tok.empty() || tok == "cover" || tok == "boxart" ||
-                       tok == "box" || tok == "2dbox" || tok == "box2d";
-        if (boxLike) return romBoxartTex(romPath, outAR);   // cover/box type -> nano's own cover
-        return 0;                                           // other types -> let the caller draw text
+        if (!any && haveBox) return romBoxartTex(romPath, outAR);   // default type: the cover
+        return 0;                                                   // let the caller draw text
     }
     EsdeSvg a = esdeArtTex(found, mWidth, mHeight);           // load + cache (decode-budgeted)
     if (!a.tex) return 0;
@@ -980,7 +1060,7 @@ void NanoMenu::esdeEnsureGamelistLoaded(int sysIdx) {
     if (mEsdeGamelistLoadedSys.count(sysIdx)) return;
     mEsdeGamelistLoadedSys.insert(sysIdx);                       // mark attempted (don't retry a missing file)
     const auto& sys = mXmbSystems[sysIdx];
-    std::string sysName = sys.romDir.empty() ? sys.shortname : sys.romDir;
+    std::string sysName = esdeCanonSystemName(sys.romDir, sys.shortname);
     if (sysName.empty() || sys.roms.empty()) return;
     std::string path = "/storage/emulated/0/ES-DE/gamelists/" + sysName + "/gamelist.xml";
     tinyxml2::XMLDocument doc;
@@ -1480,7 +1560,7 @@ void NanoMenu::renderEsde() {
             // fall back to nano's own name for a non-standard system.
             if (i < 0 || i >= (int)mEsdeSysList.size()) return std::string();
             const auto& s = mXmbSystems[mEsdeSysList[i]];
-            std::string full = esdeSystemFullName(s.romDir.empty() ? s.shortname : s.romDir);
+            std::string full = esdeSystemFullName(esdeCanonSystemName(s.romDir, s.shortname));
             return full.empty() ? s.name : full;
         };
         // Per-cell rom path for the grid's cover art (reuses the sys.roms indexing).
@@ -2159,8 +2239,12 @@ void NanoMenu::renderEsde() {
                         if (si.tex) {
                             float r = hasCol ? selc[0] : 1.0f, g = hasCol ? selc[1] : 1.0f,
                                   b = hasCol ? selc[2] : 1.0f, aa = hasCol ? selc[3] : 1.0f;
-                            drawIconTex(si.tex, ccx - si.w * 0.5f, ccy - si.h * 0.5f,
-                                        (float)si.w, (float)si.h, r, g, b, aa * opacity);
+                            // ES-DE sizes the selector image with setResize(itemSize * scale), which
+                            // STRETCHES it to that box (both axes set), not a contain-fit: a 1x1 tint
+                            // image (DS theme's space.webp) is the whole item rectangle, not a square
+                            // narrower than the item's text.
+                            drawIconTex(si.tex, ccx - selW * 0.5f, ccy - selH * 0.5f,
+                                        selW, selH, r, g, b, aa * opacity);
                             return;
                         }
                     }
@@ -2171,7 +2255,35 @@ void NanoMenu::renderEsde() {
                 };
                 if (selBottom) emitSel();       // behind the background box
                 float bgc[4];
-                if (primary->getColor("backgroundColor", bgc)) {
+                const bool hasBgc = primary->getColor("backgroundColor", bgc);
+                // ES-DE GridComponent backgroundImage: drawn behind every cell, stretched to
+                // itemSize * backgroundRelativeScale (setResize), tinted by backgroundColor, rounded by
+                // backgroundCornerRadius; only without one does backgroundColor draw a plain rect.
+                // nano never drew the image, so a theme whose cells are framed tiles (the DS theme's
+                // gridback.svg) showed bare text on the page.
+                GLuint bgTex = 0;
+                {
+                    const std::string& bgImg = primary->getPath("backgroundImage");
+                    if (!bgImg.empty()) {
+                        float bgScale = clampf(primary->getF("backgroundRelativeScale", 1.0f), 0.2f, 1.0f);
+                        float bw2 = cellW * bgScale, bh2 = cellH * bgScale;
+                        EsdeSvg bi = esdeArtTex(bgImg, (int)bw2, (int)bh2);
+                        if (bi.tex) {
+                            bgTex = bi.tex;
+                            float t[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+                            if (hasBgc) { t[0] = bgc[0]; t[1] = bgc[1]; t[2] = bgc[2]; t[3] = bgc[3]; }
+                            float rad = cornerRad("backgroundCornerRadius");
+                            if (rad > 0.0f)
+                                drawIconTexFx(bi.tex, ccx - bw2 * 0.5f, ccy - bh2 * 0.5f, bw2, bh2,
+                                              t[0] * dim, t[1] * dim, t[2] * dim, t[3] * opacity,
+                                              0.0f, 1.0f, 0.0f, rad);
+                            else
+                                drawIconTex(bi.tex, ccx - bw2 * 0.5f, ccy - bh2 * 0.5f, bw2, bh2,
+                                            t[0] * dim, t[1] * dim, t[2] * dim, t[3] * opacity);
+                        }
+                    }
+                }
+                if (!bgTex && hasBgc) {
                     float bgScale = clampf(primary->getF("backgroundRelativeScale", 1.0f), 0.2f, 1.0f);
                     float rad = cornerRad("backgroundCornerRadius");
                     drawRoundedRect(ccx - cellW * bgScale * 0.5f, ccy - cellH * bgScale * 0.5f,
@@ -2223,7 +2335,7 @@ void NanoMenu::renderEsde() {
                         std::string s;
                         if (cellSys >= 0 && cellSys < (int)mXmbSystems.size()) {
                             const auto& gsys = mXmbSystems[cellSys];
-                            s = esdeSystemFullName(gsys.romDir.empty() ? gsys.shortname : gsys.romDir);
+                            s = esdeSystemFullName(esdeCanonSystemName(gsys.romDir, gsys.shortname));
                             if (s.empty()) s = gsys.name;
                         }
                         esdeLetterCase(s, glc);
@@ -3059,7 +3171,7 @@ void NanoMenu::renderEsde() {
                     if (md == "sourceSystemName" || md == "systemName") s = sys.name;
                     else {
                         std::string full =
-                            esdeSystemFullName(sys.romDir.empty() ? sys.shortname : sys.romDir);
+                            esdeSystemFullName(esdeCanonSystemName(sys.romDir, sys.shortname));
                         s = full.empty() ? sys.name : full;
                     }
                 }
@@ -3075,7 +3187,7 @@ void NanoMenu::renderEsde() {
                 // <systemdata>fullname</systemdata> title (artflix/ps5-menu/xmb-menu/codywheel
                 // system-name) resolved empty and vanished. Map "name" to the internal key and
                 // "fullname" through nano's ES-DE full-name table (the same lookup the carousel uses).
-                std::string sysKey = sys.romDir.empty() ? sys.shortname : sys.romDir;
+                std::string sysKey = esdeCanonSystemName(sys.romDir, sys.shortname);
                 if (sd == "name") s = !sysKey.empty() ? sysKey : sys.name;
                 else if (sd == "fullname") { s = esdeSystemFullName(sysKey); if (s.empty()) s = sys.name; }
                 else if (sd.rfind("gamecount", 0) == 0) {
@@ -4209,6 +4321,12 @@ void NanoMenu::esdeDrawSystemStatus(const nanoesde::Element* e) {
 // The bottom panel (dual-screen devices): MVP paints a plain backdrop so it is not the
 // XMB wave. A themed secondary view is a follow-up.
 void NanoMenu::renderEsdeSecondary() {
+    // This pass starts with whatever GL state the ES-DE primary pass ended in, which can leave
+    // blending off; the keyboard, search results and setup wizard drawn after this then blended
+    // nothing, so every glyph quad filled its whole box (the search keyboard showed blank
+    // rectangles instead of key labels). Set the standard alpha blend every other secondary uses.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Over a live app (in-game scrim) leave the dispatcher's app-dim scrim clear untouched instead of
     // repainting an opaque backdrop, so the running app shows through the bottom panel too (mirrors
     // renderMinimaSecondary). The opaque fill returns once back at the launcher (mOverlayWallpaper).
@@ -4241,6 +4359,16 @@ bool NanoMenu::esdeGamelistIsGrid() {
     return mEsdeGamelistGrid == 1;
 }
 
+// True when the gamelist's chosen primary is a horizontal carousel (Analogue 3D OS Menu, Analogue OS
+// Menu): its games run left to right, so ES-DE scrolls it with left/right (CarouselComponent input).
+bool NanoMenu::esdeGamelistIsHorizontal() {
+    const nanoesde::View* v = mEsdeDoc.valid() ? mEsdeDoc.view("gamelist") : nullptr;
+    const nanoesde::Element* p = esdeChosenPrimary(v);
+    if (!p || p->type != "carousel") return false;
+    const std::string t = p->getS("type", std::string("horizontal"));
+    return t == "horizontal" || t == "horizontalWheel";
+}
+
 // dx: system change (system view) / unused in gamelist; dy: row move. Kept simple and
 // self-contained; launching reuses the shared launchXmbGame() path.
 void NanoMenu::esdeNav(int dx, int dy) {
@@ -4260,10 +4388,12 @@ void NanoMenu::esdeNav(int dx, int dy) {
         if (step) { mEsdeSysSel = wrap(mEsdeSysSel + step, nSys); mEsdeGameSel = 0;
                     esdeSfx(0); }              // systembrowse: system carousel/list move
     } else if (dx) {                           // gamelist L/R
-        if (esdeGamelistIsGrid()) {
+        if (esdeGamelistIsGrid() || esdeGamelistIsHorizontal()) {
             // A grid needs L/R to move the cursor one item (with wrap, ES-DE List::listInput):
             // up/down only jump whole rows, so this is the only way to reach items within a row.
-            // Switching systems from a grid is via BACK to the system view.
+            // Switching systems from a grid is via BACK to the system view. A horizontal carousel
+            // scrolls its games with L/R the same way (it used to flip systems instead, so its games
+            // could not be reached at all); there U/D switches systems (below).
             int n = (int)mXmbSystems[mEsdeSysList[mEsdeSysSel]].displayNames.size();
             if (n > 0) { mEsdeGameSel = wrap(mEsdeGameSel + dx, n); esdeSfx(4); }  // scroll
         } else {
@@ -4274,6 +4404,12 @@ void NanoMenu::esdeNav(int dx, int dy) {
             mEsdeGridCursor = -1; mEsdeGridScroll = 0.0f; mEsdeGridAnimDur = 0.0f; mEsdeGridTransFactor = 1.0f;
             esdeSfx(0);                         // systembrowse: system flip
         }
+    } else if (dy && esdeGamelistIsHorizontal()) {
+        // Horizontal game carousel: U/D is the free axis, so it switches systems in place, the
+        // way L/R does over a vertical list.
+        mEsdeSysSel = wrap(mEsdeSysSel + dy, nSys);
+        mEsdeGameSel = 0;
+        esdeSfx(0);                             // systembrowse: system flip
     } else if (dy) {                           // gamelist: U/D scrolls games (grid = whole-row jump)
         int n = (int)mXmbSystems[mEsdeSysList[mEsdeSysSel]].displayNames.size();
         if (n > 0) {
