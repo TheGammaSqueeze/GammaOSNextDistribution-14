@@ -967,6 +967,7 @@ static bool slideActionHas(const char* list, const char* act);
 // themes), which used to sit lit forever. Runs on the render thread right after
 // pollInput(), which stamps mLastInputMs / mLastPointerMs for every kind of input.
 void NanoMenu::idleSleepTick() {
+    otaSleepGuardTick();   // the OTA wakelock follows the flow, whatever the early returns below
     // The resident overlay coexists with a running app: the framework owns that
     // display and its timeout works there.
     if (mOverlayMode) return;
@@ -1006,7 +1007,8 @@ void NanoMenu::idleSleepTick() {
             || (mVidActive && mVidPlaying && !mVidStopped)
             || mLaunchFadeStart != 0 || mOverlayLaunchPending || mShowLaunchBusy || mWaitForRelease
             || mPowerPressTime != 0
-            || mScrapeRunning;   // an artwork scrape in progress: the user is waiting on the progress modal
+            || mScrapeRunning    // an artwork scrape in progress: the user is waiting on the progress modal
+            || otaInProgress();  // an update being checked, downloaded or prepared
     if (unfocused) { sIdleSleepUnfocused = true; return; }
     if (sIdleSleepUnfocused) {
         sIdleSleepUnfocused = false;
@@ -2006,6 +2008,9 @@ void NanoMenu::pollInput() {
             else if (!strcmp(navbuf, "mtp"))   openMtpScreen();
             // Quick Menu > System Settings, the same call its row makes (test hook for the hand-off path).
             else if (!strcmp(navbuf, "settings")) launchAndroidSettings();
+            // System Update > Update via Internet, the same call the chooser makes (test hook for the
+            // check/download flow and its sleep guard).
+            else if (!strcmp(navbuf, "ota_internet")) { if (!mOtaFlowActive) startOtaFlow(true); }
             // OSK scripting for 1:1 verification: `type:<text>` inserts each ASCII
             // character at the caret, `submit` commits the on-screen keyboard.
             else if (!strncmp(navbuf, "type:", 5)) {
@@ -2690,6 +2695,13 @@ void NanoMenu::pollInput() {
                     }
                     // Key was released before 1.5s — short press = sleep.
                     mPowerPressTime = 0;
+                    // Not while an update is being downloaded or prepared: a sleep would stall the
+                    // download, and parking the render thread would stall the handoff to the flasher.
+                    // A hold still opens the power menu, so the user can deliberately restart.
+                    if (otaInProgress()) {
+                        ALOGI("NanoMenu: power short press ignored, system update in progress");
+                        continue;
+                    }
                     ALOGI("NanoMenu: power short press, sleeping");
                     if (!enterDrmSleep()) return;
                 }
@@ -2704,7 +2716,11 @@ void NanoMenu::pollInput() {
             // whole lid flow, so we do nothing. Overlay mode also defers to it.
             if (ev.type == EV_SW && ev.code == SW_LID
                 && sDrmActive && !mOverlayMode) {
-                if (ev.value != 0) {   // lid closed
+                if (ev.value != 0 && otaInProgress()) {
+                    // The update keeps running with the lid shut (the nano_ota wakelock keeps the
+                    // SoC up); it will be on screen when the lid opens.
+                    ALOGI("NanoMenu: lid closed, not sleeping: system update in progress");
+                } else if (ev.value != 0) {   // lid closed
                     ALOGI("NanoMenu: lid closed, sleeping");
                     if (!enterDrmSleep()) return;
                 }

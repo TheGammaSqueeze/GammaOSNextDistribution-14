@@ -11569,6 +11569,17 @@ void NanoMenu::screenCalSliderPreview() {
 }
 
 void NanoMenu::closePs3Dialog(bool apply) {
+    // The System Update flow owns this dialog. While it checks, downloads, reads or prepares, the
+    // dialog stays up (the work carries on and its screen says not to turn the power off); a
+    // result or confirm dialog closes by ending the flow. A plain close used to leave the flow
+    // marked active with no dialog, and System Update then would not start again until nano
+    // restarted.
+    if (mOtaFlowActive) {
+        if (otaInProgress()) return;
+        if (otaInBrowseConfirm()) otaBrowseShowList();   // back to the package list, as Cancel does
+        else otaEndFlow();
+        return;
+    }
     // GammaShader parameter slider (no binding): the value was written live as the
     // user slid; confirm keeps it, cancel reverts to the value at open. Then refresh
     // the open Parameters row's inline value.

@@ -1488,6 +1488,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // and nano handles sleep over evdev), giving consistent quick-press-to-sleep
             // in both modes.
             if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                // A system update is being checked, downloaded or prepared on the nano home
+                // (nano sets this while its progress screen is up): the screen stays on, so the
+                // update goes on where the user can see it. A hold still opens the power menu.
+                if ("1".equals(android.os.SystemProperties.get("sys.gammaos.nano.ota_busy", "0"))) {
+                    Slog.i(TAG, "GammaOS Nano: power short press ignored, system update in progress");
+                    return;
+                }
                 Slog.d(TAG, "GammaOS Nano: power short press -> sleep");
                 sleepDefaultDisplayFromPowerButton(eventTime, 0);
                 return;

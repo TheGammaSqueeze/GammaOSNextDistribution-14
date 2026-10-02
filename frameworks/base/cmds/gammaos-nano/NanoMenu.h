@@ -2135,6 +2135,10 @@ private:
     void otaStartFlash(const char* pkg);    // start the flasher pre-staging + show "Preparing" in nano
     bool otaInBrowse() const;               // true while the OTA package browser (list) is up (DSi list-style)
     bool otaInProgress() const;             // true on a non-interactive OTA progress screen (checking/downloading/reading/preparing) - suppress confirm buttons + footer hints
+    bool otaInBrowseConfirm() const;        // true on the storage-media "Install this package?" confirm
+    void otaSleepGuardTick();
+    void otaScreenOffTick();                // screen off during an update: wake it again               // per-frame: hold the nano_ota wakelock while otaInProgress()
+    bool        mOtaWakeLockHeld = false;   // render thread only
     void otaBrowseInit();                   // scan storage + show the themed *.zip chooser dialog
     void otaBrowseShowList();               // (re)show the cached file list as a chooser dialog
     void otaBrowseSelect();                 // A on a file: peek its manifest off-thread

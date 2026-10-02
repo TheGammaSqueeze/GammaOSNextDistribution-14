@@ -51,6 +51,9 @@
 #include <cstdlib>
 #include <cstdint>
 #include <unistd.h>
+#include <utils/SystemClock.h>
+#include <fcntl.h>
+#include <cerrno>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <algorithm>
@@ -133,10 +136,58 @@ bool NanoMenu::otaInBrowse() const {
 // OTA_BROWSE_CONFIRM) are NOT in this set and keep their buttons; likewise non-OTA 0-option
 // info dialogs (System Information, network status, App/ROM Info) are unaffected since the
 // OTA flow is not active for them.
+bool NanoMenu::otaInBrowseConfirm() const {
+    return mOtaFlowActive && mOtaStage == OTA_BROWSE_CONFIRM;
+}
+
 bool NanoMenu::otaInProgress() const {
     return mOtaFlowActive &&
            (mOtaStage == OTA_CHECKING || mOtaStage == OTA_DOWNLOADING ||
             mOtaStage == OTA_BROWSE_PEEK || mOtaStage == OTA_PREPARING);
+}
+
+// Keep the device awake while an update is being checked, downloaded, read or prepared. The menu
+// side (idle timeout, power short press, lid) already refuses to sleep on these screens; the kernel
+// wakelock also covers a sleep the framework starts on its own (the lid on a SurfaceFlinger home, a
+// power press nano does not grab), so a suspend can never stall a download or the flasher's
+// staging. A named wakelock outlives the process, so it is dropped at the handoff and at startup.
+// Runs every menu frame from idleSleepTick, before any of its early returns.
+void NanoMenu::otaSleepGuardTick() {
+    const bool want = otaInProgress();
+    if (want == mOtaWakeLockHeld) return;
+    const char* node = want ? "/sys/power/wake_lock" : "/sys/power/wake_unlock";
+    int wl = open(node, O_WRONLY | O_CLOEXEC);
+    ssize_t n = (wl >= 0) ? write(wl, "nano_ota", 8) : -1;
+    if (wl >= 0) close(wl);
+    if (n < 0 && want) {
+        ALOGE("NanoMenu: could not hold the nano_ota wakelock (errno %d)", errno);
+    } else {
+        ALOGI("NanoMenu: OTA %s - %s the nano_ota wakelock",
+              want ? "in progress" : "idle", want ? "holding" : "released");
+    }
+    // Remember the wanted state even on a failed hold so this does not retry every frame; the
+    // menu-side sleep guards still apply.
+    mOtaWakeLockHeld = want;
+    // The screen stays on too: PhoneWindowManager ignores a short power press while this is set
+    // (on this home the framework owns the power key unless nano grabs input). Left set through
+    // the handoff to the flasher, which stops the framework; nano clears it at startup.
+    property_set("sys.gammaos.nano.ota_busy", want ? "1" : "0");
+}
+
+// Called from the parked screen-off loop. The screen must not go off while an update is being
+// checked, downloaded, read or prepared: the power press is refused (PhoneWindowManager, the
+// ota_busy property), and this is the backstop for anything else that turns it off (the lid,
+// a power press before the flag was seen). It also keeps the flow moving: the parked loop never
+// runs the steps that hand over to the flasher. Asks init to wake the screen (KEYCODE_WAKEUP),
+// at most every 2 s; the loop resumes when sys.screen.state flips back on.
+void NanoMenu::otaScreenOffTick() {
+    if (!otaInProgress()) return;
+    static int64_t sLastWakeMs = 0;
+    const int64_t now = android::uptimeMillis();
+    if (now - sLastWakeMs < 2000) return;
+    sLastWakeMs = now;
+    ALOGI("NanoMenu: screen went off during a system update - waking it");
+    property_set("sys.gammaos.nano.dowake", "1");
 }
 
 // End the flow and dismiss the dialog. Bumps mOtaGen so any in-flight worker abandons.
@@ -478,6 +529,13 @@ void NanoMenu::otaFlowTick() {
         if (property_get_bool("sys.gammaos.ota.staged", false)) {
             ALOGI("NanoMenu: OTA staged - releasing DRM + exiting to hand the panel to the flasher");
             drmStop();   // clean DROP_MASTER on the render thread (app-launch handoff pattern)
+            // From here the flasher stops the framework, so nothing can suspend the device; drop the
+            // named wakelock so it does not outlive this process.
+            if (mOtaWakeLockHeld) {
+                int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+                if (wl >= 0) { ssize_t n = write(wl, "nano_ota", 8); (void)n; close(wl); }
+                mOtaWakeLockHeld = false;
+            }
             _exit(0);
         }
         int pct = property_get_int32("sys.gammaos.ota.stageprog", 0);

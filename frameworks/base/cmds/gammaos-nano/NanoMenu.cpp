@@ -451,6 +451,11 @@ status_t NanoMenu::readyToRun() {
     {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+        // Likewise the OTA guard's lock and screen-on flag (otaSleepGuardTick): no update flow
+        // is running yet.
+        wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
+        if (wl >= 0) { ssize_t n = write(wl, "nano_ota", 8); (void)n; close(wl); }
+        property_set("sys.gammaos.nano.ota_busy", "0");
     }
 
     // On non-Qualcomm SoCs, main() already grabbed DRM master early.
@@ -5155,6 +5160,8 @@ if (sRingPrimedCount >= 2) {
                 sSfAudioWake = false;
             }
             if (screenOff) {
+                // The screen stays on during a system update: wake it again (see otaScreenOffTick).
+                if (mOtaFlowActive) otaScreenOffTick();
                 usleep(250000);   // 4Hz idle while the framework holds the panel off
                 continue;
             }
