@@ -876,6 +876,8 @@ private:
                                       // (demand-faults from zram on raise; NOT re-locked - see overlayShow)
     bool mOverlayGpuParked = false;   // XMB GPU assets dropped while parked behind an app (overlayGpuPark);
                                       // rebuilt by overlayGpuUnpark on the next raise
+    GLuint mParkedCatTex[7] = {};     // category icon handles at park time, so overlayGpuUnpark can point
+                                      // the open levels that copied them at the reloaded icons
     // OSK-over-app: an app (GammaBrowser web fields) requests nano's lightweight OSK
     // because the framework leanback IME (~130MB) gets OOM-killed on this 1GB device
     // under a heavy WebView. We raise the overlay in an OSK-only mode and hand the

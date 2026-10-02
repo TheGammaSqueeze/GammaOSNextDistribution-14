@@ -54,6 +54,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <set>
 #include <thread>
 #include <sched.h>
 #include <sys/ioctl.h>
@@ -619,33 +620,57 @@ void NanoMenu::overlayShow() {
 void NanoMenu::overlayGpuPark() {
     if (mOverlayGpuParked) return;
     mOverlayGpuParked = true;
+    // The open submenu levels (mPs3Stack) are NOT rebuilt on the raise: their items keep the
+    // icon and normal-map handles they were built with, by value. Freeing those left every icon
+    // of the open level black after returning from an app, and once GL handed the freed ids to
+    // new textures an icon could even show an unrelated image (the XMB background), until the
+    // user left and re-entered the level. Keep every texture an open level references (with its
+    // cache entry, so the caches stay coherent); it is only the open level's icons.
+    std::set<GLuint> live;
+    for (const auto& lvl : mPs3Stack)
+        for (const auto& it : lvl.items) {
+            if (it.iconTex) live.insert(it.iconTex);
+            if (it.nmapTex) live.insert(it.nmapTex);
+        }
+    auto keep = [&live](GLuint t) { return t == 0 || live.count(t) != 0; };
     ps3bg::freeWaveSeq();
     if (mOverlayBgTex) { glDeleteTextures(1, &mOverlayBgTex); mOverlayBgTex = 0; }
     freeGlassScratch();
     glassScratchFree();
     scraperFreeBoxart();
     iconGridResetCache();
-    auto dropMap = [](std::map<int, GLuint>& m) {
-        for (auto& kv : m) if (kv.second) glDeleteTextures(1, &kv.second);
-        m.clear();
+    auto dropMap = [&keep](auto& m) {
+        for (auto it = m.begin(); it != m.end();) {
+            if (keep(it->second)) { ++it; continue; }
+            glDeleteTextures(1, &it->second);
+            it = m.erase(it);
+        }
     };
     dropMap(mPs3NmapByIcon);
     dropMap(mPs3IconTexByIndex);
     dropMap(mPs3BevelByIconIdx);
     dropMap(mGpGlassNmaps);
-    for (auto& kv : mPs3IconRefCache) {
+    for (auto it = mPs3IconRefCache.begin(); it != mPs3IconRefCache.end();) {
+        // An entry an open level still draws stays whole (its icon and its normal map).
+        if (keep(it->second.first) && keep(it->second.second)) { ++it; continue; }
         // The failure entries alias a base console icon + its bevel (not owned here);
         // the bevel map above already dropped the bevel, the base icon stays.
-        if (kv.second.first && kv.second.first != mIconTextures[16])
-            glDeleteTextures(1, &kv.second.first);
-        if (kv.second.second) glDeleteTextures(1, &kv.second.second);
+        if (it->second.first && it->second.first != mIconTextures[16] && !keep(it->second.first))
+            glDeleteTextures(1, &it->second.first);
+        if (it->second.second && !keep(it->second.second))
+            glDeleteTextures(1, &it->second.second);
+        it = mPs3IconRefCache.erase(it);
     }
-    mPs3IconRefCache.clear();
-    for (auto& kv : mPs3AppIcons) if (kv.second) glDeleteTextures(1, &kv.second);
-    mPs3AppIcons.clear();
+    dropMap(mPs3AppIcons);
+    // The category icons are reloaded by overlayGpuUnpark (ps3LoadCatIcons), which also
+    // replaces any handle kept here; remember them so it can repoint the open levels.
     for (int i = 0; i < 7; i++) {
-        if (mPs3CatTex[i]) { glDeleteTextures(1, &mPs3CatTex[i]); mPs3CatTex[i] = 0; }
-        mPs3CatNmap[i] = 0;   // owned by mPs3NmapByIcon, dropped above
+        if (mPs3CatTex[i] && !keep(mPs3CatTex[i])) {
+            glDeleteTextures(1, &mPs3CatTex[i]);
+            mPs3CatTex[i] = 0;
+        }
+        mParkedCatTex[i] = mPs3CatTex[i];   // non-zero only when an open level holds it
+        mPs3CatNmap[i] = 0;   // owned by mPs3NmapByIcon, handled above
     }
     for (auto& kv : mEsdeTexCache) if (kv.second) glDeleteTextures(1, &kv.second);
     mEsdeTexCache.clear();
@@ -691,6 +716,16 @@ void NanoMenu::overlayGpuUnpark() {
     } else if (mOverlayGpuParked) {
         initGlassIcons();
         ps3LoadCatIcons();
+        // Point the open levels that copied a category icon (Home Categories, the Quick Menu
+        // power row) at the reloaded one; their other icons were kept alive by overlayGpuPark.
+        for (int i = 0; i < 7; i++) {
+            GLuint was = mParkedCatTex[i];
+            mParkedCatTex[i] = 0;
+            if (!was || was == mPs3CatTex[i]) continue;
+            for (auto& lvl : mPs3Stack)
+                for (auto& it : lvl.items)
+                    if (it.iconTex == was) it.iconTex = mPs3CatTex[i];
+        }
         // Rebuild by LABEL, not by index. The launch that parked us added the game to
         // Recently Played (and may have starred, pinned or collected it), which inserts
         // "Recently Played" / Favorites / Pinned Apps / Collections entries at the front of
