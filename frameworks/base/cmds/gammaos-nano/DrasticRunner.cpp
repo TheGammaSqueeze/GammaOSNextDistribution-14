@@ -3978,6 +3978,86 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
         ALOGW("DrasticRunner: hi-res capture shadow site +0x3cc70 is 0x%08x, not patched",
               *reinterpret_cast<uint32_t*>(base + 0x3cc70));
     }
+    // Write-only 2D registers read as zero, like the DS. The BG scroll registers (BGxHOFS/VOFS),
+    // the BG2/BG3 rotation parameters and reference points, the window sizes, MOSAIC, BLDY and
+    // the main-memory display FIFO of both engines cannot be read on the hardware (GBATEK; melonDS
+    // GPU2D::Unit::Read16 returns 0), but drastic's ARM9 IO reads return whatever was last written
+    // to its register image (mem + 0x1b070). Pokemon Ranger moves its top-screen panels by reading
+    // the scroll register back, adding the slide offset and writing the sum from its HBlank
+    // handler: on drastic every write built on the previous one, so the panels kept the residue
+    // of each slide (header off screen, map and text boxes shifted, other layouts after each
+    // Start press). The 32-bit and 16-bit C readers (+0x22cd4, +0x2294c; the 8-bit one goes
+    // through the 16-bit) take the register image in their default case, and the dynarec's
+    // 16-bit read stubs (+0x82940 unsigned, +0x829c4 signed) load offsets 0x00..0xff straight
+    // from it. Each of the four sites branches to a cave that checks a 256-byte table of the
+    // write-only offsets (engine B folded onto engine A) and returns 0 for them, otherwise does
+    // the original load. The stubs' cave is flag-free and uses only x0..x2, like the stub.
+    // Only IO reads pass here (not RAM or VRAM), and the check is three instructions.
+    // sys.gammaos.drastic_nano.io_wo_zero=0 (read at launch) turns it off for A/B tests.
+    if (property_get_int32("sys.gammaos.drastic_nano.io_wo_zero", 1) > 0) {
+        struct Site { uintptr_t off; uint32_t expect[4]; };
+        static const Site kSites[4] = {
+            { 0x82940, { 0x12181801u, 0x35000061u, 0x78604840u, 0xd65f03c0u } },   // fast read16, unsigned
+            { 0x829c4, { 0x12181801u, 0x35000061u, 0x78e04840u, 0xd65f03c0u } },   // fast read16, signed
+            { 0x229d4, { 0x12003a68u, 0x52960e09u, 0x8b080288u, 0x72a00029u } },   // read16 default
+            { 0x22ff8, { 0x12003a88u, 0x52960e09u, 0x8b080268u, 0x72a00029u } },   // read32 default
+        };
+        bool ok = true;
+        for (const Site& st : kSites)
+            for (int i = 0; i < 4; i++)
+                if (reinterpret_cast<const uint32_t*>(base + st.off)[i] != st.expect[i]) ok = false;
+        uint8_t* page = ok ? allocCodePageNear(base + 0x82940) : nullptr;
+        if (page) {
+            static const uint32_t kBlob[40] = {   // scratchpad pkr/wo.s
+                // +0x00 fast read16 unsigned (w0 = offset, x2 = register image)
+                0x12181801u, 0x34000041u, 0x14000000u, 0x100004a1u,
+                0x38604821u, 0x35000061u, 0x78604840u, 0xd65f03c0u,
+                0x52800000u, 0xd65f03c0u,
+                // +0x28 fast read16 signed
+                0x12181801u, 0x34000041u,
+                0x14000000u, 0x10000361u, 0x38604821u, 0x35000061u,
+                0x78e04840u, 0xd65f03c0u, 0x52800000u, 0xd65f03c0u,
+                // +0x50 read16 default (w19 = offset)
+                0x12003a68u, 0x12137909u, 0x53077d2au, 0x350000cau,
+                0x1000020au, 0x3869494au, 0x3400006au, 0x52800000u,
+                0x14000000u, 0x14000000u,
+                // +0x78 read32 default (w20 = offset)
+                0x12003a88u, 0x12137909u,
+                0x53077d2au, 0x350000cau, 0x100000cau, 0x3869494au,
+                0x3400006au, 0x52800000u, 0x14000000u, 0x14000000u,
+            };
+            memcpy(page, kBlob, sizeof kBlob);
+            // +0xa0: one byte per IO offset 0x00..0xff, 1 = write-only (reads 0)
+            uint8_t* table = page + 0xa0;
+            memset(table, 0, 256);
+            auto wo = [&](uint32_t lo, uint32_t hi) { for (uint32_t o = lo; o < hi; o++) table[o] = 1; };
+            wo(0x10, 0x48);   // BG0-3 HOFS/VOFS, BG2/BG3 PA-PD and X/Y, WIN0H/WIN1H/WIN0V/WIN1V
+            wo(0x4c, 0x50);   // MOSAIC
+            wo(0x54, 0x60);   // BLDY and the unused range after it
+            wo(0x68, 0x6c);   // DISP_MMEM_FIFO
+            wo(0x6e, 0x80);   // unused
+            auto branch = [&](size_t slot, uintptr_t target) {
+                const intptr_t d = (intptr_t)(base + target) - (intptr_t)(page + slot);
+                *reinterpret_cast<uint32_t*>(page + slot) = 0x14000000u | (uint32_t)((d >> 2) & 0x03ffffff);
+            };
+            branch(0x08, 0x82950);   // fast unsigned: offset >= 0x100 -> the stub's call to the C reader
+            branch(0x30, 0x829d4);   // fast signed: same
+            branch(0x70, 0x229e8);   // read16: return 0 through the epilogue
+            branch(0x74, 0x229d8);   // read16: original load
+            branch(0x98, 0x2300c);   // read32: return 0 through the epilogue
+            branch(0x9c, 0x22ffc);   // read32: original load
+            __builtin___clear_cache((char*)page, (char*)page + 0x1a0);
+            mprotect(page, (size_t)ps, PROT_READ | PROT_EXEC);
+            static const size_t kCave[4] = { 0x00, 0x28, 0x50, 0x78 };
+            for (int i = 0; i < 4; i++) {
+                const intptr_t d = (intptr_t)(page + kCave[i]) - (intptr_t)(base + kSites[i].off);
+                raPatchInsn(base, kSites[i].off, 0x14000000u | (uint32_t)((d >> 2) & 0x03ffffff));
+            }
+            ALOGI("DrasticRunner: write-only 2D registers read as zero (caves at %p)", page);
+        } else {
+            ALOGW("DrasticRunner: write-only register reads not patched (%s)", ok ? "no code page in range" : "unexpected code");
+        }
+    }
     // 3D render state latched at the start of vblank, like the DS. The hardware takes the
     // rendering parameters (DISP3DCNT and the other render registers) for the next frame at
     // line 192, together with the geometry swap (melonDS GPU3D::VBlank latches RenderDispCnt
