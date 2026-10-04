@@ -1899,5 +1899,8 @@
  "save states": "حالات حفظ",
  "file": "ملف",
  "files": "ملفات",
- "this game's files after exit": "ملفات هذه اللعبة بعد الخروج"
+ "this game's files after exit": "ملفات هذه اللعبة بعد الخروج",
+ "Show Game Folders": "إظهار مجلدات الألعاب",
+ "Show the subfolders of a system's ROM folder as folders you can open, instead of one list of every game. A folder with only one game in it shows as that game. Needs Scan ROM Subfolders.": "يعرض المجلدات الفرعية داخل مجلد ROM للنظام كمجلدات يمكنك فتحها، بدلًا من قائمة واحدة بكل الألعاب. يظهر المجلد الذي يحتوي على لعبة واحدة فقط كتلك اللعبة. يتطلب فحص المجلدات الفرعية لـ ROM.",
+ "%d games": "%d ألعاب"
 }

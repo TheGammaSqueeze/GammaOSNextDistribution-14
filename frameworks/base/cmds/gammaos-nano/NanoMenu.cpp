@@ -1571,6 +1571,7 @@ bool NanoMenu::threadLoop() {
     // Show each game's Display Name (scraped / renamed) and order the list by it, else show and
     // order by the raw ROM file name. Default on; re-read on the settings toggle.
     mShowDisplayNames = android::base::GetBoolProperty("persist.gammaos.nano.rom.show_display_names", true);
+    mShowRomFolders = android::base::GetBoolProperty("persist.gammaos.nano.rom.folders", true);
     // Media folder view (Y toggles): group each library by parent directory. Persisted per library.
     mPhotoFolderView = android::base::GetBoolProperty("persist.gammaos.nano.photo.folderview", false);
     mVideoFolderView = android::base::GetBoolProperty("persist.gammaos.nano.video.folderview", false);

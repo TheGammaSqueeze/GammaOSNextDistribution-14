@@ -672,6 +672,8 @@ void NanoMenu::buildSettingsTree() {
                  SettingSource::kProp, "persist.gammaos.nano.rom.recursive", "0");
         b.toggle("rom_m3u_group", "Group Multi-Disc (.m3u)",
                  SettingSource::kProp, "persist.gammaos.nano.rom.m3u_group", "1");
+        b.toggle("rom_show_folders", "Show Game Folders",
+                 SettingSource::kProp, "persist.gammaos.nano.rom.folders", "1");
         // On: show each game's scraped / renamed Display Name (games without one fall back to the
         // file name) and order the list by it. Off: show and order games by the raw ROM file name.
         b.toggle("rom_show_display_names", "Show Display Names",
@@ -1020,6 +1022,7 @@ void NanoMenu::settingsToggleValue(int nodeIdx) {
         romRescanFromSettings();
     // Display Name view: update the flag and re-derive every library's labels + order. A rescan
     // re-runs applyRomNameOverrides, which now honours the new mode (label + sort).
+    if (n.key == "persist.gammaos.nano.rom.folders") applyShowRomFolders(newVal == "1" || newVal == "true");
     if (n.key == "persist.gammaos.nano.rom.show_display_names") {
         mShowDisplayNames = (newVal == "1" || newVal == "true");
         romRescanFromSettings();

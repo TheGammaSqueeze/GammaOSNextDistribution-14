@@ -1904,5 +1904,8 @@
  "save states": "stati",
  "file": "file",
  "files": "file",
- "this game's files after exit": "i file di questo gioco dopo l'uscita"
+ "this game's files after exit": "i file di questo gioco dopo l'uscita",
+ "Show Game Folders": "Mostra cartelle dei giochi",
+ "Show the subfolders of a system's ROM folder as folders you can open, instead of one list of every game. A folder with only one game in it shows as that game. Needs Scan ROM Subfolders.": "Mostra le sottocartelle della cartella ROM di un sistema come cartelle da aprire, invece di un unico elenco con tutti i giochi. Una cartella con un solo gioco viene mostrata come quel gioco. Richiede Scansiona sottocartelle ROM.",
+ "%d games": "%d giochi"
 }

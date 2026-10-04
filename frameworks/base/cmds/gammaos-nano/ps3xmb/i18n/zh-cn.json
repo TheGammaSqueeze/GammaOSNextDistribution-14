@@ -1913,5 +1913,8 @@
  "save states": "个即时存档",
  "file": "个文件",
  "files": "个文件",
- "this game's files after exit": "本游戏的文件需退出后处理"
+ "this game's files after exit": "本游戏的文件需退出后处理",
+ "Show Game Folders": "显示游戏文件夹",
+ "Show the subfolders of a system's ROM folder as folders you can open, instead of one list of every game. A folder with only one game in it shows as that game. Needs Scan ROM Subfolders.": "将系统 ROM 文件夹中的子文件夹显示为可打开的文件夹，而不是把所有游戏放在一个列表里。只有一个游戏的文件夹会直接显示为该游戏。需要开启扫描 ROM 子文件夹。",
+ "%d games": "%d 个游戏"
 }

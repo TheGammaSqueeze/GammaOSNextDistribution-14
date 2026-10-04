@@ -498,7 +498,7 @@ void NanoMenu::esdeRebuildSysList() {
     if (mEsdeSysSel >= (int)mEsdeSysList.size() || mEsdeSysSel < 0) mEsdeSysSel = 0;
     // Clamp the game cursor too: a rescan can shrink the selected system's rom list.
     if (!mEsdeSysList.empty()) {
-        int gn = (int)mXmbSystems[mEsdeSysList[mEsdeSysSel]].roms.size();
+        int gn = (int)esdeEntries().size();
         if (mEsdeGameSel >= gn) mEsdeGameSel = gn > 0 ? gn - 1 : 0;
         if (mEsdeGameSel < 0) mEsdeGameSel = 0;
     }
@@ -1496,8 +1496,8 @@ void NanoMenu::renderEsde() {
         (gamelist && mEsdeSysSel < (int)mEsdeSysList.size())
             ? [&] {
                   const auto& sys = mXmbSystems[mEsdeSysList[mEsdeSysSel]];
-                  return (mEsdeGameSel >= 0 && mEsdeGameSel < (int)sys.roms.size())
-                             ? sys.roms[mEsdeGameSel] : std::string();
+                  const int r = esdeRomAt(mEsdeGameSel);
+                  return r >= 0 ? sys.roms[r] : std::string();
               }()
             : std::string();
 
@@ -1527,13 +1527,25 @@ void NanoMenu::renderEsde() {
             y = py * mHeight - oy * h;
         }
         int count = gamelist
-                        ? (mEsdeSysSel < (int)mEsdeSysList.size()
-                               ? (int)mXmbSystems[mEsdeSysList[mEsdeSysSel]].roms.size() : 0)
+                        ? (mEsdeSysSel < (int)mEsdeSysList.size() ? (int)esdeEntries().size() : 0)
                         : (int)mEsdeSysList.size();
         int sel = gamelist ? mEsdeGameSel : mEsdeSysSel;
         auto label = [&](int i) -> std::string {
             if (gamelist) {
                 const auto& sys = mXmbSystems[mEsdeSysList[mEsdeSysSel]];
+                const auto& ents = esdeEntries();
+                if (i >= 0 && i < (int)ents.size() && ents[i].romIdx < 0) {
+                    // A subfolder: ES-DE's textlist marks folders with the Font Awesome folder
+                    // symbol (U+F07C, "# " in ascii mode), like the favourite star below.
+                    std::string nm = ents[i].name;
+                    if (!isCarousel && !isGrid) {
+                        std::string ind = primary->getS("indicators", std::string("symbols"));
+                        if (ind == "ascii")     nm = "# " + nm;
+                        else if (ind != "none") nm = "\xEF\x81\xBC  " + nm;   // U+F07C + two spaces
+                    }
+                    return nm;
+                }
+                i = esdeRomAt(i);
                 bool haveRom = (i >= 0 && i < (int)sys.roms.size());
                 // ES-DE labels each game by its <name> metadata (gamelist.xml), not the filename-
                 // derived display name, so a game named "Dangan" whose file is "Dangan GB.gb" reads
@@ -1567,7 +1579,8 @@ void NanoMenu::renderEsde() {
         auto gameRom = [&](int i) -> std::string {
             if (!gamelist || mEsdeSysSel >= (int)mEsdeSysList.size()) return std::string();
             const auto& sys = mXmbSystems[mEsdeSysList[mEsdeSysSel]];
-            return (i >= 0 && i < (int)sys.roms.size()) ? sys.roms[i] : std::string();
+            const int r = esdeRomAt(i);
+            return r >= 0 ? sys.roms[r] : std::string();
         };
 
         if (count <= 0) {
@@ -4394,7 +4407,7 @@ void NanoMenu::esdeNav(int dx, int dy) {
             // Switching systems from a grid is via BACK to the system view. A horizontal carousel
             // scrolls its games with L/R the same way (it used to flip systems instead, so its games
             // could not be reached at all); there U/D switches systems (below).
-            int n = (int)mXmbSystems[mEsdeSysList[mEsdeSysSel]].displayNames.size();
+            int n = (int)esdeEntries().size();
             if (n > 0) { mEsdeGameSel = wrap(mEsdeGameSel + dx, n); esdeSfx(4); }  // scroll
         } else {
             // A list flips systems while staying in the gamelist (a nano convenience).
@@ -4411,7 +4424,7 @@ void NanoMenu::esdeNav(int dx, int dy) {
         mEsdeGameSel = 0;
         esdeSfx(0);                             // systembrowse: system flip
     } else if (dy) {                           // gamelist: U/D scrolls games (grid = whole-row jump)
-        int n = (int)mXmbSystems[mEsdeSysList[mEsdeSysSel]].displayNames.size();
+        int n = (int)esdeEntries().size();
         if (n > 0) {
             int prevSel = mEsdeGameSel;
             if (esdeGamelistIsGrid()) {
@@ -4435,6 +4448,33 @@ void NanoMenu::esdeNav(int dx, int dy) {
     mDisplayDirty = true;
 }
 
+// The ES-DE gamelist rows of the selected system and folder (games and subfolders, in the order the
+// stack themes show them, see romFolderView). Cached; rebuilt when the system, the folder or the
+// system's ROM list changes. Switching systems leaves any open subfolder.
+const std::vector<NanoMenu::RomViewEntry>& NanoMenu::esdeEntries() {
+    const int sysIdx = (mEsdeSysSel >= 0 && mEsdeSysSel < (int)mEsdeSysList.size())
+                           ? mEsdeSysList[mEsdeSysSel] : -1;
+    if (sysIdx != mEsdeEntriesSys) mEsdeFolder.clear();
+    const size_t nroms = sysIdx >= 0 ? mXmbSystems[sysIdx].roms.size() : 0;
+    if (mEsdeEntriesDirty || sysIdx != mEsdeEntriesSys || mEsdeFolder != mEsdeEntriesFolder
+        || nroms != mEsdeEntriesRomCount) {
+        mEsdeEntries = sysIdx >= 0 ? romFolderView(sysIdx, mEsdeFolder) : std::vector<RomViewEntry>();
+        mEsdeEntriesSys = sysIdx;
+        mEsdeEntriesFolder = mEsdeFolder;
+        mEsdeEntriesRomCount = nroms;
+        mEsdeEntriesDirty = false;
+    }
+    return mEsdeEntries;
+}
+
+int NanoMenu::esdeRomAt(int i) {
+    const auto& ents = esdeEntries();
+    if (i < 0 || i >= (int)ents.size()) return -1;
+    const int r = ents[i].romIdx;
+    if (r < 0 || mEsdeEntriesSys < 0 || r >= (int)mXmbSystems[mEsdeEntriesSys].roms.size()) return -1;
+    return r;
+}
+
 bool NanoMenu::esdeSelect() {
     if (mEsdeXsActive) return true;            // ignore input while a view transition plays
     esdeRebuildSysList();
@@ -4444,10 +4484,20 @@ bool NanoMenu::esdeSelect() {
         esdeSfx(2);                            // select: system -> gamelist
         return true;
     }
-    const auto& sys = mXmbSystems[mEsdeSysList[mEsdeSysSel]];
-    if (mEsdeGameSel >= 0 && mEsdeGameSel < (int)sys.roms.size()) {
+    const auto& ents = esdeEntries();
+    if (mEsdeGameSel >= 0 && mEsdeGameSel < (int)ents.size() && ents[mEsdeGameSel].romIdx < 0) {
+        // A subfolder: open it in place, the way ES-DE does.
+        mEsdeFolder = ents[mEsdeGameSel].folder;
+        mEsdeGameSel = 0;
+        mEsdeGridCursor = -1; mEsdeGridScroll = 0.0f; mEsdeGridAnimDur = 0.0f; mEsdeGridTransFactor = 1.0f;
+        esdeSfx(2);
+        mDisplayDirty = true;
+        return true;
+    }
+    const int romIdx = esdeRomAt(mEsdeGameSel);
+    if (romIdx >= 0) {
         mXmbSystemIndex = mEsdeSysList[mEsdeSysSel];
-        mXmbGameIndex = mEsdeGameSel;
+        mXmbGameIndex = romIdx;
         esdeSfx(6);                            // launch
         launchXmbGame();
     }
@@ -4456,6 +4506,20 @@ bool NanoMenu::esdeSelect() {
 
 bool NanoMenu::esdeBack() {
     if (mEsdeXsActive) return true;            // ignore input while a view transition plays
+    if (mEsdeInGamelist && !mEsdeFolder.empty()) {
+        // Inside a subfolder: Back goes up one folder and highlights the folder it came from.
+        const std::string left = mEsdeFolder;
+        const size_t slash = mEsdeFolder.rfind('/');
+        mEsdeFolder = slash == std::string::npos ? std::string() : mEsdeFolder.substr(0, slash);
+        mEsdeGameSel = 0;
+        const auto& ents = esdeEntries();
+        for (int i = 0; i < (int)ents.size(); i++)
+            if (ents[i].romIdx < 0 && ents[i].folder == left) { mEsdeGameSel = i; break; }
+        mEsdeGridCursor = -1; mEsdeGridScroll = 0.0f; mEsdeGridAnimDur = 0.0f; mEsdeGridTransFactor = 1.0f;
+        esdeSfx(3);
+        mDisplayDirty = true;
+        return true;
+    }
     if (mEsdeInGamelist) { esdeBeginTransition(false); esdeSfx(3); return true; }
     return false;   // at system root: let the caller handle (e.g. nothing / exit gesture)
 }
@@ -4466,6 +4530,7 @@ void NanoMenu::esdeApplyViewSwap(bool toGamelist) {
     mEsdeInGamelist = toGamelist;
     if (toGamelist) {
         mEsdeGameSel = 0;
+        mEsdeFolder.clear();
         mEsdeGridCursor = -1; mEsdeGridScroll = 0.0f; mEsdeGridAnimDur = 0.0f; mEsdeGridTransFactor = 1.0f;
     }
     mDisplayDirty = true;

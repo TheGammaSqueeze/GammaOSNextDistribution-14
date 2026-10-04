@@ -492,6 +492,7 @@ void NanoMenu::applyRomNameOverrides(std::vector<std::string>& roms,
 }
 
 void NanoMenu::applyRomNameOverrides(XmbSystem& sys) {
+    mEsdeEntriesDirty = true;   // the ES-DE gamelist rows index this list (esdeEntries)
     // DSi theme: queue the DS system's banners (async); ndsBannerTick re-applies the names
     // once they land. Only the DS system: a zip elsewhere is never a DS ROM.
     {
@@ -1329,15 +1330,19 @@ static void sortRomEntriesByDisplayName(std::vector<std::string>& roms,
 // to avoid loops. An .m3u/.m3u8 file is pushed to BOTH outRoms and outM3u so the
 // playlist appears as a launchable entry and the grouping pass can resolve its discs.
 // cnt is incremented per accepted ROM so the caller can pick the busiest candidate.
+// seenNames dedups on the path below the candidate root (rel = that path's folder part, "" at the
+// root), case-insensitively: the same game reached through another alias of the folder (/sdcard vs
+// /data/media/0, or the same tree on the SD card) is listed once, while two different games that
+// share a file name in different subfolders are both kept (Show Game Folders lists them apart).
 static void scanSystemDir(const std::string& dir, int depth, int maxDepth,
                           const std::set<std::string>& exts,
                           std::set<std::string>& seenNames,
                           std::vector<std::string>& outRoms,
                           std::vector<std::string>& outM3u,
-                          int& cnt) {
+                          int& cnt, const std::string& rel = std::string()) {
     DIR* d = opendir(dir.c_str());
     if (!d) return;
-    std::vector<std::string> subdirs;
+    std::vector<std::pair<std::string, std::string>> subdirs;   // (path, rel)
     struct dirent* entry;
     while ((entry = readdir(d)) != nullptr) {
         if (entry->d_name[0] == '.') continue;
@@ -1361,7 +1366,7 @@ static void scanSystemDir(const std::string& dir, int depth, int maxDepth,
         }
         if (isLnk) continue;
         if (isDir) {
-            if (depth < maxDepth) subdirs.push_back(child);
+            if (depth < maxDepth) subdirs.emplace_back(child, rel + name + "/");
             continue;
         }
 
@@ -1385,7 +1390,7 @@ static void scanSystemDir(const std::string& dir, int depth, int maxDepth,
         bool isM3u = (ext == ".m3u" || ext == ".m3u8");
         if (!isM3u && !exts.count(ext)) continue;
 
-        std::string nameLower = name;
+        std::string nameLower = rel + name;
         for (size_t i = 0; i < nameLower.size(); i++)
             if (nameLower[i] >= 'A' && nameLower[i] <= 'Z') nameLower[i] += 32;
         if (!seenNames.insert(nameLower).second) continue;
@@ -1402,11 +1407,12 @@ static void scanSystemDir(const std::string& dir, int depth, int maxDepth,
     // Descend in a stable, case-insensitive order so the merged list is
     // deterministic across scans regardless of readdir order.
     std::sort(subdirs.begin(), subdirs.end(),
-              [](const std::string& a, const std::string& b) {
-                  return strcasecmp(a.c_str(), b.c_str()) < 0;
+              [](const std::pair<std::string, std::string>& a,
+                 const std::pair<std::string, std::string>& b) {
+                  return strcasecmp(a.first.c_str(), b.first.c_str()) < 0;
               });
     for (const auto& s : subdirs)
-        scanSystemDir(s, depth + 1, maxDepth, exts, seenNames, outRoms, outM3u, cnt);
+        scanSystemDir(s.first, depth + 1, maxDepth, exts, seenNames, outRoms, outM3u, cnt, s.second);
 }
 
 // Parse an .m3u/.m3u8 playlist into its referenced disc paths. Mirrors

@@ -1897,5 +1897,8 @@
  "save states": "상태 저장",
  "file": "파일",
  "files": "파일",
- "this game's files after exit": "이 게임의 파일은 종료 후"
+ "this game's files after exit": "이 게임의 파일은 종료 후",
+ "Show Game Folders": "게임 폴더 표시",
+ "Show the subfolders of a system's ROM folder as folders you can open, instead of one list of every game. A folder with only one game in it shows as that game. Needs Scan ROM Subfolders.": "모든 게임을 하나의 목록으로 보여 주는 대신 시스템 ROM 폴더의 하위 폴더를 열 수 있는 폴더로 표시합니다. 게임이 하나뿐인 폴더는 그 게임으로 표시됩니다. ROM 하위 폴더 스캔이 필요합니다.",
+ "%d games": "게임 %d개"
 }

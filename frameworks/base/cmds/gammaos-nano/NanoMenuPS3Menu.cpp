@@ -823,21 +823,150 @@ void NanoMenu::buildDataSubmenu(const Ps3DataItem* node, Ps3Level& out, const st
     }
 }
 
+// The folders a system's games were scanned from: the scan roots that held games in the last
+// scan, or, when the list came from the cache at boot (no scan has run yet), every configured scan
+// candidate. A game's folder is its directory relative to the longest root that contains it.
+std::vector<std::string> NanoMenu::romFolderRoots(const XmbSystem& sys) {
+    std::vector<std::string> roots = sys.activePaths.empty() ? buildScanCandidates(sys) : sys.activePaths;
+    for (auto& r : roots) while (r.size() > 1 && r.back() == '/') r.pop_back();
+    return roots;
+}
+
+// romPath's directory relative to the scan root it lives under ("" = directly in the root, or a
+// path under no known root, which then shows at the top level).
+std::string NanoMenu::romRelDir(const XmbSystem& sys, const std::vector<std::string>& roots,
+                                const std::string& romPath) {
+    (void)sys;
+    size_t best = 0;
+    for (const auto& r : roots) {
+        if (r.size() > best && romPath.size() > r.size() && romPath[r.size()] == '/'
+            && romPath.compare(0, r.size(), r) == 0)
+            best = r.size();
+    }
+    if (best == 0) return std::string();
+    const std::string rest = romPath.substr(best + 1);
+    const size_t slash = rest.rfind('/');
+    return slash == std::string::npos ? std::string() : rest.substr(0, slash);
+}
+
+// The rows of one folder of a system's game list. Subfolders come first (A to Z), then the games
+// directly in this folder in the system's own order. A subfolder holding a single game in its
+// whole tree shows as that game, so the common one-folder-per-CD-game layout (a .cue/.m3u with its
+// discs) stays a plain game list. With Show Game Folders off, every game of the system, flat.
+std::vector<NanoMenu::RomViewEntry> NanoMenu::romFolderView(int sysIdx, const std::string& folder) {
+    std::vector<RomViewEntry> out;
+    if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return out;
+    const XmbSystem& sys = mXmbSystems[sysIdx];
+    const int n = (int)sys.roms.size();
+    if (!mShowRomFolders) {
+        out.resize(n);
+        for (int i = 0; i < n; i++) out[i].romIdx = i;
+        return out;
+    }
+    const std::vector<std::string> roots = romFolderRoots(sys);
+    struct Child { int count = 0; int firstRom = -1; };
+    std::map<std::string, Child> children;
+    std::vector<std::string> childOf(n);   // the child folder each game falls under ("" = direct)
+    std::vector<char> inScope(n, 0);
+    const std::string prefix = folder.empty() ? std::string() : folder + "/";
+    for (int i = 0; i < n; i++) {
+        const std::string rel = romRelDir(sys, roots, sys.roms[i]);
+        std::string tail;
+        if (folder.empty()) tail = rel;
+        else if (rel == folder) tail.clear();
+        else if (rel.compare(0, prefix.size(), prefix) == 0) tail = rel.substr(prefix.size());
+        else continue;
+        inScope[i] = 1;
+        if (tail.empty()) continue;
+        const size_t slash = tail.find('/');
+        std::string name = slash == std::string::npos ? tail : tail.substr(0, slash);
+        Child& c = children[name];
+        if (c.count++ == 0) c.firstRom = i;
+        childOf[i] = std::move(name);
+    }
+    std::vector<std::string> folders;
+    for (const auto& kv : children) if (kv.second.count >= 2) folders.push_back(kv.first);
+    std::sort(folders.begin(), folders.end(), [](const std::string& a, const std::string& b) {
+        return strcasecmp(a.c_str(), b.c_str()) < 0;
+    });
+    for (const auto& f : folders) {
+        RomViewEntry e;
+        e.folder = prefix + f;
+        e.name = f;
+        e.count = children[f].count;
+        out.push_back(std::move(e));
+    }
+    for (int i = 0; i < n; i++) {
+        if (!inScope[i]) continue;
+        if (!childOf[i].empty() && children[childOf[i]].count >= 2) continue;   // inside a shown folder
+        RomViewEntry e;
+        e.romIdx = i;
+        out.push_back(std::move(e));
+    }
+    return out;
+}
+
+// Show Game Folders changed. Open game lists are rebuilt in the new mode; with folders off a level
+// that is inside a folder no longer exists, so the stack is cut back to its system's top level.
+void NanoMenu::applyShowRomFolders(bool on) {
+    mShowRomFolders = on;
+    if (!on) {
+        for (size_t i = 0; i < mPs3Stack.size(); i++) {
+            if (!mPs3Stack[i].romFolder.empty()) { mPs3Stack.resize(i); break; }
+        }
+    }
+    for (auto& lvl : mPs3Stack) {
+        if (lvl.sysIdx < 0) continue;
+        const int keep = lvl.sel;
+        buildRomSubmenu(lvl.sysIdx, lvl);
+        const int n = (int)lvl.items.size();
+        lvl.sel = (keep >= 0 && keep < n) ? keep : 0;
+    }
+    mEsdeFolder.clear();
+    mEsdeGameSel = 0;
+    mEsdeEntriesDirty = true;
+    mDisplayDirty = true;
+}
+
 void NanoMenu::buildRomSubmenu(int sysIdx, Ps3Level& out) {
     out.items.clear(); out.sel = 0;
     out.sysIdx = sysIdx;   // tag the level so a rescan can rebuild this ROM column in place
     if (sysIdx < 0 || sysIdx >= (int)mXmbSystems.size()) return;
     const XmbSystem& sys = mXmbSystems[sysIdx];
-    out.title = sys.name;
+    // A folder level is titled after its folder; the system's top level after the system.
+    if (out.romFolder.empty()) out.title = sys.name;
+    else {
+        const size_t slash = out.romFolder.rfind('/');
+        out.title = slash == std::string::npos ? out.romFolder : out.romFolder.substr(slash + 1);
+    }
     // A ROM with no scraped boxart inherits the PARENT SYSTEM's console icon (resolved
     // once here, same as Recently Played does per game) instead of a generic cartridge.
     // Scraped boxart, when present, still replaces this in the column (drawList).
     GLuint sysIconTex = 0, sysNmapTex = 0;
     resolveSystemIcon(sys.iconRef, &sysIconTex, &sysNmapTex);
-    for (size_t i = 0; i < sys.displayNames.size(); i++) {
+    for (const RomViewEntry& e : romFolderView(sysIdx, out.romFolder)) {
         Ps3Item it;
-        it.label = sys.displayNames[i];
-        it.kind = PS3_ROM; it.a = sysIdx; it.b = (int)i;
+        if (e.romIdx < 0) {
+            // A subfolder: the folder glyph (colour texture so the DSi and Minima flat cards are
+            // not blank), its game count as the description, and a stable identity (a hash of
+            // its path) so the DSi return path finds it again whatever the folder order.
+            it.label = e.name;
+            it.kind = PS3_ROM_FOLDER; it.a = sysIdx;
+            uint32_t h = 2166136261u;
+            for (unsigned char c : e.folder) { h ^= c; h *= 16777619u; }
+            it.b = (int)(h & 0x7fffffff);
+            it.payloadStr = e.folder;
+            char cnt[64];
+            snprintf(cnt, sizeof cnt, trDyn("%d games"), e.count);
+            it.desc = cnt;
+            it.iconTex = iconTexForIcon(62); it.nmapTex = nmapForIcon(62);
+            it.iconR = it.iconG = it.iconB = 1.0f;
+            out.items.push_back(it);
+            continue;
+        }
+        if (e.romIdx >= (int)sys.displayNames.size()) continue;
+        it.label = sys.displayNames[e.romIdx];
+        it.kind = PS3_ROM; it.a = sysIdx; it.b = e.romIdx;
         it.iconTex = sysIconTex; it.nmapTex = sysNmapTex;
         it.iconR = sys.iconR; it.iconG = sys.iconG; it.iconB = sys.iconB;
         out.items.push_back(it);
@@ -5540,6 +5669,12 @@ void NanoMenu::ps3XmbSelect() {
     size_t depthBefore = mPs3Stack.size();
     switch (it.kind) {
         case PS3_SYSTEM:       { Ps3Level lvl; buildRomSubmenu(it.a, lvl);     mPs3Stack.push_back(lvl); break; }
+        case PS3_ROM_FOLDER:   {   // a subfolder of a game list: open it as its own level
+            Ps3Level lvl; lvl.romFolder = it.payloadStr;
+            buildRomSubmenu(it.a, lvl);
+            mPs3Stack.push_back(lvl);
+            break;
+        }
         case PS3_RECENT_LIST:  { Ps3Level lvl; buildRecentSubmenu(lvl);        mPs3Stack.push_back(lvl); break; }
         case PS3_APP_LIST:     { Ps3Level lvl; buildAppSubmenu(lvl);           mPs3Stack.push_back(lvl); break; }
         case PS3_CAT_SUBMENU:  {
@@ -9129,6 +9264,8 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // both default ON. A change re-scans the whole ROM library (see closePs3Dialog).
     {"Scan ROM Subfolders", SettingSource::kProp, "persist.gammaos.nano.rom.recursive", "0", "1:On,0:Off"},
     {"Group Multi-Disc (.m3u)", SettingSource::kProp, "persist.gammaos.nano.rom.m3u_group", "1", "1:On,0:Off"},
+    // Folder view of each system's game list: built from the scanned list, so no rescan.
+    {"Show Game Folders", SettingSource::kProp, "persist.gammaos.nano.rom.folders", "1", "1:On,0:Off"},
     {"USB Controller Switch", SettingSource::kProp, "persist.gammaos.usbcontrollerswitch", "false", "false:Off,true:On"},
     {"DC Dimming Emulation", SettingSource::kProp, "persist.gammaos.dcdimmingemulation", "0", "0:Off,1:On"},
     {"Phone Taskbar", SettingSource::kProp, "persist.gammaos.taskbar.phone", "true", "false:Off,true:On"},
@@ -11825,6 +11962,8 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     if (!strcmp(b->label, "Scan ROM Subfolders") ||
                         !strcmp(b->label, "Group Multi-Disc (.m3u)"))
                         romRescanFromSettings();
+                    // Folder view: computed from the scanned list, so only the open lists change.
+                    if (!strcmp(b->label, "Show Game Folders")) applyShowRomFolders(v == "1" || v == "true");
                     // Screen Map: mirror the volatile active flag and show/hide the
                     // cosmetic button-hint overlay service (functional effect is the
                     // two props, consumed by the gammapad daemon).
@@ -12471,6 +12610,10 @@ void NanoMenu::openXmbOpt() {
             // scan folders, icon, etc. without hunting through Settings. (All themes: the
             // option menu is shared.)
             add("Manage Game System", "managegs", true);
+            add("Information", "info", false);
+            break;
+        case PS3_ROM_FOLDER:   // a subfolder of a game list (Show Game Folders)
+            add("Open", "romfolderopen", true);
             add("Information", "info", false);
             break;
         case PS3_COLLECTION:
@@ -13371,6 +13514,14 @@ void NanoMenu::xmbOptAction(const std::string& act) {
             mPs3Stack.back().sel = (keep < n) ? keep : (n > 0 ? n - 1 : 0);
             mDisplayDirty = true;
         }
+        return;
+    }
+    if (act == "romfolderopen") {   // Open a game list subfolder (same as A on it)
+        if (mPs3OptCtxA < 0 || mPs3OptCtxA >= (int)mXmbSystems.size()) return;
+        Ps3Level lvl; lvl.romFolder = mPs3OptCtxPayload;
+        buildRomSubmenu(mPs3OptCtxA, lvl);
+        mPs3Stack.push_back(lvl);
+        mDisplayDirty = true;
         return;
     }
     if (act == "colopen") {   // Open a collection (same as A on it)

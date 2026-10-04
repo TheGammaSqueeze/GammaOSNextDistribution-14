@@ -1913,5 +1913,8 @@
  "save states": "個即時存檔",
  "file": "個檔案",
  "files": "個檔案",
- "this game's files after exit": "本遊戲的檔案需退出後處理"
+ "this game's files after exit": "本遊戲的檔案需退出後處理",
+ "Show Game Folders": "顯示遊戲資料夾",
+ "Show the subfolders of a system's ROM folder as folders you can open, instead of one list of every game. A folder with only one game in it shows as that game. Needs Scan ROM Subfolders.": "將系統 ROM 資料夾中的子資料夾顯示為可開啟的資料夾，而不是把所有遊戲放在一個清單裡。只有一個遊戲的資料夾會直接顯示為該遊戲。需要開啟掃描 ROM 子資料夾。",
+ "%d games": "%d 個遊戲"
 }

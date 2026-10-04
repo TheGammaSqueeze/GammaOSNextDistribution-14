@@ -1448,6 +1448,10 @@ private:
         PS3_PINNED_APPS_LIST, // "Pinned Apps" entry under Game -> the pinned-apps submenu
         // ---- Hidden games (Settings > Game Settings > Hidden Games) ----
         PS3_HIDDEN_GAME,    // a hidden game; select shows it again (payloadStr = hiddenKey)
+        // ---- Game folders (Show Game Folders) ----
+        PS3_ROM_FOLDER,     // a subfolder in a system's game list; select opens it (a = sysIdx,
+                            // b = stable hash of the folder path for the return path,
+                            // payloadStr = folder path relative to the system's scan root)
     };
     // Game Systems editor screen kinds (Ps3Level.screenKind). Used to route the
     // X / L1 / R1 / Y buttons contextually while a GS screen is on the nav stack.
@@ -1513,7 +1517,23 @@ private:
                                  // lets a track/file's option menu there offer Remove from Playlist + Reorder.
         std::string itemHideCatId;  // the category id an ITEM_HIDE editor level is editing (set by
                                     // buildCatItemVisibilityList); lets itemHideToggle rebuild it in place.
+        std::string romFolder;      // a ROM list level's folder, relative to the system's scan root
+                                    // ("" = the system's top level). Kept across in-place rebuilds.
     };
+    // One row of a system's game list in folder view (romFolderView): a game (romIdx >= 0) or a
+    // subfolder (romIdx == -1; folder = its path relative to the scan root, count = games under it).
+    struct RomViewEntry {
+        int romIdx = -1;
+        std::string folder;
+        std::string name;
+        int count = 0;
+    };
+    std::vector<RomViewEntry> romFolderView(int sysIdx, const std::string& folder);
+    std::string romRelDir(const XmbSystem& sys, const std::vector<std::string>& roots,
+                          const std::string& romPath);
+    std::vector<std::string> romFolderRoots(const XmbSystem& sys);
+    bool mShowRomFolders = true;  // persist.gammaos.nano.rom.folders (Show Game Folders)
+    void applyShowRomFolders(bool on);
     bool mPs3Xmb = false;         // persist.gammaos.nano.ps3xmb
     bool mNdsTheme = false;       // persist.gammaos.nano.ndstheme (DSi System Menu theme, takes priority)
     bool mNdsDark = false;        // persist.gammaos.nano.nds.dark: DSi theme dark variant (dark field + light ink/glyphs)
@@ -1598,7 +1618,16 @@ private:
     void esdeReloadForSystem(int sysIdx);         // re-parse per-system data (systeminfo/colours) on
                                                   // a settled system change (XML only, no GL reload)
     int  mEsdeSysSel = 0;                         // selected system (system view)
-    int  mEsdeGameSel = 0;                        // selected game (gamelist view)
+    int  mEsdeGameSel = 0;                        // selected entry (gamelist view): an index into
+                                                  // esdeEntries(), a game or a subfolder
+    std::string mEsdeFolder;                      // gamelist view: the open subfolder ("" = top level)
+    std::vector<RomViewEntry> mEsdeEntries;       // gamelist rows for (system, folder), see esdeEntries()
+    int mEsdeEntriesSys = -1;                     // what mEsdeEntries was built for
+    std::string mEsdeEntriesFolder;
+    size_t mEsdeEntriesRomCount = 0;
+    bool mEsdeEntriesDirty = true;                // set when a system's ROM list changes
+    const std::vector<RomViewEntry>& esdeEntries();
+    int esdeRomAt(int i);                         // entry i's ROM index in the system, -1 for a folder
     bool mEsdeInGamelist = false;                 // system view vs gamelist view
     // ES-DE view transition (system <-> gamelist), see docs/theme-engine/VIEW_TRANSITIONS.md.
     // mEsdeXsActive gates it; mEsdeXsSlide picks slide vs the black-overlay fade; mEsdeXsToGamelist

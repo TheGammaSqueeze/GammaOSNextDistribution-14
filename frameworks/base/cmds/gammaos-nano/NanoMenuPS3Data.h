@@ -371,6 +371,7 @@ static const Ps3DataItem kToolboxCh[] = {
   {"Start+Select LED",22,"Flash the LED when Start and Select are pressed together.","Off",1,nullptr,0},
   {"Scan ROM Subfolders",22,"Also scan folders inside each system's ROM directory (recursively). Turn off to scan only the top level.","Off",1,nullptr,0},
   {"Group Multi-Disc (.m3u)",22,"Show a single entry for multi-disc games listed in an .m3u playlist and hide the individual disc files.","On",1,nullptr,0},
+  {"Show Game Folders",22,"Show the subfolders of a system's ROM folder as folders you can open, instead of one list of every game. A folder with only one game in it shows as that game. Needs Scan ROM Subfolders.","On",1,nullptr,0},
   {"USB Controller Switch",22,"Switch the USB port between host and device mode for controllers.","Off",1,nullptr,0},
   {"DC Dimming Emulation",22,"Emulate DC dimming to reduce screen flicker at low brightness.","Off",1,nullptr,0},
   {"Phone Taskbar",22,"Show the phone-style taskbar.","On",1,nullptr,0},
