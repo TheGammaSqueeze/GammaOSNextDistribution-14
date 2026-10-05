@@ -4049,7 +4049,28 @@ ui::Rotation SurfaceFlinger::getPhysicalDisplayOrientation(DisplayId displayId,
     if (!id) {
         return ui::ROTATION_0;
     }
-    
+
+    // GammaOS: deterministic per-physical-port orientation override, applied to
+    // BOTH primary and secondary displays. On dual-internal-panel devices the
+    // connector that SF calls "primary" (and which panel becomes the default
+    // display) can flip across reboots, so an orientation keyed on isPrimary is
+    // not stable. Keying on the connector's physical port makes each panel's
+    // physical orientation fixed regardless of that flip.
+    //   persist.gsf.port_rot.<port>  (e.g. persist.gsf.port_rot.130=ORIENTATION_90)
+    {
+        char pkey[PROPERTY_KEY_MAX];
+        char pval[PROPERTY_VALUE_MAX];
+        snprintf(pkey, sizeof(pkey), "persist.gsf.port_rot.%u",
+                 static_cast<unsigned>(id->getPort()));
+        if (property_get(pkey, pval, "") > 0) {
+            if (!strcmp(pval, "ORIENTATION_0")   || !strcmp(pval, "0"))   return ui::ROTATION_0;
+            if (!strcmp(pval, "ORIENTATION_90")  || !strcmp(pval, "90"))  return ui::ROTATION_90;
+            if (!strcmp(pval, "ORIENTATION_180") || !strcmp(pval, "180")) return ui::ROTATION_180;
+            if (!strcmp(pval, "ORIENTATION_270") || !strcmp(pval, "270")) return ui::ROTATION_270;
+            ALOGW("Invalid %s=%s; ignoring", pkey, pval);
+        }
+    }
+
     // GammaOS: per-display / secondary orientation overrides via persist props.
     if (!isPrimary) {
         char key[PROPERTY_KEY_MAX];

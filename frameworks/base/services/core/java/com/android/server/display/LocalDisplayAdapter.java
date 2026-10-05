@@ -215,7 +215,23 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             LocalDisplayDevice device = mDevices.get(physicalDisplayId);
             if (device == null) {
                 // Display was added.
-                final boolean isFirstDisplay = mDevices.size() == 0;
+                // GammaOS: On dual-internal-panel devices the hotplug order of the two
+                // built-in connectors is not deterministic, so which panel is treated as
+                // the primary (default display, non-mirror source) flips across reboots.
+                // When persist.gammaos.primary_port is set, pin "first/primary" to the
+                // panel on that physical port regardless of enumeration order; otherwise
+                // fall back to stock enumeration-order behaviour.
+                final int gammaPrimaryPort =
+                        SystemProperties.getInt("persist.gammaos.primary_port", -1);
+                final boolean isFirstDisplay;
+                if (gammaPrimaryPort >= 0) {
+                    final DisplayAddress.Physical gammaAddr =
+                            DisplayAddress.fromPhysicalDisplayId(physicalDisplayId);
+                    isFirstDisplay = gammaAddr != null
+                            && gammaAddr.getPort() == gammaPrimaryPort;
+                } else {
+                    isFirstDisplay = mDevices.size() == 0;
+                }
                 device = new LocalDisplayDevice(displayToken, physicalDisplayId, staticInfo,
                         dynamicInfo, modeSpecs, isFirstDisplay);
                 mDevices.put(physicalDisplayId, device);

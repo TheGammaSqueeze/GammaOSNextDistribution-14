@@ -467,7 +467,7 @@ TouchInputMapper::Parameters TouchInputMapper::computeParameters(
             }
             return out;
         };
-        char key2[PROPERTY_KEY_MAX];
+        char key2[128]; // GammaOS: PROPERTY_KEY_MAX (32) truncates long keys like persist.gif.rot.himax_touchscreen
         char val2[PROPERTY_VALUE_MAX];
         std::string devKey = sanitizeName(deviceContext.getDeviceIdentifier().name);
         // Short key: persist.gif.rot.<device>
@@ -588,7 +588,7 @@ std::optional<DisplayViewport> TouchInputMapper::findViewport() {
         return out;
     };
     auto byProps = [&](std::optional<DisplayViewport>& out) -> bool {
-        char key[PROPERTY_KEY_MAX];
+        char key[128]; // GammaOS: PROPERTY_KEY_MAX (32) truncates long keys like persist.gif.map.uid.himax_touchscreen
         char val[PROPERTY_VALUE_MAX];
         // Use the stable identifier name (matches dumpsys / getevent), not a prettified label.
         const std::string devKey = sanitizeName(getDeviceContext().getDeviceIdentifier().name);
