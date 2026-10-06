@@ -5270,7 +5270,18 @@ void NanoMenu::renderControlCenterFrame() {
         }
     }
     eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[0], mSecondaryEglSurfaces[0], mContext);
-    glViewport(0, 0, mWidth, mHeight);   // secondary is the same resolution as the primary
+    // The dashboard lays itself out in mWidth x mHeight. The RG DS panels match,
+    // but the RP Duo Lite's bottom DP is 1280x960 under a 1920x1080 top: lay the
+    // pass out in the secondary surface's own size (restored before returning),
+    // or the right third of the dashboard is cut off and touch lands off target.
+    const int ccSavedW = mWidth, ccSavedH = mHeight;
+    if (!mSecondaryCreatedSize.empty() && mSecondaryCreatedSize[0].first > 0 && mSecondaryCreatedSize[0].second > 0) {
+        mWidth = mSecondaryCreatedSize[0].first;
+        mHeight = mSecondaryCreatedSize[0].second;
+        static int sCcSizeLogged = 0;
+        if (!sCcSizeLogged++) ALOGI("cc: secondary canvas %dx%d (primary %dx%d)", mWidth, mHeight, ccSavedW, ccSavedH);
+    }
+    glViewport(0, 0, mWidth, mHeight);
     // Upload the (overlay = identity) panel rotation to the draw programs so drawText/quads land
     // right on the secondary (render()'s uploadRotationMatrices lambda is out of scope here).
     {
@@ -5354,6 +5365,7 @@ void NanoMenu::renderControlCenterFrame() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[0]);
+    mWidth = ccSavedW; mHeight = ccSavedH;
     eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);   // restore the primary current
 }
 

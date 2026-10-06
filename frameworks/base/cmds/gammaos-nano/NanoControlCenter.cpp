@@ -161,6 +161,24 @@ void ccReadCpu() {
 }
 
 void ccReadGpu() {
+    // Qualcomm (RP Duo Lite): the Adreno exposes kgsl nodes, not a devfreq dir
+    // under /sys/class/devfreq; the gauge reads gpuclk / max_gpuclk / busy there.
+    static int sKgsl = -1;
+    if (sKgsl < 0) sKgsl = (access("/sys/class/kgsl/kgsl-3d0/gpuclk", R_OK) == 0 &&
+                            access("/sys/class/devfreq/fde60000.gpu/cur_freq", R_OK) != 0) ? 1 : 0;
+    if (sKgsl == 1) {
+        const long long cur = readLLFile("/sys/class/kgsl/kgsl-3d0/gpuclk", 0);
+        static long long sMax = 0;
+        if (sMax <= 0) sMax = readLLFile("/sys/class/kgsl/kgsl-3d0/max_gpuclk", 0);
+        if (cur > 0) sCc.gpuMhz = (int)(cur / 1000000);
+        if (sMax > 0) sCc.gpuMaxMhz = (int)(sMax / 1000000);
+        if (FILE* f = fopen("/sys/class/kgsl/kgsl-3d0/gpu_busy_percentage", "r")) {
+            int pct = 0;
+            if (fscanf(f, "%d", &pct) == 1) sCc.gpuPct = pct < 0 ? 0 : (pct > 100 ? 100 : pct);
+            fclose(f);
+        }
+        return;
+    }
     long long cur = readLLFile("/sys/class/devfreq/fde60000.gpu/cur_freq", 0);
     // The gauge is clock against the HARDWARE ceiling (the highest OPP), not max_freq: that is
     // the governor cap the performance mode sets (400 MHz under Stock on the Plus), so a GPU
@@ -185,18 +203,26 @@ void ccReadGpu() {
     }
 }
 
-int ccThermal(const char* wantType) {
-    for (int z = 0; z < 12; z++) {
-        char tp[96], vp[96];
-        snprintf(tp, sizeof(tp), "/sys/class/thermal/thermal_zone%d/type", z);
-        FILE* f = fopen(tp, "r");
-        if (!f) continue;
-        char type[64] = {};
-        if (fgets(type, sizeof(type), f)) { char* nl = strchr(type, '\n'); if (nl) *nl = 0; }
-        fclose(f);
-        if (strcmp(type, wantType) == 0) {
-            snprintf(vp, sizeof(vp), "/sys/class/thermal/thermal_zone%d/temp", z);
-            return readIntFile(vp, 0) / 1000;
+static int ccTopDisplayId()    { return property_get_int32("persist.gammaos.nano.cc.topdisplay", 2); }
+static int ccBottomDisplayId() { return property_get_int32("persist.gammaos.nano.cc.bottomdisplay", 0); }
+
+// First zone whose type matches one of the wanted names, in order of preference.
+// Rockchip names its zones soc-thermal / gpu-thermal; Qualcomm (RP Duo Lite,
+// SM6125) has cpuss-N / cpu-N-M and a plain "gpu" zone, 34 zones in all.
+int ccThermalAny(const char* const* wantTypes, int nWant) {
+    for (int w = 0; w < nWant; w++) {
+        for (int z = 0; z < 64; z++) {
+            char tp[96], vp[96];
+            snprintf(tp, sizeof(tp), "/sys/class/thermal/thermal_zone%d/type", z);
+            FILE* f = fopen(tp, "r");
+            if (!f) break;
+            char type[64] = {};
+            if (fgets(type, sizeof(type), f)) { char* nl = strchr(type, '\n'); if (nl) *nl = 0; }
+            fclose(f);
+            if (strcmp(type, wantTypes[w]) == 0) {
+                snprintf(vp, sizeof(vp), "/sys/class/thermal/thermal_zone%d/temp", z);
+                return readIntFile(vp, 0) / 1000;
+            }
         }
     }
     return 0;
@@ -274,7 +300,10 @@ void ccReadVolume() {
                 for (char* tok = strtok(s, ";\r\n "); tok; tok = strtok(nullptr, ";\r\n ")) {
                     int id = -1, v = -1;
                     if (sscanf(tok, "%d=%d", &id, &v) == 2 && v >= 0 && v <= sCc.sVolMax) {
-                        if (id == 0) bot = v; else if (id == 2) top = v;   // reject an out-of-range/corrupt map entry
+                        // Logical display ids of the two panels (RG DS: bottom 0, top 2;
+                        // RP Duo Lite: top 0, bottom 1), the same props the launch
+                        // path and the focus ring use.
+                        if (id == ccBottomDisplayId()) bot = v; else if (id == ccTopDisplayId()) top = v;
                     }
                 }
             }
@@ -315,8 +344,10 @@ void NanoMenu::pollControlCenterStats() {
     // fopens ~24 files per read). Brightness slider fills still track a live drag because ccApplySlider
     // writes sCc.briTop/briBot directly; this 1s re-read only catches an externally-changed backlight.
     if (!sCc.primed || t - sCc.lastSlowMs >= 1000) {
-        sCc.socTempC = ccThermal("soc-thermal");
-        sCc.gpuTempC = ccThermal("gpu-thermal");
+        static const char* const kSocZones[] = { "soc-thermal", "cpuss-0", "cpu-1-0", "cpu-0-0", "cpu0-thermal", "apss-0" };
+        static const char* const kGpuZones[] = { "gpu-thermal", "gpu", "gpuss-0", "gpu0-thermal" };
+        sCc.socTempC = ccThermalAny(kSocZones, 6);
+        sCc.gpuTempC = ccThermalAny(kGpuZones, 4);
         ccReadRam();
         ccReadBattery();
         ccReadBrightness();
@@ -1638,7 +1669,8 @@ void NanoMenu::ccSetDisplayVolMap(int bot, int top) {
     if (top < sCc.volMin) top = sCc.volMin; if (top > sCc.volMax) top = sCc.volMax;
     char c[160];
     snprintf(c, sizeof(c),
-             "settings put global gammaos_audio_display_volume_map '0=%d;2=%d' 2>/dev/null", bot, top);
+             "settings put global gammaos_audio_display_volume_map '%d=%d;%d=%d' 2>/dev/null",
+             ccBottomDisplayId(), bot, ccTopDisplayId(), top);
     shellCmd(c);
     mCcMapLastBot = bot; mCcMapLastTop = top; mCcMapLastSetMs = nowMs();
 }

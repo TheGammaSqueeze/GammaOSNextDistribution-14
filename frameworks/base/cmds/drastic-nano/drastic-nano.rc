@@ -88,6 +88,15 @@ on property:sys.gammaos.drastic_nano.start_sf=1
 # drastic-nano exit trigger. drastic-nano sets session_done=1 on
 # clean shutdown or from the signal handler on crash. Nano restart
 # brings the user back to the XMB.
+# Devices that want the DRM home back after a session launched from the
+# resident overlay (persist.gammaos.nano.drm_home_resume=1, the RP Duo Lite):
+# the home restarted by the rule below runs after boot_completed, where
+# readyToRun skips the DRM splash unless force_drm is set, so without this it
+# came back on the SurfaceFlinger path. Ordered before that rule so the flag is
+# set before the start. Other devices (RG DS) keep their previous behaviour.
+on property:sys.gammaos.drastic_nano.session_done=1 && property:persist.gammaos.nano.drm_home_resume=1
+    setprop sys.gammaos.nano.force_drm 1
+
 on property:sys.gammaos.drastic_nano.session_done=1
     setprop sys.gammaos.drastic_nano.session_done 0
     # Clear the real-session shader signal so the home's QR preview, which
@@ -101,11 +110,5 @@ on property:sys.gammaos.drastic_nano.session_done=1
     setprop sys.gammaos.drastic_nano.qr_resume 0
     setprop service.bootanim.exit 0
     setprop service.bootanim.nano_retroarch 0
-    # The home restarted here runs after boot_completed, where readyToRun skips
-    # the DRM splash unless force_drm is set; without it a session launched from
-    # the resident overlay (the SurfaceFlinger side) was followed by a home on
-    # the SF path with both panels composited by the composer. The DRM home is
-    # what this device runs; the parked-home launch never reaches this start
-    # (gammaos-nano is still alive and start is a no-op).
-    setprop sys.gammaos.nano.force_drm 1
     start gammaos-nano
+
