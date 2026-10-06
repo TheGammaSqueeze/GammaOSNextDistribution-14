@@ -2755,7 +2755,11 @@ void OverlayMenu::rebuildVideo() {
     // the single-window layout options (layout, PiP, rotation, scaling, gap),
     // Swap Screens and Half Resolution do not apply there and are hidden.
     const bool dualScreenDevice = isDualScreenDevice();
-    if (!dualScreenDevice) {
+    // A session driving two panels through DRM on any device (RP Duo Lite: main sets
+    // sys.gammaos.drastic_nano.drm_dual) hides the same single-window rows, and the
+    // RG DS-specific Frame Sync / Low Latency pair as well.
+    const bool drmDual = !mSfMode && property_get_bool("sys.gammaos.drastic_nano.drm_dual", false);
+    if (!dualScreenDevice && !drmDual) {
     // Screen Layout presets (advanced_drastic). These place the two DS screens
     // within a single SurfaceFlinger window or single panel; the render loop
     // re-reads the properties every frame, so the change applies the instant the
@@ -3038,8 +3042,7 @@ void OverlayMenu::rebuildVideo() {
         mRows.push_back(std::move(r));
     }
     }   // !dualScreenDevice
-    if (!mSfMode && (dualScreenDevice ||
-                     property_get_bool("sys.gammaos.drastic_nano.drm_dual", false))) {
+    if (!mSfMode && (dualScreenDevice || drmDual)) {
         // Dual-panel DRM path (RG DS, RP Duo Lite): each DS screen has its own
         // panel. Per-Screen Scale draws each screen at a chosen size inside its
         // panel's aspect fit (percent, or the largest integer multiple of the
@@ -3086,7 +3089,36 @@ void OverlayMenu::rebuildVideo() {
                 r.onAccept = [step]() { step(1); };
                 mRows.push_back(std::move(r));
             };
-            scaleRow("Top Screen Scale", "persist.gammaos.drastic_nano.drm_top_scale");
+            {
+                // Top screen: 0.1 percent steps (stored as a decimal string, "95.3"), so the
+                // turned 1920x1080 top panel can be matched to the bottom panel's pixel size
+                // exactly. Positions: Integer, then 50.0 .. 100.0, wrapping.
+                RowAction r;
+                r.label = "Top Screen Scale";
+                char cur[PROPERTY_VALUE_MAX] = {};
+                shadowPropGet("persist.gammaos.drastic_nano.drm_top_scale", cur, "100");
+                const double pct = atof(cur);
+                if (pct <= 0.0) r.value = trDyn("Integer");
+                else { char b[24]; snprintf(b, sizeof(b), "%.1f%%", pct); r.value = b; }
+                auto step = [this](int dir) {
+                    char c[PROPERTY_VALUE_MAX] = {};
+                    shadowPropGet("persist.gammaos.drastic_nano.drm_top_scale", c, "100");
+                    const double p = atof(c);
+                    constexpr int kSteps = 500;                       // 50.0 .. 100.0 in tenths
+                    int pos = p <= 0.0 ? 0 : (int)lround((p - 50.0) * 10.0) + 1;
+                    if (pos < 0) pos = 0;
+                    if (pos > kSteps + 1) pos = kSteps + 1;
+                    pos = (pos + dir + kSteps + 2) % (kSteps + 2);
+                    char b[24];
+                    if (pos == 0) snprintf(b, sizeof(b), "0");
+                    else snprintf(b, sizeof(b), "%.1f", 50.0 + (double)(pos - 1) / 10.0);
+                    setPropAsync("persist.gammaos.drastic_nano.drm_top_scale", b);
+                    mDirty = true;
+                };
+                r.onAdjust = step;
+                r.onAccept = [step]() { step(1); };
+                mRows.push_back(std::move(r));
+            }
             scaleRow("Bottom Screen Scale", "persist.gammaos.drastic_nano.drm_bottom_scale");
         }
         {
@@ -3243,7 +3275,7 @@ void OverlayMenu::rebuildVideo() {
     // slot for the delayed primary flip whether the flag is on or off.
     // Frame Sync and Low Latency Mode are single-panel presenter options;
     // the dual-panel devices run the DRM two-panel path where they do not apply.
-    if (!dualScreenDevice) {
+    if (!dualScreenDevice && !drmDual) {
     {
         RowAction r;
         r.label = "Frame Sync";

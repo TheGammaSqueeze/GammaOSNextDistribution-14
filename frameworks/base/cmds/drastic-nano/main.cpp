@@ -1704,7 +1704,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // integer multiple of 256x192 that fits (crisp, no fractional pixels).
     // Fills the final slot size in logical pixels. Returns true when the panel
     // must be cleared first (any bar).
-    auto dsScreenMatrix = [&dsFitMatrix](const float* m, int logicalW, int logicalH, int pct,
+    auto dsScreenMatrix = [&dsFitMatrix](const float* m, int logicalW, int logicalH, float pct,
                                          float out[4], int* slotW, int* slotH) -> bool {
         float fit[4];
         dsFitMatrix(m, logicalW, logicalH, fit);
@@ -1718,15 +1718,15 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
         const float fitW = (float)logicalW * sx, fitH = (float)logicalH * sy;
         float f = 1.0f;
-        if (pct <= 0) {
+        if (pct <= 0.0f) {
             int k = (int)floorf(fminf(fitW / 256.0f, fitH / 192.0f));
             if (k < 1) k = 1;
             f = (256.0f * (float)k) / fitW;
             if (f > 1.0f) f = 1.0f;
         } else {
-            if (pct > 100) pct = 100;
-            if (pct < 10) pct = 10;
-            f = (float)pct / 100.0f;
+            if (pct > 100.0f) pct = 100.0f;
+            if (pct < 10.0f) pct = 10.0f;
+            f = pct / 100.0f;
         }
         out[0] = m[0] * sx * f; out[1] = m[1] * sx * f; out[2] = m[2] * sy * f; out[3] = m[3] * sy * f;
         if (slotW) *slotW = (int)lroundf(fitW * f);
@@ -1739,7 +1739,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     int drmScrW[2] = {0, 0}, drmScrH[2] = {0, 0};
     bool drmScrShaded[2] = {false, false};
     bool drmScreenFit = false, drmScreenShader = false;
-    int drmTopScalePct = 100, drmBottomScalePct = 100;
+    float drmTopScalePct = 100.0f, drmBottomScalePct = 100.0f;   // percent of the aspect fit; 0 = integer
     bool drmDualOffscreenFilled = false;
     auto drmEnsureScreenTarget = [&](int which, int w, int h) {
         if (drmScrFbo[which] != 0 && drmScrW[which] == w && drmScrH[which] == h) return;
@@ -2661,8 +2661,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         if (hasDualDisplay && !android::sDrmAfbcMode && drmHalfRes == 1) {
             drmScreenFit    = android::drastic_settings::getBool("persist.gammaos.drastic_nano.drm_screen_fit", false);
             drmScreenShader = android::drastic_settings::getBool("persist.gammaos.drastic_nano.drm_screen_shader", false);
-            drmTopScalePct    = android::drastic_settings::getInt("persist.gammaos.drastic_nano.drm_top_scale", 100);
-            drmBottomScalePct = android::drastic_settings::getInt("persist.gammaos.drastic_nano.drm_bottom_scale", 100);
+            // The top scale steps in 0.1 percent (stored as a decimal string, e.g. "95.3").
+            char sb[PROPERTY_VALUE_MAX] = {};
+            android::drastic_settings::get("persist.gammaos.drastic_nano.drm_top_scale", sb, "100");
+            drmTopScalePct    = (float)atof(sb);
+            drmBottomScalePct = (float)android::drastic_settings::getInt("persist.gammaos.drastic_nano.drm_bottom_scale", 100);
         } else {
             drmScreenFit = false; drmScreenShader = false;
         }
@@ -2849,8 +2852,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             const bool perScale = drmScreenFit;
             const bool perShader = drmScreenShader;
             const bool topOnSec = screensSwapped;
-            auto screenPct = [&](int which) -> int {
-                if (!perScale) return 100;
+            auto screenPct = [&](int which) -> float {
+                if (!perScale) return 100.0f;
                 return which == 0 ? drmTopScalePct : drmBottomScalePct;
             };
             // Panel pass: which DS screen (0 top / 1 bottom) onto which target.
