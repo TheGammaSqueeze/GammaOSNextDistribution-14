@@ -171,31 +171,36 @@ bool nanoHalChimePlay(const std::string& wavPath, float gain) {
     // set_audioparam is not reliably triggered this early though, so if the handle has not appeared,
     // write the deterministic speaker-profile handle DIRECTLY - by then the upload is done, so the
     // profile is live. AUDIO_DEVICE_OUT_SPEAKER = 0x2.
+    // The DSP VBC profile handshake is a Unisoc (SPRD) audio HAL detail; other
+    // SoCs (Qualcomm on the RP Duo Lite) have no such control and the primary
+    // output routes to the speaker by itself. Treating the missing control as a
+    // failure sent those devices to the AAudio fallback, which waits for
+    // audioserver's policy manager and sounded the chime seconds after the
+    // boot animation had started.
     struct mixer* mx = mixer_open(0);
     struct mixer_ctl* sel = mx ? mixer_get_ctl_by_name(mx, "DSP VBC Profile Select") : nullptr;
-    if (!sel) {
-        NHC_W("halchime: 'DSP VBC Profile Select' ctl missing -> release for AAudio fallback");
-        if (mx) mixer_close(mx);
-        out->standby(); out.clear(); dev.clear();
-        return false;
-    }
-    bool halSelected = false;
-    const int64_t p0 = uptimeMillis();
-    while (uptimeMillis() - p0 < 2500) {
-        out->setParameters(String8("routing=0"));
-        out->setParameters(String8("routing=2"));
-        if (mixer_ctl_get_value(sel, 0) > 1000) { halSelected = true; break; }
-        usleep(150 * 1000);
-    }
-    if (halSelected) {
-        NHC_I("halchime: HAL selected DSP VBC profile (handle=%d)", mixer_ctl_get_value(sel, 0));
+    if (sel) {
+        bool halSelected = false;
+        const int64_t p0 = uptimeMillis();
+        while (uptimeMillis() - p0 < 2500) {
+            out->setParameters(String8("routing=0"));
+            out->setParameters(String8("routing=2"));
+            if (mixer_ctl_get_value(sel, 0) > 1000) { halSelected = true; break; }
+            usleep(150 * 1000);
+        }
+        if (halSelected) {
+            NHC_I("halchime: HAL selected DSP VBC profile (handle=%d)", mixer_ctl_get_value(sel, 0));
+        } else {
+            mixer_ctl_set_value(sel, 0, kDspVbcSpeakerProfile);
+            out->setParameters(String8("routing=2"));   // re-assert the speaker route with the profile live
+            NHC_I("halchime: direct-set DSP VBC Profile Select=%d (readback=%d)",
+                  kDspVbcSpeakerProfile, mixer_ctl_get_value(sel, 0));
+        }
     } else {
-        mixer_ctl_set_value(sel, 0, kDspVbcSpeakerProfile);
-        out->setParameters(String8("routing=2"));   // re-assert the speaker route with the profile live
-        NHC_I("halchime: direct-set DSP VBC Profile Select=%d (readback=%d)",
-              kDspVbcSpeakerProfile, mixer_ctl_get_value(sel, 0));
+        out->setParameters(String8("routing=2"));   // speaker
+        NHC_I("halchime: no DSP VBC profile control on this SoC, speaker route only");
     }
-    mixer_close(mx);
+    if (mx) mixer_close(mx);
 
     NHC_I("halchime: vendor HAL open (%uHz x%u), DSP profile active -> writing coldboot", w.rate, w.ch);
 
