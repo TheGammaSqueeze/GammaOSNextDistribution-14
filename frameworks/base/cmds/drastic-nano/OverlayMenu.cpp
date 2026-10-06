@@ -3038,6 +3038,72 @@ void OverlayMenu::rebuildVideo() {
         mRows.push_back(std::move(r));
     }
     }   // !dualScreenDevice
+    if (!mSfMode && (dualScreenDevice ||
+                     property_get_bool("sys.gammaos.drastic_nano.drm_dual", false))) {
+        // Dual-panel DRM path (RG DS, RP Duo Lite): each DS screen has its own
+        // panel. Per-Screen Scale draws each screen at a chosen size inside its
+        // panel's aspect fit (percent, or the largest integer multiple of the
+        // 256x192 DS screen), centred; Shader Per Screen runs the .dfx shader at
+        // each screen's final on-panel size so the LCD grid / prescale lands on
+        // that panel's real pixels instead of being re-sampled from one shared
+        // offscreen. All live from the next frame; per-game overridable.
+        {
+            RowAction r;
+            r.label = "Per-Screen Scale";
+            r.value = shadowPropGetBool("persist.gammaos.drastic_nano.drm_screen_fit", false)
+                              ? "On" : "Off";
+            auto flip = [this]() {
+                bool cur = shadowPropGetBool("persist.gammaos.drastic_nano.drm_screen_fit", false);
+                setPropAsync("persist.gammaos.drastic_nano.drm_screen_fit", cur ? "0" : "1");
+                mDirty = true;
+            };
+            r.onAccept = flip;
+            r.onAdjust = [flip](int) { flip(); };
+            mRows.push_back(std::move(r));
+        }
+        if (shadowPropGetBool("persist.gammaos.drastic_nano.drm_screen_fit", false)) {
+            // Positions: Integer, then 50% .. 100% in 5% steps, wrapping.
+            auto scaleRow = [this](const char* label, const char* key) {
+                RowAction r;
+                r.label = label;
+                int pct = shadowPropGetInt(key, 100);
+                if (pct <= 0) r.value = trDyn("Integer");
+                else { char b[16]; snprintf(b, sizeof(b), "%d%%", pct); r.value = b; }
+                std::string k = key;
+                auto step = [this, k](int dir) {
+                    int cur = shadowPropGetInt(k.c_str(), 100);
+                    constexpr int kSteps = 10;                  // 50,55,...,100
+                    int pos = cur <= 0 ? 0 : (cur - 50) / 5 + 1;
+                    if (pos < 0) pos = 0;
+                    if (pos > kSteps) pos = kSteps;
+                    pos = (pos + dir + kSteps + 1) % (kSteps + 1);
+                    const int next = pos == 0 ? 0 : 50 + (pos - 1) * 5;
+                    char b[16]; snprintf(b, sizeof(b), "%d", next);
+                    setPropAsync(k.c_str(), b);
+                    mDirty = true;
+                };
+                r.onAdjust = step;
+                r.onAccept = [step]() { step(1); };
+                mRows.push_back(std::move(r));
+            };
+            scaleRow("Top Screen Scale", "persist.gammaos.drastic_nano.drm_top_scale");
+            scaleRow("Bottom Screen Scale", "persist.gammaos.drastic_nano.drm_bottom_scale");
+        }
+        {
+            RowAction r;
+            r.label = "Shader Per Screen";
+            r.value = shadowPropGetBool("persist.gammaos.drastic_nano.drm_screen_shader", false)
+                              ? "On" : "Off";
+            auto flip = [this]() {
+                bool cur = shadowPropGetBool("persist.gammaos.drastic_nano.drm_screen_shader", false);
+                setPropAsync("persist.gammaos.drastic_nano.drm_screen_shader", cur ? "0" : "1");
+                mDirty = true;
+            };
+            r.onAccept = flip;
+            r.onAdjust = [flip](int) { flip(); };
+            mRows.push_back(std::move(r));
+        }
+    }
     if (mSfMode) {
         // 16-bit Framebuffers: render the layout offscreen as RGB565 instead of
         // 8888, halving the per-frame write+read bandwidth of the offscreen the

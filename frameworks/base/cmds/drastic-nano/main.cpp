@@ -69,6 +69,7 @@
 #include <drm_mode.h>
 
 #include <cstdio>
+#include <cmath>
 #include <cstdlib>
 #include <atomic>
 #include <cstring>
@@ -1618,6 +1619,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     RunLoopResult result{false, false, false, false, false};
     bool hasDualDisplay = (android::sDrmActive && android::sDrmZeroCopy &&
                             android::sAhbRingSecondary[0].glFbo != 0);
+    // Tell the overlay menu whether this session drives two panels through DRM
+    // (its Per-Screen Scale / Shader Per Screen rows apply only then).
+    property_set("sys.gammaos.drastic_nano.drm_dual", hasDualDisplay ? "1" : "0");
     // Dual-panel DRM: with Half Resolution off the shaders must run at full
     // resolution into the combined buffer, so the render-scale prop is ignored
     // there; with it on, the half-size offscreen is exactly what is wanted.
@@ -1694,6 +1698,74 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
         out[0] = m[0] * sx; out[1] = m[1] * sx; out[2] = m[2] * sy; out[3] = m[3] * sy;
         return sx < 1.0f || sy < 1.0f;
+    };
+    // Per-screen scale (dual-panel DRM path): the aspect fit above times a
+    // per-screen factor. pct = percent of the fit size; pct 0 = the largest
+    // integer multiple of 256x192 that fits (crisp, no fractional pixels).
+    // Fills the final slot size in logical pixels. Returns true when the panel
+    // must be cleared first (any bar).
+    auto dsScreenMatrix = [&dsFitMatrix](const float* m, int logicalW, int logicalH, int pct,
+                                         float out[4], int* slotW, int* slotH) -> bool {
+        float fit[4];
+        dsFitMatrix(m, logicalW, logicalH, fit);
+        // Recover the fit factors (the fit scales both columns uniformly).
+        float sx = 1.0f, sy = 1.0f;
+        if (logicalW > 0 && logicalH > 0) {
+            const float la = (float)logicalW / (float)logicalH;
+            const float da = 256.0f / 192.0f;
+            if (la > da + 1e-3f)      sx = da / la;
+            else if (la < da - 1e-3f) sy = la / da;
+        }
+        const float fitW = (float)logicalW * sx, fitH = (float)logicalH * sy;
+        float f = 1.0f;
+        if (pct <= 0) {
+            int k = (int)floorf(fminf(fitW / 256.0f, fitH / 192.0f));
+            if (k < 1) k = 1;
+            f = (256.0f * (float)k) / fitW;
+            if (f > 1.0f) f = 1.0f;
+        } else {
+            if (pct > 100) pct = 100;
+            if (pct < 10) pct = 10;
+            f = (float)pct / 100.0f;
+        }
+        out[0] = m[0] * sx * f; out[1] = m[1] * sx * f; out[2] = m[2] * sy * f; out[3] = m[3] * sy * f;
+        if (slotW) *slotW = (int)lroundf(fitW * f);
+        if (slotH) *slotH = (int)lroundf(fitH * f);
+        return sx * f < 0.9999f || sy * f < 0.9999f;
+    };
+    // Per-screen shader targets (dual-panel DRM path, Shader Per Screen): one
+    // offscreen per DS screen at that screen's final on-panel size.
+    GLuint drmScrFbo[2] = {0, 0}, drmScrTex[2] = {0, 0};
+    int drmScrW[2] = {0, 0}, drmScrH[2] = {0, 0};
+    bool drmScrShaded[2] = {false, false};
+    bool drmScreenFit = false, drmScreenShader = false;
+    int drmTopScalePct = 100, drmBottomScalePct = 100;
+    bool drmDualOffscreenFilled = false;
+    auto drmEnsureScreenTarget = [&](int which, int w, int h) {
+        if (drmScrFbo[which] != 0 && drmScrW[which] == w && drmScrH[which] == h) return;
+        if (drmScrTex[which]) { glDeleteTextures(1, &drmScrTex[which]); drmScrTex[which] = 0; }
+        if (drmScrFbo[which]) { glDeleteFramebuffers(1, &drmScrFbo[which]); drmScrFbo[which] = 0; }
+        glGenTextures(1, &drmScrTex[which]);
+        glBindTexture(GL_TEXTURE_2D, drmScrTex[which]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        // NEAREST: the offscreen->panel blit is 1:1 (or a 90/180/270 turn).
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &drmScrFbo[which]);
+        glBindFramebuffer(GL_FRAMEBUFFER, drmScrFbo[which]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, drmScrTex[which], 0);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            ALOGW("drastic-nano: per-screen shader target %d (%dx%d) incomplete", which, w, h);
+            glDeleteFramebuffers(1, &drmScrFbo[which]); drmScrFbo[which] = 0;
+            glDeleteTextures(1, &drmScrTex[which]); drmScrTex[which] = 0;
+        } else {
+            ALOGI("drastic-nano: per-screen shader target %d = %dx%d", which, w, h);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        drmScrW[which] = w; drmScrH[which] = h;
+        drmScrShaded[which] = false;
     };
     GLuint drmLayoutFbo = 0, drmLayoutTex = 0;
     if (drmSingleLayout) {
@@ -2584,7 +2656,21 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         gpu3dPresenterTimerBegin();   // presenter GPU share probe (sys gpu3d_gputime): the DS render and both panel passes
         sGpuTimer.frameBegin();
         sGpuTimer.beginPass(0);
-        if (renderDs && !drmSingleLayout) dr->renderDsToOffscreen();
+        // Live per-screen options of the dual-panel DRM path (overlay rows; also
+        // per-game overridable). Read once per frame so a toggle applies at once.
+        if (hasDualDisplay && !android::sDrmAfbcMode && drmHalfRes == 1) {
+            drmScreenFit    = android::drastic_settings::getBool("persist.gammaos.drastic_nano.drm_screen_fit", false);
+            drmScreenShader = android::drastic_settings::getBool("persist.gammaos.drastic_nano.drm_screen_shader", false);
+            drmTopScalePct    = android::drastic_settings::getInt("persist.gammaos.drastic_nano.drm_top_scale", 100);
+            drmBottomScalePct = android::drastic_settings::getInt("persist.gammaos.drastic_nano.drm_bottom_scale", 100);
+        } else {
+            drmScreenFit = false; drmScreenShader = false;
+        }
+        // The dual-panel pass shades the shared offscreen itself (lazily, only
+        // when a panel is not drawn through its own per-screen shader target).
+        drmDualOffscreenFilled = false;
+        const bool dualOwnOffscreen = hasDualDisplay && !android::sDrmAfbcMode && drmHalfRes == 1;
+        if (renderDs && !drmSingleLayout && !dualOwnOffscreen) dr->renderDsToOffscreen();
         sGpuTimer.endPass(0);
         const int64_t sRdT1 = android::elapsedRealtimeNano();
         const bool directDone = directArmed && dr->directRendered();
@@ -2750,49 +2836,94 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // offset during motion it is the present/scanout, not content.
             const bool mirrorTop = property_get_bool(
                     "sys.gammaos.drastic_nano.mirror_top", false);
-            glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
-            glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
+
+            // Per-screen scale (Per-Screen Scale row): each panel's DS screen is
+            // drawn at a chosen fraction of its aspect-fit size (percent, or the
+            // largest integer multiple of 256x192 that fits), centred on black.
+            // Off = the plain aspect fit. Per-screen shader (Shader Per Screen
+            // row): each screen runs the .dfx shader at its own final on-panel
+            // size into a screen-sized offscreen that is then blitted 1:1 (or
+            // turned 1:1) onto the panel, so the prescale/LCD grid lands on the
+            // real pixels of THAT panel. Off = the shared offscreen (shaded once
+            // at the DS texture size) is re-sampled onto each panel, as before.
+            const bool perScale = drmScreenFit;
+            const bool perShader = drmScreenShader;
+            const bool topOnSec = screensSwapped;
+            auto screenPct = [&](int which) -> int {
+                if (!perScale) return 100;
+                return which == 0 ? drmTopScalePct : drmBottomScalePct;
+            };
+            // Panel pass: which DS screen (0 top / 1 bottom) onto which target.
+            // Matrix m is the panel's direct geometry matrix; (lw, lh) the panel's
+            // logical (unturned) size.
+            auto panelPass = [&](int which, android::AhbRenderTarget& tgt,
+                                 GLsizei vpW, GLsizei vpH, const float* m, int lw, int lh) {
+                float fit[4];
+                int sw = 0, sh = 0;
+                const bool bars = dsScreenMatrix(m, lw, lh, screenPct(which), fit, &sw, &sh);
+                bool blitted = false;
+                if (perShader && sw > 0 && sh > 0) {
+                    if (renderDs) {
+                        drmEnsureScreenTarget(which, sw, sh);
+                        if (drmScrFbo[which] != 0 &&
+                            dr->renderSlotShaded(which, drmScrFbo[which], 0, 0, sw, sh))
+                            drmScrShaded[which] = true;
+                        else
+                            drmScrShaded[which] = false;
+                    }
+                    if (drmScrShaded[which] && drmScrTex[which] != 0) {
+                        glBindFramebuffer(GL_FRAMEBUFFER, tgt.glFbo);
+                        glViewport(0, 0, vpW, vpH);
+                        glDisable(GL_SCISSOR_TEST);
+                        // The screen offscreen is sampled like the single-panel
+                        // layout offscreen: the direct matrix with its second
+                        // column negated cancels the texture-sampling inversion.
+                        const float blit[4] = { fit[0], fit[1], -fit[2], -fit[3] };
+                        if (bars) {
+                            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                            glClear(GL_COLOR_BUFFER_BIT);
+                        }
+                        dr->blitFullTexture(drmScrTex[which], blit);
+                        blitted = true;
+                    }
+                }
+                if (!blitted) {
+                    // Shared-offscreen path (per-screen shader off, or the .dfx
+                    // path inactive): shade once at the DS texture size, re-sample.
+                    if (!drmDualOffscreenFilled && renderDs) {
+                        dr->renderDsToOffscreen();
+                        drmDualOffscreenFilled = true;
+                    }
+                    glBindFramebuffer(GL_FRAMEBUFFER, tgt.glFbo);
+                    glViewport(0, 0, vpW, vpH);
+                    if (bars) {
+                        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                    }
+                    dr->setRotationMatrix(fit);
+                    if (which == 0) dr->renderTopScreen(saturation, gradient);
+                    else            dr->renderBottomScreen(saturation, gradient);
+                    dr->setRotationMatrix(android::sDrmRotMat);
+                }
+            };
+
+            // --- secondary panel (bottom unless swapped) ---
             {
                 const bool secTurned = (android::sDrmRotationDegSecondary == 90 ||
                                         android::sDrmRotationDegSecondary == 270);
                 const int secLW = secTurned ? (int)secTgt.h : (int)secTgt.w;
                 const int secLH = secTurned ? (int)secTgt.w : (int)secTgt.h;
-                float fit[4];
-                if (dsFitMatrix(rotSecDual ? rot180Sec : secMat, secLW, secLH, fit)) {
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                    glClear(GL_COLOR_BUFFER_BIT);
-                }
-                dr->setRotationMatrix(fit);
+                const int which = mirrorTop ? 0 : (topOnSec ? 0 : 1);
+                panelPass(which, secTgt, (GLsizei)secTgt.w, (GLsizei)secTgt.h,
+                          rotSecDual ? rot180Sec : secMat, secLW, secLH);
             }
-            if (mirrorTop) {
-                dr->renderTopScreen(saturation, gradient);
-            } else if (screensSwapped) {
-                dr->renderTopScreen(saturation, gradient);
-            } else {
-                dr->renderBottomScreen(saturation, gradient);
-            }
-            dr->setRotationMatrix(android::sDrmRotMat);
-
-            glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
-            if (android::sDrmGlRotation) {
-                glViewport(0, 0, (GLsizei)primTgt.w,
-                           (GLsizei)primTgt.h);
-            } else {
-                glViewport(0, 0, dpy->width, dpy->height);
-            }
+            // --- primary panel (top unless swapped) ---
             {
-                float fit[4];
-                if (dsFitMatrix(rotPrimDual ? rot180Dual : drmFixedMat,
-                                drmFixedLogicalW, drmFixedLogicalH, fit)) {
-                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                    glClear(GL_COLOR_BUFFER_BIT);
-                }
-                dr->setRotationMatrix(fit);
-            }
-            if (screensSwapped) {
-                dr->renderBottomScreen(saturation, gradient);
-            } else {
-                dr->renderTopScreen(saturation, gradient);
+                const GLsizei vpW = android::sDrmGlRotation ? (GLsizei)primTgt.w : (GLsizei)dpy->width;
+                const GLsizei vpH = android::sDrmGlRotation ? (GLsizei)primTgt.h : (GLsizei)dpy->height;
+                panelPass(topOnSec ? 1 : 0, primTgt, vpW, vpH,
+                          rotPrimDual ? rot180Dual : drmFixedMat,
+                          drmFixedLogicalW, drmFixedLogicalH);
             }
             dr->setRotationMatrix(android::sDrmRotMat);
         } else if (drmSingleLayout) {
