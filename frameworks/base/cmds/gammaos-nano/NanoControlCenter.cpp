@@ -1525,7 +1525,16 @@ void NanoMenu::ccTouchFrame() {
         if (mCcHeldSlider == 0 || mCcHeldSlider == 1) {
             int v = (mCcHeldSlider == 0) ? sCc.briTop : sCc.briBot;
             char c[176];
-            if (mCcHeldSlider == 0 && property_get_bool("persist.gammaos.multidisplay.split_brightness", false)) {
+            // The slider of the panel on the framework's split slot d1 drives the
+            // d1 override; the other panel is the default display and goes through
+            // the system brightness setting. On the RG DS d1 is the TOP panel
+            // (its default display is the bottom); on the RP Duo Lite d1 is the
+            // BOTTOM DP (persist.gammaos.nano.cc.d1_is_top=0). With the mapping
+            // wrong the TOP slider moved the bottom panel's override as well.
+            static int sD1IsTop = -1;
+            if (sD1IsTop < 0) sD1IsTop = property_get_bool("persist.gammaos.nano.cc.d1_is_top", true) ? 1 : 0;
+            const int d1Slider = sD1IsTop ? 0 : 1;
+            if (mCcHeldSlider == d1Slider && property_get_bool("persist.gammaos.multidisplay.split_brightness", false)) {
                 snprintf(c, sizeof(c),
                     "setprop sys.gammaos.multidisplay.split_brightness.d1.override %d; "
                     "setprop persist.gammaos.multidisplay.split_brightness.d1.last %d", v, v);
@@ -1683,10 +1692,16 @@ void NanoMenu::ccApplySlider(int i, float py) {
     if (i == 0 || i == 1) {
         const float sy = 66, sh = 120;
         float frac = 1.0f - (py - sy) / sh; if (frac < 0) frac = 0; if (frac > 1) frac = 1;
-        if (i == 0) {
+        // Split brightness off: one slider drives BOTH panels. The release
+        // handler also pushes the system brightness, but on the RP Duo Lite
+        // that setting does not reliably reach the second panel, so write the
+        // other node here as well (the RG DS framework mirror does the same).
+        const bool split = property_get_bool("persist.gammaos.multidisplay.split_brightness", false);
+        if (i == 0 || !split) {
             int v = (int)lroundf(frac * sCc.briTopMax); if (v < 4) v = 4;
             if (v != sCc.briTop) { writeSysfsInt(ccBlBri(false), v); sCc.briTop = v; }
-        } else {
+        }
+        if (i == 1 || !split) {
             int v = (int)lroundf(frac * sCc.briBotMax); if (v < 4) v = 4;
             if (v != sCc.briBot) { writeSysfsInt(ccBlBri(true), v); sCc.briBot = v; mCcSleepFromBri = v; }
         }
