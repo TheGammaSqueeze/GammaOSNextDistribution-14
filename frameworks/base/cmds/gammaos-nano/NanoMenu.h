@@ -1022,6 +1022,7 @@ private:
     // overlayLaunchPackage). Routed from ps3XmbSelect's PS3_ROM/PS3_RECENT cases
     // when mOverlayMode (the home-mode launchXmbGame() must not run in the overlay).
     void overlayLaunchGame();
+    void overlayStartDrasticNano();
     // True while mOverlayMode and at the XMB top level with no dialog/submenu, so
     // Back resumes the game rather than doing nothing.
     bool overlayAtTopLevel() const;

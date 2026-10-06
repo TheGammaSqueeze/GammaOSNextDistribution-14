@@ -199,9 +199,18 @@ void LoadingScreen::frame(const char* label, float progress) {
         // the RG DS, the top screen). The game path draws that panel with the 180-turned
         // matrix (main.cpp, afbc_rot180_crtc / sDrmSeamRotCrtc); do the same here or the
         // loading and import prompt frames come up upside down on it.
-        const float* rot = android::sDrmRotMat;
-        float rot180[4] = { -android::sDrmRotMat[0], -android::sDrmRotMat[1],
-                            -android::sDrmRotMat[2], -android::sDrmRotMat[3] };
+        // The panel's install matrix (orientation + flips + PRIME Y-flip), laid
+        // out in the logical frame: sDrmRotMat is never rotated in this process
+        // (no NanoMenu::initShaders()), so a portrait-mounted panel (RP Duo Lite
+        // top DSI) showed these frames sideways on its portrait dimensions. On a
+        // 0-degree install this is the same matrix and the same frame as before.
+        float installMat[4];
+        android::drmBuildInstallMatrix(installMat);
+        const bool turned = (android::sDrmRotationDeg == 90 || android::sDrmRotationDeg == 270);
+        const int lw = turned ? ph : pw;
+        const int lh = turned ? pw : ph;
+        const float* rot = installMat;
+        float rot180[4] = { -installMat[0], -installMat[1], -installMat[2], -installMat[3] };
         {
             int rotCrtc = property_get_int32("sys.gammaos.drastic_nano.afbc_rot180_crtc", 0);
             if (rotCrtc == 0) rotCrtc = (int)android::sDrmSeamRotCrtc;
@@ -211,7 +220,7 @@ void LoadingScreen::frame(const char* label, float progress) {
                 rot = rot180;
         }
         glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingPrimary[0].glFbo);
-        drawInto(pw, ph, pw, ph, rot, label, progress);
+        drawInto(pw, ph, lw, lh, rot, label, progress);
         if (android::sAhbRingSecondary[0].glFbo != 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingSecondary[0].glFbo);
             glViewport(0, 0, (int)android::sAhbRingSecondary[0].w,

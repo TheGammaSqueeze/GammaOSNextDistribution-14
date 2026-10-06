@@ -1677,6 +1677,24 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     const int drmFixedLogicalH = drmFixedRotated ? drmPanelW : drmPanelH;
     float drmFixedMat[4];
     android::drmBuildInstallMatrix(drmFixedMat, android::sDrmRotationDeg);
+    // Aspect-fit one DS screen (256x192, 4:3) into a panel's logical frame by
+    // folding a logical-space scale into the panel matrix (M * diag(sx, sy)),
+    // so the dual-panel path pillar/letterboxes instead of stretching the screen
+    // over the whole panel. A 4:3 panel (RG DS, the RP Duo Lite's bottom DP)
+    // gets the identity scale and draws exactly as before; the Duo Lite's
+    // 1920x1080 (turned) top DSI gets 1440x1080 centred. Returns true when bars
+    // are needed so the caller clears the target first.
+    auto dsFitMatrix = [](const float* m, int logicalW, int logicalH, float out[4]) -> bool {
+        float sx = 1.0f, sy = 1.0f;
+        if (logicalW > 0 && logicalH > 0) {
+            const float la = (float)logicalW / (float)logicalH;
+            const float da = 256.0f / 192.0f;
+            if (la > da + 1e-3f)      sx = da / la;
+            else if (la < da - 1e-3f) sy = la / da;
+        }
+        out[0] = m[0] * sx; out[1] = m[1] * sx; out[2] = m[2] * sy; out[3] = m[3] * sy;
+        return sx < 1.0f || sy < 1.0f;
+    };
     GLuint drmLayoutFbo = 0, drmLayoutTex = 0;
     if (drmSingleLayout) {
         glGenTextures(1, &drmLayoutTex);
@@ -1777,8 +1795,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // portrait dimensions (which stretched it on a rotated panel) -- and,
     // deliberately, so it never follows the live user Display Rotation
     // setting the way the DS video content does.
+    // A turned primary install (90/270, the RP Duo Lite's portrait-mounted top
+    // DSI) needs the same treatment on the dual-panel path: drastic-nano never
+    // runs NanoMenu::initShaders(), so sDrmRotMat carries no rotation here and
+    // the chrome came out sideways on the panel's portrait dimensions.
     const float* overlayRotMat = android::sDrmRotMat;
-    if (drmSingleLayout) {
+    if (drmSingleLayout || drmFixedRotated) {
         overlayW = drmFixedLogicalW;
         overlayH = drmFixedLogicalH;
         overlayRotMat = drmFixedMat;
@@ -2645,6 +2667,17 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     (int)android::sDrmDisplays[android::sDrmPrimaryIdx].crtcId == (int)android::sDrmSeamRotCrtc;
             const bool rotSecDual = android::sDrmSeamRotCrtc > 0 && !rotPrimDual;
             float compRot180[4] = { -drmCompositeMat[0], -drmCompositeMat[1], -drmCompositeMat[2], -drmCompositeMat[3] };
+            // The secondary panel composites through ITS OWN install matrix
+            // (persist.gammaos.nano.drm_sec_rot / flips): on the RP Duo Lite the
+            // bottom DP is landscape while the top DSI is portrait-mounted. On
+            // panels that share the primary's install (RG DS) it is the same matrix.
+            float secInstallMat[4];
+            android::drmBuildSecondaryInstallMatrix(secInstallMat);
+            const float secCompositeMat[4] = {
+                secInstallMat[0], secInstallMat[1], -secInstallMat[2], -secInstallMat[3]
+            };
+            const float secCompRot180[4] = { -secCompositeMat[0], -secCompositeMat[1],
+                                             -secCompositeMat[2], -secCompositeMat[3] };
             // --- secondary panel (bottom unless swapped) ---
             glBindFramebuffer(GL_FRAMEBUFFER, drmHalfFbo);
             glViewport(0, 0, drmHalfW, drmHalfH);
@@ -2655,7 +2688,18 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             else                dr->renderBottomScreen(saturation, gradient);
             glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
             glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
-            dr->blitFullTexture(drmHalfTex, rotSecDual ? compRot180 : drmCompositeMat);
+            {
+                const bool secTurned = (android::sDrmRotationDegSecondary == 90 ||
+                                        android::sDrmRotationDegSecondary == 270);
+                const int secLW = secTurned ? (int)secTgt.h : (int)secTgt.w;
+                const int secLH = secTurned ? (int)secTgt.w : (int)secTgt.h;
+                float fit[4];
+                if (dsFitMatrix(rotSecDual ? secCompRot180 : secCompositeMat, secLW, secLH, fit)) {
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                dr->blitFullTexture(drmHalfTex, fit);
+            }
             // --- primary panel (top unless swapped) ---
             glBindFramebuffer(GL_FRAMEBUFFER, drmHalfFbo);
             glViewport(0, 0, drmHalfW, drmHalfH);
@@ -2670,7 +2714,14 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             } else {
                 glViewport(0, 0, dpy->width, dpy->height);
             }
-            dr->blitFullTexture(drmHalfTex, rotPrimDual ? compRot180 : drmCompositeMat);
+            {
+                float fit[4];
+                if (dsFitMatrix(rotPrimDual ? compRot180 : drmCompositeMat, drmLogicalW, drmLogicalH, fit)) {
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                dr->blitFullTexture(drmHalfTex, fit);
+            }
             dr->setRotationMatrix(android::sDrmRotMat);
         } else if (hasDualDisplay) {
             // Same mount rule as the half-res path: the target on VOP port 1 is
@@ -2678,8 +2729,21 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             const bool rotPrimDual = android::sDrmSeamRotCrtc > 0 &&
                     (int)android::sDrmDisplays[android::sDrmPrimaryIdx].crtcId == (int)android::sDrmSeamRotCrtc;
             const bool rotSecDual = android::sDrmSeamRotCrtc > 0 && !rotPrimDual;
-            float rot180Dual[4] = { -android::sDrmRotMat[0], -android::sDrmRotMat[1],
-                                    -android::sDrmRotMat[2], -android::sDrmRotMat[3] };
+            // The primary panel is drawn with its install matrix (drmFixedMat:
+            // orientation + flips + the PRIME Y-flip), not the shared sDrmRotMat,
+            // which drastic-nano never rotates (no initShaders() here). Equal to
+            // sDrmRotMat on a 0-degree install (RG DS); on the RP Duo Lite it is
+            // the 90-degree turn of the portrait-mounted top DSI.
+            float rot180Dual[4] = { -drmFixedMat[0], -drmFixedMat[1],
+                                    -drmFixedMat[2], -drmFixedMat[3] };
+            // The secondary panel is drawn with ITS OWN geometry matrix
+            // (sDrmRotMatSecondary: persist.gammaos.nano.drm_sec_rot / flips plus
+            // the PRIME Y-flip), the same matrix the nano home uses for its bottom
+            // pass. Identical to sDrmRotMat on panels that share the primary's
+            // install (RG DS); on the RP Duo Lite it keeps the landscape bottom DP
+            // at 0 degrees while the top DSI is turned 90.
+            const float* secMat = android::sDrmRotMatSecondary;
+            float rot180Sec[4] = { -secMat[0], -secMat[1], -secMat[2], -secMat[3] };
             // DEBUG: mirror_top makes the SECONDARY panel render the SAME
             // content as the primary (top screen). Both buffers then hold
             // identical pixels from one texture; if the panels still look
@@ -2688,7 +2752,18 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     "sys.gammaos.drastic_nano.mirror_top", false);
             glBindFramebuffer(GL_FRAMEBUFFER, secTgt.glFbo);
             glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
-            if (rotSecDual) dr->setRotationMatrix(rot180Dual);
+            {
+                const bool secTurned = (android::sDrmRotationDegSecondary == 90 ||
+                                        android::sDrmRotationDegSecondary == 270);
+                const int secLW = secTurned ? (int)secTgt.h : (int)secTgt.w;
+                const int secLH = secTurned ? (int)secTgt.w : (int)secTgt.h;
+                float fit[4];
+                if (dsFitMatrix(rotSecDual ? rot180Sec : secMat, secLW, secLH, fit)) {
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                dr->setRotationMatrix(fit);
+            }
             if (mirrorTop) {
                 dr->renderTopScreen(saturation, gradient);
             } else if (screensSwapped) {
@@ -2696,22 +2771,30 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             } else {
                 dr->renderBottomScreen(saturation, gradient);
             }
-            if (rotSecDual) dr->setRotationMatrix(android::sDrmRotMat);
+            dr->setRotationMatrix(android::sDrmRotMat);
 
             glBindFramebuffer(GL_FRAMEBUFFER, primTgt.glFbo);
-            if (rotPrimDual) dr->setRotationMatrix(rot180Dual);
             if (android::sDrmGlRotation) {
                 glViewport(0, 0, (GLsizei)primTgt.w,
                            (GLsizei)primTgt.h);
             } else {
                 glViewport(0, 0, dpy->width, dpy->height);
             }
+            {
+                float fit[4];
+                if (dsFitMatrix(rotPrimDual ? rot180Dual : drmFixedMat,
+                                drmFixedLogicalW, drmFixedLogicalH, fit)) {
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                dr->setRotationMatrix(fit);
+            }
             if (screensSwapped) {
                 dr->renderBottomScreen(saturation, gradient);
             } else {
                 dr->renderTopScreen(saturation, gradient);
             }
-            if (rotPrimDual) dr->setRotationMatrix(android::sDrmRotMat);
+            dr->setRotationMatrix(android::sDrmRotMat);
         } else if (drmSingleLayout) {
             // Lay out the DS screens by the advanced_drastic preset into the
             // logical (landscape) offscreen with NO rotation, exactly as the SF
@@ -2800,6 +2883,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         const bool ovRotSec = android::sDrmSeamRotCrtc > 0 && hasDualDisplay && !ovRotPrim;
         const float ovRot180[4] = { -android::sDrmRotMat[0], -android::sDrmRotMat[1],
                                     -android::sDrmRotMat[2], -android::sDrmRotMat[3] };
+        // Bottom-panel overlay chrome follows the secondary panel's own matrix
+        // (see the DS screen passes above); the AFBC combined buffer is one panel
+        // install for both halves and keeps the primary's.
+        const float* ovSecMat = (hasDualDisplay && !android::sDrmAfbcMode)
+                                ? android::sDrmRotMatSecondary : overlayRotMat;
+        const float ovSecRot180[4] = { -ovSecMat[0], -ovSecMat[1], -ovSecMat[2], -ovSecMat[3] };
         const bool ovAfbc = android::sDrmAfbcMode && hasDualDisplay;
         const uint32_t ovHalfH = ovAfbc ? android::sDrmAfbcHalfH : 0u;
         auto bindPrimaryPass = [&]() {
@@ -2824,12 +2913,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 glViewport(0, 0, (GLsizei)secTgt.w, (GLsizei)secTgt.h);
                 gfx.setViewport((int)secTgt.w, (int)secTgt.h);
             }
-            gfx.setRotationMatrix(ovRotSec ? ovRot180 : overlayRotMat);
+            gfx.setRotationMatrix(ovRotSec ? ovSecRot180 : ovSecMat);
         };
         // Back to the primary panel's overlay canvas (one panel) and matrix.
         auto endBottomPass = [&]() {
             gfx.setRotationMatrix(overlayRotMat);
-            gfx.setViewport(drmPanelW, drmPanelH);
+            gfx.setViewport(overlayW, overlayH);
         };
 
         // Composite the overlay onto the primary panel. Drawing

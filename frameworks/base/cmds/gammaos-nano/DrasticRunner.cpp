@@ -24,6 +24,7 @@
 #include <ucontext.h>
 #include <stdio.h>
 #include <sys/mman.h>
+#include <sys/auxv.h>
 extern "C" void drasticLockLibrary(const char* nameSubstr);   // DrasticGpu3d.cpp: mlock2(ONFAULT) a library's file-backed segments
 extern "C" void gpu3dResetTextures();                          // DrasticGpu3d.cpp: drop the texture cache after a state restore
 #include <sys/uio.h>
@@ -4935,6 +4936,49 @@ void DrasticRunner::installThreaded3dSync(uint8_t* base) {
     memcpy(&c[kKLit], &bandsAddr, 8);
     memcpy(&c[kBLit], &bandsAddr, 8);
     gT3dBase = base;
+    // ARMv8.0 cores have no LSE atomics: the band-complete cave's `stset w17, [x16]`
+    // (atomic OR into gT3dBands) is an ARMv8.1 instruction and raised SIGILL on the
+    // RP Duo Lite (SM6125 Kryo 260 = Cortex-A73/A53, no HWCAP_ATOMICS) the first time a
+    // rasterizer band finished, which killed every DS session seconds in. The RG DS
+    // (Cortex-A55, v8.2) was never affected. The cave has no spare words, so on such a
+    // CPU that word becomes a branch to a page near the library holding the equivalent
+    // exclusive-monitor loop (ldaxr/orr/stlxr/cbnz) and a branch back; x15 is saved on
+    // the stack as the loop's status register since only x16/x17/w1 are free there.
+    if (mode >= 5 && !(getauxval(AT_HWCAP) & HWCAP_ATOMICS)) {
+        const int kBSet = (int)((kBCave - kCave) / 4) + 5;   // word of the stset
+        if (c[kBSet] != 0xb871321fu) {
+            ALOGW("DrasticRunner: threaded 3D sync: band cave word %d is 0x%08x, not stset; leaving off",
+                  kBSet, c[kBSet]);
+            mprotect(cavePg, ps, PROT_READ | PROT_EXEC);
+            mprotect(sitePg, ps, PROT_READ | PROT_EXEC);
+            return;
+        }
+        uint8_t* ll = allocCodePageNear(base);
+        if (!ll) {
+            ALOGW("DrasticRunner: threaded 3D sync: no executable page in branch range for the "
+                  "non-LSE band loop; leaving off");
+            mprotect(cavePg, ps, PROT_READ | PROT_EXEC);
+            mprotect(sitePg, ps, PROT_READ | PROT_EXEC);
+            return;
+        }
+        auto b = [](uintptr_t from, uintptr_t to) -> uint32_t {
+            intptr_t d = (intptr_t)to - (intptr_t)from;
+            return 0x14000000u | (uint32_t)((d >> 2) & 0x03ffffff);
+        };
+        uint32_t* q = reinterpret_cast<uint32_t*>(ll);
+        q[0] = 0xf81f0fefu;   // str   x15, [sp, #-16]!
+        q[1] = 0x885ffe01u;   // ldaxr w1, [x16]
+        q[2] = 0x2a110021u;   // orr   w1, w1, w17
+        q[3] = 0x880ffe01u;   // stlxr w15, w1, [x16]
+        q[4] = 0x35ffffafu;   // cbnz  w15, -12 (retry)
+        q[5] = 0xf84107efu;   // ldr   x15, [sp], #16
+        q[6] = b((uintptr_t)ll + 24, (uintptr_t)(base + kCave) + (uintptr_t)(kBSet + 1) * 4);   // back to the ldr w10 after the stset
+        c[kBSet] = b((uintptr_t)(base + kCave) + kBSet * 4, (uintptr_t)ll);
+        __builtin___clear_cache((char*)ll, (char*)ll + ps);
+        mprotect(ll, ps, PROT_READ | PROT_EXEC);
+        ALOGW("DrasticRunner: threaded 3D sync: CPU has no LSE atomics, band-complete OR routed "
+              "through an exclusive-monitor loop at %p", ll);
+    }
     if (mode >= 5) {
         *reinterpret_cast<uint32_t*>(base + kKickSite.off) = bl(kKickSite.off, kKCave);
         *reinterpret_cast<uint32_t*>(base + kBandSite.off) = bl(kBandSite.off, kBCave);

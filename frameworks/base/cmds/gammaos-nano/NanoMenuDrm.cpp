@@ -22,6 +22,7 @@
 #include <atomic>
 #include <algorithm>
 #include <vector>
+#include <initializer_list>
 #include <thread>
 #include <fcntl.h>
 #include <unistd.h>
@@ -532,6 +533,7 @@ double drmProbePrimaryRefreshHz() {
     return hz;
 }
 
+static int drmCrtcIndex(int fd, uint32_t crtcId);
 static int drmAtomicModesetFallback(int fd, uint32_t crtcId, uint32_t connId,
                                     const struct drm_mode_modeinfo& mode,
                                     uint32_t fbId, uint32_t w, uint32_t h) {
@@ -541,16 +543,8 @@ static int drmAtomicModesetFallback(int fd, uint32_t crtcId, uint32_t connId,
     cap.capability = DRM_CLIENT_CAP_ATOMIC; cap.value = 1;
     ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
 
-    struct drm_mode_get_plane_res pr = {};
-    ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr);
-    uint32_t planeIds[8] = {};
-    struct drm_mode_get_plane_res pr2 = {};
-    pr2.count_planes = pr.count_planes < 8 ? pr.count_planes : 8;
-    pr2.plane_id_ptr = (uint64_t)(uintptr_t)planeIds;
-    ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr2);
-    uint32_t planeId = pr2.count_planes > 0 ? planeIds[0] : 0;
-
-    auto findProp = [&](uint32_t objId, uint32_t objType, const char* name) -> uint32_t {
+    auto findProp = [&](uint32_t objId, uint32_t objType, const char* name,
+                        uint64_t* curValue) -> uint32_t {
         struct drm_mode_obj_get_properties p = {};
         p.obj_id = objId; p.obj_type = objType;
         ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p);
@@ -565,64 +559,126 @@ static int drmAtomicModesetFallback(int fd, uint32_t crtcId, uint32_t connId,
             struct drm_mode_get_property gp = {};
             gp.prop_id = pids[i];
             ioctl(fd, DRM_IOCTL_MODE_GETPROPERTY, &gp);
-            if (strcmp(gp.name, name) == 0) return pids[i];
+            if (strcmp(gp.name, name) == 0) {
+                if (curValue) *curValue = pvals[i];
+                return pids[i];
+            }
         }
         return 0;
     };
+
+    // The CRTC's index in the resource list (bit position in possible_crtcs).
+    int crtcIdx = drmCrtcIndex(fd, crtcId);
+
+    // Enumerate every plane with what we need to choose and to clean up.
+    struct drm_mode_get_plane_res pr = {};
+    ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr);
+    uint32_t planeIds[64] = {};
+    struct drm_mode_get_plane_res pr2 = {};
+    pr2.count_planes = pr.count_planes < 64 ? pr.count_planes : 64;
+    pr2.plane_id_ptr = (uint64_t)(uintptr_t)planeIds;
+    ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr2);
+    struct PlaneInfo { uint32_t id, possible, boundCrtc, propFb, propCrtc; uint64_t type; };
+    PlaneInfo planes[64]; uint32_t nPlanes = 0;
+    for (uint32_t i = 0; i < pr2.count_planes; i++) {
+        struct drm_mode_get_plane gpl = {};
+        gpl.plane_id = planeIds[i];
+        if (ioctl(fd, DRM_IOCTL_MODE_GETPLANE, &gpl) != 0) continue;
+        PlaneInfo& pi = planes[nPlanes++];
+        pi.id = planeIds[i];
+        pi.possible = gpl.possible_crtcs;
+        pi.boundCrtc = gpl.crtc_id;
+        uint64_t t = 0;
+        findProp(pi.id, DRM_MODE_OBJECT_PLANE, "type", &t);
+        pi.type = t;                            // 0 overlay, 1 primary, 2 cursor
+        pi.propFb = findProp(pi.id, DRM_MODE_OBJECT_PLANE, "FB_ID", nullptr);
+        pi.propCrtc = findProp(pi.id, DRM_MODE_OBJECT_PLANE, "CRTC_ID", nullptr);
+    }
+
+    // Pick the plane that carries our framebuffer. In order: the primary-type
+    // plane already bound to this CRTC (what the previous master used as its
+    // base layer, and what the kernel's legacy page flips target), then the
+    // crtcIdx-th primary plane that may drive this CRTC and is not bound to a
+    // CRTC we already drive (drivers create one primary per CRTC in order), then
+    // any plane allowed on this CRTC, then the first plane (the old behaviour).
+    auto ownedElsewhere = [&](const PlaneInfo& pi) {
+        if (pi.boundCrtc == 0 || pi.boundCrtc == crtcId) return false;
+        for (const auto& d : sDrmDisplays) if (d.crtcId == pi.boundCrtc) return true;
+        return false;
+    };
+    uint32_t planeId = 0;
+    for (uint32_t i = 0; i < nPlanes && !planeId; i++)
+        if (planes[i].type == 1 && planes[i].boundCrtc == crtcId) planeId = planes[i].id;
+    if (!planeId && crtcIdx >= 0) {
+        int nth = 0;
+        for (uint32_t i = 0; i < nPlanes && !planeId; i++) {
+            if (planes[i].type != 1) continue;
+            if (!(planes[i].possible & (1u << crtcIdx)) || ownedElsewhere(planes[i])) continue;
+            if (nth++ == crtcIdx) planeId = planes[i].id;
+        }
+        for (uint32_t i = 0; i < nPlanes && !planeId; i++)
+            if (planes[i].type == 1 && (planes[i].possible & (1u << crtcIdx)) && !ownedElsewhere(planes[i]))
+                planeId = planes[i].id;
+        for (uint32_t i = 0; i < nPlanes && !planeId; i++)
+            if ((planes[i].possible & (1u << crtcIdx)) && !ownedElsewhere(planes[i]))
+                planeId = planes[i].id;
+    }
+    if (!planeId && nPlanes > 0) planeId = planes[0].id;
 
     struct drm_mode_create_blob blob = {};
     blob.data = (uint64_t)(uintptr_t)&mode;
     blob.length = sizeof(mode);
     ioctl(fd, DRM_IOCTL_MODE_CREATEPROPBLOB, &blob);
 
-    uint32_t objs[] = { crtcId, connId, planeId };
-    uint32_t counts[] = { 2, 1, 10 };
-    uint32_t aprops[] = {
-        findProp(crtcId, DRM_MODE_OBJECT_CRTC, "ACTIVE"),
-        findProp(crtcId, DRM_MODE_OBJECT_CRTC, "MODE_ID"),
-        findProp(connId, DRM_MODE_OBJECT_CONNECTOR, "CRTC_ID"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "FB_ID"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_ID"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_X"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_Y"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_W"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_H"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_X"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_Y"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_W"),
-        findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_H"),
+    // One commit: the CRTC + connector + our plane, and every OTHER plane the
+    // previous master (the SurfaceFlinger composer after an app session) left
+    // attached to this CRTC detached (FB_ID 0, CRTC_ID 0). Those leftovers are
+    // what made the legacy SETCRTC and the old single-plane fallback return
+    // EINVAL on Qualcomm SDE after an app had used the panel, so a DRM home or
+    // drastic-nano session after an app came up on one panel only.
+    std::vector<uint32_t> objs, counts, aprops;
+    std::vector<uint64_t> values;
+    auto add = [&](uint32_t obj, std::initializer_list<std::pair<uint32_t, uint64_t>> pv) {
+        uint32_t n = 0;
+        for (const auto& e : pv) { if (!e.first) continue; aprops.push_back(e.first); values.push_back(e.second); n++; }
+        if (n) { objs.push_back(obj); counts.push_back(n); }
     };
-    uint64_t values[] = {
-        1, blob.blob_id,
-        crtcId,
-        fbId, crtcId,
-        0, 0, (uint64_t)w << 16, (uint64_t)h << 16,
-        0, 0, w, h,
-    };
+    add(crtcId, { { findProp(crtcId, DRM_MODE_OBJECT_CRTC, "ACTIVE", nullptr), 1 },
+                  { findProp(crtcId, DRM_MODE_OBJECT_CRTC, "MODE_ID", nullptr), blob.blob_id } });
+    add(connId, { { findProp(connId, DRM_MODE_OBJECT_CONNECTOR, "CRTC_ID", nullptr), crtcId } });
+    add(planeId, { { findProp(planeId, DRM_MODE_OBJECT_PLANE, "FB_ID", nullptr), fbId },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_ID", nullptr), crtcId },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_X", nullptr), 0 },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_Y", nullptr), 0 },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_W", nullptr), (uint64_t)w << 16 },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "SRC_H", nullptr), (uint64_t)h << 16 },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_X", nullptr), 0 },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_Y", nullptr), 0 },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_W", nullptr), w },
+                   { findProp(planeId, DRM_MODE_OBJECT_PLANE, "CRTC_H", nullptr), h } });
+    int detached = 0;
+    for (uint32_t i = 0; i < nPlanes; i++) {
+        if (planes[i].id == planeId || planes[i].boundCrtc != crtcId) continue;
+        add(planes[i].id, { { planes[i].propFb, 0 }, { planes[i].propCrtc, 0 } });
+        detached++;
+    }
 
     struct drm_mode_atomic atomic = {};
     atomic.flags = DRM_MODE_ATOMIC_ALLOW_MODESET;
-    atomic.count_objs = 3;
-    atomic.objs_ptr = (uint64_t)(uintptr_t)objs;
-    atomic.count_props_ptr = (uint64_t)(uintptr_t)counts;
-    atomic.props_ptr = (uint64_t)(uintptr_t)aprops;
-    atomic.prop_values_ptr = (uint64_t)(uintptr_t)values;
+    atomic.count_objs = (uint32_t)objs.size();
+    atomic.objs_ptr = (uint64_t)(uintptr_t)objs.data();
+    atomic.count_props_ptr = (uint64_t)(uintptr_t)counts.data();
+    atomic.props_ptr = (uint64_t)(uintptr_t)aprops.data();
+    atomic.prop_values_ptr = (uint64_t)(uintptr_t)values.data();
 
-    return ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+    const int rc = ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+    const int err = errno;
+    ALOGW("NanoMenu DRM: atomic modeset crtc %u (idx %d) plane %u, %d leftover plane(s) detached -> %s",
+          crtcId, crtcIdx, planeId, detached, rc == 0 ? "OK" : strerror(err));
+    errno = err;
+    return rc;
 }
 
-// GammaOS: the bottom panel (DP via the GH7005 bridge) uses an HPD handshake
-// that nothing answers in DRM-direct mode -- the kernel DP driver logs
-// "dp_display_send_hpd_notification connect timeout" / "No sink connected" and
-// the connector reports 0 modes, so it is never modeset. SurfaceFlinger's SDM
-// answers that HPD; nano does not. Writing "detect" to the connector's sysfs
-// status re-runs a real detection: once the DP controller is ready this reads
-// the panel EDID and exposes its NATIVE 1280x960 mode. (Writing "on" instead
-// force-connects it but with a generic VESA fallback list topping out at
-// 1024x768, which modeset the panel at the wrong timing.) We re-detect every
-// real (non-writeback/virtual) connector on card0; harmless for the always-up
-// DSI. Re-run from rescan too because the DP only becomes detectable a few
-// seconds after boot.
 static void drmProbeRealConnectors() {
     DIR* d = opendir("/sys/class/drm");
     if (!d) return;
@@ -905,7 +961,35 @@ void drmEarlySplash(int existingFd) {
     } else {
         fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
         if (fd < 0) return;
-        ioctl(fd, DRM_IOCTL_SET_MASTER, 0); // try, OK if fails
+        // GammaOS: become DRM master with a bounded retry instead of a single
+        // fire-and-forget attempt. At cold boot nano (class core animation) and
+        // SurfaceFlinger race for card0; a transient EBUSY/EPERM here used to be
+        // ignored, nano carried on without master, every SETCRTC then returned
+        // EACCES ("Permission denied") and the home silently fell back to the
+        // SurfaceFlinger path with both panels dead. Mirrors the retry in
+        // drmReacquireForHome(). If SF genuinely holds master we still fall
+        // through to the existing fallback, but now we log why.
+        {
+            const int64_t m0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+            const int kMasterWaitMs = 4000;
+            int rc = -1, lastErrno = 0;
+            for (;;) {
+                rc = ioctl(fd, DRM_IOCTL_SET_MASTER, 0);
+                if (rc == 0) break;
+                lastErrno = errno;
+                if (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - m0 > kMasterWaitMs) break;
+                usleep(20000);
+            }
+            if (rc == 0) {
+                ALOGW("NanoMenu DRM splash: became DRM master after %lldms",
+                      (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - m0));
+            } else {
+                ALOGE("NanoMenu DRM splash: could NOT become DRM master within %dms "
+                      "(errno %d %s); another client (SurfaceFlinger?) holds it, "
+                      "modesets will fail and the home falls back to the SF path",
+                      kMasterWaitMs, lastErrno, strerror(lastErrno));
+            }
+        }
     }
 
     // Force real connectors (DP/DSI/...) to report connected so a modeset can
@@ -1053,6 +1137,7 @@ void drmEarlySplash(int existingFd) {
               sDrmRotationDegSecondary, sDrmFlipHSecondary ? 1 : 0,
               sDrmFlipVSecondary ? 1 : 0);
     }
+    drmBuildSecondaryRotMat(sDrmRotMatSecondary);
 }
 
 // ---------------------------------------------------------------------------
@@ -1498,11 +1583,11 @@ void drmSetupZeroCopy(EGLDisplay eglDpy) {
 // into the matrix, the 0-degree case applies the same PRIME Y-flip that
 // drmSetupZeroCopy does, and the user flips negate row 0 (H) / row 1 (V).
 // Keep this in sync with initShaders() if those props' handling changes.
-void drmBuildInstallMatrix(float out[4], int degrees) {
+void drmBuildInstallMatrixFor(float out[4], int degrees, int installDeg, bool flipH, bool flipV) {
     // degrees < 0 means "use the panel install orientation". A caller can pass
     // an effective rotation (install + a user Display Rotation) so the whole
     // single-panel output can be turned for portrait play.
-    const int deg = (degrees < 0) ? sDrmRotationDeg : (((degrees % 360) + 360) % 360);
+    const int deg = (degrees < 0) ? installDeg : (((degrees % 360) + 360) % 360);
     switch (deg) {
     case 90:  out[0] =  0.0f; out[1] = -1.0f; out[2] =  1.0f; out[3] =  0.0f; break;
     case 180: out[0] = -1.0f; out[1] =  0.0f; out[2] =  0.0f; out[3] = -1.0f; break;
@@ -1514,9 +1599,39 @@ void drmBuildInstallMatrix(float out[4], int degrees) {
     // panel. A rotated panel (install 90/180/270) turned to an effective 0 by a
     // user Display Rotation must NOT get it, or that one orientation comes out
     // mirrored/upside-down while every other rotation is correct.
-    if (deg == 0 && sDrmRotationDeg == 0) { out[1] = -out[1]; out[3] = -out[3]; }
-    if (sDrmFlipH) { out[0] = -out[0]; out[2] = -out[2]; }
-    if (sDrmFlipV) { out[1] = -out[1]; out[3] = -out[3]; }
+    if (deg == 0 && installDeg == 0) { out[1] = -out[1]; out[3] = -out[3]; }
+    if (flipH) { out[0] = -out[0]; out[2] = -out[2]; }
+    if (flipV) { out[1] = -out[1]; out[3] = -out[3]; }
+}
+
+void drmBuildInstallMatrix(float out[4], int degrees) {
+    drmBuildInstallMatrixFor(out, degrees, sDrmRotationDeg, sDrmFlipH, sDrmFlipV);
+}
+
+// The same for the SECONDARY panel (persist.gammaos.nano.drm_sec_rot / _flip_h /
+// _flip_v): its install orientation is independent of the primary's (RP Duo
+// Lite: a portrait-mounted top DSI next to a landscape bottom DP).
+void drmBuildSecondaryInstallMatrix(float out[4]) {
+    drmBuildInstallMatrixFor(out, -1, sDrmRotationDegSecondary, sDrmFlipHSecondary, sDrmFlipVSecondary);
+}
+
+// The secondary panel's geometry matrix, exactly what NanoMenu::initShaders()
+// builds into sDrmRotMatSecondary for the home: identity -> rotation
+// (drm_sec_rot) -> PRIME Y-flip (the secondary ring page-flips the AHB
+// directly, so GL y-up is pre-flipped) -> user flips. Filled in here as well so
+// a DRM-direct producer that never runs initShaders() (drastic-nano) draws its
+// bottom panel with the same matrix the home does.
+void drmBuildSecondaryRotMat(float m[4]) {
+    m[0] = 1.0f; m[1] = 0.0f; m[2] = 0.0f; m[3] = 1.0f;
+    switch (sDrmRotationDegSecondary) {
+    case 90:  m[0] =  0.0f; m[1] = -1.0f; m[2] =  1.0f; m[3] =  0.0f; break;
+    case 180: m[0] = -1.0f; m[1] =  0.0f; m[2] =  0.0f; m[3] = -1.0f; break;
+    case 270: m[0] =  0.0f; m[1] =  1.0f; m[2] = -1.0f; m[3] =  0.0f; break;
+    default: break;
+    }
+    m[1] = -m[1]; m[3] = -m[3];
+    if (sDrmFlipHSecondary) { m[0] = -m[0]; m[2] = -m[2]; }
+    if (sDrmFlipVSecondary) { m[1] = -m[1]; m[3] = -m[3]; }
 }
 
 // GammaOS hardware rotation key (force-SF home): nano's own SurfaceFlinger layer is NOT turned

@@ -335,6 +335,9 @@ void drmStop();
 // exact same panel correction as the home menu instead of hard-coding one.
 // Column-major 2x2 NDC matrix written to out[4].
 void drmBuildInstallMatrix(float out[4], int degrees = -1);
+void drmBuildInstallMatrixFor(float out[4], int degrees, int installDeg, bool flipH, bool flipV);
+void drmBuildSecondaryInstallMatrix(float out[4]);
+void drmBuildSecondaryRotMat(float m[4]);
 // Rotate nano's own SF-overlay rendering to follow the logical display rotation (0..3). No-op
 // DRM-direct. See the definition in NanoMenuDrm.cpp.
 void nanoSetOverlayRenderRotation(int rot);

@@ -1,0 +1,9 @@
+// LD_PRELOAD shim for display composers that never call DRM_IOCTL_SET_MASTER
+// (Qualcomm SDM/SDE). See drmmaster.cpp.
+cc_library_shared {
+    name: "libgammaos_drmmaster",
+    vendor: true,
+    srcs: ["drmmaster.cpp"],
+    shared_libs: ["liblog"],
+    cflags: ["-Wall", "-Werror"],
+}

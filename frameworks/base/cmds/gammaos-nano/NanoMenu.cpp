@@ -4513,6 +4513,21 @@ if (sRingPrimedCount >= 2) {
                 if (access(rp.c_str(), R_OK) == 0) {
                     setDrasticNanoRomPath(rp);
                     ALOGW("drastic nano: prop drastic_launch_rom -> %s", rp.c_str());
+                    if (mOverlayMode) {
+                        // Resident overlay: take the exact path a menu selection
+                        // takes (overlayLaunchGame), which closes the app in front
+                        // before drastic-nano grabs the panel. The DRM-home block
+                        // below never closed it, so the session started under a
+                        // live SurfaceFlinger app and the home after it was lost.
+                        std::string gameName = rp.substr(rp.rfind('/') + 1);
+                        size_t dot = gameName.rfind('.');
+                        if (dot != std::string::npos) gameName.erase(dot);
+                        property_set("persist.gammaos.nano.qr_game_name", gameName.c_str());
+                        property_set("persist.gammaos.nano.qr_core", "drastic");
+                        property_set("sys.gammaos.nano.cache_ready", "0");
+                        property_set("sys.gammaos.nano.cache_op", "populate_drastic");
+                        overlayStartDrasticNano();
+                    }
                     mDrasticNanoPending = true;
                 } else {
                     ALOGW("drastic nano: drastic_launch_rom path not readable: %s", rp.c_str());
@@ -4643,6 +4658,18 @@ if (sRingPrimedCount >= 2) {
             if (drasticParkEnabled()) {
                 drasticParkSession();
                 continue;
+            }
+            // Resident overlay home (the drastic_launch_rom property path lands
+            // here too): leave the same launcher state overlayLaunchGame() does
+            // before handing the panel to drastic-nano. With overlay_ran left at
+            // 1 the respawn rule in gammaos-nano.rc restarted the overlay the
+            // moment start=1 stopped it; the respawned overlay could not present
+            // (drastic-nano owns the panel), its render watchdog aborted it, and
+            // init respawned it again every ~35 s for the whole DS session.
+            if (mOverlayMode) {
+                property_set("sys.gammaos.nano.overlay_ran", "0");
+                property_set("sys.gammaos.nano.app_launched", "0");
+                property_set("sys.gammaos.nano.show_overlay", "0");
             }
             property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);

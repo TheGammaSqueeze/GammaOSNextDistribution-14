@@ -2007,7 +2007,14 @@ void NanoMenu::pollInput() {
             // Open the MTP active screen directly (test hook: it is the same call the USB rows make).
             else if (!strcmp(navbuf, "mtp"))   openMtpScreen();
             // Quick Menu > System Settings, the same call its row makes (test hook for the hand-off path).
-            else if (!strcmp(navbuf, "settings")) launchAndroidSettings();
+            else if (!strcmp(navbuf, "settings")) {
+                launchAndroidSettings();
+                // No physical select release follows a scripted launch, so stamp
+                // the fade here (the touch paths do the same) or the DRM home
+                // waits for a release forever and never hands the panel to the app.
+                if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0)
+                    mLaunchFadeStart = uptimeMillis();
+            }
             // System Update > Update via Internet, the same call the chooser makes (test hook for the
             // check/download flow and its sleep guard).
             else if (!strcmp(navbuf, "ota_internet")) { if (!mOtaFlowActive) startOtaFlow(true); }
