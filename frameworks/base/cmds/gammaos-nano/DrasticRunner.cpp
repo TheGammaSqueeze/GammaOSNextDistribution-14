@@ -5583,11 +5583,56 @@ uint32_t micEnqueueAllLocked() {
     return r;
 }
 
+// Microphone noise gate (persist.gammaos.drastic_nano.mic_gate: 0 off, 1 low, 2 medium, 3 high;
+// the Mic Noise Gate row, live). A handheld's built-in microphone needs a lot of digital gain
+// for a DS game to hear a blow or a shout, and that gain lifts the room noise with it. The gate
+// is a 2:1 downward expander on each 10 ms capture block: a block whose level sits below the
+// threshold is scaled by (level / threshold), so hiss between words fades toward silence while
+// anything the player actually does to the microphone passes untouched. The level follows a
+// fast-attack (one block) slow-release (about 80 ms) envelope so a word's tail is not chopped,
+// and a one-pole high-pass at about 120 Hz removes the rumble and handling thumps first.
+int gMicGateMode = -1;
+uint32_t gMicGatePoll = 0;
+double gMicGateEnv = 0.0;
+double gMicHpPrevIn = 0.0, gMicHpPrevOut = 0.0;
+void micGateBlock(int16_t* buf, int n) {
+    if ((gMicGatePoll++ & 31) == 0 || gMicGateMode < 0) {   // about every 0.3 s: the overlay row applies live
+        int m = android::drastic_settings::getInt("persist.gammaos.drastic_nano.mic_gate", 0);
+        if (m < 0) m = 0;
+        if (m > 3) m = 3;
+        gMicGateMode = m;
+    }
+    if (gMicGateMode == 0) return;
+    // High-pass (44.1 kHz, ~120 Hz): y = a * (y1 + x - x1), a = 1 / (1 + 2 pi f / fs).
+    constexpr double a = 0.9831;
+    double rms2 = 0.0;
+    for (int i = 0; i < n; i++) {
+        const double x = (double)buf[i];
+        const double y = a * (gMicHpPrevOut + x - gMicHpPrevIn);
+        gMicHpPrevIn = x; gMicHpPrevOut = y;
+        int32_t v = (int32_t)lrint(y);
+        if (v > 32767) v = 32767; else if (v < -32768) v = -32768;
+        buf[i] = (int16_t)v;
+        rms2 += y * y;
+    }
+    const double rms = n > 0 ? sqrt(rms2 / (double)n) : 0.0;
+    // Envelope: attack in one block, release over about 8 blocks (80 ms).
+    gMicGateEnv = rms > gMicGateEnv ? rms : gMicGateEnv * 0.88 + rms * 0.12;
+    // Thresholds in full-scale units: low -46 dBFS, medium -38 dBFS, high -30 dBFS.
+    static const double kThr[4] = { 0.0, 32768.0 * 0.005, 32768.0 * 0.0126, 32768.0 * 0.0316 };
+    const double thr = kThr[gMicGateMode];
+    double g = gMicGateEnv >= thr ? 1.0 : gMicGateEnv / thr;    // 2:1 expansion below the threshold
+    if (g < 0.02) g = 0.0;                                      // deep in the noise: silence
+    if (g >= 1.0) return;
+    for (int i = 0; i < n; i++) buf[i] = (int16_t)lrint((double)buf[i] * g);
+}
+
 // OpenSL's callback thread: the oldest of our buffers is complete.
 void micRecorded(const void* /*self*/, void* /*ctx*/) {
     std::lock_guard<std::mutex> lk(gMicMu);
     if (!gMicReal) return;
-    const int16_t* src = gMicBuf[gMicHead];
+    int16_t* src = gMicBuf[gMicHead];
+    micGateBlock(src, kMicBufSamples);
     const uint32_t w = gMicW.load(std::memory_order_relaxed), r = gMicR.load(std::memory_order_acquire);
     if (kMicFifo - (w - r) >= (uint32_t)kMicBufSamples) {      // room for it (a full FIFO drops it; the consumer trims)
         for (int i = 0; i < kMicBufSamples; i++) gMicFifo[(w + i) & (kMicFifo - 1)] = src[i];

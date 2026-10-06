@@ -3420,6 +3420,26 @@ void OverlayMenu::rebuildAudio() {
         };
         mRows.push_back(std::move(r));
     }
+    {
+        // Noise gate on the captured microphone (DrasticRunner micGateBlock): a downward
+        // expander that fades the room noise between the player's blows and shouts. Live.
+        RowAction r;
+        r.label = "Mic Noise Gate";
+        static const char* const kNames[4] = { "Off", "Low", "Medium", "High" };
+        int m = shadowPropGetInt("persist.gammaos.drastic_nano.mic_gate", 0);
+        if (m < 0) m = 0; if (m > 3) m = 3;
+        r.value = trDyn(kNames[m]);
+        auto step = [this](int dir) {
+            int cur = shadowPropGetInt("persist.gammaos.drastic_nano.mic_gate", 0);
+            cur = (cur + dir + 4) % 4;
+            char b[8]; snprintf(b, sizeof(b), "%d", cur);
+            setPropAsync("persist.gammaos.drastic_nano.mic_gate", b);
+            mDirty = true;
+        };
+        r.onAdjust = step;
+        r.onAccept = [step]() { step(1); };
+        mRows.push_back(std::move(r));
+    }
     if (drastic_prefs::requiresRelaunch(mSavedPrefs, mPrefs)) {
         RowAction r;
         r.label = "Restart to apply changes";

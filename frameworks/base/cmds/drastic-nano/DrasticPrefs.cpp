@@ -709,7 +709,7 @@ std::vector<std::string> overrideKeys() {
     // account are deliberately absent: they are not per-game choices.
     std::vector<std::string> keys = {
         "shader", "hires3d", "threaded3d", "disable_edge", "gpu3d", "gpu3d_ss",
-        "sound", "volume", "audio_latency", "mic", "mic_level",
+        "sound", "volume", "audio_latency", "mic", "mic_level", "mic_gate",
         "frameskip_type", "frameskip_value", "frameskip_safe",
         "analog_touch", "analog_triggers", "analog_stick_mode", "analog_deadzone",
         "frame_sync", "low_latency",
