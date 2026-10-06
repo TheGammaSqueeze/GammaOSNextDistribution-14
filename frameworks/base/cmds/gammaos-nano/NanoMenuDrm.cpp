@@ -682,6 +682,16 @@ static int drmAtomicModesetFallback(int fd, uint32_t crtcId, uint32_t connId,
 static void drmProbeRealConnectors() {
     DIR* d = opendir("/sys/class/drm");
     if (!d) return;
+    const int64_t p0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+    struct ProbeTimer {
+        int64_t t0;
+        ~ProbeTimer() {
+            const int64_t dt = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - t0;
+            // A forced detect can block on the panel's HPD/EDID handshake; it runs on the
+            // render thread, so make a slow one visible.
+            if (dt > 100) ALOGW("NanoMenu DRM: connector re-detect took %lld ms", (long long)dt);
+        }
+    } probeTimer{p0};
     struct dirent* e;
     while ((e = readdir(d)) != nullptr) {
         const char* n = e->d_name;
@@ -851,12 +861,29 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
 // brought in without blocking the fast path. Bounded by sDrmRescanDeadlineNs
 // so we stop burning ioctls after the boot window.
 void drmAllocSecondaryRing(EGLDisplay eglDpy);  // fwd decl (defined near drmSetupZeroCopy)
+static int64_t sDrmSlowRescanNextNs = 0;
+static int64_t sDrmSlowRescanLogNs = 0;
 void drmRescanDisplays() {
     if (sDrmFd < 0) return;
     if (sDrmRescanDeadlineNs == 0) return;
-    if (systemTime(SYSTEM_TIME_MONOTONIC) > sDrmRescanDeadlineNs) {
-        sDrmRescanDeadlineNs = 0; // disable further scans
-        return;
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (now > sDrmRescanDeadlineNs) {
+        // GammaOS: past the boot window keep looking, slowly, while the device is
+        // configured for more panels than are lit (persist.gammaos.nano.drm_displays,
+        // 2 on the RP Duo Lite whose DP bottom panel reports connected only ~7 s
+        // after its bridge is powered and has been seen to take longer). Devices
+        // without the property keep the old bounded behaviour.
+        const int expected = property_get_int32("persist.gammaos.nano.drm_displays", 1);
+        if ((int)sDrmDisplays.size() >= expected) {
+            sDrmRescanDeadlineNs = 0; // disable further scans
+            return;
+        }
+        if (now < sDrmSlowRescanNextNs) return;
+        sDrmSlowRescanNextNs = now + 2000000000LL;
+        if (now >= sDrmSlowRescanLogNs) {
+            sDrmSlowRescanLogNs = now + 30000000000LL;
+            ALOGW("NanoMenu DRM rescan: %zu of %d panels lit, still probing", sDrmDisplays.size(), expected);
+        }
     }
 
     // The DP connector registers a few seconds after boot; keep forcing real
@@ -959,8 +986,28 @@ void drmEarlySplash(int existingFd) {
     if (existingFd >= 0) {
         fd = existingFd;
     } else {
-        fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
-        if (fd < 0) return;
+        // GammaOS: the home starts right behind the DRM driver's bind (msm_drm
+        // bound at 6.4-6.5 s, nano up at 6.8 s on the RP Duo Lite), so ueventd
+        // may not have created /dev/dri/card0 yet. A failed open used to return
+        // silently and the whole boot ran on the SurfaceFlinger path with both
+        // panels dark until something respawned the home. Wait for the node.
+        const int64_t o0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        int openErr = 0;
+        for (;;) {
+            fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+            if (fd >= 0) break;
+            openErr = errno;
+            if (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - o0 > 8000) break;
+            usleep(50000);
+        }
+        if (fd < 0) {
+            ALOGE("NanoMenu DRM splash: /dev/dri/card0 not openable within 8 s (errno %d %s), "
+                  "no DRM-direct boot path", openErr, strerror(openErr));
+            return;
+        }
+        if (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - o0 > 100)
+            ALOGW("NanoMenu DRM splash: /dev/dri/card0 appeared after %lld ms",
+                  (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - o0));
         // GammaOS: become DRM master with a bounded retry instead of a single
         // fire-and-forget attempt. At cold boot nano (class core animation) and
         // SurfaceFlinger race for card0; a transient EBUSY/EPERM here used to be
@@ -999,6 +1046,7 @@ void drmEarlySplash(int existingFd) {
     // Get DRM resources
     struct drm_mode_card_res res = {};
     if (ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res) != 0 || res.count_crtcs == 0) {
+        ALOGE("NanoMenu DRM splash: GETRESOURCES failed (errno %d) or no CRTCs, no DRM-direct boot path", errno);
         close(fd); return;
     }
     uint32_t numCrtcs = res.count_crtcs, numConns = res.count_connectors;
