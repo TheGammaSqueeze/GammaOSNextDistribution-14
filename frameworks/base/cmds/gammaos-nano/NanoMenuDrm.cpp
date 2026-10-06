@@ -2272,6 +2272,10 @@ static void drmFlipThreadMain() {
         // the split the primary never waits for the secondary; a secondary still pending at
         // the next frame is skipped for that frame (bottom screen one frame stale).
         static int splitKnob = -1; static uint32_t knobPolls = 0;
+        // (On unlocked panel clocks the split paces on the primary and lets the DP land
+        // at its own next vblank, but when that vblank sits inside the kernel's commit
+        // latency the secondary is skipped every other frame: measured 23% skipped on
+        // the RP Duo Lite. Left as a knob; Low Latency itself is off by default there.)
         if ((knobPolls++ & 63) == 0 || splitKnob < 0) splitKnob = property_get_int32("sys.gammaos.drastic_nano.flip_split", 0);
         bool secSkipped = false; int ret = 0; int err = 0;
         int secIdx = -1, primIdx = -1;
@@ -2502,7 +2506,7 @@ static int  sSecScanIdx = -1;             // slot the secondary CRTC displays
 static int  sSecPendIdx = -1;             // slot of its in-flight flip (-1 none)
 static int  sSecWantIdx = -1;             // newest slot it still has to present
 static uint32_t sSecCrtcId = 0;
-static uint32_t sIndepDeferred = 0, sIndepWaits = 0;
+static uint32_t sIndepDeferred = 0, sIndepWaits = 0, sIndepDropped = 0;
 static bool sDrainForSlot = false;        // drain stop condition: the next render slot is free
 static bool sDrainNonBlocking = false;    // drain only what has already arrived (no wait)
 static bool drmIndepFlipOn() {
@@ -2881,8 +2885,12 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         // with no offset, so sec_delay must be 0 there (any delay re-adds the
         // very latency we are removing). Only the legacy Smart atomic path uses
         // the sec_delay compensation (default 1).
+        // The one-slot secondary delay phase-aligns the RG DS's two near-locked
+        // DSI panels. On a device whose panels run on unlocked clocks (independent
+        // flip mode, the RP Duo Lite's DSI + DP) it is a whole frame of extra lag
+        // on the bottom screen for nothing: default it off there.
         int secDelay = sDrmAfbcMode ? 0 : property_get_int32(
-                "sys.gammaos.drastic_nano.sec_delay", 1);
+                "sys.gammaos.drastic_nano.sec_delay", drmIndepFlipOn() ? 0 : 1);
         if (secDelay < 0) secDelay = 0;
         if (secDelay >= AHB_RING_DEPTH) secDelay = AHB_RING_DEPTH - 1;
         int secIdx = (idx - secDelay + 2 * AHB_RING_DEPTH) % AHB_RING_DEPTH;
@@ -3119,9 +3127,39 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         }
         if (crtcSlot >= 0 && sCrtcPending[crtcSlot] > 0) {
             if (!primePath) d.activeBuffer = bufIdx;
-            // Independent mode: remember the newest slot; the drain flips the
-            // secondary to it as soon as its in-flight flip lands.
-            if (indepSec) sSecWantIdx = idx;
+            // Independent mode: the secondary still has a flip in flight. Queueing
+            // this frame from the drain (the moment that flip lands) put the DP one
+            // whole period behind for good: a flip issued right after a vblank lands
+            // at the next one, so the following frame found it pending again, and
+            // so on (RP Duo Lite: DP complete 17 ms after issue, DSI 6 ms). Drop the
+            // secondary for this frame instead. The next frame finds the CRTC free
+            // and flips at issue time, landing at the first DP vblank after it,
+            // which is the lowest latency a one-flip-in-flight CRTC can give. The
+            // unlocked clocks then cost one repeated frame per phase wrap (about
+            // every 50 s) instead of a permanent frame of lag.
+            // persist.gammaos.nano.drm_indep_defer=1 restores the deferred queueing.
+            // A drop only helps when the DP vblank is far enough from the issue
+            // point for the next flip to land before the following frame; when the
+            // vblank sits inside the kernel's commit latency the chain re-forms at
+            // once and dropping again every frame would halve the DP rate (measured
+            // 378 drops in a short session). So: drop, and if the CRTC is pending
+            // again within a few frames, hold off dropping for 5 s and defer instead
+            // (one frame of lag during that phase window, no judder).
+            if (indepSec) {
+                static int sDeferMode = -1;
+                if (sDeferMode < 0)
+                    sDeferMode = property_get_bool("persist.gammaos.nano.drm_indep_defer", false) ? 1 : 0;
+                static int sLastDropFlip = 0;
+                static int64_t sDropHoldUntilMs = 0;
+                const int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+                bool drop = sDeferMode == 0 && nowMs >= sDropHoldUntilMs;
+                if (drop && sLastDropFlip != 0 && sFlipCount - sLastDropFlip < 4) {
+                    drop = false;                      // chain came straight back: bad phase window
+                    sDropHoldUntilMs = nowMs + 5000;
+                }
+                if (drop) { sSecWantIdx = -1; sIndepDropped++; sLastDropFlip = sFlipCount; }
+                else sSecWantIdx = idx;
+            }
             continue;
         }
         int flipRc = ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip);
@@ -3259,8 +3297,8 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         }
     }
     if (sIndepFlip == 1 && sFlipCount % 600 == 0 && sFlipCount > 0)
-        ALOGI("NanoMenu DRM indep flip: deferred secondary flips %u, slot waits %u (scan %d pend %d)",
-              sIndepDeferred, sIndepWaits, sSecScanIdx, sSecPendIdx);
+        ALOGI("NanoMenu DRM indep flip: deferred secondary flips %u, dropped %u, slot waits %u (scan %d pend %d)",
+              sIndepDeferred, sIndepDropped, sIndepWaits, sSecScanIdx, sSecPendIdx);
     sFlipCount++;
 }
 
