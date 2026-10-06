@@ -246,6 +246,11 @@ public final class WifiSubcommand {
             return -1;
         }
         try { wm.disconnect(); } catch (Throwable ignored) { }
+        // A profile saved from the home must keep auto-joining at boot. The
+        // flag has been found cleared on saved profiles (the framework
+        // restores it from backup data and the Settings toggle can clear
+        // it), so re-assert it on every connect we drive.
+        try { wm.allowAutojoin(netId, true); } catch (Throwable ignored) { }
         wm.enableNetwork(netId, true);
         wm.reconnect();
         waitForSsid(ctx, wm, ssid, 25_000);
@@ -400,6 +405,10 @@ public final class WifiSubcommand {
         // already-satisfied supplicant.
         try { wm.disconnect(); } catch (Throwable ignored) { }
 
+        // Re-assert auto-join on the chosen profile so it reconnects on
+        // its own at the next boot (see connect()).
+        try { wm.allowAutojoin(netId, true); } catch (Throwable ignored) { }
+
         // Mark the target as the only auto-join candidate for this switch.
         // enableNetwork(netId, true) disables every other saved config at
         // the framework layer so the supplicant has exactly one choice.
@@ -488,8 +497,16 @@ public final class WifiSubcommand {
         ctx.registerReceiver(rx, f, Context.RECEIVER_EXPORTED);
         try {
             if (isConnectedTo(wm, targetSsid)) return true;
-            return done.await(timeoutMs, TimeUnit.MILLISECONDS)
-                    || isConnectedTo(wm, targetSsid);
+            // Poll as well as waiting for the broadcast: in this root app_process
+            // the NETWORK_STATE_CHANGED broadcast does not reliably arrive (the RP
+            // Duo Lite associated and had its DHCP lease 4 s after the request but
+            // the helper, and so nano's "connecting" screen, sat out the whole 30 s).
+            final long deadline = System.currentTimeMillis() + timeoutMs;
+            while (System.currentTimeMillis() < deadline) {
+                if (done.await(250, TimeUnit.MILLISECONDS)) return true;
+                if (isConnectedTo(wm, targetSsid)) return true;
+            }
+            return isConnectedTo(wm, targetSsid);
         } finally {
             try { ctx.unregisterReceiver(rx); } catch (Throwable ignored) { }
         }

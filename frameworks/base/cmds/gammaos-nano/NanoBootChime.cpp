@@ -475,8 +475,26 @@ bool nanoBootChimeIsSprdDevice() {
     return cached == 1;
 }
 
+// Qualcomm (RP Duo Lite, SM6125): the PCM devices are fronts for the ADSP; a raw
+// tinyalsa write without the vendor HAL's routing and calibration plays nothing.
+// Direct audio is therefore unusable there and the boot chime goes through the
+// HAL (NanoHalChime), which is what played on the boots where the sound card
+// appeared after this check; once the card came up earlier the raw path was
+// chosen and the chime was silent.
+static bool nanoBootChimeIsQcomDevice() {
+    static int cached = -1;
+    if (cached < 0) {
+        char p[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.board.platform", p, "");
+        cached = (strstr(p, "trinket") || strstr(p, "bengal") || strstr(p, "msm") || strstr(p, "sdm") ||
+                  strncmp(p, "sm", 2) == 0 || strstr(p, "lahaina") || strstr(p, "taro") || strstr(p, "kalama")) ? 1 : 0;
+    }
+    return cached == 1;
+}
+
 bool nanoDirectAudioUsable() {
     if (gEng.failed.load()) return false;              // a prior direct open failed -> AAudio only
+    if (nanoBootChimeIsQcomDevice()) return false;     // ADSP-fronted PCMs: raw writes are silent -> HAL chime
     if (nanoBootChimeIsMtkDevice()) return false;      // no usable pre-HAL window here -> AAudio path (plays once the audio server is up)
     if (nanoBootChimeIsSprdDevice()) return false;     // SPRD VBC/AGDSP: raw PCM DMA never drains without the vendor DSP protocol -> AAudio-late
     static int hasNode = -1;                           // playback PCM of the chosen card present? (cheap, cached)
