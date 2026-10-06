@@ -831,6 +831,29 @@ void NanoMenu::initShaders() {
               sDrmRotMat[0], sDrmRotMat[1], sDrmRotMat[2], sDrmRotMat[3]);
     }
 
+    // GammaOS: build the SECONDARY (bottom DP) panel's own rotation matrix,
+    // independent of the primary. Pipeline mirrors the primary: identity ->
+    // rotation (drm_sec_rot) -> PRIME Y-flip (the secondary ring also page-flips
+    // the AHB directly, so GL y-up must be pre-flipped) -> user flips
+    // (drm_sec_flip_h / _v). Default (0°, no flip) = native landscape for the
+    // DP, which was previously wrong because the bottom reused the primary's 90°.
+    if (sDrmActive) {
+        float* m = sDrmRotMatSecondary;
+        m[0] = 1.0f; m[1] = 0.0f; m[2] = 0.0f; m[3] = 1.0f;   // identity
+        switch (sDrmRotationDegSecondary) {
+        case 90:  m[0] =  0.0f; m[1] = -1.0f; m[2] =  1.0f; m[3] =  0.0f; break;
+        case 180: m[0] = -1.0f; m[1] =  0.0f; m[2] =  0.0f; m[3] = -1.0f; break;
+        case 270: m[0] =  0.0f; m[1] =  1.0f; m[2] = -1.0f; m[3] =  0.0f; break;
+        default: break;                                        // 0°: identity
+        }
+        m[1] = -m[1]; m[3] = -m[3];                            // PRIME Y-flip
+        if (sDrmFlipHSecondary) { m[0] = -m[0]; m[2] = -m[2]; }
+        if (sDrmFlipVSecondary) { m[1] = -m[1]; m[3] = -m[3]; }
+        ALOGI("NanoMenu: secondary rotMat rot=%d fh=%d fv=%d -> [%g %g %g %g]",
+              sDrmRotationDegSecondary, sDrmFlipHSecondary ? 1 : 0,
+              sDrmFlipVSecondary ? 1 : 0, m[0], m[1], m[2], m[3]);
+    }
+
     initFonts();
     // GammaOS: Drastic QR fast-path skips icon texture init -- icons
     // are only used by the XMB/menu render() path which isn't reached

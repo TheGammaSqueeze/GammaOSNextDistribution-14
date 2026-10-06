@@ -204,6 +204,10 @@ extern int sCrtcTrackCount;
 extern int sVsyncEnabled;
 extern bool sDrasticQrFastPath;
 extern float sDrmRotMat[4];
+extern float sDrmRotMatSecondary[4];
+extern int  sDrmRotationDegSecondary;
+extern bool sDrmFlipHSecondary;
+extern bool sDrmFlipVSecondary;
 
 // EGL extension function pointers
 extern PFNEGLCREATEIMAGEKHRPROC sEglCreateImageKHR;

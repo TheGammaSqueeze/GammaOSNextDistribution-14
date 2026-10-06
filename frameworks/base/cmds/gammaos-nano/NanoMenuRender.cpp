@@ -5677,12 +5677,11 @@ void NanoMenu::render() {
     // shader programs. Called at the start of each render pass since the
     // rotation is global state that every program reads.
     auto uploadRotationMatrices = [this]() {
-        // Upload-on-change: the rotation matrix is identity in overlay mode and
-        // constant per orientation on the DRM home, so skip the 5 program re-binds
-        // + uniform uploads when it has not moved since the last upload. The
-        // programs retain their last-uploaded value, so this stays correct - a
-        // naive unconditional skip would leave the default-zero uRotation and
-        // collapse all text/icons (which rely on this global upload) to the origin.
+        // Upload-on-change: skip the 5 program re-binds + uniform uploads when
+        // sDrmRotMat has not moved since the last upload. The SECONDARY pass
+        // temporarily swaps sDrmRotMat to the bottom panel's matrix (see the
+        // secondary block below), so this alternates each frame and the value
+        // compare keeps it correct across the primary/secondary alternation.
         static float sLastRot[4] = {2.f, 2.f, 2.f, 2.f};   // impossible -> first upload runs
         if (sLastRot[0] == sDrmRotMat[0] && sLastRot[1] == sDrmRotMat[1] &&
             sLastRot[2] == sDrmRotMat[2] && sLastRot[3] == sDrmRotMat[3])
@@ -5857,6 +5856,16 @@ void NanoMenu::render() {
         && !setupSkipSecondary) {
         glBindFramebuffer(GL_FRAMEBUFFER, sAhbTargetSecondary.glFbo);
         glViewport(0, 0, sAhbTargetSecondary.w, sAhbTargetSecondary.h);
+        // GammaOS: the bottom (DP) panel has its own orientation. sDrmRotMat is
+        // read directly in MANY render paths (wave wallpaper, glass icons, the
+        // rounded clock frame, text/bounds geometry) not just the shared uniform,
+        // so swap it to the secondary matrix for the whole bottom pass and
+        // restore it before the primary pass. This rotates the FACE + WALLPAPER
+        // with the hands instead of leaving them at the primary's 90°.
+        float sSavedPrimaryRotMat[4] = {sDrmRotMat[0], sDrmRotMat[1],
+                                        sDrmRotMat[2], sDrmRotMat[3]};
+        sDrmRotMat[0] = sDrmRotMatSecondary[0]; sDrmRotMat[1] = sDrmRotMatSecondary[1];
+        sDrmRotMat[2] = sDrmRotMatSecondary[2]; sDrmRotMat[3] = sDrmRotMatSecondary[3];
         uploadRotationMatrices();
         glClearColor(0.0f, 0.0f, 0.0f, nanoSecondaryClearAlpha(mOverlayMode, mOverlayWallpaper));
         glClear(GL_COLOR_BUFFER_BIT);
@@ -5993,6 +6002,9 @@ void NanoMenu::render() {
         }
         mRenderingPanel = 0;   // back to the primary/top panel for the main pass below
         maybeNanoScreenshotSecondary();   // debug capture of the DRM bottom (AHB) panel
+        // Restore the primary panel's rotation matrix for the main pass.
+        sDrmRotMat[0] = sSavedPrimaryRotMat[0]; sDrmRotMat[1] = sSavedPrimaryRotMat[1];
+        sDrmRotMat[2] = sSavedPrimaryRotMat[2]; sDrmRotMat[3] = sSavedPrimaryRotMat[3];
     }
 
     // GammaOS: Primary pass — wallpaper + full menu (XMB or normal). When
