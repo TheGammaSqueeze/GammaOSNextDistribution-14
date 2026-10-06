@@ -797,6 +797,24 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
             }
         }
     }
+    // Latency experiment (sys.gammaos.nano.drm_mode_hz_<connId>=N): drive
+    // this connector's preferred timing at N Hz by scaling the pixel
+    // clock, blanking unchanged. The RP Duo Lite's DP bridge only
+    // advertises 1280x960@60; whether it accepts a faster input tells
+    // whether it re-times through a frame buffer (then a faster link
+    // shortens the transfer part of its lag) or passes video through.
+    {
+        char key[64];
+        snprintf(key, sizeof(key), "sys.gammaos.nano.drm_mode_hz_%u", connId);
+        const int hz = property_get_int32(key, 0);
+        if (crtc.mode_valid && connId != 0 && hz >= 30 && hz <= 240 && crtc.mode.htotal && crtc.mode.vtotal) {
+            const uint32_t clk = (uint32_t)((uint64_t)crtc.mode.htotal * crtc.mode.vtotal * hz / 1000);
+            ALOGW("NanoMenu DRM %s: connector %u mode clock %u -> %u kHz (%d Hz experiment)",
+                  stage, connId, crtc.mode.clock, clk, hz);
+            crtc.mode.clock = clk;
+            crtc.mode.vrefresh = hz;
+        }
+    }
 
     if (!crtc.mode_valid) return false;
 
@@ -2486,6 +2504,7 @@ static int  sSecWantIdx = -1;             // newest slot it still has to present
 static uint32_t sSecCrtcId = 0;
 static uint32_t sIndepDeferred = 0, sIndepWaits = 0;
 static bool sDrainForSlot = false;        // drain stop condition: the next render slot is free
+static bool sDrainNonBlocking = false;    // drain only what has already arrived (no wait)
 static bool drmIndepFlipOn() {
     if (sIndepFlip < 0)
         sIndepFlip = property_get_bool("persist.gammaos.nano.drm_indep_flip", false) ? 1 : 0;
@@ -2529,6 +2548,70 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     AhbRenderTarget& prim = sAhbRingPrimary[idx];
     AhbRenderTarget& sec  = sAhbRingSecondary[idx];
     if (!sDrmZeroCopy || !prim.ahb) return;
+    // Panel-to-panel latency test (sys.gammaos.nano.lat_test=1): stamp a frame
+    // counter on both targets as ten cells along the top of each buffer, the
+    // lit cell = frame % 10, plus a 1-of-4 band below it (frame / 10 % 4) to
+    // disambiguate. Film both panels at high speed and read the cell offset
+    // between them: that is the real display lag in frames, bridge included.
+    {
+        static int sLatTest = -1;
+        static int64_t sLatTestCheckMs = 0;
+        const int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        if (sLatTest < 0 || nowMs - sLatTestCheckMs > 1000) {
+            sLatTest = property_get_bool("sys.gammaos.nano.lat_test", false) ? 1 : 0;
+            sLatTestCheckMs = nowMs;
+        }
+        if (sLatTest == 1) {
+            static uint32_t sLatFrame = 0;
+            const uint32_t f = sLatFrame++;
+            auto stamp = [&](AhbRenderTarget& t) {
+                if (!t.ahb || t.glFbo == 0) return;
+                glBindFramebuffer(GL_FRAMEBUFFER, t.glFbo);
+                glEnable(GL_SCISSOR_TEST);
+                const int cellW = (int)t.w / 10, cellH = (int)t.h / 8;
+                for (int c = 0; c < 10; c++) {
+                    glScissor(c * cellW, (int)t.h - cellH, cellW - 4, cellH - 4);
+                    const float v = (c == (int)(f % 10)) ? 1.0f : 0.0f;
+                    glClearColor(v, v, v, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                for (int c = 0; c < 4; c++) {
+                    glScissor(c * cellW, (int)t.h - 2 * cellH, cellW - 4, cellH - 4);
+                    const float v = (c == (int)((f / 10) % 4)) ? 1.0f : 0.0f;
+                    glClearColor(v, 0.0f, v, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                glDisable(GL_SCISSOR_TEST);
+            };
+            stamp(prim);
+            if (!skipNonPrimary) stamp(sec);
+            glFinish();   // test only: the stamp must be on the glass with this flip
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+    }
+    // Vblank timestamp probe (sys.gammaos.nano.vbl_probe=1): once a second ask the
+    // kernel for each CRTC's current vblank count and time (WAIT_VBLANK, relative 0)
+    // to see whether this driver reports real per-CRTC vblank times (the legacy
+    // page-flip events on the RP Duo Lite carry a frozen sequence/timestamp).
+    if (property_get_bool("sys.gammaos.nano.vbl_probe", false)) {
+        static int64_t sVblProbeMs = 0;
+        const int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        if (nowMs - sVblProbeMs >= 1000) {
+            sVblProbeMs = nowMs;
+            for (size_t i = 0; i < sDrmDisplays.size() && i < 2; i++) {
+                const int ci = drmCrtcIndex(sDrmFd, sDrmDisplays[i].crtcId);
+                union drm_wait_vblank vbl = {};
+                vbl.request.type = _DRM_VBLANK_RELATIVE;
+                if (ci > 0) vbl.request.type = (enum drm_vblank_seq_type)((unsigned)vbl.request.type | (((unsigned)ci << 1u) & 0x3eu));   // _DRM_VBLANK_HIGH_CRTC_SHIFT/MASK
+                vbl.request.sequence = 0;
+                const int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                const int rc = ioctl(sDrmFd, DRM_IOCTL_WAIT_VBLANK, &vbl);
+                ALOGW("NanoMenu vbl probe: crtc %u idx %d rc=%d seq=%u tv=%ld.%06ld now=%lld us",
+                      sDrmDisplays[i].crtcId, ci, rc, vbl.reply.sequence,
+                      (long)vbl.reply.tval_sec, (long)vbl.reply.tval_usec, (long long)t0);
+            }
+        }
+    }
     // Deferred drain: the previous commit's flip is collected here, after the
     // caller has already rendered this frame, so its GPU work overlapped the
     // previous scanout wait. A second nonblocking commit while one is pending
@@ -3022,6 +3105,18 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         int crtcSlot = wantEvent ? drmCrtcSlot(d.crtcId) : -1;
         const bool indepSec = !isPrimary && primePath && useSecondaryAhb && drmIndepFlipOn();
         if (indepSec) sSecCrtcId = d.crtcId;
+        // Independent mode: the drain returns as soon as the PRIMARY's flip lands,
+        // so the secondary's completion (its own vblank, usually a few ms later)
+        // is still sitting unread in the DRM fd when the next frame gets here.
+        // Treating that as "still pending" deferred the secondary to the drain
+        // of the following frame every time (the RP Duo Lite's DP presented one
+        // whole frame behind the DSI). Pick up what has already arrived without
+        // waiting; only a flip whose vblank truly has not come yet is deferred.
+        if (indepSec && crtcSlot >= 0 && sCrtcPending[crtcSlot] > 0) {
+            sDrainNonBlocking = true;
+            drmDrainPageFlipEvents();
+            sDrainNonBlocking = false;
+        }
         if (crtcSlot >= 0 && sCrtcPending[crtcSlot] > 0) {
             if (!primePath) d.activeBuffer = bufIdx;
             // Independent mode: remember the newest slot; the drain flips the
@@ -3248,7 +3343,7 @@ void drmDrainPageFlipEvents() {
         struct pollfd pfd = {};
         pfd.fd = sDrmFd;
         pfd.events = POLLIN;
-        int pr = poll(&pfd, 1, 100);
+        int pr = poll(&pfd, 1, sDrainNonBlocking ? 0 : 100);
         if (pr < 0) {
             if (errno == EINTR) continue;
             // fd broken -- abandon the drain so we don't spin
@@ -3256,6 +3351,7 @@ void drmDrainPageFlipEvents() {
             for (int i = 0; i < sCrtcTrackCount; i++) sCrtcPending[i] = 0;
             return;
         }
+        if (pr == 0 && sDrainNonBlocking) return;   // nothing queued right now; keep the pending state
         if (pr == 0) {
             // Timeout. Rate-limit the log to once per second so a panel
             // that never posts events doesn't flood logcat.
