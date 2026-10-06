@@ -7081,7 +7081,16 @@ if (sRingPrimedCount >= 2) {
     // EGL surface, render, swap.
     for (size_t i = 0; !ndsSecondaryHidden && !setupInstalling && i < mSecondaryEglSurfaces.size(); i++) {
         eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[i], mSecondaryEglSurfaces[i], mContext);
-        glViewport(0, 0, mWidth, mHeight); // secondary has same resolution
+        // Lay the pass out in this secondary surface's own size: the RG DS panels
+        // match the primary, the RP Duo Lite's bottom DP (1280x960 under a
+        // 1920x1080 top) does not, and the wallpaper, clock and DSi carousel
+        // overscaled off the panel after an app hand-off. Restored after the swap.
+        const int secSavedW = mWidth, secSavedH = mHeight;
+        if (i < mSecondaryCreatedSize.size() && mSecondaryCreatedSize[i].first > 0 && mSecondaryCreatedSize[i].second > 0) {
+            mWidth = mSecondaryCreatedSize[i].first;
+            mHeight = mSecondaryCreatedSize[i].second;
+        }
+        glViewport(0, 0, mWidth, mHeight);
         glClearColor(0.0f, 0.0f, 0.0f, nanoSecondaryClearAlpha(mOverlayMode, mOverlayWallpaper));
         glClear(GL_COLOR_BUFFER_BIT);
         mRenderingPanel = 1;   // secondary/bottom panel: pick its own wallpaper (empty -> normal bg)
@@ -7142,6 +7151,7 @@ if (sRingPrimedCount >= 2) {
         }
         if (i == 0) maybeNanoScreenshotSecondary();   // debug capture of the bottom DS panel
         eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[i]);
+        mWidth = secSavedW; mHeight = secSavedH;
     }
     mRenderingPanel = 0;   // back to the primary/top panel
     // Switch back to primary
