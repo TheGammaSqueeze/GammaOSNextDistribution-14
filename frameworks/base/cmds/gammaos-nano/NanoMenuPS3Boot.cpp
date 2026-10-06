@@ -126,8 +126,11 @@ void NanoMenu::ps3BootReset(bool freshSetup) {
         // Pre-warming the AAudio stream here would hold mSfxOpening and BLOCK that HAL thread from
         // spawning, so skip the pre-warm in exactly that case (matches the HAL-branch condition).
         if (nanoDirectAudioUsable() || dsiBootCompleted()) dsiPrewarmChime();
+        else if (bootSoundOn())
+            halChimeArm(dsiAudioPath(mMinimaTheme ? "minima_boot.wav" : "boot_chime.wav"),
+                        dsiEarlyAudioGain(0.8f));
     }
-    else if (!nanoDirectAudioUsable()) {
+    else if (!nanoDirectAudioUsable() && !dsiBootCompleted()) {
         // PS3 theme on a SoC where the direct-ALSA path is dead (e.g. SPRD/Unisoc, whose
         // loudspeaker only sounds through the vendor HAL/DSP). The boot chime must come through
         // AAudio, and in force-SF mode nano's render loop is CPU/SF-starved during the busy boot,
@@ -135,28 +138,15 @@ void NanoMenu::ps3BootReset(bool freshSetup) {
         // clock: play it from a dedicated thread the instant audioserver is up, so it lands ASAP
         // (~the audioserver floor) regardless of how slowly the intro renders. Suppress the
         // render-clock fire below (mPs3ColdSoundPlayed=true).
-        mPs3ColdSoundPlayed = true;
-        if (bootSoundOn() && !mSfxOpening.exchange(true)) {
-            std::string path = dsiAudioPath("coldboot_stereo.wav");
-            std::thread([this, path]() {
-                float gain = dsiEarlyAudioGain(0.8f);
-                // FASTEST: drive the vendor audio HAL directly (bypasses audioserver's ~11.7s
-                // AudioPolicyManager, which blocks on ActivityManager) -> chime at the HAL floor
-                // ~8s instead of ~20s. Falls back to the AAudio-late path if the HAL is unreachable
-                // (that path waits for audioserver = the old ~20s behaviour).
-                if (!nanoHalChimePlay(path, gain)) {
-                    mSfxPlayer.init();
-                    for (int i = 0; i < 400; i++) {        // wait for audioserver (comes up ~7.8s+)
-                        char s[PROPERTY_VALUE_MAX] = {};
-                        property_get("init.svc.audioserver", s, "");
-                        if (strcmp(s, "running") == 0) break;
-                        usleep(25 * 1000);
-                    }
-                    if (mSfxPlayer.open(path)) { mSfxPlayer.setVolume(gain); mSfxPlayer.play(); }
-                }
-                mSfxOpening.store(false);
-            }).detach();
-        }
+        //
+        // The chime is NOT fired from this thread though: played the instant the HAL came up it
+        // landed well before the scene reveal on the RP Duo Lite (the intro clock runs on clamped
+        // frame time and trails wall time through the busy boot). The thread only OPENS the HAL
+        // stream (the slow part) and holds it; ps3BootUpdate fires the write at the 800ms sound
+        // mark, holding the intro clock there for up to kHalChimeHoldMs if the HAL is still
+        // opening, so the chime and the reveal start together.
+        if (bootSoundOn()) halChimeArm(dsiAudioPath("coldboot_stereo.wav"), dsiEarlyAudioGain(0.8f));
+        else mPs3ColdSoundPlayed = true;
     }
 }
 
@@ -179,6 +169,53 @@ void NanoMenu::dsiPrewarmChime() {
         mChimeReady.store(ok);
         mSfxOpening.store(false);
     }).detach();
+}
+
+// Vendor-HAL chime: open the HAL stream now (slow: waits for the HAL service, opens device +
+// stream, routes the speaker), then hold it silent until the render clock reaches the intro's
+// sound mark and sets mHalChimeGo. If the HAL is unreachable the thread falls back to the
+// AAudio-late path at the mark (plays once audioserver is up).
+static const int64_t kHalChimeHoldMs = 10000;   // longest the intro waits at its mark for the HAL
+void NanoMenu::halChimeArm(const std::string& path, float gain) {
+    if (mSfxOpening.exchange(true)) return;
+    mHalChimeReady.store(false); mHalChimeFailed.store(false); mHalChimeGo.store(0);
+    mHalChimeHoldStart = 0;
+    mHalChimeArmed.store(true);
+    std::thread([this, path, gain]() {
+        const bool opened = nanoHalChimeOpen(path, gain);
+        if (opened) mHalChimeReady.store(true); else mHalChimeFailed.store(true);
+        const int64_t t0 = android::uptimeMillis();
+        while (mHalChimeGo.load() == 0 && android::uptimeMillis() - t0 < 90000) usleep(5 * 1000);
+        const int go = mHalChimeGo.load();
+        if (opened) {
+            if (go == 1) nanoHalChimeWrite(); else nanoHalChimeAbort();
+        } else if (go == 1) {
+            mSfxPlayer.init();
+            for (int i = 0; i < 400; i++) {        // wait for audioserver (comes up ~7.8s+)
+                char s[PROPERTY_VALUE_MAX] = {};
+                property_get("init.svc.audioserver", s, "");
+                if (strcmp(s, "running") == 0) break;
+                usleep(25 * 1000);
+            }
+            if (mSfxPlayer.open(path)) { mSfxPlayer.setVolume(gain); mSfxPlayer.play(); }
+        }
+        mHalChimeArmed.store(false);
+        mSfxOpening.store(false);
+    }).detach();
+}
+
+// True while the intro clock has to wait at its sound mark: a HAL chime is armed, its stream
+// is still opening, and the wait has not exceeded kHalChimeHoldMs (then the intro goes on and
+// the chime plays late rather than holding a black screen indefinitely).
+bool NanoMenu::halChimeHoldClock() {
+    if (!mHalChimeArmed.load() || mHalChimeReady.load() || mHalChimeFailed.load()) return false;
+    const int64_t now = android::uptimeMillis();
+    if (mHalChimeHoldStart == 0) mHalChimeHoldStart = now;
+    if (now - mHalChimeHoldStart < kHalChimeHoldMs) return true;
+    ALOGW("boot chime: HAL still opening %lld ms after the sound mark, continuing the intro",
+          (long long)(now - mHalChimeHoldStart));
+    mHalChimeFailed.store(true);   // stop holding; the thread still plays when the HAL opens
+    return false;
 }
 
 void NanoMenu::ps3BootSkip() {
@@ -650,6 +687,9 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
             // request play; then play() as soon as the stream is ready (usually immediately -
             // it plays exactly on the mark; if the audio service was still coming up it plays
             // the instant it is ready, rather than blocking the render thread on open).
+            if (!mDsiChimePlayed && f / 60.0 >= DSI_CHIME_SEC && halChimeHoldClock()) {
+                mDsiBootFrame = DSI_CHIME_SEC * 60.0 - 0.01; f = mDsiBootFrame;   // HAL still opening: wait just short of the mark
+            }
             if (!mDsiChimePlayed && f / 60.0 >= DSI_CHIME_SEC) { mChimePlayReq = true; mDsiChimePlayed = true; }
             if (mChimePlayReq && !mChimeStarted && bootSoundOn()) {
                 if (nanoDirectAudioUsable() && !dsiBootCompleted()) {
@@ -664,11 +704,13 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
                     mChimeStarted = true;
                 } else if (!nanoDirectAudioUsable() && !dsiBootCompleted()) {
                     // SoC where the direct-ALSA path is dead (e.g. SPRD/Unisoc, whose loudspeaker only
-                    // sounds through the vendor HAL/DSP). Same as the PS3 cold-boot sound: drive the
-                    // vendor audio HAL directly from a dedicated thread (chime at the HAL floor ~8s,
-                    // not the ~20s audioserver floor), falling back to the AAudio-late path inside the
-                    // thread if the HAL is unreachable. Never blocks the render loop.
-                    if (!mSfxOpening.exchange(true)) {
+                    // sounds through the vendor HAL/DSP). Same as the PS3 cold-boot sound: the vendor
+                    // HAL stream was opened at intro start (halChimeArm) and is written now, at the
+                    // mark. If the arm did not happen (boot sound toggled meanwhile) open+play it from
+                    // a dedicated thread here, falling back to the AAudio-late path inside the thread
+                    // if the HAL is unreachable. Never blocks the render loop.
+                    if (mHalChimeArmed.load()) mHalChimeGo.store(1);
+                    else if (!mSfxOpening.exchange(true)) {
                         std::string path = dsiAudioPath(bootChimeWav);
                         float gain = dsiEarlyAudioGain(0.8f);
                         std::thread([this, path, gain]() {
@@ -719,6 +761,8 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
     }
 
     mPs3BootElapsedMs += (double)dtSeconds * 1000.0;
+    if (!mPs3ColdSoundPlayed && mPs3BootElapsedMs >= BOOT_SCENE_A && halChimeHoldClock())
+        mPs3BootElapsedMs = BOOT_SCENE_A - 1.0;   // HAL chime still opening: wait just short of the sound mark (still black)
     double e = mPs3BootElapsedMs;
 
     // PS3 XMB cold-boot sound: play coldboot_stereo.wav (10s) once as the fade-in begins
@@ -726,7 +770,9 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
     // (the audio server is not up), AAudio fallback otherwise. Fire-once (reset in ps3BootReset).
     if (!mPs3ColdSoundPlayed && e >= BOOT_SCENE_A) {
         mPs3ColdSoundPlayed = true;
-        if (!bootSoundOn()) {
+        if (mHalChimeArmed.load()) {
+            mHalChimeGo.store(bootSoundOn() ? 1 : 2);   // vendor HAL stream held open since intro start
+        } else if (!bootSoundOn()) {
             // Boot Sound off: mark played (suppresses re-fire) and stay silent.
         } else if (nanoDirectAudioUsable() && !dsiBootCompleted()) {
             nanoDirectPlayOneShot(dsiAudioPath("coldboot_stereo.wav"), dsiEarlyAudioGain(0.8f));

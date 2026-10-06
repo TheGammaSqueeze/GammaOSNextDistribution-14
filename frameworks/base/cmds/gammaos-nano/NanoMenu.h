@@ -3594,6 +3594,18 @@ private:
     bool mChimePlayReq = false;    // the chime mark (1.94s) has been reached -> play when ready
     bool mChimeStarted = false;    // play() already issued (fire once)
     std::atomic<bool> mDirectChimeInFlight{false};   // RG DS direct-ALSA chime worker guard (NanoBootChime)
+    // Vendor-HAL boot chime (SoCs whose speaker only sounds through the HAL/DSP, e.g. Qualcomm):
+    // halChimeArm() opens the HAL stream on a detached thread at intro start and holds it silent;
+    // the render clock sets mHalChimeGo at the intro's sound mark (1 = play, 2 = release unplayed).
+    // While the stream is still opening the intro clock holds at its mark (bounded by
+    // kHalChimeHoldMs) so the chime and the scene reveal start together.
+    std::atomic<bool> mHalChimeArmed{false};
+    std::atomic<bool> mHalChimeReady{false};
+    std::atomic<bool> mHalChimeFailed{false};
+    std::atomic<int>  mHalChimeGo{0};
+    int64_t mHalChimeHoldStart = 0;
+    void halChimeArm(const std::string& path, float gain);
+    bool halChimeHoldClock();      // true while the intro clock must wait at its sound mark
     bool mDirectAmbiancePlaying = false;   // the direct-PCM carousel BGM loop is the active bed (pre-boot)
     bool mDirectWarmHold = false;          // DSi: card held open (silence) from the first frame so the amp is up before the chime
     bool mPs3DirectHolding = false;        // PS3 theme is holding card0 open through early boot (ps3EarlyAudioTick)

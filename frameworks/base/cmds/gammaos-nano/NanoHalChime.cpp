@@ -6,6 +6,7 @@
 // audioserver (which opens it ~20s later) and RELEASE well before then.
 
 #include "NanoHalChime.h"
+#include "NanoBootChime.h"   // nanoBootChimeIsQcomDevice()
 
 #include <media/audiohal/DevicesFactoryHalInterface.h>
 #include <media/audiohal/DeviceHalInterface.h>
@@ -25,6 +26,7 @@
 #include <cmath>
 #include <vector>
 #include <unistd.h>
+#include <sys/resource.h>
 
 #define NHC_TAG "GammaOSNano"
 #define NHC_I(...) __android_log_print(ANDROID_LOG_INFO, NHC_TAG, __VA_ARGS__)
@@ -91,7 +93,30 @@ static void nanoHalChimeUnmuteDac() {
 // handle, so it is safe to write directly once the profile blob has been uploaded to the AGDSP.
 static constexpr int kDspVbcSpeakerProfile = 961216512;
 
+// Stream opened by nanoHalChimeOpen(), consumed by nanoHalChimeWrite()/nanoHalChimeAbort().
+// Single-owner: one chime thread at a time (the callers guard with mSfxOpening).
+static struct {
+    HcWav w;
+    sp<DeviceHalInterface> dev;
+    sp<StreamOutHalInterface> out;
+    bool open = false;
+} gHc;
+
+static void nanoHalChimeRelease() {
+    if (gHc.out != nullptr) { gHc.out->standby(); gHc.out.clear(); }   // StreamOutHalHidl dtor closes the HAL stream
+    gHc.dev.clear();                                                     // drops the adev refcount so audioserver opens cleanly later
+    gHc.w = HcWav();
+    gHc.open = false;
+}
+
 bool nanoHalChimePlay(const std::string& wavPath, float gain) {
+    if (!nanoHalChimeOpen(wavPath, gain)) return false;
+    nanoHalChimeWrite();
+    return true;
+}
+
+bool nanoHalChimeOpen(const std::string& wavPath, float gain) {
+    if (gHc.open) nanoHalChimeRelease();
     HcWav w = loadWav(wavPath);
     if (!w.ok) { NHC_W("halchime: unusable wav %s", wavPath.c_str()); return false; }
 
@@ -154,9 +179,23 @@ bool nanoHalChimePlay(const std::string& wavPath, float gain) {
     cfg.format       = AUDIO_FORMAT_PCM_16_BIT;
     cfg.channel_mask = (w.ch >= 2) ? AUDIO_CHANNEL_OUT_STEREO : AUDIO_CHANNEL_OUT_MONO;
 
+    // Qualcomm: do NOT take the HAL's one PRIMARY output. audioserver loads the primary module
+    // while the chime is still playing (~14-18 s) and its openOutput then fails with "Primary
+    // output is already opened", leaving it on a makeshift non-primary mixer for the whole
+    // session; its retries and route/volume setup also run against the stream the chime is
+    // writing. The deep-buffer output is a separate ADSP PCM (its own large periods, mixed in
+    // the DSP), so audioserver gets its primary untouched and the chime no longer stutters when
+    // the framework audio setup lands during its tail. SPRD keeps PRIMARY (its HIFI path).
+    const audio_output_flags_t flags = nanoBootChimeIsQcomDevice()
+        ? AUDIO_OUTPUT_FLAG_DEEP_BUFFER : AUDIO_OUTPUT_FLAG_PRIMARY;
     sp<StreamOutHalInterface> out;
     status_t st = dev->openOutputStream((audio_io_handle_t)77, AUDIO_DEVICE_OUT_SPEAKER,
-                                        AUDIO_OUTPUT_FLAG_PRIMARY, &cfg, "", &out);
+                                        flags, &cfg, "", &out);
+    if ((st != OK || out == nullptr) && flags != AUDIO_OUTPUT_FLAG_PRIMARY) {
+        NHC_W("halchime: deep-buffer open failed st=%d, retrying as primary", st);
+        st = dev->openOutputStream((audio_io_handle_t)77, AUDIO_DEVICE_OUT_SPEAKER,
+                                   AUDIO_OUTPUT_FLAG_PRIMARY, &cfg, "", &out);
+    }
     if (st != OK || out == nullptr) {
         NHC_W("halchime: openOutputStream(speaker) failed st=%d -> AAudio fallback", st);
         dev.clear(); return false;
@@ -202,7 +241,29 @@ bool nanoHalChimePlay(const std::string& wavPath, float gain) {
     }
     if (mx) mixer_close(mx);
 
-    NHC_I("halchime: vendor HAL open (%uHz x%u), DSP profile active -> writing coldboot", w.rate, w.ch);
+    NHC_I("halchime: vendor HAL open (%uHz x%u, flags 0x%x), speaker route live, holding for the mark",
+          w.rate, w.ch, (unsigned)flags);
+    gHc.w = std::move(w);
+    gHc.dev = dev;
+    gHc.out = out;
+    gHc.open = true;
+    return true;
+}
+
+void nanoHalChimeAbort() {
+    if (!gHc.open) return;
+    NHC_I("halchime: released without playing");
+    nanoHalChimeRelease();
+}
+
+void nanoHalChimeWrite() {
+    if (!gHc.open) return;
+    const HcWav& w = gHc.w;
+    const sp<StreamOutHalInterface>& out = gHc.out;
+    // The boot is at its busiest while the chime streams (zygote preload, system_server). Give
+    // the writer an audio-class nice level so a scheduling gap does not drain the HAL buffer.
+    setpriority(PRIO_PROCESS, 0, -16);
+    NHC_I("halchime: writing coldboot (%zu bytes)", w.pcm.size() * 2);
 
     const uint8_t* p = (const uint8_t*)w.pcm.data();
     const size_t total = w.pcm.size() * 2;
@@ -228,10 +289,7 @@ bool nanoHalChimePlay(const std::string& wavPath, float gain) {
     }
 
     NHC_I("halchime: chime done (%zu/%zu bytes), releasing HAL stream", off, total);
-    out->standby();
-    out.clear();          // StreamOutHalHidl dtor closes the HAL stream
-    dev.clear();          // drops the adev refcount so audioserver opens cleanly later
-    return true;
+    nanoHalChimeRelease();
 }
 
 }  // namespace android

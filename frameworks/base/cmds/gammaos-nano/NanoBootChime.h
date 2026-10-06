@@ -19,6 +19,8 @@
 
 // True only on the RG DS: ALSA card 0 id == "rockchiprk817". Cached after the first probe.
 bool nanoBootChimeIsRkDevice();
+// Qualcomm (ADSP-fronted PCMs): the raw tinyalsa path plays silence, the HAL chime is used instead.
+bool nanoBootChimeIsQcomDevice();
 
 // True if the direct-PCM path should be attempted on THIS device: a card 0 playback node exists and
 // the direct path has not already failed this session. Works on any ALSA device, not just the rk817

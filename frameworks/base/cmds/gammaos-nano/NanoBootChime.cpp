@@ -481,7 +481,7 @@ bool nanoBootChimeIsSprdDevice() {
 // HAL (NanoHalChime), which is what played on the boots where the sound card
 // appeared after this check; once the card came up earlier the raw path was
 // chosen and the chime was silent.
-static bool nanoBootChimeIsQcomDevice() {
+bool nanoBootChimeIsQcomDevice() {
     static int cached = -1;
     if (cached < 0) {
         char p[PROPERTY_VALUE_MAX] = {};
