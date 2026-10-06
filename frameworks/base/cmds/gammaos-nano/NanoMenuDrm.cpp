@@ -2421,6 +2421,61 @@ bool drmSlotFenceReady(int idx) {
     return sEglClientWaitSyncKHR(sRingEglDpy, sAhbRingSyncPrimary[idx], EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, 0) == EGL_CONDITION_SATISFIED_KHR;
 }
 
+// Independent per-CRTC presentation (persist.gammaos.nano.drm_indep_flip=1,
+// the RP Duo Lite: a DSI and a DP panel on unlocked vblank clocks). The frame
+// is paced on the PRIMARY CRTC only; the secondary is flipped to the newest
+// rendered slot the moment its previous flip completes (from the event drain),
+// so it presents every frame at its own phase instead of either gating the
+// renderer to both vblanks (49-53 fps with 33 ms frames on the XMB) or being
+// skipped every other frame (30 Hz, tearing) when the renderer does not wait.
+// The ring is 5 deep; drmRingSlotBusy() keeps the renderer off the two slots
+// the secondary still scans or has in flight. Off by default: the RG DS keeps
+// its lock-step drain and frame-sync hold slot unchanged.
+static int  sIndepFlip = -1;              // -1 unread, 0 off, 1 on
+static int  sSecScanIdx = -1;             // slot the secondary CRTC displays
+static int  sSecPendIdx = -1;             // slot of its in-flight flip (-1 none)
+static int  sSecWantIdx = -1;             // newest slot it still has to present
+static uint32_t sSecCrtcId = 0;
+static uint32_t sIndepDeferred = 0, sIndepWaits = 0;
+static bool sDrainForSlot = false;        // drain stop condition: the next render slot is free
+static bool drmIndepFlipOn() {
+    if (sIndepFlip < 0)
+        sIndepFlip = property_get_bool("persist.gammaos.nano.drm_indep_flip", false) ? 1 : 0;
+    // An explicit opt-in overrides the frame-sync hold slot (default on): the
+    // secondary presents the newest slot on its own cadence instead.
+    return sIndepFlip == 1 && sDrmDisplays.size() == 2 && !sDrmAfbcMode;
+}
+// Submit the secondary's flip to `slot` (PRIME path only: the secondary ring's
+// own framebuffer). Returns true when queued.
+static bool drmIndepFlipSecondary(int slot) {
+    if (slot < 0 || slot >= AHB_RING_DEPTH || sSecCrtcId == 0) return false;
+    const uint32_t fb = sAhbRingSecondary[slot].drmFbId;
+    if (fb == 0) return false;
+    struct drm_mode_crtc_page_flip flip = {};
+    flip.crtc_id = sSecCrtcId;
+    flip.fb_id = fb;
+    flip.user_data = sDrmCommitSeq;
+    flip.flags = DRM_MODE_PAGE_FLIP_EVENT;
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip) != 0) return false;
+    const int cs = drmCrtcSlot(sSecCrtcId);
+    if (cs >= 0) sCrtcPending[cs]++;
+    sPendingFlipEvents++;
+    sSecPendIdx = slot;
+    return true;
+}
+// Called from the event drain when the secondary's flip completed.
+static void drmIndepSecondaryLanded() {
+    sSecScanIdx = sSecPendIdx;
+    sSecPendIdx = -1;
+    if (sSecWantIdx >= 0 && sSecWantIdx != sSecScanIdx) {
+        if (drmIndepFlipSecondary(sSecWantIdx)) sIndepDeferred++;
+        sSecWantIdx = -1;
+    }
+}
+bool drmRingSlotBusy(int slot) {
+    return sIndepFlip == 1 && (slot == sSecScanIdx || slot == sSecPendIdx);
+}
+
 void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return;
     AhbRenderTarget& prim = sAhbRingPrimary[idx];
@@ -2482,7 +2537,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     bool frameSyncUsingHoldSlot = false;
     int secSrcForSecondaryCrtcIdx = idx;
     if (sDrmFrameSync && !skipNonPrimary && sDrmDisplays.size() > 1 &&
-        sec.ahb) {
+        sec.ahb && !drmIndepFlipOn()) {
         if (sFrameSyncHoldSlot >= 0 &&
             sFrameSyncHoldSlot < AHB_RING_DEPTH &&
             sAhbRingSecondary[sFrameSyncHoldSlot].ahb) {
@@ -2917,8 +2972,13 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         // Per-CRTC tracking fixes this: wait until this specific CRTC's
         // event has arrived before submitting a new flip to it.
         int crtcSlot = wantEvent ? drmCrtcSlot(d.crtcId) : -1;
+        const bool indepSec = !isPrimary && primePath && useSecondaryAhb && drmIndepFlipOn();
+        if (indepSec) sSecCrtcId = d.crtcId;
         if (crtcSlot >= 0 && sCrtcPending[crtcSlot] > 0) {
             if (!primePath) d.activeBuffer = bufIdx;
+            // Independent mode: remember the newest slot; the drain flips the
+            // secondary to it as soon as its in-flight flip lands.
+            if (indepSec) sSecWantIdx = idx;
             continue;
         }
         int flipRc = ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip);
@@ -2928,6 +2988,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
                 sPendingFlipEvents++;
                 if (crtcSlot >= 0) sCrtcPending[crtcSlot]++;
             }
+            if (indepSec) { sSecPendIdx = idx; sSecWantIdx = -1; }
         }
         if (flipRc != 0) {
             if (errno == EBUSY) {
@@ -3032,6 +3093,31 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
                   haveSecondary ? 1 : 0);
         }
     }
+    // Independent mode: the renderer's next slot (sRingRenderIdx) must not be one
+    // the secondary still scans or has in flight. Normally free (5-deep ring, the
+    // secondary at most one frame behind); when it is not, service events for up
+    // to one period rather than draw over a buffer on the glass (tearing).
+    if (sIndepFlip == 1 && drmRingSlotBusy(sRingRenderIdx)) {
+        const int64_t w0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+        const int scan0 = sSecScanIdx, pend0 = sSecPendIdx;
+        // The drain normally returns as soon as the primary is not pending
+        // (independent mode); ask it to run until this slot is free instead.
+        sDrainForSlot = true;
+        drmDrainPageFlipEvents();
+        sDrainForSlot = false;
+        sIndepWaits++;
+        static int64_t sLastWaitLogMs = 0;
+        const int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+        if (nowMs - sLastWaitLogMs >= 1000) {
+            sLastWaitLogMs = nowMs;
+            ALOGW("NanoMenu DRM indep flip: render slot %d busy (scan %d pend %d, present %d), waited %lld us -> scan %d pend %d",
+                  sRingRenderIdx, scan0, pend0, idx,
+                  (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL - w0), sSecScanIdx, sSecPendIdx);
+        }
+    }
+    if (sIndepFlip == 1 && sFlipCount % 600 == 0 && sFlipCount > 0)
+        ALOGI("NanoMenu DRM indep flip: deferred secondary flips %u, slot waits %u (scan %d pend %d)",
+              sIndepDeferred, sIndepWaits, sSecScanIdx, sSecPendIdx);
     sFlipCount++;
 }
 
@@ -3079,7 +3165,8 @@ void drmDrainPageFlipEvents() {
     // the secondary just holds its previous frame until its own vblank arrives).
     const bool asyncSec =
             (sDrmDisplays.size() > 1) &&
-            property_get_bool("sys.gammaos.drastic_nano.async_secondary_flip", false);
+            (drmIndepFlipOn() ||
+             property_get_bool("sys.gammaos.drastic_nano.async_secondary_flip", false));
     int primSlot = -1;
     if (asyncSec && sDrmPrimaryIdx >= 0 &&
         (size_t)sDrmPrimaryIdx < sDrmDisplays.size()) {
@@ -3103,7 +3190,9 @@ void drmDrainPageFlipEvents() {
         // Stop condition. async-secondary: return once the PRIMARY CRTC's flip has
         // landed (leave the secondary pending; it drains opportunistically on a
         // later poll). Otherwise: wait for every submitted CRTC as before.
-        if (asyncSec && primSlot >= 0) {
+        if (sDrainForSlot) {
+            if (!drmRingSlotBusy(sRingRenderIdx) || !drmAnyCrtcPending()) break;
+        } else if (asyncSec && primSlot >= 0) {
             if (primSlot >= sCrtcTrackCount || sCrtcPending[primSlot] <= 0) break;
         } else if (!(sPendingFlipEvents > 0 || drmAnyCrtcPending())) {
             break;
@@ -3162,6 +3251,8 @@ void drmDrainPageFlipEvents() {
                     if (slot >= 0 && sCrtcPending[slot] > 0) {
                         sCrtcPending[slot]--;
                     }
+                    if (sIndepFlip == 1 && sSecCrtcId != 0 && vb->crtc_id == sSecCrtcId)
+                        drmIndepSecondaryLanded();
                     if (sDrmPrimaryIdx >= 0 && (size_t)sDrmPrimaryIdx < sDrmDisplays.size() &&
                         vb->crtc_id == sDrmDisplays[sDrmPrimaryIdx].crtcId)
                         {
