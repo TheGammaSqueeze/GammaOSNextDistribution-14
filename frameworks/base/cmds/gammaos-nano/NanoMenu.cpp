@@ -5157,9 +5157,43 @@ if (sRingPrimedCount >= 2) {
                 if (mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
                 if (!mAmbianceOpening) mAmbiancePlayer.release();
                 if (!mSfxOpening.load()) mSfxPlayer.release();
+                // A DRM-direct home owns the panels: the framework's display-off cannot
+                // reach them (RP Duo Lite: PowerManager asleep, both panels still lit at
+                // full brightness after a power press). Present black and drop the
+                // backlights, the way enterDrmSleep does for the lid; the framework still
+                // drives the suspend and the wake, and the screen-on transition below
+                // restores the brightness.
+                if (sDrmActive) {
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    if (sDrmZeroCopy && sAhbRingPrimary[0].glFbo) {
+                        glBindFramebuffer(GL_FRAMEBUFFER, sAhbRingPrimary[0].glFbo);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        if (sAhbRingSecondary[0].glFbo) {
+                            glBindFramebuffer(GL_FRAMEBUFFER, sAhbRingSecondary[0].glFbo);
+                            glClear(GL_COLOR_BUFFER_BIT);
+                        }
+                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    } else {
+                        glClear(GL_COLOR_BUFFER_BIT);
+                    }
+                    drmFrameEnd(mDisplay, mSurface);
+                    nanobl::nanoBacklightSet(0);
+                    setBrightnessViaHal(0);
+                    ALOGI("NanoMenu: framework screen off at the DRM home -> panels blanked");
+                }
                 nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true;
             }
-            else if (!screenOff && sSfPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false; }
+            else if (!screenOff && sSfPwrSave) {
+                property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false;
+                if (sDrmActive) {
+                    int sysfs_val = mBrightness * mMaxBrightness / 255;
+                    if (sysfs_val < 1) sysfs_val = 1;
+                    nanobl::nanoBacklightSet(mBrightness);
+                    setBrightnessViaHal(sysfs_val);
+                    mDisplayDirty = true;
+                    ALOGI("NanoMenu: framework screen on at the DRM home -> panels restored");
+                }
+            }
             // Release the BT bluesleep wakelock (BT off) on framework-driven screen-off
             // so suspend-to-RAM is not blocked; restored when the panel returns.
             static bool sSfBtLpm = false;
