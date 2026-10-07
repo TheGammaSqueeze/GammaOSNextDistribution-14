@@ -1332,6 +1332,16 @@ private:
     // GammaOS: force GPU composition during display rotation transitions to work around
     // vendor hwcomposer blitter crashes (e.g. MTK BliterNode::invalidate).
     std::atomic<nsecs_t> mForceGpuCompDeadline{0};
+
+    // GammaOS: follower displays whose previous HWC present fence is still pending this
+    // frame. Their layers are not latched and their HWC present is skipped, so a slow
+    // commit on one panel (the DP bottom panel on dual-panel devices) never stalls the
+    // pacesetter's frame. Rebuilt every commit on the main thread.
+    struct GammaPendingFollower {
+        PhysicalDisplayId id;
+        ui::LayerStack layerStack;
+    };
+    std::vector<GammaPendingFollower> mGammaPendingFollowers;
     // GammaOS: time-limited GPU composition for MediaTek boot crash mitigation.
     // 0 = not yet detected, INT64_MAX = waiting for boot/provisioning/setup wizard,
     // >0 = real deadline, -1 = done (HWC re-enabled).

@@ -45,7 +45,13 @@ class PrivacyConfig @Inject constructor(
         private const val LOCATION = SystemUiDeviceConfigFlags.PROPERTY_LOCATION_INDICATORS_ENABLED
         private const val MEDIA_PROJECTION =
                 SystemUiDeviceConfigFlags.PROPERTY_MEDIA_PROJECTION_INDICATORS_ENABLED
-        private const val DEFAULT_MIC_CAMERA = true
+        // GammaOS: devices whose display engine can hardware-compose only two layers on
+        // the main panel (the Duo Lite's SDE has three source pipes, one held by the second
+        // panel) set persist.gammaos.privacy_indicators=0 so the microphone/camera chip does
+        // not push a running emulator into GPU composition. Everywhere else the AOSP
+        // default (true) stands.
+        private val DEFAULT_MIC_CAMERA =
+                android.os.SystemProperties.getBoolean("persist.gammaos.privacy_indicators", true)
         private const val DEFAULT_LOCATION = false
         private const val DEFAULT_MEDIA_PROJECTION = true
     }

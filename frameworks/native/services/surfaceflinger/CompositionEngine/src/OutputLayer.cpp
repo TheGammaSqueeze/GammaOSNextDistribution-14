@@ -297,23 +297,19 @@ void OutputLayer::updateCompositionState(
     auto& state = editState();
 
     if (includeGeometry) {
-        // Clear the forceClientComposition flag before it is set for any
-        // reason. Note that since it can be set by some checks below when
-        // updating the geometry state, we only clear it when updating the
-        // geometry since those conditions for forcing client composition won't
-        // go away otherwise.
-        state.forceClientComposition = false;
-
         state.displayFrame = calculateOutputDisplayFrame();
         state.sourceCrop = calculateOutputSourceCrop(internalDisplayRotationFlags);
         state.bufferTransform = static_cast<Hwc2::Transform>(
                 calculateOutputRelativeBufferTransform(internalDisplayRotationFlags));
-
-        if ((layerFEState->isSecure && !outputState.isSecure) ||
-            (state.bufferTransform & ui::Transform::ROT_INVALID)) {
-            state.forceClientComposition = true;
-        }
     }
+
+    // GammaOS: AOSP only cleared forceClientComposition on geometry updates, so a
+    // one-frame trigger (a blur layer, the rotation transition gate, a dev-option
+    // force) left every layer on the output GPU composed until the next geometry
+    // change. The geometry-derived conditions only depend on state we keep, so
+    // re-derive the flag from scratch every frame instead.
+    state.forceClientComposition = (layerFEState->isSecure && !outputState.isSecure) ||
+            (state.bufferTransform & ui::Transform::ROT_INVALID);
 
     auto pixelFormat = layerFEState->buffer ? std::make_optional(static_cast<ui::PixelFormat>(
                                                       layerFEState->buffer->getPixelFormat()))

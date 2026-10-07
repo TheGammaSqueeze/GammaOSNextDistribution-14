@@ -1,0 +1,14 @@
+// Closed Qualcomm libraries from the Retroid Pocket Duo Lite vendor image that the
+// open display HAL links against. Only used to satisfy link-time dependencies when
+// building the display HAL from source; the device keeps its own copies.
+cc_prebuilt_library_shared {
+    name: "libvmmem",
+    vendor: true,
+    strip: { none: true },
+    check_elf_files: false,
+    arch: {
+        arm64: { srcs: ["lib64/libvmmem.so"] },
+        arm: { srcs: ["lib/libvmmem.so"] },
+    },
+    export_include_dirs: ["include"],
+}

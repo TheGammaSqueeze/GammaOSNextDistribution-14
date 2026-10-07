@@ -1,0 +1,98 @@
+soong_config_module_type {
+    name: "qtidisplay_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "qtidisplay",
+    bool_variables: [
+        "drmpp",
+        "headless",
+        "llvmsa",
+        "gralloc4",
+    ],
+    properties: [
+        "cflags",
+        "srcs",
+    ],
+}
+
+qtidisplay_cc_defaults {
+    name: "qtidisplay_defaults",
+    cflags: [
+        "-Wno-missing-field-initializers",
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libutils",
+    ],
+    header_libs: ["display_headers"],
+    soong_config_variables: {
+        drmpp: {
+            cflags: ["-DPP_DRM_ENABLE"],
+        },
+        headless: {
+            cflags: ["-DTARGET_HEADLESS"],
+        },
+        llvmsa: {
+            cflags: [
+                "--compile-and-analyze",
+                "--analyzer-perf",
+            ],
+        },
+        gralloc4: {
+            cflags: ["-DTARGET_USES_GRALLOC4"],
+        },
+    },
+}
+
+cc_library_headers {
+    name: "display_debug_headers",
+    vendor: true,
+    export_include_dirs: [
+        "libdebug",
+    ],
+}
+
+cc_library_headers {
+    name: "display_headers",
+    vendor: true,
+    export_include_dirs: [
+        "include",
+        "libcopybit",
+        "libdrmutils",
+        "libqdutils",
+        "libqservice",
+        "gpu_tonemapper",
+        "sdm/include",
+        "gralloc",
+        "libhistogram",
+    ],
+    header_libs: [
+        "libhardware_headers",
+        "display_intf_headers",
+        "display_debug_headers",
+    ],
+    export_header_lib_headers: [
+        "libhardware_headers",
+        "display_intf_headers",
+        "display_debug_headers",
+    ],
+}
+
+subdirs = [
+    "init",
+    "libqservice",
+    "libqdutils",
+    "libddebug",
+    "libdrmutils",
+    "libhistogram",
+    "liblight",
+    "composer",
+    "gralloc",
+    "gpu_tonemapper",
+    "hdmi_cec",
+    "sde-drm",
+    "sdm/libs/utils",
+    "sdm/libs/core",
+]

@@ -2901,6 +2901,42 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
         }
     }
 
+    // GammaOS: per-follower backpressure. On dual-panel devices the second panel runs on
+    // its own clock, so its atomic commit periodically lands right at its vblank and the
+    // next commit ioctl stalls inside the composer until it completes, taking the whole
+    // SurfaceFlinger frame (both panels) with it. When a follower's previous present fence
+    // has not signalled yet, hold that display's layers in their queues and skip its HWC
+    // present for this frame; the pacesetter keeps its cadence and the follower repeats
+    // one frame instead of stalling everything.
+    mGammaPendingFollowers.clear();
+    if (base::GetBoolProperty("persist.gammaos.sf.follower_backpressure"s, true)) {
+        Mutex::Autolock lock(mStateLock);
+        for (const auto [id, target] : frameTargets) {
+            if (id == pacesetterId) continue;
+            // isFramePending() looks at the fence of the past vsync, which is two frames
+            // back whenever SurfaceFlinger runs a vsync ahead, and that one has long
+            // signalled. The stall is decided by the immediately previous present, so
+            // gate on that fence directly.
+            const auto& fence = target->presentFenceForPreviousFrame();
+            const bool pending = fence && fence->isValid() &&
+                    fence->getSignalTime() == Fence::SIGNAL_TIME_PENDING;
+            if (!pending) continue;
+            // A pending fence alone is normal for a panel whose vblank sits late in
+            // the pacesetter's frame; holding on it starves the panel to half rate.
+            // Hold only when the last present of this display actually stalled in
+            // the kernel behind its previous commit. One stalled frame then breaks
+            // the lock instead of sustaining it every frame.
+            const auto display = getDisplayDeviceLocked(id);
+            if (!display) continue;
+            const nsecs_t lastPresentNs =
+                    display->getCompositionDisplay()->getState().gammaLastHwcPresentNs;
+            static const nsecs_t kStallNs = base::GetIntProperty(
+                    "persist.gammaos.sf.follower_stall_ms"s, 4) * 1000000LL;
+            if (lastPresentNs < kStallNs) continue;
+            mGammaPendingFollowers.push_back({id, display->getLayerStack()});
+        }
+    }
+
     const Period vsyncPeriod = mScheduler->getVsyncSchedule()->period();
 
     // Save this once per commit + composite to ensure consistency
@@ -3880,6 +3916,21 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                 }
             }
         }
+    }
+
+    // GammaOS: skip the HWC present of followers whose previous present is still pending.
+    for (const auto& [token, display] : FTL_FAKE_GUARD(mStateLock, mDisplays)) {
+        auto& state = display->getCompositionDisplay()->editState();
+        state.gammaSkipHwcPresent = false;
+        state.gammaIsFollower = false;
+        if (display->isVirtual()) continue;
+        const auto physId = display->getPhysicalId();
+        state.gammaIsFollower = physId != pacesetterId &&
+                base::GetBoolProperty("persist.gammaos.sf.follower_no_present_delay"s, true);
+        if (mGammaPendingFollowers.empty()) continue;
+        state.gammaSkipHwcPresent =
+                std::any_of(mGammaPendingFollowers.begin(), mGammaPendingFollowers.end(),
+                            [&](const auto& f) { return f.id == physId; });
     }
 
     mCompositionEngine->present(refreshArgs);
@@ -5781,6 +5832,7 @@ bool SurfaceFlinger::latchBuffers() {
     bool visibleRegions = false;
     bool frameQueued = false;
     bool newDataLatched = false;
+    bool gammaHeldFollowerFrame = false;
 
     // Store the set of layers that need updates. This set must not change as
     // buffers are being latched, as this could result in a deadlock.
@@ -5801,6 +5853,18 @@ bool SurfaceFlinger::latchBuffers() {
 
         if (layer->hasReadyFrame() || layer->willReleaseBufferOnLatch()) {
             frameQueued = true;
+            // GammaOS: a follower display with a pending present keeps its frames queued.
+            if (!mGammaPendingFollowers.empty()) {
+                const auto stack = layer->getLayerStack();
+                const bool held = std::any_of(mGammaPendingFollowers.begin(),
+                                              mGammaPendingFollowers.end(),
+                                              [&](const auto& f) { return f.layerStack == stack; });
+                if (held) {
+                    gammaHeldFollowerFrame = true;
+                    layer->useEmptyDamage();
+                    return;
+                }
+            }
             mLayersWithQueuedFrames.emplace(sp<Layer>::fromExisting(layer));
         } else {
             layer->useEmptyDamage();
@@ -5847,6 +5911,10 @@ bool SurfaceFlinger::latchBuffers() {
     // queued frame that shouldn't be displayed during this vsync period, wake
     // up during the next vsync period to check again.
     if (frameQueued && (mLayersWithQueuedFrames.empty() || !newDataLatched)) {
+        scheduleCommit(FrameHint::kNone);
+    } else if (gammaHeldFollowerFrame) {
+        // GammaOS: the held follower frames must be picked up next vsync even if no other
+        // layer queues again.
         scheduleCommit(FrameHint::kNone);
     }
 

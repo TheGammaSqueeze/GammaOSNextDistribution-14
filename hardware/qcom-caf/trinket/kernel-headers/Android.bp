@@ -1,0 +1,27 @@
+// Kernel UAPI headers for the Retroid Pocket Duo Lite display HAL. The techpack
+// display headers (sde_drm.h, msm_drm_pp.h, the rotator and colour format
+// headers) come from the device's display-drivers source; drm/msm_drm.h is the
+// header exported by the running 5.15 GKI kernel.
+cc_library_headers {
+    name: "trinket_display_kernel_headers",
+    vendor: true,
+    export_include_dirs: ["uapi"],
+}
+
+cc_library_headers {
+    name: "trinket_kernel_headers",
+    vendor: true,
+    export_include_dirs: ["uapi"],
+}
+
+cc_library_headers {
+    name: "trinket_device_kernel_headers",
+    vendor: true,
+    export_include_dirs: ["uapi"],
+}
+
+cc_library_headers {
+    name: "trinket_vmmem_headers",
+    vendor: true,
+    export_include_dirs: ["vmmem"],
+}

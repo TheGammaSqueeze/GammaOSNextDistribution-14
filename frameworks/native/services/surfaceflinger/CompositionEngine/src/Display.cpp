@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <android-base/stringprintf.h>
 #include <compositionengine/CompositionEngine.h>
 #include <compositionengine/CompositionRefreshArgs.h>
@@ -248,6 +249,16 @@ bool Display::chooseCompositionStrategy(
         return false;
     }
 
+    // GammaOS: follower backpressure (see SurfaceFlinger::commit). The HWC's
+    // presentOrValidate path presents directly when nothing changed, so a held
+    // follower must skip validate as well as present, or the hidden present's
+    // fences are lost and the panel tears. Returning false keeps the previous
+    // per-layer composition types.
+    if (getState().gammaSkipHwcPresent) {
+        ATRACE_NAME("gammaSkipHwcValidate");
+        return false;
+    }
+
     // Get any composition changes requested by the HWC device, and apply them.
     auto& hwc = getCompositionEngine().getHwComposer();
     const bool requiresClientComposition = anyLayersRequireClientComposition();
@@ -267,6 +278,13 @@ bool Display::chooseCompositionStrategy(
               strerror(-result));
         return false;
     }
+
+    // GammaOS: presentOrValidate presents directly when nothing changed, so a kernel
+    // stall behind the previous commit can land here rather than in presentFrame.
+    editState().gammaLastHwcPresentNs =
+            std::chrono::duration_cast<std::chrono::nanoseconds>(TimePoint::now() -
+                                                                 hwcValidateStartTime)
+                    .count();
 
     if (isPowerHintSessionEnabled()) {
         mPowerAdvisor->setHwcValidateTiming(mId, hwcValidateStartTime, TimePoint::now());
@@ -383,6 +401,13 @@ compositionengine::Output::FrameFences Display::presentFrame() {
         return fences;
     }
 
+    // GammaOS: follower backpressure, see SurfaceFlinger::commit. Nothing new was latched
+    // for this display, so skipping the present leaves the panel on its current frame.
+    if (state.gammaSkipHwcPresent) {
+        ATRACE_NAME("gammaSkipHwcPresent");
+        return fences;
+    }
+
     auto& hwc = getCompositionEngine().getHwComposer();
 
     const TimePoint startTime = TimePoint::now();
@@ -396,6 +421,10 @@ compositionengine::Output::FrameFences Display::presentFrame() {
     if (isPowerHintSessionEnabled()) {
         mPowerAdvisor->setHwcPresentTiming(mId, startTime, TimePoint::now());
     }
+    state.gammaLastHwcPresentNs = std::max<nsecs_t>(
+            state.gammaLastHwcPresentNs,
+            std::chrono::duration_cast<std::chrono::nanoseconds>(TimePoint::now() - startTime)
+                    .count());
 
     fences.presentFence = hwc.getPresentFence(*halDisplayIdOpt);
 

@@ -175,6 +175,23 @@ struct OutputCompositionState {
     // vendor hwcomposer blitter crashes during display rotation transitions.
     int skipHwcPresentFrames{0};
 
+    // GammaOS: set by SurfaceFlinger for a follower display whose previous HWC present
+    // fence is still pending; Display::presentFrame skips the HWC present this frame.
+    bool gammaSkipHwcPresent{false};
+
+    // GammaOS: set by SurfaceFlinger for every physical display that is not the
+    // pacesetter. Followers never delay their HWC present to an "earliest present
+    // time": that sleep runs on the main thread and is derived from the follower's
+    // own vsync model, which on a DP bottom panel is fed by present fences that
+    // signal a frame late, so the sleep lands the commit right after the panel's
+    // vblank and costs 6 to 8 ms per frame.
+    bool gammaIsFollower{false};
+
+    // GammaOS: wall time the last HWC present call of this display took, in ns. A
+    // follower whose present took longer than a few ms was stalled in the kernel
+    // behind its own previous commit; see SurfaceFlinger::commit.
+    nsecs_t gammaLastHwcPresentNs{0};
+
     ICEPowerCallback* powerCallback = nullptr;
 
     // Debugging

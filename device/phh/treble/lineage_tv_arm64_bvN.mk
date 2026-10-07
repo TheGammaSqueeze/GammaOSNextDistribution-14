@@ -351,3 +351,16 @@ PRODUCT_ENABLE_UFFD_GC := false
 else
 PRODUCT_ENABLE_UFFD_GC := true
 endif
+
+# GammaOS: Retroid Pocket Duo Lite (trinket) display HAL, built from Retroid's source so the
+# composer can be patched. Never part of the GSI image: the modules are built on demand with
+#   GAMMAOS_TRINKET_DISPLAY_HAL=true m vendor.qti.hardware.display.composer-service libsdmcore libsdedrm
+# and the binaries are copied into the Duo Lite vendor tree (GammaOSCoreVendor) and flashed
+# with its build.sh. The namespace is only registered when that variable is set.
+ifeq ($(GAMMAOS_TRINKET_DISPLAY_HAL),true)
+PRODUCT_SOONG_NAMESPACES += hardware/qcom-caf/trinket
+$(call soong_config_set,qtidisplay,drmpp,true)
+$(call soong_config_set,qtidisplay,gralloc4,true)
+$(call soong_config_set,qtidisplay,headless,false)
+$(call soong_config_set,qtidisplay,llvmsa,false)
+endif

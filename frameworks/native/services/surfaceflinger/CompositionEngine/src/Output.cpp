@@ -1119,6 +1119,10 @@ void Output::writeCompositionState(const compositionengine::CompositionRefreshAr
                                          })) {
         editState().earliestPresentTime = frameTargetPtrOpt->get()->earliestPresentTime();
         editState().expectedPresentTime = frameTargetPtrOpt->get()->expectedPresentTime().ns();
+        // GammaOS: no present delay for follower displays, see OutputCompositionState.
+        if (getState().gammaIsFollower) {
+            editState().earliestPresentTime.reset();
+        }
     }
     editState().frameInterval = refreshArgs.frameInterval;
     editState().powerCallback = refreshArgs.powerCallback;
