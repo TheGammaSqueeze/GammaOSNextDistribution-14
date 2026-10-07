@@ -1255,6 +1255,42 @@ void NanoMenu::nanoApplyPerfClock(const char* mode) {
 
 // Re-apply the user's persisted performance mode (used on wake to restore whatever
 // was active before the screen turned off).
+// CPU affinity for the whole home process (persist.gammaos.nano.cpu_mask, hex bitmask,
+// unset = untouched), re-applied every two seconds so later-spawned threads get it too.
+// On the RP Duo Lite's SM6125 the render thread lands on the little cluster, which idles
+// between frames under the stock governors and ramps late: 30% of the home's frames were
+// doubled (34 ms) in stock mode while navigating, 4% in max. The Duo Lite sets the big
+// cluster (f0); drastic-nano has the same knob.
+void nanoApplyCpuMask() {
+    static uint64_t sMask = 0;
+    static bool sRead = false;
+    static int64_t sLastMs = 0;
+    if (!sRead) {
+        sRead = true;
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.cpu_mask", v, "");
+        if (v[0]) sMask = strtoull(v, nullptr, 16);
+        if (sMask) ALOGI("NanoMenu: CPU affinity mask 0x%llx for every thread", (unsigned long long)sMask);
+    }
+    if (!sMask) return;
+    const int64_t now = android::uptimeMillis();
+    if (sLastMs && now - sLastMs < 2000) return;
+    sLastMs = now;
+    cpu_set_t set; CPU_ZERO(&set);
+    for (int c = 0; c < 64 && c < CPU_SETSIZE; c++) if (sMask & (1ull << c)) CPU_SET(c, &set);
+    DIR* d = opendir("/proc/self/task");
+    if (!d) return;
+    struct dirent* e;
+    while ((e = readdir(d)) != nullptr) {
+        if (e->d_name[0] < '0' || e->d_name[0] > '9') continue;
+        const pid_t tid = (pid_t)atoi(e->d_name);
+        cpu_set_t cur; CPU_ZERO(&cur);
+        if (sched_getaffinity(tid, sizeof(cur), &cur) == 0 && CPU_EQUAL(&cur, &set)) continue;
+        sched_setaffinity(tid, sizeof(set), &set);
+    }
+    closedir(d);
+}
+
 void NanoMenu::nanoRestorePerfClock() {
     char mode[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.performance_mode", mode, "stock");
@@ -5641,6 +5677,7 @@ if (sRingPrimedCount >= 2) {
             // splash time gets a second chance here. Bounded to a 5-second boot
             // window by drmRescanDisplays itself. No-op post-boot (sDrmFd = -1).
             drmRescanDisplays();
+            nanoApplyCpuMask();   // persist.gammaos.nano.cpu_mask (no-op when unset)
             // DRM-direct home: a kernel suspend/resume (deep-sleep tile, the sleep
             // script, the power key) brings the CRTCs back with no planes attached;
             // re-commit the modeset so the panels relight instead of staying blank.
