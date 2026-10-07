@@ -1622,6 +1622,41 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     // Tell the overlay menu whether this session drives two panels through DRM
     // (its Per-Screen Scale / Shader Per Screen rows apply only then).
     property_set("sys.gammaos.drastic_nano.drm_dual", hasDualDisplay ? "1" : "0");
+
+    // CPU affinity for the whole process (persist.gammaos.drastic_nano.cpu_mask, hex
+    // bitmask; unset = untouched). On the RP Duo Lite's SM6125 the emulator's two hot
+    // threads land on the little cluster, and with the stock governors that cluster
+    // idles between frames and ramps late: the blit dipped to 55-58 fps with 27-34 ms
+    // worst frames while max mode (everything pinned) held 60. Keeping the process on
+    // the big cores gives 60.0 fps / 18 ms worst frames in stock mode with DVFS still
+    // free. Re-applied every two seconds so threads drastic spawns later get it too.
+    auto applyCpuMask = [&]() {
+        static uint64_t mask = 0;
+        static bool read = false;
+        if (!read) {
+            read = true;
+            char v[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.drastic_nano.cpu_mask", v, "");
+            if (v[0]) mask = strtoull(v, nullptr, 16);
+            if (mask) ALOGI("drastic-nano: CPU affinity mask 0x%llx for every thread", (unsigned long long)mask);
+        }
+        if (!mask) return;
+        cpu_set_t set; CPU_ZERO(&set);
+        for (int c = 0; c < 64 && c < CPU_SETSIZE; c++) if (mask & (1ull << c)) CPU_SET(c, &set);
+        DIR* d = opendir("/proc/self/task");
+        if (!d) return;
+        struct dirent* e;
+        while ((e = readdir(d)) != nullptr) {
+            if (e->d_name[0] < '0' || e->d_name[0] > '9') continue;
+            const pid_t tid = (pid_t)atoi(e->d_name);
+            cpu_set_t cur; CPU_ZERO(&cur);
+            if (sched_getaffinity(tid, sizeof(cur), &cur) == 0 && CPU_EQUAL(&cur, &set)) continue;
+            sched_setaffinity(tid, sizeof(set), &set);
+        }
+        closedir(d);
+    };
+    applyCpuMask();
+    int64_t lastCpuMaskMs = android::uptimeMillis();
     // Dual-panel DRM: with Half Resolution off the shaders must run at full
     // resolution into the combined buffer, so the render-scale prop is ignored
     // there; with it on, the half-size offscreen is exactly what is wanted.
@@ -3117,6 +3152,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 }
             }
             sPrevFrameMs = fpsNowMs;
+            if (android::uptimeMillis() - lastCpuMaskMs > 2000) { lastCpuMaskMs = android::uptimeMillis(); applyCpuMask(); }
             if (fpsNowMs - sFpsWinMs >= 1000) {
                 const float r = sFpsFrames * 1000.0f / (float)(fpsNowMs - sFpsWinMs);
                 sFpsDisplay = sFpsDisplay > 0.0f ? sFpsDisplay * 0.5f + r * 0.5f : r;
