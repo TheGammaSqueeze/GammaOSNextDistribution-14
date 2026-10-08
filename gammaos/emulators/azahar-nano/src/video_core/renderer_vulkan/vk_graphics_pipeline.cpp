@@ -307,6 +307,18 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
         const u64 us = static_cast<u64>(std::chrono::duration_cast<std::chrono::microseconds>(
                                             std::chrono::steady_clock::now() - build_start)
                                             .count());
+        // Kind of pipeline: trivial vertex shader (software vertex path) with a fragment
+        // ubershader, trivial vertex shader with a generated fragment shader, or a PICA
+        // program vertex shader (hardware path).
+        const bool trivial_vs = stages[0] && stages[0]->program == "trivial";
+        const bool uber_fs = stages[1] && stages[1]->program == "uber";
+        GammaStats::Add(!trivial_vs ? GammaStats::PipeHwBuilds
+                        : uber_fs   ? GammaStats::PipeUberBuilds
+                                    : GammaStats::PipeSwBuilds);
+        GammaStats::Add(!trivial_vs ? GammaStats::PipeHwUs
+                        : uber_fs   ? GammaStats::PipeUberUs
+                                    : GammaStats::PipeSwUs,
+                        us);
         GammaStats::Add(repeat ? GammaStats::PipeRepeatBuilds : GammaStats::PipeFirstBuilds);
         GammaStats::Add(repeat ? GammaStats::PipeRepeatUs : GammaStats::PipeFirstUs, us);
         GammaStats::Add(GammaStats::PipeBuildUs,

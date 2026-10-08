@@ -1,3 +1,4 @@
+#include "video_core/shader/generator/uber_fs_shader_gen.h"
 #include <sys/system_properties.h>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
@@ -60,6 +61,16 @@ struct DrawParams {
 
 } // Anonymous namespace
 
+namespace {
+// GammaOS: persist.gammaos.azahar_nano.hybrid=1 turns the hybrid shader path on
+// (experimental, off by default while the ubershader is tuned for Adreno 6xx).
+bool HybridPropOn() {
+    char v[PROP_VALUE_MAX] = {};
+    __system_property_get("persist.gammaos.azahar_nano.hybrid", v);
+    return v[0] == '1';
+}
+} // namespace
+
 RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore& pica,
                                    VideoCore::CustomTexManager& custom_tex_manager,
                                    VideoCore::RendererBase& renderer,
@@ -79,6 +90,9 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
       texture_lf_buffer{instance, scheduler, vk::BufferUsageFlagBits::eUniformTexelBuffer,
                         TextureBufferSize(instance)},
       async_shaders{Settings::values.async_shader_compilation.GetValue()} {
+    if (HybridPropOn()) {
+        Settings::values.gammaos_hybrid_shaders = true;
+    }
     vertex_depth_enabled = instance.UseVertexDepth();
 
     vertex_buffers.fill(stream_buffer.Handle());
@@ -482,10 +496,21 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
         __system_property_get("persist.gammaos.azahar_nano.async_small", v);
         return v[0] == '1';
     }();
-    const bool wait_built =
-        !async_shaders || (!async_small && regs.pipeline.num_vertices <= 6);
-    if (!pipeline_cache.BindPipeline(pipeline_info, wait_built)) {
-        return true;
+    if (Settings::values.gammaos_hybrid_shaders && pipeline_cache.UberAvailable()) {
+        // GammaOS hybrid shaders: never wait for a compile. The build is queued in the
+        // background and this draw falls back to CPU vertex processing with the
+        // fragment ubershader (see the software branch of Draw).
+        if (!pipeline_cache.BindPipeline(pipeline_info, false)) {
+            GammaStats::Add(GammaStats::HybridFallbackDraws);
+            hybrid_fallback = true;
+            return false;
+        }
+    } else {
+        const bool wait_built =
+            !async_shaders || (!async_small && regs.pipeline.num_vertices <= 6);
+        if (!pipeline_cache.BindPipeline(pipeline_info, wait_built)) {
+            return true;
+        }
     }
 
     const DrawParams params = {
@@ -555,6 +580,15 @@ void RasterizerVulkan::DrawTriangles() {
     pipeline_cache.UseTrivialGeometryShader();
 
     Draw(false, false);
+}
+
+static bool HybridDebugSwSpecialized() {
+    static const bool value = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.uber_strip", v);
+        return (atoi(v) & 64) != 0;
+    }();
+    return value;
 }
 
 bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
@@ -711,7 +745,74 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     if (accelerate) {
         succeeded = AccelerateDrawBatchInternal(is_indexed);
     } else {
-        pipeline_cache.BindPipeline(pipeline_info, true);
+        if (!Settings::values.gammaos_hybrid_shaders) {
+            pipeline_cache.BindPipeline(pipeline_info, true);
+        } else if (!pipeline_cache.UberAvailable()) {
+            pipeline_cache.BindPipeline(pipeline_info, true);
+        } else if (HybridDebugSwSpecialized()) {
+            // Debug: software vertex path with the generated fragment shader (no ubershader).
+            pipeline_cache.BindPipeline(pipeline_info, true);
+        } else if (!pipeline_cache.BindPipeline(pipeline_info, false)) {
+            // Fragment ubershader: its pipelines depend only on fixed-function state.
+            Pica::Shader::FSConfig fs_config{regs};
+            fs_config.ApplyProfile(pipeline_cache.GetProfile());
+            using namespace Pica::Shader::Generator;
+            Uber::Variant variant{};
+            switch (fs_config.texture.texture0_type.Value()) {
+            case Pica::TexturingRegs::TextureConfig::TextureCube:
+                variant.tex0 = Uber::Tex0Kind::Cube;
+                break;
+            case Pica::TexturingRegs::TextureConfig::Shadow2D:
+                variant.tex0 = Uber::Tex0Kind::Shadow2D;
+                break;
+            case Pica::TexturingRegs::TextureConfig::ShadowCube:
+                variant.tex0 = Uber::Tex0Kind::ShadowCube;
+                break;
+            default:
+                variant.tex0 = Uber::Tex0Kind::Flat;
+                break;
+            }
+            variant.shadow_rendering = fs_config.framebuffer.shadow_rendering.Value() != 0;
+            variant.write_depth = fs_config.framebuffer.vertex_depth.Value() == 0;
+            static_assert(sizeof(fs_config) == sizeof(fs_data.uber_config));
+            std::array<u32, 68> words;
+            std::memcpy(words.data(), &fs_config, sizeof(fs_config));
+            // Word 36 (wrap modes, unused by the ubershader): stages to evaluate, up to
+            // the last one that is not a pass-through (later stages only move buffers
+            // that nothing reads any more).
+            u32 stage_count = 0;
+            for (u32 st = 0; st < 6; ++st) {
+                const Pica::TexturingRegs::TevStageConfig stage = fs_config.texture.tev_stages[st];
+                const bool pass_through =
+                    stage.color_op == Pica::TexturingRegs::TevStageConfig::Operation::Replace &&
+                    stage.alpha_op == Pica::TexturingRegs::TevStageConfig::Operation::Replace &&
+                    stage.color_source1 == Pica::TexturingRegs::TevStageConfig::Source::Previous &&
+                    stage.alpha_source1 == Pica::TexturingRegs::TevStageConfig::Source::Previous &&
+                    stage.color_modifier1 ==
+                        Pica::TexturingRegs::TevStageConfig::ColorModifier::SourceColor &&
+                    stage.alpha_modifier1 ==
+                        Pica::TexturingRegs::TevStageConfig::AlphaModifier::SourceAlpha &&
+                    stage.GetColorMultiplier() == 1 && stage.GetAlphaMultiplier() == 1;
+                if (!pass_through) {
+                    stage_count = st + 1;
+                }
+            }
+            words[36] = stage_count;
+            if (std::memcmp(&fs_data.uber_config, words.data(), sizeof(words)) != 0) {
+                std::memcpy(&fs_data.uber_config, words.data(), sizeof(words));
+                fs_data_dirty = true;
+                UploadUniforms(false);
+            }
+            pipeline_cache.UseUberFragmentShader(variant.Key());
+            const bool ready = pipeline_cache.BindPipeline(pipeline_info, false);
+            if (!ready) {
+                // A fixed-function state no precompiled ubershader pipeline covers yet.
+                GammaStats::Add(GammaStats::HybridUberCompiles);
+                pipeline_cache.BindPipeline(pipeline_info, true);
+            }
+            GammaStats::Add(GammaStats::HybridUberDraws);
+        }
+        hybrid_fallback = false;
 
         const u32 vertex_count = static_cast<u32>(vertex_batch.size());
         const u32 vertex_size = vertex_count * sizeof(HardwareVertex);

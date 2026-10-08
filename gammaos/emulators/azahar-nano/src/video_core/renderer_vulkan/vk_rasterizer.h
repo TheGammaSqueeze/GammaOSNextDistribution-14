@@ -131,6 +131,7 @@ private:
     // right-eye framebuffer is never displayed.
     enum class EyePhase { Idle, AfterLeft, Skipping };
     EyePhase eye_phase = EyePhase::Idle;
+    bool hybrid_fallback = false; ///< GammaOS: this software draw replaces a declined hw draw
     PAddr eye_rt = 0;               // render target of the left-eye transfer
     PAddr eye_left_out = 0;         // where the left-eye image went
     bool eye_learned = false;       // the pattern was seen in a previous frame

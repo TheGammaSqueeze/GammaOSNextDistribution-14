@@ -61,9 +61,11 @@ struct FSUniformData {
     alignas(16) Common::Vec3f tex_lod_bias;
     alignas(16) Common::Vec4f tex_border_color[3];
     alignas(16) Common::Vec4f blend_color;
+    // GammaOS: the FSConfig words for the fragment ubershader (uber_fs_shader_gen.h).
+    alignas(16) std::array<Common::Vec4u, 17> uber_config;
 };
 
-static_assert(sizeof(FSUniformData) == 0x530,
+static_assert(sizeof(FSUniformData) == 0x640,
               "The size of the UniformData does not match the structure in the shader");
 static_assert(sizeof(FSUniformData) < 16384,
               "UniformData structure must be less than 16kb as per the OpenGL spec");

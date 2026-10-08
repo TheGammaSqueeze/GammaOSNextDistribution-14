@@ -7,7 +7,9 @@
 #include <atomic>
 #include <bitset>
 #include <chrono>
+#include <memory>
 #include <mutex>
+#include <unordered_map>
 
 #include "video_core/rasterizer_interface.h"
 #include "video_core/renderer_vulkan/vk_graphics_pipeline.h"
@@ -91,6 +93,23 @@ public:
     /// Binds a fragment shader generated from PICA state
     void UseFragmentShader(const Pica::RegsInternal& regs, const Pica::Shader::UserConfig& user);
 
+    /// GammaOS: shader id of a fragment ubershader variant (never a real config hash).
+    static constexpr u64 UberIdBase = 0x5542455246530000ULL; // "UBERFS"
+    static bool IsUberId(u64 id) {
+        return (id & 0xFFFFFFFFFFFF0000ULL) == UberIdBase;
+    }
+    /// Returns the fragment ubershader for a variant key, compiling it once.
+    Shader* GetUberShader(u32 variant_key);
+    /// False once an ubershader failed to compile (the hybrid path then waits instead).
+    bool UberAvailable() const {
+        return !uber_failed.load();
+    }
+    /// Binds a fragment ubershader variant instead of the generated fragment shader.
+    void UseUberFragmentShader(u32 variant_key);
+    const Pica::Shader::Profile& GetProfile() const {
+        return profile;
+    }
+
     /// Gets the current program ID
     u64 GetProgramID() const {
         return current_program_id;
@@ -165,6 +184,7 @@ private:
     vk::UniquePipelineLayout pipeline_layout;
     std::size_t num_worker_threads;
     Common::ThreadWorker pipeline_workers;
+    Common::ThreadWorker fast_pipeline_workers;
     Common::ThreadWorker shader_workers;
     PipelineInfo current_info{};
     GraphicsPipeline* current_pipeline{};
@@ -176,6 +196,10 @@ private:
     std::array<Shader*, MAX_SHADER_STAGES> current_shaders;
 
     Shader trivial_vertex_shader;
+
+    std::mutex uber_mutex;
+    std::unordered_map<u32, std::unique_ptr<Shader>> uber_shaders;
+    std::atomic_bool uber_failed{false};
 
     u64 current_program_id{0};
     std::vector<std::shared_ptr<ShaderDiskCache>> disk_caches;

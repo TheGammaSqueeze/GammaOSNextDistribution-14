@@ -289,7 +289,12 @@ GraphicsPipeline* ShaderDiskCache::GetPipeline(const PipelineInfo& info) {
         }
         it.value() = std::make_unique<GraphicsPipeline>(
             parent.instance, parent.renderpass_cache, info, *parent.driver_pipeline_cache,
-            *parent.pipeline_layout, parent.current_shaders, &parent.pipeline_workers);
+            *parent.pipeline_layout, parent.current_shaders,
+            // GammaOS: software vertex path pipelines (trivial vertex shader) compile in about
+            // a tenth of the time; their own workers keep them from queueing behind hardware
+            // path builds while a draw is covered by the ubershader.
+            info.state.shader_ids[ProgramType::VS] == 0 ? &parent.fast_pipeline_workers
+                                                         : &parent.pipeline_workers);
     }
 
     if (known_graphic_pipelines.emplace(hash).second) {
@@ -1460,13 +1465,19 @@ bool ShaderDiskCache::InitPLCache(const std::atomic_bool& stop_loading,
                 shaders[ProgramType::VS] = &parent.trivial_vertex_shader;
             }
 
-            auto it_fs = fragment_shaders.find(entry->pl_info.shader_ids[ProgramType::FS]);
-            if (it_fs == fragment_shaders.end()) {
-                LOG_ERROR(Render_Vulkan, "Missing fragment shader {:016X} for pipeline {:016X}",
-                          entry->pl_info.shader_ids[ProgramType::FS], curr.Id());
-                continue;
+            const u64 fs_id = entry->pl_info.shader_ids[ProgramType::FS];
+            if (PipelineCache::IsUberId(fs_id)) {
+                // GammaOS: a fragment ubershader pipeline (game independent).
+                shaders[ProgramType::FS] = parent.GetUberShader(static_cast<u32>(fs_id & 0xFFFF));
+            } else {
+                auto it_fs = fragment_shaders.find(fs_id);
+                if (it_fs == fragment_shaders.end()) {
+                    LOG_ERROR(Render_Vulkan, "Missing fragment shader {:016X} for pipeline {:016X}",
+                              fs_id, curr.Id());
+                    continue;
+                }
+                shaders[ProgramType::FS] = &it_fs->second;
             }
-            shaders[ProgramType::FS] = &it_fs->second;
 
             if (parent.instance.UseGeometryShaders() &&
                 !parent.instance.IsFragmentShaderBarycentricSupported() &&

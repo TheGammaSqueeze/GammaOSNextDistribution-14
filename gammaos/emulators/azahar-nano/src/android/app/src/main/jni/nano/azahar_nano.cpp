@@ -415,6 +415,8 @@ void azn_set_tweak(const char* name, int value) {
         Settings::values.gammaos_hw_scissor = value != 0;
     } else if (std::string_view{name} == "fold_clears") {
         Settings::values.gammaos_fold_clears = value != 0;
+    } else if (std::string_view{name} == "hybrid_shaders") {
+        Settings::values.gammaos_hybrid_shaders = value != 0;
     } else if (std::string_view{name} == "preload_wait") {
         Settings::values.gammaos_preload_wait = value != 0;
     } else if (std::string_view{name} == "fs_mediump") {

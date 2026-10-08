@@ -1,3 +1,4 @@
+#include "video_core/shader/generator/uber_fs_shader_gen.h"
 #include <cstdlib>
 #include <sys/system_properties.h>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
@@ -97,6 +98,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
           return n > 0 ? static_cast<u32>(n) : std::max(std::thread::hardware_concurrency(), 2U) / 2;
       }()},
       pipeline_workers{num_worker_threads, "Pipeline workers"},
+      fast_pipeline_workers{2, "Fast pipelines"},
       shader_workers{num_worker_threads, "Shader workers"},
       descriptor_heaps{
           DescriptorHeap{instance, scheduler.GetMasterSemaphore(), BUFFER_BINDINGS, 32},
@@ -106,6 +108,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
           instance, vk::ShaderStageFlagBits::eVertex,
           GLSL::GenerateTrivialVertexShader(instance.IsShaderClipDistanceSupported(), true)} {
     scheduler.RegisterOnDispatch([this] { update_queue.Flush(); });
+    trivial_vertex_shader.program = "trivial"; // GammaOS: build stats tag
     profile = Pica::Shader::Profile{
         .enable_accurate_mul = false,
         .has_separable_shaders = true,
@@ -160,6 +163,7 @@ void PipelineCache::BuildLayout() {
 
 PipelineCache::~PipelineCache() {
     pipeline_workers.WaitForRequests();
+    fast_pipeline_workers.WaitForRequests();
     shader_workers.WaitForRequests();
     // A save state load tears the renderer down: writing an unchanged multi-MB
     // cache here cost ~0.9 s of every load. The periodic save (TickFrame) keeps
@@ -670,6 +674,34 @@ void PipelineCache::UseFragmentShader(const Pica::RegsInternal& regs,
         current_shaders[ProgramType::FS] = (*res).second;
         shader_hashes[ProgramType::FS] = (*res).first;
     }
+}
+
+Shader* PipelineCache::GetUberShader(u32 variant_key) {
+    std::scoped_lock lock{uber_mutex};
+    auto& slot = uber_shaders[variant_key];
+    if (!slot) {
+        const auto variant = Pica::Shader::Generator::Uber::Variant::FromKey(variant_key);
+        const auto start = std::chrono::steady_clock::now();
+        slot = std::make_unique<Shader>(
+            instance, vk::ShaderStageFlagBits::eFragment,
+            Pica::Shader::Generator::Uber::GenerateFragmentShader(variant, profile));
+        LOG_INFO(Render_Vulkan, "Fragment ubershader variant {:X} compiled in {} ms (module {})",
+                 variant_key,
+                 std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::steady_clock::now() - start)
+                     .count(),
+                 slot->Handle() ? "ok" : "FAILED");
+        if (!slot->Handle()) {
+            uber_failed = true;
+        }
+        slot->program = "uber"; // build stats tag
+    }
+    return slot.get();
+}
+
+void PipelineCache::UseUberFragmentShader(u32 variant_key) {
+    current_shaders[ProgramType::FS] = GetUberShader(variant_key);
+    shader_hashes[ProgramType::FS] = UberIdBase | variant_key;
 }
 
 bool PipelineCache::IsCacheValid(std::span<const u8> data) const {

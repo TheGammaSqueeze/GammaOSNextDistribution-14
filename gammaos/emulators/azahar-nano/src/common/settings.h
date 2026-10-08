@@ -589,6 +589,9 @@ struct Values {
     bool gammaos_fs_mediump = false;
     // Wait for the boot pipeline preload to finish compiling before the game starts.
     bool gammaos_preload_wait = true;
+    // Never wait for a pipeline compile: draws whose pipeline is not built yet run their
+    // vertices on the CPU and use the fragment ubershader (pipelines compiled up front).
+    bool gammaos_hybrid_shaders = false;
     // GammaOS tweak: deferred full-surface clears folded into the next render
     // pass's load ops (saves a full store and reload of the target).
     bool gammaos_fold_clears = false;
