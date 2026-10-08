@@ -449,6 +449,25 @@ void onLog(void*, int level, const char* cls, const char* msg) {
 } // namespace
 
 int main(int argc, char** argv) {
+    // Test hook: persist.gammaos.azahar_nano.env = "NAME=value[,NAME=value]" is
+    // exported before any driver loads (for example TU_DEBUG for Turnip).
+    {
+        char envp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.azahar_nano.env", envp, "");
+        std::string all = envp;
+        size_t pos = 0;
+        while (pos < all.size()) {
+            const size_t comma = all.find(',', pos);
+            const std::string kv = all.substr(pos, comma == std::string::npos ? std::string::npos : comma - pos);
+            const size_t eq = kv.find('=');
+            if (eq != std::string::npos && eq > 0) {
+                setenv(kv.substr(0, eq).c_str(), kv.substr(eq + 1).c_str(), 1);
+                ALOGI("env %s", kv.c_str());
+            }
+            if (comma == std::string::npos) break;
+            pos = comma + 1;
+        }
+    }
     installCrashHandlers();
     signal(SIGTERM, onTerm);
     signal(SIGINT, onTerm);
@@ -500,6 +519,8 @@ int main(int argc, char** argv) {
                      prop("persist.gammaos.azahar_nano.vertex_depth", "0") == "1" ? 1 : 0);
     {
         const bool tweaks = prop("persist.gammaos.azahar_nano.tweaks", "1") == "1";
+        gCore.set_tweak("fs_mediump",
+                        prop("persist.gammaos.azahar_nano.fs_mediump", "0") == "1" ? 1 : 0);
         gCore.set_tweak("renderpass_clears",
                         tweaks && prop("persist.gammaos.azahar_nano.rp_clears", "1") == "1" ? 1 : 0);
     }
