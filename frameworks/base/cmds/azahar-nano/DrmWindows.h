@@ -42,6 +42,7 @@ struct DrmPanel {
     uint32_t width = 0;     // panel native (scanout) size
     uint32_t height = 0;
     bool isDsi = false;
+    double refreshHz = 60.0;   // from the mode timings
     // plane props
     uint32_t pFbId = 0, pCrtcId = 0, pSrcX = 0, pSrcY = 0, pSrcW = 0, pSrcH = 0;
     uint32_t pCrtcX = 0, pCrtcY = 0, pCrtcW = 0, pCrtcH = 0, pInFence = 0, pRotation = 0;
@@ -89,6 +90,9 @@ struct DrmPanel {
     bool hasOnScreen = false, hasPending = false;
     bool flipPending = false;
     uint64_t flips = 0, drops = 0, longGaps = 0;
+    int64_t periodSumNs = 0;
+    uint64_t periodCount = 0;
+    std::shared_ptr<std::atomic<double>> measuredPeriodNs = std::make_shared<std::atomic<double>>(0.0);   // 0 until 64 consecutive flips
     uint32_t hPRotation = 0;
     int64_t lastFlipNs = 0, maxGapNs = 0;
     int64_t commitNs = 0, latSumNs = 0, latMaxNs = 0, queuedNs = 0;
@@ -133,6 +137,9 @@ public:
     bool isPortrait(int idx) const { return mPanels[idx].height > mPanels[idx].width; }
     // Page flips shown on a panel so far (the on-screen BLIT rate is its derivative).
     uint64_t flipCount(int idx) const { return mPanels[idx].flips; }
+    double refreshHz(int idx) const { return mPanels[idx].refreshHz; }
+    // Mean interval between consecutive page flips (ns), 0 until measured.
+    double measuredPeriodNs(int idx) const { return mPanels[idx].measuredPeriodNs->load(); }
 
 private:
     bool openDevice();

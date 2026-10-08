@@ -159,6 +159,15 @@ bool DrmWindows::enumerate() {
             drmModeModeInfo mode = c->modes[mi];
             p.width = mode.hdisplay;
             p.height = mode.vdisplay;
+            // Exact refresh from the timings (vrefresh is rounded to an integer).
+            if (mode.htotal && mode.vtotal) {
+                p.refreshHz = (double)mode.clock * 1000.0 / ((double)mode.htotal * (double)mode.vtotal);
+                if (mode.flags & DRM_MODE_FLAG_INTERLACE) p.refreshHz *= 2.0;
+                if (mode.flags & DRM_MODE_FLAG_DBLSCAN) p.refreshHz /= 2.0;
+                if (mode.vscan > 1) p.refreshHz /= mode.vscan;
+            } else {
+                p.refreshHz = mode.vrefresh;
+            }
             drmModeCreatePropertyBlob(mFd, &mode, sizeof(mode), &p.modeBlob);
             // CRTC: the one the encoder currently drives, else the first possible.
             uint32_t crtcId = 0;
@@ -188,8 +197,8 @@ bool DrmWindows::enumerate() {
             for (int k = 0; k < res->count_crtcs; k++) {
                 if (res->crtcs[k] == crtcId) p.crtcIndex = k;
             }
-            ALOGI("DRM: connector %u %s %ux%u@%u crtc %u (idx %u)", p.connId,
-                  connTypeName(c->connector_type), p.width, p.height, mode.vrefresh, p.crtcId,
+            ALOGI("DRM: connector %u %s %ux%u@%.3f Hz crtc %u (idx %u)", p.connId,
+                  connTypeName(c->connector_type), p.width, p.height, p.refreshHz, p.crtcId,
                   p.crtcIndex);
             if (crtcId) found.push_back(p);
         }
@@ -780,6 +789,19 @@ void DrmWindows::onFlipDone(unsigned int crtcId, int64_t tsNs) {
             const int64_t dt = tsNs - p.lastFlipNs;
             if (dt > p.maxGapNs) p.maxGapNs = dt;
             if (dt > 20 * 1000000LL) p.longGaps++;
+            // Refresh period estimate from back-to-back flips only (a skipped
+            // vblank is a multiple of the period and would bias the mean).
+            if (dt > 12 * 1000000LL && dt < 22 * 1000000LL) {
+                p.periodSumNs += dt;
+                p.periodCount++;
+                if (p.periodCount >= 64) {
+                    p.measuredPeriodNs->store((double)p.periodSumNs / (double)p.periodCount);
+                }
+                if (p.periodCount >= 4096) {   // keep the mean responsive
+                    p.periodSumNs /= 2;
+                    p.periodCount /= 2;
+                }
+            }
         }
         p.lastFlipNs = tsNs;
         // The buffer that was on screen is now free.
@@ -818,7 +840,10 @@ void DrmWindows::eventLoop() {
     self = this;
     drmEventContext ev{};
     ev.version = DRM_EVENT_CONTEXT_VERSION;
-    ev.page_flip_handler = [](int, unsigned int, unsigned int, unsigned int, void* data) {
+    ev.page_flip_handler = [](int, unsigned int sec, unsigned int usec, unsigned int, void* data) {
+        // The SDE event carries whole seconds only (usec stays 0), so the poll
+        // wake-up time is the usable timestamp; the period mean averages its jitter.
+        (void)sec; (void)usec;
         self->onFlipDone((unsigned int)(uintptr_t)data, monoNs());
     };
     while (mRun) {

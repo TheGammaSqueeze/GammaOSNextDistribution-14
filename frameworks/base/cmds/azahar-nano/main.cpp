@@ -20,6 +20,7 @@
 
 #define LOG_TAG "azahar-nano"
 
+#include <dirent.h>
 #include <dlfcn.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -29,6 +30,7 @@
 #include <string.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
+#include <cmath>
 #include <time.h>
 #include <unistd.h>
 
@@ -80,6 +82,7 @@ struct CoreApi {
     void (*set_upright)(int) = nullptr;
     void (*set_present_mode)(int, int) = nullptr;
     void (*set_deadline_pacing)(int) = nullptr;
+    void (*set_pace_scale)(double) = nullptr;
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -124,6 +127,7 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.set_upright, "azn_set_upright");
     ok &= sym(gCore.set_present_mode, "azn_set_present_mode");
     ok &= sym(gCore.set_deadline_pacing, "azn_set_deadline_pacing");
+    ok &= sym(gCore.set_pace_scale, "azn_set_pace_scale");
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -209,6 +213,105 @@ void retriggerPowerProfile() {
 // First run: the private root has no config.ini yet. Seed the two values a
 // dual-panel handheld needs (the top window shows the top screen only; the bottom
 // panel gets the secondary layout by default) and a 2x internal resolution.
+static bool copyFileTo(const std::string& from, const std::string& to) {
+    const int in = open(from.c_str(), O_RDONLY | O_CLOEXEC);
+    if (in < 0) return false;
+    const std::string tmp = to + ".part";
+    const int out = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0664);
+    if (out < 0) { close(in); return false; }
+    char buf[1 << 16];
+    bool ok = true;
+    for (;;) {
+        const ssize_t n = read(in, buf, sizeof(buf));
+        if (n < 0) { ok = false; break; }
+        if (n == 0) break;
+        for (ssize_t off = 0; off < n;) {
+            const ssize_t w = write(out, buf + off, (size_t)(n - off));
+            if (w <= 0) { ok = false; break; }
+            off += w;
+        }
+        if (!ok) break;
+    }
+    if (fsync(out) != 0) ok = false;
+    close(in);
+    close(out);
+    if (!ok || rename(tmp.c_str(), to.c_str()) != 0) { unlink(tmp.c_str()); return false; }
+    // Keep the original time so newer/older comparisons stay meaningful.
+    struct stat st{};
+    if (stat(from.c_str(), &st) == 0) {
+        struct timespec ts[2] = {st.st_atim, st.st_mtim};
+        utimensat(AT_FDCWD, to.c_str(), ts, 0);
+    }
+    return true;
+}
+
+// Earlier builds handed the core the user folder as a bare absolute path, which
+// its file layer resolves under the private root: saves, save states and cheats
+// landed in <private><dataDir>/ instead of <dataDir>/. Move anything stranded
+// there into the real folder. A file that already exists in the user folder is
+// kept unless the stranded copy is newer; then the old one is kept beside it as
+// <name>.bak so nothing is ever lost. Returns the number of files moved.
+static int moveTree(const std::string& from, const std::string& to) {
+    int moved = 0;
+    DIR* d = opendir(from.c_str());
+    if (!d) return 0;
+    mkdir(to.c_str(), 0775);
+    while (dirent* e = readdir(d)) {
+        if (!strcmp(e->d_name, ".") || !strcmp(e->d_name, "..")) continue;
+        const std::string src = from + "/" + e->d_name;
+        const std::string dst = to + "/" + e->d_name;
+        struct stat ss{};
+        if (lstat(src.c_str(), &ss) != 0) continue;
+        if (S_ISDIR(ss.st_mode)) {
+            moved += moveTree(src, dst);
+            rmdir(src.c_str());   // only succeeds once emptied
+            continue;
+        }
+        if (!S_ISREG(ss.st_mode)) continue;
+        struct stat ds{};
+        if (stat(dst.c_str(), &ds) == 0) {
+            if (ds.st_mtime >= ss.st_mtime) {
+                // The user folder copy is as new or newer: keep it, park ours.
+                const std::string park = src + ".stale";
+                rename(src.c_str(), park.c_str());
+                continue;
+            }
+            const std::string bak = dst + ".bak";
+            if (!copyFileTo(dst, bak)) {
+                ALOGE("migrate: cannot back up %s, leaving %s in place", dst.c_str(), src.c_str());
+                continue;
+            }
+        }
+        // rename() fails across filesystems (/data -> sdcard FUSE): copy then unlink.
+        if (rename(src.c_str(), dst.c_str()) != 0) {
+            if (!copyFileTo(src, dst)) {
+                ALOGE("migrate: copy %s -> %s failed", src.c_str(), dst.c_str());
+                continue;
+            }
+            unlink(src.c_str());
+        }
+        ALOGI("migrate: %s -> %s", src.c_str(), dst.c_str());
+        moved++;
+    }
+    closedir(d);
+    return moved;
+}
+
+static void migrateStrandedUserFolder(const std::string& userDir, const std::string& dataDir) {
+    if (dataDir.empty() || dataDir[0] != '/') return;
+    std::string root = userDir;
+    while (root.size() > 1 && root.back() == '/') root.pop_back();
+    const std::string stranded = root + dataDir;   // e.g. /data/system/azahar-nano/sdcard/ROMs/3ds
+    struct stat st{};
+    if (stat(stranded.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) return;
+    const int n = moveTree(stranded, dataDir);
+    // Remove the now empty chain up to the private root.
+    for (std::string p = stranded; p.size() > root.size(); p = p.substr(0, p.find_last_of('/'))) {
+        if (rmdir(p.c_str()) != 0) break;
+    }
+    ALOGI("migrate: %d file(s) from %s into %s", n, stranded.c_str(), dataDir.c_str());
+}
+
 void seedConfig(const std::string& userDir) {
     // The core writes a config.ini with empty (default) values on its first load,
     // so seed on empty values rather than on a missing file; a value the user set
@@ -309,6 +412,7 @@ int main(int argc, char** argv) {
     const std::string dataDir = prop("persist.gammaos.azahar.data_dir", kDataDirDefault);
     if (dataDir != userDir) {
         mkdir(dataDir.c_str(), 0775);
+        migrateStrandedUserFolder(userDir, dataDir);
         gCore.set_user_folder(dataDir.c_str());
     }
     ALOGI("private root %s, user folder %s", userDir.c_str(), dataDir.c_str());
@@ -377,6 +481,11 @@ int main(int argc, char** argv) {
         // Even swap cadence: the scanout presenter shows one frame per vblank, so
         // the emulator's swaps must land one frame period apart.
         gCore.set_deadline_pacing(prop("persist.gammaos.azahar_nano.drm_deadline", "1") == "1" ? 1 : 0);
+        // Pace to the panel's exact refresh (the DSI runs 59.8 Hz, not 60): one
+        // emulated frame per real vblank, so no frame is dropped every few seconds.
+        // The mode timings are nominal (the DSI reports 60.000 while it flips at
+        // 59.9), so the scale follows the measured flip interval (perf thread).
+        ALOGI("top panel mode %.3f Hz (nominal); pacing follows the measured vblank", drm.refreshHz(0));
         ALOGI("top panel %ux%u, upright=%d", drm.width(0), drm.height(0), upright);
     }
     gCore.set_windows(top, bottom);
@@ -389,6 +498,7 @@ int main(int argc, char** argv) {
     static azahar_nano::NanoInput* sInput = nullptr;
     static azahar_nano::DrmWindows* sDrm = nullptr;
     static bool sOverlayReady = false;
+    static azahar_nano::OverlayActions sOa;   // state hooks use the same actions
     if (drmActive) {
         sDrm = &drm;
         azahar_nano::OverlayActions oa;
@@ -431,6 +541,7 @@ int main(int argc, char** argv) {
         sOverlayReady = overlay.init(drm.overlayWindow(0), drm.width(0), drm.height(0),
                                      drm.isPortrait(0), oa, dataDir);
         if (!sOverlayReady) ALOGE("overlay unavailable");
+        sOa = oa;
         uint32_t hw = 0, hh = 0;
         ANativeWindow* hudWin = drm.hudWindow(0, &hw, &hh);
         if (hudWin) sHudReady = hud.init(hudWin, (int)hw, (int)hh, drm.isPortrait(0));
@@ -493,6 +604,9 @@ int main(int argc, char** argv) {
     // or always during bring-up).
     static azahar_nano::InputCallbacks* sIcb = nullptr;
     sIcb = &icb;
+    static bool sPaceToPanel = false;
+    static double sPaceScale = 1.0;
+    sPaceToPanel = prop("persist.gammaos.azahar_nano.pace_to_panel", "1") == "1";
     std::thread perfThread([] {
         bool hudOn = false;
         uint64_t lastFlips = 0;
@@ -507,6 +621,20 @@ int main(int argc, char** argv) {
                     property_set("sys.gammaos.azahar_nano.menu", "");
                     if (sIcb && sIcb->menuToggle) sIcb->menuToggle();
                 }
+                // sys.gammaos.azahar_nano.load_state=N / save_state=N: direct slot
+                // access for scripted tests (the request runs on the emulation loop).
+                const std::string ld = prop("sys.gammaos.azahar_nano.load_state", "");
+                if (!ld.empty()) {
+                    property_set("sys.gammaos.azahar_nano.load_state", "");
+                    const int slot = atoi(ld.c_str());
+                    if (slot > 0 && sOa.loadState) { ALOGI("hook: load state %d", slot); sOa.loadState(slot); }
+                }
+                const std::string sv = prop("sys.gammaos.azahar_nano.save_state", "");
+                if (!sv.empty()) {
+                    property_set("sys.gammaos.azahar_nano.save_state", "");
+                    const int slot = atoi(sv.c_str());
+                    if (slot > 0 && sOa.saveState) { ALOGI("hook: save state %d", slot); sOa.saveState(slot); }
+                }
                 const std::string nav = prop("sys.gammaos.azahar_nano.menu_nav", "");
                 if (!nav.empty()) {
                     property_set("sys.gammaos.azahar_nano.menu_nav", "");
@@ -517,6 +645,19 @@ int main(int argc, char** argv) {
                 }
             }
             if (gExitRequested || !gCore.is_running()) continue;
+            // Pace the emulator to the top panel's real refresh: one emulated frame
+            // per vblank, so no frame is dropped or repeated every few seconds.
+            if (sDrm && sPaceToPanel) {
+                const double periodNs = sDrm->measuredPeriodNs(0);
+                if (periodNs > 0.0) {
+                    const double scale = periodNs / (1e9 / 60.0);
+                    if (std::fabs(scale - sPaceScale) > 2e-5) {
+                        sPaceScale = scale;
+                        gCore.set_pace_scale(scale);
+                        ALOGI("pace: top panel %.3f Hz measured, scale %.5f", 1e9 / periodNs, scale);
+                    }
+                }
+            }
             azn_perf_stats st{};
             gCore.get_perf_stats(&st);
             ALOGI("perf: game %.1f fps, system %.1f fps, speed %.0f%%, vblank %.2f ms, gpu %.2f ms",
