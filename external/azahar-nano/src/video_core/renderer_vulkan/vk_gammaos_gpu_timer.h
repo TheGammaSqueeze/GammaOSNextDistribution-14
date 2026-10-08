@@ -1,0 +1,250 @@
+// GammaOS: GPU time per category of work (render passes, clears, blits, the
+// final present), measured with Vulkan timestamps for azahar-nano profiling.
+// Every timestamp is written outside a render pass. Each frame uses one pool of
+// a ring; it is reset lazily by the first mark of the frame and read back,
+// without waiting, three frames later. Summed between two swap trace lines.
+#pragma once
+
+#include <array>
+#include <atomic>
+#include <cstdint>
+#include <vector>
+
+#include "video_core/renderer_vulkan/vk_common.h"
+#include "video_core/renderer_vulkan/vk_scheduler.h"
+
+namespace Vulkan::GammaGpu {
+
+enum Category : int { Pass, Clear, Blit, Present, Copy, Upload, NumCategories };
+
+inline constexpr const char* kCategoryNames[NumCategories] = {"passes", "clears", "blits",
+                                                              "present", "copies", "uploads"};
+inline constexpr std::uint32_t kRing = 4;
+inline constexpr std::uint32_t kQueries = 256;   // per pool (pairs)
+
+struct State {
+    vk::Device device{};
+    std::array<vk::QueryPool, kRing> pools{};
+    std::array<std::uint32_t, kRing> used{};
+    std::array<std::vector<std::uint8_t>, kRing> cats{};   // category per pair
+    std::array<bool, kRing> needs_reset{};
+    std::uint32_t frame = 0;   // index of the pool being recorded
+    double period_ns = 1.0;
+    bool enabled = false;
+    bool presenting = false;
+    // accumulated over the trace window, in ms
+    std::array<double, NumCategories> sum_ms{};
+    double span_ms = 0.0;
+    std::uint32_t frames_read = 0;
+};
+
+inline State g;
+
+inline void Init(vk::Device device, float timestamp_period_ns, bool supported) {
+    if (!supported || g.enabled) return;
+    g.device = device;
+    g.period_ns = timestamp_period_ns;
+    const vk::QueryPoolCreateInfo info = {
+        .queryType = vk::QueryType::eTimestamp,
+        .queryCount = kQueries * 2,
+    };
+    for (std::uint32_t i = 0; i < kRing; i++) {
+        g.pools[i] = device.createQueryPool(info);
+        g.needs_reset[i] = true;
+        g.cats[i].reserve(kQueries);
+    }
+    g.enabled = true;
+}
+
+inline void Shutdown() {
+    if (!g.enabled) return;
+    for (auto& p : g.pools) g.device.destroyQueryPool(p);
+    g.enabled = false;
+}
+
+// Writes the begin stamp of a pair; returns the pair index or -1.
+inline int Begin(Scheduler& scheduler, Category cat) {
+    if (!g.enabled) return -1;
+    const std::uint32_t f = g.frame;
+    if (g.used[f] >= kQueries) return -1;
+    const bool reset = g.needs_reset[f];
+    g.needs_reset[f] = false;
+    const int idx = static_cast<int>(g.used[f]++);
+    g.cats[f].push_back(static_cast<std::uint8_t>(cat));
+    scheduler.Record([pool = g.pools[f], idx, reset](vk::CommandBuffer cmdbuf) {
+        if (reset) cmdbuf.resetQueryPool(pool, 0, kQueries * 2);
+        cmdbuf.writeTimestamp(vk::PipelineStageFlagBits::eTopOfPipe, pool, idx * 2);
+    });
+    return idx;
+}
+
+inline void End(Scheduler& scheduler, int idx) {
+    if (!g.enabled || idx < 0) return;
+    scheduler.Record([pool = g.pools[g.frame], idx](vk::CommandBuffer cmdbuf) {
+        cmdbuf.writeTimestamp(vk::PipelineStageFlagBits::eBottomOfPipe, pool, idx * 2 + 1);
+    });
+}
+
+// Once per presented frame (start of SwapBuffers): read the pool written three
+// frames ago if it is complete, then move recording to the next pool.
+inline void FrameBoundary() {
+    if (!g.enabled) return;
+    const std::uint32_t old = (g.frame + 1) % kRing;   // oldest in the ring
+    const std::uint32_t n = g.used[old];
+    if (n > 0) {
+        std::vector<std::uint64_t> ts(n * 2);
+        const vk::Result r = g.device.getQueryPoolResults(
+            g.pools[old], 0, n * 2, ts.size() * sizeof(std::uint64_t), ts.data(),
+            sizeof(std::uint64_t), vk::QueryResultFlagBits::e64);
+        if (r == vk::Result::eSuccess) {
+            std::uint64_t first = UINT64_MAX, last = 0;
+            for (std::uint32_t i = 0; i < n; i++) {
+                const std::uint64_t b = ts[i * 2], e = ts[i * 2 + 1];
+                if (e <= b) continue;
+                g.sum_ms[g.cats[old][i]] += (e - b) * g.period_ns / 1e6;
+                first = std::min(first, b);
+                last = std::max(last, e);
+            }
+            if (last > first) g.span_ms += (last - first) * g.period_ns / 1e6;
+            g.frames_read++;
+        }
+    }
+    g.used[old] = 0;
+    g.cats[old].clear();
+    g.needs_reset[old] = true;
+    g.frame = old;
+}
+
+} // namespace Vulkan::GammaGpu
+
+// One-shot frame dump for profiling: with sys.gammaos.azahar_nano.drawdump=1
+// the next frame wraps every draw in an occlusion query and logs, per draw, the
+// samples it wrote plus its blend / alpha test / texture / fog / lighting state.
+#include <string>
+#include <sys/system_properties.h>
+#include "common/logging/log.h"
+
+namespace Vulkan::GammaDump {
+
+struct DrawInfo {
+    std::uint32_t rect_w, rect_h, vertices, tex_mask, fog, lighting, blend, alpha_test, depth_test;
+    std::uint32_t tex0_fmt, tex0_w, tex0_h, tex0_mag, tex0_min, tex0_addr, color_addr;
+    std::uint32_t lights, luts, dist_atten_mask, spot_atten_mask;
+    std::uint64_t fs_hash;
+};
+
+struct Event {
+    int draw;            // draw index, or -1 for a non-draw event
+    std::string text;    // non-draw event description
+};
+
+struct State {
+    std::vector<Event> events;
+    vk::Device device{};
+    vk::QueryPool pool{};
+    bool precise = false;
+    bool active = false;
+    int empty_presents = 0;
+    std::uint64_t last_fs_hash = 0;     // fragment config of the draw being set up
+    std::vector<std::uint64_t> fs_written;   // GLSL sources already written this session
+    std::vector<DrawInfo> draws;
+    static constexpr std::uint32_t kMax = 1024;
+};
+inline State d;
+
+inline bool Requested() {
+    char v[PROP_VALUE_MAX] = {};
+    if (__system_property_get("sys.gammaos.azahar_nano.drawdump", v) > 0 && v[0] == '1') {
+        __system_property_set("sys.gammaos.azahar_nano.drawdump", "");
+        return true;
+    }
+    return false;
+}
+
+// Called at the start of SwapBuffers with no render pass open.
+inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise) {
+    // A present with no draws in it (the core presents more often than the game
+    // draws): keep collecting, up to a few presents.
+    if (d.active && d.draws.empty() && d.empty_presents < 3) {
+        d.empty_presents++;
+        return;
+    }
+    if (d.active) {
+        d.active = false;
+        scheduler.Finish();
+        const std::uint32_t n = static_cast<std::uint32_t>(d.draws.size());
+        std::vector<std::uint64_t> samples(n);
+        if (n > 0) {
+            (void)device.getQueryPoolResults(d.pool, 0, n, samples.size() * 8, samples.data(), 8,
+                                             vk::QueryResultFlagBits::e64 |
+                                                 vk::QueryResultFlagBits::eWait);
+        }
+        std::uint64_t total = 0;
+        for (auto s : samples) total += s;
+        LOG_INFO(Render_Vulkan, "draw dump: {} draws, {} samples written in total", n, total);
+        for (const auto& e : d.events) {
+            if (e.draw < 0) LOG_INFO(Render_Vulkan, "event: {}", e.text);
+            else LOG_INFO(Render_Vulkan, "event: draw {} ({} samples)", e.draw,
+                          static_cast<std::uint32_t>(e.draw) < n ? samples[e.draw] : 0);
+        }
+        for (std::uint32_t i = 0; i < n; i++) {
+            const auto& x = d.draws[i];
+            LOG_INFO(Render_Vulkan,
+                     "draw {:3}: samples {:8} ({:5.1f}%) rect {}x{} verts {} tex {:03b} fog {} "
+                     "light {} blend {} atest {} dtest {} | tex0 fmt {} {}x{} mag {} min {} "
+                     "addr {:08X} | target {:08X} | lights {} luts {:06b} dist {:08b} spot {:08b} | fs {:016X}",
+                     i, samples[i], total ? 100.0 * samples[i] / total : 0.0, x.rect_w, x.rect_h,
+                     x.vertices, x.tex_mask, x.fog, x.lighting, x.blend, x.alpha_test,
+                     x.depth_test, x.tex0_fmt, x.tex0_w, x.tex0_h, x.tex0_mag, x.tex0_min,
+                     x.tex0_addr, x.color_addr, x.lights, x.luts, x.dist_atten_mask,
+                     x.spot_atten_mask, x.fs_hash);
+        }
+    }
+    if (!Requested()) return;
+    if (!d.pool) {
+        d.device = device;
+        d.precise = precise;
+        d.pool = device.createQueryPool(vk::QueryPoolCreateInfo{
+            .queryType = vk::QueryType::eOcclusion,
+            .queryCount = State::kMax,
+        });
+    }
+    d.draws.clear();
+    d.events.clear();
+    d.empty_presents = 0;
+    scheduler.Record([pool = d.pool](vk::CommandBuffer cmdbuf) {
+        cmdbuf.resetQueryPool(pool, 0, State::kMax);
+    });
+    d.active = true;
+    LOG_INFO(Render_Vulkan, "draw dump armed for the next frame (precise {})", precise);
+}
+
+// Registers the draw; the query itself is opened and closed around the draw
+// command (QueryAround), so a submit in between (a stream buffer wait) can never
+// split it across command buffers. Returns the draw index or -1.
+inline int BeginDraw(Scheduler&, const DrawInfo& info) {
+    if (!d.active || d.draws.size() >= State::kMax) return -1;
+    const int idx = static_cast<int>(d.draws.size());
+    d.draws.push_back(info);
+    d.events.push_back({idx, {}});
+    return idx;
+}
+
+// Called by the draw command's own recorded lambda.
+inline void QueryBegin(vk::CommandBuffer cmdbuf, vk::QueryPool pool, int idx, bool precise) {
+    if (idx >= 0) {
+        cmdbuf.beginQuery(pool, idx,
+                          precise ? vk::QueryControlFlagBits::ePrecise : vk::QueryControlFlags{});
+    }
+}
+inline void QueryEnd(vk::CommandBuffer cmdbuf, vk::QueryPool pool, int idx) {
+    if (idx >= 0) cmdbuf.endQuery(pool, idx);
+}
+
+inline void Note(std::string text) {
+    if (d.active && d.events.size() < 4096) d.events.push_back({-1, std::move(text)});
+}
+
+inline void EndDraw(Scheduler&, int) {}
+
+} // namespace Vulkan::GammaDump
