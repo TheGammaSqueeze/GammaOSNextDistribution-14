@@ -519,6 +519,8 @@ int main(int argc, char** argv) {
                      prop("persist.gammaos.azahar_nano.vertex_depth", "1") == "1" ? 1 : 0);
     {
         const bool tweaks = prop("persist.gammaos.azahar_nano.tweaks", "1") == "1";
+        gCore.set_tweak("jit_warmup",
+                        tweaks && prop("persist.gammaos.azahar_nano.jit_warmup", "1") == "1" ? 1 : 0);
         gCore.set_tweak("hw_scissor",
                         tweaks && prop("persist.gammaos.azahar_nano.hw_scissor", "1") == "1" ? 1 : 0);
         gCore.set_tweak("fold_clears",
