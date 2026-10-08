@@ -23,8 +23,8 @@ if [ "${AZAHAR_NANO_SKIP_BUILD:-0}" = "1" ]; then
     exit 0
 fi
 
-TOP="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-SRC="$TOP/external/azahar-nano"
+TOP="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+SRC="$TOP/gammaos/emulators/azahar-nano"
 WORK="$TOP/out/azahar-nano"
 BUILD="$WORK/build"
 DEST="$TOP/gammaos/emulators/azahar-nano-lib"

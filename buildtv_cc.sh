@@ -31,9 +31,9 @@ export OVERRIDE_PRODUCT_COMPRESSED_APEX=false
 
 mkdir -p out/home/build-output
 
-# azahar-nano (3DS) core: built from external/azahar-nano with the NDK and CMake
+# azahar-nano (3DS) core: built from gammaos/emulators/azahar-nano with the NDK and CMake
 # (fetched once into out/azahar-nano when missing), installed into
 # gammaos/emulators/azahar-nano-lib. AZAHAR_NANO_SKIP_BUILD=1 keeps the committed libraries.
-bash external/azahar-nano/gammaos/build-core.sh
+bash gammaos/emulators/azahar-nano/gammaos/build-core.sh
 
 HOME="$PWD/out/home" bash lineage_build_unified/buildbot_unified.sh treble TV64VN "$MODE"

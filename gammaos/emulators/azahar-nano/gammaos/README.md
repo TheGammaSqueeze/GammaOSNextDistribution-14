@@ -1,6 +1,7 @@
 # azahar-nano core
 
-This folder holds the source of the Azahar 3DS emulator (based on the azahar-2126
+This folder (next to `azahar-nano-lib`, the same layout as `drastic-nano` and
+`drastic-nano-lib`) holds the source of the Azahar 3DS emulator (based on the azahar-2126
 release, with all of its submodules included as plain files) plus the GammaOS
 changes that turn it into the azahar-nano core:
 
@@ -16,7 +17,7 @@ changes that turn it into the azahar-nano core:
 ## Building
 
 The image build scripts (`buildtv.sh`, `buildtv_cc.sh`) run
-`external/azahar-nano/gammaos/build-core.sh` before the image build. It builds the
+`gammaos/emulators/azahar-nano/gammaos/build-core.sh` before the image build. It builds the
 core with the Android NDK r27c and CMake, then installs the stripped libraries
 into `gammaos/emulators/azahar-nano-lib/`, which the product makefile copies into
 `/system/lib64`.
