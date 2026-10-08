@@ -44,6 +44,9 @@ struct DrmPanel {
     bool isDsi = false;
     double refreshHz = 60.0;   // from the mode timings
     uint32_t bufW = 0, bufH = 0;   // game buffer size (render_scale)
+    uint64_t bufUsage = 0;
+    bool loggedUbwc = false;
+    uint32_t retirePlaneId = 0, retireFbProp = 0, retireCrtcProp = 0;   // plane to switch off
     float renderScale = 1.0f;
     // plane props
     uint32_t pFbId = 0, pCrtcId = 0, pSrcX = 0, pSrcY = 0, pSrcW = 0, pSrcH = 0;
@@ -141,6 +144,11 @@ public:
     uint64_t flipCount(int idx) const { return mPanels[idx].flips; }
     double refreshHz(int idx) const { return mPanels[idx].refreshHz; }
     float renderScale(int idx) const { return mPanels[idx].renderScale; }
+    // GammaOS tweak "native output": before create(), ask for game buffers whose
+    // short side is exactly this many pixels (the emulated screen height at the
+    // internal resolution), so the emulated image lands 1:1 and the display
+    // plane does the one upscale to the panel. 0 = full panel size.
+    void setOutputShortSide(int idx, uint32_t px) { if (idx >= 0 && idx < 2) mOutputShortSide[idx] = px; }
     // Mean interval between consecutive page flips (ns), 0 until measured.
     double measuredPeriodNs(int idx) const { return mPanels[idx].measuredPeriodNs->load(); }
 
@@ -157,6 +165,8 @@ private:
     uint32_t importHudFb(DrmPanel& p, const android::sp<android::GraphicBuffer>& gb);
     void addHudProps(DrmPanel& p, drmModeAtomicReqPtr req);
     uint32_t importFb(DrmPanel& p, const android::sp<android::GraphicBuffer>& gb);
+    bool testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h);
+    bool switchToScalingPlane(DrmPanel& p);
     bool flip(DrmPanel& p, android::BufferItem& item);
     void eventLoop();
     void panelLoop(int idx);
@@ -168,6 +178,7 @@ private:
     std::thread mThread;
     std::atomic<bool> mRun{false};
     std::vector<std::thread> mPanelThreads;
+    uint32_t mOutputShortSide[2] = {0, 0};
     bool mBlockingCommits = true;
     int mDpPostFlipUs = 0;
     static constexpr size_t kMaxReady = 3;   // acquired, not yet flipped frames per panel

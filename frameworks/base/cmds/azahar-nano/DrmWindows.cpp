@@ -7,6 +7,7 @@
 #include <inttypes.h>
 
 #include <algorithm>
+#include <cmath>
 #include <chrono>
 #include <string>
 #include <poll.h>
@@ -352,13 +353,96 @@ bool DrmWindows::modeset() {
     return true;
 }
 
+// Test-only atomic commit: can this panel's plane scan out a w x h buffer
+// stretched over the whole panel?
+bool DrmWindows::testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h) {
+    sp<GraphicBuffer> gb = new GraphicBuffer(w, h, PIXEL_FORMAT_RGBA_8888, 1, p.bufUsage,
+                                             "azahar-nano-scaletest");
+    if (gb->initCheck() != OK) return false;
+    const uint32_t fb = importFb(p, gb);
+    if (!fb) return false;
+    drmModeAtomicReqPtr req = drmModeAtomicAlloc();
+    drmModeAtomicAddProperty(req, p.planeId, p.pFbId, fb);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcId, p.crtcId);
+    drmModeAtomicAddProperty(req, p.planeId, p.pSrcX, 0);
+    drmModeAtomicAddProperty(req, p.planeId, p.pSrcY, 0);
+    drmModeAtomicAddProperty(req, p.planeId, p.pSrcW, (uint64_t)w << 16);
+    drmModeAtomicAddProperty(req, p.planeId, p.pSrcH, (uint64_t)h << 16);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcX, 0);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcY, 0);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcW, p.width);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcH, p.height);
+    if (p.pRotation && p.rotationValue) {
+        drmModeAtomicAddProperty(req, p.planeId, p.pRotation, p.rotationValue);
+    }
+    const int rc = drmModeAtomicCommit(mFd, req, DRM_MODE_ATOMIC_TEST_ONLY, nullptr);
+    const int err = errno;
+    drmModeAtomicFree(req);
+    // The test buffer goes away: drop its framebuffer from the cache.
+    p.fbCache.erase(gb->getId());
+    drmModeRmFB(mFd, fb);
+    ALOGI("DRM: plane %u scaled scanout %ux%u -> %ux%u: %s", p.planeId, w, h, p.width, p.height,
+          rc == 0 ? "supported" : strerror(err));
+    return rc == 0;
+}
+
+// The panel's current plane cannot scale: look for another free plane on the
+// same CRTC that can (an SDE VIG pipe has a scaler, a DMA pipe does not). The
+// old plane is switched off by the first flip on the new one.
+bool DrmWindows::switchToScalingPlane(DrmPanel& p) {
+    drmModePlaneResPtr pr = drmModeGetPlaneResources(mFd);
+    if (!pr) return false;
+    const DrmPanel saved = p;
+    bool ok = false;
+    for (uint32_t i = 0; i < pr->count_planes && !ok; i++) {
+        drmModePlanePtr pl = drmModeGetPlane(mFd, pr->planes[i]);
+        if (!pl) continue;
+        const uint32_t id = pl->plane_id;
+        bool fmtOk = false;
+        for (uint32_t f = 0; f < pl->count_formats; f++) {
+            if (pl->formats[f] == DRM_FORMAT_ABGR8888) fmtOk = true;
+        }
+        const bool fits = (pl->possible_crtcs & (1u << p.crtcIndex)) != 0;
+        // Free: not on screen anywhere (crtc_id 0) and not chosen by any panel.
+        bool taken = pl->crtc_id != 0 || id == saved.planeId;
+        for (const auto& q : mPanels) taken |= (q.planeId == id || q.hudPlaneId == id);
+        drmModeFreePlane(pl);
+        if (!fits || !fmtOk || taken) continue;
+        p.planeId = id;
+        if (!loadProps(p)) {
+            p = saved;
+            continue;
+        }
+        if (testScaledScanout(p, p.bufW, p.bufH)) {
+            ok = true;
+            break;
+        }
+        p = saved;
+    }
+    drmModeFreePlaneResources(pr);
+    if (ok) {
+        p.retirePlaneId = saved.planeId;
+        p.retireFbProp = saved.pFbId;
+        p.retireCrtcProp = saved.pCrtcId;
+        ALOGI("DRM: crtc %u moves from plane %u to scaling plane %u", p.crtcId, saved.planeId,
+              p.planeId);
+    }
+    return ok;
+}
+
 bool DrmWindows::createQueue(DrmPanel& p, int idx) {
     sp<IGraphicBufferConsumer> consumer;
     BufferQueue::createBufferQueue(&p.producer, &consumer);
-    p.consumer = new BufferItemConsumer(consumer,
-                                        GRALLOC_USAGE_HW_COMPOSER | GRALLOC_USAGE_HW_RENDER |
-                                            GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_RARELY,
-                                        2 + kMaxReady, false);
+    // Game buffers: the CPU read bit forces gralloc to hand out linear buffers
+    // (needed for the capture and for planes that cannot scan out UBWC). With
+    // persist.gammaos.azahar_nano.ubwc=1 it is dropped and the buffers come back
+    // compressed, which the GPU renders into with far less memory traffic; the
+    // framebuffer then carries the QCOM compression modifier (importFb).
+    p.bufUsage = GRALLOC_USAGE_HW_COMPOSER | GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_HW_TEXTURE;
+    if (!property_get_bool("persist.gammaos.azahar_nano.ubwc", false)) {
+        p.bufUsage |= GRALLOC_USAGE_SW_READ_RARELY;
+    }
+    p.consumer = new BufferItemConsumer(consumer, p.bufUsage, 2 + kMaxReady, false);
     p.consumer->setName(String8(idx == 0 ? "azahar-nano-top" : "azahar-nano-bottom"));
     // Optional reduced output size: the core draws its final image into smaller
     // buffers and the display plane scales them up to the panel (SRC < CRTC), so
@@ -370,6 +454,25 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
                                                       100), 50, 100);
         p.bufW = std::max<uint32_t>(2, (p.width * pct / 100) & ~1u);
         p.bufH = std::max<uint32_t>(2, (p.height * pct / 100) & ~1u);
+        const uint32_t shortSide = std::min(p.width, p.height);
+        const uint32_t want = (idx < 2) ? mOutputShortSide[idx] : 0;
+        if (want > 0 && want < shortSide) {
+            // Keep the panel's aspect ratio so the core's layout maths is unchanged.
+            const double k = (double)want / (double)shortSide;
+            p.bufW = std::max<uint32_t>(2, ((uint32_t)std::lround(p.width * k) + 1) & ~1u);
+            p.bufH = std::max<uint32_t>(2, ((uint32_t)std::lround(p.height * k) + 1) & ~1u);
+            ALOGI("DRM: panel %d native output: short side %u for emulated height %u", idx,
+                  std::min(p.bufW, p.bufH), want);
+        }
+        // Not every plane can scale (the Duo Lite DP pipe refuses SRC != CRTC):
+        // prove it with a test-only commit before handing smaller buffers out.
+        if ((p.bufW != p.width || p.bufH != p.height) && !testScaledScanout(p, p.bufW, p.bufH) &&
+            !switchToScalingPlane(p)) {
+            ALOGW("DRM: panel %d has no plane that scales %ux%u to %ux%u, using full-size output",
+                  idx, p.bufW, p.bufH, p.width, p.height);
+            p.bufW = p.width;
+            p.bufH = p.height;
+        }
         p.renderScale = (float)p.bufW / (float)p.width;
         ALOGI("DRM: panel %d output %ux%u for %ux%u (%d%%)", idx, p.bufW, p.bufH, p.width, p.height, pct);
     }
@@ -608,6 +711,19 @@ uint32_t DrmWindows::importFb(DrmPanel& p, const sp<GraphicBuffer>& gb) {
     auto& gm = GraphicBufferMapper::get();
     uint64_t realMod = 0;
     if (gm.getPixelFormatModifier(nh, &realMod) == OK) modifier = realMod;
+    if (!modifier) {
+        // QTI gralloc reports UBWC through the compression metadata, not the
+        // modifier; without the modifier the display reads the data as linear.
+        aidl::android::hardware::graphics::common::ExtendableType comp;
+        if (gm.getCompression(nh, &comp) == OK && comp.value != 0) {
+            modifier = DRM_FORMAT_MOD_QCOM_COMPRESSED;
+            if (!p.loggedUbwc) {
+                ALOGI("DRM: crtc %u buffers are compressed (%s %lld): UBWC modifier", p.crtcId,
+                      comp.name.c_str(), (long long)comp.value);
+                p.loggedUbwc = true;
+            }
+        }
+    }
     std::vector<ui::PlaneLayout> layouts;
     if (gm.getPlaneLayouts(nh, &layouts) == OK && !layouts.empty() &&
         layouts[0].strideInBytes > 0) {
@@ -719,6 +835,10 @@ bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
     }
     }
     addHudProps(p, req);
+    if (p.retirePlaneId) {
+        drmModeAtomicAddProperty(req, p.retirePlaneId, p.retireFbProp, 0);
+        drmModeAtomicAddProperty(req, p.retirePlaneId, p.retireCrtcProp, 0);
+    }
     int fenceFd = -1;
     if (p.pInFence && item.mFence != nullptr && item.mFence->isValid()) {
         fenceFd = item.mFence->dup();
@@ -760,6 +880,7 @@ bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
         return false;
     }
     p.geometrySet = true;
+    p.retirePlaneId = 0;   // the old plane is off from this flip on
     p.srcW = w;
     p.srcH = h;
     p.pending = item;

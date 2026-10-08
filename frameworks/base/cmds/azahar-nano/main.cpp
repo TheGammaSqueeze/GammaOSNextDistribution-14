@@ -510,6 +510,20 @@ int main(int argc, char** argv) {
     const bool useDrm = backend == "drm";
     int panels = 0;
     if (useDrm) {
+        // GammaOS tweaks (persist.gammaos.azahar_nano.tweaks, default on): native output.
+        // The game buffers get the emulated screen height at the internal resolution
+        // (240 px times the resolution factor) so the image is drawn 1:1 and the
+        // display plane does the single upscale to the panel. Only for the default
+        // one-screen-per-panel layout, where each panel shows exactly one 3DS screen.
+        if (prop("persist.gammaos.azahar_nano.tweaks", "1") == "1" &&
+            configValue(userDir, "Layout", "layout_option") == "1") {
+            const int factor = atoi(configValue(userDir, "Renderer", "resolution_factor").c_str());
+            if (factor >= 1 && factor <= 10) {
+                drm.setOutputShortSide(0, 240u * factor);
+                drm.setOutputShortSide(1, 240u * factor);
+                ALOGI("tweaks: native output for resolution factor %d", factor);
+            }
+        }
         panels = drm.create();
         if (panels == 0) ALOGE("DRM backend failed, falling back to SurfaceFlinger");
     }
