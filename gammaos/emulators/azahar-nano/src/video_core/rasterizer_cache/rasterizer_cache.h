@@ -128,17 +128,32 @@ void RasterizerCache<T>::TickFrame() {
 
 template <class T>
 void RasterizerCache<T>::RunGarbageCollector() {
+    // GammaOS: games re-create their render targets every frame (a memory fill
+    // invalidates the color and depth buffers, the next draw makes them again).
+    // CreateSurface recycles a sentenced surface only once the GPU is done with it,
+    // and upstream deleted such surfaces at the first collection after that. Whether
+    // a recycle could ever hit then depended on the phase between the emulated frame
+    // and GPU completion: after some scene changes every recycle missed and each frame
+    // allocated fresh device memory for the top screen buffers (~20 ms of CPU per
+    // frame in kernel page clearing), until a save state cleared the cache. Idle
+    // surfaces now stay recyclable for a few collector frames before deletion.
+    constexpr u64 RecycleWindowFrames = 8;
     const u64 resource_free_tick = runtime.GetResourceFreeTick();
+    ++gc_frame;
     for (auto it = sentenced.begin(); it != sentenced.end();) {
-        const auto [surface_id, resource_last_used_tick] = *it;
         // Tick-values less than or equal to the current resource-tick are possibly still in-use.
-        // Tick-values larger than the current resource-tick are not being utilized anymore and can
-        // be safely deleted.
-        if (resource_free_tick <= resource_last_used_tick) {
-            // Resource is still in-use, skip deletion
+        if (resource_free_tick <= it->second) {
             it++;
             continue;
         }
+        if (it->idle_since == 0) {
+            it->idle_since = gc_frame;
+        }
+        if (gc_frame - it->idle_since < RecycleWindowFrames) {
+            it++;
+            continue;
+        }
+        const SurfaceId surface_id = it->first;
         RemoveFramebuffers(surface_id);
         slot_surfaces.erase(surface_id);
         it = sentenced.erase(it);

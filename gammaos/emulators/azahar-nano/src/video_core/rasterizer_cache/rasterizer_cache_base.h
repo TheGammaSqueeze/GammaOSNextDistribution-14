@@ -220,7 +220,16 @@ private:
     tsl::robin_pg_map<u64, std::vector<SurfaceId>, Common::IdentityHash<u64>> page_table;
     std::unordered_map<FramebufferParams, FramebufferId> framebuffers;
     std::unordered_map<SamplerParams, SamplerId> samplers;
-    std::list<std::pair<SurfaceId, u64>> sentenced;
+    // GammaOS: a sentenced surface also remembers the collector frame in which the
+    // GPU was first seen done with it, so it can stay recyclable for a few frames.
+    struct SentencedSurface {
+        SentencedSurface(SurfaceId id, u64 tick) : first{id}, second{tick} {}
+        SurfaceId first;
+        u64 second;     // resource tick of its last use
+        u64 idle_since = 0; // collector frame it became idle in (0 = still in use)
+    };
+    std::list<SentencedSurface> sentenced;
+    u64 gc_frame = 1;
     Common::SlotVector<Surface> slot_surfaces;
     Common::SlotVector<Sampler> slot_samplers;
     Common::SlotVector<Framebuffer> slot_framebuffers;
