@@ -1,0 +1,53 @@
+// azahar-nano: the GammaOS Nano frontend for the Azahar 3DS core.
+//
+// The core (libazahar-nano-core.so, built out of tree from the Azahar source with
+// the NDK, see /home/gamma/azahar-nano) is dlopened through its C ABI
+// (AzaharNanoApi.h). This binary owns the panels (SurfaceFlinger or DRM), input,
+// the overlay and the session lifecycle, mirroring drastic-nano.
+
+cc_binary {
+    name: "azahar-nano",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-unused-function",
+        "-O2",
+    ],
+
+    srcs: [
+        "main.cpp",
+        "SfWindows.cpp",
+        "DrmWindows.cpp",
+        "NanoInput.cpp",
+        "Overlay.cpp",
+        "Hud.cpp",
+        "GpuDriverPkg.cpp",
+        ":drastic_nano_overlay_gfx_srcs",
+    ],
+
+    header_libs: [
+        "libdrm_headers",
+        "drastic_nano_overlay_headers",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "liblog",
+        "libutils",
+        "libui",
+        "libgui",
+        "libnativewindow",
+        "libdrm",
+        "libEGL",
+        "libGLESv2",
+        "libft2",
+        "libziparchive",
+    ],
+
+    init_rc: ["azahar-nano.rc"],
+}

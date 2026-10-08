@@ -406,7 +406,7 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
         // #90 DraStic data-folder picker (target 5): offer a reset-to-default at the top of the roots,
         // since the roots pseudo-folder has no "Select This Folder". Selecting it clears the override.
         // Same for the Boxart Folder picker (target 7): "Use Default Folder" moves the art back to internal.
-        if (mFolderPickTarget == 5 || mFolderPickTarget == 7 || mFolderPickTarget == 8) {
+        if (mFolderPickTarget == 5 || mFolderPickTarget == 7 || mFolderPickTarget == 8 || mFolderPickTarget == 9) {
             Ps3Item it; it.label = "Use Default Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = "@default";
             it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
             out.items.push_back(it);
@@ -624,6 +624,13 @@ void NanoMenu::drasticDataFolderSelect(const std::string& path) {
 // Default is <data folder>/cheats. Same rules as the data folder; folder-picker target 8.
 void NanoMenu::drasticCheatsFolderSelect(const std::string& path) {
     drasticFolderSelect("persist.gammaos.drastic.cheats_dir", "DraStic cheats folder", path);
+}
+
+// The Azahar USER data folder (saves, save states, cheats, mods), persist.gammaos.azahar.data_dir,
+// read by azahar-nano at each 3DS launch (its private root /data/system/azahar-nano keeps config,
+// nand, system files and caches). Same rules as the DraStic folder; folder-picker target 9.
+void NanoMenu::azaharDataFolderSelect(const std::string& path) {
+    drasticFolderSelect("persist.gammaos.azahar.data_dir", "Azahar data folder", path);
 }
 
 void NanoMenu::drasticFolderSelect(const char* prop, const char* what, const std::string& path) {

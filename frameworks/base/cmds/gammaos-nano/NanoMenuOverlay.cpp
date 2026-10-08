@@ -1630,6 +1630,82 @@ void NanoMenu::overlayPoll() {
 // mode). Shared by the menu launch (overlayLaunchGame) and the
 // sys.gammaos.nano.drastic_launch_rom property path, so both close the app in
 // front, clear the launcher state and fire start=1 the same way. Never returns.
+// azahar-nano variant of the hand-off below: same fade, same clean close of the app in
+// front, then sys.gammaos.azahar_nano.start=1 (init stops the home and the overlay and
+// starts the 3DS core, which takes both panels DRM-direct).
+void NanoMenu::overlayStartAzaharNano() {
+    // DRM mode: do not let the overlay respawn after we exit -- drastic-nano
+    // owns the panel now. Clear the QR prime so the home comes back plain.
+    // The dual-display RG DS uses this DRM path, unchanged.
+    //
+    // Fade the overlay XMB to black first, exactly like a normal overlay game
+    // launch. overlayLaunchCommand() (the normal path) sets mOverlayLaunchPending
+    // so render() draws the ~300ms fade-to-black (the overlay launch transition
+    // in NanoMenuRender). This branch used to _exit immediately -- a hard cut
+    // with no fade while every other game/app faded. Drive that same fade inline
+    // on the render thread (we are called from the input handler on it), then
+    // hand the panel to drastic-nano. mOverlayLaunchPending also freezes input.
+    // The hold is theme-aware (launchFadeHoldMs: the DSi tile lift + ring + wash needs
+    // ~780 ms, every other theme the 300 ms fade), and the loop is paced to the frame
+    // period rather than render + a fixed sleep (which ran the effect at ~45 fps).
+    mOverlayLaunchStartMs = uptimeMillis();
+    mOverlayLaunchPending = true;
+    const int holdMs = mNdsTheme ? launchFadeHoldMs() : 300;
+    while ((int64_t)uptimeMillis() - mOverlayLaunchStartMs < holdMs) {
+        const int64_t f0 = (int64_t)android::elapsedRealtimeNano();
+        render();
+        mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+        const int64_t spentUs = ((int64_t)android::elapsedRealtimeNano() - f0) / 1000;
+        if (spentUs < 16666) usleep((useconds_t)(16666 - spentUs));
+    }
+    // DSi theme: the process exits below, so persist the carousel nav path for the fresh
+    // home after the session (the same save the DRM home makes before its hand-off).
+    if (mNdsTheme && mPs3Xmb) ndsSaveReturnPath();
+    // The app the overlay is sitting over (a RetroArch game, say) must be gone
+    // before drastic-nano takes DRM master: left running it keeps rendering and
+    // holding the GPU and CPU under the DS session, and SurfaceFlinger keeps
+    // compositing it against the panel drastic owns. Same clean close the
+    // overlay's normal app launch performs (ESC + wait, force-stop only for a
+    // hung one), run off the render thread so the overlay keeps drawing the
+    // fade hold; the hand-off fires from that thread once the app is gone.
+    {
+        std::string old = mOverlayPausedPkg;
+        if (old.empty() && property_get_bool("sys.gammaos.nano.app_launched", false)) {
+            // The app was launched from the home, not through this overlay, so the
+            // overlay never recorded it; the framework's launch_app is the running app.
+            char la[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.nano.launch_app", la, "");
+            if (la[0] && strchr(la, '.') && strcmp(la, "com.gammaos.drasticsf") != 0) old = la;
+        }
+        mOverlayPausedPkg.clear();
+        unlink(kOverlayFrozenMarker);
+        std::thread([this, old]() {
+            property_set("sys.gammaos.nano.killing", "1");
+            overlayCloseRunningApp(old);
+            // No framework app resumes after this hand-off (drastic-nano is not an
+            // activity), so nothing else would clear the guard; left at 1 it makes
+            // RootWindowContainer skip every later home and app launch.
+            property_set("sys.gammaos.nano.killing", "0");
+            property_set("sys.gammaos.nano.overlay_ran", "0");
+            property_set("sys.gammaos.nano.app_launched", "0");
+            property_set("sys.gammaos.nano.show_overlay", "0");
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            ALOGW("azahar nano: overlay launch -> azahar-nano (DRM), %s closed",
+                  old.empty() ? "no app" : old.c_str());
+            property_set("sys.gammaos.azahar_nano.start", "1");
+            _exit(0);
+        }).detach();
+    }
+    // Keep the fade hold on screen until the worker exits the process.
+    for (;;) {
+        const int64_t f0 = (int64_t)android::elapsedRealtimeNano();
+        render();
+        mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+        const int64_t spentUs = ((int64_t)android::elapsedRealtimeNano() - f0) / 1000;
+        if (spentUs < 16666) usleep((useconds_t)(16666 - spentUs));
+    }
+}
+
 void NanoMenu::overlayStartDrasticNano() {
     // DRM mode: do not let the overlay respawn after we exit -- drastic-nano
     // owns the panel now. Clear the QR prime so the home comes back plain.
@@ -1803,6 +1879,14 @@ void NanoMenu::overlayLaunchGame() {
             return;
         }
         overlayStartDrasticNano();
+    }
+    // GammaOS: azahar-nano intercept for the resident overlay launcher (the native
+    // 3DS core instead of the Azahar APK activity), mirroring the home XMB path.
+    if (standalone && isAzaharPackage(launchPkg) &&
+        property_get_bool("persist.gammaos.nano.azahar_nano", true)) {
+        setAzaharNanoRomPath(romPath);
+        property_set("persist.gammaos.nano.qr_prepared", "0");
+        overlayStartAzaharNano();
     }
 
     std::string pkg, cmd;

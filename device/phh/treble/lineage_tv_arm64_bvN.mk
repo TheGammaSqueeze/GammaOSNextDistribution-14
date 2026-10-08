@@ -150,6 +150,20 @@ PRODUCT_COPY_FILES += \
     gammaos/emulators/drastic-nano-lib/libdrastic_arm64.so:system/lib64/libdrastic_arm64.so \
     gammaos/emulators/drastic-nano-lib/libdrastic_cpu.so:system/lib64/libdrastic_cpu.so
 
+# azahar-nano: the native 3DS core (Azahar azahar-2126 built with the NDK behind a C ABI)
+# and the adrenotools hook libraries for custom GPU drivers live directly in /system/lib64
+# (the system binary's linker namespace does not permit subdirectories). The frontend is
+# the azahar-nano Soong binary; its user data lives in /data/system/azahar-nano (private
+# root: config, nand, system files, shader cache) and /sdcard/azahar-nano (saves, states).
+PRODUCT_PACKAGES += azahar-nano
+PRODUCT_COPY_FILES += \
+    gammaos/emulators/azahar-nano-lib/libazahar-nano-core.so:system/lib64/libazahar-nano-core.so \
+    gammaos/emulators/azahar-nano-lib/libc++_shared.so:system/lib64/libc++_shared.so \
+    gammaos/emulators/azahar-nano-lib/libmain_hook.so:system/lib64/libmain_hook.so \
+    gammaos/emulators/azahar-nano-lib/libfile_redirect_hook.so:system/lib64/libfile_redirect_hook.so \
+    gammaos/emulators/azahar-nano-lib/libgsl_alloc_hook.so:system/lib64/libgsl_alloc_hook.so \
+    gammaos/emulators/azahar-nano-lib/libhook_impl.so:system/lib64/libhook_impl.so
+
 # GammaOS first-boot setup: data-driven app list for setup.sh, pre-installed helper apps
 # (dex-preopted at build time), the zstd decompressor for the setup payloads, and the
 # build-time replacements for setup.sh's per-app grant/allowlist commands.

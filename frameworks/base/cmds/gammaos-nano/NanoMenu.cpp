@@ -4571,6 +4571,26 @@ if (sRingPrimedCount >= 2) {
             }
         }
 
+        // azahar-nano test hook: sys.gammaos.nano.azahar_launch_rom=<path> launches a 3DS ROM
+        // through the exact handoff a menu selection takes (same shape as drastic_launch_rom).
+        if (!mAzaharNanoPending) {
+            char lr[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.nano.azahar_launch_rom", lr, "");
+            if (lr[0]) {
+                property_set("sys.gammaos.nano.azahar_launch_rom", "");
+                std::string rp = lr;
+                if (rp[0] != '/') rp = std::string("/sdcard/ROMs/3ds/") + rp;
+                if (access(rp.c_str(), R_OK) == 0) {
+                    setAzaharNanoRomPath(rp);
+                    ALOGW("azahar nano: prop azahar_launch_rom -> %s", rp.c_str());
+                    if (mOverlayMode) overlayStartAzaharNano();
+                    mAzaharNanoPending = true;
+                } else {
+                    ALOGW("azahar nano: azahar_launch_rom path not readable: %s", rp.c_str());
+                }
+            }
+        }
+
         // GammaOS: Drastic Nano cache-wait + restart. When
         // launchXmbGame() sets mDrasticNanoPending, show
         // "Preparing..." while polling cache_ready. Once the
@@ -4578,6 +4598,37 @@ if (sRingPrimedCount >= 2) {
         // NanoMenu into the QR fast path with DRM-direct rendering.
         // DrasticRunner dlopen is one-shot per process lifetime, so
         // we must restart rather than re-init in the same process.
+        if (mAzaharNanoPending) {
+            // GammaOS: hand off to the azahar-nano binary (native 3DS core). Same shape
+            // as the drastic-nano handoff below: play the launch effect inline, then
+            // clear the stale standalone launch state (launch_app = the Azahar APK,
+            // launch_intent = file) so a later sleep/wake startHome pass does not start
+            // the APK, pull the start trigger and exit. init's trigger stops this home
+            // and starts azahar-nano; session_done=1 brings the home back (DRM-direct
+            // again via the drm_home_resume -> force_drm rule in azahar-nano.rc).
+            if (mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+            if ((int64_t)uptimeMillis() - mLaunchFadeStart < launchFadeHoldMs()) {
+                render();
+                mRenderHeartbeat.fetch_add(1, std::memory_order_relaxed);
+                continue;
+            }
+            if (mNdsTheme && mPs3Xmb) ndsSaveReturnPath();
+            ALOGW("azahar nano: starting azahar-nano binary");
+            android::base::SetProperty("sys.gammaos.nano.launch_app", "");
+            android::base::SetProperty("sys.gammaos.nano.launched_pkg", "");
+            android::base::SetProperty("sys.gammaos.nano.launch_intent", "");
+            setLaunchRomPath("");
+            android::base::SetProperty("sys.gammaos.nano.launch_core", "");
+            if (mOverlayMode) {
+                property_set("sys.gammaos.nano.overlay_ran", "0");
+                property_set("sys.gammaos.nano.app_launched", "0");
+                property_set("sys.gammaos.nano.show_overlay", "0");
+            }
+            property_set("sys.gammaos.nano.drop_input", "1");
+            property_set("sys.gammaos.azahar_nano.start", "1");
+            _exit(0);
+        }
+
         if (mDrasticNanoPending) {
             // GammaOS: hand off to the drastic-nano binary instead of
             // re-entering the in-process DrasticRunner preview path.

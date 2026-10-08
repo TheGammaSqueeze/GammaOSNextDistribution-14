@@ -111,3 +111,14 @@ cc_binary {
 
     init_rc: ["drastic-nano.rc"],
 }
+
+// OverlayGfx (GLES2 + FreeType menu drawing) is shared with azahar-nano.
+filegroup {
+    name: "drastic_nano_overlay_gfx_srcs",
+    srcs: ["OverlayGfx.cpp"],
+}
+
+cc_library_headers {
+    name: "drastic_nano_overlay_headers",
+    export_include_dirs: ["."],
+}

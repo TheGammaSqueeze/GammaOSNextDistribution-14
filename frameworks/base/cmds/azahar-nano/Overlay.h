@@ -1,0 +1,109 @@
+// Overlay: the in-game menu of azahar-nano (short press of the Back/menu key).
+//
+// The core is paused while the menu is open. The menu renders with GLES2 (the
+// drastic-nano OverlayGfx helper: FreeType text, rects, panels) into its own
+// ANativeWindow, which the DRM presenter scans out on the top panel in place of
+// the core's frames (DrmWindows::setOverlayActive). Drawing happens on demand
+// (every state change), so the presenter simply holds the last frame.
+//
+// Pages: the top page (resume, save states, exit) and option pages (Video,
+// Audio, System, Controls) whose rows map to config.ini keys of the Azahar app,
+// written through the core's config writer and applied with a settings reload.
+#pragma once
+
+#include <EGL/egl.h>
+#include <functional>
+#include <string>
+#include <vector>
+
+#include "OverlayGfx.h"
+
+struct ANativeWindow;
+
+namespace azahar_nano {
+
+struct OverlayActions {
+    std::function<void()> resume;                       // close the menu, unpause
+    std::function<void(int slot)> saveState;
+    std::function<void(int slot)> loadState;
+    std::function<void()> exitGame;
+    // config.ini access + live reload (azn_set_config_value / azn_reload_settings)
+    std::function<std::string(const char* section, const char* key)> getConfig;
+    std::function<void(const char* section, const char* key, const char* value)> setConfig;
+    std::function<void()> reloadSettings;
+    // persistent frontend properties (GPU driver, pad layout, counters)
+    std::function<void(const char* prop, const char* value)> setProp;
+    std::function<std::string(const char* prop, const char* def)> getProp;
+    std::function<void(bool nintendo)> setNintendoLayout;
+};
+
+class Overlay {
+public:
+    bool init(ANativeWindow* win, int bufW, int bufH, bool upright, const OverlayActions& a,
+              const std::string& dataDir);
+    void shutdown();
+
+    void open();
+    void close();
+    bool isOpen() const { return mOpen; }
+
+    // AZN_* button codes; returns true when consumed (always while open).
+    bool onButton(int button, bool pressed);
+
+    // Draws the current state and presents it (any thread; the EGL context is
+    // bound for the call and released after).
+    void render();
+
+private:
+    enum RowKind { ROW_ACTION, ROW_CHOICE, ROW_PAGE };
+    struct Choice {
+        std::string label;
+        std::string value;   // config / property value
+    };
+    struct Row {
+        std::string label;
+        RowKind kind = ROW_ACTION;
+        std::vector<Choice> choices;        // ROW_CHOICE
+        int sel = 0;
+        std::function<void()> activate;     // ROW_ACTION / ROW_PAGE
+        std::function<void(int)> change;    // ROW_CHOICE: new index
+        std::string hint;
+        int page = -1;                      // ROW_PAGE target
+    };
+    struct Page {
+        std::string title;
+        std::vector<Row> rows;
+        int cursor = 0;
+    };
+    // Row builders
+    Row configChoice(const char* label, const char* section, const char* key,
+                     std::vector<Choice> choices, const char* hint, bool restart = false);
+    Row configToggle(const char* label, const char* section, const char* key, const char* hint,
+                     bool restart = false);
+    Row propChoice(const char* label, const char* prop, const char* def, std::vector<Choice> choices,
+                   const char* hint, std::function<void(const std::string&)> onChange = nullptr);
+    void buildPages();
+    void scanGpuDrivers();
+    bool makeCurrent();
+
+    OverlayActions mA;
+    std::string mDataDir;
+    std::vector<Page> mPages;
+    std::vector<int> mStack;             // page navigation stack (indices into mPages)
+    int mSlot = 1;
+    std::vector<std::string> mDrivers;   // "" = system driver, else folder name
+    std::vector<std::string> mDriverZips; // importable packages (full paths)
+    bool mOpen = false;
+    bool mRebuildPages = false;
+    bool mUpright = false;
+    int mBufW = 0, mBufH = 0;
+    std::string mBanner;
+
+    EGLDisplay mDpy = EGL_NO_DISPLAY;
+    EGLSurface mSurf = EGL_NO_SURFACE;
+    EGLContext mCtx = EGL_NO_CONTEXT;
+    android::drastic_gfx::OverlayGfx mGfx;
+    bool mGfxReady = false;
+};
+
+} // namespace azahar_nano

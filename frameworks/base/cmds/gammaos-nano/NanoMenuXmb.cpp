@@ -271,8 +271,26 @@ static const SystemDef kXmbSystemDefs[] = {
      0.50f, 0.50f, 0.50f, ".ngp,.ngc,.npc"},
     {"PICO-8",          "P-8",  "pico8",        "fake08_libretro_android.so",                "", "",
      1.00f, 0.00f, 0.30f, ".p8,.png"},
+    // Nintendo 3DS: launched through the native azahar-nano core (the Azahar family
+    // package is intercepted in launchXmbGame when persist.gammaos.nano.azahar_nano is
+    // on, the default); the intent is the stock Azahar activity for the opt-out case.
+    // Appended last so the embedded icon table indices of the older entries stay put;
+    // its icon is the LibretroDB one (see the iconRef override below).
+    {"Nintendo 3DS",    "3DS",  "3ds",          "",
+     "org.azahar_emu.azahar",
+     "-n org.azahar_emu.azahar/org.citra.citra_emu.activities.EmulationActivity -a android.intent.action.VIEW -d {file.uri} --activity-clear-task --activity-clear-top",
+     0.80f, 0.10f, 0.10f, ".3ds,.cci,.cxi,.zcci,.zcxi,.3dsx"},
 };
 static const int kNumXmbSystemDefs = sizeof(kXmbSystemDefs) / sizeof(kXmbSystemDefs[0]);
+
+// Icon ref for a built-in entry: the embedded 18-icon table for the original
+// systems, a LibretroDB icon for the ones appended later.
+static std::string builtinIconRef(int idx) {
+    if (strcmp(kXmbSystemDefs[idx].romDir, "3ds") == 0) return "retroarch:Nintendo_-_Nintendo_3DS";
+    char ref[24];
+    snprintf(ref, sizeof(ref), "builtin:%d", idx);
+    return ref;
+}
 
 // Defined further down (next to the scan code); forward-declared here so
 // buildScanCandidates (which precedes it) can use it.
@@ -724,6 +742,41 @@ bool NanoMenu::loadSystemsConfig() {
     }
     if (mXmbSystems.empty()) return false;
 
+    // Built-in systems added after this config was written (the 3DS entry) are
+    // appended at the end, enabled, so existing installs see them without a reset.
+    {
+        bool added = false;
+        int maxOrder = 0;
+        ALOGI("NanoMenu: built-in merge check: %d defs, %zu loaded systems", kNumXmbSystemDefs,
+              mXmbSystems.size());
+        for (const auto& sys : mXmbSystems) maxOrder = std::max(maxOrder, sys.order);
+        for (int i = 0; i < kNumXmbSystemDefs; i++) {
+            bool present = false;
+            for (const auto& sys : mXmbSystems) if (sys.id == kXmbSystemDefs[i].romDir) { present = true; break; }
+            if (present) continue;
+            XmbSystem sys;
+            sys.id = kXmbSystemDefs[i].romDir;
+            sys.builtin = true;
+            sys.enabled = true;
+            sys.order = ++maxOrder;
+            sys.name = kXmbSystemDefs[i].name;
+            sys.shortname = kXmbSystemDefs[i].shortname;
+            sys.romDir = kXmbSystemDefs[i].romDir;
+            sys.coreSo = kXmbSystemDefs[i].coreSo;
+            sys.launchPkg = kXmbSystemDefs[i].launchPkg;
+            sys.launchIntent = kXmbSystemDefs[i].launchIntent;
+            sys.launchType = (kXmbSystemDefs[i].launchPkg[0] != '\0') ? XLT_CUSTOM_PACKAGE : XLT_LIBRETRO_CORE;
+            sys.packageName = kXmbSystemDefs[i].launchPkg;
+            sys.iconR = sys.iconG = sys.iconB = 1.0f;
+            sys.acceptExts = kXmbSystemDefs[i].acceptExts;
+            sys.iconRef = builtinIconRef(i);
+            ALOGI("NanoMenu: adding new built-in system %s to nano_systems.json", sys.id.c_str());
+            mXmbSystems.push_back(std::move(sys));
+            added = true;
+        }
+        if (added) saveSystemsConfig();
+    }
+
     // Honor the explicit per-system order within the Game category.
     std::stable_sort(mXmbSystems.begin(), mXmbSystems.end(),
                      [](const XmbSystem& a, const XmbSystem& b) {
@@ -760,9 +813,7 @@ void NanoMenu::seedSystemsConfig() {
         // look; the Icon Tint editor lets users colour individual systems.
         sys.iconR = sys.iconG = sys.iconB = 1.0f;
         sys.acceptExts = kXmbSystemDefs[i].acceptExts;
-        char ref[24];
-        snprintf(ref, sizeof(ref), "builtin:%d", i);
-        sys.iconRef = ref;
+        sys.iconRef = builtinIconRef(i);
         mXmbSystems.push_back(std::move(sys));
     }
     ALOGI("NanoMenu: seeding nano_systems.json from %d built-in defaults",
@@ -839,7 +890,7 @@ bool NanoMenu::resetSystemToBuiltinDefaults(int sysIdx) {
     sys.acceptExts = def.acceptExts;
     sys.scanSources.clear();
     sys.disabledDefaultFolders.clear();
-    char ref[24]; snprintf(ref, sizeof(ref), "builtin:%d", idx); sys.iconRef = ref;
+    sys.iconRef = builtinIconRef(idx);
     sys.scanned = false;
     loadRomCacheForSystem(sys);
     ALOGI("ps3menu: reset system %s to built-in defaults", sys.id.c_str());
@@ -2411,6 +2462,12 @@ bool NanoMenu::coreSoExists(const std::string& coreSo) {
 // than mAppEntries, which drops system/com.android.*/com.gammaos.* packages an emulator may live in.
 // Fails OPEN (returns true) if the list is unreadable, so a transient state never blocks a launch.
 bool NanoMenu::packageInstalled(const std::string& pkg) {
+    // The 3DS core ships in the image (azahar-nano): a system that names an Azahar
+    // family package launches through it, so the APK does not have to be installed.
+    if (isAzaharPackage(pkg) && property_get_bool("persist.gammaos.nano.azahar_nano", true) &&
+        access("/system/bin/azahar-nano", X_OK) == 0) {
+        return true;
+    }
     if (pkg.empty()) return true;
     // DS games route to drastic-nano, which runs libdrastic from /system and no
     // longer needs the DraStic APK: the system copy counts as "installed".
@@ -2939,6 +2996,22 @@ void NanoMenu::launchXmbGame() {
                 mOskActive = false;
                 return;
             }
+        } else if (isAzaharPackage(sys.launchPkg) &&
+                   property_get_bool("persist.gammaos.nano.azahar_nano", true)) {
+            // GammaOS: azahar-nano intercept. The native 3DS core (azahar-nano binary,
+            // DRM-direct on both panels) takes the launch instead of the Azahar APK
+            // activity. It reads the ROM path from nano_azahar_nano_rom.txt; the
+            // handoff itself (launch effect, then sys.gammaos.azahar_nano.start=1)
+            // runs in the main loop like the drastic-nano one.
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            android::base::SetProperty("persist.gammaos.nano.qr_core", "");
+            setAzaharNanoRomPath(romPath);
+            ALOGW("azahar nano: XMB system launch of %s", romPath.c_str());
+            addXmbRecent(sysIdx, gameIdx);
+            mAzaharNanoPending = true;
+            mSearchActive = false;
+            mOskActive = false;
+            return;
         } else {
             // Non-drastic standalone (PPSSPP, etc.): clear any stale QR
             // prime so the next nano start does not auto-resume an

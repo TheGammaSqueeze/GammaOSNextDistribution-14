@@ -175,6 +175,20 @@ inline void setDrasticNanoRomPath(const std::string& romPath) {
     writePathFile("/data/system/nano_drastic_nano_rom.txt", romPath);
 }
 
+// azahar-nano ROM path (the native 3DS core, frameworks/base/cmds/azahar-nano): read by
+// the binary at start when it is launched without an argument.
+inline void setAzaharNanoRomPath(const std::string& romPath) {
+    writePathFile("/data/system/nano_azahar_nano_rom.txt", romPath);
+}
+
+// A system launched through one of the Azahar family packages is routed to azahar-nano
+// when persist.gammaos.nano.azahar_nano is on (default on, like the DS core).
+inline bool isAzaharPackage(const std::string& pkg) {
+    return pkg == "io.github.lime3ds.android" || pkg == "org.azahar_emu.azahar" ||
+           pkg == "io.github.azaharplus.android" || pkg == "org.citra.citra_emu" ||
+           pkg == "org.citra.emu";
+}
+
 // GammaOS: returns true when ALL storage RetroArch needs is mounted.
 //
 // Two independent gates:
