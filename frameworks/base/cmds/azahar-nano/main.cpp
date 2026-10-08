@@ -161,11 +161,26 @@ void onTerm(int) {
 // linker): restored before re-raising so a crash still leaves a tombstone.
 struct sigaction gPrevCrashAction[NSIG];
 
-void crashCleanup(int sig) {
-    ALOGE("crash signal %d, returning to the home", sig);
+void crashCleanup(int sig, siginfo_t* info, void* ctx) {
+    ALOGE("crash signal %d (code %d, addr %p) on thread %d, returning to the home", sig,
+          info ? info->si_code : 0, info ? info->si_addr : nullptr, gettid());
     sessionDone();
-    if (sig > 0 && sig < NSIG) sigaction(sig, &gPrevCrashAction[sig], nullptr);
-    else signal(sig, SIG_DFL);
+    // Hand the original signal to debuggerd's handler so the tombstone shows the
+    // real fault (re-raising would record our own tgkill instead).
+    if (sig > 0 && sig < NSIG) {
+        const struct sigaction& prev = gPrevCrashAction[sig];
+        sigaction(sig, &prev, nullptr);
+        if ((prev.sa_flags & SA_SIGINFO) && prev.sa_sigaction) {
+            prev.sa_sigaction(sig, info, ctx);
+            return;
+        }
+        if (prev.sa_handler != SIG_DFL && prev.sa_handler != SIG_IGN && prev.sa_handler) {
+            prev.sa_handler(sig);
+            return;
+        }
+    } else {
+        signal(sig, SIG_DFL);
+    }
     raise(sig);
 }
 
@@ -174,9 +189,9 @@ void installCrashHandlers() {
     // faults outside the JIT, so it must be in place before the core runs.
     for (int sig : {SIGSEGV, SIGBUS, SIGABRT, SIGILL, SIGFPE}) {
         struct sigaction sa{};
-        sa.sa_handler = crashCleanup;
+        sa.sa_sigaction = crashCleanup;
         sigemptyset(&sa.sa_mask);
-        sa.sa_flags = 0;
+        sa.sa_flags = SA_SIGINFO | SA_ONSTACK;
         sigaction(sig, &sa, &gPrevCrashAction[sig]);
     }
 }
