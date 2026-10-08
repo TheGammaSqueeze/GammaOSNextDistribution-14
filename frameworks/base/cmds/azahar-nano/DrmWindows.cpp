@@ -439,7 +439,9 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
     // compressed, which the GPU renders into with far less memory traffic; the
     // framebuffer then carries the QCOM compression modifier (importFb).
     p.bufUsage = GRALLOC_USAGE_HW_COMPOSER | GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_HW_TEXTURE;
-    if (!property_get_bool("persist.gammaos.azahar_nano.ubwc", false)) {
+    // Part of the GammaOS tweaks (on by default); the ubwc property overrides it.
+    const bool tweaks = property_get_bool("persist.gammaos.azahar_nano.tweaks", true);
+    if (!property_get_bool("persist.gammaos.azahar_nano.ubwc", tweaks)) {
         p.bufUsage |= GRALLOC_USAGE_SW_READ_RARELY;
     }
     p.consumer = new BufferItemConsumer(consumer, p.bufUsage, 2 + kMaxReady, false);
