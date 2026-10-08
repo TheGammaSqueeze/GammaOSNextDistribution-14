@@ -86,6 +86,7 @@ struct CoreApi {
     void (*set_deadline_pacing)(int) = nullptr;
     void (*set_pace_scale)(double) = nullptr;
     void (*set_tweaks)(int, int) = nullptr;
+    void (*set_tweak)(const char*, int) = nullptr;
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -132,6 +133,7 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.set_deadline_pacing, "azn_set_deadline_pacing");
     ok &= sym(gCore.set_pace_scale, "azn_set_pace_scale");
     ok &= sym(gCore.set_tweaks, "azn_set_tweaks");
+    ok &= sym(gCore.set_tweak, "azn_set_tweak");
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -496,6 +498,11 @@ int main(int argc, char** argv) {
     // GammaOS tweaks (persist.gammaos.azahar_nano.tweaks, default on): renderer side.
     gCore.set_tweaks(prop("persist.gammaos.azahar_nano.tweaks", "1") == "1" ? 1 : 0,
                      prop("persist.gammaos.azahar_nano.vertex_depth", "0") == "1" ? 1 : 0);
+    {
+        const bool tweaks = prop("persist.gammaos.azahar_nano.tweaks", "1") == "1";
+        gCore.set_tweak("renderpass_clears",
+                        tweaks && prop("persist.gammaos.azahar_nano.rp_clears", "1") == "1" ? 1 : 0);
+    }
     sStatesDir = dataDir + "/states";
     seedConfig(userDir);
 
