@@ -38,6 +38,8 @@
 #include <thread>
 #include <fstream>
 #include <string>
+#include <algorithm>
+#include <vector>
 
 #include <cutils/properties.h>
 #include <log/log.h>
@@ -329,6 +331,51 @@ static void migrateStrandedUserFolder(const std::string& userDir, const std::str
     ALOGI("migrate: %d file(s) from %s into %s", n, stranded.c_str(), dataDir.c_str());
 }
 
+// Before a slot is overwritten, keep the previous file under states/backup/ as
+// <name>.<YYYYmmdd-HHMMSS>, the last kStateBackups per slot. A bad save (wrong
+// scene, a crash mid-write) then never costs the player their only copy.
+constexpr int kStateBackups = 5;
+static std::string sStatesDir;
+
+static void backupStateSlot(int slot) {
+    if (sStatesDir.empty() || slot <= 0) return;
+    char suffix[16];
+    snprintf(suffix, sizeof(suffix), ".%02d.cst", slot);
+    const std::string backupDir = sStatesDir + "/backup";
+    DIR* d = opendir(sStatesDir.c_str());
+    if (!d) return;
+    std::vector<std::string> slotFiles;
+    while (dirent* e = readdir(d)) {
+        const std::string n = e->d_name;
+        if (n.size() > strlen(suffix) && n.compare(n.size() - strlen(suffix), strlen(suffix), suffix) == 0)
+            slotFiles.push_back(n);
+    }
+    closedir(d);
+    if (slotFiles.empty()) return;
+    mkdir(backupDir.c_str(), 0775);
+    char stamp[32];
+    const time_t now = time(nullptr);
+    struct tm tmv{};
+    localtime_r(&now, &tmv);
+    strftime(stamp, sizeof(stamp), "%Y%m%d-%H%M%S", &tmv);
+    for (const auto& n : slotFiles) {
+        const std::string dst = backupDir + "/" + n + "." + stamp;
+        if (copyFileTo(sStatesDir + "/" + n, dst)) ALOGI("state backup: %s", dst.c_str());
+        else ALOGE("state backup of %s failed", n.c_str());
+        // Prune: keep the newest kStateBackups for this file name.
+        std::vector<std::string> olds;
+        if (DIR* b = opendir(backupDir.c_str())) {
+            while (dirent* e = readdir(b)) {
+                const std::string bn = e->d_name;
+                if (bn.rfind(n + ".", 0) == 0) olds.push_back(bn);
+            }
+            closedir(b);
+        }
+        std::sort(olds.begin(), olds.end());   // the stamp sorts by time
+        for (size_t i = 0; i + kStateBackups < olds.size(); i++) unlink((backupDir + "/" + olds[i]).c_str());
+    }
+}
+
 void seedConfig(const std::string& userDir) {
     // The core writes a config.ini with empty (default) values on its first load,
     // so seed on empty values rather than on a missing file; a value the user set
@@ -429,6 +476,7 @@ int main(int argc, char** argv) {
         gCore.set_user_folder(dataDir.c_str());
     }
     ALOGI("private root %s, user folder %s", userDir.c_str(), dataDir.c_str());
+    sStatesDir = dataDir + "/states";
     seedConfig(userDir);
 
     // GPU driver: the adrenotools hook libraries ship next to the core; a custom
@@ -522,6 +570,7 @@ int main(int argc, char** argv) {
             gCore.pause(false);
         };
         oa.saveState = [](int slot) {
+            backupStateSlot(slot);
             // The request is processed by the emulation loop, so unpause first.
             overlay.close();
             sDrm->setOverlayActive(0, false);
@@ -576,11 +625,16 @@ int main(int argc, char** argv) {
     icb.joystick = [](int a, float x, float y) { return gCore.joystick(a, x, y); };
     icb.analogButton = [](int a, float v) { return gCore.analog_button(a, v); };
     const bool touchOnSecondary = bottom != nullptr;
+    // Touch arrives in panel pixels; the core's layout is in window (buffer) pixels.
+    static float sTouchScale = 1.0f;
+    if (sDrm) sTouchScale = sDrm->renderScale(touchOnSecondary ? 1 : 0);
     icb.touch = [touchOnSecondary](float x, float y, bool p) {
+        x *= sTouchScale; y *= sTouchScale;
         if (touchOnSecondary) gCore.secondary_touch(x, y, p);
         else gCore.touch(x, y, p);
     };
     icb.touchMoved = [touchOnSecondary](float x, float y) {
+        x *= sTouchScale; y *= sTouchScale;
         if (touchOnSecondary) gCore.secondary_touch_moved(x, y);
         else gCore.touch_moved(x, y);
     };

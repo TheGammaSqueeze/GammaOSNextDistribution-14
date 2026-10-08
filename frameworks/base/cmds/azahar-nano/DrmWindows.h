@@ -43,6 +43,8 @@ struct DrmPanel {
     uint32_t height = 0;
     bool isDsi = false;
     double refreshHz = 60.0;   // from the mode timings
+    uint32_t bufW = 0, bufH = 0;   // game buffer size (render_scale)
+    float renderScale = 1.0f;
     // plane props
     uint32_t pFbId = 0, pCrtcId = 0, pSrcX = 0, pSrcY = 0, pSrcW = 0, pSrcH = 0;
     uint32_t pCrtcX = 0, pCrtcY = 0, pCrtcW = 0, pCrtcH = 0, pInFence = 0, pRotation = 0;
@@ -138,6 +140,7 @@ public:
     // Page flips shown on a panel so far (the on-screen BLIT rate is its derivative).
     uint64_t flipCount(int idx) const { return mPanels[idx].flips; }
     double refreshHz(int idx) const { return mPanels[idx].refreshHz; }
+    float renderScale(int idx) const { return mPanels[idx].renderScale; }
     // Mean interval between consecutive page flips (ns), 0 until measured.
     double measuredPeriodNs(int idx) const { return mPanels[idx].measuredPeriodNs->load(); }
 

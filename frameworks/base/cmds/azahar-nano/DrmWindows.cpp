@@ -360,7 +360,20 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
                                             GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_RARELY,
                                         2 + kMaxReady, false);
     p.consumer->setName(String8(idx == 0 ? "azahar-nano-top" : "azahar-nano-bottom"));
-    p.consumer->setDefaultBufferSize(p.width, p.height);
+    // Optional reduced output size: the core draws its final image into smaller
+    // buffers and the display plane scales them up to the panel (SRC < CRTC), so
+    // the GPU skips most of the full-panel output pass.
+    // persist.gammaos.azahar_nano.render_scale_top / _bottom: percent, 50..100.
+    {
+        const int pct = std::clamp(property_get_int32(idx == 0 ? "persist.gammaos.azahar_nano.render_scale_top"
+                                                               : "persist.gammaos.azahar_nano.render_scale_bottom",
+                                                      100), 50, 100);
+        p.bufW = std::max<uint32_t>(2, (p.width * pct / 100) & ~1u);
+        p.bufH = std::max<uint32_t>(2, (p.height * pct / 100) & ~1u);
+        p.renderScale = (float)p.bufW / (float)p.width;
+        ALOGI("DRM: panel %d output %ux%u for %ux%u (%d%%)", idx, p.bufW, p.bufH, p.width, p.height, pct);
+    }
+    p.consumer->setDefaultBufferSize(p.bufW, p.bufH);
     p.consumer->setDefaultBufferFormat(PIXEL_FORMAT_RGBA_8888);
     // ConsumerBase keeps only a weak reference to the listener: hold it here.
     p.wakeFd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
