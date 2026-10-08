@@ -516,7 +516,7 @@ int main(int argc, char** argv) {
     ALOGI("private root %s, user folder %s", userDir.c_str(), dataDir.c_str());
     // GammaOS tweaks (persist.gammaos.azahar_nano.tweaks, default on): renderer side.
     gCore.set_tweaks(prop("persist.gammaos.azahar_nano.tweaks", "1") == "1" ? 1 : 0,
-                     0 /* vertex depth renders Super Mario 3D Land incorrectly: never enabled */);
+                     prop("persist.gammaos.azahar_nano.vertex_depth", "1") == "1" ? 1 : 0);
     {
         const bool tweaks = prop("persist.gammaos.azahar_nano.tweaks", "1") == "1";
         gCore.set_tweak("hw_scissor",
