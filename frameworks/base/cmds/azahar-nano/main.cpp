@@ -155,11 +155,28 @@ void onTerm(int) {
     _exit(0);
 }
 
+// The handlers that were in place before ours (debuggerd's, installed by the
+// linker): restored before re-raising so a crash still leaves a tombstone.
+struct sigaction gPrevCrashAction[NSIG];
+
 void crashCleanup(int sig) {
     ALOGE("crash signal %d, returning to the home", sig);
     sessionDone();
-    signal(sig, SIG_DFL);
+    if (sig > 0 && sig < NSIG) sigaction(sig, &gPrevCrashAction[sig], nullptr);
+    else signal(sig, SIG_DFL);
     raise(sig);
+}
+
+void installCrashHandlers() {
+    // A dynarmic fastmem handler installed later chains back to this one for
+    // faults outside the JIT, so it must be in place before the core runs.
+    for (int sig : {SIGSEGV, SIGBUS, SIGABRT, SIGILL, SIGFPE}) {
+        struct sigaction sa{};
+        sa.sa_handler = crashCleanup;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = 0;
+        sigaction(sig, &sa, &gPrevCrashAction[sig]);
+    }
 }
 
 std::string readRomPath(int argc, char** argv) {
@@ -366,11 +383,7 @@ void onLog(void*, int level, const char* cls, const char* msg) {
 } // namespace
 
 int main(int argc, char** argv) {
-    signal(SIGSEGV, crashCleanup);
-    signal(SIGBUS, crashCleanup);
-    signal(SIGABRT, crashCleanup);
-    signal(SIGILL, crashCleanup);
-    signal(SIGFPE, crashCleanup);
+    installCrashHandlers();
     signal(SIGTERM, onTerm);
     signal(SIGINT, onTerm);
     umask(0002);
