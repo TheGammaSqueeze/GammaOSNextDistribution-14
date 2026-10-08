@@ -1,3 +1,5 @@
+#include <mutex>
+#include <unordered_set>
 #include <chrono>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
@@ -290,6 +292,23 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
     const auto build_start = std::chrono::steady_clock::now();
     auto result = instance.GetDevice().createGraphicsPipelineUnique(pipeline_cache, pipeline_info);
     if (!fail_on_compile_required) {
+        // GammaOS: split build time by whether this shader trio was built before.
+        static std::mutex seen_mutex;
+        static std::unordered_set<u64> seen_trios;
+        u64 trio = 0;
+        for (const Shader* sh : stages) {
+            trio = trio * 1099511628211ULL ^ reinterpret_cast<u64>(sh);
+        }
+        bool repeat;
+        {
+            std::scoped_lock lk{seen_mutex};
+            repeat = !seen_trios.insert(trio).second;
+        }
+        const u64 us = static_cast<u64>(std::chrono::duration_cast<std::chrono::microseconds>(
+                                            std::chrono::steady_clock::now() - build_start)
+                                            .count());
+        GammaStats::Add(repeat ? GammaStats::PipeRepeatBuilds : GammaStats::PipeFirstBuilds);
+        GammaStats::Add(repeat ? GammaStats::PipeRepeatUs : GammaStats::PipeFirstUs, us);
         GammaStats::Add(GammaStats::PipeBuildUs,
                         static_cast<u64>(std::chrono::duration_cast<std::chrono::microseconds>(
                                              std::chrono::steady_clock::now() - build_start)

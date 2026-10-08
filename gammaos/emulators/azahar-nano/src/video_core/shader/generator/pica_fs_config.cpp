@@ -47,12 +47,22 @@ void FramebufferConfig::ApplyProfile(const Profile& profile) {
     // Emulate logic op in the shader if needed and not supported.
     if (!profile.has_logic_op && !alphablend_enable) {
         logic_op.Assign(requested_logic_op);
+    } else {
+        // GammaOS: the requested op is not used by the shader then; keep it out of the key.
+        requested_logic_op = Pica::FramebufferRegs::LogicOp::Copy;
     }
 
     // Check if we don't need blend min/max emulation.
     if ((profile.has_blend_minmax_factor || profile.is_vulkan) && alphablend_enable) {
         requested_rgb_blend.SetMinMaxEmulationDisabled();
         requested_alpha_blend.SetMinMaxEmulationDisabled();
+    }
+    // GammaOS: without min/max emulation the shader never reads the blend factors
+    // (the pipeline's blend state does the blending); keep them out of the key.
+    if (!requested_rgb_blend.RequiresMinMaxEmulation() &&
+        !requested_alpha_blend.RequiresMinMaxEmulation()) {
+        requested_rgb_blend = {};
+        requested_alpha_blend = {};
     }
 }
 

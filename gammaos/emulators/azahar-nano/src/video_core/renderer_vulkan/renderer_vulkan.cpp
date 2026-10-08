@@ -1328,7 +1328,7 @@ void RendererVulkan::SwapBuffers() {
                      "pass breaks with only the render area changed {:.1f} | draws z {:.1f} w {:.1f} "
                      "shadow {:.1f} alphatest {:.1f} blend {:.1f} | cmd lists {:.1f} top {:.1f} "
                      "blocked {:.2f} transfers {:.1f} blocked {:.2f} | enabled {} | pipelines fast {} "
-                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} (window totals)",
+                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} (window totals)",
                      GS::Take(GS::Draws) / n, GS::Take(GS::RenderPasses) / n,
                      GS::Take(GS::Uploads) / n, GS::Take(GS::UploadPixels) / n,
                      GS::Take(GS::UploadScaledPixels) / n, GS::Take(GS::Downloads) / n,
@@ -1346,7 +1346,9 @@ void RendererVulkan::SwapBuffers() {
                      GS::Take(GS::PipesQueued), GS::Take(GS::DrawsSkippedPending),
                      GS::Take(GS::ShadersCompiled), GS::Take(GS::ImagesCreated),
                      GS::Take(GS::SurfacesRecycled), GS::Take(GS::PipeBuilds),
-                     GS::Take(GS::PipeBuildUs) / 1000);
+                     GS::Take(GS::PipeBuildUs) / 1000, GS::Take(GS::PipeFirstBuilds),
+                     GS::Take(GS::PipeFirstUs) / 1000, GS::Take(GS::PipeRepeatBuilds),
+                     GS::Take(GS::PipeRepeatUs) / 1000);
         }
         {
             auto& gg = GammaGpu::g;

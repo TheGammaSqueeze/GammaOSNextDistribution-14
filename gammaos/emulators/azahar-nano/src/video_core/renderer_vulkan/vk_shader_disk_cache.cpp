@@ -179,7 +179,12 @@ std::optional<std::pair<u64, Shader* const>> ShaderDiskCache::UseProgrammableVer
 std::optional<std::pair<u64, Shader* const>> ShaderDiskCache::UseFragmentShader(
     const Pica::RegsInternal& regs, const Pica::Shader::UserConfig& user) {
 
-    const FSConfig fs_config{regs};
+    // GammaOS: key the shader on the config after the device profile is applied.
+    // The generators apply it anyway (idempotent), and fields the profile clears
+    // (min/max blend emulation and logic op on Vulkan, border emulation with
+    // native border colors) no longer split identical shaders.
+    FSConfig fs_config{regs};
+    fs_config.ApplyProfile(parent.profile);
     const auto fs_config_hash = fs_config.Hash();
     const auto [it, new_shader] = fragment_shaders.try_emplace(fs_config_hash, parent.instance);
     auto& shader = it->second;

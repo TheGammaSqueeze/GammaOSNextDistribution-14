@@ -20,7 +20,7 @@ enum Counter : int {
     DrawsZBuffer, DrawsWBuffer, DrawsShadow, DrawsAlphaTest, DrawsBlend,
     CmdLists, CmdListsTop, CmdListsBlocked, Transfers, TransfersBlocked,
     PipesFast, PipesQueued, DrawsSkippedPending, ShadersCompiled,
-    ImagesCreated, SurfacesRecycled, PipeBuilds, PipeBuildUs,
+    ImagesCreated, SurfacesRecycled, PipeBuilds, PipeBuildUs, PipeFirstBuilds, PipeFirstUs, PipeRepeatBuilds, PipeRepeatUs,
     Count
 };
 
