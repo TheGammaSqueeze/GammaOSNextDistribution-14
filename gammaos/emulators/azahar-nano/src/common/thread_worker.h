@@ -102,6 +102,14 @@ public:
         });
     }
 
+    // GammaOS: progress of the queued work (for a loading screen).
+    std::size_t WorkDone() const noexcept {
+        return work_done.load();
+    }
+    std::size_t WorkScheduled() const noexcept {
+        return work_scheduled.load();
+    }
+
     const std::size_t NumWorkers() const noexcept {
         return threads.size();
     }

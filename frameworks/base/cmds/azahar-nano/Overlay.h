@@ -53,6 +53,9 @@ public:
     // Draws the current state and presents it (any thread; the EGL context is
     // bound for the call and released after).
     void render();
+    // Loading screen while the core prepares its shader cache: a title, a detail
+    // line and a progress bar (frac 0..1, negative = no bar).
+    void renderLoading(const char* title, const char* detail, float frac);
 
 private:
     enum RowKind { ROW_ACTION, ROW_CHOICE, ROW_PAGE };

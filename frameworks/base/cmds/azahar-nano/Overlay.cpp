@@ -505,4 +505,33 @@ void Overlay::render() {
     eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
+void Overlay::renderLoading(const char* title, const char* detail, float frac) {
+    if (!mGfxReady || !makeCurrent()) return;
+    const float W = (float)mGfx.viewportW();
+    const float H = (float)mGfx.viewportH();
+    glViewport(0, 0, mBufW, mBufH);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    mGfx.beginFrame();
+    const float scale = H / 1080.0f;
+    const float titleScale = 1.6f * scale, detailScale = 1.1f * scale;
+    const float barW = W * 0.5f, barH = 18.0f * scale;
+    const float cx = W * 0.5f;
+    const float barY = H * 0.55f;
+    mGfx.text(title, cx - mGfx.measure(title, titleScale) * 0.5f,
+              barY - mGfx.fontLineH() * titleScale - 40 * scale, titleScale, rgba(1, 1, 1, 1));
+    if (frac >= 0.0f) {
+        if (frac > 1.0f) frac = 1.0f;
+        mGfx.fillRect(cx - barW * 0.5f, barY, barW, barH, rgba(1, 1, 1, 0.18f));
+        mGfx.fillRect(cx - barW * 0.5f, barY, barW * frac, barH, rgba(0.3f, 0.75f, 1.0f, 1));
+    }
+    if (detail && *detail) {
+        mGfx.text(detail, cx - mGfx.measure(detail, detailScale) * 0.5f, barY + barH + 30 * scale,
+                  detailScale, rgba(0.7f, 0.75f, 0.8f, 1));
+    }
+    mGfx.endFrame();
+    if (!eglSwapBuffers(mDpy, mSurf)) ALOGE("overlay: eglSwapBuffers failed 0x%x", eglGetError());
+    eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+}
+
 } // namespace azahar_nano

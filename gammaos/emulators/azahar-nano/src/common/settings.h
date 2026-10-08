@@ -587,6 +587,8 @@ struct Values {
     // GammaOS experiment: GLSL fragment shaders in default medium precision
     // (upper bound of what fp16 could gain; not a quality-preserving tweak).
     bool gammaos_fs_mediump = false;
+    // Wait for the boot pipeline preload to finish compiling before the game starts.
+    bool gammaos_preload_wait = true;
     // GammaOS tweak: deferred full-surface clears folded into the next render
     // pass's load ops (saves a full store and reload of the target).
     bool gammaos_fold_clears = false;

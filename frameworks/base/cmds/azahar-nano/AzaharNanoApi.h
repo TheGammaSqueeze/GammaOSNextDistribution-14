@@ -33,10 +33,12 @@ enum azn_result {
 
 // Mirrors VideoCore::LoadCallbackStage.
 enum azn_load_stage {
+    // Same values as VideoCore::LoadCallbackStage (passed through unchanged).
     AZN_LOAD_PREPARE = 0,
-    AZN_LOAD_DECOMPILE = 1,
-    AZN_LOAD_BUILD = 2,
-    AZN_LOAD_COMPLETE = 3,
+    AZN_LOAD_PRELOAD = 1,
+    AZN_LOAD_DECOMPILE = 2,
+    AZN_LOAD_BUILD = 3,
+    AZN_LOAD_COMPLETE = 4,
 };
 
 // Button ids are the Azahar Android InputManager::ButtonType values.

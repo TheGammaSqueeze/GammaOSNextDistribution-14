@@ -1,3 +1,5 @@
+#include <thread>
+#include <chrono>
 // Copyright 2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -74,8 +76,34 @@ void ShaderDiskCache::Init(const std::atomic_bool& stop_loading,
     if (!stop_loading && !InitGSCache(stop_loading, new_callback)) {
         RecreateCache(gs_cache, CacheFileType::GS_CACHE);
     }
+    const std::size_t done_before = parent.pipeline_workers.WorkDone();
+    const std::size_t scheduled_before = parent.pipeline_workers.WorkScheduled();
     if (!stop_loading && !InitPLCache(stop_loading, new_callback)) {
         RecreateCache(pl_cache, CacheFileType::PL_CACHE);
+    }
+
+    // GammaOS: InitPLCache only queues the pipelines that need a driver compile.
+    // Wait for them here (reporting progress) so the game does not start while the
+    // workers are still compiling the whole cache and every frame waits on them.
+    const std::size_t queued = parent.pipeline_workers.WorkScheduled() - scheduled_before;
+    if (queued > 0 && Settings::values.gammaos_preload_wait) {
+        const auto start = std::chrono::steady_clock::now();
+        std::size_t last_reported = static_cast<std::size_t>(-1);
+        while (!stop_loading) {
+            const std::size_t done = parent.pipeline_workers.WorkDone() - done_before;
+            if (done >= queued) {
+                break;
+            }
+            if (callback && done != last_reported) {
+                callback(VideoCore::LoadCallbackStage::Build, done, queued, "Pipeline compile");
+                last_reported = done;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+        LOG_INFO(Render_Vulkan, "Preload: {} pipelines compiled by the driver in {} ms", queued,
+                 std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::steady_clock::now() - start)
+                     .count());
     }
 }
 

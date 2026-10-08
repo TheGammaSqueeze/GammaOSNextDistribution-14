@@ -430,10 +430,45 @@ bool onCoreError(void*, int result, const char* details) {
     // Keep running for recoverable errors; the user can exit from the menu.
     return result != AZN_ERROR_SYSTEM_FILES;
 }
+// Loading screen: set once the DRM overlay is ready; the core reports shader
+// cache progress from its load (before the first game frame).
+azahar_nano::Overlay* gLoadOverlay = nullptr;
+azahar_nano::DrmWindows* gLoadDrm = nullptr;
+std::atomic<bool> gLoadScreenOn{false};
+int64_t gLoadLastDrawNs = 0;
+
+int64_t monoNs() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+
 void onLoadProgress(void*, int stage, int progress, int max) {
     if (stage == AZN_LOAD_COMPLETE || (progress % 50) == 0) {
         ALOGI("shader cache stage %d %d/%d", stage, progress, max);
     }
+    if (!gLoadOverlay || !gLoadDrm) return;
+    if (stage == AZN_LOAD_COMPLETE) {
+        if (gLoadScreenOn.exchange(false)) {
+            gLoadDrm->setOverlayActive(0, false);
+            ALOGI("loading screen closed");
+        }
+        return;
+    }
+    // Only worth showing when there is real work (a long pipeline build list).
+    if (max < 20) return;
+    const int64_t now = monoNs();
+    const bool last = progress + 1 >= max;
+    if (gLoadScreenOn && !last && now - gLoadLastDrawNs < 50000000LL) return;
+    gLoadLastDrawNs = now;
+    const char* title = stage == AZN_LOAD_BUILD ? "Preparing shaders" : "Loading shader cache";
+    char detail[64];
+    snprintf(detail, sizeof(detail), "%d of %d", progress + 1, max);
+    if (!gLoadScreenOn.exchange(true)) {
+        gLoadDrm->setOverlayActive(0, true);
+        ALOGI("loading screen open (stage %d, %d items)", stage, max);
+    }
+    gLoadOverlay->renderLoading(title, detail, max > 0 ? (float)(progress + 1) / (float)max : -1.0f);
 }
 void onShutdown(void*, int result) {
     ALOGI("core shutdown request %d", result);
@@ -671,6 +706,10 @@ int main(int argc, char** argv) {
         sOverlayReady = overlay.init(drm.overlayWindow(0), drm.width(0), drm.height(0),
                                      drm.isPortrait(0), oa, dataDir);
         if (!sOverlayReady) ALOGE("overlay unavailable");
+        if (sOverlayReady && prop("persist.gammaos.azahar_nano.loading_screen", "1") == "1") {
+            gLoadOverlay = &overlay;
+            gLoadDrm = &drm;
+        }
         sOa = oa;
         uint32_t hw = 0, hh = 0;
         ANativeWindow* hudWin = drm.hudWindow(0, &hw, &hh);
@@ -709,6 +748,10 @@ int main(int argc, char** argv) {
     icb.menuToggle = [] {
         if (!sOverlayReady) {
             ALOGW("menu toggle ignored: overlay not ready");
+            return;
+        }
+        if (gLoadScreenOn) {
+            ALOGW("menu toggle ignored: loading screen up");
             return;
         }
         if (overlay.isOpen()) {
