@@ -67,8 +67,17 @@ TextureConfig::TextureConfig(const Pica::TexturingRegs& regs) {
 
     const auto pica_textures = regs.GetTextures();
     for (u32 tex_index = 0; tex_index < 3; tex_index++) {
-        requested_wrap[tex_index].s = pica_textures[tex_index].config.wrap_s;
-        requested_wrap[tex_index].t = pica_textures[tex_index].config.wrap_t;
+        // GammaOS: the generators only use the wrap modes to decide clamp-to-border
+        // emulation (TextureConfig::ApplyProfile), so keep just that distinction in
+        // the key. The raw modes split identical shaders: in Super Mario 3D Land they
+        // nearly doubled the fragment shaders (342 distinct programs, 647 keys).
+        using WrapMode = Pica::TexturingRegs::TextureConfig::WrapMode;
+        const auto border_only = [](WrapMode mode) {
+            return mode == WrapMode::ClampToBorder ? WrapMode::ClampToBorder
+                                                   : WrapMode::ClampToEdge;
+        };
+        requested_wrap[tex_index].s = border_only(pica_textures[tex_index].config.wrap_s);
+        requested_wrap[tex_index].t = border_only(pica_textures[tex_index].config.wrap_t);
 
         texture_border_color[tex_index].enable_s.Assign(false);
         texture_border_color[tex_index].enable_t.Assign(false);
