@@ -85,6 +85,7 @@ struct CoreApi {
     void (*set_present_mode)(int, int) = nullptr;
     void (*set_deadline_pacing)(int) = nullptr;
     void (*set_pace_scale)(double) = nullptr;
+    void (*set_tweaks)(int, int) = nullptr;
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -130,6 +131,7 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.set_present_mode, "azn_set_present_mode");
     ok &= sym(gCore.set_deadline_pacing, "azn_set_deadline_pacing");
     ok &= sym(gCore.set_pace_scale, "azn_set_pace_scale");
+    ok &= sym(gCore.set_tweaks, "azn_set_tweaks");
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -491,6 +493,9 @@ int main(int argc, char** argv) {
         gCore.set_user_folder(dataDir.c_str());
     }
     ALOGI("private root %s, user folder %s", userDir.c_str(), dataDir.c_str());
+    // GammaOS tweaks (persist.gammaos.azahar_nano.tweaks, default on): renderer side.
+    gCore.set_tweaks(prop("persist.gammaos.azahar_nano.tweaks", "1") == "1" ? 1 : 0,
+                     prop("persist.gammaos.azahar_nano.vertex_depth", "0") == "1" ? 1 : 0);
     sStatesDir = dataDir + "/states";
     seedConfig(userDir);
 
@@ -730,6 +735,14 @@ int main(int argc, char** argv) {
                     property_set("sys.gammaos.azahar_nano.save_state", "");
                     const int slot = atoi(sv.c_str());
                     if (slot > 0 && sOa.saveState) { ALOGI("hook: save state %d", slot); sOa.saveState(slot); }
+                }
+                // sys.gammaos.azahar_nano.pause=1/0: freeze the game for screenshot
+                // comparisons (no menu drawn).
+                const std::string pz = prop("sys.gammaos.azahar_nano.pause", "");
+                if (!pz.empty()) {
+                    property_set("sys.gammaos.azahar_nano.pause", "");
+                    ALOGI("hook: pause %s", pz.c_str());
+                    gCore.pause(pz == "1");
                 }
                 const std::string nav = prop("sys.gammaos.azahar_nano.menu_nav", "");
                 if (!nav.empty()) {
