@@ -13,6 +13,7 @@
 #include "common/scope_exit.h"
 #include "common/settings.h"
 #include "core/memory.h"
+#include "video_core/renderer_vulkan/vk_gammaos_stats.h"
 #include "video_core/custom_textures/custom_tex_manager.h"
 #include "video_core/pica/regs_external.h"
 #include "video_core/pica/regs_internal.h"
@@ -1395,6 +1396,7 @@ SurfaceId RasterizerCache<T>::CreateSurface(const SurfaceParams& params,
         if (it != sentenced.end()) {
             const SurfaceId surface_id = it->first;
             sentenced.erase(it);
+            Vulkan::GammaStats::Add(Vulkan::GammaStats::SurfacesRecycled);
             return surface_id;
         }
         return slot_surfaces.insert(runtime, params, initial_flags);

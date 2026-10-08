@@ -223,6 +223,7 @@ void Handle::Create(u32 width, u32 height, u32 levels, TextureType type, vk::For
     }
 
     image = vk::Image{unsafe_image};
+    GammaStats::Add(GammaStats::ImagesCreated);
 
     const vk::ImageViewCreateInfo view_info = {
         .image = image,

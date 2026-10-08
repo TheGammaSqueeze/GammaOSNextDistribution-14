@@ -1328,7 +1328,7 @@ void RendererVulkan::SwapBuffers() {
                      "pass breaks with only the render area changed {:.1f} | draws z {:.1f} w {:.1f} "
                      "shadow {:.1f} alphatest {:.1f} blend {:.1f} | cmd lists {:.1f} top {:.1f} "
                      "blocked {:.2f} transfers {:.1f} blocked {:.2f} | enabled {} | pipelines fast {} "
-                     "queued {} draws skipped {} shaders compiled {} (window totals)",
+                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} (window totals)",
                      GS::Take(GS::Draws) / n, GS::Take(GS::RenderPasses) / n,
                      GS::Take(GS::Uploads) / n, GS::Take(GS::UploadPixels) / n,
                      GS::Take(GS::UploadScaledPixels) / n, GS::Take(GS::Downloads) / n,
@@ -1344,7 +1344,8 @@ void RendererVulkan::SwapBuffers() {
                      GS::Take(GS::Transfers) / n, GS::Take(GS::TransfersBlocked) / n,
                      Settings::values.disable_right_eye_render.GetValue(), GS::Take(GS::PipesFast),
                      GS::Take(GS::PipesQueued), GS::Take(GS::DrawsSkippedPending),
-                     GS::Take(GS::ShadersCompiled));
+                     GS::Take(GS::ShadersCompiled), GS::Take(GS::ImagesCreated),
+                     GS::Take(GS::SurfacesRecycled));
         }
         {
             auto& gg = GammaGpu::g;
