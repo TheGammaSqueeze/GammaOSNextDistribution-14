@@ -1,3 +1,4 @@
+#include <chrono>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -286,8 +287,15 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
     if (fail_on_compile_required) {
         pipeline_info.flags |= vk::PipelineCreateFlagBits::eFailOnPipelineCompileRequiredEXT;
     }
-
+    const auto build_start = std::chrono::steady_clock::now();
     auto result = instance.GetDevice().createGraphicsPipelineUnique(pipeline_cache, pipeline_info);
+    if (!fail_on_compile_required) {
+        GammaStats::Add(GammaStats::PipeBuildUs,
+                        static_cast<u64>(std::chrono::duration_cast<std::chrono::microseconds>(
+                                             std::chrono::steady_clock::now() - build_start)
+                                             .count()));
+        GammaStats::Add(GammaStats::PipeBuilds);
+    }
     if (result.result == vk::Result::eSuccess) {
         pipeline = std::move(result.value);
     } else if (result.result == vk::Result::eErrorPipelineCompileRequiredEXT) {

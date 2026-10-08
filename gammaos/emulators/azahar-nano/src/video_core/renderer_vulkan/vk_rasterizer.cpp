@@ -1,3 +1,4 @@
+#include <sys/system_properties.h>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -472,7 +473,17 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
         SetupIndexArray();
     }
 
-    const bool wait_built = !async_shaders || regs.pipeline.num_vertices <= 6;
+    // GammaOS: persist.gammaos.azahar_nano.async_small=1 also skips small (6 vertices or
+    // fewer) draws while their pipeline compiles. Off by default: it removes the cold cache
+    // freeze (4.7-5.4 s to 0.17 s at first boot) but parts of the scene go missing for a
+    // few seconds while new pipelines compile.
+    static const bool async_small = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_small", v);
+        return v[0] == '1';
+    }();
+    const bool wait_built =
+        !async_shaders || (!async_small && regs.pipeline.num_vertices <= 6);
     if (!pipeline_cache.BindPipeline(pipeline_info, wait_built)) {
         return true;
     }

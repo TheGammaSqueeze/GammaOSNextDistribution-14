@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <sys/system_properties.h>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -87,7 +89,13 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
                              RenderManager& renderpass_cache_, DescriptorUpdateQueue& update_queue_)
     : instance{instance_}, scheduler{scheduler_}, renderpass_cache{renderpass_cache_},
       update_queue{update_queue_},
-      num_worker_threads{std::max(std::thread::hardware_concurrency(), 2U) / 2},
+      num_worker_threads{[] {
+          // GammaOS: persist.gammaos.azahar_nano.pipe_workers overrides the worker count.
+          char v[PROP_VALUE_MAX] = {};
+          __system_property_get("persist.gammaos.azahar_nano.pipe_workers", v);
+          const int n = atoi(v);
+          return n > 0 ? static_cast<u32>(n) : std::max(std::thread::hardware_concurrency(), 2U) / 2;
+      }()},
       pipeline_workers{num_worker_threads, "Pipeline workers"},
       shader_workers{num_worker_threads, "Shader workers"},
       descriptor_heaps{
