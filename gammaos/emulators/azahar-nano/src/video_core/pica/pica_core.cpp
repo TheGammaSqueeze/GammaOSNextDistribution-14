@@ -1,4 +1,5 @@
 #include <sys/system_properties.h>
+#include <boost/container/small_vector.hpp>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -333,7 +334,9 @@ void PicaCore::ProcessCmdList(PAddr list, u32 size, bool ignore_list) [[hot]] {
         const CommandHeader header{cmd_list.head[cmd_list.current_index++]};
 
         // Write to the requested PICA register.
+        twin_scan_ok = header.extra_data_length == 0;
         WriteInternalReg(header.cmd_id, value, header.parameter_mask, stop_requested);
+        twin_scan_ok = false;
 
         // Write any extra paramters as well.
         const u32 count = header.extra_data_length;
@@ -1045,7 +1048,175 @@ void PicaCore::DrawImmediate() {
     }
 }
 
+bool PicaCore::LookaheadTwin(PAddr& next_color, PAddr& next_depth) {
+    constexpr u32 kDepthAddr = PICA_REG_INDEX(framebuffer.framebuffer.depth_buffer_address);
+    constexpr u32 kColorAddr = PICA_REG_INDEX(framebuffer.framebuffer.color_buffer_address);
+    constexpr u32 kUniformSetup = PICA_REG_INDEX(vs.uniform_setup);
+    constexpr u32 kUniformValue0 = PICA_REG_INDEX(vs.uniform_setup.set_value[0]);
+    constexpr u32 kUniformValue7 = PICA_REG_INDEX(vs.uniform_setup.set_value[7]);
+    constexpr u32 kDraw = PICA_REG_INDEX(pipeline.trigger_draw);
+    constexpr u32 kDrawIndexed = PICA_REG_INDEX(pipeline.trigger_draw_indexed);
+
+    u32 sim_color = regs.internal.reg_array[kColorAddr];
+    u32 sim_depth = regs.internal.reg_array[kDepthAddr];
+    u32 sim_setup = regs.internal.reg_array[kUniformSetup];
+    PackedAttribute queue = vs_setup.uniform_queue;
+    boost::container::small_vector<std::pair<u32, u32>, 32> sim;
+
+    const u32* head = cmd_list.head;
+    u32 index = cmd_list.current_index;
+    const u32 length = cmd_list.length;
+    for (u32 budget = 4096; index < length && budget > 0; budget--) {
+        if (index % 2 != 0) {
+            index++;
+        }
+        if (index + 1 >= length) {
+            return false;
+        }
+        const u32 value = head[index++];
+        const CommandHeader header{head[index++]};
+        const u32 write_mask = ExpandBitsToBytes[header.parameter_mask];
+        for (u32 i = 0; i <= header.extra_data_length; ++i) {
+            const u32 cmd = header.cmd_id + (i > 0 && header.group_commands ? i : 0);
+            if (i > 0 && index >= length) {
+                return false;
+            }
+            const u32 v = i == 0 ? value : head[index++];
+            if (cmd >= RegsInternal::NUM_REGS) {
+                continue;
+            }
+            if (cmd == kDraw || cmd == kDrawIndexed) {
+                for (const auto& [reg, val] : sim) {
+                    if (val != regs.internal.reg_array[reg]) {
+                        return false;
+                    }
+                }
+                next_color = (sim_color & 0x0FFFFFFF) * 8;
+                next_depth = (sim_depth & 0x0FFFFFFF) * 8;
+                return sim_color != regs.internal.reg_array[kColorAddr];
+            }
+            const u32 merged = (regs.internal.reg_array[cmd] & ~write_mask) | (v & write_mask);
+            if (cmd == kColorAddr) {
+                sim_color = merged;
+                continue;
+            }
+            if (cmd == kDepthAddr) {
+                sim_depth = merged;
+                continue;
+            }
+            if (cmd == kUniformSetup) {
+                sim_setup = (sim_setup & ~write_mask) | (v & write_mask);
+                continue;
+            }
+            if (cmd >= kUniformValue0 && cmd <= kUniformValue7) {
+                const bool f32 = (sim_setup >> 31) & 1;
+                if (queue.Push(v, f32)) {
+                    const auto uniform = queue.Get(f32);
+                    const u32 uidx = sim_setup & 0x7F;
+                    if (uidx < vs_setup.uniforms.f.size() && uniform != vs_setup.uniforms.f[uidx]) {
+                        return false;
+                    }
+                    sim_setup = (sim_setup & ~0x7Fu) | ((uidx + 1) & 0x7F);
+                }
+                continue;
+            }
+            // Topology writes only reconfigure the primitive assembler (empty between
+            // accelerated draws): compare their value like a plain register. Restarting the
+            // primitive changes no state.
+            if (cmd == PICA_REG_INDEX(pipeline.restart_primitive)) {
+                continue;
+            }
+            if (reg_impl_flags_lut[cmd].NeedsSpecialHandling() &&
+                cmd != PICA_REG_INDEX(pipeline.triangle_topology)) {
+                // Uploads, LUTs, immediate mode, flushes, list jumps: not a twin.
+                return false;
+            }
+            // Plain register: only its value at the next draw matters (games toggle some,
+            // like gpu_mode, around every draw).
+            auto it = std::find_if(sim.begin(), sim.end(), [&](const auto& e) { return e.first == cmd; });
+            const u32 base = it != sim.end() ? it->second : regs.internal.reg_array[cmd];
+            const u32 next = (base & ~write_mask) | (v & write_mask);
+            if (it != sim.end()) {
+                it->second = next;
+            } else if (sim.size() < 256) {
+                sim.emplace_back(cmd, next);
+            } else {
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
 void PicaCore::DrawArrays(bool is_indexed) {
+    // GammaOS stereo twins (on by default; persist.gammaos.azahar_nano.stereo_twin=0 turns them
+    // off): while the two eye
+    // buffers hold the same content, a pair of identical draws to them is drawn once into
+    // the canonical pair and the second draw is skipped (see RasterizerCache::TwinTargets).
+    static const bool stereo_twin = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.stereo_twin", v);
+        return v[0] != '0';
+    }();
+    if (!stereo_twin) {
+        DrawArraysInternal(is_indexed);
+        return;
+    }
+    auto& fb = regs.internal.framebuffer.framebuffer;
+    const PAddr color = fb.GetColorBufferPhysicalAddress();
+    const PAddr depth = fb.GetDepthBufferPhysicalAddress();
+    if (twin_skip_pending) {
+        twin_skip_pending = false;
+        if (color == twin_expect_color && depth == twin_expect_depth) {
+            twin_skipped++;
+            return;
+        }
+        LOG_ERROR(HW_GPU, "stereo twin: expected twin draw to {:08X}/{:08X}, got {:08X}/{:08X}",
+                  twin_expect_color, twin_expect_depth, color, depth);
+    }
+    PAddr next_color = 0, next_depth = 0;
+    if (!twin_scan_ok || !LookaheadTwin(next_color, next_depth)) {
+        DrawArraysInternal(is_indexed);
+        return;
+    }
+    const u32 area = fb.GetWidth() * fb.GetHeight();
+    const u32 color_size = area * FramebufferRegs::BytesPerColorPixel(fb.color_format);
+    const u32 depth_size = area * FramebufferRegs::BytesPerDepthPixel(fb.depth_format);
+    const auto& tex = regs.internal.texturing;
+    std::array<PAddr, 3> textures{};
+    u32 num_textures = 0;
+    if (tex.main_config.texture0_enable) {
+        textures[num_textures++] = tex.texture0.GetPhysicalAddress();
+    }
+    if (tex.main_config.texture1_enable) {
+        textures[num_textures++] = tex.texture1.GetPhysicalAddress();
+    }
+    if (tex.main_config.texture2_enable) {
+        textures[num_textures++] = tex.texture2.GetPhysicalAddress();
+    }
+    PAddr canon_color = 0, canon_depth = 0;
+    if (!rasterizer->TwinTargets(color, depth, next_color, next_depth, color_size, depth_size,
+                                 std::span<const PAddr>(textures.data(), num_textures),
+                                 canon_color, canon_depth)) {
+        DrawArraysInternal(is_indexed);
+        return;
+    }
+    // Draw once into the canonical buffers.
+    const u32 saved_color = fb.color_buffer_address;
+    const u32 saved_depth = fb.depth_buffer_address;
+    fb.color_buffer_address.Assign(canon_color / 8);
+    fb.depth_buffer_address.Assign(canon_depth / 8);
+    rasterizer->SetTwinDraw(true);
+    DrawArraysInternal(is_indexed);
+    rasterizer->SetTwinDraw(false);
+    fb.color_buffer_address.Assign(saved_color);
+    fb.depth_buffer_address.Assign(saved_depth);
+    twin_skip_pending = true;
+    twin_expect_color = next_color;
+    twin_expect_depth = next_depth;
+}
+
+void PicaCore::DrawArraysInternal(bool is_indexed) {
     MICROPROFILE_SCOPE(GPU_Drawing);
 
     // GammaOS experiment (persist.gammaos.azahar_nano.twin_skip_test=1, picture is WRONG):

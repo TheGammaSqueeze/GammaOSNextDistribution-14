@@ -1238,16 +1238,31 @@ void RasterizerVulkan::FlushAll() {
 }
 
 void RasterizerVulkan::FlushRegion(PAddr addr, u32 size) {
+    res_cache.MirrorAccess(addr, size, false);
     res_cache.FlushRegion(addr, size);
 }
 
 void RasterizerVulkan::InvalidateRegion(PAddr addr, u32 size) {
+    res_cache.MirrorAccess(addr, size, true);
     res_cache.InvalidateRegion(addr, size);
 }
 
 void RasterizerVulkan::FlushAndInvalidateRegion(PAddr addr, u32 size) {
+    res_cache.MirrorAccess(addr, size, true);
     res_cache.FlushRegion(addr, size);
     res_cache.InvalidateRegion(addr, size);
+}
+
+bool RasterizerVulkan::TwinTargets(PAddr cur_color, PAddr cur_depth, PAddr next_color,
+                                   PAddr next_depth, u32 color_size, u32 depth_size,
+                                   std::span<const PAddr> textures, PAddr& canon_color,
+                                   PAddr& canon_depth) {
+    return res_cache.TwinTargets(cur_color, cur_depth, next_color, next_depth, color_size,
+                                 depth_size, textures, canon_color, canon_depth);
+}
+
+void RasterizerVulkan::SetTwinDraw(bool active) {
+    res_cache.SetTwinDraw(active);
 }
 
 void RasterizerVulkan::ClearAll(bool flush) {
@@ -1414,6 +1429,7 @@ bool RasterizerVulkan::AccelerateDisplay(const Pica::FramebufferConfig& config,
     if (framebuffer_addr == 0) [[unlikely]] {
         return false;
     }
+    res_cache.MirrorAccess(framebuffer_addr, config.stride * config.height, false);
 
     VideoCore::SurfaceParams src_params;
     src_params.addr = framebuffer_addr;

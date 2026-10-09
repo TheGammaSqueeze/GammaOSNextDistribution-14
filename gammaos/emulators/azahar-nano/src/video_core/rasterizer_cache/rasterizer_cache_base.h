@@ -98,6 +98,24 @@ public:
 
     /// Returns a reference to the sampler object matching the provided configuration
     Sampler& GetSampler(const Pica::TexturingRegs::TextureConfig& config);
+
+    /// GammaOS stereo twins. Two eye buffers (colour + depth each) that are known to hold the
+    /// same content can take a pair of identical draws as one draw into the canonical pair.
+    /// TwinTargets returns the canonical colour/depth addresses to draw into when the draw
+    /// from (cur_color, cur_depth) and its twin to (next_color, next_depth) qualify: the pair
+    /// is already mirrored, or all four buffers were freshly filled with matching values.
+    bool TwinTargets(PAddr cur_color, PAddr cur_depth, PAddr next_color, PAddr next_depth,
+                     u32 color_size, u32 depth_size, std::span<const PAddr> textures,
+                     PAddr& canon_color, PAddr& canon_depth);
+    /// While set, draws into the mirrored buffers do not end the mirror.
+    void SetTwinDraw(bool active) {
+        twin_draw = active;
+    }
+    /// Any access to the mirror buffers, or a write to the canonical ones, ends the mirror:
+    /// the canonical content is copied over first. Called by every cache entry point.
+    void MirrorAccess(PAddr addr, u32 size, bool write);
+    /// Count of twin draws drawn once and of mirror copies (stats).
+    u32 TakeTwinStats(u32& copies);
     Sampler& GetSampler(SamplerId sampler_id);
 
     /// Copy one surface's region to another
@@ -237,6 +255,27 @@ private:
     PageMap cached_pages;
     u32 resolution_scale_factor;
     FramebufferParams fb_params;
+    // GammaOS stereo twins (see TwinTargets).
+    struct FreshFill {
+        PAddr start;
+        PAddr end;
+        u32 value;
+        u32 mode;   // fill width: 16, 24 or 32 bit
+    };
+    std::vector<FreshFill> fresh_fills;
+    struct Mirror {
+        bool active = false;
+        PAddr canon_color = 0, canon_depth = 0, mirror_color = 0, mirror_depth = 0;
+        u32 color_size = 0, depth_size = 0;
+        SurfaceParams color_params{};   // canonical colour surface (address set per copy)
+        SurfaceParams depth_params{};
+    } mirror;
+    bool twin_draw = false;
+    bool in_materialize = false;
+    bool mirror_dirty = false;   // the canonical buffers took twin draws since the last copy
+    u32 twin_pairs = 0, mirror_copies = 0;
+    const FreshFill* FindFreshFill(PAddr start, u32 size) const;
+    void MaterializeMirror();
     Settings::TextureFilter filter;
     bool dump_textures;
     bool use_custom_textures;

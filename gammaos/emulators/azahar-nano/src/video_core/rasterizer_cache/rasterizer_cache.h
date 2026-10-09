@@ -202,6 +202,11 @@ template <class T>
 bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig& config) {
     const DebugScope scope{runtime, Common::Vec4f{0.f, 0.f, 1.f, 1.f},
                            "RasterizerCache::AccelerateTextureCopy ({})", config.DebugName()};
+    MirrorAccess(config.GetPhysicalInputAddress(),
+                 config.input_width.Value() * std::max(config.input_height.Value(), 1u) * 4, false);
+    MirrorAccess(config.GetPhysicalOutputAddress(),
+                 config.output_width.Value() * std::max(config.output_height.Value(), 1u) * 4,
+                 true);
 
     // Texture copy size is aligned to 16 byte units
     const u32 copy_size = Common::AlignDown(config.texture_copy.size, 16);
@@ -306,6 +311,10 @@ template <class T>
 bool RasterizerCache<T>::AccelerateDisplayTransfer(const Pica::DisplayTransferConfig& config) {
     const DebugScope scope{runtime, Common::Vec4f{0.f, 0.f, 1.f, 1.f},
                            "RasterizerCache::AccelerateDisplayTransfer ({})", config.DebugName()};
+    MirrorAccess(config.GetPhysicalInputAddress(),
+                 config.input_width.Value() * config.input_height.Value() * 4, false);
+    MirrorAccess(config.GetPhysicalOutputAddress(),
+                 config.output_width.Value() * config.output_height.Value() * 4, true);
 
     SurfaceParams src_params;
     src_params.addr = config.GetPhysicalInputAddress();
@@ -417,9 +426,177 @@ bool RasterizerCache<T>::AccelerateFill(const Pica::MemoryFillConfig& config) {
         fill_surface.fill_size = 2;
     }
 
+    MirrorAccess(fill_surface.addr, fill_surface.size, true);
     RegisterSurface(fill_surface_id);
     InvalidateRegion(fill_surface.addr, fill_surface.size, fill_surface_id);
+    // GammaOS stereo twins: remember fills until something else writes the region.
+    fresh_fills.push_back({fill_surface.addr, fill_surface.end, config.value_32bit,
+                           config.fill_32bit ? 32u : (config.fill_24bit ? 24u : 16u)});
+    if (fresh_fills.size() > 32) {
+        fresh_fills.erase(fresh_fills.begin());
+    }
     return true;
+}
+
+template <class T>
+const typename RasterizerCache<T>::FreshFill* RasterizerCache<T>::FindFreshFill(PAddr start,
+                                                                                u32 size) const {
+    for (const auto& f : fresh_fills) {
+        if (f.start == start && f.end - f.start == size) {
+            return &f;
+        }
+    }
+    return nullptr;
+}
+
+template <class T>
+bool RasterizerCache<T>::TwinTargets(PAddr cur_color, PAddr cur_depth, PAddr next_color,
+                                     PAddr next_depth, u32 color_size, u32 depth_size,
+                                     std::span<const PAddr> textures, PAddr& canon_color,
+                                     PAddr& canon_depth) {
+    if (cur_color == next_color || !cur_color || !next_color ||
+        (cur_depth != 0) != (next_depth != 0) || (cur_depth && cur_depth == next_depth)) {
+        return false;
+    }
+    // The draws must not sample either eye's buffers (they are drawn without mirror checks).
+    for (const PAddr tex : textures) {
+        for (const auto [start, len] : {std::pair{cur_color, color_size}, std::pair{next_color, color_size},
+                                        std::pair{cur_depth, depth_size}, std::pair{next_depth, depth_size}}) {
+            if (start && tex >= start && tex < start + len) {
+                return false;
+            }
+        }
+    }
+    if (mirror.active) {
+        const bool cur_is_canon =
+            cur_color == mirror.canon_color && next_color == mirror.mirror_color &&
+            cur_depth == mirror.canon_depth && next_depth == mirror.mirror_depth;
+        const bool cur_is_mirror =
+            cur_color == mirror.mirror_color && next_color == mirror.canon_color &&
+            cur_depth == mirror.mirror_depth && next_depth == mirror.canon_depth;
+        if (!cur_is_canon && !cur_is_mirror) {
+            return false;
+        }
+        canon_color = mirror.canon_color;
+        canon_depth = mirror.canon_depth;
+        twin_pairs++;
+        mirror_dirty = true;
+        return true;
+    }
+    // Start mirroring: all four buffers freshly filled, colour fills equal, depth fills equal.
+    const FreshFill* cc = FindFreshFill(cur_color, color_size);
+    const FreshFill* nc = FindFreshFill(next_color, color_size);
+    if (!cc || !nc || cc->value != nc->value || cc->mode != nc->mode) {
+        return false;
+    }
+    if (cur_depth) {
+        const FreshFill* cd = FindFreshFill(cur_depth, depth_size);
+        const FreshFill* nd = FindFreshFill(next_depth, depth_size);
+        if (!cd || !nd || cd->value != nd->value || cd->mode != nd->mode) {
+            return false;
+        }
+    }
+    const auto& fb = regs.framebuffer.framebuffer;
+    mirror.color_params = SurfaceParams{};
+    mirror.color_params.addr = cur_color;
+    mirror.color_params.width = fb.GetWidth();
+    mirror.color_params.height = fb.GetHeight();
+    mirror.color_params.is_tiled = true;
+    mirror.color_params.res_scale = resolution_scale_factor;
+    mirror.color_params.pixel_format = PixelFormatFromColorFormat(fb.color_format);
+    mirror.color_params.UpdateParams();
+    mirror.depth_params = mirror.color_params;
+    mirror.depth_params.addr = cur_depth;
+    mirror.depth_params.pixel_format = PixelFormatFromDepthFormat(fb.depth_format);
+    mirror.depth_params.UpdateParams();
+    if (mirror.color_params.size != color_size || (cur_depth && mirror.depth_params.size != depth_size)) {
+        return false;
+    }
+    std::erase_if(fresh_fills, [&](const FreshFill& f) {
+        return f.start == cur_color || f.start == next_color || f.start == cur_depth ||
+               f.start == next_depth;
+    });
+    mirror.active = true;
+    mirror.canon_color = cur_color;
+    mirror.canon_depth = cur_depth;
+    mirror.mirror_color = next_color;
+    mirror.mirror_depth = next_depth;
+    mirror.color_size = color_size;
+    mirror.depth_size = cur_depth ? depth_size : 0;
+    canon_color = cur_color;
+    canon_depth = cur_depth;
+    twin_pairs++;
+    mirror_dirty = true;
+    return true;
+}
+
+template <class T>
+void RasterizerCache<T>::MirrorAccess(PAddr addr, u32 size, bool write) {
+    if (!mirror.active || in_materialize || twin_draw) {
+        return;
+    }
+    const auto overlaps = [&](PAddr start, u32 len) {
+        return len != 0 && addr < start + len && start < addr + size;
+    };
+    const bool touches_mirror = overlaps(mirror.mirror_color, mirror.color_size) ||
+                                overlaps(mirror.mirror_depth, mirror.depth_size);
+    const bool writes_canon = write && (overlaps(mirror.canon_color, mirror.color_size) ||
+                                        overlaps(mirror.canon_depth, mirror.depth_size));
+    if (touches_mirror || writes_canon) {
+        MaterializeMirror();
+        // After a read the two eyes hold the same content again: keep mirroring (later twin
+        // draws still go to the canonical buffers only, the next read copies again).
+        mirror.active = !write;
+    }
+}
+
+template <class T>
+void RasterizerCache<T>::MaterializeMirror() {
+    in_materialize = true;
+    mirror.active = false;
+    if (!mirror_dirty) {
+        // Nothing was drawn once into the canonical buffers since the last copy.
+        in_materialize = false;
+        return;
+    }
+    mirror_dirty = false;
+    const auto copy_one = [&](SurfaceParams params, PAddr dst_addr) {
+        // Source: the canonical surface, validated (it may still be a fill).
+        const SurfaceId src_id = GetSurface(params, ScaleMatch::Exact, true);
+        params.addr = dst_addr;
+        params.UpdateParams();
+        const SurfaceId dst_id = GetSurface(params, ScaleMatch::Exact, false);
+        if (!src_id || !dst_id) {
+            LOG_ERROR(Render, "stereo twin: mirror copy to {:08X} failed", dst_addr);
+            return;
+        }
+        Surface& src = slot_surfaces[src_id];
+        Surface& dst = slot_surfaces[dst_id];
+        if (src.res_scale > dst.res_scale) {
+            dst.ScaleUp(src.res_scale);
+        }
+        const TextureCopy copy = {
+            .src_level = 0,
+            .dst_level = 0,
+            .src_offset = {0, 0},
+            .dst_offset = {0, 0},
+            .extent = {src.GetScaledWidth(), src.GetScaledHeight()},
+        };
+        runtime.CopyTextures(src, dst, copy);
+        InvalidateRegion(dst.addr, dst.size, dst_id);
+        mirror_copies++;
+    };
+    copy_one(mirror.color_params, mirror.mirror_color);
+    if (mirror.mirror_depth) {
+        copy_one(mirror.depth_params, mirror.mirror_depth);
+    }
+    in_materialize = false;
+}
+
+template <class T>
+u32 RasterizerCache<T>::TakeTwinStats(u32& copies) {
+    copies = std::exchange(mirror_copies, 0);
+    return std::exchange(twin_pairs, 0);
 }
 
 template <class T>
@@ -601,6 +778,7 @@ typename T::Surface& RasterizerCache<T>::GetTextureSurface(
 template <class T>
 SurfaceId RasterizerCache<T>::GetTextureSurface(const Pica::Texture::TextureInfo& info,
                                                 u32 max_level) {
+    MirrorAccess(info.physical_address, info.width * info.height * 4 * (max_level + 1), false);
     if (info.physical_address == 0) [[unlikely]] {
         // Can occur when texture addr is null or its memory is unmapped/invalid
         // HACK: In this case, the correct behaviour for the PICA is to use the last
@@ -750,6 +928,15 @@ template <class T>
 FramebufferHelper<T> RasterizerCache<T>::GetFramebufferSurfaces(bool using_color_fb,
                                                                 bool using_depth_fb) {
     const auto& config = regs.framebuffer.framebuffer;
+    if (mirror.active && !twin_draw) {
+        const u32 area = config.GetWidth() * config.GetHeight();
+        if (using_color_fb) {
+            MirrorAccess(config.GetColorBufferPhysicalAddress(), area * 4, true);
+        }
+        if (using_depth_fb) {
+            MirrorAccess(config.GetDepthBufferPhysicalAddress(), area * 4, true);
+        }
+    }
 
     const s32 framebuffer_width = config.GetWidth();
     const s32 framebuffer_height = config.GetHeight();
@@ -1357,6 +1544,12 @@ template <class T>
 void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region_owner_id) {
     if (size == 0) [[unlikely]] {
         return;
+    }
+    // GammaOS stereo twins: a fill is no longer fresh once anything else writes into it.
+    if (!fresh_fills.empty()) {
+        std::erase_if(fresh_fills, [&](const FreshFill& f) {
+            return addr < f.end && f.start < addr + size;
+        });
     }
 
     const SurfaceInterval invalid_interval(addr, addr + size);

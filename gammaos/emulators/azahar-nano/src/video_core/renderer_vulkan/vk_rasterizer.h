@@ -55,6 +55,13 @@ public:
     void FlushRegion(PAddr addr, u32 size) override;
     void InvalidateRegion(PAddr addr, u32 size) override;
     void FlushAndInvalidateRegion(PAddr addr, u32 size) override;
+    bool TwinTargets(PAddr cur_color, PAddr cur_depth, PAddr next_color, PAddr next_depth,
+                     u32 color_size, u32 depth_size, std::span<const PAddr> textures,
+                     PAddr& canon_color, PAddr& canon_depth) override;
+    void SetTwinDraw(bool active) override;
+    u32 TakeTwinStats(u32& copies) {
+        return res_cache.TakeTwinStats(copies);
+    }
     void ClearAll(bool flush) override;
     bool AccelerateDisplayTransfer(const Pica::DisplayTransferConfig& config) override;
     bool AccelerateTextureCopy(const Pica::DisplayTransferConfig& config) override;

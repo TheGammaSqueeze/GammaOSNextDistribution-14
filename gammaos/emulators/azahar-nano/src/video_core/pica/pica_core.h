@@ -140,6 +140,13 @@ private:
     void DrawImmediate();
 
     void DrawArrays(bool is_indexed);
+    void DrawArraysInternal(bool is_indexed);
+
+    /// GammaOS stereo twins: scans the command list from the current position to the next
+    /// draw. True when that draw differs from the current one only in its colour and depth
+    /// buffer addresses (returned): every other register write keeps its value and every
+    /// vertex uniform upload writes the value already there.
+    bool LookaheadTwin(PAddr& next_color, PAddr& next_depth);
 
     void LoadVertices(bool is_indexed);
 
@@ -417,6 +424,11 @@ private:
     PrimitiveAssembler primitive_assembler;
     CommandList cmd_list;
     std::unique_ptr<ShaderEngine> shader_engine;
+    // GammaOS stereo twins (persist.gammaos.azahar_nano.stereo_twin, on by default).
+    bool twin_scan_ok = false;      // the current draw was triggered by a plain command header
+    bool twin_skip_pending = false; // the next draw is the twin already drawn
+    PAddr twin_expect_color = 0, twin_expect_depth = 0;
+    u32 twin_skipped = 0;
 };
 
 #define GPU_REG_INDEX(field_name) (offsetof(Pica::PicaCore::Regs, field_name) / sizeof(u32))

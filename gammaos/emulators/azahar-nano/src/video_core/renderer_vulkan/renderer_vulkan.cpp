@@ -1366,6 +1366,12 @@ void RendererVulkan::SwapBuffers() {
         }
         {
             namespace GS = GammaStats;
+            u32 twin_copies = 0;
+            const u32 twin_pairs = rasterizer.TakeTwinStats(twin_copies);
+            if (twin_pairs || twin_copies) {
+                LOG_INFO(Render_Vulkan, "stereo twins: {} pairs drawn once, {} mirror copies",
+                         twin_pairs, twin_copies);
+            }
             const u64 vs = GS::Take(GS::GlslVs), fs = GS::Take(GS::GlslFs);
             if (vs || fs) {
                 LOG_INFO(Render_Vulkan, "glsl->spirv: vs {} in {} ms, fs {} in {} ms, other {} ms",

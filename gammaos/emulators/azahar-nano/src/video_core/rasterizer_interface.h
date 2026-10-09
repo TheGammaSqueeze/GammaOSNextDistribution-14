@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <functional>
+#include <span>
 #include "common/common_types.h"
 
 namespace Pica {
@@ -72,6 +73,17 @@ public:
     }
 
     /// Attempt to draw using hardware shaders
+    /// GammaOS stereo twins (see RasterizerCache::TwinTargets).
+    virtual bool TwinTargets([[maybe_unused]] PAddr cur_color, [[maybe_unused]] PAddr cur_depth,
+                             [[maybe_unused]] PAddr next_color, [[maybe_unused]] PAddr next_depth,
+                             [[maybe_unused]] u32 color_size, [[maybe_unused]] u32 depth_size,
+                             [[maybe_unused]] std::span<const PAddr> textures,
+                             [[maybe_unused]] PAddr& canon_color,
+                             [[maybe_unused]] PAddr& canon_depth) {
+        return false;
+    }
+    virtual void SetTwinDraw([[maybe_unused]] bool active) {}
+
     virtual bool AccelerateDrawBatch([[maybe_unused]] bool is_indexed) {
         return false;
     }
