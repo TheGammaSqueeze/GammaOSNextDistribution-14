@@ -403,6 +403,10 @@ void azn_set_tweaks(int enabled, int vertex_depth) {
                         Settings::values.gammaos_vertex_depth ? "on" : "off");
 }
 
+void azn_skip_preload() {
+    Settings::values.gammaos_skip_preload = true;
+}
+
 void azn_set_tweak(const char* name, int value) {
     if (!name) return;
     if (std::string_view{name} == "renderpass_clears") {

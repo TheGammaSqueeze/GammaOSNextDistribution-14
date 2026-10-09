@@ -131,6 +131,10 @@ void azn_set_tweaks(int enabled, int vertex_depth);
 // Individual GammaOS renderer tweak by name ("renderpass_clears"), 0/1.
 void azn_set_tweak(const char* name, int value);
 
+/// Stops waiting for the boot shader precompile (the game starts; queued builds continue in
+/// the background). Safe to call from any thread.
+void azn_skip_preload(void);
+
 // Blocking: boots the ROM and runs the emulation loop on the calling thread
 // until azn_stop or a shutdown request. Returns an azn_result.
 int azn_run(const char* rom_path);

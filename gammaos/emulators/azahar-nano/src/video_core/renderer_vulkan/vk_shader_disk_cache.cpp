@@ -94,7 +94,7 @@ void ShaderDiskCache::Init(const std::atomic_bool& stop_loading,
     if (queued > 0 && Settings::values.gammaos_preload_wait) {
         const auto start = std::chrono::steady_clock::now();
         std::size_t last_reported = static_cast<std::size_t>(-1);
-        while (!stop_loading) {
+        while (!stop_loading && !Settings::values.gammaos_skip_preload) {
             const std::size_t done = parent.pipeline_workers.WorkDone() - done_before;
             if (done >= queued) {
                 break;
@@ -169,7 +169,8 @@ void ShaderDiskCache::PrecompileBaked(const std::atomic_bool& stop_loading,
         });
     }
     const std::size_t queued = parent.shader_workers.WorkScheduled() - sched0;
-    while (!stop_loading && parent.shader_workers.WorkDone() - done0 < queued) {
+    while (!stop_loading && !Settings::values.gammaos_skip_preload &&
+           parent.shader_workers.WorkDone() - done0 < queued) {
         if (callback) {
             callback(VideoCore::LoadCallbackStage::Build, parent.shader_workers.WorkDone() - done0,
                      queued + entries.size() * states.size(), "Baked shader");
@@ -179,7 +180,8 @@ void ShaderDiskCache::PrecompileBaked(const std::atomic_bool& stop_loading,
     // 2. pipelines for every known state
     const std::size_t fsched0 = parent.fast_pipeline_workers.WorkScheduled();
     const std::size_t fdone0 = parent.fast_pipeline_workers.WorkDone();
-    for (std::size_t n = 0; n < entries.size() && !stop_loading; ++n) {
+    for (std::size_t n = 0;
+         n < entries.size() && !stop_loading && !Settings::values.gammaos_skip_preload; ++n) {
         if (!shaders[n] || !shaders[n]->Handle()) {
             continue;
         }
@@ -205,7 +207,8 @@ void ShaderDiskCache::PrecompileBaked(const std::atomic_bool& stop_loading,
         }
     }
     const std::size_t fqueued = parent.fast_pipeline_workers.WorkScheduled() - fsched0;
-    while (!stop_loading && parent.fast_pipeline_workers.WorkDone() - fdone0 < fqueued) {
+    while (!stop_loading && !Settings::values.gammaos_skip_preload &&
+           parent.fast_pipeline_workers.WorkDone() - fdone0 < fqueued) {
         if (callback) {
             callback(VideoCore::LoadCallbackStage::Build,
                      queued + parent.fast_pipeline_workers.WorkDone() - fdone0, queued + fqueued,

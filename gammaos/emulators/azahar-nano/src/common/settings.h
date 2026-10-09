@@ -595,6 +595,8 @@ struct Values {
     bool gammaos_hybrid_shaders = true;
     // Experimental: draw with the fragment ubershader instead of skipping (too slow on Adreno 6xx).
     bool gammaos_hybrid_uber = false;
+    // Set by the frontend (Start on the loading screen): stop waiting for shader precompiles.
+    std::atomic<bool> gammaos_skip_preload{false};
     // GammaOS tweak: deferred full-surface clears folded into the next render
     // pass's load ops (saves a full store and reload of the target).
     bool gammaos_fold_clears = false;

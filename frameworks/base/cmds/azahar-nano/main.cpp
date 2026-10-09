@@ -87,6 +87,7 @@ struct CoreApi {
     void (*set_pace_scale)(double) = nullptr;
     void (*set_tweaks)(int, int) = nullptr;
     void (*set_tweak)(const char*, int) = nullptr;
+    void (*skip_preload)() = nullptr;   // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -134,6 +135,9 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.set_pace_scale, "azn_set_pace_scale");
     ok &= sym(gCore.set_tweaks, "azn_set_tweaks");
     ok &= sym(gCore.set_tweak, "azn_set_tweak");
+    // Optional: older cores do not have it (no skip on the loading screen then).
+    gCore.skip_preload =
+        reinterpret_cast<void (*)()>(dlsym(gCore.handle, "azn_skip_preload"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -462,8 +466,9 @@ void onLoadProgress(void*, int stage, int progress, int max) {
     if (gLoadScreenOn && !last && now - gLoadLastDrawNs < 50000000LL) return;
     gLoadLastDrawNs = now;
     const char* title = stage == AZN_LOAD_BUILD ? "Preparing shaders" : "Loading shader cache";
-    char detail[64];
-    snprintf(detail, sizeof(detail), "%d of %d", progress + 1, max);
+    char detail[96];
+    snprintf(detail, sizeof(detail), "%d of %d%s", progress + 1, max,
+             gCore.skip_preload ? "    Press START to skip" : "");
     if (!gLoadScreenOn.exchange(true)) {
         gLoadDrm->setOverlayActive(0, true);
         ALOGI("loading screen open (stage %d, %d items)", stage, max);
@@ -722,6 +727,14 @@ int main(int argc, char** argv) {
     sInput = &input;
     azahar_nano::InputCallbacks icb;
     icb.button = [](int b, bool p) {
+        // Start on the shader loading screen skips the rest of the precompile.
+        if (gLoadScreenOn && p && b == AZN_BUTTON_START) {
+            if (gCore.skip_preload) {
+                ALOGI("loading screen: Start pressed, skipping the shader precompile");
+                gCore.skip_preload();
+            }
+            return true;
+        }
         if (overlay.isOpen()) {
             overlay.onButton(b, p);
             if (overlay.isOpen()) overlay.render();
