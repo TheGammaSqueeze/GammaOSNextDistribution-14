@@ -525,6 +525,21 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
         // background and this draw falls back to CPU vertex processing with the
         // fragment ubershader (see the software branch of Draw).
         if (HybridDebugForceFallback() || !pipeline_cache.BindPipeline(pipeline_info, false)) {
+            if (!Settings::values.gammaos_hybrid_uber) {
+                // Skip mode: check the software path pipeline before running the vertices
+                // on the CPU. If it is not built either (this also queues its build), the
+                // draw is left out now instead of after the CPU vertex work.
+                PipelineInfo sw_info = pipeline_info;
+                sw_info.state.vertex_layout = software_layout;
+                sw_info.state.rasterization.topology.Assign(
+                    Pica::PipelineRegs::TriangleTopology::List);
+                pipeline_cache.UseTrivialVertexShader();
+                pipeline_cache.UseTrivialGeometryShader();
+                if (!pipeline_cache.BindPipeline(sw_info, false)) {
+                    GammaStats::Add(GammaStats::HybridSkippedDraws);
+                    return true;
+                }
+            }
             GammaStats::Add(GammaStats::HybridFallbackDraws);
             hybrid_fallback = true;
             return false;
