@@ -1,3 +1,4 @@
+#include <chrono>
 #include "video_core/shader/generator/uber_fs_shader_gen.h"
 #include <sys/system_properties.h>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
@@ -62,6 +63,21 @@ struct DrawParams {
 } // Anonymous namespace
 
 namespace {
+// GammaOS: logs any single draw-path step that takes longer than 10 ms.
+struct SlowStep {
+    const char* name;
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    explicit SlowStep(const char* n) : name{n} {}
+    ~SlowStep() {
+        const auto ms = std::chrono::duration_cast<std::chrono::microseconds>(
+                            std::chrono::steady_clock::now() - start)
+                            .count() /
+                        1000.0;
+        if (ms > 10.0) {
+            LOG_WARNING(Render_Vulkan, "slow step {} {:.1f} ms", name, ms);
+        }
+    }
+};
 // GammaOS: persist.gammaos.azahar_nano.hybrid: empty or 1 = hybrid (skip until the fast
 // pipeline is built), 0 = off (wait for every compile), uber = experimental ubershader.
 void ApplyHybridProp() {
@@ -493,9 +509,17 @@ bool RasterizerVulkan::AccelerateDrawBatch(bool is_indexed) {
         // Do not draw anything if the vertex array is invalid.
         return true;
     }
-    SetupVertexArray();
+    {
+        SlowStep t{"SetupVertexArray"};
+        SetupVertexArray();
+    }
 
-    if (!SetupVertexShader()) {
+    bool vs_ok;
+    {
+        SlowStep t{"SetupVertexShader"};
+        vs_ok = SetupVertexShader();
+    }
+    if (!vs_ok) {
         return false;
     }
     if (!SetupGeometryShader()) {
@@ -524,7 +548,12 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
         // GammaOS hybrid shaders: never wait for a compile. The build is queued in the
         // background and this draw falls back to CPU vertex processing with the
         // fragment ubershader (see the software branch of Draw).
-        if (HybridDebugForceFallback() || !pipeline_cache.BindPipeline(pipeline_info, false)) {
+        bool hw_ready;
+        {
+            SlowStep t{"BindPipeline hw"};
+            hw_ready = pipeline_cache.BindPipeline(pipeline_info, false);
+        }
+        if (HybridDebugForceFallback() || !hw_ready) {
             if (!Settings::values.gammaos_hybrid_uber) {
                 // Skip mode: check the software path pipeline before running the vertices
                 // on the CPU. If it is not built either (this also queues its build), the
@@ -673,6 +702,7 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         (write_depth_fb || regs.framebuffer.output_merger.depth_test_enable != 0 ||
          (has_stencil && pipeline_info.state.depth_stencil.stencil_test_enable));
 
+    SlowStep t_fb{"DrawAfterFramebuffer"};
     const auto fb_helper = res_cache.GetFramebufferSurfaces(using_color_fb, using_depth_fb);
     const Framebuffer* framebuffer = fb_helper.Framebuffer();
     if (!framebuffer->Handle()) {
@@ -695,11 +725,17 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     }
 
     // Sync and bind the texture surfaces
-    SyncTextureUnits(framebuffer);
-    SyncUtilityTextures(framebuffer);
+    {
+        SlowStep t{"SyncTextures"};
+        SyncTextureUnits(framebuffer);
+        SyncUtilityTextures(framebuffer);
+    }
 
     // Sync and bind the shader
-    pipeline_cache.UseFragmentShader(regs, user_config);
+    {
+        SlowStep t{"UseFragmentShader"};
+        pipeline_cache.UseFragmentShader(regs, user_config);
+    }
 
     // Sync the LUTs within the texture buffer
     SyncAndUploadLUTs();
