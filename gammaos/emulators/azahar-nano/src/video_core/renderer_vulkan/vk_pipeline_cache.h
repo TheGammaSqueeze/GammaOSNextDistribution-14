@@ -110,6 +110,21 @@ public:
     void UseBakedFragmentShader(u32 variant_key, const std::array<u32, 12>& tev);
     /// True when a baked shader for this combiner setup is already compiled (no compile).
     bool HasBakedShader(u32 variant_key, const std::array<u32, 12>& tev);
+    static std::array<u32, 12> MaskBakedWords(const std::array<u32, 12>& tev);
+    /// GammaOS: fixed-function states seen on this device (all titles), for precompiling.
+    struct FixedState {
+        BlendingState blending;
+        AttachmentInfo attachments;
+        RasterizationState rasterization;
+        DepthStencilState depth_stencil;
+    };
+    void RecordFixedState(const StaticPipelineInfo& state);
+    void LoadFixedStates();
+    void SaveFixedStates();
+    void SetSoftwareLayout(const VertexLayout& layout) {
+        sw_layout = layout;
+        has_sw_layout = true;
+    }
     /// Records the ubershader's packed combiner stages (push constants).
     void PushUberTev(const std::array<u32, 16>& words);
     /// Binds a fragment ubershader variant instead of the generated fragment shader.
@@ -209,6 +224,10 @@ private:
     std::unordered_map<u32, std::unique_ptr<Shader>> uber_shaders;
     std::atomic_bool uber_failed{false};
     std::unordered_map<u64, std::unique_ptr<Shader>> baked_shaders;
+    std::vector<FixedState> fixed_states;
+    bool fixed_states_dirty = false;
+    VertexLayout sw_layout{};
+    bool has_sw_layout = false;
 
     u64 current_program_id{0};
     std::vector<std::shared_ptr<ShaderDiskCache>> disk_caches;

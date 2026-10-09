@@ -1,3 +1,6 @@
+#include <sys/system_properties.h>
+#include <algorithm>
+#include <fstream>
 #include <thread>
 #include <chrono>
 // Copyright 2026 Citra Emulator Project / Azahar Emulator Project
@@ -76,6 +79,8 @@ void ShaderDiskCache::Init(const std::atomic_bool& stop_loading,
     if (!stop_loading && !InitGSCache(stop_loading, new_callback)) {
         RecreateCache(gs_cache, CacheFileType::GS_CACHE);
     }
+    PrecompileBaked(stop_loading, callback);
+
     const std::size_t done_before = parent.pipeline_workers.WorkDone();
     const std::size_t scheduled_before = parent.pipeline_workers.WorkScheduled();
     if (!stop_loading && !InitPLCache(stop_loading, new_callback)) {
@@ -105,6 +110,114 @@ void ShaderDiskCache::Init(const std::atomic_bool& stop_loading,
                      std::chrono::steady_clock::now() - start)
                      .count());
     }
+}
+
+// GammaOS: precompiles the baked combiner shaders listed for this title (written by the ROM
+// scan) and their software path pipelines for every fixed-function state seen on this
+// device, behind the loading screen. Entries: 13 u32 (variant key, 12 packed stage words).
+void ShaderDiskCache::PrecompileBaked(const std::atomic_bool& stop_loading,
+                                      const VideoCore::DiskResourceLoadCallback& callback) {
+    if (!parent.has_sw_layout) {
+        return;
+    }
+    const std::string path =
+        fmt::format("/data/system/azahar-nano/baked/{:016X}.bin", title_id);
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        return;
+    }
+    std::vector<std::array<u32, 13>> entries;
+    std::array<u32, 13> e{};
+    while (in.read(reinterpret_cast<char*>(e.data()), sizeof(e))) {
+        entries.push_back(e);
+    }
+    std::vector<PipelineCache::FixedState> states;
+    {
+        std::scoped_lock lock{parent.uber_mutex};
+        states = parent.fixed_states;
+    }
+    {
+        // How many fixed-function states to prebuild per shader (the first build compiles
+        // the shader in the driver; other states are expected to be cheap at runtime).
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.baked_states", v);
+        const std::size_t keep = v[0] ? static_cast<std::size_t>(atoi(v)) : 1;
+        // Prefer an opaque, depth tested state first.
+        std::stable_partition(states.begin(), states.end(), [](const PipelineCache::FixedState& f) {
+            return f.blending.blend_enable == 0 && f.depth_stencil.depth_test_enable.Value() != 0;
+        });
+        if (states.size() > keep) {
+            states.resize(keep);
+        }
+    }
+    if (entries.empty() || states.empty()) {
+        LOG_INFO(Render_Vulkan, "Baked precompile: {} setups, {} states, nothing to do",
+                 entries.size(), states.size());
+        return;
+    }
+    const auto start = std::chrono::steady_clock::now();
+    // 1. shader modules, in parallel
+    std::vector<Shader*> shaders(entries.size(), nullptr);
+    std::vector<u64> ids(entries.size(), 0);
+    const std::size_t sched0 = parent.shader_workers.WorkScheduled();
+    const std::size_t done0 = parent.shader_workers.WorkDone();
+    for (std::size_t n = 0; n < entries.size(); ++n) {
+        parent.shader_workers.QueueWork([this, &entries, &shaders, &ids, n] {
+            std::array<u32, 12> words{};
+            std::copy_n(entries[n].begin() + 1, 12, words.begin());
+            shaders[n] = parent.GetBakedShader(entries[n][0], words, &ids[n]);
+        });
+    }
+    const std::size_t queued = parent.shader_workers.WorkScheduled() - sched0;
+    while (!stop_loading && parent.shader_workers.WorkDone() - done0 < queued) {
+        if (callback) {
+            callback(VideoCore::LoadCallbackStage::Build, parent.shader_workers.WorkDone() - done0,
+                     queued + entries.size() * states.size(), "Baked shader");
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    // 2. pipelines for every known state
+    const std::size_t fsched0 = parent.fast_pipeline_workers.WorkScheduled();
+    const std::size_t fdone0 = parent.fast_pipeline_workers.WorkDone();
+    for (std::size_t n = 0; n < entries.size() && !stop_loading; ++n) {
+        if (!shaders[n] || !shaders[n]->Handle()) {
+            continue;
+        }
+        for (const auto& st : states) {
+            PipelineInfo info{};
+            info.state.blending = st.blending;
+            info.state.attachments = st.attachments;
+            info.state.rasterization = st.rasterization;
+            info.state.rasterization.topology.Assign(Pica::PipelineRegs::TriangleTopology::List);
+            info.state.depth_stencil = st.depth_stencil;
+            info.state.vertex_layout = parent.sw_layout;
+            parent.UseTrivialVertexShader();
+            parent.UseTrivialGeometryShader();
+            parent.current_shaders[ProgramType::FS] = shaders[n];
+            parent.shader_hashes[ProgramType::FS] = ids[n];
+            for (u32 i = 0; i < MAX_SHADER_STAGES; i++) {
+                info.state.shader_ids[i] = parent.shader_hashes[i];
+            }
+            GraphicsPipeline* pipeline = GetPipeline(info);
+            if (pipeline && !pipeline->IsDone()) {
+                pipeline->TryBuild(false);
+            }
+        }
+    }
+    const std::size_t fqueued = parent.fast_pipeline_workers.WorkScheduled() - fsched0;
+    while (!stop_loading && parent.fast_pipeline_workers.WorkDone() - fdone0 < fqueued) {
+        if (callback) {
+            callback(VideoCore::LoadCallbackStage::Build,
+                     queued + parent.fast_pipeline_workers.WorkDone() - fdone0, queued + fqueued,
+                     "Baked pipeline");
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    LOG_INFO(Render_Vulkan, "Baked precompile: {} setups x {} states, {} pipelines built in {} ms",
+             entries.size(), states.size(), fqueued,
+             std::chrono::duration_cast<std::chrono::milliseconds>(
+                 std::chrono::steady_clock::now() - start)
+                 .count());
 }
 
 std::optional<std::pair<u64, Shader* const>> ShaderDiskCache::UseProgrammableVertexShader(
@@ -279,6 +392,7 @@ GraphicsPipeline* ShaderDiskCache::GetPipeline(const PipelineInfo& info) {
 
     auto [it, new_pipeline] = graphics_pipelines.try_emplace(optimized_hash);
     if (new_pipeline) {
+        parent.RecordFixedState(info.state);
         if (!parent.instance.UseGeometryShaders() ||
             parent.instance.IsFragmentShaderBarycentricSupported()) {
             // If we don't need geometry shaders disable
@@ -1435,6 +1549,7 @@ bool ShaderDiskCache::InitPLCache(const std::atomic_bool& stop_loading,
             }
 
             known_graphic_pipelines.emplace(curr.Id());
+            parent.RecordFixedState(entry->pl_info);
             auto pl_hash_opt = entry->pl_info.OptimizedHash(parent.instance);
 
             if (graphics_pipelines.find(pl_hash_opt) != graphics_pipelines.end()) {

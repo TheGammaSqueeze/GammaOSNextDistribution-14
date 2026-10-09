@@ -911,8 +911,11 @@ std::string GenerateFragmentShader(const Variant& variant, const Profile& profil
                                    clamp(alpha_output * amul, 0.0, 1.0));
         }
         combiner_buffer = next_combiner_buffer;
-        next_combiner_buffer = vec4(mix(next_combiner_buffer.rgb, combiner_output.rgb, float(bitfieldExtract(wb, 25, 1))),
-                                    mix(next_combiner_buffer.a, combiner_output.a, float(bitfieldExtract(wb, 26, 1))));
+        // Buffer update flags always come from the push constants (scene state, not part
+        // of a baked shader's identity).
+        uint wbuf = tevpc.w[(2 * s + 1) >> 2][(2 * s + 1) & 3];
+        next_combiner_buffer = vec4(mix(next_combiner_buffer.rgb, combiner_output.rgb, float(bitfieldExtract(wbuf, 25, 1))),
+                                    mix(next_combiner_buffer.a, combiner_output.a, float(bitfieldExtract(wbuf, 26, 1))));
     }
 )";
         if (baked_tev) {

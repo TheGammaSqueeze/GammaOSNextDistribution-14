@@ -1,3 +1,4 @@
+#include <sys/stat.h>
 #include "video_core/shader/generator/uber_fs_shader_gen.h"
 #include <cstdlib>
 #include <sys/system_properties.h>
@@ -111,6 +112,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
           GLSL::GenerateTrivialVertexShader(instance.IsShaderClipDistanceSupported(), true)} {
     scheduler.RegisterOnDispatch([this] { update_queue.Flush(); });
     trivial_vertex_shader.program = "trivial"; // GammaOS: build stats tag
+    LoadFixedStates();
     {
         // GammaOS: hardware path pipelines build newest first, so the ones the current
         // scene asks for finish before older requests (persist.gammaos.azahar_nano.build_order
@@ -182,6 +184,7 @@ void PipelineCache::BuildLayout() {
 PipelineCache::~PipelineCache() {
     pipeline_workers.WaitForRequests();
     fast_pipeline_workers.WaitForRequests();
+    SaveFixedStates();
     shader_workers.WaitForRequests();
     // A save state load tears the renderer down: writing an unchanged multi-MB
     // cache here cost ~0.9 s of every load. The periodic save (TickFrame) keeps
@@ -353,6 +356,14 @@ void PipelineCache::SaveDriverPipelineDiskCache() {
 }
 
 void PipelineCache::TickFrame() {
+    // GammaOS: keep the device-wide fixed-function state list current.
+    {
+        static auto last = std::chrono::steady_clock::now();
+        if (std::chrono::steady_clock::now() - last > std::chrono::seconds(30)) {
+            last = std::chrono::steady_clock::now();
+            SaveFixedStates();
+        }
+    }
     if (!Settings::values.use_disk_shader_cache || !driver_pipeline_cache) {
         return;
     }
@@ -717,38 +728,93 @@ Shader* PipelineCache::GetUberShader(u32 variant_key) {
     return slot.get();
 }
 
-Shader* PipelineCache::GetBakedShader(u32 variant_key, const std::array<u32, 12>& tev,
+Shader* PipelineCache::GetBakedShader(u32 variant_key, const std::array<u32, 12>& tev_in,
                                       u64* id_out) {
+    const std::array<u32, 12> tev = MaskBakedWords(tev_in);
     const u64 id = BakedIdBase ^ (Common::ComputeHash64(tev.data(), sizeof(tev)) & 0xFFFFFFFFFFull) ^
                    (static_cast<u64>(variant_key) << 40);
     if (id_out) {
         *id_out = id;
     }
+    {
+        std::scoped_lock lock{uber_mutex};
+        const auto it = baked_shaders.find(id);
+        if (it != baked_shaders.end() && it->second) {
+            return it->second.get();
+        }
+    }
+    const auto variant = Pica::Shader::Generator::Uber::Variant::FromKey(variant_key);
+    const auto start = std::chrono::steady_clock::now();
+    const std::string code =
+        Pica::Shader::Generator::Uber::GenerateFragmentShader(variant, profile, &tev);
+    auto shader = std::make_unique<Shader>(instance, vk::ShaderStageFlagBits::eFragment, code);
+    shader->program = "uber";
+    LOG_DEBUG(Render_Vulkan, "Baked fragment shader {:016X} compiled in {} ms", id,
+              std::chrono::duration_cast<std::chrono::milliseconds>(
+                  std::chrono::steady_clock::now() - start)
+                  .count());
     std::scoped_lock lock{uber_mutex};
     auto& slot = baked_shaders[id];
     if (!slot) {
-        const auto variant = Pica::Shader::Generator::Uber::Variant::FromKey(variant_key);
-        const auto start = std::chrono::steady_clock::now();
-        const std::string code =
-            Pica::Shader::Generator::Uber::GenerateFragmentShader(variant, profile, &tev);
-        {
-            // Debug: keep the source of every baked shader (written before compiling).
-            std::ofstream f(fmt::format("/data/system/azahar-nano/log/baked_{:016X}.glsl", id));
-            f << code;
-            f.flush();
-        }
-        LOG_INFO(Render_Vulkan, "Baked fragment shader {:016X}: compiling", id);
-        slot = std::make_unique<Shader>(instance, vk::ShaderStageFlagBits::eFragment, code);
-        slot->program = "uber";
-        LOG_INFO(Render_Vulkan, "Baked fragment shader {:016X} compiled in {} ms", id,
-                 std::chrono::duration_cast<std::chrono::milliseconds>(
-                     std::chrono::steady_clock::now() - start)
-                     .count());
+        slot = std::move(shader);
     }
     return slot.get();
 }
 
-bool PipelineCache::HasBakedShader(u32 variant_key, const std::array<u32, 12>& tev) {
+void PipelineCache::RecordFixedState(const StaticPipelineInfo& state) {
+    FixedState f{};
+    f.blending = state.blending;
+    f.attachments = state.attachments;
+    f.rasterization = state.rasterization;
+    f.depth_stencil = state.depth_stencil;
+    std::scoped_lock lock{uber_mutex};
+    for (const auto& known : fixed_states) {
+        if (std::memcmp(&known, &f, sizeof(f)) == 0) {
+            return;
+        }
+    }
+    fixed_states.push_back(f);
+    fixed_states_dirty = true;
+}
+
+static std::string BakedDir() {
+    return "/data/system/azahar-nano/baked";
+}
+
+void PipelineCache::LoadFixedStates() {
+    std::ifstream in(BakedDir() + "/states.bin", std::ios::binary);
+    FixedState f{};
+    std::scoped_lock lock{uber_mutex};
+    while (in.read(reinterpret_cast<char*>(&f), sizeof(f))) {
+        fixed_states.push_back(f);
+    }
+}
+
+void PipelineCache::SaveFixedStates() {
+    std::vector<FixedState> copy;
+    {
+        std::scoped_lock lock{uber_mutex};
+        if (!fixed_states_dirty) {
+            return;
+        }
+        fixed_states_dirty = false;
+        copy = fixed_states;
+    }
+    mkdir(BakedDir().c_str(), 0755); // plain libc: the FileUtil layer redirects native paths
+    std::ofstream out(BakedDir() + "/states.bin", std::ios::binary | std::ios::trunc);
+    out.write(reinterpret_cast<const char*>(copy.data()), copy.size() * sizeof(FixedState));
+}
+
+std::array<u32, 12> PipelineCache::MaskBakedWords(const std::array<u32, 12>& tev) {
+    std::array<u32, 12> out = tev;
+    for (int st = 0; st < 6; ++st) {
+        out[2 * st + 1] &= ~((1u << 25) | (1u << 26)); // combiner buffer update flags
+    }
+    return out;
+}
+
+bool PipelineCache::HasBakedShader(u32 variant_key, const std::array<u32, 12>& tev_in) {
+    const std::array<u32, 12> tev = MaskBakedWords(tev_in);
     const u64 id = BakedIdBase ^ (Common::ComputeHash64(tev.data(), sizeof(tev)) & 0xFFFFFFFFFFull) ^
                    (static_cast<u64>(variant_key) << 40);
     std::scoped_lock lock{uber_mutex};

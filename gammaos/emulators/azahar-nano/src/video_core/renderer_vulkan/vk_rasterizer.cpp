@@ -1,3 +1,5 @@
+#include <fstream>
+#include <set>
 #include <chrono>
 #include "video_core/shader/generator/uber_fs_shader_gen.h"
 #include <sys/system_properties.h>
@@ -146,6 +148,7 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
 
     // Define vertex layout for software shaders
     MakeSoftwareVertexLayout();
+    pipeline_cache.SetSoftwareLayout(software_layout);
     pipeline_info.state.vertex_layout = software_layout;
 
     const vk::Device device = instance.GetDevice();
@@ -593,6 +596,18 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                     if (pipeline_cache.HasBakedShader(variant_key, baked)) {
                         hybrid_baked = true;
                         sw_ready = true;
+                    } else if (HybridDebugBits() & 65536) {
+                        // Debug: record misses (variant + masked words) once each.
+                        static std::set<std::array<u32, 13>> seen_miss;
+                        std::array<u32, 13> rec{};
+                        rec[0] = variant_key;
+                        const auto masked = PipelineCache::MaskBakedWords(baked);
+                        std::copy_n(masked.begin(), 12, rec.begin() + 1);
+                        if (seen_miss.insert(rec).second) {
+                            std::ofstream f("/data/system/azahar-nano/baked/misses.bin",
+                                            std::ios::binary | std::ios::app);
+                            f.write(reinterpret_cast<const char*>(rec.data()), sizeof(rec));
+                        }
                     }
                 }
                 bool skip = !sw_ready || (HybridDebugBits() & 16384);

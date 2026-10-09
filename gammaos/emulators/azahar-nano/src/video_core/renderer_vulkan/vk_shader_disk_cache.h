@@ -39,6 +39,8 @@ public:
         const Pica::RegsInternal& regs);
 
     GraphicsPipeline* GetPipeline(const PipelineInfo& info);
+    void PrecompileBaked(const std::atomic_bool& stop_loading,
+                         const VideoCore::DiskResourceLoadCallback& callback);
 
     u64 GetProgramID() const {
         return title_id;
