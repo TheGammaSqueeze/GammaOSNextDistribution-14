@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "dynarmic/interface/A32/config.h"
@@ -52,6 +53,9 @@ public:
      * Used to warm the cache of a later session. Not callable while executing.
      */
     std::vector<std::uint64_t> GetCompiledBlockLocations() const;
+
+    /// Debug: (host code address, raw location descriptor) of every compiled block.
+    std::vector<std::pair<std::uint64_t, std::uint64_t>> GetBlockMap() const;
 
     /**
      * Compiles the given blocks now (reading guest code through the usual callbacks), as

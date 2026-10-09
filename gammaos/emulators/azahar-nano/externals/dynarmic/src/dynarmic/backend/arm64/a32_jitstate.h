@@ -31,6 +31,9 @@ struct A32JitState {
 
     u32 exclusive_state = 0;
 
+    /// AddressSpace::FastDispatchEntry table of the address space running this state.
+    u64 fast_dispatch_table = 0;
+
     u32 Cpsr() const;
     void SetCpsr(u32 cpsr);
 

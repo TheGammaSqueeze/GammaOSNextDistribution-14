@@ -1,3 +1,4 @@
+#include <cstdio>
 // Copyright 2016-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -383,6 +384,24 @@ std::vector<u64> Core::ARM_Dynarmic::GetCompiledBlocks() const {
     }
 #endif
     return {};
+}
+
+void Core::ARM_Dynarmic::DumpBlockMap(const std::string& path) const {
+#if CITRA_ARCH(arm64)
+    if (!jit) {
+        return;
+    }
+    const auto map = jit->GetBlockMap();
+    FILE* f = std::fopen(path.c_str(), "w");
+    if (!f) {
+        return;
+    }
+    for (const auto& [host, location] : map) {
+        std::fprintf(f, "%llx %08x\n", static_cast<unsigned long long>(host),
+                     static_cast<u32>(location));
+    }
+    std::fclose(f);
+#endif
 }
 
 std::size_t Core::ARM_Dynarmic::PrecompileBlocks(const std::vector<u64>& locations) {

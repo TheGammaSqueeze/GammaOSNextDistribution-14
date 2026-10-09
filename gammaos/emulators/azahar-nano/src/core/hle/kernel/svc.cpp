@@ -1,3 +1,5 @@
+#include <sys/system_properties.h>
+#include <chrono>
 // Copyright 2014-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -2439,6 +2441,34 @@ void SVC::CallSVC(u32 immediate) {
 
     const FunctionDef* info = GetSVCInfo(immediate);
     LOG_TRACE(Kernel_SVC, "calling {}", info->name);
+    // GammaOS debug (sys.gammaos.azahar_nano.svc_stats=1): histogram of SVCs, logged every 2 s.
+    {
+        static bool enabled = false;
+        static u32 polls = 0;
+        static std::array<u32, 0x80> counts{};
+        static auto last = std::chrono::steady_clock::now();
+        if ((polls++ & 0xFFF) == 0) {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("sys.gammaos.azahar_nano.svc_stats", v);
+            enabled = v[0] == '1';
+        }
+        if (enabled) {
+            counts[immediate & 0x7F]++;
+            const auto now = std::chrono::steady_clock::now();
+            if (now - last > std::chrono::seconds(2)) {
+                last = now;
+                std::string line;
+                for (u32 i = 0; i < counts.size(); i++) {
+                    if (counts[i] > 50) {
+                        const FunctionDef* d = GetSVCInfo(i);
+                        line += fmt::format(" {}:{}", d ? d->name : "?", counts[i]);
+                    }
+                }
+                counts.fill(0);
+                LOG_INFO(Kernel_SVC, "svc stats (2 s):{}", line);
+            }
+        }
+    }
     if (info) {
         if (info->func) {
             system.GetRunningCore().GetTimer().AddTicks(info->cycles);

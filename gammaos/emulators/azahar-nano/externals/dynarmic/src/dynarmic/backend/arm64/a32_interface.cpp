@@ -37,6 +37,8 @@ struct Jit::Impl final {
             jit_interface->is_executing = false;
         };
 
+        current_state.fast_dispatch_table =
+            reinterpret_cast<u64>(current_address_space.FastDispatchTable());
         HaltReason hr = core.Run(current_address_space, current_state, &halt_reason);
 
         PerformRequestedCacheInvalidation(hr);
@@ -53,6 +55,8 @@ struct Jit::Impl final {
             jit_interface->is_executing = false;
         };
 
+        current_state.fast_dispatch_table =
+            reinterpret_cast<u64>(current_address_space.FastDispatchTable());
         HaltReason hr = core.Step(current_address_space, current_state, &halt_reason);
 
         PerformRequestedCacheInvalidation(hr);
@@ -74,6 +78,10 @@ struct Jit::Impl final {
 
     std::vector<std::uint64_t> GetCompiledBlockLocations() const {
         return current_address_space.GetBlockLocations();
+    }
+
+    std::vector<std::pair<std::uint64_t, std::uint64_t>> GetBlockMap() const {
+        return current_address_space.GetBlockMap();
     }
 
     std::size_t PrecompileBlocks(const std::vector<std::uint64_t>& locations) {
@@ -208,6 +216,10 @@ void Jit::Reset() {
 
 std::vector<std::uint64_t> Jit::GetCompiledBlockLocations() const {
     return impl->GetCompiledBlockLocations();
+}
+
+std::vector<std::pair<std::uint64_t, std::uint64_t>> Jit::GetBlockMap() const {
+    return impl->GetBlockMap();
 }
 
 std::size_t Jit::PrecompileBlocks(const std::vector<std::uint64_t>& locations) {

@@ -246,6 +246,7 @@ void FrameLimiter::PaceBeforePresent(microseconds current_system_time_us) {
         return;
     }
     next_deadline += period;
+    Core::System::GetInstance().GammaJitMapPoll();
     if (next_deadline > now) {
         // GammaOS JIT warm-up: use the idle wait, leaving 2 ms of slack.
         const auto warm_until = next_deadline - std::chrono::milliseconds(2);

@@ -1,3 +1,5 @@
+#include <cstdio>
+#include <sys/system_properties.h>
 // Copyright 2014-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -1067,6 +1069,36 @@ void System::GammaJitWarm() {
         LOG_INFO(Core, "JIT warm-up core {}: {} blocks compiled in {:.0f} ms before running, {} left "
                        "for idle time ({} saved)",
                  i, compiled, ms, list.size() - pos, list.size());
+    }
+}
+
+void System::GammaJitMapPoll() {
+    // Debug: sys.gammaos.azahar_nano.jitmap=1 writes the JIT block map of each core (host code
+    // address -> guest PC) to the log folder, to attribute host profiler samples to guest code.
+    {
+        static u32 polls = 0;
+        if ((polls++ % 30) == 0) {
+            char v[PROP_VALUE_MAX] = {};
+            if (__system_property_get("sys.gammaos.azahar_nano.jitmap", v) > 0 && v[0] == '1') {
+                __system_property_set("sys.gammaos.azahar_nano.jitmap", "");
+                for (u32 i = 0; i < static_cast<u32>(cpu_cores.size()); i++) {
+                    if (auto* dyn = dynamic_cast<ARM_Dynarmic*>(cpu_cores[i].get())) {
+                        dyn->DumpBlockMap(fmt::format("/data/system/azahar-nano/log/jitmap_core{}.txt", i));
+                    }
+                }
+                // Also the guest memory where Pokemon Sun loads MovieLib (relocations applied),
+                // for finding its vtables and functions.
+                if (FILE* f = std::fopen("/data/system/azahar-nano/log/guestmem_6ac000.bin", "wb")) {
+                    for (VAddr a = 0x6AC000; a < 0x6BD000; a += 0x1000) {
+                        const u8* page = memory->GetPointer(a);
+                        static const std::array<u8, 0x1000> zero{};
+                        std::fwrite(page ? page : zero.data(), 1, 0x1000, f);
+                    }
+                    std::fclose(f);
+                }
+                LOG_INFO(Core, "JIT block maps written");
+            }
+        }
     }
 }
 

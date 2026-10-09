@@ -71,6 +71,7 @@ CodePtr AddressSpace::GetOrEmit(IR::LocationDescriptor descriptor) {
 }
 
 void AddressSpace::InvalidateBasicBlocks(const tsl::robin_set<IR::LocationDescriptor>& descriptors) {
+    FastDispatchClear();
     UnprotectCodeMemory();
 
     for (const auto& descriptor : descriptors) {
@@ -90,6 +91,7 @@ void AddressSpace::InvalidateBasicBlocks(const tsl::robin_set<IR::LocationDescri
 }
 
 void AddressSpace::ClearCache() {
+    FastDispatchClear();
     emit_order.clear();
     block_entries.clear();
     reverse_block_entries.clear();

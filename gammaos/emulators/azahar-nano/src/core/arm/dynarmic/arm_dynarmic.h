@@ -30,6 +30,8 @@ public:
     std::vector<u64> GetCompiledBlocks() const;
     /// Compiles the blocks whose code page is mapped now; returns how many were compiled
     std::size_t PrecompileBlocks(const std::vector<u64>& locations);
+    /// GammaOS debug: writes "host_address guest_pc" for every compiled block to path.
+    void DumpBlockMap(const std::string& path) const;
 
     explicit ARM_Dynarmic(Core::System& system_, Memory::MemorySystem& memory_, u32 core_id_,
                           std::shared_ptr<Core::Timing::Timer> timer,

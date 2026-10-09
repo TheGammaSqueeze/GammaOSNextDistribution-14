@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include <map>
 #include <vector>
 #include <optional>
@@ -40,6 +42,29 @@ public:
 
     CodePtr GetOrEmit(IR::LocationDescriptor descriptor);
 
+    /// Fast dispatch: a direct-mapped table (location -> host code) the emitted code looks up
+    /// for indirect branches before returning to the dispatcher. Cleared whenever code is
+    /// invalidated or the cache is cleared.
+    struct FastDispatchEntry {
+        u64 location = ~u64{0};
+        CodePtr code_ptr = nullptr;
+    };
+    static constexpr size_t fast_dispatch_bits = 16;
+    static constexpr u64 FastDispatchIndex(u64 location) {
+        return ((location ^ (location >> 32)) >> 1) & ((u64{1} << fast_dispatch_bits) - 1);
+    }
+    FastDispatchEntry* FastDispatchTable() { return fast_dispatch_table.get(); }
+    void FastDispatchInsert(u64 location, CodePtr code_ptr) {
+        auto& e = fast_dispatch_table[FastDispatchIndex(location)];
+        e.location = location;
+        e.code_ptr = code_ptr;
+    }
+    void FastDispatchClear() {
+        for (size_t i = 0; i < (size_t{1} << fast_dispatch_bits); i++) {
+            fast_dispatch_table[i] = FastDispatchEntry{};
+        }
+    }
+
     /// Raw location descriptors of all compiled blocks, in the order they were first
     /// compiled (oldest first), so a warm-up can compile the earliest needed first.
     std::vector<u64> GetBlockLocations() const {
@@ -49,6 +74,17 @@ public:
             if (block_entries.contains(IR::LocationDescriptor{value})) {
                 out.push_back(value);
             }
+        }
+        return out;
+    }
+
+    /// Debug: (host code address, raw location descriptor) of every compiled block, so host
+    /// profiler samples in generated code can be attributed to guest addresses.
+    std::vector<std::pair<std::uint64_t, std::uint64_t>> GetBlockMap() const {
+        std::vector<std::pair<std::uint64_t, std::uint64_t>> out;
+        out.reserve(reverse_block_entries.size());
+        for (const auto& [ptr, loc] : reverse_block_entries) {
+            out.emplace_back(reinterpret_cast<std::uint64_t>(ptr), loc.Value());
         }
         return out;
     }
@@ -89,6 +125,8 @@ protected:
 
     // A IR::LocationDescriptor will have one current CodePtr.
     // However, there can be multiple other CodePtrs which are older, previously invalidated blocks.
+    std::unique_ptr<FastDispatchEntry[]> fast_dispatch_table{
+        new FastDispatchEntry[size_t{1} << fast_dispatch_bits]};
     tsl::robin_map<IR::LocationDescriptor, CodePtr> block_entries;
     std::vector<u64> emit_order;   // first-compile order (may hold invalidated entries)
     std::map<CodePtr, IR::LocationDescriptor> reverse_block_entries;

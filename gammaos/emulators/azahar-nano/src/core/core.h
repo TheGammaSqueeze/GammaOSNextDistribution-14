@@ -224,6 +224,7 @@ public:
     /// GammaOS JIT warm-up: compile pending saved blocks until the given time (called
     /// from the frame pacer's idle wait, never while the JIT executes)
     void GammaJitWarmStep(std::chrono::steady_clock::time_point until);
+    void GammaJitMapPoll();
 
     [[nodiscard]] u32 GetNumCores() const {
         return static_cast<u32>(cpu_cores.size());

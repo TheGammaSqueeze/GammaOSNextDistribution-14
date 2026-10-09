@@ -323,7 +323,12 @@ void A32AddressSpace::EmitPrelude() {
         code.BR(X0);
 
         const auto fn = [](A32AddressSpace& self, A32JitState& context) -> CodePtr {
-            return self.GetOrEmit(context.GetLocationDescriptor());
+            const IR::LocationDescriptor location = context.GetLocationDescriptor();
+            const CodePtr code_ptr = self.GetOrEmit(location);
+            if (self.conf.HasOptimization(OptimizationFlag::FastDispatch)) {
+                self.FastDispatchInsert(location.Value(), code_ptr);
+            }
+            return code_ptr;
         };
 
         code.align(8);

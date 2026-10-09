@@ -7,6 +7,7 @@
 #include <oaknut/oaknut.hpp>
 
 #include "dynarmic/backend/arm64/a32_jitstate.h"
+#include "dynarmic/backend/arm64/address_space.h"
 #include "dynarmic/backend/arm64/abi.h"
 #include "dynarmic/backend/arm64/emit_arm64.h"
 #include "dynarmic/backend/arm64/emit_context.h"
@@ -118,10 +119,32 @@ void EmitA32Terminal(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Term::Po
     EmitRelocation(code, ctx, LinkTarget::ReturnToDispatcher);
 }
 
-void EmitA32Terminal(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Term::FastDispatchHint, IR::LocationDescriptor, bool) {
-    EmitRelocation(code, ctx, LinkTarget::ReturnToDispatcher);
+void EmitA32Terminal(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Term::FastDispatchHint, IR::LocationDescriptor, bool is_single_step) {
+    if (ctx.conf.HasOptimization(OptimizationFlag::FastDispatch) && !is_single_step) {
+        // Look the target up in the address space's fast dispatch table and jump straight to
+        // its code; fall back to the dispatcher (which fills the entry) on a miss. Same checks
+        // as the dispatcher: a pending halt and, with cycle counting, the remaining ticks.
+        oaknut::Label fail;
+        code.LDAR(Wscratch0, Xhalt);
+        code.CBNZ(Wscratch0, fail);
+        if (ctx.conf.enable_cycle_counting) {
+            code.CMP(Xticks, 0);
+            code.B(LE, fail);
+        }
+        static_assert(offsetof(A32JitState, regs) + 16 * sizeof(u32) == offsetof(A32JitState, upper_location_descriptor));
+        code.LDUR(X0, Xstate, offsetof(A32JitState, regs) + 15 * sizeof(u32));
+        code.EOR(Xscratch0, X0, X0, LSR, 32);
+        code.UBFX(Xscratch0, Xscratch0, 1, AddressSpace::fast_dispatch_bits);
+        code.LDR(Xscratch1, Xstate, offsetof(A32JitState, fast_dispatch_table));
+        code.ADD(Xscratch1, Xscratch1, Xscratch0, LSL, 4);
+        code.LDP(Xscratch0, Xscratch1, Xscratch1);
+        code.CMP(X0, Xscratch0);
+        code.B(NE, fail);
+        code.BR(Xscratch1);
+        code.l(fail);
+    }
 
-    // TODO: Implement FastDispatchHint optimization
+    EmitRelocation(code, ctx, LinkTarget::ReturnToDispatcher);
 }
 
 void EmitA32Terminal(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Term::If terminal, IR::LocationDescriptor initial_location, bool is_single_step) {
