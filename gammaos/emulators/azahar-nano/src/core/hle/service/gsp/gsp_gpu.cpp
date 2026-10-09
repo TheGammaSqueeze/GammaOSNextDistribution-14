@@ -1,3 +1,5 @@
+#include <sys/system_properties.h>
+#include <chrono>
 // Copyright 2014-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -656,6 +658,40 @@ void GSP_GPU::TriggerCmdReqQueue(Kernel::HLERequestContext& ctx) {
 
     bool requires_delay = false;
 
+    // GammaOS debug (sys.gammaos.azahar_nano.svc_stats=1): triggers, empty triggers and, per GX
+    // command id, count and host time, logged every 2 s.
+    static bool stats_on = false;
+    static u32 stats_polls = 0;
+    static std::array<u64, 16> cmd_count{}, cmd_ns{};
+    static u64 triggers = 0, empty_triggers = 0;
+    static auto stats_last = std::chrono::steady_clock::now();
+    if ((stats_polls++ & 0xFF) == 0) {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("sys.gammaos.azahar_nano.svc_stats", v);
+        stats_on = v[0] == '1';
+    }
+    if (stats_on) {
+        triggers++;
+        if (command_buffer->number_commands == 0) {
+            empty_triggers++;
+        }
+        const auto now = std::chrono::steady_clock::now();
+        if (now - stats_last > std::chrono::seconds(2)) {
+            stats_last = now;
+            std::string line;
+            for (u32 i = 0; i < cmd_count.size(); i++) {
+                if (cmd_count[i]) {
+                    line += fmt::format(" id{:X}: {} in {} ms", i, cmd_count[i], cmd_ns[i] / 1000000);
+                }
+            }
+            LOG_INFO(Service_GSP, "gx stats (2 s): triggers {} empty {} |{}", triggers,
+                     empty_triggers, line);
+            cmd_count.fill(0);
+            cmd_ns.fill(0);
+            triggers = empty_triggers = 0;
+        }
+    }
+
     while (command_buffer->number_commands) {
         if (command_buffer->should_stop) {
             command_buffer->status.Assign(CommandBuffer::STATUS_STOPPED);
@@ -679,7 +715,15 @@ void GSP_GPU::TriggerCmdReqQueue(Kernel::HLERequestContext& ctx) {
 
         // Decode and execute command
         system.perf_stats->BeginGPUProcessing();
+        const auto exec_start = std::chrono::steady_clock::now();
         gpu.Execute(command);
+        if (stats_on) {
+            const u32 id = static_cast<u32>(command.id.Value()) & 0xF;
+            cmd_count[id]++;
+            cmd_ns[id] += std::chrono::duration_cast<std::chrono::nanoseconds>(
+                              std::chrono::steady_clock::now() - exec_start)
+                              .count();
+        }
         system.perf_stats->EndGPUProcessing();
 
         if (command.stop) {
