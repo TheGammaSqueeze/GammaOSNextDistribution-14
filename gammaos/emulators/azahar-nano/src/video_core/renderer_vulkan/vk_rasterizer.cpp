@@ -62,12 +62,18 @@ struct DrawParams {
 } // Anonymous namespace
 
 namespace {
-// GammaOS: persist.gammaos.azahar_nano.hybrid=1 turns the hybrid shader path on
-// (experimental, off by default while the ubershader is tuned for Adreno 6xx).
-bool HybridPropOn() {
+// GammaOS: persist.gammaos.azahar_nano.hybrid: empty or 1 = hybrid (skip until the fast
+// pipeline is built), 0 = off (wait for every compile), uber = experimental ubershader.
+void ApplyHybridProp() {
     char v[PROP_VALUE_MAX] = {};
     __system_property_get("persist.gammaos.azahar_nano.hybrid", v);
-    return v[0] == '1';
+    const std::string_view mode{v};
+    if (mode == "0") {
+        Settings::values.gammaos_hybrid_shaders = false;
+    } else if (mode == "uber") {
+        Settings::values.gammaos_hybrid_shaders = true;
+        Settings::values.gammaos_hybrid_uber = true;
+    }
 }
 int HybridDebugBits() {
     const int value = [] {
@@ -109,9 +115,7 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
       texture_lf_buffer{instance, scheduler, vk::BufferUsageFlagBits::eUniformTexelBuffer,
                         TextureBufferSize(instance)},
       async_shaders{Settings::values.async_shader_compilation.GetValue()} {
-    if (HybridPropOn()) {
-        Settings::values.gammaos_hybrid_shaders = true;
-    }
+    ApplyHybridProp();
     vertex_depth_enabled = instance.UseVertexDepth();
 
     vertex_buffers.fill(stream_buffer.Handle());
@@ -515,7 +519,8 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
         __system_property_get("persist.gammaos.azahar_nano.async_small", v);
         return v[0] == '1';
     }();
-    if (Settings::values.gammaos_hybrid_shaders && pipeline_cache.UberAvailable()) {
+    if (Settings::values.gammaos_hybrid_shaders &&
+        (!Settings::values.gammaos_hybrid_uber || pipeline_cache.UberAvailable())) {
         // GammaOS hybrid shaders: never wait for a compile. The build is queued in the
         // background and this draw falls back to CPU vertex processing with the
         // fragment ubershader (see the software branch of Draw).
@@ -757,6 +762,15 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     } else {
         if (!Settings::values.gammaos_hybrid_shaders) {
             pipeline_cache.BindPipeline(pipeline_info, true);
+        } else if (!Settings::values.gammaos_hybrid_uber) {
+            // Skip mode: draw once the fast software path pipeline is built (it builds in
+            // the background, about 55 ms); until then this draw is left out.
+            if (!pipeline_cache.BindPipeline(pipeline_info, false)) {
+                GammaStats::Add(GammaStats::HybridSkippedDraws);
+                hybrid_fallback = false;
+                vertex_batch.clear();
+                return true;
+            }
         } else if (!pipeline_cache.UberAvailable()) {
             pipeline_cache.BindPipeline(pipeline_info, true);
         } else if (HybridDebugSwSpecialized()) {
