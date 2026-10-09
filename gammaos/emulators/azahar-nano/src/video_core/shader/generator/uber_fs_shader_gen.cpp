@@ -766,7 +766,8 @@ TEV_STAGES
 
 } // namespace
 
-std::string GenerateFragmentShader(const Variant& variant, const Profile& profile) {
+std::string GenerateFragmentShader(const Variant& variant, const Profile& profile,
+                                   const std::array<u32, 12>* baked_tev) {
     std::string out;
     out.reserve(64 * 1024);
     out += "#extension GL_ARB_separate_shader_objects : enable\n";
@@ -881,8 +882,8 @@ std::string GenerateFragmentShader(const Variant& variant, const Profile& profil
         // straight-line math. Source and channel selections are arithmetic weights.
         std::string stages = "    // Branchless combiner on packed push constant stages.\n";
         stages += R"(    for (int s = 0; s < 6; ++s) {
-        uint wa = tevpc.w[s >> 1][(s & 1) * 2];
-        uint wb = tevpc.w[s >> 1][(s & 1) * 2 + 1];
+        uint wa = TEV_WORD(2 * s);
+        uint wb = TEV_WORD(2 * s + 1);
         if (bitfieldExtract(wb, 27, 1) != 0u) {
             mediump vec4 k = const_color[s];
             mediump vec4 sc1 = select_src(bitfieldExtract(wa, 0, 4), prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output);
@@ -914,6 +915,21 @@ std::string GenerateFragmentShader(const Variant& variant, const Profile& profil
                                     mix(next_combiner_buffer.a, combiner_output.a, float(bitfieldExtract(wb, 26, 1))));
     }
 )";
+        if (baked_tev) {
+            std::string table = "const uint TEVW[12] = uint[](";
+            for (int n = 0; n < 12; ++n) {
+                table += fmt::format("{}u{}", (*baked_tev)[n], n < 11 ? "," : ");\n");
+            }
+            table += "#define TEV_WORD(i) TEVW[i]\n";
+            main_start = table + main_start;
+            // Unroll so every stage's words are constants and the unused code folds away.
+            const auto loop = stages.find("for (int s = 0; s < 6; ++s) {");
+            if (loop != std::string::npos) {
+                stages.insert(loop, "[[unroll]] ");
+            }
+        } else {
+            main_start = "#define TEV_WORD(i) tevpc.w[(i) >> 2][(i) & 3]\n" + main_start;
+        }
         main_start.replace(main_start.find("TEV_STAGES"), 10, stages);
     }
     main_start.replace(main_start.find("WRITE_DEPTH_GAS"), 15,

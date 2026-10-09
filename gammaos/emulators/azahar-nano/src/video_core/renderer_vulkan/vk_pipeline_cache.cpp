@@ -717,6 +717,43 @@ Shader* PipelineCache::GetUberShader(u32 variant_key) {
     return slot.get();
 }
 
+Shader* PipelineCache::GetBakedShader(u32 variant_key, const std::array<u32, 12>& tev,
+                                      u64* id_out) {
+    const u64 id = BakedIdBase ^ (Common::ComputeHash64(tev.data(), sizeof(tev)) & 0xFFFFFFFFFFull) ^
+                   (static_cast<u64>(variant_key) << 40);
+    if (id_out) {
+        *id_out = id;
+    }
+    std::scoped_lock lock{uber_mutex};
+    auto& slot = baked_shaders[id];
+    if (!slot) {
+        const auto variant = Pica::Shader::Generator::Uber::Variant::FromKey(variant_key);
+        const auto start = std::chrono::steady_clock::now();
+        const std::string code =
+            Pica::Shader::Generator::Uber::GenerateFragmentShader(variant, profile, &tev);
+        {
+            // Debug: keep the source of every baked shader (written before compiling).
+            std::ofstream f(fmt::format("/data/system/azahar-nano/log/baked_{:016X}.glsl", id));
+            f << code;
+            f.flush();
+        }
+        LOG_INFO(Render_Vulkan, "Baked fragment shader {:016X}: compiling", id);
+        slot = std::make_unique<Shader>(instance, vk::ShaderStageFlagBits::eFragment, code);
+        slot->program = "uber";
+        LOG_INFO(Render_Vulkan, "Baked fragment shader {:016X} compiled in {} ms", id,
+                 std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::steady_clock::now() - start)
+                     .count());
+    }
+    return slot.get();
+}
+
+void PipelineCache::UseBakedFragmentShader(u32 variant_key, const std::array<u32, 12>& tev) {
+    u64 id = 0;
+    current_shaders[ProgramType::FS] = GetBakedShader(variant_key, tev, &id);
+    shader_hashes[ProgramType::FS] = id;
+}
+
 void PipelineCache::PushUberTev(const std::array<u32, 16>& words) {
     scheduler.Record([layout = *pipeline_layout, words](vk::CommandBuffer cmdbuf) {
         cmdbuf.pushConstants(layout, vk::ShaderStageFlagBits::eFragment, 0, sizeof(words),

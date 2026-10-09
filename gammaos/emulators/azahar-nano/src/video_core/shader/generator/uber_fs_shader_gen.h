@@ -13,6 +13,7 @@
 // (an image binding) and whether the fragment writes its own depth.
 #pragma once
 
+#include <array>
 #include <string>
 
 #include "common/common_types.h"
@@ -50,6 +51,9 @@ struct Variant {
 /// Number of 32-bit words of the FSConfig copied into the uniform block.
 constexpr u32 ConfigWords = 68;
 
-std::string GenerateFragmentShader(const Variant& variant, const Profile& profile);
+/// baked_tev: when given, the 12 packed combiner words (two per stage) are compiled in
+/// as constants, so the combiner code is specialized while everything else stays dynamic.
+std::string GenerateFragmentShader(const Variant& variant, const Profile& profile,
+                                   const std::array<u32, 12>* baked_tev = nullptr);
 
 } // namespace Pica::Shader::Generator::Uber

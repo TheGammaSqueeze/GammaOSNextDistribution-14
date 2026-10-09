@@ -132,6 +132,7 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
                         TextureBufferSize(instance)},
       async_shaders{Settings::values.async_shader_compilation.GetValue()} {
     ApplyHybridProp();
+    (void)HybridDebugBits(); // latch the debug switches at startup
     vertex_depth_enabled = instance.UseVertexDepth();
 
     vertex_buffers.fill(stream_buffer.Handle());
@@ -952,7 +953,14 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
             if (fs_data_dirty) {
                 UploadUniforms(false);
             }
-            pipeline_cache.UseUberFragmentShader(variant.Key());
+            if (HybridDebugBits() & 32768) {
+                // Experimental: combiner stages compiled into the shader.
+                std::array<u32, 12> baked{};
+                std::copy_n(tev_pack.begin(), 12, baked.begin());
+                pipeline_cache.UseBakedFragmentShader(variant.Key(), baked);
+            } else {
+                pipeline_cache.UseUberFragmentShader(variant.Key());
+            }
             pipeline_cache.PushUberTev(tev_pack);
             const bool ready = pipeline_cache.BindPipeline(pipeline_info, false);
             if (!ready) {

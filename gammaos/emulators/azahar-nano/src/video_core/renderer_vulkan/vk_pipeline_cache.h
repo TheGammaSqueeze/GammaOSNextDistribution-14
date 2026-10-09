@@ -104,6 +104,10 @@ public:
     bool UberAvailable() const {
         return !uber_failed.load();
     }
+    /// GammaOS: fragment ubershader with the combiner stages compiled in (baked).
+    static constexpr u64 BakedIdBase = 0x42414B4500000000ULL; // "BAKE"
+    Shader* GetBakedShader(u32 variant_key, const std::array<u32, 12>& tev, u64* id_out);
+    void UseBakedFragmentShader(u32 variant_key, const std::array<u32, 12>& tev);
     /// Records the ubershader's packed combiner stages (push constants).
     void PushUberTev(const std::array<u32, 16>& words);
     /// Binds a fragment ubershader variant instead of the generated fragment shader.
@@ -202,6 +206,7 @@ private:
     std::mutex uber_mutex;
     std::unordered_map<u32, std::unique_ptr<Shader>> uber_shaders;
     std::atomic_bool uber_failed{false};
+    std::unordered_map<u64, std::unique_ptr<Shader>> baked_shaders;
 
     u64 current_program_id{0};
     std::vector<std::shared_ptr<ShaderDiskCache>> disk_caches;
