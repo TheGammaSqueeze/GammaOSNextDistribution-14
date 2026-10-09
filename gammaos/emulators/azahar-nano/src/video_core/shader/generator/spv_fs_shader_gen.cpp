@@ -1013,6 +1013,22 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
     // (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
     const auto sample_lod = [&](Id tex_id) {
         const Id sampled_image{OpLoad(TypeSampledImage(image2d_id), tex_id)};
+        // GammaOS: the rasterizer sets the bias to 1e30 when the level of detail cannot change
+        // the sample (one mip level, same min and mag filter): sample level 0 directly and skip
+        // the size query, the derivatives and the log2.
+        const Id bias_value{GetShaderDataMember(f32_id, ConstS32(27), ConstU32(texture_unit))};
+        const Id lod_irrelevant{OpFOrdGreaterThan(bool_id, bias_value, ConstF32(1e29f))};
+        const Id fast_label{OpLabel()};
+        const Id slow_label{OpLabel()};
+        const Id merge_label{OpLabel()};
+        OpSelectionMerge(merge_label, spv::SelectionControlMask::MaskNone);
+        OpBranchConditional(lod_irrelevant, fast_label, slow_label);
+        AddLabel(fast_label);
+        const Id fast_sample{OpImageSampleExplicitLod(vec_ids.Get(4), sampled_image, texcoord,
+                                                      spv::ImageOperandsMask::Lod,
+                                                      ConstF32(0.f))};
+        OpBranch(merge_label);
+        AddLabel(slow_label);
         const Id tex_image{OpImage(image2d_id, sampled_image)};
         const Id tex_size{OpImageQuerySizeLod(ivec_ids.Get(2), tex_image, ConstS32(0))};
         const Id coord{OpFMul(vec_ids.Get(2), texcoord, OpConvertSToF(vec_ids.Get(2), tex_size))};
@@ -1022,10 +1038,12 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
         const Id dx_dy_max{
             OpFMax(f32_id, OpCompositeExtract(f32_id, d, 0), OpCompositeExtract(f32_id, d, 1))};
         const Id lod{OpLog2(f32_id, dx_dy_max)};
-        const Id lod_bias{GetShaderDataMember(f32_id, ConstS32(27), ConstU32(texture_unit))};
-        const Id biased_lod{OpFAdd(f32_id, lod, lod_bias)};
-        return OpImageSampleExplicitLod(vec_ids.Get(4), sampled_image, texcoord,
-                                        spv::ImageOperandsMask::Lod, biased_lod);
+        const Id biased_lod{OpFAdd(f32_id, lod, bias_value)};
+        const Id slow_sample{OpImageSampleExplicitLod(vec_ids.Get(4), sampled_image, texcoord,
+                                                      spv::ImageOperandsMask::Lod, biased_lod)};
+        OpBranch(merge_label);
+        AddLabel(merge_label);
+        return OpPhi(vec_ids.Get(4), fast_sample, fast_label, slow_sample, slow_label);
     };
 
     const auto sample_3d = [&](Id tex_id, bool projection) {

@@ -195,7 +195,12 @@ void RasterizerAccelerated::SyncDrawUniforms() {
         const auto pica_textures = regs.texturing.GetTextures();
         for (u32 tex_index = 0; tex_index < 3; tex_index++) {
             const auto& config = pica_textures[tex_index].config;
-            fs_data.tex_lod_bias[tex_index] = config.lod.bias / 256.0f;
+            // GammaOS: with one mip level and the same minification and magnification
+            // filter the level of detail cannot change the sample, so the shader may skip
+            // computing it (sentinel bias, see the SPIR-V fragment generator).
+            const bool lod_irrelevant = config.lod.max_level == 0 &&
+                                        config.mag_filter == config.min_filter;
+            fs_data.tex_lod_bias[tex_index] = lod_irrelevant ? 1e30f : config.lod.bias / 256.0f;
             fs_data.tex_border_color[tex_index] = ColorRGBA8(config.border_color.raw);
         }
         fs_data_dirty = true;
