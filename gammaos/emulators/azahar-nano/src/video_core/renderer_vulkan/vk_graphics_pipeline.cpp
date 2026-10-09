@@ -119,6 +119,136 @@ bool GraphicsPipeline::TryBuild(bool wait_built) {
     return wait_built;
 }
 
+namespace {
+// GammaOS: pipeline library parts, kept for the life of the device (keyed by device + part key).
+struct LibraryCache {
+    std::mutex mutex;
+    std::unordered_map<u64, vk::Pipeline> parts;
+};
+LibraryCache& Libraries() {
+    static LibraryCache cache;
+    return cache;
+}
+template <typename... Ts>
+u64 KeyOf(u64 kind, const Ts&... values) {
+    u64 h = kind;
+    ((h = Common::HashCombine(h, Common::ComputeHash64(&values, sizeof(values)))), ...);
+    return h;
+}
+} // namespace
+
+vk::Pipeline GraphicsPipeline::LinkFromLibraries(
+    const vk::GraphicsPipelineCreateInfo& full,
+    const vk::PipelineVertexInputStateCreateInfo& vertex_input,
+    const vk::PipelineInputAssemblyStateCreateInfo& input_assembly,
+    const vk::PipelineViewportStateCreateInfo& viewport,
+    const vk::PipelineRasterizationStateCreateInfo& raster,
+    const vk::PipelineMultisampleStateCreateInfo& multisample,
+    const vk::PipelineDepthStencilStateCreateInfo& depth,
+    const vk::PipelineColorBlendStateCreateInfo& blend,
+    const vk::PipelineDynamicStateCreateInfo& dynamic,
+    std::span<const vk::PipelineShaderStageCreateInfo> stages_info, u32 stage_count) {
+    const vk::Device device = instance.GetDevice();
+    const u64 device_key = reinterpret_cast<u64>(static_cast<VkDevice>(device));
+    const auto& st = info.state;
+    // Shader stages by kind (VS + GS go to pre-rasterization, FS to the fragment part).
+    std::array<vk::PipelineShaderStageCreateInfo, MAX_SHADER_STAGES> pre{};
+    u32 pre_count = 0;
+    vk::PipelineShaderStageCreateInfo frag{};
+    bool has_frag = false;
+    for (u32 i = 0; i < stage_count; i++) {
+        if (stages_info[i].stage == vk::ShaderStageFlagBits::eFragment) {
+            frag = stages_info[i];
+            has_frag = true;
+        } else {
+            pre[pre_count++] = stages_info[i];
+        }
+    }
+    const u64 pass_key = KeyOf(0, st.attachments);
+    const u64 vi_key = KeyOf(1, st.vertex_layout, st.rasterization.topology.Value());
+    const u64 pre_key = KeyOf(2, st.shader_ids[0], st.shader_ids[2], raster.cullMode,
+                              raster.frontFace, raster.depthClampEnable, pass_key);
+    const u64 fs_key = KeyOf(3, st.shader_ids[1], st.depth_stencil, has_frag, pass_key);
+    const u64 out_key = KeyOf(4, st.blending, blend.pAttachments->colorWriteMask,
+                              blend.logicOpEnable, pass_key);
+
+    auto build_part = [&](u64 key, vk::GraphicsPipelineLibraryFlagsEXT part,
+                          vk::GraphicsPipelineCreateInfo ci) -> vk::Pipeline {
+        const u64 full_key = Common::HashCombine(device_key, key);
+        auto& cache = Libraries();
+        {
+            std::scoped_lock lock{cache.mutex};
+            if (auto it = cache.parts.find(full_key); it != cache.parts.end()) {
+                return it->second;
+            }
+        }
+        const vk::GraphicsPipelineLibraryCreateInfoEXT lib_info{.flags = part};
+        ci.pNext = &lib_info;
+        ci.flags |= vk::PipelineCreateFlagBits::eLibraryKHR;
+        const auto res = device.createGraphicsPipeline(pipeline_cache, ci);
+        if (res.result != vk::Result::eSuccess) {
+            LOG_ERROR(Render_Vulkan, "Pipeline library part {:X} failed: {}",
+                      static_cast<u32>(part), vk::to_string(res.result));
+            return {};
+        }
+        std::scoped_lock lock{cache.mutex};
+        auto [it, inserted] = cache.parts.try_emplace(full_key, res.value);
+        if (!inserted) {
+            // Another worker built the same part meanwhile: keep theirs.
+            device.destroyPipeline(res.value);
+        }
+        return it->second;
+    };
+
+    const vk::Pipeline vi = build_part(
+        vi_key, vk::GraphicsPipelineLibraryFlagBitsEXT::eVertexInputInterface,
+        vk::GraphicsPipelineCreateInfo{.pVertexInputState = &vertex_input,
+                                       .pInputAssemblyState = &input_assembly,
+                                       .pDynamicState = &dynamic});
+    const vk::Pipeline pr = build_part(
+        pre_key, vk::GraphicsPipelineLibraryFlagBitsEXT::ePreRasterizationShaders,
+        vk::GraphicsPipelineCreateInfo{.stageCount = pre_count,
+                                       .pStages = pre.data(),
+                                       .pViewportState = &viewport,
+                                       .pRasterizationState = &raster,
+                                       .pDynamicState = &dynamic,
+                                       .layout = full.layout,
+                                       .renderPass = full.renderPass});
+    const vk::Pipeline fs = build_part(
+        fs_key, vk::GraphicsPipelineLibraryFlagBitsEXT::eFragmentShader,
+        vk::GraphicsPipelineCreateInfo{.stageCount = has_frag ? 1u : 0u,
+                                       .pStages = &frag,
+                                       .pMultisampleState = &multisample,
+                                       .pDepthStencilState = &depth,
+                                       .pDynamicState = &dynamic,
+                                       .layout = full.layout,
+                                       .renderPass = full.renderPass});
+    const vk::Pipeline out = build_part(
+        out_key, vk::GraphicsPipelineLibraryFlagBitsEXT::eFragmentOutputInterface,
+        vk::GraphicsPipelineCreateInfo{.pMultisampleState = &multisample,
+                                       .pColorBlendState = &blend,
+                                       .pDynamicState = &dynamic,
+                                       .renderPass = full.renderPass});
+    if (!vi || !pr || !fs || !out) {
+        return {};
+    }
+    const std::array libs{vi, pr, fs, out};
+    const vk::PipelineLibraryCreateInfoKHR link_info{
+        .libraryCount = static_cast<u32>(libs.size()),
+        .pLibraries = libs.data(),
+    };
+    const vk::GraphicsPipelineCreateInfo link{
+        .pNext = &link_info,
+        .layout = full.layout,
+    };
+    const auto res = device.createGraphicsPipeline(pipeline_cache, link);
+    if (res.result != vk::Result::eSuccess) {
+        LOG_ERROR(Render_Vulkan, "Pipeline link failed: {}", vk::to_string(res.result));
+        return {};
+    }
+    return res.value;
+}
+
 bool GraphicsPipeline::Build(bool fail_on_compile_required) {
     MICROPROFILE_SCOPE(Vulkan_Pipeline);
 
@@ -295,6 +425,24 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
         pipeline_info.flags |= vk::PipelineCreateFlagBits::eFailOnPipelineCompileRequiredEXT;
     }
     const auto build_start = std::chrono::steady_clock::now();
+    // GammaOS: with graphics pipeline libraries (persist.gammaos.azahar_nano.gpl, on by
+    // default where the driver links fast) each part is built once and a new pipeline only
+    // links them: a new shader pairing no longer recompiles both shaders.
+    static const bool gpl_wanted = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.gpl", v);
+        return v[0] != '0';
+    }();
+    if (gpl_wanted && !fail_on_compile_required && instance.IsGraphicsPipelineLibrarySupported()) {
+        const vk::Pipeline linked = LinkFromLibraries(
+            pipeline_info, vertex_input_info, input_assembly, viewport_info, raster_state,
+            multisampling, depth_info, color_blending, dynamic_info, shader_stages, shader_count);
+        if (linked) {
+            pipeline = vk::UniquePipeline{linked, instance.GetDevice()};
+            MarkDone();
+            return true;
+        }
+    }
     auto result = instance.GetDevice().createGraphicsPipelineUnique(pipeline_cache, pipeline_info);
     if (fail_on_compile_required) {
         // GammaOS: time of the "only if cached" attempts (run on the emulation thread).

@@ -163,6 +163,11 @@ public:
         return image_format_list;
     }
 
+    /// GammaOS: VK_EXT_graphics_pipeline_library with fast linking
+    bool IsGraphicsPipelineLibrarySupported() const {
+        return graphics_pipeline_library && gpl_fast_linking;
+    }
+
     /// Returns true when VK_EXT_pipeline_creation_cache_control is supported
     bool IsPipelineCreationCacheControlSupported() const {
         return pipeline_creation_cache_control;
@@ -345,6 +350,8 @@ protected:
     bool fragment_shader_interlock{};
     bool image_format_list{};
     bool pipeline_creation_cache_control{};
+    bool graphics_pipeline_library{};
+    bool gpl_fast_linking{};
     bool fragment_shader_barycentric{};
     bool shader_stencil_export{};
     bool external_memory_host{};

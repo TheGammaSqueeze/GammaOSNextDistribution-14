@@ -402,12 +402,14 @@ bool Instance::CreateDevice() {
         vk::PhysicalDeviceCustomBorderColorFeaturesEXT, vk::PhysicalDeviceIndexTypeUint8FeaturesEXT,
         vk::PhysicalDeviceFragmentShaderInterlockFeaturesEXT,
         vk::PhysicalDevicePipelineCreationCacheControlFeaturesEXT,
-        vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR>();
+        vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR,
+        vk::PhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>();
     const vk::StructureChain properties_chain =
         physical_device
             .getProperties2<vk::PhysicalDeviceProperties2, vk::PhysicalDeviceDriverProperties,
                             vk::PhysicalDevicePortabilitySubsetPropertiesKHR,
-                            vk::PhysicalDeviceExternalMemoryHostPropertiesEXT>();
+                            vk::PhysicalDeviceExternalMemoryHostPropertiesEXT,
+                            vk::PhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>();
     const vk::PhysicalDeviceDriverProperties driver =
         properties_chain.get<vk::PhysicalDeviceDriverProperties>();
 
@@ -472,6 +474,10 @@ bool Instance::CreateDevice() {
     const bool has_pipeline_creation_cache_control =
         add_extension(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME, is_nvidia,
                       "it is broken on Nvidia drivers");
+    // GammaOS: graphics pipeline libraries (link a new shader pairing instead of compiling it).
+    const bool has_pipeline_library =
+        add_extension(VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME, false, "") &&
+        add_extension(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME, false, "");
     const bool has_fragment_shader_barycentric =
         add_extension(VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME, is_moltenvk,
                       "the PerVertexKHR attribute is not supported by MoltenVK");
@@ -535,6 +541,7 @@ bool Instance::CreateDevice() {
         vk::PhysicalDeviceFragmentShaderInterlockFeaturesEXT{},
         vk::PhysicalDevicePipelineCreationCacheControlFeaturesEXT{},
         vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR{},
+        vk::PhysicalDeviceGraphicsPipelineLibraryFeaturesEXT{},
     };
 
 #define PROP_GET(structName, prop, property) property = properties_chain.get<structName>().prop;
@@ -593,6 +600,15 @@ bool Instance::CreateDevice() {
                  custom_border_color)
     } else {
         device_chain.unlink<vk::PhysicalDeviceCustomBorderColorFeaturesEXT>();
+    }
+
+    if (has_pipeline_library) {
+        FEAT_SET(vk::PhysicalDeviceGraphicsPipelineLibraryFeaturesEXT, graphicsPipelineLibrary,
+                 graphics_pipeline_library)
+        gpl_fast_linking = properties_chain.get<vk::PhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>()
+                               .graphicsPipelineLibraryFastLinking;
+    } else {
+        device_chain.unlink<vk::PhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>();
     }
 
     if (has_pipeline_creation_cache_control) {

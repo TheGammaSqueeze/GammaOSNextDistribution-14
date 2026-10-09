@@ -322,6 +322,28 @@ public:
 
     bool Build(bool fail_on_compile_required = false);
 
+    vk::Pipeline LinkFromLibraries(
+
+        const vk::GraphicsPipelineCreateInfo& full,
+
+        const vk::PipelineVertexInputStateCreateInfo& vertex_input,
+
+        const vk::PipelineInputAssemblyStateCreateInfo& input_assembly,
+
+        const vk::PipelineViewportStateCreateInfo& viewport,
+
+        const vk::PipelineRasterizationStateCreateInfo& raster,
+
+        const vk::PipelineMultisampleStateCreateInfo& multisample,
+
+        const vk::PipelineDepthStencilStateCreateInfo& depth,
+
+        const vk::PipelineColorBlendStateCreateInfo& blend,
+
+        const vk::PipelineDynamicStateCreateInfo& dynamic,
+
+        std::span<const vk::PipelineShaderStageCreateInfo> stages_info, u32 stage_count);
+
     [[nodiscard]] vk::Pipeline Handle() const noexcept {
         return *pipeline;
     }
