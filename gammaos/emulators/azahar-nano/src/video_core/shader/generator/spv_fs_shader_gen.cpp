@@ -1,3 +1,4 @@
+#include <sys/system_properties.h>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -87,7 +88,14 @@ void FragmentModule::Generate() {
 
     // Write shader bytecode to emulate all enabled PICA lights. Lighting only reaches the
     // output through the fragment colors, so it is left out when no stage reads them.
-    if (lighting_read) {
+    // GammaOS experiment (persist.gammaos.azahar_nano.nolight_test=1, picture WRONG): leave
+    // lighting out to measure its share of the GPU time.
+    static const bool nolight_test = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.nolight_test", v);
+        return v[0] == '1';
+    }();
+    if (lighting_read && !nolight_test) {
         WriteLighting();
     }
 
