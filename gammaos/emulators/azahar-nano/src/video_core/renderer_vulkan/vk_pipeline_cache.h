@@ -108,6 +108,8 @@ public:
     static constexpr u64 BakedIdBase = 0x42414B4500000000ULL; // "BAKE"
     Shader* GetBakedShader(u32 variant_key, const std::array<u32, 12>& tev, u64* id_out);
     void UseBakedFragmentShader(u32 variant_key, const std::array<u32, 12>& tev);
+    /// True when a baked shader for this combiner setup is already compiled (no compile).
+    bool HasBakedShader(u32 variant_key, const std::array<u32, 12>& tev);
     /// Records the ubershader's packed combiner stages (push constants).
     void PushUberTev(const std::array<u32, 16>& words);
     /// Binds a fragment ubershader variant instead of the generated fragment shader.

@@ -748,6 +748,14 @@ Shader* PipelineCache::GetBakedShader(u32 variant_key, const std::array<u32, 12>
     return slot.get();
 }
 
+bool PipelineCache::HasBakedShader(u32 variant_key, const std::array<u32, 12>& tev) {
+    const u64 id = BakedIdBase ^ (Common::ComputeHash64(tev.data(), sizeof(tev)) & 0xFFFFFFFFFFull) ^
+                   (static_cast<u64>(variant_key) << 40);
+    std::scoped_lock lock{uber_mutex};
+    const auto it = baked_shaders.find(id);
+    return it != baked_shaders.end() && it->second && it->second->Handle();
+}
+
 void PipelineCache::UseBakedFragmentShader(u32 variant_key, const std::array<u32, 12>& tev) {
     u64 id = 0;
     current_shaders[ProgramType::FS] = GetBakedShader(variant_key, tev, &id);

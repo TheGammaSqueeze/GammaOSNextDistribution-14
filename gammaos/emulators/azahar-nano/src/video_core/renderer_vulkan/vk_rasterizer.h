@@ -134,6 +134,8 @@ private:
     enum class EyePhase { Idle, AfterLeft, Skipping };
     EyePhase eye_phase = EyePhase::Idle;
     bool hybrid_fallback = false;
+    bool hybrid_baked = false; ///< GammaOS: this fallback draw uses a precompiled baked shader
+    void PrepareUberDraw(u32& variant_key, std::array<u32, 16>& tev_pack, bool upload);
     u32 fallback_vertices_this_frame = 0; ///< GammaOS: CPU vertex budget of fallback draws
     u32 frame_index = 1;
     std::unordered_map<u64, u32> budget_held_since; ///< pipeline hash -> first held frame ///< GammaOS: this software draw replaces a declined hw draw

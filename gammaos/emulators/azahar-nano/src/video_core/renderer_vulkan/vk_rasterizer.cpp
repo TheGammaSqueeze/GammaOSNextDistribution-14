@@ -580,7 +580,21 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                     return v[0] ? static_cast<u32>(atoi(v)) : 1500u;
                 }();
                 const u32 verts = regs.pipeline.num_vertices;
-                const bool sw_ready = pipeline_cache.BindPipeline(sw_info, false);
+                bool sw_ready = pipeline_cache.BindPipeline(sw_info, false);
+                hybrid_baked = false;
+                if (!sw_ready) {
+                    // A precompiled baked shader (combiner compiled in, the rest dynamic)
+                    // can draw this now; its pipeline for a new state builds quickly.
+                    u32 variant_key = 0;
+                    std::array<u32, 16> pack{};
+                    PrepareUberDraw(variant_key, pack, false);
+                    std::array<u32, 12> baked{};
+                    std::copy_n(pack.begin(), 12, baked.begin());
+                    if (pipeline_cache.HasBakedShader(variant_key, baked)) {
+                        hybrid_baked = true;
+                        sw_ready = true;
+                    }
+                }
                 bool skip = !sw_ready || (HybridDebugBits() & 16384);
                 if (!skip && fallback_vertices_this_frame + verts > budget) {
                     // Over budget: hold this pipeline back for at most a few frames, then
@@ -687,6 +701,100 @@ void RasterizerVulkan::DrawTriangles() {
         GammaStats::Add(GammaStats::FallbackSwVertices, vertex_batch.size());
     }
     Draw(false, false);
+}
+
+// GammaOS: fills the fragment ubershader inputs for the current registers (variant key,
+// packed combiner stages) and, with upload, its config words in the uniform block.
+void RasterizerVulkan::PrepareUberDraw(u32& variant_key, std::array<u32, 16>& tev_pack,
+                                       bool upload) {
+    Pica::Shader::FSConfig fs_config{regs};
+    fs_config.ApplyProfile(pipeline_cache.GetProfile());
+    using namespace Pica::Shader::Generator;
+    Uber::Variant variant{};
+    switch (fs_config.texture.texture0_type.Value()) {
+    case Pica::TexturingRegs::TextureConfig::TextureCube:
+        variant.tex0 = Uber::Tex0Kind::Cube;
+        break;
+    case Pica::TexturingRegs::TextureConfig::Shadow2D:
+        variant.tex0 = Uber::Tex0Kind::Shadow2D;
+        break;
+    case Pica::TexturingRegs::TextureConfig::ShadowCube:
+        variant.tex0 = Uber::Tex0Kind::ShadowCube;
+        break;
+    default:
+        variant.tex0 = Uber::Tex0Kind::Flat;
+        break;
+    }
+    variant.shadow_rendering = fs_config.framebuffer.shadow_rendering.Value() != 0;
+    variant.write_depth = fs_config.framebuffer.vertex_depth.Value() == 0;
+    variant.lighting = fs_config.lighting.enable.Value() != 0;
+    variant.proctex = fs_config.proctex.enable.Value() != 0;
+    static_assert(sizeof(fs_config) == sizeof(fs_data.uber_config));
+    std::array<u32, 68> words;
+    std::memcpy(words.data(), &fs_config, sizeof(fs_config));
+    // Word 36 (wrap modes, unused by the ubershader): stages to evaluate, up to
+    // the last one that is not a pass-through (later stages only move buffers
+    // that nothing reads any more).
+    using TevStage = Pica::TexturingRegs::TevStageConfig;
+    u32 stage_count = 0;
+    // TevPack: two words per stage for the ubershader's push constants.
+    // A: color sources 0-11, alpha sources 12-23, color op 24-27, alpha op 28-31.
+    // B: color modifiers 0-11, alpha modifiers 12-20, color scale 21-22, alpha scale
+    //    23-24, buffer rgb 25, buffer alpha 26, active 27.
+    for (u32 st = 0; st < 6; ++st) {
+        const TevStage stage = fs_config.texture.tev_stages[st];
+        const bool pass_through =
+            stage.color_op == TevStage::Operation::Replace &&
+            stage.alpha_op == TevStage::Operation::Replace &&
+            stage.color_source1 == TevStage::Source::Previous &&
+            stage.alpha_source1 == TevStage::Source::Previous &&
+            stage.color_modifier1 == TevStage::ColorModifier::SourceColor &&
+            stage.alpha_modifier1 == TevStage::AlphaModifier::SourceAlpha &&
+            stage.GetColorMultiplier() == 1 && stage.GetAlphaMultiplier() == 1;
+        if (!pass_through) {
+            stage_count = st + 1;
+        }
+        // Stage 0 reads source 3 where a source is "previous" (GetSource force_source3).
+        const auto eff = [&](TevStage::Source source, TevStage::Source source3) {
+            return static_cast<u32>(
+                st == 0 && source == TevStage::Source::Previous ? source3 : source);
+        };
+        const u32 wa =
+            eff(stage.color_source1, stage.color_source3) |
+            (eff(stage.color_source2, stage.color_source3) << 4) |
+            (eff(stage.color_source3, stage.color_source3) << 8) |
+            (eff(stage.alpha_source1, stage.alpha_source3) << 12) |
+            (eff(stage.alpha_source2, stage.alpha_source3) << 16) |
+            (eff(stage.alpha_source3, stage.alpha_source3) << 20) |
+            (static_cast<u32>(stage.color_op.Value()) << 24) |
+            (static_cast<u32>(stage.alpha_op.Value()) << 28);
+        const u32 wb =
+            static_cast<u32>(stage.color_modifier1.Value()) |
+            (static_cast<u32>(stage.color_modifier2.Value()) << 4) |
+            (static_cast<u32>(stage.color_modifier3.Value()) << 8) |
+            (static_cast<u32>(stage.alpha_modifier1.Value()) << 12) |
+            (static_cast<u32>(stage.alpha_modifier2.Value()) << 15) |
+            (static_cast<u32>(stage.alpha_modifier3.Value()) << 18) |
+            (static_cast<u32>(stage.color_scale.Value()) << 21) |
+            (static_cast<u32>(stage.alpha_scale.Value()) << 23) |
+            ((fs_config.TevStageUpdatesCombinerBufferColor(st) ? 1u : 0u) << 25) |
+            ((fs_config.TevStageUpdatesCombinerBufferAlpha(st) ? 1u : 0u) << 26) |
+            ((pass_through ? 0u : 1u) << 27);
+        tev_pack[2 * st] = wa;
+        tev_pack[2 * st + 1] = wb;
+    }
+    words[36] = stage_count;
+    variant_key = variant.Key();
+    if (!upload) {
+        return;
+    }
+    if (std::memcmp(&fs_data.uber_config, words.data(), sizeof(words)) != 0) {
+        std::memcpy(&fs_data.uber_config, words.data(), sizeof(words));
+        fs_data_dirty = true;
+    }
+    if (upload && fs_data_dirty) {
+        UploadUniforms(false);
+    }
 }
 
 bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
@@ -856,10 +964,22 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
             // Skip mode: draw once the fast software path pipeline is built (it builds in
             // the background, about 55 ms); until then this draw is left out.
             if (!pipeline_cache.BindPipeline(pipeline_info, false)) {
-                GammaStats::Add(GammaStats::HybridSkippedDraws);
-                hybrid_fallback = false;
-                vertex_batch.clear();
-                return true;
+                if (hybrid_baked) {
+                    u32 variant_key = 0;
+                    std::array<u32, 16> pack{};
+                    PrepareUberDraw(variant_key, pack, true);
+                    std::array<u32, 12> baked{};
+                    std::copy_n(pack.begin(), 12, baked.begin());
+                    pipeline_cache.UseBakedFragmentShader(variant_key, baked);
+                    pipeline_cache.PushUberTev(pack);
+                    pipeline_cache.BindPipeline(pipeline_info, true);
+                    GammaStats::Add(GammaStats::HybridUberDraws);
+                } else {
+                    GammaStats::Add(GammaStats::HybridSkippedDraws);
+                    hybrid_fallback = false;
+                    vertex_batch.clear();
+                    return true;
+                }
             }
         } else if (!pipeline_cache.UberAvailable()) {
             pipeline_cache.BindPipeline(pipeline_info, true);
@@ -868,91 +988,11 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
             pipeline_cache.BindPipeline(pipeline_info, true);
         } else if (HybridDebugForceUber() || !pipeline_cache.BindPipeline(pipeline_info, false)) {
             // Fragment ubershader: its pipelines depend only on fixed-function state.
-            Pica::Shader::FSConfig fs_config{regs};
-            fs_config.ApplyProfile(pipeline_cache.GetProfile());
-            using namespace Pica::Shader::Generator;
-            Uber::Variant variant{};
-            switch (fs_config.texture.texture0_type.Value()) {
-            case Pica::TexturingRegs::TextureConfig::TextureCube:
-                variant.tex0 = Uber::Tex0Kind::Cube;
-                break;
-            case Pica::TexturingRegs::TextureConfig::Shadow2D:
-                variant.tex0 = Uber::Tex0Kind::Shadow2D;
-                break;
-            case Pica::TexturingRegs::TextureConfig::ShadowCube:
-                variant.tex0 = Uber::Tex0Kind::ShadowCube;
-                break;
-            default:
-                variant.tex0 = Uber::Tex0Kind::Flat;
-                break;
-            }
-            variant.shadow_rendering = fs_config.framebuffer.shadow_rendering.Value() != 0;
-            variant.write_depth = fs_config.framebuffer.vertex_depth.Value() == 0;
-            variant.lighting = fs_config.lighting.enable.Value() != 0;
-            variant.proctex = fs_config.proctex.enable.Value() != 0;
-            static_assert(sizeof(fs_config) == sizeof(fs_data.uber_config));
-            std::array<u32, 68> words;
-            std::memcpy(words.data(), &fs_config, sizeof(fs_config));
-            // Word 36 (wrap modes, unused by the ubershader): stages to evaluate, up to
-            // the last one that is not a pass-through (later stages only move buffers
-            // that nothing reads any more).
-            using TevStage = Pica::TexturingRegs::TevStageConfig;
-            u32 stage_count = 0;
-            // TevPack: two words per stage for the ubershader's push constants.
-            // A: color sources 0-11, alpha sources 12-23, color op 24-27, alpha op 28-31.
-            // B: color modifiers 0-11, alpha modifiers 12-20, color scale 21-22, alpha scale
-            //    23-24, buffer rgb 25, buffer alpha 26, active 27.
+            u32 variant_key = 0;
             std::array<u32, 16> tev_pack{};
-            for (u32 st = 0; st < 6; ++st) {
-                const TevStage stage = fs_config.texture.tev_stages[st];
-                const bool pass_through =
-                    stage.color_op == TevStage::Operation::Replace &&
-                    stage.alpha_op == TevStage::Operation::Replace &&
-                    stage.color_source1 == TevStage::Source::Previous &&
-                    stage.alpha_source1 == TevStage::Source::Previous &&
-                    stage.color_modifier1 == TevStage::ColorModifier::SourceColor &&
-                    stage.alpha_modifier1 == TevStage::AlphaModifier::SourceAlpha &&
-                    stage.GetColorMultiplier() == 1 && stage.GetAlphaMultiplier() == 1;
-                if (!pass_through) {
-                    stage_count = st + 1;
-                }
-                // Stage 0 reads source 3 where a source is "previous" (GetSource force_source3).
-                const auto eff = [&](TevStage::Source source, TevStage::Source source3) {
-                    return static_cast<u32>(
-                        st == 0 && source == TevStage::Source::Previous ? source3 : source);
-                };
-                const u32 wa =
-                    eff(stage.color_source1, stage.color_source3) |
-                    (eff(stage.color_source2, stage.color_source3) << 4) |
-                    (eff(stage.color_source3, stage.color_source3) << 8) |
-                    (eff(stage.alpha_source1, stage.alpha_source3) << 12) |
-                    (eff(stage.alpha_source2, stage.alpha_source3) << 16) |
-                    (eff(stage.alpha_source3, stage.alpha_source3) << 20) |
-                    (static_cast<u32>(stage.color_op.Value()) << 24) |
-                    (static_cast<u32>(stage.alpha_op.Value()) << 28);
-                const u32 wb =
-                    static_cast<u32>(stage.color_modifier1.Value()) |
-                    (static_cast<u32>(stage.color_modifier2.Value()) << 4) |
-                    (static_cast<u32>(stage.color_modifier3.Value()) << 8) |
-                    (static_cast<u32>(stage.alpha_modifier1.Value()) << 12) |
-                    (static_cast<u32>(stage.alpha_modifier2.Value()) << 15) |
-                    (static_cast<u32>(stage.alpha_modifier3.Value()) << 18) |
-                    (static_cast<u32>(stage.color_scale.Value()) << 21) |
-                    (static_cast<u32>(stage.alpha_scale.Value()) << 23) |
-                    ((fs_config.TevStageUpdatesCombinerBufferColor(st) ? 1u : 0u) << 25) |
-                    ((fs_config.TevStageUpdatesCombinerBufferAlpha(st) ? 1u : 0u) << 26) |
-                    ((pass_through ? 0u : 1u) << 27);
-                tev_pack[2 * st] = wa;
-                tev_pack[2 * st + 1] = wb;
-            }
-            words[36] = stage_count;
-            if (std::memcmp(&fs_data.uber_config, words.data(), sizeof(words)) != 0) {
-                std::memcpy(&fs_data.uber_config, words.data(), sizeof(words));
-                fs_data_dirty = true;
-            }
-            if (fs_data_dirty) {
-                UploadUniforms(false);
-            }
+            PrepareUberDraw(variant_key, tev_pack, true);
+            using namespace Pica::Shader::Generator;
+            Uber::Variant variant = Uber::Variant::FromKey(variant_key);
             if (HybridDebugBits() & 32768) {
                 // Experimental: combiner stages compiled into the shader.
                 std::array<u32, 12> baked{};
@@ -971,6 +1011,7 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
             GammaStats::Add(GammaStats::HybridUberDraws);
         }
         hybrid_fallback = false;
+        hybrid_baked = false;
 
         const u32 vertex_count = static_cast<u32>(vertex_batch.size());
         const u32 vertex_size = vertex_count * sizeof(HardwareVertex);
