@@ -965,6 +965,34 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         viewport.y + viewport.height,
     };
     pipeline_info.dynamic_info.scissor = draw_rect;
+    {
+        // Debug: persist.gammaos.azahar_nano.fb_log=1 logs render target geometry changes.
+        static const bool fblog = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.fb_log", v);
+            return v[0] == '1';
+        }();
+        static std::string fblast;
+        static u32 fblogged = 0;
+        if (fblog && fblogged < 300) {
+            const auto& fbc = regs.framebuffer.framebuffer;
+            const auto vr = regs.rasterizer.GetViewportRect();
+            const auto sc = fb_helper.Scissor();
+            const std::string line = fmt::format(
+                "fb {:08X} {}x{} flip {} vp l{} t{} r{} b{} -> view x{} y{} w{} h{} draw l{} t{} "
+                "r{} b{} sc l{} t{} r{} b{} scmode {}",
+                fbc.GetColorBufferPhysicalAddress(), fbc.GetWidth(), fbc.GetHeight(),
+                fbc.IsFlipped(), vr.left, vr.top, vr.right, vr.bottom, viewport.x, viewport.y,
+                viewport.width, viewport.height, draw_rect.left, draw_rect.top, draw_rect.right,
+                draw_rect.bottom, sc.left, sc.top, sc.right, sc.bottom,
+                static_cast<u32>(regs.rasterizer.scissor_test.mode.Value()));
+            if (line != fblast) {
+                fblast = line;
+                ++fblogged;
+                LOG_INFO(Render_Vulkan, "{}", line);
+            }
+        }
+    }
     // GammaOS hardware scissor: the fragment shader no longer discards for a
     // "keep inside" scissor, so the same rectangle goes to the hardware scissor
     // (shader rule: pixels with x1 <= x < x2 and y1 <= y < y2 are kept).
@@ -1409,6 +1437,29 @@ bool RasterizerVulkan::AccelerateDisplay(const Pica::FramebufferConfig& config,
         (float)src_rect.top / (float)scaled_height, (float)src_rect.right / (float)scaled_width);
 
     screen_info.image_view = src_surface.ImageView();
+
+    // Debug: persist.gammaos.azahar_nano.display_log=1 logs what each screen samples.
+    static const bool dlog = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.display_log", v);
+        return v[0] == '1';
+    }();
+    static u64 dlast[2] = {};
+    const u64 dkey = (u64(framebuffer_addr) << 32) ^ (u64(pixel_stride) << 16) ^
+                     (u64(config.height.Value()) << 4) ^ u64(config.color_format.Value()) ^
+                     (u64(src_surface.addr) << 8);
+    const u32 dscreen = config.height.Value() == 320 ? 1 : 0;
+    if (dlog && dlast[dscreen] != dkey) {
+        dlast[dscreen] = dkey;
+        LOG_INFO(Render_Vulkan,
+                 "display {:08X} {}x{} stride {} fmt {} -> surface {:08X}-{:08X} {}x{} stride {} "
+                 "tiled {} scale {} rect l{} t{} r{} b{}",
+                 framebuffer_addr, config.width.Value(), config.height.Value(), pixel_stride,
+                 static_cast<u32>(config.color_format.Value()), src_surface.addr, src_surface.end,
+                 src_surface.width, src_surface.height, src_surface.stride, src_surface.is_tiled,
+                 src_surface.res_scale, src_rect.left, src_rect.top, src_rect.right,
+                 src_rect.bottom);
+    }
 
     return true;
 }

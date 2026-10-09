@@ -5,6 +5,7 @@
 #pragma once
 
 #include <type_traits>
+#include <sys/system_properties.h>
 #include <boost/container/small_vector.hpp>
 #include <boost/range/iterator_range.hpp>
 #include "common/alignment.h"
@@ -366,6 +367,27 @@ bool RasterizerCache<T>::AccelerateDisplayTransfer(const Pica::DisplayTransferCo
         .dst_rect = dst_rect,
     };
     runtime.BlitTextures(src_surface, dst_surface, texture_blit);
+
+    // Debug: persist.gammaos.azahar_nano.transfer_log=1 shows which surface a transfer read.
+    static const bool tlog = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.transfer_log", v);
+        return v[0] == '1';
+    }();
+    static u32 tlogged = 0;
+    if (tlog && tlogged < 400) {
+        ++tlogged;
+        LOG_INFO(Render_Vulkan,
+                 "xfer {:08X} in {}x{} out {}x{} flags {:X} src surf {:08X}-{:08X} {}x{} "
+                 "stride {} tiled {} scale {} rect l{} t{} r{} b{} -> dst {:08X} rect l{} t{} "
+                 "r{} b{}",
+                 src_params.addr, config.input_width.Value(), config.input_height.Value(),
+                 config.output_width.Value(), config.output_height.Value(), config.flags,
+                 src_surface.addr, src_surface.end, src_surface.width, src_surface.height,
+                 src_surface.stride, src_surface.is_tiled, src_surface.res_scale, src_rect.left,
+                 src_rect.top, src_rect.right, src_rect.bottom, dst_surface.addr, dst_rect.left,
+                 dst_rect.top, dst_rect.right, dst_rect.bottom);
+    }
 
     InvalidateRegion(dst_params.addr, dst_params.size, dst_surface_id);
     return true;
