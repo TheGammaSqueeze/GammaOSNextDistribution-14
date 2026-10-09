@@ -35,6 +35,9 @@ struct State {
     std::array<bool, kRing> dump{};    // log this pool's pairs one by one when read back
     bool dump_next = false;
     std::array<bool, kRing> needs_reset{};
+    // Queries to reset before the pool is reused: only the ones written since the last reset
+    // (Turnip resets query by query, a full 512-query reset per frame cost ~10% of the worker).
+    std::array<std::uint32_t, kRing> reset_count{};
     std::uint32_t frame = 0;   // index of the pool being recorded
     double period_ns = 1.0;
     bool enabled = false;
@@ -60,6 +63,7 @@ inline void Init(vk::Device device, float timestamp_period_ns, bool supported) {
     for (std::uint32_t i = 0; i < kRing; i++) {
         g.pools[i] = device.createQueryPool(info);
         g.needs_reset[i] = true;
+        g.reset_count[i] = kQueries * 2;
         g.cats[i].reserve(kQueries);
         g.labels[i].reserve(kQueries);
     }
@@ -77,13 +81,13 @@ inline int Begin(Scheduler& scheduler, Category cat, std::string label = {}) {
     if (!g.enabled) return -1;
     const std::uint32_t f = g.frame;
     if (g.used[f] >= kQueries) return -1;
-    const bool reset = g.needs_reset[f];
+    const std::uint32_t reset = g.needs_reset[f] ? g.reset_count[f] : 0;
     g.needs_reset[f] = false;
     const int idx = static_cast<int>(g.used[f]++);
     g.cats[f].push_back(static_cast<std::uint8_t>(cat));
     g.labels[f].push_back(std::move(label));
     scheduler.Record([pool = g.pools[f], idx, reset](vk::CommandBuffer cmdbuf) {
-        if (reset) cmdbuf.resetQueryPool(pool, 0, kQueries * 2);
+        if (reset) cmdbuf.resetQueryPool(pool, 0, reset);
         cmdbuf.writeTimestamp(vk::PipelineStageFlagBits::eTopOfPipe, pool, idx * 2);
     });
     return idx;
@@ -136,11 +140,15 @@ inline void FrameBoundary() {
             g.frames_read++;
         }
     }
+    // A pool with nothing recorded keeps its pending reset (and count) for the next use.
+    if (n > 0) {
+        g.reset_count[old] = n * 2;
+        g.needs_reset[old] = true;
+    }
     g.used[old] = 0;
     g.cats[old].clear();
     g.labels[old].clear();
     g.dump[old] = false;
-    g.needs_reset[old] = true;
     g.frame = old;
     // Debug: sys.gammaos.azahar_nano.gputime_dump=1 logs every timed entry of the next frame.
     static std::uint32_t polls = 0;
