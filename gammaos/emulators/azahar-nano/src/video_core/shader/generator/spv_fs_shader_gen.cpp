@@ -51,6 +51,36 @@ void FragmentModule::Generate() {
     WriteDepth();
     WriteScissor();
 
+    // GammaOS: sample every texture unit the TEV stages or the lighting read once, here at
+    // the top level of main, so the stages share one sample per unit instead of calling the
+    // sampling function for every source that names the unit.
+    {
+        using Source = TexturingRegs::TevStageConfig::Source;
+        std::array<bool, NUM_TEX_UNITS> used{};
+        for (const TexturingRegs::TevStageConfig stage : config.texture.tev_stages) {
+            for (const Source src : {stage.color_source1.Value(), stage.color_source2.Value(),
+                                     stage.color_source3.Value(), stage.alpha_source1.Value(),
+                                     stage.alpha_source2.Value(), stage.alpha_source3.Value()}) {
+                if (src >= Source::Texture0 && src <= Source::Texture3) {
+                    used[static_cast<u32>(src) - static_cast<u32>(Source::Texture0)] = true;
+                }
+            }
+        }
+        if (config.lighting.enable) {
+            if (config.lighting.bump_mode != LightingRegs::LightingBumpMode::None) {
+                used[config.lighting.bump_selector] = true;
+            }
+            if (config.lighting.enable_shadow) {
+                used[config.lighting.shadow_selector] = true;
+            }
+        }
+        for (u32 unit = 0; unit < NUM_TEX_UNITS; ++unit) {
+            if (used[unit]) {
+                tex_sample[unit] = OpFunctionCall(vec_ids.Get(4), sample_tex_unit_func[unit]);
+            }
+        }
+    }
+
     // Write shader bytecode to emulate all enabled PICA lights
     WriteLighting();
 
@@ -232,7 +262,7 @@ void FragmentModule::WriteLighting() {
     // Compute fragment normals and tangents
     const auto perturbation = [&]() -> Id {
         const Id texel{
-            OpFunctionCall(vec_ids.Get(4), sample_tex_unit_func[lighting.bump_selector])};
+            SampleTexUnit(lighting.bump_selector)};
         const Id texel_rgb{OpVectorShuffle(vec_ids.Get(3), texel, texel, 0, 1, 2)};
         const Id rgb_mul_two{OpVectorTimesScalar(vec_ids.Get(3), texel_rgb, ConstF32(2.f))};
         return OpFSub(vec_ids.Get(3), rgb_mul_two, ConstF32(1.f, 1.f, 1.f));
@@ -330,7 +360,7 @@ void FragmentModule::WriteLighting() {
 
     Id shadow{ConstF32(1.f, 1.f, 1.f, 1.f)};
     if (lighting.enable_shadow) {
-        shadow = OpFunctionCall(vec_ids.Get(4), sample_tex_unit_func[lighting.shadow_selector]);
+        shadow = SampleTexUnit(lighting.shadow_selector);
         if (lighting.shadow_invert) {
             shadow = OpFSub(vec_ids.Get(4), ConstF32(1.f, 1.f, 1.f, 1.f), shadow);
         }
@@ -1293,6 +1323,13 @@ Id FragmentModule::LookupLightingLUT(Id lut_index, Id index, Id delta) {
     return OpFma(f32_id, entry_g, delta, entry_r);
 }
 
+Id FragmentModule::SampleTexUnit(u32 unit) {
+    if (tex_sample[unit].value != 0) {
+        return tex_sample[unit];
+    }
+    return OpFunctionCall(vec_ids.Get(4), sample_tex_unit_func[unit]);
+}
+
 Id FragmentModule::GetSource(TevStageConfig::Source source, s32 index) {
     using Source = TevStageConfig::Source;
     switch (source) {
@@ -1303,13 +1340,13 @@ Id FragmentModule::GetSource(TevStageConfig::Source source, s32 index) {
     case Source::SecondaryFragmentColor:
         return secondary_fragment_color;
     case Source::Texture0:
-        return OpFunctionCall(vec_ids.Get(4), sample_tex_unit_func[0]);
+        return SampleTexUnit(0);
     case Source::Texture1:
-        return OpFunctionCall(vec_ids.Get(4), sample_tex_unit_func[1]);
+        return SampleTexUnit(1);
     case Source::Texture2:
-        return OpFunctionCall(vec_ids.Get(4), sample_tex_unit_func[2]);
+        return SampleTexUnit(2);
     case Source::Texture3:
-        return OpFunctionCall(vec_ids.Get(4), sample_tex_unit_func[3]);
+        return SampleTexUnit(3);
     case Source::PreviousBuffer:
         return combiner_buffer;
     case Source::Constant:

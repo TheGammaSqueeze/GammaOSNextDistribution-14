@@ -8,7 +8,11 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <string>
 #include <vector>
+#include <sys/system_properties.h>
+
+#include "common/logging/log.h"
 
 #include "video_core/renderer_vulkan/vk_common.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -27,6 +31,9 @@ struct State {
     std::array<vk::QueryPool, kRing> pools{};
     std::array<std::uint32_t, kRing> used{};
     std::array<std::vector<std::uint8_t>, kRing> cats{};   // category per pair
+    std::array<std::vector<std::string>, kRing> labels{};  // what each pair measured
+    std::array<bool, kRing> dump{};    // log this pool's pairs one by one when read back
+    bool dump_next = false;
     std::array<bool, kRing> needs_reset{};
     std::uint32_t frame = 0;   // index of the pool being recorded
     double period_ns = 1.0;
@@ -54,6 +61,7 @@ inline void Init(vk::Device device, float timestamp_period_ns, bool supported) {
         g.pools[i] = device.createQueryPool(info);
         g.needs_reset[i] = true;
         g.cats[i].reserve(kQueries);
+        g.labels[i].reserve(kQueries);
     }
     g.enabled = true;
 }
@@ -65,7 +73,7 @@ inline void Shutdown() {
 }
 
 // Writes the begin stamp of a pair; returns the pair index or -1.
-inline int Begin(Scheduler& scheduler, Category cat) {
+inline int Begin(Scheduler& scheduler, Category cat, std::string label = {}) {
     if (!g.enabled) return -1;
     const std::uint32_t f = g.frame;
     if (g.used[f] >= kQueries) return -1;
@@ -73,6 +81,7 @@ inline int Begin(Scheduler& scheduler, Category cat) {
     g.needs_reset[f] = false;
     const int idx = static_cast<int>(g.used[f]++);
     g.cats[f].push_back(static_cast<std::uint8_t>(cat));
+    g.labels[f].push_back(std::move(label));
     scheduler.Record([pool = g.pools[f], idx, reset](vk::CommandBuffer cmdbuf) {
         if (reset) cmdbuf.resetQueryPool(pool, 0, kQueries * 2);
         cmdbuf.writeTimestamp(vk::PipelineStageFlagBits::eTopOfPipe, pool, idx * 2);
@@ -101,8 +110,17 @@ inline void FrameBoundary() {
         if (r == vk::Result::eSuccess) {
             std::uint64_t first = UINT64_MAX, last = 0;
             double frame_pass_ms = 0.0;
+            if (g.dump[old]) {
+                LOG_INFO(Render_Vulkan, "gpu time dump: {} entries", n);
+            }
             for (std::uint32_t i = 0; i < n; i++) {
                 const std::uint64_t b = ts[i * 2], e = ts[i * 2 + 1];
+                if (g.dump[old]) {
+                    LOG_INFO(Render_Vulkan, "gpu time {:3} {:8} {:7.3f} ms at {:7.3f} | {}", i,
+                             kCategoryNames[g.cats[old][i]],
+                             e > b ? (e - b) * g.period_ns / 1e6 : 0.0,
+                             (b - ts[0]) * g.period_ns / 1e6, g.labels[old][i]);
+                }
                 if (e <= b) continue;
                 const double ms = (e - b) * g.period_ns / 1e6;
                 g.sum_ms[g.cats[old][i]] += ms;
@@ -120,8 +138,19 @@ inline void FrameBoundary() {
     }
     g.used[old] = 0;
     g.cats[old].clear();
+    g.labels[old].clear();
+    g.dump[old] = false;
     g.needs_reset[old] = true;
     g.frame = old;
+    // Debug: sys.gammaos.azahar_nano.gputime_dump=1 logs every timed entry of the next frame.
+    static std::uint32_t polls = 0;
+    if ((polls++ & 31) == 0) {
+        char v[PROP_VALUE_MAX] = {};
+        if (__system_property_get("sys.gammaos.azahar_nano.gputime_dump", v) > 0 && v[0] == '1') {
+            __system_property_set("sys.gammaos.azahar_nano.gputime_dump", "");
+            g.dump[g.frame] = true;
+        }
+    }
 }
 
 } // namespace Vulkan::GammaGpu

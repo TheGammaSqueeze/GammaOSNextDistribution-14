@@ -282,6 +282,10 @@ private:
     Id alpha_results_3{};
 
     Id sample_tex_unit_func[NUM_TEX_UNITS]{};
+    /// GammaOS: each texture unit the shader reads, sampled once at the top of main
+    /// (the sampling is a pure function of fixed coordinates; every use shares the result).
+    Id tex_sample[NUM_TEX_UNITS]{};
+    Id SampleTexUnit(u32 unit);
     Id noise1d_table{};
     Id noise2d_table{};
     Id lut_offsets{};

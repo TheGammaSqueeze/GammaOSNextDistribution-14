@@ -538,7 +538,11 @@ bool TextureRuntime::CopyTextures(Surface& source, Surface& dest,
     for (const auto& c : copies) GammaStats::Add(GammaStats::CopyPixels, u64{c.extent.width} * c.extent.height);
     renderpass_cache.EndRendering();
     renderpass_cache.FlushPendingClears();
-    const int gpu_q = GammaGpu::Begin(scheduler, GammaGpu::Copy);
+    const int gpu_q = GammaGpu::Begin(
+        scheduler, GammaGpu::Copy,
+        fmt::format("{:08X} -> {:08X} {}x{} x{}", source.addr, dest.addr,
+                    copies.empty() ? 0u : copies[0].extent.width,
+                    copies.empty() ? 0u : copies[0].extent.height, copies.size()));
     SCOPE_EXIT({ GammaGpu::End(scheduler, gpu_q); });
 
     const RecordParams params = {
@@ -651,7 +655,11 @@ bool TextureRuntime::BlitTextures(Surface& source, Surface& dest,
 
     renderpass_cache.EndRendering();
     renderpass_cache.FlushPendingClears();
-    const int gpu_q = GammaGpu::Begin(scheduler, GammaGpu::Blit);
+    const int gpu_q = GammaGpu::Begin(
+        scheduler, GammaGpu::Blit,
+        fmt::format("{:08X} {}x{} -> {:08X} {}x{}", source.addr, blit.src_rect.GetWidth(),
+                    blit.src_rect.GetHeight(), dest.addr, blit.dst_rect.GetWidth(),
+                    blit.dst_rect.GetHeight()));
     SCOPE_EXIT({ GammaGpu::End(scheduler, gpu_q); });
 
     const RecordParams params = {

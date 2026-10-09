@@ -1048,6 +1048,32 @@ void PicaCore::DrawImmediate() {
 void PicaCore::DrawArrays(bool is_indexed) {
     MICROPROFILE_SCOPE(GPU_Drawing);
 
+    // GammaOS experiment (persist.gammaos.azahar_nano.twin_skip_test=1, picture is WRONG):
+    // drop every draw that is an exact twin of the previous one, to measure the possible gain.
+    {
+        static const bool skip_test = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.twin_skip_test", v);
+            return v[0] == '1';
+        }();
+        if (skip_test) {
+            static std::array<u32, RegsInternal::NUM_REGS> last{};
+            static decltype(vs_setup.uniforms) last_u{};
+            bool twin = true;
+            for (u32 i = 0; i < RegsInternal::NUM_REGS && twin; i++) {
+                if (i == 0x11C || i == 0x11D || i == 0x22E || i == 0x22F) continue;
+                twin = regs.internal.reg_array[i] == last[i];
+            }
+            twin = twin && regs.internal.reg_array[0x11D] != last[0x11D] &&
+                   std::memcmp(&vs_setup.uniforms, &last_u, sizeof(last_u)) == 0;
+            std::copy_n(regs.internal.reg_array.begin(), RegsInternal::NUM_REGS, last.begin());
+            last_u = vs_setup.uniforms;
+            if (twin) {
+                return;
+            }
+        }
+    }
+
     // GammaOS debug (sys.gammaos.azahar_nano.twin_go=1): for 300 draws after it is set, log which
     // registers and vertex uniforms changed since the previous draw, to find draw pairs that
     // differ only in the framebuffer addresses (stereo twins).
