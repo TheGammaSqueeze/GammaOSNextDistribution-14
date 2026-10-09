@@ -236,8 +236,9 @@ private:
     void UpdatePagesCachedCount(PAddr addr, u32 size, int delta);
 
     /// GammaOS: re-evaluates, for every page touching [lo, hi), whether CPU reads may skip the
-    /// flush (no dirty region overlaps the page) and tells the memory system.
-    void UpdateReadablePages(PAddr lo, PAddr hi);
+    /// flush (no dirty region overlaps the page) and tells the memory system when that changes.
+    /// `known_dirty` skips the lookup when the caller just marked the whole range dirty.
+    void UpdateReadablePages(PAddr lo, PAddr hi, bool known_dirty = false);
 
 private:
     Memory::MemorySystem& memory;
@@ -263,6 +264,9 @@ private:
     Common::SlotVector<Sampler> slot_samplers;
     Common::SlotVector<Framebuffer> slot_framebuffers;
     SurfaceMap dirty_regions;
+    /// GammaOS: one bit per physical page, set while the memory system has the page marked as
+    /// not directly readable by the JIT (see UpdateReadablePages).
+    std::vector<u64> unreadable_pages = std::vector<u64>((u64{1} << 20) / 64);
     PageMap cached_pages;
     u32 resolution_scale_factor;
     FramebufferParams fb_params;

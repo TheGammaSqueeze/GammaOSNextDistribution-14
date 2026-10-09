@@ -1485,6 +1485,7 @@ void RasterizerCache<T>::ClearAll(bool flush) {
     // Remove the whole cache without really looking at it.
     cached_pages -= flush_interval;
     dirty_regions.clear();
+    std::fill(unreadable_pages.begin(), unreadable_pages.end(), u64{0});
     page_table.clear();
 }
 
@@ -1546,16 +1547,26 @@ void RasterizerCache<T>::FlushRegion(PAddr addr, u32 size, SurfaceId flush_surfa
 }
 
 template <class T>
-void RasterizerCache<T>::UpdateReadablePages(PAddr lo, PAddr hi) {
+void RasterizerCache<T>::UpdateReadablePages(PAddr lo, PAddr hi, bool known_dirty) {
     if (hi <= lo) {
         return;
     }
     const PAddr first = lo & ~Memory::CITRA_PAGE_MASK;
     const u64 last = (u64{hi} + Memory::CITRA_PAGE_MASK) & ~u64{Memory::CITRA_PAGE_MASK};
     for (u64 page = first; page < last; page += Memory::CITRA_PAGE_SIZE) {
-        const SurfaceInterval page_interval(static_cast<PAddr>(page),
-                                            static_cast<PAddr>(page + Memory::CITRA_PAGE_SIZE));
-        const bool readable = dirty_regions.find(page_interval) == dirty_regions.end();
+        const u64 index = page >> Memory::CITRA_PAGE_BITS;
+        u64& word = unreadable_pages[index >> 6];
+        const u64 bit = u64{1} << (index & 63);
+        bool readable = false;
+        if (!known_dirty) {
+            const SurfaceInterval page_interval(
+                static_cast<PAddr>(page), static_cast<PAddr>(page + Memory::CITRA_PAGE_SIZE));
+            readable = dirty_regions.find(page_interval) == dirty_regions.end();
+        }
+        if (((word & bit) == 0) == readable) {
+            continue;
+        }
+        word ^= bit;
         memory.RasterizerMarkPageReadable(static_cast<PAddr>(page), readable);
     }
 }
@@ -1609,7 +1620,7 @@ void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region
 
     if (region_owner_id) {
         dirty_regions.set({invalid_interval, region_owner_id});
-        UpdateReadablePages(invalid_interval.lower(), invalid_interval.upper());
+        UpdateReadablePages(invalid_interval.lower(), invalid_interval.upper(), true);
     } else if (dirty_regions.find(invalid_interval) != dirty_regions.end()) {
         dirty_regions.erase(invalid_interval);
         UpdateReadablePages(invalid_interval.lower(), invalid_interval.upper());
@@ -1734,6 +1745,12 @@ void RasterizerCache<T>::UpdatePagesCachedCount(PAddr addr, u32 size, int delta)
 
         if (delta > 0 && count == delta) {
             memory.RasterizerMarkRegionCached(interval_start_addr, interval_size, true);
+            // The memory system just made these pages readable: record that, then re-check.
+            for (u64 page = interval_start_addr; page < interval_end_addr;
+                 page += Memory::CITRA_PAGE_SIZE) {
+                const u64 index = page >> Memory::CITRA_PAGE_BITS;
+                unreadable_pages[index >> 6] &= ~(u64{1} << (index & 63));
+            }
             UpdateReadablePages(interval_start_addr, interval_end_addr);
         } else if (delta < 0 && count == -delta) {
             memory.RasterizerMarkRegionCached(interval_start_addr, interval_size, false);
