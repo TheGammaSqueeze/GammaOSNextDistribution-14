@@ -6,6 +6,7 @@
 
 #include <type_traits>
 #include <sys/system_properties.h>
+#include <fmt/ranges.h>
 #include <boost/container/small_vector.hpp>
 #include <boost/range/iterator_range.hpp>
 #include "common/alignment.h"
@@ -198,6 +199,24 @@ void RasterizerCache<T>::RemoveTextureCubeFace(SurfaceId surface_id) {
     }
 }
 
+// GammaOS debug: counts texture copies the GPU path rejects, by reason, and logs them every
+// 256 rejections with the last config (svc_stats=1 only reads the counters; always cheap).
+inline bool GammaTexCopyFail(int reason, const Pica::DisplayTransferConfig& config) {
+    static std::array<u32, 16> counts{};
+    static u32 total = 0;
+    counts[reason & 15]++;
+    if ((++total & 255) == 0) {
+        LOG_INFO(HW_GPU,
+                 "texcopy fallback: total {} by reason {} | last reason {} in {:08X} out {:08X} size {} "
+                 "in w {} gap {} out w {} gap {}",
+                 total, fmt::join(counts, ","), reason, config.GetPhysicalInputAddress(),
+                 config.GetPhysicalOutputAddress(), u32{config.texture_copy.size},
+                 config.texture_copy.input_width.Value(), config.texture_copy.input_gap.Value(),
+                 config.texture_copy.output_width.Value(), config.texture_copy.output_gap.Value());
+    }
+    return false;
+}
+
 template <class T>
 bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig& config) {
     const DebugScope scope{runtime, Common::Vec4f{0.f, 0.f, 1.f, 1.f},
@@ -211,33 +230,33 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
     // Texture copy size is aligned to 16 byte units
     const u32 copy_size = Common::AlignDown(config.texture_copy.size, 16);
     if (copy_size == 0) {
-        return false;
+        return GammaTexCopyFail(1, config);
     }
 
     u32 input_gap = config.texture_copy.input_gap * 16;
     u32 input_width = config.texture_copy.input_width * 16;
     if (input_width == 0 && input_gap != 0) {
-        return false;
+        return GammaTexCopyFail(2, config);
     }
     if (input_gap == 0 || input_width >= copy_size) {
         input_width = copy_size;
         input_gap = 0;
     }
     if (copy_size % input_width != 0) {
-        return false;
+        return GammaTexCopyFail(3, config);
     }
 
     u32 output_gap = config.texture_copy.output_gap * 16;
     u32 output_width = config.texture_copy.output_width * 16;
     if (output_width == 0 && output_gap != 0) {
-        return false;
+        return GammaTexCopyFail(4, config);
     }
     if (output_gap == 0 || output_width >= copy_size) {
         output_width = copy_size;
         output_gap = 0;
     }
     if (copy_size % output_width != 0) {
-        return false;
+        return GammaTexCopyFail(5, config);
     }
 
     SurfaceParams src_params;
@@ -249,8 +268,12 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
     src_params.end = src_params.addr + src_params.size;
 
     const auto [src_surface_id, src_rect] = GetTexCopySurface(src_params);
+    if (!src_surface_id && input_gap == 0 && output_gap == 0 &&
+        AccelerateTiledByteCopy(src_params.addr, config.GetPhysicalOutputAddress(), copy_size)) {
+        return true;
+    }
     if (!src_surface_id) {
-        return false;
+        return GammaTexCopyFail(6, config);
     }
 
     const SurfaceParams src_info = slot_surfaces[src_surface_id];
@@ -258,7 +281,7 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
         (output_width != src_info.BytesInPixels(src_rect.GetWidth() / src_info.res_scale) *
                              (src_info.is_tiled ? 8 : 1) ||
          output_gap % src_info.BytesInPixels(src_info.is_tiled ? 64 : 1) != 0)) {
-        return false;
+        return GammaTexCopyFail(7, config);
     }
 
     SurfaceParams dst_params = src_info;
@@ -275,7 +298,7 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
     const auto [dst_surface_id, dst_rect] =
         GetSurfaceSubRect(dst_params, ScaleMatch::Upscale, load_gap);
     if (!dst_surface_id) {
-        return false;
+        return GammaTexCopyFail(8, config);
     }
 
     Surface& src_surface = slot_surfaces[src_surface_id];
@@ -283,7 +306,7 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
 
     if (dst_surface.type == SurfaceType::Texture ||
         !CheckFormatsBlittable(src_surface.pixel_format, dst_surface.pixel_format)) {
-        return false;
+        return GammaTexCopyFail(9, config);
     }
 
     if (src_rect.GetWidth() != dst_rect.GetWidth()) {
@@ -291,7 +314,7 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
             HW_GPU,
             "Surface source and destination width mismatch, skipping... src_width={}, dst_width={}",
             src_rect.GetWidth(), dst_rect.GetHeight());
-        return false;
+        return GammaTexCopyFail(10, config);
     }
 
     const TextureCopy texture_copy = {
@@ -304,6 +327,90 @@ bool RasterizerCache<T>::AccelerateTextureCopy(const Pica::DisplayTransferConfig
     runtime.CopyTextures(src_surface, dst_surface, texture_copy);
 
     InvalidateRegion(dst_params.addr, dst_params.size, dst_surface_id);
+    return true;
+}
+
+// A gapless texture copy is a plain byte copy. When its source is the memory of a tiled surface
+// that the GPU has modified, the copy normally falls back to the CPU, which downloads the
+// surface and waits for the GPU (Mario Kart 7 does this every frame). If the copy starts on a
+// tile boundary and covers whole tile rows, the bytes it moves are whole 8x8 tiles in order, so
+// the destination is the same tiled image shifted by a whole number of tiles: at most two
+// rectangle copies on the GPU produce exactly the bytes the CPU copy would.
+template <class T>
+bool RasterizerCache<T>::AccelerateTiledByteCopy(PAddr src_addr, PAddr dst_addr, u32 size) {
+    const SurfaceInterval src_interval(src_addr, src_addr + size);
+    const auto dirty = dirty_regions.find(src_interval);
+    if (dirty == dirty_regions.end() || !dirty->second) {
+        return false; // nothing GPU-modified: the CPU copy needs no download
+    }
+    const SurfaceId src_id = dirty->second;
+    Surface& src = slot_surfaces[src_id];
+    if (!src.is_tiled || src.levels != 1 || src.stride != src.width ||
+        src.type == SurfaceType::Fill || src.type == SurfaceType::Invalid ||
+        src.addr > src_addr || src.end < src_addr + size) {
+        return false;
+    }
+    const u32 tile_bytes = src.BytesInPixels(64);
+    const u32 tiles_per_row = src.width / 8;
+    const u32 row_bytes = tile_bytes * tiles_per_row;
+    const u32 offset = src_addr - src.addr;
+    if (tile_bytes == 0 || offset % tile_bytes != 0 || size % row_bytes != 0) {
+        return false;
+    }
+    const u32 rows = size / row_bytes;
+    const u32 r0 = offset / row_bytes;
+    const u32 c0 = (offset % row_bytes) / tile_bytes;
+    const u32 src_tile_rows = src.height / 8;
+    if (rows == 0 || r0 + rows + (c0 != 0 ? 1 : 0) > src_tile_rows) {
+        return false;
+    }
+
+    // Make the source rows involved current on the GPU.
+    const PAddr valid_begin = src.addr + r0 * row_bytes;
+    const u32 valid_size = (rows + (c0 != 0 ? 1 : 0)) * row_bytes;
+    ValidateSurface(src_id, valid_begin, valid_size);
+
+    SurfaceParams dst_params = src;
+    dst_params.addr = dst_addr;
+    dst_params.width = src.width;
+    dst_params.stride = src.width;
+    dst_params.height = rows * 8;
+    dst_params.levels = 1;
+    dst_params.res_scale = src.res_scale;
+    dst_params.UpdateParams();
+    const auto [dst_id, dst_rect] = GetSurfaceSubRect(dst_params, ScaleMatch::Upscale, false);
+    if (!dst_id || dst_id == src_id) {
+        return false;
+    }
+    Surface& src_surface = slot_surfaces[src_id];
+    Surface& dst_surface = slot_surfaces[dst_id];
+    if (dst_surface.type == SurfaceType::Texture || dst_surface.res_scale != src_surface.res_scale ||
+        !CheckFormatsBlittable(src_surface.pixel_format, dst_surface.pixel_format) ||
+        dst_rect.GetWidth() != src_surface.width * src_surface.res_scale) {
+        return false;
+    }
+
+    const u32 scale = src_surface.res_scale;
+    const u32 src_h = src_surface.height; // unscaled
+    const u32 piece_h = rows * 8 * scale;
+    // Piece 1: source tile columns c0.. of tile rows r0..r0+rows, to destination columns 0..
+    // Piece 2: source columns 0..c0 of the next tile rows, to the destination's last columns.
+    const auto copy_piece = [&](u32 src_row, u32 src_col, u32 dst_col, u32 cols) {
+        const TextureCopy copy = {
+            .src_level = 0,
+            .dst_level = dst_surface.LevelOf(dst_params.addr),
+            .src_offset = {src_col * 8 * scale, (src_h - (src_row + rows) * 8) * scale},
+            .dst_offset = {dst_rect.left + dst_col * 8 * scale, dst_rect.bottom},
+            .extent = {cols * 8 * scale, piece_h},
+        };
+        runtime.CopyTextures(src_surface, dst_surface, copy);
+    };
+    copy_piece(r0, c0, 0, tiles_per_row - c0);
+    if (c0 != 0) {
+        copy_piece(r0 + 1, 0, tiles_per_row - c0, c0);
+    }
+
+    InvalidateRegion(dst_params.addr, dst_params.size, dst_id);
     return true;
 }
 

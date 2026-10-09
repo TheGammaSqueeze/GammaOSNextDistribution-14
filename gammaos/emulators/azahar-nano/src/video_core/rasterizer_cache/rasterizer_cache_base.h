@@ -87,6 +87,10 @@ public:
     /// Perform hardware accelerated texture copy according to the provided configuration
     bool AccelerateTextureCopy(const Pica::DisplayTransferConfig& config);
 
+    /// GammaOS: GPU path for a gapless texture copy whose source lies in GPU-modified tiled
+    /// surface memory but does not start on a tile row (see the definition).
+    bool AccelerateTiledByteCopy(PAddr src_addr, PAddr dst_addr, u32 size);
+
     /// Perform hardware accelerated display transfer according to the provided configuration
     bool AccelerateDisplayTransfer(const Pica::DisplayTransferConfig& config);
 
