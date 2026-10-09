@@ -57,6 +57,7 @@ void FragmentModule::Generate() {
     {
         using Source = TexturingRegs::TevStageConfig::Source;
         std::array<bool, NUM_TEX_UNITS> used{};
+        lighting_read = false;
         for (const TexturingRegs::TevStageConfig stage : config.texture.tev_stages) {
             for (const Source src : {stage.color_source1.Value(), stage.color_source2.Value(),
                                      stage.color_source3.Value(), stage.alpha_source1.Value(),
@@ -64,9 +65,12 @@ void FragmentModule::Generate() {
                 if (src >= Source::Texture0 && src <= Source::Texture3) {
                     used[static_cast<u32>(src) - static_cast<u32>(Source::Texture0)] = true;
                 }
+                if (src == Source::PrimaryFragmentColor || src == Source::SecondaryFragmentColor) {
+                    lighting_read = true;
+                }
             }
         }
-        if (config.lighting.enable) {
+        if (config.lighting.enable && lighting_read) {
             if (config.lighting.bump_mode != LightingRegs::LightingBumpMode::None) {
                 used[config.lighting.bump_selector] = true;
             }
@@ -81,8 +85,11 @@ void FragmentModule::Generate() {
         }
     }
 
-    // Write shader bytecode to emulate all enabled PICA lights
-    WriteLighting();
+    // Write shader bytecode to emulate all enabled PICA lights. Lighting only reaches the
+    // output through the fragment colors, so it is left out when no stage reads them.
+    if (lighting_read) {
+        WriteLighting();
+    }
 
     combiner_buffer = ConstF32(0.f, 0.f, 0.f, 0.f);
     next_combiner_buffer = GetShaderDataMember(vec_ids.Get(4), ConstS32(26));
