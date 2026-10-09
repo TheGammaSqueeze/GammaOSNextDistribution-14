@@ -2,6 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include "video_core/renderer_vulkan/vk_gammaos_stats.h"
+#include "common/scope_exit.h"
+#include <chrono>
 #include <memory>
 #include <SPIRV/GlslangToSpv.h>
 #include <glslang/Include/ResourceLimits.h>
@@ -165,6 +168,22 @@ std::vector<u32> CompileGLSL(std::string_view code, vk::ShaderStageFlagBits stag
     if (!InitializeCompiler()) {
         return {};
     }
+    // GammaOS: time GLSL -> SPIR-V per stage for the build cost breakdown.
+    const auto t0 = std::chrono::steady_clock::now();
+    SCOPE_EXIT({
+        const u64 us = std::chrono::duration_cast<std::chrono::microseconds>(
+                           std::chrono::steady_clock::now() - t0)
+                           .count();
+        if (stage == vk::ShaderStageFlagBits::eVertex) {
+            GammaStats::Add(GammaStats::GlslVs);
+            GammaStats::Add(GammaStats::GlslVsUs, us);
+        } else if (stage == vk::ShaderStageFlagBits::eFragment) {
+            GammaStats::Add(GammaStats::GlslFs);
+            GammaStats::Add(GammaStats::GlslFsUs, us);
+        } else {
+            GammaStats::Add(GammaStats::GlslOtherUs, us);
+        }
+    });
 
     EProfile profile = ECoreProfile;
     EShMessages messages =

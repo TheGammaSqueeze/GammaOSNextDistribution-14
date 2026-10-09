@@ -316,9 +316,13 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
             trio = trio * 1099511628211ULL ^ reinterpret_cast<u64>(sh);
         }
         bool repeat;
+        bool vs_seen = false, fs_seen = false;
         {
+            static std::unordered_set<const void*> seen_vs, seen_fs;
             std::scoped_lock lk{seen_mutex};
             repeat = !seen_trios.insert(trio).second;
+            vs_seen = !seen_vs.insert(stages[0]).second;
+            fs_seen = !seen_fs.insert(stages[1]).second;
         }
         const u64 us = static_cast<u64>(std::chrono::duration_cast<std::chrono::microseconds>(
                                             std::chrono::steady_clock::now() - build_start)
@@ -335,6 +339,12 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
                         : uber_fs   ? GammaStats::PipeUberUs
                                     : GammaStats::PipeSwUs,
                         us);
+        if (!repeat) {
+            // New trio split by which stage the driver has compiled before.
+            const auto k = vs_seen && fs_seen ? 0 : vs_seen ? 1 : fs_seen ? 2 : 3;
+            GammaStats::Add(static_cast<GammaStats::Counter>(GammaStats::NewBothSeen + 2 * k));
+            GammaStats::Add(static_cast<GammaStats::Counter>(GammaStats::NewBothSeenUs + 2 * k), us);
+        }
         GammaStats::Add(repeat ? GammaStats::PipeRepeatBuilds : GammaStats::PipeFirstBuilds);
         GammaStats::Add(repeat ? GammaStats::PipeRepeatUs : GammaStats::PipeFirstUs, us);
         GammaStats::Add(GammaStats::PipeBuildUs,

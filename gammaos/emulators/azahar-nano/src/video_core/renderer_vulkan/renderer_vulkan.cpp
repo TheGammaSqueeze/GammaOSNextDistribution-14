@@ -1365,6 +1365,24 @@ void RendererVulkan::SwapBuffers() {
                      GS::Take(GS::FastAttemptMaxUs) / 1000);
         }
         {
+            namespace GS = GammaStats;
+            const u64 vs = GS::Take(GS::GlslVs), fs = GS::Take(GS::GlslFs);
+            if (vs || fs) {
+                LOG_INFO(Render_Vulkan, "glsl->spirv: vs {} in {} ms, fs {} in {} ms, other {} ms",
+                         vs, GS::Take(GS::GlslVsUs) / 1000, fs, GS::Take(GS::GlslFsUs) / 1000,
+                         GS::Take(GS::GlslOtherUs) / 1000);
+            }
+            const u64 b = GS::Take(GS::NewBothSeen), v = GS::Take(GS::NewVsSeen),
+                      f = GS::Take(GS::NewFsSeen), n = GS::Take(GS::NewNoneSeen);
+            if (b || v || f || n) {
+                LOG_INFO(Render_Vulkan,
+                         "new shader pairs: both stages seen {} {} ms, vs seen {} {} ms, fs seen "
+                         "{} {} ms, none seen {} {} ms",
+                         b, GS::Take(GS::NewBothSeenUs) / 1000, v, GS::Take(GS::NewVsSeenUs) / 1000,
+                         f, GS::Take(GS::NewFsSeenUs) / 1000, n, GS::Take(GS::NewNoneSeenUs) / 1000);
+            }
+        }
+        {
             auto& gg = GammaGpu::g;
             if (gg.frames_read > 0) {
                 const double fr = gg.frames_read;
