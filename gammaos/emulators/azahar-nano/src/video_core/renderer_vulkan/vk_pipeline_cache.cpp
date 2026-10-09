@@ -111,6 +111,14 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
           GLSL::GenerateTrivialVertexShader(instance.IsShaderClipDistanceSupported(), true)} {
     scheduler.RegisterOnDispatch([this] { update_queue.Flush(); });
     trivial_vertex_shader.program = "trivial"; // GammaOS: build stats tag
+    {
+        // GammaOS: hardware path pipelines build newest first, so the ones the current
+        // scene asks for finish before older requests (persist.gammaos.azahar_nano.build_order
+        // = fifo keeps the upstream order).
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.build_order", v);
+        pipeline_workers.SetNewestFirst(std::string_view{v} != "fifo");
+    }
     profile = Pica::Shader::Profile{
         .enable_accurate_mul = false,
         .has_separable_shaders = true,

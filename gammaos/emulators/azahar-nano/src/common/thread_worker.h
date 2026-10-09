@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <deque>
+
 #ifdef __ANDROID__
 #include <sched.h>
 #include <sys/system_properties.h>
@@ -82,8 +84,13 @@ public:
                         if (stop_token.stop_requested()) {
                             break;
                         }
-                        task = std::move(requests.front());
-                        requests.pop();
+                        if (newest_first) {
+                            task = std::move(requests.back());
+                            requests.pop_back();
+                        } else {
+                            task = std::move(requests.front());
+                            requests.pop_front();
+                        }
                     }
                     if constexpr (with_state) {
                         task(&state);
@@ -111,7 +118,7 @@ public:
     void QueueWork(Task work) {
         {
             std::unique_lock lock{queue_mutex};
-            requests.emplace(std::move(work));
+            requests.emplace_back(std::move(work));
             ++work_scheduled;
         }
         condition.notify_one();
@@ -137,12 +144,18 @@ public:
         return work_scheduled.load();
     }
 
+    // GammaOS: take the most recently queued work first (last in, first out).
+    void SetNewestFirst(bool value) noexcept {
+        newest_first = value;
+    }
+
     const std::size_t NumWorkers() const noexcept {
         return threads.size();
     }
 
 private:
-    std::queue<Task> requests;
+    std::deque<Task> requests;
+    std::atomic<bool> newest_first{false};
     std::mutex queue_mutex;
     std::condition_variable_any condition;
     std::condition_variable wait_condition;

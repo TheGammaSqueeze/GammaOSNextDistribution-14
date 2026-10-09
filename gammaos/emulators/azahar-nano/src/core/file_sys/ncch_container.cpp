@@ -223,6 +223,23 @@ Loader::ResultStatus NCCHContainer::LoadHeader() {
 
     LOG_DEBUG(Service_FS, "NCCH type: {}", file->GetType().to_string());
 
+    if (!ncch_header.no_crypto && ncch_header.exefs_offset != 0) {
+        // GammaOS: older decryption tools decrypted the contents but left the crypto
+        // flag set. If the ExeFS header reads as plain text (its first file name is one
+        // of the standard ones), the partition is already decrypted: load it as such.
+        std::array<char, 8> name{};
+        const u64 exefs_pos = static_cast<u64>(ncch_header.exefs_offset) * kBlockSize;
+        if (file->ReadAtBytes(name.data(), name.size(), exefs_pos) == name.size()) {
+            const std::string_view first{name.data(), strnlen(name.data(), name.size())};
+            if (first == ".code" || first == "banner" || first == "icon" || first == "logo") {
+                LOG_WARNING(Service_FS,
+                            "NCCH is flagged encrypted but its contents are decrypted; "
+                            "loading it as decrypted");
+                ncch_header.no_crypto.Assign(1);
+            }
+        }
+    }
+
     if (!ncch_header.no_crypto) {
         // Encrypted NCCH are not supported
         return Loader::ResultStatus::ErrorEncrypted;
