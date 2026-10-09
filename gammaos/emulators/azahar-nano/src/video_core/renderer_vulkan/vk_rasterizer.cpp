@@ -535,7 +535,8 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                     Pica::PipelineRegs::TriangleTopology::List);
                 pipeline_cache.UseTrivialVertexShader();
                 pipeline_cache.UseTrivialGeometryShader();
-                if (!pipeline_cache.BindPipeline(sw_info, false)) {
+                // Debug 16384: never take the CPU vertex path (skip until the hw pipeline).
+                if (!pipeline_cache.BindPipeline(sw_info, false) || (HybridDebugBits() & 16384)) {
                     GammaStats::Add(GammaStats::HybridSkippedDraws);
                     return true;
                 }
