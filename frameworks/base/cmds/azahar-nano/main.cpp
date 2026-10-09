@@ -88,11 +88,17 @@ struct CoreApi {
     void (*set_tweaks)(int, int) = nullptr;
     void (*set_tweak)(const char*, int) = nullptr;
     void (*skip_preload)() = nullptr;   // optional (newer cores)
+    int (*compiles_pending)() = nullptr;   // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
 
 CoreApi gCore;
+
+// Latest frame rate counter values, written by the perf thread for the HUD thread.
+std::atomic<float> sHudBlitFps{0.0f}, sHudGameFps{0.0f};
+std::atomic<bool> sHudSlow{false};
+std::atomic<uint64_t> sHudStatsSeq{0};
 std::atomic<bool> gExitRequested{false};
 std::atomic<bool> gSessionDoneSent{false};
 
@@ -138,6 +144,8 @@ bool loadCore(const std::string& path) {
     // Optional: older cores do not have it (no skip on the loading screen then).
     gCore.skip_preload =
         reinterpret_cast<void (*)()>(dlsym(gCore.handle, "azn_skip_preload"));
+    gCore.compiles_pending =
+        reinterpret_cast<int (*)()>(dlsym(gCore.handle, "azn_compiles_pending"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -799,7 +807,6 @@ int main(int argc, char** argv) {
     static double sPaceScale = 1.0;
     sPaceToPanel = prop("persist.gammaos.azahar_nano.pace_to_panel", "1") == "1";
     std::thread perfThread([] {
-        bool hudOn = false;
         uint64_t lastFlips = 0;
         int64_t lastFlipNs = 0;
         float blitFps = 0.0f;
@@ -862,29 +869,91 @@ int main(int argc, char** argv) {
             ALOGI("perf: game %.1f fps, system %.1f fps, speed %.0f%%, vblank %.2f ms, gpu %.2f ms",
                   st.game_fps, st.system_fps, st.emulation_speed * 100.0,
                   st.time_vblank_interval * 1000.0, st.time_gpu * 1000.0);
-            // Frame rate counter (menu toggle persist.gammaos.azahar_nano.fps_counter).
-            // Not drawn while the menu is open: the core is paused then, no game
-            // frame flips, and the HUD queue would fill up.
-            if (sHudReady && sDrm && !overlay.isOpen()) {
-                const bool want = prop("persist.gammaos.azahar_nano.fps_counter", "0") == "1";
-                if (want) {
-                    struct timespec ts;
-                    clock_gettime(CLOCK_MONOTONIC, &ts);
-                    const int64_t now = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
-                    const uint64_t flips = sDrm->flipCount(0);
-                    if (lastFlipNs > 0 && now > lastFlipNs) {
-                        const float r = (float)(flips - lastFlips) * 1e9f / (float)(now - lastFlipNs);
-                        blitFps = blitFps > 0.0f ? blitFps * 0.5f + r * 0.5f : r;
-                    }
-                    lastFlips = flips;
-                    lastFlipNs = now;
-                    hud.render(blitFps, (float)st.game_fps, st.emulation_speed < 0.92);
-                    if (!hudOn) sDrm->setHudActive(0, true);
-                } else if (hudOn) {
-                    sDrm->setHudActive(0, false);
+            // Frame rate counter values for the HUD thread.
+            {
+                struct timespec ts;
+                clock_gettime(CLOCK_MONOTONIC, &ts);
+                const int64_t now = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+                const uint64_t flips = sDrm ? sDrm->flipCount(0) : 0;
+                if (lastFlipNs > 0 && now > lastFlipNs) {
+                    const float r = (float)(flips - lastFlips) * 1e9f / (float)(now - lastFlipNs);
+                    blitFps = blitFps > 0.0f ? blitFps * 0.5f + r * 0.5f : r;
                 }
-                hudOn = want;
+                lastFlips = flips;
+                lastFlipNs = now;
+                sHudBlitFps = blitFps;
+                sHudGameFps = (float)st.game_fps;
+                sHudSlow = st.emulation_speed < 0.92;
+                sHudStatsSeq++;
             }
+        }
+    });
+
+    // HUD drawer: the frame rate counter (menu toggle persist.gammaos.azahar_nano.fps_counter)
+    // and the "Compiling shaders" notice (persist.gammaos.azahar_nano.compile_notice), which
+    // fades in while the core has compile jobs and out once they are done. Redraws at about
+    // 30 Hz while something animates, otherwise only when the counter changes. Nothing is
+    // drawn while the menu is open: the core is paused, no game frame flips and the HUD
+    // queue would fill up.
+    std::thread hudThread([] {
+        if (!sHudReady || !sDrm) return;
+        bool hudOn = false;
+        uint32_t lastRegions = 0;
+        uint64_t lastSeq = ~0ull;
+        float toast = 0.0f, spin = 0.0f;
+        int64_t idleSinceNs = 0;
+        int64_t lastNs = 0;
+        int propTick = 0;
+        bool wantFps = false, wantNotice = true;
+        while (!gExitRequested) {
+            struct timespec ts;
+            clock_gettime(CLOCK_MONOTONIC, &ts);
+            const int64_t now = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+            const float dt = lastNs ? std::min((float)(now - lastNs) * 1e-9f, 0.1f) : 0.0f;
+            lastNs = now;
+            if (propTick-- <= 0) {
+                propTick = 15;
+                wantFps = prop("persist.gammaos.azahar_nano.fps_counter", "0") == "1";
+                wantNotice = prop("persist.gammaos.azahar_nano.compile_notice", "1") == "1";
+            }
+            const bool live = gCore.is_running() && !overlay.isOpen() && !gLoadScreenOn;
+            // The notice stays up through short gaps between jobs (no flicker) and
+            // fades out 0.4 s after the queue drained.
+            const int pending = gCore.compiles_pending ? gCore.compiles_pending() : 0;
+            if (pending > 0) idleSinceNs = 0;
+            else if (idleSinceNs == 0) idleSinceNs = now;
+            const bool compiling = pending > 0 || (idleSinceNs && now - idleSinceNs < 400000000LL);
+            const float target = live && wantNotice && compiling ? 1.0f : 0.0f;
+            const float step = dt / 0.25f;   // 250 ms fades
+            toast = target > toast ? std::min(target, toast + step) : std::max(target, toast - step);
+            if (toast > 0.0f) spin += dt * 1.1f;
+            else spin = 0.0f;
+            const bool fps = live && wantFps;
+            const bool want = fps || toast > 0.0f;
+            const uint32_t regions = (fps ? azahar_nano::kHudTop : 0u) |
+                                     (toast > 0.0f ? azahar_nano::kHudBottom : 0u);
+            const uint64_t seq = sHudStatsSeq.load();
+            const bool animating = toast > 0.0f;
+            if (want && (animating || seq != lastSeq || regions != lastRegions || !hudOn)) {
+                azahar_nano::Hud::Frame f;
+                f.fps = fps;
+                f.blitFps = sHudBlitFps.load();
+                f.gameFps = sHudGameFps.load();
+                f.slow = sHudSlow.load();
+                f.toastAlpha = toast;
+                f.spin = spin;
+                hud.render(f);
+                sDrm->setHudRegions(0, regions);
+                if (!hudOn) sDrm->setHudActive(0, true);
+                hudOn = true;
+                lastSeq = seq;
+                lastRegions = regions;
+            } else if (!want && hudOn) {
+                sDrm->setHudActive(0, false);
+                hudOn = false;
+                lastRegions = 0;
+            }
+            usleep(animating ? 33 * 1000 : 100 * 1000);
         }
     });
 
@@ -895,6 +964,7 @@ int main(int argc, char** argv) {
     const int result = gCore.run(rom.c_str());
     gExitRequested = true;
     perfThread.join();
+    hudThread.join();
     ALOGI("core returned %d", result);
 
     input.stop();

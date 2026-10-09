@@ -30,6 +30,7 @@
 #include "core/hle/service/am/am.h"
 #include "core/loader/loader.h"
 #include "core/savestate.h"
+#include "common/thread_worker.h"
 #include "jni/config.h"
 #include "jni/emu_window/emu_window.h"
 #include "jni/input_manager.h"
@@ -405,6 +406,10 @@ void azn_set_tweaks(int enabled, int vertex_depth) {
 
 void azn_skip_preload() {
     Settings::values.gammaos_skip_preload = true;
+}
+
+int azn_compiles_pending() {
+    return std::max(0, Common::g_compile_jobs.load(std::memory_order_relaxed));
 }
 
 void azn_set_tweak(const char* name, int value) {

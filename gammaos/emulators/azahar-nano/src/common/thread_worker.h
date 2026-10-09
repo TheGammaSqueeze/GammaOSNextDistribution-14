@@ -28,6 +28,10 @@
 
 namespace Common {
 
+// GammaOS: shader and pipeline compile jobs queued or running in any compile worker,
+// read by the frontend for its "Compiling shaders" notice.
+inline std::atomic<int> g_compile_jobs{0};
+
 template <class StateType = void>
 class StatefulThreadWorker {
     static constexpr bool with_state = !std::is_same_v<StateType, void>;
@@ -46,7 +50,9 @@ class StatefulThreadWorker {
 public:
     explicit StatefulThreadWorker(std::size_t num_workers, std::string_view name,
                                   StateMaker func = {})
-        : workers_queued{num_workers}, thread_name{name} {
+        : workers_queued{num_workers}, thread_name{name},
+          compile_worker{name.find("ipeline") != std::string_view::npos ||
+                         name.find("Shader") != std::string_view::npos} {
         const auto lambda = [this, func](std::stop_token stop_token, std::size_t index) {
             Common::SetCurrentThreadName(thread_name.data());
 #ifdef __ANDROID__
@@ -98,6 +104,9 @@ public:
                         task();
                     }
                     ++work_done;
+                    if (compile_worker) {
+                        g_compile_jobs.fetch_sub(1, std::memory_order_relaxed);
+                    }
                 }
             }
             ++workers_stopped;
@@ -120,6 +129,9 @@ public:
             std::unique_lock lock{queue_mutex};
             requests.emplace_back(std::move(work));
             ++work_scheduled;
+            if (compile_worker) {
+                g_compile_jobs.fetch_add(1, std::memory_order_relaxed);
+            }
         }
         condition.notify_one();
     }
@@ -164,6 +176,7 @@ private:
     std::atomic<std::size_t> workers_stopped{};
     std::atomic<std::size_t> workers_queued{};
     std::string_view thread_name;
+    bool compile_worker = false;
     std::vector<std::jthread> threads;
 };
 

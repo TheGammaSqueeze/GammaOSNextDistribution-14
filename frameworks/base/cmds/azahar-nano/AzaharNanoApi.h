@@ -122,6 +122,21 @@ void azn_set_user_folder(const char* dir);
 // Frame limiter mode: 1 = pace every emulated frame onto a fixed wall-clock
 // schedule (even swap cadence for a scanout presenter), 0 = stock limiter.
 void azn_set_deadline_pacing(int enabled);
+// Deadline pacing period scale = panel period / emulated period (1.0 nominal), so
+// the swap cadence matches a panel that is not exactly 60 Hz.
+void azn_set_pace_scale(double scale);
+// GammaOS renderer tweaks; vertex_depth: Z-buffered depth from the vertex stage
+// (no measured gain on Super Mario 3D Land, off by default). Call before azn_run.
+void azn_set_tweaks(int enabled, int vertex_depth);
+// Individual GammaOS renderer tweak by name ("renderpass_clears"), 0/1.
+void azn_set_tweak(const char* name, int value);
+
+/// Stops waiting for the boot shader precompile (the game starts; queued builds continue in
+/// the background). Safe to call from any thread.
+void azn_skip_preload(void);
+
+/// Shader and pipeline compile jobs queued or running right now (0 when idle).
+int azn_compiles_pending(void);
 
 // Blocking: boots the ROM and runs the emulation loop on the calling thread
 // until azn_stop or a shutdown request. Returns an azn_result.

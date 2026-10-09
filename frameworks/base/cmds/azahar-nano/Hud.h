@@ -17,13 +17,24 @@ public:
     // left columns of a portrait buffer (drawn rotated like the menu).
     bool init(ANativeWindow* win, int bufW, int bufH, bool upright);
     void shutdown();
-    // Draws the counter box (BLIT = panel flips/s, GAME = emulated frames/s,
-    // the same two lines as drastic-nano) and presents it.
-    void render(float blitFps, float gameFps, bool slow);
+    struct Frame {
+        // Counter box (BLIT = panel flips/s, GAME = emulated frames/s, the same two
+        // lines as drastic-nano) in the top right corner.
+        bool fps = false;
+        float blitFps = 0.0f, gameFps = 0.0f;
+        bool slow = false;
+        // "Compiling shaders" notice in the bottom left corner: opacity 0..1 (the
+        // caller fades it) and the spinner angle in turns.
+        float toastAlpha = 0.0f;
+        float spin = 0.0f;
+    };
+    // Draws the frame and presents it.
+    void render(const Frame& f);
     bool ready() const { return mReady; }
 
 private:
     bool makeCurrent();
+    void drawToast(float alpha, float spin);
     EGLDisplay mDpy = EGL_NO_DISPLAY;
     EGLSurface mSurf = EGL_NO_SURFACE;
     EGLContext mCtx = EGL_NO_CONTEXT;

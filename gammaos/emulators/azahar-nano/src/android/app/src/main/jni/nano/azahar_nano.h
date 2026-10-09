@@ -135,6 +135,9 @@ void azn_set_tweak(const char* name, int value);
 /// the background). Safe to call from any thread.
 void azn_skip_preload(void);
 
+/// Shader and pipeline compile jobs queued or running right now (0 when idle).
+int azn_compiles_pending(void);
+
 // Blocking: boots the ROM and runs the emulation loop on the calling thread
 // until azn_stop or a shutdown request. Returns an azn_result.
 int azn_run(const char* rom_path);

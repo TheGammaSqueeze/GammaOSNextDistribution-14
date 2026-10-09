@@ -612,12 +612,15 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                 }
                 bool skip = !sw_ready || (HybridDebugBits() & 16384);
                 if (!skip && fallback_vertices_this_frame + verts > budget) {
-                    // Over budget: hold this pipeline back for at most a few frames, then
-                    // draw it anyway, so pop-in never lasts until the hw pipeline is built.
+                    // Over budget: hold this pipeline back. The budget is strict by default:
+                    // forcing held draws through after a few frames (fallback_hold=N) let a
+                    // cold cache burst stretch frames to 40 fps for ~20 s, while a strict
+                    // budget keeps 57-60 with a little more pop-in.
                     static const u32 max_hold = [] {
                         char v[PROP_VALUE_MAX] = {};
                         __system_property_get("persist.gammaos.azahar_nano.fallback_hold", v);
-                        return v[0] ? static_cast<u32>(atoi(v)) : 3u;
+                        const u32 n = v[0] ? static_cast<u32>(atoi(v)) : 0u;
+                        return n == 0 ? 0xFFFFFFFFu : n;
                     }();
                     u32& since = budget_held_since[sw_info.Hash()];
                     if (since == 0) {

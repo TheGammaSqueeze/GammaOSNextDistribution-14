@@ -273,6 +273,8 @@ void Overlay::buildPages() {
             "Unpack a driver zip from the data folder, /sdcard or Download"));
         pg.rows.push_back(propChoice("FPS Counter", "persist.gammaos.azahar_nano.fps_counter", "0",
             {{"Off", "0"}, {"On", "1"}}, "Show the frame rate and speed on the top panel"));
+        pg.rows.push_back(propChoice("Shader Notice", "persist.gammaos.azahar_nano.compile_notice", "1",
+            {{"Off", "0"}, {"On", "1"}}, "Show \"Compiling shaders\" while new shaders are built"));
     }
 
     // ---- Audio ----

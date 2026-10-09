@@ -32,6 +32,7 @@ namespace azahar_nano {
 
 // Height of the HUD strip along the panel's logical top edge (px).
 constexpr uint32_t kHudStrip = 128;
+constexpr uint32_t kHudTop = 1, kHudBottom = 2;
 
 struct DrmPanel {
     uint32_t connId = 0;
@@ -85,6 +86,8 @@ struct DrmPanel {
     android::BufferItem hudOnScreen, hudPending;
     bool hudHasOnScreen = false, hudHasPending = false;
     std::shared_ptr<std::atomic<bool>> hudActive = std::make_shared<std::atomic<bool>>(false);
+    // Strips of the HUD buffer the plane scans out (kHudTop | kHudBottom).
+    std::shared_ptr<std::atomic<uint32_t>> hudRegions = std::make_shared<std::atomic<uint32_t>>(1u);
     bool hudCleared = true;
     bool hudInCommit = false;   // the current commit carries HUD plane state
     bool hudBroken = false;     // the kernel refused the HUD plane: stay off
@@ -127,11 +130,14 @@ public:
     ANativeWindow* overlayWindow(int idx);
     // Switch a panel between the core's frames and the overlay's.
     void setOverlayActive(int idx, bool active);
-    // HUD plane: a strip along the panel's top edge (in buffer orientation: the
-    // left columns of an upright panel, the top rows otherwise). Returns null when
-    // the CRTC has no spare plane. w/h are the strip's buffer size.
+    // HUD plane: an alpha blended layer the size of the panel. Only the strips
+    // selected with setHudRegions are scanned out: kHudTop is the strip along the
+    // panel's top edge as seen by the user (the left columns of an upright panel's
+    // buffer, the top rows otherwise), kHudBottom the one along the bottom edge.
+    // Returns null when the CRTC has no spare plane. w/h are the buffer size.
     ANativeWindow* hudWindow(int idx, uint32_t* w, uint32_t* h);
     void setHudActive(int idx, bool active);
+    void setHudRegions(int idx, uint32_t regions);
     ANativeWindow* window(int idx) const;
     uint32_t width(int idx) const { return mPanels[idx].width; }
     uint32_t height(int idx) const { return mPanels[idx].height; }

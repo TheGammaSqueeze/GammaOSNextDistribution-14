@@ -587,11 +587,9 @@ bool DrmWindows::pickHudPlane(DrmPanel& p) {
 }
 
 bool DrmWindows::createHudQueue(DrmPanel& p, int idx) {
-    // A strip along the panel's physical top edge: for an upright (portrait buffer,
-    // landscape panel) panel that is the buffer's left columns.
-    const bool upright = p.height > p.width;
-    p.hudW = upright ? kHudStrip : p.width;
-    p.hudH = upright ? p.height : kHudStrip;
+    // The panel's size; the plane only scans out the strips in use (addHudProps).
+    p.hudW = p.width;
+    p.hudH = p.height;
     sp<IGraphicBufferConsumer> consumer;
     BufferQueue::createBufferQueue(&p.hudProducer, &consumer);
     p.hudConsumer = new BufferItemConsumer(consumer,
@@ -622,6 +620,11 @@ ANativeWindow* DrmWindows::hudWindow(int idx, uint32_t* w, uint32_t* h) {
     if (w) *w = p.hudW;
     if (h) *h = p.hudH;
     return p.hudSurface.get();
+}
+
+void DrmWindows::setHudRegions(int idx, uint32_t regions) {
+    if (idx < 0 || idx >= (int)mPanels.size()) return;
+    mPanels[idx].hudRegions->store(regions & (kHudTop | kHudBottom));
 }
 
 void DrmWindows::setHudActive(int idx, bool active) {
@@ -662,16 +665,33 @@ void DrmWindows::addHudProps(DrmPanel& p, drmModeAtomicReqPtr req) {
         const uint32_t fb = importHudFb(p, show->mGraphicBuffer);
         if (!fb) return;
         const uint32_t w = show->mGraphicBuffer->getWidth(), h = show->mGraphicBuffer->getHeight();
+        // Scan out only the strips in use: the top edge as the user sees it is the
+        // buffer's left columns on an upright panel (its top rows otherwise), the
+        // bottom edge the right columns (bottom rows). Both: the whole buffer.
+        const uint32_t regions = p.hudRegions->load();
+        const bool upright = h > w;
+        const uint32_t strip = std::min(kHudStrip, upright ? w : h);
+        uint32_t x = 0, y = 0, rw = w, rh = h;
+        if (regions == kHudTop || regions == kHudBottom) {
+            const bool bottom = regions == kHudBottom;
+            if (upright) {
+                rw = strip;
+                x = bottom ? w - strip : 0;
+            } else {
+                rh = strip;
+                y = bottom ? h - strip : 0;
+            }
+        }
         drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPFbId, fb);
         drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcId, p.crtcId);
-        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPSrcX, 0);
-        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPSrcY, 0);
-        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPSrcW, (uint64_t)w << 16);
-        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPSrcH, (uint64_t)h << 16);
-        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcX, 0);
-        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcY, 0);
-        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcW, w);
-        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcH, h);
+        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPSrcX, (uint64_t)x << 16);
+        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPSrcY, (uint64_t)y << 16);
+        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPSrcW, (uint64_t)rw << 16);
+        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPSrcH, (uint64_t)rh << 16);
+        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcX, x);
+        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcY, y);
+        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcW, rw);
+        drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPCrtcH, rh);
         if (p.hPAlpha) drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPAlpha, p.hudAlphaMax);
         if (p.hPBlend && p.hudBlendCoverage) drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPBlend, p.hudBlendCoverage);
         if (p.hPZpos) drmModeAtomicAddProperty(req, p.hudPlaneId, p.hPZpos, p.hudZpos);
