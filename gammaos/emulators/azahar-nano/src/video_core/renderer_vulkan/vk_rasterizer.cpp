@@ -813,6 +813,12 @@ void RasterizerVulkan::PrepareUberDraw(u32& variant_key, std::array<u32, 16>& te
 }
 
 bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
+    if (stereo_right_rt != 0 &&
+        regs.framebuffer.framebuffer.GetColorBufferPhysicalAddress() == stereo_right_rt) {
+        GammaStats::Add(GammaStats::CmdListsBlocked); // counted as skipped right eye work
+        vertex_batch.clear();
+        return true;
+    }
     if (eye_phase != EyePhase::Idle) {
         const PAddr rt = regs.framebuffer.framebuffer.GetColorBufferPhysicalAddress();
         if (eye_phase == EyePhase::AfterLeft && rt == eye_rt) {
@@ -1221,7 +1227,48 @@ bool RasterizerVulkan::OnDisplayTransferEye(const Pica::DisplayTransferConfig& c
     if (!RightEyeSkipAllowed()) {
         eye_phase = EyePhase::Idle;
         eye_learned = false;
+        stereo_right_rt = 0;
         return true;
+    }
+    static const bool stereo_skip = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.stereo_skip", v);
+        return v[0] == '1';
+    }();
+    if (stereo_skip) {
+        // GammaOS: games that draw both eyes interleaved draw by draw (Metroid: Samus
+        // Returns) render the right eye into a surface they later transfer into the right
+        // eye framebuffer. Learn that surface and leave its draws out (see Draw), as the
+        // right eye image is never shown with 3D off.
+        const auto& tfb = pica.regs.framebuffer_config[0];
+        const PAddr t_out = config.GetPhysicalOutputAddress();
+        const PAddr t_in = config.GetPhysicalInputAddress();
+        const bool to_left = t_out == tfb.address_left1 || t_out == tfb.address_left2;
+        if (to_left) {
+            // A surface that feeds a displayed (left) framebuffer is never a right eye
+            // target: games with 3D off often copy the left image to both framebuffers.
+            last_left_src = t_in;
+            if (stereo_right_rt == t_in) {
+                LOG_INFO(Render_Vulkan, "stereo right eye target {:08X} feeds the left eye, dropped",
+                         stereo_right_rt);
+                stereo_right_rt = 0;
+            }
+        }
+        if (tfb.address_right1 != 0 && !to_left && t_in != last_left_src &&
+            (t_out == tfb.address_right1 || t_out == tfb.address_right2)) {
+            if (stereo_right_rt != t_in) {
+                LOG_INFO(Render_Vulkan, "stereo right eye target learned: {:08X}", t_in);
+            }
+            stereo_right_rt = t_in;
+            GammaStats::Add(GammaStats::TransfersBlocked);
+            return false; // the right eye image is never displayed
+        }
+        if (stereo_right_rt != 0 && t_in == stereo_right_rt && !to_left) {
+            // That surface feeds something else: it is not a right eye target after all.
+            LOG_INFO(Render_Vulkan, "stereo right eye target {:08X} used elsewhere, dropped",
+                     stereo_right_rt);
+            stereo_right_rt = 0;
+        }
     }
     // Games rotate through more framebuffers than the two pairs in the config
     // (Super Mario 3D Land transfers into a third one), but every right-eye
