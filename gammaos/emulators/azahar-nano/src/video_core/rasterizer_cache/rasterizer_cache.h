@@ -1495,6 +1495,11 @@ void RasterizerCache<T>::FlushRegion(PAddr addr, u32 size, SurfaceId flush_surfa
     }
 
     const SurfaceInterval flush_interval(addr, addr + size);
+    // GammaOS: most calls (CPU and service memory access checks) touch memory with no dirty
+    // surface: leave before building the interval sets.
+    if (dirty_regions.empty() || dirty_regions.find(flush_interval) == dirty_regions.end()) {
+        return;
+    }
     SurfaceRegions flushed_intervals;
 
     for (const auto& [region, surface_id] : RangeFromInterval(dirty_regions, flush_interval)) {
@@ -1532,7 +1537,9 @@ void RasterizerCache<T>::FlushRegion(PAddr addr, u32 size, SurfaceId flush_surfa
     }
 
     // Reset dirty regions
-    dirty_regions -= flushed_intervals;
+    if (!flushed_intervals.empty()) {
+        dirty_regions -= flushed_intervals;
+    }
 }
 
 template <class T>
