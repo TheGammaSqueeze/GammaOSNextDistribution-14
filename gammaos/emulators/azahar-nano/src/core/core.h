@@ -476,6 +476,7 @@ private:
     std::vector<std::shared_ptr<ARM_Interface>> cpu_cores;
     // GammaOS JIT warm-up: saved blocks still to compile, per core, oldest first
     std::array<u64, 4> gamma_core_host_ns{};
+    std::array<u64, 4> gamma_core_runs{};
     bool gamma_pc_sampling = false;
     std::unordered_map<u64, u64> gamma_pc_samples;
     std::vector<std::vector<u64>> gamma_jit_pending;

@@ -296,6 +296,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
                     const u64 key = (u64{cpu_core->GetPC()} << 32) | cpu_core->GetReg(14);
                     gamma_pc_samples[key]++;
                 }
+                gamma_core_runs[cpu_core->GetID() & 3]++;
                 gamma_core_host_ns[cpu_core->GetID() & 3] +=
                     std::chrono::duration_cast<std::chrono::nanoseconds>(
                         std::chrono::steady_clock::now() - run_start)
@@ -327,8 +328,9 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
                 const u64 ticks = cpu_cores[i]->GetTimer().GetTicks();
                 const u64 idle = cpu_cores[i]->GetTimer().GetIdleTicks();
                 const u64 dt = ticks - last_ticks[i], di = idle - last_idle[i];
-                line += fmt::format(" core{} ticks {}M idle {}M host {} ms", i, dt / 1000000,
-                                    di / 1000000, gamma_core_host_ns[i] / 1000000);
+                line += fmt::format(" core{} ticks {}M idle {}M host {} ms runs {}", i, dt / 1000000,
+                                    di / 1000000, gamma_core_host_ns[i] / 1000000, gamma_core_runs[i]);
+                gamma_core_runs[i] = 0;
                 gamma_core_host_ns[i] = 0;
                 last_ticks[i] = ticks;
                 last_idle[i] = idle;
