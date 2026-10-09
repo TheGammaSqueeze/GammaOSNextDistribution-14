@@ -198,6 +198,7 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
 RasterizerVulkan::~RasterizerVulkan() = default;
 
 void RasterizerVulkan::TickFrame() {
+    fallback_vertices_this_frame = 0;
     scheduler.WaitWorker();
     res_cache.TickFrame();
     pipeline_cache.TickFrame();
@@ -565,10 +566,21 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                 pipeline_cache.UseTrivialVertexShader();
                 pipeline_cache.UseTrivialGeometryShader();
                 // Debug 16384: never take the CPU vertex path (skip until the hw pipeline).
-                if (!pipeline_cache.BindPipeline(sw_info, false) || (HybridDebugBits() & 16384)) {
+                // Per frame budget for the CPU vertex work of fallback draws (about 6 us per
+                // vertex here): beyond it the draw is skipped and shows up a frame or two later
+                // instead of stretching this frame (a cold cache burst reached 17k vertices).
+                static const u32 budget = [] {
+                    char v[PROP_VALUE_MAX] = {};
+                    __system_property_get("persist.gammaos.azahar_nano.fallback_budget", v);
+                    return v[0] ? static_cast<u32>(atoi(v)) : 1500u;
+                }();
+                const u32 verts = regs.pipeline.num_vertices;
+                if (fallback_vertices_this_frame + verts > budget ||
+                    !pipeline_cache.BindPipeline(sw_info, false) || (HybridDebugBits() & 16384)) {
                     GammaStats::Add(GammaStats::HybridSkippedDraws);
                     return true;
                 }
+                fallback_vertices_this_frame += verts;
             }
             GammaStats::Add(GammaStats::HybridFallbackDraws);
             hybrid_fallback = true;
@@ -648,6 +660,12 @@ void RasterizerVulkan::DrawTriangles() {
     pipeline_cache.UseTrivialVertexShader();
     pipeline_cache.UseTrivialGeometryShader();
 
+    if (!hybrid_fallback) {
+        GammaStats::Add(GammaStats::NaturalSwDraws);
+        GammaStats::Add(GammaStats::NaturalSwVertices, vertex_batch.size());
+    } else {
+        GammaStats::Add(GammaStats::FallbackSwVertices, vertex_batch.size());
+    }
     Draw(false, false);
 }
 

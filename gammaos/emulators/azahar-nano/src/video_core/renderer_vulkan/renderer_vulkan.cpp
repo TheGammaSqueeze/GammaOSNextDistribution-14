@@ -1334,7 +1334,7 @@ void RendererVulkan::SwapBuffers() {
                      "pass breaks with only the render area changed {:.1f} | draws z {:.1f} w {:.1f} "
                      "shadow {:.1f} alphatest {:.1f} blend {:.1f} | cmd lists {:.1f} top {:.1f} "
                      "blocked {:.2f} transfers {:.1f} blocked {:.2f} | enabled {} | pipelines fast {} "
-                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | hybrid fallback draws {} skipped {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms (window totals)",
+                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | sw draws {} ({} verts) fallback verts {} | hybrid fallback draws {} skipped {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms (window totals)",
                      GS::Take(GS::Draws) / n, GS::Take(GS::RenderPasses) / n,
                      GS::Take(GS::Uploads) / n, GS::Take(GS::UploadPixels) / n,
                      GS::Take(GS::UploadScaledPixels) / n, GS::Take(GS::Downloads) / n,
@@ -1354,7 +1354,9 @@ void RendererVulkan::SwapBuffers() {
                      GS::Take(GS::SurfacesRecycled), GS::Take(GS::PipeBuilds),
                      GS::Take(GS::PipeBuildUs) / 1000, GS::Take(GS::PipeFirstBuilds),
                      GS::Take(GS::PipeFirstUs) / 1000, GS::Take(GS::PipeRepeatBuilds),
-                     GS::Take(GS::PipeRepeatUs) / 1000, GS::Take(GS::HybridFallbackDraws), GS::Take(GS::HybridSkippedDraws),
+                     GS::Take(GS::PipeRepeatUs) / 1000, GS::Take(GS::NaturalSwDraws), GS::Take(GS::NaturalSwVertices),
+                     GS::Take(GS::FallbackSwVertices), GS::Take(GS::HybridFallbackDraws),
+                     GS::Take(GS::HybridSkippedDraws),
                      GS::Take(GS::HybridUberDraws), GS::Take(GS::HybridUberCompiles),
                      GS::Take(GS::PipeHwBuilds), GS::Take(GS::PipeHwUs) / 1000,
                      GS::Take(GS::PipeSwBuilds), GS::Take(GS::PipeSwUs) / 1000,
