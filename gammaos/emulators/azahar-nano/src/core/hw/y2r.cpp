@@ -25,54 +25,69 @@ static const std::size_t TILE_SIZE = 8 * 8;
 using ImageTile = std::array<u32, TILE_SIZE>;
 
 /// Converts a image strip from the source YUV format into individual 8x8 RGB32 tiles.
+/// GammaOS: walks rows with pointers and converts each horizontal pixel pair, which shares its
+/// U and V samples in every input format, with one U/V term; the fixed-point math is unchanged.
 template <InputFormat input_format>
 static void ConvertYUVToRGB(const u8* input_Y, const u8* input_U, const u8* input_V,
                             ImageTile output[], unsigned int width, unsigned int height,
                             const CoefficientSet& coefficients) {
+    const s32 c0 = coefficients[0], c1 = coefficients[1], c2 = coefficients[2],
+              c3 = coefficients[3], c4 = coefficients[4];
+    constexpr s32 rounding_offset = 0x18;
+    const s32 r_off = coefficients[5] + rounding_offset;
+    const s32 g_off = coefficients[6] + rounding_offset;
+    const s32 b_off = coefficients[7] + rounding_offset;
+    const auto pixel = [&](s32 Y, s32 r_uv, s32 g_uv, s32 b_uv) -> u32 {
+        const s32 cY = c0 * Y;
+        const s32 r = ((cY + r_uv) >> 3) + r_off;
+        const s32 g = ((cY - g_uv) >> 3) + g_off;
+        const s32 b = ((cY + b_uv) >> 3) + b_off;
+        return ((u32)std::clamp(r >> 5, 0, 0xFF) << 24) | ((u32)std::clamp(g >> 5, 0, 0xFF) << 16) |
+               ((u32)std::clamp(b >> 5, 0, 0xFF) << 8);
+    };
 
     for (unsigned int y = 0; y < height; ++y) {
-        for (unsigned int x = 0; x < width; ++x) {
-            s32 Y;
-            s32 U;
-            s32 V;
-            if constexpr (input_format == InputFormat::YUV422_Indiv8 ||
-                          input_format == InputFormat::YUV422_Indiv16) {
-                Y = input_Y[y * width + x];
-                U = input_U[(y * width + x) / 2];
-                V = input_V[(y * width + x) / 2];
-            } else if constexpr (input_format == InputFormat::YUV420_Indiv8 ||
-                                 input_format == InputFormat::YUV420_Indiv16) {
-                Y = input_Y[y * width + x];
-                U = input_U[((y / 2) * width + x) / 2];
-                V = input_V[((y / 2) * width + x) / 2];
-            } else if constexpr (input_format == InputFormat::YUYV422_Interleaved) {
-                Y = input_Y[(y * width + x) * 2];
-                U = input_Y[(y * width + (x / 2) * 2) * 2 + 1];
-                V = input_Y[(y * width + (x / 2) * 2) * 2 + 3];
+        const u8* row_Y;
+        const u8* row_U;
+        const u8* row_V;
+        if constexpr (input_format == InputFormat::YUV422_Indiv8 ||
+                      input_format == InputFormat::YUV422_Indiv16) {
+            row_Y = input_Y + y * width;
+            row_U = input_U + (y * width) / 2;
+            row_V = input_V + (y * width) / 2;
+        } else if constexpr (input_format == InputFormat::YUV420_Indiv8 ||
+                             input_format == InputFormat::YUV420_Indiv16) {
+            row_Y = input_Y + y * width;
+            row_U = input_U + ((y / 2) * width) / 2;
+            row_V = input_V + ((y / 2) * width) / 2;
+        } else if constexpr (input_format == InputFormat::YUYV422_Interleaved) {
+            row_Y = input_Y + y * width * 2;
+            row_U = nullptr;
+            row_V = nullptr;
+        } else {
+            UNREACHABLE_MSG("Unknown Y2R input format {}", input_format);
+            return;
+        }
+        // width is a multiple of 8, so pixel pairs never straddle a tile.
+        for (unsigned int x = 0; x < width; x += 2) {
+            s32 Y0, Y1, U, V;
+            if constexpr (input_format == InputFormat::YUYV422_Interleaved) {
+                Y0 = row_Y[x * 2];
+                U = row_Y[x * 2 + 1];
+                Y1 = row_Y[x * 2 + 2];
+                V = row_Y[x * 2 + 3];
             } else {
-                UNREACHABLE_MSG("Unknown Y2R input format {}", input_format);
-                return;
+                Y0 = row_Y[x];
+                Y1 = row_Y[x + 1];
+                U = row_U[x / 2];
+                V = row_V[x / 2];
             }
-
-            // This conversion process is bit-exact with hardware, as far as could be tested.
-            auto& c = coefficients;
-            s32 cY = c[0] * Y;
-
-            s32 r = cY + c[1] * V;
-            s32 g = cY - c[2] * V - c[3] * U;
-            s32 b = cY + c[4] * U;
-
-            const s32 rounding_offset = 0x18;
-            r = (r >> 3) + c[5] + rounding_offset;
-            g = (g >> 3) + c[6] + rounding_offset;
-            b = (b >> 3) + c[7] + rounding_offset;
-
-            unsigned int tile = x / 8;
-            unsigned int tile_x = x % 8;
-            u32* out = &output[tile][y * 8 + tile_x];
-            *out = ((u32)std::clamp(r >> 5, 0, 0xFF) << 24) |
-                   ((u32)std::clamp(g >> 5, 0, 0xFF) << 16) |
-                   ((u32)std::clamp(b >> 5, 0, 0xFF) << 8);
+            const s32 r_uv = c1 * V;
+            const s32 g_uv = c2 * V + c3 * U;
+            const s32 b_uv = c4 * U;
+            u32* out = &output[x / 8][y * 8 + (x % 8)];
+            out[0] = pixel(Y0, r_uv, g_uv, b_uv);
+            out[1] = pixel(Y1, r_uv, g_uv, b_uv);
         }
     }
 }
