@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "video_core/rasterizer_accelerated.h"
 #include "video_core/renderer_vulkan/vk_descriptor_update_queue.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
@@ -132,7 +134,9 @@ private:
     enum class EyePhase { Idle, AfterLeft, Skipping };
     EyePhase eye_phase = EyePhase::Idle;
     bool hybrid_fallback = false;
-    u32 fallback_vertices_this_frame = 0; ///< GammaOS: CPU vertex budget of fallback draws ///< GammaOS: this software draw replaces a declined hw draw
+    u32 fallback_vertices_this_frame = 0; ///< GammaOS: CPU vertex budget of fallback draws
+    u32 frame_index = 1;
+    std::unordered_map<u64, u32> budget_held_since; ///< pipeline hash -> first held frame ///< GammaOS: this software draw replaces a declined hw draw
     PAddr eye_rt = 0;               // render target of the left-eye transfer
     PAddr eye_left_out = 0;         // where the left-eye image went
     bool eye_learned = false;       // the pattern was seen in a previous frame

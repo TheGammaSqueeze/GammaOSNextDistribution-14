@@ -199,6 +199,10 @@ RasterizerVulkan::~RasterizerVulkan() = default;
 
 void RasterizerVulkan::TickFrame() {
     fallback_vertices_this_frame = 0;
+    ++frame_index;
+    if (budget_held_since.size() > 4096) {
+        budget_held_since.clear();
+    }
     scheduler.WaitWorker();
     res_cache.TickFrame();
     pipeline_cache.TickFrame();
@@ -575,8 +579,23 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                     return v[0] ? static_cast<u32>(atoi(v)) : 1500u;
                 }();
                 const u32 verts = regs.pipeline.num_vertices;
-                if (fallback_vertices_this_frame + verts > budget ||
-                    !pipeline_cache.BindPipeline(sw_info, false) || (HybridDebugBits() & 16384)) {
+                const bool sw_ready = pipeline_cache.BindPipeline(sw_info, false);
+                bool skip = !sw_ready || (HybridDebugBits() & 16384);
+                if (!skip && fallback_vertices_this_frame + verts > budget) {
+                    // Over budget: hold this pipeline back for at most a few frames, then
+                    // draw it anyway, so pop-in never lasts until the hw pipeline is built.
+                    static const u32 max_hold = [] {
+                        char v[PROP_VALUE_MAX] = {};
+                        __system_property_get("persist.gammaos.azahar_nano.fallback_hold", v);
+                        return v[0] ? static_cast<u32>(atoi(v)) : 3u;
+                    }();
+                    u32& since = budget_held_since[sw_info.Hash()];
+                    if (since == 0) {
+                        since = frame_index;
+                    }
+                    skip = frame_index - since < max_hold;
+                }
+                if (skip) {
                     GammaStats::Add(GammaStats::HybridSkippedDraws);
                     return true;
                 }
