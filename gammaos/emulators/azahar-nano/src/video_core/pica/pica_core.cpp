@@ -1,3 +1,4 @@
+#include <sys/system_properties.h>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -1047,6 +1048,57 @@ void PicaCore::DrawImmediate() {
 void PicaCore::DrawArrays(bool is_indexed) {
     MICROPROFILE_SCOPE(GPU_Drawing);
 
+    // GammaOS debug (sys.gammaos.azahar_nano.twin_go=1): for 300 draws after it is set, log which
+    // registers and vertex uniforms changed since the previous draw, to find draw pairs that
+    // differ only in the framebuffer addresses (stereo twins).
+    {
+        static bool twin_log = false;
+        static u32 polls = 0;
+        if (!twin_log && (polls++ & 1023) == 0) {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("sys.gammaos.azahar_nano.twin_go", v);
+            twin_log = v[0] == '1';
+        }
+        static u32 logged = 0;
+        static std::array<u32, RegsInternal::NUM_REGS> prev_regs{};
+        static decltype(vs_setup.uniforms) prev_uniforms{};
+        if (twin_log && logged < 300) {
+            std::string changed;
+            u32 n = 0;
+            for (u32 i = 0; i < RegsInternal::NUM_REGS; i++) {
+                if (regs.internal.reg_array[i] != prev_regs[i]) {
+                    if (n++ < 24) {
+                        changed += fmt::format(" {:03X}", i);
+                    }
+                }
+            }
+            u32 un = 0;
+            for (u32 i = 0; i < vs_setup.uniforms.f.size(); i++) {
+                if (vs_setup.uniforms.f[i] != prev_uniforms.f[i]) {
+                    un++;
+                    if (n <= 2) {
+                        const auto& a = prev_uniforms.f[i];
+                        const auto& b = vs_setup.uniforms.f[i];
+                        changed += fmt::format(" u{}:({:.6g},{:.6g},{:.6g},{:.6g})->({:.6g},{:.6g},{:.6g},{:.6g})",
+                                               i, a.x.ToFloat32(), a.y.ToFloat32(), a.z.ToFloat32(),
+                                               a.w.ToFloat32(), b.x.ToFloat32(), b.y.ToFloat32(),
+                                               b.z.ToFloat32(), b.w.ToFloat32());
+                    }
+                }
+            }
+            const bool ub = vs_setup.uniforms.b != prev_uniforms.b;
+            const bool ui = vs_setup.uniforms.i != prev_uniforms.i;
+            LOG_INFO(HW_GPU, "twin: draw {} color {:08X} depth {:08X} | {} regs changed:{}{} | "
+                             "uniforms f {} b {} i {}",
+                     logged, regs.internal.framebuffer.framebuffer.GetColorBufferPhysicalAddress(),
+                     regs.internal.framebuffer.framebuffer.GetDepthBufferPhysicalAddress(), n,
+                     changed, n > 24 ? " ..." : "", un, ub, ui);
+            std::copy_n(regs.internal.reg_array.begin(), RegsInternal::NUM_REGS, prev_regs.begin());
+            prev_uniforms = vs_setup.uniforms;
+            ++logged;
+        }
+    }
+
     // Track vertex in the debug recorder.
     if (debug_context) {
         debug_context->OnEvent(DebugContext::Event::IncomingPrimitiveBatch, nullptr);
@@ -1246,6 +1298,81 @@ PicaCore::RenderPropertiesGuess PicaCore::GuessCmdRenderProperties(PAddr list, u
     }
 
     return find_info;
+}
+
+bool PicaCore::CmdListOnlyUsesViewportHeight(PAddr list, u32 size, u32 vp_height) {
+    const u32* head = reinterpret_cast<const u32*>(memory.GetPhysicalPointer(list));
+    u32 length = size / sizeof(u32);
+    u32 index = 0;
+    static u32 refusals = 0;
+    std::string seen;
+    u32 jumps = 0, cmds = 0, draws = 0;
+    u32 viewport = regs.internal.rasterizer.viewport_size_y.Value();
+    bool result = false;
+    // Chained list registers as this walk sees them (the lists set them before jumping).
+    std::array<u32, 2> cb_size{regs.internal.pipeline.command_buffer.GetSize(0),
+                               regs.internal.pipeline.command_buffer.GetSize(1)};
+    std::array<PAddr, 2> cb_addr{regs.internal.pipeline.command_buffer.GetPhysicalAddress(0),
+                                 regs.internal.pipeline.command_buffer.GetPhysicalAddress(1)};
+    SCOPE_EXIT({
+        if (!result && refusals++ < 20) {
+            LOG_INFO(HW_GPU, "rightEye scan refused {:08X} size {}: {} cmds, {} draws, {} jumps, viewports:{}",
+                     list, size, cmds, draws, jumps, seen);
+        }
+    });
+    // Bounded walk: a few chained lists of a few thousand commands each.
+    for (u32 budget = 0x20000; head && index < length && budget > 0 && jumps <= 16; budget--) {
+        if (index % 2 != 0) {
+            index++;
+        }
+        if (index + 1 >= length) {
+            break;
+        }
+        const u32 value = head[index++];
+        const CommandHeader header{head[index++]};
+        for (u32 i = 0; i <= header.extra_data_length; ++i) {
+            const u32 cmd = header.cmd_id + (i > 0 && header.group_commands ? i : 0);
+            const u32 v = i == 0 ? value : (index < length ? head[index++] : 0);
+            cmds++;
+            if (cmd == PICA_REG_INDEX(rasterizer.viewport_size_y)) {
+                viewport = v & 0xFFFFFF;
+                seen += fmt::format(" {:06X}", viewport);
+            }
+            if (cmd == PICA_REG_INDEX(pipeline.trigger_draw) ||
+                cmd == PICA_REG_INDEX(pipeline.trigger_draw_indexed)) {
+                draws++;
+                if (viewport != vp_height) {
+                    // A draw with a smaller viewport (another screen or an offscreen pass).
+                    result = false;
+                    return result;
+                }
+            }
+            if (cmd == PICA_REG_INDEX(pipeline.command_buffer.size[0]) ||
+                cmd == PICA_REG_INDEX(pipeline.command_buffer.size[1])) {
+                cb_size[cmd - PICA_REG_INDEX(pipeline.command_buffer.size[0])] = 8 * (v & 0xFFFFF);
+            }
+            if (cmd == PICA_REG_INDEX(pipeline.command_buffer.addr[0]) ||
+                cmd == PICA_REG_INDEX(pipeline.command_buffer.addr[1])) {
+                cb_addr[cmd - PICA_REG_INDEX(pipeline.command_buffer.addr[0])] = 8 * (v & 0xFFFFFFF);
+            }
+            if (cmd == PICA_REG_INDEX(pipeline.command_buffer.trigger[0]) ||
+                cmd == PICA_REG_INDEX(pipeline.command_buffer.trigger[1])) {
+                // Chained list: continue in it (the rest of this list is not executed).
+                if (++jumps > 16) {
+                    break;
+                }
+                const u32 slot = cmd - PICA_REG_INDEX(pipeline.command_buffer.trigger[0]);
+                head = reinterpret_cast<const u32*>(memory.GetPhysicalPointer(cb_addr[slot]));
+                length = cb_size[slot] / sizeof(u32);
+                index = 0;
+                break;
+            }
+        }
+    }
+    // A list without draws only sets state (framebuffer size, flushes) for later lists:
+    // blocking it would leave that state wrong, so it is never a right eye pass.
+    result = draws > 0;
+    return result;
 }
 
 template <class Archive>

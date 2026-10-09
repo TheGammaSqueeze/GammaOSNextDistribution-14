@@ -30,7 +30,9 @@ bool RightEyeDisabler::ShouldAllowCmdQueueTrigger(PAddr addr, u32 size) {
             top_screen_buf = guess.paddr;
         }
         top_screen_drawn = true;
-        if (top_screen_transfered) {
+        // GammaOS: only block a list that renders nothing but top screen sized passes.
+        if (top_screen_transfered &&
+            gpu.impl->pica.CmdListOnlyUsesViewportHeight(addr, size, top_screen_size)) {
             cmd_trigger_blocked = true;
             GS::Add(GS::CmdListsBlocked);
             return false;

@@ -402,6 +402,12 @@ public:
 
     RenderPropertiesGuess GuessCmdRenderProperties(PAddr list, u32 size);
 
+    /// GammaOS: true when the command list (and the lists it chains to) draws, and every draw
+    /// happens with a viewport of vp_height. The right eye disabler blocks only such lists:
+    /// a list without draws only sets state for later lists (Metroid: Samus Returns sets up
+    /// its bottom screen pass that way), and blocking it shifted the bottom screen.
+    bool CmdListOnlyUsesViewportHeight(PAddr list, u32 size, u32 vp_height);
+
 private:
     Memory::MemorySystem& memory;
     VideoCore::RasterizerInterface* rasterizer;
