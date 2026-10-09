@@ -113,7 +113,14 @@ public:
     }
     /// Any access to the mirror buffers, or a write to the canonical ones, ends the mirror:
     /// the canonical content is copied over first. Called by every cache entry point.
-    void MirrorAccess(PAddr addr, u32 size, bool write);
+    void MirrorAccess(PAddr addr, u32 size, bool write) {
+        // Called on every flush/invalidate (CPU memory access checks): keep the common case,
+        // no mirror, to one test.
+        if (mirror.active) [[unlikely]] {
+            MirrorAccessSlow(addr, size, write);
+        }
+    }
+    void MirrorAccessSlow(PAddr addr, u32 size, bool write);
     /// Count of twin draws drawn once and of mirror copies (stats).
     u32 TakeTwinStats(u32& copies);
     Sampler& GetSampler(SamplerId sampler_id);

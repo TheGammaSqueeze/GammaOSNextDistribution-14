@@ -1029,6 +1029,27 @@ void System::GammaJitWarm() {
             continue;
         }
         gamma_jit_pending[i] = GammaJitRead(GammaJitPath(title_id, i));
+        // Only blocks in the title's main code segment: that code is the same in every
+        // session. Code loaded at run time (CRO modules) can sit at other addresses next time,
+        // and compiling whatever is there now trips Dynarmic's emitter (Pokemon Sun aborted
+        // with the saved blocks of its MovieLib module).
+        if (const auto process = kernel->GetCurrentProcess(); process && process->codeset) {
+            const auto& code = process->codeset->CodeSegment();
+            const u64 begin = code.addr, end = u64{code.addr} + code.size;
+            auto& l = gamma_jit_pending[i];
+            const std::size_t before = l.size();
+            std::erase_if(l, [&](u64 location) {
+                const u64 pc = static_cast<u32>(location);
+                return pc < begin || pc >= end;
+            });
+            if (l.size() != before) {
+                LOG_INFO(Core, "JIT warm-up core {}: {} saved blocks outside the code segment "
+                               "{:08X}-{:08X} skipped",
+                         i, before - l.size(), begin, end);
+            }
+        } else {
+            gamma_jit_pending[i].clear();
+        }
         const auto& list = gamma_jit_pending[i];
         if (list.empty()) {
             continue;

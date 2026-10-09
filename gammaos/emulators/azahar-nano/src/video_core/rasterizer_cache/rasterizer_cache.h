@@ -531,7 +531,7 @@ bool RasterizerCache<T>::TwinTargets(PAddr cur_color, PAddr cur_depth, PAddr nex
 }
 
 template <class T>
-void RasterizerCache<T>::MirrorAccess(PAddr addr, u32 size, bool write) {
+void RasterizerCache<T>::MirrorAccessSlow(PAddr addr, u32 size, bool write) {
     if (!mirror.active || in_materialize || twin_draw) {
         return;
     }
