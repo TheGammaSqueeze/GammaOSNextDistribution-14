@@ -1,3 +1,4 @@
+#include "common/settings.h"
 #include <mutex>
 #include <unordered_set>
 #include <chrono>
@@ -101,8 +102,12 @@ bool GraphicsPipeline::TryBuild(bool wait_built) {
         return false;
     }
 
-    // Ask the driver if it can give us the pipeline quickly.
-    if (!shaders_pending && instance.IsPipelineCreationCacheControlSupported() && Build(true)) {
+    // Ask the driver if it can give us the pipeline quickly. GammaOS: not in hybrid mode
+    // (wait_built false), where the draw never waits: the probe costs ~2 ms on the
+    // emulation thread per new pipeline and a burst of them made 100+ ms frames. The
+    // worker returns just as fast when the driver has the pipeline cached.
+    if (!shaders_pending && (wait_built || !Settings::values.gammaos_hybrid_shaders) &&
+        instance.IsPipelineCreationCacheControlSupported() && Build(true)) {
         GammaStats::Add(GammaStats::PipesFast);
         return true;
     }

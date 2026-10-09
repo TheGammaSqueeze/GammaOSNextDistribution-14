@@ -1184,6 +1184,12 @@ void RendererVulkan::SwapBuffers() {
         const double cpu = trace_cpu - g_swap_trace.last_cpu_ms;
         if (dt < 14) { g_swap_trace.cpu_short += cpu; g_swap_trace.n_short++; }
         else if (dt > 20) { g_swap_trace.cpu_long += cpu; g_swap_trace.n_long++; }
+        if (dt > 40) {
+            // GammaOS: a long frame. CPU time close to the wall time means the emulation
+            // thread was busy; much less means it waited (GPU, presenter, a lock).
+            LOG_WARNING(Render_Vulkan, "long frame {:.1f} ms, emulation thread cpu {:.1f} ms", dt,
+                        cpu);
+        }
     }
     g_swap_trace.last = trace_t0;
     g_swap_trace.last_cpu_ms = trace_cpu;

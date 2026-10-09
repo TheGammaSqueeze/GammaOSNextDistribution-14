@@ -4,6 +4,12 @@
 
 #pragma once
 
+#ifdef __ANDROID__
+#include <sched.h>
+#include <sys/system_properties.h>
+#include <cstdlib>
+#endif
+
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -41,6 +47,27 @@ public:
         : workers_queued{num_workers}, thread_name{name} {
         const auto lambda = [this, func](std::stop_token stop_token, std::size_t index) {
             Common::SetCurrentThreadName(thread_name.data());
+#ifdef __ANDROID__
+            // GammaOS: keep shader and pipeline compiles on the CPUs in
+            // persist.gammaos.azahar_nano.compile_cpus (hex mask, e.g. f = the four small
+            // cores; default off) so they do not compete with the emulation threads.
+            if (thread_name.find("ipeline") != std::string_view::npos ||
+                thread_name.find("Shader") != std::string_view::npos) {
+                char v[PROP_VALUE_MAX] = {};
+                __system_property_get("persist.gammaos.azahar_nano.compile_cpus", v);
+                const unsigned long mask = v[0] ? std::strtoul(v, nullptr, 16) : 0ul;
+                if (mask != 0) {
+                    cpu_set_t set;
+                    CPU_ZERO(&set);
+                    for (int cpu = 0; cpu < 32; ++cpu) {
+                        if (mask & (1ul << cpu)) {
+                            CPU_SET(cpu, &set);
+                        }
+                    }
+                    sched_setaffinity(0, sizeof(set), &set);
+                }
+            }
+#endif
             {
                 [[maybe_unused]] std::conditional_t<with_state, StateType, int> state{func(index)};
                 while (!stop_token.stop_requested()) {

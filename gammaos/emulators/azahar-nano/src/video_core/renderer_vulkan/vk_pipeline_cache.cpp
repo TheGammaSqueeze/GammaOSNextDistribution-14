@@ -95,7 +95,9 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
           char v[PROP_VALUE_MAX] = {};
           __system_property_get("persist.gammaos.azahar_nano.pipe_workers", v);
           const int n = atoi(v);
-          return n > 0 ? static_cast<u32>(n) : std::max(std::thread::hardware_concurrency(), 2U) / 2;
+          // Default 2 (upstream: half the cores): with 4 compile threads competing with the
+          // emulation threads a cold shader cache ran the game at 25-35 fps, with 2 at 38-51.
+          return n > 0 ? static_cast<u32>(n) : 2U;
       }()},
       pipeline_workers{num_worker_threads, "Pipeline workers"},
       fast_pipeline_workers{2, "Fast pipelines"},
