@@ -7,6 +7,7 @@
 #include <atomic>
 #include <chrono>
 #include <memory>
+#include <unordered_map>
 #include <mutex>
 #include <string>
 #include <boost/optional.hpp>
@@ -474,6 +475,9 @@ private:
     /// ARM11 CPU core
     std::vector<std::shared_ptr<ARM_Interface>> cpu_cores;
     // GammaOS JIT warm-up: saved blocks still to compile, per core, oldest first
+    std::array<u64, 4> gamma_core_host_ns{};
+    bool gamma_pc_sampling = false;
+    std::unordered_map<u64, u64> gamma_pc_samples;
     std::vector<std::vector<u64>> gamma_jit_pending;
     std::vector<std::size_t> gamma_jit_pending_pos;
     ARM_Interface* running_core = nullptr;

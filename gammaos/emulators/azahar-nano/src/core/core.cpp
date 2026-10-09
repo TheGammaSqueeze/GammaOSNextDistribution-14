@@ -286,14 +286,66 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             } else {
                 // In the rare case the break flag is set (due to exception thrown)
                 // there is probably no need to adjust the timer accordingly.
+                const auto run_start = std::chrono::steady_clock::now();
                 if (tight_loop) {
                     cpu_core->Run();
                 } else {
                     cpu_core->Step();
                 }
+                if (gamma_pc_sampling) {
+                    const u64 key = (u64{cpu_core->GetPC()} << 32) | cpu_core->GetReg(14);
+                    gamma_pc_samples[key]++;
+                }
+                gamma_core_host_ns[cpu_core->GetID() & 3] +=
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::steady_clock::now() - run_start)
+                        .count();
             }
             max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
             Reschedule();
+        }
+    }
+
+    // GammaOS debug (sys.gammaos.azahar_nano.svc_stats=1): per core, emulated ticks executed by
+    // guest code vs skipped idle, every 2 s of host time.
+    {
+        static bool enabled = false;
+        static u32 polls = 0;
+        static auto last = std::chrono::steady_clock::now();
+        static std::array<u64, 4> last_ticks{}, last_idle{};
+        if ((polls++ & 0x3FF) == 0) {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("sys.gammaos.azahar_nano.svc_stats", v);
+            enabled = v[0] == '1';
+            gamma_pc_sampling = enabled;
+        }
+        const auto now = std::chrono::steady_clock::now();
+        if (enabled && now - last > std::chrono::seconds(2)) {
+            last = now;
+            std::string line;
+            for (std::size_t i = 0; i < cpu_cores.size() && i < 4; i++) {
+                const u64 ticks = cpu_cores[i]->GetTimer().GetTicks();
+                const u64 idle = cpu_cores[i]->GetTimer().GetIdleTicks();
+                const u64 dt = ticks - last_ticks[i], di = idle - last_idle[i];
+                line += fmt::format(" core{} ticks {}M idle {}M host {} ms", i, dt / 1000000,
+                                    di / 1000000, gamma_core_host_ns[i] / 1000000);
+                gamma_core_host_ns[i] = 0;
+                last_ticks[i] = ticks;
+                last_idle[i] = idle;
+            }
+            LOG_INFO(Core, "emulated time:{}", line);
+            // Guest PC / LR at the end of each core slice: the 25 most frequent pairs.
+            std::vector<std::pair<u64, u64>> top(gamma_pc_samples.begin(), gamma_pc_samples.end());
+            std::sort(top.begin(), top.end(), [](auto& a, auto& b) { return a.second > b.second; });
+            u64 total = 0;
+            for (auto& t : top) total += t.second;
+            std::string pcs;
+            for (std::size_t k = 0; k < top.size() && k < 25; k++) {
+                pcs += fmt::format(" {:08X}<{:08X}:{}", u32(top[k].first >> 32), u32(top[k].first),
+                                   top[k].second);
+            }
+            LOG_INFO(Core, "guest pc<lr samples ({} slices):{}", total, pcs);
+            gamma_pc_samples.clear();
         }
     }
 

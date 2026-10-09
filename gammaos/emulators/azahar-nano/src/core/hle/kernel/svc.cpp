@@ -1,3 +1,4 @@
+#include <map>
 #include <sys/system_properties.h>
 #include <chrono>
 // Copyright 2014-2026 Citra Emulator Project / Azahar Emulator Project
@@ -666,6 +667,34 @@ Result SVC::SendSyncRequest(Handle handle) {
     R_UNLESS(session, ResultInvalidHandle);
 
     LOG_TRACE(Kernel_SVC, "called handle=0x{:08X}({})", handle, session->GetName());
+
+    // GammaOS debug (svc_stats): count requests per session name and command header.
+    {
+        static std::map<std::string, u32> ipc_counts;
+        static auto last = std::chrono::steady_clock::now();
+        char v[PROP_VALUE_MAX] = {};
+        static u32 polls = 0;
+        static bool enabled = false;
+        if ((polls++ & 0x3FF) == 0) {
+            __system_property_get("sys.gammaos.azahar_nano.svc_stats", v);
+            enabled = v[0] == '1';
+        }
+        if (enabled) {
+            const u32 header = memory.Read32(
+                kernel.GetCurrentThreadManager().GetCurrentThread()->GetCommandBufferAddress());
+            ipc_counts[fmt::format("{}:{:08X}", session->GetName(), header)]++;
+            const auto now = std::chrono::steady_clock::now();
+            if (now - last > std::chrono::seconds(2)) {
+                last = now;
+                std::string line;
+                for (auto& [k, n] : ipc_counts) {
+                    if (n > 40) line += fmt::format(" {}={}", k, n);
+                }
+                ipc_counts.clear();
+                LOG_INFO(Kernel_SVC, "ipc stats (2 s):{}", line);
+            }
+        }
+    }
 
     system.PrepareReschedule();
 
