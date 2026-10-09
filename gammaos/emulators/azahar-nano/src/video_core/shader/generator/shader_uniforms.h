@@ -63,6 +63,9 @@ struct FSUniformData {
     alignas(16) Common::Vec4f blend_color;
     // GammaOS: the FSConfig words for the fragment ubershader (uber_fs_shader_gen.h).
     alignas(16) std::array<Common::Vec4u, 17> uber_config;
+    // Combiner stages decoded on the CPU for the ubershader: color sources + op (op 15 =
+    // pass-through, skipped), alpha sources + op, modifiers (color 1-3, alpha packed),
+    // and (color multiplier, alpha multiplier, buffer rgb update, buffer alpha update).
 };
 
 static_assert(sizeof(FSUniformData) == 0x640,

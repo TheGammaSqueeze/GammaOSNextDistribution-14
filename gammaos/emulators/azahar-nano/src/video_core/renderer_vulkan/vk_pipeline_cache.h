@@ -104,6 +104,8 @@ public:
     bool UberAvailable() const {
         return !uber_failed.load();
     }
+    /// Records the ubershader's packed combiner stages (push constants).
+    void PushUberTev(const std::array<u32, 16>& words);
     /// Binds a fragment ubershader variant instead of the generated fragment shader.
     void UseUberFragmentShader(u32 variant_key);
     const Pica::Shader::Profile& GetProfile() const {

@@ -34,12 +34,16 @@ struct Variant {
     Tex0Kind tex0 = Tex0Kind::Flat;
     bool shadow_rendering = false;
     bool write_depth = true; ///< false when the vertex stage supplies the depth (vertex_depth)
+    bool lighting = false;   ///< fragment lighting code present (register pressure)
+    bool proctex = false;    ///< procedural texture code present
 
     u32 Key() const {
-        return static_cast<u32>(tex0) | (shadow_rendering ? 4u : 0u) | (write_depth ? 8u : 0u);
+        return static_cast<u32>(tex0) | (shadow_rendering ? 4u : 0u) | (write_depth ? 8u : 0u) |
+               (lighting ? 16u : 0u) | (proctex ? 32u : 0u);
     }
     static Variant FromKey(u32 key) {
-        return Variant{static_cast<Tex0Kind>(key & 3), (key & 4) != 0, (key & 8) != 0};
+        return Variant{static_cast<Tex0Kind>(key & 3), (key & 4) != 0, (key & 8) != 0,
+                       (key & 16) != 0, (key & 32) != 0};
     }
 };
 

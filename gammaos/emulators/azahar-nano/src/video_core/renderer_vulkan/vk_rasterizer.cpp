@@ -69,6 +69,25 @@ bool HybridPropOn() {
     __system_property_get("persist.gammaos.azahar_nano.hybrid", v);
     return v[0] == '1';
 }
+int HybridDebugBits() {
+    const int value = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.uber_strip", v);
+        return atoi(v);
+    }();
+    return value;
+}
+bool HybridDebugSwSpecialized() {
+    return (HybridDebugBits() & 64) != 0;
+}
+// Debug 256: every hardware draw falls back; 512: the software path always uses the uber.
+bool HybridDebugForceFallback() {
+    return (HybridDebugBits() & 256) != 0;
+}
+bool HybridDebugForceUber() {
+    return (HybridDebugBits() & 512) != 0;
+}
+
 } // namespace
 
 RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore& pica,
@@ -500,7 +519,7 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
         // GammaOS hybrid shaders: never wait for a compile. The build is queued in the
         // background and this draw falls back to CPU vertex processing with the
         // fragment ubershader (see the software branch of Draw).
-        if (!pipeline_cache.BindPipeline(pipeline_info, false)) {
+        if (HybridDebugForceFallback() || !pipeline_cache.BindPipeline(pipeline_info, false)) {
             GammaStats::Add(GammaStats::HybridFallbackDraws);
             hybrid_fallback = true;
             return false;
@@ -580,15 +599,6 @@ void RasterizerVulkan::DrawTriangles() {
     pipeline_cache.UseTrivialGeometryShader();
 
     Draw(false, false);
-}
-
-static bool HybridDebugSwSpecialized() {
-    static const bool value = [] {
-        char v[PROP_VALUE_MAX] = {};
-        __system_property_get("persist.gammaos.azahar_nano.uber_strip", v);
-        return (atoi(v) & 64) != 0;
-    }();
-    return value;
 }
 
 bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
@@ -752,7 +762,7 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         } else if (HybridDebugSwSpecialized()) {
             // Debug: software vertex path with the generated fragment shader (no ubershader).
             pipeline_cache.BindPipeline(pipeline_info, true);
-        } else if (!pipeline_cache.BindPipeline(pipeline_info, false)) {
+        } else if (HybridDebugForceUber() || !pipeline_cache.BindPipeline(pipeline_info, false)) {
             // Fragment ubershader: its pipelines depend only on fixed-function state.
             Pica::Shader::FSConfig fs_config{regs};
             fs_config.ApplyProfile(pipeline_cache.GetProfile());
@@ -774,36 +784,73 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
             }
             variant.shadow_rendering = fs_config.framebuffer.shadow_rendering.Value() != 0;
             variant.write_depth = fs_config.framebuffer.vertex_depth.Value() == 0;
+            variant.lighting = fs_config.lighting.enable.Value() != 0;
+            variant.proctex = fs_config.proctex.enable.Value() != 0;
             static_assert(sizeof(fs_config) == sizeof(fs_data.uber_config));
             std::array<u32, 68> words;
             std::memcpy(words.data(), &fs_config, sizeof(fs_config));
             // Word 36 (wrap modes, unused by the ubershader): stages to evaluate, up to
             // the last one that is not a pass-through (later stages only move buffers
             // that nothing reads any more).
+            using TevStage = Pica::TexturingRegs::TevStageConfig;
             u32 stage_count = 0;
+            // TevPack: two words per stage for the ubershader's push constants.
+            // A: color sources 0-11, alpha sources 12-23, color op 24-27, alpha op 28-31.
+            // B: color modifiers 0-11, alpha modifiers 12-20, color scale 21-22, alpha scale
+            //    23-24, buffer rgb 25, buffer alpha 26, active 27.
+            std::array<u32, 16> tev_pack{};
             for (u32 st = 0; st < 6; ++st) {
-                const Pica::TexturingRegs::TevStageConfig stage = fs_config.texture.tev_stages[st];
+                const TevStage stage = fs_config.texture.tev_stages[st];
                 const bool pass_through =
-                    stage.color_op == Pica::TexturingRegs::TevStageConfig::Operation::Replace &&
-                    stage.alpha_op == Pica::TexturingRegs::TevStageConfig::Operation::Replace &&
-                    stage.color_source1 == Pica::TexturingRegs::TevStageConfig::Source::Previous &&
-                    stage.alpha_source1 == Pica::TexturingRegs::TevStageConfig::Source::Previous &&
-                    stage.color_modifier1 ==
-                        Pica::TexturingRegs::TevStageConfig::ColorModifier::SourceColor &&
-                    stage.alpha_modifier1 ==
-                        Pica::TexturingRegs::TevStageConfig::AlphaModifier::SourceAlpha &&
+                    stage.color_op == TevStage::Operation::Replace &&
+                    stage.alpha_op == TevStage::Operation::Replace &&
+                    stage.color_source1 == TevStage::Source::Previous &&
+                    stage.alpha_source1 == TevStage::Source::Previous &&
+                    stage.color_modifier1 == TevStage::ColorModifier::SourceColor &&
+                    stage.alpha_modifier1 == TevStage::AlphaModifier::SourceAlpha &&
                     stage.GetColorMultiplier() == 1 && stage.GetAlphaMultiplier() == 1;
                 if (!pass_through) {
                     stage_count = st + 1;
                 }
+                // Stage 0 reads source 3 where a source is "previous" (GetSource force_source3).
+                const auto eff = [&](TevStage::Source source, TevStage::Source source3) {
+                    return static_cast<u32>(
+                        st == 0 && source == TevStage::Source::Previous ? source3 : source);
+                };
+                const u32 wa =
+                    eff(stage.color_source1, stage.color_source3) |
+                    (eff(stage.color_source2, stage.color_source3) << 4) |
+                    (eff(stage.color_source3, stage.color_source3) << 8) |
+                    (eff(stage.alpha_source1, stage.alpha_source3) << 12) |
+                    (eff(stage.alpha_source2, stage.alpha_source3) << 16) |
+                    (eff(stage.alpha_source3, stage.alpha_source3) << 20) |
+                    (static_cast<u32>(stage.color_op.Value()) << 24) |
+                    (static_cast<u32>(stage.alpha_op.Value()) << 28);
+                const u32 wb =
+                    static_cast<u32>(stage.color_modifier1.Value()) |
+                    (static_cast<u32>(stage.color_modifier2.Value()) << 4) |
+                    (static_cast<u32>(stage.color_modifier3.Value()) << 8) |
+                    (static_cast<u32>(stage.alpha_modifier1.Value()) << 12) |
+                    (static_cast<u32>(stage.alpha_modifier2.Value()) << 15) |
+                    (static_cast<u32>(stage.alpha_modifier3.Value()) << 18) |
+                    (static_cast<u32>(stage.color_scale.Value()) << 21) |
+                    (static_cast<u32>(stage.alpha_scale.Value()) << 23) |
+                    ((fs_config.TevStageUpdatesCombinerBufferColor(st) ? 1u : 0u) << 25) |
+                    ((fs_config.TevStageUpdatesCombinerBufferAlpha(st) ? 1u : 0u) << 26) |
+                    ((pass_through ? 0u : 1u) << 27);
+                tev_pack[2 * st] = wa;
+                tev_pack[2 * st + 1] = wb;
             }
             words[36] = stage_count;
             if (std::memcmp(&fs_data.uber_config, words.data(), sizeof(words)) != 0) {
                 std::memcpy(&fs_data.uber_config, words.data(), sizeof(words));
                 fs_data_dirty = true;
+            }
+            if (fs_data_dirty) {
                 UploadUniforms(false);
             }
             pipeline_cache.UseUberFragmentShader(variant.Key());
+            pipeline_cache.PushUberTev(tev_pack);
             const bool ready = pipeline_cache.BindPipeline(pipeline_info, false);
             if (!ready) {
                 // A fixed-function state no precompiled ubershader pipeline covers yet.

@@ -152,11 +152,19 @@ void PipelineCache::BuildLayout() {
     descriptor_set_layouts[1] = descriptor_heaps[1].Layout();
     descriptor_set_layouts[2] = descriptor_heaps[2].Layout();
 
+    // GammaOS: the fragment ubershader's packed combiner stages (64 bytes). Read from
+    // push constants, not the uniform block: per-pixel uniform buffer reads are the slow
+    // path on Adreno 6xx and made the ubershader ~40x slower.
+    const vk::PushConstantRange uber_push_range = {
+        .stageFlags = vk::ShaderStageFlagBits::eFragment,
+        .offset = 0,
+        .size = 64,
+    };
     const vk::PipelineLayoutCreateInfo layout_info = {
         .setLayoutCount = NumRasterizerSets,
         .pSetLayouts = descriptor_set_layouts.data(),
-        .pushConstantRangeCount = 0,
-        .pPushConstantRanges = nullptr,
+        .pushConstantRangeCount = 1,
+        .pPushConstantRanges = &uber_push_range,
     };
     pipeline_layout = instance.GetDevice().createPipelineLayoutUnique(layout_info);
 }
@@ -697,6 +705,13 @@ Shader* PipelineCache::GetUberShader(u32 variant_key) {
         slot->program = "uber"; // build stats tag
     }
     return slot.get();
+}
+
+void PipelineCache::PushUberTev(const std::array<u32, 16>& words) {
+    scheduler.Record([layout = *pipeline_layout, words](vk::CommandBuffer cmdbuf) {
+        cmdbuf.pushConstants(layout, vk::ShaderStageFlagBits::eFragment, 0, sizeof(words),
+                             words.data());
+    });
 }
 
 void PipelineCache::UseUberFragmentShader(u32 variant_key) {

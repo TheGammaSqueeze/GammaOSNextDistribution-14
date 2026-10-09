@@ -20,7 +20,7 @@ enum Counter : int {
     DrawsZBuffer, DrawsWBuffer, DrawsShadow, DrawsAlphaTest, DrawsBlend,
     CmdLists, CmdListsTop, CmdListsBlocked, Transfers, TransfersBlocked,
     PipesFast, PipesQueued, DrawsSkippedPending, ShadersCompiled,
-    ImagesCreated, SurfacesRecycled, HybridFallbackDraws, HybridUberDraws, HybridUberCompiles, PipeHwBuilds, PipeHwUs, PipeSwBuilds, PipeSwUs, PipeUberBuilds, PipeUberUs, PipeBuilds, PipeBuildUs, PipeFirstBuilds, PipeFirstUs, PipeRepeatBuilds, PipeRepeatUs,
+    ImagesCreated, SurfacesRecycled, HybridFallbackDraws, HybridUberDraws, HybridUberCompiles, PipeHwBuilds, PipeHwUs, PipeSwBuilds, PipeSwUs, PipeUberBuilds, PipeUberUs, FastAttempts, FastAttemptUs, FastAttemptMaxUs, PipeBuilds, PipeBuildUs, PipeFirstBuilds, PipeFirstUs, PipeRepeatBuilds, PipeRepeatUs,
     Count
 };
 
@@ -28,6 +28,14 @@ inline std::atomic<std::uint64_t> g_counters[Count];
 
 inline void Add(Counter c, std::uint64_t v = 1) {
     g_counters[c].fetch_add(v, std::memory_order_relaxed);
+}
+
+inline std::uint64_t Peek(Counter c) {
+    return g_counters[c].load(std::memory_order_relaxed);
+}
+
+inline void Set(Counter c, std::uint64_t v) {
+    g_counters[c].store(v, std::memory_order_relaxed);
 }
 
 inline std::uint64_t Take(Counter c) {

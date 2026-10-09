@@ -35,6 +35,8 @@ struct State {
     // accumulated over the trace window, in ms
     std::array<double, NumCategories> sum_ms{};
     double span_ms = 0.0;
+    double max_frame_pass_ms = 0.0;  // worst frame's render pass total
+    double max_pass_ms = 0.0;        // worst single render pass
     std::uint32_t frames_read = 0;
 };
 
@@ -98,14 +100,21 @@ inline void FrameBoundary() {
             sizeof(std::uint64_t), vk::QueryResultFlagBits::e64);
         if (r == vk::Result::eSuccess) {
             std::uint64_t first = UINT64_MAX, last = 0;
+            double frame_pass_ms = 0.0;
             for (std::uint32_t i = 0; i < n; i++) {
                 const std::uint64_t b = ts[i * 2], e = ts[i * 2 + 1];
                 if (e <= b) continue;
-                g.sum_ms[g.cats[old][i]] += (e - b) * g.period_ns / 1e6;
+                const double ms = (e - b) * g.period_ns / 1e6;
+                g.sum_ms[g.cats[old][i]] += ms;
+                if (g.cats[old][i] == Pass) {
+                    frame_pass_ms += ms;
+                    g.max_pass_ms = std::max(g.max_pass_ms, ms);
+                }
                 first = std::min(first, b);
                 last = std::max(last, e);
             }
             if (last > first) g.span_ms += (last - first) * g.period_ns / 1e6;
+            g.max_frame_pass_ms = std::max(g.max_frame_pass_ms, frame_pass_ms);
             g.frames_read++;
         }
     }

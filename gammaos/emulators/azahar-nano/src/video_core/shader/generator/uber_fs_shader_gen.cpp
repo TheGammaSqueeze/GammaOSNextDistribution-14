@@ -62,6 +62,12 @@ layout (binding = 2, std140) uniform fs_data {
     vec4 blend_color;
     uvec4 uber_config[17];
 };
+// Packed combiner stages: words 2s (sources and ops) and 2s + 1 (modifiers, scales,
+// buffer updates, active) for stage s. See TevPack in vk_rasterizer.cpp.
+layout(push_constant) uniform UberTev {
+    uvec4 w[4];
+} tevpc;
+
 )";
 
 // Config accessors. Word layout of Pica::Shader::FSConfig (272 bytes):
@@ -420,7 +426,7 @@ vec4 sampleTexUnit2() {
     return textureLod(tex2, c, getLod(c * vec2(textureSize(tex2, 0))) + tex_lod_bias[2]);
 }
 vec4 sampleTexUnit3() {
-#if !STRIP_PROCTEX
+#if UBER_PROCTEX && !STRIP_PROCTEX
     if (proctex_enable()) return ProcTex();
 #endif
     return vec4(0.0);
@@ -430,52 +436,66 @@ vec4 sampleTexUnit3() {
 
 // TEV (WriteTevStage, GetSource, Append*Modifier, Append*Combiner).
 constexpr std::string_view Tev = R"(
-// Modifiers without lookup tables. ColorModifier: bit 0 inverts, the rest picks
-// rgb (0), alpha (1), red (2), green (4) or blue (6). AlphaModifier: bit 0 inverts,
-// the rest picks alpha (0), red (1), green (2) or blue (3).
-vec3 color_mod(uint m, vec4 c) {
+// Source selection: a uniform switch (the index comes from push constants).
+mediump vec4 select_src(uint s, mediump vec4 prim, mediump vec4 pfc, mediump vec4 sfc,
+                        mediump vec4 t0, mediump vec4 t1, mediump vec4 t2, mediump vec4 t3,
+                        mediump vec4 buf, mediump vec4 k, mediump vec4 prev) {
+    switch (s) {
+    case 0u: return prim;
+    case 1u: return pfc;
+    case 2u: return sfc;
+    case 3u: return t0;
+    case 4u: return t1;
+    case 5u: return t2;
+    case 6u: return t3;
+    case 13u: return buf;
+    case 14u: return k;
+    case 15u: return prev;
+    }
+    return vec4(0.0);
+}
+// ColorModifier: bit 0 inverts; the rest picks rgb (0), alpha (1), red (2), green (4),
+// blue (6); other values give zero.
+mediump vec3 cmod(uint m, mediump vec4 c) {
     uint sel = m >> 1;
-    vec4 w = vec4(float(sel == 2u), float(sel == 4u), float(sel == 6u), float(sel == 1u));
-    vec3 x = sel == 0u ? c.rgb : vec3(dot(c, w));
-    return (m & 1u) != 0u ? vec3(1.0) - x : x;
+    vec4 w = vec4(equal(uvec4(sel), uvec4(2u, 4u, 6u, 1u)));
+    float valid = float(sel == 0u || sel == 1u || sel == 2u || sel == 4u || sel == 6u);
+    mediump vec3 x = mix(vec3(dot(c, w)), c.rgb, float(sel == 0u));
+    float inv = float(m & 1u);
+    return valid * (inv + (1.0 - 2.0 * inv) * x);
 }
-float alpha_mod(uint m, vec4 c) {
+// AlphaModifier: bit 0 inverts; the rest picks alpha (0), red (1), green (2), blue (3).
+mediump float amod(uint m, mediump vec4 c) {
     uint ch = m >> 1;
-    vec4 w = vec4(float(ch == 1u), float(ch == 2u), float(ch == 3u), float(ch == 0u));
-    float x = dot(c, w);
-    return (m & 1u) != 0u ? 1.0 - x : x;
+    vec4 w = vec4(equal(uvec4(ch), uvec4(1u, 2u, 3u, 0u)));
+    float inv = float(m & 1u);
+    return inv + (1.0 - 2.0 * inv) * dot(c, w);
 }
-vec3 color_combine(uint op, vec3 r1, vec3 r2, vec3 r3) {
-    vec3 v;
-    switch (op) {
-    case 0u: v = r1; break;
-    case 1u: v = r1 * r2; break;
-    case 2u: v = r1 + r2; break;
-    case 3u: v = r1 + r2 - vec3(0.5); break;
-    case 4u: v = mix(r2, r1, r3); break;
-    case 5u: v = r1 - r2; break;
-    case 6u:
-    case 7u: v = vec3(dot(r1 - vec3(0.5), r2 - vec3(0.5)) * 4.0); break;
-    case 8u: v = fma(r1, r2, r3); break;
-    case 9u: v = min(r1 + r2, vec3(1.0)) * r3; break;
-    default: v = vec3(0.0); break;
-    }
-    return clamp(v, vec3(0.0), vec3(1.0));
+// Combiner operations as one formula; AddThenMultiply and Dot3 picked by select.
+mediump vec3 combine3(uint op, mediump vec3 r1, mediump vec3 r2, mediump vec3 r3) {
+    float a = float(op == 0u || op == 2u || op == 3u || op == 5u);
+    float b = float(op == 2u || op == 3u || op == 4u) - float(op == 5u);
+    float c = float(op == 8u);
+    float d = float(op == 1u || op == 8u);
+    float e = float(op == 4u);
+    float g = -0.5 * float(op == 3u);
+    mediump vec3 lin = a * r1 + b * r2 + c * r3 + d * r1 * r2 + e * (r1 * r3 - r2 * r3) + g;
+    mediump vec3 atm = min(r1 + r2, vec3(1.0)) * r3;
+    mediump vec3 dt = vec3(dot(r1 - vec3(0.5), r2 - vec3(0.5)) * 4.0);
+    mediump vec3 res = op == 9u ? atm : lin;
+    res = (op == 6u || op == 7u) ? dt : res;
+    return op > 9u ? vec3(0.0) : res;
 }
-float alpha_combine(uint op, float r1, float r2, float r3) {
-    float v;
-    switch (op) {
-    case 0u: v = r1; break;
-    case 1u: v = r1 * r2; break;
-    case 2u: v = r1 + r2; break;
-    case 3u: v = r1 + r2 - 0.5; break;
-    case 4u: v = mix(r2, r1, r3); break;
-    case 5u: v = r1 - r2; break;
-    case 8u: v = fma(r1, r2, r3); break;
-    case 9u: v = min(r1 + r2, 1.0) * r3; break;
-    default: v = 0.0; break;
-    }
-    return clamp(v, 0.0, 1.0);
+mediump float combine1(uint op, mediump float r1, mediump float r2, mediump float r3) {
+    float a = float(op == 0u || op == 2u || op == 3u || op == 5u);
+    float b = float(op == 2u || op == 3u || op == 4u) - float(op == 5u);
+    float c = float(op == 8u);
+    float d = float(op == 1u || op == 8u);
+    float e = float(op == 4u);
+    float g = -0.5 * float(op == 3u);
+    mediump float lin = a * r1 + b * r2 + c * r3 + d * r1 * r2 + e * (r1 * r3 - r2 * r3) + g;
+    mediump float res = op == 9u ? min(r1 + r2, 1.0) * r3 : lin;
+    return (op == 6u || op == 7u || op > 9u) ? 0.0 : res;
 }
 )";
 
@@ -644,8 +664,12 @@ void do_lighting(vec4 tex_bump, vec4 tex_shadow, out vec4 primary_out, out vec4 
 )";
 
 constexpr std::string_view MainStart = R"(
-vec4 pick(uint source, vec4 prim, vec4 pfc, vec4 sfc, vec4 t0, vec4 t1, vec4 t2, vec4 t3,
-          vec4 buf, vec4 k, vec4 prev) {
+mediump vec4 pick(uint source, mediump vec4 prim, mediump vec4 pfc, mediump vec4 sfc,
+                  mediump vec4 t0, mediump vec4 t1, mediump vec4 t2, mediump vec4 t3,
+                  mediump vec4 buf, mediump vec4 k, mediump vec4 prev) {
+#if DBG_NOPICK
+    return t0 * prim;
+#endif
     if (source == 0xfu) return prev;
     if (source < 0x3u) return source == 0x0u ? prim : (source == 0x1u ? pfc : sfc);
     if (source < 0x7u) return source == 0x3u ? t0 : (source == 0x4u ? t1 : (source == 0x5u ? t2 : t3));
@@ -655,9 +679,9 @@ vec4 pick(uint source, vec4 prim, vec4 pfc, vec4 sfc, vec4 t0, vec4 t1, vec4 t2,
 }
 
 void main() {
-    vec4 prim = byteround(primary_color);
-    vec4 pfc = vec4(0.0);
-    vec4 sfc = vec4(0.0);
+    mediump vec4 prim = byteround(primary_color);
+    mediump vec4 pfc = vec4(0.0);
+    mediump vec4 sfc = vec4(0.0);
     uint atf = alpha_test_func();
     if (atf == 0u) {
         discard;
@@ -677,20 +701,20 @@ void main() {
         if (inside) discard;
     }
 #endif
-    vec4 t0 = sampleTexUnit0();
+    mediump vec4 t0 = sampleTexUnit0();
 #if !STRIP_UNITS
-    vec4 t1 = sampleTexUnit1();
-    vec4 t2 = sampleTexUnit2();
-    vec4 t3 = sampleTexUnit3();
+    mediump vec4 t1 = sampleTexUnit1();
+    mediump vec4 t2 = sampleTexUnit2();
+    mediump vec4 t3 = sampleTexUnit3();
 #else
-    vec4 t1 = vec4(0.0), t2 = vec4(0.0), t3 = vec4(0.0);
+    mediump vec4 t1 = vec4(0.0), t2 = vec4(0.0), t3 = vec4(0.0);
 #endif
     float z_over_w = Z_OVER_W;
     float depth = z_over_w * depth_scale + depth_offset;
     if (w_buffering()) {
         depth /= gl_FragCoord.w;
     }
-#if !STRIP_LIGHTING
+#if UBER_LIGHTING && !STRIP_LIGHTING
     if (lighting_enable()) {
         int bs = bump_selector();
         int ss = shadow_selector();
@@ -699,58 +723,13 @@ void main() {
         do_lighting(tex_bump, tex_shadow, pfc, sfc);
     }
 #endif
-    vec4 combiner_buffer = vec4(0.0);
-    vec4 next_combiner_buffer = tev_combiner_buffer_color;
-    vec4 combiner_output = vec4(0.0);
+    mediump vec4 combiner_buffer = vec4(0.0);
+    mediump vec4 next_combiner_buffer = tev_combiner_buffer_color;
+    mediump vec4 combiner_output = vec4(0.0);
 #if !STRIP_TEV
     // Word 36 (the wrap modes slot, unused here) holds the number of stages up to the
     // last one that is not a pass-through, filled by the CPU.
-    int stage_count = int(cfg(36));
-    for (int s = 0; s < stage_count; ++s) {
-        uint sources = cfg(12 + 4 * s);
-        uint modifiers = cfg(13 + 4 * s);
-        uint ops = cfg(14 + 4 * s);
-        uint scales = cfg(15 + 4 * s);
-        uint cs1 = bits(sources, 0, 4), cs2 = bits(sources, 4, 4), cs3 = bits(sources, 8, 4);
-        uint as1 = bits(sources, 16, 4), as2 = bits(sources, 20, 4), as3 = bits(sources, 24, 4);
-        uint cm1 = bits(modifiers, 0, 4), cm2 = bits(modifiers, 4, 4), cm3 = bits(modifiers, 8, 4);
-        uint am1 = bits(modifiers, 12, 3), am2 = bits(modifiers, 16, 3), am3 = bits(modifiers, 20, 3);
-        uint color_op = bits(ops, 0, 4), alpha_op = bits(ops, 16, 4);
-        uint color_scale = bits(scales, 0, 2), alpha_scale = bits(scales, 16, 2);
-        float color_mul = color_scale < 3u ? float(1u << color_scale) : 1.0;
-        float alpha_mul = alpha_scale < 3u ? float(1u << alpha_scale) : 1.0;
-        bool pass_through = color_op == 0u && alpha_op == 0u && cs1 == 0xfu && as1 == 0xfu &&
-                            cm1 == 0u && am1 == 0u && color_mul == 1.0 && alpha_mul == 1.0;
-        if (!pass_through) {
-            vec4 k = const_color[s];
-            if (s == 0) {
-                // Stage 0 reads source 3 where a source is "previous" (force_source3).
-                if (cs1 == 0xfu) cs1 = cs3;
-                if (cs2 == 0xfu) cs2 = cs3;
-                if (as1 == 0xfu) as1 = as3;
-                if (as2 == 0xfu) as2 = as3;
-            }
-            vec3 c1 = color_mod(cm1, pick(cs1, prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output));
-            vec3 c2 = color_mod(cm2, pick(cs2, prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output));
-            vec3 c3 = color_mod(cm3, pick(cs3, prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output));
-            vec3 color_output = byteround(color_combine(color_op, c1, c2, c3));
-            float alpha_output;
-            if (color_op == 7u) {
-                alpha_output = color_output[0];
-            } else {
-                float a1 = alpha_mod(am1, pick(as1, prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output));
-                float a2 = alpha_mod(am2, pick(as2, prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output));
-                float a3 = alpha_mod(am3, pick(as3, prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output));
-                alpha_output = byteround(alpha_combine(alpha_op, a1, a2, a3));
-            }
-            combiner_output = vec4(clamp(color_output * color_mul, vec3(0.0), vec3(1.0)),
-                                   clamp(alpha_output * alpha_mul, 0.0, 1.0));
-        }
-        combiner_buffer = next_combiner_buffer;
-        uint buffer_input = combiner_buffer_input();
-        if (s < 4 && (buffer_input & (1u << s)) != 0u) next_combiner_buffer.rgb = combiner_output.rgb;
-        if (s < 4 && ((buffer_input >> 4) & (1u << s)) != 0u) next_combiner_buffer.a = combiner_output.a;
-        }
+TEV_STAGES
 #else
     combiner_output = prim * t0;
 #endif
@@ -795,8 +774,12 @@ std::string GenerateFragmentShader(const Variant& variant, const Profile& profil
     if (variant.shadow_rendering && profile.has_fragment_shader_interlock) {
         out += "#extension GL_ARB_fragment_shader_interlock : enable\n";
     }
-    if (Settings::values.gammaos_fs_mediump) {
-        out += "precision mediump float;\n";
+    {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.uber_strip", v);
+        if (Settings::values.gammaos_fs_mediump || (atoi(v) & 128)) {
+            out += "precision mediump float;\n";
+        }
     }
     out += fmt::format("#define UBER_HW_SCISSOR {}\n", profile.hw_scissor ? 1 : 0);
     {
@@ -811,6 +794,10 @@ std::string GenerateFragmentShader(const Variant& variant, const Profile& profil
                            strip & 8 ? 1 : 0);
         out += fmt::format("#define STRIP_STAGES {}\n#define STRIP_UNITS {}\n", strip & 16 ? 1 : 0,
                            strip & 32 ? 1 : 0);
+        out += fmt::format("#define DBG_NOPICK {}\n#define DBG_NOCOMBINE {}\n#define DBG_NOLOOP {}\n",
+                           strip & 1024 ? 1 : 0, strip & 2048 ? 1 : 0, strip & 4096 ? 1 : 0);
+        out += fmt::format("#define UBER_LIGHTING {}\n#define UBER_PROCTEX {}\n",
+                           variant.lighting ? 1 : 0, variant.proctex ? 1 : 0);
     }
     out += fmt::format("#define Z_OVER_W {}\n", profile.has_minus_one_to_one_range
                                                     ? "(-2.0 * gl_FragCoord.z + 1.0)"
@@ -861,7 +848,9 @@ std::string GenerateFragmentShader(const Variant& variant, const Profile& profil
             out += ShadowCubeSampler;
         }
     }
-    out += ProcTex;
+    if (variant.proctex) {
+        out += ProcTex;
+    }
     std::string units{TexUnits};
     const char* sample0 = "";
     switch (variant.tex0) {
@@ -883,8 +872,50 @@ std::string GenerateFragmentShader(const Variant& variant, const Profile& profil
     units.replace(units.find("SAMPLE_TEX0"), 11, sample0);
     out += units;
     out += Tev;
-    out += Lighting;
+    if (variant.lighting) {
+        out += Lighting;
+    }
     std::string main_start{MainStart};
+    {
+        // Each stage: decode its two packed words (constant push constant indices) and run
+        // straight-line math. Source and channel selections are arithmetic weights.
+        std::string stages = "    // Branchless combiner on packed push constant stages.\n";
+        stages += R"(    for (int s = 0; s < 6; ++s) {
+        uint wa = tevpc.w[s >> 1][(s & 1) * 2];
+        uint wb = tevpc.w[s >> 1][(s & 1) * 2 + 1];
+        if (bitfieldExtract(wb, 27, 1) != 0u) {
+            mediump vec4 k = const_color[s];
+            mediump vec4 sc1 = select_src(bitfieldExtract(wa, 0, 4), prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output);
+            mediump vec4 sc2 = select_src(bitfieldExtract(wa, 4, 4), prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output);
+            mediump vec4 sc3 = select_src(bitfieldExtract(wa, 8, 4), prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output);
+            mediump vec4 sa1 = select_src(bitfieldExtract(wa, 12, 4), prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output);
+            mediump vec4 sa2 = select_src(bitfieldExtract(wa, 16, 4), prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output);
+            mediump vec4 sa3 = select_src(bitfieldExtract(wa, 20, 4), prim, pfc, sfc, t0, t1, t2, t3, combiner_buffer, k, combiner_output);
+            mediump vec3 c1 = cmod(bitfieldExtract(wb, 0, 4), sc1);
+            mediump vec3 c2 = cmod(bitfieldExtract(wb, 4, 4), sc2);
+            mediump vec3 c3 = cmod(bitfieldExtract(wb, 8, 4), sc3);
+            mediump float a1 = amod(bitfieldExtract(wb, 12, 3), sa1);
+            mediump float a2 = amod(bitfieldExtract(wb, 15, 3), sa2);
+            mediump float a3 = amod(bitfieldExtract(wb, 18, 3), sa3);
+            uint cop = bitfieldExtract(wa, 24, 4);
+            uint aop = bitfieldExtract(wa, 28, 4);
+            mediump vec3 color_output = byteround(clamp(combine3(cop, c1, c2, c3), vec3(0.0), vec3(1.0)));
+            mediump float alpha_output = byteround(clamp(combine1(aop, a1, a2, a3), 0.0, 1.0));
+            if (cop == 7u) alpha_output = color_output.r;
+            uint cs = bitfieldExtract(wb, 21, 2);
+            uint as_ = bitfieldExtract(wb, 23, 2);
+            float cmul = cs < 3u ? float(1u << cs) : 1.0;
+            float amul = as_ < 3u ? float(1u << as_) : 1.0;
+            combiner_output = vec4(clamp(color_output * cmul, vec3(0.0), vec3(1.0)),
+                                   clamp(alpha_output * amul, 0.0, 1.0));
+        }
+        combiner_buffer = next_combiner_buffer;
+        next_combiner_buffer = vec4(mix(next_combiner_buffer.rgb, combiner_output.rgb, float(bitfieldExtract(wb, 25, 1))),
+                                    mix(next_combiner_buffer.a, combiner_output.a, float(bitfieldExtract(wb, 26, 1))));
+    }
+)";
+        main_start.replace(main_start.find("TEV_STAGES"), 10, stages);
+    }
     main_start.replace(main_start.find("WRITE_DEPTH_GAS"), 15,
                        variant.write_depth && !variant.shadow_rendering ? "gl_FragDepth = depth;"
                                                                         : "");

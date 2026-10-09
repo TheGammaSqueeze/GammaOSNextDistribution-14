@@ -1328,7 +1328,7 @@ void RendererVulkan::SwapBuffers() {
                      "pass breaks with only the render area changed {:.1f} | draws z {:.1f} w {:.1f} "
                      "shadow {:.1f} alphatest {:.1f} blend {:.1f} | cmd lists {:.1f} top {:.1f} "
                      "blocked {:.2f} transfers {:.1f} blocked {:.2f} | enabled {} | pipelines fast {} "
-                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | hybrid fallback draws {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms (window totals)",
+                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | hybrid fallback draws {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms (window totals)",
                      GS::Take(GS::Draws) / n, GS::Take(GS::RenderPasses) / n,
                      GS::Take(GS::Uploads) / n, GS::Take(GS::UploadPixels) / n,
                      GS::Take(GS::UploadScaledPixels) / n, GS::Take(GS::Downloads) / n,
@@ -1352,7 +1352,9 @@ void RendererVulkan::SwapBuffers() {
                      GS::Take(GS::HybridUberDraws), GS::Take(GS::HybridUberCompiles),
                      GS::Take(GS::PipeHwBuilds), GS::Take(GS::PipeHwUs) / 1000,
                      GS::Take(GS::PipeSwBuilds), GS::Take(GS::PipeSwUs) / 1000,
-                     GS::Take(GS::PipeUberBuilds), GS::Take(GS::PipeUberUs) / 1000);
+                     GS::Take(GS::PipeUberBuilds), GS::Take(GS::PipeUberUs) / 1000,
+                     GS::Take(GS::FastAttempts), GS::Take(GS::FastAttemptUs) / 1000,
+                     GS::Take(GS::FastAttemptMaxUs) / 1000);
         }
         {
             auto& gg = GammaGpu::g;
@@ -1360,12 +1362,15 @@ void RendererVulkan::SwapBuffers() {
                 const double fr = gg.frames_read;
                 LOG_INFO(Render_Vulkan,
                          "gpu time per frame ({} frames): span {:.2f} ms | passes {:.2f} present "
-                         "{:.2f} clears {:.2f} blits {:.2f} copies {:.2f} uploads {:.2f} ms",
+                         "{:.2f} clears {:.2f} blits {:.2f} copies {:.2f} uploads {:.2f} ms | worst "
+                         "frame passes {:.1f} ms, worst pass {:.1f} ms",
                          gg.frames_read, gg.span_ms / fr, gg.sum_ms[GammaGpu::Pass] / fr,
                          gg.sum_ms[GammaGpu::Present] / fr, gg.sum_ms[GammaGpu::Clear] / fr,
                          gg.sum_ms[GammaGpu::Blit] / fr, gg.sum_ms[GammaGpu::Copy] / fr,
-                         gg.sum_ms[GammaGpu::Upload] / fr);
+                         gg.sum_ms[GammaGpu::Upload] / fr, gg.max_frame_pass_ms, gg.max_pass_ms);
             }
+            gg.max_frame_pass_ms = 0.0;
+            gg.max_pass_ms = 0.0;
             gg.sum_ms = {};
             gg.span_ms = 0.0;
             gg.frames_read = 0;

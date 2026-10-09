@@ -291,6 +291,17 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
     }
     const auto build_start = std::chrono::steady_clock::now();
     auto result = instance.GetDevice().createGraphicsPipelineUnique(pipeline_cache, pipeline_info);
+    if (fail_on_compile_required) {
+        // GammaOS: time of the "only if cached" attempts (run on the emulation thread).
+        const u64 us = static_cast<u64>(std::chrono::duration_cast<std::chrono::microseconds>(
+                                            std::chrono::steady_clock::now() - build_start)
+                                            .count());
+        GammaStats::Add(GammaStats::FastAttempts);
+        GammaStats::Add(GammaStats::FastAttemptUs, us);
+        if (us > GammaStats::Peek(GammaStats::FastAttemptMaxUs)) {
+            GammaStats::Set(GammaStats::FastAttemptMaxUs, us);
+        }
+    }
     if (!fail_on_compile_required) {
         // GammaOS: split build time by whether this shader trio was built before.
         static std::mutex seen_mutex;
