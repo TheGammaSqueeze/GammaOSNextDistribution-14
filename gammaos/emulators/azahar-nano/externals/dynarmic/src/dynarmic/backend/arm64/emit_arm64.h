@@ -129,6 +129,8 @@ struct EmitConfig {
     u32 page_table_write_table_below;
     u64 inline_exclusive_address_pointer;  // 0: exclusive reads always use the callback
     u64 inline_exclusive_value_pointer;
+    u64 inline_exclusive_all_addresses;  // exclusive_addresses[0] of the monitor
+    size_t inline_exclusive_processor_count;
     bool silently_mirror_page_table;
     bool absolute_offset_page_table;
     u8 detect_misaligned_access_via_page_table;

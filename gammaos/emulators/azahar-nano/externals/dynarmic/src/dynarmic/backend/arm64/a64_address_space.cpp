@@ -562,6 +562,8 @@ EmitConfig A64AddressSpace::GetEmitConfig() {
         .page_table_write_table_below = 0,
         .inline_exclusive_address_pointer = 0,
         .inline_exclusive_value_pointer = 0,
+        .inline_exclusive_all_addresses = 0,
+        .inline_exclusive_processor_count = 0,
         .silently_mirror_page_table = conf.silently_mirror_page_table,
         .absolute_offset_page_table = conf.absolute_offset_page_table,
         .detect_misaligned_access_via_page_table = conf.detect_misaligned_access_via_page_table,

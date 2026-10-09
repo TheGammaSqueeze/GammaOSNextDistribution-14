@@ -497,6 +497,91 @@ void InlinePageTableEmitExclusiveReadMemory(oaknut::CodeGenerator& code, EmitCon
     ctx.reg_alloc.DefineAsRegister(inst, X0);
 }
 
+// Exclusive store done inline, matching ExclusiveMonitor::DoExclusiveOperation followed by a
+// compare-and-swap of the page memory against the value the exclusive load saw (single host
+// thread only). Pages missing from the write table, and misaligned accesses, use the callback.
+template<size_t bitsize>
+void InlinePageTableEmitExclusiveWriteMemory(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* inst) {
+    auto args = ctx.reg_alloc.GetArgumentInfo(inst);
+    ctx.reg_alloc.PrepareForCall({}, args[1], args[2]);
+    const bool ordered = IsOrdered(args[3].GetImmediateAccType());
+
+    SharedLabel fallback = GenSharedLabel(), end = GenSharedLabel();
+
+    if (ordered) {
+        code.DMB(oaknut::BarrierOp::ISH);
+    }
+    code.MOV(W0, 1);
+    code.LDRB(Wscratch0, Xstate, ctx.conf.state_exclusive_state_offset);
+    code.CBZ(Wscratch0, *end);
+    code.STRB(WZR, Xstate, ctx.conf.state_exclusive_state_offset);
+
+    const auto [Xbase, Xoffset] = InlinePageTableEmitVAddrLookup<bitsize>(code, ctx, X1, fallback, true);
+    code.ADD(X7, Xbase, Xoffset);
+
+    // This processor must hold the reservation for exactly this address.
+    code.MOV(X3, ctx.conf.inline_exclusive_address_pointer);
+    code.LDR(X4, X3);
+    code.CMP(X4, W1, oaknut::AddSubExt::UXTW);
+    code.B(NE, *end);
+
+    // Clear every processor's reservation of this address.
+    code.MOV(X3, ctx.conf.inline_exclusive_all_addresses);
+    code.MOV(X5, 0xDEAD'DEAD'DEAD'DEADull);
+    for (size_t i = 0; i < ctx.conf.inline_exclusive_processor_count; i++) {
+        oaknut::Label skip;
+        code.LDR(X4, X3, i * sizeof(u64));
+        code.CMP(X4, W1, oaknut::AddSubExt::UXTW);
+        code.B(NE, skip);
+        code.STR(X5, X3, i * sizeof(u64));
+        code.l(skip);
+    }
+
+    // Compare-and-swap against the value saved by the exclusive load.
+    code.MOV(X3, ctx.conf.inline_exclusive_value_pointer);
+    switch (bitsize) {
+    case 8:
+        code.LDRB(W4, X3);
+        code.LDRB(W6, X7);
+        code.CMP(W6, W4);
+        code.B(NE, *end);
+        code.STRB(W2, X7);
+        break;
+    case 16:
+        code.LDRH(W4, X3);
+        code.LDRH(W6, X7);
+        code.CMP(W6, W4);
+        code.B(NE, *end);
+        code.STRH(W2, X7);
+        break;
+    case 32:
+        code.LDR(W4, X3);
+        code.LDR(W6, X7);
+        code.CMP(W6, W4);
+        code.B(NE, *end);
+        code.STR(W2, X7);
+        break;
+    case 64:
+        code.LDR(X4, X3);
+        code.LDR(X6, X7);
+        code.CMP(X6, X4);
+        code.B(NE, *end);
+        code.STR(X2, X7);
+        break;
+    }
+    code.MOV(W0, 0);
+    code.B(*end);
+
+    code.l(*fallback);
+    EmitRelocation(code, ctx, ExclusiveWriteMemoryLinkTarget(bitsize));
+
+    code.l(*end);
+    if (ordered) {
+        code.DMB(oaknut::BarrierOp::ISH);
+    }
+    ctx.reg_alloc.DefineAsRegister(inst, X0);
+}
+
 template<size_t bitsize>
 void InlinePageTableEmitWriteMemory(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* inst) {
     auto args = ctx.reg_alloc.GetArgumentInfo(inst);
@@ -717,6 +802,12 @@ void EmitWriteMemory(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* in
 
 template<size_t bitsize>
 void EmitExclusiveWriteMemory(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* inst) {
+    if constexpr (bitsize != 128) {
+        if (ctx.conf.inline_exclusive_address_pointer != 0 && ctx.conf.page_table_pointer != 0) {
+            InlinePageTableEmitExclusiveWriteMemory<bitsize>(code, ctx, inst);
+            return;
+        }
+    }
     CallbackOnlyEmitExclusiveWriteMemory<bitsize>(code, ctx, inst);
 }
 
