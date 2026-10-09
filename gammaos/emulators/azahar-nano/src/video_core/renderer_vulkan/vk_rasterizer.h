@@ -143,7 +143,8 @@ private:
     PAddr eye_left_out = 0;         // where the left-eye image went
     bool eye_learned = false;       // the pattern was seen in a previous frame
     PAddr stereo_right_rt = 0;      // GammaOS: right eye target of interleaved stereo games
-    PAddr last_left_src = 0;        // GammaOS: last surface transferred to a left framebuffer
+    PAddr last_left_src = 0;
+    u32 stereo_right_w = 0, stereo_right_h = 0; // size of the right eye target        // GammaOS: last surface transferred to a left framebuffer
     bool eye_draws_after_left = false;
     bool RightEyeSkipAllowed() const;
     bool OnDisplayTransferEye(const Pica::DisplayTransferConfig& config);   // false = skip it

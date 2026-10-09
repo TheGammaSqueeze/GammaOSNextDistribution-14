@@ -813,8 +813,14 @@ void RasterizerVulkan::PrepareUberDraw(u32& variant_key, std::array<u32, 16>& te
 }
 
 bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
-    if (stereo_right_rt != 0 &&
-        regs.framebuffer.framebuffer.GetColorBufferPhysicalAddress() == stereo_right_rt) {
+    // Address AND size: games reuse the right eye target's memory as scratch for small
+    // passes (Metroid: 64x128 bloom passes that feed the left eye too).
+    const auto& sfb = regs.framebuffer.framebuffer;
+    // The height register holds the height minus one.
+    const u32 fb_w = sfb.width.Value(), fb_h = sfb.height.Value() + 1;
+    if (stereo_right_rt != 0 && sfb.GetColorBufferPhysicalAddress() == stereo_right_rt &&
+        ((fb_w == stereo_right_w && fb_h == stereo_right_h) ||
+         (fb_w == stereo_right_h && fb_h == stereo_right_w))) {
         GammaStats::Add(GammaStats::CmdListsBlocked); // counted as skipped right eye work
         vertex_batch.clear();
         return true;
@@ -1230,6 +1236,23 @@ bool RasterizerVulkan::OnDisplayTransferEye(const Pica::DisplayTransferConfig& c
         stereo_right_rt = 0;
         return true;
     }
+    {
+        // Debug: persist.gammaos.azahar_nano.transfer_log=1 logs every display transfer.
+        static const bool tlog = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.transfer_log", v);
+            return v[0] == '1';
+        }();
+        static u32 logged = 0;
+        if (tlog && logged < 400) {
+            ++logged;
+            const auto& lfb = pica.regs.framebuffer_config[0];
+            LOG_INFO(Render_Vulkan, "transfer {:08X} -> {:08X} ({}x{}) | top L1 {:08X} L2 {:08X} R1 {:08X} R2 {:08X} active {}",
+                     config.GetPhysicalInputAddress(), config.GetPhysicalOutputAddress(),
+                     config.output_width.Value(), config.output_height.Value(), lfb.address_left1,
+                     lfb.address_left2, lfb.address_right1, lfb.address_right2, static_cast<u32>(lfb.active_fb));
+        }
+    }
     static const bool stereo_skip = [] {
         char v[PROP_VALUE_MAX] = {};
         __system_property_get("persist.gammaos.azahar_nano.stereo_skip", v);
@@ -1260,6 +1283,8 @@ bool RasterizerVulkan::OnDisplayTransferEye(const Pica::DisplayTransferConfig& c
                 LOG_INFO(Render_Vulkan, "stereo right eye target learned: {:08X}", t_in);
             }
             stereo_right_rt = t_in;
+            stereo_right_w = config.input_width.Value();
+            stereo_right_h = config.input_height.Value();
             GammaStats::Add(GammaStats::TransfersBlocked);
             return false; // the right eye image is never displayed
         }
