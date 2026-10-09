@@ -1281,7 +1281,20 @@ void RendererVulkan::SwapBuffers() {
     if (!screenRendered) g_swap_trace.skipped++;
 #endif
     if (!screenRendered) {
-        scheduler.Finish();
+        // GammaOS: submit without waiting for the GPU. Waiting here (Finish) stalled the
+        // emulation for the whole GPU frame on every repeated frame of a 30 fps game, so the
+        // CPU and GPU never overlapped; resources still in use are protected by their fences.
+        // persist.gammaos.azahar_nano.skip_finish=1 restores the wait.
+        static const bool wait = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.skip_finish", v);
+            return v[0] == '1';
+        }();
+        if (wait) {
+            scheduler.Finish();
+        } else {
+            scheduler.Flush();
+        }
     }
 #ifdef ANDROID
     {
