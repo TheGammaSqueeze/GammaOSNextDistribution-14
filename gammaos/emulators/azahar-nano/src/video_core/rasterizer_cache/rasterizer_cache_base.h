@@ -235,6 +235,10 @@ private:
     /// Increase/decrease the number of surface in pages touching the specified region
     void UpdatePagesCachedCount(PAddr addr, u32 size, int delta);
 
+    /// GammaOS: re-evaluates, for every page touching [lo, hi), whether CPU reads may skip the
+    /// flush (no dirty region overlaps the page) and tells the memory system.
+    void UpdateReadablePages(PAddr lo, PAddr hi);
+
 private:
     Memory::MemorySystem& memory;
     CustomTexManager& custom_tex_manager;

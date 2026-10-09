@@ -73,6 +73,7 @@ struct PageTable {
 
             Entry& operator=(MemoryRef value) {
                 pointers.raw[idx] = value.GetPtr();
+                pointers.read_raw[idx] = pointers.raw[idx];
                 pointers.refs[idx] = std::move(value);
                 return *this;
             }
@@ -96,6 +97,11 @@ struct PageTable {
 
     private:
         std::array<u8*, PAGE_TABLE_NUM_ENTRIES> raw;
+        // GammaOS: the table JIT reads use. It matches `raw` except for rasterizer cached pages
+        // that hold no GPU-modified data: reading those needs no flush, so they keep their
+        // backing pointer here while writes (through `raw`) still take the slow path. It must
+        // directly follow `raw` (the JIT finds the write table at a fixed distance below it).
+        std::array<u8*, PAGE_TABLE_NUM_ENTRIES> read_raw;
         std::array<MemoryRef, PAGE_TABLE_NUM_ENTRIES> refs;
         friend struct PageTable;
     };
@@ -110,6 +116,15 @@ struct PageTable {
 
     std::array<u8*, PAGE_TABLE_NUM_ENTRIES>& GetPointerArray() {
         return pointers.raw;
+    }
+
+    std::array<u8*, PAGE_TABLE_NUM_ENTRIES>& GetReadPointerArray() {
+        return pointers.read_raw;
+    }
+
+    /// Distance in bytes from the read table down to the write (main) table.
+    static constexpr u32 ReadTableDistance() {
+        return static_cast<u32>(sizeof(Pointers::raw));
     }
 
     struct WatchpointPageInfo {
@@ -138,6 +153,7 @@ private:
         ar & watchpoint_pages_map;
         for (std::size_t i = 0; i < PAGE_TABLE_NUM_ENTRIES; i++) {
             pointers.raw[i] = pointers.refs[i].GetPtr();
+            pointers.read_raw[i] = pointers.raw[i];
         }
     }
     friend class boost::serialization::access;
@@ -659,6 +675,10 @@ public:
      *               marked as cached or uncached.
      */
     void RasterizerMarkRegionCached(PAddr start, u32 size, bool cached);
+
+    /// GammaOS: sets whether JIT reads of a rasterizer cached page may bypass the flush (true
+    /// while no GPU-modified surface data overlaps the page).
+    void RasterizerMarkPageReadable(PAddr paddr, bool readable);
 
     /// For a rasterizer-accessible PAddr, gets a list of all possible VAddr
     std::vector<VAddr> PhysicalToVirtualAddressForRasterizer(PAddr addr);

@@ -45,7 +45,9 @@ constexpr u32 SIGSEGV = 11;
 namespace Memory {
 
 void PageTable::Clear() {
+    static_assert(offsetof(Pointers, read_raw) - offsetof(Pointers, raw) == ReadTableDistance());
     pointers.raw.fill(nullptr);
+    pointers.read_raw.fill(nullptr);
     pointers.refs.fill(MemoryRef());
     attributes.fill(PageType::Unmapped);
 }
@@ -453,6 +455,7 @@ void MemorySystem::RegisterWatchpoint(const Kernel::Process& process, VAddr addr
             case PageType::RasterizerCachedMemory:
                 mem = GetPointerForRasterizerCache(page_base);
                 type = PageType::RasterizerCachedMemoryWatchpoint;
+                page_table.GetReadPointerArray()[page_index] = nullptr;
                 break;
             default:
                 LOG_ERROR(HW_Memory, "Cannot get pointer to register watchpoint for page 0x{:08X}",
@@ -1011,6 +1014,12 @@ void MemorySystem::RasterizerMarkRegionCached(PAddr start, u32 size, bool cached
                                         ? PageType::RasterizerCachedMemory
                                         : PageType::RasterizerCachedMemoryWatchpoint;
                         page_table->pointers[vaddr >> CITRA_PAGE_BITS] = nullptr;
+                        // A newly cached page holds no GPU-modified data yet: JIT reads stay
+                        // direct until the rasterizer marks part of it dirty.
+                        if (page_type == PageType::RasterizerCachedMemory) {
+                            page_table->GetReadPointerArray()[vaddr >> CITRA_PAGE_BITS] =
+                                GetPointerForRasterizerCache(vaddr & ~CITRA_PAGE_MASK).GetPtr();
+                        }
                         break;
                     default:
                         UNREACHABLE();
@@ -1039,6 +1048,23 @@ void MemorySystem::RasterizerMarkRegionCached(PAddr start, u32 size, bool cached
                     }
                 }
             }
+        }
+    }
+}
+
+void MemorySystem::RasterizerMarkPageReadable(PAddr paddr, bool readable) {
+    paddr &= ~CITRA_PAGE_MASK;
+    if (paddr == 0) {
+        return;
+    }
+    for (VAddr vaddr : PhysicalToVirtualAddressForRasterizer(paddr)) {
+        const std::size_t index = vaddr >> CITRA_PAGE_BITS;
+        for (auto& page_table : impl->page_table_list) {
+            if (page_table->attributes[index] != PageType::RasterizerCachedMemory) {
+                continue;
+            }
+            page_table->GetReadPointerArray()[index] =
+                readable ? GetPointerForRasterizerCache(vaddr & ~CITRA_PAGE_MASK).GetPtr() : nullptr;
         }
     }
 }

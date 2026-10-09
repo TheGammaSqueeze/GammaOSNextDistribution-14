@@ -251,7 +251,7 @@ void EmitDetectMisalignedVAddr(oaknut::CodeGenerator& code, EmitContext& ctx, oa
 // Address to read/write = [ret0 + ret1], ret0 is always Xscratch0 and ret1 is either Xaddr or Xscratch1
 // Trashes NZCV
 template<size_t bitsize>
-std::pair<oaknut::XReg, oaknut::XReg> InlinePageTableEmitVAddrLookup(oaknut::CodeGenerator& code, EmitContext& ctx, oaknut::XReg Xaddr, const SharedLabel& fallback) {
+std::pair<oaknut::XReg, oaknut::XReg> InlinePageTableEmitVAddrLookup(oaknut::CodeGenerator& code, EmitContext& ctx, oaknut::XReg Xaddr, const SharedLabel& fallback, bool is_write = false) {
     const size_t valid_page_index_bits = ctx.conf.page_table_address_space_bits - page_bits;
     const size_t unused_top_bits = 64 - ctx.conf.page_table_address_space_bits;
 
@@ -265,7 +265,12 @@ std::pair<oaknut::XReg, oaknut::XReg> InlinePageTableEmitVAddrLookup(oaknut::Cod
         code.B(NE, *fallback);
     }
 
-    code.LDR(Xscratch0, Xpagetable, Xscratch0, LSL, 3);
+    if (is_write && ctx.conf.page_table_write_table_below != 0) {
+        code.SUB(Xscratch1, Xpagetable, ctx.conf.page_table_write_table_below);
+        code.LDR(Xscratch0, Xscratch1, Xscratch0, LSL, 3);
+    } else {
+        code.LDR(Xscratch0, Xpagetable, Xscratch0, LSL, 3);
+    }
 
     if (ctx.conf.page_table_pointer_mask_bits != 0) {
         const u64 mask = u64(~u64(0)) << ctx.conf.page_table_pointer_mask_bits;
@@ -442,6 +447,56 @@ void InlinePageTableEmitReadMemory(oaknut::CodeGenerator& code, EmitContext& ctx
     code.l(*end);
 }
 
+// Exclusive read with the monitor updated inline (single host thread only, see
+// UserConfig::exclusive_monitor_single_thread). Pages missing from the page table, and
+// misaligned accesses, still go through the monitor callback.
+template<size_t bitsize>
+void InlinePageTableEmitExclusiveReadMemory(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* inst) {
+    auto args = ctx.reg_alloc.GetArgumentInfo(inst);
+    ctx.reg_alloc.PrepareForCall({}, args[1]);
+    const bool ordered = IsOrdered(args[2].GetImmediateAccType());
+
+    code.MOV(Wscratch0, 1);
+    code.STRB(Wscratch0, Xstate, ctx.conf.state_exclusive_state_offset);
+
+    SharedLabel fallback = GenSharedLabel(), end = GenSharedLabel();
+
+    // exclusive_addresses[processor_id] = vaddr
+    code.MOV(Xscratch0, ctx.conf.inline_exclusive_address_pointer);
+    code.MOV(Wscratch1, W1);
+    code.STR(Xscratch1, Xscratch0);
+
+    const auto [Xbase, Xoffset] = InlinePageTableEmitVAddrLookup<bitsize>(code, ctx, X1, fallback);
+    EmitMemoryLdr<bitsize>(code, 0, Xbase, Xoffset, ordered);
+
+    // exclusive_values[processor_id] = value
+    code.MOV(Xscratch0, ctx.conf.inline_exclusive_value_pointer);
+    switch (bitsize) {
+    case 8:
+        code.STRB(W0, Xscratch0);
+        break;
+    case 16:
+        code.STRH(W0, Xscratch0);
+        break;
+    case 32:
+        code.STR(W0, Xscratch0);
+        break;
+    case 64:
+        code.STR(X0, Xscratch0);
+        break;
+    }
+    code.B(*end);
+
+    code.l(*fallback);
+    EmitRelocation(code, ctx, ExclusiveReadMemoryLinkTarget(bitsize));
+    if (ordered) {
+        code.DMB(oaknut::BarrierOp::ISH);
+    }
+    code.l(*end);
+
+    ctx.reg_alloc.DefineAsRegister(inst, X0);
+}
+
 template<size_t bitsize>
 void InlinePageTableEmitWriteMemory(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* inst) {
     auto args = ctx.reg_alloc.GetArgumentInfo(inst);
@@ -460,7 +515,7 @@ void InlinePageTableEmitWriteMemory(oaknut::CodeGenerator& code, EmitContext& ct
 
     SharedLabel fallback = GenSharedLabel(), end = GenSharedLabel();
 
-    const auto [Xbase, Xoffset] = InlinePageTableEmitVAddrLookup<bitsize>(code, ctx, Xaddr, fallback);
+    const auto [Xbase, Xoffset] = InlinePageTableEmitVAddrLookup<bitsize>(code, ctx, Xaddr, fallback, true);
     EmitMemoryStr<bitsize>(code, Rvalue->index(), Xbase, Xoffset, ordered);
 
     ctx.deferred_emits.emplace_back([&code, &ctx, inst, Xaddr = *Xaddr, Rvalue = *Rvalue, ordered, fallback, end] {
@@ -640,6 +695,12 @@ void EmitReadMemory(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* ins
 
 template<size_t bitsize>
 void EmitExclusiveReadMemory(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* inst) {
+    if constexpr (bitsize != 128) {
+        if (ctx.conf.inline_exclusive_address_pointer != 0 && ctx.conf.page_table_pointer != 0) {
+            InlinePageTableEmitExclusiveReadMemory<bitsize>(code, ctx, inst);
+            return;
+        }
+    }
     CallbackOnlyEmitExclusiveReadMemory<bitsize>(code, ctx, inst);
 }
 

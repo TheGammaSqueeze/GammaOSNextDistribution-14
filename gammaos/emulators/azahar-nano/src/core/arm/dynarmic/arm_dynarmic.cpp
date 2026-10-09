@@ -6,6 +6,10 @@
 #include "common/arch.h"
 #include <csignal>
 #include <cstring>
+#include <algorithm>
+#include <unordered_map>
+#include <vector>
+#include <sys/system_properties.h>
 #include <dynarmic/interface/A32/a32.h>
 #include <dynarmic/interface/optimization_flags.h>
 #include "common/assert.h"
@@ -43,6 +47,35 @@ public:
         return memory.Read32OrNullopt(vaddr);
     }
 
+    // GammaOS debug: histogram of slow-path reads (pages not in the page table), printed every
+    // 2M calls while sys.gammaos.azahar_nano.svc_stats=1.
+    void GammaSlowRead(VAddr vaddr) {
+        static std::unordered_map<u64, u64> hist;
+        static u64 calls = 0;
+        static bool enabled = false;
+        if ((calls & 0xFFFF) == 0) {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("sys.gammaos.azahar_nano.svc_stats", v);
+            enabled = v[0] == '1';
+        }
+        calls++;
+        if (!enabled) {
+            return;
+        }
+        hist[(u64{vaddr} << 32) | parent.GetPC()]++;
+        if (hist.size() > 4096 || (calls % 200000) == 0) {
+            std::vector<std::pair<u64, u64>> top(hist.begin(), hist.end());
+            std::sort(top.begin(), top.end(), [](auto& a, auto& b) { return a.second > b.second; });
+            std::string line;
+            for (std::size_t k = 0; k < top.size() && k < 20; k++) {
+                line += fmt::format(" {:08X}@{:08X}:{}", u32(top[k].first >> 32), u32(top[k].first),
+                                    top[k].second);
+            }
+            LOG_INFO(Core_ARM11, "slow reads:{}", line);
+            hist.clear();
+        }
+    }
+
     std::uint8_t MemoryRead8(VAddr vaddr) override {
         return memory.Read8(vaddr);
     }
@@ -50,6 +83,7 @@ public:
         return memory.Read16(vaddr);
     }
     std::uint32_t MemoryRead32(VAddr vaddr) override {
+        GammaSlowRead(vaddr);
         return memory.Read32(vaddr);
     }
     std::uint64_t MemoryRead64(VAddr vaddr) override {
@@ -363,7 +397,10 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
     Dynarmic::A32::UserConfig config;
     config.callbacks = cb.get();
     if (current_page_table) {
-        config.page_table = &current_page_table->GetPointerArray();
+        // JIT reads use the read table (direct for cached pages with no GPU-modified data),
+        // writes use the main table that sits a fixed distance below it.
+        config.page_table = &current_page_table->GetReadPointerArray();
+        config.page_table_write_table_below = Memory::PageTable::ReadTableDistance();
     }
     config.coprocessors[15] = std::make_shared<DynarmicCP15>(cp15_state);
     config.define_unpredictable_behaviour = true;
@@ -371,6 +408,9 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
     // Multi-process state
     config.processor_id = GetID();
     config.global_monitor = &exclusive_monitor.monitor;
+    // All emulated cores run on the emulation thread (System::RunLoop), so the exclusive
+    // monitor never sees concurrent access: exclusive reads can update it inline.
+    config.exclusive_monitor_single_thread = true;
 
     return std::make_unique<Dynarmic::A32::Jit>(config);
 }

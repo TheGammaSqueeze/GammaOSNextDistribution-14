@@ -16,6 +16,7 @@
 #include "dynarmic/frontend/A32/translate/a32_translate.h"
 #include "dynarmic/interface/A32/config.h"
 #include "dynarmic/interface/exclusive_monitor.h"
+#include "dynarmic/backend/x64/exclusive_monitor_friend.h"
 #include "dynarmic/ir/opt/passes.h"
 
 namespace Dynarmic::Backend::Arm64 {
@@ -388,6 +389,9 @@ EmitConfig A32AddressSpace::GetEmitConfig() {
         .page_table_pointer = mcl::bit_cast<u64>(conf.page_table),
         .page_table_address_space_bits = 32,
         .page_table_pointer_mask_bits = conf.page_table_pointer_mask_bits,
+        .page_table_write_table_below = conf.page_table_write_table_below,
+        .inline_exclusive_address_pointer = conf.exclusive_monitor_single_thread && conf.global_monitor ? mcl::bit_cast<u64>(GetExclusiveMonitorAddressPointer(conf.global_monitor, conf.processor_id)) : 0,
+        .inline_exclusive_value_pointer = conf.exclusive_monitor_single_thread && conf.global_monitor ? mcl::bit_cast<u64>(GetExclusiveMonitorValuePointer(conf.global_monitor, conf.processor_id)) : 0,
         .silently_mirror_page_table = true,
         .absolute_offset_page_table = conf.absolute_offset_page_table,
         .detect_misaligned_access_via_page_table = conf.detect_misaligned_access_via_page_table,

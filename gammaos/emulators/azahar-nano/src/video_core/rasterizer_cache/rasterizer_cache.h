@@ -1539,6 +1539,24 @@ void RasterizerCache<T>::FlushRegion(PAddr addr, u32 size, SurfaceId flush_surfa
     // Reset dirty regions
     if (!flushed_intervals.empty()) {
         dirty_regions -= flushed_intervals;
+        for (const auto& interval : flushed_intervals) {
+            UpdateReadablePages(interval.lower(), interval.upper());
+        }
+    }
+}
+
+template <class T>
+void RasterizerCache<T>::UpdateReadablePages(PAddr lo, PAddr hi) {
+    if (hi <= lo) {
+        return;
+    }
+    const PAddr first = lo & ~Memory::CITRA_PAGE_MASK;
+    const u64 last = (u64{hi} + Memory::CITRA_PAGE_MASK) & ~u64{Memory::CITRA_PAGE_MASK};
+    for (u64 page = first; page < last; page += Memory::CITRA_PAGE_SIZE) {
+        const SurfaceInterval page_interval(static_cast<PAddr>(page),
+                                            static_cast<PAddr>(page + Memory::CITRA_PAGE_SIZE));
+        const bool readable = dirty_regions.find(page_interval) == dirty_regions.end();
+        memory.RasterizerMarkPageReadable(static_cast<PAddr>(page), readable);
     }
 }
 
@@ -1591,8 +1609,10 @@ void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region
 
     if (region_owner_id) {
         dirty_regions.set({invalid_interval, region_owner_id});
-    } else {
+        UpdateReadablePages(invalid_interval.lower(), invalid_interval.upper());
+    } else if (dirty_regions.find(invalid_interval) != dirty_regions.end()) {
         dirty_regions.erase(invalid_interval);
+        UpdateReadablePages(invalid_interval.lower(), invalid_interval.upper());
     }
 
     for (const SurfaceId surface_id : remove_surfaces) {
@@ -1714,6 +1734,7 @@ void RasterizerCache<T>::UpdatePagesCachedCount(PAddr addr, u32 size, int delta)
 
         if (delta > 0 && count == delta) {
             memory.RasterizerMarkRegionCached(interval_start_addr, interval_size, true);
+            UpdateReadablePages(interval_start_addr, interval_end_addr);
         } else if (delta < 0 && count == -delta) {
             memory.RasterizerMarkRegionCached(interval_start_addr, interval_size, false);
         } else {

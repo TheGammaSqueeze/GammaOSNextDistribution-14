@@ -168,6 +168,13 @@ struct UserConfig {
     /// same integer and update the pointer attribute pair atomically.
     /// If the configured value is 3, all pointers will be forcefully aligned to 8 bytes.
     int page_table_pointer_mask_bits = 0;
+    /// When non-zero, page_table is used for reads only and writes use a second table that
+    /// starts this many bytes below it (must be a multiple of 4096 below 16 MiB). This lets
+    /// the host keep pages readable inline while their writes go through the callbacks.
+    std::uint32_t page_table_write_table_below = 0;
+    /// Set when every processor sharing global_monitor runs on one host thread. Exclusive reads
+    /// of pages in page_table are then done inline (no lock, no callback).
+    bool exclusive_monitor_single_thread = false;
     /// Determines if we should detect memory accesses via page_table that straddle are
     /// misaligned. Accesses that straddle page boundaries will fallback to the relevant
     /// memory callback.
