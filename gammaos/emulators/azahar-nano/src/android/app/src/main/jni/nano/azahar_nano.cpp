@@ -688,4 +688,30 @@ void azn_disable_temporary_frame_limit(void) {
     Settings::is_temporary_frame_limit = false;
 }
 
+// GammaOS fast forward: unlimited speed, 1x internal resolution with linear screen filtering
+// (the user's resolution and filter come back when it is turned off), and presents limited to
+// about one per display period so vsync does not cap the speed.
+void azn_set_fast_forward(int on) {
+    static bool active = false;
+    static u32 saved_resolution = 1;
+    static bool saved_filter = true;
+    if (on && !active) {
+        saved_resolution = Settings::values.resolution_factor.GetValue();
+        saved_filter = Settings::values.filter_mode.GetValue();
+        Settings::values.resolution_factor.SetValue(1);
+        Settings::values.filter_mode.SetValue(true);
+        Settings::temporary_frame_limit = 0;
+        Settings::is_temporary_frame_limit = true;
+        Settings::values.gammaos_fast_forward = true;
+        active = true;
+    } else if (!on && active) {
+        Settings::values.gammaos_fast_forward = false;
+        Settings::is_temporary_frame_limit = false;
+        Settings::values.resolution_factor.SetValue(saved_resolution);
+        Settings::values.filter_mode.SetValue(saved_filter);
+        active = false;
+    }
+    __android_log_print(ANDROID_LOG_INFO, AZN_TAG, "fast forward %s", active ? "on" : "off");
+}
+
 } // extern "C"

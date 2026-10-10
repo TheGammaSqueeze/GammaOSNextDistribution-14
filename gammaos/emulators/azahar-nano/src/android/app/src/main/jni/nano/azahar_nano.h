@@ -173,6 +173,10 @@ uint64_t azn_running_title_id(void);
 void azn_set_temporary_frame_limit(int percent);
 void azn_disable_temporary_frame_limit(void);
 
+// Fast forward on/off: unlimited speed at 1x internal resolution with linear screen filtering
+// (the user's settings return when it is turned off).
+void azn_set_fast_forward(int on);
+
 #ifdef __cplusplus
 }
 #endif

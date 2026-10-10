@@ -580,6 +580,9 @@ struct Values {
     // instead of a fragment shader depth write, so the GPU keeps early depth
     // testing (hidden fragments are not shaded). Same depth values, same clipping.
     bool gammaos_vertex_depth = false;
+    // GammaOS fast forward (azn_set_fast_forward): frames are presented at most about once per
+    // display period, so the swapchain's vsync does not cap the emulation speed.
+    bool gammaos_fast_forward = false;
     bool gammaos_vd_keep_fs_depth = false;   // debug: vertex z rewrite but FS still writes depth
     // GammaOS tweak: full-surface clears through a render pass with loadOp CLEAR
     // instead of vkCmdClearColorImage (tile-based GPUs clear in on-chip memory).
