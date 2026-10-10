@@ -5,6 +5,7 @@
 #include <cmath>
 #include "AzaharNanoApi.h"
 #include "GpuDriverPkg.h"
+#include "Brightness.h"
 
 #include <dirent.h>
 #include <stdlib.h>
@@ -233,6 +234,32 @@ void Overlay::buildPages() {
         r.change = [this](int i) { mSlot = i + 1; };
         r.hint = "Save state slot";
         pg.rows.push_back(r);
+
+        // Screen brightness, as drastic-nano's row: steps of 16 within 8..255, applied at once.
+        {
+            Row b;
+            b.label = "Brightness";
+            b.kind = ROW_CHOICE;
+            b.stopAtEnds = true;
+            for (int level = 8; level < 255; level += 16) {
+                b.choices.push_back({std::to_string(level * 100 / 255) + "%", std::to_string(level)});
+            }
+            b.choices.push_back({"100%", "255"});
+            const int cur = brightnessLevel();
+            int best = 0;
+            for (size_t i = 0; i < b.choices.size(); i++) {
+                if (std::abs(atoi(b.choices[i].value.c_str()) - cur) <
+                    std::abs(atoi(b.choices[best].value.c_str()) - cur)) {
+                    best = (int)i;
+                }
+            }
+            b.sel = best;
+            b.hint = "Screen brightness";
+            b.change = [chs = b.choices](int i) {
+                if (i >= 0 && i < (int)chs.size()) setBrightness(atoi(chs[i].value.c_str()));
+            };
+            pg.rows.push_back(b);
+        }
 
         // Device performance and fan, the same system settings as drastic-nano and the home
         // menu: init applies each property as it changes (init.gammaos_power.rc,
@@ -481,7 +508,13 @@ bool Overlay::onButton(int button, bool pressed) {
     case AZN_DPAD_RIGHT:
         if (row.kind == ROW_CHOICE && !row.choices.empty()) {
             const int n = (int)row.choices.size();
-            row.sel = (row.sel + (button == AZN_DPAD_LEFT ? n - 1 : 1)) % n;
+            if (row.stopAtEnds) {
+                const int next = row.sel + (button == AZN_DPAD_LEFT ? -1 : 1);
+                if (next < 0 || next >= n) break;
+                row.sel = next;
+            } else {
+                row.sel = (row.sel + (button == AZN_DPAD_LEFT ? n - 1 : 1)) % n;
+            }
             if (row.change) row.change(row.sel);
         }
         break;

@@ -25,6 +25,7 @@ cc_binary {
         "Overlay.cpp",
         "Hud.cpp",
         "GpuDriverPkg.cpp",
+        "Brightness.cpp",
         ":drastic_nano_overlay_gfx_srcs",
     ],
 
@@ -47,6 +48,10 @@ cc_binary {
         "libGLESv2",
         "libft2",
         "libziparchive",
+        "libbinder_ndk",
+        "libhidlbase",
+        "android.hardware.light-V2-ndk",
+        "android.hardware.light@2.0",
     ],
 
     init_rc: ["azahar-nano.rc"],

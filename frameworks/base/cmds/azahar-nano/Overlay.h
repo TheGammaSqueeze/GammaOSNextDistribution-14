@@ -74,6 +74,7 @@ private:
         RowKind kind = ROW_ACTION;
         std::vector<Choice> choices;        // ROW_CHOICE
         int sel = 0;
+        bool stopAtEnds = false;            // ROW_CHOICE: no wrap (a level, not a list)
         std::function<void()> activate;     // ROW_ACTION / ROW_PAGE
         std::function<void(int)> change;    // ROW_CHOICE: new index
         std::string hint;
