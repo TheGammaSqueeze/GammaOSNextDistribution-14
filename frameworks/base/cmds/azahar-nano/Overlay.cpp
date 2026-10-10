@@ -190,6 +190,20 @@ void Overlay::buildPages() {
         r.hint = "Save state slot";
         pg.rows.push_back(r);
 
+        // Device performance and fan, the same system settings as drastic-nano and the home
+        // menu: init applies each property as it changes (init.gammaos_power.rc,
+        // init.gammaos_fan.rc). Performance also starts its clock service directly so picking
+        // the current mode re-applies it.
+        pg.rows.push_back(propChoice("Performance", "persist.gammaos.performance_mode", "max",
+            {{"Max", "max"}, {"Stock", "stock"}, {"Powersave", "powersave"}},
+            "CPU and GPU clocks: Max for full speed, Powersave for battery",
+            [this](const std::string& v) {
+                if (mA.setProp) mA.setProp("ctl.start", ("setclock_" + v).c_str());
+            }));
+        pg.rows.push_back(propChoice("Fan", "persist.gammaos.fan_mode", "auto",
+            {{"Auto", "auto"}, {"Cool", "cool"}, {"Max", "max"}, {"Off", "off"}},
+            "Auto follows the temperature; Cool and Max run it all the time"));
+
         pg.rows.push_back(pageRow("Video", kPageVideo, "Resolution, screen layout, filters, 3D, frame rate"));
         pg.rows.push_back(pageRow("Audio", kPageAudio, "Volume, stretching, audio emulation"));
         pg.rows.push_back(pageRow("System", kPageSystem, "New 3DS mode, region, CPU clock"));
