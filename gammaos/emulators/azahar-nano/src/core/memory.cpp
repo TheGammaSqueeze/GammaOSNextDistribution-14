@@ -416,6 +416,10 @@ void MemorySystem::SetCurrentPageTable(std::shared_ptr<PageTable> page_table) {
     impl->current_page_table = page_table;
 }
 
+const PageTable* MemorySystem::GetCurrentPageTableRaw() const {
+    return impl->current_page_table.get();
+}
+
 std::shared_ptr<PageTable> MemorySystem::GetCurrentPageTable() const {
     return impl->current_page_table;
 }

@@ -301,6 +301,9 @@ public:
     void SetCurrentPageTable(std::shared_ptr<PageTable> page_table);
     std::shared_ptr<PageTable> GetCurrentPageTable() const;
 
+    /// GammaOS: the current page table without copying the shared pointer (for comparisons).
+    const PageTable* GetCurrentPageTableRaw() const;
+
     /**
      * Gets a pointer to the given address.
      *

@@ -67,11 +67,11 @@ std::shared_ptr<Process> KernelSystem::GetCurrentProcess() const {
     return current_process;
 }
 
-void KernelSystem::SetCurrentProcess(std::shared_ptr<Process> process) {
+void KernelSystem::SetCurrentProcess(const std::shared_ptr<Process>& process) {
     // GammaOS: called for every run slice; nothing to do when this process is already current
     // and its page table is already the active one.
     if (process == current_process &&
-        memory.GetCurrentPageTable() == process->vm_manager.page_table) {
+        memory.GetCurrentPageTableRaw() == process->vm_manager.page_table.get()) {
         // The running core may differ from the last one: make sure it uses this table too
         // (cheap when it already does).
         if (current_cpu != nullptr) {
@@ -93,7 +93,7 @@ void KernelSystem::SetCurrentProcessForCPU(std::shared_ptr<Process> process, u32
     }
 }
 
-void KernelSystem::SetCurrentMemoryPageTable(std::shared_ptr<Memory::PageTable> page_table) {
+void KernelSystem::SetCurrentMemoryPageTable(const std::shared_ptr<Memory::PageTable>& page_table) {
     memory.SetCurrentPageTable(page_table);
     if (current_cpu != nullptr) {
         current_cpu->SetPageTable(page_table);
@@ -108,7 +108,9 @@ void KernelSystem::SetCPUs(std::vector<std::shared_ptr<Core::ARM_Interface>> cpu
 }
 
 void KernelSystem::SetRunningCPU(Core::ARM_Interface* cpu) {
-    if (current_process) {
+    // GammaOS: runs for every core twice per run loop pass; avoid reference count traffic
+    // when nothing changed.
+    if (current_process && stored_processes[current_cpu->GetID()] != current_process) {
         stored_processes[current_cpu->GetID()] = current_process;
     }
     current_cpu = cpu;
