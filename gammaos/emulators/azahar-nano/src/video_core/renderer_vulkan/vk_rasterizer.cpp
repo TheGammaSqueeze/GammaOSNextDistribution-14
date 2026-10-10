@@ -110,7 +110,8 @@ void ApplyHybridProp() {
     }
 }
 int HybridDebugBits() {
-    const int value = [] {
+    // Read once: this runs for every draw.
+    static const int value = [] {
         char v[PROP_VALUE_MAX] = {};
         __system_property_get("persist.gammaos.azahar_nano.uber_strip", v);
         return atoi(v);
