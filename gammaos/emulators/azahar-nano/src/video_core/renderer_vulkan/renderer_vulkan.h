@@ -62,8 +62,11 @@ struct PresentUniformData {
     int screen_id_r = 0;
     int layer = 0;
     int reverse_interlaced = 0;
+    // GammaOS LCD shaders: 3DS screen pixel = (tex.y * x + y, tex.x * z + w).
+    Common::Vec4f lcd_map;
 };
-static_assert(sizeof(PresentUniformData) == 112,
+// 128 bytes: the push constant size every Vulkan device supports.
+static_assert(sizeof(PresentUniformData) == 128,
               "PresentUniformData does not structure in shader!");
 
 class RendererVulkan : public VideoCore::RendererBase {
@@ -88,6 +91,9 @@ private:
     void CompileShaders();
     void BuildLayouts();
     void BuildPipelines();
+    vk::Pipeline BuildPresentPipeline(vk::ShaderModule fragment_shader);
+    /// The present pipeline for a screen draw: its LCD shader when one is selected.
+    vk::Pipeline ScreenPipeline(u32 screen_id);
     void ConfigureFramebufferTexture(TextureInfo& texture,
                                      const Pica::FramebufferConfig& framebuffer);
     void ConfigureRenderPipeline();
@@ -138,6 +144,9 @@ private:
     vk::UniquePipelineLayout present_pipeline_layout;
     std::array<vk::Pipeline, PRESENT_PIPELINES> present_pipelines;
     std::array<vk::ShaderModule, PRESENT_PIPELINES> present_shaders;
+    // GammaOS LCD shader pipelines, built the first time each is selected.
+    std::array<vk::Pipeline, 5> lcd_pipelines{};
+    std::array<vk::ShaderModule, 5> lcd_shaders{};
     std::array<vk::Sampler, 2> present_samplers;
     vk::ShaderModule present_vertex_shader;
     u32 current_pipeline = 0;

@@ -12,6 +12,7 @@
 #include "video_core/gpu.h"
 #include "video_core/pica/pica_core.h"
 #include "video_core/renderer_vulkan/renderer_vulkan.h"
+#include "video_core/renderer_vulkan/gammaos_lcd_shaders.h"
 #include "video_core/renderer_vulkan/vk_gammaos_stats.h"
 #include "video_core/renderer_vulkan/vk_gammaos_gpu_timer.h"
 #include "video_core/renderer_vulkan/vk_memory_util.h"
@@ -148,6 +149,10 @@ RendererVulkan::~RendererVulkan() {
     for (u32 i = 0; i < PRESENT_PIPELINES; i++) {
         device.destroyPipeline(present_pipelines[i]);
         device.destroyShaderModule(present_shaders[i]);
+    }
+    for (u32 i = 0; i < lcd_pipelines.size(); i++) {
+        if (lcd_pipelines[i]) device.destroyPipeline(lcd_pipelines[i]);
+        if (lcd_shaders[i]) device.destroyShaderModule(lcd_shaders[i]);
     }
 
     for (auto& sampler : present_samplers) {
@@ -406,7 +411,7 @@ void RendererVulkan::BuildLayouts() {
     cursor_pipeline_layout = instance.GetDevice().createPipelineLayoutUnique(cursor_layout_info);
 }
 
-void RendererVulkan::BuildPipelines() {
+vk::Pipeline RendererVulkan::BuildPresentPipeline(vk::ShaderModule fragment_shader) {
     const vk::VertexInputBindingDescription binding = {
         .binding = 0,
         .stride = sizeof(ScreenRectVertex),
@@ -500,7 +505,7 @@ void RendererVulkan::BuildPipelines() {
         .stencilTestEnable = false,
     };
 
-    for (u32 i = 0; i < PRESENT_PIPELINES; i++) {
+    {
         const std::array shader_stages = {
             vk::PipelineShaderStageCreateInfo{
                 .stage = vk::ShaderStageFlagBits::eVertex,
@@ -509,7 +514,7 @@ void RendererVulkan::BuildPipelines() {
             },
             vk::PipelineShaderStageCreateInfo{
                 .stage = vk::ShaderStageFlagBits::eFragment,
-                .module = present_shaders[i],
+                .module = fragment_shader,
                 .pName = "main",
             },
         };
@@ -532,7 +537,37 @@ void RendererVulkan::BuildPipelines() {
         const auto [result, pipeline] =
             instance.GetDevice().createGraphicsPipeline({}, pipeline_info);
         ASSERT_MSG(result == vk::Result::eSuccess, "Unable to build present pipelines");
-        present_pipelines[i] = pipeline;
+        return pipeline;
+    }
+}
+
+vk::Pipeline RendererVulkan::ScreenPipeline(u32 screen_id) {
+    const int lcd = Settings::values.gammaos_lcd_shader[screen_id == 2 ? 1 : 0];
+    if (current_pipeline != 0 || lcd <= 0 || lcd > static_cast<int>(lcd_pipelines.size())) {
+        return present_pipelines[current_pipeline];
+    }
+    const std::size_t i = static_cast<std::size_t>(lcd - 1);
+    if (!lcd_pipelines[i]) {
+        const std::string_view preamble =
+            instance.IsImageArrayDynamicIndexSupported() ? "#define ARRAY_DYNAMIC_INDEX" : "";
+        std::string code{GammaLcd::kCommon};
+        code += GammaLcd::kShaders[i];
+        lcd_shaders[i] = Compile(code, vk::ShaderStageFlagBits::eFragment, instance.GetDevice(),
+                                 preamble);
+        if (!lcd_shaders[i]) {
+            LOG_ERROR(Render_Vulkan, "LCD shader {} failed to compile", lcd);
+            Settings::values.gammaos_lcd_shader[screen_id == 2 ? 1 : 0] = 0;
+            return present_pipelines[current_pipeline];
+        }
+        lcd_pipelines[i] = BuildPresentPipeline(lcd_shaders[i]);
+        LOG_INFO(Render_Vulkan, "LCD shader {} ready", lcd);
+    }
+    return lcd_pipelines[i];
+}
+
+void RendererVulkan::BuildPipelines() {
+    for (u32 i = 0; i < PRESENT_PIPELINES; i++) {
+        present_pipelines[i] = BuildPresentPipeline(present_shaders[i]);
     }
 
     // Build cursor pipeline (simple position-only, inverted color blending)
@@ -854,9 +889,24 @@ void RendererVulkan::DrawSingleScreen(u32 screen_id, float x, float y, float w, 
                         1.0f / static_cast<f32>(screen_info.texture.height * scale_factor));
     draw_info.o_resolution = Common::MakeVec(h, w, 1.0f / h, 1.0f / w);
     draw_info.screen_id_l = screen_id;
+    {
+        // The texture's v axis runs along the 3DS screen's width, u along its height (the
+        // framebuffer is stored rotated), so this holds for every display orientation.
+        const f32 sw = static_cast<f32>(std::max(screen_info.texture.width,
+                                                 screen_info.texture.height));
+        const f32 sh = static_cast<f32>(std::min(screen_info.texture.width,
+                                                 screen_info.texture.height));
+        const f32 du = texcoords.top - texcoords.bottom;
+        const f32 dv = texcoords.right - texcoords.left;
+        const f32 x = dv != 0.0f ? sw / dv : 0.0f;
+        const f32 z = du != 0.0f ? sh / du : 0.0f;
+        draw_info.lcd_map = Common::MakeVec(x, -texcoords.left * x, z, -texcoords.bottom * z);
+    }
+    const vk::Pipeline pipeline = ScreenPipeline(screen_id);
 
-    scheduler.Record([this, offset = offset, info = draw_info](vk::CommandBuffer cmdbuf) {
+    scheduler.Record([this, offset = offset, info = draw_info, pipeline](vk::CommandBuffer cmdbuf) {
         const u32 first_vertex = static_cast<u32>(offset) / sizeof(ScreenRectVertex);
+        cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
         cmdbuf.pushConstants(*present_pipeline_layout,
                              vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex,
                              0, sizeof(info), &info);
@@ -928,8 +978,11 @@ void RendererVulkan::DrawSingleScreenStereo(u32 screen_id_l, u32 screen_id_r, fl
     draw_info.screen_id_l = screen_id_l;
     draw_info.screen_id_r = screen_id_r;
 
-    scheduler.Record([this, offset = offset, info = draw_info](vk::CommandBuffer cmdbuf) {
+    // A mono screen drawn before may have bound its LCD pipeline.
+    scheduler.Record([this, offset = offset, info = draw_info,
+                      pipeline = present_pipelines[current_pipeline]](vk::CommandBuffer cmdbuf) {
         const u32 first_vertex = static_cast<u32>(offset) / sizeof(ScreenRectVertex);
+        cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
         cmdbuf.pushConstants(*present_pipeline_layout,
                              vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex,
                              0, sizeof(info), &info);

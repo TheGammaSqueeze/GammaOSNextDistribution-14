@@ -177,6 +177,10 @@ void azn_disable_temporary_frame_limit(void);
 // (the user's settings return when it is turned off).
 void azn_set_fast_forward(int on);
 
+// LCD screen shader for one 3DS screen (0 top, 1 bottom): 0 off, 1 LCD1x, 2 LCD3x,
+// 3 zfast LCD, 4 Retro, 5 Bevel. Applies from the next frame.
+void azn_set_lcd_shader(int screen, int shader);
+
 #ifdef __cplusplus
 }
 #endif

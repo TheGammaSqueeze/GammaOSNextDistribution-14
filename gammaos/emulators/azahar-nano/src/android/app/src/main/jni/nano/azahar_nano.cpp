@@ -3,6 +3,7 @@
 // Java callbacks replaced by the C ABI, and the Android-only applets, camera
 // and multiplayer pieces replaced by the core defaults.
 
+#include <algorithm>
 #include <atomic>
 #include <condition_variable>
 #include <memory>
@@ -712,6 +713,11 @@ void azn_set_fast_forward(int on) {
         active = false;
     }
     __android_log_print(ANDROID_LOG_INFO, AZN_TAG, "fast forward %s", active ? "on" : "off");
+}
+
+void azn_set_lcd_shader(int screen, int shader) {
+    if (screen < 0 || screen > 1) return;
+    Settings::values.gammaos_lcd_shader[screen] = std::clamp(shader, 0, 5);
 }
 
 } // extern "C"
