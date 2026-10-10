@@ -1213,7 +1213,6 @@ ANativeWindow* DrmWindows::window(int idx) const {
 }
 
 void DrmWindows::teardown() {
-    property_set("sys.gammaos.nano.drm_active", "0");
     mRun = false;
     for (auto& p : mPanels) {
         if (p.wakeFd >= 0) {
@@ -1256,7 +1255,10 @@ void DrmWindows::teardown() {
         close(mFd);
         mFd = -1;
     }
-
+    // Release SurfaceFlinger's composition gate only now that master is gone: SF cycles the
+    // composer's power as the gate opens, and a composer commit made while we still held
+    // master was refused, leaving its displays OFF (black apps on both panels).
+    property_set("sys.gammaos.nano.drm_active", "0");
 }
 
 } // namespace azahar_nano
