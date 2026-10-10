@@ -368,6 +368,12 @@ std::shared_ptr<Memory::PageTable> ARM_Dynarmic::GetPageTable() const {
 }
 
 void ARM_Dynarmic::SetPageTable(const std::shared_ptr<Memory::PageTable>& page_table) {
+    // GammaOS: the kernel sets the page table on every run slice; when it is the one already
+    // in use, saving and reloading the whole context changes nothing (Kirby: Planet Robobot
+    // runs ~22000 slices a second, 5% of the emulation thread here).
+    if (jit && page_table == current_page_table) {
+        return;
+    }
     current_page_table = page_table;
     ThreadContext ctx{};
     if (jit) {

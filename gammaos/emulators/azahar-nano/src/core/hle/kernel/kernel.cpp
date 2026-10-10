@@ -68,6 +68,17 @@ std::shared_ptr<Process> KernelSystem::GetCurrentProcess() const {
 }
 
 void KernelSystem::SetCurrentProcess(std::shared_ptr<Process> process) {
+    // GammaOS: called for every run slice; nothing to do when this process is already current
+    // and its page table is already the active one.
+    if (process == current_process &&
+        memory.GetCurrentPageTable() == process->vm_manager.page_table) {
+        // The running core may differ from the last one: make sure it uses this table too
+        // (cheap when it already does).
+        if (current_cpu != nullptr) {
+            current_cpu->SetPageTable(process->vm_manager.page_table);
+        }
+        return;
+    }
     current_process = process;
     SetCurrentMemoryPageTable(process->vm_manager.page_table);
 }
