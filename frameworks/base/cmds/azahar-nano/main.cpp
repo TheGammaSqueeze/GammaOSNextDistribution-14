@@ -90,6 +90,7 @@ struct CoreApi {
     void (*skip_preload)() = nullptr;   // optional (newer cores)
     int (*compiles_pending)() = nullptr;   // optional (newer cores)
     void (*set_fast_forward)(int) = nullptr;   // optional (newer cores)
+    void (*set_lcd_shader)(int, int) = nullptr;  // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -151,6 +152,8 @@ bool loadCore(const std::string& path) {
         reinterpret_cast<int (*)()>(dlsym(gCore.handle, "azn_compiles_pending"));
     gCore.set_fast_forward =
         reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_fast_forward"));
+    gCore.set_lcd_shader =
+        reinterpret_cast<void (*)(int, int)>(dlsym(gCore.handle, "azn_set_lcd_shader"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -609,6 +612,10 @@ int main(int argc, char** argv) {
         }
     }
     gCore.set_gpu_driver(hookDir.c_str(), driverDir.c_str(), driverLib.c_str(), "");
+    if (gCore.set_lcd_shader) {
+        gCore.set_lcd_shader(0, atoi(prop("persist.gammaos.azahar_nano.lcd_top", "0").c_str()));
+        gCore.set_lcd_shader(1, atoi(prop("persist.gammaos.azahar_nano.lcd_bottom", "0").c_str()));
+    }
 
     // Panels. DRM backend: our own BufferQueues flipped straight onto the panels.
     // SurfaceFlinger backend: one opaque layer per physical display.
@@ -625,9 +632,24 @@ int main(int argc, char** argv) {
         if (prop("persist.gammaos.azahar_nano.tweaks", "1") == "1" &&
             configValue(userDir, "Layout", "layout_option") == "1") {
             const int factor = atoi(configValue(userDir, "Renderer", "resolution_factor").c_str());
+            // A panel whose screen has an LCD shader draws at least 3 output pixels per 3DS
+            // pixel (720 short side) so the grid lands on whole pixels before the plane's
+            // upscale. Full panel resolution cost ~8 fps on the Duo Lite top panel (memory
+            // bandwidth), 720 costs nothing measurable, 960 cost ~4 fps.
+            const bool swap = configValue(userDir, "Layout", "swap_screen") == "true";
+            const bool lcd[2] = {
+                atoi(prop("persist.gammaos.azahar_nano.lcd_top", "0").c_str()) > 0,
+                atoi(prop("persist.gammaos.azahar_nano.lcd_bottom", "0").c_str()) > 0};
             if (factor >= 1 && factor <= 10) {
-                drm.setOutputShortSide(0, 240u * factor);
-                drm.setOutputShortSide(1, 240u * factor);
+                for (int panel = 0; panel < 2; panel++) {
+                    const int screen = swap ? 1 - panel : panel;
+                    uint32_t shortSide = 240u * factor;
+                    if (lcd[screen]) {
+                        shortSide = std::max(shortSide, 720u);
+                        ALOGI("tweaks: panel %d short side %u for its LCD shader", panel, shortSide);
+                    }
+                    drm.setOutputShortSide(panel, shortSide);
+                }
                 ALOGI("tweaks: native output for resolution factor %d", factor);
             }
         }
@@ -721,6 +743,9 @@ int main(int argc, char** argv) {
         sUserDir = userDir;
         oa.getConfig = [](const char* sec, const char* key) { return configValue(sUserDir, sec, key); };
         oa.setNintendoLayout = [](bool on) { if (sInput) sInput->setNintendoLayout(on); };
+        oa.setLcdShader = [](int screen, int shader) {
+            if (gCore.set_lcd_shader) gCore.set_lcd_shader(screen, shader);
+        };
         sOverlayReady = overlay.init(drm.overlayWindow(0), drm.width(0), drm.height(0),
                                      drm.isPortrait(0), oa, dataDir);
         if (!sOverlayReady) ALOGE("overlay unavailable");

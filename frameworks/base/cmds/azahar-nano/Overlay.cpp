@@ -5,6 +5,7 @@
 #include "GpuDriverPkg.h"
 
 #include <dirent.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 
 #include <EGL/eglext.h>
@@ -228,6 +229,22 @@ void Overlay::buildPages() {
             "How textures are sampled"));
         pg.rows.push_back(configToggle("Linear Filtering", "Renderer", "filter_mode",
             "Smooth the screens when scaled"));
+        // LCD shaders per 3DS screen: one texture read each, drawn in the normal present pass.
+        const std::vector<Choice> lcd = {{"Off", "0"},   {"LCD1x", "1"}, {"LCD3x", "2"},
+                                         {"zfast LCD", "3"}, {"Retro", "4"}, {"Bevel", "5"}};
+        for (int screen = 0; screen < 2; screen++) {
+            pg.rows.push_back(propChoice(
+                screen == 0 ? "Top Screen Shader" : "Bottom Screen Shader",
+                screen == 0 ? "persist.gammaos.azahar_nano.lcd_top"
+                            : "persist.gammaos.azahar_nano.lcd_bottom",
+                "0", lcd, "LCD effect drawn over the 3DS pixels at the panel's resolution",
+                [this, screen](const std::string& v) {
+                    if (mA.setLcdShader) mA.setLcdShader(screen, atoi(v.c_str()));
+                    // Turning a shader on or off changes the panel's output size, which is
+                    // set when the game starts.
+                    mBanner = "Full sharpness from the next launch";
+                }));
+        }
         pg.rows.push_back(configChoice("Stereoscopic 3D", "Renderer", "render_3d",
             {{"Off", "0"}, {"Side by Side", "1"}, {"Anaglyph", "3"}, {"Interlaced", "4"},
              {"Reverse Interlaced", "5"}},
