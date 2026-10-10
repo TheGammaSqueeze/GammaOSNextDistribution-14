@@ -3055,6 +3055,30 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     // pass. The property is toggled by NanoMenuDrm::drmEarlySplash / drmStop.
     const bool gammaNanoDrmOwnsDisplay =
             base::GetBoolProperty("sys.gammaos.nano.drm_active"s, false);
+    // GammaOS: while a nano process (home, drastic-nano, azahar-nano) holds DRM master, the
+    // power-on requests DisplayManager sends (the follower wake retries every 500 ms) reach a
+    // composer that cannot commit, so the composer keeps its display OFF while SF records ON.
+    // SF never re-sends ON for a display it thinks is on: once the nano hands the panel back,
+    // every SurfaceFlinger app composed DEVICE layers onto CRTCs with no planes (black on
+    // both panels until a power key cycle). The composer also caches the last requested mode
+    // and ignores a repeated ON, so cycle OFF then ON in the composer for every display SF
+    // has on as the hand-back happens (what a power key cycle does; SF's own state stays
+    // ON, and the panels are changing owner at this moment anyway).
+    if (CC_UNLIKELY(mGammaNanoDrmWasActive && !gammaNanoDrmOwnsDisplay)) {
+        ftl::FakeGuard guard(mStateLock);
+        for (const auto& [_, display] : FTL_FAKE_GUARD(mStateLock, mDisplays)) {
+            if (!display || display->isVirtual()) continue;
+            if (display->getPowerMode() != hal::PowerMode::ON) continue;
+            const auto displayId = display->getPhysicalId();
+            ALOGI("GammaOS: nano DRM session over, cycling HWC power on display %s",
+                  to_string(displayId).c_str());
+            getHwComposer().setPowerMode(displayId, hal::PowerMode::OFF);
+            getHwComposer().setPowerMode(displayId, hal::PowerMode::ON);
+        }
+        mVisibleRegionsDirty = true;
+        mustComposite = true;
+    }
+    mGammaNanoDrmWasActive = gammaNanoDrmOwnsDisplay;
     if (CC_UNLIKELY(gammaNanoDrmOwnsDisplay)) {
         if (mustComposite) {
             // composite() would normally drive input for us on this path.

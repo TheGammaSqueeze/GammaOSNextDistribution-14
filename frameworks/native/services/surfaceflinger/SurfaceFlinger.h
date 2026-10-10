@@ -233,6 +233,9 @@ public:
     // lock disable transitions and restore "normal" scheduling quickly.
     // Accessed on SurfaceFlinger main thread.
     bool mGammaRefreshLockWasEnabled = false;
+    // GammaOS: sys.gammaos.nano.drm_active as seen at the previous commit. Starts true so the
+    // first commit after SF starts also re-asserts the HWC power state (see commit()).
+    bool mGammaNanoDrmWasActive = true;
 
     // The offset in nanoseconds to use when VsyncController timestamps present fence
     // signaling time.
