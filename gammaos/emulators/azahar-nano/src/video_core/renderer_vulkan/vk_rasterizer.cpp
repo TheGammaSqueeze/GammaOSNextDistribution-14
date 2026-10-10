@@ -65,12 +65,28 @@ struct DrawParams {
 } // Anonymous namespace
 
 namespace {
-// GammaOS: logs any single draw-path step that takes longer than 10 ms.
+// GammaOS: logs any single draw-path step that takes longer than 10 ms, only with
+// persist.gammaos.azahar_nano.slow_step_log=1: clock reads are syscalls on this kernel (the
+// arm64 erratum 858921 workaround disables the vDSO counter), ~12% of the emulation thread in
+// Mario Kart 7 when always on.
 struct SlowStep {
+    static bool Enabled() {
+        static const bool on = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.slow_step_log", v);
+            return v[0] == '1';
+        }();
+        return on;
+    }
     const char* name;
-    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-    explicit SlowStep(const char* n) : name{n} {}
+    std::chrono::steady_clock::time_point start;
+    explicit SlowStep(const char* n)
+        : name{n}, start{Enabled() ? std::chrono::steady_clock::now()
+                                   : std::chrono::steady_clock::time_point{}} {}
     ~SlowStep() {
+        if (!Enabled()) {
+            return;
+        }
         const auto ms = std::chrono::duration_cast<std::chrono::microseconds>(
                             std::chrono::steady_clock::now() - start)
                             .count() /

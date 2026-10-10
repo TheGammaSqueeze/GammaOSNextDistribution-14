@@ -715,7 +715,8 @@ void GSP_GPU::TriggerCmdReqQueue(Kernel::HLERequestContext& ctx) {
 
         // Decode and execute command
         system.perf_stats->BeginGPUProcessing();
-        const auto exec_start = std::chrono::steady_clock::now();
+        const auto exec_start = stats_on ? std::chrono::steady_clock::now()
+                                         : std::chrono::steady_clock::time_point{};
         gpu.Execute(command);
         if (stats_on) {
             const u32 id = static_cast<u32>(command.id.Value()) & 0xF;
