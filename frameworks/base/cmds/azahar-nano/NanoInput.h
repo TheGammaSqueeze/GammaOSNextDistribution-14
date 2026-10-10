@@ -33,6 +33,15 @@ public:
     void stop();
     // Button arrangement, switchable live from the menu.
     void setNintendoLayout(bool on) { mNintendoLayout = on; }
+    // From a button callback: true when Back is held, and that Back press then no longer
+    // opens the menu or fires its long press (it was used as a combo modifier).
+    bool consumeBackHeld() {
+        if (mBackDownNs == 0) return false;
+        if (mBackLongFired && !mBackCombo) return false;
+        mBackLongFired = true;
+        mBackCombo = true;
+        return true;
+    }
 
 private:
     struct Node {
@@ -61,6 +70,7 @@ private:
     int mHatX = 0, mHatY = 0;
     int64_t mBackDownNs = 0;
     bool mBackLongFired = false;
+    bool mBackCombo = false;  // this Back press was used as a combo modifier
     // touch state
     int mTx = 0, mTy = 0;
     bool mTouchDown = false;

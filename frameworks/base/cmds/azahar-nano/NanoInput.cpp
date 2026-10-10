@@ -142,6 +142,7 @@ void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) 
             if (pressed) {
                 mBackDownNs = nowNs();
                 mBackLongFired = false;
+                mBackCombo = false;
             } else {
                 if (!mBackLongFired && mCb.menuToggle) mCb.menuToggle();
                 mBackDownNs = 0;

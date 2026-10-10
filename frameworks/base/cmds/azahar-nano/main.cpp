@@ -739,9 +739,11 @@ int main(int argc, char** argv) {
     azahar_nano::NanoInput input;
     sInput = &input;
     azahar_nano::InputCallbacks icb;
-    // Fast forward on R2 (the pad's R2 reaches us as ZR): each press toggles it while the menu
-    // is closed; persist.gammaos.azahar_nano.ff_r2=0 gives R2 back to the game as ZR.
+    // Fast forward on Back + R2 (the pad's R2 reaches us as ZR): each press toggles it while
+    // the menu is closed. R2 alone stays ZR for the game, and that Back press opens no menu.
+    // persist.gammaos.azahar_nano.ff_r2=0 turns the combo off.
     static const bool ffOnR2 = prop("persist.gammaos.azahar_nano.ff_r2", "1") == "1";
+    static bool ffComboR2Down = false;
     static auto toggleFastForward = [] {
         if (!gCore.set_fast_forward || gLoadScreenOn) return;
         // The pad reports R2 both as a button and as an axis: one press, one toggle.
@@ -755,12 +757,20 @@ int main(int argc, char** argv) {
         sFastForward = on;
         gCore.set_fast_forward(on ? 1 : 0);
         sHudStatsSeq++;
-        ALOGI("fast forward %s (R2)", on ? "on" : "off");
+        ALOGI("fast forward %s (Back + R2)", on ? "on" : "off");
     };
     icb.button = [](int b, bool p) {
         if (ffOnR2 && b == AZN_BUTTON_ZR && !overlay.isOpen()) {
-            if (p) toggleFastForward();
-            return true;
+            // The release of a combo press is ours too, the game never saw it go down.
+            if (p && sInput->consumeBackHeld()) {
+                ffComboR2Down = true;
+                toggleFastForward();
+                return true;
+            }
+            if (!p && ffComboR2Down) {
+                ffComboR2Down = false;
+                return true;
+            }
         }
         // Start on the shader loading screen skips the rest of the precompile.
         if (gLoadScreenOn && p && b == AZN_BUTTON_START) {
@@ -779,16 +789,18 @@ int main(int argc, char** argv) {
     };
     icb.joystick = [](int a, float x, float y) { return gCore.joystick(a, x, y); };
     icb.analogButton = [](int a, float v) {
-        // Analog R2: toggle on the press edge (past 60%), release below 30%.
+        // Analog R2 with Back held: toggle on the press edge (past 60%), release below 30%.
         if (ffOnR2 && a == AZN_BUTTON_ZR && !overlay.isOpen()) {
-            static bool down = false;
-            if (!down && v > 0.6f) {
-                down = true;
-                toggleFastForward();
-            } else if (down && v < 0.3f) {
-                down = false;
+            static bool comboDown = false;
+            if (comboDown) {
+                if (v < 0.3f) comboDown = false;
+                return true;
             }
-            return true;
+            if (v > 0.6f && sInput->consumeBackHeld()) {
+                comboDown = true;
+                toggleFastForward();
+                return true;
+            }
         }
         return gCore.analog_button(a, v);
     };
