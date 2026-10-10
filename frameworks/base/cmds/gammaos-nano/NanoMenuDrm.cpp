@@ -3670,9 +3670,11 @@ void drmPushFrame(uint32_t glWidth, uint32_t glHeight) {
 void drmStop() {
     if (!sDrmActive) return;
     sDrmActive = false;
-    // GammaOS: release the SurfaceFlinger composition gate now that HWC
-    // owns the display again. Mirrors the set at drmEarlySplash().
-    property_set("sys.gammaos.nano.drm_active", "0");
+    // The SurfaceFlinger composition gate (sys.gammaos.nano.drm_active) is
+    // released at the END, once master is dropped: SF cycles the composer's
+    // power as the gate opens, and a composer commit made while we still hold
+    // master is refused, which left the composer's displays OFF and every app
+    // black on both panels.
     sDrmZeroCopy = false;
     // Reset GL rotation to identity for the SF EGL path. SurfaceFlinger applies the
     // port 1 panel's physical orientation itself, so drop the DRM-only fold too.
@@ -3757,6 +3759,9 @@ void drmStop() {
         close(sDrmFd);
         sDrmFd = -1;
     }
+    // Now HWC can own the display: release the SurfaceFlinger composition gate.
+    // Mirrors the set at drmEarlySplash().
+    property_set("sys.gammaos.nano.drm_active", "0");
 }
 
 // Take the panel back for a home that PARKED in-process while drastic-nano ran
