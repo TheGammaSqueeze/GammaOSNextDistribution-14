@@ -152,31 +152,38 @@ SaveStateInfo GetSaveStateInfo(u64 program_id, u64 movie_id, u32 slot) {
     return info;
 }
 
+void System::WaitSaveWriter() const {
+    if (gamma_save_writer.joinable()) {
+        gamma_save_writer.join();
+    }
+}
+
 void System::SaveState(u32 slot) const {
     if (app_loader) {
         if (!app_loader->SupportsSaveStates()) {
             throw std::runtime_error("The current app loader doesn't support save states");
         }
     }
+    // GammaOS: one save at a time; the previous one may still be writing.
+    WaitSaveWriter();
 
+    // GammaOS: only serializing needs the emulation stopped (1.3 s for Kirby: Planet Robobot's
+    // 295 MB). Compressing and writing run on a writer thread; the file is written under a
+    // temporary name and renamed into place, so the slot file is never half written. Loads,
+    // the next save and shutdown wait for the writer.
+    const auto t0 = std::chrono::steady_clock::now();
     std::ostringstream sstream{std::ios_base::binary};
-    // Serialize
-    oarchive oa{sstream};
-    oa&* this;
-
-    const std::string& str{sstream.str()};
-    const auto data = std::span<const u8>{reinterpret_cast<const u8*>(str.data()), str.size()};
-    auto buffer = Common::Compression::CompressDataZSTDDefault(data);
+    {
+        // Serialize (the archive is finished before the stream moves to the writer)
+        oarchive oa{sstream};
+        oa&* this;
+    }
+    const auto t1 = std::chrono::steady_clock::now();
 
     const u64 movie_id = movie.GetCurrentMovieID();
     const auto path = GetSaveStatePath(title_id, movie_id, slot);
     if (!FileUtil::CreateFullPath(path)) {
         throw std::runtime_error("Could not create path " + path);
-    }
-
-    FileUtil::IOFile file(path, "wb");
-    if (!file) {
-        throw std::runtime_error("Could not open file " + path);
     }
 
     CSTHeader header{};
@@ -200,13 +207,42 @@ void System::SaveState(u32 slot) const {
     std::memcpy(header.build_version.data(), build_version.c_str(),
                 std::min(build_version.length(), sizeof(header.build_version) - 1));
 
-    if (file.WriteBytes(&header, sizeof(header)) != sizeof(header) ||
-        file.WriteBytes(buffer.data(), buffer.size()) != buffer.size()) {
-        throw std::runtime_error("Could not write to file " + path);
-    }
+    gamma_save_writer = std::thread([stream = std::move(sstream), header, path, t0, t1]() {
+        const auto ms = [](auto a, auto b) {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(b - a).count();
+        };
+        const std::string str = stream.str();
+        const auto data =
+            std::span<const u8>{reinterpret_cast<const u8*>(str.data()), str.size()};
+        // GammaOS: level 1 instead of the default 3 (2.4 s -> 1.2 s for 295 MB, about 10%
+        // bigger); any level loads the same.
+        const auto buffer = Common::Compression::CompressDataZSTD(data, 1);
+        const auto t2 = std::chrono::steady_clock::now();
+        const std::string tmp_path = path + ".tmp";
+        {
+            FileUtil::IOFile file(tmp_path, "wb");
+            if (!file || file.WriteBytes(&header, sizeof(header)) != sizeof(header) ||
+                file.WriteBytes(buffer.data(), buffer.size()) != buffer.size()) {
+                LOG_ERROR(Core, "save state: could not write {}", tmp_path);
+                FileUtil::Delete(tmp_path);
+                return;
+            }
+        }
+        if (!FileUtil::Rename(tmp_path, path)) {
+            LOG_ERROR(Core, "save state: could not rename {} to {}", tmp_path, path);
+            FileUtil::Delete(tmp_path);
+            return;
+        }
+        const auto t3 = std::chrono::steady_clock::now();
+        LOG_INFO(Core,
+                 "save state: serialize {} ms ({} MB, emulation paused), compress {} ms ({} MB), "
+                 "write {} ms",
+                 ms(t0, t1), str.size() >> 20, ms(t1, t2), buffer.size() >> 20, ms(t2, t3));
+    });
 }
 
 void System::LoadState(u32 slot) {
+    WaitSaveWriter();
     if (app_loader) {
         if (!app_loader->SupportsSaveStates()) {
             throw std::runtime_error("The current app loader doesn't support save states");

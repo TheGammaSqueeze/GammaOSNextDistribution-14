@@ -7,6 +7,7 @@
 #include <atomic>
 #include <chrono>
 #include <memory>
+#include <thread>
 #include <unordered_map>
 #include <mutex>
 #include <string>
@@ -380,6 +381,9 @@ public:
 
     void SaveState(u32 slot) const;
 
+    /// GammaOS: waits for a save state still being compressed and written in the background.
+    void WaitSaveWriter() const;
+
     void LoadState(u32 slot);
 
     std::vector<u8> SaveStateBuffer() const;
@@ -449,6 +453,9 @@ public:
     }
 
 private:
+    /// GammaOS: compresses and writes the last save state off the emulation thread.
+    mutable std::thread gamma_save_writer;
+
     /**
      * Initialize the emulated system.
      * @param emu_window Reference to the host-system window used for video output and keyboard

@@ -84,7 +84,10 @@ Core::Timing& Global() {
 
 System::System() : movie{*this}, cheat_engine{*this} {}
 
-System::~System() = default;
+System::~System() {
+    // GammaOS: never destroy a running save state writer (std::terminate).
+    WaitSaveWriter();
+}
 
 System::ResultStatus System::RunLoop(bool tight_loop) {
     status = ResultStatus::Success;
@@ -783,6 +786,7 @@ void System::RegisterImageInterface(std::shared_ptr<Frontend::ImageInterface> im
 }
 
 void System::Shutdown(bool is_deserializing) {
+    WaitSaveWriter();
 
     // Shutdown emulation session
     is_powered_on = false;
