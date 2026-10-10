@@ -27,6 +27,7 @@
 #include "common/scope_exit.h"
 #include "common/settings.h"
 #include "core/core.h"
+#include "core/perf_stats.h"
 #include "core/frontend/applets/default_applets.h"
 #include "core/hle/service/am/am.h"
 #include "core/loader/loader.h"
@@ -731,7 +732,12 @@ void azn_windows_resized() {
 
 void azn_set_lcd_shader(int screen, int shader) {
     if (screen < 0 || screen > 1) return;
-    Settings::values.gammaos_lcd_shader[screen] = std::clamp(shader, 0, 5);
+    const int value = std::clamp(shader, 0, 7);
+    if (Settings::values.gammaos_lcd_shader[screen] == value) return;
+    Settings::values.gammaos_lcd_shader[screen] = value;
+    // Draw the current frame again with the new shader, also while the game is paused (the
+    // renderer otherwise skips frames the game did not update).
+    Core::PerfStats::game_frames_updated = true;
 }
 
 } // extern "C"

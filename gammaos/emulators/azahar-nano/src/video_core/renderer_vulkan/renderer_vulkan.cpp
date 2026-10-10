@@ -200,6 +200,19 @@ void RendererVulkan::PrepareDraw(Frame* frame, const Layout::FramebufferLayout& 
         update_queue.AddImageSampler(present_set, 0, index, screen_infos[index].image_view,
                                      sampler);
     }
+    // GammaOS LCD and sharp bilinear shaders sample through the linear sampler whatever the
+    // Linear Filtering setting (the LCD ones snap to texel centres themselves).
+    present_set_user = present_set;
+    present_set_linear = present_set;
+    if (Settings::values.gammaos_lcd_shader[0] > 0 || Settings::values.gammaos_lcd_shader[1] > 0) {
+        if (sampler != present_samplers[0]) {
+            present_set_linear = present_heap.Commit();
+            for (u32 index = 0; index < screen_infos.size(); index++) {
+                update_queue.AddImageSampler(present_set_linear, 0, index,
+                                             screen_infos[index].image_view, present_samplers[0]);
+            }
+        }
+    }
 
     renderpass_cache.EndRendering();
     renderpass_cache.FlushPendingClears();
@@ -551,6 +564,7 @@ vk::Pipeline RendererVulkan::ScreenPipeline(u32 screen_id) {
         const std::string_view preamble =
             instance.IsImageArrayDynamicIndexSupported() ? "#define ARRAY_DYNAMIC_INDEX" : "";
         std::string code{GammaLcd::kCommon};
+        if (i >= GammaLcd::kFirstSharp) code += GammaLcd::kSharpCommon;
         code += GammaLcd::kShaders[i];
         lcd_shaders[i] = Compile(code, vk::ShaderStageFlagBits::eFragment, instance.GetDevice(),
                                  preamble);
@@ -903,10 +917,15 @@ void RendererVulkan::DrawSingleScreen(u32 screen_id, float x, float y, float w, 
         draw_info.lcd_map = Common::MakeVec(x, -texcoords.left * x, z, -texcoords.bottom * z);
     }
     const vk::Pipeline pipeline = ScreenPipeline(screen_id);
+    const vk::DescriptorSet set =
+        pipeline == present_pipelines[current_pipeline] ? present_set_user : present_set_linear;
 
-    scheduler.Record([this, offset = offset, info = draw_info, pipeline](vk::CommandBuffer cmdbuf) {
+    scheduler.Record([this, offset = offset, info = draw_info, pipeline,
+                      set](vk::CommandBuffer cmdbuf) {
         const u32 first_vertex = static_cast<u32>(offset) / sizeof(ScreenRectVertex);
         cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+        cmdbuf.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *present_pipeline_layout, 0,
+                                  set, {});
         cmdbuf.pushConstants(*present_pipeline_layout,
                              vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex,
                              0, sizeof(info), &info);
@@ -980,9 +999,12 @@ void RendererVulkan::DrawSingleScreenStereo(u32 screen_id_l, u32 screen_id_r, fl
 
     // A mono screen drawn before may have bound its LCD pipeline.
     scheduler.Record([this, offset = offset, info = draw_info,
-                      pipeline = present_pipelines[current_pipeline]](vk::CommandBuffer cmdbuf) {
+                      pipeline = present_pipelines[current_pipeline],
+                      set = present_set_user](vk::CommandBuffer cmdbuf) {
         const u32 first_vertex = static_cast<u32>(offset) / sizeof(ScreenRectVertex);
         cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+        cmdbuf.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *present_pipeline_layout, 0,
+                                  set, {});
         cmdbuf.pushConstants(*present_pipeline_layout,
                              vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex,
                              0, sizeof(info), &info);

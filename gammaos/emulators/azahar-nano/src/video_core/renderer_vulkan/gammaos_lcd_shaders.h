@@ -182,7 +182,91 @@ void main() {
 }
 )";
 
-// Index 0 is "off" (the stock present shader); 1.. are these.
-constexpr std::array<std::string_view, 5> kShaders = {kLcd1x, kLcd3x, kZfastLcd, kRetro, kBevel};
+// Sharp bilinear (themaister's sharp-bilinear): nearest-neighbour up to the largest whole
+// multiple, bilinear only across the one-output-pixel seam between texels. Needs the linear
+// sampler (bound for every shader here).
+constexpr std::string_view kSharpCommon = R"(
+ivec2 ScreenSize() {
+#ifdef ARRAY_DYNAMIC_INDEX
+    return textureSize(screen_textures[screen_id_l], 0);
+#else
+    switch (screen_id_l) {
+    case 0:
+        return textureSize(screen_textures[0], 0);
+    case 1:
+        return textureSize(screen_textures[1], 0);
+    default:
+        return textureSize(screen_textures[2], 0);
+    }
+#endif
+}
+
+// Texture coordinate to sample for sharp bilinear at tc.
+vec2 SharpCoord(vec2 tc, vec2 size) {
+    const vec2 texel = tc * size;
+    const vec2 scale = max(floor(1.0 / fwidth(texel)), vec2(1.0));
+    const vec2 texel_floored = floor(texel);
+    const vec2 s = fract(texel);
+    const vec2 region_range = 0.5 - 0.5 / scale;
+    const vec2 centre_dist = s - 0.5;
+    const vec2 f = (centre_dist - clamp(centre_dist, -region_range, region_range)) * scale + 0.5;
+    return (texel_floored + f) / size;
+}
+)";
+
+constexpr std::string_view kSharp = R"(
+void main() {
+    const vec2 size = vec2(ScreenSize());
+    color = vec4(Fetch(SharpCoord(frag_tex_coord, size)), 1.0);
+}
+)";
+
+// Sharp bilinear with FXAA (Timothy Lottes' FXAA, the compact PC variant) worked out on the
+// emulated image's own texels: edges are smoothed at the 3DS resolution, then scaled sharp.
+// Flat areas leave after five reads.
+constexpr std::string_view kSharpAa = R"(
+// Tuned gentle for the 3DS's 240-line image, where much detail is 1 to 2 pixels wide: a
+// higher edge threshold and a short search span keep small icons and text intact while
+// curves and diagonals still smooth (compared side by side on Kirby: Planet Robobot).
+const float FXAA_REDUCE_MIN = 1.0 / 128.0;
+const float FXAA_REDUCE_MUL = 1.0 / 8.0;
+const float FXAA_SPAN_MAX = 2.0;
+const float FXAA_EDGE_MIN = 1.0 / 12.0;
+const float FXAA_EDGE_REL = 1.0 / 4.0;
+const vec3 LUMA = vec3(0.299, 0.587, 0.114);
+
+void main() {
+    const vec2 size = vec2(ScreenSize());
+    const vec2 rcp = 1.0 / size;
+    const vec2 pos = SharpCoord(frag_tex_coord, size);
+    const vec3 rgbM = Fetch(pos);
+    const float lumaNW = dot(Fetch(pos + vec2(-1.0, -1.0) * rcp), LUMA);
+    const float lumaNE = dot(Fetch(pos + vec2(1.0, -1.0) * rcp), LUMA);
+    const float lumaSW = dot(Fetch(pos + vec2(-1.0, 1.0) * rcp), LUMA);
+    const float lumaSE = dot(Fetch(pos + vec2(1.0, 1.0) * rcp), LUMA);
+    const float lumaM = dot(rgbM, LUMA);
+    const float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
+    const float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
+    if (lumaMax - lumaMin < max(FXAA_EDGE_MIN, lumaMax * FXAA_EDGE_REL)) {
+        color = vec4(rgbM, 1.0);
+        return;
+    }
+    vec2 dir = vec2(-((lumaNW + lumaNE) - (lumaSW + lumaSE)), (lumaNW + lumaSW) - (lumaNE + lumaSE));
+    const float dirReduce =
+        max((lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 * FXAA_REDUCE_MUL), FXAA_REDUCE_MIN);
+    const float rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);
+    dir = clamp(dir * rcpDirMin, vec2(-FXAA_SPAN_MAX), vec2(FXAA_SPAN_MAX)) * rcp;
+    const vec3 rgbA = 0.5 * (Fetch(pos + dir * (1.0 / 3.0 - 0.5)) + Fetch(pos + dir * (2.0 / 3.0 - 0.5)));
+    const vec3 rgbB = rgbA * 0.5 + 0.25 * (Fetch(pos - dir * 0.5) + Fetch(pos + dir * 0.5));
+    const float lumaB = dot(rgbB, LUMA);
+    color = vec4((lumaB < lumaMin || lumaB > lumaMax) ? rgbA : rgbB, 1.0);
+}
+)";
+
+// Index 0 is "off" (the stock present shader); 1.. are these. The sharp ones need
+// kSharpCommon after kCommon.
+constexpr std::array<std::string_view, 7> kShaders = {kLcd1x, kLcd3x, kZfastLcd, kRetro,
+                                                      kBevel, kSharp, kSharpAa};
+constexpr std::size_t kFirstSharp = 5;
 
 } // namespace Vulkan::GammaLcd

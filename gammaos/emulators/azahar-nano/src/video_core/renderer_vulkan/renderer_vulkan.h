@@ -146,8 +146,10 @@ private:
     std::array<vk::Pipeline, PRESENT_PIPELINES> present_pipelines;
     std::array<vk::ShaderModule, PRESENT_PIPELINES> present_shaders;
     // GammaOS LCD shader pipelines, built the first time each is selected.
-    std::array<vk::Pipeline, 5> lcd_pipelines{};
-    std::array<vk::ShaderModule, 5> lcd_shaders{};
+    std::array<vk::Pipeline, 7> lcd_pipelines{};
+    std::array<vk::ShaderModule, 7> lcd_shaders{};
+    // This frame's present descriptor sets: the user's sampler, and linear for the shaders.
+    vk::DescriptorSet present_set_user{}, present_set_linear{};
     std::array<vk::Sampler, 2> present_samplers;
     vk::ShaderModule present_vertex_shader;
     u32 current_pipeline = 0;
