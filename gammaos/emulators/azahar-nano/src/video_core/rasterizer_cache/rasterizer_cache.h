@@ -130,6 +130,14 @@ void RasterizerCache<T>::TickFrame() {
 }
 
 template <class T>
+bool RasterizerCache<T>::TickFrameNeedsIdleWorker() const {
+    return filter != Settings::values.texture_filter.GetValue() ||
+           resolution_scale_factor != renderer.GetResolutionScaleFactor() ||
+           use_custom_textures != Settings::values.custom_textures.GetValue() ||
+           use_custom_textures;
+}
+
+template <class T>
 void RasterizerCache<T>::RunGarbageCollector() {
     // GammaOS: games re-create their render targets every frame (a memory fill
     // invalidates the color and depth buffers, the next draw makes them again).

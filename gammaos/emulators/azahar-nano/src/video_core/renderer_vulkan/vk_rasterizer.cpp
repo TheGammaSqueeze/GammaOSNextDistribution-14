@@ -207,7 +207,18 @@ void RasterizerVulkan::TickFrame() {
     if (budget_held_since.size() > 4096) {
         budget_held_since.clear();
     }
-    scheduler.WaitWorker();
+    // GammaOS: draining the worker every frame kept the emulation thread from building the next
+    // frame while the worker recorded this one (about half of the emulation thread's time was
+    // spent here). Only wait when the cache tick needs it, or when
+    // persist.gammaos.azahar_nano.tick_wait=1 asks for the old behaviour.
+    static const bool always_wait = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.tick_wait", v);
+        return v[0] == '1';
+    }();
+    if (always_wait || res_cache.TickFrameNeedsIdleWorker()) {
+        scheduler.WaitWorker();
+    }
     res_cache.TickFrame();
     pipeline_cache.TickFrame();
 }

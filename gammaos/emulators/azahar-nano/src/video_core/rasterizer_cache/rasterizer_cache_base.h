@@ -84,6 +84,11 @@ public:
     /// Notify the cache that a new frame has been queued
     void TickFrame();
 
+    /// GammaOS: true when the next TickFrame may drop every surface or upload custom textures,
+    /// which needs the worker thread idle. Plain garbage collection does not: it only deletes
+    /// surfaces whose last use the GPU has already completed.
+    bool TickFrameNeedsIdleWorker() const;
+
     /// Perform hardware accelerated texture copy according to the provided configuration
     bool AccelerateTextureCopy(const Pica::DisplayTransferConfig& config);
 
