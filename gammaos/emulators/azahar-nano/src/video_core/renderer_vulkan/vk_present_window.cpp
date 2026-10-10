@@ -386,6 +386,31 @@ void PresentWindow::CopyToSwapchain(Frame* frame) {
         swapchain.Create(frame->width, frame->height, surface, low_refresh_rate);
     };
 
+#ifdef ANDROID
+    // Same surface, new size (GammaOS: an LCD shader switches the panel's buffer size): the
+    // swapchain takes the window's new size, no new surface needed.
+    // The surface reports the new size only once a frame has been queued at the old one, so
+    // keep rebuilding over the next few frames until the swapchain extent matches.
+    if (resize_pending) [[unlikely]] {
+        const vk::Extent2D have = swapchain.GetExtent();
+        if (have.width == frame->width && have.height == frame->height) {
+            resize_pending = false;
+            resize_tries = 0;
+        } else if (++resize_tries > 8) {
+            LOG_WARNING(Render_Vulkan, "swapchain stays {}x{} for a {}x{} frame", have.width,
+                        have.height, frame->width, frame->height);
+            resize_pending = false;
+            resize_tries = 0;
+        } else {
+            std::scoped_lock submit_lock{scheduler.submit_mutex};
+            graphics_queue.waitIdle();
+            swapchain.Create(frame->width, frame->height, surface, low_refresh_rate);
+            LOG_INFO(Render_Vulkan, "swapchain resized to {}x{}", swapchain.GetExtent().width,
+                     swapchain.GetExtent().height);
+        }
+    }
+#endif
+
 #ifndef ANDROID
     const bool use_vsync = Settings::values.use_vsync.GetValue();
     const bool size_changed =

@@ -54,6 +54,11 @@ public:
 
     /// This is called to notify the rendering backend of a surface change
     void NotifySurfaceChanged();
+    /// The surface kept its handle but changed size: rebuild the swapchain at the next copy.
+    void NotifySurfaceResized() {
+        resize_tries = 0;
+        resize_pending = true;
+    }
 
     [[nodiscard]] vk::RenderPass Renderpass() const noexcept {
         return present_renderpass;
@@ -99,6 +104,8 @@ private:
     std::condition_variable_any frame_cv;
     std::mutex swapchain_mutex;
     std::mutex recreate_surface_mutex;
+    std::atomic<bool> resize_pending{false};
+    std::atomic<u32> resize_tries{0};
     std::mutex queue_mutex;
     std::mutex free_mutex;
     std::jthread present_thread;

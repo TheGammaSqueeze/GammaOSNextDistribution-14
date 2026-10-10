@@ -1821,6 +1821,16 @@ bool RendererVulkan::TryRenderScreenshotWithHostMemory() {
     return true;
 }
 
+void RendererVulkan::NotifySurfaceResized(bool is_second_window) {
+    if (is_second_window) {
+        if (secondary_present_window_ptr) {
+            secondary_present_window_ptr->NotifySurfaceResized();
+        }
+    } else {
+        main_present_window.NotifySurfaceResized();
+    }
+}
+
 void RendererVulkan::NotifySurfaceChanged(bool is_second_window) {
     if (is_second_window) {
         if (secondary_present_window_ptr) {

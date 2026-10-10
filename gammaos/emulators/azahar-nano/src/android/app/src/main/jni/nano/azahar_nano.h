@@ -181,6 +181,10 @@ void azn_set_fast_forward(int on);
 // 3 zfast LCD, 4 Retro, 5 Bevel. Applies from the next frame.
 void azn_set_lcd_shader(int screen, int shader);
 
+// The frontend changed a window's buffer size (same window): relayout and rebuild the
+// swapchain at the new size.
+void azn_windows_resized(void);
+
 #ifdef __cplusplus
 }
 #endif

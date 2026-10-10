@@ -63,6 +63,8 @@ public:
     /// This is called to notify the rendering backend of a surface change
     // if second == true then it is the second screen
     virtual void NotifySurfaceChanged(bool second) {}
+    /// The same surface changed size: rebuild the swapchain at its new size.
+    virtual void NotifySurfaceResized(bool second) {}
 
     /// Returns the resolution scale factor relative to the native 3DS screen resolution
     u32 GetResolutionScaleFactor();

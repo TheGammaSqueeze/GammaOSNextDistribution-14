@@ -715,6 +715,20 @@ void azn_set_fast_forward(int on) {
     __android_log_print(ANDROID_LOG_INFO, AZN_TAG, "fast forward %s", active ? "on" : "off");
 }
 
+void azn_windows_resized() {
+    std::scoped_lock lock(surface_mutex);
+    auto& system = Core::System::GetInstance();
+    // OnSurfaceChanged re-reads the size and redoes the screen layout; it reports a change
+    // only when the size really moved.
+    if (s_surface && window && window->OnSurfaceChanged(s_surface) && system.IsPoweredOn()) {
+        system.GPU().Renderer().NotifySurfaceResized(false);
+    }
+    if (s_secondary_surface && secondary_window &&
+        secondary_window->OnSurfaceChanged(s_secondary_surface) && system.IsPoweredOn()) {
+        system.GPU().Renderer().NotifySurfaceResized(true);
+    }
+}
+
 void azn_set_lcd_shader(int screen, int shader) {
     if (screen < 0 || screen > 1) return;
     Settings::values.gammaos_lcd_shader[screen] = std::clamp(shader, 0, 5);

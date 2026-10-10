@@ -82,6 +82,7 @@ public:
     }
 
     void NotifySurfaceChanged(bool second) override;
+    void NotifySurfaceResized(bool second) override;
 
     void SwapBuffers() override;
     void TryPresent(int timeout_ms, bool is_secondary) override {}
