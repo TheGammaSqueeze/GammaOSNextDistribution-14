@@ -186,6 +186,10 @@ void azn_set_lcd_shader(int screen, int shader);
 // swapchain at the new size.
 void azn_windows_resized(void);
 
+// Internal resolution for the running game, live, without touching config.ini (dynamic
+// resolution).
+void azn_set_resolution(int factor);
+
 #ifdef __cplusplus
 }
 #endif

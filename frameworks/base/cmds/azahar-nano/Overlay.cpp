@@ -209,6 +209,9 @@ void Overlay::buildPages() {
         pg.rows.push_back(configChoice("Resolution", "Renderer", "resolution_factor",
             {{"Native (1x)", "1"}, {"2x", "2"}, {"3x", "3"}, {"4x", "4"}, {"5x", "5"}, {"6x", "6"}},
             "Internal 3DS render resolution"));
+        pg.rows.push_back(propChoice("Dynamic Resolution", "persist.gammaos.azahar_nano.dynres", "0",
+            {{"Off", "0"}, {"On", "1"}},
+            "Drops to 1x with Sharp Bilinear + AA while the game runs slow, then tries the resolution above again"));
         pg.rows.push_back(configChoice("Top Panel", "Layout", "layout_option",
             {{"Top Screen", "1"}, {"Both Screens", "0"}, {"Large Screen", "2"}, {"Side by Side", "3"},
              {"Hybrid", "5"}},

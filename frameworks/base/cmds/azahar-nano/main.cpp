@@ -35,6 +35,7 @@
 #include <unistd.h>
 
 #include <atomic>
+#include <functional>
 #include <thread>
 #include <fstream>
 #include <string>
@@ -92,6 +93,7 @@ struct CoreApi {
     void (*set_fast_forward)(int) = nullptr;   // optional (newer cores)
     void (*set_lcd_shader)(int, int) = nullptr;  // optional (newer cores)
     void (*windows_resized)() = nullptr;          // optional (newer cores)
+    void (*set_resolution)(int) = nullptr;        // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -103,6 +105,22 @@ std::atomic<float> sHudBlitFps{0.0f}, sHudGameFps{0.0f};
 std::atomic<bool> sHudSlow{false};
 std::atomic<bool> sFastForward{false};   // R2 fast forward state
 std::atomic<float> sHudSpeed{100.0f};    // emulation speed in percent of real time
+std::string gUserDir;                     // config.ini folder, for readers outside main()
+
+// Dynamic resolution (persist.gammaos.azahar_nano.dynres=1): run at the configured
+// resolution and drop to 1x with Sharp Bilinear + AA on both screens while the game cannot
+// hold full speed there; probe the configured resolution again after a cooldown that doubles
+// each time the probe fails (30 s up to 5 min) and resets once it holds for 30 s. Called once
+// a second from the perf thread with the measured emulation speed.
+struct DynRes {
+    bool low = false;        // running at 1x
+    bool probing = false;    // back at the configured resolution on trial
+    int slowSecs = 0;        // consecutive slow seconds at the configured resolution
+    int settle = 0;          // seconds to ignore after a switch (scale change hitch)
+    int highSecs = 0;        // seconds held at the configured resolution
+    int backoff = 30;        // seconds at 1x before the next probe
+    int64_t nextProbeS = 0;
+};
 std::atomic<uint64_t> sHudStatsSeq{0};
 std::atomic<bool> gExitRequested{false};
 std::atomic<bool> gSessionDoneSent{false};
@@ -157,6 +175,8 @@ bool loadCore(const std::string& path) {
         reinterpret_cast<void (*)(int, int)>(dlsym(gCore.handle, "azn_set_lcd_shader"));
     gCore.windows_resized =
         reinterpret_cast<void (*)()>(dlsym(gCore.handle, "azn_windows_resized"));
+    gCore.set_resolution =
+        reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_resolution"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -507,6 +527,76 @@ void onLog(void*, int level, const char* cls, const char* msg) {
 
 } // namespace
 
+// One second of dynamic resolution (see DynRes).
+static void dynResTick(double speed, bool menuOpen,
+                       const std::function<void(int, int)>& setLcdShader) {
+    static DynRes d;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    const int64_t nowS = ts.tv_sec;
+    const int base = atoi(configValue(gUserDir, "Renderer", "resolution_factor").c_str());
+    const bool on = prop("persist.gammaos.azahar_nano.dynres", "0") == "1" && base > 1 &&
+                    gCore.set_resolution != nullptr;
+    const auto userShaders = [&] {
+        if (!setLcdShader) return;
+        setLcdShader(0, atoi(prop("persist.gammaos.azahar_nano.lcd_top", "0").c_str()));
+        setLcdShader(1, atoi(prop("persist.gammaos.azahar_nano.lcd_bottom", "0").c_str()));
+    };
+    const auto raise = [&] {
+        gCore.set_resolution(base);
+        userShaders();
+        d.low = false;
+        d.slowSecs = 0;
+        d.highSecs = 0;
+        d.settle = 2;
+    };
+    if (!on) {
+        if (d.low) {
+            ALOGI("dynres: off, back to %dx", base);
+            raise();
+        }
+        d = DynRes{};
+        return;
+    }
+    // Not a game speed reading: menu (paused), fast forward, the loading screen, or shader
+    // compiles (their stalls are not the resolution's fault).
+    const int pending = gCore.compiles_pending ? gCore.compiles_pending() : 0;
+    if (menuOpen || sFastForward || gLoadScreenOn || pending > 0 || speed < 0.05) {
+        d.slowSecs = 0;
+        return;
+    }
+    if (d.settle > 0) {
+        d.settle--;
+        return;
+    }
+    if (!d.low) {
+        d.slowSecs = speed < 0.97 ? d.slowSecs + 1 : 0;
+        if (d.slowSecs >= 3) {
+            // A failed probe waits twice as long next time; a first drop starts at 30 s.
+            d.backoff = d.probing ? std::min(d.backoff * 2, 300) : 30;
+            d.probing = false;
+            d.low = true;
+            d.settle = 2;
+            d.nextProbeS = nowS + d.backoff;
+            gCore.set_resolution(1);
+            if (setLcdShader) {
+                setLcdShader(0, 7);
+                setLcdShader(1, 7);
+            }
+            ALOGI("dynres: %.0f%% speed at %dx, 1x with sharp bilinear + AA, next try in %d s",
+                  speed * 100.0, base, d.backoff);
+        } else if (d.probing && ++d.highSecs >= 30) {
+            d.probing = false;
+            d.backoff = 30;
+            ALOGI("dynres: %dx holds", base);
+        }
+    } else if (nowS >= d.nextProbeS) {
+        ALOGI("dynres: trying %dx again", base);
+        raise();
+        d.probing = true;
+    }
+}
+
 int main(int argc, char** argv) {
     // Test hook: persist.gammaos.azahar_nano.env = "NAME=value[,NAME=value]" is
     // exported before any driver loads (for example TU_DEBUG for Turnip).
@@ -540,6 +630,7 @@ int main(int argc, char** argv) {
     }
     const std::string coreLib = prop("persist.gammaos.azahar_nano.core", kCoreLibDefault);
     const std::string userDir = prop("persist.gammaos.azahar_nano.user_dir", kUserDirDefault);
+    gUserDir = userDir;
     const std::string backend = prop("persist.gammaos.azahar_nano.backend", "sf");
     ALOGI("rom=%s core=%s user=%s backend=%s", rom.c_str(), coreLib.c_str(), userDir.c_str(),
           backend.c_str());
@@ -989,6 +1080,7 @@ int main(int argc, char** argv) {
                 sHudSpeed = (float)(st.emulation_speed * 100.0);
                 sHudStatsSeq++;
             }
+            dynResTick(st.emulation_speed, overlay.isOpen(), sOa.setLcdShader);
         }
     });
 
