@@ -408,6 +408,11 @@ void OverlayGfx::clipBegin(float x, float y, float w, float h) {
     flushSolids();   // what was queued before the clip must not be clipped
     if (w <= 0.0f || h <= 0.0f) { glScissor(0, 0, 0, 0); glEnable(GL_SCISSOR_TEST); return; }
     const float vw = (float)mViewportW, vh = (float)mViewportH;
+    // Window pixels come from the real GL viewport: with a 90 degree rotation the window is
+    // the logical size turned on its side (azahar-nano's portrait-scanned top panel).
+    GLint vp[4] = {0, 0, mViewportW, mViewportH};
+    glGetIntegerv(GL_VIEWPORT, vp);
+    const float ww = (float)vp[2], wh = (float)vp[3];
     float minX = 1e9f, minY = 1e9f, maxX = -1e9f, maxY = -1e9f;
     const float cx[4] = {x, x + w, x, x + w};
     const float cy[4] = {y, y, y + h, y + h};
@@ -417,15 +422,15 @@ void OverlayGfx::clipBegin(float x, float y, float w, float h) {
         // column-major mat2: out = M * v
         const float rx = mRot[0] * nx + mRot[2] * ny;
         const float ry = mRot[1] * nx + mRot[3] * ny;
-        const float px = (rx + 1.0f) * 0.5f * vw;
-        const float py = (ry + 1.0f) * 0.5f * vh;
+        const float px = vp[0] + (rx + 1.0f) * 0.5f * ww;
+        const float py = vp[1] + (ry + 1.0f) * 0.5f * wh;
         if (px < minX) minX = px; if (px > maxX) maxX = px;
         if (py < minY) minY = py; if (py > maxY) maxY = py;
     }
     int sx = (int)floorf(minX), sy = (int)floorf(minY);
     int ex = (int)ceilf(maxX), ey = (int)ceilf(maxY);
     if (sx < 0) sx = 0; if (sy < 0) sy = 0;
-    if (ex > mViewportW) ex = mViewportW; if (ey > mViewportH) ey = mViewportH;
+    if (ex > vp[0] + vp[2]) ex = vp[0] + vp[2]; if (ey > vp[1] + vp[3]) ey = vp[1] + vp[3];
     glScissor(sx, sy, ex > sx ? ex - sx : 0, ey > sy ? ey - sy : 0);
     glEnable(GL_SCISSOR_TEST);
 }
