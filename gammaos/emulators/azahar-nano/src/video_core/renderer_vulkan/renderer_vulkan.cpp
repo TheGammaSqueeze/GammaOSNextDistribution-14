@@ -267,14 +267,16 @@ void RendererVulkan::PrepareDraw(Frame* frame, const Layout::FramebufferLayout& 
 void RendererVulkan::RenderToWindow(PresentWindow& window, const Layout::FramebufferLayout& layout,
                                     bool flipped) {
     // GammaOS fast forward: present at most about once per display period (the panel shows
-    // no more anyway); the frames in between are emulated and not presented.
+    // no more anyway); the frames in between are emulated and not presented. Each window
+    // keeps its own clock: the bottom screen presents right after the top in the same swap.
     if (Settings::values.gammaos_fast_forward) {
-        static std::chrono::steady_clock::time_point last_present{};
+        static std::chrono::steady_clock::time_point last_present[2]{};
+        auto& last = last_present[&window == &main_present_window ? 0 : 1];
         const auto now = std::chrono::steady_clock::now();
-        if (now - last_present < std::chrono::microseconds(15500)) {
+        if (now - last < std::chrono::microseconds(15500)) {
             return;
         }
-        last_present = now;
+        last = now;
     }
     if (!Settings::values.use_skip_duplicate_frames.GetValue() ||
         Core::PerfStats::game_frames_updated) {
