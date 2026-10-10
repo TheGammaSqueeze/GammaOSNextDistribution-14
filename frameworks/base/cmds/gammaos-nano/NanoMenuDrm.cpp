@@ -1270,6 +1270,15 @@ bool drmAllocAhbTarget(EGLDisplay eglDpy, uint32_t w, uint32_t h,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // glGetError reports the OLDEST unread error on the context. After a park
+    // (drastic-nano session) the home rebuilds this ring on the same context
+    // with errors left from before, and the check below then failed a good
+    // bind: zero-copy off, and the copy fallback scanned blank frames on both
+    // panels. Drain them first so only this call's own result counts.
+    for (GLenum stale = glGetError(), n = 0; stale != GL_NO_ERROR && n < 16;
+         stale = glGetError(), n++) {
+        ALOGW("NanoMenu DRM zero-copy: cleared stale GL error 0x%x before %s", stale, label);
+    }
     sGlEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)target->eglImage);
     if (glGetError() != GL_NO_ERROR) {
         ALOGW("NanoMenu DRM zero-copy: glEGLImageTargetTexture2DOES(%s) failed", label);
@@ -3760,11 +3769,13 @@ void drmStop() {
 // be reclaimed; the caller then falls back to a fresh home process.
 static float sParkRot[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 static bool  sParkGlRot = false, sParkYFlip = false, sParkSaved = false;
+static bool  sParkZeroCopy = false;   // the home ran zero-copy when it parked
 
 void drmRememberInstallMatrix() {
     for (int i = 0; i < 4; i++) sParkRot[i] = sDrmRotMat[i];
     sParkGlRot = sDrmGlRotation;
     sParkYFlip = sDrmYFlipForPrime;
+    sParkZeroCopy = sDrmZeroCopy;
     sParkSaved = true;
 }
 
@@ -3811,6 +3822,13 @@ bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs) {
     sDrmGlRotation = glRot;
     sDrmYFlipForPrime = yFlip;
     drmSuspendMarkSeen();
+    // A home that drew zero-copy before the park has no real default surface to
+    // fall back to (its copy path then scans blank frames on both panels), so a
+    // ring that will not rebuild means a fresh home process instead.
+    if (sParkZeroCopy && !sDrmZeroCopy) {
+        ALOGE("NanoMenu DRM: zero-copy ring did not rebuild after the park");
+        return false;
+    }
     ALOGW("NanoMenu DRM: master re-acquired for the parked home in %lld ms (zc=%d rot=[%g %g %g %g] glRot=%d yFlip=%d)",
           (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - t0), sDrmZeroCopy ? 1 : 0,
           sDrmRotMat[0], sDrmRotMat[1], sDrmRotMat[2], sDrmRotMat[3], sDrmGlRotation ? 1 : 0, sDrmYFlipForPrime ? 1 : 0);
