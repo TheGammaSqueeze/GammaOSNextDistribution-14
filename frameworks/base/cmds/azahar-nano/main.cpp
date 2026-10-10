@@ -91,6 +91,7 @@ struct CoreApi {
     int (*compiles_pending)() = nullptr;   // optional (newer cores)
     void (*set_fast_forward)(int) = nullptr;   // optional (newer cores)
     void (*set_lcd_shader)(int, int) = nullptr;  // optional (newer cores)
+    void (*windows_resized)() = nullptr;          // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -154,6 +155,8 @@ bool loadCore(const std::string& path) {
         reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_fast_forward"));
     gCore.set_lcd_shader =
         reinterpret_cast<void (*)(int, int)>(dlsym(gCore.handle, "azn_set_lcd_shader"));
+    gCore.windows_resized =
+        reinterpret_cast<void (*)()>(dlsym(gCore.handle, "azn_windows_resized"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -643,12 +646,9 @@ int main(int argc, char** argv) {
             if (factor >= 1 && factor <= 10) {
                 for (int panel = 0; panel < 2; panel++) {
                     const int screen = swap ? 1 - panel : panel;
-                    uint32_t shortSide = 240u * factor;
-                    if (lcd[screen]) {
-                        shortSide = std::max(shortSide, 720u);
-                        ALOGI("tweaks: panel %d short side %u for its LCD shader", panel, shortSide);
-                    }
-                    drm.setOutputShortSide(panel, shortSide);
+                    drm.setOutputShortSide(panel, 240u * factor);
+                    // Both sizes are verified at create; the menu switches live.
+                    drm.setLcdShortSide(panel, std::max(240u * factor, 720u), lcd[screen]);
                 }
                 ALOGI("tweaks: native output for resolution factor %d", factor);
             }
@@ -745,6 +745,14 @@ int main(int argc, char** argv) {
         oa.setNintendoLayout = [](bool on) { if (sInput) sInput->setNintendoLayout(on); };
         oa.setLcdShader = [](int screen, int shader) {
             if (gCore.set_lcd_shader) gCore.set_lcd_shader(screen, shader);
+            // The panel showing this screen switches to its LCD (or plain) buffer size now.
+            if (!sDrm) return;
+            const bool swap = configValue(sUserDir, "Layout", "swap_screen") == "true";
+            const int panel = swap ? 1 - screen : screen;
+            if (panel < sDrm->count() && sDrm->setLcdOutput(panel, shader > 0) &&
+                gCore.windows_resized) {
+                gCore.windows_resized();
+            }
         };
         sOverlayReady = overlay.init(drm.overlayWindow(0), drm.width(0), drm.height(0),
                                      drm.isPortrait(0), oa, dataDir);
@@ -831,15 +839,20 @@ int main(int argc, char** argv) {
     };
     const bool touchOnSecondary = bottom != nullptr;
     // Touch arrives in panel pixels; the core's layout is in window (buffer) pixels.
-    static float sTouchScale = 1.0f;
-    if (sDrm) sTouchScale = sDrm->renderScale(touchOnSecondary ? 1 : 0);
+    // Touch arrives in panel pixels: scale by the panel's current buffer size (an LCD shader
+    // switch changes it while the game runs).
+    static int sTouchPanel = 0;
+    sTouchPanel = touchOnSecondary ? 1 : 0;
+    static auto touchScale = [] { return sDrm ? sDrm->renderScale(sTouchPanel) : 1.0f; };
     icb.touch = [touchOnSecondary](float x, float y, bool p) {
-        x *= sTouchScale; y *= sTouchScale;
+        const float k = touchScale();
+        x *= k; y *= k;
         if (touchOnSecondary) gCore.secondary_touch(x, y, p);
         else gCore.touch(x, y, p);
     };
     icb.touchMoved = [touchOnSecondary](float x, float y) {
-        x *= sTouchScale; y *= sTouchScale;
+        const float k = touchScale();
+        x *= k; y *= k;
         if (touchOnSecondary) gCore.secondary_touch_moved(x, y);
         else gCore.touch_moved(x, y);
     };
@@ -917,6 +930,18 @@ int main(int argc, char** argv) {
                     property_set("sys.gammaos.azahar_nano.pause", "");
                     ALOGI("hook: pause %s", pz.c_str());
                     gCore.pause(pz == "1");
+                }
+                // sys.gammaos.azahar_nano.lcd="<top> <bottom>": switch the LCD shaders the way
+                // the menu rows do (scripted tests).
+                const std::string lcdSet = prop("sys.gammaos.azahar_nano.lcd", "");
+                if (!lcdSet.empty()) {
+                    property_set("sys.gammaos.azahar_nano.lcd", "");
+                    int t = 0, b = 0;
+                    if (sscanf(lcdSet.c_str(), "%d %d", &t, &b) == 2 && sOa.setLcdShader) {
+                        ALOGI("hook: lcd %d %d", t, b);
+                        sOa.setLcdShader(0, t);
+                        sOa.setLcdShader(1, b);
+                    }
                 }
                 const std::string nav = prop("sys.gammaos.azahar_nano.menu_nav", "");
                 if (!nav.empty()) {

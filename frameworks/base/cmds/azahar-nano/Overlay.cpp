@@ -240,9 +240,6 @@ void Overlay::buildPages() {
                 "0", lcd, "LCD effect drawn over the 3DS pixels at the panel's resolution",
                 [this, screen](const std::string& v) {
                     if (mA.setLcdShader) mA.setLcdShader(screen, atoi(v.c_str()));
-                    // Turning a shader on or off changes the panel's output size, which is
-                    // set when the game starts.
-                    mBanner = "Full sharpness from the next launch";
                 }));
         }
         pg.rows.push_back(configChoice("Stereoscopic 3D", "Renderer", "render_3d",

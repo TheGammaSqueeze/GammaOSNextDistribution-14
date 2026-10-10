@@ -386,6 +386,21 @@ bool DrmWindows::testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h) {
     return rc == 0;
 }
 
+bool DrmWindows::setLcdOutput(int idx, bool on) {
+    if (idx < 0 || idx >= (int)mPanels.size()) return false;
+    DrmPanel& p = mPanels[idx];
+    const uint32_t w = on ? p.lcdW : p.plainW, h = on ? p.lcdH : p.plainH;
+    if (w == 0 || h == 0 || (w == p.bufW && h == p.bufH)) return false;
+    // The flip path takes each buffer's own size (the plane geometry follows it), so only
+    // the queue's default size changes here; the core then rebuilds its swapchain.
+    p.bufW = w;
+    p.bufH = h;
+    p.consumer->setDefaultBufferSize(w, h);
+    p.renderScale = (float)w / (float)p.width;
+    ALOGI("DRM: panel %d output now %ux%u (LCD shader %s)", idx, w, h, on ? "on" : "off");
+    return true;
+}
+
 // The panel's current plane cannot scale: look for another free plane on the
 // same CRTC that can (an SDE VIG pipe has a scaler, a DMA pipe does not). The
 // old plane is switched off by the first flip on the new one.
@@ -454,15 +469,21 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
         const int pct = std::clamp(property_get_int32(idx == 0 ? "persist.gammaos.azahar_nano.render_scale_top"
                                                                : "persist.gammaos.azahar_nano.render_scale_bottom",
                                                       100), 50, 100);
-        p.bufW = std::max<uint32_t>(2, (p.width * pct / 100) & ~1u);
-        p.bufH = std::max<uint32_t>(2, (p.height * pct / 100) & ~1u);
         const uint32_t shortSide = std::min(p.width, p.height);
+        // Buffer size for a wanted short side, keeping the panel's aspect ratio so the
+        // core's layout maths is unchanged (0 or too big = the render_scale size).
+        const auto sizeFor = [&](uint32_t want, uint32_t& w, uint32_t& h) {
+            w = std::max<uint32_t>(2, (p.width * pct / 100) & ~1u);
+            h = std::max<uint32_t>(2, (p.height * pct / 100) & ~1u);
+            if (want > 0 && want < shortSide) {
+                const double k = (double)want / (double)shortSide;
+                w = std::max<uint32_t>(2, ((uint32_t)std::lround(p.width * k) + 1) & ~1u);
+                h = std::max<uint32_t>(2, ((uint32_t)std::lround(p.height * k) + 1) & ~1u);
+            }
+        };
         const uint32_t want = (idx < 2) ? mOutputShortSide[idx] : 0;
+        sizeFor(want, p.bufW, p.bufH);
         if (want > 0 && want < shortSide) {
-            // Keep the panel's aspect ratio so the core's layout maths is unchanged.
-            const double k = (double)want / (double)shortSide;
-            p.bufW = std::max<uint32_t>(2, ((uint32_t)std::lround(p.width * k) + 1) & ~1u);
-            p.bufH = std::max<uint32_t>(2, ((uint32_t)std::lround(p.height * k) + 1) & ~1u);
             ALOGI("DRM: panel %d native output: short side %u for emulated height %u", idx,
                   std::min(p.bufW, p.bufH), want);
         }
@@ -474,6 +495,26 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
                   idx, p.bufW, p.bufH, p.width, p.height);
             p.bufW = p.width;
             p.bufH = p.height;
+        }
+        p.plainW = p.bufW;
+        p.plainH = p.bufH;
+        // The LCD size, tested now: the live switch must not run a test commit while the
+        // panel is flipping.
+        p.lcdW = p.plainW;
+        p.lcdH = p.plainH;
+        const uint32_t lcdWant = (idx < 2) ? mLcdShortSide[idx] : 0;
+        if (lcdWant > std::min(p.plainW, p.plainH)) {
+            uint32_t w = 0, h = 0;
+            sizeFor(lcdWant, w, h);
+            if ((w == p.width && h == p.height) || testScaledScanout(p, w, h)) {
+                p.lcdW = w;
+                p.lcdH = h;
+            }
+            ALOGI("DRM: panel %d LCD shader output %ux%u", idx, p.lcdW, p.lcdH);
+        }
+        if (idx < 2 && mLcdStart[idx]) {
+            p.bufW = p.lcdW;
+            p.bufH = p.lcdH;
         }
         p.renderScale = (float)p.bufW / (float)p.width;
         ALOGI("DRM: panel %d output %ux%u for %ux%u (%d%%)", idx, p.bufW, p.bufH, p.width, p.height, pct);

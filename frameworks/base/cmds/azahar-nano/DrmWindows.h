@@ -49,6 +49,9 @@ struct DrmPanel {
     bool loggedUbwc = false;
     uint32_t retirePlaneId = 0, retireFbProp = 0, retireCrtcProp = 0;   // plane to switch off
     float renderScale = 1.0f;
+    // Two verified game buffer sizes: plain, and the one used while an LCD shader is on
+    // (at least 3 output pixels per emulated pixel). setLcdOutput() switches between them.
+    uint32_t plainW = 0, plainH = 0, lcdW = 0, lcdH = 0;
     // plane props
     uint32_t pFbId = 0, pCrtcId = 0, pSrcX = 0, pSrcY = 0, pSrcW = 0, pSrcH = 0;
     uint32_t pCrtcX = 0, pCrtcY = 0, pCrtcW = 0, pCrtcH = 0, pInFence = 0, pRotation = 0;
@@ -155,6 +158,14 @@ public:
     // internal resolution), so the emulated image lands 1:1 and the display
     // plane does the one upscale to the panel. 0 = full panel size.
     void setOutputShortSide(int idx, uint32_t px) { if (idx >= 0 && idx < 2) mOutputShortSide[idx] = px; }
+    // Short side wanted while an LCD shader is on (0 = same as the plain size), and whether
+    // the panel starts in that size. Both before create().
+    void setLcdShortSide(int idx, uint32_t px, bool startOn) {
+        if (idx >= 0 && idx < 2) { mLcdShortSide[idx] = px; mLcdStart[idx] = startOn; }
+    }
+    // Live switch between the plain and LCD buffer sizes; true when the size changed (the
+    // game's window must then be told it was resized).
+    bool setLcdOutput(int idx, bool on);
     // Mean interval between consecutive page flips (ns), 0 until measured.
     double measuredPeriodNs(int idx) const { return mPanels[idx].measuredPeriodNs->load(); }
 
@@ -185,6 +196,8 @@ private:
     std::atomic<bool> mRun{false};
     std::vector<std::thread> mPanelThreads;
     uint32_t mOutputShortSide[2] = {0, 0};
+    uint32_t mLcdShortSide[2] = {0, 0};
+    bool mLcdStart[2] = {false, false};
     bool mBlockingCommits = true;
     int mDpPostFlipUs = 0;
     static constexpr size_t kMaxReady = 3;   // acquired, not yet flipped frames per panel
