@@ -89,6 +89,7 @@ struct CoreApi {
     void (*set_tweak)(const char*, int) = nullptr;
     void (*skip_preload)() = nullptr;   // optional (newer cores)
     int (*compiles_pending)() = nullptr;   // optional (newer cores)
+    void (*set_fast_forward)(int) = nullptr;   // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -98,6 +99,8 @@ CoreApi gCore;
 // Latest frame rate counter values, written by the perf thread for the HUD thread.
 std::atomic<float> sHudBlitFps{0.0f}, sHudGameFps{0.0f};
 std::atomic<bool> sHudSlow{false};
+std::atomic<bool> sFastForward{false};   // R2 fast forward state
+std::atomic<float> sHudSpeed{100.0f};    // emulation speed in percent of real time
 std::atomic<uint64_t> sHudStatsSeq{0};
 std::atomic<bool> gExitRequested{false};
 std::atomic<bool> gSessionDoneSent{false};
@@ -146,6 +149,8 @@ bool loadCore(const std::string& path) {
         reinterpret_cast<void (*)()>(dlsym(gCore.handle, "azn_skip_preload"));
     gCore.compiles_pending =
         reinterpret_cast<int (*)()>(dlsym(gCore.handle, "azn_compiles_pending"));
+    gCore.set_fast_forward =
+        reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_fast_forward"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -734,7 +739,29 @@ int main(int argc, char** argv) {
     azahar_nano::NanoInput input;
     sInput = &input;
     azahar_nano::InputCallbacks icb;
+    // Fast forward on R2 (the pad's R2 reaches us as ZR): each press toggles it while the menu
+    // is closed; persist.gammaos.azahar_nano.ff_r2=0 gives R2 back to the game as ZR.
+    static const bool ffOnR2 = prop("persist.gammaos.azahar_nano.ff_r2", "1") == "1";
+    static auto toggleFastForward = [] {
+        if (!gCore.set_fast_forward || gLoadScreenOn) return;
+        // The pad reports R2 both as a button and as an axis: one press, one toggle.
+        static int64_t lastToggleNs = 0;
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        const int64_t now = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+        if (now - lastToggleNs < 250000000LL) return;
+        lastToggleNs = now;
+        const bool on = !sFastForward.load();
+        sFastForward = on;
+        gCore.set_fast_forward(on ? 1 : 0);
+        sHudStatsSeq++;
+        ALOGI("fast forward %s (R2)", on ? "on" : "off");
+    };
     icb.button = [](int b, bool p) {
+        if (ffOnR2 && b == AZN_BUTTON_ZR && !overlay.isOpen()) {
+            if (p) toggleFastForward();
+            return true;
+        }
         // Start on the shader loading screen skips the rest of the precompile.
         if (gLoadScreenOn && p && b == AZN_BUTTON_START) {
             if (gCore.skip_preload) {
@@ -751,7 +778,20 @@ int main(int argc, char** argv) {
         return gCore.button(b, p);
     };
     icb.joystick = [](int a, float x, float y) { return gCore.joystick(a, x, y); };
-    icb.analogButton = [](int a, float v) { return gCore.analog_button(a, v); };
+    icb.analogButton = [](int a, float v) {
+        // Analog R2: toggle on the press edge (past 60%), release below 30%.
+        if (ffOnR2 && a == AZN_BUTTON_ZR && !overlay.isOpen()) {
+            static bool down = false;
+            if (!down && v > 0.6f) {
+                down = true;
+                toggleFastForward();
+            } else if (down && v < 0.3f) {
+                down = false;
+            }
+            return true;
+        }
+        return gCore.analog_button(a, v);
+    };
     const bool touchOnSecondary = bottom != nullptr;
     // Touch arrives in panel pixels; the core's layout is in window (buffer) pixels.
     static float sTouchScale = 1.0f;
@@ -884,6 +924,7 @@ int main(int argc, char** argv) {
                 sHudBlitFps = blitFps;
                 sHudGameFps = (float)st.game_fps;
                 sHudSlow = st.emulation_speed < 0.92;
+                sHudSpeed = (float)(st.emulation_speed * 100.0);
                 sHudStatsSeq++;
             }
         }
@@ -929,8 +970,9 @@ int main(int argc, char** argv) {
             if (toast > 0.0f) spin += dt * 1.1f;
             else spin = 0.0f;
             const bool fps = live && wantFps;
-            const bool want = fps || toast > 0.0f;
-            const uint32_t regions = (fps ? azahar_nano::kHudTop : 0u) |
+            const bool ff = live && sFastForward.load();
+            const bool want = fps || ff || toast > 0.0f;
+            const uint32_t regions = (fps || ff ? azahar_nano::kHudTop : 0u) |
                                      (toast > 0.0f ? azahar_nano::kHudBottom : 0u);
             const uint64_t seq = sHudStatsSeq.load();
             const bool animating = toast > 0.0f;
@@ -940,6 +982,8 @@ int main(int argc, char** argv) {
                 f.blitFps = sHudBlitFps.load();
                 f.gameFps = sHudGameFps.load();
                 f.slow = sHudSlow.load();
+                f.ff = ff;
+                f.speedPct = sHudSpeed.load();
                 f.toastAlpha = toast;
                 f.spin = spin;
                 hud.render(f);

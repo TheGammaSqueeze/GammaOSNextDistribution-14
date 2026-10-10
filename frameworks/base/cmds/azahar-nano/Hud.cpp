@@ -95,10 +95,40 @@ void Hud::render(const Frame& f) {
         mGfx.text(l2, bx + pad, by + pad + lineH, scale,
                   f.slow ? rgba(1.0f, 0.35f, 0.3f, 1.0f) : rgba(0.2f, 1.0f, 0.4f, 1.0f));
     }
+    if (f.ff) drawFastForward(f.speedPct);
     if (f.toastAlpha > 0.0f) drawToast(std::min(f.toastAlpha, 1.0f), f.spin);
     mGfx.endFrame();
     eglSwapBuffers(mDpy, mSurf);
     eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+}
+
+// Fast forward: drastic-nano's ">>" badge (two amber triangles on a dark rounded box) in the
+// top left corner, followed by the speed in percent inside the same box.
+void Hud::drawFastForward(float speedPct) {
+    const float W = (float)mGfx.viewportW();
+    const float sf = W / 1280.0f;
+    const float m = 10.0f * sf;
+    const float s = 20.0f * sf;          // triangle height
+    const float tw = s * 0.85f;          // triangle width
+    const float gap = 3.0f * sf;
+    const float pad = 6.0f * sf;
+    const float scale = (24.0f * sf) / mGfx.fontBasePx();
+    const float lineH = mGfx.fontLineH() * scale;
+    char label[16];
+    snprintf(label, sizeof(label), "%.0f%%", speedPct);
+    const float textW = mGfx.measure(label, scale);
+    const float inner = std::max(s, lineH);
+    const float bw = 2.0f * tw + gap + 8.0f * sf + textW + 2.0f * pad;
+    const float bh = inner + 2.0f * pad;
+    const float bx = m, by = m;
+    mGfx.roundedRect(bx, by, bw, bh, 4.0f * sf, rgba(0.0f, 0.0f, 0.0f, 0.5f));
+    const auto amber = rgba(1.0f, 0.75f, 0.2f, 1.0f);
+    const float ty = by + pad + (inner - s) * 0.5f;
+    float tx = bx + pad;
+    mGfx.triangle(tx, ty, tx, ty + s, tx + tw, ty + s * 0.5f, amber);
+    tx += tw + gap;
+    mGfx.triangle(tx, ty, tx, ty + s, tx + tw, ty + s * 0.5f, amber);
+    mGfx.text(label, tx + tw + 8.0f * sf, by + pad + (inner - lineH) * 0.5f, scale, amber);
 }
 
 // Spinner (a ring of dots with a fading tail) and "Compiling shaders" in the bottom

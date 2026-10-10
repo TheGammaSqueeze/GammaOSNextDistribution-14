@@ -23,6 +23,11 @@ public:
         bool fps = false;
         float blitFps = 0.0f, gameFps = 0.0f;
         bool slow = false;
+        // Fast forward badge (drastic-nano's amber ">>") in the top left corner with the
+        // emulation speed in percent of real time (100% = full speed whatever frame rate
+        // the game targets).
+        bool ff = false;
+        float speedPct = 100.0f;
         // "Compiling shaders" notice in the bottom left corner: opacity 0..1 (the
         // caller fades it) and the spinner angle in turns.
         float toastAlpha = 0.0f;
@@ -35,6 +40,7 @@ public:
 private:
     bool makeCurrent();
     void drawToast(float alpha, float spin);
+    void drawFastForward(float speedPct);
     EGLDisplay mDpy = EGL_NO_DISPLAY;
     EGLSurface mSurf = EGL_NO_SURFACE;
     EGLContext mCtx = EGL_NO_CONTEXT;
