@@ -198,8 +198,34 @@ void RendererVulkan::PrepareDraw(Frame* frame, const Layout::FramebufferLayout& 
 
     renderpass_cache.EndRendering();
     renderpass_cache.FlushPendingClears();
+    // GammaOS: the first screen is drawn at full opacity (blend constant alpha 1), so when its
+    // rectangle covers the whole frame the clear is overwritten everywhere: skip it (the second
+    // display's 1280x960 frame is fully covered by the bottom screen, ~5 MB of writes per frame).
+    // A screen drawn first at full opacity: the first in draw order, or the second when the first
+    // is disabled and the second's opacity is 1.
+    const bool swap = Settings::values.swap_screen.GetValue();
+    const auto covers = [&](const Common::Rectangle<u32>& r) {
+        return r.left == 0 && r.top == 0 && r.right >= layout.width && r.bottom >= layout.height;
+    };
+    // Draw order (DrawScreens): without swap, top (opacity 1) then bottom (bottom_opacity);
+    // with swap, bottom (opacity 1) then top (top_opacity).
+    bool covered = false;
+    if (!swap) {
+        if (layout.top_screen_enabled) {
+            covered = covers(layout.top_screen);
+        } else if (layout.bottom_screen_enabled) {
+            covered = layout.bottom_opacity >= 1.0f && covers(layout.bottom_screen);
+        }
+    } else {
+        if (layout.bottom_screen_enabled) {
+            covered = covers(layout.bottom_screen);
+        } else if (layout.top_screen_enabled) {
+            covered = layout.top_opacity >= 1.0f && covers(layout.top_screen);
+        }
+    }
     scheduler.Record([this, layout, frame, present_set,
-                      renderpass = main_present_window.Renderpass(),
+                      renderpass = covered ? main_present_window.RenderpassNoClear()
+                                           : main_present_window.Renderpass(),
                       index = current_pipeline](vk::CommandBuffer cmdbuf) {
         const vk::Viewport viewport = {
             .x = 0.0f,

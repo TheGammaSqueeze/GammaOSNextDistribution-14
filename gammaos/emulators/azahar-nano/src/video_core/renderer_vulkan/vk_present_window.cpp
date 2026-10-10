@@ -105,6 +105,7 @@ PresentWindow::PresentWindow(Frontend::EmuWindow& emu_window_, const Instance& i
       swapchain{instance, emu_window.GetFramebufferLayout().width,
                 emu_window.GetFramebufferLayout().height, surface, low_refresh_rate_},
       graphics_queue{instance.GetGraphicsQueue()}, present_renderpass{CreateRenderpass()},
+      present_renderpass_no_clear{CreateRenderpass(vk::AttachmentLoadOp::eDontCare)},
       vsync_enabled{Settings::values.use_vsync.GetValue()},
       blit_supported{
           CanBlitToSwapchain(instance.GetPhysicalDevice(), swapchain.GetSurfaceFormat().format)},
@@ -164,6 +165,7 @@ PresentWindow::~PresentWindow() {
     }
     device.destroyCommandPool(command_pool);
     device.destroyRenderPass(present_renderpass);
+    device.destroyRenderPass(present_renderpass_no_clear);
     for (auto& frame : swap_chain) {
         device.destroyImageView(frame.image_view);
         device.destroyFramebuffer(frame.framebuffer);
@@ -512,7 +514,7 @@ void PresentWindow::CopyToSwapchain(Frame* frame) {
     swapchain.Present();
 }
 
-vk::RenderPass PresentWindow::CreateRenderpass() {
+vk::RenderPass PresentWindow::CreateRenderpass(vk::AttachmentLoadOp load_op) {
     const vk::AttachmentReference color_ref = {
         .attachment = 0,
         .layout = vk::ImageLayout::eGeneral,
@@ -530,7 +532,7 @@ vk::RenderPass PresentWindow::CreateRenderpass() {
 
     const vk::AttachmentDescription color_attachment = {
         .format = swapchain.GetSurfaceFormat().format,
-        .loadOp = vk::AttachmentLoadOp::eClear,
+        .loadOp = load_op,
         .storeOp = vk::AttachmentStoreOp::eStore,
         .stencilLoadOp = vk::AttachmentLoadOp::eDontCare,
         .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,

@@ -59,6 +59,11 @@ public:
         return present_renderpass;
     }
 
+    /// GammaOS: same pass without the clear, for frames the first screen covers completely.
+    [[nodiscard]] vk::RenderPass RenderpassNoClear() const noexcept {
+        return present_renderpass_no_clear;
+    }
+
     u32 ImageCount() const noexcept {
         return swapchain.GetImageCount();
     }
@@ -72,7 +77,7 @@ private:
 
     void CopyToSwapchain(Frame* frame);
 
-    vk::RenderPass CreateRenderpass();
+    vk::RenderPass CreateRenderpass(vk::AttachmentLoadOp load_op = vk::AttachmentLoadOp::eClear);
 
 private:
     Frontend::EmuWindow& emu_window;
@@ -85,6 +90,7 @@ private:
     vk::CommandPool command_pool;
     vk::Queue graphics_queue;
     vk::RenderPass present_renderpass;
+    vk::RenderPass present_renderpass_no_clear;
     std::vector<Frame> swap_chain;
     std::queue<Frame*> free_queue;
     std::queue<Frame*> present_queue;
