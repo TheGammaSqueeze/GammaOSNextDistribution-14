@@ -286,7 +286,10 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             } else {
                 // In the rare case the break flag is set (due to exception thrown)
                 // there is probably no need to adjust the timer accordingly.
-                const auto run_start = std::chrono::steady_clock::now();
+                // GammaOS debug timing only while svc_stats sampling is on (clock reads cost
+                // about 2% of the emulation thread in busy games).
+                const auto run_start = gamma_pc_sampling ? std::chrono::steady_clock::now()
+                                                         : std::chrono::steady_clock::time_point{};
                 if (tight_loop) {
                     cpu_core->Run();
                 } else {
@@ -296,11 +299,13 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
                     const u64 key = (u64{cpu_core->GetPC()} << 32) | cpu_core->GetReg(14);
                     gamma_pc_samples[key]++;
                 }
-                gamma_core_runs[cpu_core->GetID() & 3]++;
-                gamma_core_host_ns[cpu_core->GetID() & 3] +=
-                    std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::steady_clock::now() - run_start)
-                        .count();
+                if (gamma_pc_sampling) {
+                    gamma_core_runs[cpu_core->GetID() & 3]++;
+                    gamma_core_host_ns[cpu_core->GetID() & 3] +=
+                        std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            std::chrono::steady_clock::now() - run_start)
+                            .count();
+                }
             }
             max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
             Reschedule();
@@ -320,7 +325,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             enabled = v[0] == '1';
             gamma_pc_sampling = enabled;
         }
-        const auto now = std::chrono::steady_clock::now();
+        const auto now = enabled ? std::chrono::steady_clock::now() : last;
         if (enabled && now - last > std::chrono::seconds(2)) {
             last = now;
             std::string line;
