@@ -716,6 +716,15 @@ void azn_set_fast_forward(int on) {
     __android_log_print(ANDROID_LOG_INFO, AZN_TAG, "fast forward %s", active ? "on" : "off");
 }
 
+void azn_set_resolution(int factor) {
+    if (factor < 1 || factor > 10) return;
+    if (Settings::values.resolution_factor.GetValue() == static_cast<u32>(factor)) return;
+    // Live only: the renderer picks the new scale up at its next frame; config.ini keeps the
+    // user's setting.
+    Settings::values.resolution_factor.SetValue(static_cast<u32>(factor));
+    __android_log_print(ANDROID_LOG_INFO, AZN_TAG, "resolution factor now %d", factor);
+}
+
 void azn_windows_resized() {
     std::scoped_lock lock(surface_mutex);
     auto& system = Core::System::GetInstance();
