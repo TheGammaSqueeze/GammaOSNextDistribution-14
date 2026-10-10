@@ -974,5 +974,10 @@ int main(int argc, char** argv) {
     if (drmActive) drm.teardown();
     else sf.teardown();
     sessionDone();
-    return 0;
+    // Leave without running static destructors: a library thread can still be running at
+    // this point (the core's audio backend, log and worker threads), and destroying a
+    // still-joinable std::thread during exit() aborts the process (tombstones after
+    // "save state then quit"). Everything that matters is already torn down above.
+    fflush(nullptr);
+    _exit(0);
 }
