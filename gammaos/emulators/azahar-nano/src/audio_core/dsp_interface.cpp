@@ -125,11 +125,14 @@ void DspInterface::OutputCallback(s16* buffer, std::size_t num_frames) {
     // Determine if we should stretch based on the current emulation speed.
     // TODO: Only activate audio stretching when emulation speed goes below 95% threshold
     //       (see #2487) -OS
-    if (performing_time_stretching && !enable_time_stretching) {
+    // Fast forward always stretches: the audio then plays at the emulation speed instead of
+    // piling up behind a 1x output.
+    const bool stretch = enable_time_stretching.load() || Settings::values.gammaos_fast_forward;
+    if (performing_time_stretching && !stretch) {
         // If we just stopped stretching, flush the stretcher before returning to normal output.
         flushing_time_stretcher = true;
     }
-    performing_time_stretching = enable_time_stretching.load();
+    performing_time_stretching = stretch;
 
     std::size_t frames_written = 0;
     if (performing_time_stretching) {

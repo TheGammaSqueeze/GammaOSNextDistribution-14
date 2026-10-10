@@ -464,9 +464,10 @@ void DspHle::Impl::AudioTickCallback(s64 cycles_late) {
         interrupt_handler(InterruptType::Pipe, DspPipe::Audio);
     }
 
-    // Reschedule recurrent event
+    // Reschedule recurrent event. Fast forward keeps the emulated rate so the audio speeds up
+    // with the game instead of holding real time.
     const double time_scale =
-        Settings::values.enable_realtime_audio
+        Settings::values.enable_realtime_audio && !Settings::values.gammaos_fast_forward
             ? std::max(0.01, // Arbitrary small value to prevent time_scale from approaching zero
                        Core::System::GetInstance().GetStableFrameTimeScale())
             : 1.0;
