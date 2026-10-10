@@ -231,7 +231,8 @@ void Overlay::buildPages() {
             "Smooth the screens when scaled"));
         // LCD shaders per 3DS screen: one texture read each, drawn in the normal present pass.
         const std::vector<Choice> lcd = {{"Off", "0"},   {"LCD1x", "1"}, {"LCD3x", "2"},
-                                         {"zfast LCD", "3"}, {"Retro", "4"}, {"Bevel", "5"}};
+                                         {"zfast LCD", "3"}, {"Retro", "4"}, {"Bevel", "5"},
+                                         {"Sharp Bilinear", "6"}, {"Sharp Bilinear + AA", "7"}};
         for (int screen = 0; screen < 2; screen++) {
             pg.rows.push_back(propChoice(
                 screen == 0 ? "Top Screen Shader" : "Bottom Screen Shader",
