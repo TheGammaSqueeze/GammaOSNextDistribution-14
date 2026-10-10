@@ -12,7 +12,12 @@
 #pragma once
 
 #include <EGL/egl.h>
+#include <atomic>
+#include <condition_variable>
+#include <cstdint>
 #include <functional>
+#include <mutex>
+#include <thread>
 #include <string>
 #include <vector>
 
@@ -97,7 +102,7 @@ private:
     int mSlot = 1;
     std::vector<std::string> mDrivers;   // "" = system driver, else folder name
     std::vector<std::string> mDriverZips; // importable packages (full paths)
-    bool mOpen = false;
+    std::atomic<bool> mOpen{false};
     bool mRebuildPages = false;
     bool mUpright = false;
     int mBufW = 0, mBufH = 0;
@@ -108,6 +113,22 @@ private:
     EGLContext mCtx = EGL_NO_CONTEXT;
     android::drastic_gfx::OverlayGfx mGfx;
     bool mGfxReady = false;
+
+    // Rendering, input and open/close run on several threads (input, prop hooks, the marquee
+    // ticker): one lock for the page state and the EGL context. Recursive because a menu
+    // action can close the overlay from inside onButton.
+    std::recursive_mutex mMu;
+    // Help line marquee: a hint wider than its box slides to its end and back, clipped to the
+    // box. The ticker redraws while the menu is open and the hint overflows.
+    std::string mHintShown;
+    int64_t mHintStartNs = 0;
+    std::atomic<bool> mMarquee{false};
+    std::thread mTicker;
+    std::mutex mTickMu;
+    std::condition_variable mTickCv;
+    bool mTickStop = false;
+    void tickerLoop();
+    float marqueeOffset(float overflow, float scale);
 };
 
 } // namespace azahar_nano

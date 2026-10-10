@@ -1,6 +1,8 @@
 #define LOG_TAG "azahar-nano"
 
 #include "Overlay.h"
+#include <time.h>
+#include <cmath>
 #include "AzaharNanoApi.h"
 #include "GpuDriverPkg.h"
 
@@ -81,7 +83,49 @@ bool Overlay::makeCurrent() {
     return true;
 }
 
+void Overlay::tickerLoop() {
+    std::unique_lock<std::mutex> lk(mTickMu);
+    while (!mTickStop) {
+        mTickCv.wait_for(lk, std::chrono::milliseconds(33));
+        if (mTickStop) break;
+        if (!mOpen || !mMarquee) continue;
+        lk.unlock();
+        render();
+        lk.lock();
+    }
+}
+
+static int64_t monoNs() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+
+// Marquee position for a hint `overflow` pixels wider than its box: hold at the start, slide
+// to the end, hold, slide back, repeat.
+float Overlay::marqueeOffset(float overflow, float scale) {
+    const double hold = 1.2;
+    const double speed = 90.0 * scale;   // pixels per second
+    const double slide = overflow / speed;
+    const double cycle = 2.0 * (hold + slide);
+    double t = std::fmod((monoNs() - mHintStartNs) / 1e9, cycle);
+    if (t < hold) return 0.0f;
+    t -= hold;
+    if (t < slide) return (float)(t * speed);
+    t -= slide;
+    if (t < hold) return overflow;
+    t -= hold;
+    return (float)(overflow - t * speed);
+}
+
 void Overlay::shutdown() {
+    {
+        std::lock_guard<std::mutex> lk(mTickMu);
+        mTickStop = true;
+    }
+    mTickCv.notify_all();
+    if (mTicker.joinable()) mTicker.join();
+    std::lock_guard<std::recursive_mutex> lock(mMu);
     if (mDpy == EGL_NO_DISPLAY) return;
     if (mGfxReady && makeCurrent()) {
         mGfx.shutdown();
@@ -402,6 +446,8 @@ void Overlay::buildPages() {
 }
 
 void Overlay::open() {
+    std::lock_guard<std::recursive_mutex> lock(mMu);
+    if (!mTicker.joinable()) mTicker = std::thread([this] { tickerLoop(); });
     mOpen = true;
     mBanner.clear();
     scanGpuDrivers();
@@ -410,10 +456,13 @@ void Overlay::open() {
 }
 
 void Overlay::close() {
+    std::lock_guard<std::recursive_mutex> lock(mMu);
     mOpen = false;
+    mMarquee = false;
 }
 
 bool Overlay::onButton(int button, bool pressed) {
+    std::lock_guard<std::recursive_mutex> lock(mMu);
     if (!mOpen) return false;
     if (!pressed) return true;
     if (mStack.empty()) mStack.assign(1, kPageTop);
@@ -470,6 +519,7 @@ bool Overlay::onButton(int button, bool pressed) {
 }
 
 void Overlay::render() {
+    std::lock_guard<std::recursive_mutex> lock(mMu);
     if (!mGfxReady || !makeCurrent()) {
         ALOGE("overlay: render skipped (ready=%d)", mGfxReady ? 1 : 0);
         return;
@@ -525,14 +575,35 @@ void Overlay::render() {
         }
         y += rowH;
     }
+    // The help line's box runs from the left margin to the position counter (or the right
+    // margin); a longer hint scrolls inside it as a bouncing marquee.
+    float hintRight = px + panelW - 32 * scale;
+    const float hintY = py + panelH - rowH * 0.9f;
     if (nRows > maxRows) {
         char pos[32];
         snprintf(pos, sizeof(pos), "%d/%d", pg.cursor + 1, nRows);
-        mGfx.text(pos, px + panelW - 32 * scale - mGfx.measure(pos, hintScale), py + panelH - rowH * 0.9f,
-                  hintScale, rgba(0.6f, 0.65f, 0.7f, 1));
+        const float pw = mGfx.measure(pos, hintScale);
+        mGfx.text(pos, px + panelW - 32 * scale - pw, hintY, hintScale, rgba(0.6f, 0.65f, 0.7f, 1));
+        hintRight -= pw + 24 * scale;
     }
     const std::string hint = mBanner.empty() ? pg.rows[pg.cursor].hint : mBanner;
-    mGfx.text(hint.c_str(), px + 32 * scale, py + panelH - rowH * 0.9f, hintScale, rgba(0.7f, 0.75f, 0.8f, 1));
+    if (hint != mHintShown) {
+        mHintShown = hint;
+        mHintStartNs = monoNs();
+    }
+    const float hintX = px + 32 * scale;
+    const float boxW = hintRight - hintX;
+    const float overflow = mGfx.measure(hint.c_str(), hintScale) - boxW;
+    if (overflow > 0.0f) {
+        mMarquee = true;
+        mGfx.clipBegin(hintX, hintY - 4 * scale, boxW, mGfx.fontLineH() * hintScale + 8 * scale);
+        mGfx.text(hint.c_str(), hintX - marqueeOffset(overflow, scale), hintY, hintScale,
+                  rgba(0.7f, 0.75f, 0.8f, 1));
+        mGfx.clipEnd();
+    } else {
+        mMarquee = false;
+        mGfx.text(hint.c_str(), hintX, hintY, hintScale, rgba(0.7f, 0.75f, 0.8f, 1));
+    }
     mGfx.endFrame();
     if (!eglSwapBuffers(mDpy, mSurf)) ALOGE("overlay: eglSwapBuffers failed 0x%x", eglGetError());
     // Any thread may render next (input thread or main), so leave the context free.
@@ -540,6 +611,7 @@ void Overlay::render() {
 }
 
 void Overlay::renderLoading(const char* title, const char* detail, float frac) {
+    std::lock_guard<std::recursive_mutex> lock(mMu);
     if (!mGfxReady || !makeCurrent()) return;
     const float W = (float)mGfx.viewportW();
     const float H = (float)mGfx.viewportH();
