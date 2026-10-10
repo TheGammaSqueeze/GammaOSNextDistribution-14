@@ -74,6 +74,8 @@ public:
     void SwitchDiskResources(u64 title_id) override;
 
 private:
+    u64 previous_frame_mark = 0;
+
     /// Syncs pipeline state from PICA registers
     void SyncDrawState();
 

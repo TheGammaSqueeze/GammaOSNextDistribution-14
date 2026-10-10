@@ -90,6 +90,14 @@ void Scheduler::WaitWorker() {
     std::scoped_lock el{execution_mutex};
 }
 
+void Scheduler::WaitWorkerUpTo(u64 count) {
+    if (!use_worker_thread || chunks_done.load(std::memory_order_acquire) >= count) {
+        return;
+    }
+    std::unique_lock dl{done_mutex};
+    done_cv.wait(dl, [&] { return chunks_done.load(std::memory_order_acquire) >= count; });
+}
+
 void Scheduler::Wait(u64 tick) {
     if (tick >= master_semaphore->CurrentTick()) {
         // Make sure we are not waiting for the current tick without signalling
@@ -109,6 +117,7 @@ void Scheduler::DispatchWork() {
         std::scoped_lock ql{queue_mutex};
         work_queue.push(std::move(chunk));
     }
+    ++chunks_dispatched;
 
     event_cv.notify_all();
     AcquireNewChunk();
@@ -157,6 +166,11 @@ void Scheduler::WorkerThread(std::stop_token stop_token) {
                 AllocateWorkerCommandBuffers();
             }
         }
+        {
+            std::scoped_lock dl{done_mutex};
+            chunks_done.fetch_add(1, std::memory_order_release);
+        }
+        done_cv.notify_all();
 
         {
             std::scoped_lock rl{reserve_mutex};

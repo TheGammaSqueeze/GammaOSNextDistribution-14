@@ -4,7 +4,10 @@
 
 #pragma once
 
+#include <atomic>
+#include <condition_variable>
 #include <functional>
+#include <mutex>
 #include <memory>
 #include <utility>
 #include "common/alignment.h"
@@ -46,6 +49,14 @@ public:
 
     /// Sends currently recorded work to the worker thread.
     void DispatchWork();
+
+    /// GammaOS: number of chunks dispatched so far (a mark for WaitWorkerUpTo).
+    [[nodiscard]] u64 DispatchedChunks() const noexcept {
+        return chunks_dispatched;
+    }
+
+    /// GammaOS: waits until the worker has executed the first `count` dispatched chunks.
+    void WaitWorkerUpTo(u64 count);
 
     /// Records the command to the current chunk.
     template <typename T>
@@ -206,6 +217,11 @@ private:
     std::mutex reserve_mutex;
     std::mutex queue_mutex;
     std::condition_variable_any event_cv;
+    // GammaOS: chunks handed to the worker (emulation thread only) and chunks it finished.
+    u64 chunks_dispatched = 0;
+    std::atomic<u64> chunks_done{0};
+    std::mutex done_mutex;
+    std::condition_variable done_cv;
     std::jthread worker_thread;
     bool use_worker_thread;
 };

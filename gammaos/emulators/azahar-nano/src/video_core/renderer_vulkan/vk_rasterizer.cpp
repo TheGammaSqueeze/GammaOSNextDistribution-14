@@ -224,17 +224,24 @@ void RasterizerVulkan::TickFrame() {
     if (budget_held_since.size() > 4096) {
         budget_held_since.clear();
     }
-    // GammaOS: draining the worker every frame kept the emulation thread from building the next
-    // frame while the worker recorded this one (about half of the emulation thread's time was
-    // spent here). Only wait when the cache tick needs it, or when
-    // persist.gammaos.azahar_nano.tick_wait=1 asks for the old behaviour.
-    static const bool always_wait = [] {
+    // GammaOS: draining the worker at every frame kept the emulation thread from building the
+    // next frame while the worker recorded this one (Mario Kart 7 and SM3DL levels ran 5-8%
+    // faster without it), but never waiting let the emulation thread run far ahead, which was
+    // 2.5-4% slower in GPU-heavy scenes (SM3DL title). Wait for the previous frame's work only:
+    // one frame of overlap. persist.gammaos.azahar_nano.tick_wait: 1 = full drain every frame,
+    // 2 = never wait (the cache tick still drains when it has to).
+    static const int wait_mode = [] {
         char v[PROP_VALUE_MAX] = {};
         __system_property_get("persist.gammaos.azahar_nano.tick_wait", v);
-        return v[0] == '1';
+        return v[0] == '1' ? 1 : v[0] == '2' ? 2 : 0;
     }();
-    if (always_wait || res_cache.TickFrameNeedsIdleWorker()) {
+    if (wait_mode == 1 || res_cache.TickFrameNeedsIdleWorker()) {
         scheduler.WaitWorker();
+    } else if (wait_mode == 0) {
+        scheduler.DispatchWork();
+        const u64 mark = scheduler.DispatchedChunks();
+        scheduler.WaitWorkerUpTo(previous_frame_mark);
+        previous_frame_mark = mark;
     }
     res_cache.TickFrame();
     pipeline_cache.TickFrame();
