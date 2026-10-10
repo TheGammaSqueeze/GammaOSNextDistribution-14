@@ -442,11 +442,25 @@ void Core::ARM_Dynarmic::DumpBlockMap(const std::string& path) const {
     if (!f) {
         return;
     }
+    u64 lo = ~u64{0}, hi = 0;
     for (const auto& [host, location] : map) {
         std::fprintf(f, "%llx %08x\n", static_cast<unsigned long long>(host),
                      static_cast<u32>(location));
+        lo = std::min<u64>(lo, host);
+        hi = std::max<u64>(hi, host);
     }
     std::fclose(f);
+    // GammaOS debug: the emitted code itself (8-byte base address, then the bytes from the
+    // lowest to the highest block start plus 4 KB), for offline disassembly.
+    if (lo < hi) {
+        FILE* c = std::fopen((path + ".bin").c_str(), "wb");
+        if (c) {
+            std::fwrite(&lo, sizeof(lo), 1, c);
+            std::fwrite(reinterpret_cast<const void*>(lo), 1, static_cast<std::size_t>(hi - lo + 4096),
+                        c);
+            std::fclose(c);
+        }
+    }
 #endif
 }
 
