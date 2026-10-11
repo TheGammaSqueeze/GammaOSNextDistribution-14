@@ -1,6 +1,8 @@
 #define LOG_TAG "azahar-nano"
 
 #include "NanoInput.h"
+
+#include <utility>
 #include "AzaharNanoApi.h"
 
 #include <dirent.h>
@@ -34,11 +36,14 @@ constexpr int64_t kBackLongPressNs = 1500LL * 1000000LL;
 
 } // namespace
 
-bool NanoInput::start(const InputCallbacks& cb, uint32_t touchW, uint32_t touchH) {
+bool NanoInput::start(const InputCallbacks& cb, bool dualPanel, int defaultPanel) {
     mCb = cb;
     mNintendoLayout = property_get_bool("persist.gammaos.azahar_nano.nintendo_layout", false);
-    mTouchW = touchW;
-    mTouchH = touchH;
+    mDualPanel = dualPanel;
+    mDefaultPanel = defaultPanel;
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.cc.touchdev", v, "");
+    mBottomTouchName = v;
     mInotify = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (mInotify >= 0) {
         inotify_add_watch(mInotify, "/dev/input", IN_CREATE | IN_DELETE | IN_ATTRIB);
@@ -108,7 +113,14 @@ void NanoInput::scan() {
                 n.absMax[a] = ai.maximum;
             }
         }
-        ALOGI("input node %s '%s' pad=%d touch=%d", p.c_str(), name, n.pad, n.touch);
+        // Which panel a digitizer sits on: on a two-panel device the bottom one is named by
+        // the control centre's touchdev prop and any other is the top panel's.
+        n.panel = mDefaultPanel;
+        if (n.touch && mDualPanel && !mBottomTouchName.empty()) {
+            n.panel = (mBottomTouchName == name) ? 1 : 0;
+        }
+        ALOGI("input node %s '%s' pad=%d touch=%d panel=%d", p.c_str(), name, n.pad, n.touch,
+              n.panel);
         mNodes.push_back(n);
     }
     closedir(d);
@@ -202,33 +214,42 @@ void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) 
 }
 
 void NanoInput::handleTouch(Node& n, uint16_t type, uint16_t code, int32_t value) {
+    // Report the node's position as a fraction of its panel.
+    const auto report = [&](bool edge) {
+        const float x = n.tx, y = n.ty;
+        if (edge) {
+            if (mCb.touch) mCb.touch(n.panel, x, y, n.down);
+        } else if (mCb.touchMoved) {
+            mCb.touchMoved(n.panel, x, y);
+        }
+    };
     if (type == EV_ABS) {
         if (code == ABS_MT_POSITION_X || code == ABS_X) {
             const float r = (float)(n.absMax[code] - n.absMin[code]);
-            mTx = r > 0 ? (int)((value - n.absMin[code]) / r * mTouchW) : value;
-            mTouchDirty = true;
+            n.tx = r > 0 ? (value - n.absMin[code]) / r : 0.0f;
+            n.dirty = true;
         } else if (code == ABS_MT_POSITION_Y || code == ABS_Y) {
             const float r = (float)(n.absMax[code] - n.absMin[code]);
-            mTy = r > 0 ? (int)((value - n.absMin[code]) / r * mTouchH) : value;
-            mTouchDirty = true;
+            n.ty = r > 0 ? (value - n.absMin[code]) / r : 0.0f;
+            n.dirty = true;
         } else if (code == ABS_MT_TRACKING_ID) {
             const bool down = value >= 0;
-            if (down != mTouchDown) {
-                mTouchDown = down;
-                if (mCb.touch) mCb.touch((float)mTx, (float)mTy, down);
-                mTouchDirty = false;
+            if (down != n.down) {
+                n.down = down;
+                report(true);
+                n.dirty = false;
             }
         }
     } else if (type == EV_KEY && code == BTN_TOUCH) {
         const bool down = value != 0;
-        if (down != mTouchDown) {
-            mTouchDown = down;
-            if (mCb.touch) mCb.touch((float)mTx, (float)mTy, down);
-            mTouchDirty = false;
+        if (down != n.down) {
+            n.down = down;
+            report(true);
+            n.dirty = false;
         }
     } else if (type == EV_SYN && code == SYN_REPORT) {
-        if (mTouchDown && mTouchDirty && mCb.touchMoved) mCb.touchMoved((float)mTx, (float)mTy);
-        mTouchDirty = false;
+        if (n.down && n.dirty) report(false);
+        n.dirty = false;
     }
 }
 

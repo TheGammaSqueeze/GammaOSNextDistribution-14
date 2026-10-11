@@ -20,16 +20,20 @@ struct InputCallbacks {
     std::function<bool(int button, bool pressed)> button;
     std::function<bool(int axisButton, float x, float y)> joystick;
     std::function<bool(int axisButton, float value)> analogButton;
-    // Touch in panel pixel coordinates of the bottom panel.
-    std::function<void(float x, float y, bool pressed)> touch;
-    std::function<void(float x, float y)> touchMoved;
+    // Touch as a 0..1 fraction of the panel it was made on (0 top, 1 bottom), in the panel's
+    // own scanout frame: the digitizers are wired to the panels' native (unrotated) axes and
+    // azahar-nano scans its buffers out unrotated, so no rotation applies.
+    std::function<void(int panel, float x, float y, bool pressed)> touch;
+    std::function<void(int panel, float x, float y)> touchMoved;
     std::function<void()> menuToggle;   // short press of the menu/back key
     std::function<void()> exitRequest;  // long press of the menu/back key
 };
 
 class NanoInput {
 public:
-    bool start(const InputCallbacks& cb, uint32_t touchW, uint32_t touchH);
+    // dualPanel: touch digitizers sit on two panels (the bottom one named by
+    // persist.gammaos.nano.cc.touchdev); otherwise every touch belongs to defaultPanel.
+    bool start(const InputCallbacks& cb, bool dualPanel, int defaultPanel);
     void stop();
     // Button arrangement, switchable live from the menu.
     void setNintendoLayout(bool on) { mNintendoLayout = on; }
@@ -49,6 +53,9 @@ private:
         std::string path;
         bool pad = false;
         bool touch = false;
+        int panel = 0;          // touch: the panel this digitizer sits on
+        float tx = 0, ty = 0;   // touch: last position, 0..1 of the panel
+        bool down = false, dirty = false;
         int absMin[64] = {};
         int absMax[64] = {};
         bool hasAbs[64] = {};
@@ -63,7 +70,9 @@ private:
     std::thread mThread;
     std::atomic<bool> mRun{false};
     int mInotify = -1;
-    uint32_t mTouchW = 0, mTouchH = 0;
+    bool mDualPanel = false;
+    int mDefaultPanel = 0;
+    std::string mBottomTouchName;
     bool mNintendoLayout = false;
     // per-pad state
     float mLx = 0, mLy = 0, mRx = 0, mRy = 0;
@@ -71,10 +80,6 @@ private:
     int64_t mBackDownNs = 0;
     bool mBackLongFired = false;
     bool mBackCombo = false;  // this Back press was used as a combo modifier
-    // touch state
-    int mTx = 0, mTy = 0;
-    bool mTouchDown = false;
-    bool mTouchDirty = false;
 };
 
 } // namespace azahar_nano

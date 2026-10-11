@@ -931,23 +931,25 @@ int main(int argc, char** argv) {
         }
         return gCore.analog_button(a, v);
     };
-    const bool touchOnSecondary = bottom != nullptr;
-    // Touch arrives in panel pixels; the core's layout is in window (buffer) pixels.
-    // Touch arrives in panel pixels: scale by the panel's current buffer size (an LCD shader
-    // switch changes it while the game runs).
-    static int sTouchPanel = 0;
-    sTouchPanel = touchOnSecondary ? 1 : 0;
-    static auto touchScale = [] { return sDrm ? sDrm->renderScale(sTouchPanel) : 1.0f; };
-    icb.touch = [touchOnSecondary](float x, float y, bool p) {
-        const float k = touchScale();
-        x *= k; y *= k;
-        if (touchOnSecondary) gCore.secondary_touch(x, y, p);
+    // Touch arrives as a fraction of the panel it was made on. Each panel's touches go to the
+    // window on that panel (the top one included: on the RP Duo Lite every touch used to land
+    // on the bottom screen, the top panel's turned by 90 degrees), in window (buffer) pixels:
+    // the panel size times its current render scale (an LCD shader switch changes it live).
+    static uint32_t sPanelW[2] = {widthAt(0), bottom ? widthAt(1) : 0};
+    static uint32_t sPanelH[2] = {heightAt(0), bottom ? heightAt(1) : 0};
+    static auto toWindow = [](int panel, float& x, float& y) {
+        const float k = sDrm ? sDrm->renderScale(panel) : 1.0f;
+        x *= sPanelW[panel] * k;
+        y *= sPanelH[panel] * k;
+    };
+    icb.touch = [](int panel, float x, float y, bool p) {
+        toWindow(panel, x, y);
+        if (panel == 1) gCore.secondary_touch(x, y, p);
         else gCore.touch(x, y, p);
     };
-    icb.touchMoved = [touchOnSecondary](float x, float y) {
-        const float k = touchScale();
-        x *= k; y *= k;
-        if (touchOnSecondary) gCore.secondary_touch_moved(x, y);
+    icb.touchMoved = [](int panel, float x, float y) {
+        toWindow(panel, x, y);
+        if (panel == 1) gCore.secondary_touch_moved(x, y);
         else gCore.touch_moved(x, y);
     };
     icb.menuToggle = [] {
@@ -979,9 +981,7 @@ int main(int argc, char** argv) {
         gExitRequested = true;
         gCore.stop();
     };
-    const uint32_t tw = bottom ? widthAt(1) : widthAt(0);
-    const uint32_t th = bottom ? heightAt(1) : heightAt(0);
-    input.start(icb, tw, th);
+    input.start(icb, bottom != nullptr, bottom ? 1 : 0);
 
     // Core performance stats every 2 s while running (persist.gammaos.azahar_nano.perf_log=1
     // or always during bring-up).
