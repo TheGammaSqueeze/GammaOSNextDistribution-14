@@ -5155,7 +5155,16 @@ void NanoMenu::renderCcPageDots() {
 // fully-visible app (clear alpha 0) then reveal it once (deferred, like overlayShow, so no opaque flash).
 // Never touched while the power-button overlay owns the layer (guarded by !mOverlayShown + the caller).
 void NanoMenu::renderTopFocusRing() {
-    if (mFlingerSurfaceControl == nullptr || mSurface == EGL_NO_SURFACE) return;
+    if (mFlingerSurfaceControl == nullptr || mSurface == EGL_NO_SURFACE) {
+        static bool sLogged = false;
+        if (!sLogged) {
+            sLogged = true;
+            ALOGW("NanoMenu CC: top focus ring skipped (surface control %s, egl surface %s)",
+                  mFlingerSurfaceControl == nullptr ? "null" : "ok",
+                  mSurface == EGL_NO_SURFACE ? "none" : "ok");
+        }
+        return;
+    }
     eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
     glViewport(0, 0, mWidth, mHeight);
     {   // upload the overlay (identity) rotation to the draw programs so the ring lands upright
@@ -5188,7 +5197,11 @@ void NanoMenu::hideTopFocusRing() {
 // shown) and over a bottom app (shown here; the secondary is translucent so the alpha-0 clear lets the
 // app through the ring's centre). Restores the primary current after.
 void NanoMenu::renderBottomFocusRing() {
-    if (mSecondaryEglSurfaces.empty()) return;
+    if (mSecondaryEglSurfaces.empty()) {
+        static bool sLogged = false;
+        if (!sLogged) { sLogged = true; ALOGW("NanoMenu CC: bottom focus ring skipped (no secondary EGL surface)"); }
+        return;
+    }
     eglMakeCurrent(mDisplay, mSecondaryEglSurfaces[0], mSecondaryEglSurfaces[0], mContext);
     glViewport(0, 0, mWidth, mHeight);
     {
