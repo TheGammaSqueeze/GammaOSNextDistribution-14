@@ -1842,6 +1842,15 @@ void Output::presentFrameAndReleaseLayers() {
 
     auto frame = presentFrame();
 
+    // GammaOS: a held follower presented nothing this frame, so there is no present or
+    // release fence to hand out. Handing the layers Fence::NO_FENCE here released the
+    // buffers the panel was still scanning out, and the app drew into them (tearing with
+    // black bands on the bottom panel). The next real present releases them properly.
+    if (getState().gammaSkipHwcPresent) {
+        ATRACE_NAME("gammaSkipRelease");
+        return;
+    }
+
     mRenderSurface->onPresentDisplayCompleted();
 
     for (auto* layer : getOutputLayersOrderedByZ()) {

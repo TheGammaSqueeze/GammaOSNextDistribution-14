@@ -469,6 +469,13 @@ void Display::finishFrame(GpuCompositionResult&& result) {
         return;
     }
 
+    // GammaOS: a held follower keeps its current frame, so do not render a client target
+    // that no present will consume (it would queue a framebuffer the HWC never takes).
+    if (getState().gammaSkipHwcPresent) {
+        ATRACE_NAME("gammaSkipFinishFrame");
+        return;
+    }
+
     impl::Output::finishFrame(std::move(result));
 }
 
