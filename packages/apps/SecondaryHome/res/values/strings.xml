@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Apps</string>
+    <string name="app_name">Control Centre</string>
+    <string name="apps_header">APPLICATIONS</string>
     <string name="launch_failed">Could not open %1$s</string>
+    <string name="screenshot_saved">Screenshot saved to Pictures/Screenshots</string>
+    <string name="screenshot_failed">Screenshot failed</string>
 </resources>

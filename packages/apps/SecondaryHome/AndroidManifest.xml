@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- GammaOS SecondaryHome: minimal launcher for the secondary display on the TV/desktop build.
-     It only ever runs when the secondary display is granted system decorations (desktop mode);
-     in nano/handheld mode no secondary home is started, so this app stays inert. It advertises
-     SECONDARY_HOME (not HOME/LAUNCHER) so it never competes for the primary home and never shows
-     as a drawer icon. persist.gammaos.secondary_home points at it explicitly. -->
+<!-- GammaOS SecondaryHome: home of the secondary display in normal Android mode, carrying the
+     nano Control Centre (dashboard, applications, screen options). It only runs when the
+     secondary display is granted system decorations; in nano mode no secondary home is started,
+     so this app stays inert. It advertises SECONDARY_HOME (not HOME/LAUNCHER) so it never
+     competes for the primary home and never shows as a drawer icon.
+     persist.gammaos.secondary_home points at it explicitly. It runs as the system uid: the
+     backlight nodes are system:system 0644 and the tiles set persist.gammaos.* props. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gammaos.secondaryhome">
+    package="com.gammaos.secondaryhome"
+    android:sharedUserId="android.uid.system">
 
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
+    <uses-permission android:name="android.permission.REAL_GET_TASKS" />
+    <uses-permission android:name="android.permission.READ_FRAME_BUFFER" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
         android:allowBackup="false"

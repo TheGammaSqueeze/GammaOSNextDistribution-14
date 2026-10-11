@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Visible focus/press highlight so the grid is usable with a d-pad on the second screen. -->
+<!-- App cell: the control centre card colour, with a visible focus ring for d-pad use. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/focus_fill" />
-            <corners android:radius="10dp" />
+            <solid android:color="@color/card_focus" />
+            <corners android:radius="12dp" />
             <stroke android:width="2dp" android:color="@color/colorAccent" />
         </shape>
     </item>
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/focus_fill" />
-            <corners android:radius="10dp" />
+            <solid android:color="@color/card_focus" />
+            <corners android:radius="12dp" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@android:color/transparent" />
-            <corners android:radius="10dp" />
+            <solid android:color="@color/card" />
+            <corners android:radius="12dp" />
         </shape>
     </item>
 </selector>

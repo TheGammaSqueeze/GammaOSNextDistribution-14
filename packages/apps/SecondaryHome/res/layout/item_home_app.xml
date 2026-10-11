@@ -4,8 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="10dp"
-    android:layout_margin="4dp"
+    android:paddingTop="4dp"
     android:background="@drawable/home_item_bg"
     android:focusable="true"
     android:focusableInTouchMode="false"
@@ -13,20 +12,21 @@
 
     <ImageView
         android:id="@+id/appIcon"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginBottom="6dp"
-        android:contentDescription="@string/app_name"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:importantForAccessibility="no"
         android:scaleType="fitCenter" />
 
     <TextView
         android:id="@+id/appLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         android:gravity="center"
-        android:maxLines="2"
+        android:maxLines="1"
         android:ellipsize="end"
-        android:textColor="@color/text_primary"
-        android:textSize="13sp" />
+        android:textColor="@color/text_label" />
 
 </LinearLayout>

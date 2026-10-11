@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#000000</color>
+    <!-- the nano Control Centre palette -->
+    <color name="background">#040407</color>
+    <color name="card">#E613151C</color>
+    <color name="card_focus">#FF2A2440</color>
+    <color name="header">#75859F</color>
     <color name="text_primary">#F5F5F5</color>
-    <color name="colorAccent">#FF8A2A</color>
-    <color name="focus_fill">#33FF8A2A</color>
+    <color name="text_label">#D1D9EB</color>
+    <color name="colorAccent">#9E5FE0</color>
 </resources>
