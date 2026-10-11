@@ -1281,7 +1281,23 @@ bool NanoMenu::ccPollTopTapDown() {
     property_get("persist.gammaos.nano.cc.topdev", dev, "gt9xx-1");
     int tfd = -1;
     for (const auto& kv : mInputFdNames) if (kv.second == dev) { tfd = kv.first; break; }
-    if (tfd < 0) return false;
+    if (tfd < 0) {
+        // No digitizer by that name (the RG DS default gt9xx-1 does not exist on the RP Duo Lite,
+        // whose top panel is himax-touchscreen): use the other touchscreen, any multitouch device
+        // that is not the bottom one. Without this a top-screen tap was never seen, so the gamepad
+        // could move to the bottom app but never back, and the top focus ring never showed.
+        char bottom[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.cc.touchdev", bottom, "gt9xx-0");
+        for (const auto& kv : mInputFdNames) {
+            if (kv.second == bottom) continue;
+            struct input_absinfo ax = {};
+            if (ioctl(kv.first, EVIOCGABS(ABS_MT_POSITION_X), &ax) == 0 && ax.maximum > ax.minimum) {
+                tfd = kv.first;
+                break;
+            }
+        }
+        if (tfd < 0) return false;
+    }
     bool down = false;
     struct input_event ev;
     while (read(tfd, &ev, sizeof(ev)) == sizeof(ev)) {
