@@ -2488,7 +2488,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             const int instLH = installRot ? drmPanelW : drmPanelH;
             const bool installLandscape = (instLW >= instLH);
             float a, b;
-            if (digitizerLandscape == installLandscape) { a = fx; b = fy; }
+            if (actions.touchTop) { a = fx; b = fy; }   // already calibrated to landscape
+            else if (digitizerLandscape == installLandscape) { a = fx; b = fy; }
             else { a = fy; b = fx; }
             // Then turn the touch by the user's Display Rotation (effRot minus
             // the install) so it tracks the rotated image. The content turned by
@@ -2523,6 +2524,30 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     if (dsTouchY > 191) dsTouchY = 191;
                 } else {
                     dsTouchHeld = false;  // touch outside the bottom screen
+                }
+            }
+        } else if (hasDualDisplay && !actions.touchDirect) {
+            // Two panels with a digitizer each (RP Duo Lite): only the panel showing the DS touch
+            // screen drives the stylus, the bottom one unless the screens are swapped. A top-panel
+            // touch is already in that panel's landscape frame (InputMap calibration); the DS
+            // screen is aspect-fit and centred there, so rescale through that 4:3 area.
+            if (actions.touchTop != screensSwapped) {
+                dsTouchHeld = false;
+            } else if (actions.touchTop) {
+                const bool instRot = (android::sDrmRotationDeg == 90 || android::sDrmRotationDeg == 270);
+                const float lw = (float)(instRot ? drmPanelH : drmPanelW);
+                const float lh = (float)(instRot ? drmPanelW : drmPanelH);
+                float rw = lw, rh = lh;
+                if (lw * 3.0f > lh * 4.0f) rw = lh * 4.0f / 3.0f; else rh = lw * 3.0f / 4.0f;
+                const float x0 = (lw - rw) * 0.5f, y0 = (lh - rh) * 0.5f;
+                const float px = actions.touchX / 256.0f * lw, py = actions.touchY / 192.0f * lh;
+                if (px < x0 || px >= x0 + rw || py < y0 || py >= y0 + rh) {
+                    dsTouchHeld = false;  // on the side bars
+                } else {
+                    dsTouchX = (int)((px - x0) / rw * 256.0f);
+                    dsTouchY = (int)((py - y0) / rh * 192.0f);
+                    if (dsTouchX > 255) dsTouchX = 255;
+                    if (dsTouchY > 191) dsTouchY = 191;
                 }
             }
         }

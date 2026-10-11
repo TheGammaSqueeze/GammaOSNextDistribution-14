@@ -95,6 +95,9 @@ void closeDeviceFds(InputState* st) {
     st->fds.clear();
     for (int fd : st->touchFds) close(fd);
     st->touchFds.clear();
+    st->touchNodeW.clear();
+    st->touchNodeH.clear();
+    st->touchNodeTop.clear();
 }
 }  // namespace
 
@@ -153,8 +156,15 @@ void scanInputDevices(InputState* st) {
                 st->touchPanelH = ph;
             }
             st->touchFds.push_back(fd);
-            ALOGI("DrasticNano::input: touch %s %s (panel %dx%d)%s",
-                  name, p.c_str(), pw, ph, namedTouch ? " [named]" : " [mt]");
+            st->touchNodeW.push_back(pw);
+            st->touchNodeH.push_back(ph);
+            char bottomName[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.cc.touchdev", bottomName, "");
+            const bool top = bottomName[0] && strcmp(bottomName, name) != 0;
+            st->touchNodeTop.push_back(top);
+            ALOGI("DrasticNano::input: touch %s %s (panel %dx%d)%s%s",
+                  name, p.c_str(), pw, ph, namedTouch ? " [named]" : " [mt]",
+                  top ? " [top panel]" : "");
             continue;
         }
         unsigned long keys[(KEY_MAX + 8 * sizeof(long)) /
@@ -251,7 +261,11 @@ namespace {
 // Drain all queued touchscreen events and update touchHeld + touchDs*.
 void drainTouch(InputState* st) {
     struct input_event ev;
-    for (int touchFd : st->touchFds) {
+    for (size_t ti = 0; ti < st->touchFds.size(); ti++) {
+    const int touchFd = st->touchFds[ti];
+    const bool nodeTop = ti < st->touchNodeTop.size() && st->touchNodeTop[ti];
+    const int nodeW = ti < st->touchNodeW.size() ? st->touchNodeW[ti] : st->touchPanelW;
+    const int nodeH = ti < st->touchNodeH.size() ? st->touchNodeH[ti] : st->touchPanelH;
     while (read(touchFd, &ev, sizeof(ev)) == sizeof(ev)) {
         if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
             st->touchHeld = (ev.value != 0);
@@ -269,15 +283,24 @@ void drainTouch(InputState* st) {
                 st->touchReal = false;
             }
         } else if (ev.type == EV_SYN && ev.code == SYN_REPORT) {
-            if (st->touchPendingValid && st->touchPanelW > 0 &&
-                st->touchPanelH > 0) {
-                int x = st->touchPendingX;
-                int y = st->touchPendingY;
-                if (x < 0) x = 0; if (y < 0) y = 0;
-                if (x > st->touchPanelW) x = st->touchPanelW;
-                if (y > st->touchPanelH) y = st->touchPanelH;
-                st->touchDsX = x * 256 / st->touchPanelW;
-                st->touchDsY = y * 192 / st->touchPanelH;
+            if (st->touchPendingValid && nodeW > 0 && nodeH > 0) {
+                // Each node by its own range (see touchNodeW). The top panel's digitizer is
+                // turned into that panel's landscape frame by the shared nano calibration.
+                float fx = (float)st->touchPendingX / (float)nodeW;
+                float fy = (float)st->touchPendingY / (float)nodeH;
+                if (fx < 0.0f) fx = 0.0f; if (fx > 1.0f) fx = 1.0f;
+                if (fy < 0.0f) fy = 0.0f; if (fy > 1.0f) fy = 1.0f;
+                if (nodeTop) {
+                    static const bool sSwap = property_get_bool("persist.gammaos.nano.osk_touch_swap", false);
+                    static const bool sFlipX = property_get_bool("persist.gammaos.nano.osk_touch_flipx", false);
+                    static const bool sFlipY = property_get_bool("persist.gammaos.nano.osk_touch_flipy", false);
+                    if (sSwap) { const float t = fx; fx = fy; fy = t; }
+                    if (sFlipX) fx = 1.0f - fx;
+                    if (sFlipY) fy = 1.0f - fy;
+                }
+                st->touchTop = nodeTop;
+                st->touchDsX = (int)(fx * 256.0f);
+                st->touchDsY = (int)(fy * 192.0f);
                 if (st->touchDsX > 255) st->touchDsX = 255;
                 if (st->touchDsY > 191) st->touchDsY = 191;
                 st->touchPendingValid = false;
@@ -872,6 +895,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         // not continue a stylus drag underneath the menu.
         out->dsBtnMask = 0;
         out->touchX = st->touchDsX;
+        out->touchTop = st->touchTop;
         out->touchY = st->touchDsY;
         out->touchHeld = false;
         // Suppress fast-forward while the menu is up (it pauses the
@@ -922,6 +946,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         }
         out->dsBtnMask = raw;
         out->touchX = st->touchDsX;
+        out->touchTop = st->touchTop;
         out->touchY = st->touchDsY;
         // Real finger wins; otherwise the stylus-touch button synthesizes
         // a press at the last known cursor position.

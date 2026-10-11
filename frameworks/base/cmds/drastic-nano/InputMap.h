@@ -84,6 +84,15 @@ struct InputState {
     std::vector<int> touchFds;
     int touchPanelW = 0;
     int touchPanelH = 0;
+    // Per node (parallel to touchFds): its own ABS range and whether it sits on the TOP panel.
+    // A two-panel unit (RP Duo Lite: himax 1079x1919 portrait on top, fts_ts 1280x960 below)
+    // does not share one range; the bottom digitizer is the one named by
+    // persist.gammaos.nano.cc.touchdev and any other is the top panel's.
+    std::vector<int> touchNodeW, touchNodeH;
+    std::vector<bool> touchNodeTop;
+    // The last touch came from the top panel; its touchDs fraction is then already turned
+    // into the top panel's landscape frame by persist.gammaos.nano.osk_touch_swap/flipx/flipy.
+    bool touchTop = false;
     int touchDsX = 0;
     int touchDsY = 0;
     bool touchHeld = false;
@@ -175,6 +184,7 @@ struct InputActions {
     // cursor), so the render loop must inject them directly and skip the
     // real-panel digitizer->layout remap. False for an ordinary panel touch.
     bool touchDirect = false;
+    bool touchTop = false;   // the touch was made on the top panel (see InputState::touchTop)
 
     // Navigation (only set when overlayOpen is true).
     bool navUp = false;
