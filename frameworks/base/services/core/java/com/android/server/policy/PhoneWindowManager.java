@@ -2818,6 +2818,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
      * (Uses getRunningTasks, which is allowed for system components.)
      */
     private String getForegroundAppPackageName() {
+        // GammaOS: the app whose window has key focus (the window on the top-focused display),
+        // which is where the key being handled goes. The most recently active task is not the
+        // same thing with an app on each panel of a dual-screen device: with RetroArch focused on
+        // the top panel and another app on the bottom, the back-button F1/ESC override often saw
+        // the bottom app and never sent F1. App window titles are "<package>/<activity>".
+        if (mWindowManagerInternal != null) {
+            try {
+                final IBinder token = mWindowManagerInternal.getFocusedWindowToken();
+                final KeyInterceptionInfo info = token != null
+                        ? mWindowManagerInternal.getKeyInterceptionInfoFromToken(token) : null;
+                if (info != null && info.windowTitle != null) {
+                    final int slash = info.windowTitle.indexOf('/');
+                    if (slash > 0) return info.windowTitle.substring(0, slash);
+                }
+            } catch (Exception ignored) {
+                // fall back to the top task below
+            }
+        }
         ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
         java.util.List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
         if (tasks != null && !tasks.isEmpty() && tasks.get(0).topActivity != null) {
