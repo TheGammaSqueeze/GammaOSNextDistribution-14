@@ -171,8 +171,19 @@ void scanInputDevices(InputState* st) {
             // foreground app and leaves power entirely to PhoneWindowManager, so
             // it clears admitPowerKey and a power-only node is not opened here.
             const bool powerAdmit = st->admitPowerKey && has(KEY_POWER);
+            // The lid switch drives sleep the same way in the DRM backend. On the RG DS it
+            // shares a node with keys, but the RP Duo Lite reports it alone on hall_switch
+            // (EV_SW only): that node was never opened, so closing the lid slept the framework
+            // behind a running game with both panels still lit.
+            bool lidAdmit = false;
+            if (st->admitPowerKey) {
+                unsigned long sw[(SW_MAX + 8 * sizeof(long)) / (8 * sizeof(long))] = {};
+                if (ioctl(fd, EVIOCGBIT(EV_SW, sizeof(sw)), sw) >= 0) {
+                    lidAdmit = (sw[SW_LID / (8 * sizeof(long))] >> (SW_LID % (8 * sizeof(long)))) & 1;
+                }
+            }
             if (has(BTN_SOUTH) || has(BTN_A) || has(KEY_BACK) ||
-                has(KEY_UP) || has(KEY_VOLUMEUP) || powerAdmit) {
+                has(KEY_UP) || has(KEY_VOLUMEUP) || powerAdmit || lidAdmit) {
                 st->fds.push_back(fd);
                 // Read axis calibration for any sticks / triggers on
                 // this device. Missing axes leave the struct at
