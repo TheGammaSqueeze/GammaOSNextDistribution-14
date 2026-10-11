@@ -1965,6 +1965,40 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 if (state == Display.STATE_OFF || state == Display.STATE_DOZE_SUSPEND) {
                     GammaSplitBacklight.setBacklight(slot, /*linear*/0f, /*allowOff*/true);
                 }
+            } else if (!mIsFirstDisplay) {
+                gammaSecondaryBacklightOnPower(state);
+            }
+        }
+
+        // GammaOS: with split brightness off the backlight goes through the lights HAL, which
+        // drives only the primary panel; the second panel's backlight node is written by the
+        // nano processes and the control centre while the screen is on, and nobody turned it
+        // off for sleep (RP Duo Lite: the bottom panel stayed lit behind a sleeping device in
+        // every SurfaceFlinger app). Turn the node off with the display and put the level back
+        // when it comes on, unless something already relit it.
+        private int mGammaSecondaryBlSaved = -1;
+
+        private void gammaSecondaryBacklightOnPower(int state) {
+            final String dir = android.os.SystemProperties.get(
+                    "persist.gammaos.multidisplay.split_brightness.d1.path", "");
+            if (dir.isEmpty()) return;
+            final java.io.File node = new java.io.File(dir, "brightness");
+            try {
+                if (state == Display.STATE_OFF || state == Display.STATE_DOZE_SUSPEND) {
+                    final int cur = Integer.parseInt(
+                            android.os.FileUtils.readTextFile(node, 16, null).trim());
+                    if (cur > 0) mGammaSecondaryBlSaved = cur;
+                    android.os.FileUtils.stringToFile(node, "0");
+                } else if (state == Display.STATE_ON && mGammaSecondaryBlSaved > 0) {
+                    final int cur = Integer.parseInt(
+                            android.os.FileUtils.readTextFile(node, 16, null).trim());
+                    if (cur == 0) {
+                        android.os.FileUtils.stringToFile(node,
+                                Integer.toString(mGammaSecondaryBlSaved));
+                    }
+                }
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS: secondary backlight " + node + ": " + e.getMessage());
             }
         }
 
