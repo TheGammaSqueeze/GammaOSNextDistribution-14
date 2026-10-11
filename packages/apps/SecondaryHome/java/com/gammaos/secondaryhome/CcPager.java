@@ -28,43 +28,58 @@ final class CcPager extends ViewGroup {
     private final CcDraw mDots = new CcDraw();
     private boolean mDotTap;
 
-    // Page indicator, in the 640x480 design space: under the dashboard cards (they end at 440).
-    private static final float DOT_Y = 460f, DOT_R = 4f, DOT_GAP = 18f, PILL_W = 22f, HIT = 16f;
-
     CcPager(Context ctx) {
         super(ctx);
         mSlop = ViewConfiguration.get(ctx).getScaledTouchSlop();
         setWillNotDraw(false);
     }
 
-    private float dotX(int i) {
-        return CcDraw.DW * 0.5f + (i - (getChildCount() - 1) * 0.5f) * DOT_GAP;
+    /** A modal layer drawn over the pages and the dots (the dashboard's option picker). */
+    interface Overlay {
+        boolean isOpen();
+        void draw(Canvas c, int w, int h);
     }
 
-    /** Page dots over the pages; the active one is a pill that follows the swipe offset. */
+    private Overlay mOverlay;
+
+    void setOverlay(Overlay o) { mOverlay = o; }
+
+    // Dot geometry in view pixels, as NanoMenu::renderCcPageDots sizes it from the panel height.
+    private float dotR() { return Math.max(2f, getHeight() * 0.0105f); }
+    private float dotGap() { return dotR() * 3.6f; }
+    private float dotY() { return getHeight() - dotR() * 3.4f; }
+    private float dotX(int i) {
+        return getWidth() * 0.5f + (i - (getChildCount() - 1) * 0.5f) * dotGap();
+    }
+
+    /**
+     * Page dots, a port of the nano CC's: each dot brightens and stretches into a short pill as
+     * its page slides in, over a soft shadow so they read on cards and on the app grid alike.
+     */
     @Override
     protected void dispatchDraw(Canvas c) {
         super.dispatchDraw(c);
         final int n = getChildCount();
-        if (n < 2) return;
-        c.save();
-        mDots.begin(c, getWidth(), getHeight());
-        final int idle = CcDraw.rgb(0.28f, 0.30f, 0.38f);
-        for (int i = 0; i < n; i++) mDots.disc(c, dotX(i), DOT_Y, DOT_R, idle);
-        final float off = Math.max(0f, Math.min(n - 1f, mOffset));
-        final float cx = dotX(0) + off * DOT_GAP;
-        mDots.round(c, cx - PILL_W * 0.5f, DOT_Y - DOT_R, PILL_W, DOT_R * 2f, DOT_R,
-                CcDraw.rgb(0.85f, 0.90f, 1f));
-        c.restore();
+        if (n >= 2) {
+            final float r = dotR(), cy = dotY();
+            for (int i = 0; i < n; i++) {
+                final float act = Math.max(0f, Math.min(1f, 1f - Math.abs(mOffset - i)));
+                final float cx = dotX(i);
+                final float br = 0.30f + 0.62f * act;
+                final float halfW = r * (1f + 1.4f * act);
+                mDots.round(c, cx - halfW, cy - r + 1f, halfW * 2f, r * 2f, r, CcDraw.argb(0.35f, 0f, 0f, 0f));
+                mDots.round(c, cx - halfW, cy - r, halfW * 2f, r * 2f, r, CcDraw.argb(0.92f, br, br, br));
+            }
+        }
+        if (mOverlay != null && mOverlay.isOpen()) mOverlay.draw(c, getWidth(), getHeight());
     }
 
     /** Page dot under a view-space point, or -1. */
     private int dotAt(float x, float y) {
-        final float u = Math.min(getWidth() / CcDraw.DW, getHeight() / CcDraw.DH);
-        final float ox = (getWidth() - CcDraw.DW * u) * 0.5f, oy = (getHeight() - CcDraw.DH * u) * 0.5f;
-        final float dx = (x - ox) / u, dy = (y - oy) / u;
-        if (Math.abs(dy - DOT_Y) > HIT) return -1;
-        for (int i = 0; i < getChildCount(); i++) if (Math.abs(dx - dotX(i)) <= DOT_GAP * 0.5f) return i;
+        if (mOverlay != null && mOverlay.isOpen()) return -1;
+        final float hit = dotGap() * 0.5f;
+        if (Math.abs(y - dotY()) > Math.max(hit, dotR() * 3f)) return -1;
+        for (int i = 0; i < getChildCount(); i++) if (Math.abs(x - dotX(i)) <= hit) return i;
         return -1;
     }
 

@@ -237,6 +237,19 @@ final class CcDraw {
         bar(c, bx, by, bx + r * 0.35f, by + r * 0.7f, 1.6f, col);
     }
 
+    void icoFan(Canvas c, float cx, float cy, float r, int col) {
+        for (int k = 0; k < 3; k++) {
+            final double a = k / 3.0 * 2.0 * Math.PI - Math.PI * 0.5;
+            final float ca = (float) Math.cos(a), sa = (float) Math.sin(a);
+            final float cb = (float) Math.cos(a + 0.9), sb = (float) Math.sin(a + 0.9);
+            tri(c, cx + ca * r * 0.22f, cy + sa * r * 0.22f, cx + ca * r, cy + sa * r,
+                    cx + cb * r * 0.85f, cy + sb * r * 0.85f, col);
+            tri(c, cx + ca * r * 0.22f, cy + sa * r * 0.22f, cx + cb * r * 0.85f, cy + sb * r * 0.85f,
+                    cx + cb * r * 0.3f, cy + sb * r * 0.3f, col);
+        }
+        disc(c, cx, cy, r * 0.24f, col);
+    }
+
     void icoClose(Canvas c, float cx, float cy, float r, int col) {
         final float rr = r * 0.82f;
         bar(c, cx - rr, cy - rr, cx + rr, cy + rr, 2.2f, col);

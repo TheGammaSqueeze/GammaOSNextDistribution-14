@@ -4785,6 +4785,16 @@ private:
     void   renderCcSettings();             // the screen-options page (double-tap wake, idle timeout)
     void   ccOnSettingsTap(float px, float py);  // options-page hit-test (design space) -> toggle the prop
     void   renderCcPageDots();             // pagination dots (dashboard <-> apps <-> options) at the CC bottom edge
+    // Hold-to-pick on the dashboard: holding the Shader tile (or the Fan tile, which replaces Mouse when
+    // persist.gammaos.nano.cc.fantile=1) for 0.5s opens a modal list of its options over the dashboard.
+    int     mCcPicker = 0;                 // 0 = closed, 1 = shader options, 2 = fan modes
+    int     mCcHoldTile = -1;              // tile index pressed and still held (hold candidate), -1 = none
+    int64_t mCcHoldStartMs = 0;            // when that press started
+    bool    mCcHoldFired = false;          // the current press opened the picker: its release is consumed
+    float   mCcLastPx = 0.0f, mCcLastPy = 0.0f;   // latest touch position (design space)
+    void   ccCheckHold();                  // per-frame: open the picker once a tile has been held long enough
+    void   renderCcPicker();               // modal option list (drawn last, over the page and the dots)
+    void   ccOnPickerTap(float px, float py);
     void   ccEnsureAppList();              // (re)load the installed-app list + apps_generation gate
     GLuint loadColorIconTexAbs(const char* absPath);  // full-colour PNG -> GL texture (real APK icons)
     int    ccAppAt(float px, float py);    // app-grid hit-test (design space) -> app index or -1

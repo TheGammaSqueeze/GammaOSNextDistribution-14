@@ -5353,6 +5353,7 @@ void NanoMenu::renderControlCenterFrame() {
     // Pagination dots: which CC page is showing (dashboard <-> apps). Drawn after both pages so they
     // sit fixed at the bottom edge (they do not slide with the pages) and animate with mCcPageOffset.
     renderCcPageDots();
+    if (mCcPicker) renderCcPicker();   // modal option list over everything (held Shader/Fan tile)
     // Fade the dashboard in from black each time the CC comes up (reset on the activation edge in the
     // park branch). A shrinking full-panel black quad over the composited frame; smoothstep for a soft
     // ease. ~0.45s. Costs nothing once done (mCcFadeIn latches at 1 -> the quad is skipped).

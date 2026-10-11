@@ -4377,7 +4377,7 @@ if (sRingPrimedCount >= 2) {
                         property_set("sys.gammaos.nano.cc.active", "1");
                     // Seed the idle timer on the activation edge so a freshly shown CC does not instantly
                     // auto-sleep. mCcActiveSeeded is cleared on teardown, so it re-arms per activation.
-                    if (!mCcActiveSeeded) { mCcLastTouchMs = ccNowMs; mCcActiveSeeded = true; mCcFadeIn = 0.0f; }
+                    if (!mCcActiveSeeded) { mCcLastTouchMs = ccNowMs; mCcActiveSeeded = true; mCcFadeIn = 0.0f; mCcPicker = 0; }
                     // System IME up on the bottom panel: on a dual-screen device the soft keyboard is pinned
                     // to display 0, exactly where the CC renders, so the CC occludes it. HIDE the CC and stop
                     // rendering it while the keyboard is shown so it appears and is touchable (drop_input is
@@ -4399,6 +4399,7 @@ if (sRingPrimedCount >= 2) {
                         continue;
                     }
                     ccPollTouch();     // read the bottom digitizer (tiles / sliders / wake); refreshes mCcLastTouchMs on touch
+                    ccCheckHold();     // a held Shader/Fan tile opens its option picker
                     (void)ccPollTopTapDown();   // keep the top digitizer drained so its fd does not fill (SYN_DROPPED) this session
                     // A finger held motionless stops emitting SYN frames (the gt9xx only reports on
                     // change), so ccTouchFrame would not refresh the timer and auto-sleep could dim the

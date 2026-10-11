@@ -30,7 +30,9 @@ final class DashboardView extends View {
 
     private static final float CC_TX0 = 180, CC_TY0 = 58, CC_TW = 106, CC_TH = 70, CC_GX = 114, CC_GY = 82;
     private static final int A_SLEEP = 0, A_PERF = 1, A_SPLITBRI = 2, A_SHADER = 3, A_EQ = 4,
-            A_MOUSE = 5, A_SHOT = 6, A_WIFI = 7;
+            A_MOUSE = 5, A_SHOT = 6, A_WIFI = 7, A_FAN = 8;
+    private static final long HOLD_MS = 500;
+    private static final float PK_W = 300f, PK_ROW = 44f, PK_HEAD = 50f;
     private static final String[] TILE_LABEL = {
             "Sleep Screen", "Performance", "Split Bright", "Shader",
             "Gamma EQ", "Mouse", "Screenshot", "Wi-Fi" };
@@ -40,6 +42,19 @@ final class DashboardView extends View {
     private final CcDraw mD = new CcDraw();
 
     private int mHeld = -1;
+    // Hold-to-pick: holding the Shader tile (or the Fan tile) opens a modal option list.
+    private int mPicker;                 // 0 closed, 1 shader, 2 fan
+    private int mHoldTile = -1;
+    private boolean mHoldFired;
+    private final Runnable mHoldCheck = this::onHoldElapsed;
+
+    private void onHoldElapsed() {
+        if (mHoldTile < 0 || mHost.isScreenSleeping()) return;
+        mPicker = tileAct(mHoldTile) == A_FAN ? 2 : 1;
+        mHoldTile = -1;
+        mHoldFired = true;
+        refreshOverlay();
+    }
     private float mDownX, mDownY;
     private int mVolLastSet = -1;
     private long mVolLastSetMs;
@@ -57,13 +72,19 @@ final class DashboardView extends View {
         out[1] = CC_TY0 + (i / 4) * CC_GY;
     }
 
-    /** 0 off, 1 on (perf: powersave), 2 perf max. */
+    /** The Mouse tile becomes a Fan tile on devices with a controllable fan. */
+    private static int tileAct(int i) {
+        return i == A_MOUSE && CcState.fanTile() ? A_FAN : i;
+    }
+
+    /** 0 off, 1 on (perf: powersave), 2 perf max; shader 1 + option, fan 1 + mode (0 = off). */
     private int actState(int act) {
         switch (act) {
             case A_SLEEP: return mHost.isScreenSleeping() ? 1 : 0;
             case A_PERF: return CcState.perfState();
             case A_SPLITBRI: return CcState.propOn(CcState.PROP_SPLIT) ? 1 : 0;
-            case A_SHADER: return CcState.propOn(CcState.PROP_SHADER) ? 1 : 0;
+            case A_SHADER: return CcState.shaderIndex();
+            case A_FAN: { final int f = CcState.fanIndex(); return f == 3 ? 0 : 1 + f; }
             case A_EQ: return CcState.propOn(CcState.PROP_EQ) ? 1 : 0;
             case A_MOUSE: return CcState.propOn(CcState.PROP_MOUSE) ? 1 : 0;
             case A_WIFI: return mState.wifiOn ? 1 : 0;
@@ -117,8 +138,9 @@ final class DashboardView extends View {
         final boolean closeTile = mHost.bottomApp() != null;
         final float[] xy = new float[2];
         for (int i = 0; i < 8; i++) {
-            final int st = actState(i);
-            final boolean isClose = i == A_SHOT && closeTile;
+            final int act = tileAct(i);
+            final int st = actState(act);
+            final boolean isClose = act == A_SHOT && closeTile;
             final boolean on = st > 0 || isClose;
             tileXY(i, xy);
             final float x = xy[0], y = xy[1];
@@ -128,7 +150,8 @@ final class DashboardView extends View {
             final float icx = x + CC_TW * 0.5f, icy = y + 24;
             int ic = on ? CcDraw.rgb(0.99f, 0.92f, 1f) : CcDraw.rgb(0.82f, 0.86f, 0.94f);
             if (isClose) ic = CcDraw.rgb(1f, 0.86f, 0.86f);
-            switch (i) {
+            switch (act) {
+                case A_FAN: d.icoFan(c, icx, icy, 11, ic); break;
                 case A_SLEEP: d.icoMoon(c, icx, icy, 10, ic, bg); break;
                 case A_PERF: d.icoGauge(c, icx, icy, 11, ic); break;
                 case A_SPLITBRI: d.icoSplitBri(c, icx, icy, 10, ic); break;
@@ -142,7 +165,9 @@ final class DashboardView extends View {
                 case A_WIFI: d.icoWifi(c, icx, icy, 10, ic); break;
             }
             String lbl = TILE_LABEL[i];
-            if (i == A_PERF) lbl = st == 2 ? "Max" : st == 1 ? "Powersave" : "Stock";
+            if (act == A_PERF) lbl = st == 2 ? "Max" : st == 1 ? "Powersave" : "Stock";
+            else if (act == A_SHADER && st > 0) lbl = CcState.SHADER_LABEL[st];
+            else if (act == A_FAN) lbl = st > 0 ? CcState.FAN_LABEL[st - 1] : "Fan Off";
             else if (isClose) lbl = "Close App";
             d.textC(c, lbl, icx, y + CC_TH - 20, 11f, CcDraw.rgb(0.82f, 0.85f, 0.92f));
         }
@@ -209,6 +234,58 @@ final class DashboardView extends View {
         c.restore();
     }
 
+    private int pickerRows() {
+        if (mPicker == 2) return CcState.FAN_MODE.length;
+        return CcState.shaderHasCustom() ? CcState.SHADER_TYPE.length : CcState.SHADER_TYPE.length - 1;
+    }
+
+    private float pickerH(int rows) { return PK_HEAD + rows * PK_ROW + 12f; }
+
+    /** Modal option list over the dashboard (and the page dots, see drawPickerOverlay). */
+    void drawPickerOverlay(Canvas c, int w, int h) {
+        if (mPicker == 0) return;
+        final CcDraw d = mD;
+        c.drawColor(CcDraw.argb(0.62f, 0f, 0f, 0f));
+        c.save();
+        d.begin(c, w, h);
+        final int rows = pickerRows();
+        final float ph = pickerH(rows), x = (CcDraw.DW - PK_W) * 0.5f, y = (CcDraw.DH - ph) * 0.5f;
+        d.round(c, x, y, PK_W, ph, 14f, CcDraw.rgb(0.095f, 0.102f, 0.135f));
+        d.header(c, mPicker == 2 ? "FAN" : "SHADER", x + 18, y + 18);
+        final int cur = mPicker == 2 ? CcState.fanIndex() : CcState.shaderIndex();
+        for (int i = 0; i < rows; i++) {
+            final float ry = y + PK_HEAD + i * PK_ROW;
+            final boolean sel = i == cur;
+            if (sel) d.round(c, x + 8, ry, PK_W - 16, PK_ROW - 4, 10f, CcDraw.rgb(0.34f, 0.16f, 0.52f));
+            d.textL(c, mPicker == 2 ? CcState.FAN_LABEL[i] : CcState.SHADER_LABEL[i], x + 24,
+                    ry + (PK_ROW - 4 - 15f) * 0.5f, 15f,
+                    sel ? CcDraw.rgb(0.99f, 0.95f, 1f) : CcDraw.rgb(0.86f, 0.89f, 0.95f));
+        }
+        c.restore();
+    }
+
+    boolean pickerOpen() { return mPicker != 0; }
+
+    /** The picker is drawn by the pager over the page dots, so redraw the pager too. */
+    private void refreshOverlay() {
+        invalidate();
+        if (getParent() instanceof View) ((View) getParent()).invalidate();
+    }
+
+    private void onPickerTap(float px, float py) {
+        final int rows = pickerRows();
+        final float ph = pickerH(rows), x = (CcDraw.DW - PK_W) * 0.5f, y = (CcDraw.DH - ph) * 0.5f;
+        if (px >= x && px <= x + PK_W && py >= y + PK_HEAD && py < y + PK_HEAD + rows * PK_ROW) {
+            final int i = (int) ((py - y - PK_HEAD) / PK_ROW);
+            if (mPicker == 2) CcState.setFan(i);
+            else CcState.applyShader(i);
+        } else if (px >= x && px <= x + PK_W && py >= y && py <= y + ph) {
+            return;   // the title area keeps it open
+        }
+        mPicker = 0;
+        refreshOverlay();
+    }
+
     private void gauge(Canvas c, float cx, float cy, float frac, int col, String big, String unit,
             String label) {
         final CcDraw d = mD;
@@ -230,10 +307,33 @@ final class DashboardView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         final float px = mD.dx(e.getX()), py = mD.dy(e.getY());
+        if (mPicker != 0) {
+            // modal: a tap picks a row or closes the list; the press that opened it is consumed
+            switch (e.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                    mDownX = px;
+                    mDownY = py;
+                    break;
+                case MotionEvent.ACTION_UP: {
+                    final float ddx = px - mDownX, ddy = py - mDownY;
+                    if (!mHoldFired && ddx * ddx + ddy * ddy < 400f) onPickerTap(mDownX, mDownY);
+                    mHoldFired = false;
+                    break;
+                }
+                case MotionEvent.ACTION_CANCEL:
+                    mHoldFired = false;
+                    break;
+            }
+            return true;
+        }
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 mDownX = px;
                 mDownY = py;
+                mHoldFired = false;
+                mHoldTile = holdTileAt(px, py);
+                if (mHoldTile >= 0) postDelayed(mHoldCheck, HOLD_MS);
                 mHeld = sliderAt(px, py);
                 mState.heldSlider = mHeld;
                 if (mHeld >= 0) {
@@ -244,10 +344,15 @@ final class DashboardView extends View {
                 return true;
             case MotionEvent.ACTION_MOVE:
                 if (mHeld >= 0) applySlider(mHeld, py);
+                if (mHoldTile >= 0) {
+                    final float ddx = px - mDownX, ddy = py - mDownY;
+                    if (ddx * ddx + ddy * ddy >= 400f) cancelHold();
+                }
                 return true;
             case MotionEvent.ACTION_UP: {
                 final float ddx = px - mDownX, ddy = py - mDownY;
-                if (mHeld < 0 && ddx * ddx + ddy * ddy < 400f) onTap(mDownX, mDownY);
+                if (mHeld < 0 && !mHoldFired && ddx * ddx + ddy * ddy < 400f) onTap(mDownX, mDownY);
+                mHoldFired = false;
                 release();
                 return true;
             }
@@ -258,7 +363,33 @@ final class DashboardView extends View {
         return false;
     }
 
+    private void cancelHold() {
+        mHoldTile = -1;
+        removeCallbacks(mHoldCheck);
+    }
+
+    /** Shader tile, or the Fan tile when it replaces Mouse, under a press; -1 otherwise. */
+    private int holdTileAt(float px, float py) {
+        final float[] xy = new float[2];
+        for (int i = 0; i < 8; i++) {
+            final int act = tileAct(i);
+            if (act != A_SHADER && act != A_FAN) continue;
+            tileXY(i, xy);
+            if (px >= xy[0] && px <= xy[0] + CC_TW && py >= xy[1] && py <= xy[1] + CC_TH) return i;
+        }
+        return -1;
+    }
+
+    /** Close the picker (home left, panel slept). */
+    void closePicker() {
+        cancelHold();
+        mPicker = 0;
+        mHoldFired = false;
+        refreshOverlay();
+    }
+
     private void release() {
+        cancelHold();
         final CcState s = mState;
         // flush the final volume (the drag debounced the intermediate writes)
         if (mHeld >= 2) {
@@ -350,7 +481,8 @@ final class DashboardView extends View {
         for (int i = 0; i < 8; i++) {
             tileXY(i, xy);
             if (px < xy[0] || px > xy[0] + CC_TW || py < xy[1] || py > xy[1] + CC_TH) continue;
-            switch (i) {
+            switch (tileAct(i)) {
+                case A_FAN: CcState.setFan((CcState.fanIndex() + 1) % CcState.FAN_MODE.length); break;
                 case A_SLEEP: mHost.toggleScreenSleep(); break;
                 case A_PERF: CcState.cyclePerf(); break;
                 case A_SPLITBRI: CcState.toggleProp(CcState.PROP_SPLIT); break;

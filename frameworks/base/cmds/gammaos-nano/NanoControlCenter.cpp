@@ -393,7 +393,7 @@ void NanoMenu::pollControlCenterStats() {
 namespace {
 constexpr float CC_TX0 = 180, CC_TY0 = 58, CC_TW = 106, CC_TH = 70, CC_GX = 114, CC_GY = 82;
 inline void ccTileXY(int i, float& x, float& y) { x = CC_TX0 + (i % 4) * CC_GX; y = CC_TY0 + (i / 4) * CC_GY; }
-enum { A_SLEEP, A_PERF, A_SPLITBRI, A_SHADER, A_EQ, A_MOUSE, A_SHOT, A_WIFI };
+enum { A_SLEEP, A_PERF, A_SPLITBRI, A_SHADER, A_EQ, A_MOUSE, A_SHOT, A_WIFI, A_FAN };
 // renderCcPass mask bits: STATIC layers are baked into the cache, DYNAMIC layers redraw over it each frame.
 enum { CC_PASS_STATIC = 1, CC_PASS_DYNAMIC = 2 };
 struct CcTileDef { const char* label; int act; };
@@ -401,7 +401,69 @@ const CcTileDef CC_TILE[8] = {
     { "Sleep Screen", A_SLEEP },  { "Performance", A_PERF },   { "Split Bright", A_SPLITBRI }, { "Shader", A_SHADER },
     { "Gamma EQ",     A_EQ },      { "Mouse",       A_MOUSE },  { "Screenshot",   A_SHOT },     { "Wi-Fi", A_WIFI },
 };
+// The Mouse tile becomes a Fan tile on devices with a controllable fan (persist.gammaos.nano.cc.fantile).
+inline int ccTileAct(int i) {
+    static int sFan = -1;
+    if (sFan < 0) sFan = property_get_bool("persist.gammaos.nano.cc.fantile", false) ? 1 : 0;
+    return (i == A_MOUSE && sFan) ? A_FAN : CC_TILE[i].act;
+}
+
+// Shader options for the hold picker, in persist.gammaos.shader.type terms (the ShaderControl modes).
+// Index 0 is Off (shader.enable=0); "Custom" is offered only when a custom preset has been chosen.
+struct CcShaderOpt { const char* type; const char* label; };
+const CcShaderOpt CC_SHADERS[] = {
+    { "",           "Off" },        { "crt-simple", "CRT" },       { "lcd3x", "LCD 3x" },
+    { "lcd-shader", "LCD Shader" }, { "blur-fill",  "Blur Fill" }, { "custom", "Custom" },
+};
+constexpr int CC_SHADER_COUNT = 6;
+// Fan modes (persist.gammaos.fan_mode, the QS Fan tile's values) in tap-cycle order.
+const char* const CC_FAN_MODE[]  = { "auto", "cool", "max", "off" };
+const char* const CC_FAN_LABEL[] = { "Auto", "Cool", "Max", "Off" };
+constexpr int CC_FAN_COUNT = 4;
+
+bool ccShaderHasCustom() {
+    char p[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.shader.custom.preset", p, "");
+    return p[0] != 0;
+}
+// Active shader option index (0 = Off). Aliases match ShaderControl's own matching.
+int ccShaderIndex() {
+    if (!property_get_int32("persist.gammaos.shader.enable", 0)) return 0;
+    char t[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.shader.type", t, "crt-simple");
+    if (!strcmp(t, "lcd3x")) return 2;
+    if (!strcmp(t, "lcd-shader") || !strcmp(t, "lcdshader") || !strcmp(t, "lcd_shader") || !strcmp(t, "lcd")) return 3;
+    if (!strcmp(t, "blur-fill") || !strcmp(t, "blurfill") || !strcmp(t, "blur_fill")) return 4;
+    if (!strncmp(t, "custom", 6)) return 5;
+    return 1;
+}
+void ccShaderApply(int idx) {
+    if (idx <= 0) { property_set("persist.gammaos.shader.enable", "0"); return; }
+    if (idx == 5) {
+        // Keep the custom pipeline the user picked in ShaderControl; otherwise infer it from the preset.
+        char t[PROPERTY_VALUE_MAX] = {}, p[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.shader.type", t, "");
+        property_get("persist.gammaos.shader.custom.preset", p, "");
+        if (strncmp(t, "custom", 6) != 0) {
+            size_t n = strlen(p);
+            property_set("persist.gammaos.shader.type",
+                         (n > 6 && !strcmp(p + n - 6, ".glslp")) ? "custom-gl" : "custom");
+        }
+    } else {
+        property_set("persist.gammaos.shader.type", CC_SHADERS[idx].type);
+    }
+    property_set("persist.gammaos.shader.enable", "1");
+}
+// Fan mode index (unknown/missing = Auto, like the QS tile).
+int ccFanIndex() {
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.fan_mode", v, "auto");
+    for (int i = 0; i < CC_FAN_COUNT; i++) if (!strcmp(v, CC_FAN_MODE[i])) return i;
+    return 0;
+}
+
 // live on-state / mode of a tile action. 0 = off/inactive; 1 = on (or perf=powersave); 2 = perf=max.
+// Shader: 1 + option index while on (the label names the shader). Fan: 1 + mode index, 0 when off.
 int ccActState(int act, bool sleeping) {
     char v[PROPERTY_VALUE_MAX] = {};
     switch (act) {
@@ -411,7 +473,8 @@ int ccActState(int act, bool sleeping) {
                          if (!strcmp(v, "max"))       return 2;
                          return 0;
         case A_SPLITBRI: return property_get_int32("persist.gammaos.multidisplay.split_brightness", 0) ? 1 : 0;
-        case A_SHADER:   return property_get_int32("persist.gammaos.shader.enable", 0) ? 1 : 0;
+        case A_SHADER:   { int i = ccShaderIndex(); return i > 0 ? i : 0; }
+        case A_FAN:      { int i = ccFanIndex(); return i == 3 ? 0 : 1 + i; }
         case A_EQ:       return property_get_int32("persist.sys.gammaeq.enable", 0) ? 1 : 0;
         case A_MOUSE:    return property_get_int32("sys.gammaos.gamepad.mouse_active", 0) ? 1 : 0;
         case A_WIFI:     return sCc.wifiOn ? 1 : 0;
@@ -633,6 +696,18 @@ void NanoMenu::renderCcPass(int pass) {
         }
     };
 
+    // Fan: three swept blades around a hub.
+    auto icoFan = [&](float cx, float cy, float r, float R, float G, float B, float A){
+        float CX = X(cx), CY = Y(cy), rr = S(r);
+        for (int k = 0; k < 3; k++) {
+            float a = (float)k / 3.0f * 2.0f * (float)M_PI - (float)M_PI * 0.5f;
+            float ca = cosf(a), sa = sinf(a), cb = cosf(a + 0.9f), sb = sinf(a + 0.9f);
+            drawTriangle(CX + ca*rr*0.22f, CY + sa*rr*0.22f, CX + ca*rr, CY + sa*rr, CX + cb*rr*0.85f, CY + sb*rr*0.85f, R, G, B, A);
+            drawTriangle(CX + ca*rr*0.22f, CY + sa*rr*0.22f, CX + cb*rr*0.85f, CY + sb*rr*0.85f, CX + cb*rr*0.3f, CY + sb*rr*0.3f, R, G, B, A);
+        }
+        disc(CX, CY, rr*0.24f, R, G, B, A);
+    };
+
     char buf[80];
 
     // ==== STATUS BAR ====================================================
@@ -681,9 +756,9 @@ void NanoMenu::renderCcPass(int pass) {
         // refreshes when the bottom-app state changes.
         bool closeTile = !mCcBottomApp.empty();
         for (int i = 0; i < 8; i++) {
-            const CcTileDef& t = CC_TILE[i];
-            int st = ccActState(t.act, mCcSleeping);   // 0 off, 1 on / perf=powersave, 2 perf=max
-            bool isClose = (t.act == A_SHOT && closeTile);
+            const int act = ccTileAct(i);
+            int st = ccActState(act, mCcSleeping);   // 0 off, 1 on / perf=powersave, 2 perf=max
+            bool isClose = (act == A_SHOT && closeTile);
             bool on = st > 0 || isClose;
             float x, y; ccTileXY(i, x, y);
             float bgR = on ? 0.34f : 0.11f, bgG = on ? 0.16f : 0.12f, bgB = on ? 0.52f : 0.155f;
@@ -692,7 +767,8 @@ void NanoMenu::renderCcPass(int pass) {
             float icx = x + CC_TW*0.5f, icy = y + 24;
             float ir = on ? 0.99f : 0.82f, ig = on ? 0.92f : 0.86f, ib = on ? 1.0f : 0.94f;
             if (isClose) { ir = 1.0f; ig = 0.86f; ib = 0.86f; }
-            switch (t.act) {
+            switch (act) {
+                case A_FAN:      icoFan(icx, icy, 11, ir,ig,ib,1); break;
                 case A_SLEEP:    icoMoon(icx, icy, 10, ir,ig,ib,1); break;
                 case A_PERF:     icoGauge(icx, icy, 11, ir,ig,ib,1); break;
                 case A_SPLITBRI: icoSplitBri(icx, icy, 10, ir,ig,ib,1); break;
@@ -704,8 +780,10 @@ void NanoMenu::renderCcPass(int pass) {
                 case A_WIFI:     icoWifi(icx, icy, 10, ir,ig,ib,1); break;
             }
             // Performance shows its mode name; the Screenshot tile shows "Close App" while a bottom app runs.
-            const char* lbl = t.label;
-            if (t.act == A_PERF)   lbl = (st == 2) ? "Max" : (st == 1) ? "Powersave" : "Stock";
+            const char* lbl = CC_TILE[i].label;
+            if (act == A_PERF)     lbl = (st == 2) ? "Max" : (st == 1) ? "Powersave" : "Stock";
+            else if (act == A_SHADER && st > 0) lbl = CC_SHADERS[st].label;
+            else if (act == A_FAN) lbl = st > 0 ? CC_FAN_LABEL[st - 1] : "Fan Off";
             else if (isClose)      lbl = "Close App";
             textC(lbl, icx, y + CC_TH - 20, 11.0f, 0.82f, 0.85f, 0.92f, 1.0f);
         }
@@ -816,7 +894,7 @@ NanoMenu::CcStaticSig NanoMenu::ccStaticSignature() const {
     s.w = mWidth;
     s.h = mHeight;
     for (int i = 0; i < 8; i++)
-        s.tile[i] = (uint8_t)ccActState(CC_TILE[i].act, mCcSleeping);
+        s.tile[i] = (uint8_t)ccActState(ccTileAct(i), mCcSleeping);
     // The A_SHOT tile (index 6) is baked as "Close App" while a grid-launched bottom app runs; give it a
     // distinct signature value so the cache re-bakes when that state flips (ccActState(A_SHOT) is always 0).
     if (!mCcBottomApp.empty()) s.tile[6] = 3;
@@ -1476,6 +1554,20 @@ void NanoMenu::ccTouchFrame() {
     bool downEdge = down && !mCcTouchWas;
     bool upEdge   = !down && mCcTouchWas;
     static bool sWokeThisTouch = false;
+    mCcLastPx = px; mCcLastPy = py;
+    // Picker open: it is modal. A tap picks a row (or closes it when outside the list); nothing reaches
+    // the page underneath. A press that opened the picker is consumed on release.
+    if (mCcPicker && !mCcSleeping && mCcSleepDir >= 0) {
+        if (downEdge) { mCcDownX = px; mCcDownY = py; mCcLastTouchMs = nowMs(); }
+        else if (down) mCcLastTouchMs = nowMs();
+        else if (upEdge) {
+            float ddx = px - mCcDownX, ddy = py - mCcDownY;
+            if (!mCcHoldFired && ddx*ddx + ddy*ddy < 400.0f) ccOnPickerTap(mCcDownX, mCcDownY);
+            mCcHoldFired = false;
+        }
+        mCcTouchWas = down;
+        return;
+    }
     if (downEdge) {
         mCcDownX = px; mCcDownY = py;
         mCcLastTouchMs = nowMs();                        // any press resets the idle auto-sleep window
@@ -1498,12 +1590,30 @@ void NanoMenu::ccTouchFrame() {
             // sliders live on the dashboard (page 0) only; on the app page a press starts a swipe/tap.
             mCcHeldSlider = (mCcPage == 0 && mCcPageOffset <= 0.001f) ? ccSliderAt(px, py) : -1;
             if (mCcHeldSlider >= 0) ccApplySlider(mCcHeldSlider, py);
+            // Hold candidate: the Shader tile, or the Fan tile when it replaces Mouse.
+            mCcHoldTile = -1;
+            mCcHoldFired = false;
+            if (mCcHeldSlider < 0 && mCcPage == 0 && mCcPageOffset <= 0.001f) {
+                for (int i = 0; i < 8; i++) {
+                    int act = ccTileAct(i);
+                    if (act != A_SHADER && act != A_FAN) continue;
+                    float x, y; ccTileXY(i, x, y);
+                    if (px >= x && px <= x + CC_TW && py >= y && py <= y + CC_TH) {
+                        mCcHoldTile = i; mCcHoldStartMs = nowMs(); break;
+                    }
+                }
+            }
         }
     } else if (down) {
         mCcLastTouchMs = nowMs();                        // held/moving finger keeps the panel awake
         // held: drag a grabbed slider live (track Y only, so the finger can drift horizontally)
         if (mCcHeldSlider >= 0 && !sWokeThisTouch) ccApplySlider(mCcHeldSlider, py);
+        if (mCcHoldTile >= 0) {
+            float ddx = px - mCcDownX, ddy = py - mCcDownY;
+            if (ddx*ddx + ddy*ddy >= 400.0f) mCcHoldTile = -1;   // moved: a swipe, not a hold
+        }
     } else if (upEdge) {
+        mCcHoldTile = -1;
         float ddx = px - mCcDownX, ddy = py - mCcDownY;
         bool swiped = false;
         // A big mostly-horizontal drag with no slider grabbed pages across the dashboard (0), the app
@@ -1515,7 +1625,7 @@ void NanoMenu::ccTouchFrame() {
         }
         // Otherwise a short press is a tap. Page 0 hits tiles/sliders; page 1 launches the app under it;
         // page 2 toggles the screen option under it.
-        if (!swiped && !sWokeThisTouch && mCcHeldSlider < 0 && ddx*ddx + ddy*ddy < 400.0f
+        if (!swiped && !sWokeThisTouch && !mCcHoldFired && mCcHeldSlider < 0 && ddx*ddx + ddy*ddy < 400.0f
                 && mCcPageOffset >= 0.999f * (float)mCcPage && mCcPageOffset <= (float)mCcPage + 0.001f) {
             if (mCcPage == 0) ccOnTap(mCcDownX, mCcDownY);
             else if (mCcPage == 1) {
@@ -1572,8 +1682,73 @@ void NanoMenu::ccTouchFrame() {
         }
         mCcHeldSlider = -1;
         sWokeThisTouch = false;
+        mCcHoldFired = false;
     }
     mCcTouchWas = down;
+}
+
+// A finger resting on a tile emits no further SYN frames, so the hold is timed here, per park frame.
+void NanoMenu::ccCheckHold() {
+    if (mCcHoldTile < 0 || mCcPicker || !mCcTouchDownRaw) return;
+    if (mCcSleeping || mCcSleepDir < 0) { mCcHoldTile = -1; return; }
+    if (nowMs() - mCcHoldStartMs < 500) return;
+    mCcPicker = (ccTileAct(mCcHoldTile) == A_FAN) ? 2 : 1;
+    mCcHoldTile = -1;
+    mCcHoldFired = true;
+}
+
+// Picker geometry (design space), shared by the render and the hit-test.
+namespace {
+constexpr float CC_PK_W = 300.0f, CC_PK_ROW = 44.0f, CC_PK_HEAD = 50.0f;
+int ccPickerRows(int picker) {
+    if (picker == 2) return CC_FAN_COUNT;
+    return ccShaderHasCustom() ? CC_SHADER_COUNT : CC_SHADER_COUNT - 1;
+}
+void ccPickerRect(int rows, float& x, float& y, float& w, float& h) {
+    w = CC_PK_W; h = CC_PK_HEAD + rows * CC_PK_ROW + 12.0f;
+    x = (640.0f - w) * 0.5f; y = (480.0f - h) * 0.5f;
+}
+} // namespace
+
+void NanoMenu::renderCcPicker() {
+    const float DW = 640.0f, DH = 480.0f;
+    const float u  = fminf((float)mWidth / DW, (float)mHeight / DH);
+    const float ox = ((float)mWidth  - DW * u) * 0.5f;
+    const float oy = ((float)mHeight - DH * u) * 0.5f;
+    auto X  = [&](float x){ return ox + x * u; };
+    auto Y  = [&](float y){ return oy + y * u; };
+    auto S  = [&](float s){ return s * u; };
+    auto TS = [&](float px){ return (px * u) / (float)FONT_CHAR_H; };
+    setUiBlend();
+    drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 0.62f);   // dim the page
+    const int rows = ccPickerRows(mCcPicker);
+    float x, y, w, h; ccPickerRect(rows, x, y, w, h);
+    drawRoundedRect(X(x), Y(y), S(w), S(h), S(14.0f), 0.095f, 0.102f, 0.135f, 1.0f);
+    { const char* t = (mCcPicker == 2) ? "FAN" : "SHADER"; float sc = TS(11.0f), cx = X(x + 18);
+      for (const char* p = t; *p; ++p) { char c[2] = { *p, 0 };
+          drawText(c, cx, Y(y + 18), sc, 0.46f, 0.52f, 0.64f, 1.0f); cx += measureText(c, sc) + S(2.2f); } }
+    const int cur = (mCcPicker == 2) ? ccFanIndex() : ccShaderIndex();
+    for (int i = 0; i < rows; i++) {
+        float ry = y + CC_PK_HEAD + i * CC_PK_ROW;
+        bool sel = (i == cur);
+        if (sel) drawRoundedRect(X(x + 8), Y(ry), S(w - 16), S(CC_PK_ROW - 4), S(10.0f), 0.34f, 0.16f, 0.52f, 1.0f);
+        const char* lbl = (mCcPicker == 2) ? CC_FAN_LABEL[i] : CC_SHADERS[i].label;
+        drawText(lbl, X(x + 24), Y(ry + (CC_PK_ROW - 4 - 15.0f) * 0.5f), TS(15.0f),
+                 sel ? 0.99f : 0.86f, sel ? 0.95f : 0.89f, sel ? 1.0f : 0.95f, 1.0f);
+    }
+}
+
+void NanoMenu::ccOnPickerTap(float px, float py) {
+    const int rows = ccPickerRows(mCcPicker);
+    float x, y, w, h; ccPickerRect(rows, x, y, w, h);
+    if (px >= x && px <= x + w && py >= y + CC_PK_HEAD && py < y + CC_PK_HEAD + rows * CC_PK_ROW) {
+        int i = (int)((py - y - CC_PK_HEAD) / CC_PK_ROW);
+        if (mCcPicker == 2) property_set("persist.gammaos.fan_mode", CC_FAN_MODE[i]);
+        else                ccShaderApply(i);
+    } else if (px >= x && px <= x + w && py >= y && py <= y + h) {
+        return;   // the title area: keep the picker open
+    }
+    mCcPicker = 0;
 }
 
 void NanoMenu::ccOnTap(float px, float py) {
@@ -1581,7 +1756,11 @@ void NanoMenu::ccOnTap(float px, float py) {
     for (int i = 0; i < 8; i++) {
         float x, y; ccTileXY(i, x, y);
         if (px >= x && px <= x + CC_TW && py >= y && py <= y + CC_TH) {
-            switch (CC_TILE[i].act) {
+            switch (ccTileAct(i)) {
+                case A_FAN: {
+                    property_set("persist.gammaos.fan_mode", CC_FAN_MODE[(ccFanIndex() + 1) % CC_FAN_COUNT]);
+                    break;
+                }
                 case A_SLEEP: {
                     if (!mCcSleeping && mCcSleepDir >= 0) {
                         ccBeginSleep();                         // graceful fade to off (shared with the 30s idle auto-sleep)
@@ -1606,6 +1785,7 @@ void NanoMenu::ccOnTap(float px, float py) {
                     break;
                 }
                 case A_SHADER: {
+                    // A tap toggles the last chosen shader; hold the tile to pick a different one.
                     int on = property_get_int32("persist.gammaos.shader.enable", 0);
                     property_set("persist.gammaos.shader.enable", on ? "0" : "1");
                     break;

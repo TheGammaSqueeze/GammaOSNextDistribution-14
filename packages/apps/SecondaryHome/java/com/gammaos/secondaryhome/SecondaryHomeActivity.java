@@ -103,6 +103,12 @@ public class SecondaryHomeActivity extends AppCompatActivity implements Dashboar
         mPager.addView(mDashboard);
         mPager.addView(buildAppsPage());
         mPager.addView(mOptions);
+        mPager.setOverlay(new CcPager.Overlay() {
+            @Override public boolean isOpen() { return mDashboard.pickerOpen(); }
+            @Override public void draw(android.graphics.Canvas c, int w, int h) {
+                mDashboard.drawPickerOverlay(c, w, h);
+            }
+        });
         mPager.setListener(page -> {
             if (page == PAGE_APPS) focusFirst();
             else mPager.getChildAt(page).invalidate();
@@ -133,6 +139,7 @@ public class SecondaryHomeActivity extends AppCompatActivity implements Dashboar
     protected void onPause() {
         mResumed = false;
         stopPolling();
+        mDashboard.closePicker();
         // Whoever gets this panel next must not inherit a dark backlight.
         restoreBacklightIfSlept();
         super.onPause();
@@ -229,6 +236,7 @@ public class SecondaryHomeActivity extends AppCompatActivity implements Dashboar
             if (mSleepFromBri < 8) mSleepFromBri = 128;   // never capture an already-off value
         }
         mSleeping = true;
+        mDashboard.closePicker();
         // the panel is dark: no stats work while slept, only the touch path stays live
         fadeTo(0f, this::stopPolling);
         mDashboard.invalidate();

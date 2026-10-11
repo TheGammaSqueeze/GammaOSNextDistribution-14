@@ -27,6 +27,18 @@ final class CcState {
     static final String PROP_SHADER = "persist.gammaos.shader.enable";
     static final String PROP_EQ = "persist.sys.gammaeq.enable";
     static final String PROP_MOUSE = "sys.gammaos.gamepad.mouse_active";
+    static final String PROP_FAN_TILE = "persist.gammaos.nano.cc.fantile";
+    static final String PROP_FAN_MODE = "persist.gammaos.fan_mode";
+    static final String PROP_SHADER_TYPE = "persist.gammaos.shader.type";
+    static final String PROP_SHADER_PRESET = "persist.gammaos.shader.custom.preset";
+
+    // Shader options of the hold picker, in persist.gammaos.shader.type terms (the ShaderControl
+    // modes). Index 0 is Off; Custom is offered only once a custom preset has been chosen.
+    static final String[] SHADER_TYPE = {"", "crt-simple", "lcd3x", "lcd-shader", "blur-fill", "custom"};
+    static final String[] SHADER_LABEL = {"Off", "CRT", "LCD 3x", "LCD Shader", "Blur Fill", "Custom"};
+    // Fan modes (the QS Fan tile's values) in tap-cycle order.
+    static final String[] FAN_MODE = {"auto", "cool", "max", "off"};
+    static final String[] FAN_LABEL = {"Auto", "Cool", "Max", "Off"};
     static final String PROP_D1_OVERRIDE = "sys.gammaos.multidisplay.split_brightness.d1.override";
     static final String PROP_D1_LAST = "persist.gammaos.multidisplay.split_brightness.d1.last";
     static final String PROP_D1_IS_TOP = "persist.gammaos.nano.cc.d1_is_top";
@@ -272,6 +284,54 @@ final class CcState {
         final String v = SystemProperties.get(PROP_PERF, "stock");
         final String next = "stock".equals(v) ? "powersave" : "powersave".equals(v) ? "max" : "stock";
         SystemProperties.set(PROP_PERF, next);
+    }
+
+    static boolean fanTile() {
+        return SystemProperties.getBoolean(PROP_FAN_TILE, false);
+    }
+
+    static boolean shaderHasCustom() {
+        return !SystemProperties.get(PROP_SHADER_PRESET, "").isEmpty();
+    }
+
+    /** Active shader option (0 = Off); aliases match ShaderControl's own matching. */
+    static int shaderIndex() {
+        if (!propOn(PROP_SHADER)) return 0;
+        final String t = SystemProperties.get(PROP_SHADER_TYPE, "crt-simple");
+        switch (t) {
+            case "lcd3x": return 2;
+            case "lcd-shader": case "lcdshader": case "lcd_shader": case "lcd": return 3;
+            case "blur-fill": case "blurfill": case "blur_fill": return 4;
+        }
+        return t.startsWith("custom") ? 5 : 1;
+    }
+
+    static void applyShader(int idx) {
+        if (idx <= 0) {
+            SystemProperties.set(PROP_SHADER, "0");
+            return;
+        }
+        if (idx == 5) {
+            // keep the custom pipeline picked in ShaderControl, else infer it from the preset
+            if (!SystemProperties.get(PROP_SHADER_TYPE, "").startsWith("custom")) {
+                final String p = SystemProperties.get(PROP_SHADER_PRESET, "");
+                SystemProperties.set(PROP_SHADER_TYPE, p.endsWith(".glslp") ? "custom-gl" : "custom");
+            }
+        } else {
+            SystemProperties.set(PROP_SHADER_TYPE, SHADER_TYPE[idx]);
+        }
+        SystemProperties.set(PROP_SHADER, "1");
+    }
+
+    /** Fan mode index; unknown or missing is Auto, like the QS tile. */
+    static int fanIndex() {
+        final String v = SystemProperties.get(PROP_FAN_MODE, "auto");
+        for (int i = 0; i < FAN_MODE.length; i++) if (FAN_MODE[i].equals(v)) return i;
+        return 0;
+    }
+
+    static void setFan(int idx) {
+        SystemProperties.set(PROP_FAN_MODE, FAN_MODE[idx]);
     }
 
     static boolean propOn(String prop) {
