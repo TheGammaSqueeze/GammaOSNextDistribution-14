@@ -2577,6 +2577,17 @@ public final class PowerManagerService extends SystemService
             }
             target = anyOn ? "on" : "off";
         }
+        // GammaOS Nano: the display states are wrong both ways here. The DRM home drives the
+        // panels itself, so the primary reports OFF while the device is awake, and the
+        // dual-panel second display (its own display group, whose power controller never ran)
+        // keeps reporting ON while the device sleeps: sys.screen.state flipped to "on" every
+        // few seconds of sleep (the home relit both panels) and stayed "off" after a wake (the
+        // home kept its blank sleep frame on lit panels). In nano mode it follows wakefulness.
+        if (gammaAllGroupsInNano()) {
+            synchronized (mLock) {
+                target = getGlobalWakefulnessLocked() == WAKEFULNESS_AWAKE ? "on" : "off";
+            }
+        }
         // Do not derive an "off" screen state from transient display power before boot completes.
         // While the panels are still being brought up during boot they report not-ON, which would
         // spuriously blank the backlight and (on the RG DS) trip the vendor force_sleep / screen-off
@@ -6550,8 +6561,16 @@ public final class PowerManagerService extends SystemService
                             updatePowerStateLocked();
                             return;
                         }
-                        wakePowerGroupLocked(mPowerGroups.get(Display.DEFAULT_DISPLAY_GROUP),
-                                eventTime, reason, details, uid, opPackageName, uid);
+                        if (gammaAllGroupsInNano()) {
+                            // GammaOS Nano: wake every panel the sleep turned off.
+                            for (int i = 0; i < mPowerGroups.size(); i++) {
+                                wakePowerGroupLocked(mPowerGroups.valueAt(i), eventTime, reason,
+                                        details, uid, opPackageName, uid);
+                            }
+                        } else {
+                            wakePowerGroupLocked(mPowerGroups.get(Display.DEFAULT_DISPLAY_GROUP),
+                                    eventTime, reason, details, uid, opPackageName, uid);
+                        }
                     }
                 } finally {
                     Binder.restoreCallingIdentity(ident);
@@ -6567,6 +6586,14 @@ public final class PowerManagerService extends SystemService
         @Override // Binder call
         @RequiresPermission(android.Manifest.permission.DEVICE_POWER)
         public void goToSleep(long eventTime, int reason, int flags) {
+            if (gammaAllGroupsInNano()) {
+                // GammaOS Nano: minimal boot runs no DreamManager, so a dozing sleep stopped
+                // half way (Dozing, wakefulness changing, display suspend blocker held, no
+                // suspend): go straight to Asleep.
+                goToSleepInternal(gammaAllPowerGroupIds(), eventTime, reason,
+                        flags | PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE);
+                return;
+            }
             goToSleepInternal(DEFAULT_DISPLAY_GROUP_IDS, eventTime, reason, flags);
         }
 
@@ -7601,6 +7628,26 @@ public final class PowerManagerService extends SystemService
     }
 
     @RequiresPermission(android.Manifest.permission.DEVICE_POWER)
+    /**
+     * GammaOS Nano: a dual-panel device runs its second panel in its own display group, so it
+     * gets its own power group. The power key, the lid and nano's own sleep all go through
+     * goToSleep, which only slept the default group: the other panel's group stayed awake,
+     * the device as a whole stayed Awake, the display suspend blocker stayed held and the SoC
+     * never suspended (nor was zygote_kwl released). In nano mode sleep and wake act on every
+     * power group, like a single device with two screens.
+     */
+    private static boolean gammaAllGroupsInNano() {
+        return android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false);
+    }
+
+    private IntArray gammaAllPowerGroupIds() {
+        synchronized (mLock) {
+            final IntArray ids = new IntArray(mPowerGroups.size());
+            for (int i = 0; i < mPowerGroups.size(); i++) ids.add(mPowerGroups.keyAt(i));
+            return ids;
+        }
+    }
+
     private void goToSleepInternal(IntArray groupIds, long eventTime, int reason, int flags) {
         final long now = mClock.uptimeMillis();
         if (eventTime > now) {

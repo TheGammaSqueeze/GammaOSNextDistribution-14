@@ -767,6 +767,19 @@ public final class DisplayManagerService extends SystemService {
                                 Display.STATE_OFF,
                                 PowerManager.BRIGHTNESS_INVALID_FLOAT,
                                 PowerManager.BRIGHTNESS_INVALID_FLOAT);
+                        // GammaOS: the summary above was taken before the mirror turned the
+                        // other internal displays off, so it said "not all off". Their own
+                        // OFF requests then found nothing to change and never reported, and
+                        // PowerManager was never told every display was off: autosuspend
+                        // stayed disabled (SuspendLockout held) and the SoC never suspended.
+                        // Report what the displays are now.
+                        allInactive = true;
+                        allOff = true;
+                        for (int i = 0; i < mDisplayStates.size(); i++) {
+                            final int displayState = mDisplayStates.valueAt(i);
+                            if (displayState != Display.STATE_OFF) allOff = false;
+                            if (Display.isActiveState(displayState)) allInactive = false;
+                        }
                     }
                 }
             }
