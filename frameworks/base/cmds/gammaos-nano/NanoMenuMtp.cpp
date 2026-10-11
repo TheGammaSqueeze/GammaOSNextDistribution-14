@@ -57,6 +57,11 @@ bool writeSmallFile(const char* path, const char* val) {
 bool mtpUsbOnline() {
     std::string s;
     if (readSmallFile("/sys/class/power_supply/usb/online", s) && s == "1") return true;
+    // The cable is physically there (RP Duo Lite: online stays 0 on a PC port while present is
+    // 1). This does not change when the gadget re-enumerates, unlike the UDC state below: going
+    // by the UDC alone, every rejig read as a fresh cable and started the next one, an endless
+    // none -> mtp loop that never let a desktop see the device.
+    if (readSmallFile("/sys/class/power_supply/usb/present", s) && s == "1") return true;
     // Fall back to the gadget controller's own state when the supply node is missing.
     DIR* d = opendir("/sys/class/udc"); if (!d) return false;
     bool on = false;
@@ -191,6 +196,9 @@ void NanoMenu::mtpTick() {
     mMtpLastPollMs = now;
     mMtpPollFrames++;   // 4 Hz counter, drives the spinner dots
     const bool on = mtpUsbOnline();
+    // A rejig re-enumerates the gadget, which can flicker the presence signals: ignore edges while
+    // one runs and shortly after, so a rejig can never trigger the next one.
+    if (mMtpRejigging || now - mMtpLastRejigMs < 5000) return;
     if (on != mMtpUsbConnected) {
         mMtpUsbConnected = on;
         mDisplayDirty = true;
