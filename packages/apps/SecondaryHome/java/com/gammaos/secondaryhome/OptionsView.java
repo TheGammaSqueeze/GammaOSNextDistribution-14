@@ -66,7 +66,7 @@ final class OptionsView extends View {
                     on ? CcDraw.rgb(0.15f, 0.45f, 0.26f) : CcDraw.rgb(0.13f, 0.14f, 0.17f));
             d.textC(c, val, pxx + pw * 0.5f, pyy + (ph - 14f) * 0.5f, 14f, CcDraw.rgb(0.95f, 0.97f, 1f));
         }
-        d.textC(c, "Tap a row to change", 320, CcDraw.DH - 34f, 11f, CcDraw.rgb(0.44f, 0.49f, 0.60f));
+        d.textC(c, "Tap a row to change", 320, CcDraw.DH - 52f, 11f, CcDraw.rgb(0.44f, 0.49f, 0.60f));
         c.restore();
     }
 

@@ -428,6 +428,8 @@ public class SecondaryHomeActivity extends AppCompatActivity implements Dashboar
             final TextView header = page.findViewById(R.id.header);
             header.setTextSize(TypedValue.COMPLEX_UNIT_PX, 11f * u);
             header.setPadding(Math.round(10 * u), Math.round(8 * u), 0, Math.round(10 * u));
+            // keep the last row clear of the page dots
+            mGrid.setPadding(0, 0, 0, Math.round(30 * u));
             if (span != mGridLayout.getSpanCount() || Math.abs(u - mGridUnit) > 0.001f) {
                 mGridUnit = u;
                 mGrid.post(() -> {
