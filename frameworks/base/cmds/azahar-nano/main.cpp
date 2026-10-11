@@ -51,6 +51,9 @@
 #include "DrmWindows.h"
 #include "Overlay.h"
 #include "Hud.h"
+#include "Brightness.h"
+#include "../gammaos-nano/NanoBacklight.h"
+#include <sys/system_properties.h>
 #include "GpuDriverPkg.h"
 
 namespace {
@@ -987,6 +990,44 @@ int main(int argc, char** argv) {
     static bool sPaceToPanel = false;
     static double sPaceScale = 1.0;
     sPaceToPanel = prop("persist.gammaos.azahar_nano.pace_to_panel", "1") == "1";
+    // Sleep: in the DRM session the framework owns the power key and the lid and puts the device
+    // to sleep, but the panels are ours: without this the 3DS kept emulating, playing audio and
+    // lighting both panels behind a sleeping device. Follow sys.screen.state (PowerManager keeps
+    // it in step with wakefulness in nano mode): pause the core and turn the backlights off, then
+    // relight at the saved level and resume what we paused.
+    std::thread sleepWatch([] {
+        const prop_info* pi = nullptr;
+        while (!pi && !gExitRequested) {
+            pi = __system_property_find("sys.screen.state");
+            if (!pi) usleep(500 * 1000);
+        }
+        uint32_t serial = 0;
+        bool asleep = false, pausedForSleep = false;
+        while (!gExitRequested) {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_read(pi, nullptr, v);
+            const bool off = strcmp(v, "off") == 0;
+            if (off && !asleep) {
+                asleep = true;
+                pausedForSleep = !overlay.isOpen();
+                if (pausedForSleep) gCore.pause(true);
+                android::nanobl::nanoBacklightSet(0);
+                ALOGI("sleep: screen off, core %s, backlights off",
+                      pausedForSleep ? "paused" : "left as the menu has it");
+            } else if (!off && asleep) {
+                asleep = false;
+                android::nanobl::nanoBacklightSet(azahar_nano::brightnessLevel());
+                if (pausedForSleep) gCore.pause(false);
+                pausedForSleep = false;
+                ALOGI("sleep: screen on, backlights restored");
+            }
+            // Wakes on the next change of the property (1 s cap so exit is noticed).
+            timespec ts = {1, 0};
+            __system_property_wait(pi, serial, &serial, &ts);
+        }
+    });
+    sleepWatch.detach();
+
     std::thread perfThread([] {
         uint64_t lastFlips = 0;
         int64_t lastFlipNs = 0;
