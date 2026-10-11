@@ -237,8 +237,14 @@ bool KeyboardInputMapper::updateKeyboardLayoutOverlay() {
 
 void KeyboardInputMapper::configureParameters() {
     const PropertyMap& config = getDeviceContext().getConfiguration();
+    // GammaOS: a built-in game controller (handheld) is not tied to a display. orientationAware
+    // binds the keys to the internal display (display 0), while the same controller's d-pad hat
+    // and sticks (joystick motion, no display) follow the focused display: on a dual-screen
+    // handheld with an app on each panel the buttons went to the top app and the d-pad to the
+    // bottom one. Gamepad buttons do not rotate with the screen either. An idc can still set it.
+    const bool gamepad = getDeviceContext().getDeviceClasses().test(InputDeviceClass::GAMEPAD);
     mParameters.orientationAware = config.getBool("keyboard.orientationAware").value_or(
-            !getDeviceContext().isExternal());
+            !getDeviceContext().isExternal() && !gamepad);
     mParameters.handlesKeyRepeat = config.getBool("keyboard.handlesKeyRepeat").value_or(false);
     mParameters.doNotWakeByDefault = config.getBool("keyboard.doNotWakeByDefault").value_or(false);
 }
