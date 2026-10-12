@@ -466,10 +466,14 @@ void DspHle::Impl::AudioTickCallback(s64 cycles_late) {
 
     // Reschedule recurrent event. Fast forward keeps the emulated rate so the audio speeds up
     // with the game instead of holding real time.
+    // GammaOS: the realtime audio scale is clamped to 0.25..4. A real slowdown stays well inside
+    // that; outside it the frame times come from a stall or a reset (a save state load, a pause,
+    // a long shader compile), and following them stretched or squeezed the audio tick up to a
+    // hundredfold (after a state load Kirby: Planet Robobot's audio thread spun and the game
+    // froze).
     const double time_scale =
         Settings::values.enable_realtime_audio && !Settings::values.gammaos_fast_forward
-            ? std::max(0.01, // Arbitrary small value to prevent time_scale from approaching zero
-                       Core::System::GetInstance().GetStableFrameTimeScale())
+            ? std::clamp(Core::System::GetInstance().GetStableFrameTimeScale(), 0.25, 4.0)
             : 1.0;
     s64 adjusted_ticks = static_cast<s64>(audio_frame_ticks / time_scale - cycles_late);
     core_timing.ScheduleEvent(adjusted_ticks, tick_event);

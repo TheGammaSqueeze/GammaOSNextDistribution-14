@@ -187,6 +187,9 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         try {
             System::LoadState(slot);
             LOG_INFO(Core, "Load completed");
+            // GammaOS: the loaded system starts with no frame history (the realtime audio
+            // clock would read a scale of 0 and stretch the audio tick a hundredfold).
+            ResetFrameTiming();
             GammaJitWarm();
         } catch (const std::exception& e) {
             LOG_ERROR(Core, "Error loading: {}", e.what());

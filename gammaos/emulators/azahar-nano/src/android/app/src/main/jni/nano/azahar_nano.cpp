@@ -261,6 +261,28 @@ Core::System::ResultStatus RunCore(const std::string& filepath) {
     while (!stop_run) {
         if (!pause_emulation) {
             const auto result = system.RunLoop();
+            // Debug: sys.gammaos.azahar_nano.dump_threads=1 logs every emulated thread (state,
+            // pc, lr, what it waits on), to see what a stuck game is waiting for.
+            if ((loop_count & 255) == 0) {
+                char v[PROP_VALUE_MAX] = {};
+                if (__system_property_get("sys.gammaos.azahar_nano.dump_threads", v) > 0 &&
+                    v[0] == '1') {
+                    __system_property_set("sys.gammaos.azahar_nano.dump_threads", "");
+                    for (u32 c = 0; c < system.GetNumCores(); c++) {
+                        for (const auto& t : system.Kernel().GetThreadManager(c).GetThreadList()) {
+                            std::string waits;
+                            for (const auto& w : t->wait_objects) {
+                                waits += fmt::format(" {}:{}", w->GetTypeName(), w->GetName());
+                            }
+                            LOG_INFO(Frontend, "thread core {} id {} '{}' status {} pc {:08X} lr {:08X} "
+                                               "prio {} waitaddr {:08X} waits{}",
+                                     c, t->GetThreadId(), t->GetName(), static_cast<int>(t->status),
+                                     t->context.cpu_registers[15], t->context.cpu_registers[14],
+                                     t->current_priority, t->wait_address, waits);
+                        }
+                    }
+                }
+            }
             if (result == Core::System::ResultStatus::Success) {
                 // Keep the JIT warm-up lists current (a killed session keeps them). RunLoop
                 // returns every slice, and a clock read is a syscall on some kernels, so look at
