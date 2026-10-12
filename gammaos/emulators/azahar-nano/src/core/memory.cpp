@@ -5,6 +5,11 @@
 #include <array>
 #include <csignal>
 #include <cstring>
+#include <memory>
+#include <vector>
+#include <sys/mman.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include "audio_core/dsp_interface.h"
@@ -50,6 +55,102 @@ void PageTable::Clear() {
     pointers.read_raw.fill(nullptr);
     pointers.refs.fill(MemoryRef());
     attributes.fill(PageType::Unmapped);
+    ResyncFastmem();
+}
+
+// GammaOS fastmem. Guest RAM lives in one memfd (GuestRam below) so a page can be mapped a
+// second time into a 4 GB view per page table, at its guest virtual address. The JIT accesses
+// guest memory with a single host load/store at view base + guest address; a page the table
+// does not back with RAM (unmapped, I/O, rasterizer cached for writes) has no access in the view,
+// the access faults and dynarmic recompiles that block to go through the page table.
+namespace {
+constexpr std::size_t kHostPage = 4096;
+constexpr std::size_t kFastmemSpan = (std::size_t{1} << 32) + 0x10000; // + room for wide accesses
+
+struct GuestRam {
+    int fd = -1;
+    u8* base = nullptr;
+    std::size_t size = 0;
+};
+GuestRam g_guest_ram; // set by the (single) MemorySystem::Impl
+
+/// Per-page view state: 0 = no access, otherwise (ram page + 1) << 2 | prot.
+u32 ViewState(u8* write, u8* read, off_t& offset, int& prot) {
+    u8* const p = write ? write : read;
+    if (!p || g_guest_ram.fd < 0 || p < g_guest_ram.base ||
+        p >= g_guest_ram.base + g_guest_ram.size) {
+        return 0;
+    }
+    const std::size_t off = static_cast<std::size_t>(p - g_guest_ram.base);
+    if (off % kHostPage != 0) {
+        return 0;
+    }
+    offset = static_cast<off_t>(off);
+    prot = write ? (PROT_READ | PROT_WRITE) : PROT_READ;
+    return static_cast<u32>(((off / kHostPage) + 1) << 2) | static_cast<u32>(prot);
+}
+} // namespace
+
+struct FastmemView {
+    u8* base = nullptr;
+    std::vector<u32> state;
+
+    FastmemView() : state(PAGE_TABLE_NUM_ENTRIES, 0) {
+        void* p = mmap(nullptr, kFastmemSpan, PROT_NONE,
+                       MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
+        base = p == MAP_FAILED ? nullptr : static_cast<u8*>(p);
+    }
+    ~FastmemView() {
+        if (base) {
+            munmap(base, kFastmemSpan);
+        }
+    }
+    FastmemView(const FastmemView&) = delete;
+    FastmemView& operator=(const FastmemView&) = delete;
+
+    void Sync(std::size_t idx, u8* write, u8* read) {
+        off_t offset = 0;
+        int prot = PROT_NONE;
+        const u32 want = ViewState(write, read, offset, prot);
+        u32& have = state[idx];
+        if (have == want) {
+            return;
+        }
+        u8* const addr = base + idx * kHostPage;
+        if (want == 0) {
+            mmap(addr, kHostPage, PROT_NONE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE,
+                 -1, 0);
+        } else if (have != 0 && (have >> 2) == (want >> 2)) {
+            mprotect(addr, kHostPage, prot);
+        } else if (mmap(addr, kHostPage, prot, MAP_FIXED | MAP_SHARED, g_guest_ram.fd, offset) ==
+                   MAP_FAILED) {
+            LOG_ERROR(HW_Memory, "fastmem: mapping page {:05X} failed ({})", idx, errno);
+            mmap(addr, kHostPage, PROT_NONE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE,
+                 -1, 0);
+            have = 0;
+            return;
+        }
+        have = want;
+    }
+};
+
+void SyncFastmemPage(FastmemView* view, std::size_t idx, u8* write, u8* read) {
+    view->Sync(idx, write, read);
+}
+
+void PageTable::AttachFastmem(std::shared_ptr<FastmemView> view) {
+    fastmem_view = std::move(view);
+    pointers.fastmem = fastmem_view.get();
+    ResyncFastmem();
+}
+
+void PageTable::ResyncFastmem() {
+    if (!pointers.fastmem) {
+        return;
+    }
+    for (std::size_t i = 0; i < PAGE_TABLE_NUM_ENTRIES; i++) {
+        pointers.fastmem->Sync(i, pointers.raw[i], pointers.read_raw[i]);
+    }
 }
 
 class RasterizerCacheMarker {
@@ -104,10 +205,59 @@ class MemorySystem::Impl {
 public:
     // Visual Studio would try to allocate these on compile time
     // if they are std::array which would exceed the memory limit.
-    std::unique_ptr<u8[]> fcram = std::make_unique<u8[]>(Memory::FCRAM_N3DS_SIZE);
-    std::unique_ptr<u8[]> vram = std::make_unique<u8[]>(Memory::VRAM_SIZE);
-    std::unique_ptr<u8[]> n3ds_extra_ram = std::make_unique<u8[]>(Memory::N3DS_EXTRA_RAM_SIZE);
-    std::unique_ptr<u8[]> dsp_ram = std::make_unique<u8[]>(Memory::DSP_RAM_SIZE);
+    // GammaOS: all guest RAM in one shared mapping of a memfd (zero-filled, committed on
+    // first touch), so fastmem views can map its pages again (see FastmemView).
+    struct RamBlock {
+        RamBlock() {
+            const int fd = static_cast<int>(syscall(SYS_memfd_create, "azahar-guest-ram", 0));
+            void* p = MAP_FAILED;
+            if (fd >= 0 && ftruncate(fd, static_cast<off_t>(kTotal)) == 0) {
+                p = mmap(nullptr, kTotal, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            }
+            if (p == MAP_FAILED) {
+                if (fd >= 0) {
+                    close(fd);
+                }
+                p = mmap(nullptr, kTotal, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS,
+                         -1, 0);
+                ASSERT_MSG(p != MAP_FAILED, "guest RAM allocation failed");
+                LOG_WARNING(HW_Memory, "guest RAM: no memfd, fastmem off");
+                g_guest_ram = GuestRam{-1, static_cast<u8*>(p), kTotal};
+            } else {
+                g_guest_ram = GuestRam{fd, static_cast<u8*>(p), kTotal};
+            }
+            base = static_cast<u8*>(p);
+        }
+        ~RamBlock() {
+            munmap(base, kTotal);
+            if (g_guest_ram.base == base) {
+                if (g_guest_ram.fd >= 0) {
+                    close(g_guest_ram.fd);
+                }
+                g_guest_ram = GuestRam{};
+            }
+        }
+        RamBlock(const RamBlock&) = delete;
+        RamBlock& operator=(const RamBlock&) = delete;
+
+        static constexpr std::size_t kFcram = 0;
+        static constexpr std::size_t kVram = kFcram + Memory::FCRAM_N3DS_SIZE;
+        static constexpr std::size_t kN3ds = kVram + Memory::VRAM_SIZE;
+        static constexpr std::size_t kDsp = kN3ds + Memory::N3DS_EXTRA_RAM_SIZE;
+        static constexpr std::size_t kTotal = kDsp + Memory::DSP_RAM_SIZE;
+        u8* base = nullptr;
+    };
+    struct RamRegion {
+        u8* ptr;
+        u8* get() const {
+            return ptr;
+        }
+    };
+    RamBlock ram;
+    RamRegion fcram{ram.base + RamBlock::kFcram};
+    RamRegion vram{ram.base + RamBlock::kVram};
+    RamRegion n3ds_extra_ram{ram.base + RamBlock::kN3ds};
+    RamRegion dsp_ram{ram.base + RamBlock::kDsp};
 
     Core::System& system;
     std::shared_ptr<PageTable> current_page_table = nullptr;
@@ -459,7 +609,7 @@ void MemorySystem::RegisterWatchpoint(const Kernel::Process& process, VAddr addr
             case PageType::RasterizerCachedMemory:
                 mem = GetPointerForRasterizerCache(page_base);
                 type = PageType::RasterizerCachedMemoryWatchpoint;
-                page_table.GetReadPointerArray()[page_index] = nullptr;
+                page_table.SetReadPointer(page_index, nullptr);
                 break;
             default:
                 LOG_ERROR(HW_Memory, "Cannot get pointer to register watchpoint for page 0x{:08X}",
@@ -1021,8 +1171,9 @@ void MemorySystem::RasterizerMarkRegionCached(PAddr start, u32 size, bool cached
                         // A newly cached page holds no GPU-modified data yet: JIT reads stay
                         // direct until the rasterizer marks part of it dirty.
                         if (page_type == PageType::RasterizerCachedMemory) {
-                            page_table->GetReadPointerArray()[vaddr >> CITRA_PAGE_BITS] =
-                                GetPointerForRasterizerCache(vaddr & ~CITRA_PAGE_MASK).GetPtr();
+                            page_table->SetReadPointer(
+                                vaddr >> CITRA_PAGE_BITS,
+                                GetPointerForRasterizerCache(vaddr & ~CITRA_PAGE_MASK).GetPtr());
                         }
                         break;
                     default:
@@ -1056,6 +1207,21 @@ void MemorySystem::RasterizerMarkRegionCached(PAddr start, u32 size, bool cached
     }
 }
 
+u8* MemorySystem::GetFastmemBase(PageTable& page_table) {
+    if (g_guest_ram.fd < 0) {
+        return nullptr;
+    }
+    if (!page_table.fastmem_view) {
+        auto view = std::make_shared<FastmemView>();
+        if (!view->base) {
+            LOG_WARNING(HW_Memory, "fastmem: no room for a 4 GB view");
+            return nullptr;
+        }
+        page_table.AttachFastmem(std::move(view));
+    }
+    return page_table.fastmem_view->base;
+}
+
 void MemorySystem::RasterizerMarkPageReadable(PAddr paddr, bool readable) {
     paddr &= ~CITRA_PAGE_MASK;
     if (paddr == 0) {
@@ -1067,8 +1233,9 @@ void MemorySystem::RasterizerMarkPageReadable(PAddr paddr, bool readable) {
             if (page_table->attributes[index] != PageType::RasterizerCachedMemory) {
                 continue;
             }
-            page_table->GetReadPointerArray()[index] =
-                readable ? GetPointerForRasterizerCache(vaddr & ~CITRA_PAGE_MASK).GetPtr() : nullptr;
+            page_table->SetReadPointer(
+                index,
+                readable ? GetPointerForRasterizerCache(vaddr & ~CITRA_PAGE_MASK).GetPtr() : nullptr);
         }
     }
 }

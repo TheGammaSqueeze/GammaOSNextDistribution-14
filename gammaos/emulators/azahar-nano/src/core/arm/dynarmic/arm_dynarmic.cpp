@@ -407,6 +407,23 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
         // writes use the main table that sits a fixed distance below it.
         config.page_table = &current_page_table->GetReadPointerArray();
         config.page_table_write_table_below = Memory::PageTable::ReadTableDistance();
+
+        // GammaOS fastmem: guest loads and stores become one host access into a 4 GB view of
+        // this address space; pages the view does not map fault, and dynarmic recompiles that
+        // block to use the page table (the read/write tables above).
+        // persist.gammaos.azahar_nano.fastmem=0 keeps every access on the page table.
+        static const bool fastmem_enabled = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.fastmem", v);
+            return v[0] != '0';
+        }();
+        if (fastmem_enabled) {
+            if (u8* const base = memory.GetFastmemBase(*current_page_table)) {
+                config.fastmem_pointer = reinterpret_cast<uintptr_t>(base);
+                config.recompile_on_fastmem_failure = true;
+                config.fastmem_exclusive_access = false;
+            }
+        }
     }
     config.coprocessors[15] = std::make_shared<DynarmicCP15>(cp15_state);
     config.define_unpredictable_behaviour = true;

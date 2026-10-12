@@ -58,6 +58,12 @@ enum class PageType : u8 {
  * fetching requirements when accessing. In the usual case of an access to regular memory, it only
  * requires an indexed fetch and a check for NULL.
  */
+/// GammaOS fastmem: a 4 GB host view of one page table's guest address space (memory.cpp).
+struct FastmemView;
+/// Makes the view's page `idx` match its table entry: read-write when it has a write pointer,
+/// read-only with only a read pointer, no access otherwise.
+void SyncFastmemPage(FastmemView* view, std::size_t idx, u8* write, u8* read);
+
 struct PageTable {
     /**
      * Array of memory pointers backing each page. An entry can only be non-null if the
@@ -75,6 +81,10 @@ struct PageTable {
                 pointers.raw[idx] = value.GetPtr();
                 pointers.read_raw[idx] = pointers.raw[idx];
                 pointers.refs[idx] = std::move(value);
+                if (pointers.fastmem) {
+                    SyncFastmemPage(pointers.fastmem, idx, pointers.raw[idx],
+                                    pointers.read_raw[idx]);
+                }
                 return *this;
             }
 
@@ -103,6 +113,7 @@ struct PageTable {
         // directly follow `raw` (the JIT finds the write table at a fixed distance below it).
         std::array<u8*, PAGE_TABLE_NUM_ENTRIES> read_raw;
         std::array<MemoryRef, PAGE_TABLE_NUM_ENTRIES> refs;
+        FastmemView* fastmem = nullptr;
         friend struct PageTable;
     };
 
@@ -121,6 +132,20 @@ struct PageTable {
     std::array<u8*, PAGE_TABLE_NUM_ENTRIES>& GetReadPointerArray() {
         return pointers.read_raw;
     }
+
+    /// Sets the pointer JIT reads use for page `idx` (see Pointers::read_raw).
+    void SetReadPointer(std::size_t idx, u8* ptr) {
+        pointers.read_raw[idx] = ptr;
+        if (pointers.fastmem) {
+            SyncFastmemPage(pointers.fastmem, idx, pointers.raw[idx], ptr);
+        }
+    }
+
+    /// GammaOS fastmem: the view of this table, created by MemorySystem::GetFastmemBase.
+    std::shared_ptr<FastmemView> fastmem_view;
+    void AttachFastmem(std::shared_ptr<FastmemView> view);
+    /// Brings every page of the view in line with the table (after a bulk change).
+    void ResyncFastmem();
 
     /// Distance in bytes from the read table down to the write (main) table.
     static constexpr u32 ReadTableDistance() {
@@ -155,6 +180,7 @@ private:
             pointers.raw[i] = pointers.refs[i].GetPtr();
             pointers.read_raw[i] = pointers.raw[i];
         }
+        ResyncFastmem();
     }
     friend class boost::serialization::access;
 };
@@ -682,6 +708,11 @@ public:
     /// GammaOS: sets whether JIT reads of a rasterizer cached page may bypass the flush (true
     /// while no GPU-modified surface data overlaps the page).
     void RasterizerMarkPageReadable(PAddr paddr, bool readable);
+
+    /// GammaOS fastmem: the base of a 4 GB host view of `page_table`'s guest address space for
+    /// the JIT (created on first use and kept in sync with the table), or null when guest
+    /// memory cannot be mapped twice.
+    u8* GetFastmemBase(PageTable& page_table);
 
     /// For a rasterizer-accessible PAddr, gets a list of all possible VAddr
     std::vector<VAddr> PhysicalToVirtualAddressForRasterizer(PAddr addr);
