@@ -1716,10 +1716,30 @@ void RasterizerVulkan::UploadUniforms(bool accelerate_draw) {
     }
 
     if (sync_vs_pica || invalidate) {
-        // GammaOS: build the 1.6 KB block straight in the mapped buffer (this runs for most
-        // draws, as games change vertex shader uniforms per draw), not in a copy first.
-        static_assert(std::is_trivially_copyable_v<VSPicaUniformData>);
-        reinterpret_cast<VSPicaUniformData*>(uniforms + used_bytes)->SetFromRegs(pica.vs_setup);
+        // GammaOS: this runs for most draws (games change vertex shader uniforms per draw,
+        // usually a few matrices). Convert only the registers that changed into a host copy,
+        // then copy the 1.6 KB block to the mapped (uncached) buffer in one go.
+        auto& setup = pica.vs_setup;
+        if (setup.dirty_bi) {
+            vs_pica_cache.b = 0;
+            for (u32 j = 0; j < setup.uniforms.b.size(); j++) {
+                vs_pica_cache.b |= setup.uniforms.b[j] << j;
+            }
+            for (u32 j = 0; j < setup.uniforms.i.size(); j++) {
+                const auto& v = setup.uniforms.i[j];
+                vs_pica_cache.i[j] = Common::MakeVec<u32>(v.x, v.y, v.z, v.w);
+            }
+        }
+        const u32 hi = std::min<u32>(setup.dirty_f_hi, static_cast<u32>(setup.uniforms.f.size()));
+        for (u32 j = setup.dirty_f_lo; j < hi; j++) {
+            const auto& v = setup.uniforms.f[j];
+            vs_pica_cache.f[j] = Common::MakeVec<f32>(v.x.ToFloat32(), v.y.ToFloat32(),
+                                                      v.z.ToFloat32(), v.w.ToFloat32());
+        }
+        setup.dirty_f_lo = static_cast<u32>(setup.uniforms.f.size());
+        setup.dirty_f_hi = 0;
+        setup.dirty_bi = false;
+        std::memcpy(uniforms + used_bytes, &vs_pica_cache, sizeof(vs_pica_cache));
         pipeline_cache.UpdateRange(0, offset + used_bytes);
         pica.vs_setup.uniforms_dirty = false;
         used_bytes += uniform_size_aligned_vs_pica;

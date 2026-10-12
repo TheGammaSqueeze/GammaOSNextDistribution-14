@@ -154,6 +154,8 @@ private:
     bool hybrid_baked = false; ///< GammaOS: this fallback draw uses a precompiled baked shader
     void PrepareUberDraw(u32& variant_key, std::array<u32, 16>& tev_pack, bool upload);
     u32 fallback_vertices_this_frame = 0; ///< GammaOS: CPU vertex budget of fallback draws
+    /// GammaOS: the converted vertex shader uniforms, updated per changed register.
+    Pica::Shader::Generator::VSPicaUniformData vs_pica_cache{};
     u32 skipped_draws_since_present = 0;  ///< GammaOS: draws left out while their pipeline compiles
     u32 frame_index = 1;
     std::unordered_map<u64, u32> budget_held_since; ///< pipeline hash -> first held frame ///< GammaOS: this software draw replaces a declined hw draw

@@ -1,3 +1,4 @@
+#include <algorithm>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -40,14 +41,20 @@ void ShaderSetup::WriteUniformBoolReg(u32 value) {
     const auto bits = BitSet32(value);
     for (u32 i = 0; i < uniforms.b.size(); ++i) {
         const bool prev = std::exchange(uniforms.b[i], bits[i]);
-        uniforms_dirty |= prev != bits[i];
+        if (prev != bits[i]) {
+            uniforms_dirty = true;
+            dirty_bi = true;
+        }
     }
 }
 
 void ShaderSetup::WriteUniformIntReg(u32 index, const Common::Vec4<u8> values) {
     ASSERT(index < uniforms.i.size());
     const auto prev = std::exchange(uniforms.i[index], values);
-    uniforms_dirty |= prev != values;
+    if (prev != values) {
+        uniforms_dirty = true;
+        dirty_bi = true;
+    }
 }
 
 std::optional<u32> ShaderSetup::WriteUniformFloatReg(ShaderRegs& config, u32 value) {
@@ -66,7 +73,11 @@ std::optional<u32> ShaderSetup::WriteUniformFloatReg(ShaderRegs& config, u32 val
 
     const u32 index = uniform_setup.index.Value();
     const auto prev = std::exchange(uniforms.f[index], uniform);
-    uniforms_dirty |= prev != uniform;
+    if (prev != uniform) {
+        uniforms_dirty = true;
+        dirty_f_lo = std::min(dirty_f_lo, index);
+        dirty_f_hi = std::max(dirty_f_hi, index + 1);
+    }
     uniform_setup.index.Assign(index + 1);
     return index;
 }
@@ -98,7 +109,11 @@ std::optional<ShaderSetup::UniformWriteRange> ShaderSetup::WriteUniformFloatRegR
 
         const u32 index = uniform_setup.index.Value();
         const auto prev = std::exchange(uniforms.f[index], uniform);
-        uniforms_dirty |= prev != uniform;
+        if (prev != uniform) {
+            uniforms_dirty = true;
+            dirty_f_lo = std::min(dirty_f_lo, index);
+            dirty_f_hi = std::max(dirty_f_hi, index + 1);
+        }
         uniform_setup.index.Assign(index + 1);
 
         if (!first_index) {

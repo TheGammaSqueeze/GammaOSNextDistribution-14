@@ -160,6 +160,17 @@ public:
     u32 entry_point{};
     const void* cached_shader{};
     bool uniforms_dirty = true;
+    // GammaOS: what changed since the rasterizer last converted the uniforms (float registers
+    // [dirty_f_lo, dirty_f_hi), and the bool/int registers), so it converts only those.
+    u32 dirty_f_lo = 0;
+    u32 dirty_f_hi = 96;
+    bool dirty_bi = true;
+    void MarkAllUniformsDirty() {
+        uniforms_dirty = true;
+        dirty_f_lo = 0;
+        dirty_f_hi = 96;
+        dirty_bi = true;
+    }
 
     // bool requires_fixup = false;
     // bool has_fixup = false;
@@ -196,7 +207,7 @@ private:
         // ar & requires_fixup;
         // ar & has_fixup;
         if (Archive::is_loading::value) {
-            uniforms_dirty = true;
+            MarkAllUniformsDirty();
         }
     }
 };
