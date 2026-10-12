@@ -20,6 +20,7 @@
 #include "video_core/renderer_vulkan/renderer_vulkan.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "common/scope_exit.h"
+#include <cstring>
 #include "video_core/gpu.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/renderer_vulkan/vk_gammaos_stats.h"
@@ -1142,14 +1143,57 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     return succeeded;
 }
 
+/// GammaOS: persist.gammaos.azahar_nano.bind_memo=0 turns the descriptor set reuse off (A/B).
+static bool BindMemoEnabled() {
+    static const bool enabled = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.bind_memo", v);
+        return v[0] != '0';
+    }();
+    return enabled;
+}
+
 void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
     using TextureType = Pica::TexturingRegs::TextureConfig::TextureType;
+
+    // GammaOS: the texture unit registers, main_config through texture2_format.
+    const u8* const tex_regs_lo = reinterpret_cast<const u8*>(&regs.texturing.main_config);
+    const u8* const tex_regs_hi =
+        reinterpret_cast<const u8*>(&regs.texturing.texture2_format) + sizeof(u32);
+    const std::size_t tex_regs_size = static_cast<std::size_t>(tex_regs_hi - tex_regs_lo);
+    ASSERT(tex_regs_size <= sizeof(tex_memo.regs));
+    const vk::ImageView color_view = framebuffer->ImageView(SurfaceType::Color);
+    const u32 sampling = static_cast<u32>(Settings::values.texture_sampling.GetValue());
+    const u64 tick = scheduler.CurrentTick();
+    // The set may only be bound again while the command buffer it was committed to records:
+    // the pool hands it out again once that buffer has finished.
+    if (BindMemoEnabled() && tex_memo.valid && tex_memo.tick == tick && tex_memo.epoch == res_cache.Epoch() &&
+        tex_memo.color_view == color_view && tex_memo.sampling == sampling &&
+        pipeline_cache.BoundSet(DescriptorHeapType::Texture) == tex_memo.set &&
+        std::memcmp(tex_memo.regs.data(), tex_regs_lo, tex_regs_size) == 0) {
+        GammaStats::Add(GammaStats::TextureBindsReused);
+        return;
+    }
 
     const auto pica_textures = regs.texturing.GetTextures();
     const bool use_cube_heap =
         pica_textures[0].enabled && pica_textures[0].config.type == TextureType::ShadowCube;
     const auto texture_set = pipeline_cache.Acquire(use_cube_heap ? DescriptorHeapType::Texture
                                                                   : DescriptorHeapType::Texture);
+    // Only plain 2D bindings repeat exactly: shadow, cube and feedback bindings record copies or
+    // flags per draw.
+    bool memo_ok = true;
+    SCOPE_EXIT({
+        tex_memo.valid = memo_ok;
+        if (memo_ok) {
+            std::memcpy(tex_memo.regs.data(), tex_regs_lo, tex_regs_size);
+            tex_memo.epoch = res_cache.Epoch();
+            tex_memo.tick = tick;
+            tex_memo.color_view = color_view;
+            tex_memo.sampling = sampling;
+            tex_memo.set = texture_set;
+        }
+    });
 
     for (u32 texture_index = 0; texture_index < pica_textures.size(); ++texture_index) {
         const auto& texture = pica_textures[texture_index];
@@ -1180,6 +1224,7 @@ void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
         if (texture_index == 0) {
             switch (texture.config.type.Value()) {
             case TextureType::Shadow2D: {
+                memo_ok = false;
                 Surface& surface = res_cache.GetTextureSurface(texture);
                 Sampler& sampler = res_cache.GetSampler(texture.config);
                 surface.flags |= VideoCore::SurfaceFlagBits::ShadowSource;
@@ -1188,10 +1233,12 @@ void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
                 continue;
             }
             case TextureType::ShadowCube: {
+                memo_ok = false;
                 BindShadowCube(texture, texture_set);
                 continue;
             }
             case TextureType::TextureCube: {
+                memo_ok = false;
                 BindTextureCube(texture, texture_set);
                 continue;
             }
@@ -1203,8 +1250,8 @@ void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
         // Bind the texture provided by the rasterizer cache
         Surface& surface = res_cache.GetTextureSurface(texture);
         Sampler& sampler = res_cache.GetSampler(texture.config);
-        const vk::ImageView color_view = framebuffer->ImageView(SurfaceType::Color);
         const bool is_feedback_loop = color_view == surface.FramebufferView();
+        memo_ok &= !is_feedback_loop;
         const vk::ImageView texture_view =
             is_feedback_loop ? surface.CopyImageView() : surface.ImageView();
         update_queue.AddImageSampler(texture_set, texture_index, 0, texture_view, sampler.Handle());
@@ -1221,7 +1268,29 @@ void RasterizerVulkan::SyncUtilityTextures(const Framebuffer* framebuffer) {
         shadow_reading &= shadow_texture.enabled;
     }
 
+    // GammaOS: reuse the previous draw's set when it binds the same image (see tex_memo).
+    const vk::ImageView color_view = framebuffer->ImageView(SurfaceType::Color);
+    const u32 mode = shadow_writing ? 1u
+                     : shadow_reading
+                         ? 2u + regs.lighting.config0.shadow_selector.Value()
+                         : 0u;
+    const u64 tick = scheduler.CurrentTick();
+    if (BindMemoEnabled() && util_memo.tick == tick && util_memo.mode == mode &&
+        pipeline_cache.BoundSet(DescriptorHeapType::Utility) == util_memo.set &&
+        (mode == 0 || (mode == 1 && util_memo.color_view == color_view))) {
+        return;
+    }
+
     const auto utility_set = pipeline_cache.Acquire(DescriptorHeapType::Utility);
+    // Shadow reads go through a lookup of the texture unit each draw; only the fixed bindings
+    // are kept.
+    util_memo = UtilityBindMemo{
+        .epoch = res_cache.Epoch(),
+        .tick = mode < 2 ? tick : ~0ull,
+        .color_view = color_view,
+        .set = utility_set,
+        .mode = mode,
+    };
 
     // Reading and writing are mutually exclusive
     assert(!(shadow_writing && shadow_reading));

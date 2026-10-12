@@ -97,6 +97,29 @@ private:
     /// Syncs all utility textures in the fragment shader.
     void SyncUtilityTextures(const Framebuffer* framebuffer);
 
+    /// GammaOS: the texture and utility descriptor sets of the previous draw, kept while the
+    /// texture registers, the rasterizer cache and the command buffer are unchanged, so a
+    /// repeat draw skips the surface lookups and the descriptor writes.
+    struct TextureBindMemo {
+        static constexpr std::size_t Words = 0x30;
+        std::array<u32, Words> regs{};
+        u64 epoch = ~0ull;
+        u64 tick = ~0ull;
+        vk::ImageView color_view{};
+        vk::DescriptorSet set{};
+        u32 sampling = ~0u;
+        bool valid = false;
+    };
+    TextureBindMemo tex_memo;
+    struct UtilityBindMemo {
+        u64 epoch = ~0ull;
+        u64 tick = ~0ull;
+        vk::ImageView color_view{};
+        vk::DescriptorSet set{};
+        u32 mode = ~0u;
+    };
+    UtilityBindMemo util_memo;
+
     /// Binds the PICA shadow cube required for shadow mapping
     void BindShadowCube(const Pica::TexturingRegs::FullTextureConfig& texture,
                         vk::DescriptorSet texture_set);

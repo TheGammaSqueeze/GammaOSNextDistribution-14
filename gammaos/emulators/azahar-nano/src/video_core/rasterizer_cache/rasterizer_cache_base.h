@@ -84,6 +84,12 @@ public:
     /// Notify the cache that a new frame has been queued
     void TickFrame();
 
+    /// GammaOS: changes whenever a lookup could return something different (surfaces validated,
+    /// uploaded, invalidated, registered, unregistered...). Callers memoize lookups on it.
+    u64 Epoch() const noexcept {
+        return cache_epoch;
+    }
+
     /// GammaOS: true when the next TickFrame may drop every surface or upload custom textures,
     /// which needs the worker thread idle. Plain garbage collection does not: it only deletes
     /// surfaces whose last use the GPU has already completed.

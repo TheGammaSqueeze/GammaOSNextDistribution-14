@@ -1751,6 +1751,7 @@ void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region
         }
         const auto interval = surface.GetInterval() & invalid_interval;
         surface.MarkInvalid(interval);
+        ++cache_epoch; // a texture lookup must validate it again
         if (!surface.IsFullyInvalid()) {
             return;
         }

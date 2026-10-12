@@ -50,6 +50,11 @@ public:
                            RenderManager& renderpass_cache, DescriptorUpdateQueue& update_queue);
     ~PipelineCache();
 
+    /// GammaOS: the set Acquire last bound for this heap.
+    vk::DescriptorSet BoundSet(DescriptorHeapType type) const {
+        return bound_descriptor_sets[static_cast<u32>(type)];
+    }
+
     /// Acquires and binds a free descriptor set from the appropriate heap.
     vk::DescriptorSet Acquire(DescriptorHeapType type) {
         const u32 index = static_cast<u32>(type);
