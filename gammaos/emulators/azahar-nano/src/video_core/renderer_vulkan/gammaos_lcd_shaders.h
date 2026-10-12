@@ -212,12 +212,13 @@ void main() {
     const vec2 ps = LcdPixelSize();
     const float k = LcdStrength();
     const vec3 c = Pixel(frag_tex_coord);
-    const vec3 e = c * c;
     const vec2 fp = fract(p);
     const vec2 f = clamp(clamp(fp + 0.5 * ps, 0.0, 1.0) - RETRO_PIXEL_SIZE, vec2(0.0), ps) / ps;
     const float m = max(f.x, f.y) * k;
-    const vec3 res = e * mix(mix(1.0, 1.04 + fp.x * fp.y, k), 0.36, m);
-    color = vec4(sqrt(clamp(res, 0.0, 1.0)), 1.0);
+    // In gamma 2.0: sqrt(clamp(c * c * w, 0, 1)) == clamp(c * sqrt(w), 0, 1) for w >= 0,
+    // so one scalar square root per pixel does it.
+    const float w = mix(mix(1.0, 1.04 + fp.x * fp.y, k), 0.36, m);
+    color = vec4(clamp(c * sqrt(w), 0.0, 1.0), 1.0);
 }
 )";
 
