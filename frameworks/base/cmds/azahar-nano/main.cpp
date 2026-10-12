@@ -130,6 +130,10 @@ struct DynRes {
     int64_t nextProbeS = 0;
 };
 std::atomic<uint64_t> sHudStatsSeq{0};
+// Seconds Dynamic Resolution ignores the speed after something that stalls the emulation on
+// purpose (boot, a save state load, a resume from the menu or from sleep): those seconds
+// read slow without the resolution being at fault.
+std::atomic<int> gDynResSettle{8};
 std::atomic<bool> gExitRequested{false};
 std::atomic<bool> gSessionDoneSent{false};
 
@@ -596,7 +600,13 @@ static void dynResTick(double speed, bool menuOpen,
     // Not a game speed reading: menu (paused), fast forward, the loading screen, or shader
     // compiles (their stalls are not the resolution's fault).
     const int pending = gCore.compiles_pending ? gCore.compiles_pending() : 0;
-    if (menuOpen || sFastForward || gLoadScreenOn || pending > 0 || speed < 0.05) {
+    if (gDynResSettle > 0) {
+        gDynResSettle--;
+        d.slowSecs = 0;
+        return;
+    }
+    // A reading above 150% is not a speed either (catching up after a stall).
+    if (menuOpen || sFastForward || gLoadScreenOn || pending > 0 || speed < 0.05 || speed > 1.5) {
         d.slowSecs = 0;
         return;
     }
@@ -605,8 +615,10 @@ static void dynResTick(double speed, bool menuOpen,
         return;
     }
     if (!d.low) {
-        d.slowSecs = speed < 0.97 ? d.slowSecs + 1 : 0;
-        if (d.slowSecs >= 3) {
+        // Four seconds in a row under 95%: a game that runs at 96-100% with the odd dip (Metroid:
+        // Samus Returns at 2x) keeps its resolution.
+        d.slowSecs = speed < 0.95 ? d.slowSecs + 1 : 0;
+        if (d.slowSecs >= 4) {
             // A failed probe waits twice as long next time; a first drop starts at 30 s.
             d.backoff = d.probing ? std::min(d.backoff * 2, 300) : 30;
             d.probing = false;
@@ -856,6 +868,7 @@ int main(int argc, char** argv) {
             overlay.close();
             sDrm->setOverlayActive(0, false);
             gCore.pause(false);
+            gDynResSettle = 5;
         };
         oa.saveState = [](int slot) {
             backupStateSlot(slot);
@@ -863,19 +876,23 @@ int main(int argc, char** argv) {
             overlay.close();
             sDrm->setOverlayActive(0, false);
             gCore.pause(false);
+            gDynResSettle = 5;
             gCore.save_state(slot);
         };
         oa.loadState = [](int slot) {
             overlay.close();
             sDrm->setOverlayActive(0, false);
             gCore.pause(false);
+            gDynResSettle = 5;
             gCore.load_state(slot);
+            gDynResSettle = 5;
         };
         oa.exitGame = [] {
             ALOGI("exit requested from the menu");
             overlay.close();
             gExitRequested = true;
             gCore.pause(false);
+            gDynResSettle = 5;
             gCore.stop();
         };
         oa.setConfig = [](const char* sec, const char* key, const char* val) {
@@ -1020,6 +1037,7 @@ int main(int argc, char** argv) {
             overlay.close();
             sDrm->setOverlayActive(0, false);
             gCore.pause(false);
+            gDynResSettle = 5;
             return;
         }
         ALOGI("menu open");
@@ -1077,6 +1095,7 @@ int main(int argc, char** argv) {
                 android::nanobl::nanoBacklightSet(azahar_nano::brightnessLevel());
                 if (pausedForSleep) {
                     gCore.pause(false);
+                    gDynResSettle = 5;
                     gSleepPaused = false;
                 }
                 pausedForSleep = false;
