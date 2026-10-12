@@ -1143,16 +1143,6 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     return succeeded;
 }
 
-/// GammaOS: persist.gammaos.azahar_nano.bind_memo=0 turns the descriptor set reuse off (A/B).
-static bool BindMemoEnabled() {
-    static const bool enabled = [] {
-        char v[PROP_VALUE_MAX] = {};
-        __system_property_get("persist.gammaos.azahar_nano.bind_memo", v);
-        return v[0] != '0';
-    }();
-    return enabled;
-}
-
 void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
     using TextureType = Pica::TexturingRegs::TextureConfig::TextureType;
 

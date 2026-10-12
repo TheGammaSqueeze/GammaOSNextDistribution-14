@@ -1069,6 +1069,16 @@ FramebufferHelper<T> RasterizerCache<T>::GetFramebufferSurfaces(bool using_color
         static_cast<u32>(std::clamp(viewport_rect.bottom, 0, framebuffer_height)),
     };
 
+    const bool shadow_rendering = regs.framebuffer.IsShadowRendering();
+    const bool memo_allowed = !mirror.active && Vulkan::BindMemoEnabled();
+    if (memo_allowed && fb_memo.epoch == cache_epoch && fb_memo.viewport == viewport_clamped &&
+        fb_memo.using_color == using_color_fb && fb_memo.using_depth == using_depth_fb &&
+        fb_memo.shadow == shadow_rendering && fb_memo.res_scale == resolution_scale_factor &&
+        std::memcmp(&fb_memo.config, &config, sizeof(config)) == 0) {
+        return FramebufferHelper<T>{this, &slot_framebuffers[fb_memo.fb_id], config.IsFlipped(),
+                                    regs.rasterizer, fb_memo.fb_rect};
+    }
+
     SurfaceParams color_params;
     color_params.is_tiled = true;
     color_params.res_scale = resolution_scale_factor;
@@ -1136,12 +1146,27 @@ FramebufferHelper<T> RasterizerCache<T>::GetFramebufferSurfaces(bool using_color
         .depth_id = depth_id,
         .color_level = color_level,
         .depth_level = depth_level,
-        .shadow_rendering = regs.framebuffer.IsShadowRendering(),
+        .shadow_rendering = shadow_rendering,
     };
 
     auto [it, new_framebuffer] = framebuffers.try_emplace(fb_params);
     if (new_framebuffer) {
         it->second = slot_framebuffers.insert(runtime, fb_params, color_surface, depth_surface);
+    }
+    if (memo_allowed) {
+        fb_memo = FramebufferMemo{
+            .config = config,
+            .viewport = viewport_clamped,
+            .epoch = cache_epoch,
+            .res_scale = resolution_scale_factor,
+            .using_color = using_color_fb,
+            .using_depth = using_depth_fb,
+            .shadow = shadow_rendering,
+            .fb_id = it->second,
+            .fb_rect = fb_rect,
+        };
+    } else {
+        fb_memo.epoch = ~0ull;
     }
 
     return FramebufferHelper<T>{this, &slot_framebuffers[it->second],

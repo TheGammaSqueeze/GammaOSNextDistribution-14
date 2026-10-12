@@ -4,6 +4,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <sys/system_properties.h>
 
 namespace Vulkan::GammaStats {
 
@@ -46,3 +47,18 @@ inline std::uint64_t Take(Counter c) {
 }
 
 } // namespace Vulkan::GammaStats
+
+namespace Vulkan {
+
+/// GammaOS: persist.gammaos.azahar_nano.bind_memo=0 turns off the per-draw reuse of the
+/// previous texture bindings and render targets (A/B switch).
+inline bool BindMemoEnabled() {
+    static const bool enabled = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.bind_memo", v);
+        return v[0] != '0';
+    }();
+    return enabled;
+}
+
+} // namespace Vulkan

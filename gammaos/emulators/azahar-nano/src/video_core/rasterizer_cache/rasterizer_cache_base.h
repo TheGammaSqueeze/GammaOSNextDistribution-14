@@ -300,6 +300,20 @@ private:
         SurfaceId owner{};
         u64 epoch = ~0ull;
     };
+    /// GammaOS: the previous GetFramebufferSurfaces result, valid while its inputs and the
+    /// cache epoch are unchanged (the lookups and validations would repeat exactly).
+    struct FramebufferMemo {
+        Pica::FramebufferRegs::FramebufferConfig config{};
+        Common::Rectangle<u32> viewport{};
+        u64 epoch = ~0ull;
+        u32 res_scale = 0;
+        bool using_color = false;
+        bool using_depth = false;
+        bool shadow = false;
+        FramebufferId fb_id{};
+        Common::Rectangle<u32> fb_rect{};
+    };
+    FramebufferMemo fb_memo{};
     std::array<InvalidateMemo, 4> invalidate_memo{};
     u32 invalidate_memo_next = 0;
     u64 cache_epoch = 0;

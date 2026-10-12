@@ -359,6 +359,10 @@ private:
     tsl::robin_map<u64, std::unique_ptr<GraphicsPipeline>, Common::IdentityHash<u64>>
         graphics_pipelines;
     std::unordered_set<u64> known_graphic_pipelines;
+    // GammaOS: the pipeline of the previous GetPipeline call and its state, so a draw with the
+    // same state skips both hashes and the lookups.
+    StaticPipelineInfo last_pipeline_state{};
+    GraphicsPipeline* last_pipeline = nullptr;
 };
 
 } // namespace Vulkan
