@@ -738,6 +738,7 @@ typename T::Sampler& RasterizerCache<T>::GetSampler(
         case Settings::TextureSampling::Linear:
         case Settings::TextureSampling::Nearest2DLinear3D:
         case Settings::TextureSampling::SharpBilinear2DLinear3D:
+        case Settings::TextureSampling::SharpBilinearAll:
             return TextureFilter::Linear;
         default:
             return filter;

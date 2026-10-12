@@ -1034,8 +1034,10 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
                 OpLoad(f32_id, OpAccessChain(TypePointer(spv::StorageClass::Input, f32_id), gl_frag_coord_id, ConstU32(3u)))};
             const Id ortho{OpFOrdLessThan(
                 bool_id, OpFAbs(f32_id, OpFSub(f32_id, frag_w, ConstF32(1.0f))), ConstF32(1e-4f))};
-            const Id snap{OpLogicalAnd(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f)),
-                                       ortho)};
+            // Mode 3 (sharp bilinear everywhere) applies to 3D draws too.
+            const Id snap{OpLogicalOr(
+                bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(2.5f)),
+                OpLogicalAnd(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f)), ortho))};
             const Id sharp{OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(1.5f))};
             const Id v2{vec_ids.Get(2)};
             const auto splat = [&](float f) { return OpCompositeConstruct(v2, ConstF32(f), ConstF32(f)); };

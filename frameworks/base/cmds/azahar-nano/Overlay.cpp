@@ -314,7 +314,8 @@ void Overlay::buildPages() {
             "Texture upscaling filter"));
         pg.rows.push_back(configChoice("Texture Sampling", "Renderer", "texture_sampling",
             {{"Game Controlled", "0"}, {"Nearest Neighbor", "1"}, {"Linear", "2"},
-             {"Nearest 2D, Linear 3D", "3"}, {"Sharp Bilinear 2D, Linear 3D", "4"}},
+             {"Nearest 2D, Linear 3D", "3"}, {"Sharp Bilinear 2D, Linear 3D", "4"},
+             {"Sharp Bilinear 2D and 3D", "5"}},
             "How textures are sampled; the 2D modes keep sprites and menus sharp and 3D smooth"));
         pg.rows.push_back(configToggle("Linear Filtering", "Renderer", "filter_mode",
             "Smooth the screens when scaled"));
