@@ -94,7 +94,9 @@ private:
     void BuildPipelines();
     vk::Pipeline BuildPresentPipeline(vk::ShaderModule fragment_shader);
     /// The present pipeline for a screen draw: its LCD shader when one is selected.
-    vk::Pipeline ScreenPipeline(u32 screen_id);
+    /// The present pipeline for a screen (stock, or a GammaOS screen shader); user_sampler is
+    /// set when it samples through the Linear Filtering sampler rather than the linear one.
+    vk::Pipeline ScreenPipeline(u32 screen_id, bool& user_sampler);
     void ConfigureFramebufferTexture(TextureInfo& texture,
                                      const Pica::FramebufferConfig& framebuffer);
     void ConfigureRenderPipeline();
@@ -140,14 +142,20 @@ private:
     StreamBuffer vertex_buffer;
     DescriptorUpdateQueue update_queue;
     RasterizerVulkan rasterizer;
+    /// GammaOS: this swap's frame misses draws whose pipeline is still compiling: keep the last
+    /// complete frame on the panels instead (a held repeat, not a flicker).
+    bool hold_present = false;
+    u32 held_incomplete = 0;
     std::unique_ptr<PresentWindow> secondary_present_window_ptr;
     DescriptorHeap present_heap;
     vk::UniquePipelineLayout present_pipeline_layout;
     std::array<vk::Pipeline, PRESENT_PIPELINES> present_pipelines;
     std::array<vk::ShaderModule, PRESENT_PIPELINES> present_shaders;
     // GammaOS LCD shader pipelines, built the first time each is selected.
-    std::array<vk::Pipeline, 7> lcd_pipelines{};
-    std::array<vk::ShaderModule, 7> lcd_shaders{};
+    // GammaOS screen shaders: slot = shader index (1..6, 0 = the plain FXAA one), plus 7 when
+    // Screen AA is on.
+    std::array<vk::Pipeline, 14> lcd_pipelines{};
+    std::array<vk::ShaderModule, 14> lcd_shaders{};
     // This frame's present descriptor sets: the user's sampler, and linear for the shaders.
     vk::DescriptorSet present_set_user{}, present_set_linear{};
     std::array<vk::Sampler, 2> present_samplers;

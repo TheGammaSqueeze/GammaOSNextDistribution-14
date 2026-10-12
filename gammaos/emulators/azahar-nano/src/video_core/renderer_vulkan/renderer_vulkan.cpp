@@ -296,6 +296,9 @@ void RendererVulkan::RenderToWindow(PresentWindow& window, const Layout::Framebu
         }
         last = now;
     }
+    if (hold_present) {
+        return;
+    }
     if (!Settings::values.use_skip_duplicate_frames.GetValue() ||
         Core::PerfStats::game_frames_updated) {
         Frame* frame = window.GetRenderFrame();
@@ -554,28 +557,44 @@ vk::Pipeline RendererVulkan::BuildPresentPipeline(vk::ShaderModule fragment_shad
     }
 }
 
-vk::Pipeline RendererVulkan::ScreenPipeline(u32 screen_id) {
-    const int lcd = Settings::values.gammaos_lcd_shader[screen_id == 2 ? 1 : 0];
-    if (current_pipeline != 0 || lcd <= 0 || lcd > static_cast<int>(lcd_pipelines.size())) {
+vk::Pipeline RendererVulkan::ScreenPipeline(u32 screen_id, bool& user_sampler) {
+    user_sampler = true;
+    int& setting = Settings::values.gammaos_lcd_shader[screen_id == 2 ? 1 : 0];
+    int lcd = setting;
+    bool aa = Settings::values.gammaos_screen_aa;
+    if (lcd == GammaLcd::kLegacySharpAa) {
+        lcd = static_cast<int>(GammaLcd::kFirstSharp) + 1;
+        aa = true;
+    }
+    const int count = static_cast<int>(GammaLcd::kShaders.size());
+    if (current_pipeline != 0 || lcd < 0 || lcd > count || (lcd == 0 && !aa)) {
         return present_pipelines[current_pipeline];
     }
-    const std::size_t i = static_cast<std::size_t>(lcd - 1);
+    // Slot 0 is the plain FXAA shader (no screen shader, Screen AA on).
+    const std::size_t i = static_cast<std::size_t>(lcd) + (aa ? count + 1 : 0);
     if (!lcd_pipelines[i]) {
-        const std::string_view preamble =
-            instance.IsImageArrayDynamicIndexSupported() ? "#define ARRAY_DYNAMIC_INDEX" : "";
+        std::string preamble;
+        if (instance.IsImageArrayDynamicIndexSupported()) preamble += "#define ARRAY_DYNAMIC_INDEX\n";
+        if (aa) preamble += "#define SCREEN_AA\n";
         std::string code{GammaLcd::kCommon};
-        if (i >= GammaLcd::kFirstSharp) code += GammaLcd::kSharpCommon;
-        code += GammaLcd::kShaders[i];
+        if (lcd > 0 && static_cast<std::size_t>(lcd - 1) >= GammaLcd::kFirstSharp) {
+            code += GammaLcd::kSharpCommon;
+        }
+        code += lcd == 0 ? GammaLcd::kPlainAa : GammaLcd::kShaders[lcd - 1];
         lcd_shaders[i] = Compile(code, vk::ShaderStageFlagBits::eFragment, instance.GetDevice(),
                                  preamble);
         if (!lcd_shaders[i]) {
-            LOG_ERROR(Render_Vulkan, "LCD shader {} failed to compile", lcd);
-            Settings::values.gammaos_lcd_shader[screen_id == 2 ? 1 : 0] = 0;
+            LOG_ERROR(Render_Vulkan, "screen shader {} (AA {}) failed to compile", lcd, aa);
+            setting = 0;
+            Settings::values.gammaos_screen_aa = false;
             return present_pipelines[current_pipeline];
         }
         lcd_pipelines[i] = BuildPresentPipeline(lcd_shaders[i]);
-        LOG_INFO(Render_Vulkan, "LCD shader {} ready", lcd);
+        LOG_INFO(Render_Vulkan, "screen shader {} (AA {}) ready", lcd, aa);
     }
+    // The LCD and sharp shaders work on the linear sampler (they snap texel centres themselves);
+    // the plain FXAA one keeps the Linear Filtering choice.
+    user_sampler = lcd == 0;
     return lcd_pipelines[i];
 }
 
@@ -916,9 +935,9 @@ void RendererVulkan::DrawSingleScreen(u32 screen_id, float x, float y, float w, 
         const f32 z = du != 0.0f ? sh / du : 0.0f;
         draw_info.lcd_map = Common::MakeVec(x, -texcoords.left * x, z, -texcoords.bottom * z);
     }
-    const vk::Pipeline pipeline = ScreenPipeline(screen_id);
-    const vk::DescriptorSet set =
-        pipeline == present_pipelines[current_pipeline] ? present_set_user : present_set_linear;
+    bool user_sampler = true;
+    const vk::Pipeline pipeline = ScreenPipeline(screen_id, user_sampler);
+    const vk::DescriptorSet set = user_sampler ? present_set_user : present_set_linear;
 
     scheduler.Record([this, offset = offset, info = draw_info, pipeline,
                       set](vk::CommandBuffer cmdbuf) {
@@ -1334,6 +1353,23 @@ void RendererVulkan::SwapBuffers() {
     }
 #endif
 
+    // GammaOS: a frame that left draws out while their pipelines compile is missing whole
+    // layers (the background, the stage, an effect): showing it flickers. Keep the previous
+    // complete frame on the panels instead, for at most a few frames in a row so a long
+    // compile burst cannot freeze the picture. persist.gammaos.azahar_nano.hold_incomplete =
+    // the most frames held in a row (default 6, about 100 ms; 0 shows incomplete frames).
+    {
+        static const u32 max_hold = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.hold_incomplete", v);
+            return v[0] ? static_cast<u32>(atoi(v)) : 6u;
+        }();
+        const u32 skipped = rasterizer.TakeSkippedDraws();
+        hold_present = skipped > 0 && held_incomplete < max_hold &&
+                       !Settings::values.gammaos_fast_forward;
+        held_incomplete = hold_present ? held_incomplete + 1 : 0;
+        if (hold_present) GammaStats::Add(GammaStats::HeldIncompleteFrames);
+    }
     const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();
 #ifdef ANDROID
     const auto trace_tpre = std::chrono::steady_clock::now();
@@ -1460,7 +1496,7 @@ void RendererVulkan::SwapBuffers() {
                      "pass breaks with only the render area changed {:.1f} | draws z {:.1f} w {:.1f} "
                      "shadow {:.1f} alphatest {:.1f} blend {:.1f} | cmd lists {:.1f} top {:.1f} "
                      "blocked {:.2f} transfers {:.1f} blocked {:.2f} | enabled {} | pipelines fast {} "
-                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | sw draws {} ({} verts) fallback verts {} | hybrid fallback draws {} skipped {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms (window totals)",
+                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | sw draws {} ({} verts) fallback verts {} | hybrid fallback draws {} skipped {} held frames {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms (window totals)",
                      GS::Take(GS::Draws) / n, GS::Take(GS::RenderPasses) / n,
                      GS::Take(GS::Uploads) / n, GS::Take(GS::UploadPixels) / n,
                      GS::Take(GS::UploadScaledPixels) / n, GS::Take(GS::Downloads) / n,
@@ -1482,7 +1518,7 @@ void RendererVulkan::SwapBuffers() {
                      GS::Take(GS::PipeFirstUs) / 1000, GS::Take(GS::PipeRepeatBuilds),
                      GS::Take(GS::PipeRepeatUs) / 1000, GS::Take(GS::NaturalSwDraws), GS::Take(GS::NaturalSwVertices),
                      GS::Take(GS::FallbackSwVertices), GS::Take(GS::HybridFallbackDraws),
-                     GS::Take(GS::HybridSkippedDraws),
+                     GS::Take(GS::HybridSkippedDraws), GS::Take(GS::HeldIncompleteFrames),
                      GS::Take(GS::HybridUberDraws), GS::Take(GS::HybridUberCompiles),
                      GS::Take(GS::PipeHwBuilds), GS::Take(GS::PipeHwUs) / 1000,
                      GS::Take(GS::PipeSwBuilds), GS::Take(GS::PipeSwUs) / 1000,

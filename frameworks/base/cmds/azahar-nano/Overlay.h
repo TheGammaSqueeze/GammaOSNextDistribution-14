@@ -41,6 +41,7 @@ struct OverlayActions {
     std::function<std::string(const char* prop, const char* def)> getProp;
     std::function<void(bool nintendo)> setNintendoLayout;
     std::function<void(int screen, int shader)> setLcdShader;  // 0 top, 1 bottom
+    std::function<void(bool on)> setScreenAa;                   // FXAA on both screens
 };
 
 class Overlay {

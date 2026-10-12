@@ -47,6 +47,14 @@ public:
     ~RasterizerVulkan() override;
 
     void TickFrame();
+
+    /// GammaOS: draws left out (pipeline still compiling) since the last call; the frame they
+    /// belong to is missing those layers.
+    u32 TakeSkippedDraws() {
+        const u32 n = skipped_draws_since_present;
+        skipped_draws_since_present = 0;
+        return n;
+    }
     void LoadDefaultDiskResources(const std::atomic_bool& stop_loading,
                                   const VideoCore::DiskResourceLoadCallback& callback) override;
 
@@ -146,6 +154,7 @@ private:
     bool hybrid_baked = false; ///< GammaOS: this fallback draw uses a precompiled baked shader
     void PrepareUberDraw(u32& variant_key, std::array<u32, 16>& tev_pack, bool upload);
     u32 fallback_vertices_this_frame = 0; ///< GammaOS: CPU vertex budget of fallback draws
+    u32 skipped_draws_since_present = 0;  ///< GammaOS: draws left out while their pipeline compiles
     u32 frame_index = 1;
     std::unordered_map<u64, u32> budget_held_since; ///< pipeline hash -> first held frame ///< GammaOS: this software draw replaces a declined hw draw
     PAddr eye_rt = 0;               // render target of the left-eye transfer

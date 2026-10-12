@@ -185,6 +185,9 @@ void azn_set_fast_forward(int on);
 // 3 zfast LCD, 4 Retro, 5 Bevel, 6 Sharp Bilinear, 7 Sharp Bilinear + AA. Applies from the
 // next frame.
 void azn_set_lcd_shader(int screen, int shader);
+/// Screen AA: FXAA on the emulated screens in the present pass, combined with whatever screen
+/// shader each screen has (0/1). Applies live.
+void azn_set_screen_aa(int enabled);
 
 // The frontend changed a window's buffer size (same window): relayout and rebuild the
 // swapchain at the new size.

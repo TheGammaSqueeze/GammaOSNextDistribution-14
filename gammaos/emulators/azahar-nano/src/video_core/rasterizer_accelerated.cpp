@@ -6,6 +6,7 @@
 #include "common/math_util.h"
 #include "core/memory.h"
 #include "video_core/pica/pica_core.h"
+#include "common/settings.h"
 #include "video_core/rasterizer_accelerated.h"
 
 namespace VideoCore {
@@ -187,6 +188,17 @@ void RasterizerAccelerated::SyncDrawUniforms() {
     if (dirty.CheckBlend()) {
         fs_data.alphatest_ref = regs.framebuffer.output_merger.alpha_test.ref;
         fs_data.blend_color = ColorRGBA8(regs.framebuffer.output_merger.blend_const.raw);
+        fs_data_dirty = true;
+    }
+
+    // GammaOS: nearest texels for 2D draws (read every draw, so the option applies live).
+    const float snap_2d =
+        Settings::values.texture_sampling.GetValue() ==
+                Settings::TextureSampling::Nearest2DLinear3D
+            ? 1.0f
+            : 0.0f;
+    if (fs_data.tex_lod_bias[3] != snap_2d) {
+        fs_data.tex_lod_bias[3] = snap_2d;
         fs_data_dirty = true;
     }
 

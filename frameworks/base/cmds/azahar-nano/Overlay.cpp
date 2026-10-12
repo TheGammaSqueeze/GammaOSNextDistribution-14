@@ -296,7 +296,7 @@ void Overlay::buildPages() {
             "Internal 3DS render resolution"));
         pg.rows.push_back(propChoice("Dynamic Resolution", "persist.gammaos.azahar_nano.dynres", "0",
             {{"Off", "0"}, {"On", "1"}},
-            "Drops to 1x with Sharp Bilinear + AA while the game runs slow, then tries the resolution above again"));
+            "Drops to 1x while the game runs slow (screen shaders stay; Sharp Bilinear where none is set), then tries the resolution above again"));
         pg.rows.push_back(configChoice("Top Panel", "Layout", "layout_option",
             {{"Top Screen", "1"}, {"Both Screens", "0"}, {"Large Screen", "2"}, {"Side by Side", "3"},
              {"Hybrid", "5"}},
@@ -313,14 +313,15 @@ void Overlay::buildPages() {
             {{"None", "0"}, {"Anime4K", "1"}, {"Bicubic", "2"}, {"ScaleForce", "3"}, {"MMPX", "5"}},
             "Texture upscaling filter"));
         pg.rows.push_back(configChoice("Texture Sampling", "Renderer", "texture_sampling",
-            {{"Game Controlled", "0"}, {"Nearest Neighbor", "1"}, {"Linear", "2"}},
-            "How textures are sampled"));
+            {{"Game Controlled", "0"}, {"Nearest Neighbor", "1"}, {"Linear", "2"},
+             {"Nearest 2D, Linear 3D", "3"}},
+            "How textures are sampled; Nearest 2D keeps sprites and menus sharp and 3D smooth"));
         pg.rows.push_back(configToggle("Linear Filtering", "Renderer", "filter_mode",
             "Smooth the screens when scaled"));
         // LCD shaders per 3DS screen: one texture read each, drawn in the normal present pass.
         const std::vector<Choice> lcd = {{"Off", "0"},   {"LCD1x", "1"}, {"LCD3x", "2"},
                                          {"zfast LCD", "3"}, {"Retro", "4"}, {"Bevel", "5"},
-                                         {"Sharp Bilinear", "6"}, {"Sharp Bilinear + AA", "7"}};
+                                         {"Sharp Bilinear", "6"}};
         for (int screen = 0; screen < 2; screen++) {
             pg.rows.push_back(propChoice(
                 screen == 0 ? "Top Screen Shader" : "Bottom Screen Shader",
@@ -331,6 +332,12 @@ void Overlay::buildPages() {
                     if (mA.setLcdShader) mA.setLcdShader(screen, atoi(v.c_str()));
                 }));
         }
+        pg.rows.push_back(propChoice("Screen AA", "persist.gammaos.azahar_nano.screen_aa", "0",
+            {{"Off", "0"}, {"On", "1"}},
+            "Smooths jagged edges on both screens (FXAA on the 3DS pixels), with any screen shader",
+            [this](const std::string& v) {
+                if (mA.setScreenAa) mA.setScreenAa(v == "1");
+            }));
         pg.rows.push_back(configChoice("Stereoscopic 3D", "Renderer", "render_3d",
             {{"Off", "0"}, {"Side by Side", "1"}, {"Anaglyph", "3"}, {"Interlaced", "4"},
              {"Reverse Interlaced", "5"}},

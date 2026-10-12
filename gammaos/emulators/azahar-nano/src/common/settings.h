@@ -127,6 +127,9 @@ enum class TextureSampling : u32 {
     GameControlled = 0,
     NearestNeighbor = 1,
     Linear = 2,
+    // GammaOS: linear filtering, but pixels of orthographic (2D) draws sample the nearest texel,
+    // so sprites and UI stay sharp while 3D surfaces stay smooth.
+    Nearest2DLinear3D = 3,
 };
 
 enum class AspectRatio : u32 {
@@ -586,6 +589,8 @@ struct Values {
     // GammaOS LCD screen shader per 3DS screen (0 top, 1 bottom): 0 off, else an index into
     // Vulkan::GammaLcd::kShaders plus one.
     std::array<int, 2> gammaos_lcd_shader{};
+    // GammaOS: FXAA on the emulated screens in the present pass, on top of any screen shader.
+    bool gammaos_screen_aa = false;
     bool gammaos_vd_keep_fs_depth = false;   // debug: vertex z rewrite but FS still writes depth
     // GammaOS tweak: full-surface clears through a render pass with loadOp CLEAR
     // instead of vkCmdClearColorImage (tile-based GPUs clear in on-chip memory).

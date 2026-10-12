@@ -57,7 +57,7 @@ layout (binding = 2, std140) uniform fs_data {
     LightSrc light_src[NUM_LIGHTS];
     vec4 const_color[NUM_TEV_STAGES];
     vec4 tev_combiner_buffer_color;
-    vec3 tex_lod_bias;
+    vec4 tex_lod_bias;
     vec4 tex_border_color[3];
     vec4 blend_color;
     uvec4 uber_config[17];
@@ -144,6 +144,16 @@ float byteround(float x) { return round(x * 255.0) * (1.0 / 255.0); }
 vec2 byteround(vec2 x) { return round(x * 255.0) * (1.0 / 255.0); }
 vec3 byteround(vec3 x) { return round(x * 255.0) * (1.0 / 255.0); }
 vec4 byteround(vec4 x) { return round(x * 255.0) * (1.0 / 255.0); }
+// GammaOS: orthographic draws (clip w = 1, sprites and UI) sample the nearest texel when
+// tex_lod_bias.w is set; 3D draws keep the linear sampler.
+vec2 snap2d(vec2 tc, ivec2 size) {
+    if (tex_lod_bias.w > 0.5 && abs(gl_FragCoord.w - 1.0) < 1e-4) {
+        vec2 s = vec2(size);
+        return (floor(tc * s) + 0.5) / s;
+    }
+    return tc;
+}
+
 float getLod(vec2 coord) {
     vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
     return log2(max(d.x, d.y));
@@ -418,12 +428,12 @@ vec4 sampleTexUnit0() {
 }
 vec4 sampleTexUnit1() {
     if (outside_border(1)) return tex_border_color[1];
-    return textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, 0))) + tex_lod_bias[1]);
+    return textureLod(tex1, snap2d(texcoord1, textureSize(tex1, 0)), getLod(texcoord1 * vec2(textureSize(tex1, 0))) + tex_lod_bias[1]);
 }
 vec4 sampleTexUnit2() {
     if (outside_border(2)) return tex_border_color[2];
     vec2 c = texture2_use_coord1() ? texcoord1 : texcoord2;
-    return textureLod(tex2, c, getLod(c * vec2(textureSize(tex2, 0))) + tex_lod_bias[2]);
+    return textureLod(tex2, snap2d(c, textureSize(tex2, 0)), getLod(c * vec2(textureSize(tex2, 0))) + tex_lod_bias[2]);
 }
 vec4 sampleTexUnit3() {
 #if UBER_PROCTEX && !STRIP_PROCTEX
@@ -857,7 +867,7 @@ std::string GenerateFragmentShader(const Variant& variant, const Profile& profil
     switch (variant.tex0) {
     case Tex0Kind::Flat:
         sample0 = "if (type == 3u) return textureProj(tex0, vec3(texcoord0, texcoord0_w));\n"
-                  "    return textureLod(tex0, texcoord0, getLod(texcoord0 * "
+                  "    return textureLod(tex0, snap2d(texcoord0, textureSize(tex0, 0)), getLod(texcoord0 * "
                   "vec2(textureSize(tex0, 0))) + tex_lod_bias[0]);";
         break;
     case Tex0Kind::Cube:

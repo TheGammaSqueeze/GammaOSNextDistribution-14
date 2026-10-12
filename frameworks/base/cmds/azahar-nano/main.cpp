@@ -98,6 +98,7 @@ struct CoreApi {
     void (*windows_resized)() = nullptr;          // optional (newer cores)
     void (*set_resolution)(int) = nullptr;        // optional (newer cores)
     int (*shader_cache_rebuilding)() = nullptr;   // optional (newer cores)
+    void (*set_screen_aa)(int) = nullptr;         // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -186,6 +187,8 @@ bool loadCore(const std::string& path) {
         reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_resolution"));
     gCore.shader_cache_rebuilding =
         reinterpret_cast<int (*)()>(dlsym(gCore.handle, "azn_shader_cache_rebuilding"));
+    gCore.set_screen_aa =
+        reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_screen_aa"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -611,12 +614,19 @@ static void dynResTick(double speed, bool menuOpen,
             d.settle = 2;
             d.nextProbeS = nowS + d.backoff;
             gCore.set_resolution(1);
+            // The user's screen shaders stay (they are keyed to the 3DS pixels, so they look
+            // the same at 1x); a screen without one gets Sharp Bilinear, which keeps the
+            // 1x image crisp on the panel. Screen AA follows its own setting.
             if (setLcdShader) {
-                setLcdShader(0, 7);
-                setLcdShader(1, 7);
+                for (int screen = 0; screen < 2; screen++) {
+                    const int user = atoi(prop(screen == 0 ? "persist.gammaos.azahar_nano.lcd_top"
+                                                           : "persist.gammaos.azahar_nano.lcd_bottom",
+                                               "0").c_str());
+                    setLcdShader(screen, user > 0 ? user : 6);
+                }
             }
-            ALOGI("dynres: %.0f%% speed at %dx, 1x with sharp bilinear + AA, next try in %d s",
-                  speed * 100.0, base, d.backoff);
+            ALOGI("dynres: %.0f%% speed at %dx, 1x (screen shaders kept, sharp bilinear where none), "
+                  "next try in %d s", speed * 100.0, base, d.backoff);
         } else if (d.probing && ++d.highSecs >= 30) {
             d.probing = false;
             d.backoff = 30;
@@ -738,9 +748,21 @@ int main(int argc, char** argv) {
         }
     }
     gCore.set_gpu_driver(hookDir.c_str(), driverDir.c_str(), driverLib.c_str(), "");
+    // "Sharp Bilinear + AA" (7) became Sharp Bilinear (6) plus the separate Screen AA option.
+    for (const char* key : {"persist.gammaos.azahar_nano.lcd_top",
+                            "persist.gammaos.azahar_nano.lcd_bottom"}) {
+        if (prop(key, "0") == "7") {
+            property_set(key, "6");
+            property_set("persist.gammaos.azahar_nano.screen_aa", "1");
+            ALOGI("%s: Sharp Bilinear + AA is now Sharp Bilinear with Screen AA on", key);
+        }
+    }
     if (gCore.set_lcd_shader) {
         gCore.set_lcd_shader(0, atoi(prop("persist.gammaos.azahar_nano.lcd_top", "0").c_str()));
         gCore.set_lcd_shader(1, atoi(prop("persist.gammaos.azahar_nano.lcd_bottom", "0").c_str()));
+    }
+    if (gCore.set_screen_aa) {
+        gCore.set_screen_aa(prop("persist.gammaos.azahar_nano.screen_aa", "0") == "1");
     }
 
     // Panels. DRM backend: our own BufferQueues flipped straight onto the panels.
@@ -866,6 +888,9 @@ int main(int argc, char** argv) {
         sUserDir = userDir;
         oa.getConfig = [](const char* sec, const char* key) { return configValue(sUserDir, sec, key); };
         oa.setNintendoLayout = [](bool on) { if (sInput) sInput->setNintendoLayout(on); };
+        oa.setScreenAa = [](bool on) {
+            if (gCore.set_screen_aa) gCore.set_screen_aa(on ? 1 : 0);
+        };
         oa.setLcdShader = [](int screen, int shader) {
             if (gCore.set_lcd_shader) gCore.set_lcd_shader(screen, shader);
             // The panel showing this screen switches to its LCD (or plain) buffer size now.

@@ -96,7 +96,7 @@ layout (binding = 2, std140) uniform fs_data {
     LightSrc light_src[NUM_LIGHTS];
     vec4 const_color[NUM_TEV_STAGES];
     vec4 tev_combiner_buffer_color;
-    vec3 tex_lod_bias;
+    vec4 tex_lod_bias;
     vec4 tex_border_color[3];
     vec4 blend_color;
 };
@@ -1389,6 +1389,16 @@ vec4 byteround(vec4 x) {
     return round(x * 255.0) * (1.0 / 255.0);
 }
 
+// GammaOS: orthographic draws (clip w = 1, sprites and UI) sample the nearest texel when
+// tex_lod_bias.w is set; 3D draws keep the linear sampler.
+vec2 snap2d(vec2 tc, ivec2 size) {
+    if (tex_lod_bias.w > 0.5 && abs(gl_FragCoord.w - 1.0) < 1e-4) {
+        vec2 s = vec2(size);
+        return (floor(tc * s) + 0.5) / s;
+    }
+    return tc;
+}
+
 float getLod(vec2 coord) {
     vec2 d = max(abs(dFdx(coord)), abs(dFdy(coord)));
     return log2(max(d.x, d.y));
@@ -1714,7 +1724,7 @@ void FragmentModule::DefineTexUnitSampler(u32 texture_unit) {
     case 0:
         switch (config.texture.texture0_type) {
         case TexturingRegs::TextureConfig::Texture2D:
-            out += "return textureLod(tex0, texcoord0, getLod(texcoord0 * "
+            out += "return textureLod(tex0, snap2d(texcoord0, textureSize(tex0, 0)), getLod(texcoord0 * "
                    "vec2(textureSize(tex0, 0))) + tex_lod_bias[0]);";
             break;
         case TexturingRegs::TextureConfig::Projection2D:
@@ -1739,15 +1749,15 @@ void FragmentModule::DefineTexUnitSampler(u32 texture_unit) {
         }
         break;
     case 1:
-        out += "return textureLod(tex1, texcoord1, getLod(texcoord1 * vec2(textureSize(tex1, "
+        out += "return textureLod(tex1, snap2d(texcoord1, textureSize(tex1, 0)), getLod(texcoord1 * vec2(textureSize(tex1, "
                "0))) + tex_lod_bias[1]);";
         break;
     case 2:
         if (config.texture.texture2_use_coord1) {
-            out += "return textureLod(tex2, texcoord1, getLod(texcoord1 * "
+            out += "return textureLod(tex2, snap2d(texcoord1, textureSize(tex2, 0)), getLod(texcoord1 * "
                    "vec2(textureSize(tex2, 0))) + tex_lod_bias[2]);";
         } else {
-            out += "return textureLod(tex2, texcoord2, getLod(texcoord2 * "
+            out += "return textureLod(tex2, snap2d(texcoord2, textureSize(tex2, 0)), getLod(texcoord2 * "
                    "vec2(textureSize(tex2, 0))) + tex_lod_bias[2]);";
         }
         break;

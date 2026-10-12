@@ -20,7 +20,7 @@ enum Counter : int {
     DrawsZBuffer, DrawsWBuffer, DrawsShadow, DrawsAlphaTest, DrawsBlend,
     CmdLists, CmdListsTop, CmdListsBlocked, Transfers, TransfersBlocked,
     PipesFast, PipesQueued, DrawsSkippedPending, ShadersCompiled,
-    ImagesCreated, SurfacesRecycled, HybridFallbackDraws, HybridSkippedDraws, NaturalSwDraws, NaturalSwVertices, FallbackSwVertices, HybridUberDraws, HybridUberCompiles, PipeHwBuilds, PipeHwUs, PipeSwBuilds, PipeSwUs, PipeUberBuilds, PipeUberUs, FastAttempts, FastAttemptUs, FastAttemptMaxUs, PipeBuilds, PipeBuildUs, PipeFirstBuilds, PipeFirstUs, PipeRepeatBuilds, PipeRepeatUs,
+    ImagesCreated, SurfacesRecycled, HybridFallbackDraws, HybridSkippedDraws, HeldIncompleteFrames, NaturalSwDraws, NaturalSwVertices, FallbackSwVertices, HybridUberDraws, HybridUberCompiles, PipeHwBuilds, PipeHwUs, PipeSwBuilds, PipeSwUs, PipeUberBuilds, PipeUberUs, FastAttempts, FastAttemptUs, FastAttemptMaxUs, PipeBuilds, PipeBuildUs, PipeFirstBuilds, PipeFirstUs, PipeRepeatBuilds, PipeRepeatUs,
     GlslVs, GlslVsUs, GlslFs, GlslFsUs, GlslOtherUs,
     NewBothSeen, NewBothSeenUs, NewVsSeen, NewVsSeenUs, NewFsSeen, NewFsSeenUs, NewNoneSeen, NewNoneSeenUs,
     Count

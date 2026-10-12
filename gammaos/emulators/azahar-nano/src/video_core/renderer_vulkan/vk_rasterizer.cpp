@@ -665,6 +665,7 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                 }
                 if (skip) {
                     GammaStats::Add(GammaStats::HybridSkippedDraws);
+                    ++skipped_draws_since_present;
                     return true;
                 }
                 fallback_vertices_this_frame += verts;
@@ -1069,6 +1070,7 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
                     GammaStats::Add(GammaStats::HybridUberDraws);
                 } else {
                     GammaStats::Add(GammaStats::HybridSkippedDraws);
+                    ++skipped_draws_since_present;
                     hybrid_fallback = false;
                     vertex_batch.clear();
                     return true;

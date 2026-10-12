@@ -746,6 +746,12 @@ void azn_windows_resized() {
     }
 }
 
+void azn_set_screen_aa(int enabled) {
+    if (Settings::values.gammaos_screen_aa == (enabled != 0)) return;
+    Settings::values.gammaos_screen_aa = enabled != 0;
+    Core::PerfStats::game_frames_updated = true;
+}
+
 void azn_set_lcd_shader(int screen, int shader) {
     if (screen < 0 || screen > 1) return;
     const int value = std::clamp(shader, 0, 7);

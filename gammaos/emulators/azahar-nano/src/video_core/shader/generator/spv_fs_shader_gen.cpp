@@ -1021,6 +1021,30 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
     // (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
     const auto sample_lod = [&](Id tex_id) {
         const Id sampled_image{OpLoad(TypeSampledImage(image2d_id), tex_id)};
+        // GammaOS: orthographic draws (clip w = 1, sprites and UI) sample the nearest texel
+        // when tex_lod_bias.w is set (TextureSampling::Nearest2DLinear3D); 3D keeps linear.
+        const Id texcoord_in{texcoord};
+        Id texcoord;
+        {
+            const Id snap_image{OpImage(image2d_id, sampled_image)};
+            const Id snap_size{OpConvertSToF(
+                vec_ids.Get(2), OpImageQuerySizeLod(ivec_ids.Get(2), snap_image, ConstS32(0)))};
+            const Id snap_flag{GetShaderDataMember(f32_id, ConstS32(27), ConstU32(3u))};
+            const Id frag_w{
+                OpLoad(f32_id, OpAccessChain(TypePointer(spv::StorageClass::Input, f32_id), gl_frag_coord_id, ConstU32(3u)))};
+            const Id ortho{OpFOrdLessThan(
+                bool_id, OpFAbs(f32_id, OpFSub(f32_id, frag_w, ConstF32(1.0f))), ConstF32(1e-4f))};
+            const Id snap{OpLogicalAnd(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f)),
+                                       ortho)};
+            const Id half{OpCompositeConstruct(vec_ids.Get(2), ConstF32(0.5f), ConstF32(0.5f))};
+            const Id snapped{OpFDiv(
+                vec_ids.Get(2),
+                OpFAdd(vec_ids.Get(2), OpFloor(vec_ids.Get(2), OpFMul(vec_ids.Get(2), texcoord_in, snap_size)),
+                       half),
+                snap_size)};
+            texcoord = OpSelect(vec_ids.Get(2), OpCompositeConstruct(bvec_ids.Get(2), snap, snap),
+                                snapped, texcoord_in);
+        }
         // GammaOS: the rasterizer sets the bias to 1e30 when the level of detail cannot change
         // the sample (one mip level, same min and mag filter): sample level 0 directly and skip
         // the size query, the derivatives and the log2.
@@ -1621,7 +1645,7 @@ void FragmentModule::DefineUniformStructs() {
                    i32_id, i32_id, i32_id, i32_id, i32_id, i32_id, f32_id, i32_id,
                    lighting_lut_array_id, vec_ids.Get(3), vec_ids.Get(2), vec_ids.Get(2),
                    vec_ids.Get(2), vec_ids.Get(3), light_src_array_id, const_color_array_id,
-                   vec_ids.Get(4), vec_ids.Get(3), border_color_array_id, vec_ids.Get(4))};
+                   vec_ids.Get(4), vec_ids.Get(4), border_color_array_id, vec_ids.Get(4))};
 
     constexpr std::array light_src_offsets{0u, 16u, 32u, 48u, 64u, 80u, 92u, 96u};
     constexpr std::array shader_data_offsets{
