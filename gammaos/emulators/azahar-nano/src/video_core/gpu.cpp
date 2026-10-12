@@ -2,6 +2,18 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <sys/resource.h>
+#include <sys/system_properties.h>
+#include <unistd.h>
+#include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <string>
+#include <condition_variable>
+#include <deque>
+#include <mutex>
+#include <thread>
+#include <vector>
 #include "common/archives.h"
 #include "common/hacks/hack_manager.h"
 #include "common/microprofile.h"
@@ -83,6 +95,156 @@ public:
     }
 };
 
+namespace {
+// True on the GPU worker thread (it never waits for itself).
+thread_local bool t_gpu_worker = false;
+// The GPU whose worker AsyncGpuDrain waits for (one emulated system per process).
+std::atomic<GPU*> s_async_gpu{nullptr};
+} // Anonymous namespace
+
+// GammaOS async GPU worker: a FIFO of command list jobs run on one thread, and the interrupts
+// those jobs raise, held for the emulation thread.
+struct GPU::Async {
+    std::thread thread;
+    std::mutex mutex;
+    std::condition_variable work_cv;
+    std::condition_variable idle_cv;
+    std::deque<std::function<void()>> jobs;
+    bool busy = false;
+    bool stop = false;
+    std::atomic<int> pending{0};
+
+    std::mutex interrupt_mutex;
+    std::vector<std::pair<Service::GSP::InterruptId, u64>> interrupts;
+    std::atomic<int> interrupt_count{0};  // lets the per-slice poll skip the lock
+    Service::GSP::InterruptHandler deliver;
+
+    void Run() {
+        t_gpu_worker = true;
+        pthread_setname_np(pthread_self(), "AzaharGpu");
+        // Same priority as the emulation thread: the two run side by side.
+        setpriority(PRIO_PROCESS, static_cast<id_t>(gettid()), -10);
+        std::unique_lock lock{mutex};
+        while (true) {
+            work_cv.wait(lock, [this] { return stop || !jobs.empty(); });
+            if (jobs.empty()) {
+                break;
+            }
+            auto job = std::move(jobs.front());
+            jobs.pop_front();
+            busy = true;
+            lock.unlock();
+            job();
+            lock.lock();
+            busy = false;
+            pending.fetch_sub(1, std::memory_order_release);
+            if (jobs.empty()) {
+                idle_cv.notify_all();
+            }
+        }
+    }
+
+    void Enqueue(std::function<void()> job) {
+        {
+            std::scoped_lock lock{mutex};
+            jobs.push_back(std::move(job));
+            pending.fetch_add(1, std::memory_order_release);
+        }
+        work_cv.notify_one();
+    }
+
+    void WaitIdle() {
+        std::unique_lock lock{mutex};
+        idle_cv.wait(lock, [this] { return jobs.empty() && !busy; });
+    }
+
+    void Deliver() {
+        if (interrupt_count.load(std::memory_order_acquire) == 0) {
+            return;
+        }
+        std::vector<std::pair<Service::GSP::InterruptId, u64>> ready;
+        {
+            std::scoped_lock lock{interrupt_mutex};
+            ready.swap(interrupts);
+            interrupt_count.store(0, std::memory_order_release);
+        }
+        for (const auto& [id, delay] : ready) {
+            if (deliver) {
+                deliver(id, delay);
+            }
+        }
+    }
+};
+
+void AsyncGpuDrain() {
+    if (GPU* gpu = s_async_gpu.load(std::memory_order_acquire)) {
+        gpu->AsyncDrain(__builtin_return_address(0));
+    }
+}
+
+// Diagnostics: which callers had to wait for the worker, how often, how long (logged
+// every two seconds with persist.gammaos.azahar_nano.async_gpu_log=1).
+namespace {
+struct WaitSite {
+    void* site;
+    u32 count;
+    double ms;
+};
+std::vector<WaitSite> s_wait_sites;
+std::chrono::steady_clock::time_point s_wait_log_last{};
+} // Anonymous namespace
+
+void GPU::AsyncDrain(void* caller) {
+    if (!async || t_gpu_worker) {
+        return;
+    }
+    if (async->pending.load(std::memory_order_acquire) != 0) {
+        static const bool log = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.async_gpu_log", v);
+            return v[0] == '1';
+        }();
+        if (log) {
+            const auto t0 = std::chrono::steady_clock::now();
+            async->WaitIdle();
+            const auto t1 = std::chrono::steady_clock::now();
+            void* site = caller ? caller : __builtin_return_address(0);
+            const double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+            auto it = std::find_if(s_wait_sites.begin(), s_wait_sites.end(),
+                                   [site](const WaitSite& w) { return w.site == site; });
+            if (it == s_wait_sites.end()) {
+                s_wait_sites.push_back({site, 1, ms});
+            } else {
+                it->count++;
+                it->ms += ms;
+            }
+            if (t1 - s_wait_log_last > std::chrono::seconds(2)) {
+                s_wait_log_last = t1;
+                std::string line;
+                for (const auto& w : s_wait_sites) {
+                    line += fmt::format(" {}:{}x/{:.1f}ms", w.site, w.count, w.ms);
+                }
+                LOG_INFO(HW_GPU, "async GPU waits:{}", line);
+                s_wait_sites.clear();
+            }
+        } else {
+            async->WaitIdle();
+        }
+    }
+    async->Deliver();
+}
+
+void GPU::AsyncPoll() {
+    if (!async || t_gpu_worker) {
+        return;
+    }
+    async->Deliver();
+}
+
+bool GPU::AsyncPending() const {
+    return async && async->pending.load(std::memory_order_acquire) != 0;
+}
+
 MICROPROFILE_DEFINE(GPU_DisplayTransfer, "GPU", "DisplayTransfer", MP_RGB(100, 100, 255));
 MICROPROFILE_DEFINE(GPU_CmdlistProcessing, "GPU", "Cmdlist Processing", MP_RGB(100, 255, 100));
 
@@ -97,9 +259,29 @@ GPU::GPU(Core::System& system, Frontend::EmuWindow& emu_window,
 
     // Bind the rasterizer to the PICA GPU
     impl->pica.BindRasterizer(impl->rasterizer);
+
+    char v[PROP_VALUE_MAX] = {};
+    __system_property_get("persist.gammaos.azahar_nano.async_gpu", v);
+    if (v[0] == '1') {
+        async = std::make_unique<Async>();
+        async->thread = std::thread([a = async.get()] { a->Run(); });
+        s_async_gpu.store(this, std::memory_order_release);
+        LOG_INFO(HW_GPU, "async GPU: command lists on a worker thread");
+    }
 }
 
-GPU::~GPU() = default;
+GPU::~GPU() {
+    if (async) {
+        GPU* expected = this;
+        s_async_gpu.compare_exchange_strong(expected, nullptr);
+        {
+            std::scoped_lock lock{async->mutex};
+            async->stop = true;
+        }
+        async->work_cv.notify_all();
+        async->thread.join();
+    }
+}
 
 PAddr GPU::VirtualToPhysicalAddress(VAddr addr) {
     if (addr == 0) {
@@ -126,25 +308,61 @@ PAddr GPU::VirtualToPhysicalAddress(VAddr addr) {
 }
 
 void GPU::SetInterruptHandler(Service::GSP::InterruptHandler handler) {
-    impl->signal_interrupt = handler;
-    impl->pica.SetInterruptHandler(handler);
+    if (async) {
+        // Interrupts raised on the worker wait for the emulation thread (kernel objects and
+        // core timing live there).
+        async->deliver = handler;
+        Async* a = async.get();
+        impl->signal_interrupt = [a, handler](Service::GSP::InterruptId id, u64 delay) {
+            if (t_gpu_worker) {
+                std::scoped_lock lock{a->interrupt_mutex};
+                a->interrupts.emplace_back(id, delay);
+                a->interrupt_count.fetch_add(1, std::memory_order_release);
+            } else {
+                handler(id, delay);
+            }
+        };
+    } else {
+        impl->signal_interrupt = handler;
+    }
+    impl->pica.SetInterruptHandler(impl->signal_interrupt);
 }
 
 void GPU::FlushRegion(PAddr addr, u32 size) {
+    AsyncDrain();
     impl->rasterizer->FlushRegion(addr, size);
 }
 
 void GPU::InvalidateRegion(PAddr addr, u32 size) {
+    AsyncDrain();
     impl->rasterizer->InvalidateRegion(addr, size);
 }
 
 void GPU::ClearAll(bool flush) {
+    AsyncDrain();
     impl->rasterizer->ClearAll(flush);
 }
 
 void GPU::Execute(const Service::GSP::Command& command) {
     using Service::GSP::CommandId;
     auto& regs = impl->pica.regs;
+
+    // Async GPU: a command list goes to the worker (its registers are written there, in
+    // order); every other command touches GPU state here and waits for the worker first.
+    if (async && command.id == CommandId::SubmitCmdList) {
+        const auto& params = command.submit_gpu_cmdlist;
+        const u32 paddr = VirtualToPhysicalAddress(params.address);
+        const u32 size = params.size;
+        async->Enqueue([this, paddr, size] {
+            auto& cmdbuffer = impl->pica.regs.internal.pipeline.command_buffer;
+            cmdbuffer.addr[0].Assign(paddr >> 3);
+            cmdbuffer.size[0].Assign(size >> 3);
+            cmdbuffer.trigger[0] = 1;
+            SubmitCmdList(0);
+        });
+        return;
+    }
+    AsyncDrain();
 
     switch (command.id) {
     case CommandId::RequestDma: {
@@ -257,6 +475,7 @@ void GPU::Execute(const Service::GSP::Command& command) {
 }
 
 void GPU::SetBufferSwap(u32 screen_id, const Service::GSP::FrameBufferInfo& info) {
+    AsyncDrain();
     const PAddr phys_address_left = VirtualToPhysicalAddress(info.address_left);
     const PAddr phys_address_right = VirtualToPhysicalAddress(info.address_right);
 
@@ -287,11 +506,13 @@ void GPU::SetBufferSwap(u32 screen_id, const Service::GSP::FrameBufferInfo& info
 }
 
 void GPU::SetColorFill(const Pica::ColorFill& fill) {
+    AsyncDrain();
     impl->pica.regs_lcd.color_fill_top = fill;
     impl->pica.regs_lcd.color_fill_bottom = fill;
 }
 
 u32 GPU::ReadReg(VAddr addr) {
+    AsyncDrain();
     switch (addr & 0xFFFFF000) {
     case VADDR_LCD: {
         const u32 offset = addr - VADDR_LCD;
@@ -314,6 +535,7 @@ u32 GPU::ReadReg(VAddr addr) {
 }
 
 void GPU::WriteReg(VAddr addr, u32 data) {
+    AsyncDrain();
     switch (addr & 0xFFFFF000) {
     case VADDR_LCD: {
         const u32 offset = addr - VADDR_LCD;
@@ -344,10 +566,18 @@ void GPU::WriteReg(VAddr addr, u32 data) {
             MemoryTransfer();
             break;
         case GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[0]):
-            SubmitCmdList(0);
+            if (async) {
+                async->Enqueue([this] { SubmitCmdList(0); });
+            } else {
+                SubmitCmdList(0);
+            }
             break;
         case GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[1]):
-            SubmitCmdList(1);
+            if (async) {
+                async->Enqueue([this] { SubmitCmdList(1); });
+            } else {
+                SubmitCmdList(1);
+            }
             break;
         default:
             break;
@@ -376,6 +606,7 @@ GraphicsDebugger& GPU::Debugger() {
 }
 
 void GPU::ApplyPerProgramSettings(u64 program_ID) {
+    AsyncDrain();
     auto hack = Common::Hacks::hack_manager.GetHack(
         Common::Hacks::HackType::ACCURATE_MULTIPLICATION, program_ID);
     bool use_accurate_mul = Settings::values.shaders_accurate_mul.GetValue();
@@ -486,6 +717,8 @@ void GPU::MemoryTransfer() {
 }
 
 void GPU::VBlankCallback(std::uintptr_t user_data, s64 cycles_late) {
+    // The frame's command lists must be done before it is presented.
+    AsyncDrain();
     // Signal to GSP that GPU interrupt has occurred
     impl->signal_interrupt(Service::GSP::InterruptId::PDC0, 0);
     impl->signal_interrupt(Service::GSP::InterruptId::PDC1, 0);
@@ -498,6 +731,7 @@ void GPU::VBlankCallback(std::uintptr_t user_data, s64 cycles_late) {
 }
 
 void GPU::RecreateRenderer(Frontend::EmuWindow& emu_window, Frontend::EmuWindow* secondary_window) {
+    AsyncDrain();
     // Reset the renderer (this will destroy OpenGL resources)
     impl->renderer.reset();
 
@@ -537,6 +771,7 @@ void GPU::RecreateRenderer(Frontend::EmuWindow& emu_window, Frontend::EmuWindow*
 }
 
 void GPU::ReleaseRenderer() {
+    AsyncDrain();
     // Just reset the renderer to release OpenGL resources
     // Don't null out rasterizer pointer as it will become dangling
     impl->renderer.reset();
@@ -546,6 +781,7 @@ void GPU::ReleaseRenderer() {
 
 template <class Archive>
 void GPU::serialize(Archive& ar, const u32 file_version) {
+    AsyncDrain();
     ar & impl->pica;
 }
 

@@ -32,6 +32,11 @@ class EmuWindow;
 
 namespace VideoCore {
 
+/// GammaOS async GPU: waits for the GPU worker before a CPU-side access to GPU state (the
+/// rasterizer's flush/invalidate entry points call it). No-op when async GPU is off or when
+/// called on the worker itself.
+void AsyncGpuDrain();
+
 /// Measured on hardware to be 2240568 timer cycles or 4481136 ARM11 cycles
 constexpr u64 FRAME_TICKS = 4481136ull;
 
@@ -99,6 +104,17 @@ public:
     /// Releases the renderer (for GL context destroy in libretro)
     void ReleaseRenderer();
 
+    /// GammaOS async GPU (persist.gammaos.azahar_nano.async_gpu): command lists are processed
+    /// on a worker thread while the emulated CPU runs on. Everything else that touches GPU
+    /// state first waits for the worker (AsyncDrain), and the interrupts the worker raises are
+    /// delivered on the emulation thread (AsyncPoll, AsyncDrain).
+    /// Waits until the worker is idle, then delivers its interrupts. No-op on the worker.
+    void AsyncDrain(void* site = nullptr);
+    /// Delivers the interrupts of command lists the worker has finished, without waiting.
+    void AsyncPoll();
+    /// True while command lists are queued or being processed.
+    bool AsyncPending() const;
+
 private:
     void SubmitCmdList(u32 index);
 
@@ -114,6 +130,8 @@ private:
     void serialize(Archive& ar, const u32 file_version);
 
     std::unique_ptr<RightEyeDisabler> right_eye_disabler;
+    struct Async;
+    std::unique_ptr<Async> async;
 
 private:
     friend class RightEyeDisabler;

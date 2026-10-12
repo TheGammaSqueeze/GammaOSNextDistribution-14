@@ -20,6 +20,7 @@
 #include "video_core/renderer_vulkan/renderer_vulkan.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "common/scope_exit.h"
+#include "video_core/gpu.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/renderer_vulkan/vk_gammaos_stats.h"
 #include "video_core/renderer_vulkan/vk_gammaos_gpu_timer.h"
@@ -1282,20 +1283,24 @@ void RasterizerVulkan::BindTextureCube(const Pica::TexturingRegs::FullTextureCon
 }
 
 void RasterizerVulkan::FlushAll() {
+    VideoCore::AsyncGpuDrain(); // GammaOS async GPU: CPU-side access, wait for the worker
     res_cache.FlushAll();
 }
 
 void RasterizerVulkan::FlushRegion(PAddr addr, u32 size) {
+    VideoCore::AsyncGpuDrain(); // GammaOS async GPU: CPU-side access, wait for the worker
     res_cache.MirrorAccess(addr, size, false);
     res_cache.FlushRegion(addr, size);
 }
 
 void RasterizerVulkan::InvalidateRegion(PAddr addr, u32 size) {
+    VideoCore::AsyncGpuDrain(); // GammaOS async GPU: CPU-side access, wait for the worker
     res_cache.MirrorAccess(addr, size, true);
     res_cache.InvalidateRegion(addr, size);
 }
 
 void RasterizerVulkan::FlushAndInvalidateRegion(PAddr addr, u32 size) {
+    VideoCore::AsyncGpuDrain(); // GammaOS async GPU: CPU-side access, wait for the worker
     res_cache.MirrorAccess(addr, size, true);
     res_cache.FlushRegion(addr, size);
     res_cache.InvalidateRegion(addr, size);
@@ -1314,6 +1319,7 @@ void RasterizerVulkan::SetTwinDraw(bool active) {
 }
 
 void RasterizerVulkan::ClearAll(bool flush) {
+    VideoCore::AsyncGpuDrain(); // GammaOS async GPU: CPU-side access, wait for the worker
     res_cache.ClearAll(flush);
 }
 
@@ -1723,6 +1729,7 @@ void RasterizerVulkan::UploadUniforms(bool accelerate_draw) {
 }
 
 void RasterizerVulkan::SwitchDiskResources(u64 title_id) {
+    VideoCore::AsyncGpuDrain(); // GammaOS async GPU: CPU-side access, wait for the worker
     std::atomic_bool stop_loading = false;
 
     if (switch_disk_resources_callback) {

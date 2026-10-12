@@ -96,6 +96,11 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         return ResultStatus::ErrorNotInitialized;
     }
 
+    // GammaOS async GPU: hand over the interrupts of command lists the worker finished.
+    if (gpu) {
+        gpu->AsyncPoll();
+    }
+
 #ifdef ENABLE_GDBSTUB
     if (GDBStub::IsServerEnabled()) {
         // The break flag is only set if GDB is connected,
@@ -250,6 +255,11 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         }
         if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
             LOG_TRACE(Core_ARM11, "Core {} idling", current_core_to_execute->GetID());
+            // GammaOS async GPU: nothing to run is usually a thread waiting for the GPU; let
+            // the worker finish (and its interrupts arrive) instead of skipping time ahead.
+            if (gpu && gpu->AsyncPending()) {
+                gpu->AsyncDrain();
+            }
             current_core_to_execute->GetTimer().Idle();
             PrepareReschedule();
         } else {
@@ -284,6 +294,9 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             // instead advance to the next event and try to yield to the next thread
             if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
                 LOG_TRACE(Core_ARM11, "Core {} idling", cpu_core->GetID());
+                if (gpu && gpu->AsyncPending()) {
+                    gpu->AsyncDrain();
+                }
                 cpu_core->GetTimer().Idle();
                 PrepareReschedule();
             } else {
