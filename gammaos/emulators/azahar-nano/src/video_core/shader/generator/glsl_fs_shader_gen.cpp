@@ -1400,7 +1400,14 @@ vec2 snap2d(vec2 tc, ivec2 size) {
         vec2 texel = tc * s;
         // Sharp bilinear: modes 2 and 3, and mode 4 for 2D (mode 4 3D takes the nearest texel).
         if (tex_lod_bias.w > 1.5 && (tex_lod_bias.w < 3.5 || ortho)) {
-            vec2 scale = max(floor(1.0 / max(fwidth(texel), vec2(1e-6))), vec2(1.0));
+            vec2 fw = fwidth(texel);
+            // Not enlarged (a texel covers about one output pixel or less, like a 1:1 composite
+            // of an offscreen render): sharp bilinear would only be linear there and blur it.
+            // 2D takes the nearest texel; minified 3D keeps the linear sampler.
+            if (max(fw.x, fw.y) > 0.75) {
+                return ortho ? (floor(texel) + 0.5) / s : tc;
+            }
+            vec2 scale = max(floor(1.0 / max(fw, vec2(1e-6))), vec2(1.0));
             vec2 d = fract(texel) - 0.5;
             vec2 range = 0.5 - 0.5 / scale;
             return (floor(texel) + (d - clamp(d, -range, range)) * scale + 0.5) / s;
@@ -1740,7 +1747,7 @@ void FragmentModule::DefineTexUnitSampler(u32 texture_unit) {
             break;
         case TexturingRegs::TextureConfig::Projection2D:
             // TODO (wwylele): find the exact LOD formula for projection texture
-            out += "return textureProj(tex0, vec3(texcoord0, texcoord0_w));";
+            out += "return texture(tex0, snap2d(texcoord0 / texcoord0_w, textureSize(tex0, 0)));";
             break;
         case TexturingRegs::TextureConfig::TextureCube:
             out += "return texture(tex0, vec3(texcoord0, texcoord0_w));";

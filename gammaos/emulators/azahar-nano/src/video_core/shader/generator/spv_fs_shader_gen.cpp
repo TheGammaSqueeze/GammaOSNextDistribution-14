@@ -1019,51 +1019,63 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
     // This LOD formula is the same as the LOD lower limit defined in OpenGL.
     // f(x, y) >= max{m_u, m_v, m_w}
     // (See OpenGL 4.6 spec, 8.14.1 - Scale Factor and Level-of-Detail)
+    // GammaOS: the coordinate a 2D sample uses under the GammaOS texture sampling modes
+    // (tex_lod_bias.w): the nearest texel or sharp bilinear for orthographic draws (clip w = 1,
+    // sprites and UI) and, by mode, for 3D; otherwise texcoord_in unchanged.
+    const auto snap_coord = [&](Id sampled_image, Id texcoord_in) -> Id {
+        const Id snap_image{OpImage(image2d_id, sampled_image)};
+        const Id snap_size{OpConvertSToF(
+            vec_ids.Get(2), OpImageQuerySizeLod(ivec_ids.Get(2), snap_image, ConstS32(0)))};
+        const Id snap_flag{GetShaderDataMember(f32_id, ConstS32(27), ConstU32(3u))};
+        const Id frag_w{
+            OpLoad(f32_id, OpAccessChain(TypePointer(spv::StorageClass::Input, f32_id), gl_frag_coord_id, ConstU32(3u)))};
+        const Id ortho{OpFOrdLessThan(
+            bool_id, OpFAbs(f32_id, OpFSub(f32_id, frag_w, ConstF32(1.0f))), ConstF32(1e-4f))};
+        // Mode 3 (sharp bilinear everywhere) applies to 3D draws too.
+        const Id snap{OpLogicalOr(
+            bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(2.5f)),
+            OpLogicalAnd(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f)), ortho))};
+        // Sharp bilinear for modes 2 and 3, and for mode 4 on 2D (mode 4 3D: nearest).
+        const Id sharp{OpLogicalAnd(
+            bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(1.5f)),
+            OpLogicalOr(bool_id, OpFOrdLessThan(bool_id, snap_flag, ConstF32(3.5f)), ortho))};
+        const Id v2{vec_ids.Get(2)};
+        const auto splat = [&](float f) { return OpCompositeConstruct(v2, ConstF32(f), ConstF32(f)); };
+        const Id texel{OpFMul(v2, texcoord_in, snap_size)};
+        const Id texel_floor{OpFloor(v2, texel)};
+        // Nearest: the texel centre.
+        const Id nearest{OpFDiv(v2, OpFAdd(v2, texel_floor, splat(0.5f)), snap_size)};
+        // Sharp bilinear: nearest up to the whole-pixel scale, a one output pixel linear
+        // blend across the seam between texels.
+        const Id fw{OpFwidth(v2, texel)};
+        const Id scale{OpFMax(v2, OpFloor(v2, OpFDiv(v2, splat(1.0f), OpFMax(v2, fw, splat(1e-6f)))),
+                              splat(1.0f))};
+        const Id d{OpFSub(v2, OpFract(v2, texel), splat(0.5f))};
+        const Id range{OpFSub(v2, splat(0.5f), OpFDiv(v2, splat(0.5f), scale))};
+        const Id range_neg{OpFNegate(v2, range)};
+        const Id f{OpFAdd(v2, OpFMul(v2, OpFSub(v2, d, OpFClamp(v2, d, range_neg, range)), scale),
+                          splat(0.5f))};
+        const Id sharp_blend{OpFDiv(v2, OpFAdd(v2, texel_floor, f), snap_size)};
+        // Not enlarged (a texel covers about one output pixel or less, like a 1:1 composite
+        // of an offscreen render): sharp bilinear would only be linear there and blur it. 2D
+        // takes the nearest texel; minified 3D keeps the linear sampler.
+        const Id not_enlarged{OpFOrdGreaterThan(
+            bool_id, OpFMax(f32_id, OpCompositeExtract(f32_id, fw, 0), OpCompositeExtract(f32_id, fw, 1)),
+            ConstF32(0.75f))};
+        const Id unscaled_tc{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), ortho, ortho), nearest,
+                                      texcoord_in)};
+        const Id sharp_tc{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), not_enlarged, not_enlarged),
+                                   unscaled_tc, sharp_blend)};
+        const Id snapped{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), sharp, sharp),
+                                  sharp_tc, nearest)};
+        return OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), snap, snap), snapped,
+                        texcoord_in);
+    };
+
     const auto sample_lod = [&](Id tex_id) {
         const Id sampled_image{OpLoad(TypeSampledImage(image2d_id), tex_id)};
-        // GammaOS: orthographic draws (clip w = 1, sprites and UI) sample the nearest texel
-        // when tex_lod_bias.w is set (TextureSampling::Nearest2DLinear3D); 3D keeps linear.
-        const Id texcoord_in{texcoord};
-        Id texcoord;
-        {
-            const Id snap_image{OpImage(image2d_id, sampled_image)};
-            const Id snap_size{OpConvertSToF(
-                vec_ids.Get(2), OpImageQuerySizeLod(ivec_ids.Get(2), snap_image, ConstS32(0)))};
-            const Id snap_flag{GetShaderDataMember(f32_id, ConstS32(27), ConstU32(3u))};
-            const Id frag_w{
-                OpLoad(f32_id, OpAccessChain(TypePointer(spv::StorageClass::Input, f32_id), gl_frag_coord_id, ConstU32(3u)))};
-            const Id ortho{OpFOrdLessThan(
-                bool_id, OpFAbs(f32_id, OpFSub(f32_id, frag_w, ConstF32(1.0f))), ConstF32(1e-4f))};
-            // Mode 3 (sharp bilinear everywhere) applies to 3D draws too.
-            const Id snap{OpLogicalOr(
-                bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(2.5f)),
-                OpLogicalAnd(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f)), ortho))};
-            // Sharp bilinear for modes 2 and 3, and for mode 4 on 2D (mode 4 3D: nearest).
-            const Id sharp{OpLogicalAnd(
-                bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(1.5f)),
-                OpLogicalOr(bool_id, OpFOrdLessThan(bool_id, snap_flag, ConstF32(3.5f)), ortho))};
-            const Id v2{vec_ids.Get(2)};
-            const auto splat = [&](float f) { return OpCompositeConstruct(v2, ConstF32(f), ConstF32(f)); };
-            const Id texel{OpFMul(v2, texcoord_in, snap_size)};
-            const Id texel_floor{OpFloor(v2, texel)};
-            // Nearest: the texel centre.
-            const Id nearest{OpFDiv(v2, OpFAdd(v2, texel_floor, splat(0.5f)), snap_size)};
-            // Sharp bilinear: nearest up to the whole-pixel scale, a one output pixel linear
-            // blend across the seam between texels.
-            const Id scale{OpFMax(v2, OpFloor(v2, OpFDiv(v2, splat(1.0f),
-                                                          OpFMax(v2, OpFwidth(v2, texel), splat(1e-6f)))),
-                                  splat(1.0f))};
-            const Id d{OpFSub(v2, OpFract(v2, texel), splat(0.5f))};
-            const Id range{OpFSub(v2, splat(0.5f), OpFDiv(v2, splat(0.5f), scale))};
-            const Id range_neg{OpFNegate(v2, range)};
-            const Id f{OpFAdd(v2, OpFMul(v2, OpFSub(v2, d, OpFClamp(v2, d, range_neg, range)), scale),
-                              splat(0.5f))};
-            const Id sharp_tc{OpFDiv(v2, OpFAdd(v2, texel_floor, f), snap_size)};
-            const Id snapped{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), sharp, sharp),
-                                      sharp_tc, nearest)};
-            texcoord = OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), snap, snap),
-                                snapped, texcoord_in);
-        }
+        const Id texcoord_snapped{snap_coord(sampled_image, texcoord)};
+        const Id& texcoord = texcoord_snapped;
         // GammaOS: the rasterizer sets the bias to 1e30 when the level of detail cannot change
         // the sample (one mip level, same min and mag filter): sample level 0 directly and skip
         // the size query, the derivatives and the log2.
@@ -1104,7 +1116,12 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
         const Id coord{OpCompositeConstruct(vec_ids.Get(3), OpCompositeExtract(f32_id, texcoord, 0),
                                             OpCompositeExtract(f32_id, texcoord, 1), texcoord0_w)};
         if (projection) {
-            return OpImageSampleProjImplicitLod(vec_ids.Get(4), sampled_image, coord);
+            // Divided here (as textureProj does) so the GammaOS sampling modes apply to
+            // projected 2D textures too (games composite offscreen renders this way).
+            const Id w2{OpCompositeConstruct(vec_ids.Get(2), texcoord0_w, texcoord0_w)};
+            const Id projected{OpFDiv(vec_ids.Get(2), texcoord, w2)};
+            return OpImageSampleImplicitLod(vec_ids.Get(4), sampled_image,
+                                            snap_coord(sampled_image, projected));
         } else {
             return OpImageSampleImplicitLod(vec_ids.Get(4), sampled_image, coord);
         }
