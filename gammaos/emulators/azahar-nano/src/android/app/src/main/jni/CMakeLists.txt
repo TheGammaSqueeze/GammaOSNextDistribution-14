@@ -72,6 +72,9 @@ add_library(azahar-nano-core SHARED
 target_include_directories(azahar-nano-core PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 target_link_libraries(azahar-nano-core PRIVATE audio_core citra_common citra_core input_common network)
 target_link_libraries(azahar-nano-core PRIVATE android inih log mediandk)
+# GammaOS: bind the library's own function calls locally instead of through PLT stubs (the core
+# is the only user of its symbols; the frontend calls the exported azn_ entry points).
+target_link_options(azahar-nano-core PRIVATE -Wl,-Bsymbolic-functions)
 if (ENABLE_OPENGL)
     target_sources(azahar-nano-core PRIVATE emu_window/emu_window_gl.cpp emu_window/emu_window_gl.h)
     target_link_libraries(azahar-nano-core PRIVATE EGL glad)
