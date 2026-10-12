@@ -1264,7 +1264,7 @@ void FragmentModule::DefineExtensions() {
 
     if (!profile.is_vulkan) {
         out += fragment_shader_precision_OES;
-    } else if (Settings::values.gammaos_fs_mediump) {
+    } else if (profile.fs_mediump) {
         out += "precision mediump float;\n";
     }
 }

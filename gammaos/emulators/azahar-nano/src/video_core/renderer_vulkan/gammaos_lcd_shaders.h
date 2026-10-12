@@ -27,6 +27,8 @@ layout (location = 0) out vec4 color;
 
 layout (push_constant, std140) uniform DrawInfo {
     mat4 modelview_matrix;
+    // GammaOS screen shaders: (source image width, height, LCD effect strength, size of one
+    // output pixel in 3DS pixels), worked out once per draw on the CPU.
     vec4 i_resolution;
     vec4 o_resolution;
     int screen_id_l;
@@ -122,13 +124,21 @@ vec3 Fxaa(vec2 pos) {
 
 // The emulated pixel at tc: its texel's colour, anti-aliased when Screen AA is on.
 vec3 Pixel(vec2 tc) {
-    const vec2 s = vec2(ScreenSize());
+    const vec2 s = i_resolution.xy;
     const vec2 centre = (floor(tc * s) + 0.5) / s;
 #ifdef SCREEN_AA
     return Fxaa(centre);
 #else
     return Fetch(centre);
 #endif
+}
+
+// Per-draw constants (see DrawInfo): the effect strength and the output pixel size.
+float LcdStrength() {
+    return i_resolution.z;
+}
+vec2 LcdPixelSize() {
+    return vec2(i_resolution.w);
 }
 
 // Strength of the effect from the scale: 0 at 1.5 output pixels per 3DS pixel or less, full
@@ -147,7 +157,7 @@ const float BRIGHTEN_LCD = 4.0;
 
 void main() {
     const vec2 p = ScreenPos(frag_tex_coord);
-    const float k = Strength(fwidth(p));
+    const float k = LcdStrength();
     const vec2 angle = 2.0 * PI * (p - 0.25);
     const float yfactor = (BRIGHTEN_SCANLINES + sin(angle.y)) / (BRIGHTEN_SCANLINES + 1.0);
     const float xfactor = (BRIGHTEN_LCD + sin(angle.x)) / (BRIGHTEN_LCD + 1.0);
@@ -163,7 +173,7 @@ const vec3 OFFSETS = vec3(PI) * vec3(1.0 / 2.0, 1.0 / 2.0 - 2.0 / 3.0, 1.0 / 2.0
 
 void main() {
     const vec2 p = ScreenPos(frag_tex_coord);
-    const float k = Strength(fwidth(p));
+    const float k = LcdStrength();
     const vec2 angle = 2.0 * PI * p;
     const float yfactor = (BRIGHTEN_SCANLINES + sin(angle.y)) / (BRIGHTEN_SCANLINES + 1.0);
     const vec3 xfactors = (BRIGHTEN_LCD + sin(angle.x + OFFSETS)) / (BRIGHTEN_LCD + 1.0);
@@ -177,7 +187,7 @@ const float BORDERMULT = 14.0;
 
 void main() {
     const vec2 p = ScreenPos(frag_tex_coord);
-    const float k = Strength(fwidth(p));
+    const float k = LcdStrength();
     const vec2 centre = floor(p) + 0.5;
     const vec2 dist = abs(centre - p);
     float y = max(dist.x, dist.y);
@@ -199,8 +209,8 @@ const float RETRO_PIXEL_SIZE = 0.84;
 
 void main() {
     const vec2 p = ScreenPos(frag_tex_coord);
-    const vec2 ps = fwidth(p);
-    const float k = Strength(ps);
+    const vec2 ps = LcdPixelSize();
+    const float k = LcdStrength();
     const vec3 c = Pixel(frag_tex_coord);
     const vec3 e = c * c;
     const vec2 fp = fract(p);
@@ -218,7 +228,7 @@ const float BEVEL_LEVEL = 0.2;
 
 void main() {
     const vec2 p = ScreenPos(frag_tex_coord);
-    const float k = Strength(fwidth(p));
+    const float k = LcdStrength();
     const vec2 pos = fract(p);
     const vec3 s = Pixel(frag_tex_coord);
     vec3 c = s * s;
@@ -248,7 +258,7 @@ vec2 SharpCoord(vec2 tc, vec2 size) {
 
 constexpr std::string_view kSharp = R"(
 void main() {
-    const vec2 pos = SharpCoord(frag_tex_coord, vec2(ScreenSize()));
+    const vec2 pos = SharpCoord(frag_tex_coord, i_resolution.xy);
 #ifdef SCREEN_AA
     color = vec4(Fxaa(pos), 1.0);
 #else

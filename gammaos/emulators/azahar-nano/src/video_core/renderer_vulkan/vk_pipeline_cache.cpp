@@ -136,6 +136,9 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .vd_keep_fs_depth = Settings::values.gammaos_vd_keep_fs_depth,
         .hw_scissor = Settings::values.gammaos_hw_scissor,
         .vk_disable_spirv_optimizer = Settings::values.disable_spirv_optimizer.GetValue(),
+        // GammaOS: medium precision fragment shaders (both generators); in the profile so the
+        // disk shader cache regenerates when it is switched.
+        .fs_mediump = Settings::values.gammaos_fs_mediump,
         .vk_use_spirv_generator = Settings::values.spirv_shader_gen.GetValue(),
         .is_vulkan = true,
     };

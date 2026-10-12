@@ -1210,6 +1210,19 @@ void RendererVulkan::DrawSingleScreen(u32 screen_id, float x, float y, float w, 
         const f32 x = dv != 0.0f ? sw / dv : 0.0f;
         const f32 z = du != 0.0f ? sh / du : 0.0f;
         draw_info.lcd_map = Common::MakeVec(x, -texcoords.left * x, z, -texcoords.bottom * z);
+        // GammaOS screen shaders read their per-draw constants from i_resolution (the stock
+        // present shaders do not use it): the size of the image actually sampled, and how many
+        // output pixels one 3DS pixel covers, as the LCD effect strength (none at 1.5 output
+        // pixels per 3DS pixel or less, full from 3) and the output pixel size in 3DS pixels.
+        // Worked out here once instead of with textureSize and fwidth for every output pixel.
+        const f32 out_per_3ds = std::max(
+            0.001f, std::min(std::max(w, h) / sw, std::min(w, h) / sh));
+        const f32 strength = std::clamp((out_per_3ds - 1.5f) / 1.5f, 0.0f, 1.0f);
+        const f32 view_w = static_cast<f32>(screen_info.view_width ? screen_info.view_width
+                                                                   : screen_info.texture.width);
+        const f32 view_h = static_cast<f32>(screen_info.view_height ? screen_info.view_height
+                                                                    : screen_info.texture.height);
+        draw_info.i_resolution = Common::MakeVec(view_w, view_h, strength, 1.0f / out_per_3ds);
     }
     bool user_sampler = true;
     const vk::Pipeline pipeline = ScreenPipeline(screen_id, user_sampler);

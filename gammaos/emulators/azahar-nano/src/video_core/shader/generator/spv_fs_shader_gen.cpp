@@ -1786,10 +1786,182 @@ void FragmentModule::DefineInterface() {
     }
 }
 
+namespace {
+
+// GammaOS: medium precision for the generated fragment shader (Profile::fs_mediump). Marks
+// every 32-bit float result in the function bodies RelaxedPrecision, which lets the driver run
+// that math in fp16 (about twice the ALU rate on Adreno 6xx), except the values that need full
+// precision: everything that flows into a texture coordinate or LOD (a texel would be off on
+// large textures), into a float to integer conversion (lookup table indices) and into a
+// built-in output (depth). Those are found by walking the data flow backwards from the sinks,
+// through loads and stores of function variables. Operand words are taken as ids whenever
+// they name a defined id, so a literal that happens to match an id only keeps more math at
+// full precision: the pass can err towards accuracy, never against it.
+void RelaxFloatPrecision(std::vector<u32>& code) {
+    constexpr u32 OpExtInst = 12, OpTypeFloat = 22, OpTypeVector = 23, OpVariable = 59,
+                  OpLoad = 61, OpStore = 62, OpAccessChain = 65, OpInBoundsAccessChain = 66,
+                  OpDecorate = 71, OpFunction = 54, OpConvertFToU = 109, OpConvertFToS = 110,
+                  OpImageSampleImplicitLod = 87, OpImageQueryLod = 105, OpImageQuerySize = 104,
+                  OpImageQuerySizeLod = 103, OpImageFetch = 95, OpImageGather = 96,
+                  OpImageDrefGather = 97, OpImageRead = 98, OpImageWrite = 99,
+                  OpSampledImage = 86, OpImage = 100;
+    constexpr u32 DecorationRelaxedPrecision = 0, DecorationBuiltIn = 11;
+    constexpr u32 StorageClassOutput = 3, StorageClassFunction = 7;
+    if (code.size() < 5) {
+        return;
+    }
+    const u32 bound = code[3];
+    struct Inst {
+        u32 at;
+        u32 op;
+        u32 count;
+    };
+    std::vector<Inst> insts;
+    for (u32 at = 5; at < code.size();) {
+        const u32 count = code[at] >> 16;
+        if (count == 0 || at + count > code.size()) {
+            return; // malformed: leave the shader alone
+        }
+        insts.push_back({at, code[at] & 0xffffu, count});
+        at += count;
+    }
+    // Instructions with a result type and a result id (word 1, word 2).
+    const auto has_result = [](u32 op) {
+        switch (op) {
+        case OpFunction: case OpVariable: case OpLoad: case OpAccessChain:
+        case OpInBoundsAccessChain: case OpExtInst: case OpSampledImage: case OpImage:
+            return true;
+        default:
+            // Arithmetic, conversions, composites, image ops, phi, select, comparisons...
+            return (op >= 79 && op <= 81) || (op >= 86 && op <= 105 && op != OpImageWrite) ||
+                   (op >= 109 && op <= 202) || (op >= 207 && op <= 215) || op == 245 || op == 61;
+        }
+    };
+    std::vector<s32> def(bound, -1);  // id -> instruction index
+    std::vector<u8> is_float_type(bound, 0);
+    std::vector<u32> var_class(bound, ~0u);
+    std::vector<u8> builtin(bound, 0);
+    u32 first_type_at = 0;
+    u32 first_function = static_cast<u32>(insts.size());
+    for (u32 i = 0; i < insts.size(); i++) {
+        const Inst& in = insts[i];
+        const u32* w = &code[in.at];
+        if (in.op == OpTypeFloat && in.count >= 3 && w[2] == 32) {
+            is_float_type[w[1]] = 1;
+        } else if (in.op == OpTypeVector && in.count >= 3 && w[2] < bound && is_float_type[w[2]]) {
+            is_float_type[w[1]] = 1;
+        }
+        if (!first_type_at && in.op >= 19 && in.op <= 39) {
+            first_type_at = in.at;
+        }
+        if (in.op == OpDecorate && in.count >= 3 && w[2] == DecorationBuiltIn && w[1] < bound) {
+            builtin[w[1]] = 1;
+        }
+        if (in.op == OpFunction && first_function == insts.size()) {
+            first_function = i;
+        }
+        if (in.op == OpVariable && in.count >= 4 && w[2] < bound) {
+            var_class[w[2]] = w[3];
+        }
+        if (has_result(in.op) && in.count >= 3 && w[2] < bound) {
+            def[w[2]] = static_cast<s32>(i);
+        }
+    }
+    if (!first_type_at) {
+        return;
+    }
+    // Root variable behind a pointer (through access chains).
+    const auto root_var = [&](u32 ptr) {
+        for (int guard = 0; guard < 16 && ptr < bound && def[ptr] >= 0; guard++) {
+            const Inst& in = insts[def[ptr]];
+            if (in.op == OpAccessChain || in.op == OpInBoundsAccessChain) {
+                ptr = code[in.at + 3];
+            } else {
+                break;
+            }
+        }
+        return ptr;
+    };
+    // Values stored to each function variable.
+    std::vector<std::vector<u32>> stored(bound);
+    std::vector<u8> high(bound, 0);
+    std::vector<u32> work;
+    const auto mark = [&](u32 id) {
+        if (id < bound && def[id] >= 0 && !high[id]) {
+            high[id] = 1;
+            work.push_back(id);
+        }
+    };
+    for (u32 i = first_function; i < insts.size(); i++) {
+        const Inst& in = insts[i];
+        const u32* w = &code[in.at];
+        if (in.op == OpStore && in.count >= 3) {
+            const u32 var = root_var(w[1]);
+            if (var < bound) {
+                stored[var].push_back(w[2]);
+                // A built-in output (depth) keeps full precision.
+                if (var_class[var] == StorageClassOutput && builtin[var]) {
+                    mark(w[2]);
+                }
+            }
+        } else if (in.op == OpConvertFToU || in.op == OpConvertFToS) {
+            mark(w[3]);
+        } else if ((in.op >= OpImageSampleImplicitLod && in.op <= OpImageQueryLod) &&
+                   in.op != OpImage && in.op != OpImageQuerySize && in.op != OpSampledImage) {
+            // Coordinates, LOD, gradients and offsets: every operand after the image.
+            for (u32 k = 4; k < in.count; k++) {
+                mark(w[k]);
+            }
+        } else if (in.op == OpAccessChain || in.op == OpInBoundsAccessChain) {
+            for (u32 k = 4; k < in.count; k++) {
+                mark(w[k]);
+            }
+        }
+    }
+    while (!work.empty()) {
+        const u32 id = work.back();
+        work.pop_back();
+        const Inst& in = insts[def[id]];
+        const u32* w = &code[in.at];
+        if (in.op == OpLoad && in.count >= 4) {
+            const u32 var = root_var(w[3]);
+            if (var < bound && var_class[var] == StorageClassFunction) {
+                for (const u32 v : stored[var]) {
+                    mark(v);
+                }
+            }
+            continue;
+        }
+        for (u32 k = 3; k < in.count; k++) {
+            mark(w[k]);
+        }
+    }
+    std::vector<u32> decorations;
+    for (u32 i = first_function; i < insts.size(); i++) {
+        const Inst& in = insts[i];
+        const u32* w = &code[in.at];
+        if (!has_result(in.op) || in.op == OpVariable || in.op == OpFunction || in.count < 3) {
+            continue;
+        }
+        const u32 type = w[1], id = w[2];
+        if (type < bound && id < bound && is_float_type[type] && !high[id]) {
+            decorations.insert(decorations.end(),
+                               {(3u << 16) | OpDecorate, id, DecorationRelaxedPrecision});
+        }
+    }
+    code.insert(code.begin() + first_type_at, decorations.begin(), decorations.end());
+}
+
+} // Anonymous namespace
+
 std::vector<u32> GenerateFragmentShader(const FSConfig& config, const Profile& profile) {
     FragmentModule module{config, profile};
     module.Generate();
-    return module.Assemble();
+    std::vector<u32> code = module.Assemble();
+    if (profile.fs_mediump) {
+        RelaxFloatPrecision(code);
+    }
+    return code;
 }
 
 } // namespace Pica::Shader::Generator::SPIRV

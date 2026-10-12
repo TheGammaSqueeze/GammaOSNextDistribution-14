@@ -333,6 +333,10 @@ void Overlay::buildPages() {
                     if (mA.setLcdShader) mA.setLcdShader(screen, atoi(v.c_str()));
                 }));
         }
+        pg.rows.push_back(propChoice("Half Precision Shaders",
+            "persist.gammaos.azahar_nano.fs_mediump", "0", {{"Off", "0"}, {"On", "1"}},
+            "Faster 3D: lighting and color math in 16-bit (lower precision, can band). Applies "
+            "the next time a game starts and rebuilds its shaders once"));
         pg.rows.push_back(propChoice("Screen AA", "persist.gammaos.azahar_nano.screen_aa", "0",
             {{"Off", "0"}, {"On", "1"}},
             "Smooths jagged edges at native 1x (also when Dynamic Resolution drops to 1x), with any screen shader",
