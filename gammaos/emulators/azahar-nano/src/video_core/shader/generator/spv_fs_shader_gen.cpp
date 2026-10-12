@@ -1022,54 +1022,83 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
     // GammaOS: the coordinate a 2D sample uses under the GammaOS texture sampling modes
     // (tex_lod_bias.w): the nearest texel or sharp bilinear for orthographic draws (clip w = 1,
     // sprites and UI) and, by mode, for 3D; otherwise texcoord_in unchanged.
+    // Emits "if (cond) value = then_fn(); else value = else_value;" as a structured selection
+    // (a draw-uniform condition skips the work for real) and returns the vec2 result.
+    const auto if_vec2 = [&](Id cond, auto&& then_fn, Id else_value) -> Id {
+        const Id pre_label{OpLabel()};
+        OpBranch(pre_label);
+        AddLabel(pre_label);
+        const Id then_label{OpLabel()};
+        const Id merge_label{OpLabel()};
+        OpSelectionMerge(merge_label, spv::SelectionControlMask::MaskNone);
+        OpBranchConditional(cond, then_label, merge_label);
+        AddLabel(then_label);
+        const Id value{then_fn()};
+        const Id then_end_label{OpLabel()};
+        OpBranch(then_end_label);
+        AddLabel(then_end_label);
+        OpBranch(merge_label);
+        AddLabel(merge_label);
+        return OpPhi(vec_ids.Get(2), value, then_end_label, else_value, pre_label);
+    };
+    // GammaOS: the coordinate a 2D sample uses under the GammaOS texture sampling modes
+    // (tex_lod_bias.w): the nearest texel or sharp bilinear for orthographic draws (clip w = 1,
+    // sprites and UI) and, by mode, for 3D; otherwise texcoord_in unchanged. Everything sits
+    // behind branches so that Game Controlled and the other stock modes pay nothing (the size
+    // query and derivatives in every sample cost Kirby 8 ms per frame at 2x), and the sharp
+    // bilinear math only runs for the pixels that use it.
     const auto snap_coord = [&](Id sampled_image, Id texcoord_in) -> Id {
-        const Id snap_image{OpImage(image2d_id, sampled_image)};
-        const Id snap_size{OpConvertSToF(
-            vec_ids.Get(2), OpImageQuerySizeLod(ivec_ids.Get(2), snap_image, ConstS32(0)))};
-        const Id snap_flag{GetShaderDataMember(f32_id, ConstS32(27), ConstU32(3u))};
-        const Id frag_w{
-            OpLoad(f32_id, OpAccessChain(TypePointer(spv::StorageClass::Input, f32_id), gl_frag_coord_id, ConstU32(3u)))};
-        const Id ortho{OpFOrdLessThan(
-            bool_id, OpFAbs(f32_id, OpFSub(f32_id, frag_w, ConstF32(1.0f))), ConstF32(1e-4f))};
-        // Mode 3 (sharp bilinear everywhere) applies to 3D draws too.
-        const Id snap{OpLogicalOr(
-            bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(2.5f)),
-            OpLogicalAnd(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f)), ortho))};
-        // Sharp bilinear for modes 2 and 3, and for mode 4 on 2D (mode 4 3D: nearest).
-        const Id sharp{OpLogicalAnd(
-            bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(1.5f)),
-            OpLogicalOr(bool_id, OpFOrdLessThan(bool_id, snap_flag, ConstF32(3.5f)), ortho))};
         const Id v2{vec_ids.Get(2)};
         const auto splat = [&](float f) { return OpCompositeConstruct(v2, ConstF32(f), ConstF32(f)); };
-        const Id texel{OpFMul(v2, texcoord_in, snap_size)};
-        const Id texel_floor{OpFloor(v2, texel)};
-        // Nearest: the texel centre.
-        const Id nearest{OpFDiv(v2, OpFAdd(v2, texel_floor, splat(0.5f)), snap_size)};
-        // Sharp bilinear: nearest up to the whole-pixel scale, a one output pixel linear
-        // blend across the seam between texels.
-        const Id fw{OpFwidth(v2, texel)};
-        const Id scale{OpFMax(v2, OpFloor(v2, OpFDiv(v2, splat(1.0f), OpFMax(v2, fw, splat(1e-6f)))),
-                              splat(1.0f))};
-        const Id d{OpFSub(v2, OpFract(v2, texel), splat(0.5f))};
-        const Id range{OpFSub(v2, splat(0.5f), OpFDiv(v2, splat(0.5f), scale))};
-        const Id range_neg{OpFNegate(v2, range)};
-        const Id f{OpFAdd(v2, OpFMul(v2, OpFSub(v2, d, OpFClamp(v2, d, range_neg, range)), scale),
-                          splat(0.5f))};
-        const Id sharp_blend{OpFDiv(v2, OpFAdd(v2, texel_floor, f), snap_size)};
-        // Not enlarged (a texel covers about one output pixel or less, like a 1:1 composite
-        // of an offscreen render): sharp bilinear would only be linear there and blur it. 2D
-        // takes the nearest texel; minified 3D keeps the linear sampler.
-        const Id not_enlarged{OpFOrdGreaterThan(
-            bool_id, OpFMax(f32_id, OpCompositeExtract(f32_id, fw, 0), OpCompositeExtract(f32_id, fw, 1)),
-            ConstF32(0.75f))};
-        const Id unscaled_tc{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), ortho, ortho), nearest,
-                                      texcoord_in)};
-        const Id sharp_tc{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), not_enlarged, not_enlarged),
-                                   unscaled_tc, sharp_blend)};
-        const Id snapped{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), sharp, sharp),
-                                  sharp_tc, nearest)};
-        return OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), snap, snap), snapped,
-                        texcoord_in);
+        const Id snap_flag{GetShaderDataMember(f32_id, ConstS32(27), ConstU32(3u))};
+        const Id mode_on{OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f))};
+        return if_vec2(mode_on, [&]() -> Id {
+            const Id frag_w{OpLoad(f32_id, OpAccessChain(TypePointer(spv::StorageClass::Input, f32_id),
+                                                         gl_frag_coord_id, ConstU32(3u)))};
+            const Id ortho{OpFOrdLessThan(
+                bool_id, OpFAbs(f32_id, OpFSub(f32_id, frag_w, ConstF32(1.0f))), ConstF32(1e-4f))};
+            // Mode 3 (sharp bilinear everywhere) and mode 4 (nearest 3D) apply to 3D draws too.
+            const Id snap{OpLogicalOr(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(2.5f)),
+                                      ortho)};
+            // Sharp bilinear for modes 2 and 3, and for mode 4 on 2D (mode 4 3D: nearest).
+            const Id sharp{OpLogicalAnd(
+                bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(1.5f)),
+                OpLogicalOr(bool_id, OpFOrdLessThan(bool_id, snap_flag, ConstF32(3.5f)), ortho))};
+            return if_vec2(snap, [&]() -> Id {
+                const Id snap_image{OpImage(image2d_id, sampled_image)};
+                const Id snap_size{OpConvertSToF(
+                    v2, OpImageQuerySizeLod(ivec_ids.Get(2), snap_image, ConstS32(0)))};
+                const Id texel{OpFMul(v2, texcoord_in, snap_size)};
+                const Id texel_floor{OpFloor(v2, texel)};
+                // Nearest: the texel centre.
+                const Id nearest{OpFDiv(v2, OpFAdd(v2, texel_floor, splat(0.5f)), snap_size)};
+                return if_vec2(sharp, [&]() -> Id {
+                    // Sharp bilinear: nearest up to the whole-pixel scale, a one output pixel
+                    // linear blend across the seam between texels.
+                    const Id fw{OpFwidth(v2, texel)};
+                    const Id scale{OpFMax(
+                        v2, OpFloor(v2, OpFDiv(v2, splat(1.0f), OpFMax(v2, fw, splat(1e-6f)))),
+                        splat(1.0f))};
+                    const Id d{OpFSub(v2, OpFract(v2, texel), splat(0.5f))};
+                    const Id range{OpFSub(v2, splat(0.5f), OpFDiv(v2, splat(0.5f), scale))};
+                    const Id f{OpFAdd(
+                        v2, OpFMul(v2, OpFSub(v2, d, OpFClamp(v2, d, OpFNegate(v2, range), range)), scale),
+                        splat(0.5f))};
+                    const Id sharp_blend{OpFDiv(v2, OpFAdd(v2, texel_floor, f), snap_size)};
+                    // Not enlarged (a texel covers about one output pixel or less, like a 1:1
+                    // composite of an offscreen render): sharp bilinear would only be linear there
+                    // and blur it. 2D takes the nearest texel; minified 3D keeps the sampler.
+                    const Id not_enlarged{OpFOrdGreaterThan(
+                        bool_id,
+                        OpFMax(f32_id, OpCompositeExtract(f32_id, fw, 0), OpCompositeExtract(f32_id, fw, 1)),
+                        ConstF32(0.75f))};
+                    const Id unscaled{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), ortho, ortho),
+                                               nearest, texcoord_in)};
+                    return OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), not_enlarged, not_enlarged),
+                                    unscaled, sharp_blend);
+                }, nearest);
+            }, texcoord_in);
+        }, texcoord_in);
     };
 
     const auto sample_lod = [&](Id tex_id) {

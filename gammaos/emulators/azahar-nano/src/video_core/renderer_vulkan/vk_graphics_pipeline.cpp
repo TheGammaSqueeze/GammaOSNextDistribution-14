@@ -310,8 +310,23 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
         .sampleShadingEnable = false,
     };
 
+    // GammaOS: blending with Add, One and Zero for color and alpha writes the source unchanged,
+    // and so does logic op Copy. Enabled, either one makes the GPU read the destination back for
+    // every covered pixel (expensive at 2x and above on Adreno 6xx); turn them off.
+    using Pica::FramebufferRegs;
+    const auto& bl = info.state.blending;
+    const bool blend_is_copy =
+        bl.color_blend_eq.Value() == FramebufferRegs::BlendEquation::Add &&
+        bl.alpha_blend_eq.Value() == FramebufferRegs::BlendEquation::Add &&
+        bl.src_color_blend_factor.Value() == FramebufferRegs::BlendFactor::One &&
+        bl.src_alpha_blend_factor.Value() == FramebufferRegs::BlendFactor::One &&
+        bl.dst_color_blend_factor.Value() == FramebufferRegs::BlendFactor::Zero &&
+        bl.dst_alpha_blend_factor.Value() == FramebufferRegs::BlendFactor::Zero;
+    const bool blend_on = bl.blend_enable && !blend_is_copy;
+    const bool logic_on = !bl.blend_enable && !instance.NeedsLogicOpEmulation() &&
+                          bl.logic_op != FramebufferRegs::LogicOp::Copy;
     const vk::PipelineColorBlendAttachmentState colorblend_attachment = {
-        .blendEnable = info.state.blending.blend_enable,
+        .blendEnable = blend_on,
         .srcColorBlendFactor = PicaToVK::BlendFunc(info.state.blending.src_color_blend_factor),
         .dstColorBlendFactor = PicaToVK::BlendFunc(info.state.blending.dst_color_blend_factor),
         .colorBlendOp = PicaToVK::BlendEquation(info.state.blending.color_blend_eq),
@@ -323,7 +338,7 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
     };
 
     const vk::PipelineColorBlendStateCreateInfo color_blending = {
-        .logicOpEnable = !info.state.blending.blend_enable && !instance.NeedsLogicOpEmulation(),
+        .logicOpEnable = logic_on,
         .logicOp = PicaToVK::LogicOp(info.state.blending.logic_op),
         .attachmentCount = 1,
         .pAttachments = &colorblend_attachment,
