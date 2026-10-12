@@ -61,7 +61,8 @@ struct FSUniformData {
     // xyz: level of detail bias per texture unit. w (GammaOS, the vec3's padding): how
     // orthographic draws sample: 0 as the sampler, 1 the nearest texel, 2 sharp bilinear
     // (TextureSampling::Nearest2DLinear3D / SharpBilinear2DLinear3D); 3 sharp bilinear on
-    // every draw (SharpBilinearAll).
+    // every draw (SharpBilinearAll); 4 sharp bilinear for 2D and the nearest texel for 3D
+    // (SharpBilinear2DNearest3D).
     alignas(16) Common::Vec4f tex_lod_bias;
     alignas(16) Common::Vec4f tex_border_color[3];
     alignas(16) Common::Vec4f blend_color;

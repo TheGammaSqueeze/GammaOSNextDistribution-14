@@ -136,6 +136,8 @@ enum class TextureSampling : u32 {
     // GammaOS: sharp bilinear on every draw. Where a texture is minified (scale below one
     // output pixel per texel) it reduces to plain linear, so distant 3D stays smooth.
     SharpBilinearAll = 5,
+    // GammaOS: sharp bilinear for 2D, the nearest texel for 3D (blocky texels on models).
+    SharpBilinear2DNearest3D = 6,
 };
 
 enum class AspectRatio : u32 {

@@ -196,6 +196,7 @@ void RasterizerAccelerated::SyncDrawUniforms() {
     const float snap_2d = sampling == Settings::TextureSampling::Nearest2DLinear3D       ? 1.0f
                           : sampling == Settings::TextureSampling::SharpBilinear2DLinear3D ? 2.0f
                           : sampling == Settings::TextureSampling::SharpBilinearAll        ? 3.0f
+                          : sampling == Settings::TextureSampling::SharpBilinear2DNearest3D ? 4.0f
                                                                                            : 0.0f;
     if (fs_data.tex_lod_bias[3] != snap_2d) {
         fs_data.tex_lod_bias[3] = snap_2d;

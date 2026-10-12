@@ -1038,7 +1038,10 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
             const Id snap{OpLogicalOr(
                 bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(2.5f)),
                 OpLogicalAnd(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f)), ortho))};
-            const Id sharp{OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(1.5f))};
+            // Sharp bilinear for modes 2 and 3, and for mode 4 on 2D (mode 4 3D: nearest).
+            const Id sharp{OpLogicalAnd(
+                bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(1.5f)),
+                OpLogicalOr(bool_id, OpFOrdLessThan(bool_id, snap_flag, ConstF32(3.5f)), ortho))};
             const Id v2{vec_ids.Get(2)};
             const auto splat = [&](float f) { return OpCompositeConstruct(v2, ConstF32(f), ConstF32(f)); };
             const Id texel{OpFMul(v2, texcoord_in, snap_size)};

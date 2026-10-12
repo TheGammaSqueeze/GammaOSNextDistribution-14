@@ -1392,12 +1392,14 @@ vec4 byteround(vec4 x) {
 // GammaOS: orthographic draws (clip w = 1, sprites and UI) sample the nearest texel
 // (tex_lod_bias.w = 1) or sharp bilinear (2: nearest up to the whole-pixel scale, a one
 // output pixel linear blend across texel seams); 3D draws keep the linear sampler unless
-// tex_lod_bias.w is 3 (sharp bilinear everywhere).
+// tex_lod_bias.w is 3 (sharp bilinear everywhere) or 4 (the nearest texel on 3D).
 vec2 snap2d(vec2 tc, ivec2 size) {
-    if (tex_lod_bias.w > 2.5 || (tex_lod_bias.w > 0.5 && abs(gl_FragCoord.w - 1.0) < 1e-4)) {
+    bool ortho = abs(gl_FragCoord.w - 1.0) < 1e-4;
+    if (tex_lod_bias.w > 2.5 || (tex_lod_bias.w > 0.5 && ortho)) {
         vec2 s = vec2(size);
         vec2 texel = tc * s;
-        if (tex_lod_bias.w > 1.5) {
+        // Sharp bilinear: modes 2 and 3, and mode 4 for 2D (mode 4 3D takes the nearest texel).
+        if (tex_lod_bias.w > 1.5 && (tex_lod_bias.w < 3.5 || ortho)) {
             vec2 scale = max(floor(1.0 / max(fwidth(texel), vec2(1e-6))), vec2(1.0));
             vec2 d = fract(texel) - 0.5;
             vec2 range = 0.5 - 0.5 / scale;
