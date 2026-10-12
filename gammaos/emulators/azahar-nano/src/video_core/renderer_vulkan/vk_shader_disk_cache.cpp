@@ -3,6 +3,7 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include "common/thread_worker.h"
 // Copyright 2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -27,6 +28,7 @@
     do {                                                                                           \
         LOG_ERROR(Render_Vulkan, "Malformed disk shader cache");                                   \
         cleanup_on_error();                                                                        \
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);                     \
         return false;                                                                              \
     } while (0)
 
@@ -768,18 +770,21 @@ bool ShaderDiskCache::InitVSCache(const std::atomic_bool& stop_loading,
         LOG_ERROR(Render_Vulkan,
                   "Cache was created for a different PicaVSConfigState, resetting...");
         cleanup_on_error();
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
         return false;
     }
 
     if (file_info->source_hash != GetSourceFileCacheVersionHash()) {
         LOG_INFO(Render_Vulkan, "Cache contains old vertex program, cache needs regeneration.");
         regenerate_file = std::make_unique<CacheFile>(GetVSFile(title_id, true));
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
     }
 
     if (file_info->profile != parent.profile && !regenerate_file) {
         LOG_INFO(Render_Vulkan,
                  "Cache has driver and user settings mismatch, cache needs regeneration.");
         regenerate_file = std::make_unique<CacheFile>(GetVSFile(title_id, true));
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
     }
 
     if (regenerate_file) {
@@ -1078,18 +1083,21 @@ bool ShaderDiskCache::InitFSCache(const std::atomic_bool& stop_loading,
     if (file_info->config_struct_hash != FSConfig::StructHash()) {
         LOG_ERROR(Render_Vulkan, "Cache was created for a different FSConfig, resetting...");
         cleanup_on_error();
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
         return false;
     }
 
     if (file_info->source_hash != GetSourceFileCacheVersionHash()) {
         LOG_INFO(Render_Vulkan, "Cache contains old fragment program, cache needs regeneration.");
         regenerate_file = std::make_unique<CacheFile>(GetFSFile(title_id, true));
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
     }
 
     if (file_info->profile != parent.profile && !regenerate_file) {
         LOG_INFO(Render_Vulkan,
                  "Cache has driver and user settings mismatch, cache needs regeneration.");
         regenerate_file = std::make_unique<CacheFile>(GetFSFile(title_id, true));
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
     }
 
     if (regenerate_file) {
@@ -1296,6 +1304,7 @@ bool ShaderDiskCache::InitGSCache(const std::atomic_bool& stop_loading,
         LOG_ERROR(Render_Vulkan,
                   "Cache was created for a different PicaGSConfigState, resetting...");
         cleanup_on_error();
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
         return false;
     }
 
@@ -1307,12 +1316,14 @@ bool ShaderDiskCache::InitGSCache(const std::atomic_bool& stop_loading,
     if (geo_shaders_needed && file_info->source_hash != GetSourceFileCacheVersionHash()) {
         LOG_INFO(Render_Vulkan, "Cache contains old fragment program, cache needs regeneration.");
         regenerate_file = std::make_unique<CacheFile>(GetGSFile(title_id, true));
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
     }
 
     if (geo_shaders_needed && file_info->profile != parent.profile && !regenerate_file) {
         LOG_INFO(Render_Vulkan,
                  "Cache has driver and user settings mismatch, cache needs regeneration.");
         regenerate_file = std::make_unique<CacheFile>(GetGSFile(title_id, true));
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
     }
 
     if (regenerate_file) {
@@ -1515,6 +1526,7 @@ bool ShaderDiskCache::InitPLCache(const std::atomic_bool& stop_loading,
         LOG_ERROR(Render_Vulkan,
                   "Cache was created for a different StaticPipelineInfo, resetting...");
         cleanup_on_error();
+        Common::g_shader_cache_rebuild.store(true, std::memory_order_relaxed);
         return false;
     }
 

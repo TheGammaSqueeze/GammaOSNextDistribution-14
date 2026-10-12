@@ -643,7 +643,8 @@ void Overlay::render() {
     eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
-void Overlay::renderLoading(const char* title, const char* detail, float frac) {
+void Overlay::renderLoading(const char* title, const char* detail, float frac, const char* note,
+                            float phase) {
     std::lock_guard<std::recursive_mutex> lock(mMu);
     if (!mGfxReady || !makeCurrent()) return;
     const float W = (float)mGfx.viewportW();
@@ -663,10 +664,38 @@ void Overlay::renderLoading(const char* title, const char* detail, float frac) {
         if (frac > 1.0f) frac = 1.0f;
         mGfx.fillRect(cx - barW * 0.5f, barY, barW, barH, rgba(1, 1, 1, 0.18f));
         mGfx.fillRect(cx - barW * 0.5f, barY, barW * frac, barH, rgba(0.3f, 0.75f, 1.0f, 1));
+    } else if (phase >= 0.0f) {
+        // Indeterminate: a quarter-width segment sweeping across the track and wrapping.
+        const float seg = barW * 0.25f;
+        const float p = phase - std::floor(phase);
+        const float x0 = cx - barW * 0.5f + p * (barW + seg) - seg;
+        const float a = std::max(x0, cx - barW * 0.5f);
+        const float b = std::min(x0 + seg, cx + barW * 0.5f);
+        mGfx.fillRect(cx - barW * 0.5f, barY, barW, barH, rgba(1, 1, 1, 0.18f));
+        if (b > a) mGfx.fillRect(a, barY, b - a, barH, rgba(0.3f, 0.75f, 1.0f, 1));
     }
+    float lineY = barY + barH + 30 * scale;
     if (detail && *detail) {
-        mGfx.text(detail, cx - mGfx.measure(detail, detailScale) * 0.5f, barY + barH + 30 * scale,
-                  detailScale, rgba(0.7f, 0.75f, 0.8f, 1));
+        mGfx.text(detail, cx - mGfx.measure(detail, detailScale) * 0.5f, lineY, detailScale,
+                  rgba(0.7f, 0.75f, 0.8f, 1));
+        lineY += mGfx.fontLineH() * detailScale + 24 * scale;
+    }
+    // The note may hold several lines separated by '\n', each centred.
+    if (note && *note) {
+        const float noteScale = 0.95f * scale;
+        const char* p = note;
+        char line[160];
+        while (*p) {
+            const char* e = strchr(p, '\n');
+            const size_t n = std::min<size_t>(e ? (size_t)(e - p) : strlen(p), sizeof(line) - 1);
+            memcpy(line, p, n);
+            line[n] = 0;
+            mGfx.text(line, cx - mGfx.measure(line, noteScale) * 0.5f, lineY, noteScale,
+                      rgba(0.55f, 0.6f, 0.66f, 1));
+            lineY += mGfx.fontLineH() * noteScale + 8 * scale;
+            if (!e) break;
+            p = e + 1;
+        }
     }
     mGfx.endFrame();
     if (!eglSwapBuffers(mDpy, mSurf)) ALOGE("overlay: eglSwapBuffers failed 0x%x", eglGetError());

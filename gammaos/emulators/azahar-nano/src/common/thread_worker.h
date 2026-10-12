@@ -32,6 +32,11 @@ namespace Common {
 // read by the frontend for its "Compiling shaders" notice.
 inline std::atomic<int> g_compile_jobs{0};
 
+// GammaOS: set when this session found the game's disk shader cache stale or unreadable
+// (an emulator update changed the shader generator, a driver change, a damaged file) and
+// is rebuilding it, so the frontend can say why the game waits on shader compiles.
+inline std::atomic<bool> g_shader_cache_rebuild{false};
+
 template <class StateType = void>
 class StatefulThreadWorker {
     static constexpr bool with_state = !std::is_same_v<StateType, void>;

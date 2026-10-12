@@ -97,6 +97,7 @@ struct CoreApi {
     void (*set_lcd_shader)(int, int) = nullptr;  // optional (newer cores)
     void (*windows_resized)() = nullptr;          // optional (newer cores)
     void (*set_resolution)(int) = nullptr;        // optional (newer cores)
+    int (*shader_cache_rebuilding)() = nullptr;   // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -105,6 +106,9 @@ CoreApi gCore;
 
 // Latest frame rate counter values, written by the perf thread for the HUD thread.
 std::atomic<float> sHudBlitFps{0.0f}, sHudGameFps{0.0f};
+// Emulated frames per second (the game may present none while it loads; a shader compile
+// stall blocks the emulation itself, so this one drops to 0 as well).
+std::atomic<float> sSystemFps{0.0f};
 std::atomic<bool> sHudSlow{false};
 std::atomic<bool> sFastForward{false};   // R2 fast forward state
 std::atomic<float> sHudSpeed{100.0f};    // emulation speed in percent of real time
@@ -180,6 +184,8 @@ bool loadCore(const std::string& path) {
         reinterpret_cast<void (*)()>(dlsym(gCore.handle, "azn_windows_resized"));
     gCore.set_resolution =
         reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_resolution"));
+    gCore.shader_cache_rebuilding =
+        reinterpret_cast<int (*)()>(dlsym(gCore.handle, "azn_shader_cache_rebuilding"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
@@ -481,6 +487,25 @@ bool onCoreError(void*, int result, const char* details) {
 azahar_nano::Overlay* gLoadOverlay = nullptr;
 azahar_nano::DrmWindows* gLoadDrm = nullptr;
 std::atomic<bool> gLoadScreenOn{false};
+// The game waits on shader compiles (no game frames): the stall screen is up. Shares the
+// overlay plane with the loading screen and the menu.
+std::atomic<bool> gStallScreenOn{false};
+// The core is paused for a device sleep (the menu pause is overlay.isOpen()).
+std::atomic<bool> gSleepPaused{false};
+
+bool shaderCacheRebuilding() {
+    return gCore.shader_cache_rebuilding && gCore.shader_cache_rebuilding() != 0;
+}
+
+// What the user reads while shaders compile. A rebuilt cache (the emulator was updated or the
+// cache did not match) is a one-off per game; otherwise these are shaders this game has not
+// needed before.
+const char* kRebuildNote =
+    "This game's saved shaders no longer match the emulator (it was updated),\n"
+    "so they are being rebuilt. This happens once per game.";
+const char* kFirstUseNote =
+    "This scene needs shaders this game has not used before.\n"
+    "They are saved, so this only happens the first time.";
 int64_t gLoadLastDrawNs = 0;
 
 int64_t monoNs() {
@@ -507,15 +532,19 @@ void onLoadProgress(void*, int stage, int progress, int max) {
     const bool last = progress + 1 >= max;
     if (gLoadScreenOn && !last && now - gLoadLastDrawNs < 50000000LL) return;
     gLoadLastDrawNs = now;
-    const char* title = stage == AZN_LOAD_BUILD ? "Preparing shaders" : "Loading shader cache";
+    const bool rebuild = shaderCacheRebuilding();
+    const char* title = rebuild ? "Rebuilding shader cache"
+                        : stage == AZN_LOAD_BUILD ? "Preparing shaders" : "Loading shader cache";
     char detail[96];
     snprintf(detail, sizeof(detail), "%d of %d%s", progress + 1, max,
              gCore.skip_preload ? "    Press START to skip" : "");
     if (!gLoadScreenOn.exchange(true)) {
+        gStallScreenOn = false;   // the loading screen takes the plane over
         gLoadDrm->setOverlayActive(0, true);
-        ALOGI("loading screen open (stage %d, %d items)", stage, max);
+        ALOGI("loading screen open (stage %d, %d items, rebuild %d)", stage, max, rebuild);
     }
-    gLoadOverlay->renderLoading(title, detail, max > 0 ? (float)(progress + 1) / (float)max : -1.0f);
+    gLoadOverlay->renderLoading(title, detail, max > 0 ? (float)(progress + 1) / (float)max : -1.0f,
+                                rebuild ? kRebuildNote : "Shaders this game used before are prepared up front.");
 }
 void onShutdown(void*, int result) {
     ALOGI("core shutdown request %d", result);
@@ -969,6 +998,7 @@ int main(int argc, char** argv) {
             return;
         }
         ALOGI("menu open");
+        if (gStallScreenOn.exchange(false)) ALOGI("stall screen closed for the menu");
         gCore.pause(true);
         overlay.open();
         // Switch the panel to the overlay source first: a frame rendered before
@@ -1010,14 +1040,20 @@ int main(int argc, char** argv) {
             if (off && !asleep) {
                 asleep = true;
                 pausedForSleep = !overlay.isOpen();
-                if (pausedForSleep) gCore.pause(true);
+                if (pausedForSleep) {
+                    gSleepPaused = true;
+                    gCore.pause(true);
+                }
                 android::nanobl::nanoBacklightSet(0);
                 ALOGI("sleep: screen off, core %s, backlights off",
                       pausedForSleep ? "paused" : "left as the menu has it");
             } else if (!off && asleep) {
                 asleep = false;
                 android::nanobl::nanoBacklightSet(azahar_nano::brightnessLevel());
-                if (pausedForSleep) gCore.pause(false);
+                if (pausedForSleep) {
+                    gCore.pause(false);
+                    gSleepPaused = false;
+                }
                 pausedForSleep = false;
                 ALOGI("sleep: screen on, backlights restored");
             }
@@ -1117,6 +1153,7 @@ int main(int argc, char** argv) {
                 lastFlipNs = now;
                 sHudBlitFps = blitFps;
                 sHudGameFps = (float)st.game_fps;
+                sSystemFps = (float)st.system_fps;
                 sHudSlow = st.emulation_speed < 0.92;
                 sHudSpeed = (float)(st.emulation_speed * 100.0);
                 sHudStatsSeq++;
@@ -1137,10 +1174,11 @@ int main(int argc, char** argv) {
         uint32_t lastRegions = 0;
         uint64_t lastSeq = ~0ull;
         float toast = 0.0f, spin = 0.0f;
+        int64_t stallSinceNs = 0;
         int64_t idleSinceNs = 0;
         int64_t lastNs = 0;
         int propTick = 0;
-        bool wantFps = false, wantNotice = true;
+        bool wantFps = false, wantNotice = true, stallPreview = false;
         while (!gExitRequested) {
             struct timespec ts;
             clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -1151,8 +1189,46 @@ int main(int argc, char** argv) {
                 propTick = 15;
                 wantFps = prop("persist.gammaos.azahar_nano.fps_counter", "0") == "1";
                 wantNotice = prop("persist.gammaos.azahar_nano.compile_notice", "1") == "1";
+                // Debug: show the stall screen without a real stall (screenshots, layout checks).
+                stallPreview = prop("sys.gammaos.azahar_nano.stall_preview", "0") == "1";
             }
             const bool live = gCore.is_running() && !overlay.isOpen() && !gLoadScreenOn;
+            // Stall screen: emulation has stopped (no emulated frame in the last second) while
+            // shader jobs are pending, so the game is waiting on them. The HUD plane only
+            // reaches the panel with game frames, so the toast and the frame counter would just
+            // freeze; the overlay plane presents on its own. Opens after 1.5 s of that and only
+            // while jobs are queued; closes as soon as emulation runs again.
+            {
+                const int jobs = gCore.compiles_pending ? gCore.compiles_pending() : 0;
+                const bool emuStopped = sSystemFps.load() < 0.5f;
+                if (live && !gSleepPaused && emuStopped && (jobs > 0 || gStallScreenOn)) {
+                    if (stallSinceNs == 0) stallSinceNs = now;
+                } else {
+                    stallSinceNs = 0;
+                }
+                if (stallPreview && live && stallSinceNs == 0) stallSinceNs = now - 1500000000LL;
+                const bool wantStall = stallSinceNs && now - stallSinceNs >= 1500000000LL &&
+                                       (jobs > 0 || gStallScreenOn || stallPreview) &&
+                                       sOverlayReady && gLoadOverlay && gLoadDrm;
+                if (wantStall && !overlay.isOpen() && !gLoadScreenOn) {
+                    if (!gStallScreenOn.exchange(true)) {
+                        gLoadDrm->setOverlayActive(0, true);
+                        ALOGI("stall screen open (%d compile jobs, rebuild %d)", jobs,
+                              shaderCacheRebuilding());
+                    }
+                    const bool rebuild = shaderCacheRebuilding();
+                    const int secs = (int)((now - stallSinceNs) / 1000000000LL);
+                    char detail[96];
+                    snprintf(detail, sizeof(detail), "%d compiling    %d:%02d    the game continues by itself",
+                             jobs, secs / 60, secs % 60);
+                    gLoadOverlay->renderLoading(rebuild ? "Rebuilding shader cache" : "Compiling shaders",
+                                                detail, -1.0f, rebuild ? kRebuildNote : kFirstUseNote,
+                                                (float)((now / 1000000LL) % 1600) / 1600.0f);
+                } else if (!wantStall && gStallScreenOn.exchange(false)) {
+                    if (!overlay.isOpen() && !gLoadScreenOn) gLoadDrm->setOverlayActive(0, false);
+                    ALOGI("stall screen closed");
+                }
+            }
             // The notice stays up through short gaps between jobs (no flicker) and
             // fades out 0.4 s after the queue drained.
             const int pending = gCore.compiles_pending ? gCore.compiles_pending() : 0;
@@ -1192,7 +1268,7 @@ int main(int argc, char** argv) {
                 hudOn = false;
                 lastRegions = 0;
             }
-            usleep(animating ? 33 * 1000 : 100 * 1000);
+            usleep(animating || gStallScreenOn ? 33 * 1000 : 100 * 1000);
         }
     });
 

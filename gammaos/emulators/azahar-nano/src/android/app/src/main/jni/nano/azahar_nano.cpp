@@ -416,6 +416,10 @@ int azn_compiles_pending() {
     return std::max(0, Common::g_compile_jobs.load(std::memory_order_relaxed));
 }
 
+int azn_shader_cache_rebuilding() {
+    return Common::g_shader_cache_rebuild.load(std::memory_order_relaxed) ? 1 : 0;
+}
+
 void azn_set_tweak(const char* name, int value) {
     if (!name) return;
     if (std::string_view{name} == "renderpass_clears") {
@@ -481,6 +485,7 @@ void azn_set_windows(struct ANativeWindow* primary, struct ANativeWindow* second
 }
 
 int azn_run(const char* rom_path) {
+    Common::g_shader_cache_rebuild.store(false, std::memory_order_relaxed);
     if (!stop_run) {
         stop_run = true;
         running_cv.notify_all();

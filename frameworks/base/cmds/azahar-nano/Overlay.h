@@ -61,7 +61,11 @@ public:
     void render();
     // Loading screen while the core prepares its shader cache: a title, a detail
     // line and a progress bar (frac 0..1, negative = no bar).
-    void renderLoading(const char* title, const char* detail, float frac);
+    // Full-panel progress screen: title, a bar (frac 0..1; frac < 0 draws an indeterminate bar
+    // whose sweep follows phase, or no bar when phase < 0 too), the detail line under it and an
+    // optional dimmer note explaining what is going on.
+    void renderLoading(const char* title, const char* detail, float frac,
+                       const char* note = nullptr, float phase = -1.0f);
 
 private:
     enum RowKind { ROW_ACTION, ROW_CHOICE, ROW_PAGE };

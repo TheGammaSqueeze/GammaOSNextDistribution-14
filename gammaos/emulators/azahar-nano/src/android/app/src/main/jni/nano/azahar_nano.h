@@ -138,6 +138,10 @@ void azn_skip_preload(void);
 /// Shader and pipeline compile jobs queued or running right now (0 when idle).
 int azn_compiles_pending(void);
 
+/// 1 when this session is rebuilding the game's disk shader cache (it was stale or unreadable,
+/// typically after an emulator update), so the long compiles are a one-off; 0 otherwise.
+int azn_shader_cache_rebuilding(void);
+
 // Blocking: boots the ROM and runs the emulation loop on the calling thread
 // until azn_stop or a shutdown request. Returns an azn_result.
 int azn_run(const char* rom_path);
