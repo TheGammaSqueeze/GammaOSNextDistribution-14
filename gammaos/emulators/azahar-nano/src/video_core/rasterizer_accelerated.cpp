@@ -191,12 +191,11 @@ void RasterizerAccelerated::SyncDrawUniforms() {
         fs_data_dirty = true;
     }
 
-    // GammaOS: nearest texels for 2D draws (read every draw, so the option applies live).
-    const float snap_2d =
-        Settings::values.texture_sampling.GetValue() ==
-                Settings::TextureSampling::Nearest2DLinear3D
-            ? 1.0f
-            : 0.0f;
+    // GammaOS: how 2D draws sample (read every draw, so the option applies live).
+    const auto sampling = Settings::values.texture_sampling.GetValue();
+    const float snap_2d = sampling == Settings::TextureSampling::Nearest2DLinear3D       ? 1.0f
+                          : sampling == Settings::TextureSampling::SharpBilinear2DLinear3D ? 2.0f
+                                                                                           : 0.0f;
     if (fs_data.tex_lod_bias[3] != snap_2d) {
         fs_data.tex_lod_bias[3] = snap_2d;
         fs_data_dirty = true;

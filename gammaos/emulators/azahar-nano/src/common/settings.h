@@ -130,6 +130,9 @@ enum class TextureSampling : u32 {
     // GammaOS: linear filtering, but pixels of orthographic (2D) draws sample the nearest texel,
     // so sprites and UI stay sharp while 3D surfaces stay smooth.
     Nearest2DLinear3D = 3,
+    // GammaOS: as above, but 2D pixels use sharp bilinear (whole-pixel nearest scaling with a
+    // one output pixel blend at texel seams): as crisp, with even pixel widths.
+    SharpBilinear2DLinear3D = 4,
 };
 
 enum class AspectRatio : u32 {

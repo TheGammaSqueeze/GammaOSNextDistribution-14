@@ -314,8 +314,8 @@ void Overlay::buildPages() {
             "Texture upscaling filter"));
         pg.rows.push_back(configChoice("Texture Sampling", "Renderer", "texture_sampling",
             {{"Game Controlled", "0"}, {"Nearest Neighbor", "1"}, {"Linear", "2"},
-             {"Nearest 2D, Linear 3D", "3"}},
-            "How textures are sampled; Nearest 2D keeps sprites and menus sharp and 3D smooth"));
+             {"Nearest 2D, Linear 3D", "3"}, {"Sharp Bilinear 2D, Linear 3D", "4"}},
+            "How textures are sampled; the 2D modes keep sprites and menus sharp and 3D smooth"));
         pg.rows.push_back(configToggle("Linear Filtering", "Renderer", "filter_mode",
             "Smooth the screens when scaled"));
         // LCD shaders per 3DS screen: one texture read each, drawn in the normal present pass.
@@ -334,7 +334,7 @@ void Overlay::buildPages() {
         }
         pg.rows.push_back(propChoice("Screen AA", "persist.gammaos.azahar_nano.screen_aa", "0",
             {{"Off", "0"}, {"On", "1"}},
-            "Smooths jagged edges on both screens (FXAA on the 3DS pixels), with any screen shader",
+            "Smooths jagged edges at native 1x (also when Dynamic Resolution drops to 1x), with any screen shader",
             [this](const std::string& v) {
                 if (mA.setScreenAa) mA.setScreenAa(v == "1");
             }));

@@ -58,8 +58,9 @@ struct FSUniformData {
     LightSrc light_src[8];
     alignas(16) Common::Vec4f const_color[6]; // A vec4 color for each of the six tev stages
     alignas(16) Common::Vec4f tev_combiner_buffer_color;
-    // xyz: level of detail bias per texture unit. w (GammaOS, the vec3's padding): 1 when
-    // orthographic draws sample the nearest texel (TextureSampling::Nearest2DLinear3D).
+    // xyz: level of detail bias per texture unit. w (GammaOS, the vec3's padding): how
+    // orthographic draws sample: 0 as the sampler, 1 the nearest texel, 2 sharp bilinear
+    // (TextureSampling::Nearest2DLinear3D / SharpBilinear2DLinear3D).
     alignas(16) Common::Vec4f tex_lod_bias;
     alignas(16) Common::Vec4f tex_border_color[3];
     alignas(16) Common::Vec4f blend_color;

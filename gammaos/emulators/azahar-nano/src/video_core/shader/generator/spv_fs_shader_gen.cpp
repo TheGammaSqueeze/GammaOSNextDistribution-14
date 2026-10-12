@@ -1036,13 +1036,27 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
                 bool_id, OpFAbs(f32_id, OpFSub(f32_id, frag_w, ConstF32(1.0f))), ConstF32(1e-4f))};
             const Id snap{OpLogicalAnd(bool_id, OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(0.5f)),
                                        ortho)};
-            const Id half{OpCompositeConstruct(vec_ids.Get(2), ConstF32(0.5f), ConstF32(0.5f))};
-            const Id snapped{OpFDiv(
-                vec_ids.Get(2),
-                OpFAdd(vec_ids.Get(2), OpFloor(vec_ids.Get(2), OpFMul(vec_ids.Get(2), texcoord_in, snap_size)),
-                       half),
-                snap_size)};
-            texcoord = OpSelect(vec_ids.Get(2), OpCompositeConstruct(bvec_ids.Get(2), snap, snap),
+            const Id sharp{OpFOrdGreaterThan(bool_id, snap_flag, ConstF32(1.5f))};
+            const Id v2{vec_ids.Get(2)};
+            const auto splat = [&](float f) { return OpCompositeConstruct(v2, ConstF32(f), ConstF32(f)); };
+            const Id texel{OpFMul(v2, texcoord_in, snap_size)};
+            const Id texel_floor{OpFloor(v2, texel)};
+            // Nearest: the texel centre.
+            const Id nearest{OpFDiv(v2, OpFAdd(v2, texel_floor, splat(0.5f)), snap_size)};
+            // Sharp bilinear: nearest up to the whole-pixel scale, a one output pixel linear
+            // blend across the seam between texels.
+            const Id scale{OpFMax(v2, OpFloor(v2, OpFDiv(v2, splat(1.0f),
+                                                          OpFMax(v2, OpFwidth(v2, texel), splat(1e-6f)))),
+                                  splat(1.0f))};
+            const Id d{OpFSub(v2, OpFract(v2, texel), splat(0.5f))};
+            const Id range{OpFSub(v2, splat(0.5f), OpFDiv(v2, splat(0.5f), scale))};
+            const Id range_neg{OpFNegate(v2, range)};
+            const Id f{OpFAdd(v2, OpFMul(v2, OpFSub(v2, d, OpFClamp(v2, d, range_neg, range)), scale),
+                              splat(0.5f))};
+            const Id sharp_tc{OpFDiv(v2, OpFAdd(v2, texel_floor, f), snap_size)};
+            const Id snapped{OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), sharp, sharp),
+                                      sharp_tc, nearest)};
+            texcoord = OpSelect(v2, OpCompositeConstruct(bvec_ids.Get(2), snap, snap),
                                 snapped, texcoord_in);
         }
         // GammaOS: the rasterizer sets the bias to 1e30 when the level of detail cannot change

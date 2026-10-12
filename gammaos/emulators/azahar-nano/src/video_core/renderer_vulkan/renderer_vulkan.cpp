@@ -561,10 +561,14 @@ vk::Pipeline RendererVulkan::ScreenPipeline(u32 screen_id, bool& user_sampler) {
     user_sampler = true;
     int& setting = Settings::values.gammaos_lcd_shader[screen_id == 2 ? 1 : 0];
     int lcd = setting;
-    bool aa = Settings::values.gammaos_screen_aa;
+    // Screen AA works on the 3DS pixels, which only show as staircases at native 1x: above
+    // that the image is already supersampled and the blend would only soften it. So it
+    // applies at 1x only (set there by the user or by a Dynamic Resolution drop).
+    const bool native = Settings::values.resolution_factor.GetValue() == 1;
+    bool aa = Settings::values.gammaos_screen_aa && native;
     if (lcd == GammaLcd::kLegacySharpAa) {
         lcd = static_cast<int>(GammaLcd::kFirstSharp) + 1;
-        aa = true;
+        aa = native;
     }
     const int count = static_cast<int>(GammaLcd::kShaders.size());
     if (current_pipeline != 0 || lcd < 0 || lcd > count || (lcd == 0 && !aa)) {
