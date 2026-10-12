@@ -2729,6 +2729,21 @@ void NanoMenu::launchXmbGame() {
             std::swap(mXmbRecent, saved); // restore in-memory order
         }
 
+        // GammaOS: azahar-nano intercept for Recently Played, as on the system list launch: a 3DS
+        // game recorded with an Azahar family package runs in the native core, so it neither needs
+        // the APK nor falls back to the home when the APK is not installed.
+        if (re.standalone && isAzaharPackage(re.launchPkg) &&
+            property_get_bool("persist.gammaos.nano.azahar_nano", true)) {
+            property_set("persist.gammaos.nano.qr_prepared", "0");
+            android::base::SetProperty("persist.gammaos.nano.qr_core", "");
+            setAzaharNanoRomPath(re.romPath);
+            ALOGW("azahar nano: XMB recent-played launch of %s", re.romPath.c_str());
+            mAzaharNanoPending = true;
+            mSearchActive = false;
+            mOskActive = false;
+            return;
+        }
+
         if (re.standalone) {
             // Build content URI and intent file. buildSafTree derives the SAF
             // tree-root + encoded filename from the true path (subfolder-aware);
