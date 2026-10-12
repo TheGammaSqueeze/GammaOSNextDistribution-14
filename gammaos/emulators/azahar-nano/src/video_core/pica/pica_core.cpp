@@ -1175,10 +1175,18 @@ void PicaCore::DrawArrays(bool is_indexed) {
                   twin_expect_color, twin_expect_depth, color, depth);
     }
     PAddr next_color = 0, next_depth = 0;
-    if (!twin_scan_ok || !LookaheadTwin(next_color, next_depth)) {
+    // The lookahead walks the command list to the next draw on every draw. After 4096 draws
+    // without a twin (no stereo rendering) it only probes every 32nd draw, and goes back to
+    // every draw at the first twin found.
+    const bool probe = twin_probe_misses < 4096 || (++twin_probe_tick & 31) == 0;
+    if (!twin_scan_ok || !probe || !LookaheadTwin(next_color, next_depth)) {
+        if (twin_scan_ok && probe && twin_probe_misses < 4096) {
+            twin_probe_misses++;
+        }
         DrawArraysInternal(is_indexed);
         return;
     }
+    twin_probe_misses = 0;
     const u32 area = fb.GetWidth() * fb.GetHeight();
     const u32 color_size = area * FramebufferRegs::BytesPerColorPixel(fb.color_format);
     const u32 depth_size = area * FramebufferRegs::BytesPerDepthPixel(fb.depth_format);

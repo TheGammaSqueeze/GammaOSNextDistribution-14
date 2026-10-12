@@ -425,7 +425,9 @@ private:
     CommandList cmd_list;
     std::unique_ptr<ShaderEngine> shader_engine;
     // GammaOS stereo twins (persist.gammaos.azahar_nano.stereo_twin, on by default).
-    bool twin_scan_ok = false;      // the current draw was triggered by a plain command header
+    bool twin_scan_ok = false;
+    u32 twin_probe_misses = 0;      // draws in a row whose lookahead found no twin
+    u32 twin_probe_tick = 0;      // the current draw was triggered by a plain command header
     bool twin_skip_pending = false; // the next draw is the twin already drawn
     PAddr twin_expect_color = 0, twin_expect_depth = 0;
     u32 twin_skipped = 0;

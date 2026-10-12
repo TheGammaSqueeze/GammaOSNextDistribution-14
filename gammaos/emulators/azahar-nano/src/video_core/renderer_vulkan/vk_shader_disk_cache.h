@@ -350,6 +350,10 @@ private:
     std::unordered_map<u64, Shader> programmable_vertex_cache;
     std::unordered_map<u64, Shader*> programmable_vertex_map;
     std::unordered_set<u64> known_vertex_programs;
+    // GammaOS: the previous UseProgrammableVertexShader result and the config it was for.
+    Pica::Shader::Generator::PicaVSConfigState last_vs_state{};
+    u64 last_vs_hash = 0;
+    Shader* last_vs_shader = nullptr;
 
     std::unordered_map<u64, Shader> fragment_shaders;
 

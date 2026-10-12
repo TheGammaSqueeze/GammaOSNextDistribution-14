@@ -243,6 +243,12 @@ std::optional<std::pair<u64, Shader* const>> ShaderDiskCache::UseProgrammableVer
         dst.size = src.size;
     }
 
+    // GammaOS: most draws use the vertex shader of the draw before; skip the hash and lookup.
+    if (last_vs_shader && !GammaDump::d.active &&
+        std::memcmp(&last_vs_state, &config.state, sizeof(config.state)) == 0) {
+        return std::make_pair(last_vs_hash, last_vs_shader);
+    }
+
     const auto config_hash = config.Hash();
 
     if (GammaDump::d.active) {
@@ -303,6 +309,9 @@ std::optional<std::pair<u64, Shader* const>> ShaderDiskCache::UseProgrammableVer
         return {};
     }
 
+    std::memcpy(&last_vs_state, &config.state, sizeof(config.state));
+    last_vs_hash = config_hash;
+    last_vs_shader = shader;
     return std::make_pair(config_hash, shader);
 }
 
@@ -751,6 +760,7 @@ bool ShaderDiskCache::InitVSCache(const std::atomic_bool& stop_loading,
     std::unordered_map<u64, size_t> pending_programs;
     std::unique_ptr<Pica::ShaderSetup> shader_setup;
     std::unique_ptr<CacheFile> regenerate_file;
+    last_vs_shader = nullptr; // the maps below change while loading
 
     auto cleanup_on_error = [&]() {
         programmable_vertex_cache.clear();
