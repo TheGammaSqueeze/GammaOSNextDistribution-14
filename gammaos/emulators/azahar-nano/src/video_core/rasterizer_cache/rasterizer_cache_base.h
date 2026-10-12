@@ -287,6 +287,16 @@ private:
         u32 mode;   // fill width: 16, 24 or 32 bit
     };
     std::vector<FreshFill> fresh_fills;
+    /// GammaOS: render target invalidations already done (see InvalidateRegion).
+    struct InvalidateMemo {
+        PAddr lo = 0;
+        PAddr hi = 0;
+        SurfaceId owner{};
+        u64 epoch = ~0ull;
+    };
+    std::array<InvalidateMemo, 4> invalidate_memo{};
+    u32 invalidate_memo_next = 0;
+    u64 cache_epoch = 0;
     struct Mirror {
         bool active = false;
         PAddr canon_color = 0, canon_depth = 0, mirror_color = 0, mirror_depth = 0;

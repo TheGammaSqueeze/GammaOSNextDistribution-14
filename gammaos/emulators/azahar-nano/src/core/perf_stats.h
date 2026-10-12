@@ -136,6 +136,8 @@ private:
 
     /// Title ID for the game that is running. 0 if there is no game running yet
     u64 title_id{0};
+    /// GammaOS: time the HLE SVC/IPC/GPU split (persist.gammaos.azahar_nano.hle_timing).
+    bool detailed_timing{false};
     /// Current index for writing to the perf_history array
     std::size_t current_index{0};
     /// Stores an hour of historical frametime data useful for processing and tracking performance

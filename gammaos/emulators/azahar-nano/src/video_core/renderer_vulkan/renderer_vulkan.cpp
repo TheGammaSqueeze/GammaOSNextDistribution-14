@@ -145,6 +145,14 @@ RendererVulkan::~RendererVulkan() {
     device.waitIdle();
     GammaGpu::Shutdown();
 
+    for (auto& t : aa_targets) {
+        if (t.framebuffer) device.destroyFramebuffer(t.framebuffer);
+        if (t.view) device.destroyImageView(t.view);
+        if (t.image) vmaDestroyImage(instance.GetAllocator(), t.image, t.allocation);
+    }
+    if (aa_pipeline) device.destroyPipeline(aa_pipeline);
+    if (aa_vertex_shader) device.destroyShaderModule(aa_vertex_shader);
+    if (aa_fragment_shader) device.destroyShaderModule(aa_fragment_shader);
     device.destroyShaderModule(present_vertex_shader);
     for (u32 i = 0; i < PRESENT_PIPELINES; i++) {
         device.destroyPipeline(present_pipelines[i]);
@@ -180,6 +188,8 @@ void RendererVulkan::PrepareRendertarget() {
         const auto color_fill = fb_id == 0 ? regs_lcd.color_fill_top : regs_lcd.color_fill_bottom;
         if (color_fill.is_enabled) {
             screen_infos[i].image_view = texture.image_view;
+            screen_infos[i].view_width = texture.width;
+            screen_infos[i].view_height = texture.height;
             FillScreen(color_fill.AsVector(), texture);
             continue;
         }
@@ -557,6 +567,264 @@ vk::Pipeline RendererVulkan::BuildPresentPipeline(vk::ShaderModule fragment_shad
     }
 }
 
+bool RendererVulkan::ScreenAaWanted() const {
+    if (Settings::values.resolution_factor.GetValue() != 1) {
+        return false;
+    }
+    return Settings::values.gammaos_screen_aa ||
+           Settings::values.gammaos_lcd_shader[0] == GammaLcd::kLegacySharpAa ||
+           Settings::values.gammaos_lcd_shader[1] == GammaLcd::kLegacySharpAa;
+}
+
+bool RendererVulkan::EnsureAaTarget(u32 index, u32 width, u32 height) {
+    AaTarget& t = aa_targets[index];
+    if (t.image && t.width == width && t.height == height) {
+        return true;
+    }
+    const vk::Device device = instance.GetDevice();
+    if (t.image) {
+        // The previous target may still be read by frames in flight.
+        scheduler.Finish();
+        device.destroyFramebuffer(t.framebuffer);
+        device.destroyImageView(t.view);
+        vmaDestroyImage(instance.GetAllocator(), t.image, t.allocation);
+        t = AaTarget{};
+    }
+    const vk::Format format = instance.GetTraits(VideoCore::PixelFormat::RGBA8).native;
+    const vk::ImageCreateInfo image_info = {
+        .imageType = vk::ImageType::e2D,
+        .format = format,
+        .extent = {width, height, 1},
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .samples = vk::SampleCountFlagBits::e1,
+        .usage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eColorAttachment,
+    };
+    const VmaAllocationCreateInfo alloc_info = {
+        .flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT,
+        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
+    };
+    VkImage image{};
+    const VkImageCreateInfo raw_info = static_cast<VkImageCreateInfo>(image_info);
+    if (vmaCreateImage(instance.GetAllocator(), &raw_info, &alloc_info, &image, &t.allocation,
+                       nullptr) != VK_SUCCESS) {
+        LOG_ERROR(Render_Vulkan, "Screen AA: target {}x{} allocation failed", width, height);
+        return false;
+    }
+    t.image = vk::Image{image};
+    t.view = device.createImageView({
+        .image = t.image,
+        .viewType = vk::ImageViewType::e2D,
+        .format = format,
+        .subresourceRange{
+            .aspectMask = vk::ImageAspectFlagBits::eColor,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+    });
+    const vk::RenderPass render_pass =
+        renderpass_cache.GetRenderpass(VideoCore::PixelFormat::RGBA8,
+                                       VideoCore::PixelFormat::Invalid, false);
+    t.framebuffer = device.createFramebuffer({
+        .renderPass = render_pass,
+        .attachmentCount = 1,
+        .pAttachments = &t.view,
+        .width = width,
+        .height = height,
+        .layers = 1,
+    });
+    t.width = width;
+    t.height = height;
+    return true;
+}
+
+vk::Pipeline RendererVulkan::BuildAaPipeline() {
+    const vk::Device device = instance.GetDevice();
+    // A full-screen triangle without vertex input; the fragment shader works out the texel
+    // from gl_FragCoord.
+    static constexpr std::string_view kVert = R"(
+#version 450 core
+layout (location = 0) out vec2 frag_tex_coord;
+void main() {
+    const float x = float((gl_VertexIndex & 1) << 2);
+    const float y = float((gl_VertexIndex & 2) << 1);
+    gl_Position = vec4(x - 1.0, y - 1.0, 0.0, 1.0);
+    frag_tex_coord = vec2(x, y) * 0.5;
+}
+)";
+    static constexpr std::string_view kFrag = R"(
+void main() {
+    const vec2 size = vec2(ScreenSize());
+    color = vec4(Fxaa((floor(gl_FragCoord.xy) + 0.5) / size), 1.0);
+}
+)";
+    std::string preamble;
+    if (instance.IsImageArrayDynamicIndexSupported()) preamble += "#define ARRAY_DYNAMIC_INDEX\n";
+    preamble += "#define SCREEN_AA\n";
+    aa_vertex_shader = Compile(kVert, vk::ShaderStageFlagBits::eVertex, device);
+    std::string frag{GammaLcd::kCommon};
+    frag += kFrag;
+    aa_fragment_shader = Compile(frag, vk::ShaderStageFlagBits::eFragment, device, preamble);
+    if (!aa_vertex_shader || !aa_fragment_shader) {
+        return {};
+    }
+    const vk::PipelineVertexInputStateCreateInfo vertex_input{};
+    const vk::PipelineInputAssemblyStateCreateInfo input_assembly = {
+        .topology = vk::PrimitiveTopology::eTriangleList,
+    };
+    const vk::PipelineRasterizationStateCreateInfo raster = {
+        .cullMode = vk::CullModeFlagBits::eNone,
+        .frontFace = vk::FrontFace::eClockwise,
+        .lineWidth = 1.0f,
+    };
+    const vk::PipelineMultisampleStateCreateInfo multisample = {
+        .rasterizationSamples = vk::SampleCountFlagBits::e1,
+    };
+    const vk::PipelineColorBlendAttachmentState blend_attachment = {
+        .blendEnable = false,
+        .colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                          vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA,
+    };
+    const vk::PipelineColorBlendStateCreateInfo blend = {
+        .attachmentCount = 1,
+        .pAttachments = &blend_attachment,
+    };
+    const vk::Viewport viewport{0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+    const vk::Rect2D scissor{{0, 0}, {1, 1}};
+    const vk::PipelineViewportStateCreateInfo viewport_info = {
+        .viewportCount = 1,
+        .pViewports = &viewport,
+        .scissorCount = 1,
+        .pScissors = &scissor,
+    };
+    const std::array dynamic_states = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
+    const vk::PipelineDynamicStateCreateInfo dynamic_info = {
+        .dynamicStateCount = static_cast<u32>(dynamic_states.size()),
+        .pDynamicStates = dynamic_states.data(),
+    };
+    const vk::PipelineDepthStencilStateCreateInfo depth = {
+        .depthTestEnable = false,
+        .depthWriteEnable = false,
+        .depthCompareOp = vk::CompareOp::eAlways,
+    };
+    const std::array stages = {
+        vk::PipelineShaderStageCreateInfo{
+            .stage = vk::ShaderStageFlagBits::eVertex,
+            .module = aa_vertex_shader,
+            .pName = "main",
+        },
+        vk::PipelineShaderStageCreateInfo{
+            .stage = vk::ShaderStageFlagBits::eFragment,
+            .module = aa_fragment_shader,
+            .pName = "main",
+        },
+    };
+    const vk::GraphicsPipelineCreateInfo info = {
+        .stageCount = static_cast<u32>(stages.size()),
+        .pStages = stages.data(),
+        .pVertexInputState = &vertex_input,
+        .pInputAssemblyState = &input_assembly,
+        .pViewportState = &viewport_info,
+        .pRasterizationState = &raster,
+        .pMultisampleState = &multisample,
+        .pDepthStencilState = &depth,
+        .pColorBlendState = &blend,
+        .pDynamicState = &dynamic_info,
+        .layout = *present_pipeline_layout,
+        .renderPass = renderpass_cache.GetRenderpass(VideoCore::PixelFormat::RGBA8,
+                                                     VideoCore::PixelFormat::Invalid, false),
+    };
+    const auto [result, pipeline] = device.createGraphicsPipeline({}, info);
+    return result == vk::Result::eSuccess ? pipeline : vk::Pipeline{};
+}
+
+void RendererVulkan::RunScreenAa() {
+    aa_prepass_done = false;
+    if (aa_failed || !ScreenAaWanted()) {
+        return;
+    }
+    if (!aa_pipeline) {
+        aa_pipeline = BuildAaPipeline();
+        if (!aa_pipeline) {
+            LOG_ERROR(Render_Vulkan, "Screen AA: prepass pipeline failed, using the per pixel AA");
+            aa_failed = true;
+            return;
+        }
+        LOG_INFO(Render_Vulkan, "Screen AA: prepass ready");
+    }
+    std::array<vk::ImageView, 3> sources{};
+    for (u32 i = 0; i < screen_infos.size(); i++) {
+        sources[i] = screen_infos[i].image_view;
+        if (!sources[i] || !screen_infos[i].view_width || !screen_infos[i].view_height ||
+            !EnsureAaTarget(i, screen_infos[i].view_width, screen_infos[i].view_height)) {
+            return;
+        }
+    }
+    const auto set = present_heap.Commit();
+    for (u32 i = 0; i < screen_infos.size(); i++) {
+        update_queue.AddImageSampler(set, 0, i, sources[i], present_samplers[0]);
+    }
+    renderpass_cache.EndRendering();
+    const vk::RenderPass render_pass = renderpass_cache.GetRenderpass(
+        VideoCore::PixelFormat::RGBA8, VideoCore::PixelFormat::Invalid, false);
+    for (u32 i = 0; i < screen_infos.size(); i++) {
+        // The right eye usually shows the left eye's image: anti-alias it once.
+        if (i == 1 && sources[1] == sources[0]) {
+            screen_infos[1].image_view = aa_targets[0].view;
+            continue;
+        }
+        const AaTarget& t = aa_targets[i];
+        renderpass_cache.BeginRendering(RenderPass{
+            .framebuffer = t.framebuffer,
+            .render_pass = render_pass,
+            .render_area = {.offset = {0, 0}, .extent = {t.width, t.height}},
+        });
+        PresentUniformData push{};
+        push.screen_id_l = static_cast<int>(i);
+        scheduler.Record([this, set, push, w = t.width, h = t.height](vk::CommandBuffer cmdbuf) {
+            cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, aa_pipeline);
+            cmdbuf.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *present_pipeline_layout,
+                                      0, set, {});
+            cmdbuf.pushConstants(*present_pipeline_layout,
+                                 vk::ShaderStageFlagBits::eFragment |
+                                     vk::ShaderStageFlagBits::eVertex,
+                                 0, sizeof(push), &push);
+            const vk::Viewport viewport{0.0f, 0.0f, static_cast<float>(w),
+                                        static_cast<float>(h), 0.0f, 1.0f};
+            cmdbuf.setViewport(0, viewport);
+            cmdbuf.setScissor(0, vk::Rect2D{{0, 0}, {w, h}});
+            cmdbuf.draw(3, 1, 0, 0);
+        });
+        renderpass_cache.EndRendering();
+        scheduler.Record([image = t.image](vk::CommandBuffer cmdbuf) {
+            const vk::ImageMemoryBarrier barrier = {
+                .srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite,
+                .dstAccessMask = vk::AccessFlagBits::eShaderRead,
+                .oldLayout = vk::ImageLayout::eGeneral,
+                .newLayout = vk::ImageLayout::eGeneral,
+                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .image = image,
+                .subresourceRange{
+                    .aspectMask = vk::ImageAspectFlagBits::eColor,
+                    .baseMipLevel = 0,
+                    .levelCount = 1,
+                    .baseArrayLayer = 0,
+                    .layerCount = 1,
+                },
+            };
+            cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput,
+                                   vk::PipelineStageFlagBits::eFragmentShader,
+                                   vk::DependencyFlagBits::eByRegion, {}, {}, barrier);
+        });
+        screen_infos[i].image_view = t.view;
+    }
+    scheduler.MakeDirty(StateFlags::Pipeline);
+    aa_prepass_done = true;
+}
+
 vk::Pipeline RendererVulkan::ScreenPipeline(u32 screen_id, bool& user_sampler) {
     user_sampler = true;
     int& setting = Settings::values.gammaos_lcd_shader[screen_id == 2 ? 1 : 0];
@@ -569,6 +837,10 @@ vk::Pipeline RendererVulkan::ScreenPipeline(u32 screen_id, bool& user_sampler) {
     if (lcd == GammaLcd::kLegacySharpAa) {
         lcd = static_cast<int>(GammaLcd::kFirstSharp) + 1;
         aa = native;
+    }
+    // The prepass already anti-aliased the screen textures: the present shader stays plain.
+    if (aa_prepass_done) {
+        aa = false;
     }
     const int count = static_cast<int>(GammaLcd::kShaders.size());
     if (current_pipeline != 0 || lcd < 0 || lcd > count || (lcd == 0 && !aa)) {
@@ -1379,6 +1651,7 @@ void RendererVulkan::SwapBuffers() {
     const auto trace_tpre = std::chrono::steady_clock::now();
 #endif
     PrepareRendertarget();
+    RunScreenAa();
     RenderScreenshot();
     isSecondaryWindow = false;
 #ifdef ANDROID

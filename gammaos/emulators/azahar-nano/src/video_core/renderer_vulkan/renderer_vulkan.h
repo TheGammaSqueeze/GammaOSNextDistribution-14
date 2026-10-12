@@ -52,6 +52,9 @@ struct ScreenInfo {
     TextureInfo texture;
     Common::Rectangle<f32> texcoords;
     vk::ImageView image_view;
+    /// GammaOS: size of the image behind image_view (the Screen AA prepass renders at it).
+    u32 view_width = 0;
+    u32 view_height = 0;
 };
 
 struct PresentUniformData {
@@ -93,6 +96,13 @@ private:
     void BuildLayouts();
     void BuildPipelines();
     vk::Pipeline BuildPresentPipeline(vk::ShaderModule fragment_shader);
+
+    /// GammaOS Screen AA prepass: FXAA once per emulated pixel into a small target per
+    /// screen, which the present pass then samples (instead of FXAA per panel pixel).
+    bool ScreenAaWanted() const;
+    void RunScreenAa();
+    bool EnsureAaTarget(u32 index, u32 width, u32 height);
+    vk::Pipeline BuildAaPipeline();
     /// The present pipeline for a screen draw: its LCD shader when one is selected.
     /// The present pipeline for a screen (stock, or a GammaOS screen shader); user_sampler is
     /// set when it samples through the Linear Filtering sampler rather than the linear one.
@@ -149,6 +159,20 @@ private:
     std::unique_ptr<PresentWindow> secondary_present_window_ptr;
     DescriptorHeap present_heap;
     vk::UniquePipelineLayout present_pipeline_layout;
+    struct AaTarget {
+        vk::Image image{};
+        VmaAllocation allocation{};
+        vk::ImageView view{};
+        vk::Framebuffer framebuffer{};
+        u32 width = 0;
+        u32 height = 0;
+    };
+    std::array<AaTarget, 3> aa_targets{};
+    vk::ShaderModule aa_vertex_shader{};
+    vk::ShaderModule aa_fragment_shader{};
+    vk::Pipeline aa_pipeline{};
+    bool aa_failed = false;
+    bool aa_prepass_done = false; ///< this swap's screens were anti-aliased by the prepass
     std::array<vk::Pipeline, PRESENT_PIPELINES> present_pipelines;
     std::array<vk::ShaderModule, PRESENT_PIPELINES> present_shaders;
     // GammaOS LCD shader pipelines, built the first time each is selected.

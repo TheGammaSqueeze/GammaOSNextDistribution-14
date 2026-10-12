@@ -647,6 +647,7 @@ bool RasterizerCache<T>::TwinTargets(PAddr cur_color, PAddr cur_depth, PAddr nex
 
 template <class T>
 void RasterizerCache<T>::MirrorAccessSlow(PAddr addr, u32 size, bool write) {
+    ++cache_epoch;
     if (!mirror.active || in_materialize || twin_draw) {
         return;
     }
@@ -667,6 +668,7 @@ void RasterizerCache<T>::MirrorAccessSlow(PAddr addr, u32 size, bool write) {
 
 template <class T>
 void RasterizerCache<T>::MaterializeMirror() {
+    ++cache_epoch;
     in_materialize = true;
     mirror.active = false;
     if (!mirror_dirty) {
@@ -1325,6 +1327,7 @@ void RasterizerCache<T>::ValidateSurface(SurfaceId surface_id, PAddr addr, u32 s
     if (validate_regions.empty()) {
         return;
     }
+    ++cache_epoch;
 
     auto notify_validated = [&](SurfaceInterval interval) {
         surface.MarkValid(interval);
@@ -1382,6 +1385,7 @@ void RasterizerCache<T>::ValidateSurface(SurfaceId surface_id, PAddr addr, u32 s
 
 template <class T>
 void RasterizerCache<T>::UploadSurface(Surface& surface, SurfaceInterval interval) {
+    ++cache_epoch;
     MICROPROFILE_SCOPE(RasterizerCache_UploadSurface);
 
     const SurfaceParams load_info = surface.FromInterval(interval);
@@ -1481,6 +1485,7 @@ bool RasterizerCache<T>::UploadCustomSurface(SurfaceId surface_id, SurfaceInterv
 
 template <class T>
 void RasterizerCache<T>::DownloadSurface(Surface& surface, SurfaceInterval interval) {
+    ++cache_epoch;
     MICROPROFILE_SCOPE(RasterizerCache_DownloadSurface);
 
     const SurfaceParams flush_info = surface.FromInterval(interval);
@@ -1585,6 +1590,7 @@ bool RasterizerCache<T>::ValidateByReinterpretation(Surface& surface, SurfacePar
 
 template <class T>
 void RasterizerCache<T>::ClearAll(bool flush) {
+    ++cache_epoch;
     const auto flush_interval = PageMap::interval_type::right_open(0x0, 0xFFFFFFFF);
     // Force flush all surfaces from the cache
     if (flush) {
@@ -1620,6 +1626,7 @@ void RasterizerCache<T>::FlushRegion(PAddr addr, u32 size, SurfaceId flush_surfa
     if (dirty_regions.empty() || dirty_regions.find(flush_interval) == dirty_regions.end()) {
         return;
     }
+    ++cache_epoch;
     SurfaceRegions flushed_intervals;
 
     for (const auto& [region, surface_id] : RangeFromInterval(dirty_regions, flush_interval)) {
@@ -1700,6 +1707,19 @@ void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region
     if (size == 0) [[unlikely]] {
         return;
     }
+    // GammaOS: every draw invalidates its render targets' drawn region again. When the region
+    // lies inside one this owner invalidated before, and nothing in the cache changed since
+    // (cache_epoch: validation, upload, download, flush, register, unregister, mirrors), the
+    // result is the same: the owner is valid there, every other surface is invalid there, the
+    // dirty region and the readable pages are set. Skip the repeat.
+    if (region_owner_id && fresh_fills.empty()) {
+        for (const InvalidateMemo& m : invalidate_memo) {
+            if (m.owner == region_owner_id && m.epoch == cache_epoch && addr >= m.lo &&
+                addr + size <= m.hi) {
+                return;
+            }
+        }
+    }
     // GammaOS stereo twins: a fill is no longer fresh once anything else writes into it.
     if (!fresh_fills.empty()) {
         std::erase_if(fresh_fills, [&](const FreshFill& f) {
@@ -1748,6 +1768,28 @@ void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region
     for (const SurfaceId surface_id : remove_surfaces) {
         UnregisterSurface(surface_id);
     }
+
+    // Memos this invalidation overlaps are no longer what they recorded.
+    const PAddr end = addr + size;
+    for (InvalidateMemo& m : invalidate_memo) {
+        if (m.lo < end && addr < m.hi) {
+            m.epoch = ~0ull;
+        }
+    }
+    if (region_owner_id) {
+        InvalidateMemo* slot = &invalidate_memo[0];
+        for (InvalidateMemo& m : invalidate_memo) {
+            if (m.owner == region_owner_id || m.epoch != cache_epoch) {
+                slot = &m;
+                break;
+            }
+        }
+        if (slot->owner != region_owner_id && slot->epoch == cache_epoch) {
+            // All slots live: replace round robin.
+            slot = &invalidate_memo[invalidate_memo_next++ % invalidate_memo.size()];
+        }
+        *slot = InvalidateMemo{addr, end, region_owner_id, cache_epoch};
+    }
 }
 
 template <class T>
@@ -1785,6 +1827,7 @@ SurfaceId RasterizerCache<T>::CreateSurface(const SurfaceParams& params,
 
 template <class T>
 void RasterizerCache<T>::RegisterSurface(SurfaceId surface_id) {
+    ++cache_epoch;
     Surface& surface = slot_surfaces[surface_id];
     ASSERT_MSG(False(surface.flags & SurfaceFlagBits::Registered),
                "Trying to register an already registered surface");
@@ -1797,6 +1840,7 @@ void RasterizerCache<T>::RegisterSurface(SurfaceId surface_id) {
 
 template <class T>
 void RasterizerCache<T>::UnregisterSurface(SurfaceId surface_id) {
+    ++cache_epoch;
     Surface& surface = slot_surfaces[surface_id];
     ASSERT_MSG(True(surface.flags & SurfaceFlagBits::Registered),
                "Trying to unregister an already unregistered surface");

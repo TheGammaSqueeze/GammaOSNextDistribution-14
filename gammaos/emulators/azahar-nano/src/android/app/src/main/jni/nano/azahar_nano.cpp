@@ -255,14 +255,18 @@ Core::System::ResultStatus RunCore(const std::string& filepath) {
     SCOPE_EXIT({ TryShutdown(); });
     SCOPE_EXIT({ system.GammaJitSave(); });
     auto last_jit_save = std::chrono::steady_clock::now();
+    u32 loop_count = 0;
     system.RegisterCoreLoopThreadId();
 
     while (!stop_run) {
         if (!pause_emulation) {
             const auto result = system.RunLoop();
             if (result == Core::System::ResultStatus::Success) {
-                // Keep the JIT warm-up lists current (a killed session keeps them).
-                if (std::chrono::steady_clock::now() - last_jit_save > std::chrono::seconds(30)) {
+                // Keep the JIT warm-up lists current (a killed session keeps them). RunLoop
+                // returns every slice, and a clock read is a syscall on some kernels, so look at
+                // the clock only every 1024 slices.
+                if ((++loop_count & 1023) == 0 &&
+                    std::chrono::steady_clock::now() - last_jit_save > std::chrono::seconds(30)) {
                     last_jit_save = std::chrono::steady_clock::now();
                     system.GammaJitSave();
                 }

@@ -1493,6 +1493,8 @@ bool RasterizerVulkan::AccelerateDisplay(const Pica::FramebufferConfig& config,
         (float)src_rect.top / (float)scaled_height, (float)src_rect.right / (float)scaled_width);
 
     screen_info.image_view = src_surface.ImageView();
+    screen_info.view_width = scaled_width;
+    screen_info.view_height = scaled_height;
 
     // Debug: persist.gammaos.azahar_nano.display_log=1 logs what each screen samples.
     static const bool dlog = [] {
@@ -1697,9 +1699,10 @@ void RasterizerVulkan::UploadUniforms(bool accelerate_draw) {
     }
 
     if (sync_vs_pica || invalidate) {
-        VSPicaUniformData vs_uniforms;
-        vs_uniforms.SetFromRegs(pica.vs_setup);
-        std::memcpy(uniforms + used_bytes, &vs_uniforms, sizeof(vs_uniforms));
+        // GammaOS: build the 1.6 KB block straight in the mapped buffer (this runs for most
+        // draws, as games change vertex shader uniforms per draw), not in a copy first.
+        static_assert(std::is_trivially_copyable_v<VSPicaUniformData>);
+        reinterpret_cast<VSPicaUniformData*>(uniforms + used_bytes)->SetFromRegs(pica.vs_setup);
         pipeline_cache.UpdateRange(0, offset + used_bytes);
         pica.vs_setup.uniforms_dirty = false;
         used_bytes += uniform_size_aligned_vs_pica;

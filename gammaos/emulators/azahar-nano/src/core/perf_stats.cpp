@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <sys/system_properties.h>
 #include <algorithm>
 #include <chrono>
 #include <iterator>
@@ -32,7 +33,18 @@ namespace Core {
 
 bool PerfStats::game_frames_updated = true;
 
-PerfStats::PerfStats(u64 title_id) : title_id(title_id) {}
+// GammaOS: the HLE SVC/IPC/GPU time split costs two clock reads per system call, and on
+// kernels where the clock is a real syscall (the RP Duo Lite's arm64 erratum workaround) that
+// was about 5% of the emulation thread in busy games. Only measured when asked for
+// (persist.gammaos.azahar_nano.hle_timing=1); otherwise those three times read 0.
+static bool DetailedTimingEnabled() {
+    char v[PROP_VALUE_MAX] = {};
+    __system_property_get("persist.gammaos.azahar_nano.hle_timing", v);
+    return v[0] == '1';
+}
+
+PerfStats::PerfStats(u64 title_id)
+    : title_id(title_id), detailed_timing(DetailedTimingEnabled()) {}
 
 PerfStats::~PerfStats() {
     if (!Settings::values.record_frame_times || title_id == 0) {
@@ -52,26 +64,32 @@ PerfStats::~PerfStats() {
 }
 
 void PerfStats::BeginSVCProcessing() {
+    if (!detailed_timing) return;
     start_svc_time = Clock::now();
 }
 
 void PerfStats::EndSVCProcessing() {
+    if (!detailed_timing) return;
     accumulated_svc_time += (Clock::now() - start_svc_time);
 }
 
 void PerfStats::BeginIPCProcessing() {
+    if (!detailed_timing) return;
     start_ipc_time = Clock::now();
 }
 
 void PerfStats::EndIPCProcessing() {
+    if (!detailed_timing) return;
     accumulated_ipc_time += (Clock::now() - start_ipc_time);
 }
 
 void PerfStats::BeginGPUProcessing() {
+    if (!detailed_timing) return;
     start_gpu_time = Clock::now();
 }
 
 void PerfStats::EndGPUProcessing() {
+    if (!detailed_timing) return;
     accumulated_gpu_time += (Clock::now() - start_gpu_time);
 }
 
