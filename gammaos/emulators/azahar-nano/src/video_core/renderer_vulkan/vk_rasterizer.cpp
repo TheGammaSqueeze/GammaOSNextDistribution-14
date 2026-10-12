@@ -1004,6 +1004,17 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         viewport.y + viewport.height,
     };
     pipeline_info.dynamic_info.scissor = draw_rect;
+    // GammaOS measurement (persist.gammaos.azahar_nano.scissor_test=1, picture WRONG): clip
+    // every draw to one pixel, leaving the vertex and per-draw GPU cost of the frame.
+    static const bool scissor_test = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.scissor_test", v);
+        return v[0] == '1';
+    }();
+    if (scissor_test) {
+        pipeline_info.dynamic_info.scissor.right = pipeline_info.dynamic_info.scissor.left + 1;
+        pipeline_info.dynamic_info.scissor.top = pipeline_info.dynamic_info.scissor.bottom + 1;
+    }
     {
         // Debug: persist.gammaos.azahar_nano.fb_log=1 logs render target geometry changes.
         static const bool fblog = [] {
