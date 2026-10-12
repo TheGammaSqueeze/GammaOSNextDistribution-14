@@ -42,6 +42,10 @@ set(HASH_FILES
     "${VIDEO_CORE}/pica/regs_internal.cpp"
     "${VIDEO_CORE}/pica/regs_internal.h"
 )
+# GammaOS: re-run this when a shader source file changes. Without it an incremental build
+# keeps the hash from the first configure, so every game reuses its cached shaders generated
+# by the old code (new generator features never reach a game with a cache).
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${HASH_FILES})
 set(COMBINED "")
 foreach (F IN LISTS HASH_FILES)
     file(READ ${F} TMP)
