@@ -208,6 +208,17 @@ double PerfStats::GetStableFrameTimeScale() const {
     return stable_previous_frame_length / FRAME_LENGTH;
 }
 
+void PerfStats::ResetFrameTiming() {
+    std::scoped_lock lock{object_mutex};
+
+    const auto now = Clock::now();
+    const auto nominal = duration_cast<Clock::duration>(DoubleSecs(FRAME_LENGTH));
+    frame_begin = now;
+    previous_frame_end = now;
+    previous_frame_length = nominal;
+    previous_previous_frame_length = nominal;
+}
+
 void FrameLimiter::WaitOnce() {
     if (frame_advancing_enabled) {
         // Frame advancing is enabled: wait on event instead of doing framelimiting

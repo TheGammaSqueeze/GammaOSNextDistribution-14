@@ -108,6 +108,14 @@ public:
      */
     double GetStableFrameTimeScale() const;
 
+    /**
+     * Forget the wall-clock frame timing across a pause. The time spent paused is not a
+     * frame: left in, the first frame after a long pause measures minutes, and the
+     * realtime-audio tick (which divides its period by this scale) then runs audio frames
+     * back to back with no emulation until two normal frames wash it out.
+     */
+    void ResetFrameTiming();
+
     void AddArticBaseTraffic(u32 bytes) {
         artic_transmitted += bytes;
     }

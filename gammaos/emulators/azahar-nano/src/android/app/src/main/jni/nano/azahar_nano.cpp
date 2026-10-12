@@ -280,6 +280,8 @@ Core::System::ResultStatus RunCore(const std::string& filepath) {
             Settings::values.volume = 0;
             std::unique_lock pause_lock{paused_mutex};
             running_cv.wait(pause_lock, [] { return !pause_emulation || stop_run; });
+            // The pause (device sleep, the in-game menu) is not emulated time.
+            system.ResetFrameTiming();
             window->PollEvents();
         }
     }

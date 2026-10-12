@@ -582,6 +582,12 @@ double System::GetStableFrameTimeScale() {
     return perf_stats->GetStableFrameTimeScale();
 }
 
+void System::ResetFrameTiming() {
+    if (perf_stats) {
+        perf_stats->ResetFrameTiming();
+    }
+}
+
 void System::Reschedule() {
     if (!curr_core_reschedule_pending) {
         return;

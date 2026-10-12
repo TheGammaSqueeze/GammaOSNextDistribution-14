@@ -196,6 +196,9 @@ public:
 
     double GetStableFrameTimeScale();
 
+    /// Drop the time spent paused from the frame timing (see PerfStats::ResetFrameTiming).
+    void ResetFrameTiming();
+
     /**
      * Gets a reference to the emulated CPU.
      * @returns A reference to the emulated CPU.
