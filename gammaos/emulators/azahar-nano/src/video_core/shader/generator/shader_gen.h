@@ -104,6 +104,11 @@ struct PicaVSConfigState {
     u64 swizzle_hash;
     u32 main_offset;
 
+    // GammaOS: the bool uniforms the program tests (mask) and their values, baked into the
+    // generated code so dead branches compile away. Zero when specialization is off.
+    u16 bool_mask;
+    u16 bool_values;
+
     u32 num_outputs;
 
     // output_map[output register index] -> output attribute index
@@ -132,6 +137,7 @@ struct PicaVSConfigState {
                                    // fields
                                    FIELD_HASH(lighting_disable), FIELD_HASH(program_hash),
                                    FIELD_HASH(swizzle_hash), FIELD_HASH(main_offset),
+                                   FIELD_HASH(bool_mask), FIELD_HASH(bool_values),
                                    FIELD_HASH(num_outputs), FIELD_HASH(output_map),
                                    FIELD_HASH(used_input_vertex_attributes),
                                    FIELD_HASH(input_vertex_attributes), FIELD_HASH(gs_state),

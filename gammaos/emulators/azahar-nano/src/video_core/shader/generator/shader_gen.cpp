@@ -9,6 +9,10 @@
 #include "video_core/pica/shader_setup.h"
 #include "video_core/shader/generator/shader_gen.h"
 
+#include <sys/system_properties.h>
+#include <unordered_map>
+#include <nihstro/shader_bytecode.h>
+
 namespace Pica::Shader::Generator {
 
 void PicaGSConfigState::Init(const Pica::RegsInternal& regs) {
@@ -44,11 +48,61 @@ std::array<PicaGSConfigState::SemanticMap, 24> PicaGSConfigState::GetSemanticMap
     return semantic_maps;
 }
 
+namespace {
+
+/// GammaOS: persist.gammaos.azahar_nano.vs_bool_spec=0 keeps bool uniforms as runtime branches.
+bool VsBoolSpecialization() {
+    static const bool enabled = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.vs_bool_spec", v);
+        return v[0] != '0';
+    }();
+    return enabled;
+}
+
+/// The bool uniforms a program's flow control tests (IFU, CALLU, JMPU), cached per program.
+u16 ReferencedBoolUniforms(const Pica::ShaderSetup& setup, u64 program_hash) {
+    static std::unordered_map<u64, u16> cache;
+    if (const auto it = cache.find(program_hash); it != cache.end()) {
+        return it->second;
+    }
+    using nihstro::Instruction;
+    using nihstro::OpCode;
+    u16 mask = 0;
+    for (const u32 word : setup.GetProgramCode()) {
+        const Instruction instr{.hex = word};
+        switch (instr.opcode.Value().EffectiveOpCode()) {
+        case OpCode::Id::IFU:
+        case OpCode::Id::CALLU:
+        case OpCode::Id::JMPU:
+            mask |= static_cast<u16>(1u << instr.flow_control.bool_uniform_id);
+            break;
+        default:
+            break;
+        }
+    }
+    cache.emplace(program_hash, mask);
+    return mask;
+}
+
+} // namespace
+
 void PicaVSConfigState::Init(const Pica::RegsInternal& regs, Pica::ShaderSetup& setup) {
     setup.DoProgramCodeFixup();
     program_hash = setup.GetProgramCodeHash();
     swizzle_hash = setup.GetSwizzleDataHash();
     main_offset = regs.vs.main_offset;
+
+    bool_mask = 0;
+    bool_values = 0;
+    if (VsBoolSpecialization()) {
+        bool_mask = ReferencedBoolUniforms(setup, program_hash);
+        for (u32 j = 0; j < setup.uniforms.b.size(); j++) {
+            if ((bool_mask >> j) & 1u && setup.uniforms.b[j]) {
+                bool_values |= static_cast<u16>(1u << j);
+            }
+        }
+    }
 
     lighting_disable = regs.lighting.disable;
 

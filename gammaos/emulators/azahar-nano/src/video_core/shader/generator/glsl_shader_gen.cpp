@@ -188,7 +188,8 @@ std::string GenerateVertexShader(const ShaderSetup& setup, const PicaVSConfig& c
 
     auto program_source =
         DecompileProgram(setup.GetProgramCode(), setup.GetSwizzleData(), config.state.main_offset,
-                         get_input_reg, get_output_reg, extra.sanitize_mul);
+                         get_input_reg, get_output_reg, extra.sanitize_mul,
+                         config.state.bool_mask, config.state.bool_values);
 
     if (program_source.empty()) {
         return "";

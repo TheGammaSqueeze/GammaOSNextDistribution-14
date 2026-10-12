@@ -19,6 +19,7 @@
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/renderer_vulkan/vk_shader_disk_cache.h"
 #include "video_core/renderer_vulkan/vk_gammaos_stats.h"
+#include "video_core/renderer_vulkan/vk_gammaos_gpu_timer.h"
 #include "video_core/renderer_vulkan/vk_shader_util.h"
 #include "video_core/shader/generator/glsl_fs_shader_gen.h"
 #include "video_core/shader/generator/glsl_shader_gen.h"
@@ -243,6 +244,16 @@ std::optional<std::pair<u64, Shader* const>> ShaderDiskCache::UseProgrammableVer
     }
 
     const auto config_hash = config.Hash();
+
+    if (GammaDump::d.active) {
+        // Frame dump: write each vertex shader used by the dumped frame once, for reading.
+        static std::vector<u64> written;
+        if (std::find(written.begin(), written.end(), config_hash) == written.end()) {
+            written.push_back(config_hash);
+            std::ofstream f(fmt::format("/data/system/azahar-nano/log/vs_{:016X}.glsl", config_hash));
+            f << GLSL::GenerateVertexShader(setup, config, parent.CalcExtraConfig(config));
+        }
+    }
 
     const auto [iter_config, new_config] = programmable_vertex_map.try_emplace(config_hash);
     if (new_config) {

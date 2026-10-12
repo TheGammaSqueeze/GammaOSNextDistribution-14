@@ -188,6 +188,7 @@ struct State {
     std::vector<Event> events;
     vk::Device device{};
     vk::QueryPool pool{};
+    vk::QueryPool tpool{};   // GPU timestamp after each draw (index 0 = before the first)
     bool precise = false;
     bool active = false;
     int empty_presents = 0;
@@ -225,6 +226,17 @@ inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise)
                                              vk::QueryResultFlagBits::e64 |
                                                  vk::QueryResultFlagBits::eWait);
         }
+        std::vector<std::uint64_t> ts(n + 1);
+        if (n > 0) {
+            (void)device.getQueryPoolResults(d.tpool, 0, n + 1, ts.size() * 8, ts.data(), 8,
+                                             vk::QueryResultFlagBits::e64 |
+                                                 vk::QueryResultFlagBits::eWait);
+        }
+        // A draw's time runs from the previous draw's end (or the first draw's start).
+        const auto draw_us = [&](std::uint32_t i) {
+            const std::uint64_t b = ts[i], e = ts[i + 1];
+            return e > b && b != 0 ? (e - b) * GammaGpu::g.period_ns / 1e3 : 0.0;
+        };
         std::uint64_t total = 0;
         for (auto s : samples) total += s;
         LOG_INFO(Render_Vulkan, "draw dump: {} draws, {} samples written in total", n, total);
@@ -236,10 +248,10 @@ inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise)
         for (std::uint32_t i = 0; i < n; i++) {
             const auto& x = d.draws[i];
             LOG_INFO(Render_Vulkan,
-                     "draw {:3}: samples {:8} ({:5.1f}%) rect {}x{} verts {} tex {:03b} fog {} "
+                     "draw {:3}: us {:7.1f} samples {:8} ({:5.1f}%) rect {}x{} verts {} tex {:03b} fog {} "
                      "light {} blend {} atest {} dtest {} | tex0 fmt {} {}x{} mag {} min {} "
                      "addr {:08X} | target {:08X} | lights {} luts {:06b} dist {:08b} spot {:08b} | fs {:016X}",
-                     i, samples[i], total ? 100.0 * samples[i] / total : 0.0, x.rect_w, x.rect_h,
+                     i, draw_us(i), samples[i], total ? 100.0 * samples[i] / total : 0.0, x.rect_w, x.rect_h,
                      x.vertices, x.tex_mask, x.fog, x.lighting, x.blend, x.alpha_test,
                      x.depth_test, x.tex0_fmt, x.tex0_w, x.tex0_h, x.tex0_mag, x.tex0_min,
                      x.tex0_addr, x.color_addr, x.lights, x.luts, x.dist_atten_mask,
@@ -254,12 +266,17 @@ inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise)
             .queryType = vk::QueryType::eOcclusion,
             .queryCount = State::kMax,
         });
+        d.tpool = device.createQueryPool(vk::QueryPoolCreateInfo{
+            .queryType = vk::QueryType::eTimestamp,
+            .queryCount = State::kMax + 1,
+        });
     }
     d.draws.clear();
     d.events.clear();
     d.empty_presents = 0;
-    scheduler.Record([pool = d.pool](vk::CommandBuffer cmdbuf) {
+    scheduler.Record([pool = d.pool, tpool = d.tpool](vk::CommandBuffer cmdbuf) {
         cmdbuf.resetQueryPool(pool, 0, State::kMax);
+        cmdbuf.resetQueryPool(tpool, 0, State::kMax + 1);
     });
     d.active = true;
     LOG_INFO(Render_Vulkan, "draw dump armed for the next frame (precise {})", precise);
@@ -278,13 +295,19 @@ inline int BeginDraw(Scheduler&, const DrawInfo& info) {
 
 // Called by the draw command's own recorded lambda.
 inline void QueryBegin(vk::CommandBuffer cmdbuf, vk::QueryPool pool, int idx, bool precise) {
+    if (idx == 0) {
+        cmdbuf.writeTimestamp(vk::PipelineStageFlagBits::eBottomOfPipe, d.tpool, 0);
+    }
     if (idx >= 0) {
         cmdbuf.beginQuery(pool, idx,
                           precise ? vk::QueryControlFlagBits::ePrecise : vk::QueryControlFlags{});
     }
 }
 inline void QueryEnd(vk::CommandBuffer cmdbuf, vk::QueryPool pool, int idx) {
-    if (idx >= 0) cmdbuf.endQuery(pool, idx);
+    if (idx >= 0) {
+        cmdbuf.endQuery(pool, idx);
+        cmdbuf.writeTimestamp(vk::PipelineStageFlagBits::eBottomOfPipe, d.tpool, idx + 1);
+    }
 }
 
 inline void Note(std::string text) {
