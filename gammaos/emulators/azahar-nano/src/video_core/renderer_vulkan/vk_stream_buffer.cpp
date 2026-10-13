@@ -160,7 +160,11 @@ void StreamBuffer::Reserve(u32 size) {
     if (offset + size > stream_buffer_size) {
         Map(size, 0); // wraps (and waits) here
         mapped_size = 0;
+        return;
     }
+    // Without a wrap the allocations that follow can still reach regions of the previous lap
+    // whose work is not submitted yet; waiting on them submits, so do it now, not inside them.
+    WaitPendingOperations(offset + size);
 }
 
 void StreamBuffer::Commit(u32 size) {
