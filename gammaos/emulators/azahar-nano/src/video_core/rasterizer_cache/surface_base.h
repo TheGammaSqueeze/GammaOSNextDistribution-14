@@ -69,6 +69,11 @@ public:
         modification_tick++;
     }
 
+    /// GammaOS: true when every byte of `interval` is already invalid.
+    bool IsRegionInvalid(SurfaceInterval interval) const {
+        return boost::icl::contains(invalid_regions, interval);
+    }
+
     void MarkInvalid(SurfaceInterval interval) {
         invalid_regions.insert(interval);
         modification_tick++;
