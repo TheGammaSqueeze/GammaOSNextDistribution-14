@@ -1822,6 +1822,7 @@ void RasterizerVulkan::UploadUniforms(bool accelerate_draw) {
 }
 
 void RasterizerVulkan::SwitchDiskResources(u64 title_id) {
+    Pica::Shader::Generator::SetVsBoolSpecializationTitle(title_id);
     VideoCore::AsyncGpuDrain(); // GammaOS async GPU: CPU-side access, wait for the worker
     std::atomic_bool stop_loading = false;
 

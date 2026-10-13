@@ -11,6 +11,8 @@
 
 #include <sys/system_properties.h>
 #include <unordered_map>
+#include <atomic>
+#include <array>
 #include <nihstro/shader_bytecode.h>
 
 namespace Pica::Shader::Generator {
@@ -50,25 +52,12 @@ std::array<PicaGSConfigState::SemanticMap, 24> PicaGSConfigState::GetSemanticMap
 
 namespace {
 
-/// GammaOS: persist.gammaos.azahar_nano.vs_bool_spec=1 bakes bool uniforms into the vertex
-/// shader (default off: Metroid at 2x ran 0.9 ms a frame slower with it, Kirby 0.5 ms faster).
-bool VsBoolSpecialization() {
-    static const bool enabled = [] {
-        char v[PROP_VALUE_MAX] = {};
-        __system_property_get("persist.gammaos.azahar_nano.vs_bool_spec", v);
-        return v[0] == '1';
-    }();
-    return enabled;
-}
+// GammaOS: the largest draw whose vertex shader gets its bool uniforms baked in (0 = none),
+// set per title by SetVsBoolSpecializationTitle.
+std::atomic<u32> g_vs_spec_max_vertices{0};
 
-/// persist.gammaos.azahar_nano.vs_bool_spec_max_verts: the largest draw specialized (default 64).
 u32 VsBoolSpecMaxVertices() {
-    static const u32 max_vertices = [] {
-        char v[PROP_VALUE_MAX] = {};
-        __system_property_get("persist.gammaos.azahar_nano.vs_bool_spec_max_verts", v);
-        return v[0] ? static_cast<u32>(atoi(v)) : 64u;
-    }();
-    return max_vertices;
+    return g_vs_spec_max_vertices.load(std::memory_order_relaxed);
 }
 
 /// The bool uniforms a program's flow control tests (IFU, CALLU, JMPU), cached per program.
@@ -109,7 +98,7 @@ void PicaVSConfigState::Init(const Pica::RegsInternal& regs, Pica::ShaderSetup& 
     // Small draws only: there the GPU pays the program's run time for a handful of vertices
     // and the specialized program is shorter. On large meshes the specialized program ran
     // slower (Metroid at 2x: +4.7 ms a frame), so they keep the generic one.
-    if (VsBoolSpecialization() && regs.pipeline.num_vertices <= VsBoolSpecMaxVertices()) {
+    if (regs.pipeline.num_vertices <= VsBoolSpecMaxVertices()) {
         bool_mask = ReferencedBoolUniforms(setup, program_hash);
         for (u32 j = 0; j < setup.uniforms.b.size(); j++) {
             if ((bool_mask >> j) & 1u && setup.uniforms.b[j]) {
@@ -128,6 +117,43 @@ void PicaVSConfigState::Init(const Pica::RegsInternal& regs, Pica::ShaderSetup& 
     }
 
     gs_state.Init(regs);
+}
+
+void SetVsBoolSpecializationTitle(u64 title_id) {
+    // Whether the specialized programs are faster depends on the game: shorter for Kirby's
+    // hundreds of small draws and Senran Kagura's skinned characters (2.4 ms of GPU time a
+    // frame at 1x), slower on Metroid's large meshes (0.9-4.7 ms at 2x).
+    struct Entry {
+        u64 title_id;
+        u32 max_vertices;
+    };
+    static constexpr std::array<Entry, 3> table{{
+        {0x00040000000F4500, 0xFFFFFFFF}, // Senran Kagura Burst (Europe)
+        {0x0004000000183600, 64},         // Kirby: Planet Robobot (USA)
+    }};
+    u32 max_vertices = 0;
+    for (const Entry& e : table) {
+        if (e.title_id == title_id && e.title_id != 0) {
+            max_vertices = e.max_vertices;
+        }
+    }
+    // persist.gammaos.azahar_nano.vs_bool_spec = 1 / 0 forces it on / off for every title;
+    // vs_bool_spec_max_verts sets the largest draw specialized when on.
+    char v[PROP_VALUE_MAX] = {};
+    __system_property_get("persist.gammaos.azahar_nano.vs_bool_spec", v);
+    if (v[0] == '0') {
+        max_vertices = 0;
+    } else if (v[0] == '1' && max_vertices == 0) {
+        max_vertices = 64;
+    }
+    char m[PROP_VALUE_MAX] = {};
+    __system_property_get("persist.gammaos.azahar_nano.vs_bool_spec_max_verts", m);
+    if (m[0] && max_vertices != 0) {
+        max_vertices = static_cast<u32>(atoi(m));
+    }
+    g_vs_spec_max_vertices.store(max_vertices, std::memory_order_relaxed);
+    LOG_INFO(Render, "vertex shader bool specialization for {:016X}: up to {} vertices",
+             title_id, max_vertices);
 }
 
 PicaVSConfig::PicaVSConfig(const Pica::RegsInternal& regs, Pica::ShaderSetup& setup) {

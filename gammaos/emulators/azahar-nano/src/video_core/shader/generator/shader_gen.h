@@ -96,6 +96,9 @@ struct PicaGSConfigState {
  * This struct contains common information to identify a GLSL vertex shader generated from
  * PICA vertex shader.
  */
+/// GammaOS: picks the vertex shader bool specialization for the game being loaded.
+void SetVsBoolSpecializationTitle(u64 title_id);
+
 struct PicaVSConfigState {
     void Init(const Pica::RegsInternal& regs, Pica::ShaderSetup& setup);
 
