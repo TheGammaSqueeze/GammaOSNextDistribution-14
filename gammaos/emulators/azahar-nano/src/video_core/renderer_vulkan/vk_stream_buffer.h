@@ -52,6 +52,11 @@ public:
     /// a wrap inside one may have to submit (to wait for reused data) and end the pass.
     void Reserve(u32 size);
 
+    /// GammaOS debug: the host view of the buffer.
+    const u8* MappedBase() const noexcept {
+        return mapped;
+    }
+
     /// Ensures that "size" bytes of memory are available to the GPU, potentially recording a copy.
     void Commit(u32 size);
 

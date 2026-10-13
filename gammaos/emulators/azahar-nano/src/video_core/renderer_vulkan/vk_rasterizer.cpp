@@ -441,6 +441,37 @@ void RasterizerVulkan::SetupVertexArray() {
                         aligned_stride;
             const auto it = vertex_cache.find(cache_key);
             if (it != vertex_cache.end() && it->second.hash == data_hash) {
+                // Debug: persist.gammaos.azahar_nano.vtx_cache_verify=1 compares the reused
+                // copy with the game's data byte for byte and counts any difference.
+                static const bool verify = [] {
+                    char v[PROP_VALUE_MAX] = {};
+                    __system_property_get("persist.gammaos.azahar_nano.vtx_cache_verify", v);
+                    return v[0] == '1';
+                }();
+                if (verify) {
+                    static u64 checked = 0, bad = 0;
+                    const u8* copy = stream_buffer.MappedBase() + it->second.offset;
+                    bool same = true;
+                    if (aligned_stride == loader.byte_count) {
+                        same = std::memcmp(copy, src_ptr, data_size) == 0;
+                    } else {
+                        for (u32 v = 0; v < vertex_num && same; v++) {
+                            same = std::memcmp(copy + v * aligned_stride,
+                                               src_ptr + v * loader.byte_count,
+                                               loader.byte_count) == 0;
+                        }
+                    }
+                    ++checked;
+                    if (!same) {
+                        ++bad;
+                        LOG_ERROR(Render_Vulkan, "vertex cache: stale copy at {:X} for {:08X}+{}",
+                                  it->second.offset, data_addr, data_size);
+                    }
+                    if ((checked & 4095) == 0) {
+                        LOG_INFO(Render_Vulkan, "vertex cache verify: {} reuses checked, {} stale",
+                                 checked, bad);
+                    }
+                }
                 VertexBinding& binding = layout.bindings[layout.binding_count];
                 binding.binding.Assign(layout.binding_count);
                 binding.fixed.Assign(0);
