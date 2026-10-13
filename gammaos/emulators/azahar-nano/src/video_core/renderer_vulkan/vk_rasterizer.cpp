@@ -421,12 +421,11 @@ void RasterizerVulkan::SetupVertexArray() {
         // draw uploaded in the current lap of the stream buffer, bind that copy instead of
         // copying again (static meshes drawn every frame, like skinned characters whose
         // bones change only the uniforms).
-        // persist.gammaos.azahar_nano.vtx_cache=1 turns it on (off by default while flicker
-        // reports are checked).
+        // persist.gammaos.azahar_nano.vtx_cache=0 turns it off.
         static const bool vtx_cache = [] {
             char v[PROP_VALUE_MAX] = {};
             __system_property_get("persist.gammaos.azahar_nano.vtx_cache", v);
-            return v[0] == '1';
+            return v[0] != '0';
         }();
         constexpr u32 MinCachedBytes = 1024;
         u64 data_hash = 0;
