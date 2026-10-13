@@ -535,11 +535,11 @@ bool RasterizerVulkan::AccelerateDrawBatch(bool is_indexed) {
     // it has (5-7 us for Kirby's long programs on the Adreno 610). Draws of at most this many
     // vertices run their vertex shader on the CPU instead (its JIT takes well under a
     // microsecond for a quad) and reach the GPU with the trivial vertex shader.
-    // persist.gammaos.azahar_nano.sw_small_verts = the limit (default 6, a quad; 0 = off).
+    // persist.gammaos.azahar_nano.sw_small_verts = the limit (default 0 = off; 6 = quads).
     static const u32 sw_small_verts = [] {
         char v[PROP_VALUE_MAX] = {};
         __system_property_get("persist.gammaos.azahar_nano.sw_small_verts", v);
-        return v[0] ? static_cast<u32>(atoi(v)) : 6u;
+        return static_cast<u32>(atoi(v));
     }();
     if (regs.pipeline.num_vertices <= sw_small_verts &&
         regs.pipeline.use_gs == Pica::PipelineRegs::UseGS::No) {
