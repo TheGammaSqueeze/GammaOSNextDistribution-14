@@ -10,7 +10,9 @@
 #include <mutex>
 #include <fstream>
 #include <chrono>
+#include <map>
 #include <string>
+#include <string_view>
 
 #include <android/log.h>
 #include <android/native_window.h>
@@ -624,6 +626,26 @@ int azn_set_config_value(const char* section, const char* key, const char* value
                         lines.size(), written ? "replaced" : "appended", path.c_str(),
                         ok ? "" : " WRITE FAILED");
     return ok ? AZN_OK : AZN_ERROR_OTHER;
+}
+
+void azn_set_config_overrides(const char* lines) {
+    std::map<std::string, std::string> values;
+    std::size_t count = 0;
+    if (lines) {
+        std::string_view rest{lines};
+        while (!rest.empty()) {
+            const std::size_t nl = rest.find('\n');
+            std::string_view line = rest.substr(0, nl);
+            rest = nl == std::string_view::npos ? std::string_view{} : rest.substr(nl + 1);
+            if (!line.empty() && line.back() == '\r') line.remove_suffix(1);
+            const std::size_t eq = line.find('=');
+            if (eq == std::string_view::npos || eq == 0) continue;
+            values[std::string(line.substr(0, eq))] = std::string(line.substr(eq + 1));
+            ++count;
+        }
+    }
+    ConfigReader::SetOverrides(std::move(values));
+    __android_log_print(ANDROID_LOG_INFO, AZN_TAG, "config overrides: %zu keys", count);
 }
 
 void azn_reload_settings(void) {

@@ -2,7 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
 #include <iomanip>
+#include <mutex>
 #include <memory>
 #include <ranges>
 #include <sstream>
@@ -25,13 +29,95 @@
 #include "jni/default_ini.h"
 #include "jni/input_manager.h"
 
+namespace {
+std::mutex g_override_mutex;
+std::map<std::string, std::string> g_overrides; // "Section/key" -> value
+} // namespace
+
+ConfigReader::ConfigReader(const char* buffer, std::size_t size)
+    : ini(std::make_unique<INIReader>(buffer, size)) {}
+
+ConfigReader::~ConfigReader() = default;
+
+void ConfigReader::SetOverrides(std::map<std::string, std::string> values) {
+    std::lock_guard lock{g_override_mutex};
+    g_overrides = std::move(values);
+}
+
+const std::string* ConfigReader::Override(const std::string& section,
+                                          const std::string& name) const {
+    std::lock_guard lock{g_override_mutex};
+    const auto it = g_overrides.find(section + "/" + name);
+    if (it == g_overrides.end() || it->second.empty()) {
+        return nullptr;
+    }
+    return &it->second;
+}
+
+int ConfigReader::ParseError() const {
+    return ini->ParseError();
+}
+
+std::string ConfigReader::Get(const std::string& section, const std::string& name,
+                              const std::string& default_value) const {
+    if (const std::string* v = Override(section, name)) {
+        return *v;
+    }
+    return ini->Get(section, name, default_value);
+}
+
+std::string ConfigReader::GetString(const std::string& section, const std::string& name,
+                                    const std::string& default_value) const {
+    if (const std::string* v = Override(section, name)) {
+        return *v;
+    }
+    return ini->GetString(section, name, default_value);
+}
+
+long ConfigReader::GetInteger(const std::string& section, const std::string& name,
+                              long default_value) const {
+    if (const std::string* v = Override(section, name)) {
+        char* end = nullptr;
+        const long n = std::strtol(v->c_str(), &end, 0);
+        return end != v->c_str() ? n : default_value;
+    }
+    return ini->GetInteger(section, name, default_value);
+}
+
+double ConfigReader::GetReal(const std::string& section, const std::string& name,
+                             double default_value) const {
+    if (const std::string* v = Override(section, name)) {
+        char* end = nullptr;
+        const double n = std::strtod(v->c_str(), &end);
+        return end != v->c_str() ? n : default_value;
+    }
+    return ini->GetReal(section, name, default_value);
+}
+
+bool ConfigReader::GetBoolean(const std::string& section, const std::string& name,
+                              bool default_value) const {
+    if (const std::string* v = Override(section, name)) {
+        std::string lower = *v;
+        std::transform(lower.begin(), lower.end(), lower.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        if (lower == "true" || lower == "yes" || lower == "on" || lower == "1") {
+            return true;
+        }
+        if (lower == "false" || lower == "no" || lower == "off" || lower == "0") {
+            return false;
+        }
+        return default_value;
+    }
+    return ini->GetBoolean(section, name, default_value);
+}
+
 Config::Config() {
     // TODO: Don't hardcode the path; let the frontend decide where to put the config files.
     android_config_loc = FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) + "config.ini";
     std::string ini_buffer;
     FileUtil::ReadFileToString(true, android_config_loc, ini_buffer);
     if (!ini_buffer.empty()) {
-        android_config = std::make_unique<INIReader>(ini_buffer.c_str(), ini_buffer.size());
+        android_config = std::make_unique<ConfigReader>(ini_buffer.c_str(), ini_buffer.size());
     }
 
     Reload();
@@ -49,7 +135,7 @@ bool Config::LoadINI(const std::string& default_contents, bool retry) {
             std::string ini_buffer;
             FileUtil::ReadFileToString(true, location, ini_buffer);
             android_config =
-                std::make_unique<INIReader>(ini_buffer.c_str(), ini_buffer.size()); // Reopen file
+                std::make_unique<ConfigReader>(ini_buffer.c_str(), ini_buffer.size()); // Reopen file
 
             return LoadINI(default_contents, false);
         }

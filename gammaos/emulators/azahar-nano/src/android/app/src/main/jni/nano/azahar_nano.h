@@ -157,6 +157,11 @@ void azn_reload_settings(void);
 // append), for the overlay menu. Returns an azn_result.
 int azn_set_config_value(const char* section, const char* key, const char* value);
 
+// GammaOS per-game settings: "Section/key=value" lines laid over config.ini for every
+// following load of the settings (azn_run, azn_reload_settings). An empty string removes
+// them. config.ini is never written by this.
+void azn_set_config_overrides(const char* lines);
+
 // Input. Returns true when the core consumed the event.
 bool azn_button(int button, bool pressed);
 bool azn_joystick(int axis_button, float x, float y);
