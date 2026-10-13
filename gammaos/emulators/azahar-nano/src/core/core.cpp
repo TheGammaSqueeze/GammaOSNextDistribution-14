@@ -1162,7 +1162,30 @@ void System::GammaJitWarm() {
     }
 }
 
+#if defined(GAMMAOS_PGO_GENERATE)
+extern "C" int __llvm_profile_write_file(void);
+extern "C" void __llvm_profile_reset_counters(void);
+#endif
+
 void System::GammaJitMapPoll() {
+#if defined(GAMMAOS_PGO_GENERATE)
+    // PGO profiling build: sys.gammaos.azahar_nano.pgo_dump=1 adds the counters so far to the
+    // profile in /data/local/tmp/azpgo and starts counting again (the process is usually
+    // killed, so the exit-time write never happens).
+    {
+        static u32 pgo_polls = 0;
+        if ((pgo_polls++ % 30) == 0) {
+            char v[PROP_VALUE_MAX] = {};
+            if (__system_property_get("sys.gammaos.azahar_nano.pgo_dump", v) > 0 && v[0] == '1') {
+                __system_property_set("sys.gammaos.azahar_nano.pgo_dump", "");
+                const int r = __llvm_profile_write_file();
+                __llvm_profile_reset_counters();
+                LOG_INFO(Core, "PGO profile written ({})", r);
+            }
+        }
+    }
+#endif
+
     // Debug: sys.gammaos.azahar_nano.jitmap=1 writes the JIT block map of each core (host code
     // address -> guest PC) to the log folder, to attribute host profiler samples to guest code.
     {

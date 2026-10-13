@@ -75,10 +75,30 @@ if [ -z "$CMAKE" ]; then
     fi
 fi
 
-# --- Configure (once) and build --------------------------------------------------
-if [ ! -f "$BUILD/build.ninja" ]; then
-    echo "azahar-nano: configuring"
+# --- Profile-guided optimization ----------------------------------------------------
+# AZAHAR_NANO_PGO=generate builds an instrumented core into out/azahar-nano/build-pgogen
+# (installed to out/azahar-nano/pgogen-lib, never into the shipped prebuilts) that writes
+# its profile to /data/local/tmp/azpgo on the device (sys.gammaos.azahar_nano.pgo_dump=1).
+# Otherwise, when gammaos/pgo/azahar-nano.profdata exists the core is optimized with it.
+PGO_MODE="${AZAHAR_NANO_PGO:-use}"
+PGO_PROFILE="$SRC/gammaos/pgo/azahar-nano.profdata"
+EXTRA_FLAGS=""
+if [ "$PGO_MODE" = "generate" ]; then
+    BUILD="$WORK/build-pgogen"
+    DEST="$WORK/pgogen-lib"
+    EXTRA_FLAGS="-fprofile-generate=/data/local/tmp/azpgo -DGAMMAOS_PGO_GENERATE=1"
+elif [ "$PGO_MODE" = "use" ] && [ -f "$PGO_PROFILE" ]; then
+    EXTRA_FLAGS="-fprofile-use=$PGO_PROFILE -Wno-profile-instr-out-of-date -Wno-profile-instr-unprofiled -Wno-backend-plugin"
+fi
+
+# --- Configure (when new or the flags changed) and build ----------------------------
+FLAGS_STAMP="$BUILD/.gammaos_extra_flags"
+if [ ! -f "$BUILD/build.ninja" ] || [ "$(cat "$FLAGS_STAMP" 2>/dev/null)" != "$EXTRA_FLAGS" ]; then
+    echo "azahar-nano: configuring (extra flags: ${EXTRA_FLAGS:-none})"
     "$CMAKE" -S "$SRC" -B "$BUILD" -G Ninja \
+        -DCMAKE_C_FLAGS="$EXTRA_FLAGS" \
+        -DCMAKE_CXX_FLAGS="$EXTRA_FLAGS" \
+        -DCMAKE_SHARED_LINKER_FLAGS="$EXTRA_FLAGS" \
         -DCMAKE_MAKE_PROGRAM="$NINJA" \
         -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
         -DANDROID_ABI=arm64-v8a \
@@ -96,6 +116,8 @@ if [ ! -f "$BUILD/build.ninja" ]; then
         -DENABLE_FFMPEG_VIDEO_DUMPER=OFF \
         -DENABLE_COMPATIBILITY_LIST_DOWNLOAD=OFF \
         -DCITRA_WARNINGS_AS_ERRORS=OFF
+    mkdir -p "$BUILD"
+    printf '%s' "$EXTRA_FLAGS" > "$FLAGS_STAMP"
 fi
 
 echo "azahar-nano: building the core (${JOBS} jobs)"
