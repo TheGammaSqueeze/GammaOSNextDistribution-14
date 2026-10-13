@@ -46,6 +46,7 @@
 #include <log/log.h>
 
 #include "AzaharNanoApi.h"
+#include "AzaharSettings.h"
 #include "NanoInput.h"
 #include "SfWindows.h"
 #include "DrmWindows.h"
@@ -100,6 +101,7 @@ struct CoreApi {
     int (*shader_cache_rebuilding)() = nullptr;   // optional (newer cores)
     void (*set_screen_aa)(int) = nullptr;         // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
+    void (*set_config_overrides)(const char*) = nullptr;   // optional (older cores)
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
 
@@ -195,6 +197,8 @@ bool loadCore(const std::string& path) {
         reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_screen_aa"));
     ok &= sym(gCore.set_user_folder, "azn_set_user_folder");
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
+    gCore.set_config_overrides =
+        reinterpret_cast<void (*)(const char*)>(dlsym(gCore.handle, "azn_set_config_overrides"));
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
         ALOGE("core ABI %d, expected %d", gCore.abi_version(), AZN_ABI_VERSION);
         ok = false;
@@ -289,10 +293,28 @@ std::string configValue(const std::string& userDir, const char* section, const c
     return "";
 }
 
+// Every frontend setting read goes through the per-game override layer (AzaharSettings.h):
+// an azahar_nano key the game's override holds comes from the file.
 std::string prop(const char* name, const char* def) {
     char v[PROPERTY_VALUE_MAX] = {};
-    property_get(name, v, def);
+    azahar_nano::settings::get(name, v, def);
     return v;
+}
+
+// A config.ini value as the running game sees it: the per-game override first, then the
+// file. seedConfig and the override snapshot read the file itself (configValue).
+std::string configGet(const char* section, const char* key) {
+    std::string v;
+    if (azahar_nano::settings::configLookup(section, key, &v)) return v;
+    return configValue(gUserDir, section, key);
+}
+
+// The core lays the override's config.ini keys over config.ini whenever it loads its
+// settings; hand it the current set (empty when no override is active).
+void pushConfigOverrides() {
+    if (gCore.set_config_overrides) {
+        gCore.set_config_overrides(azahar_nano::settings::overridesText().c_str());
+    }
 }
 
 // Re-assert the user's clock policy (persist.gammaos.performance_mode) through the
@@ -573,7 +595,7 @@ static void dynResTick(double speed, bool menuOpen,
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     const int64_t nowS = ts.tv_sec;
-    const int base = atoi(configValue(gUserDir, "Renderer", "resolution_factor").c_str());
+    const int base = atoi(configGet("Renderer", "resolution_factor").c_str());
     const bool on = prop("persist.gammaos.azahar_nano.dynres", "0") == "1" && base > 1 &&
                     gCore.set_resolution != nullptr;
     const auto userShaders = [&] {
@@ -685,6 +707,29 @@ int main(int argc, char** argv) {
     const std::string coreLib = prop("persist.gammaos.azahar_nano.core", kCoreLibDefault);
     const std::string userDir = prop("persist.gammaos.azahar_nano.user_dir", kUserDirDefault);
     gUserDir = userDir;
+    // Saves, save states, cheats, dumps and mods live in the user folder (the Game
+    // Settings "Azahar Data Folder" row, persist.gammaos.azahar.data_dir); everything
+    // else stays in the private root. When both point at the same place (a user who
+    // keeps a whole Azahar user directory, e.g. the stock app's) nothing moves.
+    const std::string dataDir = prop("persist.gammaos.azahar.data_dir", kDataDirDefault);
+    // Per-game settings override (AzaharSettings.h): <user folder>/overrides/<rom base>.cfg.
+    // When it exists it is the source of truth for every setting it holds from here on;
+    // the global properties and config.ini are neither read for those keys nor written.
+    {
+        const size_t slash = rom.find_last_of('/');
+        std::string base = slash == std::string::npos ? rom : rom.substr(slash + 1);
+        const size_t dot = base.find_last_of('.');
+        if (dot != std::string::npos && dot > 0) base = base.substr(0, dot);
+        azahar_nano::settings::setOverridePath(dataDir + "/overrides/" + base + ".cfg");
+        if (!azahar_nano::settings::load()) {
+            if (azahar_nano::settings::overrideUnreadable()) {
+                ALOGW("per-game override for %s is unreadable (%s), global settings apply this session",
+                      base.c_str(), azahar_nano::settings::overrideError().c_str());
+            } else {
+                ALOGI("no per-game override for %s, global settings apply", base.c_str());
+            }
+        }
+    }
     const std::string backend = prop("persist.gammaos.azahar_nano.backend", "sf");
     ALOGI("rom=%s core=%s user=%s backend=%s", rom.c_str(), coreLib.c_str(), userDir.c_str(),
           backend.c_str());
@@ -707,11 +752,6 @@ int main(int argc, char** argv) {
         sessionDone();
         return 1;
     }
-    // Saves, save states, cheats, dumps and mods live in the user folder (the Game
-    // Settings "Azahar Data Folder" row, persist.gammaos.azahar.data_dir); everything
-    // else stays in the private root. When both point at the same place (a user who
-    // keeps a whole Azahar user directory, e.g. the stock app's) nothing moves.
-    const std::string dataDir = prop("persist.gammaos.azahar.data_dir", kDataDirDefault);
     if (dataDir != userDir) {
         mkdir(dataDir.c_str(), 0775);
         migrateStrandedUserFolder(userDir, dataDir);
@@ -790,13 +830,13 @@ int main(int argc, char** argv) {
         // display plane does the single upscale to the panel. Only for the default
         // one-screen-per-panel layout, where each panel shows exactly one 3DS screen.
         if (prop("persist.gammaos.azahar_nano.tweaks", "1") == "1" &&
-            configValue(userDir, "Layout", "layout_option") == "1") {
-            const int factor = atoi(configValue(userDir, "Renderer", "resolution_factor").c_str());
+            configGet("Layout", "layout_option") == "1") {
+            const int factor = atoi(configGet("Renderer", "resolution_factor").c_str());
             // A panel whose screen has an LCD shader draws at least 3 output pixels per 3DS
             // pixel (720 short side) so the grid lands on whole pixels before the plane's
             // upscale. Full panel resolution cost ~8 fps on the Duo Lite top panel (memory
             // bandwidth), 720 costs nothing measurable, 960 cost ~4 fps.
-            const bool swap = configValue(userDir, "Layout", "swap_screen") == "true";
+            const bool swap = configGet("Layout", "swap_screen") == "true";
             const bool lcd[2] = {
                 atoi(prop("persist.gammaos.azahar_nano.lcd_top", "0").c_str()) > 0,
                 atoi(prop("persist.gammaos.azahar_nano.lcd_bottom", "0").c_str()) > 0};
@@ -896,14 +936,37 @@ int main(int argc, char** argv) {
             gCore.stop();
         };
         oa.setConfig = [](const char* sec, const char* key, const char* val) {
-            gCore.set_config_value(sec, key, val);
+            // With an override active the value goes to the override file, never to
+            // config.ini; the core sees it at the reload that follows.
+            if (azahar_nano::settings::setConfig(sec, key, val)) pushConfigOverrides();
+            else gCore.set_config_value(sec, key, val);
         };
         oa.reloadSettings = [] { gCore.reload_settings(); };
-        oa.setProp = [](const char* p, const char* v) { property_set(p, v); };
+        oa.setProp = [](const char* p, const char* v) { azahar_nano::settings::set(p, v); };
         oa.getProp = [](const char* p, const char* d) { return prop(p, d); };
         static std::string sUserDir;
         sUserDir = userDir;
-        oa.getConfig = [](const char* sec, const char* key) { return configValue(sUserDir, sec, key); };
+        oa.getConfig = [](const char* sec, const char* key) { return configGet(sec, key); };
+        oa.getGlobalConfig = [](const char* sec, const char* key) {
+            return configValue(sUserDir, sec, key);
+        };
+        oa.overrideChanged = [] {
+            // An override was created or deleted: the core reloads its settings with (or
+            // without) the override's config keys, and the frontend side re-applies what
+            // it keeps live.
+            pushConfigOverrides();
+            gCore.reload_settings();
+            if (sInput) {
+                sInput->setNintendoLayout(
+                    azahar_nano::settings::getBool("persist.gammaos.azahar_nano.nintendo_layout", false));
+            }
+            if (sOa.setLcdShader) {
+                sOa.setLcdShader(0, atoi(prop("persist.gammaos.azahar_nano.lcd_top", "0").c_str()));
+                sOa.setLcdShader(1, atoi(prop("persist.gammaos.azahar_nano.lcd_bottom", "0").c_str()));
+            }
+            if (sOa.setScreenAa) sOa.setScreenAa(prop("persist.gammaos.azahar_nano.screen_aa", "0") == "1");
+            gDynResSettle = 5;
+        };
         oa.setNintendoLayout = [](bool on) { if (sInput) sInput->setNintendoLayout(on); };
         oa.setScreenAa = [](bool on) {
             if (gCore.set_screen_aa) gCore.set_screen_aa(on ? 1 : 0);
@@ -912,7 +975,7 @@ int main(int argc, char** argv) {
             if (gCore.set_lcd_shader) gCore.set_lcd_shader(screen, shader);
             // The panel showing this screen switches to its LCD (or plain) buffer size now.
             if (!sDrm) return;
-            const bool swap = configValue(sUserDir, "Layout", "swap_screen") == "true";
+            const bool swap = configGet("Layout", "swap_screen") == "true";
             const int panel = swap ? 1 - screen : screen;
             if (panel < sDrm->count() && sDrm->setLcdOutput(panel, shader > 0) &&
                 gCore.windows_resized) {
@@ -1320,6 +1383,7 @@ int main(int argc, char** argv) {
     // show, so keep it ahead of the core's own worker threads in the scheduler.
     if (setpriority(PRIO_PROCESS, 0, -10) != 0) ALOGW("setpriority failed: %s", strerror(errno));
     ALOGI("running %s on %d panel(s) via %s", rom.c_str(), panels, drmActive ? "drm" : "sf");
+    pushConfigOverrides();
     const int result = gCore.run(rom.c_str());
     gExitRequested = true;
     perfThread.join();
@@ -1332,6 +1396,7 @@ int main(int argc, char** argv) {
     gCore.set_windows(nullptr, nullptr);
     if (drmActive) drm.teardown();
     else sf.teardown();
+    azahar_nano::settings::flush();
     sessionDone();
     // Leave without running static destructors: a library thread can still be running at
     // this point (the core's audio backend, log and worker threads), and destroying a

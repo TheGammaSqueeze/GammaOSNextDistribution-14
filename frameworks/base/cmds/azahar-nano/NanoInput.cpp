@@ -4,6 +4,7 @@
 
 #include <utility>
 #include "AzaharNanoApi.h"
+#include "AzaharSettings.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -38,7 +39,7 @@ constexpr int64_t kBackLongPressNs = 1500LL * 1000000LL;
 
 bool NanoInput::start(const InputCallbacks& cb, bool dualPanel, int defaultPanel) {
     mCb = cb;
-    mNintendoLayout = property_get_bool("persist.gammaos.azahar_nano.nintendo_layout", false);
+    mNintendoLayout = settings::getBool("persist.gammaos.azahar_nano.nintendo_layout", false);
     mDualPanel = dualPanel;
     mDefaultPanel = defaultPanel;
     char v[PROPERTY_VALUE_MAX] = {};

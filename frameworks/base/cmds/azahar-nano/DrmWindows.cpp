@@ -1,6 +1,7 @@
 #define LOG_TAG "azahar-nano"
 
 #include "DrmWindows.h"
+#include "AzaharSettings.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -455,8 +456,8 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
     // framebuffer then carries the QCOM compression modifier (importFb).
     p.bufUsage = GRALLOC_USAGE_HW_COMPOSER | GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_HW_TEXTURE;
     // Part of the GammaOS tweaks (on by default); the ubwc property overrides it.
-    const bool tweaks = property_get_bool("persist.gammaos.azahar_nano.tweaks", true);
-    if (!property_get_bool("persist.gammaos.azahar_nano.ubwc", tweaks)) {
+    const bool tweaks = settings::getBool("persist.gammaos.azahar_nano.tweaks", true);
+    if (!settings::getBool("persist.gammaos.azahar_nano.ubwc", tweaks)) {
         p.bufUsage |= GRALLOC_USAGE_SW_READ_RARELY;
     }
     p.consumer = new BufferItemConsumer(consumer, p.bufUsage, 2 + kMaxReady, false);
@@ -466,7 +467,7 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
     // the GPU skips most of the full-panel output pass.
     // persist.gammaos.azahar_nano.render_scale_top / _bottom: percent, 50..100.
     {
-        const int pct = std::clamp(property_get_int32(idx == 0 ? "persist.gammaos.azahar_nano.render_scale_top"
+        const int pct = std::clamp(settings::getInt(idx == 0 ? "persist.gammaos.azahar_nano.render_scale_top"
                                                                : "persist.gammaos.azahar_nano.render_scale_bottom",
                                                       100), 50, 100);
         const uint32_t shortSide = std::min(p.width, p.height);
@@ -1181,11 +1182,11 @@ void DrmWindows::panelLoop(int idx) {
 }
 
 int DrmWindows::create() {
-    mMinimalFlips = property_get_bool("persist.gammaos.azahar_nano.drm_minimal", true);
+    mMinimalFlips = settings::getBool("persist.gammaos.azahar_nano.drm_minimal", true);
     if (!openDevice() || !enumerate()) return 0;
     // Optional 180 degree correction for the DSI panel (plane reflect x+y).
     char rot[PROPERTY_VALUE_MAX] = {};
-    property_get("persist.gammaos.azahar_nano.drm_top_rot180", rot, "0");
+    settings::get("persist.gammaos.azahar_nano.drm_top_rot180", rot, "0");
     if (rot[0] == '1' && !mPanels.empty() && mPanels[0].pRotation) {
         mPanels[0].rotationValue = DRM_MODE_ROTATE_180;
     }
@@ -1193,8 +1194,8 @@ int DrmWindows::create() {
     // SurfaceFlinger's GammaOS composition gate: it stops presenting while a
     // DRM-direct client owns the panels (same flag gammaos-nano sets).
     property_set("sys.gammaos.nano.drm_active", "1");
-    mBlockingCommits = property_get_bool("persist.gammaos.azahar_nano.drm_blocking", false);
-    mDpPostFlipUs = property_get_int32("persist.gammaos.azahar_nano.drm_dp_postflip_us", 0);
+    mBlockingCommits = settings::getBool("persist.gammaos.azahar_nano.drm_blocking", false);
+    mDpPostFlipUs = settings::getInt("persist.gammaos.azahar_nano.drm_dp_postflip_us", 0);
     for (size_t i = 0; i < mPanels.size(); i++) createQueue(mPanels[i], (int)i);
     mRun = true;
     if (!mBlockingCommits) mThread = std::thread([this] { eventLoop(); });

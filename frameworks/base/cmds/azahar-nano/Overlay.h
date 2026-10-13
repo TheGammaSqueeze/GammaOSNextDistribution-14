@@ -42,6 +42,10 @@ struct OverlayActions {
     std::function<void(bool nintendo)> setNintendoLayout;
     std::function<void(int screen, int shader)> setLcdShader;  // 0 top, 1 bottom
     std::function<void(bool on)> setScreenAa;                   // FXAA on both screens
+    // Per-game override (AzaharSettings.h): config.ini as the file holds it (never the
+    // override), and the hook run after an override was created or deleted.
+    std::function<std::string(const char* section, const char* key)> getGlobalConfig;
+    std::function<void()> overrideChanged;
 };
 
 class Overlay {
@@ -99,6 +103,11 @@ private:
                    const char* hint, std::function<void(const std::string&)> onChange = nullptr);
     void buildPages();
     void scanGpuDrivers();
+    // A yes/no page: the question is its title, the detail its hint; yes runs onYes.
+    void openConfirm(const std::string& question, const std::string& detail,
+                     std::function<void()> onYes);
+    void createPerGameOverride();
+    void deletePerGameOverride();
     bool makeCurrent();
 
     OverlayActions mA;
@@ -110,6 +119,11 @@ private:
     std::vector<std::string> mDriverZips; // importable packages (full paths)
     std::atomic<bool> mOpen{false};
     bool mRebuildPages = false;
+    bool mRebuildTop = false;            // rebuild and return to the top page (override rows)
+    // Every user-facing setting the pages hold, for the override snapshot: property short
+    // keys and config.ini (section, key) pairs, collected while the pages are built.
+    std::vector<std::string> mPropKeys;
+    std::vector<std::pair<std::string, std::string>> mConfigKeys;
     bool mUpright = false;
     int mBufW = 0, mBufH = 0;
     std::string mBanner;
@@ -135,6 +149,16 @@ private:
     bool mTickStop = false;
     void tickerLoop();
     float marqueeOffset(float overflow, float scale);
+
+    // Clock and battery in the panel header (read from the power_supply sysfs nodes, a few
+    // times a minute; the ticker redraws when the minute or the charge changes).
+    void readBattery();
+    float drawStatus(float right, float y, float scale);   // returns the left edge drawn to
+    int mBatteryPercent = -1;            // -1 = unknown
+    bool mBatteryCharging = false;
+    int64_t mBatteryReadNs = 0;
+    int mShownMinute = -1;
+    int mShownBattery = -1;
 };
 
 } // namespace azahar_nano

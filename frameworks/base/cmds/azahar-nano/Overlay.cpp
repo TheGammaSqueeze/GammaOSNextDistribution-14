@@ -2,13 +2,19 @@
 
 #include "Overlay.h"
 #include <time.h>
+#include <algorithm>
 #include <cmath>
 #include "AzaharNanoApi.h"
 #include "GpuDriverPkg.h"
 #include "Brightness.h"
+#include "AzaharSettings.h"
 
 #include <dirent.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #include <EGL/eglext.h>
@@ -23,7 +29,7 @@ namespace azahar_nano {
 
 namespace {
 constexpr int kPageTop = 0, kPageVideo = 1, kPageAudio = 2, kPageSystem = 3, kPageControls = 4,
-              kPageDrivers = 5;
+              kPageDrivers = 5, kPageConfirm = 6;
 }
 
 bool Overlay::init(ANativeWindow* win, int bufW, int bufH, bool upright, const OverlayActions& a,
@@ -84,16 +90,93 @@ bool Overlay::makeCurrent() {
     return true;
 }
 
+static int64_t monoNs();
+
 void Overlay::tickerLoop() {
     std::unique_lock<std::mutex> lk(mTickMu);
+    int tick = 0;
     while (!mTickStop) {
         mTickCv.wait_for(lk, std::chrono::milliseconds(33));
         if (mTickStop) break;
-        if (!mOpen || !mMarquee) continue;
+        if (!mOpen) continue;
+        bool redraw = mMarquee;
+        if (++tick % 30 == 0) {
+            // Once a second: the clock minute or the battery reading may have changed.
+            time_t now = time(nullptr);
+            struct tm local;
+            const int minute = localtime_r(&now, &local) ? local.tm_hour * 60 + local.tm_min : -1;
+            readBattery();
+            const int battery = mBatteryPercent * 2 + (mBatteryCharging ? 1 : 0);
+            if (minute != mShownMinute || battery != mShownBattery) redraw = true;
+        }
+        if (!redraw) continue;
         lk.unlock();
         render();
         lk.lock();
     }
+}
+
+void Overlay::readBattery() {
+    const int64_t now = monoNs();
+    if (mBatteryReadNs != 0 && now - mBatteryReadNs < 5000000000LL) return;
+    mBatteryReadNs = now;
+    int fd = ::open("/sys/class/power_supply/battery/capacity", O_RDONLY | O_CLOEXEC);
+    if (fd >= 0) {
+        char buf[16] = {};
+        const ssize_t n = ::read(fd, buf, sizeof(buf) - 1);
+        ::close(fd);
+        if (n > 0) mBatteryPercent = std::min(100, std::max(0, atoi(buf)));
+    }
+    fd = ::open("/sys/class/power_supply/battery/status", O_RDONLY | O_CLOEXEC);
+    if (fd >= 0) {
+        char buf[32] = {};
+        const ssize_t n = ::read(fd, buf, sizeof(buf) - 1);
+        ::close(fd);
+        mBatteryCharging = n > 0 && (strncmp(buf, "Charging", 8) == 0 || strncmp(buf, "Full", 4) == 0);
+    }
+}
+
+// Clock and battery at the right end of the panel header: "12:34" then a battery icon with
+// its charge drawn as the fill and the percentage after it. Returns the x where it starts.
+float Overlay::drawStatus(float right, float y, float scale) {
+    readBattery();
+    const float textScale = 1.0f * scale;
+    const float lineH = mGfx.fontLineH() * textScale;
+    time_t now = time(nullptr);
+    struct tm local;
+    char clock[16] = {};
+    if (localtime_r(&now, &local)) {
+        strftime(clock, sizeof(clock), "%H:%M", &local);
+        mShownMinute = local.tm_hour * 60 + local.tm_min;
+    }
+    mShownBattery = mBatteryPercent * 2 + (mBatteryCharging ? 1 : 0);
+    float x = right;
+    if (mBatteryPercent >= 0) {
+        char pct[16];
+        snprintf(pct, sizeof(pct), mBatteryCharging ? "+%d%%" : "%d%%", mBatteryPercent);
+        const auto col = mBatteryCharging ? rgba(0.25f, 0.9f, 0.35f, 1.0f)
+                                      : mBatteryPercent <= 15 ? rgba(0.95f, 0.25f, 0.25f, 1.0f)
+                                                              : rgba(0.85f, 0.88f, 0.92f, 1.0f);
+        const float pw = mGfx.measure(pct, textScale);
+        x -= pw;
+        mGfx.text(pct, x, y, textScale, col);
+        // Icon: body outline, a tip on the right, the charge as the fill.
+        const float bh = lineH * 0.55f, bw = bh * 1.9f, bt = std::max(1.0f, 2.0f * scale);
+        const float tipW = bh * 0.18f, tipH = bh * 0.45f;
+        x -= 10 * scale + tipW + bw;
+        const float by = y + (lineH - bh) * 0.5f;
+        mGfx.fillRect(x, by, bw, bh, col);
+        mGfx.fillRect(x + bt, by + bt, bw - 2 * bt, bh - 2 * bt, rgba(0.08f, 0.09f, 0.12f, 1.0f));
+        mGfx.fillRect(x + bw, by + (bh - tipH) * 0.5f, tipW, tipH, col);
+        const float fillW = (bw - 4 * bt) * mBatteryPercent / 100.0f;
+        if (fillW > 0) mGfx.fillRect(x + 2 * bt, by + 2 * bt, fillW, bh - 4 * bt, col);
+    }
+    if (clock[0]) {
+        const float cw = mGfx.measure(clock, textScale);
+        x -= (mBatteryPercent >= 0 ? 24 * scale : 0) + cw;
+        mGfx.text(clock, x, y, textScale, rgba(0.92f, 0.92f, 0.96f, 1.0f));
+    }
+    return x;
 }
 
 static int64_t monoNs() {
@@ -159,6 +242,7 @@ Overlay::Row Overlay::configChoice(const char* label, const char* section, const
     for (size_t i = 0; i < r.choices.size(); i++) if (r.choices[i].value == cur) r.sel = (int)i;
     r.hint = hint;
     const std::string sec = section, k = key;
+    mConfigKeys.emplace_back(sec, k);
     r.change = [this, sec, k, restart, chs = r.choices](int i) {
         if (i < 0 || i >= (int)chs.size()) return;
         if (mA.setConfig) mA.setConfig(sec.c_str(), k.c_str(), chs[i].value.c_str());
@@ -184,6 +268,7 @@ Overlay::Row Overlay::propChoice(const char* label, const char* prop, const char
     for (size_t i = 0; i < r.choices.size(); i++) if (r.choices[i].value == cur) r.sel = (int)i;
     r.hint = hint;
     const std::string p = prop;
+    if (p.rfind(settings::kPrefix, 0) == 0) mPropKeys.push_back(p.substr(strlen(settings::kPrefix)));
     r.change = [this, p, onChange, chs = r.choices](int i) {
         if (i < 0 || i >= (int)chs.size()) return;
         if (mA.setProp) mA.setProp(p.c_str(), chs[i].value.c_str());
@@ -194,7 +279,10 @@ Overlay::Row Overlay::propChoice(const char* label, const char* prop, const char
 
 void Overlay::buildPages() {
     mPages.clear();
-    mPages.resize(6);
+    mPages.resize(7);
+    mPropKeys.clear();
+    mConfigKeys.clear();
+    mPropKeys.push_back("gpu_driver");   // its row is built by hand below
     auto pageRow = [](const char* label, int page, const char* hint) {
         Row r;
         r.label = label;
@@ -279,6 +367,42 @@ void Overlay::buildPages() {
         pg.rows.push_back(pageRow("Audio", kPageAudio, "Volume, stretching, audio emulation"));
         pg.rows.push_back(pageRow("System", kPageSystem, "New 3DS mode, region, CPU clock"));
         pg.rows.push_back(pageRow("Controls", kPageControls, "Button layout"));
+
+        // Per-game settings override (AzaharSettings.h). Create snapshots the current
+        // settings into <user folder>/overrides/<rom>.cfg and makes that file the source of
+        // truth for this game; every later change goes to the file and the global settings
+        // are neither read nor written. Delete removes the file and re-applies the global
+        // settings at once.
+        if (!settings::overridePath().empty()) {
+            r = Row();
+            if (settings::overrideUnreadable()) {
+                r.label = "Per-Game Override: Unreadable";
+                r.hint = "Could not read " + settings::overridePath() + " (" +
+                         settings::overrideError() + "); the global settings are in use";
+                r.activate = [this] {
+                    openConfirm("Delete the unreadable override?",
+                                "The global settings keep applying to this game",
+                                [this] { deletePerGameOverride(); });
+                };
+            } else if (settings::overrideActive()) {
+                r.label = "Delete Per-Game Override";
+                r.hint = "This game uses its own settings from " + settings::overridePath();
+                r.activate = [this] {
+                    openConfirm("Delete this game's settings override?",
+                                "The global settings apply again at once",
+                                [this] { deletePerGameOverride(); });
+                };
+            } else {
+                r.label = "Create Per-Game Override";
+                r.hint = "Keep separate settings for this game, stored in " + settings::overridePath();
+                r.activate = [this] {
+                    openConfirm("Save this game's settings as a per-game override?",
+                                "Settings changed from now on apply to this game only",
+                                [this] { createPerGameOverride(); });
+                };
+            }
+            pg.rows.push_back(r);
+        }
 
         r = Row();
         r.label = "Exit Game";
@@ -484,14 +608,75 @@ void Overlay::buildPages() {
     }
 }
 
+void Overlay::openConfirm(const std::string& question, const std::string& detail,
+                          std::function<void()> onYes) {
+    Page& pg = mPages[kPageConfirm];
+    pg = Page();
+    pg.title = question;
+    Row yes;
+    yes.label = "Yes";
+    yes.hint = detail;
+    yes.activate = [this, onYes] {
+        if (onYes) onYes();
+        mRebuildTop = true;
+    };
+    pg.rows.push_back(yes);
+    Row no;
+    no.label = "No";
+    no.hint = "Back";
+    no.activate = [this] {
+        if (mStack.size() > 1) mStack.pop_back();
+    };
+    pg.rows.push_back(no);
+    pg.cursor = 1;
+    mStack.push_back(kPageConfirm);
+}
+
+void Overlay::createPerGameOverride() {
+    // The snapshot reads the global properties and config.ini itself (never the
+    // override); from here on every change this menu makes lands in the file.
+    const bool ok = settings::create(mPropKeys, mConfigKeys, [this](const char* sec, const char* key) {
+        return mA.getGlobalConfig ? mA.getGlobalConfig(sec, key) : std::string();
+    });
+    if (!ok) {
+        mBanner = "Could not create the override file";
+        return;
+    }
+    if (mA.overrideChanged) mA.overrideChanged();
+    mBanner = "Per-game override created; changes now apply to this game only";
+}
+
+void Overlay::deletePerGameOverride() {
+    if (!settings::remove()) {
+        mBanner = "Could not delete the override file";
+        return;
+    }
+    if (mA.overrideChanged) mA.overrideChanged();
+    mBanner = "Override deleted; the global settings apply";
+}
+
 void Overlay::open() {
     std::lock_guard<std::recursive_mutex> lock(mMu);
     if (!mTicker.joinable()) mTicker = std::thread([this] { tickerLoop(); });
     mOpen = true;
     mBanner.clear();
+    // The menu reopens where it was closed: the same page and row (the pages are rebuilt
+    // so every row shows its current value). A confirm page is not restored.
+    std::vector<int> stack = mStack;
+    std::vector<int> cursors;
+    for (const Page& pg : mPages) cursors.push_back(pg.cursor);
     scanGpuDrivers();
     buildPages();
+    for (size_t i = 0; i < mPages.size() && i < cursors.size(); i++) {
+        if (!mPages[i].rows.empty()) {
+            mPages[i].cursor = std::min(std::max(cursors[i], 0), (int)mPages[i].rows.size() - 1);
+        }
+    }
     mStack.assign(1, kPageTop);
+    for (size_t i = 1; i < stack.size(); i++) {
+        if (stack[i] <= kPageTop || stack[i] >= (int)mPages.size() || stack[i] == kPageConfirm) break;
+        mStack.push_back(stack[i]);
+    }
 }
 
 void Overlay::close() {
@@ -535,6 +720,22 @@ bool Overlay::onButton(int button, bool pressed) {
             mStack.push_back(row.page);
         } else if (row.kind == ROW_ACTION && row.activate) {
             row.activate();
+            if (mRebuildTop) {
+                // An override was created or deleted: every row re-reads its value, and the
+                // top page comes back on the override row with the banner showing.
+                mRebuildTop = false;
+                const std::string banner = mBanner;
+                scanGpuDrivers();
+                buildPages();
+                mBanner = banner;
+                mStack.assign(1, kPageTop);
+                Page& top = mPages[kPageTop];
+                for (size_t i = 0; i < top.rows.size(); i++) {
+                    if (top.rows[i].label.find("Per-Game Override") != std::string::npos) top.cursor = (int)i;
+                }
+                render();
+                return true;
+            }
             if (mRebuildPages) {
                 // A driver import changed the package list: rebuild every page
                 // and come back to the Video page with the banner showing.
@@ -598,9 +799,10 @@ void Overlay::render() {
     const float px = (W - panelW) / 2, py = (H - panelH) / 2;
     mGfx.panel(px, py, panelW, panelH, rgba(0.08f, 0.09f, 0.12f, 0.96f), rgba(0.3f, 0.5f, 0.9f, 1.0f));
     mGfx.text(pg.title.c_str(), px + 32 * scale, py + rowH * 0.35f, titleScale, rgba(1, 1, 1, 1));
+    float headerRight = drawStatus(px + panelW - 32 * scale, py + rowH * 0.5f, scale);
     if (mStack.size() > 1) {
         const char* back = "B: back";
-        mGfx.text(back, px + panelW - 32 * scale - mGfx.measure(back, hintScale), py + rowH * 0.5f,
+        mGfx.text(back, headerRight - 28 * scale - mGfx.measure(back, hintScale), py + rowH * 0.5f,
                   hintScale, rgba(0.6f, 0.65f, 0.7f, 1));
     }
     float y = py + rowH * 1.6f;

@@ -26,6 +26,7 @@ cc_binary {
         "Hud.cpp",
         "GpuDriverPkg.cpp",
         "Brightness.cpp",
+        "AzaharSettings.cpp",
         ":drastic_nano_overlay_gfx_srcs",
     ],
 
