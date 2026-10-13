@@ -156,6 +156,13 @@ void StreamBuffer::Touch(u32 offset) {
     }
 }
 
+void StreamBuffer::Reserve(u32 size) {
+    if (offset + size > stream_buffer_size) {
+        Map(size, 0); // wraps (and waits) here
+        mapped_size = 0;
+    }
+}
+
 void StreamBuffer::Commit(u32 size) {
     if (!is_coherent && type == BufferType::Stream) {
         size = Common::AlignUp(size, instance.NonCoherentAtomSize());

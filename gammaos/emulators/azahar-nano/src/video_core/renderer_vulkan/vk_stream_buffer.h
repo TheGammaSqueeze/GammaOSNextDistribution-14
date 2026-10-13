@@ -47,6 +47,11 @@ public:
     /// now: keep it until that work completes (the wrap waits on it before overwriting).
     void Touch(u32 offset);
 
+    /// GammaOS: makes sure the next `size` bytes (allocated by Maps before the next wrap) fit
+    /// without wrapping, wrapping now if they would not. Called before a render pass begins:
+    /// a wrap inside one may have to submit (to wait for reused data) and end the pass.
+    void Reserve(u32 size);
+
     /// Ensures that "size" bytes of memory are available to the GPU, potentially recording a copy.
     void Commit(u32 size);
 

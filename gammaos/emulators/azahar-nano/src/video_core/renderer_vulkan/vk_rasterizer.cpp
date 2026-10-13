@@ -421,11 +421,12 @@ void RasterizerVulkan::SetupVertexArray() {
         // draw uploaded in the current lap of the stream buffer, bind that copy instead of
         // copying again (static meshes drawn every frame, like skinned characters whose
         // bones change only the uniforms).
-        // persist.gammaos.azahar_nano.vtx_cache=0 turns it off.
+        // persist.gammaos.azahar_nano.vtx_cache=1 turns it on (off by default while flicker
+        // reports are checked).
         static const bool vtx_cache = [] {
             char v[PROP_VALUE_MAX] = {};
             __system_property_get("persist.gammaos.azahar_nano.vtx_cache", v);
-            return v[0] != '0';
+            return v[0] == '1';
         }();
         constexpr u32 MinCachedBytes = 1024;
         u64 data_hash = 0;
@@ -608,6 +609,11 @@ bool RasterizerVulkan::AccelerateDrawBatch(bool is_indexed) {
         // Do not draw anything if the vertex array is invalid.
         return true;
     }
+    // GammaOS: every stream buffer allocation of this draw (vertices, fixed attributes and the
+    // index array, which is allocated after the render pass begins) must fit before the ring
+    // wraps: a wrap inside the pass can submit and end it (see StreamBuffer::Reserve).
+    stream_buffer.Reserve(vertex_info.vs_input_size + 16 + 17 * sizeof(Common::Vec4f) +
+                          (is_indexed ? regs.pipeline.num_vertices * 2 + 2 : 0) + 64);
     {
         SlowStep t{"SetupVertexArray"};
         SetupVertexArray();
@@ -907,6 +913,11 @@ void RasterizerVulkan::PrepareUberDraw(u32& variant_key, std::array<u32, 16>& te
 }
 
 bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
+    if (!accelerate && !vertex_batch.empty()) {
+        // The software vertices are allocated inside the render pass: wrap before it.
+        stream_buffer.Reserve(static_cast<u32>(vertex_batch.size() * sizeof(HardwareVertex)) +
+                              sizeof(HardwareVertex));
+    }
     // Address AND size: games reuse the right eye target's memory as scratch for small
     // passes (Metroid: 64x128 bloom passes that feed the left eye too).
     const auto& sfb = regs.framebuffer.framebuffer;

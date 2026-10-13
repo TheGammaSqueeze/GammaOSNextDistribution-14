@@ -1777,7 +1777,13 @@ void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region
         const auto interval = surface.GetInterval() & invalid_interval;
         // Only a change in validity matters to the lookup memos: games invalidate the same
         // aliasing surfaces again with every draw into a render target.
-        if (!surface.IsRegionInvalid(interval)) {
+        // persist.gammaos.azahar_nano.inv_skip=0 marks and counts every invalidation again.
+        static const bool inv_skip = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.inv_skip", v);
+            return v[0] != '0';
+        }();
+        if (!inv_skip || !surface.IsRegionInvalid(interval)) {
             surface.MarkInvalid(interval);
             ++cache_epoch; // a texture lookup must validate it again
         }
