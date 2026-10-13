@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <sys/system_properties.h>
 #include "video_core/renderer_vulkan/vk_texture_runtime.h"
 #include "video_core/renderer_vulkan/vk_gammaos_stats.h"
 #include "video_core/renderer_vulkan/vk_gammaos_gpu_timer.h"
@@ -329,6 +330,15 @@ u64 TextureRuntime::GetResourceFreeTick() {
     // allows the deletion of resources immediately when they are done being used.
     scheduler.GetMasterSemaphore()->Refresh();
     return scheduler.GetMasterSemaphore()->KnownGpuTick();
+}
+
+void TextureRuntime::Retire(Handle&& handle) {
+    // Destroyed once the GPU has finished every command recorded before the replacement (the
+    // current tick covers the commands not submitted yet). Checked at the next retirement:
+    // replacements are rare, so the few images waiting cost little.
+    const u64 done = scheduler.GetMasterSemaphore()->KnownGpuTick();
+    std::erase_if(retired, [done](const RetiredHandle& r) { return r.tick <= done; });
+    retired.push_back(RetiredHandle{scheduler.CurrentTick(), std::move(handle)});
 }
 
 void TextureRuntime::Finish() {
@@ -818,6 +828,19 @@ Surface::Surface(TextureRuntime& runtime_, const VideoCore::SurfaceParams& param
         is_mutable = true;
     }
 
+    // GammaOS: see EnsureStorage. persist.gammaos.azahar_nano.rt_compress=0 creates every RGBA8
+    // surface with the R32 view format and storage usage up front, as upstream does.
+    static const bool defer_storage = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.rt_compress", v);
+        return v[0] != '0';
+    }();
+    if (is_mutable && defer_storage && False(flags & VideoCore::SurfaceFlagBits::ShadowSource) &&
+        !runtime.NeedsStorageAt(addr)) {
+        is_mutable = false;
+        storage_capable = false;
+    }
+
     const vk::Format format = traits.native;
 
     ASSERT_MSG(format != vk::Format::eUndefined && levels >= 1,
@@ -841,7 +864,7 @@ Surface::Surface(TextureRuntime& runtime_, const VideoCore::SurfaceParams& param
     if (is_color) {
         usage |= vk::ImageUsageFlagBits::eColorAttachment;
     }
-    if (traits.native == vk::Format::eR8G8B8A8Unorm && traits.storage_support) {
+    if (traits.native == vk::Format::eR8G8B8A8Unorm && traits.storage_support && storage_capable) {
         // Add Storage-usage support when available in case it is found out later that this is a
         // shadow-source texture that will get used in the utility descriptor-set
         usage |= vk::ImageUsageFlagBits::eStorage;
@@ -1368,6 +1391,114 @@ vk::ImageView Surface::CopyImageView() noexcept {
     });
 
     return copy_handle.image_views[ViewType::Sample];
+}
+
+bool Surface::EnsureStorage() {
+    if (storage_capable) {
+        return false;
+    }
+    storage_capable = true;
+    runtime.NoteStorageAt(addr);
+    if (!handles[Type::Base]) {
+        return false;
+    }
+    vk::ImageCreateFlags create_flags = vk::ImageCreateFlagBits::eMutableFormat;
+    if (texture_type == VideoCore::TextureType::CubeMap) {
+        create_flags |= vk::ImageCreateFlagBits::eCubeCompatible;
+    }
+    auto usage = traits.usage;
+    if ((traits.aspect & vk::ImageAspectFlagBits::eColor) != vk::ImageAspectFlags{}) {
+        usage |= vk::ImageUsageFlagBits::eColorAttachment;
+    }
+    if (traits.storage_support) {
+        usage |= vk::ImageUsageFlagBits::eStorage;
+    }
+    const bool need_format_list = instance.IsImageFormatListSupported();
+
+    runtime.renderpass_cache.EndRendering();
+    runtime.renderpass_cache.FlushPendingClears();
+    for (const Type type : {Type::Base, Type::Scaled}) {
+        Handle& old = handles[type];
+        if (!old) {
+            continue;
+        }
+        Handle fresh(instance);
+        fresh.Create(old.width, old.height, old.levels, texture_type, traits.native, usage,
+                     create_flags, traits.aspect, need_format_list, DebugName(type == Type::Scaled));
+        scheduler.Record([src = old.image, dst = fresh.image, width = old.width,
+                          height = old.height, levels = old.levels, layers = old.layers,
+                          aspect = traits.aspect](vk::CommandBuffer cmdbuf) {
+            const auto range = vk::ImageSubresourceRange{
+                .aspectMask = aspect,
+                .baseMipLevel = 0,
+                .levelCount = VK_REMAINING_MIP_LEVELS,
+                .baseArrayLayer = 0,
+                .layerCount = VK_REMAINING_ARRAY_LAYERS,
+            };
+            const std::array pre = {
+                vk::ImageMemoryBarrier{
+                    .srcAccessMask = vk::AccessFlagBits::eMemoryWrite,
+                    .dstAccessMask = vk::AccessFlagBits::eTransferRead,
+                    .oldLayout = vk::ImageLayout::eGeneral,
+                    .newLayout = vk::ImageLayout::eGeneral,
+                    .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                    .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                    .image = src,
+                    .subresourceRange = range,
+                },
+                vk::ImageMemoryBarrier{
+                    .srcAccessMask = vk::AccessFlagBits::eNone,
+                    .dstAccessMask = vk::AccessFlagBits::eTransferWrite,
+                    .oldLayout = vk::ImageLayout::eUndefined,
+                    .newLayout = vk::ImageLayout::eGeneral,
+                    .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                    .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                    .image = dst,
+                    .subresourceRange = range,
+                },
+            };
+            cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
+                                   vk::PipelineStageFlagBits::eTransfer,
+                                   vk::DependencyFlagBits::eByRegion, {}, {}, pre);
+            std::array<vk::ImageCopy, 16> regions;
+            const u32 count = std::min<u32>(levels, static_cast<u32>(regions.size()));
+            for (u32 level = 0; level < count; level++) {
+                const vk::ImageSubresourceLayers layers_info = {
+                    .aspectMask = aspect,
+                    .mipLevel = level,
+                    .baseArrayLayer = 0,
+                    .layerCount = layers,
+                };
+                regions[level] = vk::ImageCopy{
+                    .srcSubresource = layers_info,
+                    .srcOffset = {0, 0, 0},
+                    .dstSubresource = layers_info,
+                    .dstOffset = {0, 0, 0},
+                    .extent = {std::max(width >> level, 1u), std::max(height >> level, 1u), 1},
+                };
+            }
+            cmdbuf.copyImage(src, vk::ImageLayout::eGeneral, dst, vk::ImageLayout::eGeneral,
+                             count, regions.data());
+            const vk::ImageMemoryBarrier post = {
+                .srcAccessMask = vk::AccessFlagBits::eTransferWrite,
+                .dstAccessMask = vk::AccessFlagBits::eMemoryRead | vk::AccessFlagBits::eMemoryWrite,
+                .oldLayout = vk::ImageLayout::eGeneral,
+                .newLayout = vk::ImageLayout::eGeneral,
+                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .image = dst,
+                .subresourceRange = range,
+            };
+            cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+                                   vk::PipelineStageFlagBits::eAllCommands,
+                                   vk::DependencyFlagBits::eByRegion, {}, {}, post);
+        });
+        runtime.Retire(std::move(old));
+        handles[type] = std::move(fresh);
+    }
+    LOG_INFO(Render_Vulkan, "surface {:08X} {}x{} recreated with storage usage", addr, width,
+             height);
+    return true;
 }
 
 vk::ImageView Surface::ImageView(ViewType view_type, Type type) noexcept {

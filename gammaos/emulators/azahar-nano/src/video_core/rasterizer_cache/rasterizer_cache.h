@@ -897,6 +897,25 @@ typename T::Surface& RasterizerCache<T>::GetTextureSurface(
 }
 
 template <class T>
+typename T::Surface& RasterizerCache<T>::GetStorageTextureSurface(
+    const Pica::TexturingRegs::FullTextureConfig& config) {
+    const auto info = Pica::Texture::TextureInfo::FromPicaRegister(config.config, config.format);
+    const u32 max_level = MipLevels(info.width, info.height, config.config.lod.max_level) - 1;
+    const SurfaceId surface_id = GetTextureSurface(info, max_level);
+    EnsureStorage(surface_id);
+    return slot_surfaces[surface_id];
+}
+
+template <class T>
+void RasterizerCache<T>::EnsureStorage(SurfaceId surface_id) {
+    if (slot_surfaces[surface_id].EnsureStorage()) {
+        RemoveFramebuffers(surface_id);
+        fb_memo.epoch = ~0ull;
+        ++cache_epoch; // the rasterizer's binding memos hold the old image views
+    }
+}
+
+template <class T>
 SurfaceId RasterizerCache<T>::GetTextureSurface(const Pica::Texture::TextureInfo& info,
                                                 u32 max_level) {
     MirrorAccess(info.physical_address, info.width * info.height * 4 * (max_level + 1), false);
@@ -1139,6 +1158,12 @@ FramebufferHelper<T> RasterizerCache<T>::GetFramebufferSurfaces(bool using_color
         depth_surface->flags |= SurfaceFlagBits::RenderTarget;
         ValidateSurface(depth_id, boost::icl::first(depth_vp_interval),
                         boost::icl::length(depth_vp_interval));
+    }
+
+    if (shadow_rendering && color_id) {
+        // Shadow maps are written through the colour surface's storage view.
+        EnsureStorage(color_id);
+        color_surface = &slot_surfaces[color_id];
     }
 
     const FramebufferParams fb_params = {
@@ -1389,7 +1414,7 @@ void RasterizerCache<T>::ValidateSurface(SurfaceId surface_id, PAddr addr, u32 s
 
         // Try to find surface in cache with different format
         // that can can be reinterpreted to the requested format.
-        if (ValidateByReinterpretation(surface, params, interval)) {
+        if (ValidateByReinterpretation(surface_id, surface, params, interval)) {
             notify_validated(interval);
             continue;
         }
@@ -1572,7 +1597,8 @@ void RasterizerCache<T>::DownloadFillSurface(Surface& surface, SurfaceInterval i
 }
 
 template <class T>
-bool RasterizerCache<T>::ValidateByReinterpretation(Surface& surface, SurfaceParams params,
+bool RasterizerCache<T>::ValidateByReinterpretation(SurfaceId surface_id, Surface& surface,
+                                                    SurfaceParams params,
                                                     const SurfaceInterval& interval) {
     SurfaceId reinterpret_id =
         FindMatch<MatchFlags::Reinterpret>(params, ScaleMatch::Ignore, interval);
@@ -1597,7 +1623,12 @@ bool RasterizerCache<T>::ValidateByReinterpretation(Surface& surface, SurfacePar
             .dst_offset = {dst_rect.left, dst_rect.bottom},
             .extent = {src_rect.GetWidth(), src_rect.GetHeight()},
         };
-        return runtime.Reinterpret(src_surface, surface, reinterpret);
+        if (src_surface.pixel_format == PixelFormat::D24S8) {
+            // The depth to colour conversion writes the colour surface as a storage image.
+            EnsureStorage(surface_id);
+        }
+        return runtime.Reinterpret(slot_surfaces[reinterpret_id], slot_surfaces[surface_id],
+                                   reinterpret);
     }
 
     // No surfaces were found in the cache that had a matching bit-width.

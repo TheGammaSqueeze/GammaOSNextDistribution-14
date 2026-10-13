@@ -202,6 +202,8 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
     update_queue.AddTexelBuffer(buffer_set, 5, *texture_rgba_view);
 
     const auto texture_set = pipeline_cache.Acquire(DescriptorHeapType::Texture);
+    // The null surface stands in for shadow maps too, as a storage image.
+    res_cache.EnsureStorage(VideoCore::NULL_SURFACE_ID);
     Surface& null_surface = res_cache.GetSurface(VideoCore::NULL_SURFACE_ID);
     Sampler& null_sampler = res_cache.GetSampler(VideoCore::NULL_SAMPLER_ID);
 
@@ -1309,7 +1311,7 @@ void RasterizerVulkan::SyncTextureUnits(const Framebuffer* framebuffer) {
             switch (texture.config.type.Value()) {
             case TextureType::Shadow2D: {
                 memo_ok = false;
-                Surface& surface = res_cache.GetTextureSurface(texture);
+                Surface& surface = res_cache.GetStorageTextureSurface(texture);
                 Sampler& sampler = res_cache.GetSampler(texture.config);
                 surface.flags |= VideoCore::SurfaceFlagBits::ShadowSource;
                 update_queue.AddImageSampler(texture_set, texture_index, 0, surface.StorageView(),
@@ -1384,7 +1386,7 @@ void RasterizerVulkan::SyncUtilityTextures(const Framebuffer* framebuffer) {
     } else if (shadow_reading) {
         const u32 shadow_texture_unit = regs.lighting.config0.shadow_selector.Value();
         const auto shadow_texture = regs.texturing.GetTextures()[shadow_texture_unit];
-        Surface& shadow_surface = res_cache.GetTextureSurface(shadow_texture);
+        Surface& shadow_surface = res_cache.GetStorageTextureSurface(shadow_texture);
         update_queue.AddStorageImage(utility_set, 0, shadow_surface.StorageView());
     } else {
         Surface& null_surface = res_cache.GetSurface(VideoCore::NULL_SURFACE_ID);
@@ -1408,6 +1410,7 @@ void RasterizerVulkan::BindShadowCube(const Pica::TexturingRegs::FullTextureConf
         info.physical_address = regs.texturing.GetCubePhysicalAddress(face);
 
         const VideoCore::SurfaceId surface_id = res_cache.GetTextureSurface(info);
+        res_cache.EnsureStorage(surface_id);
         Surface& surface = res_cache.GetSurface(surface_id);
         surface.flags |= VideoCore::SurfaceFlagBits::ShadowSource;
         update_queue.AddImageSampler(texture_set, 0, binding, surface.StorageView(),

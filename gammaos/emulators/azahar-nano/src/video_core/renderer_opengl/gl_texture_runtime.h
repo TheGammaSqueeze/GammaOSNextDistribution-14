@@ -127,6 +127,11 @@ public:
     GLuint CopyHandle() noexcept;
 
     /// Uploads pixel data in staging to a rectangle region of the surface texture
+    /// GammaOS: Vulkan only (see the Vulkan Surface); OpenGL surfaces need nothing.
+    bool EnsureStorage() {
+        return false;
+    }
+
     void Upload(const VideoCore::BufferTextureCopy& upload, const VideoCore::StagingData& staging);
 
     /// Uploads the custom material to the surface allocation.

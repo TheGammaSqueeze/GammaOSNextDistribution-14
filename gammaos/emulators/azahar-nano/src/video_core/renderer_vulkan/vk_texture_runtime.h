@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <unordered_set>
+
 #include <span>
 #include "video_core/rasterizer_cache/framebuffer_base.h"
 #include "video_core/rasterizer_cache/rasterizer_cache_base.h"
@@ -135,6 +137,20 @@ public:
     /// Submits and waits for current GPU work.
     void Finish();
 
+    /// GammaOS: keeps an image a surface replaced alive until the GPU is done with it.
+    void Retire(Handle&& handle);
+
+    /// GammaOS: surfaces at this address needed storage usage before (see Surface::EnsureStorage);
+    /// the next ones created there get it up front instead of being recreated.
+    bool NeedsStorageAt(PAddr addr) const {
+        return storage_addrs.contains(addr);
+    }
+    void NoteStorageAt(PAddr addr) {
+        if (storage_addrs.size() < 4096) {
+            storage_addrs.insert(addr);
+        }
+    }
+
     /// Maps an internal staging buffer of the provided size for pixel uploads/downloads
     VideoCore::StagingData FindStaging(u32 size, bool upload);
 
@@ -170,6 +186,12 @@ private:
     const Instance& instance;
     Scheduler& scheduler;
     RenderManager& renderpass_cache;
+    struct RetiredHandle {
+        u64 tick;
+        Handle handle;
+    };
+    std::vector<RetiredHandle> retired; ///< GammaOS: see Retire
+    std::unordered_set<PAddr> storage_addrs; ///< GammaOS: see NeedsStorageAt
     BlitHelper blit_helper;
     StreamBuffer upload_buffer;
     StreamBuffer download_buffer;
@@ -247,6 +269,13 @@ public:
         return ImageView(ViewType::Storage);
     }
 
+    /// GammaOS: RGBA8 surfaces are created without the R32 view format and storage usage, as
+    /// either one keeps the Adreno 6xx driver from compressing the image (UBWC). Recreates the
+    /// images with both, keeping their content, the first time a shadow map or a depth to
+    /// colour conversion needs them. Returns true when the images (and so the image views a
+    /// cached framebuffer or descriptor holds) were replaced.
+    bool EnsureStorage();
+
     /// Uploads pixel data in staging to a rectangle region of the surface texture
     void Upload(const VideoCore::BufferTextureCopy& upload, const VideoCore::StagingData& staging);
 
@@ -289,6 +318,7 @@ public:
     vk::UniqueImageView storage_view;
     bool is_framebuffer{};
     bool is_storage{};
+    bool storage_capable{true}; ///< GammaOS: see EnsureStorage
 };
 
 class Framebuffer : public VideoCore::FramebufferParams {

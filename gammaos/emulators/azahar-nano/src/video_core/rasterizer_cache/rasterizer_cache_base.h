@@ -155,6 +155,13 @@ public:
 
     /// Get a surface based on the texture configuration
     Surface& GetTextureSurface(const Pica::TexturingRegs::FullTextureConfig& config);
+
+    /// GammaOS: as GetTextureSurface, for a texture read through its storage view (shadow maps).
+    Surface& GetStorageTextureSurface(const Pica::TexturingRegs::FullTextureConfig& config);
+
+    /// GammaOS: gives the surface the storage view it lacks (Surface::EnsureStorage) and drops
+    /// what referenced its old images.
+    void EnsureStorage(SurfaceId surface_id);
     SurfaceId GetTextureSurface(const Pica::Texture::TextureInfo& info, u32 max_level = 0);
 
     /// Get a texture cube based on the texture configuration
@@ -232,7 +239,7 @@ private:
     void DownloadFillSurface(Surface& surface, SurfaceInterval interval);
 
     /// Attempt to find a reinterpretable surface in the cache and use it to copy for validation
-    bool ValidateByReinterpretation(Surface& surface, SurfaceParams params,
+    bool ValidateByReinterpretation(SurfaceId surface_id, Surface& surface, SurfaceParams params,
                                     const SurfaceInterval& interval);
 
     /// Create a new surface
