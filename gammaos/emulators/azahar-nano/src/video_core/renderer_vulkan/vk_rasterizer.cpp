@@ -416,6 +416,39 @@ void RasterizerVulkan::SetupVertexArray() {
         // Align stride up if required by Vulkan implementation.
         const u32 aligned_stride =
             Common::AlignUp(static_cast<u32>(loader.byte_count), stride_alignment);
+
+        // GammaOS vertex cache: when this loader's data is byte-identical to what an earlier
+        // draw uploaded in the current lap of the stream buffer, bind that copy instead of
+        // copying again (static meshes drawn every frame, like skinned characters whose
+        // bones change only the uniforms).
+        // persist.gammaos.azahar_nano.vtx_cache=0 turns it off.
+        static const bool vtx_cache = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.vtx_cache", v);
+            return v[0] != '0';
+        }();
+        constexpr u32 MinCachedBytes = 1024;
+        u64 data_hash = 0;
+        u64 cache_key = 0;
+        if (vtx_cache && data_size >= MinCachedBytes && src_ref.GetSize() >= data_size) {
+            if (vertex_cache_lap != stream_buffer.Lap() || vertex_cache.size() > 8192) {
+                vertex_cache.clear();
+                vertex_cache_lap = stream_buffer.Lap();
+            }
+            data_hash = Common::ComputeHash64(src_ptr, data_size);
+            cache_key = (static_cast<u64>(data_addr) << 32) ^ (static_cast<u64>(data_size) << 8) ^
+                        aligned_stride;
+            const auto it = vertex_cache.find(cache_key);
+            if (it != vertex_cache.end() && it->second.hash == data_hash) {
+                VertexBinding& binding = layout.bindings[layout.binding_count];
+                binding.binding.Assign(layout.binding_count);
+                binding.fixed.Assign(0);
+                binding.byte_count.Assign(loader.byte_count);
+                binding_offsets[layout.binding_count++] = it->second.offset;
+                GammaStats::Add(GammaStats::VertexBytesReused, data_size);
+                continue;
+            }
+        }
         if (aligned_stride == loader.byte_count) {
             std::memcpy(dst_ptr, src_ptr, data_size);
         } else {
@@ -434,6 +467,10 @@ void RasterizerVulkan::SetupVertexArray() {
 
         // Keep track of the binding offsets so we can bind the vertex buffer later
         binding_offsets[layout.binding_count++] = static_cast<u32>(array_offset + buffer_offset);
+        if (cache_key != 0) {
+            vertex_cache[cache_key] =
+                CachedVertices{data_hash, static_cast<u32>(array_offset + buffer_offset)};
+        }
         buffer_offset += Common::AlignUp(aligned_stride * vertex_num, 4);
     }
 

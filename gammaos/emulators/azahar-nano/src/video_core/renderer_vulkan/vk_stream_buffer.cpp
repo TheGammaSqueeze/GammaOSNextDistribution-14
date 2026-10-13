@@ -127,6 +127,7 @@ std::tuple<u8*, u32, bool> StreamBuffer::Map(u32 size, u64 alignment) {
     if (offset + size > stream_buffer_size) {
         // The buffer would overflow, save the amount of used watches and reset the state.
         invalidate = true;
+        ++lap;
         invalidation_mark = current_watch_cursor;
         current_watch_cursor = 0;
         offset = 0;

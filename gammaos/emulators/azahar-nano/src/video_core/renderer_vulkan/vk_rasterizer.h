@@ -202,6 +202,13 @@ private:
     PipelineInfo pipeline_info{};
 
     StreamBuffer stream_buffer;     ///< Vertex+Index buffer
+    // GammaOS vertex cache (see SetupVertexArray): uploaded loader data of the current lap.
+    struct CachedVertices {
+        u64 hash;
+        u32 offset;
+    };
+    std::unordered_map<u64, CachedVertices> vertex_cache;
+    u64 vertex_cache_lap = ~0ull;
     StreamBuffer uniform_buffer;    ///< Uniform buffer
     StreamBuffer texture_buffer;    ///< Texture buffer
     StreamBuffer texture_lf_buffer; ///< Texture Light-Fog buffer

@@ -1786,7 +1786,7 @@ void RendererVulkan::SwapBuffers() {
                      "pass breaks with only the render area changed {:.1f} | draws z {:.1f} w {:.1f} "
                      "shadow {:.1f} alphatest {:.1f} blend {:.1f} | cmd lists {:.1f} top {:.1f} "
                      "blocked {:.2f} transfers {:.1f} blocked {:.2f} | enabled {} | pipelines fast {} "
-                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | sw draws {} ({} verts) fallback verts {} | hybrid fallback draws {} skipped {} held frames {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms texture binds reused {:.1f} (window totals)",
+                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | sw draws {} ({} verts) fallback verts {} | hybrid fallback draws {} skipped {} held frames {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms texture binds reused {:.1f} vertex kb reused {:.0f} (window totals)",
                      GS::Take(GS::Draws) / n, GS::Take(GS::RenderPasses) / n,
                      GS::Take(GS::Uploads) / n, GS::Take(GS::UploadPixels) / n,
                      GS::Take(GS::UploadScaledPixels) / n, GS::Take(GS::Downloads) / n,
@@ -1814,7 +1814,7 @@ void RendererVulkan::SwapBuffers() {
                      GS::Take(GS::PipeSwBuilds), GS::Take(GS::PipeSwUs) / 1000,
                      GS::Take(GS::PipeUberBuilds), GS::Take(GS::PipeUberUs) / 1000,
                      GS::Take(GS::FastAttempts), GS::Take(GS::FastAttemptUs) / 1000,
-                     GS::Take(GS::FastAttemptMaxUs) / 1000, GS::Take(GS::TextureBindsReused) / n);
+                     GS::Take(GS::FastAttemptMaxUs) / 1000, GS::Take(GS::TextureBindsReused) / n, GS::Take(GS::VertexBytesReused) / n / 1024.0);
         }
         {
             namespace GS = GammaStats;

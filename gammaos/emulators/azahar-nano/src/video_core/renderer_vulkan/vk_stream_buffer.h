@@ -37,6 +37,12 @@ public:
      */
     std::tuple<u8*, u32, bool> Map(u32 size, u64 alignment);
 
+    /// GammaOS: how many times the ring has wrapped. Data committed in the current lap stays
+    /// in place (and readable by later draws) until the ring wraps again.
+    u64 Lap() const noexcept {
+        return lap;
+    }
+
     /// Ensures that "size" bytes of memory are available to the GPU, potentially recording a copy.
     void Commit(u32 size);
 
@@ -81,6 +87,7 @@ private:
     std::vector<Watch> previous_watches; ///< Watches used in the previous iteration.
     std::size_t wait_cursor{};           ///< Last watch being waited for completion.
     u64 wait_bound{};                    ///< Highest offset being watched for completion.
+    u64 lap = 0;
 };
 
 } // namespace Vulkan
