@@ -1047,7 +1047,13 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
     // behind branches so that Game Controlled and the other stock modes pay nothing (the size
     // query and derivatives in every sample cost Kirby 8 ms per frame at 2x), and the sharp
     // bilinear math only runs for the pixels that use it.
+    const bool tex_snap = config.framebuffer.tex_snap.Value() != 0;
     const auto snap_coord = [&](Id sampled_image, Id texcoord_in) -> Id {
+        if (!tex_snap) {
+            // Game Controlled: no sampling mode code at all (its registers slowed Metroid's
+            // lit scene by about 4 ms a frame at 2x even with the branches not taken).
+            return texcoord_in;
+        }
         const Id v2{vec_ids.Get(2)};
         const auto splat = [&](float f) { return OpCompositeConstruct(v2, ConstF32(f), ConstF32(f)); };
         const Id snap_flag{GetShaderDataMember(f32_id, ConstS32(27), ConstU32(3u))};
@@ -1144,7 +1150,9 @@ void FragmentModule::DefineTexSampler(u32 texture_unit) {
         const Id texcoord0_w{OpLoad(f32_id, texcoord0_w_id)};
         const Id coord{OpCompositeConstruct(vec_ids.Get(3), OpCompositeExtract(f32_id, texcoord, 0),
                                             OpCompositeExtract(f32_id, texcoord, 1), texcoord0_w)};
-        if (projection) {
+        if (projection && !tex_snap) {
+            return OpImageSampleProjImplicitLod(vec_ids.Get(4), sampled_image, coord);
+        } else if (projection) {
             // Divided here (as textureProj does) so the GammaOS sampling modes apply to
             // projected 2D textures too (games composite offscreen renders this way).
             const Id w2{OpCompositeConstruct(vec_ids.Get(2), texcoord0_w, texcoord0_w)};

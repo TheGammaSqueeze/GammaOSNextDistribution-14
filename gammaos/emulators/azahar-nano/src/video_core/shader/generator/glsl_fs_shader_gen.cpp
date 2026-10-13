@@ -1368,6 +1368,9 @@ void FragmentModule::DefineBindingsGL() {
 }
 
 void FragmentModule::DefineHelpers() {
+    if (!config.framebuffer.tex_snap) {
+        out += "#define GAMMA_NO_TEX_SNAP\n";
+    }
     out += R"(
 vec3 quaternion_rotate(vec4 q, vec3 v) {
     return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
@@ -1394,6 +1397,9 @@ vec4 byteround(vec4 x) {
 // output pixel linear blend across texel seams); 3D draws keep the linear sampler unless
 // tex_lod_bias.w is 3 (sharp bilinear everywhere) or 4 (the nearest texel on 3D).
 vec2 snap2d(vec2 tc, ivec2 size) {
+#ifdef GAMMA_NO_TEX_SNAP
+    return tc;
+#endif
     bool ortho = abs(gl_FragCoord.w - 1.0) < 1e-4;
     if (tex_lod_bias.w > 2.5 || (tex_lod_bias.w > 0.5 && ortho)) {
         vec2 s = vec2(size);

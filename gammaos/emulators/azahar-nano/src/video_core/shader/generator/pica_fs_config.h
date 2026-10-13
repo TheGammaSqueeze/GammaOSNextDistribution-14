@@ -70,6 +70,9 @@ struct FramebufferConfig {
         BitField<11, 1, u32> alphablend_enable;
         BitField<12, 1, u32> vertex_depth;   // set by ApplyProfile
         BitField<13, 1, u32> hw_scissor;     // set by ApplyProfile
+        // GammaOS: a texture sampling mode other than Game Controlled is selected, so the
+        // shader carries the sampling mode code (left out otherwise: it costs registers).
+        BitField<14, 1, u32> tex_snap;
     };
     BlendConfig requested_rgb_blend{};
     BlendConfig requested_alpha_blend{};

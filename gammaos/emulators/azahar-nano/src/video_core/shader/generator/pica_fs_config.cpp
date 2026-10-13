@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include "common/settings.h"
 #include "video_core/shader/generator/pica_fs_config.h"
 
 namespace Pica::Shader {
@@ -17,6 +18,10 @@ FramebufferConfig::FramebufferConfig(const Pica::RegsInternal& regs) {
 
     alphablend_enable.Assign(output_merger.alphablend_enable);
     requested_logic_op = output_merger.logic_op;
+    tex_snap.Assign(Settings::values.texture_sampling.GetValue() !=
+                            Settings::TextureSampling::GameControlled
+                        ? 1
+                        : 0);
 
     logic_op.Assign(Pica::FramebufferRegs::LogicOp::Copy);
 
