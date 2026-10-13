@@ -144,6 +144,18 @@ std::tuple<u8*, u32, bool> StreamBuffer::Map(u32 size, u64 alignment) {
     return std::make_tuple(mapped + offset, offset, invalidate);
 }
 
+void StreamBuffer::Touch(u32 offset) {
+    // Watches of this lap are in commit order with increasing upper bounds; the one holding
+    // `offset` is the first whose upper bound lies above it.
+    const auto begin = current_watches.begin();
+    const auto end = begin + static_cast<std::ptrdiff_t>(current_watch_cursor);
+    const auto it = std::upper_bound(begin, end, static_cast<u64>(offset),
+                                     [](u64 value, const Watch& w) { return value < w.upper_bound; });
+    if (it != end) {
+        it->tick = std::max(it->tick, scheduler.CurrentTick());
+    }
+}
+
 void StreamBuffer::Commit(u32 size) {
     if (!is_coherent && type == BufferType::Stream) {
         size = Common::AlignUp(size, instance.NonCoherentAtomSize());

@@ -43,6 +43,10 @@ public:
         return lap;
     }
 
+    /// GammaOS: data committed earlier in this lap at `offset` is used again by work recorded
+    /// now: keep it until that work completes (the wrap waits on it before overwriting).
+    void Touch(u32 offset);
+
     /// Ensures that "size" bytes of memory are available to the GPU, potentially recording a copy.
     void Commit(u32 size);
 

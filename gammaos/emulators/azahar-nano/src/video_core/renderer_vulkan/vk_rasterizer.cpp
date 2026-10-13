@@ -445,6 +445,8 @@ void RasterizerVulkan::SetupVertexArray() {
                 binding.fixed.Assign(0);
                 binding.byte_count.Assign(loader.byte_count);
                 binding_offsets[layout.binding_count++] = it->second.offset;
+                // The ring must not overwrite that copy before this draw has run.
+                stream_buffer.Touch(it->second.offset);
                 GammaStats::Add(GammaStats::VertexBytesReused, data_size);
                 continue;
             }
