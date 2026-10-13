@@ -7,6 +7,7 @@
 #include <csignal>
 #include <cstring>
 #include <algorithm>
+#include <array>
 #include <unordered_map>
 #include <vector>
 #include <sys/system_properties.h>
@@ -21,6 +22,7 @@
 #include "core/arm/exception_handler.h"
 #include "core/core.h"
 #include "core/core_timing.h"
+#include "core/loader/loader.h"
 #ifdef ENABLE_GDBSTUB
 #include "core/gdbstub/gdbstub.h"
 #endif
@@ -434,6 +436,38 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
     // All emulated cores run on the emulation thread (System::RunLoop), so the exclusive
     // monitor never sees concurrent access: exclusive reads can update it inline.
     config.exclusive_monitor_single_thread = true;
+
+    // GammaOS: every emulated core runs on this one thread, so guest code never really races
+    // another core. Unsafe_IgnoreGlobalMonitor (as on x64) leaves the other processors'
+    // reservations alone in an exclusive store; the local monitor and the value compare still
+    // decide it. Games that take and release locks constantly gain from it (Senran Kagura:
+    // a quarter of its guest code time is lock primitives).
+    // persist.gammaos.azahar_nano.jit_ignore_monitor = 1 / 0 forces it on / off for every title.
+    {
+        bool ignore_monitor = false;
+        u64 title_id = 0;
+        if (system.HasAppLoader()) {
+            system.GetAppLoader().ReadProgramId(title_id);
+        }
+        static constexpr std::array<u64, 1> ignore_monitor_titles{
+            0x00040000000F4500, // Senran Kagura Burst (Europe)
+        };
+        ignore_monitor = std::find(ignore_monitor_titles.begin(), ignore_monitor_titles.end(),
+                                   title_id) != ignore_monitor_titles.end();
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.jit_ignore_monitor", v);
+        if (v[0] == '1') {
+            ignore_monitor = true;
+        } else if (v[0] == '0') {
+            ignore_monitor = false;
+        }
+        if (ignore_monitor) {
+            config.unsafe_optimizations = true;
+            config.optimizations |= Dynarmic::OptimizationFlag::Unsafe_IgnoreGlobalMonitor;
+        }
+        LOG_INFO(Core_ARM11, "JIT for {:016X}: global exclusive monitor {}", title_id,
+                 ignore_monitor ? "ignored" : "kept");
+    }
 
     return std::make_unique<Dynarmic::A32::Jit>(config);
 }

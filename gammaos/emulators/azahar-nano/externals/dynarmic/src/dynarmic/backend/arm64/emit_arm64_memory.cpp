@@ -525,16 +525,20 @@ void InlinePageTableEmitExclusiveWriteMemory(oaknut::CodeGenerator& code, EmitCo
     code.CMP(X4, W1, oaknut::AddSubExt::UXTW);
     code.B(NE, *end);
 
-    // Clear every processor's reservation of this address.
-    code.MOV(X3, ctx.conf.inline_exclusive_all_addresses);
-    code.MOV(X5, 0xDEAD'DEAD'DEAD'DEADull);
-    for (size_t i = 0; i < ctx.conf.inline_exclusive_processor_count; i++) {
-        oaknut::Label skip;
-        code.LDR(X4, X3, i * sizeof(u64));
-        code.CMP(X4, W1, oaknut::AddSubExt::UXTW);
-        code.B(NE, skip);
-        code.STR(X5, X3, i * sizeof(u64));
-        code.l(skip);
+    // Clear every processor's reservation of this address. With Unsafe_IgnoreGlobalMonitor
+    // (as on x64) the other processors' reservations are left alone: the local monitor state,
+    // the address check above and the value compare below still decide the store.
+    if (!ctx.conf.HasOptimization(OptimizationFlag::Unsafe_IgnoreGlobalMonitor)) {
+        code.MOV(X3, ctx.conf.inline_exclusive_all_addresses);
+        code.MOV(X5, 0xDEAD'DEAD'DEAD'DEADull);
+        for (size_t i = 0; i < ctx.conf.inline_exclusive_processor_count; i++) {
+            oaknut::Label skip;
+            code.LDR(X4, X3, i * sizeof(u64));
+            code.CMP(X4, W1, oaknut::AddSubExt::UXTW);
+            code.B(NE, skip);
+            code.STR(X5, X3, i * sizeof(u64));
+            code.l(skip);
+        }
     }
 
     // Compare-and-swap against the value saved by the exclusive load.

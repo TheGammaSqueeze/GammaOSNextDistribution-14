@@ -334,6 +334,11 @@ public:
         return *app_loader;
     }
 
+    /// GammaOS: whether a title is loaded (GetAppLoader dereferences it).
+    [[nodiscard]] bool HasAppLoader() const {
+        return app_loader != nullptr;
+    }
+
     /// Frontend Applets
 
     void RegisterMiiSelector(std::shared_ptr<Frontend::MiiSelector> mii_selector);
