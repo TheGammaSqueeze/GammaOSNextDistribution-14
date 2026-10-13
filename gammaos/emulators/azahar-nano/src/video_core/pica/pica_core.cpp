@@ -1040,6 +1040,7 @@ void PicaCore::DrawImmediate() {
     geometry_pipeline.SubmitVertex(output);
 
     // Flush the immediate triangle.
+    dead_work.OnImmediateDraw(regs.internal);
     rasterizer->DrawTriangles();
     immediate.current_attribute = 0;
 
@@ -1149,6 +1150,11 @@ bool PicaCore::LookaheadTwin(PAddr& next_color, PAddr& next_depth) {
 }
 
 void PicaCore::DrawArrays(bool is_indexed) {
+    if (dead_work.OnDraw(regs.internal, regs.internal.pipeline.num_vertices, is_indexed)) {
+        // Never displayed: neither drawn nor counted as the expected stereo twin.
+        twin_skip_pending = false;
+        return;
+    }
     // GammaOS stereo twins (on by default; persist.gammaos.azahar_nano.stereo_twin=0 turns them
     // off): while the two eye
     // buffers hold the same content, a pair of identical draws to them is drawn once into

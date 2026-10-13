@@ -23,6 +23,8 @@ add_library(video_core STATIC EXCLUDE_FROM_ALL
     pica/dirty_regs.h
     pica/geometry_pipeline.cpp
     pica/geometry_pipeline.h
+    pica/dead_work.cpp
+    pica/dead_work.h
     pica/pica_core.cpp
     pica/pica_core.h
     pica/output_vertex.cpp

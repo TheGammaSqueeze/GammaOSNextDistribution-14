@@ -328,6 +328,15 @@ void GPU::SetInterruptHandler(Service::GSP::InterruptHandler handler) {
     impl->pica.SetInterruptHandler(impl->signal_interrupt);
 }
 
+void GPU::CpuAccess(PAddr addr, u32 size, bool read, bool write) {
+    if (read) {
+        impl->pica.dead_work.OnCpuRead(addr, size);
+    }
+    if (write) {
+        impl->pica.dead_work.OnCpuWrite(addr, size);
+    }
+}
+
 void GPU::FlushRegion(PAddr addr, u32 size) {
     AsyncDrain();
     impl->rasterizer->FlushRegion(addr, size);
@@ -650,8 +659,8 @@ void GPU::MemoryFill(u32 index, u32 intr_index) {
         return;
     }
 
-    // Perform memory fill.
-    if (!impl->rasterizer->AccelerateFill(config)) {
+    // Perform memory fill (unless nothing ever reads it, see Pica::DeadWork).
+    if (!impl->pica.dead_work.OnFill(config) && !impl->rasterizer->AccelerateFill(config)) {
         impl->sw_blitter->MemoryFill(config);
     }
 
@@ -691,8 +700,15 @@ void GPU::MemoryTransfer() {
     }
 
     u64 delay{};
-    // Perform memory transfer
-    if (config.is_texture_copy) {
+    // Perform memory transfer (unless nothing ever reads it, see Pica::DeadWork).
+    const bool dead = impl->pica.dead_work.OnTransfer(config);
+    if (dead) {
+        delay = DelayGenerator::CalculateDelayNanoseconds(
+            DelayGenerator::GetCopyMode(config.IsInputVRAM(), config.IsOutputVRAM()), true,
+            config.is_texture_copy ? static_cast<u32>(config.texture_copy.size)
+                                   : config.input_width * config.input_height *
+                                         BytesPerPixel(config.input_format));
+    } else if (config.is_texture_copy) {
         if (!impl->rasterizer->AccelerateTextureCopy(config)) {
             impl->sw_blitter->TextureCopy(config);
         }
@@ -723,6 +739,8 @@ void GPU::VBlankCallback(std::uintptr_t user_data, s64 cycles_late) {
     impl->signal_interrupt(Service::GSP::InterruptId::PDC0, 0);
     impl->signal_interrupt(Service::GSP::InterruptId::PDC1, 0);
 
+    impl->pica.dead_work.OnVBlank(impl->pica.regs.framebuffer_config[0],
+                                  impl->pica.regs.framebuffer_config[1]);
     // Present renderered frame.
     impl->renderer->SwapBuffers();
 

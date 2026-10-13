@@ -6,6 +6,7 @@
 
 #include "common/common_types.h"
 #include "core/hle/service/gsp/gsp_interrupt.h"
+#include "video_core/pica/dead_work.h"
 #include "video_core/pica/dirty_regs.h"
 #include "video_core/pica/geometry_pipeline.h"
 #include "video_core/pica/packed_attribute.h"
@@ -115,6 +116,9 @@ public:
     ~PicaCore();
 
     void BindRasterizer(VideoCore::RasterizerInterface* rasterizer);
+
+    /// GammaOS: skips GPU work whose result is never displayed (see DeadWork).
+    DeadWork dead_work;
 
     void SetInterruptHandler(Service::GSP::InterruptHandler& signal_interrupt);
 

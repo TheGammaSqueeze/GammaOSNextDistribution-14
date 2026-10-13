@@ -559,6 +559,8 @@ public:
             u32 overlap_size = overlap_end - overlap_start;
 
             auto* rasterizer = renderer.Rasterizer();
+            system.GPU().CpuAccess(physical_start, overlap_size, mode != FlushMode::Invalidate,
+                                   mode != FlushMode::Flush);
             switch (mode) {
             case FlushMode::Flush:
                 rasterizer->FlushRegion(physical_start, overlap_size);

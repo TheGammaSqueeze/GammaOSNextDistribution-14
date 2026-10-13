@@ -1654,7 +1654,9 @@ void RendererVulkan::SwapBuffers() {
             return v[0] ? static_cast<u32>(atoi(v)) : 6u;
         }();
         const u32 skipped = rasterizer.TakeSkippedDraws();
-        hold_present = skipped > 0 && held_incomplete < max_hold &&
+        // A frame that shows the result of skipped GPU work (Pica::DeadWork) is held back too.
+        const bool tainted = pica.dead_work.TakePresentTainted();
+        hold_present = (skipped > 0 || tainted) && held_incomplete < max_hold &&
                        !Settings::values.gammaos_fast_forward;
         held_incomplete = hold_present ? held_incomplete + 1 : 0;
         if (hold_present) GammaStats::Add(GammaStats::HeldIncompleteFrames);

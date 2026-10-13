@@ -57,6 +57,9 @@ public:
     void SetInterruptHandler(Service::GSP::InterruptHandler handler);
 
     /// Notify rasterizer that any caches of the specified region should be flushed to Switch memory
+    /// GammaOS: the CPU is about to read and/or write GPU memory (see Pica::DeadWork).
+    void CpuAccess(PAddr addr, u32 size, bool read, bool write);
+
     void FlushRegion(PAddr addr, u32 size);
 
     /// Notify rasterizer that any caches of the specified region should be invalidated
