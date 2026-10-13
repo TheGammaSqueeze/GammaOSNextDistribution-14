@@ -131,13 +131,14 @@ void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) 
         const bool pressed = value != 0;
         int btn = -1;
         switch (code) {
-        // The pad reports the Xbox arrangement (south = A, east = B, west = X,
-        // north = Y), which is how the Duo Lite's buttons are labelled; the
-        // Nintendo-layout option maps by position instead (east = A, south = B).
+        // The pad reports each button under its label's kernel code (BTN_A = south,
+        // BTN_B = east, BTN_X = BTN_NORTH, BTN_Y = BTN_WEST), so the labelled X and
+        // Y are X and Y; the Nintendo-layout option maps by position instead (east =
+        // A, south = B, north = X, west = Y), the same as drastic-nano.
         case BTN_SOUTH: btn = mNintendoLayout ? AZN_BUTTON_B : AZN_BUTTON_A; break;
         case BTN_EAST: btn = mNintendoLayout ? AZN_BUTTON_A : AZN_BUTTON_B; break;
-        case BTN_WEST: btn = mNintendoLayout ? AZN_BUTTON_Y : AZN_BUTTON_X; break;
-        case BTN_NORTH: btn = mNintendoLayout ? AZN_BUTTON_X : AZN_BUTTON_Y; break;
+        case BTN_NORTH: btn = mNintendoLayout ? AZN_BUTTON_Y : AZN_BUTTON_X; break;
+        case BTN_WEST: btn = mNintendoLayout ? AZN_BUTTON_X : AZN_BUTTON_Y; break;
         case BTN_TL: btn = AZN_TRIGGER_L; break;
         case BTN_TR: btn = AZN_TRIGGER_R; break;
         case BTN_TL2: btn = AZN_BUTTON_ZL; break;
