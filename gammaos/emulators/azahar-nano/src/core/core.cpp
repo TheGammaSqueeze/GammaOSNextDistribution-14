@@ -1176,6 +1176,15 @@ void System::GammaJitMapPoll() {
                         dyn->DumpBlockMap(fmt::format("/data/system/azahar-nano/log/jitmap_core{}.txt", i));
                     }
                 }
+                // The main code region too (0x100000-0x400000), to disassemble hot guest code.
+                if (FILE* f = std::fopen("/data/system/azahar-nano/log/guestmem_100000.bin", "wb")) {
+                    static const std::array<u8, 0x1000> zero{};
+                    for (VAddr a = 0x100000; a < 0x400000; a += 0x1000) {
+                        const u8* page = memory->GetPointer(a);
+                        std::fwrite(page ? page : zero.data(), 1, 0x1000, f);
+                    }
+                    std::fclose(f);
+                }
                 // Also the guest memory where Pokemon Sun loads MovieLib (relocations applied),
                 // for finding its vtables and functions.
                 if (FILE* f = std::fopen("/data/system/azahar-nano/log/guestmem_6ac000.bin", "wb")) {
