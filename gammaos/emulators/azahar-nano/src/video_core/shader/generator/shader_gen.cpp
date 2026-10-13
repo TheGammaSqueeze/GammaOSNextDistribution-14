@@ -50,14 +50,25 @@ std::array<PicaGSConfigState::SemanticMap, 24> PicaGSConfigState::GetSemanticMap
 
 namespace {
 
-/// GammaOS: persist.gammaos.azahar_nano.vs_bool_spec=0 keeps bool uniforms as runtime branches.
+/// GammaOS: persist.gammaos.azahar_nano.vs_bool_spec=1 bakes bool uniforms into the vertex
+/// shader (default off: Metroid at 2x ran 0.9 ms a frame slower with it, Kirby 0.5 ms faster).
 bool VsBoolSpecialization() {
     static const bool enabled = [] {
         char v[PROP_VALUE_MAX] = {};
         __system_property_get("persist.gammaos.azahar_nano.vs_bool_spec", v);
-        return v[0] != '0';
+        return v[0] == '1';
     }();
     return enabled;
+}
+
+/// persist.gammaos.azahar_nano.vs_bool_spec_max_verts: the largest draw specialized (default 64).
+u32 VsBoolSpecMaxVertices() {
+    static const u32 max_vertices = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.vs_bool_spec_max_verts", v);
+        return v[0] ? static_cast<u32>(atoi(v)) : 64u;
+    }();
+    return max_vertices;
 }
 
 /// The bool uniforms a program's flow control tests (IFU, CALLU, JMPU), cached per program.
@@ -95,7 +106,10 @@ void PicaVSConfigState::Init(const Pica::RegsInternal& regs, Pica::ShaderSetup& 
 
     bool_mask = 0;
     bool_values = 0;
-    if (VsBoolSpecialization()) {
+    // Small draws only: there the GPU pays the program's run time for a handful of vertices
+    // and the specialized program is shorter. On large meshes the specialized program ran
+    // slower (Metroid at 2x: +4.7 ms a frame), so they keep the generic one.
+    if (VsBoolSpecialization() && regs.pipeline.num_vertices <= VsBoolSpecMaxVertices()) {
         bool_mask = ReferencedBoolUniforms(setup, program_hash);
         for (u32 j = 0; j < setup.uniforms.b.size(); j++) {
             if ((bool_mask >> j) & 1u && setup.uniforms.b[j]) {
