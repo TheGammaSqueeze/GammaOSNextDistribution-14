@@ -121,15 +121,16 @@ void PicaVSConfigState::Init(const Pica::RegsInternal& regs, Pica::ShaderSetup& 
 
 void SetVsBoolSpecializationTitle(u64 title_id) {
     // Whether the specialized programs are faster depends on the game: shorter for Kirby's
-    // hundreds of small draws and Senran Kagura's skinned characters (2.4 ms of GPU time a
-    // frame at 1x), slower on Metroid's large meshes (0.9-4.7 ms at 2x).
+    // hundreds of draws (all sizes: 3 points of speed at 2x over small draws only) and Senran
+    // Kagura's skinned characters (2.4 ms of GPU time a frame at 1x), slower on Metroid's large
+    // meshes (0.9-4.7 ms at 2x).
     struct Entry {
         u64 title_id;
         u32 max_vertices;
     };
     static constexpr std::array<Entry, 3> table{{
         {0x00040000000F4500, 0xFFFFFFFF}, // Senran Kagura Burst (Europe)
-        {0x0004000000183600, 64},         // Kirby: Planet Robobot (USA)
+        {0x0004000000183600, 0xFFFFFFFF}, // Kirby: Planet Robobot (USA)
     }};
     u32 max_vertices = 0;
     for (const Entry& e : table) {
