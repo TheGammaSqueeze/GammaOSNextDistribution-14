@@ -1109,7 +1109,12 @@ void System::GammaJitWarm() {
     gamma_jit_pending.resize(cpu_cores.size());
     gamma_jit_pending_pos.assign(cpu_cores.size(), 0);
     // Compile the earliest part (first-compile order) now, the rest in frame idle time.
-    constexpr auto sync_budget = std::chrono::milliseconds(2000);
+    // persist.gammaos.azahar_nano.jit_warm_sync_ms: how long to compile before the game runs.
+    static const auto sync_budget = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.jit_warm_sync_ms", v);
+        return std::chrono::milliseconds(v[0] ? atoi(v) : 2000);
+    }();
     for (u32 i = 0; i < static_cast<u32>(cpu_cores.size()); i++) {
         auto* dyn = dynamic_cast<ARM_Dynarmic*>(cpu_cores[i].get());
         if (!dyn) {
@@ -1198,7 +1203,8 @@ void System::GammaJitWarmStep(std::chrono::steady_clock::time_point until) {
         if (!dyn) {
             continue;
         }
-        constexpr std::size_t chunk = 16;
+        // Small chunks: the step runs in the wait before a present and must not overrun it.
+        constexpr std::size_t chunk = 2;
         while (pos < list.size() && std::chrono::steady_clock::now() < until) {
             const std::size_t end = std::min(list.size(), pos + chunk);
             dyn->PrecompileBlocks(std::vector<u64>(list.begin() + pos, list.begin() + end));

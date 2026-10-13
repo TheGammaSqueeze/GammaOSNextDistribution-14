@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
 #include <array>
 #include <csignal>
 #include <cstring>
@@ -91,9 +92,19 @@ u32 ViewState(u8* write, u8* read, off_t& offset, int& prot) {
 }
 } // namespace
 
+struct FastmemView;
+// Inside a FastmemBatch, view changes are collected into runs of consecutive pages and applied
+// with one mmap per run when the outermost batch ends (marking a texture's pages one by one
+// was one syscall per page). Only the emulation thread changes page tables.
+int g_fastmem_batch_depth = 0;
+std::vector<FastmemView*> g_fastmem_batched;
+
 struct FastmemView {
     u8* base = nullptr;
     std::vector<u32> state;
+    // Pages changed while batching (their target is already in `state`).
+    std::vector<u32> pending;
+    bool queued = false;
 
     FastmemView() : state(PAGE_TABLE_NUM_ENTRIES, 0) {
         void* p = mmap(nullptr, kFastmemSpan, PROT_NONE,
@@ -108,12 +119,67 @@ struct FastmemView {
     FastmemView(const FastmemView&) = delete;
     FastmemView& operator=(const FastmemView&) = delete;
 
+    // Applies the pending pages: sorted, then one mmap per run of consecutive pages with the
+    // same protection and consecutive RAM offsets.
+    void FlushRun() {
+        if (pending.empty()) {
+            return;
+        }
+        std::sort(pending.begin(), pending.end());
+        pending.erase(std::unique(pending.begin(), pending.end()), pending.end());
+        const auto apply = [&](std::size_t first, std::size_t count) {
+            const u32 st = state[first];
+            u8* const addr = base + first * kHostPage;
+            const std::size_t len = count * kHostPage;
+            const int prot = static_cast<int>(st & 3u);
+            if (st == 0) {
+                mmap(addr, len, PROT_NONE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE,
+                     -1, 0);
+                return;
+            }
+            const off_t offset = static_cast<off_t>((st >> 2) - 1) * static_cast<off_t>(kHostPage);
+            if (mmap(addr, len, prot, MAP_FIXED | MAP_SHARED, g_guest_ram.fd, offset) == MAP_FAILED) {
+                LOG_ERROR(HW_Memory, "fastmem: mapping pages {:05X}+{} failed ({})", first, count,
+                          errno);
+                mmap(addr, len, PROT_NONE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE,
+                     -1, 0);
+                std::fill_n(state.begin() + first, count, 0u);
+            }
+        };
+        std::size_t run_first = pending[0], run_count = 1;
+        for (std::size_t i = 1; i < pending.size(); i++) {
+            const u32 idx = pending[i];
+            const u32 prev = state[idx - 1], cur = state[idx];
+            const bool next_page = idx == run_first + run_count;
+            const bool same = (cur & 3u) == (prev & 3u) &&
+                              (cur == 0 ? prev == 0 : prev != 0 && (cur >> 2) == (prev >> 2) + 1);
+            if (next_page && same) {
+                run_count++;
+            } else {
+                apply(run_first, run_count);
+                run_first = idx;
+                run_count = 1;
+            }
+        }
+        apply(run_first, run_count);
+        pending.clear();
+    }
+
     void Sync(std::size_t idx, u8* write, u8* read) {
         off_t offset = 0;
         int prot = PROT_NONE;
         const u32 want = ViewState(write, read, offset, prot);
         u32& have = state[idx];
         if (have == want) {
+            return;
+        }
+        if (g_fastmem_batch_depth > 0) {
+            have = want;
+            pending.push_back(static_cast<u32>(idx));
+            if (!queued) {
+                queued = true;
+                g_fastmem_batched.push_back(this);
+            }
             return;
         }
         u8* const addr = base + idx * kHostPage;
@@ -138,6 +204,24 @@ void SyncFastmemPage(FastmemView* view, std::size_t idx, u8* write, u8* read) {
     view->Sync(idx, write, read);
 }
 
+/// Collects fastmem view changes made in its scope and applies them at its end.
+struct FastmemBatch {
+    FastmemBatch() {
+        g_fastmem_batch_depth++;
+    }
+    ~FastmemBatch() {
+        if (--g_fastmem_batch_depth == 0) {
+            for (FastmemView* view : g_fastmem_batched) {
+                view->FlushRun();
+                view->queued = false;
+            }
+            g_fastmem_batched.clear();
+        }
+    }
+    FastmemBatch(const FastmemBatch&) = delete;
+    FastmemBatch& operator=(const FastmemBatch&) = delete;
+};
+
 void PageTable::AttachFastmem(std::shared_ptr<FastmemView> view) {
     fastmem_view = std::move(view);
     pointers.fastmem = fastmem_view.get();
@@ -148,6 +232,7 @@ void PageTable::ResyncFastmem() {
     if (!pointers.fastmem) {
         return;
     }
+    FastmemBatch batch;
     for (std::size_t i = 0; i < PAGE_TABLE_NUM_ENTRIES; i++) {
         pointers.fastmem->Sync(i, pointers.raw[i], pointers.read_raw[i]);
     }
@@ -675,6 +760,7 @@ void MemorySystem::MapPages(PageTable& page_table, u32 base, u32 size, MemoryRef
                                      FlushMode::FlushAndInvalidate);
     }
 
+    FastmemBatch batch;
     u32 end = base + size;
     while (base != end) {
         ASSERT_MSG(base < PAGE_TABLE_NUM_ENTRIES, "out of range mapping at {:08X}", base);
@@ -1145,6 +1231,7 @@ void MemorySystem::RasterizerMarkRegionCached(PAddr start, u32 size, bool cached
     if (start == 0) {
         return;
     }
+    FastmemBatch batch;
 
     u32 num_pages = ((start + size - 1) >> CITRA_PAGE_BITS) - (start >> CITRA_PAGE_BITS) + 1;
     PAddr paddr = start;
@@ -1227,6 +1314,7 @@ void MemorySystem::RasterizerMarkPageReadable(PAddr paddr, bool readable) {
     if (paddr == 0) {
         return;
     }
+    FastmemBatch batch;
     for (VAddr vaddr : PhysicalToVirtualAddressForRasterizer(paddr)) {
         const std::size_t index = vaddr >> CITRA_PAGE_BITS;
         for (auto& page_table : impl->page_table_list) {
