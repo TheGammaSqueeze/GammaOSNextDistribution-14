@@ -33,6 +33,8 @@ public:
     // Draws the scene into the top screen rectangle of the bound framebuffer. `proj` maps the
     // 400x240 layout space (as for the layouts); vp is the GL viewport it targets.
     void draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width = 400);
+    // The focused title's banner is left out (a settings panel is open over the home).
+    void setBannerHidden(bool hidden) { mBannerHidden = hidden; }
     // Internal resolution cap of the 3D target in multiples of 400x240 (default 3).
     void setMaxScale(int s) { mMaxScale = s; }
 
@@ -64,6 +66,7 @@ private:
     Camera3d mCamera;
     std::unique_ptr<ModelInstance> mWall;
     std::unique_ptr<Banner> mBanner;
+    bool mBannerHidden = false;
     std::vector<std::unique_ptr<Banner>> mLeaving;
     std::map<std::string, std::shared_ptr<ModelResource>> mResources;
     std::string mWantedKey;

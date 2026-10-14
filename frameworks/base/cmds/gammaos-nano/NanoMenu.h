@@ -64,7 +64,7 @@ static inline void nanoThreadNormalPriority() {
 #include "NanoEsdeTheme.h"
 #include "NanoSyncthing.h"  // Syncthing REST client + model (Settings > Syncthing)
 #include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)
-namespace android { namespace ctr { class CtrHome; class CtrAudio; } }   // ES-DE theme engine model (fourth home theme)
+namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; } }   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -1622,6 +1622,21 @@ private:
     void ctrBottomRect(float& rx, float& ry, float& rw, float& rh) const;
     bool ctrLaunchItem(const Ps3Item& it);        // a title chosen on the 3DS grid
     void ctrAppletBar(int button);                // an applet bar button (opens a nano category list)
+    // nano's lists, option menus and dialogs in the 3DS style (NanoCtrPanel): the HOME Menu
+    // Settings panel and the message dialog as views over the shared menu state
+    ctr::CtrPanel* mCtrPanel = nullptr;
+    ctr::CtrDialog* mCtrDialog = nullptr;
+    bool mCtrPanelWasShown = false;
+    bool mCtrTouchPrev = false;
+    enum { CTR_MODAL_NONE = 0, CTR_MODAL_PANEL = 1, CTR_MODAL_FALLBACK = 2 };
+    int ctrModalKind() const;                     // what the current menu state shows over the home
+    void ctrModalUpdate();                        // feeds the panel / dialog from the menu state
+    bool ctrModalTouch(float x, float y);         // a touch frame on the panel / dialog (bottom units)
+    void ctrSfx(int ps3SfxId);                    // nano's navigation sounds as the console's effects
+    bool ctrItemSwitch(const Ps3Item& it, bool* on);   // an On/Off setting row (a 3DS OFF / ON pair)
+    bool ctrSetSwitch(int itemIndex, bool on);    // sets one through nano's own chooser
+    bool ctrSwitchKey(int type, int code, int value);  // LEFT / RIGHT / A on a switch row
+    bool mCtrSwitchKeyHeld = false;
     // Set by any renderEsde animation site (carousel slide, marquee, description scroll, media
     // decode, GIF) that needs the next frame drawn soon; reset each frame before renderEsde. When
     // it stays false and there has been no recent input, the frame governor paces the (static but

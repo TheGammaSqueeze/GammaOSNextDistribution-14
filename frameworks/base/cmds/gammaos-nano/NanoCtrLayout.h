@@ -408,6 +408,8 @@ public:
         int w = 0, h = 0;
         int hits = 0, misses = 0;  // statistics (probe)
     };
+    // Issues what was recorded so far (probes that time parts of a pass).
+    void flushNow() { flush(); }
     void beginGroup();
     void endGroup(CacheSlot& slot, const float clear[3]);
     void releaseCache(CacheSlot& slot);

@@ -313,8 +313,10 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
     const float s = std::min({wx / width, wy / 240.0f, (float)mMaxScale});
     const int w = std::max(1, (int)lroundf(width * std::max(1.0f, s))), h = std::max(1, (int)lroundf(240 * std::max(1.0f, s)));
     std::vector<ModelInstance*> models{mWall.get()};
-    for (auto& b : mLeaving) models.push_back(b->model.get());
-    if (mBanner) models.push_back(mBanner->model.get());
+    if (!mBannerHidden) {
+        for (auto& b : mLeaving) models.push_back(b->model.get());
+        if (mBanner) models.push_back(mBanner->model.get());
+    }
     const GLuint tex = mRenderer.render(mCamera, models, w, h, TOP_CLEAR);
     if (CtrHome::perfMark) CtrHome::perfMark("top3dBlit");
     // composite into the top screen rectangle

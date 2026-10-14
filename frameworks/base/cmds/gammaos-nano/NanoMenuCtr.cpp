@@ -9,6 +9,7 @@
 #include "NanoMenuDrm.h"
 #include "NanoCtrHome.h"
 #include "NanoCtrAudio.h"
+#include "NanoCtrPanel.h"
 #include "NanoMenuUtils.h"
 #include "NanoI18n.h"
 
@@ -222,10 +223,22 @@ bool NanoMenu::ctrEnsure() {
         ALOGE("ctr: 3DS theme failed to load");
         return false;
     }
+    if (!mCtrPanel) {
+        auto sound = [this](const char* name) { if (mCtrHost) mCtrHost->playSound(name); };
+        mCtrPanel = new ctr::CtrPanel(mCtrHome->assets(), sound);
+        mCtrDialog = new ctr::CtrDialog(mCtrHome->assets(), sound);
+        mCtrHome->overlay = [this](ctr::Renderer& r, bool top) {
+            if (top) { mCtrPanel->drawTop(r); mCtrDialog->drawTop(r); }
+            else { mCtrPanel->drawBottom(r); mCtrDialog->drawBottom(r); }
+        };
+        mCtrHome->onTick = [this]() { mCtrPanel->tick(); mCtrDialog->tick(); };
+    }
     return true;
 }
 
 void NanoMenu::ctrRelease() {
+    if (mCtrPanel) { mCtrPanel->releaseGl(); delete mCtrPanel; mCtrPanel = nullptr; }
+    if (mCtrDialog) { mCtrDialog->releaseGl(); delete mCtrDialog; mCtrDialog = nullptr; }
     if (mCtrHome) {
         mCtrHome->releaseGl();
         delete mCtrHome;
@@ -309,6 +322,7 @@ bool NanoMenu::ctrOwnsInput() const {
 }
 
 bool NanoMenu::ctrInputEvent(int type, int code, int value) {
+    if (ctrSwitchKey(type, code, value)) return true;
     if (!ctrOwnsInput()) return false;
     auto setBit = [&](uint32_t bit, bool on) {
         if (on) mCtrHeld |= bit; else mCtrHeld &= ~bit;
@@ -371,7 +385,8 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
 // A touch frame: nano has the raw touch state (mTouchDown / mTouchRawX/Y); map it into bottom
 // screen layout space through the rectangle the bottom screen is drawn in.
 void NanoMenu::ctrTouchFrame() {
-    if (!ctrOwnsInput()) return;
+    const bool modal = ctrModalKind() == CTR_MODAL_PANEL;
+    if (!ctrOwnsInput() && !modal) return;
     float px = 0, py = 0;
     if (!touchMapRaw(mTouchRawX, mTouchRawY, px, py)) return;
     float rx, ry, rw, rh;
@@ -395,7 +410,312 @@ void NanoMenu::ctrTouchFrame() {
     const float lw = mCtrHome->bottomWidth();
     t.x = (px - rx) / rw * lw - lw / 2;
     t.y = 120.0f - (py - ry) / rh * 240.0f;
+    if (modal) {
+        ctrModalTouch(t.x, t.y);
+        return;
+    }
+    mCtrTouchPrev = false;
     mCtrHome->setTouch(t);
+}
+
+// ---------------------------------------------------------------------------- lists and dialogs
+
+int NanoMenu::ctrModalKind() const {
+    if (!mCtrTheme || !mCtrHome || !mCtrHome->loaded() || mPs3BootActive || mSetupWizardActive) return CTR_MODAL_NONE;
+    // screens without a 3DS look yet: the shared XMB chrome
+    const bool other = mOskActive || mVidActive || mMpActive || mPvActive || mGSearchActive || mPs3WizActive ||
+                       mPs3TzActive || mPs3LangActive || mPs3BrightSlider || mPhotoMultiActive || mScrapeProgActive ||
+                       mMtpActive || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
+                       ps3TopScreenKind() == PHOTO_GRID || ndsGameInfoActive() ||
+                       ((mPs3DlgActive || mPs3DlgClosing) && (mPs3DlgRomInfo || (mPs3DlgSlider && mPs3DlgOptions.empty())));
+    if (other) return CTR_MODAL_FALLBACK;
+    if (mPs3DlgActive || mPs3OptActive || !mPs3Stack.empty()) return CTR_MODAL_PANEL;
+    return CTR_MODAL_NONE;
+}
+
+namespace {
+uint64_t ctrLevelId(int kind, size_t depth, const std::string& title, size_t rows) {
+    uint64_t h = 1469598103934665603ull;
+    auto mix = [&](uint64_t v) { h ^= v; h *= 1099511628211ull; };
+    mix((uint64_t)kind);
+    mix((uint64_t)depth);
+    for (char c : title) mix((uint64_t)(unsigned char)c);
+    (void)rows;
+    return h;
+}
+
+bool ctrIsSwitch(const std::string& v, bool* on) {
+    static const char* kOn[] = {"On", "ON", "on", "Enabled", "Yes"};
+    static const char* kOff[] = {"Off", "OFF", "off", "Disabled", "No"};
+    for (const char* k : kOn) if (v == k || v == trDyn(k)) { *on = true; return true; }
+    for (const char* k : kOff) if (v == k || v == trDyn(k)) { *on = false; return true; }
+    return false;
+}
+}  // namespace
+
+void NanoMenu::ctrModalUpdate() {
+    if (!mCtrPanel || !mCtrDialog) return;
+    // The closing flags belong to the theme that animates the close (every theme clears them
+    // when its fade ends; input waits on them): option menus and choosers leave the panel at
+    // once, a message dialog when the 3DS dialog finished fading out.
+    if (mPs3OptClosing && !mPs3OptActive) { mPs3OptClosing = false; mPs3OptCloseAnim = 0.0f; }
+    if (mPs3DlgClosing && !mPs3DlgActive && (ndsDlgIsSidePanel() || !mCtrDialog->active())) {
+        mPs3DlgClosing = false;
+        mPs3DlgCloseAnim = 0.0f;
+    }
+    if (mPs3OptActive) mPs3OptAnim = 1.0f;
+    if (mPs3DlgActive) mPs3DlgAnim = 1.0f;
+    const float bw = mCtrHome->bottomWidth();
+    mCtrPanel->setWidth(bw);
+    mCtrDialog->setWidth(bw);
+    if (ctrModalKind() != CTR_MODAL_PANEL) {
+        mCtrHome->setTopBannerHidden(false);
+        mCtrPanel->hide();
+        mCtrDialog->hide(true);
+        mCtrPanelWasShown = false;
+        return;
+    }
+    // ---- the panel: an option menu, a list-style dialog, or the current list level ----
+    std::vector<ctr::PanelRow> rows;
+    std::string title;
+    int sel = 0;
+    uint64_t level = 0;
+    // a list-style dialog (a chooser) shows as the panel while it is open; a closing one is gone
+    const bool dlgSide = ndsDlgIsSidePanel();
+    const bool dlgList = mPs3DlgActive && dlgSide;
+    if (mPs3OptActive) {
+        const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size() &&
+                             !mPs3OptSubRows[mPs3OptSel].empty();
+        if (subOpen) {
+            for (const auto& sr : mPs3OptSubRows[mPs3OptSel]) {
+                ctr::PanelRow r;
+                r.label = trDyn(sr.label.c_str());
+                rows.push_back(r);
+            }
+            sel = mPs3OptSubSel;
+            title = mPs3OptSel < (int)mPs3OptLabels.size() ? trDyn(mPs3OptLabels[mPs3OptSel].c_str()) : trDyn("Options");
+        } else {
+            for (int i = 0; i < (int)mPs3OptLabels.size(); i++) {
+                if (i < (int)mPs3OptSep.size() && mPs3OptSep[i]) continue;
+                if (i == mPs3OptSel) sel = (int)rows.size();
+                ctr::PanelRow r;
+                r.label = trDyn(mPs3OptLabels[i].c_str());
+                rows.push_back(r);
+            }
+            title = mPs3OptCtxLabel.empty() ? trDyn("Options") : trDyn(mPs3OptCtxLabel.c_str());
+        }
+        level = ctrLevelId(subOpen ? 2 : 1, mPs3Stack.size(), title, rows.size());
+    } else if (dlgList) {
+        for (const auto& o : mPs3DlgOptions) {
+            ctr::PanelRow r;
+            r.label = trDyn(o.c_str());
+            rows.push_back(r);
+        }
+        sel = mPs3DlgSel;
+        title = mPs3DlgTitle.empty() ? trDyn("Options") : trDyn(mPs3DlgTitle.c_str());
+        level = ctrLevelId(3, mPs3Stack.size(), title, rows.size());
+    } else if (!mPs3Stack.empty()) {
+        const Ps3Level& lv = mPs3Stack.back();
+        for (const Ps3Item& it : lv.items) {
+            if (it.kind == PS3_DATA_LEAF && it.action == 0) continue;
+            ctr::PanelRow r;
+            r.label = trDyn(it.label.c_str());
+            bool on = false;
+            if (ctrItemSwitch(it, &on)) { r.kind = ctr::PanelRow::Toggle; r.on = on; }
+            else {
+                const std::string v = it.binding ? resolvePs3ItemValue(it) : it.value;
+                if (!v.empty()) { r.kind = ctr::PanelRow::Value; r.value = trDyn(v.c_str()); }
+            }
+            rows.push_back(r);
+        }
+        sel = lv.sel;
+        title = trDyn(lv.title.c_str());
+        level = ctrLevelId(0, mPs3Stack.size(), lv.title, rows.size());
+    }
+    const bool panel = mPs3OptActive || dlgList || !mPs3Stack.empty();
+    mCtrHome->setTopBannerHidden(panel);
+    if (panel) {
+        mCtrPanel->set(title, rows, sel, level);
+        mCtrPanel->show();
+        mCtrPanelWasShown = true;
+    } else {
+        mCtrPanel->hide();
+        mCtrPanelWasShown = false;
+    }
+    // ---- the message dialog (confirmations, notices) over everything ----
+    if ((mPs3DlgActive || mPs3DlgClosing) && !dlgSide) {
+        std::string text;
+        if (!mPs3DlgTitle.empty()) text = trDyn(mPs3DlgTitle.c_str());
+        if (!mPs3DlgBody.empty()) text += (text.empty() ? "" : "\n\n") + std::string(trDyn(mPs3DlgBody.c_str()));
+        std::vector<std::string> buttons;
+        for (const auto& o : mPs3DlgOptions) buttons.push_back(trDyn(o.c_str()));
+        mCtrDialog->set(text, buttons, mPs3DlgSel);
+        if (mPs3DlgActive) mCtrDialog->show();
+        else mCtrDialog->hide(false);
+    } else {
+        mCtrDialog->hide(true);
+    }
+}
+
+bool NanoMenu::ctrModalTouch(float x, float y) {
+    const bool down = mTouchDown && !mCtrTouchPrev, up = !mTouchDown && mCtrTouchPrev, held = mTouchDown && mCtrTouchPrev;
+    mCtrTouchPrev = mTouchDown;
+    auto launched = [this]() {
+        if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+        mDisplayDirty = true;
+    };
+    // the dialog is in front
+    if (mCtrDialog->active() && (mPs3DlgActive || mPs3DlgClosing) && !ndsDlgIsSidePanel()) {
+        const int b = mCtrDialog->touch(down, up, x, y);
+        if (b >= 0 && b < (int)mPs3DlgOptions.size()) {
+            mPs3DlgSel = b;
+            ps3XmbSelect();
+            launched();
+        } else if (b < 0 && up && mPs3DlgOptions.size() <= 1 && mPs3DlgActive) {
+            ps3XmbSelect();   // a notice: any tap is OK
+            launched();
+        }
+        return true;
+    }
+    if (!mCtrPanel->active()) return false;
+    const ctr::PanelHit h = mCtrPanel->touch(down, held, up, x, y);
+    switch (h.what) {
+        case ctr::PanelHit::Row: {
+            if (mPs3OptActive) {
+                const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size() &&
+                                     !mPs3OptSubRows[mPs3OptSel].empty();
+                if (subOpen) {
+                    mPs3OptSubSel = h.row;
+                } else {
+                    int vis = 0;
+                    for (int i = 0; i < (int)mPs3OptLabels.size(); i++) {
+                        if (i < (int)mPs3OptSep.size() && mPs3OptSep[i]) continue;
+                        if (vis++ == h.row) { mPs3OptSel = i; break; }
+                    }
+                }
+                xmbOptEnter();
+            } else if ((mPs3DlgActive || mPs3DlgClosing) && ndsDlgIsSidePanel()) {
+                mPs3DlgSel = h.row;
+                ps3XmbSelect();
+            } else if (!mPs3Stack.empty()) {
+                // rows skip the empty-level placeholder: map back to the level's item index
+                Ps3Level& lv = mPs3Stack.back();
+                int vis = 0, idx = -1;
+                for (int i = 0; i < (int)lv.items.size(); i++) {
+                    if (lv.items[i].kind == PS3_DATA_LEAF && lv.items[i].action == 0) continue;
+                    if (vis++ == h.row) { idx = i; break; }
+                }
+                if (idx < 0) break;
+                // a switch: the tapped side is set at once (the console's OFF / ON pair)
+                bool on = false;
+                lv.sel = idx;
+                if (ctrItemSwitch(lv.items[idx], &on) && h.column >= 0) {
+                    ctrSetSwitch(idx, h.column == 1);
+                    break;
+                }
+                ps3XmbSelect();
+            }
+            launched();
+            break;
+        }
+        case ctr::PanelHit::Close:
+            // the close button leaves the whole panel
+            if (mPs3OptActive || mPs3DlgActive) { ps3XmbBack(); break; }
+            for (int guard = 0; guard < 16 && !mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive; guard++) {
+                const size_t depth = mPs3Stack.size();
+                ps3XmbBack();
+                if (mPs3Stack.size() == depth) break;
+            }
+            mDisplayDirty = true;
+            break;
+        case ctr::PanelHit::Outside:
+            ps3XmbBack();
+            mDisplayDirty = true;
+            break;
+        default:
+            break;
+    }
+    return true;
+}
+
+bool NanoMenu::ctrItemSwitch(const Ps3Item& it, bool* on) {
+    if (it.checkState >= 0) { *on = it.checkState == 1; return true; }
+    const std::string v = it.binding ? resolvePs3ItemValue(it) : it.value;
+    return !v.empty() && ctrIsSwitch(v, on);
+}
+
+// A switch row set to OFF or ON. nano edits such a setting through a chooser (or flips a check
+// row on select): open it and pick the wanted choice, so the value is stored by nano's own path.
+bool NanoMenu::ctrSetSwitch(int itemIndex, bool on) {
+    if (mPs3Stack.empty()) return false;
+    Ps3Level& lv = mPs3Stack.back();
+    if (itemIndex < 0 || itemIndex >= (int)lv.items.size()) return false;
+    bool cur = false;
+    if (!ctrItemSwitch(lv.items[itemIndex], &cur)) return false;
+    lv.sel = itemIndex;
+    mDisplayDirty = true;
+    if (cur == on) return true;
+    ps3XmbSelect();
+    if (mPs3DlgActive) {
+        static const char* kOn[] = {"On", "ON", "on", "Enabled", "Yes"};
+        static const char* kOff[] = {"Off", "OFF", "off", "Disabled", "No"};
+        for (int k = 0; k < (int)mPs3DlgOptions.size(); k++) {
+            const std::string& o = mPs3DlgOptions[k];
+            bool match = false;
+            for (const char* w : on ? kOn : kOff) if (o == w || o == trDyn(w)) match = true;
+            if (match) { mPs3DlgSel = k; ps3XmbSelect(); return true; }
+        }
+        ps3XmbBack();   // not an On / Off chooser after all: leave it as it was
+        return false;
+    }
+    return true;
+}
+
+// LEFT / RIGHT choose OFF / ON and A flips, on a switch row of a settings list.
+bool NanoMenu::ctrSwitchKey(int type, int code, int value) {
+    if (!mCtrTheme || ctrModalKind() != CTR_MODAL_PANEL || mPs3OptActive || mPs3DlgActive || mPs3DlgClosing ||
+        mPs3Stack.empty()) {
+        mCtrSwitchKeyHeld = false;
+        return false;
+    }
+    Ps3Level& lv = mPs3Stack.back();
+    if (lv.sel < 0 || lv.sel >= (int)lv.items.size()) return false;
+    bool on = false;
+    const bool isSwitch = ctrItemSwitch(lv.items[lv.sel], &on);
+    // the release (or the centred hat) of a key used here is ours too
+    const bool release = (type == EV_KEY && value == 0) || (type == EV_ABS && code == ABS_HAT0X && value == 0);
+    if (release && mCtrSwitchKeyHeld &&
+        ((type == EV_KEY && (code == BTN_SOUTH || code == KEY_ENTER || code == BTN_DPAD_LEFT || code == BTN_DPAD_RIGHT ||
+                             code == KEY_LEFT || code == KEY_RIGHT)) || type == EV_ABS)) {
+        mCtrSwitchKeyHeld = false;
+        return true;
+    }
+    if (!isSwitch) return false;
+    int want = -1;
+    if (type == EV_KEY && value == 1) {
+        if (code == BTN_SOUTH || code == KEY_ENTER) want = on ? 0 : 1;
+        else if (code == BTN_DPAD_LEFT || code == KEY_LEFT) want = 0;
+        else if (code == BTN_DPAD_RIGHT || code == KEY_RIGHT) want = 1;
+    } else if (type == EV_KEY && value == 2 &&
+               (code == BTN_SOUTH || code == KEY_ENTER || code == BTN_DPAD_LEFT || code == BTN_DPAD_RIGHT || code == KEY_LEFT || code == KEY_RIGHT)) {
+        return true;   // no repeat on a switch
+    } else if (type == EV_ABS && code == ABS_HAT0X && value != 0) {
+        want = value > 0 ? 1 : 0;
+    }
+    if (want < 0) return false;
+    mCtrSwitchKeyHeld = true;
+    if ((want == 1) != on) ctrSetSwitch(lv.sel, want == 1);
+    else if (mCtrHost) mCtrHost->playSound("SE_CTR_COMMON_NOMOVE");
+    return true;
+}
+
+// nano's navigation sounds (PS3_SFX_*) as the console's effects
+void NanoMenu::ctrSfx(int which) {
+    if (!mCtrHost) return;
+    static const char* kNames[] = {"SE_CTR_HOME_SELECT", "SE_CTR_COMMON_BUTTON", "SE_CTR_COMMON_CANCEL",
+                                   "SE_CTR_COMMON_BUTTON", "SE_CTR_COMMON_DIALOG", "SE_CTR_COMMON_ERROR"};
+    if (which < 0 || which >= (int)(sizeof(kNames) / sizeof(kNames[0]))) return;
+    mCtrHost->playSound(kNames[which]);
 }
 
 // ---------------------------------------------------------------------------------------- render
@@ -618,6 +938,7 @@ void NanoMenu::renderCtrPrimary() {
     const nsecs_t perfStart = sCtrPerf.mode ? sCtrPerf.mark() : 0;
     if (sCtrPerf.mode) sCtrPerf.frame(perfStart);
     if (!mPs3MenuBuilt) initPs3Menu();   // the shared XMB hierarchy feeds the grid (systems, apps)
+    if (ctrEnsure()) ctrModalUpdate();
     if (!ctrEnsure()) {
         renderPs3Xmb();
         return;
@@ -701,13 +1022,15 @@ void NanoMenu::renderCtrPrimary() {
     } else {
         ctrDrawScreen(false, 0, 0, W, H);
     }
-    // nano's own lists and dialogs (settings, quick menu, media) over the home
-    if (!mPs3Stack.empty() || ndsInModal()) renderPs3Xmb();
+    // nano's screens the 3DS style does not cover yet (pickers, keyboard, wizard, players) keep
+    // the shared XMB chrome; lists, option menus and dialogs are the 3DS panel and dialog
+    if (ctrModalKind() == CTR_MODAL_FALLBACK) renderPs3Xmb();
     if (sCtrPerf.mode == 3) sCtrGpu.mark("rest");   // the rest of nano's frame until the next bottom pass
 }
 
 void NanoMenu::renderCtrSecondary() {
     if (!mCtrHome || !mCtrHome->loaded()) return;
+    ctrModalUpdate();   // the secondary pass runs first in a frame
     const nsecs_t t0 = sCtrPerf.mode ? sCtrPerf.mark() : 0;
     if (sCtrPerf.mode == 3) sCtrGpu.mark("bottom");   // also ends the "rest of frame" span
     ctrDrawScreen(false, 0, 0, (float)mWidth, (float)mHeight);

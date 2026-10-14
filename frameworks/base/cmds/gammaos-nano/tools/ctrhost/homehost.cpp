@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "../../NanoCtrHome.h"
+#include "../../NanoCtrPanel.h"
 #include "../../stb_image.h"
 
 using namespace android::ctr;
@@ -119,6 +120,18 @@ int main(int argc, char** argv) {
     home.setLanguage("English");
     if (!home.load()) { fprintf(stderr, "load failed\n"); return 1; }
     const float rot[4] = {1, 0, 0, 1};
+    // panel / dialog checks: "panel <rows> <sel>", "sel <i>", "unpanel", "dialog <buttons>", "undialog"
+    CtrPanel panel(home.assets(), nullptr);
+    CtrDialog dialog(home.assets(), nullptr);
+    panel.setWidth(botW);
+    dialog.setWidth(botW);
+    std::vector<PanelRow> rows;
+    int panelSel = 0;
+    home.overlay = [&](Renderer& r, bool top) {
+        if (top) { panel.drawTop(r); dialog.drawTop(r); }
+        else { panel.drawBottom(r); dialog.drawBottom(r); }
+    };
+    home.onTick = [&]() { panel.tick(); dialog.tick(); };
     auto shot = [&](const std::string& name) {
         glViewport(0, 0, W, H);
         glClearColor(0, 0, 0, 1);
@@ -164,6 +177,34 @@ int main(int argc, char** argv) {
             home.step(n);
             t.held = false;
             home.setTouch(t);
+        } else if (cmd == "panel") {
+            int n; ss >> n >> panelSel;
+            rows.clear();
+            static const char* kLabels[] = {"Wi-Fi Settings", "Bluetooth", "Sound Settings", "Display Settings",
+                                            "Internet Radio Playlist URL with a long label", "Date and Time"};
+            for (int i = 0; i < n; i++) {
+                PanelRow r;
+                r.label = kLabels[i % 6];
+                if (i % 4 == 1) { r.kind = PanelRow::Toggle; r.on = (i % 8) == 1; }
+                if (i % 4 == 2) { r.kind = PanelRow::Value; r.value = "Automatic"; }
+                rows.push_back(r);
+            }
+            panel.set("System Settings", rows, panelSel, 1);
+            panel.show();
+        } else if (cmd == "sel") {
+            ss >> panelSel;
+            panel.set("System Settings", rows, panelSel, 1);
+        } else if (cmd == "unpanel") {
+            panel.hide();
+        } else if (cmd == "dialog") {
+            int n; ss >> n;
+            std::vector<std::string> b;
+            if (n > 0) b.push_back("Yes");
+            if (n > 1) b.push_back("No");
+            dialog.set("Delete this folder?\n\nThe games inside stay on the SD card.", b, 0);
+            dialog.show();
+        } else if (cmd == "undialog") {
+            dialog.hide(true);
         } else if (cmd == "home") {
             home.pressHome();
         } else if (cmd == "shot") {

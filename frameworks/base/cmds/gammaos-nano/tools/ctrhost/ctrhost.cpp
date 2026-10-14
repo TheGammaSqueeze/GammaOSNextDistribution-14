@@ -119,6 +119,7 @@ int main(int argc, char** argv) {
     r.setViewport(0, 0, w, h);
     r.begin((float)lw, (float)lh);
     for (auto& l : layouts) r.drawLayout(l->layout());
+    r.end();   // draws are recorded and issued at end()
     glFinish();
     std::vector<uint8_t> px((size_t)w * h * 4);
     glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, px.data());

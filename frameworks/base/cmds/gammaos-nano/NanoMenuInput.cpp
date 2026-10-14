@@ -2558,8 +2558,8 @@ void NanoMenu::pollInput() {
                                      { if (ndsDlgIsSidePanel()) minimaSidePanelTouch(); else minimaDialogTouch(); }
                 else if (mMinimaTheme && mPs3Xmb && !ndsInModal())
                                      minimaListTouch();
-                else if (mCtrTheme && ctrOwnsInput())
-                                     ctrTouchFrame();
+                else if (mCtrTheme && (ctrOwnsInput() || ctrModalKind() == CTR_MODAL_PANEL))
+                                     ctrTouchFrame();   // the 3DS home, or its settings panel / dialog
                 else                 xmbTouchFrame();   // modals + XMB: option panel / dialog / self-guards
                 // GammaOS touch-launch handoff safety net. A launch triggered by a touch tap sets
                 // mWaitForRelease, but a touch has no physical select-key release, so the key-release

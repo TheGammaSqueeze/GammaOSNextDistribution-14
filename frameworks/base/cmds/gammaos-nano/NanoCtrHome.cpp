@@ -1762,6 +1762,7 @@ void CtrHome::tick() {
     I.touch = t;
     mFrame++;
     I.tick();
+    if (onTick) onTick();
 }
 
 void CtrHome::step(int frames) {
@@ -1805,6 +1806,10 @@ void CtrHome::projection(float out[16], float lw, float lh, float rx, float ry, 
 
 void (*CtrHome::perfMark)(const char*) = nullptr;
 
+void CtrHome::setTopBannerHidden(bool hidden) {
+    if (mLoaded && mImpl->top3d) mImpl->top3d->setBannerHidden(hidden);
+}
+
 bool CtrHome::topCovered() const { return mLoaded && mImpl->top3d && !getenv("CTR_NO3D"); }
 
 void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) {
@@ -1821,6 +1826,7 @@ void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) 
     r.setClip(-mTopW / 2, -120, mTopW, 240);
     I.drawInstance(r, I.top.get());
     I.drawInstance(r, I.hud.get());
+    if (overlay) overlay(r, true);
     if (I.fadeActive || I.state == StAppStart || I.state == StAppRunning) I.drawInstance(r, I.fadeTop.get());
     r.end();
 }
@@ -1860,6 +1866,7 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
     I.drawInstance(r, I.arrows.get());
     I.drawInstance(r, I.balloon.get());
     I.drawInstance(r, I.buttons.get());
+    if (overlay) overlay(r, false);
     if (I.fadeActive || I.state == StAppStart || I.state == StAppRunning) I.drawInstance(r, I.fadeBottom.get());
     r.end();
 }

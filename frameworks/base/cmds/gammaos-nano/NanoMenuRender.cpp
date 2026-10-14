@@ -6170,7 +6170,15 @@ void NanoMenu::render() {
                              sDrasticSaturation, sDrasticGradient);
     } else {
 
-    if (mOverlayMode) {
+    // The 3DS theme paints both of its screens opaque (the 3D wall on top, the base layout on the
+    // bottom) and draws nano's lists, option menus and dialogs as its own panel and dialog, so the
+    // XMB wallpaper and the offscreen wave (glass icons) are never seen: skipping them is most of
+    // the frame's GPU time. Only a screen without a 3DS look yet (keyboard, pickers, players)
+    // falls back to the XMB chrome and keeps them.
+    const bool ctrPureHome = mCtrTheme && !mPs3BootActive && ctrModalKind() != CTR_MODAL_FALLBACK;
+    if (mOverlayMode && ctrPureHome) {
+        setUiBlend();   // the 3DS screens cover the panel: no XMB wallpaper or wave under them
+    } else if (mOverlayMode) {
         if (ovWallpaper) {
             // Launcher / no-app state: render the user's CHOSEN wallpaper exactly
             // like the home XMB instead of a hardcoded wave. renderEffect() honours
@@ -6221,12 +6229,6 @@ void NanoMenu::render() {
                                   && mPs3Stack.empty()
                                   && (mEsdeMenuActive || mEsdeMenuClosing
                                       || (!ndsInModal() && !mOskActive));
-        // The 3DS home paints both of its screens opaque (the 3D wall on top, the base layout on
-        // the bottom), so the wallpaper and the offscreen wave (glass icons) are never seen either:
-        // skipping them is most of the frame's GPU time on that home. A nano list, dialog or
-        // player over it falls back to the XMB chrome and keeps them.
-        const bool ctrPureHome = mCtrTheme && !mPs3BootActive && !ndsPlayerActive() && mPs3Stack.empty()
-                                 && !ndsInModal() && !mOskActive;
         if (!esdePureHome && !ctrPureHome && !setupBlankDual)
             renderEffect();
         // Decouple the glass icons from the wave WALLPAPER. The glass-icon shader

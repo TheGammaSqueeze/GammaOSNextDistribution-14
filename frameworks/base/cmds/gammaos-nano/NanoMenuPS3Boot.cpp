@@ -419,6 +419,7 @@ static std::atomic<bool> gPs3SfxOpening[PS3_SFX_COUNT] = {};
 
 void NanoMenu::ps3Sfx(int which) {
     if (mNdsTheme || mMinimaTheme) return;              // PS3 XMB theme only (DSi=ndsSfxPlay, Minima=minimaSfx)
+    if (mCtrTheme) { ctrSfx(which); return; }           // 3DS theme: the console's own effects
     if (!navSoundsOn()) return;
     if (which < 0 || which >= PS3_SFX_COUNT) return;
     static const char* kFiles[PS3_SFX_COUNT] = {

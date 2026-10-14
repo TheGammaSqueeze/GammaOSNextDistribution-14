@@ -1207,7 +1207,7 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
         normalMatrix(nm, mv);
         glUniformMatrix3fv(prog->loc("u_normalMatrix"), 1, GL_FALSE, nm);
         // textures
-        float mats[24], sources[3], borders[12], wraps[6];
+        float mats[24], sources[3], borders[12];
         for (int unit = 0; unit < 3; unit++) {
             const int ci = unit < (int)m.texCoordConfig.size() ? m.texCoordConfig[unit] - '0' : unit;
             it.state->textureMatrix(ci, &mats[unit * 8]);
@@ -1228,8 +1228,6 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
             }
             const V4 b = mp.valid ? mp.border : V4{0, 0, 0, 1};
             memcpy(&borders[unit * 4], b.data(), 16);
-            wraps[unit * 2] = mp.valid && mp.borderS ? 1.0f : 0.0f;
-            wraps[unit * 2 + 1] = mp.valid && mp.borderT ? 1.0f : 0.0f;
         }
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, r.lutTexture ? r.lutTexture : mWhite);

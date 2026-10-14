@@ -107,8 +107,14 @@ public:
     // (rx, ry, rw, rh) of a W x H panel whose clip space is rotated by rot (column major 2x2).
     // Optional probe called between the passes of a screen ("3d" after the top screen's 3D).
     static void (*perfMark)(const char* pass);
+    // Drawn over each screen inside its pass (nano's lists and dialogs in the 3DS style), and
+    // called on every 60 Hz tick of the home.
+    std::function<void(Renderer& r, bool top)> overlay;
+    std::function<void()> onTick;
     // True when the top screen paints every pixel of its rectangle itself (the 3D wall).
     bool topCovered() const;
+    // Leaves the focused banner off the top screen (a panel's title band takes its place).
+    void setTopBannerHidden(bool hidden);
     static void projection(float out[16], float lw, float lh, float rx, float ry, float rw, float rh,
                            float W, float H, const float rot[4]);
 
