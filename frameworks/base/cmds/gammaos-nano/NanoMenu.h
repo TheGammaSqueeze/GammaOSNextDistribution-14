@@ -64,7 +64,7 @@ static inline void nanoThreadNormalPriority() {
 #include "NanoEsdeTheme.h"
 #include "NanoSyncthing.h"  // Syncthing REST client + model (Settings > Syncthing)
 #include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)
-namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; } }   // ES-DE theme engine model (fourth home theme)
+namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; class RomArt; } }   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -1625,6 +1625,8 @@ private:
     // nano's lists, option menus and dialogs in the 3DS style (NanoCtrPanel): the HOME Menu
     // Settings panel and the message dialog as views over the shared menu state
     ctr::CtrPanel* mCtrPanel = nullptr;
+    ctr::RomArt* mCtrArt = nullptr;               // 3DS ROM icons + banners (NanoCtrArt)
+    uint64_t mArtGeneration = 0;                  // bumped when cover / DS icon textures are freed
     ctr::CtrDialog* mCtrDialog = nullptr;
     bool mCtrPanelWasShown = false;
     bool mCtrTouchPrev = false;

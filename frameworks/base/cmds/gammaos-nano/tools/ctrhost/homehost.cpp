@@ -18,9 +18,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include "../../NanoCtrHome.h"
 #include "../../NanoCtrPanel.h"
+#include "../../NanoCtrArt.h"
 #include "../../stb_image.h"
 
 using namespace android::ctr;
@@ -46,6 +48,27 @@ struct FakeHost : CtrHomeHost {
         rgba->assign(px, px + (size_t)(*w) * (*h) * 4);
         stbi_image_free(px);
         return true;
+    }
+    // CTR_ROM=<path>: every title shows that 3DS ROM's icon and banner (NanoCtrArt checks)
+    std::unique_ptr<RomArt> rom;
+    GLuint titleIconTexture(const HomeItem& item, int* w, int* h, IconArt* art) override {
+        (void)item; (void)art;
+        if (!rom) return 0;
+        // the harness runs without frames in between: wait for the worker
+        for (int i = 0; i < 400; i++) {
+            if (GLuint g = rom->icon(getenv("CTR_ROM"))) { *w = *h = 48; return g; }
+            usleep(5000);
+        }
+        return 0;
+    }
+    void titleArt(const HomeItem& item, TitleArt* out) override {
+        (void)item;
+        if (!rom) return;
+        for (int i = 0; i < 400; i++) {
+            out->cbmd = rom->banner(getenv("CTR_ROM"), &out->pending);
+            if (!out->pending) return;
+            usleep(5000);
+        }
     }
     bool launch(const HomeItem& item) override { log.push_back("launch " + item.id); return true; }
     void appletBar(int b) override { log.push_back("bar " + std::to_string(b)); }
@@ -114,6 +137,7 @@ int main(int argc, char** argv) {
             for (HomeItem& it : kv.second)
                 if (it.kind == HomeItemKind::Folder) it.folderFilled = !host.folders[it.id].empty();
     }
+    if (getenv("CTR_ROM")) host.rom = std::make_unique<RomArt>("/tmp/claude-1000/ctrrom_cache");
     CtrHome home(argv[1], &host);
     home.setMinRootSlots(240);
     home.setScreenWidths(topW, botW);

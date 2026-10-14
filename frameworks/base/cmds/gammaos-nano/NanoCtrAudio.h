@@ -29,6 +29,10 @@ public:
     bool playing(int handle);
     void setMasters(float se, float bgm) { mSeMaster = se; mBgmMaster = bgm; }
     void preload(const std::string& name);
+    // Plays 16 bit PCM held elsewhere (a title's banner sound); `keep` holds the samples alive
+    // while the voice plays.
+    int playPcm(std::shared_ptr<const void> keep, const int16_t* pcm, int64_t frames, int channels, int rate,
+                bool loop, int64_t loopStart, int64_t loopEnd, float volume = 1.0f);
     // Closes the output (the home parks behind an app); a later play reopens it.
     void release();
     int32_t fill(int which, int16_t* out, int32_t frames);   // stream callback (public for the trampolines)
@@ -49,6 +53,7 @@ private:
         int64_t loopStart = 0, loopEnd = 0;
         bool bgm = false;
         std::string name;
+        std::shared_ptr<const void> keep;   // playPcm: the owner of the samples
     };
     struct Voice {
         int handle = 0;

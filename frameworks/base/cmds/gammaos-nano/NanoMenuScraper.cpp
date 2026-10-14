@@ -784,7 +784,8 @@ void NanoMenu::scraperArtTick() {
     // The ES-DE theme browses games through its own selection (not the shared mPs3CatIdx
     // category rail), so keep boxart alive whenever it is active; otherwise a per-frame
     // free/rebuild would thrash the decode worker and the cover would never land.
-    bool inGame = mEsdeTheme ||
+    // the 3DS theme's grid is the Game category: its covers stay while it is up
+    bool inGame = mEsdeTheme || mCtrTheme ||
                   (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                    && mPs3Cats[mPs3CatIdx].name == "Game");
     if (!inGame && (!mRomBoxartCache.empty() || mFanartTex || mNdsFanTex || mSaDecStarted.load()))
@@ -794,6 +795,7 @@ void NanoMenu::scraperArtTick() {
 }
 
 void NanoMenu::scraperFreeBoxart() {
+    mArtGeneration++;   // GL names of freed covers may be reused (3DS theme icon copies)
     saStopArtWorker();                          // join the worker so nothing runs at idle
     for (auto& kv : mRomBoxartCache)
         if (kv.second.tex) glDeleteTextures(1, &kv.second.tex);

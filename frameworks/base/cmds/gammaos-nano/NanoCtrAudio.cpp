@@ -94,6 +94,40 @@ std::shared_ptr<CtrAudio::Clip> CtrAudio::clip(const std::string& name) {
 
 void CtrAudio::preload(const std::string& name) { (void)clip(name); }
 
+int CtrAudio::playPcm(std::shared_ptr<const void> keep, const int16_t* pcm, int64_t frames, int channels, int rate,
+                      bool loop, int64_t loopStart, int64_t loopEnd, float volume) {
+    if (mShutdown.load() || !pcm || frames <= 0 || (channels != 1 && channels != 2) || rate <= 0) return 0;
+    auto c = std::make_shared<Clip>();
+    c->keep = std::move(keep);
+    c->pcm = pcm;
+    c->frames = frames;
+    c->channels = channels;
+    c->rate = rate;
+    c->loop = loop && loopEnd > loopStart && loopEnd <= frames;
+    c->loopStart = loopStart;
+    c->loopEnd = loopEnd;
+    c->name = "banner";
+    int handle;
+    {
+        std::lock_guard<std::mutex> lk(mVoiceM);
+        Voice* slot = nullptr;
+        for (Voice& v : mVoices) if (!v.active) { slot = &v; break; }
+        if (!slot) for (Voice& v : mVoices) if (!v.clip->bgm && (!slot || v.handle < slot->handle)) slot = &v;
+        if (!slot) return 0;
+        handle = mNextHandle++;
+        slot->handle = handle;
+        slot->clip = c;
+        slot->pos = 0;
+        slot->pitch = 1;
+        slot->step = (double)rate / mOut[0].rate;
+        slot->gain = volume * mSeMaster;
+        slot->fadeTotal = slot->fadeLeft = 0;
+        slot->active = true;
+    }
+    ensureRunning(0);
+    return handle;
+}
+
 int CtrAudio::play(const std::string& name, float volume, float pitch) {
     if (mShutdown.load()) return 0;
     std::shared_ptr<Clip> c = clip(name);

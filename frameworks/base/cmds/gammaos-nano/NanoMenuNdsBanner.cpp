@@ -220,7 +220,8 @@ static bool ndsThemeSelected() {
     static int cached = -1;
     if (cached < 0) {
         char v[PROPERTY_VALUE_MAX] = {};
-        if (property_get("persist.gammaos.nano.ndstheme", v, "") > 0 && v[0]) cached = (atoi(v) == 1) ? 1 : 0;
+        // the DSi theme (1) and the 3DS theme (4) show DS cartridges with their own icons
+        if (property_get("persist.gammaos.nano.ndstheme", v, "") > 0 && v[0]) cached = (atoi(v) == 1 || atoi(v) == 4) ? 1 : 0;
         else return false;
     }
     return cached == 1;
@@ -263,6 +264,7 @@ void NanoMenu::ndsBannerTick() {
     {   // icons of files that changed underneath: forget the upload so the new parse shows
         std::vector<std::string> drop;
         { std::lock_guard<std::mutex> lk(mNdsBannerMu); drop.swap(mNdsBannerTexDrop); }
+        if (!drop.empty()) mArtGeneration++;
         for (const auto& r : drop) {
             auto t = mNdsBannerTex.find(r);
             if (t == mNdsBannerTex.end()) continue;
@@ -345,6 +347,7 @@ GLuint NanoMenu::ndsBannerTex(const std::string& rom) {
 }
 
 void NanoMenu::ndsBannerFreeAll() {
+    mArtGeneration++;
     for (auto& kv : mNdsBannerTex) if (kv.second.tex) glDeleteTextures(1, &kv.second.tex);
     mNdsBannerTex.clear();
 }

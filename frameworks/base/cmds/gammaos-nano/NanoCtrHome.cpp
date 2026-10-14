@@ -6,6 +6,7 @@
 #include "NanoCtrTop.h"
 
 #include <algorithm>
+#include <map>
 #include <cmath>
 #include <cstring>
 #include <ctime>
@@ -532,9 +533,11 @@ struct CtrHome::Impl {
         r.drawLayout(l->layout());
     }
     TexturePtr titleTexture(const HomeItem& it);
-    TexturePtr tintedCopy(GLuint src, int w, int h, float grey);
+    TexturePtr tintedCopy(GLuint src, int w, int h, float grey, float coverAspect = 0, bool flipY = false);
+    std::unordered_map<GLuint, TexturePtr> hostTex;  // wrappers of host textures
+    uint64_t artGen = 0;
     Renderer::CacheSlot bottomCache;   // background, sheets and icons of the bottom screen
-    std::unordered_map<GLuint, TexturePtr> tinted;
+    std::map<std::pair<GLuint, int>, TexturePtr> tinted;   // derived icons by source texture + kind
     GLuint tintProgram = 0;
 };
 
@@ -609,6 +612,10 @@ bool CtrHome::Impl::load() {
     hudBuild();
     top3d = std::make_unique<CtrTop>(*A);
     if (!top3d->load()) top3d.reset();
+    if (top3d) {
+        top3d->onBannerSound = [this](const std::shared_ptr<const RomBanner>& b) { if (host) host->playBannerSound(b); };
+        top3d->onBannerLeave = [this]() { if (host) host->stopBannerSound(); };
+    }
     else top3d->sceneIn();
     // enter (launcher.ts enterBegin): BGM, bottom bar and arrows scene in, logo fade in
     bgm = host ? host->playSound("BGM_CTR_HOME") : 0;
@@ -1255,11 +1262,28 @@ void CtrHome::Impl::updateChrome() {
             f.key = it->id;
             f.plate = it->name;
             if (it->kind == HomeItemKind::Title && !it->publisher.empty()) f.plate += "\n" + it->publisher;
+            if (it->kind == HomeItemKind::Title && host) {
+                CtrHomeHost::TitleArt ta;
+                host->titleArt(*it, &ta);
+                // a 3DS banner still being read keeps the shown banner (no 2D banner flash)
+                if (ta.pending) return;
+                f.cbmd = ta.cbmd;
+                f.dsIcon = ta.dsIcon;
+                // banner models take their textures stored upside down (like the name plates)
+                if (ta.icon) {
+                    if (TexturePtr c = tintedCopy(ta.icon, ta.w, ta.h, 1.0f, ta.art.coverAspect, true)) {
+                        f.icon = c->id;
+                        f.iconW = c->width;
+                        f.iconH = c->height;
+                    }
+                }
+            }
         } else {
             f.kind = TopFocus::Empty;
             f.key = "empty";
         }
-        const std::string k = std::to_string((int)f.kind) + "|" + f.key + "|" + f.plate;
+        const std::string k = std::to_string((int)f.kind) + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) +
+                              (f.cbmd ? "|cbmd" : "");
         if (k != topFocusKey) {
             topFocusKey = k;
             top3d->focus(f);
@@ -1554,10 +1578,15 @@ void CtrHome::Impl::hudUpdate(bool force) {
 
 // A copy of a GL texture with its colour scaled to `grey` (alpha kept), rendered once into a
 // new texture. Copies are shared per source texture.
-TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey) {
-    auto cached = tinted.find(src);
+// A derived copy of a GL texture, rendered once: colour scaled to `grey` (alpha kept), and for a
+// cover (coverAspect > 0) fitted whole into a transparent square. Copies are kept per source.
+TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float coverAspect, bool flipY) {
+    const int kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0);
+    auto cached = tinted.find({src, kind});
     if (cached != tinted.end()) return cached->second;
-    static const char* vs = "attribute vec2 p; varying vec2 uv; void main(){ uv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }";
+    static const char* vs = "attribute vec2 p; uniform vec2 s; uniform float f; varying vec2 uv;"
+                            "void main(){ uv = p * 0.5 + 0.5; uv.y = mix(uv.y, 1.0 - uv.y, f);"
+                            " gl_Position = vec4(p * s, 0.0, 1.0); }";
     static const char* fs = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nvarying vec2 uv; uniform sampler2D t; uniform float g;"
                             "void main(){ vec4 c = texture2D(t, uv); gl_FragColor = vec4(c.rgb * g, c.a); }";
     if (!tintProgram) {
@@ -1576,6 +1605,11 @@ TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey) {
         glDeleteShader(v);
         glDeleteShader(f);
     }
+    float sx = 1, sy = 1;
+    if (coverAspect > 0) {
+        w = h = 192;   // sharp at the largest grid zoom on a 4x panel
+        if (coverAspect < 1) sx = coverAspect; else sy = 1 / coverAspect;
+    }
     std::vector<uint8_t> none((size_t)w * h * 4, 0);
     TexturePtr t = A->rgbaTexture(none.data(), w, h);
     GLint prevFbo = 0, vp[4];
@@ -1592,6 +1626,8 @@ TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey) {
     glUseProgram(tintProgram);
     glUniform1i(glGetUniformLocation(tintProgram, "t"), 0);
     glUniform1f(glGetUniformLocation(tintProgram, "g"), grey);
+    glUniform2f(glGetUniformLocation(tintProgram, "s"), sx, sy);
+    glUniform1f(glGetUniformLocation(tintProgram, "f"), flipY ? 1.0f : 0.0f);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, src);
     // the copy keeps the source's row order (the FBO's row 0 receives uv.y = 0)
@@ -1605,34 +1641,44 @@ TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey) {
     glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
     glDeleteFramebuffers(1, &fbo);
     glViewport(vp[0], vp[1], vp[2], vp[3]);
-    tinted[src] = t;
+    tinted[{src, kind}] = t;
     gTextureEpoch++;
     return t;
 }
 
 TexturePtr CtrHome::Impl::titleTexture(const HomeItem& it) {
+    if (host) {
+        const uint64_t gen = host->artGeneration();
+        if (gen != artGen) {
+            artGen = gen;
+            tinted.clear();
+            hostTex.clear();   // a reused GL name carries other sampler state
+            gTextureEpoch++;
+        }
+        int w = 0, h = 0;
+        CtrHomeHost::IconArt art;
+        if (GLuint gl = host->titleIconTexture(it, &w, &h, &art)) {
+            if (art.mono) {
+                // white glyph art reads as the folder letters' grey (icons.ts LETTER_COLOR): a
+                // darkened copy (the icon material ignores vertex colour)
+                if (TexturePtr t = tintedCopy(gl, w, h, 80 / 255.0f)) return t;
+            } else if (art.coverAspect > 0) {
+                if (TexturePtr t = tintedCopy(gl, w, h, 1.0f, art.coverAspect)) return t;
+            }
+            auto f = hostTex.find(gl);
+            if (f != hostTex.end()) return f->second;
+            auto t = std::make_shared<Texture>();   // the host owns the GL object
+            t->id = gl;
+            t->width = t->texWidth = w;
+            t->height = t->texHeight = h;
+            hostTex[gl] = t;
+            return t;
+        }
+    }
     auto f = iconTex.find(it.id);
     if (f != iconTex.end()) return f->second;
     std::vector<uint8_t> px;
     int w = 0, h = 0;
-    if (host) {
-        if (GLuint gl = host->titleIconTexture(it, &w, &h)) {
-            TexturePtr t;
-            if (it.monoIcon) {
-                // white glyph art reads as the folder letters' grey (icons.ts LETTER_COLOR): a
-                // darkened copy made once (the icon material ignores vertex colour)
-                t = tintedCopy(gl, w, h, 80 / 255.0f);
-            }
-            if (!t) {
-                t = std::make_shared<Texture>();   // the host owns the GL object
-                t->id = gl;
-                t->width = t->texWidth = w;
-                t->height = t->texHeight = h;
-            }
-            iconTex[it.id] = t;
-            return t;
-        }
-    }
     if (!host || !host->titleIcon(it, &px, &w, &h) || w <= 0 || h <= 0) return nullptr;
     TexturePtr t = A->rgbaTexture(px.data(), w, h);
     iconTex[it.id] = t;
@@ -1731,6 +1777,7 @@ void CtrHome::releaseGl() {
     if (mImpl) mAssets->renderer().releaseCache(mImpl->bottomCache);
     if (mImpl) mImpl->iconTex.clear();
     if (mImpl) mImpl->tinted.clear();
+    if (mImpl) mImpl->hostTex.clear();
     if (mImpl && mImpl->tintProgram) { glDeleteProgram(mImpl->tintProgram); mImpl->tintProgram = 0; }
     if (mImpl && mImpl->top3d) mImpl->top3d->releaseGl();
     if (mAssets) mAssets->releaseGl();

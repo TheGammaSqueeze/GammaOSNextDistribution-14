@@ -1,5 +1,6 @@
 // NanoCtrTop - see NanoCtrTop.h.
 #include "NanoCtrTop.h"
+#include "NanoCtrArt.h"
 #include "NanoCtrHome.h"
 
 #include <algorithm>
@@ -78,6 +79,10 @@ void CtrTop::Banner::update() {
     const float angle = spec.turn ? -turnFrame * (float)M_PI * 2 / TURN_FRAMES : 0.0f;
     const float scale = SCALE_BASE + step * SCALE_STEP;
     mat4Transform(model->transform, {scale, scale, scale}, {0, angle, 0}, {0, 0, 0});
+    if (extra) {
+        extra->visible = model->visible;
+        extra->transform = model->transform;
+    }
 }
 
 CtrTop::CtrTop(Assets& assets) : mAssets(assets) {}
@@ -156,7 +161,18 @@ void CtrTop::focus(const TopFocus& f) {
             spec.meshes = {"Folder_00", "Text"}; spec.nameScale = 0.74f;
             break;
         case TopFocus::Title:
-            spec.type = Banner2D; spec.model = "Banner2D"; spec.nameTexture = "Dmy_00";
+            if (f.cbmd) {
+                // the title's own CBMD model, COMMON played in repeat mode, facing the camera
+                // (titlebanner.ts)
+                spec.type = TitleT; spec.model = "rom:" + f.cbmd->rom; spec.animations = {"COMMON"};
+                spec.loop = true; spec.turn = false;
+            } else if (f.icon && f.dsIcon) {
+                spec.type = DS; spec.model = "BannerDS"; spec.animations = {"BannerDS"};
+            } else if (f.icon) {
+                spec.type = DSiWare; spec.model = "BannerDSiWare"; spec.animations = {"BannerDSiWare"};
+            } else {
+                spec.type = Banner2D; spec.model = "Banner2D"; spec.nameTexture = "Dmy_00";
+            }
             break;
         case TopFocus::Bar: {
             static const struct { int type; const char* model; } kBar[6] = {
@@ -172,12 +188,13 @@ void CtrTop::focus(const TopFocus& f) {
             show = false;
             break;
     }
-    const std::string key = show ? spec.model + "|" + f.key + "|" + f.plate : std::string();
+    const std::string key = show ? spec.model + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) : std::string();
     if (key == mWantedKey) {
         if (mBanner) mBanner->shown = true;
         return;
     }
     mWantedKey = key;
+    if (onBannerLeave) onBannerLeave();
     if (mBanner) {
         mBanner->shown = false;
         mLeaving.push_back(std::move(mBanner));
@@ -270,10 +287,41 @@ std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size
     return t;
 }
 
+std::shared_ptr<ModelResource> CtrTop::packResource(const std::vector<uint8_t>& bytes, const std::string& what) {
+    auto pack = std::make_shared<Pack>();
+    if (!pack->openMemory(bytes)) return nullptr;
+    auto r = std::make_shared<ModelResource>();
+    if (!r->load(*pack, pack.get())) {
+        ALOGW("banner model of %s failed to load", what.c_str());
+        return nullptr;
+    }
+    r->keepAlive = pack;   // the resource reads the pack while it lives
+    return r;
+}
+
+std::shared_ptr<ModelResource> CtrTop::romResource(const std::shared_ptr<const RomBanner>& b) {
+    if (!b || b->modelPack.empty()) return nullptr;
+    if (mRomRes && mRomResKey == b->rom) return mRomRes;
+    auto r = packResource(b->modelPack, b->rom);
+    if (!r) return nullptr;
+    mRomRes = r;           // a leaving banner keeps its own resource through its instance
+    mRomResKey = b->rom;
+    return r;
+}
+
 void CtrTop::attach() {
     mHasPending = false;
-    auto res = resource(mPendingSpec.model);
+    auto res = mPendingFocus.cbmd ? romResource(mPendingFocus.cbmd) : resource(mPendingSpec.model);
     if (!res) return;
+    if (mPendingFocus.icon && res->hasTexture("DmyIcon_00")) {
+        auto t = std::make_shared<GpuTex>();
+        t->id = mPendingFocus.icon;
+        t->width = mPendingFocus.iconW;
+        t->height = mPendingFocus.iconH;
+        t->owned = false;   // the home owns the icon texture
+        res->setTexture("DmyIcon_00", t);
+    }
+    if (mPendingFocus.cbmd && onBannerSound) onBannerSound(mPendingFocus.cbmd);
     if (!mPendingFocus.plate.empty() && res->hasTexture(mPendingSpec.nameTexture)) {
         mPlate = plateTexture(mPendingFocus.plate, mPendingSpec.nameScale);
         res->setTexture(mPendingSpec.nameTexture, mPlate);
@@ -288,6 +336,15 @@ void CtrTop::attach() {
             if (std::find(b->spec.meshes.begin(), b->spec.meshes.end(), res->meshes[i].node) == b->spec.meshes.end())
                 b->model->hiddenMeshes.insert((int)i);
     }
+    // the language slot's own model, its animations in repeat mode like COMMON
+    if (mPendingFocus.cbmd && !mPendingFocus.cbmd->languagePack.empty()) {
+        if (auto lr = packResource(mPendingFocus.cbmd->languagePack, mPendingFocus.cbmd->rom + " (language)")) {
+            b->extra = std::make_unique<ModelInstance>(lr);
+            b->extra->layer = 1;
+            for (const auto& a : lr->skeletal) b->extra->play(a.name, 1);
+            for (const auto& a : lr->material) b->extra->play(a.name, 1);
+        }
+    }
     mBanner = std::move(b);
     mAttachedOnce = true;
 }
@@ -295,8 +352,8 @@ void CtrTop::attach() {
 void CtrTop::update() {
     if (mHasPending && --mPendingLeft <= 0) attach();
     if (mWall) mWall->update(1);
-    for (auto& b : mLeaving) { b->update(); b->model->update(1); }
-    if (mBanner) { mBanner->update(); mBanner->model->update(1); }
+    for (auto& b : mLeaving) { b->update(); b->model->update(1); if (b->extra) b->extra->update(1); }
+    if (mBanner) { mBanner->update(); mBanner->model->update(1); if (mBanner->extra) mBanner->extra->update(1); }
     mLeaving.erase(std::remove_if(mLeaving.begin(), mLeaving.end(), [](const std::unique_ptr<Banner>& b) { return b->gone(); }),
                    mLeaving.end());
 }
@@ -314,8 +371,14 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
     const int w = std::max(1, (int)lroundf(width * std::max(1.0f, s))), h = std::max(1, (int)lroundf(240 * std::max(1.0f, s)));
     std::vector<ModelInstance*> models{mWall.get()};
     if (!mBannerHidden) {
-        for (auto& b : mLeaving) models.push_back(b->model.get());
-        if (mBanner) models.push_back(mBanner->model.get());
+        for (auto& b : mLeaving) {
+            models.push_back(b->model.get());
+            if (b->extra) models.push_back(b->extra.get());
+        }
+        if (mBanner) {
+            models.push_back(mBanner->model.get());
+            if (mBanner->extra) models.push_back(mBanner->extra.get());
+        }
     }
     const GLuint tex = mRenderer.render(mCamera, models, w, h, TOP_CLEAR);
     if (CtrHome::perfMark) CtrHome::perfMark("top3dBlit");

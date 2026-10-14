@@ -18,6 +18,8 @@
 namespace android {
 namespace ctr {
 
+struct RomBanner;
+
 // 3DS HID bits (docs/menu.md "Input").
 enum CtrButton : uint32_t {
     CTR_A = 0x1, CTR_B = 0x2, CTR_SELECT = 0x4, CTR_START = 0x8,
@@ -56,7 +58,29 @@ public:
     // 48x48 RGBA art of a title (top row first); false while it is not available yet.
     virtual bool titleIcon(const HomeItem& item, std::vector<uint8_t>* rgba, int* w, int* h) = 0;
     // Or an existing GL texture of the host (not owned; top row first). 0 = none.
-    virtual GLuint titleIconTexture(const HomeItem& item, int* w, int* h) { (void)item; (void)w; (void)h; return 0; }
+    // What a title's icon texture is: nano's white system glyph (shown in the folder letters'
+    // grey), a square colour icon (3DS SMDH, DS banner icon), or a cover of `coverAspect`
+    // (width / height) fitted whole into the square icon.
+    struct IconArt { bool mono = false; float coverAspect = 0; };
+    // Asked every frame for the titles on screen: art that arrives later replaces the glyph.
+    virtual GLuint titleIconTexture(const HomeItem& item, int* w, int* h, IconArt* art) {
+        (void)item; (void)w; (void)h; (void)art; return 0;
+    }
+    // A title's art for its top screen banner: a 3DS ROM's CBMD banner (`pending` while it is
+    // being read), else an icon (a DS cartridge's own icon, or art like a cover).
+    struct TitleArt {
+        std::shared_ptr<const RomBanner> cbmd;
+        bool pending = false;
+        GLuint icon = 0;
+        int w = 0, h = 0;
+        IconArt art;
+        bool dsIcon = false;
+    };
+    virtual void titleArt(const HomeItem& item, TitleArt* out) { (void)item; (void)out; }
+    virtual void playBannerSound(const std::shared_ptr<const RomBanner>& banner) { (void)banner; }
+    virtual void stopBannerSound() {}
+    // Changes when the host freed or replaced art textures (their GL names may be reused).
+    virtual uint64_t artGeneration() { return 0; }
     // Starts a title. False when it cannot start now (the menu stays as it is).
     virtual bool launch(const HomeItem& item) = 0;
     // Applet bar buttons 0..5 (0 = HOME Menu Settings).

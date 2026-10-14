@@ -139,6 +139,7 @@ public:
     ~ModelResource();
     bool load(Pack& pack, Pack* shared);
     std::string name;
+    std::shared_ptr<void> keepAlive;   // the in-memory pack a ROM banner was loaded from
     std::vector<CgfxMaterialDef> materials;
     std::vector<CgfxBone> bones;
     struct Mesh { int shape = 0, material = 0; bool visible = true; int priority = 0; std::string node; };

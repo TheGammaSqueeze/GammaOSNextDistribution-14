@@ -10,6 +10,7 @@
 #include "NanoCtrHome.h"
 #include "NanoCtrAudio.h"
 #include "NanoCtrPanel.h"
+#include "NanoCtrArt.h"
 #include "NanoMenuUtils.h"
 #include "NanoI18n.h"
 
@@ -135,17 +136,95 @@ public:
         return false;
     }
 
-    GLuint titleIconTexture(const ctr::HomeItem& item, int* w, int* h) override {
+    // The ROM a grid title stands for ("" for apps and other entries).
+    std::string romPathOf(const NanoMenu::Ps3Item& it) {
+        if (it.kind == NanoMenu::PS3_ROM && it.a >= 0 && it.a < (int)mMenu->mXmbSystems.size()) {
+            const auto& sys = mMenu->mXmbSystems[it.a];
+            if (it.b >= 0 && it.b < (int)sys.roms.size()) return sys.roms[it.b];
+        } else if (it.kind == NanoMenu::PS3_RECENT && it.a >= 0 && it.a < (int)mMenu->mXmbRecent.size()) {
+            return mMenu->mXmbRecent[it.a].romPath;
+        }
+        return std::string();
+    }
+
+    // A title's own art: the SMDH icon of a 3DS ROM, the banner icon of a DS ROM, else the
+    // scraped cover (when Boxart is on), else nano's system glyph.
+    GLuint titleIconTexture(const ctr::HomeItem& item, int* w, int* h, IconArt* art) override {
         auto t = mTitles.find(item.id);
         if (t == mTitles.end()) return 0;
         const NanoMenu::Ps3Item& it = t->second;
         if (it.kind == NanoMenu::PS3_APP) return 0;   // decoded from the icon cache (titleIcon)
+        const std::string rom = romPathOf(it);
+        if (!rom.empty()) {
+            if (mMenu->mCtrArt && ctr::RomArt::isCtrRom(rom)) {
+                if (GLuint g = mMenu->mCtrArt->icon(rom)) { *w = *h = 48; return g; }
+            }
+            std::string ds;
+            if (mMenu->ndsIsDsRomItem(it, &ds)) {
+                if (GLuint g = mMenu->ndsBannerTex(ds)) { *w = *h = 32; return g; }
+            }
+            if (mMenu->mScrapeBoxartOn) {
+                float ar = 1.0f;
+                if (GLuint g = mMenu->romBoxartTex(rom, &ar)) {
+                    *w = *h = 256;
+                    art->coverAspect = ar > 0 ? ar : 1.0f;
+                    return g;
+                }
+            }
+        }
         if (it.iconTex) {
             *w = *h = 48;
+            art->mono = item.monoIcon;
             return it.iconTex;
         }
         return 0;
     }
+    uint64_t artGeneration() override { return mMenu->mArtGeneration; }
+
+    void titleArt(const ctr::HomeItem& item, TitleArt* out) override {
+        auto t = mTitles.find(item.id);
+        if (t == mTitles.end()) return;
+        const NanoMenu::Ps3Item& it = t->second;
+        const std::string rom = romPathOf(it);
+        if (rom.empty()) return;
+        if (mMenu->mCtrArt && ctr::RomArt::isCtrRom(rom)) {
+            out->cbmd = mMenu->mCtrArt->banner(rom, &out->pending);
+            if (out->cbmd || out->pending) return;
+            // a 3DS title without a banner: its icon on the card
+            if (GLuint g = mMenu->mCtrArt->icon(rom)) { out->icon = g; out->w = out->h = 48; }
+            return;
+        }
+        std::string ds;
+        if (mMenu->ndsIsDsRomItem(it, &ds)) {
+            if (GLuint g = mMenu->ndsBannerTex(ds)) { out->icon = g; out->w = out->h = 32; out->dsIcon = true; }
+            return;
+        }
+        if (mMenu->mScrapeBoxartOn) {
+            float ar = 1.0f;
+            if (GLuint g = mMenu->romBoxartTex(rom, &ar)) {
+                out->icon = g;
+                out->w = out->h = 256;
+                out->art.coverAspect = ar > 0 ? ar : 1.0f;
+            }
+        }
+    }
+
+    // A 3DS banner's BCWAV plays once when the banner shows; leaving the title stops it.
+    void playBannerSound(const std::shared_ptr<const ctr::RomBanner>& b) override {
+        stopBannerSound();
+        if (!mMenu->mCtrAudio || !b || !b->hasSound || b->sound.pcm.empty()) return;
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.nav_sounds", v, "1");
+        if (v[0] == '0' || v[0] == 'f' || v[0] == 'F') return;
+        const ctr::RomSound& s = b->sound;
+        // banner BCWAVs are mastered at full level: no makeup gain (the menu's sounds get 4x)
+        mBannerVoice = mMenu->mCtrAudio->playPcm(b, s.pcm.data(), s.frames, s.channels, s.sampleRate, false, 0, 0, 0.25f);
+    }
+    void stopBannerSound() override {
+        if (mBannerVoice && mMenu->mCtrAudio) mMenu->mCtrAudio->stop(mBannerVoice, 10);
+        mBannerVoice = 0;
+    }
+    int mBannerVoice = 0;
 
     bool launch(const ctr::HomeItem& item) override {
         auto t = mTitles.find(item.id);
@@ -215,6 +294,7 @@ bool NanoMenu::ctrEnsure() {
         }
         if (!mCtrHost) mCtrHost = new NanoCtrHost(this);
         if (!mCtrAudio) mCtrAudio = new ctr::CtrAudio(root + "/sound");
+        if (!mCtrArt) mCtrArt = new ctr::RomArt("/data/system/nano_ctr_rom");
         mCtrHome = new ctr::CtrHome(root, mCtrHost);
         ALOGI("ctr: 3DS theme assets at %s", root.c_str());
     }
@@ -237,6 +317,7 @@ bool NanoMenu::ctrEnsure() {
 }
 
 void NanoMenu::ctrRelease() {
+    if (mCtrArt) { mCtrArt->releaseGl(); mArtGeneration++; }
     if (mCtrPanel) { mCtrPanel->releaseGl(); delete mCtrPanel; mCtrPanel = nullptr; }
     if (mCtrDialog) { mCtrDialog->releaseGl(); delete mCtrDialog; mCtrDialog = nullptr; }
     if (mCtrHome) {
@@ -322,27 +403,30 @@ bool NanoMenu::ctrOwnsInput() const {
 }
 
 bool NanoMenu::ctrInputEvent(int type, int code, int value) {
-    if (ctrSwitchKey(type, code, value)) return true;
+    // the events taken here skip nano's own input path: they still count as input for the idle
+    // frame governor (else a minute after the last touch the home drops to the idle rate)
+    auto taken = [this]() { mLastInputMs = (int64_t)android::uptimeMillis(); return true; };
+    if (ctrSwitchKey(type, code, value)) return taken();
     if (!ctrOwnsInput()) return false;
     auto setBit = [&](uint32_t bit, bool on) {
         if (on) mCtrHeld |= bit; else mCtrHeld &= ~bit;
     };
     if (type == EV_KEY) {
-        if (value == 2) return true;   // key repeat: the menu repeats on its own
+        if (value == 2) return taken();   // key repeat: the menu repeats on its own
         const bool on = value != 0;
         switch (code) {
-            case BTN_SOUTH: case KEY_ENTER: setBit(ctr::CTR_A, on); return true;
-            case BTN_EAST: case KEY_BACK: case KEY_ESC: setBit(ctr::CTR_B, on); return true;
-            case BTN_NORTH: setBit(ctr::CTR_X, on); return true;
-            case BTN_WEST: setBit(ctr::CTR_Y, on); return true;
-            case BTN_TL: case KEY_L: setBit(ctr::CTR_L, on); return true;
-            case BTN_TR: case KEY_R: setBit(ctr::CTR_R, on); return true;
-            case BTN_TL2: setBit(ctr::CTR_ZL, on); return true;
-            case BTN_TR2: setBit(ctr::CTR_ZR, on); return true;
-            case BTN_DPAD_UP: case KEY_UP: setBit(ctr::CTR_UP, on); return true;
-            case BTN_DPAD_DOWN: case KEY_DOWN: setBit(ctr::CTR_DOWN, on); return true;
-            case BTN_DPAD_LEFT: case KEY_LEFT: setBit(ctr::CTR_LEFT, on); return true;
-            case BTN_DPAD_RIGHT: case KEY_RIGHT: setBit(ctr::CTR_RIGHT, on); return true;
+            case BTN_SOUTH: case KEY_ENTER: setBit(ctr::CTR_A, on); return taken();
+            case BTN_EAST: case KEY_BACK: case KEY_ESC: setBit(ctr::CTR_B, on); return taken();
+            case BTN_NORTH: setBit(ctr::CTR_X, on); return taken();
+            case BTN_WEST: setBit(ctr::CTR_Y, on); return taken();
+            case BTN_TL: case KEY_L: setBit(ctr::CTR_L, on); return taken();
+            case BTN_TR: case KEY_R: setBit(ctr::CTR_R, on); return taken();
+            case BTN_TL2: setBit(ctr::CTR_ZL, on); return taken();
+            case BTN_TR2: setBit(ctr::CTR_ZR, on); return taken();
+            case BTN_DPAD_UP: case KEY_UP: setBit(ctr::CTR_UP, on); return taken();
+            case BTN_DPAD_DOWN: case KEY_DOWN: setBit(ctr::CTR_DOWN, on); return taken();
+            case BTN_DPAD_LEFT: case KEY_LEFT: setBit(ctr::CTR_LEFT, on); return taken();
+            case BTN_DPAD_RIGHT: case KEY_RIGHT: setBit(ctr::CTR_RIGHT, on); return taken();
             default: return false;   // START / SELECT / system keys stay with nano
         }
     }
@@ -350,12 +434,12 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
         if (code == ABS_HAT0X) {
             setBit(ctr::CTR_LEFT, value < 0);
             setBit(ctr::CTR_RIGHT, value > 0);
-            return true;
+            return taken();
         }
         if (code == ABS_HAT0Y) {
             setBit(ctr::CTR_UP, value < 0);
             setBit(ctr::CTR_DOWN, value > 0);
-            return true;
+            return taken();
         }
         if (code == ABS_X || code == ABS_Y) {
             // circle pad: past 40 of 156 it sets the D-pad bit (input.ts); stick range read lazily
@@ -376,7 +460,7 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
             } else {
                 mCtrStickY = dir;
             }
-            return true;
+            return taken();
         }
     }
     return false;

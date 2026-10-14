@@ -3,6 +3,7 @@
 // (scene3d.ts, banner.ts, banners.ts, nametex.ts).
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -13,12 +14,19 @@
 namespace android {
 namespace ctr {
 
+struct RomBanner;
+
 struct TopFocus {
     enum Kind { None, Empty, Folder, Title, Bar } kind = None;
     int bar = 0;              // Bar: applet bar button
     std::string key;          // identity of the focused item
     std::string plate;        // name plate text (lines split by '\n')
-    std::string cbmdPath;     // Title: a 3DS ROM whose CBMD banner to show (empty = 2D banner)
+    // Title art: a 3DS ROM's own CBMD banner, else an icon (a DS cartridge's icon on the DS banner,
+    // a cover on the DSiWare card), else the 2D name banner.
+    std::shared_ptr<const RomBanner> cbmd;
+    unsigned icon = 0;
+    int iconW = 0, iconH = 0;
+    bool dsIcon = false;
 };
 
 class CtrTop {
@@ -35,6 +43,9 @@ public:
     void draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width = 400);
     // The focused title's banner is left out (a settings panel is open over the home).
     void setBannerHidden(bool hidden) { mBannerHidden = hidden; }
+    // A title banner with a sound appeared / the focus left it (the banner plays its BCWAV once).
+    std::function<void(const std::shared_ptr<const RomBanner>&)> onBannerSound;
+    std::function<void()> onBannerLeave;
     // Internal resolution cap of the 3D target in multiples of 400x240 (default 3).
     void setMaxScale(int s) { mMaxScale = s; }
 
@@ -51,6 +62,7 @@ private:
     struct Banner {
         BannerSpec spec;
         std::unique_ptr<ModelInstance> model;
+        std::unique_ptr<ModelInstance> extra;   // a ROM banner's language model, following `model`
         bool shown = true;
         int scaleStep = 4;
         int turnFrame = 0;
@@ -58,6 +70,8 @@ private:
         void update();
     };
     std::shared_ptr<ModelResource> resource(const std::string& name);
+    std::shared_ptr<ModelResource> romResource(const std::shared_ptr<const RomBanner>& b);
+    std::shared_ptr<ModelResource> packResource(const std::vector<uint8_t>& bytes, const std::string& what);
     std::shared_ptr<GpuTex> plateTexture(const std::string& text, float size);
     void attach();
 
@@ -77,6 +91,8 @@ private:
     bool mAttachedOnce = false;
     int mMaxScale = 3;
     std::shared_ptr<GpuTex> mPlate;
+    std::shared_ptr<ModelResource> mRomRes;   // the current ROM banner's model (not shared)
+    std::string mRomResKey;
     // composite
     GLuint mBlitProgram = 0;
     GLint mBlitProj = -1;
