@@ -4199,8 +4199,18 @@ if (sRingPrimedCount >= 2) {
                 // true on this same iteration so the CC comes up at once. On a real down-edge, flip the override
                 // and set drop_input to match who now owns the bottom digitizer: the CC (grab) when summoned, or
                 // the running app when dismissed (a dual-stack app or a grid-launched bottom app both want touch).
-                if (ccPollAllAppsKey()) {
-                    mCcForceVisible = !mCcForceVisible;
+                // BACK-hold summon (PhoneWindowManager, bottom app focused): same as the key's "on" edge,
+                // plus the reveal animation. Never toggles off: while the CC is up the top app has focus,
+                // so the framework never writes it then.
+                bool ccSummoned = ccPollSummonProp() && !mCcForceVisible && !mCcBottomApp.empty();
+                if (ccSummoned) {
+                    mCcRevealStartMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000;
+                    mCcRevealApplied = false;
+                    mCcPage = 0;              // land on the dashboard, where the Close App tile is
+                    mCcPageOffset = 0.0f;
+                }
+                if (ccPollAllAppsKey() || ccSummoned) {
+                    mCcForceVisible = ccSummoned ? true : !mCcForceVisible;
                     if (mCcForceVisible) {
                         property_set("sys.gammaos.nano.drop_input", "1");   // CC grabs the bottom digitizer
                         mCcActiveSeeded = false;   // re-seed the idle timer so the summoned CC does not auto-sleep at once
@@ -4452,7 +4462,7 @@ if (sRingPrimedCount >= 2) {
                     // tween is dt-normalized so the duration is unchanged, only smoother. The offset snaps
                     // exactly to (float)mCcPage when settled, so the exact compare cleanly ends the bump. The
                     // at-rest / touch / ring pacing is untouched (the CC without swipes stays as it is).
-                    bool ccPageAnimating = (mCcPageOffset != (float)mCcPage);
+                    bool ccPageAnimating = (mCcPageOffset != (float)mCcPage) || ccRevealActive();
                     int64_t budgetUs = ccPageAnimating ? 16666
                                      : (ccTouchActive || ccRingActive()) ? 33333 : 50000;
                     int64_t spentUs  = (systemTime(SYSTEM_TIME_MONOTONIC) - ccT0) / 1000;

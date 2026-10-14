@@ -1908,6 +1908,21 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 return;
             }
             String fgApp = getForegroundAppPackageName();
+            // GammaOS Nano Control Center: a BACK hold with the grid-launched BOTTOM app focused
+            // does not exit anything. It summons the Control Center over that app (the way the
+            // normal launcher's secondary home comes back over its app), where the Close App
+            // tile ends it on the user's say-so. nano owns the reveal: it polls the summon prop
+            // in its park loop, flips the force-visible override and animates the layer in.
+            // Only the bottom app's own focus counts: once the CC is up the controller belongs
+            // to the top app again, so a further hold exits that app as before.
+            final String ccBottomApp = android.os.SystemProperties.get(
+                    "sys.gammaos.nano.cc.bottomapp", "");
+            if (!ccBottomApp.isEmpty() && fgApp != null && fgApp.equals(ccBottomApp)) {
+                Slog.i(TAG, "GammaOS Nano: long-press back on bottom app " + fgApp
+                        + ", summoning the Control Center over it");
+                android.os.SystemProperties.set("sys.gammaos.nano.cc.summon", "1");
+                return;
+            }
             if (fgApp != null && (fgApp.toLowerCase().contains("retroarch")
                     || fgApp.toLowerCase().contains("drastic"))) {
                 // Send ESC and let RetroArch/DraStic SAVE STATE then close itself

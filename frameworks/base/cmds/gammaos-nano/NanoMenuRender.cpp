@@ -5238,11 +5238,39 @@ void NanoMenu::ccHideForIme() {
     mNdsSecondaryShown = false;
 }
 
+// BACK-hold summon reveal: ~280 ms ease-out fade from alpha 0 plus a short rise from 6 percent of the
+// panel height, applied to the secondary layer each CC frame (the park loop paces the CC at 60 fps while
+// it runs). Pure SurfaceFlinger layer state, so the dashboard frames render unchanged underneath it.
+static const int64_t kCcRevealMs = 280;
+bool NanoMenu::ccRevealActive() const { return mCcRevealStartMs > 0; }
+void NanoMenu::ccApplyReveal() {
+    if (mCcRevealStartMs <= 0 || mSecondaryWallpaperControls.empty()) return;
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000;
+    float tt = (float)(now - mCcRevealStartMs) / (float)kCcRevealMs;
+    bool done = tt >= 1.0f;
+    if (tt < 0.0f) tt = 0.0f;
+    if (tt > 1.0f) tt = 1.0f;
+    const float inv = 1.0f - tt;
+    const float e = 1.0f - inv * inv * inv;          // cubic ease-out
+    const float rise = (1.0f - e) * (float)mHeight * 0.06f;
+    SurfaceComposerClient::Transaction t;
+    for (const auto& sc : mSecondaryWallpaperControls) if (sc != nullptr) {
+        t.setAlpha(sc, done ? 1.0f : e);
+        t.setPosition(sc, 0.0f, done ? 0.0f : rise);
+    }
+    t.apply();
+    mCcRevealApplied = !done;
+    if (done) mCcRevealStartMs = 0;
+}
+
 void NanoMenu::renderControlCenterFrame() {
     if (mSecondaryEglSurfaces.empty()) {
         setupSecondaryEglSurfaces();
         if (mSecondaryEglSurfaces.empty()) return;   // genuine single-screen / setup failed
     }
+    // Summon reveal: set the first frame's alpha/offset BEFORE the show below so the layer never
+    // pops in at full strength for a frame, then step it every frame until it settles.
+    ccApplyReveal();
     // Make the secondary layer visible so the dashboard covers the bottom panel (the running
     // single-screen app does not draw there). Hidden again on teardown (see the park branch).
     if (!mSecondaryWallpaperControls.empty() && !mNdsSecondaryShown) {
@@ -5389,6 +5417,13 @@ void NanoMenu::hideControlCenterLayer() {
     if (!mSecondaryWallpaperControls.empty() && mNdsSecondaryShown) {
         SurfaceComposerClient::Transaction t;
         for (const auto& sc : mSecondaryWallpaperControls) if (sc != nullptr) t.hide(sc);
+        // A reveal may have been cut short: put the layer back at full alpha / rest position so the
+        // next show (any path) is not half-faded or offset.
+        if (mCcRevealApplied) {
+            for (const auto& sc : mSecondaryWallpaperControls) if (sc != nullptr) { t.setAlpha(sc, 1.0f); t.setPosition(sc, 0.0f, 0.0f); }
+            mCcRevealApplied = false;
+        }
+        mCcRevealStartMs = 0;
         t.apply();
         mNdsSecondaryShown = false;
     }

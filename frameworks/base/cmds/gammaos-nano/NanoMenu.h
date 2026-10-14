@@ -4836,6 +4836,14 @@ private:
     // gamepad key device in the park loop; folded into controlCenterActive() and the bottom-app park branch.
     bool   mCcForceVisible = false;        // KEY_ALL_APPLICATIONS override: keep the CC shown over an app
     bool   ccPollAllAppsKey();             // drain the key device; true on a KEY_ALL_APPLICATIONS down-edge
+    // BACK-hold summon: PhoneWindowManager writes sys.gammaos.nano.cc.summon=1 instead of exiting when
+    // the grid-launched bottom app has focus; the park loop consumes it like a KEY_ALL_APPLICATIONS
+    // down-edge (force-visible on), and the secondary layer fades and rises in over the app.
+    bool    ccPollSummonProp();            // true once per summon=1 write (clears it)
+    int64_t mCcRevealStartMs = 0;          // reveal animation start (monotonic ms), 0 = none
+    bool    mCcRevealApplied = false;      // a non-identity alpha/position is on the layer (reset on hide)
+    void    ccApplyReveal();               // per-frame alpha + rise on the secondary layer during the reveal
+    bool    ccRevealActive() const;
     // CC static-layer cache: the frame-invariant dashboard (background, card bodies, headers, slider
     // TRACKS, speaker/sun icons, clock face + ticks, gauge TRACK rings, fixed labels, and every tile
     // icon/label/background) is baked once into mCcStaticTex, then composited as one full-panel quad each

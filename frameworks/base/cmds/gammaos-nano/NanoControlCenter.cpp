@@ -18,6 +18,8 @@
 #include "NanoMenuShaders.h"   // FONT_CHAR_H
 #include <cutils/properties.h>
 #include <sys/system_properties.h>
+#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
+#include <sys/_system_properties.h>   // __system_property_serial (summon prop poll)
 #include <GLES2/gl2.h>
 #include <math.h>
 #include <stdio.h>
@@ -1404,6 +1406,26 @@ bool NanoMenu::ccPollAllAppsKey() {
         if (ev.type == EV_KEY && ev.code == kAllApps && ev.value == 1) pressed = true;
     }
     return pressed;
+}
+
+// Consume a BACK-hold summon from PhoneWindowManager (sys.gammaos.nano.cc.summon=1). Serial-cached so
+// the per-iteration check is a pointer deref; true once per write, and the prop is cleared here.
+bool NanoMenu::ccPollSummonProp() {
+    static const prop_info* sPi = nullptr;
+    static uint32_t sSerial = 0;
+    static bool sHave = false;
+    if (!sPi) sPi = __system_property_find("sys.gammaos.nano.cc.summon");
+    if (!sPi) return false;
+    const uint32_t ser = __system_property_serial(sPi);
+    if (sHave && ser == sSerial) return false;
+    sSerial = ser;
+    sHave = true;
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.cc.summon", v, "0");
+    if (v[0] != '1') return false;
+    property_set("sys.gammaos.nano.cc.summon", "0");
+    sSerial = __system_property_serial(sPi);   // our own clear is not a new summon
+    return true;
 }
 
 // Pin the controller-focused panel. Writes sys.gammaos.nano.focus.display (top display id, bottom
