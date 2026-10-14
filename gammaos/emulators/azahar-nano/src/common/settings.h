@@ -568,7 +568,11 @@ struct Values {
                                                         Keys::texture_sampling};
     SwitchableSetting<u16, true> delay_game_render_thread_us{0, 0, 65000,
                                                              Keys::delay_game_render_thread_us};
-    SwitchableSetting<bool> simulate_3ds_gpu_timings{false, Keys::simulate_3ds_gpu_timings};
+    // GammaOS: on by default, as the Android app's settings describe it. Games pace themselves
+    // by how long their GPU work takes; with every GPU event completing instantly Senran Kagura
+    // Burst redrew its video screen ~40 times a frame (video at 90% speed) and could fall into a
+    // 40 fps pacing mode after a menu. No measurable cost in the other games at 2x.
+    SwitchableSetting<bool> simulate_3ds_gpu_timings{true, Keys::simulate_3ds_gpu_timings};
 
     SwitchableSetting<LayoutOption> layout_option{LayoutOption::Default, Keys::layout_option};
     SwitchableSetting<bool> swap_screen{false, Keys::swap_screen};
