@@ -3,7 +3,11 @@
 // Refer to the license.txt file included.
 
 #include <chrono>
+#include <deque>
+#include <memory>
 #include <sstream>
+#include <streambuf>
+#include <zstd.h>
 #include <cryptopp/hex.h>
 #include <fmt/ranges.h>
 #include "common/archives.h"
@@ -158,6 +162,172 @@ void System::WaitSaveWriter() const {
     }
 }
 
+
+namespace {
+
+// GammaOS: save states move through memory in pieces instead of whole copies. A state is up
+// to ~300 MB serialized (a New 3DS title's FCRAM); the stock path held the growing string
+// stream, its str() copy and a compressed buffer at once (a 740 MB spike for Mario Kart 7),
+// and loading held the decompressed vector, a string copy and the string stream's own copy.
+// On a 4 GB device the low memory killer took the game during saves and loads.
+
+/// Output stream buffer that appends to fixed-size chunks (no reallocation, no copies).
+class ChunkOutBuf final : public std::streambuf {
+public:
+    static constexpr std::size_t ChunkSize = 4 << 20;
+
+    std::size_t Size() const {
+        if (chunks.empty()) {
+            return 0;
+        }
+        return (chunks.size() - 1) * ChunkSize + static_cast<std::size_t>(pptr() - pbase());
+    }
+
+    /// Hands the chunks over in order; the last one is sized to its used part.
+    std::deque<std::vector<char>> Take() {
+        if (!chunks.empty()) {
+            chunks.back().resize(static_cast<std::size_t>(pptr() - pbase()));
+            chunks.back().shrink_to_fit();
+        }
+        setp(nullptr, nullptr);
+        return std::move(chunks);
+    }
+
+protected:
+    int_type overflow(int_type ch) override {
+        chunks.emplace_back(ChunkSize);
+        char* base = chunks.back().data();
+        setp(base, base + ChunkSize);
+        if (!traits_type::eq_int_type(ch, traits_type::eof())) {
+            *pptr() = traits_type::to_char_type(ch);
+            pbump(1);
+        }
+        return traits_type::not_eof(ch);
+    }
+
+    std::streamsize xsputn(const char* data, std::streamsize count) override {
+        std::streamsize done = 0;
+        while (done < count) {
+            if (pptr() == epptr()) {
+                overflow(traits_type::eof());
+            }
+            const std::streamsize n = std::min<std::streamsize>(count - done, epptr() - pptr());
+            std::memcpy(pptr(), data + done, static_cast<std::size_t>(n));
+            pbump(static_cast<int>(n));
+            done += n;
+        }
+        return done;
+    }
+
+private:
+    std::deque<std::vector<char>> chunks;
+};
+
+/// Input stream buffer that decompresses a zstd stream from a file as it is read.
+class ZstdFileInBuf final : public std::streambuf {
+public:
+    explicit ZstdFileInBuf(FileUtil::IOFile& file_) : file{file_}, dctx{ZSTD_createDCtx()} {
+        in.resize(ZSTD_DStreamInSize());
+        out.resize(ZSTD_DStreamOutSize());
+        setg(out.data(), out.data(), out.data());
+    }
+    ~ZstdFileInBuf() override {
+        ZSTD_freeDCtx(dctx);
+    }
+    bool Failed() const {
+        return failed;
+    }
+
+protected:
+    int_type underflow() override {
+        if (gptr() < egptr()) {
+            return traits_type::to_int_type(*gptr());
+        }
+        while (!failed) {
+            if (in_pos == in_size && !eof) {
+                in_size = file.ReadBytes(in.data(), in.size());
+                in_pos = 0;
+                eof = in_size == 0;
+            }
+            if (in_pos == in_size && eof) {
+                break;
+            }
+            ZSTD_inBuffer src{in.data(), in_size, in_pos};
+            ZSTD_outBuffer dst{out.data(), out.size(), 0};
+            const std::size_t ret = ZSTD_decompressStream(dctx, &dst, &src);
+            in_pos = src.pos;
+            if (ZSTD_isError(ret)) {
+                LOG_ERROR(Core, "save state: decompression failed: {}", ZSTD_getErrorName(ret));
+                failed = true;
+                break;
+            }
+            if (dst.pos > 0) {
+                setg(out.data(), out.data(), out.data() + dst.pos);
+                return traits_type::to_int_type(*gptr());
+            }
+        }
+        return traits_type::eof();
+    }
+
+private:
+    FileUtil::IOFile& file;
+    ZSTD_DCtx* dctx;
+    std::vector<char> in;
+    std::vector<char> out;
+    std::size_t in_size = 0, in_pos = 0;
+    bool eof = false;
+    bool failed = false;
+};
+
+/// Compresses the chunks into the file as one zstd frame (with its content size, so the
+/// whole-buffer decompressor reads it too), freeing each chunk once it is consumed.
+bool WriteCompressedChunks(FileUtil::IOFile& file, std::deque<std::vector<char>>& chunks,
+                           std::size_t total, int level, std::size_t* compressed) {
+    ZSTD_CCtx* cctx = ZSTD_createCCtx();
+    if (!cctx) {
+        return false;
+    }
+    ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, level);
+    ZSTD_CCtx_setPledgedSrcSize(cctx, total);
+    std::vector<char> out(ZSTD_CStreamOutSize());
+    bool ok = true;
+    *compressed = 0;
+    const auto drain = [&](ZSTD_inBuffer& src, ZSTD_EndDirective mode) {
+        for (;;) {
+            ZSTD_outBuffer dst{out.data(), out.size(), 0};
+            const std::size_t remaining = ZSTD_compressStream2(cctx, &dst, &src, mode);
+            if (ZSTD_isError(remaining)) {
+                LOG_ERROR(Core, "save state: compression failed: {}",
+                          ZSTD_getErrorName(remaining));
+                return false;
+            }
+            if (dst.pos > 0) {
+                if (file.WriteBytes(out.data(), dst.pos) != dst.pos) {
+                    return false;
+                }
+                *compressed += dst.pos;
+            }
+            const bool done = mode == ZSTD_e_end ? remaining == 0 : src.pos == src.size;
+            if (done) {
+                return true;
+            }
+        }
+    };
+    while (ok && !chunks.empty()) {
+        ZSTD_inBuffer src{chunks.front().data(), chunks.front().size(), 0};
+        ok = drain(src, ZSTD_e_continue);
+        chunks.pop_front();
+    }
+    if (ok) {
+        ZSTD_inBuffer empty{nullptr, 0, 0};
+        ok = drain(empty, ZSTD_e_end);
+    }
+    ZSTD_freeCCtx(cctx);
+    return ok;
+}
+
+} // namespace
+
 void System::SaveState(u32 slot) const {
     if (app_loader) {
         if (!app_loader->SupportsSaveStates()) {
@@ -172,12 +342,16 @@ void System::SaveState(u32 slot) const {
     // temporary name and renamed into place, so the slot file is never half written. Loads,
     // the next save and shutdown wait for the writer.
     const auto t0 = std::chrono::steady_clock::now();
-    std::ostringstream sstream{std::ios_base::binary};
+    auto chunk_buf = std::make_shared<ChunkOutBuf>();
     {
-        // Serialize (the archive is finished before the stream moves to the writer)
-        oarchive oa{sstream};
+        // Serialize (the archive is finished before the chunks move to the writer)
+        std::ostream ostream{chunk_buf.get()};
+        oarchive oa{ostream};
         oa&* this;
     }
+    const std::size_t total = chunk_buf->Size();
+    auto chunks = std::make_shared<std::deque<std::vector<char>>>(chunk_buf->Take());
+    chunk_buf.reset();
     const auto t1 = std::chrono::steady_clock::now();
 
     const u64 movie_id = movie.GetCurrentMovieID();
@@ -207,27 +381,26 @@ void System::SaveState(u32 slot) const {
     std::memcpy(header.build_version.data(), build_version.c_str(),
                 std::min(build_version.length(), sizeof(header.build_version) - 1));
 
-    gamma_save_writer = std::thread([stream = std::move(sstream), header, path, t0, t1]() {
+    gamma_save_writer = std::thread([chunks, total, header, path, t0, t1]() {
         const auto ms = [](auto a, auto b) {
             return std::chrono::duration_cast<std::chrono::milliseconds>(b - a).count();
         };
-        const std::string str = stream.str();
-        const auto data =
-            std::span<const u8>{reinterpret_cast<const u8*>(str.data()), str.size()};
         // GammaOS: level 1 instead of the default 3 (2.4 s -> 1.2 s for 295 MB, about 10%
-        // bigger); any level loads the same.
-        const auto buffer = Common::Compression::CompressDataZSTD(data, 1);
-        const auto t2 = std::chrono::steady_clock::now();
+        // bigger); any level loads the same. Compressed straight into the file chunk by chunk.
         const std::string tmp_path = path + ".tmp";
+        std::size_t compressed = 0;
         {
             FileUtil::IOFile file(tmp_path, "wb");
             if (!file || file.WriteBytes(&header, sizeof(header)) != sizeof(header) ||
-                file.WriteBytes(buffer.data(), buffer.size()) != buffer.size()) {
+                !WriteCompressedChunks(file, *chunks, total, 1, &compressed)) {
                 LOG_ERROR(Core, "save state: could not write {}", tmp_path);
+                chunks->clear();
+                file.Close();
                 FileUtil::Delete(tmp_path);
                 return;
             }
         }
+        const auto t2 = std::chrono::steady_clock::now();
         if (!FileUtil::Rename(tmp_path, path)) {
             LOG_ERROR(Core, "save state: could not rename {} to {}", tmp_path, path);
             FileUtil::Delete(tmp_path);
@@ -235,9 +408,9 @@ void System::SaveState(u32 slot) const {
         }
         const auto t3 = std::chrono::steady_clock::now();
         LOG_INFO(Core,
-                 "save state: serialize {} ms ({} MB, emulation paused), compress {} ms ({} MB), "
-                 "write {} ms",
-                 ms(t0, t1), str.size() >> 20, ms(t1, t2), buffer.size() >> 20, ms(t2, t3));
+                 "save state: serialize {} ms ({} MB, emulation paused), compress and write {} ms "
+                 "({} MB), rename {} ms",
+                 ms(t0, t1), total >> 20, ms(t1, t2), compressed >> 20, ms(t2, t3));
     });
 }
 
@@ -256,39 +429,38 @@ void System::LoadState(u32 slot) {
     const u64 movie_id = movie.GetCurrentMovieID();
     const auto path = GetSaveStatePath(title_id, movie_id, slot);
 
-    std::vector<u8> decompressed;
-    {
-        std::vector<u8> buffer(FileUtil::GetSize(path) - sizeof(CSTHeader));
+    FileUtil::IOFile file(path, "rb");
 
-        FileUtil::IOFile file(path, "rb");
-
-        // load header
-        CSTHeader header;
-        if (file.ReadBytes(&header, sizeof(header)) != sizeof(header)) {
-            throw std::runtime_error("Could not read from file at " + path);
-        }
-
-        // validate header
-        SaveStateInfo info;
-        info.slot = slot;
-        if (!ValidateSaveState(header, info, title_id, movie_id) ||
-            info.status == SaveStateInfo::ValidationStatus::BuildMismatch) {
-            throw std::runtime_error("Invalid savestate");
-        }
-
-        if (file.ReadBytes(buffer.data(), buffer.size()) != buffer.size()) {
-            throw std::runtime_error("Could not read from file at " + path);
-        }
-        decompressed = Common::Compression::DecompressDataZSTD(buffer);
+    // load header
+    CSTHeader header;
+    if (!file || file.ReadBytes(&header, sizeof(header)) != sizeof(header)) {
+        throw std::runtime_error("Could not read from file at " + path);
     }
-    std::istringstream sstream{
-        std::string{reinterpret_cast<char*>(decompressed.data()), decompressed.size()},
-        std::ios_base::binary};
-    decompressed.clear();
+
+    // validate header
+    SaveStateInfo info;
+    info.slot = slot;
+    if (!ValidateSaveState(header, info, title_id, movie_id) ||
+        info.status == SaveStateInfo::ValidationStatus::BuildMismatch) {
+        throw std::runtime_error("Invalid savestate");
+    }
+
+    // GammaOS: decompressed while the archive reads it (see ChunkOutBuf); the whole state is
+    // never held in memory.
+    const auto t0 = std::chrono::steady_clock::now();
+    ZstdFileInBuf zbuf{file};
+    std::istream istream{&zbuf};
 
     // Deserialize
-    iarchive ia{sstream};
+    iarchive ia{istream};
     ia&* this;
+    if (zbuf.Failed()) {
+        throw std::runtime_error("Could not decompress the savestate at " + path);
+    }
+    LOG_INFO(Core, "load state: read, decompress and deserialize {} ms",
+             std::chrono::duration_cast<std::chrono::milliseconds>(
+                 std::chrono::steady_clock::now() - t0)
+                 .count());
 }
 
 std::vector<u8> System::SaveStateBuffer() const {
