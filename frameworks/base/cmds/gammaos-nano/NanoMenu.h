@@ -64,7 +64,7 @@ static inline void nanoThreadNormalPriority() {
 #include "NanoEsdeTheme.h"
 #include "NanoSyncthing.h"  // Syncthing REST client + model (Settings > Syncthing)
 #include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)
-namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; class RomArt; } }   // ES-DE theme engine model (fourth home theme)
+namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; class RomArt; struct ThemeBody; } }   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -1640,6 +1640,10 @@ private:
     bool ctrItemSwitch(const Ps3Item& it, bool* on);   // an On/Off setting row (a 3DS OFF / ON pair)
     bool ctrSliderActive() const;                      // a numeric slider dialog is open
     void ctrRenderOverlays();                          // keyboard / search results over the 3DS screens
+    void ctrApplyTheme();                              // Theme Settings > 3DS Theme / Colour -> the home
+    std::shared_ptr<ctr::ThemeBody> mCtrThemeBody;     // an SD card theme or one made from the Colour
+    const ctr::ThemeBody* mCtrThemeApplied = nullptr;
+    std::string mCtrThemeKey;
     bool ctrOpenOptions();                             // START: the focused title's option menu
     bool ctrInfoDialog() const;                        // the dialog is an information page
     bool ctrInfoActive() const;                        // and it is open

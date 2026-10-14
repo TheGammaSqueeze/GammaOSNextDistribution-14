@@ -64,6 +64,9 @@ struct SettingListOption {
 };
 
 std::vector<SettingListOption> parseListOptions(const std::string& opts);
+// "@ctrthemes": the 3DS Menu themes (Default, the built-in colours and the themes installed on
+// the SD card under /sdcard/Themes/<name>/body_LZ.bin, value "sd/<name>"). NanoMenuCtr.cpp.
+std::vector<SettingListOption> ctrThemeOptions();
 
 // Direct setting read/write primitives (kProp -> property_get/set; kGlobal/
 // kSecure/kSystem -> settings get/put). Shared by the legacy tree and the PS3

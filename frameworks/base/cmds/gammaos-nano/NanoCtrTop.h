@@ -44,8 +44,14 @@ public:
     // Draws the scene into the top screen rectangle of the bound framebuffer. `proj` maps the
     // 400x240 layout space (as for the layouts); vp is the GL viewport it targets.
     void draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width = 400, float height = 240);
+    // Drawn into the scene's target under the 3D models (the top background image): gets the
+    // target size and a projection of the width x height layout space onto it.
+    std::function<void(int w, int h, const float proj[16])> underlay;
     // The focused title's banner is left out (a settings panel is open over the home).
     void setBannerHidden(bool hidden) { mBannerHidden = hidden; }
+    // A background image covers the wall (scene3d.ts wallHidden): the wall is not drawn; the
+    // image comes from `underlay`.
+    void setWallHidden(bool hidden) { mWallHidden = hidden; }
     // A title banner with a sound appeared / the focus left it (the banner plays its BCWAV once).
     std::function<void(const std::shared_ptr<const RomBanner>&)> onBannerSound;
     std::function<void()> onBannerLeave;
@@ -56,6 +62,7 @@ private:
     void themeWall();
     void themeBanner(ModelInstance& model, int type);
     const ThemeBody* mTheme = nullptr;
+    bool mWallHidden = false;
     struct BannerSpec {
         int type = 0;
         std::string model;

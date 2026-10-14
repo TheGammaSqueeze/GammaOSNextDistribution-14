@@ -11,6 +11,7 @@
 #include "NanoCtrAudio.h"
 #include "NanoCtrPanel.h"
 #include "NanoCtrArt.h"
+#include "NanoCtrTheme.h"
 #include "NanoMenuUtils.h"
 #include "NanoI18n.h"
 #include "NanoMenuStrings.h"
@@ -512,6 +513,80 @@ void NanoMenu::ctrTouchFrame() {
     }
     mCtrTouchPrev = false;
     mCtrHome->setTouch(t);
+}
+
+// ---------------------------------------------------------------------------- themes
+
+namespace {
+const char* kCtrThemeRoot = "/sdcard/Themes";
+
+// The themes on the SD card, listed again at most every 2 s (the settings rows ask every frame).
+const std::vector<ctr::ThemeFile>& ctrSdThemes() {
+    static std::vector<ctr::ThemeFile> list;
+    static int64_t at = -1;
+    const int64_t now = (int64_t)android::uptimeMillis();
+    if (at < 0 || now - at > 2000) {
+        list = ctr::listSdThemes(kCtrThemeRoot);
+        at = now;
+    }
+    return list;
+}
+}  // namespace
+
+std::vector<SettingListOption> ctrThemeOptions() {
+    std::vector<SettingListOption> out = {{"-1", "Default"}, {"0", "Red"}, {"1", "Blue"}, {"2", "Yellow"}, {"3", "Pink"}, {"4", "Black"}};
+    for (const ctr::ThemeFile& t : ctrSdThemes()) out.push_back({"sd/" + t.name, t.name});
+    return out;
+}
+
+// Theme Settings > 3DS Theme (persist.gammaos.nano.ctr.theme): Default, a built-in colour theme
+// or a theme from the SD card. Default follows Theme Settings > Colour: any colour but Original
+// colours the menu with a theme made from it. Resolved again when either setting changes and for
+// a new home (GL context loss), which starts on the default look.
+void NanoMenu::ctrApplyTheme() {
+    static const prop_info* tpi = nullptr;
+    static uint32_t tser = ~0u;
+    static std::string key;
+    if (!tpi) tpi = __system_property_find("persist.gammaos.nano.ctr.theme");
+    const uint32_t ser = tpi ? __system_property_serial(tpi) : 0;
+    if (ser != tser) {
+        tser = ser;
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.ctr.theme", v, "-1");
+        key = v;
+    }
+    const std::string want = key + "|" + std::to_string(mPs3ColorIdx) + "|" + mPs3ColorCustomHex;
+    if (want == mCtrThemeKey && mCtrHome->theme() == mCtrThemeApplied) return;
+    mCtrThemeKey = want;
+    const ctr::ThemeBody* body = nullptr;
+    if (!mCtrThemeBody) mCtrThemeBody = std::make_shared<ctr::ThemeBody>();
+    if (key.rfind("sd/", 0) == 0) {
+        std::string err;
+        const std::string dir = std::string(kCtrThemeRoot) + "/" + key.substr(3);
+        if (ctr::loadThemeBody(dir, mCtrThemeBody.get(), &err)) body = mCtrThemeBody.get();
+        else ALOGW("ctr: theme %s not loaded: %s", dir.c_str(), err.c_str());
+    } else {
+        const int n = atoi(key.c_str());
+        const std::vector<ctr::ThemeBody>& themes = ctr::builtinThemes();
+        if (key != "-1" && !key.empty() && n >= 0 && n < (int)themes.size()) {
+            body = &themes[n];
+        } else if (mPs3ColorIdx != 0) {
+            float r, g, b;
+            minimaAccent(r, g, b);
+            if (ctr::makeColorTheme(r, g, b, mCtrThemeBody.get())) body = mCtrThemeBody.get();
+        }
+    }
+    mCtrHome->setTheme(body);
+    mCtrThemeApplied = body;
+    // the background images are textures now: their pixels are not kept (a new home loads the
+    // theme again)
+    if (body == mCtrThemeBody.get()) {
+        for (ctr::ThemeImage* img : {&mCtrThemeBody->topImage, &mCtrThemeBody->bottomImage}) {
+            img->rgba.clear();
+            img->rgba.shrink_to_fit();
+        }
+    }
+    mDisplayDirty = true;
 }
 
 // ---------------------------------------------------------------------------- lists and dialogs
@@ -1358,23 +1433,7 @@ void NanoMenu::renderCtrPrimary() {
         mCtrStickX = mCtrStickY = 0;
     }
     mCtrHome->setHeld(held);
-    // Theme Settings > 3DS Theme (persist.gammaos.nano.ctr.theme), read when the prop changes
-    {
-        static const prop_info* tpi = nullptr;
-        static uint32_t tser = ~0u;
-        static int wanted = -1;
-        if (!tpi) tpi = __system_property_find("persist.gammaos.nano.ctr.theme");
-        const uint32_t ser = tpi ? __system_property_serial(tpi) : 0;
-        if (ser != tser) {
-            tser = ser;
-            wanted = property_get_int32("persist.gammaos.nano.ctr.theme", -1);
-        }
-        // a new home (GL context loss, theme switch) starts on the default look
-        if (mCtrHome->theme() != wanted) {
-            mCtrHome->setTheme(wanted);
-            mDisplayDirty = true;
-        }
-    }
+    ctrApplyTheme();
     // screen widths from the rectangles each screen is drawn in
     {
         const float W = (float)mWidth, H = (float)mHeight;

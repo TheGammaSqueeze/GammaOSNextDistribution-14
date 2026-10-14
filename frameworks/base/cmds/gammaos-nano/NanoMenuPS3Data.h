@@ -127,8 +127,8 @@ static const Ps3DataItem kThemeSettingsCh[] = {
 #if !NANO_XMB_HIDE_LEGACY
   {"Theme",22,"Sets for use of a preset combination of elements such as colour, background or icons.",nullptr,1,nullptr,0},
 #endif
-  {"Colour",22,"Accent colour for the home screen: the GammaOS XMB (wave and menus), the Minima theme, and the DSi Menu chrome. Leave on Original for each theme's signature colour.",nullptr,1,nullptr,0},
-  {"3DS Theme",22,"3DS Menu theme only: the HOME Menu's colour theme (Red, Blue, Yellow, Pink or Black) for the top screen wall, the grid, the cursor and the buttons. Default keeps the console's own look. Applies immediately.","Default",1,nullptr,0},
+  {"Colour",22,"Accent colour for the home screen: the GammaOS XMB (wave and menus), the Minima theme, the DSi Menu chrome, and the 3DS Menu (a colour theme made from it while 3DS Theme is Default). Leave on Original for each theme's signature colour.",nullptr,1,nullptr,0},
+  {"3DS Theme",22,"3DS Menu theme only: the HOME Menu theme. Red, Blue, Yellow, Pink and Black are the console's colour themes; themes copied to the SD card as Themes/<name>/body_LZ.bin (with bgm.bcstm) are listed by name. Default keeps the console's look, coloured by Colour when that is not Original. Applies immediately.","Default",1,nullptr,0},
   {"Background",22,"Sets the background of the home screen.",nullptr,1,nullptr,0},
   {"Wallpaper",22,"Sets the moving background effect (wave, particles and others) shown behind the home screen.",nullptr,1,nullptr,0},
   {"Wallpaper Image",22,"Choose a photo from your device to use as the home background. Browse and pick from your images.",nullptr,1,nullptr,0},

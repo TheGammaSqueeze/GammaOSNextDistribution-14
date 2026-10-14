@@ -1149,7 +1149,8 @@ static void billboard(M4& mm, int mode) {
     m[8] = z[0] * sz; m[9] = z[1] * sz; m[10] = z[2] * sz;
 }
 
-GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>& models, int w, int h, const float clear[3]) {
+GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>& models, int w, int h, const float clear[3],
+                          const std::function<void(int w, int h)>& underlay) {
     struct Item { ModelInstance* model; const ModelResource::Primitive* prim; MaterialState* state; int order, priority; float depth; int seq; };
     std::vector<Item> items;
     int seq = 0;
@@ -1190,6 +1191,15 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
     glClearDepthf(1);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    if (underlay) {
+        underlay(w, h);
+        // the 2D pass leaves its own state: the target, viewport and masks come back
+        glBindFramebuffer(GL_FRAMEBUFFER, mFbos[mCur]);
+        glViewport(0, 0, w, h);
+        glDisable(GL_SCISSOR_TEST);
+        glDepthMask(GL_TRUE);
+        glStencilMask(0xff);
+    }
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
     for (const Item& it : items) {
         const CgfxMaterialDef& m = *it.state->source;

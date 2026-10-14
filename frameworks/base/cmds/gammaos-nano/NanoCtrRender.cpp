@@ -604,6 +604,7 @@ void Renderer::endGroup(CacheSlot& cs, const float clear[3]) {
     h = hashBytes(h, vp, sizeof(vp));
     h = hashBytes(h, clear, 3 * sizeof(float));
     h = mix64(h, gTextureEpoch);
+    h = mix64(h, mGroupSalt);
     if (h != cs.hash) {
         // changed: draw directly this frame, cache it if it holds still for the next one
         cs.hash = h;

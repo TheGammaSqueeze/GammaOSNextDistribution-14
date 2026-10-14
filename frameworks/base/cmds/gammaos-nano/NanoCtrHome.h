@@ -51,6 +51,7 @@ struct HomeStatus {
 };
 
 class ThemeManager;
+struct ThemeBody;
 
 class CtrHomeHost {
 public:
@@ -137,6 +138,8 @@ public:
     // called on every 60 Hz tick of the home.
     std::function<void(Renderer& r, bool top)> overlay;
     std::function<void()> onTick;
+    // A theme's animated bottom image changed frame (0..2): the theme's frame sound plays.
+    std::function<void(int phase)> onBackgroundFrame;
     // True when the top screen paints every pixel of its rectangle itself (the 3D wall).
     bool topCovered() const;
     // Leaves the focused banner and the camera / screenshot bars off the top screen (a panel's
@@ -168,10 +171,15 @@ public:
     // The title under the cursor while the grid is idle (null on the bar, a folder or an empty
     // slot): what the host's options menu acts on.
     const HomeItem* focusedTitle() const;
-    // The HOME Menu theme: -1 the default look, 0..4 the built-in colour themes (Red, Blue,
-    // Yellow, Pink, Black; builtinThemes()).
-    void setTheme(int index);
-    int theme() const { return mThemeIndex; }
+    // The HOME Menu theme (null = the default look): a built-in colour theme (builtinThemes()),
+    // a theme from the SD card or one made from a colour. The body must outlive its use.
+    void setTheme(const ThemeBody* body);
+    const ThemeBody* theme() const { return mThemeBody; }
+    // The user's wallpaper on a screen (a picture, a video frame or an animation the host
+    // renders, texture `tex`, rows top first): drawn where the console draws a theme's background
+    // image (LncBgSlide), over a theme image, the wall (top) or the grid plates (bottom) hidden
+    // under it. 0 removes it. `dynamic`: its pixels change every frame (video, animation).
+    void setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic);
     Assets& assets() { return *mAssets; }
     int64_t frame() const { return mFrame; }
 
@@ -180,7 +188,7 @@ private:
     std::unique_ptr<Impl> mImpl;
     std::unique_ptr<Assets> mAssets;
     std::unique_ptr<ThemeManager> mTheme;
-    int mThemeIndex = -1;
+    const ThemeBody* mThemeBody = nullptr;
     bool mLoaded = false;
     int mMinRootSlots = 60;
     float mTopW = 400, mBotW = 320, mTopH = 240;

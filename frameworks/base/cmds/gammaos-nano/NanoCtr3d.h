@@ -12,6 +12,7 @@
 #include <GLES2/gl2ext.h>
 
 #include <array>
+#include <functional>
 #include <map>
 #include <memory>
 #include <set>
@@ -222,7 +223,10 @@ public:
     ~Renderer3d();
     void releaseGl();
     // Renders models into the offscreen target (w x h, cleared to `clear`); returns its texture.
-    GLuint render(const Camera3d& cam, const std::vector<ModelInstance*>& models, int w, int h, const float clear[3]);
+    // `underlay` draws into the target after the clear, under the models (a background image the
+    // banners sit on, like the console's layer behind the 3D pass); it gets the target size.
+    GLuint render(const Camera3d& cam, const std::vector<ModelInstance*>& models, int w, int h, const float clear[3],
+                  const std::function<void(int w, int h)>& underlay = nullptr);
 private:
     struct Program;
     Program* program(const CgfxMaterialDef& m);

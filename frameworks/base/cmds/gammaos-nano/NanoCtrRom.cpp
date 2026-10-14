@@ -2661,6 +2661,20 @@ std::vector<uint8_t> writeCpk(const std::vector<std::pair<std::string, std::vect
 
 // ================================================================== LZ (lz.py decompress)
 
+bool decodePicaTexture(const uint8_t* raw, size_t size, uint32_t w, uint32_t h, const char* format,
+                       std::vector<uint8_t>* rgba, std::string* error) {
+    int fmt = -1;
+    for (int k = 0; k < 14; k++) if (!strcmp(format, kTextureFormats[k])) fmt = k;
+    Image img;
+    std::string err;
+    if (!decodeTexture(raw, size, w, h, fmt, &img, &err)) {
+        if (error) *error = err;
+        return false;
+    }
+    rgba->swap(img.rgba);
+    return true;
+}
+
 bool lzDecompress(const uint8_t* data, size_t n, std::vector<uint8_t>* out) {
     if (n < 4) return false;
     const uint8_t kind = data[0];

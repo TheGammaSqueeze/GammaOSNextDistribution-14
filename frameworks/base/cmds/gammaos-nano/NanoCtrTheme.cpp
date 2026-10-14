@@ -1,8 +1,17 @@
 // NanoCtrTheme - see NanoCtrTheme.h.
 #include "NanoCtrTheme.h"
 
+#include <dirent.h>
+#include <strings.h>
+#include <sys/stat.h>
+
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <map>
+
+#include "NanoCtrRom.h"
 
 namespace android {
 namespace ctr {
@@ -197,11 +206,241 @@ void materialsOf(const Pane* p, Target target, std::vector<int>* out) {
 
 }  // namespace
 
+// ------------------------------------------------------------------ custom theme bodies
+
+namespace {
+
+uint32_t u32(const std::vector<uint8_t>& d, size_t off) {
+    if (off + 4 > d.size()) return 0;
+    return d[off] | d[off + 1] << 8 | d[off + 2] << 16 | (uint32_t)d[off + 3] << 24;
+}
+
+// theme.py COLOR_BLOCKS: enable flag offset, data offset field, the fields in file order. A
+// field is "name" (3 RGB bytes), "#name" (1 byte) or "%name" (4 byte float).
+struct BlockSpec {
+    ThemeBlockId id;
+    uint32_t enable, data;
+    std::vector<const char*> fields;
+};
+
+const std::vector<BlockSpec>& blockSpecs() {
+    static const std::vector<const char*> shaded = {"dark", "main", "light", "shadow", "#alpha"};
+    static const std::vector<const char*> button = {"%textShadowPos", "dark", "main", "light", "shadow", "#alpha",
+                                                    "glow", "textShadow", "textMain", "textSelected"};
+    static const std::vector<BlockSpec> specs = {
+        {TB_CURSOR, 0x2C, 0x30, {"dark", "main", "light", "glow"}},
+        {TB_FOLDER, 0x34, 0x38, {"dark", "main", "light", "shadow"}},
+        {TB_FILE, 0x48, 0x4C, shaded},
+        {TB_ARROW_BUTTON, 0x5C, 0x60, shaded},
+        {TB_ARROW, 0x64, 0x68, {"border", "unpressed", "pressed"}},
+        {TB_OPEN_BUTTON, 0x6C, 0x70, button},
+        {TB_CLOSE_BUTTON, 0x6C, 0x74, button},
+        {TB_GAME_TEXT, 0x78, 0x7C, {"backgroundMain", "backgroundLight", "shadow", "#alpha", "text"}},
+        {TB_BOTTOM_SOLID, 0x80, 0x84, shaded},
+        {TB_BOTTOM_OUTER, 0x88, 0x8C, {"dark", "main", "light"}},
+        {TB_FOLDER_BACKGROUND, 0x90, 0x94, shaded},
+        {TB_FOLDER_ARROW, 0x98, 0x9C, button},
+        {TB_BOTTOM_CORNER_BUTTON, 0xA0, 0xA4, {"dark", "main", "light", "shadow", "iconMain", "iconLight", "iconShadow"}},
+        {TB_TOP_CORNER_BUTTON, 0xA8, 0xAC, {"main", "light", "shadow", "text"}},
+        {TB_DEMO_TEXT, 0xB0, 0xB4, {"background", "text"}},
+    };
+    return specs;
+}
+
+const char* frameType(uint32_t v) {
+    static const char* names[] = {"scroll", "static", "animated", "slowScroll", "bounce"};
+    return v < 5 ? names[v] : "";
+}
+
+// A body texture (theme.py _texture) at its stored size; w x h is the part shown.
+bool readImage(const std::vector<uint8_t>& d, uint32_t off, const char* format, int bpp, uint32_t texW, uint32_t texH,
+               uint32_t w, uint32_t h, ThemeImage* out) {
+    const size_t need = (size_t)texW * texH * bpp;
+    if (!off || off + need > d.size()) return false;
+    std::string err;
+    if (!decodePicaTexture(d.data() + off, need, texW, texH, format, &out->rgba, &err)) return false;
+    out->texW = texW;
+    out->texH = texH;
+    out->w = w;
+    out->h = h;
+    return true;
+}
+
+}  // namespace
+
+std::vector<ThemeFile> listSdThemes(const std::string& root) {
+    std::vector<ThemeFile> out;
+    DIR* d = opendir(root.c_str());
+    if (!d) return out;
+    while (dirent* e = readdir(d)) {
+        if (e->d_name[0] == '.') continue;
+        const std::string dir = root + "/" + e->d_name;
+        struct stat st;
+        if (stat((dir + "/body_LZ.bin").c_str(), &st) != 0 || !S_ISREG(st.st_mode)) continue;
+        out.push_back({e->d_name, dir});
+    }
+    closedir(d);
+    std::sort(out.begin(), out.end(), [](const ThemeFile& a, const ThemeFile& b) { return strcasecmp(a.name.c_str(), b.name.c_str()) < 0; });
+    return out;
+}
+
+bool loadThemeBody(const std::string& dir, ThemeBody* out, std::string* error) {
+    auto fail = [&](const char* why) { if (error) *error = why; return false; };
+    std::vector<uint8_t> raw;
+    {
+        FILE* f = fopen((dir + "/body_LZ.bin").c_str(), "rb");
+        if (!f) return fail("no body_LZ.bin");
+        fseek(f, 0, SEEK_END);
+        const long n = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        if (n <= 0 || n > 8 * 1024 * 1024) { fclose(f); return fail("body size"); }
+        raw.resize((size_t)n);
+        const bool ok = fread(raw.data(), 1, raw.size(), f) == raw.size();
+        fclose(f);
+        if (!ok) return fail("read error");
+    }
+    std::vector<uint8_t> d;
+    if (raw[0] == 0x11 || raw[0] == 0x10) {
+        if (!lzDecompress(raw.data(), raw.size(), &d)) return fail("LZ11 data is damaged");
+    } else {
+        d.swap(raw);
+    }
+    if (d.size() < 0xD0 || u32(d, 0) != 1) return fail("not a theme body");
+
+    ThemeBody b;
+    const size_t slash = dir.find_last_of('/');
+    b.name = slash == std::string::npos ? dir : dir.substr(slash + 1);
+    b.bgmEnabled = d[5] != 0;
+    static const char* topDraw[] = {"none", "color", "colorTexture", "texture"};
+    static const char* bottomDraw[] = {"none", "color", "texture", "texture"};
+    const uint32_t td = u32(d, 0x0C), tf = u32(d, 0x10), tc = u32(d, 0x14), tt = u32(d, 0x18), te = u32(d, 0x1C);
+    const uint32_t bd = u32(d, 0x20), bf = u32(d, 0x24), bt = u32(d, 0x28);
+    b.top.drawType = td < 4 ? topDraw[td] : "none";
+    b.bottomDrawType = bd < 4 ? bottomDraw[bd] : "none";
+    b.topFrameType = frameType(tf);
+    b.bottomFrameType = frameType(bf);
+    // the top colour: 5 bytes for color, 7 for colorTexture (FUN_00243240)
+    if ((td == 1 || td == 2) && tc && tc + 7 <= d.size()) {
+        b.top.hasColor = true;
+        b.top.rgb = {d[tc], d[tc + 1], d[tc + 2]};
+        b.top.gradient = d[tc + 3];
+        b.top.opacity = d[tc + 4];
+        b.top.unknown05 = d[tc + 5];
+        if (td == 2) b.top.unknown06 = d[tc + 6];
+    }
+    for (const BlockSpec& s : blockSpecs()) {
+        if (!u32(d, s.enable)) continue;
+        size_t off = u32(d, s.data);
+        ThemeBlock& blk = b.blocks[s.id];
+        blk.present = true;
+        for (const char* f : s.fields) {
+            if (f[0] == '%') { off += 4; continue; }
+            if (f[0] == '#') { if (off < d.size()) blk.alpha = d[off]; off += 1; continue; }
+            if (off + 3 > d.size()) break;
+            blk.rgb.push_back({f, {d[off], d[off + 1], d[off + 2]}});
+            off += 3;
+        }
+    }
+    // textures (theme.py _textures); a frame type the menu has no image size for shows nothing
+    if (td == 2) {
+        readImage(d, tt, "L8", 1, 64, 64, 64, 64, &b.topPattern);
+        readImage(d, te, "L8", 1, 64, 64, 64, 64, &b.topPatternExtra);
+    } else if (td == 3) {
+        if (tf == 0 || tf == 3) readImage(d, tt, "RGB565", 2, 1024, 256, 1008, 240, &b.topImage);
+        else if (tf == 1) readImage(d, tt, "RGB565", 2, 512, 256, 412, 240, &b.topImage);
+    }
+    if (bd == 2 || bd == 3) {
+        if (bf == 0 || bf == 3) readImage(d, bt, "RGB565", 2, 1024, 256, 1008, 240, &b.bottomImage);
+        else if (bf == 1) readImage(d, bt, "RGB565", 2, 512, 256, 320, 240, &b.bottomImage);
+        else if (bf == 2 || bf == 4) readImage(d, bt, "RGB565", 2, 1024, 256, 960, 240, &b.bottomImage);
+    }
+    if (u32(d, 0x3C)) {
+        readImage(d, u32(d, 0x40), "RGB8", 3, 128, 64, 74, 64, &b.folderClosed);
+        readImage(d, u32(d, 0x44), "RGB8", 3, 128, 64, 82, 64, &b.folderOpen);
+    }
+    if (u32(d, 0x50)) {
+        readImage(d, u32(d, 0x54), "RGB8", 3, 64, 128, 36, 72, &b.fileLarge);
+        readImage(d, u32(d, 0x58), "RGB8", 3, 32, 64, 25, 50, &b.fileSmall);
+    }
+    const uint32_t se = u32(d, 0xB8), seSize = u32(d, 0xBC), seOff = u32(d, 0xC0);
+    if (se && seSize && seOff + (size_t)seSize <= d.size()) b.soundEffects.assign(d.begin() + seOff, d.begin() + seOff + seSize);
+    if (b.bgmEnabled) {
+        struct stat st;
+        const std::string bgm = dir + "/bgm.bcstm";
+        if (stat(bgm.c_str(), &st) == 0 && S_ISREG(st.st_mode)) b.bgmPath = bgm;
+    }
+    *out = std::move(b);
+    return true;
+}
+
 const std::vector<ThemeBody>& builtinThemes() {
     static const std::vector<ThemeBody> themes = {
 #include "NanoCtrThemeBuiltin.inc"
     };
     return themes;
+}
+
+namespace {
+void rgbToHsv(float r, float g, float b, float* h, float* s, float* v) {
+    const float mx = std::max({r, g, b}), mn = std::min({r, g, b}), d = mx - mn;
+    *v = mx;
+    *s = mx > 0 ? d / mx : 0;
+    if (d <= 0) { *h = 0; return; }
+    float hh;
+    if (mx == r) hh = (g - b) / d;
+    else if (mx == g) hh = 2 + (b - r) / d;
+    else hh = 4 + (r - g) / d;
+    hh /= 6;
+    *h = hh < 0 ? hh + 1 : hh;
+}
+
+void hsvToRgb(float h, float s, float v, float* r, float* g, float* b) {
+    h = h - std::floor(h);
+    const float f = h * 6;
+    const int i = (int)f % 6;
+    const float fr = f - std::floor(f);
+    const float p = v * (1 - s), q = v * (1 - s * fr), t = v * (1 - s * (1 - fr));
+    switch (i) {
+        case 0: *r = v; *g = t; *b = p; break;
+        case 1: *r = q; *g = v; *b = p; break;
+        case 2: *r = p; *g = v; *b = t; break;
+        case 3: *r = p; *g = q; *b = v; break;
+        case 4: *r = t; *g = p; *b = v; break;
+        default: *r = v; *g = p; *b = q; break;
+    }
+}
+}  // namespace
+
+bool makeColorTheme(float r, float g, float b, ThemeBody* out) {
+    float ha, sa, va;
+    rgbToHsv(r, g, b, &ha, &sa, &va);
+    const std::vector<ThemeBody>& themes = builtinThemes();   // Red, Blue, Yellow, Pink, Black
+    if (sa < 0.15f) {
+        if (va >= 0.5f) return false;   // white or light grey: the console's own look
+        *out = themes[4];
+        out->name = "Colour";
+        return true;
+    }
+    const ThemeBody& base = themes[1];
+    // the reference hue and saturation: the folder colour, the theme's signature
+    const auto* ref = base.blocks[TB_FOLDER].field("main");
+    float hr, sr, vr;
+    rgbToHsv((*ref)[0] / 255.0f, (*ref)[1] / 255.0f, (*ref)[2] / 255.0f, &hr, &sr, &vr);
+    const float dh = ha - hr, ks = sr > 0 ? sa / sr : 1;
+    auto turn = [&](float x, float y, float z, float scale, std::array<uint8_t, 3>* o) {
+        float h, s, v;
+        rgbToHsv(x / scale, y / scale, z / scale, &h, &s, &v);
+        float nr, ng, nb;
+        hsvToRgb(h + dh, std::min(1.0f, s * ks), v, &nr, &ng, &nb);
+        *o = {(uint8_t)std::lround(nr * scale), (uint8_t)std::lround(ng * scale), (uint8_t)std::lround(nb * scale)};
+    };
+    *out = base;
+    out->name = "Colour";
+    for (ThemeBlock& blk : out->blocks)
+        for (auto& f : blk.rgb) turn(f.second[0], f.second[1], f.second[2], 255.0f, &f.second);
+    // the wall colour block is in percent (FUN_00243240 scales it by 0.01)
+    if (out->top.hasColor) turn(out->top.rgb[0], out->top.rgb[1], out->top.rgb[2], 100.0f, &out->top.rgb);
+    return true;
 }
 
 ThemeManager::ThemeManager(Assets& assets) : A(assets) {
@@ -221,8 +460,7 @@ void ThemeManager::attach(LayoutInstance& l) {
 }
 
 void ThemeManager::setTheme(const ThemeBody* body) {
-    if (body == mBody) return;
-    mBody = body;
+    mBody = body;   // always applied: a body may be loaded again into the same storage
     for (LayoutInstance* l : mLive) apply(*l);
 }
 

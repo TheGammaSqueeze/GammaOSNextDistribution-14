@@ -762,9 +762,9 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // XMB-only appearance: the wave/particle Background + effect picker, the XMB font and the
     // day/night lighting have no effect in the DSi or Minima home.
     if (is("Background") || is("Font") || is("Day/Night")) return xmb;
-    // the 3DS home has its own look: the accent colour and the wallpapers do not apply to it
-    if (mCtrTheme && (is("Colour") || is("Wallpaper Image") || is("Video Wallpaper") || is("Clear Wallpaper") ||
-                      is("Wallpaper Dimming")))
+    // the 3DS home: the Colour makes a colour theme (3DS Theme on Default); the wallpapers are not
+    // wired to it yet
+    if (mCtrTheme && (is("Wallpaper Image") || is("Video Wallpaper") || is("Clear Wallpaper") || is("Wallpaper Dimming")))
         return false;
     // The effect picker also serves the DSi home: a chosen effect renders on both DSi screens in
     // place of the flat field / custom wallpaper (persisted separately, see the case 11 commit).
@@ -9115,7 +9115,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Boot Sound", SettingSource::kProp, "persist.gammaos.nano.boot_sound", "1", "0:Off,1:On"},
     // DSi looping menu ambiance (menu_ambiance.wav) - gated live in the ndsAmbianceTick call (DSi only).
     {"Menu Music", SettingSource::kProp, "persist.gammaos.nano.nds.ambiance", "1", "0:Off,1:On"},
-    {"3DS Theme", SettingSource::kProp, "persist.gammaos.nano.ctr.theme", "-1", "-1:Default,0:Red,1:Blue,2:Yellow,3:Pink,4:Black"},
+    {"3DS Theme", SettingSource::kProp, "persist.gammaos.nano.ctr.theme", "-1", "@ctrthemes"},
     // Game Settings: Quick Resume (persist.gammaos.nano.quick_resume, off by default; the home
     // and drastic-nano read it at every launch and boot). The row applies live via the hook in
     // closePs3Dialog (mQuickResumeEnabled), the Quick Menu X shortcut flips the same flag.

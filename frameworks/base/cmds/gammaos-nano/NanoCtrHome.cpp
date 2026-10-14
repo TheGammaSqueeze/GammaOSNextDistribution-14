@@ -540,6 +540,22 @@ struct CtrHome::Impl {
     std::unordered_map<GLuint, TexturePtr> hostTex;  // wrappers of host textures
     uint64_t artGen = 0;
     Renderer::CacheSlot bottomCache;   // background, sheets and icons of the bottom screen
+    // theme/background.ts: the background image of each screen (LncBgSlide_U_00 behind the 3D
+    // pass, LncBgSlide_D_00 under the base's NN_LncBgSlide_00): a theme image or the host's
+    // wallpaper, which wins
+    struct Background {
+        std::unique_ptr<LayoutInstance> lay;
+        TexturePtr theme, host, bound;
+        std::string themeFrame;
+        bool hostDynamic = false;
+        int phase = -1;
+        const TexturePtr& image() const { return host ? host : theme; }
+        bool shown() const { return lay && image(); }
+    };
+    Background bgTop, bgBottom;
+    uint64_t bgFrame = 0;
+    void followBackground(Background& b, bool top, bool follow);
+    void updateBackgrounds();
     std::map<std::pair<GLuint, int>, TexturePtr> tinted;   // derived icons by source texture + kind
     GLuint tintProgram = 0;
 };
@@ -549,6 +565,8 @@ struct CtrHome::Impl {
 bool CtrHome::Impl::load() {
     base = make("launcher", "LncBase_D_01");
     palette = make("launcher", "LncPlt_00");
+    bgTop.lay = make("launcher", "LncBgSlide_U_00");
+    bgBottom.lay = make("launcher", "LncBgSlide_D_00");
     arrows = make("launcher", "LncArw_00");
     buttons = make("launcher", "LncBtmBtn_02");
     cursor = make("launcher", "LncCsr_00");
@@ -1823,6 +1841,7 @@ void CtrHome::tick() {
 
 void CtrHome::step(int frames) {
     for (int i = 0; i < frames; i++) tick();
+    if (mLoaded) mImpl->updateBackgrounds();
 }
 
 void CtrHome::update(int64_t nowNs) {
@@ -1834,6 +1853,7 @@ void CtrHome::update(int64_t nowNs) {
     mAccum -= n;
     if (n > 8) n = 8;   // at most 8 ticks per drawn frame (runtime.ts)
     for (int i = 0; i < n; i++) tick();
+    mImpl->updateBackgrounds();
 }
 
 bool CtrHome::busy() const { return true; }
@@ -1889,6 +1909,20 @@ void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) 
         I.fadeTop->layout().adaptWidth(mTopW, Layout::Adapt::None);
         I.fadeTop->layout().adaptHeight(mTopH, Layout::Adapt::None);
     }
+    if (I.top3d) {
+        // LncBgSlide_U_00 behind the 3D pass (background.ts TOP_PRIORITY): drawn into the scene's
+        // target under the banners
+        I.top3d->underlay = [this, &I, &r](int w, int h, const float lp[16]) {
+            LayoutInstance* l = I.bgTop.lay.get();
+            if (!l) return;
+            l->layout().adaptWidth(mTopW, Layout::Adapt::Split);
+            l->layout().adaptHeight(mTopH, Layout::Adapt::Edge);
+            r.setViewport(0, 0, w, h);
+            r.beginWith(lp);
+            I.drawInstance(r, l);
+            r.end();
+        };
+    }
     if (perfMark) perfMark("top3d");
     if (I.top3d && !getenv("CTR_NO3D")) I.top3d->draw(proj, vpX, vpY, vpW, vpH, mTopW, mTopH);
     if (perfMark) perfMark("topLayouts");
@@ -1914,7 +1948,16 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
     r.setClip(-mBotW / 2, -120, mBotW, 240);
     // The background, sheets and icons change only when the grid moves: an exact cache
     // (Renderer::endGroup) copies them while they hold still; the cursor and chrome draw on top.
+    // a wallpaper that moves by itself (video, animation) changes the cached bottom every frame
+    r.setGroupSalt(I.bgBottom.shown() && I.bgBottom.host && I.bgBottom.hostDynamic ? ++I.bgFrame : 0);
     r.beginGroup();
+    if (I.bgBottom.shown()) {
+        // hung under the base's NN_LncBgSlide_00, its first node: drawn before the base
+        I.bgBottom.lay->layout().adaptWidth(mBotW, Layout::Adapt::Edge);
+        I.base->layout().calculate();
+        I.bgBottom.lay->layout().root->parent = I.base->pane("NN_LncBgSlide_00");
+        I.drawInstance(r, I.bgBottom.lay.get());
+    }
     I.drawInstance(r, I.base.get());
     I.drawInstance(r, I.palette.get());
     I.drawIcons(r, I.root(), nullptr);
@@ -1968,12 +2011,117 @@ void CtrHome::resumeFromApp() {
     }
 }
 
-void CtrHome::setTheme(int index) {
-    const std::vector<ThemeBody>& themes = builtinThemes();
-    const ThemeBody* body = index >= 0 && index < (int)themes.size() ? &themes[index] : nullptr;
-    mThemeIndex = body ? index : -1;
+// ------------------------------------------------------------------ background images
+
+namespace {
+// background.ts: a scrolling image is 1008 wide; P_Bg_00 shows 412 (top, the 3D margin) or 320
+const float kScrollWidth = 1008;
+const float kPhaseLength = 82;   // animated / bounce frames change every 82 px of grid scroll
+
+QuadUv uvQuad(float u0, float u1) { return QuadUv{Vec2{u0, 0}, Vec2{u1, 0}, Vec2{u0, 1}, Vec2{u1, 1}}; }
+float cRem(float v, float size) { return v - std::trunc(v / size) * size; }
+
+// A theme image as a texture of exactly the shown part (theme.py _crop), rows top first.
+TexturePtr themeTexture(Assets& A, const ThemeImage& img) {
+    if (img.empty() || !img.w || !img.h) return nullptr;
+    std::vector<uint8_t> px((size_t)img.w * img.h * 4);
+    // the decoder gives the CGFX row order (the stored first row at the bottom)
+    for (uint32_t y = 0; y < img.h; y++) {
+        const uint8_t* src = img.rgba.data() + ((size_t)(img.texH - 1 - y) * img.texW) * 4;
+        memcpy(px.data() + (size_t)y * img.w * 4, src, (size_t)img.w * 4);
+    }
+    return A.rgbaTexture(px.data(), (int)img.w, (int)img.h);
+}
+}  // namespace
+
+// FUN_00267500 (background.ts Slide.follow): texture coordinates of P_Bg_00 for the root grid's
+// scroll position. Set 0 is the BgSplit mask, sets 1 and 2 the image.
+void CtrHome::Impl::followBackground(Background& b, bool top, bool follow) {
+    Pane* p = b.lay ? b.lay->pane("P_Bg_00") : nullptr;
+    if (!p) return;
+    const TexturePtr& tex = b.image();
+    if (tex != b.bound) {
+        b.bound = tex;
+        b.phase = -1;
+        if (tex) {
+            b.lay->replaceTexture("P_Bg_00", tex, 1);
+            b.lay->replaceTexture("P_Bg_00", tex, 2);
+        }
+    }
+    if (!tex) return;
+    if (p->texCoords.size() < 3) p->texCoords.resize(3);
+    if (!follow && b.phase >= 0) return;
+    const std::string frame = b.host ? std::string("static") : b.themeFrame;
+    const QuadUv full = uvQuad(0, 1);
+    const float position = std::trunc(root().scroll);
+    if (frame == "scroll" || frame == "slowScroll") {
+        const bool slow = frame == "slowScroll";
+        const float offset = top ? (slow ? 0x4e5 : 0x3ea) : 0;
+        const float pos = slow ? std::trunc((position + offset) * 0.8f) : position + offset;
+        const float width = top ? 412 : 320;
+        const float m = cRem(pos, kScrollWidth);
+        const float mask = (m + 4) * 0.125f;
+        p->texCoords[0] = uvQuad(-126 + mask, (width - kScrollWidth) * 0.125f + mask);
+        p->texCoords[1] = uvQuad(m / kScrollWidth - 1, m / kScrollWidth + (width - kScrollWidth) / kScrollWidth);
+        p->texCoords[2] = uvQuad(m / kScrollWidth, (m + width) / kScrollWidth);
+    } else if (frame == "animated" || (frame == "bounce" && !top)) {
+        const bool bounce = frame == "bounce";
+        int phase = (int)std::trunc(cRem(position, kPhaseLength * (bounce ? 4 : 3)) / kPhaseLength);
+        if (phase == 3) phase = 1;
+        const QuadUv f = uvQuad(phase / 3.0f, (phase + 1) / 3.0f);
+        p->texCoords[0] = full;
+        p->texCoords[1] = f;
+        p->texCoords[2] = f;
+        if (phase != b.phase) {
+            // a new bottom frame plays the theme's frame sound (background.ts follow)
+            if (b.phase >= 0 && !top && !b.host && self->onBackgroundFrame) self->onBackgroundFrame(phase);
+            b.phase = phase;
+        }
+    } else {
+        p->texCoords[0] = p->texCoords[1] = p->texCoords[2] = full;
+    }
+}
+
+// FUN_001d4788 and the plate switch of FUN_001d3504: the images show over the wall and in
+// place of the grid plates and the bottom background panes.
+void CtrHome::Impl::updateBackgrounds() {
+    const bool topShown = bgTop.shown(), bottomShown = bgBottom.shown();
+    if (bgTop.lay) bgTop.lay->layout().root->visible = topShown;
+    if (bgBottom.lay) bgBottom.lay->layout().root->visible = bottomShown;
+    for (const char* n : {"W_Plt_00", "W_Shdw_00"})
+        if (Pane* p = palette ? palette->pane(n) : nullptr) p->visible = !bottomShown;
+    for (const char* n : {"P_BgTop_00", "P_BgL_00", "P_BgR_00", "P_BgBtm_00"})
+        if (Pane* p = base ? base->pane(n) : nullptr) p->visible = !bottomShown;
+    if (top3d) top3d->setWallHidden(topShown);
+    // the images follow the root grid, not a folder's (FUN_001d41e4)
+    // (the texture is bound in any case; the coordinates keep the root grid's last position)
+    if (topShown) followBackground(bgTop, true, !inFolder());
+    if (bottomShown) followBackground(bgBottom, false, !inFolder());
+}
+
+void CtrHome::setTheme(const ThemeBody* body) {
+    mThemeBody = body;
     mTheme->setTheme(body);
-    if (mImpl->top3d) mImpl->top3d->setTheme(body);
+    Impl& I = *mImpl;
+    if (I.top3d) I.top3d->setTheme(body);
+    // background.ts setTheme: the images of texture draw types
+    I.bgTop.theme = body && body->top.drawType == "texture" ? themeTexture(*mAssets, body->topImage) : nullptr;
+    I.bgTop.themeFrame = body ? body->topFrameType : std::string();
+    I.bgBottom.theme = body && body->bottomDrawType == "texture" ? themeTexture(*mAssets, body->bottomImage) : nullptr;
+    I.bgBottom.themeFrame = body ? body->bottomFrameType : std::string();
+}
+
+void CtrHome::setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic) {
+    Impl::Background& b = top ? mImpl->bgTop : mImpl->bgBottom;
+    b.hostDynamic = tex && dynamic;
+    if (!tex) { b.host.reset(); return; }
+    if (b.host && b.host->id == tex && b.host->width == w && b.host->height == h) return;
+    // the host owns the GL texture: the wrapper never deletes it
+    b.host = std::shared_ptr<Texture>(new Texture(), [](Texture* t) { gTextureEpoch++; delete t; });
+    b.host->id = tex;
+    b.host->width = b.host->texWidth = w;
+    b.host->height = b.host->texHeight = h;
+    gTextureEpoch++;
 }
 
 const HomeItem* CtrHome::focusedTitle() const {

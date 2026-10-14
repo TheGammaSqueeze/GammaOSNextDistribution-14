@@ -43,6 +43,7 @@ namespace android {
 // ---------------------------------------------------------------------------
 
 std::vector<SettingListOption> parseListOptions(const std::string& opts) {
+    if (opts == "@ctrthemes") return ctrThemeOptions();
     std::vector<SettingListOption> out;
     size_t p = 0;
     while (p < opts.size()) {

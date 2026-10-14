@@ -97,6 +97,11 @@ bool readRomExeFs(const std::string& romPath, std::vector<uint8_t>* icon, std::v
 // LZ10 / LZ11 decompression (lz.py decompress).
 bool lzDecompress(const uint8_t* data, size_t size, std::vector<uint8_t>* out);
 
+// Decodes a tiled PICA200 texture ("RGB565", "RGB8", "L8", ... as texture.py names them) to
+// RGBA8 with the same row order as the CGFX textures (texture.py decode).
+bool decodePicaTexture(const uint8_t* raw, size_t size, uint32_t w, uint32_t h, const char* format,
+                       std::vector<uint8_t>* rgba, std::string* error);
+
 // Builds a CPK1 pack (ctr_pack.py write_pack) from named blobs; names are sorted.
 std::vector<uint8_t> writeCpk(const std::vector<std::pair<std::string, std::vector<uint8_t>>>& entries);
 

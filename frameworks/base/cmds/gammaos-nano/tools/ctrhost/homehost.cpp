@@ -24,6 +24,7 @@
 #include "../../NanoCtrHome.h"
 #include "../../NanoCtrPanel.h"
 #include "../../NanoCtrArt.h"
+#include "../../NanoCtrTheme.h"
 #include "../../stb_image.h"
 
 using namespace android::ctr;
@@ -274,7 +275,21 @@ int main(int argc, char** argv) {
             dialog.hide(true);
         } else if (cmd == "theme") {
             int n; ss >> n;
-            home.setTheme(n);
+            home.setTheme(n >= 0 && n < (int)builtinThemes().size() ? &builtinThemes()[n] : nullptr);
+        } else if (cmd == "sdtheme") {
+            // "sdtheme <dir>": a custom theme from its folder (body_LZ.bin)
+            static ThemeBody body;
+            std::string dir, err; ss >> dir;
+            if (loadThemeBody(dir, &body, &err)) {
+                fprintf(stderr, "theme %s: top %s/%s bottom %s/%s pattern %d top %ux%u bottom %ux%u folder %d file %d se %zu bgm %s\n",
+                        body.name.c_str(), body.top.drawType.c_str(), body.topFrameType.c_str(), body.bottomDrawType.c_str(),
+                        body.bottomFrameType.c_str(), !body.topPattern.empty(), body.topImage.w, body.topImage.h,
+                        body.bottomImage.w, body.bottomImage.h, !body.folderClosed.empty(), !body.fileLarge.empty(),
+                        body.soundEffects.size(), body.bgmPath.c_str());
+                home.setTheme(&body);
+            } else {
+                fprintf(stderr, "theme %s failed: %s\n", dir.c_str(), err.c_str());
+            }
         } else if (cmd == "home") {
             home.pressHome();
         } else if (cmd == "shot") {

@@ -45,7 +45,7 @@ precision mediump float;
 #endif
 varying vec2 v_uv;
 uniform sampler2D u_tex;
-void main() { gl_FragColor = vec4(texture2D(u_tex, v_uv).rgb, 1.0); }
+void main() { gl_FragColor = texture2D(u_tex, v_uv); }   // opaque unless the wall is hidden
 )";
 
 GLuint compileBlit(GLenum type, const char* src) {
@@ -364,8 +364,7 @@ V4 fileColor(const MaterialState& m, int index, float alpha) {
 }  // namespace
 
 void CtrTop::setTheme(const ThemeBody* body) {
-    if (body == mTheme) return;
-    mTheme = body;
+    mTheme = body;   // always applied: a body may be loaded again into the same storage
     themeWall();
     if (mBanner) themeBanner(*mBanner->model, mBanner->spec.type);
 }
@@ -386,6 +385,35 @@ void CtrTop::themeWall() {
         m->overrides[kConstant0 + 1] = fileColor(*m, kConstant0 + 1, top->opacity * 0.01f);
         m->overrides[kConstant0 + 2] = fileColor(*m, kConstant0 + 2, top->gradient * 0.01f);
         m->overrides[kConstant0 + 5] = fileColor(*m, kConstant0 + 5, alpha5);
+    }
+    // scene3d.ts setPatterns: a colorTexture theme's two 64x64 L8 patterns replace the wall's
+    // mappers 1 and 2 (BG_64_00); a mapper without one keeps the file texture
+    m->textureOverrides.clear();
+    for (int i = 0; i < 2; i++) {   // the previous theme's patterns
+        auto& texs = mWall->resource->textures;
+        auto old = texs.find("theme:pattern" + std::to_string(i));
+        if (old == texs.end()) continue;
+        if (old->second && old->second->owned && old->second->id) glDeleteTextures(1, &old->second->id);
+        texs.erase(old);
+    }
+    if (top && top->drawType == "colorTexture") {
+        const ThemeImage* patterns[2] = {&mTheme->topPattern, &mTheme->topPatternExtra};
+        for (int i = 0; i < 2; i++) {
+            const ThemeImage& img = *patterns[i];
+            if (img.empty()) continue;
+            auto t = std::make_shared<GpuTex>();
+            glGenTextures(1, &t->id);
+            glBindTexture(GL_TEXTURE_2D, t->id);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)img.texW, (GLsizei)img.texH, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.rgba.data());
+            glGenerateMipmap(GL_TEXTURE_2D);   // the mapper may sample with mipmaps
+            t->width = (int)img.texW;
+            t->height = (int)img.texH;
+            t->owned = true;
+            const std::string name = "theme:pattern" + std::to_string(i);
+            mWall->resource->setTexture(name, t);
+            m->textureOverrides[i + 1] = name;
+        }
     }
     m->reset();
 }
@@ -432,7 +460,8 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
     const float wy = hypotf(proj[4] * vpW * 0.5f, proj[5] * vpH * 0.5f) * height;
     const float s = std::min({wx / width, wy / height, (float)mMaxScale});
     const int w = std::max(1, (int)lroundf(width * std::max(1.0f, s))), h = std::max(1, (int)lroundf(height * std::max(1.0f, s)));
-    std::vector<ModelInstance*> models{mWall.get()};
+    std::vector<ModelInstance*> models;
+    if (!mWallHidden) models.push_back(mWall.get());
     if (!mBannerHidden) {
         for (auto& b : mLeaving) {
             models.push_back(b->model.get());
@@ -443,7 +472,13 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
             if (mBanner->extra) models.push_back(mBanner->extra.get());
         }
     }
-    const GLuint tex = mRenderer.render(mCamera, models, w, h, TOP_CLEAR);
+    std::function<void(int, int)> under;
+    if (mWallHidden && underlay) {
+        // the layout space of the screen onto the target (y up, as the blit samples it)
+        const float lp[16] = {2 / width, 0, 0, 0, 0, 2 / height, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        under = [this, lp](int tw, int th) { underlay(tw, th, lp); };
+    }
+    const GLuint tex = mRenderer.render(mCamera, models, w, h, TOP_CLEAR, under);
     if (CtrHome::perfMark) CtrHome::perfMark("top3dBlit");
     // composite into the top screen rectangle
     if (!mBlitProgram) {

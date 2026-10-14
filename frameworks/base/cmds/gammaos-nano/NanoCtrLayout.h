@@ -435,6 +435,9 @@ public:
     // Issues what was recorded so far (probes that time parts of a pass).
     void flushNow() { flush(); }
     void beginGroup();
+    // Mixed into the next cached groups' keys: content that changes without a new draw stream
+    // (a video or animated background texture) passes a new value every frame.
+    void setGroupSalt(uint64_t salt) { mGroupSalt = salt; }
     void endGroup(CacheSlot& slot, const float clear[3]);
     void releaseCache(CacheSlot& slot);
 
@@ -478,6 +481,7 @@ private:
         float cacheClear[3];
     };
     int mGroupStart = -1;
+    uint64_t mGroupSalt = 0;
     GLuint mBlitProgram = 0;
     void issue(size_t from, size_t to, GLuint* bound, int* scissorOn, int* scissor, int* unit, int scissorDx, int scissorDy);
     std::vector<DrawCmd> mCmds;

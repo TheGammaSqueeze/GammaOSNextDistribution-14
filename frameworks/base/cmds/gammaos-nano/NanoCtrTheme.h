@@ -46,16 +46,47 @@ struct ThemeTop {
     int gradient = 0, opacity = 0, unknown05 = 100, unknown06 = 100;
 };
 
+// A texture of a theme body decoded to RGBA8 in the CGFX row order (texture.py decode), at its
+// stored size; the image is the w x h part the menu shows (theme.py _crop).
+struct ThemeImage {
+    uint32_t texW = 0, texH = 0, w = 0, h = 0;
+    std::vector<uint8_t> rgba;
+    bool empty() const { return rgba.empty(); }
+};
+
 struct ThemeBody {
     std::string name;
     ThemeTop top;
     std::string bottomDrawType;
+    // how a background image follows the grid: scroll, static, animated, slowScroll, bounce
+    std::string topFrameType, bottomFrameType;
     bool bgmEnabled = false;
     std::array<ThemeBlock, TB_COUNT> blocks;
+    // custom themes (theme.py _textures): the top / bottom images, the wall patterns of a
+    // colorTexture top, the folder and icon frame images, the sound effect section and the BGM
+    ThemeImage topImage, bottomImage, topPattern, topPatternExtra, folderClosed, folderOpen, fileLarge, fileSmall;
+    std::vector<uint8_t> soundEffects;
+    std::string bgmPath;   // bgm.bcstm next to the body when the theme enables BGM
 };
+
+// A theme installed on the SD card the way theme managers lay them out: <root>/<name>/body_LZ.bin
+// with an optional bgm.bcstm.
+struct ThemeFile {
+    std::string name;
+    std::string dir;
+};
+std::vector<ThemeFile> listSdThemes(const std::string& root);
+// Parses a theme body (LZ11 compressed or not, theme.py parse) with its textures.
+bool loadThemeBody(const std::string& dir, ThemeBody* out, std::string* error);
 
 // The built-in colour themes (ThemeEntry type 1): Red, Blue, Yellow, Pink, Black.
 const std::vector<ThemeBody>& builtinThemes();
+
+// A colour theme for an accent colour (0..1 RGB), for nano's Colour setting: the console's own
+// Blue theme turned to the accent's hue and saturation (Black for a dark grey accent), so every
+// block keeps the designed relations (the cursor stays the complementary colour). False for a
+// light grey accent, which is the default look.
+bool makeColorTheme(float r, float g, float b, ThemeBody* out);
 
 class ThemeManager {
 public:
