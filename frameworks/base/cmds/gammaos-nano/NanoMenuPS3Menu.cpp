@@ -791,6 +791,7 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("DS Icons On Tiles")) return mNdsTheme;
     // The looping menu ambiance is a DSi-only feature (ndsAmbianceTick gates on mNdsTheme).
     if (is("Menu Music")) return mNdsTheme || mCtrTheme;
+    if (is("3DS Theme")) return mCtrTheme;
     // The bottom-panel PSP clock (and its FPS readout) + the bottom custom wallpaper only exist on
     // a physical dual-screen device (e.g. RG DS); their own descriptions say single-screen devices
     // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
@@ -9114,6 +9115,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     {"Boot Sound", SettingSource::kProp, "persist.gammaos.nano.boot_sound", "1", "0:Off,1:On"},
     // DSi looping menu ambiance (menu_ambiance.wav) - gated live in the ndsAmbianceTick call (DSi only).
     {"Menu Music", SettingSource::kProp, "persist.gammaos.nano.nds.ambiance", "1", "0:Off,1:On"},
+    {"3DS Theme", SettingSource::kProp, "persist.gammaos.nano.ctr.theme", "-1", "-1:Default,0:Red,1:Blue,2:Yellow,3:Pink,4:Black"},
     // Game Settings: Quick Resume (persist.gammaos.nano.quick_resume, off by default; the home
     // and drastic-nano read it at every launch and boot). The row applies live via the hook in
     // closePs3Dialog (mQuickResumeEnabled), the Quick Menu X shortcut flips the same flag.

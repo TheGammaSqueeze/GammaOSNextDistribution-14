@@ -415,6 +415,8 @@ Layout::Layout(const LayoutTemplate& t, Assets& assets, const std::string& archi
     width = t.width;
     height = t.height;
     materials = t.materials;
+    fileColors.reserve(materials.size());
+    for (const Material& m : materials) fileColors.push_back({m.bufferColor, m.konst});
     for (Material& m : materials)
         for (TexMap& tm : m.texMaps)
             if (!tm.name.empty()) tm.texture = assets.layoutTexture(archive, tm.name);
@@ -623,6 +625,7 @@ LayoutInstance::LayoutInstance(Assets& assets, std::string archive, std::string 
     : mAssets(assets), mArchive(std::move(archive)), mName(std::move(name)), mLayout(std::move(layout)) {}
 
 LayoutInstance::~LayoutInstance() {
+    if (mAssets.onDestroy) mAssets.onDestroy(*this);
     for (auto& a : animators) { a->onFinish = nullptr; a->stop(); }
 }
 
@@ -1358,7 +1361,9 @@ std::unique_ptr<LayoutInstance> Assets::create(const std::string& archive, const
     const LayoutTemplate* t = layoutTemplate(archive, name);
     if (!t) return nullptr;
     auto layout = std::make_unique<Layout>(*t, *this, archive);
-    return std::make_unique<LayoutInstance>(*this, archive, name, std::move(layout));
+    auto instance = std::make_unique<LayoutInstance>(*this, archive, name, std::move(layout));
+    if (onCreate) onCreate(*instance);
+    return instance;
 }
 
 void Assets::trim() {

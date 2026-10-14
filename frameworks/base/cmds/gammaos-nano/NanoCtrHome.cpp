@@ -3,6 +3,7 @@
 // folders, zoom, touch), scroll/scroller.ts, hud/hud.ts and fade.ts. Constants carry the
 // addresses the web code cites (docs/re/launcher.md).
 #include "NanoCtrHome.h"
+#include "NanoCtrTheme.h"
 #include "NanoCtrTop.h"
 
 #include <algorithm>
@@ -430,6 +431,7 @@ struct CtrHome::Impl {
     int netFrame = -100;
     // top screen 3D scene
     std::unique_ptr<CtrTop> top3d;
+    ThemeManager* theme = nullptr;
     std::string topFocusKey;
     // launch
     HomeItem launching;
@@ -612,6 +614,7 @@ bool CtrHome::Impl::load() {
     root().clampView();
     hudBuild();
     top3d = std::make_unique<CtrTop>(*A);
+    top3d->setTheme(theme ? theme->body() : nullptr);
     if (!top3d->load()) top3d.reset();
     if (top3d) {
         top3d->onBannerSound = [this](const std::shared_ptr<const RomBanner>& b) { if (host) host->playBannerSound(b); };
@@ -971,6 +974,7 @@ void CtrHome::Impl::openFolder(int slot) {
     g.metrics = metricsFor(2, true);   // NEW_FOLDER_ZOOM
     g.clampView();
     grids.push_back(std::move(g));
+    if (theme) theme->setBlankFolder(true);   // empty slots in a folder: the folder background colours
     folder->layout().root->visible = true;
     folder->play("FadeIn", groupsOpt());
     setState(StFolderOpen);
@@ -981,6 +985,7 @@ void CtrHome::Impl::closeFolder() {
     sound("SE_CTR_HOME_CLOSE_FOLDER");
     closing = std::move(grids.back());
     grids.pop_back();
+    if (theme) theme->setBlankFolder(false);
     closingFolder = true;
     PlayOptions o = groupsOpt();
     o.speed = -1;
@@ -1755,7 +1760,9 @@ void CtrHome::Impl::drawIcons(Renderer& r, const Grid& g, const Box* clip) {
 
 CtrHome::CtrHome(std::string assetRoot, CtrHomeHost* host) {
     mAssets = std::make_unique<Assets>(std::move(assetRoot));
+    mTheme = std::make_unique<ThemeManager>(*mAssets);   // before any layout: it themes them as they are made
     mImpl = std::make_unique<Impl>();
+    mImpl->theme = mTheme.get();
     mImpl->self = this;
     mImpl->A = mAssets.get();
     mImpl->host = host;
@@ -1763,6 +1770,7 @@ CtrHome::CtrHome(std::string assetRoot, CtrHomeHost* host) {
 
 CtrHome::~CtrHome() {
     mImpl.reset();
+    mTheme.reset();   // after the home's layouts, before the assets it hooks
     mAssets.reset();
 }
 
@@ -1958,6 +1966,14 @@ void CtrHome::resumeFromApp() {
         I.setState(StAppRunning);
         I.mainUpdate();
     }
+}
+
+void CtrHome::setTheme(int index) {
+    const std::vector<ThemeBody>& themes = builtinThemes();
+    const ThemeBody* body = index >= 0 && index < (int)themes.size() ? &themes[index] : nullptr;
+    mThemeIndex = body ? index : -1;
+    mTheme->setTheme(body);
+    if (mImpl->top3d) mImpl->top3d->setTheme(body);
 }
 
 const HomeItem* CtrHome::focusedTitle() const {

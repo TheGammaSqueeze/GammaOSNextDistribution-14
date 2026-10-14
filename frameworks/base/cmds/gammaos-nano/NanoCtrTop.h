@@ -10,6 +10,7 @@
 
 #include "NanoCtr3d.h"
 #include "NanoCtrLayout.h"
+#include "NanoCtrTheme.h"
 
 namespace android {
 namespace ctr {
@@ -37,6 +38,8 @@ public:
     void releaseGl();
     void sceneIn();
     void focus(const TopFocus& f);
+    // The theme's wall colour and folder banner colours (null = the file colours).
+    void setTheme(const ThemeBody* body);
     void update();            // one 60 Hz frame
     // Draws the scene into the top screen rectangle of the bound framebuffer. `proj` maps the
     // 400x240 layout space (as for the layouts); vp is the GL viewport it targets.
@@ -50,6 +53,9 @@ public:
     void setMaxScale(int s) { mMaxScale = s; }
 
 private:
+    void themeWall();
+    void themeBanner(ModelInstance& model, int type);
+    const ThemeBody* mTheme = nullptr;
     struct BannerSpec {
         int type = 0;
         std::string model;

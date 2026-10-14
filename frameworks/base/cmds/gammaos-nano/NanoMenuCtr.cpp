@@ -1358,6 +1358,23 @@ void NanoMenu::renderCtrPrimary() {
         mCtrStickX = mCtrStickY = 0;
     }
     mCtrHome->setHeld(held);
+    // Theme Settings > 3DS Theme (persist.gammaos.nano.ctr.theme), read when the prop changes
+    {
+        static const prop_info* tpi = nullptr;
+        static uint32_t tser = ~0u;
+        static int wanted = -1;
+        if (!tpi) tpi = __system_property_find("persist.gammaos.nano.ctr.theme");
+        const uint32_t ser = tpi ? __system_property_serial(tpi) : 0;
+        if (ser != tser) {
+            tser = ser;
+            wanted = property_get_int32("persist.gammaos.nano.ctr.theme", -1);
+        }
+        // a new home (GL context loss, theme switch) starts on the default look
+        if (mCtrHome->theme() != wanted) {
+            mCtrHome->setTheme(wanted);
+            mDisplayDirty = true;
+        }
+    }
     // screen widths from the rectangles each screen is drawn in
     {
         const float W = (float)mWidth, H = (float)mHeight;

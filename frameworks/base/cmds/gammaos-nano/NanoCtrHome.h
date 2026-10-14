@@ -50,6 +50,8 @@ struct HomeStatus {
     bool adapter = false;
 };
 
+class ThemeManager;
+
 class CtrHomeHost {
 public:
     virtual ~CtrHomeHost() = default;
@@ -166,6 +168,10 @@ public:
     // The title under the cursor while the grid is idle (null on the bar, a folder or an empty
     // slot): what the host's options menu acts on.
     const HomeItem* focusedTitle() const;
+    // The HOME Menu theme: -1 the default look, 0..4 the built-in colour themes (Red, Blue,
+    // Yellow, Pink, Black; builtinThemes()).
+    void setTheme(int index);
+    int theme() const { return mThemeIndex; }
     Assets& assets() { return *mAssets; }
     int64_t frame() const { return mFrame; }
 
@@ -173,6 +179,8 @@ private:
     struct Impl;
     std::unique_ptr<Impl> mImpl;
     std::unique_ptr<Assets> mAssets;
+    std::unique_ptr<ThemeManager> mTheme;
+    int mThemeIndex = -1;
     bool mLoaded = false;
     int mMinRootSlots = 60;
     float mTopW = 400, mBotW = 320, mTopH = 240;

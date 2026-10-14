@@ -138,6 +138,7 @@ bool CtrTop::load() {
     if (!bg) return false;
     mWall = std::make_unique<ModelInstance>(bg);
     mWall->layer = 0;
+    themeWall();
     mWall->play("BannerBG_Loop", 1, 1, WALL_PHASE);
     return true;
 }
@@ -331,6 +332,7 @@ void CtrTop::attach() {
     b->spec = mPendingSpec;
     b->model = std::make_unique<ModelInstance>(res);
     b->model->layer = 1;
+    themeBanner(*b->model, b->spec.type);
     for (const std::string& a : b->spec.animations) b->model->play(a, b->spec.loop ? 1 : -1, b->spec.paused ? 0.0f : 1.0f);
     if (!b->spec.meshes.empty()) {
         for (size_t i = 0; i < res->meshes.size(); i++)
@@ -348,6 +350,60 @@ void CtrTop::attach() {
     }
     mBanner = std::move(b);
     mAttachedOnce = true;
+}
+
+// Material colour indices: emission ambient diffuse specular0 specular1 constant0..5.
+namespace {
+const int kConstant0 = 5;
+
+V4 fileColor(const MaterialState& m, int index, float alpha) {
+    V4 c = m.source->colors[index];
+    c[3] = alpha;
+    return c;
+}
+}  // namespace
+
+void CtrTop::setTheme(const ThemeBody* body) {
+    if (body == mTheme) return;
+    mTheme = body;
+    themeWall();
+    if (mBanner) themeBanner(*mBanner->model, mBanner->spec.type);
+}
+
+// scene3d.ts setTheme: the top colour block of a colour theme on the wall material mt_BG (rgb
+// and 1.0 to constant 3, the opacity byte to the alpha of constant 1, the gradient byte to
+// constant 2, 1.0 to constant 5; colorTexture themes give the last two alphas as bytes 5 and 6).
+void CtrTop::themeWall() {
+    MaterialState* m = mWall ? mWall->findMaterial("mt_BG") : nullptr;
+    if (!m || !m->source) return;
+    m->overrides.clear();
+    const ThemeTop* top = mTheme ? &mTheme->top : nullptr;
+    if (top && top->hasColor && (top->drawType == "color" || top->drawType == "colorTexture")) {
+        const bool textured = top->drawType == "colorTexture";
+        const float alpha5 = textured ? top->unknown05 * 0.01f : 1.0f;
+        const float alpha3 = textured ? top->unknown06 * 0.01f : 1.0f;
+        m->overrides[kConstant0 + 3] = {top->rgb[0] * 0.01f, top->rgb[1] * 0.01f, top->rgb[2] * 0.01f, alpha3};
+        m->overrides[kConstant0 + 1] = fileColor(*m, kConstant0 + 1, top->opacity * 0.01f);
+        m->overrides[kConstant0 + 2] = fileColor(*m, kConstant0 + 2, top->gradient * 0.01f);
+        m->overrides[kConstant0 + 5] = fileColor(*m, kConstant0 + 5, alpha5);
+    }
+    m->reset();
+}
+
+// scene3d.ts themeBanner (FUN_0024b9d8): a folder banner takes the theme's folder colours (dark
+// into constant 0, main into constant 1 of mt_folder_00, scaled by 1/255, alpha 1).
+void CtrTop::themeBanner(ModelInstance& model, int type) {
+    if (type != FolderT) return;
+    MaterialState* m = model.findMaterial("mt_folder_00");
+    if (!m || !m->source) return;
+    m->overrides.clear();
+    const ThemeBlock* folder = mTheme ? &mTheme->blocks[TB_FOLDER] : nullptr;
+    if (folder && folder->present) {
+        auto rgb = [](const std::array<uint8_t, 3>& v) { return V4{v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f, 1.0f}; };
+        if (const auto* d = folder->field("dark")) m->overrides[kConstant0 + 0] = rgb(*d);
+        if (const auto* mn = folder->field("main")) m->overrides[kConstant0 + 1] = rgb(*mn);
+    }
+    m->reset();
 }
 
 void CtrTop::update() {

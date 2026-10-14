@@ -272,6 +272,9 @@ int main(int argc, char** argv) {
             if (f >= 0) dialog.setProgress("Brightness\n\nset", f);
         } else if (cmd == "undialog") {
             dialog.hide(true);
+        } else if (cmd == "theme") {
+            int n; ss >> n;
+            home.setTheme(n);
         } else if (cmd == "home") {
             home.pressHome();
         } else if (cmd == "shot") {

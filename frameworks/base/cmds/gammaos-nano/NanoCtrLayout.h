@@ -269,6 +269,10 @@ public:
 
     float width = 0, height = 0;
     std::vector<Material> materials;
+    // the file's buffer and constant colours of each material (theme colours are written over
+    // them and restored from here)
+    struct MaterialColors { Rgba buffer; std::array<Rgba, 6> konst; };
+    std::vector<MaterialColors> fileColors;
     Pane* root = nullptr;
     std::vector<Group> groups;
     float opacity = 255;   // whole layout fade (web extension)
@@ -526,6 +530,9 @@ public:
 
     std::unique_ptr<LayoutInstance> create(const std::string& archive, const std::string& name);
     Renderer& renderer() { return *mRenderer; }
+    // Called for every layout create() makes and when it is destroyed (the theme manager themes
+    // launcher layouts as they appear).
+    std::function<void(LayoutInstance&)> onCreate, onDestroy;
 
     // Frees GL objects not referenced by any live layout (textures) and drops parsed docs.
     void trim();
