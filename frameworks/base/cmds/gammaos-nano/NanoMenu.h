@@ -3561,8 +3561,10 @@ private:
     // cartridge icon, freed when leaving the Game category and on sleep/occlusion.
     // ar = width/height. pixel = a PICO-8 cart label: 128x128 pixel art uploaded NEAREST, drawn at an
     // integer multiple of its size (cartPixelSize) so every cart pixel stays square.
-    struct BoxTex { GLuint tex = 0; float ar = 1.0f; bool pixel = false; };
+    struct BoxTex { GLuint tex = 0; float ar = 1.0f; bool pixel = false; uint64_t used = 0; };
     std::unordered_map<std::string, BoxTex> mRomBoxartCache;
+    uint64_t mBoxartUseClock = 0;        // romBoxartTex lookups, for the least recently used eviction
+    void boxartEvictIfFull();
     bool mScrapeBoxartOn = false;        // per-frame cache of scraperBoxartEnabled()
     bool mNdsTileIcon = false;           // per-frame cache of persist.gammaos.nano.nds.tileicon (DS Icons On Tiles)
     // Data-loss guards: a loader sets its flag true when the on-disk file EXISTS but could not be

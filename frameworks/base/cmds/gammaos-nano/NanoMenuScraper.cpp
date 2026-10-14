@@ -18,6 +18,7 @@
 // credential/engine resolution, and the progress modal. The network + image
 // fetching lives in NanoScraper.cpp; this file owns the NanoMenu state.
 
+#include <algorithm>
 #include <ctype.h>
 #include "NanoMenu.h"
 #include "NanoScraper.h"
@@ -678,7 +679,10 @@ void NanoMenu::saDrainArt() {
         switch (r.target) {
             case SA_BOX:
             case SA_CART_BOX: {
-                BoxTex& bt = mRomBoxartCache[r.key];
+                // a cover asked for and evicted again while it decoded (a long scroll) is dropped
+                auto entry = mRomBoxartCache.find(r.key);
+                if (entry == mRomBoxartCache.end()) { glDeleteTextures(1, &tex); break; }
+                BoxTex& bt = entry->second;
                 if (bt.tex) glDeleteTextures(1, &bt.tex);
                 bt.tex = tex; bt.ar = r.ar;
                 bt.pixel = (r.target == SA_CART_BOX && r.w == kCartLabelPx && r.h == kCartLabelPx);
@@ -720,19 +724,25 @@ void NanoMenu::saDrainArt() {
 // in and the cover appears the next frame. Render thread (drawList). Freed by
 // scraperFreeBoxart().
 GLuint NanoMenu::romBoxartTex(const std::string& romPath, float* outAR) {
+    const uint64_t now = ++mBoxartUseClock;
     auto it = mRomBoxartCache.find(romPath);
-    if (it != mRomBoxartCache.end()) { if (outAR) *outAR = it->second.ar; return it->second.tex; }
-    // Backstop FIRST (before enqueueing) so the just-queued request is not wiped:
-    // if the cache grows large (browsing many systems without leaving Game), free it
-    // all + stop the worker, then re-request lazily. Normal lifecycle = leave-Game.
-    if (mRomBoxartCache.size() >= 96) scraperFreeBoxart();
+    if (it != mRomBoxartCache.end()) {
+        it->second.used = now;
+        if (outAR) *outAR = it->second.ar;
+        return it->second.tex;
+    }
+    // Make room FIRST (before enqueueing) so the just-queued request is not dropped. Normal
+    // lifecycle = leave-Game (scraperFreeBoxart).
+    boxartEvictIfFull();
     if (romUsesCartArt(romPath)) {
         saRequestArt(romPath, 0, SA_CART_BOX, romPath);    // full size: the label is cropped from it
     } else {
         const ScrapeEntry* e = scrapeEntryFor(romPath);
         if (e && !e->box.empty()) saRequestArt(e->box, 256, SA_BOX, romPath);
     }
-    mRomBoxartCache[romPath] = BoxTex{};       // tex=0 placeholder; drain fills it
+    BoxTex placeholder;                         // tex=0 placeholder; drain fills it
+    placeholder.used = now;
+    mRomBoxartCache[romPath] = placeholder;
     if (outAR) *outAR = 1.0f;
     return 0;
 }
@@ -792,6 +802,32 @@ void NanoMenu::scraperArtTick() {
         scraperFreeBoxart();
     saDrainArt();
     ndsBannerTick();
+}
+
+// A large library scrolled end to end asks for far more covers than fit: the least recently
+// looked up quarter of the decoded covers goes (not all of them, which made a long scroll
+// re-decode the covers still on screen), and entries without art (tex 0, free to keep) are only
+// trimmed when the map itself grows past a few thousand.
+void NanoMenu::boxartEvictIfFull() {
+    const size_t kMaxTextures = 96, kMaxEntries = 4096;
+    size_t live = 0;
+    for (const auto& kv : mRomBoxartCache) if (kv.second.tex) live++;
+    const bool tooMany = live >= kMaxTextures, tooBig = mRomBoxartCache.size() >= kMaxEntries;
+    if (!tooMany && !tooBig) return;
+    std::vector<std::pair<uint64_t, std::string>> order;
+    order.reserve(mRomBoxartCache.size());
+    for (const auto& kv : mRomBoxartCache)
+        if (tooBig || kv.second.tex) order.emplace_back(kv.second.used, kv.first);
+    std::sort(order.begin(), order.end());
+    const size_t drop = std::max<size_t>(1, order.size() / 4);
+    bool freedGl = false;
+    for (size_t i = 0; i < drop && i < order.size(); i++) {
+        auto it = mRomBoxartCache.find(order[i].second);
+        if (it == mRomBoxartCache.end()) continue;
+        if (it->second.tex) { glDeleteTextures(1, &it->second.tex); freedGl = true; }
+        mRomBoxartCache.erase(it);
+    }
+    if (freedGl) mArtGeneration++;   // GL names of freed covers may be reused (3DS theme icon copies)
 }
 
 void NanoMenu::scraperFreeBoxart() {

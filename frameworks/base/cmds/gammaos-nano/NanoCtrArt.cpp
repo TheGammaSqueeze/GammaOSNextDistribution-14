@@ -18,6 +18,7 @@ namespace ctr {
 namespace {
 const size_t kMaxIcons = 160;              // 48x48 RGBA each (9 KB)
 const auto kIdleExit = std::chrono::seconds(3);
+const size_t kMaxQueued = 48;               // parses waiting at most (newest first)
 }  // namespace
 
 RomArt::RomArt(std::string cacheDir) : mCacheDir(std::move(cacheDir)) {
@@ -47,6 +48,12 @@ void RomArt::request(const std::string& rom, bool wantBanner) {
         if (q.first == rom) { q.second = q.second || wantBanner; return; }
     // the newest request first: the focused title before the rest of the screen
     mQueue.emplace_front(rom, wantBanner);
+    // a fast scroll through a large library asks for far more than it shows: what is still
+    // waiting beyond a few screens is dropped (it is asked for again when it comes back)
+    while (mQueue.size() > kMaxQueued) {
+        mState.erase(mQueue.back().first);
+        mQueue.pop_back();
+    }
     if (!mRunning) {
         if (mThread.joinable()) mThread.join();
         mRunning = true;

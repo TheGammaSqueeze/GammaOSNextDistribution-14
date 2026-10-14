@@ -121,6 +121,7 @@ static bool writeBannerRecord(const std::string& cp, bool ok, const std::string&
     return wok;
 }
 static const int64_t kNdsBannerRetryMs = 5000;   // storage that is not up yet: try again after this
+static const size_t kNdsBannerPixHeld = 256;     // decoded icons kept in memory awaiting their first draw
 
 void NanoMenu::ndsBannerLoad(const std::string& rom) {
     {
@@ -144,7 +145,7 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
             std::lock_guard<std::mutex> lk(mNdsBannerMu);
             mNdsBannerTitle[rom] = t;
             mNdsBannerIdent[rom] = 0;
-            if (!px.empty()) mNdsBannerPix[rom] = std::move(px);
+            if (!px.empty() && mNdsBannerPix.size() < kNdsBannerPixHeld) mNdsBannerPix[rom] = std::move(px);
             return;
         }
         std::lock_guard<std::mutex> lk(mNdsBannerMu);
@@ -177,7 +178,9 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
     mNdsBannerTitle[rom] = title;
     mNdsBannerIdent[rom] = ndsIdentOf(st);
     mNdsBannerRetryAt.erase(rom);
-    if (!rgba.empty()) mNdsBannerPix[rom] = std::move(rgba);
+    // a large library's icons stay in their cache records: only the first few hundred are held
+    // decoded (a 4 KB read brings any other back when it is first drawn, ndsBannerTex)
+    if (!rgba.empty() && mNdsBannerPix.size() < kNdsBannerPixHeld) mNdsBannerPix[rom] = std::move(rgba);
 }
 
 // Called with mNdsBannerMu held. True when the path may be queued now: not known, not queued,
@@ -336,6 +339,11 @@ GLuint NanoMenu::ndsBannerTex(const std::string& rom) {
         }
     }
     if (queue) { mNdsBannerCv.notify_one(); return 0; }
+    if (px.empty() && known) {
+        // parsed, its icon not held in memory (a large library): its path record has it
+        std::string t;
+        if (!readBannerRecord(pathCachePathFor(rom), t, px)) px.clear();
+    }
     if (px.size() != 32 * 32 * 4) {
         // Parsed but no icon (rejected file): remember the miss so the lookup stops here.
         // A parse still in flight on the worker has no title entry yet, so it is retried.
