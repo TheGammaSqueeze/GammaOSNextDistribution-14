@@ -70,6 +70,9 @@ private:
         std::vector<std::string> animations;
         std::vector<std::string> meshes;
         float nameScale = 1;
+        // width / height of the quad the name texture covers: the 4:1 of DmyText_00, 2:1 for
+        // Banner2D's Dmy_00 (24 x 12 units): the glyphs are widened to keep their proportions
+        float plateAspect = 4;
         std::string nameTexture = "DmyText_00";
         bool still = false, paused = false, loop = false, turn = true;
     };
@@ -111,12 +114,18 @@ private:
     static constexpr int kPlateRes = 2, kPlateW = 256 * kPlateRes, kPlateH = 64 * kPlateRes, kPlateSdf = 4;
     static constexpr float kPlateMargin = 4 * kPlateRes, kMarqueeSpeed = 0.5f * kPlateRes, kMarqueeHold = 90;
     std::unordered_map<const Glyph*, std::vector<uint8_t>> mPlateSdf;   // glyph distance fields
-    std::string mPlateText;
-    float mPlateSize = 1;
+    struct PlateLine {
+        std::vector<uint8_t> ink;   // w x h coverage
+        int w = 0, y0 = 0, h = 0;
+        bool fits = true;
+        float overflow = 0;
+    };
+    std::vector<PlateLine> mPlateLines;
+    float mPlateStretch = 1;
     int mPlateFrame = 0;
-    std::vector<float> mPlateOverflow, mPlateOffsets;
-    void rasterPlate(const std::string& text, float size, const std::vector<float>& offsets, std::vector<uint8_t>* px,
-                     std::vector<float>* overflow);
+    std::vector<float> mPlateOffsets;
+    void layoutPlate(const std::string& text, float size);
+    void composePlate(int y0, int h, std::vector<uint8_t>* out) const;
     void updatePlate();
     std::shared_ptr<ModelResource> mRomRes;   // the current ROM banner's model (not shared)
     std::string mRomResKey;

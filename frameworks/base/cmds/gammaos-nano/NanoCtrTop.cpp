@@ -173,7 +173,7 @@ void CtrTop::focus(const TopFocus& f) {
             } else if (f.icon) {
                 spec.type = DSiWare; spec.model = "BannerDSiWare"; spec.animations = {"BannerDSiWare"};
             } else {
-                spec.type = Banner2D; spec.model = "Banner2D"; spec.nameTexture = "Dmy_00";
+                spec.type = Banner2D; spec.model = "Banner2D"; spec.nameTexture = "Dmy_00"; spec.plateAspect = 2;
             }
             break;
         case TopFocus::Bar: {
@@ -210,95 +210,118 @@ void CtrTop::focus(const TopFocus& f) {
 }
 
 // nametex.ts: black cbf_std glyphs centred on a white 256x64 plate, stored upside down.
-// The name plate's pixels (RGBA, upside down as the model samples it) at a constant font size:
-// a line wider than the plate starts at its left margin shifted by `offsets[line]` (the marquee);
-// `overflow` gets how far each line runs past the plate (0 when it fits, centred).
-void CtrTop::rasterPlate(const std::string& text, float size, const std::vector<float>& offsets,
-                         std::vector<uint8_t>* outPx, std::vector<float>* overflow) {
+// The name plate (DmyText_00 / Dmy_00) at a constant font size: every line is drawn once into a
+// strip of its own ink; a line wider than the plate keeps a strip as wide as the line and scrolls
+// through it (the marquee), so a moving name only copies and uploads its own rows.
+void CtrTop::layoutPlate(const std::string& text, float size) {
     const int W = kPlateW, H = kPlateH;
+    mPlateLines.clear();
     std::shared_ptr<Font> font = mAssets.font("cbf_std");
+    if (!font) return;
     // the console draws a title's name into the plate through BnrDsTitle_00's T_Title_00: font
     // size 15.5 x 18.6 against the font's own width and height (its natural proportions; the
-    // 0.84 x 0.65 measured on the applets' baked placeholders drew titles a quarter too wide)
-    const float SX = font && font->width > 0 ? 15.5f / font->width : 0.6f;
-    const float SY = font && font->height > 0 ? 18.6f / font->height : 0.62f;
-    std::vector<uint8_t> ink((size_t)W * H, 0);
-    if (font) {
-        std::vector<std::u32string> lines;
-        std::u32string all = utf8ToU32(text), cur;
-        for (char32_t c : all) {
-            if (c == U'\n') { lines.push_back(cur); cur.clear(); } else cur.push_back(c);
-        }
-        lines.push_back(cur);
-        std::vector<float> adv;
-        const float scale = size * kPlateRes;   // one size for every name (a long one scrolls)
-        if (overflow) overflow->clear();
-        for (const auto& l : lines) {
-            float a = 0;
-            for (char32_t c : l) if (const Glyph* g = font->glyph(c)) a += g->charWidth;
-            adv.push_back(a * SX);
-            if (overflow) overflow->push_back(std::max(0.0f, a * SX * scale - (W - 2 * kPlateMargin)));
-        }
-        const float lineHeight = font->cellHeight * SY * scale;
-        float top = (H - lineHeight * lines.size()) / 2;
-        // glyphs from their distance fields (Font::cellSdf at kPlateSdf), so the plate is sharp at
-        // its doubled size and when the 3D pass magnifies it
-        const int cw = (font->cellWidth + 2) * kPlateSdf, ch = (font->cellHeight + 2) * kPlateSdf;
-        const float texelsPerPixel = font->cellHeight * kPlateSdf / std::max(lineHeight, 1.0f);
-        if (mPlateSdf.size() > 256) mPlateSdf.clear();
-        for (size_t li = 0; li < lines.size(); li++) {
-            const bool fits = adv[li] * scale <= W - 2 * kPlateMargin;
-            float x = fits ? (W - adv[li] * scale) / 2 : kPlateMargin - (li < offsets.size() ? offsets[li] : 0.0f);
-            for (char32_t c : lines[li]) {
-                const Glyph* g = font->glyph(c);
-                if (!g) continue;
-                const float gw = g->glyphWidth * SX * scale;
-                const float gx = x + g->left * SX * scale;
-                auto found = mPlateSdf.find(g);
-                if (found == mPlateSdf.end()) {
-                    std::vector<uint8_t> f;
-                    if (!font->cellSdf(g, kPlateSdf, f)) f.clear();
-                    found = mPlateSdf.emplace(g, std::move(f)).first;
-                }
-                const std::vector<uint8_t>& cell = found->second;
-                if (g->glyphWidth > 0 && !cell.empty()) {
-                    // the glyph's distance field over the box, one screen pixel of edge
-                    const int x0 = std::max(0, (int)floorf(gx)), x1 = std::min(W, (int)ceilf(gx + gw));
-                    const int y0 = std::max(0, (int)floorf(top)), y1 = std::min(H, (int)ceilf(top + lineHeight));
-                    for (int py = y0; py < y1; py++) {
-                        const float v = ((py + 0.5f) - top) / lineHeight * font->cellHeight - 0.5f + 1;
-                        for (int px = x0; px < x1; px++) {
-                            const float u0 = ((px + 0.5f) - gx) / gw * g->glyphWidth - 0.5f + 1;
-                            const float u = (u0 + 0.5f) * kPlateSdf - 0.5f, vv = (v + 0.5f) * kPlateSdf - 0.5f;
-                            const int iu = (int)floorf(u), iv = (int)floorf(vv);
-                            const float fu = u - iu, fv = vv - iv;
-                            auto at = [&](int xx, int yy) -> float {
-                                xx = std::clamp(xx, 0, cw - 1);
-                                yy = std::clamp(yy, 0, ch - 1);
-                                return cell[(size_t)yy * cw + xx];
-                            };
-                            const float f = (at(iu, iv) * (1 - fu) + at(iu + 1, iv) * fu) * (1 - fv) +
-                                            (at(iu, iv + 1) * (1 - fu) + at(iu + 1, iv + 1) * fu) * fv;
-                            const float sd = (f - 128) / 127 * Font::kSdfRange / texelsPerPixel;
-                            const float a = 255 * std::clamp(0.5f + sd, 0.0f, 1.0f);
-                            uint8_t& d = ink[(size_t)py * W + px];
-                            d = (uint8_t)std::min(255.0f, d + a * (1 - d / 255.0f));
-                        }
+    // 0.84 x 0.65 measured on the applets' baked placeholders drew titles a quarter too wide),
+    // widened for a quad narrower than the texture (mPlateStretch)
+    const float SX = (font->width > 0 ? 15.5f / font->width : 0.6f) * mPlateStretch;
+    const float SY = font->height > 0 ? 18.6f / font->height : 0.62f;
+    std::vector<std::u32string> lines;
+    std::u32string all = utf8ToU32(text), cur;
+    for (char32_t c : all) {
+        if (c == U'\n') { lines.push_back(cur); cur.clear(); } else cur.push_back(c);
+    }
+    lines.push_back(cur);
+    const float scale = size * kPlateRes;   // one size for every name (a long one scrolls)
+    const float lineHeight = font->cellHeight * SY * scale;
+    float top = (H - lineHeight * lines.size()) / 2;
+    // glyphs from their distance fields (Font::cellSdf at kPlateSdf): sharp at the doubled size and
+    // when the 3D pass magnifies the plate
+    const int cw = (font->cellWidth + 2) * kPlateSdf, ch = (font->cellHeight + 2) * kPlateSdf;
+    const float texelsPerPixel = font->cellHeight * kPlateSdf / std::max(lineHeight, 1.0f);
+    if (mPlateSdf.size() > 256) mPlateSdf.clear();
+    for (const std::u32string& line : lines) {
+        float adv = 0;
+        for (char32_t c : line) if (const Glyph* g = font->glyph(c)) adv += g->charWidth;
+        adv *= SX * scale;
+        PlateLine pl;
+        pl.fits = adv <= W - 2 * kPlateMargin;
+        pl.overflow = pl.fits ? 0 : adv - (W - 2 * kPlateMargin);
+        pl.w = pl.fits ? W : (int)ceilf(adv + 2 * kPlateMargin);
+        pl.y0 = std::max(0, (int)floorf(top));
+        pl.h = std::max(0, std::min(H, (int)ceilf(top + lineHeight)) - pl.y0);
+        pl.ink.assign((size_t)pl.w * std::max(pl.h, 1), 0);
+        float x = pl.fits ? (W - adv) / 2 : kPlateMargin;
+        for (char32_t c : line) {
+            const Glyph* g = font->glyph(c);
+            if (!g) continue;
+            const float gw = g->glyphWidth * SX * scale;
+            const float gx = x + g->left * SX * scale;
+            auto found = mPlateSdf.find(g);
+            if (found == mPlateSdf.end()) {
+                std::vector<uint8_t> f;
+                if (!font->cellSdf(g, kPlateSdf, f)) f.clear();
+                found = mPlateSdf.emplace(g, std::move(f)).first;
+            }
+            const std::vector<uint8_t>& cell = found->second;
+            if (g->glyphWidth > 0 && !cell.empty() && gw > 0) {
+                const int x0 = std::max(0, (int)floorf(gx)), x1 = std::min(pl.w, (int)ceilf(gx + gw));
+                for (int py = 0; py < pl.h; py++) {
+                    const float yy = pl.y0 + py;
+                    const float v = ((yy + 0.5f) - top) / lineHeight * font->cellHeight - 0.5f + 1;
+                    const float vv = (v + 0.5f) * kPlateSdf - 0.5f;
+                    const int iv = (int)floorf(vv);
+                    const float fv = vv - iv;
+                    for (int px = x0; px < x1; px++) {
+                        const float u0 = ((px + 0.5f) - gx) / gw * g->glyphWidth - 0.5f + 1;
+                        const float u = (u0 + 0.5f) * kPlateSdf - 0.5f;
+                        const int iu = (int)floorf(u);
+                        const float fu = u - iu;
+                        auto at = [&](int xx, int yy2) -> float {
+                            xx = std::clamp(xx, 0, cw - 1);
+                            yy2 = std::clamp(yy2, 0, ch - 1);
+                            return cell[(size_t)yy2 * cw + xx];
+                        };
+                        const float f = (at(iu, iv) * (1 - fu) + at(iu + 1, iv) * fu) * (1 - fv) +
+                                        (at(iu, iv + 1) * (1 - fu) + at(iu + 1, iv + 1) * fu) * fv;
+                        const float sd = (f - 128) / 127 * Font::kSdfRange / texelsPerPixel;
+                        const float a = 255 * std::clamp(0.5f + sd, 0.0f, 1.0f);
+                        uint8_t& d = pl.ink[(size_t)py * pl.w + px];
+                        d = (uint8_t)std::min(255.0f, d + a * (1 - d / 255.0f));
                     }
                 }
-                x += g->charWidth * SX * scale;
             }
-            top += lineHeight;
+            x += g->charWidth * SX * scale;
+        }
+        mPlateLines.push_back(std::move(pl));
+        top += lineHeight;
+    }
+}
+
+// Plate rows [y0, y0 + h) (plate space, top down) as RGBA, black ink on white, from the lines'
+// strips at their marquee offsets; `out` gets them in upload order (the texture is upside down).
+void CtrTop::composePlate(int y0, int h, std::vector<uint8_t>* out) const {
+    const int W = kPlateW, H = kPlateH;
+    std::vector<uint8_t> ink((size_t)W * h, 0);
+    for (size_t li = 0; li < mPlateLines.size(); li++) {
+        const PlateLine& pl = mPlateLines[li];
+        const int off = pl.fits ? 0 : (int)lroundf(li < mPlateOffsets.size() ? mPlateOffsets[li] : 0.0f);
+        for (int py = 0; py < pl.h; py++) {
+            const int y = pl.y0 + py - y0;
+            if (y < 0 || y >= h) continue;
+            for (int x = 0; x < W; x++) {
+                const int sx = x + off;
+                if (sx < 0 || sx >= pl.w) continue;
+                uint8_t& d = ink[(size_t)y * W + x];
+                d = std::max(d, pl.ink[(size_t)py * pl.w + sx]);
+            }
         }
     }
-    std::vector<uint8_t>& px = *outPx;
-    px.assign((size_t)W * H * 4, 0);
-    for (int y = 0; y < H; y++) {
-        const int sy = H - 1 - y;   // upside down
+    (void)H;
+    out->assign((size_t)W * h * 4, 0);
+    for (int r = 0; r < h; r++) {
+        const int y = h - 1 - r;   // upside down
         for (int x = 0; x < W; x++) {
-            const float a = ink[(size_t)sy * W + x] / 255.0f;
-            const uint8_t c = (uint8_t)lroundf(255 * (1 - a));
-            uint8_t* p = &px[((size_t)y * W + x) * 4];
+            const uint8_t c = (uint8_t)(255 - ink[(size_t)y * W + x]);
+            uint8_t* p = &(*out)[((size_t)r * W + x) * 4];
             p[0] = p[1] = p[2] = c;
             p[3] = 255;
         }
@@ -306,12 +329,11 @@ void CtrTop::rasterPlate(const std::string& text, float size, const std::vector<
 }
 
 std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size) {
-    std::vector<uint8_t> px;
-    mPlateText = text;
-    mPlateSize = size;
     mPlateFrame = 0;
     mPlateOffsets.clear();
-    rasterPlate(text, size, mPlateOffsets, &px, &mPlateOverflow);
+    layoutPlate(text, size);
+    std::vector<uint8_t> px;
+    composePlate(0, kPlateH, &px);
     auto t = std::make_shared<GpuTex>();
     glGenTextures(1, &t->id);
     glBindTexture(GL_TEXTURE_2D, t->id);
@@ -323,17 +345,20 @@ std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size
 }
 
 // The marquee of a name too long for its plate: it holds at the start, scrolls to the end, holds,
-// and scrolls back (bounce), at a steady speed; the plate is drawn again only when it moves.
+// and scrolls back (bounce) at a steady speed; only the scrolling lines' rows are copied and
+// uploaded, and only when they moved a whole pixel.
 void CtrTop::updatePlate() {
     if (!mPlate || !mPlate->id) return;
     bool any = false;
-    for (float o : mPlateOverflow) any = any || o > 0;
+    for (const PlateLine& pl : mPlateLines) any = any || !pl.fits;
     if (!any) return;
     const int frame = mPlateFrame++;
-    std::vector<float> offsets(mPlateOverflow.size(), 0.0f);
-    for (size_t i = 0; i < mPlateOverflow.size(); i++) {
-        const float ov = mPlateOverflow[i];
-        if (ov <= 0) continue;
+    std::vector<float> offsets(mPlateLines.size(), 0.0f);
+    int rowTop = kPlateH, rowBottom = 0;
+    for (size_t i = 0; i < mPlateLines.size(); i++) {
+        const PlateLine& pl = mPlateLines[i];
+        if (pl.fits) continue;
+        const float ov = pl.overflow;
         const float run = ov / kMarqueeSpeed;
         const float period = 2 * kMarqueeHold + 2 * run;
         const float t = fmodf((float)frame, period);
@@ -342,15 +367,18 @@ void CtrTop::updatePlate() {
         else if (t < kMarqueeHold + run) o = (t - kMarqueeHold) * kMarqueeSpeed;
         else if (t < 2 * kMarqueeHold + run) o = ov;
         else o = ov - (t - 2 * kMarqueeHold - run) * kMarqueeSpeed;
-        offsets[i] = roundf(o * 4) / 4;   // quarter pixels: a still hold draws nothing
+        offsets[i] = roundf(o);   // whole pixels: a still hold draws nothing
+        rowTop = std::min(rowTop, pl.y0);
+        rowBottom = std::max(rowBottom, pl.y0 + pl.h);
     }
-    if (offsets == mPlateOffsets) return;
+    if (offsets == mPlateOffsets || rowBottom <= rowTop) return;
     mPlateOffsets = offsets;
     std::vector<uint8_t> px;
-    rasterPlate(mPlateText, mPlateSize, mPlateOffsets, &px, nullptr);
+    composePlate(rowTop, rowBottom - rowTop, &px);
     glBindTexture(GL_TEXTURE_2D, mPlate->id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kPlateW, kPlateH, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+    // plate rows [rowTop, rowBottom) are texture rows counted from the bottom
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, kPlateH - rowBottom, kPlateW, rowBottom - rowTop, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
 }
 
 std::shared_ptr<ModelResource> CtrTop::packResource(const std::vector<uint8_t>& bytes, const std::string& what) {
@@ -389,6 +417,7 @@ void CtrTop::attach() {
     }
     if (mPendingFocus.cbmd && onBannerSound) onBannerSound(mPendingFocus.cbmd);
     if (!mPendingFocus.plate.empty() && res->hasTexture(mPendingSpec.nameTexture)) {
+        mPlateStretch = 4.0f / std::max(0.5f, mPendingSpec.plateAspect);
         mPlate = plateTexture(mPendingFocus.plate, mPendingSpec.nameScale);
         res->setTexture(mPendingSpec.nameTexture, mPlate);
     }
