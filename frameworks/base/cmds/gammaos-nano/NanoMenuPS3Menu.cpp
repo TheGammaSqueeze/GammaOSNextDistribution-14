@@ -755,12 +755,17 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // render their own way and ignore the wave/particle background, the XMB font, the day/night
     // lighting and the half-res perf toggles, so exclude all three (renderEsde() reads none of
     // them - offering them under ES-DE was the same "row does nothing here" bug as the old DSi case).
-    const bool xmb    = !mNdsTheme && !mMinimaTheme && !mEsdeTheme;
+    // the 3DS home draws its own screens: none of the XMB look rows apply to it
+    const bool xmb    = !mNdsTheme && !mMinimaTheme && !mEsdeTheme && !mCtrTheme;
     const bool minima = mMinimaTheme;
     auto is = [&](const char* n) { return strcmp(name, n) == 0; };
     // XMB-only appearance: the wave/particle Background + effect picker, the XMB font and the
     // day/night lighting have no effect in the DSi or Minima home.
     if (is("Background") || is("Font") || is("Day/Night")) return xmb;
+    // the 3DS home has its own look: the accent colour and the wallpapers do not apply to it
+    if (mCtrTheme && (is("Colour") || is("Wallpaper Image") || is("Video Wallpaper") || is("Clear Wallpaper") ||
+                      is("Wallpaper Dimming")))
+        return false;
     // The effect picker also serves the DSi home: a chosen effect renders on both DSi screens in
     // place of the flat field / custom wallpaper (persisted separately, see the case 11 commit).
     if (is("Wallpaper")) return xmb || mNdsTheme;
@@ -782,15 +787,16 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // is the separate, always-shown control). This is the reported "dark theme does nothing in
     // XMB" - the row was offered everywhere. Show it only in the DSi home.
     if (is("DSi Dark Theme")) return mNdsTheme;
-    if (is("Titles From ROM")) return mNdsTheme;
+    if (is("Titles From ROM")) return mNdsTheme || mCtrTheme;
     if (is("DS Icons On Tiles")) return mNdsTheme;
     // The looping menu ambiance is a DSi-only feature (ndsAmbianceTick gates on mNdsTheme).
-    if (is("Menu Music")) return mNdsTheme;
+    if (is("Menu Music")) return mNdsTheme || mCtrTheme;
     // The bottom-panel PSP clock (and its FPS readout) + the bottom custom wallpaper only exist on
     // a physical dual-screen device (e.g. RG DS); their own descriptions say single-screen devices
     // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
     // once a secondary panel has been seen (const-safe here, unlike hasSecondaryDisplay()).
-    if (is("Bottom Clock") || is("Bottom Clock FPS") || is("Bottom Wallpaper")) return mNdsHadSecondary;
+    // (the 3DS home's bottom screen is its own: no clock or wallpaper there)
+    if (is("Bottom Clock") || is("Bottom Clock FPS") || is("Bottom Wallpaper")) return mNdsHadSecondary && !mCtrTheme;
     // Screen Calibration drives the RK356x display controller of the RG DS and RG DS Plus.
     if (is("Screen Calibration")) return screencal::supported();
     // The Control Centre lives on the dual-screen bottom panel, so its options only make sense there.

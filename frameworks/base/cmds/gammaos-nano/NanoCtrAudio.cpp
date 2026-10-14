@@ -130,6 +130,7 @@ int CtrAudio::playPcm(std::shared_ptr<const void> keep, const int16_t* pcm, int6
 
 int CtrAudio::play(const std::string& name, float volume, float pitch) {
     if (mShutdown.load()) return 0;
+    if (mProbeOn.load()) ALOGI("ctr audio: play %s", name.c_str());
     std::shared_ptr<Clip> c = clip(name);
     if (!c) return 0;
     int handle;
@@ -277,6 +278,7 @@ int32_t CtrAudio::fill(int which, int16_t* out, int32_t frames) {
             char v[PROP_VALUE_MAX] = {};
             on = __system_property_read(pi, nullptr, v) > 0 && v[0] == '1';
         }
+        mProbeOn.store(on);
         if (on) {
             for (int32_t i = 0; i < frames * 2; i++) mProbePeak = std::max(mProbePeak, std::abs((int)out[i]));
             if ((mProbeFrames += frames) >= (int64_t)o.rate * 2) {

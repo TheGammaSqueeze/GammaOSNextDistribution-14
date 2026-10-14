@@ -218,8 +218,8 @@ public:
         property_get("persist.gammaos.nano.nav_sounds", v, "1");
         if (v[0] == '0' || v[0] == 'f' || v[0] == 'F') return;
         const ctr::RomSound& s = b->sound;
-        // banner BCWAVs are mastered at full level: no makeup gain (the menu's sounds get 4x)
-        mBannerVoice = mMenu->mCtrAudio->playPcm(b, s.pcm.data(), s.frames, s.channels, s.sampleRate, false, 0, 0, 0.25f);
+        // banner BCWAVs are mastered at full level: no makeup gain (the effects get 2x)
+        mBannerVoice = mMenu->mCtrAudio->playPcm(b, s.pcm.data(), s.frames, s.channels, s.sampleRate, false, 0, 0, 0.5f);
     }
     void stopBannerSound() override {
         if (mBannerVoice && mMenu->mCtrAudio) mMenu->mCtrAudio->stop(mBannerVoice, 10);
@@ -249,7 +249,8 @@ public:
         if (!mMenu->mCtrAudio) return 0;
         const bool bgm = !strncmp(name, "BGM_", 4);
         char v[PROPERTY_VALUE_MAX] = {};
-        property_get(bgm ? "persist.gammaos.nano.ctr.bgm" : "persist.gammaos.nano.nav_sounds", v, "1");
+        // the BGM follows Theme Settings > Menu Music (shared with the DSi theme's music)
+        property_get(bgm ? "persist.gammaos.nano.nds.ambiance" : "persist.gammaos.nano.nav_sounds", v, "1");
         if (v[0] == '0' || v[0] == 'f' || v[0] == 'F') return 0;
         // no BGM while a game starts or runs, over a live app, or with a media player
         if (bgm && !mMenu->ctrBgmAllowed()) return 0;
@@ -775,6 +776,11 @@ bool NanoMenu::ctrSetSwitch(int itemIndex, bool on) {
     lv.sel = itemIndex;
     mDisplayDirty = true;
     if (cur == on) return true;
+    // one toggle sound for the flip, not the chooser's open and confirm sounds (the console's
+    // switch, theme/settings/panel.ts decide)
+    mCtrSfxMute = true;
+    struct Unmute { bool* f; ~Unmute() { *f = false; } } unmute{&mCtrSfxMute};
+    if (mCtrHost) mCtrHost->playSound("SE_CTR_COMMON_TOGGLE");
     ps3XmbSelect();
     if (mPs3DlgActive) {
         static const char* kOn[] = {"On", "ON", "on", "Enabled", "Yes"};
@@ -836,7 +842,8 @@ bool NanoMenu::ctrSwitchKey(int type, int code, int value) {
 bool NanoMenu::ctrBgmAllowed() {
     return !mPs3BootActive && !ndsPlayerActive() && !(mOverlayMode && !mOverlayWallpaper) &&
            mLaunchFadeStart == 0 && !mOverlayLaunchPending &&
-           !property_get_bool("sys.gammaos.nano.app_launched", false);
+           !property_get_bool("sys.gammaos.nano.app_launched", false) &&
+           property_get_bool("persist.gammaos.nano.nds.ambiance", true);   // Menu Music, applied live
 }
 
 void NanoMenu::ctrLeave() {
@@ -852,7 +859,7 @@ void NanoMenu::ctrLeave() {
 
 // nano's navigation sounds (PS3_SFX_*) as the console's effects
 void NanoMenu::ctrSfx(int which) {
-    if (!mCtrHost) return;
+    if (!mCtrHost || mCtrSfxMute) return;
     static const char* kNames[] = {"SE_CTR_HOME_SELECT", "SE_CTR_COMMON_BUTTON", "SE_CTR_COMMON_CANCEL",
                                    "SE_CTR_COMMON_BUTTON", "SE_CTR_COMMON_DIALOG", "SE_CTR_COMMON_ERROR"};
     if (which < 0 || which >= (int)(sizeof(kNames) / sizeof(kNames[0]))) return;

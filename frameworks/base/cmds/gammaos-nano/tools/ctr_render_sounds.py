@@ -13,6 +13,7 @@ Wave sounds (plain WAVs in the romfs) are copied as they are.
 """
 
 import argparse
+import array
 import base64
 import io
 import json
@@ -136,8 +137,23 @@ def main():
             if only and name not in only:
                 continue
             if s["type"] == "wave":
-                src = s.get("wave", {}).get("path") or s.get("file")
-                report[name] = {"type": "wave", "src": src}
+                # a plain wave sound: its stored WAV at the sound's volume (soundVolume, as the
+                # sequence renders carry it), with its loop when it has one
+                waves = s.get("waves") or []
+                if not waves or not waves[0].get("wav"):
+                    report[name] = {"type": "wave", "skipped": True}
+                    continue
+                src = os.path.join(args.romfs, "sound", waves[0]["wav"])
+                ch, rate, frames = read_wav(open(src, "rb").read())
+                gain = s.get("volume", 127) / 127.0
+                samples = array.array("h", frames)
+                for i in range(len(samples)):
+                    samples[i] = max(-32768, min(32767, int(round(samples[i] * gain))))
+                lp = s.get("loop") or {}
+                loop = (lp["start"], lp["end"]) if lp.get("enabled") else None
+                write_wav(os.path.join(out, name + ".wav"), ch, rate, samples.tobytes(), loop=loop)
+                report[name] = {"type": "wave", "src": waves[0]["wav"], "gain": gain, "loop": loop}
+                print(name, report[name], flush=True)
                 continue
             if s["type"] != "sequence":
                 report[name] = {"type": s["type"], "skipped": True}

@@ -76,9 +76,11 @@ private:
     std::vector<Voice> mVoices;
     int mNextHandle = 1;
     // The renders carry the console's relative levels (sound volume x velocity^2, as the web
-    // player); the console's output stage adds makeup gain on top. One gain for every sound keeps
-    // the BGM / effect balance, and the mix goes through a soft limiter.
-    float mSeMaster = 4.0f, mBgmMaster = 4.0f;
+    // player) and come out quiet; the console's output stage adds gain on top. Effects get 2x
+    // (their loudest peaks reach full scale), the BGM 4x (rendered about 30 dB below the effects
+    // it stays well under them, as on the console); the mix goes through a soft limiter.
+    float mSeMaster = 2.0f, mBgmMaster = 4.0f;
+    std::atomic<bool> mProbeOn{false};   // sys.gammaos.nano.ctr.audiolog: also log each sound start
     struct Out {
         void* stream = nullptr;
         std::atomic<bool> running{false};
