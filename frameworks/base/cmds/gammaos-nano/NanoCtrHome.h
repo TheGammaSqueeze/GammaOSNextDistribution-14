@@ -137,7 +137,8 @@ public:
     std::function<void()> onTick;
     // True when the top screen paints every pixel of its rectangle itself (the 3D wall).
     bool topCovered() const;
-    // Leaves the focused banner off the top screen (a panel's title band takes its place).
+    // Leaves the focused banner and the camera / screenshot bars off the top screen (a panel's
+    // title band takes their place).
     void setTopBannerHidden(bool hidden);
     static void projection(float out[16], float lw, float lh, float rx, float ry, float rw, float rh,
                            float W, float H, const float rot[4]);

@@ -360,6 +360,7 @@ struct CtrHome::Impl {
     std::unique_ptr<LayoutInstance> base, palette, arrows, buttons, cursor, folder, balloon, indicatorL;
     // top
     std::unique_ptr<LayoutInstance> top, hud;
+    bool topBarsHidden = false;
     // fades
     std::unique_ptr<LayoutInstance> fadeTop, fadeBottom;
     bool fadeActive = false;
@@ -1854,7 +1855,13 @@ void CtrHome::projection(float out[16], float lw, float lh, float rx, float ry, 
 void (*CtrHome::perfMark)(const char*) = nullptr;
 
 void CtrHome::setTopBannerHidden(bool hidden) {
-    if (mLoaded && mImpl->top3d) mImpl->top3d->setBannerHidden(hidden);
+    if (!mLoaded) return;
+    if (mImpl->top3d) mImpl->top3d->setBannerHidden(hidden);
+    // the camera / screenshot bars leave with it (hud/topbars.ts setHidden on settings:open)
+    if (mImpl->top && mImpl->topBarsHidden != hidden) {
+        mImpl->topBarsHidden = hidden;
+        mImpl->top->setVisible("N_Btm_00", !hidden);
+    }
 }
 
 bool CtrHome::topCovered() const { return mLoaded && mImpl->top3d && !getenv("CTR_NO3D"); }
