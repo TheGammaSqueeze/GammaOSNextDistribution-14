@@ -113,7 +113,7 @@ std::atomic<float> sHudBlitFps{0.0f}, sHudGameFps{0.0f};
 // stall blocks the emulation itself, so this one drops to 0 as well).
 std::atomic<float> sSystemFps{0.0f};
 std::atomic<bool> sHudSlow{false};
-std::atomic<bool> sFastForward{false};   // R2 fast forward state
+std::atomic<bool> sFastForward{false};   // R3 fast forward state
 std::atomic<float> sHudSpeed{100.0f};    // emulation speed in percent of real time
 std::string gUserDir;                     // config.ini folder, for readers outside main()
 
@@ -959,6 +959,8 @@ int main(int argc, char** argv) {
             if (sInput) {
                 sInput->setNintendoLayout(
                     azahar_nano::settings::getBool("persist.gammaos.azahar_nano.nintendo_layout", false));
+                sInput->setStickDpadSwap(
+                    azahar_nano::settings::getBool("persist.gammaos.azahar_nano.stick_dpad_swap", false));
             }
             if (sOa.setLcdShader) {
                 sOa.setLcdShader(0, atoi(prop("persist.gammaos.azahar_nano.lcd_top", "0").c_str()));
@@ -968,6 +970,7 @@ int main(int argc, char** argv) {
             gDynResSettle = 5;
         };
         oa.setNintendoLayout = [](bool on) { if (sInput) sInput->setNintendoLayout(on); };
+        oa.setStickDpadSwap = [](bool on) { if (sInput) sInput->setStickDpadSwap(on); };
         oa.setScreenAa = [](bool on) {
             if (gCore.set_screen_aa) gCore.set_screen_aa(on ? 1 : 0);
         };
@@ -1000,14 +1003,10 @@ int main(int argc, char** argv) {
     azahar_nano::NanoInput input;
     sInput = &input;
     azahar_nano::InputCallbacks icb;
-    // Fast forward on Back + R2 (the pad's R2 reaches us as ZR): each press toggles it while
-    // the menu is closed. R2 alone stays ZR for the game, and that Back press opens no menu.
-    // persist.gammaos.azahar_nano.ff_r2=0 turns the combo off.
-    static const bool ffOnR2 = prop("persist.gammaos.azahar_nano.ff_r2", "1") == "1";
-    static bool ffComboR2Down = false;
+    // Fast forward on R3: each press toggles it while the menu is closed.
     static auto toggleFastForward = [] {
-        if (!gCore.set_fast_forward || gLoadScreenOn) return;
-        // The pad reports R2 both as a button and as an axis: one press, one toggle.
+        if (!gCore.set_fast_forward || gLoadScreenOn || overlay.isOpen()) return;
+        // A bouncing switch: one toggle per 250 ms at most.
         static int64_t lastToggleNs = 0;
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -1018,21 +1017,11 @@ int main(int argc, char** argv) {
         sFastForward = on;
         gCore.set_fast_forward(on ? 1 : 0);
         sHudStatsSeq++;
-        ALOGI("fast forward %s (Back + R2)", on ? "on" : "off");
+        ALOGI("fast forward %s (R3)", on ? "on" : "off");
     };
+    icb.fastForwardToggle = [] { toggleFastForward(); };
+    icb.menuOpen = [] { return overlay.isOpen(); };
     icb.button = [](int b, bool p) {
-        if (ffOnR2 && b == AZN_BUTTON_ZR && !overlay.isOpen()) {
-            // The release of a combo press is ours too, the game never saw it go down.
-            if (p && sInput->consumeBackHeld()) {
-                ffComboR2Down = true;
-                toggleFastForward();
-                return true;
-            }
-            if (!p && ffComboR2Down) {
-                ffComboR2Down = false;
-                return true;
-            }
-        }
         // Start on the shader loading screen skips the rest of the precompile.
         if (gLoadScreenOn && p && b == AZN_BUTTON_START) {
             if (gCore.skip_preload) {
@@ -1049,22 +1038,7 @@ int main(int argc, char** argv) {
         return gCore.button(b, p);
     };
     icb.joystick = [](int a, float x, float y) { return gCore.joystick(a, x, y); };
-    icb.analogButton = [](int a, float v) {
-        // Analog R2 with Back held: toggle on the press edge (past 60%), release below 30%.
-        if (ffOnR2 && a == AZN_BUTTON_ZR && !overlay.isOpen()) {
-            static bool comboDown = false;
-            if (comboDown) {
-                if (v < 0.3f) comboDown = false;
-                return true;
-            }
-            if (v > 0.6f && sInput->consumeBackHeld()) {
-                comboDown = true;
-                toggleFastForward();
-                return true;
-            }
-        }
-        return gCore.analog_button(a, v);
-    };
+    icb.analogButton = [](int a, float v) { return gCore.analog_button(a, v); };
     // Touch arrives as a fraction of the panel it was made on. Each panel's touches go to the
     // window on that panel (the top one included: on the RP Duo Lite every touch used to land
     // on the bottom screen, the top panel's turned by 90 degrees), in window (buffer) pixels:

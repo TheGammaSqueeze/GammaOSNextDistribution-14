@@ -575,6 +575,10 @@ void Overlay::buildPages() {
             {{"Xbox (A south, B east)", "0"}, {"Nintendo (A east, B south)", "1"}},
             "Which physical button is A and B",
             [this](const std::string& v) { if (mA.setNintendoLayout) mA.setNintendoLayout(v == "1"); }));
+        pg.rows.push_back(propChoice("Swap Stick and D-Pad", "persist.gammaos.azahar_nano.stick_dpad_swap", "0",
+            {{"Off", "0"}, {"On", "1"}},
+            "On: the left stick presses the d-pad and the d-pad moves the circle pad (the menu keeps the d-pad)",
+            [this](const std::string& v) { if (mA.setStickDpadSwap) mA.setStickDpadSwap(v == "1"); }));
     }
     // ---- Import GPU Driver ----
     {

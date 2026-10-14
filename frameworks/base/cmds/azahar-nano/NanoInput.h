@@ -27,6 +27,9 @@ struct InputCallbacks {
     std::function<void(int panel, float x, float y)> touchMoved;
     std::function<void()> menuToggle;   // short press of the menu/back key
     std::function<void()> exitRequest;  // long press of the menu/back key
+    std::function<void()> fastForwardToggle;   // R3 (the 3DS has no stick click)
+    // True while the menu is open: the d-pad then always navigates it (no stick swap).
+    std::function<bool()> menuOpen;
 };
 
 class NanoInput {
@@ -37,6 +40,9 @@ public:
     void stop();
     // Button arrangement, switchable live from the menu.
     void setNintendoLayout(bool on) { mNintendoLayout = on; }
+    // Left stick and d-pad swapped: the stick presses the d-pad and the d-pad moves the
+    // circle pad (at full deflection). Switchable live from the menu.
+    void setStickDpadSwap(bool on) { mSwapStickDpad = on; }
     // From a button callback: true when Back is held, and that Back press then no longer
     // opens the menu or fires its long press (it was used as a combo modifier).
     bool consumeBackHeld() {
@@ -64,6 +70,11 @@ private:
     void loop();
     void handlePad(Node& n, uint16_t type, uint16_t code, int32_t value);
     void handleTouch(Node& n, uint16_t type, uint16_t code, int32_t value);
+    enum Dir { kLeft, kRight, kUp, kDown };
+    bool swapActive();
+    void physicalDpad(Dir d, bool pressed);
+    void leftStick();
+    void sendDir(Dir d, bool pressed);
 
     InputCallbacks mCb;
     std::vector<Node> mNodes;
@@ -74,6 +85,10 @@ private:
     int mDefaultPanel = 0;
     std::string mBottomTouchName;
     bool mNintendoLayout = false;
+    std::atomic<bool> mSwapStickDpad{false};
+    bool mSwapApplied = false;          // the swap state the held inputs were sent under
+    bool mDpadHeld[4] = {};             // physical d-pad (buttons or hat)
+    bool mStickDir[4] = {};             // d-pad presses the swapped stick has sent
     // per-pad state
     float mLx = 0, mLy = 0, mRx = 0, mRy = 0;
     int mHatX = 0, mHatY = 0;

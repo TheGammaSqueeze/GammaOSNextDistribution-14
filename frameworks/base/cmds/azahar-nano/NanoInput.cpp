@@ -40,6 +40,7 @@ constexpr int64_t kBackLongPressNs = 1500LL * 1000000LL;
 bool NanoInput::start(const InputCallbacks& cb, bool dualPanel, int defaultPanel) {
     mCb = cb;
     mNintendoLayout = settings::getBool("persist.gammaos.azahar_nano.nintendo_layout", false);
+    mSwapStickDpad = settings::getBool("persist.gammaos.azahar_nano.stick_dpad_swap", false);
     mDualPanel = dualPanel;
     mDefaultPanel = defaultPanel;
     char v[PROPERTY_VALUE_MAX] = {};
@@ -127,6 +128,74 @@ void NanoInput::scan() {
     closedir(d);
 }
 
+namespace {
+constexpr int kDirButton[4] = {AZN_DPAD_LEFT, AZN_DPAD_RIGHT, AZN_DPAD_UP, AZN_DPAD_DOWN};
+} // namespace
+
+// The swap applies while the menu is closed. A change (menu opened or closed, the option
+// switched) first releases whatever was held under the old mapping, so nothing sticks.
+bool NanoInput::swapActive() {
+    const bool active = mSwapStickDpad && !(mCb.menuOpen && mCb.menuOpen());
+    if (active != mSwapApplied) {
+        for (int d = 0; d < 4; d++) {
+            if (mStickDir[d] && mCb.button) mCb.button(kDirButton[d], false);
+            mStickDir[d] = false;
+            if (mDpadHeld[d] && mCb.button) mCb.button(kDirButton[d], false);
+        }
+        if (mCb.joystick) mCb.joystick(AZN_CIRCLEPAD, 0.0f, 0.0f);
+        mSwapApplied = active;
+        // Re-send what is held now under the new mapping.
+        if (active) {
+            leftStick();
+            const float x = (mDpadHeld[kRight] ? 1.0f : 0.0f) - (mDpadHeld[kLeft] ? 1.0f : 0.0f);
+            const float y = (mDpadHeld[kUp] ? 1.0f : 0.0f) - (mDpadHeld[kDown] ? 1.0f : 0.0f);
+            if (mCb.joystick && (x != 0.0f || y != 0.0f)) mCb.joystick(AZN_CIRCLEPAD, x, y);
+        } else {
+            for (int d = 0; d < 4; d++) {
+                if (mDpadHeld[d] && mCb.button) mCb.button(kDirButton[d], true);
+            }
+            if (mCb.joystick) mCb.joystick(AZN_CIRCLEPAD, mLx, -mLy);
+        }
+    }
+    return active;
+}
+
+void NanoInput::sendDir(Dir d, bool pressed) {
+    if (mCb.button) mCb.button(kDirButton[d], pressed);
+}
+
+// A physical d-pad direction (button or hat): the d-pad, or the circle pad when swapped.
+void NanoInput::physicalDpad(Dir d, bool pressed) {
+    if (mDpadHeld[d] == pressed) return;
+    mDpadHeld[d] = pressed;
+    if (!swapActive()) {
+        sendDir(d, pressed);
+        return;
+    }
+    const float x = (mDpadHeld[kRight] ? 1.0f : 0.0f) - (mDpadHeld[kLeft] ? 1.0f : 0.0f);
+    const float y = (mDpadHeld[kUp] ? 1.0f : 0.0f) - (mDpadHeld[kDown] ? 1.0f : 0.0f);
+    // A diagonal stays on the unit circle like a real stick at full tilt.
+    const float k = (x != 0.0f && y != 0.0f) ? 0.70710678f : 1.0f;
+    if (mCb.joystick) mCb.joystick(AZN_CIRCLEPAD, x * k, y * k);
+}
+
+// The left stick moved: the circle pad, or d-pad presses when swapped (pressed past half
+// way, released below a third, so a stick resting near the threshold does not chatter).
+void NanoInput::leftStick() {
+    if (!swapActive()) {
+        if (mCb.joystick) mCb.joystick(AZN_CIRCLEPAD, mLx, -mLy);
+        return;
+    }
+    const float v[4] = {-mLx, mLx, -mLy, mLy};
+    for (int d = 0; d < 4; d++) {
+        const bool on = mStickDir[d] ? v[d] > 0.33f : v[d] > 0.5f;
+        if (on != mStickDir[d]) {
+            mStickDir[d] = on;
+            sendDir((Dir)d, on);
+        }
+    }
+}
+
 void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) {
     if (type == EV_KEY) {
         const bool pressed = value != 0;
@@ -146,10 +215,14 @@ void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) 
         case BTN_TR2: btn = AZN_BUTTON_ZR; break;
         case BTN_START: btn = AZN_BUTTON_START; break;
         case BTN_SELECT: btn = AZN_BUTTON_SELECT; break;
-        case BTN_DPAD_UP: btn = AZN_DPAD_UP; break;
-        case BTN_DPAD_DOWN: btn = AZN_DPAD_DOWN; break;
-        case BTN_DPAD_LEFT: btn = AZN_DPAD_LEFT; break;
-        case BTN_DPAD_RIGHT: btn = AZN_DPAD_RIGHT; break;
+        case BTN_DPAD_UP: physicalDpad(kUp, pressed); return;
+        case BTN_DPAD_DOWN: physicalDpad(kDown, pressed); return;
+        case BTN_DPAD_LEFT: physicalDpad(kLeft, pressed); return;
+        case BTN_DPAD_RIGHT: physicalDpad(kRight, pressed); return;
+        case BTN_THUMBR:
+            // R3 toggles fast forward (the 3DS has no stick click to pass on).
+            if (pressed && mCb.fastForwardToggle) mCb.fastForwardToggle();
+            return;
         case BTN_MODE:
         case KEY_BACK:
         case KEY_HOMEPAGE:
@@ -173,8 +246,8 @@ void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) 
     const float norm = range > 0 ? ((value - n.absMin[code]) / range) * 2.0f - 1.0f : 0.0f;
     const float unit = range > 0 ? (value - n.absMin[code]) / range : 0.0f;
     switch (code) {
-    case ABS_X: mLx = norm; if (mCb.joystick) mCb.joystick(AZN_CIRCLEPAD, mLx, -mLy); break;
-    case ABS_Y: mLy = norm; if (mCb.joystick) mCb.joystick(AZN_CIRCLEPAD, mLx, -mLy); break;
+    case ABS_X: mLx = norm; leftStick(); break;
+    case ABS_Y: mLy = norm; leftStick(); break;
     case ABS_RX:
     case ABS_Z:
         if (code == ABS_Z && !n.hasAbs[ABS_RX]) {
@@ -193,20 +266,20 @@ void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) 
     case ABS_BRAKE: if (mCb.analogButton) mCb.analogButton(AZN_BUTTON_ZL, unit); break;
     case ABS_GAS: if (mCb.analogButton) mCb.analogButton(AZN_BUTTON_ZR, unit); break;
     case ABS_HAT0X:
-        if (mHatX != value && mCb.button) {
-            if (mHatX < 0) mCb.button(AZN_DPAD_LEFT, false);
-            if (mHatX > 0) mCb.button(AZN_DPAD_RIGHT, false);
-            if (value < 0) mCb.button(AZN_DPAD_LEFT, true);
-            if (value > 0) mCb.button(AZN_DPAD_RIGHT, true);
+        if (mHatX != value) {
+            if (mHatX < 0) physicalDpad(kLeft, false);
+            if (mHatX > 0) physicalDpad(kRight, false);
+            if (value < 0) physicalDpad(kLeft, true);
+            if (value > 0) physicalDpad(kRight, true);
         }
         mHatX = value;
         break;
     case ABS_HAT0Y:
-        if (mHatY != value && mCb.button) {
-            if (mHatY < 0) mCb.button(AZN_DPAD_UP, false);
-            if (mHatY > 0) mCb.button(AZN_DPAD_DOWN, false);
-            if (value < 0) mCb.button(AZN_DPAD_UP, true);
-            if (value > 0) mCb.button(AZN_DPAD_DOWN, true);
+        if (mHatY != value) {
+            if (mHatY < 0) physicalDpad(kUp, false);
+            if (mHatY > 0) physicalDpad(kDown, false);
+            if (value < 0) physicalDpad(kUp, true);
+            if (value > 0) physicalDpad(kDown, true);
         }
         mHatY = value;
         break;

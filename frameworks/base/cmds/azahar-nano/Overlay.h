@@ -40,6 +40,7 @@ struct OverlayActions {
     std::function<void(const char* prop, const char* value)> setProp;
     std::function<std::string(const char* prop, const char* def)> getProp;
     std::function<void(bool nintendo)> setNintendoLayout;
+    std::function<void(bool on)> setStickDpadSwap;
     std::function<void(int screen, int shader)> setLcdShader;  // 0 top, 1 bottom
     std::function<void(bool on)> setScreenAa;                   // FXAA on both screens
     // Per-game override (AzaharSettings.h): config.ini as the file holds it (never the
