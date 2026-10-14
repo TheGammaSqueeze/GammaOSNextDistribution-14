@@ -480,6 +480,7 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
 // A touch frame: nano has the raw touch state (mTouchDown / mTouchRawX/Y); map it into bottom
 // screen layout space through the rectangle the bottom screen is drawn in.
 void NanoMenu::ctrTouchFrame() {
+    if (mOskActive || mGSearchActive) return;   // nano's own touch handling has them
     const bool modal = ctrModalKind() == CTR_MODAL_PANEL;
     if (!ctrOwnsInput() && !modal) return;
     float px = 0, py = 0;
@@ -518,7 +519,8 @@ void NanoMenu::ctrTouchFrame() {
 int NanoMenu::ctrModalKind() const {
     if (!mCtrTheme || !mCtrHome || !mCtrHome->loaded() || mPs3BootActive || mSetupWizardActive) return CTR_MODAL_NONE;
     // screens without a 3DS look yet: the shared XMB chrome
-    const bool other = mOskActive || mVidActive || mMpActive || mPvActive || mGSearchActive || mPs3WizActive ||
+    // (the keyboard and the search results draw on their own over the 3DS screens: ctrRenderOverlays)
+    const bool other = mVidActive || mMpActive || mPvActive || mPs3WizActive ||
                        mPhotoMultiActive || mScrapeProgActive ||
                        mMtpActive || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
                        ps3TopScreenKind() == PHOTO_GRID;
@@ -1388,7 +1390,22 @@ void NanoMenu::renderCtrPrimary() {
     // nano's screens the 3DS style does not cover yet (pickers, keyboard, wizard, players) keep
     // the shared XMB chrome; lists, option menus and dialogs are the 3DS panel and dialog
     if (ctrModalKind() == CTR_MODAL_FALLBACK) renderPs3Xmb();
+    else ctrRenderOverlays();
     if (sCtrPerf.mode == 3) sCtrGpu.mark("rest");   // the rest of nano's frame until the next bottom pass
+}
+
+// The keyboard and the global search results over the 3DS screens, without the XMB under them.
+// A dual panel device draws them on the bottom panel (the secondary passes call renderGlobalSearch
+// and renderOsk), so the top screen only dims behind them; one panel draws them here.
+void NanoMenu::ctrRenderOverlays() {
+    if (!mOskActive && !mGSearchActive) return;
+    if (ctrDualPanel()) {
+        setUiBlend();   // the 3DS renderer leaves its own blend state
+        drawQuad(0, 0, (float)mWidth, (float)mHeight, 0, 0, 0, 0.45f);
+        return;
+    }
+    if (mGSearchActive) renderGlobalSearch();
+    renderOsk();
 }
 
 void NanoMenu::renderCtrSecondary() {

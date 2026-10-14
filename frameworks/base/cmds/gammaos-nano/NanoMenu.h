@@ -1639,6 +1639,7 @@ private:
     bool ctrBgmAllowed();                         // no game starting or running, no media player
     bool ctrItemSwitch(const Ps3Item& it, bool* on);   // an On/Off setting row (a 3DS OFF / ON pair)
     bool ctrSliderActive() const;                      // a numeric slider dialog is open
+    void ctrRenderOverlays();                          // keyboard / search results over the 3DS screens
     bool ctrOpenOptions();                             // START: the focused title's option menu
     bool ctrInfoDialog() const;                        // the dialog is an information page
     bool ctrInfoActive() const;                        // and it is open
