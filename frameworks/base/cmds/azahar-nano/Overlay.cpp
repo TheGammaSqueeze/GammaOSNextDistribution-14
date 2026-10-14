@@ -380,24 +380,24 @@ void Overlay::buildPages() {
                 r.hint = "Could not read " + settings::overridePath() + " (" +
                          settings::overrideError() + "); the global settings are in use";
                 r.activate = [this] {
-                    openConfirm("Delete the unreadable override?",
-                                "The global settings keep applying to this game",
+                    openConfirm("Delete Override?",
+                                "Delete the unreadable override; the global settings keep applying to this game",
                                 [this] { deletePerGameOverride(); });
                 };
             } else if (settings::overrideActive()) {
                 r.label = "Delete Per-Game Override";
                 r.hint = "This game uses its own settings from " + settings::overridePath();
                 r.activate = [this] {
-                    openConfirm("Delete this game's settings override?",
-                                "The global settings apply again at once",
+                    openConfirm("Delete Per-Game Override?",
+                                "Delete this game's settings override; the global settings apply again at once",
                                 [this] { deletePerGameOverride(); });
                 };
             } else {
                 r.label = "Create Per-Game Override";
                 r.hint = "Keep separate settings for this game, stored in " + settings::overridePath();
                 r.activate = [this] {
-                    openConfirm("Save this game's settings as a per-game override?",
-                                "Settings changed from now on apply to this game only",
+                    openConfirm("Create Per-Game Override?",
+                                "Save this game's settings as its own; changes from now on apply to this game only",
                                 [this] { createPerGameOverride(); });
                 };
             }
@@ -798,12 +798,22 @@ void Overlay::render() {
     const float panelH = rowH * (shown + 3.0f);
     const float px = (W - panelW) / 2, py = (H - panelH) / 2;
     mGfx.panel(px, py, panelW, panelH, rgba(0.08f, 0.09f, 0.12f, 0.96f), rgba(0.3f, 0.5f, 0.9f, 1.0f));
-    mGfx.text(pg.title.c_str(), px + 32 * scale, py + rowH * 0.35f, titleScale, rgba(1, 1, 1, 1));
     float headerRight = drawStatus(px + panelW - 32 * scale, py + rowH * 0.5f, scale);
     if (mStack.size() > 1) {
         const char* back = "B: back";
-        mGfx.text(back, headerRight - 28 * scale - mGfx.measure(back, hintScale), py + rowH * 0.5f,
-                  hintScale, rgba(0.6f, 0.65f, 0.7f, 1));
+        headerRight -= 28 * scale + mGfx.measure(back, hintScale);
+        mGfx.text(back, headerRight, py + rowH * 0.5f, hintScale, rgba(0.6f, 0.65f, 0.7f, 1));
+    }
+    // The title takes the space left of the status and "B: back": a long one is drawn
+    // smaller (centred on the same line) so it never runs into them or past the panel.
+    {
+        const float titleX = px + 32 * scale;
+        const float avail = headerRight - 28 * scale - titleX;
+        float ts = titleScale;
+        const float tw = mGfx.measure(pg.title.c_str(), ts);
+        if (tw > avail && avail > 0) ts *= avail / tw;
+        const float ty = py + rowH * 0.35f + mGfx.fontLineH() * (titleScale - ts) * 0.5f;
+        mGfx.text(pg.title.c_str(), titleX, ty, ts, rgba(1, 1, 1, 1));
     }
     float y = py + rowH * 1.6f;
     for (int i = first; i < first + shown; i++) {
