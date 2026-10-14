@@ -1960,6 +1960,16 @@ void CtrHome::resumeFromApp() {
     }
 }
 
+const HomeItem* CtrHome::focusedTitle() const {
+    if (!mLoaded) return nullptr;
+    Impl& I = *mImpl;
+    if (I.state != StIdle) return nullptr;
+    Grid& g = I.grid();
+    if (g.onBar) return nullptr;
+    const HomeItem* it = g.item(g.cursor);
+    return it && it->kind == HomeItemKind::Title ? it : nullptr;
+}
+
 bool CtrHome::testOpen(const std::string& name) {
     if (!mLoaded) return false;
     Impl& I = *mImpl;

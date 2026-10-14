@@ -5177,6 +5177,11 @@ static float xmbClampScroll(float v, int n) {
 // Up/Down (horizontal=false) scroll chooser lists only; Left/Right (horizontal=
 // true) scroll choosers AND toggle a confirm dialog's Yes/No. Info pages ignore.
 void NanoMenu::ps3DlgNav(int dir, bool horizontal) {
+    // 3DS theme: an information page is a panel that scrolls (ctrModalUpdate applies it)
+    if (mCtrTheme && ctrInfoActive()) {
+        if (!horizontal) { mCtrInfoNav += dir; mDisplayDirty = true; }
+        return;
+    }
     if (mPs3DlgRomInfo || mPs3DlgAppInfo) {   // rich Information page: Up/Down scroll; L/R inert
         if (!horizontal) {
             int& sc = mPs3DlgRomInfo ? mPs3RomInfoScroll : mPs3AppInfoScroll;

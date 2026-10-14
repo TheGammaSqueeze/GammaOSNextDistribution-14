@@ -163,6 +163,9 @@ public:
     // Test hook: puts the cursor on the root item named `name` and opens it when it is a folder.
     // From inside a folder it closes the folder first (call again once it closed). True when done.
     bool testOpen(const std::string& name);
+    // The title under the cursor while the grid is idle (null on the bar, a folder or an empty
+    // slot): what the host's options menu acts on.
+    const HomeItem* focusedTitle() const;
     Assets& assets() { return *mAssets; }
     int64_t frame() const { return mFrame; }
 

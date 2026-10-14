@@ -34,6 +34,11 @@ const float kListBottom = 20;
 const float kButtonPitch = 48;
 const float kHeaderPitch = 72;
 const char* kKnobPanes[] = {"SBBtn", "SBBtnShdw", "SBBtnFrame", "B_Slide_00"};
+// Text rows: PtBtnT_Abl_00's header text box (T_Base_00, top left at (-87, 38) of the part, 18
+// units a line) holds the paragraph; a row is its lines plus a gap
+const float kTextLine = 18;
+const float kTextGap = 8;
+const float kTextBoxTop = 38;
 
 // Squeezes a text box's line to its width like the console's labels (the font is narrowed, the
 // height kept).
@@ -152,7 +157,8 @@ bool CtrPanel::load() {
     mSlider = A.create(kArchive, "PtSlideBar");
     mCursor = A.create(kArchive, "PtCsr_00");
     mClose = A.create(kArchive, "PtClose_00");
-    if (!mBg || !mTop || !mMask || !mSlider || !mCursor || !mClose) {
+    mMeasure = A.create(kArchive, "PtBtnT_Abl_00");
+    if (!mBg || !mTop || !mMask || !mSlider || !mCursor || !mClose || !mMeasure) {
         ALOGW("ctr: settings panel layouts missing");
         mLoadFailed = true;
         return false;
@@ -177,10 +183,19 @@ float CtrPanel::rowHeight(const PanelRow& r) const { return r.kind == PanelRow::
 void CtrPanel::layoutRows() {
     mRowTop.resize(mRows.size());
     mRowH.resize(mRows.size());
+    mWrapped.assign(mRows.size(), std::string());
+    mLines.assign(mRows.size(), 0);
+    const Pane* box = mMeasure ? mMeasure->pane("T_Base_00") : nullptr;
     float y = kListTop;
     for (size_t i = 0; i < mRows.size(); i++) {
         mRowTop[i] = y;
-        mRowH[i] = rowHeight(mRows[i]);
+        if (mRows[i].kind == PanelRow::Text) {
+            mWrapped[i] = wrapText(box, mRows[i].label);
+            mLines[i] = 1 + (int)std::count(mWrapped[i].begin(), mWrapped[i].end(), '\n');
+            mRowH[i] = mLines[i] * kTextLine + kTextGap;
+        } else {
+            mRowH[i] = rowHeight(mRows[i]);
+        }
         y += mRowH[i];
     }
     const float content = y + kListBottom;
@@ -208,7 +223,7 @@ void CtrPanel::stopRect(int row, float* x, float* y, float* w, float* h) const {
     *h = 66;
     if (row < 0 || row >= (int)mRows.size()) return;
     const PanelRow& r = mRows[row];
-    const float centre = mRowTop[row] + (r.kind == PanelRow::Button ? 40.0f : 64.0f) / 2;
+    const float centre = mRowTop[row] + (r.kind == PanelRow::Button ? 40.0f : r.kind == PanelRow::Text ? mRowH[row] : 64.0f) / 2;
     switch (r.kind) {
         case PanelRow::Button:   // N_CPos_Btn_00 (0, 1.5) 249 x 66
             *y = centre - 1.5f;
@@ -221,6 +236,10 @@ void CtrPanel::stopRect(int row, float* x, float* y, float* w, float* h) const {
             break;
         case PanelRow::Value:    // the value button 8 below the header's centre
             *y = centre + 8.0f - 1.5f;
+            break;
+        case PanelRow::Text:     // never a cursor stop; the paragraph's middle
+            *y = mRowTop[row] + mRowH[row] / 2;
+            *h = mRowH[row];
             break;
     }
 }
@@ -239,8 +258,8 @@ void CtrPanel::set(const std::string& title, const std::vector<PanelRow>& rows, 
         mRows = rows;
         layoutRows();
     }
-    if (rows.empty()) sel = -1;
-    else sel = std::min(std::max(sel, 0), (int)rows.size() - 1);
+    if (rows.empty() || sel < 0) sel = -1;
+    else sel = std::min(sel, (int)rows.size() - 1);
     if (newLevel) {
         mLevel = level;
         mSel = sel;
@@ -324,6 +343,18 @@ void CtrPanel::hide() {
     mPhaseFrame = 0;
 }
 
+void CtrPanel::scrollBy(float d) {
+    if (!mLoaded) return;
+    const float from = mScrollFrames > 0 ? mScrollTo : mScroll;
+    const float target = std::min(std::max(from + d, 0.0f), mMax);
+    if (target == from) return;
+    mTouch = TIdle;
+    mScrollFrom = mScroll;
+    mScrollTo = target;
+    mScrollFrames = kScrollFrames;
+    mScrollCount = 0;
+}
+
 void CtrPanel::moveBy(float d) {
     mScroll = std::min(std::max(mScroll + d, 0.0f), mMax);
     // scroll ticks (scroll/sound.ts): one every 20 px of travel
@@ -386,7 +417,7 @@ void CtrPanel::tick() {
         if (mScroll == before && v != 0) { mVelocity = 0; mTouch = TIdle; }
     }
     for (LayoutInstance* l : {mBg.get(), mTop.get(), mMask.get(), mSlider.get(), mCursor.get(), mClose.get()}) l->update(1);
-    for (std::vector<Slot>* s : {&mButtons, &mToggles, &mValues})
+    for (std::vector<Slot>* s : {&mButtons, &mToggles, &mValues, &mTexts})
         for (Slot& sl : *s) {
             if (sl.lay) sl.lay->update(1);
             if (sl.lay2) sl.lay2->update(1);
@@ -404,6 +435,7 @@ PanelHit CtrPanel::touch(bool down, bool held, bool up, float x, float y) {
         if (wrp) paneOrigin(wrp, &wx, &wy);
         const float d = (wy + kViewHalf) - ty;
         for (size_t i = 0; i < mRows.size(); i++) {
+            if (mRows[i].kind == PanelRow::Text) continue;   // paragraphs are not buttons
             const float top = mRowTop[i];
             const float bodyTop = mRows[i].kind == PanelRow::Button ? top + 3.5f : top + 24;   // B_* boxes
             const float bodyH = mRows[i].kind == PanelRow::Button ? 33.0f : 38.0f;
@@ -572,6 +604,18 @@ void CtrPanel::bindSlot(Slot& s, const PanelRow& row) {
             holdGroups(s.lay.get(), "PtBtnT_Lgt_01_Decide", {row.on ? "G_On_00" : "G_Off_00"});
             holdGroups(s.lay.get(), "PtBtnT_Lgt_01_UnDecide", {row.on ? "G_Off_00" : "G_On_00"});
             break;
+        case PanelRow::Text:
+            if (kindChanged) {
+                // the header text alone, as tall as the paragraph
+                for (const char* p : {"P_IconR_00", "N_CntntsPos_00", "P_Base_00", "P_Base_01", "P_OffShdw_00", "P_OnShdw_00", "P_Off_00", "P_On_00"})
+                    s.lay->setVisible(p, false);
+            }
+            if (Pane* p = s.lay->pane("T_Base_00")) {
+                p->size[1] = mLines[s.row] * kTextLine;
+                s.lay->setText("T_Base_00", mWrapped[s.row]);
+                fitText(p);
+            }
+            break;
         case PanelRow::Value:
             if (kindChanged || s.shown.label != row.label) setLabel(s.lay.get(), "T_Base_00", row.label);
             if (kindChanged) {
@@ -594,7 +638,7 @@ void CtrPanel::bindSlot(Slot& s, const PanelRow& row) {
 // a long list costs no more than a screenful).
 void CtrPanel::assignSlots() {
     const float viewTop = mScroll - 80, viewBottom = mScroll + kViewHeight + 80;
-    for (std::vector<Slot>* pool : {&mButtons, &mToggles, &mValues})
+    for (std::vector<Slot>* pool : {&mButtons, &mToggles, &mValues, &mTexts})
         for (Slot& s : *pool) {
             const bool keep = s.row >= 0 && s.row < (int)mRows.size() && mRows[s.row].kind == s.shown.kind &&
                               mRowTop[s.row] + mRowH[s.row] >= viewTop && mRowTop[s.row] <= viewBottom;
@@ -602,7 +646,9 @@ void CtrPanel::assignSlots() {
         }
     for (size_t i = 0; i < mRows.size(); i++) {
         if (mRowTop[i] + mRowH[i] < viewTop || mRowTop[i] > viewBottom) continue;
-        std::vector<Slot>& pool = mRows[i].kind == PanelRow::Button ? mButtons : mRows[i].kind == PanelRow::Toggle ? mToggles : mValues;
+        const PanelRow::Kind kind = mRows[i].kind;
+        std::vector<Slot>& pool = kind == PanelRow::Button ? mButtons : kind == PanelRow::Toggle ? mToggles :
+                                  kind == PanelRow::Text ? mTexts : mValues;
         Slot* have = nullptr;
         for (Slot& s : pool) if (s.row == (int)i) have = &s;
         if (!have) {
@@ -612,7 +658,8 @@ void CtrPanel::assignSlots() {
                 have = &pool.back();
                 switch (mRows[i].kind) {
                     case PanelRow::Button: have->lay = A.create(kArchive, "PtBtnS_Cmn_00"); break;
-                    case PanelRow::Toggle: have->lay = A.create(kArchive, "PtBtnT_Abl_00"); break;
+                    case PanelRow::Toggle:
+                    case PanelRow::Text: have->lay = A.create(kArchive, "PtBtnT_Abl_00"); break;
                     case PanelRow::Value:
                         have->lay = A.create(kArchive, "PtBtnT_Abl_00");
                         have->lay2 = A.create(kArchive, "PtBtnS_Cmn_00");
@@ -638,7 +685,9 @@ void CtrPanel::placeSlot(Slot& s) {
     paneOrigin(wrp, &wx, &wy);
     const PanelRow& row = mRows[s.row];
     const float h = row.kind == PanelRow::Button ? 40.0f : 64.0f;
-    const float cy = wy + kViewHalf - (mRowTop[s.row] + h / 2);
+    // a paragraph's text box top sits at its row top (the box is kTextBoxTop above the part's origin)
+    const float cy = row.kind == PanelRow::Text ? wy + kViewHalf - mRowTop[s.row] - kTextBoxTop
+                                                : wy + kViewHalf - (mRowTop[s.row] + h / 2);
     const float alpha = wrp->childAlpha * (row.enabled ? 1.0f : 0.5f);
     if (Pane* r = s.lay->layout().root) {
         r->translate[0] = wx;
@@ -687,7 +736,7 @@ void CtrPanel::drawBottom(Renderer& r) {
     if (scene0) r.drawPane(mBg->layout(), scene0);
     probe("p.rows");
     // rows, then the cursor, under the list wrapper
-    for (std::vector<Slot>* pool : {&mButtons, &mToggles, &mValues})
+    for (std::vector<Slot>* pool : {&mButtons, &mToggles, &mValues, &mTexts})
         for (Slot& s : *pool) {
             if (s.row < 0) continue;
             placeSlot(s);
@@ -741,6 +790,8 @@ void CtrPanel::releaseGl() {
     mButtons.clear();
     mToggles.clear();
     mValues.clear();
+    mTexts.clear();
+    mMeasure.reset();
     mBg.reset();
     mTop.reset();
     mMask.reset();

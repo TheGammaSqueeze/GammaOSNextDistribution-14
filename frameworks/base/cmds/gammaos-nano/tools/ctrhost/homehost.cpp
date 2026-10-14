@@ -220,6 +220,28 @@ int main(int argc, char** argv) {
             }
             panel.set("System Settings", rows, panelSel, 1);
             panel.show();
+        } else if (cmd == "info") {
+            // "info": an information page (Text rows, no cursor); "scroll <d>" moves it
+            rows.clear();
+            for (const char* l : {"Genre: Action, Platform", "Players: 1-4", "Released: 2016", "Developer: HAL Laboratory",
+                                  "Publisher: Nintendo", "System: Nintendo 3DS", "Size: 1.2 GB"}) {
+                PanelRow r;
+                r.kind = PanelRow::Text;
+                r.label = l;
+                rows.push_back(r);
+            }
+            PanelRow d;
+            d.kind = PanelRow::Text;
+            d.label = "Kirby is back in a brand new adventure! When a mysterious invading force mechanizes "
+                      "Planet Popstar, Kirby must fight back with the help of the Robobot Armor, a powerful "
+                      "mech that copies abilities and scans enemies to transform. Explore worlds, solve "
+                      "puzzles and battle bosses across a wide variety of stages.";
+            rows.push_back(d);
+            panel.set("Kirby Planet Robobot", rows, -1, 7);
+            panel.show();
+        } else if (cmd == "scroll") {
+            float d; ss >> d;
+            panel.scrollBy(d);
         } else if (cmd == "sel") {
             ss >> panelSel;
             panel.set("System Settings", rows, panelSel, 1);

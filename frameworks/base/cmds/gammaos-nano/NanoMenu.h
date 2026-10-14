@@ -1639,6 +1639,10 @@ private:
     bool ctrBgmAllowed();                         // no game starting or running, no media player
     bool ctrItemSwitch(const Ps3Item& it, bool* on);   // an On/Off setting row (a 3DS OFF / ON pair)
     bool ctrSliderActive() const;                      // a numeric slider dialog is open
+    bool ctrOpenOptions();                             // START: the focused title's option menu
+    bool ctrInfoDialog() const;                        // the dialog is an information page
+    bool ctrInfoActive() const;                        // and it is open
+    int mCtrInfoNav = 0;                               // info page scroll steps waiting (lines)
     void ctrSliderSet(float frac);                     // set it to a fraction of its range (touch)
     bool mCtrSliderTap = false;                        // the touch on the slider dialog began off the bar
     bool ctrSetSwitch(int itemIndex, bool on);    // sets one through nano's own chooser

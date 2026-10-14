@@ -2879,6 +2879,8 @@ void NanoMenu::pollInput() {
                         // ES-DE home: Start toggles the ES-DE options menu.
                         else if (mEsdeTheme && (mEsdeMenuActive || mEsdeMenuClosing)) esdeMenuClose();
                         else if (mEsdeTheme && mPs3Xmb && !ndsInModal() && mPs3Stack.empty()) esdeMenuOpen();
+                        // 3DS home: Start opens the focused title's options (ctrInputEvent), and closes them
+                        else if (mCtrTheme && mPs3OptActive) closeXmbOpt();
                         break;
                     case BTN_EAST: case KEY_BACK: case KEY_ESC:
                         if (mSetupWizardActive) handleSetupBack();
@@ -3055,6 +3057,7 @@ void NanoMenu::pollInput() {
                         break;
                     case BTN_TL: case KEY_L:
                         if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(-1); break; }  // DSi/Minima: previous info page
+                        if (mCtrTheme && mPs3Xmb && ctrInfoActive()) { mCtrInfoNav -= 8; mDisplayDirty = true; break; }  // 3DS: a screen up
                         if (mOskActive) {
                             oskToggleShift();
                             break;
@@ -3100,6 +3103,7 @@ void NanoMenu::pollInput() {
                         break;
                     case BTN_TR: case KEY_R:
                         if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); break; }  // DSi/Minima: next info page
+                        if (mCtrTheme && mPs3Xmb && ctrInfoActive()) { mCtrInfoNav += 8; mDisplayDirty = true; break; }  // 3DS: a screen down
                         if (mOskActive) {
                             oskToggleSym();   // R1 toggles ABC <-> SYM inside the OSK
                             break;

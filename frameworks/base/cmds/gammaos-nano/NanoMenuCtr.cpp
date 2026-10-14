@@ -227,6 +227,11 @@ public:
     }
     int mBannerVoice = 0;
 
+    const NanoMenu::Ps3Item* titleOf(const std::string& id) const {
+        auto t = mTitles.find(id);
+        return t == mTitles.end() ? nullptr : &t->second;
+    }
+
     bool launch(const ctr::HomeItem& item) override {
         auto t = mTitles.find(item.id);
         if (t == mTitles.end()) return false;
@@ -429,7 +434,11 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
             case BTN_DPAD_DOWN: case KEY_DOWN: setBit(ctr::CTR_DOWN, on); return taken();
             case BTN_DPAD_LEFT: case KEY_LEFT: setBit(ctr::CTR_LEFT, on); return taken();
             case BTN_DPAD_RIGHT: case KEY_RIGHT: setBit(ctr::CTR_RIGHT, on); return taken();
-            default: return false;   // START / SELECT / system keys stay with nano
+            case BTN_START:
+                // the focused title's options (Information, collections, ...) like the other themes'
+                if (on && ctrOpenOptions()) return taken();
+                return false;
+            default: return false;   // SELECT / system keys stay with nano
         }
     }
     if (type == EV_ABS) {
@@ -512,8 +521,7 @@ int NanoMenu::ctrModalKind() const {
     const bool other = mOskActive || mVidActive || mMpActive || mPvActive || mGSearchActive || mPs3WizActive ||
                        mPhotoMultiActive || mScrapeProgActive ||
                        mMtpActive || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
-                       ps3TopScreenKind() == PHOTO_GRID || ndsGameInfoActive() ||
-                       ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgRomInfo);
+                       ps3TopScreenKind() == PHOTO_GRID;
     if (other) return CTR_MODAL_FALLBACK;
     if (mPs3DlgActive || mPs3OptActive || mPs3TzActive || mPs3LangActive || mPs3BrightSlider || !mPs3Stack.empty())
         return CTR_MODAL_PANEL;
@@ -575,9 +583,57 @@ void NanoMenu::ctrModalUpdate() {
     const bool dlgSide = ndsDlgIsSidePanel();
     // a numeric slider is the console's progress dialog (a window with the bar), not a list
     const bool slider = ctrSliderActive();
-    const bool dlgList = mPs3DlgActive && dlgSide && !slider;
+    // an information page (a game's details, App Information, the guide): paragraphs in the panel
+    const bool info = ctrInfoActive();
+    const bool dlgList = mPs3DlgActive && dlgSide && !slider && !info;
     const bool picker = mPs3TzActive || mPs3LangActive;
-    if (picker) {
+    if (!info) mCtrInfoNav = 0;
+    if (info) {
+        auto para = [&](const std::string& text) {
+            if (text.empty()) return;
+            ctr::PanelRow r;
+            r.kind = ctr::PanelRow::Text;
+            r.label = text;
+            rows.push_back(r);
+        };
+        auto fact = [&](const char* label, const std::string& v) {
+            if (!v.empty()) para(std::string(trDyn(label)) + ": " + v);
+        };
+        if (mPs3DlgRomInfo) {
+            fact("Genre", mPs3RomInfoGenre);
+            fact("Players", mPs3RomInfoPlayers);
+            fact("Rating", mPs3RomInfoRating);
+            fact("Released", mPs3RomInfoDate);
+            fact("Developer", mPs3RomInfoDev);
+            fact("Publisher", mPs3RomInfoPub);
+            para(mPs3RomInfoSyn);
+            fact("System", mPs3RomInfoSystem);
+            fact(mPs3RomInfoCoreIsApp ? "App" : "Core", mPs3RomInfoCore);
+            fact("Size", mPs3RomInfoSize);
+            fact("File", mPs3RomInfoFileName);
+            fact("Folder", mPs3RomInfoDir);
+        } else {
+            // a text body: one paragraph per line; the column padding of "Label     value" lines
+            // (laid out for a fixed width font) becomes "Label: value"
+            const std::string body = trDyn(mPs3DlgBody.c_str());
+            size_t p = 0;
+            while (p <= body.size()) {
+                size_t q = body.find('\n', p);
+                std::string line = body.substr(p, q == std::string::npos ? std::string::npos : q - p);
+                const size_t gap = line.find("  ");
+                if (gap != std::string::npos && gap > 0) {
+                    const size_t v = line.find_first_not_of(' ', gap);
+                    if (v != std::string::npos) line = line.substr(0, gap) + ": " + line.substr(v);
+                }
+                para(line);
+                if (q == std::string::npos) break;
+                p = q + 1;
+            }
+        }
+        sel = -1;
+        title = mPs3DlgTitle.empty() ? trDyn("Information") : trDyn(mPs3DlgTitle.c_str());
+        level = ctrLevelId(6, mPs3Stack.size(), title, rows.size());
+    } else if (picker) {
         // Time Zone / System Language: a list of choices; the keys stay with nano's picker handlers
         if (mPs3TzActive) {
             for (const auto& z : mTzEntries) {
@@ -656,11 +712,14 @@ void NanoMenu::ctrModalUpdate() {
         title = trDyn(lv.title.c_str());
         level = ctrLevelId(0, mPs3Stack.size(), lv.title, rows.size());
     }
-    const bool panel = picker || mPs3OptActive || dlgList || !mPs3Stack.empty();
+    const bool panel = info || picker || mPs3OptActive || dlgList || !mPs3Stack.empty();
     mCtrHome->setTopBannerHidden(panel);
     if (panel) {
         mCtrPanel->set(title, rows, sel, level);
         mCtrPanel->show();
+        // the D-pad scrolls a page a line (24) at a time, L / R a screenful
+        if (info && mCtrInfoNav) mCtrPanel->scrollBy(24.0f * (float)mCtrInfoNav);
+        mCtrInfoNav = 0;
         mCtrPanelWasShown = true;
     } else {
         mCtrPanel->hide();
@@ -683,7 +742,7 @@ void NanoMenu::ctrModalUpdate() {
         mCtrDialog->set(std::string(), {}, 0);
         mCtrDialog->setProgress(text + num, frac);
         mCtrDialog->show();
-    } else if ((mPs3DlgActive || mPs3DlgClosing) && !dlgSide) {
+    } else if ((mPs3DlgActive || mPs3DlgClosing) && !dlgSide && !info && !(!mPs3DlgActive && ctrInfoDialog())) {
         mCtrDialog->setProgress(std::string(), -1);
         std::string text;
         if (!mPs3DlgTitle.empty()) text = trDyn(mPs3DlgTitle.c_str());
@@ -811,6 +870,35 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
             break;
     }
     return true;
+}
+
+// Opens nano's option menu for the title under the 3DS cursor: the menu takes its context from
+// the current list, so the title is offered as a one item list while it opens.
+bool NanoMenu::ctrOpenOptions() {
+    if (!mCtrHome || !mCtrHost) return false;
+    const ctr::HomeItem* h = mCtrHome->focusedTitle();
+    const Ps3Item* it = h ? mCtrHost->titleOf(h->id) : nullptr;
+    if (!it) return false;
+    Ps3Level lvl;
+    lvl.title = it->label;
+    lvl.items.push_back(*it);
+    lvl.sel = 0;
+    mPs3Stack.push_back(lvl);
+    openXmbOpt();
+    mPs3Stack.pop_back();
+    mCtrHeld = 0;   // the keys held now belong to the menu
+    mDisplayDirty = true;
+    return mPs3OptActive;
+}
+
+// A kind 0 information dialog: shown as a page of paragraphs in the panel. ctrInfoDialog() also
+// holds while one closes (the message dialog must not take it over for its fade).
+bool NanoMenu::ctrInfoDialog() const {
+    return mPs3DlgKind == 0 && (mPs3DlgRomInfo || mPs3DlgGameInfo || mPs3DlgAppInfo) && (int)mPs3DlgOptions.size() <= 1;
+}
+
+bool NanoMenu::ctrInfoActive() const {
+    return mPs3DlgActive && ctrInfoDialog();
 }
 
 bool NanoMenu::ctrSliderActive() const {

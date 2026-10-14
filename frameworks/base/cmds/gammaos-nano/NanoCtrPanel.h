@@ -26,7 +26,9 @@ namespace android {
 namespace ctr {
 
 struct PanelRow {
-    enum Kind : uint8_t { Button = 0, Toggle = 1, Value = 2 };
+    // Text: a paragraph in the header's text style, word wrapped to the panel, not selectable
+    // (information pages)
+    enum Kind : uint8_t { Button = 0, Toggle = 1, Value = 2, Text = 3 };
     Kind kind = Button;
     std::string label;   // button text, or the header of a switch / choice
     std::string value;   // the current choice (Value rows)
@@ -54,7 +56,8 @@ public:
 
     // The model, every frame while shown. `level` identifies the list: a new one starts at the
     // top with the cursor on `sel`; in the same list a moved selection moves the cursor (and
-    // scrolls it into view like the console's D-pad).
+    // scrolls it into view like the console's D-pad). A negative `sel` shows no cursor (a page
+    // that only scrolls, see scrollBy).
     void set(const std::string& title, const std::vector<PanelRow>& rows, int sel, uint64_t level);
     void show();
     void hide();
@@ -63,6 +66,8 @@ public:
     void setWidth(float bottomWidth) { mWidth = bottomWidth; }
     void setTopSize(float w, float h) { mTopW = w; mTopH = h; }
     void tick();   // one 60 Hz frame
+    // Scrolls the list by `d` units with the D-pad scroll glide (pages without a cursor).
+    void scrollBy(float d);
 
     // Touch in bottom screen layout units (origin at the centre, y up). Drags scroll the list,
     // a tap reports the row (or the close button / the dimmed area around the panel).
@@ -100,8 +105,11 @@ private:
     SoundFn mSound;
     bool mLoaded = false, mLoadFailed = false;
     std::unique_ptr<LayoutInstance> mBg, mTop, mMask, mSlider, mCursor, mClose;
-    std::vector<Slot> mButtons, mToggles, mValues;
+    std::vector<Slot> mButtons, mToggles, mValues, mTexts;
     std::vector<PanelRow> mRows;
+    std::vector<std::string> mWrapped;   // Text rows: the label wrapped to the text box
+    std::vector<int> mLines;             // and its line count
+    std::unique_ptr<LayoutInstance> mMeasure;   // a header layout the paragraphs are wrapped with
     std::vector<float> mRowTop, mRowH;   // distance below the list top, height
     std::string mTitle;
     uint64_t mLevel = ~0ull;
