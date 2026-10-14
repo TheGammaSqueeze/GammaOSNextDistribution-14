@@ -1760,10 +1760,20 @@ void CtrHome::Impl::drawIcons(Renderer& r, const Grid& g, const Box* clip) {
         if (it->kind == HomeItemKind::Folder) {
             folderIcon.layout->setVisible("N_Had_02", it->folderFilled);
             stamp(r, folderIcon, p.x, p.y);
+            // a folder the host gives an icon (a game system) shows it where the initial goes
+            static const float LETTER_SIZE[6] = {33, 33, 25.5f, 20.5f, 18.5f, 16.5f};
+            static const float LETTER_Y[6] = {-4, -4, -2, -1, -1, 1};
+            if (TexturePtr tex = titleTexture(*it)) {
+                Pane* ip = icon.layout->pane("P_Icon_00");
+                if (ip) {
+                    icon.layout->replaceTexture("P_Icon_00", tex);
+                    ip->size[0] = ip->size[1] = zoomTable(LETTER_SIZE, zoom) * 1.15f;
+                    stamp(r, icon, p.x, p.y + zoomTable(LETTER_Y, zoom));
+                }
+                continue;
+            }
             if (letter) {
                 // FolderLetter.stamp: outlined initial (icons.ts)
-                static const float LETTER_SIZE[6] = {33, 33, 25.5f, 20.5f, 18.5f, 16.5f};
-                static const float LETTER_Y[6] = {-4, -4, -2, -1, -1, 1};
                 const std::u32string init = folderInitial(it->name);
                 if (!init.empty()) {
                     Pane* tp = letter->pane("T_Icon_00");

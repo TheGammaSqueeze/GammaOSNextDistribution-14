@@ -81,6 +81,7 @@ public:
             h.name = it.label;
             if (isContainer(it.kind)) {
                 h.kind = ctr::HomeItemKind::Folder;
+                h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint;
                 mFolders[h.id] = it;
             } else {
                 h.kind = ctr::HomeItemKind::Title;
@@ -155,7 +156,14 @@ public:
     // scraped cover (when Boxart is on), else nano's system glyph.
     GLuint titleIconTexture(const ctr::HomeItem& item, int* w, int* h, IconArt* art) override {
         auto t = mTitles.find(item.id);
-        if (t == mTitles.end()) return 0;
+        if (t == mTitles.end()) {
+            // a game system's folder shows the system's icon instead of its initial
+            auto f = mFolders.find(item.id);
+            if (f == mFolders.end() || f->second.kind != NanoMenu::PS3_SYSTEM || !f->second.iconTex) return 0;
+            *w = *h = 48;
+            art->mono = item.monoIcon;
+            return f->second.iconTex;
+        }
         const NanoMenu::Ps3Item& it = t->second;
         if (it.kind == NanoMenu::PS3_APP) return 0;   // decoded from the icon cache (titleIcon)
         const std::string rom = romPathOf(it);
