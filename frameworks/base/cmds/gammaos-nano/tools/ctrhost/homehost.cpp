@@ -9,6 +9,7 @@
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
 
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <algorithm>
@@ -231,6 +232,22 @@ int main(int argc, char** argv) {
             if (n > 1) b.push_back("No");
             dialog.set("Delete this folder?\n\nThe games inside stay on the SD card.", b, 0);
             dialog.show();
+        } else if (cmd == "slider") {
+            // "slider <fraction>": a numeric slider as the progress dialog
+            float f; ss >> f;
+            char num[16];
+            snprintf(num, sizeof(num), "%d", (int)lroundf(f * 100));
+            dialog.set("", {}, 0);
+            dialog.setProgress(std::string("Brightness\n\n") + num, f);
+            dialog.show();
+        } else if (cmd == "drag") {
+            // "drag <x> <y>": a touch on the slider bar (bottom screen pixels), prints the fraction
+            float x, y; ss >> x >> y;
+            const float lx = x - home.bottomWidth() / 2, ly = 120 - y;
+            const float f = dialog.progressTouch(true, false, false, lx, ly);
+            fprintf(stderr, "drag %.0f,%.0f -> %.3f\n", x, y, f);
+            dialog.progressTouch(false, false, true, lx, ly);
+            if (f >= 0) dialog.setProgress("Brightness\n\nset", f);
         } else if (cmd == "undialog") {
             dialog.hide(true);
         } else if (cmd == "home") {

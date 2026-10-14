@@ -513,7 +513,7 @@ int NanoMenu::ctrModalKind() const {
                        mPs3BrightSlider || mPhotoMultiActive || mScrapeProgActive ||
                        mMtpActive || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
                        ps3TopScreenKind() == PHOTO_GRID || ndsGameInfoActive() ||
-                       ((mPs3DlgActive || mPs3DlgClosing) && (mPs3DlgRomInfo || (mPs3DlgSlider && mPs3DlgOptions.empty())));
+                       ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgRomInfo);
     if (other) return CTR_MODAL_FALLBACK;
     if (mPs3DlgActive || mPs3OptActive || mPs3TzActive || mPs3LangActive || !mPs3Stack.empty()) return CTR_MODAL_PANEL;
     return CTR_MODAL_NONE;
@@ -572,7 +572,9 @@ void NanoMenu::ctrModalUpdate() {
     uint64_t level = 0;
     // a list-style dialog (a chooser) shows as the panel while it is open; a closing one is gone
     const bool dlgSide = ndsDlgIsSidePanel();
-    const bool dlgList = mPs3DlgActive && dlgSide;
+    // a numeric slider is the console's progress dialog (a window with the bar), not a list
+    const bool slider = ctrSliderActive();
+    const bool dlgList = mPs3DlgActive && dlgSide && !slider;
     const bool picker = mPs3TzActive || mPs3LangActive;
     if (picker) {
         // Time Zone / System Language: a list of choices; the keys stay with nano's picker handlers
@@ -664,7 +666,17 @@ void NanoMenu::ctrModalUpdate() {
         mCtrPanelWasShown = false;
     }
     // ---- the message dialog (confirmations, notices) over everything ----
-    if ((mPs3DlgActive || mPs3DlgClosing) && !dlgSide) {
+    if (slider) {
+        const float span = mPs3DlgSldMax - mPs3DlgSldMin;
+        const float frac = span > 0 ? std::clamp((mPs3DlgSldVal - mPs3DlgSldMin) / span, 0.0f, 1.0f) : 0.0f;
+        char num[32];
+        snprintf(num, sizeof(num), "%.*f", std::clamp(mPs3DlgSldScale, 0, 4), mPs3DlgSldVal);
+        std::string text = mPs3DlgTitle.empty() ? std::string() : std::string(trDyn(mPs3DlgTitle.c_str())) + "\n\n";
+        mCtrDialog->set(std::string(), {}, 0);
+        mCtrDialog->setProgress(text + num, frac);
+        mCtrDialog->show();
+    } else if ((mPs3DlgActive || mPs3DlgClosing) && !dlgSide) {
+        mCtrDialog->setProgress(std::string(), -1);
         std::string text;
         if (!mPs3DlgTitle.empty()) text = trDyn(mPs3DlgTitle.c_str());
         if (!mPs3DlgBody.empty()) text += (text.empty() ? "" : "\n\n") + std::string(trDyn(mPs3DlgBody.c_str()));
@@ -685,6 +697,18 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
         if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
         mDisplayDirty = true;
     };
+    // a slider: drag the bar; a tap anywhere else keeps the value (A), like the notices
+    if (ctrSliderActive() && mCtrDialog->active()) {
+        const float f = mCtrDialog->progressTouch(down, held, up, x, y);
+        if (down) mCtrSliderTap = f < 0;
+        if (f >= 0) ctrSliderSet(f);
+        else if (up && mCtrSliderTap) {
+            mCtrSliderTap = false;
+            ps3XmbSelect();
+            launched();
+        }
+        return true;
+    }
     // the dialog is in front
     if (mCtrDialog->active() && (mPs3DlgActive || mPs3DlgClosing) && !ndsDlgIsSidePanel()) {
         const int b = mCtrDialog->touch(down, up, x, y);
@@ -759,6 +783,27 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
             break;
     }
     return true;
+}
+
+bool NanoMenu::ctrSliderActive() const {
+    return mPs3DlgActive && mPs3DlgKind == 1 && mPs3DlgSlider && mPs3DlgOptions.empty();
+}
+
+// Sets the open slider to a fraction of its range on its step grid, with the same live previews
+// as the D-pad steps (screen calibration, shader parameters).
+void NanoMenu::ctrSliderSet(float frac) {
+    if (mPs3DlgSldStep <= 0.0f || mPs3DlgSldMax <= mPs3DlgSldMin) return;
+    float v = mPs3DlgSldMin + std::clamp(frac, 0.0f, 1.0f) * (mPs3DlgSldMax - mPs3DlgSldMin);
+    v = mPs3DlgSldMin + roundf((v - mPs3DlgSldMin) / mPs3DlgSldStep) * mPs3DlgSldStep;
+    v = std::clamp(v, mPs3DlgSldMin, mPs3DlgSldMax);
+    if (v == mPs3DlgSldVal) return;
+    mPs3DlgSldVal = v;
+    mDisplayDirty = true;
+    screenCalSliderPreview();
+    if (mShaderParamEdit >= 0 && mShaderParamEdit < (int)mShaderParams.size()) {
+        mShaderParams[mShaderParamEdit].cur = v;
+        shaderApplyParamLive(mShaderParamEdit);
+    }
 }
 
 bool NanoMenu::ctrItemSwitch(const Ps3Item& it, bool* on) {

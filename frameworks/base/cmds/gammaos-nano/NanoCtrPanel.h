@@ -137,6 +137,14 @@ public:
     void hide(bool cancel);
     bool active() const { return mPhase != Hidden; }
     void tick();
+    // A progress body in place of the message: the console's progress dialog (DlgProgBar_00 with
+    // its text and the ProgBar, ProgStart seeked to `fraction`, boot.ts BootProgressScene) under
+    // the window's N_Obj_00. nano's numeric sliders show as it. A negative fraction removes it.
+    void setProgress(const std::string& text, float fraction);
+    bool hasProgress() const { return mProgFrac >= 0; }
+    // A touch on the progress bar: the fraction under the finger while a touch that started on
+    // the bar is held (the finger may drift off it), else -1.
+    float progressTouch(bool down, bool held, bool up, float x, float y);
     // Index of the button under a tap (-1 none, -2 outside the window).
     int touch(bool down, bool up, float x, float y);
     void drawBottom(Renderer& r);
@@ -146,9 +154,16 @@ public:
 private:
     enum Phase { Hidden, Opening, Shown, Closing };
     bool load(int buttons);
+    void placeProgress();
+    bool barSpan(float* left, float* right, float* bottom, float* top) const;
     Assets& A;
     SoundFn mSound;
     std::unique_ptr<LayoutInstance> mLay, mMaskTop, mMaskBottom;
+    std::unique_ptr<LayoutInstance> mProg, mBar;   // progress body (sequence/DlgProgBar_00, progbar/ProgBar)
+    Animator* mBarClip = nullptr;
+    std::string mProgText;
+    float mProgFrac = -1;
+    bool mProgDrag = false;
     int mLayButtons = -1;
     std::string mText;
     std::vector<std::string> mButtonText;

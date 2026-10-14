@@ -813,6 +813,80 @@ void CtrDialog::set(const std::string& text, const std::vector<std::string>& but
     }
 }
 
+void CtrDialog::setProgress(const std::string& text, float fraction) {
+    if (fraction < 0) {
+        mProgFrac = -1;
+        mProgDrag = false;
+        return;
+    }
+    if (!mProg) {
+        mProg = A.create("sequence", "DlgProgBar_00");
+        mBar = A.create("progbar", "ProgBar");
+        mBarClip = nullptr;
+        mProgText.clear();
+        if (mBar) {
+            PlayOptions o;
+            o.loop = 0;
+            o.paused = true;
+            mBarClip = mBar->play("ProgStart", o);
+        }
+    }
+    if (!mProg || !mBar) return;
+    fraction = std::min(fraction, 1.0f);
+    if (text != mProgText) {
+        mProgText = text;
+        Pane* body = mProg->pane("T_00");
+        mProg->setText("T_00", wrapText(body, text));
+        fitText(body);
+    }
+    if (fraction != mProgFrac) {
+        mProgFrac = fraction;
+        // ProgStart is two frames long: frame 0 empty, frame 1 full (boot.ts seeks it to the fraction)
+        if (mBarClip) mBarClip->seek(fraction);
+        mBar->refresh();
+    }
+}
+
+void CtrDialog::placeProgress() {
+    // hung under the window's N_Obj_00 (dialog.ts content) and the bar under N_ProgBar, so both
+    // follow the window's fades
+    Pane* obj = mLay ? mLay->pane("N_Obj_00") : nullptr;
+    Pane* root = mProg ? mProg->layout().root : nullptr;
+    if (!obj || !root) return;
+    root->parent = obj;
+    mProg->layout().calculate();
+    Pane* slot = mProg->pane("N_ProgBar");
+    Pane* barRoot = mBar ? mBar->layout().root : nullptr;
+    if (!slot || !barRoot) return;
+    barRoot->parent = slot;
+    mBar->layout().calculate();
+}
+
+bool CtrDialog::barSpan(float* left, float* right, float* bottom, float* top) const {
+    Pane* p = mBar ? mBar->pane("P_ProgBar_00") : nullptr;
+    if (!p) return false;
+    float px, py, l, t, r, b;
+    paneOrigin(p, &px, &py);
+    p->rect(&l, &t, &r, &b);
+    *left = px + l;
+    *right = px + r;
+    *top = py + t;
+    *bottom = py + b;
+    return *right > *left;
+}
+
+float CtrDialog::progressTouch(bool down, bool held, bool up, float x, float y) {
+    if (mPhase != Shown || mProgFrac < 0) { mProgDrag = false; return -1; }
+    float l, r, b, t;
+    if (!barSpan(&l, &r, &b, &t)) return -1;
+    // the bar is 16 units tall: a finger gets a band twice that around it
+    const float slack = 16;
+    if (down) mProgDrag = x >= l - slack && x <= r + slack && y >= b - slack && y <= t + slack;
+    if (up) { const bool was = mProgDrag; mProgDrag = false; if (!was) return -1; }
+    if (!mProgDrag || !(down || held || up)) return -1;
+    return std::clamp((x - l) / (r - l), 0.0f, 1.0f);
+}
+
 void CtrDialog::show() {
     if (!mLay || mPhase == Opening || mPhase == Shown) return;
     PlayOptions o;
@@ -842,6 +916,7 @@ void CtrDialog::tick() {
     if (mPhase == Opening && mPhaseFrame >= kFadeInFrames) mPhase = Shown;
     if (mPhase == Closing && mPhaseFrame >= kFadeInFrames) { mPhase = Hidden; return; }
     for (LayoutInstance* l : {mLay.get(), mMaskTop.get(), mMaskBottom.get()}) if (l) l->update(1);
+    if (mProgFrac >= 0 && mProg) mProg->update(1);
 }
 
 int CtrDialog::touch(bool down, bool up, float x, float y) {
@@ -881,6 +956,11 @@ void CtrDialog::drawBottom(Renderer& r) {
     }
     mLay->layout().calculate();
     r.drawLayout(mLay->layout());
+    if (mProgFrac >= 0 && mProg && mBar) {
+        placeProgress();
+        r.drawLayout(mProg->layout());
+        r.drawLayout(mBar->layout());
+    }
 }
 
 void CtrDialog::drawTop(Renderer& r) {
@@ -891,6 +971,13 @@ void CtrDialog::drawTop(Renderer& r) {
 }
 
 void CtrDialog::releaseGl() {
+    // the progress layouts point into mLay (their roots' hosts): they go first
+    mBar.reset();
+    mProg.reset();
+    mBarClip = nullptr;
+    mProgText.clear();
+    mProgFrac = -1;
+    mProgDrag = false;
     mLay.reset();
     mMaskTop.reset();
     mMaskBottom.reset();

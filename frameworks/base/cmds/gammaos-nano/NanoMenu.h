@@ -1638,6 +1638,9 @@ private:
     void ctrLeave();                              // the theme is switched away from: audio off, GL freed
     bool ctrBgmAllowed();                         // no game starting or running, no media player
     bool ctrItemSwitch(const Ps3Item& it, bool* on);   // an On/Off setting row (a 3DS OFF / ON pair)
+    bool ctrSliderActive() const;                      // a numeric slider dialog is open
+    void ctrSliderSet(float frac);                     // set it to a fraction of its range (touch)
+    bool mCtrSliderTap = false;                        // the touch on the slider dialog began off the bar
     bool ctrSetSwitch(int itemIndex, bool on);    // sets one through nano's own chooser
     bool ctrSwitchKey(int type, int code, int value);  // LEFT / RIGHT / A on a switch row
     bool mCtrSwitchKeyHeld = false;
