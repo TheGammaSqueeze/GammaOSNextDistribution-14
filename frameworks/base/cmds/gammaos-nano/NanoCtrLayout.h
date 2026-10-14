@@ -76,6 +76,14 @@ public:
     GLuint atlas() const { return mAtlas; }
     // CPU copy of a glyph cell's coverage (cellWidth + 2) x (cellHeight + 2), border included.
     bool cellAlpha(const Glyph* g, std::vector<uint8_t>& out) const;
+    // The atlas holds distance fields kSdfScale times the cell size (the console's bitmap glyphs
+    // stay sharp at any magnification; the text shader turns the distance into coverage).
+    static constexpr int kSdfScale = 2;
+    static constexpr float kSdfRange = 4;   // distance (upsampled pixels) from the edge to 0 / 255
+    bool sdf() const { return true; }
+    // A glyph cell's distance field ((cellWidth + 2) x (cellHeight + 2) times `scale`): 128 on the
+    // glyph's edge, more inside.
+    bool cellSdf(const Glyph* g, int scale, std::vector<uint8_t>& out) const;
     // Bumped when the atlas was cleared to make room; cached text geometry must be rebuilt.
     uint32_t generation() const { return mGeneration; }
     void releaseGl();
@@ -448,8 +456,8 @@ private:
     void drawText(Layout& L, Pane* p);
     int writeQuad(int index, float l, float t, float r, float b, const Rgba* colors, const QuadUv* const* uvSets);
     void submit(const Pane* p, const Material& m, int quads, const TexturePtr* tex, int texCount,
-                const TexMap* samplers, const TexSrt* srts, int srtCount, GLuint glyphAtlas = 0);
-    ProgramInfo* program(const Material& m, int textureCount);
+                const TexMap* samplers, const TexSrt* srts, int srtCount, GLuint glyphAtlas = 0, bool glyphSdf = false);
+    ProgramInfo* program(const Material& m, int textureCount, bool sdf = false);
     void applyBlend(int key, GLenum eq, GLenum src, GLenum dst);
     void flush();
 

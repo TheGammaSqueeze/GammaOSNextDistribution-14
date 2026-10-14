@@ -1092,16 +1092,75 @@ bool Font::cellAlpha(const Glyph* g, std::vector<uint8_t>& out) const {
     return true;
 }
 
+// The distance field of a coverage image: upsampled `scale` times (bilinear), the 50 % contour
+// as the edge, distances by a two pass 3-4 chamfer (within a few percent of Euclidean), mapped to
+// 0..255 with 128 on the edge and Font::kSdfRange upsampled pixels to either end.
+static void glyphSdf(const uint8_t* cov, int w, int h, int scale, std::vector<uint8_t>* out) {
+    const int W = w * scale, H = h * scale;
+    std::vector<uint8_t> up((size_t)W * H);
+    for (int y = 0; y < H; y++) {
+        const float sy = (y + 0.5f) / scale - 0.5f;
+        const int y0 = std::clamp((int)floorf(sy), 0, h - 1), y1 = std::min(y0 + 1, h - 1);
+        const float fy = std::clamp(sy - y0, 0.0f, 1.0f);
+        for (int x = 0; x < W; x++) {
+            const float sx = (x + 0.5f) / scale - 0.5f;
+            const int x0 = std::clamp((int)floorf(sx), 0, w - 1), x1 = std::min(x0 + 1, w - 1);
+            const float fx = std::clamp(sx - x0, 0.0f, 1.0f);
+            const float a = (cov[y0 * w + x0] * (1 - fx) + cov[y0 * w + x1] * fx) * (1 - fy) +
+                            (cov[y1 * w + x0] * (1 - fx) + cov[y1 * w + x1] * fx) * fy;
+            up[(size_t)y * W + x] = (uint8_t)lroundf(a);
+        }
+    }
+    const int INF = 1 << 20;
+    // dist[0]: to the nearest outside pixel (for inside ones), dist[1]: to the nearest inside one
+    std::vector<int> dist[2] = {std::vector<int>((size_t)W * H), std::vector<int>((size_t)W * H)};
+    for (int k = 0; k < 2; k++) {
+        std::vector<int>& d = dist[k];
+        for (int i = 0; i < W * H; i++) {
+            const bool inside = up[i] >= 128;
+            d[i] = (inside == (k == 1)) ? 0 : INF;   // k 0: outside pixels are the targets
+        }
+        auto relax = [&](int x, int y, int dx, int dy, int c) {
+            const int nx = x + dx, ny = y + dy;
+            if (nx < 0 || ny < 0 || nx >= W || ny >= H) return;
+            int& v = d[(size_t)y * W + x];
+            const int n = d[(size_t)ny * W + nx] + c;
+            if (n < v) v = n;
+        };
+        for (int y = 0; y < H; y++)
+            for (int x = 0; x < W; x++) {
+                relax(x, y, -1, 0, 3); relax(x, y, -1, -1, 4); relax(x, y, 0, -1, 3); relax(x, y, 1, -1, 4);
+            }
+        for (int y = H - 1; y >= 0; y--)
+            for (int x = W - 1; x >= 0; x--) {
+                relax(x, y, 1, 0, 3); relax(x, y, 1, 1, 4); relax(x, y, 0, 1, 3); relax(x, y, -1, 1, 4);
+            }
+    }
+    out->resize((size_t)W * H);
+    for (int i = 0; i < W * H; i++) {
+        const bool inside = up[i] >= 128;
+        const float sd = inside ? dist[0][i] / 3.0f - 0.5f : -(dist[1][i] / 3.0f - 0.5f);
+        (*out)[i] = (uint8_t)std::clamp(lroundf(128 + sd * 127 / Font::kSdfRange), 0L, 255L);
+    }
+}
+
+bool Font::cellSdf(const Glyph* g, int scale, std::vector<uint8_t>& out) const {
+    std::vector<uint8_t> cov;
+    if (!cellAlpha(g, cov)) return false;
+    glyphSdf(cov.data(), cellWidth + 2, cellHeight + 2, scale, &out);
+    return true;
+}
+
 bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
     if (!g || mGlyphs.empty()) return false;
     const Imported* im = imported(g);
     // atlas key: the table index, or the code point (high bit set) for a borrowed glyph
     const uint32_t key = im ? (0x80000000u | g->code) : (uint32_t)(g - mGlyphs.data());
     if (!mAtlas) {
-        mSlotW = cellWidth + 2;
-        mSlotH = cellHeight + 2;
+        mSlotW = (cellWidth + 2) * kSdfScale;
+        mSlotH = (cellHeight + 2) * kSdfScale;
         // enough slots for a few hundred distinct glyphs; small fonts get a small atlas
-        mAtlasSize = mCount <= 128 ? 256 : 1024;
+        mAtlasSize = mCount <= 128 ? 512 : 1024;
         mCols = mAtlasSize / mSlotW;
         mRows = mAtlasSize / mSlotH;
         glGenTextures(1, &mAtlas);
@@ -1134,7 +1193,7 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
         slot = mNext++;
         mSlots.emplace(key, slot);
         // decode the bordered cell (the packer stored its sheet surround) into L, A pairs
-        const int w = mSlotW, h = mSlotH;
+        const int w = cellWidth + 2, h = cellHeight + 2;
         mScratch.assign((size_t)w * h * 2, 0);
         const uint8_t* src = im ? nullptr : mBitmaps + mBitmapStride * key;
         for (int y = 0; y < h; y++) {
@@ -1157,19 +1216,31 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
                 d[1] = A;
             }
         }
+        // the alpha becomes the cell's distance field at kSdfScale; the luminance is scaled along
+        std::vector<uint8_t> cov((size_t)w * h), field;
+        for (int i = 0; i < w * h; i++) cov[i] = mScratch[(size_t)i * 2 + 1];
+        glyphSdf(cov.data(), w, h, kSdfScale, &field);
+        const int W = w * kSdfScale, H = h * kSdfScale;
+        std::vector<uint8_t> la((size_t)W * H * 2);
+        for (int y = 0; y < H; y++)
+            for (int x = 0; x < W; x++) {
+                const size_t o = (size_t)y * W + x;
+                la[o * 2] = mScratch[((size_t)(y / kSdfScale) * w + x / kSdfScale) * 2];
+                la[o * 2 + 1] = field[o];
+            }
         const int sx = (slot % mCols) * mSlotW, sy = (slot / mCols) * mSlotH;
         glBindTexture(GL_TEXTURE_2D, mAtlas);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, sx, sy, w, h, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, mScratch.data());
+        glTexSubImage2D(GL_TEXTURE_2D, 0, sx, sy, W, H, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, la.data());
         gTextureEpoch++;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     }
-    const int sx = (slot % mCols) * mSlotW + 1, sy = (slot / mCols) * mSlotH + 1;
+    const int sx = (slot % mCols) * mSlotW + kSdfScale, sy = (slot / mCols) * mSlotH + kSdfScale;
     const float inv = 1.0f / mAtlasSize;
     *u0 = sx * inv;
     *v0 = sy * inv;
-    *u1 = (sx + g->glyphWidth) * inv;
-    *v1 = (sy + cellHeight) * inv;
+    *u1 = (sx + g->glyphWidth * kSdfScale) * inv;
+    *v1 = (sy + cellHeight * kSdfScale) * inv;
     return true;
 }
 

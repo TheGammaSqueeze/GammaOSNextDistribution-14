@@ -216,8 +216,12 @@ void CtrTop::focus(const TopFocus& f) {
 void CtrTop::rasterPlate(const std::string& text, float size, const std::vector<float>& offsets,
                          std::vector<uint8_t>* outPx, std::vector<float>* overflow) {
     const int W = kPlateW, H = kPlateH;
-    const float SX = 0.84f, SY = 0.65f;
     std::shared_ptr<Font> font = mAssets.font("cbf_std");
+    // the console draws a title's name into the plate through BnrDsTitle_00's T_Title_00: font
+    // size 15.5 x 18.6 against the font's own width and height (its natural proportions; the
+    // 0.84 x 0.65 measured on the applets' baked placeholders drew titles a quarter too wide)
+    const float SX = font && font->width > 0 ? 15.5f / font->width : 0.6f;
+    const float SY = font && font->height > 0 ? 18.6f / font->height : 0.62f;
     std::vector<uint8_t> ink((size_t)W * H, 0);
     if (font) {
         std::vector<std::u32string> lines;
@@ -227,7 +231,7 @@ void CtrTop::rasterPlate(const std::string& text, float size, const std::vector<
         }
         lines.push_back(cur);
         std::vector<float> adv;
-        const float scale = size;   // one size for every name (a long one scrolls)
+        const float scale = size * kPlateRes;   // one size for every name (a long one scrolls)
         if (overflow) overflow->clear();
         for (const auto& l : lines) {
             float a = 0;
@@ -237,8 +241,11 @@ void CtrTop::rasterPlate(const std::string& text, float size, const std::vector<
         }
         const float lineHeight = font->cellHeight * SY * scale;
         float top = (H - lineHeight * lines.size()) / 2;
-        std::vector<uint8_t> cell;
-        const int cw = font->cellWidth + 2, ch = font->cellHeight + 2;
+        // glyphs from their distance fields (Font::cellSdf at kPlateSdf), so the plate is sharp at
+        // its doubled size and when the 3D pass magnifies it
+        const int cw = (font->cellWidth + 2) * kPlateSdf, ch = (font->cellHeight + 2) * kPlateSdf;
+        const float texelsPerPixel = font->cellHeight * kPlateSdf / std::max(lineHeight, 1.0f);
+        if (mPlateSdf.size() > 256) mPlateSdf.clear();
         for (size_t li = 0; li < lines.size(); li++) {
             const bool fits = adv[li] * scale <= W - 2 * kPlateMargin;
             float x = fits ? (W - adv[li] * scale) / 2 : kPlateMargin - (li < offsets.size() ? offsets[li] : 0.0f);
@@ -247,23 +254,33 @@ void CtrTop::rasterPlate(const std::string& text, float size, const std::vector<
                 if (!g) continue;
                 const float gw = g->glyphWidth * SX * scale;
                 const float gx = x + g->left * SX * scale;
-                if (g->glyphWidth > 0 && font->cellAlpha(g, cell)) {
-                    // bilinear resample of the glyph cell (glyphWidth x cellHeight) into the box
+                auto found = mPlateSdf.find(g);
+                if (found == mPlateSdf.end()) {
+                    std::vector<uint8_t> f;
+                    if (!font->cellSdf(g, kPlateSdf, f)) f.clear();
+                    found = mPlateSdf.emplace(g, std::move(f)).first;
+                }
+                const std::vector<uint8_t>& cell = found->second;
+                if (g->glyphWidth > 0 && !cell.empty()) {
+                    // the glyph's distance field over the box, one screen pixel of edge
                     const int x0 = std::max(0, (int)floorf(gx)), x1 = std::min(W, (int)ceilf(gx + gw));
                     const int y0 = std::max(0, (int)floorf(top)), y1 = std::min(H, (int)ceilf(top + lineHeight));
                     for (int py = y0; py < y1; py++) {
                         const float v = ((py + 0.5f) - top) / lineHeight * font->cellHeight - 0.5f + 1;
                         for (int px = x0; px < x1; px++) {
-                            const float u = ((px + 0.5f) - gx) / gw * g->glyphWidth - 0.5f + 1;
-                            const int iu = (int)floorf(u), iv = (int)floorf(v);
-                            const float fu = u - iu, fv = v - iv;
+                            const float u0 = ((px + 0.5f) - gx) / gw * g->glyphWidth - 0.5f + 1;
+                            const float u = (u0 + 0.5f) * kPlateSdf - 0.5f, vv = (v + 0.5f) * kPlateSdf - 0.5f;
+                            const int iu = (int)floorf(u), iv = (int)floorf(vv);
+                            const float fu = u - iu, fv = vv - iv;
                             auto at = [&](int xx, int yy) -> float {
                                 xx = std::clamp(xx, 0, cw - 1);
                                 yy = std::clamp(yy, 0, ch - 1);
                                 return cell[(size_t)yy * cw + xx];
                             };
-                            const float a = (at(iu, iv) * (1 - fu) + at(iu + 1, iv) * fu) * (1 - fv) +
+                            const float f = (at(iu, iv) * (1 - fu) + at(iu + 1, iv) * fu) * (1 - fv) +
                                             (at(iu, iv + 1) * (1 - fu) + at(iu + 1, iv + 1) * fu) * fv;
+                            const float sd = (f - 128) / 127 * Font::kSdfRange / texelsPerPixel;
+                            const float a = 255 * std::clamp(0.5f + sd, 0.0f, 1.0f);
                             uint8_t& d = ink[(size_t)py * W + px];
                             d = (uint8_t)std::min(255.0f, d + a * (1 - d / 255.0f));
                         }

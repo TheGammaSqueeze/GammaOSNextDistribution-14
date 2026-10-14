@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "NanoCtr3d.h"
@@ -106,8 +107,10 @@ private:
     float mBaseFovY = 0.5235988f;   // BannerCamera's vertical field of view at the design height
     std::shared_ptr<GpuTex> mPlate;
     // the name plate's marquee (a name too long for the plate scrolls at the one font size)
-    static constexpr int kPlateW = 256, kPlateH = 64;
-    static constexpr float kPlateMargin = 4, kMarqueeSpeed = 0.5f, kMarqueeHold = 90;
+    // the plate is drawn at kPlateRes times DmyText_00's 256 x 64 (the model samples it 0..1)
+    static constexpr int kPlateRes = 2, kPlateW = 256 * kPlateRes, kPlateH = 64 * kPlateRes, kPlateSdf = 4;
+    static constexpr float kPlateMargin = 4 * kPlateRes, kMarqueeSpeed = 0.5f * kPlateRes, kMarqueeHold = 90;
+    std::unordered_map<const Glyph*, std::vector<uint8_t>> mPlateSdf;   // glyph distance fields
     std::string mPlateText;
     float mPlateSize = 1;
     int mPlateFrame = 0;

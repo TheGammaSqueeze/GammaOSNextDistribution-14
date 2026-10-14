@@ -119,9 +119,14 @@ static std::string combine(const TevCombiner& c, const std::string* a, bool vec3
     return a[0];
 }
 
-static std::string fragmentShader(const Material& m, int texCount) {
+// `sdf`: texture 0 is a glyph atlas of distance fields (Font::sdf): its alpha becomes the glyph's
+// coverage with an edge one screen pixel wide, so the console's small bitmap glyphs stay sharp
+// however far a panel magnifies them.
+static bool sDerivatives = false;   // GL_OES_standard_derivatives (fwidth)
+
+static std::string fragmentShader(const Material& m, int texCount, bool sdf) {
     texCount = std::min(texCount, 3);
-    std::string s =
+    std::string s = std::string(sdf && sDerivatives ? "#extension GL_OES_standard_derivatives : enable\n" : "") +
         // colour math at mediump (the combiners are 8 bit; fp16 runs at twice the rate on mobile
         // GPUs), texture coordinates at highp so tiling and wrap stay texel exact
         "#ifdef GL_FRAGMENT_PRECISION_HIGH\n#define HP highp\n#else\n#define HP mediump\n#endif\nprecision mediump float;\n"
@@ -131,6 +136,10 @@ static std::string fragmentShader(const Material& m, int texCount) {
         "void main() {\n";
     for (int i = 0; i < texCount; i++)
         s += "  vec4 tex" + std::to_string(i) + " = texture2D(u_tex" + std::to_string(i) + ", v_uv" + std::to_string(i) + ");\n";
+    if (sdf && texCount > 0) {
+        s += sDerivatives ? "  float sdfW = clamp(fwidth(tex0.a) * 0.7, 0.01, 0.25);\n" : "  float sdfW = 0.06;\n";
+        s += "  tex0.a = smoothstep(0.5 - sdfW, 0.5 + sdfW, tex0.a);\n";
+    }
     if (m.stages.empty()) {
         s += std::string("  vec4 tex = ") + (texCount > 0 ? "tex0" : "vec4(1.0)") + ";\n";
         s += "  vec4 result = mix(u_buffer, u_konst[0], tex) * v_color;\n";
@@ -228,13 +237,19 @@ bool Renderer::init() {
     return true;
 }
 
-ProgramInfo* Renderer::program(const Material& m, int textureCount) {
-    const std::string key = m.shaderKeyText + "#" + std::to_string(textureCount);
+ProgramInfo* Renderer::program(const Material& m, int textureCount, bool sdf) {
+    const std::string key = m.shaderKeyText + "#" + std::to_string(textureCount) + (sdf ? "s" : "");
     auto it = mPrograms.find(key);
     if (it != mPrograms.end()) return it->second.get();
+    static bool checked = false;
+    if (!checked) {
+        checked = true;
+        const char* ext = (const char*)glGetString(GL_EXTENSIONS);
+        sDerivatives = ext && strstr(ext, "GL_OES_standard_derivatives");
+    }
     auto info = std::make_unique<ProgramInfo>();
     GLuint vs = compile(GL_VERTEX_SHADER, kVertexShader);
-    GLuint fs = compile(GL_FRAGMENT_SHADER, fragmentShader(m, textureCount));
+    GLuint fs = compile(GL_FRAGMENT_SHADER, fragmentShader(m, textureCount, sdf));
     if (vs && fs) {
         GLuint p = glCreateProgram();
         glAttachShader(p, vs);
@@ -758,9 +773,9 @@ void Renderer::applyBlend(int key, GLenum eq, GLenum src, GLenum dst) {
 }
 
 void Renderer::submit(const Pane* p, const Material& m, int quads, const TexturePtr* tex, int texCount,
-                      const TexMap* samplers, const TexSrt* srts, int srtCount, GLuint glyphAtlas) {
+                      const TexMap* samplers, const TexSrt* srts, int srtCount, GLuint glyphAtlas, bool glyphSdf) {
     if (quads <= 0) return;
-    ProgramInfo* prog = program(m, texCount);
+    ProgramInfo* prog = program(m, texCount, glyphAtlas != 0 && glyphSdf);
     if (!prog || !prog->program) return;
     mCmds.emplace_back();
     DrawCmd& c = mCmds.back();
@@ -1051,11 +1066,11 @@ void Renderer::drawText(Layout& L, Pane* p) {
         uv = boxQuad(q.u0, q.v0, q.u1, q.v1);
         n = writeQuad(n, q.l, q.t, q.r, q.b, cols, sets);
         if (n >= kMaxQuads) {
-            submit(p, m, n, none, 1, &glyphSampler, nullptr, 0, f.atlas());
+            submit(p, m, n, none, 1, &glyphSampler, nullptr, 0, f.atlas(), f.sdf());
             n = 0;
         }
     }
-    submit(p, m, n, none, 1, &glyphSampler, nullptr, 0, f.atlas());
+    submit(p, m, n, none, 1, &glyphSampler, nullptr, 0, f.atlas(), f.sdf());
 }
 
 }  // namespace ctr
