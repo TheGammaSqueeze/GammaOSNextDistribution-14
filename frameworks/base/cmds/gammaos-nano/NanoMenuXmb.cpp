@@ -492,19 +492,18 @@ void NanoMenu::applyRomNameOverrides(std::vector<std::string>& roms,
     if (displayNames.empty()) buildRomDisplayNames(roms, displayNames);
     size_t n = roms.size() < displayNames.size() ? roms.size() : displayNames.size();
     for (size_t i = 0; i < n; i++) {
-        // Priority: a manual Rename/Edit Title wins; otherwise, once a game has been scraped, show its
-        // matched title instead of the ROM filename; otherwise keep the scanned basename. Games with
-        // no Display Name therefore keep the file name and sort alongside the named ones below.
+        // Priority: a manual Rename/Edit Title wins; then, in the DSi and 3DS themes with Titles From
+        // ROM on (persist.gammaos.nano.nds.romtitle), a DS game's title from its cartridge banner;
+        // then, once a game has been scraped, its matched title; otherwise the scanned basename.
+        // Games with no Display Name therefore keep the file name and sort alongside the named ones.
         const std::string* ov = romNameOverrideFor(roms[i]);
         if (ov && !ov->empty()) { displayNames[i] = *ov; continue; }
-        const ScrapeEntry* se = scrapeEntryFor(roms[i]);
-        if (se && !se->title.empty()) { displayNames[i] = se->title; continue; }
-        // DSi and 3DS themes: the title from the DS cartridge's own banner, when the user has
-        // not named the game and it has not been scraped (persist.gammaos.nano.nds.romtitle).
         if ((mNdsTheme || mCtrTheme) && ndsRomTitleEnabled()) {
             const std::string bt = ndsBannerTitleFor(roms[i]);
-            if (!bt.empty()) displayNames[i] = bt;
+            if (!bt.empty()) { displayNames[i] = bt; continue; }
         }
+        const ScrapeEntry* se = scrapeEntryFor(roms[i]);
+        if (se && !se->title.empty()) { displayNames[i] = se->title; continue; }
     }
     sortRomEntriesByDisplayName(roms, displayNames);
 }
@@ -530,12 +529,12 @@ void NanoMenu::applyRomNameOverridesToRecents() {
         if (!mShowDisplayNames) { e.displayName = romDisplayName(e.romPath); continue; }
         const std::string* ov = romNameOverrideFor(e.romPath);
         if (ov && !ov->empty()) { e.displayName = *ov; continue; }
-        const ScrapeEntry* se = scrapeEntryFor(e.romPath);
-        if (se && !se->title.empty()) { e.displayName = se->title; continue; }
         if ((mNdsTheme || mCtrTheme) && ndsRomTitleEnabled() && e.systemName == "NDS") {
             const std::string bt = ndsBannerTitleFor(e.romPath);
-            if (!bt.empty()) e.displayName = bt;
+            if (!bt.empty()) { e.displayName = bt; continue; }
         }
+        const ScrapeEntry* se = scrapeEntryFor(e.romPath);
+        if (se && !se->title.empty()) { e.displayName = se->title; continue; }
     }
 }
 

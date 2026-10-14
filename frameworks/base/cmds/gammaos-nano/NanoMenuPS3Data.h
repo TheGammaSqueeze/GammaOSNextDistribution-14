@@ -148,7 +148,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Startup Menu",22,"Chooses what the home opens on boot or restart: a game system's game list (e.g. jump straight into NDS), a top-level category such as Game, or the Default view. Takes effect on the next boot.","Default",1,nullptr,0},
   {"DSi Dark Theme",22,"DSi Menu theme only: switches the DSi home to a dark variant (dark field, light text and icons) for low-light use. Applies immediately.","Off",1,nullptr,0},
   {"Menu Music",22,"DSi and 3DS Menu themes: plays the menu's background music on the home. Turn off for a silent menu. Applies immediately.","On",1,nullptr,0},
-  {"Titles From ROM",22,"DSi and 3DS Menu themes: names a DS game from the title stored in its cartridge banner instead of the file name, unless you renamed the game or it was scraped. Applies immediately.","On",1,nullptr,0},
+  {"Titles From ROM",22,"DSi and 3DS Menu themes: names a DS game from the title stored in its cartridge banner, ahead of a scraped title and the file name (a name you gave the game still wins). Applies immediately.","On",1,nullptr,0},
   {"DS Icons On Tiles",22,"DSi Menu theme only: keeps a DS game's own cartridge icon on its carousel tile even when scraped box art exists. The box art still shows on the top screen. Applies immediately.","Off",1,nullptr,0},
   {"Navigation Sounds",22,"Plays the UI sound effects (cursor, select, back, launch) as you move through the home menu. Turn off for silent navigation in any theme. The boot sound is not affected.","On",1,nullptr,0},
   {"Boot Sound",22,"Plays the startup jingle during the boot animation. Turn off for a silent boot. Applies to all themes and takes effect on the next boot.","On",1,nullptr,0},
