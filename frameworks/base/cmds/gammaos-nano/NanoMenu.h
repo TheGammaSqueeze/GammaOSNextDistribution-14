@@ -5252,6 +5252,16 @@ private:
     bool  touchMapRaw(int rawX, int rawY, float& px, float& py);  // raw -> logical px
     bool  mOskTouchTuneRead = false;
     bool  mOskTouchSwap = false, mOskTouchFlipX = false, mOskTouchFlipY = false;
+    // Dual-panel devices: the bottom digitizer (persist.gammaos.nano.cc.touchdev) has its own
+    // calibration (cc.touch_swap/flipx/flipy, as the Control Center and the DS cores use); the
+    // osk_touch_* set belongs to the other (top / only) digitizer. The digitizer range and the
+    // calibration follow the device the current touch comes from.
+    bool  mCcTouchSwap = false, mCcTouchFlipX = false, mCcTouchFlipY = false;
+    std::string mCcTouchDev;
+    int   mTouchRangeFd = -1;
+    bool  mTouchBottomDev = false;
+    void  touchTuneRead();
+    void  touchSourceFd(int fd);
     // XMB touch-navigation gesture state. Positions are in logical pixels (post
     // swap/flip), matching oskTouchFrame's px/py output. A released vertical drag
     // hands mPs3AnimItem to an inertial fling that settles on the nearest item.

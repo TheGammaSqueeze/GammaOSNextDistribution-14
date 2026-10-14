@@ -1402,6 +1402,32 @@ bool NanoMenu::selectKeyHeld() const {
 // single-panel layout, the whole panel otherwise. This keeps every DSi touch handler aligned
 // with what is drawn (fixes taps landing in the wrong row / on the top screen when stacked).
 // Returns whether touchMapRaw resolved; dsX/dsY fall back to the last down position when not.
+// The raw-touch panel corrections (swap/flipX/flipY) are shared by the OSK and every touch
+// hit-tester, so they are read once regardless of which screen is up.
+void NanoMenu::touchTuneRead() {
+    if (mOskTouchTuneRead) return;
+    mOskTouchSwap  = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_swap", false);
+    mOskTouchFlipX = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipx", false);
+    mOskTouchFlipY = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipy", false);
+    mCcTouchSwap   = android::base::GetBoolProperty("persist.gammaos.nano.cc.touch_swap", false);
+    mCcTouchFlipX  = android::base::GetBoolProperty("persist.gammaos.nano.cc.touch_flipx", false);
+    mCcTouchFlipY  = android::base::GetBoolProperty("persist.gammaos.nano.cc.touch_flipy", false);
+    mCcTouchDev    = android::base::GetProperty("persist.gammaos.nano.cc.touchdev", "gt9xx-0");
+    mOskTouchTuneRead = true;
+}
+
+// A position from digitizer `fd`: when it is not the device the cached range came from, take
+// that device's range and calibration (the top and bottom digitizers differ in both).
+void NanoMenu::touchSourceFd(int fd) {
+    if (fd == mTouchRangeFd) return;
+    touchTuneRead();
+    mTouchRangeFd = fd;
+    mTouchMinX = mTouchMaxX = 0;
+    mTouchMinY = mTouchMaxY = 0;
+    auto it = mInputFdNames.find(fd);
+    mTouchBottomDev = hasSecondaryDisplay() && it != mInputFdNames.end() && it->second == mCcTouchDev;
+}
+
 bool NanoMenu::ndsMapTouchDs(float& dsX, float& dsY) {
     float px, py; bool mapped = touchMapRaw(mTouchRawX, mTouchRawY, px, py);
     float crx, cry, crw, crh; ndsCarouselRect(crx, cry, crw, crh);
@@ -2386,6 +2412,7 @@ void NanoMenu::pollInput() {
                 continue;
             }
             if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_X) {
+                touchSourceFd(fd);
                 if (mTouchSlot >= 0 && mTouchSlot < 2) mTouchSX[mTouchSlot] = ev.value;
                 if (mTouchSlot <= 0) mTouchRawX = ev.value;   // slot 0 = primary finger
                 mTouchFromPointer = false;                    // a real finger now owns the touch
@@ -2398,6 +2425,7 @@ void NanoMenu::pollInput() {
                 continue;
             }
             if (ev.type == EV_ABS && ev.code == ABS_MT_POSITION_Y) {
+                touchSourceFd(fd);
                 if (mTouchSlot >= 0 && mTouchSlot < 2) mTouchSY[mTouchSlot] = ev.value;
                 if (mTouchSlot <= 0) mTouchRawY = ev.value;
                 if (mTouchMaxY <= mTouchMinY) {
@@ -2464,12 +2492,7 @@ void NanoMenu::pollInput() {
                 // OSK and the XMB touch navigation, so read them once regardless of
                 // which is up - otherwise XMB touch before the OSK is ever opened would
                 // run with uncorrected axes on DRM-rotated/flipped panels.
-                if (!mOskTouchTuneRead) {
-                    mOskTouchSwap  = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_swap", false);
-                    mOskTouchFlipX = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipx", false);
-                    mOskTouchFlipY = android::base::GetBoolProperty("persist.gammaos.nano.osk_touch_flipy", false);
-                    mOskTouchTuneRead = true;
-                }
+                touchTuneRead();
                 // Dual-screen SetupWizard: the bottom panel (the only touch digitizer on the RG DS) is
                 // fully released and drawn black while setup runs; the entire wizard - net wizard, OSK/IME,
                 // pickers - renders on the PRIMARY panel and is button/D-pad driven. Swallow all touch here

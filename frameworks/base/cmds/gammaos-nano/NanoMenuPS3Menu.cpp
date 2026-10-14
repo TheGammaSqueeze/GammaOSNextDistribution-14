@@ -12734,9 +12734,10 @@ bool NanoMenu::touchMapRaw(int rawX, int rawY, float& px, float& py) {
     if (mTouchMaxX <= mTouchMinX || mTouchMaxY <= mTouchMinY || rawX < 0) return false;
     float nx = (float)(rawX - mTouchMinX) / (float)(mTouchMaxX - mTouchMinX);
     float ny = (float)(rawY - mTouchMinY) / (float)(mTouchMaxY - mTouchMinY);
-    if (mOskTouchSwap)  { float t = nx; nx = ny; ny = t; }
-    if (mOskTouchFlipX) nx = 1.0f - nx;
-    if (mOskTouchFlipY) ny = 1.0f - ny;
+    const bool bottom = mTouchBottomDev;   // the bottom panel's digitizer has its own calibration
+    if (bottom ? mCcTouchSwap : mOskTouchSwap)   { float t = nx; nx = ny; ny = t; }
+    if (bottom ? mCcTouchFlipX : mOskTouchFlipX) nx = 1.0f - nx;
+    if (bottom ? mCcTouchFlipY : mOskTouchFlipY) ny = 1.0f - ny;
     // Follow a runtime display rotation (e.g. force_orientation=portrait over a
     // landscape-native panel) in the SF-composited overlay: the digitizer keeps
     // reporting panel-native axes while mWidth/mHeight become the rotated logical
