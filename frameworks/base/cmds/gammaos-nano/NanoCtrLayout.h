@@ -207,6 +207,8 @@ struct Pane {
     // widescreen adaptation (Layout::adaptWidth): added to translate x / size x when the layout
     // is drawn wider than designed; kept apart from the animated values
     float shiftX = 0, growW = 0;
+    // and the same vertically (Layout::adaptHeight) when it is drawn taller than designed
+    float shiftY = 0, growH = 0;
 
     Mat4 global;
     float globalAlpha = 255;
@@ -236,7 +238,7 @@ struct Pane {
     uint64_t textCacheKey = 0;
 
     void rect(float* l, float* t, float* r, float* b) const {
-        const float w = size[0] + growW, h = size[1];
+        const float w = size[0] + growW, h = size[1] + growH;
         *l = -w * originX * 0.5f;
         *t = h * originY * 0.5f;
         *r = *l + w;
@@ -281,6 +283,11 @@ public:
     enum class Adapt : uint8_t { None, Edge, Split };
     void adaptWidth(float width, Adapt policy);
     float adaptedWidth = 0;
+    // Taller screens (a 5:3 top screen on a 4:3 panel): lays the layout out `height` units tall
+    // (>= its design height). Panes spanning the design height grow; with Edge, panes in the
+    // outer 15% (status bar, hints) move to the new top / bottom edges.
+    void adaptHeight(float height, Adapt policy);
+    float adaptedHeight = 0;
     // Several materials can share a name; animations bind every one.
     std::vector<Material*> materialsNamed(std::string_view name);
 

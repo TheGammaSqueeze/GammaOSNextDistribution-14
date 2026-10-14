@@ -102,7 +102,8 @@ int main(int argc, char** argv) {
     const float topW = getenv("CTR_TOPW") ? (float)atof(getenv("CTR_TOPW")) : 400.0f;
     const float botW = getenv("CTR_BOTW") ? (float)atof(getenv("CTR_BOTW")) : 320.0f;
     const int W = (int)(std::max(topW, botW + 80.0f * (botW <= 320 ? 1 : 0)) * sc);
-    const int H = 480 * sc;
+    const float topH = getenv("CTR_TOPH") ? (float)atof(getenv("CTR_TOPH")) : 240.0f;
+    const int H = (int)((topH + 240) * sc);
     if (!initEgl(W, H)) return 1;
     GLuint fbo, tex;
     glGenTextures(1, &tex);
@@ -141,6 +142,7 @@ int main(int argc, char** argv) {
     CtrHome home(argv[1], &host);
     home.setMinRootSlots(240);
     home.setScreenWidths(topW, botW);
+    home.setTopHeight(topH);
     home.setLanguage("English");
     if (!home.load()) { fprintf(stderr, "load failed\n"); return 1; }
     const float rot[4] = {1, 0, 0, 1};
@@ -148,6 +150,8 @@ int main(int argc, char** argv) {
     CtrPanel panel(home.assets(), nullptr);
     CtrDialog dialog(home.assets(), nullptr);
     panel.setWidth(botW);
+    panel.setTopSize(topW, topH);
+    dialog.setTopSize(topW, topH);
     dialog.setWidth(botW);
     std::vector<PanelRow> rows;
     int panelSel = 0;
@@ -162,14 +166,14 @@ int main(int argc, char** argv) {
         glClear(GL_COLOR_BUFFER_BIT);
         // top screen clear (banner.ts TOP_CLEAR) and the bottom screen area
         glEnable(GL_SCISSOR_TEST);
-        glScissor(0, H - 240 * sc, (int)(topW * sc), 240 * sc);
+        glScissor(0, H - (int)(topH * sc), (int)(topW * sc), (int)(topH * sc));
         glClearColor(232 / 255.0f, 232 / 255.0f, 238 / 255.0f, 1);
         glClear(GL_COLOR_BUFFER_BIT);
         glDisable(GL_SCISSOR_TEST);
         float pt[16], pb[16];
-        CtrHome::projection(pt, topW, 240, 0, 0, topW * sc, 240 * sc, W, H, rot);
+        CtrHome::projection(pt, topW, topH, 0, 0, topW * sc, topH * sc, W, H, rot);
         const float bx = (W / sc - botW) / 2;
-        CtrHome::projection(pb, botW, 240, bx * sc, 240 * sc, botW * sc, 240 * sc, W, H, rot);
+        CtrHome::projection(pb, botW, 240, bx * sc, topH * sc, botW * sc, 240 * sc, W, H, rot);
         home.drawTop(pt, 0, 0, W, H);
         home.drawBottom(pb, 0, 0, W, H);
         glFinish();

@@ -1866,18 +1866,27 @@ void CtrHome::setTopBannerHidden(bool hidden) {
 
 bool CtrHome::topCovered() const { return mLoaded && mImpl->top3d && !getenv("CTR_NO3D"); }
 
+void CtrHome::setTopHeight(float h) { mTopH = std::max(240.0f, h); }
+
 void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) {
     if (!mLoaded) return;
     Impl& I = *mImpl;
     Renderer& r = mAssets->renderer();
-    for (LayoutInstance* l : {I.top.get(), I.hud.get()}) if (l) l->layout().adaptWidth(mTopW, Layout::Adapt::Split);
-    if (I.fadeTop) I.fadeTop->layout().adaptWidth(mTopW, Layout::Adapt::None);
+    for (LayoutInstance* l : {I.top.get(), I.hud.get()}) {
+        if (!l) continue;
+        l->layout().adaptWidth(mTopW, Layout::Adapt::Split);
+        l->layout().adaptHeight(mTopH, Layout::Adapt::Edge);   // status bar up, hints down
+    }
+    if (I.fadeTop) {
+        I.fadeTop->layout().adaptWidth(mTopW, Layout::Adapt::None);
+        I.fadeTop->layout().adaptHeight(mTopH, Layout::Adapt::None);
+    }
     if (perfMark) perfMark("top3d");
-    if (I.top3d && !getenv("CTR_NO3D")) I.top3d->draw(proj, vpX, vpY, vpW, vpH, mTopW);
+    if (I.top3d && !getenv("CTR_NO3D")) I.top3d->draw(proj, vpX, vpY, vpW, vpH, mTopW, mTopH);
     if (perfMark) perfMark("topLayouts");
     r.setViewport(vpX, vpY, vpW, vpH);
     r.beginWith(proj);
-    r.setClip(-mTopW / 2, -120, mTopW, 240);
+    r.setClip(-mTopW / 2, -mTopH / 2, mTopW, mTopH);
     I.drawInstance(r, I.top.get());
     I.drawInstance(r, I.hud.get());
     if (overlay) overlay(r, true);

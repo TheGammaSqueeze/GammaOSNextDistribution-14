@@ -502,9 +502,33 @@ void Layout::adaptWidth(float w, Adapt policy) {
     calculate();
 }
 
+void Layout::adaptHeight(float h, Adapt policy) {
+    if (h == adaptedHeight || !root) return;
+    adaptedHeight = h;
+    const float extra = std::max(0.0f, h - height);
+    for (auto& p : mPanes) { p->shiftY = 0; p->growH = 0; }
+    if (extra <= 0) { calculate(); return; }
+    std::function<void(Pane*)> visit = [&](Pane* p) {
+        for (Pane* c : p->children) {
+            const float y = c->translate[1];
+            const bool full = c->size[1] >= height * 0.9f && fabsf(y) < height * 0.1f &&
+                              (c->kind == PaneKind::Picture || c->kind == PaneKind::Window || c->kind == PaneKind::Bounding);
+            if (full) { c->growH = extra; continue; }
+            bool up = false, down = false;
+            if (policy == Adapt::Edge) { up = y > height * 0.35f; down = y < -height * 0.35f; }
+            else if (policy == Adapt::Split) { up = y > height * 0.05f; down = y < -height * 0.05f; }
+            if (up) { c->shiftY = extra / 2; continue; }
+            if (down) { c->shiftY = -extra / 2; continue; }
+            if (c->kind == PaneKind::Null) visit(c);   // a centred container: classify inside
+        }
+    };
+    visit(root);
+    calculate();
+}
+
 void Layout::calcPane(Pane* p, const Mat4& parent, float inherited) {
-    if (p->shiftX != 0) {
-        const float t[3] = {p->translate[0] + p->shiftX, p->translate[1], p->translate[2]};
+    if (p->shiftX != 0 || p->shiftY != 0) {
+        const float t[3] = {p->translate[0] + p->shiftX, p->translate[1] + p->shiftY, p->translate[2]};
         matPaneSrt(p->global, t, p->rotate, p->scale);
     } else {
         matPaneSrt(p->global, p->translate, p->rotate, p->scale);

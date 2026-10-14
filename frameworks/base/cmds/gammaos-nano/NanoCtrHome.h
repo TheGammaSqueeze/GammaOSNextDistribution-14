@@ -148,6 +148,10 @@ public:
     // move out to the edges, backgrounds stretch, the 3D camera widens.
     void setScreenWidths(float top, float bottom);
     float topWidth() const { return mTopW; }
+    float topHeight() const { return mTopH; }
+    // Layout height of the top screen: taller than 240 on panels narrower than 5:3 (4:3, 3:2,
+    // square), so it fills them instead of being letterboxed.
+    void setTopHeight(float h);
     float bottomWidth() const { return mBotW; }
     // Smallest root grid (the console keeps at least the stored count, 240 after first boot).
     void setMinRootSlots(int n) { mMinRootSlots = n; }
@@ -168,7 +172,7 @@ private:
     std::unique_ptr<Assets> mAssets;
     bool mLoaded = false;
     int mMinRootSlots = 60;
-    float mTopW = 400, mBotW = 320;
+    float mTopW = 400, mBotW = 320, mTopH = 240;
     uint32_t mHeldNext = 0;
     bool mHomeNext = false;
     CtrTouch mTouchNext;

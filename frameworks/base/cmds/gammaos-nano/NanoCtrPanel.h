@@ -61,6 +61,7 @@ public:
     bool active() const { return mPhase != Hidden; }
     bool closing() const { return mPhase == Closing; }
     void setWidth(float bottomWidth) { mWidth = bottomWidth; }
+    void setTopSize(float w, float h) { mTopW = w; mTopH = h; }
     void tick();   // one 60 Hz frame
 
     // Touch in bottom screen layout units (origin at the centre, y up). Drags scroll the list,
@@ -105,7 +106,7 @@ private:
     std::string mTitle;
     uint64_t mLevel = ~0ull;
     int mSel = 0;
-    float mWidth = 320;
+    float mWidth = 320, mTopW = 400, mTopH = 240;
     Phase mPhase = Hidden;
     int mPhaseFrame = 0;
     // scrolling (panellist.ts)
@@ -131,6 +132,7 @@ public:
     // is nano's selected button, held in the Select look.
     void set(const std::string& text, const std::vector<std::string>& buttons, int sel);
     void setWidth(float bottomWidth) { mWidth = bottomWidth; }
+    void setTopSize(float w, float h) { mTopW = w; mTopH = h; }
     void show();
     void hide(bool cancel);
     bool active() const { return mPhase != Hidden; }
@@ -154,7 +156,7 @@ private:
     Phase mPhase = Hidden;
     int mPhaseFrame = 0;
     int mTouched = -1;
-    float mWidth = 320;
+    float mWidth = 320, mTopW = 400, mTopH = 240;
 };
 
 }  // namespace ctr

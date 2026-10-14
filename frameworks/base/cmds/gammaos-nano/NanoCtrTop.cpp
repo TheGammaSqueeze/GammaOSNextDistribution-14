@@ -126,6 +126,7 @@ bool CtrTop::load() {
                 mCamera.twist = c["view"]["twist"].asFloat();
                 BjValue pr = c["projection"];
                 mCamera.fovY = pr["fovY"].asFloat(0.5235988f);
+                mBaseFovY = mCamera.fovY;
                 mCamera.aspect = pr["aspectRatio"].asFloat(5.0f / 3.0f);
                 mCamera.near = pr["near"].asFloat(26.5f);
                 mCamera.far = pr["far"].asFloat(1000);
@@ -358,17 +359,23 @@ void CtrTop::update() {
                    mLeaving.end());
 }
 
-void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width) {
+void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width, float height) {
     (void)vpX; (void)vpY;
     if (!mWall) return;
-    // widescreen: the camera sees a wider part of the wall
-    const float aspect = width / 240.0f;
-    if (fabsf(mCamera.aspect - aspect) > 1e-4f) { mCamera.aspect = aspect; mCamera.update(); }
+    // wider screens see more of the wall sideways (the aspect), taller ones more of it up and
+    // down: the vertical field of view grows with the height, the horizontal one is kept
+    const float aspect = width / height;
+    const float fov = 2 * atanf(tanf(mBaseFovY / 2) * height / 240.0f);
+    if (fabsf(mCamera.aspect - aspect) > 1e-4f || fabsf(mCamera.fovY - fov) > 1e-6f) {
+        mCamera.aspect = aspect;
+        mCamera.fovY = fov;
+        mCamera.update();
+    }
     // pixel size of the screen on the panel (rotation aware), capped
     const float wx = hypotf(proj[0] * vpW * 0.5f, proj[1] * vpH * 0.5f) * width;
-    const float wy = hypotf(proj[4] * vpW * 0.5f, proj[5] * vpH * 0.5f) * 240;
-    const float s = std::min({wx / width, wy / 240.0f, (float)mMaxScale});
-    const int w = std::max(1, (int)lroundf(width * std::max(1.0f, s))), h = std::max(1, (int)lroundf(240 * std::max(1.0f, s)));
+    const float wy = hypotf(proj[4] * vpW * 0.5f, proj[5] * vpH * 0.5f) * height;
+    const float s = std::min({wx / width, wy / height, (float)mMaxScale});
+    const int w = std::max(1, (int)lroundf(width * std::max(1.0f, s))), h = std::max(1, (int)lroundf(height * std::max(1.0f, s)));
     std::vector<ModelInstance*> models{mWall.get()};
     if (!mBannerHidden) {
         for (auto& b : mLeaving) {
@@ -397,8 +404,8 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
         glUseProgram(mBlitProgram);
         glUniform1i(glGetUniformLocation(mBlitProgram, "u_tex"), 0);
     }
-    const float hw = width / 2;
-    const float quad[] = {-hw, -120, 0, 0, hw, -120, 1, 0, -hw, 120, 0, 1, hw, 120, 1, 1};
+    const float hw = width / 2, hh = height / 2;
+    const float quad[] = {-hw, -hh, 0, 0, hw, -hh, 1, 0, -hw, hh, 0, 1, hw, hh, 1, 1};
     glUseProgram(mBlitProgram);
     glUniformMatrix4fv(mBlitProj, 1, GL_FALSE, proj);
     glActiveTexture(GL_TEXTURE0);

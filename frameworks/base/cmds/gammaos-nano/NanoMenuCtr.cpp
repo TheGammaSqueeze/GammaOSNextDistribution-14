@@ -556,6 +556,8 @@ void NanoMenu::ctrModalUpdate() {
     const float bw = mCtrHome->bottomWidth();
     mCtrPanel->setWidth(bw);
     mCtrDialog->setWidth(bw);
+    mCtrPanel->setTopSize(mCtrHome->topWidth(), mCtrHome->topHeight());
+    mCtrDialog->setTopSize(mCtrHome->topWidth(), mCtrHome->topHeight());
     if (ctrModalKind() != CTR_MODAL_PANEL) {
         mCtrHome->setTopBannerHidden(false);
         mCtrPanel->hide();
@@ -993,6 +995,7 @@ CtrPerf sCtrPerf;
 }  // namespace
 
 bool NanoMenu::ctrDualPanel() const {
+    if (mCtrForceSingle) return false;
     return sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty();
 }
 
@@ -1002,6 +1005,27 @@ static float ctrScreenWidth(bool top, float rw, float rh) {
     const float design = top ? 400.0f : 320.0f;
     if (rh <= 0 || !property_get_bool("persist.gammaos.nano.ctr.widen", true)) return design;
     return std::clamp(240.0f * rw / rh, design, 240.0f * 2.4f);
+}
+
+// Layout height of the top screen in a rectangle: taller than its design 240 when the rectangle
+// is narrower than 5:3 (3:2, 4:3), up to 4:3. Beyond that the wall model's curved ends would show
+// at the top and bottom, so squarer and portrait panels letterbox the rest.
+static float ctrTopHeight(float rw, float rh) {
+    if (rw <= 0 || !property_get_bool("persist.gammaos.nano.ctr.widen", true)) return 240.0f;
+    return std::clamp(400.0f * rh / rw, 240.0f, 300.0f);
+}
+
+// Test hook: sys.gammaos.nano.ctr.topaspect="w:h" draws the top screen of a dual panel device
+// into a centred rectangle of that aspect (checks 4:3, 3:2... on a 16:9 panel).
+static void ctrTestTopRect(float W, float H, float* rx, float* ry, float* rw, float* rh) {
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.ctr.topaspect", v, "");
+    float a = 0, b = 0;
+    if (sscanf(v, "%f:%f", &a, &b) != 2 || a <= 0 || b <= 0) return;
+    const float want = a / b;
+    if (W / H > want) { *rw = H * want; *rh = H; } else { *rw = W; *rh = W / want; }
+    *rx = (W - *rw) / 2;
+    *ry = (H - *rh) / 2;
 }
 
 // Contain-fit a screen of lw x lh layout units into a rectangle (centred).
@@ -1024,7 +1048,7 @@ void NanoMenu::ctrBottomRect(float& rx, float& ry, float& rw, float& rh) const {
             w = (float)mSecondaryCreatedSize[0].first;
             h = (float)mSecondaryCreatedSize[0].second;
         }
-    } else if (mHeight >= mWidth * 0.9f) {   // stacked: the bottom half
+    } else {   // one panel: the two screens stacked, the bottom one in the lower half
         y = h * 0.5f;
         h *= 0.5f;
     }
@@ -1035,8 +1059,9 @@ void NanoMenu::ctrBottomRect(float& rx, float& ry, float& rw, float& rh) const {
 void NanoMenu::ctrDrawScreen(bool top, float rx, float ry, float rw, float rh) {
     if (sCtrPerf.mode == 4) return;   // probe: the present path's own ceiling
     const float lw = top ? mCtrHome->topWidth() : mCtrHome->bottomWidth();
+    const float lh = top ? mCtrHome->topHeight() : 240.0f;
     float ox, oy, ow, oh;
-    ctrFit(lw, 240.0f, rx, ry, rw, rh, &ox, &oy, &ow, &oh);
+    ctrFit(lw, lh, rx, ry, rw, rh, &ox, &oy, &ow, &oh);
     // letterbox bars in the screen's own ground colour (only outside the screen: every pixel
     // filled twice costs fill rate on low end GPUs)
     const float g = top ? 232.0f / 255.0f : 0.0f, gb = top ? 238.0f / 255.0f : 0.0f;
@@ -1048,7 +1073,7 @@ void NanoMenu::ctrDrawScreen(bool top, float rx, float ry, float rw, float rh) {
     // covers it; the bottom base layout is drawn onto the panel's black clear
     if (top && !mCtrHome->topCovered()) drawQuad(ox, oy, ow, oh, 232.0f / 255.0f, 232.0f / 255.0f, 238.0f / 255.0f, 1.0f);
     float proj[16];
-    ctr::CtrHome::projection(proj, lw, 240.0f, ox, oy, ow, oh, (float)mWidth, (float)mHeight, sDrmRotMat);
+    ctr::CtrHome::projection(proj, lw, lh, ox, oy, ow, oh, (float)mWidth, (float)mHeight, sDrmRotMat);
     GLint vp[4];
     glGetIntegerv(GL_VIEWPORT, vp);
     if (top) mCtrHome->drawTop(proj, vp[0], vp[1], vp[2], vp[3]);
@@ -1076,6 +1101,15 @@ uint64_t NanoMenu::ctrModelSignature() const {
 
 
 void NanoMenu::renderCtrPrimary() {
+    {   // test hook: lay out as a single panel device (sys.gammaos.nano.ctr.single=1)
+        static const prop_info* spi = nullptr;
+        static uint32_t sser = ~0u;
+        if (!spi) spi = __system_property_find("sys.gammaos.nano.ctr.single");
+        if (spi && __system_property_serial(spi) != sser) {
+            sser = __system_property_serial(spi);
+            mCtrForceSingle = property_get_bool("sys.gammaos.nano.ctr.single", false);
+        }
+    }
     sCtrPerf.refresh();
     if (sCtrPerf.mode != 3) ctr::CtrHome::perfMark = nullptr;
     if (sCtrPerf.mode == 3) {
@@ -1168,22 +1202,27 @@ void NanoMenu::renderCtrPrimary() {
         float bx, by, bw, bh;
         ctrBottomRect(bx, by, bw, bh);
         botW = ctrScreenWidth(false, bw, bh);
-        if (ctrDualPanel()) topW = ctrScreenWidth(true, W, H);
-        else if (H >= W * 0.9f) topW = ctrScreenWidth(true, W, H * 0.5f);
+        float tx = 0, ty = 0, tw = W, th = ctrDualPanel() ? H : H * 0.5f;
+        if (ctrDualPanel()) ctrTestTopRect(W, H, &tx, &ty, &tw, &th);
+        topW = ctrScreenWidth(true, tw, th);
         mCtrHome->setScreenWidths(topW, botW);
+        mCtrHome->setTopHeight(ctrTopHeight(tw, th));
     }
     mCtrHome->update(systemTime(SYSTEM_TIME_MONOTONIC));
     const nsecs_t perfUpdated = sCtrPerf.mode ? sCtrPerf.mark() : 0;
     if (sCtrPerf.mode) sCtrPerf.update += CtrPerf::ms(perfStart, perfUpdated);
     const float W = (float)mWidth, H = (float)mHeight;
     if (ctrDualPanel()) {
-        ctrDrawScreen(true, 0, 0, W, H);
+        float tx = 0, ty = 0, tw = W, th = H;
+        ctrTestTopRect(W, H, &tx, &ty, &tw, &th);
+        if (tw < W || th < H) drawQuad(0, 0, W, H, 0, 0, 0, 1);   // test: the rest of the panel black
+        ctrDrawScreen(true, tx, ty, tw, th);
         if (sCtrPerf.mode) sCtrPerf.top += CtrPerf::ms(perfUpdated, sCtrPerf.mark());
-    } else if (H >= W * 0.9f) {
+    } else {
+        // one panel, any aspect: the top screen over the bottom one (the usual single screen
+        // layout of the 3DS), each widened to its half like the screens of a dual panel device
         ctrDrawScreen(true, 0, 0, W, H * 0.5f);
         ctrDrawScreen(false, 0, H * 0.5f, W, H * 0.5f);
-    } else {
-        ctrDrawScreen(false, 0, 0, W, H);
     }
     // nano's screens the 3DS style does not cover yet (pickers, keyboard, wizard, players) keep
     // the shared XMB chrome; lists, option menus and dialogs are the 3DS panel and dialog
@@ -1192,7 +1231,7 @@ void NanoMenu::renderCtrPrimary() {
 }
 
 void NanoMenu::renderCtrSecondary() {
-    if (!mCtrHome || !mCtrHome->loaded()) return;
+    if (!mCtrHome || !mCtrHome->loaded() || mCtrForceSingle) return;
     ctrModalUpdate();   // the secondary pass runs first in a frame
     const nsecs_t t0 = sCtrPerf.mode ? sCtrPerf.mark() : 0;
     if (sCtrPerf.mode == 3) sCtrGpu.mark("bottom");   // also ends the "rest of frame" span

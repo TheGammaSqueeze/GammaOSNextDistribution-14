@@ -40,7 +40,7 @@ public:
     void update();            // one 60 Hz frame
     // Draws the scene into the top screen rectangle of the bound framebuffer. `proj` maps the
     // 400x240 layout space (as for the layouts); vp is the GL viewport it targets.
-    void draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width = 400);
+    void draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width = 400, float height = 240);
     // The focused title's banner is left out (a settings panel is open over the home).
     void setBannerHidden(bool hidden) { mBannerHidden = hidden; }
     // A title banner with a sound appeared / the focus left it (the banner plays its BCWAV once).
@@ -90,6 +90,7 @@ private:
     int mPendingLeft = 0;
     bool mAttachedOnce = false;
     int mMaxScale = 3;
+    float mBaseFovY = 0.5235988f;   // BannerCamera's vertical field of view at the design height
     std::shared_ptr<GpuTex> mPlate;
     std::shared_ptr<ModelResource> mRomRes;   // the current ROM banner's model (not shared)
     std::string mRomResKey;

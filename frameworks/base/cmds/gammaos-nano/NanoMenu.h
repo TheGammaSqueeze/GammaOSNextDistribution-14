@@ -1641,7 +1641,8 @@ private:
     bool ctrSetSwitch(int itemIndex, bool on);    // sets one through nano's own chooser
     bool ctrSwitchKey(int type, int code, int value);  // LEFT / RIGHT / A on a switch row
     bool mCtrSwitchKeyHeld = false;
-    bool mCtrSfxMute = false;                     // nano's own sounds held back (a switch flip plays one)
+    bool mCtrSfxMute = false;
+    bool mCtrForceSingle = false;                 // test: sys.gammaos.nano.ctr.single=1 (single panel layout)                     // nano's own sounds held back (a switch flip plays one)
     // Set by any renderEsde animation site (carousel slide, marquee, description scroll, media
     // decode, GIF) that needs the next frame drawn soon; reset each frame before renderEsde. When
     // it stays false and there has been no recent input, the frame governor paces the (static but

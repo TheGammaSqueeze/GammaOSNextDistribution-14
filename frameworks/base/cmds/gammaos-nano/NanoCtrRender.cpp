@@ -979,7 +979,7 @@ static void layoutText(Pane* p, Font& f) {
     }
     blockHeight += (double)p->lineSpace * (double)std::max<int>((int)lines.size() - 1, 0);
     // pane rect in double (Pane::rect is float)
-    const double w = p->size[0] + p->growW, h = p->size[1];
+    const double w = p->size[0] + p->growW, h = p->size[1] + p->growH;
     const double l = -w * p->originX * 0.5, t = h * p->originY * 0.5;
     const double r = l + w, b = t - h;
     const double rw = r - l, rh = t - b;
@@ -1022,7 +1022,7 @@ void Renderer::drawText(Layout& L, Pane* p) {
     // geometry depends on the text, the pane and font sizes, and the atlas generation
     auto cacheKey = [&]() {
         uint64_t k = p->textRevision;
-        k = k * 1315423911u + (uint64_t)((p->size[0] + p->growW) * 64) + ((uint64_t)(p->size[1] * 64) << 20);
+        k = k * 1315423911u + (uint64_t)((p->size[0] + p->growW) * 64) + ((uint64_t)((p->size[1] + p->growH) * 64) << 20);
         k = k * 2654435761u + (uint64_t)(p->fontSize[0] * 64) + ((uint64_t)(p->fontSize[1] * 64) << 24);
         return k * 40503u + f.generation();
     };

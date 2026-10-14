@@ -732,7 +732,8 @@ void CtrPanel::drawBottom(Renderer& r) {
 
 void CtrPanel::drawTop(Renderer& r) {
     if (mPhase == Hidden || !mLoaded) return;
-    mTop->layout().adaptWidth(std::max(400.0f, mWidth * 400.0f / 320.0f), Layout::Adapt::Edge);
+    mTop->layout().adaptWidth(mTopW, Layout::Adapt::Edge);
+    mTop->layout().adaptHeight(mTopH, Layout::Adapt::Edge);   // the title band stays at the bottom edge
     r.drawLayout(mTop->layout());
 }
 
@@ -884,7 +885,8 @@ void CtrDialog::drawBottom(Renderer& r) {
 
 void CtrDialog::drawTop(Renderer& r) {
     if (mPhase == Hidden || !mMaskTop) return;
-    mMaskTop->layout().adaptWidth(std::max(400.0f, mWidth * 400.0f / 320.0f), Layout::Adapt::Edge);
+    mMaskTop->layout().adaptWidth(mTopW, Layout::Adapt::Edge);
+    mMaskTop->layout().adaptHeight(mTopH, Layout::Adapt::Edge);
     r.drawLayout(mMaskTop->layout());
 }
 
