@@ -74,6 +74,14 @@ cc_binary {
         "NanoMenuSyncthing.cpp",    // Syncthing screens (Settings > Syncthing)
         "NanoMenuPS3Menu.cpp",
         "NanoMenuMinima.cpp",
+        "NanoCtrPack.cpp",         // 3DS theme: asset packs (tools/ctr_pack.py)
+        "NanoCtrLayout.cpp",       // 3DS theme: NW4C layout engine
+        "NanoCtrRender.cpp",       // 3DS theme: PICA200 combiner renderer (GLES2)
+        "NanoCtrHome.cpp",         // 3DS theme: HOME Menu runtime
+        "NanoCtr3d.cpp",           // 3DS theme: top screen CGFX models
+        "NanoCtrTop.cpp",          // 3DS theme: top screen scene (wall + banners)
+        "NanoCtrAudio.cpp",        // 3DS theme: sound effects + BGM mixer
+        "NanoMenuCtr.cpp",         // 3DS theme: nano adapter
         "NanoEsdeTheme.cpp",
         "NanoThemeEngine.cpp",
         "NanoMenuEsdeMenu.cpp",
@@ -208,6 +216,8 @@ cc_binary {
         "nano_esde_help_icons",
         "nano_esde_controller_icons",
         "nano_esde_badge_icons",
+        "nano_ctr_data",
+        "nano_ctr_sound",
     ],
 }
 
@@ -574,4 +584,19 @@ filegroup {
         "NanoJson.cpp",
         "NanoI18n.cpp",
     ],
+}
+
+// 3DS Menu theme (home theme 4): the HOME Menu layouts, fonts, messages, textures and banner
+// models packed by tools/ctr_pack.py, and its sound effects and BGM rendered from the console's
+// sequences by tools/ctr_render_sounds.py. /data/local/tmp/ctr_assets is checked first (dev).
+prebuilt_etc {
+    name: "nano_ctr_data",
+    srcs: ["ctr3ds/data/*.cpk", "ctr3ds/data/*.cfn"],
+    sub_dir: "nano_ctr",
+}
+
+prebuilt_etc {
+    name: "nano_ctr_sound",
+    srcs: ["ctr3ds/sound/*.wav"],
+    sub_dir: "nano_ctr/sound",
 }

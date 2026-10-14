@@ -2389,6 +2389,10 @@ void NanoMenu::pollInput() {
                 if (ev.type == EV_KEY) colorPickerHandleKey(ev.code, ev.value);
                 continue;
             }
+            // 3DS theme: while its home has the screen, buttons, the D-pad and the circle pad are
+            // its held state (NanoMenuCtr.cpp); START, SELECT and system keys stay with nano.
+            if (mCtrTheme && (ev.type == EV_KEY || ev.type == EV_ABS) && ctrInputEvent(ev.type, ev.code, ev.value))
+                continue;
             // Touchscreen -> OSK. Read straight from the shared evdev stream:
             // BTN_TOUCH gates finger down/up, ABS_MT_POSITION_X/Y carry the
             // position (digitizer range read lazily via EVIOCGABS), and
@@ -2554,6 +2558,8 @@ void NanoMenu::pollInput() {
                                      { if (ndsDlgIsSidePanel()) minimaSidePanelTouch(); else minimaDialogTouch(); }
                 else if (mMinimaTheme && mPs3Xmb && !ndsInModal())
                                      minimaListTouch();
+                else if (mCtrTheme && ctrOwnsInput())
+                                     ctrTouchFrame();
                 else                 xmbTouchFrame();   // modals + XMB: option panel / dialog / self-guards
                 // GammaOS touch-launch handoff safety net. A launch triggered by a touch tap sets
                 // mWaitForRelease, but a touch has no physical select-key release, so the key-release

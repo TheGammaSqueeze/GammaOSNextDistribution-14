@@ -63,7 +63,8 @@ static inline void nanoThreadNormalPriority() {
 #include "NanoScraper.h"
 #include "NanoEsdeTheme.h"
 #include "NanoSyncthing.h"  // Syncthing REST client + model (Settings > Syncthing)
-#include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)   // ES-DE theme engine model (fourth home theme)
+#include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)
+namespace android { namespace ctr { class CtrHome; class CtrAudio; } }   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -1591,6 +1592,36 @@ private:
     // model. Additive + gated; the built-ins are unaffected. See docs/THEME_ENGINE.md,
     // NanoThemeEngine.cpp and NanoEsdeTheme.{h,cpp}.
     bool mEsdeTheme = false;
+    // 3DS HOME Menu theme (persist.gammaos.nano.ndstheme=4): a port of the 3ds-web replica on the
+    // NW4C layout engine (NanoCtrLayout / NanoCtrHome, adapter in NanoMenuCtr.cpp). It rides the
+    // XMB infrastructure like the other themes; its home, nav and sounds are its own, and nano's
+    // modals (settings lists, dialogs, OSK, players) keep working over it.
+    bool mCtrTheme = false;
+    ctr::CtrHome* mCtrHome = nullptr;             // created on first use (needs the GL context)
+    ctr::CtrAudio* mCtrAudio = nullptr;           // menu sounds + BGM
+    friend class NanoCtrHost;
+    class NanoCtrHost* mCtrHost = nullptr;
+    uint32_t mCtrHeld = 0;                        // 3DS buttons held (CtrButton bits), from raw evdev
+    int mCtrStickX = 0, mCtrStickY = 0;           // left stick as d-pad bits (-1, 0, 1)
+    bool mCtrTouchWas = false;
+    uint64_t mCtrModelSig = 0;                    // signature of the shown model (reload on change)
+    int mCtrSigFrame = 0;
+    uint64_t ctrModelSignature() const;
+    // Test hook (sys.gammaos.nano.ctr.keys = "RIGHT,RIGHT,A"): each button held 6 frames, 6 apart.
+    std::vector<uint32_t> mCtrScript;
+    int mCtrScriptFrame = 0;
+    bool ctrEnsure();                             // creates + loads the home (false: assets missing)
+    void ctrRelease();                            // frees its GL objects (context loss / theme change)
+    bool ctrOwnsInput() const;                    // the 3DS home has the screen, no nano modal in front
+    bool ctrInputEvent(int type, int code, int value);   // raw evdev -> held bits; true = consumed
+    void ctrTouchFrame();                         // a touch frame on the bottom screen
+    void renderCtrPrimary();                      // primary panel (top screen, or both stacked)
+    void renderCtrSecondary();                    // the bottom screen on a second panel
+    void ctrDrawScreen(bool top, float rx, float ry, float rw, float rh);
+    bool ctrDualPanel() const;
+    void ctrBottomRect(float& rx, float& ry, float& rw, float& rh) const;
+    bool ctrLaunchItem(const Ps3Item& it);        // a title chosen on the 3DS grid
+    void ctrAppletBar(int button);                // an applet bar button (opens a nano category list)
     // Set by any renderEsde animation site (carousel slide, marquee, description scroll, media
     // decode, GIF) that needs the next frame drawn soon; reset each frame before renderEsde. When
     // it stays false and there has been no recent input, the frame governor paces the (static but
@@ -1948,7 +1979,8 @@ private:
     // launch effect can finish on screen: the DSi theme plays a tile lift + sparkle ring +
     // 44f white wash (full by ~47 frames), every other theme a quick 260ms fade. Shared by
     // pollInput's exit gate and the drastic-nano hand-off so neither cuts the effect short.
-    int   launchFadeHoldMs() const { return mNdsTheme ? 780 : 260; }
+    // The 3DS theme's launch fade (CmnFadeNinLogo SceneOutA) is black after 20 frames.
+    int   launchFadeHoldMs() const { return mNdsTheme ? 780 : (mCtrTheme ? 340 : 260); }
     // Origin (uptimeMillis) of the launch effect the DSi renderer keys its tile lift / ring /
     // white wash on, or 0 when no launch is in flight. The home stamps mLaunchFadeStart; the
     // resident overlay-home launches through mOverlayLaunchPending (mOverlayLaunchStartMs) and

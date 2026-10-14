@@ -1601,6 +1601,9 @@ bool NanoMenu::threadLoop() {
     // clears the other home flags. Additive and gated; see docs/THEME_ENGINE.md.
     mEsdeTheme = (homeTheme == 3);
     if (mEsdeTheme) { mNdsTheme = false; mMinimaTheme = false; }
+    // 3DS HOME Menu theme (homeTheme == 4, NanoMenuCtr.cpp): its own home like ES-DE.
+    mCtrTheme = (homeTheme == 4);
+    if (mCtrTheme) { mNdsTheme = false; mMinimaTheme = false; mEsdeTheme = false; }
     mNdsDark = android::base::GetBoolProperty("persist.gammaos.nano.nds.dark", false);  // DSi dark variant
     mGameSortMode = android::base::GetIntProperty("persist.gammaos.nano.gamesort", 0);   // Game tile order (Y cycles)
     if (mGameSortMode < 0 || mGameSortMode > 3) mGameSortMode = 0;
@@ -1612,7 +1615,7 @@ bool NanoMenu::threadLoop() {
     mPhotoFolderView = android::base::GetBoolProperty("persist.gammaos.nano.photo.folderview", false);
     mVideoFolderView = android::base::GetBoolProperty("persist.gammaos.nano.video.folderview", false);
     mMusicFolderView = android::base::GetBoolProperty("persist.gammaos.nano.music.folderview", false);
-    if (mNdsTheme || mMinimaTheme || mEsdeTheme) mPs3Xmb = true;  // reuse the XMB home infrastructure, swap the render
+    if (mNdsTheme || mMinimaTheme || mEsdeTheme || mCtrTheme) mPs3Xmb = true;  // reuse the XMB home infrastructure, swap the render
     // Dual-screen XMB: render a static PSP clock on the bottom panel instead of a second wave.
     // Cached once (read on the render hot path otherwise); only meaningful in pure XMB (!mNdsTheme)
     // on a device with a secondary panel (the render call sites are gated accordingly).

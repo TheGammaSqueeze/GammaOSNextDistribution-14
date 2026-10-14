@@ -5999,6 +5999,16 @@ void NanoMenu::render() {
             if (mGSearchActive) renderGlobalSearch();
             renderOsk();
             mWidth = sw; mHeight = sh;
+        } else if (mCtrTheme && !mPs3BootActive) {
+            // 3DS theme dual-panel: the bottom screen (grid, applet bar, buttons) on the
+            // secondary panel. Remap to the secondary AHB dims for this pass.
+            int sw = mWidth, sh = mHeight;
+            mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+            renderCtrSecondary();
+            if (mPs3WizActive) renderNetWizard();
+            if (mGSearchActive) renderGlobalSearch();
+            renderOsk();
+            mWidth = sw; mHeight = sh;
         } else if (mEsdeTheme && !mPs3BootActive) {
             // ES-DE dual-panel: a plain themed backdrop on the bottom for now (the
             // interactive views stay on the primary). Remap to the secondary AHB dims.
@@ -6211,7 +6221,13 @@ void NanoMenu::render() {
                                   && mPs3Stack.empty()
                                   && (mEsdeMenuActive || mEsdeMenuClosing
                                       || (!ndsInModal() && !mOskActive));
-        if (!esdePureHome && !setupBlankDual)
+        // The 3DS home paints both of its screens opaque (the 3D wall on top, the base layout on
+        // the bottom), so the wallpaper and the offscreen wave (glass icons) are never seen either:
+        // skipping them is most of the frame's GPU time on that home. A nano list, dialog or
+        // player over it falls back to the XMB chrome and keeps them.
+        const bool ctrPureHome = mCtrTheme && !mPs3BootActive && !ndsPlayerActive() && mPs3Stack.empty()
+                                 && !ndsInModal() && !mOskActive;
+        if (!esdePureHome && !ctrPureHome && !setupBlankDual)
             renderEffect();
         // Decouple the glass icons from the wave WALLPAPER. The glass-icon shader
         // refracts the PS3 wave's offscreen work-texture (ps3bg::workTex), but
@@ -6238,7 +6254,7 @@ void NanoMenu::render() {
         // screen over the rendered wallpaper; otherwise keep the wave OFFSCREEN only
         // (it just feeds glass-icon refraction).
         bool mpWavesVis = (mMpActive && mMpVis == 0);
-        if (mPs3Xmb && mCurrentEffect != 22 && !visCovers && !setupBlankDual) {
+        if (mPs3Xmb && mCurrentEffect != 22 && !visCovers && !setupBlankDual && !ctrPureHome) {
             ps3::layoutComputeNative(mWidth, mHeight);
             ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
                           sDrmActive && sDrmGlRotation, /*compositeToScreen=*/mpWavesVis);
@@ -6425,6 +6441,23 @@ void NanoMenu::render() {
                 else if (minDialog)  renderMinimaDialog(0.0f, 0.0f, (float)mWidth, (float)mHeight);
                 else if (minSearch)  renderGlobalSearch();   // Minima-styled results overlay (see renderGlobalSearch)
             }
+        } else if (mCtrTheme && mPs3BootActive) {
+            // 3DS theme: the menu plays its own logo fade in; skip nano's boot intro
+            ps3BootSkip();
+            ps3BootUpdate(mFrameDt);
+        } else if (mCtrTheme && !mPs3BootActive && ndsPlayerActive()) {
+            renderPs3Xmb();   // media players: the shared full-screen XMB player
+        } else if (mCtrTheme && !mPs3BootActive) {
+            // 3DS HOME Menu (NanoMenuCtr.cpp). renderPs3Xmb is skipped for the home, so pump the
+            // shared lifecycle ticks here like the other themes.
+            scraperArtTick();
+            appInfoTick();
+            fbTick();
+            gsAutoAddTick();
+            feTick();
+            nsTick();
+            stTick();
+            renderCtrPrimary();
         } else if (mEsdeTheme && !mPs3BootActive && ndsPlayerActive()) {
             // ES-DE: media players fall back to the shared full-screen XMB player.
             renderPs3Xmb();
@@ -7178,6 +7211,12 @@ if (sRingPrimedCount >= 2) {
             // secondary above is skipped once HWC owns the display), so it fixes the bottom showing
             // the wave in those contexts too.
             renderMinimaSecondary(0.0f, 0.0f, (float)mWidth, (float)mHeight);
+            if (i == 0 && mPs3WizActive) renderNetWizard();
+            if (i == 0 && mGSearchActive) renderGlobalSearch();
+            if (i == 0) renderOsk();
+        } else if (mCtrTheme && !mPs3BootActive) {
+            // 3DS theme live secondary: the bottom screen (mirrors the DRM secondary branch).
+            renderCtrSecondary();
             if (i == 0 && mPs3WizActive) renderNetWizard();
             if (i == 0 && mGSearchActive) renderGlobalSearch();
             if (i == 0) renderOsk();
