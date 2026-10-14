@@ -1642,6 +1642,8 @@ private:
     void ctrRenderOverlays();                          // keyboard / search results over the 3DS screens
     void ctrApplyTheme();                              // Theme Settings > 3DS Theme / Colour -> the home
     void ctrUpdateWallpapers();                        // Theme Settings wallpapers -> the home's backgrounds
+    void ctrApplyThemeSounds(const ctr::ThemeBody* body);   // a theme's sound effects and BGM
+    bool ctrWriteThemeBgm(const std::string& bcstm, const std::string& wavPath);
     struct CtrWallpaper { GLuint fbo = 0, tex = 0; int w = 0, h = 0; std::string sig; };
     CtrWallpaper mCtrWp[2];                            // top, bottom
     std::shared_ptr<ctr::ThemeBody> mCtrThemeBody;     // an SD card theme or one made from the Colour

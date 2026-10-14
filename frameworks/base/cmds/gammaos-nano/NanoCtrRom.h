@@ -94,6 +94,10 @@ bool loadOrExtract(const std::string& romPath, const std::string& cacheDir, RomA
 bool readRomExeFs(const std::string& romPath, std::vector<uint8_t>* icon, std::vector<uint8_t>* banner,
                   uint64_t* programId, std::string* productCode, std::string* error);
 
+// A CWAV sound (a banner or theme sound effect) and a BCSTM stream (a theme's BGM) as 16 bit PCM.
+bool decodeCtrWave(const uint8_t* data, size_t size, RomSound* out, std::string* error);
+bool decodeCtrStream(const uint8_t* data, size_t size, RomSound* out, std::string* error);
+
 // LZ10 / LZ11 decompression (lz.py decompress).
 bool lzDecompress(const uint8_t* data, size_t size, std::vector<uint8_t>* out);
 

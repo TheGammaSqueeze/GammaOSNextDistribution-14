@@ -2891,6 +2891,112 @@ bool decodeCwav(const uint8_t* d, size_t n, RomSound* out, std::string* err) {
 constexpr size_t kSmdhSize = 0x36C0;
 constexpr size_t kIconOffset = 0x2040;
 
+// ================================================================== CSTM (web audio/cstm.ts)
+
+// A BCSTM stream (a theme's BGM): CSTM header, INFO, DATA; the samples are interleaved per block
+// (every channel's part of a block in turn). DSP-ADPCM, PCM16 and PCM8 decode to 16 bit PCM.
+bool decodeCstm(const uint8_t* d, size_t n, RomSound* out, std::string* err) {
+    Rd r(d, n);
+    if (!r.magicIs(0, "CSTM")) { *err = "expected CSTM"; return false; }
+    if (r.u8(4) != 0xFF || r.u8(5) != 0xFE) { *err = "big-endian streams are not supported"; return false; }
+    const uint16_t count = r.u16(0x10);
+    int64_t infoAt = -1, dataAt = -1;
+    for (uint16_t k = 0; k < count && r.ok(); k++) {
+        const uint16_t type = r.u16(0x14 + k * 12);
+        if (type == 0x4000) infoAt = r.i32(0x14 + k * 12 + 4);
+        else if (type == 0x4002) dataAt = r.i32(0x14 + k * 12 + 4);
+    }
+    if (!r.ok()) { *err = r.error(); return false; }
+    if (infoAt < 0 || dataAt < 0) { *err = "CSTM is missing its INFO or DATA block"; return false; }
+    const int64_t body = infoAt + 8;
+    const int64_t stream = body + r.i32(body + 4);
+    const int64_t channelTable = body + r.i32(body + 0x14);
+    const uint8_t enc = r.u8(stream);
+    const bool loop = r.u8(stream + 1) != 0;
+    const int channels = r.u8(stream + 2);
+    const uint32_t rate = r.u32(stream + 4), loopStart = r.u32(stream + 8), sampleCount = r.u32(stream + 0xC);
+    const uint32_t blockCount = r.u32(stream + 0x10), blockSize = r.u32(stream + 0x14), blockSamples = r.u32(stream + 0x18);
+    const uint32_t lastSize = r.u32(stream + 0x1C), lastSamples = r.u32(stream + 0x20), lastPadded = r.u32(stream + 0x24);
+    const int64_t sampleData = dataAt + 8 + r.i32(stream + 0x34);
+    if (!r.ok()) { *err = r.error(); return false; }
+    if (channels < 1 || channels > 2 || !rate || !sampleCount || !blockCount || !blockSamples || enc > 2) {
+        *err = format("unsupported CSTM (encoding %d, %d channels)", enc, channels);
+        return false;
+    }
+    if ((uint64_t)sampleCount * channels > (64u << 20)) { *err = "CSTM too long"; return false; }
+    struct Dsp { int coefs[16]; int h1, h2; };
+    std::vector<Dsp> dsp((size_t)channels);
+    if (enc == 2) {
+        const uint32_t n2 = r.u32(channelTable);
+        for (int c = 0; c < channels; c++) {
+            if ((uint32_t)c >= n2) { *err = "CSTM channel table is short"; return false; }
+            const int64_t ch = channelTable + r.i32(channelTable + 4 + c * 8 + 4);
+            const int64_t adpcm = ch + r.i32(ch + 4);
+            for (int k = 0; k < 16; k++) dsp[c].coefs[k] = r.i16(adpcm + k * 2);
+            dsp[c].h1 = r.i16(adpcm + 0x22);
+            dsp[c].h2 = r.i16(adpcm + 0x24);
+        }
+        if (!r.ok()) { *err = r.error(); return false; }
+    }
+    out->pcm.assign((size_t)sampleCount * channels, 0);
+    int64_t offset = sampleData;
+    for (uint32_t block = 0; block < blockCount; block++) {
+        const bool last = block == blockCount - 1;
+        const uint32_t size = last ? lastSize : blockSize;
+        const uint32_t stride = last ? lastPadded : blockSize;
+        const uint32_t samples = last ? lastSamples : blockSamples;
+        const uint64_t start = (uint64_t)block * blockSamples;
+        if (start >= sampleCount) break;
+        const uint32_t todo = (uint32_t)std::min<uint64_t>(samples, sampleCount - start);
+        for (int c = 0; c < channels; c++) {
+            const int64_t at = offset + (int64_t)c * stride;
+            int16_t* o = out->pcm.data() + start * channels + c;
+            if (enc == 1) {
+                if (!r.has(at, (int64_t)todo * 2)) { *err = r.error(); return false; }
+                for (uint32_t i = 0; i < todo; i++) o[(size_t)i * channels] = (int16_t)le16(d + at + i * 2);
+            } else if (enc == 0) {
+                if (!r.has(at, todo)) { *err = r.error(); return false; }
+                for (uint32_t i = 0; i < todo; i++) o[(size_t)i * channels] = (int16_t)((int8_t)d[at + i] * 256);
+            } else {
+                // Nintendo DSP-ADPCM: 8 byte frames of a predictor / scale byte and 14 nibbles
+                if (!r.has(at, ((int64_t)todo + 13) / 14 * 8)) { *err = r.error(); return false; }
+                Dsp& s = dsp[c];
+                uint32_t k = 0;
+                int64_t f = at;
+                while (k < todo) {
+                    const uint8_t header = d[f];
+                    const int scale = 1 << (header & 0xF);
+                    const int c1 = s.coefs[(header >> 4) * 2], c2 = s.coefs[(header >> 4) * 2 + 1];
+                    for (int i = 1; i < 8 && k < todo; i++) {
+                        const uint8_t byte = d[f + i];
+                        for (int shift = 4; shift >= 0 && k < todo; shift -= 4) {
+                            int nib = (byte >> shift) & 0xF;
+                            if (nib >= 8) nib -= 16;
+                            const int64_t v = ((int64_t)nib * scale * 2048 + 1024 + (int64_t)c1 * s.h1 + (int64_t)c2 * s.h2);
+                            int sample = (int)(v >= 0 ? v / 2048 : -((-v + 2047) / 2048));   // floor division
+                            sample = std::clamp(sample, -32768, 32767);
+                            o[(size_t)k * channels] = (int16_t)sample;
+                            k++;
+                            s.h2 = s.h1;
+                            s.h1 = sample;
+                        }
+                    }
+                    f += 8;
+                }
+            }
+        }
+        offset += (int64_t)channels * (last ? stride : size);
+    }
+    out->channels = channels;
+    out->sampleRate = (int)rate;
+    out->frames = sampleCount;
+    out->loop = loop && loopStart < sampleCount;
+    out->loopStart = loopStart;
+    out->loopEnd = sampleCount;
+    out->encoding = enc == 2 ? "dspAdpcm" : enc == 1 ? "pcm16" : "pcm8";
+    return true;
+}
+
 void decodeIcon(const uint8_t* data, int size, std::vector<uint8_t>* out) {
     out->assign((size_t)size * size * 4, 0);
     size_t i = 0;
@@ -3264,6 +3370,20 @@ bool exefsReadable(const uint8_t* h, uint64_t exefsSize) {
 }
 
 }  // namespace
+
+bool decodeCtrWave(const uint8_t* data, size_t size, RomSound* out, std::string* error) {
+    std::string err;
+    const bool ok = decodeCwav(data, size, out, &err);
+    if (!ok && error) *error = err;
+    return ok;
+}
+
+bool decodeCtrStream(const uint8_t* data, size_t size, RomSound* out, std::string* error) {
+    std::string err;
+    const bool ok = decodeCstm(data, size, out, &err);
+    if (!ok && error) *error = err;
+    return ok;
+}
 
 bool readRomExeFs(const std::string& romPath, std::vector<uint8_t>* icon, std::vector<uint8_t>* banner,
                   uint64_t* programId, std::string* productCode, std::string* error) {

@@ -18,6 +18,7 @@
 #include "NanoMenuStrings.h"
 
 #include <linux/input.h>
+#include <dirent.h>
 #include <sys/stat.h>
 #include <sys/system_properties.h>
 // exported by libc, declared only in the internal header (see NanoMenuInput.cpp)
@@ -321,6 +322,10 @@ bool NanoMenu::ctrEnsure() {
             else { mCtrPanel->drawBottom(r); mCtrDialog->drawBottom(r); }
         };
         mCtrHome->onTick = [this]() { mCtrPanel->tick(); mCtrDialog->tick(); };
+        // a theme's animated bottom image plays its frame sound on each new frame (background.ts)
+        mCtrHome->onBackgroundFrame = [this](int phase) {
+            if (mCtrHost) mCtrHost->playSound(("THEME_FRAME" + std::to_string(phase)).c_str());
+        };
     }
     return true;
 }
@@ -584,6 +589,7 @@ void NanoMenu::ctrApplyTheme() {
     }
     mCtrHome->setTheme(body);
     mCtrThemeApplied = body;
+    ctrApplyThemeSounds(body);
     // the background images are textures now: their pixels are not kept (a new home loads the
     // theme again)
     if (body == mCtrThemeBody.get()) {
@@ -593,6 +599,149 @@ void NanoMenu::ctrApplyTheme() {
         }
     }
     mDisplayDirty = true;
+}
+
+// A theme's sounds (theme/sounds.ts, theme.py parse_sound_effects): the slots of its sound effect
+// section replace menu sounds (cursor for the icon touch and select, launch for START, ok for the
+// buttons, cancel for back), the frame slots play on the bottom image's frames, and its BCSTM
+// replaces the menu BGM. The stream is decoded once into a WAV in the art cache, mapped like the
+// menu's own BGM (page cache, not heap).
+void NanoMenu::ctrApplyThemeSounds(const ctr::ThemeBody* body) {
+    if (!mCtrAudio) return;
+    mCtrAudio->clearOverrides();
+    if (!body) { mCtrAudio->stopBgm(10); return; }   // the menu BGM comes back with the keep-alive
+    const std::vector<uint8_t>& se = body->soundEffects;
+    auto u32 = [&](size_t o) -> uint32_t {
+        return o + 4 <= se.size() ? (uint32_t)se[o] | se[o + 1] << 8 | se[o + 2] << 16 | (uint32_t)se[o + 3] << 24 : 0;
+    };
+    // decoded slots, by name
+    std::map<std::string, std::pair<std::shared_ptr<ctr::RomSound>, float>> slots;
+    if (se.size() >= 8) {
+        size_t off = 8;
+        auto slot = [&](const char* name, size_t hdr, size_t dataAt, uint32_t size, uint32_t vol) {
+            (void)hdr;
+            if (!size || dataAt + size > se.size()) return;
+            auto s = std::make_shared<ctr::RomSound>();
+            std::string err;
+            if (ctr::decodeCtrWave(se.data() + dataAt, size, s.get(), &err) && !s->pcm.empty())
+                slots[name] = {s, vol * 0.01f};
+            else
+                ALOGW("ctr: theme sound %s: %s", name, err.c_str());
+        };
+        for (const char* n : {"cursor", "launch", "ok", "cancel"}) {
+            const uint32_t size = u32(off), vol = u32(off + 4);
+            slot(n, off, off + 8, size, vol);
+            off += 8 + size;
+        }
+        {   // the held scroll sound: size, volume, then nine words of its pitch and loop settings
+            const uint32_t size = u32(off), vol = u32(off + 4);
+            slot("scroll", off, off + 0x2C, size, vol);
+            off += 0x2C + size;
+        }
+        for (const char* n : {"frame0", "frame1", "frame2", "resume"}) {
+            const uint32_t size = u32(off), vol = u32(off + 4);
+            slot(n, off, off + 8, size, vol);
+            off += 8 + size;
+        }
+    }
+    if (!slots.empty()) {
+        const float se1 = 1.0f / mCtrAudio->seMaster();   // the theme's own levels, not the render makeup
+        auto use = [&](const char* name, const char* slotName) {
+            auto it = slots.find(slotName);
+            if (it == slots.end()) return;
+            const ctr::RomSound& s = *it->second.first;
+            mCtrAudio->overridePcm(name, it->second.first, s.pcm.data(), s.frames, s.channels, s.sampleRate, s.loop,
+                                   s.loopStart, s.loopEnd, it->second.second * se1);
+        };
+        static const struct { const char* name; const char* slot; } kReplaced[] = {
+            {"SE_CTR_HOME_ICON_TOUCH", "cursor"}, {"SE_CTR_HOME_ICON_SELECT", "cursor"}, {"SE_CTR_HOME_START", "launch"},
+            {"SE_CTR_COMMON_BUTTON", "ok"}, {"SE_CTR_COMMON_OK", "ok"}, {"SE_CTR_COMMON_RETURN", "cancel"},
+            {"SE_CTR_COMMON_CANCEL", "cancel"}};
+        for (const auto& r : kReplaced) use(r.name, r.slot);
+        mCtrAudio->silence("SE_CTR_HOME_EX_ICON_SCROLL");
+        if (slots.count("launch")) mCtrAudio->silence("SE_CTR_HOME_START_EFFECT");
+        if (slots.count("scroll")) use("SE_CTR_HOME_ICON_SCROLL", "scroll");
+        use("THEME_FRAME0", "frame0");
+        use("THEME_FRAME1", "frame1");
+        use("THEME_FRAME2", "frame2");
+    }
+    // the BGM
+    if (body->bgmEnabled && !body->bgmPath.empty()) {
+        struct stat st;
+        if (stat(body->bgmPath.c_str(), &st) == 0) {
+            uint64_t h = 1469598103934665603ull;
+            for (char c : body->bgmPath) { h ^= (unsigned char)c; h *= 1099511628211ull; }
+            h ^= (uint64_t)st.st_size * 31 + (uint64_t)st.st_mtime;
+            char wav[160];
+            snprintf(wav, sizeof(wav), "/data/system/nano_ctr_rom/theme_bgm_%016llx.wav", (unsigned long long)h);
+            struct stat ws;
+            if (stat(wav, &ws) != 0 && !ctrWriteThemeBgm(body->bgmPath, wav))
+                ALOGW("ctr: theme BGM %s not decoded", body->bgmPath.c_str());
+            if (stat(wav, &ws) == 0) {
+                const float g = 1.0f / mCtrAudio->bgmMaster();   // a stream at its own level
+                mCtrAudio->overrideWav("BGM_CTR_HOME", wav, g);
+                mCtrAudio->overrideWav("BGM_CTR_HOME_NO_INTRO", wav, g);
+            }
+        }
+    }
+    mCtrAudio->stopBgm(10);   // the keep-alive starts the (new) BGM again
+}
+
+// Decodes a theme's BCSTM into a 16 bit WAV with its loop (a smpl chunk, as the menu's renders),
+// replacing an older theme's file.
+bool NanoMenu::ctrWriteThemeBgm(const std::string& bcstm, const std::string& wavPath) {
+    std::vector<uint8_t> data;
+    {
+        FILE* f = fopen(bcstm.c_str(), "rb");
+        if (!f) return false;
+        fseek(f, 0, SEEK_END);
+        const long n = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        if (n <= 0 || n > 32 * 1024 * 1024) { fclose(f); return false; }
+        data.resize((size_t)n);
+        const bool ok = fread(data.data(), 1, data.size(), f) == data.size();
+        fclose(f);
+        if (!ok) return false;
+    }
+    ctr::RomSound s;
+    std::string err;
+    if (!ctr::decodeCtrStream(data.data(), data.size(), &s, &err)) {
+        ALOGW("ctr: %s: %s", bcstm.c_str(), err.c_str());
+        return false;
+    }
+    // one theme BGM file at a time
+    if (DIR* d = opendir("/data/system/nano_ctr_rom")) {
+        while (dirent* e = readdir(d))
+            if (!strncmp(e->d_name, "theme_bgm_", 10)) unlink((std::string("/data/system/nano_ctr_rom/") + e->d_name).c_str());
+        closedir(d);
+    }
+    const std::string tmp = wavPath + ".tmp";
+    FILE* f = fopen(tmp.c_str(), "wb");
+    if (!f) return false;
+    auto w32 = [&](uint32_t v) { fwrite(&v, 4, 1, f); };
+    auto w16 = [&](uint16_t v) { fwrite(&v, 2, 1, f); };
+    const uint32_t dataBytes = (uint32_t)(s.pcm.size() * 2);
+    const uint32_t smplBytes = s.loop ? 36 + 24 : 0;
+    fwrite("RIFF", 1, 4, f);
+    w32(4 + 8 + 16 + 8 + dataBytes + (s.loop ? 8 + smplBytes : 0));
+    fwrite("WAVEfmt ", 1, 8, f);
+    w32(16); w16(1); w16((uint16_t)s.channels); w32((uint32_t)s.sampleRate);
+    w32((uint32_t)(s.sampleRate * s.channels * 2)); w16((uint16_t)(s.channels * 2)); w16(16);
+    if (s.loop) {
+        fwrite("smpl", 1, 4, f);
+        w32(smplBytes);
+        for (int i = 0; i < 7; i++) w32(0);
+        w32(1);   // one loop
+        w32(0);
+        w32(0); w32(0);   // cue id, forward
+        w32(s.loopStart); w32(s.loopEnd - 1);   // inclusive end
+        w32(0); w32(0);
+    }
+    fwrite("data", 1, 4, f);
+    w32(dataBytes);
+    const bool ok = fwrite(s.pcm.data(), 2, s.pcm.size(), f) == s.pcm.size();
+    if (fclose(f) != 0 || !ok) { unlink(tmp.c_str()); return false; }
+    return rename(tmp.c_str(), wavPath.c_str()) == 0;
 }
 
 // ---------------------------------------------------------------------------- wallpapers

@@ -35,6 +35,16 @@ public:
     // while the voice plays.
     int playPcm(std::shared_ptr<const void> keep, const int16_t* pcm, int64_t frames, int channels, int rate,
                 bool loop, int64_t loopStart, int64_t loopEnd, float volume = 1.0f);
+    // A theme's sounds (theme/sounds.ts): a named sound is replaced by PCM held elsewhere or by a
+    // WAV file (mapped like the menu's own), or silenced; `gain` scales it against the master of
+    // its kind. clearOverrides() gives every name back its menu sound.
+    void overridePcm(const std::string& name, std::shared_ptr<const void> keep, const int16_t* pcm, int64_t frames,
+                     int channels, int rate, bool loop, int64_t loopStart, int64_t loopEnd, float gain);
+    void overrideWav(const std::string& name, const std::string& path, float gain);
+    void silence(const std::string& name);
+    void clearOverrides();
+    float seMaster() const { return mSeMaster; }
+    float bgmMaster() const { return mBgmMaster; }
     // Closes the output (the home parks behind an app); a later play reopens it.
     void release();
     int32_t fill(int which, int16_t* out, int32_t frames);   // stream callback (public for the trampolines)
@@ -54,6 +64,7 @@ private:
         bool loop = false;
         int64_t loopStart = 0, loopEnd = 0;
         bool bgm = false;
+        float gain = 1;   // an override's level against the master of its kind
         std::string name;
         std::shared_ptr<const void> keep;   // playPcm: the owner of the samples
     };
@@ -66,6 +77,8 @@ private:
         bool active = false;
     };
     std::shared_ptr<Clip> clip(const std::string& name);
+    std::shared_ptr<Clip> loadWav(const std::string& path, const std::string& name);
+    std::map<std::string, std::shared_ptr<Clip>> mOverrides;   // under mClipM; null = silenced
     bool openLocked(int which);
     void ensureRunning(int which);
 

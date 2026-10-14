@@ -41,10 +41,19 @@ CtrAudio::Clip::~Clip() {
 // RIFF WAV, 16 bit PCM mono or stereo, with an optional "smpl" loop (ctr_render_sounds.py).
 std::shared_ptr<CtrAudio::Clip> CtrAudio::clip(const std::string& name) {
     std::lock_guard<std::mutex> lk(mClipM);
+    auto ov = mOverrides.find(name);
+    if (ov != mOverrides.end()) return ov->second;   // a theme's sound (or silence)
     auto it = mClips.find(name);
     if (it != mClips.end()) return it->second;
+    std::shared_ptr<Clip> c = loadWav(mDir + "/" + name + ".wav", name);
+    if (!c) ALOGW("sound %s missing", name.c_str());
+    mClips[name] = c;
+    return c;
+}
+
+std::shared_ptr<CtrAudio::Clip> CtrAudio::loadWav(const std::string& path, const std::string& name) {
     std::shared_ptr<Clip> c;
-    const int fd = ::open((mDir + "/" + name + ".wav").c_str(), O_RDONLY | O_CLOEXEC);
+    const int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
     struct stat st;
     if (fd >= 0 && fstat(fd, &st) == 0 && st.st_size > 44) {
         void* m = mmap(nullptr, (size_t)st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -87,9 +96,44 @@ std::shared_ptr<CtrAudio::Clip> CtrAudio::clip(const std::string& name) {
         if (c->loop && (c->loopEnd <= c->loopStart || c->loopEnd > c->frames)) c->loop = false;
         if (!ok || !c->pcm || c->frames == 0) c.reset();
     }
-    if (!c) ALOGW("sound %s missing", name.c_str());
-    mClips[name] = c;
     return c;
+}
+
+void CtrAudio::overridePcm(const std::string& name, std::shared_ptr<const void> keep, const int16_t* pcm, int64_t frames,
+                           int channels, int rate, bool loop, int64_t loopStart, int64_t loopEnd, float gain) {
+    if (!pcm || frames <= 0 || (channels != 1 && channels != 2) || rate <= 0) return;
+    auto c = std::make_shared<Clip>();
+    c->keep = std::move(keep);
+    c->pcm = pcm;
+    c->frames = frames;
+    c->channels = channels;
+    c->rate = rate;
+    c->loop = loop && loopEnd > loopStart && loopEnd <= frames;
+    c->loopStart = loopStart;
+    c->loopEnd = loopEnd;
+    c->bgm = name.rfind("BGM_", 0) == 0;
+    c->gain = gain;
+    c->name = name;
+    std::lock_guard<std::mutex> lk(mClipM);
+    mOverrides[name] = std::move(c);
+}
+
+void CtrAudio::overrideWav(const std::string& name, const std::string& path, float gain) {
+    std::shared_ptr<Clip> c = loadWav(path, name);
+    if (!c) { ALOGW("theme sound %s missing", path.c_str()); return; }
+    c->gain = gain;
+    std::lock_guard<std::mutex> lk(mClipM);
+    mOverrides[name] = std::move(c);
+}
+
+void CtrAudio::silence(const std::string& name) {
+    std::lock_guard<std::mutex> lk(mClipM);
+    mOverrides[name] = nullptr;
+}
+
+void CtrAudio::clearOverrides() {
+    std::lock_guard<std::mutex> lk(mClipM);
+    mOverrides.clear();   // playing voices hold their clips until they end
 }
 
 void CtrAudio::preload(const std::string& name) { (void)clip(name); }
@@ -148,7 +192,7 @@ int CtrAudio::play(const std::string& name, float volume, float pitch) {
         slot->pos = 0;
         slot->pitch = pitch;
         slot->step = (double)c->rate / mOut[0].rate * pitch;
-        slot->gain = volume * (c->bgm ? mBgmMaster : mSeMaster);
+        slot->gain = volume * c->gain * (c->bgm ? mBgmMaster : mSeMaster);
         slot->fadeTotal = slot->fadeLeft = 0;
         slot->active = true;
     }
