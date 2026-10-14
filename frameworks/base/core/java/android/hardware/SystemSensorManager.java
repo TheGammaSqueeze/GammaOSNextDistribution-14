@@ -158,13 +158,11 @@ public class SystemSensorManager extends SensorManager {
         ApplicationInfo appInfo = context.getApplicationInfo();
         mTargetSdkLevel = appInfo.targetSdkVersion;
         mContext = context;
-        // In GammaOS Nano minimal boot, native sensorservice is not running.
-        // nativeCreate() would block waiting for it. Return 0 (no sensors).
-        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
-            mNativeInstance = 0;
-        } else {
-            mNativeInstance = nativeCreate(context.getOpPackageName());
-        }
+        // GammaOS Nano: minimal boot used to skip the native sensorservice, and this returned no
+        // sensors so nativeCreate() could not block on it. SystemServer has started SensorService
+        // in minimal boot since (SDL apps wait on it), so apps get the real sensor list here too;
+        // the stub left every app in nano mode without a gyroscope or accelerometer.
+        mNativeInstance = nativeCreate(context.getOpPackageName());
         mIsPackageDebuggable = (0 != (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE));
 
         // initialize the sensor list
