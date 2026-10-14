@@ -251,8 +251,8 @@ static inline void wideMaybeReload(StereoWidenerHB& w) {
 
 // Optional global post-gain (after chain) to restore loudness safely.
 static inline float getGlobalPostampLin() {
-    static float sLin = 1.0f;
-    static int64_t sLast = 0;
+    static thread_local float sLin = 1.0f;
+    static thread_local int64_t sLast = 0;
     const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
     if (now - sLast > seconds(1)) {
         char v[PROPERTY_VALUE_MAX] = {};
@@ -340,8 +340,8 @@ static inline void crystMaybeReload(CrystalizerLite& c) {
 
 // ---- Optional global pre-attenuator (dB) to avoid tripping HAL speaker protection ----
 static inline float getGlobalPreampLin() {
-    static float sLin = 1.0f;
-    static int64_t sLast = 0;
+    static thread_local float sLin = 1.0f;
+    static thread_local int64_t sLast = 0;
     const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
     if (now - sLast > seconds(1)) {
         char v[PROPERTY_VALUE_MAX] = {};
@@ -385,7 +385,7 @@ struct LowBandProtector {
             float L = interleaved[2*i+0];
             float R = interleaved[2*i+1];
             // extract bass with LPF per channel
-            static float lpfL=0.f, lpfR=0.f;
+            static thread_local float lpfL=0.f, lpfR=0.f;
             lpfL = aL*lpfL + bL*L;
             lpfR = aL*lpfR + bL*R;
             const float lowL = lpfL;
@@ -951,11 +951,11 @@ void FastMixer::onWork()
         ATRACE_BEGIN("write");
         // ---- GammaEQ processing (fast-path friendly) -------------------------
         do {
-            static SpeakerPEQ sPEQ;
-            static StereoWidenerHB sWide;
-            static CrystalizerLite sCryst;
-            static LowBandProtector sLBP;
-            static MidProtector sMP;
+            static thread_local SpeakerPEQ sPEQ;
+            static thread_local StereoWidenerHB sWide;
+            static thread_local CrystalizerLite sCryst;
+            static thread_local LowBandProtector sLBP;
+            static thread_local MidProtector sMP;
             // Hard master gate: OFF by default.
             if (!gammaeqMasterEnabled()) {
                 break;

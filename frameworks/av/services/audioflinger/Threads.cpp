@@ -917,8 +917,8 @@ static inline void wideMaybeReload(StereoWidenerHB& w) {
 
 // Optional global post-gain (after chain) to restore loudness safely.
 static inline float getGlobalPostampLin() {
-    static float sLin = 1.0f;
-    static int64_t sLast = 0;
+    static thread_local float sLin = 1.0f;
+    static thread_local int64_t sLast = 0;
     const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
     if (now - sLast > seconds(1)) {
         char v[PROPERTY_VALUE_MAX] = {};
@@ -932,8 +932,8 @@ static inline float getGlobalPostampLin() {
 
 // Optional global pre-attenuator (dB) to avoid tripping HAL speaker protection
 static inline float getGlobalPreampLin() {
-    static float sLin = 1.0f;
-    static int64_t sLast = 0;
+    static thread_local float sLin = 1.0f;
+    static thread_local int64_t sLast = 0;
     const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
     if (now - sLast > seconds(1)) {
         char v[PROPERTY_VALUE_MAX] = {};
@@ -4163,11 +4163,11 @@ ssize_t PlaybackThread::threadLoop_write()
         // Only run when mNormalSink is the HAL sink (mOutputSink), not the FastMixer pipe.
         if (mNormalSink.get() == mOutputSink.get()) {
             do {
-                static SpeakerPEQ       sPEQ;
-                static StereoWidenerHB  sWide;
-                static CrystalizerLite  sCryst;
-                static LowBandProtector sLBP;
-                static MidProtector     sMP;
+                static thread_local SpeakerPEQ       sPEQ;
+                static thread_local StereoWidenerHB  sWide;
+                static thread_local CrystalizerLite  sCryst;
+                static thread_local LowBandProtector sLBP;
+                static thread_local MidProtector     sMP;
 
                 // Hard master gate: OFF by default.
                 if (!gammaeqMasterEnabled()) {
@@ -4257,12 +4257,70 @@ ssize_t PlaybackThread::threadLoop_write()
                             tmp.data(), sampCount);
                     break;
                 }
-                case AUDIO_FORMAT_PCM_FLOAT:
-                case AUDIO_FORMAT_PCM_24_BIT_PACKED:
-                case AUDIO_FORMAT_PCM_32_BIT:
-                    // Normal mixer on your tree only uses 16-bit / 8_24 here.
-                    // Leave these as no-op for now; they are fully handled
-                    // in the FastMixer path or in the DIRECT branch below.
+                // GammaOS: the deep-buffer output on the Duo Lite mixes in 24-bit packed
+                // (and the HAL may ask for float or 32-bit), so these formats must run
+                // the chain too or that output plays with no EQ at all.
+                case AUDIO_FORMAT_PCM_24_BIT_PACKED: {
+                    static thread_local std::vector<float> tmp;
+                    tmp.resize(sampCount);
+                    memcpy_to_float_from_p24(tmp.data(),
+                            reinterpret_cast<const uint8_t*>(buffer), sampCount);
+                    if (preamp != 1.0f)
+                        for (size_t i = 0; i < sampCount; ++i) tmp[i] *= preamp;
+                    sPEQ.process(tmp.data(), frameCount, ch);
+                    sCryst.updateCoef(mSampleRate);
+                    sCryst.process(tmp.data(), frameCount, ch);
+                    sLBP.updateCoef(mSampleRate);
+                    sLBP.process(tmp.data(), frameCount, ch);
+                    sMP.updateCoef(mSampleRate);
+                    sMP.process(tmp.data(), frameCount, ch);
+                    sWide.updateCoef(mSampleRate);
+                    sWide.process(tmp.data(), frameCount, ch);
+                    if (postamp != 1.0f)
+                        for (size_t i = 0; i < sampCount; ++i) tmp[i] *= postamp;
+                    memcpy_to_p24_from_float(reinterpret_cast<uint8_t*>(buffer),
+                            tmp.data(), sampCount);
+                    break;
+                }
+                case AUDIO_FORMAT_PCM_32_BIT: {
+                    static thread_local std::vector<float> tmp;
+                    tmp.resize(sampCount);
+                    memcpy_to_float_from_i32(tmp.data(),
+                            reinterpret_cast<const int32_t*>(buffer), sampCount);
+                    if (preamp != 1.0f)
+                        for (size_t i = 0; i < sampCount; ++i) tmp[i] *= preamp;
+                    sPEQ.process(tmp.data(), frameCount, ch);
+                    sCryst.updateCoef(mSampleRate);
+                    sCryst.process(tmp.data(), frameCount, ch);
+                    sLBP.updateCoef(mSampleRate);
+                    sLBP.process(tmp.data(), frameCount, ch);
+                    sMP.updateCoef(mSampleRate);
+                    sMP.process(tmp.data(), frameCount, ch);
+                    sWide.updateCoef(mSampleRate);
+                    sWide.process(tmp.data(), frameCount, ch);
+                    if (postamp != 1.0f)
+                        for (size_t i = 0; i < sampCount; ++i) tmp[i] *= postamp;
+                    memcpy_to_i32_from_float(reinterpret_cast<int32_t*>(buffer),
+                            tmp.data(), sampCount);
+                    break;
+                }
+                case AUDIO_FORMAT_PCM_FLOAT: {
+                    float* fbuf = reinterpret_cast<float*>(buffer);
+                    if (preamp != 1.0f)
+                        for (size_t i = 0; i < sampCount; ++i) fbuf[i] *= preamp;
+                    sPEQ.process(fbuf, frameCount, ch);
+                    sCryst.updateCoef(mSampleRate);
+                    sCryst.process(fbuf, frameCount, ch);
+                    sLBP.updateCoef(mSampleRate);
+                    sLBP.process(fbuf, frameCount, ch);
+                    sMP.updateCoef(mSampleRate);
+                    sMP.process(fbuf, frameCount, ch);
+                    sWide.updateCoef(mSampleRate);
+                    sWide.process(fbuf, frameCount, ch);
+                    if (postamp != 1.0f)
+                        for (size_t i = 0; i < sampCount; ++i) fbuf[i] *= postamp;
+                    break;
+                }
                 default:
                     break;
                 }
@@ -4298,11 +4356,11 @@ ssize_t PlaybackThread::threadLoop_write()
 
         // GammaEQ processing (PlaybackThread direct/offload path)
         do {
-            static SpeakerPEQ sPEQ;
-            static StereoWidenerHB sWide;
-            static CrystalizerLite sCryst;
-            static LowBandProtector sLBP;
-            static MidProtector sMP;
+            static thread_local SpeakerPEQ sPEQ;
+            static thread_local StereoWidenerHB sWide;
+            static thread_local CrystalizerLite sCryst;
+            static thread_local LowBandProtector sLBP;
+            static thread_local MidProtector sMP;
 
             // Hard master gate: OFF by default.
             if (!gammaeqMasterEnabled()) {
