@@ -1635,6 +1635,7 @@ private:
     void ctrModalUpdate();                        // feeds the panel / dialog from the menu state
     bool ctrModalTouch(float x, float y);         // a touch frame on the panel / dialog (bottom units)
     void ctrSfx(int ps3SfxId);                    // nano's navigation sounds as the console's effects
+    void ctrLeave();                              // the theme is switched away from: audio off, GL freed
     bool ctrItemSwitch(const Ps3Item& it, bool* on);   // an On/Off setting row (a 3DS OFF / ON pair)
     bool ctrSetSwitch(int itemIndex, bool on);    // sets one through nano's own chooser
     bool ctrSwitchKey(int type, int code, int value);  // LEFT / RIGHT / A on a switch row

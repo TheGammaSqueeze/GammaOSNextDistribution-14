@@ -793,6 +793,17 @@ bool NanoMenu::ctrSwitchKey(int type, int code, int value) {
     return true;
 }
 
+void NanoMenu::ctrLeave() {
+    if (mCtrAudio) {
+        mCtrAudio->stopAll(0);
+        mCtrAudio->release();
+    }
+    ctrRelease();
+    mCtrHeld = 0;
+    mCtrStickX = mCtrStickY = 0;
+    mCtrModelSig = 0;
+}
+
 // nano's navigation sounds (PS3_SFX_*) as the console's effects
 void NanoMenu::ctrSfx(int which) {
     if (!mCtrHost) return;

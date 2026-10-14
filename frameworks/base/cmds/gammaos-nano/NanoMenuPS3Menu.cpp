@@ -9201,7 +9201,7 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // so applying restarts the main gammaos-nano home service - see the "Home Theme" hook in
     // closePs3Dialog. "0"/empty = GammaOS XMB, "1" = the DSi Menu theme.
     {"Home Theme", SettingSource::kProp, "persist.gammaos.nano.ndstheme", "0",
-     "0:GammaOS XMB,1:DSi Menu,2:Minima,3:Custom / ES-DE"},
+     "0:GammaOS XMB,1:DSi Menu,2:Minima,3:Custom / ES-DE,4:3DS Menu"},
     // Startup target: what the home opens on a fresh boot/restart. The value is dynamic (a category
     // id or a game-system id), so this uses the @bootto pushed picker rather than a static list; the
     // row's current-value label is computed in resolvePs3ItemValue and the landing applied in
@@ -11839,14 +11839,20 @@ void NanoMenu::closePs3Dialog(bool apply) {
                     // overlay process (restarting gammaos-nano would not touch it). The persist
                     // prop was already written above, so the choice survives a reboot.
                     if (!strcmp(b->label, "Home Theme")) {
-                        int  tv       = atoi(v.c_str());   // 0 XMB, 1 DSi, 2 Minima, 3 ES-DE
+                        int  tv       = atoi(v.c_str());   // 0 XMB, 1 DSi, 2 Minima, 3 ES-DE, 4 3DS
                         bool wantDsi  = (tv == 1);
                         bool wantMin  = (tv == 2);
                         bool wantEsde = (tv == 3);
-                        if (wantDsi != mNdsTheme || wantMin != mMinimaTheme || wantEsde != mEsdeTheme) {
+                        bool wantCtr  = (tv == 4);
+                        if (wantDsi != mNdsTheme || wantMin != mMinimaTheme || wantEsde != mEsdeTheme ||
+                            wantCtr != mCtrTheme) {
+                            // leaving the 3DS home: its BGM stops and its GL objects and art go
+                            // (it loads again lazily on the first frame it is chosen)
+                            if (mCtrTheme && !wantCtr) ctrLeave();
                             mNdsTheme = wantDsi;
                             mMinimaTheme = wantMin;
                             mEsdeTheme = wantEsde;
+                            mCtrTheme = wantCtr;
                             if (wantDsi) ensureNdsAssets();
                             if (wantEsde) {   // force a (re)load of the ES-DE theme set, reset its view
                                 mEsdeLoaded = false; mEsdeInGamelist = false;

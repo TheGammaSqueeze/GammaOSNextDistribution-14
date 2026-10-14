@@ -217,8 +217,10 @@ static bool ndsThemeSelected() {
     // Cached only once the property has a value: at the earliest boot ticks the persist
     // properties are not loaded yet and property_get returns "", which must not be taken as
     // "not the DSi theme" for the rest of the process.
+    // Once a DS showing theme is seen it stays on; until then the property is read again (a
+    // cheap shared memory read), so a theme chosen live in Settings starts the banners too.
     static int cached = -1;
-    if (cached < 0) {
+    if (cached != 1) {
         char v[PROPERTY_VALUE_MAX] = {};
         // the DSi theme (1) and the 3DS theme (4) show DS cartridges with their own icons
         if (property_get("persist.gammaos.nano.ndstheme", v, "") > 0 && v[0]) cached = (atoi(v) == 1 || atoi(v) == 4) ? 1 : 0;
