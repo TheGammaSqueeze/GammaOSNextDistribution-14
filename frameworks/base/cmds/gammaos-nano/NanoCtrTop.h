@@ -105,6 +105,16 @@ private:
     int mMaxScale = 3;
     float mBaseFovY = 0.5235988f;   // BannerCamera's vertical field of view at the design height
     std::shared_ptr<GpuTex> mPlate;
+    // the name plate's marquee (a name too long for the plate scrolls at the one font size)
+    static constexpr int kPlateW = 256, kPlateH = 64;
+    static constexpr float kPlateMargin = 4, kMarqueeSpeed = 0.5f, kMarqueeHold = 90;
+    std::string mPlateText;
+    float mPlateSize = 1;
+    int mPlateFrame = 0;
+    std::vector<float> mPlateOverflow, mPlateOffsets;
+    void rasterPlate(const std::string& text, float size, const std::vector<float>& offsets, std::vector<uint8_t>* px,
+                     std::vector<float>* overflow);
+    void updatePlate();
     std::shared_ptr<ModelResource> mRomRes;   // the current ROM banner's model (not shared)
     std::string mRomResKey;
     // composite

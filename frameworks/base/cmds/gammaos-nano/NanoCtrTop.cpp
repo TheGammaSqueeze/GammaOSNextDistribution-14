@@ -210,8 +210,12 @@ void CtrTop::focus(const TopFocus& f) {
 }
 
 // nametex.ts: black cbf_std glyphs centred on a white 256x64 plate, stored upside down.
-std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size) {
-    const int W = 256, H = 64;
+// The name plate's pixels (RGBA, upside down as the model samples it) at a constant font size:
+// a line wider than the plate starts at its left margin shifted by `offsets[line]` (the marquee);
+// `overflow` gets how far each line runs past the plate (0 when it fits, centred).
+void CtrTop::rasterPlate(const std::string& text, float size, const std::vector<float>& offsets,
+                         std::vector<uint8_t>* outPx, std::vector<float>* overflow) {
+    const int W = kPlateW, H = kPlateH;
     const float SX = 0.84f, SY = 0.65f;
     std::shared_ptr<Font> font = mAssets.font("cbf_std");
     std::vector<uint8_t> ink((size_t)W * H, 0);
@@ -223,19 +227,21 @@ std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size
         }
         lines.push_back(cur);
         std::vector<float> adv;
-        float scale = size;
+        const float scale = size;   // one size for every name (a long one scrolls)
+        if (overflow) overflow->clear();
         for (const auto& l : lines) {
             float a = 0;
             for (char32_t c : l) if (const Glyph* g = font->glyph(c)) a += g->charWidth;
             adv.push_back(a * SX);
-            scale = std::min(scale, (W - 8) / std::max(a * SX, 1.0f));
+            if (overflow) overflow->push_back(std::max(0.0f, a * SX * scale - (W - 2 * kPlateMargin)));
         }
         const float lineHeight = font->cellHeight * SY * scale;
         float top = (H - lineHeight * lines.size()) / 2;
         std::vector<uint8_t> cell;
         const int cw = font->cellWidth + 2, ch = font->cellHeight + 2;
         for (size_t li = 0; li < lines.size(); li++) {
-            float x = (W - adv[li] * scale) / 2;
+            const bool fits = adv[li] * scale <= W - 2 * kPlateMargin;
+            float x = fits ? (W - adv[li] * scale) / 2 : kPlateMargin - (li < offsets.size() ? offsets[li] : 0.0f);
             for (char32_t c : lines[li]) {
                 const Glyph* g = font->glyph(c);
                 if (!g) continue;
@@ -268,7 +274,8 @@ std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size
             top += lineHeight;
         }
     }
-    std::vector<uint8_t> px((size_t)W * H * 4);
+    std::vector<uint8_t>& px = *outPx;
+    px.assign((size_t)W * H * 4, 0);
     for (int y = 0; y < H; y++) {
         const int sy = H - 1 - y;   // upside down
         for (int x = 0; x < W; x++) {
@@ -279,14 +286,54 @@ std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size
             p[3] = 255;
         }
     }
+}
+
+std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size) {
+    std::vector<uint8_t> px;
+    mPlateText = text;
+    mPlateSize = size;
+    mPlateFrame = 0;
+    mPlateOffsets.clear();
+    rasterPlate(text, size, mPlateOffsets, &px, &mPlateOverflow);
     auto t = std::make_shared<GpuTex>();
     glGenTextures(1, &t->id);
     glBindTexture(GL_TEXTURE_2D, t->id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, W, H, 0, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
-    t->width = W;
-    t->height = H;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kPlateW, kPlateH, 0, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+    t->width = kPlateW;
+    t->height = kPlateH;
     return t;
+}
+
+// The marquee of a name too long for its plate: it holds at the start, scrolls to the end, holds,
+// and scrolls back (bounce), at a steady speed; the plate is drawn again only when it moves.
+void CtrTop::updatePlate() {
+    if (!mPlate || !mPlate->id) return;
+    bool any = false;
+    for (float o : mPlateOverflow) any = any || o > 0;
+    if (!any) return;
+    const int frame = mPlateFrame++;
+    std::vector<float> offsets(mPlateOverflow.size(), 0.0f);
+    for (size_t i = 0; i < mPlateOverflow.size(); i++) {
+        const float ov = mPlateOverflow[i];
+        if (ov <= 0) continue;
+        const float run = ov / kMarqueeSpeed;
+        const float period = 2 * kMarqueeHold + 2 * run;
+        const float t = fmodf((float)frame, period);
+        float o;
+        if (t < kMarqueeHold) o = 0;
+        else if (t < kMarqueeHold + run) o = (t - kMarqueeHold) * kMarqueeSpeed;
+        else if (t < 2 * kMarqueeHold + run) o = ov;
+        else o = ov - (t - 2 * kMarqueeHold - run) * kMarqueeSpeed;
+        offsets[i] = roundf(o * 4) / 4;   // quarter pixels: a still hold draws nothing
+    }
+    if (offsets == mPlateOffsets) return;
+    mPlateOffsets = offsets;
+    std::vector<uint8_t> px;
+    rasterPlate(mPlateText, mPlateSize, mPlateOffsets, &px, nullptr);
+    glBindTexture(GL_TEXTURE_2D, mPlate->id);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, kPlateW, kPlateH, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
 }
 
 std::shared_ptr<ModelResource> CtrTop::packResource(const std::vector<uint8_t>& bytes, const std::string& what) {
@@ -436,6 +483,7 @@ void CtrTop::themeBanner(ModelInstance& model, int type) {
 
 void CtrTop::update() {
     if (mHasPending && --mPendingLeft <= 0) attach();
+    updatePlate();
     if (mWall) mWall->update(1);
     for (auto& b : mLeaving) { b->update(); b->model->update(1); if (b->extra) b->extra->update(1); }
     if (mBanner) { mBanner->update(); mBanner->model->update(1); if (mBanner->extra) mBanner->extra->update(1); }
