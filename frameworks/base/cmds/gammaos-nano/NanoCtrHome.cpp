@@ -327,9 +327,34 @@ struct Grid {
 struct IconTemplate {
     std::unique_ptr<LayoutInstance> layout;
     Animator* scale = nullptr;
+    Animator* picToggle = nullptr;
     float offsetX = 0;
-    std::vector<std::string> hidden;
+    std::vector<std::string> hidden, baseHidden;
     float posed = -1000;
+
+    // icons.ts setPicture: the theme picture look (PicToggle frame 1): N_Pic_<group> with the
+    // theme's folder or icon frame image instead of the coloured N_Color_<group> body
+    void setPicture(bool on, const char* group = "00") {
+        if (!picToggle) {
+            if (!on || !layout->hasAnimation("PicToggle")) return;
+            PlayOptions o;
+            o.groups = 1;
+            o.paused = true;
+            o.loop = 0;
+            picToggle = layout->play("PicToggle", o);
+            if (!picToggle) return;
+        }
+        picToggle->seek(on ? 1 : 0);
+        const std::string color = std::string("N_Color_") + group, pic = std::string("N_Pic_") + group;
+        auto inBase = [&](const std::string& n) { return std::find(baseHidden.begin(), baseHidden.end(), n) != baseHidden.end(); };
+        hidden.clear();
+        for (const std::string& n : baseHidden) if (!(on && n == pic)) hidden.push_back(n);
+        if (on) hidden.push_back(color);
+        if (!inBase(color)) layout->setVisible(color, !on);
+        if (!inBase(pic) || on) layout->setVisible(pic, on);
+        posed = -1000;
+        layout->refresh();
+    }
 
     void pose(float zoom) {
         if (zoom == posed) return;
@@ -457,6 +482,7 @@ struct CtrHome::Impl {
         if (!t.layout) return false;
         t.offsetX = offsetX;
         t.hidden = hidden;
+        t.baseHidden = hidden;
         if (t.layout->hasAnimation("Scale")) {
             PlayOptions o = groupsOpt();
             o.paused = true;
@@ -554,6 +580,9 @@ struct CtrHome::Impl {
     };
     Background bgTop, bgBottom;
     uint64_t bgFrame = 0;
+    // a theme's folder and icon frame images (icons.ts): null keeps the coloured bodies
+    TexturePtr themeFolder, themeFileLarge, themeFileSmall;
+    bool blankPicture = false;
     void followBackground(Background& b, bool top, bool follow);
     void updateBackgrounds();
     std::map<std::pair<GLuint, int>, TexturePtr> tinted;   // derived icons by source texture + kind
@@ -1762,6 +1791,11 @@ void CtrHome::Impl::drawIcons(Renderer& r, const Grid& g, const Box* clip) {
             }
             continue;
         }
+        // the theme's icon frame image for the art size shown (icons.ts frameImage)
+        if (themeFileLarge && themeFileSmall) {
+            const int z = g.blending ? (g.t < 0.5f ? g.from.zoom : g.to.zoom) : g.zoom();
+            tile.layout->replaceTexture("P_Btn_10", z >= SMALL_ICON_ZOOM ? themeFileSmall : themeFileLarge);
+        }
         stamp(r, tile, p.x, p.y);
         TexturePtr tex = titleTexture(*it);
         Pane* ip = icon.layout->pane("P_Icon_00");
@@ -2095,6 +2129,12 @@ void CtrHome::Impl::updateBackgrounds() {
     for (const char* n : {"P_BgTop_00", "P_BgL_00", "P_BgR_00", "P_BgBtm_00"})
         if (Pane* p = base ? base->pane(n) : nullptr) p->visible = !bottomShown;
     if (top3d) top3d->setWallHidden(topShown);
+    // icons.ts setBlankPicture: empty slots as the W_Blank_00 window over a bottom image, at 32
+    if (bottomShown != blankPicture && blank.layout) {
+        blankPicture = bottomShown;
+        blank.layout->layout().opacity = bottomShown ? 0x20 : 0x80;
+        blank.setPicture(bottomShown, "01");
+    }
     // the images follow the root grid, not a folder's (FUN_001d41e4)
     // (the texture is bound in any case; the coordinates keep the root grid's last position)
     if (topShown) followBackground(bgTop, true, !inFolder());
@@ -2111,6 +2151,18 @@ void CtrHome::setTheme(const ThemeBody* body) {
     I.bgTop.themeFrame = body ? body->topFrameType : std::string();
     I.bgBottom.theme = body && body->bottomDrawType == "texture" ? themeTexture(*mAssets, body->bottomImage) : nullptr;
     I.bgBottom.themeFrame = body ? body->bottomFrameType : std::string();
+    // icons.ts: the folder and icon frame images (both file sizes needed, as setThemeArt)
+    I.themeFolder = body ? themeTexture(*mAssets, body->folderClosed) : nullptr;
+    I.themeFileLarge = body ? themeTexture(*mAssets, body->fileLarge) : nullptr;
+    I.themeFileSmall = body ? themeTexture(*mAssets, body->fileSmall) : nullptr;
+    if (!I.themeFileLarge || !I.themeFileSmall) I.themeFileLarge = I.themeFileSmall = nullptr;
+    if (mLoaded) {
+        if (I.tile.layout) I.tile.setPicture(I.themeFileLarge != nullptr);
+        if (I.folderIcon.layout) {
+            I.folderIcon.setPicture(I.themeFolder != nullptr);
+            if (I.themeFolder) I.folderIcon.layout->replaceTexture("P_Folder_10", I.themeFolder);
+        }
+    }
 }
 
 void CtrHome::setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic, bool flipY) {
