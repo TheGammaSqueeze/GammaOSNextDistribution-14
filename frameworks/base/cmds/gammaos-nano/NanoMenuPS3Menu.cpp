@@ -762,13 +762,10 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // XMB-only appearance: the wave/particle Background + effect picker, the XMB font and the
     // day/night lighting have no effect in the DSi or Minima home.
     if (is("Background") || is("Font") || is("Day/Night")) return xmb;
-    // the 3DS home: the Colour makes a colour theme (3DS Theme on Default); the wallpapers are not
-    // wired to it yet
-    if (mCtrTheme && (is("Wallpaper Image") || is("Video Wallpaper") || is("Clear Wallpaper") || is("Wallpaper Dimming")))
-        return false;
-    // The effect picker also serves the DSi home: a chosen effect renders on both DSi screens in
-    // place of the flat field / custom wallpaper (persisted separately, see the case 11 commit).
-    if (is("Wallpaper")) return xmb || mNdsTheme;
+    // The effect picker also serves the DSi and 3DS homes: a chosen effect renders on both of
+    // their screens in place of the background / custom wallpaper (persisted separately, see the
+    // case 11 commit). The 3DS home shows the wallpapers as the console shows a theme's images.
+    if (is("Wallpaper")) return xmb || mNdsTheme || mCtrTheme;
     // The wave exists on XMB and (opt-in) Minima, but never the DSi carousel.
     if (is("XMB Wave")) return xmb || minima;
     // Half-resolution render-scale is a set of PS3 XMB-only perf toggles (the DSi/Minima homes are
@@ -797,7 +794,9 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
     // once a secondary panel has been seen (const-safe here, unlike hasSecondaryDisplay()).
     // (the 3DS home's bottom screen is its own: no clock or wallpaper there)
-    if (is("Bottom Clock") || is("Bottom Clock FPS") || is("Bottom Wallpaper")) return mNdsHadSecondary && !mCtrTheme;
+    if (is("Bottom Clock") || is("Bottom Clock FPS")) return mNdsHadSecondary && !mCtrTheme;
+    // the 3DS home has a bottom screen on a single panel too (stacked)
+    if (is("Bottom Wallpaper")) return mNdsHadSecondary || mCtrTheme;
     // Screen Calibration drives the RK356x display controller of the RG DS and RG DS Plus.
     if (is("Screen Calibration")) return screencal::supported();
     // The Control Centre lives on the dual-screen bottom panel, so its options only make sense there.
@@ -8737,10 +8736,17 @@ void NanoMenu::loadPs3ThemeSettings() {
 // top/bottom texture slots; only one theme renders at a time so one pair covers both. Frees the old
 // texture on a path change; a decode failure clears the path so the wave/field shows instead. Runs on
 // the GL thread (loadPs3ThemeSettings / apply). Cheap when nothing changed (path compare, no re-decode).
+// The wallpaper props of the running home theme: XMB (and Minima / ES-DE), DSi and 3DS each keep
+// their own top and bottom wallpaper.
+const char* NanoMenu::wallpaperProp(int panel) const {
+    if (mNdsTheme) return panel == 1 ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.dsi.top";
+    if (mCtrTheme) return panel == 1 ? "persist.gammaos.nano.wp.ctr.bottom" : "persist.gammaos.nano.wp.ctr.top";
+    return panel == 1 ? "persist.gammaos.nano.wp.xmb.bottom" : "persist.gammaos.nano.wp.xmb.top";
+}
+
 void NanoMenu::loadWallpaperTextures() {
-    const bool dsi = mNdsTheme;
-    const char* topProp = dsi ? "persist.gammaos.nano.wp.dsi.top"    : "persist.gammaos.nano.wp.xmb.top";
-    const char* botProp = dsi ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.xmb.bottom";
+    const char* topProp = wallpaperProp(0);
+    const char* botProp = wallpaperProp(1);
     auto reload = [&](const char* prop, std::string& curPath, GLuint& tex, int& w, int& h) {
         char b[PROPERTY_VALUE_MAX] = {};
         property_get(prop, b, "");
@@ -8809,9 +8815,8 @@ void NanoMenu::wallpaperRetryIfNeeded() {
     int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000;
     if (mWpRetryLastMs != 0 && now - mWpRetryLastMs < 2000) return;   // ~every 2s
     mWpRetryLastMs = now;
-    const bool dsi = mNdsTheme;
-    const char* topProp = dsi ? "persist.gammaos.nano.wp.dsi.top"    : "persist.gammaos.nano.wp.xmb.top";
-    const char* botProp = dsi ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.xmb.bottom";
+    const char* topProp = wallpaperProp(0);
+    const char* botProp = wallpaperProp(1);
     char t[PROPERTY_VALUE_MAX] = {}, b[PROPERTY_VALUE_MAX] = {};
     property_get(topProp, t, "");
     property_get(botProp, b, "");
@@ -11454,7 +11459,8 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
               // The DSi home keeps its own Background Effect selection (default None) so
               // choosing one there never changes the XMB wallpaper, and vice versa.
               property_set(mNdsTheme ? "persist.gammaos.nano.nds.effect"
-                                     : "persist.gammaos.nano.wallpaper", b); }
+                           : mCtrTheme ? "persist.gammaos.nano.ctr.effect"
+                                       : "persist.gammaos.nano.wallpaper", b); }
             break;
         case 10: {  // Quick Menu -> Performance Mode. Replicates the legacy
             // global action / PerformanceTile: set persist.gammaos.performance_mode

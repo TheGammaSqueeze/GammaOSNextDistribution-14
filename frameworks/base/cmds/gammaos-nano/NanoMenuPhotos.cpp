@@ -2656,9 +2656,8 @@ void NanoMenu::pvWallpaperConfirm() {
 // wave off by default (materialize the prop so the Theme Settings row agrees). Render-thread only.
 void NanoMenu::wallpaperApplyPick(const std::string& file) {
     int tgt = (mWpPickTarget >= 0) ? mWpPickTarget : 0;
-    const bool dsi = mNdsTheme;
-    const char* prop = dsi ? (tgt == 1 ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.dsi.top")
-                           : (tgt == 1 ? "persist.gammaos.nano.wp.xmb.bottom" : "persist.gammaos.nano.wp.xmb.top");
+    const bool dsi = mNdsTheme || mCtrTheme;   // (the XMB-only wave handling below)
+    const char* prop = wallpaperProp(tgt == 1 ? 1 : 0);
     property_set(prop, file.c_str());
     // Any XMB wallpaper (top or bottom) turns the wave off: the wave toggle is global and a wallpaper only
     // shows on its panel while the wave is off, so a bottom-only wallpaper would otherwise stay hidden.
@@ -2732,9 +2731,9 @@ void NanoMenu::openVideoWallpaperPicker() {
 
 // Clear the active theme's wallpaper on both screens and bring the wave back (Theme Settings leaf action).
 void NanoMenu::clearWallpaper() {
-    const bool dsi = mNdsTheme;
-    property_set(dsi ? "persist.gammaos.nano.wp.dsi.top"    : "persist.gammaos.nano.wp.xmb.top",    "");
-    property_set(dsi ? "persist.gammaos.nano.wp.dsi.bottom" : "persist.gammaos.nano.wp.xmb.bottom", "");
+    const bool dsi = mNdsTheme || mCtrTheme;   // (the XMB-only wave handling below)
+    property_set(wallpaperProp(0), "");
+    property_set(wallpaperProp(1), "");
     if (!dsi) { property_set("persist.gammaos.nano.ps3xmb.wave", "1"); mXmbWave = true;
                 mPs3BindCache.erase("XMB Wave"); }   // wave restored outside the chooser: drop the cached row so it re-reads
     // Free the textures directly (the just-cleared props may not have propagated to this process's read

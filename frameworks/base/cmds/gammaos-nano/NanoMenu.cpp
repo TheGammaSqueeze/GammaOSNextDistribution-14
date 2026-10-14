@@ -1688,8 +1688,10 @@ bool NanoMenu::threadLoop() {
     // wallpaper re-read above so it wins for this process: the DSi home renders whichever
     // effect mCurrentEffect names on both screens in place of the wallpaper (renderNdsCarousel /
     // renderNdsTop), and the Theme Settings picker commits to this prop instead of the XMB one.
-    if (mNdsTheme) {
-        int fx = android::base::GetIntProperty("persist.gammaos.nano.nds.effect", 0);
+    // The 3DS theme keeps one too (persist.gammaos.nano.ctr.effect): drawn on both of its screens
+    // as their background image.
+    if (mNdsTheme || mCtrTheme) {
+        int fx = android::base::GetIntProperty(mCtrTheme ? "persist.gammaos.nano.ctr.effect" : "persist.gammaos.nano.nds.effect", 0);
         bool ok = false;
         for (int i = 0; i < kNumActiveEffects; i++) {
             if (kActiveEffects[i] == fx) { sActiveEffectIdx = i; mCurrentEffect = fx; ok = true; break; }

@@ -1641,6 +1641,9 @@ private:
     bool ctrSliderActive() const;                      // a numeric slider dialog is open
     void ctrRenderOverlays();                          // keyboard / search results over the 3DS screens
     void ctrApplyTheme();                              // Theme Settings > 3DS Theme / Colour -> the home
+    void ctrUpdateWallpapers();                        // Theme Settings wallpapers -> the home's backgrounds
+    struct CtrWallpaper { GLuint fbo = 0, tex = 0; int w = 0, h = 0; std::string sig; };
+    CtrWallpaper mCtrWp[2];                            // top, bottom
     std::shared_ptr<ctr::ThemeBody> mCtrThemeBody;     // an SD card theme or one made from the Colour
     const ctr::ThemeBody* mCtrThemeApplied = nullptr;
     std::string mCtrThemeKey;
@@ -2545,6 +2548,7 @@ private:
     bool   drawVidPreviewInto(float x, float y, float w, float h);  // draw the live preview frame into a cell
     float  wallpaperScrimAlpha() const;           // adjustable wallpaper dimming (Theme Settings "Wallpaper Dimming")
     void   loadWallpaperTextures();               // (re)decode the wallpaper stills from the props (frees old)
+    const char* wallpaperProp(int panel) const;   // the running theme's wallpaper prop (0 top, 1 bottom)
     void   wallpaperRetryIfNeeded();              // retry the wallpaper load until it succeeds (cold-boot storage race)
     int64_t mWpRetryLastMs = 0;                   // throttle stamp for wallpaperRetryIfNeeded
     void   drawWallpaperFill(int panel);          // cover-fit blit of the panel's wallpaper over the full panel

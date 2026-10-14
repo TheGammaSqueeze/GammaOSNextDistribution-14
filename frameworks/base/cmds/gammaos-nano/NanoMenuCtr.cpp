@@ -12,6 +12,7 @@
 #include "NanoCtrPanel.h"
 #include "NanoCtrArt.h"
 #include "NanoCtrTheme.h"
+#include "NanoVideo.h"
 #include "NanoMenuUtils.h"
 #include "NanoI18n.h"
 #include "NanoMenuStrings.h"
@@ -326,6 +327,11 @@ bool NanoMenu::ctrEnsure() {
 
 void NanoMenu::ctrRelease() {
     if (mCtrArt) { mCtrArt->releaseGl(); mArtGeneration++; }
+    for (CtrWallpaper& t : mCtrWp) {
+        if (t.fbo) glDeleteFramebuffers(1, &t.fbo);
+        if (t.tex) glDeleteTextures(1, &t.tex);
+        t = CtrWallpaper();
+    }
     if (mCtrPanel) { mCtrPanel->releaseGl(); delete mCtrPanel; mCtrPanel = nullptr; }
     if (mCtrDialog) { mCtrDialog->releaseGl(); delete mCtrDialog; mCtrDialog = nullptr; }
     if (mCtrHome) {
@@ -587,6 +593,114 @@ void NanoMenu::ctrApplyTheme() {
         }
     }
     mDisplayDirty = true;
+}
+
+// ---------------------------------------------------------------------------- wallpapers
+
+// Theme Settings wallpapers on the 3DS screens: the Wallpaper effect on both, else each screen's
+// picture (the top one may be a video), drawn into a texture of the screen background's shape
+// (cover fit, with the Wallpaper Dimming) that the home shows where the console shows a theme's
+// background images. A picture is drawn once; a video or an effect every frame.
+void NanoMenu::ctrUpdateWallpapers() {
+    const bool effect = mCurrentEffect != 0;
+    GLint prevFbo = 0;
+    GLint vp[4] = {0, 0, 0, 0};
+    bool saved = false;
+    for (int p = 0; p < 2; p++) {
+        const bool top = p == 0;
+        const bool video = top && !effect && mWpTopIsVideo && wallpaperActive(0);
+        const bool still = !effect && !video && wallpaperActive(p);
+        CtrWallpaper& t = mCtrWp[p];
+        if (!effect && !video && !still) {
+            mCtrHome->setWallpaper(top, 0, 0, 0, false);
+            t.sig.clear();
+            continue;
+        }
+        // the shape of P_Bg_00: the top one is 12 wider than the screen (the 3D margin)
+        const float lw = top ? mCtrHome->topWidth() + 12 : mCtrHome->bottomWidth();
+        const float lh = top ? mCtrHome->topHeight() : 240.0f;
+        const int h = 480, w = std::max(2, (int)lroundf(h * lw / lh));
+        const bool dynamic = effect || video;
+        char sig[64];
+        snprintf(sig, sizeof(sig), "%dx%d|%.3f|", w, h, wallpaperScrimAlpha());
+        const std::string want = std::string(sig) + (top ? mWpPathTop : mWpPathBottom);
+        if (!dynamic && t.tex && want == t.sig) {
+            mCtrHome->setWallpaper(top, t.tex, w, h, false, true);
+            continue;
+        }
+        if (!saved) {
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+            glGetIntegerv(GL_VIEWPORT, vp);
+            saved = true;
+        }
+        if (!t.tex) glGenTextures(1, &t.tex);
+        if (!t.fbo) glGenFramebuffers(1, &t.fbo);
+        if (t.w != w || t.h != h) {
+            glBindTexture(GL_TEXTURE_2D, t.tex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glBindFramebuffer(GL_FRAMEBUFFER, t.fbo);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, t.tex, 0);
+            t.w = w;
+            t.h = h;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, t.fbo);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            mCtrHome->setWallpaper(top, 0, 0, 0, false);
+            continue;
+        }
+        glViewport(0, 0, w, h);
+        glDisable(GL_SCISSOR_TEST);
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        // nano's 2D drawing works in mWidth x mHeight, turned by the panel's rotation: the target
+        // is logical (the home turns it with the screen), so the pass draws unrotated
+        const int sw = mWidth, sh = mHeight, sp = mRenderingPanel;
+        mWidth = w;
+        mHeight = h;
+        mRenderingPanel = p;
+        float rot[4];
+        memcpy(rot, sDrmRotMat, sizeof(rot));
+        static const float kIdent[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+        auto uploadRotation = [this](const float* m) {
+            const GLuint progs[] = {mShaderProgram, mTextProgram, mParticleProgram, mFxProgram, mXmbProgram};
+            const GLint locs[] = {mLocRotation, mTextLocRotation, mParticleLocRotation, mFxLocRotation, mXmbLocRotation};
+            for (int i = 0; i < 5; i++) {
+                if (!progs[i] || locs[i] < 0) continue;
+                glUseProgram(progs[i]);
+                glUniformMatrix2fv(locs[i], 1, GL_FALSE, m);
+            }
+        };
+        memcpy(sDrmRotMat, kIdent, sizeof(kIdent));
+        uploadRotation(kIdent);
+        if (effect) {
+            renderEffect();
+        } else if (video) {
+            static const float kId[4] = {1.0f, 0.0f, 0.0f, 1.0f};   // the target is logical
+            mWpVideoTop->updateFrame();
+            mWpVideoTop->draw(w, h, 0.0f, 0.0f, (float)w, (float)h, 1.0f, /*cover=*/1, kId);
+            const float sa = wallpaperScrimAlpha();
+            if (sa > 0.001f) { setUiBlend(); drawQuad(0.0f, 0.0f, (float)w, (float)h, 0.0f, 0.0f, 0.0f, sa); }
+        } else {
+            drawWallpaperFill(p);   // cover fit + dimming
+        }
+        memcpy(sDrmRotMat, rot, sizeof(rot));
+        uploadRotation(rot);
+        mWidth = sw;
+        mHeight = sh;
+        mRenderingPanel = sp;
+        t.sig = dynamic ? std::string() : want;
+        if (!dynamic) ctr::gTextureEpoch++;   // same texture, new pixels: the cached bottom redraws
+        mCtrHome->setWallpaper(top, t.tex, w, h, dynamic, true);
+    }
+    if (saved) {
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        glViewport(vp[0], vp[1], vp[2], vp[3]);
+    }
+    if (effect) mDisplayDirty = true;   // an animation keeps the frames coming
 }
 
 // ---------------------------------------------------------------------------- lists and dialogs
@@ -1448,6 +1562,7 @@ void NanoMenu::renderCtrPrimary() {
         mCtrHome->setTopHeight(ctrTopHeight(tw, th));
     }
     mCtrHome->update(systemTime(SYSTEM_TIME_MONOTONIC));
+    ctrUpdateWallpapers();
     const nsecs_t perfUpdated = sCtrPerf.mode ? sCtrPerf.mark() : 0;
     if (sCtrPerf.mode) sCtrPerf.update += CtrPerf::ms(perfStart, perfUpdated);
     const float W = (float)mWidth, H = (float)mHeight;

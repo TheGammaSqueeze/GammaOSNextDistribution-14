@@ -547,7 +547,7 @@ struct CtrHome::Impl {
         std::unique_ptr<LayoutInstance> lay;
         TexturePtr theme, host, bound;
         std::string themeFrame;
-        bool hostDynamic = false;
+        bool hostDynamic = false, hostFlip = false;
         int phase = -1;
         const TexturePtr& image() const { return host ? host : theme; }
         bool shown() const { return lay && image(); }
@@ -2078,7 +2078,9 @@ void CtrHome::Impl::followBackground(Background& b, bool top, bool follow) {
             b.phase = phase;
         }
     } else {
-        p->texCoords[0] = p->texCoords[1] = p->texCoords[2] = full;
+        p->texCoords[0] = full;
+        p->texCoords[1] = p->texCoords[2] =
+            b.host && b.hostFlip ? QuadUv{Vec2{0, 1}, Vec2{1, 1}, Vec2{0, 0}, Vec2{1, 0}} : full;
     }
 }
 
@@ -2111,9 +2113,10 @@ void CtrHome::setTheme(const ThemeBody* body) {
     I.bgBottom.themeFrame = body ? body->bottomFrameType : std::string();
 }
 
-void CtrHome::setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic) {
+void CtrHome::setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic, bool flipY) {
     Impl::Background& b = top ? mImpl->bgTop : mImpl->bgBottom;
     b.hostDynamic = tex && dynamic;
+    b.hostFlip = flipY;
     if (!tex) { b.host.reset(); return; }
     if (b.host && b.host->id == tex && b.host->width == w && b.host->height == h) return;
     // the host owns the GL texture: the wrapper never deletes it

@@ -178,8 +178,9 @@ public:
     // The user's wallpaper on a screen (a picture, a video frame or an animation the host
     // renders, texture `tex`, rows top first): drawn where the console draws a theme's background
     // image (LncBgSlide), over a theme image, the wall (top) or the grid plates (bottom) hidden
-    // under it. 0 removes it. `dynamic`: its pixels change every frame (video, animation).
-    void setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic);
+    // under it. 0 removes it. `dynamic`: its pixels change every frame (video, animation);
+    // `flipY`: its rows are stored bottom first (a texture rendered by GL).
+    void setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic, bool flipY = false);
     Assets& assets() { return *mAssets; }
     int64_t frame() const { return mFrame; }
 
