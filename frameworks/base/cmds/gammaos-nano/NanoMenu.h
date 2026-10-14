@@ -1650,6 +1650,9 @@ private:
     const ctr::ThemeBody* mCtrThemeApplied = nullptr;
     std::string mCtrThemeKey;
     bool ctrOpenOptions();                             // START: the focused title's option menu
+    void ctrFolderSettings(const std::string& folderId);   // a user folder's Settings (dialog key 60)
+    void ctrFolderSettingsChosen(int sel);
+    std::string mCtrFolderEdit;                        // the folder the Settings dialog acts on
     bool ctrInfoDialog() const;                        // the dialog is an information page
     bool ctrInfoActive() const;                        // and it is open
     int mCtrInfoNav = 0;                               // info page scroll steps waiting (lines)

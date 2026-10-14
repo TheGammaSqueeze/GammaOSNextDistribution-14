@@ -506,6 +506,7 @@ struct CtrHome::Impl {
     }
     void handleIdleInput();
     void activate(int source);   // 0 key 1 touch 2 button
+    void createFolder();
     bool requestZoom(int dir, int source);
     void decideBar(int button);
     void decideBottom();
@@ -818,10 +819,33 @@ void CtrHome::Impl::activate(int source) {
         return;
     }
     const HomeItem* it = g.item(g.cursor);
-    if (!it) return;
+    if (!it) {
+        // A on an empty root slot presses Create Folder (devices without a touch screen)
+        if (source == 0 && bbShown == "createFolder") {
+            decideBottom();
+            sound("SE_CTR_COMMON_BUTTON");
+            createFolder();
+        }
+        return;
+    }
     if (source != 2) decideBottom();
     if (it->kind == HomeItemKind::Folder) openFolder(g.cursor);
     else launch(*it);
+}
+
+// folders.ts createFolder: an empty root slot gets a folder named from lau_2b_folder_name
+// ("%d (New Folder)", the host numbers it); the host keeps it in the layout.
+void CtrHome::Impl::createFolder() {
+    Grid& g = grid();
+    if (g.isFolder() || g.onBar || g.item(g.cursor) || !host) return;
+    std::string name = A->messageText("lau_2b_folder_name");
+    if (name.empty()) name = "%d (New Folder)";
+    if (host->createFolder(g.cursor, name).empty()) {
+        sound("SE_CTR_COMMON_ERROR");
+        return;
+    }
+    self->reloadItems();
+    updateChrome();
 }
 
 bool CtrHome::Impl::requestZoom(int dir, int source) {
@@ -1161,6 +1185,7 @@ struct BottomButtonDef { const BottomSlotPanes* slot; const char* label; const c
 
 static std::vector<BottomButtonDef> bottomButtons(const std::string& set) {
     if (set == "title") return {{&kBottomFull, "lau_1b_start", "SE_CTR_HOME_START", "open"}};
+    if (set == "createFolder") return {{&kBottomFull, "lau_1b_make_folder", "SE_CTR_COMMON_BUTTON", "createFolder"}};
     if (set == "folder") return {{&kBottomRight, "lau_2b_folder_open", "SE_CTR_HOME_START", "open"},
                                  {&kBottomLeft, "lau_2b_folder_setting", "SE_CTR_COMMON_BUTTON", "folderSettings"}};
     if (set == "applet") return {{&kBottomRight, "lau_2b_start", "SE_CTR_HOME_START", "open"},
@@ -1215,8 +1240,11 @@ std::string CtrHome::Impl::bottomSetFor() {
         return "title";
     }
     const HomeItem* it = g.item(g.cursor);
-    if (!it) return "none";
-    return it->kind == HomeItemKind::Folder ? "folder" : "title";
+    // an empty root slot makes a folder (bottombar.ts set 3); a generated folder (a system's
+    // games) has no Settings, only the user's own do
+    if (!it) return !g.isFolder() && host && host->editable("") ? "createFolder" : "none";
+    if (it->kind == HomeItemKind::Folder) return host && host->userFolder(it->id) ? "folder" : "title";
+    return "title";
 }
 
 void CtrHome::Impl::balloonShow(const std::string& text, bool label, float x, float y, float zoom) {
@@ -1430,6 +1458,11 @@ void CtrHome::Impl::touchEnd(float x, float y) {
             for (const auto& d : defs) {
                 if (d.slot != sp) continue;
                 if (!strcmp(d.action, "open")) activate(2);
+                else if (!strcmp(d.action, "createFolder")) { sound(d.sound); createFolder(); }
+                else if (!strcmp(d.action, "folderSettings")) {
+                    sound(d.sound);
+                    if (const HomeItem* it = grid().item(grid().cursor)) if (host) host->folderSettings(it->id);
+                }
                 else sound(d.sound);
             }
             return;
@@ -2187,6 +2220,14 @@ void CtrHome::setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic, boo
     b.host->width = b.host->texWidth = w;
     b.host->height = b.host->texHeight = h;
     gTextureEpoch++;
+}
+
+const HomeItem* CtrHome::focusedItem() const {
+    if (!mLoaded) return nullptr;
+    Impl& I = *mImpl;
+    if (I.state != StIdle) return nullptr;
+    Grid& g = I.grid();
+    return g.onBar ? nullptr : g.item(g.cursor);
 }
 
 const HomeItem* CtrHome::focusedTitle() const {

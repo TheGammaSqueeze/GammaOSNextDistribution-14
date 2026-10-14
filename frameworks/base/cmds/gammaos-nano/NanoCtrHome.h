@@ -93,6 +93,19 @@ public:
     virtual HomeStatus status() = 0;
     // B on the root grid (nothing to close): nano resumes the app it is the overlay of.
     virtual void backAtRoot() {}
+    // ---- arranging (moving.ts, folders.ts): the root grid and the user's own folders can be
+    // arranged and the host keeps their layout; generated folders (a system's games) are not
+    // arranged, their titles can be put into the user's folders or onto the root
+    virtual bool editable(const std::string& folderId) { (void)folderId; return false; }   // "" is the root
+    virtual bool userFolder(const std::string& folderId) { (void)folderId; return false; }
+    // The slots of an arranged grid after a move (slot, item id); the host saves them.
+    virtual void layoutChanged(const std::string& folderId, const std::vector<std::pair<int, std::string>>& slots) {
+        (void)folderId; (void)slots;
+    }
+    // A new folder on an empty root slot; its id ("" when there cannot be another).
+    virtual std::string createFolder(int slot, const std::string& name) { (void)slot; (void)name; return std::string(); }
+    // A folder's Settings button (rename, delete).
+    virtual void folderSettings(const std::string& folderId) { (void)folderId; }
     // Plays a menu sound by BCSAR name (SE_CTR_*, BGM_*); returns a handle for loops.
     virtual int playSound(const char* name) { (void)name; return 0; }
     virtual void stopSound(int handle, int fadeFrames) { (void)handle; (void)fadeFrames; }
@@ -171,6 +184,7 @@ public:
     // The title under the cursor while the grid is idle (null on the bar, a folder or an empty
     // slot): what the host's options menu acts on.
     const HomeItem* focusedTitle() const;
+    const HomeItem* focusedItem() const;   // any item under the cursor (a folder too)
     // The HOME Menu theme (null = the default look): a built-in colour theme (builtinThemes()),
     // a theme from the SD card or one made from a colour. The body must outlive its use.
     void setTheme(const ThemeBody* body);

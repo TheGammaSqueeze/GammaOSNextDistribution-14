@@ -11677,6 +11677,9 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             }
             break;
         }
+        case 60:     // 3DS theme folder Settings: Rename / Delete Folder (NanoMenuCtr.cpp)
+            ctrFolderSettingsChosen(sel);
+            break;
         case 44: {   // Add to Collection: sel 0 = New Collection... (OSK), else add to collection sel-1
             std::string rom = mPendingCollectionRom;
             if (rom.empty()) break;

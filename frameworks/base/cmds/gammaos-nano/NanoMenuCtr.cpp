@@ -66,31 +66,59 @@ public:
         }
     }
 
+    // ---- identity: stable across rescans (paths, system ids, packages), so a layout outlives a
+    // rescan that renumbers nano's lists
     std::string idOf(const NanoMenu::Ps3Item& it) {
+        const auto& systems = mMenu->mXmbSystems;
+        switch (it.kind) {
+            case NanoMenu::PS3_ROM:
+                if (it.a >= 0 && it.a < (int)systems.size() && it.b >= 0 && it.b < (int)systems[it.a].roms.size())
+                    return "rom:" + systems[it.a].roms[it.b];
+                break;
+            case NanoMenu::PS3_RECENT:
+                if (it.a >= 0 && it.a < (int)mMenu->mXmbRecent.size()) return "recent:" + mMenu->mXmbRecent[it.a].romPath;
+                break;
+            case NanoMenu::PS3_SYSTEM:
+                if (it.a >= 0 && it.a < (int)systems.size()) return "sys:" + systems[it.a].id;
+                break;
+            case NanoMenu::PS3_ROM_FOLDER: return "romdir:" + it.payloadStr;
+            case NanoMenu::PS3_APP: case NanoMenu::PS3_LAUNCH_PKG:
+                if (!it.payloadStr.empty()) return "app:" + it.payloadStr;
+                break;
+            case NanoMenu::PS3_RECENT_LIST: case NanoMenu::PS3_APP_LIST: case NanoMenu::PS3_COLLECTIONS_LIST:
+            case NanoMenu::PS3_FAVORITES_LIST: case NanoMenu::PS3_PINNED_APPS_LIST:
+                return "list:" + std::to_string(it.kind);
+            case NanoMenu::PS3_COLLECTION: return "col:" + it.label;
+            default: break;
+        }
         char buf[64];
         snprintf(buf, sizeof(buf), "%d:%d:%d:", it.kind, it.a, it.b);
         return std::string(buf) + it.payloadStr + ":" + it.label;
+    }
+
+    ctr::HomeItem homeItem(const NanoMenu::Ps3Item& it) {
+        ctr::HomeItem h;
+        h.id = idOf(it);
+        h.name = it.label;
+        if (isContainer(it.kind)) {
+            h.kind = ctr::HomeItemKind::Folder;
+            h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint;
+            mFolders[h.id] = it;
+        } else {
+            h.kind = ctr::HomeItemKind::Title;
+            h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint;
+            mTitles[h.id] = it;
+            if (it.kind == NanoMenu::PS3_ROM && it.a >= 0 && it.a < (int)mMenu->mXmbSystems.size())
+                h.publisher = mMenu->mXmbSystems[it.a].name;
+        }
+        return h;
     }
 
     std::vector<ctr::HomeItem> fromLevel(const std::vector<NanoMenu::Ps3Item>& list) {
         std::vector<ctr::HomeItem> out;
         for (const NanoMenu::Ps3Item& it : list) {
             if (it.kind == NanoMenu::PS3_DATA_LEAF && it.action == 0) continue;   // "There are no titles"
-            ctr::HomeItem h;
-            h.id = idOf(it);
-            h.name = it.label;
-            if (isContainer(it.kind)) {
-                h.kind = ctr::HomeItemKind::Folder;
-                h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint;
-                mFolders[h.id] = it;
-            } else {
-                h.kind = ctr::HomeItemKind::Title;
-                h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint;
-                mTitles[h.id] = it;
-                if (it.kind == NanoMenu::PS3_ROM && it.a >= 0 && it.a < (int)mMenu->mXmbSystems.size())
-                    h.publisher = mMenu->mXmbSystems[it.a].name;
-            }
-            out.push_back(std::move(h));
+            out.push_back(homeItem(it));
         }
         return out;
     }
@@ -101,12 +129,176 @@ public:
         return -1;
     }
 
-    std::vector<ctr::HomeItem> items(const std::string& folderId) override {
-        if (folderId.empty()) {
-            const int gc = gameCat();
-            if (gc < 0) return {};
-            return fromLevel(mMenu->mPs3Cats[gc].items);
+    // ---- the layout (state.ts Launcher.dat): root slots and the user's folders, by stable id.
+    // /data/system/nano_ctr_layout.txt, one record a line: "R <slot> <id>", "F <folder> <name>",
+    // "S <folder> <slot> <id>".
+    struct UserFolder {
+        std::string name;
+        std::map<int, std::string> slots;
+    };
+    struct Layout {
+        std::map<int, std::string> root;
+        std::map<std::string, UserFolder> folders;   // "uf:<n>"
+    };
+    Layout mLayout;
+    bool mLayoutLoaded = false;
+    static constexpr const char* kLayoutPath = "/data/system/nano_ctr_layout.txt";
+    static constexpr int kFolderSlots = 60;   // state.ts FOLDER_SLOTS
+    static constexpr int kMaxFolders = 60;
+
+    void loadLayout() {
+        if (mLayoutLoaded) return;
+        mLayoutLoaded = true;
+        FILE* f = fopen(kLayoutPath, "r");
+        if (!f) return;
+        char line[4096];
+        while (fgets(line, sizeof(line), f)) {
+            std::string l(line);
+            while (!l.empty() && (l.back() == '\n' || l.back() == '\r')) l.pop_back();
+            if (l.size() < 3 || l[1] != ' ') continue;
+            const std::string rest = l.substr(2);
+            if (l[0] == 'R') {
+                const size_t sp = rest.find(' ');
+                if (sp == std::string::npos) continue;
+                mLayout.root[atoi(rest.substr(0, sp).c_str())] = rest.substr(sp + 1);
+            } else if (l[0] == 'F') {
+                const size_t sp = rest.find(' ');
+                if (sp == std::string::npos) continue;
+                mLayout.folders[rest.substr(0, sp)].name = rest.substr(sp + 1);
+            } else if (l[0] == 'S') {
+                const size_t a = rest.find(' ');
+                const size_t b = a == std::string::npos ? a : rest.find(' ', a + 1);
+                if (b == std::string::npos) continue;
+                mLayout.folders[rest.substr(0, a)].slots[atoi(rest.substr(a + 1, b - a - 1).c_str())] = rest.substr(b + 1);
+            }
         }
+        fclose(f);
+    }
+
+    void saveLayout() {
+        const std::string tmp = std::string(kLayoutPath) + ".tmp";
+        FILE* f = fopen(tmp.c_str(), "w");
+        if (!f) { ALOGW("ctr: layout not saved"); return; }
+        for (const auto& r : mLayout.root) fprintf(f, "R %d %s\n", r.first, r.second.c_str());
+        for (const auto& uf : mLayout.folders) {
+            fprintf(f, "F %s %s\n", uf.first.c_str(), uf.second.name.c_str());
+            for (const auto& s : uf.second.slots) fprintf(f, "S %s %d %s\n", uf.first.c_str(), s.first, s.second.c_str());
+        }
+        const bool ok = fflush(f) == 0 && fsync(fileno(f)) == 0;
+        fclose(f);
+        if (ok) rename(tmp.c_str(), kLayoutPath);
+        else unlink(tmp.c_str());
+    }
+
+    // A title by its stable id (a game or an app anywhere in nano), for a reference on the root
+    // or in a user folder. The systems' lists are built once per change of the library.
+    std::map<int, NanoMenu::Ps3Level> mSystemLevels;
+    std::unordered_map<std::string, std::pair<int, int>> mRomIndex;   // path -> system, level index
+    std::vector<NanoMenu::Ps3Item> mApps;
+    uint64_t mResolveSig = 0;
+    bool resolve(const std::string& id, NanoMenu::Ps3Item* out) {
+        const uint64_t sig = mMenu->ctrModelSignature();
+        if (sig != mResolveSig) {
+            mResolveSig = sig;
+            mSystemLevels.clear();
+            mRomIndex.clear();
+            mApps.clear();
+            NanoMenu::Ps3Level apps;
+            mMenu->buildAppSubmenu(apps);
+            mApps = apps.items;
+        }
+        if (id.rfind("rom:", 0) == 0) {
+            const std::string path = id.substr(4);
+            if (mRomIndex.empty()) {
+                for (int s = 0; s < (int)mMenu->mXmbSystems.size(); s++)
+                    for (const std::string& r : mMenu->mXmbSystems[s].roms) mRomIndex.emplace(r, std::make_pair(s, -1));
+            }
+            auto it = mRomIndex.find(path);
+            if (it == mRomIndex.end()) return false;
+            const int s = it->second.first;
+            if (!mSystemLevels.count(s)) {
+                NanoMenu::Ps3Level lvl;
+                mMenu->buildRomSubmenu(s, lvl);
+                mSystemLevels[s] = std::move(lvl);
+                for (int i = 0; i < (int)mSystemLevels[s].items.size(); i++) {
+                    const NanoMenu::Ps3Item& x = mSystemLevels[s].items[i];
+                    if (x.kind == NanoMenu::PS3_ROM && x.b >= 0 && x.b < (int)mMenu->mXmbSystems[s].roms.size())
+                        mRomIndex[mMenu->mXmbSystems[s].roms[x.b]] = std::make_pair(s, i);
+                }
+            }
+            const auto again = mRomIndex.find(path);
+            if (again == mRomIndex.end() || again->second.second < 0) return false;
+            *out = mSystemLevels[s].items[again->second.second];
+            return true;
+        }
+        if (id.rfind("app:", 0) == 0) {
+            for (const auto& a : mApps)
+                if (a.payloadStr == id.substr(4)) { *out = a; return true; }
+        }
+        return false;
+    }
+
+    // The root: nano's Game entries, the user's folders and the titles put on the root, each on
+    // its laid out slot; what has no slot yet fills the free ones in nano's order.
+    std::vector<ctr::HomeItem> rootItems() {
+        loadLayout();
+        std::vector<ctr::HomeItem> out;
+        const int gc = gameCat();
+        if (gc >= 0) out = fromLevel(mMenu->mPs3Cats[gc].items);
+        std::set<std::string> have;
+        for (const auto& h : out) have.insert(h.id);
+        for (const auto& uf : mLayout.folders) {
+            ctr::HomeItem h;
+            h.kind = ctr::HomeItemKind::Folder;
+            h.id = uf.first;
+            h.name = uf.second.name;
+            h.folderFilled = !uf.second.slots.empty();
+            out.push_back(h);
+            have.insert(h.id);
+        }
+        for (const auto& r : mLayout.root) {
+            if (have.count(r.second)) continue;
+            NanoMenu::Ps3Item it;
+            if (!resolve(r.second, &it)) continue;   // gone for now (its card is out): the slot stays reserved
+            ctr::HomeItem h = homeItem(it);
+            h.id = r.second;
+            mTitles[h.id] = it;
+            out.push_back(h);
+            have.insert(h.id);
+        }
+        std::map<std::string, int> slotOf;
+        std::set<int> used;
+        for (const auto& r : mLayout.root)
+            if (have.count(r.second) && !slotOf.count(r.second)) { slotOf[r.second] = r.first; used.insert(r.first); }
+        int next = 0;
+        for (auto& h : out) {
+            auto s = slotOf.find(h.id);
+            if (s != slotOf.end()) { h.slot = s->second; continue; }
+            while (used.count(next)) next++;
+            h.slot = next;
+            used.insert(next);
+        }
+        return out;
+    }
+
+    std::vector<ctr::HomeItem> userFolderItems(const UserFolder& uf) {
+        std::vector<ctr::HomeItem> out;
+        for (const auto& s : uf.slots) {
+            NanoMenu::Ps3Item it;
+            if (!resolve(s.second, &it)) continue;
+            ctr::HomeItem h = homeItem(it);
+            h.id = s.second;
+            mTitles[h.id] = it;
+            h.slot = s.first;
+            out.push_back(h);
+        }
+        return out;
+    }
+
+    std::vector<ctr::HomeItem> items(const std::string& folderId) override {
+        if (folderId.empty()) return rootItems();
+        auto u = mLayout.folders.find(folderId);
+        if (u != mLayout.folders.end()) return userFolderItems(u->second);
         auto f = mFolders.find(folderId);
         if (f == mFolders.end()) return {};
         const NanoMenu::Ps3Item it = f->second;
@@ -123,6 +315,76 @@ public:
             default: break;
         }
         return fromLevel(lvl.items);
+    }
+
+    // ---- arranging
+    bool editable(const std::string& folderId) override { return folderId.empty() || userFolder(folderId); }
+    bool userFolder(const std::string& folderId) override { return mLayout.folders.count(folderId) != 0; }
+
+    void layoutChanged(const std::string& folderId, const std::vector<std::pair<int, std::string>>& slots) override {
+        std::map<int, std::string>* dst = nullptr;
+        if (folderId.empty()) dst = &mLayout.root;
+        else if (auto u = mLayout.folders.find(folderId); u != mLayout.folders.end()) dst = &u->second.slots;
+        if (!dst) return;
+        if (folderId.empty()) {
+            // keep the reserved slots of titles that are gone for now (an unplugged card)
+            std::set<std::string> shown;
+            for (const auto& s : slots) shown.insert(s.second);
+            std::map<int, std::string> keep;
+            for (const auto& r : *dst) {
+                if (shown.count(r.second)) continue;
+                NanoMenu::Ps3Item it;
+                if (r.second.rfind("uf:", 0) != 0 && !resolve(r.second, &it)) keep.insert(r);
+            }
+            *dst = keep;
+        } else {
+            dst->clear();
+        }
+        for (const auto& s : slots) (*dst)[s.first] = s.second;
+        saveLayout();
+    }
+
+    std::string createFolder(int slot, const std::string& name) override {
+        loadLayout();
+        if ((int)mLayout.folders.size() >= kMaxFolders) return std::string();
+        int n = 1;
+        while (mLayout.folders.count("uf:" + std::to_string(n))) n++;
+        const std::string id = "uf:" + std::to_string(n);
+        std::string label = name;
+        const size_t pct = label.find("%d");
+        if (pct != std::string::npos) label.replace(pct, 2, std::to_string(n));
+        mLayout.folders[id].name = label;
+        mLayout.root[slot] = id;
+        saveLayout();
+        return id;
+    }
+
+    void folderSettings(const std::string& folderId) override { mMenu->ctrFolderSettings(folderId); }
+
+    void renameFolder(const std::string& id, const std::string& name) {
+        auto u = mLayout.folders.find(id);
+        if (u == mLayout.folders.end() || name.empty()) return;
+        u->second.name = name;
+        saveLayout();
+    }
+
+    // The folder's titles go back onto free root slots (the console empties a deleted folder).
+    void deleteFolder(const std::string& id) {
+        auto u = mLayout.folders.find(id);
+        if (u == mLayout.folders.end()) return;
+        int folderSlot = -1;
+        for (auto it = mLayout.root.begin(); it != mLayout.root.end(); ++it)
+            if (it->second == id) { folderSlot = it->first; mLayout.root.erase(it); break; }
+        std::set<int> used;
+        for (const auto& r : mLayout.root) used.insert(r.first);
+        int next = folderSlot >= 0 ? folderSlot : 0;
+        for (const auto& s : u->second.slots) {
+            while (used.count(next)) next++;
+            mLayout.root[next] = s.second;
+            used.insert(next);
+        }
+        mLayout.folders.erase(u);
+        saveLayout();
     }
 
     bool titleIcon(const ctr::HomeItem& item, std::vector<uint8_t>* rgba, int* w, int* h) override {
@@ -1224,6 +1486,12 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
 // the current list, so the title is offered as a one item list while it opens.
 bool NanoMenu::ctrOpenOptions() {
     if (!mCtrHome || !mCtrHost) return false;
+    // a user folder's Start is its Settings (Rename, Delete)
+    if (const ctr::HomeItem* f = mCtrHome->focusedItem(); f && mCtrHost->userFolder(f->id)) {
+        ctrFolderSettings(f->id);
+        mCtrHeld = 0;
+        return mPs3DlgActive;
+    }
     const ctr::HomeItem* h = mCtrHome->focusedTitle();
     const Ps3Item* it = h ? mCtrHost->titleOf(h->id) : nullptr;
     if (!it) return false;
@@ -1237,6 +1505,48 @@ bool NanoMenu::ctrOpenOptions() {
     mCtrHeld = 0;   // the keys held now belong to the menu
     mDisplayDirty = true;
     return mPs3OptActive;
+}
+
+// A user folder's Settings button (folder-settings.ts): Rename (nano's keyboard, prefilled) or
+// Delete Folder (its titles go back onto the root, as on the console).
+void NanoMenu::ctrFolderSettings(const std::string& folderId) {
+    if (!mCtrHost || !mCtrHost->userFolder(folderId)) return;
+    mCtrFolderEdit = folderId;
+    mPs3DlgOptions.clear();
+    mPs3DlgSwatch.clear();
+    mPs3DlgKind = 1; mPs3DlgType = 0; mPs3DlgThemeKey = 60; mPs3DlgBinding = nullptr;
+    mPs3DlgTitle = mCtrHost->mLayout.folders[folderId].name;
+    mPs3DlgBody.clear();
+    for (const char* o : {"Rename", "Delete Folder"}) { mPs3DlgOptions.push_back(o); mPs3DlgSwatch.push_back(-1); }
+    mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgClosing = false; mPs3DlgBlurValid = false;
+    mDisplayDirty = true;
+}
+
+void NanoMenu::ctrFolderSettingsChosen(int sel) {
+    const std::string id = mCtrFolderEdit;
+    mCtrFolderEdit.clear();
+    if (!mCtrHost || !mCtrHost->userFolder(id)) return;
+    if (sel == 0) {
+        const std::string cur = mCtrHost->mLayout.folders[id].name;
+        openOskForPassword("Folder Name", [this, id](const std::string& typed) {
+            std::string name = typed;
+            while (!name.empty() && name.front() == ' ') name.erase(name.begin());
+            while (!name.empty() && name.back() == ' ') name.pop_back();
+            if (name.empty() || !mCtrHost) return;
+            mCtrHost->renameFolder(id, name);
+            if (mCtrHome) mCtrHome->reloadItems();
+            mDisplayDirty = true;
+        });
+        mOskPasswordMode = false; mOskPlaintext = true;   // a name is plain text, not masked
+        mOskQuery = cur; mOsk.caret = (int)mOskQuery.size();   // prefill after open (which clears it)
+    } else if (sel == 1) {
+        mCtrHost->deleteFolder(id);
+        if (mCtrHome) mCtrHome->reloadItems();
+        mDisplayDirty = true;
+    }
 }
 
 // A kind 0 information dialog: shown as a page of paragraphs in the panel. ctrInfoDialog() also
