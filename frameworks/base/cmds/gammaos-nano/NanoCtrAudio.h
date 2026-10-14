@@ -26,6 +26,8 @@ public:
     void stop(int handle, int fadeFrames = 0);
     void setPitch(int handle, float pitch);
     void stopAll(int fadeFrames = 0);
+    void stopBgm(int fadeFrames = 0);   // the BGM voices only
+    bool bgmPlaying();
     bool playing(int handle);
     void setMasters(float se, float bgm) { mSeMaster = se; mBgmMaster = bgm; }
     void preload(const std::string& name);

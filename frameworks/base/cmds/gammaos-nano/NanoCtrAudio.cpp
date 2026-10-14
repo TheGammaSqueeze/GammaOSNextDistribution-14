@@ -196,6 +196,21 @@ void CtrAudio::stopAll(int fadeFrames) {
     }
 }
 
+void CtrAudio::stopBgm(int fadeFrames) {
+    std::lock_guard<std::mutex> lk(mVoiceM);
+    for (Voice& v : mVoices) {
+        if (!v.active || !v.clip->bgm) continue;
+        if (fadeFrames <= 0) v.active = false;
+        else if (!v.fadeTotal) { v.fadeTotal = v.fadeLeft = fadeFrames * mOut[0].rate / 60; }
+    }
+}
+
+bool CtrAudio::bgmPlaying() {
+    std::lock_guard<std::mutex> lk(mVoiceM);
+    for (Voice& v : mVoices) if (v.active && v.clip->bgm && !v.fadeTotal) return true;
+    return false;
+}
+
 bool CtrAudio::playing(int handle) {
     std::lock_guard<std::mutex> lk(mVoiceM);
     for (Voice& v : mVoices) if (v.active && v.handle == handle) return true;

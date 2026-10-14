@@ -250,8 +250,8 @@ public:
         char v[PROPERTY_VALUE_MAX] = {};
         property_get(bgm ? "persist.gammaos.nano.ctr.bgm" : "persist.gammaos.nano.nav_sounds", v, "1");
         if (v[0] == '0' || v[0] == 'f' || v[0] == 'F') return 0;
-        // no BGM over a suspended app (the overlay over a live app; same rule as the DSi theme)
-        if (bgm && mMenu->mOverlayMode && !mMenu->mOverlayWallpaper) return 0;
+        // no BGM while a game starts or runs, over a live app, or with a media player
+        if (bgm && !mMenu->ctrBgmAllowed()) return 0;
         return mMenu->mCtrAudio->play(name);
     }
     bool soundPlaying(int handle) override {
@@ -539,6 +539,8 @@ bool ctrIsSwitch(const std::string& v, bool* on) {
 
 void NanoMenu::ctrModalUpdate() {
     if (!mCtrPanel || !mCtrDialog) return;
+    // a playing BGM fades out the moment the home stops being the home (a launch, an app, a player)
+    if (mCtrAudio && !ctrBgmAllowed() && mCtrAudio->bgmPlaying()) mCtrAudio->stopBgm(20);
     // The closing flags belong to the theme that animates the close (every theme clears them
     // when its fade ends; input waits on them): option menus and choosers leave the panel at
     // once, a message dialog when the 3DS dialog finished fading out.
@@ -791,6 +793,16 @@ bool NanoMenu::ctrSwitchKey(int type, int code, int value) {
     if ((want == 1) != on) ctrSetSwitch(lv.sel, want == 1);
     else if (mCtrHost) mCtrHost->playSound("SE_CTR_COMMON_NOMOVE");
     return true;
+}
+
+// The home's music only plays on the home itself: not while a launch is under way, not while an
+// app runs (sys.gammaos.nano.app_launched is the live signal; mOverlayWallpaper is stale after a
+// launch from the overlay), not over a live app and not with a media player up. Same rule as the
+// DSi theme's ambiance (NanoMenuRender ndsAmbianceTick).
+bool NanoMenu::ctrBgmAllowed() {
+    return !mPs3BootActive && !ndsPlayerActive() && !(mOverlayMode && !mOverlayWallpaper) &&
+           mLaunchFadeStart == 0 && !mOverlayLaunchPending &&
+           !property_get_bool("sys.gammaos.nano.app_launched", false);
 }
 
 void NanoMenu::ctrLeave() {
@@ -1074,6 +1086,21 @@ void NanoMenu::renderCtrPrimary() {
                 if (q == std::string::npos) break;
                 p = q + 1;
             }
+        }
+        // test hook: sys.gammaos.nano.ctr.open=<root item name> opens that folder (retried while
+        // a folder closes first)
+        {
+            static const prop_info* opi = nullptr;
+            static uint32_t oser = 0;
+            static std::string want;
+            if (!opi) opi = __system_property_find("sys.gammaos.nano.ctr.open");
+            if (opi && __system_property_serial(opi) != oser) {
+                oser = __system_property_serial(opi);
+                char v[PROPERTY_VALUE_MAX] = {};
+                property_get("sys.gammaos.nano.ctr.open", v, "");
+                want = v;
+            }
+            if (!want.empty() && mCtrHome->testOpen(want)) want.clear();
         }
         if (!mCtrScript.empty()) {
             const int f = mCtrScriptFrame++;

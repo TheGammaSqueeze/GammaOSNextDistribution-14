@@ -1951,6 +1951,29 @@ void CtrHome::resumeFromApp() {
     }
 }
 
+bool CtrHome::testOpen(const std::string& name) {
+    if (!mLoaded) return false;
+    Impl& I = *mImpl;
+    if (I.state != StIdle) return false;
+    if (I.inFolder()) {
+        I.closeFolder();
+        return false;
+    }
+    Grid& g = I.root();
+    for (int s = 0; s < g.slots; s++) {
+        const HomeItem* it = g.item(s);
+        if (!it || it->name != name) continue;
+        g.onBar = false;
+        g.cursor = s;
+        I.ensureCursorVisible();
+        if (it->kind == HomeItemKind::Folder) I.openFolder(s);
+        I.updateChrome();
+        return true;
+    }
+    ALOGW("ctr: no root item named %s", name.c_str());
+    return true;   // nothing to wait for
+}
+
 void CtrHome::reloadItems() {
     if (!mLoaded) return;
     Impl& I = *mImpl;

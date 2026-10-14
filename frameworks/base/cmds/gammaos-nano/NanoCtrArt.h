@@ -58,8 +58,9 @@ public:
 private:
     struct Result {
         std::vector<uint8_t> icon;   // RGBA 48x48, empty when none
-        std::shared_ptr<RomBanner> banner;
+        std::shared_ptr<RomBanner> banner;   // with its pack when the banner was asked for
         bool failed = false;
+        bool noBanner = false;       // parsed: the ROM has no CBMD banner
     };
     void worker();
     void request(const std::string& rom, bool wantBanner);
@@ -71,8 +72,9 @@ private:
     std::unordered_map<std::string, Result> mDone;        // worker results awaiting the render thread
     std::unordered_map<std::string, int> mState;          // 1 queued, 2 parsed (icon state)
     std::string mBannerWanted;                            // the ROM whose banner to keep
-    std::shared_ptr<RomBanner> mBanner;                   // the kept banner (render thread copy)
-    std::unordered_map<std::string, bool> mBannerTried;   // banner parsed (true) for these ROMs
+    // render thread: the most recently shown banners (model pack + sound), newest last, so
+    // moving back to a title shows its banner again without a parse
+    std::vector<std::shared_ptr<RomBanner>> mBanners;
     std::thread mThread;
     bool mRunning = false;
     bool mStop = false;

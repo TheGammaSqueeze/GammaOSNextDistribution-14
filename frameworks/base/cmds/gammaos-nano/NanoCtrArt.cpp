@@ -70,7 +70,8 @@ void RomArt::worker() {
         Result r;
         if (loadOrExtract(job.first, mCacheDir, &a, &err, "USA", "English")) {
             r.icon = std::move(a.icon48);
-            if (a.hasBanner && !a.modelPack.empty()) {
+            r.noBanner = !(a.hasBanner && !a.modelPack.empty());
+            if (!r.noBanner) {
                 r.banner = std::make_shared<RomBanner>();
                 r.banner->rom = job.first;
                 if (job.second) {
@@ -90,6 +91,11 @@ void RomArt::worker() {
             r.banner->modelPack.clear();
             r.banner->languagePack.clear();
         }
+        // keep a banner a newer icon-only parse would drop
+        auto old = mDone.find(job.first);
+        if (old != mDone.end() && old->second.banner && !old->second.banner->modelPack.empty() &&
+            (!r.banner || r.banner->modelPack.empty()))
+            r.banner = old->second.banner;
         mDone[job.first] = std::move(r);
         mLanded = true;
     }
@@ -147,28 +153,38 @@ GLuint RomArt::icon(const std::string& rom) {
 
 std::shared_ptr<const RomBanner> RomArt::banner(const std::string& rom, bool* pending) {
     if (pending) *pending = false;
-    if (mBanner && mBanner->rom == rom) return mBanner;
+    for (size_t i = 0; i < mBanners.size(); i++) {
+        if (mBanners[i]->rom != rom) continue;
+        auto b = mBanners[i];
+        mBanners.erase(mBanners.begin() + i);
+        mBanners.push_back(b);   // most recently used
+        return b;
+    }
+    std::shared_ptr<RomBanner> got;
     bool ask = false;
     {
         std::lock_guard<std::mutex> lk(mMu);
         mBannerWanted = rom;
         auto d = mDone.find(rom);
-        if (d != mDone.end() && d->second.banner && !d->second.banner->modelPack.empty()) {
-            mBanner = d->second.banner;
-            d->second.banner.reset();   // the kept copy is the only one
-            return mBanner;
+        if (d != mDone.end()) {
+            if (d->second.failed || d->second.noBanner) return nullptr;   // known: none
+            if (d->second.banner && !d->second.banner->modelPack.empty()) {
+                got = d->second.banner;
+                d->second.banner.reset();   // the render thread's list holds it now
+            }
         }
-        const bool parsedForIcon = d != mDone.end() && d->second.banner && d->second.banner->modelPack.empty();
-        if (d != mDone.end() && !parsedForIcon) return nullptr;   // parsed: no banner (or failed)
-        auto t = mBannerTried.find(rom);
-        if (t == mBannerTried.end() || parsedForIcon) {
-            mBannerTried[rom] = true;
-            if (parsedForIcon) mDone.erase(d);   // parse again, keeping the banner this time
-            ask = true;
+        if (!got) {
+            // not parsed, or parsed for its icon only: parse (again) with the banner
+            bool queued = false;
+            for (const auto& q : mQueue) if (q.first == rom && q.second) queued = true;
+            ask = !queued;
+            if (pending) *pending = true;
         }
-        bool queued = false;
-        for (const auto& q : mQueue) if (q.first == rom) queued = true;
-        if (pending) *pending = ask || queued || mRunning;
+    }
+    if (got) {
+        mBanners.push_back(got);
+        while (mBanners.size() > 3) mBanners.erase(mBanners.begin());
+        return got;
     }
     if (ask) request(rom, true);
     return nullptr;
@@ -185,6 +201,7 @@ void RomArt::releaseGl() {
     for (auto& e : mIconLru) if (e.second) glDeleteTextures(1, &e.second);
     mIconLru.clear();
     mIcons.clear();
+    mBanners.clear();
     std::lock_guard<std::mutex> lk(mMu);
     mState.clear();
     mDone.clear();

@@ -156,6 +156,9 @@ public:
     void resumeFromApp();
     // Items changed (rescan): rebuild the grids, keeping the cursor on the same item.
     void reloadItems();
+    // Test hook: puts the cursor on the root item named `name` and opens it when it is a folder.
+    // From inside a folder it closes the folder first (call again once it closed). True when done.
+    bool testOpen(const std::string& name);
     Assets& assets() { return *mAssets; }
     int64_t frame() const { return mFrame; }
 
