@@ -1940,6 +1940,19 @@ void RasterizerCache<T>::UnregisterSurface(SurfaceId surface_id) {
 }
 
 template <class T>
+void RasterizerCache<T>::ResetForLoad() {
+    for (auto& [page, surfaces] : page_table) {
+        while (!surfaces.empty()) {
+            UnregisterSurface(surfaces.back());
+        }
+    }
+    ClearAll(false);
+    fb_memo.epoch = ~0ull;
+    runtime.Finish();
+    RunGarbageCollector();
+}
+
+template <class T>
 void RasterizerCache<T>::UnregisterAll() {
     FlushAll();
     for (auto& [page, surfaces] : page_table) {

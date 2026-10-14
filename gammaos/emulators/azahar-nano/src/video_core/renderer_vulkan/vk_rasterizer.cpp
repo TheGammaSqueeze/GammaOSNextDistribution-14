@@ -1474,6 +1474,11 @@ void RasterizerVulkan::SetTwinDraw(bool active) {
     res_cache.SetTwinDraw(active);
 }
 
+void RasterizerVulkan::ResetForLoad() {
+    VideoCore::AsyncGpuDrain();
+    res_cache.ResetForLoad();
+}
+
 void RasterizerVulkan::ClearAll(bool flush) {
     VideoCore::AsyncGpuDrain(); // GammaOS async GPU: CPU-side access, wait for the worker
     res_cache.ClearAll(flush);

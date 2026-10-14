@@ -120,6 +120,15 @@ public:
     /// GammaOS: skips GPU work whose result is never displayed (see DeadWork).
     DeadWork dead_work;
 
+    /// GammaOS: forgets the state kept between command lists (stereo twins, skip learning),
+    /// for a save state load.
+    void ResetForLoad() {
+        dead_work = DeadWork{};
+        twin_skip_pending = false;
+        twin_probe_misses = 0;
+        twin_expect_color = twin_expect_depth = 0;
+    }
+
     void SetInterruptHandler(Service::GSP::InterruptHandler& signal_interrupt);
 
     void ProcessCmdList(PAddr list, u32 size, bool ignore_list);

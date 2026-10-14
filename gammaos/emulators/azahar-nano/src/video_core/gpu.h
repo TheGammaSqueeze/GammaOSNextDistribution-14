@@ -68,6 +68,10 @@ public:
     /// Flushes and invalidates all memory in the rasterizer cache and removes any leftover state.
     void ClearAll(bool flush);
 
+    /// GammaOS: after a save state load rebuilt the emulated system around this GPU (see
+    /// Core::System::Shutdown), attaches it to the new timing and drops the surface cache.
+    void ResetForLoad();
+
     /// Executes the provided GSP command.
     void Execute(const Service::GSP::Command& command);
 
@@ -125,6 +129,8 @@ private:
     void MemoryFill(u32 index, u32 intr_index);
 
     void MemoryTransfer();
+
+    void RegisterVBlank();
 
     void VBlankCallback(uintptr_t user_data, s64 cycles_late);
 

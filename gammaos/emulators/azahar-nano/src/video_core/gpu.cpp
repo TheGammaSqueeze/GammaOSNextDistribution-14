@@ -252,10 +252,7 @@ GPU::GPU(Core::System& system, Frontend::EmuWindow& emu_window,
          Frontend::EmuWindow* secondary_window)
     : right_eye_disabler{std::make_unique<RightEyeDisabler>(*this)},
       impl{std::make_unique<Impl>(system, emu_window, secondary_window)} {
-    impl->vblank_event = impl->timing.RegisterEvent(
-        "GPU::VBlankCallback",
-        [this](uintptr_t user_data, s64 cycles_late) { VBlankCallback(user_data, cycles_late); });
-    impl->timing.ScheduleEvent(FRAME_TICKS, impl->vblank_event);
+    RegisterVBlank();
 
     // Bind the rasterizer to the PICA GPU
     impl->pica.BindRasterizer(impl->rasterizer);
@@ -345,6 +342,24 @@ void GPU::FlushRegion(PAddr addr, u32 size) {
 void GPU::InvalidateRegion(PAddr addr, u32 size) {
     AsyncDrain();
     impl->rasterizer->InvalidateRegion(addr, size);
+}
+
+void GPU::RegisterVBlank() {
+    impl->vblank_event = impl->Timing().RegisterEvent(
+        "GPU::VBlankCallback",
+        [this](uintptr_t user_data, s64 cycles_late) { VBlankCallback(user_data, cycles_late); });
+    impl->Timing().ScheduleEvent(FRAME_TICKS, impl->vblank_event);
+}
+
+void GPU::ResetForLoad() {
+    AsyncDrain();
+    // The emulated system around the GPU was rebuilt: its vblank event goes on the new timing
+    // (the loaded state then replaces the event queue), every cached surface is dropped
+    // without a flush (the loaded memory replaces what it holds), and the state the PICA core
+    // keeps between command lists starts over. The shader and pipeline caches stay.
+    RegisterVBlank();
+    impl->rasterizer->ResetForLoad();
+    impl->pica.ResetForLoad();
 }
 
 void GPU::ClearAll(bool flush) {
@@ -745,7 +760,7 @@ void GPU::VBlankCallback(std::uintptr_t user_data, s64 cycles_late) {
     impl->renderer->SwapBuffers();
 
     // Reschedule recurrent event
-    impl->timing.ScheduleEvent(FRAME_TICKS - cycles_late, impl->vblank_event);
+    impl->Timing().ScheduleEvent(FRAME_TICKS - cycles_late, impl->vblank_event);
 }
 
 void GPU::RecreateRenderer(Frontend::EmuWindow& emu_window, Frontend::EmuWindow* secondary_window) {

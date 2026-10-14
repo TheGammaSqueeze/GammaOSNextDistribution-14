@@ -57,6 +57,12 @@ public:
     /// Removes as much state as possible from the rasterizer in preparation for a save/load state
     virtual void ClearAll(bool flush) = 0;
 
+    /// GammaOS: drops every cached surface without writing it back (a save state load replaces
+    /// guest memory); the shader and pipeline caches stay.
+    virtual void ResetForLoad() {
+        ClearAll(false);
+    }
+
     /// Attempt to use a faster method to perform a display transfer with is_texture_copy = 0
     virtual bool AccelerateDisplayTransfer(const Pica::DisplayTransferConfig&) {
         return false;

@@ -24,7 +24,6 @@
 
 namespace VideoCore {
 struct GPU::Impl {
-    Core::Timing& timing;
     Core::System& system;
     Memory::MemorySystem& memory;
     std::shared_ptr<Pica::DebugContext> debug_context;
@@ -38,11 +37,16 @@ struct GPU::Impl {
 
     explicit Impl(Core::System& system, Frontend::EmuWindow& emu_window,
                   Frontend::EmuWindow* secondary_window)
-        : timing{system.CoreTiming()}, system{system}, memory{system.Memory()},
+        : system{system}, memory{system.Memory()},
           debug_context{Pica::g_debug_context}, pica{memory, debug_context},
           renderer{VideoCore::CreateRenderer(emu_window, secondary_window, pica, system)},
           rasterizer{renderer->Rasterizer()},
           sw_blitter{std::make_unique<SwRenderer::SwBlitter>(memory, rasterizer)} {}
     ~Impl() = default;
+
+    /// GammaOS: looked up each time; a save state load rebuilds the timing but keeps the GPU.
+    Core::Timing& Timing() {
+        return system.CoreTiming();
+    }
 };
 } // namespace VideoCore

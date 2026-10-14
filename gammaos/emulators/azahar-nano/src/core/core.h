@@ -223,7 +223,7 @@ public:
     };
 
     /// GammaOS JIT warm-up: compile the blocks saved by earlier sessions (all cores)
-    void GammaJitWarm();
+    void GammaJitWarm(bool after_load = false);
     /// GammaOS JIT warm-up: merge the currently compiled blocks into the saved lists
     void GammaJitSave();
     /// GammaOS JIT warm-up: compile pending saved blocks until the given time (called

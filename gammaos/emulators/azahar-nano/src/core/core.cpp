@@ -190,7 +190,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             // GammaOS: the loaded system starts with no frame history (the realtime audio
             // clock would read a scale of 0 and stretch the audio tick a hundredfold).
             ResetFrameTiming();
-            GammaJitWarm();
+            GammaJitWarm(true);
         } catch (const std::exception& e) {
             LOG_ERROR(Core, "Error loading: {}", e.what());
             status_details = e.what();
@@ -628,7 +628,9 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
 
     LOG_DEBUG(HW_Memory, "initialized OK");
 
-    memory = std::make_unique<Memory::MemorySystem>(*this);
+    if (!memory) {
+        memory = std::make_unique<Memory::MemorySystem>(*this);
+    }
 
     timing = std::make_unique<Timing>(num_cores, Settings::values.cpu_clock_percentage.GetValue(),
                                       movie.GetOverrideBaseTicks());
@@ -696,10 +698,16 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
         registered_image_interface = std::make_shared<Frontend::ImageInterface>();
     }
 
-    custom_tex_manager = std::make_unique<VideoCore::CustomTexManager>(*this);
+    if (!custom_tex_manager) {
+        custom_tex_manager = std::make_unique<VideoCore::CustomTexManager>(*this);
+    }
 
     auto gsp = service_manager->GetService<Service::GSP::GSP_GPU>("gsp::Gpu");
-    gpu = std::make_unique<VideoCore::GPU>(*this, emu_window, secondary_window);
+    if (gpu) {
+        gpu->ResetForLoad();   // kept across a save state load (see Shutdown)
+    } else {
+        gpu = std::make_unique<VideoCore::GPU>(*this, emu_window, secondary_window);
+    }
     gpu->SetInterruptHandler([gsp](Service::GSP::InterruptId interrupt_id, u64 wait_delay_ns) {
         gsp->SignalInterrupt(interrupt_id, wait_delay_ns);
     });
@@ -813,7 +821,14 @@ void System::Shutdown(bool is_deserializing) {
     // Shutdown emulation session
     is_powered_on = false;
 
-    gpu.reset();
+    // GammaOS: a save state load keeps the GPU (renderer, shader and pipeline caches), the
+    // guest memory it reads and the custom texture manager it holds; the load restores the
+    // memory's contents and GPU::ResetForLoad drops the surface cache. Tearing the renderer
+    // down cost up to 7 s (freeing Kirby: Planet Robobot's pipelines) and every shader had to
+    // be compiled again after the load.
+    if (!is_deserializing) {
+        gpu.reset();
+    }
     if (!is_deserializing) {
         lle_modules.clear();
 #ifdef ENABLE_GDBSTUB
@@ -822,7 +837,9 @@ void System::Shutdown(bool is_deserializing) {
         perf_stats.reset();
         app_loader.reset();
     }
-    custom_tex_manager.reset();
+    if (!is_deserializing) {
+        custom_tex_manager.reset();
+    }
 #ifdef ENABLE_SCRIPTING
     rpc_server.reset();
 #endif
@@ -843,7 +860,9 @@ void System::Shutdown(bool is_deserializing) {
         room_member->SendGameInfo(game_info);
     }
 
-    memory.reset();
+    if (!is_deserializing) {
+        memory.reset();
+    }
 
     SetInfoLEDColor({});
 
@@ -1098,7 +1117,7 @@ std::vector<u64> GammaJitRead(const std::string& path) {
 }
 } // namespace
 
-void System::GammaJitWarm() {
+void System::GammaJitWarm(bool after_load) {
     gamma_jit_pending.clear();
     gamma_jit_pending_pos.clear();
     if (!Settings::values.gammaos_jit_warmup || !app_loader) {
@@ -1109,12 +1128,20 @@ void System::GammaJitWarm() {
     gamma_jit_pending.resize(cpu_cores.size());
     gamma_jit_pending_pos.assign(cpu_cores.size(), 0);
     // Compile the earliest part (first-compile order) now, the rest in frame idle time.
-    // persist.gammaos.azahar_nano.jit_warm_sync_ms: how long to compile before the game runs.
-    static const auto sync_budget = [] {
+    // persist.gammaos.azahar_nano.jit_warm_sync_ms: how long to compile before the game runs
+    // at boot (behind the loading screen); jit_warm_load_ms: after a save state load, where
+    // the game is frozen meanwhile (the full boot budget held loads for 2.4 s).
+    static const auto boot_budget = [] {
         char v[PROP_VALUE_MAX] = {};
         __system_property_get("persist.gammaos.azahar_nano.jit_warm_sync_ms", v);
         return std::chrono::milliseconds(v[0] ? atoi(v) : 2000);
     }();
+    static const auto load_budget = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.jit_warm_load_ms", v);
+        return std::chrono::milliseconds(v[0] ? atoi(v) : 150);
+    }();
+    const auto sync_budget = after_load ? load_budget : boot_budget;
     for (u32 i = 0; i < static_cast<u32>(cpu_cores.size()); i++) {
         auto* dyn = dynamic_cast<ARM_Dynarmic*>(cpu_cores[i].get());
         if (!dyn) {

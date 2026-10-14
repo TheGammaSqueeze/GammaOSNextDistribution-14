@@ -217,6 +217,12 @@ private:
     /// Removes any framebuffers that reference the provided surface_id.
     void RemoveFramebuffers(SurfaceId surface_id);
 
+public:
+    /// GammaOS: unregisters every surface without flushing it (save state load).
+    void ResetForLoad();
+
+private:
+
     /// Removes any references of the provided surface id from cached texture cubes.
     void RemoveTextureCubeFace(SurfaceId surface_id);
 

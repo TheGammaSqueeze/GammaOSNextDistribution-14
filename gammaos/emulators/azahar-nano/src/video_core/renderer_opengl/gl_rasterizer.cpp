@@ -837,6 +837,10 @@ void RasterizerOpenGL::FlushAndInvalidateRegion(PAddr addr, u32 size) {
     res_cache.InvalidateRegion(addr, size);
 }
 
+void RasterizerOpenGL::ResetForLoad() {
+    res_cache.ResetForLoad();
+}
+
 void RasterizerOpenGL::ClearAll(bool flush) {
     res_cache.ClearAll(flush);
 }
