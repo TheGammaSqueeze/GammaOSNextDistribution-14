@@ -24,6 +24,18 @@ std::string libraryName(const std::string& dir);
 // meta.json with a library that exists.
 std::vector<std::string> listPackages(const std::string& root);
 
+// Driver packages shipped in the system image, unpacked like the user's
+// (<bundledRoot()>/gpu_drivers/<name>/): /system/etc/azahar-nano. Test hook:
+// sys.gammaos.azahar_nano.bundled_root points it elsewhere (cleared at reboot).
+std::string bundledRoot();
+
+// The bundled package made for this device's GPU (from the KGSL gpu_model), empty
+// when there is none: the system driver is the default then.
+std::string defaultPackage();
+
+// The user's packages and the bundled ones, without duplicates, sorted.
+std::vector<std::string> allPackages(const std::string& root);
+
 // Importable zips: *.zip in <root>/gpu_drivers, <root>, /sdcard and
 // /sdcard/Download that contain a meta.json. Full paths, sorted.
 std::vector<std::string> listZips(const std::string& root);
@@ -33,9 +45,10 @@ std::vector<std::string> listZips(const std::string& root);
 // (the partial folder is removed). *error gets a short reason.
 std::string importZip(const std::string& zipPath, const std::string& root, std::string* error);
 
-// Copies <root>/gpu_drivers/<name>/ to <privateRoot>/gpu_drivers/<name>/ when
-// the staged copy is missing or older, and returns the staged directory
-// (empty when the package or its library is not there).
+// Copies <root>/gpu_drivers/<name>/ (or the bundled package of that name when
+// the user has none) to <privateRoot>/gpu_drivers/<name>/ when the staged copy is
+// missing or differs, and returns the staged directory (empty when the package or
+// its library is not there).
 std::string stage(const std::string& root, const std::string& privateRoot, const std::string& name);
 
 }  // namespace gpudrv

@@ -226,7 +226,8 @@ void Overlay::shutdown() {
 void Overlay::scanGpuDrivers() {
     mDrivers.clear();
     mDrivers.push_back("");
-    for (const auto& n : gpudrv::listPackages(mDataDir)) mDrivers.push_back(n);
+    mDrivers.push_back("system");
+    for (const auto& n : gpudrv::allPackages(mDataDir)) mDrivers.push_back(n);
     mDriverZips = gpudrv::listZips(mDataDir);
 }
 
@@ -497,7 +498,13 @@ void Overlay::buildPages() {
             Row r;
             r.label = "GPU Driver";
             r.kind = ROW_CHOICE;
-            for (const auto& d : mDrivers) r.choices.push_back({d.empty() ? "System" : d, d});
+            const std::string def = gpudrv::defaultPackage();
+            for (const auto& d : mDrivers) {
+                r.choices.push_back({d.empty()        ? "Default (" + (def.empty() ? std::string("System") : def) + ")"
+                                     : d == "system" ? std::string("System")
+                                                     : d,
+                                     d});
+            }
             const std::string cur = mA.getProp ? mA.getProp("persist.gammaos.azahar_nano.gpu_driver", "") : "";
             for (size_t i = 0; i < mDrivers.size(); i++) if (mDrivers[i] == cur) r.sel = (int)i;
             r.change = [this](int i) {
@@ -505,7 +512,8 @@ void Overlay::buildPages() {
                 if (mA.setProp) mA.setProp("persist.gammaos.azahar_nano.gpu_driver", mDrivers[i].c_str());
                 mBanner = "GPU driver applies at the next launch";
             };
-            r.hint = "Custom Adreno drivers unpacked under " + mDataDir + "/gpu_drivers";
+            r.hint = "Default picks the driver bundled for this GPU; custom drivers are unpacked under " +
+                     mDataDir + "/gpu_drivers";
             pg.rows.push_back(r);
         }
         pg.rows.push_back(pageRow("Import GPU Driver", kPageDrivers,

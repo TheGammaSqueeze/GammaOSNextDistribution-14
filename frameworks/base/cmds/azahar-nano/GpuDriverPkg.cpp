@@ -13,6 +13,7 @@
 #include <fstream>
 #include <sstream>
 
+#include <cutils/properties.h>
 #include <log/log.h>
 #include <ziparchive/zip_archive.h>
 
@@ -168,6 +169,41 @@ std::vector<std::string> listPackages(const std::string& root) {
     return out;
 }
 
+std::string bundledRoot() {
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.azahar_nano.bundled_root", v, "/system/etc/azahar-nano");
+    return v;
+}
+
+std::string defaultPackage() {
+    // The driver built for the chip, bundled with the system: GammaOS Turnip on the
+    // Adreno 610 (faster than the vendor driver on the 3DS core's heavy passes).
+    std::string model = readFile("/sys/class/kgsl/kgsl-3d0/gpu_model");
+    struct Entry {
+        const char* modelPrefix;
+        const char* package;
+    };
+    static constexpr Entry kDefaults[] = {
+        {"Adreno610", "gammaos-turnip-adreno-610"},
+    };
+    for (const Entry& e : kDefaults) {
+        if (model.rfind(e.modelPrefix, 0) != 0) continue;
+        const std::string dir = bundledRoot() + "/gpu_drivers/" + e.package;
+        const std::string lib = libraryName(dir);
+        if (!lib.empty() && isFile(dir + "/" + lib)) return e.package;
+    }
+    return "";
+}
+
+std::vector<std::string> allPackages(const std::string& root) {
+    std::vector<std::string> out = listPackages(root);
+    for (const auto& n : listPackages(bundledRoot())) {
+        if (std::find(out.begin(), out.end(), n) == out.end()) out.push_back(n);
+    }
+    std::sort(out.begin(), out.end());
+    return out;
+}
+
 std::vector<std::string> listZips(const std::string& root) {
     std::vector<std::string> out;
     listZipsIn(root + "/gpu_drivers", out);
@@ -233,9 +269,20 @@ std::string importZip(const std::string& zipPath, const std::string& root, std::
 
 std::string stage(const std::string& root, const std::string& privateRoot, const std::string& name) {
     if (name.empty()) return "";
-    const std::string src = root + "/gpu_drivers/" + name;
+    std::string src = root + "/gpu_drivers/" + name;
     const std::string dst = privateRoot + "/gpu_drivers/" + name;
-    const std::string lib = libraryName(src);
+    std::string lib = libraryName(src);
+    bool bundled = false;
+    if (lib.empty() || !isFile(src + "/" + lib)) {
+        // No user package of that name: the one shipped with the system, if any.
+        const std::string b = bundledRoot() + "/gpu_drivers/" + name;
+        const std::string blib = libraryName(b);
+        if (!blib.empty() && isFile(b + "/" + blib)) {
+            src = b;
+            lib = blib;
+            bundled = true;
+        }
+    }
     struct stat srcSt{};
     if (lib.empty() || !isFile(src + "/" + lib, &srcSt)) {
         // Only a staged copy left (the data folder was moved or cleaned).
@@ -245,8 +292,12 @@ std::string stage(const std::string& root, const std::string& privateRoot, const
         return "";
     }
     struct stat dstSt{};
+    // System image files carry a fixed old time stamp, so a bundled package is matched by
+    // its meta.json (the build's packageVersion) instead of by time.
     const bool fresh = isFile(dst + "/" + lib, &dstSt) && dstSt.st_size == srcSt.st_size &&
-                       dstSt.st_mtime >= srcSt.st_mtime && isFile(dst + "/meta.json");
+                       isFile(dst + "/meta.json") &&
+                       (bundled ? readFile(dst + "/meta.json") == readFile(src + "/meta.json")
+                                : dstSt.st_mtime >= srcSt.st_mtime);
     if (fresh) return dst;
     if (!mkdirs(dst)) return "";
     bool ok = true;

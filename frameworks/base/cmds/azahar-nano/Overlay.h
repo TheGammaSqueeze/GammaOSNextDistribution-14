@@ -116,7 +116,8 @@ private:
     std::vector<Page> mPages;
     std::vector<int> mStack;             // page navigation stack (indices into mPages)
     int mSlot = 1;
-    std::vector<std::string> mDrivers;   // "" = system driver, else folder name
+    // "" = the default for this chip, "system" = the vendor driver, else a package name.
+    std::vector<std::string> mDrivers;
     std::vector<std::string> mDriverZips; // importable packages (full paths)
     std::atomic<bool> mOpen{false};
     bool mRebuildPages = false;

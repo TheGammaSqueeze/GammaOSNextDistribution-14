@@ -783,7 +783,15 @@ int main(int argc, char** argv) {
     // menu) but the sdcard is mounted noexec, so the chosen package is staged
     // under the private root and loaded from there.
     const std::string hookDir = coreLib.substr(0, coreLib.find_last_of('/'));
-    const std::string driverName = prop("persist.gammaos.azahar_nano.gpu_driver", "");
+    // persist.gammaos.azahar_nano.gpu_driver: empty = the default for this chip (the
+    // bundled driver made for it, else the system one), "system" = the vendor driver,
+    // anything else = a package by name (the user's, else a bundled one).
+    const std::string driverChoice = prop("persist.gammaos.azahar_nano.gpu_driver", "");
+    const std::string driverName = driverChoice.empty()      ? azahar_nano::gpudrv::defaultPackage()
+                                   : driverChoice == "system" ? std::string()
+                                                              : driverChoice;
+    ALOGI("gpu driver: %s (setting \"%s\")", driverName.empty() ? "system" : driverName.c_str(),
+          driverChoice.c_str());
     std::string driverDir, driverLib;
     if (!driverName.empty()) {
         driverDir = azahar_nano::gpudrv::stage(dataDir, userDir, driverName);
