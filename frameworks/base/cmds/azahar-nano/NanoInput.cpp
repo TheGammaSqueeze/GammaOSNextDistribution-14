@@ -182,7 +182,17 @@ void NanoInput::physicalDpad(Dir d, bool pressed) {
 // The left stick moved: the circle pad, or d-pad presses when swapped (pressed past half
 // way, released below a third, so a stick resting near the threshold does not chatter).
 void NanoInput::leftStick() {
-    if (!swapActive()) {
+    // While the menu is open the stick steps through it like the d-pad (one step per push).
+    const bool menu = mCb.menuOpen && mCb.menuOpen();
+    if (menu != mStickInMenu) {
+        // Directions held when the menu opened or closed are dropped, not carried over.
+        for (int d = 0; d < 4; d++) {
+            if (mStickDir[d] && !mStickInMenu) sendDir((Dir)d, false);
+            mStickDir[d] = false;
+        }
+        mStickInMenu = menu;
+    }
+    if (!menu && !swapActive()) {
         if (mCb.joystick) mCb.joystick(AZN_CIRCLEPAD, mLx, -mLy);
         return;
     }

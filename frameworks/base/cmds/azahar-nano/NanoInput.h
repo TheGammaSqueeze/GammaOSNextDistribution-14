@@ -88,7 +88,8 @@ private:
     std::atomic<bool> mSwapStickDpad{false};
     bool mSwapApplied = false;          // the swap state the held inputs were sent under
     bool mDpadHeld[4] = {};             // physical d-pad (buttons or hat)
-    bool mStickDir[4] = {};             // d-pad presses the swapped stick has sent
+    bool mStickDir[4] = {};             // d-pad presses the stick has sent (swap or menu)
+    bool mStickInMenu = false;          // the stick is stepping through the menu
     // per-pad state
     float mLx = 0, mLy = 0, mRx = 0, mRy = 0;
     int mHatX = 0, mHatY = 0;
