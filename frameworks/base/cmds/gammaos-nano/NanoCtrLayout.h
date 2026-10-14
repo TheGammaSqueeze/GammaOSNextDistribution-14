@@ -64,7 +64,13 @@ public:
     bool open(const std::string& path, const std::string& name);
     const std::string& name() const { return mName; }
     // Glyph for a code point, falling back to the alternate character. Never null once open.
+    // A code point this font lacks is taken from a fallback font of the same family (the
+    // console's regional system fonts: hangul, simplified hanzi) when one has it.
     const Glyph* glyph(uint32_t code) const;
+    // The font (or a fallback) has this code point itself (not the alternate character).
+    bool has(uint32_t code) const;
+    // Regional fonts whose glyphs this font borrows; their horizontal metrics must match.
+    void addFallback(std::shared_ptr<Font> f) { mFallbacks.push_back(std::move(f)); }
     // Atlas placement of a glyph (uploads it when needed). Returns false when it cannot be placed.
     bool place(const Glyph* g, float* u0, float* v0, float* u1, float* v1);
     GLuint atlas() const { return mAtlas; }
@@ -86,6 +92,13 @@ private:
     const uint8_t* mBitmaps = nullptr;
     size_t mBitmapStride = 0;
     std::vector<Glyph> mGlyphs;   // decoded table (sorted by code)
+    const Glyph* find(uint32_t code) const;   // exact, this font only
+    // glyphs borrowed from fallbacks: the metrics and the bordered cell, padded to this font's
+    // cell so its baseline lines up (node based map: the Glyph addresses stay valid)
+    struct Imported { Glyph g; std::vector<uint8_t> cell; };
+    mutable std::unordered_map<uint32_t, Imported> mImported;
+    std::vector<std::shared_ptr<Font>> mFallbacks;
+    const Imported* imported(const Glyph* g) const;
     // atlas
     GLuint mAtlas = 0;
     int mAtlasSize = 0, mSlotW = 0, mSlotH = 0, mCols = 0, mRows = 0, mNext = 0;

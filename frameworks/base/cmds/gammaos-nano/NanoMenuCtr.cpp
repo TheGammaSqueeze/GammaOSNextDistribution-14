@@ -13,6 +13,7 @@
 #include "NanoCtrArt.h"
 #include "NanoMenuUtils.h"
 #include "NanoI18n.h"
+#include "NanoMenuStrings.h"
 
 #include <linux/input.h>
 #include <sys/stat.h>
@@ -508,12 +509,12 @@ int NanoMenu::ctrModalKind() const {
     if (!mCtrTheme || !mCtrHome || !mCtrHome->loaded() || mPs3BootActive || mSetupWizardActive) return CTR_MODAL_NONE;
     // screens without a 3DS look yet: the shared XMB chrome
     const bool other = mOskActive || mVidActive || mMpActive || mPvActive || mGSearchActive || mPs3WizActive ||
-                       mPs3TzActive || mPs3LangActive || mPs3BrightSlider || mPhotoMultiActive || mScrapeProgActive ||
+                       mPs3BrightSlider || mPhotoMultiActive || mScrapeProgActive ||
                        mMtpActive || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
                        ps3TopScreenKind() == PHOTO_GRID || ndsGameInfoActive() ||
                        ((mPs3DlgActive || mPs3DlgClosing) && (mPs3DlgRomInfo || (mPs3DlgSlider && mPs3DlgOptions.empty())));
     if (other) return CTR_MODAL_FALLBACK;
-    if (mPs3DlgActive || mPs3OptActive || !mPs3Stack.empty()) return CTR_MODAL_PANEL;
+    if (mPs3DlgActive || mPs3OptActive || mPs3TzActive || mPs3LangActive || !mPs3Stack.empty()) return CTR_MODAL_PANEL;
     return CTR_MODAL_NONE;
 }
 
@@ -569,7 +570,36 @@ void NanoMenu::ctrModalUpdate() {
     // a list-style dialog (a chooser) shows as the panel while it is open; a closing one is gone
     const bool dlgSide = ndsDlgIsSidePanel();
     const bool dlgList = mPs3DlgActive && dlgSide;
-    if (mPs3OptActive) {
+    const bool picker = mPs3TzActive || mPs3LangActive;
+    if (picker) {
+        // Time Zone / System Language: a list of choices; the keys stay with nano's picker handlers
+        if (mPs3TzActive) {
+            for (const auto& z : mTzEntries) {
+                ctr::PanelRow r;
+                r.label = z.display;
+                rows.push_back(r);
+            }
+            sel = mTzSelected;
+            title = trDyn("Time Zone");
+        } else {
+            nanoSetLocale((NanoLocale)mLangSelected);   // live preview as the cursor moves
+            // a name the console's fonts cannot draw (Arabic) shows its English name
+            std::shared_ptr<ctr::Font> font = mCtrHome->assets().font("cbf_std");
+            for (int i = 0; i < LOCALE_COUNT; i++) {
+                const LocaleInfo& li = nanoGetLocaleInfo((NanoLocale)i);
+                ctr::PanelRow r;
+                r.label = li.nativeName;
+                if (font) {
+                    for (char32_t c : ctr::utf8ToU32(r.label))
+                        if (c > ' ' && !font->has(c)) { r.label = li.englishName; break; }
+                }
+                rows.push_back(r);
+            }
+            sel = mLangSelected;
+            title = trDyn("System Language");
+        }
+        level = ctrLevelId(mPs3TzActive ? 4 : 5, mPs3Stack.size(), title, rows.size());
+    } else if (mPs3OptActive) {
         const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size() &&
                              !mPs3OptSubRows[mPs3OptSel].empty();
         if (subOpen) {
@@ -602,10 +632,12 @@ void NanoMenu::ctrModalUpdate() {
         level = ctrLevelId(3, mPs3Stack.size(), title, rows.size());
     } else if (!mPs3Stack.empty()) {
         const Ps3Level& lv = mPs3Stack.back();
+        // every item is a row (nano's selection indexes the items): one that does nothing when
+        // chosen (an information line, the empty list's note) is shown dimmed
         for (const Ps3Item& it : lv.items) {
-            if (it.kind == PS3_DATA_LEAF && it.action == 0) continue;
             ctr::PanelRow r;
             r.label = trDyn(it.label.c_str());
+            r.enabled = !(it.kind == PS3_DATA_LEAF && it.action == 0);
             bool on = false;
             if (ctrItemSwitch(it, &on)) { r.kind = ctr::PanelRow::Toggle; r.on = on; }
             else {
@@ -618,7 +650,7 @@ void NanoMenu::ctrModalUpdate() {
         title = trDyn(lv.title.c_str());
         level = ctrLevelId(0, mPs3Stack.size(), lv.title, rows.size());
     }
-    const bool panel = mPs3OptActive || dlgList || !mPs3Stack.empty();
+    const bool panel = picker || mPs3OptActive || dlgList || !mPs3Stack.empty();
     mCtrHome->setTopBannerHidden(panel);
     if (panel) {
         mCtrPanel->set(title, rows, sel, level);
@@ -667,7 +699,10 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
     const ctr::PanelHit h = mCtrPanel->touch(down, held, up, x, y);
     switch (h.what) {
         case ctr::PanelHit::Row: {
-            if (mPs3OptActive) {
+            if (mPs3TzActive || mPs3LangActive) {
+                if (mPs3TzActive) { mTzSelected = h.row; closeTimezoneGlobe(true); }
+                else { mLangSelected = h.row; closeLanguagePicker(true); }
+            } else if (mPs3OptActive) {
                 const bool subOpen = mPs3OptSubOpen && mPs3OptSel >= 0 && mPs3OptSel < (int)mPs3OptSubRows.size() &&
                                      !mPs3OptSubRows[mPs3OptSel].empty();
                 if (subOpen) {
@@ -684,14 +719,9 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
                 mPs3DlgSel = h.row;
                 ps3XmbSelect();
             } else if (!mPs3Stack.empty()) {
-                // rows skip the empty-level placeholder: map back to the level's item index
                 Ps3Level& lv = mPs3Stack.back();
-                int vis = 0, idx = -1;
-                for (int i = 0; i < (int)lv.items.size(); i++) {
-                    if (lv.items[i].kind == PS3_DATA_LEAF && lv.items[i].action == 0) continue;
-                    if (vis++ == h.row) { idx = i; break; }
-                }
-                if (idx < 0) break;
+                const int idx = h.row;
+                if (idx < 0 || idx >= (int)lv.items.size()) break;
                 // a switch: the tapped side is set at once (the console's OFF / ON pair)
                 bool on = false;
                 lv.sel = idx;
@@ -706,6 +736,8 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
         }
         case ctr::PanelHit::Close:
             // the close button leaves the whole panel
+            if (mPs3TzActive) { closeTimezoneGlobe(false); break; }
+            if (mPs3LangActive) { closeLanguagePicker(false); break; }
             if (mPs3OptActive || mPs3DlgActive) { ps3XmbBack(); break; }
             for (int guard = 0; guard < 16 && !mPs3Stack.empty() && !mPs3OptActive && !mPs3DlgActive; guard++) {
                 const size_t depth = mPs3Stack.size();
@@ -715,6 +747,8 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
             mDisplayDirty = true;
             break;
         case ctr::PanelHit::Outside:
+            if (mPs3TzActive) { closeTimezoneGlobe(false); break; }
+            if (mPs3LangActive) { closeLanguagePicker(false); break; }
             ps3XmbBack();
             mDisplayDirty = true;
             break;

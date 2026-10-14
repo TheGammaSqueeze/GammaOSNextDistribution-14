@@ -1004,14 +1004,50 @@ bool Font::open(const std::string& path, const std::string& name) {
     return true;
 }
 
-const Glyph* Font::glyph(uint32_t code) const {
+const Glyph* Font::find(uint32_t code) const {
     auto it = std::lower_bound(mGlyphs.begin(), mGlyphs.end(), code, [](const Glyph& g, uint32_t c) { return g.code < c; });
-    if (it != mGlyphs.end() && it->code == code) return &*it;
+    return it != mGlyphs.end() && it->code == code ? &*it : nullptr;
+}
+
+const Glyph* Font::glyph(uint32_t code) const {
+    if (const Glyph* g = find(code)) return g;
+    auto im = mImported.find(code);
+    if (im != mImported.end()) return &im->second.g;
+    for (const auto& fb : mFallbacks) {
+        const Glyph* src = fb->find(code);
+        if (!src || fb->cellWidth != cellWidth || fb->baseline > baseline) continue;
+        // pad the fallback's cell rows down to this font's baseline (same horizontal metrics)
+        std::vector<uint8_t> fc;
+        if (!fb->cellAlpha(src, fc)) continue;
+        const int w = cellWidth + 2, h = cellHeight + 2, fh = fb->cellHeight + 2;
+        const int dy = baseline - fb->baseline;
+        Imported e;
+        e.g = *src;
+        e.cell.assign((size_t)w * h, 0);
+        for (int y = 0; y < fh && y + dy < h; y++)
+            memcpy(&e.cell[(size_t)(y + dy) * w], &fc[(size_t)y * w], (size_t)w);
+        auto& slot = mImported[code] = std::move(e);
+        return &slot.g;
+    }
     return mAlt < mGlyphs.size() ? &mGlyphs[mAlt] : (mGlyphs.empty() ? nullptr : &mGlyphs[0]);
+}
+
+bool Font::has(uint32_t code) const {
+    if (find(code) || mImported.count(code)) return true;
+    for (const auto& fb : mFallbacks)
+        if (fb->cellWidth == cellWidth && fb->baseline <= baseline && fb->find(code)) return true;
+    return false;
+}
+
+const Font::Imported* Font::imported(const Glyph* g) const {
+    if (!g || (g >= mGlyphs.data() && g < mGlyphs.data() + mGlyphs.size())) return nullptr;
+    auto it = mImported.find(g->code);
+    return it != mImported.end() && &it->second.g == g ? &it->second : nullptr;
 }
 
 bool Font::cellAlpha(const Glyph* g, std::vector<uint8_t>& out) const {
     if (!g || mGlyphs.empty()) return false;
+    if (const Imported* im = imported(g)) { out = im->cell; return true; }
     const int index = (int)(g - mGlyphs.data());
     const int w = cellWidth + 2, h = cellHeight + 2;
     out.assign((size_t)w * h, 0);
@@ -1031,7 +1067,9 @@ bool Font::cellAlpha(const Glyph* g, std::vector<uint8_t>& out) const {
 
 bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
     if (!g || mGlyphs.empty()) return false;
-    const int index = (int)(g - mGlyphs.data());
+    const Imported* im = imported(g);
+    // atlas key: the table index, or the code point (high bit set) for a borrowed glyph
+    const uint32_t key = im ? (0x80000000u | g->code) : (uint32_t)(g - mGlyphs.data());
     if (!mAtlas) {
         mSlotW = cellWidth + 2;
         mSlotH = cellHeight + 2;
@@ -1052,7 +1090,7 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
         mNext = 0;
     }
     int slot;
-    auto it = mSlots.find((uint32_t)index);
+    auto it = mSlots.find(key);
     if (it != mSlots.end()) {
         slot = it->second;
     } else {
@@ -1067,16 +1105,18 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
             mGeneration++;
         }
         slot = mNext++;
-        mSlots.emplace((uint32_t)index, slot);
+        mSlots.emplace(key, slot);
         // decode the bordered cell (the packer stored its sheet surround) into L, A pairs
         const int w = mSlotW, h = mSlotH;
         mScratch.assign((size_t)w * h * 2, 0);
-        const uint8_t* src = mBitmaps + mBitmapStride * index;
+        const uint8_t* src = im ? nullptr : mBitmaps + mBitmapStride * key;
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 const int i = y * w + x;
                 uint8_t L = 255, A;
-                if (mFormat == 0) {
+                if (im) {
+                    A = im->cell[i];
+                } else if (mFormat == 0) {
                     const uint8_t b = src[i >> 1];
                     A = (uint8_t)(((i & 1) ? (b >> 4) : (b & 15)) * 17);
                 } else if (mFormat == 1) {
@@ -1237,6 +1277,12 @@ std::shared_ptr<Font> Assets::font(const std::string& resourceName) {
         f.reset();
     }
     mFonts.emplace(resolved, f);
+    // the shared font borrows what it lacks from the regional system fonts (hangul, simplified
+    // hanzi): nano's lists show names in every language (mapped, read only when a glyph is needed)
+    if (f && resolved == "cbf_std") {
+        for (const char* fb : {"cbf_ko-Hang-KR", "cbf_zh-Hans-CN"})
+            if (auto g = font(fb)) f->addFallback(g);
+    }
     return f;
 }
 
