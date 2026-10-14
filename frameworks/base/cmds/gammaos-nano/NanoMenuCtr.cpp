@@ -510,12 +510,13 @@ int NanoMenu::ctrModalKind() const {
     if (!mCtrTheme || !mCtrHome || !mCtrHome->loaded() || mPs3BootActive || mSetupWizardActive) return CTR_MODAL_NONE;
     // screens without a 3DS look yet: the shared XMB chrome
     const bool other = mOskActive || mVidActive || mMpActive || mPvActive || mGSearchActive || mPs3WizActive ||
-                       mPs3BrightSlider || mPhotoMultiActive || mScrapeProgActive ||
+                       mPhotoMultiActive || mScrapeProgActive ||
                        mMtpActive || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
                        ps3TopScreenKind() == PHOTO_GRID || ndsGameInfoActive() ||
                        ((mPs3DlgActive || mPs3DlgClosing) && mPs3DlgRomInfo);
     if (other) return CTR_MODAL_FALLBACK;
-    if (mPs3DlgActive || mPs3OptActive || mPs3TzActive || mPs3LangActive || !mPs3Stack.empty()) return CTR_MODAL_PANEL;
+    if (mPs3DlgActive || mPs3OptActive || mPs3TzActive || mPs3LangActive || mPs3BrightSlider || !mPs3Stack.empty())
+        return CTR_MODAL_PANEL;
     return CTR_MODAL_NONE;
 }
 
@@ -666,7 +667,14 @@ void NanoMenu::ctrModalUpdate() {
         mCtrPanelWasShown = false;
     }
     // ---- the message dialog (confirmations, notices) over everything ----
-    if (slider) {
+    if (mPs3BrightSlider) {
+        // the Quick Menu brightness: live, in percent like the other themes' bar
+        char pct[16];
+        snprintf(pct, sizeof(pct), "%d%%", mBrightness * 100 / 255);
+        mCtrDialog->set(std::string(), {}, 0);
+        mCtrDialog->setProgress(std::string(trDyn("Brightness")) + "\n\n" + pct, (float)mBrightness / 255.0f);
+        mCtrDialog->show();
+    } else if (slider) {
         const float span = mPs3DlgSldMax - mPs3DlgSldMin;
         const float frac = span > 0 ? std::clamp((mPs3DlgSldVal - mPs3DlgSldMin) / span, 0.0f, 1.0f) : 0.0f;
         char num[32];
@@ -697,6 +705,26 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
         if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
         mDisplayDirty = true;
     };
+    // the Quick Menu brightness: a drag sets it live, a tap elsewhere closes it
+    if (mPs3BrightSlider && mCtrDialog->active()) {
+        const float f = mCtrDialog->progressTouch(down, held, up, x, y);
+        if (down) mCtrSliderTap = f < 0;
+        if (f >= 0) {
+            const int b = std::clamp((int)lroundf(f * 255.0f), 1, 255);
+            if (b != mBrightness) {
+                mBrightness = b;
+                applyBrightness();
+                mDisplayDirty = true;
+            }
+        } else if (up && mCtrSliderTap) {
+            mCtrSliderTap = false;
+            mPs3BrightSlider = false;
+            mShowBrightnessBar = false;
+            mBrightnessBarTimer = 0;
+            mDisplayDirty = true;
+        }
+        return true;
+    }
     // a slider: drag the bar; a tap anywhere else keeps the value (A), like the notices
     if (ctrSliderActive() && mCtrDialog->active()) {
         const float f = mCtrDialog->progressTouch(down, held, up, x, y);

@@ -297,8 +297,10 @@ void NanoMenu::renderBrightnessBar() {
         return;
     }
 
-    // DSi / Minima draw the themed HUD; XMB keeps the shared flat system slider (top slot).
-    if (mNdsTheme || mMinimaTheme) {
+    // the 3DS theme shows the Quick Menu slider as its own dialog (ctrModalUpdate)
+    if (mCtrTheme && mPs3BrightSlider) return;
+    // DSi / Minima / 3DS draw the themed HUD; XMB keeps the shared flat system slider (top slot).
+    if (mNdsTheme || mMinimaTheme || mCtrTheme) {
         renderThemedSliderHud(false, mBrightness * 100 / 255, 0);
         return;
     }
@@ -360,7 +362,7 @@ void NanoMenu::renderVolumeBar() {
     int pct = (mMaxVolume > 0) ? (mVolume * 100 / mMaxVolume) : 0;
     int slot = mShowBrightnessBar ? 1 : 0;
     // DSi / Minima draw the themed HUD; XMB keeps the shared flat system slider.
-    if (mNdsTheme || mMinimaTheme) {
+    if (mNdsTheme || mMinimaTheme || mCtrTheme) {
         renderThemedSliderHud(true, pct, slot);
         return;
     }
