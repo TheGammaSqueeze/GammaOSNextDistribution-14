@@ -255,7 +255,8 @@ void CtrTop::focus(const TopFocus& f) {
             spec.animations = {spec.model};
             // nano's category icon as a solid inside the applet's glass cube, in place of the
             // console's applet object
-            if (f.glyph) spec.hideMaterials = {"mt_Body"};
+            // (mt_Backface is the white plate in the object's silhouette behind it: it goes too)
+            if (f.glyph) spec.hideMaterials = {"mt_Body", "mt_Backface"};
             break;
         }
         default:
@@ -526,9 +527,9 @@ void CtrTop::attach() {
         b->tinted = mPendingFocus.glyphTinted;
         for (int i = 0; i < 3; i++) b->tint[i] = mPendingFocus.glyphTint[i];
     }
-    // an applet banner with nano's icon: the applet object goes, the icon is built into a solid
-    // fitted inside the glass cube (mt_Backface) and carried by the cube's bone; the glass takes
-    // the category's colour
+    // an applet banner with nano's icon: the applet object (mt_Body) and its white backing plate
+    // (mt_Backface) go, the icon is built into a solid fitted to the object's bounds and carried by
+    // its bone
     if (mPendingFocus.glyph && !b->spec.hideMaterials.empty()) {
         for (size_t i = 0; i < res->meshes.size(); i++) {
             const int mat = res->meshes[i].material;
@@ -541,7 +542,7 @@ void CtrTop::attach() {
         for (const auto& p : res->primitives) {
             if (p.mesh < 0 || p.mesh >= (int)res->meshes.size()) continue;
             const auto& me = res->meshes[p.mesh];
-            if (me.material < 0 || me.material >= (int)res->materials.size() || res->materials[me.material].name != "mt_Backface")
+            if (me.material < 0 || me.material >= (int)res->materials.size() || res->materials[me.material].name != "mt_Body")
                 continue;
             b->glyphBone = p.bone;
             if (me.shape >= 0 && me.shape < (int)res->shapeCenters.size()) {
@@ -551,7 +552,8 @@ void CtrTop::attach() {
             break;
         }
         if (b->glyphBone >= 0 && size[0] > 0 && size[1] > 0) {
-            const float box = std::min(size[0], size[1]) * 0.72f;
+            // about the size of the object it replaces (its long side: Game Notes is a thin tilted pad)
+            const float box = std::max(size[0], size[1]) * 0.8f;
             const float depth = std::max(0.8f, std::min(size[2] * 0.6f, box * 0.22f));
             const std::string gk = "bar|" + std::to_string(mPendingFocus.glyph) + "|" + b->spec.model;
             auto it = mGlyphs.find(gk);
@@ -563,22 +565,12 @@ void CtrTop::attach() {
                 it = mGlyphs.emplace(gk, mesh).first;
             }
             b->glyph = it->second;
-            b->glyphFlip = true;   // the cube's bone shows the camera its back
-            ALOGI("ctr top: applet glyph in %s cube %.1fx%.1fx%.1f at %.1f,%.1f,%.1f bone %d", b->spec.model.c_str(), size[0],
+            ALOGI("ctr top: applet glyph in %s body %.1fx%.1fx%.1f at %.1f,%.1f,%.1f bone %d", b->spec.model.c_str(), size[0],
                   size[1], size[2], centre[0], centre[1], centre[2], b->glyphBone);
         }
         if (!b->glyph) b->model->hiddenMeshes.clear();   // nothing built: the console's object after all
         b->tinted = mPendingFocus.glyphTinted;
         for (int i = 0; i < 3; i++) b->tint[i] = mPendingFocus.glyphTint[i];
-        if (b->tinted) {
-            if (MaterialState* m = b->model->findMaterial("mt_Backface")) {
-                const int c2 = 5 + 2;   // constant 2 (colours: emission ambient diffuse specular0 specular1 constant0..5)
-                // the glass mixes in (1 - alpha) of constant 2 (the file's: 4 % of a blue): a fifth
-                // of the category's colour
-                m->overrides[c2] = V4{b->tint[0], b->tint[1], b->tint[2], 0.8f};
-                m->reset();
-            }
-        }
     }
     // the language slot's own model, its animations in repeat mode like COMMON
     if (mPendingFocus.cbmd && !mPendingFocus.cbmd->languagePack.empty()) {
@@ -688,13 +680,6 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
         if (!b.glyph || !b.model || !b.model->visible) return;
         M4 mv;
         mat4Mul(mv, cam.view, b.model->boneMatrix(b.glyphBone));
-        if (b.glyphFlip) {
-            // half a turn about the bone's vertical axis: x and z negated
-            for (int r = 0; r < 4; r++) {
-                mv.m[r] = -mv.m[r];
-                mv.m[8 + r] = -mv.m[8 + r];
-            }
-        }
         // the folder's colours (the theme's, else the file's): faces in its main colour, walls in
         // its dark one
         float face[3] = {0.45f, 0.78f, 0.93f}, side[3] = {0.25f, 0.55f, 0.75f};

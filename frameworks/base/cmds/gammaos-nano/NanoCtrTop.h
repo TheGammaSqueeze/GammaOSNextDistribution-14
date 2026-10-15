@@ -118,7 +118,6 @@ private:
         std::unique_ptr<ModelInstance> extra;   // a ROM banner's language model, following `model`
         std::shared_ptr<GlyphMesh> glyph;        // a folder's system icon, on the folder's bone
         int glyphBone = -1;
-        bool glyphFlip = false;   // turned half round on its bone (an applet's cube faces away)
         bool tinted = false;
         float tint[3] = {1, 1, 1};
         bool shown = true;
