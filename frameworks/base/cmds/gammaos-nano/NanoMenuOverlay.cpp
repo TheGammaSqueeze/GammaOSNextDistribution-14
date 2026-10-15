@@ -913,6 +913,7 @@ void NanoMenu::overlayResume() {
 // Must run on the render thread: eglSwapInterval applies to the surface current
 // on the calling thread.
 void NanoMenu::overlayApplyPresentMode() {
+    ctrOverlayHandOff(mOverlayMode && !mOverlayWallpaper, mOverlayShown);   // 3DS theme: the in-game overlay is the XMB
     if (mFlingerSurfaceControl != nullptr) {
         bool opaque = mOverlayWallpaper &&
             property_get_bool("persist.gammaos.nano.overlay.opaque_wallpaper", true);

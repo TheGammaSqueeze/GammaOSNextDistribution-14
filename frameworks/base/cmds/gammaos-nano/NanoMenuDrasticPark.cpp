@@ -289,6 +289,7 @@ bool NanoMenu::drasticParkSession() {
     mNdsIntroStart = 0;
     // 3DS theme: the launch left the home in its app-running state behind the console's black
     // launch fade (nothing else ends it in a parked home); play the return to the menu.
+    ctrOverlayHandOff(false, false);   // the in-game overlay may have left the XMB in charge
     if (mCtrTheme && mCtrHome) mCtrHome->resumeFromApp();
     property_set("sys.gammaos.nano.menu_active", "1");
     property_set("sys.gammaos.nano.drop_input", "0");

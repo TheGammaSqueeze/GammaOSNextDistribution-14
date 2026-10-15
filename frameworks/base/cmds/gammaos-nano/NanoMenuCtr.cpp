@@ -2183,6 +2183,42 @@ bool NanoMenu::ctrBgmAllowed() {
            property_get_bool("persist.gammaos.nano.nds.ambiance", true);   // Menu Music, applied live
 }
 
+// The in-game overlay is the XMB (the console's own HOME Menu suspends the game behind the home,
+// which nano's overlay does not port): while an app is behind the overlay the 3DS theme steps
+// aside, so every XMB path (Quick Menu landing, scrim, glass icons, sounds, bottom panel) runs as
+// it does in the XMB theme, and the 3DS home comes back once the overlay is the launcher again.
+// Called on every overlay mode change (overlayApplyPresentMode, before overlayShow lands on the
+// Quick Menu) and by the parked home's return from a drastic-nano session (no overlay raise there).
+// `playReturn`: the app's exit happened while the overlay was shown (Close Current App, Kill All
+// Apps), so play the home's return here; a raise and the park return play it themselves.
+void NanoMenu::ctrOverlayHandOff(bool inGame, bool playReturn) {
+    if (inGame && mCtrTheme) {
+        mCtrHeldCatIdx = mPs3CatIdx;
+        mCtrHeldItemIdx = mPs3ItemIdx;
+        if (mCtrAudio) mCtrAudio->stopAll(0);
+        mCtrHeld = 0;
+        mCtrStickX = mCtrStickY = 0;
+        mCtrTheme = false;
+        mCtrThemeHeld = true;
+        mDisplayDirty = true;
+        ALOGI("ctr: in-game overlay, the XMB takes the screen");
+    } else if (!inGame && mCtrThemeHeld) {
+        // the XMB's submenus and modals do not belong to the 3DS home
+        mPs3Stack.clear();
+        mPs3DlgActive = false; mPs3OptActive = false; mPs3BrightSlider = false;
+        mMenuState = MENU_MAIN;
+        mPs3CatIdx = mCtrHeldCatIdx;
+        mPs3ItemIdx = mCtrHeldItemIdx;
+        mPs3AnimItem = (float)mPs3ItemIdx; mPs3ItemAnimStart = -1.0f; mPs3SubAnimStart = -1.0f;
+        mPs3CatAnimActive = false; mPs3CatT = 1.0f; mPs3CatFromOffset = 0.0f;
+        mCtrThemeHeld = false;
+        mCtrTheme = true;
+        if (playReturn && mCtrHome) mCtrHome->resumeFromApp();
+        mDisplayDirty = true;
+        ALOGI("ctr: launcher overlay, the 3DS home is back");
+    }
+}
+
 void NanoMenu::ctrLeave() {
     if (mCtrAudio) {
         mCtrAudio->stopAll(0);
