@@ -987,29 +987,40 @@ GLuint NanoMenu::bevelFromRGBA(const uint8_t* px, int w, int h) {
     // height field. Radius scales with icon size so the bevel band is a
     // consistent fraction of the icon.
     int rad = (w > h ? w : h) / 28; if (rad < 2) rad = 2;
+    // Each pass averages the 2 * rad + 1 samples around a texel (edge texels repeated), kept as
+    // a running sum that slides one sample in and one out per texel instead of re-adding the
+    // whole window: the same average in O(1) per texel. The sums run in double so the sliding
+    // does not drift from the windowed sum.
     std::vector<float>* src = &bufA;
     std::vector<float>* dst = &bufB;
+    const double inv = 1.0 / (double)(2 * rad + 1);
+    auto clampi = [](int v, int hi) { return v < 0 ? 0 : (v > hi ? hi : v); };
+    std::vector<double> colSum((size_t)w);
     for (int pass = 0; pass < 3; pass++) {
         const float* s0 = src->data();
-        for (int y = 0; y < h; y++)               // horizontal: src -> tmp
+        for (int y = 0; y < h; y++) {             // horizontal: src -> tmp
+            const float* row = s0 + (size_t)y * w;
+            double s = 0;
+            for (int k = -rad; k <= rad; k++) s += row[clampi(k, w - 1)];
             for (int x = 0; x < w; x++) {
-                float s = 0.0f; int c = 0;
-                for (int k = -rad; k <= rad; k++) {
-                    int xx = x + k; if (xx < 0) xx = 0; if (xx > w - 1) xx = w - 1;
-                    s += s0[(size_t)y * w + xx]; c++;
-                }
-                tmp[(size_t)y * w + x] = s / (float)c;
+                tmp[(size_t)y * w + x] = (float)(s * inv);
+                s += row[clampi(x + rad + 1, w - 1)] - row[clampi(x - rad, w - 1)];
             }
+        }
         float* d0 = dst->data();
-        for (int y = 0; y < h; y++)               // vertical: tmp -> dst
-            for (int x = 0; x < w; x++) {
-                float s = 0.0f; int c = 0;
-                for (int k = -rad; k <= rad; k++) {
-                    int yy = y + k; if (yy < 0) yy = 0; if (yy > h - 1) yy = h - 1;
-                    s += tmp[(size_t)yy * w + x]; c++;
-                }
-                d0[(size_t)y * w + x] = s / (float)c;
-            }
+        // vertical: tmp -> dst, a running sum per column advanced a row at a time (row order)
+        for (int x = 0; x < w; x++) colSum[(size_t)x] = 0;
+        for (int k = -rad; k <= rad; k++) {
+            const float* row = tmp.data() + (size_t)clampi(k, h - 1) * w;
+            for (int x = 0; x < w; x++) colSum[(size_t)x] += row[x];
+        }
+        for (int y = 0; y < h; y++) {
+            float* out = d0 + (size_t)y * w;
+            for (int x = 0; x < w; x++) out[x] = (float)(colSum[(size_t)x] * inv);
+            const float* in = tmp.data() + (size_t)clampi(y + rad + 1, h - 1) * w;
+            const float* outRow = tmp.data() + (size_t)clampi(y - rad, h - 1) * w;
+            for (int x = 0; x < w; x++) colSum[(size_t)x] += in[x] - outRow[x];
+        }
         std::vector<float>* t = src; src = dst; dst = t;   // swap
     }
     const std::vector<float>& H = *src;            // blurred result
