@@ -1063,11 +1063,16 @@ void Renderer::drawText(Layout& L, Pane* p) {
     };
     const uint64_t key = cacheKey();
     if (key != p->textCacheKey) {
-        layoutText(p, f);
-        // placing glyphs may have restarted a full atlas: lay out again against the new one
-        const uint64_t after = cacheKey();
-        if (after != key) layoutText(p, f);
-        p->textCacheKey = cacheKey();
+        // placing glyphs may grow or restart the atlas: lay out again until a pass leaves it as
+        // it was (bounded: a pane with more distinct glyphs than the atlas holds keeps the last)
+        uint64_t before = key;
+        for (int pass = 0; pass < 4; pass++) {
+            layoutText(p, f);
+            const uint64_t after = cacheKey();
+            if (after == before) break;
+            before = after;
+        }
+        p->textCacheKey = before;
     }
     if (p->textQuads.empty() || !f.atlas()) return;
     const Material& m = L.materials[p->material];

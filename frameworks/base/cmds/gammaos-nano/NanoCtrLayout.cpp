@@ -1389,10 +1389,14 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
         mScale = wantScale;
         mSlotW = (cellWidth + 2) * mScale;
         mSlotH = (cellHeight + 2) * mScale;
-        // room for every glyph of a small font, a few hundred distinct glyphs of a large one
-        const int want = std::min<int>((int)mCount, 300);
-        mAtlasSize = 512;
-        while (mAtlasSize < 2048 && (mAtlasSize / mSlotW) * (mAtlasSize / mSlotH) < want) mAtlasSize *= 2;
+        // room for every glyph of a small font and about a screen of text of a large one; a
+        // screen that needs more doubles it (up to 2048, then it starts over), so a fine vector
+        // atlas only costs its memory where text needs it
+        if (mAtlasSize == 0) {
+            const int want = std::min<int>((int)mCount, 48);
+            mAtlasSize = 512;
+            while (mAtlasSize < 2048 && (mAtlasSize / mSlotW) * (mAtlasSize / mSlotH) < want) mAtlasSize *= 2;
+        }
         mCols = mAtlasSize / mSlotW;
         mRows = mAtlasSize / mSlotH;
         glGenTextures(1, &mAtlas);
@@ -1412,6 +1416,20 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
     if (it != mSlots.end()) {
         slot = it->second;
     } else {
+        if (mNext >= mCols * mRows && mAtlasSize < 2048) {
+            ALOGI("font %s: glyph atlas grows to %d", mName.c_str(), mAtlasSize * 2);
+            // full: twice the size, empty (glyphs are placed again as text is laid out)
+            mAtlasSize *= 2;
+            mCols = mAtlasSize / mSlotW;
+            mRows = mAtlasSize / mSlotH;
+            std::vector<uint8_t> zero((size_t)mAtlasSize * mAtlasSize * 2, 0);
+            glBindTexture(GL_TEXTURE_2D, mAtlas);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, mAtlasSize, mAtlasSize, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, zero.data());
+            gTextureEpoch++;
+            mSlots.clear();
+            mNext = 0;
+            mGeneration++;
+        }
         if (mNext >= mCols * mRows) {
             // full: start over (the caller rebuilds text geometry on the generation change)
             std::vector<uint8_t> zero((size_t)mAtlasSize * mAtlasSize * 2, 0);
