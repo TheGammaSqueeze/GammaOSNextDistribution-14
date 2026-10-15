@@ -17,6 +17,7 @@
 #include "NanoI18n.h"
 #include "NanoMenuStrings.h"
 
+#include <random>
 #include <linux/input.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -581,6 +582,7 @@ bool NanoMenu::ctrEnsure() {
         if (!mCtrAudio) mCtrAudio = new ctr::CtrAudio(root + "/sound");
         if (!mCtrArt) mCtrArt = new ctr::RomArt("/data/system/nano_ctr_rom");
         mCtrHome = new ctr::CtrHome(root, mCtrHost);
+        ctrShuffleEvent(true, 0);   // Shuffle: the next favourite once per boot
         ALOGI("ctr: 3DS theme assets at %s", root.c_str());
     }
     mCtrHome->setLanguage("English");
@@ -820,7 +822,8 @@ const std::vector<ctr::ThemeFile>& ctrSdThemes() {
 }  // namespace
 
 std::vector<SettingListOption> ctrThemeOptions() {
-    std::vector<SettingListOption> out = {{"-1", "Default"}, {"0", "Red"}, {"1", "Blue"}, {"2", "Yellow"}, {"3", "Pink"}, {"4", "Black"}};
+    std::vector<SettingListOption> out = {{"-1", "Default"}, {"shuffle", "Shuffle"}, {"0", "Red"}, {"1", "Blue"},
+                                          {"2", "Yellow"}, {"3", "Pink"}, {"4", "Black"}};
     const std::string lang = nanoGetLocaleInfo(nanoGetLocale()).englishName;
     for (const ctr::ThemeFile& t : ctrSdThemes()) out.push_back({"sd/" + t.name, t.displayName(lang)});
     return out;
@@ -830,6 +833,106 @@ std::vector<SettingListOption> ctrThemeOptions() {
 // or a theme from the SD card. Default follows Theme Settings > Colour: any colour but Original
 // colours the menu with a theme made from it. Resolved again when either setting changes and for
 // a new home (GL context loss), which starts on the default look.
+// ---------------------------------------------------------------------------------- shuffle
+// theme/shuffle.ts: up to ten favourites play in a shuffled order; past the last one the order is
+// shuffled again (Fisher-Yates) so that the theme just shown does not come first. The order, the
+// position in it and the current favourite are kept in properties so a restart continues.
+namespace {
+const char* kShuffleFavs = "persist.gammaos.nano.ctr.shuffle_favs";
+const char* kShuffleOrder = "persist.gammaos.nano.ctr.shuffle_order";
+const char* kShufflePos = "persist.gammaos.nano.ctr.shuffle_pos";
+const char* kShuffleCur = "persist.gammaos.nano.ctr.shuffle_cur";
+const int kShuffleMax = 10;
+
+std::vector<std::string> ctrSplit(const char* prop) {
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get(prop, v, "");
+    std::vector<std::string> out;
+    std::string cur;
+    for (const char* c = v; ; c++) {
+        if (*c == ',' || !*c) { if (!cur.empty()) out.push_back(cur); cur.clear(); if (!*c) break; }
+        else cur += *c;
+    }
+    return out;
+}
+
+std::string ctrJoin(const std::vector<std::string>& v) {
+    std::string s;
+    for (const std::string& e : v) s += (s.empty() ? "" : ",") + e;
+    return s;
+}
+}  // namespace
+
+bool NanoMenu::ctrShuffleToggle(const std::string& key) {
+    std::vector<std::string> favs = ctrSplit(kShuffleFavs);
+    auto at = std::find(favs.begin(), favs.end(), key);
+    if (at != favs.end()) favs.erase(at);
+    else if ((int)favs.size() >= kShuffleMax) return false;   // the console's ten (CHECK_BTN_INVALID)
+    else favs.push_back(key);
+    // a property value holds 91 bytes: long theme folder names cannot all fit
+    std::string joined = ctrJoin(favs);
+    if (joined.size() >= PROPERTY_VALUE_MAX) return false;
+    property_set(kShuffleFavs, joined.c_str());
+    property_set(kShuffleOrder, "");   // a new list starts a new order (FUN_001fbe5c on OK)
+    property_set(kShufflePos, "-1");
+    // with Shuffle on, a favourite taken away (or the first one added) changes the theme now
+    char t[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.ctr.theme", t, "-1");
+    if (!strcmp(t, "shuffle")) {
+        char cur[PROPERTY_VALUE_MAX] = {};
+        property_get(kShuffleCur, cur, "");
+        if (std::find(favs.begin(), favs.end(), std::string(cur)) == favs.end()) ctrShuffleNext();
+    }
+    return true;
+}
+
+// The console steps Shuffle at power on and after a sleep in the menu (180 frames or more). The
+// home process restarts after many app exits, so "power on" is once per boot (a sys. property).
+void NanoMenu::ctrShuffleEvent(bool boot, int64_t sleptMs) {
+    if (mOverlayMode || !mCtrTheme) return;
+    char t[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.ctr.theme", t, "-1");
+    if (strcmp(t, "shuffle") != 0) return;
+    if (boot) {
+        if (property_get_bool("sys.gammaos.nano.ctr.shuffle_boot", false)) return;
+        property_set("sys.gammaos.nano.ctr.shuffle_boot", "1");
+    } else if (sleptMs < 3000) {
+        return;
+    }
+    ctrShuffleNext();
+}
+
+void NanoMenu::ctrShuffleNext() {
+    const std::vector<std::string> favs = ctrSplit(kShuffleFavs);
+    const int n = (int)favs.size();
+    if (n == 0) { property_set(kShuffleCur, ""); return; }
+    std::vector<int> order;
+    for (const std::string& e : ctrSplit(kShuffleOrder)) order.push_back(atoi(e.c_str()));
+    bool valid = (int)order.size() == n;
+    for (int i : order) valid = valid && i >= 0 && i < n;
+    char cur[PROPERTY_VALUE_MAX] = {};
+    property_get(kShuffleCur, cur, "");
+    int pos = property_get_int32(kShufflePos, -1);
+    auto reshuffle = [&](bool avoidCurrent) {
+        static std::mt19937 rng((uint32_t)systemTime(SYSTEM_TIME_MONOTONIC));
+        for (int attempt = 0; attempt < 64; attempt++) {
+            order.resize(n);
+            for (int i = 0; i < n; i++) order[i] = i;
+            for (int i = n; i > 1; i--) std::swap(order[i - 1], order[std::uniform_int_distribution<int>(0, i - 1)(rng)]);
+            if (!avoidCurrent || n < 2 || favs[order[0]] != cur) return;
+        }
+    };
+    if (!valid) { reshuffle(true); pos = -1; }
+    pos++;
+    if (pos >= n) { pos = 0; reshuffle(true); }
+    std::vector<std::string> os;
+    for (int i : order) os.push_back(std::to_string(i));
+    property_set(kShuffleOrder, ctrJoin(os).c_str());
+    property_set(kShufflePos, std::to_string(pos).c_str());
+    property_set(kShuffleCur, favs[order[pos]].c_str());
+    ALOGI("ctr: shuffle -> %s (%d of %d)", favs[order[pos]].c_str(), pos + 1, n);
+}
+
 void NanoMenu::ctrApplyTheme() {
     static const prop_info* tpi = nullptr;
     static uint32_t tser = ~0u;
@@ -842,20 +945,40 @@ void NanoMenu::ctrApplyTheme() {
         property_get("persist.gammaos.nano.ctr.theme", v, "-1");
         key = v;
     }
-    const std::string want = key + "|" + std::to_string(mPs3ColorIdx) + "|" + mPs3ColorCustomHex;
+    // Shuffle shows its current favourite (stepped at start and after a sleep, ctrShuffleNext)
+    std::string theme = key;
+    if (key == "shuffle") {
+        static const prop_info* cpi = nullptr;
+        static uint32_t cser = ~0u;
+        static std::string cur;
+        if (!cpi) cpi = __system_property_find("persist.gammaos.nano.ctr.shuffle_cur");
+        const uint32_t cs = cpi ? __system_property_serial(cpi) : 0;
+        if (cs != cser || !cpi) {
+            cser = cs;
+            char v[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.ctr.shuffle_cur", v, "");
+            cur = v;
+        }
+        if (cur.empty() && !mOverlayMode && !ctrSplit(kShuffleFavs).empty()) {
+            ctrShuffleNext();   // just turned on: the first favourite now
+            return;             // the property change brings it next frame
+        }
+        theme = cur.empty() ? "-1" : cur;
+    }
+    const std::string want = theme + "|" + std::to_string(mPs3ColorIdx) + "|" + mPs3ColorCustomHex;
     if (want == mCtrThemeKey && mCtrHome->theme() == mCtrThemeApplied) return;
     mCtrThemeKey = want;
     const ctr::ThemeBody* body = nullptr;
     if (!mCtrThemeBody) mCtrThemeBody = std::make_shared<ctr::ThemeBody>();
-    if (key.rfind("sd/", 0) == 0) {
+    if (theme.rfind("sd/", 0) == 0) {
         std::string err;
-        const std::string dir = std::string(kCtrThemeRoot) + "/" + key.substr(3);
+        const std::string dir = std::string(kCtrThemeRoot) + "/" + theme.substr(3);
         if (ctr::loadThemeBody(dir, mCtrThemeBody.get(), &err)) body = mCtrThemeBody.get();
         else ALOGW("ctr: theme %s not loaded: %s", dir.c_str(), err.c_str());
     } else {
-        const int n = atoi(key.c_str());
+        const int n = atoi(theme.c_str());
         const std::vector<ctr::ThemeBody>& themes = ctr::builtinThemes();
-        if (key != "-1" && !key.empty() && n >= 0 && n < (int)themes.size()) {
+        if (theme != "-1" && !theme.empty() && n >= 0 && n < (int)themes.size()) {
             body = &themes[n];
         } else if (mPs3ColorIdx != 0) {
             float r, g, b;

@@ -1043,6 +1043,7 @@ bool NanoMenu::enterDrmSleep() {
     // button looks dead, and any background music is torn down (see the watchdog
     // in NanoMenuRender.cpp).
     mInDrmSleep.store(true, std::memory_order_relaxed);
+    const int64_t sleepStartMs = (int64_t)uptimeMillis();
     // A video player session does not survive sleep (the decoder is silent and a running
     // codec/worker through standby just wastes power); tear it fully down before parking.
     videoHardFree();
@@ -1364,6 +1365,7 @@ bool NanoMenu::enterDrmSleep() {
     }
     ALOGI("NanoMenu: woke up");
     mInDrmSleep.store(false, std::memory_order_relaxed);
+    ctrShuffleEvent(false, (int64_t)uptimeMillis() - sleepStartMs);   // 3DS theme Shuffle: next favourite
     return true;
 }
 

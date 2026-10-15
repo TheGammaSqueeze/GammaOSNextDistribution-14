@@ -788,7 +788,7 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("DS Icons On Tiles")) return mNdsTheme;
     // The looping menu ambiance is a DSi-only feature (ndsAmbianceTick gates on mNdsTheme).
     if (is("Menu Music")) return mNdsTheme || mCtrTheme;
-    if (is("3DS Theme")) return mCtrTheme;
+    if (is("3DS Theme") || is("Shuffle Favourites")) return mCtrTheme;
     // The bottom-panel PSP clock (and its FPS readout) + the bottom custom wallpaper only exist on
     // a physical dual-screen device (e.g. RG DS); their own descriptions say single-screen devices
     // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
@@ -1307,6 +1307,7 @@ enum {
     QA_BLACKLIST_TOGGLE, // toggle a button code in blacklist_pass (it.b = code)
     QA_SLIDE_DOWN_TOGGLE,// Slide Behaviour: toggle an action name in down_action (it.value = name)
     QA_SLIDE_UP_TOGGLE,  // Slide Behaviour: toggle an action name in up_action (it.value = name)
+    QA_CTR_SHUFFLE_TOGGLE, // 3DS Theme Shuffle Favourites: toggle a theme key (it.value = key)
     QA_NOOP,             // non-selectable info row (does nothing on activate)
     QA_COMBO_MENU,       // open the combo_map list editor
     QA_COMBO_ADD,        // start the add-combo flow (stage 1)
@@ -3844,6 +3845,31 @@ void NanoMenu::buildSlideActionSubmenu(Ps3Level& out, bool up) {
     }
 }
 
+// 3DS theme Shuffle Favourites: one switch row per theme (the 3DS Theme choices but Default and
+// Shuffle), on when the theme is a favourite. Keys as persist.gammaos.nano.ctr.theme stores them.
+void NanoMenu::buildCtrShuffleSubmenu(Ps3Level& out) {
+    out.items.clear(); out.sel = 0; out.screenKind = 0;
+    out.title = "Shuffle Favourites";
+    std::vector<std::string> favs;
+    {
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.ctr.shuffle_favs", v, "");
+        std::string cur;
+        for (const char* c = v; ; c++) {
+            if (*c == ',' || !*c) { if (!cur.empty()) favs.push_back(cur); cur.clear(); if (!*c) break; }
+            else cur += *c;
+        }
+    }
+    for (const SettingListOption& o : ctrThemeOptions()) {
+        if (o.value == "-1" || o.value == "shuffle") continue;
+        Ps3Item it; it.kind = PS3_QUICK; it.a = QA_CTR_SHUFFLE_TOGGLE; it.value = o.value;
+        it.label = o.label;
+        it.checkState = std::find(favs.begin(), favs.end(), o.value) != favs.end() ? 1 : 0;
+        it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
+        out.items.push_back(it);
+    }
+}
+
 // --- Combo map + axis-to-button list editors --------------------------------
 // Add/remove lists built as a single Ps3Level whose contents depend on an add-flow
 // stage (rebuilt in place, no nested push/pop). Stage 0 = list of entries + "Add..".
@@ -6184,6 +6210,15 @@ void NanoMenu::ps3XmbSelect() {
             // (the framework reads down_action/up_action as comma lists), not the
             // single-select side chooser. Their kPs3Bindings entries remain so the
             // current comma value still resolves on the right (@slideaction).
+            // "Shuffle Favourites" (3DS theme): a multi-select of the themes Shuffle takes turns with
+            if (it.label == "Shuffle Favourites") {
+                std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
+                Ps3Level lvl; buildCtrShuffleSubmenu(lvl); mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;
+                mPs3SubDir = 1; mPs3SubAnimStart = mEffectTime; mPs3SubAnim = 0.0f;
+                mPs3AnimItem = 0.0f; mPs3ItemAnimStart = -1.0f;
+                return;
+            }
             if (it.label == "On Slide Down" || it.label == "On Slide Up") {
                 bool up = (it.label == "On Slide Up");
                 std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
@@ -6399,6 +6434,12 @@ void NanoMenu::ps3XmbSelect() {
                     writeSettingValue(SettingSource::kProp, key, gpJoin(nw, ','));
                     mPs3BindCache.erase(up ? "On Slide Up" : "On Slide Down");
                     if (!mPs3Stack.empty()) { int s = mPs3Stack.back().sel; buildSlideActionSubmenu(mPs3Stack.back(), up);
+                        if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
+                    mDisplayDirty = true; return;
+                }
+                case QA_CTR_SHUFFLE_TOGGLE: {
+                    if (!ctrShuffleToggle(it.value)) ps3Sfx(PS3_SFX_ERROR);   // ten already
+                    if (!mPs3Stack.empty()) { int s = mPs3Stack.back().sel; buildCtrShuffleSubmenu(mPs3Stack.back());
                         if (s >= 0 && s < (int)mPs3Stack.back().items.size()) mPs3Stack.back().sel = s; }
                     mDisplayDirty = true; return;
                 }

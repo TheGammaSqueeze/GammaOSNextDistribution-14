@@ -2974,6 +2974,14 @@ private:
     bool applyBootToTarget();                             // navigate to the saved startup target on a fresh build; true if it did
     void buildBlacklistSubmenu(Ps3Level& out);            // passthrough-blacklist button multi-select
     void buildSlideActionSubmenu(Ps3Level& out, bool up); // Slide Behaviour: multi-select of slide-down/up actions
+    // 3DS theme Shuffle (theme/shuffle.ts): the favourites multi-select, its toggle (false when ten
+    // are already chosen), and the step to the next favourite (at start and after a sleep)
+    void buildCtrShuffleSubmenu(Ps3Level& out);
+    bool ctrShuffleToggle(const std::string& key);
+    void ctrShuffleNext();
+    void ctrShuffleEvent(bool boot, int64_t sleptMs);
+    int64_t mCtrSleepStartMs = 0;
+    bool mCtrShuffleStarted = false;
     void buildComboSubmenu(Ps3Level& out);                // combo_map list editor (add-flow state machine)
     void buildAxisBtnSubmenu(Ps3Level& out);              // axis_btn list editor
     int mComboStage = 0; int mComboB1 = 0; int mComboB2 = 0;   // combo add-flow state

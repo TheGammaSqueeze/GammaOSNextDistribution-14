@@ -5285,9 +5285,11 @@ if (sRingPrimedCount >= 2) {
                     ALOGI("NanoMenu: framework screen off at the DRM home -> panels blanked");
                 }
                 nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true;
+                mCtrSleepStartMs = (int64_t)uptimeMillis();
             }
             else if (!screenOff && sSfPwrSave) {
                 property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false;
+                ctrShuffleEvent(false, (int64_t)uptimeMillis() - mCtrSleepStartMs);   // 3DS theme Shuffle
                 if (sDrmActive) {
                     int sysfs_val = mBrightness * mMaxBrightness / 255;
                     if (sysfs_val < 1) sysfs_val = 1;
