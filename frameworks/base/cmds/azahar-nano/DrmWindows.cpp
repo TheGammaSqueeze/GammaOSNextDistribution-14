@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cmath>
 #include <chrono>
+#include <climits>
 #include <map>
 #include <string>
 #include <poll.h>
@@ -106,6 +107,26 @@ uint32_t smartPartner(int fd, uint32_t planeId) {
     }
     auto it = partners.find(planeId);
     return it == partners.end() ? 0 : it->second;
+}
+
+// The plane can scale (SDE capabilities "max_upscale" above 1: the VIG pipe on the Duo Lite).
+bool planeCanScale(int fd, uint32_t planeId) {
+    static std::map<uint32_t, bool> cache;
+    auto it = cache.find(planeId);
+    if (it != cache.end()) return it->second;
+    bool scales = false;
+    bool found = false;
+    const uint64_t blobId = getPropValue(fd, planeId, DRM_MODE_OBJECT_PLANE, "capabilities", &found);
+    if (found && blobId) {
+        if (drmModePropertyBlobPtr blob = drmModeGetPropertyBlob(fd, (uint32_t)blobId)) {
+            const std::string caps((const char*)blob->data, blob->length);
+            drmModeFreePropertyBlob(blob);
+            const size_t at = caps.find("max_upscale=");
+            if (at != std::string::npos) scales = strtoul(caps.c_str() + at + 12, nullptr, 10) > 1;
+        }
+    }
+    cache[planeId] = scales;
+    return scales;
 }
 
 int64_t monoNs() {
@@ -250,6 +271,11 @@ bool DrmWindows::enumerate() {
     // DSI (the built-in top panel) first.
     std::stable_sort(found.begin(), found.end(),
                      [](const DrmPanel& a, const DrmPanel& b) { return a.isDsi && !b.isDsi; });
+    // Two panels: the scaling pipe (only one on the Duo Lite, and a pipe never feeds both panels)
+    // is kept for the first (top) panel, whose LCD shader output it scales up; the second panel
+    // scans out at its full size. Which panel got it used to depend on the planes the previous
+    // owner left behind.
+    mReserveScalerForFirst = found.size() >= 2;
     for (auto& p : found) {
         if (!pickPlane(p) || !loadProps(p)) continue;
         mPanels.push_back(p);
@@ -262,7 +288,7 @@ bool DrmWindows::pickPlane(DrmPanel& p) {
     drmModePlaneResPtr pr = drmModeGetPlaneResources(mFd);
     if (!pr) return false;
     uint32_t best = 0;
-    int bestType = -1;
+    int bestType = INT_MIN;   // a penalised plane is still the last resort
     for (uint32_t i = 0; i < pr->count_planes; i++) {
         drmModePlanePtr pl = drmModeGetPlane(mFd, pr->planes[i]);
         if (!pl) continue;
@@ -281,6 +307,8 @@ bool DrmWindows::pickPlane(DrmPanel& p) {
             // The plane the previous master (the composer) used as this CRTC's
             // base layer is the safest choice on SDE.
             if (pl->crtc_id == p.crtcId) score += 4;
+            // The second of two panels leaves the scaling planes to the first.
+            if (mReserveScalerForFirst && mPanels.size() == 1 && planeCanScale(mFd, pl->plane_id)) score -= 8;
             // Skip a plane already bound to another panel, and the other rect of its pipe.
             bool taken = false;
             const uint32_t partner = smartPartner(mFd, pl->plane_id);
@@ -464,6 +492,8 @@ bool DrmWindows::switchToScalingPlane(DrmPanel& p) {
         // of its source pipe not in use on another panel (smartPartner: the scaling VIG pipe is
         // one pipe for planes 74 and 107 on the Duo Lite, so only one panel may scale through it).
         bool taken = pl->crtc_id != 0 || id == saved.planeId;
+        // the scaling pipe is kept for the first of two panels (mReserveScalerForFirst)
+        if (mReserveScalerForFirst && mPanels.size() >= 2 && &p == &mPanels[1] && planeCanScale(mFd, id)) taken = true;
         const uint32_t partner = smartPartner(mFd, id);
         for (const auto& q : mPanels) {
             taken |= (q.planeId == id || q.hudPlaneId == id);
@@ -971,6 +1001,17 @@ bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
     }
     p.commitNs = monoNs();
     p.queuedNs = item.mTimestamp;
+    // The frame is marked in flight BEFORE the commit, under the panel lock: the flip event can
+    // reach the event thread (onFlipDone) before drmModeAtomicCommit returns here when this
+    // thread is preempted, and marking it afterwards left flipPending set for good, so every
+    // later frame on that panel was dropped (a frozen panel with nothing pending in the kernel).
+    // No other event can arrive meanwhile: a commit is only issued once the previous flip is done.
+    {
+        std::lock_guard<std::mutex> lk(*p.mu);
+        p.pending = item;
+        p.hasPending = true;
+        p.flipPending = !mBlockingCommits;
+    }
     const uint32_t flags = mBlockingCommits ? 0u : (DRM_MODE_ATOMIC_NONBLOCK | DRM_MODE_PAGE_FLIP_EVENT);
     int rc = drmModeAtomicCommit(mFd, req, flags, reinterpret_cast<void*>((uintptr_t)p.crtcId));
     int err = errno;
@@ -1002,14 +1043,15 @@ bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
     if (fenceFd >= 0) close(fenceFd);
     if (rc != 0) {
         ALOGE("DRM: flip commit failed on crtc %u: %s", p.crtcId, strerror(err));
+        std::lock_guard<std::mutex> lk(*p.mu);
+        p.hasPending = false;
+        p.flipPending = false;
         return false;
     }
     p.geometrySet = true;
     p.retirePlaneId = 0;   // the old plane is off from this flip on
     p.srcW = w;
     p.srcH = h;
-    p.pending = item;
-    p.hasPending = true;
     p.flips++;
     if (mBlockingCommits) {
         // The blocking commit returned once the flip landed.
@@ -1019,8 +1061,6 @@ bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
         // needed the follower hold for); a short phase offset after each flip
         // keeps the next commit out of that window.
         if (!p.isDsi && mDpPostFlipUs > 0) usleep(mDpPostFlipUs);
-    } else {
-        p.flipPending = true;
     }
     return true;
 }

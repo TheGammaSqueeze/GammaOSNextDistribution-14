@@ -203,6 +203,7 @@ private:
     static constexpr size_t kMaxReady = 3;   // acquired, not yet flipped frames per panel
     std::vector<uint32_t> mBlackFbs;
     bool mMinimalFlips = true;
+    bool mReserveScalerForFirst = false;   // two panels: the scaling pipe goes to the first (top)
     int mTraceLeft = 0;
 };
 
