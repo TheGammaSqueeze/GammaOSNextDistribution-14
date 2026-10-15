@@ -447,6 +447,9 @@ public:
     // (a video or animated background texture) passes a new value every frame.
     void setGroupSalt(uint64_t salt) { mGroupSalt = salt; }
     void endGroup(CacheSlot& slot, const float clear[3]);
+    // The cached pixels of a group whose inputs the caller knows did not change, without
+    // recording it again (false when the cache holds nothing yet).
+    bool reuseGroup(CacheSlot& slot);
     void releaseCache(CacheSlot& slot);
 
 private:

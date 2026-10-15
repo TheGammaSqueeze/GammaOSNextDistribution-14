@@ -648,6 +648,19 @@ void Renderer::endGroup(CacheSlot& cs, const float clear[3]) {
     mCmds.insert(mCmds.begin() + g0, sp);
 }
 
+bool Renderer::reuseGroup(CacheSlot& cs) {
+    if (!cs.valid || !cs.tex) return false;
+    DrawCmd sp;
+    memset(&sp, 0, sizeof(sp));
+    sp.cache = &cs;
+    sp.scissorOn = mHasClip;
+    memcpy(sp.scissor, mClip, sizeof(sp.scissor));
+    sp.special = 2;
+    mCmds.push_back(sp);
+    cs.hits++;
+    return true;
+}
+
 void Renderer::releaseCache(CacheSlot& cs) {
     if (cs.fbo) glDeleteFramebuffers(1, &cs.fbo);
     if (cs.tex) glDeleteTextures(1, &cs.tex);

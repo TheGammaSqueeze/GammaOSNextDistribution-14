@@ -656,6 +656,10 @@ struct CtrHome::Impl {
     std::unordered_map<GLuint, TexturePtr> hostTex;  // wrappers of host textures
     uint64_t artGen = 0;
     Renderer::CacheSlot bottomCache;   // background, sheets and icons of the bottom screen
+    uint64_t bottomSig = 0;   // the inputs of the cached group last recorded
+    int bottomReuseRun = 0;
+    uint64_t themeRev = 0;    // bumped by every setTheme (colours change without textures)
+    uint64_t bottomSignature(const float* proj, int vx, int vy, int vw, int vh, float botW, uint64_t salt);
     // theme/background.ts: the background image of each screen (LncBgSlide_U_00 behind the 3D
     // pass, LncBgSlide_D_00 under the base's NN_LncBgSlide_00): a theme image or the host's
     // wallpaper, which wins
@@ -2459,6 +2463,53 @@ void CtrHome::Impl::drawTitleArt(Renderer& r, const HomeItem& it, float x, float
     stamp(r, icon, x, y, scale);
 }
 
+// Everything the cached bottom group reads besides its layouts' animations: the view, the
+// theme and texture epochs, the background, and per drawn grid its view, markers, items and the
+// texture each visible slot would show (art that arrives changes it).
+uint64_t CtrHome::Impl::bottomSignature(const float* proj, int vx, int vy, int vw, int vh, float botW, uint64_t salt) {
+    uint64_t h = 1469598103934665603ull;
+    auto mix = [&](uint64_t v) { h ^= v; h *= 1099511628211ull; };
+    auto mixf = [&](float f) { uint32_t u; memcpy(&u, &f, 4); mix(u); };
+    auto mixs = [&](const std::string& t) { mix(std::hash<std::string>()(t)); };
+    for (int i = 0; i < 16; i++) mixf(proj[i]);
+    mix((uint64_t)vx); mix((uint64_t)vy); mix((uint64_t)vw); mix((uint64_t)vh);
+    mixf(botW);
+    mix(salt);
+    mix(gTextureEpoch);
+    mix(themeRev);
+    mix(host ? host->artGeneration() : 0);
+    mix(blankPicture);
+    mix(bgBottom.shown());
+    mix(bgBottom.image() ? (uint64_t)bgBottom.image()->id : 0);
+    mix((uint64_t)bgBottom.phase);
+    mix((uint64_t)state);
+    mix(state == StFolderOpen || state == StFolderClose ? (uint64_t)stateFrame : 0);
+    mix(closingFolder);
+    auto grid_ = [&](const Grid& g) {
+        mixf(g.scroll); mixf(g.zoomValue()); mix(g.blending); mixf(g.t);
+        mix((uint64_t)g.slots); mix((uint64_t)g.zoom());
+        mix((uint64_t)(g.hiddenSlot + 2)); mix((uint64_t)(g.skipSlot + 2));
+        mix((uint64_t)(g.hoverSlot + 2)); mix((uint64_t)(g.openSlot + 2));
+        for (int si : g.slotItem) mix((uint64_t)(si + 2));
+        for (const HomeItem& it : g.items) { mixs(it.id); mixs(it.name); mix(it.folderFilled); }
+        // the art of the slots on screen (the same culling as drawIcons)
+        const float zoom = g.zoomValue();
+        const float limit = 160 + sExtraWidth * 0.5f + zoomTable(CULL_PITCH, zoom) * 0.5f;
+        for (int slot = 0; slot < g.slots; slot++) {
+            const Point p = g.slotOnScreen(slot);
+            if (p.x > limit || p.x < -limit) continue;
+            if (const HomeItem* it = g.item(slot)) {
+                TexturePtr t = titleTexture(*it);
+                mix(t ? (uint64_t)t->id : 0);
+            }
+        }
+    };
+    grid_(root());
+    if (inFolder()) grid_(grid());
+    if (closingFolder) grid_(closing);
+    return h;
+}
+
 void CtrHome::Impl::drawIcons(Renderer& r, const Grid& g, const Box* clip) {
     const float zoom = g.zoomValue();
     for (IconTemplate* t : {&blank, &tile, &folderIcon, &icon, &pickUpBlank, &hoverGlow, &folderOpenT, &folderOpenB})
@@ -2678,45 +2729,59 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
     // The background, sheets and icons change only when the grid moves: an exact cache
     // (Renderer::endGroup) copies them while they hold still; the cursor and chrome draw on top.
     // a wallpaper that moves by itself (video, animation) changes the cached bottom every frame
-    r.setGroupSalt(I.bgBottom.shown() && I.bgBottom.host && I.bgBottom.hostDynamic ? ++I.bgFrame : 0);
-    r.beginGroup();
-    if (I.bgBottom.shown()) {
-        // hung under the base's NN_LncBgSlide_00, its first node: drawn before the base
-        I.bgBottom.lay->layout().adaptWidth(mBotW, Layout::Adapt::Edge);
-        I.base->layout().calculate();
-        I.bgBottom.lay->layout().root->parent = I.base->pane("NN_LncBgSlide_00");
-        I.drawInstance(r, I.bgBottom.lay.get());
-    }
-    I.drawInstance(r, I.base.get());
-    I.drawInstance(r, I.palette.get());
-    I.drawIcons(r, I.root(), nullptr);
-    if (I.makerSlot >= 0 && I.maker) {
-        // FolderMaker.draw: the clip over its slot, the initial scaled with N_FolderRoot_01
-        const Grid& rg = I.root();
-        const Point p = rg.slotOnScreen(I.makerSlot);
-        Pane* mr = I.maker->layout().root;
-        mr->translate[0] = p.x;
-        mr->translate[1] = p.y;
-        // P_Icon_00 is the tile the console renders the initial into (IconDmy until then):
-        // the initial is stamped over it here
-        I.maker->setVisible("P_Icon_00", false);
-        I.maker->layout().calculate();
-        r.drawLayout(I.maker->layout());
-        Pane* fr = I.maker->pane("N_FolderRoot_01");
-        I.drawFolderFace(r, I.makerItem, p.x, p.y, rg.zoomValue(), fr ? fr->scale[0] : 1.0f);
-    }
-    if (I.inFolder() || I.closingFolder) {
-        I.drawInstance(r, I.folder.get());
-        const Grid& fg = I.inFolder() ? I.grid() : I.closing;
-        const bool showIcons = I.inFolder() && !(I.state == StFolderOpen && I.stateFrame < 6);
-        if (showIcons) {
-            Pane* sheet = I.folder->pane("W_Plt_00");
-            Box clip = sheet ? paneBox(sheet) : Box{-160, 160, 120, -120};
-            I.drawIcons(r, fg, &clip);
+    const uint64_t salt = I.bgBottom.shown() && I.bgBottom.host && I.bgBottom.hostDynamic ? ++I.bgFrame : 0;
+    r.setGroupSalt(salt);
+    // When nothing the group draws can have changed (its inputs' signature is the same and none of
+    // its layouts animates), the cached pixels are used without recording the group at all; every
+    // 15th frame records anyway, so the exact check above is never far behind.
+    const uint64_t sig = I.bottomSignature(proj, vpX, vpY, vpW, vpH, mBotW, salt);
+    bool animating = I.makerSlot >= 0;
+    for (LayoutInstance* l : {I.base.get(), I.palette.get(), I.folder.get(), I.bgBottom.lay.get()})
+        animating = animating || (l && l->anyPlaying());
+    const bool reuse = !getenv("CTR_NO_CACHE") && !animating && sig == I.bottomSig && ++I.bottomReuseRun < 15 &&
+                       r.reuseGroup(I.bottomCache);
+    if (!reuse) {
+        I.bottomReuseRun = 0;
+        I.bottomSig = sig;
+        r.beginGroup();
+        if (I.bgBottom.shown()) {
+            // hung under the base's NN_LncBgSlide_00, its first node: drawn before the base
+            I.bgBottom.lay->layout().adaptWidth(mBotW, Layout::Adapt::Edge);
+            I.base->layout().calculate();
+            I.bgBottom.lay->layout().root->parent = I.base->pane("NN_LncBgSlide_00");
+            I.drawInstance(r, I.bgBottom.lay.get());
         }
+        I.drawInstance(r, I.base.get());
+        I.drawInstance(r, I.palette.get());
+        I.drawIcons(r, I.root(), nullptr);
+        if (I.makerSlot >= 0 && I.maker) {
+            // FolderMaker.draw: the clip over its slot, the initial scaled with N_FolderRoot_01
+            const Grid& rg = I.root();
+            const Point p = rg.slotOnScreen(I.makerSlot);
+            Pane* mr = I.maker->layout().root;
+            mr->translate[0] = p.x;
+            mr->translate[1] = p.y;
+            // P_Icon_00 is the tile the console renders the initial into (IconDmy until then):
+            // the initial is stamped over it here
+            I.maker->setVisible("P_Icon_00", false);
+            I.maker->layout().calculate();
+            r.drawLayout(I.maker->layout());
+            Pane* fr = I.maker->pane("N_FolderRoot_01");
+            I.drawFolderFace(r, I.makerItem, p.x, p.y, rg.zoomValue(), fr ? fr->scale[0] : 1.0f);
+        }
+        if (I.inFolder() || I.closingFolder) {
+            I.drawInstance(r, I.folder.get());
+            const Grid& fg = I.inFolder() ? I.grid() : I.closing;
+            const bool showIcons = I.inFolder() && !(I.state == StFolderOpen && I.stateFrame < 6);
+            if (showIcons) {
+                Pane* sheet = I.folder->pane("W_Plt_00");
+                Box clip = sheet ? paneBox(sheet) : Box{-160, 160, 120, -120};
+                I.drawIcons(r, fg, &clip);
+            }
+        }
+        static const float kBlack[3] = {0, 0, 0};   // the bottom letterbox (NanoMenuCtr ctrDrawScreen)
+        if (!getenv("CTR_NO_CACHE")) r.endGroup(I.bottomCache, kBlack);
     }
-    static const float kBlack[3] = {0, 0, 0};   // the bottom letterbox (NanoMenuCtr ctrDrawScreen)
-    if (!getenv("CTR_NO_CACHE")) r.endGroup(I.bottomCache, kBlack);
     if (perfMark) { r.end(); perfMark("b.chrome"); r.beginWith(proj); r.setClip(-mBotW / 2, -120, mBotW, 240); }
     for (Trail& t : I.trail) if (t.active) I.drawInstance(r, t.layout.get());
     I.drawInstance(r, I.cursor.get());
@@ -2863,6 +2928,7 @@ void CtrHome::Impl::updateBackgrounds() {
 }
 
 void CtrHome::setTheme(const ThemeBody* body) {
+    if (mImpl) mImpl->themeRev++;
     mThemeBody = body;
     mTheme->setTheme(body);
     Impl& I = *mImpl;
