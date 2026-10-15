@@ -49,6 +49,9 @@ public:
     void parkGl();   // the 3D pass's targets and programs (rebuilt by the next draw)
     void sceneIn();
     void focus(const TopFocus& f);
+    // The next focus attaches its banner again even when it names the same item and texture (the
+    // host's textures were freed or replaced and a GL name can come back for other pixels).
+    void refocus() { mWantedKey.clear(); }
     // The theme's wall colour and folder banner colours (null = the file colours).
     void setTheme(const ThemeBody* body);
     // nano's category colours for the folder banner, in place of the theme's (null = the theme's).
@@ -74,7 +77,7 @@ public:
     std::function<void(const std::shared_ptr<const RomBanner>&)> onBannerSound;
     std::function<void()> onBannerLeave;
     // Internal resolution cap of the 3D target in multiples of 400x240 (default 3).
-    void setMaxScale(int s) { mMaxScale = s; }
+    void setMaxScale(float s) { mMaxScale = s; }
     // The suspended title (scene3d.ts setAppImage / followApp). `image` is its upper screen laid
     // out like the LCD framebuffer (BG_DmyApp_00, 256x512 portrait, any multiple of that size);
     // the caller keeps the GL texture alive until clearAppImage. The wall goes out while the
@@ -153,7 +156,7 @@ private:
     bool mHasPending = false;
     int mPendingLeft = 0;
     bool mAttachedOnce = false;
-    int mMaxScale = 3;
+    float mMaxScale = 3;
     float mBaseFovY = 0.5235988f;   // BannerCamera's vertical field of view at the design height
     std::shared_ptr<GpuTex> mPlate;
     // the name plate's marquee (a name too long for the plate scrolls at the one font size)

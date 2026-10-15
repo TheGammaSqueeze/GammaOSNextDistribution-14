@@ -418,6 +418,8 @@ public:
                 light[k] = col[3 + k];
             }
             mMenu->mCtrHome->setBarIcon(c, px.data(), w, h, ink, light);
+            // the Quick Menu's bolt is also the status bar's charging sign
+            if (c == NanoMenu::CTR_CAT_QUICK) mMenu->mCtrHome->setChargeIcon(px.data(), w, h);
         }
     }
 

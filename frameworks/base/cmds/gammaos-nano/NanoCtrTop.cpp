@@ -779,7 +779,7 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
     // pixel size of the screen on the panel (rotation aware), capped
     const float wx = hypotf(proj[0] * vpW * 0.5f, proj[1] * vpH * 0.5f) * width;
     const float wy = hypotf(proj[4] * vpW * 0.5f, proj[5] * vpH * 0.5f) * height;
-    const float s = std::min({wx / width, wy / height, (float)mMaxScale});
+    const float s = std::min({wx / width, wy / height, mMaxScale});
     const int w = std::max(1, (int)lroundf(width * std::max(1.0f, s))), h = std::max(1, (int)lroundf(height * std::max(1.0f, s)));
     std::vector<ModelInstance*> models;
     if (!mWallHidden) models.push_back(mWall.get());

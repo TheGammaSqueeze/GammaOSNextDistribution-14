@@ -594,6 +594,11 @@ struct CtrHome::Impl {
     // the battery percentage: the HUD's play coin count (T_Coin_00, unused in nano) moved next to
     // the gauge, the date and the clock shifted left to make room
     int batFrame = 3;          // the gauge frame of the real level (0..3)
+    // the charging bolt (setChargeIcon) drawn left of the percentage / gauge while charging
+    TexturePtr chargeTex;
+    bool charging = false;
+    float pctTextW = 0;
+    void drawChargeBolt(Renderer& r);
     bool pctPlaced = false;
     float pctShift = 0;
     float dateX[4] = {0, 0, 0, 0};
@@ -757,6 +762,9 @@ struct CtrHome::Impl {
     void updateBackgrounds();
     std::map<std::pair<GLuint, int>, TexturePtr> tinted;   // derived icons by source texture + kind
     std::vector<TexturePtr> tintedRetired;                 // the last category's, freed at the next switch
+    // Drops the decoded host icons, the copies made from them (their cache key is the source's GL
+    // name, which a new icon can get again) and has the top screen take its banner again.
+    void dropIconTex();
     GLuint tintProgram = 0;
     // a title without art: a box with its initial (grid) or the box's face (top screen card),
     // kept per initial
@@ -2960,6 +2968,24 @@ void CtrHome::Impl::hudUpdate(bool force) {
     }
 }
 
+static constexpr float kBoltW = 15.0f;
+static constexpr float kPctFontW = 14.0f, kPctFontH = 17.6f, kPctDropY = 0.0f;
+
+// The charging bolt: our Quick Menu pictogram in the status text's grey, kBoltW units tall, just
+// left of the percentage (or of the gauge without it), drawn after the status bar.
+void CtrHome::Impl::drawChargeBolt(Renderer& r) {
+    if (!charging || !chargeTex || !icon.layout) return;
+    Pane* bat = hud->pane("P_Bat_00");
+    Pane* ip = icon.layout->pane("P_Icon_00");
+    if (!bat || !ip) return;
+    // the gauge's top left in layout space (the bar adapts to the screen width: its global place)
+    const float batX = bat->global.m[12], batY = bat->global.m[13];
+    const float right = batX - 1.0f - (pctTextW > 0 ? pctTextW + 3.0f : 1.0f);
+    icon.layout->replaceTexture("P_Icon_00", chargeTex);
+    ip->size[0] = ip->size[1] = kBoltW;
+    stamp(r, icon, right - kBoltW * 0.5f, batY - 10.0f, 1);
+}
+
 void CtrHome::Impl::hudPercent(const HomeStatus& st) {
     static const char* const kShifted[4] = {"T_Date_00", "T_TimeL_00", "T_TimeC_00", "T_TimeR_00"};
     Pane* t = hud->pane("T_Coin_00");
@@ -2986,8 +3012,14 @@ void CtrHome::Impl::hudPercent(const HomeStatus& st) {
         // system font (the "Internet" label's) at the same size
         Pane* sys = hud->pane("T_NetMode_00");
         if (sys && sys->font && t->font && !t->font->has('%')) {
+            // sized so its digits come out as the clock's (both are fixed console fonts, drawn from
+            // the Rodin outlines: measured on the panel, the clock's 0 is 35 x 51 px where the
+            // system font's at the status size was 49 x 64), and lowered to the clock's baseline
             t->font = sys->font;
             t->fontResource = sys->fontResource;
+            t->fontSize[0] = kPctFontW;
+            t->fontSize[1] = kPctFontH;
+            t->translate[1] += kPctDropY;
         }
     }
     const bool show = st.showPercent && st.percent >= 0;
@@ -2995,17 +3027,21 @@ void CtrHome::Impl::hudPercent(const HomeStatus& st) {
     // font size) and a gap
     char buf[8] = "";
     if (show) snprintf(buf, sizeof(buf), "%d%%", std::min(100, st.percent));
-    float shift = 0;
+    pctTextW = 0;
     if (show && t->font && t->font->width > 0) {
         float adv = 0;
         for (const char* c = buf; *c; c++)
             if (const Glyph* g = t->font->glyph((unsigned char)*c)) adv += g->charWidth;
-        shift = adv * t->fontSize[0] / (float)t->font->width + 5.0f;
+        pctTextW = adv * t->fontSize[0] / (float)t->font->width;
     } else if (show) {
-        shift = 10.0f * (float)strlen(buf) + 5.0f;
+        pctTextW = 10.0f * (float)strlen(buf);
     }
+    charging = st.adapter && st.charging && chargeTex;
+    const float shift = (show ? pctTextW + 5.0f : 0.0f) + (charging ? kBoltW + 2.0f : 0.0f);
     if (show) hud->setText("T_Coin_00", buf);
     t->visible = show;
+    // the step counter (always 0: no pedometer) gives up its place when the date has to move far
+    if (Pane* walk = hud->pane("P_Walk_00")) walk->visible = shift < 20.0f;
     if (shift != pctShift) {
         pctShift = shift;
         for (int i = 0; i < 4; i++)
@@ -3304,6 +3340,7 @@ TexturePtr CtrHome::Impl::titleTextureOwn(const HomeItem& it) {
             tintedRetired.clear();
             boxArt.clear();
             hostTex.clear();   // a reused GL name carries other sampler state
+            if (top3d) top3d->refocus();
             gTextureEpoch++;
         }
         int w = 0, h = 0;
@@ -3546,6 +3583,8 @@ void CtrHome::parkGl() {
     I.tintedRetired.clear();
     I.hostTex.clear();
     I.boxArt.clear();
+    // the top screen's banner holds the freed icon by GL name: it is taken again on the raise
+    if (I.top3d) I.top3d->refocus();
     if (I.tintProgram) { glDeleteProgram(I.tintProgram); I.tintProgram = 0; }
     if (I.remapProgram) { glDeleteProgram(I.remapProgram); I.remapProgram = 0; }
     // the resumed title's screens were only held until the host showed it
@@ -3621,7 +3660,7 @@ void CtrHome::applyLayoutState(int zoom, int cursor) {
     g.setZoom(zoom);
     g.cursor = std::max(0, std::min(cursor, (int)g.slotItem.size() - 1));
     g.clampView();
-    I.iconTex.clear();
+    I.dropIconTex();
     gTextureEpoch++;
 }
 
@@ -3804,6 +3843,7 @@ void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) 
         if (I.myMenu->entered()) I.drawInstance(r, I.hud.get());
     } else if (I.myMenuReturn <= 0) {
         I.drawInstance(r, I.hud.get());
+        I.drawChargeBolt(r);
     }
     // the Close confirmation dims both screens; the closing notice only the lower one
     if (I.appDialog && I.appDialog->active() && I.appDialogKind == 1) I.appDialog->drawTop(r);
@@ -4271,7 +4311,6 @@ void CtrHome::Impl::applyCategory() {
     g.clampView();
     scroller.stop();
     showNameBalloon = false;
-    iconTex.clear();
     // the last category's coloured glyph copies (about 340 KB each) and the copies made from them
     // leave the cache (a return redraws them). They are released at the next switch, not now: the
     // leaving banner may still draw one, and a freed GL name could come back under a stale key.
@@ -4294,6 +4333,7 @@ void CtrHome::Impl::applyCategory() {
             ++it;
         }
     }
+    dropIconTex();
     gTextureEpoch++;
     sound("SE_CTR_HOME_ICON_SCROLL");
 }
@@ -4476,6 +4516,21 @@ void CtrHome::setBarIcon(int button, const uint8_t* rgba, int w, int h, const fl
     gTextureEpoch++;
 }
 
+void CtrHome::setChargeIcon(const uint8_t* rgba, int w, int h) {
+    if (!mLoaded || !rgba || w <= 0 || h <= 0) return;
+    // the status text's colour (HudMenu_00 text material constant 0: 50, 50, 50) over the alpha
+    std::vector<uint8_t> px((size_t)w * h * 4);
+    for (size_t i = 0; i < (size_t)w * h; i++) {
+        px[i * 4] = px[i * 4 + 1] = px[i * 4 + 2] = 50;
+        px[i * 4 + 3] = rgba[i * 4 + 3];
+    }
+    TexturePtr t = mAssets->rgbaTexture(px.data(), w, h);
+    glBindTexture(GL_TEXTURE_2D, t->id);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    t->mipmapped = true;
+    mImpl->chargeTex = t;
+}
+
 void CtrHome::setActiveBar(int button) {
     static const char* const kPanes[6] = {nullptr, "P_Memo_10", "P_Frd_10", "P_News_10", "P_Web_10", "P_Mvs_10"};
     if (!mLoaded) return;
@@ -4493,6 +4548,22 @@ void CtrHome::setActiveBar(int button) {
     gTextureEpoch++;
 }
 
+void CtrHome::Impl::dropIconTex() {
+    std::set<GLuint> gone;
+    for (const auto& kv : iconTex)
+        if (kv.second) gone.insert(kv.second->id);
+    for (auto it = tinted.begin(); it != tinted.end();) {
+        if (gone.count(it->first.first)) {
+            tintedRetired.push_back(std::move(it->second));   // a leaving banner may still draw it
+            it = tinted.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    iconTex.clear();
+    if (top3d) top3d->refocus();
+}
+
 void CtrHome::reloadItems() {
     if (!mLoaded) return;
     Impl& I = *mImpl;
@@ -4504,7 +4575,7 @@ void CtrHome::reloadItems() {
             if (g.slotItem[s] >= 0 && g.items[g.slotItem[s]].id == cur) g.cursor = (int)s;
         g.clampView();
     }
-    I.iconTex.clear();
+    I.dropIconTex();
     gTextureEpoch++;   // host icons may have been reloaded under the same GL names
 }
 

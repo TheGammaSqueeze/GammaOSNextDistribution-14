@@ -1716,6 +1716,14 @@ TexturePtr Assets::rgbaTexture(const uint8_t* rgba, int w, int h) {
     glBindTexture(GL_TEXTURE_2D, t->id);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+    // complete from the start: GL's default minification wants mipmaps, and a texture sampled in
+    // that state reads as opaque black (a banner copied an app icon before any layout drew it)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    t->minF = t->magF = GL_LINEAR;
+    t->wrapS = t->wrapT = GL_CLAMP_TO_EDGE;
     gTextureEpoch++;
     t->width = t->texWidth = w;
     t->height = t->texHeight = h;
