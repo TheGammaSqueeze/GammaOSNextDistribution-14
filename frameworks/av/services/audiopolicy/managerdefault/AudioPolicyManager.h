@@ -1063,6 +1063,21 @@ private:
 
         void onNewAudioModulesAvailableInt(DeviceVector *newDevices);
 
+        // A mixed output whose HAL stream could not be opened at module load (the HAL still had
+        // that stream busy, e.g. a boot chime played straight through the vendor HAL). It is
+        // retried when clients ask for outputs, and the clients move to it once it opens;
+        // without this the output stays missing until audioserver restarts.
+        struct DeferredOutput {
+            sp<HwModule> module;
+            sp<IOProfile> profile;
+            sp<DeviceDescriptor> device;          // the device the init open used
+            DeviceVector availableDevices;        // the profile's devices to attach on success
+            int attempts = 0;
+        };
+        std::vector<DeferredOutput> mDeferredOutputs;
+        nsecs_t mDeferredOutputsNextRetryNs = 0;
+        void retryDeferredOutputs();
+
         // Add or remove AC3 DTS encodings based on user preferences.
         void modifySurroundFormats(const sp<DeviceDescriptor>& devDesc, FormatVector *formatsPtr);
         void modifySurroundChannelMasks(ChannelMaskSet *channelMasksPtr);

@@ -1474,6 +1474,7 @@ status_t AudioPolicyManager::getOutputForAttr(const audio_attributes_t *attr,
     if (*portId != AUDIO_PORT_HANDLE_NONE) {
         return INVALID_OPERATION;
     }
+    retryDeferredOutputs();
     const uid_t uid = VALUE_OR_RETURN_STATUS(
         aidl2legacy_int32_t_uid_t(attributionSource.uid));
     const audio_port_handle_t requestedPortId = *selectedDeviceId;
@@ -6416,6 +6417,67 @@ void AudioPolicyManager::onNewAudioModulesAvailable()
     }
 }
 
+void AudioPolicyManager::retryDeferredOutputs()
+{
+    if (mDeferredOutputs.empty()) return;
+    const nsecs_t now = systemTime();
+    if (now < mDeferredOutputsNextRetryNs) return;
+    mDeferredOutputsNextRetryNs = now + seconds(1);
+    static constexpr int kMaxAttempts = 120;
+
+    // the outputs before any opens here, for checkOutputForAllStrategies() to move clients from
+    mPreviousOutputs = mOutputs;
+    bool opened = false;
+    for (auto it = mDeferredOutputs.begin(); it != mDeferredOutputs.end();) {
+        const sp<IOProfile> profile = it->profile;
+        if (!profile->canOpenNewIo() || !mConfig->getOutputDevices().contains(it->device)) {
+            it = mDeferredOutputs.erase(it);
+            continue;
+        }
+        sp<SwAudioOutputDescriptor> outputDesc = new SwAudioOutputDescriptor(profile,
+                                                                             mpClientInterface);
+        audio_io_handle_t output = AUDIO_IO_HANDLE_NONE;
+        status_t status = outputDesc->open(nullptr /* halConfig */, nullptr /* mixerConfig */,
+                                           DeviceVector(it->device), AUDIO_STREAM_DEFAULT,
+                                           AUDIO_OUTPUT_FLAG_NONE, &output);
+        if (status != NO_ERROR) {
+            if (++it->attempts >= kMaxAttempts) {
+                ALOGW("%s: giving up on output profile %s after %d attempts", __func__,
+                      profile->getTagName().c_str(), it->attempts);
+                it = mDeferredOutputs.erase(it);
+            } else {
+                ++it;
+            }
+            continue;
+        }
+        ALOGI("%s: opened output profile %s (failed at module load, attempt %d)", __func__,
+              profile->getTagName().c_str(), it->attempts + 1);
+        for (const auto &device : it->availableDevices) {
+            // give a valid ID to an attached device once confirmed it is reachable (as at load)
+            if (!device->isAttached()) {
+                device->attach(it->module);
+                mAvailableOutputDevices.add(device);
+                device->setEncapsulationInfoFromHal(mpClientInterface);
+                setEngineDeviceConnectionState(device, AUDIO_POLICY_DEVICE_STATE_AVAILABLE);
+            }
+        }
+        if (mPrimaryOutput == nullptr && (profile->getFlags() & AUDIO_OUTPUT_FLAG_PRIMARY)) {
+            mPrimaryOutput = outputDesc;
+            mPrimaryModuleHandle = mPrimaryOutput->getModuleHandle();
+        }
+        addOutput(output, outputDesc);
+        setOutputDevices(__func__, outputDesc, DeviceVector(it->device), true, 0, NULL);
+        opened = true;
+        it = mDeferredOutputs.erase(it);
+    }
+    if (opened) {
+        // as for a device connection: clients whose best output is now the new one are
+        // invalidated and reconnect to it
+        checkForDeviceAndOutputChanges();
+        mpClientInterface->onAudioPortListUpdate();
+    }
+}
+
 void AudioPolicyManager::onNewAudioModulesAvailableInt(DeviceVector *newDevices)
 {
     for (const auto& hwModule : mConfig->getHwModules()) {
@@ -6476,6 +6538,11 @@ void AudioPolicyManager::onNewAudioModulesAvailableInt(DeviceVector *newDevices)
             if (status != NO_ERROR) {
                 ALOGW("Cannot open output stream for devices %s on hw module %s",
                       supportedDevice->toString().c_str(), hwModule->getName());
+                if ((outProfile->getFlags() & AUDIO_OUTPUT_FLAG_DIRECT) == 0) {
+                    mDeferredOutputs.push_back({hwModule, outProfile, supportedDevice, availProfileDevices});
+                    ALOGW("%s: output profile %s deferred, retried when clients need outputs",
+                          __func__, outProfile->getTagName().c_str());
+                }
                 continue;
             }
             for (const auto &device : availProfileDevices) {
