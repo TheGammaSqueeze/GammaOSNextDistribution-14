@@ -460,9 +460,15 @@ bool DrmWindows::switchToScalingPlane(DrmPanel& p) {
             if (pl->formats[f] == DRM_FORMAT_ABGR8888) fmtOk = true;
         }
         const bool fits = (pl->possible_crtcs & (1u << p.crtcIndex)) != 0;
-        // Free: not on screen anywhere (crtc_id 0) and not chosen by any panel.
+        // Free: not on screen anywhere (crtc_id 0) and not chosen by any panel, and the other rect
+        // of its source pipe not in use on another panel (smartPartner: the scaling VIG pipe is
+        // one pipe for planes 74 and 107 on the Duo Lite, so only one panel may scale through it).
         bool taken = pl->crtc_id != 0 || id == saved.planeId;
-        for (const auto& q : mPanels) taken |= (q.planeId == id || q.hudPlaneId == id);
+        const uint32_t partner = smartPartner(mFd, id);
+        for (const auto& q : mPanels) {
+            taken |= (q.planeId == id || q.hudPlaneId == id);
+            if (partner && q.crtcId != p.crtcId && (q.planeId == partner || q.hudPlaneId == partner)) taken = true;
+        }
         drmModeFreePlane(pl);
         if (!fits || !fmtOk || taken) continue;
         p.planeId = id;
