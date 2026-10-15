@@ -92,6 +92,20 @@ struct FakeHost : CtrHomeHost {
     // folders named "uf:" are user folders; the root and user folders take moves
     bool editable(const std::string& folderId) override { return folderId.empty() || folderId.rfind("uf:", 0) == 0; }
     bool userFolder(const std::string& folderId) override { return folderId.rfind("uf:", 0) == 0; }
+    int nextFolder = 100;
+    std::string createFolder(int slot, const std::string& name) override {
+        HomeItem it;
+        it.kind = HomeItemKind::Folder;
+        it.id = "uf:" + std::to_string(nextFolder++);
+        it.slot = slot;
+        it.name = name;
+        size_t p = it.name.find("%d");
+        if (p != std::string::npos) it.name.replace(p, 2, std::to_string(nextFolder - 100));
+        folders[""].push_back(it);
+        known[it.id] = it;
+        log.push_back("create " + it.id + " at " + std::to_string(slot));
+        return it.id;
+    }
     void layoutChanged(const std::string& folderId, const std::vector<std::pair<int, std::string>>& slots) override {
         for (auto& kv : folders) for (auto& it : kv.second) known[it.id] = it;
         std::vector<HomeItem> next;
@@ -241,7 +255,7 @@ int main(int argc, char** argv) {
             int n; ss >> n >> panelSel;
             rows.clear();
             static const char* kLabels[] = {"Wi-Fi Settings", "Bluetooth", "Sound Settings", "Display Settings",
-                                            "Internet Radio Playlist URL with a long label", "Date and Time"};
+                                            "Internet Radio Playlist URL with a very long label that runs past the box", "Date and Time"};
             for (int i = 0; i < n; i++) {
                 PanelRow r;
                 r.label = kLabels[i % 6];

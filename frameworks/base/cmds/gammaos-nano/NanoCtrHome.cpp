@@ -410,6 +410,23 @@ struct CtrHome::Impl {
     IconTemplate blank, tile, folderIcon, icon;
     // moving.ts: the lifted title / folder, the hole, the hover glow, an open folder
     IconTemplate pickUp, pickUpFolder, pickUpBlank, hoverGlow, folderOpenT, folderOpenB;
+    // folders.ts FolderMaker: a new folder pops in over its slot (LncIconFolderMake_00_Scale_*)
+    std::unique_ptr<LayoutInstance> maker;
+    Animator* makerToggle = nullptr;
+    int makerSlot = -1, makerFrame = 0;
+    HomeItem makerItem;
+    void makerPicture(bool on) {
+        if (!maker) return;
+        if (!makerToggle && on && maker->hasAnimation("PicToggle")) {
+            PlayOptions o = groupsOpt();
+            o.paused = true;
+            o.loop = 0;
+            makerToggle = maker->play("PicToggle", o);
+        }
+        if (makerToggle) makerToggle->seek(on ? 1 : 0);
+        if (on && themeFolder) maker->replaceTexture("P_Folder_00", themeFolder);
+        maker->refresh();
+    }
     struct Held {
         HomeItem item;
         int gridIndex = 0, sourceIndex = 0;   // grids[] index under the stylus / picked from
@@ -654,7 +671,7 @@ struct CtrHome::Impl {
     Background bgTop, bgBottom;
     uint64_t bgFrame = 0;
     // a theme's folder and icon frame images (icons.ts): null keeps the coloured bodies
-    TexturePtr themeFolder, themeFileLarge, themeFileSmall;
+    TexturePtr themeFolder, themeFolderOpen, themeFileLarge, themeFileSmall;
     bool blankPicture = false;
     void followBackground(Background& b, bool top, bool follow);
     void updateBackgrounds();
@@ -700,6 +717,7 @@ bool CtrHome::Impl::load() {
     makeTemplate(folderOpenB, "LncIconFolderInB_00", 0, {"P_Icon_00", "P_IconPrize_00"});
     icon.layout->setAlpha("P_IconBtnDmy_00", 0);
     blank.layout->layout().opacity = 0x80;
+    maker = make("launcher", "LncIconFolderMake_00");
     letter = make("launcher", "LncIconFolderText_00");
     if (letter) {
         letter->setVisible("P_Bg_00", false);
@@ -817,6 +835,13 @@ void CtrHome::Impl::tick() {
         if (l) l->update(1);
     for (Trail& t : trail) if (t.active && t.layout) t.layout->update(1);
     if (top3d) top3d->update();
+    if (makerSlot >= 0 && maker) {
+        maker->update(1);
+        if (++makerFrame >= 16) {   // MAKE_FRAMES
+            if (root().skipSlot == makerSlot) root().skipSlot = -1;
+            makerSlot = -1;
+        }
+    }
     // indicator
     {
         indFade = indShown ? std::min(30.0f, indFade + 4) : std::max(0.0f, indFade - 1);
@@ -930,11 +955,24 @@ void CtrHome::Impl::createFolder() {
     if (g.isFolder() || g.onBar || g.item(g.cursor) || !host) return;
     std::string name = A->messageText("lau_2b_folder_name");
     if (name.empty()) name = "%d (New Folder)";
-    if (host->createFolder(g.cursor, name).empty()) {
+    const int slot = g.cursor;
+    if (host->createFolder(slot, name).empty()) {
         sound("SE_CTR_COMMON_ERROR");
         return;
     }
     self->reloadItems();
+    // the pop-in (FolderMaker.start): the slot's icon waits under it for the clip's 16 frames
+    Grid& root_ = root();
+    if (maker && root_.item(slot)) {
+        static const char* const MAKE_CLIPS[6] = {"Scale_01", "Scale_01", "Scale_03", "Scale_04", "Scale_05", "Scale_06"};
+        makerItem = *root_.item(slot);
+        makerSlot = slot;
+        makerFrame = 0;
+        root_.skipSlot = slot;
+        PlayOptions o = groupsOpt();
+        o.loop = 0;
+        maker->play(MAKE_CLIPS[std::clamp(root_.zoom(), 0, 5)], o);
+    }
     updateChrome();
 }
 
@@ -2652,6 +2690,21 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
     I.drawInstance(r, I.base.get());
     I.drawInstance(r, I.palette.get());
     I.drawIcons(r, I.root(), nullptr);
+    if (I.makerSlot >= 0 && I.maker) {
+        // FolderMaker.draw: the clip over its slot, the initial scaled with N_FolderRoot_01
+        const Grid& rg = I.root();
+        const Point p = rg.slotOnScreen(I.makerSlot);
+        Pane* mr = I.maker->layout().root;
+        mr->translate[0] = p.x;
+        mr->translate[1] = p.y;
+        // P_Icon_00 is the tile the console renders the initial into (IconDmy until then):
+        // the initial is stamped over it here
+        I.maker->setVisible("P_Icon_00", false);
+        I.maker->layout().calculate();
+        r.drawLayout(I.maker->layout());
+        Pane* fr = I.maker->pane("N_FolderRoot_01");
+        I.drawFolderFace(r, I.makerItem, p.x, p.y, rg.zoomValue(), fr ? fr->scale[0] : 1.0f);
+    }
     if (I.inFolder() || I.closingFolder) {
         I.drawInstance(r, I.folder.get());
         const Grid& fg = I.inFolder() ? I.grid() : I.closing;
@@ -2801,6 +2854,7 @@ void CtrHome::Impl::updateBackgrounds() {
         blankPicture = bottomShown;
         blank.layout->layout().opacity = bottomShown ? 0x20 : 0x80;
         blank.setPicture(bottomShown, "01");
+        if (pickUpBlank.layout) pickUpBlank.setPicture(bottomShown, "01");
     }
     // the images follow the root grid, not a folder's (FUN_001d41e4)
     // (the texture is bound in any case; the coordinates keep the root grid's last position)
@@ -2820,15 +2874,29 @@ void CtrHome::setTheme(const ThemeBody* body) {
     I.bgBottom.themeFrame = body ? body->bottomFrameType : std::string();
     // icons.ts: the folder and icon frame images (both file sizes needed, as setThemeArt)
     I.themeFolder = body ? themeTexture(*mAssets, body->folderClosed) : nullptr;
+    I.themeFolderOpen = body ? themeTexture(*mAssets, body->folderOpen) : nullptr;
+    // icons.ts setThemeArt: folders take the picture look only with both images
+    if (!I.themeFolder || !I.themeFolderOpen) I.themeFolder = I.themeFolderOpen = nullptr;
     I.themeFileLarge = body ? themeTexture(*mAssets, body->fileLarge) : nullptr;
     I.themeFileSmall = body ? themeTexture(*mAssets, body->fileSmall) : nullptr;
     if (!I.themeFileLarge || !I.themeFileSmall) I.themeFileLarge = I.themeFileSmall = nullptr;
     if (mLoaded) {
         if (I.tile.layout) I.tile.setPicture(I.themeFileLarge != nullptr);
+        if (I.pickUp.layout) I.pickUp.setPicture(I.themeFileLarge != nullptr);
+        const bool folderArt = I.themeFolder != nullptr;
         if (I.folderIcon.layout) {
-            I.folderIcon.setPicture(I.themeFolder != nullptr);
-            if (I.themeFolder) I.folderIcon.layout->replaceTexture("P_Folder_10", I.themeFolder);
+            I.folderIcon.setPicture(folderArt);
+            if (folderArt) I.folderIcon.layout->replaceTexture("P_Folder_10", I.themeFolder);
         }
+        if (I.pickUpFolder.layout) {
+            I.pickUpFolder.setPicture(folderArt);
+            if (folderArt) for (const char* p : {"P_Folder_20", "P_Folder_21"}) I.pickUpFolder.layout->replaceTexture(p, I.themeFolder);
+        }
+        if (I.folderOpenT.layout) {
+            I.folderOpenT.setPicture(folderArt);
+            if (folderArt) I.folderOpenT.layout->replaceTexture("P_FolderIn_10", I.themeFolderOpen);
+        }
+        I.makerPicture(folderArt);
     }
 }
 
