@@ -4075,7 +4075,7 @@ bool CtrHome::testOpen(const std::string& name) {
         if (!it || it->name != name) continue;
         g.onBar = false;
         g.cursor = s;
-        I.ensureCursorVisible();
+        g.clampView();   // scroll to it (ensureCursorVisible moves the cursor into the view instead)
         if (it->kind == HomeItemKind::Folder) I.openFolder(s);
         I.updateChrome();
         return true;
