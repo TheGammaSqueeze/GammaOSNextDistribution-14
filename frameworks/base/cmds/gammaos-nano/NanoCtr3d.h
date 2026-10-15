@@ -132,6 +132,7 @@ struct GpuTex {
     GLuint id = 0;
     int width = 0, height = 0;
     bool owned = true;
+    bool pixelArt = false;   // sampled nearest whatever the mapper says (a DS cartridge icon)
 };
 
 // A model file uploaded to the GPU.

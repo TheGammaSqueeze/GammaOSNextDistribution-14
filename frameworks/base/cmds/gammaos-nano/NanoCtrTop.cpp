@@ -409,6 +409,7 @@ void CtrTop::attach() {
         t->width = mPendingFocus.iconW;
         t->height = mPendingFocus.iconH;
         t->owned = false;   // the home owns the icon texture
+        t->pixelArt = mPendingFocus.dsIcon;   // a DS icon's pixels stay square
         res->setTexture("DmyIcon_00", t);
     }
     if (mPendingFocus.cbmd && onBannerSound) onBannerSound(mPendingFocus.cbmd);

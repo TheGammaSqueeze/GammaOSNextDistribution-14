@@ -40,6 +40,9 @@ struct Texture {
     int texWidth = 0, texHeight = 0;         // allocated size (padded layout textures)
     // last sampler state applied to the GL object (GLES2 has no sampler objects)
     GLint wrapS = -1, wrapT = -1, minF = -1, magF = -1;
+    // how the image wants to be sampled whatever the material says: pixel art (a DS icon) with
+    // nearest neighbour, a mipmapped copy with its mipmaps when the material minifies linearly
+    bool pixelArt = false, mipmapped = false;
 };
 using TexturePtr = std::shared_ptr<Texture>;
 

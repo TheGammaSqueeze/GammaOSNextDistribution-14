@@ -1231,8 +1231,9 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
                 glBindTexture(GL_TEXTURE_2D, tex->second->id);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mp.valid ? mp.wrapS : GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mp.valid ? mp.wrapT : GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mp.valid ? mp.mag : GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mp.valid ? mp.min : GL_LINEAR);
+                const bool px = tex->second->pixelArt;
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, px ? GL_NEAREST : mp.valid ? mp.mag : GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, px ? GL_NEAREST : mp.valid ? mp.min : GL_LINEAR);
             } else {
                 glBindTexture(GL_TEXTURE_2D, mWhite);
             }

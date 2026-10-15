@@ -421,7 +421,7 @@ public:
     }
 
     // A title's own art: the SMDH icon of a 3DS ROM, the banner icon of a DS ROM, else the
-    // scraped cover (when Boxart is on), else nano's system glyph.
+    // scraped cover (when Boxart is on); other entries nano's system glyph.
     GLuint titleIconTexture(const ctr::HomeItem& item, int* w, int* h, IconArt* art) override {
         auto t = mTitles.find(item.id);
         if (t == mTitles.end()) {
@@ -441,7 +441,7 @@ public:
             }
             std::string ds;
             if (mMenu->ndsIsDsRomItem(it, &ds)) {
-                if (GLuint g = mMenu->ndsBannerTex(ds)) { *w = *h = 32; return g; }
+                if (GLuint g = mMenu->ndsBannerTex(ds)) { *w = *h = 32; art->pixelArt = true; return g; }
             }
             if (mMenu->mScrapeBoxartOn) {
                 float ar = 1.0f;
@@ -451,6 +451,7 @@ public:
                     return g;
                 }
             }
+            return 0;   // a game without art: the home draws the generic box with its initial
         }
         if (it.iconTex) {
             *w = *h = 48;

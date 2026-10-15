@@ -1092,56 +1092,105 @@ bool Font::cellAlpha(const Glyph* g, std::vector<uint8_t>& out) const {
     return true;
 }
 
-// The distance field of a coverage image: upsampled `scale` times (bilinear), the 50 % contour
-// as the edge, distances by a two pass 3-4 chamfer (within a few percent of Euclidean), mapped to
-// 0..255 with 128 on the edge and Font::kSdfRange upsampled pixels to either end.
-static void glyphSdf(const uint8_t* cov, int w, int h, int scale, std::vector<uint8_t>* out) {
-    const int W = w * scale, H = h * scale;
-    std::vector<uint8_t> up((size_t)W * H);
+// Exact squared Euclidean distance transform of one row or column (Felzenszwalb and
+// Huttenlocher): f holds 0 on the targets and a large value elsewhere.
+static void edt1d(const float* f, int n, float* d, int* v, float* z) {
+    int k = 0;
+    v[0] = 0;
+    z[0] = -1e20f;
+    z[1] = 1e20f;
+    for (int q = 1; q < n; q++) {
+        float sq = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2.0f * q - 2.0f * v[k]);
+        while (sq <= z[k]) {
+            k--;
+            sq = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2.0f * q - 2.0f * v[k]);
+        }
+        k++;
+        v[k] = q;
+        z[k] = sq;
+        z[k + 1] = 1e20f;
+    }
+    k = 0;
+    for (int q = 0; q < n; q++) {
+        while (z[k + 1] < q) k++;
+        d[q] = (q - v[k]) * (q - v[k]) + f[v[k]];
+    }
+}
+
+// Squared distances to the nearest pixel where `target` is set, over a W x H grid.
+static void edt2d(const std::vector<uint8_t>& target, int W, int H, std::vector<float>* out) {
+    const float INF = 1e20f;
+    out->assign((size_t)W * H, 0);
+    std::vector<float>& g = *out;
+    const int n = std::max(W, H);
+    std::vector<float> f(n), d(n), z(n + 1);
+    std::vector<int> v(n);
+    for (int x = 0; x < W; x++) {
+        for (int y = 0; y < H; y++) f[y] = target[(size_t)y * W + x] ? 0 : INF;
+        edt1d(f.data(), H, d.data(), v.data(), z.data());
+        for (int y = 0; y < H; y++) g[(size_t)y * W + x] = d[y];
+    }
     for (int y = 0; y < H; y++) {
-        const float sy = (y + 0.5f) / scale - 0.5f;
-        const int y0 = std::clamp((int)floorf(sy), 0, h - 1), y1 = std::min(y0 + 1, h - 1);
-        const float fy = std::clamp(sy - y0, 0.0f, 1.0f);
-        for (int x = 0; x < W; x++) {
-            const float sx = (x + 0.5f) / scale - 0.5f;
-            const int x0 = std::clamp((int)floorf(sx), 0, w - 1), x1 = std::min(x0 + 1, w - 1);
-            const float fx = std::clamp(sx - x0, 0.0f, 1.0f);
-            const float a = (cov[y0 * w + x0] * (1 - fx) + cov[y0 * w + x1] * fx) * (1 - fy) +
-                            (cov[y1 * w + x0] * (1 - fx) + cov[y1 * w + x1] * fx) * fy;
-            up[(size_t)y * W + x] = (uint8_t)lroundf(a);
+        for (int x = 0; x < W; x++) f[x] = g[(size_t)y * W + x];
+        edt1d(f.data(), W, d.data(), v.data(), z.data());
+        for (int x = 0; x < W; x++) g[(size_t)y * W + x] = d[x];
+    }
+}
+
+// The distance field of a coverage image at `scale` times its size, 0..255 with 128 on the edge
+// and Font::kSdfRange output pixels to either end. The console's glyphs are small anti-aliased
+// bitmaps, so the edge is rebuilt on a grid eight times finer than the source with a Catmull-Rom
+// bicubic (smooth curves where a bilinear one leaves steps), its 50 % contour measured with an
+// exact Euclidean transform, and each output pixel takes the mean of its fine pixels.
+static void glyphSdf(const uint8_t* cov, int w, int h, int scale, std::vector<uint8_t>* out) {
+    // eight fine pixels per source pixel whatever the output scale (2 gives 4 per output pixel)
+    const int sub = std::max(1, 8 / std::max(scale, 1)), F = scale * sub;
+    const int W = w * F, H = h * F;
+    auto at = [&](int x, int y) -> float {
+        x = std::clamp(x, 0, w - 1);
+        y = std::clamp(y, 0, h - 1);
+        return cov[y * w + x];
+    };
+    auto cubic = [](float p0, float p1, float p2, float p3, float t) {
+        return p1 + 0.5f * t * (p2 - p0 + t * (2 * p0 - 5 * p1 + 4 * p2 - p3 + t * (3 * (p1 - p2) + p3 - p0)));
+    };
+    // separable: rows first (w * F x h), then columns
+    std::vector<float> rowUp((size_t)W * h);
+    for (int y = 0; y < h; y++)
+        for (int X = 0; X < W; X++) {
+            const float sx = (X + 0.5f) / F - 0.5f;
+            const int x0 = (int)floorf(sx);
+            rowUp[(size_t)y * W + X] = cubic(at(x0 - 1, y), at(x0, y), at(x0 + 1, y), at(x0 + 2, y), sx - x0);
+        }
+    std::vector<uint8_t> inside((size_t)W * H), outside((size_t)W * H);
+    for (int Y = 0; Y < H; Y++) {
+        const float sy = (Y + 0.5f) / F - 0.5f;
+        const int y0 = (int)floorf(sy);
+        const float t = sy - y0;
+        auto row = [&](int y) { return rowUp.data() + (size_t)std::clamp(y, 0, h - 1) * W; };
+        const float *r0 = row(y0 - 1), *r1 = row(y0), *r2 = row(y0 + 1), *r3 = row(y0 + 2);
+        for (int X = 0; X < W; X++) {
+            const bool in = cubic(r0[X], r1[X], r2[X], r3[X], t) >= 127.5f;
+            inside[(size_t)Y * W + X] = in;
+            outside[(size_t)Y * W + X] = !in;
         }
     }
-    const int INF = 1 << 20;
-    // dist[0]: to the nearest outside pixel (for inside ones), dist[1]: to the nearest inside one
-    std::vector<int> dist[2] = {std::vector<int>((size_t)W * H), std::vector<int>((size_t)W * H)};
-    for (int k = 0; k < 2; k++) {
-        std::vector<int>& d = dist[k];
-        for (int i = 0; i < W * H; i++) {
-            const bool inside = up[i] >= 128;
-            d[i] = (inside == (k == 1)) ? 0 : INF;   // k 0: outside pixels are the targets
+    std::vector<float> toOut, toIn;
+    edt2d(outside, W, H, &toOut);   // inside pixels: distance to the nearest outside one
+    edt2d(inside, W, H, &toIn);
+    const int ow = w * scale, oh = h * scale;
+    out->resize((size_t)ow * oh);
+    for (int oy = 0; oy < oh; oy++)
+        for (int ox = 0; ox < ow; ox++) {
+            float sum = 0;
+            for (int j = 0; j < sub; j++)
+                for (int i = 0; i < sub; i++) {
+                    const size_t k = (size_t)(oy * sub + j) * W + (ox * sub + i);
+                    sum += inside[k] ? sqrtf(toOut[k]) - 0.5f : -(sqrtf(toIn[k]) - 0.5f);
+                }
+            const float sd = sum / (sub * sub) / sub;   // fine pixels to output pixels
+            (*out)[(size_t)oy * ow + ox] = (uint8_t)std::clamp(lroundf(128 + sd * 127 / Font::kSdfRange), 0L, 255L);
         }
-        auto relax = [&](int x, int y, int dx, int dy, int c) {
-            const int nx = x + dx, ny = y + dy;
-            if (nx < 0 || ny < 0 || nx >= W || ny >= H) return;
-            int& v = d[(size_t)y * W + x];
-            const int n = d[(size_t)ny * W + nx] + c;
-            if (n < v) v = n;
-        };
-        for (int y = 0; y < H; y++)
-            for (int x = 0; x < W; x++) {
-                relax(x, y, -1, 0, 3); relax(x, y, -1, -1, 4); relax(x, y, 0, -1, 3); relax(x, y, 1, -1, 4);
-            }
-        for (int y = H - 1; y >= 0; y--)
-            for (int x = W - 1; x >= 0; x--) {
-                relax(x, y, 1, 0, 3); relax(x, y, 1, 1, 4); relax(x, y, 0, 1, 3); relax(x, y, -1, 1, 4);
-            }
-    }
-    out->resize((size_t)W * H);
-    for (int i = 0; i < W * H; i++) {
-        const bool inside = up[i] >= 128;
-        const float sd = inside ? dist[0][i] / 3.0f - 0.5f : -(dist[1][i] / 3.0f - 0.5f);
-        (*out)[i] = (uint8_t)std::clamp(lroundf(128 + sd * 127 / Font::kSdfRange), 0L, 255L);
-    }
 }
 
 bool Font::cellSdf(const Glyph* g, int scale, std::vector<uint8_t>& out) const {

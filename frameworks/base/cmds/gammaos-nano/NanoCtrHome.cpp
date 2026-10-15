@@ -652,6 +652,7 @@ struct CtrHome::Impl {
         r.drawLayout(l->layout());
     }
     TexturePtr titleTexture(const HomeItem& it);
+    TexturePtr titleTextureOwn(const HomeItem& it);
     TexturePtr tintedCopy(GLuint src, int w, int h, float grey, float coverAspect = 0, bool flipY = false);
     std::unordered_map<GLuint, TexturePtr> hostTex;  // wrappers of host textures
     uint64_t artGen = 0;
@@ -681,6 +682,10 @@ struct CtrHome::Impl {
     void updateBackgrounds();
     std::map<std::pair<GLuint, int>, TexturePtr> tinted;   // derived icons by source texture + kind
     GLuint tintProgram = 0;
+    // a title without art: a box with its initial (grid) or the box's face (top screen card),
+    // kept per initial
+    std::map<std::pair<char32_t, bool>, TexturePtr> boxArt;
+    TexturePtr boxTexture(const HomeItem& it, bool face);
 };
 
 // ================================================================== setup
@@ -1549,6 +1554,13 @@ void CtrHome::Impl::updateChrome() {
                         f.iconW = c->width;
                         f.iconH = c->height;
                     }
+                } else if (!ta.cbmd) {
+                    // no art: the generic box card with the title's initial
+                    if (TexturePtr c = boxTexture(*it, true)) {
+                        f.icon = c->id;
+                        f.iconW = c->width;
+                        f.iconH = c->height;
+                    }
                 }
             }
         } else {
@@ -2324,6 +2336,11 @@ TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float
         w = h = 192;   // sharp at the largest grid zoom on a 4x panel
         if (coverAspect < 1) sx = coverAspect; else sy = 1 / coverAspect;
     }
+    // a system glyph (the host's icons are 256 px, mipmapped): copied at that size with its own
+    // mipmaps, so a folder's glyph is sharp at the largest zoom and calm at the smallest (the
+    // reported 48 px made a soft, stretched copy)
+    const bool glyph = grey < 1 && coverAspect <= 0;
+    if (glyph) w = h = 256;
     std::vector<uint8_t> none((size_t)w * h * 4, 0);
     TexturePtr t = A->rgbaTexture(none.data(), w, h);
     GLint prevFbo = 0, vp[4];
@@ -2355,17 +2372,202 @@ TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float
     glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
     glDeleteFramebuffers(1, &fbo);
     glViewport(vp[0], vp[1], vp[2], vp[3]);
+    if (glyph) {
+        glBindTexture(GL_TEXTURE_2D, t->id);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        t->mipmapped = true;
+    }
     tinted[{src, kind}] = t;
     gTextureEpoch++;
     return t;
 }
 
+namespace {
+
+// Coverage of a point by a convex polygon (clockwise or not), antialiased over one pixel.
+float polyCover(const float (*v)[2], int n, float x, float y) {
+    float inside = 1e9f;
+    float area = 0;
+    for (int i = 0; i < n; i++) {
+        const float* a = v[i];
+        const float* b = v[(i + 1) % n];
+        area += a[0] * b[1] - b[0] * a[1];
+    }
+    const float sign = area > 0 ? 1.0f : -1.0f;
+    for (int i = 0; i < n; i++) {
+        const float* a = v[i];
+        const float* b = v[(i + 1) % n];
+        const float ex = b[0] - a[0], ey = b[1] - a[1];
+        const float len = std::sqrt(ex * ex + ey * ey);
+        if (len <= 0) continue;
+        // signed distance to the edge's line, positive inside
+        const float d = sign * (ex * (y - a[1]) - ey * (x - a[0])) / len;
+        inside = std::min(inside, d);
+    }
+    return std::min(1.0f, std::max(0.0f, inside + 0.5f));
+}
+
+void blendPx(uint8_t* p, float r, float g, float b, float a) {
+    if (a <= 0) return;
+    const float da = p[3] / 255.0f;
+    const float oa = a + da * (1 - a);
+    if (oa <= 0) return;
+    const float k = da * (1 - a);
+    p[0] = (uint8_t)std::lround((r * a + p[0] * k) / oa);
+    p[1] = (uint8_t)std::lround((g * a + p[1] * k) / oa);
+    p[2] = (uint8_t)std::lround((b * a + p[2] * k) / oa);
+    p[3] = (uint8_t)std::lround(oa * 255);
+}
+
+}  // namespace
+
+// The generic box of a title without art: a white box in a three quarter view with the title's
+// initial on its front (the grid icon), or the front alone filling the square (the top screen
+// card, stored upside down like the banner models' textures). The initial is drawn from the
+// folder letters' font through its distance field, so it stays sharp at any size.
+TexturePtr CtrHome::Impl::boxTexture(const HomeItem& it, bool face) {
+    std::u32string init = folderInitial(it.name);
+    const char32_t c = init.empty() ? U'?' : init[0];
+    auto cached = boxArt.find({c, face});
+    if (cached != boxArt.end()) return cached->second;
+
+    constexpr int N = 256;
+    std::vector<uint8_t> px((size_t)N * N * 4, 0);
+    auto at = [&](int x, int y) { return &px[((size_t)y * N + x) * 4]; };
+    // the front face and where the initial sits on it
+    float fx0, fy0, fx1, fy1;
+    if (face) {
+        fx0 = fy0 = 0;
+        fx1 = fy1 = N;
+        for (int y = 0; y < N; y++) {
+            const float t = y / (float)(N - 1);
+            const float v = 252 - 26 * t;   // white to light grey, top to bottom
+            for (int x = 0; x < N; x++) blendPx(at(x, y), v, v, v, 1);
+        }
+    } else {
+        // front square, lid and right side in a cabinet view, centred in the square
+        const float s = 166, d = 46, ox = (N - s - d) * 0.5f, oy = (N - s - d) * 0.5f + d;
+        fx0 = ox; fy0 = oy; fx1 = ox + s; fy1 = oy + s;
+        const float front[4][2] = {{fx0, fy0}, {fx1, fy0}, {fx1, fy1}, {fx0, fy1}};
+        const float lid[4][2] = {{fx0, fy0}, {fx0 + d, fy0 - d}, {fx1 + d, fy0 - d}, {fx1, fy0}};
+        const float side[4][2] = {{fx1, fy0}, {fx1 + d, fy0 - d}, {fx1 + d, fy1 - d}, {fx1, fy1}};
+        // the outline: each face grown by the line's width, drawn first in grey
+        const float line = 3;
+        auto grow = [&](const float (*v)[2], float (*o)[2]) {
+            float cx = 0, cy = 0;
+            for (int i = 0; i < 4; i++) { cx += v[i][0] / 4; cy += v[i][1] / 4; }
+            for (int i = 0; i < 4; i++) {
+                const float dx = v[i][0] - cx, dy = v[i][1] - cy;
+                const float len = std::sqrt(dx * dx + dy * dy);
+                o[i][0] = v[i][0] + dx / len * line;
+                o[i][1] = v[i][1] + dy / len * line;
+            }
+        };
+        float gf[4][2], gl[4][2], gs[4][2];
+        grow(front, gf);
+        grow(lid, gl);
+        grow(side, gs);
+        constexpr int SS = 4;   // samples per axis
+        for (int y = 0; y < N; y++) {
+            for (int x = 0; x < N; x++) {
+                float edge = 0, f = 0, l = 0, sd = 0;
+                for (int j = 0; j < SS; j++) {
+                    for (int i = 0; i < SS; i++) {
+                        const float sx = x + (i + 0.5f) / SS, sy = y + (j + 0.5f) / SS;
+                        edge += std::max({polyCover(gf, 4, sx, sy), polyCover(gl, 4, sx, sy), polyCover(gs, 4, sx, sy)});
+                        f += polyCover(front, 4, sx, sy);
+                        l += polyCover(lid, 4, sx, sy);
+                        sd += polyCover(side, 4, sx, sy);
+                    }
+                }
+                const float k = 1.0f / (SS * SS);
+                uint8_t* p = at(x, y);
+                blendPx(p, 150, 150, 150, edge * k);
+                const float tf = (y - fy0) / (fy1 - fy0);
+                const float fv = 250 - 22 * std::min(1.0f, std::max(0.0f, tf));
+                blendPx(p, 255, 255, 255, l * k);
+                blendPx(p, 206, 206, 206, sd * k);
+                blendPx(p, fv, fv, fv, f * k);
+            }
+        }
+    }
+
+    // the initial, grey like the folder letters (icons.ts LETTER_COLOR), centred on the front
+    Pane* tp = letter ? letter->pane("T_Icon_00") : nullptr;
+    std::shared_ptr<Font> font = tp ? tp->font : nullptr;
+    const Glyph* g = font ? font->glyph(c) : nullptr;
+    if (g) {
+        const float boxH = fy1 - fy0;
+        const float target = boxH * (face ? 0.56f : 0.6f);   // ink height of the letter
+        const int scale = std::max(2, std::min(12, (int)std::ceil(target * 1.6f / std::max(1, font->cellHeight))));
+        std::vector<uint8_t> sdf;
+        if (font->cellSdf(g, scale, sdf)) {
+            const int sw = (font->cellWidth + 2) * scale, sh = (font->cellHeight + 2) * scale;
+            int x0 = sw, y0 = sh, x1 = -1, y1 = -1;
+            for (int y = 0; y < sh; y++)
+                for (int x = 0; x < sw; x++)
+                    if (sdf[(size_t)y * sw + x] > 128) {
+                        x0 = std::min(x0, x); x1 = std::max(x1, x);
+                        y0 = std::min(y0, y); y1 = std::max(y1, y);
+                    }
+            if (x1 >= x0 && y1 >= y0) {
+                const float inkW = x1 - x0 + 1, inkH = y1 - y0 + 1;
+                // a wide glyph is held to the face's width too
+                const float k = std::max(inkH / target, inkW / ((fx1 - fx0) * 0.72f));   // sdf px per image px
+                const float icx = (x0 + x1 + 1) * 0.5f, icy = (y0 + y1 + 1) * 0.5f;
+                const float cx = (fx0 + fx1) * 0.5f, cy = (fy0 + fy1) * 0.5f;
+                auto sample = [&](float sx, float sy) {
+                    sx -= 0.5f; sy -= 0.5f;
+                    const int ix = (int)std::floor(sx), iy = (int)std::floor(sy);
+                    const float ax = sx - ix, ay = sy - iy;
+                    auto v = [&](int x, int y) -> float {
+                        if (x < 0 || y < 0 || x >= sw || y >= sh) return 0;
+                        return sdf[(size_t)y * sw + x];
+                    };
+                    return (v(ix, iy) * (1 - ax) + v(ix + 1, iy) * ax) * (1 - ay) +
+                           (v(ix, iy + 1) * (1 - ax) + v(ix + 1, iy + 1) * ax) * ay;
+                };
+                const int bx0 = std::max(0, (int)std::floor(cx - (icx - x0 + 8) / k));
+                const int bx1 = std::min(N - 1, (int)std::ceil(cx + (x1 - icx + 8) / k));
+                const int by0 = std::max(0, (int)std::floor(cy - (icy - y0 + 8) / k));
+                const int by1 = std::min(N - 1, (int)std::ceil(cy + (y1 - icy + 8) / k));
+                for (int y = by0; y <= by1; y++) {
+                    for (int x = bx0; x <= bx1; x++) {
+                        const float v = sample(icx + (x + 0.5f - cx) * k, icy + (y + 0.5f - cy) * k);
+                        // distance in sdf px, then in image px
+                        const float dist = (v - 128) * Font::kSdfRange / 127 / k;
+                        const float a = std::min(1.0f, std::max(0.0f, dist + 0.5f));
+                        blendPx(at(x, y), 80, 80, 80, a);
+                    }
+                }
+            }
+        }
+    }
+    if (face) {
+        // banner models take their textures upside down
+        for (int y = 0; y < N / 2; y++) std::swap_ranges(at(0, y), at(0, y) + N * 4, at(0, N - 1 - y));
+    }
+    TexturePtr t = A->rgbaTexture(px.data(), N, N);
+    glBindTexture(GL_TEXTURE_2D, t->id);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    t->mipmapped = true;
+    boxArt[{c, face}] = t;
+    return t;
+}
+
+// A title's art, else (a game without an icon or cover) the generic box with its initial.
 TexturePtr CtrHome::Impl::titleTexture(const HomeItem& it) {
+    if (TexturePtr t = titleTextureOwn(it)) return t;
+    return it.kind == HomeItemKind::Title ? boxTexture(it, false) : nullptr;
+}
+
+TexturePtr CtrHome::Impl::titleTextureOwn(const HomeItem& it) {
     if (host) {
         const uint64_t gen = host->artGeneration();
         if (gen != artGen) {
             artGen = gen;
             tinted.clear();
+            boxArt.clear();
             hostTex.clear();   // a reused GL name carries other sampler state
             gTextureEpoch++;
         }
@@ -2385,6 +2587,7 @@ TexturePtr CtrHome::Impl::titleTexture(const HomeItem& it) {
             t->id = gl;
             t->width = t->texWidth = w;
             t->height = t->texHeight = h;
+            t->pixelArt = art.pixelArt;
             hostTex[gl] = t;
             return t;
         }

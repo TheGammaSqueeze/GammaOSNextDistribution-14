@@ -829,6 +829,11 @@ void Renderer::submit(const Pane* p, const Material& m, int quads, const Texture
         c.params[u][1] = s ? s->wrapT : GL_CLAMP_TO_EDGE;
         c.params[u][2] = s ? s->minF : GL_LINEAR;
         c.params[u][3] = s ? s->magF : GL_LINEAR;
+        if (t->pixelArt) {
+            c.params[u][2] = c.params[u][3] = GL_NEAREST;
+        } else if (t->mipmapped && c.params[u][2] == GL_LINEAR) {
+            c.params[u][2] = GL_LINEAR_MIPMAP_LINEAR;
+        }
     }
     blendOf(m, &c.blendKey, &c.blendEq, &c.blendSrc, &c.blendDst);
     c.scissorOn = mScissorOn;

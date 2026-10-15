@@ -64,7 +64,8 @@ public:
     // What a title's icon texture is: nano's white system glyph (shown in the folder letters'
     // grey), a square colour icon (3DS SMDH, DS banner icon), or a cover of `coverAspect`
     // (width / height) fitted whole into the square icon.
-    struct IconArt { bool mono = false; float coverAspect = 0; };
+    // pixelArt: a pixel icon (a DS cartridge's 32x32) drawn with nearest neighbour, never blurred.
+    struct IconArt { bool mono = false; float coverAspect = 0; bool pixelArt = false; };
     // Asked every frame for the titles on screen: art that arrives later replaces the glyph.
     virtual GLuint titleIconTexture(const HomeItem& item, int* w, int* h, IconArt* art) {
         (void)item; (void)w; (void)h; (void)art; return 0;
