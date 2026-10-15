@@ -127,6 +127,9 @@ public:
     // Enlarge / Shrink Icons settled on a new zoom: of the root grid, or of a folder (folders all
     // open at the last folder zoom). The host keeps them for the next session (setZooms).
     virtual void zoomChanged(bool folder, int zoom) { (void)folder; (void)zoom; }
+    // A folder's own colour (a game system's icon tint, Game Systems settings): its solid icon on
+    // the top screen takes it instead of the theme's folder colours. False: no colour of its own.
+    virtual bool itemTint(const HomeItem& item, float rgb[3]) { (void)item; (void)rgb; return false; }
 };
 
 struct CtrTouch {

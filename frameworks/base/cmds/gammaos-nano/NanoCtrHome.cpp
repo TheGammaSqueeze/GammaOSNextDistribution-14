@@ -2119,6 +2119,7 @@ void CtrHome::Impl::updateChrome() {
                         f.glyph = t->id;
                         f.glyphW = t->texWidth > 0 ? t->texWidth : t->width;
                         f.glyphH = t->texHeight > 0 ? t->texHeight : t->height;
+                        f.glyphTinted = host->itemTint(*it, f.glyphTint);
                     }
                 }
             }
@@ -2158,7 +2159,11 @@ void CtrHome::Impl::updateChrome() {
             f.key = "empty";
         }
         const std::string k = std::to_string((int)f.kind) + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) +
-                              "|" + std::to_string(f.glyph) + (f.cbmd ? "|cbmd" : "");
+                              "|" + std::to_string(f.glyph) +
+                              (f.glyphTinted ? "|" + std::to_string(f.glyphTint[0]) + "," + std::to_string(f.glyphTint[1]) +
+                                                   "," + std::to_string(f.glyphTint[2])
+                                             : std::string()) +
+                              (f.cbmd ? "|cbmd" : "");
         if (k != topFocusKey) {
             topFocusKey = k;
             top3d->focus(f);

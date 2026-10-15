@@ -35,6 +35,8 @@ struct TopFocus {
     // folder model (its alpha is the shape; rows stored bottom first, like the layout textures).
     unsigned glyph = 0;
     int glyphW = 0, glyphH = 0;
+    bool glyphTinted = false;   // the glyph's own colour (a system's tint), else the folder colours
+    float glyphTint[3] = {1, 1, 1};
 };
 
 class CtrTop {
@@ -110,6 +112,8 @@ private:
         std::unique_ptr<ModelInstance> extra;   // a ROM banner's language model, following `model`
         std::shared_ptr<GlyphMesh> glyph;        // a folder's system icon, on the folder's bone
         int glyphBone = -1;
+        bool tinted = false;
+        float tint[3] = {1, 1, 1};
         bool shown = true;
         int scaleStep = 4;
         int turnFrame = 0;

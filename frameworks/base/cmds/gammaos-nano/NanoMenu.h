@@ -75,6 +75,7 @@ struct NanoBootRec {
     int total = 0;           // stop after this many frames instead (0: the hand-off rule)
     int outW = 0, outH = 0;  // frames cropped to this aspect (centred) and scaled to this size (0: half size)
     bool exact = false;      // crop the centred outW x outH pixels without scaling
+    bool topOnly = false;    // only the primary panel's frames ("<W>x<H>t")
     // scripted input at frames (sys.gammaos.nano.bootrec_keys): the 3DS home's test props
     struct Cue { int frame; std::string prop, value; };
     std::vector<Cue> cues;

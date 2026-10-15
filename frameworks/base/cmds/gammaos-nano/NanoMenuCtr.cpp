@@ -654,6 +654,18 @@ public:
     void closeApp() override {
         if (mMenu->mOverlayMode) mMenu->overlayQuitToHome();
     }
+    // A game system's icon tint (Game Systems > the system > Icon Colour): its solid icon's colour.
+    // White is the default "no tint".
+    bool itemTint(const ctr::HomeItem& item, float rgb[3]) override {
+        auto f = mFolders.find(item.id);
+        if (f == mFolders.end() || f->second.kind != NanoMenu::PS3_SYSTEM) return false;
+        const NanoMenu::Ps3Item& it = f->second;
+        if (it.iconR >= 0.999f && it.iconG >= 0.999f && it.iconB >= 0.999f) return false;
+        rgb[0] = it.iconR;
+        rgb[1] = it.iconG;
+        rgb[2] = it.iconB;
+        return true;
+    }
     // Enlarge / Shrink Icons: kept for the next session (ctrEnsure applies them)
     void zoomChanged(bool folder, int zoom) override {
         property_set(folder ? "persist.gammaos.nano.ctr.folder_zoom" : "persist.gammaos.nano.ctr.zoom",
@@ -2599,6 +2611,8 @@ uint64_t NanoMenu::ctrModelSignature() const {
             mix((uint64_t)it.kind);
             mix((uint64_t)(uint32_t)it.a);
             mix((uint64_t)(uint32_t)it.b);
+            // a system's icon tint (its solid icon's colour) changes without a rescan
+            mix((uint64_t)(uint32_t)(it.iconR * 255) << 16 | (uint32_t)(it.iconG * 255) << 8 | (uint32_t)(it.iconB * 255));
             for (char ch : it.label) mix((uint64_t)(unsigned char)ch);
         }
     }

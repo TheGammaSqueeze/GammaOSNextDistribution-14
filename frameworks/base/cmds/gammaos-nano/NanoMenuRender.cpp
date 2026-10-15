@@ -5578,6 +5578,7 @@ void nanoBootRecArm() {
                 gNanoBootRec.outW = gNanoBootRec.outH = 0;
             // "<W>x<H>!": the centred W x H pixels as they are (ctr.screensize renders at that size)
             if (c3 != std::string::npos && spec.find('!', c3) != std::string::npos) gNanoBootRec.exact = true;
+            if (c3 != std::string::npos && spec.find('t', c3) != std::string::npos) gNanoBootRec.topOnly = true;
         }
     }
     std::string cues;   // <dir>/cues.txt (longer than a property can hold)
@@ -5608,6 +5609,7 @@ void nanoBootRecArm() {
 
 void nanoBootRecCapture(bool secondary) {
     if (!gNanoBootRec.on) return;
+    if (secondary && gNanoBootRec.topOnly) return;
     const GLuint scanFbo = (sDrmActive && sDrmZeroCopy) ? (secondary ? sAhbTargetSecondary.scanFbo : sAhbTarget.scanFbo) : 0;
     GLint vp[4] = {0, 0, 0, 0};
     glGetIntegerv(GL_VIEWPORT, vp);

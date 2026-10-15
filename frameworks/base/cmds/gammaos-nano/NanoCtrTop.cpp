@@ -1,5 +1,7 @@
 // NanoCtrTop - see NanoCtrTop.h.
 #include "NanoCtrTop.h"
+
+#include <cstdio>
 #include "NanoCtrArt.h"
 #include "NanoCtrHome.h"
 
@@ -257,8 +259,10 @@ void CtrTop::focus(const TopFocus& f) {
             show = false;
             break;
     }
+    char tintKey[48] = "";
+    if (f.glyphTinted) snprintf(tintKey, sizeof(tintKey), "|%.3f,%.3f,%.3f", f.glyphTint[0], f.glyphTint[1], f.glyphTint[2]);
     const std::string key = show ? spec.model + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) + "|" +
-                                       std::to_string(f.glyph)
+                                       std::to_string(f.glyph) + tintKey
                                  : std::string();
     if (key == mWantedKey) {
         if (mBanner) mBanner->shown = true;
@@ -515,6 +519,8 @@ void CtrTop::attach() {
         }
         b->glyph = it->second;
         if (!b->glyph) b->model->hiddenMeshes.clear();   // nothing built: the folder after all
+        b->tinted = mPendingFocus.glyphTinted;
+        for (int i = 0; i < 3; i++) b->tint[i] = mPendingFocus.glyphTint[i];
     }
     // the language slot's own model, its animations in repeat mode like COMMON
     if (mPendingFocus.cbmd && !mPendingFocus.cbmd->languagePack.empty()) {
@@ -619,7 +625,13 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
         // the folder's colours (the theme's, else the file's): faces in its main colour, walls in
         // its dark one
         float face[3] = {0.45f, 0.78f, 0.93f}, side[3] = {0.25f, 0.55f, 0.75f};
-        if (MaterialState* m = b.model->findMaterial("mt_folder_00")) {
+        if (b.tinted) {
+            // the system's own colour (Game Systems tint): faces in it, walls a darker shade
+            for (int i = 0; i < 3; i++) {
+                face[i] = b.tint[i];
+                side[i] = b.tint[i] * 0.55f;
+            }
+        } else if (MaterialState* m = b.model->findMaterial("mt_folder_00")) {
             for (int i = 0; i < 3; i++) {
                 face[i] = m->colors[kConstant0 + 1][i];
                 side[i] = m->colors[kConstant0 + 0][i];
