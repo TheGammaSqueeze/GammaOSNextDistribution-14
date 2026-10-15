@@ -30,6 +30,10 @@ struct SmdhTitle {
 
 // SMDH language slots in file order (smdh.py LANGUAGES).
 extern const char* const kSmdhLanguages[16];
+// The titles of an SMDH file (a theme's info.smdh): false when the file is not one.
+bool readSmdhTitles(const std::string& path, SmdhTitle out[16]);
+// The slot for a language's English name ("English", "French"...), -1 when it has none.
+int smdhLanguageIndex(const std::string& englishName);
 
 // The decoded banner sound (audio.py decode_cwav).
 struct RomSound {

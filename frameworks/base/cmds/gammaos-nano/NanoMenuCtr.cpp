@@ -821,7 +821,8 @@ const std::vector<ctr::ThemeFile>& ctrSdThemes() {
 
 std::vector<SettingListOption> ctrThemeOptions() {
     std::vector<SettingListOption> out = {{"-1", "Default"}, {"0", "Red"}, {"1", "Blue"}, {"2", "Yellow"}, {"3", "Pink"}, {"4", "Black"}};
-    for (const ctr::ThemeFile& t : ctrSdThemes()) out.push_back({"sd/" + t.name, t.name});
+    const std::string lang = nanoGetLocaleInfo(nanoGetLocale()).englishName;
+    for (const ctr::ThemeFile& t : ctrSdThemes()) out.push_back({"sd/" + t.name, t.displayName(lang)});
     return out;
 }
 

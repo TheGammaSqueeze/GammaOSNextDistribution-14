@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "NanoCtrLayout.h"
+#include "NanoCtrRom.h"
 
 namespace android {
 namespace ctr {
@@ -72,8 +73,13 @@ struct ThemeBody {
 // A theme installed on the SD card the way theme managers lay them out: <root>/<name>/body_LZ.bin
 // with an optional bgm.bcstm.
 struct ThemeFile {
-    std::string name;
+    std::string name;   // the folder name (the setting stores it)
     std::string dir;
+    // info.smdh next to the body (theme managers write it): the theme's title per language
+    bool hasTitles = false;
+    SmdhTitle titles[16];
+    // the title in a language (its English name), else English, else any, else the folder name
+    std::string displayName(const std::string& language) const;
 };
 std::vector<ThemeFile> listSdThemes(const std::string& root);
 // Parses a theme body (LZ11 compressed or not, theme.py parse) with its textures.

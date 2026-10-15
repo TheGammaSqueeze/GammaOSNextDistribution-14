@@ -268,7 +268,20 @@ bool readImage(const std::vector<uint8_t>& d, uint32_t off, const char* format, 
 
 }  // namespace
 
+std::string ThemeFile::displayName(const std::string& language) const {
+    if (hasTitles) {
+        const int want = smdhLanguageIndex(language);
+        if (want >= 0 && !titles[want].shortDescription.empty()) return titles[want].shortDescription;
+        if (!titles[1].shortDescription.empty()) return titles[1].shortDescription;
+        for (const SmdhTitle& t : titles) if (!t.shortDescription.empty()) return t.shortDescription;
+    }
+    return name;
+}
+
 std::vector<ThemeFile> listSdThemes(const std::string& root) {
+    // the info.smdh titles are read once per file version (the list is asked for often)
+    struct Cached { time_t mtime = 0; off_t size = -1; bool ok = false; SmdhTitle titles[16]; };
+    static std::map<std::string, Cached> cache;
     std::vector<ThemeFile> out;
     DIR* d = opendir(root.c_str());
     if (!d) return out;
@@ -277,10 +290,29 @@ std::vector<ThemeFile> listSdThemes(const std::string& root) {
         const std::string dir = root + "/" + e->d_name;
         struct stat st;
         if (stat((dir + "/body_LZ.bin").c_str(), &st) != 0 || !S_ISREG(st.st_mode)) continue;
-        out.push_back({e->d_name, dir});
+        ThemeFile t;
+        t.name = e->d_name;
+        t.dir = dir;
+        struct stat is;
+        const std::string info = dir + "/info.smdh";
+        if (stat(info.c_str(), &is) == 0 && S_ISREG(is.st_mode)) {
+            Cached& c = cache[info];
+            if (c.mtime != is.st_mtime || c.size != is.st_size) {
+                c.mtime = is.st_mtime;
+                c.size = is.st_size;
+                c.ok = readSmdhTitles(info, c.titles);
+            }
+            if (c.ok) {
+                t.hasTitles = true;
+                for (int k = 0; k < 16; k++) t.titles[k] = c.titles[k];
+            }
+        }
+        out.push_back(std::move(t));
     }
     closedir(d);
-    std::sort(out.begin(), out.end(), [](const ThemeFile& a, const ThemeFile& b) { return strcasecmp(a.name.c_str(), b.name.c_str()) < 0; });
+    std::sort(out.begin(), out.end(), [](const ThemeFile& a, const ThemeFile& b) {
+        return strcasecmp(a.displayName("English").c_str(), b.displayName("English").c_str()) < 0;
+    });
     return out;
 }
 

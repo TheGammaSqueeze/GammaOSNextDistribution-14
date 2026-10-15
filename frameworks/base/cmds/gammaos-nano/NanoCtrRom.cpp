@@ -3371,6 +3371,38 @@ bool exefsReadable(const uint8_t* h, uint64_t exefsSize) {
 
 }  // namespace
 
+bool readSmdhTitles(const std::string& path, SmdhTitle out[16]) {
+    // only the title block is read (8 + 16 * 0x200 bytes)
+    const size_t need = 8 + 16 * 0x200;
+    std::vector<uint8_t> d(need);
+    FILE* f = fopen(path.c_str(), "rb");
+    if (!f) return false;
+    const bool ok = fread(d.data(), 1, need, f) == need;
+    fclose(f);
+    if (!ok || memcmp(d.data(), "SMDH", 4) != 0) return false;
+    for (int k = 0; k < 16; k++) {
+        const uint8_t* base = d.data() + 8 + k * 0x200;
+        out[k].shortDescription = utf16Field(base, 0x80);
+        out[k].longDescription = utf16Field(base + 0x80, 0x100);
+        out[k].publisher = utf16Field(base + 0x180, 0x80);
+    }
+    return true;
+}
+
+int smdhLanguageIndex(const std::string& englishName) {
+    std::string l;
+    for (char c : englishName) l += (char)tolower((unsigned char)c);
+    if (l.find("chinese") != std::string::npos)
+        return l.find("trad") != std::string::npos ? 11 : 6;
+    for (int k = 0; k < 12; k++) {
+        std::string n = kSmdhLanguages[k];
+        for (char& c : n) c = (char)tolower((unsigned char)c);
+        if (!l.empty() && n.rfind(l, 0) == 0) return k;
+    }
+    return -1;
+}
+
+
 bool decodeCtrWave(const uint8_t* data, size_t size, RomSound* out, std::string* error) {
     std::string err;
     const bool ok = decodeCwav(data, size, out, &err);
