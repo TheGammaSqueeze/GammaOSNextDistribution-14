@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cmath>
 #include <chrono>
+#include <map>
 #include <string>
 #include <poll.h>
 #include <sched.h>
@@ -66,6 +67,45 @@ uint64_t getPropValue(int fd, uint32_t objId, uint32_t objType, const char* name
     }
     drmModeFreeObjectProperties(props);
     return v;
+}
+
+// Qualcomm SDE exposes the two rects of one source pipe (smart DMA) as two DRM planes: the second
+// carries "primary_smart_plane_id=<first>" in its capabilities blob. One pipe must never feed two
+// CRTCs: a rect on each panel leaves the pipe fetching for two timing engines at once, and the
+// panel it falls behind on shows the interface's blue underflow fill in a band that rolls at the
+// beat of the two refresh rates (60.000 vs 59.983 Hz on the RP Duo Lite). Whether it holds depends
+// on the multirect mode the previous owner left on the pipe, so it showed only after some sessions.
+// Returns the plane's partner rect, 0 when it has none.
+uint32_t smartPartner(int fd, uint32_t planeId) {
+    static std::map<uint32_t, uint32_t> partners;
+    static bool built = false;
+    if (!built) {
+        built = true;
+        drmModePlaneResPtr pr = drmModeGetPlaneResources(fd);
+        if (!pr) return 0;
+        for (uint32_t i = 0; i < pr->count_planes; i++) {
+            const uint32_t id = pr->planes[i];
+            const uint32_t capProp = findProp(fd, id, DRM_MODE_OBJECT_PLANE, "capabilities");
+            if (!capProp) continue;
+            bool found = false;
+            const uint64_t blobId = getPropValue(fd, id, DRM_MODE_OBJECT_PLANE, "capabilities", &found);
+            if (!found || !blobId) continue;
+            drmModePropertyBlobPtr blob = drmModeGetPropertyBlob(fd, (uint32_t)blobId);
+            if (!blob) continue;
+            const std::string caps((const char*)blob->data, blob->length);
+            drmModeFreePropertyBlob(blob);
+            const size_t at = caps.find("primary_smart_plane_id=");
+            if (at == std::string::npos) continue;
+            const uint32_t primary = (uint32_t)strtoul(caps.c_str() + at + 23, nullptr, 10);
+            if (!primary) continue;
+            partners[id] = primary;
+            partners[primary] = id;
+        }
+        drmModeFreePlaneResources(pr);
+        for (const auto& [a, b] : partners) if (a < b) ALOGI("DRM: planes %u and %u share one source pipe", a, b);
+    }
+    auto it = partners.find(planeId);
+    return it == partners.end() ? 0 : it->second;
 }
 
 int64_t monoNs() {
@@ -241,9 +281,10 @@ bool DrmWindows::pickPlane(DrmPanel& p) {
             // The plane the previous master (the composer) used as this CRTC's
             // base layer is the safest choice on SDE.
             if (pl->crtc_id == p.crtcId) score += 4;
-            // Skip a plane already bound to another panel.
+            // Skip a plane already bound to another panel, and the other rect of its pipe.
             bool taken = false;
-            for (const auto& q : mPanels) taken |= (q.planeId == pl->plane_id);
+            const uint32_t partner = smartPartner(mFd, pl->plane_id);
+            for (const auto& q : mPanels) taken |= (q.planeId == pl->plane_id || (partner && q.planeId == partner));
             if (!taken && score > bestType) {
                 bestType = score;
                 best = pl->plane_id;
@@ -564,6 +605,19 @@ bool DrmWindows::pickHudPlane(DrmPanel& p) {
         if (!pl) continue;
         bool taken = pl->plane_id == p.planeId;
         for (const auto& q : mPanels) taken |= (q.planeId == pl->plane_id || q.hudPlaneId == pl->plane_id);
+        // its pipe's other rect: on another panel it rules the plane out, in use on this panel it
+        // is allowed but a pipe of its own is better (no multirect sharing at all)
+        const uint32_t partner = smartPartner(mFd, pl->plane_id);
+        bool partnerOther = false, partnerUsed = false;
+        if (partner) {
+            for (const auto& q : mPanels) {
+                const bool usesIt = q.planeId == partner || q.hudPlaneId == partner;
+                partnerUsed |= usesIt;
+                if (usesIt && q.crtcId != p.crtcId) partnerOther = true;
+            }
+            if (partner == p.planeId) partnerUsed = true;
+        }
+        taken |= partnerOther;
         const bool fits = (pl->possible_crtcs & (1u << p.crtcIndex)) != 0;
         bool fmtOk = false;
         for (uint32_t f = 0; f < pl->count_formats; f++) if (pl->formats[f] == DRM_FORMAT_ABGR8888) fmtOk = true;
@@ -571,7 +625,8 @@ bool DrmWindows::pickHudPlane(DrmPanel& p) {
             bool found = false;
             const uint64_t type = getPropValue(mFd, pl->plane_id, DRM_MODE_OBJECT_PLANE, "type", &found);
             // Prefer an overlay plane, then a primary of another CRTC, never a cursor.
-            const int score = type == DRM_PLANE_TYPE_OVERLAY ? 2 : type == DRM_PLANE_TYPE_PRIMARY ? 1 : -1;
+            int score = type == DRM_PLANE_TYPE_OVERLAY ? 2 : type == DRM_PLANE_TYPE_PRIMARY ? 1 : -1;
+            if (score >= 0 && !partnerUsed) score += 4;   // a source pipe of its own
             if (score > bestScore) { bestScore = score; best = pl->plane_id; }
         }
         drmModeFreePlane(pl);
