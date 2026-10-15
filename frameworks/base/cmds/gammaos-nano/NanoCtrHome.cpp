@@ -720,7 +720,8 @@ struct CtrHome::Impl {
     void applyCategory();
     // the category's folder colours (setFolderColors) over the theme's folder block
     // nano's category icons of the bar buttons (setBarIcon): the applet banners' solids
-    TexturePtr barGlyph[6];
+    TexturePtr barGlyph[6], barFace[6], barFaceActive[6];
+    int barActive = 0;   // the bar button drawn as the active one (0 none)
     float barTint[6][3] = {};
     bool folderColorsOn = false;
     float folderDark[3] = {0, 0, 0}, folderMain[3] = {0, 0, 0};
@@ -4278,12 +4279,15 @@ void CtrHome::setBarIcon(int button, const uint8_t* rgba, int w, int h, const fl
     };
     // supersampling: the pictogram is several source pixels a texel
     const int ss = std::clamp((int)ceilf(1.0f / (fit * K)), 1, 6);
-    std::vector<uint8_t> body((size_t)N * N * 4), face((size_t)N * N * 4);
+    // face: the pictogram in ink on the white button; active: the button in ink with the
+    // pictogram white (the category on the grid)
+    std::vector<uint8_t> body((size_t)N * N * 4), face((size_t)N * N * 4), active((size_t)N * N * 4);
     for (int ty = 0; ty < N; ty++) {
         const size_t row = (size_t)ty * N;   // rows top first (uv 0, 0 is the top left)
         for (int tx = 0; tx < N; tx++) {
             const float ux = (tx + 0.5f) / K, uy = (ty + 0.5f) / K;
-            const float b = cover(roundRect(ux, uy, 3.5f, 5.0f, 32.5f, 33.0f, 5.5f));
+            // the body fills the shape (a body short of it shows the combiner's dark edge)
+            const float b = cover(roundRect(ux, uy, 3.5f, 3.0f, 32.5f, 34.0f, 6.5f));
             const float shape = cover(roundRect(ux, uy, 4.0f, 3.5f, 32.0f, 33.5f, 6.0f));
             float a = 0;
             for (int sy = 0; sy < ss; sy++)
@@ -4298,13 +4302,18 @@ void CtrHome::setBarIcon(int button, const uint8_t* rgba, int w, int h, const fl
             uint8_t* F = &face[(row + tx) * 4];
             F[0] = F[1] = F[2] = (uint8_t)lroundf((1 - a) * 255);
             F[3] = (uint8_t)lroundf(shape * 255);
+            uint8_t* X = &active[(row + tx) * 4];
+            X[0] = X[1] = X[2] = (uint8_t)lroundf(a * 255);
+            X[3] = F[3];
         }
     }
     // the pictogram itself for the top screen's applet banner (a solid in its glass cube)
     I.barGlyph[button] = mAssets->rgbaTexture(rgba, w, h);
     for (int k = 0; k < 3; k++) I.barTint[button][k] = inkLight[k];
     m.texMaps[0].texture = mAssets->rgbaTexture(body.data(), N, N);
-    m.texMaps[1].texture = mAssets->rgbaTexture(face.data(), N, N);
+    I.barFace[button] = mAssets->rgbaTexture(face.data(), N, N);
+    I.barFaceActive[button] = mAssets->rgbaTexture(active.data(), N, N);
+    m.texMaps[1].texture = I.barActive == button ? I.barFaceActive[button] : I.barFace[button];
     for (int k = 0; k < 2; k++) m.texMaps[k].wrapS = m.texMaps[k].wrapT = GL_CLAMP_TO_EDGE;
     if (!p->texCoords.empty()) p->texCoords[0] = QuadUv{Vec2{0, 0}, Vec2{1, 0}, Vec2{0, 1}, Vec2{1, 1}};
     // the ink colours (constants 4 and 5, the console's per applet colours)
@@ -4318,6 +4327,23 @@ void CtrHome::setBarIcon(int button, const uint8_t* rgba, int w, int h, const fl
         }
     }
     L->refresh();
+    gTextureEpoch++;
+}
+
+void CtrHome::setActiveBar(int button) {
+    static const char* const kPanes[6] = {nullptr, "P_Memo_10", "P_Frd_10", "P_News_10", "P_Web_10", "P_Mvs_10"};
+    if (!mLoaded) return;
+    Impl& I = *mImpl;
+    if (button == I.barActive) return;
+    I.barActive = button;
+    LayoutInstance* L = I.base.get();
+    if (!L) return;
+    for (int b = 1; b <= 5; b++) {
+        Pane* p = L->pane(kPanes[b]);
+        if (!p || p->material < 0 || !I.barFace[b]) continue;
+        Material& m = L->layout().materials[p->material];
+        if (m.texMaps.size() >= 2) m.texMaps[1].texture = b == button ? I.barFaceActive[b] : I.barFace[b];
+    }
     gTextureEpoch++;
 }
 

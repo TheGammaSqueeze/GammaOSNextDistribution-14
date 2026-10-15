@@ -238,6 +238,8 @@ public:
     // Applet bar button 1..5 shows the host's pictogram (RGBA, rows top first, its alpha the shape)
     // on a rounded button, the ink in `ink` (and `inkLight` where the console lightens it).
     void setBarIcon(int button, const uint8_t* rgba, int w, int h, const float ink[3], const float inkLight[3]);
+    // The bar button of the content shown (0 none): drawn inverted, the button in its ink colour.
+    void setActiveBar(int button);
     // The ids from the root to the item under the cursor: each open folder, then the item (none
     // when the cursor is on the bar). restorePath opens those folders again without animation and
     // puts the cursor on the item (a game the home launched, when the home starts again after it).

@@ -379,6 +379,7 @@ public:
         if (!mMenu->mCtrHome) return;
         const float* c = catColors(mMenu->mCtrCat);
         mMenu->mCtrHome->setFolderColors(c, c ? c + 3 : nullptr);
+        mMenu->mCtrHome->setActiveBar(mMenu->mCtrCat);   // categories 1..5 are bar buttons 1..5
     }
 
     // The categories' pictograms (the RetroArch set nano's other themes use, the XMB globe for
