@@ -2032,6 +2032,8 @@ void NanoMenu::pollInput() {
             else if (!strcmp(navbuf, "back"))  handleBack();
             // Open the MTP active screen directly (test hook: it is the same call the USB rows make).
             else if (!strcmp(navbuf, "mtp"))   openMtpScreen();
+            // The User Guide, the same call its Settings row makes (test hook).
+            else if (!strcmp(navbuf, "help"))  openHelpPage();
             // Quick Menu > System Settings, the same call its row makes (test hook for the hand-off path).
             else if (!strcmp(navbuf, "settings")) {
                 launchAndroidSettings();

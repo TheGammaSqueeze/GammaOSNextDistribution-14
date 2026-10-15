@@ -1041,10 +1041,17 @@ void NanoMenu::openHelpPage() {
     static const char* kHelpText =
         "GammaOS Nano Quick Guide.\n\n"
         "Themes. Home Theme (in Settings, Theme Settings) switches the home between GammaOS XMB, DSi "
-        "Menu and Minima. Applying restarts the home screen.\n\n"
-        "Accent colour. Colour (in Theme Settings) sets the accent for all three home themes: GammaOS "
-        "XMB, the DSi Menu chrome, and Minima. Leave it on Original for each theme's own signature colour. "
-        "Minima also has its own solid Background Colour.\n\n"
+        "Menu, Minima, Custom / ES-DE and 3DS Menu. Applying restarts the home screen.\n\n"
+        "Accent colour. Colour (in Theme Settings) sets the accent for GammaOS XMB, the DSi Menu chrome, "
+        "Minima and the 3DS Menu. Leave it on Original for each theme's own signature colour. Minima "
+        "also has its own solid Background Colour.\n\n"
+        "3DS Menu. Each game system is a folder. To make your own folder, select an empty slot and choose "
+        "Create Folder. To move an icon, hold it with the stylus and drag it: onto another icon to swap, "
+        "onto your folder to put it inside, or onto the top strip of a folder to take it out. Without a "
+        "touch screen, press the Options button and choose Move, then use the D-pad and A. A game in a "
+        "system folder that you take out stays there and also appears on the menu. 3DS Theme (in Theme "
+        "Settings) picks the console's colour themes or themes copied to the SD card. Wallpaper and Bottom "
+        "Wallpaper put a picture, a video or an effect on each screen.\n\n"
         "Collections. On any game press the Options button and choose Add to Collection to group games "
         "across systems (for example a Favourites list). Collections appear under Game.\n\n"
         "Hide game systems. Open Settings, Game Settings, Game Systems. Every system shows On or Off. "
@@ -1059,7 +1066,7 @@ void NanoMenu::openHelpPage() {
         "entry per game and launches the .m3u. Subfolders are scanned automatically.\n\n"
         "Saves. Each emulator handles its own saves, not the launcher. For DraStic DS games, the save "
         "data and the firmware language come from the DraStic app's own settings.\n\n"
-        "Tip. Press Left or Right (Up or Down on XMB) to page through this guide. Press B or Circle to "
+        "Tip. Press Left or Right (Up or Down on XMB and the 3DS Menu) to page through this guide. Press B or Circle to "
         "close.";
     if (mPs3DlgFanTex) { glDeleteTextures(1, &mPs3DlgFanTex); mPs3DlgFanTex = 0; }
     if (mPs3DlgBoxTex) { glDeleteTextures(1, &mPs3DlgBoxTex); mPs3DlgBoxTex = 0; }
