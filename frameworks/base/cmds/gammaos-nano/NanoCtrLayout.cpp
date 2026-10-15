@@ -1247,7 +1247,39 @@ bool Font::cachedVectorCell(const Glyph* g, int scale, std::vector<uint8_t>* fie
     return true;
 }
 
+void Font::upload() {
+    if (mPending.empty() || !mAtlas) {
+        mPending.clear();
+        return;
+    }
+    std::sort(mPending.begin(), mPending.end(), [](const PendingGlyph& a, const PendingGlyph& b) { return a.slot < b.slot; });
+    glBindTexture(GL_TEXTURE_2D, mAtlas);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    std::vector<uint8_t> band;
+    for (size_t i = 0; i < mPending.size();) {
+        // a run of consecutive slots on one atlas row: one upload
+        size_t j = i + 1;
+        while (j < mPending.size() && mPending[j].slot == mPending[j - 1].slot + 1 && mPending[j].slot / mCols == mPending[i].slot / mCols) j++;
+        const int count = (int)(j - i);
+        const int bw = count * mSlotW;
+        band.resize((size_t)bw * mSlotH * 2);
+        for (int k = 0; k < count; k++) {
+            const std::vector<uint8_t>& la = mPending[i + k].la;
+            for (int y = 0; y < mSlotH; y++)
+                memcpy(&band[((size_t)y * bw + (size_t)k * mSlotW) * 2], &la[(size_t)y * mSlotW * 2], (size_t)mSlotW * 2);
+        }
+        const int slot = mPending[i].slot;
+        glTexSubImage2D(GL_TEXTURE_2D, 0, (slot % mCols) * mSlotW, (slot / mCols) * mSlotH, bw, mSlotH, GL_LUMINANCE_ALPHA,
+                        GL_UNSIGNED_BYTE, band.data());
+        i = j;
+    }
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    gTextureEpoch++;
+    mPending.clear();
+}
+
 void Font::releaseGl() {
+    mPending.clear();
     if (mAtlas) glDeleteTextures(1, &mAtlas);
     gTextureEpoch++;
     mAtlas = 0;
@@ -1528,6 +1560,7 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, mAtlasSize, mAtlasSize, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, zero.data());
             gTextureEpoch++;
             mSlots.clear();
+            mPending.clear();
             mNext = 0;
             mGeneration++;
         }
@@ -1538,6 +1571,7 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mAtlasSize, mAtlasSize, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, zero.data());
             gTextureEpoch++;
             mSlots.clear();
+            mPending.clear();
             mNext = 0;
             mGeneration++;
         }
@@ -1584,12 +1618,8 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
                 la[o * 2] = vec ? lum[o] : mScratch[((size_t)(y / mScale) * w + x / mScale) * 2];
                 la[o * 2 + 1] = field[o];
             }
-        const int sx = (slot % mCols) * mSlotW, sy = (slot / mCols) * mSlotH;
-        glBindTexture(GL_TEXTURE_2D, mAtlas);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, sx, sy, W, H, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, la.data());
-        gTextureEpoch++;
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        // uploaded with its row's other new glyphs before the frame draws (Renderer::flush)
+        mPending.push_back(PendingGlyph{slot, std::move(la)});
     }
     const int sx = (slot % mCols) * mSlotW + mScale, sy = (slot / mCols) * mSlotH + mScale;
     const int pad = quadPad() * mScale;   // the quad grows by quadPad() cell pixels each side

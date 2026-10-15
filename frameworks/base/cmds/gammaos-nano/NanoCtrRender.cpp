@@ -343,6 +343,7 @@ void Renderer::releaseGl() {
     mCmds.clear();
     mFrameVerts.clear();
     mKeep.clear();
+    mUploadFonts.clear();
     if (mBlitProgram) glDeleteProgram(mBlitProgram);
     mBlitProgram = 0;
     if (mWhiteTex) glDeleteTextures(1, &mWhiteTex);
@@ -553,6 +554,9 @@ static const char* kBlitFs = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp
 
 // Issues the recorded draws: one upload, then state changes only where they differ.
 void Renderer::flush() {
+    // glyphs placed while recording reach their atlases before anything samples them
+    for (Font* f : mUploadFonts) f->upload();
+    mUploadFonts.clear();
     if (mCmds.empty()) return;
     const size_t bytes = mFrameVerts.size() * sizeof(float);
     const int slot = mRingNext;
@@ -1182,6 +1186,8 @@ void Renderer::drawText(Layout& L, Pane* p) {
         }
         p->textCacheKey = before;
     }
+    if (f.pendingUploads() && std::find(mUploadFonts.begin(), mUploadFonts.end(), &f) == mUploadFonts.end())
+        mUploadFonts.push_back(&f);
     if (p->textQuads.empty() || !f.atlas()) return;
     const Material& m = L.materials[p->material];
     const Rgba top = vertexColor(p->vertexColors[0], p->globalAlpha);

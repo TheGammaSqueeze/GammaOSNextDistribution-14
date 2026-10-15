@@ -111,6 +111,10 @@ public:
     int quadPad() const { return mFace ? 1 : 0; }
     // Bumped when the atlas was cleared to make room; cached text geometry must be rebuilt.
     uint32_t generation() const { return mGeneration; }
+    // Sends the glyphs placed since the last call to the atlas, one upload per row of new slots
+    // (a call per glyph made the driver map fresh staging memory for each). Before drawing.
+    void upload();
+    bool pendingUploads() const { return !mPending.empty(); }
     void releaseGl();
 
     int lineFeed = 0, height = 0, width = 0, ascent = 0, baseline = 0, cellWidth = 0, cellHeight = 0;
@@ -138,6 +142,8 @@ private:
     std::unordered_map<uint32_t, int> mSlots;   // glyph table index -> atlas slot
     uint32_t mGeneration = 1;
     std::vector<uint8_t> mScratch;
+    struct PendingGlyph { int slot; std::vector<uint8_t> la; };   // a slot's texels (mSlotW x mSlotH)
+    std::vector<PendingGlyph> mPending;
     // vector shapes
     void* mFace = nullptr;        // FT_Face
     float mUnitScale = 0;         // cell pixels per font unit
@@ -540,6 +546,7 @@ private:
     GLuint mBlitProgram = 0;
     void issue(size_t from, size_t to, GLuint* bound, int* scissorOn, int* scissor, int* unit, int scissorDx, int scissorDy);
     std::vector<DrawCmd> mCmds;
+    std::vector<Font*> mUploadFonts;   // fonts with glyphs to upload before the next draw
     std::vector<float> mFrameVerts;
     std::vector<TexturePtr> mKeep;     // textures a recorded draw uses stay alive until it is issued
     static const int kRing = 6;
