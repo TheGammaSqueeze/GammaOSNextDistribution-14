@@ -146,7 +146,7 @@ static const Ps3DataItem kThemeSettingsCh[] = {
   {"Half Resolution: Clock",22,"XMB theme only: renders the PSP-style clock graphics at half resolution and upscales them smoothly. The clock's date text stays sharp.","Off",1,nullptr,0},
   {"Font",22,"Sets the font displayed on the home screen.",nullptr,1,nullptr,0},
   {"Day/Night",22,"Sets the time-of-day lighting (day, dusk, night or automatic).",nullptr,1,nullptr,0},
-  {"Home Theme",22,"Switches the home screen between GammaOS XMB, DSi Menu and Minima. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},
+  {"Home Theme",22,"Switches the home screen between GammaOS XMB, DSi Menu, Minima, Custom / ES-DE and 3DS Menu. Applying restarts the home screen.","GammaOS XMB",1,nullptr,0},
   {"Startup Menu",22,"Chooses what the home opens on boot or restart: a game system's game list (e.g. jump straight into NDS), a top-level category such as Game, or the Default view. Takes effect on the next boot.","Default",1,nullptr,0},
   {"DSi Dark Theme",22,"DSi Menu theme only: switches the DSi home to a dark variant (dark field, light text and icons) for low-light use. Applies immediately.","Off",1,nullptr,0},
   {"Menu Music",22,"DSi and 3DS Menu themes: plays the menu's background music on the home. Turn off for a silent menu. Applies immediately.","On",1,nullptr,0},
