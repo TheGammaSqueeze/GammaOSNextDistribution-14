@@ -413,7 +413,44 @@ bool DrmWindows::modeset() {
             }
         }
     }
-    const int rc = drmModeAtomicCommit(mFd, req, needModeset ? DRM_MODE_ATOMIC_ALLOW_MODESET : 0, nullptr);
+    // Planes the previous master (the composer, after a SurfaceFlinger app) left on our CRTCs keep
+    // scanning out its last frames under ours, and a plane attached anywhere counts as taken: a
+    // VIG plane left behind kept the top panel off the only scaling pipe (switchToScalingPlane),
+    // so the LCD shader output was not scaled after an SF session. Switch them off in this same
+    // commit; the panels' own planes are set above.
+    const int panelProps = drmModeAtomicGetCursor(req);
+    int detached = 0;
+    if (drmModePlaneResPtr pr = drmModeGetPlaneResources(mFd)) {
+        for (uint32_t i = 0; i < pr->count_planes; i++) {
+            drmModePlanePtr pl = drmModeGetPlane(mFd, pr->planes[i]);
+            if (!pl) continue;
+            const uint32_t id = pl->plane_id, crtc = pl->crtc_id;
+            drmModeFreePlane(pl);
+            if (!crtc) continue;
+            bool ours = false, onOurCrtc = false;
+            for (const auto& p : mPanels) {
+                ours |= (p.planeId == id || p.hudPlaneId == id);
+                onOurCrtc |= (p.crtcId == crtc);
+            }
+            if (ours || !onOurCrtc) continue;
+            const uint32_t fbProp = findProp(mFd, id, DRM_MODE_OBJECT_PLANE, "FB_ID");
+            const uint32_t crtcProp = findProp(mFd, id, DRM_MODE_OBJECT_PLANE, "CRTC_ID");
+            if (!fbProp || !crtcProp) continue;
+            drmModeAtomicAddProperty(req, id, fbProp, 0);
+            drmModeAtomicAddProperty(req, id, crtcProp, 0);
+            detached++;
+            ALOGI("DRM: plane %u left on crtc %u by the previous master, switching it off", id, crtc);
+        }
+        drmModeFreePlaneResources(pr);
+    }
+    int rc = drmModeAtomicCommit(mFd, req, needModeset ? DRM_MODE_ATOMIC_ALLOW_MODESET : 0, nullptr);
+    if (rc != 0 && detached) {
+        // never let the clean up cost the takeover: commit the panels alone, as before
+        ALOGW("DRM: initial commit with %d plane(s) switched off failed (%s), retrying without", detached,
+              strerror(errno));
+        drmModeAtomicSetCursor(req, panelProps);
+        rc = drmModeAtomicCommit(mFd, req, needModeset ? DRM_MODE_ATOMIC_ALLOW_MODESET : 0, nullptr);
+    }
     drmModeAtomicFree(req);
     if (rc != 0) {
         ALOGE("DRM: initial commit failed (modeset=%d): %s", needModeset, strerror(errno));
@@ -425,7 +462,7 @@ bool DrmWindows::modeset() {
 
 // Test-only atomic commit: can this panel's plane scan out a w x h buffer
 // stretched over the whole panel?
-bool DrmWindows::testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h) {
+bool DrmWindows::testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h, const DrmPanel* retire) {
     sp<GraphicBuffer> gb = new GraphicBuffer(w, h, PIXEL_FORMAT_RGBA_8888, 1, p.bufUsage,
                                              "azahar-nano-scaletest");
     if (gb->initCheck() != OK) return false;
@@ -444,6 +481,15 @@ bool DrmWindows::testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h) {
     drmModeAtomicAddProperty(req, p.planeId, p.pCrtcH, p.height);
     if (p.pRotation && p.rotationValue) {
         drmModeAtomicAddProperty(req, p.planeId, p.pRotation, p.rotationValue);
+    }
+    // The plane the panel moves from goes off in the same commit (the first flip on the new one
+    // retires it). Left on, it shared the CRTC's blend stage with the candidate and SDE took the
+    // two as a source split pair it rejects ("invalid src split cfg, stage:0 left:94 right:74"):
+    // after a SurfaceFlinger session the top panel starts on the DMA plane the composer used, so no
+    // scaling plane ever passed and the LCD shader output was not scaled.
+    if (retire && retire->planeId && retire->planeId != p.planeId && retire->pFbId && retire->pCrtcId) {
+        drmModeAtomicAddProperty(req, retire->planeId, retire->pFbId, 0);
+        drmModeAtomicAddProperty(req, retire->planeId, retire->pCrtcId, 0);
     }
     const int rc = drmModeAtomicCommit(mFd, req, DRM_MODE_ATOMIC_TEST_ONLY, nullptr);
     const int err = errno;
@@ -506,7 +552,7 @@ bool DrmWindows::switchToScalingPlane(DrmPanel& p) {
             p = saved;
             continue;
         }
-        if (testScaledScanout(p, p.bufW, p.bufH)) {
+        if (testScaledScanout(p, p.bufW, p.bufH, &saved)) {
             ok = true;
             break;
         }
@@ -584,7 +630,12 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
         if (lcdWant > std::min(p.plainW, p.plainH)) {
             uint32_t w = 0, h = 0;
             sizeFor(lcdWant, w, h);
-            if ((w == p.width && h == p.height) || testScaledScanout(p, w, h)) {
+            // a panel that just moved planes still has its old one on until the first flip
+            DrmPanel old;
+            old.planeId = p.retirePlaneId;
+            old.pFbId = p.retireFbProp;
+            old.pCrtcId = p.retireCrtcProp;
+            if ((w == p.width && h == p.height) || testScaledScanout(p, w, h, p.retirePlaneId ? &old : nullptr)) {
                 p.lcdW = w;
                 p.lcdH = h;
             }

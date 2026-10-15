@@ -182,7 +182,9 @@ private:
     uint32_t importHudFb(DrmPanel& p, const android::sp<android::GraphicBuffer>& gb);
     void addHudProps(DrmPanel& p, drmModeAtomicReqPtr req);
     uint32_t importFb(DrmPanel& p, const android::sp<android::GraphicBuffer>& gb);
-    bool testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h);
+    // `retire`: a panel moving to another plane tests with its old plane switched off, as the
+    // first flip on the new plane does (see testScaledScanout).
+    bool testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h, const DrmPanel* retire = nullptr);
     bool switchToScalingPlane(DrmPanel& p);
     bool flip(DrmPanel& p, android::BufferItem& item);
     void eventLoop();
