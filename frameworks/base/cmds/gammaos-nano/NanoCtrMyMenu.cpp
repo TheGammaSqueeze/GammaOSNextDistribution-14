@@ -50,9 +50,7 @@ std::string slotPane(int slot) { return "N_Thumb_" + pad2(slot); }
 bool hit(LayoutInstance* l, const char* name, float x, float y) {
     Pane* p = l ? l->pane(name) : nullptr;
     if (!p) return false;
-    // shown only when it and every ancestor (across hosted layouts) is
-    for (const Pane* q = p; q; q = q->parent)
-        if (!q->visible) return false;
+    // as hit.ts hitPane: by the pane's box alone (bounding panes are hidden but still hit)
     const float* m = p->global.m;
     float l0, t, r, b;
     p->rect(&l0, &t, &r, &b);
@@ -570,6 +568,11 @@ void CtrMyMenu::enterZoomIn() {
     mZoomed = true;
     mCursor->layout().root->visible = false;
     toFront(slot);
+    // ThumbInvalid (G_MyMenu_00, children bound) also carries the slots' moves and ends 21
+    // frames in, a third short of the zoom: bound first, the slot's own ThumbIn (bound after,
+    // applied after) wins, and the zoomed slot ends centred as on the console
+    play(mUp.get(), "BeltOut", "G_Belt");
+    play(mUp.get(), "ThumbInvalid", "G_MyMenu_00");
     const auto ls = layoutScreens();
     const auto ss = screens(slot);
     for (int i = 0; i < 2; i++) {
@@ -577,8 +580,6 @@ void CtrMyMenu::enterZoomIn() {
         play(ss[i], "ThumbIn", "G_Btn_00");
     }
     fadeOthers(slot, "ThumbFadeOut", "ThumbFadeOut2");
-    play(mUp.get(), "BeltOut", "G_Belt");
-    play(mUp.get(), "ThumbInvalid", "G_MyMenu_00");
     updateBar(BarZoomed, true, false);
     sound("SE_CTR_MYMENU_ZOOM_IN");
 }
@@ -1210,9 +1211,11 @@ void CtrMyMenu::seek(LayoutInstance* l, const std::string& name, const char* gro
 
 void CtrMyMenu::setScreens(float topW, float topH, float botW) {
     if (!mLoadedLayouts) return;
-    mUp->layout().adaptWidth(topW, Layout::Adapt::Split);
-    mUp->layout().adaptHeight(topH, Layout::Adapt::Edge);
-    mDown->layout().adaptWidth(botW, Layout::Adapt::Edge);
+    // backgrounds and the belt stretch, the thumbnails stay centred (a zoomed slot fills the
+    // design screen in the middle); the bottom buttons go to the edges like the home's
+    mUp->layout().adaptWidth(topW, Layout::Adapt::None);
+    mUp->layout().adaptHeight(topH, Layout::Adapt::None);
+    mDown->layout().adaptWidth(botW, Layout::Adapt::None);
     mBar->layout().adaptWidth(botW, Layout::Adapt::Edge);
     if (mDialog) mDialog->setWidth(botW);
 }

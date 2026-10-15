@@ -240,6 +240,7 @@ private:
     bool mHomeNext = false;
     CtrTouch mTouchNext;
     bool mTouchDownLatched = false, mTouchUpLatched = false;
+    bool mTouchWasHeld = false;
     int64_t mLastNs = 0;
     double mAccum = 0;
     int64_t mFrame = 0;

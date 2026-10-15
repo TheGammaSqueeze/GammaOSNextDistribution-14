@@ -2843,12 +2843,13 @@ void CtrHome::tick() {
     CtrTouch t;
     t.x = mTouchNext.x;
     t.y = mTouchNext.y;
-    const bool wasHeld = I.touch.held;
+    const bool wasHeld = mTouchWasHeld;   // (I.touch is emptied while My Menu takes the touch)
     t.down = mTouchDownLatched || (mTouchNext.held && !wasHeld);
     t.up = mTouchUpLatched || (!mTouchNext.held && wasHeld);
     t.held = mTouchNext.held || (t.down && !t.up);
     mTouchDownLatched = mTouchUpLatched = false;
     I.touch = t;
+    mTouchWasHeld = t.held;
     mFrame++;
     if (I.myMenuOn()) {
         // the scene takes the buttons, the touch and HOME; the launcher underneath keeps running
