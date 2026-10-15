@@ -123,7 +123,8 @@ private:
     std::vector<PlateLine> mPlateLines;
     float mPlateStretch = 1;
     int mPlateFrame = 0;
-    std::vector<float> mPlateOffsets;
+    std::vector<float> mPlateOffsets, mPlateNext;
+    std::vector<uint8_t> mPlateRows;   // the marquee's rows, reused frame to frame
     void layoutPlate(const std::string& text, float size);
     void composePlate(int y0, int h, std::vector<uint8_t>* out) const;
     void updatePlate();

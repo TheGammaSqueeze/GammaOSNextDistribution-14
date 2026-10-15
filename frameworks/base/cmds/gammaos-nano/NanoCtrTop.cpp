@@ -296,34 +296,27 @@ void CtrTop::layoutPlate(const std::string& text, float size) {
     }
 }
 
-// Plate rows [y0, y0 + h) (plate space, top down) as RGBA, black ink on white, from the lines'
-// strips at their marquee offsets; `out` gets them in upload order (the texture is upside down).
+// Plate rows [y0, y0 + h) (plate space, top down) as one luminance byte per pixel, black ink
+// on white, from the lines' strips at their marquee offsets; `out` gets them in upload order
+// (the texture is upside down). Lines own separate rows, so each row is one span copy.
 void CtrTop::composePlate(int y0, int h, std::vector<uint8_t>* out) const {
-    const int W = kPlateW, H = kPlateH;
-    std::vector<uint8_t> ink((size_t)W * h, 0);
+    const int W = kPlateW;
+    out->assign((size_t)W * h, 255);
     for (size_t li = 0; li < mPlateLines.size(); li++) {
         const PlateLine& pl = mPlateLines[li];
         const int off = pl.fits ? 0 : (int)lroundf(li < mPlateOffsets.size() ? mPlateOffsets[li] : 0.0f);
+        // destination columns [x0, x1) read source columns [x0 + off, x1 + off)
+        const int x0 = std::max(0, -off), x1 = std::min(W, pl.w - off);
+        if (x1 <= x0) continue;
         for (int py = 0; py < pl.h; py++) {
             const int y = pl.y0 + py - y0;
             if (y < 0 || y >= h) continue;
-            for (int x = 0; x < W; x++) {
-                const int sx = x + off;
-                if (sx < 0 || sx >= pl.w) continue;
-                uint8_t& d = ink[(size_t)y * W + x];
-                d = std::max(d, pl.ink[(size_t)py * pl.w + sx]);
+            uint8_t* d = out->data() + (size_t)(h - 1 - y) * W;   // upside down
+            const uint8_t* src = pl.ink.data() + (size_t)py * pl.w + off;
+            for (int x = x0; x < x1; x++) {
+                const uint8_t c = (uint8_t)(255 - src[x]);
+                if (c < d[x]) d[x] = c;   // overlapping ink keeps the darker
             }
-        }
-    }
-    (void)H;
-    out->assign((size_t)W * h * 4, 0);
-    for (int r = 0; r < h; r++) {
-        const int y = h - 1 - r;   // upside down
-        for (int x = 0; x < W; x++) {
-            const uint8_t c = (uint8_t)(255 - ink[(size_t)y * W + x]);
-            uint8_t* p = &(*out)[((size_t)r * W + x) * 4];
-            p[0] = p[1] = p[2] = c;
-            p[3] = 255;
         }
     }
 }
@@ -337,8 +330,10 @@ std::shared_ptr<GpuTex> CtrTop::plateTexture(const std::string& text, float size
     auto t = std::make_shared<GpuTex>();
     glGenTextures(1, &t->id);
     glBindTexture(GL_TEXTURE_2D, t->id);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    // one byte a pixel: it samples as (l, l, l, 1) like the grey RGBA it replaces
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, kPlateW, kPlateH, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, px.data());
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kPlateW, kPlateH, 0, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
     t->width = kPlateW;
     t->height = kPlateH;
     return t;
@@ -353,7 +348,8 @@ void CtrTop::updatePlate() {
     for (const PlateLine& pl : mPlateLines) any = any || !pl.fits;
     if (!any) return;
     const int frame = mPlateFrame++;
-    std::vector<float> offsets(mPlateLines.size(), 0.0f);
+    std::vector<float>& offsets = mPlateNext;
+    offsets.assign(mPlateLines.size(), 0.0f);
     int rowTop = kPlateH, rowBottom = 0;
     for (size_t i = 0; i < mPlateLines.size(); i++) {
         const PlateLine& pl = mPlateLines[i];
@@ -373,12 +369,12 @@ void CtrTop::updatePlate() {
     }
     if (offsets == mPlateOffsets || rowBottom <= rowTop) return;
     mPlateOffsets = offsets;
-    std::vector<uint8_t> px;
-    composePlate(rowTop, rowBottom - rowTop, &px);
+    composePlate(rowTop, rowBottom - rowTop, &mPlateRows);   // reused: no allocation a frame
     glBindTexture(GL_TEXTURE_2D, mPlate->id);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     // plate rows [rowTop, rowBottom) are texture rows counted from the bottom
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, kPlateH - rowBottom, kPlateW, rowBottom - rowTop, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, kPlateH - rowBottom, kPlateW, rowBottom - rowTop, GL_LUMINANCE, GL_UNSIGNED_BYTE, mPlateRows.data());
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
 std::shared_ptr<ModelResource> CtrTop::packResource(const std::vector<uint8_t>& bytes, const std::string& what) {

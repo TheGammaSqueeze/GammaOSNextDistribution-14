@@ -2057,6 +2057,7 @@ struct CtrGpuTimer {
 };
 CtrGpuTimer sCtrGpu;
 
+ctr::CtrHome* sCtrPerfHome = nullptr;   // the home the probe reads cache statistics from
 struct CtrPerf {
     int mode = 0, frames = 0;
     double interval = 0, worst = 0, update = 0, top = 0, bottom = 0;
@@ -2084,8 +2085,10 @@ struct CtrPerf {
         last = now;
         if (++frames < 120) return;
         if (mode == 3) sCtrGpu.log();
-        ALOGI("ctr perf: interval %.2f ms (worst %.2f) update %.2f top %.2f bottom %.2f%s", interval / frames, worst,
-              update / frames, top / frames, bottom / frames, mode >= 2 ? " (gpu synced)" : "");
+        int hits = 0, misses = 0;
+        if (sCtrPerfHome) sCtrPerfHome->takeCacheStats(&hits, &misses);
+        ALOGI("ctr perf: interval %.2f ms (worst %.2f) update %.2f top %.2f bottom %.2f%s cache %d/%d", interval / frames, worst,
+              update / frames, top / frames, bottom / frames, mode >= 2 ? " (gpu synced)" : "", hits, misses);
         *this = CtrPerf{mode, 0, 0, 0, 0, 0, 0, now};
     }
 };
@@ -2210,6 +2213,7 @@ void NanoMenu::renderCtrPrimary() {
         }
     }
     sCtrPerf.refresh();
+    sCtrPerfHome = mCtrHome;
     if (sCtrPerf.mode != 3) ctr::CtrHome::perfMark = nullptr;
     if (sCtrPerf.mode == 3) {
         sCtrGpu.frameStart();

@@ -2914,6 +2914,13 @@ void CtrHome::setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic, boo
     gTextureEpoch++;
 }
 
+void CtrHome::takeCacheStats(int* hits, int* misses) {
+    Renderer::CacheSlot& c = mImpl->bottomCache;
+    *hits = c.hits;
+    *misses = c.misses;
+    c.hits = c.misses = 0;
+}
+
 bool CtrHome::canMoveFocused() const {
     if (!mLoaded) return false;
     Impl& I = *mImpl;
