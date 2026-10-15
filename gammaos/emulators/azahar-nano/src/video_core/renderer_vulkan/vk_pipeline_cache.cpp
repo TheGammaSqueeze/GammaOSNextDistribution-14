@@ -185,6 +185,10 @@ void PipelineCache::BuildLayout() {
 }
 
 PipelineCache::~PipelineCache() {
+    PersistDiskCache();
+}
+
+void PipelineCache::PersistDiskCache() {
     pipeline_workers.WaitForRequests();
     fast_pipeline_workers.WaitForRequests();
     SaveFixedStates();

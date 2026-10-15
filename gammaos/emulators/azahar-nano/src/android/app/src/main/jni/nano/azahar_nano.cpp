@@ -535,6 +535,9 @@ void azn_stop(void) {
     if (stop_run.exchange(true)) {
         return;
     }
+    // Every azn_stop ends the process (the frontend's exit paths leave with _exit): the shutdown
+    // writes the disk caches but does not free the renderer (see System::Shutdown).
+    Core::System::GetInstance().SetExitingProcess(true);
     pause_emulation = false;
     if (window) {
         window->StopPresenting();

@@ -827,7 +827,15 @@ void System::Shutdown(bool is_deserializing) {
     // down cost up to 7 s (freeing Kirby: Planet Robobot's pipelines) and every shader had to
     // be compiled again after the load.
     if (!is_deserializing) {
-        gpu.reset();
+        if (exiting_process && gpu) {
+            // The process ends right after this (azahar-nano leaves with _exit): write the disk
+            // caches the renderer's teardown would write, then leave the renderer to the process
+            // exit. Freeing it (the driver releasing every pipeline) took about 6 s of every exit.
+            gpu->Renderer().Rasterizer()->PersistDiskResources();
+            (void)gpu.release();
+        } else {
+            gpu.reset();
+        }
     }
     if (!is_deserializing) {
         lle_modules.clear();

@@ -137,6 +137,12 @@ public:
     /// Shutdown the emulated system.
     void Shutdown(bool is_deserializing = false);
 
+    /// GammaOS: the next Shutdown ends the process's emulation for good (the nano frontend exits
+    /// right after it): the GPU's disk caches are written but the renderer is not freed.
+    void SetExitingProcess(bool exiting) {
+        exiting_process = exiting;
+    }
+
     /// Shutdown and then load again
     void Reset();
 
@@ -545,6 +551,7 @@ private:
     static System s_instance;
 
     std::atomic_bool is_powered_on{};
+    bool exiting_process = false;
 
     SaveStateStatus save_state_status = SaveStateStatus::NONE;
     SaveStateStatus save_state_request_status = SaveStateStatus::NONE;

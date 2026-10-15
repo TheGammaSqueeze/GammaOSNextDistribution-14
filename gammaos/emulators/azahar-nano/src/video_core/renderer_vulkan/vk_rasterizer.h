@@ -57,6 +57,9 @@ public:
     }
     void LoadDefaultDiskResources(const std::atomic_bool& stop_loading,
                                   const VideoCore::DiskResourceLoadCallback& callback) override;
+    void PersistDiskResources() override {
+        pipeline_cache.PersistDiskCache();
+    }
 
     void DrawTriangles() override;
     void FlushAll() override;

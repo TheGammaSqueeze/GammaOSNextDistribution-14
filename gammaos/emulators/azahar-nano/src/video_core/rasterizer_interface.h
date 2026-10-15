@@ -100,6 +100,10 @@ public:
 
     virtual void SwitchDiskResources([[maybe_unused]] u64 title_id) {}
 
+    /// GammaOS: write what the disk caches still hold in memory (what tearing the renderer down
+    /// would write), for a process that ends without that teardown.
+    virtual void PersistDiskResources() {}
+
     static void SetSwitchDiskResourcesCallback(const DiskResourceLoadCallback& callback) {
         switch_disk_resources_callback = callback;
     }

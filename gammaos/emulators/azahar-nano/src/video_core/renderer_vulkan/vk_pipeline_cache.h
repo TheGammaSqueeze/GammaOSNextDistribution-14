@@ -50,6 +50,10 @@ public:
                            RenderManager& renderpass_cache, DescriptorUpdateQueue& update_queue);
     ~PipelineCache();
 
+    /// GammaOS: finishes the queued compiles and writes the fixed states and the driver pipeline
+    /// cache (when it grew), as the destructor does; the process exit path calls it instead.
+    void PersistDiskCache();
+
     /// GammaOS: the set Acquire last bound for this heap.
     vk::DescriptorSet BoundSet(DescriptorHeapType type) const {
         return bound_descriptor_sets[static_cast<u32>(type)];
