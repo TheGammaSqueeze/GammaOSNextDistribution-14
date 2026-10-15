@@ -51,6 +51,13 @@ using TexturePtr = std::shared_ptr<Texture>;
 // it is unchanged.
 extern uint64_t gTextureEpoch;
 
+// A linked GL program from vertex and fragment sources (attribute i bound to attribs[i]), or 0.
+// Programs are kept as driver binaries (GL_OES_get_program_binary) in the directory set by
+// setProgramCacheDir, keyed by their sources and the GL driver, so a start does not compile
+// again what an earlier one did; a binary the driver refuses is compiled and replaced.
+GLuint buildProgram(const std::string& vs, const std::string& fs, const char* const* attribs, int attribCount);
+void setProgramCacheDir(const std::string& dir);
+
 // ------------------------------------------------------------------ fonts
 
 struct Glyph {

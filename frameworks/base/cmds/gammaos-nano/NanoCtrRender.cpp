@@ -3,7 +3,11 @@
 // Port of /work/3ds/web/app/src/gfx (tev.ts, program.ts, renderer.ts, windowframes.ts).
 #include "NanoCtrLayout.h"
 
+#include <EGL/egl.h>
 #include <GLES2/gl2ext.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <cmath>
@@ -197,6 +201,128 @@ static GLuint compile(GLenum type, const std::string& src) {
     return sh;
 }
 
+// ------------------------------------------------------------------ program cache
+
+static std::string sProgramCacheDir;
+
+void setProgramCacheDir(const std::string& dir) { sProgramCacheDir = dir; }
+
+GLuint buildProgram(const std::string& vsSrc, const std::string& fsSrc, const char* const* attribs, int attribCount) {
+    static PFNGLGETPROGRAMBINARYOESPROC getBinary = nullptr;
+    static PFNGLPROGRAMBINARYOESPROC putBinary = nullptr;
+    static uint64_t driver = 0;
+    static bool probed = false;
+    if (!probed) {
+        probed = true;
+        const char* ext = (const char*)glGetString(GL_EXTENSIONS);
+        GLint formats = 0;
+        glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS_OES, &formats);
+        if (ext && strstr(ext, "GL_OES_get_program_binary") && formats > 0) {
+            getBinary = (PFNGLGETPROGRAMBINARYOESPROC)eglGetProcAddress("glGetProgramBinaryOES");
+            putBinary = (PFNGLPROGRAMBINARYOESPROC)eglGetProcAddress("glProgramBinaryOES");
+        }
+        // binaries belong to one driver build
+        uint64_t h = 1469598103934665603ull;
+        for (GLenum e : {GL_VENDOR, GL_RENDERER, GL_VERSION})
+            if (const char* v = (const char*)glGetString(e))
+                for (; *v; v++) h = (h ^ (unsigned char)*v) * 1099511628211ull;
+        driver = h;
+    }
+    std::string path;
+    if (getBinary && putBinary && !sProgramCacheDir.empty()) {
+        uint64_t h = driver;
+        auto mix = [&](const std::string& s) {
+            for (unsigned char c : s) h = (h ^ c) * 1099511628211ull;
+            h = (h ^ 0xff) * 1099511628211ull;
+        };
+        mix(vsSrc);
+        mix(fsSrc);
+        for (int i = 0; i < attribCount; i++) mix(attribs[i]);
+        char name[32];
+        snprintf(name, sizeof(name), "/%016llx.bin", (unsigned long long)h);
+        path = sProgramCacheDir + name;
+        int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+        if (fd >= 0) {
+            struct stat st{};
+            std::vector<uint8_t> blob;
+            if (fstat(fd, &st) == 0 && st.st_size > 4) {
+                blob.resize((size_t)st.st_size);
+                if (read(fd, blob.data(), blob.size()) != (ssize_t)blob.size()) blob.clear();
+            }
+            close(fd);
+            if (!blob.empty()) {
+                GLenum format;
+                memcpy(&format, blob.data(), 4);
+                GLuint p = glCreateProgram();
+                putBinary(p, format, blob.data() + 4, (GLint)(blob.size() - 4));
+                GLint ok = 0;
+                glGetProgramiv(p, GL_LINK_STATUS, &ok);
+                if (ok) return p;
+                glDeleteProgram(p);
+            }
+            unlink(path.c_str());   // refused (another driver build): compiled below
+        }
+    }
+    auto compileOne = [](GLenum type, const std::string& src) -> GLuint {
+        GLuint sh = glCreateShader(type);
+        const char* p = src.c_str();
+        glShaderSource(sh, 1, &p, nullptr);
+        glCompileShader(sh);
+        GLint ok = 0;
+        glGetShaderiv(sh, GL_COMPILE_STATUS, &ok);
+        if (!ok) {
+            char log[1024] = {0};
+            glGetShaderInfoLog(sh, sizeof(log), nullptr, log);
+            ALOGE("shader compile failed: %s", log);
+            glDeleteShader(sh);
+            return 0;
+        }
+        return sh;
+    };
+    GLuint vs = compileOne(GL_VERTEX_SHADER, vsSrc), fs = compileOne(GL_FRAGMENT_SHADER, fsSrc);
+    GLuint p = 0;
+    if (vs && fs) {
+        p = glCreateProgram();
+        glAttachShader(p, vs);
+        glAttachShader(p, fs);
+        for (int i = 0; i < attribCount; i++) glBindAttribLocation(p, (GLuint)i, attribs[i]);
+        glLinkProgram(p);
+        GLint ok = 0;
+        glGetProgramiv(p, GL_LINK_STATUS, &ok);
+        if (!ok) {
+            char log[1024] = {0};
+            glGetProgramInfoLog(p, sizeof(log), nullptr, log);
+            ALOGE("program link failed: %s", log);
+            glDeleteProgram(p);
+            p = 0;
+        }
+    }
+    if (vs) glDeleteShader(vs);
+    if (fs) glDeleteShader(fs);
+    if (p && !path.empty()) {
+        GLint len = 0;
+        glGetProgramiv(p, GL_PROGRAM_BINARY_LENGTH_OES, &len);
+        if (len > 0) {
+            std::vector<uint8_t> blob(4 + (size_t)len);
+            GLenum format = 0;
+            GLsizei got = 0;
+            getBinary(p, len, &got, &format, blob.data() + 4);
+            if (got > 0) {
+                memcpy(blob.data(), &format, 4);
+                mkdir(sProgramCacheDir.c_str(), 0755);
+                const std::string tmp = path + ".tmp";
+                int fd = ::open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+                if (fd >= 0) {
+                    const bool ok = write(fd, blob.data(), 4 + (size_t)got) == (ssize_t)(4 + got);
+                    close(fd);
+                    if (ok) rename(tmp.c_str(), path.c_str()); else unlink(tmp.c_str());
+                }
+            }
+        }
+    }
+    return p;
+}
+
 // ------------------------------------------------------------------ renderer
 
 Renderer::Renderer(Assets& assets) {
@@ -248,26 +374,10 @@ ProgramInfo* Renderer::program(const Material& m, int textureCount, bool sdf) {
         sDerivatives = ext && strstr(ext, "GL_OES_standard_derivatives");
     }
     auto info = std::make_unique<ProgramInfo>();
-    GLuint vs = compile(GL_VERTEX_SHADER, kVertexShader);
-    GLuint fs = compile(GL_FRAGMENT_SHADER, fragmentShader(m, textureCount, sdf));
-    if (vs && fs) {
-        GLuint p = glCreateProgram();
-        glAttachShader(p, vs);
-        glAttachShader(p, fs);
-        glBindAttribLocation(p, 0, "a_position");
-        glBindAttribLocation(p, 1, "a_color");
-        glBindAttribLocation(p, 2, "a_uv0");
-        glBindAttribLocation(p, 3, "a_uv1");
-        glBindAttribLocation(p, 4, "a_uv2");
-        glLinkProgram(p);
-        GLint ok = 0;
-        glGetProgramiv(p, GL_LINK_STATUS, &ok);
-        if (!ok) {
-            char log[1024] = {0};
-            glGetProgramInfoLog(p, sizeof(log), nullptr, log);
-            ALOGE("program link failed: %s", log);
-            glDeleteProgram(p);
-        } else {
+    static const char* const kAttribs[5] = {"a_position", "a_color", "a_uv0", "a_uv1", "a_uv2"};
+    {
+        GLuint p = buildProgram(kVertexShader, fragmentShader(m, textureCount, sdf), kAttribs, 5);
+        if (p) {
             info->program = p;
             info->matrix = glGetUniformLocation(p, "u_matrix");
             info->texMatrix = glGetUniformLocation(p, "u_texMatrix");
@@ -285,8 +395,6 @@ ProgramInfo* Renderer::program(const Material& m, int textureCount, bool sdf) {
             mBoundProgram = p;
         }
     }
-    if (vs) glDeleteShader(vs);
-    if (fs) glDeleteShader(fs);
     ProgramInfo* out = info.get();
     mPrograms.emplace(key, std::move(info));
     return out;

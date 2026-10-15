@@ -1,6 +1,7 @@
 // NanoCtr3d - see NanoCtr3d.h. Port of /work/3ds/web/app/src/gfx3d (resource.ts, model.ts,
 // animation.ts, curve.ts, material.ts, shader.ts, renderer3d.ts, camera.ts, math.ts).
 #include "NanoCtr3d.h"
+#include "NanoCtrLayout.h"
 
 #include <EGL/egl.h>
 
@@ -1014,23 +1015,6 @@ struct Renderer3d::Program {
     }
 };
 
-static GLuint compile3d(GLenum type, const std::string& src) {
-    GLuint sh = glCreateShader(type);
-    const char* p = src.c_str();
-    glShaderSource(sh, 1, &p, nullptr);
-    glCompileShader(sh);
-    GLint ok = 0;
-    glGetShaderiv(sh, GL_COMPILE_STATUS, &ok);
-    if (!ok) {
-        char log[1024] = {0};
-        glGetShaderInfoLog(sh, sizeof(log), nullptr, log);
-        ALOGE("3d shader compile failed: %s", log);
-        glDeleteShader(sh);
-        return 0;
-    }
-    return sh;
-}
-
 Renderer3d::Renderer3d() = default;
 Renderer3d::~Renderer3d() { releaseGl(); }
 
@@ -1050,22 +1034,11 @@ Renderer3d::Program* Renderer3d::program(const CgfxMaterialDef& m) {
     auto it = mPrograms.find(m.shaderKey);
     if (it != mPrograms.end()) return it->second.get();
     auto p = std::make_unique<Program>();
-    GLuint vs = compile3d(GL_VERTEX_SHADER, kVertex3d), fs = compile3d(GL_FRAGMENT_SHADER, fragment3d(m));
-    if (vs && fs) {
-        p->id = glCreateProgram();
-        glAttachShader(p->id, vs);
-        glAttachShader(p->id, fs);
-        static const char* kA[6] = {"a_position", "a_normal", "a_color", "a_uv0", "a_uv1", "a_uv2"};
-        for (int i = 0; i < 6; i++) glBindAttribLocation(p->id, i, kA[i]);
-        glLinkProgram(p->id);
-        GLint ok = 0;
-        glGetProgramiv(p->id, GL_LINK_STATUS, &ok);
-        if (!ok) {
-            char log[1024] = {0};
-            glGetProgramInfoLog(p->id, sizeof(log), nullptr, log);
-            ALOGE("3d program link failed (%s): %s", m.name.c_str(), log);
-            glDeleteProgram(p->id);
-            p->id = 0;
+    static const char* const kA[6] = {"a_position", "a_normal", "a_color", "a_uv0", "a_uv1", "a_uv2"};
+    p->id = buildProgram(kVertex3d, fragment3d(m), kA, 6);
+    {
+        if (!p->id) {
+            ALOGE("3d program failed (%s)", m.name.c_str());
         } else {
             glUseProgram(p->id);
             glUniform1i(glGetUniformLocation(p->id, "u_tex0"), 0);
@@ -1074,8 +1047,6 @@ Renderer3d::Program* Renderer3d::program(const CgfxMaterialDef& m) {
             glUniform1i(glGetUniformLocation(p->id, "u_lut"), 3);
         }
     }
-    if (vs) glDeleteShader(vs);
-    if (fs) glDeleteShader(fs);
     Program* out = p.get();
     mPrograms.emplace(m.shaderKey, std::move(p));
     return out;
