@@ -17,6 +17,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include <algorithm>
+#include <atomic>
 #include <thread>
 #include <poll.h>
 #include <climits>
@@ -5475,13 +5476,25 @@ if (sRingPrimedCount >= 2) {
         // the NEXT vsync, which used to turn every 17-18ms frame into a 33ms
         // one. On the DRM path the swap blocks on the page flip as before and
         // elapsed >= the period, so the sleep stays a no-op there.
+        // The sleep aims at an ideal schedule (the previous frame's target plus one period), not
+        // at one period after this frame's start: a sleep always wakes a little late, and timed
+        // from each frame's start that lateness added up (every frame took 17.0 ms or more, the
+        // SurfaceFlinger home ran at 57 fps). A frame that fell more than a period behind, or a
+        // change of rate, starts the schedule again from now.
         if (!ndsIdleSkip && frameTimeUs >= 16666) {
+            static int64_t sPaceTargetUs = 0;
+            static int sPacePeriodUs = 0;
             struct timespec tsNow;
             clock_gettime(CLOCK_MONOTONIC, &tsNow);
             int64_t nowUs = (int64_t)tsNow.tv_sec * 1000000LL + tsNow.tv_nsec / 1000LL;
             int64_t frameStartUs = mLastFrameNs / 1000LL;
-            int64_t elapsedUs = nowUs - frameStartUs;
-            int64_t remainUs = (int64_t)frameTimeUs - elapsedUs;
+            int64_t target = sPaceTargetUs + (int64_t)frameTimeUs;
+            if (sPaceTargetUs == 0 || sPacePeriodUs != (int)frameTimeUs || target < nowUs - (int64_t)frameTimeUs ||
+                target > frameStartUs + 2 * (int64_t)frameTimeUs)
+                target = frameStartUs + (int64_t)frameTimeUs;
+            sPacePeriodUs = (int)frameTimeUs;
+            sPaceTargetUs = target;
+            int64_t remainUs = target - nowUs;
             if (remainUs > 1000) usleep((useconds_t)remainUs);
         }
 
@@ -5786,6 +5799,26 @@ if (sRingPrimedCount >= 2) {
             // secondary display states each ~0.5s and re-apply ROTATION_0
             // whenever the rotation drifts. Cheap: bounded by the number of
             // secondary displays (typically one).
+            // GammaOS: Re-assert PowerMode::ON on the secondary displays: insurance against SF
+            // putting the display to sleep mid-session (observed when returning from RetroArch,
+            // dreamManager, or any policy that touches non-default display power state). Without
+            // it the secondary display renders into a black HWC output even though our EGL
+            // surface is swapping correctly. The call is not cheap: a synchronous binder call that
+            // reaches the display HAL, 7 to 10 ms (measured on the RP Duo Lite), which on the
+            // render thread dropped a frame every half second. A helper thread makes it, one at a
+            // time.
+            {
+                static std::atomic<bool> sPowerBusy{false};
+                if (!mSecondaryDisplayTokens.empty() && !sPowerBusy.exchange(true)) {
+                    std::vector<sp<IBinder>> tokens(mSecondaryDisplayTokens.begin(), mSecondaryDisplayTokens.end());
+                    std::thread([tokens]() {
+                        nanoThreadNormalPriority();
+                        for (const sp<IBinder>& t : tokens)
+                            if (t != nullptr) SurfaceComposerClient::setDisplayPowerMode(t, 2);
+                        sPowerBusy.store(false);
+                    }).detach();
+                }
+            }
             for (size_t i = 0; i < mSecondaryDisplayTokens.size(); i++) {
                 const sp<IBinder>& token = mSecondaryDisplayTokens[i];
                 if (token == nullptr) continue;
@@ -5793,14 +5826,6 @@ if (sRingPrimedCount >= 2) {
                 if (SurfaceComposerClient::getDisplayState(token, &state) != NO_ERROR) {
                     continue;
                 }
-                // GammaOS: Re-assert PowerMode::ON on the secondary display.
-                // Cheap idempotent call; cheap insurance against SF putting
-                // the display to sleep mid-session (observed when returning
-                // from RetroArch, dreamManager, or any policy that touches
-                // non-default display power state). Without this, the
-                // secondary display renders into a black HWC output even
-                // though our EGL surface is swapping correctly.
-                SurfaceComposerClient::setDisplayPowerMode(token, 2);
                 // GammaOS: When returning to nano from an SF/HWC-based app
                 // (e.g. RetroArch), DualStackController's teardown may
                 // re-assign the secondary display's layer stack after our
