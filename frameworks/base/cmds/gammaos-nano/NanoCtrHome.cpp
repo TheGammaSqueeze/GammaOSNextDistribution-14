@@ -691,7 +691,8 @@ struct CtrHome::Impl {
     // a title without art: a box with its initial (grid) or the box's face (top screen card),
     // kept per initial
     std::map<std::pair<char32_t, bool>, TexturePtr> boxArt;
-    TexturePtr boxTexture(const HomeItem& it, bool face);
+    int boxBuilt = 0;   // initials drawn this frame (a folder of new initials spreads them over frames)
+    TexturePtr boxTexture(const HomeItem& it, bool face, bool budgeted = true);
 };
 
 // ================================================================== setup
@@ -1568,7 +1569,7 @@ void CtrHome::Impl::updateChrome() {
                     // no banner art: the grid's own icon (an app's icon) on the card, else the
                     // generic box face with the title's initial (on the DS cartridge for a DS game)
                     TexturePtr own = ta.dsCard ? nullptr : titleTextureOwn(*it);
-                    TexturePtr c = own ? tintedCopy(own->id, own->width, own->height, 1.0f, 0, true, true) : boxTexture(*it, true);
+                    TexturePtr c = own ? tintedCopy(own->id, own->width, own->height, 1.0f, 0, true, true) : boxTexture(*it, true, false);
                     if (c) {
                         f.icon = c->id;
                         f.iconW = c->width;
@@ -2440,72 +2441,77 @@ void blendPx(uint8_t* p, float r, float g, float b, float a) {
 // initial on its front (the grid icon), or the front alone filling the square (the top screen
 // card, stored upside down like the banner models' textures). The initial is drawn from the
 // folder letters' font through its distance field, so it stays sharp at any size.
-TexturePtr CtrHome::Impl::boxTexture(const HomeItem& it, bool face) {
+TexturePtr CtrHome::Impl::boxTexture(const HomeItem& it, bool face, bool budgeted) {
     std::u32string init = folderInitial(it.name);
     const char32_t c = init.empty() ? U'?' : init[0];
     auto cached = boxArt.find({c, face});
     if (cached != boxArt.end()) return cached->second;
+    // at most two new initials a frame: the rest come the next frames, the folder opens on time
+    if (budgeted && boxBuilt >= 2) return nullptr;
+    if (budgeted) boxBuilt++;
 
     constexpr int N = 256;
-    std::vector<uint8_t> px((size_t)N * N * 4, 0);
-    auto at = [&](int x, int y) { return &px[((size_t)y * N + x) * 4]; };
+    // the box (or the card face) is the same for every title: drawn once, the initials go on copies
+    static std::vector<uint8_t> base[2];
+    std::vector<uint8_t>& b = base[face ? 1 : 0];
     // the front face and where the initial sits on it
     float fx0, fy0, fx1, fy1;
+    const float s = 166, d = 46;
     if (face) {
         fx0 = fy0 = 0;
         fx1 = fy1 = N;
-        for (int y = 0; y < N; y++) {
-            const float t = y / (float)(N - 1);
-            const float v = 252 - 26 * t;   // white to light grey, top to bottom
-            for (int x = 0; x < N; x++) blendPx(at(x, y), v, v, v, 1);
-        }
     } else {
-        // front square, lid and right side in a cabinet view, centred in the square
-        const float s = 166, d = 46, ox = (N - s - d) * 0.5f, oy = (N - s - d) * 0.5f + d;
+        const float ox = (N - s - d) * 0.5f, oy = (N - s - d) * 0.5f + d;
         fx0 = ox; fy0 = oy; fx1 = ox + s; fy1 = oy + s;
-        const float front[4][2] = {{fx0, fy0}, {fx1, fy0}, {fx1, fy1}, {fx0, fy1}};
-        const float lid[4][2] = {{fx0, fy0}, {fx0 + d, fy0 - d}, {fx1 + d, fy0 - d}, {fx1, fy0}};
-        const float side[4][2] = {{fx1, fy0}, {fx1 + d, fy0 - d}, {fx1 + d, fy1 - d}, {fx1, fy1}};
-        // the outline: each face grown by the line's width, drawn first in grey
-        const float line = 3;
-        auto grow = [&](const float (*v)[2], float (*o)[2]) {
-            float cx = 0, cy = 0;
-            for (int i = 0; i < 4; i++) { cx += v[i][0] / 4; cy += v[i][1] / 4; }
-            for (int i = 0; i < 4; i++) {
-                const float dx = v[i][0] - cx, dy = v[i][1] - cy;
-                const float len = std::sqrt(dx * dx + dy * dy);
-                o[i][0] = v[i][0] + dx / len * line;
-                o[i][1] = v[i][1] + dy / len * line;
+    }
+    if (b.empty()) {
+        b.assign((size_t)N * N * 4, 0);
+        auto bat = [&](int x, int y) { return &b[((size_t)y * N + x) * 4]; };
+        if (face) {
+            for (int y = 0; y < N; y++) {
+                const float t = y / (float)(N - 1);
+                const float v = 252 - 26 * t;   // white to light grey, top to bottom
+                for (int x = 0; x < N; x++) blendPx(bat(x, y), v, v, v, 1);
             }
-        };
-        float gf[4][2], gl[4][2], gs[4][2];
-        grow(front, gf);
-        grow(lid, gl);
-        grow(side, gs);
-        constexpr int SS = 4;   // samples per axis
-        for (int y = 0; y < N; y++) {
-            for (int x = 0; x < N; x++) {
-                float edge = 0, f = 0, l = 0, sd = 0;
-                for (int j = 0; j < SS; j++) {
-                    for (int i = 0; i < SS; i++) {
-                        const float sx = x + (i + 0.5f) / SS, sy = y + (j + 0.5f) / SS;
-                        edge += std::max({polyCover(gf, 4, sx, sy), polyCover(gl, 4, sx, sy), polyCover(gs, 4, sx, sy)});
-                        f += polyCover(front, 4, sx, sy);
-                        l += polyCover(lid, 4, sx, sy);
-                        sd += polyCover(side, 4, sx, sy);
-                    }
+        } else {
+            // front square, lid and right side in a cabinet view, centred in the square
+            const float front[4][2] = {{fx0, fy0}, {fx1, fy0}, {fx1, fy1}, {fx0, fy1}};
+            const float lid[4][2] = {{fx0, fy0}, {fx0 + d, fy0 - d}, {fx1 + d, fy0 - d}, {fx1, fy0}};
+            const float side[4][2] = {{fx1, fy0}, {fx1 + d, fy0 - d}, {fx1 + d, fy1 - d}, {fx1, fy1}};
+            // the outline: each face grown by the line's width, drawn first in grey
+            const float line = 3;
+            auto grow = [&](const float (*v)[2], float (*o)[2]) {
+                float cx = 0, cy = 0;
+                for (int i = 0; i < 4; i++) { cx += v[i][0] / 4; cy += v[i][1] / 4; }
+                for (int i = 0; i < 4; i++) {
+                    const float dx = v[i][0] - cx, dy = v[i][1] - cy;
+                    const float len = std::sqrt(dx * dx + dy * dy);
+                    o[i][0] = v[i][0] + dx / len * line;
+                    o[i][1] = v[i][1] + dy / len * line;
                 }
-                const float k = 1.0f / (SS * SS);
-                uint8_t* p = at(x, y);
-                blendPx(p, 150, 150, 150, edge * k);
-                const float tf = (y - fy0) / (fy1 - fy0);
-                const float fv = 250 - 22 * std::min(1.0f, std::max(0.0f, tf));
-                blendPx(p, 255, 255, 255, l * k);
-                blendPx(p, 206, 206, 206, sd * k);
-                blendPx(p, fv, fv, fv, f * k);
+            };
+            float gf[4][2], gl[4][2], gs[4][2];
+            grow(front, gf);
+            grow(lid, gl);
+            grow(side, gs);
+            // one sample at each texel centre: polyCover already anti-aliases the edge over a texel
+            for (int y = 0; y < N; y++) {
+                for (int x = 0; x < N; x++) {
+                    const float sx = x + 0.5f, sy = y + 0.5f;
+                    const float edge = std::max({polyCover(gf, 4, sx, sy), polyCover(gl, 4, sx, sy), polyCover(gs, 4, sx, sy)});
+                    uint8_t* p = bat(x, y);
+                    blendPx(p, 150, 150, 150, edge);
+                    const float tf = (y - fy0) / (fy1 - fy0);
+                    const float fv = 250 - 22 * std::min(1.0f, std::max(0.0f, tf));
+                    blendPx(p, 255, 255, 255, polyCover(lid, 4, sx, sy));
+                    blendPx(p, 206, 206, 206, polyCover(side, 4, sx, sy));
+                    blendPx(p, fv, fv, fv, polyCover(front, 4, sx, sy));
+                }
             }
         }
     }
+    std::vector<uint8_t> px = b;
+    auto at = [&](int x, int y) { return &px[((size_t)y * N + x) * 4]; };
 
     // the initial, grey like the folder letters (icons.ts LETTER_COLOR), centred on the front
     Pane* tp = letter ? letter->pane("T_Icon_00") : nullptr;
@@ -3083,6 +3089,7 @@ void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) 
 void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vpH) {
     if (!mLoaded) return;
     Impl& I = *mImpl;
+    I.boxBuilt = 0;
     Renderer& r = mAssets->renderer();
     r.setViewport(vpX, vpY, vpW, vpH);
     for (LayoutInstance* l : {I.base.get(), I.arrows.get()}) if (l) l->layout().adaptWidth(mBotW, Layout::Adapt::Edge);
