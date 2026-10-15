@@ -25,6 +25,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoCtrHome.h"   // Save/Load Layout opens the 3DS home's My Menu
 #include "NanoScreenCal.h"   // RG DS / RG DS Plus Screen Calibration (Display settings)
 #include "NanoScraper.h"   // nanoscraper::cacheKey for the per-game custom boxart cache path
 #include "NanoMenuPS3.h"
@@ -788,7 +789,7 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("DS Icons On Tiles")) return mNdsTheme;
     // The looping menu ambiance is a DSi-only feature (ndsAmbianceTick gates on mNdsTheme).
     if (is("Menu Music")) return mNdsTheme || mCtrTheme;
-    if (is("3DS Theme") || is("Shuffle Favourites")) return mCtrTheme;
+    if (is("3DS Theme") || is("Shuffle Favourites") || is("Save/Load Layout")) return mCtrTheme;
     // The bottom-panel PSP clock (and its FPS readout) + the bottom custom wallpaper only exist on
     // a physical dual-screen device (e.g. RG DS); their own descriptions say single-screen devices
     // ignore them. Hide them on a single-panel device in every theme. mNdsHadSecondary latches true
@@ -6230,6 +6231,15 @@ void NanoMenu::ps3XmbSelect() {
             }
             // Data-driven settings leaf -> bound side chooser (real backing setting).
             if (it.label == "User Guide") { openHelpPage(); return; }
+            if (it.label == "Save/Load Layout") {
+                // the 3DS home's My Menu scene, over the home with the settings closed
+                if (mCtrHome && mCtrTheme) {
+                    mPs3Stack.clear();
+                    mDisplayDirty = true;
+                    mCtrHome->openMyMenu();
+                }
+                return;
+            }
             if (it.label == "Scrape All Systems") { scrapeAllSystems(); return; }
             // Prefer the item's pre-resolved binding (Quick Settings leaves bind a
             // tile-named row to an existing setting), else match by label.

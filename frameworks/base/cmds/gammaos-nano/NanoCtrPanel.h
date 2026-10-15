@@ -163,6 +163,9 @@ public:
     // window's N_Obj_00. An empty text removes it.
     void setWait(const std::string& text);
     bool hasWait() const { return mWaitOn; }
+    // A layout of the caller's (the My Menu thumbnails) hung under the window's N_Obj_00 and drawn
+    // with it in place of the message; null removes it. The caller updates it.
+    void setContent(LayoutInstance* content) { mContent = content; }
     // A touch on the progress bar: the fraction under the finger while a touch that started on
     // the bar is held (the finger may drift off it), else -1.
     float progressTouch(bool down, bool held, bool up, float x, float y);
@@ -188,6 +191,7 @@ private:
     std::string mWaitText;
     bool mWaitOn = false;
     int mWaitFrame = 0;
+    LayoutInstance* mContent = nullptr;
     void placeWait();
     bool mProgDrag = false;
     int mLayButtons = -1;

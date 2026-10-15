@@ -89,6 +89,23 @@ struct FakeHost : CtrHomeHost {
         return b >= 1 && b <= 5 ? n[b] : "";
     }
     int playSound(const char* name) override { log.push_back(std::string("sound ") + name); return 1; }
+    // Save/Load Layout: slots in memory (CTR_MYMENU=<dir> keeps the thumbnails there; "used"
+    // slots listed in CTR_MYMENU_USED, e.g. "0,2")
+    struct Store : MyMenuStore {
+        FakeHost* h;
+        bool made = getenv("CTR_MYMENU_NEW") == nullptr;
+        bool slots[8] = {false};
+        bool created() override { return made; }
+        void create() override { made = true; h->log.push_back("mymenu create"); }
+        bool used(int s) override { return s >= 0 && s < 8 && slots[s]; }
+        bool shuffle(int s) override { return s == 2; }
+        bool currentShuffle() override { return false; }
+        bool save(int s) override { slots[s] = true; h->log.push_back("mymenu save " + std::to_string(s)); return true; }
+        void remove(int s) override { slots[s] = false; h->log.push_back("mymenu remove " + std::to_string(s)); }
+        bool apply(int s) override { h->log.push_back("mymenu apply " + std::to_string(s)); return slots[s]; }
+        std::string thumbDir() override { return getenv("CTR_MYMENU") ? getenv("CTR_MYMENU") : "/tmp/ctrmymenu"; }
+    } store;
+    MyMenuStore* myMenuStore() override { return &store; }
     // folders named "uf:" are user folders; the root and user folders take moves
     bool editable(const std::string& folderId) override { return folderId.empty() || folderId.rfind("uf:", 0) == 0; }
     bool userFolder(const std::string& folderId) override { return folderId.rfind("uf:", 0) == 0; }
@@ -152,6 +169,10 @@ int main(int argc, char** argv) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
 
     FakeHost host;
+
+    host.store.h = &host;
+
+    if (const char* u = getenv("CTR_MYMENU_USED")) for (const char* p = u; *p; p++) if (*p >= '0' && *p <= '7') host.store.slots[*p - '0'] = true;
     host.romfs = argv[3];
     {
         std::ifstream f(argv[2]);
@@ -254,6 +275,8 @@ int main(int argc, char** argv) {
             CtrTouch t; t.held = false;
             home.setTouch(t);
             home.step(n);
+        } else if (cmd == "mymenu") {
+            home.openMyMenu();
         } else if (cmd == "panel") {
             int n; ss >> n >> panelSel;
             rows.clear();

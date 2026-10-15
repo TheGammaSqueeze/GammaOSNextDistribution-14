@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "NanoCtrLayout.h"
+#include "NanoCtrMyMenu.h"
 
 namespace android {
 namespace ctr {
@@ -114,6 +115,8 @@ public:
     virtual void notice(const std::string& label, const std::string& text) { (void)label; (void)text; }
     // Plays a menu sound by BCSAR name (SE_CTR_*, BGM_*); returns a handle for loops.
     virtual int playSound(const char* name) { (void)name; return 0; }
+    // The saved layouts of Save/Load Layout (My Menu); null leaves the scene unavailable.
+    virtual MyMenuStore* myMenuStore() { return nullptr; }
     virtual void stopSound(int handle, int fadeFrames) { (void)handle; (void)fadeFrames; }
     virtual bool soundPlaying(int handle) { (void)handle; return true; }
 };
@@ -168,6 +171,15 @@ public:
     // Leaves the focused banner and the camera / screenshot bars off the top screen (a panel's
     // title band takes their place).
     void setTopBannerHidden(bool hidden);
+    // Save/Load Layout (My Menu, HOME Menu Settings): opens over the home with thumbnails of the
+    // current layout; the host's store (CtrHomeHost::myMenuStore) keeps the slots. A load calls
+    // the store's apply, then reloadLayout() rebuilds the grid under the scene's fading screen.
+    bool openMyMenu();
+    bool myMenuActive() const;
+    // The root grid's zoom and cursor (what a saved layout keeps besides the host's files), and
+    // putting them back with the grid rebuilt from the host (folders closed).
+    void layoutState(int* zoom, int* cursor) const;
+    void applyLayoutState(int zoom, int cursor);
     static void projection(float out[16], float lw, float lh, float rx, float ry, float rw, float rh,
                            float W, float H, const float rot[4]);
 

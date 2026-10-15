@@ -803,6 +803,16 @@ void Renderer::drawPane(Layout& layout, Pane* pane) {
     if (pane) drawPaneTree(layout, pane);
 }
 
+void Renderer::drawPaneOnly(Layout& L, Pane* p) {
+    if (!p || !p->visible) return;
+    switch (p->kind) {
+        case PaneKind::Picture: drawPicture(L, p); break;
+        case PaneKind::Text: drawText(L, p); break;
+        case PaneKind::Window: drawWindow(L, p); break;
+        default: break;
+    }
+}
+
 void Renderer::drawPaneTree(Layout& L, Pane* p) {
     if (!p->visible) return;
     switch (p->kind) {

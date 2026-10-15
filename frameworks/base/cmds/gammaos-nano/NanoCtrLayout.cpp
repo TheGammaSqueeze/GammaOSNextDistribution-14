@@ -803,6 +803,11 @@ void LayoutInstance::stop(std::string_view idOrName) {
     }
 }
 
+Animator* LayoutInstance::findId(std::string_view id) {
+    for (auto& a : animators) if (a->id == id) return a.get();
+    return nullptr;
+}
+
 Animator* LayoutInstance::find(std::string_view name) {
     const std::string full = mName + "_" + std::string(name);
     for (auto& a : animators) if (a->name == name || a->name == full) return a.get();

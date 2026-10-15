@@ -82,6 +82,7 @@ cc_binary {
         "NanoCtrTop.cpp",          // 3DS theme: top screen scene (wall + banners)
         "NanoCtrAudio.cpp",        // 3DS theme: sound effects + BGM mixer
         "NanoCtrPanel.cpp",        // 3DS theme: settings panel + dialogs over nano's menus
+        "NanoCtrMyMenu.cpp",       // 3DS theme: Save/Load Layout (My Menu)
         "NanoCtrTheme.cpp",        // 3DS theme: HOME Menu colour themes
         "NanoCtrRom.cpp",          // 3DS theme: 3DS ROM parsing (SMDH icon, CBMD banner, sound)
         "NanoCtrArt.cpp",          // 3DS theme: per game art cache (worker + disk cache)

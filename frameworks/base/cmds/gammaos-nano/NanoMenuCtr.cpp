@@ -48,7 +48,7 @@ static const char* kCtrAssetDirs[] = {
 
 // ---------------------------------------------------------------------------------------- host
 
-class NanoCtrHost : public ctr::CtrHomeHost {
+class NanoCtrHost : public ctr::CtrHomeHost, public ctr::MyMenuStore {
 public:
     explicit NanoCtrHost(NanoMenu* m) : mMenu(m) {}
 
@@ -154,6 +154,34 @@ public:
     static constexpr int kFolderSlots = 60;   // state.ts FOLDER_SLOTS
     static constexpr int kMaxFolders = 60;
 
+    void writeLayoutRecords(FILE* f) const {
+        for (const auto& r : mLayout.root) fprintf(f, "R %d %s\n", r.first, r.second.c_str());
+        for (const auto& uf : mLayout.folders) {
+            fprintf(f, "F %s %s\n", uf.first.c_str(), uf.second.name.c_str());
+            for (const auto& s : uf.second.slots) fprintf(f, "S %s %d %s\n", uf.first.c_str(), s.first, s.second.c_str());
+        }
+    }
+
+    // One record of the layout file ("R <slot> <id>", "F <folder> <name>", "S <folder> <slot> <id>").
+    static void parseLayoutRecord(const std::string& l, Layout& into) {
+        if (l.size() < 3 || l[1] != ' ') return;
+        const std::string rest = l.substr(2);
+        if (l[0] == 'R') {
+            const size_t sp = rest.find(' ');
+            if (sp == std::string::npos) return;
+            into.root[atoi(rest.substr(0, sp).c_str())] = rest.substr(sp + 1);
+        } else if (l[0] == 'F') {
+            const size_t sp = rest.find(' ');
+            if (sp == std::string::npos) return;
+            into.folders[rest.substr(0, sp)].name = rest.substr(sp + 1);
+        } else if (l[0] == 'S') {
+            const size_t a = rest.find(' ');
+            const size_t b = a == std::string::npos ? a : rest.find(' ', a + 1);
+            if (b == std::string::npos) return;
+            into.folders[rest.substr(0, a)].slots[atoi(rest.substr(a + 1, b - a - 1).c_str())] = rest.substr(b + 1);
+        }
+    }
+
     void loadLayout() {
         if (mLayoutLoaded) return;
         mLayoutLoaded = true;
@@ -183,15 +211,82 @@ public:
         fclose(f);
     }
 
+    // ---- Save/Load Layout (My Menu): /data/system/nano_ctr_mymenu, "mng" once the management
+    // information exists, slot<N>.txt per saved layout ("T <theme>", "Z <zoom>", "C <cursor>",
+    // then the layout file's records), slot<N>_top.bin / _bottom.bin the thumbnails (the scene's)
+    static constexpr const char* kMyMenuDir = "/data/system/nano_ctr_mymenu";
+    ctr::MyMenuStore* myMenuStore() override { return this; }
+    std::string myMenuSlot(int slot) const { return std::string(kMyMenuDir) + "/slot" + std::to_string(slot) + ".txt"; }
+    std::string thumbDir() override { return kMyMenuDir; }
+    bool created() override { return access((std::string(kMyMenuDir) + "/mng").c_str(), F_OK) == 0; }
+    void create() override {
+        mkdir(kMyMenuDir, 0755);
+        if (FILE* f = fopen((std::string(kMyMenuDir) + "/mng").c_str(), "w")) fclose(f);
+    }
+    bool used(int slot) override { return slot >= 0 && slot < 8 && access(myMenuSlot(slot).c_str(), F_OK) == 0; }
+    static std::string currentTheme() {
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.ctr.theme", v, "-1");
+        return v;
+    }
+    bool currentShuffle() override { return currentTheme() == "shuffle"; }
+    bool shuffle(int slot) override {
+        FILE* f = fopen(myMenuSlot(slot).c_str(), "r");
+        if (!f) return false;
+        char line[512] = {};
+        const bool sh = fgets(line, sizeof(line), f) && strncmp(line, "T shuffle", 9) == 0;
+        fclose(f);
+        return sh;
+    }
+    bool save(int slot) override {
+        if (!mMenu->mCtrHome) return false;
+        loadLayout();
+        mkdir(kMyMenuDir, 0755);
+        int zoom = 0, cursor = 0;
+        mMenu->mCtrHome->layoutState(&zoom, &cursor);
+        const std::string path = myMenuSlot(slot), tmp = path + ".tmp";
+        FILE* f = fopen(tmp.c_str(), "w");
+        if (!f) return false;
+        fprintf(f, "T %s\nZ %d\nC %d\n", currentTheme().c_str(), zoom, cursor);
+        writeLayoutRecords(f);
+        const bool ok = fflush(f) == 0 && fsync(fileno(f)) == 0;
+        fclose(f);
+        if (ok) rename(tmp.c_str(), path.c_str());
+        else unlink(tmp.c_str());
+        return ok;
+    }
+    void remove(int slot) override { unlink(myMenuSlot(slot).c_str()); }
+    bool apply(int slot) override {
+        FILE* f = fopen(myMenuSlot(slot).c_str(), "r");
+        if (!f) return false;
+        std::string theme = "-1";
+        int zoom = 0, cursor = 0;
+        Layout next;
+        char line[4096];
+        while (fgets(line, sizeof(line), f)) {
+            std::string l(line);
+            while (!l.empty() && (l.back() == '\n' || l.back() == '\r')) l.pop_back();
+            if (l.size() < 3 || l[1] != ' ') continue;
+            if (l[0] == 'T') theme = l.substr(2);
+            else if (l[0] == 'Z') zoom = atoi(l.c_str() + 2);
+            else if (l[0] == 'C') cursor = atoi(l.c_str() + 2);
+            else parseLayoutRecord(l, next);
+        }
+        fclose(f);
+        mLayout = std::move(next);
+        mLayoutLoaded = true;
+        saveLayout();
+        // the theme of the slot (the menu polls the property and applies it)
+        if (theme != currentTheme()) property_set("persist.gammaos.nano.ctr.theme", theme.c_str());
+        if (mMenu->mCtrHome) mMenu->mCtrHome->applyLayoutState(zoom, cursor);
+        return true;
+    }
+
     void saveLayout() {
         const std::string tmp = std::string(kLayoutPath) + ".tmp";
         FILE* f = fopen(tmp.c_str(), "w");
         if (!f) { ALOGW("ctr: layout not saved"); return; }
-        for (const auto& r : mLayout.root) fprintf(f, "R %d %s\n", r.first, r.second.c_str());
-        for (const auto& uf : mLayout.folders) {
-            fprintf(f, "F %s %s\n", uf.first.c_str(), uf.second.name.c_str());
-            for (const auto& s : uf.second.slots) fprintf(f, "S %s %d %s\n", uf.first.c_str(), s.first, s.second.c_str());
-        }
+        writeLayoutRecords(f);
         const bool ok = fflush(f) == 0 && fsync(fileno(f)) == 0;
         fclose(f);
         if (ok) rename(tmp.c_str(), kLayoutPath);

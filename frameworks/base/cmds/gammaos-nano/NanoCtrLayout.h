@@ -422,6 +422,7 @@ public:
     Animator* play(std::string_view name, const PlayOptions& opt = {});
     void stop(std::string_view idOrName);
     Animator* find(std::string_view name);
+    Animator* findId(std::string_view id);   // by binding id (PlayOptions::id)
     void update(float frames = 1.0f);
     void refresh() { update(0.0f); }
 
@@ -464,6 +465,8 @@ public:
     void drawLayout(Layout& layout);
     // Draws one pane subtree (icons share one layout drawn at several places).
     void drawPane(Layout& layout, Pane* pane);
+    // One pane without its children (a caller walking a tree of composed layouts itself).
+    void drawPaneOnly(Layout& layout, Pane* pane);
     const float* projection() const { return mProj; }
     int drawCalls() const { return mDrawCalls; }
     void resetStats() { mDrawCalls = 0; }

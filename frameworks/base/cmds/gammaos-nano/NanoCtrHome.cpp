@@ -402,6 +402,12 @@ struct CtrHome::Impl {
     // top
     std::unique_ptr<LayoutInstance> top, hud;
     bool topBarsHidden = false;
+    // Save/Load Layout over the home, and the frames its chrome stays hidden after it left
+    // (mymenu/index.ts MyMenuReturn, 30 frames)
+    std::unique_ptr<CtrMyMenu> myMenu;
+    int myMenuReturn = 0;
+    bool myMenuOn() const { return myMenu && myMenu->active(); }
+    bool chromeHidden() const { return myMenuOn() || myMenuReturn > 0; }
     // fades
     std::unique_ptr<LayoutInstance> fadeTop, fadeBottom;
     bool fadeActive = false;
@@ -2793,6 +2799,7 @@ bool CtrHome::load() {
 
 void CtrHome::releaseGl() {
     gTextureEpoch++;
+    if (mImpl) mImpl->myMenu.reset();   // its layouts go before the assets' GL objects
     if (mImpl) mAssets->renderer().releaseCache(mImpl->bottomCache);
     if (mImpl) mImpl->iconTex.clear();
     if (mImpl) mImpl->tinted.clear();
@@ -2843,8 +2850,121 @@ void CtrHome::tick() {
     mTouchDownLatched = mTouchUpLatched = false;
     I.touch = t;
     mFrame++;
+    if (I.myMenuOn()) {
+        // the scene takes the buttons, the touch and HOME; the launcher underneath keeps running
+        MyMenuInput in;
+        in.held = I.held;
+        in.home = I.homeEvent;
+        in.touchDown = t.down;
+        in.touchHeld = t.held;
+        in.touchUp = t.up;
+        in.x = t.x;
+        in.y = t.y;
+        I.myMenu->tick(in);
+        I.held = 0;
+        I.homeEvent = false;
+        I.touch = CtrTouch();
+        I.touch.x = t.x;
+        I.touch.y = t.y;
+    } else if (I.myMenuReturn > 0) {
+        I.myMenuReturn--;
+    }
     I.tick();
     if (onTick) onTick();
+}
+
+bool CtrHome::myMenuActive() const { return mLoaded && mImpl->myMenuOn(); }
+
+void CtrHome::layoutState(int* zoom, int* cursor) const {
+    Impl& I = *mImpl;
+    *zoom = mLoaded ? I.root().zoom() : 0;
+    *cursor = mLoaded ? I.root().cursor : 0;
+}
+
+void CtrHome::applyLayoutState(int zoom, int cursor) {
+    if (!mLoaded) return;
+    Impl& I = *mImpl;
+    while (I.grids.size() > 1) I.grids.pop_back();
+    Grid& g = I.root();
+    I.loadGrid(g);
+    g.setZoom(zoom);
+    g.cursor = std::max(0, std::min(cursor, (int)g.slotItem.size() - 1));
+    g.clampView();
+    I.iconTex.clear();
+    gTextureEpoch++;
+}
+
+// The thumbnails Save/Load Layout shows and stores (mymenu/thumbnail.ts captureLayout): the top
+// screen's wall without banners or the status bar, the bottom screen's sheet, icons, open folder
+// and name balloon without the cursor, scroll bar, arrows or buttons. Two texels a layout unit.
+bool CtrHome::openMyMenu() {
+    if (!mLoaded || !mImpl->host) return false;
+    Impl& I = *mImpl;
+    MyMenuStore* store = I.host->myMenuStore();
+    if (!store || I.myMenuOn()) return false;
+    if (!I.myMenu) {
+        I.myMenu = std::make_unique<CtrMyMenu>(*mAssets, [&I](const char* n) { I.sound(n); }, store);
+        I.myMenu->onClose = [&I](bool loaded) { I.myMenuReturn = loaded ? 0 : 30; };
+    }
+    constexpr int K = 2;
+    auto capture = [&](int lw, bool top) -> TexturePtr {
+        const int w = lw * K, h = 240 * K;
+        std::vector<uint8_t> none((size_t)w * h * 4, 0);
+        TexturePtr t = mAssets->rgbaTexture(none.data(), w, h);
+        GLint prevFbo = 0, vp[4];
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+        glGetIntegerv(GL_VIEWPORT, vp);
+        GLuint fbo = 0;
+        glGenFramebuffers(1, &fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, t->id, 0);
+        glViewport(0, 0, w, h);
+        glDisable(GL_SCISSOR_TEST);
+        glClearColor(top ? 232 / 255.0f : 0, top ? 232 / 255.0f : 0, top ? 238 / 255.0f : 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        // rows top first, as the layouts' textures are stored (a GL target fills bottom up)
+        const float proj[16] = {2.0f / lw, 0, 0, 0, 0, -2.0f / 240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        Renderer& r = mAssets->renderer();
+        if (top) {
+            if (I.top3d) {
+                // (the underlay drawTop set for the theme's top image stays in place)
+                I.top3d->setBannerHidden(true);
+                I.top3d->draw(proj, 0, 0, w, h, (float)lw, 240);
+                I.top3d->setBannerHidden(I.topBarsHidden);
+            }
+        } else {
+            r.setViewport(0, 0, w, h);
+            r.beginWith(proj);
+            if (I.bgBottom.shown()) {
+                I.base->layout().calculate();
+                I.bgBottom.lay->layout().root->parent = I.base->pane("NN_LncBgSlide_00");
+                I.drawInstance(r, I.bgBottom.lay.get());
+            }
+            I.drawInstance(r, I.base.get());
+            I.drawInstance(r, I.palette.get());
+            I.drawIcons(r, I.root(), nullptr);
+            if (I.inFolder()) {
+                I.drawInstance(r, I.folder.get());
+                Pane* sheet = I.folder->pane("W_Plt_00");
+                Box clip = sheet ? paneBox(sheet) : Box{-160, 160, 120, -120};
+                I.drawIcons(r, I.grid(), &clip);
+            }
+            I.drawInstance(r, I.balloon.get());
+            r.end();
+        }
+        // a screen is opaque: the blended passes leave coverage in the alpha, which would make
+        // the thumbnail translucent where the scene draws it
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        glDeleteFramebuffers(1, &fbo);
+        glViewport(vp[0], vp[1], vp[2], vp[3]);
+        return t;
+    };
+    TexturePtr top = capture(400, true), bottom = capture(320, false);
+    return I.myMenu->open(top, bottom);
 }
 
 void CtrHome::step(int frames) {
@@ -2932,13 +3052,28 @@ void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) 
         };
     }
     if (perfMark) perfMark("top3d");
-    if (I.top3d && !getenv("CTR_NO3D")) I.top3d->draw(proj, vpX, vpY, vpW, vpH, mTopW, mTopH);
+    // Save/Load Layout: over the home (which it covers once shown), its chrome hidden until it
+    // left (the banner, the camera / screenshot bars, the status bar until the scene entered)
+    const bool mm = I.myMenuOn();
+    const bool covered = mm && I.myMenu->coversTop();
+    const bool noChrome = I.chromeHidden();
+    if (I.top3d && !getenv("CTR_NO3D") && !covered) {
+        if (noChrome) I.top3d->setBannerHidden(true);
+        I.top3d->draw(proj, vpX, vpY, vpW, vpH, mTopW, mTopH);
+        if (noChrome) I.top3d->setBannerHidden(I.topBarsHidden);
+    }
     if (perfMark) perfMark("topLayouts");
     r.setViewport(vpX, vpY, vpW, vpH);
     r.beginWith(proj);
     r.setClip(-mTopW / 2, -mTopH / 2, mTopW, mTopH);
-    I.drawInstance(r, I.top.get());
-    I.drawInstance(r, I.hud.get());
+    if (!covered && !noChrome) I.drawInstance(r, I.top.get());
+    if (mm) {
+        I.myMenu->setScreens(mTopW, mTopH, mBotW);
+        I.myMenu->drawTop(r);
+        if (I.myMenu->entered()) I.drawInstance(r, I.hud.get());
+    } else if (I.myMenuReturn <= 0) {
+        I.drawInstance(r, I.hud.get());
+    }
     if (overlay) overlay(r, true);
     if (I.fadeActive || I.state == StAppStart || I.state == StAppRunning) I.drawInstance(r, I.fadeTop.get());
     r.end();
@@ -2954,6 +3089,15 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
         if (l) l->layout().adaptWidth(mBotW, Layout::Adapt::None);
     r.beginWith(proj);
     r.setClip(-mBotW / 2, -120, mBotW, 240);
+    const bool mm = I.myMenuOn();
+    if (mm && I.myMenu->coversBottom()) {
+        // Save/Load Layout paints the whole screen: the home is not drawn under it
+        I.myMenu->drawBottom(r);
+        if (overlay) overlay(r, false);
+        r.end();
+        return;
+    }
+    const bool noChrome = I.chromeHidden();
     // The background, sheets and icons change only when the grid moves: an exact cache
     // (Renderer::endGroup) copies them while they hold still; the cursor and chrome draw on top.
     // a wallpaper that moves by itself (video, animation) changes the cached bottom every frame
@@ -3011,12 +3155,14 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
         if (!getenv("CTR_NO_CACHE")) r.endGroup(I.bottomCache, kBlack);
     }
     if (perfMark) { r.end(); perfMark("b.chrome"); r.beginWith(proj); r.setClip(-mBotW / 2, -120, mBotW, 240); }
-    for (Trail& t : I.trail) if (t.active) I.drawInstance(r, t.layout.get());
-    I.drawInstance(r, I.cursor.get());
-    if (I.indFade > 0) I.drawInstance(r, I.indicatorL.get());
-    I.drawInstance(r, I.arrows.get());
-    I.drawInstance(r, I.balloon.get());
-    I.drawInstance(r, I.buttons.get());
+    if (!noChrome) {
+        for (Trail& t : I.trail) if (t.active) I.drawInstance(r, t.layout.get());
+        I.drawInstance(r, I.cursor.get());
+        if (I.indFade > 0) I.drawInstance(r, I.indicatorL.get());
+        I.drawInstance(r, I.arrows.get());
+        I.drawInstance(r, I.balloon.get());
+        I.drawInstance(r, I.buttons.get());
+    }
     if (I.holding && I.mover.gridIndex < (int)I.grids.size()) {
         // moving.ts IconMover: the held icon above everything on the bottom screen
         const Grid& hg = I.grids[I.mover.gridIndex];
@@ -3027,6 +3173,7 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
         const float y = I.state == StGrab ? std::min(HELD_TOP, I.mover.at.y + lift) : I.mover.at.y;
         I.drawLifted(r, I.mover.item, I.mover.at.x, y, zoom, I.mover.scale, I.mover.alpha);
     }
+    if (mm) I.myMenu->drawBottom(r);
     if (overlay) overlay(r, false);
     if (I.fadeActive || I.state == StAppStart || I.state == StAppRunning) I.drawInstance(r, I.fadeBottom.get());
     r.end();

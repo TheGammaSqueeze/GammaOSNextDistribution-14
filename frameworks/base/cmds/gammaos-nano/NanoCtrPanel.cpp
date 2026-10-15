@@ -1147,6 +1147,11 @@ void CtrDialog::drawBottom(Renderer& r) {
         r.drawLayout(mWait->layout());
         r.drawLayout(mWaitIcon->layout());
     }
+    if (mContent) {
+        if (Pane* obj = mLay->pane("N_Obj_00")) mContent->layout().root->parent = obj;
+        mContent->layout().calculate();
+        r.drawLayout(mContent->layout());
+    }
 }
 
 void CtrDialog::drawTop(Renderer& r) {
@@ -1164,6 +1169,8 @@ void CtrDialog::releaseGl() {
     mWait.reset();
     mWaitText.clear();
     mWaitOn = false;
+    if (mContent) mContent->layout().root->parent = nullptr;   // its host goes with mLay
+    mContent = nullptr;
     mBarClip = nullptr;
     mProgText.clear();
     mProgFrac = -1;

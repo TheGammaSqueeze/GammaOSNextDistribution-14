@@ -54,6 +54,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 
 #include "NanoBacklight.h"
 #include "NanoMenu.h"
+#include "NanoCtrHome.h"
 #include "NanoScreenCal.h"
 #include "NanoMenuSettingsTree.h"
 #include "NanoMenuDrm.h"
@@ -2036,6 +2037,7 @@ void NanoMenu::pollInput() {
             else if (!strcmp(navbuf, "mtp"))   openMtpScreen();
             // The User Guide, the same call its Settings row makes (test hook).
             else if (!strcmp(navbuf, "help"))  openHelpPage();
+            else if (!strcmp(navbuf, "mymenu")) { if (mCtrHome) mCtrHome->openMyMenu(); }   // 3DS Save/Load Layout
             // Quick Menu > System Settings, the same call its row makes (test hook for the hand-off path).
             else if (!strcmp(navbuf, "settings")) {
                 launchAndroidSettings();
