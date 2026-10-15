@@ -50,6 +50,8 @@ struct HomeStatus {
     int batteryLevel = 5;      // 0..5 (0 and 1 blink)
     bool charging = false;
     bool adapter = false;
+    int percent = -1;          // the real charge 0..100 (-1 unknown)
+    bool showPercent = false;  // Theme Settings > Show Battery Percent: the number next to the gauge
 };
 
 class ThemeManager;

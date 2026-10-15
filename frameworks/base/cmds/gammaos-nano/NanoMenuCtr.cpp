@@ -885,6 +885,10 @@ public:
         s.batteryLevel = pct < 0 ? 5 : pct <= 5 ? 0 : pct <= 10 ? 1 : pct <= 25 ? 2 : pct <= 50 ? 3 : pct <= 75 ? 4 : 5;
         s.adapter = mMenu->mBatteryCharging;
         s.charging = mMenu->mBatteryCharging && pct < 100;
+        s.percent = pct;
+        // Theme Settings > Show Battery Percent (shared with the DSi and Minima status bars); read
+        // with the status poll, once a second
+        s.showPercent = property_get_bool("persist.gammaos.nano.battpct", false);
         return s;
     }
 

@@ -827,7 +827,7 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     // Long-name shrink/scroll is a Minima-list behaviour (XMB/DSi handle long names their own way).
     if (is("Long Names")) return minima;
     // The numeric battery readout is drawn in the Minima status pill and the DSi status bar.
-    if (is("Show Battery Percent")) return minima || mNdsTheme;
+    if (is("Show Battery Percent")) return minima || mNdsTheme || mCtrTheme;
     // The DSi dual-screen layout + hinge gap only affect the DSi carousel home.
     if (is("Dual Screen") || is("Screen Gap")) return mNdsTheme;
     // The DSi dark variant (mNdsDark, persist.gammaos.nano.nds.dark) only repaints the DSi
