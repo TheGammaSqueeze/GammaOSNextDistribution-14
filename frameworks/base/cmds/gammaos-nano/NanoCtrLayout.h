@@ -96,6 +96,9 @@ public:
     // panel's magnification, so text is drawn from a field as fine as the screen shows it.
     static void setVectorScale(int scale);
     static int vectorScale() { return sVectorScale; }
+    // Vector glyph fields are kept in a file per font and scale under this directory ("" keeps
+    // none), so a glyph is drawn once, not again after every atlas reset or GL release.
+    static void setGlyphCacheDir(const std::string& dir) { sGlyphCacheDir = dir; }
     // Cell pixels a glyph's quad extends past its bitmap width on either side (a vector outline
     // can reach a little beyond the bitmap's ink box).
     int quadPad() const { return mFace ? 1 : 0; }
@@ -135,7 +138,18 @@ private:
     float mShapeScale = 1;        // outline size against the bitmap's cap height
     int mScale = kSdfScale;       // atlas texels per cell pixel of the current atlas
     static int sVectorScale;
+    static std::string sGlyphCacheDir;
     bool vectorCell(const Glyph* g, int scale, std::vector<uint8_t>* field, std::vector<uint8_t>* lum) const;
+    // vectorCell through the glyph file: a record per code point (u32 code, the field, then the
+    // luminance), after a header naming the font file, scale and shape it was drawn with
+    bool cachedVectorCell(const Glyph* g, int scale, std::vector<uint8_t>* field, std::vector<uint8_t>* lum) const;
+    uint64_t mVectorId = 0;   // the font file, its size and time, and the fitting
+    struct GlyphFile {
+        int fd = -1;
+        size_t size = 0;
+        std::unordered_map<uint32_t, uint64_t> index;   // code -> record offset
+    };
+    mutable std::map<int, GlyphFile> mGlyphFiles;   // by scale
 };
 
 // ------------------------------------------------------------------ messages

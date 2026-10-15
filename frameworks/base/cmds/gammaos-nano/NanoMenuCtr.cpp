@@ -600,6 +600,7 @@ bool NanoMenu::ctrEnsure() {
         // 400 x 240 top screen (known before the layouts load; ctrDrawScreen refines it)
         const float W = (float)mWidth, H = ctrDualPanel() ? (float)mHeight : mHeight * 0.5f;
         if (W > 0 && H > 0) ctr::Font::setVectorScale((int)ceilf(std::min(W / 400.0f, H / 240.0f) - 0.1f));
+        ctr::Font::setGlyphCacheDir("/data/system/nano_cache/ctr_glyphs");
     }
     if (!mCtrHome->load()) {
         ALOGE("ctr: 3DS theme failed to load");

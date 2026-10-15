@@ -987,14 +987,18 @@ std::vector<TextRun> parseMarkup(std::string_view m) {
 // ================================================================== fonts
 
 static void edt2d(const std::vector<uint8_t>& target, int W, int H, std::vector<float>* out);
+static void edt2dInPlace(std::vector<float>& g, int W, int H);
 
 Font::~Font() {
     releaseGl();
     if (mFace) FT_Done_Face((FT_Face)mFace);
+    for (auto& f : mGlyphFiles)
+        if (f.second.fd >= 0) close(f.second.fd);
     if (mMap) munmap((void*)mMap, mMapSize);
 }
 
 int Font::sVectorScale = Font::kSdfScale;
+std::string Font::sGlyphCacheDir;
 
 void Font::setVectorScale(int scale) {
     sVectorScale = std::clamp(scale, (int)kSdfScale, 4);
@@ -1068,6 +1072,22 @@ bool Font::setVector(const std::string& ttfPath, float shapeScale) {
         }
     }
     mFace = face;
+    // what the glyph file's records depend on (a changed font file or fitting starts it over)
+    {
+        struct stat st{};
+        stat(ttfPath.c_str(), &st);
+        uint64_t id = 1469598103934665603ull;
+        auto mix = [&](uint64_t v) { id = (id ^ v) * 1099511628211ull; };
+        for (char c : ttfPath) mix((unsigned char)c);
+        mix((uint64_t)st.st_size);
+        mix((uint64_t)st.st_mtime);
+        uint32_t bits;
+        for (float v : {mUnitScale, mOutline, mShapeScale}) { memcpy(&bits, &v, 4); mix(bits); }
+        mix((uint64_t)cellWidth << 32 | (uint64_t)cellHeight);
+        mix((uint64_t)baseline);
+        mix(2);   // the field's algorithm (2: coverage seeded transform at output resolution)
+        mVectorId = id;
+    }
     releaseGl();   // atlas texels change with the source
     return true;
 }
@@ -1081,8 +1101,10 @@ bool Font::vectorCell(const Glyph* g, int scale, std::vector<uint8_t>* field, st
     const FT_UInt gi = FT_Get_Char_Index(face, g->code);
     if (!gi) return false;
     const int w = cellWidth + 2, h = cellHeight + 2;
-    const int sub = std::max(1, (8 + scale - 1) / scale), F = scale * sub;
-    const int W = w * F, H = h * F, ow = w * scale, oh = h * scale;
+    // the outline is rasterised at the field's own resolution: FreeType's exact coverage places
+    // the edge inside each pixel, so no finer grid is needed (see the seeded transform below)
+    const int F = scale;
+    const int W = w * F, H = h * F, ow = W, oh = H;
     field->assign((size_t)ow * oh, 0);
     if (lum) lum->assign((size_t)ow * oh, mOutline > 0 ? 0 : 255);
     // where the console's bitmap puts its ink, which the outline is centred on
@@ -1139,28 +1161,89 @@ bool Font::vectorCell(const Glyph* g, int scale, std::vector<uint8_t>* field, st
     bm.pixel_mode = FT_PIXEL_MODE_GRAY;
     bm.num_grays = 256;
     if (FT_Outline_Get_Bitmap(ftLibrary(), &o, &bm) != 0) return false;
-    std::vector<uint8_t> inside((size_t)W * H), outside((size_t)W * H);
-    for (size_t i = 0; i < fine.size(); i++) {
-        inside[i] = fine[i] >= 128;
-        outside[i] = !inside[i];
-    }
-    std::vector<float> toOut, toIn;
-    edt2d(outside, W, H, &toOut);
-    edt2d(inside, W, H, &toIn);
-    const float grow = mOutline * F;   // the dark border widens the shape the field describes
-    for (int oy = 0; oy < oh; oy++)
-        for (int ox2 = 0; ox2 < ow; ox2++) {
-            float sum = 0;
-            for (int j = 0; j < sub; j++)
-                for (int i = 0; i < sub; i++) {
-                    const size_t k = (size_t)(oy * sub + j) * W + (ox2 * sub + i);
-                    sum += inside[k] ? sqrtf(toOut[k]) - 0.5f : -(sqrtf(toIn[k]) - 0.5f);
-                }
-            const float sd = sum / (sub * sub) / sub;   // fine pixels to output texels
-            const size_t o2 = (size_t)oy * ow + ox2;
-            (*field)[o2] = (uint8_t)std::clamp(lroundf(128 + (sd + grow / sub) * 127 / Font::kSdfRange), 0L, 255L);
-            if (lum && mOutline > 0) (*lum)[o2] = (uint8_t)std::clamp(lroundf((0.5f + sd) * 255), 0L, 255L);
+    // signed distances seeded from the coverage (as Mapbox's TinySDF): a partly covered pixel
+    // starts at its distance to the edge (coverage - 0.5) on its own side, then the exact
+    // Euclidean transform carries the nearest edge everywhere else
+    const size_t n = (size_t)W * H;
+    std::vector<float> toOut(n), toIn(n);   // squared distance to the outside, to the inside
+    const float INF = 1e20f;
+    for (size_t i = 0; i < n; i++) {
+        const float a = fine[i] / 255.0f;
+        if (fine[i] == 255) { toOut[i] = INF; toIn[i] = 0; }
+        else if (fine[i] == 0) { toOut[i] = 0; toIn[i] = INF; }
+        else {
+            const float in = std::max(0.0f, a - 0.5f), out = std::max(0.0f, 0.5f - a);
+            toOut[i] = a > 0.5f ? in * in : 0;
+            toIn[i] = a > 0.5f ? 0 : out * out;
         }
+    }
+    edt2dInPlace(toOut, W, H);
+    edt2dInPlace(toIn, W, H);
+    const float grow = mOutline * F;   // the dark border widens the shape the field describes
+    for (size_t i = 0; i < n; i++) {
+        const float sd = sqrtf(toOut[i]) - sqrtf(toIn[i]);   // texels, positive inside
+        (*field)[i] = (uint8_t)std::clamp(lroundf(128 + (sd + grow) * 127 / Font::kSdfRange), 0L, 255L);
+        if (lum && mOutline > 0) (*lum)[i] = (uint8_t)std::clamp(lroundf((0.5f + sd) * 255), 0L, 255L);
+    }
+    return true;
+}
+
+bool Font::cachedVectorCell(const Glyph* g, int scale, std::vector<uint8_t>* field, std::vector<uint8_t>* lum) const {
+    if (!mFace || !g || imported(g) || sGlyphCacheDir.empty()) return vectorCell(g, scale, field, lum);
+    const size_t cells = (size_t)(cellWidth + 2) * scale * (cellHeight + 2) * scale;
+    const size_t record = 4 + 2 * cells;
+    struct Header { char magic[4]; uint32_t scale, cellW, cellH; uint64_t id; } want{{'C', 'G', 'F', '1'}, (uint32_t)scale,
+        (uint32_t)cellWidth, (uint32_t)cellHeight, mVectorId};
+    const bool opened = mGlyphFiles.count(scale) != 0;
+    GlyphFile& gf = mGlyphFiles[scale];
+    if (!opened) {
+        mkdir(sGlyphCacheDir.c_str(), 0755);
+        const std::string path = sGlyphCacheDir + "/" + mName + "_" + std::to_string(scale) + ".bin";
+        gf.fd = ::open(path.c_str(), O_RDWR | O_CREAT | O_CLOEXEC, 0644);
+        if (gf.fd >= 0) {
+            Header have{};
+            struct stat st{};
+            fstat(gf.fd, &st);
+            if (pread(gf.fd, &have, sizeof(have), 0) != (ssize_t)sizeof(have) || memcmp(&have, &want, sizeof(want)) != 0) {
+                // another font, scale or algorithm: start the file over
+                if (ftruncate(gf.fd, 0) != 0 || pwrite(gf.fd, &want, sizeof(want), 0) != (ssize_t)sizeof(want)) {
+                    close(gf.fd);
+                    gf.fd = -1;
+                }
+                gf.size = sizeof(want);
+            } else {
+                // whole records only (a write cut short is dropped)
+                gf.size = sizeof(want) + ((size_t)st.st_size - sizeof(want)) / record * record;
+                for (uint64_t off = sizeof(want); off + record <= gf.size; off += record) {
+                    uint32_t code = 0;
+                    if (pread(gf.fd, &code, 4, (off_t)off) != 4) break;
+                    gf.index[code] = off;
+                }
+            }
+        }
+    }
+    std::vector<uint8_t> ownLum;
+    std::vector<uint8_t>* L = lum ? lum : &ownLum;
+    auto it = gf.index.find(g->code);
+    if (gf.fd >= 0 && it != gf.index.end()) {
+        field->resize(cells);
+        L->resize(cells);
+        if (pread(gf.fd, field->data(), cells, (off_t)(it->second + 4)) == (ssize_t)cells &&
+            pread(gf.fd, L->data(), cells, (off_t)(it->second + 4 + cells)) == (ssize_t)cells)
+            return true;
+    }
+    if (!vectorCell(g, scale, field, L)) return false;
+    // appended while the file stays small (a few hundred glyphs per font and scale)
+    if (gf.fd >= 0 && gf.size + record <= (size_t)48 << 20 && field->size() == cells && L->size() == cells) {
+        std::vector<uint8_t> rec(record);
+        memcpy(rec.data(), &g->code, 4);
+        memcpy(rec.data() + 4, field->data(), cells);
+        memcpy(rec.data() + 4 + cells, L->data(), cells);
+        if (pwrite(gf.fd, rec.data(), record, (off_t)gf.size) == (ssize_t)record) {
+            gf.index[g->code] = gf.size;
+            gf.size += record;
+        }
+    }
     return true;
 }
 
@@ -1294,6 +1377,24 @@ static void edt1d(const float* f, int n, float* d, int* v, float* z) {
     }
 }
 
+// The squared distance transform of a W x H grid of seed values (0 on a target, the squared
+// distance to the edge on a partly covered pixel, a large value elsewhere), in place.
+static void edt2dInPlace(std::vector<float>& g, int W, int H) {
+    const int n = std::max(W, H);
+    std::vector<float> f(n), d(n), z(n + 1);
+    std::vector<int> v(n);
+    for (int x = 0; x < W; x++) {
+        for (int y = 0; y < H; y++) f[y] = g[(size_t)y * W + x];
+        edt1d(f.data(), H, d.data(), v.data(), z.data());
+        for (int y = 0; y < H; y++) g[(size_t)y * W + x] = d[y];
+    }
+    for (int y = 0; y < H; y++) {
+        for (int x = 0; x < W; x++) f[x] = g[(size_t)y * W + x];
+        edt1d(f.data(), W, d.data(), v.data(), z.data());
+        for (int x = 0; x < W; x++) g[(size_t)y * W + x] = d[x];
+    }
+}
+
 // Squared distances to the nearest pixel where `target` is set, over a W x H grid.
 static void edt2d(const std::vector<uint8_t>& target, int W, int H, std::vector<float>* out) {
     const float INF = 1e20f;
@@ -1371,7 +1472,7 @@ static void glyphSdf(const uint8_t* cov, int w, int h, int scale, std::vector<ui
 }
 
 bool Font::cellSdf(const Glyph* g, int scale, std::vector<uint8_t>& out) const {
-    if (vectorCell(g, scale, &out, nullptr)) return true;
+    if (cachedVectorCell(g, scale, &out, nullptr)) return true;
     std::vector<uint8_t> cov;
     if (!cellAlpha(g, cov)) return false;
     glyphSdf(cov.data(), cellWidth + 2, cellHeight + 2, scale, &out);
@@ -1470,7 +1571,7 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
         // (a vector glyph brings its own, as fine as its field)
         const int W = w * mScale, H = h * mScale;
         std::vector<uint8_t> field, lum;
-        const bool vec = vectorCell(g, mScale, &field, &lum);
+        const bool vec = cachedVectorCell(g, mScale, &field, &lum);
         if (!vec) {
             std::vector<uint8_t> cov((size_t)w * h);
             for (int i = 0; i < w * h; i++) cov[i] = mScratch[(size_t)i * 2 + 1];

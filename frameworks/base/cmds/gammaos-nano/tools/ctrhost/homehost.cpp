@@ -141,6 +141,7 @@ int main(int argc, char** argv) {
     const int H = (int)((topH + 240) * sc);
     if (!initEgl(W, H)) return 1;
     Font::setVectorScale(getenv("CTR_VSCALE") ? atoi(getenv("CTR_VSCALE")) : sc);
+    if (getenv("CTR_GLYPH_CACHE")) Font::setGlyphCacheDir(getenv("CTR_GLYPH_CACHE"));
     GLuint fbo, tex;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
