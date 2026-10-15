@@ -372,80 +372,62 @@ void NanoMenu::renderVolumeBar() {
 // ---------------------------------------------------------------------------
 // Launch-readiness gate
 //
-// On cold boot, NanoMenu paints at T+~7 s but the system cannot accept a
-// home-launch through service.bootanim.nano_retroarch -> startHome until
-// user 0 starts unlocking (sys.user.0.ce_available=true), the DE cache
-// is ready for QR (sys.gammaos.nano.cache_mounted=1), or full boot
-// completes. RootWindowContainer.startHomeOnTaskDisplayArea() returns
-// false if none of those are true and never retries from the same path,
-// so a too-early A press leaves NanoMenu and bootanim exited with no
-// home running and the panel painted black. The gate prevents that by
-// holding the press as a queued launch and re-firing handleSelect()
-// from the main loop when readiness flips. The user sees a brief
-// centred toast for ~3 s; navigation or Back cancels the queue.
+// Wait for the requested game's storage before checking whether its ROM exists.
 // ---------------------------------------------------------------------------
 
+static bool launchStorageReady(const std::string& romPath) {
+    return property_get_bool("sys.boot_completed", false) && isPrimaryStorageReady()
+            && nano_launch::volumeReady(romPath);
+}
+
 bool NanoMenu::isLaunchReady() const {
-    // Poll the REAL conditions a clean app launch needs - no fixed delay. On cold
-    // boot, measured timeline: package manager ready ~33s, sys.boot_completed ~43s,
-    // but the emulated FUSE storage does NOT actually mount until ~59s (~16s after
-    // boot_completed). A game launched in that window cannot reach its ROM or its
-    // app-private storage (the FuseDaemon rejects the access) and crashes, and the
-    // overlay-home death hook then catches it back to the launcher.
-    //
-    // Condition 1: the system is booted.
-    char val[PROPERTY_VALUE_MAX] = {};
-    property_get("sys.boot_completed", val, "0");
-    if (val[0] != '1') return false;
-    // Condition 2: the emulated FUSE is ACTUALLY MOUNTED, not just the early tmpfs
-    // placeholder. This is the exact live poll Quick Resume's handoff uses
-    // (isQrRomStorageReady gate 1): /storage/emulated/0/Android exists as a
-    // directory ONLY after FUSE mounts over the placeholder - a plain stat of
-    // /storage/emulated/0 passes prematurely because vold makes an empty tmpfs
-    // there from very early boot. Inlined (not isQrRomStorageReady itself) to avoid
-    // its gate-2 external-SD check, which keys off a possibly-stale QR rom path and
-    // could otherwise block launches indefinitely. Returns true the instant FUSE is
-    // up, so the launch fires as soon as it is genuinely safe.
-    struct stat st;
-    if (stat("/storage/emulated/0/Android", &st) != 0 || !S_ISDIR(st.st_mode))
-        return false;
+    return launchStorageReady({});
+}
+
+bool NanoMenu::deferGameLaunch(const std::string& romPath) {
+    // Cancel if a rescan has replaced the selected row with a different ROM.
+    if (!mLaunchPendingRomPath.empty() && mLaunchPendingRomPath != romPath) {
+        cancelPendingLaunch();
+        return true;
+    }
+    if (mLaunchReadiness.dispatching(romPath)) return false;
+    showLaunchBusyToast(romPath);
     return true;
 }
 
-void NanoMenu::showLaunchBusyToast() {
-    mBusyLine1.clear(); mBusyLine2.clear();   // fall back to the default "Booting up..." wording
+void NanoMenu::showLaunchBusyToast(const std::string& romPath) {
+    mBusyLine1 = romPath.empty() ? "" : trDyn("Waiting for game storage...");
+    mBusyLine2 = romPath.empty() ? "" : trDyn("Press Back to cancel");
+    mLaunchPendingRomPath = romPath;
+    mLaunchReadiness.start(romPath, launchStorageReady, nanoThreadNormalPriority);
     mShowLaunchBusy = true;
     mLaunchBusyTimer = 180; // ~3s at 60fps
     mLaunchPending = true;
 }
 
-// Show an arbitrary message in the same centred panel the launch toast uses. That panel is drawn
-// from the main render path, so it is actually visible on the home menu (unlike the photo viewer's
-// message helper, which only draws inside the viewer). mLaunchPending stays false so the fade-out
-// timer runs and the message clears itself.
+// Reuse the launch panel for a timed message without queuing a launch.
 void NanoMenu::showXmbMessage(const std::string& line1, const std::string& line2, int frames) {
     mBusyLine1 = line1;
     mBusyLine2 = line2;
     mShowLaunchBusy = true;
     mLaunchPending = false;
+    mLaunchPendingRomPath.clear();
+    mLaunchReadiness.cancel();
     mLaunchBusyTimer = frames > 0 ? frames : 180;
     mDisplayDirty = true;
 }
 
 void NanoMenu::cancelPendingLaunch() {
     mLaunchPending = false;
+    mLaunchPendingRomPath.clear();
+    mLaunchReadiness.cancel();
     mShowLaunchBusy = false;
     mLaunchBusyTimer = 0;
 }
 
 void NanoMenu::renderLaunchBusyToast() {
     if (!mShowLaunchBusy) return;
-    // Stay visible the entire time the launch is queued. Only run
-    // the fade-out timer down once mLaunchPending has been cleared
-    // (cancel via navigation/back, or auto-fired). Without this the
-    // toast would vanish after 3 s while the user is still waiting
-    // for boot to finish, leaving them staring at a blank UI with
-    // no idea their press is still queued.
+    // Keep the panel visible while waiting for storage.
     if (!mLaunchPending) {
         if (--mLaunchBusyTimer <= 0) {
             mShowLaunchBusy = false;

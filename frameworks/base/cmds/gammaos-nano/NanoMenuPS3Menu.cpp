@@ -5961,10 +5961,8 @@ void NanoMenu::ps3XmbSelect() {
             return;
         }
         case PS3_ROM:    { mXmbSystemIndex = it.a; mXmbGameIndex = it.b; mSearchActive = false;
-                           if (!isLaunchReady()) { showLaunchBusyToast(); return; }
                            if (mOverlayMode) { overlayLaunchGame(); return; } launchXmbGame(); return; }
         case PS3_RECENT: { mXmbSystemIndex = -1;  mXmbGameIndex = it.a; mSearchActive = false;
-                           if (!isLaunchReady()) { showLaunchBusyToast(); return; }
                            if (mOverlayMode) { overlayLaunchGame(); return; } launchXmbGame(); return; }
         case PS3_SETTING:{ if (it.a == 0) openWifiScreen(); else if (it.a == 1) openBtScreen(); return; }
         case PS3_APP:
@@ -13991,13 +13989,11 @@ void NanoMenu::xmbOptAction(const std::string& act) {
         // Same as pressing Cross on the focused game/app.
         if (mPs3OptCtxKind == PS3_ROM) {
             mXmbSystemIndex = mPs3OptCtxA; mXmbGameIndex = mPs3OptCtxB; mSearchActive = false;
-            if (!isLaunchReady()) { showLaunchBusyToast(); return; }
             if (mOverlayMode) { overlayLaunchGame(); return; }
             launchXmbGame(); return;
         }
         if (mPs3OptCtxKind == PS3_RECENT) {
             mXmbSystemIndex = -1; mXmbGameIndex = mPs3OptCtxA; mSearchActive = false;
-            if (!isLaunchReady()) { showLaunchBusyToast(); return; }
             if (mOverlayMode) { overlayLaunchGame(); return; }
             launchXmbGame(); return;
         }
