@@ -653,7 +653,7 @@ struct CtrHome::Impl {
     }
     TexturePtr titleTexture(const HomeItem& it);
     TexturePtr titleTextureOwn(const HomeItem& it);
-    TexturePtr tintedCopy(GLuint src, int w, int h, float grey, float coverAspect = 0, bool flipY = false);
+    TexturePtr tintedCopy(GLuint src, int w, int h, float grey, float coverAspect = 0, bool flipY = false, bool onWhite = false);
     std::unordered_map<GLuint, TexturePtr> hostTex;  // wrappers of host textures
     uint64_t artGen = 0;
     Renderer::CacheSlot bottomCache;   // background, sheets and icons of the bottom screen
@@ -1547,9 +1547,11 @@ void CtrHome::Impl::updateChrome() {
                 if (ta.pending) return;
                 f.cbmd = ta.cbmd;
                 f.dsIcon = ta.dsIcon;
-                // banner models take their textures stored upside down (like the name plates)
+                // banner models take their textures stored upside down (like the name plates).
+                // The DS card's mt_Icon takes only the icon's colour (its alpha is the label
+                // mask), so a DS icon is flattened onto white like the console's composed icon.
                 if (ta.icon) {
-                    if (TexturePtr c = tintedCopy(ta.icon, ta.w, ta.h, 1.0f, ta.art.coverAspect, true)) {
+                    if (TexturePtr c = tintedCopy(ta.icon, ta.w, ta.h, 1.0f, ta.art.coverAspect, true, ta.dsIcon)) {
                         f.icon = c->id;
                         f.iconW = c->width;
                         f.iconH = c->height;
@@ -2306,15 +2308,16 @@ void CtrHome::Impl::hudUpdate(bool force) {
 // new texture. Copies are shared per source texture.
 // A derived copy of a GL texture, rendered once: colour scaled to `grey` (alpha kept), and for a
 // cover (coverAspect > 0) fitted whole into a transparent square. Copies are kept per source.
-TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float coverAspect, bool flipY) {
-    const int kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0);
+TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float coverAspect, bool flipY, bool onWhite) {
+    const int kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0) | (onWhite ? 8 : 0);
     auto cached = tinted.find({src, kind});
     if (cached != tinted.end()) return cached->second;
     static const char* vs = "attribute vec2 p; uniform vec2 s; uniform float f; varying vec2 uv;"
                             "void main(){ uv = p * 0.5 + 0.5; uv.y = mix(uv.y, 1.0 - uv.y, f);"
                             " gl_Position = vec4(p * s, 0.0, 1.0); }";
-    static const char* fs = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nvarying vec2 uv; uniform sampler2D t; uniform float g;"
-                            "void main(){ vec4 c = texture2D(t, uv); gl_FragColor = vec4(c.rgb * g, c.a); }";
+    static const char* fs = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nvarying vec2 uv; uniform sampler2D t; uniform float g, o;"
+                            "void main(){ vec4 c = texture2D(t, uv); vec4 r = vec4(c.rgb * g, c.a);"
+                            " gl_FragColor = mix(r, vec4(mix(vec3(1.0), r.rgb, c.a), 1.0), o); }";
     if (!tintProgram) {
         auto sh = [](GLenum type, const char* text) {
             GLuint s = glCreateShader(type);
@@ -2359,6 +2362,7 @@ TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float
     glUniform1f(glGetUniformLocation(tintProgram, "g"), grey);
     glUniform2f(glGetUniformLocation(tintProgram, "s"), sx, sy);
     glUniform1f(glGetUniformLocation(tintProgram, "f"), flipY ? 1.0f : 0.0f);
+    glUniform1f(glGetUniformLocation(tintProgram, "o"), onWhite ? 1.0f : 0.0f);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, src);
     // the copy keeps the source's row order (the FBO's row 0 receives uv.y = 0)
