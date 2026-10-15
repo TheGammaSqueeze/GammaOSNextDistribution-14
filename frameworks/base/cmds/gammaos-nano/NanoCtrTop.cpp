@@ -101,6 +101,8 @@ void CtrTop::releaseGl() {
     mPlate.reset();
 }
 
+void CtrTop::parkGl() { mRenderer.releaseGl(); }
+
 std::shared_ptr<ModelResource> CtrTop::resource(const std::string& name) {
     auto it = mResources.find(name);
     if (it != mResources.end()) return it->second;

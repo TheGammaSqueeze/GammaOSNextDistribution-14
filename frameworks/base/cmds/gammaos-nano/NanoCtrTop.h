@@ -38,6 +38,7 @@ public:
     ~CtrTop();
     bool load();
     void releaseGl();
+    void parkGl();   // the 3D pass's targets and programs (rebuilt by the next draw)
     void sceneIn();
     void focus(const TopFocus& f);
     // The theme's wall colour and folder banner colours (null = the file colours).

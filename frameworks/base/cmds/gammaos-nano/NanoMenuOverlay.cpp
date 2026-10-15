@@ -40,6 +40,7 @@
 #include <malloc.h>
 #include <sys/mman.h>
 #include "NanoMenu.h"
+#include "NanoCtrArt.h"
 #include "NanoCtrHome.h"
 #include "NanoMenuPS3.h"      // ps3::layoutComputeNative for the boot warm-up
 #include "NanoMenuPS3Bg.h"    // ps3bg::init for the boot warm-up
@@ -701,6 +702,10 @@ void NanoMenu::overlayGpuPark() {
     // overlay behind an app never initialises it either, so the parked Control Center
     // already renders without it in the common case; overlayGpuUnpark re-inits it.
     ps3bg::shutdown();
+    // the 3DS home: its render targets, caches, glyph atlases and programs; the art the host
+    // holds for it (ROM icons and banners) is read again on the raise (mArtGeneration)
+    if (mCtrHome) mCtrHome->parkGl();
+    if (mCtrArt) { mCtrArt->releaseGl(); mArtGeneration++; }
     // The 21 console icons stay: every built item (the root columns AND any open list
     // level) holds their texture handles by value, so freeing and reloading them here
     // left the open level's system and box art tiles blank until the user re-entered

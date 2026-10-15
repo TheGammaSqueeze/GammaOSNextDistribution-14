@@ -587,6 +587,11 @@ public:
     TexturePtr pngTexture(const uint8_t* data, size_t size, bool flipY);
     TexturePtr rgbaTexture(const uint8_t* rgba, int w, int h);
     std::shared_ptr<Font> font(const std::string& resourceName);
+    std::vector<std::shared_ptr<Font>> loadedFonts() const {
+        std::vector<std::shared_ptr<Font>> out;
+        for (const auto& f : mFonts) if (f.second) out.push_back(f.second);
+        return out;
+    }
 
     // Messages of the active language (menu first, then hud).
     void setLanguage(const std::string& language);

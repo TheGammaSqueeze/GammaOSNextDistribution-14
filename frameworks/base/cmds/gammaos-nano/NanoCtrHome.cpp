@@ -2802,6 +2802,22 @@ void CtrHome::releaseGl() {
     if (mAssets) mAssets->releaseGl();
 }
 
+void CtrHome::parkGl() {
+    if (!mImpl) return;
+    Impl& I = *mImpl;
+    gTextureEpoch++;
+    mAssets->renderer().releaseCache(I.bottomCache);
+    I.bottomSig = 0;
+    I.iconTex.clear();
+    I.tinted.clear();
+    I.hostTex.clear();
+    I.boxArt.clear();
+    if (I.tintProgram) { glDeleteProgram(I.tintProgram); I.tintProgram = 0; }
+    if (I.top3d) I.top3d->parkGl();
+    mAssets->renderer().releaseGl();   // programs come back from the binary cache
+    for (const auto& f : mAssets->loadedFonts()) f->releaseGl();   // glyphs from the glyph files
+}
+
 void CtrHome::setLanguage(const std::string& language) { mAssets->setLanguage(language); }
 
 void CtrHome::setTouch(const CtrTouch& t) {

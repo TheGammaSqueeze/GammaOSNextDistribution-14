@@ -132,6 +132,10 @@ public:
     bool load();
     bool loaded() const { return mLoaded; }
     void releaseGl();
+    // While an app runs (the home parked): frees the GPU memory the next frame can rebuild
+    // (render targets, the bottom cache, derived icons, glyph atlases, programs), keeping the
+    // layouts and models it would otherwise have to load again.
+    void parkGl();
     void setLanguage(const std::string& language);
 
     // Input for the next ticks: held buttons (BTN_*), HOME presses, bottom screen touch.
