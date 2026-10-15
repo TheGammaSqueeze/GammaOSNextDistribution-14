@@ -40,6 +40,7 @@
 #include <malloc.h>
 #include <sys/mman.h>
 #include "NanoMenu.h"
+#include "NanoCtrHome.h"
 #include "NanoMenuPS3.h"      // ps3::layoutComputeNative for the boot warm-up
 #include "NanoMenuPS3Bg.h"    // ps3bg::init for the boot warm-up
 #include "NanoMenuUtils.h"    // setDrasticNanoRomPath for the overlay launch route
@@ -591,6 +592,10 @@ void NanoMenu::overlayShow() {
         }
     }
 
+    // 3DS theme: a launch left the home in its app-running state behind the console's launch
+    // fade; coming back plays the return (as the HOME button does on the console).
+    if (mCtrTheme && mCtrHome) mCtrHome->resumeFromApp();
+
     mOverlayShown = true;
     // Cold-boot-style fade + float-in of the XMB chrome. -2 = pending; the first
     // rendered frame begins it and it then advances by clamped per-frame dt, so the
@@ -736,6 +741,13 @@ void NanoMenu::overlayGpuUnpark() {
     if (mOverlayMode && !ps3bg::ready()) {
         ps3bg::init();
         ps3bg::setScrimWaveFreeze(true);   // as the boot warm-up does (see overlayInitLayer)
+    }
+    if (mOverlayGpuParked && mCtrHome) {
+        // 3DS theme: its grid holds copies of the menu items with the icon textures the park
+        // freed (a system folder's glyph went black after a game). Drop every texture name it
+        // cached from nano and take the items again from the rebuilt categories.
+        mArtGeneration++;
+        mCtrHome->reloadItems();
     }
     if (mOverlayGpuParked) ALOGI("overlay: raised, XMB GPU working set rebuilt");
     mOverlayGpuParked = false;

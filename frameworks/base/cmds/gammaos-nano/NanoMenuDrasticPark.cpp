@@ -19,6 +19,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoMenu.h"
+#include "NanoCtrHome.h"
 #include "NanoMenuDrm.h"
 #include "NanoMenuPS3Bg.h"
 #include "NanoBacklight.h"
@@ -286,6 +287,9 @@ bool NanoMenu::drasticParkSession() {
     // path saved at launch and replay the DSi entrance cascade.
     ndsRestoreReturnPath();
     mNdsIntroStart = 0;
+    // 3DS theme: the launch left the home in its app-running state behind the console's black
+    // launch fade (nothing else ends it in a parked home); play the return to the menu.
+    if (mCtrTheme && mCtrHome) mCtrHome->resumeFromApp();
     property_set("sys.gammaos.nano.menu_active", "1");
     property_set("sys.gammaos.nano.drop_input", "0");
     // The Recently Played row was updated at launch; save-state and playtime
