@@ -177,6 +177,7 @@ struct MaterialState {
     std::vector<Coord> coords;
     std::string textures[3];
     std::map<int, V4> overrides;          // color index -> value (theme colours)
+    std::map<int, V4> pinned;             // like overrides, and material animations leave them alone
     std::map<int, std::string> textureOverrides;
     void reset();
     const std::string& texture(int unit) const {

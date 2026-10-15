@@ -608,6 +608,7 @@ bool ModelResource::load(Pack& pack, Pack* shared) {
 void MaterialState::reset() {
     for (int i = 0; i < 11; i++) colors[i] = source->colors[i];
     for (auto& o : overrides) if (o.first >= 0 && o.first < 11) colors[o.first] = o.second;
+    for (auto& o : pinned) if (o.first >= 0 && o.first < 11) colors[o.first] = o.second;
     coords.clear();
     for (const CgfxCoordinator& c : source->coordinators) coords.push_back({c.sx, c.sy, c.rotation, c.tx, c.ty});
     for (int i = 0; i < 3; i++) textures[i] = source->mappers[i].valid ? source->mappers[i].texture : std::string();
@@ -734,6 +735,7 @@ void ModelInstance::update(float frames) {
                 if (!cn.empty()) cn[0] = (char)tolower(cn[0]);
                 for (int ci = 0; ci < 11; ci++) {
                     if (cn != kColorNames[ci]) continue;
+                    if (st->pinned.count(ci)) continue;   // the host's colour wins over the file's animation
                     static const char* rgba[4] = {"r", "g", "b", "a"};
                     for (int k = 0; k < 4; k++) {
                         auto it = e.curves.find(rgba[k]);

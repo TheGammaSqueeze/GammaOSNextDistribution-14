@@ -591,6 +591,13 @@ struct CtrHome::Impl {
     Animator* hudNetMode = nullptr;
     Animator* hudAntenna = nullptr;
     Animator* hudBattery = nullptr;
+    // the battery percentage: the HUD's play coin count (T_Coin_00, unused in nano) moved next to
+    // the gauge, the date and the clock shifted left to make room
+    int batFrame = 3;          // the gauge frame of the real level (0..3)
+    bool pctPlaced = false;
+    float pctShift = 0;
+    float dateX[4] = {0, 0, 0, 0};
+    void hudPercent(const HomeStatus& st);
     int netFrame = -100;
     // top screen 3D scene
     std::unique_ptr<CtrTop> top3d;
@@ -723,7 +730,7 @@ struct CtrHome::Impl {
     void applyCategory();
     // the category's folder colours (setFolderColors) over the theme's folder block
     // nano's category icons of the bar buttons (setBarIcon): the applet banners' solids
-    TexturePtr barGlyph[6], barFace[6], barFaceActive[6];
+    TexturePtr barGlyph[6], barFace[6], barFaceActive[6], barPlate[6];
     int barActive = 0;   // the bar button drawn as the active one (0 none)
     float barTint[6][3] = {};
     bool folderColorsOn = false;
@@ -2906,14 +2913,17 @@ void CtrHome::Impl::hudUpdate(bool force) {
             if (!hudAntenna) hudAntenna = hud->play("NetAtn", o);
             if (hudAntenna) { hudAntenna->seek((float)antenna); hudAntenna->apply(); }
         }
-        // battery (FUN_001ef538)
+        // battery (FUN_001ef538). The console blinks a full gauge while charging; nano blinks the
+        // real level and the bar above it, so the gauge shows the charge while it rises.
         chargeBlink = st.adapter && st.charging;
         lowBlink = !st.adapter && st.batteryLevel <= 1;
+        batFrame = st.batteryLevel <= 2 ? 0 : st.batteryLevel - 2;
         if (hudBattery) {
             if (st.adapter && !st.charging) hudBattery->seek(6);
-            else if (!st.adapter) hudBattery->seek(st.batteryLevel <= 2 ? 0.0f : (float)(st.batteryLevel - 2));
+            else hudBattery->seek((float)batFrame);
             hudBattery->apply();
         }
+        hudPercent(st);
     }
     // clock (FUN_001ef30c)
     if (force || clockTimer <= 0) {
@@ -2944,7 +2954,63 @@ void CtrHome::Impl::hudUpdate(bool force) {
     const bool odd = shownSecond % 2 == 1;
     hud->setVisible("T_TimeC_00", !odd);
     hud->setVisible("P_Bat_00", !(odd && lowBlink));
-    if (chargeBlink && !lowBlink && hudBattery) { hudBattery->seek(odd ? 4.0f : 5.0f); hudBattery->apply(); }
+    if (chargeBlink && !lowBlink && hudBattery) {
+        hudBattery->seek((float)(odd ? std::min(3, batFrame + 1) : batFrame));
+        hudBattery->apply();
+    }
+}
+
+void CtrHome::Impl::hudPercent(const HomeStatus& st) {
+    static const char* const kShifted[4] = {"T_Date_00", "T_TimeL_00", "T_TimeC_00", "T_TimeR_00"};
+    Pane* t = hud->pane("T_Coin_00");
+    Pane* scene = hud->pane("N_Scene_00");
+    Pane* bat = hud->pane("P_Bat_00");
+    if (!t || !scene || !bat) return;
+    if (!pctPlaced) {
+        pctPlaced = true;
+        for (int i = 0; i < 4; i++)
+            if (Pane* p = hud->pane(kShifted[i])) dateX[i] = p->translate[0];
+        // out of the coin icon (kept invisible) into the scene, right aligned against the gauge
+        if (t->parent) {
+            auto& sib = t->parent->children;
+            sib.erase(std::remove(sib.begin(), sib.end(), t), sib.end());
+        }
+        t->parent = scene;
+        scene->children.push_back(t);
+        t->translate[0] = bat->translate[0] - t->size[0] - 1;
+        t->translate[1] = bat->translate[1] - 1;
+        t->textPosX = 2;
+        t->visible = false;
+        // the status font (Hud.bcfnt) has digits and the date's letters but no '%', and its cells
+        // differ from the system font's (no glyph borrowing): the number is set in the layout's
+        // system font (the "Internet" label's) at the same size
+        Pane* sys = hud->pane("T_NetMode_00");
+        if (sys && sys->font && t->font && !t->font->has('%')) {
+            t->font = sys->font;
+            t->fontResource = sys->fontResource;
+        }
+    }
+    const bool show = st.showPercent && st.percent >= 0;
+    // the date and the time move left by the number's width (its glyphs' advances at the pane's
+    // font size) and a gap
+    char buf[8] = "";
+    if (show) snprintf(buf, sizeof(buf), "%d%%", std::min(100, st.percent));
+    float shift = 0;
+    if (show && t->font && t->font->width > 0) {
+        float adv = 0;
+        for (const char* c = buf; *c; c++)
+            if (const Glyph* g = t->font->glyph((unsigned char)*c)) adv += g->charWidth;
+        shift = adv * t->fontSize[0] / (float)t->font->width + 5.0f;
+    } else if (show) {
+        shift = 10.0f * (float)strlen(buf) + 5.0f;
+    }
+    if (show) hud->setText("T_Coin_00", buf);
+    t->visible = show;
+    if (shift != pctShift) {
+        pctShift = shift;
+        for (int i = 0; i < 4; i++)
+            if (Pane* p = hud->pane(kShifted[i])) p->translate[0] = dateX[i] - shift;
+    }
 }
 
 // ================================================================== draw
@@ -4354,6 +4420,42 @@ void CtrHome::setBarIcon(int button, const uint8_t* rgba, int w, int h, const fl
     // the pictogram itself for the top screen's applet banner (a solid in its glass cube)
     I.barGlyph[button] = mAssets->rgbaTexture(rgba, w, h);
     for (int k = 0; k < 3; k++) I.barTint[button][k] = inkLight[k];
+    // the empty slot banner's floating plate for this applet (the console's DefBnr textures):
+    // a rounded plate with an ink outline ring and the pictogram, luminance white = plate, black =
+    // ink, alpha the plate's silhouette; rows bottom first, as the banner models sample them
+    {
+        constexpr int P = 128;   // texels (the console's are 64)
+        constexpr float S = 64.0f / P;   // in 64 unit space
+        std::vector<uint8_t> plate((size_t)P * P * 4);
+        const float pfit = 34.0f / std::max(gw, gh);   // the pictogram in a 34 of 64 box
+        const int pss = std::clamp((int)ceilf(1.0f / (pfit / S)), 1, 6);
+        for (int ty = 0; ty < P; ty++) {
+            const size_t row = (size_t)(P - 1 - ty) * P;
+            for (int tx = 0; tx < P; tx++) {
+                const float ux = (tx + 0.5f) * S, uy = (ty + 0.5f) * S;
+                const float d = roundRect(ux, uy, 5.0f, 5.0f, 59.0f, 59.0f, 11.0f);
+                const float shape = std::clamp(0.5f - d / S, 0.0f, 1.0f);
+                // the ink ring: 4.5 units wide, 1.5 inside the edge (the console's outlined plates)
+                const float ring = std::clamp(0.5f - (fabsf(d + 3.75f) - 2.25f) / S, 0.0f, 1.0f);
+                float a = 0;
+                for (int sy = 0; sy < pss; sy++)
+                    for (int sx = 0; sx < pss; sx++) {
+                        const float px = (tx + (sx + 0.5f) / pss) * S, py = (ty + (sy + 0.5f) / pss) * S;
+                        a += alphaAt(gcx + (px - 32.0f) / pfit, gcy + (py - 32.0f) / pfit);
+                    }
+                a /= pss * pss;
+                const float inked = std::max(ring, a);
+                uint8_t* o = &plate[(row + tx) * 4];
+                o[0] = o[1] = o[2] = (uint8_t)lroundf((1 - inked) * 255);
+                o[3] = (uint8_t)lroundf(shape * 255);
+            }
+        }
+        I.barPlate[button] = mAssets->rgbaTexture(plate.data(), P, P);
+        glBindTexture(GL_TEXTURE_2D, I.barPlate[button]->id);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        I.barPlate[button]->mipmapped = true;
+        if (I.top3d) I.top3d->setDefaultIcon(button, I.barPlate[button]->id, P, P, ink);
+    }
     m.texMaps[0].texture = mAssets->rgbaTexture(body.data(), N, N);
     I.barFace[button] = mAssets->rgbaTexture(face.data(), N, N);
     I.barFaceActive[button] = mAssets->rgbaTexture(active.data(), N, N);

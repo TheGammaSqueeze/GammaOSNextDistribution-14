@@ -53,6 +53,11 @@ public:
     void setTheme(const ThemeBody* body);
     // nano's category colours for the folder banner, in place of the theme's (null = the theme's).
     void setFolderBlock(const ThemeBlock* block);
+    // The empty slot banner's floating plates (BannerDef: one per applet) show nano's category
+    // icons: applet button 1..5's pictogram texture (GL name, owned by the caller, laid out as the
+    // console's DefBnr textures: luminance white plate / black ink, alpha the silhouette, rows bottom
+    // first) and its ink colour.
+    void setDefaultIcon(int button, unsigned texture, int w, int h, const float ink[3]);
     void update();            // one 60 Hz frame
     // Draws the scene into the top screen rectangle of the bound framebuffer. `proj` maps the
     // 400x240 layout space (as for the layouts); vp is the GL viewport it targets.
@@ -92,6 +97,8 @@ private:
     void themeBanner(ModelInstance& model, int type);
     const ThemeBody* mTheme = nullptr;
     bool mFolderOn = false;
+    struct DefIcon { unsigned tex = 0; int w = 0, h = 0; float ink[3] = {0, 0, 0}; };
+    DefIcon mDefIcons[6];
     ThemeBlock mFolder;
     bool mWallHidden = false;
     std::vector<std::string> mSuspendedKeys;

@@ -497,11 +497,40 @@ void CtrTop::attach() {
         mPlate = plateTexture(mPendingFocus.plate, mPendingSpec.nameScale);
         res->setTexture(mPendingSpec.nameTexture, mPlate);
     }
+    // the empty slot banner: nano's category pictograms on its plates (applet buttons 1..5 are the
+    // Game Notes, Friend List, Notifications, Internet Browser and Miiverse plates)
+    static const char* const kDefTex[6] = {nullptr, "DefBnrMemo64x64", "DefBnrFrd64x64", "DefBnrNews64x64",
+                                           "DefBnrWeb64x64", "DefBnrOlv64x64"};
+    static const char* const kDefMat[6] = {nullptr, "mt_01", "mt_02", "mt_03", "mt_04", "mt_00"};
+    const bool defIcons = mPendingSpec.type == Default;
+    if (defIcons) {
+        for (int i = 1; i <= 5; i++) {
+            const DefIcon& d = mDefIcons[i];
+            if (!d.tex || !res->hasTexture(kDefTex[i])) continue;
+            auto t = std::make_shared<GpuTex>();
+            t->id = d.tex;
+            t->width = d.w;
+            t->height = d.h;
+            t->owned = false;   // the home owns it
+            res->setTexture(kDefTex[i], t);
+        }
+    }
     auto b = std::make_unique<Banner>();
     b->spec = mPendingSpec;
     b->model = std::make_unique<ModelInstance>(res);
     b->model->layer = 1;
     themeBanner(*b->model, b->spec.type);
+    if (defIcons) {
+        for (int i = 1; i <= 5; i++) {
+            const DefIcon& d = mDefIcons[i];
+            MaterialState* m = d.tex ? b->model->findMaterial(kDefMat[i]) : nullptr;
+            if (!m) continue;
+            // constant 0 is the plate's ink colour (the applet's colour on the console)
+            // (pinned: BannerDef's material animation sets mt_00's constant 0 to Miiverse green)
+            m->pinned[5] = V4{d.ink[0], d.ink[1], d.ink[2], m->colors[5][3]};
+            m->reset();
+        }
+    }
     for (const std::string& a : b->spec.animations) b->model->play(a, b->spec.loop ? 1 : -1, b->spec.paused ? 0.0f : 1.0f);
     if (!b->spec.meshes.empty()) {
         for (size_t i = 0; i < res->meshes.size(); i++)
@@ -600,6 +629,15 @@ void CtrTop::setTheme(const ThemeBody* body) {
     mTheme = body;   // always applied: a body may be loaded again into the same storage
     themeWall();
     if (mBanner) themeBanner(*mBanner->model, mBanner->spec.type);
+}
+
+void CtrTop::setDefaultIcon(int button, unsigned texture, int w, int h, const float ink[3]) {
+    if (button < 1 || button > 5) return;
+    DefIcon& d = mDefIcons[button];
+    d.tex = texture;
+    d.w = w;
+    d.h = h;
+    for (int k = 0; k < 3; k++) d.ink[k] = ink[k];
 }
 
 void CtrTop::setFolderBlock(const ThemeBlock* block) {
