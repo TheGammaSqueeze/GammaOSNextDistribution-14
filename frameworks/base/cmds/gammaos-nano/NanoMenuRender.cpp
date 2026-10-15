@@ -69,6 +69,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <png.h>
 
 #include "DrasticRunner.h"
+#include "NanoCtrAudio.h"
 #include "NanoMenu.h"
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuStrings.h"  // NanoLocale / LocaleInfo / nanoGetLocaleInfo (DSi language picker)
@@ -4965,9 +4966,17 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
 // The physical display set does not change at runtime here, so cache the first query (a binder
 // call to SurfaceFlinger) and reuse it.
 bool NanoMenu::hasSecondaryDisplay() {
-    if (mDualScreenCache < 0)
-        mDualScreenCache =
-                (SurfaceComposerClient::getPhysicalDisplayIds().size() > 1) ? 1 : 0;
+    // A second panel driven directly (DRM home) is one whatever SurfaceFlinger says.
+    if (sAhbTargetSecondary.glFbo) return true;
+    // Only a positive answer is final. On a cold boot the DRM home starts before SurfaceFlinger
+    // reports the second display, and a cached "single" made every bottom panel touch use the top
+    // digitizer's calibration (touchSourceFd) for the whole session. Ask again at most once a second.
+    if (mDualScreenCache == 1) return true;
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+    if (mDualScreenCache < 0 || now - mDualScreenCheckMs >= 1000) {
+        mDualScreenCheckMs = now;
+        mDualScreenCache = (SurfaceComposerClient::getPhysicalDisplayIds().size() > 1) ? 1 : 0;
+    }
     return mDualScreenCache == 1;
 }
 
@@ -5097,6 +5106,19 @@ void NanoMenu::setupSecondaryEglSurfaces() {
         EGLSurface prevDraw = eglGetCurrentSurface(EGL_DRAW);
         EGLSurface prevRead = eglGetCurrentSurface(EGL_READ);
         EGLContext prevCtx  = eglGetCurrentContext();
+        if (eglMakeCurrent(mDisplay, eglSurf, eglSurf, mContext) != EGL_TRUE) {
+            // The alpha config above must match the context's: the home's SurfaceFlinger path
+            // creates its context without alpha (getEglConfig(display, mOverlayMode)). Mali makes
+            // the pair current anyway; Adreno refuses (EGL_BAD_MATCH every frame) and this panel
+            // stayed blank on the RP Duo Lite. Fall back to the context's own config.
+            const EGLint err = eglGetError();
+            eglDestroySurface(mDisplay, eglSurf);
+            EGLConfig ctxConfig = getEglConfig(mDisplay, mOverlayMode);
+            eglSurf = ctxConfig ? eglCreateWindowSurface(mDisplay, ctxConfig, s.get(), nullptr) : EGL_NO_SURFACE;
+            ALOGW("NanoMenu: secondary port %d alpha surface not usable with the context (0x%x), %s",
+                  port, err, eglSurf != EGL_NO_SURFACE ? "using the context's config" : "recreate failed");
+            if (eglSurf == EGL_NO_SURFACE) continue;
+        }
         if (eglMakeCurrent(mDisplay, eglSurf, eglSurf, mContext) == EGL_TRUE) {
             eglSwapInterval(mDisplay, 0);
             // Restore primary as current.
@@ -5517,6 +5539,157 @@ void maybeNanoScreenshotSecondary() {
     nanoScreenshotProp(pi, ser, have,
                        "sys.gammaos.nano.shot2", "/data/local/tmp/nano_shot2.ppm",
                        (sDrmActive && sDrmZeroCopy) ? sAhbTargetSecondary.scanFbo : 0);
+}
+
+// Debug boot recording (sys.gammaos.nano.bootrec=<dir>[,<dismiss frame>[,<frames>[,<W>x<H>]]], armed by the
+// next boot reset, e.g. a bootreplay): the boot clock (and the 3DS home after it) steps exactly
+// 1/60 s a frame and every frame of both panels is written to <dir> as PPMs (t_NNNN / b_NNNN, the
+// scanout as shown: half size, or <W>x<H> cut from the centred rectangle of that aspect, which with
+// sys.gammaos.nano.ctr.topaspect records a 4:3 top screen), so the frames can make a 60 fps video however
+// slowly they were written. At the dismiss frame the notice is dismissed as by a touch. It stops
+// after <frames> frames, or 150 frames into the home. <dir>/cues.txt ("<frame>:keys=<A,UP,...>" or
+// "<frame>:open=<root item>", one a line) scripts the 3DS home's test input at those frames; the
+// home's mix goes to <dir>/audio.raw in step. Off (no cost) unless the prop is set.
+NanoBootRec gNanoBootRec;
+ctr::CtrAudio* gNanoCtrAudio = nullptr;
+
+static void nanoBootRecStop() {
+    gNanoBootRec.on = false;
+    if (gNanoBootRec.audio) { fclose(gNanoBootRec.audio); gNanoBootRec.audio = nullptr; }
+    if (gNanoCtrAudio) gNanoCtrAudio->setCapture(false);
+}
+
+void nanoBootRecArm() {
+    if (gNanoBootRec.on) nanoBootRecStop();
+    gNanoBootRec = NanoBootRec();
+    char v[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.bootrec", v, "");
+    if (!v[0]) return;
+    std::string spec = v;
+    const size_t comma = spec.find(',');
+    gNanoBootRec.dir = spec.substr(0, comma);
+    if (comma != std::string::npos) {
+        gNanoBootRec.dismissFrame = atoi(spec.c_str() + comma + 1);
+        const size_t c2 = spec.find(',', comma + 1);
+        if (c2 != std::string::npos) {
+            gNanoBootRec.total = atoi(spec.c_str() + c2 + 1);
+            const size_t c3 = spec.find(',', c2 + 1);
+            if (c3 != std::string::npos && sscanf(spec.c_str() + c3 + 1, "%dx%d", &gNanoBootRec.outW, &gNanoBootRec.outH) != 2)
+                gNanoBootRec.outW = gNanoBootRec.outH = 0;
+            // "<W>x<H>!": the centred W x H pixels as they are (ctr.screensize renders at that size)
+            if (c3 != std::string::npos && spec.find('!', c3) != std::string::npos) gNanoBootRec.exact = true;
+        }
+    }
+    std::string cues;   // <dir>/cues.txt (longer than a property can hold)
+    if (FILE* cf = fopen((gNanoBootRec.dir + "/cues.txt").c_str(), "r")) {
+        char buf[256];
+        size_t n;
+        while ((n = fread(buf, 1, sizeof(buf), cf)) > 0) cues.append(buf, n);
+        fclose(cf);
+        for (char& c : cues) if (c == '\n' || c == '\r') c = ';';
+    }
+    size_t p = 0;
+    while (p < cues.size()) {
+        size_t q = cues.find(';', p);
+        if (q == std::string::npos) q = cues.size();
+        const std::string c = cues.substr(p, q - p);
+        const size_t colon = c.find(':'), eq = c.find('=');
+        if (colon != std::string::npos && eq != std::string::npos && eq > colon) {
+            const std::string what = c.substr(colon + 1, eq - colon - 1);
+            const char* prop = what == "keys" ? "sys.gammaos.nano.ctr.keys" : what == "open" ? "sys.gammaos.nano.ctr.open" : nullptr;
+            if (prop) gNanoBootRec.cues.push_back({atoi(c.c_str()), prop, c.substr(eq + 1)});
+        }
+        p = q + 1;
+    }
+    gNanoBootRec.on = !gNanoBootRec.dir.empty();
+    if (gNanoBootRec.on) gNanoBootRec.audio = fopen((gNanoBootRec.dir + "/audio.raw").c_str(), "wb");
+    ALOGI("nano: boot recording to %s (dismiss at frame %d)", gNanoBootRec.dir.c_str(), gNanoBootRec.dismissFrame);
+}
+
+void nanoBootRecCapture(bool secondary) {
+    if (!gNanoBootRec.on) return;
+    const GLuint scanFbo = (sDrmActive && sDrmZeroCopy) ? (secondary ? sAhbTargetSecondary.scanFbo : sAhbTarget.scanFbo) : 0;
+    GLint vp[4] = {0, 0, 0, 0};
+    glGetIntegerv(GL_VIEWPORT, vp);
+    const int w = vp[2], h = vp[3];
+    if (w <= 1 || h <= 1) return;
+    std::vector<unsigned char> px((size_t)w * h * 4);
+    GLint prevFbo = 0;
+    if (scanFbo) { glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo); glBindFramebuffer(GL_FRAMEBUFFER, scanFbo); }
+    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+    if (scanFbo) glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    char path[512];
+    snprintf(path, sizeof(path), "%s/%c_%04d.ppm", gNanoBootRec.dir.c_str(), secondary ? 'b' : 't', gNanoBootRec.frame);
+    FILE* f = fopen(path, "wb");
+    if (!f) { ALOGE("nano: boot recording open failed: %s", path); gNanoBootRec.on = false; return; }
+    if (gNanoBootRec.outW > 0 && gNanoBootRec.outH > 0) {
+        // the centred rectangle of the output's aspect, box filtered down (or sampled up) to it
+        const int ow = gNanoBootRec.outW, oh = gNanoBootRec.outH;
+        int cw = w, ch = h;
+        if (gNanoBootRec.exact) { cw = std::min(w, ow); ch = std::min(h, oh); }
+        else if ((long)w * oh > (long)h * ow) cw = (int)((long)h * ow / oh); else ch = (int)((long)w * oh / ow);
+        const int cx = (w - cw) / 2, cy = (h - ch) / 2;
+        fprintf(f, "P6\n%d %d\n255\n", ow, oh);
+        std::vector<unsigned char> row((size_t)ow * 3);
+        for (int oy = 0; oy < oh; oy++) {   // top row first; glReadPixels is bottom-up
+            const int sy0 = cy + ch - 1 - (int)((long)(oy + 1) * ch / oh) + 1;
+            const int sy1 = std::max(sy0 + 1, cy + ch - (int)((long)oy * ch / oh));
+            for (int ox = 0; ox < ow; ox++) {
+                const int sx0 = cx + (int)((long)ox * cw / ow);
+                const int sx1 = std::max(sx0 + 1, cx + (int)((long)(ox + 1) * cw / ow));
+                int sum[3] = {0, 0, 0}, n = 0;
+                for (int sy = sy0; sy < sy1; sy++)
+                    for (int sx = sx0; sx < sx1; sx++) {
+                        const unsigned char* s = px.data() + ((size_t)sy * w + sx) * 4;
+                        sum[0] += s[0]; sum[1] += s[1]; sum[2] += s[2]; n++;
+                    }
+                for (int c = 0; c < 3; c++) row[ox * 3 + c] = (unsigned char)((sum[c] + n / 2) / n);
+            }
+            fwrite(row.data(), 1, row.size(), f);
+        }
+    } else {
+        const int ow = w / 2, oh = h / 2;   // 2x2 box filter
+        fprintf(f, "P6\n%d %d\n255\n", ow, oh);
+        std::vector<unsigned char> row((size_t)ow * 3);
+        for (int y = oh - 1; y >= 0; y--) {   // glReadPixels is bottom-up
+            const unsigned char* r0 = px.data() + (size_t)(y * 2) * w * 4;
+            const unsigned char* r1 = r0 + (size_t)w * 4;
+            for (int x = 0; x < ow; x++)
+                for (int c = 0; c < 3; c++)
+                    row[x * 3 + c] = (unsigned char)((r0[x * 8 + c] + r0[x * 8 + 4 + c] + r1[x * 8 + c] + r1[x * 8 + 4 + c] + 2) / 4);
+            fwrite(row.data(), 1, row.size(), f);
+        }
+    }
+    fclose(f);
+    if (!secondary) {
+        // this frame's sound: the 3DS home's mixer advanced by one 60th of a second (silence
+        // while it does not exist yet, so the track stays in step with the frames)
+        if (gNanoBootRec.audio) {
+            const int rate = gNanoCtrAudio ? gNanoCtrAudio->outputRate() : 48000;
+            static std::vector<int16_t> buf;
+            const int n = rate / 60;
+            buf.assign((size_t)n * 2, 0);
+            if (gNanoCtrAudio) {
+                gNanoCtrAudio->setCapture(true);
+                gNanoCtrAudio->capture(buf.data(), n);
+            }
+            fwrite(buf.data(), sizeof(int16_t), buf.size(), gNanoBootRec.audio);
+        }
+        gNanoBootRec.frame++;   // the secondary pass runs first in a frame
+        for (const NanoBootRec::Cue& c : gNanoBootRec.cues)
+            if (c.frame == gNanoBootRec.frame) property_set(c.prop.c_str(), c.value.c_str());
+        const bool done = gNanoBootRec.total > 0 ? gNanoBootRec.frame >= gNanoBootRec.total
+                                                 : (gNanoBootRec.stopIn > 0 && --gNanoBootRec.stopIn == 0);
+        if (done) {
+            nanoBootRecStop();
+            // the test props are applied again at every start of the home: leave them empty
+            if (!gNanoBootRec.cues.empty()) {
+                property_set("sys.gammaos.nano.ctr.keys", "");
+                property_set("sys.gammaos.nano.ctr.open", "");
+            }
+            ALOGI("nano: boot recording done, %d frames", gNanoBootRec.frame);
+        }
+    }
 }
 
 void maybeNanoScreenshot() {
@@ -5968,6 +6141,12 @@ void NanoMenu::render() {
             mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
             renderMinimaBootOverlay(/*primary=*/false);
             mWidth = sw; mHeight = sh;
+        } else if (mCtrTheme && mPs3BootActive) {
+            // 3DS theme cold boot on the bottom panel: the notice on black, not the PS3 wave.
+            int sw = mWidth, sh = mHeight;
+            mWidth = sAhbTargetSecondary.w; mHeight = sAhbTargetSecondary.h;
+            renderCtrBoot(/*primary=*/false);
+            mWidth = sw; mHeight = sh;
         } else if (mNdsTheme && !mPs3BootActive) {
             // DSi theme dual-panel: the carousel (bottom DS screen) renders onto the
             // secondary panel. A live secondary always shows DSi content (never the PS3 wave),
@@ -6081,6 +6260,7 @@ void NanoMenu::render() {
         }
         mRenderingPanel = 0;   // back to the primary/top panel for the main pass below
         maybeNanoScreenshotSecondary();   // debug capture of the DRM bottom (AHB) panel
+        nanoBootRecCapture(true);
         // Restore the primary panel's rotation matrix for the main pass.
         sDrmRotMat[0] = sSavedPrimaryRotMat[0]; sDrmRotMat[1] = sSavedPrimaryRotMat[1];
         sDrmRotMat[2] = sSavedPrimaryRotMat[2]; sDrmRotMat[3] = sSavedPrimaryRotMat[3];
@@ -6452,9 +6632,11 @@ void NanoMenu::render() {
                 else if (minSearch)  renderGlobalSearch();   // Minima-styled results overlay (see renderGlobalSearch)
             }
         } else if (mCtrTheme && mPs3BootActive) {
-            // 3DS theme: the menu plays its own logo fade in; skip nano's boot intro
-            ps3BootSkip();
+            // 3DS theme cold boot: the launch splash with the GammaOS logo, then the notice to
+            // dismiss (NanoMenuCtr.cpp / NanoMenuPS3Boot.cpp); the HOME Menu plays its own entry after
             ps3BootUpdate(mFrameDt);
+            if (mPs3BootActive) renderCtrBoot(/*primary=*/true);
+            else drawQuad(0.0f, 0.0f, (float)mWidth, (float)mHeight, 0.0f, 0.0f, 0.0f, 1.0f);   // the hand-off frame
         } else if (mCtrTheme && !mPs3BootActive && ndsPlayerActive()) {
             renderPs3Xmb();   // media players: the shared full-screen XMB player
         } else if (mCtrTheme && !mPs3BootActive) {
@@ -6832,6 +7014,7 @@ void NanoMenu::render() {
 
     // Debug frame capture (no-op unless sys.gammaos.nano.shot is set).
     maybeNanoScreenshot();
+    nanoBootRecCapture(false);
 
     // sys.gammaos.nano.show_overlay was read FIVE times below (three secondary-
     // setup gates, the secondary show/hide toggle, the secondary render gate),
@@ -7205,6 +7388,9 @@ if (sRingPrimedCount >= 2) {
             // Minima cold boot on the SF secondary (the RG DS bottom): the Minima black-field intro,
             // not the PS3 wave - mirrors the primary dispatch and the DRM secondary pass.
             renderMinimaBootOverlay(/*primary=*/false);
+        } else if (mCtrTheme && mPs3BootActive) {
+            // 3DS theme cold boot on the SF secondary: the notice (mirrors the DRM secondary pass).
+            renderCtrBoot(/*primary=*/false);
         } else if (mNdsTheme && !mPs3BootActive) {
             // DSi theme dual-panel: a live secondary always shows the carousel (never the PS3
             // wave), independent of the primary's stacking mode (same resolution as primary).
@@ -7248,6 +7434,7 @@ if (sRingPrimedCount >= 2) {
             if (i == 0) renderOsk();
         }
         if (i == 0) maybeNanoScreenshotSecondary();   // debug capture of the bottom DS panel
+        if (i == 0) nanoBootRecCapture(true);
         eglSwapBuffers(mDisplay, mSecondaryEglSurfaces[i]);
         mWidth = secSavedW; mHeight = secSavedH;
     }

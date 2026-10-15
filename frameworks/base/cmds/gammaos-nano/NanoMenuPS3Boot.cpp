@@ -27,12 +27,15 @@
 #include "NanoMenuShaders.h"   // FONT_CHAR_H (DSi font-scale idiom)
 #include "NanoBootChime.h"     // RG DS direct-ALSA boot chime (bypasses AudioFlinger)
 #include "NanoHalChime.h"      // SPRD boot chime: drive the vendor audio HAL directly (bypasses audioserver)
+#include "NanoCtrBoot.h"       // the 3DS theme boot timeline (ctr::kBoot*)
+#include "NanoCtrAudio.h"      // bootreplay: the 3DS home's sounds stop with it
 
 #include <math.h>
 #include <string.h>
 #include <unistd.h>       // access() for the DSi boot audio path fallback
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <mutex>          // serialize the AAudio boot-SFX player so the enter theme is never dropped
 
 #include <GLES2/gl2.h>
@@ -80,6 +83,9 @@ static const double DSI_TOUCH_PROMPT= 180.0;  // frame the touch-to-continue pro
 static const double DSI_PULSE_PERIOD= 60.0;   // 30f-in / 30f-out linear triangle
 static const double DSI_HS_FADE     = 23.0;   // static-content fade-in frames from whiteEnd
 static const double DSI_ENTER_END   = 61.0;   // entering-phase length (frames)
+// The 3DS theme's cold boot runs the same phases on the same frame clock with its own timeline
+// (ctr::kBoot* in NanoCtrBoot.h): the launch splash with the GammaOS logo and SE_CTR_HOME_START,
+// then the notice to dismiss (renderCtrBoot).
 
 static const char* kWarnTitle = "IMPORTANT NOTICE";
 static const char* kWarnBody =
@@ -104,7 +110,16 @@ static float dsiEarlyAudioGain(float master);        // defined below (used by t
 static bool dsiBootCompleted();                      // defined below (gates the pre-warm vs HAL chime)
 static bool bootSoundOn();   // defined below (near navSoundsOn); used by the SPRD path here
 
+// The cold-boot chime of the frame-clock boots (DSi, Minima, 3DS). The PS3 boot plays
+// coldboot_stereo.wav from its own millisecond timeline.
+const char* NanoMenu::bootChimeFile() const {
+    if (mCtrTheme) return "ctr_boot_start.wav";       // SE_CTR_HOME_START at 48 kHz
+    if (mMinimaTheme) return "minima_boot.wav";
+    return "boot_chime.wav";
+}
+
 void NanoMenu::ps3BootReset(bool freshSetup) {
+    nanoBootRecArm();   // debug: sys.gammaos.nano.bootrec
     mPs3BootElapsedMs = 0.0;
     mPs3BootActive = true;
     mPs3BootWizardAfter = freshSetup;
@@ -119,16 +134,18 @@ void NanoMenu::ps3BootReset(bool freshSetup) {
     mDsiBootSeed = (float)((android::uptimeMillis() % 100000) * 0.001);   // vary the mini-logo scatter per boot
     mChimeReady = false; mChimePlayReq = false; mChimeStarted = false;
     mPs3ColdSoundPlayed = false;   // PS3 XMB cold-boot sound fires once per (re)boot / bootreplay
-    if (mNdsTheme) {
-        mNdsIntroStart = 0; mSfxPlayer.init();
-        // On a SoC whose loudspeaker only sounds through the vendor HAL/DSP (SPRD/Unisoc), the
-        // cold-boot chime is played by driving the vendor HAL directly at its mark (ps3BootUpdate).
-        // Pre-warming the AAudio stream here would hold mSfxOpening and BLOCK that HAL thread from
-        // spawning, so skip the pre-warm in exactly that case (matches the HAL-branch condition).
+    if (mNdsTheme || mMinimaTheme || mCtrTheme) {
+        if (mNdsTheme) mNdsIntroStart = 0;
+        mSfxPlayer.init();
+        // On a SoC whose loudspeaker only sounds through the vendor HAL/DSP (SPRD/Unisoc, the
+        // Qualcomm Duo Lite), the cold-boot chime is played by driving the vendor HAL directly at
+        // its mark (ps3BootUpdate). Pre-warming the AAudio stream here would hold mSfxOpening and
+        // BLOCK that HAL thread from spawning, so skip the pre-warm in exactly that case (matches
+        // the HAL-branch condition). Minima and the 3DS theme used to fall through to the PS3
+        // branch below and arm the PS3 cold-boot sound there.
         if (nanoDirectAudioUsable() || dsiBootCompleted()) dsiPrewarmChime();
         else if (bootSoundOn())
-            halChimeArm(dsiAudioPath(mMinimaTheme ? "minima_boot.wav" : "boot_chime.wav"),
-                        dsiEarlyAudioGain(0.8f));
+            halChimeArm(dsiAudioPath(bootChimeFile()), dsiEarlyAudioGain(0.8f));
     }
     else if (!nanoDirectAudioUsable() && !dsiBootCompleted()) {
         // PS3 theme on a SoC where the direct-ALSA path is dead (e.g. SPRD/Unisoc, whose
@@ -155,7 +172,7 @@ void NanoMenu::ps3BootReset(bool freshSetup) {
 // animation so the chime is not late behind a fresh AAudio open when its mark is reached.
 void NanoMenu::dsiPrewarmChime() {
     if (mSfxOpening.exchange(true)) return;
-    std::string path = dsiAudioPath("boot_chime.wav");
+    std::string path = dsiAudioPath(bootChimeFile());
     std::thread([this, path]() {
         mSfxPlayer.init();
         // A prior boot's chime may have left the shared SFX stream STARTED; ensureStream reuses
@@ -222,7 +239,7 @@ void NanoMenu::ps3BootSkip() {
     // DSi 1:1 boot: a touch/button only acts during the WAIT phase, where it triggers
     // proceed() (touch sound -> enter transition). Ignored during the black/white/logo
     // build-up, exactly like boot.js proceed()'s `phase !== 'wait'` guard.
-    if (mNdsTheme || mMinimaTheme) { if (mDsiBootPhase == DSI_WAIT) mDsiWantProceed = true; return; }
+    if (mNdsTheme || mMinimaTheme || mCtrTheme) { if (mDsiBootPhase == DSI_WAIT) mDsiWantProceed = true; return; }
     // PS3 boot: jump to the end of the sequence; the next update() snaps everything steady.
     mPs3BootElapsedMs = BOOT_SEQ_END_MS;
 }
@@ -288,12 +305,13 @@ static std::atomic<bool> gNdsSfxOpening[NDS_SFX_COUNT] = {};   // per-clip open-
 
 void NanoMenu::dsiBootSound(DsiSfx which) {
     const char* file;
-    if (mMinimaTheme) {
+    if (mMinimaTheme || mCtrTheme) {
         // Minima plays ONLY its own boot jingle at the chime; it does NOT play the DSi
         // touch_continue / menu_enter theme on dismiss (that DSi menu-entry theme is the
         // "NDS ambient music" the user heard briefly when leaving the warning screen).
-        if (which == DsiSfx::Chime) file = "minima_boot.wav";
-        else return;   // silent dismiss straight into the Minima home
+        // The 3DS theme likewise: its splash fades out and the HOME Menu plays its own entry.
+        if (which == DsiSfx::Chime) file = bootChimeFile();
+        else return;   // silent dismiss straight into the home
     } else {
         file = which == DsiSfx::Chime ? "boot_chime.wav"
              : which == DsiSfx::Touch ? "touch_continue.wav"
@@ -663,6 +681,11 @@ void NanoMenu::ps3BootReplay() {
     mPs3BootPlatesLoaded = false;
     mPs3BootLogoTex = 0;
     mPs3BootFooterTex = 0;
+    if (mCtrTheme) {
+        // the HOME Menu loads again after the splash and plays its entry, as after a cold boot
+        if (mCtrAudio) mCtrAudio->stopAll(0);
+        ctrRelease();
+    }
     ps3BootReset(false);
 }
 
@@ -672,15 +695,20 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
     if (!mPs3BootActive) return false;
     if (dtSeconds < 0.0f) dtSeconds = 0.0f;
     if (dtSeconds > 0.1f) dtSeconds = 0.1f;
+    if (gNanoBootRec.on) dtSeconds = 1.0f / 60.0f;   // debug recording: one boot frame per frame written
 
     // ---- DSi 1:1 boot state machine (mNdsTheme). Own 60fps frame clock, wait-for-touch;
     // the PS3 millisecond timeline below is skipped entirely for the DSi theme. ----
-    if (mNdsTheme || mMinimaTheme) {
+    if (mNdsTheme || mMinimaTheme || mCtrTheme) {
         mDsiBootFrame += (double)dtSeconds * 60.0;   // frames @60fps == web boot.js this.frame
         double f = mDsiBootFrame;
         // Minima reuses this exact frame-clock + phase machine (so the hand-off to its menu is
-        // identical), but its own black-field intro (renderMinimaBootOverlay) + jingle.
-        const char* bootChimeWav = mMinimaTheme ? "minima_boot.wav" : "boot_chime.wav";
+        // identical), but its own black-field intro (renderMinimaBootOverlay) + jingle. The 3DS
+        // theme too, with the launch splash (renderCtrBoot): its jingle starts with the splash.
+        const char* bootChimeWav = bootChimeFile();
+        const double chimeSec = mCtrTheme ? ctr::kBootLogoStart / 60.0 : DSI_CHIME_SEC;
+        const double promptAt = mCtrTheme ? ctr::kBootPrompt : DSI_TOUCH_PROMPT;
+        const double enterEnd = mCtrTheme ? ctr::kBootEnterEnd : DSI_ENTER_END;
         ps3bg::setBootWaveBrightness(0.0f);          // the opaque field covers the wave
         mDisplayDirty = true;                        // keep the loop live through the WAIT hold (pulse + input)
         if (mDsiBootPhase == DSI_BOOT) {
@@ -688,10 +716,10 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
             // request play; then play() as soon as the stream is ready (usually immediately -
             // it plays exactly on the mark; if the audio service was still coming up it plays
             // the instant it is ready, rather than blocking the render thread on open).
-            if (!mDsiChimePlayed && f / 60.0 >= DSI_CHIME_SEC && halChimeHoldClock()) {
-                mDsiBootFrame = DSI_CHIME_SEC * 60.0 - 0.01; f = mDsiBootFrame;   // HAL still opening: wait just short of the mark
+            if (!mDsiChimePlayed && f / 60.0 >= chimeSec && halChimeHoldClock()) {
+                mDsiBootFrame = chimeSec * 60.0 - 0.01; f = mDsiBootFrame;   // HAL still opening: wait just short of the mark
             }
-            if (!mDsiChimePlayed && f / 60.0 >= DSI_CHIME_SEC) { mChimePlayReq = true; mDsiChimePlayed = true; }
+            if (!mDsiChimePlayed && f / 60.0 >= chimeSec) { mChimePlayReq = true; mDsiChimePlayed = true; }
             if (mChimePlayReq && !mChimeStarted && bootSoundOn()) {
                 if (nanoDirectAudioUsable() && !dsiBootCompleted()) {
                     // The audio server does not come up until ~13-37s (its AudioPolicyManager ctor
@@ -732,8 +760,10 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
                 } else if (mChimeReady.load()) { mSfxPlayer.play(); mChimeStarted = true; }
                 else if (!mSfxOpening.load()) { dsiBootSound(DsiSfx::Chime); mChimeStarted = true; }  // pre-warm failed: async fallback
             }
-            if (f >= DSI_TOUCH_PROMPT) mDsiBootPhase = DSI_WAIT;   // prompt + input accepted
+            if (f >= promptAt) mDsiBootPhase = DSI_WAIT;   // prompt + input accepted
         } else if (mDsiBootPhase == DSI_WAIT) {
+            if (gNanoBootRec.on && gNanoBootRec.dismissFrame >= 0 && f >= gNanoBootRec.dismissFrame)
+                mDsiWantProceed = true;   // debug recording: dismissed as by a touch
             if (mDsiWantProceed) {                                  // proceed() on touch/press
                 mDsiWantProceed = false;
                 // On a fresh-setup boot the setup wizard takes over right after the
@@ -748,17 +778,19 @@ bool NanoMenu::ps3BootUpdate(float dtSeconds) {
                 mDsiEnterAudioStartMs = (int64_t)android::uptimeMillis();
             }
         } else if (mDsiBootPhase == DSI_ENTERING) {
-            if (f - mDsiEnterStart > DSI_ENTER_END) {               // enter cover done -> menu
+            if (f - mDsiEnterStart > enterEnd) {                    // enter cover done -> menu
                 mDsiBootPhase = DSI_DONE;
                 mPs3BootLabelReveal = 1.0f; mPs3BootIconReveal = 1.0f;
                 ps3bg::setBootWaveBrightness(1.0f);
                 mPs3BootActive = false;   // next frame arms the carousel intro cascade
                 if (mPs3BootLogoTex)   { glDeleteTextures(1, &mPs3BootLogoTex);   mPs3BootLogoTex = 0; }
                 if (mPs3BootFooterTex) { glDeleteTextures(1, &mPs3BootFooterTex); mPs3BootFooterTex = 0; }
+                ctrBootRelease();         // the 3DS splash's layout and textures
+                if (gNanoBootRec.on) gNanoBootRec.stopIn = 150;   // debug recording: the HOME Menu's entry, then stop
                 return false;
             }
         }
-        return true;   // renderNdsBootOverlay owns the frame until the hand-off above
+        return true;   // renderNdsBootOverlay / renderCtrBoot owns the frame until the hand-off above
     }
 
     mPs3BootElapsedMs += (double)dtSeconds * 1000.0;
@@ -1194,6 +1226,118 @@ void NanoMenu::renderNdsBootOverlay(bool primary) {
         float t = (float)((mDsiBootFrame - mDsiEnterStart) / 30.0);
         float a = t < 1.0f ? t : 1.0f;
         drawQuad(0.0f, 0.0f, rw, rh, coverC, coverC, coverC, a);
+    }
+    mNdsFontPref = prevFont; mTextOutlineMode = prevOutline;
+}
+
+// 3DS theme cold boot: the console's launch splash on the top screen (black, the GammaOS logo
+// built like "NINTENDO 3DS" with the red sweeps, NanoCtrBoot.h) and the IMPORTANT NOTICE in white
+// on the black bottom screen, which waits to be dismissed (any button, a touch). Both fade with
+// SceneOutC, then the HOME Menu plays its own entry. One panel: the two screens stacked like the
+// HOME Menu's. primary = the top screen's panel.
+void NanoMenu::renderCtrBoot(bool primary) {
+    setUiBlend();
+    const float W = (float)mWidth, H = (float)mHeight;
+    drawQuad(0.0f, 0.0f, W, H, 0.0f, 0.0f, 0.0f, 1.0f);
+    const bool dual = ctrDualPanel();
+    const double leaveAt = mDsiBootPhase >= DSI_ENTERING ? mDsiEnterStart : -1.0;
+    if (primary) {
+        ctrBootLogo(0.0f, 0.0f, W, dual ? H : H * 0.5f, leaveAt);
+        if (!dual) ctrBootNotice(0.0f, H * 0.5f, W, H * 0.5f, false);
+    } else if (dual) {
+        float x = 0, y = 0, w = W, h = H;
+        ctrTestScreenRect(W, H, &x, &y, &w, &h);   // test hook: a smaller screen
+        ctrBootNotice(x, y, w, h, true);
+    }
+}
+
+// The notice in the bottom screen's 320 x 240 units, contain-fitted into the rectangle.
+void NanoMenu::ctrBootNotice(float rx, float ry, float rw, float rh, bool touch) {
+    const double f = mDsiBootFrame;
+    float a = (float)((f - (ctr::kBootLogoStart + ctr::kBootSceneA)) / ctr::kBootNoticeFade);
+    a = a < 0.0f ? 0.0f : (a > 1.0f ? 1.0f : a);
+    if (mDsiBootPhase >= DSI_ENTERING) {   // fades out with SceneOutC
+        float o = (float)((f - mDsiEnterStart) / ctr::kBootSceneC);
+        a *= 1.0f - (o < 0.0f ? 0.0f : (o > 1.0f ? 1.0f : o));
+    }
+    if (a <= 0.004f) return;
+    const float s = std::min(rw / 320.0f, rh / 240.0f);
+    const float ox = rx + (rw - 320.0f * s) * 0.5f, oy = ry + (rh - 240.0f * s) * 0.5f;
+    const float cx = ox + 160.0f * s;
+    auto Y = [&](float y) { return oy + y * s; };
+    const bool prevFont = mNdsFontPref; mNdsFontPref = false;           // the menu's Rodin faces
+    const int prevOutline = mTextOutlineMode; mTextOutlineMode = 2;     // flat white on black
+
+    // Every line stays inside the screen in any language: a line wider than the text width is
+    // drawn smaller, and the body shrinks until its wrapped lines fit their band.
+    const float textW = 296.0f;   // units: 12 of margin each side
+    auto fitFs = [&](const char* t, float units) {
+        float fs = s * units / (float)FONT_CHAR_H;
+        const float w = measureText(t, fs);
+        if (w > s * textW) fs *= s * textW / w;
+        return fs;
+    };
+    const char* title = trDyn(kWarnTitle);
+    const char* body = trDyn(kWarnBody);
+    const float titleFs = fitFs(title, 12.0f);
+    const float tw = measureText(title, titleFs);
+    drawText(title, cx - tw * 0.5f, Y(30.0f), titleFs, 1.0f, 1.0f, 1.0f, a);
+
+    // the body word-wrapped to the text width, centred lines, in the band between the title and
+    // the prompt (a word wider than a line, as in languages without spaces, is broken by width)
+    const float bandTop = 58.0f, bandBot = 190.0f;
+    auto wrap = [&](float fs, std::vector<std::string>* out) {
+        out->clear();
+        const float maxW = s * textW;
+        std::string cur, word;
+        auto push = [&](const std::string& w) {
+            std::string t = cur.empty() ? w : cur + " " + w;
+            if (!cur.empty() && measureText(t.c_str(), fs) > maxW) { out->push_back(cur); cur = w; }
+            else cur = t;
+            while (measureText(cur.c_str(), fs) > maxW && cur.size() > 1) {   // break an over-long run
+                size_t cut = cur.size() - 1;
+                while (cut > 1 && measureText(cur.substr(0, cut).c_str(), fs) > maxW) cut--;
+                while (cut > 1 && (cur[cut] & 0xC0) == 0x80) cut--;          // not inside a UTF-8 sequence
+                out->push_back(cur.substr(0, cut));
+                cur = cur.substr(cut);
+            }
+        };
+        for (const char* p = body;; ++p) {
+            if (*p == ' ' || *p == '\0') {
+                if (!word.empty()) { push(word); word.clear(); }
+                if (*p == '\0') break;
+            } else {
+                word.push_back(*p);
+            }
+        }
+        if (!cur.empty()) out->push_back(cur);
+    };
+    float bodyUnits = 9.0f;
+    std::vector<std::string> lines;
+    for (;;) {
+        wrap(s * bodyUnits / (float)FONT_CHAR_H, &lines);
+        const float need = (float)std::max<size_t>(1, lines.size()) * bodyUnits * 1.55f;
+        if (need <= bandBot - bandTop || bodyUnits <= 5.0f) break;
+        bodyUnits -= 0.5f;
+    }
+    const float bodyFs = s * bodyUnits / (float)FONT_CHAR_H;
+    const float pitch = bodyUnits * 1.55f;
+    float y = bandTop + (bandBot - bandTop - pitch * (float)lines.size()) * 0.5f;   // centred in the band
+    if (y < bandTop) y = bandTop;
+    for (const std::string& l : lines) {
+        const float lw = measureText(l.c_str(), bodyFs);
+        drawText(l.c_str(), cx - lw * 0.5f, Y(y), bodyFs, 0.85f, 0.85f, 0.85f, a);
+        y += pitch;
+    }
+
+    // the prompt pulses once input is taken (the DSi boot's 60 frame triangle)
+    if (mDsiBootPhase == DSI_WAIT) {
+        const double pp = fmod(f - ctr::kBootPrompt, DSI_PULSE_PERIOD);
+        const float pulse = (float)(pp < 30.0 ? pp / 30.0 : (60.0 - pp) / 30.0);
+        const char* pr = trDyn(touch ? "Touch the screen to continue." : "Press A to continue");
+        const float fs = fitFs(pr, 9.0f);
+        const float pw = measureText(pr, fs);
+        if (pulse > 0.004f) drawText(pr, cx - pw * 0.5f, Y(206.0f), fs, 1.0f, 1.0f, 1.0f, pulse * a);
     }
     mNdsFontPref = prevFont; mTextOutlineMode = prevOutline;
 }

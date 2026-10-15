@@ -8,6 +8,7 @@
 #include "NanoMenu.h"
 #include "NanoMenuDrm.h"
 #include "NanoCtrHome.h"
+#include "NanoCtrBoot.h"
 #include "NanoCtrAudio.h"
 #include "NanoCtrPanel.h"
 #include "NanoCtrArt.h"
@@ -698,6 +699,7 @@ bool NanoMenu::ctrEnsure() {
         }
         if (!mCtrHost) mCtrHost = new NanoCtrHost(this);
         if (!mCtrAudio) mCtrAudio = new ctr::CtrAudio(root + "/sound");
+        gNanoCtrAudio = mCtrAudio;
         if (!mCtrArt) mCtrArt = new ctr::RomArt("/data/system/nano_ctr_rom");
         mCtrHome = new ctr::CtrHome(root, mCtrHost);
         ctrShuffleEvent(true, 0);   // Shuffle: the next favourite once per boot
@@ -1135,7 +1137,15 @@ void NanoMenu::ctrApplyTheme() {
 void NanoMenu::ctrApplyThemeSounds(const ctr::ThemeBody* body) {
     if (!mCtrAudio) return;
     mCtrAudio->clearOverrides();
-    if (!body) { mCtrAudio->stopBgm(10); return; }   // the menu BGM comes back with the keep-alive
+    // The playing BGM is stopped (the keep-alive starts the new one, without its intro) only when
+    // the theme's BGM changes. Stopping it every time cut the menu's boot BGM: the first theme
+    // application runs right after the home loaded and started BGM_CTR_HOME with its intro.
+    auto restartBgmIf = [this](const std::string& bgm) {
+        if (bgm == mCtrBgmApplied) return;
+        mCtrBgmApplied = bgm;
+        mCtrAudio->stopBgm(10);
+    };
+    if (!body) { restartBgmIf(std::string()); return; }   // the menu's own BGM
     const std::vector<uint8_t>& se = body->soundEffects;
     auto u32 = [&](size_t o) -> uint32_t {
         return o + 4 <= se.size() ? (uint32_t)se[o] | se[o + 1] << 8 | se[o + 2] << 16 | (uint32_t)se[o + 3] << 24 : 0;
@@ -1192,6 +1202,7 @@ void NanoMenu::ctrApplyThemeSounds(const ctr::ThemeBody* body) {
         use("THEME_FRAME2", "frame2");
     }
     // the BGM
+    std::string bgmWav;
     if (body->bgmEnabled && !body->bgmPath.empty()) {
         struct stat st;
         if (stat(body->bgmPath.c_str(), &st) == 0) {
@@ -1207,10 +1218,11 @@ void NanoMenu::ctrApplyThemeSounds(const ctr::ThemeBody* body) {
                 const float g = 1.0f / mCtrAudio->bgmMaster();   // a stream at its own level
                 mCtrAudio->overrideWav("BGM_CTR_HOME", wav, g);
                 mCtrAudio->overrideWav("BGM_CTR_HOME_NO_INTRO", wav, g);
+                bgmWav = wav;
             }
         }
     }
-    mCtrAudio->stopBgm(10);   // the keep-alive starts the (new) BGM again
+    restartBgmIf(bgmWav);   // the keep-alive starts the (new) BGM
 }
 
 // Decodes a theme's BCSTM into a 16 bit WAV with its loop (a smpl chunk, as the menu's renders),
@@ -2413,9 +2425,32 @@ static float ctrTopHeight(float rw, float rh) {
     return std::clamp(400.0f * rh / rw, 240.0f, 300.0f);
 }
 
+// Test hook: sys.gammaos.nano.ctr.screensize="WxH" draws each screen of a dual panel device (the
+// top one on its panel, the bottom one on its own) into a centred W x H pixel rectangle, as a panel
+// of that size shows it (640x480 on the 1080p Duo Lite). False when unset. Read when it changes.
+bool ctrTestScreenRect(float W, float H, float* rx, float* ry, float* rw, float* rh) {
+    static const prop_info* pi = nullptr;
+    static uint32_t ser = ~0u;
+    static int sw = 0, sh = 0;
+    if (!pi) pi = __system_property_find("sys.gammaos.nano.ctr.screensize");
+    if (pi && __system_property_serial(pi) != ser) {
+        ser = __system_property_serial(pi);
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.ctr.screensize", v, "");
+        if (sscanf(v, "%dx%d", &sw, &sh) != 2 || sw <= 0 || sh <= 0) sw = sh = 0;
+    }
+    if (!sw || !sh) return false;
+    *rw = std::min(W, (float)sw);
+    *rh = std::min(H, (float)sh);
+    *rx = floorf((W - *rw) / 2);
+    *ry = floorf((H - *rh) / 2);
+    return true;
+}
+
 // Test hook: sys.gammaos.nano.ctr.topaspect="w:h" draws the top screen of a dual panel device
 // into a centred rectangle of that aspect (checks 4:3, 3:2... on a 16:9 panel).
 static void ctrTestTopRect(float W, float H, float* rx, float* ry, float* rw, float* rh) {
+    if (ctrTestScreenRect(W, H, rx, ry, rw, rh)) return;
     char v[PROPERTY_VALUE_MAX] = {};
     property_get("sys.gammaos.nano.ctr.topaspect", v, "");
     float a = 0, b = 0;
@@ -2446,6 +2481,7 @@ void NanoMenu::ctrBottomRect(float& rx, float& ry, float& rw, float& rh) const {
             w = (float)mSecondaryCreatedSize[0].first;
             h = (float)mSecondaryCreatedSize[0].second;
         }
+        ctrTestScreenRect(w, h, &x, &y, &w, &h);
     } else {   // one panel: the two screens stacked, the bottom one in the lower half
         y = h * 0.5f;
         h *= 0.5f;
@@ -2623,7 +2659,15 @@ void NanoMenu::renderCtrPrimary() {
         mCtrHome->setScreenWidths(topW, botW);
         mCtrHome->setTopHeight(ctrTopHeight(tw, th));
     }
-    mCtrHome->update(systemTime(SYSTEM_TIME_MONOTONIC));
+    {
+        // debug boot recording (sys.gammaos.nano.bootrec): the home's entry after the splash runs on
+        // the recorder's clock too, one 60 Hz tick per frame written, so it is captured as it plays
+        static int64_t sRecNs = 0;
+        int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+        if (gNanoBootRec.on) now = sRecNs = sRecNs ? sRecNs + 16666667 : now;
+        else sRecNs = 0;
+        mCtrHome->update(now);
+    }
     ctrUpdateWallpapers();
     const nsecs_t perfUpdated = sCtrPerf.mode ? sCtrPerf.mark() : 0;
     if (sCtrPerf.mode) sCtrPerf.update += CtrPerf::ms(perfStart, perfUpdated);
@@ -2662,12 +2706,60 @@ void NanoMenu::ctrRenderOverlays() {
     renderOsk();
 }
 
+// ------------------------------------------------------------------------------------ cold boot
+
+// The splash's top screen in a rectangle of the current panel (the whole top panel, or the upper
+// half of one panel), laid out like the HOME Menu's top screen there.
+void NanoMenu::ctrBootLogo(float rx, float ry, float rw, float rh, double leaveAt) {
+    if (!mCtrBoot) {
+        std::string root;
+        for (const char* d : kCtrAssetDirs) {
+            struct stat st;
+            if (stat((std::string(d) + "/lyt_logo.cpk").c_str(), &st) == 0) { root = d; break; }
+        }
+        if (root.empty()) ALOGE("ctr: boot splash (lyt_logo.cpk) not found");
+        ctr::setProgramCacheDir("/data/system/nano_cache/ctr_shaders");
+        mCtrBoot = new ctr::CtrBootSplash(root.empty() ? std::string(kCtrAssetDirs[1]) : root);
+        if (root.empty() || !mCtrBoot->load()) return;   // black with the notice, nothing to retry
+    }
+    if (!mCtrBoot->pose(mDsiBootFrame, leaveAt)) return;
+    // test hook sys.gammaos.nano.ctr.topaspect: the top panel of a dual panel device shows the
+    // splash in a centred rectangle of that aspect, like the HOME Menu's top screen (renderCtrPrimary)
+    if (ctrDualPanel() && rx == 0 && ry == 0 && rw == (float)mWidth && rh == (float)mHeight)
+        ctrTestTopRect(rw, rh, &rx, &ry, &rw, &rh);
+    // The logo at the magnification the HOME Menu's top screen gets in this rectangle; the layout
+    // then spans the WHOLE rectangle at that scale (any aspect, portrait and square included), so
+    // the sweeps reach every edge instead of stopping at a letterbox.
+    const float hw = ctrScreenWidth(true, rw, rh), hh = ctrTopHeight(rw, rh);
+    float ox, oy, ow, oh;
+    ctrFit(hw, hh, rx, ry, rw, rh, &ox, &oy, &ow, &oh);
+    const float scale = ow / hw;
+    if (scale <= 0.0f) return;
+    const float lw = std::max(400.0f, rw / scale), lh = std::max(240.0f, rh / scale);
+    ctrFit(lw, lh, rx, ry, rw, rh, &ox, &oy, &ow, &oh);
+    float proj[16];
+    ctr::CtrHome::projection(proj, lw, lh, ox, oy, ow, oh, (float)mWidth, (float)mHeight, sDrmRotMat);
+    GLint vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+    mCtrBoot->draw(proj, vp[0], vp[1], vp[2], vp[3], lw, lh, ow, oh);
+    setUiBlend();   // the layout renderer leaves its own blend state
+}
+
+void NanoMenu::ctrBootRelease() {
+    if (!mCtrBoot) return;
+    mCtrBoot->releaseGl();
+    delete mCtrBoot;
+    mCtrBoot = nullptr;
+}
+
 void NanoMenu::renderCtrSecondary() {
     if (!mCtrHome || !mCtrHome->loaded() || mCtrForceSingle) return;
     ctrModalUpdate();   // the secondary pass runs first in a frame
     const nsecs_t t0 = sCtrPerf.mode ? sCtrPerf.mark() : 0;
     if (sCtrPerf.mode == 3) sCtrGpu.mark("bottom");   // also ends the "rest of frame" span
-    ctrDrawScreen(false, 0, 0, (float)mWidth, (float)mHeight);
+    float x = 0, y = 0, w = (float)mWidth, h = (float)mHeight;
+    if (ctrTestScreenRect(w, h, &x, &y, &w, &h)) drawQuad(0, 0, (float)mWidth, (float)mHeight, 0, 0, 0, 1);
+    ctrDrawScreen(false, x, y, w, h);
     if (sCtrPerf.mode == 3) sCtrGpu.mark(nullptr);
     if (sCtrPerf.mode) sCtrPerf.bottom += CtrPerf::ms(t0, sCtrPerf.mark());
 }

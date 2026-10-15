@@ -48,6 +48,12 @@ public:
     // Closes the output (the home parks behind an app); a later play reopens it.
     void release();
     int32_t fill(int which, int16_t* out, int32_t frames);   // stream callback (public for the trampolines)
+    // Debug capture (nano's boot recording, sys.gammaos.nano.bootrec): while on, the output plays
+    // silence and the voices advance only through capture(), which mixes `frames` at the output
+    // rate into `out` (stereo), so a recording driven by its own clock gets the menu's sound in step.
+    void setCapture(bool on) { mCapture.store(on); }
+    void capture(int16_t* out, int32_t frames);
+    int outputRate() const { return mOut[0].rate; }
     void recover(int which);
 
 private:
@@ -105,6 +111,7 @@ private:
     std::mutex mStreamM;
     Out mOut[1];
     std::atomic<bool> mShutdown{false};
+    std::atomic<bool> mCapture{false};
     int64_t mProbeFrames = 0;
     int mProbePeak = 0;
 };

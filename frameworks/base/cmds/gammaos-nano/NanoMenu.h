@@ -64,7 +64,31 @@ static inline void nanoThreadNormalPriority() {
 #include "NanoEsdeTheme.h"
 #include "NanoSyncthing.h"  // Syncthing REST client + model (Settings > Syncthing)
 #include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)
-namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; struct PanelRow; class RomArt; struct ThemeBody; } }   // ES-DE theme engine model (fourth home theme)
+namespace android {
+// Debug boot recording (NanoMenuRender.cpp, sys.gammaos.nano.bootrec).
+struct NanoBootRec {
+    bool on = false;
+    std::string dir;
+    int dismissFrame = -1;   // boot frame the notice is dismissed at (-1 never)
+    int frame = 0;           // frames written
+    int stopIn = -1;         // frames left after the hand-off (-1 still booting)
+    int total = 0;           // stop after this many frames instead (0: the hand-off rule)
+    int outW = 0, outH = 0;  // frames cropped to this aspect (centred) and scaled to this size (0: half size)
+    bool exact = false;      // crop the centred outW x outH pixels without scaling
+    // scripted input at frames (sys.gammaos.nano.bootrec_keys): the 3DS home's test props
+    struct Cue { int frame; std::string prop, value; };
+    std::vector<Cue> cues;
+    FILE* audio = nullptr;   // <dir>/audio.raw: the 3DS home's mix, 16 bit stereo, one frame's worth per frame
+};
+namespace ctr { class CtrAudio; }
+extern ctr::CtrAudio* gNanoCtrAudio;   // the 3DS home's mixer (set in ctrEnsure), for the recording
+extern NanoBootRec gNanoBootRec;
+void nanoBootRecArm();
+void nanoBootRecCapture(bool secondary);
+// 3DS theme test hook sys.gammaos.nano.ctr.screensize (NanoMenuCtr.cpp)
+bool ctrTestScreenRect(float W, float H, float* rx, float* ry, float* rw, float* rh);
+}
+namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; struct PanelRow; class RomArt; struct ThemeBody; class CtrBootSplash; } }   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -1085,6 +1109,8 @@ private:
     uint32_t mAppliedLayerStack; // GammaOS: last layer stack applied to the nano surface
     std::vector<sp<IBinder>> mSecondaryDisplayTokens; // GammaOS: secondary display tokens
     int mDualScreenCache = -1;                         // -1 unknown, 0 single, 1 dual (physical display count > 1)
+    int64_t mDualScreenCheckMs = 0;                    // last query while it read single (re-asked, see hasSecondaryDisplay)
+    bool mTouchSourceIsCc = false;                     // the touch device of mTouchRangeFd is cc.touchdev (the bottom digitizer)
     std::vector<sp<SurfaceControl>> mSecondaryWallpaperControls; // GammaOS: wallpaper on secondaries
     std::vector<EGLSurface> mSecondaryEglSurfaces; // GammaOS: EGL surfaces for secondary wallpaper
     std::vector<sp<Surface>> mSecondarySurfaces; // GammaOS: keep refs alive
@@ -1628,6 +1654,13 @@ private:
     void ctrTouchFrame();                         // a touch frame on the bottom screen
     void renderCtrPrimary();                      // primary panel (top screen, or both stacked)
     void renderCtrSecondary();                    // the bottom screen on a second panel
+    // Cold boot of the 3DS theme (NanoMenuCtrBoot.cpp): the launch splash with the GammaOS logo and
+    // the notice to dismiss, driven by ps3BootUpdate's frame clock; primary = the top screen.
+    void renderCtrBoot(bool primary);
+    void ctrBootLogo(float rx, float ry, float rw, float rh, double leaveAt);   // the splash (NanoMenuCtr.cpp)
+    void ctrBootNotice(float rx, float ry, float rw, float rh, bool touch);     // the notice to dismiss
+    void ctrBootRelease();
+    ctr::CtrBootSplash* mCtrBoot = nullptr;
     void ctrDrawScreen(bool top, float rx, float ry, float rw, float rh);
     bool ctrDualPanel() const;
     void ctrBottomRect(float& rx, float& ry, float& rw, float& rh) const;
@@ -1659,6 +1692,7 @@ private:
     CtrWallpaper mCtrWp[2];                            // top, bottom
     std::shared_ptr<ctr::ThemeBody> mCtrThemeBody;     // an SD card theme or one made from the Colour
     const ctr::ThemeBody* mCtrThemeApplied = nullptr;
+    std::string mCtrBgmApplied;   // the theme BGM the playing menu BGM is ("" = the menu's own)
     std::string mCtrThemeKey;
     bool ctrOpenOptions();                             // START: the focused title's option menu
     void ctrFolderSettings(const std::string& folderId);   // a user folder's Settings (dialog key 60)
@@ -3716,6 +3750,7 @@ private:
     bool mDirectHandedOff = false;         // the direct-PCM engine's card0 has been handed to the audio HAL (once, post-boot)
     void nanoDirectHandoffTick();  // guaranteed direct-PCM -> HAL handoff even when the home ticks never run (setup wizard)
     void dsiPrewarmChime();        // open the boot chime early on a bg thread (no play)
+    const char* bootChimeFile() const;   // the frame-clock boots' chime (DSi, Minima, 3DS)
     // Looping DSi home background ambiance (menu_ambiance.wav). Started once the boot enter
     // fanfare finishes (so it is not clipped), looped by restart-on-ended, stopped off-home.
     NanoAudioPlayer mAmbiancePlayer;

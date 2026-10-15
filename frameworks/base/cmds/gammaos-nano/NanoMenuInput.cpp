@@ -1422,13 +1422,19 @@ void NanoMenu::touchTuneRead() {
 // A position from digitizer `fd`: when it is not the device the cached range came from, take
 // that device's range and calibration (the top and bottom digitizers differ in both).
 void NanoMenu::touchSourceFd(int fd) {
-    if (fd == mTouchRangeFd) return;
+    if (fd == mTouchRangeFd) {
+        // the bottom digitizer touched before the second panel was known (cold boot): its own
+        // calibration from the moment the panel is (hasSecondaryDisplay asks at most once a second)
+        if (!mTouchBottomDev && mTouchSourceIsCc && hasSecondaryDisplay()) mTouchBottomDev = true;
+        return;
+    }
     touchTuneRead();
     mTouchRangeFd = fd;
     mTouchMinX = mTouchMaxX = 0;
     mTouchMinY = mTouchMaxY = 0;
     auto it = mInputFdNames.find(fd);
-    mTouchBottomDev = hasSecondaryDisplay() && it != mInputFdNames.end() && it->second == mCcTouchDev;
+    mTouchSourceIsCc = it != mInputFdNames.end() && it->second == mCcTouchDev;
+    mTouchBottomDev = mTouchSourceIsCc && hasSecondaryDisplay();
 }
 
 bool NanoMenu::ndsMapTouchDs(float& dsX, float& dsY) {

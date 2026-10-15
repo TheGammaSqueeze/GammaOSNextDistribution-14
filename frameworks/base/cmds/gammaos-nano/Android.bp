@@ -77,6 +77,7 @@ cc_binary {
         "NanoCtrPack.cpp",         // 3DS theme: asset packs (tools/ctr_pack.py)
         "NanoCtrLayout.cpp",       // 3DS theme: NW4C layout engine
         "NanoCtrRender.cpp",       // 3DS theme: PICA200 combiner renderer (GLES2)
+        "NanoCtrBoot.cpp",         // 3DS theme: cold boot splash
         "NanoCtrHome.cpp",         // 3DS theme: HOME Menu runtime
         "NanoCtr3d.cpp",           // 3DS theme: top screen CGFX models
         "NanoCtrTop.cpp",          // 3DS theme: top screen scene (wall + banners)

@@ -257,12 +257,32 @@ bool CtrAudio::bgmPlaying() {
 }
 
 bool CtrAudio::playing(int handle) {
-    std::lock_guard<std::mutex> lk(mVoiceM);
-    for (Voice& v : mVoices) if (v.active && v.handle == handle) return true;
-    return false;
+    bool active = false;
+    {
+        std::lock_guard<std::mutex> lk(mVoiceM);
+        for (Voice& v : mVoices) if (v.active && v.handle == handle) active = true;
+    }
+    // A voice waiting on an output that never opened: the open failed (the menu asked for its BGM
+    // the moment the boot notice was dismissed, before AudioFlinger had the output the boot chime
+    // held) and nothing else would try again until another sound played, so the BGM stayed silent.
+    // The home's BGM keep-alive asks this once a second: try the open again.
+    if (active && !mOut[0].running.load() && !mOut[0].starting.load()) ensureRunning(0);
+    return active;
+}
+
+static thread_local bool tCapturing = false;   // inside CtrAudio::capture
+
+void CtrAudio::capture(int16_t* out, int32_t frames) {
+    tCapturing = true;
+    fill(0, out, frames);
+    tCapturing = false;
 }
 
 int32_t CtrAudio::fill(int which, int16_t* out, int32_t frames) {
+    if (mCapture.load() && !tCapturing) {   // a recording mixes the voices itself
+        memset(out, 0, (size_t)frames * 2 * sizeof(int16_t));
+        return AAUDIO_CALLBACK_RESULT_CONTINUE;
+    }
     Out& o = mOut[which];
     if (o.acc.size() < (size_t)frames * 2) o.acc.resize((size_t)frames * 2);
     int32_t* acc = o.acc.data();
