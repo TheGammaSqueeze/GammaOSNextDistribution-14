@@ -236,8 +236,19 @@ struct Scroller {
 
 enum LState {
     StIdle = 0x00, StColumnScroll = 0x03, StZoom = 0x05, StAppStart = 0x07,
+    StGrab = 0x0e, StMoveIcon = 0x0f,   // moving.ts: an icon held under the stylus, then its flight
     StFolderOpen = 0x101, StFolderClose = 0x102, StAppRunning = 0x103, StAppReturn = 0x104,
 };
+
+// moving.ts constants
+const int LONG_PRESS_FRAMES = 22;          // touch.ts: a press this long picks the icon up
+const float FLIGHT_SHARE = 0.2f, FLIGHT_MIN = 4, FLIGHT_MAX = 20, FLIGHT_AIM = 0.08f;
+const int SWAP_REST_FRAMES = 5;
+const float SHRINK_STEP = 0.01f, SHRINK_MIN = 0.6f, FADE_STEP = 8, FADE_MIN = 32;
+const float HOVER_SHRINK_STEP = 0.07f, HOVER_SHRINK_MIN = 0.58f;
+const float HELD_TOP = 108;
+const int EDGE_DELAY_FRAMES = 4, FOLDER_HOVER_FRAMES = 30;
+const int FOLDER_SLOTS = 60;               // state.ts FOLDER_SLOTS
 
 struct Grid {
     std::string folderId;               // "" root
@@ -255,6 +266,10 @@ struct Grid {
     Metrics from, to;
     float t = 0;
     int fromFirstSlot = 0, toFirstSlot = 0;
+
+    // moving.ts slot markers: the held item's hole, a slot not drawn (an icon flying to it),
+    // the glow under the slot the held icon would land on, the folder about to take it
+    int hiddenSlot = -1, skipSlot = -1, hoverSlot = -1, openSlot = -1;
 
     bool isFolder() const { return !folderId.empty(); }
     int zoom() const { return metrics.zoom; }
@@ -393,6 +408,53 @@ struct CtrHome::Impl {
 
     // icons
     IconTemplate blank, tile, folderIcon, icon;
+    // moving.ts: the lifted title / folder, the hole, the hover glow, an open folder
+    IconTemplate pickUp, pickUpFolder, pickUpBlank, hoverGlow, folderOpenT, folderOpenB;
+    struct Held {
+        HomeItem item;
+        int gridIndex = 0, sourceIndex = 0;   // grids[] index under the stylus / picked from
+        int origin = -1;
+        Point at{0, 0};
+        int hover = -1, folderHover = 0;
+        int edge = -1, edgeFrames = 0;        // arrow disc under the icon: 0 left 1 right
+        float scrollFrom = 0, scrollTo = 0;
+        int scrollFrame = PAGE_FRAMES;
+        int target = -1;
+        bool hasSwapped = false;
+        HomeItem swapped;
+        Point swapAt{0, 0};
+        std::string into;                     // the folder the title flies into
+        float scale = 1, alpha = 255;
+        int rest = 0;
+        bool copy = false;                    // lifted out of a generated folder
+    };
+    bool holding = false, reloadAfterDrop = false;
+    Held mover;
+    void startGrab(int slot, float x, float y);
+    // Arranged grids move their items; a title of a generated folder (a system's games) can be
+    // lifted out as a copy: the header puts a shortcut onto the root, it stays where it was
+    bool canGrab(const Grid& g, const HomeItem& it) const {
+        if (!host) return false;
+        if (host->editable(g.folderId)) return true;
+        return g.isFolder() && it.kind == HomeItemKind::Title;
+    }
+    void updateGrab();
+    void updateDrop();
+    void finishDrop();
+    void flyBack();
+    void dropHeld(float x, float y);
+    void dropAcross(float x, float y);
+    void hoverSlotAt(int slot);
+    void edgeScroll(float x, float y, bool touching);
+    int dropKind(int slot) const;
+    bool arrowDisc(int side, float x, float y);
+    std::vector<std::pair<int, std::string>> slotList(const Grid& g) const;
+    void saveGrid(const Grid& g);
+    void putIntoFolder(const std::string& folderId);
+    void drawLifted(Renderer& r, const HomeItem& it, float x, float y, float zoom, float scale, float alpha);
+    void drawFolderFace(Renderer& r, const HomeItem& it, float x, float y, float zoom, float scale);
+    void drawFolderFaceSized(Renderer& r, const HomeItem& it, float x, float cy, float size);
+    void drawTitleArt(Renderer& r, const HomeItem& it, float x, float y, float size, float scale);
     std::unique_ptr<LayoutInstance> letter;
     Trail trail[2];
     int trailNext = 0;
@@ -441,6 +503,7 @@ struct CtrHome::Impl {
     int bbPressed = -1;
     // balloon
     std::string balloonText;
+    std::string balloonItem, balloonName, balloonWrapped;
     bool balloonVisible = false;
     // palette sheets
     float sheetMargin = 10, sheetShadowExtra = 0, folderShadowExtra = 0;
@@ -500,6 +563,11 @@ struct CtrHome::Impl {
     void pollInput();
     void mainUpdate();
     void setState(int id) {
+        // anything else taking over (HOME, an app starting) puts a held icon down where it was
+        if (holding && id != StGrab && id != StMoveIcon && id != StFolderOpen) {
+            for (Grid& g_ : grids) g_.skipSlot = g_.hiddenSlot = g_.hoverSlot = g_.openSlot = -1;
+            holding = false;
+        }
         previousState = state;
         state = id;
         stateFrame = 0;
@@ -610,6 +678,22 @@ bool CtrHome::Impl::load() {
     makeTemplate(tile, "LncIconSetSrc_00", -32, {"N_Color_01", "N_Pic_01"});
     makeTemplate(folderIcon, "LncIconFolder_00", 0, {"N_PrizeBlank_00"});
     makeTemplate(icon, "LncIconDist_01", 0, {});
+    makeTemplate(pickUp, "LncIconPickUp_00", 0, {});
+    // PicToggle frame 0: a held folder shows its colour body
+    // P_Icon_00 is the tile the console renders the initial into (IconDmy until then); the
+    // initial is stamped over it here
+    makeTemplate(pickUpFolder, "LncIconFolderPickUp_00", 0, {"P_IconPrize_00", "N_Pic_00", "P_Icon_00"}, {"N_Color_00"});
+    makeTemplate(pickUpBlank, "LncIconPickUpBlank_00", 0, {});
+    // the hover glow is a second LncIconSleep_00 held on its PickUp pose
+    if (makeTemplate(hoverGlow, "LncIconSleep_00", 0, {})) {
+        PlayOptions o = groupsOpt();
+        o.paused = true;
+        o.loop = 0;
+        hoverGlow.layout->play("PickUp", o);
+    }
+    makeTemplate(folderOpenT, "LncIconFolderInT_00", 0, {"N_Pic_00"}, {"N_Color_00"});
+    // only read for where the initial goes (icons.ts drawOpenFolder)
+    makeTemplate(folderOpenB, "LncIconFolderInB_00", 0, {"P_Icon_00", "P_IconPrize_00"});
     icon.layout->setAlpha("P_IconBtnDmy_00", 0);
     blank.layout->layout().opacity = 0x80;
     letter = make("launcher", "LncIconFolderText_00");
@@ -750,6 +834,8 @@ void CtrHome::Impl::mainUpdate() {
     stateFrame++;
     switch (state) {
         case StIdle: handleIdleInput(); break;
+        case StGrab: updateGrab(); break;
+        case StMoveIcon: updateDrop(); break;
         case StColumnScroll: updateColumnScroll(); break;
         case StZoom: updateZoom(); break;
         case StFolderOpen:
@@ -986,7 +1072,7 @@ bool CtrHome::Impl::scrollingCursor(Point* p) {
 }
 
 bool CtrHome::Impl::cursorHidden() const {
-    return state == StFolderOpen || state == StFolderClose || state == StAppRunning;
+    return state == StGrab || state == StMoveIcon || state == StFolderOpen || state == StFolderClose || state == StAppRunning;
 }
 
 // ------------------------------------------------------------ zoom (zoom.ts)
@@ -1247,6 +1333,61 @@ std::string CtrHome::Impl::bottomSetFor() {
     return "title";
 }
 
+// The balloon's lines: nano's names run longer than a title's SMDH name, so the name is word
+// wrapped at the box width onto two lines (three without a publisher), the way the console's
+// long names come split, keeping the balloon's font size; a name beyond that ends in "...".
+static std::string balloonLines(const Pane* p, const std::string& name, const std::string& publisher) {
+    if (!p || !p->font) return publisher.empty() ? name : name + "\n" + publisher;
+    const Font& f = *p->font;
+    const double sx = f.width ? (double)p->fontSize[0] / f.width : 1.0;
+    auto width = [&](const std::u32string& t) {
+        double w = 0;
+        for (char32_t ch : t) { const Glyph* g = f.glyph(ch); w += (g ? g->charWidth : 0) * sx; }
+        if (t.size() > 1) w += p->charSpace * (double)(t.size() - 1);
+        return w;
+    };
+    const double room = p->size[0];
+    std::vector<std::u32string> lines;
+    std::u32string line, word;
+    auto put = [&](const std::u32string& w_) {
+        std::u32string trial = line.empty() ? w_ : line + U' ' + w_;
+        if (width(trial) <= room) { line = trial; return; }
+        if (!line.empty()) { lines.push_back(line); line.clear(); }
+        // a word wider than the box breaks between characters
+        for (char32_t ch : w_) {
+            if (!line.empty() && width(line + ch) > room) { lines.push_back(line); line.clear(); }
+            line += ch;
+        }
+    };
+    for (char32_t ch : utf8ToU32(name)) {
+        if (ch == U' ' || ch == U'\n') { if (!word.empty()) put(word); word.clear(); }
+        else word += ch;
+    }
+    if (!word.empty()) put(word);
+    if (!line.empty()) lines.push_back(line);
+    const size_t maxLines = publisher.empty() || lines.size() == 3 ? 3 : 2;
+    const bool withPublisher = !publisher.empty() && lines.size() <= 2;
+    if (lines.size() > maxLines) {
+        lines.resize(maxLines);
+        std::u32string& last = lines.back();
+        while (!last.empty() && width(last + U"...") > room) last.pop_back();
+        while (!last.empty() && last.back() == U' ') last.pop_back();
+        last += U"...";
+    }
+    std::string out;
+    for (size_t i = 0; i < lines.size(); i++) {
+        if (i) out += '\n';
+        for (char32_t c : lines[i]) {
+            if (c < 0x80) out += (char)c;
+            else if (c < 0x800) { out += (char)(0xC0 | (c >> 6)); out += (char)(0x80 | (c & 0x3F)); }
+            else if (c < 0x10000) { out += (char)(0xE0 | (c >> 12)); out += (char)(0x80 | ((c >> 6) & 0x3F)); out += (char)(0x80 | (c & 0x3F)); }
+            else { out += (char)(0xF0 | (c >> 18)); out += (char)(0x80 | ((c >> 12) & 0x3F)); out += (char)(0x80 | ((c >> 6) & 0x3F)); out += (char)(0x80 | (c & 0x3F)); }
+        }
+    }
+    if (withPublisher) out += "\n" + publisher;
+    return out;
+}
+
 void CtrHome::Impl::balloonShow(const std::string& text, bool label, float x, float y, float zoom) {
     if (Pane* base_ = balloon->pane("N_Base_00")) {
         Pane* box = balloon->pane("N_LR_00");
@@ -1283,9 +1424,14 @@ void CtrHome::Impl::updateBalloon() {
     if (!it) { balloonHide(); return; }
     float x, y, f;
     cursorPose(g, &x, &y, &f);
-    std::string text = it->name;
-    if (it->kind == HomeItemKind::Title && !it->publisher.empty()) text += "\n" + it->publisher;
-    balloonShow(text, false, x, y, g.zoomValue());
+    const std::string publisher = it->kind == HomeItemKind::Title ? it->publisher : std::string();
+    // wrapped once per item (the name and the box do not change while it is shown)
+    if (it->id != balloonItem || it->name + "\n" + publisher != balloonName) {
+        balloonItem = it->id;
+        balloonName = it->name + "\n" + publisher;
+        balloonWrapped = balloonLines(balloon->pane("T_Blln_00"), it->name, publisher);
+    }
+    balloonShow(balloonWrapped, false, x, y, g.zoomValue());
 }
 
 void CtrHome::Impl::updateSheet(LayoutInstance* l, const Grid& g, float extra) {
@@ -1372,6 +1518,362 @@ void CtrHome::Impl::updateChrome() {
     }
 }
 
+// ================================================================== moving icons (moving.ts)
+
+namespace {
+enum DropKindId { DK_INTO_FOLDER = 0, DK_FOLDER_ON_FOLDER = 1, DK_FULL_FOLDER = 3, DK_SLOT = 4 };
+}
+
+// Picks up the icon in `slot` (long press, FUN_0029c1f4 -> state 0xe): ICON_GRAB, BADGE_FLOAT
+// for a folder; the hole LncIconPickUpBlank_00 is left behind.
+void CtrHome::Impl::startGrab(int slot, float x, float y) {
+    Grid& g = grid();
+    const HomeItem* it = g.item(slot);
+    if (!it) return;
+    mover = Held();
+    mover.item = *it;
+    mover.gridIndex = mover.sourceIndex = (int)grids.size() - 1;
+    mover.origin = slot;
+    mover.at = {x, y};
+    mover.hover = slot;
+    mover.scrollFrom = mover.scrollTo = g.scroll;
+    mover.target = slot;
+    mover.copy = host && !host->editable(g.folderId);
+    holding = true;
+    g.hiddenSlot = mover.copy ? -1 : slot;   // a copy leaves its title in place
+    balloonHide();
+    sound(it->kind == HomeItemKind::Folder ? "SE_CTR_BADGE_FLOAT" : "SE_CTR_HOME_ICON_GRAB");
+    setState(StGrab);
+}
+
+bool CtrHome::Impl::arrowDisc(int side, float x, float y) {
+    if (!arrowShown[side]) return false;
+    for (int i = 0; i < 7; i++) {
+        char n[16];
+        snprintf(n, sizeof(n), side == 0 ? "B_arwL_0%d" : "B_arwR_0%d", i);
+        if (hitPane(arrows.get(), n, x, y)) return true;
+    }
+    return false;
+}
+
+// What a drop on a slot would do (FUN_001d9e8c): into a user folder (unless full), a folder over
+// a folder (a swap), or onto a plain slot (a move or a swap). A generated folder takes nothing.
+int CtrHome::Impl::dropKind(int slot) const {
+    const Grid& g = grids[mover.gridIndex];
+    const HomeItem* t = g.item(slot);
+    if (!t || t->kind != HomeItemKind::Folder) return DK_SLOT;
+    if (mover.item.kind == HomeItemKind::Folder) return DK_FOLDER_ON_FOLDER;
+    if (!host || !host->userFolder(t->id)) return DK_SLOT;
+    return (int)host->items(t->id).size() >= FOLDER_SLOTS ? DK_FULL_FOLDER : DK_INTO_FOLDER;
+}
+
+// Hovering (FUN_002a1224): a plain slot or a folder under a held folder glows with ICON_OVER;
+// a folder that would take the icon plays ICON_DROP_FOLDER and opens after a while.
+void CtrHome::Impl::hoverSlotAt(int slot) {
+    Grid& g = grids[mover.gridIndex];
+    const int hover = mover.copy || (slot == mover.origin && mover.gridIndex == mover.sourceIndex) ? -1 : slot;
+    const int kind = hover >= 0 ? dropKind(hover) : -1;
+    const bool glow = kind == DK_SLOT || kind == DK_FOLDER_ON_FOLDER;
+    g.hoverSlot = glow ? hover : -1;
+    g.openSlot = kind == DK_INTO_FOLDER ? hover : -1;
+    if (hover == mover.hover) {
+        if (kind >= 0 && !glow && !g.isFolder()) mover.folderHover++;
+        return;
+    }
+    mover.hover = hover;
+    mover.folderHover = 0;
+    if (kind >= 0) sound(glow ? "SE_CTR_HOME_ICON_OVER" : "SE_CTR_HOME_ICON_DROP_FOLDER");
+}
+
+// The held icon in an arrow disc pages the grid a view at a time over 16 eased frames, a few
+// frames after it entered; every column crossed plays ICON_SCROLL. A page runs to its end.
+void CtrHome::Impl::edgeScroll(float x, float y, bool touching) {
+    Grid& g = grids[mover.gridIndex];
+    mover.edge = !touching ? -1 : arrowDisc(0, x, y) ? 0 : arrowDisc(1, x, y) ? 1 : -1;
+    mover.edgeFrames = mover.edge >= 0 ? mover.edgeFrames + 1 : 0;
+    if (mover.scrollFrame >= PAGE_FRAMES && mover.edgeFrames > EDGE_DELAY_FRAMES && mover.edge >= 0) {
+        const int dir = mover.edge == 1 ? 1 : -1;
+        const int first = std::clamp(g.firstColumn + dir * g.columns(), 0, g.maxFirstColumn());
+        if (first != g.firstColumn) {
+            g.firstColumn = first;
+            mover.scrollFrom = g.scroll;
+            mover.scrollTo = g.scrollFor(first);
+            mover.scrollFrame = 0;
+            arrows->play("Repeat", namedGroups({mover.edge == 0 ? "G_arwL_00" : "G_arwR_00"}));
+        }
+    }
+    if (mover.scrollFrame >= PAGE_FRAMES) return;
+    mover.scrollFrame++;
+    const int before = g.columnAt(g.scroll);
+    g.scroll = lerpf(mover.scrollFrom, mover.scrollTo, ease((float)mover.scrollFrame / PAGE_FRAMES));
+    if (g.columnAt(g.scroll) != before) sound("SE_CTR_HOME_ICON_SCROLL");
+}
+
+// State 0xe: the icon follows the stylus; a lift drops it.
+void CtrHome::Impl::updateGrab() {
+    if (!holding) { setState(StIdle); return; }
+    Grid& g = grids[mover.gridIndex];
+    if (touch.held) {
+        mover.at = {touch.x, touch.y};
+        edgeScroll(touch.x, touch.y, true);
+        if (mover.edge < 0) hoverSlotAt(g.slotAt(touch.x, touch.y, zoomTable(TOUCH_BOX, g.zoomValue())));
+        const bool into = mover.hover >= 0 && g.openSlot == mover.hover;
+        mover.scale = into ? std::max(HOVER_SHRINK_MIN, mover.scale - HOVER_SHRINK_STEP) : std::min(1.0f, mover.scale + HOVER_SHRINK_STEP);
+        if (mover.folderHover > FOLDER_HOVER_FRAMES) {
+            // a folder hovered long enough opens under the held title (state 0x2b, back to 0xe)
+            const HomeItem* f = g.item(mover.hover);
+            mover.folderHover = 0;
+            if (f && f->kind == HomeItemKind::Folder) {
+                g.hoverSlot = g.openSlot = -1;
+                openFolder(mover.hover);
+                setState(StGrab);
+                mover.gridIndex = (int)grids.size() - 1;
+                mover.hover = -1;
+                mover.scrollFrom = mover.scrollTo = grids[mover.gridIndex].scroll;
+            }
+        }
+        return;
+    }
+    if (mover.scrollFrame < PAGE_FRAMES) { edgeScroll(-1000, -1000, false); return; }
+    dropHeld(mover.at.x, mover.at.y);
+}
+
+std::vector<std::pair<int, std::string>> CtrHome::Impl::slotList(const Grid& g) const {
+    std::vector<std::pair<int, std::string>> out;
+    for (int i = 0; i < (int)g.slotItem.size(); i++)
+        if (g.slotItem[i] >= 0) out.emplace_back(i, g.items[g.slotItem[i]].id);
+    return out;
+}
+
+void CtrHome::Impl::saveGrid(const Grid& g) {
+    if (host) host->layoutChanged(g.folderId, slotList(g));
+}
+
+static void placeItem(Grid& g, int slot, const HomeItem& it) {
+    if ((int)g.slotItem.size() <= slot) g.slotItem.resize(slot + 1, -1);
+    g.items.push_back(it);
+    g.slotItem[slot] = (int)g.items.size() - 1;
+}
+
+// Release (FUN_001d4e74): onto an empty slot the icon lands at once, onto another item the two
+// swap and fly, onto a folder the title flies in shrinking and fading, anywhere else it flies
+// back. Inside a user folder the header strip takes a title back out to the root.
+void CtrHome::Impl::dropHeld(float x, float y) {
+    Grid& g = grids[mover.gridIndex];
+    g.hoverSlot = g.openSlot = -1;
+    if (mover.gridIndex != mover.sourceIndex) { dropAcross(x, y); return; }
+    mover.at = {mover.at.x, std::min(HELD_TOP, mover.at.y + std::trunc(zoomTable(TOUCH_BOX, g.zoomValue()) * 0.2f))};
+    if (g.isFolder() && mover.item.kind == HomeItemKind::Title && hitPane(folder.get(), "B_T_00", x, y)) {
+        // takeOut: the title goes back to the first free root slot
+        Grid& root_ = root();
+        bool onRoot = false;   // a copy of a title the root already shows is not doubled
+        for (const HomeItem& r_ : root_.items) onRoot = onRoot || r_.id == mover.item.id;
+        int free_ = 0;
+        while (root_.item(free_)) free_++;
+        if (!(mover.copy && onRoot)) placeItem(root_, free_, mover.item);
+        if (!mover.copy) {
+            g.slotItem[mover.origin] = -1;
+            saveGrid(g);
+        }
+        saveGrid(root_);
+        sound("SE_CTR_HOME_ICON_RELEASE");
+        mover.target = -1;
+        reloadAfterDrop = true;
+        setState(StMoveIcon);
+        return;
+    }
+    if (mover.copy) {
+        // a generated folder keeps its order: anywhere but the header, the copy flies back
+        sound("SE_CTR_HOME_ICON_RELEASE");
+        flyBack();
+        return;
+    }
+    const int slot = g.slotAt(x, y, zoomTable(TOUCH_BOX, g.zoomValue()));
+    const int target = slot == mover.origin ? -1 : slot;
+    const int kind = target >= 0 ? dropKind(target) : -1;
+    const HomeItem* targetItem = target >= 0 ? g.item(target) : nullptr;
+    if (kind == DK_FULL_FOLDER) {
+        // a full folder takes nothing more (state 0x8e, the 0x8a refusal: error sound)
+        sound("SE_CTR_COMMON_ERROR");
+        if (host) host->notice("lau_dlg_folder_icon_full", A->messageText("lau_dlg_folder_icon_full"));
+        flyBack();
+        return;
+    }
+    if (kind == DK_INTO_FOLDER && targetItem) {
+        mover.target = target;
+        mover.into = targetItem->id;
+        g.skipSlot = -1;
+        g.openSlot = target;
+        setState(StMoveIcon);
+        return;
+    }
+    if (target < 0 || (g.isFolder() && mover.item.kind != HomeItemKind::Title)) {
+        sound("SE_CTR_HOME_ICON_RELEASE");
+        flyBack();
+        return;
+    }
+    // swap the two slots (FUN_0029cd0c); the root grows to the slot when needed
+    const HomeItem swappedCopy = targetItem ? *targetItem : HomeItem();
+    const bool hadTarget = targetItem != nullptr;
+    if ((int)g.slotItem.size() <= target) g.slotItem.resize(target + 1, -1);
+    std::swap(g.slotItem[mover.origin], g.slotItem[target]);
+    saveGrid(g);
+    if (!hadTarget) {
+        sound("SE_CTR_HOME_ICON_EXCHANGE");
+        g.cursor = target;
+        g.onBar = false;
+        g.hiddenSlot = -1;
+        holding = false;
+        setState(StIdle);
+        return;
+    }
+    sound("SE_CTR_HOME_ICON_RELEASE");
+    mover.hasSwapped = true;
+    mover.swapped = swappedCopy;
+    mover.swapAt = g.slotOnScreen(target);
+    mover.target = target;
+    g.hiddenSlot = mover.origin;
+    g.skipSlot = target;
+    setState(StMoveIcon);
+}
+
+// Release in a user folder that opened under a held root title (FUN_002adc78): onto an empty
+// folder slot the title moves in, onto a title the two trade places, anywhere else it stays.
+void CtrHome::Impl::dropAcross(float x, float y) {
+    Grid& g = grids[mover.gridIndex];
+    Grid& src = grids[mover.sourceIndex];
+    const int slot = g.slotAt(x, y, zoomTable(TOUCH_BOX, g.zoomValue()));
+    const bool header = hitPane(folder.get(), "B_T_00", x, y);
+    mover.target = -1;
+    if (slot < 0 || header || mover.item.kind != HomeItemKind::Title || !host || !host->userFolder(g.folderId)) {
+        sound("SE_CTR_HOME_ICON_RELEASE");
+        finishDrop();
+        return;
+    }
+    const HomeItem* other = g.item(slot);
+    const bool hadOther = other != nullptr;
+    const HomeItem otherCopy = hadOther ? *other : HomeItem();
+    placeItem(g, slot, mover.item);
+    if (hadOther) placeItem(src, mover.origin, otherCopy);
+    else src.slotItem[mover.origin] = -1;
+    saveGrid(src);
+    saveGrid(g);
+    sound(hadOther ? "SE_CTR_HOME_ICON_RELEASE" : "SE_CTR_HOME_ICON_EXCHANGE");
+    g.cursor = slot;
+    g.onBar = false;
+    reloadAfterDrop = true;
+    finishDrop();
+}
+
+void CtrHome::Impl::flyBack() {
+    Grid& g = grids[mover.gridIndex];
+    mover.target = mover.origin;
+    g.hiddenSlot = -1;
+    g.skipSlot = mover.origin;
+    setState(StMoveIcon);
+}
+
+// The title goes into the folder once its flight ended (FUN_002a2620 -> FUN_001c0214).
+void CtrHome::Impl::putIntoFolder(const std::string& folderId) {
+    if (mover.item.kind != HomeItemKind::Title) return;
+    Grid f;
+    f.folderId = folderId;
+    loadGrid(f);
+    int free_ = 0;
+    while (free_ < FOLDER_SLOTS && f.item(free_)) free_++;
+    if (free_ >= FOLDER_SLOTS) return;
+    placeItem(f, free_, mover.item);
+    saveGrid(f);
+    Grid& g = grids[mover.gridIndex];
+    g.slotItem[mover.origin] = -1;
+    saveGrid(g);
+    reloadAfterDrop = true;
+}
+
+namespace {
+Point flightTarget(const Grid& g, int slot) {
+    Point p = g.slotOnScreen(slot);
+    p.y += std::trunc(zoomTable(TOUCH_BOX, g.zoomValue()) * FLIGHT_AIM);
+    return p;
+}
+
+// One frame of flight toward `to`: a fifth of the distance, 4..20; done when landed or off screen.
+bool fly(const Grid& g, Point& at, const Point& to) {
+    const float dx = to.x - at.x, dy = to.y - at.y;
+    const float distance = hypotf(dx, dy);
+    const float step = std::max(FLIGHT_MIN, std::min(FLIGHT_MAX, distance * FLIGHT_SHARE));
+    if (distance <= step) { at = to; return true; }
+    at.x += dx / distance * step;
+    at.y += dy / distance * step;
+    const float half = zoomTable(TOUCH_BOX, g.zoomValue()) / 2;
+    const float edge = 160 + sExtraWidth / 2;
+    return at.x + half < -edge || at.x - half > edge;
+}
+}  // namespace
+
+// State 0xf: the dropped icon (and a swapped one) fly onto their slots, then the cursor comes.
+void CtrHome::Impl::updateDrop() {
+    if (!holding || mover.target < 0) { finishDrop(); return; }
+    const Grid& g = grids[mover.gridIndex];
+    bool landed = fly(g, mover.at, flightTarget(g, mover.target));
+    if (!mover.into.empty()) {
+        mover.scale = std::max(SHRINK_MIN, mover.scale - SHRINK_STEP);
+        mover.alpha = mover.alpha < FADE_MIN + FADE_STEP ? FADE_MIN : mover.alpha - FADE_STEP;
+        if (!landed || mover.scale > SHRINK_MIN || mover.alpha > FADE_MIN) return;
+        putIntoFolder(mover.into);
+        mover.into.clear();
+        sound("SE_CTR_HOME_ICON_EXCHANGE");
+    }
+    if (mover.hasSwapped) {
+        const bool other = fly(g, mover.swapAt, flightTarget(g, mover.origin));
+        if (landed && other) mover.rest++;
+        landed = mover.rest >= SWAP_REST_FRAMES;
+    }
+    if (landed) finishDrop();
+}
+
+void CtrHome::Impl::finishDrop() {
+    if (holding) {
+        for (int i : {mover.gridIndex, mover.sourceIndex}) {
+            if (i < 0 || i >= (int)grids.size()) continue;
+            Grid& g = grids[i];
+            g.skipSlot = g.hiddenSlot = g.hoverSlot = g.openSlot = -1;
+        }
+        if (mover.target >= 0 && mover.gridIndex < (int)grids.size()) {
+            grids[mover.gridIndex].cursor = mover.target;
+            grids[mover.gridIndex].onBar = false;
+        }
+    }
+    holding = false;
+    setState(StIdle);
+    if (reloadAfterDrop) {
+        reloadAfterDrop = false;
+        self->reloadItems();
+    }
+}
+
+// The held item (LncIconPickUp_00 / LncIconFolderPickUp_00) at the stylus; `scale` and
+// `alpha` shrink and fade a title flying into a folder.
+void CtrHome::Impl::drawLifted(Renderer& r, const HomeItem& it, float x, float y, float zoom, float scale, float alpha) {
+    for (IconTemplate* t : {&pickUp, &pickUpFolder, &icon}) {
+        if (!t->layout) continue;
+        t->pose(zoom);
+        t->layout->layout().opacity = alpha;
+    }
+    if (it.kind == HomeItemKind::Folder) {
+        if (pickUpFolder.layout) stamp(r, pickUpFolder, x, y, scale);
+        drawFolderFace(r, it, x, y, zoom, 1.08f * scale);
+    } else if (pickUp.layout) {
+        pickUp.layout->setVisible("P_Icon_00", false);
+        if (themeFileLarge && themeFileSmall)
+            pickUp.layout->replaceTexture("P_Btn_10", zoom >= SMALL_ICON_ZOOM ? themeFileSmall : themeFileLarge);
+        stamp(r, pickUp, x, y, scale);
+        Pane* ip = pickUp.layout->pane("P_Icon_00");
+        drawTitleArt(r, it, x, y, ip ? ip->size[0] : zoomTable(ICON_SIZE, zoom) * 1.08f, scale);
+    }
+    for (IconTemplate* t : {&pickUp, &pickUpFolder, &icon}) if (t->layout) t->layout->layout().opacity = 255;
+}
+
 // ================================================================== touch (touch.ts)
 
 bool CtrHome::Impl::touchUpdate() {
@@ -1437,11 +1939,17 @@ void CtrHome::Impl::touchBegin(float x, float y) {
 }
 
 void CtrHome::Impl::touchHold(float x, float y) {
-    (void)y;
     tHeld++;
     if (tKind != TGrid) return;
     if (scroller.move(x)) { tDragged = true; return; }
-    if (scroller.state == Scroller::Dragging) { tDragged = true; applyDelta(scroller.delta); }
+    if (scroller.state == Scroller::Dragging) { tDragged = true; applyDelta(scroller.delta); return; }
+    // touch.ts: a long press on an item of an arranged grid picks it up
+    Grid& g = grid();
+    if (tSlot >= 0 && !tDragged && tHeld >= LONG_PRESS_FRAMES && g.item(tSlot) && canGrab(g, *g.item(tSlot))) {
+        scroller.stop();
+        tKind = TNone;
+        startGrab(tSlot, x, y);
+    }
 }
 
 void CtrHome::Impl::touchEnd(float x, float y) {
@@ -1780,58 +2288,92 @@ void CtrHome::Impl::stamp(Renderer& r, IconTemplate& t, float x, float y, float 
     r.drawLayout(t.layout->layout());
 }
 
+// Letter tile size and y offset per zoom (icons.ts, after LncIconFolderPickUp_00_Scale P_Icon_00).
+static const float LETTER_SIZE[6] = {33, 33, 25.5f, 20.5f, 18.5f, 16.5f};
+static const float LETTER_Y[6] = {-4, -4, -2, -1, -1, 1};
+
+// A folder's face (icons.ts FolderLetter): the host's icon (a game system) or the outlined
+// initial, at the slot's zoom, scaled with a lifted folder.
+void CtrHome::Impl::drawFolderFace(Renderer& r, const HomeItem& it, float x, float y, float zoom, float scale) {
+    drawFolderFaceSized(r, it, x, y + zoomTable(LETTER_Y, zoom) * scale, zoomTable(LETTER_SIZE, zoom) * scale);
+}
+
+// The face as a tile `size` px wide centred at (x, cy) (icons.ts FolderLetter.stampSized).
+void CtrHome::Impl::drawFolderFaceSized(Renderer& r, const HomeItem& it, float x, float cy, float size) {
+    if (TexturePtr tex = titleTexture(it)) {
+        Pane* ip = icon.layout->pane("P_Icon_00");
+        if (ip) {
+            icon.layout->replaceTexture("P_Icon_00", tex);
+            ip->size[0] = ip->size[1] = size * 1.15f;
+            stamp(r, icon, x, cy, 1);
+        }
+        return;
+    }
+    if (!letter) return;
+    const std::u32string init = folderInitial(it.name);
+    if (init.empty()) return;
+    Pane* tp = letter->pane("T_Icon_00");
+    if (tp && (tp->runs.empty() || tp->runs[0].text != init)) letter->setTextU32("T_Icon_00", init);
+    const float ls = size / 32;
+    Pane* lr = letter->layout().root;
+    lr->scale[0] = lr->scale[1] = ls;
+    const float width = std::max(0.6f, ls * 1.4f);
+    static const float OFF[8][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-0.7f, -0.7f}, {0.7f, -0.7f}, {-0.7f, 0.7f}, {0.7f, 0.7f}};
+    if (tp) tp->vertexColors = {Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}};
+    for (auto& o : OFF) {
+        lr->translate[0] = x + o[0] * width;
+        lr->translate[1] = cy + o[1] * width;
+        letter->layout().calculate();
+        r.drawLayout(letter->layout());
+    }
+    if (tp) tp->vertexColors = {Rgba{80, 80, 80, 255}, Rgba{80, 80, 80, 255}, Rgba{80, 80, 80, 255}, Rgba{80, 80, 80, 255}};
+    lr->translate[0] = x;
+    lr->translate[1] = cy;
+    letter->layout().calculate();
+    r.drawLayout(letter->layout());
+}
+
+// A title's art on the icon template at `size` (icons.ts drawTitle).
+void CtrHome::Impl::drawTitleArt(Renderer& r, const HomeItem& it, float x, float y, float size, float scale) {
+    TexturePtr tex = titleTexture(it);
+    Pane* ip = icon.layout->pane("P_Icon_00");
+    if (!tex || !ip) return;
+    icon.layout->replaceTexture("P_Icon_00", tex);
+    ip->size[0] = ip->size[1] = size;
+    stamp(r, icon, x, y, scale);
+}
+
 void CtrHome::Impl::drawIcons(Renderer& r, const Grid& g, const Box* clip) {
     const float zoom = g.zoomValue();
-    for (IconTemplate* t : {&blank, &tile, &folderIcon, &icon}) if (t->layout) t->pose(zoom);
+    for (IconTemplate* t : {&blank, &tile, &folderIcon, &icon, &pickUpBlank, &hoverGlow, &folderOpenT, &folderOpenB})
+        if (t->layout) t->pose(zoom);
     const float limit = 160 + sExtraWidth * 0.5f + zoomTable(CULL_PITCH, zoom) * 0.5f;
     if (clip) r.setScissor(true, clip->left, clip->bottom, clip->right - clip->left, clip->top - clip->bottom);
+    // moving.ts markers: the glow under a slot the held icon would land on
+    if (g.hoverSlot >= 0 && hoverGlow.layout) {
+        Point p = g.slotOnScreen(g.hoverSlot);
+        stamp(r, hoverGlow, p.x, p.y);
+    }
     for (int slot = 0; slot < g.slots; slot++) {
         Point p = g.slotOnScreen(slot);
-        if (p.x > limit || p.x < -limit) continue;
+        if (p.x > limit || p.x < -limit || slot == g.skipSlot) continue;
         const HomeItem* it = g.item(slot);
+        if (slot == g.hiddenSlot && pickUpBlank.layout) { stamp(r, pickUpBlank, p.x, p.y); continue; }   // the hole
         if (!it) { stamp(r, blank, p.x, p.y); continue; }
         if (it->kind == HomeItemKind::Folder) {
-            folderIcon.layout->setVisible("N_Had_02", it->folderFilled);
-            stamp(r, folderIcon, p.x, p.y);
-            // a folder the host gives an icon (a game system) shows it where the initial goes
-            static const float LETTER_SIZE[6] = {33, 33, 25.5f, 20.5f, 18.5f, 16.5f};
-            static const float LETTER_Y[6] = {-4, -4, -2, -1, -1, 1};
-            if (TexturePtr tex = titleTexture(*it)) {
-                Pane* ip = icon.layout->pane("P_Icon_00");
-                if (ip) {
-                    icon.layout->replaceTexture("P_Icon_00", tex);
-                    ip->size[0] = ip->size[1] = zoomTable(LETTER_SIZE, zoom) * 1.15f;
-                    stamp(r, icon, p.x, p.y + zoomTable(LETTER_Y, zoom));
-                }
+            if (slot == g.openSlot && folderOpenT.layout) {
+                // a folder about to take the held title opens (LncIconFolderInT_00)
+                folderOpenT.layout->setVisible("P_FolderHad_01", it->folderFilled);
+                stamp(r, folderOpenT, p.x, p.y);
+                // the initial sits where LncIconFolderInB_00 holds its tile
+                Pane* root_ = folderOpenB.layout ? folderOpenB.layout->pane("N_FolderRoot_00") : nullptr;
+                Pane* tile_ = folderOpenB.layout ? folderOpenB.layout->pane("P_Icon_00") : nullptr;
+                if (root_ && tile_) drawFolderFaceSized(r, *it, p.x, p.y + root_->translate[1] + tile_->translate[1], tile_->size[0]);
                 continue;
             }
-            if (letter) {
-                // FolderLetter.stamp: outlined initial (icons.ts)
-                const std::u32string init = folderInitial(it->name);
-                if (!init.empty()) {
-                    Pane* tp = letter->pane("T_Icon_00");
-                    if (tp && (tp->runs.empty() || tp->runs[0].text != init)) letter->setTextU32("T_Icon_00", init);
-                    const float size = zoomTable(LETTER_SIZE, zoom);
-                    const float cy = p.y + zoomTable(LETTER_Y, zoom);
-                    const float scale = size / 32;
-                    Pane* lr = letter->layout().root;
-                    lr->scale[0] = lr->scale[1] = scale;
-                    const float width = std::max(0.6f, scale * 1.4f);
-                    static const float OFF[8][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-0.7f, -0.7f}, {0.7f, -0.7f}, {-0.7f, 0.7f}, {0.7f, 0.7f}};
-                    if (tp) tp->vertexColors = {Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}};
-                    for (auto& o : OFF) {
-                        lr->translate[0] = p.x + o[0] * width;
-                        lr->translate[1] = cy + o[1] * width;
-                        letter->layout().calculate();
-                        r.drawLayout(letter->layout());
-                    }
-                    if (tp) tp->vertexColors = {Rgba{80, 80, 80, 255}, Rgba{80, 80, 80, 255}, Rgba{80, 80, 80, 255}, Rgba{80, 80, 80, 255}};
-                    lr->translate[0] = p.x;
-                    lr->translate[1] = cy;
-                    letter->layout().calculate();
-                    r.drawLayout(letter->layout());
-                }
-            }
+            folderIcon.layout->setVisible("N_Had_02", it->folderFilled);
+            stamp(r, folderIcon, p.x, p.y);
+            drawFolderFace(r, *it, p.x, p.y, zoom, 1);
             continue;
         }
         // the theme's icon frame image for the art size shown (icons.ts frameImage)
@@ -1840,13 +2382,7 @@ void CtrHome::Impl::drawIcons(Renderer& r, const Grid& g, const Box* clip) {
             tile.layout->replaceTexture("P_Btn_10", z >= SMALL_ICON_ZOOM ? themeFileSmall : themeFileLarge);
         }
         stamp(r, tile, p.x, p.y);
-        TexturePtr tex = titleTexture(*it);
-        Pane* ip = icon.layout->pane("P_Icon_00");
-        if (tex && ip) {
-            icon.layout->replaceTexture("P_Icon_00", tex);
-            ip->size[0] = ip->size[1] = zoomTable(ICON_SIZE, zoom);
-            stamp(r, icon, p.x, p.y);
-        }
+        drawTitleArt(r, *it, p.x, p.y, zoomTable(ICON_SIZE, zoom), 1);
     }
     if (clip) r.setScissor(false);
 }
@@ -2057,6 +2593,16 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
     I.drawInstance(r, I.arrows.get());
     I.drawInstance(r, I.balloon.get());
     I.drawInstance(r, I.buttons.get());
+    if (I.holding && I.mover.gridIndex < (int)I.grids.size()) {
+        // moving.ts IconMover: the held icon above everything on the bottom screen
+        const Grid& hg = I.grids[I.mover.gridIndex];
+        const float zoom = hg.zoomValue();
+        if (I.mover.hasSwapped && I.mover.target >= 0 && I.state == StMoveIcon)
+            I.drawLifted(r, I.mover.swapped, I.mover.swapAt.x, I.mover.swapAt.y, zoom, 1, 255);
+        const float lift = std::trunc(zoomTable(TOUCH_BOX, zoom) * 0.2f);
+        const float y = I.state == StGrab ? std::min(HELD_TOP, I.mover.at.y + lift) : I.mover.at.y;
+        I.drawLifted(r, I.mover.item, I.mover.at.x, y, zoom, I.mover.scale, I.mover.alpha);
+    }
     if (overlay) overlay(r, false);
     if (I.fadeActive || I.state == StAppStart || I.state == StAppRunning) I.drawInstance(r, I.fadeBottom.get());
     r.end();

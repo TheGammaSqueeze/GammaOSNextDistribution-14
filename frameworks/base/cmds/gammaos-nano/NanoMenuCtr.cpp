@@ -207,8 +207,9 @@ public:
             mMenu->buildAppSubmenu(apps);
             mApps = apps.items;
         }
-        if (id.rfind("rom:", 0) == 0) {
-            const std::string path = id.substr(4);
+        // a Recently Played entry put on the root or into a folder stands for its game
+        if (id.rfind("rom:", 0) == 0 || id.rfind("recent:", 0) == 0) {
+            const std::string path = id.substr(id[0] == 'r' && id[1] == 'o' ? 4 : 7);
             if (mRomIndex.empty()) {
                 for (int s = 0; s < (int)mMenu->mXmbSystems.size(); s++)
                     for (const std::string& r : mMenu->mXmbSystems[s].roms) mRomIndex.emplace(r, std::make_pair(s, -1));
@@ -360,6 +361,10 @@ public:
     }
 
     void folderSettings(const std::string& folderId) override { mMenu->ctrFolderSettings(folderId); }
+    void notice(const std::string& label, const std::string& text) override {
+        (void)label;
+        if (!text.empty()) mMenu->feInfoDialog(std::string(), text);
+    }
 
     void renameFolder(const std::string& id, const std::string& name) {
         auto u = mLayout.folders.find(id);

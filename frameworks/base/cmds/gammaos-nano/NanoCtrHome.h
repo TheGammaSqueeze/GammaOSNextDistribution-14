@@ -106,6 +106,9 @@ public:
     virtual std::string createFolder(int slot, const std::string& name) { (void)slot; (void)name; return std::string(); }
     // A folder's Settings button (rename, delete).
     virtual void folderSettings(const std::string& folderId) { (void)folderId; }
+    // A notice the menu shows as a dialog with OK (a message label of the menu, e.g.
+    // lau_dlg_folder_icon_full) and its text in the active language.
+    virtual void notice(const std::string& label, const std::string& text) { (void)label; (void)text; }
     // Plays a menu sound by BCSAR name (SE_CTR_*, BGM_*); returns a handle for loops.
     virtual int playSound(const char* name) { (void)name; return 0; }
     virtual void stopSound(int handle, int fadeFrames) { (void)handle; (void)fadeFrames; }

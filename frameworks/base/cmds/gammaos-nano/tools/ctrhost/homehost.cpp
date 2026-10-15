@@ -34,6 +34,7 @@ bool initEgl(int w, int h);
 struct FakeHost : CtrHomeHost {
     std::map<std::string, std::vector<HomeItem>> folders;
     std::map<std::string, std::string> icons;
+    std::map<std::string, HomeItem> known;   // every item ever listed (moves keep them)
     std::string romfs;
     std::vector<std::string> log;
     std::vector<HomeItem> items(const std::string& folderId) override { return folders[folderId]; }
@@ -88,6 +89,24 @@ struct FakeHost : CtrHomeHost {
         return b >= 1 && b <= 5 ? n[b] : "";
     }
     int playSound(const char* name) override { log.push_back(std::string("sound ") + name); return 1; }
+    // folders named "uf:" are user folders; the root and user folders take moves
+    bool editable(const std::string& folderId) override { return folderId.empty() || folderId.rfind("uf:", 0) == 0; }
+    bool userFolder(const std::string& folderId) override { return folderId.rfind("uf:", 0) == 0; }
+    void layoutChanged(const std::string& folderId, const std::vector<std::pair<int, std::string>>& slots) override {
+        for (auto& kv : folders) for (auto& it : kv.second) known[it.id] = it;
+        std::vector<HomeItem> next;
+        std::string line = "layout " + folderId + ":";
+        for (auto& sl : slots) {
+            auto k = known.find(sl.second);
+            if (k != known.end()) { HomeItem c = k->second; c.slot = sl.first; next.push_back(c); }
+            line += " " + std::to_string(sl.first) + "=" + sl.second;
+        }
+        folders[folderId] = next;
+        for (auto& kv : folders)
+            for (HomeItem& it : kv.second)
+                if (it.kind == HomeItemKind::Folder) it.folderFilled = !folders[it.id].empty();
+        log.push_back(line);
+    }
 };
 
 static uint32_t buttonOf(const std::string& n) {
@@ -207,6 +226,17 @@ int main(int argc, char** argv) {
             home.step(n);
             t.held = false;
             home.setTouch(t);
+        } else if (cmd == "down" || cmd == "move") {
+            // "down x y N" / "move x y N": a touch held at bottom pixels for N frames
+            float x, y; int n; ss >> x >> y >> n;
+            CtrTouch t; t.held = true; t.x = x - home.bottomWidth() / 2; t.y = 120 - y;
+            home.setTouch(t);
+            home.step(n);
+        } else if (cmd == "up") {
+            int n; ss >> n;
+            CtrTouch t; t.held = false;
+            home.setTouch(t);
+            home.step(n);
         } else if (cmd == "panel") {
             int n; ss >> n >> panelSel;
             rows.clear();
