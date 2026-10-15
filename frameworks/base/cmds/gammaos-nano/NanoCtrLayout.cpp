@@ -1568,166 +1568,6 @@ TexturePtr Assets::rgbaTexture(const uint8_t* rgba, int w, int h) {
     return t;
 }
 
-// The top screen's small pixel drawn pieces (status icons, the camera and screenshot bars):
-// rebuilt at the panel's resolution instead of magnified.
-static bool rebuiltAtPanelRes(const std::string& archive, const std::string& name) {
-    if (archive == "hud") return name.compare(0, 3, "Hud") == 0;
-    if (archive != "launcher") return false;
-    static const char* kTop[] = {"CameraBase_06", "CameraPlus", "PictBtnL_02", "PictBtnR_02", "PictBtnY", "PictCam",
-                                 "PictCapture_05", "PictHome", "BaseWndwLT_16x32"};
-    for (const char* n : kTop)
-        if (name == n) return true;
-    return false;
-}
-
-// A pixel drawn image at `k` times its size, or nothing when it is not two toned. Most of these pieces are two toned in each channel
-// (a white fill, a black outline, an alpha cut out): such a channel is redrawn from its contour
-// halfway between the two tones, traced on a grid eight times finer than the source with a
-// Catmull-Rom bicubic and averaged down, so edges are as sharp as the panel shows them and
-// curves come out round. A channel with more tones (a gradient, a light) is upsampled smoothly.
-static std::vector<uint8_t> rebuildPixelArt(const uint8_t* src, int w, int h, int k) {
-    // colour bleeds into the transparent texels next to the shape, so the edge has no fringe
-    std::vector<uint8_t> in(src, src + (size_t)w * h * 4);
-    std::vector<uint8_t> known((size_t)w * h);
-    for (int i = 0; i < w * h; i++) known[i] = src[(size_t)i * 4 + 3] != 0;
-    for (int pass = 0; pass < 2; pass++) {
-        std::vector<uint8_t> grown = known;
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++) {
-                if (known[(size_t)y * w + x]) continue;
-                int sum[3] = {0, 0, 0}, n = 0;
-                for (int dy = -1; dy <= 1; dy++)
-                    for (int dx = -1; dx <= 1; dx++) {
-                        const int xx = x + dx, yy = y + dy;
-                        if (xx < 0 || yy < 0 || xx >= w || yy >= h || !known[(size_t)yy * w + xx]) continue;
-                        const uint8_t* q = &in[((size_t)yy * w + xx) * 4];
-                        for (int c = 0; c < 3; c++) sum[c] += q[c];
-                        n++;
-                    }
-                if (!n) continue;
-                uint8_t* d = &in[((size_t)y * w + x) * 4];
-                for (int c = 0; c < 3; c++) d[c] = (uint8_t)(sum[c] / n);
-                grown[(size_t)y * w + x] = 1;
-            }
-        known.swap(grown);
-    }
-
-    const int sub = std::max(1, (8 + k - 1) / k), F = k * sub;
-    const int ow = w * k, oh = h * k;
-    std::vector<uint8_t> out((size_t)ow * oh * 4, 0);
-    auto cubic = [](float p0, float p1, float p2, float p3, float t) {
-        return p1 + 0.5f * t * (p2 - p0 + t * (2 * p0 - 5 * p1 + 4 * p2 - p3 + t * (3 * (p1 - p2) + p3 - p0)));
-    };
-    std::vector<float> rowUp;
-    for (int c = 0; c < 4; c++) {
-        // mirrored past the edges: many pieces are halves the layout mirrors, and a reflected
-        // edge keeps their contour continuous across the seam
-        auto reflect = [](int v, int n) {
-            if (n == 1) return 0;
-            const int p = 2 * n;
-            v %= p;
-            if (v < 0) v += p;
-            return v < n ? v : p - 1 - v;
-        };
-        // alpha past an edge the shape only touches (no seam) is empty, so a circle tangent to the
-        // border stays round instead of flattening against its mirror image
-        bool seam[4] = {true, true, true, true};   // left, right, top, bottom
-        if (c == 3) {
-            // a solid texel on the edge means the shape is cut there (a seam, or a mask the
-            // layout stretches by clamping): those edges keep their texels
-            auto edgeMax = [&](int x0, int y0, int dx, int dy, int len) {
-                int m = 0;
-                for (int i = 0; i < len; i++) m = std::max(m, (int)src[((size_t)(y0 + dy * i) * w + (x0 + dx * i)) * 4 + 3]);
-                return m;
-            };
-            seam[0] = edgeMax(0, 0, 0, 1, h) >= 217;
-            seam[1] = edgeMax(w - 1, 0, 0, 1, h) >= 217;
-            seam[2] = edgeMax(0, 0, 1, 0, w) >= 217;
-            seam[3] = edgeMax(0, h - 1, 1, 0, w) >= 217;
-        }
-        auto at = [&](int x, int y) -> float {
-            if ((x < 0 && !seam[0]) || (x >= w && !seam[1]) || (y < 0 && !seam[2]) || (y >= h && !seam[3])) return 0;
-            return in[((size_t)reflect(y, h) * w + reflect(x, w)) * 4 + c];
-        };
-        // the channel's two tones, where the shape is (alpha: everywhere)
-        int lo = 255, hi = 0, n = 0;
-        for (int i = 0; i < w * h; i++) {
-            if (c < 3 && !src[(size_t)i * 4 + 3]) continue;
-            const int v = in[(size_t)i * 4 + c];
-            lo = std::min(lo, v);
-            hi = std::max(hi, v);
-            n++;
-        }
-        // two toned: every texel between the tones is an edge's anti-aliasing, next to texels of
-        // both tones (a flat area of a third tone, like a translucent halo, makes it soft)
-        bool twoTone = n > 0 && hi - lo >= 24;
-        if (twoTone) {
-            const float band = (hi - lo) * 0.12f;
-            auto tone = [&](int x, int y) {   // -1 low, 1 high, 0 between
-                const float v = at(x, y);
-                return v - lo <= band ? -1 : hi - v <= band ? 1 : 0;
-            };
-            int flat = 0;
-            for (int y = 0; y < h && twoTone; y++)
-                for (int x = 0; x < w; x++) {
-                    if ((c < 3 && !src[((size_t)y * w + x) * 4 + 3]) || tone(x, y) != 0) continue;
-                    bool low = false, high = false;
-                    for (int dy = -2; dy <= 2; dy++)   // an edge's ramp can span two texels
-                        for (int dx = -2; dx <= 2; dx++) {
-                            const int t = tone(x + dx, y + dy);
-                            low |= t < 0;
-                            high |= t > 0;
-                        }
-                    if (!(low && high)) flat++;
-                }
-            twoTone = flat <= n / 20;
-        }
-        // a texture with a soft channel (a light, a gradient, a translucent halo) stays the
-        // console's own: its look depends on how the layout filters it
-        if (!twoTone && n > 0 && hi - lo >= 24) return {};
-        const float mid = (lo + hi) * 0.5f;
-        // rows first at the fine (or output) resolution, then each column
-        const int R = twoTone ? F : k;
-        const int RW = w * R, RH = h * R;
-        rowUp.assign((size_t)RW * h, 0);
-        for (int y = 0; y < h; y++)
-            for (int X = 0; X < RW; X++) {
-                const float sx = (X + 0.5f) / R - 0.5f;
-                const int x0 = (int)floorf(sx);
-                const float t = sx - x0;
-                rowUp[(size_t)y * RW + X] = twoTone ? cubic(at(x0 - 1, y), at(x0, y), at(x0 + 1, y), at(x0 + 2, y), t)
-                                                    : at(x0, y) * (1 - t) + at(x0 + 1, y) * t;
-            }
-        std::vector<float> zeroRow(RW, 0.0f);
-        auto row = [&](int y) -> const float* {
-            if ((y < 0 && !seam[2]) || (y >= h && !seam[3])) return zeroRow.data();
-            return rowUp.data() + (size_t)reflect(y, h) * RW;
-        };
-        std::vector<float> acc(twoTone ? (size_t)ow * oh : 0, 0);
-        for (int Y = 0; Y < RH; Y++) {
-            const float sy = (Y + 0.5f) / R - 0.5f;
-            const int y0 = (int)floorf(sy);
-            const float t = sy - y0;
-            const float *r0 = row(y0 - 1), *r1 = row(y0), *r2 = row(y0 + 1), *r3 = row(y0 + 2);
-            for (int X = 0; X < RW; X++) {
-                // soft channels: bilinear, as the GPU magnified them before
-                const float v = twoTone ? cubic(r0[X], r1[X], r2[X], r3[X], t) : r1[X] * (1 - t) + r2[X] * t;
-                if (twoTone) {
-                    if (v >= mid) acc[(size_t)(Y / sub) * ow + X / sub] += 1;
-                } else {
-                    out[((size_t)Y * ow + X) * 4 + c] = (uint8_t)std::clamp(lroundf(v), 0L, 255L);
-                }
-            }
-        }
-        if (twoTone) {
-            const float inv = 1.0f / (sub * sub);
-            for (size_t i = 0; i < acc.size(); i++)
-                out[i * 4 + c] = (uint8_t)lroundf(lo + (hi - lo) * acc[i] * inv);
-        }
-    }
-    return out;
-}
-
 TexturePtr Assets::layoutTexture(const std::string& archive, const std::string& name) {
     const std::string key = archive + "/" + name;
     auto it = mTextures.find(key);
@@ -1744,20 +1584,23 @@ TexturePtr Assets::layoutTexture(const std::string& archive, const std::string& 
     }
     // the packer stored the PNG flipped and padded to the hardware size
     TexturePtr t;
-    // a power of two (these textures may repeat and are mipmapped)
-    const int k = Font::vectorScale() >= 3 ? 4 : Font::vectorScale() >= 2 ? 2 : 1;
-    if (k > 1 && rebuiltAtPanelRes(archive, name)) {
-        int w = 0, h = 0, comp = 0;
-        if (stbi_uc* px = stbi_load_from_memory(d, (int)n, &w, &h, &comp, 4)) {
-            const std::vector<uint8_t> big = rebuildPixelArt(px, w, h, k);
-            stbi_image_free(px);
-            if (!big.empty()) {
-                t = rgbaTexture(big.data(), w * k, h * k);
-                glGenerateMipmap(GL_TEXTURE_2D);   // rgbaTexture left it bound
+    // the top screen's icons redrawn as vector art (tools/ctr_hd_icons.py): the same image at
+    // kHdScale times the size, with the original's logical and allocated sizes so layouts,
+    // window frames and uv scales are unchanged; mipmapped for panels that show it smaller
+    static constexpr int kHdScale = 8;
+    if (Pack* hd = pack("lyt_hd.cpk")) {
+        const uint8_t* hdd;
+        size_t hdn;
+        if (hd->blob(archive + "/" + name, &hdd, &hdn)) {
+            t = pngTexture(hdd, hdn, false);
+            if (t && t->width % kHdScale == 0 && t->height % kHdScale == 0) {
+                glBindTexture(GL_TEXTURE_2D, t->id);
+                glGenerateMipmap(GL_TEXTURE_2D);
                 t->mipmapped = true;
-                // the same logical and allocated sizes: uv scales and frame sizes are unchanged
-                t->width = t->texWidth = w;
-                t->height = t->texHeight = h;
+                t->width = t->texWidth = t->width / kHdScale;
+                t->height = t->texHeight = t->height / kHdScale;
+            } else {
+                t.reset();
             }
         }
     }
