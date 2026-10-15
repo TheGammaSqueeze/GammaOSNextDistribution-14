@@ -2979,12 +2979,12 @@ void CtrHome::Impl::drawChargeBolt(Renderer& r) {
     Pane* ip = icon.layout->pane("P_Icon_00");
     if (!bat || !ip) return;
     // the gauge's top left in layout space (the bar adapts to the screen width: its global place);
-    // its body is the left 30 of its 32 x 20 units (the tip on the right)
+    // its tip is on the left, so the body's middle is 2 units right of the pane's (measured)
     const float batX = bat->global.m[12], batY = bat->global.m[13];
     icon.layout->replaceTexture("P_Icon_00", chargeTex);
     // the template keeps its picture's own size: the whole template is scaled to kBoltW
     const float base = std::max(1.0f, ip->size[1]);
-    stamp(r, icon, batX + bat->size[0] * 0.5f - 1.0f, batY - bat->size[1] * 0.5f, kBoltW / base);
+    stamp(r, icon, batX + bat->size[0] * 0.5f + 2.0f, batY - bat->size[1] * 0.5f, kBoltW / base);
 }
 
 void CtrHome::Impl::hudPercent(const HomeStatus& st) {
