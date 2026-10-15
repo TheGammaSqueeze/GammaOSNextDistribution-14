@@ -41,6 +41,7 @@
 #include <binder/ProcessState.h>
 #include <binder/IServiceManager.h>
 #include <cutils/properties.h>
+#include <sys/system_properties.h>
 #include <sys/resource.h>
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
@@ -525,9 +526,10 @@ static void runDrasticInitIfNeeded() {
 //   # Tear down so strace output stops growing
 //   adb shell setprop sys.gammaos.nano.drastic_qr_test stop
 //
-// The watcher runs a dedicated thread that polls the trigger
-// property ~every 250 ms. Transitions are edge-triggered: setting
-// the same value twice is a no-op.
+// The watcher runs a dedicated thread that sleeps in
+// __system_property_wait on the trigger property (created empty if
+// missing), so it costs no wakeups until the property is set.
+// Transitions are edge-triggered: setting the same value twice is a no-op.
 //
 // One start/stop cycle per gammaos-nano process is safe. A second
 // start after stop is BEST-EFFORT because libdrastic's global
@@ -546,7 +548,7 @@ static void runDrasticInitIfNeeded() {
 // on-demand testing.
 static void startDrasticQrTestWatcher() {
     std::thread([]() {
-        pthread_setname_np(pthread_self(), "drastic-qr-watch");
+        pthread_setname_np(pthread_self(), "drastic-qrwatch");   // 15 chars max
 
         // Owned outside any shared pointer on purpose: we don't want
         // the watcher and NanoMenu::getInstance() stepping on the same
@@ -556,11 +558,31 @@ static void startDrasticQrTestWatcher() {
         android::DrasticRunner* runner = nullptr;
         char last[PROPERTY_VALUE_MAX] = {};
 
+        // Block on this property's own serial instead of polling. An empty set creates it, so
+        // there is always a prop_info to wait on (the global serial would wake on every change).
+        static const char kProp[] = "sys.gammaos.nano.drastic_qr_test";
+        const prop_info* pi = __system_property_find(kProp);
+        if (!pi) {
+            property_set(kProp, "");
+            pi = __system_property_find(kProp);
+        }
+        if (!pi) {
+            ALOGW("drastic_qr_test: %s unavailable, watcher not started", kProp);
+            return;
+        }
+
         ALOGI("drastic_qr_test: watcher thread started");
 
         while (true) {
-            char val[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.gammaos.nano.drastic_qr_test", val, "");
+            // the value and the serial it was read at, together
+            struct Read { char val[PROPERTY_VALUE_MAX]; uint32_t serial; } rd = {};
+            __system_property_read_callback(pi, [](void* cookie, const char*, const char* value, uint32_t s) {
+                Read* r = static_cast<Read*>(cookie);
+                strlcpy(r->val, value, sizeof(r->val));
+                r->serial = s;
+            }, &rd);
+            uint32_t serial = rd.serial;
+            const char* val = rd.val;
 
             if (strcmp(val, last) != 0) {
                 ALOGW("drastic_qr_test: transition \"%s\" -> \"%s\"",
@@ -648,7 +670,9 @@ static void startDrasticQrTestWatcher() {
                 }
             }
 
-            usleep(250 * 1000);
+            // Sleep until the value changes (a set made while the transition ran has already
+            // moved the serial, so the wait returns at once and it is handled).
+            __system_property_wait(pi, serial, &serial, nullptr);
         }
     }).detach();
 }
