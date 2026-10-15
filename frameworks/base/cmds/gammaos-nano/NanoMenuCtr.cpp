@@ -767,7 +767,7 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
 // A touch frame: nano has the raw touch state (mTouchDown / mTouchRawX/Y); map it into bottom
 // screen layout space through the rectangle the bottom screen is drawn in.
 void NanoMenu::ctrTouchFrame() {
-    if (mOskActive || mGSearchActive) return;   // nano's own touch handling has them
+    if (mOskActive || (mGSearchActive && !ctrSearchThemed())) return;   // nano's own touch handling has them
     const bool modal = ctrModalKind() == CTR_MODAL_PANEL;
     if (!ctrOwnsInput() && !modal) return;
     float px = 0, py = 0;
@@ -1129,6 +1129,12 @@ void NanoMenu::ctrUpdateWallpapers() {
 
 // ---------------------------------------------------------------------------- lists and dialogs
 
+// The global search results (the query keyboard closed) as the 3DS panel.
+bool NanoMenu::ctrSearchThemed() const {
+    return mCtrTheme && mGSearchActive && !mOskActive && !mSetupWizardActive && !mPs3BootActive &&
+           mCtrHome && mCtrHome->loaded();
+}
+
 bool NanoMenu::ctrWizThemed() const {
     return mCtrTheme && mPs3WizActive && !mSetupWizardActive && !mPs3BootActive && mCtrHome && mCtrHome->loaded();
 }
@@ -1137,6 +1143,7 @@ int NanoMenu::ctrModalKind() const {
     if (!mCtrTheme || !mCtrHome || !mCtrHome->loaded() || mPs3BootActive || mSetupWizardActive) return CTR_MODAL_NONE;
     if (ctrWizThemed()) return CTR_MODAL_PANEL;   // the network / Bluetooth wizard as the panel
     if (mScrapeProgActive || mMtpActive) return CTR_MODAL_PANEL;   // the scraper / MTP as dialogs
+    if (ctrSearchThemed()) return CTR_MODAL_PANEL;                  // search results as the panel
     // screens without a 3DS look yet: the shared XMB chrome
     // (the keyboard and the search results draw on their own over the 3DS screens: ctrRenderOverlays)
     const bool other = mVidActive || mMpActive || mPvActive ||
@@ -1197,6 +1204,10 @@ void NanoMenu::ctrModalUpdate() {
     }
     if (ctrWizThemed()) {
         ctrWizUpdate();
+        return;
+    }
+    if (ctrSearchThemed()) {
+        ctrSearchUpdate();
         return;
     }
     // ---- the panel: an option menu, a list-style dialog, or the current list level ----
@@ -1496,6 +1507,55 @@ bool NanoMenu::ctrStatusView(CtrStatusView* v) {
     return false;
 }
 
+// Search results: a header row per section (Games, Music, ...) and a row per result with its
+// system / artist / date as the value. The keys stay with the gsearch* handlers.
+static const char* const kCtrSearchSection[5] = {"Games", "Music", "Photos", "Videos", "IPTV"};
+
+void NanoMenu::ctrSearchRows(std::vector<ctr::PanelRow>* rows, std::vector<int>* rowResult, int* sel) {
+    rows->clear();
+    rowResult->clear();
+    *sel = -1;
+    int prev = -1;
+    for (int k = 0; k < (int)mGSearchResults.size(); k++) {
+        const GSearchResult& g = mGSearchResults[k];
+        if (g.section != prev) {
+            prev = g.section;
+            ctr::PanelRow h;
+            h.kind = ctr::PanelRow::Text;
+            h.label = trDyn(kCtrSearchSection[g.section >= 0 && g.section < 5 ? g.section : 0]);
+            rows->push_back(h);
+            rowResult->push_back(-1);
+        }
+        ctr::PanelRow r;
+        r.label = g.label;
+        if (!g.sub.empty()) { r.kind = ctr::PanelRow::Value; r.value = g.sub; }
+        if (k == mGSearchSel) *sel = (int)rows->size();
+        rows->push_back(r);
+        rowResult->push_back(k);
+    }
+    if (mGSearchResults.empty()) {
+        ctr::PanelRow r;
+        r.kind = ctr::PanelRow::Text;
+        r.label = std::string(trDyn("No results for")) + " \"" + mGSearchQuery + "\"";
+        rows->push_back(r);
+        rowResult->push_back(-1);
+    }
+}
+
+void NanoMenu::ctrSearchUpdate() {
+    std::vector<ctr::PanelRow> rows;
+    std::vector<int> map;
+    int sel = -1;
+    ctrSearchRows(&rows, &map, &sel);
+    const std::string title = std::string(trDyn("Search")) + ": " + mGSearchQuery;
+    mCtrHome->setTopBannerHidden(true);
+    mCtrPanel->set(title, rows, sel, ctrLevelId(8, 0, title, rows.size()));
+    mCtrPanel->show();
+    mCtrPanelWasShown = true;
+    mCtrDialog->setWait(std::string());
+    mCtrDialog->hide(true);
+}
+
 bool NanoMenu::ctrWizTouch(bool down, bool held, bool up, float x, float y) {
     CtrWizView v;
     ctrWizView(&v);
@@ -1527,6 +1587,25 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
     const bool down = mTouchDown && !mCtrTouchPrev, up = !mTouchDown && mCtrTouchPrev, held = mTouchDown && mCtrTouchPrev;
     mCtrTouchPrev = mTouchDown;
     if (ctrWizThemed()) return mOskActive ? false : ctrWizTouch(down, held, up, x, y);
+    if (ctrSearchThemed()) {
+        if (!mCtrPanel->active()) return true;
+        const ctr::PanelHit h = mCtrPanel->touch(down, held, up, x, y);
+        if (h.what == ctr::PanelHit::Row) {
+            std::vector<ctr::PanelRow> rows;
+            std::vector<int> map;
+            int sel;
+            ctrSearchRows(&rows, &map, &sel);
+            if (h.row >= 0 && h.row < (int)map.size() && map[h.row] >= 0) {
+                mGSearchSel = map[h.row];
+                gsearchActivate();
+                if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
+            }
+        } else if (h.what == ctr::PanelHit::Close || h.what == ctr::PanelHit::Outside) {
+            gsearchClose();
+        }
+        mDisplayDirty = true;
+        return true;
+    }
     if (mMtpActive || mScrapeProgActive) {
         // the dialog's one button is B: Stop MTP or close the scrape's result (a one button
         // window takes a tap anywhere, like the notices); a running scrape waits for B
@@ -2257,12 +2336,13 @@ void NanoMenu::renderCtrPrimary() {
 // and renderOsk), so the top screen only dims behind them; one panel draws them here.
 void NanoMenu::ctrRenderOverlays() {
     if (!mOskActive && !mGSearchActive) return;
+    if (ctrSearchThemed()) return;   // the results are the 3DS panel (ctrSearchUpdate)
     if (ctrDualPanel()) {
         setUiBlend();   // the 3DS renderer leaves its own blend state
         drawQuad(0, 0, (float)mWidth, (float)mHeight, 0, 0, 0, 0.45f);
         return;
     }
-    if (mGSearchActive) renderGlobalSearch();
+    if (mGSearchActive && !ctrSearchThemed()) renderGlobalSearch();
     renderOsk();
 }
 

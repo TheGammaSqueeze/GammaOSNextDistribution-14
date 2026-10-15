@@ -64,7 +64,7 @@ static inline void nanoThreadNormalPriority() {
 #include "NanoEsdeTheme.h"
 #include "NanoSyncthing.h"  // Syncthing REST client + model (Settings > Syncthing)
 #include "NanoNdsBanner.h"   // DS ROM banner icon + title (DSi theme)
-namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; class RomArt; struct ThemeBody; } }   // ES-DE theme engine model (fourth home theme)
+namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; struct PanelRow; class RomArt; struct ThemeBody; } }   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -5204,6 +5204,9 @@ private:
         int buttonSel = 0;
     };
     bool ctrWizThemed() const;
+    bool ctrSearchThemed() const;
+    void ctrSearchUpdate();
+    void ctrSearchRows(std::vector<ctr::PanelRow>* rows, std::vector<int>* rowResult, int* sel);
     struct CtrStatusView { std::string text; std::vector<std::string> buttons; float fraction = -1; bool wait = false; };
     bool ctrStatusView(CtrStatusView* v);
     void ctrWizUpdate();

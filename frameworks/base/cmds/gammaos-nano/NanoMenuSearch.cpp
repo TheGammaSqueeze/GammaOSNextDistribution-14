@@ -318,6 +318,7 @@ void NanoMenu::gsearchActivate() {
 // the live wave, a title + query line, then section headers and result rows with the
 // selected row highlighted, and a hint bar. Scrolls when the list overflows.
 void NanoMenu::renderGlobalSearch() {
+    if (ctrSearchThemed()) return;   // the 3DS theme shows the results as its panel (NanoMenuCtr.cpp)
     int W = mWidth, H = mHeight;
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
     mGSearchAnim += (1.0f - mGSearchAnim) * (1.0f - expf(-13.0f * dt));
