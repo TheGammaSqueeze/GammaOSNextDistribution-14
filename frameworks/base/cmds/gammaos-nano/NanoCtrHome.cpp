@@ -2968,22 +2968,23 @@ void CtrHome::Impl::hudUpdate(bool force) {
     }
 }
 
-static constexpr float kBoltW = 15.0f;
+static constexpr float kBoltW = 13.0f;
 static constexpr float kPctFontW = 14.0f, kPctFontH = 17.6f, kPctDropY = 0.0f;
 
-// The charging bolt: our Quick Menu pictogram in the status text's grey, kBoltW units tall, just
-// left of the percentage (or of the gauge without it), drawn after the status bar.
+// The charging bolt: our Quick Menu pictogram, white with a dark outline, kBoltW units tall over
+// the middle of the battery gauge while charging, drawn after the status bar.
 void CtrHome::Impl::drawChargeBolt(Renderer& r) {
     if (!charging || !chargeTex || !icon.layout) return;
     Pane* bat = hud->pane("P_Bat_00");
     Pane* ip = icon.layout->pane("P_Icon_00");
     if (!bat || !ip) return;
-    // the gauge's top left in layout space (the bar adapts to the screen width: its global place)
+    // the gauge's top left in layout space (the bar adapts to the screen width: its global place);
+    // its body is the left 30 of its 32 x 20 units (the tip on the right)
     const float batX = bat->global.m[12], batY = bat->global.m[13];
-    const float right = batX - 1.0f - (pctTextW > 0 ? pctTextW + 3.0f : 1.0f);
     icon.layout->replaceTexture("P_Icon_00", chargeTex);
-    ip->size[0] = ip->size[1] = kBoltW;
-    stamp(r, icon, right - kBoltW * 0.5f, batY - 10.0f, 1);
+    // the template keeps its picture's own size: the whole template is scaled to kBoltW
+    const float base = std::max(1.0f, ip->size[1]);
+    stamp(r, icon, batX + bat->size[0] * 0.5f - 1.0f, batY - bat->size[1] * 0.5f, kBoltW / base);
 }
 
 void CtrHome::Impl::hudPercent(const HomeStatus& st) {
@@ -3037,7 +3038,7 @@ void CtrHome::Impl::hudPercent(const HomeStatus& st) {
         pctTextW = 10.0f * (float)strlen(buf);
     }
     charging = st.adapter && st.charging && chargeTex;
-    const float shift = (show ? pctTextW + 5.0f : 0.0f) + (charging ? kBoltW + 2.0f : 0.0f);
+    const float shift = show ? pctTextW + 5.0f : 0.0f;
     if (show) hud->setText("T_Coin_00", buf);
     t->visible = show;
     // the step counter (always 0: no pedometer) gives up its place when the date has to move far
@@ -4518,12 +4519,73 @@ void CtrHome::setBarIcon(int button, const uint8_t* rgba, int w, int h, const fl
 
 void CtrHome::setChargeIcon(const uint8_t* rgba, int w, int h) {
     if (!mLoaded || !rgba || w <= 0 || h <= 0) return;
-    // the status text's colour (HudMenu_00 text material constant 0: 50, 50, 50) over the alpha
-    std::vector<uint8_t> px((size_t)w * h * 4);
-    for (size_t i = 0; i < (size_t)w * h; i++) {
-        px[i * 4] = px[i * 4 + 1] = px[i * 4 + 2] = 50;
-        px[i * 4 + 3] = rgba[i * 4 + 3];
+    // cropped to its ink (the pictogram is padded) and shown about 70 px tall: its alpha
+    // box-filtered down to at most 64 px first
+    std::vector<uint8_t> crop;
+    {
+        int x0 = w, y0 = h, x1 = -1, y1 = -1;
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++)
+                if (rgba[((size_t)y * w + x) * 4 + 3] > 8) {
+                    x0 = std::min(x0, x); x1 = std::max(x1, x);
+                    y0 = std::min(y0, y); y1 = std::max(y1, y);
+                }
+        if (x1 >= x0) {
+            // square around the ink, so the bolt keeps its proportions in the square icon
+            const int side = std::max(x1 - x0 + 1, y1 - y0 + 1);
+            const int cx = (x0 + x1 + 1) / 2 - side / 2, cy = (y0 + y1 + 1) / 2 - side / 2;
+            crop.assign((size_t)side * side * 4, 0);
+            for (int y = 0; y < side; y++)
+                for (int x = 0; x < side; x++) {
+                    const int sx = cx + x, sy = cy + y;
+                    if (sx >= 0 && sy >= 0 && sx < w && sy < h)
+                        crop[((size_t)y * side + x) * 4 + 3] = rgba[((size_t)sy * w + sx) * 4 + 3];
+                }
+            rgba = crop.data();
+            w = h = side;
+        }
     }
+    std::vector<uint8_t> small;
+    {
+        const int f = std::max(1, (std::max(w, h) + 63) / 64);
+        const int sw = std::max(1, w / f), sh = std::max(1, h / f);
+        small.assign((size_t)sw * sh * 4, 0);
+        for (int y = 0; y < sh; y++)
+            for (int x = 0; x < sw; x++) {
+                int sum = 0;
+                for (int dy = 0; dy < f; dy++)
+                    for (int dx = 0; dx < f; dx++) sum += rgba[((size_t)(y * f + dy) * w + (x * f + dx)) * 4 + 3];
+                small[((size_t)y * sw + x) * 4 + 3] = (uint8_t)(sum / (f * f));
+            }
+        rgba = small.data();
+        w = sw;
+        h = sh;
+    }
+    // white over the gauge's bars, with an outline in the status text's colour (HudMenu_00 text
+    // constant 0: 50, 50, 50) about a twelfth of the icon wide, so it reads over orange and blue
+    const int ring = std::max(2, std::max(w, h) / 12);
+    const int W = w + 2 * ring, H = h + 2 * ring;
+    auto alphaAt = [&](int x, int y) -> int {
+        x -= ring;
+        y -= ring;
+        return x < 0 || y < 0 || x >= w || y >= h ? 0 : rgba[((size_t)y * w + x) * 4 + 3];
+    };
+    std::vector<uint8_t> px((size_t)W * H * 4);
+    for (int y = 0; y < H; y++)
+        for (int x = 0; x < W; x++) {
+            int out = 0;   // the outline: the largest alpha within the ring's radius
+            for (int dy = -ring; dy <= ring; dy++)
+                for (int dx = -ring; dx <= ring; dx++)
+                    if (dx * dx + dy * dy <= ring * ring) out = std::max(out, alphaAt(x + dx, y + dy));
+            const int in = alphaAt(x, y);
+            uint8_t* o = &px[((size_t)y * W + x) * 4];
+            // white where the bolt is, dark around it
+            const int c = 50 + (255 - 50) * in / 255;
+            o[0] = o[1] = o[2] = (uint8_t)c;
+            o[3] = (uint8_t)std::max(in, out);
+        }
+    w = W;
+    h = H;
     TexturePtr t = mAssets->rgbaTexture(px.data(), w, h);
     glBindTexture(GL_TEXTURE_2D, t->id);
     glGenerateMipmap(GL_TEXTURE_2D);
