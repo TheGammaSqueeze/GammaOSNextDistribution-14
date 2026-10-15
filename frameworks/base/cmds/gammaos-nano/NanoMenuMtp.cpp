@@ -230,6 +230,7 @@ void NanoMenu::mtpTick() {
 void NanoMenu::renderMtpScreen() {
     if (!mMtpActive) return;
     mDisplayDirty = true;   // keep redrawing: the status and the spinner change without input
+    if (mCtrTheme && ctrModalKind() == CTR_MODAL_PANEL) return;   // the 3DS dialog shows it (NanoMenuCtr.cpp)
     const float W = (float)mWidth, H = (float)mHeight;
     float sf = fminf(W / 1080.0f, H / 720.0f); if (sf < 0.5f) sf = 0.5f;
 

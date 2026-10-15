@@ -1136,11 +1136,12 @@ bool NanoMenu::ctrWizThemed() const {
 int NanoMenu::ctrModalKind() const {
     if (!mCtrTheme || !mCtrHome || !mCtrHome->loaded() || mPs3BootActive || mSetupWizardActive) return CTR_MODAL_NONE;
     if (ctrWizThemed()) return CTR_MODAL_PANEL;   // the network / Bluetooth wizard as the panel
+    if (mScrapeProgActive || mMtpActive) return CTR_MODAL_PANEL;   // the scraper / MTP as dialogs
     // screens without a 3DS look yet: the shared XMB chrome
     // (the keyboard and the search results draw on their own over the 3DS screens: ctrRenderOverlays)
     const bool other = mVidActive || mMpActive || mPvActive ||
-                       mPhotoMultiActive || mScrapeProgActive ||
-                       mMtpActive || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
+                       mPhotoMultiActive ||
+                       mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
                        ps3TopScreenKind() == PHOTO_GRID;
     if (other) return CTR_MODAL_FALLBACK;
     if (mPs3DlgActive || mPs3OptActive || mPs3TzActive || mPs3LangActive || mPs3BrightSlider || !mPs3Stack.empty())
@@ -1350,6 +1351,25 @@ void NanoMenu::ctrModalUpdate() {
         mCtrPanelWasShown = false;
     }
     // ---- the message dialog (confirmations, notices) over everything ----
+    CtrStatusView st;
+    if (ctrStatusView(&st)) {
+        if (st.fraction >= 0) {
+            mCtrDialog->setWait(std::string());
+            mCtrDialog->set(std::string(), st.buttons, 0);
+            mCtrDialog->setProgress(st.text, st.fraction);
+        } else if (st.wait) {
+            mCtrDialog->setProgress(std::string(), -1);
+            mCtrDialog->set(std::string(), st.buttons, 0);
+            mCtrDialog->setWait(st.text);
+        } else {
+            mCtrDialog->setProgress(std::string(), -1);
+            mCtrDialog->setWait(std::string());
+            mCtrDialog->set(st.text, st.buttons, 0);
+        }
+        mCtrDialog->show();
+        return;
+    }
+    mCtrDialog->setWait(std::string());
     if (mPs3BrightSlider) {
         // the Quick Menu brightness: live, in percent like the other themes' bar
         char pct[16];
@@ -1424,6 +1444,58 @@ void NanoMenu::ctrWizUpdate() {
     }
 }
 
+// The boxart scraper (and the boxart folder move) and the MTP screen as the console's dialogs:
+// a running scrape is the progress dialog with Cancel, its result a notice with OK; MTP is a
+// notice with the wait icon turning while it (re)starts, and Stop ends it.
+bool NanoMenu::ctrStatusView(CtrStatusView* v) {
+    *v = CtrStatusView();
+    if (mMtpActive) {
+        std::string status; bool failed;
+        { std::lock_guard<std::mutex> lk(mMtpMutex); status = mMtpStatus; failed = mMtpFailed; }
+        if (mMtpUsbConnected) {
+            std::string line = status.empty() ? std::string(trDyn("Starting MTP...")) : status;
+            if (mMtpRejigging.load()) {
+                // busy: the trailing dots count up (the screen's own animation)
+                while (!line.empty() && line.back() == '.') line.pop_back();
+                line += std::string(1 + (mMtpPollFrames / 2) % 3, '.');
+            }
+            v->text = std::string(trDyn("MTP Active")) + "\n\n" + line + "\n" +
+                      trDyn(failed ? "Reconnect the cable to try again" : "Transfer files from your computer");
+        } else {
+            v->text = std::string(trDyn("USB Disconnected")) + "\n\n" + trDyn("Connect a USB cable to a computer") +
+                      "\n" + trDyn("MTP starts again as soon as it is plugged in");
+        }
+        v->buttons = {trDyn("Stop MTP")};
+        return true;
+    }
+    if (mScrapeProgActive) {
+        int done, total, hits, fail; bool running; std::string status, err;
+        {
+            std::lock_guard<std::mutex> lk(mScrapeMutex);
+            done = mScrapeDone; total = mScrapeTotal; hits = mScrapeHits; fail = mScrapeFail;
+            running = mScrapeRunning; status = mScrapeStatus; err = mScrapeError;
+        }
+        const bool moving = mScrapeMoveMode;
+        const std::string title = trDyn(moving ? "Boxart Folder" : "Boxart Scraper");
+        char line[256];
+        if (!running && mScrapeDoneFlag) {
+            if (!err.empty() && hits == 0) snprintf(line, sizeof(line), "%s", err.c_str());
+            else if (moving) snprintf(line, sizeof(line), trDyn("Done. %d files moved, %d failed."), hits, fail);
+            else snprintf(line, sizeof(line), hits == 1 ? trDyn("Done. %d game with art, %d not found.")
+                                                         : trDyn("Done. %d games with art, %d not found."), hits, fail);
+            v->text = title + "\n\n" + line;
+            v->buttons = {trDyn("OK")};
+        } else {
+            snprintf(line, sizeof(line), trDyn(moving ? "%d / %d files moved" : "%d / %d   (%d found)"), done, total, hits);
+            v->text = title + "\n" + line + "\n" + status;
+            v->fraction = total > 0 ? std::clamp((float)done / (float)total, 0.0f, 1.0f) : 0.0f;
+            // the console's progress dialog has no buttons: B cancels (as in the other themes)
+        }
+        return true;
+    }
+    return false;
+}
+
 bool NanoMenu::ctrWizTouch(bool down, bool held, bool up, float x, float y) {
     CtrWizView v;
     ctrWizView(&v);
@@ -1455,6 +1527,18 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
     const bool down = mTouchDown && !mCtrTouchPrev, up = !mTouchDown && mCtrTouchPrev, held = mTouchDown && mCtrTouchPrev;
     mCtrTouchPrev = mTouchDown;
     if (ctrWizThemed()) return mOskActive ? false : ctrWizTouch(down, held, up, x, y);
+    if (mMtpActive || mScrapeProgActive) {
+        // the dialog's one button is B: Stop MTP or close the scrape's result (a one button
+        // window takes a tap anywhere, like the notices); a running scrape waits for B
+        if (mCtrDialog->active()) {
+            const int btn = mCtrDialog->touch(down, up, x, y);
+            CtrStatusView st;
+            const bool hasButton = ctrStatusView(&st) && !st.buttons.empty();
+            if (hasButton && (btn == 0 || (btn < 0 && up))) handleBack();
+        }
+        mDisplayDirty = true;
+        return true;
+    }
     auto launched = [this]() {
         if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
         mDisplayDirty = true;

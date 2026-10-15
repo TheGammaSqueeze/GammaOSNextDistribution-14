@@ -5204,6 +5204,8 @@ private:
         int buttonSel = 0;
     };
     bool ctrWizThemed() const;
+    struct CtrStatusView { std::string text; std::vector<std::string> buttons; float fraction = -1; bool wait = false; };
+    bool ctrStatusView(CtrStatusView* v);
     void ctrWizUpdate();
     bool ctrWizTouch(bool down, bool held, bool up, float x, float y);
     void ctrWizView(CtrWizView* v);
