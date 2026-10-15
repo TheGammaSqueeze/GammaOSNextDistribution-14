@@ -742,9 +742,12 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
             return taken();
         }
         if (code == ABS_X || code == ABS_Y) {
-            // circle pad: past 40 of 156 it sets the D-pad bit (input.ts); stick range read lazily
-            // Only signed (centred) axes are sticks; a touchscreen's ABS_X/Y run from 0 and are
-            // left to the touch path.
+            // circle pad as the D-pad. The console engages past 40 of 156 (input.ts), but handheld
+            // sticks rest off centre: the Duo Lite's left stick sat at 575 of 850 untouched, which
+            // read as Right held (the cursor walked by itself and a bar button never took its
+            // second tap). Like nano's own stick navigation, a direction needs 90% of the range
+            // and lets go under 50%. Only signed (centred) axes are sticks; a touchscreen's
+            // ABS_X/Y run from 0 and are left to the touch path.
             struct input_absinfo a{};
             int lo = -32768, hi = 32767;
             if (ioctl(mCurrentInputFd, EVIOCGABS(code), &a) == 0 && a.maximum > a.minimum) {
@@ -754,12 +757,10 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
             }
             const float mid = (lo + hi) * 0.5f, half = (hi - lo) * 0.5f;
             const float v = half > 0 ? (value - mid) / half : 0.0f;
-            const int dir = v > 40.0f / 156.0f ? 1 : v < -40.0f / 156.0f ? -1 : 0;
-            if (code == ABS_X) {
-                mCtrStickX = dir;
-            } else {
-                mCtrStickY = dir;
-            }
+            int& axis = code == ABS_X ? mCtrStickX : mCtrStickY;
+            if (v >= 0.9f) axis = 1;
+            else if (v <= -0.9f) axis = -1;
+            else if (fabsf(v) < 0.5f) axis = 0;   // between 50% and 90% a held direction stays
             return taken();
         }
     }
