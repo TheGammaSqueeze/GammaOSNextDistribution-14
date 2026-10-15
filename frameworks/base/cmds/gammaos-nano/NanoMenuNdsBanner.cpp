@@ -79,8 +79,16 @@ static std::string pathCachePathFor(const std::string& rom) {
     return std::string(kNdsBannerCacheDir) + "/" + key + ".bin";
 }
 
+// The record's text field: the title, then (from records written since the 3DS theme's plates)
+// a unit separator and the banner's full text.
+static void splitRecordText(const std::string& field, std::string& title, std::string* text) {
+    const size_t us = field.find('\x1f');
+    title = field.substr(0, us);
+    if (text) *text = us == std::string::npos ? std::string() : field.substr(us + 1);
+}
+
 // Read one record file. Returns true on a hit (a valid banner, or a known-bad "NDSX" mark).
-static bool readBannerRecord(const std::string& cp, std::string& title, std::vector<uint8_t>& rgba) {
+static bool readBannerRecord(const std::string& cp, std::string& title, std::vector<uint8_t>& rgba, std::string* text = nullptr) {
     bool hit = false;
     int fd = open(cp.c_str(), O_RDONLY | O_CLOEXEC);
     if (fd < 0) return false;
@@ -89,11 +97,13 @@ static bool readBannerRecord(const std::string& cp, std::string& title, std::vec
         if (!memcmp(magic, "NDSX", 4)) hit = true;                       // known bad
         else if (!memcmp(magic, "NDSB", 4)) {
             uint32_t tl = 0;
-            if (read(fd, &tl, 4) == 4 && tl <= 256) {
+            if (read(fd, &tl, 4) == 4 && tl <= 1024) {
                 std::string t(tl, '\0');
                 std::vector<uint8_t> px(32 * 32 * 4);
                 if ((tl == 0 || read(fd, &t[0], tl) == (ssize_t)tl) && read(fd, px.data(), px.size()) == (ssize_t)px.size()) {
-                    title = t; rgba = std::move(px); hit = true;
+                    splitRecordText(t, title, text);
+                    rgba = std::move(px);
+                    hit = true;
                 }
             }
         }
@@ -103,7 +113,9 @@ static bool readBannerRecord(const std::string& cp, std::string& title, std::vec
 }
 
 // Write one record file atomically (temp + rename).
-static bool writeBannerRecord(const std::string& cp, bool ok, const std::string& title, const std::vector<uint8_t>& rgba) {
+static bool writeBannerRecord(const std::string& cp, bool ok, const std::string& titleOnly, const std::vector<uint8_t>& rgba,
+                              const std::string& text) {
+    const std::string title = text.empty() ? titleOnly : titleOnly + '\x1f' + text;
     const std::string tmp = cp + ".tmp";
     int wfd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
     if (wfd < 0) return false;
@@ -129,7 +141,7 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
         if (mNdsBannerTitle.count(rom)) return;          // already parsed (or in flight elsewhere)
         mNdsBannerTitle[rom] = "";                       // claim it; filled below
     }
-    std::string title;
+    std::string title, text;
     std::vector<uint8_t> rgba;
     struct stat st{};
     if (stat(rom.c_str(), &st) != 0) {
@@ -139,11 +151,12 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
         // left unknown (0), so ndsBannerWantsParseLocked re-checks the file once it is reachable
         // and a replaced file is parsed again. With no path record this is not a result: drop
         // the claim and let the next prefetch or draw try again shortly.
-        std::string t;
+        std::string t, tx;
         std::vector<uint8_t> px;
-        if (readBannerRecord(pathCachePathFor(rom), t, px)) {
+        if (readBannerRecord(pathCachePathFor(rom), t, px, &tx)) {
             std::lock_guard<std::mutex> lk(mNdsBannerMu);
             mNdsBannerTitle[rom] = t;
+            mNdsBannerText[rom] = tx;
             mNdsBannerIdent[rom] = 0;
             if (!px.empty() && mNdsBannerPix.size() < kNdsBannerPixHeld) mNdsBannerPix[rom] = std::move(px);
             return;
@@ -156,26 +169,30 @@ void NanoMenu::ndsBannerLoad(const std::string& rom) {
     if (S_ISREG(st.st_mode)) {
         const std::string cp = cachePathFor(rom, st);
         const std::string pp = pathCachePathFor(rom);
-        bool hit = readBannerRecord(cp, title, rgba);
+        bool hit = readBannerRecord(cp, title, rgba, &text);
+        // a record from before the banner text was kept is parsed again (once)
+        if (hit && !rgba.empty() && text.empty()) hit = false;
         if (hit) {
             // Keep the path copy current for the next boot (a cheap 4 KB write, once per
             // record; skipped when it is already this record).
             struct stat ps{};
-            if (stat(pp.c_str(), &ps) != 0 || ps.st_size != (off_t)(rgba.empty() ? 4 : 8 + title.size() + rgba.size()))
-                writeBannerRecord(pp, !rgba.empty(), title, rgba);
+            const size_t field = text.empty() ? title.size() : title.size() + 1 + text.size();
+            if (stat(pp.c_str(), &ps) != 0 || ps.st_size != (off_t)(rgba.empty() ? 4 : 8 + field + rgba.size()))
+                writeBannerRecord(pp, !rgba.empty(), title, rgba, text);
         } else {
             NdsBannerInfo info;
             const bool ok = ndsReadBanner(rom, info);
-            if (ok) { title = info.title; rgba = std::move(info.rgba); }
+            if (ok) { title = info.title; text = info.text; rgba = std::move(info.rgba); }
             mkdir("/data/system/nano_cache", 0755);
             mkdir(kNdsBannerCacheDir, 0755);
-            writeBannerRecord(cp, ok, title, rgba);
-            writeBannerRecord(pp, ok, title, rgba);
+            writeBannerRecord(cp, ok, title, rgba, text);
+            writeBannerRecord(pp, ok, title, rgba, text);
             ALOGD("ndsbanner: %s -> %s title='%s'", rom.c_str(), ok ? "ok" : "rejected", title.c_str());
         }
     }
     std::lock_guard<std::mutex> lk(mNdsBannerMu);
     mNdsBannerTitle[rom] = title;
+    mNdsBannerText[rom] = text;
     mNdsBannerIdent[rom] = ndsIdentOf(st);
     mNdsBannerRetryAt.erase(rom);
     // a large library's icons stay in their cache records: only the first few hundred are held
@@ -203,7 +220,7 @@ bool NanoMenu::ndsBannerWantsParseLocked(const std::string& rom) {
                 return false;
             }
         }
-        mNdsBannerTitle.erase(it); mNdsBannerIdent.erase(id); mNdsBannerPix.erase(rom);
+        mNdsBannerTitle.erase(it); mNdsBannerText.erase(rom); mNdsBannerIdent.erase(id); mNdsBannerPix.erase(rom);
         mNdsBannerTexDrop.push_back(rom);
     }
     auto r = mNdsBannerRetryAt.find(rom);
@@ -297,8 +314,15 @@ void NanoMenu::ndsBannerTick() {
         rebuildOpenRomLevels((int)s, keep);
     }
     applyRomNameOverridesToRecents();
+    mNdsBannerNamesRev++;   // the 3DS theme's grids reload (names inside system folders changed)
     mPs3CatsStale = true;
     mDisplayDirty = true;
+}
+
+std::string NanoMenu::ndsBannerTextFor(const std::string& rom) {
+    std::lock_guard<std::mutex> lk(mNdsBannerMu);
+    auto it = mNdsBannerText.find(rom);
+    return it == mNdsBannerText.end() ? std::string() : it->second;
 }
 
 std::string NanoMenu::ndsBannerTitleFor(const std::string& rom) {

@@ -171,6 +171,28 @@ std::string utf16leToUtf8(const uint8_t* p, size_t bytes) {
 
 // "Name\nSubtitle\nPublisher" -> "Name Subtitle": the last line of a multi-line title is the
 // publisher on every retail cartridge, so it is dropped; a single line is used as is.
+// The banner text's non-empty lines, trimmed, one per line (the 3DS theme's name plate).
+std::string linesFromBannerText(const std::string& text) {
+    std::string out, cur;
+    auto flush = [&]() {
+        size_t a = 0, b = cur.size();
+        while (a < b && (unsigned char)cur[a] <= ' ') a++;
+        while (b > a && (unsigned char)cur[b - 1] <= ' ') b--;
+        if (b > a) {
+            if (!out.empty()) out += '\n';
+            out += cur.substr(a, b - a);
+        }
+        cur.clear();
+    };
+    for (char ch : text) {
+        if (ch == '\n') flush();
+        else if (ch != '\r') cur += ch;
+    }
+    flush();
+    if (out.size() > 240) out.resize(240);
+    return out;
+}
+
 std::string titleFromBannerText(const std::string& text) {
     std::vector<std::string> lines;
     std::string cur;
@@ -249,8 +271,9 @@ bool ndsReadBanner(const std::string& path, NdsBannerInfo& out) {
     // Spanish). English first, then any other non-empty one.
     static const int kOrder[6] = { 1, 0, 2, 3, 4, 5 };
     for (int k = 0; k < 6; k++) {
-        std::string t = titleFromBannerText(utf16leToUtf8(ban + 0x240 + kOrder[k] * 0x100, 0x100));
-        if (!t.empty()) { out.title = t; break; }
+        const std::string raw = utf16leToUtf8(ban + 0x240 + kOrder[k] * 0x100, 0x100);
+        std::string t = titleFromBannerText(raw);
+        if (!t.empty()) { out.title = t; out.text = linesFromBannerText(raw); break; }
     }
     return true;
 }

@@ -9,6 +9,7 @@
 
 struct NdsBannerInfo {
     std::string title;           // UTF-8, the game's name line(s) without the publisher line
+    std::string text;            // the banner text as authored: its lines, the publisher last
     std::vector<uint8_t> rgba;   // 32*32*4 bytes, index 0 of the palette rendered transparent
 };
 

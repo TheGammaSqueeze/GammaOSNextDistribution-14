@@ -15,6 +15,10 @@
 
 #include "stb_image.h"
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_OUTLINE_H
+
 #undef LOG_TAG
 #define LOG_TAG "NanoCtr"
 
@@ -982,9 +986,182 @@ std::vector<TextRun> parseMarkup(std::string_view m) {
 
 // ================================================================== fonts
 
+static void edt2d(const std::vector<uint8_t>& target, int W, int H, std::vector<float>* out);
+
 Font::~Font() {
     releaseGl();
+    if (mFace) FT_Done_Face((FT_Face)mFace);
     if (mMap) munmap((void*)mMap, mMapSize);
+}
+
+int Font::sVectorScale = Font::kSdfScale;
+
+void Font::setVectorScale(int scale) {
+    sVectorScale = std::clamp(scale, (int)kSdfScale, 4);
+}
+
+static FT_Library ftLibrary() {
+    static FT_Library lib = nullptr;
+    static bool tried = false;
+    if (!tried) {
+        tried = true;
+        if (FT_Init_FreeType(&lib) != 0) lib = nullptr;
+    }
+    return lib;
+}
+
+bool Font::setVector(const std::string& ttfPath, float shapeScale) {
+    FT_Library lib = ftLibrary();
+    if (!lib || mGlyphs.empty() || mFace) return false;
+    FT_Face face = nullptr;
+    if (FT_New_Face(lib, ttfPath.c_str(), 0, &face) != 0) return false;
+    // the outline's cap height against the bitmap's, whose rows are summed by their coverage, on
+    // a flat topped capital both have (the Hud font only carries the status bar's characters)
+    const Glyph* h = nullptr;
+    FT_UInt hi = 0;
+    for (char c : {'H', 'D', 'L', 'T', 'E', 'F'}) {
+        h = find((uint32_t)c);
+        hi = FT_Get_Char_Index(face, (FT_ULong)c);
+        if (h && hi) break;
+    }
+    std::vector<uint8_t> cov;
+    if (!h || !hi || !cellAlpha(h, cov) || FT_Load_Glyph(face, hi, FT_LOAD_NO_SCALE | FT_LOAD_NO_HINTING) != 0 ||
+        face->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
+        FT_Done_Face(face);
+        return false;
+    }
+    FT_BBox box;
+    FT_Outline_Get_CBox(&face->glyph->outline, &box);
+    const int w = cellWidth + 2, hh = cellHeight + 2;
+    // a white on dark (Hud) glyph's shape is its white fill: the alpha also covers the border
+    if (mFormat == 1) {
+        const uint8_t* bm = mBitmaps + mBitmapStride * (size_t)(h - mGlyphs.data());
+        for (int i = 0; i < w * hh; i++) cov[i] = (uint8_t)(bm[i * 2] * bm[i * 2 + 1] / 255);
+    }
+    float cap = 0;
+    for (int y = 0; y < hh; y++) {
+        int m = 0;
+        for (int x = 0; x < w; x++) m = std::max(m, (int)cov[(size_t)y * w + x]);
+        cap += m / 255.0f;
+    }
+    if (box.yMax <= box.yMin || cap <= 0) {
+        FT_Done_Face(face);
+        return false;
+    }
+    mUnitScale = cap / (float)(box.yMax - box.yMin);
+    mShapeScale = shapeScale;
+    // a white on dark font (the Hud style, LA8): the dark border's width, from the middle row of
+    // a plain vertical stem
+    mOutline = 0;
+    if (mFormat == 1) {
+        mOutline = 1;
+        if (const Glyph* l = find('l')) {
+            const uint8_t* src = mBitmaps + mBitmapStride * (size_t)(l - mGlyphs.data());
+            const int y = baseline / 2 + 1;
+            float all = 0, fill = 0;
+            for (int x = 0; x < w; x++) {
+                const uint8_t L = src[((size_t)y * w + x) * 2], A = src[((size_t)y * w + x) * 2 + 1];
+                all += A / 255.0f;
+                fill += (L / 255.0f) * (A / 255.0f);
+            }
+            if (all > fill) mOutline = std::clamp((all - fill) / 2, 0.5f, 2.0f);
+        }
+    }
+    mFace = face;
+    releaseGl();   // atlas texels change with the source
+    return true;
+}
+
+// A glyph's field (and, for the Hud style, its fill as luminance) at `scale` texels per cell pixel
+// from the vector outline: rendered eight or more times finer than the output, its 50 % contour
+// measured with an exact Euclidean transform, each output texel the mean of its fine texels.
+bool Font::vectorCell(const Glyph* g, int scale, std::vector<uint8_t>* field, std::vector<uint8_t>* lum) const {
+    if (!mFace || !g || imported(g)) return false;
+    FT_Face face = (FT_Face)mFace;
+    const FT_UInt gi = FT_Get_Char_Index(face, g->code);
+    if (!gi) return false;
+    const int w = cellWidth + 2, h = cellHeight + 2;
+    const int sub = std::max(1, (8 + scale - 1) / scale), F = scale * sub;
+    const int W = w * F, H = h * F, ow = w * scale, oh = h * scale;
+    field->assign((size_t)ow * oh, 0);
+    if (lum) lum->assign((size_t)ow * oh, mOutline > 0 ? 0 : 255);
+    // where the console's bitmap puts its ink, which the outline is centred on
+    std::vector<uint8_t> cov;
+    if (!cellAlpha(g, cov)) return false;
+    float inkSum = 0, inkX = 0;
+    for (int y = 0; y < h; y++)
+        for (int x = 0; x < w; x++) {
+            const float a = cov[(size_t)y * w + x] / 255.0f;
+            inkSum += a;
+            inkX += a * (x + 0.5f);
+        }
+    if (inkSum <= 0) return true;   // a space
+    // the outline at the bitmap's cap height (times mShapeScale), smaller still if it would not
+    // fit inside the cell with room for the edge's fall off (nothing is cropped by the quad)
+    const float baseY = (1 + baseline) * (float)F;   // from the top
+    const float room = (1.0f / scale + mOutline) * F;   // fine px kept clear at the cell edge (the edge's anti-aliasing)
+    float size = face->units_per_EM * mUnitScale * mShapeScale * F;
+    FT_BBox box;
+    for (int attempt = 0; attempt < 2; attempt++) {
+        if (FT_Set_Char_Size(face, 0, (FT_F26Dot6)lroundf(size * 64), 72, 72) != 0 ||
+            FT_Load_Glyph(face, gi, FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP) != 0 || face->glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+            return false;
+        FT_Outline_Get_CBox(&face->glyph->outline, &box);
+        if (box.xMax <= box.xMin) return true;
+        // available: above the baseline to the cell top, below it to the cell bottom, and the
+        // quad's width (the bitmap's plus quadPad() each side)
+        const float up = baseY - room, down = H - baseY - room;
+        const float across = (g->glyphWidth + 2 * quadPad()) * (float)F - 2 * room;
+        float fit = 1;
+        if (box.yMax > 0) fit = std::min(fit, up * 64 / box.yMax);
+        if (box.yMin < 0) fit = std::min(fit, down * 64 / -box.yMin);
+        if (box.xMax > box.xMin && across > 0) fit = std::min(fit, across * 64 / (box.xMax - box.xMin));
+        if (fit >= 0.999f) break;
+        size *= std::max(0.5f, fit);
+    }
+    FT_Outline& o = face->glyph->outline;
+    // horizontally: the centre of the outline's box on the centre of the bitmap's ink box (its
+    // columns of half coverage or more); vertically: the baseline, 1 + baseline rows down
+    int c0 = w, c1 = -1;
+    for (int x = 0; x < w; x++)
+        for (int y = 0; y < h; y++)
+            if (cov[(size_t)y * w + x] >= 128) { c0 = std::min(c0, x); c1 = std::max(c1, x); }
+    const float centre = c1 >= c0 ? (c0 + c1 + 1) * 0.5f : inkX / inkSum;
+    const float ox = centre * F - (box.xMin + box.xMax) / 128.0f;
+    FT_Outline_Translate(&o, (FT_Pos)lroundf(ox * 64), (FT_Pos)lroundf((H - baseY) * 64));
+    std::vector<uint8_t> fine((size_t)W * H, 0);
+    FT_Bitmap bm;
+    memset(&bm, 0, sizeof(bm));
+    bm.rows = H;
+    bm.width = W;
+    bm.pitch = W;   // down flow: row 0 is the top (the outline's y = 0 is the bottom row)
+    bm.buffer = fine.data();
+    bm.pixel_mode = FT_PIXEL_MODE_GRAY;
+    bm.num_grays = 256;
+    if (FT_Outline_Get_Bitmap(ftLibrary(), &o, &bm) != 0) return false;
+    std::vector<uint8_t> inside((size_t)W * H), outside((size_t)W * H);
+    for (size_t i = 0; i < fine.size(); i++) {
+        inside[i] = fine[i] >= 128;
+        outside[i] = !inside[i];
+    }
+    std::vector<float> toOut, toIn;
+    edt2d(outside, W, H, &toOut);
+    edt2d(inside, W, H, &toIn);
+    const float grow = mOutline * F;   // the dark border widens the shape the field describes
+    for (int oy = 0; oy < oh; oy++)
+        for (int ox2 = 0; ox2 < ow; ox2++) {
+            float sum = 0;
+            for (int j = 0; j < sub; j++)
+                for (int i = 0; i < sub; i++) {
+                    const size_t k = (size_t)(oy * sub + j) * W + (ox2 * sub + i);
+                    sum += inside[k] ? sqrtf(toOut[k]) - 0.5f : -(sqrtf(toIn[k]) - 0.5f);
+                }
+            const float sd = sum / (sub * sub) / sub;   // fine pixels to output texels
+            const size_t o2 = (size_t)oy * ow + ox2;
+            (*field)[o2] = (uint8_t)std::clamp(lroundf(128 + (sd + grow / sub) * 127 / Font::kSdfRange), 0L, 255L);
+            if (lum && mOutline > 0) (*lum)[o2] = (uint8_t)std::clamp(lroundf((0.5f + sd) * 255), 0L, 255L);
+        }
+    return true;
 }
 
 void Font::releaseGl() {
@@ -1194,6 +1371,7 @@ static void glyphSdf(const uint8_t* cov, int w, int h, int scale, std::vector<ui
 }
 
 bool Font::cellSdf(const Glyph* g, int scale, std::vector<uint8_t>& out) const {
+    if (vectorCell(g, scale, &out, nullptr)) return true;
     std::vector<uint8_t> cov;
     if (!cellAlpha(g, cov)) return false;
     glyphSdf(cov.data(), cellWidth + 2, cellHeight + 2, scale, &out);
@@ -1205,11 +1383,16 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
     const Imported* im = imported(g);
     // atlas key: the table index, or the code point (high bit set) for a borrowed glyph
     const uint32_t key = im ? (0x80000000u | g->code) : (uint32_t)(g - mGlyphs.data());
+    const int wantScale = mFace ? sVectorScale : (int)kSdfScale;
+    if (mAtlas && mScale != wantScale) releaseGl();   // the panel's magnification changed
     if (!mAtlas) {
-        mSlotW = (cellWidth + 2) * kSdfScale;
-        mSlotH = (cellHeight + 2) * kSdfScale;
-        // enough slots for a few hundred distinct glyphs; small fonts get a small atlas
-        mAtlasSize = mCount <= 128 ? 512 : 1024;
+        mScale = wantScale;
+        mSlotW = (cellWidth + 2) * mScale;
+        mSlotH = (cellHeight + 2) * mScale;
+        // room for every glyph of a small font, a few hundred distinct glyphs of a large one
+        const int want = std::min<int>((int)mCount, 300);
+        mAtlasSize = 512;
+        while (mAtlasSize < 2048 && (mAtlasSize / mSlotW) * (mAtlasSize / mSlotH) < want) mAtlasSize *= 2;
         mCols = mAtlasSize / mSlotW;
         mRows = mAtlasSize / mSlotH;
         glGenTextures(1, &mAtlas);
@@ -1265,16 +1448,21 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
                 d[1] = A;
             }
         }
-        // the alpha becomes the cell's distance field at kSdfScale; the luminance is scaled along
-        std::vector<uint8_t> cov((size_t)w * h), field;
-        for (int i = 0; i < w * h; i++) cov[i] = mScratch[(size_t)i * 2 + 1];
-        glyphSdf(cov.data(), w, h, kSdfScale, &field);
-        const int W = w * kSdfScale, H = h * kSdfScale;
+        // the alpha becomes the cell's distance field at mScale; the luminance is scaled along
+        // (a vector glyph brings its own, as fine as its field)
+        const int W = w * mScale, H = h * mScale;
+        std::vector<uint8_t> field, lum;
+        const bool vec = vectorCell(g, mScale, &field, &lum);
+        if (!vec) {
+            std::vector<uint8_t> cov((size_t)w * h);
+            for (int i = 0; i < w * h; i++) cov[i] = mScratch[(size_t)i * 2 + 1];
+            glyphSdf(cov.data(), w, h, mScale, &field);
+        }
         std::vector<uint8_t> la((size_t)W * H * 2);
         for (int y = 0; y < H; y++)
             for (int x = 0; x < W; x++) {
                 const size_t o = (size_t)y * W + x;
-                la[o * 2] = mScratch[((size_t)(y / kSdfScale) * w + x / kSdfScale) * 2];
+                la[o * 2] = vec ? lum[o] : mScratch[((size_t)(y / mScale) * w + x / mScale) * 2];
                 la[o * 2 + 1] = field[o];
             }
         const int sx = (slot % mCols) * mSlotW, sy = (slot / mCols) * mSlotH;
@@ -1284,12 +1472,13 @@ bool Font::place(const Glyph* g, float* u0, float* v0, float* u1, float* v1) {
         gTextureEpoch++;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     }
-    const int sx = (slot % mCols) * mSlotW + kSdfScale, sy = (slot / mCols) * mSlotH + kSdfScale;
+    const int sx = (slot % mCols) * mSlotW + mScale, sy = (slot / mCols) * mSlotH + mScale;
+    const int pad = quadPad() * mScale;   // the quad grows by quadPad() cell pixels each side
     const float inv = 1.0f / mAtlasSize;
-    *u0 = sx * inv;
+    *u0 = (sx - pad) * inv;
     *v0 = sy * inv;
-    *u1 = (sx + g->glyphWidth * kSdfScale) * inv;
-    *v1 = (sy + cellHeight * kSdfScale) * inv;
+    *u1 = (sx + g->glyphWidth * mScale + pad) * inv;
+    *v1 = (sy + cellHeight * mScale) * inv;
     return true;
 }
 
@@ -1379,6 +1568,166 @@ TexturePtr Assets::rgbaTexture(const uint8_t* rgba, int w, int h) {
     return t;
 }
 
+// The top screen's small pixel drawn pieces (status icons, the camera and screenshot bars):
+// rebuilt at the panel's resolution instead of magnified.
+static bool rebuiltAtPanelRes(const std::string& archive, const std::string& name) {
+    if (archive == "hud") return name.compare(0, 3, "Hud") == 0;
+    if (archive != "launcher") return false;
+    static const char* kTop[] = {"CameraBase_06", "CameraPlus", "PictBtnL_02", "PictBtnR_02", "PictBtnY", "PictCam",
+                                 "PictCapture_05", "PictHome", "BaseWndwLT_16x32"};
+    for (const char* n : kTop)
+        if (name == n) return true;
+    return false;
+}
+
+// A pixel drawn image at `k` times its size, or nothing when it is not two toned. Most of these pieces are two toned in each channel
+// (a white fill, a black outline, an alpha cut out): such a channel is redrawn from its contour
+// halfway between the two tones, traced on a grid eight times finer than the source with a
+// Catmull-Rom bicubic and averaged down, so edges are as sharp as the panel shows them and
+// curves come out round. A channel with more tones (a gradient, a light) is upsampled smoothly.
+static std::vector<uint8_t> rebuildPixelArt(const uint8_t* src, int w, int h, int k) {
+    // colour bleeds into the transparent texels next to the shape, so the edge has no fringe
+    std::vector<uint8_t> in(src, src + (size_t)w * h * 4);
+    std::vector<uint8_t> known((size_t)w * h);
+    for (int i = 0; i < w * h; i++) known[i] = src[(size_t)i * 4 + 3] != 0;
+    for (int pass = 0; pass < 2; pass++) {
+        std::vector<uint8_t> grown = known;
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++) {
+                if (known[(size_t)y * w + x]) continue;
+                int sum[3] = {0, 0, 0}, n = 0;
+                for (int dy = -1; dy <= 1; dy++)
+                    for (int dx = -1; dx <= 1; dx++) {
+                        const int xx = x + dx, yy = y + dy;
+                        if (xx < 0 || yy < 0 || xx >= w || yy >= h || !known[(size_t)yy * w + xx]) continue;
+                        const uint8_t* q = &in[((size_t)yy * w + xx) * 4];
+                        for (int c = 0; c < 3; c++) sum[c] += q[c];
+                        n++;
+                    }
+                if (!n) continue;
+                uint8_t* d = &in[((size_t)y * w + x) * 4];
+                for (int c = 0; c < 3; c++) d[c] = (uint8_t)(sum[c] / n);
+                grown[(size_t)y * w + x] = 1;
+            }
+        known.swap(grown);
+    }
+
+    const int sub = std::max(1, (8 + k - 1) / k), F = k * sub;
+    const int ow = w * k, oh = h * k;
+    std::vector<uint8_t> out((size_t)ow * oh * 4, 0);
+    auto cubic = [](float p0, float p1, float p2, float p3, float t) {
+        return p1 + 0.5f * t * (p2 - p0 + t * (2 * p0 - 5 * p1 + 4 * p2 - p3 + t * (3 * (p1 - p2) + p3 - p0)));
+    };
+    std::vector<float> rowUp;
+    for (int c = 0; c < 4; c++) {
+        // mirrored past the edges: many pieces are halves the layout mirrors, and a reflected
+        // edge keeps their contour continuous across the seam
+        auto reflect = [](int v, int n) {
+            if (n == 1) return 0;
+            const int p = 2 * n;
+            v %= p;
+            if (v < 0) v += p;
+            return v < n ? v : p - 1 - v;
+        };
+        // alpha past an edge the shape only touches (no seam) is empty, so a circle tangent to the
+        // border stays round instead of flattening against its mirror image
+        bool seam[4] = {true, true, true, true};   // left, right, top, bottom
+        if (c == 3) {
+            // a solid texel on the edge means the shape is cut there (a seam, or a mask the
+            // layout stretches by clamping): those edges keep their texels
+            auto edgeMax = [&](int x0, int y0, int dx, int dy, int len) {
+                int m = 0;
+                for (int i = 0; i < len; i++) m = std::max(m, (int)src[((size_t)(y0 + dy * i) * w + (x0 + dx * i)) * 4 + 3]);
+                return m;
+            };
+            seam[0] = edgeMax(0, 0, 0, 1, h) >= 217;
+            seam[1] = edgeMax(w - 1, 0, 0, 1, h) >= 217;
+            seam[2] = edgeMax(0, 0, 1, 0, w) >= 217;
+            seam[3] = edgeMax(0, h - 1, 1, 0, w) >= 217;
+        }
+        auto at = [&](int x, int y) -> float {
+            if ((x < 0 && !seam[0]) || (x >= w && !seam[1]) || (y < 0 && !seam[2]) || (y >= h && !seam[3])) return 0;
+            return in[((size_t)reflect(y, h) * w + reflect(x, w)) * 4 + c];
+        };
+        // the channel's two tones, where the shape is (alpha: everywhere)
+        int lo = 255, hi = 0, n = 0;
+        for (int i = 0; i < w * h; i++) {
+            if (c < 3 && !src[(size_t)i * 4 + 3]) continue;
+            const int v = in[(size_t)i * 4 + c];
+            lo = std::min(lo, v);
+            hi = std::max(hi, v);
+            n++;
+        }
+        // two toned: every texel between the tones is an edge's anti-aliasing, next to texels of
+        // both tones (a flat area of a third tone, like a translucent halo, makes it soft)
+        bool twoTone = n > 0 && hi - lo >= 24;
+        if (twoTone) {
+            const float band = (hi - lo) * 0.12f;
+            auto tone = [&](int x, int y) {   // -1 low, 1 high, 0 between
+                const float v = at(x, y);
+                return v - lo <= band ? -1 : hi - v <= band ? 1 : 0;
+            };
+            int flat = 0;
+            for (int y = 0; y < h && twoTone; y++)
+                for (int x = 0; x < w; x++) {
+                    if ((c < 3 && !src[((size_t)y * w + x) * 4 + 3]) || tone(x, y) != 0) continue;
+                    bool low = false, high = false;
+                    for (int dy = -2; dy <= 2; dy++)   // an edge's ramp can span two texels
+                        for (int dx = -2; dx <= 2; dx++) {
+                            const int t = tone(x + dx, y + dy);
+                            low |= t < 0;
+                            high |= t > 0;
+                        }
+                    if (!(low && high)) flat++;
+                }
+            twoTone = flat <= n / 20;
+        }
+        // a texture with a soft channel (a light, a gradient, a translucent halo) stays the
+        // console's own: its look depends on how the layout filters it
+        if (!twoTone && n > 0 && hi - lo >= 24) return {};
+        const float mid = (lo + hi) * 0.5f;
+        // rows first at the fine (or output) resolution, then each column
+        const int R = twoTone ? F : k;
+        const int RW = w * R, RH = h * R;
+        rowUp.assign((size_t)RW * h, 0);
+        for (int y = 0; y < h; y++)
+            for (int X = 0; X < RW; X++) {
+                const float sx = (X + 0.5f) / R - 0.5f;
+                const int x0 = (int)floorf(sx);
+                const float t = sx - x0;
+                rowUp[(size_t)y * RW + X] = twoTone ? cubic(at(x0 - 1, y), at(x0, y), at(x0 + 1, y), at(x0 + 2, y), t)
+                                                    : at(x0, y) * (1 - t) + at(x0 + 1, y) * t;
+            }
+        std::vector<float> zeroRow(RW, 0.0f);
+        auto row = [&](int y) -> const float* {
+            if ((y < 0 && !seam[2]) || (y >= h && !seam[3])) return zeroRow.data();
+            return rowUp.data() + (size_t)reflect(y, h) * RW;
+        };
+        std::vector<float> acc(twoTone ? (size_t)ow * oh : 0, 0);
+        for (int Y = 0; Y < RH; Y++) {
+            const float sy = (Y + 0.5f) / R - 0.5f;
+            const int y0 = (int)floorf(sy);
+            const float t = sy - y0;
+            const float *r0 = row(y0 - 1), *r1 = row(y0), *r2 = row(y0 + 1), *r3 = row(y0 + 2);
+            for (int X = 0; X < RW; X++) {
+                // soft channels: bilinear, as the GPU magnified them before
+                const float v = twoTone ? cubic(r0[X], r1[X], r2[X], r3[X], t) : r1[X] * (1 - t) + r2[X] * t;
+                if (twoTone) {
+                    if (v >= mid) acc[(size_t)(Y / sub) * ow + X / sub] += 1;
+                } else {
+                    out[((size_t)Y * ow + X) * 4 + c] = (uint8_t)std::clamp(lroundf(v), 0L, 255L);
+                }
+            }
+        }
+        if (twoTone) {
+            const float inv = 1.0f / (sub * sub);
+            for (size_t i = 0; i < acc.size(); i++)
+                out[i * 4 + c] = (uint8_t)lroundf(lo + (hi - lo) * acc[i] * inv);
+        }
+    }
+    return out;
+}
+
 TexturePtr Assets::layoutTexture(const std::string& archive, const std::string& name) {
     const std::string key = archive + "/" + name;
     auto it = mTextures.find(key);
@@ -1394,7 +1743,25 @@ TexturePtr Assets::layoutTexture(const std::string& archive, const std::string& 
         return nullptr;
     }
     // the packer stored the PNG flipped and padded to the hardware size
-    TexturePtr t = pngTexture(d, n, false);
+    TexturePtr t;
+    // a power of two (these textures may repeat and are mipmapped)
+    const int k = Font::vectorScale() >= 3 ? 4 : Font::vectorScale() >= 2 ? 2 : 1;
+    if (k > 1 && rebuiltAtPanelRes(archive, name)) {
+        int w = 0, h = 0, comp = 0;
+        if (stbi_uc* px = stbi_load_from_memory(d, (int)n, &w, &h, &comp, 4)) {
+            const std::vector<uint8_t> big = rebuildPixelArt(px, w, h, k);
+            stbi_image_free(px);
+            if (!big.empty()) {
+                t = rgbaTexture(big.data(), w * k, h * k);
+                glGenerateMipmap(GL_TEXTURE_2D);   // rgbaTexture left it bound
+                t->mipmapped = true;
+                // the same logical and allocated sizes: uv scales and frame sizes are unchanged
+                t->width = t->texWidth = w;
+                t->height = t->texHeight = h;
+            }
+        }
+    }
+    if (!t) t = pngTexture(d, n, false);
     if (!t) return nullptr;
     if (const BjDoc* idx = p->doc("timg/index")) {
         BjValue info = idx->root()[name];
@@ -1406,6 +1773,10 @@ TexturePtr Assets::layoutTexture(const std::string& archive, const std::string& 
     mTextures[key] = t;
     return t;
 }
+
+#ifndef HUD_TTF
+#define HUD_TTF "ps3-rodin-regular.ttf"
+#endif
 
 std::shared_ptr<Font> Assets::font(const std::string& resourceName) {
     std::string s = stem(resourceName);
@@ -1424,6 +1795,18 @@ std::shared_ptr<Font> Assets::font(const std::string& resourceName) {
         f.reset();
     }
     mFonts.emplace(resolved, f);
+    // the shared and Hud fonts draw their Latin shapes from PS3 Rodin (regular matches the
+    // shared font's weight and widths); missing it keeps the bitmaps
+    if (f && (resolved == "cbf_std" || resolved == "Hud_JP")) {
+        const char* file = resolved == "Hud_JP" ? HUD_TTF : "ps3-rodin-regular.ttf";
+        for (const std::string& dir : {std::string("/data/system/nano_xmb/fonts/"), std::string("/system/etc/nano_xmb/fonts/"),
+                                       mRoot + "/../../ps3xmb/fonts/"}) {
+            if (access((dir + file).c_str(), R_OK) == 0) {
+                if (!f->setVector(dir + file)) ALOGW("font %s: vector shapes from %s failed", resolved.c_str(), (dir + file).c_str());
+                break;
+            }
+        }
+    }
     // the shared font borrows what it lacks from the regional system fonts (hangul, simplified
     // hanzi): nano's lists show names in every language (mapped, read only when a glyph is needed)
     if (f && resolved == "cbf_std") {

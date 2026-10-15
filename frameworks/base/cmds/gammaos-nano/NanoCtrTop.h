@@ -28,7 +28,8 @@ struct TopFocus {
     std::shared_ptr<const RomBanner> cbmd;
     unsigned icon = 0;
     int iconW = 0, iconH = 0;
-    bool dsIcon = false;
+    bool dsIcon = false;      // the DS cartridge model carries the icon
+    bool pixelArt = false;    // the icon is pixel art (a DS banner icon): sampled nearest
 };
 
 class CtrTop {
@@ -111,7 +112,7 @@ private:
     std::shared_ptr<GpuTex> mPlate;
     // the name plate's marquee (a name too long for the plate scrolls at the one font size)
     // the plate is drawn at kPlateRes times DmyText_00's 256 x 64 (the model samples it 0..1)
-    static constexpr int kPlateRes = 2, kPlateW = 256 * kPlateRes, kPlateH = 64 * kPlateRes, kPlateSdf = 4;
+    static constexpr int kPlateRes = 3, kPlateW = 256 * kPlateRes, kPlateH = 64 * kPlateRes, kPlateSdf = 4;
     static constexpr float kPlateMargin = 4 * kPlateRes, kMarqueeSpeed = 0.5f * kPlateRes, kMarqueeHold = 90;
     std::unordered_map<const Glyph*, std::vector<uint8_t>> mPlateSdf;   // glyph distance fields
     struct PlateLine {

@@ -1539,26 +1539,31 @@ void CtrHome::Impl::updateChrome() {
             f.kind = it->kind == HomeItemKind::Folder ? TopFocus::Folder : TopFocus::Title;
             f.key = it->id;
             f.plate = it->name;
-            if (it->kind == HomeItemKind::Title && !it->publisher.empty()) f.plate += "\n" + it->publisher;
+            if (it->kind == HomeItemKind::Title && !it->plate.empty()) f.plate = it->plate;
+            else if (it->kind == HomeItemKind::Title && !it->publisher.empty()) f.plate += "\n" + it->publisher;
             if (it->kind == HomeItemKind::Title && host) {
                 CtrHomeHost::TitleArt ta;
                 host->titleArt(*it, &ta);
                 // a 3DS banner still being read keeps the shown banner (no 2D banner flash)
                 if (ta.pending) return;
                 f.cbmd = ta.cbmd;
-                f.dsIcon = ta.dsIcon;
+                f.dsIcon = ta.dsIcon || ta.dsCard;
+                f.pixelArt = ta.dsIcon;
                 // banner models take their textures stored upside down (like the name plates).
-                // The DS card's mt_Icon takes only the icon's colour (its alpha is the label
-                // mask), so a DS icon is flattened onto white like the console's composed icon.
+                // The cards' icon materials take only the icon's colour (their alpha is the
+                // label mask), so an icon is flattened onto white like the console's composed one.
                 if (ta.icon) {
-                    if (TexturePtr c = tintedCopy(ta.icon, ta.w, ta.h, 1.0f, ta.art.coverAspect, true, ta.dsIcon)) {
+                    if (TexturePtr c = tintedCopy(ta.icon, ta.w, ta.h, 1.0f, ta.art.coverAspect, true, true)) {
                         f.icon = c->id;
                         f.iconW = c->width;
                         f.iconH = c->height;
                     }
                 } else if (!ta.cbmd) {
-                    // no art: the generic box card with the title's initial
-                    if (TexturePtr c = boxTexture(*it, true)) {
+                    // no banner art: the grid's own icon (an app's icon) on the card, else the
+                    // generic box face with the title's initial (on the DS cartridge for a DS game)
+                    TexturePtr own = ta.dsCard ? nullptr : titleTextureOwn(*it);
+                    TexturePtr c = own ? tintedCopy(own->id, own->width, own->height, 1.0f, 0, true, true) : boxTexture(*it, true);
+                    if (c) {
                         f.icon = c->id;
                         f.iconW = c->width;
                         f.iconH = c->height;

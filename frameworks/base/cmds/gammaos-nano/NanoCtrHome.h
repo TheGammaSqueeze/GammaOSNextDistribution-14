@@ -36,6 +36,7 @@ struct HomeItem {
     std::string id;            // host identity (stable across rebuilds)
     std::string name;          // title name / folder name
     std::string publisher;     // second line of the name balloon (system, publisher)
+    std::string plate;         // titles: the whole top screen name plate when set (a DS banner's lines)
     std::string folderMark;    // folders: drawn on the folder instead of the initial (unused yet)
     int slot = -1;             // explicit grid slot (empty slots before it), -1 = the next slot
     bool folderFilled = true;  // folders: something inside (the icon shows its contents tab)
@@ -78,7 +79,8 @@ public:
         GLuint icon = 0;
         int w = 0, h = 0;
         IconArt art;
-        bool dsIcon = false;
+        bool dsIcon = false;   // `icon` is a DS banner icon
+        bool dsCard = false;   // a DS game (the cartridge model, with or without its icon)
     };
     virtual void titleArt(const HomeItem& item, TitleArt* out) { (void)item; (void)out; }
     virtual void playBannerSound(const std::shared_ptr<const RomBanner>& banner) { (void)banner; }

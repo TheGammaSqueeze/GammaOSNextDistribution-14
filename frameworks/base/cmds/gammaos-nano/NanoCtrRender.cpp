@@ -1034,9 +1034,10 @@ static void layoutText(Pane* p, Font& f) {
             if (g->glyphWidth > 0) {
                 Pane::GlyphQuad q;
                 const double ql = pen + g->left * gx, qt = baseline + f.baseline * gy;
-                q.l = (float)ql;
+                const double pad = f.quadPad() * gx;   // matches the uv border Font::place adds
+                q.l = (float)(ql - pad);
                 q.t = (float)qt;
-                q.r = (float)(ql + g->glyphWidth * gx);
+                q.r = (float)(ql + g->glyphWidth * gx + pad);
                 q.b = (float)(qt - f.cellHeight * gy);
                 if (f.place(g, &q.u0, &q.v0, &q.u1, &q.v1)) {
                     q.hasColor = ch.hasColor;

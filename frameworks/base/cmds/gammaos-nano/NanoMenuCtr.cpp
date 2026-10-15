@@ -111,6 +111,13 @@ public:
             mTitles[h.id] = it;
             if (it.kind == NanoMenu::PS3_ROM && it.a >= 0 && it.a < (int)mMenu->mXmbSystems.size())
                 h.publisher = mMenu->mXmbSystems[it.a].name;
+            // a DS game named from its banner shows the banner as authored on the name plate
+            // (its lines and publisher, as the console shows a DS card); a rename keeps its name
+            std::string ds;
+            if (mMenu->ndsRomTitleEnabled() && mMenu->ndsIsDsRomItem(it, &ds)) {
+                const std::string bt = mMenu->ndsBannerTitleFor(ds);
+                if (!bt.empty() && bt == it.label) h.plate = mMenu->ndsBannerTextFor(ds);
+            }
         }
         return h;
     }
@@ -477,6 +484,7 @@ public:
         }
         std::string ds;
         if (mMenu->ndsIsDsRomItem(it, &ds)) {
+            out->dsCard = true;
             if (GLuint g = mMenu->ndsBannerTex(ds)) { out->icon = g; out->w = out->h = 32; out->dsIcon = true; }
             return;
         }
@@ -587,6 +595,12 @@ bool NanoMenu::ctrEnsure() {
         ALOGI("ctr: 3DS theme assets at %s", root.c_str());
     }
     mCtrHome->setLanguage("English");
+    {
+        // text fields and the top screen's rebuilt icons follow the panel's magnification of the
+        // 400 x 240 top screen (known before the layouts load; ctrDrawScreen refines it)
+        const float W = (float)mWidth, H = ctrDualPanel() ? (float)mHeight : mHeight * 0.5f;
+        if (W > 0 && H > 0) ctr::Font::setVectorScale((int)ceilf(std::min(W / 400.0f, H / 240.0f) - 0.1f));
+    }
     if (!mCtrHome->load()) {
         ALOGE("ctr: 3DS theme failed to load");
         return false;
@@ -2289,6 +2303,13 @@ void NanoMenu::ctrDrawScreen(bool top, float rx, float ry, float rw, float rh) {
     const float lh = top ? mCtrHome->topHeight() : 240.0f;
     float ox, oy, ow, oh;
     ctrFit(lw, lh, rx, ry, rw, rh, &ox, &oy, &ow, &oh);
+    // vector glyphs are drawn from fields as fine as the larger screen magnifies the layout (one
+    // value for both screens: the atlases rebuild when it changes)
+    {
+        static float sMag[2] = {0, 0};
+        sMag[top ? 0 : 1] = lw > 0 ? ow / lw : 1.0f;
+        ctr::Font::setVectorScale((int)ceilf(std::max(sMag[0], sMag[1]) - 0.1f));
+    }
     // letterbox bars in the screen's own ground colour (only outside the screen: every pixel
     // filled twice costs fill rate on low end GPUs)
     const float g = top ? 232.0f / 255.0f : 0.0f, gb = top ? 238.0f / 255.0f : 0.0f;
@@ -2323,6 +2344,7 @@ uint64_t NanoMenu::ctrModelSignature() const {
     }
     for (const XmbSystem& s : mXmbSystems) mix((uint64_t)s.roms.size());
     mix((uint64_t)mXmbRecent.size());
+    mix((uint64_t)mNdsBannerNamesRev);
     return h;
 }
 

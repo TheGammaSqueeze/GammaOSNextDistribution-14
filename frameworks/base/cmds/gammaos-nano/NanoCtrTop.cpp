@@ -263,7 +263,9 @@ void CtrTop::layoutPlate(const std::string& text, float size) {
             }
             const std::vector<uint8_t>& cell = found->second;
             if (g->glyphWidth > 0 && !cell.empty() && gw > 0) {
-                const int x0 = std::max(0, (int)floorf(gx)), x1 = std::min(pl.w, (int)ceilf(gx + gw));
+                // a vector glyph's outline may reach quadPad() cell pixels past the bitmap width
+                const float pad = font->quadPad() * SX * scale;
+                const int x0 = std::max(0, (int)floorf(gx - pad)), x1 = std::min(pl.w, (int)ceilf(gx + gw + pad));
                 for (int py = 0; py < pl.h; py++) {
                     const float yy = pl.y0 + py;
                     const float v = ((yy + 0.5f) - top) / lineHeight * font->cellHeight - 0.5f + 1;
@@ -409,7 +411,7 @@ void CtrTop::attach() {
         t->width = mPendingFocus.iconW;
         t->height = mPendingFocus.iconH;
         t->owned = false;   // the home owns the icon texture
-        t->pixelArt = mPendingFocus.dsIcon;   // a DS icon's pixels stay square
+        t->pixelArt = mPendingFocus.pixelArt;   // a DS icon's pixels stay square
         res->setTexture("DmyIcon_00", t);
     }
     if (mPendingFocus.cbmd && onBannerSound) onBannerSound(mPendingFocus.cbmd);

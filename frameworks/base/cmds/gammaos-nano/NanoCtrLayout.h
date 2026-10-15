@@ -87,6 +87,18 @@ public:
     // A glyph cell's distance field ((cellWidth + 2) x (cellHeight + 2) times `scale`): 128 on the
     // glyph's edge, more inside.
     bool cellSdf(const Glyph* g, int scale, std::vector<uint8_t>& out) const;
+    // Draws glyph shapes from a vector font (the Rodin family the console's font was cut from)
+    // instead of the bitmaps, keeping this font's metrics so every layout measures as on the
+    // console: each outline is scaled to the bitmap's cap height and centred on its ink.
+    bool setVector(const std::string& ttfPath, float shapeScale = 1.0f);
+    bool vector() const { return mFace != nullptr; }
+    // Atlas texels per cell pixel for vector glyphs (bitmap glyphs stay at kSdfScale): follows the
+    // panel's magnification, so text is drawn from a field as fine as the screen shows it.
+    static void setVectorScale(int scale);
+    static int vectorScale() { return sVectorScale; }
+    // Cell pixels a glyph's quad extends past its bitmap width on either side (a vector outline
+    // can reach a little beyond the bitmap's ink box).
+    int quadPad() const { return mFace ? 1 : 0; }
     // Bumped when the atlas was cleared to make room; cached text geometry must be rebuilt.
     uint32_t generation() const { return mGeneration; }
     void releaseGl();
@@ -116,6 +128,14 @@ private:
     std::unordered_map<uint32_t, int> mSlots;   // glyph table index -> atlas slot
     uint32_t mGeneration = 1;
     std::vector<uint8_t> mScratch;
+    // vector shapes
+    void* mFace = nullptr;        // FT_Face
+    float mUnitScale = 0;         // cell pixels per font unit
+    float mOutline = 0;           // Hud style: dark outline width around the white fill, cell px
+    float mShapeScale = 1;        // outline size against the bitmap's cap height
+    int mScale = kSdfScale;       // atlas texels per cell pixel of the current atlas
+    static int sVectorScale;
+    bool vectorCell(const Glyph* g, int scale, std::vector<uint8_t>* field, std::vector<uint8_t>* lum) const;
 };
 
 // ------------------------------------------------------------------ messages

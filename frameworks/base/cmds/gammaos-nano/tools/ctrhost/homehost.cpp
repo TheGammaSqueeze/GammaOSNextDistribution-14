@@ -140,6 +140,7 @@ int main(int argc, char** argv) {
     const float topH = getenv("CTR_TOPH") ? (float)atof(getenv("CTR_TOPH")) : 240.0f;
     const int H = (int)((topH + 240) * sc);
     if (!initEgl(W, H)) return 1;
+    Font::setVectorScale(getenv("CTR_VSCALE") ? atoi(getenv("CTR_VSCALE")) : sc);
     GLuint fbo, tex;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);

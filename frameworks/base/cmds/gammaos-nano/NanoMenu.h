@@ -3484,6 +3484,7 @@ private:
     std::unordered_map<std::string, NdsBannerTexEntry> mNdsBannerTex;   // render thread only
     std::mutex mNdsBannerMu;                                             // guards the three below
     std::unordered_map<std::string, std::string> mNdsBannerTitle;        // path -> title ("" = none/failed)
+    std::unordered_map<std::string, std::string> mNdsBannerText;         // path -> banner lines, publisher last
     std::unordered_map<std::string, std::vector<uint8_t>> mNdsBannerPix; // path -> RGBA awaiting upload
     std::deque<std::string> mNdsBannerQueue;                             // draw-time requests for the worker
     std::unordered_map<std::string, uint64_t> mNdsBannerIdent;           // path -> size/mtime the result belongs to
@@ -3492,6 +3493,7 @@ private:
     std::condition_variable mNdsBannerCv;
     bool mNdsBannerWorkerUp = false;
     std::atomic<bool> mNdsBannerLanded{false};                            // worker finished something: names may change
+    uint32_t mNdsBannerNamesRev = 0;                                     // bumped when banner titles re-name games
     void ndsBannerStartWorkerLocked();                                   // mNdsBannerMu held
     bool ndsBannerWantsParseLocked(const std::string& rom);              // mNdsBannerMu held
     void ndsBannerTick();                                                // render thread, per frame
@@ -3500,6 +3502,7 @@ private:
     void ndsBannerLoad(const std::string& romPath);                      // sync parse via disk cache (any thread)
     void ndsBannerPrefetch(const std::vector<std::string>& roms);        // scan thread: titles before sorting
     std::string ndsBannerTitleFor(const std::string& romPath);           // "" if unknown or none
+    std::string ndsBannerTextFor(const std::string& romPath);            // the banner's lines ("" if unknown)
     GLuint ndsBannerTex(const std::string& romPath);                     // render thread; 0 until ready
     void ndsBannerFreeAll();                                             // drop GL textures (theme/GL teardown)
     bool scraperFanartEnabled();           // persist.gammaos.scraper.fanart
