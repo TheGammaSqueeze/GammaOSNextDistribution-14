@@ -119,6 +119,11 @@ public:
     virtual MyMenuStore* myMenuStore() { return nullptr; }
     virtual void stopSound(int handle, int fadeFrames) { (void)handle; (void)fadeFrames; }
     virtual bool soundPlaying(int handle) { (void)handle; return true; }
+    // The suspended title (CtrHome::suspendApp): the fade back into it has played, the title
+    // takes the screens again; Close was confirmed, the title is to end now (the closing notice
+    // keeps showing while it goes).
+    virtual void resumeApp() {}
+    virtual void closeApp() {}
 };
 
 struct CtrTouch {
@@ -198,6 +203,18 @@ public:
     int minRootSlots() const { return mMinRootSlots; }
     // The launched title is running / the menu came back to the front (HOME).
     void resumeFromApp();
+    // A title runs behind the home and HOME suspended it (scenes/app/application.ts): the pause
+    // fade from its screens into the menu, then the menu with the title suspended (its icon
+    // pulsing, the "Suspended software" window, the bottom bar Close / Resume). `ids` are the
+    // grid identities of the title; `top` / `bottom` its screens as captured (GL textures, rows
+    // top first, any size), which the home takes over and deletes. A resume (HOME, Resume, the
+    // title's icon, resumeSuspended) fades back into the title and ends in host->resumeApp(); a
+    // confirmed Close ends in host->closeApp() and the closing notice.
+    void suspendApp(const std::vector<std::string>& ids, unsigned top, int topW, int topH, unsigned bottom, int botW,
+                    int botH);
+    bool appSuspended() const;      // from suspendApp until the resume or the close has played
+    bool appResuming() const;       // the fade back into the title is playing
+    void resumeSuspended();         // HOME from the host (power, Back at the top level)
     // Items changed (rescan): rebuild the grids, keeping the cursor on the same item.
     void reloadItems();
     // Test hook: puts the cursor on the root item named `name` and opens it when it is a folder.

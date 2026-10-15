@@ -317,7 +317,7 @@ static bool loadPngFromMemory(const uint8_t* pngData, int pngSize, GLuint* outTe
     return true;
 }
 
-GLuint NanoMenu::overlayCaptureInProcess(int* outW, int* outH) {
+GLuint NanoMenu::overlayCaptureInProcess(int* outW, int* outH, bool secondary) {
     const std::vector<PhysicalDisplayId> ids =
             SurfaceComposerClient::getPhysicalDisplayIds();
     if (ids.empty()) return 0;
@@ -329,6 +329,14 @@ GLuint NanoMenu::overlayCaptureInProcess(int* outW, int* outH) {
         int wantPort = atoi(prim);
         for (const PhysicalDisplayId& pid : ids)
             if ((int)pid.getPort() == wantPort) { did = pid; break; }
+        // `secondary`: the other panel of a dual screen device (none on a single screen one)
+        if (secondary) {
+            const DisplayId primary = did;
+            bool found = false;
+            for (const PhysicalDisplayId& pid : ids)
+                if (pid.value != primary.value) { did = pid; found = true; break; }
+            if (!found) return 0;
+        }
     }
 
     gui::CaptureArgs args;

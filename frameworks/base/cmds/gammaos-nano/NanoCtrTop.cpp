@@ -22,6 +22,8 @@ const int SHOW_DELAY_MENU = 14;
 const int SHOW_DELAY_TITLE = 31;
 const int BOOT_DELAY = 29;
 const float WALL_PHASE = 2;
+// the wall texture that receives the suspended title's upper screen (mt_BG texture 0)
+const char* const APP_TEXTURE = "BG_DmyApp_00";
 const int TURN_FRAMES = 600;
 const float SCALE_BASE = 0.8f, SCALE_STEP = 0.25f * 0.2f;
 const int SCALE_STEPS = 4;
@@ -94,6 +96,11 @@ void CtrTop::releaseGl() {
     mBanner.reset();
     mLeaving.clear();
     mWall.reset();
+    mWallOut = false;
+    mAppEnding.clear();
+    mAppTex.reset();
+    mAppTexOriginal.reset();
+    mAppTexSaved = false;
     for (auto& r : mResources) if (r.second) r.second->releaseGl();
     mResources.clear();
     if (mBlitProgram) glDeleteProgram(mBlitProgram);
@@ -102,6 +109,56 @@ void CtrTop::releaseGl() {
 }
 
 void CtrTop::parkGl() { mRenderer.releaseGl(); }
+
+void CtrTop::setAppImage(GLuint texture, int width, int height) {
+    auto bg = resource("BannerBG");
+    if (!bg) return;
+    if (!mAppTexSaved) {
+        auto it = bg->textures.find(APP_TEXTURE);
+        mAppTexOriginal = it == bg->textures.end() ? nullptr : it->second;
+        mAppTexSaved = true;
+    }
+    mAppTex = std::make_shared<GpuTex>();
+    mAppTex->id = texture;
+    mAppTex->width = width;
+    mAppTex->height = height;
+    mAppTex->owned = false;   // the caller's texture
+    bg->setTexture(APP_TEXTURE, mAppTex);
+}
+
+void CtrTop::clearAppImage() {
+    if (!mAppTexSaved) return;
+    if (auto bg = resource("BannerBG")) {
+        if (mAppTexOriginal) bg->setTexture(APP_TEXTURE, mAppTexOriginal);
+        else bg->textures.erase(APP_TEXTURE);
+    }
+    mAppTex.reset();
+    mAppTexOriginal.reset();
+    mAppTexSaved = false;
+}
+
+void CtrTop::setWallOut() {
+    if (!mWall || mWallOut) return;
+    mWall->play("BannerBG_SceneOut", 0, 1, 100000);   // its last pose at once
+    mWallOut = true;
+}
+
+// scene3d.ts followApp (FUN_00286b28)
+void CtrTop::followApp(AppState state, AppBanner banner) {
+    if (!mWall) return;
+    static const char* kNames[4] = {"", "BannerBG_AppPause", "BannerBG_AppRestart", "BannerBG_AppQuit"};
+    if (banner == AppBanner::Pause) {
+        mWall->stop(kNames[2]);
+        mWall->stop(kNames[3]);
+        mAppEnding.clear();
+    } else if (banner != AppBanner::None) {
+        mAppEnding = kNames[(int)banner];
+    }
+    if (banner != AppBanner::None) mWall->play(kNames[(int)banner], 0);
+    const bool out = state == AppState::Running || state == AppState::Resumed;
+    if (out != mWallOut) mWall->play(out ? "BannerBG_SceneOut" : "BannerBG_SceneIn", 0);
+    mWallOut = out;
+}
 
 std::shared_ptr<ModelResource> CtrTop::resource(const std::string& name) {
     auto it = mResources.find(name);
@@ -165,7 +222,10 @@ void CtrTop::focus(const TopFocus& f) {
             spec.meshes = {"Folder_00", "Text"}; spec.nameScale = 0.74f;
             break;
         case TopFocus::Title:
-            if (f.cbmd) {
+            if (std::find(mSuspendedKeys.begin(), mSuspendedKeys.end(), f.key) != mSuspendedKeys.end()) {
+                // the suspended title shows no banner: the wall holds its screen (banner.md)
+                show = false;
+            } else if (f.cbmd) {
                 // the title's own CBMD model, COMMON played in repeat mode, facing the camera
                 // (titlebanner.ts)
                 spec.type = TitleT; spec.model = "rom:" + f.cbmd->rom; spec.animations = {"COMMON"};
@@ -532,6 +592,11 @@ void CtrTop::update() {
     if (mHasPending && --mPendingLeft <= 0) attach();
     updatePlate();
     if (mWall) mWall->update(1);
+    if (!mAppEnding.empty() && mWall && !mWall->isPlaying(mAppEnding)) {
+        // the app animations are dropped when the resume or close has played (scene3d.ts step)
+        for (const char* n : {"BannerBG_AppPause", "BannerBG_AppRestart", "BannerBG_AppQuit"}) mWall->stop(n);
+        mAppEnding.clear();
+    }
     for (auto& b : mLeaving) { b->update(); b->model->update(1); if (b->extra) b->extra->update(1); }
     if (mBanner) { mBanner->update(); mBanner->model->update(1); if (mBanner->extra) mBanner->extra->update(1); }
     mLeaving.erase(std::remove_if(mLeaving.begin(), mLeaving.end(), [](const std::unique_ptr<Banner>& b) { return b->gone(); }),

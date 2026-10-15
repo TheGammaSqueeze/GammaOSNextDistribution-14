@@ -1036,7 +1036,7 @@ private:
     // Fast in-process display capture via SurfaceComposerClient (no screencap
     // spawn). Returns a new GL texture of the current screen (or 0 on failure,
     // caller falls back to the screencap binary). Outputs the captured size.
-    GLuint overlayCaptureInProcess(int* outW, int* outH);
+    GLuint overlayCaptureInProcess(int* outW, int* outH, bool secondary = false);
     // Resolve the "-d <physId> " argument for `screencap` so a Control Center screenshot targets the
     // CONTENT panel (where the launched app plays), not the CC's own panel. Empty string = let
     // screencap use its default display (single-screen device, or resolution failed).
@@ -1597,11 +1597,17 @@ private:
     // XMB infrastructure like the other themes; its home, nav and sounds are its own, and nano's
     // modals (settings lists, dialogs, OSK, players) keep working over it.
     bool mCtrTheme = false;
-    // The in-game overlay (power held over a running app) is the XMB in every theme that has no
-    // console menu of its own for it: the 3DS theme hands the screen to the XMB while an app is
-    // behind the overlay (mCtrTheme off, this set) and takes it back at the launcher.
-    bool mCtrThemeHeld = false;
-    int mCtrHeldCatIdx = -1, mCtrHeldItemIdx = 0;   // the home's XMB selection, kept across the hand-off
+    // The in-game overlay in the 3DS theme is the HOME Menu with the title suspended
+    // (CtrHome::suspendApp): the title's screens are captured when the overlay is raised over it
+    // and handed to the home once it is loaded; a resume fades back into the title before the
+    // overlay hides (mCtrResumeNow lets that final hide through).
+    bool mCtrSuspendPending = false;
+    unsigned mCtrSuspendTop = 0, mCtrSuspendBottom = 0;
+    int mCtrSuspendTopW = 0, mCtrSuspendTopH = 0, mCtrSuspendBotW = 0, mCtrSuspendBotH = 0;
+    bool mCtrResumeNow = false;
+    void ctrCaptureSuspend();
+    void ctrDropSuspend();
+    std::vector<std::string> ctrSuspendedIds();
     ctr::CtrHome* mCtrHome = nullptr;             // created on first use (needs the GL context)
     ctr::CtrAudio* mCtrAudio = nullptr;           // menu sounds + BGM
     friend class NanoCtrHost;
@@ -1640,7 +1646,6 @@ private:
     void ctrModalUpdate();                        // feeds the panel / dialog from the menu state
     bool ctrModalTouch(float x, float y);         // a touch frame on the panel / dialog (bottom units)
     void ctrSfx(int ps3SfxId);                    // nano's navigation sounds as the console's effects
-    void ctrOverlayHandOff(bool inGame, bool playReturn);   // XMB in-game overlay vs the 3DS home (mCtrThemeHeld)
     void ctrLeave();                              // the theme is switched away from: audio off, GL freed
     bool ctrBgmAllowed();                         // no game starting or running, no media player
     bool ctrItemSwitch(const Ps3Item& it, bool* on);   // an On/Off setting row (a 3DS OFF / ON pair)

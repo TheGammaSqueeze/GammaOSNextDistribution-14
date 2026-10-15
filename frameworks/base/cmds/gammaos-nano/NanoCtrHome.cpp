@@ -408,6 +408,53 @@ struct CtrHome::Impl {
     int myMenuReturn = 0;
     bool myMenuOn() const { return myMenu && myMenu->active(); }
     bool chromeHidden() const { return myMenuOn() || myMenuReturn > 0; }
+    // ------------------------------------------------------------ suspended title (scenes/app)
+    // application.ts steps from HOME onwards (the title's own boot and run are nano's app)
+    enum AppStep { AppNone, AppSuspending, AppSuspended, AppResuming, AppGone, AppQuitting, AppClosing };
+    AppStep appStep = AppNone;
+    int appFrame = 0;
+    std::vector<std::string> appIds;
+    std::unique_ptr<LayoutInstance> pause, appBar;   // LncPauseFade_D_00, the suspended LncBtmBtn_02
+    Animator* pauseClip = nullptr;
+    Animator* appBarClip = nullptr;
+    IconTemplate sleepIcon;          // LncIconSleep_00 over the suspended title's grid icon
+    std::string sleepOn;             // the id it is drawn on (kept while it fades out)
+    bool sleepLeaving = false;
+    TexturePtr appTopTex, appBottomTex, menuTex, windowIcon;
+    bool appBarShown = false;
+    int appTouched = -1;
+    std::unique_ptr<CtrDialog> appDialog;
+    int appDialogKind = 0;           // 1 the Close confirmation, 2 the closing notice
+    int appConfirmSel = 1;
+    bool capturing = false;          // drawing the menu for P_Lnc_00
+    bool windowShown = false;
+    std::string windowFor;
+    GLuint remapProgram = 0;
+    bool pauseDone = false, appBarDone = true;
+    // bumped for every pause / bar clip: replacing a clip stops (and so finishes) the one before,
+    // whose callback must not count for the new one
+    int pauseGen = 0, appBarGen = 0;
+    bool appActive() const { return appStep != AppNone; }
+    bool appCovers() const { return appStep == AppSuspending || appStep == AppResuming || appStep == AppGone; }
+    bool isSuspended(const std::string& id) const {
+        return appStep != AppNone && appStep != AppGone && std::find(appIds.begin(), appIds.end(), id) != appIds.end();
+    }
+    void appSuspend(const std::vector<std::string>& ids, GLuint top, int tw, int th, GLuint bottom, int bw, int bh);
+    bool appUpdate();
+    void appFinishSuspend();
+    void appResume();
+    void appStartResume();
+    void appConfirmClose();
+    void appQuit();
+    void appClose();
+    void appEnd();
+    void appShowBar(bool shown);
+    void appSleep(bool on);
+    void appWindow();
+    void appDark(bool dark);
+    void setMenuTopOpacity(float fraction);
+    TexturePtr renderMenuBottom();
+    TexturePtr remapCopy(GLuint src, int w, int h, const float a[3], const float b[3]);
     // fades
     std::unique_ptr<LayoutInstance> fadeTop, fadeBottom;
     bool fadeActive = false;
@@ -728,6 +775,7 @@ bool CtrHome::Impl::load() {
         o.loop = 0;
         hoverGlow.layout->play("PickUp", o);
     }
+    makeTemplate(sleepIcon, "LncIconSleep_00", 0, {});
     makeTemplate(folderOpenT, "LncIconFolderInT_00", 0, {"N_Pic_00"}, {"N_Color_00"});
     // only read for where the initial goes (icons.ts drawOpenFolder)
     makeTemplate(folderOpenB, "LncIconFolderInB_00", 0, {"P_Icon_00", "P_IconPrize_00"});
@@ -843,6 +891,15 @@ void CtrHome::Impl::pollInput() {
 
 void CtrHome::Impl::tick() {
     pollInput();
+    if (appActive() && appUpdate()) {
+        // the suspended title's scene took this tick's buttons, touch and HOME
+        down = up = repeat = 0;
+        const float tx = touch.x, ty = touch.y;
+        touch = CtrTouch();
+        touch.x = tx;
+        touch.y = ty;
+        homeEvent = false;
+    }
     if (entered) mainUpdate();
     else updateChrome();
     // animation pass (every drawable of both screens)
@@ -1211,10 +1268,16 @@ void CtrHome::Impl::closeFolder() {
 // ------------------------------------------------------------ launch (launch.ts)
 
 void CtrHome::Impl::launch(const HomeItem& item) {
+    // the suspended title's icon resumes it (application.ts)
+    if (appStep == AppSuspended && isSuspended(item.id)) {
+        appResume();
+        return;
+    }
     if (host && !host->launch(item)) {
         sound("SE_CTR_HOME_BANNER_INVALID");
         return;
     }
+    appEnd();   // another title: the host has ended the suspended one
     sound("SE_CTR_HOME_START");
     cursor->play("Decide", groupsOpt());
     sound("SE_CTR_HOME_START_EFFECT");
@@ -1229,6 +1292,503 @@ void CtrHome::Impl::launch(const HomeItem& item) {
     fadeActive = true;
     fadeTop->play("SceneOutA");
     fadeBottom->play("SceneOutA");
+}
+
+// ------------------------------------------------------------ suspended title (scenes/app)
+//
+// application.ts from HOME on: the pause fade (LncPauseFade_D_00_SceneIn, 41 frames: the title's
+// lower screen shrinks and darkens, the menu zooms in over it; the wall brings the title's upper
+// screen back in darkened with BannerBG_AppPause, the menu's upper layouts fade in over frames
+// 20..40), the suspended menu (bottom bar Close / Resume in place of the launcher's, the title's
+// icon pulsing, the "Suspended software" window), the fade back (SceneOut, AppRestart) and Close
+// (lau_dlg_quit0, then the closing notice lau_dlg_quit4 while the wall plays AppQuit).
+
+namespace {
+const int MENU_FADE_START = 20, MENU_FADE_FRAMES = 20;
+const int CLOSE_NOTICE_SHOW = 6, QUIT_WALL_DELAY = 8, CLOSE_NOTICE_DISMISS = 108;
+const float WINDOW_ALPHA = 180;
+// the title's screens are kept at three times the console's 256 x 512 framebuffer layout
+const int APP_TEX_W = 256 * 3, APP_TEX_H = 512 * 3;
+struct AppButton { const char* node; const char* picture; const char* group; const char* texts[3]; const char* label; };
+// Close uses the dark variant of the left button (N_BtnB_L_03); the console's Manual (centre) has
+// no counterpart in nano and stays hidden
+const AppButton APP_CLOSE = {"N_BtnB_L_03", "P_BtnB_L_03", "G_BtnB_L_03", {"T_BtnFB_L_03", "T_BtnBB_L_03", "T_BtnPB_L_03"}, "lau_3b_quit"};
+const AppButton APP_RESUME = {"N_BtnW_R_03", "P_BtnW_R_03", "G_BtnW_R_03", {"T_BtnFW_R_03", "T_BtnBW_R_03", "T_BtnPW_R_03"}, "lau_3b_restart"};
+const AppButton* const APP_BUTTONS[2] = {&APP_CLOSE, &APP_RESUME};
+}  // namespace
+
+// Copies `src` into a new w x h texture: the copy's texel (u, v) (v = 0 its first row) samples src
+// at (a . (u, v, 1), b . (u, v, 1)); outside src the copy is transparent black.
+TexturePtr CtrHome::Impl::remapCopy(GLuint src, int w, int h, const float a[3], const float b[3]) {
+    if (!src) return nullptr;
+    if (!remapProgram) {
+        static const char* vs =
+            "attribute vec2 p; varying vec2 uv;\n"
+            "void main() { uv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }\n";
+        static const char* fs =
+            "precision highp float; uniform sampler2D t; uniform vec3 a; uniform vec3 b; varying vec2 uv;\n"
+            "void main() {\n"
+            "  vec3 q = vec3(uv, 1.0);\n"
+            "  vec2 s = vec2(dot(a, q), dot(b, q));\n"
+            "  if (s.x < 0.0 || s.x > 1.0 || s.y < 0.0 || s.y > 1.0) gl_FragColor = vec4(0.0);\n"
+            "  else gl_FragColor = vec4(texture2D(t, s).rgb, 1.0);\n"
+            "}\n";
+        auto sh = [](GLenum type, const char* text) {
+            GLuint s = glCreateShader(type);
+            glShaderSource(s, 1, &text, nullptr);
+            glCompileShader(s);
+            return s;
+        };
+        GLuint v = sh(GL_VERTEX_SHADER, vs), f = sh(GL_FRAGMENT_SHADER, fs);
+        remapProgram = glCreateProgram();
+        glAttachShader(remapProgram, v);
+        glAttachShader(remapProgram, f);
+        glBindAttribLocation(remapProgram, 0, "p");
+        glLinkProgram(remapProgram);
+        glDeleteShader(v);
+        glDeleteShader(f);
+    }
+    TexturePtr t = A->rgbaTexture(nullptr, w, h);
+    GLint prevFbo = 0, vp[4];
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    glGetIntegerv(GL_VIEWPORT, vp);
+    GLuint fbo = 0;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, t->id, 0);
+    glViewport(0, 0, w, h);
+    glDisable(GL_BLEND);
+    glDisable(GL_SCISSOR_TEST);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glUseProgram(remapProgram);
+    glUniform1i(glGetUniformLocation(remapProgram, "t"), 0);
+    glUniform3f(glGetUniformLocation(remapProgram, "a"), a[0], a[1], a[2]);
+    glUniform3f(glGetUniformLocation(remapProgram, "b"), b[0], b[1], b[2]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, src);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    const float quad[8] = {-1, -1, 1, -1, -1, 1, 1, 1};
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, quad);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableVertexAttribArray(0);
+    glUseProgram(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glDeleteFramebuffers(1, &fbo);
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
+    gTextureEpoch++;
+    return t;
+}
+
+// application.ts renderMenuBottom: the lower screen as it is now, without the pause layer, for
+// P_Lnc_00 (stored bottom row first, as flipVertically leaves it there).
+TexturePtr CtrHome::Impl::renderMenuBottom() {
+    constexpr int K = 2;
+    const int w = 320 * K, h = 240 * K;
+    TexturePtr t = A->rgbaTexture(nullptr, w, h);
+    GLint prevFbo = 0, vp[4];
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    glGetIntegerv(GL_VIEWPORT, vp);
+    GLuint fbo = 0;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, t->id, 0);
+    glViewport(0, 0, w, h);
+    glDisable(GL_SCISSOR_TEST);
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    const float proj[16] = {2.0f / 320, 0, 0, 0, 0, 2.0f / 240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    capturing = true;
+    self->drawBottom(proj, 0, 0, w, h);
+    capturing = false;
+    // a screen is opaque (the blended passes leave coverage in the alpha)
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glDeleteFramebuffers(1, &fbo);
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
+    return t;
+}
+
+// application.ts setMenuTopOpacity: the upper screen's layouts over the wall
+void CtrHome::Impl::setMenuTopOpacity(float fraction) {
+    const float o = roundf(255 * std::clamp(fraction, 0.0f, 1.0f));
+    for (LayoutInstance* l : {top.get(), hud.get()}) if (l) l->layout().opacity = o;
+}
+
+// banner.ts setDark: WhiteBlack frame 1 over the suspended title (the camera and screenshot bars
+// turn dark grey with white glyphs), frame 0 the file's own state
+void CtrHome::Impl::appDark(bool dark) {
+    if (!top || !top->hasAnimation("WhiteBlack")) return;
+    PlayOptions o = groupsOpt();
+    o.paused = true;
+    o.loop = 0;
+    if (Animator* wb = top->play("WhiteBlack", o)) {
+        wb->seek(dark ? 1 : 0);
+        wb->apply();
+        top->stop("WhiteBlack");
+    }
+}
+
+void CtrHome::Impl::appSuspend(const std::vector<std::string>& ids, GLuint topTex, int tw, int th, GLuint bottomTex,
+                               int bw, int bh) {
+    (void)bw; (void)bh;
+    appEnd();
+    if (!pause) pause = make("launcher", "LncPauseFade_D_00");
+    if (!pause || !topTex) {
+        if (topTex) glDeleteTextures(1, &topTex);
+        if (bottomTex) glDeleteTextures(1, &bottomTex);
+        return;
+    }
+    sound("SE_CTR_HOME_HOMEBUTTON");
+    // a launch from this instance left the launcher in its app state behind the logo fade: the
+    // menu is simply there again under the pause fade
+    if (state == StAppStart || state == StAppRunning) {
+        fadeActive = false;
+        setState(StIdle);
+        PlayOptions o = groupsOpt();
+        o.frame = 100000;   // the bar in place (it is replaced while the title is suspended)
+        buttons->play("SceneIn", o);
+    }
+    appIds = ids;
+    // scene3d.ts framebufferLayout: the upper screen a quarter turn into 256 x 512, its top edge at
+    // u = 240 / 256, its columns centred along v, right to left. The capture keeps its own aspect
+    // (a wide panel's is wider than 400 columns, at most the 512 there are).
+    const float wl = std::clamp(240.0f * (float)tw / (float)std::max(th, 1), 1.0f, 512.0f);
+    const float ta[3] = {0, -512 / wl, (512 + wl) / (2 * wl)};
+    const float tb[3] = {-256.0f / 240, 0, 1};
+    appTopTex = remapCopy(topTex, APP_TEX_W, APP_TEX_H, ta, tb);
+    // application.ts captureLayout: the lower screen a quarter turn into 256 x 512 (P_App_00 maps
+    // u 0.9375..0 down the pane, v 0..0.625 across it)
+    const float ba[3] = {0, 512.0f / 320, 0};
+    const float bb[3] = {-256.0f / 240, 0, 1};
+    appBottomTex = remapCopy(bottomTex ? bottomTex : topTex, APP_TEX_W, APP_TEX_H, ba, bb);
+    glDeleteTextures(1, &topTex);
+    if (bottomTex) glDeleteTextures(1, &bottomTex);
+    if (top3d && appTopTex) {
+        top3d->setAppImage(appTopTex->id, appTopTex->width, appTopTex->height);
+        top3d->setSuspendedKeys(ids);
+        top3d->setWallOut();
+        top3d->followApp(CtrTop::AppState::Suspended, CtrTop::AppBanner::Pause);
+    }
+    menuTex = renderMenuBottom();
+    pause->replaceTexture("P_App_00", appBottomTex);
+    pause->replaceTexture("P_Lnc_00", menuTex);
+    pause->setAlpha("P_Lnc_00", 0);   // the clip's first frame, not the layout's rest pose
+    pauseDone = false;
+    const int gen = ++pauseGen;
+    if (Animator* c = pause->play("SceneIn")) c->onFinish = [this, gen]() { if (gen == pauseGen) pauseDone = true; };
+    else pauseDone = true;
+    pause->refresh();
+    setMenuTopOpacity(0);
+    ALOGI("ctr: pause fade from the title (%zu ids)", ids.size());
+    appStep = AppSuspending;
+    appFrame = 0;
+}
+
+void CtrHome::Impl::appFinishSuspend() {
+    setMenuTopOpacity(1);
+    appShowBar(true);
+    appSleep(true);
+    appDark(true);
+    appStep = AppSuspended;
+    appFrame = 0;
+}
+
+// Resume (HOME, the Resume button or the title's icon): the menu stops taking input at once and
+// fades back into the title (the console's 17 frames of the title answering are not waited for:
+// nano's app never stopped).
+void CtrHome::Impl::appResume() {
+    if (appStep != AppSuspended || (appDialog && appDialog->active())) return;
+    sound("SE_CTR_HOME_HOMEBUTTON_RETURN");
+    appStartResume();
+}
+
+void CtrHome::Impl::appStartResume() {
+    menuTex = renderMenuBottom();   // with the suspended bar, as it is now
+    pause->replaceTexture("P_Lnc_00", menuTex);
+    pause->setAlpha("P_Lnc_00", 255);
+    appShowBar(false);
+    appSleep(false);
+    appDark(false);
+    if (windowShown || !windowFor.empty()) {
+        top->stop("Sleep");
+        top->setVisible("N_Wndw_00", false);
+        windowShown = false;
+        windowFor.clear();
+    }
+    pauseDone = false;
+    const int gen = ++pauseGen;
+    if (Animator* c = pause->play("SceneOut")) c->onFinish = [this, gen]() { if (gen == pauseGen) pauseDone = true; };
+    else pauseDone = true;
+    if (top3d) top3d->followApp(CtrTop::AppState::Resumed, CtrTop::AppBanner::Restart);
+    ALOGI("ctr: resume fade into the suspended title");
+    appStep = AppResuming;
+    appFrame = 0;
+}
+
+// Close: lau_dlg_quit0 (Cancel / Close); nano cannot tell which titles save on exit, so it always
+// asks, as the console does for titles without autoSaveOnExit
+void CtrHome::Impl::appConfirmClose() {
+    if (!appDialog) appDialog = std::make_unique<CtrDialog>(*A, [this](const char* n) { sound(n); });
+    appDialogKind = 1;
+    appConfirmSel = 1;
+    appDialog->set(A->messageText("lau_dlg_quit0"), {A->messageText("lau_dlg_2b_canc0"), A->messageText("lau_2b_close")},
+                   appConfirmSel);
+    appDialog->show();
+}
+
+// The menu stops taking input, the window goes, the wall plays AppQuit while the closing notice
+// comes up over the lower screen; the host ends the title meanwhile.
+void CtrHome::Impl::appQuit() {
+    appStep = AppQuitting;
+    appFrame = 0;
+    appDialogKind = 2;
+    if (windowShown || !windowFor.empty()) {
+        top->stop("Sleep");
+        top->setVisible("N_Wndw_00", false);
+        windowShown = false;
+        windowFor.clear();
+    }
+    if (host) host->closeApp();
+}
+
+void CtrHome::Impl::appClose() {
+    appDialogKind = 0;
+    if (top3d) top3d->followApp(CtrTop::AppState::Closed, CtrTop::AppBanner::None);
+    appDark(false);
+    appBarDone = true;
+    if (appBarShown && appBar) {
+        appBarDone = false;
+        const int gen = ++appBarGen;
+        if (Animator* c = appBar->play("SceneOut", groupsOpt())) c->onFinish = [this, gen]() { if (gen == appBarGen) appBarDone = true; };
+        else appBarDone = true;
+    }
+    appStep = AppClosing;
+    appFrame = 0;
+}
+
+void CtrHome::Impl::appEnd() {
+    if (appStep == AppNone && !pause && !appBar) return;
+    appShowBar(false);
+    appSleep(false);
+    sleepOn.clear();
+    appDark(false);
+    setMenuTopOpacity(1);
+    if (windowShown || !windowFor.empty()) {
+        top->stop("Sleep");
+        top->setVisible("N_Wndw_00", false);
+        windowShown = false;
+        windowFor.clear();
+    }
+    if (top3d) {
+        top3d->clearAppImage();
+        top3d->setSuspendedKeys({});
+        topFocusKey.clear();   // the focused title's banner comes back
+    }
+    if (appDialog) appDialog.reset();
+    appDialogKind = 0;
+    pause.reset();
+    appBar.reset();
+    appTopTex.reset();
+    appBottomTex.reset();
+    menuTex.reset();
+    windowIcon.reset();
+    appIds.clear();
+    appStep = AppNone;
+    appFrame = 0;
+}
+
+// application.ts showButtons / hideButtons: the suspended bar replaces the launcher's
+void CtrHome::Impl::appShowBar(bool shown) {
+    if (shown) {
+        if (!appBar) {
+            appBar = make("launcher", "LncBtmBtn_02");
+            if (!appBar) return;
+            if (Pane* scene = appBar->pane("N_Scene_00"))
+                for (Pane* c : scene->children)
+                    c->visible = !strcmp(c->name.c_str(), APP_CLOSE.node) || !strcmp(c->name.c_str(), APP_RESUME.node);
+            for (const AppButton* b : APP_BUTTONS)
+                for (const char* t : b->texts) if (appBar->pane(t)) appBar->setMessage(t, b->label);
+        }
+        ++appBarGen;
+        appBar->play("SceneIn", groupsOpt());
+        appBarShown = true;
+        bbEnabled = false;
+    } else {
+        appBarShown = false;
+        appTouched = -1;
+        bbEnabled = true;
+    }
+}
+
+// sleepicon.ts: LncIconSleep_00 over the suspended title's grid icon, Appear then the Sleep loop,
+// DisAppear when it is no longer suspended
+void CtrHome::Impl::appSleep(bool on) {
+    if (!sleepIcon.layout) return;
+    if (on) {
+        sleepOn = "on";
+        sleepLeaving = false;
+        if (Animator* a = sleepIcon.layout->play("Appear", groupsOpt()))
+            a->onFinish = [this]() {
+                if (sleepOn.empty() || sleepLeaving) return;
+                PlayOptions o = groupsOpt();
+                o.loop = 1;
+                sleepIcon.layout->play("Sleep", o);
+            };
+    } else if (!sleepOn.empty() && !sleepLeaving) {
+        sleepLeaving = true;
+        sleepIcon.layout->stop("Sleep");
+        if (Animator* a = sleepIcon.layout->play("DisAppear", groupsOpt()))
+            a->onFinish = [this]() { if (sleepLeaving) { sleepOn.clear(); sleepLeaving = false; } };
+        else sleepOn.clear();
+    }
+}
+
+// banner.ts show: the "Suspended software" window while the suspended title is focused (its name,
+// its icon in the corner 0..0.75 of P_Icon_00, ScaleUpDown then the Sleep pulse)
+void CtrHome::Impl::appWindow() {
+    const Grid& g = grid();
+    const HomeItem* it = g.onBar ? nullptr : g.item(g.cursor);
+    const bool want = appStep == AppSuspended && it && isSuspended(it->id) && state == StIdle;
+    if (!want) {
+        if (windowShown || !windowFor.empty()) {
+            // cleared first: stopping ScaleUpDown runs its callback, which then shows nothing
+            windowShown = false;
+            windowFor.clear();
+            top->stop("Sleep");
+            top->stop("ScaleUpDown");
+            top->setVisible("N_Wndw_00", false);
+        }
+        return;
+    }
+    if (windowFor == it->id) return;
+    windowFor = it->id;
+    windowShown = false;
+    top->setMessage("T_TextTop_00", "lau_pose_title_u");
+    top->setText("T_AppTitle_00", it->name);
+    top->setMessage("T_TextBtmR_00", "lau_rest_comm_u");
+    if (TexturePtr icon = titleTexture(*it)) {
+        const float a[3] = {1 / 0.75f, 0, 0}, b[3] = {0, 1 / 0.75f, 0};
+        windowIcon = remapCopy(icon->id, 256, 256, a, b);
+        if (windowIcon) top->replaceTexture("P_Icon_00", windowIcon);
+    }
+    const std::string id = it->id;
+    if (Animator* a = top->play("ScaleUpDown", groupsOpt())) {
+        a->onFinish = [this, id]() {
+            top->stop("ScaleUpDown");
+            if (windowFor != id) return;
+            for (const char* n : {"N_Wndw_00", "W_Wndw_00", "T_TextTop_00", "T_AppTitle_00", "N_TextBtm_00", "T_TextBtmR_00", "N_IconWrp_00"}) {
+                top->setVisible(n, true);
+                top->setAlpha(n, !strcmp(n, "W_Wndw_00") ? WINDOW_ALPHA : 255);
+            }
+            top->setVisible("P_Sleep_00", true);
+            PlayOptions o = groupsOpt();
+            o.loop = 1;
+            top->play("Sleep", o);
+            windowShown = true;
+        };
+    }
+}
+
+// One tick of the suspended title; true when it took this tick's input.
+bool CtrHome::Impl::appUpdate() {
+    appFrame++;
+    if (pause && appCovers()) pause->update(1);
+    if (appBar && (appBarShown || appStep == AppClosing)) appBar->update(1);
+    if (sleepIcon.layout && !sleepOn.empty()) sleepIcon.layout->update(1);
+    if (appDialog) {
+        appDialog->setWidth(self->bottomWidth());
+        appDialog->setTopSize(self->topWidth(), self->topHeight());
+        appDialog->tick();
+    }
+    switch (appStep) {
+        case AppSuspending:
+            setMenuTopOpacity((float)(appFrame - MENU_FADE_START) / MENU_FADE_FRAMES);
+            if (pauseDone) appFinishSuspend();
+            return true;
+        case AppSuspended: {
+            appWindow();
+            if (appDialogKind == 1 && appDialog && appDialog->active()) {
+                appDialog->set(A->messageText("lau_dlg_quit0"),
+                               {A->messageText("lau_dlg_2b_canc0"), A->messageText("lau_2b_close")}, appConfirmSel);
+                int result = appDialog->touch(touch.down, touch.up, touch.x, touch.y);
+                if (result < 0) {
+                    if (down & CTR_A) result = 1;
+                    else if (down & CTR_B) result = 0;
+                }
+                if (result == 0 || result == 1) {
+                    sound(result == 1 ? "SE_CTR_COMMON_OK" : "SE_CTR_COMMON_CANCEL");
+                    appDialog->hide(result == 0);
+                    if (result == 1) appQuit();
+                    else appDialogKind = 0;
+                }
+                return true;
+            }
+            if (homeEvent) { appResume(); return true; }
+            // nano: X closes from the buttons (the console's Close is touch only)
+            if (down & CTR_X) { sound("SE_CTR_COMMON_BUTTON"); appConfirmClose(); return true; }
+            if (touch.down) {
+                appTouched = -1;
+                for (int i = 0; i < 2; i++)
+                    if (appBar && hitPane(appBar.get(), APP_BUTTONS[i]->picture, touch.x, touch.y)) appTouched = i;
+                if (appTouched >= 0) {
+                    appBar->play("Select", namedGroups({APP_BUTTONS[appTouched]->group}));
+                    return true;
+                }
+                return false;
+            }
+            if (appTouched >= 0 && (touch.held || touch.up)) {
+                if (touch.up) {
+                    const int i = appTouched;
+                    appTouched = -1;
+                    if (appBar && hitPane(appBar.get(), APP_BUTTONS[i]->picture, touch.x, touch.y)) {
+                        appBar->play("Decide", namedGroups({APP_BUTTONS[i]->group}));
+                        if (APP_BUTTONS[i] == &APP_RESUME) appResume();
+                        else appConfirmClose();
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+        case AppResuming:
+            setMenuTopOpacity(1 - (float)appFrame / MENU_FADE_FRAMES);
+            if (pauseDone) {
+                // the last frame is the title's screens: held until the host has them shown
+                appStep = AppGone;
+                ALOGI("ctr: resume fade done after %d frames", appFrame);
+                if (host) host->resumeApp();
+            }
+            return true;
+        case AppGone:
+            return true;
+        case AppQuitting:
+            if (appFrame == QUIT_WALL_DELAY) {
+                if (top3d) top3d->followApp(CtrTop::AppState::Closing, CtrTop::AppBanner::Quit);
+                appSleep(false);
+            }
+            if (appDialog) {
+                appDialog->set(A->messageText("lau_dlg_quit4"), {}, -1);
+                if (appFrame == CLOSE_NOTICE_SHOW) appDialog->show();
+                if (appFrame == CLOSE_NOTICE_DISMISS) appDialog->hide(false);
+                if (appFrame > CLOSE_NOTICE_DISMISS && !appDialog->active()) appClose();
+            } else if (appFrame >= CLOSE_NOTICE_DISMISS) {
+                appClose();
+            }
+            return true;
+        case AppClosing:
+            if (appBarDone) appEnd();
+            return true;
+        default:
+            return false;
+    }
 }
 
 // ================================================================== chrome
@@ -2806,6 +3366,8 @@ bool CtrHome::load() {
 void CtrHome::releaseGl() {
     gTextureEpoch++;
     if (mImpl) mImpl->myMenu.reset();   // its layouts go before the assets' GL objects
+    if (mImpl) mImpl->appEnd();
+    if (mImpl && mImpl->remapProgram) { glDeleteProgram(mImpl->remapProgram); mImpl->remapProgram = 0; }
     if (mImpl) mAssets->renderer().releaseCache(mImpl->bottomCache);
     if (mImpl) mImpl->iconTex.clear();
     if (mImpl) mImpl->tinted.clear();
@@ -2826,6 +3388,9 @@ void CtrHome::parkGl() {
     I.hostTex.clear();
     I.boxArt.clear();
     if (I.tintProgram) { glDeleteProgram(I.tintProgram); I.tintProgram = 0; }
+    if (I.remapProgram) { glDeleteProgram(I.remapProgram); I.remapProgram = 0; }
+    // the resumed title's screens were only held until the host showed it
+    if (I.appStep == Impl::AppGone) I.appEnd();
     if (I.top3d) I.top3d->parkGl();
     mAssets->renderer().releaseGl();   // programs come back from the binary cache
     for (const auto& f : mAssets->loadedFonts()) f->releaseGl();   // glyphs from the glyph files
@@ -3081,6 +3646,8 @@ void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) 
     } else if (I.myMenuReturn <= 0) {
         I.drawInstance(r, I.hud.get());
     }
+    // the Close confirmation dims both screens; the closing notice only the lower one
+    if (I.appDialog && I.appDialog->active() && I.appDialogKind == 1) I.appDialog->drawTop(r);
     if (overlay) overlay(r, true);
     if (I.fadeActive || I.state == StAppStart || I.state == StAppRunning) I.drawInstance(r, I.fadeTop.get());
     r.end();
@@ -3097,6 +3664,14 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
         if (l) l->layout().adaptWidth(mBotW, Layout::Adapt::None);
     r.beginWith(proj);
     r.setClip(-mBotW / 2, -120, mBotW, 240);
+    if (I.appCovers() && I.pause && !I.capturing) {
+        // the pause fade covers the lower screen (P_BG_00 under the title's screen and the menu)
+        I.pause->layout().adaptWidth(mBotW, Layout::Adapt::None);
+        I.drawInstance(r, I.pause.get());
+        if (overlay) overlay(r, false);
+        r.end();
+        return;
+    }
     const bool mm = I.myMenuOn();
     if (mm && I.myMenu->coversBottom()) {
         // Save/Load Layout paints the whole screen: the home is not drawn under it
@@ -3118,11 +3693,13 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
     bool animating = I.makerSlot >= 0;
     for (LayoutInstance* l : {I.base.get(), I.palette.get(), I.folder.get(), I.bgBottom.lay.get()})
         animating = animating || (l && l->anyPlaying());
-    const bool reuse = !getenv("CTR_NO_CACHE") && !animating && sig == I.bottomSig && ++I.bottomReuseRun < 15 &&
+    // (a copy of the menu for the pause fade is drawn whole, outside the cache)
+    const bool cacheOn = !getenv("CTR_NO_CACHE") && !I.capturing;
+    const bool reuse = cacheOn && !animating && sig == I.bottomSig && ++I.bottomReuseRun < 15 &&
                        r.reuseGroup(I.bottomCache);
     if (!reuse) {
         I.bottomReuseRun = 0;
-        I.bottomSig = sig;
+        I.bottomSig = cacheOn ? sig : 0;
         r.beginGroup();
         if (I.bgBottom.shown()) {
             // hung under the base's NN_LncBgSlide_00, its first node: drawn before the base
@@ -3160,16 +3737,35 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
             }
         }
         static const float kBlack[3] = {0, 0, 0};   // the bottom letterbox (NanoMenuCtr ctrDrawScreen)
-        if (!getenv("CTR_NO_CACHE")) r.endGroup(I.bottomCache, kBlack);
+        if (cacheOn) r.endGroup(I.bottomCache, kBlack);
     }
     if (perfMark) { r.end(); perfMark("b.chrome"); r.beginWith(proj); r.setClip(-mBotW / 2, -120, mBotW, 240); }
+    if (!I.sleepOn.empty() && I.sleepIcon.layout) {
+        // sleepicon.ts: over the grid icons, under the cursor trail, on the suspended title's slot
+        Grid& g = I.grid();
+        for (int slot = 0; slot < g.slots; slot++) {
+            const HomeItem* it = g.item(slot);
+            if (!it || std::find(I.appIds.begin(), I.appIds.end(), it->id) == I.appIds.end()) continue;
+            const Point p = g.slotOnScreen(slot);
+            if (fabsf(p.x) > mBotW / 2 + 40) continue;
+            I.sleepIcon.pose(g.zoomValue());
+            I.stamp(r, I.sleepIcon, p.x, p.y);
+        }
+    }
     if (!noChrome) {
         for (Trail& t : I.trail) if (t.active) I.drawInstance(r, t.layout.get());
         I.drawInstance(r, I.cursor.get());
         if (I.indFade > 0) I.drawInstance(r, I.indicatorL.get());
         I.drawInstance(r, I.arrows.get());
         I.drawInstance(r, I.balloon.get());
-        I.drawInstance(r, I.buttons.get());
+        if (I.appBarShown || I.appStep == Impl::AppClosing) {
+            if (I.appBar) {
+                I.appBar->layout().adaptWidth(mBotW, Layout::Adapt::None);
+                I.drawInstance(r, I.appBar.get());
+            }
+        } else {
+            I.drawInstance(r, I.buttons.get());
+        }
     }
     if (I.holding && I.mover.gridIndex < (int)I.grids.size()) {
         // moving.ts IconMover: the held icon above everything on the bottom screen
@@ -3182,7 +3778,8 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
         I.drawLifted(r, I.mover.item, I.mover.at.x, y, zoom, I.mover.scale, I.mover.alpha);
     }
     if (mm) I.myMenu->drawBottom(r);
-    if (overlay) overlay(r, false);
+    if (I.appDialog && I.appDialog->active() && !I.capturing) I.appDialog->drawBottom(r);
+    if (overlay && !I.capturing) overlay(r, false);
     if (I.fadeActive || I.state == StAppStart || I.state == StAppRunning) I.drawInstance(r, I.fadeBottom.get());
     r.end();
 }
@@ -3203,9 +3800,31 @@ void CtrHome::setScreenWidths(float top, float bottom) {
     mImpl->updateChrome();
 }
 
+void CtrHome::suspendApp(const std::vector<std::string>& ids, unsigned top, int topW, int topH, unsigned bottom, int botW,
+                         int botH) {
+    if (!mLoaded) {
+        if (top) { GLuint t = top; glDeleteTextures(1, &t); }
+        if (bottom) { GLuint t = bottom; glDeleteTextures(1, &t); }
+        return;
+    }
+    mImpl->appSuspend(ids, top, topW, topH, bottom, botW, botH);
+}
+
+bool CtrHome::appSuspended() const {
+    return mLoaded && mImpl->appStep != Impl::AppNone && mImpl->appStep != Impl::AppGone;
+}
+
+bool CtrHome::appResuming() const { return mLoaded && mImpl->appStep == Impl::AppResuming; }
+
+void CtrHome::resumeSuspended() {
+    if (mLoaded) mImpl->appResume();
+}
+
 void CtrHome::resumeFromApp() {
     if (!mLoaded) return;
     Impl& I = *mImpl;
+    // the title the home faded back into has ended (or the home is shown again without it)
+    if (I.appStep == Impl::AppGone) I.appEnd();
     if (I.state == StAppStart || I.state == StAppRunning) {
         I.homeEvent = true;
         I.setState(StAppRunning);
@@ -3296,7 +3915,8 @@ void CtrHome::Impl::updateBackgrounds() {
         if (Pane* p = palette ? palette->pane(n) : nullptr) p->visible = !bottomShown;
     for (const char* n : {"P_BgTop_00", "P_BgL_00", "P_BgR_00", "P_BgBtm_00"})
         if (Pane* p = base ? base->pane(n) : nullptr) p->visible = !bottomShown;
-    if (top3d) top3d->setWallHidden(topShown);
+    // a top image hides the wall, not while a title is suspended (its screen is in the wall)
+    if (top3d) top3d->setWallHidden(topShown && !appActive());
     // icons.ts setBlankPicture: empty slots as the W_Blank_00 window over a bottom image, at 32
     if (bottomShown != blankPicture && blank.layout) {
         blankPicture = bottomShown;

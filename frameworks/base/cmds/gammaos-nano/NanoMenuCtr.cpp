@@ -627,6 +627,20 @@ public:
         if (mMenu->mOverlayMode) mMenu->overlayResume();
     }
 
+    // The fade back into the suspended title has played: the overlay goes, the title has the
+    // screens again.
+    void resumeApp() override {
+        mMenu->mCtrResumeNow = true;
+        mMenu->overlayResume();
+        mMenu->mCtrResumeNow = false;
+    }
+
+    // Close was confirmed on the suspended title: end it (the closing notice plays meanwhile and
+    // the overlay becomes the launcher).
+    void closeApp() override {
+        if (mMenu->mOverlayMode) mMenu->overlayQuitToHome();
+    }
+
     std::string appletName(int button) override {
         static const char* kNames[6] = {"", "Quick Menu", "Photo", "Music", "Network", "Video"};
         return button >= 1 && button <= 5 ? std::string(trDyn(kNames[button])) : std::string();
@@ -2183,40 +2197,50 @@ bool NanoMenu::ctrBgmAllowed() {
            property_get_bool("persist.gammaos.nano.nds.ambiance", true);   // Menu Music, applied live
 }
 
-// The in-game overlay is the XMB (the console's own HOME Menu suspends the game behind the home,
-// which nano's overlay does not port): while an app is behind the overlay the 3DS theme steps
-// aside, so every XMB path (Quick Menu landing, scrim, glass icons, sounds, bottom panel) runs as
-// it does in the XMB theme, and the 3DS home comes back once the overlay is the launcher again.
-// Called on every overlay mode change (overlayApplyPresentMode, before overlayShow lands on the
-// Quick Menu) and by the parked home's return from a drastic-nano session (no overlay raise there).
-// `playReturn`: the app's exit happened while the overlay was shown (Close Current App, Kill All
-// Apps), so play the home's return here; a raise and the park return play it themselves.
-void NanoMenu::ctrOverlayHandOff(bool inGame, bool playReturn) {
-    if (inGame && mCtrTheme) {
-        mCtrHeldCatIdx = mPs3CatIdx;
-        mCtrHeldItemIdx = mPs3ItemIdx;
-        if (mCtrAudio) mCtrAudio->stopAll(0);
-        mCtrHeld = 0;
-        mCtrStickX = mCtrStickY = 0;
-        mCtrTheme = false;
-        mCtrThemeHeld = true;
-        mDisplayDirty = true;
-        ALOGI("ctr: in-game overlay, the XMB takes the screen");
-    } else if (!inGame && mCtrThemeHeld) {
-        // the XMB's submenus and modals do not belong to the 3DS home
-        mPs3Stack.clear();
-        mPs3DlgActive = false; mPs3OptActive = false; mPs3BrightSlider = false;
-        mMenuState = MENU_MAIN;
-        mPs3CatIdx = mCtrHeldCatIdx;
-        mPs3ItemIdx = mCtrHeldItemIdx;
-        mPs3AnimItem = (float)mPs3ItemIdx; mPs3ItemAnimStart = -1.0f; mPs3SubAnimStart = -1.0f;
-        mPs3CatAnimActive = false; mPs3CatT = 1.0f; mPs3CatFromOffset = 0.0f;
-        mCtrThemeHeld = false;
-        mCtrTheme = true;
-        if (playReturn && mCtrHome) mCtrHome->resumeFromApp();
-        mDisplayDirty = true;
-        ALOGI("ctr: launcher overlay, the 3DS home is back");
+// The title behind the in-game overlay as the grid knows it: a game by its ROM (its system's
+// entry and its Recently Played one), an app by its package.
+std::vector<std::string> NanoMenu::ctrSuspendedIds() {
+    std::vector<std::string> ids;
+    const std::string rom = readPathFile("/data/system/nano_launch_rom.txt");
+    if (!rom.empty()) {
+        ids.push_back("rom:" + rom);
+        ids.push_back("recent:" + rom);
+        return ids;
     }
+    std::string pkg = mOverlayPausedPkg;
+    if (pkg.empty()) {
+        char la[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.launched_pkg", la, "");
+        pkg = la;
+    }
+    if (!pkg.empty()) ids.push_back("app:" + pkg);
+    return ids;
+}
+
+// Raised over a running title: its screens as they are now (the overlay layer is still hidden),
+// for the home's pause fade. Handed over by renderCtrPrimary once the home is loaded.
+void NanoMenu::ctrCaptureSuspend() {
+    ctrDropSuspend();
+    int tw = 0, th = 0, bw = 0, bh = 0;
+    const GLuint top = overlayCaptureInProcess(&tw, &th, false);
+    if (!top) {
+        ALOGW("ctr: in-game overlay without a capture of the title");
+        return;
+    }
+    const GLuint bottom = overlayCaptureInProcess(&bw, &bh, true);
+    mCtrSuspendTop = top;
+    mCtrSuspendBottom = bottom;
+    mCtrSuspendTopW = tw; mCtrSuspendTopH = th;
+    mCtrSuspendBotW = bw; mCtrSuspendBotH = bh;
+    mCtrSuspendPending = true;
+    ALOGI("ctr: title captured for the suspend (%dx%d, %dx%d)", tw, th, bw, bh);
+}
+
+void NanoMenu::ctrDropSuspend() {
+    if (mCtrSuspendTop) { GLuint t = mCtrSuspendTop; glDeleteTextures(1, &t); }
+    if (mCtrSuspendBottom) { GLuint t = mCtrSuspendBottom; glDeleteTextures(1, &t); }
+    mCtrSuspendTop = mCtrSuspendBottom = 0;
+    mCtrSuspendPending = false;
 }
 
 void NanoMenu::ctrLeave() {
@@ -2507,6 +2531,13 @@ void NanoMenu::renderCtrPrimary() {
     if (!ctrEnsure()) {
         renderPs3Xmb();
         return;
+    }
+    if (mCtrSuspendPending) {
+        // the in-game overlay's first frame: the pause fade starts from the title's screens
+        mCtrSuspendPending = false;
+        mCtrHome->suspendApp(ctrSuspendedIds(), mCtrSuspendTop, mCtrSuspendTopW, mCtrSuspendTopH, mCtrSuspendBottom,
+                             mCtrSuspendBotW, mCtrSuspendBotH);
+        mCtrSuspendTop = mCtrSuspendBottom = 0;   // the home owns them now
     }
     if (++mCtrSigFrame >= 30) {
         mCtrSigFrame = 0;

@@ -60,12 +60,33 @@ public:
     std::function<void()> onBannerLeave;
     // Internal resolution cap of the 3D target in multiples of 400x240 (default 3).
     void setMaxScale(int s) { mMaxScale = s; }
+    // The suspended title (scene3d.ts setAppImage / followApp). `image` is its upper screen laid
+    // out like the LCD framebuffer (BG_DmyApp_00, 256x512 portrait, any multiple of that size);
+    // the caller keeps the GL texture alive until clearAppImage. The wall goes out while the
+    // title runs (BannerBG_SceneOut, the capture filling the screen) and comes back with
+    // AppPause; AppRestart and AppQuit play over a resume or a close.
+    enum class AppState { Running, Suspended, Resumed, Closing, Closed };
+    enum class AppBanner { None, Pause, Restart, Quit };
+    void setAppImage(GLuint texture, int width, int height);
+    void clearAppImage();
+    void followApp(AppState state, AppBanner banner);
+    // The wall already out (a title was running before this instance saw it start).
+    void setWallOut();
+    bool appAnimating() const { return !mAppEnding.empty(); }
+    // The grid identities of the suspended title: focused, it shows no banner (the wall holds
+    // its screen).
+    void setSuspendedKeys(const std::vector<std::string>& keys) { mSuspendedKeys = keys; }
 
 private:
     void themeWall();
     void themeBanner(ModelInstance& model, int type);
     const ThemeBody* mTheme = nullptr;
     bool mWallHidden = false;
+    std::vector<std::string> mSuspendedKeys;
+    std::shared_ptr<GpuTex> mAppTex, mAppTexOriginal;
+    bool mAppTexSaved = false;
+    std::string mAppEnding;   // AppRestart / AppQuit while it plays
+    bool mWallOut = false;
     struct BannerSpec {
         int type = 0;
         std::string model;

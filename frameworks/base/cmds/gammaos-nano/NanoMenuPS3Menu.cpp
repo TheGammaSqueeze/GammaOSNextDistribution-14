@@ -11924,18 +11924,15 @@ void NanoMenu::closePs3Dialog(bool apply) {
                         bool wantMin  = (tv == 2);
                         bool wantEsde = (tv == 3);
                         bool wantCtr  = (tv == 4);
-                        // (the 3DS theme is held off while the in-game overlay shows the XMB)
-                        const bool curCtr = mCtrTheme || mCtrThemeHeld;
                         if (wantDsi != mNdsTheme || wantMin != mMinimaTheme || wantEsde != mEsdeTheme ||
-                            wantCtr != curCtr) {
+                            wantCtr != mCtrTheme) {
                             // leaving the 3DS home: its BGM stops and its GL objects and art go
                             // (it loads again lazily on the first frame it is chosen)
-                            if (curCtr && !wantCtr) ctrLeave();
+                            if (mCtrTheme && !wantCtr) ctrLeave();
                             mNdsTheme = wantDsi;
                             mMinimaTheme = wantMin;
                             mEsdeTheme = wantEsde;
                             mCtrTheme = wantCtr;
-                            mCtrThemeHeld = false;
                             if (wantDsi) ensureNdsAssets();
                             if (wantEsde) {   // force a (re)load of the ES-DE theme set, reset its view
                                 mEsdeLoaded = false; mEsdeInGamelist = false;
@@ -11955,7 +11952,6 @@ void NanoMenu::closePs3Dialog(bool apply) {
                             // Minima render state
                             mMinimaScroll = 0.0f; mMinimaSelAnim = 0.0f; mMinimaPrevDepth = -1;
                             mMinimaSfxDepth = -1; mMinimaSfxSel = -1; mMinimaTransStart = 0;
-                            ctrOverlayHandOff(mOverlayMode && !mOverlayWallpaper, false);   // chosen in game: the XMB keeps the screen
                         }
                     }
                     // DSi Dark Theme on/off: apply LIVE. mNdsDark is read every frame by ndsPal()

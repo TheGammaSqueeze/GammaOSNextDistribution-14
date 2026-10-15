@@ -595,7 +595,11 @@ void NanoMenu::overlayShow() {
 
     // 3DS theme: a launch left the home in its app-running state behind the console's launch
     // fade; coming back plays the return (as the HOME button does on the console).
-    if (mCtrTheme && mCtrHome) mCtrHome->resumeFromApp();
+    // 3DS theme: raised over a running title, the home suspends it (the pause fade from its
+    // screens, captured now while the overlay layer is still hidden); raised as the launcher
+    // after it ended, the home plays its return.
+    if (mCtrTheme && !mOverlayWallpaper) ctrCaptureSuspend();
+    else if (mCtrTheme && mCtrHome) mCtrHome->resumeFromApp();
 
     mOverlayShown = true;
     // Cold-boot-style fade + float-in of the XMB chrome. -2 = pending; the first
@@ -743,7 +747,9 @@ void NanoMenu::overlayGpuUnpark() {
         // ever game the home came back one tile early (a NDS launch landed on N64).
         rebuildPs3CatsPreserveSel();
     }
-    if (mOverlayMode && !ps3bg::ready()) {
+    // (the 3DS theme draws no wave: a screen that falls back to the XMB chrome loads it on demand
+    // in renderEffect, so the raise does not wait for it)
+    if (mOverlayMode && !ps3bg::ready() && !mCtrTheme) {
         ps3bg::init();
         ps3bg::setScrimWaveFreeze(true);   // as the boot warm-up does (see overlayInitLayer)
     }
@@ -801,6 +807,7 @@ void NanoMenu::overlayPageOutSelf() {
 
 void NanoMenu::overlayHide() {
     if (!mOverlayShown) return;
+    ctrDropSuspend();   // captures not handed to the home yet
 
     // Drop any input up to NOW before restoring the app's input - notably the BACK
     // press that dismissed the overlay. The overlay reads BACK via evdev and clears
@@ -876,6 +883,13 @@ bool NanoMenu::overlayAtTopLevel() const {
 
 void NanoMenu::overlayResume() {
     stopEqPreview();   // never leave the GammaEQ preview clip playing into a resumed app
+    // 3DS theme: the fade back into the suspended title plays first; the home calls back
+    // (NanoCtrHost::resumeApp) to hide the overlay once it has
+    if (mCtrTheme && mCtrHome && !mCtrResumeNow && !mOverlayWallpaper && mCtrHome->appSuspended()) {
+        mCtrHome->resumeSuspended();
+        return;
+    }
+    ctrDropSuspend();
     // In overlay-home LAUNCHER mode (full wallpaper, no app behind us) there is
     // nothing to return to - the overlay IS the home surface - so Back/Resume at
     // the top level must be a no-op. Dismissing would orphan the screen and the
@@ -913,7 +927,6 @@ void NanoMenu::overlayResume() {
 // Must run on the render thread: eglSwapInterval applies to the surface current
 // on the calling thread.
 void NanoMenu::overlayApplyPresentMode() {
-    ctrOverlayHandOff(mOverlayMode && !mOverlayWallpaper, mOverlayShown);   // 3DS theme: the in-game overlay is the XMB
     if (mFlingerSurfaceControl != nullptr) {
         bool opaque = mOverlayWallpaper &&
             property_get_bool("persist.gammaos.nano.overlay.opaque_wallpaper", true);
@@ -1408,6 +1421,9 @@ bool NanoMenu::overlayLaunchPackage(const std::string& pkg) {
         // NOT force-stop the very process we kept alive (which would cold-restart it).
         mOverlayPausedPkg.clear();
     }
+    // An app, not a ROM: no launch ROM is left behind from an earlier game (the other app launch
+    // paths clear it too; the 3DS theme's suspended title is found by it).
+    setLaunchRomPath("");
     // Plain app (Applications submenu): start its LAUNCHER activity. Resolve the
     // component and start it with `am start` rather than `monkey` - monkey cannot take
     // a --display flag, which overlayLaunchCommand needs to pin the app to the top panel
@@ -1628,6 +1644,11 @@ void NanoMenu::overlayPoll() {
     bool want = (v[0] == '1' && v[1] == '\0');
     if (want && !mOverlayShown) {
         overlayShow();   // snaps to the Quick Menu by default in scrim-over-app mode
+    } else if (!want && mOverlayShown && mCtrTheme && mCtrHome && !mCtrResumeNow && !mOverlayWallpaper &&
+               mCtrHome->appSuspended()) {
+        // 3DS theme: power over the suspended title resumes it through the fade back; the
+        // overlay stays up until the home has played it (NanoCtrHost::resumeApp hides it)
+        if (!mCtrHome->appResuming()) mCtrHome->resumeSuspended();
     } else if (!want && mOverlayShown) {
         // Do NOT lower the overlay while a standalone clock summon is still retracting:
         // let drawPspClock's teardown clear show_overlay once the clock reaches reveal 0,
