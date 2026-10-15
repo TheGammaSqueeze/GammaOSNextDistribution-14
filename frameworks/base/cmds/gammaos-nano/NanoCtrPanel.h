@@ -84,6 +84,10 @@ private:
         int row = -1;
         PanelRow shown;
         bool fresh = true;
+        // labels wider than their box: kept at their font size, clipped to the box and scrolled
+        // on the selected row (the plate's bounce marquee)
+        struct Over { LayoutInstance* l; Pane* p; float excess; };
+        std::vector<Over> over;
     };
     enum Phase { Hidden, Opening, Shown, Closing };
 
@@ -100,6 +104,10 @@ private:
     float knobY() const;
     bool hit(LayoutInstance* l, const char* pane, float x, float y) const;
     void decided(Slot& s);
+    void label(Slot& s, LayoutInstance* l, const char* pane, const std::string& text);
+    void drawSlot(Renderer& r, Slot& s);
+    float marqueeShift(float excess) const;
+    int mMarqueeSel = -2, mMarqueeT = 0;
 
     Assets& A;
     SoundFn mSound;

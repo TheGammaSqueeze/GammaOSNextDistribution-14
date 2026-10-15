@@ -382,6 +382,8 @@ void CtrPanel::placeCursor() {
 void CtrPanel::tick() {
     if (mPhase == Hidden || !mLoaded) return;
     mPhaseFrame++;
+    if (mSel != mMarqueeSel) { mMarqueeSel = mSel; mMarqueeT = 0; }
+    else mMarqueeT++;
     if (mPhase == Opening && mPhaseFrame >= kFadeInFrames) mPhase = Shown;
     if (mPhase == Closing && mPhaseFrame >= kFadeOutFrames) {
         mPhase = Hidden;
@@ -582,19 +584,63 @@ bool CtrPanel::hit(LayoutInstance* l, const char* pane, float x, float y) const 
     return x >= px + lft && x <= px + rgt && y <= py + top && y >= py + bot;
 }
 
+// Width of a text box's widest line beyond its box (0 when it fits), at its font size.
+static float textExcess(const Pane* p) {
+    if (!p || !p->font) return 0;
+    const Font& f = *p->font;
+    const double sx = f.width ? (double)p->fontSize[0] / f.width : 1.0;
+    double widest = 0, w = 0;
+    int n = 0;
+    for (const TextRun& run : p->runs)
+        for (char32_t ch : run.text) {
+            if (ch == U'\n') { widest = std::max(widest, w + (n > 1 ? p->charSpace * (n - 1) : 0)); w = 0; n = 0; continue; }
+            const Glyph* g = f.glyph(ch);
+            w += (g ? g->charWidth : 0) * sx * run.scale;
+            n++;
+        }
+    widest = std::max(widest, w + (n > 1 ? p->charSpace * (n - 1) : 0));
+    return (float)std::max(0.0, widest - (p->size[0] + p->growW));
+}
+
+// A row label: it keeps its font size; one too wide for its box is clipped and scrolled (drawSlot).
+void CtrPanel::label(Slot& s, LayoutInstance* l, const char* pane, const std::string& text) {
+    Pane* p = l ? l->pane(pane) : nullptr;
+    if (!p) return;
+    for (size_t i = 0; i < s.over.size(); i++)
+        if (s.over[i].p == p) { s.over.erase(s.over.begin() + i); break; }
+    l->setText(pane, text);
+    if (p->hasFontScale) { p->hasFontScale = false; p->textRevision++; }
+    const float excess = textExcess(p);
+    if (excess > 0.5f) s.over.push_back({l, p, excess});
+}
+
+// Marquee offset (panel.ts has none; the plate's bounce): hold at the start, glide to the end,
+// hold, glide back. 0.5 units a frame.
+float CtrPanel::marqueeShift(float excess) const {
+    const int hold = 90;
+    const int travel = std::max(1, (int)std::ceil(excess / 0.5f));
+    const int cycle = 2 * (hold + travel);
+    const int t = mMarqueeT % cycle;
+    if (t < hold) return 0;
+    if (t < hold + travel) return (t - hold) * 0.5f;
+    if (t < 2 * hold + travel) return excess;
+    return excess - (t - 2 * hold - travel) * 0.5f;
+}
+
 void CtrPanel::bindSlot(Slot& s, const PanelRow& row) {
     if (!s.fresh && s.shown == row) return;
     const bool kindChanged = s.fresh || s.shown.kind != row.kind;
     s.fresh = false;
+    if (kindChanged) s.over.clear();
     switch (row.kind) {
         case PanelRow::Button:
             if (kindChanged || s.shown.label != row.label) {
-                setLabel(s.lay.get(), "T_Btn_00", row.label);
-                setLabel(s.lay.get(), "T_Btn_01", row.label);
+                label(s, s.lay.get(), "T_Btn_00", row.label);
+                label(s, s.lay.get(), "T_Btn_01", row.label);
             }
             break;
         case PanelRow::Toggle:
-            if (kindChanged || s.shown.label != row.label) setLabel(s.lay.get(), "T_Base_00", row.label);
+            if (kindChanged || s.shown.label != row.label) label(s, s.lay.get(), "T_Base_00", row.label);
             if (kindChanged) {
                 s.lay->setVisible("P_IconR_00", false);   // the brightness entry's own icon
                 for (const char* p : {"T_Off_00", "T_Off_01"}) setLabel(s.lay.get(), p, "OFF");
@@ -617,15 +663,15 @@ void CtrPanel::bindSlot(Slot& s, const PanelRow& row) {
             }
             break;
         case PanelRow::Value:
-            if (kindChanged || s.shown.label != row.label) setLabel(s.lay.get(), "T_Base_00", row.label);
+            if (kindChanged || s.shown.label != row.label) label(s, s.lay.get(), "T_Base_00", row.label);
             if (kindChanged) {
                 // the header only: its OFF / ON pair is replaced by the value button
                 for (const char* p : {"P_IconR_00", "N_CntntsPos_00", "P_Base_00", "P_Base_01", "P_OffShdw_00", "P_OnShdw_00", "P_Off_00", "P_On_00"})
                     s.lay->setVisible(p, false);
             }
             if (kindChanged || s.shown.value != row.value) {
-                setLabel(s.lay2.get(), "T_Btn_00", row.value);
-                setLabel(s.lay2.get(), "T_Btn_01", row.value);
+                label(s, s.lay2.get(), "T_Btn_00", row.value);
+                label(s, s.lay2.get(), "T_Btn_01", row.value);
             }
             break;
     }
@@ -718,6 +764,44 @@ void CtrPanel::applyScroll() {
     mBg->refresh();
 }
 
+void CtrPanel::drawSlot(Renderer& r, Slot& s) {
+    if (s.over.empty()) {
+        r.drawLayout(s.lay->layout());
+        if (s.lay2) r.drawLayout(s.lay2->layout());
+        return;
+    }
+    // the layouts without their long labels, then each label clipped to its own box
+    std::vector<bool> was(s.over.size());
+    for (size_t i = 0; i < s.over.size(); i++) { was[i] = s.over[i].p->visible; s.over[i].p->visible = false; }
+    r.drawLayout(s.lay->layout());
+    if (s.lay2) r.drawLayout(s.lay2->layout());
+    for (size_t i = 0; i < s.over.size(); i++) s.over[i].p->visible = was[i];
+    const bool sel = s.row == mSel && mCursorShown;
+    for (const Slot::Over& o : s.over) {
+        bool shown = true;
+        for (const Pane* q = o.p; q; q = q->parent) shown = shown && q->visible;
+        if (!shown) continue;
+        float px, py, lft, top, rgt, bot;
+        paneOrigin(o.p, &px, &py);
+        o.p->rect(&lft, &top, &rgt, &bot);
+        // a few units in from the box's sides so the letters do not touch the button's edge
+        // (a left aligned header keeps its left edge, in line with the headers that fit)
+        const float pad = std::min(4.0f, (rgt - lft) * 0.05f);
+        const float padL = o.p->textPosX == 0 ? 0.0f : pad;
+        r.setScissor(true, px + lft + padL, py + bot, rgt - lft - padL - pad, top - bot);
+        // the start of the text at the clip's left edge, then the marquee
+        // (a centred line overflows both sides by half, a right aligned one to the left)
+        const float shift = o.excess * 0.5f * o.p->textPosX + padL - (sel ? marqueeShift(o.excess + padL + pad) : 0);
+        const float keep = o.p->translate[0];
+        o.p->translate[0] = keep + shift;
+        o.l->layout().calculate();
+        r.drawPane(o.l->layout(), o.p);
+        o.p->translate[0] = keep;
+        o.l->layout().calculate();
+        r.setScissor(false);
+    }
+}
+
 void CtrPanel::drawBottom(Renderer& r) {
     if (mPhase == Hidden || !mLoaded) return;
     mMask->layout().adaptWidth(mWidth, Layout::Adapt::Edge);
@@ -740,8 +824,7 @@ void CtrPanel::drawBottom(Renderer& r) {
         for (Slot& s : *pool) {
             if (s.row < 0) continue;
             placeSlot(s);
-            r.drawLayout(s.lay->layout());
-            if (s.lay2) r.drawLayout(s.lay2->layout());
+            drawSlot(r, s);
         }
     if (wrp && mCursorShown && mSel >= 0) {
         float wx, wy;
