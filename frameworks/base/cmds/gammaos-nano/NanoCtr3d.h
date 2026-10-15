@@ -226,8 +226,11 @@ public:
     // Renders models into the offscreen target (w x h, cleared to `clear`); returns its texture.
     // `underlay` draws into the target after the clear, under the models (a background image the
     // banners sit on, like the console's layer behind the 3D pass); it gets the target size.
+    // `overlay` draws into the target after the models, with the depth they left (geometry built
+    // by the caller, like a glyph turned into a solid: NanoCtrGlyph3d).
     GLuint render(const Camera3d& cam, const std::vector<ModelInstance*>& models, int w, int h, const float clear[3],
-                  const std::function<void(int w, int h)>& underlay = nullptr);
+                  const std::function<void(int w, int h)>& underlay = nullptr,
+                  const std::function<void(const Camera3d& cam)>& overlay = nullptr);
 private:
     struct Program;
     Program* program(const CgfxMaterialDef& m);

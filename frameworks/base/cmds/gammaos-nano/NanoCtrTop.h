@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "NanoCtr3d.h"
+#include "NanoCtrGlyph3d.h"
 #include "NanoCtrLayout.h"
 #include "NanoCtrTheme.h"
 
@@ -30,6 +31,10 @@ struct TopFocus {
     int iconW = 0, iconH = 0;
     bool dsIcon = false;      // the DS cartridge model carries the icon
     bool pixelArt = false;    // the icon is pixel art (a DS banner icon): sampled nearest
+    // Folder: a monochrome glyph (a game system's icon) shown as a solid 3D object in place of the
+    // folder model (its alpha is the shape; rows stored bottom first, like the layout textures).
+    unsigned glyph = 0;
+    int glyphW = 0, glyphH = 0;
 };
 
 class CtrTop {
@@ -103,6 +108,8 @@ private:
         BannerSpec spec;
         std::unique_ptr<ModelInstance> model;
         std::unique_ptr<ModelInstance> extra;   // a ROM banner's language model, following `model`
+        std::shared_ptr<GlyphMesh> glyph;        // a folder's system icon, on the folder's bone
+        int glyphBone = -1;
         bool shown = true;
         int scaleStep = 4;
         int turnFrame = 0;
@@ -152,6 +159,9 @@ private:
     void composePlate(int y0, int h, std::vector<uint8_t>* out) const;
     void updatePlate();
     std::shared_ptr<ModelResource> mRomRes;   // the current ROM banner's model (not shared)
+    // solid glyphs by folder (built once each; a few game systems)
+    std::map<std::string, std::shared_ptr<GlyphMesh>> mGlyphs;
+    void drawGlyphs(const Camera3d& cam);
     std::string mRomResKey;
     // composite
     GLuint mBlitProgram = 0;

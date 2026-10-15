@@ -80,6 +80,7 @@ cc_binary {
         "NanoCtrBoot.cpp",         // 3DS theme: cold boot splash
         "NanoCtrHome.cpp",         // 3DS theme: HOME Menu runtime
         "NanoCtr3d.cpp",           // 3DS theme: top screen CGFX models
+        "NanoCtrGlyph3d.cpp",      // 3DS theme: system icons as solids on the top screen
         "NanoCtrTop.cpp",          // 3DS theme: top screen scene (wall + banners)
         "NanoCtrAudio.cpp",        // 3DS theme: sound effects + BGM mixer
         "NanoCtrPanel.cpp",        // 3DS theme: settings panel + dialogs over nano's menus

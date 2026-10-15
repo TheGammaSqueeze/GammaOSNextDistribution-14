@@ -1121,7 +1121,8 @@ static void billboard(M4& mm, int mode) {
 }
 
 GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>& models, int w, int h, const float clear[3],
-                          const std::function<void(int w, int h)>& underlay) {
+                          const std::function<void(int w, int h)>& underlay,
+                          const std::function<void(const Camera3d& cam)>& overlay) {
     struct Item { ModelInstance* model; const ModelResource::Primitive* prim; MaterialState* state; int order, priority; float depth; int seq; };
     std::vector<Item> items;
     int seq = 0;
@@ -1292,6 +1293,7 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
         const GLenum att[2] = {GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT};
         mDiscard(GL_FRAMEBUFFER, 2, att);
     }
+    if (overlay) overlay(cam);
     for (int a = 0; a < 6; a++) glDisableVertexAttribArray(a);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

@@ -528,9 +528,22 @@ public:
     GLuint titleIconTexture(const ctr::HomeItem& item, int* w, int* h, IconArt* art) override {
         auto t = mTitles.find(item.id);
         if (t == mTitles.end()) {
-            // a game system's folder shows the system's icon instead of its initial
+            // a game system's folder shows the system's icon instead of its initial, and so do the
+            // root's lists (the glyphs the other themes show for them: Recently Played the clock,
+            // Applications the app grid, Pinned Apps the pin, Collections, Favorites the heart)
             auto f = mFolders.find(item.id);
-            if (f == mFolders.end() || f->second.kind != NanoMenu::PS3_SYSTEM || !f->second.iconTex) return 0;
+            if (f == mFolders.end() || !f->second.iconTex) return 0;
+            switch (f->second.kind) {
+                case NanoMenu::PS3_SYSTEM:
+                case NanoMenu::PS3_RECENT_LIST:
+                case NanoMenu::PS3_APP_LIST:
+                case NanoMenu::PS3_PINNED_APPS_LIST:
+                case NanoMenu::PS3_COLLECTIONS_LIST:
+                case NanoMenu::PS3_FAVORITES_LIST:
+                    break;
+                default:
+                    return 0;   // a ROM folder or a user folder keeps the folder look
+            }
             *w = *h = 48;
             art->mono = item.monoIcon;
             return f->second.iconTex;
@@ -641,6 +654,11 @@ public:
     void closeApp() override {
         if (mMenu->mOverlayMode) mMenu->overlayQuitToHome();
     }
+    // Enlarge / Shrink Icons: kept for the next session (ctrEnsure applies them)
+    void zoomChanged(bool folder, int zoom) override {
+        property_set(folder ? "persist.gammaos.nano.ctr.folder_zoom" : "persist.gammaos.nano.ctr.zoom",
+                     std::to_string(zoom).c_str());
+    }
 
     std::string appletName(int button) override {
         static const char* kNames[6] = {"", "Quick Menu", "Photo", "Music", "Network", "Video"};
@@ -684,6 +702,8 @@ private:
 
 // ---------------------------------------------------------------------------------------- setup
 
+static void ctrRestoreReturn(ctr::CtrHome* home);   // below, next to ctrLaunchItem
+
 bool NanoMenu::ctrEnsure() {
     if (mCtrHome && mCtrHome->loaded()) return true;
     if (!mCtrHome) {
@@ -718,6 +738,10 @@ bool NanoMenu::ctrEnsure() {
         ALOGE("ctr: 3DS theme failed to load");
         return false;
     }
+    // the home just loaded: the user's zoom, then back on the title the last session launched
+    mCtrHome->setZooms(property_get_int32("persist.gammaos.nano.ctr.zoom", 0),
+                       property_get_int32("persist.gammaos.nano.ctr.folder_zoom", 2));
+    ctrRestoreReturn(mCtrHome);
     if (!mCtrPanel) {
         auto sound = [this](const char* name) { if (mCtrHost) mCtrHost->playSound(name); };
         mCtrPanel = new ctr::CtrPanel(mCtrHome->assets(), sound);
@@ -753,11 +777,53 @@ void NanoMenu::ctrRelease() {
 
 // ---------------------------------------------------------------------------------------- actions
 
+// The home is a new process after most games and apps (azahar-nano, retroarch, an Android app):
+// the grid path to what was launched (the folders open, then the title) is kept in a file the next
+// home start reads once, like the DSi theme's sys.gammaos.nano.nds_return. ROM paths are too long
+// for a property; the property only says the file is from this boot.
+static const char* kCtrReturnPath = "/data/system/nano_ctr_return.txt";
+
+static void ctrSaveReturn(ctr::CtrHome* home) {
+    if (!home) return;
+    const std::vector<std::string> ids = home->focusPath();
+    if (ids.empty()) return;
+    const std::string tmp = std::string(kCtrReturnPath) + ".tmp";
+    FILE* f = fopen(tmp.c_str(), "w");
+    if (!f) return;
+    for (const std::string& id : ids) fprintf(f, "%s\n", id.c_str());
+    fflush(f);
+    fsync(fileno(f));
+    fclose(f);
+    if (rename(tmp.c_str(), kCtrReturnPath) == 0) property_set("sys.gammaos.nano.ctr.return", "1");
+}
+
+// Once, on the first load of a home process: back on what the last session launched.
+static void ctrRestoreReturn(ctr::CtrHome* home) {
+    if (!property_get_bool("sys.gammaos.nano.ctr.return", false)) return;
+    property_set("sys.gammaos.nano.ctr.return", "0");
+    std::vector<std::string> ids;
+    if (FILE* f = fopen(kCtrReturnPath, "r")) {
+        char line[4096];
+        while (fgets(line, sizeof(line), f)) {
+            size_t n = strlen(line);
+            while (n && (line[n - 1] == '\n' || line[n - 1] == '\r')) line[--n] = 0;
+            if (n) ids.emplace_back(line);
+        }
+        fclose(f);
+    }
+    unlink(kCtrReturnPath);
+    if (!ids.empty()) {
+        home->restorePath(ids);
+        ALOGI("ctr: back on %s (%zu levels)", ids.back().c_str(), ids.size());
+    }
+}
+
 bool NanoMenu::ctrLaunchItem(const Ps3Item& it) {
     switch (it.kind) {
         case PS3_ROM:
         case PS3_RECENT: {
             if (!isLaunchReady()) { showLaunchBusyToast(); return false; }
+            ctrSaveReturn(mCtrHome);
             mXmbSystemIndex = it.kind == PS3_ROM ? it.a : -1;
             mXmbGameIndex = it.kind == PS3_ROM ? it.b : it.a;
             mSearchActive = false;
@@ -770,6 +836,7 @@ bool NanoMenu::ctrLaunchItem(const Ps3Item& it) {
         case PS3_APP:
         case PS3_LAUNCH_PKG: {
             if (it.payloadStr.empty()) return false;
+            ctrSaveReturn(mCtrHome);
             if (mOverlayMode) { overlayLaunchPackage(it.payloadStr); return true; }
             if (!isLaunchReady()) { showLaunchBusyToast(); return false; }
             property_set("sys.gammaos.nano.launch_app", it.payloadStr.c_str());

@@ -665,7 +665,8 @@ struct CtrHome::Impl {
     bool cursorHidden() const;
     void startZoom(int target);
     void updateZoom();
-    void openFolder(int slot);
+    void openFolder(int slot, bool quiet = false);
+    int folderZoom = 2;   // the zoom folders open at (NEW_FOLDER_ZOOM, then the last one used)
     void closeFolder();
     void launch(const HomeItem& item);
     void updateChrome();
@@ -1228,22 +1229,24 @@ void CtrHome::Impl::updateZoom() {
     g.metrics = g.to;
     g.firstColumn = zoomFirstColumn;
     g.scroll = zoomScrollTo;
+    if (g.isFolder()) folderZoom = g.zoom();
+    if (host) host->zoomChanged(g.isFolder(), g.zoom());
     setState(StIdle);
 }
 
 // ------------------------------------------------------------ folders (folders.ts)
 
-void CtrHome::Impl::openFolder(int slot) {
+void CtrHome::Impl::openFolder(int slot, bool quiet) {
     Grid& parent = grid();
     const HomeItem* it = parent.item(slot);
     if (!it) return;
-    sound("SE_CTR_HOME_OPEN_FOLDER");
+    if (!quiet) sound("SE_CTR_HOME_OPEN_FOLDER");
     parent.onBar = false;
     Grid g;
     g.folderId = it->id;
     g.folderName = it->name;
     loadGrid(g);
-    g.metrics = metricsFor(2, true);   // NEW_FOLDER_ZOOM
+    g.metrics = metricsFor(folderZoom, true);   // NEW_FOLDER_ZOOM (2), or the user's last folder zoom
     g.clampView();
     grids.push_back(std::move(g));
     if (theme) theme->setBlankFolder(true);   // empty slots in a folder: the folder background colours
@@ -2106,6 +2109,19 @@ void CtrHome::Impl::updateChrome() {
             f.kind = it->kind == HomeItemKind::Folder ? TopFocus::Folder : TopFocus::Title;
             f.key = it->id;
             f.plate = it->name;
+            if (it->kind == HomeItemKind::Folder && host) {
+                // a folder with a monochrome icon (a game system's, Recently Played's...): the
+                // icon as a solid on the top screen instead of the folder
+                int gw = 0, gh = 0;
+                CtrHomeHost::IconArt art;
+                if (host->titleIconTexture(*it, &gw, &gh, &art) && art.mono) {
+                    if (TexturePtr t = titleTextureOwn(*it)) {
+                        f.glyph = t->id;
+                        f.glyphW = t->texWidth > 0 ? t->texWidth : t->width;
+                        f.glyphH = t->texHeight > 0 ? t->texHeight : t->height;
+                    }
+                }
+            }
             if (it->kind == HomeItemKind::Title && !it->plate.empty()) f.plate = it->plate;
             else if (it->kind == HomeItemKind::Title && !it->publisher.empty()) f.plate += "\n" + it->publisher;
             if (it->kind == HomeItemKind::Title && host) {
@@ -2142,7 +2158,7 @@ void CtrHome::Impl::updateChrome() {
             f.key = "empty";
         }
         const std::string k = std::to_string((int)f.kind) + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) +
-                              (f.cbmd ? "|cbmd" : "");
+                              "|" + std::to_string(f.glyph) + (f.cbmd ? "|cbmd" : "");
         if (k != topFocusKey) {
             topFocusKey = k;
             top3d->focus(f);
@@ -4050,6 +4066,46 @@ bool CtrHome::testOpen(const std::string& name) {
     }
     ALOGW("ctr: no root item named %s", name.c_str());
     return true;   // nothing to wait for
+}
+
+std::vector<std::string> CtrHome::focusPath() const {
+    std::vector<std::string> ids;
+    if (!mLoaded) return ids;
+    const Impl& I = *mImpl;
+    for (size_t k = 1; k < I.grids.size(); k++) ids.push_back(I.grids[k].folderId);
+    const Grid& g = I.grids.back();
+    if (const HomeItem* it = g.onBar ? nullptr : g.item(g.cursor)) ids.push_back(it->id);
+    return ids;
+}
+
+void CtrHome::restorePath(const std::vector<std::string>& ids) {
+    if (!mLoaded || ids.empty()) return;
+    Impl& I = *mImpl;
+    while (I.grids.size() > 1) I.grids.pop_back();
+    for (size_t k = 0; k < ids.size(); k++) {
+        Grid& g = I.grid();
+        int slot = -1;
+        for (int s = 0; s < (int)g.slotItem.size() && slot < 0; s++) {
+            const HomeItem* it = g.item(s);
+            if (it && it->id == ids[k]) slot = s;
+        }
+        if (slot < 0) break;   // gone (a rescan): stay where the path still leads
+        g.onBar = false;
+        g.cursor = slot;
+        g.clampView();
+        const HomeItem* it = g.item(slot);
+        if (k + 1 < ids.size() && it->kind == HomeItemKind::Folder) I.openFolder(slot, true);
+        else break;
+    }
+    I.updateChrome();
+}
+
+void CtrHome::setZooms(int root, int folder) {
+    if (!mLoaded) return;
+    Impl& I = *mImpl;
+    I.folderZoom = std::clamp(folder, MIN_FOLDER_ZOOM, MAX_ZOOM);
+    I.root().setZoom(std::clamp(root, 0, MAX_ZOOM));
+    for (size_t k = 1; k < I.grids.size(); k++) I.grids[k].setZoom(I.folderZoom);
 }
 
 void CtrHome::reloadItems() {

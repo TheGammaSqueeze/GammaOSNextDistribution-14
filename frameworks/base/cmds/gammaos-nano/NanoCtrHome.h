@@ -124,6 +124,9 @@ public:
     // keeps showing while it goes).
     virtual void resumeApp() {}
     virtual void closeApp() {}
+    // Enlarge / Shrink Icons settled on a new zoom: of the root grid, or of a folder (folders all
+    // open at the last folder zoom). The host keeps them for the next session (setZooms).
+    virtual void zoomChanged(bool folder, int zoom) { (void)folder; (void)zoom; }
 };
 
 struct CtrTouch {
@@ -217,6 +220,13 @@ public:
     void resumeSuspended();         // HOME from the host (power, Back at the top level)
     // Items changed (rescan): rebuild the grids, keeping the cursor on the same item.
     void reloadItems();
+    // The ids from the root to the item under the cursor: each open folder, then the item (none
+    // when the cursor is on the bar). restorePath opens those folders again without animation and
+    // puts the cursor on the item (a game the home launched, when the home starts again after it).
+    std::vector<std::string> focusPath() const;
+    void restorePath(const std::vector<std::string>& ids);
+    // The zoom of the root grid and of the folders opened from now on (a saved session's).
+    void setZooms(int root, int folder);
     // Test hook: puts the cursor on the root item named `name` and opens it when it is a folder.
     // From inside a folder it closes the folder first (call again once it closed). True when done.
     bool testOpen(const std::string& name);

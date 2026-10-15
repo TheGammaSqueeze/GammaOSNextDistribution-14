@@ -95,6 +95,8 @@ void CtrTop::releaseGl() {
     mRenderer.releaseGl();
     mBanner.reset();
     mLeaving.clear();
+    mGlyphs.clear();   // their GL objects go with them
+    GlyphMesh::releaseProgram();
     mWall.reset();
     mWallOut = false;
     mAppEnding.clear();
@@ -220,6 +222,9 @@ void CtrTop::focus(const TopFocus& f) {
         case TopFocus::Folder:
             spec.type = FolderT; spec.model = "BannerFolder"; spec.animations = {"BannerFolder"};
             spec.meshes = {"Folder_00", "Text"}; spec.nameScale = 0.74f;
+            // a game system's folder: its icon as a solid in place of the folder (the name plate,
+            // the folder's motion and its colours stay)
+            if (f.glyph) spec.meshes = {"Text"};
             break;
         case TopFocus::Title:
             if (std::find(mSuspendedKeys.begin(), mSuspendedKeys.end(), f.key) != mSuspendedKeys.end()) {
@@ -252,7 +257,9 @@ void CtrTop::focus(const TopFocus& f) {
             show = false;
             break;
     }
-    const std::string key = show ? spec.model + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) : std::string();
+    const std::string key = show ? spec.model + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) + "|" +
+                                       std::to_string(f.glyph)
+                                 : std::string();
     if (key == mWantedKey) {
         if (mBanner) mBanner->shown = true;
         return;
@@ -493,6 +500,22 @@ void CtrTop::attach() {
             if (std::find(b->spec.meshes.begin(), b->spec.meshes.end(), res->meshes[i].node) == b->spec.meshes.end())
                 b->model->hiddenMeshes.insert((int)i);
     }
+    // a game system's folder: the system's icon built into a solid (once per folder), fitted to the
+    // folder body (Folder_00: 11.8 x 10 units around y 2.9, 3.4 thick) and carried by its bone
+    if (mPendingFocus.glyph && b->spec.type == FolderT) {
+        for (const auto& p : res->primitives)
+            if (p.mesh >= 0 && p.mesh < (int)res->meshes.size() && res->meshes[p.mesh].node == "Folder_00") b->glyphBone = p.bone;
+        const std::string gk = mPendingFocus.key + "|" + std::to_string(mPendingFocus.glyph);
+        auto it = mGlyphs.find(gk);
+        if (it == mGlyphs.end()) {
+            auto mesh = std::make_shared<GlyphMesh>();
+            if (!mesh->build(mPendingFocus.glyph, mPendingFocus.glyphW, mPendingFocus.glyphH, 11.0f, 9.6f, 0.0f, 2.9f, 2.6f))
+                mesh.reset();
+            it = mGlyphs.emplace(gk, mesh).first;
+        }
+        b->glyph = it->second;
+        if (!b->glyph) b->model->hiddenMeshes.clear();   // nothing built: the folder after all
+    }
     // the language slot's own model, its animations in repeat mode like COMMON
     if (mPendingFocus.cbmd && !mPendingFocus.cbmd->languagePack.empty()) {
         if (auto lr = packResource(mPendingFocus.cbmd->languagePack, mPendingFocus.cbmd->rom + " (language)")) {
@@ -588,6 +611,30 @@ void CtrTop::themeBanner(ModelInstance& model, int type) {
     m->reset();
 }
 
+void CtrTop::drawGlyphs(const Camera3d& cam) {
+    auto one = [&](Banner& b) {
+        if (!b.glyph || !b.model || !b.model->visible) return;
+        M4 mv;
+        mat4Mul(mv, cam.view, b.model->boneMatrix(b.glyphBone));
+        // the folder's colours (the theme's, else the file's): faces in its main colour, walls in
+        // its dark one
+        float face[3] = {0.45f, 0.78f, 0.93f}, side[3] = {0.25f, 0.55f, 0.75f};
+        if (MaterialState* m = b.model->findMaterial("mt_folder_00")) {
+            for (int i = 0; i < 3; i++) {
+                face[i] = m->colors[kConstant0 + 1][i];
+                side[i] = m->colors[kConstant0 + 0][i];
+            }
+        }
+        // the folder model's light (Light_Folder_00: straight down and away), in view space
+        const float lw[3] = {0, -0.7071f, -0.7071f};
+        float light[3];
+        for (int r = 0; r < 3; r++) light[r] = cam.view.m[r] * lw[0] + cam.view.m[4 + r] * lw[1] + cam.view.m[8 + r] * lw[2];
+        b.glyph->draw(mv.m, cam.projection.m, face, side, light);
+    };
+    for (auto& b : mLeaving) one(*b);
+    if (mBanner) one(*mBanner);
+}
+
 void CtrTop::update() {
     if (mHasPending && --mPendingLeft <= 0) attach();
     updatePlate();
@@ -638,7 +685,13 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
         const float lp[16] = {2 / width, 0, 0, 0, 0, 2 / height, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
         under = [this, lp](int tw, int th) { underlay(tw, th, lp); };
     }
-    const GLuint tex = mRenderer.render(mCamera, models, w, h, TOP_CLEAR, under);
+    std::function<void(const Camera3d&)> over;
+    if (!mBannerHidden) {
+        bool glyphs = mBanner && mBanner->glyph;
+        for (auto& b : mLeaving) glyphs |= b->glyph != nullptr;
+        if (glyphs) over = [this](const Camera3d& c) { drawGlyphs(c); };
+    }
+    const GLuint tex = mRenderer.render(mCamera, models, w, h, TOP_CLEAR, under, over);
     if (CtrHome::perfMark) CtrHome::perfMark("top3dBlit");
     // composite into the top screen rectangle
     if (!mBlitProgram) {
