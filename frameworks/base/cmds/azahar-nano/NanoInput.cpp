@@ -7,6 +7,8 @@
 #include "AzaharSettings.h"
 
 #include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/input.h>
@@ -33,7 +35,22 @@ bool testBit(const unsigned long* bits, int bit) {
     return (bits[bit / (8 * sizeof(long))] >> (bit % (8 * sizeof(long)))) & 1UL;
 }
 
-constexpr int64_t kBackLongPressNs = 1500LL * 1000000LL;
+// Back held this long exits, as in drastic-nano: the system long-press timeout (Settings.Secure
+// long_press_timeout, 400 ms by default) unless persist.gammaos.azahar_nano.back_hold_ms is set.
+// The framework's own hold-Back exit uses the same timeout. A shorter press opens the menu.
+int64_t backHoldNs() {
+    int64_t ms = property_get_int64("persist.gammaos.azahar_nano.back_hold_ms", 0);
+    if (ms <= 0) {
+        if (FILE* pf = popen("settings get secure long_press_timeout 2>/dev/null", "r")) {
+            char b[32] = {0};
+            if (fgets(b, sizeof(b), pf)) ms = atol(b);
+            pclose(pf);
+        }
+    }
+    if (ms < 250 || ms > 5000) ms = 400;
+    ALOGI("azahar-nano: back hold to exit = %lld ms", (long long)ms);
+    return ms * 1000000LL;
+}
 
 } // namespace
 
@@ -339,13 +356,15 @@ void NanoInput::handleTouch(Node& n, uint16_t type, uint16_t code, int32_t value
 }
 
 void NanoInput::loop() {
+    // read here, off the start up path (the settings command takes a few hundred ms)
+    mBackHoldNs.store(backHoldNs());
     while (mRun) {
         std::vector<pollfd> fds;
         for (auto& n : mNodes) fds.push_back({n.fd, POLLIN, 0});
         if (mInotify >= 0) fds.push_back({mInotify, POLLIN, 0});
         const int r = poll(fds.data(), fds.size(), 50);
         // Long press of the back key -> exit.
-        if (mBackDownNs && !mBackLongFired && nowNs() - mBackDownNs > kBackLongPressNs) {
+        if (mBackDownNs && !mBackLongFired && nowNs() - mBackDownNs > mBackHoldNs.load()) {
             mBackLongFired = true;
             if (mCb.exitRequest) mCb.exitRequest();
         }

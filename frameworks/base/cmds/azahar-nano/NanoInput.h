@@ -94,6 +94,7 @@ private:
     float mLx = 0, mLy = 0, mRx = 0, mRy = 0;
     int mHatX = 0, mHatY = 0;
     int64_t mBackDownNs = 0;
+    std::atomic<int64_t> mBackHoldNs{400LL * 1000000LL};   // see backHoldNs (NanoInput.cpp)
     bool mBackLongFired = false;
     bool mBackCombo = false;  // this Back press was used as a combo modifier
 };
