@@ -90,6 +90,9 @@ public:
     void followApp(AppState state, AppBanner banner);
     // The wall already out (a title was running before this instance saw it start).
     void setWallOut();
+    // No title any more (it ended while the home was away): the app animations stop and the wall
+    // is in place at once.
+    void resetApp();
     bool appAnimating() const { return !mAppEnding.empty(); }
     // The grid identities of the suspended title: focused, it shows no banner (the wall holds
     // its screen).

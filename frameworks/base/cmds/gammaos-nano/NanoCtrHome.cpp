@@ -1545,6 +1545,7 @@ void CtrHome::Impl::appSuspend(const std::vector<std::string>& ids, GLuint topTe
 }
 
 void CtrHome::Impl::appFinishSuspend() {
+    ALOGI("ctr: pause fade done after %d frames", appFrame);
     setMenuTopOpacity(1);
     appShowBar(true);
     appSleep(true);
@@ -3751,6 +3752,12 @@ void CtrHome::update(int64_t nowNs) {
     int n = (int)mAccum;
     mAccum -= n;
     if (n > 8) n = 8;   // at most 8 ticks per drawn frame (runtime.ts)
+    // a suspend, resume or close transition shows every one of its frames: after a park the first
+    // frames are slow (the GPU set is rebuilt) and catching up skipped the whole fade
+    const int st = mImpl->appStep;
+    if (n > 1 && (st == Impl::AppSuspending || st == Impl::AppResuming || st == Impl::AppQuitting ||
+                  st == Impl::AppClosing))
+        n = 1;
     for (int i = 0; i < n; i++) tick();
     mImpl->updateBackgrounds();
 }
@@ -4025,8 +4032,15 @@ void CtrHome::resumeSuspended() {
 void CtrHome::resumeFromApp() {
     if (!mLoaded) return;
     Impl& I = *mImpl;
-    // the title the home faded back into has ended (or the home is shown again without it)
-    if (I.appStep == Impl::AppGone) I.appEnd();
+    // the title the home suspended and faded back into has ended (or the home is shown again
+    // without it): no suspend is left, the wall is back in place, and the home returns as it does
+    // after any title (a Back hold after a power hold and resume used to show the suspend's wall
+    // animations over a home with nothing suspended)
+    if (I.appStep != Impl::AppNone) {
+        I.appEnd();
+        if (I.top3d) I.top3d->resetApp();
+        I.setState(StAppRunning);
+    }
     if (I.state == StAppStart || I.state == StAppRunning) {
         I.homeEvent = true;
         I.setState(StAppRunning);

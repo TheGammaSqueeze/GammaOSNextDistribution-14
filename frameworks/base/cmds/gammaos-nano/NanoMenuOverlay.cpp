@@ -598,6 +598,7 @@ void NanoMenu::overlayShow() {
     // 3DS theme: raised over a running title, the home suspends it (the pause fade from its
     // screens, captured now while the overlay layer is still hidden); raised as the launcher
     // after it ended, the home plays its return.
+    if (mCtrTheme && mCtrHome) mCtrHome->resetClock();   // its transition starts on the first shown frame
     if (mCtrTheme && !mOverlayWallpaper) ctrCaptureSuspend();
     else if (mCtrTheme && mCtrHome) mCtrHome->resumeFromApp();
 

@@ -218,6 +218,9 @@ public:
     int minRootSlots() const { return mMinRootSlots; }
     // The launched title is running / the menu came back to the front (HOME).
     void resumeFromApp();
+    // The home is shown again after time away (the overlay raised): animations restart from the
+    // next frame instead of catching up on the time it was hidden.
+    void resetClock() { mLastNs = 0; mAccum = 0; }
     // A title runs behind the home and HOME suspended it (scenes/app/application.ts): the pause
     // fade from its screens into the menu, then the menu with the title suspended (its icon
     // pulsing, the "Suspended software" window, the bottom bar Close / Resume). `ids` are the

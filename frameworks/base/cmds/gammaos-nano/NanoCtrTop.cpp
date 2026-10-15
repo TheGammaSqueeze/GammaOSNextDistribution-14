@@ -147,6 +147,16 @@ void CtrTop::setWallOut() {
     mWallOut = true;
 }
 
+void CtrTop::resetApp() {
+    if (!mWall) return;
+    for (const char* n : {"BannerBG_AppPause", "BannerBG_AppRestart", "BannerBG_AppQuit"}) mWall->stop(n);
+    mAppEnding.clear();
+    if (mWallOut) {
+        mWall->play("BannerBG_SceneIn", 0, 1, 100000);   // its last pose at once
+        mWallOut = false;
+    }
+}
+
 // scene3d.ts followApp (FUN_00286b28)
 void CtrTop::followApp(AppState state, AppBanner banner) {
     if (!mWall) return;
