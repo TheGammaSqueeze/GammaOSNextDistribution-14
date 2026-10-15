@@ -128,7 +128,8 @@ public:
     // open at the last folder zoom). The host keeps them for the next session (setZooms).
     virtual void zoomChanged(bool folder, int zoom) { (void)folder; (void)zoom; }
     // A folder's own colour (a game system's icon tint, Game Systems settings): its solid icon on
-    // the top screen takes it instead of the theme's folder colours. False: no colour of its own.
+    // the top screen takes it instead of the theme's folder colours. A title's (a category's): its
+    // monochrome glyph is drawn in it instead of grey. False: no colour of its own.
     virtual bool itemTint(const HomeItem& item, float rgb[3]) { (void)item; (void)rgb; return false; }
     // L / R on the grid: the next or the previous of the host's categories (the host calls
     // showCategory once it switched).

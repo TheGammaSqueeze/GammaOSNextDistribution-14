@@ -830,6 +830,14 @@ public:
     // A game system's icon tint (Game Systems > the system > Icon Colour): its solid icon's colour.
     // White is the default "no tint".
     bool itemTint(const ctr::HomeItem& item, float rgb[3]) override {
+        if (item.kind == ctr::HomeItemKind::Title) {
+            // a category's titles: their glyphs in the category's ink (as on its bar button)
+            if (!mTitleLevel.count(item.id)) return false;
+            const float* c = catColors(mMenu->mCtrCat);
+            if (!c) return false;
+            for (int k = 0; k < 3; k++) rgb[k] = c[3 + k] * 0.7f + c[k] * 0.3f;
+            return true;
+        }
         auto f = mFolders.find(item.id);
         if (f == mFolders.end() || f->second.kind != NanoMenu::PS3_SYSTEM) return false;
         const NanoMenu::Ps3Item& it = f->second;

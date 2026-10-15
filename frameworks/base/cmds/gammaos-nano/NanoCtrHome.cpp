@@ -707,7 +707,9 @@ struct CtrHome::Impl {
     }
     TexturePtr titleTexture(const HomeItem& it);
     TexturePtr titleTextureOwn(const HomeItem& it);
-    TexturePtr tintedCopy(GLuint src, int w, int h, float grey, float coverAspect = 0, bool flipY = false, bool onWhite = false);
+    // rgb: a colour in place of the grey (a category's title glyphs)
+    TexturePtr tintedCopy(GLuint src, int w, int h, float grey, float coverAspect = 0, bool flipY = false, bool onWhite = false,
+                          const float* rgb = nullptr);
     std::unordered_map<GLuint, TexturePtr> hostTex;  // wrappers of host textures
     uint64_t artGen = 0;
     Renderer::CacheSlot bottomCache;   // background, sheets and icons of the bottom screen
@@ -2949,16 +2951,28 @@ void CtrHome::Impl::hudUpdate(bool force) {
 // new texture. Copies are shared per source texture.
 // A derived copy of a GL texture, rendered once: colour scaled to `grey` (alpha kept), and for a
 // cover (coverAspect > 0) fitted whole into a transparent square. Copies are kept per source.
-TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float coverAspect, bool flipY, bool onWhite) {
+TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float coverAspect, bool flipY, bool onWhite,
+                                      const float* rgb) {
     // grey just under 1: a full colour icon copied at the glyph size (not the folder letters' grey)
-    const int kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0) | (onWhite ? 8 : 0) |
-                     (grey >= 0.99f && grey < 1 ? 16 : 0);
+    int kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0) | (onWhite ? 8 : 0) |
+               (grey >= 0.99f && grey < 1 ? 16 : 0);
+    float col[3] = {grey, grey, grey};
+    if (rgb) {
+        // the colour's bytes are part of the key: one copy per colour
+        int packed = 0;
+        for (int k = 0; k < 3; k++) {
+            const int b = std::clamp((int)lroundf(rgb[k] * 255.0f), 0, 255);
+            col[k] = b / 255.0f;
+            packed = packed << 8 | b;
+        }
+        kind |= 32 | packed << 6;
+    }
     auto cached = tinted.find({src, kind});
     if (cached != tinted.end()) return cached->second;
     static const char* vs = "attribute vec2 p; uniform vec2 s; uniform float f; varying vec2 uv;"
                             "void main(){ uv = p * 0.5 + 0.5; uv.y = mix(uv.y, 1.0 - uv.y, f);"
                             " gl_Position = vec4(p * s, 0.0, 1.0); }";
-    static const char* fs = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nvarying vec2 uv; uniform sampler2D t; uniform float g, o;"
+    static const char* fs = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nvarying vec2 uv; uniform sampler2D t; uniform vec3 g; uniform float o;"
                             "void main(){ vec4 c = texture2D(t, uv); vec4 r = vec4(c.rgb * g, c.a);"
                             " gl_FragColor = mix(r, vec4(mix(vec3(1.0), r.rgb, c.a), 1.0), o); }";
     if (!tintProgram) {
@@ -3002,7 +3016,7 @@ TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glUseProgram(tintProgram);
     glUniform1i(glGetUniformLocation(tintProgram, "t"), 0);
-    glUniform1f(glGetUniformLocation(tintProgram, "g"), grey);
+    glUniform3f(glGetUniformLocation(tintProgram, "g"), col[0], col[1], col[2]);
     glUniform2f(glGetUniformLocation(tintProgram, "s"), sx, sy);
     glUniform1f(glGetUniformLocation(tintProgram, "f"), flipY ? 1.0f : 0.0f);
     glUniform1f(glGetUniformLocation(tintProgram, "o"), onWhite ? 1.0f : 0.0f);
@@ -3229,7 +3243,10 @@ TexturePtr CtrHome::Impl::titleTextureOwn(const HomeItem& it) {
             if (art.mono) {
                 // white glyph art reads as the folder letters' grey (icons.ts LETTER_COLOR): a
                 // darkened copy (the icon material ignores vertex colour)
-                if (TexturePtr t = tintedCopy(gl, w, h, 80 / 255.0f)) return t;
+                // a title the host colours (a category's): its glyph in that colour
+                float rgb[3];
+                const bool coloured = it.kind == HomeItemKind::Title && host->itemTint(it, rgb);
+                if (TexturePtr t = tintedCopy(gl, w, h, 80 / 255.0f, 0, false, false, coloured ? rgb : nullptr)) return t;
             } else if (art.coverAspect > 0) {
                 if (TexturePtr t = tintedCopy(gl, w, h, 1.0f, art.coverAspect)) return t;
             }
