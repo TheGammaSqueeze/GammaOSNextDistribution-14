@@ -301,6 +301,14 @@ int main(int argc, char** argv) {
             fprintf(stderr, "drag %.0f,%.0f -> %.3f\n", x, y, f);
             dialog.progressTouch(false, false, true, lx, ly);
             if (f >= 0) dialog.setProgress("Brightness\n\nset", f);
+        } else if (cmd == "wait") {
+            // "wait <text>": the wait dialog (a turning icon under the text)
+            std::string t;
+            std::getline(ss, t);
+            if (!t.empty() && t[0] == ' ') t.erase(0, 1);
+            dialog.set("", {}, 0);
+            dialog.setWait(t);
+            dialog.show();
         } else if (cmd == "undialog") {
             dialog.hide(true);
         } else if (cmd == "theme") {

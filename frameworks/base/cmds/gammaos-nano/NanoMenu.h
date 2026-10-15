@@ -5187,6 +5187,26 @@ private:
     void wizRescan();                     // X: re-scan APs on the scan-list screen
     int  wizNextScreen(int id, int sel);  // forward-nav table (commits the choice)
     void renderNetWizard();
+    // The wizard's state machine (deferred OSK, entry animation, timed progress screens,
+    // Bluetooth busy screens, inbound pairing poll), once per frame whoever draws it.
+    void netWizardTick();
+    float mPs3WizTickT = -1.0f;
+    // 3DS theme: the wizard as the console's panel and dialogs (NanoMenuCtr.cpp). The model
+    // says what the current screen shows; input stays with the wiz* handlers.
+    struct CtrWizView {
+        enum Kind { None, List, Dialog, Wait } kind = None;
+        std::string title, body;
+        struct Row { std::string label, value; bool text = false; int act = -1; };
+        std::vector<Row> rows;    // act: -1 inert, -2 confirm as is, n = select n then confirm
+        int sel = -1;             // the highlighted row
+        std::vector<std::string> buttons;
+        std::vector<int> buttonAct;   // 0 back, 1 confirm, 2 + n = select n then confirm
+        int buttonSel = 0;
+    };
+    bool ctrWizThemed() const;
+    void ctrWizUpdate();
+    bool ctrWizTouch(bool down, bool held, bool up, float x, float y);
+    void ctrWizView(CtrWizView* v);
     // DSi-theme painter for the WiFi/Bluetooth setup wizard: renderNetWizard() runs the
     // shared state machine then delegates the DRAW to this when mNdsTheme, so the wizard
     // matches the DSi System Menu (scanline field, banner header, glossy list buttons,

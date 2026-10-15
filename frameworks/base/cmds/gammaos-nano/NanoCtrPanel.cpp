@@ -898,6 +898,46 @@ void CtrDialog::setProgress(const std::string& text, float fraction) {
     }
 }
 
+void CtrDialog::setWait(const std::string& text) {
+    if (text.empty()) {
+        mWaitOn = false;
+        return;
+    }
+    if (!mWait) {
+        mWait = A.create("waiticon", "DlgWaitIcon_00");
+        mWaitIcon = A.create("waiticon", "WaitIcon");
+        mWaitText.clear();
+    }
+    if (!mWait || !mWaitIcon) return;
+    if (!mWaitOn) {
+        // the icon turns in (WIconIn, 21 frames), then loops (WIconLoop)
+        PlayOptions o;
+        o.loop = 0;
+        mWaitIcon->play("WIconIn", o);
+        mWaitFrame = 0;
+        mWaitOn = true;
+    }
+    if (text != mWaitText) {
+        mWaitText = text;
+        Pane* body = mWait->pane("T_00");
+        mWait->setText("T_00", wrapText(body, text));
+        fitText(body);
+    }
+}
+
+void CtrDialog::placeWait() {
+    Pane* obj = mLay ? mLay->pane("N_Obj_00") : nullptr;
+    Pane* root = mWait ? mWait->layout().root : nullptr;
+    if (!obj || !root) return;
+    root->parent = obj;
+    mWait->layout().calculate();
+    Pane* slot = mWait->pane("N_Obj_00");
+    Pane* iconRoot = mWaitIcon ? mWaitIcon->layout().root : nullptr;
+    if (!slot || !iconRoot) return;
+    iconRoot->parent = slot;
+    mWaitIcon->layout().calculate();
+}
+
 void CtrDialog::placeProgress() {
     // hung under the window's N_Obj_00 (dialog.ts content) and the bar under N_ProgBar, so both
     // follow the window's fades
@@ -968,6 +1008,13 @@ void CtrDialog::tick() {
     if (mPhase == Closing && mPhaseFrame >= kFadeInFrames) { mPhase = Hidden; return; }
     for (LayoutInstance* l : {mLay.get(), mMaskTop.get(), mMaskBottom.get()}) if (l) l->update(1);
     if (mProgFrac >= 0 && mProg) mProg->update(1);
+    if (mWaitOn && mWaitIcon) {
+        if (++mWaitFrame == 21) {
+            PlayOptions o;
+            mWaitIcon->play("WIconLoop", o);
+        }
+        mWaitIcon->update(1);
+    }
 }
 
 int CtrDialog::touch(bool down, bool up, float x, float y) {
@@ -1012,6 +1059,11 @@ void CtrDialog::drawBottom(Renderer& r) {
         r.drawLayout(mProg->layout());
         r.drawLayout(mBar->layout());
     }
+    if (mWaitOn && mWait && mWaitIcon) {
+        placeWait();
+        r.drawLayout(mWait->layout());
+        r.drawLayout(mWaitIcon->layout());
+    }
 }
 
 void CtrDialog::drawTop(Renderer& r) {
@@ -1025,6 +1077,10 @@ void CtrDialog::releaseGl() {
     // the progress layouts point into mLay (their roots' hosts): they go first
     mBar.reset();
     mProg.reset();
+    mWaitIcon.reset();
+    mWait.reset();
+    mWaitText.clear();
+    mWaitOn = false;
     mBarClip = nullptr;
     mProgText.clear();
     mProgFrac = -1;

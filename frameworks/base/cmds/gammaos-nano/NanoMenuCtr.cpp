@@ -693,7 +693,7 @@ void NanoMenu::ctrAppletBar(int button) {
 
 bool NanoMenu::ctrOwnsInput() const {
     return mCtrTheme && mPs3Xmb && mCtrHome && mCtrHome->loaded() && !mPs3BootActive && mPs3Stack.empty() &&
-           !ndsInModal() && !mSetupWizardActive && !(mPspClockOn || mPspClockReveal > 0.0f);
+           !ndsInModal() && !mSetupWizardActive && !mPs3WizActive && !(mPspClockOn || mPspClockReveal > 0.0f);
 }
 
 bool NanoMenu::ctrInputEvent(int type, int code, int value) {
@@ -1129,11 +1129,16 @@ void NanoMenu::ctrUpdateWallpapers() {
 
 // ---------------------------------------------------------------------------- lists and dialogs
 
+bool NanoMenu::ctrWizThemed() const {
+    return mCtrTheme && mPs3WizActive && !mSetupWizardActive && !mPs3BootActive && mCtrHome && mCtrHome->loaded();
+}
+
 int NanoMenu::ctrModalKind() const {
     if (!mCtrTheme || !mCtrHome || !mCtrHome->loaded() || mPs3BootActive || mSetupWizardActive) return CTR_MODAL_NONE;
+    if (ctrWizThemed()) return CTR_MODAL_PANEL;   // the network / Bluetooth wizard as the panel
     // screens without a 3DS look yet: the shared XMB chrome
     // (the keyboard and the search results draw on their own over the 3DS screens: ctrRenderOverlays)
-    const bool other = mVidActive || mMpActive || mPvActive || mPs3WizActive ||
+    const bool other = mVidActive || mMpActive || mPvActive ||
                        mPhotoMultiActive || mScrapeProgActive ||
                        mMtpActive || mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
                        ps3TopScreenKind() == PHOTO_GRID;
@@ -1187,6 +1192,10 @@ void NanoMenu::ctrModalUpdate() {
         mCtrPanel->hide();
         mCtrDialog->hide(true);
         mCtrPanelWasShown = false;
+        return;
+    }
+    if (ctrWizThemed()) {
+        ctrWizUpdate();
         return;
     }
     // ---- the panel: an option menu, a list-style dialog, or the current list level ----
@@ -1372,9 +1381,80 @@ void NanoMenu::ctrModalUpdate() {
     }
 }
 
+// The network / Bluetooth wizard in the 3DS look: lists in the panel (its title band names the
+// wizard), notices and questions in the dialog, busy screens in the wait dialog. The keys stay
+// with the wiz* handlers; the wizard's state machine runs here so it also runs where nothing
+// else draws the wizard (one panel).
+void NanoMenu::ctrWizUpdate() {
+    netWizardTick();
+    CtrWizView v;
+    ctrWizView(&v);
+    const bool list = v.kind == CtrWizView::List;
+    mCtrHome->setTopBannerHidden(list);
+    if (list) {
+        std::vector<ctr::PanelRow> rows;
+        for (const auto& w : v.rows) {
+            ctr::PanelRow r;
+            r.label = w.label;
+            if (w.text) r.kind = ctr::PanelRow::Text;
+            else if (!w.value.empty()) { r.kind = ctr::PanelRow::Value; r.value = w.value; }
+            r.enabled = w.text || w.act != -1;
+            rows.push_back(r);
+        }
+        mCtrPanel->set(v.title, rows, v.sel, ctrLevelId(7, (size_t)mPs3WizId, v.title, rows.size()));
+        mCtrPanel->show();
+        mCtrPanelWasShown = true;
+    } else {
+        mCtrPanel->hide();
+        mCtrPanelWasShown = false;
+    }
+    if (v.kind == CtrWizView::Dialog || v.kind == CtrWizView::Wait) {
+        mCtrDialog->setProgress(std::string(), -1);
+        if (v.kind == CtrWizView::Wait) {
+            mCtrDialog->set(std::string(), {}, 0);
+            mCtrDialog->setWait(v.body);
+        } else {
+            mCtrDialog->setWait(std::string());
+            mCtrDialog->set(v.body, v.buttons, v.buttonSel);
+        }
+        mCtrDialog->show();
+    } else {
+        mCtrDialog->setWait(std::string());
+        mCtrDialog->hide(true);
+    }
+}
+
+bool NanoMenu::ctrWizTouch(bool down, bool held, bool up, float x, float y) {
+    CtrWizView v;
+    ctrWizView(&v);
+    auto act = [&](int a) {
+        if (a == 0) { wizBack(); return; }
+        if (a >= 2) mPs3WizSel = a - 2;
+        wizConfirm();
+    };
+    if (v.kind == CtrWizView::Dialog && mCtrDialog->active()) {
+        const int b = mCtrDialog->touch(down, up, x, y);
+        if (b >= 0 && b < (int)v.buttonAct.size()) act(v.buttonAct[b]);
+        mDisplayDirty = true;
+        return true;
+    }
+    if (v.kind != CtrWizView::List || !mCtrPanel->active()) return true;
+    const ctr::PanelHit h = mCtrPanel->touch(down, held, up, x, y);
+    if (h.what == ctr::PanelHit::Row && h.row >= 0 && h.row < (int)v.rows.size()) {
+        const int a = v.rows[h.row].act;
+        if (a == -2) wizConfirm();
+        else if (a >= 0) { mPs3WizSel = a; wizConfirm(); }
+    } else if (h.what == ctr::PanelHit::Close || h.what == ctr::PanelHit::Outside) {
+        wizBack();
+    }
+    mDisplayDirty = true;
+    return true;
+}
+
 bool NanoMenu::ctrModalTouch(float x, float y) {
     const bool down = mTouchDown && !mCtrTouchPrev, up = !mTouchDown && mCtrTouchPrev, held = mTouchDown && mCtrTouchPrev;
     mCtrTouchPrev = mTouchDown;
+    if (ctrWizThemed()) return mOskActive ? false : ctrWizTouch(down, held, up, x, y);
     auto launched = [this]() {
         if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
         mDisplayDirty = true;
@@ -1657,7 +1737,7 @@ bool NanoMenu::ctrSetSwitch(int itemIndex, bool on) {
 // LEFT / RIGHT choose OFF / ON and A flips, on a switch row of a settings list.
 bool NanoMenu::ctrSwitchKey(int type, int code, int value) {
     if (!mCtrTheme || ctrModalKind() != CTR_MODAL_PANEL || mPs3OptActive || mPs3DlgActive || mPs3DlgClosing ||
-        mPs3Stack.empty()) {
+        mPs3WizActive || mPs3Stack.empty()) {
         mCtrSwitchKeyHeld = false;
         return false;
     }

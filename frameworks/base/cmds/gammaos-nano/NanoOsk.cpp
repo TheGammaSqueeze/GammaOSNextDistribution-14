@@ -748,7 +748,8 @@ OskBox NanoMenu::oskLayoutBox() {
     // Field editors (Syncthing labels and IDs, system names, passwords) get their prompt on
     // its own line; the wizard draws the value into its dialog field and the search OSK keeps
     // its one-line "Search:" preview.
-    const bool promptLine = (mOskPasswordCallback || mOskPasswordMode) && !mPs3WizActive
+    // (the 3DS theme's wizard has no field of its own: the keyboard shows the value there too)
+    const bool promptLine = (mOskPasswordCallback || mOskPasswordMode) && !(mPs3WizActive && !ctrWizThemed())
                             && !mOskPasswordPrompt.empty();
     return oskComputeBox(mWidth, mHeight, actLabelPx, promptLine);
 }
@@ -1531,7 +1532,7 @@ void NanoMenu::renderOsk() {
     // Game Systems editor) show the field name plus the CURRENT value the
     // opener prefilled, so editing starts from the existing text and the user
     // sees what they are modifying.
-    if (!(mOskPasswordCallback && mPs3WizActive)) {
+    if (!(mOskPasswordCallback && mPs3WizActive && !ctrWizThemed())) {
         std::string label, value;
         float pr, pg, pb;
         if (mOskPasswordCallback || mOskPasswordMode) {

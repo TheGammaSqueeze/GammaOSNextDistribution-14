@@ -150,6 +150,11 @@ public:
     // the window's N_Obj_00. nano's numeric sliders show as it. A negative fraction removes it.
     void setProgress(const std::string& text, float fraction);
     bool hasProgress() const { return mProgFrac >= 0; }
+    // A wait body in place of the message: the console's wait dialog (waiticon/DlgWaitIcon_00
+    // with its text over a turning WaitIcon, WIconIn then WIconLoop, mymenu scene.ts) under the
+    // window's N_Obj_00. An empty text removes it.
+    void setWait(const std::string& text);
+    bool hasWait() const { return mWaitOn; }
     // A touch on the progress bar: the fraction under the finger while a touch that started on
     // the bar is held (the finger may drift off it), else -1.
     float progressTouch(bool down, bool held, bool up, float x, float y);
@@ -171,6 +176,11 @@ private:
     Animator* mBarClip = nullptr;
     std::string mProgText;
     float mProgFrac = -1;
+    std::unique_ptr<LayoutInstance> mWait, mWaitIcon;   // wait body (waiticon/DlgWaitIcon_00, WaitIcon)
+    std::string mWaitText;
+    bool mWaitOn = false;
+    int mWaitFrame = 0;
+    void placeWait();
     bool mProgDrag = false;
     int mLayButtons = -1;
     std::string mText;

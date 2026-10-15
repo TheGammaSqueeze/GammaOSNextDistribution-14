@@ -15995,12 +15995,12 @@ int NanoMenu::wizNextScreen(int id, int sel) {
     }
 }
 
-void NanoMenu::renderNetWizard() {
+// The wizard's shared state machine: runs once per frame (both panels may draw the wizard, and
+// the 3DS theme draws it through its own panel without calling renderNetWizard on one panel).
+void NanoMenu::netWizardTick() {
     if (!mPs3WizActive) return;
-    // The Internet Connection / Manage Bluetooth wizard pages are readable text
-    // chrome like the dialogs, so anti-alias them too. The OSK (password / text
-    // fields) forces AA back off in renderOsk so the keys stay crisp.
-    setGlyphAtlasAA(true);
+    if (mPs3WizTickT == mEffectTime) return;
+    mPs3WizTickT = mEffectTime;
     // Open a deferred text-field OSK once any previous OSK has fully closed. This
     // keeps chained text screens (e.g. Set Manually date -> time, or manual IP ->
     // subnet) from opening a new OSK inside the old OSK's confirm callback.
@@ -16011,12 +16011,6 @@ void NanoMenu::renderNetWizard() {
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
     mPs3WizAnim += (1.0f - mPs3WizAnim) * (1.0f - expf(-13.0f * dt));
     if (mPs3WizAnim > 0.999f) mPs3WizAnim = 1.0f;
-    float ap = mPs3WizAnim;
-    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
-    // Dialog/wizard text outline ratio (matches renderPs3Dialog): set it here so the
-    // wizard is self-contained when reached via the overlay scrim early-return, which
-    // skips the chrome code that would otherwise set it.
-    mTextOutlineRatio = 0.5f;
 
     WizDesc d; wizDesc(mPs3WizId, d);
 
@@ -16060,6 +16054,238 @@ void NanoMenu::renderNetWizard() {
             wizDesc(mPs3WizId, d);
         }
     }
+
+}
+
+// The 3DS theme's wizard (NanoMenuCtr.cpp ctrModalUpdate draws it): what the current screen
+// shows, from the same sources as the XMB body below. Lists (choosers, the access point and
+// device lists, the settings list) are the petit panel; notices and questions are the console
+// dialog; timed and busy screens are its wait dialog; a text screen is the keyboard alone.
+void NanoMenu::ctrWizView(CtrWizView* v) {
+    *v = CtrWizView();
+    WizDesc d; wizDesc(mPs3WizId, d);
+    v->title = trDyn(d.title);
+    auto textRow = [&](const std::string& t) {
+        if (t.empty()) return;
+        CtrWizView::Row r;
+        r.label = trDyn(t.c_str());
+        r.text = true;
+        v->rows.push_back(r);
+    };
+    auto optRow = [&](const std::string& label, const std::string& value, int act) {
+        CtrWizView::Row r;
+        r.label = label;
+        r.value = value;
+        r.act = act;
+        v->rows.push_back(r);
+    };
+    if (mPs3WizId == WS_BT_INFO) {
+        v->kind = CtrWizView::List;
+        optRow(trDyn("Device Name"), mBtWizSelName.empty() ? mBtWizSelAddr : mBtWizSelName, -1);
+        optRow(trDyn("Bluetooth Address"), mBtWizSelAddr, -1);
+        optRow(trDyn("Type"), trDyn(btTypeLabel(mBtWizSelCod)), -1);
+        optRow(trDyn("Connection"), trDyn(mBtWizSelConnected ? "Connected" : "Not Connected"), -1);
+        optRow(trDyn("OK"), "", -2);
+        v->sel = (int)v->rows.size() - 1;
+        return;
+    }
+    switch (d.kind) {
+    case WK_INFO:
+    case WK_RESULT: {
+        std::string body = trDyn(d.body);
+        if (mPs3WizId == WS_SAVE) body = trDyn("Internet connection settings have been completed.\n\nSave completed.");
+        if (mPs3WizId == WS_BT_REGISTER_DONE && !mBtWizOpOk)
+            body = trDyn("The device could not be registered.\nMake sure the device is in pairing mode and try again.");
+        v->kind = CtrWizView::Dialog;
+        v->body = body;
+        if (d.kind == WK_RESULT || mPs3WizId == WS_BT_BD_REMOTE) {
+            v->buttons = {trDyn("OK")};
+            v->buttonAct = {1};
+        } else {
+            v->buttons = {trDyn("Cancel"), trDyn("Next")};
+            v->buttonAct = {0, 1};
+            v->buttonSel = 1;
+        }
+        return;
+    }
+    case WK_CONFIRM: {
+        std::string body = trDyn(d.body);
+        if (mPs3WizId == WS_BT_INBOUND_CONFIRM) {
+            body = mBtWizSelName + "  (" + mBtWizSelAddr + ")\n" + trDyn("is requesting to register with this system.");
+            if (!mBtWizInPasskey.empty()) body += "\n\n" + std::string(trDyn("Pass Key:")) + "  " + mBtWizInPasskey;
+            body += "\n\n" + std::string(trDyn("Accept this device?"));
+        }
+        v->kind = CtrWizView::Dialog;
+        v->body = body;
+        v->buttons = {trDyn("Yes"), trDyn("No")};
+        v->buttonAct = {2 + 0, 2 + 1};
+        v->buttonSel = mPs3WizSel;
+        return;
+    }
+    case WK_PROGRESS: {
+        v->kind = CtrWizView::Wait;
+        v->body = trDyn(d.body);
+        if (mPs3WizId == WS_BT_REGISTERING || mPs3WizId == WS_BT_INBOUND_PAIRING) {
+            const std::string pk = btPasskeyLine();
+            if (!pk.empty()) v->body += "\n" + pk;
+        }
+        if (mPs3WizId == WS_BT_INBOUND_WAIT) {
+            // waiting for another device: B (or the button) backs out
+            v->kind = CtrWizView::Dialog;
+            v->buttons = {trDyn("Cancel")};
+            v->buttonAct = {0};
+        }
+        return;
+    }
+    case WK_TEST: {
+        std::string body;
+        { std::lock_guard<std::mutex> lk(mPs3NetTestMutex); body = mPs3NetTestBody; }
+        v->body = body.empty() ? trDyn("Testing the connection...") : body;
+        if (mPs3NetTestActive) {
+            v->kind = CtrWizView::Wait;
+        } else {
+            v->kind = CtrWizView::Dialog;
+            v->buttons = {trDyn("OK")};
+            v->buttonAct = {1};
+        }
+        return;
+    }
+    case WK_TEXT:
+        return;   // the keyboard alone (its prompt line names the field)
+    case WK_CHOOSER: {
+        v->kind = CtrWizView::List;
+        std::vector<std::string> opts;
+        std::string body = d.body;
+        if (mPs3WizId == WS_BT_MANAGE) {
+            if (!mBtWizRadioOn) {
+                opts.push_back(trDyn("Turn Bluetooth On"));
+            } else {
+                opts.push_back(trDyn("Register New Device"));
+                opts.push_back(trDyn("Receive Registration Request"));
+                { std::lock_guard<std::mutex> lk(mBtWizMutex);
+                  for (auto& b : mBtWizBonded) {
+                      std::string lbl = b.name.empty() ? b.address : b.name;
+                      if (b.connected) lbl += "   (" + std::string(trDyn("Connected")) + ")";
+                      opts.push_back(lbl);
+                  } }
+                opts.push_back(trDyn("Turn Bluetooth Off"));
+            }
+            float dt = mEffectTime - mBtWizManageRefreshT; if (dt < 0.0f) dt += 500.0f;
+            if (dt > 2.0f) { btWizRefreshBondedAsync(); mBtWizManageRefreshT = mEffectTime; }
+        } else if (mPs3WizId == WS_BT_DEVICE_OPTS) {
+            body = std::string(trDyn("Registered Device:")) + "  " + mBtWizSelName;
+            for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(trDyn(d.opts[i]));
+        } else if (mPs3WizId == WS_MANAGE) {
+            body = mPs3WizSsid;
+            bool connected = false;
+            { std::lock_guard<std::mutex> lk(mWifiListMutex);
+              for (auto& e : mWifiEntries) { if (e.bssid == "__TOGGLE__") continue;
+                  if (e.ssid == mPs3WizSsid) { connected = e.connected; break; } } }
+            for (int a : wizManageActs(mPs3WizSecTok, connected)) opts.push_back(trDyn(wizMngLabel(a)));
+        } else {
+            for (int i = 0; i < 8 && d.opts[i]; i++) opts.push_back(trDyn(d.opts[i]));
+        }
+        const int n = (int)opts.size();
+        if (mPs3WizSel >= n) mPs3WizSel = n > 0 ? n - 1 : 0;
+        if (mPs3WizSel < 0) mPs3WizSel = 0;
+        textRow(body);
+        const int first = (int)v->rows.size();
+        for (int i = 0; i < n; i++) optRow(opts[i], "", i);
+        v->sel = n > 0 ? first + mPs3WizSel : -1;
+        return;
+    }
+    case WK_SCANLIST: {
+        v->kind = CtrWizView::List;
+        textRow(d.body);
+        const int first = (int)v->rows.size();
+        if (mPs3WizId == WS_BT_DEVICE_LIST) {
+            std::vector<BtDevEntry> devs;
+            { std::lock_guard<std::mutex> lk(mBtWizMutex); devs = mBtWizScan; }
+            const int n = (int)devs.size();
+            if (mPs3WizSel >= n) mPs3WizSel = n > 0 ? n - 1 : 0;
+            if (mPs3WizSel < 0) mPs3WizSel = 0;
+            if (n == 0) textRow(themeButtonText(trDyn("No devices found. Press Triangle to scan again.")));
+            for (int i = 0; i < n; i++) {
+                std::string type = trDyn(btTypeLabel(devs[i].cod));
+                if (devs[i].bonded) type += " (" + std::string(trDyn("Paired")) + ")";
+                optRow(devs[i].name.empty() ? devs[i].address : devs[i].name, type, i);
+            }
+            v->sel = n > 0 ? first + mPs3WizSel : -1;
+            return;
+        }
+        std::vector<WifiNetEntry> aps;
+        { std::lock_guard<std::mutex> lk(mWifiListMutex);
+          for (auto& e : mWifiEntries) if (e.bssid != "__TOGGLE__") aps.push_back(e); }
+        const int n = (int)aps.size();
+        if (n == 0) {
+            bool radioOn; { std::lock_guard<std::mutex> lk(mNetStateMutex); radioOn = mWifiRadioOn; }
+            const char* empt = !radioOn ? trDyn("Wi-Fi is off. Press Cross to turn it on.")
+                             : mWifiScanInProgress ? trDyn("Searching for networks...")
+                                                   : trDyn("No networks found. Press Triangle to rescan.");
+            textRow(themeButtonText(empt));
+            v->sel = -1;
+            return;
+        }
+        for (int i = 0; i < n; i++) {
+            // the signal as the console words it, and whether a key is needed
+            const int r = aps[i].rssi;
+            const char* sig = r >= -55 ? "Excellent" : r >= -66 ? "Good" : r >= -77 ? "Fair" : r >= -88 ? "Weak" : "Very Weak";
+            std::string value = trDyn(sig);
+            if (aps[i].security != 0 && aps[i].security != 4) value = std::string(trDyn("Secured")) + ", " + value;
+            if (aps[i].connected) value = trDyn("Connected");
+            optRow(aps[i].ssid.empty() ? std::string(trDyn("(Hidden Network)")) : aps[i].ssid, value, i);
+        }
+        v->sel = first + std::clamp(mPs3WizSel, 0, n - 1);
+        return;
+    }
+    case WK_REVIEW: {
+        v->kind = CtrWizView::List;
+        auto kv = [&](const char* k, const std::string& val) { optRow(trDyn(k), trDyn(val.c_str()), -1); };
+        kv("Connection Method", mPs3WizConn.empty() ? "Wired Connection" : mPs3WizConn);
+        if (mPs3WizConn == "Wireless") {
+            kv("SSID", mPs3WizSsid.empty() ? "-" : mPs3WizSsid);
+            kv("Security", mPs3WizSecLabel.empty() ? "None" : mPs3WizSecLabel);
+        } else if (!mPs3WizOpmode.empty()) {
+            kv("Speed and Duplex", mPs3WizOpmode == "Auto-Detect" ? "Auto-Detect"
+                                       : (mPs3WizSpeedDuplex.empty() ? "Auto-Detect" : mPs3WizSpeedDuplex));
+        }
+        kv("IP Address Setting", mPs3WizIpMode.empty() ? "Automatic" : mPs3WizIpMode);
+        if (mPs3WizIpMode == "Manual") {
+            kv("IP Address", mPs3WizIpAddr.empty() ? "-" : mPs3WizIpAddr);
+            kv("Subnet Mask", mPs3WizSubnet.empty() ? "-" : mPs3WizSubnet);
+            kv("Default Router", mPs3WizRouter.empty() ? "-" : mPs3WizRouter);
+        }
+        kv("Primary DNS", mPs3WizPdns.empty() ? "Automatic" : mPs3WizPdns);
+        kv("Secondary DNS", mPs3WizSdns.empty() ? "Automatic" : mPs3WizSdns);
+        kv("MTU", mPs3WizMtuMode == "Manual" ? (mPs3WizMtu.empty() ? "-" : mPs3WizMtu) : "Automatic");
+        kv("Proxy Server", mPs3WizProxyMode.empty() ? "Do Not Use" : mPs3WizProxyMode);
+        kv("UPnP", mPs3WizUpnp.empty() ? "Enable" : mPs3WizUpnp);
+        optRow(trDyn("Save"), "", -2);
+        v->sel = (int)v->rows.size() - 1;
+        return;
+    }
+    default:
+        return;
+    }
+}
+
+void NanoMenu::renderNetWizard() {
+    if (!mPs3WizActive) return;
+    netWizardTick();
+    // the 3DS theme shows the wizard as its own panel and dialogs (ctrModalUpdate)
+    if (ctrWizThemed()) return;
+    // The Internet Connection / Manage Bluetooth wizard pages are readable text
+    // chrome like the dialogs, so anti-alias them too. The OSK (password / text
+    // fields) forces AA back off in renderOsk so the keys stay crisp.
+    setGlyphAtlasAA(true);
+    float ap = mPs3WizAnim;
+    { ps3::LayoutParams lp; lp.panelW = mWidth; lp.panelH = mHeight; lp.uiScale = mPs3UiScale; ps3::layoutCompute(lp); }
+    // Dialog/wizard text outline ratio (matches renderPs3Dialog): set it here so the
+    // wizard is self-contained when reached via the overlay scrim early-return, which
+    // skips the chrome code that would otherwise set it.
+    mTextOutlineRatio = 0.5f;
+
+    WizDesc d; wizDesc(mPs3WizId, d);
 
     // Horizontal slide: ease the body offset back to 0 over ~260 ms (easeOutCubic).
     // mEffectTime wraps back to 0 every 500 s (fmod in the run loop). Once that wrap
