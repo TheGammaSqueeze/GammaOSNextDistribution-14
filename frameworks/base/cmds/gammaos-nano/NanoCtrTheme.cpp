@@ -504,6 +504,13 @@ void ThemeManager::setBlankFolder(bool folder) {
         if (l->name() == "LncIconSetSrc_00" || l->name() == "LncIconPickUpBlank_00") apply(*l);
 }
 
+void ThemeManager::setFolderBlock(const ThemeBlock* block) {
+    if (!block && !mFolderOn) return;
+    mFolderOn = block != nullptr;
+    mFolder = block ? *block : ThemeBlock();
+    for (LayoutInstance* l : mLive) apply(*l);
+}
+
 // Writes every binding of the layout (manager.ts apply): the file colours first, then the
 // blocks the theme defines.
 void ThemeManager::apply(LayoutInstance& l) {
@@ -522,10 +529,12 @@ void ThemeManager::apply(LayoutInstance& l) {
                 lay.materials[m].konst = lay.fileColors[m].konst;
             }
         }
-    if (mBody) {
+    if (mBody || mFolderOn) {
         for (const Binding* b : found->second) {
             const int id = b->blank ? mBlank : b->block;
-            const ThemeBlock& block = mBody->blocks[id];
+            const bool own = mFolderOn && id == TB_FOLDER;
+            if (!own && !mBody) continue;
+            const ThemeBlock& block = own ? mFolder : mBody->blocks[id];
             if (!block.present) continue;
             for (const std::string& name : b->panes) {
                 const Pane* p = lay.findPane(name);

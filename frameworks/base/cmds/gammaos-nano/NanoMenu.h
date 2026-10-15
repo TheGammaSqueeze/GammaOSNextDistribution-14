@@ -1645,6 +1645,15 @@ private:
     uint64_t mCtrModelSig = 0;                    // signature of the shown model (reload on change)
     int mCtrSigFrame = 0;
     uint64_t ctrModelSignature() const;
+    // The 3DS grid's category (L / R and the applet bar): Games is the arranged grid, the others
+    // show that nano category's content, what holds more as folders (albums, playlists, IPTV and
+    // radio groups) and the rest as titles opened through ps3XmbSelect on their list.
+    enum { CTR_CAT_GAMES, CTR_CAT_QUICK, CTR_CAT_MUSIC, CTR_CAT_VIDEO, CTR_CAT_PHOTO, CTR_CAT_NETWORK, CTR_CAT_COUNT };
+    int mCtrCat = CTR_CAT_GAMES;
+    bool ctrMediaFolder(const Ps3Item& it);
+    void ctrMediaLevel(const Ps3Item& it, Ps3Level& out);
+    void ctrOpenInLevel(const std::string& title, const std::vector<Ps3Item>& items, int sel);
+    bool ctrQuickSubmenu(const Ps3Item& it, Ps3Level* out);   // Power, Screen Orientation (NanoMenuPS3Menu.cpp)
     // Test hook (sys.gammaos.nano.ctr.keys = "RIGHT,RIGHT,A"): each button held 6 frames, 6 apart.
     std::vector<uint32_t> mCtrScript;
     int mCtrScriptFrame = 0;

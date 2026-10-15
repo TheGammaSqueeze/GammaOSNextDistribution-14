@@ -1602,6 +1602,14 @@ void NanoMenu::saveCatOrder() {
           mCatOrder.size(), text.size());
 }
 
+// The Quick Menu rows that open a list of their own (the 3DS grid shows them as folders).
+bool NanoMenu::ctrQuickSubmenu(const Ps3Item& it, Ps3Level* out) {
+    if (it.kind != PS3_QUICK) return false;
+    if (it.a == QA_POWER_SUBMENU) { if (out) buildQuickPowerSubmenu(*out); return true; }
+    if (it.a == QA_APP_ORIENT_MENU) { if (out) buildAppOrientSubmenu(*out); return true; }
+    return false;
+}
+
 void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
     int gameCatRuntimeIdx = -1;
@@ -5672,14 +5680,23 @@ void NanoMenu::ps3XmbSelect() {
         if (mPs3DlgKind == 0 && mPs3DlgTitle == "IPTV") {
             int sel = mPs3DlgSel;
             mPs3DlgActive = false; mPs3DlgBlurValid = false;
-            if (sel == 0) { property_set("persist.gammaos.nano.iptv.agreed", "1"); iptvOpen(); }
+            if (sel == 0) {
+                property_set("persist.gammaos.nano.iptv.agreed", "1");
+                // the 3DS grid shows IPTV as a folder from now on: the list loads for it
+                if (mCtrTheme && mPs3Stack.empty()) iptvEnsureLoaded();
+                else iptvOpen();
+            }
             return;
         }
         // Internet Radio first-use disclaimer (Music category): mirror the IPTV one.
         if (mPs3DlgKind == 0 && mPs3DlgTitle == "Internet Radio") {
             int sel = mPs3DlgSel;
             mPs3DlgActive = false; mPs3DlgBlurValid = false;
-            if (sel == 0) { property_set("persist.gammaos.nano.radio.agreed", "1"); radioOpen(); }
+            if (sel == 0) {
+                property_set("persist.gammaos.nano.radio.agreed", "1");
+                if (mCtrTheme && mPs3Stack.empty()) radioEnsureLoaded();
+                else radioOpen();
+            }
             return;
         }
         // Dual-SCREEN detect prompt: option 0 = Enable (add to the run-on-primary allowlist),

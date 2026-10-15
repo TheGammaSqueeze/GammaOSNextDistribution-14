@@ -146,7 +146,7 @@ public:
     std::vector<CgfxBone> bones;
     struct Mesh { int shape = 0, material = 0; bool visible = true; int priority = 0; std::string node; };
     std::vector<Mesh> meshes;
-    std::vector<V3> shapeCenters;
+    std::vector<V3> shapeCenters, shapeSizes;   // bounding boxes of the shapes
     std::vector<CgfxAnimation> skeletal, material;
     struct Light { bool present = false; V3 direction{0, 0, -1}; V3 ambient{}, diffuse{}, specular0{}, specular1{}; } light;
     struct Primitive {

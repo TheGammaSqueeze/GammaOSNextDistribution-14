@@ -130,6 +130,12 @@ public:
     // A folder's own colour (a game system's icon tint, Game Systems settings): its solid icon on
     // the top screen takes it instead of the theme's folder colours. False: no colour of its own.
     virtual bool itemTint(const HomeItem& item, float rgb[3]) { (void)item; (void)rgb; return false; }
+    // L / R on the grid: the next or the previous of the host's categories (the host calls
+    // showCategory once it switched).
+    virtual void stepCategory(int dir) { (void)dir; }
+    // A title the host opens itself without leaving the home (a nano list, a player): true when
+    // it did, the home plays no start animation.
+    virtual bool openInHost(const HomeItem& item) { (void)item; return false; }
 };
 
 struct CtrTouch {
@@ -223,6 +229,15 @@ public:
     void resumeSuspended();         // HOME from the host (power, Back at the top level)
     // Items changed (rescan): rebuild the grids, keeping the cursor on the same item.
     void reloadItems();
+    // The host switched the root grid to other content (nano's categories, L / R and the applet
+    // bar): open folders close, then the root grid is built again with the cursor on `cursor`.
+    void showCategory(int cursor);
+    // Folder colours of the content shown (0..1 RGB, a category's), in place of the theme's
+    // folder block on both screens; null brings the theme's back.
+    void setFolderColors(const float* dark, const float* main);
+    // Applet bar button 1..5 shows the host's pictogram (RGBA, rows top first, its alpha the shape)
+    // on a rounded button, the ink in `ink` (and `inkLight` where the console lightens it).
+    void setBarIcon(int button, const uint8_t* rgba, int w, int h, const float ink[3], const float inkLight[3]);
     // The ids from the root to the item under the cursor: each open folder, then the item (none
     // when the cursor is on the bar). restorePath opens those folders again without animation and
     // puts the cursor on the item (a game the home launched, when the home starts again after it).
@@ -262,6 +277,7 @@ private:
     std::unique_ptr<Impl> mImpl;
     std::unique_ptr<Assets> mAssets;
     std::unique_ptr<ThemeManager> mTheme;
+    void applyFolderColors();
     const ThemeBody* mThemeBody = nullptr;
     bool mLoaded = false;
     int mMinRootSlots = 60;

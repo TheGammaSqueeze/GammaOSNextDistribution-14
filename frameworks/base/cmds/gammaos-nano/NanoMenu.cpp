@@ -6053,7 +6053,8 @@ if (sRingPrimedCount >= 2) {
                 // library drains - never ran in those themes: the Photo category and the wallpaper
                 // picker stayed empty until the user flipped to XMB and back. Exempt DSi/Minima from
                 // the XMB anim gate (they rebuild via rebuildPs3CatsPreserveSel, position preserved).
-                const bool animSettledOrNonXmbTheme = mNdsTheme || mMinimaTheme ||
+                // The 3DS theme never runs those XMB animations either (a list it opens can set them).
+                const bool animSettledOrNonXmbTheme = mNdsTheme || mMinimaTheme || mCtrTheme ||
                     (!mPs3CatAnimActive && mPs3ItemAnimStart < 0.0f && mPs3SubAnimStart < 0.0f);
                 if (mPs3Xmb && mPs3Stack.empty()
                     && !mVidActive && !mMpActive && !mPvActive

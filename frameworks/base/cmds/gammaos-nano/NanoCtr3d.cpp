@@ -455,7 +455,10 @@ bool ModelResource::load(Pack& pack, Pack* shared) {
         me.node = m["meshNodeName"].isString() ? m["meshNodeName"].str() : std::string();
         meshes.push_back(me);
     }
-    for (BjValue s : model["shapes"]) shapeCenters.push_back(v3(s["boundingBox"]["center"]));
+    for (BjValue s : model["shapes"]) {
+        shapeCenters.push_back(v3(s["boundingBox"]["center"]));
+        shapeSizes.push_back(v3(s["boundingBox"]["size"]));
+    }
     for (BjValue b : model["skeleton"]["bones"]) {
         CgfxBone bone;
         bone.name = b["name"].str();

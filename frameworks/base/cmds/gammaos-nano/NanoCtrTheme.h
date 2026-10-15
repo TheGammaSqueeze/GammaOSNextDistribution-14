@@ -105,6 +105,9 @@ public:
     // Empty grid slots take the bottom colours on the root grid and the folder background
     // colours inside a folder (FUN_001dfb80).
     void setBlankFolder(bool folder);
+    // nano's categories colour their folders: this block stands in for the theme's folder block
+    // (null = the theme's own again).
+    void setFolderBlock(const ThemeBlock* block);
 
 private:
     void attach(LayoutInstance& l);
@@ -112,6 +115,8 @@ private:
     Assets& A;
     const ThemeBody* mBody = nullptr;
     int mBlank = TB_BOTTOM_SOLID;
+    bool mFolderOn = false;
+    ThemeBlock mFolder;
     std::unordered_set<LayoutInstance*> mLive;
 };
 

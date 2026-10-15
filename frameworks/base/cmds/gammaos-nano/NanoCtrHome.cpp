@@ -714,6 +714,16 @@ struct CtrHome::Impl {
     uint64_t bottomSig = 0;   // the inputs of the cached group last recorded
     int bottomReuseRun = 0;
     uint64_t themeRev = 0;    // bumped by every setTheme (colours change without textures)
+    // the host's category switch (showCategory): waits for an idle root grid
+    bool catPending = false;
+    int catCursor = 0;
+    void applyCategory();
+    // the category's folder colours (setFolderColors) over the theme's folder block
+    // nano's category icons of the bar buttons (setBarIcon): the applet banners' solids
+    TexturePtr barGlyph[6];
+    float barTint[6][3] = {};
+    bool folderColorsOn = false;
+    float folderDark[3] = {0, 0, 0}, folderMain[3] = {0, 0, 0};
     uint64_t bottomSignature(const float* proj, int vx, int vy, int vw, int vh, float botW, uint64_t salt);
     // theme/background.ts: the background image of each screen (LncBgSlide_U_00 behind the 3D
     // pass, LncBgSlide_D_00 under the base's NN_LncBgSlide_00): a theme image or the host's
@@ -936,7 +946,14 @@ void CtrHome::Impl::tick() {
 void CtrHome::Impl::mainUpdate() {
     stateFrame++;
     switch (state) {
-        case StIdle: handleIdleInput(); break;
+        case StIdle:
+            if (catPending) {
+                if (inFolder()) closeFolder();
+                else applyCategory();
+                break;
+            }
+            handleIdleInput();
+            break;
         case StGrab: updateGrab(); break;
         case StMoveIcon: updateDrop(); break;
         case StColumnScroll: updateColumnScroll(); break;
@@ -948,7 +965,14 @@ void CtrHome::Impl::mainUpdate() {
             if (stateFrame >= 17) {
                 folder->layout().root->visible = inFolder();
                 closingFolder = false;
-                setState(StIdle);
+                if (inFolder()) {
+                    // a folder inside a folder closed (a category's IPTV group, a game subfolder):
+                    // the sheet collapsed, the parent folder's sheet opens again over the grid
+                    folder->play("FadeIn", groupsOpt());
+                    setState(StFolderOpen);
+                } else {
+                    setState(StIdle);
+                }
             }
             break;
         case StAppStart:
@@ -986,6 +1010,10 @@ void CtrHome::Impl::handleIdleInput() {
         return;
     }
     const uint32_t pressed = down | repeat;
+    if (down & (CTR_L | CTR_R)) {
+        if (host) host->stepCategory(down & CTR_R ? 1 : -1);
+        return;
+    }
     if (down & CTR_A) { activate(0); return; }
     if (down & CTR_B) {
         if (inFolder()) closeFolder();
@@ -1260,7 +1288,7 @@ void CtrHome::Impl::closeFolder() {
     sound("SE_CTR_HOME_CLOSE_FOLDER");
     closing = std::move(grids.back());
     grids.pop_back();
-    if (theme) theme->setBlankFolder(false);
+    if (theme) theme->setBlankFolder(inFolder());   // still in a folder: its background colours
     closingFolder = true;
     PlayOptions o = groupsOpt();
     o.speed = -1;
@@ -1276,6 +1304,7 @@ void CtrHome::Impl::launch(const HomeItem& item) {
         appResume();
         return;
     }
+    if (host && host->openInHost(item)) return;   // a nano list or player over the home
     if (host && !host->launch(item)) {
         sound("SE_CTR_HOME_BANNER_INVALID");
         return;
@@ -2083,8 +2112,9 @@ void CtrHome::Impl::updateSheet(LayoutInstance* l, const Grid& g, float extra) {
 
 void CtrHome::Impl::updateChrome() {
     updateSheet(palette.get(), root(), sheetShadowExtra);
-    if (inFolder()) updateSheet(folder.get(), grid(), folderShadowExtra);
-    else if (closingFolder) updateSheet(folder.get(), closing, folderShadowExtra);
+    // the closing folder's sheet while it collapses (a parent folder may stay open under it)
+    if (closingFolder) updateSheet(folder.get(), closing, folderShadowExtra);
+    else if (inFolder()) updateSheet(folder.get(), grid(), folderShadowExtra);
     placeCursor();
     updateArrows();
     Grid& g = grid();
@@ -2105,6 +2135,14 @@ void CtrHome::Impl::updateChrome() {
             f.bar = g.barButton;
             f.key = "bar" + std::to_string(g.barButton);
             if (host) f.plate = host->appletName(g.barButton);
+            if (g.barButton >= 1 && g.barButton <= 5 && barGlyph[g.barButton]) {
+                const TexturePtr& t = barGlyph[g.barButton];
+                f.glyph = t->id;
+                f.glyphW = t->width;
+                f.glyphH = t->height;
+                f.glyphTinted = true;
+                for (int k = 0; k < 3; k++) f.glyphTint[k] = barTint[g.barButton][k];
+            }
         } else if (const HomeItem* it = g.item(g.cursor)) {
             f.kind = it->kind == HomeItemKind::Folder ? TopFocus::Folder : TopFocus::Title;
             f.key = it->id;
@@ -3761,7 +3799,9 @@ void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vp
         if (I.inFolder() || I.closingFolder) {
             I.drawInstance(r, I.folder.get());
             const Grid& fg = I.inFolder() ? I.grid() : I.closing;
-            const bool showIcons = I.inFolder() && !(I.state == StFolderOpen && I.stateFrame < 6);
+            // a nested folder closing collapses the sheet with no icons in it (the parent's open after)
+            const bool showIcons = I.inFolder() && !(I.state == StFolderOpen && I.stateFrame < 6) &&
+                                   !(I.state == StFolderClose && I.closingFolder);
             if (showIcons) {
                 Pane* sheet = I.folder->pane("W_Plt_00");
                 Box clip = sheet ? paneBox(sheet) : Box{-160, 160, 120, -120};
@@ -3966,6 +4006,7 @@ void CtrHome::setTheme(const ThemeBody* body) {
     if (mImpl) mImpl->themeRev++;
     mThemeBody = body;
     mTheme->setTheme(body);
+    if (mLoaded && mImpl->folderColorsOn) applyFolderColors();   // over the new theme's folder block
     Impl& I = *mImpl;
     if (I.top3d) I.top3d->setTheme(body);
     // background.ts setTheme: the images of texture draw types
@@ -4122,6 +4163,162 @@ void CtrHome::setZooms(int root, int folder) {
     I.folderZoom = std::clamp(folder, MIN_FOLDER_ZOOM, MAX_ZOOM);
     I.root().setZoom(std::clamp(root, 0, MAX_ZOOM));
     for (size_t k = 1; k < I.grids.size(); k++) I.grids[k].setZoom(I.folderZoom);
+}
+
+void CtrHome::showCategory(int cursor) {
+    if (!mLoaded) return;
+    mImpl->catPending = true;
+    mImpl->catCursor = std::max(0, cursor);
+}
+
+// The root grid with the host's new content: the cursor on the remembered slot (or the bar it
+// was on), no folder open.
+void CtrHome::Impl::applyCategory() {
+    catPending = false;
+    Grid& g = root();
+    loadGrid(g);
+    g.cursor = std::min(catCursor, std::max(0, (int)g.slotItem.size() - 1));
+    g.barReturnColumn = -1;
+    g.clampView();
+    scroller.stop();
+    showNameBalloon = false;
+    iconTex.clear();
+    gTextureEpoch++;
+    sound("SE_CTR_HOME_ICON_SCROLL");
+}
+
+void CtrHome::setFolderColors(const float* dark, const float* main) {
+    if (!mLoaded) return;
+    Impl& I = *mImpl;
+    const bool on = dark && main;
+    if (on == I.folderColorsOn &&
+        (!on || (!memcmp(dark, I.folderDark, sizeof(I.folderDark)) && !memcmp(main, I.folderMain, sizeof(I.folderMain)))))
+        return;
+    I.folderColorsOn = on;
+    if (on) {
+        memcpy(I.folderDark, dark, sizeof(I.folderDark));
+        memcpy(I.folderMain, main, sizeof(I.folderMain));
+    }
+    applyFolderColors();
+}
+
+// The folder block the screens use: the theme's with the category's dark / main / light.
+void CtrHome::applyFolderColors() {
+    Impl& I = *mImpl;
+    I.themeRev++;
+    if (!I.folderColorsOn) {
+        mTheme->setFolderBlock(nullptr);
+        if (I.top3d) I.top3d->setFolderBlock(nullptr);
+        return;
+    }
+    ThemeBlock b;
+    if (mThemeBody && mThemeBody->blocks[TB_FOLDER].present) b = mThemeBody->blocks[TB_FOLDER];
+    b.present = true;
+    auto byte = [](float v) { return (uint8_t)std::clamp((int)lroundf(v * 255.0f), 0, 255); };
+    auto put = [&](const char* name, float r, float g, float bl) {
+        const std::array<uint8_t, 3> v = {byte(r), byte(g), byte(bl)};
+        for (auto& f : b.rgb)
+            if (f.first == name) { f.second = v; return; }
+        b.rgb.emplace_back(name, v);
+    };
+    put("dark", I.folderDark[0], I.folderDark[1], I.folderDark[2]);
+    put("main", I.folderMain[0], I.folderMain[1], I.folderMain[2]);
+    // the lit edge: the main colour taken halfway to white
+    put("light", I.folderMain[0] + (1 - I.folderMain[0]) * 0.5f, I.folderMain[1] + (1 - I.folderMain[1]) * 0.5f,
+        I.folderMain[2] + (1 - I.folderMain[2]) * 0.5f);
+    mTheme->setFolderBlock(&b);
+    if (I.top3d) I.top3d->setFolderBlock(&b);
+}
+
+// The console's bar buttons are 36 x 36 unit pictures from textures of about one texel a unit,
+// symmetric pictograms mirrored from a half texture. Ours are drawn whole at four texels a unit:
+// map 0 the button body (luminance), map 1 the pictogram's ink (luminance, dark = ink) with the
+// button's shape in alpha; the material's combiner then shades them as it does the console's.
+void CtrHome::setBarIcon(int button, const uint8_t* rgba, int w, int h, const float ink[3], const float inkLight[3]) {
+    static const char* const kPanes[6] = {nullptr, "P_Memo_10", "P_Frd_10", "P_News_10", "P_Web_10", "P_Mvs_10"};
+    if (!mLoaded || button < 1 || button > 5 || !rgba || w <= 0 || h <= 0) return;
+    Impl& I = *mImpl;
+    LayoutInstance* L = I.base.get();
+    Pane* p = L ? L->pane(kPanes[button]) : nullptr;
+    if (!p || p->material < 0) return;
+    Layout& lay = L->layout();
+    Material& m = lay.materials[p->material];
+    if (m.texMaps.size() < 2) return;
+    constexpr int K = 4, U = 36, N = U * K;
+    // the pictogram's extent (alpha above a trace)
+    int x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (int y = 0; y < h; y++)
+        for (int x = 0; x < w; x++)
+            if (rgba[((size_t)y * w + x) * 4 + 3] > 8) {
+                x0 = std::min(x0, x); x1 = std::max(x1, x);
+                y0 = std::min(y0, y); y1 = std::max(y1, y);
+            }
+    if (x1 < x0) return;
+    const float gw = (float)(x1 - x0 + 1), gh = (float)(y1 - y0 + 1);
+    // fitted into a 21 unit box on the face, centred a little below the button's middle (the
+    // console's pictograms sit there, clear of the glow at the top)
+    const float fit = 21.0f / std::max(gw, gh);
+    const float gcx = x0 + gw * 0.5f, gcy = y0 + gh * 0.5f, ucx = 18.0f, ucy = 19.0f;
+    // signed distance to a rounded rectangle (units, negative inside)
+    auto roundRect = [](float x, float y, float l, float t, float r, float b, float rad) {
+        const float qx = fabsf(x - (l + r) * 0.5f) - ((r - l) * 0.5f - rad);
+        const float qy = fabsf(y - (t + b) * 0.5f) - ((b - t) * 0.5f - rad);
+        const float ox = std::max(qx, 0.0f), oy = std::max(qy, 0.0f);
+        return sqrtf(ox * ox + oy * oy) + std::min(std::max(qx, qy), 0.0f) - rad;
+    };
+    auto cover = [](float d) { return std::clamp(0.5f - d * K, 0.0f, 1.0f); };   // one texel of edge
+    auto alphaAt = [&](float x, float y) {   // bilinear, outside = 0
+        x -= 0.5f; y -= 0.5f;
+        const int ix = (int)floorf(x), iy = (int)floorf(y);
+        const float fx = x - ix, fy = y - iy;
+        auto a = [&](int px, int py) {
+            return px < 0 || py < 0 || px >= w || py >= h ? 0.0f : rgba[((size_t)py * w + px) * 4 + 3] / 255.0f;
+        };
+        return (a(ix, iy) * (1 - fx) + a(ix + 1, iy) * fx) * (1 - fy) + (a(ix, iy + 1) * (1 - fx) + a(ix + 1, iy + 1) * fx) * fy;
+    };
+    // supersampling: the pictogram is several source pixels a texel
+    const int ss = std::clamp((int)ceilf(1.0f / (fit * K)), 1, 6);
+    std::vector<uint8_t> body((size_t)N * N * 4), face((size_t)N * N * 4);
+    for (int ty = 0; ty < N; ty++) {
+        const size_t row = (size_t)ty * N;   // rows top first (uv 0, 0 is the top left)
+        for (int tx = 0; tx < N; tx++) {
+            const float ux = (tx + 0.5f) / K, uy = (ty + 0.5f) / K;
+            const float b = cover(roundRect(ux, uy, 3.5f, 5.0f, 32.5f, 33.0f, 5.5f));
+            const float shape = cover(roundRect(ux, uy, 4.0f, 3.5f, 32.0f, 33.5f, 6.0f));
+            float a = 0;
+            for (int sy = 0; sy < ss; sy++)
+                for (int sx = 0; sx < ss; sx++) {
+                    const float px = (tx + (sx + 0.5f) / ss) / K, py = (ty + (sy + 0.5f) / ss) / K;
+                    a += alphaAt(gcx + (px - ucx) / fit, gcy + (py - ucy) / fit);
+                }
+            a /= ss * ss;
+            uint8_t* B = &body[(row + tx) * 4];
+            B[0] = B[1] = B[2] = (uint8_t)lroundf(b * 255);
+            B[3] = 255;
+            uint8_t* F = &face[(row + tx) * 4];
+            F[0] = F[1] = F[2] = (uint8_t)lroundf((1 - a) * 255);
+            F[3] = (uint8_t)lroundf(shape * 255);
+        }
+    }
+    // the pictogram itself for the top screen's applet banner (a solid in its glass cube)
+    I.barGlyph[button] = mAssets->rgbaTexture(rgba, w, h);
+    for (int k = 0; k < 3; k++) I.barTint[button][k] = inkLight[k];
+    m.texMaps[0].texture = mAssets->rgbaTexture(body.data(), N, N);
+    m.texMaps[1].texture = mAssets->rgbaTexture(face.data(), N, N);
+    for (int k = 0; k < 2; k++) m.texMaps[k].wrapS = m.texMaps[k].wrapT = GL_CLAMP_TO_EDGE;
+    if (!p->texCoords.empty()) p->texCoords[0] = QuadUv{Vec2{0, 0}, Vec2{1, 0}, Vec2{0, 1}, Vec2{1, 1}};
+    // the ink colours (constants 4 and 5, the console's per applet colours)
+    const int mi = p->material;
+    for (int k = 0; k < 3; k++) {
+        m.konst[4][k] = ink[k] * 255.0f;
+        m.konst[5][k] = inkLight[k] * 255.0f;
+        if (mi < (int)lay.fileColors.size()) {
+            lay.fileColors[mi].konst[4][k] = m.konst[4][k];
+            lay.fileColors[mi].konst[5][k] = m.konst[5][k];
+        }
+    }
+    L->refresh();
+    gTextureEpoch++;
 }
 
 void CtrHome::reloadItems() {

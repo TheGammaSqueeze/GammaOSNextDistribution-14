@@ -346,7 +346,142 @@ public:
 
     // The root: nano's Game entries, the user's folders and the titles put on the root, each on
     // its laid out slot; what has no slot yet fills the free ones in nano's order.
+    // ---- nano's other categories on the grid (L / R, applet bar buttons 1..5)
+    static const char* catName(int c) {
+        static const char* const kNames[NanoMenu::CTR_CAT_COUNT] = {"Game", "Quick Menu", "Music", "Video", "Photo", "Network"};
+        return c >= 0 && c < NanoMenu::CTR_CAT_COUNT ? kNames[c] : "";
+    }
+    int catIndex(int c) const {
+        for (size_t i = 0; i < mMenu->mPs3Cats.size(); i++)
+            if (mMenu->mPs3Cats[i].name == catName(c)) return (int)i;
+        return -1;
+    }
+    std::map<int, int> mCatCursor;   // the root cursor each category was left on
+    // The lists the grid shows outside Games, by folder id ("cat:<name>" a category's own), and
+    // the list each title came from: a title opens through ps3XmbSelect on its whole list, so a
+    // player gets its neighbours as the queue.
+    std::map<std::string, std::vector<NanoMenu::Ps3Item>> mLevels;
+    std::map<std::string, std::string> mTitleLevel;
+
+    // Folder colours of a category (dark, main): Games keeps the theme's.
+    static const float* catColors(int c) {
+        static const float kColors[NanoMenu::CTR_CAT_COUNT][6] = {
+            {0, 0, 0, 0, 0, 0},
+            {0.80f, 0.58f, 0.04f, 0.99f, 0.81f, 0.18f},   // Quick Menu: gold
+            {0.78f, 0.38f, 0.06f, 1.00f, 0.62f, 0.20f},   // Music: orange
+            {0.45f, 0.28f, 0.70f, 0.70f, 0.50f, 0.95f},   // Video: purple
+            {0.22f, 0.55f, 0.20f, 0.45f, 0.82f, 0.40f},   // Photo: green
+            {0.72f, 0.20f, 0.32f, 0.98f, 0.45f, 0.55f},   // Network: pink red
+        };
+        return c > 0 && c < NanoMenu::CTR_CAT_COUNT ? kColors[c] : nullptr;
+    }
+    void applyCatColors() {
+        if (!mMenu->mCtrHome) return;
+        const float* c = catColors(mMenu->mCtrCat);
+        mMenu->mCtrHome->setFolderColors(c, c ? c + 3 : nullptr);
+    }
+
+    // The categories' pictograms (the RetroArch set nano's other themes use, the XMB globe for
+    // Network: Wi-Fi would repeat the status bar): bar buttons 1..5.
+    static const char* catIconFile(int c) {
+        static const char* const kFiles[NanoMenu::CTR_CAT_COUNT] = {
+            nullptr, "icons_retroarch/menu_power.png", "icons_retroarch/music.png", "icons_retroarch/movie.png",
+            "icons_retroarch/image.png", "icons/xmb_icon_006.png"};
+        return c > 0 && c < NanoMenu::CTR_CAT_COUNT ? kFiles[c] : nullptr;
+    }
+    static bool loadCatIcon(int c, std::vector<uint8_t>* rgba, int* w, int* h) {
+        const char* f = catIconFile(c);
+        if (!f) return false;
+        for (const char* dir : {"/data/system/nano_xmb/", "/system/etc/nano_xmb/"}) {
+            int n = 0;
+            unsigned char* px = stbi_load((std::string(dir) + f).c_str(), w, h, &n, 4);
+            if (!px) continue;
+            rgba->assign(px, px + (size_t)(*w) * (*h) * 4);
+            stbi_image_free(px);
+            return true;
+        }
+        ALOGW("ctr: category icon %s missing", f);
+        return false;
+    }
+    void applyBarIcons() {
+        if (!mMenu->mCtrHome) return;
+        for (int c = 1; c < NanoMenu::CTR_CAT_COUNT; c++) {
+            std::vector<uint8_t> px;
+            int w = 0, h = 0;
+            if (!loadCatIcon(c, &px, &w, &h)) continue;
+            const float* col = catColors(c);
+            // the ink a shade deeper than the folders' main colour, its light part the main colour
+            float ink[3], light[3];
+            for (int k = 0; k < 3; k++) {
+                ink[k] = col[3 + k] * 0.7f + col[k] * 0.3f;
+                light[k] = col[3 + k];
+            }
+            mMenu->mCtrHome->setBarIcon(c, px.data(), w, h, ink, light);
+        }
+    }
+
+    void setCategory(int c) {
+        if (c == mMenu->mCtrCat || (c != NanoMenu::CTR_CAT_GAMES && catIndex(c) < 0) || !mMenu->mCtrHome) return;
+        int zoom = 0, cursor = 0;
+        mMenu->mCtrHome->layoutState(&zoom, &cursor);
+        mCatCursor[mMenu->mCtrCat] = cursor;
+        mMenu->mCtrCat = c;
+        mLevels.clear();
+        mTitleLevel.clear();
+        // nano's actions read the category they run in (Search for Media Servers, Playlists)
+        const int ci = catIndex(c);
+        if (ci >= 0) mMenu->mPs3CatIdx = ci;
+        // the libraries load the first time their category shows (the XMB's column focus)
+        if (c == NanoMenu::CTR_CAT_MUSIC) mMenu->musicEnsureLoaded();
+        else if (c == NanoMenu::CTR_CAT_VIDEO) mMenu->videoEnsureLoaded();
+        else if (c == NanoMenu::CTR_CAT_PHOTO) mMenu->photoEnsureLoaded();
+        applyCatColors();
+        mMenu->mCtrHome->showCategory(mCatCursor[c]);
+        mMenu->mCtrModelSig = mMenu->ctrModelSignature();   // the switch builds the grid itself
+        ALOGI("ctr: category %s", catName(c));
+    }
+
+    void stepCategory(int dir) override {
+        int c = mMenu->mCtrCat;
+        for (int n = 0; n < NanoMenu::CTR_CAT_COUNT; n++) {
+            c = (c + dir + NanoMenu::CTR_CAT_COUNT) % NanoMenu::CTR_CAT_COUNT;
+            if (c == NanoMenu::CTR_CAT_GAMES || catIndex(c) >= 0) break;
+        }
+        setCategory(c);
+    }
+
+    ctr::HomeItem catItem(const NanoMenu::Ps3Item& it, const std::string& level) {
+        ctr::HomeItem h;
+        h.id = idOf(it);
+        h.name = it.label;
+        h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint;
+        if (mMenu->ctrMediaFolder(it)) {
+            h.kind = ctr::HomeItemKind::Folder;
+            mFolders[h.id] = it;
+        } else {
+            h.kind = ctr::HomeItemKind::Title;
+            mTitles[h.id] = it;
+            mTitleLevel[h.id] = level;
+        }
+        return h;
+    }
+
+    std::vector<ctr::HomeItem> levelItems(const std::string& level, const std::vector<NanoMenu::Ps3Item>& list) {
+        mLevels[level] = list;
+        std::vector<ctr::HomeItem> out;
+        for (const NanoMenu::Ps3Item& it : list) {
+            if (it.kind == NanoMenu::PS3_DATA_LEAF && it.label == "Photo Gallery") continue;   // an info row
+            out.push_back(catItem(it, level));
+        }
+        return out;
+    }
+
     std::vector<ctr::HomeItem> rootItems() {
+        if (mMenu->mCtrCat != NanoMenu::CTR_CAT_GAMES) {
+            const int ci = catIndex(mMenu->mCtrCat);
+            if (ci < 0) return {};
+            return levelItems(std::string("cat:") + catName(mMenu->mCtrCat), mMenu->mPs3Cats[ci].items);
+        }
         loadLayout();
         std::vector<ctr::HomeItem> out;
         const int gc = gameCat();
@@ -409,6 +544,10 @@ public:
         if (f == mFolders.end()) return {};
         const NanoMenu::Ps3Item it = f->second;
         NanoMenu::Ps3Level lvl;
+        if (mMenu->mCtrCat != NanoMenu::CTR_CAT_GAMES && mMenu->ctrMediaFolder(it)) {
+            mMenu->ctrMediaLevel(it, lvl);
+            return levelItems(folderId, lvl.items);
+        }
         switch (it.kind) {
             case NanoMenu::PS3_SYSTEM: mMenu->buildRomSubmenu(it.a, lvl); break;
             case NanoMenu::PS3_ROM_FOLDER: lvl.romFolder = it.payloadStr; mMenu->buildRomSubmenu(it.a, lvl); break;
@@ -424,7 +563,9 @@ public:
     }
 
     // ---- arranging
-    bool editable(const std::string& folderId) override { return folderId.empty() || userFolder(folderId); }
+    bool editable(const std::string& folderId) override {
+        return mMenu->mCtrCat == NanoMenu::CTR_CAT_GAMES && (folderId.empty() || userFolder(folderId));
+    }
     bool userFolder(const std::string& folderId) override { return mLayout.folders.count(folderId) != 0; }
 
     void layoutChanged(const std::string& folderId, const std::vector<std::pair<int, std::string>>& slots) override {
@@ -541,9 +682,12 @@ public:
                 case NanoMenu::PS3_PINNED_APPS_LIST:
                 case NanoMenu::PS3_COLLECTIONS_LIST:
                 case NanoMenu::PS3_FAVORITES_LIST:
+                // the categories' lists of their own (IPTV, Internet Radio, Playlists, Power)
+                case NanoMenu::PS3_DATA_LEAF:
+                case NanoMenu::PS3_QUICK:
                     break;
                 default:
-                    return 0;   // a ROM folder or a user folder keeps the folder look
+                    return 0;   // a ROM folder, a user folder or an album keeps the folder look
             }
             *w = *h = 48;
             art->mono = item.monoIcon;
@@ -630,13 +774,40 @@ public:
         return t == mTitles.end() ? nullptr : &t->second;
     }
 
+    // A title of a category's content: ps3XmbSelect on the list it was shown in.
+    bool openInHost(const ctr::HomeItem& item) override {
+        auto lv = mTitleLevel.find(item.id);
+        if (lv == mTitleLevel.end()) return false;
+        auto l = mLevels.find(lv->second);
+        if (l == mLevels.end()) return false;
+        const std::vector<NanoMenu::Ps3Item>& list = l->second;
+        int sel = -1;
+        for (int i = 0; i < (int)list.size() && sel < 0; i++)
+            if (idOf(list[i]) == item.id) sel = i;
+        if (sel < 0) return false;
+        // a status row ("Loading channel list...", "No stations") does nothing
+        if (list[sel].kind == NanoMenu::PS3_GS_FIELD && list[sel].a < 0) return true;
+        std::string title = catName(mMenu->mCtrCat);
+        if (auto f = mFolders.find(lv->second); f != mFolders.end()) title = f->second.label;
+        mMenu->ctrOpenInLevel(title, list, sel);
+        return true;
+    }
+
     bool launch(const ctr::HomeItem& item) override {
         auto t = mTitles.find(item.id);
         if (t == mTitles.end()) return false;
         return mMenu->ctrLaunchItem(t->second);
     }
 
-    void appletBar(int button) override { mMenu->ctrAppletBar(button); }
+    // Settings opens nano's Settings list; the others show their category on the grid (again:
+    // back to Games).
+    void appletBar(int button) override {
+        if (button <= 0 || button >= NanoMenu::CTR_CAT_COUNT || catIndex(button) < 0) {
+            mMenu->ctrAppletBar(button);
+            return;
+        }
+        setCategory(mMenu->mCtrCat == button ? NanoMenu::CTR_CAT_GAMES : button);
+    }
 
     void backAtRoot() override {
         if (mMenu->mOverlayMode) mMenu->overlayResume();
@@ -674,8 +845,7 @@ public:
     }
 
     std::string appletName(int button) override {
-        static const char* kNames[6] = {"", "Quick Menu", "Photo", "Music", "Network", "Video"};
-        return button >= 1 && button <= 5 ? std::string(trDyn(kNames[button])) : std::string();
+        return button >= 1 && button < NanoMenu::CTR_CAT_COUNT ? std::string(trDyn(catName(button))) : std::string();
     }
 
     // Menu sounds: effects follow Nav Sounds, the BGM its own toggle (Theme Settings).
@@ -755,6 +925,8 @@ bool NanoMenu::ctrEnsure() {
     mCtrHome->setZooms(property_get_int32("persist.gammaos.nano.ctr.zoom", 0),
                        property_get_int32("persist.gammaos.nano.ctr.folder_zoom", 2));
     ctrRestoreReturn(mCtrHome);
+    mCtrHost->applyCatColors();
+    mCtrHost->applyBarIcons();
     if (!mCtrPanel) {
         auto sound = [this](const char* name) { if (mCtrHost) mCtrHost->playSound(name); };
         mCtrPanel = new ctr::CtrPanel(mCtrHome->assets(), sound);
@@ -881,11 +1053,98 @@ bool NanoMenu::ctrLaunchItem(const Ps3Item& it) {
     }
 }
 
-// Applet bar: 0 HOME Menu Settings -> nano Settings, 1 Game Notes -> Quick Menu,
-// 2 Friend List -> Photo, 3 Notifications -> Music, 4 Internet Browser -> Network,
-// 5 Miiverse -> Video. Each opens that category as a nano list over the home.
+// ---------------------------------------------------------------------------------------- categories
+
+// What a category's grid shows as a folder: albums, playlists, IPTV / radio groups, the Playlists
+// screens, IPTV and Internet Radio once their notice was accepted (before that they are titles
+// that show it), the Quick Menu's Power.
+bool NanoMenu::ctrMediaFolder(const Ps3Item& it) {
+    switch (it.kind) {
+        case PS3_MUSIC_ALBUM: case PS3_MUSIC_PLAYLIST: case PS3_VIDEO_FOLDER: case PS3_VIDEO_PLAYLIST:
+        case PS3_IPTV_GROUP: case PS3_IPTV_COUNTRY: case PS3_RADIO_GROUP: case PS3_RADIO_BUCKET:
+            return true;
+        case PS3_QUICK:
+            return ctrQuickSubmenu(it, nullptr);
+        case PS3_DATA_LEAF:
+            if (it.label == "Playlists")
+                return mCtrCat == CTR_CAT_MUSIC || mCtrCat == CTR_CAT_VIDEO || mCtrCat == CTR_CAT_PHOTO;
+            if (it.label == "IPTV") return property_get_bool("persist.gammaos.nano.iptv.agreed", false);
+            if (it.label == "Internet Radio") return property_get_bool("persist.gammaos.nano.radio.agreed", false);
+            return false;
+        default:
+            return false;
+    }
+}
+
+// A category folder's content: the list ps3XmbSelect would open for it.
+void NanoMenu::ctrMediaLevel(const Ps3Item& it, Ps3Level& out) {
+    switch (it.kind) {
+        case PS3_MUSIC_ALBUM: buildMusicAlbumSubmenu(it.a, out); return;
+        case PS3_MUSIC_PLAYLIST: buildMusicPlaylistSubmenu(it.a, out); return;
+        case PS3_VIDEO_FOLDER: buildVideoFolderSubmenu(it.payloadStr, out); return;
+        case PS3_VIDEO_PLAYLIST: buildVideoPlaylistSubmenu(it.a, out); return;
+        case PS3_IPTV_GROUP: {   // a single country goes straight to its channels
+            int countries;
+            {
+                std::lock_guard<std::mutex> lk(mIptvMutex);
+                countries = it.a >= 0 && it.a < (int)mIptvCats.size() ? (int)mIptvCats[it.a].countries.size() : 0;
+            }
+            if (countries <= 1) buildIptvChannelSubmenu(it.a, 0, out);
+            else buildIptvCountrySubmenu(it.a, out);
+            return;
+        }
+        case PS3_IPTV_COUNTRY: buildIptvChannelSubmenu(it.a, it.b, out); return;
+        case PS3_RADIO_GROUP: {   // a single bucket goes straight to its stations
+            int buckets;
+            {
+                std::lock_guard<std::mutex> lk(mRadioMutex);
+                buckets = it.a >= 0 && it.a < (int)mRadioCats.size() ? (int)mRadioCats[it.a].buckets.size() : 0;
+            }
+            if (buckets <= 1) buildRadioStationSubmenu(it.a, 0, out);
+            else buildRadioBucketSubmenu(it.a, out);
+            return;
+        }
+        case PS3_RADIO_BUCKET: buildRadioStationSubmenu(it.a, it.b, out); return;
+        case PS3_QUICK: ctrQuickSubmenu(it, &out); return;
+        case PS3_DATA_LEAF:
+            if (it.label == "IPTV") {
+                iptvEnsureLoaded();
+                buildIptvCategoriesScreen(out);
+            } else if (it.label == "Internet Radio") {
+                radioEnsureLoaded();
+                buildRadioRootScreen(out);
+            } else if (it.label == "Playlists") {
+                if (mCtrCat == CTR_CAT_MUSIC) { musicEnsureLoaded(); buildMusicPlaylistsScreen(out); }
+                else if (mCtrCat == CTR_CAT_VIDEO) { videoEnsureLoaded(); buildVideoPlaylistsScreen(out); }
+                else if (mCtrCat == CTR_CAT_PHOTO) { photoEnsureLoaded(); buildPhotoPlaylistsScreen(out); }
+            }
+            return;
+        default:
+            return;
+    }
+}
+
+// Opens a category title the way the XMB does: its list as the current level with the title
+// selected, then ps3XmbSelect. A list it opens stays (alone) over the home; a player or a dialog
+// leaves the stack empty again.
+void NanoMenu::ctrOpenInLevel(const std::string& title, const std::vector<Ps3Item>& items, int sel) {
+    Ps3Level lvl;
+    lvl.title = title;
+    lvl.items = items;
+    lvl.sel = sel;
+    mPs3Stack.push_back(std::move(lvl));
+    const size_t depth = mPs3Stack.size();
+    ps3XmbSelect();
+    if (mPs3Stack.size() > depth) mPs3Stack.erase(mPs3Stack.begin() + (depth - 1));
+    else if (mPs3Stack.size() == depth) mPs3Stack.pop_back();
+    mDisplayDirty = true;
+}
+
+// Applet bar button 0 (HOME Menu Settings): nano's Settings as a list over the home. Buttons 1..5
+// switch the grid's category (NanoCtrHost::appletBar); a category missing from the home (hidden in
+// Home Categories) opens here as a list instead.
 void NanoMenu::ctrAppletBar(int button) {
-    static const char* kCats[6] = {"Settings", "Quick Menu", "Photo", "Music", "Network", "Video"};
+    static const char* kCats[6] = {"Settings", "Quick Menu", "Music", "Video", "Photo", "Network"};
     if (button < 0 || button > 5) return;
     for (size_t i = 0; i < mPs3Cats.size(); i++) {
         if (mPs3Cats[i].name != kCats[button]) continue;
@@ -2620,6 +2879,36 @@ uint64_t NanoMenu::ctrModelSignature() const {
     for (const XmbSystem& s : mXmbSystems) mix((uint64_t)s.roms.size());
     mix((uint64_t)mXmbRecent.size());
     mix((uint64_t)mNdsBannerNamesRev);
+    if (mCtrCat != CTR_CAT_GAMES) {
+        // the category on the grid: its rows (a library scan, the Quick Menu's live rows), the
+        // lists its folders show (playlists, the IPTV and radio lists arriving) and its notices
+        static const char* const kNames[CTR_CAT_COUNT] = {"Game", "Quick Menu", "Music", "Video", "Photo", "Network"};
+        for (const Ps3Cat& c : mPs3Cats) {
+            if (c.name != kNames[mCtrCat]) continue;
+            for (const Ps3Item& it : c.items) {
+                mix((uint64_t)it.kind);
+                mix((uint64_t)(uint32_t)it.a);
+                mix((uint64_t)(uint32_t)it.b);
+                for (char ch : it.label) mix((uint64_t)(unsigned char)ch);
+            }
+        }
+        mix(mMusicPlaylists.size());
+        mix(mVideoPlaylists.size());
+        mix(mPhotoPlaylists.size());
+        mix(property_get_bool("persist.gammaos.nano.iptv.agreed", false));
+        mix(property_get_bool("persist.gammaos.nano.radio.agreed", false));
+        NanoMenu* self = const_cast<NanoMenu*>(this);
+        {
+            std::lock_guard<std::mutex> lk(self->mIptvMutex);
+            mix(mIptvCats.size());
+            mix(std::hash<std::string>()(mIptvStatus));
+        }
+        {
+            std::lock_guard<std::mutex> lk(self->mRadioMutex);
+            mix(mRadioCats.size());
+            mix(std::hash<std::string>()(mRadioStatus));
+        }
+    }
     return h;
 }
 

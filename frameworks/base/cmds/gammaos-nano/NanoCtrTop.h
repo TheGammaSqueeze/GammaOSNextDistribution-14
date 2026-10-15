@@ -51,6 +51,8 @@ public:
     void focus(const TopFocus& f);
     // The theme's wall colour and folder banner colours (null = the file colours).
     void setTheme(const ThemeBody* body);
+    // nano's category colours for the folder banner, in place of the theme's (null = the theme's).
+    void setFolderBlock(const ThemeBlock* block);
     void update();            // one 60 Hz frame
     // Draws the scene into the top screen rectangle of the bound framebuffer. `proj` maps the
     // 400x240 layout space (as for the layouts); vp is the GL viewport it targets.
@@ -89,6 +91,8 @@ private:
     void themeWall();
     void themeBanner(ModelInstance& model, int type);
     const ThemeBody* mTheme = nullptr;
+    bool mFolderOn = false;
+    ThemeBlock mFolder;
     bool mWallHidden = false;
     std::vector<std::string> mSuspendedKeys;
     std::shared_ptr<GpuTex> mAppTex, mAppTexOriginal;
@@ -100,6 +104,7 @@ private:
         std::string model;
         std::vector<std::string> animations;
         std::vector<std::string> meshes;
+        std::vector<std::string> hideMaterials;   // meshes of these materials are left out
         float nameScale = 1;
         // width / height of the quad the name texture covers: the 4:1 of DmyText_00, 2:1 for
         // Banner2D's Dmy_00 (24 x 12 units): the glyphs are widened to keep their proportions
@@ -113,6 +118,7 @@ private:
         std::unique_ptr<ModelInstance> extra;   // a ROM banner's language model, following `model`
         std::shared_ptr<GlyphMesh> glyph;        // a folder's system icon, on the folder's bone
         int glyphBone = -1;
+        bool glyphFlip = false;   // turned half round on its bone (an applet's cube faces away)
         bool tinted = false;
         float tint[3] = {1, 1, 1};
         bool shown = true;
