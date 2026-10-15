@@ -427,6 +427,8 @@ struct CtrHome::Impl {
         float scale = 1, alpha = 255;
         int rest = 0;
         bool copy = false;                    // lifted out of a generated folder
+        bool buttons = false;                 // carried with the D-pad (startMove)
+        int cell = -1;                        // its slot then (-2: the folder header)
     };
     bool holding = false, reloadAfterDrop = false;
     Held mover;
@@ -439,6 +441,8 @@ struct CtrHome::Impl {
         return g.isFolder() && it.kind == HomeItemKind::Title;
     }
     void updateGrab();
+    void updateGrabButtons();
+    void moveCell(int dx, int dy);
     void updateDrop();
     void finishDrop();
     void flyBack();
@@ -1612,6 +1616,7 @@ void CtrHome::Impl::edgeScroll(float x, float y, bool touching) {
 // State 0xe: the icon follows the stylus; a lift drops it.
 void CtrHome::Impl::updateGrab() {
     if (!holding) { setState(StIdle); return; }
+    if (mover.buttons) { updateGrabButtons(); return; }
     Grid& g = grids[mover.gridIndex];
     if (touch.held) {
         mover.at = {touch.x, touch.y};
@@ -1636,6 +1641,79 @@ void CtrHome::Impl::updateGrab() {
     }
     if (mover.scrollFrame < PAGE_FRAMES) { edgeScroll(-1000, -1000, false); return; }
     dropHeld(mover.at.x, mover.at.y);
+}
+
+// Moving with buttons (nano): the held icon sits lifted over the slot it would land on. The
+// D-pad steps it a slot at a time (a column sideways, a row up or down); a step past the view
+// pages it like the arrow discs. In a folder, up from the top row reaches the header strip.
+void CtrHome::Impl::moveCell(int dx, int dy) {
+    Grid& g = grids[mover.gridIndex];
+    const int rows = g.rows();
+    int cell = mover.cell;
+    if (cell == -2) {
+        if (dy > 0) cell = std::clamp(g.firstColumn * rows, 0, g.slots - 1);   // back down from the header
+        else return;
+    } else if (dy != 0) {
+        const int row = cell % rows + dy;
+        if (row < 0) {
+            if (g.isFolder() && mover.item.kind == HomeItemKind::Title) cell = -2;
+            else return;
+        } else if (row >= rows) {
+            return;
+        } else {
+            cell += dy;
+        }
+    } else {
+        const int next = cell + dx * rows;
+        if (next < 0 || next >= g.slots) return;
+        cell = next;
+    }
+    if (cell >= g.slots) cell = g.slots - 1;
+    mover.cell = cell;
+    // a slot plays its hover sound (hoverSlotAt); the header strip sounds like a slot
+    if (cell < 0) { sound("SE_CTR_HOME_ICON_OVER"); return; }
+    const int column = cell / rows;
+    if (g.columnVisible(column)) return;
+    // page so the column is in view, the arrow disc's eased page
+    const int first = std::clamp(column < g.firstColumn ? column : column - g.columns() + 1, 0, g.maxFirstColumn());
+    g.firstColumn = first;
+    mover.scrollFrom = g.scroll;
+    mover.scrollTo = g.scrollFor(first);
+    mover.scrollFrame = 0;
+}
+
+void CtrHome::Impl::updateGrabButtons() {
+    Grid& g = grids[mover.gridIndex];
+    const uint32_t pressed = down | repeat;
+    if (mover.scrollFrame < PAGE_FRAMES) edgeScroll(-1000, -1000, false);
+    if (down & CTR_B) {
+        sound("SE_CTR_HOME_ICON_RELEASE");
+        g.hoverSlot = g.openSlot = -1;
+        flyBack();
+        return;
+    }
+    if (pressed & CTR_UP) moveCell(0, -1);
+    else if (pressed & CTR_DOWN) moveCell(0, 1);
+    else if (pressed & CTR_LEFT) moveCell(-1, 0);
+    else if (pressed & CTR_RIGHT) moveCell(1, 0);
+    if (mover.cell == -2) {
+        // over the header strip (B_T_00)
+        Pane* h = folder ? folder->pane("B_T_00") : nullptr;
+        if (h) {
+            const Box b = paneBox(h);
+            mover.at = {(b.left + b.right) / 2, (b.top + b.bottom) / 2};
+        }
+        g.hoverSlot = g.openSlot = -1;
+        mover.hover = -1;
+    } else {
+        mover.at = g.slotOnScreen(mover.cell);
+        // the lift is drawn above the slot; the slot itself is what a drop takes
+        hoverSlotAt(mover.cell);
+        mover.folderHover = 0;   // with buttons a folder takes the title on A, it does not open
+    }
+    const bool into = mover.hover >= 0 && g.openSlot == mover.hover;
+    mover.scale = into ? std::max(HOVER_SHRINK_MIN, mover.scale - HOVER_SHRINK_STEP) : std::min(1.0f, mover.scale + HOVER_SHRINK_STEP);
+    if ((down & CTR_A) && mover.scrollFrame >= PAGE_FRAMES) dropHeld(mover.at.x, mover.at.y);
 }
 
 std::vector<std::pair<int, std::string>> CtrHome::Impl::slotList(const Grid& g) const {
@@ -2766,6 +2844,27 @@ void CtrHome::setWallpaper(bool top, GLuint tex, int w, int h, bool dynamic, boo
     b.host->width = b.host->texWidth = w;
     b.host->height = b.host->texHeight = h;
     gTextureEpoch++;
+}
+
+bool CtrHome::canMoveFocused() const {
+    if (!mLoaded) return false;
+    Impl& I = *mImpl;
+    if (I.state != StIdle) return false;
+    const Grid& g = I.grid();
+    const HomeItem* it = g.onBar ? nullptr : g.item(g.cursor);
+    return it && I.canGrab(g, *it);
+}
+
+bool CtrHome::startMove() {
+    if (!canMoveFocused()) return false;
+    Impl& I = *mImpl;
+    Grid& g = I.grid();
+    const Point p = g.slotOnScreen(g.cursor);
+    I.startGrab(g.cursor, p.x, p.y);
+    if (!I.holding) return false;
+    I.mover.buttons = true;
+    I.mover.cell = g.cursor;
+    return true;
 }
 
 const HomeItem* CtrHome::focusedItem() const {

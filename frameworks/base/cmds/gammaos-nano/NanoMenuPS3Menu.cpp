@@ -11677,7 +11677,7 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             }
             break;
         }
-        case 60:     // 3DS theme folder Settings: Rename / Delete Folder (NanoMenuCtr.cpp)
+        case 60:     // 3DS theme folder Settings: Rename / Move / Delete Folder (NanoMenuCtr.cpp)
             ctrFolderSettingsChosen(sel);
             break;
         case 44: {   // Add to Collection: sel 0 = New Collection... (OSK), else add to collection sel-1
@@ -13467,6 +13467,7 @@ void NanoMenu::mediaCopyToClipboard(const std::string& name) {
 }
 
 void NanoMenu::xmbOptAction(const std::string& act) {
+    if (act == "ctrmove") { ctrStartMove(); return; }   // 3DS theme: lift the focused icon
     if (act.size() >= 2 && act[0] == 'f' && act[1] == 'e') { feAction(act); return; }   // File Explorer ops
     // Imported-media / scan-source folder removal (mPs3OptCtxA is the folder index).
     if (act == "rmmusicfolder") { musicRemoveFolder(mPs3OptCtxA); return; }

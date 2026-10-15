@@ -188,6 +188,11 @@ public:
     // slot): what the host's options menu acts on.
     const HomeItem* focusedTitle() const;
     const HomeItem* focusedItem() const;   // any item under the cursor (a folder too)
+    // Moving with buttons (devices without touch): whether the item under the cursor can be
+    // moved, and lifting it. The D-pad then carries it slot by slot (up from a folder's top row
+    // reaches the header that takes a title out), A puts it down, B takes it back.
+    bool canMoveFocused() const;
+    bool startMove();
     // The HOME Menu theme (null = the default look): a built-in colour theme (builtinThemes()),
     // a theme from the SD card or one made from a colour. The body must outlive its use.
     void setTheme(const ThemeBody* body);

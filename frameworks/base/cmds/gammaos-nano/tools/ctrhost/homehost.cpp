@@ -320,6 +320,8 @@ int main(int argc, char** argv) {
             } else {
                 fprintf(stderr, "theme %s failed: %s\n", dir.c_str(), err.c_str());
             }
+        } else if (cmd == "startmove") {
+            fprintf(stderr, "startmove %d\n", (int)home.startMove());
         } else if (cmd == "home") {
             home.pressHome();
         } else if (cmd == "shot") {

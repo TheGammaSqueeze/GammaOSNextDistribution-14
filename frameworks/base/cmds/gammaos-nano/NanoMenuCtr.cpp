@@ -1491,8 +1491,8 @@ bool NanoMenu::ctrModalTouch(float x, float y) {
 // the current list, so the title is offered as a one item list while it opens.
 bool NanoMenu::ctrOpenOptions() {
     if (!mCtrHome || !mCtrHost) return false;
-    // a user folder's Start is its Settings (Rename, Delete)
-    if (const ctr::HomeItem* f = mCtrHome->focusedItem(); f && mCtrHost->userFolder(f->id)) {
+    // a folder's Start is its Settings (a user folder: Rename, Move, Delete; a system's: Move)
+    if (const ctr::HomeItem* f = mCtrHome->focusedItem(); f && f->kind == ctr::HomeItemKind::Folder) {
         ctrFolderSettings(f->id);
         mCtrHeld = 0;
         return mPs3DlgActive;
@@ -1507,6 +1507,17 @@ bool NanoMenu::ctrOpenOptions() {
     mPs3Stack.push_back(lvl);
     openXmbOpt();
     mPs3Stack.pop_back();
+    if (mPs3OptActive && mCtrHome->canMoveFocused()) {
+        // Move first: arranging the HOME Menu is what the 3DS theme adds to nano's options
+        mPs3OptLabels.insert(mPs3OptLabels.begin(), "Move");
+        mPs3OptActs.insert(mPs3OptActs.begin(), "ctrmove");
+        mPs3OptStart.insert(mPs3OptStart.begin(), 0);
+        mPs3OptSep.insert(mPs3OptSep.begin(), 0);
+        mPs3OptHasSub.insert(mPs3OptHasSub.begin(), 0);
+        mPs3OptSubDef.insert(mPs3OptSubDef.begin(), 0);
+        mPs3OptSubRows.insert(mPs3OptSubRows.begin(), std::vector<Ps3OptSub>());
+        mPs3OptSel++;   // the row A picked before stays the default
+    }
     mCtrHeld = 0;   // the keys held now belong to the menu
     mDisplayDirty = true;
     return mPs3OptActive;
@@ -1515,14 +1526,23 @@ bool NanoMenu::ctrOpenOptions() {
 // A user folder's Settings button (folder-settings.ts): Rename (nano's keyboard, prefilled) or
 // Delete Folder (its titles go back onto the root, as on the console).
 void NanoMenu::ctrFolderSettings(const std::string& folderId) {
-    if (!mCtrHost || !mCtrHost->userFolder(folderId)) return;
+    if (!mCtrHost || !mCtrHome) return;
+    const bool user = mCtrHost->userFolder(folderId);
+    const ctr::HomeItem* f = mCtrHome->focusedItem();
+    const bool focused = f && f->id == folderId;
+    // a system's folder only moves; a user folder also renames and deletes
+    mCtrFolderOpts.clear();
+    if (user) mCtrFolderOpts.push_back("Rename");
+    if (focused && mCtrHome->canMoveFocused()) mCtrFolderOpts.push_back("Move");
+    if (user) mCtrFolderOpts.push_back("Delete Folder");
+    if (mCtrFolderOpts.empty()) return;
     mCtrFolderEdit = folderId;
     mPs3DlgOptions.clear();
     mPs3DlgSwatch.clear();
     mPs3DlgKind = 1; mPs3DlgType = 0; mPs3DlgThemeKey = 60; mPs3DlgBinding = nullptr;
-    mPs3DlgTitle = mCtrHost->mLayout.folders[folderId].name;
+    mPs3DlgTitle = user ? mCtrHost->mLayout.folders[folderId].name : (focused ? f->name : std::string());
     mPs3DlgBody.clear();
-    for (const char* o : {"Rename", "Delete Folder"}) { mPs3DlgOptions.push_back(o); mPs3DlgSwatch.push_back(-1); }
+    for (const std::string& o : mCtrFolderOpts) { mPs3DlgOptions.push_back(o); mPs3DlgSwatch.push_back(-1); }
     mPs3DlgSel = 0; mPs3DlgOrigSel = 0;
     mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
     mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
@@ -1533,8 +1553,11 @@ void NanoMenu::ctrFolderSettings(const std::string& folderId) {
 void NanoMenu::ctrFolderSettingsChosen(int sel) {
     const std::string id = mCtrFolderEdit;
     mCtrFolderEdit.clear();
-    if (!mCtrHost || !mCtrHost->userFolder(id)) return;
-    if (sel == 0) {
+    if (!mCtrHost || sel < 0 || sel >= (int)mCtrFolderOpts.size()) return;
+    const std::string opt = mCtrFolderOpts[sel];
+    if (opt == "Move") { ctrStartMove(); return; }
+    if (!mCtrHost->userFolder(id)) return;
+    if (opt == "Rename") {
         const std::string cur = mCtrHost->mLayout.folders[id].name;
         openOskForPassword("Folder Name", [this, id](const std::string& typed) {
             std::string name = typed;
@@ -1547,11 +1570,19 @@ void NanoMenu::ctrFolderSettingsChosen(int sel) {
         });
         mOskPasswordMode = false; mOskPlaintext = true;   // a name is plain text, not masked
         mOskQuery = cur; mOsk.caret = (int)mOskQuery.size();   // prefill after open (which clears it)
-    } else if (sel == 1) {
+    } else if (opt == "Delete Folder") {
         mCtrHost->deleteFolder(id);
         if (mCtrHome) mCtrHome->reloadItems();
         mDisplayDirty = true;
     }
+}
+
+// Move (nano, for buttons): the focused icon is lifted and the D-pad carries it. The keys held
+// as the menu closes belong to it, so the home sees the next presses only.
+void NanoMenu::ctrStartMove() {
+    if (!mCtrHome || !mCtrHome->startMove()) return;
+    mCtrHeld = 0;
+    mDisplayDirty = true;
 }
 
 // A kind 0 information dialog: shown as a page of paragraphs in the panel. ctrInfoDialog() also
