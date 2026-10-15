@@ -104,7 +104,8 @@ public:
         h.name = it.label;
         if (isContainer(it.kind)) {
             h.kind = ctr::HomeItemKind::Folder;
-            h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint;
+            // PICO-8's is the one system icon kept in its own colours (initIconTextures)
+            h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint && it.iconTex != mMenu->mIconTextures[14];
             mFolders[h.id] = it;
         } else {
             h.kind = ctr::HomeItemKind::Title;

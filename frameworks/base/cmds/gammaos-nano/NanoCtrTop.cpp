@@ -262,7 +262,7 @@ void CtrTop::focus(const TopFocus& f) {
     char tintKey[48] = "";
     if (f.glyphTinted) snprintf(tintKey, sizeof(tintKey), "|%.3f,%.3f,%.3f", f.glyphTint[0], f.glyphTint[1], f.glyphTint[2]);
     const std::string key = show ? spec.model + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) + "|" +
-                                       std::to_string(f.glyph) + tintKey
+                                       std::to_string(f.glyph) + (f.glyphColor ? "c" : "") + tintKey
                                  : std::string();
     if (key == mWantedKey) {
         if (mBanner) mBanner->shown = true;
@@ -509,11 +509,12 @@ void CtrTop::attach() {
     if (mPendingFocus.glyph && b->spec.type == FolderT) {
         for (const auto& p : res->primitives)
             if (p.mesh >= 0 && p.mesh < (int)res->meshes.size() && res->meshes[p.mesh].node == "Folder_00") b->glyphBone = p.bone;
-        const std::string gk = mPendingFocus.key + "|" + std::to_string(mPendingFocus.glyph);
+        const std::string gk = mPendingFocus.key + "|" + std::to_string(mPendingFocus.glyph) + (mPendingFocus.glyphColor ? "c" : "");
         auto it = mGlyphs.find(gk);
         if (it == mGlyphs.end()) {
             auto mesh = std::make_shared<GlyphMesh>();
-            if (!mesh->build(mPendingFocus.glyph, mPendingFocus.glyphW, mPendingFocus.glyphH, 11.0f, 9.6f, 0.0f, 2.9f, 2.6f))
+            if (!mesh->build(mPendingFocus.glyph, mPendingFocus.glyphW, mPendingFocus.glyphH, 11.0f, 9.6f, 0.0f, 2.9f, 2.6f,
+                             mPendingFocus.glyphColor))
                 mesh.reset();
             it = mGlyphs.emplace(gk, mesh).first;
         }
@@ -625,7 +626,13 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
         // the folder's colours (the theme's, else the file's): faces in its main colour, walls in
         // its dark one
         float face[3] = {0.45f, 0.78f, 0.93f}, side[3] = {0.25f, 0.55f, 0.75f};
-        if (b.tinted) {
+        if (b.glyph->coloured()) {
+            // the icon's own colours: the faces as they are, the walls a shade darker
+            for (int i = 0; i < 3; i++) {
+                face[i] = 1.0f;
+                side[i] = 0.62f;
+            }
+        } else if (b.tinted) {
             // the system's own colour (Game Systems tint): faces in it, walls a darker shade
             for (int i = 0; i < 3; i++) {
                 face[i] = b.tint[i];

@@ -2114,12 +2114,21 @@ void CtrHome::Impl::updateChrome() {
                 // icon as a solid on the top screen instead of the folder
                 int gw = 0, gh = 0;
                 CtrHomeHost::IconArt art;
-                if (host->titleIconTexture(*it, &gw, &gh, &art) && art.mono) {
+                const GLuint gl = host->titleIconTexture(*it, &gw, &gh, &art);
+                if (gl && art.mono) {
                     if (TexturePtr t = titleTextureOwn(*it)) {
                         f.glyph = t->id;
                         f.glyphW = t->texWidth > 0 ? t->texWidth : t->width;
                         f.glyphH = t->texHeight > 0 ? t->texHeight : t->height;
                         f.glyphTinted = host->itemTint(*it, f.glyphTint);
+                    }
+                } else if (gl && art.coverAspect <= 0 && !art.pixelArt) {
+                    // a full colour icon (PICO-8's blocks): the solid keeps its own colours
+                    if (TexturePtr t = tintedCopy(gl, gw, gh, 0.999f)) {
+                        f.glyph = t->id;
+                        f.glyphW = t->texWidth > 0 ? t->texWidth : t->width;
+                        f.glyphH = t->texHeight > 0 ? t->texHeight : t->height;
+                        f.glyphColor = true;
                     }
                 }
             }
@@ -2159,7 +2168,7 @@ void CtrHome::Impl::updateChrome() {
             f.key = "empty";
         }
         const std::string k = std::to_string((int)f.kind) + "|" + f.key + "|" + f.plate + "|" + std::to_string(f.icon) +
-                              "|" + std::to_string(f.glyph) +
+                              "|" + std::to_string(f.glyph) + (f.glyphColor ? "c" : "") +
                               (f.glyphTinted ? "|" + std::to_string(f.glyphTint[0]) + "," + std::to_string(f.glyphTint[1]) +
                                                    "," + std::to_string(f.glyphTint[2])
                                              : std::string()) +
@@ -2902,7 +2911,9 @@ void CtrHome::Impl::hudUpdate(bool force) {
 // A derived copy of a GL texture, rendered once: colour scaled to `grey` (alpha kept), and for a
 // cover (coverAspect > 0) fitted whole into a transparent square. Copies are kept per source.
 TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float coverAspect, bool flipY, bool onWhite) {
-    const int kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0) | (onWhite ? 8 : 0);
+    // grey just under 1: a full colour icon copied at the glyph size (not the folder letters' grey)
+    const int kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0) | (onWhite ? 8 : 0) |
+                     (grey >= 0.99f && grey < 1 ? 16 : 0);
     auto cached = tinted.find({src, kind});
     if (cached != tinted.end()) return cached->second;
     static const char* vs = "attribute vec2 p; uniform vec2 s; uniform float f; varying vec2 uv;"

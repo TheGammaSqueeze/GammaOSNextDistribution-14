@@ -35,6 +35,7 @@ struct TopFocus {
     // folder model (its alpha is the shape; rows stored bottom first, like the layout textures).
     unsigned glyph = 0;
     int glyphW = 0, glyphH = 0;
+    bool glyphColor = false;    // a full colour icon: the solid's faces and walls keep its colours
     bool glyphTinted = false;   // the glyph's own colour (a system's tint), else the folder colours
     float glyphTint[3] = {1, 1, 1};
 };

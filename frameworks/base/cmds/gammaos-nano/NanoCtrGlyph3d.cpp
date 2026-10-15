@@ -15,7 +15,7 @@ namespace ctr {
 
 GLuint GlyphMesh::sProgram = 0;
 GLint GlyphMesh::sMv = -1, GlyphMesh::sProj = -1, GlyphMesh::sNm = -1, GlyphMesh::sFace = -1, GlyphMesh::sSide = -1,
-      GlyphMesh::sLight = -1, GlyphMesh::sCap = -1;
+      GlyphMesh::sLight = -1, GlyphMesh::sCap = -1, GlyphMesh::sHasColor = -1, GlyphMesh::sColorMap = -1;
 
 namespace {
 
@@ -50,7 +50,10 @@ precision highp float;
 precision mediump float;
 #endif
 uniform sampler2D u_sdf;
+uniform sampler2D u_color;
 uniform float u_cap;
+uniform float u_hasColor;
+uniform vec4 u_colorMap;
 uniform vec3 u_face;
 uniform vec3 u_side;
 uniform vec3 u_light;
@@ -66,6 +69,10 @@ void main() {
     float diffuse = max(dot(n, l), 0.0);
     float spec = pow(max(dot(n, h), 0.0), 28.0);
     vec3 base = u_cap > 0.5 ? u_face : u_side;
+    if (u_hasColor > 0.5) {
+        vec2 c = vec2(v_uv.x * u_colorMap.x + u_colorMap.y, v_uv.y * u_colorMap.z + u_colorMap.w);
+        base *= texture2D(u_color, c).rgb;
+    }
     gl_FragColor = vec4(base * (0.55 + 0.5 * diffuse) + vec3(0.16) * spec, 1.0);
 }
 )";
@@ -182,7 +189,8 @@ void GlyphMesh::releaseGl() {
     if (mVbo) glDeleteBuffers(1, &mVbo);
     if (mIbo) glDeleteBuffers(1, &mIbo);
     if (mSdf) glDeleteTextures(1, &mSdf);
-    mVbo = mIbo = mSdf = 0;
+    if (mColor) glDeleteTextures(1, &mColor);
+    mVbo = mIbo = mSdf = mColor = 0;
     mSideIndices = mCapIndices = 0;
 }
 
@@ -191,7 +199,7 @@ void GlyphMesh::releaseProgram() {
     sProgram = 0;
 }
 
-bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, float cx, float cy, float depth) {
+bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, float cx, float cy, float depth, bool colour) {
     releaseGl();
     if (!texture || w <= 1 || h <= 1) return false;
     // the glyph's pixels
@@ -242,6 +250,34 @@ bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, floa
         }
     }
     if (bx1 < 0) return false;   // an empty glyph
+    if (colour) {
+        // the icon's own colours for the faces and walls, its blocks kept sharp (nearest); alpha
+        // is the shape, so it is dropped (fully opaque colours, the edge texels unblended)
+        std::vector<uint8_t> rgb((size_t)w * h * 3);
+        for (size_t i = 0; i < (size_t)w * h; i++) {
+            const int a = rgba[i * 4 + 3];
+            for (int c = 0; c < 3; c++) {
+                // un-premultiply what the copy blended onto transparent black at the edges
+                const int v = a > 0 ? rgba[i * 4 + c] * 255 / a : 0;
+                rgb[i * 3 + c] = (uint8_t)std::min(255, v);
+            }
+        }
+        glGenTextures(1, &mColor);
+        glBindTexture(GL_TEXTURE_2D, mColor);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, rgb.data());
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        // a face uv u = (x + 0.5) / n (x a field pixel) is texture pixel (x - margin + 0.5) / kUpsample
+        mColorMap[0] = (float)n / (kUpsample * w);
+        mColorMap[1] = (float)(-margin) / (kUpsample * w);
+        mColorMap[2] = (float)n / (kUpsample * h);
+        mColorMap[3] = (float)(-margin) / (kUpsample * h);
+    }
     // signed distance (field pixels, negative inside), the anti-aliased alpha refining it near the edge
     const std::vector<float> dOut = edt2d(inside, n), dIn = edt2d(outside, n);
     std::vector<float> sd((size_t)n * n);
@@ -425,11 +461,15 @@ bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, floa
             };
             const P2 na = wallNormal(a), nb = wallNormal(b);
             if (verts.size() / 8 + 4 > 65535) break;
-            // normals from field space (y down) into model space (y up)
-            const uint16_t i0 = vertex(toModelX(a.x), toModelY(a.y), hz, na.x, -na.y, 0, 0, 0);
-            const uint16_t i1 = vertex(toModelX(b.x), toModelY(b.y), hz, nb.x, -nb.y, 0, 0, 0);
-            const uint16_t i2 = vertex(toModelX(b.x), toModelY(b.y), -hz, nb.x, -nb.y, 0, 0, 0);
-            const uint16_t i3 = vertex(toModelX(a.x), toModelY(a.y), -hz, na.x, -na.y, 0, 0, 0);
+            // normals from field space (y down) into model space (y up); a wall's uv is a point a
+            // little inside the outline (its colour, for a full colour icon)
+            const float inX = -segN.x * 1.5f, inY = -segN.y * 1.5f;
+            const float ua = (a.x + inX + 0.5f) / n, va = (a.y + inY + 0.5f) / n;
+            const float ub = (b.x + inX + 0.5f) / n, vb = (b.y + inY + 0.5f) / n;
+            const uint16_t i0 = vertex(toModelX(a.x), toModelY(a.y), hz, na.x, -na.y, 0, ua, va);
+            const uint16_t i1 = vertex(toModelX(b.x), toModelY(b.y), hz, nb.x, -nb.y, 0, ub, vb);
+            const uint16_t i2 = vertex(toModelX(b.x), toModelY(b.y), -hz, nb.x, -nb.y, 0, ub, vb);
+            const uint16_t i3 = vertex(toModelX(a.x), toModelY(a.y), -hz, na.x, -na.y, 0, ua, va);
             idx.insert(idx.end(), {i0, i1, i2, i0, i2, i3});
         }
     }
@@ -494,8 +534,11 @@ void GlyphMesh::draw(const float modelView[16], const float projection[16], cons
         sSide = glGetUniformLocation(sProgram, "u_side");
         sLight = glGetUniformLocation(sProgram, "u_light");
         sCap = glGetUniformLocation(sProgram, "u_cap");
+        sHasColor = glGetUniformLocation(sProgram, "u_hasColor");
+        sColorMap = glGetUniformLocation(sProgram, "u_colorMap");
         glUseProgram(sProgram);
         glUniform1i(glGetUniformLocation(sProgram, "u_sdf"), 0);
+        glUniform1i(glGetUniformLocation(sProgram, "u_color"), 1);
     }
     glUseProgram(sProgram);
     float nm[9];
@@ -506,6 +549,12 @@ void GlyphMesh::draw(const float modelView[16], const float projection[16], cons
     glUniform3fv(sFace, 1, face);
     glUniform3fv(sSide, 1, side);
     glUniform3fv(sLight, 1, light);
+    glUniform1f(sHasColor, mColor ? 1.0f : 0.0f);
+    glUniform4fv(sColorMap, 1, mColorMap);
+    if (mColor) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mColor);
+    }
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDepthMask(GL_TRUE);
@@ -527,6 +576,11 @@ void GlyphMesh::draw(const float modelView[16], const float projection[16], cons
     for (int a = 0; a < 3; a++) glDisableVertexAttribArray(a);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    if (mColor) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0);
+    }
 }
 
 }  // namespace ctr

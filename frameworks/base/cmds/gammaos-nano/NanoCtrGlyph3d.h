@@ -23,7 +23,10 @@ public:
     // Reads the glyph's alpha from a GL texture (w x h, rows top first) and builds the mesh, fitted
     // into a box of boxW x boxH units centred on (cx, cy), `depth` units thick. False when the
     // glyph is empty or the texture cannot be read.
-    bool build(GLuint texture, int w, int h, float boxW, float boxH, float cx, float cy, float depth);
+    // colour: a full colour icon (PICO-8's blocks): the faces show its own pixels and each wall the
+    // colour just inside it; face / side in draw() then scale those colours.
+    bool build(GLuint texture, int w, int h, float boxW, float boxH, float cx, float cy, float depth, bool colour = false);
+    bool coloured() const { return mColor != 0; }
     // Draws with the given model view and projection (column major), into the bound target with
     // depth testing. face / side: linear RGB colours of the faces and the walls; light: direction
     // the light travels, in view space.
@@ -34,10 +37,11 @@ public:
     static void releaseProgram();   // the shared program (context loss, park)
 
 private:
-    GLuint mVbo = 0, mIbo = 0, mSdf = 0;
+    GLuint mVbo = 0, mIbo = 0, mSdf = 0, mColor = 0;
+    float mColorMap[4] = {1, 0, 1, 0};   // face uv -> colour texture uv (scale, offset per axis)
     int mSideIndices = 0, mCapIndices = 0;   // sides first, then the two caps
     static GLuint sProgram;
-    static GLint sMv, sProj, sNm, sFace, sSide, sLight, sCap;
+    static GLint sMv, sProj, sNm, sFace, sSide, sLight, sCap, sHasColor, sColorMap;
 };
 
 }  // namespace ctr
