@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <map>
+#include <set>
 #include <cmath>
 #include <cstring>
 #include <ctime>
@@ -748,6 +749,7 @@ struct CtrHome::Impl {
     void followBackground(Background& b, bool top, bool follow);
     void updateBackgrounds();
     std::map<std::pair<GLuint, int>, TexturePtr> tinted;   // derived icons by source texture + kind
+    std::vector<TexturePtr> tintedRetired;                 // the last category's, freed at the next switch
     GLuint tintProgram = 0;
     // a title without art: a box with its initial (grid) or the box's face (top screen card),
     // kept per initial
@@ -3233,6 +3235,7 @@ TexturePtr CtrHome::Impl::titleTextureOwn(const HomeItem& it) {
         if (gen != artGen) {
             artGen = gen;
             tinted.clear();
+            tintedRetired.clear();
             boxArt.clear();
             hostTex.clear();   // a reused GL name carries other sampler state
             gTextureEpoch++;
@@ -3459,6 +3462,7 @@ void CtrHome::releaseGl() {
     if (mImpl) mAssets->renderer().releaseCache(mImpl->bottomCache);
     if (mImpl) mImpl->iconTex.clear();
     if (mImpl) mImpl->tinted.clear();
+    if (mImpl) mImpl->tintedRetired.clear();
     if (mImpl) mImpl->hostTex.clear();
     if (mImpl && mImpl->tintProgram) { glDeleteProgram(mImpl->tintProgram); mImpl->tintProgram = 0; }
     if (mImpl && mImpl->top3d) mImpl->top3d->releaseGl();
@@ -3473,6 +3477,7 @@ void CtrHome::parkGl() {
     I.bottomSig = 0;
     I.iconTex.clear();
     I.tinted.clear();
+    I.tintedRetired.clear();
     I.hostTex.clear();
     I.boxArt.clear();
     if (I.tintProgram) { glDeleteProgram(I.tintProgram); I.tintProgram = 0; }
@@ -4201,6 +4206,28 @@ void CtrHome::Impl::applyCategory() {
     scroller.stop();
     showNameBalloon = false;
     iconTex.clear();
+    // the last category's coloured glyph copies (about 340 KB each) and the copies made from them
+    // leave the cache (a return redraws them). They are released at the next switch, not now: the
+    // leaving banner may still draw one, and a freed GL name could come back under a stale key.
+    tintedRetired.clear();
+    std::set<GLuint> retired;
+    for (auto it = tinted.begin(); it != tinted.end();) {
+        if (it->first.second & 32) {
+            if (it->second) retired.insert(it->second->id);
+            tintedRetired.push_back(std::move(it->second));
+            it = tinted.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    for (auto it = tinted.begin(); it != tinted.end();) {
+        if (retired.count(it->first.first)) {
+            tintedRetired.push_back(std::move(it->second));
+            it = tinted.erase(it);
+        } else {
+            ++it;
+        }
+    }
     gTextureEpoch++;
     sound("SE_CTR_HOME_ICON_SCROLL");
 }
