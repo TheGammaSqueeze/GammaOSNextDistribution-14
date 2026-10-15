@@ -38,6 +38,10 @@
 #include <dirent.h>
 #include <string.h>
 #include <vector>
+#include <atomic>
+#include <thread>
+#include <condition_variable>
+#include <mutex>
 #include <string>
 
 // Self-contained JPEG/PNG/BMP decoder for user album art (no Skia / libjpeg
@@ -54,6 +58,8 @@
 #include <png.h>
 
 #include <utils/Log.h>
+#include <utils/SystemClock.h>
+#include <algorithm>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -962,7 +968,15 @@ GLuint NanoMenu::uiIconTexForIcon(int iconIndex) {
 // RetroArch icon set and user PNGs get the identical glass relight. Returns a
 // GL texture (R=nx, G=ny, B=255, A=original silhouette), 0 on failure.
 GLuint NanoMenu::bevelFromRGBA(const uint8_t* px, int w, int h) {
-    if (!px || w < 4 || h < 4) return 0;
+    IconPx b;
+    bevelPixels(px, w, h, &b);
+    return b.ok ? uploadRGBA(b.px.data(), b.w, b.h) : 0;
+}
+
+// The CPU side of bevelFromRGBA (no GL: runs on the prefetch workers too).
+void NanoMenu::bevelPixels(const uint8_t* px, int w, int h, IconPx* outPx) const {
+    outPx->ok = false;
+    if (!px || w < 4 || h < 4) return;
     // Right-size to the panel before generating the bevel. The bevel is a smooth,
     // low-frequency relight field drawn at the console-icon size, so a 256 source
     // is oversized on a small panel; this both shrinks the GPU texture and speeds
@@ -1049,7 +1063,157 @@ GLuint NanoMenu::bevelFromRGBA(const uint8_t* px, int w, int h) {
             nmap[o + 3] = px[(size_t)(y * w + x) * 4 + 3];   // original silhouette
         }
     }
-    return uploadRGBA(nmap.data(), w, h);
+    outPx->px = std::move(nmap);
+    outPx->w = w;
+    outPx->h = h;
+    outPx->mip = false;
+    outPx->ok = true;
+}
+
+bool ps3DecodeIconFile(const char* file, std::vector<unsigned char>* out, int* ow, int* oh);   // NanoMenuPS3Menu.cpp
+GLuint ps3UploadIconTex(const uint8_t* up, int w, int h);
+
+GLuint NanoMenu::uploadIconPx(const IconPx& p) {
+    if (!p.ok || p.w <= 0 || p.h <= 0) return 0;
+    return p.mip ? ps3UploadIconTex(p.px.data(), p.w, p.h) : uploadRGBA(p.px.data(), p.w, p.h);
+}
+
+// iconTexForIcon's pixels: a framework UI icon's plain silhouette, else xmb_icon_NNN.png whitened
+// (uploaded mipmapped, as loadPs3IconTex does).
+void NanoMenu::iconPixels(int iconIndex, IconPx* out) const {
+    out->ok = false;
+    if (iconIndex < 0) return;
+    if (iconIndex >= kUiIconBase) {
+        const char* name = uiIconName(iconIndex);
+        if (!name) return;
+        char path[256];
+        snprintf(path, sizeof(path), "/data/system/nano_xmb/icons_ui/%s.png", name);
+        bool ok = decodeRGBA(path, nullptr, 0, &out->w, &out->h, &out->px, false);
+        if (!ok) {
+            snprintf(path, sizeof(path), "/system/etc/nano_xmb/icons_ui/%s.png", name);
+            ok = decodeRGBA(path, nullptr, 0, &out->w, &out->h, &out->px, false);
+        }
+        out->ok = ok && out->w >= 4 && out->h >= 4;
+        out->mip = false;
+        return;
+    }
+    char file[32];
+    snprintf(file, sizeof(file), "xmb_icon_%03d.png", iconIndex);
+    out->ok = ps3DecodeIconFile(file, &out->px, &out->w, &out->h);
+    out->mip = true;
+}
+
+// nmapForIcon's pixels: a framework UI icon bevelled from its silhouette, else nmap_NNN.png.
+void NanoMenu::nmapPixels(int iconIndex, IconPx* out) const {
+    out->ok = false;
+    if (iconIndex < 0) return;
+    char path[256];
+    std::vector<uint8_t> px;
+    int w = 0, h = 0;
+    if (iconIndex >= kUiIconBase) {
+        const char* name = uiIconName(iconIndex);
+        if (!name) return;
+        snprintf(path, sizeof(path), "/data/system/nano_xmb/icons_ui/%s.png", name);
+        bool ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, true);
+        if (!ok) {
+            snprintf(path, sizeof(path), "/system/etc/nano_xmb/icons_ui/%s.png", name);
+            ok = decodeRGBA(path, nullptr, 0, &w, &h, &px, true);
+        }
+        if (ok && w >= 4 && h >= 4) bevelPixels(px.data(), w, h, out);
+        return;
+    }
+    snprintf(path, sizeof(path), "/data/system/nano_xmb/normalmaps/nmap_%03d.png", iconIndex);
+    bool ok = decodeRGBA(path, nullptr, 0, &out->w, &out->h, &out->px, false);
+    if (!ok) {
+        snprintf(path, sizeof(path), "/system/etc/nano_xmb/normalmaps/nmap_%03d.png", iconIndex);
+        ok = decodeRGBA(path, nullptr, 0, &out->w, &out->h, &out->px, false);
+    }
+    out->ok = ok;
+    out->mip = false;
+}
+
+// bevelForIconIdx's pixels: the embedded console icon's alpha bevelled.
+void NanoMenu::bevelIdxPixels(int iconIdx, IconPx* out) const {
+    out->ok = false;
+    if (iconIdx < 0 || iconIdx >= 21) return;
+    std::vector<uint8_t> px;
+    int w = 0, h = 0;
+    if (!decodeRGBA(nullptr, kEmbeddedIcons[iconIdx].data, kEmbeddedIcons[iconIdx].size, &w, &h, &px, true) || w < 4 || h < 4)
+        return;
+    bevelPixels(px.data(), w, h, out);
+}
+
+// After an overlay park: the icons, normal maps and bevels the park dropped (and the category
+// icons) are decoded on worker threads (PNG inflate and the bevel blur were most of the raise)
+// while this thread uploads them in order straight into their caches, so the category rebuild
+// that follows finds them. The workers stay at most kAhead icons ahead of the uploads, which keeps
+// the decoded pixels in flight to a few MB (all at once was 38 MB, next to a running app).
+void NanoMenu::iconPrefetchParked() {
+    struct Job { int kind, idx; IconPx out; bool done = false; };
+    std::vector<Job> jobs;
+    for (int i : mParkedIconIdx) jobs.push_back({0, i, {}});
+    for (int i : mParkedNmapIdx) jobs.push_back({1, i, {}});
+    for (int i : mParkedBevelIdx) jobs.push_back({2, i, {}});
+    for (int i = 0; i < 7; i++) jobs.push_back({3, i, {}});   // the category icons (ps3LoadCatIcons)
+    mParkedIconIdx.clear();
+    mParkedNmapIdx.clear();
+    mParkedBevelIdx.clear();
+    const int64_t t0 = uptimeMillis();
+    constexpr size_t kAhead = 12;
+    std::mutex mu;
+    std::condition_variable cv;
+    size_t next = 0, uploaded = 0, inFlight = 0, peak = 0;
+    auto work = [&]() {
+        for (;;) {
+            size_t k;
+            {
+                std::unique_lock<std::mutex> lk(mu);
+                cv.wait(lk, [&] { return next >= jobs.size() || next < uploaded + kAhead; });
+                if (next >= jobs.size()) return;
+                k = next++;
+            }
+            Job& j = jobs[k];
+            if (j.kind == 0) iconPixels(j.idx, &j.out);
+            else if (j.kind == 1) nmapPixels(j.idx, &j.out);
+            else if (j.kind == 2) bevelIdxPixels(j.idx, &j.out);
+            else catIconPixels(j.idx, &j.out);
+            {
+                std::lock_guard<std::mutex> lk(mu);
+                j.done = true;
+                inFlight += j.out.px.size();
+                peak = std::max(peak, inFlight);
+            }
+            cv.notify_all();
+        }
+    };
+    const unsigned hw = std::max(1u, std::thread::hardware_concurrency());
+    const int threads = (int)std::min<size_t>(jobs.size(), std::min(4u, hw));
+    std::vector<std::thread> pool;
+    for (int t = 0; t < threads; t++) pool.emplace_back(work);
+    for (size_t k = 0; k < jobs.size(); k++) {
+        {
+            std::unique_lock<std::mutex> lk(mu);
+            cv.wait(lk, [&] { return jobs[k].done; });
+        }
+        Job& j = jobs[k];
+        const size_t bytes = j.out.px.size();
+        if (j.kind == 3) {
+            mCatPx[j.idx] = std::move(j.out);   // ps3LoadCatIcons uploads them
+        } else {
+            auto& cache = j.kind == 0 ? mPs3IconTexByIndex : j.kind == 1 ? mPs3NmapByIcon : mPs3BevelByIconIdx;
+            if (!cache.count(j.idx)) cache[j.idx] = uploadIconPx(j.out);
+            j.out = IconPx();
+        }
+        {
+            std::lock_guard<std::mutex> lk(mu);
+            uploaded = k + 1;
+            if (j.kind != 3) inFlight -= bytes;
+        }
+        cv.notify_all();
+    }
+    for (auto& t : pool) t.join();
+    ALOGI("overlay: %zu icons decoded on %d threads in %lld ms (at most %zu KB in flight)", jobs.size(), threads,
+          (long long)(uptimeMillis() - t0), peak / 1024);
 }
 
 // Favourites loveheart, rasterised from the implicit heart curve so no PNG asset is needed.

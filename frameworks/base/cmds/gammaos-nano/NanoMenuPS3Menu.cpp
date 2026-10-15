@@ -188,7 +188,31 @@ static void ps3BoxDownscaleRGBA(const uint8_t* src, int sw, int sh,
 
 // maxSize>0 right-sizes the category icon to the panel (source art is 512 but is
 // drawn at <=CAT_ICON_ACTIVE px); 0 keeps full resolution.
+GLuint ps3UploadIconTex(const uint8_t* up, int w, int h);
+
+// The decode half of loadPs3IconTex at full size (white silhouette over the art's alpha); no GL.
+bool ps3DecodeIconFile(const char* file, std::vector<unsigned char>* out, int* ow, int* oh);
+
 static GLuint loadPs3IconTex(const char* file, int maxSize = 0) {
+    std::vector<unsigned char> pixels;
+    int w = 0, h = 0;
+    if (!ps3DecodeIconFile(file, &pixels, &w, &h)) return 0;
+    // Right-size to the panel before upload (no perceptible change: the icon is
+    // drawn far below its source resolution; high-DPI panels keep the full size).
+    const uint8_t* up = pixels.data();
+    std::vector<unsigned char> scaled;
+    if (maxSize > 0 && (w > maxSize || h > maxSize)) {
+        int dw = w, dh = h;
+        if (w >= h) { dw = maxSize; dh = (int)((long)h * maxSize / w); }
+        else        { dh = maxSize; dw = (int)((long)w * maxSize / h); }
+        if (dw < 1) dw = 1; if (dh < 1) dh = 1;
+        ps3BoxDownscaleRGBA(pixels.data(), w, h, dw, dh, scaled);
+        up = scaled.data(); w = dw; h = dh;
+    }
+    return ps3UploadIconTex(up, w, h);
+}
+
+bool ps3DecodeIconFile(const char* file, std::vector<unsigned char>* out, int* ow, int* oh) {
     char path[256];
     FILE* fp = nullptr;
     snprintf(path, sizeof(path), "/data/system/nano_xmb/icons/%s", file);
@@ -225,18 +249,14 @@ static GLuint loadPs3IconTex(const char* file, int maxSize = 0) {
     png_destroy_read_struct(&png, &info, nullptr);
     fclose(fp);
     for (size_t i = 0; i + 3 < pixels.size(); i += 4) { pixels[i] = 255; pixels[i+1] = 255; pixels[i+2] = 255; }
-    // Right-size to the panel before upload (no perceptible change: the icon is
-    // drawn far below its source resolution; high-DPI panels keep the full size).
-    const uint8_t* up = pixels.data();
-    std::vector<unsigned char> scaled;
-    if (maxSize > 0 && (w > maxSize || h > maxSize)) {
-        int dw = w, dh = h;
-        if (w >= h) { dw = maxSize; dh = (int)((long)h * maxSize / w); }
-        else        { dh = maxSize; dw = (int)((long)w * maxSize / h); }
-        if (dw < 1) dw = 1; if (dh < 1) dh = 1;
-        ps3BoxDownscaleRGBA(pixels.data(), w, h, dw, dh, scaled);
-        up = scaled.data(); w = dw; h = dh;
-    }
+    *out = std::move(pixels);
+    *ow = w;
+    *oh = h;
+    return true;
+}
+
+// The upload half of loadPs3IconTex: mipmapped, clamped (also for icons decoded off thread).
+GLuint ps3UploadIconTex(const uint8_t* up, int w, int h) {
     GLuint tex = 0;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -621,22 +641,52 @@ NanoMenu::Ps3Item NanoMenu::makeDataItem(const Ps3DataItem* d, const std::string
 // after the parked overlay dropped them: any previous texture is deleted first and the
 // normal maps come back through nmapForIcon's cache (refilled on a miss). Callers that
 // copied the old handles into Ps3Cat/Ps3Item entries must rebuild them (buildPs3Cats).
-void NanoMenu::ps3LoadCatIcons() {
-    static const char* kCatIconFiles[6] = {
-        "xmb_icon_001.png", "xmb_icon_002.png", "xmb_icon_003.png",
-        "xmb_icon_004.png", "xmb_icon_005.png", "xmb_icon_006.png",
-    };
-    const int catCap = ps3::iconTexCap(mWidth, mHeight, ps3::CAT_ICON_ACTIVE, 512);
-    for (int i = 0; i < 6; i++) {
-        if (mPs3CatTex[i]) glDeleteTextures(1, &mPs3CatTex[i]);
-        mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i], catCap);
-        mPs3CatNmap[i] = nmapForIcon(i + 1);   // category icons are xmb_icon 1..6
+// Category icon files: the six DATA categories (xmb_icon 1..6), then the Quick Menu's power glyph.
+static const char* const kCatIconFiles[7] = {
+    "xmb_icon_001.png", "xmb_icon_002.png", "xmb_icon_003.png",
+    "xmb_icon_004.png", "xmb_icon_005.png", "xmb_icon_006.png", "xmb_icon_054.png",
+};
+
+// A category icon decoded and right-sized off the GL thread (iconPrefetchParked).
+void NanoMenu::catIconPixels(int slot, IconPx* out) const {
+    out->ok = false;
+    if (slot < 0 || slot >= 7) return;
+    int w = 0, h = 0;
+    std::vector<unsigned char> px;
+    if (!ps3DecodeIconFile(kCatIconFiles[slot], &px, &w, &h)) return;
+    const int cap = ps3::iconTexCap(mWidth, mHeight, ps3::CAT_ICON_ACTIVE, 512);
+    if (cap > 0 && (w > cap || h > cap)) {
+        int dw = w, dh = h;
+        if (w >= h) { dw = cap; dh = (int)((long)h * cap / w); }
+        else        { dh = cap; dw = (int)((long)w * cap / h); }
+        if (dw < 1) dw = 1;
+        if (dh < 1) dh = 1;
+        ps3BoxDownscaleRGBA(px.data(), w, h, dw, dh, out->px);
+        w = dw;
+        h = dh;
+    } else {
+        out->px = std::move(px);
     }
-    // Quick Menu category icon (free slot 6): the xmb_icon_054 power glyph + its
-    // glass normal map, so the new category renders the live-wave glass effect.
-    if (mPs3CatTex[6]) glDeleteTextures(1, &mPs3CatTex[6]);
-    mPs3CatTex[6]  = loadPs3IconTex("xmb_icon_054.png", catCap);
-    mPs3CatNmap[6] = nmapForIcon(54);
+    out->w = w;
+    out->h = h;
+    out->mip = true;
+    out->ok = true;
+}
+
+void NanoMenu::ps3LoadCatIcons() {
+    const int catCap = ps3::iconTexCap(mWidth, mHeight, ps3::CAT_ICON_ACTIVE, 512);
+    // slots 0..5 the DATA categories (normal maps xmb 1..6), 6 the Quick Menu (its glass normal
+    // map 54, so the category renders the live-wave glass effect)
+    for (int i = 0; i < 7; i++) {
+        if (mPs3CatTex[i]) glDeleteTextures(1, &mPs3CatTex[i]);
+        if (mCatPx[i].ok) {
+            mPs3CatTex[i] = uploadIconPx(mCatPx[i]);   // decoded ahead after a park
+            mCatPx[i] = IconPx();
+        } else {
+            mPs3CatTex[i] = loadPs3IconTex(kCatIconFiles[i], catCap);
+        }
+        mPs3CatNmap[i] = nmapForIcon(i < 6 ? i + 1 : 54);
+    }
 }
 
 void NanoMenu::initPs3Menu() {

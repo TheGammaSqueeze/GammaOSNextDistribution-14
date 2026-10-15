@@ -5118,6 +5118,19 @@ private:
     GLuint uiIconTexForIcon(int iconIndex);// framework UI icon (idx>=kUiIconBase): mono silhouette as a plain tex (else 0)
     GLuint bevelForIconIdx(int iconIdx);   // bevel normal from a console icon's alpha
     GLuint bevelFromRGBA(const uint8_t* px, int w, int h);   // bevel normal from any silhouette buffer
+    // The CPU side of the icon loaders (safe off the GL thread): decoded / bevelled pixels ready to
+    // upload. After an overlay park the icons the menu had are decoded on worker threads and
+    // uploaded before the rebuild (iconPrefetchParked), so the rebuild finds them cached.
+    struct IconPx { std::vector<uint8_t> px; int w = 0, h = 0; bool mip = false; bool ok = false; };
+    void bevelPixels(const uint8_t* px, int w, int h, IconPx* out) const;
+    void iconPixels(int iconIndex, IconPx* out) const;    // iconTexForIcon's (NanoMenuPS3Menu.cpp)
+    void nmapPixels(int iconIndex, IconPx* out) const;    // nmapForIcon's
+    void bevelIdxPixels(int iconIdx, IconPx* out) const;  // bevelForIconIdx's
+    void catIconPixels(int slot, IconPx* out) const;      // ps3LoadCatIcons' (slot 0..6, right-sized)
+    IconPx mCatPx[7];
+    GLuint uploadIconPx(const IconPx& p);
+    void iconPrefetchParked();
+    std::vector<int> mParkedIconIdx, mParkedNmapIdx, mParkedBevelIdx;  // what the park dropped
     // Favourites loveheart icon, rasterised procedurally from the implicit heart curve (no PNG
     // asset needed): a white-on-alpha silhouette uploaded as the flat colour tex (DSi/Minima tint
     // it red) and beveled into a normal map for the XMB glass relight. Lazily built + cached.

@@ -656,6 +656,13 @@ void NanoMenu::overlayGpuPark() {
             it = m.erase(it);
         }
     };
+    // what goes is decoded again on worker threads before the raise rebuilds (iconPrefetchParked)
+    auto dropped = [&keep](const auto& m, std::vector<int>& into) {
+        for (const auto& kv : m) if (!keep(kv.second)) into.push_back(kv.first);
+    };
+    dropped(mPs3NmapByIcon, mParkedNmapIdx);
+    dropped(mPs3IconTexByIndex, mParkedIconIdx);
+    dropped(mPs3BevelByIconIdx, mParkedBevelIdx);
     dropMap(mPs3NmapByIcon);
     dropMap(mPs3IconTexByIndex);
     dropMap(mPs3BevelByIconIdx);
@@ -725,11 +732,16 @@ void NanoMenu::overlayGpuPark() {
 // rebuild the categories so the Ps3Cat/Ps3Item handle copies are fresh. Everything
 // else refills lazily as it is drawn.
 void NanoMenu::overlayGpuUnpark() {
+    const int64_t tu0 = uptimeMillis();
+    int64_t tGlass = 0, tCat = 0, tRebuild = 0;
     if (!mPs3MenuBuilt) {
         initPs3Menu();
     } else if (mOverlayGpuParked) {
+        iconPrefetchParked();   // the dropped icons decoded on worker threads; the rebuild uploads them
         initGlassIcons();
+        tGlass = uptimeMillis();
         ps3LoadCatIcons();
+        tCat = uptimeMillis();
         // Point the open levels that copied a category icon (Home Categories, the Quick Menu
         // power row) at the reloaded one; their other icons were kept alive by overlayGpuPark.
         for (int i = 0; i < 7; i++) {
@@ -746,6 +758,8 @@ void NanoMenu::overlayGpuUnpark() {
         // the Game column; the plain rebuild kept the old item index, so after the first
         // ever game the home came back one tile early (a NDS launch landed on N64).
         rebuildPs3CatsPreserveSel();
+        tRebuild = uptimeMillis();
+        for (IconPx& c : mCatPx) c = IconPx();   // (ps3LoadCatIcons took them; nothing left over)
     }
     // (the 3DS theme draws no wave: a screen that falls back to the XMB chrome loads it on demand
     // in renderEffect, so the raise does not wait for it)
@@ -760,7 +774,11 @@ void NanoMenu::overlayGpuUnpark() {
         mArtGeneration++;
         mCtrHome->reloadItems();
     }
-    if (mOverlayGpuParked) ALOGI("overlay: raised, XMB GPU working set rebuilt");
+    if (mOverlayGpuParked)
+        ALOGI("overlay: raised, XMB GPU working set rebuilt in %lld ms (glass %lld, cat icons %lld, cats %lld, rest %lld)",
+              (long long)(uptimeMillis() - tu0), (long long)(tGlass ? tGlass - tu0 : 0),
+              (long long)(tCat ? tCat - tGlass : 0), (long long)(tRebuild ? tRebuild - tCat : 0),
+              (long long)(uptimeMillis() - (tRebuild ? tRebuild : tu0)));
     mOverlayGpuParked = false;
 }
 
