@@ -733,6 +733,14 @@ int main(int argc, char** argv) {
         }
         // The override may carry a driver environment of its own.
         exportEnvProp();
+        // Core switches the override may carry (the lighting approximations): the core reads
+        // sys.gammaos.azahar_nano.<key> first and the persist prop second, so the override
+        // value (or the global one when the override has no line) is published per launch
+        // without touching the global persist props.
+        for (const char* key : {"light_max", "no_shadow_map"}) {
+            const std::string v = prop((std::string("persist.gammaos.azahar_nano.") + key).c_str(), "");
+            property_set((std::string("sys.gammaos.azahar_nano.") + key).c_str(), v.c_str());
+        }
     }
     const std::string backend = prop("persist.gammaos.azahar_nano.backend", "sf");
     ALOGI("rom=%s core=%s user=%s backend=%s", rom.c_str(), coreLib.c_str(), userDir.c_str(),

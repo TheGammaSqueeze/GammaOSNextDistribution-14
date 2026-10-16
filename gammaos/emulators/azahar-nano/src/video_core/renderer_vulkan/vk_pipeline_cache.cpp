@@ -23,6 +23,7 @@
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/renderer_vulkan/vk_gammaos_gpu_timer.h"
 #include <fstream>
+#include "video_core/renderer_vulkan/vk_gammaos_game_prop.h"
 
 namespace {
 // GammaOS fragment generator switches, persist.gammaos.azahar_nano.<key> (on unless 0).
@@ -30,6 +31,13 @@ u8 GammaFsProp(const char* key) {
     char v[PROP_VALUE_MAX] = {};
     __system_property_get((std::string("persist.gammaos.azahar_nano.") + key).c_str(), v);
     return v[0] == '0' ? 0 : 1;
+}
+// Approximation switches, persist.gammaos.azahar_nano.<key>: a number, 0 (default) = off.
+u8 GammaFsPropInt(const char* key) {
+    char v[PROP_VALUE_MAX] = {};
+    GammaGameProp::Get(key, v);
+    const int n = atoi(v);
+    return static_cast<u8>(n < 0 ? 0 : n > 255 ? 255 : n);
 }
 } // namespace
 #include <algorithm>
@@ -149,6 +157,8 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         // disk shader cache regenerates when it is switched.
         .fs_mediump = Settings::values.gammaos_fs_mediump,
         .light_skip = GammaFsProp("light_skip"),
+        .no_shadow = GammaFsPropInt("no_shadow_map"),
+        .light_max = GammaFsPropInt("light_max"),
         .vk_use_spirv_generator = Settings::values.spirv_shader_gen.GetValue(),
         .is_vulkan = true,
     };

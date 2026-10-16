@@ -1,4 +1,5 @@
 #include <sys/system_properties.h>
+#include <algorithm>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
@@ -470,8 +471,14 @@ void FragmentModule::WriteLighting() {
         }
     };
 
+    // GammaOS approximation (Profile::light_max): only the first light_max slots are
+    // emulated; the Fresnel term then applies to the last emulated slot.
+    const u32 num_lights = profile.light_max != 0
+                               ? std::min<u32>(lighting.src_num, profile.light_max)
+                               : static_cast<u32>(lighting.src_num);
+
     // Write the code to emulate each enabled light
-    for (u32 light_index = 0; light_index < lighting.src_num; ++light_index) {
+    for (u32 light_index = 0; light_index < num_lights; ++light_index) {
         const auto& light_config = lighting.lights[light_index];
 
         const auto GetLightMember = [&](s32 member) -> Id {
@@ -496,7 +503,7 @@ void FragmentModule::WriteLighting() {
             LightingRegs::IsLightingSamplerSupported(
                 lighting.config, LightingRegs::LightingSampler::SpotlightAttenuation);
         const bool fresnel_light =
-            light_index == lighting.src_num - 1 && lighting.lut_fr.enable &&
+            light_index == num_lights - 1 && lighting.lut_fr.enable &&
             LightingRegs::IsLightingSamplerSupported(lighting.config,
                                                      LightingRegs::LightingSampler::Fresnel);
 
@@ -892,6 +899,11 @@ Id FragmentModule::CompareShadow(Id pixel, Id z) {
 }
 
 Id FragmentModule::SampleShadow() {
+    // GammaOS approximation (Profile::no_shadow): the shadow map is not rendered, so a
+    // shadow sample reads as fully lit.
+    if (profile.no_shadow) {
+        return ConstF32(1.f, 1.f, 1.f, 1.f);
+    }
     Id texcoord0{OpLoad(vec_ids.Get(2), texcoord_id[0])};
     const Id texcoord0_w{OpLoad(f32_id, texcoord0_w_id)};
     if (!config.texture.shadow_texture_orthographic) {

@@ -25,6 +25,7 @@
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/renderer_vulkan/vk_gammaos_stats.h"
 #include "video_core/renderer_vulkan/vk_gammaos_gpu_timer.h"
+#include "video_core/renderer_vulkan/vk_gammaos_game_prop.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture/texture_decode.h"
 
@@ -1006,6 +1007,17 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     SyncDrawState();
 
     const bool shadow_rendering = regs.framebuffer.IsShadowRendering();
+    // GammaOS approximation (no_shadow_map=1, per game): the shadow map passes are not drawn
+    // at all; the fragment shaders read the map as unshadowed (Profile::no_shadow). Latched
+    // at startup like the other generator switches.
+    static const bool no_shadow_map = [] {
+        char v[PROP_VALUE_MAX] = {};
+        GammaGameProp::Get("no_shadow_map", v);
+        return v[0] == '1';
+    }();
+    if (shadow_rendering && no_shadow_map) {
+        return true;
+    }
     const bool has_stencil = regs.framebuffer.HasStencil();
 
     const bool write_color_fb = shadow_rendering || pipeline_info.GetFinalColorWriteMask(instance);

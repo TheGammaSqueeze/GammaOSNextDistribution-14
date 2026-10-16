@@ -39,6 +39,8 @@ struct Profile {
     u8 hw_scissor{};     // GammaOS tweak, see Settings::gammaos_hw_scissor
     u8 fs_mediump{};     // GammaOS: medium precision fragment shaders (GLSL generator)
     u8 light_skip{};     // GammaOS: a light whose attenuation is zero skips its lookups (SPIR-V)
+    u8 no_shadow{};      // GammaOS approximation: shadow map samples read as unshadowed (SPIR-V)
+    u8 light_max{};      // GammaOS approximation: at most this many light slots per pixel, 0 = all
 
     u8 has_gl_ext_framebuffer_fetch{};
     u8 has_gl_arm_framebuffer_fetch{};
