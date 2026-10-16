@@ -76,7 +76,7 @@ public:
     // A title banner with a sound appeared / the focus left it (the banner plays its BCWAV once).
     std::function<void(const std::shared_ptr<const RomBanner>&)> onBannerSound;
     std::function<void()> onBannerLeave;
-    // Internal resolution cap of the 3D target in multiples of 400x240 (default 3).
+    // Internal resolution cap of the 3D target in multiples of 400x240 (default 2.5).
     void setMaxScale(float s) { mMaxScale = s; }
     // The suspended title (scene3d.ts setAppImage / followApp). `image` is its upper screen laid
     // out like the LCD framebuffer (BG_DmyApp_00, 256x512 portrait, any multiple of that size);
@@ -159,7 +159,10 @@ private:
     bool mHasPending = false;
     int mPendingLeft = 0;
     bool mAttachedOnce = false;
-    float mMaxScale = 3;
+    // The 3D target's cap in multiples of 400x240. The wall fills the whole target and its fill
+    // was most of the frame on the RP Duo Lite (about 10 ms at 3x and 600 MHz): 2.5x keeps 60 fps
+    // there with no visible loss on a 1080p panel (the banners stay above their texture detail).
+    float mMaxScale = 2.5f;
     float mBaseFovY = 0.5235988f;   // BannerCamera's vertical field of view at the design height
     std::shared_ptr<GpuTex> mPlate;
     // the name plate's marquee (a name too long for the plate scrolls at the one font size)
