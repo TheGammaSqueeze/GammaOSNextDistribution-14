@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "name": "GammaOS Turnip adreno-610 8c565e5e36",
-  "description": "Turnip (Mesa 26.3.0-devel) built from github.com/TheGammaSqueeze/gammaos-turnip branch adreno-610, commit 8c565e5e36",
+  "name": "GammaOS Turnip adreno-610 241ac23273",
+  "description": "Turnip (Mesa 26.3.0-devel) built from github.com/TheGammaSqueeze/gammaos-turnip branch adreno-610, commit 241ac23273",
   "author": "TheGammaSqueeze",
-  "packageVersion": "8c565e5e36",
+  "packageVersion": "241ac23273",
   "vendor": "Mesa",
-  "driverVersion": "26.3.0-devel-adreno-610-8c565e5e36",
+  "driverVersion": "26.3.0-devel-adreno-610-241ac23273",
   "minApi": 30,
   "libraryName": "vulkan.gammaos.so"
 }

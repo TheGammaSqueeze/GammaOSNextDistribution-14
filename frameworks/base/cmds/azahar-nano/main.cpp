@@ -673,26 +673,28 @@ static void dynResTick(double speed, bool menuOpen,
     }
 }
 
-int main(int argc, char** argv) {
-    // Test hook: persist.gammaos.azahar_nano.env = "NAME=value[,NAME=value]" is
-    // exported before any driver loads (for example TU_DEBUG for Turnip).
-    {
-        char envp[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.azahar_nano.env", envp, "");
-        std::string all = envp;
-        size_t pos = 0;
-        while (pos < all.size()) {
-            const size_t comma = all.find(',', pos);
-            const std::string kv = all.substr(pos, comma == std::string::npos ? std::string::npos : comma - pos);
-            const size_t eq = kv.find('=');
-            if (eq != std::string::npos && eq > 0) {
-                setenv(kv.substr(0, eq).c_str(), kv.substr(eq + 1).c_str(), 1);
-                ALOGI("env %s", kv.c_str());
-            }
-            if (comma == std::string::npos) break;
-            pos = comma + 1;
+// persist.gammaos.azahar_nano.env = "NAME=value[,NAME=value]" is exported before any
+// driver loads (for example TU_DEBUG for Turnip). Read through the settings layer, so a
+// per-game override can carry it too (env=TU_DEBUG=sysmem: Luigi's Mansion renders 10 to
+// 25 percent faster with Turnip forced to system memory rendering).
+static void exportEnvProp() {
+    const std::string all = prop("persist.gammaos.azahar_nano.env", "");
+    size_t pos = 0;
+    while (pos < all.size()) {
+        const size_t comma = all.find(',', pos);
+        const std::string kv = all.substr(pos, comma == std::string::npos ? std::string::npos : comma - pos);
+        const size_t eq = kv.find('=');
+        if (eq != std::string::npos && eq > 0) {
+            setenv(kv.substr(0, eq).c_str(), kv.substr(eq + 1).c_str(), 1);
+            ALOGI("env %s", kv.c_str());
         }
+        if (comma == std::string::npos) break;
+        pos = comma + 1;
     }
+}
+
+int main(int argc, char** argv) {
+    exportEnvProp();
     installCrashHandlers();
     signal(SIGTERM, onTerm);
     signal(SIGINT, onTerm);
@@ -729,6 +731,8 @@ int main(int argc, char** argv) {
                 ALOGI("no per-game override for %s, global settings apply", base.c_str());
             }
         }
+        // The override may carry a driver environment of its own.
+        exportEnvProp();
     }
     const std::string backend = prop("persist.gammaos.azahar_nano.backend", "sf");
     ALOGI("rom=%s core=%s user=%s backend=%s", rom.c_str(), coreLib.c_str(), userDir.c_str(),
