@@ -348,7 +348,7 @@ public:
     // its laid out slot; what has no slot yet fills the free ones in nano's order.
     // ---- nano's other categories on the grid (L / R, applet bar buttons 1..5)
     static const char* catName(int c) {
-        static const char* const kNames[NanoMenu::CTR_CAT_COUNT] = {"Game", "Quick Menu", "Music", "Video", "Photo", "Network"};
+        static const char* const kNames[NanoMenu::CTR_CAT_COUNT] = {"Game", "Quick Menu", "Music", "Video", "Photo", "Game"};
         return c >= 0 && c < NanoMenu::CTR_CAT_COUNT ? kNames[c] : "";
     }
     int catIndex(int c) const {
@@ -371,7 +371,7 @@ public:
             {0.78f, 0.38f, 0.06f, 1.00f, 0.62f, 0.20f},   // Music: orange
             {0.45f, 0.28f, 0.70f, 0.70f, 0.50f, 0.95f},   // Video: purple
             {0.22f, 0.55f, 0.20f, 0.45f, 0.82f, 0.40f},   // Photo: green
-            {0.72f, 0.20f, 0.32f, 0.98f, 0.45f, 0.55f},   // Network: pink red
+            {0.16f, 0.42f, 0.66f, 0.30f, 0.66f, 0.90f},   // the Games button: the console's folder blue
         };
         return c > 0 && c < NanoMenu::CTR_CAT_COUNT ? kColors[c] : nullptr;
     }
@@ -379,15 +379,17 @@ public:
         if (!mMenu->mCtrHome) return;
         const float* c = catColors(mMenu->mCtrCat);
         mMenu->mCtrHome->setFolderColors(c, c ? c + 3 : nullptr);
-        mMenu->mCtrHome->setActiveBar(mMenu->mCtrCat);   // categories 1..5 are bar buttons 1..5
+        // categories 1..4 are bar buttons 1..4; the game folders light the Games button (5)
+        mMenu->mCtrHome->setActiveBar(mMenu->mCtrCat == NanoMenu::CTR_CAT_GAMES ? NanoMenu::CTR_CAT_NETWORK : mMenu->mCtrCat);
     }
 
-    // The categories' pictograms (the RetroArch set nano's other themes use, the XMB globe for
-    // Network: Wi-Fi would repeat the status bar): bar buttons 1..5.
+    // The categories' pictograms (the RetroArch set nano's other themes use): bar buttons 1..5.
+    // The fifth button is Games (the XMB's controller): a way back to the game folders from
+    // any category; the Network category is no longer on the bar.
     static const char* catIconFile(int c) {
         static const char* const kFiles[NanoMenu::CTR_CAT_COUNT] = {
             nullptr, "icons_retroarch/menu_power.png", "icons_retroarch/music.png", "icons_retroarch/movie.png",
-            "icons_retroarch/image.png", "icons/xmb_icon_006.png"};
+            "icons_retroarch/image.png", "icons/xmb_icon_005.png"};
         return c > 0 && c < NanoMenu::CTR_CAT_COUNT ? kFiles[c] : nullptr;
     }
     static bool loadCatIcon(int c, std::vector<uint8_t>* rgba, int* w, int* h) {
@@ -421,9 +423,29 @@ public:
             // the Quick Menu's bolt is also the status bar's charging sign
             if (c == NanoMenu::CTR_CAT_QUICK) mMenu->mCtrHome->setChargeIcon(px.data(), w, h);
         }
+        // the bottom screen's corner pictograms, redrawn at 8 texels a unit (icons_ui)
+        std::vector<uint8_t> px3[3];
+        ctr::CtrHome::CornerIcon ic[3];
+        const char* files[3] = {"icons_ui/ctr_settings.png", "icons_ui/ctr_square_big.png", "icons_ui/ctr_square_four.png"};
+        for (int i = 0; i < 3; i++)
+            if (loadUiIcon(files[i], &px3[i], &ic[i].w, &ic[i].h)) ic[i].rgba = px3[i].data();
+        mMenu->mCtrHome->setCornerIcons(ic[0], ic[1], ic[2]);
+    }
+    static bool loadUiIcon(const char* f, std::vector<uint8_t>* rgba, int* w, int* h) {
+        for (const char* dir : {"/data/system/nano_xmb/", "/system/etc/nano_xmb/"}) {
+            int n = 0;
+            unsigned char* px = stbi_load((std::string(dir) + f).c_str(), w, h, &n, 4);
+            if (!px) continue;
+            rgba->assign(px, px + (size_t)(*w) * (*h) * 4);
+            stbi_image_free(px);
+            return true;
+        }
+        ALOGW("ctr: icon %s missing", f);
+        return false;
     }
 
     void setCategory(int c) {
+        if (c == NanoMenu::CTR_CAT_NETWORK) c = NanoMenu::CTR_CAT_GAMES;   // the bar's Games button
         if (c == mMenu->mCtrCat || (c != NanoMenu::CTR_CAT_GAMES && catIndex(c) < 0) || !mMenu->mCtrHome) return;
         int zoom = 0, cursor = 0;
         mMenu->mCtrHome->layoutState(&zoom, &cursor);
@@ -805,6 +827,10 @@ public:
     // Settings opens nano's Settings list; the others show their category on the grid (again:
     // back to Games).
     void appletBar(int button) override {
+        if (button == NanoMenu::CTR_CAT_NETWORK) {   // the Games button: back to the game folders
+            setCategory(NanoMenu::CTR_CAT_GAMES);
+            return;
+        }
         if (button <= 0 || button >= NanoMenu::CTR_CAT_COUNT || catIndex(button) < 0) {
             mMenu->ctrAppletBar(button);
             return;

@@ -4658,6 +4658,44 @@ void CtrHome::setChargeIcon(const uint8_t* rgba, int w, int h) {
     mImpl->chargeTex = t;
 }
 
+void CtrHome::setCornerIcons(const CornerIcon& settings, const CornerIcon& big, const CornerIcon& four) {
+    if (!mLoaded || !mImpl->base) return;
+    Layout& lay = mImpl->base->layout();
+    auto tex = [&](const CornerIcon& ic) -> TexturePtr {
+        if (!ic.rgba || ic.w <= 0 || ic.h <= 0) return nullptr;
+        TexturePtr t = mAssets->rgbaTexture(ic.rgba, ic.w, ic.h);
+        glBindTexture(GL_TEXTURE_2D, t->id);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        t->mipmapped = true;
+        return t;
+    };
+    const TexturePtr st = tex(settings), bg = tex(big), fr = tex(four);
+    // the Settings pictogram: the texture is used by name, the panes keep their mapping
+    if (st)
+        for (Material& m : lay.materials)
+            for (TexMap& tm : m.texMaps)
+                if (tm.name == "LncPetitIconPetit_01") {
+                    tm.texture = st;
+                    tm.minF = GL_LINEAR_MIPMAP_LINEAR;   // drawn at a fraction of its size
+                }
+    // the size buttons: the console mirrors one 8x8 cell over the pane (uv 0..2); ours are
+    // whole pictures, so their panes map 0..1 and clamp
+    struct Slot { const char* pane; const TexturePtr& t; };
+    for (const Slot& sl : {Slot{"P_Up_20", bg}, Slot{"P_Dw_20", fr}}) {
+        if (!sl.t) continue;
+        Pane* p = mImpl->base->pane(sl.pane);
+        if (!p || p->material < 0 || p->material >= (int)lay.materials.size()) continue;
+        Material& m = lay.materials[p->material];
+        for (TexMap& tm : m.texMaps) {
+            tm.texture = sl.t;
+            tm.wrapS = tm.wrapT = GL_CLAMP_TO_EDGE;
+            tm.minF = GL_LINEAR_MIPMAP_LINEAR;
+        }
+        if (!p->texCoords.empty()) p->texCoords[0] = QuadUv{Vec2{0, 0}, Vec2{1, 0}, Vec2{0, 1}, Vec2{1, 1}};
+    }
+    mImpl->themeRev++;
+}
+
 void CtrHome::setActiveBar(int button) {
     static const char* const kPanes[6] = {nullptr, "P_Memo_10", "P_Frd_10", "P_News_10", "P_Web_10", "P_Mvs_10"};
     if (!mLoaded) return;

@@ -244,6 +244,14 @@ public:
     // Applet bar button 1..5 shows the host's pictogram (RGBA, rows top first, its alpha the shape)
     // on a rounded button, the ink in `ink` (and `inkLight` where the console lightens it).
     void setBarIcon(int button, const uint8_t* rgba, int w, int h, const float ink[3], const float inkLight[3]);
+    // High resolution replacements for the bottom screen's corner button pictograms (the
+    // console's are 32 and 8 texels): the Settings house and wrench, the Enlarge button's one
+    // square and the Shrink button's four (whole pictures: the console tiles one 8x8 cell).
+    struct CornerIcon {
+        const uint8_t* rgba = nullptr;
+        int w = 0, h = 0;
+    };
+    void setCornerIcons(const CornerIcon& settings, const CornerIcon& big, const CornerIcon& four);
     // The bar button of the content shown (0 none): drawn inverted, the button in its ink colour.
     void setActiveBar(int button);
     // The status bar's charging bolt (RGBA, rows top first, its alpha the shape).
