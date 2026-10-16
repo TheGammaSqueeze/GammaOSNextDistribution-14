@@ -511,10 +511,12 @@ bool onCoreError(void*, int result, const char* details) {
     // Keep running for recoverable errors; the user can exit from the menu.
     return result != AZN_ERROR_SYSTEM_FILES;
 }
-// Loading screen: set once the DRM overlay is ready; the core reports shader
+// Loading screen: set once the overlay is ready; the core reports shader
 // cache progress from its load (before the first game frame).
 azahar_nano::Overlay* gLoadOverlay = nullptr;
-azahar_nano::DrmWindows* gLoadDrm = nullptr;
+// Shows or hides the overlay's output on a panel: the DRM presenter switches the
+// panel's source, the SurfaceFlinger backend shows or hides the overlay layer.
+std::function<void(int panel, bool active)> gSetOverlayActive;
 std::atomic<bool> gLoadScreenOn{false};
 // The game waits on shader compiles (no game frames): the stall screen is up. Shares the
 // overlay plane with the loading screen and the menu.
@@ -547,10 +549,10 @@ void onLoadProgress(void*, int stage, int progress, int max) {
     if (stage == AZN_LOAD_COMPLETE || (progress % 50) == 0) {
         ALOGI("shader cache stage %d %d/%d", stage, progress, max);
     }
-    if (!gLoadOverlay || !gLoadDrm) return;
+    if (!gLoadOverlay || !gSetOverlayActive) return;
     if (stage == AZN_LOAD_COMPLETE) {
         if (gLoadScreenOn.exchange(false)) {
-            gLoadDrm->setOverlayActive(0, false);
+            gSetOverlayActive(0, false);
             ALOGI("loading screen closed");
         }
         return;
@@ -569,7 +571,7 @@ void onLoadProgress(void*, int stage, int progress, int max) {
              gCore.skip_preload ? "    Press START to skip" : "");
     if (!gLoadScreenOn.exchange(true)) {
         gStallScreenOn = false;   // the loading screen takes the plane over
-        gLoadDrm->setOverlayActive(0, true);
+        gSetOverlayActive(0, true);
         ALOGI("loading screen open (stage %d, %d items, rebuild %d)", stage, max, rebuild);
     }
     gLoadOverlay->renderLoading(title, detail, max > 0 ? (float)(progress + 1) / (float)max : -1.0f,
@@ -914,19 +916,27 @@ int main(int argc, char** argv) {
     // Frame rate counter: a strip on an alpha blended plane over the top panel.
     static azahar_nano::Hud hud;
     static bool sHudReady = false;
-    // In-game menu (DRM backend: scanned out on the top panel in place of the game).
+    // In-game menu: shown on the top panel in place of the game (the DRM presenter
+    // switches the panel's source, SurfaceFlinger shows the menu layer over the game).
     static azahar_nano::Overlay overlay;
     static azahar_nano::NanoInput* sInput = nullptr;
     static azahar_nano::DrmWindows* sDrm = nullptr;
+    static azahar_nano::SfWindows* sSf = nullptr;
     static bool sOverlayReady = false;
     static azahar_nano::OverlayActions sOa;   // state hooks use the same actions
-    if (drmActive) {
-        sDrm = &drm;
+    {
+        if (drmActive) {
+            sDrm = &drm;
+            gSetOverlayActive = [](int panel, bool active) { sDrm->setOverlayActive(panel, active); };
+        } else {
+            sSf = &sf;
+            gSetOverlayActive = [](int panel, bool active) { sSf->setOverlayActive(panel, active); };
+        }
         azahar_nano::OverlayActions oa;
         oa.resume = [] {
             if (!overlay.isOpen()) return;
             overlay.close();
-            sDrm->setOverlayActive(0, false);
+            gSetOverlayActive(0, false);
             gCore.pause(false);
             gDynResSettle = 5;
         };
@@ -934,14 +944,14 @@ int main(int argc, char** argv) {
             backupStateSlot(slot);
             // The request is processed by the emulation loop, so unpause first.
             overlay.close();
-            sDrm->setOverlayActive(0, false);
+            gSetOverlayActive(0, false);
             gCore.pause(false);
             gDynResSettle = 5;
             gCore.save_state(slot);
         };
         oa.loadState = [](int slot) {
             overlay.close();
-            sDrm->setOverlayActive(0, false);
+            gSetOverlayActive(0, false);
             gCore.pause(false);
             gDynResSettle = 5;
             gCore.load_state(slot);
@@ -1005,17 +1015,19 @@ int main(int argc, char** argv) {
                 gCore.windows_resized();
             }
         };
-        sOverlayReady = overlay.init(drm.overlayWindow(0), drm.width(0), drm.height(0),
-                                     drm.isPortrait(0), oa, dataDir);
+        // The SurfaceFlinger windows are the framework's logical (already turned) space,
+        // so only a DRM portrait panel draws the menu and the HUD upright by itself.
+        const bool upright = drmActive && drm.isPortrait(0);
+        ANativeWindow* ovWin = drmActive ? drm.overlayWindow(0) : sf.overlayWindow(0);
+        sOverlayReady = ovWin && overlay.init(ovWin, (int)widthAt(0), (int)heightAt(0), upright, oa, dataDir);
         if (!sOverlayReady) ALOGE("overlay unavailable");
         if (sOverlayReady && prop("persist.gammaos.azahar_nano.loading_screen", "1") == "1") {
             gLoadOverlay = &overlay;
-            gLoadDrm = &drm;
         }
         sOa = oa;
         uint32_t hw = 0, hh = 0;
-        ANativeWindow* hudWin = drm.hudWindow(0, &hw, &hh);
-        if (hudWin) sHudReady = hud.init(hudWin, (int)hw, (int)hh, drm.isPortrait(0));
+        ANativeWindow* hudWin = drmActive ? drm.hudWindow(0, &hw, &hh) : sf.hudWindow(0, &hw, &hh);
+        if (hudWin) sHudReady = hud.init(hudWin, (int)hw, (int)hh, upright);
         if (!sHudReady) ALOGW("fps counter unavailable (no HUD plane)");
     }
 
@@ -1092,7 +1104,7 @@ int main(int argc, char** argv) {
         if (overlay.isOpen()) {
             ALOGI("menu close");
             overlay.close();
-            sDrm->setOverlayActive(0, false);
+            gSetOverlayActive(0, false);
             gCore.pause(false);
             gDynResSettle = 5;
             return;
@@ -1103,7 +1115,7 @@ int main(int argc, char** argv) {
         overlay.open();
         // Switch the panel to the overlay source first: a frame rendered before
         // the switch is discarded by the presenter as the inactive source.
-        sDrm->setOverlayActive(0, true);
+        gSetOverlayActive(0, true);
         overlay.render();
     };
     icb.exitRequest = [] {
@@ -1270,7 +1282,7 @@ int main(int argc, char** argv) {
     // drawn while the menu is open: the core is paused, no game frame flips and the HUD
     // queue would fill up.
     std::thread hudThread([] {
-        if (!sHudReady || !sDrm) return;
+        if (!sHudReady) return;
         bool hudOn = false;
         uint32_t lastRegions = 0;
         uint64_t lastSeq = ~0ull;
@@ -1310,10 +1322,10 @@ int main(int argc, char** argv) {
                 if (stallPreview && live && stallSinceNs == 0) stallSinceNs = now - 1500000000LL;
                 const bool wantStall = stallSinceNs && now - stallSinceNs >= 1500000000LL &&
                                        (jobs > 0 || gStallScreenOn || stallPreview) &&
-                                       sOverlayReady && gLoadOverlay && gLoadDrm;
+                                       sOverlayReady && gLoadOverlay && gSetOverlayActive;
                 if (wantStall && !overlay.isOpen() && !gLoadScreenOn) {
                     if (!gStallScreenOn.exchange(true)) {
-                        gLoadDrm->setOverlayActive(0, true);
+                        gSetOverlayActive(0, true);
                         ALOGI("stall screen open (%d compile jobs, rebuild %d)", jobs,
                               shaderCacheRebuilding());
                     }
@@ -1326,7 +1338,7 @@ int main(int argc, char** argv) {
                                                 detail, -1.0f, rebuild ? kRebuildNote : kFirstUseNote,
                                                 (float)((now / 1000000LL) % 1600) / 1600.0f);
                 } else if (!wantStall && gStallScreenOn.exchange(false)) {
-                    if (!overlay.isOpen() && !gLoadScreenOn) gLoadDrm->setOverlayActive(0, false);
+                    if (!overlay.isOpen() && !gLoadScreenOn) gSetOverlayActive(0, false);
                     ALOGI("stall screen closed");
                 }
             }
@@ -1359,13 +1371,18 @@ int main(int argc, char** argv) {
                 f.toastAlpha = toast;
                 f.spin = spin;
                 hud.render(f);
-                sDrm->setHudRegions(0, regions);
-                if (!hudOn) sDrm->setHudActive(0, true);
+                if (sDrm) {
+                    sDrm->setHudRegions(0, regions);
+                    if (!hudOn) sDrm->setHudActive(0, true);
+                } else if (sSf && !hudOn) {
+                    sSf->setHudActive(0, true);
+                }
                 hudOn = true;
                 lastSeq = seq;
                 lastRegions = regions;
             } else if (!want && hudOn) {
-                sDrm->setHudActive(0, false);
+                if (sDrm) sDrm->setHudActive(0, false);
+                else if (sSf) sSf->setHudActive(0, false);
                 hudOn = false;
                 lastRegions = 0;
             }
