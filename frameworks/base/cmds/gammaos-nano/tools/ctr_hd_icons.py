@@ -41,8 +41,31 @@ ICONS = {
             "HudNetAntOut_00", "HudNetAntOut_01", "HudNetAtnL_10", "HudNetAtnLgt_00", "HudNetAtnMask_03",
             "HudNetAtnR_10", "HudNetModeL_00", "HudWalk_W_00", "HudBatLgt_01"],
     "launcher": ["CameraBase_06", "CameraPlus", "PictBtnL_02", "PictBtnR_02", "PictBtnY", "PictCam",
-                 "PictCapture_05", "PictHome", "BaseWndwLT_16x32"],
+                 "PictCapture_05", "PictHome", "BaseWndwLT_16x32",
+                 # the bottom screen: page and back arrows, the balloon's point, the pop up, the
+                 # arrow button's alpha, the prize ring
+                 "LncArwIconR_11", "PageArrowIcon", "LncBack", "LncBllnPnt_8x16", "LncPopUp_02",
+                 "LncArwBtnAlp_10", "LncIconRing_10", "LncIconRing_11",
+                 # shaded shapes (SHADED): their alpha edge is traced, their shading upsampled
+                 "LncFolder_11", "LncFolder_13", "LncFolder_14", "LncFolder_15", "LncFolder_16",
+                 "LncFolderIn_11", "LncFolderIn_13", "LncFolderIn_14", "LncFolderIn_15", "LncFolderIn_16",
+                 "LncFolderHad_22", "LncFolderHadIn_21",
+                 "LncIcon_11", "LncIcon_13", "LncIcon_14", "LncIcon_15", "LncIcon_16",
+                 "LncCsr_41", "LncPetitBtn_20", "LncIconPrize_24", "LncIconPrize_48",
+                 "LncCardB_01", "LncCardB_03", "LncCardB_04", "LncCardB_05", "LncCardB_06"],
 }
+
+# Shaded shapes of the bottom screen (folders, icon frames, the cursor, the corner button body):
+# a channel that is not two toned (the shading, a gradient) is upsampled smoothly instead of
+# keeping the whole texture, so the silhouette (the two toned alpha) still gets the vector edge.
+SHADED = {"launcher/" + n for n in [
+    "LncArwIconR_11",
+    "LncFolder_11", "LncFolder_13", "LncFolder_14", "LncFolder_15", "LncFolder_16",
+    "LncFolderIn_11", "LncFolderIn_13", "LncFolderIn_14", "LncFolderIn_15", "LncFolderIn_16",
+    "LncFolderHad_22", "LncFolderHadIn_21",
+    "LncIcon_11", "LncIcon_13", "LncIcon_14", "LncIcon_15", "LncIcon_16",
+    "LncCsr_41", "LncPetitBtn_20", "LncIconPrize_24", "LncIconPrize_48",
+    "LncCardB_01", "LncCardB_03", "LncCardB_04", "LncCardB_05", "LncCardB_06"]}
 
 
 def reflect(i, n):
@@ -232,7 +255,7 @@ def fill_coverage(binary, out_w, out_h):
     return buf.astype(np.float64) / 255.0
 
 
-def redraw(path, info):
+def redraw(path, info, key=None):
     """The vector redraw of one texture (upright as stored in the romfs), or None if soft."""
     im = np.array(Image.open(path).convert("RGBA"))
     fmt = (info or {}).get("format", "RGBA8")
@@ -259,6 +282,10 @@ def redraw(path, info):
             out[:, :, c] = (lo + hi) / 2
             continue
         if not ok:
+            if key in SHADED:
+                # the shading: a smooth upsample, the alpha channel keeps the traced edge
+                out[:, :, c] = np.clip(cubic_up(ch, cs, SCALE), 0, 255)
+                continue
             return None
         up = cubic_up(ch, cs, FINE)
         cov = fill_coverage(up >= (lo + hi) / 2, ow, oh)
@@ -585,7 +612,7 @@ def main():
             p = os.path.join(romfs, "lyt", arch, "timg", n + ".png")
             img = hand_drawn((arch, n), index.get(n))
             if img is None:
-                img = redraw(p, index.get(n))
+                img = redraw(p, index.get(n), "%s/%s" % (arch, n))
             if img is None:
                 print("soft, kept: %s/%s" % (arch, n))
                 continue
