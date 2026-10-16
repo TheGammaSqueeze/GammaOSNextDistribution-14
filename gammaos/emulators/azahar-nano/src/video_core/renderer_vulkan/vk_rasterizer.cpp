@@ -155,6 +155,11 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
     ApplyHybridProp();
     (void)HybridDebugBits(); // latch the debug switches at startup
     vertex_depth_enabled = instance.UseVertexDepth();
+    // GammaOS: entries 96 to 127 of the PICA uniform table read as 1.0 (shader_uniforms.h);
+    // the cache below is updated by dirty range, so they are set once here.
+    for (std::size_t j = 96; j < vs_pica_cache.f.size(); j++) {
+        vs_pica_cache.f[j] = Common::MakeVec<f32>(1.f, 1.f, 1.f, 1.f);
+    }
 
     vertex_buffers.fill(stream_buffer.Handle());
 
@@ -1088,6 +1093,9 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
                         (regs.lighting.config1.disable_lut_rb ? 0u : 32u),
                 .dist_atten_mask = 0xFFu & ~static_cast<u32>(regs.lighting.config1.disable_dist_atten),
                 .spot_atten_mask = 0xFFu & ~static_cast<u32>(regs.lighting.config1.disable_spot_atten),
+                .indexed = is_indexed ? 1u : 0u,
+                .topology = static_cast<u32>(regs.pipeline.triangle_topology.Value()),
+                .index_range = is_indexed ? vertex_info.vs_input_index_max - vertex_info.vs_input_index_min + 1 : 0u,
                 .fs_hash = GammaDump::d.last_fs_hash,
             });
     }
@@ -1753,6 +1761,15 @@ void RasterizerVulkan::SyncAndUploadLUTsLF() {
         const auto& source_lut = pica.lighting.luts[index];
         for (u32 i = 0; i < source_lut.size(); i++) {
             new_data[i] = {source_lut[i].ToFloat(), source_lut[i].DiffToFloat()};
+        }
+        // GammaOS light skip: the zero head and tail of a distance attenuation table.
+        if (index >= 16 && index < 24) {
+            const auto zero = [&](u32 i) { return new_data[i].x == 0.f && new_data[i].y == 0.f; };
+            int lo = 0;
+            while (lo < 256 && zero(static_cast<u32>(lo))) lo++;
+            int hi = 256;
+            while (hi > lo && zero(static_cast<u32>(hi - 1))) hi--;
+            fs_data.light_dist_skip[index - 16] = {lo, hi, 0, 0};
         }
         fs_data.lighting_lut_offset[index / 4][index % 4] =
             static_cast<int>((offset + bytes_used) / sizeof(Common::Vec2f));

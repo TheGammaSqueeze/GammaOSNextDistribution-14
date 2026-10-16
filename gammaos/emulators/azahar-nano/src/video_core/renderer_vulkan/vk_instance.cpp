@@ -530,6 +530,7 @@ bool Instance::CreateDevice() {
                 .fragmentStoresAndAtomics = features.fragmentStoresAndAtomics,
                 .depthClamp = features.depthClamp,
                 .occlusionQueryPrecise = features.occlusionQueryPrecise,
+                .pipelineStatisticsQuery = features.pipelineStatisticsQuery,
                 .shaderClipDistance = features.shaderClipDistance,
             },
         },

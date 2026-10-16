@@ -374,7 +374,14 @@ void FragmentModule::WriteLighting() {
     const Id tangent{quaternion_rotate(normalized_normquat, surface_tangent)};
 
     Id shadow{ConstF32(1.f, 1.f, 1.f, 1.f)};
-    if (lighting.enable_shadow) {
+    // GammaOS experiment (persist.gammaos.azahar_nano.noshadow_test=1, picture WRONG): no
+    // shadow map sample, to measure its share of the GPU time.
+    static const bool noshadow_test = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.noshadow_test", v);
+        return v[0] == '1';
+    }();
+    if (lighting.enable_shadow && !noshadow_test) {
         shadow = SampleTexUnit(lighting.shadow_selector);
         if (lighting.shadow_invert) {
             shadow = OpFSub(vec_ids.Get(4), ConstF32(1.f, 1.f, 1.f, 1.f), shadow);
@@ -483,6 +490,82 @@ void FragmentModule::WriteLighting() {
         }
 
         light_distance = OpLength(f32_id, light_vector);
+
+        const bool spot_enabled =
+            light_config.spot_atten_enable &&
+            LightingRegs::IsLightingSamplerSupported(
+                lighting.config, LightingRegs::LightingSampler::SpotlightAttenuation);
+        const bool fresnel_light =
+            light_index == lighting.src_num - 1 && lighting.lut_fr.enable &&
+            LightingRegs::IsLightingSamplerSupported(lighting.config,
+                                                     LightingRegs::LightingSampler::Fresnel);
+
+        // GammaOS light skip: every term of this light is multiplied by its distance and
+        // spotlight attenuation, so a pixel this light does not reach can skip the light's
+        // vector math, lookups and accumulation (a scene with eight attenuated lights usually
+        // has most of them out of reach of any one pixel). Two structured branches: one on the
+        // distance attenuation index falling in the table's zero head or tail (ranges computed
+        // when the table is uploaded, light_dist_skip), taken before the normalizations, and
+        // one on the attenuation product being zero after the lookups. The sums are merged
+        // back with phis; the result is exactly the unskipped one since zero adds zero.
+        const bool skip_light = profile.light_skip && (light_config.dist_atten_enable || spot_enabled);
+        struct SkipScope {
+            Id pre{}, merge{}, diffuse{}, specular{};
+        };
+        boost::container::small_vector<SkipScope, 2> skip_scopes;
+        const auto open_skip = [&](Id lit) {
+            SkipScope scope{};
+            scope.pre = OpLabel();
+            OpBranch(scope.pre);
+            AddLabel(scope.pre);
+            const Id lit_label{OpLabel()};
+            scope.merge = OpLabel();
+            scope.diffuse = diffuse_sum;
+            scope.specular = specular_sum;
+            OpSelectionMerge(scope.merge, spv::SelectionControlMask::MaskNone);
+            OpBranchConditional(lit, lit_label, scope.merge);
+            AddLabel(lit_label);
+            skip_scopes.push_back(scope);
+        };
+        const auto close_skips = [&]() {
+            while (!skip_scopes.empty()) {
+                const SkipScope scope{skip_scopes.back()};
+                skip_scopes.pop_back();
+                const Id lit_end_label{OpLabel()};
+                OpBranch(lit_end_label);
+                AddLabel(lit_end_label);
+                OpBranch(scope.merge);
+                AddLabel(scope.merge);
+                diffuse_sum = OpPhi(vec_ids.Get(4), diffuse_sum, lit_end_label, scope.diffuse,
+                                    scope.pre);
+                specular_sum = OpPhi(vec_ids.Get(4), specular_sum, lit_end_label,
+                                     scope.specular, scope.pre);
+            }
+        };
+
+        // Distance attenuation lookup index, and the early skip on its zero range (the
+        // Fresnel light keeps the late branch only: its lookup needs the vectors anyway).
+        Id dist_index_clamped{};
+        if (light_config.dist_atten_enable) {
+            const Id dist_atten_scale{GetLightMember(7)};
+            const Id dist_atten_bias{GetLightMember(6)};
+            const Id index{OpFma(f32_id, dist_atten_scale, light_distance, dist_atten_bias)};
+            dist_index_clamped = OpFClamp(f32_id, index, ConstF32(0.f), ConstF32(1.f));
+            if (skip_light && !fresnel_light) {
+                // The table index exactly as lookup_lighting_lut_unsigned computes it.
+                const Id pos_floor{OpFloor(f32_id, OpFMul(f32_id, dist_index_clamped, ConstF32(256.f)))};
+                const Id index_i{OpConvertFToS(
+                    i32_id, OpFClamp(f32_id, pos_floor, ConstF32(0.f), ConstF32(255.f)))};
+                const Id light_num{
+                    ConstS32(static_cast<s32>(lighting.lights[light_index].num.Value()))};
+                const Id lo{GetShaderDataMember(i32_id, ConstS32(30), light_num, ConstS32(0))};
+                const Id hi{GetShaderDataMember(i32_id, ConstS32(30), light_num, ConstS32(1))};
+                const Id in_range{OpLogicalAnd(bool_id, OpSGreaterThanEqual(bool_id, index_i, lo),
+                                               OpSLessThan(bool_id, index_i, hi))};
+                open_skip(in_range);
+            }
+        }
+
         light_vector = OpNormalize(vec_ids.Get(3), light_vector);
 
         spot_dir = GetLightMember(5);
@@ -503,9 +586,7 @@ void FragmentModule::WriteLighting() {
 
         // If enabled, compute spot light attenuation value
         Id spot_atten{ConstF32(1.f)};
-        if (light_config.spot_atten_enable &&
-            LightingRegs::IsLightingSamplerSupported(
-                lighting.config, LightingRegs::LightingSampler::SpotlightAttenuation)) {
+        if (spot_enabled) {
             const Id value{
                 get_lut_value(LightingRegs::SpotlightAttenuationSampler(light_config.num),
                               light_config.num, lighting.lut_sp.type, lighting.lut_sp.abs_input)};
@@ -515,13 +596,9 @@ void FragmentModule::WriteLighting() {
         // If enabled, compute distance attenuation value
         Id dist_atten{ConstF32(1.f)};
         if (light_config.dist_atten_enable) {
-            const Id dist_atten_scale{GetLightMember(7)};
-            const Id dist_atten_bias{GetLightMember(6)};
-            const Id index{OpFma(f32_id, dist_atten_scale, light_distance, dist_atten_bias)};
-            const Id clamped_index{OpFClamp(f32_id, index, ConstF32(0.f), ConstF32(1.f))};
             const Id sampler{ConstS32(
                 static_cast<s32>(LightingRegs::DistanceAttenuationSampler(light_config.num)))};
-            dist_atten = lookup_lighting_lut_unsigned(sampler, clamped_index);
+            dist_atten = lookup_lighting_lut_unsigned(sampler, dist_index_clamped);
         }
 
         if (light_config.geometric_factor_0 || light_config.geometric_factor_1) {
@@ -530,6 +607,30 @@ void FragmentModule::WriteLighting() {
                 OpFMin(f32_id, OpFDiv(f32_id, dot_product, geo_factor), ConstF32(1.f))};
             const Id is_geo_factor_zero{OpFOrdEqual(bool_id, geo_factor, ConstF32(0.f))};
             geo_factor = OpSelect(f32_id, is_geo_factor_zero, ConstF32(0.f), dot_div_geo);
+        }
+
+        // Fresnel
+        // Note: only the last entry in the light slots applies the Fresnel factor
+        if (fresnel_light) {
+            // Lookup fresnel LUT value
+            Id value{get_lut_value(LightingRegs::LightingSampler::Fresnel, light_config.num,
+                                   lighting.lut_fr.type, lighting.lut_fr.abs_input)};
+            value = OpFMul(f32_id, ConstF32(lighting.lut_fr.GetScale()), value);
+
+            // Enabled for diffuse lighting alpha component
+            if (lighting.enable_primary_alpha) {
+                diffuse_sum = OpCompositeInsert(vec_ids.Get(4), value, diffuse_sum, 3);
+            }
+
+            // Enabled for the specular lighting alpha component
+            if (lighting.enable_secondary_alpha) {
+                specular_sum = OpCompositeInsert(vec_ids.Get(4), value, specular_sum, 3);
+            }
+        }
+
+        if (skip_light) {
+            const Id atten{OpFMul(f32_id, dist_atten, spot_atten)};
+            open_skip(OpFOrdGreaterThan(bool_id, atten, ConstF32(0.f)));
         }
 
         // Specular 0 component
@@ -606,27 +707,6 @@ void FragmentModule::WriteLighting() {
             specular_1 = OpVectorTimesScalar(vec_ids.Get(3), specular_1, geo_factor);
         }
 
-        // Fresnel
-        // Note: only the last entry in the light slots applies the Fresnel factor
-        if (light_index == lighting.src_num - 1 && lighting.lut_fr.enable &&
-            LightingRegs::IsLightingSamplerSupported(lighting.config,
-                                                     LightingRegs::LightingSampler::Fresnel)) {
-            // Lookup fresnel LUT value
-            Id value{get_lut_value(LightingRegs::LightingSampler::Fresnel, light_config.num,
-                                   lighting.lut_fr.type, lighting.lut_fr.abs_input)};
-            value = OpFMul(f32_id, ConstF32(lighting.lut_fr.GetScale()), value);
-
-            // Enabled for diffuse lighting alpha component
-            if (lighting.enable_primary_alpha) {
-                diffuse_sum = OpCompositeInsert(vec_ids.Get(4), value, diffuse_sum, 3);
-            }
-
-            // Enabled for the specular lighting alpha component
-            if (lighting.enable_secondary_alpha) {
-                specular_sum = OpCompositeInsert(vec_ids.Get(4), value, specular_sum, 3);
-            }
-        }
-
         const bool shadow_primary_enable = lighting.shadow_primary && light_config.shadow_enable;
         const bool shadow_secondary_enable =
             lighting.shadow_secondary && light_config.shadow_enable;
@@ -658,6 +738,8 @@ void FragmentModule::WriteLighting() {
         const Id specular_sum_rgba{PadVectorF32(specular_sum_rgb, vec_ids.Get(4), 0.f)};
         diffuse_sum = OpFAdd(vec_ids.Get(4), diffuse_sum, diffuse_sum_rgba);
         specular_sum = OpFAdd(vec_ids.Get(4), specular_sum, specular_sum_rgba);
+
+        close_skips();
     }
 
     // Apply shadow attenuation to alpha components if enabled
@@ -1438,6 +1520,18 @@ Id FragmentModule::SampleProcTexColor(Id lut_coord, Id level) {
 }
 
 Id FragmentModule::LookupLightingLUT(Id lut_index, Id index, Id delta) {
+    // GammaOS experiment (persist.gammaos.azahar_nano.lut_const_test=1, picture WRONG): no
+    // texel buffer fetch, to measure the share of the lighting LUT fetches in the GPU time.
+    static const bool lut_const_test = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.lut_const_test", v);
+        return v[0] == '1';
+    }();
+    if (lut_const_test) {
+        const Id fake{OpConvertSToF(f32_id, OpIAdd(i32_id, lut_index, index))};
+        return OpFma(f32_id, fake, delta, ConstF32(0.5f));
+    }
+
     // Only load the texture buffer lut once
     if (!Sirit::ValidId(texture_buffer_lut_lf)) {
         texture_buffer_lut_lf = OpLoad(image_buffer_id, texture_buffer_lut_lf_id);
@@ -1712,23 +1806,27 @@ void FragmentModule::DefineUniformStructs() {
     const Id lighting_lut_array_id{TypeArray(ivec_ids.Get(4), ConstU32(NUM_LIGHTING_SAMPLERS / 4))};
     const Id const_color_array_id{TypeArray(vec_ids.Get(4), ConstU32(NUM_TEV_STAGES))};
     const Id border_color_array_id{TypeArray(vec_ids.Get(4), ConstU32(NUM_NON_PROC_TEX_UNITS))};
+    const Id light_dist_skip_array_id{TypeArray(ivec_ids.Get(4), ConstU32(NUM_LIGHTS))};
 
     const Id shader_data_struct_id{
         TypeStruct(i32_id, i32_id, f32_id, f32_id, f32_id, f32_id, i32_id, i32_id, i32_id, i32_id,
                    i32_id, i32_id, i32_id, i32_id, i32_id, i32_id, f32_id, i32_id,
                    lighting_lut_array_id, vec_ids.Get(3), vec_ids.Get(2), vec_ids.Get(2),
                    vec_ids.Get(2), vec_ids.Get(3), light_src_array_id, const_color_array_id,
-                   vec_ids.Get(4), vec_ids.Get(4), border_color_array_id, vec_ids.Get(4))};
+                   vec_ids.Get(4), vec_ids.Get(4), border_color_array_id, vec_ids.Get(4),
+                   light_dist_skip_array_id)};
 
     constexpr std::array light_src_offsets{0u, 16u, 32u, 48u, 64u, 80u, 92u, 96u};
     constexpr std::array shader_data_offsets{
         0u,  4u,  8u,  12u, 16u,  20u,  24u,  28u,  32u,  36u,  40u,   44u,   48u,   52u,   56u,
-        60u, 64u, 68u, 80u, 176u, 192u, 200u, 208u, 224u, 240u, 1136u, 1232u, 1248u, 1264u, 1312u};
+        60u, 64u, 68u, 80u, 176u, 192u, 200u, 208u, 224u, 240u, 1136u, 1232u, 1248u, 1264u, 1312u,
+        1600u};
 
     Decorate(lighting_lut_array_id, spv::Decoration::ArrayStride, 16u);
     Decorate(light_src_array_id, spv::Decoration::ArrayStride, 112u);
     Decorate(const_color_array_id, spv::Decoration::ArrayStride, 16u);
     Decorate(border_color_array_id, spv::Decoration::ArrayStride, 16u);
+    Decorate(light_dist_skip_array_id, spv::Decoration::ArrayStride, 16u);
     for (u32 i = 0; i < static_cast<u32>(light_src_offsets.size()); i++) {
         MemberDecorate(light_src_struct_id, i, spv::Decoration::Offset, light_src_offsets[i]);
     }

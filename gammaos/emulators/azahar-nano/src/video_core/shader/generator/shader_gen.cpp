@@ -130,6 +130,9 @@ void SetVsBoolSpecializationTitle(u64 title_id) {
     };
     static constexpr std::array<Entry, 3> table{{
         {0x00040000000F4500, 0xFFFFFFFF}, // Senran Kagura Burst (Europe)
+        // Luigi's Mansion: Dark Moon: the 42k vertex environment VS (44 bool branches) drops
+        // from about 6.7 to 4 ms per draw at 2x, two such draws a frame.
+        {0x0004000000055F00, 0xFFFFFFFF},
         {0x0004000000183600, 0xFFFFFFFF}, // Kirby: Planet Robobot (USA)
     }};
     u32 max_vertices = 0;

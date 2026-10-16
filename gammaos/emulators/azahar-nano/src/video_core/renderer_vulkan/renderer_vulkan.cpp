@@ -1622,7 +1622,8 @@ void RendererVulkan::SwapBuffers() {
     }
     GammaGpu::FrameBoundary();
     renderpass_cache.EndRendering();
-    GammaDump::FrameBoundary(scheduler, instance.GetDevice(), instance.IsOcclusionPrecise());
+    GammaDump::FrameBoundary(scheduler, instance.GetDevice(), instance.IsOcclusionPrecise(),
+                             instance.IsPipelineStatisticsSupported());
     system.perf_stats->StartSwap();
     screenRendered = false;
 #ifndef ANDROID

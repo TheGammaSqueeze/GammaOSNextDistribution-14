@@ -176,6 +176,7 @@ struct DrawInfo {
     std::uint32_t rect_w, rect_h, vertices, tex_mask, fog, lighting, blend, alpha_test, depth_test;
     std::uint32_t tex0_fmt, tex0_w, tex0_h, tex0_mag, tex0_min, tex0_addr, color_addr;
     std::uint32_t lights, luts, dist_atten_mask, spot_atten_mask;
+    std::uint32_t indexed, topology, index_range; // index_range = max - min + 1 of an indexed draw
     std::uint64_t fs_hash;
 };
 
@@ -189,6 +190,7 @@ struct State {
     vk::Device device{};
     vk::QueryPool pool{};
     vk::QueryPool tpool{};   // GPU timestamp after each draw (index 0 = before the first)
+    vk::QueryPool spool{};   // fragment shader invocations per draw (pipeline statistics)
     bool precise = false;
     bool active = false;
     int empty_presents = 0;
@@ -209,7 +211,7 @@ inline bool Requested() {
 }
 
 // Called at the start of SwapBuffers with no render pass open.
-inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise) {
+inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise, bool stats = false) {
     // A present with no draws in it (the core presents more often than the game
     // draws): keep collecting, up to a few presents.
     if (d.active && d.draws.empty() && d.empty_presents < 3) {
@@ -226,6 +228,19 @@ inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise)
                                              vk::QueryResultFlagBits::e64 |
                                                  vk::QueryResultFlagBits::eWait);
         }
+        // Two statistics per query: vertex shader invocations, fragment shader invocations.
+        std::vector<std::uint64_t> stats(n * 2);
+        std::vector<std::uint64_t> frags(n);
+        std::vector<std::uint64_t> vsinv(n);
+        if (n > 0 && d.spool) {
+            (void)device.getQueryPoolResults(d.spool, 0, n, stats.size() * 8, stats.data(), 16,
+                                             vk::QueryResultFlagBits::e64 |
+                                                 vk::QueryResultFlagBits::eWait);
+            for (std::uint32_t i = 0; i < n; i++) {
+                vsinv[i] = stats[i * 2];
+                frags[i] = stats[i * 2 + 1];
+            }
+        }
         std::vector<std::uint64_t> ts(n + 1);
         if (n > 0) {
             (void)device.getQueryPoolResults(d.tpool, 0, n + 1, ts.size() * 8, ts.data(), 8,
@@ -239,7 +254,10 @@ inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise)
         };
         std::uint64_t total = 0;
         for (auto s : samples) total += s;
-        LOG_INFO(Render_Vulkan, "draw dump: {} draws, {} samples written in total", n, total);
+        std::uint64_t total_frags = 0;
+        for (auto f : frags) total_frags += f;
+        LOG_INFO(Render_Vulkan, "draw dump: {} draws, {} samples written in total, {} fragments shaded", n,
+                 total, total_frags);
         for (const auto& e : d.events) {
             if (e.draw < 0) LOG_INFO(Render_Vulkan, "event: {}", e.text);
             else LOG_INFO(Render_Vulkan, "event: draw {} ({} samples)", e.draw,
@@ -248,14 +266,14 @@ inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise)
         for (std::uint32_t i = 0; i < n; i++) {
             const auto& x = d.draws[i];
             LOG_INFO(Render_Vulkan,
-                     "draw {:3}: us {:7.1f} samples {:8} ({:5.1f}%) rect {}x{} verts {} tex {:03b} fog {} "
+                     "draw {:3}: us {:7.1f} samples {:8} ({:5.1f}%) frags {:8} vsinv {:7} rect {}x{} verts {} tex {:03b} fog {} "
                      "light {} blend {} atest {} dtest {} | tex0 fmt {} {}x{} mag {} min {} "
-                     "addr {:08X} | target {:08X} | lights {} luts {:06b} dist {:08b} spot {:08b} | fs {:016X}",
-                     i, draw_us(i), samples[i], total ? 100.0 * samples[i] / total : 0.0, x.rect_w, x.rect_h,
+                     "addr {:08X} | target {:08X} | lights {} luts {:06b} dist {:08b} spot {:08b} | idx {} topo {} range {} | fs {:016X}",
+                     i, draw_us(i), samples[i], total ? 100.0 * samples[i] / total : 0.0, frags[i], vsinv[i], x.rect_w, x.rect_h,
                      x.vertices, x.tex_mask, x.fog, x.lighting, x.blend, x.alpha_test,
                      x.depth_test, x.tex0_fmt, x.tex0_w, x.tex0_h, x.tex0_mag, x.tex0_min,
                      x.tex0_addr, x.color_addr, x.lights, x.luts, x.dist_atten_mask,
-                     x.spot_atten_mask, x.fs_hash);
+                     x.spot_atten_mask, x.indexed, x.topology, x.index_range, x.fs_hash);
         }
     }
     if (!Requested()) return;
@@ -270,13 +288,22 @@ inline void FrameBoundary(Scheduler& scheduler, vk::Device device, bool precise)
             .queryType = vk::QueryType::eTimestamp,
             .queryCount = State::kMax + 1,
         });
+        if (stats) {
+            d.spool = device.createQueryPool(vk::QueryPoolCreateInfo{
+                .queryType = vk::QueryType::ePipelineStatistics,
+                .queryCount = State::kMax,
+                .pipelineStatistics = vk::QueryPipelineStatisticFlagBits::eVertexShaderInvocations |
+                                      vk::QueryPipelineStatisticFlagBits::eFragmentShaderInvocations,
+            });
+        }
     }
     d.draws.clear();
     d.events.clear();
     d.empty_presents = 0;
-    scheduler.Record([pool = d.pool, tpool = d.tpool](vk::CommandBuffer cmdbuf) {
+    scheduler.Record([pool = d.pool, tpool = d.tpool, spool = d.spool](vk::CommandBuffer cmdbuf) {
         cmdbuf.resetQueryPool(pool, 0, State::kMax);
         cmdbuf.resetQueryPool(tpool, 0, State::kMax + 1);
+        if (spool) cmdbuf.resetQueryPool(spool, 0, State::kMax);
     });
     d.active = true;
     LOG_INFO(Render_Vulkan, "draw dump armed for the next frame (precise {})", precise);
@@ -301,11 +328,13 @@ inline void QueryBegin(vk::CommandBuffer cmdbuf, vk::QueryPool pool, int idx, bo
     if (idx >= 0) {
         cmdbuf.beginQuery(pool, idx,
                           precise ? vk::QueryControlFlagBits::ePrecise : vk::QueryControlFlags{});
+        if (d.spool) cmdbuf.beginQuery(d.spool, idx, vk::QueryControlFlags{});
     }
 }
 inline void QueryEnd(vk::CommandBuffer cmdbuf, vk::QueryPool pool, int idx) {
     if (idx >= 0) {
         cmdbuf.endQuery(pool, idx);
+        if (d.spool) cmdbuf.endQuery(d.spool, idx);
         cmdbuf.writeTimestamp(vk::PipelineStageFlagBits::eBottomOfPipe, d.tpool, idx + 1);
     }
 }

@@ -21,6 +21,9 @@ void VSPicaUniformData::SetFromRegs(const Pica::ShaderSetup& setup) {
         f[j] = Common::MakeVec<f32>(value.x.ToFloat32(), value.y.ToFloat32(), value.z.ToFloat32(),
                                     value.w.ToFloat32());
     }
+    for (u32 j = static_cast<u32>(setup.uniforms.f.size()); j < f.size(); j++) {
+        f[j] = Common::MakeVec<f32>(1.f, 1.f, 1.f, 1.f);
+    }
 }
 
 } // namespace Pica::Shader::Generator

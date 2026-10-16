@@ -22,7 +22,7 @@ layout (binding = 0, std140) uniform vs_pica_data {
 #endif
     uint b;
     uvec4 i[4];
-    vec4 f[96];
+    vec4 f[128];
 } uniforms;
 )";
 

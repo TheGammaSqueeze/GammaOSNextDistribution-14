@@ -256,6 +256,11 @@ public:
     /// GammaOS vertex depth tweak: needs clip distances (the original depth clip
     /// planes are kept as clip distances) and depth clamp (so the moved z never
     /// clips by itself).
+    /// GammaOS: pipeline statistics queries (the draw dump's fragment invocation count).
+    bool IsPipelineStatisticsSupported() const {
+        return features.pipelineStatisticsQuery;
+    }
+
     bool IsOcclusionPrecise() const {
         return features.occlusionQueryPrecise;
     }

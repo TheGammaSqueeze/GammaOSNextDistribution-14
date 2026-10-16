@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include "common/vector_math.h"
 #include "video_core/pica/regs_lighting.h"
 
@@ -68,12 +69,19 @@ struct FSUniformData {
     alignas(16) Common::Vec4f blend_color;
     // GammaOS: the FSConfig words for the fragment ubershader (uber_fs_shader_gen.h).
     alignas(16) std::array<Common::Vec4u, 17> uber_config;
+    // GammaOS light skip: per light (by light number) the distance attenuation LUT entries
+    // below x and from y on are all zero (value and delta), so a lookup index outside [x, y)
+    // contributes nothing and the fragment shader skips that light. y = 256 when the table
+    // has no zero tail. z, w unused.
+    alignas(16) Common::Vec4i light_dist_skip[8];
     // Combiner stages decoded on the CPU for the ubershader: color sources + op (op 15 =
     // pass-through, skipped), alpha sources + op, modifiers (color 1-3, alpha packed),
     // and (color multiplier, alpha multiplier, buffer rgb update, buffer alpha update).
 };
 
-static_assert(sizeof(FSUniformData) == 0x640,
+static_assert(offsetof(FSUniformData, light_dist_skip) == 0x640,
+              "light_dist_skip offset must match the SPIR-V uniform struct");
+static_assert(sizeof(FSUniformData) == 0x6C0,
               "The size of the UniformData does not match the structure in the shader");
 static_assert(sizeof(FSUniformData) < 16384,
               "UniformData structure must be less than 16kb as per the OpenGL spec");
@@ -101,9 +109,12 @@ struct VSPicaUniformData {
 
     u32 b;
     alignas(16) std::array<Common::Vec4u, 4> i;
-    alignas(16) std::array<Common::Vec4f, 96> f;
+    // GammaOS: 128 entries so that an address register read lands in the table for any
+    // 7 bit index; entries 96 to 127 hold the 1.0 the PICA returns there, which saves the
+    // vertex shader a compare and a vec4 select on every relative uniform read.
+    alignas(16) std::array<Common::Vec4f, 128> f;
 };
-static_assert(sizeof(VSPicaUniformData) == 1616,
+static_assert(sizeof(VSPicaUniformData) == 2128,
               "The size of the VSPicaUniformData does not match the structure in the shader");
 static_assert(sizeof(VSPicaUniformData) < 16384,
               "VSPicaUniformData structure must be less than 16kb as per the OpenGL spec");
