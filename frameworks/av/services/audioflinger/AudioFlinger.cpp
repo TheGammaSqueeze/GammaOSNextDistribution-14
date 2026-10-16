@@ -1838,6 +1838,24 @@ status_t AudioFlinger::setParameters(audio_io_handle_t ioHandle, const String8& 
                 mScreenState = ((mScreenState & ~1) + 2) | isOff;
             }
         }
+        // GammaOS ultra low power sleep (PowerManagerService): park every playback thread
+        // so the HAL streams go to standby and the audio DSP can let the SoC reach its
+        // deepest sleep, without closing any client's track. A misbehaving app that keeps
+        // writing is frozen by the same path, and its track resumes on restore.
+        String8 ulpSleep;
+        if (param.get(String8("gammaos_ulp_sleep"), ulpSleep) == NO_ERROR) {
+            const bool park = (ulpSleep == "1");
+            if (park != mGammaUlpSuspended) {
+                for (size_t i = 0; i < mPlaybackThreads.size(); i++) {
+                    if (park) mPlaybackThreads.valueAt(i)->suspend();
+                    else      mPlaybackThreads.valueAt(i)->restore();
+                }
+                mGammaUlpSuspended = park;
+                ALOGI("gammaos_ulp_sleep=%d: %zu playback threads %s", park ? 1 : 0,
+                      mPlaybackThreads.size(), park ? "suspended" : "restored");
+            }
+            final_result = NO_ERROR;
+        }
         return final_result;
     }
 

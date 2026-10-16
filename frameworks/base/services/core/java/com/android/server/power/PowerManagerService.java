@@ -2550,9 +2550,38 @@ public final class PowerManagerService extends SystemService
                     && wakefulness != WAKEFULNESS_DREAMING) {
                 return;
             }
+            gammaUlpParkHardware(true);
             freezeNonSystemApps();
         }
     };
+
+    // GammaOS ultra low power sleep: park the hardware sessions a frozen app would otherwise
+    // leave running on the DSPs, without ending them. Audio: AudioFlinger suspends every
+    // playback thread (tracks stay open, HAL streams reach standby). Sensors: SensorService's
+    // restricted mode disables every active sensor while keeping the registrations, and
+    // "enable" re-enables them on wake. Both are the framework's own pause paths, so no app
+    // loses its session.
+    private void gammaUlpParkHardware(boolean park) {
+        try {
+            android.media.AudioSystem.setParameters("gammaos_ulp_sleep=" + (park ? "1" : "0"));
+        } catch (Throwable t) {
+            Slog.w(TAG, "GammaOS ULP: audio park " + park + " failed", t);
+        }
+        try {
+            final IBinder sensors = android.os.ServiceManager.getService("sensorservice");
+            if (sensors != null) {
+                try (FileOutputStream devNull = new FileOutputStream("/dev/null")) {
+                    sensors.dump(devNull.getFD(), park
+                            ? new String[] { "restrict", "com.gammaos.ulp_sleep" }
+                            : new String[] { "enable" });
+                }
+            }
+        } catch (Throwable t) {
+            Slog.w(TAG, "GammaOS ULP: sensor park " + park + " failed", t);
+        }
+        Slog.i(TAG, "GammaOS ULP: hardware " + (park ? "parked" : "restored"));
+    }
+
     private void scheduleUltraPowerFreeze() {
         mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
         mHandler.postDelayed(mUltraPowerFreezeRunnable, ULTRA_POWER_FREEZE_DELAY_MS);
@@ -2652,6 +2681,7 @@ public final class PowerManagerService extends SystemService
                     // Cancel any pending freeze and unfreeze immediately on wake
                     mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
                     unfreezeNonSystemApps();
+                    gammaUlpParkHardware(false);
                 }
                 mLastGlobalWakeTime = eventTime;
                 mLastGlobalWakeReason = reason;

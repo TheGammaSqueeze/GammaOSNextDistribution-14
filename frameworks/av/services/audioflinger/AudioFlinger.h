@@ -446,6 +446,10 @@ private:
     // incremented by 2 when screen state changes, bit 0 == 1 means "off"
     // AudioFlinger::setParameters() updates with mutex().
     std::atomic_uint32_t mScreenState{};
+    // GammaOS ultra low power sleep: every playback thread is suspended (no HAL writes, so the
+    // streams reach standby and the audio DSP can sleep) while the parameter
+    // gammaos_ulp_sleep=1 is in force. Tracks stay open; restored with gammaos_ulp_sleep=0.
+    bool mGammaUlpSuspended = false;
 
     void dumpPermissionDenial(int fd, const Vector<String16>& args);
     void dumpClients_ll(int fd, const Vector<String16>& args) REQUIRES(mutex(), clientMutex());
