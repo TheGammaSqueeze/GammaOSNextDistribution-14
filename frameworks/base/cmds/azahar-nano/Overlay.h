@@ -51,8 +51,10 @@ struct OverlayActions {
 
 class Overlay {
 public:
+    // upright: a portrait buffer for a landscape picture (90 degrees); turn180: the panel
+    // is mounted upside down and the plane cannot turn it, so the menu is drawn turned.
     bool init(ANativeWindow* win, int bufW, int bufH, bool upright, const OverlayActions& a,
-              const std::string& dataDir);
+              const std::string& dataDir, bool turn180 = false);
     void shutdown();
 
     void open();

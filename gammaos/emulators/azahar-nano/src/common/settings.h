@@ -585,6 +585,9 @@ struct Values {
     // Frontend-only: upright_screen rotates the primary window only (a portrait
     // primary panel next to a landscape secondary panel).
     bool upright_primary_only = false;
+    // Frontend-only: the primary window is drawn turned by 180 degrees (a panel mounted
+    // upside down whose display plane cannot rotate, the RG DS top screen).
+    bool turn_primary_180 = false;
     // Frontend-only: frame limiter paces every emulated frame onto a fixed
     // wall-clock schedule instead of correcting the accumulated speed error.
     bool deadline_frame_pacing = false;

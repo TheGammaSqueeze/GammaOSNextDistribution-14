@@ -109,6 +109,10 @@ void azn_set_windows(struct ANativeWindow* primary, struct ANativeWindow* second
 // Set before azn_run; the DRM backend uses it for a portrait primary panel.
 void azn_set_upright(int upright);
 
+// The primary panel is mounted turned by this many degrees (0 or 180) and the display
+// plane cannot turn it back: the primary window is drawn turned. Optional (newer cores).
+void azn_set_primary_turn(int degrees);
+
 // Presentation override: vsync -1 = follow config.ini, 0/1 = force the FIFO
 // (vsync) swapchain off/on; swapchain_extra_images = images above the surface
 // minimum (1 = stock; the DRM backend tunes the present queue depth with it).

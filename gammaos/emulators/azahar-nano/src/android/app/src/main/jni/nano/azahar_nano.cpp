@@ -132,6 +132,7 @@ void TryShutdown() {
 }
 
 static int s_upright_override = -1;
+static int s_primary_turn = 0;
 static int s_vsync_override = -1;
 static int s_swapchain_extra = 1;
 static bool s_deadline_pacing = false;
@@ -145,6 +146,7 @@ static void ApplyFrontendOverrides() {
         // handed to the core in its own natural orientation.
         Settings::values.upright_primary_only = true;
     }
+    Settings::values.turn_primary_180 = (s_primary_turn == 180);
     if (s_vsync_override >= 0) {
         Settings::values.use_vsync.SetGlobal(true);
         Settings::values.use_vsync.SetValue(s_vsync_override != 0);
@@ -389,6 +391,13 @@ void azn_set_gpu_driver(const char* hook_lib_dir, const char* custom_driver_dir,
 // landscape (install rotation), so the primary layout is rendered upright.
 void azn_set_upright(int upright) {
     s_upright_override = upright;
+    ApplyFrontendOverrides();
+}
+
+// The primary panel is mounted turned by this many degrees (0 or 180) and its display
+// plane cannot turn the picture back: the renderer draws the primary window turned.
+void azn_set_primary_turn(int degrees) {
+    s_primary_turn = degrees == 180 ? 180 : 0;
     ApplyFrontendOverrides();
 }
 

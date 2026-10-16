@@ -15,7 +15,7 @@ class Hud {
 public:
     // win: the HUD window; bufW/bufH its buffer size; upright: the strip is the
     // left columns of a portrait buffer (drawn rotated like the menu).
-    bool init(ANativeWindow* win, int bufW, int bufH, bool upright);
+    bool init(ANativeWindow* win, int bufW, int bufH, bool upright, bool turn180 = false);
     void shutdown();
     struct Frame {
         // Counter box (BLIT = panel flips/s, GAME = emulated frames/s, the same two

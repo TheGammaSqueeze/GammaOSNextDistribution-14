@@ -219,10 +219,21 @@ void EmuWindow::UpdateCurrentFramebufferLayout(u32 width, u32 height, bool is_po
 
     const Settings::PortraitLayoutOption portrait_layout_option =
         Settings::values.portrait_layout_option.GetValue();
-    const auto min_size = is_portrait_mode
-                              ? Layout::GetMinimumSizeFromPortraitLayout()
-                              : Layout::GetMinimumSizeFromLayout(
-                                    layout_option, Settings::values.upright_screen.GetValue());
+    auto min_size = is_portrait_mode
+                        ? Layout::GetMinimumSizeFromPortraitLayout()
+                        : Layout::GetMinimumSizeFromLayout(
+                              layout_option, Settings::values.upright_screen.GetValue());
+    // GammaOS: a window that shows the bottom screen alone (the secondary panel, or the
+    // single screen layout swapped) needs no more than that screen. The single screen
+    // minimum is the top screen's 400 pixels, which made a 320 wide bottom window lay the
+    // 320x240 screen out in a 400 wide space, scaled down with black bars at both sides.
+    if (!is_portrait_mode && is_bottom &&
+        (is_secondary || layout_option == Settings::LayoutOption::SingleScreen)) {
+        const bool upright = Settings::values.upright_screen.GetValue() &&
+                             !(is_secondary && Settings::values.upright_primary_only);
+        min_size = upright ? std::make_pair(Core::kScreenBottomHeight, Core::kScreenBottomWidth)
+                           : std::make_pair(Core::kScreenBottomWidth, Core::kScreenBottomHeight);
+    }
 
     width = std::max(width, min_size.first);
     height = std::max(height, min_size.second);

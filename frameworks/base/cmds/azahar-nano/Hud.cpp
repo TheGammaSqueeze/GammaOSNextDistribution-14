@@ -15,7 +15,7 @@ using android::drastic_gfx::rgba;
 
 namespace azahar_nano {
 
-bool Hud::init(ANativeWindow* win, int bufW, int bufH, bool upright) {
+bool Hud::init(ANativeWindow* win, int bufW, int bufH, bool upright, bool turn180) {
     mBufW = bufW;
     mBufH = bufH;
     mUpright = upright;
@@ -39,9 +39,12 @@ bool Hud::init(ANativeWindow* win, int bufW, int bufH, bool upright) {
     // it; the upright matrix maps it onto the portrait buffer.
     const int logicalW = upright ? bufH : bufW;
     const int logicalH = upright ? bufW : bufH;
-    const float rotUpright[4] = {0.0f, 1.0f, -1.0f, 0.0f};
-    const float rotNone[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-    if (!mGfx.init(logicalW, logicalH, upright ? rotUpright : rotNone)) {
+    // Same matrix as the menu; a panel mounted upside down gets it negated (the presenter
+    // then scans the strips out from the opposite buffer edge).
+    float rot[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    if (upright) { rot[0] = 0.0f; rot[1] = 1.0f; rot[2] = -1.0f; rot[3] = 0.0f; }
+    if (turn180) { for (float& v : rot) v = -v; }
+    if (!mGfx.init(logicalW, logicalH, rot)) {
         ALOGE("hud: OverlayGfx init failed");
         return false;
     }

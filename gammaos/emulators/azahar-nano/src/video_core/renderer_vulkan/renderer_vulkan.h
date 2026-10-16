@@ -197,6 +197,10 @@ private:
     bool isSecondaryWindow;
     bool secondaryWindowEnabled;
     bool screenRendered;
+    // GammaOS: the pass being drawn is turned by 180 degrees (DrawScreens' flipped flag):
+    // every screen rectangle is mirrored in the layout and its texture read the other way.
+    bool turn_180 = false;
+    float turn_w = 0.0f, turn_h = 0.0f;
 };
 
 } // namespace Vulkan

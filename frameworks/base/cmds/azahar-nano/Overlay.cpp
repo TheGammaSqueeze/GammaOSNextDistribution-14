@@ -33,7 +33,7 @@ constexpr int kPageTop = 0, kPageVideo = 1, kPageAudio = 2, kPageSystem = 3, kPa
 }
 
 bool Overlay::init(ANativeWindow* win, int bufW, int bufH, bool upright, const OverlayActions& a,
-                   const std::string& dataDir) {
+                   const std::string& dataDir, bool turn180) {
     mA = a;
     mDataDir = dataDir;
     mBufW = bufW;
@@ -68,9 +68,12 @@ bool Overlay::init(ANativeWindow* win, int bufW, int bufH, bool upright, const O
     // is the buffer's left edge, which is this matrix.
     const int logicalW = upright ? bufH : bufW;
     const int logicalH = upright ? bufW : bufH;
-    const float rotUpright[4] = {0.0f, 1.0f, -1.0f, 0.0f};
-    const float rotNone[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-    if (!mGfx.init(logicalW, logicalH, upright ? rotUpright : rotNone)) {
+    // A panel mounted upside down (turn180) gets the same picture turned: the matrix
+    // negated, which composes with the upright turn.
+    float rot[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    if (upright) { rot[0] = 0.0f; rot[1] = 1.0f; rot[2] = -1.0f; rot[3] = 0.0f; }
+    if (turn180) { for (float& v : rot) v = -v; }
+    if (!mGfx.init(logicalW, logicalH, rot)) {
         ALOGE("overlay: OverlayGfx init failed");
         return false;
     }
@@ -78,7 +81,8 @@ bool Overlay::init(ANativeWindow* win, int bufW, int bufH, bool upright, const O
     eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     scanGpuDrivers();
     buildPages();
-    ALOGI("overlay: ready %dx%d upright=%d logical %dx%d", bufW, bufH, upright, logicalW, logicalH);
+    ALOGI("overlay: ready %dx%d upright=%d turn180=%d logical %dx%d", bufW, bufH, upright, turn180,
+          logicalW, logicalH);
     return true;
 }
 

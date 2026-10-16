@@ -43,6 +43,8 @@ struct DrmPanel {
     uint32_t width = 0;     // panel native (scanout) size
     uint32_t height = 0;
     bool isDsi = false;
+    int portIndex = 0;     // position among the connected connectors (SurfaceFlinger's port number)
+    int mountDeg = 0;      // how the panel is mounted (persist.gsf.rot.<port>), 0 or 180 handled
     double refreshHz = 60.0;   // from the mode timings
     uint32_t bufW = 0, bufH = 0;   // game buffer size (render_scale)
     uint64_t bufUsage = 0;
@@ -158,6 +160,15 @@ public:
     // internal resolution), so the emulated image lands 1:1 and the display
     // plane does the one upscale to the panel. 0 = full panel size.
     void setOutputShortSide(int idx, uint32_t px) { if (idx >= 0 && idx < 2) mOutputShortSide[idx] = px; }
+    // The same, given the emulated screen at the internal resolution: the buffer keeps the
+    // panel's aspect ratio and is the smallest one the screen fits 1:1 (its height on a
+    // panel at least as wide as the screen, taller on a 4:3 panel for the 5:3 top screen).
+    void setOutputScreen(int idx, uint32_t w, uint32_t h) {
+        if (idx >= 0 && idx < 2) { mOutputScreenW[idx] = w; mOutputScreenH[idx] = h; }
+    }
+    // How the panel is mounted, from the vendor's persist.gsf.rot.<port> (0 or 180): the
+    // picture is drawn turned by the renderer since these planes do not rotate.
+    int mountRotationDeg(int idx) const { return mPanels[idx].mountDeg; }
     // Short side wanted while an LCD shader is on (0 = same as the plain size), and whether
     // the panel starts in that size. Both before create().
     void setLcdShortSide(int idx, uint32_t px, bool startOn) {
@@ -198,6 +209,7 @@ private:
     std::atomic<bool> mRun{false};
     std::vector<std::thread> mPanelThreads;
     uint32_t mOutputShortSide[2] = {0, 0};
+    uint32_t mOutputScreenW[2] = {0, 0}, mOutputScreenH[2] = {0, 0};
     uint32_t mLcdShortSide[2] = {0, 0};
     bool mLcdStart[2] = {false, false};
     bool mBlockingCommits = true;

@@ -1139,8 +1139,30 @@ void RendererVulkan::ReloadPipeline(Settings::StereoRenderOption render_3d) {
     }
 }
 
+// GammaOS: a pass turned by 180 degrees mirrors the rectangle in the layout and reads the
+// texture the other way round (the flipped orientations exist for exactly that).
+static Layout::DisplayOrientation TurnedOrientation(Layout::DisplayOrientation o) {
+    switch (o) {
+    case Layout::DisplayOrientation::Landscape:
+        return Layout::DisplayOrientation::LandscapeFlipped;
+    case Layout::DisplayOrientation::LandscapeFlipped:
+        return Layout::DisplayOrientation::Landscape;
+    case Layout::DisplayOrientation::Portrait:
+        return Layout::DisplayOrientation::PortraitFlipped;
+    case Layout::DisplayOrientation::PortraitFlipped:
+        return Layout::DisplayOrientation::Portrait;
+    default:
+        return o;
+    }
+}
+
 void RendererVulkan::DrawSingleScreen(u32 screen_id, float x, float y, float w, float h,
                                       Layout::DisplayOrientation orientation) {
+    if (turn_180) {
+        x = turn_w - x - w;
+        y = turn_h - y - h;
+        orientation = TurnedOrientation(orientation);
+    }
     const ScreenInfo& screen_info = screen_infos[screen_id];
     const auto& texcoords = screen_info.texcoords;
 
@@ -1246,6 +1268,11 @@ void RendererVulkan::DrawSingleScreen(u32 screen_id, float x, float y, float w, 
 void RendererVulkan::DrawSingleScreenStereo(u32 screen_id_l, u32 screen_id_r, float x, float y,
                                             float w, float h,
                                             Layout::DisplayOrientation orientation) {
+    if (turn_180) {
+        x = turn_w - x - w;
+        y = turn_h - y - h;
+        orientation = TurnedOrientation(orientation);
+    }
     const ScreenInfo& screen_info_l = screen_infos[screen_id_l];
     const auto& texcoords = screen_info_l.texcoords;
 
@@ -1457,6 +1484,10 @@ void RendererVulkan::DrawScreens(Frame* frame, const Layout::FramebufferLayout& 
     }
 
     PrepareDraw(frame, layout);
+
+    turn_180 = flipped;
+    turn_w = static_cast<float>(layout.width);
+    turn_h = static_cast<float>(layout.height);
 
     const auto& top_screen = layout.top_screen;
     const auto& bottom_screen = layout.bottom_screen;
@@ -1678,7 +1709,7 @@ void RendererVulkan::SwapBuffers() {
     }
     const auto trace_t1 = std::chrono::steady_clock::now();
 #endif
-    RenderToWindow(main_present_window, layout, false);
+    RenderToWindow(main_present_window, layout, Settings::values.turn_primary_180);
 #ifdef ANDROID
     {
         const double d = MsSince(trace_t1);

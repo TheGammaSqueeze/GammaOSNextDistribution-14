@@ -11,6 +11,7 @@
 #include <cmath>
 #include <chrono>
 #include <climits>
+#include <fstream>
 #include <map>
 #include <string>
 #include <poll.h>
@@ -175,6 +176,31 @@ private:
 
 } // namespace
 
+// The panel's mount rotation in degrees, the way the home reads it (NanoMenuDrm
+// drmPanelMountRotationDeg): port 0 is SurfaceFlinger's primary and follows
+// ro.surface_flinger.primary_display_orientation, the others persist.gsf.rot.<port>
+// (persist.gsf.sec_rot for all secondaries). Only 0 and 180 are acted on here.
+static int panelMountDeg(int port) {
+    auto toDeg = [](const char* s) -> int {
+        if (!strcmp(s, "ORIENTATION_90") || !strcmp(s, "90")) return 90;
+        if (!strcmp(s, "ORIENTATION_180") || !strcmp(s, "180")) return 180;
+        if (!strcmp(s, "ORIENTATION_270") || !strcmp(s, "270")) return 270;
+        return 0;
+    };
+    char val[PROPERTY_VALUE_MAX] = {};
+    int deg = 0;
+    if (port <= 0) {
+        if (property_get("ro.surface_flinger.primary_display_orientation", val, "") > 0) deg = toDeg(val);
+    } else {
+        char key[PROPERTY_KEY_MAX];
+        snprintf(key, sizeof(key), "persist.gsf.rot.%d", port);
+        if (property_get(key, val, "") > 0) deg = toDeg(val);
+        else if (property_get("persist.gsf.sec_rot", val, "") > 0) deg = toDeg(val);
+    }
+    // 90/270 mounts are the install rotation the upright layout already covers.
+    return deg == 180 ? 180 : 0;
+}
+
 bool DrmWindows::openDevice() {
     for (int attempt = 0; attempt < 50 && mFd < 0; attempt++) {
         mFd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
@@ -186,14 +212,40 @@ bool DrmWindows::openDevice() {
     }
     drmSetClientCap(mFd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
     drmSetClientCap(mFd, DRM_CLIENT_CAP_ATOMIC, 1);
+    // Master is taken when the composer lets go (the Duo Lite's does, through its shim,
+    // within the wait below). On the Rockchip kernels (RG DS, RG DS Plus) the composer
+    // keeps master for good and SET_MASTER answers EBUSY, yet that kernel accepts atomic
+    // commits from a root client without master, the way the home and drastic-nano run
+    // there. An empty TEST_ONLY commit tells the two apart: EACCES means this kernel wants
+    // a master (keep waiting), anything else means commits work and the wait is pointless.
+    auto commitsWithoutMaster = [this]() {
+        drmModeAtomicReqPtr req = drmModeAtomicAlloc();
+        if (!req) return false;
+        const int r = drmModeAtomicCommit(mFd, req, DRM_MODE_ATOMIC_TEST_ONLY, nullptr);
+        const int e = errno;
+        drmModeAtomicFree(req);
+        return !(r != 0 && e == EACCES);
+    };
+    const int64_t t0 = monoNs();
     int rc = -1;
+    bool masterless = false;
     for (int attempt = 0; attempt < 50; attempt++) {
         rc = drmSetMaster(mFd);
         if (rc == 0) break;
+        if (errno == EBUSY && attempt == 2 && commitsWithoutMaster()) {
+            masterless = true;
+            break;
+        }
         usleep(100 * 1000);
     }
-    if (rc != 0) {
-        ALOGE("DRM: SET_MASTER failed: %s", strerror(errno));
+    const int waitedMs = (int)((monoNs() - t0) / 1000000);
+    if (rc == 0) {
+        ALOGI("DRM: master after %d ms", waitedMs);
+    } else if (masterless) {
+        ALOGW("DRM: SET_MASTER busy and this kernel takes commits without master; continuing after %d ms",
+              waitedMs);
+    } else {
+        ALOGE("DRM: SET_MASTER failed after %d ms: %s", waitedMs, strerror(errno));
         return false;
     }
     return true;
@@ -263,7 +315,14 @@ bool DrmWindows::enumerate() {
             ALOGI("DRM: connector %u %s %ux%u@%.3f Hz crtc %u (idx %u)", p.connId,
                   connTypeName(c->connector_type), p.width, p.height, p.refreshHz, p.crtcId,
                   p.crtcIndex);
-            if (crtcId) found.push_back(p);
+            if (crtcId) {
+                // SurfaceFlinger numbers the connected panels in this order (port 0, 1): the
+                // vendor's persist.gsf.rot.<port> says how each one is mounted.
+                p.portIndex = (int)found.size();
+                p.mountDeg = panelMountDeg(p.portIndex);
+                if (p.mountDeg) ALOGI("DRM: connector %u mounted turned by %d degrees (port %d)", p.connId, p.mountDeg, p.portIndex);
+                found.push_back(p);
+            }
         }
         drmModeFreeConnector(c);
     }
@@ -271,6 +330,19 @@ bool DrmWindows::enumerate() {
     // DSI (the built-in top panel) first.
     std::stable_sort(found.begin(), found.end(),
                      [](const DrmPanel& a, const DrmPanel& b) { return a.isDsi && !b.isDsi; });
+    // Two built-in panels: persist.gammaos.nano.primary_display names the top one the way
+    // the home reads it on its DRM path, as an index into the connectors in this order
+    // (1 on the RG DS, whose first DSI connector is the bottom panel). A port number
+    // (130 on the Duo Lite) is out of range and leaves the order alone.
+    {
+        char prim[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.primary_display", prim, "0");
+        const int idx = atoi(prim);
+        if (idx > 0 && idx < (int)found.size()) {
+            std::rotate(found.begin(), found.begin() + idx, found.begin() + idx + 1);
+            ALOGI("DRM: primary panel from persist.gammaos.nano.primary_display=%d", idx);
+        }
+    }
     // Two panels: the scaling pipe (only one on the Duo Lite, and a pipe never feeds both panels)
     // is kept for the first (top) panel, whose LCD shader output it scales up; the second panel
     // scans out at its full size. Which panel got it used to depend on the planes the previous
@@ -578,9 +650,13 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
     // compressed, which the GPU renders into with far less memory traffic; the
     // framebuffer then carries the QCOM compression modifier (importFb).
     p.bufUsage = GRALLOC_USAGE_HW_COMPOSER | GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_HW_TEXTURE;
-    // Part of the GammaOS tweaks (on by default); the ubwc property overrides it.
+    // Part of the GammaOS tweaks (on by default) on Adreno, where the display scans UBWC
+    // out from any pipe; the ubwc property overrides it. The Mali grallocs answer the same
+    // usage with AFBC, which only the Rockchip VOP's cluster windows take (and they refuse
+    // the linear menu buffer afterwards): linear buffers there.
     const bool tweaks = settings::getBool("persist.gammaos.azahar_nano.tweaks", true);
-    if (!settings::getBool("persist.gammaos.azahar_nano.ubwc", tweaks)) {
+    const bool adreno = access("/sys/class/kgsl/kgsl-3d0", F_OK) == 0;
+    if (!settings::getBool("persist.gammaos.azahar_nano.ubwc", tweaks && adreno)) {
         p.bufUsage |= GRALLOC_USAGE_SW_READ_RARELY;
     }
     p.consumer = new BufferItemConsumer(consumer, p.bufUsage, 2 + kMaxReady, false);
@@ -605,7 +681,15 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
                 h = std::max<uint32_t>(2, ((uint32_t)std::lround(p.height * k) + 1) & ~1u);
             }
         };
-        const uint32_t want = (idx < 2) ? mOutputShortSide[idx] : 0;
+        uint32_t want = (idx < 2) ? mOutputShortSide[idx] : 0;
+        if (idx < 2 && mOutputScreenW[idx] && mOutputScreenH[idx]) {
+            // The smallest buffer at the panel's aspect ratio the emulated screen fits 1:1.
+            const uint32_t longSide = std::max(p.width, p.height);
+            const uint32_t forWidth =
+                (uint32_t)((uint64_t)mOutputScreenW[idx] * shortSide + longSide - 1) / longSide;
+            want = std::max(mOutputScreenH[idx], forWidth);
+            want = (want + 1) & ~1u;
+        }
         sizeFor(want, p.bufW, p.bufH);
         if (want > 0 && want < shortSide) {
             ALOGI("DRM: panel %d native output: short side %u for emulated height %u", idx,
@@ -626,7 +710,8 @@ bool DrmWindows::createQueue(DrmPanel& p, int idx) {
         // panel is flipping.
         p.lcdW = p.plainW;
         p.lcdH = p.plainH;
-        const uint32_t lcdWant = (idx < 2) ? mLcdShortSide[idx] : 0;
+        // never below the native size: the LCD grid only needs more output pixels
+        const uint32_t lcdWant = (idx < 2) ? std::max(mLcdShortSide[idx], want) : 0;
         if (lcdWant > std::min(p.plainW, p.plainH)) {
             uint32_t w = 0, h = 0;
             sizeFor(lcdWant, w, h);
@@ -682,16 +767,47 @@ bool DrmWindows::createOverlayQueue(DrmPanel& p, int idx) {
 
 // A second plane for the CRTC (any type but the one the panel scans out on, with
 // an RGBA format): used for the alpha-blended HUD.
+// The hardware window each DRM plane belongs to, where the kernel tells (the DRM debugfs
+// state names Rockchip VOP2 planes "Esmart1-win2": four areas of one window, which must
+// not overlap each other on screen, so an area of the game's window cannot carry the HUD
+// over the game). Empty when the file is not there (Qualcomm SDE names nothing).
+static std::map<uint32_t, std::string> planeWindowGroups() {
+    std::map<uint32_t, std::string> groups;
+    std::ifstream in("/sys/kernel/debug/dri/0/state");
+    std::string line;
+    while (std::getline(in, line)) {
+        // "plane[155]: Smart1-win1"
+        if (line.rfind("plane[", 0) != 0) continue;
+        const size_t close = line.find("]: ");
+        if (close == std::string::npos) continue;
+        const uint32_t id = (uint32_t)strtoul(line.c_str() + 6, nullptr, 10);
+        std::string name = line.substr(close + 3);
+        const size_t win = name.find("-win");
+        if (win == std::string::npos) continue;   // no area naming: nothing to group
+        groups[id] = name.substr(0, win);
+    }
+    return groups;
+}
+
 bool DrmWindows::pickHudPlane(DrmPanel& p) {
     drmModePlaneResPtr pr = drmModeGetPlaneResources(mFd);
     if (!pr) return false;
     uint32_t best = 0;
     int bestScore = -1;
+    const std::map<uint32_t, std::string> groups = planeWindowGroups();
+    std::string gameGroup;
+    if (auto it = groups.find(p.planeId); it != groups.end()) gameGroup = it->second;
     for (uint32_t i = 0; i < pr->count_planes; i++) {
         drmModePlanePtr pl = drmModeGetPlane(mFd, pr->planes[i]);
         if (!pl) continue;
         bool taken = pl->plane_id == p.planeId;
         for (const auto& q : mPanels) taken |= (q.planeId == pl->plane_id || q.hudPlaneId == pl->plane_id);
+        // another area of the game's own window never shows over it
+        if (!gameGroup.empty()) {
+            if (auto it = groups.find(pl->plane_id); it != groups.end() && it->second == gameGroup) {
+                taken = true;
+            }
+        }
         // its pipe's other rect: on another panel it rules the plane out, in use on this panel it
         // is allowed but a pipe of its own is better (no multirect sharing at all)
         const uint32_t partner = smartPartner(mFd, pl->plane_id);
@@ -857,7 +973,9 @@ void DrmWindows::addHudProps(DrmPanel& p, drmModeAtomicReqPtr req) {
         const uint32_t strip = std::min(kHudStrip, upright ? w : h);
         uint32_t x = 0, y = 0, rw = w, rh = h;
         if (regions == kHudTop || regions == kHudBottom) {
-            const bool bottom = regions == kHudBottom;
+            // On a panel mounted upside down the HUD is drawn turned, so the strip along
+            // the user's top edge is the buffer's bottom one.
+            const bool bottom = (regions == kHudBottom) != (p.mountDeg == 180);
             if (upright) {
                 rw = strip;
                 x = bottom ? w - strip : 0;

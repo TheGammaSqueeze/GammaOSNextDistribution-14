@@ -12,8 +12,8 @@
  *      down and set sys.gammaos.azahar_nano.session_done=1; init restarts the
  *      home. SurfaceFlinger is never stopped.
  *
- * Backends: persist.gammaos.azahar_nano.backend = sf | drm (default drm once
- * the DRM path lands; sf today). User directory: persist.gammaos.azahar_nano.user_dir
+ * Backends: persist.gammaos.azahar_nano.backend = drm (default) | sf; drm falls
+ * back to sf when no DRM panel comes up. User directory: persist.gammaos.azahar_nano.user_dir
  * (default /sdcard/azahar-nano) holds config/, nand/, sdmc/, sysdata/, shaders/,
  * gpu_drivers/ exactly like the Azahar app's user directory.
  */
@@ -87,6 +87,7 @@ struct CoreApi {
     void (*get_perf_stats)(azn_perf_stats*) = nullptr;
     void (*reload_settings)() = nullptr;
     void (*set_upright)(int) = nullptr;
+    void (*set_primary_turn)(int) = nullptr;   // optional (newer cores)
     void (*set_present_mode)(int, int) = nullptr;
     void (*set_deadline_pacing)(int) = nullptr;
     void (*set_pace_scale)(double) = nullptr;
@@ -173,6 +174,7 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.get_perf_stats, "azn_get_perf_stats");
     ok &= sym(gCore.reload_settings, "azn_reload_settings");
     ok &= sym(gCore.set_upright, "azn_set_upright");
+    sym(gCore.set_primary_turn, "azn_set_primary_turn");   // optional
     ok &= sym(gCore.set_present_mode, "azn_set_present_mode");
     ok &= sym(gCore.set_deadline_pacing, "azn_set_deadline_pacing");
     ok &= sym(gCore.set_pace_scale, "azn_set_pace_scale");
@@ -744,7 +746,9 @@ int main(int argc, char** argv) {
             property_set((std::string("sys.gammaos.azahar_nano.") + key).c_str(), v.c_str());
         }
     }
-    const std::string backend = prop("persist.gammaos.azahar_nano.backend", "sf");
+    // DRM direct by default (the presenter that paces both panels at 60 flips a second);
+    // the SurfaceFlinger backend takes over below when the DRM panels do not come up.
+    const std::string backend = prop("persist.gammaos.azahar_nano.backend", "drm");
     ALOGI("rom=%s core=%s user=%s backend=%s", rom.c_str(), coreLib.c_str(), userDir.c_str(),
           backend.c_str());
 
@@ -865,7 +869,10 @@ int main(int argc, char** argv) {
             if (factor >= 1 && factor <= 10) {
                 for (int panel = 0; panel < 2; panel++) {
                     const int screen = swap ? 1 - panel : panel;
-                    drm.setOutputShortSide(panel, 240u * factor);
+                    // The emulated screen at the internal resolution; the presenter sizes
+                    // the buffer so the screen fits it 1:1 at the panel's aspect ratio (a
+                    // 4:3 panel holds the 5:3 top screen only at a taller buffer).
+                    drm.setOutputScreen(panel, (screen == 0 ? 400u : 320u) * factor, 240u * factor);
                     // Both sizes are verified at create; the menu switches live.
                     drm.setLcdShortSide(panel, std::max(240u * factor, 720u), lcd[screen]);
                 }
@@ -894,6 +901,15 @@ int main(int argc, char** argv) {
         const bool upright = drm.isPortrait(0) &&
                              prop("persist.gammaos.azahar_nano.drm_upright", "1") == "1";
         gCore.set_upright(upright ? 1 : 0);
+        // A top panel mounted upside down (persist.gsf.rot.<port>=180, the RG DS) whose
+        // plane does not rotate: the core draws the primary window turned, the way the
+        // home turns its own frames there.
+        if (gCore.set_primary_turn) {
+            gCore.set_primary_turn(drm.mountRotationDeg(0));
+        } else if (drm.mountRotationDeg(0)) {
+            ALOGW("core without azn_set_primary_turn: the top panel stays turned by %d degrees",
+                  drm.mountRotationDeg(0));
+        }
         // FIFO mode: the presenter takes frames in order and the queue paces the
         // core (vsync swapchain, shortest queue). Mailbox mode: the core runs on
         // its own frame limiter and the presenter scans out the newest frame at
@@ -1018,8 +1034,10 @@ int main(int argc, char** argv) {
         // The SurfaceFlinger windows are the framework's logical (already turned) space,
         // so only a DRM portrait panel draws the menu and the HUD upright by itself.
         const bool upright = drmActive && drm.isPortrait(0);
+        const bool turn180 = drmActive && drm.mountRotationDeg(0) == 180;
         ANativeWindow* ovWin = drmActive ? drm.overlayWindow(0) : sf.overlayWindow(0);
-        sOverlayReady = ovWin && overlay.init(ovWin, (int)widthAt(0), (int)heightAt(0), upright, oa, dataDir);
+        sOverlayReady = ovWin && overlay.init(ovWin, (int)widthAt(0), (int)heightAt(0), upright, oa, dataDir,
+                                              turn180);
         if (!sOverlayReady) ALOGE("overlay unavailable");
         if (sOverlayReady && prop("persist.gammaos.azahar_nano.loading_screen", "1") == "1") {
             gLoadOverlay = &overlay;
@@ -1027,7 +1045,7 @@ int main(int argc, char** argv) {
         sOa = oa;
         uint32_t hw = 0, hh = 0;
         ANativeWindow* hudWin = drmActive ? drm.hudWindow(0, &hw, &hh) : sf.hudWindow(0, &hw, &hh);
-        if (hudWin) sHudReady = hud.init(hudWin, (int)hw, (int)hh, upright);
+        if (hudWin) sHudReady = hud.init(hudWin, (int)hw, (int)hh, upright, turn180);
         if (!sHudReady) ALOGW("fps counter unavailable (no HUD plane)");
     }
 
