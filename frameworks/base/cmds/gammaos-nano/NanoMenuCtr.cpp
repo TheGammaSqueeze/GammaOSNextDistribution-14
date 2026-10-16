@@ -2586,6 +2586,7 @@ bool NanoMenu::ctrBgmAllowed() {
     return !mPs3BootActive && !ndsPlayerActive() && !(mOverlayMode && !mOverlayWallpaper) &&
            mLaunchFadeStart == 0 && !mOverlayLaunchPending &&
            !property_get_bool("sys.gammaos.nano.app_launched", false) &&
+           !property_get_bool("sys.gammaos.nano.screenoff", false) &&      // the screen-off path closed the streams
            property_get_bool("persist.gammaos.nano.nds.ambiance", true);   // Menu Music, applied live
 }
 

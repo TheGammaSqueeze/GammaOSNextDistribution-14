@@ -85,6 +85,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <android/hardware/light/2.0/ILight.h>
 
 #include "NanoMenu.h"
+#include "NanoCtrAudio.h"      // screen-off closes the 3DS theme audio streams
 #include "NanoScreenCal.h"
 #include "NanoBootChime.h"
 #include "NanoMenuShaders.h"
@@ -5186,6 +5187,8 @@ if (sRingPrimedCount >= 2) {
                 if (mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
                 if (!mAmbianceOpening) mAmbiancePlayer.release();
                 if (!mSfxOpening.load()) mSfxPlayer.release();
+                // the 3DS theme's own player (its looping BGM never idles the stream): same reason
+                if (mCtrAudio) { mCtrAudio->stopAll(0); mCtrAudio->release(); }
                 nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sOvlPwrSave = true;
             }
             else if (!screenOff && sOvlPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sOvlPwrSave = false; }
@@ -5261,6 +5264,12 @@ if (sRingPrimedCount >= 2) {
                 if (mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
                 if (!mAmbianceOpening) mAmbiancePlayer.release();
                 if (!mSfxOpening.load()) mSfxPlayer.release();
+                // The 3DS theme plays through its own CtrAudio: its BGM loops, so that stream
+                // never reaches the idle stop and held the AudioMix wakelock all night (RP Duo
+                // Lite: PowerManager asleep, zero suspends). Stop the voices and close the
+                // streams; the home's keep-alive restarts the BGM once the screen is back
+                // (ctrBgmAllowed refuses it while sys.gammaos.nano.screenoff is set).
+                if (mCtrAudio) { mCtrAudio->stopAll(0); mCtrAudio->release(); }
                 // A DRM-direct home owns the panels: the framework's display-off cannot
                 // reach them (RP Duo Lite: PowerManager asleep, both panels still lit at
                 // full brightness after a power press). Present black and drop the

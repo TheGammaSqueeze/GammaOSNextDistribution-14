@@ -154,6 +154,12 @@ void azn_pause(bool paused);
 bool azn_is_running(void);
 bool azn_is_paused(void);
 
+// Device sleep: while asleep the DSP outputs through the null sink so no platform audio
+// stream stays open (an open stream keeps AudioFlinger's mixer awake, which holds the
+// AudioMix wakelock and blocks suspend). Takes effect inside the pause, so azn_pause(true)
+// first; the platform sink comes back on azn_sleep(false). Audio only, nothing else changes.
+void azn_sleep(bool asleep);
+
 // Re-read config.ini and apply (video/audio settings changed by the overlay).
 void azn_reload_settings(void);
 

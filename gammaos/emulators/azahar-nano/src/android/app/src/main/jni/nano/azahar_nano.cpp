@@ -28,6 +28,8 @@
 #include "common/microprofile.h"
 #include "common/scope_exit.h"
 #include "common/settings.h"
+#include "audio_core/dsp_interface.h"
+#include "audio_core/sink_details.h"
 #include "core/core.h"
 #include "core/perf_stats.h"
 #include "core/frontend/applets/default_applets.h"
@@ -68,6 +70,7 @@ ANativeWindow* s_secondary_surface{};
 
 std::atomic<bool> stop_run{true};
 std::atomic<bool> pause_emulation{false};
+std::atomic<bool> sleep_audio_off{false};   // azn_sleep: the DSP sink is the null sink
 std::mutex paused_mutex;
 std::mutex running_mutex;
 std::condition_variable running_cv;
@@ -309,7 +312,30 @@ Core::System::ResultStatus RunCore(const std::string& filepath) {
             SCOPE_EXIT({ Settings::values.volume = volume; });
             Settings::values.volume = 0;
             std::unique_lock pause_lock{paused_mutex};
-            running_cv.wait(pause_lock, [] { return !pause_emulation || stop_run; });
+            // Device sleep inside the pause: the platform sink (cubeb/AAudio) keeps its stream
+            // running through a pause, and that stream alone kept the device from suspending.
+            // Swap in the null sink for the sleep and put the configured one back on wake, on
+            // this thread (the only one that touches the DSP sink besides the audio callback).
+            bool audio_off = false;
+            while (pause_emulation && !stop_run) {
+                const bool want_off = sleep_audio_off.load();
+                if (want_off != audio_off) {
+                    audio_off = want_off;
+                    if (audio_off) {
+                        system.DSP().SetSink(AudioCore::SinkType::Null, "");
+                    } else {
+                        system.DSP().SetSink(Settings::values.output_type.GetValue(),
+                                             Settings::values.output_device.GetValue());
+                    }
+                }
+                running_cv.wait(pause_lock, [&] {
+                    return !pause_emulation || stop_run || sleep_audio_off.load() != audio_off;
+                });
+            }
+            if (audio_off) {
+                system.DSP().SetSink(Settings::values.output_type.GetValue(),
+                                     Settings::values.output_device.GetValue());
+            }
             // The pause (device sleep, the in-game menu) is not emulated time.
             system.ResetFrameTiming();
             window->PollEvents();
@@ -562,6 +588,11 @@ void azn_pause(bool paused) {
     if (!paused) {
         running_cv.notify_all();
     }
+}
+
+void azn_sleep(bool asleep) {
+    sleep_audio_off = asleep;
+    running_cv.notify_all();
 }
 
 bool azn_is_running(void) {

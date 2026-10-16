@@ -74,6 +74,7 @@ struct CoreApi {
     int (*run)(const char*) = nullptr;
     void (*stop)() = nullptr;
     void (*pause)(bool) = nullptr;
+    void (*sleep)(bool) = nullptr;   // optional (azn_sleep)
     bool (*is_running)() = nullptr;
     bool (*button)(int, bool) = nullptr;
     bool (*joystick)(int, float, float) = nullptr;
@@ -161,6 +162,7 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.run, "azn_run");
     ok &= sym(gCore.stop, "azn_stop");
     ok &= sym(gCore.pause, "azn_pause");
+    sym(gCore.sleep, "azn_sleep");   // optional: an older core keeps its stream through the sleep
     ok &= sym(gCore.is_running, "azn_is_running");
     ok &= sym(gCore.button, "azn_button");
     ok &= sym(gCore.joystick, "azn_joystick");
@@ -1174,12 +1176,16 @@ int main(int argc, char** argv) {
                     gSleepPaused = true;
                     gCore.pause(true);
                 }
+                // The menu's pause or ours: either way the core sits in its pause loop, where
+                // the sleep flag swaps the audio sink out so no stream blocks the suspend.
+                if (gCore.sleep) gCore.sleep(true);
                 android::nanobl::nanoBacklightSet(0);
                 ALOGI("sleep: screen off, core %s, backlights off",
                       pausedForSleep ? "paused" : "left as the menu has it");
             } else if (!off && asleep) {
                 asleep = false;
                 android::nanobl::nanoBacklightSet(azahar_nano::brightnessLevel());
+                if (gCore.sleep) gCore.sleep(false);
                 if (pausedForSleep) {
                     gCore.pause(false);
                     gDynResSettle = 5;
