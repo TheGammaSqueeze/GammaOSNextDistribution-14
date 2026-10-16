@@ -600,7 +600,8 @@ struct CtrHome::Impl {
     float pctTextW = 0;
     void drawChargeBolt(Renderer& r);
     bool pctPlaced = false;
-    Pane* pctOutline[8] = {};   // white copies of the number under it: the Hud font's border look
+    static constexpr int kPctOutlines = 16;
+    Pane* pctOutline[kPctOutlines] = {};   // white copies of the number under it: the Hud font's border look
     float pctShift = 0;
     float dateX[4] = {0, 0, 0, 0};
     void hudPercent(const HomeStatus& st);
@@ -3028,17 +3029,22 @@ void CtrHome::Impl::hudPercent(const HomeStatus& st) {
         }
         // the system font has no border, the Hud font's digits a white one: eight white copies
         // of the number drawn under it, offset by about the border's width, give it the same
-        // look (readable on the dark themes, invisible on the light ones like the border)
-        static const float OFF[8][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-0.7f, -0.7f}, {0.7f, -0.7f}, {-0.7f, 0.7f}, {0.7f, 0.7f}};
-        const float d = 1.1f;
+        // look (readable on the dark themes, invisible on the light ones like the border).
+        // A text pane's colour is its material's constant (the status text's is dark grey)
+        // times the vertex colour, so the copies use the "Internet" label's material, whose
+        // text is white (a new material cannot be added: animations hold pointers into the
+        // layout's material list).
+        const float d = 1.6f;   // the ring's radius, about the Hud font's border
         auto at = std::find(scene->children.begin(), scene->children.end(), t);
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < kPctOutlines; i++) {
+            const float a = 2.0f * (float)M_PI * i / kPctOutlines;
             auto c = std::make_unique<Pane>(*t);
             c->name = "T_CoinO_" + std::to_string(i);
             c->children.clear();
             c->parent = scene;
-            c->translate[0] = t->translate[0] + OFF[i][0] * d;
-            c->translate[1] = t->translate[1] + OFF[i][1] * d;
+            c->translate[0] = t->translate[0] + cosf(a) * d;
+            c->translate[1] = t->translate[1] + sinf(a) * d;
+            if (sys && sys->material >= 0) c->material = sys->material;
             c->vertexColors = {Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}};
             pctOutline[i] = hud->layout().addPane(std::move(c));
             at = scene->children.insert(at, pctOutline[i]) + 1;
