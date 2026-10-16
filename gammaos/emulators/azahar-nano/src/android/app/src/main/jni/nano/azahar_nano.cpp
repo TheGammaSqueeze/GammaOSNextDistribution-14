@@ -664,6 +664,13 @@ void azn_reload_settings(void) {
     LoadConfig();
     Core::System& system{Core::System::GetInstance()};
     system.ApplySettings();
+    // ApplySettings rebuilds the framebuffer layouts on every platform but Android, where
+    // the app does it from its own activity; this frontend has no activity, so a layout
+    // setting changed in the menu (aspect ratio, swap, stretch) took effect only at the
+    // next launch. The windows here are always landscape.
+    if (system.IsPoweredOn()) {
+        system.GPU().Renderer().UpdateCurrentFramebufferLayout(false);
+    }
 }
 
 bool azn_button(int button, bool pressed) {
