@@ -1,6 +1,8 @@
 #include <sys/stat.h>
 #include "video_core/shader/generator/uber_fs_shader_gen.h"
 #include <cstdlib>
+#include <cstring>
+#include <memory>
 #include <sys/system_properties.h>
 // Copyright 2023-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
@@ -515,13 +517,74 @@ bool PipelineCache::BindPipeline(PipelineInfo& info, bool wait_built) {
 
     const bool is_dirty = scheduler.IsStateDirty(StateFlags::Pipeline);
     const bool pipeline_dirty = (current_pipeline != pipeline) || is_dirty;
+    // GammaOS dynamic blend and vertex input (Arm driver): resolved here, set in the lambda
+    // when they changed since the last bind.
+    const bool dyn_blend = instance.IsDynamicBlendSupported();
+    const bool dyn_logic = instance.IsDynamicLogicOpSupported();
+    const bool dyn_vi = instance.IsDynamicVertexInputSupported();
+    const bool set_blend =
+        dyn_blend && (is_dirty || std::memcmp(&current_info.state.blending, &info.state.blending,
+                                              sizeof(BlendingState)) != 0);
+    // mali_dyn_vi=2: set the layout on every bind (rules the dirty tracking in or out of a
+    // driver fault seen with the state set only on change).
+    static const bool vi_every_bind = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.mali_dyn_vi", v);
+        return v[0] == '2';
+    }();
+    const bool set_vi =
+        dyn_vi && (is_dirty || vi_every_bind ||
+                   std::memcmp(&current_info.state.vertex_layout, &info.state.vertex_layout,
+                               sizeof(VertexLayout)) != 0);
+    // The payload for those two exists only when something is set: the lambda below is
+    // copied into the scheduler's command chunk for every draw, and carrying the vertex
+    // input arrays by value cost the Turnip path about 3 fps on a draw heavy scene.
+    struct DynamicExtras {
+        ResolvedBlend rb{};
+        std::array<vk::VertexInputBindingDescription2EXT, MAX_VERTEX_BINDINGS> vi_bindings{};
+        std::array<vk::VertexInputAttributeDescription2EXT, MAX_VERTEX_ATTRIBUTES> vi_attributes{};
+        u32 vi_binding_count = 0, vi_attribute_count = 0;
+    };
+    std::shared_ptr<DynamicExtras> extras;
+    if (set_blend || set_vi) {
+        extras = std::make_shared<DynamicExtras>();
+        if (set_blend) {
+            extras->rb = ResolveBlend(instance, info);
+        }
+        if (set_vi) {
+            extras->vi_binding_count = BuildVertexInput2(instance, info.state.vertex_layout,
+                                                         extras->vi_bindings, extras->vi_attributes);
+            extras->vi_attribute_count = info.state.vertex_layout.attribute_count;
+        }
+    }
     scheduler.Record([this, is_dirty, pipeline_dirty, pipeline,
                       current_dynamic = current_info.dynamic_info, dynamic = info.dynamic_info,
                       descriptor_sets = bound_descriptor_sets, offsets = offsets,
                       current_rasterization = current_info.state.rasterization,
                       current_depth_stencil = current_info.state.depth_stencil,
                       rasterization = info.state.rasterization,
-                      depth_stencil = info.state.depth_stencil](vk::CommandBuffer cmdbuf) {
+                      depth_stencil = info.state.depth_stencil, set_blend, dyn_logic, set_vi,
+                      extras](vk::CommandBuffer cmdbuf) {
+        if (set_blend) {
+            const ResolvedBlend& rb = extras->rb;
+            const vk::Bool32 blend_on = rb.blend_on ? VK_TRUE : VK_FALSE;
+            cmdbuf.setColorBlendEnableEXT(0, vk::ArrayProxy<const vk::Bool32>{1, &blend_on});
+            cmdbuf.setColorBlendEquationEXT(
+                0, vk::ArrayProxy<const vk::ColorBlendEquationEXT>{1, &rb.equation});
+            cmdbuf.setColorWriteMaskEXT(
+                0, vk::ArrayProxy<const vk::ColorComponentFlags>{1, &rb.write_mask});
+            if (dyn_logic) {
+                cmdbuf.setLogicOpEnableEXT(rb.logic_on ? VK_TRUE : VK_FALSE);
+                cmdbuf.setLogicOpEXT(rb.logic_op);
+            }
+        }
+        if (set_vi) {
+            cmdbuf.setVertexInputEXT(
+                vk::ArrayProxy<const vk::VertexInputBindingDescription2EXT>{
+                    extras->vi_binding_count, extras->vi_bindings.data()},
+                vk::ArrayProxy<const vk::VertexInputAttributeDescription2EXT>{
+                    extras->vi_attribute_count, extras->vi_attributes.data()});
+        }
         if (dynamic.viewport != current_dynamic.viewport || is_dirty) {
             const vk::Viewport vk_viewport = {
                 .x = static_cast<f32>(dynamic.viewport.left),

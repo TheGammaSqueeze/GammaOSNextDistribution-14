@@ -1208,6 +1208,14 @@ int main(int argc, char** argv) {
                     property_set("sys.gammaos.azahar_nano.menu", "");
                     if (sIcb && sIcb->menuToggle) sIcb->menuToggle();
                 }
+                // sys.gammaos.azahar_nano.ff=1|0: fast forward on or off (what R3 toggles),
+                // for uncapped speed measurements from a script.
+                const std::string ffReq = prop("sys.gammaos.azahar_nano.ff", "");
+                if (!ffReq.empty()) {
+                    property_set("sys.gammaos.azahar_nano.ff", "");
+                    const bool want = ffReq == "1";
+                    if (want != sFastForward.load()) toggleFastForward();
+                }
                 // sys.gammaos.azahar_nano.load_state=N / save_state=N: direct slot
                 // access for scripted tests (the request runs on the emulation loop).
                 const std::string ld = prop("sys.gammaos.azahar_nano.load_state", "");

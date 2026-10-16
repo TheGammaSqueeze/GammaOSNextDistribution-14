@@ -2,7 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
 #include <span>
+#include <sys/system_properties.h>
 #include <boost/container/static_vector.hpp>
 #include <fmt/ranges.h>
 
@@ -403,7 +405,10 @@ bool Instance::CreateDevice() {
         vk::PhysicalDeviceFragmentShaderInterlockFeaturesEXT,
         vk::PhysicalDevicePipelineCreationCacheControlFeaturesEXT,
         vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR,
-        vk::PhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>();
+        vk::PhysicalDeviceGraphicsPipelineLibraryFeaturesEXT,
+        vk::PhysicalDeviceExtendedDynamicState2FeaturesEXT,
+        vk::PhysicalDeviceExtendedDynamicState3FeaturesEXT,
+        vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT>();
     const vk::StructureChain properties_chain =
         physical_device
             .getProperties2<vk::PhysicalDeviceProperties2, vk::PhysicalDeviceDriverProperties,
@@ -422,7 +427,7 @@ bool Instance::CreateDevice() {
         return false;
     }
 
-    boost::container::static_vector<const char*, 13> enabled_extensions;
+    boost::container::static_vector<const char*, 16> enabled_extensions;
     const auto add_extension = [&](std::string_view extension, bool blacklist = false,
                                    std::string_view reason = "") -> bool {
         const auto result =
@@ -459,9 +464,45 @@ bool Instance::CreateDevice() {
         add_extension(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, is_qualcomm || is_turnip,
                       "it is broken on Qualcomm drivers");
     const bool has_portability_subset = add_extension(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+    // GammaOS: the Arm blocklist dates from old Mali drivers. On the RG DS (Mali-G52, driver
+    // 25.0.0) one pipeline build costs 90 to 390 ms, and without extended dynamic state the
+    // cull, depth and stencil state are part of the pipeline key, so the same shaders get
+    // rebuilt for every fixed state pairing. persist.gammaos.azahar_nano.mali_eds=0 restores
+    // the blocklist on Arm drivers.
+    const bool mali_eds = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.mali_eds", v);
+        return v[0] != '0';
+    }();
     const bool has_extended_dynamic_state =
-        add_extension(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME, is_arm || is_qualcomm,
-                      "it is broken on Qualcomm and ARM drivers");
+        add_extension(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
+                      is_qualcomm || (is_arm && !mali_eds),
+                      "it is broken on Qualcomm and old Arm drivers");
+    // GammaOS: on the Arm driver the blend state, colour write mask, logic op and the vertex
+    // input layout become dynamic too (extended_dynamic_state 2 and 3, vertex_input_dynamic_state),
+    // so a shader pair needs one pipeline instead of one per fixed state pairing. Other
+    // drivers keep their known behaviour (Turnip on the Duo Lite builds pipelines in
+    // milliseconds, nothing to gain there yet).
+    // persist.gammaos.azahar_nano.mali_dyn_blend (default on) and mali_dyn_vi (default off:
+    // the Mali-G52 25.0.0 driver lost the device under dynamic vertex input on the first
+    // cold run, under investigation) pick the two groups separately.
+    const auto propOn = [](const char* name, bool def) {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get(name, v);
+        return v[0] ? v[0] != '0' : def;
+    };
+    const bool want_more_dynamic = is_arm && mali_eds && has_extended_dynamic_state;
+    const bool want_dyn_blend =
+        want_more_dynamic && propOn("persist.gammaos.azahar_nano.mali_dyn_blend", true);
+    const bool want_dyn_vi =
+        want_more_dynamic && propOn("persist.gammaos.azahar_nano.mali_dyn_vi", false);
+    const bool has_eds2 = add_extension(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME,
+                                        !want_dyn_blend, "it is only used on Arm drivers");
+    const bool has_eds3 = add_extension(VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME,
+                                        !want_dyn_blend, "it is only used on Arm drivers");
+    const bool has_vertex_input_dynamic =
+        add_extension(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME, !want_dyn_vi,
+                      "it is only used on Arm drivers");
     const bool has_custom_border_color =
         add_extension(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, is_qualcomm,
                       "it is broken on most Qualcomm driver versions");
@@ -543,6 +584,9 @@ bool Instance::CreateDevice() {
         vk::PhysicalDevicePipelineCreationCacheControlFeaturesEXT{},
         vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR{},
         vk::PhysicalDeviceGraphicsPipelineLibraryFeaturesEXT{},
+        vk::PhysicalDeviceExtendedDynamicState2FeaturesEXT{},
+        vk::PhysicalDeviceExtendedDynamicState3FeaturesEXT{},
+        vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT{},
     };
 
 #define PROP_GET(structName, prop, property) property = properties_chain.get<structName>().prop;
@@ -593,6 +637,51 @@ bool Instance::CreateDevice() {
     } else {
         device_chain.unlink<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>();
     }
+
+    // GammaOS dynamic blend (enable, equation, write mask) and, separately, dynamic logic op
+    // (enable and op): each needs all of its feature bits, the draw path sets each group
+    // together. The Mali-G52 driver 25.0.0 offers the blend group without the logic op one.
+    dynamic_blend = false;
+    dynamic_logic_op = false;
+    if (has_eds3 && extended_dynamic_state) {
+        const auto& f3 = feature_chain.get<vk::PhysicalDeviceExtendedDynamicState3FeaturesEXT>();
+        auto& d3 = device_chain.get<vk::PhysicalDeviceExtendedDynamicState3FeaturesEXT>();
+        LOG_INFO(Render_Vulkan,
+                 "eds3 features: blend enable {} equation {} write mask {} logic op enable {}",
+                 f3.extendedDynamicState3ColorBlendEnable, f3.extendedDynamicState3ColorBlendEquation,
+                 f3.extendedDynamicState3ColorWriteMask, f3.extendedDynamicState3LogicOpEnable);
+        if (f3.extendedDynamicState3ColorBlendEnable && f3.extendedDynamicState3ColorBlendEquation &&
+            f3.extendedDynamicState3ColorWriteMask) {
+            dynamic_blend = true;
+            d3.extendedDynamicState3ColorBlendEnable = true;
+            d3.extendedDynamicState3ColorBlendEquation = true;
+            d3.extendedDynamicState3ColorWriteMask = true;
+        }
+        if (has_eds2 && f3.extendedDynamicState3LogicOpEnable &&
+            feature_chain.get<vk::PhysicalDeviceExtendedDynamicState2FeaturesEXT>()
+                .extendedDynamicState2LogicOp) {
+            dynamic_logic_op = true;
+            d3.extendedDynamicState3LogicOpEnable = true;
+            device_chain.get<vk::PhysicalDeviceExtendedDynamicState2FeaturesEXT>()
+                .extendedDynamicState2LogicOp = true;
+        }
+    }
+    if (!dynamic_logic_op) {
+        device_chain.unlink<vk::PhysicalDeviceExtendedDynamicState2FeaturesEXT>();
+    }
+    if (!dynamic_blend && !dynamic_logic_op) {
+        device_chain.unlink<vk::PhysicalDeviceExtendedDynamicState3FeaturesEXT>();
+    }
+    dynamic_vertex_input = false;
+    if (has_vertex_input_dynamic && extended_dynamic_state) {
+        FEAT_SET(vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT, vertexInputDynamicState,
+                 dynamic_vertex_input)
+    }
+    if (!dynamic_vertex_input) {
+        device_chain.unlink<vk::PhysicalDeviceVertexInputDynamicStateFeaturesEXT>();
+    }
+    LOG_INFO(Render_Vulkan, "dynamic state: eds1 {} blend {} logic op {} vertex input {}",
+             extended_dynamic_state, dynamic_blend, dynamic_logic_op, dynamic_vertex_input);
 
     if (has_custom_border_color) {
         FEAT_SET(vk::PhysicalDeviceCustomBorderColorFeaturesEXT, customBorderColors,

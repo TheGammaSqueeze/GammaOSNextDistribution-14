@@ -38,9 +38,19 @@ vk::ShaderStageFlagBits MakeShaderStage(std::size_t index) {
 }
 
 u64 StaticPipelineInfo::OptimizedHash(const Instance& instance) const {
-    u64 info_hash = Common::HashCombine(
-        shader_ids[0], shader_ids[1], shader_ids[2], Common::ComputeStructHash64(vertex_layout),
-        Common::ComputeStructHash64(attachments), Common::ComputeStructHash64(blending));
+    u64 info_hash = Common::HashCombine(shader_ids[0], shader_ids[1], shader_ids[2],
+                                        Common::ComputeStructHash64(attachments));
+    // GammaOS: state the driver takes dynamically does not split pipelines.
+    if (!instance.IsDynamicVertexInputSupported()) {
+        info_hash = Common::HashCombine(info_hash, Common::ComputeStructHash64(vertex_layout));
+    }
+    if (!instance.IsDynamicBlendSupported()) {
+        info_hash = Common::HashCombine(info_hash, Common::ComputeStructHash64(blending));
+    } else if (!instance.IsDynamicLogicOpSupported()) {
+        // the logic op stays baked in: it is on only while blending is off
+        info_hash = Common::HashCombine(info_hash, static_cast<u64>(blending.logic_op),
+                                        static_cast<u64>(blending.blend_enable));
+    }
 
     if (!instance.IsExtendedDynamicStateSupported()) {
         info_hash = Common::HashCombine(info_hash, Common::ComputeStructHash64(rasterization),
@@ -61,6 +71,67 @@ u16 PipelineInfo::GetFinalColorWriteMask(const Instance& instance) {
         color_write_mask = 0;
     }
     return color_write_mask;
+}
+
+ResolvedBlend ResolveBlend(const Instance& instance, PipelineInfo& info) {
+    // GammaOS: blending with Add, One and Zero for color and alpha writes the source unchanged,
+    // and so does logic op Copy. Enabled, either one makes the GPU read the destination back for
+    // every covered pixel (expensive at 2x and above on Adreno 6xx); turn them off.
+    using Pica::FramebufferRegs;
+    const auto& bl = info.state.blending;
+    const bool blend_is_copy =
+        bl.color_blend_eq.Value() == FramebufferRegs::BlendEquation::Add &&
+        bl.alpha_blend_eq.Value() == FramebufferRegs::BlendEquation::Add &&
+        bl.src_color_blend_factor.Value() == FramebufferRegs::BlendFactor::One &&
+        bl.src_alpha_blend_factor.Value() == FramebufferRegs::BlendFactor::One &&
+        bl.dst_color_blend_factor.Value() == FramebufferRegs::BlendFactor::Zero &&
+        bl.dst_alpha_blend_factor.Value() == FramebufferRegs::BlendFactor::Zero;
+    ResolvedBlend rb;
+    rb.blend_on = bl.blend_enable && !blend_is_copy;
+    rb.logic_on = !bl.blend_enable && !instance.NeedsLogicOpEmulation() &&
+                  bl.logic_op != FramebufferRegs::LogicOp::Copy;
+    rb.equation = vk::ColorBlendEquationEXT{
+        .srcColorBlendFactor = PicaToVK::BlendFunc(bl.src_color_blend_factor),
+        .dstColorBlendFactor = PicaToVK::BlendFunc(bl.dst_color_blend_factor),
+        .colorBlendOp = PicaToVK::BlendEquation(bl.color_blend_eq),
+        .srcAlphaBlendFactor = PicaToVK::BlendFunc(bl.src_alpha_blend_factor),
+        .dstAlphaBlendFactor = PicaToVK::BlendFunc(bl.dst_alpha_blend_factor),
+        .alphaBlendOp = PicaToVK::BlendEquation(bl.alpha_blend_eq),
+    };
+    rb.write_mask = static_cast<vk::ColorComponentFlags>(info.GetFinalColorWriteMask(instance));
+    rb.logic_op = PicaToVK::LogicOp(bl.logic_op);
+    return rb;
+}
+
+u32 BuildVertexInput2(const Instance& instance, const VertexLayout& layout,
+                      std::array<vk::VertexInputBindingDescription2EXT, MAX_VERTEX_BINDINGS>& bindings,
+                      std::array<vk::VertexInputAttributeDescription2EXT, MAX_VERTEX_ATTRIBUTES>& attributes) {
+    const u32 stride_alignment = instance.GetMinVertexStrideAlignment();
+    for (u32 i = 0; i < layout.binding_count; i++) {
+        const auto& binding = layout.bindings[i];
+        bindings[i] = vk::VertexInputBindingDescription2EXT{
+            .binding = binding.binding,
+            .stride = Common::AlignUp(binding.byte_count.Value(), stride_alignment),
+            .inputRate = binding.fixed.Value() ? vk::VertexInputRate::eInstance
+                                               : vk::VertexInputRate::eVertex,
+            .divisor = 1,
+        };
+    }
+    for (u32 i = 0; i < layout.attribute_count; i++) {
+        const auto& attr = layout.attributes[i];
+        const FormatTraits& traits = instance.GetTraits(attr.type, attr.size);
+        attributes[i] = vk::VertexInputAttributeDescription2EXT{
+            .location = attr.location,
+            .binding = attr.binding,
+            .format = traits.native,
+            .offset = attr.offset,
+        };
+        if (traits.needs_emulation) {
+            const FormatTraits& comp_four_traits = instance.GetTraits(attr.type, 4);
+            attributes[i].format = comp_four_traits.native;
+        }
+    }
+    return layout.binding_count;
 }
 
 Shader::Shader(const Instance& instance) : device{instance.GetDevice()} {}
@@ -283,10 +354,14 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
         }
     }
 
+    // GammaOS: with the vertex input dynamic the pipeline carries no layout (set per bind).
+    const bool static_vertex_input = !instance.IsDynamicVertexInputSupported();
     const vk::PipelineVertexInputStateCreateInfo vertex_input_info = {
-        .vertexBindingDescriptionCount = info.state.vertex_layout.binding_count,
+        .vertexBindingDescriptionCount =
+            static_vertex_input ? info.state.vertex_layout.binding_count : 0u,
         .pVertexBindingDescriptions = bindings.data(),
-        .vertexAttributeDescriptionCount = info.state.vertex_layout.attribute_count,
+        .vertexAttributeDescriptionCount =
+            static_vertex_input ? info.state.vertex_layout.attribute_count : 0u,
         .pVertexAttributeDescriptions = attributes.data(),
     };
 
@@ -310,36 +385,21 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
         .sampleShadingEnable = false,
     };
 
-    // GammaOS: blending with Add, One and Zero for color and alpha writes the source unchanged,
-    // and so does logic op Copy. Enabled, either one makes the GPU read the destination back for
-    // every covered pixel (expensive at 2x and above on Adreno 6xx); turn them off.
-    using Pica::FramebufferRegs;
-    const auto& bl = info.state.blending;
-    const bool blend_is_copy =
-        bl.color_blend_eq.Value() == FramebufferRegs::BlendEquation::Add &&
-        bl.alpha_blend_eq.Value() == FramebufferRegs::BlendEquation::Add &&
-        bl.src_color_blend_factor.Value() == FramebufferRegs::BlendFactor::One &&
-        bl.src_alpha_blend_factor.Value() == FramebufferRegs::BlendFactor::One &&
-        bl.dst_color_blend_factor.Value() == FramebufferRegs::BlendFactor::Zero &&
-        bl.dst_alpha_blend_factor.Value() == FramebufferRegs::BlendFactor::Zero;
-    const bool blend_on = bl.blend_enable && !blend_is_copy;
-    const bool logic_on = !bl.blend_enable && !instance.NeedsLogicOpEmulation() &&
-                          bl.logic_op != FramebufferRegs::LogicOp::Copy;
+    const ResolvedBlend rb = ResolveBlend(instance, info);
     const vk::PipelineColorBlendAttachmentState colorblend_attachment = {
-        .blendEnable = blend_on,
-        .srcColorBlendFactor = PicaToVK::BlendFunc(info.state.blending.src_color_blend_factor),
-        .dstColorBlendFactor = PicaToVK::BlendFunc(info.state.blending.dst_color_blend_factor),
-        .colorBlendOp = PicaToVK::BlendEquation(info.state.blending.color_blend_eq),
-        .srcAlphaBlendFactor = PicaToVK::BlendFunc(info.state.blending.src_alpha_blend_factor),
-        .dstAlphaBlendFactor = PicaToVK::BlendFunc(info.state.blending.dst_alpha_blend_factor),
-        .alphaBlendOp = PicaToVK::BlendEquation(info.state.blending.alpha_blend_eq),
-        .colorWriteMask =
-            static_cast<vk::ColorComponentFlags>(info.GetFinalColorWriteMask(instance)),
+        .blendEnable = rb.blend_on,
+        .srcColorBlendFactor = rb.equation.srcColorBlendFactor,
+        .dstColorBlendFactor = rb.equation.dstColorBlendFactor,
+        .colorBlendOp = rb.equation.colorBlendOp,
+        .srcAlphaBlendFactor = rb.equation.srcAlphaBlendFactor,
+        .dstAlphaBlendFactor = rb.equation.dstAlphaBlendFactor,
+        .alphaBlendOp = rb.equation.alphaBlendOp,
+        .colorWriteMask = rb.write_mask,
     };
 
     const vk::PipelineColorBlendStateCreateInfo color_blending = {
-        .logicOpEnable = logic_on,
-        .logicOp = PicaToVK::LogicOp(info.state.blending.logic_op),
+        .logicOpEnable = rb.logic_on,
+        .logicOp = rb.logic_op,
         .attachmentCount = 1,
         .pAttachments = &colorblend_attachment,
         .blendConstants = std::array{1.0f, 1.0f, 1.0f, 1.0f},
@@ -366,7 +426,7 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
         .pScissors = &scissor,
     };
 
-    boost::container::static_vector<vk::DynamicState, 14> dynamic_states = {
+    boost::container::static_vector<vk::DynamicState, 22> dynamic_states = {
         vk::DynamicState::eViewport,           vk::DynamicState::eScissor,
         vk::DynamicState::eStencilCompareMask, vk::DynamicState::eStencilWriteMask,
         vk::DynamicState::eStencilReference,   vk::DynamicState::eBlendConstants,
@@ -380,6 +440,21 @@ bool GraphicsPipeline::Build(bool fail_on_compile_required) {
             vk::DynamicState::eStencilOpEXT,       vk::DynamicState::eStencilTestEnableEXT,
         };
         dynamic_states.insert(dynamic_states.end(), extended.begin(), extended.end());
+    }
+    // GammaOS: blend and vertex input taken dynamically (Arm driver, see Instance).
+    if (instance.IsDynamicBlendSupported()) {
+        constexpr std::array blend = {
+            vk::DynamicState::eColorBlendEnableEXT, vk::DynamicState::eColorBlendEquationEXT,
+            vk::DynamicState::eColorWriteMaskEXT,
+        };
+        dynamic_states.insert(dynamic_states.end(), blend.begin(), blend.end());
+    }
+    if (instance.IsDynamicLogicOpSupported()) {
+        dynamic_states.push_back(vk::DynamicState::eLogicOpEnableEXT);
+        dynamic_states.push_back(vk::DynamicState::eLogicOpEXT);
+    }
+    if (instance.IsDynamicVertexInputSupported()) {
+        dynamic_states.push_back(vk::DynamicState::eVertexInputEXT);
     }
 
     const vk::PipelineDynamicStateCreateInfo dynamic_info = {

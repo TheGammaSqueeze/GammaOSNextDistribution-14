@@ -143,6 +143,23 @@ public:
         return extended_dynamic_state;
     }
 
+    /// GammaOS: blend enable, blend equation, colour write mask and logic op are dynamic
+    /// (VK_EXT_extended_dynamic_state3 plus the logic op of VK_EXT_extended_dynamic_state2),
+    /// so they leave the pipeline key.
+    bool IsDynamicBlendSupported() const {
+        return dynamic_blend;
+    }
+
+    /// GammaOS: logic op enable and op are dynamic (extended_dynamic_state 2 and 3).
+    bool IsDynamicLogicOpSupported() const {
+        return dynamic_logic_op;
+    }
+
+    /// GammaOS: the vertex input layout is dynamic (VK_EXT_vertex_input_dynamic_state).
+    bool IsDynamicVertexInputSupported() const {
+        return dynamic_vertex_input;
+    }
+
     /// Returns true when VK_EXT_custom_border_color is supported
     bool IsCustomBorderColorSupported() const {
         return custom_border_color;
@@ -350,6 +367,9 @@ protected:
     u32 min_vertex_stride_alignment{1};
     bool timeline_semaphores{};
     bool extended_dynamic_state{};
+    bool dynamic_blend{};
+    bool dynamic_logic_op{};
+    bool dynamic_vertex_input{};
     bool custom_border_color{};
     bool index_type_uint8{};
     bool fragment_shader_interlock{};

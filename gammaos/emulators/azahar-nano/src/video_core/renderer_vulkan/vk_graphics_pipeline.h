@@ -310,6 +310,23 @@ struct Shader : public Common::AsyncHandle {
     std::string program;
 };
 
+// GammaOS dynamic blend state: what the pipeline would have baked in, resolved once per bind
+// for vkCmdSetColorBlend*/LogicOp* when the driver takes them dynamically.
+struct ResolvedBlend {
+    bool blend_on = false;
+    bool logic_on = false;
+    vk::ColorBlendEquationEXT equation{};
+    vk::ColorComponentFlags write_mask{};
+    vk::LogicOp logic_op = vk::LogicOp::eCopy;
+};
+ResolvedBlend ResolveBlend(const Instance& instance, PipelineInfo& info);
+
+// GammaOS dynamic vertex input: the layout as vkCmdSetVertexInputEXT takes it. Returns the
+// binding count; attribute count is info.attribute_count.
+u32 BuildVertexInput2(const Instance& instance, const VertexLayout& layout,
+                      std::array<vk::VertexInputBindingDescription2EXT, MAX_VERTEX_BINDINGS>& bindings,
+                      std::array<vk::VertexInputAttributeDescription2EXT, MAX_VERTEX_ATTRIBUTES>& attributes);
+
 class GraphicsPipeline : public Common::AsyncHandle {
 public:
     explicit GraphicsPipeline(const Instance& instance, RenderManager& renderpass_cache,
