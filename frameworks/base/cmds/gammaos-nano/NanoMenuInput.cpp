@@ -54,6 +54,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 
 #include "NanoBacklight.h"
 #include "NanoMenu.h"
+#include "NanoCtrAudio.h"      // lid sleep closes the 3DS theme audio streams
 #include "NanoCtrHome.h"
 #include "NanoScreenCal.h"
 #include "NanoMenuSettingsTree.h"
@@ -1057,6 +1058,10 @@ bool NanoMenu::enterDrmSleep() {
     if (mAmbiancePlaying) { mAmbiancePlayer.stop(); mAmbiancePlaying = false; }
     if (!mAmbianceOpening) mAmbiancePlayer.release();
     if (!mSfxOpening.load()) mSfxPlayer.release();
+    // The 3DS theme's player too: its looping BGM never idles its stream, and that open stream
+    // kept the AudioMix wakelock up behind a closed lid (RP Duo Lite). The keep-alive restarts
+    // the BGM on wake (ctrBgmAllowed refuses it while sys.gammaos.nano.screenoff is set).
+    if (mCtrAudio) { mCtrAudio->stopAll(0); mCtrAudio->release(); }
     // If music is actively playing, keep it playing with the screen off: blank the
     // panel but do NOT drive a full system suspend (which would freeze the decoder
     // and AAudio threads), and hold a kernel wakelock so the SoC stays up. The
