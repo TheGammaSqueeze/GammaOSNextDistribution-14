@@ -336,6 +336,13 @@ public:
     float opacity = 255;   // whole layout fade (web extension)
 
     Pane* findPane(std::string_view name) const;
+    // Adds a pane made at run time (a copy of a loaded one); the caller links it into the tree.
+    Pane* addPane(std::unique_ptr<Pane> p) {
+        Pane* raw = p.get();
+        mByName[raw->name] = raw;
+        mPanes.push_back(std::move(p));
+        return raw;
+    }
     const Group* findGroup(std::string_view name) const;
     Material* findMaterial(std::string_view name);
     void calculate();      // global matrices and alphas

@@ -749,6 +749,14 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
                 side[i] = m->colors[kConstant0 + 0][i];
             }
         }
+        // a dark body (the Black theme, a dark folder colour) would hide a glyph in its own
+        // colours: light faces and mid grey walls instead
+        if (!b.glyph->coloured() && 0.2126f * face[0] + 0.7152f * face[1] + 0.0722f * face[2] < 0.4f) {
+            for (int i = 0; i < 3; i++) {
+                face[i] = 0.92f;
+                side[i] = 0.58f;
+            }
+        }
         // the folder model's light (Light_Folder_00: straight down and away), in view space
         const float lw[3] = {0, -0.7071f, -0.7071f};
         float light[3];

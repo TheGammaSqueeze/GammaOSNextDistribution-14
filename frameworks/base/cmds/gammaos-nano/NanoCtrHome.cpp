@@ -600,6 +600,7 @@ struct CtrHome::Impl {
     float pctTextW = 0;
     void drawChargeBolt(Renderer& r);
     bool pctPlaced = false;
+    Pane* pctOutline[8] = {};   // white copies of the number under it: the Hud font's border look
     float pctShift = 0;
     float dateX[4] = {0, 0, 0, 0};
     void hudPercent(const HomeStatus& st);
@@ -739,6 +740,8 @@ struct CtrHome::Impl {
     int barActive = 0;   // the bar button drawn as the active one (0 none)
     float barTint[6][3] = {};
     bool folderColorsOn = false;
+    float folderLum = 1;   // luminance of the folders' main colour (the theme's or the user's)
+    bool darkFolders() const { return folderLum < 0.45f; }
     float folderDark[3] = {0, 0, 0}, folderMain[3] = {0, 0, 0};
     uint64_t bottomSignature(const float* proj, int vx, int vy, int vw, int vh, float botW, uint64_t salt);
     // theme/background.ts: the background image of each screen (LncBgSlide_U_00 behind the 3D
@@ -760,7 +763,7 @@ struct CtrHome::Impl {
     bool blankPicture = false;
     void followBackground(Background& b, bool top, bool follow);
     void updateBackgrounds();
-    std::map<std::pair<GLuint, int>, TexturePtr> tinted;   // derived icons by source texture + kind
+    std::map<std::pair<GLuint, uint64_t>, TexturePtr> tinted;   // derived icons by source texture + kind
     std::vector<TexturePtr> tintedRetired;                 // the last category's, freed at the next switch
     // Drops the decoded host icons, the copies made from them (their cache key is the source's GL
     // name, which a new icon can get again) and has the top screen take its banner again.
@@ -3023,6 +3026,23 @@ void CtrHome::Impl::hudPercent(const HomeStatus& st) {
             t->fontSize[1] = kPctFontH;
             t->translate[1] += kPctDropY;
         }
+        // the system font has no border, the Hud font's digits a white one: eight white copies
+        // of the number drawn under it, offset by about the border's width, give it the same
+        // look (readable on the dark themes, invisible on the light ones like the border)
+        static const float OFF[8][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-0.7f, -0.7f}, {0.7f, -0.7f}, {-0.7f, 0.7f}, {0.7f, 0.7f}};
+        const float d = 1.1f;
+        auto at = std::find(scene->children.begin(), scene->children.end(), t);
+        for (int i = 0; i < 8; i++) {
+            auto c = std::make_unique<Pane>(*t);
+            c->name = "T_CoinO_" + std::to_string(i);
+            c->children.clear();
+            c->parent = scene;
+            c->translate[0] = t->translate[0] + OFF[i][0] * d;
+            c->translate[1] = t->translate[1] + OFF[i][1] * d;
+            c->vertexColors = {Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}, Rgba{255, 255, 255, 255}};
+            pctOutline[i] = hud->layout().addPane(std::move(c));
+            at = scene->children.insert(at, pctOutline[i]) + 1;
+        }
     }
     const bool show = st.showPercent && st.percent >= 0;
     // the date and the time move left by the number's width (its glyphs' advances at the pane's
@@ -3042,6 +3062,11 @@ void CtrHome::Impl::hudPercent(const HomeStatus& st) {
     const float shift = show ? pctTextW + 5.0f : 0.0f;
     if (show) hud->setText("T_Coin_00", buf);
     t->visible = show;
+    for (Pane* o : pctOutline) {
+        if (!o) continue;
+        if (show) hud->setText(o->name, buf);
+        o->visible = show;
+    }
     // the step counter (always 0: no pedometer) gives up its place when the date has to move far
     if (Pane* walk = hud->pane("P_Walk_00")) walk->visible = shift < 20.0f;
     if (shift != pctShift) {
@@ -3060,8 +3085,10 @@ void CtrHome::Impl::hudPercent(const HomeStatus& st) {
 TexturePtr CtrHome::Impl::tintedCopy(GLuint src, int w, int h, float grey, float coverAspect, bool flipY, bool onWhite,
                                       const float* rgb) {
     // grey just under 1: a full colour icon copied at the glyph size (not the folder letters' grey)
-    int kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0) | (onWhite ? 8 : 0) |
-               (grey >= 0.99f && grey < 1 ? 16 : 0);
+    uint64_t kind = (grey < 1 ? 1 : 0) | (coverAspect > 0 ? 2 : 0) | (flipY ? 4 : 0) | (onWhite ? 8 : 0) |
+                    (grey >= 0.99f && grey < 1 ? 16 : 0);
+    // the grey itself is part of the key: the folder glyphs' grey follows the theme's darkness
+    kind |= (uint64_t)std::clamp((int)lroundf(grey * 255.0f), 0, 255) << 40;
     float col[3] = {grey, grey, grey};
     if (rgb) {
         // the colour's bytes are part of the key: one copy per colour
@@ -3354,7 +3381,9 @@ TexturePtr CtrHome::Impl::titleTextureOwn(const HomeItem& it) {
                 // a title the host colours (a category's): its glyph in that colour
                 float rgb[3];
                 const bool coloured = it.kind == HomeItemKind::Title && host->itemTint(it, rgb);
-                if (TexturePtr t = tintedCopy(gl, w, h, 80 / 255.0f, 0, false, false, coloured ? rgb : nullptr)) return t;
+                // on dark folders (the Black theme, a dark folder colour) a light glyph instead
+                const float grey = (darkFolders() ? 232 : 80) / 255.0f;
+                if (TexturePtr t = tintedCopy(gl, w, h, grey, 0, false, false, coloured ? rgb : nullptr)) return t;
             } else if (art.coverAspect > 0) {
                 if (TexturePtr t = tintedCopy(gl, w, h, 1.0f, art.coverAspect)) return t;
             }
@@ -4146,10 +4175,24 @@ void CtrHome::Impl::updateBackgrounds() {
     if (bottomShown) followBackground(bgBottom, false, !inFolder());
 }
 
+// Luminance of the folders' main colour: the theme's folder block, else the console's blue.
+static float folderLuminance(const ThemeBody* body) {
+    float r = 0.45f, g = 0.78f, b = 0.93f;
+    if (body && body->blocks[TB_FOLDER].present) {
+        if (const auto* m = body->blocks[TB_FOLDER].field("main")) {
+            r = (*m)[0] / 255.0f;
+            g = (*m)[1] / 255.0f;
+            b = (*m)[2] / 255.0f;
+        }
+    }
+    return 0.2126f * r + 0.7152f * g + 0.0722f * b;
+}
+
 void CtrHome::setTheme(const ThemeBody* body) {
     if (mImpl) mImpl->themeRev++;
     mThemeBody = body;
     mTheme->setTheme(body);
+    if (mImpl) mImpl->folderLum = folderLuminance(body);
     if (mLoaded && mImpl->folderColorsOn) applyFolderColors();   // over the new theme's folder block
     Impl& I = *mImpl;
     if (I.top3d) I.top3d->setTheme(body);
@@ -4375,11 +4418,13 @@ void CtrHome::applyFolderColors() {
     if (!I.folderColorsOn) {
         mTheme->setFolderBlock(nullptr);
         if (I.top3d) I.top3d->setFolderBlock(nullptr);
+        I.folderLum = folderLuminance(mThemeBody);
         return;
     }
     ThemeBlock b;
     if (mThemeBody && mThemeBody->blocks[TB_FOLDER].present) b = mThemeBody->blocks[TB_FOLDER];
     b.present = true;
+    I.folderLum = 0.2126f * I.folderMain[0] + 0.7152f * I.folderMain[1] + 0.0722f * I.folderMain[2];
     auto byte = [](float v) { return (uint8_t)std::clamp((int)lroundf(v * 255.0f), 0, 255); };
     auto put = [&](const char* name, float r, float g, float bl) {
         const std::array<uint8_t, 3> v = {byte(r), byte(g), byte(bl)};
