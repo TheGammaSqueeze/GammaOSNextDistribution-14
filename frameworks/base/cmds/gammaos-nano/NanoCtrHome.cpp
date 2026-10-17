@@ -2800,26 +2800,32 @@ void CtrHome::Impl::touchEnd(float x, float y) {
 void CtrHome::Impl::tapSlot(int slot, float x, float y) {
     Grid& g = grid();
     if (g.slotAt(x, y, zoomTable(TOUCH_BOX, (float)g.zoom())) != slot) return;
-    if (!g.onBar && g.cursor == slot) {
-        if (g.item(slot)) {
-            cursor->play("Decide", groupsOpt());
-            activate(1);
-        }
+    // One tap opens: the cursor moves onto the tapped title (the console's first tap) and it
+    // opens in the same tap (the console's second), so a folder or a game is not tapped twice.
+    // An empty slot only takes the cursor.
+    if (!g.item(slot)) {
+        sound("SE_CTR_HOME_TOUCH");
+        moveCursorTo([&]() { g.onBar = false; g.barReturnColumn = -1; g.cursor = slot; }, false);
         return;
     }
-    if (!g.item(slot)) sound("SE_CTR_HOME_TOUCH");
-    moveCursorTo([&]() { g.onBar = false; g.barReturnColumn = -1; g.cursor = slot; }, false);
+    if (g.onBar || g.cursor != slot) moveCursorTo([&]() { g.onBar = false; g.barReturnColumn = -1; g.cursor = slot; }, false);
+    cursor->play("Decide", groupsOpt());
+    activate(1);
 }
 
 void CtrHome::Impl::tapBar(int button) {
     Grid& g = grid();
     if (button == BarZoomOut || button == BarZoomIn) { requestZoom(button == BarZoomIn ? 1 : -1, 1); return; }
-    if (button == BarSettings || (g.onBar && g.barButton == button)) { decideBar(button); return; }
-    moveCursorTo([&]() {
-        if (!g.onBar) g.barReturnColumn = std::max(0, g.cursorColumn() - g.firstColumn);
-        g.onBar = true;
-        g.barButton = button;
-    });
+    // one tap: the cursor moves onto the bar button and it opens in the same tap (the console
+    // needs a second tap on the button the cursor is on)
+    if (button != BarSettings && !(g.onBar && g.barButton == button)) {
+        moveCursorTo([&]() {
+            if (!g.onBar) g.barReturnColumn = std::max(0, g.cursorColumn() - g.firstColumn);
+            g.onBar = true;
+            g.barButton = button;
+        });
+    }
+    decideBar(button);
 }
 
 void CtrHome::Impl::touchCoast() {
