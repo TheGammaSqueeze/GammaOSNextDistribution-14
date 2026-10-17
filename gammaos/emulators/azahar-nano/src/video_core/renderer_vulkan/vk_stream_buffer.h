@@ -16,6 +16,11 @@ enum class BufferType : u32 {
     Upload = 0,
     Download = 1,
     Stream = 2,
+    /// GammaOS: a stream buffer in CPU cached memory (flushed at every commit when the type is
+    /// not host coherent). For data the driver reads back on the CPU, like index buffers whose
+    /// vertex range a Bifrost driver has to find: a read from write-combined memory goes to
+    /// DRAM for every load.
+    StreamCached = 3,
 };
 
 class Instance;
@@ -60,6 +65,11 @@ public:
     /// Ensures that "size" bytes of memory are available to the GPU, potentially recording a copy.
     void Commit(u32 size);
 
+    /// GammaOS: a StreamCached buffer in non-coherent memory cleans the CPU cache for its
+    /// commits here, once, instead of at every commit (each clean ends in a barrier that waits
+    /// for the write-backs). Called before every queue submit and before the ring wraps.
+    void FlushPending();
+
     vk::Buffer Handle() const noexcept {
         return buffer;
     }
@@ -102,6 +112,8 @@ private:
     std::size_t wait_cursor{};           ///< Last watch being waited for completion.
     u64 wait_bound{};                    ///< Highest offset being watched for completion.
     u64 lap = 0;
+    u64 dirty_begin = 0; ///< GammaOS: committed range of a StreamCached buffer not cleaned yet.
+    u64 dirty_end = 0;
 };
 
 } // namespace Vulkan

@@ -24,7 +24,7 @@ enum Counter : int {
     ImagesCreated, SurfacesRecycled, HybridFallbackDraws, HybridSkippedDraws, HeldIncompleteFrames, NaturalSwDraws, NaturalSwVertices, FallbackSwVertices, HybridUberDraws, HybridUberCompiles, PipeHwBuilds, PipeHwUs, PipeSwBuilds, PipeSwUs, PipeUberBuilds, PipeUberUs, FastAttempts, FastAttemptUs, FastAttemptMaxUs, PipeBuilds, PipeBuildUs, PipeFirstBuilds, PipeFirstUs, PipeRepeatBuilds, PipeRepeatUs,
     GlslVs, GlslVsUs, GlslFs, GlslFsUs, GlslOtherUs,
     NewBothSeen, NewBothSeenUs, NewVsSeen, NewVsSeenUs, NewFsSeen, NewFsSeenUs, NewNoneSeen, NewNoneSeenUs,
-    TextureBindsReused, VertexBytesReused,
+    TextureBindsReused, VertexBytesReused, VertexBytesHashed, VertexBytesCopied, VertexBytesRehashed,
     Count
 };
 

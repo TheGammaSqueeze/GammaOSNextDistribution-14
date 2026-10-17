@@ -84,6 +84,12 @@ public:
     /// Notify the cache that a new frame has been queued
     void TickFrame();
 
+    /// GammaOS: counts the downloads that wrote guest memory (surface flushes and fills), so a
+    /// caller can tell that guest memory did not change in between.
+    u64 GuestWrites() const noexcept {
+        return guest_writes;
+    }
+
     /// GammaOS: changes whenever a lookup could return something different (surfaces validated,
     /// uploaded, invalidated, registered, unregistered...). Callers memoize lookups on it.
     u64 Epoch() const noexcept {
@@ -330,6 +336,7 @@ private:
     std::array<InvalidateMemo, 4> invalidate_memo{};
     u32 invalidate_memo_next = 0;
     u64 cache_epoch = 0;
+    u64 guest_writes = 0;
     struct Mirror {
         bool active = false;
         PAddr canon_color = 0, canon_depth = 0, mirror_color = 0, mirror_depth = 0;

@@ -1599,6 +1599,7 @@ struct SwapTrace {
     // CPU time consumed by this thread between swaps, split by wall interval
     // (short < 14 ms, long > 20 ms): tells CPU-bound frames from waiting.
     double cpu_short = 0, cpu_long = 0;
+    double cpu_all = 0, wall_all = 0;   // every frame: emulation thread CPU and wall time
     int n_short = 0, n_long = 0;
     int n = 0;
     double sum_int = 0, max_int = 0, sum_p = 0, max_p = 0, sum_s = 0, max_s = 0, sum_e = 0,
@@ -1634,13 +1635,19 @@ void RendererVulkan::SwapBuffers() {
         if (dt > g_swap_trace.max_int) g_swap_trace.max_int = dt;
         g_swap_trace.hist[dt < 10 ? 0 : dt < 14 ? 1 : dt < 20 ? 2 : dt < 28 ? 3 : 4]++;
         const double cpu = trace_cpu - g_swap_trace.last_cpu_ms;
+        g_swap_trace.cpu_all += cpu;
+        g_swap_trace.wall_all += dt;
         if (dt < 14) { g_swap_trace.cpu_short += cpu; g_swap_trace.n_short++; }
         else if (dt > 20) { g_swap_trace.cpu_long += cpu; g_swap_trace.n_long++; }
         if (dt > 40) {
             // GammaOS: a long frame. CPU time close to the wall time means the emulation
             // thread was busy; much less means it waited (GPU, presenter, a lock).
-            LOG_WARNING(Render_Vulkan, "long frame {:.1f} ms, emulation thread cpu {:.1f} ms", dt,
-                        cpu);
+            // The monotonic start and end (ns) let a profile recorded with --clockid monotonic
+            // pick out the samples of the long frames.
+            LOG_WARNING(Render_Vulkan,
+                        "long frame {:.1f} ms, emulation thread cpu {:.1f} ms, mono {} {}", dt, cpu,
+                        static_cast<long long>(g_swap_trace.last.time_since_epoch().count()),
+                        static_cast<long long>(trace_t0.time_since_epoch().count()));
         }
     }
     g_swap_trace.last = trace_t0;
@@ -1811,6 +1818,15 @@ void RendererVulkan::SwapBuffers() {
                  t.sum_tick / t.n, t.max_tick, t.n_short ? t.cpu_short / t.n_short : 0.0,
                  t.n_short, t.n_long ? t.cpu_long / t.n_long : 0.0, t.n_long);
         {
+            auto& pt = Core::g_pace_trace;
+            LOG_INFO(Render_Vulkan,
+                     "pace trace: sleeps {} total {:.1f} ms | resets {} dropped {:.1f} ms | "
+                     "per frame cpu {:.2f} wall {:.2f} ms",
+                     pt.sleeps, pt.sleep_us / 1000.0, pt.resets, pt.dropped_us / 1000.0,
+                     t.cpu_all / t.n, t.wall_all / t.n);
+            pt = {};
+        }
+        {
             namespace GS = GammaStats;
             const double n = t.n;
             LOG_INFO(Render_Vulkan,
@@ -1820,7 +1836,7 @@ void RendererVulkan::SwapBuffers() {
                      "pass breaks with only the render area changed {:.1f} | draws z {:.1f} w {:.1f} "
                      "shadow {:.1f} alphatest {:.1f} blend {:.1f} | cmd lists {:.1f} top {:.1f} "
                      "blocked {:.2f} transfers {:.1f} blocked {:.2f} | enabled {} | pipelines fast {} "
-                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | sw draws {} ({} verts) fallback verts {} | hybrid fallback draws {} skipped {} held frames {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms texture binds reused {:.1f} vertex kb reused {:.0f} (window totals)",
+                     "queued {} draws skipped {} shaders compiled {} images created {} surfaces recycled {} pipeline builds {} build ms {} new-shader builds {} ms {} same-shader builds {} ms {} | sw draws {} ({} verts) fallback verts {} | hybrid fallback draws {} skipped {} held frames {} uber draws {} uber compiles {} | builds hw {} {} ms sw {} {} ms uber {} {} ms | cached-only attempts {} {} ms max {} ms texture binds reused {:.1f} vertex kb reused {:.0f} hashed {:.0f} copied {:.0f} rehashed {:.0f} (window totals)",
                      GS::Take(GS::Draws) / n, GS::Take(GS::RenderPasses) / n,
                      GS::Take(GS::Uploads) / n, GS::Take(GS::UploadPixels) / n,
                      GS::Take(GS::UploadScaledPixels) / n, GS::Take(GS::Downloads) / n,
@@ -1848,7 +1864,10 @@ void RendererVulkan::SwapBuffers() {
                      GS::Take(GS::PipeSwBuilds), GS::Take(GS::PipeSwUs) / 1000,
                      GS::Take(GS::PipeUberBuilds), GS::Take(GS::PipeUberUs) / 1000,
                      GS::Take(GS::FastAttempts), GS::Take(GS::FastAttemptUs) / 1000,
-                     GS::Take(GS::FastAttemptMaxUs) / 1000, GS::Take(GS::TextureBindsReused) / n, GS::Take(GS::VertexBytesReused) / n / 1024.0);
+                     GS::Take(GS::FastAttemptMaxUs) / 1000, GS::Take(GS::TextureBindsReused) / n, GS::Take(GS::VertexBytesReused) / n / 1024.0,
+                     GS::Take(GS::VertexBytesHashed) / n / 1024.0,
+                     GS::Take(GS::VertexBytesCopied) / n / 1024.0,
+                     GS::Take(GS::VertexBytesRehashed) / n / 1024.0);
         }
         {
             namespace GS = GammaStats;

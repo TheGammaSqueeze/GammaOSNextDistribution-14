@@ -428,6 +428,12 @@ public:
     /// its bottom screen pass that way), and blocking it shifted the bottom screen.
     bool CmdListOnlyUsesViewportHeight(PAddr list, u32 size, u32 vp_height);
 
+    /// GammaOS: incremented at the start of every command list (no guest code runs while one
+    /// is processed, so guest memory only changes there through the rasterizer's downloads).
+    u64 CmdListSerial() const {
+        return cmd_list_serial;
+    }
+
 private:
     Memory::MemorySystem& memory;
     VideoCore::RasterizerInterface* rasterizer;
@@ -436,6 +442,7 @@ private:
     GeometryPipeline geometry_pipeline;
     PrimitiveAssembler primitive_assembler;
     CommandList cmd_list;
+    u64 cmd_list_serial = 0;
     std::unique_ptr<ShaderEngine> shader_engine;
     // GammaOS stereo twins (persist.gammaos.azahar_nano.stereo_twin, on by default).
     bool twin_scan_ok = false;

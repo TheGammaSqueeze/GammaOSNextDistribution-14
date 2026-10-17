@@ -35,6 +35,16 @@ void RenderManager::BeginRendering(const Framebuffer* framebuffer,
             .height = draw_rect.GetHeight(),
         },
     };
+    if (GammaGpu::g.enabled && GammaGpu::g.dump[GammaGpu::g.frame] &&
+        framebuffer->Handle() != pass.framebuffer) {
+        LOG_INFO(Render_Vulkan, "pass target: fb {:X} {}x{} color fmt {} depth fmt {} draw {}x{} at {},{}{}",
+                 reinterpret_cast<u64>(static_cast<VkFramebuffer>(framebuffer->Handle())),
+                 framebuffer->Width(), framebuffer->Height(),
+                 static_cast<int>(framebuffer->Format(VideoCore::SurfaceType::Color)),
+                 static_cast<int>(framebuffer->Format(VideoCore::SurfaceType::DepthStencil)),
+                 draw_rect.GetWidth(), draw_rect.GetHeight(), draw_rect.left, draw_rect.bottom,
+                 framebuffer->shadow_rendering ? " shadow" : "");
+    }
     const RenderPass new_pass = {
         .framebuffer = framebuffer->Handle(),
         .render_pass = framebuffer->RenderPass(),
@@ -122,6 +132,21 @@ void RenderManager::BeginRendering(const RenderPass& new_pass) {
     if (pass.render_pass && pass.framebuffer == new_pass.framebuffer &&
         pass.render_pass == new_pass.render_pass && !new_pass.do_clear) {
         GammaStats::Add(GammaStats::PassBreaksAreaOnly);
+    }
+    // With the one-shot gputime dump armed, say why this pass could not continue the
+    // open one (profiling: pass counts per frame differ between drivers).
+    if (GammaGpu::g.enabled && GammaGpu::g.dump[GammaGpu::g.frame]) {
+        LOG_INFO(Render_Vulkan,
+                 "pass break: open {} -> new {}{}{}{}{}{} | new area {}x{} at {},{} clear {} folded {} fb {:X}",
+                 pass.render_pass ? "pass" : "none", new_pass.folded_count ? "folded" : "plain",
+                 pass.framebuffer != new_pass.framebuffer ? " fb" : "",
+                 pass.render_pass != new_pass.render_pass ? " rp" : "",
+                 pass.render_area != new_pass.render_area ? " area" : "",
+                 pass.do_clear != new_pass.do_clear ? " do_clear" : "",
+                 std::memcmp(&pass.clear, &new_pass.clear, sizeof(vk::ClearValue)) != 0 ? " clearval" : "",
+                 new_pass.render_area.extent.width, new_pass.render_area.extent.height,
+                 new_pass.render_area.offset.x, new_pass.render_area.offset.y, new_pass.do_clear,
+                 new_pass.folded_count, reinterpret_cast<u64>(static_cast<VkFramebuffer>(new_pass.framebuffer)));
     }
 
     EndRendering();

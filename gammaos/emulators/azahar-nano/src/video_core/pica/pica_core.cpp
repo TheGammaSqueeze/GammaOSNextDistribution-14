@@ -5,7 +5,10 @@
 // Refer to the license.txt file included.
 
 #include "common/arch.h"
+#include <algorithm>
+#include <cstring>
 #include "common/archives.h"
+#include "common/gammaos_tweak.h"
 #include "common/microprofile.h"
 #include "common/scope_exit.h"
 #include "common/settings.h"
@@ -264,6 +267,7 @@ void PicaCore::ProcessCmdList(PAddr list, u32 size, bool ignore_list) [[hot]] {
 
     const u8* head = memory.GetPhysicalPointer(list);
     cmd_list.Reset(list, head, size);
+    ++cmd_list_serial;
 
     bool stop_requested = false;
     bool skip_fast_path = false;
@@ -502,6 +506,32 @@ void PicaCore::HandleSpecialRegBatch(u32 id, const u32* values, u32 count) {
     case PICA_REG_INDEX(lighting.lut_data[6]):
     case PICA_REG_INDEX(lighting.lut_data[7]): {
         auto& lut_config = regs.internal.lighting.lut_config;
+
+        // GammaOS: games upload whole lighting LUTs for every draw, almost always with the
+        // contents the table already has. Compare a run at a time and copy only a changed run
+        // (same table contents and dirty bit as the per entry loop below).
+        // persist.gammaos.azahar_nano.lut_runs=0 keeps the per entry loop; default Mali only.
+        static const bool lut_runs =
+            Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.lut_runs");
+        if (lut_runs && lut_config.type < lighting.luts.size()) {
+            auto& lut = lighting.luts[lut_config.type];
+            static_assert(sizeof(lut[0]) == sizeof(u32));
+            u32 index = lut_config.index;
+            const u32* src = values;
+            for (u32 left = count; left > 0;) {
+                const u32 start = index % lut.size();
+                const u32 run = std::min<u32>(left, static_cast<u32>(lut.size()) - start);
+                if (std::memcmp(&lut[start], src, run * sizeof(u32)) != 0) {
+                    std::memcpy(&lut[start], src, run * sizeof(u32));
+                    lighting.lut_dirty |= 1u << lut_config.type;
+                }
+                index += run;
+                src += run;
+                left -= run;
+            }
+            lut_config.index.Assign(lut_config.index + count);
+            break;
+        }
 
         for (u32 i = 0; i < count; i++) {
             const u32 prev =
@@ -1497,6 +1527,26 @@ PicaCore::RenderPropertiesGuess PicaCore::GuessCmdRenderProperties(PAddr list, u
         if (process_write(header.cmd_id, value))
             break;
 
+        // GammaOS: extra words that write none of the registers looked at here (uniform and
+        // LUT uploads) are skipped in one step. persist.gammaos.azahar_nano.eye_scan_skip=0
+        // walks them; default Mali only.
+        static const bool fast_skip =
+            Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.eye_scan_skip");
+        if (fast_skip && header.extra_data_length != 0) {
+            const u32 first = header.group_commands ? header.cmd_id + 1 : header.cmd_id;
+            const u32 last = header.group_commands ? header.cmd_id + header.extra_data_length
+                                                   : header.cmd_id;
+            const auto in = [&](u32 r) { return r >= first && r <= last; };
+            if (!in(PICA_REG_INDEX(rasterizer.viewport_size_y)) &&
+                !in(PICA_REG_INDEX(framebuffer.framebuffer.color_buffer_address)) &&
+                !in(PICA_REG_INDEX(pipeline.command_buffer.trigger[0])) &&
+                !in(PICA_REG_INDEX(pipeline.command_buffer.trigger[1]))) {
+                cmd_list.current_index += header.extra_data_length;
+                iterations++;
+                continue;
+            }
+        }
+
         // Write any extra paramters as well.
         for (u32 i = 0; i < header.extra_data_length; ++i) {
             const u32 cmd = header.cmd_id + (header.group_commands ? i + 1 : 0);
@@ -1525,6 +1575,21 @@ bool PicaCore::CmdListOnlyUsesViewportHeight(PAddr list, u32 size, u32 vp_height
                                regs.internal.pipeline.command_buffer.GetSize(1)};
     std::array<PAddr, 2> cb_addr{regs.internal.pipeline.command_buffer.GetPhysicalAddress(0),
                                  regs.internal.pipeline.command_buffer.GetPhysicalAddress(1)};
+    // GammaOS: persist.gammaos.azahar_nano.eye_scan_skip=0 walks every word as before; default
+    // Mali only. The result is the same either way.
+    static const bool fast_skip =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.eye_scan_skip");
+    static constexpr std::array<u32, 9> walk_regs{
+        PICA_REG_INDEX(rasterizer.viewport_size_y),
+        PICA_REG_INDEX(pipeline.trigger_draw),
+        PICA_REG_INDEX(pipeline.trigger_draw_indexed),
+        PICA_REG_INDEX(pipeline.command_buffer.size[0]),
+        PICA_REG_INDEX(pipeline.command_buffer.size[1]),
+        PICA_REG_INDEX(pipeline.command_buffer.addr[0]),
+        PICA_REG_INDEX(pipeline.command_buffer.addr[1]),
+        PICA_REG_INDEX(pipeline.command_buffer.trigger[0]),
+        PICA_REG_INDEX(pipeline.command_buffer.trigger[1]),
+    };
     SCOPE_EXIT({
         if (!result && refusals++ < 20) {
             LOG_INFO(HW_GPU, "rightEye scan refused {:08X} size {}: {} cmds, {} draws, {} jumps, viewports:{}",
@@ -1541,13 +1606,30 @@ bool PicaCore::CmdListOnlyUsesViewportHeight(PAddr list, u32 size, u32 vp_height
         }
         const u32 value = head[index++];
         const CommandHeader header{head[index++]};
+        // GammaOS: a command that writes none of the registers this walk looks at (uniform and
+        // LUT uploads, most state) is skipped with its extra words in one step.
+        if (fast_skip) {
+            const u32 extra = header.extra_data_length;
+            const u32 first = header.cmd_id;
+            const u32 last = header.group_commands ? first + extra : first;
+            const bool touched = std::any_of(walk_regs.begin(), walk_regs.end(),
+                                             [&](u32 r) { return r >= first && r <= last; });
+            if (!touched && index + extra <= length) {
+                index += extra;
+                cmds += extra + 1;
+                continue;
+            }
+        }
         for (u32 i = 0; i <= header.extra_data_length; ++i) {
             const u32 cmd = header.cmd_id + (i > 0 && header.group_commands ? i : 0);
             const u32 v = i == 0 ? value : (index < length ? head[index++] : 0);
             cmds++;
             if (cmd == PICA_REG_INDEX(rasterizer.viewport_size_y)) {
                 viewport = v & 0xFFFFFF;
-                seen += fmt::format(" {:06X}", viewport);
+                // Only the refusal log reads this (the first 20 refusals).
+                if (!fast_skip || refusals < 20) {
+                    seen += fmt::format(" {:06X}", viewport);
+                }
             }
             if (cmd == PICA_REG_INDEX(pipeline.trigger_draw) ||
                 cmd == PICA_REG_INDEX(pipeline.trigger_draw_indexed)) {

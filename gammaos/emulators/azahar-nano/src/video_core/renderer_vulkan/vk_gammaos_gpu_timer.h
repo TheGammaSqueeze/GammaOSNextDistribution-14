@@ -8,6 +8,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <sys/system_properties.h>
@@ -150,14 +151,22 @@ inline void FrameBoundary() {
     g.labels[old].clear();
     g.dump[old] = false;
     g.frame = old;
-    // Debug: sys.gammaos.azahar_nano.gputime_dump=1 logs every timed entry of the next frame.
+    // Debug: sys.gammaos.azahar_nano.gputime_dump=N logs every timed entry of the next N
+    // frame boundaries (a boundary comes per presented screen, so N=1 can land on a half
+    // without passes; use 4 or more to see whole game frames).
     static std::uint32_t polls = 0;
-    if ((polls++ & 31) == 0) {
+    static std::uint32_t dump_left = 0;
+    if (dump_left == 0 && (polls++ & 31) == 0) {
         char v[PROP_VALUE_MAX] = {};
-        if (__system_property_get("sys.gammaos.azahar_nano.gputime_dump", v) > 0 && v[0] == '1') {
+        if (__system_property_get("sys.gammaos.azahar_nano.gputime_dump", v) > 0 && v[0] >= '1' &&
+            v[0] <= '9') {
             __system_property_set("sys.gammaos.azahar_nano.gputime_dump", "");
-            g.dump[g.frame] = true;
+            dump_left = static_cast<std::uint32_t>(std::atoi(v));
         }
+    }
+    if (dump_left > 0) {
+        g.dump[g.frame] = true;
+        dump_left--;
     }
 }
 

@@ -210,6 +210,13 @@ private:
     struct CachedVertices {
         u64 hash;
         u32 offset;
+        /// GammaOS hash memo: the exact range, and the command list and rasterizer download
+        /// count at which `hash` was last known to describe the guest data.
+        PAddr addr = 0;
+        u32 size = 0;
+        u32 stride = 0;
+        u64 cmd_list = ~0ull;
+        u64 guest_writes = ~0ull;
     };
     std::unordered_map<u64, CachedVertices> vertex_cache;
     u64 vertex_cache_lap = ~0ull;

@@ -6,6 +6,7 @@
 #include <string>
 #include <fmt/format.h>
 #include <xxhash.h>
+#include "common/gammaos_tweak.h"
 #include "common/logging/log.h"
 #include "common/settings.h"
 #include "video_core/pica/dead_work.h"
@@ -410,7 +411,14 @@ void DeadWork::Analyze() {
         }
     }
     learned_sigs = current_sigs;
-    if (dead_count == 0) {
+    // GammaOS: following a learned frame costs about as much per operation as learning it
+    // (Kirby: Planet Robobot relearns every few frames to skip 1 of 349 operations, 2.5 percent
+    // of the emulation thread on the RG DS). Below one operation in 32 the skips do not pay for
+    // the tracking: treat the frame as nothing learned, so the tracker rests after the learning
+    // window. persist.gammaos.azahar_nano.dead_work_min=0 skips any amount; default Mali only.
+    static const bool min_gain =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.dead_work_min");
+    if (dead_count == 0 || (min_gain && dead_count * 32 < n)) {
         return;
     }
     mode = Mode::Skip;

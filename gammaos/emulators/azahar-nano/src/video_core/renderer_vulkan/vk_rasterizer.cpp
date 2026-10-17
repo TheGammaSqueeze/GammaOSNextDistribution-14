@@ -8,12 +8,14 @@
 // Refer to the license.txt file included.
 
 #include "common/alignment.h"
+#include "common/gammaos_tweak.h"
 #include "common/literals.h"
 #include "common/logging/log.h"
 #include "common/math_util.h"
 #include "common/microprofile.h"
 #include "common/settings.h"
 #include "core/core.h"
+#include "core/core_timing.h"
 #include "core/loader/loader.h"
 #include "core/memory.h"
 #include "video_core/pica/pica_core.h"
@@ -57,6 +59,16 @@ struct DrawParams {
     std::array<u32, 16> bindings;
     bool is_indexed;
 };
+
+// GammaOS: the vertex and index stream in CPU cached memory on Mali. A Bifrost driver finds the
+// vertex range of every indexed draw by reading its indices on the CPU, and from the default
+// write-combined memory every load goes to DRAM (the scan was 38 percent of the VulkanWorker
+// with malisx2 on the RG DS). The commits flush the written lines instead.
+// persist.gammaos.azahar_nano.stream_cached: 1 on, 0 off, unset on for Mali only.
+[[nodiscard]] BufferType StreamBufferType() {
+    static const bool cached = Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.stream_cached");
+    return cached ? BufferType::StreamCached : BufferType::Stream;
+}
 
 [[nodiscard]] u64 TextureBufferSize(const Instance& instance) {
     // Use the smallest texel size from the texel views
@@ -145,7 +157,7 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
       pipeline_cache{instance, scheduler, renderpass_cache, update_queue},
       runtime{instance, scheduler, renderpass_cache, update_queue, image_count},
       res_cache{memory, custom_tex_manager, runtime, regs, renderer},
-      stream_buffer{instance, scheduler, BUFFER_USAGE, STREAM_BUFFER_SIZE},
+      stream_buffer{instance, scheduler, BUFFER_USAGE, STREAM_BUFFER_SIZE, StreamBufferType()},
       uniform_buffer{instance, scheduler, vk::BufferUsageFlagBits::eUniformBuffer,
                      UNIFORM_BUFFER_SIZE},
       texture_buffer{instance, scheduler, vk::BufferUsageFlagBits::eUniformTexelBuffer,
@@ -196,7 +208,11 @@ RasterizerVulkan::RasterizerVulkan(Memory::MemorySystem& memory, Pica::PicaCore&
         .range = VK_WHOLE_SIZE,
     });
 
-    scheduler.RegisterOnSubmit([&renderpass_cache] { renderpass_cache.EndRendering(); });
+    scheduler.RegisterOnSubmit([this, &renderpass_cache] {
+        renderpass_cache.EndRendering();
+        // GammaOS: the cached stream's writes reach memory before the GPU can read them.
+        stream_buffer.FlushPending();
+    });
 
     // Prepare the static buffer descriptor set.
     const auto buffer_set = pipeline_cache.Acquire(DescriptorHeapType::Buffer);
@@ -411,14 +427,16 @@ void RasterizerVulkan::SetupVertexArray() {
         u32 data_size = loader.byte_count * vertex_num;
         res_cache.FlushRegion(data_addr, data_size);
 
-        const MemoryRef src_ref = memory.GetPhysicalRef(data_addr);
-        if (src_ref.GetSize() < data_size) {
+        // GammaOS: the raw span (same pointer and size as a MemoryRef, without its reference
+        // count traffic for every loader of every draw).
+        const auto [src_raw, src_size] = memory.GetPhysicalSpan(data_addr);
+        if (src_size < data_size) {
             LOG_ERROR(Render_Vulkan,
                       "Vertex buffer size {} exceeds available space {} at address {:#016X}",
-                      data_size, src_ref.GetSize(), data_addr);
+                      data_size, src_size, data_addr);
         }
 
-        const u8* src_ptr = src_ref.GetPtr();
+        const u8* src_ptr = src_raw;
         u8* dst_ptr = array_ptr + buffer_offset;
 
         // Align stride up if required by Vulkan implementation.
@@ -438,15 +456,42 @@ void RasterizerVulkan::SetupVertexArray() {
         constexpr u32 MinCachedBytes = 1024;
         u64 data_hash = 0;
         u64 cache_key = 0;
-        if (vtx_cache && data_size >= MinCachedBytes && src_ref.GetSize() >= data_size) {
+        if (vtx_cache && data_size >= MinCachedBytes && src_size >= data_size) {
             if (vertex_cache_lap != stream_buffer.Lap() || vertex_cache.size() > 8192) {
                 vertex_cache.clear();
                 vertex_cache_lap = stream_buffer.Lap();
             }
-            data_hash = Common::ComputeHash64(src_ptr, data_size);
             cache_key = (static_cast<u64>(data_addr) << 32) ^ (static_cast<u64>(data_size) << 8) ^
                         aligned_stride;
             const auto it = vertex_cache.find(cache_key);
+            // GammaOS hash memo: a range hashed earlier in the same command list, with no
+            // rasterizer download writing guest memory since, still has that hash (no guest code
+            // runs during a command list). 3D Land hashes a third of its vertex bytes twice.
+            // persist.gammaos.azahar_nano.vtx_memo=0 hashes every time; default Mali only, and
+            // off with the asynchronous GPU worker (the guest runs during its command lists).
+            static const bool vtx_memo = [] {
+                char v[PROP_VALUE_MAX] = {};
+                __system_property_get("persist.gammaos.azahar_nano.async_gpu", v);
+                return v[0] != '1' &&
+                       Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.vtx_memo");
+            }();
+            const u64 list_serial = pica.CmdListSerial();
+            const u64 guest_writes = res_cache.GuestWrites();
+            if (vtx_memo && it != vertex_cache.end() && it->second.cmd_list == list_serial &&
+                it->second.guest_writes == guest_writes && it->second.addr == data_addr &&
+                it->second.size == data_size && it->second.stride == aligned_stride) {
+                data_hash = it->second.hash;
+                GammaStats::Add(GammaStats::VertexBytesRehashed, data_size);
+            } else {
+                data_hash = Common::ComputeHash64(src_ptr, data_size);
+                GammaStats::Add(GammaStats::VertexBytesHashed, data_size);
+            }
+            if (it != vertex_cache.end() && it->second.hash == data_hash &&
+                it->second.addr == data_addr && it->second.size == data_size &&
+                it->second.stride == aligned_stride) {
+                it->second.cmd_list = list_serial;
+                it->second.guest_writes = guest_writes;
+            }
             if (it != vertex_cache.end() && it->second.hash == data_hash) {
                 // Debug: persist.gammaos.azahar_nano.vtx_cache_verify=1 compares the reused
                 // copy with the game's data byte for byte and counts any difference.
@@ -490,6 +535,7 @@ void RasterizerVulkan::SetupVertexArray() {
                 continue;
             }
         }
+        GammaStats::Add(GammaStats::VertexBytesCopied, data_size);
         if (aligned_stride == loader.byte_count) {
             std::memcpy(dst_ptr, src_ptr, data_size);
         } else {
@@ -509,8 +555,11 @@ void RasterizerVulkan::SetupVertexArray() {
         // Keep track of the binding offsets so we can bind the vertex buffer later
         binding_offsets[layout.binding_count++] = static_cast<u32>(array_offset + buffer_offset);
         if (cache_key != 0) {
-            vertex_cache[cache_key] =
-                CachedVertices{data_hash, static_cast<u32>(array_offset + buffer_offset)};
+            vertex_cache[cache_key] = CachedVertices{
+                data_hash,           static_cast<u32>(array_offset + buffer_offset),
+                data_addr,           data_size,
+                aligned_stride,      pica.CmdListSerial(),
+                res_cache.GuestWrites()};
         }
         buffer_offset += Common::AlignUp(aligned_stride * vertex_num, 4);
     }
@@ -1020,7 +1069,13 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     }
     const bool has_stencil = regs.framebuffer.HasStencil();
 
-    const bool write_color_fb = shadow_rendering || pipeline_info.GetFinalColorWriteMask(instance);
+    // A colour write mask of 0 that comes from the logic op NoOp emulation (drivers without
+    // logicOp, malisx2 on the Mali-G52) keeps the colour attachment bound: the pipeline writes
+    // nothing to it, and the draw stays in the open pass instead of forcing a switch to the
+    // depth-only framebuffer and back (3D Land: 7 pass breaks per frame against 3). Drivers
+    // with logicOp return the raw mask here, so nothing changes for them.
+    const bool write_color_fb = shadow_rendering || pipeline_info.GetFinalColorWriteMask(instance) ||
+                                pipeline_info.state.blending.color_write_mask != 0;
     const bool write_depth_fb = pipeline_info.IsDepthWriteEnabled();
     const bool using_color_fb =
         regs.framebuffer.framebuffer.GetColorBufferPhysicalAddress() != 0 && write_color_fb;
@@ -1769,10 +1824,22 @@ void RasterizerVulkan::SyncAndUploadLUTsLF() {
         u32 index = std::countr_zero(pica.lighting.lut_dirty);
         pica.lighting.lut_dirty &= ~(1 << index);
 
-        Common::Vec2f* new_data = reinterpret_cast<Common::Vec2f*>(buffer + bytes_used);
+        // GammaOS: build the table in ordinary memory and copy it into the stream buffer once:
+        // the light skip scan below reads the table back, and the stream buffer can be
+        // uncached write-combined memory where every read is a trip to RAM.
+        // persist.gammaos.azahar_nano.lut_stage=0 writes and scans in place; default Mali only.
+        static const bool stage_lut =
+            Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.lut_stage");
+        std::array<Common::Vec2f, 256> staged;
+        Common::Vec2f* const mapped = reinterpret_cast<Common::Vec2f*>(buffer + bytes_used);
+        Common::Vec2f* const new_data = stage_lut ? staged.data() : mapped;
         const auto& source_lut = pica.lighting.luts[index];
+        static_assert(std::tuple_size_v<std::decay_t<decltype(source_lut)>> == staged.size());
         for (u32 i = 0; i < source_lut.size(); i++) {
             new_data[i] = {source_lut[i].ToFloat(), source_lut[i].DiffToFloat()};
+        }
+        if (stage_lut) {
+            std::memcpy(mapped, staged.data(), sizeof(staged));
         }
         // GammaOS light skip: the zero head and tail of a distance attenuation table.
         if (index >= 16 && index < 24) {

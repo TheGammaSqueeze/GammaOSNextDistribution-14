@@ -1535,6 +1535,7 @@ bool RasterizerCache<T>::UploadCustomSurface(SurfaceId surface_id, SurfaceInterv
 
 template <class T>
 void RasterizerCache<T>::DownloadSurface(Surface& surface, SurfaceInterval interval) {
+    ++guest_writes;
     ++cache_epoch;
     MICROPROFILE_SCOPE(RasterizerCache_DownloadSurface);
 
@@ -1566,6 +1567,7 @@ void RasterizerCache<T>::DownloadSurface(Surface& surface, SurfaceInterval inter
 
 template <class T>
 void RasterizerCache<T>::DownloadFillSurface(Surface& surface, SurfaceInterval interval) {
+    ++guest_writes;
     const u32 flush_start = boost::icl::first(interval);
     const u32 flush_end = boost::icl::last_next(interval);
     ASSERT(flush_start >= surface.addr && flush_end <= surface.end);

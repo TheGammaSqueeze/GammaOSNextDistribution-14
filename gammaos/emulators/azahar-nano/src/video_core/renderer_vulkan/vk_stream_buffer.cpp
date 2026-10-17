@@ -30,6 +30,8 @@ std::string_view BufferTypeName(BufferType type) {
         return "Download";
     case BufferType::Stream:
         return "Stream";
+    case BufferType::StreamCached:
+        return "StreamCached";
     default:
         return "Invalid";
     }
@@ -45,6 +47,9 @@ vk::MemoryPropertyFlags MakePropertyFlags(BufferType type) {
     case BufferType::Stream:
         return vk::MemoryPropertyFlagBits::eDeviceLocal | vk::MemoryPropertyFlagBits::eHostVisible |
                vk::MemoryPropertyFlagBits::eHostCoherent;
+    case BufferType::StreamCached:
+        return vk::MemoryPropertyFlagBits::eDeviceLocal | vk::MemoryPropertyFlagBits::eHostVisible |
+               vk::MemoryPropertyFlagBits::eHostCached;
     default:
         UNREACHABLE_MSG("Unknown buffer type {}", type);
         return vk::MemoryPropertyFlagBits::eHostVisible;
@@ -112,7 +117,7 @@ StreamBuffer::~StreamBuffer() {
 }
 
 std::tuple<u8*, u32, bool> StreamBuffer::Map(u32 size, u64 alignment) {
-    if (!is_coherent && type == BufferType::Stream) {
+    if (!is_coherent && (type == BufferType::Stream || type == BufferType::StreamCached)) {
         size = Common::AlignUp(size, instance.NonCoherentAtomSize());
     }
 
@@ -125,6 +130,8 @@ std::tuple<u8*, u32, bool> StreamBuffer::Map(u32 size, u64 alignment) {
 
     bool invalidate{false};
     if (offset + size > stream_buffer_size) {
+        // GammaOS: the pending clean range only grows forward; clean it before starting over.
+        FlushPending();
         // The buffer would overflow, save the amount of used watches and reset the state.
         invalidate = true;
         ++lap;
@@ -168,7 +175,7 @@ void StreamBuffer::Reserve(u32 size) {
 }
 
 void StreamBuffer::Commit(u32 size) {
-    if (!is_coherent && type == BufferType::Stream) {
+    if (!is_coherent && (type == BufferType::Stream || type == BufferType::StreamCached)) {
         size = Common::AlignUp(size, instance.NonCoherentAtomSize());
     }
 
@@ -183,6 +190,12 @@ void StreamBuffer::Commit(u32 size) {
 
     if (!is_coherent && type == BufferType::Download) {
         device.invalidateMappedMemoryRanges(range);
+    } else if (!is_coherent && type == BufferType::StreamCached) {
+        // GammaOS: cleaned in one go before the next submit (FlushPending).
+        if (dirty_end == dirty_begin) {
+            dirty_begin = offset;
+        }
+        dirty_end = offset + size;
     } else if (!is_coherent) {
         device.flushMappedMemoryRanges(range);
     }
@@ -196,6 +209,21 @@ void StreamBuffer::Commit(u32 size) {
     auto& watch = current_watches[current_watch_cursor++];
     watch.upper_bound = offset;
     watch.tick = scheduler.CurrentTick();
+}
+
+void StreamBuffer::FlushPending() {
+    if (dirty_end == dirty_begin) {
+        return;
+    }
+    // Commits are contiguous within a lap (Map only moves forward until it wraps, and a wrap
+    // flushes first), so one range covers them.
+    const vk::MappedMemoryRange range = {
+        .memory = memory,
+        .offset = dirty_begin,
+        .size = dirty_end - dirty_begin,
+    };
+    dirty_begin = dirty_end = 0;
+    device.flushMappedMemoryRanges(range);
 }
 
 void StreamBuffer::CreateBuffers(u64 preferred_size) {
