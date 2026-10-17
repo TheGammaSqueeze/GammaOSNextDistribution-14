@@ -80,6 +80,10 @@ struct Jit::Impl final {
         return current_address_space.GetBlockLocations();
     }
 
+    std::vector<std::uint64_t> GetCompiledBlockLocationsSince(std::size_t& cursor, std::uint64_t& generation) const {
+        return current_address_space.GetBlockLocationsSince(cursor, generation);
+    }
+
     std::vector<std::pair<std::uint64_t, std::uint64_t>> GetBlockMap() const {
         return current_address_space.GetBlockMap();
     }
@@ -216,6 +220,10 @@ void Jit::Reset() {
 
 std::vector<std::uint64_t> Jit::GetCompiledBlockLocations() const {
     return impl->GetCompiledBlockLocations();
+}
+
+std::vector<std::uint64_t> Jit::GetCompiledBlockLocationsSince(std::size_t& cursor, std::uint64_t& generation) const {
+    return impl->GetCompiledBlockLocationsSince(cursor, generation);
 }
 
 std::vector<std::pair<std::uint64_t, std::uint64_t>> Jit::GetBlockMap() const {

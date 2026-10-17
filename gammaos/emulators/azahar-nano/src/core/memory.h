@@ -723,6 +723,10 @@ public:
     /// Returns a reference to the memory region beginning at the specified physical address
     MemoryRef GetPhysicalRef(PAddr address);
 
+    /// GammaOS: the host pointer of a physical address and the bytes up to the end of its
+    /// region, without the reference counting of a MemoryRef ({nullptr, 0} when unmapped).
+    std::pair<u8*, std::size_t> GetPhysicalSpan(PAddr address);
+
     /// Determines if the given VAddr is valid for the specified process.
     bool IsValidVirtualAddress(const Kernel::Process& process, VAddr vaddr);
 

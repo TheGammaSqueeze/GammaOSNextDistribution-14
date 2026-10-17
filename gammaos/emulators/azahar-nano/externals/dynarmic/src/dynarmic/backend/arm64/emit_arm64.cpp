@@ -191,7 +191,7 @@ static void EmitAddCycles(oaknut::CodeGenerator& code, EmitContext& ctx, size_t 
     }
 }
 
-EmittedBlockInfo EmitArm64(oaknut::CodeGenerator& code, IR::Block block, const EmitConfig& conf, FastmemManager& fastmem_manager) {
+EmittedBlockInfo EmitArm64(oaknut::CodeGenerator& code, IR::Block block, const EmitConfig& conf, FastmemManager& fastmem_manager, std::ptrdiff_t* far_offset) {
     if (conf.very_verbose_debugging_output) {
         std::puts(IR::DumpBlock(block).c_str());
     }
@@ -257,6 +257,26 @@ EmittedBlockInfo EmitArm64(oaknut::CodeGenerator& code, IR::Block block, const E
     EmitAddCycles(code, ctx, block.CycleCount());
     conf.emit_terminal(code, ctx);
     code.BRK(0);
+
+    if (far_offset && !ctx.deferred_emits.empty()) {
+        // GammaOS: the cold code goes to the far area, so the bodies of the blocks that run sit
+        // next to each other in the instruction cache (and the next-line prefetch after a block
+        // brings in the next block, not its fallbacks). Labels are offsets in the same buffer,
+        // so branches between the two areas resolve as usual; the address space keeps the far
+        // area within the reach of a conditional branch (1 MiB).
+        const std::ptrdiff_t body_end = code.offset();
+        ebi.size = code.xptr<CodePtr>() - ebi.entry_point;
+        code.set_offset(*far_offset);
+        ebi.far_entry = code.xptr<CodePtr>();
+        for (const auto& deferred_emit : ctx.deferred_emits) {
+            deferred_emit();
+        }
+        code.BRK(0);
+        ebi.far_size = code.xptr<CodePtr>() - ebi.far_entry;
+        *far_offset = code.offset();
+        code.set_offset(body_end);
+        return ebi;
+    }
 
     for (const auto& deferred_emit : ctx.deferred_emits) {
         deferred_emit();

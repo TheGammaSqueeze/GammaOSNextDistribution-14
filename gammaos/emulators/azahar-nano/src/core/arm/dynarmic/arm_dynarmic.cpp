@@ -14,6 +14,7 @@
 #include <dynarmic/interface/A32/a32.h>
 #include <dynarmic/interface/optimization_flags.h>
 #include "common/assert.h"
+#include "common/gammaos_tweak.h"
 #include "common/microprofile.h"
 #include "core/arm/dynarmic/arm_dynarmic.h"
 #include "core/arm/dynarmic/arm_dynarmic_cp15.h"
@@ -430,6 +431,21 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
     config.coprocessors[15] = std::make_shared<DynarmicCP15>(cp15_state);
     config.define_unpredictable_behaviour = true;
 
+    // GammaOS: the dispatcher probes the fast dispatch table before its C++ block lookup (a hash
+    // map search on every unlinked block exit, 3 percent of the emulation thread in 3D Land).
+    // persist.gammaos.azahar_nano.jit_disp_probe = 1 / 0 forces it on / off; default Mali only.
+    static const bool disp_probe =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_disp_probe");
+    config.dispatcher_fast_probe = disp_probe;
+
+    // GammaOS: block bodies apart from their cold fallback code in the code cache. Guest code
+    // with many small blocks (Kirby: Planet Robobot's script interpreter) spent a quarter of its
+    // JIT time arriving at block entries. persist.gammaos.azahar_nano.jit_far_code = 1 / 0
+    // forces it on / off; default Mali only.
+    static const bool far_code =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_far_code");
+    config.far_code = far_code;
+
     // Multi-process state
     config.processor_id = GetID();
     config.global_monitor = &exclusive_monitor.monitor;
@@ -465,8 +481,9 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
             config.unsafe_optimizations = true;
             config.optimizations |= Dynarmic::OptimizationFlag::Unsafe_IgnoreGlobalMonitor;
         }
-        LOG_INFO(Core_ARM11, "JIT for {:016X}: global exclusive monitor {}", title_id,
-                 ignore_monitor ? "ignored" : "kept");
+        LOG_INFO(Core_ARM11, "JIT for {:016X}: global exclusive monitor {}, dispatcher probe {}, far code {}",
+                 title_id, ignore_monitor ? "ignored" : "kept", disp_probe ? "on" : "off",
+                 far_code ? "on" : "off");
     }
 
     return std::make_unique<Dynarmic::A32::Jit>(config);
@@ -478,6 +495,16 @@ std::vector<u64> Core::ARM_Dynarmic::GetCompiledBlocks() const {
 #if CITRA_ARCH(arm64)
     if (jit) {
         return jit->GetCompiledBlockLocations();
+    }
+#endif
+    return {};
+}
+
+std::vector<u64> Core::ARM_Dynarmic::GetCompiledBlocksSince(std::size_t& cursor,
+                                                           u64& generation) const {
+#if CITRA_ARCH(arm64)
+    if (jit) {
+        return jit->GetCompiledBlockLocationsSince(cursor, generation);
     }
 #endif
     return {};

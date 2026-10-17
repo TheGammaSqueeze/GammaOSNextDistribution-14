@@ -235,6 +235,15 @@ struct UserConfig {
     /// AddTicks and GetTicksRemaining are never called, and no cycle counting is done.
     bool enable_cycle_counting = true;
 
+    /// GammaOS (arm64 backend): the dispatcher probes the fast dispatch table inline before it
+    /// calls into C++ for the block lookup (needs OptimizationFlag::FastDispatch).
+    bool dispatcher_fast_probe = false;
+
+    /// GammaOS (arm64 backend): keep each block's cold code (memory access fallbacks) in a
+    /// separate area of its code cache segment, so the block bodies stay dense in the
+    /// instruction cache.
+    bool far_code = false;
+
     /// This option relates to the CPSR.E flag. Enabling this option disables modification
     /// of CPSR.E by the emulated program, forcing it to 0.
     /// NOTE: Calling Jit::SetCpsr with CPSR.E=1 while this option is enabled may result

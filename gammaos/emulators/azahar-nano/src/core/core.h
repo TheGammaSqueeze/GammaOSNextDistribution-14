@@ -231,7 +231,9 @@ public:
     /// GammaOS JIT warm-up: compile the blocks saved by earlier sessions (all cores)
     void GammaJitWarm(bool after_load = false);
     /// GammaOS JIT warm-up: merge the currently compiled blocks into the saved lists
-    void GammaJitSave();
+    /// Saves the JIT warm-up lists; background: the periodic save (the merge and the file
+    /// write run on a worker thread).
+    void GammaJitSave(bool background = false);
     /// GammaOS JIT warm-up: compile pending saved blocks until the given time (called
     /// from the frame pacer's idle wait, never while the JIT executes)
     void GammaJitWarmStep(std::chrono::steady_clock::time_point until);

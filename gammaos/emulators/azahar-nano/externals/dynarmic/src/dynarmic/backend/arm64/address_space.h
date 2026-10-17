@@ -78,6 +78,25 @@ public:
         return out;
     }
 
+    /// GammaOS: the blocks first compiled since a previous call, for a cheap periodic save.
+    /// `cursor` is the position in the compile order reached last time and `generation` the
+    /// cache generation it belongs to (both start at 0); a cache clear since then starts over.
+    std::vector<u64> GetBlockLocationsSince(std::size_t& cursor, std::uint64_t& generation) const {
+        if (generation != clear_generation || cursor > emit_order.size()) {
+            cursor = 0;
+            generation = clear_generation;
+        }
+        std::vector<u64> out;
+        out.reserve(emit_order.size() - cursor);
+        for (std::size_t i = cursor; i < emit_order.size(); i++) {
+            if (block_entries.contains(IR::LocationDescriptor{emit_order[i]})) {
+                out.push_back(emit_order[i]);
+            }
+        }
+        cursor = emit_order.size();
+        return out;
+    }
+
     /// Debug: (host code address, raw location descriptor) of every compiled block, so host
     /// profiler samples in generated code can be attributed to guest addresses.
     std::vector<std::pair<std::uint64_t, std::uint64_t>> GetBlockMap() const {
@@ -112,6 +131,10 @@ protected:
     }
 
     size_t GetRemainingSize();
+    /// GammaOS far code: makes room for a block of `ir_size` IR instructions in the current
+    /// segment, opening the next one (or clearing the cache) when it does not fit. False when
+    /// the block is too long for a segment and has to be emitted inline.
+    bool FarCodeReserve(size_t ir_size);
     EmittedBlockInfo Emit(IR::Block ir_block);
     void Link(EmittedBlockInfo& block);
     void LinkBlockLinks(const CodePtr entry_point, const CodePtr target_ptr, const std::vector<BlockRelocation>& block_relocations_list);
@@ -123,12 +146,23 @@ protected:
     oaknut::CodeBlock mem;
     oaknut::CodeGenerator code;
 
+    // GammaOS far code (set by the frontend address space before the first block): the cache
+    // after the prelude is cut into segments of far_segment_size bytes; block bodies fill the
+    // first far_body_size bytes of a segment and their deferred code the rest, so a conditional
+    // branch from a body reaches its fallback (range 1 MiB) and the bodies stay dense.
+    static constexpr std::ptrdiff_t far_segment_size = 1024 * 1024;
+    static constexpr std::ptrdiff_t far_body_size = 640 * 1024;
+    bool far_code = false;
+    std::ptrdiff_t far_segment = -1;   // offset of the current segment, -1 before the first
+    std::ptrdiff_t far_offset = 0;     // where the next block's deferred code goes
+
     // A IR::LocationDescriptor will have one current CodePtr.
     // However, there can be multiple other CodePtrs which are older, previously invalidated blocks.
     std::unique_ptr<FastDispatchEntry[]> fast_dispatch_table{
         new FastDispatchEntry[size_t{1} << fast_dispatch_bits]};
     tsl::robin_map<IR::LocationDescriptor, CodePtr> block_entries;
     std::vector<u64> emit_order;   // first-compile order (may hold invalidated entries)
+    std::uint64_t clear_generation = 1;   // bumped by every ClearCache
     std::map<CodePtr, IR::LocationDescriptor> reverse_block_entries;
     tsl::robin_map<CodePtr, EmittedBlockInfo> block_infos;
     tsl::robin_map<IR::LocationDescriptor, tsl::robin_set<CodePtr>> block_references;

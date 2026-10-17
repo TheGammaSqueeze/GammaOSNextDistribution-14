@@ -207,6 +207,11 @@ public:
 
         void MoveEvents();
 
+        /// GammaOS: nothing scheduled on this timer (and nothing queued by other threads).
+        bool HasNoEvents() const {
+            return event_queue.empty() && ts_queue.Empty();
+        }
+
     private:
         friend class Timing;
         // The queue is a min-heap using std::make_heap/push_heap/pop_heap.

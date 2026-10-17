@@ -160,6 +160,7 @@ A32AddressSpace::A32AddressSpace(const A32::UserConfig& conf)
         : AddressSpace(conf.code_cache_size)
         , conf(conf) {
     EmitPrelude();
+    far_code = conf.far_code;
 }
 
 IR::Block A32AddressSpace::GenerateIR(IR::LocationDescriptor descriptor) const {
@@ -318,6 +319,25 @@ void A32AddressSpace::EmitPrelude() {
         if (conf.enable_cycle_counting) {
             code.CMP(Xticks, 0);
             code.B(LE, return_from_run_code);
+        }
+
+        if (conf.HasOptimization(OptimizationFlag::FastDispatch) && conf.dispatcher_fast_probe) {
+            // GammaOS: every block exit that is not linked (an RSB miss, a ReturnToDispatch
+            // terminal, a link to a block not compiled yet) used to call the C++ lookup below,
+            // a hash map search. Look in the fast dispatch table first, the same probe the
+            // FastDispatchHint terminal does; the lookup fills the entry on a miss.
+            oaknut::Label miss;
+            static_assert(offsetof(A32JitState, regs) + 16 * sizeof(u32) == offsetof(A32JitState, upper_location_descriptor));
+            code.LDUR(X0, Xstate, offsetof(A32JitState, regs) + 15 * sizeof(u32));
+            code.EOR(Xscratch0, X0, X0, LSR, 32);
+            code.UBFX(Xscratch0, Xscratch0, 1, AddressSpace::fast_dispatch_bits);
+            code.LDR(Xscratch1, Xstate, offsetof(A32JitState, fast_dispatch_table));
+            code.ADD(Xscratch1, Xscratch1, Xscratch0, LSL, 4);
+            code.LDP(Xscratch0, Xscratch1, Xscratch1);
+            code.CMP(X0, Xscratch0);
+            code.B(NE, miss);
+            code.BR(Xscratch1);
+            code.l(miss);
         }
 
         code.LDR(X0, l_this);

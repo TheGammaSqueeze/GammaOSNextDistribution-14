@@ -28,6 +28,8 @@ class ARM_Dynarmic final : public ARM_Interface {
 public:
     /// GammaOS JIT warm-up: compiled block locations of the current JIT
     std::vector<u64> GetCompiledBlocks() const;
+    /// The blocks first compiled since the previous call with the same cursor (start both at 0).
+    std::vector<u64> GetCompiledBlocksSince(std::size_t& cursor, u64& generation) const;
     /// Compiles the blocks whose code page is mapped now; returns how many were compiled
     std::size_t PrecompileBlocks(const std::vector<u64>& locations);
     /// GammaOS debug: writes "host_address guest_pc" for every compiled block to path.

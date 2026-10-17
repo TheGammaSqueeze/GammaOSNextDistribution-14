@@ -93,11 +93,13 @@ void AddressSpace::InvalidateBasicBlocks(const tsl::robin_set<IR::LocationDescri
 void AddressSpace::ClearCache() {
     FastDispatchClear();
     emit_order.clear();
+    clear_generation++;
     block_entries.clear();
     reverse_block_entries.clear();
     block_infos.clear();
     block_references.clear();
     code.set_offset(prelude_info.end_of_prelude);
+    far_segment = -1;
 }
 
 void AddressSpace::DumpDisassembly() const {
@@ -110,14 +112,55 @@ size_t AddressSpace::GetRemainingSize() {
     return code_cache_size - static_cast<size_t>(code.offset());
 }
 
+bool AddressSpace::FarCodeReserve(size_t ir_size) {
+    // A generous bound on either part of one block, body or deferred code (the largest IR
+    // instructions emit a few dozen host instructions).
+    const std::ptrdiff_t need = static_cast<std::ptrdiff_t>(ir_size + 16) * 160;
+    const auto align = [](std::ptrdiff_t o) { return (o + 63) & ~std::ptrdiff_t{63}; };
+    if (need > far_segment_size - far_body_size) {
+        // Too long for a segment (the translator does not bound block length): emitted inline,
+        // past the current segment, and the next block opens a new one behind it.
+        std::ptrdiff_t next = align(far_segment < 0 ? code.offset() : far_segment + far_segment_size);
+        if (next + 2 * need + 1024 * 1024 > static_cast<std::ptrdiff_t>(code_cache_size)) {
+            ClearCache();
+            next = align(code.offset());
+        }
+        code.set_offset(next);
+        far_segment = -1;
+        return false;
+    }
+    if (far_segment >= 0 && code.offset() + need <= far_segment + far_body_size &&
+        far_offset + need <= far_segment + far_segment_size) {
+        return true;
+    }
+    std::ptrdiff_t next = align(far_segment < 0 ? code.offset() : far_segment + far_segment_size);
+    if (next + far_segment_size + 1024 * 1024 > static_cast<std::ptrdiff_t>(code_cache_size)) {
+        ClearCache();
+        next = align(code.offset());
+    }
+    far_segment = next;
+    far_offset = next + far_body_size;
+    code.set_offset(next);
+    return true;
+}
+
 EmittedBlockInfo AddressSpace::Emit(IR::Block block) {
-    if (GetRemainingSize() < 1024 * 1024) {
+    bool use_far = false;
+    if (far_code) {
+        use_far = FarCodeReserve(block.size());
+    } else if (GetRemainingSize() < 1024 * 1024) {
         ClearCache();
     }
 
     UnprotectCodeMemory();
 
-    EmittedBlockInfo block_info = EmitArm64(code, std::move(block), GetEmitConfig(), fastmem_manager);
+    EmittedBlockInfo block_info = EmitArm64(code, std::move(block), GetEmitConfig(), fastmem_manager,
+                                            use_far ? &far_offset : nullptr);
+    if (use_far) {
+        ASSERT_MSG(code.offset() <= far_segment + far_body_size &&
+                       far_offset <= far_segment + far_segment_size,
+                   "far code segment overflow");
+    }
 
     ASSERT(block_entries.insert({block.Location(), block_info.entry_point}).second);
     emit_order.push_back(block.Location().Value());
@@ -128,6 +171,9 @@ EmittedBlockInfo AddressSpace::Emit(IR::Block block) {
     RelinkForDescriptor(block.Location(), block_info.entry_point);
 
     mem.invalidate(reinterpret_cast<u32*>(block_info.entry_point), block_info.size);
+    if (block_info.far_size) {
+        mem.invalidate(reinterpret_cast<u32*>(block_info.far_entry), block_info.far_size);
+    }
     ProtectCodeMemory();
 
     RegisterNewBasicBlock(block, block_info);
@@ -314,6 +360,9 @@ void AddressSpace::RelinkForDescriptor(IR::LocationDescriptor target_descriptor,
             }
 
             mem.invalidate(reinterpret_cast<u32*>(block_info.entry_point), block_info.size);
+            if (block_info.far_size) {
+                mem.invalidate(reinterpret_cast<u32*>(block_info.far_entry), block_info.far_size);
+            }
         }
     }
 }

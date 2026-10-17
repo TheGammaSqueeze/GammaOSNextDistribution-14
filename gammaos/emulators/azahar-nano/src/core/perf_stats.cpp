@@ -252,6 +252,10 @@ void FrameLimiter::WaitOnce() {
 // the heavy one by 16 ms: the swaps come in pairs. Waiting before the present
 // instead gives the heavy frame the whole slot and keeps the swaps even, which a
 // scanout presenter can show one per vblank without extra buffering.
+// GammaOS debug: what the deadline pacing did since the last swap trace line (emulation thread
+// only, read by the renderer's swap trace).
+PaceTrace g_pace_trace;
+
 void FrameLimiter::PaceBeforePresent(microseconds current_system_time_us) {
     if (frame_advancing_enabled || Settings::GetFrameLimit() == 0) {
         return;
@@ -282,11 +286,17 @@ void FrameLimiter::PaceBeforePresent(microseconds current_system_time_us) {
         if (warm_until > now) {
             Core::System::GetInstance().GammaJitWarmStep(warm_until);
         }
+        const auto sleep_start = Clock::now();
         std::this_thread::sleep_until(next_deadline);
+        g_pace_trace.sleeps++;
+        g_pace_trace.sleep_us += duration_cast<microseconds>(Clock::now() - sleep_start).count();
     } else if (now > next_deadline + 2 * period) {
         // Hopelessly behind (a load stall, a long frame): carry at most one period
         // of debt so the following fast frames catch up without a sleep instead of
         // dropping the time (which ran the game a few percent slow).
+        g_pace_trace.resets++;
+        g_pace_trace.dropped_us +=
+            duration_cast<microseconds>(now - period - next_deadline).count();
         next_deadline = now - period;
     }
 }

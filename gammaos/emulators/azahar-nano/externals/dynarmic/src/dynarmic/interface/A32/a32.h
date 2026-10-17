@@ -54,6 +54,10 @@ public:
      */
     std::vector<std::uint64_t> GetCompiledBlockLocations() const;
 
+    /// GammaOS: the compiled blocks first compiled since the previous call (see the arm64
+    /// AddressSpace::GetBlockLocationsSince); both values start at 0.
+    std::vector<std::uint64_t> GetCompiledBlockLocationsSince(std::size_t& cursor, std::uint64_t& generation) const;
+
     /// Debug: (host code address, raw location descriptor) of every compiled block.
     std::vector<std::pair<std::uint64_t, std::uint64_t>> GetBlockMap() const;
 

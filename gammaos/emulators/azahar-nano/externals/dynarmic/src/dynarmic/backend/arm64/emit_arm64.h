@@ -101,6 +101,10 @@ struct BlockRelocation {
 struct EmittedBlockInfo {
     CodePtr entry_point;
     size_t size;
+    // GammaOS: the block's out-of-line code (memory access fallbacks and the like), when the
+    // address space keeps it apart from the block body (AddressSpace far code); null if inline.
+    CodePtr far_entry = nullptr;
+    size_t far_size = 0;
     std::vector<Relocation> relocations;
     tsl::robin_map<IR::LocationDescriptor, std::vector<BlockRelocation>> block_relocations;
     tsl::robin_map<std::ptrdiff_t, FastmemPatchInfo> fastmem_patch_info;
@@ -168,7 +172,9 @@ struct EmitConfig {
     bool very_verbose_debugging_output;
 };
 
-EmittedBlockInfo EmitArm64(oaknut::CodeGenerator& code, IR::Block block, const EmitConfig& emit_conf, FastmemManager& fastmem_manager);
+/// far_offset: when not null, the deferred (cold) code of the block is written at this offset of
+/// the code buffer instead of right behind the block body, and the offset is moved past it.
+EmittedBlockInfo EmitArm64(oaknut::CodeGenerator& code, IR::Block block, const EmitConfig& emit_conf, FastmemManager& fastmem_manager, std::ptrdiff_t* far_offset = nullptr);
 
 template<IR::Opcode op>
 void EmitIR(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Inst* inst);

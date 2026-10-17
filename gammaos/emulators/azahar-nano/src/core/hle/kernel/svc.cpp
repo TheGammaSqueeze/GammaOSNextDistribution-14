@@ -1666,8 +1666,24 @@ Result SVC::CancelTimer(Handle handle) {
 }
 
 /// Sleep the current thread
+namespace {
+// GammaOS debug (svc_stats): SleepThread durations, logged with the svc stats.
+bool g_svc_stats_on = false;
+std::array<u32, 7> g_sleep_hist{}; // 0 ns alone, 0 ns yield, <10 us, <100 us, <1 ms, <10 ms, more
+} // namespace
+
 void SVC::SleepThread(s64 nanoseconds) {
     LOG_TRACE(Kernel_SVC, "called nanoseconds={}", nanoseconds);
+    if (g_svc_stats_on) {
+        const std::size_t b =
+            nanoseconds <= 0 ? (kernel.GetCurrentThreadManager().HaveReadyThreads() ? 1 : 0)
+            : nanoseconds < 10000    ? 2
+            : nanoseconds < 100000   ? 3
+            : nanoseconds < 1000000  ? 4
+            : nanoseconds < 10000000 ? 5
+                                     : 6;
+        g_sleep_hist[b]++;
+    }
 
     ThreadManager& thread_manager = kernel.GetCurrentThreadManager();
 
@@ -2480,6 +2496,7 @@ void SVC::CallSVC(u32 immediate) {
             char v[PROP_VALUE_MAX] = {};
             __system_property_get("sys.gammaos.azahar_nano.svc_stats", v);
             enabled = v[0] == '1';
+            g_svc_stats_on = enabled;
         }
         if (enabled) {
             counts[immediate & 0x7F]++;
@@ -2494,6 +2511,12 @@ void SVC::CallSVC(u32 immediate) {
                     }
                 }
                 counts.fill(0);
+                line += fmt::format(" | sleeps 0ns-alone {} 0ns-yield {} <10us {} <100us {} <1ms {} "
+                                    "<10ms {} longer {}",
+                                    g_sleep_hist[0], g_sleep_hist[1], g_sleep_hist[2],
+                                    g_sleep_hist[3], g_sleep_hist[4], g_sleep_hist[5],
+                                    g_sleep_hist[6]);
+                g_sleep_hist.fill(0);
                 LOG_INFO(Kernel_SVC, "svc stats (2 s):{}", line);
             }
         }

@@ -299,7 +299,7 @@ Core::System::ResultStatus RunCore(const std::string& filepath) {
                 if ((++loop_count & 1023) == 0 &&
                     std::chrono::steady_clock::now() - last_jit_save > std::chrono::seconds(30)) {
                     last_jit_save = std::chrono::steady_clock::now();
-                    system.GammaJitSave();
+                    system.GammaJitSave(true);
                 }
                 continue;
             }

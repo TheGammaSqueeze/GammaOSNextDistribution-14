@@ -187,6 +187,15 @@ private:
     Results last_stats;
 };
 
+/// GammaOS debug counters of the deadline pacing (emulation thread only).
+struct PaceTrace {
+    u64 sleeps = 0;
+    s64 sleep_us = 0;
+    u64 resets = 0;
+    s64 dropped_us = 0;
+};
+extern PaceTrace g_pace_trace;
+
 class FrameLimiter {
 public:
     using Clock = std::chrono::high_resolution_clock;

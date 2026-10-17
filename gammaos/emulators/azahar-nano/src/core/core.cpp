@@ -1,4 +1,7 @@
+#include <cerrno>
 #include <cstdio>
+#include <sched.h>
+#include <unistd.h>
 #include <sys/system_properties.h>
 // Copyright 2014-2026 Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
@@ -11,6 +14,7 @@
 #include "audio_core/hle/hle.h"
 #include "audio_core/lle/lle.h"
 #include "common/arch.h"
+#include "common/gammaos_tweak.h"
 #include "common/logging/log.h"
 #include "common/scope_exit.h"
 #include "common/settings.h"
@@ -27,6 +31,7 @@
 #include "core/core.h"
 #include "core/arm/dynarmic/arm_dynarmic.h"
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include "core/core_timing.h"
 #include "core/dumping/backend.h"
@@ -89,6 +94,32 @@ System::~System() {
     WaitSaveWriter();
 }
 
+#ifdef ANDROID
+namespace {
+// GammaOS: the emulation thread's real-time state (RunLoop below).
+bool gamma_emu_rt_active = false;
+int gamma_emu_rt_prio = 0;
+
+// A save state load or save runs for up to seconds without coming back to the run loop, too long
+// for a real-time thread with kernel throttling off: run it as a normal thread.
+struct GammaRtPause {
+    GammaRtPause() {
+        if (gamma_emu_rt_active) {
+            sched_param sp{};
+            sched_setscheduler(0, SCHED_OTHER, &sp);
+        }
+    }
+    ~GammaRtPause() {
+        if (gamma_emu_rt_active) {
+            sched_param sp{};
+            sp.sched_priority = gamma_emu_rt_prio;
+            sched_setscheduler(0, SCHED_FIFO, &sp);
+        }
+    }
+};
+} // namespace
+#endif
+
 System::ResultStatus System::RunLoop(bool tight_loop) {
     status = ResultStatus::Success;
 
@@ -100,6 +131,50 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
     if (gpu) {
         gpu->AsyncPoll();
     }
+
+#ifdef ANDROID
+    // GammaOS: the emulation thread as a real-time thread (SCHED_FIFO), so other runnable
+    // threads wait for a free core instead of preempting it. A waking real-time thread only
+    // looks for another core when the running one has at least its priority, so the default is
+    // 2, the priority of the DRM presenter threads (on the RG DS they and the core's present
+    // threads took 2 to 7 percent of the emulation thread's time, in bursts that made long
+    // frames). persist.gammaos.azahar_nano.emu_rt: 0 off, 1 on at priority 2, 2 to 9 that
+    // priority; default on (priority 2) on the Mali devices only.
+    {
+        static bool rt_checked = false; // the emulation thread is the only caller
+        bool& rt_active = gamma_emu_rt_active;
+        // Kernel real-time throttling is off on these kernels (sched_rt_runtime_us -1), so a
+        // real-time thread that never blocks would starve the per-core kernel threads of its
+        // core (workqueues, ksoftirqd) for as long as it runs. Give that core a 100 us sleep
+        // whenever 50 ms passed without one (at most 0.2 percent of the thread).
+        if (rt_active) {
+            static u32 passes = 0;
+            static auto last_breath = std::chrono::steady_clock::now();
+            if ((++passes & 63) == 0) {
+                const auto now = std::chrono::steady_clock::now();
+                if (now - last_breath >= std::chrono::milliseconds(50)) {
+                    usleep(100);
+                    last_breath = std::chrono::steady_clock::now();
+                }
+            }
+        }
+        if (!rt_checked) {
+            rt_checked = true;
+            const int prio = Common::GammaOS::EmuRtPriority();
+            if (prio > 0) {
+                sched_param sp{};
+                sp.sched_priority = prio;
+                if (sched_setscheduler(0, SCHED_FIFO, &sp) == 0) {
+                    rt_active = true;
+                    gamma_emu_rt_prio = prio;
+                    LOG_INFO(Core, "emulation thread: SCHED_FIFO priority {}", prio);
+                } else {
+                    LOG_WARNING(Core, "emulation thread: SCHED_FIFO refused ({})", errno);
+                }
+            }
+        }
+    }
+#endif
 
 #ifdef ENABLE_GDBSTUB
     if (GDBStub::IsServerEnabled()) {
@@ -185,6 +260,9 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         save_state_request_status = SaveStateStatus::NONE;
         LOG_INFO(Core, "Begin load of slot {}", slot);
         try {
+#ifdef ANDROID
+            GammaRtPause rt_pause;
+#endif
             System::LoadState(slot);
             LOG_INFO(Core, "Load completed");
             // GammaOS: the loaded system starts with no frame history (the realtime audio
@@ -204,6 +282,9 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         const u32 slot = save_state_slot;
         LOG_INFO(Core, "Begin save to slot {}", slot);
         try {
+#ifdef ANDROID
+            GammaRtPause rt_pause;
+#endif
             System::SaveState(slot);
             LOG_INFO(Core, "Save completed");
         } catch (const std::exception& e) {
@@ -278,7 +359,25 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         // with a max slice that is the minimum of all max slices of all cores
         // TODO: Make special check for idle since we can easily revert the time of idle cores
         s64 max_slice = Timing::MAX_SLICE_LENGTH;
+        // GammaOS: a core no thread was ever created on and with nothing scheduled on its timer
+        // (the two extra New 3DS cores, usually the system core too) only needs its timer kept
+        // in step: switching the kernel to it, rescheduling its empty thread list and idling it
+        // cost about half of every pass, and Kirby: Planet Robobot makes 18000 passes a second.
+        // The last core's state is restored at the end of the pass, as if it had been visited.
+        // persist.gammaos.azahar_nano.idle_cores=0 visits every core; default Mali only.
+        static const bool skip_idle_cores =
+            Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.idle_cores");
+        const auto core_is_idle = [this](const std::shared_ptr<ARM_Interface>& core) {
+            return skip_idle_cores && !(gpu && gpu->AsyncPending()) &&
+                   kernel->GetThreadManager(core->GetID()).GetThreadList().empty() &&
+                   core->GetTimer().HasNoEvents();
+        };
         for (const auto& cpu_core : cpu_cores) {
+            if (core_is_idle(cpu_core)) {
+                cpu_core->GetTimer().Advance();
+                max_slice = std::min(max_slice, cpu_core->GetTimer().GetMaxSliceLength());
+                continue;
+            }
             running_core = cpu_core.get();
             kernel->SetRunningCPU(running_core);
             cpu_core->GetTimer().Advance();
@@ -286,7 +385,18 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             kernel->GetThreadManager(cpu_core->GetID()).Reschedule();
             max_slice = std::min(max_slice, cpu_core->GetTimer().GetMaxSliceLength());
         }
+        bool last_core_skipped = false;
         for (auto& cpu_core : cpu_cores) {
+            if (core_is_idle(cpu_core)) {
+                // What the full visit below does for a core with no current thread.
+                cpu_core->GetTimer().SetNextSlice(max_slice);
+                const auto start_ticks = cpu_core->GetTimer().GetTicks();
+                cpu_core->GetTimer().Idle();
+                max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
+                last_core_skipped = true;
+                continue;
+            }
+            last_core_skipped = false;
             cpu_core->GetTimer().SetNextSlice(max_slice);
             auto start_ticks = cpu_core->GetTimer().GetTicks();
             LOG_TRACE(Core_ARM11, "Core {} running for {} ticks", cpu_core->GetID(),
@@ -328,6 +438,10 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             }
             max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
             Reschedule();
+        }
+        if (last_core_skipped) {
+            running_core = cpu_cores.back().get();
+            kernel->SetRunningCPU(running_core);
         }
     }
 
@@ -1286,45 +1400,98 @@ void System::GammaJitWarmStep(std::chrono::steady_clock::time_point until) {
     }
 }
 
-void System::GammaJitSave() {
+namespace {
+// One writer of the warm-up files at a time (the periodic background save and the exit save).
+std::mutex gamma_jit_save_mutex;
+std::atomic<bool> gamma_jit_save_busy{false};
+// Incremental collection for the periodic save: compile order position and cache generation
+// reached per core (the emulation thread only).
+std::array<std::size_t, 4> gamma_jit_cursor{};
+std::array<u64, 4> gamma_jit_generation{};
+
+// Keeps the saved order and appends the blocks the file does not have yet.
+void GammaJitMerge(const std::string& path, u32 core, const std::vector<u64>& current) {
+    if (current.empty()) {
+        return;
+    }
+    auto list = GammaJitRead(path);
+    const std::size_t saved_size = list.size();
+    std::vector<u64> known(list);
+    std::sort(known.begin(), known.end());
+    for (const u64 v : current) {
+        if (!std::binary_search(known.begin(), known.end(), v)) {
+            list.push_back(v);
+        }
+    }
+    if (list.size() == saved_size) {
+        return; // nothing new
+    }
+    const std::string tmp = path + ".tmp";
+    {
+        FileUtil::IOFile f(tmp, "wb");
+        if (!f.IsOpen() ||
+            f.WriteBytes(list.data(), list.size() * sizeof(u64)) != list.size() * sizeof(u64)) {
+            return;
+        }
+    }
+    FileUtil::Rename(tmp, path);
+    LOG_INFO(Core, "JIT warm-up core {}: saved {} blocks", core, list.size());
+}
+} // namespace
+
+void System::GammaJitSave(bool background) {
     if (!Settings::values.gammaos_jit_warmup || !app_loader) {
         return;
     }
     u64 title_id{};
     app_loader->ReadProgramId(title_id);
+
+    // GammaOS: the periodic save (every 30 s) took 10 to 15 ms of the emulation thread (the
+    // full block list, then the file read, sort, merge and write), one long frame each time.
+    // In the background mode the emulation thread only collects the blocks compiled since the
+    // last save; a worker thread merges and writes them.
+    // persist.gammaos.azahar_nano.jit_save_bg=0 keeps the save on the emulation thread.
+    static const bool bg_save =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_save_bg");
+    if (background && bg_save) {
+        if (gamma_jit_save_busy.exchange(true)) {
+            return; // the previous save is still writing: try again next time
+        }
+        std::vector<std::pair<u32, std::vector<u64>>> fresh;
+        for (u32 i = 0; i < static_cast<u32>(cpu_cores.size()) && i < gamma_jit_cursor.size();
+             i++) {
+            auto* dyn = dynamic_cast<ARM_Dynarmic*>(cpu_cores[i].get());
+            if (!dyn) {
+                continue;
+            }
+            auto blocks = dyn->GetCompiledBlocksSince(gamma_jit_cursor[i], gamma_jit_generation[i]);
+            if (!blocks.empty()) {
+                fresh.emplace_back(i, std::move(blocks));
+            }
+        }
+        if (fresh.empty()) {
+            gamma_jit_save_busy = false;
+            return;
+        }
+        std::thread([title_id, fresh = std::move(fresh)] {
+            std::scoped_lock lock{gamma_jit_save_mutex};
+            FileUtil::CreateFullPath(GammaJitPath(title_id, 0));
+            for (const auto& [core, blocks] : fresh) {
+                GammaJitMerge(GammaJitPath(title_id, core), core, blocks);
+            }
+            gamma_jit_save_busy = false;
+        }).detach();
+        return;
+    }
+
+    std::scoped_lock lock{gamma_jit_save_mutex};
     FileUtil::CreateFullPath(GammaJitPath(title_id, 0));
     for (u32 i = 0; i < static_cast<u32>(cpu_cores.size()); i++) {
         auto* dyn = dynamic_cast<ARM_Dynarmic*>(cpu_cores[i].get());
         if (!dyn) {
             continue;
         }
-        const auto current = dyn->GetCompiledBlocks();   // first-compile order
-        if (current.empty()) {
-            continue;
-        }
-        const std::string path = GammaJitPath(title_id, i);
-        auto list = GammaJitRead(path);   // keep the saved order, append what is new
-        const std::size_t saved_size = list.size();
-        std::vector<u64> known(list);
-        std::sort(known.begin(), known.end());
-        for (const u64 v : current) {
-            if (!std::binary_search(known.begin(), known.end(), v)) {
-                list.push_back(v);
-            }
-        }
-        if (list.size() == saved_size) {
-            continue;   // nothing new
-        }
-        const std::string tmp = path + ".tmp";
-        {
-            FileUtil::IOFile f(tmp, "wb");
-            if (!f.IsOpen() ||
-                f.WriteBytes(list.data(), list.size() * sizeof(u64)) != list.size() * sizeof(u64)) {
-                continue;
-            }
-        }
-        FileUtil::Rename(tmp, path);
-        LOG_INFO(Core, "JIT warm-up core {}: saved {} blocks", i, list.size());
+        GammaJitMerge(GammaJitPath(title_id, i), i, dyn->GetCompiledBlocks()); // first-compile order
     }
 }
 

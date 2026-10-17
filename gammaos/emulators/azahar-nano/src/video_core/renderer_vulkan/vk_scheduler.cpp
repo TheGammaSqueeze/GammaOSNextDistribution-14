@@ -2,8 +2,13 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <cerrno>
 #include <mutex>
+#include <sched.h>
+#include <sys/system_properties.h>
 #include <utility>
+#include "common/gammaos_tweak.h"
+#include "common/logging/log.h"
 #include "common/microprofile.h"
 #include "common/thread.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
@@ -125,6 +130,23 @@ void Scheduler::DispatchWork() {
 
 void Scheduler::WorkerThread(std::stop_token stop_token) {
     Common::SetCurrentThreadName("VulkanWorker");
+#ifdef ANDROID
+    // GammaOS: with a real-time emulation thread (persist.gammaos.azahar_nano.emu_rt) a normal
+    // worker woken by it is often queued on the emulation thread's own core and waits there
+    // until the load balancer moves it (the emulation thread then blocks in TickFrame for it:
+    // 2 percent of 3D Land). One real-time priority below the emulation thread, a waking worker
+    // is placed on a free core instead.
+    {
+        const int emu_prio = Common::GammaOS::EmuRtPriority();
+        if (emu_prio > 1) {
+            sched_param sp{};
+            sp.sched_priority = emu_prio - 1;
+            if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0) {
+                LOG_WARNING(Render_Vulkan, "VulkanWorker: SCHED_FIFO refused ({})", errno);
+            }
+        }
+    }
+#endif
 
     const auto TryPopQueue{[this](auto& work) -> bool {
         if (work_queue.empty()) {
