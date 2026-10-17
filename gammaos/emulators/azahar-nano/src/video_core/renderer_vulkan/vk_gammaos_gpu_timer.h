@@ -77,6 +77,12 @@ inline void Shutdown() {
     g.enabled = false;
 }
 
+// GammaOS: whether a label passed to Begin now is read (only a frame being dumped logs them);
+// callers build the label string only then.
+inline bool WantLabel() {
+    return g.enabled && g.dump[g.frame];
+}
+
 // Writes the begin stamp of a pair; returns the pair index or -1.
 inline int Begin(Scheduler& scheduler, Category cat, std::string label = {}) {
     if (!g.enabled) return -1;

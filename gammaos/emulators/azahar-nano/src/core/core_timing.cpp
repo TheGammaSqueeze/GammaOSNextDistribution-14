@@ -85,6 +85,9 @@ void Timing::ScheduleEvent(s64 cycles_into_future, const TimingEventType* event_
 
         timer->ts_queue.Push(Event{static_cast<s64>(timer->GetTicks() + cycles_into_future), 0,
                                    user_data, event_type});
+        if (timer->park_lead) [[unlikely]] {
+            park_dirty.store(true, std::memory_order_release);
+        }
     } else {
         s64 timeout = timer->GetTicks() + cycles_into_future;
         if (current_timer == timer) {
@@ -98,8 +101,80 @@ void Timing::ScheduleEvent(s64 cycles_into_future, const TimingEventType* event_
         } else {
             timer->ts_queue.Push(Event{static_cast<s64>(timer->GetTicks() + cycles_into_future), 0,
                                        user_data, event_type});
+            if (timer->park_lead) [[unlikely]] {
+                park_dirty.store(true, std::memory_order_release);
+            }
         }
     }
+}
+
+bool Timing::ParkTimers(std::size_t lead, u32 mask) {
+    if (park_mask != 0 || lead >= timers.size() || (mask & (1u << lead)) != 0 ||
+        (mask >> timers.size()) != 0) {
+        return false;
+    }
+    const Timer& l = *timers[lead];
+    if (l.is_timer_sane) {
+        return false;
+    }
+    // A core the run loop visits as idle after the lead ends each pass with the lead's slice
+    // start, the lead's executed ticks as its slice and nothing left to count down.
+    const s64 lead_executed = l.slice_length - l.downcount;
+    for (std::size_t i = 0; i < timers.size(); i++) {
+        if (!(mask & (1u << i))) {
+            continue;
+        }
+        const Timer& t = *timers[i];
+        if (i < lead || &t == current_timer || t.is_timer_sane || !t.HasNoEvents() ||
+            t.executed_ticks != l.executed_ticks || t.slice_length != lead_executed ||
+            t.downcount != 0 || t.idled_cycles != static_cast<u64>(lead_executed) ||
+            t.cpu_clock_scale != l.cpu_clock_scale) {
+            return false;
+        }
+    }
+    park_lead_id = lead;
+    park_lead_running = false;
+    park_dirty.store(false, std::memory_order_relaxed);
+    for (std::size_t i = 0; i < timers.size(); i++) {
+        if (mask & (1u << i)) {
+            timers[i]->park_lead_running = &park_lead_running;
+            timers[i]->park_lead = &l;
+        }
+    }
+    park_mask = mask;
+    return true;
+}
+
+void Timing::SnapshotParkLead() {
+    const Timer& l = *timers[park_lead_id];
+    park_snap_executed = l.executed_ticks;
+    park_snap_slice = l.slice_length - l.downcount;
+}
+
+void Timing::UnparkTimers(bool advanced) {
+    for (std::size_t i = 0; i < timers.size(); i++) {
+        if (!(park_mask & (1u << i))) {
+            continue;
+        }
+        Timer& t = *timers[i];
+        t.park_lead = nullptr;
+        t.park_lead_running = nullptr;
+        if (advanced) {
+            // After its own Advance: the slice start moved on, nothing counted yet.
+            t.executed_ticks = park_snap_executed + park_snap_slice;
+            t.slice_length = 0;
+            t.idled_cycles = 0;
+        } else {
+            // As the idle visit of the previous pass left it.
+            t.executed_ticks = park_snap_executed;
+            t.slice_length = park_snap_slice;
+            t.idled_cycles = static_cast<u64>(park_snap_slice);
+        }
+        t.downcount = 0;
+        t.is_timer_sane = false;
+    }
+    park_mask = 0;
+    park_lead_running = false;
 }
 
 void Timing::UnscheduleEvent(const TimingEventType* event_type, std::uintptr_t user_data) {
@@ -168,6 +243,13 @@ Timing::Timer::~Timer() {
 }
 
 u64 Timing::Timer::GetTicks() const {
+    if (park_lead) [[unlikely]] {
+        // GammaOS slice_fast: a parked core's time is the lead's at the end of the lead's last
+        // completed run, or the start of its current slice while it runs (what the skipped
+        // visits would have left, see Timing::ParkTimers).
+        return *park_lead_running ? static_cast<u64>(park_lead->executed_ticks)
+                                  : park_lead->GetTicks();
+    }
     u64 ticks = static_cast<u64>(executed_ticks);
     if (!is_timer_sane) {
         ticks += slice_length - downcount;

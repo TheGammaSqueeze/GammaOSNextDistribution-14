@@ -245,6 +245,10 @@ bool GPU::AsyncPending() const {
     return async && async->pending.load(std::memory_order_acquire) != 0;
 }
 
+bool GPU::AsyncActive() const {
+    return async != nullptr;
+}
+
 MICROPROFILE_DEFINE(GPU_DisplayTransfer, "GPU", "DisplayTransfer", MP_RGB(100, 100, 255));
 MICROPROFILE_DEFINE(GPU_CmdlistProcessing, "GPU", "Cmdlist Processing", MP_RGB(100, 255, 100));
 

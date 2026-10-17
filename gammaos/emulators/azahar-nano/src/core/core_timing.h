@@ -17,6 +17,7 @@
  *   ScheduleEvent(periodInCycles - cyclesLate, callback, "whatever")
  */
 
+#include <atomic>
 #include <chrono>
 #include <functional>
 #include <limits>
@@ -212,6 +213,11 @@ public:
             return event_queue.empty() && ts_queue.Empty();
         }
 
+        /// GammaOS (slice_fast): parked by Timing::ParkTimers.
+        bool IsParked() const {
+            return park_lead != nullptr;
+        }
+
     private:
         friend class Timing;
         // The queue is a min-heap using std::make_heap/push_heap/pop_heap.
@@ -240,6 +246,11 @@ public:
         // Stores a scaling for the internal clockspeed. Changing this number results in
         // under/overclocking the guest cpu
         double cpu_clock_scale = 1.0;
+
+        // GammaOS (slice_fast, see Timing::ParkTimers): while set, this timer is not advanced by
+        // the run loop and its time reads as the lead timer's.
+        const Timer* park_lead = nullptr;
+        const bool* park_lead_running = nullptr;
 
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
@@ -298,6 +309,42 @@ public:
     /// Generates a random tick count to seed the system tick timer with.
     static s64 GenerateBaseTicks();
 
+    /**
+     * GammaOS (slice_fast, System::RunLoop): parks the timers in `mask`. A parked timer belongs
+     * to a core with no threads and nothing scheduled, that the run loop would only keep in step
+     * with the lead core (Advance, SetNextSlice, Idle every pass). While parked it is left alone
+     * and its time reads as the lead's; UnparkTimers writes back the state the passes would have
+     * left. Every timer in `mask` must be in the end-of-pass state of such a core (checked:
+     * returns false and parks nothing otherwise), the lead must come first in the run order.
+     */
+    bool ParkTimers(std::size_t lead, u32 mask);
+
+    bool AnyParked() const {
+        return park_mask != 0;
+    }
+
+    /// Something was scheduled on a parked timer since it was parked.
+    bool ParkDirty() const {
+        return park_dirty.load(std::memory_order_acquire);
+    }
+
+    /// The lead's state at the start of a pass (before its Advance), for UnparkTimers.
+    void SnapshotParkLead();
+
+    /**
+     * Writes back the parked timers' state and unparks them: as the end of the previous pass left
+     * it (advanced false: up to their own Advance in this pass's first loop), or as that Advance
+     * leaves it (advanced true: from then up to their own visit in the second loop). Uses the
+     * SnapshotParkLead values of this pass.
+     */
+    void UnparkTimers(bool advanced);
+
+    /// The lead core runs guest code (its time then reads as the start of its slice to parked
+    /// cores, which the run loop advances after it).
+    void SetParkLeadRunning(bool running) {
+        park_lead_running = running;
+    }
+
 private:
     // unordered_map stores each element separately as a linked list node so pointers to
     // elements remain stable regardless of rehashes/resizing.
@@ -309,6 +356,14 @@ private:
     // When true, the event queue can't be modified. Used while deserializing to workaround
     // destructor side effects.
     bool event_queue_locked = false;
+
+    // GammaOS slice_fast (ParkTimers).
+    u32 park_mask = 0;
+    std::size_t park_lead_id = 0;
+    bool park_lead_running = false;
+    std::atomic<bool> park_dirty{false};
+    s64 park_snap_executed = 0;
+    s64 park_snap_slice = 0;
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {

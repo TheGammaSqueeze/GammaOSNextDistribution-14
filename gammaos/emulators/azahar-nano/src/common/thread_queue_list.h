@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <deque>
 #include <tuple>
 #include <boost/serialization/deque.hpp>
@@ -24,6 +25,7 @@ struct ThreadQueueList {
 
     // Number of priority levels. (Valid levels are [0..NUM_QUEUES).)
     static constexpr Priority NUM_QUEUES = N;
+    static_assert(N <= 64, "the non-empty mask has one bit per level");
 
     ThreadQueueList() {
         first = nullptr;
@@ -41,57 +43,46 @@ struct ThreadQueueList {
         return -1;
     }
 
+    // GammaOS: the first non-empty level comes from a bit mask instead of a walk over the
+    // linked levels' deques (the scheduler asks on every run loop pass, 20000 times a second
+    // in Kirby: Planet Robobot). The linked list stays for the save state format; the mask
+    // covers exactly the levels the walk would visit (linked ones) that hold threads, and the
+    // links are in ascending level order, so the lowest set bit is the walk's answer.
     [[nodiscard]] T get_first() const {
-        const Queue* cur = first;
-        while (cur != nullptr) {
-            if (!cur->data.empty()) {
-                return cur->data.front();
-            }
-            cur = cur->next_nonempty;
+        if (nonempty == 0) {
+            return T();
         }
-
-        return T();
+        return queues[std::countr_zero(nonempty)].data.front();
     }
 
     std::pair<Priority, T> pop_first() {
-        Queue* cur = first;
-        while (cur != nullptr) {
-            if (!cur->data.empty()) {
-                auto tmp = std::move(cur->data.front());
-                cur->data.pop_front();
-                Priority prio = static_cast<Priority>(ToIndex(cur));
-                return {prio, tmp};
-            }
-            cur = cur->next_nonempty;
+        if (nonempty == 0) {
+            return {Priority(), T()};
         }
-
-        return {Priority(), T()};
+        return pop_level(static_cast<Priority>(std::countr_zero(nonempty)));
     }
 
     std::pair<Priority, T> pop_first_better(Priority priority) {
-        Queue* cur = first;
-        Queue* stop = &queues[priority];
-        while (cur < stop) {
-            if (!cur->data.empty()) {
-                auto tmp = std::move(cur->data.front());
-                cur->data.pop_front();
-                Priority prio = static_cast<Priority>(ToIndex(cur));
-                return {prio, tmp};
-            }
-            cur = cur->next_nonempty;
+        if (nonempty == 0) {
+            return {Priority(), T()};
         }
-
-        return {Priority(), T()};
+        const auto level = static_cast<Priority>(std::countr_zero(nonempty));
+        if (level >= priority) {
+            return {Priority(), T()};
+        }
+        return pop_level(level);
     }
 
     void push_front(Priority priority, const T& thread_id) {
         Queue* cur = &queues[priority];
         cur->data.push_front(thread_id);
+        update_mask(priority);
     }
 
     void push_back(Priority priority, const T& thread_id) {
         Queue* cur = &queues[priority];
         cur->data.push_back(thread_id);
+        update_mask(priority);
     }
 
     void move(const T& thread_id, Priority old_priority, Priority new_priority) {
@@ -104,6 +95,7 @@ struct ThreadQueueList {
         Queue* const cur = &queues[priority];
         const auto iter = std::remove(cur->data.begin(), cur->data.end(), thread_id);
         cur->data.erase(iter, cur->data.end());
+        update_mask(priority);
     }
 
     void rotate(Priority priority) {
@@ -118,6 +110,7 @@ struct ThreadQueueList {
     void clear() {
         queues.fill(Queue());
         first = nullptr;
+        nonempty = 0;
     }
 
     [[nodiscard]] bool empty(Priority priority) const {
@@ -127,8 +120,10 @@ struct ThreadQueueList {
 
     void prepare(Priority priority) {
         Queue* cur = &queues[priority];
-        if (cur->next_nonempty == UnlinkedTag())
+        if (cur->next_nonempty == UnlinkedTag()) {
             link(priority);
+            update_mask(priority);
+        }
     }
 
 private:
@@ -142,6 +137,24 @@ private:
     /// Special tag used to mark priority levels that have never been used.
     static Queue* UnlinkedTag() {
         return reinterpret_cast<Queue*>(1);
+    }
+
+    void update_mask(Priority priority) {
+        const Queue& q = queues[priority];
+        const u64 bit = u64{1} << priority;
+        if (q.next_nonempty != UnlinkedTag() && !q.data.empty()) {
+            nonempty |= bit;
+        } else {
+            nonempty &= ~bit;
+        }
+    }
+
+    std::pair<Priority, T> pop_level(Priority level) {
+        Queue& q = queues[level];
+        auto tmp = std::move(q.data.front());
+        q.data.pop_front();
+        update_mask(level);
+        return {level, tmp};
     }
 
     void link(Priority priority) {
@@ -161,6 +174,8 @@ private:
 
     // The first queue that's ever been used.
     Queue* first;
+    // GammaOS: bit p set when level p is linked and holds threads (not saved: rebuilt on load).
+    u64 nonempty = 0;
     // The priority level queues of thread ids.
     std::array<Queue, NUM_QUEUES> queues;
 
@@ -205,6 +220,10 @@ private:
             ar >> idx;
             queues[i].next_nonempty = ToPointer(idx);
             ar >> queues[i].data;
+        }
+        nonempty = 0;
+        for (Priority i = 0; i < NUM_QUEUES; i++) {
+            update_mask(i);
         }
     }
 

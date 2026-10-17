@@ -188,15 +188,33 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
     }
 #endif
 
+    // GammaOS slice_fast (persist.gammaos.azahar_nano.slice_fast, 1 on / 0 off, default off; needs
+    // idle_cores): the run loop pass for a game that runs threads on the first core only. The
+    // signal mutex is taken only when SendSignal flagged a signal, and the timers of the cores
+    // with no threads and nothing scheduled are parked (Timing::ParkTimers) instead of being
+    // advanced, sliced and idled every pass: each pass visits the first core alone and stays on
+    // it (no switch to the last core at the end). A thread created on a parked core, an event
+    // scheduled on one, svc_stats sampling, the async GPU worker or a save state operation
+    // unpark them first, at the point of the pass where the full visits would have continued.
+    static const bool slice_fast =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.slice_fast", false);
+
     Signal signal{Signal::None};
     u32 param{};
-    {
+    if (!slice_fast || signal_pending.load(std::memory_order_acquire)) {
         std::scoped_lock lock{signal_mutex};
         if (current_signal != Signal::None) {
             signal = current_signal;
             param = signal_param;
             current_signal = Signal::None;
         }
+        signal_pending.store(false, std::memory_order_relaxed);
+    }
+    // Save states read and write every timer: write the parked ones back first.
+    if (timing && timing->AnyParked() &&
+        (signal != Signal::None || save_state_request_status != SaveStateStatus::NONE)) {
+        timing->SnapshotParkLead();
+        timing->UnparkTimers(false);
     }
     switch (signal) {
     case Signal::Reset: {
@@ -303,6 +321,151 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         return ResultStatus::ErrorSavestate;
     }
 
+    // GammaOS: a core no thread was ever created on and with nothing scheduled on its timer
+    // (the two extra New 3DS cores, usually the system core too) only needs its timer kept
+    // in step: switching the kernel to it, rescheduling its empty thread list and idling it
+    // cost about half of every pass, and Kirby: Planet Robobot makes 18000 passes a second.
+    // The last core's state is restored at the end of the pass, as if it had been visited.
+    // persist.gammaos.azahar_nano.idle_cores=0 visits every core; default Mali only.
+    static const bool skip_idle_cores =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.idle_cores");
+    const auto core_is_idle = [this](const std::shared_ptr<ARM_Interface>& core) {
+        return skip_idle_cores && !(gpu && gpu->AsyncPending()) &&
+               kernel->GetThreadManager(core->GetID()).GetThreadList().empty() &&
+               core->GetTimer().HasNoEvents();
+    };
+
+    // The two loops of a pass with all cores at the same time, one core at a time: advance (fire
+    // the due events, pick the thread, find the slice every core can run) and run.
+    s64 max_slice = Timing::MAX_SLICE_LENGTH;
+    bool last_core_skipped = false;
+    const auto visit_advance = [&](const std::shared_ptr<ARM_Interface>& cpu_core) {
+        if (core_is_idle(cpu_core)) {
+            cpu_core->GetTimer().Advance();
+            max_slice = std::min(max_slice, cpu_core->GetTimer().GetMaxSliceLength());
+            return;
+        }
+        running_core = cpu_core.get();
+        kernel->SetRunningCPU(running_core);
+        cpu_core->GetTimer().Advance();
+        cpu_core->PrepareReschedule();
+        kernel->GetThreadManager(cpu_core->GetID()).Reschedule();
+        max_slice = std::min(max_slice, cpu_core->GetTimer().GetMaxSliceLength());
+    };
+    const auto visit_run = [&](const std::shared_ptr<ARM_Interface>& cpu_core) {
+        if (core_is_idle(cpu_core)) {
+            // What the full visit below does for a core with no current thread.
+            cpu_core->GetTimer().SetNextSlice(max_slice);
+            const auto start_ticks = cpu_core->GetTimer().GetTicks();
+            cpu_core->GetTimer().Idle();
+            max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
+            last_core_skipped = true;
+            return;
+        }
+        last_core_skipped = false;
+        cpu_core->GetTimer().SetNextSlice(max_slice);
+        auto start_ticks = cpu_core->GetTimer().GetTicks();
+        LOG_TRACE(Core_ARM11, "Core {} running for {} ticks", cpu_core->GetID(),
+                  cpu_core->GetTimer().GetDowncount());
+        running_core = cpu_core.get();
+        kernel->SetRunningCPU(running_core);
+        // If we don't have a currently active thread then don't execute instructions,
+        // instead advance to the next event and try to yield to the next thread
+        if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
+            LOG_TRACE(Core_ARM11, "Core {} idling", cpu_core->GetID());
+            if (gpu && gpu->AsyncPending()) {
+                gpu->AsyncDrain();
+            }
+            cpu_core->GetTimer().Idle();
+            PrepareReschedule();
+        } else {
+            // In the rare case the break flag is set (due to exception thrown)
+            // there is probably no need to adjust the timer accordingly.
+            // GammaOS debug timing only while svc_stats sampling is on (clock reads cost
+            // about 2% of the emulation thread in busy games).
+            const auto run_start = gamma_pc_sampling ? std::chrono::steady_clock::now()
+                                                     : std::chrono::steady_clock::time_point{};
+            const bool parked = timing->AnyParked();
+            if (parked) {
+                timing->SetParkLeadRunning(true);
+            }
+            if (tight_loop) {
+                cpu_core->Run();
+            } else {
+                cpu_core->Step();
+            }
+            if (parked) {
+                timing->SetParkLeadRunning(false);
+            }
+            if (gamma_pc_sampling) {
+                const u64 key = (u64{cpu_core->GetPC()} << 32) | cpu_core->GetReg(14);
+                gamma_pc_samples[key]++;
+            }
+            if (gamma_pc_sampling) {
+                gamma_core_runs[cpu_core->GetID() & 3]++;
+                gamma_core_host_ns[cpu_core->GetID() & 3] +=
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::steady_clock::now() - run_start)
+                        .count();
+            }
+        }
+        max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
+        Reschedule();
+    };
+    const auto switch_to_last_core = [&] {
+        running_core = cpu_cores.back().get();
+        kernel->SetRunningCPU(running_core);
+    };
+
+    // GammaOS slice_fast: the pass with the other cores parked.
+    const auto park_allowed = [&] {
+        return slice_fast && skip_idle_cores && !gamma_pc_sampling &&
+               !(gpu && gpu->AsyncActive()) &&
+               save_state_request_status == SaveStateStatus::NONE;
+    };
+    const auto park_dirty = [&] {
+        return timing->ParkDirty() || kernel->thread_list_epoch != gamma_park_thread_epoch;
+    };
+    bool fast_pass = false;
+    if (timing->AnyParked()) {
+        timing->SnapshotParkLead();
+        const auto& lead = cpu_cores[0];
+        if (!park_allowed() || park_dirty() || core_is_idle(lead)) {
+            timing->UnparkTimers(false);
+        } else {
+            fast_pass = true;
+            // Nothing to bring up to the global time (the first loop below): the parked cores
+            // are at the lead's time, which is the global time.
+            visit_advance(lead);
+            if (park_dirty()) {
+                // The lead's events gave a parked core work: the rest of the pass as usual.
+                timing->UnparkTimers(false);
+                for (std::size_t i = 1; i < cpu_cores.size(); i++) {
+                    visit_advance(cpu_cores[i]);
+                }
+                for (const auto& cpu_core : cpu_cores) {
+                    visit_run(cpu_core);
+                }
+                if (last_core_skipped) {
+                    switch_to_last_core();
+                }
+            } else {
+                visit_run(lead);
+                if (park_dirty()) {
+                    // Work for a parked core while the lead ran: visit the others now.
+                    timing->UnparkTimers(true);
+                    for (std::size_t i = 1; i < cpu_cores.size(); i++) {
+                        visit_run(cpu_cores[i]);
+                    }
+                    if (last_core_skipped) {
+                        switch_to_last_core();
+                    }
+                }
+            }
+        }
+    }
+
+    if (!fast_pass) {
     // All cores should have executed the same amount of ticks. If this is not the case an event was
     // scheduled with a cycles_into_future smaller then the current downcount.
     // So we have to get those cores to the same global time first
@@ -358,91 +521,39 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         // Now all cores are at the same global time. So we will run them one after the other
         // with a max slice that is the minimum of all max slices of all cores
         // TODO: Make special check for idle since we can easily revert the time of idle cores
-        s64 max_slice = Timing::MAX_SLICE_LENGTH;
-        // GammaOS: a core no thread was ever created on and with nothing scheduled on its timer
-        // (the two extra New 3DS cores, usually the system core too) only needs its timer kept
-        // in step: switching the kernel to it, rescheduling its empty thread list and idling it
-        // cost about half of every pass, and Kirby: Planet Robobot makes 18000 passes a second.
-        // The last core's state is restored at the end of the pass, as if it had been visited.
-        // persist.gammaos.azahar_nano.idle_cores=0 visits every core; default Mali only.
-        static const bool skip_idle_cores =
-            Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.idle_cores");
-        const auto core_is_idle = [this](const std::shared_ptr<ARM_Interface>& core) {
-            return skip_idle_cores && !(gpu && gpu->AsyncPending()) &&
-                   kernel->GetThreadManager(core->GetID()).GetThreadList().empty() &&
-                   core->GetTimer().HasNoEvents();
-        };
         for (const auto& cpu_core : cpu_cores) {
-            if (core_is_idle(cpu_core)) {
-                cpu_core->GetTimer().Advance();
-                max_slice = std::min(max_slice, cpu_core->GetTimer().GetMaxSliceLength());
-                continue;
-            }
-            running_core = cpu_core.get();
-            kernel->SetRunningCPU(running_core);
-            cpu_core->GetTimer().Advance();
-            cpu_core->PrepareReschedule();
-            kernel->GetThreadManager(cpu_core->GetID()).Reschedule();
-            max_slice = std::min(max_slice, cpu_core->GetTimer().GetMaxSliceLength());
+            visit_advance(cpu_core);
         }
-        bool last_core_skipped = false;
-        for (auto& cpu_core : cpu_cores) {
-            if (core_is_idle(cpu_core)) {
-                // What the full visit below does for a core with no current thread.
-                cpu_core->GetTimer().SetNextSlice(max_slice);
-                const auto start_ticks = cpu_core->GetTimer().GetTicks();
-                cpu_core->GetTimer().Idle();
-                max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
-                last_core_skipped = true;
-                continue;
+        for (const auto& cpu_core : cpu_cores) {
+            visit_run(cpu_core);
+        }
+        // GammaOS slice_fast: park the idle cores when only the first one has work (it stays
+        // the running core: no switch to the last one).
+        bool parked_now = false;
+        if (park_allowed() && cpu_cores.size() > 1 && running_core == cpu_cores[0].get() &&
+            !core_is_idle(cpu_cores[0])) {
+            u32 mask = 0;
+            bool all_idle = true;
+            for (std::size_t i = 1; i < cpu_cores.size() && all_idle; i++) {
+                all_idle = core_is_idle(cpu_cores[i]);
+                mask |= 1u << i;
             }
-            last_core_skipped = false;
-            cpu_core->GetTimer().SetNextSlice(max_slice);
-            auto start_ticks = cpu_core->GetTimer().GetTicks();
-            LOG_TRACE(Core_ARM11, "Core {} running for {} ticks", cpu_core->GetID(),
-                      cpu_core->GetTimer().GetDowncount());
-            running_core = cpu_core.get();
-            kernel->SetRunningCPU(running_core);
-            // If we don't have a currently active thread then don't execute instructions,
-            // instead advance to the next event and try to yield to the next thread
-            if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
-                LOG_TRACE(Core_ARM11, "Core {} idling", cpu_core->GetID());
-                if (gpu && gpu->AsyncPending()) {
-                    gpu->AsyncDrain();
-                }
-                cpu_core->GetTimer().Idle();
-                PrepareReschedule();
-            } else {
-                // In the rare case the break flag is set (due to exception thrown)
-                // there is probably no need to adjust the timer accordingly.
-                // GammaOS debug timing only while svc_stats sampling is on (clock reads cost
-                // about 2% of the emulation thread in busy games).
-                const auto run_start = gamma_pc_sampling ? std::chrono::steady_clock::now()
-                                                         : std::chrono::steady_clock::time_point{};
-                if (tight_loop) {
-                    cpu_core->Run();
-                } else {
-                    cpu_core->Step();
-                }
-                if (gamma_pc_sampling) {
-                    const u64 key = (u64{cpu_core->GetPC()} << 32) | cpu_core->GetReg(14);
-                    gamma_pc_samples[key]++;
-                }
-                if (gamma_pc_sampling) {
-                    gamma_core_runs[cpu_core->GetID() & 3]++;
-                    gamma_core_host_ns[cpu_core->GetID() & 3] +=
-                        std::chrono::duration_cast<std::chrono::nanoseconds>(
-                            std::chrono::steady_clock::now() - run_start)
-                            .count();
+            if (all_idle && timing->ParkTimers(0, mask)) {
+                gamma_park_thread_epoch = kernel->thread_list_epoch;
+                parked_now = true;
+                // Each park follows an unpark: a count that keeps growing means the fast pass
+                // rarely holds.
+                static u32 parks = 0;
+                if ((++parks & (parks - 1)) == 0) {
+                    LOG_INFO(Core, "slice_fast: idle cores parked (mask {:x}), {} times", mask,
+                             parks);
                 }
             }
-            max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
-            Reschedule();
         }
-        if (last_core_skipped) {
-            running_core = cpu_cores.back().get();
-            kernel->SetRunningCPU(running_core);
+        if (last_core_skipped && !parked_now) {
+            switch_to_last_core();
         }
+    }
     }
 
     // GammaOS debug (sys.gammaos.azahar_nano.svc_stats=1): per core, emulated ticks executed by
@@ -500,6 +611,7 @@ bool System::SendSignal(System::Signal signal, u32 param) {
     }
     current_signal = signal;
     signal_param = param;
+    signal_pending.store(true, std::memory_order_release);
     return true;
 }
 
@@ -1220,8 +1332,21 @@ namespace Core {
 
 namespace {
 std::string GammaJitPath(u64 title_id, u32 core) {
-    return fmt::format("{}jit/{:016X}_core{}.bin",
-                       FileUtil::GetUserPath(FileUtil::UserPath::UserDir), title_id, core);
+    // The list holds block start locations, which depend on the translation options that move
+    // block boundaries (jit_cond_branch, jit_cond_mov, read the same way as MakeJit does): a list
+    // made with other options would precompile blocks the game no longer enters, so each option
+    // set keeps its own list (no suffix with both off, the lists made before the options).
+    static const std::string tag = [] {
+        const bool cond_branch =
+            Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_cond_branch");
+        const bool cond_mov =
+            Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_cond_mov");
+        return (cond_branch || cond_mov)
+                   ? fmt::format("_t{}{}", cond_branch ? 1 : 0, cond_mov ? 1 : 0)
+                   : std::string{};
+    }();
+    return fmt::format("{}jit/{:016X}_core{}{}.bin",
+                       FileUtil::GetUserPath(FileUtil::UserPath::UserDir), title_id, core, tag);
 }
 
 std::vector<u64> GammaJitRead(const std::string& path) {

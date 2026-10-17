@@ -573,6 +573,11 @@ private:
     std::mutex signal_mutex;
     Signal current_signal;
     u32 signal_param;
+    /// GammaOS slice_fast: set with current_signal, so the run loop takes the mutex only when a
+    /// signal waits.
+    std::atomic<bool> signal_pending{false};
+    /// GammaOS slice_fast: kernel thread_list_epoch when the idle cores' timers were parked.
+    u32 gamma_park_thread_epoch = 0;
 
     std::function<bool()> mic_permission_func;
     bool mic_permission_granted = false;

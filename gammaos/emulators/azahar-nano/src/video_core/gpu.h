@@ -121,6 +121,8 @@ public:
     void AsyncPoll();
     /// True while command lists are queued or being processed.
     bool AsyncPending() const;
+    /// GammaOS: the async command list worker is in use.
+    bool AsyncActive() const;
 
 private:
     void SubmitCmdList(u32 index);

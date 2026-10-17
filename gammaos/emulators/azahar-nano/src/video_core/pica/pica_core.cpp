@@ -291,6 +291,10 @@ void PicaCore::ProcessCmdList(PAddr list, u32 size, bool ignore_list) [[hot]] {
             if (!skip_fast_path) {
                 constexpr u32 batch_size = 4;
                 u32 index = cmd_list.current_index;
+                // GammaOS: the command words come from guest memory the guest just wrote, and
+                // the load of each header was the hottest spot of this loop (Kirby: Planet
+                // Robobot, 345 draws a frame): ask for the stream 256 bytes ahead.
+                __builtin_prefetch(cmd_list.head + index + 64);
                 u32 ids[batch_size], values[batch_size], masks[batch_size];
                 u32 run = 0;
 

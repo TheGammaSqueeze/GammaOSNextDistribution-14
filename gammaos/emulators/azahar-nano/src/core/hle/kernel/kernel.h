@@ -385,6 +385,10 @@ public:
 
     Core::ARM_Interface* current_cpu = nullptr;
 
+    /// GammaOS (slice_fast): counts thread creations on any core, so the run loop notices a core
+    /// it parked getting a thread without looking at its thread list every pass.
+    u32 thread_list_epoch = 0;
+
     Memory::MemorySystem& memory;
 
     Core::Timing& timing;

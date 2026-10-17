@@ -406,6 +406,7 @@ ResultVal<std::shared_ptr<Thread>> KernelSystem::CreateThread(
     auto thread = std::make_shared<Thread>(*this, processor_id);
 
     thread_managers[processor_id]->thread_list.push_back(thread);
+    thread_list_epoch++;
     thread_managers[processor_id]->ready_queue.prepare(priority);
 
     thread->thread_id = NewThreadId();

@@ -157,12 +157,14 @@ void RenderManager::BeginRendering(const RenderPass& new_pass) {
         }
         FlushPendingClears();
     }
+    // GammaOS: the label string is built only for a frame being dumped (it was a heap string
+    // per pass, 0.3 percent of the emulation thread in Kirby: Planet Robobot).
     gpu_timer_query = GammaGpu::Begin(
         scheduler, GammaGpu::g.presenting ? GammaGpu::Present : GammaGpu::Pass,
-        fmt::format("area {}x{} at {},{} clear {} folded {} fb {:X}", new_pass.render_area.extent.width,
+        GammaGpu::WantLabel() ? fmt::format("area {}x{} at {},{} clear {} folded {} fb {:X}", new_pass.render_area.extent.width,
                     new_pass.render_area.extent.height, new_pass.render_area.offset.x,
                     new_pass.render_area.offset.y, new_pass.do_clear, new_pass.folded_count,
-                    reinterpret_cast<u64>(static_cast<VkFramebuffer>(new_pass.framebuffer))));
+                    reinterpret_cast<u64>(static_cast<VkFramebuffer>(new_pass.framebuffer))) : std::string{});
     scheduler.Record([info = new_pass](vk::CommandBuffer cmdbuf) {
         const vk::RenderPassBeginInfo renderpass_begin_info = {
             .renderPass = info.render_pass,
