@@ -73,6 +73,10 @@ private:
          */
         std::array<s16, 2> ProcessSample(const std::array<s16, 2>& x0);
 
+        /// GammaOS: the whole frame with the state in registers (same results as ProcessSample
+        /// on every sample in order).
+        void ProcessFrame(StereoFrame16& frame);
+
     private:
         // Configuration
         s32 a1, b0;
@@ -100,6 +104,10 @@ private:
          * @return Output sample
          */
         std::array<s16, 2> ProcessSample(const std::array<s16, 2>& x0);
+
+        /// GammaOS: the whole frame with the state in registers (same results as ProcessSample
+        /// on every sample in order).
+        void ProcessFrame(StereoFrame16& frame);
 
     private:
         // Configuration

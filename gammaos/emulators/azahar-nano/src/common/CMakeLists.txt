@@ -36,6 +36,7 @@ add_library(citra_common STATIC EXCLUDE_FROM_ALL
     file_derived.h
     file_util.cpp
     file_util.h
+    gammaos_tweak.h
     hash.h
     hacks/hack_list.h
     hacks/hack_list.cpp

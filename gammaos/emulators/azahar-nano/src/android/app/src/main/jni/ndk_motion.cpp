@@ -2,13 +2,17 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
 #include <chrono>
+#include <future>
 #include <thread>
 
 #include <android/sensor.h>
 
 #include "common/assert.h"
+#include "common/gammaos_tweak.h"
 #include "common/logging/log.h"
+#include "common/thread.h"
 #include "common/vector_math.h"
 #include "jni/ndk_motion.h"
 
@@ -123,8 +127,14 @@ public:
               bool asynchronous = false)
         : update_period(update_period_), owner_factory(owner_factory_) {
         if (asynchronous) {
-            poll_thread = std::thread([this] {
+            // The sensor queue is created on the polling thread (its looper); wait for it so
+            // the factory's EnableSensors/DisableSensors never see a queue still being built.
+            std::promise<void> constructed;
+            std::future<void> ready = constructed.get_future();
+            poll_thread = std::thread([this, &constructed] {
+                Common::SetCurrentThreadName("MotionPoll");
                 Construct();
+                constructed.set_value();
                 auto start = std::chrono::high_resolution_clock::now();
                 while (!stop_polling) {
                     Update();
@@ -132,6 +142,7 @@ public:
                 }
                 Destruct();
             });
+            ready.wait();
         } else {
             Construct();
         }
@@ -202,7 +213,20 @@ public:
 
 std::unique_ptr<Input::MotionDevice> NDKMotionFactory::Create(const Common::ParamPackage& params) {
     std::chrono::milliseconds update_period{params.Get("update_period", 4)};
-    std::unique_ptr<NDKMotion> ndk_motion = std::make_unique<NDKMotion>(update_period, this);
+    // GammaOS: poll the sensors on their own thread every update period instead of on the
+    // emulation thread at every HID read (an epoll and a socket read each time, about 1 percent
+    // of the emulation thread in 3D Land), and at the HID's own rate (below). persist.gammaos.azahar_nano.motion_thread = 1 / 0
+    // forces it on / off; default Mali only.
+    static const bool poll_thread =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.motion_thread");
+    // The 3DS HID samples the accelerometer at 104 Hz and the gyroscope at 101 Hz: with the
+    // polling thread the sensors are asked for 100 Hz (10 ms) instead of their fastest rate, so
+    // the sensor service (a real-time thread) wakes half as often.
+    if (poll_thread) {
+        update_period = std::max(update_period, std::chrono::milliseconds{10});
+    }
+    std::unique_ptr<NDKMotion> ndk_motion =
+        std::make_unique<NDKMotion>(update_period, this, poll_thread);
     {
         std::lock_guard lock{device_mutex};
         ndk_motion_device = ndk_motion.get();

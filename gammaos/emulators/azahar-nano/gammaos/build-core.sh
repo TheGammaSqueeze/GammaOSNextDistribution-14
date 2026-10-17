@@ -15,6 +15,8 @@
 # Environment:
 #   AZAHAR_NANO_SKIP_BUILD=1  keep the libraries already in azahar-nano-lib
 #   AZAHAR_NANO_JOBS=N        parallel jobs (default: nproc)
+#   AZAHAR_NANO_LDFLAGS=...   extra link flags for the shared libraries
+#                             (default -Wl,-z,keep-text-section-prefix)
 
 set -euo pipefail
 
@@ -91,14 +93,20 @@ elif [ "$PGO_MODE" = "use" ] && [ -f "$PGO_PROFILE" ]; then
     EXTRA_FLAGS="-fprofile-use=$PGO_PROFILE -Wno-profile-instr-out-of-date -Wno-profile-instr-unprofiled -Wno-backend-plugin"
 fi
 
+# Extra flags for the link of the shared libraries only (a change relinks, nothing recompiles).
+# Default: keep the compiler's .text.hot / .text.unlikely grouping in the output, so the
+# emulation thread's hot code shares pages (the core shipped since the RG DS drive was linked
+# with it; set AZAHAR_NANO_LDFLAGS to override, an empty value drops it).
+LINK_FLAGS="${AZAHAR_NANO_LDFLAGS--Wl,-z,keep-text-section-prefix}"
+
 # --- Configure (when new or the flags changed) and build ----------------------------
 FLAGS_STAMP="$BUILD/.gammaos_extra_flags"
-if [ ! -f "$BUILD/build.ninja" ] || [ "$(cat "$FLAGS_STAMP" 2>/dev/null)" != "$EXTRA_FLAGS" ]; then
-    echo "azahar-nano: configuring (extra flags: ${EXTRA_FLAGS:-none})"
+if [ ! -f "$BUILD/build.ninja" ] || [ "$(cat "$FLAGS_STAMP" 2>/dev/null)" != "$EXTRA_FLAGS|$LINK_FLAGS" ]; then
+    echo "azahar-nano: configuring (extra flags: ${EXTRA_FLAGS:-none}, link flags: ${LINK_FLAGS:-none})"
     "$CMAKE" -S "$SRC" -B "$BUILD" -G Ninja \
         -DCMAKE_C_FLAGS="$EXTRA_FLAGS" \
         -DCMAKE_CXX_FLAGS="$EXTRA_FLAGS" \
-        -DCMAKE_SHARED_LINKER_FLAGS="$EXTRA_FLAGS" \
+        -DCMAKE_SHARED_LINKER_FLAGS="$EXTRA_FLAGS $LINK_FLAGS" \
         -DCMAKE_MAKE_PROGRAM="$NINJA" \
         -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
         -DANDROID_ABI=arm64-v8a \
@@ -117,7 +125,7 @@ if [ ! -f "$BUILD/build.ninja" ] || [ "$(cat "$FLAGS_STAMP" 2>/dev/null)" != "$E
         -DENABLE_COMPATIBILITY_LIST_DOWNLOAD=OFF \
         -DCITRA_WARNINGS_AS_ERRORS=OFF
     mkdir -p "$BUILD"
-    printf '%s' "$EXTRA_FLAGS" > "$FLAGS_STAMP"
+    printf '%s' "$EXTRA_FLAGS|$LINK_FLAGS" > "$FLAGS_STAMP"
 fi
 
 echo "azahar-nano: building the core (${JOBS} jobs)"

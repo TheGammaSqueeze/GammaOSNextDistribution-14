@@ -3,8 +3,10 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
+#include <vector>
 #include "audio_core/interpolate.h"
 #include "common/assert.h"
+#include "common/gammaos_tweak.h"
 
 namespace AudioCore::AudioInterp {
 
@@ -16,8 +18,8 @@ constexpr u64 scale_mask = scale_factor - 1;
 /// Here we step over the input in steps of rate, until we consume all of the input.
 /// Three adjacent samples are passed to fn each step.
 template <typename Function>
-static void StepOverSamples(State& state, StereoBuffer16& input, float rate, StereoFrame16& output,
-                            std::size_t& outputi, Function fn) {
+static void StepOverSamplesDeque(State& state, StereoBuffer16& input, float rate,
+                                 StereoFrame16& output, std::size_t& outputi, Function fn) {
     ASSERT(rate > 0);
 
     if (input.empty())
@@ -48,6 +50,71 @@ static void StepOverSamples(State& state, StereoBuffer16& input, float rate, Ste
     state.fposition = fposition - inputi * scale_factor;
 
     input.erase(input.begin(), std::next(input.begin(), inputi + 2));
+}
+
+/// GammaOS: the same walk over a contiguous copy of only the samples it can reach this call
+/// (the two history samples, then the front of the input), instead of inserting the history into
+/// the deque and indexing the deque for every sample. Same output, state and consumed input.
+template <typename Function>
+static void StepOverSamplesWindow(State& state, StereoBuffer16& input, float rate,
+                                  StereoFrame16& output, std::size_t& outputi, Function fn) {
+    ASSERT(rate > 0);
+
+    if (input.empty())
+        return;
+
+    const u64 step_size = static_cast<u64>(rate * scale_factor);
+    u64 fposition = state.fposition;
+    // Virtual sequence: xn2, xn1, then the input; the loop reads indices up to the last
+    // step's position plus two.
+    const std::size_t n = input.size() + 2;
+    const std::size_t remaining = outputi < output.size() ? output.size() - outputi : 0;
+    std::size_t need = 2;
+    if (remaining > 0) {
+        const u64 last = (fposition + static_cast<u64>(remaining - 1) * step_size) / scale_factor;
+        need = static_cast<std::size_t>(std::min<u64>(n, last + 3));
+    }
+    thread_local std::vector<std::array<s16, 2>> window;
+    if (window.size() < need) {
+        window.resize(need);
+    }
+    window[0] = state.xn2;
+    window[1] = state.xn1;
+    std::copy(input.begin(), std::next(input.begin(), need - 2), window.begin() + 2);
+
+    std::size_t inputi = 0;
+    while (outputi < output.size()) {
+        inputi = static_cast<std::size_t>(fposition / scale_factor);
+
+        if (inputi + 2 >= n) {
+            inputi = n - 2;
+            break;
+        }
+
+        u64 fraction = fposition & scale_mask;
+        output[outputi++] = fn(fraction, window[inputi], window[inputi + 1], window[inputi + 2]);
+
+        fposition += step_size;
+    }
+
+    state.xn2 = window[inputi];
+    state.xn1 = window[inputi + 1];
+    state.fposition = fposition - inputi * scale_factor;
+
+    input.erase(input.begin(), std::next(input.begin(), inputi));
+}
+
+// persist.gammaos.azahar_nano.audio_fast=0 keeps the deque walk; default Mali only.
+template <typename Function>
+static void StepOverSamples(State& state, StereoBuffer16& input, float rate, StereoFrame16& output,
+                            std::size_t& outputi, Function fn) {
+    static const bool window =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.audio_fast");
+    if (window) {
+        StepOverSamplesWindow(state, input, rate, output, outputi, fn);
+    } else {
+        StepOverSamplesDeque(state, input, rate, output, outputi, fn);
+    }
 }
 
 void None(State& state, StereoBuffer16& input, float rate, StereoFrame16& output,

@@ -9,6 +9,7 @@
 #include "audio_core/hle/source.h"
 #include "audio_core/interpolate.h"
 #include "common/assert.h"
+#include "common/gammaos_tweak.h"
 #include "common/logging/log.h"
 #include "core/memory.h"
 
@@ -35,6 +36,15 @@ void Source::MixInto(QuadFrame32& dest, std::size_t intermediate_mix_id) {
 
     const bool ramp_active = state.gain_ramp_active.at(intermediate_mix_id);
     const std::array<float, 4>& ramp_start = state.gain_ramp_start.at(intermediate_mix_id);
+
+    // GammaOS: a mix this source does not feed (all four gains exactly zero, no ramp) adds 0 to
+    // every sample; skip the loop. persist.gammaos.azahar_nano.audio_fast=0 keeps it.
+    static const bool skip_silent =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.audio_fast");
+    if (skip_silent && !ramp_active && gains[0] == 0.0f && gains[1] == 0.0f &&
+        gains[2] == 0.0f && gains[3] == 0.0f) {
+        return;
+    }
     constexpr float ramp_scale = 1.0f / static_cast<float>(samples_per_frame - 1);
 
     for (std::size_t samplei = 0; samplei < samples_per_frame; samplei++) {
