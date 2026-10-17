@@ -200,30 +200,43 @@ void GlyphMesh::releaseProgram() {
 }
 
 bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, float cx, float cy, float depth, bool colour) {
-    releaseGl();
-    if (!texture || w <= 1 || h <= 1) return false;
-    // the glyph's pixels
-    std::vector<uint8_t> rgba((size_t)w * h * 4);
-    {
-        GLint prevFbo = 0;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
-        GLuint fbo = 0;
-        glGenFramebuffers(1, &fbo);
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-        const bool ok = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
-        if (ok) glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgba.data());
-        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
-        glDeleteFramebuffers(1, &fbo);
-        if (!ok) {
-            ALOGW("glyph3d: texture %u not readable", texture);
-            return false;
-        }
+    std::vector<uint8_t> rgba;
+    if (!readback(texture, w, h, &rgba)) {
+        releaseGl();
+        return false;
     }
+    return finish(compute(rgba, w, h, boxW, boxH, cx, cy, depth, colour));
+}
+
+bool GlyphMesh::readback(GLuint texture, int w, int h, std::vector<uint8_t>* rgba) {
+    if (!texture || w <= 1 || h <= 1 || !rgba) return false;
+    // the glyph's pixels
+    rgba->assign((size_t)w * h * 4, 0);
+    GLint prevFbo = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    GLuint fbo = 0;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    const bool ok = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    if (ok) glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgba->data());
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glDeleteFramebuffers(1, &fbo);
+    if (!ok) ALOGW("glyph3d: texture %u not readable", texture);
+    return ok;
+}
+
+GlyphMesh::Built GlyphMesh::compute(const std::vector<uint8_t>& rgba, int w, int h, float boxW, float boxH, float cx, float cy,
+                                    float depth, bool colour) {
+    Built out;
+    out.w = w;
+    out.h = h;
+    out.colour = colour;
     // alpha upsampled (bilinear) into a square field grid with a margin for the outline
     const int src = std::max(w, h);
     const int margin = (int)kSpread + 2;
     const int n = src * kUpsample + 2 * margin;
+    out.n = n;
     auto alphaAt = [&](float x, float y) {   // x, y in texture pixels (centres at +0.5)
         x -= 0.5f;
         y -= 0.5f;
@@ -249,7 +262,7 @@ bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, floa
             if (in) { bx0 = std::min(bx0, x); by0 = std::min(by0, y); bx1 = std::max(bx1, x); by1 = std::max(by1, y); }
         }
     }
-    if (bx1 < 0) return false;   // an empty glyph
+    if (bx1 < 0) return out;   // an empty glyph
     if (colour) {
         // the icon's own colours for the faces and walls, its blocks kept sharp (nearest); alpha
         // is the shape, so it is dropped (fully opaque colours, the edge texels unblended)
@@ -262,21 +275,12 @@ bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, floa
                 rgb[i * 3 + c] = (uint8_t)std::min(255, v);
             }
         }
-        glGenTextures(1, &mColor);
-        glBindTexture(GL_TEXTURE_2D, mColor);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, rgb.data());
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        out.rgb = std::move(rgb);
         // a face uv u = (x + 0.5) / n (x a field pixel) is texture pixel (x - margin + 0.5) / kUpsample
-        mColorMap[0] = (float)n / (kUpsample * w);
-        mColorMap[1] = (float)(-margin) / (kUpsample * w);
-        mColorMap[2] = (float)n / (kUpsample * h);
-        mColorMap[3] = (float)(-margin) / (kUpsample * h);
+        out.colorMap[0] = (float)n / (kUpsample * w);
+        out.colorMap[1] = (float)(-margin) / (kUpsample * w);
+        out.colorMap[2] = (float)n / (kUpsample * h);
+        out.colorMap[3] = (float)(-margin) / (kUpsample * h);
     }
     // signed distance (field pixels, negative inside), the anti-aliased alpha refining it near the edge
     const std::vector<float> dOut = edt2d(inside, n), dIn = edt2d(outside, n);
@@ -306,16 +310,7 @@ bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, floa
         std::vector<uint8_t> tex((size_t)n * n);
         for (size_t i = 0; i < tex.size(); i++)
             tex[i] = (uint8_t)std::clamp((int)std::lround((0.5f - sd[i] / (2 * kSpread)) * 255.0f), 0, 255);
-        glGenTextures(1, &mSdf);
-        glBindTexture(GL_TEXTURE_2D, mSdf);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, n, n, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tex.data());
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        out.sdf = std::move(tex);
     }
     auto sdAt = [&](float x, float y) {
         x = std::clamp(x, 0.0f, (float)n - 1.001f);
@@ -473,7 +468,7 @@ bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, floa
             idx.insert(idx.end(), {i0, i1, i2, i0, i2, i3});
         }
     }
-    mSideIndices = (int)idx.size();
+    out.sideIndices = (int)idx.size();
     {   // the faces: the ink box (plus the field's margin) cut by the field in the shader
         const float x0 = std::max(0, bx0 - 2), y0 = std::max(0, by0 - 2);
         const float x1 = std::min(n - 1, bx1 + 3), y1 = std::min(n - 1, by1 + 3);
@@ -491,17 +486,52 @@ bool GlyphMesh::build(GLuint texture, int w, int h, float boxW, float boxH, floa
             idx.insert(idx.end(), {a, b, c, a, c, d});
         }
     }
-    mCapIndices = (int)idx.size() - mSideIndices;
+    out.capIndices = (int)idx.size() - out.sideIndices;
+    out.verts = std::move(verts);
+    out.idx = std::move(idx);
+    out.loops = loops.size();
+    out.ok = true;
+    return out;
+}
+
+bool GlyphMesh::finish(const Built& b) {
+    releaseGl();
+    if (!b.ok || b.verts.empty() || b.idx.empty() || b.sdf.size() != (size_t)b.n * b.n) return false;
+    if (b.colour && b.rgb.size() == (size_t)b.w * b.h * 3) {
+        glGenTextures(1, &mColor);
+        glBindTexture(GL_TEXTURE_2D, mColor);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, b.w, b.h, 0, GL_RGB, GL_UNSIGNED_BYTE, b.rgb.data());
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    for (int i = 0; i < 4; i++) mColorMap[i] = b.colorMap[i];
+    glGenTextures(1, &mSdf);
+    glBindTexture(GL_TEXTURE_2D, mSdf);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, b.n, b.n, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, b.sdf.data());
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    mSideIndices = b.sideIndices;
+    mCapIndices = b.capIndices;
     glGenBuffers(1, &mVbo);
     glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-    glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(float), verts.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, b.verts.size() * sizeof(float), b.verts.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glGenBuffers(1, &mIbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, idx.size() * sizeof(uint16_t), idx.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, b.idx.size() * sizeof(uint16_t), b.idx.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    ALOGI("glyph3d: texture %u %dx%d -> %zu loops, %zu vertices, %d wall triangles", texture, w, h, loops.size(),
-          verts.size() / 8, mSideIndices / 3);
+    ALOGI("glyph3d: %dx%d -> %zu loops, %zu vertices, %d wall triangles", b.w, b.h, b.loops, b.verts.size() / 8,
+          mSideIndices / 3);
     return true;
 }
 

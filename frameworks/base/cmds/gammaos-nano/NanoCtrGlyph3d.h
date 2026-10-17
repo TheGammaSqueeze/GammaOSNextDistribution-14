@@ -26,6 +26,25 @@ public:
     // colour: a full colour icon (PICO-8's blocks): the faces show its own pixels and each wall the
     // colour just inside it; face / side in draw() then scale those colours.
     bool build(GLuint texture, int w, int h, float boxW, float boxH, float cx, float cy, float depth, bool colour = false);
+    // The build in three steps so the heavy middle one can run off the GL thread: readback copies
+    // the glyph's pixels out of the texture (GL thread), compute turns them into the field, the
+    // outline and the mesh (any thread, no GL), finish uploads the result (GL thread). build() is
+    // the three in a row.
+    struct Built {
+        bool ok = false, colour = false;
+        int w = 0, h = 0, n = 0;
+        std::vector<uint8_t> rgb;      // the faces' colour texture (colour builds)
+        std::vector<uint8_t> sdf;      // the n x n distance field texture
+        std::vector<float> verts;
+        std::vector<uint16_t> idx;
+        int sideIndices = 0, capIndices = 0;
+        float colorMap[4] = {1, 0, 1, 0};
+        size_t loops = 0;
+    };
+    static bool readback(GLuint texture, int w, int h, std::vector<uint8_t>* rgba);
+    static Built compute(const std::vector<uint8_t>& rgba, int w, int h, float boxW, float boxH, float cx, float cy,
+                         float depth, bool colour);
+    bool finish(const Built& b);
     bool coloured() const { return mColor != 0; }
     // Draws with the given model view and projection (column major), into the bound target with
     // depth testing. face / side: linear RGB colours of the faces and the walls; light: direction

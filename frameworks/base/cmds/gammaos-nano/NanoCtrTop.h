@@ -3,7 +3,9 @@
 // (scene3d.ts, banner.ts, banners.ts, nametex.ts).
 #pragma once
 
+#include <atomic>
 #include <functional>
+#include <set>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -130,6 +132,8 @@ private:
         std::unique_ptr<ModelInstance> model;
         std::unique_ptr<ModelInstance> extra;   // a ROM banner's language model, following `model`
         std::shared_ptr<GlyphMesh> glyph;        // a folder's system icon, on the folder's bone
+        std::string glyphKey;                    // the glyph still being built for it (mGlyphJobs)
+        std::set<int> glyphHide;                 // the meshes the glyph stands in for, hidden once it lands
         int glyphBone = -1;
         bool tinted = false;
         float tint[3] = {1, 1, 1};
@@ -187,6 +191,18 @@ private:
     std::shared_ptr<ModelResource> mRomRes;   // the current ROM banner's model (not shared)
     // solid glyphs by folder (built once each; a few game systems)
     std::map<std::string, std::shared_ptr<GlyphMesh>> mGlyphs;
+    // a glyph being built off the GL thread: its pixels are read back when the focus lands, the
+    // field and mesh are computed on a worker and uploaded in update() (pollGlyphJobs). The
+    // synchronous build took about 80 ms per newly focused folder and stalled the frame.
+    struct GlyphJob {
+        std::string key;
+        std::shared_ptr<GlyphMesh::Built> built;
+        std::shared_ptr<std::atomic<bool>> done;
+    };
+    std::vector<GlyphJob> mGlyphJobs;
+    bool startGlyphJob(const std::string& key, unsigned texture, int w, int h, float boxW, float boxH, float cx, float cy,
+                       float depth, bool colour);
+    void pollGlyphJobs();
     void drawGlyphs(const Camera3d& cam);
     std::string mRomResKey;
     // composite

@@ -6,6 +6,8 @@
 #include "NanoCtrHome.h"
 
 #include <algorithm>
+#include <atomic>
+#include <thread>
 #include <cmath>
 #include <cstring>
 
@@ -98,6 +100,7 @@ void CtrTop::releaseGl() {
     mBanner.reset();
     mLeaving.clear();
     mGlyphs.clear();   // their GL objects go with them
+    mGlyphJobs.clear();   // a result landing after this would upload into a gone context
     GlyphMesh::releaseProgram();
     mWall.reset();
     mWallOut = false;
@@ -554,15 +557,17 @@ void CtrTop::attach() {
             if (p.mesh >= 0 && p.mesh < (int)res->meshes.size() && res->meshes[p.mesh].node == "Folder_00") b->glyphBone = p.bone;
         const std::string gk = mPendingFocus.key + "|" + std::to_string(mPendingFocus.glyph) + (mPendingFocus.glyphColor ? "c" : "");
         auto it = mGlyphs.find(gk);
-        if (it == mGlyphs.end()) {
-            auto mesh = std::make_shared<GlyphMesh>();
-            if (!mesh->build(mPendingFocus.glyph, mPendingFocus.glyphW, mPendingFocus.glyphH, 11.0f, 9.6f, 0.0f, 2.9f, 2.6f,
-                             mPendingFocus.glyphColor))
-                mesh.reset();
-            it = mGlyphs.emplace(gk, mesh).first;
+        if (it != mGlyphs.end()) {
+            b->glyph = it->second;
+            if (!b->glyph) b->model->hiddenMeshes.clear();   // nothing built: the folder after all
+        } else {
+            // built off the GL thread: the folder shows as itself until the glyph lands
+            b->glyphHide = b->model->hiddenMeshes;
+            b->model->hiddenMeshes.clear();
+            if (startGlyphJob(gk, mPendingFocus.glyph, mPendingFocus.glyphW, mPendingFocus.glyphH, 11.0f, 9.6f, 0.0f, 2.9f,
+                              2.6f, mPendingFocus.glyphColor))
+                b->glyphKey = gk;
         }
-        b->glyph = it->second;
-        if (!b->glyph) b->model->hiddenMeshes.clear();   // nothing built: the folder after all
         b->tinted = mPendingFocus.glyphTinted;
         for (int i = 0; i < 3; i++) b->tint[i] = mPendingFocus.glyphTint[i];
     }
@@ -596,18 +601,19 @@ void CtrTop::attach() {
             const float depth = std::max(0.8f, std::min(size[2] * 0.6f, box * 0.22f));
             const std::string gk = "bar|" + std::to_string(mPendingFocus.glyph) + "|" + b->spec.model;
             auto it = mGlyphs.find(gk);
-            if (it == mGlyphs.end()) {
-                auto mesh = std::make_shared<GlyphMesh>();
-                if (!mesh->build(mPendingFocus.glyph, mPendingFocus.glyphW, mPendingFocus.glyphH, box, box, centre[0], centre[1],
-                                 depth))
-                    mesh.reset();
-                it = mGlyphs.emplace(gk, mesh).first;
+            if (it != mGlyphs.end()) {
+                b->glyph = it->second;
+            } else if (startGlyphJob(gk, mPendingFocus.glyph, mPendingFocus.glyphW, mPendingFocus.glyphH, box, box, centre[0],
+                                     centre[1], depth, false)) {
+                b->glyphKey = gk;   // the console's object shows until the glyph lands
             }
-            b->glyph = it->second;
             ALOGI("ctr top: applet glyph in %s body %.1fx%.1fx%.1f at %.1f,%.1f,%.1f bone %d", b->spec.model.c_str(), size[0],
                   size[1], size[2], centre[0], centre[1], centre[2], b->glyphBone);
         }
-        if (!b->glyph) b->model->hiddenMeshes.clear();   // nothing built: the console's object after all
+        if (!b->glyph) {
+            if (!b->glyphKey.empty()) b->glyphHide = b->model->hiddenMeshes;   // hidden again once the glyph lands
+            b->model->hiddenMeshes.clear();   // nothing built (yet): the console's object after all
+        }
         b->tinted = mPendingFocus.glyphTinted;
         for (int i = 0; i < 3; i++) b->tint[i] = mPendingFocus.glyphTint[i];
     }
@@ -767,7 +773,55 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
     if (mBanner) one(*mBanner);
 }
 
+bool CtrTop::startGlyphJob(const std::string& key, unsigned texture, int w, int h, float boxW, float boxH, float cx, float cy,
+                           float depth, bool colour) {
+    for (const GlyphJob& j : mGlyphJobs) if (j.key == key) return true;   // already on its way
+    auto rgba = std::make_shared<std::vector<uint8_t>>();
+    if (!GlyphMesh::readback(texture, w, h, rgba.get())) {
+        mGlyphs[key] = nullptr;   // not readable: the folder or object stays, like a failed build
+        return false;
+    }
+    GlyphJob job;
+    job.key = key;
+    job.built = std::make_shared<GlyphMesh::Built>();
+    job.done = std::make_shared<std::atomic<bool>>(false);
+    auto built = job.built;
+    auto done = job.done;
+    std::thread([rgba, built, done, w, h, boxW, boxH, cx, cy, depth, colour]() {
+        *built = GlyphMesh::compute(*rgba, w, h, boxW, boxH, cx, cy, depth, colour);
+        done->store(true, std::memory_order_release);
+    }).detach();
+    mGlyphJobs.push_back(std::move(job));
+    return true;
+}
+
+// A finished glyph lands: uploaded here on the GL thread, cached, and handed to the banner that
+// waits for it (the meshes it stands in for hidden now).
+void CtrTop::pollGlyphJobs() {
+    for (size_t i = 0; i < mGlyphJobs.size();) {
+        if (!mGlyphJobs[i].done->load(std::memory_order_acquire)) {
+            i++;
+            continue;
+        }
+        const std::string key = mGlyphJobs[i].key;
+        auto mesh = std::make_shared<GlyphMesh>();
+        if (!mesh->finish(*mGlyphJobs[i].built)) mesh.reset();
+        mGlyphJobs.erase(mGlyphJobs.begin() + i);
+        mGlyphs[key] = mesh;
+        auto land = [&](Banner* b) {
+            if (!b || b->glyphKey != key) return;
+            b->glyphKey.clear();
+            b->glyph = mesh;
+            if (mesh && b->model) b->model->hiddenMeshes = b->glyphHide;
+            b->glyphHide.clear();
+        };
+        land(mBanner.get());
+        for (auto& b : mLeaving) land(b.get());
+    }
+}
+
 void CtrTop::update() {
+    pollGlyphJobs();
     if (mHasPending && --mPendingLeft <= 0) attach();
     updatePlate();
     if (mWall) mWall->update(1);
