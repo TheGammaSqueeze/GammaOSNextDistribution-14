@@ -61,6 +61,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
+#include <binder/IServiceManager.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -4975,6 +4976,12 @@ bool NanoMenu::hasSecondaryDisplay() {
     const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     if (mDualScreenCache < 0 || now - mDualScreenCheckMs >= 1000) {
         mDualScreenCheckMs = now;
+        // Never block on SurfaceFlinger here: this runs every frame, and on a cold boot the DRM
+        // home draws long before SurfaceFlinger registers (it waits for the composer HAL). A
+        // SurfaceComposerClient call then waits for the service, which held the first frame of
+        // the boot intro back by about 2 s on the Duo Lite. Ask again a second later instead.
+        static const String16 kSfAidl("SurfaceFlingerAIDL");
+        if (defaultServiceManager()->checkService(kSfAidl) == nullptr) return false;
         mDualScreenCache = (SurfaceComposerClient::getPhysicalDisplayIds().size() > 1) ? 1 : 0;
     }
     return mDualScreenCache == 1;
