@@ -2417,6 +2417,7 @@ void NanoMenu::pollInput() {
             // the OSK is up, so the touchscreen stays ignored elsewhere as before.
             if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
                 mTouchDown = (ev.value != 0);
+                if (mTouchDown && mCtrTheme) mCtrTapLatch = true;   // seen by the next 3DS frame even if it lifts first
                 mTouchFromPointer = false;   // a real finger now owns the touch, not the mouse
                 continue;
             }
@@ -2498,6 +2499,7 @@ void NanoMenu::pollInput() {
                     if (!mSetupWizardActive) {
                         mTouchFromPointer = true;       // touchMapRaw hands back (mCursorX,mCursorY)
                         mTouchDown = (ev.value != 0);   // the following SYN_REPORT flushes the tap
+                        if (mTouchDown && mCtrTheme) mCtrTapLatch = true;
                     }
                 } else if (ev.value == 1) {
                     if (ev.code == BTN_RIGHT) {

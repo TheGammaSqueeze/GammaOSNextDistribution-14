@@ -1640,6 +1640,7 @@ private:
     friend class NanoCtrHost;
     class NanoCtrHost* mCtrHost = nullptr;
     uint32_t mCtrHeld = 0;                        // 3DS buttons held (CtrButton bits), from raw evdev
+    uint32_t mCtrPressLatch = 0;                  // presses not yet seen by a frame (a press and release inside one input drain still count)
     int mCtrStickX = 0, mCtrStickY = 0;           // left stick as d-pad bits (-1, 0, 1)
     bool mCtrTouchWas = false;
     uint64_t mCtrModelSig = 0;                    // signature of the shown model (reload on change)
@@ -1684,10 +1685,11 @@ private:
     ctr::CtrDialog* mCtrDialog = nullptr;
     bool mCtrPanelWasShown = false;
     bool mCtrTouchPrev = false;
+    bool mCtrTapLatch = false;                    // a finger down not yet seen by a frame (a tap inside one input drain still counts)
     enum { CTR_MODAL_NONE = 0, CTR_MODAL_PANEL = 1, CTR_MODAL_FALLBACK = 2 };
     int ctrModalKind() const;                     // what the current menu state shows over the home
     void ctrModalUpdate();                        // feeds the panel / dialog from the menu state
-    bool ctrModalTouch(float x, float y);         // a touch frame on the panel / dialog (bottom units)
+    bool ctrModalTouch(float x, float y, bool touching);         // a touch frame on the panel / dialog (bottom units)
     void ctrSfx(int ps3SfxId);                    // nano's navigation sounds as the console's effects
     void ctrLeave();                              // the theme is switched away from: audio off, GL freed
     bool ctrBgmAllowed();                         // no game starting or running, no media player

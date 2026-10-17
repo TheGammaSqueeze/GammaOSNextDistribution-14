@@ -1212,8 +1212,12 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
     auto taken = [this]() { mLastInputMs = (int64_t)android::uptimeMillis(); return true; };
     if (ctrSwitchKey(type, code, value)) return taken();
     if (!ctrOwnsInput()) return false;
+    // A press is latched until a frame has sampled it: input is drained on the render thread
+    // right before the frame samples mCtrHeld, so a press and its release that both arrive
+    // inside one drain (a quick tap during a long frame, or while the idle loop sleeps between
+    // its once a second redraws) used to cancel out and the button had to be pressed twice.
     auto setBit = [&](uint32_t bit, bool on) {
-        if (on) mCtrHeld |= bit; else mCtrHeld &= ~bit;
+        if (on) { mCtrHeld |= bit; mCtrPressLatch |= bit; } else mCtrHeld &= ~bit;
     };
     if (type == EV_KEY) {
         if (value == 2) return taken();   // key repeat: the menu repeats on its own
@@ -1278,6 +1282,11 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
 // A touch frame: nano has the raw touch state (mTouchDown / mTouchRawX/Y); map it into bottom
 // screen layout space through the rectangle the bottom screen is drawn in.
 void NanoMenu::ctrTouchFrame() {
+    // a finger that went down and up again since the last frame still counts as one touched
+    // frame (the raw position is where it lifted); see the press latch in ctrInputEvent
+    const bool tap = mCtrTapLatch;
+    mCtrTapLatch = false;
+    const bool touching = mTouchDown || tap;
     if (mOskActive || (mGSearchActive && !ctrSearchThemed())) return;   // nano's own touch handling has them
     const bool modal = ctrModalKind() == CTR_MODAL_PANEL;
     if (!ctrOwnsInput() && !modal) return;
@@ -1300,12 +1309,12 @@ void NanoMenu::ctrTouchFrame() {
         py = py / (float)mHeight * bh;
     }
     ctr::CtrTouch t;
-    t.held = mTouchDown;
+    t.held = touching;
     const float lw = mCtrHome->bottomWidth();
     t.x = (px - rx) / rw * lw - lw / 2;
     t.y = 120.0f - (py - ry) / rh * 240.0f;
     if (modal) {
-        ctrModalTouch(t.x, t.y);
+        ctrModalTouch(t.x, t.y, touching);
         return;
     }
     mCtrTouchPrev = false;
@@ -2226,9 +2235,9 @@ bool NanoMenu::ctrWizTouch(bool down, bool held, bool up, float x, float y) {
     return true;
 }
 
-bool NanoMenu::ctrModalTouch(float x, float y) {
-    const bool down = mTouchDown && !mCtrTouchPrev, up = !mTouchDown && mCtrTouchPrev, held = mTouchDown && mCtrTouchPrev;
-    mCtrTouchPrev = mTouchDown;
+bool NanoMenu::ctrModalTouch(float x, float y, bool touching) {
+    const bool down = touching && !mCtrTouchPrev, up = !touching && mCtrTouchPrev, held = touching && mCtrTouchPrev;
+    mCtrTouchPrev = touching;
     if (ctrWizThemed()) return mOskActive ? false : ctrWizTouch(down, held, up, x, y);
     if (ctrSearchThemed()) {
         if (!mCtrPanel->active()) return true;
@@ -2380,7 +2389,7 @@ bool NanoMenu::ctrOpenOptions() {
     // a folder's Start is its Settings (a user folder: Rename, Move, Delete; a system's: Move)
     if (const ctr::HomeItem* f = mCtrHome->focusedItem(); f && f->kind == ctr::HomeItemKind::Folder) {
         ctrFolderSettings(f->id);
-        mCtrHeld = 0;
+        mCtrHeld = 0; mCtrPressLatch = 0;
         return mPs3DlgActive;
     }
     const ctr::HomeItem* h = mCtrHome->focusedTitle();
@@ -2404,7 +2413,7 @@ bool NanoMenu::ctrOpenOptions() {
         mPs3OptSubRows.insert(mPs3OptSubRows.begin(), std::vector<Ps3OptSub>());
         mPs3OptSel++;   // the row A picked before stays the default
     }
-    mCtrHeld = 0;   // the keys held now belong to the menu
+    mCtrHeld = 0; mCtrPressLatch = 0;   // the keys held now belong to the menu
     mDisplayDirty = true;
     return mPs3OptActive;
 }
@@ -2467,7 +2476,7 @@ void NanoMenu::ctrFolderSettingsChosen(int sel) {
 // as the menu closes belong to it, so the home sees the next presses only.
 void NanoMenu::ctrStartMove() {
     if (!mCtrHome || !mCtrHome->startMove()) return;
-    mCtrHeld = 0;
+    mCtrHeld = 0; mCtrPressLatch = 0;
     mDisplayDirty = true;
 }
 
@@ -2642,7 +2651,7 @@ void NanoMenu::ctrLeave() {
         mCtrAudio->release();
     }
     ctrRelease();
-    mCtrHeld = 0;
+    mCtrHeld = 0; mCtrPressLatch = 0;
     mCtrStickX = mCtrStickY = 0;
     mCtrModelSig = 0;
 }
@@ -2997,7 +3006,8 @@ void NanoMenu::renderCtrPrimary() {
         }
     }
     // input for this frame: held buttons (+ the circle pad as the D-pad), then the 60 Hz ticks
-    uint32_t held = mCtrHeld;
+    uint32_t held = mCtrHeld | mCtrPressLatch;   // a press released since the last frame still counts once
+    mCtrPressLatch = 0;
     if (mCtrStickX < 0) held |= ctr::CTR_LEFT;
     if (mCtrStickX > 0) held |= ctr::CTR_RIGHT;
     if (mCtrStickY < 0) held |= ctr::CTR_UP;
@@ -3054,7 +3064,7 @@ void NanoMenu::renderCtrPrimary() {
     if (!ctrOwnsInput()) {
         // a nano list or dialog took the keys: nothing stays held behind it
         held = 0;
-        mCtrHeld = 0;
+        mCtrHeld = 0; mCtrPressLatch = 0;
         mCtrStickX = mCtrStickY = 0;
     }
     mCtrHome->setHeld(held);
