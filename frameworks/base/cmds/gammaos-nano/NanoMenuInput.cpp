@@ -1393,6 +1393,18 @@ bool NanoMenu::selectKeyHeld() const {
     return false;
 }
 
+// Called once after a deferred launch, since its key-up may already be consumed.
+bool NanoMenu::launchConfirmHeld() const {
+    unsigned char bits[(KEY_MAX + 8) / 8];
+    for (int fd : mInputFds) {
+        memset(bits, 0, sizeof(bits));
+        if (fd < 0 || ioctl(fd, EVIOCGKEY(sizeof(bits)), bits) < 0) continue;
+        for (int key : {KEY_ENTER, KEY_KPENTER, BTN_SOUTH})
+            if (bits[key / 8] & (1u << (key % 8))) return true;
+    }
+    return false;
+}
+
 // DSi carousel touch (bottom panel). Maps the raw digitizer through the shared
 // touchMapRaw (same path as oskTouchFrame/xmbTouchFrame, correct on DRM + SF) into
 // carousel DS coords, then dispatches a tap (a side tile selects it, the centre tile
@@ -2026,6 +2038,7 @@ void NanoMenu::pollInput() {
         if (sNavPi && __system_property_serial(sNavPi) != sNavSerial) {
         char navbuf[PROPERTY_VALUE_MAX];
         if (property_get("sys.gammaos.nano.nav", navbuf, "") > 0 && navbuf[0]) {
+            if (strcmp(navbuf, "enter") != 0) cancelPendingLaunch();
             mLastInputMs = android::uptimeMillis();   // scripted nav = activity
             if      (!strcmp(navbuf, "left"))  handleLeft();
             else if (!strcmp(navbuf, "right")) handleRight();
@@ -2381,6 +2394,12 @@ void NanoMenu::pollInput() {
                 if (ev.type == EV_KEY && ev.value == 1) ps3BootSkip();
                 continue;
             }
+            // Touch Back, swipes and shoulder navigation bypass handleBack/Up/Down.
+            if (mLaunchPending && ev.type == EV_KEY && ev.value == 1
+                    && ev.code != KEY_ENTER && ev.code != KEY_KPENTER && ev.code != BTN_SOUTH
+                    && ev.code != KEY_VOLUMEUP && ev.code != KEY_VOLUMEDOWN
+                    && ev.code != KEY_POWER)
+                cancelPendingLaunch();
             // Test / Calibration screen: mirror every raw button/axis into the
             // live-state maps for the visualisation and swallow it so it does not
             // navigate the menu behind. gpScreenHandleKey drives the hold-to-exit.
@@ -2597,7 +2616,7 @@ void NanoMenu::pollInput() {
             // gets focus, preventing phantom A-button presses.
             if (mWaitForRelease) {
                 if (ev.type == EV_KEY && ev.value == 0
-                    && (ev.code == KEY_ENTER || ev.code == BTN_SOUTH)) {
+                    && (ev.code == KEY_ENTER || ev.code == KEY_KPENTER || ev.code == BTN_SOUTH)) {
                     // Don't hand off immediately: start the launch fade-out
                     // (render() fades the XMB to black). The exit fires once the
                     // fade completes (the mLaunchFadeStart check at the top of

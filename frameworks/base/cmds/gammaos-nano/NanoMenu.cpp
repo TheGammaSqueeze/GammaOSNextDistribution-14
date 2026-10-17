@@ -4983,20 +4983,23 @@ if (sRingPrimedCount >= 2) {
         // Without this, card0 can stay owned by our engine and all system audio dies after setup.
         nanoDirectHandoffTick();
 
-        // GammaOS Nano: re-fire a deferred game/app launch as soon as
-        // the system is far enough through boot to accept it. The
-        // toast set mLaunchPending=true when the user pressed A
-        // before isLaunchReady() was true; handleSelect() re-enters
-        // the same launch path the original press hit. Navigation
-        // handlers (handleUp/Down/Left/Right/Back) clear the pending
-        // flag, so this only fires if the user is still parked on
-        // the same item they originally selected.
-        if (mLaunchPending && isLaunchReady()) {
-            ALOGI("NanoMenu: deferred launch firing -- system ready");
+        if (mLaunchPending && (mPspClockOn || mPspClockReveal > 0.0f)) cancelPendingLaunch();
+        // Touch-driven themes need the game launch path, not a generic Select.
+        if (mLaunchPending && mLaunchReadiness.takeReady()) {
+            ALOGI("NanoMenu: deferred launch firing -- storage ready");
             mLaunchPending = false;
             mShowLaunchBusy = false;
             mLaunchBusyTimer = 0;
-            handleSelect();
+            if (mLaunchPendingRomPath.empty()) handleSelect();
+            else launchXmbGame();
+            // The initiating touch/key may have been released during the wait.
+            if (mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0
+                    && !mTouchDown && !launchConfirmHeld())
+                mLaunchFadeStart = uptimeMillis();
+            if (!mLaunchPending) {
+                mLaunchPendingRomPath.clear();
+                mLaunchReadiness.cancel();
+            }
         }
 
         // Adaptive framerate:

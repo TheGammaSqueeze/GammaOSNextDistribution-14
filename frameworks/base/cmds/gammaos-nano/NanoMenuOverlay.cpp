@@ -1864,6 +1864,7 @@ void NanoMenu::overlayLaunchGame() {
             romName = sys.displayNames[mXmbGameIndex];
     }
     if (romPath.empty()) return;
+    if (deferGameLaunch(romPath)) return;
     // Same check as the home launcher: a game whose file is gone (deleted, or its card is not
     // mounted) must say so instead of replacing the running app with an emulator that then dies.
     if (!romLaunchExists(romPath)) {
