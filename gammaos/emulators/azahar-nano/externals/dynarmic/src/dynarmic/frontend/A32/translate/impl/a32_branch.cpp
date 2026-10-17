@@ -11,6 +11,23 @@ namespace Dynarmic::A32 {
 
 // B <label>
 bool TranslatorVisitor::arm_B(Cond cond, Imm<24> imm24) {
+    // GammaOS: a conditional branch that follows other instructions would end the block here
+    // (LinkBlockFast to itself) and become a block of its own that holds only the flag test
+    // and the two links. End this block with that test instead, as thumb16_B_t1 does: one
+    // block entry less per taken or untaken branch. Not while a conditional block is being
+    // translated (its instructions are only executed on the condition passed path and its
+    // failed path already links to this instruction); in the trailing part of one the
+    // terminal only runs on the passed path, which is where the branch belongs.
+    if (options.cond_branch_terminal && cond != Cond::AL && cond != Cond::NV &&
+        cond_state != ConditionalState::Translating && cond_state != ConditionalState::Break &&
+        !ir.block.empty()) {
+        const u32 imm32 = mcl::bit::sign_extend<26, u32>(imm24.ZeroExtend() << 2) + 8;
+        const auto then_location = ir.current_location.AdvancePC(imm32);
+        const auto else_location = ir.current_location.AdvancePC(4);
+        ir.SetTerm(IR::Term::If{cond, IR::Term::LinkBlock{then_location}, IR::Term::LinkBlock{else_location}});
+        return false;
+    }
+
     if (!ArmConditionPassed(cond)) {
         return true;
     }

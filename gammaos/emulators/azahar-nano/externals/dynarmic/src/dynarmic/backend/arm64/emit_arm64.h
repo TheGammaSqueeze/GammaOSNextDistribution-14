@@ -170,6 +170,10 @@ struct EmitConfig {
 
     // Debugging
     bool very_verbose_debugging_output;
+
+    // GammaOS: emit the return stack buffer push and pop with their independent instructions
+    // (target constants, the guest PC load) between the RSB index load and its first use.
+    bool rsb_scheduled = false;
 };
 
 /// far_offset: when not null, the deferred (cold) code of the block is written at this offset of

@@ -29,6 +29,14 @@ struct TranslationOptions {
     /// If this is false, we treat the instruction as a NOP.
     /// If this is true, we emit an ExceptionRaised instruction.
     bool hook_hint_instructions = true;
+
+    /// GammaOS: a conditional B (ARM state) after other instructions of an unconditional block
+    /// ends the block with an If terminal instead of splitting the block before it.
+    bool cond_branch_terminal = false;
+
+    /// GammaOS: a conditional MOV (ARM state, no S, not to the PC) outside a conditional block
+    /// becomes a select on the condition instead of splitting the block around it.
+    bool cond_select_mov = false;
 };
 
 /**

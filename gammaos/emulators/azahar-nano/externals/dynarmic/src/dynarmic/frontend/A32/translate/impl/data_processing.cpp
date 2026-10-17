@@ -7,6 +7,20 @@
 
 namespace Dynarmic::A32 {
 
+// GammaOS (TranslationOptions::cond_select_mov): a MOV<c> (no S, not to the PC) after other
+// instructions would end the block (LinkBlockFast to itself) and start a conditional block,
+// and the next unconditional or differently conditioned instruction would start another. As a
+// select it costs one flag reload and a CSEL in the same block. The select reads the flags
+// from the state like the conditional block entry does (ConditionalSelect counts as a CPSR
+// read, so the flags pass keeps the flag store it depends on). Inside a conditional block
+// (Translating) the usual path is kept; in its trailing part the select only runs on the
+// passed path, where the instruction belongs.
+static bool UseCondSelectMov(const TranslatorVisitor& v, Cond cond, bool S, Reg d) {
+    return v.options.cond_select_mov && cond != Cond::AL && cond != Cond::NV && !S && d != Reg::PC &&
+           (v.cond_state == ConditionalState::None || v.cond_state == ConditionalState::Trailing) &&
+           !v.ir.block.empty();
+}
+
 // ADC{S}<c> <Rd>, <Rn>, #<imm>
 bool TranslatorVisitor::arm_ADC_imm(Cond cond, bool S, Reg n, Reg d, int rotate, Imm<8> imm8) {
     if (!ArmConditionPassed(cond)) {
@@ -485,6 +499,12 @@ bool TranslatorVisitor::arm_EOR_rsr(Cond cond, bool S, Reg n, Reg d, Reg s, Shif
 
 // MOV{S}<c> <Rd>, #<const>
 bool TranslatorVisitor::arm_MOV_imm(Cond cond, bool S, Reg d, int rotate, Imm<8> imm8) {
+    if (UseCondSelectMov(*this, cond, S, d)) {
+        const auto value = ir.Imm32(ArmExpandImm(rotate, imm8));
+        ir.SetRegister(d, ir.ConditionalSelect(cond, value, ir.GetRegister(d)));
+        return true;
+    }
+
     if (!ArmConditionPassed(cond)) {
         return true;
     }
@@ -512,6 +532,12 @@ bool TranslatorVisitor::arm_MOV_imm(Cond cond, bool S, Reg d, int rotate, Imm<8>
 
 // MOV{S}<c> <Rd>, <Rm>
 bool TranslatorVisitor::arm_MOV_reg(Cond cond, bool S, Reg d, Imm<5> imm5, ShiftType shift, Reg m) {
+    if (UseCondSelectMov(*this, cond, S, d)) {
+        const auto value = EmitImmShift(ir.GetRegister(m), shift, imm5, ir.GetCFlag()).result;
+        ir.SetRegister(d, ir.ConditionalSelect(cond, value, ir.GetRegister(d)));
+        return true;
+    }
+
     if (!ArmConditionPassed(cond)) {
         return true;
     }

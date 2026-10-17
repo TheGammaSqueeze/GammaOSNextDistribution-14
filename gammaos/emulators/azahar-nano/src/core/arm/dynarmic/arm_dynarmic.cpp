@@ -446,6 +446,30 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
         Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_far_code");
     config.far_code = far_code;
 
+    // GammaOS: ARM state conditional branches end the block they follow with an If terminal
+    // instead of a block split (Kirby: Planet Robobot spent 4.9 percent of the emulation thread
+    // in blocks that held only a conditional branch, 41 percent of it on their first
+    // instruction). persist.gammaos.azahar_nano.jit_cond_branch = 1 / 0 forces it on / off;
+    // default on for the Mali devices only (with jit_cond_mov and jit_rsb_sched: Kirby slot 1
+    // emulation thread 20.2 -> 19.2 ms a frame on both RG DS drivers, vendor 49 -> 51.8 fps).
+    static const bool cond_branch =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_cond_branch");
+    config.cond_branch_terminal = cond_branch;
+
+    // GammaOS: ARM state MOV<c> (no S, not to the PC) after other instructions becomes a select
+    // instead of a block split. persist.gammaos.azahar_nano.jit_cond_mov = 1 / 0 forces it on /
+    // off; default on for the Mali devices only.
+    static const bool cond_mov =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_cond_mov");
+    config.cond_select_mov = cond_mov;
+
+    // GammaOS: return stack buffer push and pop emitted in an order that hides the RSB index
+    // load latency (same instructions). persist.gammaos.azahar_nano.jit_rsb_sched = 1 / 0
+    // forces it on / off; default on for the Mali devices only.
+    static const bool rsb_sched =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_rsb_sched");
+    config.rsb_scheduled = rsb_sched;
+
     // Multi-process state
     config.processor_id = GetID();
     config.global_monitor = &exclusive_monitor.monitor;
@@ -481,9 +505,12 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
             config.unsafe_optimizations = true;
             config.optimizations |= Dynarmic::OptimizationFlag::Unsafe_IgnoreGlobalMonitor;
         }
-        LOG_INFO(Core_ARM11, "JIT for {:016X}: global exclusive monitor {}, dispatcher probe {}, far code {}",
+        LOG_INFO(Core_ARM11,
+                 "JIT for {:016X}: global exclusive monitor {}, dispatcher probe {}, far code {}, "
+                 "cond branch {}, cond mov {}, rsb sched {}",
                  title_id, ignore_monitor ? "ignored" : "kept", disp_probe ? "on" : "off",
-                 far_code ? "on" : "off");
+                 far_code ? "on" : "off", cond_branch ? "on" : "off", cond_mov ? "on" : "off",
+                 rsb_sched ? "on" : "off");
     }
 
     return std::make_unique<Dynarmic::A32::Jit>(config);

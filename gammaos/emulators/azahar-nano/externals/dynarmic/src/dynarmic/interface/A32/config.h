@@ -244,6 +244,21 @@ struct UserConfig {
     /// instruction cache.
     bool far_code = false;
 
+    /// GammaOS (translation, ARM state): a conditional B after other instructions of an
+    /// unconditional block ends that block with an If terminal (both ways linked), the way the
+    /// Thumb B<c> is translated, instead of ending the block there and translating the branch
+    /// as a block of its own.
+    bool cond_branch_terminal = false;
+
+    /// GammaOS (translation, ARM state): a conditional MOV (no S, not to the PC) outside a
+    /// conditional block becomes a select on the condition, so the block goes on instead of
+    /// being split around it.
+    bool cond_select_mov = false;
+
+    /// GammaOS (arm64 backend): the return stack buffer push and pop sequences are emitted
+    /// with their independent instructions moved into the load latency of the RSB index.
+    bool rsb_scheduled = false;
+
     /// This option relates to the CPSR.E flag. Enabling this option disables modification
     /// of CPSR.E by the emulated program, forcing it to 0.
     /// NOTE: Calling Jit::SetCpsr with CPSR.E=1 while this option is enabled may result

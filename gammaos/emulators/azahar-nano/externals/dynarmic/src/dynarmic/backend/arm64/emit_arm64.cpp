@@ -54,6 +54,23 @@ void EmitIR<IR::Opcode::PushRSB>(oaknut::CodeGenerator& code, EmitContext& ctx, 
     ASSERT(args[0].IsImmediate());
     const IR::LocationDescriptor target{args[0].GetImmediateU64()};
 
+    if (ctx.conf.rsb_scheduled) {
+        // GammaOS: same instructions as below, ordered for an in-order core: the target
+        // constants (two to four MOVs and the linked ADRL) do not depend on the RSB index, so
+        // they fill the load-to-use latency of its LDR instead of waiting behind the
+        // LDR/ADD/AND/STR/ADD chain (on the Cortex-A55, a quarter of the push samples sat on
+        // the instruction right after that LDR). Only scratch registers are written, as before.
+        code.LDR(Wscratch2, SP, offsetof(StackLayout, rsb_ptr));
+        code.MOV(Xscratch0, target.Value());
+        EmitBlockLinkRelocation(code, ctx, target, BlockRelocationType::MoveToScratch1);
+        code.ADD(Wscratch2, Wscratch2, sizeof(RSBEntry));
+        code.AND(Wscratch2, Wscratch2, RSBIndexMask);
+        code.STR(Wscratch2, SP, offsetof(StackLayout, rsb_ptr));
+        code.ADD(Xscratch2, SP, Xscratch2);
+        code.STP(Xscratch0, Xscratch1, Xscratch2, offsetof(StackLayout, rsb));
+        return;
+    }
+
     code.LDR(Wscratch2, SP, offsetof(StackLayout, rsb_ptr));
     code.ADD(Wscratch2, Wscratch2, sizeof(RSBEntry));
     code.AND(Wscratch2, Wscratch2, RSBIndexMask);

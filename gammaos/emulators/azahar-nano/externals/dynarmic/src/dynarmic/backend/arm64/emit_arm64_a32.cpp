@@ -95,7 +95,30 @@ void EmitA32Terminal(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Term::Li
 }
 
 void EmitA32Terminal(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Term::PopRSBHint, IR::LocationDescriptor, bool is_single_step) {
-    if (ctx.conf.HasOptimization(OptimizationFlag::ReturnStackBuffer) && !is_single_step) {
+    if (ctx.conf.HasOptimization(OptimizationFlag::ReturnStackBuffer) && !is_single_step && ctx.conf.rsb_scheduled) {
+        // GammaOS: the same pop, ordered for an in-order core. The guest PC (with the upper
+        // location descriptor) does not depend on the RSB index, so its load goes into the
+        // latency of the index load, and the entry load (LDP) is issued before the index
+        // write-back so the SUB/STR hide part of its latency. The rsb_ptr slot and the RSB
+        // entries are different stack words, so the reordered store cannot change what the
+        // LDP reads.
+        oaknut::Label fail;
+
+        static_assert(offsetof(A32JitState, regs) + 16 * sizeof(u32) == offsetof(A32JitState, upper_location_descriptor));
+        code.LDR(Wscratch2, SP, offsetof(StackLayout, rsb_ptr));
+        code.LDUR(X0, Xstate, offsetof(A32JitState, regs) + 15 * sizeof(u32));
+        code.AND(Wscratch2, Wscratch2, RSBIndexMask);
+        code.ADD(X2, SP, Xscratch2);
+        code.LDP(Xscratch0, Xscratch1, X2, offsetof(StackLayout, rsb));
+        code.SUB(Wscratch2, Wscratch2, sizeof(RSBEntry));
+        code.STR(Wscratch2, SP, offsetof(StackLayout, rsb_ptr));
+
+        code.CMP(X0, Xscratch0);
+        code.B(NE, fail);
+        code.BR(Xscratch1);
+
+        code.l(fail);
+    } else if (ctx.conf.HasOptimization(OptimizationFlag::ReturnStackBuffer) && !is_single_step) {
         oaknut::Label fail;
 
         code.LDR(Wscratch2, SP, offsetof(StackLayout, rsb_ptr));
