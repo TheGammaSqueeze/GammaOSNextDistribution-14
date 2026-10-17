@@ -104,6 +104,8 @@ void NanoInput::scan() {
         ioctl(fd, EVIOCGBIT(0, sizeof(ev)), ev);
         ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(key)), key);
         ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(abs)), abs);
+        unsigned long sw[(SW_MAX + 1) / (8 * sizeof(long)) + 1] = {};
+        ioctl(fd, EVIOCGBIT(EV_SW, sizeof(sw)), sw);
         char name[128] = {};
         ioctl(fd, EVIOCGNAME(sizeof(name) - 1), name);
         Node n;
@@ -119,7 +121,21 @@ void NanoInput::scan() {
         if (!n.pad && hasKeys && (testBit(key, KEY_BACK) || testBit(key, KEY_HOMEPAGE))) {
             n.pad = true;
         }
-        if (!n.pad && !n.touch) {
+        // The lid switch (hall sensor) is its own node on most devices; it may share a node
+        // with the pad on others, so it is a flag of its own.
+        n.lid = testBit(ev, EV_SW) && testBit(sw, SW_LID);
+        if (n.lid) {
+            unsigned long swState[(SW_MAX + 1) / (8 * sizeof(long)) + 1] = {};
+            if (ioctl(fd, EVIOCGSW(sizeof(swState)), swState) >= 0) {
+                const bool closed = testBit(swState, SW_LID);
+                if (closed != mLidClosed || !mLidKnown) {
+                    mLidClosed = closed;
+                    mLidKnown = true;
+                    if (mCb.lid) mCb.lid(closed);
+                }
+            }
+        }
+        if (!n.pad && !n.touch && !n.lid) {
             close(fd);
             continue;
         }
@@ -391,6 +407,14 @@ void NanoInput::loop() {
                 for (size_t k = 0; k < cnt; k++) {
                     if (n.pad) handlePad(n, evs[k].type, evs[k].code, evs[k].value);
                     if (n.touch) handleTouch(n, evs[k].type, evs[k].code, evs[k].value);
+                    if (n.lid && evs[k].type == EV_SW && evs[k].code == SW_LID) {
+                        const bool closed = evs[k].value != 0;
+                        if (closed != mLidClosed || !mLidKnown) {
+                            mLidClosed = closed;
+                            mLidKnown = true;
+                            if (mCb.lid) mCb.lid(closed);
+                        }
+                    }
                 }
             }
         }

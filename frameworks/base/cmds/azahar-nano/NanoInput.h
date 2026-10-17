@@ -30,6 +30,8 @@ struct InputCallbacks {
     std::function<void()> fastForwardToggle;   // R3 (the 3DS has no stick click)
     // True while the menu is open: the d-pad then always navigates it (no stick swap).
     std::function<bool()> menuOpen;
+    // The device's physical lid (EV_SW SW_LID): reported at start and on every change.
+    std::function<void(bool closed)> lid;
 };
 
 class NanoInput {
@@ -59,6 +61,7 @@ private:
         std::string path;
         bool pad = false;
         bool touch = false;
+        bool lid = false;       // reports SW_LID
         int panel = 0;          // touch: the panel this digitizer sits on
         float tx = 0, ty = 0;   // touch: last position, 0..1 of the panel
         bool down = false, dirty = false;
@@ -77,6 +80,7 @@ private:
     void sendDir(Dir d, bool pressed);
 
     InputCallbacks mCb;
+    bool mLidClosed = false, mLidKnown = false;
     std::vector<Node> mNodes;
     std::thread mThread;
     std::atomic<bool> mRun{false};

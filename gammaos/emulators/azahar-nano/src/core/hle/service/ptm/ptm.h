@@ -53,6 +53,15 @@ public:
     static u16 GetPlayCoins();
     static void SetPlayCoins(u16 play_coins);
 
+    // GammaOS: the handheld's physical lid drives the emulated shell state (ptm:u
+    // GetShellState), so games see the 3DS closed and opened as the device is.
+    void SetShellOpen(bool open) {
+        shell_open = open;
+    }
+    bool IsShellOpen() const {
+        return shell_open;
+    }
+
     class Interface : public ServiceFramework<Interface> {
     public:
         Interface(std::shared_ptr<Module> ptm, const char* name, u32 max_session);
@@ -152,6 +161,11 @@ public:
          *      2-3: Time since 01/01/2020.
          */
         void GetSystemTime(Kernel::HLERequestContext& ctx);
+
+    public:
+        void SetShellOpen(bool open) {
+            ptm->SetShellOpen(open);
+        }
 
     protected:
         std::shared_ptr<Module> ptm;

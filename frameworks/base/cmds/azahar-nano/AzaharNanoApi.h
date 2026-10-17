@@ -151,6 +151,8 @@ int azn_shader_cache_rebuilding(void);
 int azn_run(const char* rom_path);
 void azn_stop(void);
 void azn_pause(bool paused);
+// Physical lid state -> emulated 3DS shell (ptm:u GetShellState). 1 = open.
+void azn_set_shell_open(int open);
 bool azn_is_running(void);
 bool azn_is_paused(void);
 

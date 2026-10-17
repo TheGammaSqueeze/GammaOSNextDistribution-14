@@ -34,6 +34,8 @@
 #include "core/perf_stats.h"
 #include "core/frontend/applets/default_applets.h"
 #include "core/hle/service/am/am.h"
+#include "core/hle/service/ptm/ptm.h"
+#include "core/hle/service/sm/sm.h"
 #include "core/loader/loader.h"
 #include "core/savestate.h"
 #include "common/thread_worker.h"
@@ -593,6 +595,16 @@ void azn_pause(bool paused) {
 void azn_sleep(bool asleep) {
     sleep_audio_off = asleep;
     running_cv.notify_all();
+}
+
+// GammaOS: the physical lid state, mirrored into the emulated 3DS shell (ptm:u
+// GetShellState). Games that poll it pause or dim as on hardware. Safe to call while
+// no title is running: the service is simply not there yet.
+void azn_set_shell_open(int open) {
+    auto& system = Core::System::GetInstance();
+    if (!system.IsPoweredOn()) return;
+    auto ptm_u = system.ServiceManager().GetService<Service::PTM::Module::Interface>("ptm:u");
+    if (ptm_u) ptm_u->SetShellOpen(open != 0);
 }
 
 bool azn_is_running(void) {

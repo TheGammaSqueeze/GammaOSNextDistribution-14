@@ -75,6 +75,7 @@ struct CoreApi {
     void (*stop)() = nullptr;
     void (*pause)(bool) = nullptr;
     void (*sleep)(bool) = nullptr;   // optional (azn_sleep)
+    void (*setShellOpen)(int) = nullptr;   // optional (azn_set_shell_open)
     bool (*is_running)() = nullptr;
     bool (*button)(int, bool) = nullptr;
     bool (*joystick)(int, float, float) = nullptr;
@@ -163,6 +164,7 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.stop, "azn_stop");
     ok &= sym(gCore.pause, "azn_pause");
     sym(gCore.sleep, "azn_sleep");   // optional: an older core keeps its stream through the sleep
+    sym(gCore.setShellOpen, "azn_set_shell_open");   // optional: lid -> emulated shell state
     ok &= sym(gCore.is_running, "azn_is_running");
     ok &= sym(gCore.button, "azn_button");
     ok &= sym(gCore.joystick, "azn_joystick");
@@ -699,8 +701,26 @@ static void exportEnvProp() {
     }
 }
 
+// The Arm Mali driver reads its own options from MALI_ prefixed environment variables (and
+// from a config file named by vendor.mali.platform.config). Its speculative "pilot" shader
+// variants compete with the emulation thread for the four A55 cores while the shader caches
+// are cold. Measured on the RG DS at fast forward (3D Land, Kirby, Mario Kart 7, cold and
+// warm): about a third less time per pipeline build (58 to 70 ms against 100), better
+// minimum and p10 fps in five of six pairs, averages within noise, GPU busy 6 to 10 points
+// higher where the GPU has headroom. Mali only (Adreno devices have the kgsl node);
+// persist.gammaos.azahar_nano.mali_pilots=1 restores the driver default. A value already
+// present from the env property above wins.
+static void exportMaliEnv() {
+    if (access("/sys/class/kgsl/kgsl-3d0", F_OK) == 0 || access("/dev/mali0", F_OK) != 0) return;
+    if (prop("persist.gammaos.azahar_nano.mali_pilots", "0") == "1") return;
+    setenv("MALI_DFC_ALLOW_PILOTS", "OFF", 0);
+    ALOGI("env MALI_DFC_ALLOW_PILOTS=%s (mali_pilots=1 restores the driver default)",
+          getenv("MALI_DFC_ALLOW_PILOTS"));
+}
+
 int main(int argc, char** argv) {
     exportEnvProp();
+    exportMaliEnv();
     installCrashHandlers();
     signal(SIGTERM, onTerm);
     signal(SIGINT, onTerm);
@@ -1143,6 +1163,13 @@ int main(int argc, char** argv) {
         gExitRequested = true;
         gCore.stop();
     };
+    // Physical lid -> emulated 3DS shell. The framework still owns the sleep (the lid turns
+    // the screen off and sys.screen.state pauses us); this only lets the game see the shell
+    // state the way it would on hardware.
+    icb.lid = [](bool closed) {
+        ALOGI("lid %s -> shell %s", closed ? "closed" : "open", closed ? "closed" : "open");
+        if (gCore.setShellOpen) gCore.setShellOpen(closed ? 0 : 1);
+    };
     input.start(icb, bottom != nullptr, bottom ? 1 : 0);
 
     // Core performance stats every 2 s while running (persist.gammaos.azahar_nano.perf_log=1
@@ -1164,7 +1191,7 @@ int main(int argc, char** argv) {
             if (!pi) usleep(500 * 1000);
         }
         uint32_t serial = 0;
-        bool asleep = false, pausedForSleep = false;
+        bool asleep = false, pausedForSleep = false, sinkSwapped = false;
         while (!gExitRequested) {
             char v[PROP_VALUE_MAX] = {};
             __system_property_read(pi, nullptr, v);
@@ -1178,14 +1205,21 @@ int main(int argc, char** argv) {
                 }
                 // The menu's pause or ours: either way the core sits in its pause loop, where
                 // the sleep flag swaps the audio sink out so no stream blocks the suspend.
-                if (gCore.sleep) gCore.sleep(true);
+                // The core's sleep swaps the AAudio sink for the null sink inside the pause,
+                // tearing the stream down while audioserver still holds its callbacks. Since
+                // ultra low power sleep parks every AudioFlinger output itself, the swap is off
+                // by default (persist.gammaos.azahar_nano.sleep_sink_swap=1 brings it back).
+                sinkSwapped = gCore.sleep &&
+                        prop("persist.gammaos.azahar_nano.sleep_sink_swap", "0") == "1";
+                if (sinkSwapped) gCore.sleep(true);
                 android::nanobl::nanoBacklightSet(0);
                 ALOGI("sleep: screen off, core %s, backlights off",
                       pausedForSleep ? "paused" : "left as the menu has it");
             } else if (!off && asleep) {
                 asleep = false;
                 android::nanobl::nanoBacklightSet(azahar_nano::brightnessLevel());
-                if (gCore.sleep) gCore.sleep(false);
+                if (sinkSwapped) gCore.sleep(false);
+                sinkSwapped = false;
                 if (pausedForSleep) {
                     gCore.pause(false);
                     gDynResSettle = 5;
