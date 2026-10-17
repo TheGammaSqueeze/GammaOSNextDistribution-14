@@ -2547,8 +2547,13 @@ static bool drmIndepFlipSecondary(int slot) {
 static void drmIndepSecondaryLanded() {
     sSecScanIdx = sSecPendIdx;
     sSecPendIdx = -1;
+    const bool trace = sPairLogOnFlipThread.load(std::memory_order_relaxed);
+    if (trace) ALOGW("SECTRACE landed t=%lld want=%d", (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL), sSecWantIdx);
     if (sSecWantIdx >= 0 && sSecWantIdx != sSecScanIdx) {
-        if (drmIndepFlipSecondary(sSecWantIdx)) sIndepDeferred++;
+        if (drmIndepFlipSecondary(sSecWantIdx)) {
+            sIndepDeferred++;
+            if (trace) ALOGW("SECTRACE deferred-issue t=%lld slot=%d", (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL), sSecPendIdx);
+        }
         sSecWantIdx = -1;
     }
 }
@@ -2598,7 +2603,24 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
             };
             stamp(prim);
             if (!skipNonPrimary) stamp(sec);
-            glFinish();   // test only: the stamp must be on the glass with this flip
+            // The stamp must be on the glass with this flip, but the slot's fence was
+            // created before it. Replace that fence with one that covers the stamp, so
+            // the flip waits on it as usual. A glFinish here stalled the CPU for the
+            // whole frame and halved the frame rate whenever the frame was heavy
+            // (drastic-nano with mirror_top went 60 -> 30 fps).
+            if (sAhbRingSyncPrimary[idx] != EGL_NO_SYNC_KHR && sEglCreateSyncKHR &&
+                sEglDestroySyncKHR && sRingEglDpy != EGL_NO_DISPLAY) {
+                EGLSyncKHR covered = sEglCreateSyncKHR(sRingEglDpy, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
+                if (covered != EGL_NO_SYNC_KHR) {
+                    sEglDestroySyncKHR(sRingEglDpy, sAhbRingSyncPrimary[idx]);
+                    sAhbRingSyncPrimary[idx] = covered;
+                    glFlush();
+                } else {
+                    glFinish();
+                }
+            } else {
+                glFinish();
+            }
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
     }
@@ -3168,6 +3190,9 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
                 }
                 if (drop) { sSecWantIdx = -1; sIndepDropped++; sLastDropFlip = sFlipCount; }
                 else sSecWantIdx = idx;
+                if (sPairLogOnFlipThread.load(std::memory_order_relaxed))
+                    ALOGW("SECTRACE pending t=%lld slot=%d %s", (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL),
+                          idx, drop ? "drop" : "defer");
             }
             continue;
         }
@@ -3178,7 +3203,11 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
                 sPendingFlipEvents++;
                 if (crtcSlot >= 0) sCrtcPending[crtcSlot]++;
             }
-            if (indepSec) { sSecPendIdx = idx; sSecWantIdx = -1; }
+            if (indepSec) {
+                sSecPendIdx = idx; sSecWantIdx = -1;
+                if (sPairLogOnFlipThread.load(std::memory_order_relaxed))
+                    ALOGW("SECTRACE issue t=%lld slot=%d", (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL), idx);
+            }
         }
         if (flipRc != 0) {
             if (errno == EBUSY) {
