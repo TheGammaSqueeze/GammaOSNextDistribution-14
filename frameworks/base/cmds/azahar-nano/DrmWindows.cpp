@@ -1393,8 +1393,20 @@ void DrmWindows::panelLoop(int idx) {
         }
         int pickFd = -1;
         if (!pending && !ready.empty()) {
-            // Oldest frame first, provided its GPU work is done.
+            // Oldest frame first, provided its GPU work is done. With mShowNewest the newest
+            // frame whose GPU work is done goes up instead and the finished ones queued before
+            // it are dropped: a frame is never shown later than one vblank after it is ready.
+            // The in-order queue otherwise never drains once it holds a backlog (the DP panel
+            // runs at 59.98 Hz against a 60 Hz producer), so each panel showed frames 2 to 3
+            // vblanks after the core queued them.
             int pick = signalled(ready.front()) ? 0 : -1;
+            if (pick >= 0 && mShowNewest) {
+                while ((size_t)pick + 1 < ready.size() && signalled(ready[pick + 1])) pick++;
+                for (int i = 0; i < pick; i++) {
+                    releaseReady(ready[i]);
+                    p.stale++;
+                }
+            }
             if (pick >= 0) {
                 BufferItem latest = ready[pick];
                 p.pickIndex = pick;
@@ -1427,9 +1439,9 @@ void DrmWindows::panelLoop(int idx) {
                     property_set("sys.gammaos.azahar_nano.drm_trace", "0");
                 }
             }
-            ALOGI("DRM: crtc %u flips=%" PRIu64 " drops=%" PRIu64 " avail_cb=%" PRIu64 " gaps>20ms=%" PRIu64
-                  " maxgap=%.1fms commit->flip avg %.1f max %.1f ms",
-                  p.crtcId, p.flips, p.drops, p.availCount->load(), p.longGaps, p.maxGapNs / 1e6,
+            ALOGI("DRM: crtc %u flips=%" PRIu64 " drops=%" PRIu64 " stale=%" PRIu64 " avail_cb=%" PRIu64
+                  " gaps>20ms=%" PRIu64 " maxgap=%.1fms commit->flip avg %.1f max %.1f ms",
+                  p.crtcId, p.flips, p.drops, p.stale, p.availCount->load(), p.longGaps, p.maxGapNs / 1e6,
                   p.latCount ? p.latSumNs / 1e6 / p.latCount : 0.0, p.latMaxNs / 1e6);
             ALOGI("DRM: crtc %u producer cadence <10:%u 10-14:%u 14-20:%u 20-28:%u >28:%u ms",
                   p.crtcId, (*p.cadence)[0].exchange(0), (*p.cadence)[1].exchange(0),
@@ -1466,6 +1478,7 @@ int DrmWindows::create() {
     property_set("sys.gammaos.nano.drm_active", "1");
     mBlockingCommits = settings::getBool("persist.gammaos.azahar_nano.drm_blocking", false);
     mDpPostFlipUs = settings::getInt("persist.gammaos.azahar_nano.drm_dp_postflip_us", 0);
+    mShowNewest = settings::getBool("persist.gammaos.azahar_nano.drm_newest", true);
     for (size_t i = 0; i < mPanels.size(); i++) createQueue(mPanels[i], (int)i);
     mRun = true;
     if (!mBlockingCommits) mThread = std::thread([this] { eventLoop(); });

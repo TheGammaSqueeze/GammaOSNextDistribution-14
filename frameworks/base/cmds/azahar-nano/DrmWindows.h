@@ -102,7 +102,7 @@ struct DrmPanel {
     android::BufferItem pending;               // buffer in the pending flip
     bool hasOnScreen = false, hasPending = false;
     bool flipPending = false;
-    uint64_t flips = 0, drops = 0, longGaps = 0;
+    uint64_t flips = 0, drops = 0, stale = 0, longGaps = 0;
     int64_t periodSumNs = 0;
     uint64_t periodCount = 0;
     std::shared_ptr<std::atomic<double>> measuredPeriodNs = std::make_shared<std::atomic<double>>(0.0);   // 0 until 64 consecutive flips
@@ -214,6 +214,7 @@ private:
     bool mLcdStart[2] = {false, false};
     bool mBlockingCommits = true;
     int mDpPostFlipUs = 0;
+    bool mShowNewest = true;   // show the newest finished frame, drop older finished ones
     static constexpr size_t kMaxReady = 3;   // acquired, not yet flipped frames per panel
     std::vector<uint32_t> mBlackFbs;
     bool mMinimalFlips = true;
