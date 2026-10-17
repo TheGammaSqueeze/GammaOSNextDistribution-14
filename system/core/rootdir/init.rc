@@ -568,8 +568,10 @@ on post-fs
 
     start vendor.hwcomposer-2-1
     # If the composer stack is healthy, bring SurfaceFlinger up immediately
-    # instead of waiting for later property-trigger evaluation.
-    start surfaceflinger
+    # instead of waiting for later property-trigger evaluation. A device whose
+    # composer starts later sets ro.vendor.gammaos.sf_wait_for_composer=true and
+    # SurfaceFlinger then starts from its composer's running trigger below.
+    setprop sys.gammaos.sf_early_start ${ro.vendor.gammaos.sf_wait_for_composer:-false}
     start vendor.qti.hardware.display.composer-service
     start vendor.display-hal-1-0
     start android.hardware.graphics.composer3-service
@@ -711,8 +713,10 @@ on late-fs
 
     start vendor.hwcomposer-2-1
     # If the composer stack is healthy, bring SurfaceFlinger up immediately
-    # instead of waiting for later property-trigger evaluation.
-    start surfaceflinger
+    # instead of waiting for later property-trigger evaluation. A device whose
+    # composer starts later sets ro.vendor.gammaos.sf_wait_for_composer=true and
+    # SurfaceFlinger then starts from its composer's running trigger below.
+    setprop sys.gammaos.sf_early_start ${ro.vendor.gammaos.sf_wait_for_composer:-false}
     start vendor.qti.hardware.display.composer-service
     start vendor.display-hal-1-0
     start android.hardware.graphics.composer3-service
@@ -739,6 +743,19 @@ on late-fs
 # This allows boot animation (and other early UI) to come up while the rest of
 # post-fs-data continues to run.
 on property:init.svc.vendor.qti.hardware.display.composer-service=running
+    start surfaceflinger
+
+# The Qualcomm composer's service is named without the -service suffix on some
+# vendors (RP Duo Lite).
+on property:init.svc.vendor.qti.hardware.display.composer=running
+    start surfaceflinger
+
+# Early SurfaceFlinger start from post-fs and late-fs (see above). It stays off
+# when the vendor asks to wait for the composer: on the RP Duo Lite the Adreno
+# driver in a SurfaceFlinger started this early reports a different GPU identity
+# than every later GPU client, so the first buffer the allocator hands it fails
+# validation and RenderEngine aborts.
+on property:sys.gammaos.sf_early_start=false
     start surfaceflinger
 
 on property:init.svc.vendor.display-hal-1-0=running
