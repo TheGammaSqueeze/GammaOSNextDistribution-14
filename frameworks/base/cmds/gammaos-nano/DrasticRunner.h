@@ -261,6 +261,11 @@ public:
     // navigates.
     void pauseToggle(bool pause);
 
+    // Device sleep: stop the exclusive AAudio sink (the stream stays open) so the audio DSP can
+    // power down while the device is suspended, and start it again on wake. An MMAP stream
+    // bypasses AudioFlinger's mixer threads, so the framework's ultra low power park cannot.
+    void setAudioSleep(bool asleep);
+
     // Mid-session save / load. slot is 0..8 (9 is drastic's reserved
     // autosave slot -- callers must not pass 9). Writes to / reads
     // from <cacheDir>/savestates/<rom_basename>_<slot>.dss. On the

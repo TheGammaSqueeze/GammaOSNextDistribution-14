@@ -8222,6 +8222,23 @@ void DrasticRunner::pauseToggle(bool pause) {
           (android::elapsedRealtimeNano() - t0) / 1e6);
 }
 
+void DrasticRunner::setAudioSleep(bool asleep) {
+    AAudioStream* st = gAaStream;
+    if (!st) return;
+    if (asleep) {
+        AAudioStream_requestStop(st);
+        aaudio_stream_state_t next = AAUDIO_STREAM_STATE_UNINITIALIZED;
+        AAudioStream_waitForStateChange(st, AAUDIO_STREAM_STATE_STOPPING, &next, 200000000LL);
+        ALOGI("DrasticRunner: AAudio sink stopped for the device sleep (state %d)", next);
+    } else {
+        const aaudio_result_t r = AAudioStream_requestStart(st);
+        ALOGI("DrasticRunner: AAudio sink restarted after the device sleep (%d)", r);
+        // A route change while stopped (radios off, the DP panel reconnecting) disconnects the
+        // stream; the existing reopen path picks that up from the error callback.
+        if (r != AAUDIO_OK) gAaReopen.store(1, std::memory_order_release);
+    }
+}
+
 bool DrasticRunner::saveStateSlot(int slot) {
     if (!mInitialized || !mSaveState) {
         ALOGW("DrasticRunner::saveStateSlot: not available "

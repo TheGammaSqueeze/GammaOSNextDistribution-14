@@ -1157,6 +1157,9 @@ void doSleep(android::drastic_input::InputState* input,
     //    task-freeze does not have to freeze a running RT task.
     // All restored on wake.
     restoreDeepCpuIdle();
+    // Stop the exclusive audio stream for the sleep (kept open): it bypasses AudioFlinger's
+    // mixer, so while started it keeps the audio DSP up and the SoC out of vmin.
+    dr->setAudioSleep(true);
     property_set("ctl.start", "setclock_powersave");
     {
         struct sched_param sp = {};
@@ -1250,6 +1253,7 @@ void doSleep(android::drastic_input::InputState* input,
     android::nanobl::nanoBacklightSet(level);
     setBacklightHal(level);
 
+    dr->setAudioSleep(false);
     if (!overlayWasOpen) dr->pauseToggle(false);
     // audioserver may have respawned its output thread across the
     // suspend at SCHED_OTHER; re-boost so audio does not underrun.
