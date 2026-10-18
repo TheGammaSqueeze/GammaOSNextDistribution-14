@@ -99,6 +99,10 @@ public:
     // The grid identities of the suspended title: focused, it shows no banner (the wall holds
     // its screen).
     void setSuspendedKeys(const std::vector<std::string>& keys) { mSuspendedKeys = keys; }
+    // A game's Information page: its box art centred on the top screen over its fanart (dimmed),
+    // in the banner's place. The caller keeps the textures alive until clearInfoArt.
+    void setInfoArt(unsigned box, int boxW, int boxH, unsigned fan, int fanW, int fanH);
+    void clearInfoArt() { mInfoBox = mInfoFan = 0; }
 
 private:
     void themeWall();
@@ -204,10 +208,13 @@ private:
                        float depth, bool colour);
     void pollGlyphJobs();
     void drawGlyphs(const Camera3d& cam);
+    void drawInfoArt(float width, float height);
     std::string mRomResKey;
     // composite
     GLuint mBlitProgram = 0;
-    GLint mBlitProj = -1;
+    GLint mBlitProj = -1, mBlitTint = -1;
+    unsigned mInfoBox = 0, mInfoFan = 0;
+    int mInfoBoxW = 0, mInfoBoxH = 0, mInfoFanW = 0, mInfoFanH = 0;
 };
 
 }  // namespace ctr

@@ -3839,6 +3839,11 @@ void CtrHome::setTopBannerHidden(bool hidden) {
     }
 }
 
+void CtrHome::setTopInfoArt(unsigned box, int boxW, int boxH, unsigned fan, int fanW, int fanH) {
+    if (!mLoaded || !mImpl->top3d) return;
+    mImpl->top3d->setInfoArt(box, boxW, boxH, fan, fanW, fanH);
+}
+
 bool CtrHome::topCovered() const { return mLoaded && mImpl->top3d && !getenv("CTR_NO3D"); }
 
 void CtrHome::setTopHeight(float h) { mTopH = std::max(240.0f, h); }

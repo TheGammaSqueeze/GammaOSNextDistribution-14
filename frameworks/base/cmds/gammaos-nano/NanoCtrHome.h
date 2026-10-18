@@ -191,6 +191,9 @@ public:
     // Leaves the focused banner and the camera / screenshot bars off the top screen (a panel's
     // title band takes their place).
     void setTopBannerHidden(bool hidden);
+    // A game's Information page: its box art over its fanart on the top screen while the banner
+    // is hidden (zero textures clear it). The caller keeps the textures alive meanwhile.
+    void setTopInfoArt(unsigned box, int boxW, int boxH, unsigned fan, int fanW, int fanH);
     // Save/Load Layout (My Menu, HOME Menu Settings): opens over the home with thumbnails of the
     // current layout; the host's store (CtrHomeHost::myMenuStore) keeps the slots. A load calls
     // the store's apply, then reloadLayout() rebuilds the grid under the scene's fading screen.

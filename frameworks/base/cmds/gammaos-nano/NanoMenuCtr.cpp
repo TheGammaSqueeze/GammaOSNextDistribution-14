@@ -1225,7 +1225,12 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
         switch (code) {
             case BTN_SOUTH: case KEY_ENTER: setBit(ctr::CTR_A, on); return taken();
             case BTN_EAST: case KEY_BACK: case KEY_ESC: setBit(ctr::CTR_B, on); return taken();
-            case BTN_NORTH: setBit(ctr::CTR_X, on); return taken();
+            case BTN_NORTH:
+                setBit(ctr::CTR_X, on);
+                // the focused title's options, as X does in the other themes (a suspended title
+                // keeps X: the console's close prompt)
+                if (on && !mCtrHome->appSuspended() && ctrOpenOptions()) return taken();
+                return taken();
             case BTN_WEST: setBit(ctr::CTR_Y, on); return taken();
             case BTN_TL: case KEY_L: setBit(ctr::CTR_L, on); return taken();
             case BTN_TR: case KEY_R: setBit(ctr::CTR_R, on); return taken();
@@ -1878,10 +1883,13 @@ void NanoMenu::ctrModalUpdate() {
     if (!info) mCtrInfoNav = 0;
     if (info) {
         auto para = [&](const std::string& text) {
-            if (text.empty()) return;
+            // scraped text carries CRLF line ends and the console's font has no glyph for a CR
+            std::string t;
+            for (char c : text) if (c != '\r') t += c;
+            if (t.find_first_not_of(" \t") == std::string::npos) return;
             ctr::PanelRow r;
             r.kind = ctr::PanelRow::Text;
-            r.label = text;
+            r.label = t;
             rows.push_back(r);
         };
         auto fact = [&](const char* label, const std::string& v) {
@@ -2002,6 +2010,9 @@ void NanoMenu::ctrModalUpdate() {
     }
     const bool panel = info || picker || mPs3OptActive || dlgList || !mPs3Stack.empty();
     mCtrHome->setTopBannerHidden(panel);
+    // a game's Information page: its box art and fanart on the top screen (the XMB dialog's art)
+    if (info && mPs3DlgRomInfo) mCtrHome->setTopInfoArt(mPs3DlgBoxTex, mPs3DlgBoxW, mPs3DlgBoxH, mPs3DlgFanTex, mPs3DlgFanW, mPs3DlgFanH);
+    else mCtrHome->setTopInfoArt(0, 0, 0, 0, 0, 0);
     if (panel) {
         mCtrPanel->set(title, rows, sel, level);
         mCtrPanel->show();

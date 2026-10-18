@@ -51,7 +51,8 @@ precision mediump float;
 #endif
 varying vec2 v_uv;
 uniform sampler2D u_tex;
-void main() { gl_FragColor = texture2D(u_tex, v_uv); }   // opaque unless the wall is hidden
+uniform vec4 u_tint;
+void main() { gl_FragColor = texture2D(u_tex, v_uv) * u_tint; }   // opaque unless the wall is hidden
 )";
 
 GLuint compileBlit(GLenum type, const char* src) {
@@ -131,6 +132,11 @@ void CtrTop::setAppImage(GLuint texture, int width, int height) {
     mAppTex->height = height;
     mAppTex->owned = false;   // the caller's texture
     bg->setTexture(APP_TEXTURE, mAppTex);
+}
+
+void CtrTop::setInfoArt(unsigned box, int boxW, int boxH, unsigned fan, int fanW, int fanH) {
+    mInfoBox = box; mInfoBoxW = boxW; mInfoBoxH = boxH;
+    mInfoFan = fan; mInfoFanW = fanW; mInfoFanH = fanH;
 }
 
 void CtrTop::clearAppImage() {
@@ -891,6 +897,7 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
         glDeleteShader(vs);
         glDeleteShader(fs);
         mBlitProj = glGetUniformLocation(mBlitProgram, "u_proj");
+        mBlitTint = glGetUniformLocation(mBlitProgram, "u_tint");
         glUseProgram(mBlitProgram);
         glUniform1i(glGetUniformLocation(mBlitProgram, "u_tex"), 0);
     }
@@ -898,6 +905,7 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
     const float quad[] = {-hw, -hh, 0, 0, hw, -hh, 1, 0, -hw, hh, 0, 1, hw, hh, 1, 1};
     glUseProgram(mBlitProgram);
     glUniformMatrix4fv(mBlitProj, 1, GL_FALSE, proj);
+    glUniform4f(mBlitTint, 1, 1, 1, 1);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
     glDisable(GL_BLEND);
@@ -907,9 +915,52 @@ void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, floa
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 16, quad);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 16, quad + 2);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    if (mBannerHidden && (mInfoBox || mInfoFan)) drawInfoArt(width, height);
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glUseProgram(0);
+}
+
+// The Information page's art, between the status bar and the panel's title band: the fanart
+// filling that strip (cropped to its aspect, dimmed so the box art reads), the box art fitted
+// into it with a margin. Drawn with the blit program, which is current.
+void CtrTop::drawInfoArt(float width, float height) {
+    const float hw = width / 2, hh = height / 2;
+    const float top = hh - 34, bottom = -hh + 56;   // the HUD bar above, the title band below
+    const float areaW = width, areaH = top - bottom, cy = (top + bottom) / 2;
+    auto quadFor = [&](float w, float h, float u0, float v0, float u1, float v1, float* q) {
+        const float l = -w / 2, r = w / 2, b = cy - h / 2, t = cy + h / 2;
+        const float v[] = {l, b, u0, v0, r, b, u1, v0, l, t, u0, v1, r, t, u1, v1};
+        std::copy(v, v + 16, q);
+    };
+    float q[16];
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   // straight alpha, as the scraper decodes them
+    if (mInfoFan && mInfoFanW > 0 && mInfoFanH > 0) {
+        // cover the strip: crop whichever axis overflows (textures are top-down: v flipped)
+        const float ta = (float)mInfoFanW / mInfoFanH, aa = areaW / areaH;
+        float u0 = 0, u1 = 1, v0 = 1, v1 = 0;
+        if (ta > aa) { const float k = aa / ta; u0 = 0.5f - k / 2; u1 = 0.5f + k / 2; }
+        else { const float k = ta / aa; v0 = 0.5f + k / 2; v1 = 0.5f - k / 2; }
+        quadFor(areaW, areaH, u0, v0, u1, v1, q);
+        glBindTexture(GL_TEXTURE_2D, mInfoFan);
+        glUniform4f(mBlitTint, 0.35f, 0.35f, 0.35f, 1);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 16, q);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 16, q + 2);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+    if (mInfoBox && mInfoBoxW > 0 && mInfoBoxH > 0) {
+        const float maxH = areaH * 0.88f, maxW = areaW * 0.6f;
+        float h = maxH, w = h * mInfoBoxW / mInfoBoxH;
+        if (w > maxW) { w = maxW; h = w * mInfoBoxH / mInfoBoxW; }
+        quadFor(w, h, 0, 1, 1, 0, q);
+        glBindTexture(GL_TEXTURE_2D, mInfoBox);
+        glUniform4f(mBlitTint, 1, 1, 1, 1);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 16, q);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 16, q + 2);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+    glDisable(GL_BLEND);
 }
 
 }  // namespace ctr
