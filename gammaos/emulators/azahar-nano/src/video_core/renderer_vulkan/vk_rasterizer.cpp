@@ -555,7 +555,30 @@ bool RasterizerVulkan::SetupVertexArray() {
             }
         }
         GammaStats::Add(GammaStats::VertexBytesCopied, data_size);
-        if (aligned_stride == loader.byte_count) {
+        // GammaOS deferred copy (asynchronous GPU worker, mode 3): the bytes come from the
+        // submit-time snapshot, which nothing changes any more, and the stream buffer is
+        // coherent, so the copy itself runs on the Vulkan worker thread (which has slack)
+        // ahead of the draw that reads it, instead of on the GPU worker, whose time adds to
+        // the frame almost one to one (the game drains it right after each submit). The
+        // command keeps the snapshot alive. persist.gammaos.azahar_nano.vtx_defer = 1 turns it
+        // on; default off (measured neutral on Kirby: the copies are not the worker's cost).
+        static const bool vtx_defer =
+            Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.vtx_defer", false);
+        if (vtx_defer && src_raw != src_span_raw && stream_buffer.IsCoherent() &&
+            VideoCore::GammaSnapshot::t_owner) {
+            scheduler.Record([keep = VideoCore::GammaSnapshot::t_owner, dst_ptr, src_ptr, data_size,
+                              vertex_num, aligned_stride,
+                              byte_count = static_cast<u32>(loader.byte_count)](vk::CommandBuffer) {
+                if (aligned_stride == byte_count) {
+                    std::memcpy(dst_ptr, src_ptr, data_size);
+                } else {
+                    for (std::size_t vertex = 0; vertex < vertex_num; vertex++) {
+                        std::memcpy(dst_ptr + vertex * aligned_stride, src_ptr + vertex * byte_count,
+                                    byte_count);
+                    }
+                }
+            });
+        } else if (aligned_stride == loader.byte_count) {
             std::memcpy(dst_ptr, src_ptr, data_size);
         } else {
             for (std::size_t vertex = 0; vertex < vertex_num; vertex++) {
@@ -894,6 +917,7 @@ bool RasterizerVulkan::SetupIndexArray() {
                              regs.pipeline.index_array.offset;
     const u32 index_bytes = regs.pipeline.num_vertices * (index_u8 ? 1 : 2);
     const u8* index_data = VideoCore::GammaSnapshot::Find(index_addr, index_bytes);
+    const bool from_snapshot = index_data != nullptr;
     if (!index_data) {
         // GammaOS: bounded (a game, or a list run after its buffer was reused, can name an
         // index buffer outside mapped memory; the sync path crashed on it too).
@@ -908,7 +932,25 @@ bool RasterizerVulkan::SetupIndexArray() {
 
     auto [index_ptr, index_offset, _] = stream_buffer.Map(index_buffer_size, 2);
 
-    if (index_u8 && !native_u8) {
+    // GammaOS: same deferred copy as the vertex data (see SetupVertexArray).
+    static const bool vtx_defer =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.vtx_defer", false);
+    const bool widen = index_u8 && !native_u8;
+    if (vtx_defer && from_snapshot && stream_buffer.IsCoherent() &&
+        VideoCore::GammaSnapshot::t_owner) {
+        scheduler.Record([keep = VideoCore::GammaSnapshot::t_owner, index_ptr = index_ptr,
+                          index_data, index_buffer_size, widen,
+                          count = regs.pipeline.num_vertices](vk::CommandBuffer) {
+            if (widen) {
+                u16* index_ptr_u16 = reinterpret_cast<u16*>(index_ptr);
+                for (u32 i = 0; i < count; i++) {
+                    index_ptr_u16[i] = index_data[i];
+                }
+            } else {
+                std::memcpy(index_ptr, index_data, index_buffer_size);
+            }
+        });
+    } else if (widen) {
         u16* index_ptr_u16 = reinterpret_cast<u16*>(index_ptr);
         for (u32 i = 0; i < regs.pipeline.num_vertices; i++) {
             index_ptr_u16[i] = index_data[i];

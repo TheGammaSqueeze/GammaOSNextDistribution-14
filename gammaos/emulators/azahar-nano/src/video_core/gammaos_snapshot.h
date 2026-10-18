@@ -5,6 +5,7 @@
 #pragma once
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 #include "common/common_types.h"
 
@@ -27,6 +28,9 @@ struct Snapshot {
 
 /// The snapshot of the list the current thread is running (worker only), or nullptr.
 extern thread_local const Snapshot* t_active;
+/// Keeps t_active's bytes alive: a copy of it in a deferred command (a vertex copy run on the
+/// Vulkan worker thread) holds the snapshot until that command has run.
+extern thread_local std::shared_ptr<const void> t_owner;
 
 /// The snapshot bytes for [addr, addr + size) when the active snapshot holds them all.
 inline const u8* Find(PAddr addr, u32 size) {

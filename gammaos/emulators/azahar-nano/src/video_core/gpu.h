@@ -154,7 +154,8 @@ private:
     };
     struct DrawRanges;
     CmdListCopy CopyCmdList(PAddr addr, u32 size, u32& irqs, u32 depth = 0,
-                            DrawRanges* ranges = nullptr);
+                            DrawRanges* ranges = nullptr, u32* cb_parent = nullptr,
+                            std::vector<PAddr>* visited = nullptr);
     void TakeSnapshot(CmdListCopy& copy, DrawRanges& ranges);
     const u32* CopyFor(PAddr addr, u32& size) const;
     const u32* ChainedCopyFor(PAddr addr, u32& size) const;

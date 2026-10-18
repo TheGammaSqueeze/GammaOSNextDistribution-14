@@ -657,6 +657,21 @@ void PicaCore::HandleSpecialReg(u32 id, u32 value, bool& stop_requested) {
         u32 size = regs.internal.pipeline.command_buffer.GetSize(index);
         const u32* copy = chained_copy_lookup ? chained_copy_lookup(addr, size) : nullptr;
         const u8* head = copy ? reinterpret_cast<const u8*>(copy) : memory.GetPhysicalPointer(addr);
+        // GammaOS diagnostics (sys.gammaos.azahar_nano.gx_log=1, polled): the chain the worker
+        // follows, to compare with the submit-time replay.
+        {
+            static bool on = false;
+            static u32 polls = 0;
+            if ((polls++ & 0xFF) == 0) {
+                char v[92] = {};
+                __system_property_get("sys.gammaos.azahar_nano.gx_log", v);
+                on = v[0] == '1';
+            }
+            if (on) {
+                LOG_INFO(HW_GPU, "gx worker chain slot {} value {} -> {:08X}/{:X} copy {} (from {:08X} at {})",
+                         index, value, addr, size, copy != nullptr, cmd_list.addr, cmd_list.current_index);
+            }
+        }
         cmd_list.Reset(addr, head, size);
         break;
     }

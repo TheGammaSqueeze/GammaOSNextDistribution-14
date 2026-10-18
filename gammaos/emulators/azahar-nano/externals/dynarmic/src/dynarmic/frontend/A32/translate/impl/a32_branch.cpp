@@ -33,6 +33,23 @@ bool TranslatorVisitor::arm_B(Cond cond, Imm<24> imm24) {
     }
 
     const u32 imm32 = mcl::bit::sign_extend<26, u32>(imm24.ZeroExtend() << 2) + 8;
+
+    // GammaOS superblock: an unconditional forward branch is followed instead of ending the
+    // block: translation goes on at the target, so the target code is entered by falling
+    // through (the arrival stall on a linked block's first instruction was 12.7 percent of
+    // Kirby's emulation thread). Once per block, forward only (the block's invalidation range
+    // [start, end) then covers the skipped bytes too, a safe over-approximation) and within
+    // 32 KiB so that range stays small; not inside a conditional block (its trailing
+    // instructions only run on the passed path) and not when single stepping.
+    if (options.superblock_forward_b && cond == Cond::AL && !followed_branch &&
+        cond_state == ConditionalState::None && imm32 >= 4 && imm32 <= 32 * 1024 &&
+        !ir.current_location.SingleStepping()) {
+        followed_branch = true;
+        // The translation loop advances the location by 4 after this instruction.
+        ir.current_location = ir.current_location.AdvancePC(imm32 - 4);
+        return true;
+    }
+
     const auto new_location = ir.current_location.AdvancePC(imm32);
     ir.SetTerm(IR::Term::LinkBlock{new_location});
     return false;

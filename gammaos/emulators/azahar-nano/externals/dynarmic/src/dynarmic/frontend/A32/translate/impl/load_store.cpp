@@ -65,8 +65,41 @@ static IR::U32 GetAddress(A32::IREmitter& ir, bool P, bool U, bool W, Reg n, IR:
     return address;
 }
 
+// GammaOS (TranslationOptions::cond_ldr_pc): a conditional LDR into the PC without writeback
+// after other instructions (the compiled switch, cmp r0, #n; ldrlo pc, [pc, r0, lsl #2]) would
+// end the block before it and become a conditional block holding only the flag test and the
+// load. Instead the load stays in this block: it reads through the real address when the
+// condition passes and through the instruction's own address (always readable code) when it
+// fails, the PC becomes the loaded value or the next instruction accordingly, and the block
+// ends with an If terminal (dispatch on the loaded PC, or the direct link to the next
+// instruction). Both selects read the flags from the state, as the conditional block entry
+// did (ConditionalSelect counts as a CPSR read, so the flags pass keeps the flag store).
+// Not inside a conditional block (its instructions only run on its passed path); in the
+// trailing part of one the terminal runs on the passed path, where the load belongs.
+static bool UseCondLoadPC(const TranslatorVisitor& v, Cond cond, bool P, bool W) {
+    return v.options.cond_ldr_pc && cond != Cond::AL && cond != Cond::NV && P && !W &&
+           (v.cond_state == ConditionalState::None || v.cond_state == ConditionalState::Trailing) &&
+           !v.ir.block.empty();
+}
+
+static bool CondLoadPC(TranslatorVisitor& v, Cond cond, const IR::U32& address) {
+    auto& ir = v.ir;
+    const u32 pc = ir.current_location.PC();
+    const auto safe_address = ir.ConditionalSelect(cond, address, ir.Imm32(pc));
+    const auto data = ir.ReadMemory32(safe_address, IR::AccType::NORMAL);
+    ir.LoadWritePC(ir.ConditionalSelect(cond, data, ir.Imm32(pc + 4)));
+    ir.SetTerm(IR::Term::If{cond, IR::Term::FastDispatchHint{}, IR::Term::LinkBlock{ir.current_location.AdvancePC(4)}});
+    return false;
+}
+
 // LDR <Rt>, [PC, #+/-<imm>]
 bool TranslatorVisitor::arm_LDR_lit(Cond cond, bool U, Reg t, Imm<12> imm12) {
+    if (t == Reg::PC && UseCondLoadPC(*this, cond, true, false)) {
+        const u32 base = ir.AlignPC(4);
+        const u32 address = U ? (base + imm12.ZeroExtend()) : (base - imm12.ZeroExtend());
+        return CondLoadPC(*this, cond, ir.Imm32(address));
+    }
+
     if (!ArmConditionPassed(cond)) {
         return true;
     }
@@ -96,6 +129,10 @@ bool TranslatorVisitor::arm_LDR_imm(Cond cond, bool P, bool U, bool W, Reg n, Re
     ASSERT_MSG(!(!P && W), "T form of instruction unimplemented");
     if ((!P || W) && n == t) {
         return UnpredictableInstruction();
+    }
+
+    if (t == Reg::PC && UseCondLoadPC(*this, cond, P, W)) {
+        return CondLoadPC(*this, cond, GetAddress(ir, P, U, W, n, ir.Imm32(imm12.ZeroExtend())));
     }
 
     if (!ArmConditionPassed(cond)) {
@@ -133,6 +170,11 @@ bool TranslatorVisitor::arm_LDR_reg(Cond cond, bool P, bool U, bool W, Reg n, Re
 
     if ((!P || W) && (n == Reg::PC || n == t)) {
         return UnpredictableInstruction();
+    }
+
+    if (t == Reg::PC && UseCondLoadPC(*this, cond, P, W)) {
+        const auto offset = EmitImmShift(ir.GetRegister(m), shift, imm5, ir.GetCFlag()).result;
+        return CondLoadPC(*this, cond, GetAddress(ir, P, U, W, n, offset));
     }
 
     if (!ArmConditionPassed(cond)) {

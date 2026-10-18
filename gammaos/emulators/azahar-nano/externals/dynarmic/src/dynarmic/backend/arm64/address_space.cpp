@@ -325,7 +325,7 @@ void AddressSpace::LinkBlockLinks(const CodePtr entry_point, const CodePtr targe
     using namespace oaknut;
     using namespace oaknut::util;
 
-    for (auto [ptr_offset, type] : block_relocations_list) {
+    for (auto [ptr_offset, type, stub_offset] : block_relocations_list) {
         CodeGenerator c{mem.ptr(), mem.ptr()};
         c.set_xptr(reinterpret_cast<u32*>(entry_point + ptr_offset));
 
@@ -333,6 +333,8 @@ void AddressSpace::LinkBlockLinks(const CodePtr entry_point, const CodePtr targe
         case BlockRelocationType::Branch:
             if (target_ptr) {
                 c.B((void*)target_ptr);
+            } else if (stub_offset) {
+                c.B((void*)(entry_point + stub_offset));
             } else {
                 c.NOP();
             }

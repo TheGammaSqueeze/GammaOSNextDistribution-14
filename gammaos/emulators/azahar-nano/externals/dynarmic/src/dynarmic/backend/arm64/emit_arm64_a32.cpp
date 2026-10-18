@@ -59,12 +59,42 @@ static void EmitSetUpperLocationDescriptor(oaknut::CodeGenerator& code, EmitCont
     }
 }
 
+// GammaOS: a block link whose fall-back lives in the block's cold code. The body holds the one
+// instruction link slot (B target once the target block exists, B stub until then, see
+// AddressSpace::LinkBlockLinks); the stub stores the guest PC and returns to the dispatcher.
+// Hot blocks were 10 percent fall-back instructions that only run while a target is missing.
+static void EmitA32LinkStub(oaknut::CodeGenerator& code, EmitContext& ctx, IR::LocationDescriptor next, SharedLabel stub) {
+    const std::size_t index = ctx.ebi.block_relocations[next].size();
+    EmitBlockLinkRelocation(code, ctx, next, BlockRelocationType::Branch);
+    ctx.deferred_emits.emplace_back([&code, &ctx, next, index, stub] {
+        code.l(*stub);
+        ctx.ebi.block_relocations[next][index].stub_offset = code.xptr<CodePtr>() - ctx.ebi.entry_point;
+        code.MOV(Wscratch0, A32::LocationDescriptor{next}.PC());
+        code.STR(Wscratch0, Xstate, offsetof(A32JitState, regs) + sizeof(u32) * 15);
+        EmitRelocation(code, ctx, LinkTarget::ReturnToDispatcher);
+    });
+}
+
 void EmitA32Terminal(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Term::LinkBlock terminal, IR::LocationDescriptor initial_location, bool is_single_step) {
     EmitSetUpperLocationDescriptor(code, ctx, terminal.next, initial_location);
 
     oaknut::Label fail;
 
     if (ctx.conf.HasOptimization(OptimizationFlag::BlockLinking) && !is_single_step) {
+        if (ctx.conf.link_stubs) {
+            // GammaOS: only the check and the link slot stay in the body; the fall-back is a
+            // stub in the block's cold code (see EmitA32LinkStub).
+            SharedLabel stub = GenSharedLabel();
+            if (ctx.conf.enable_cycle_counting) {
+                code.CMP(Xticks, 0);
+                code.B(LE, *stub);
+            } else {
+                code.LDAR(Wscratch0, Xhalt);
+                code.CBNZ(Wscratch0, *stub);
+            }
+            EmitA32LinkStub(code, ctx, terminal.next, stub);
+            return;
+        }
         if (ctx.conf.enable_cycle_counting) {
             code.CMP(Xticks, 0);
             code.B(LE, fail);
@@ -86,6 +116,10 @@ void EmitA32Terminal(oaknut::CodeGenerator& code, EmitContext& ctx, IR::Term::Li
     EmitSetUpperLocationDescriptor(code, ctx, terminal.next, initial_location);
 
     if (ctx.conf.HasOptimization(OptimizationFlag::BlockLinking) && !is_single_step) {
+        if (ctx.conf.link_stubs) {
+            EmitA32LinkStub(code, ctx, terminal.next, GenSharedLabel());
+            return;
+        }
         EmitBlockLinkRelocation(code, ctx, terminal.next, BlockRelocationType::Branch);
     }
 

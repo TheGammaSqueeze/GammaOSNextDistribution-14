@@ -553,9 +553,20 @@ void Service::GSP::GSP_GPU::ProcessPendingInterruptImpl(InterruptId interrupt_id
     const bool is_pdc = interrupt_id == InterruptId::PDC0 || interrupt_id == InterruptId::PDC1;
     auto* interrupt_relay_queue = GetInterruptRelayQueue(thread_id);
 
+    // GammaOS diagnostics (sys.gammaos.azahar_nano.gx_log=1, polled): every interrupt queued
+    // for the game with the backlog it joins, and every one dropped (queue full, PDC held back).
+    static bool gx_log = false;
+    static u32 gx_polls = 0;
+    if ((gx_polls++ & 0x3F) == 0) {
+        char v[92] = {};
+        __system_property_get("sys.gammaos.azahar_nano.gx_log", v);
+        gx_log = v[0] == '1';
+    }
     auto queue_interrupt = [&]() {
         if (interrupt_relay_queue->number_interrupts >= InterruptRelayQueue::max_slots) {
             interrupt_relay_queue->error_code = InterruptRelayQueue::queue_full_error;
+            LOG_WARNING(Service_GSP, "gx irq {} dropped: relay queue full (thread {})",
+                        static_cast<int>(interrupt_id), thread_id);
         } else {
             u8 next = interrupt_relay_queue->index;
             next += interrupt_relay_queue->number_interrupts;
@@ -566,6 +577,11 @@ void Service::GSP::GSP_GPU::ProcessPendingInterruptImpl(InterruptId interrupt_id
             interrupt_relay_queue->slot[next] = interrupt_id;
 
             interrupt_event->Signal();
+            if (gx_log) {
+                LOG_INFO(Service_GSP, "gx irq {} queued, backlog {} (thread {})",
+                         static_cast<int>(interrupt_id), interrupt_relay_queue->number_interrupts,
+                         thread_id);
+            }
         }
     };
 
@@ -578,6 +594,11 @@ void Service::GSP::GSP_GPU::ProcessPendingInterruptImpl(InterruptId interrupt_id
                     interrupt_relay_queue->missed_PDC0++;
                 } else {
                     interrupt_relay_queue->missed_PDC1++;
+                }
+                if (gx_log) {
+                    LOG_INFO(Service_GSP, "gx irq {} held back: backlog {} (thread {})",
+                             static_cast<int>(interrupt_id),
+                             interrupt_relay_queue->number_interrupts, thread_id);
                 }
             } else {
                 queue_interrupt();

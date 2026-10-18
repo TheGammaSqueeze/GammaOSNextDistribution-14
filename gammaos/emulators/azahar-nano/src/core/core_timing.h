@@ -281,7 +281,8 @@ public:
                        std::size_t core_id = std::numeric_limits<std::size_t>::max(),
                        bool thread_safe_mode = false);
 
-    void UnscheduleEvent(const TimingEventType* event_type, std::uintptr_t user_data);
+    /// GammaOS: true when at least one matching event was removed.
+    bool UnscheduleEvent(const TimingEventType* event_type, std::uintptr_t user_data);
 
     /// We only permit one event of each type in the queue at a time.
     void RemoveEvent(const TimingEventType* event_type);

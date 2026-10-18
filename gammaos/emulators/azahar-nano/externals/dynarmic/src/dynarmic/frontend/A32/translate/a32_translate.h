@@ -37,6 +37,16 @@ struct TranslationOptions {
     /// GammaOS: a conditional MOV (ARM state, no S, not to the PC) outside a conditional block
     /// becomes a select on the condition instead of splitting the block around it.
     bool cond_select_mov = false;
+
+    /// GammaOS: a conditional LDR into the PC without writeback (ARM state) outside a
+    /// conditional block loads through a selected address and ends the block with an If
+    /// terminal instead of splitting the block around it.
+    bool cond_ldr_pc = false;
+
+    /// GammaOS: an unconditional forward B (ARM state) outside a conditional block is followed
+    /// while translating (once per block, within 32 KiB): the target code joins this block
+    /// instead of being entered through a link (one block arrival less).
+    bool superblock_forward_b = false;
 };
 
 /**

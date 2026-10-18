@@ -12,6 +12,7 @@
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
+#include "common/gammaos_tweak.h"
 #include "common/logging/log.h"
 #include "common/serialization/boost_flat_set.h"
 #include "common/settings.h"
@@ -106,9 +107,23 @@ Thread* ThreadManager::GetCurrentThread() const {
     return current_thread.get();
 }
 
+// GammaOS: cheaper context switches (persist.gammaos.azahar_nano.sched_fast = 1 turns it on;
+// default off: measured neutral on Kirby, frame CPU 14.37 against 14.38 ms): a reschedule that keeps the running thread does not save and reload its context
+// or touch the ready queue, and a switch only scans the timers' event queues for the incoming
+// thread's wakeup event while one may be scheduled (Thread::wakeup_pending). Kirby: Planet
+// Robobot switches 18,000 times a second.
+static bool SchedFast() {
+    static const bool on =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.sched_fast", false);
+    return on;
+}
+
 void Thread::Stop() {
     // Cancel any outstanding wakeup events for this thread
-    thread_manager.kernel.timing.UnscheduleEvent(thread_manager.ThreadWakeupEventType, thread_id);
+    if (thread_manager.kernel.timing.UnscheduleEvent(thread_manager.ThreadWakeupEventType,
+                                                     thread_id)) {
+        wakeup_pending = false;
+    }
     thread_manager.wakeup_callback_table.erase(thread_id);
 
     // Clean up thread from ready queue
@@ -170,16 +185,21 @@ void ThreadManager::SwitchContext(Thread* new_thread) {
                    "Thread must be ready to become running.");
 
         // Cancel any outstanding wakeup events for this thread
-        timing.UnscheduleEvent(ThreadWakeupEventType, new_thread->thread_id);
+        if (!SchedFast() || new_thread->wakeup_pending) {
+            if (timing.UnscheduleEvent(ThreadWakeupEventType, new_thread->thread_id)) {
+                new_thread->wakeup_pending = false;
+            }
+        }
 
         current_thread = SharedFrom(new_thread);
 
         ready_queue.remove(new_thread->current_priority, new_thread);
         new_thread->status = ThreadStatus::Running;
 
-        ASSERT(current_thread->owner_process.lock());
-        if (previous_process != current_thread->owner_process.lock()) {
-            kernel.SetCurrentProcessForCPU(current_thread->owner_process.lock(), cpu->GetID());
+        std::shared_ptr<Process> new_process = current_thread->owner_process.lock();
+        ASSERT(new_process);
+        if (previous_process != new_process) {
+            kernel.SetCurrentProcessForCPU(std::move(new_process), cpu->GetID());
         }
 
         cpu->LoadContext(new_thread->context);
@@ -282,6 +302,7 @@ void ThreadManager::ThreadWakeupCallback(u64 thread_id, s64 cycles_late) {
         LOG_CRITICAL(Kernel, "Callback fired for invalid thread {:08X}", thread_id);
         return;
     }
+    thread->wakeup_pending = false;
 
     if (thread->status == ThreadStatus::WaitSynchAny ||
         thread->status == ThreadStatus::WaitSynchAll || thread->status == ThreadStatus::WaitArb ||
@@ -325,6 +346,7 @@ void Thread::WakeAfterDelay(s64 nanoseconds, bool thread_safe_mode) {
         return;
     std::size_t core = thread_safe_mode ? core_id : std::numeric_limits<std::size_t>::max();
 
+    wakeup_pending = true;
     thread_manager.kernel.timing.ScheduleEvent(nsToCycles(nanoseconds),
                                                thread_manager.ThreadWakeupEventType, thread_id,
                                                core, thread_safe_mode);
@@ -561,6 +583,15 @@ bool ThreadManager::HaveReadyThreads() {
 void ThreadManager::Reschedule() {
     Thread* cur = GetCurrentThread();
     Thread* next = PopNextReadyThread();
+
+    // GammaOS: the running thread goes on: SwitchContext would save and reload its context,
+    // push it on the ready queue and take it off again, and re-apply its process and TLS, for
+    // nothing (the run loop reschedules every core on every pass). The only thing it did was
+    // the wakeup scan, kept when one may be pending.
+    if (SchedFast() && next == cur && cur && cur->status == ThreadStatus::Running &&
+        !cur->wakeup_pending) {
+        return;
+    }
 
     if (cur && next) {
         LOG_TRACE(Kernel, "context switch {} -> {}", cur->GetObjectId(), next->GetObjectId());

@@ -463,12 +463,38 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
         Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_cond_mov");
     config.cond_select_mov = cond_mov;
 
+    // GammaOS: ARM state conditional LDR into the PC without writeback (the compiled switch
+    // of Kirby's script interpreter: cmp, ldrlo pc, [pc, r0, lsl #2]) after other instructions
+    // loads through a selected address and ends the block with an If terminal instead of a
+    // conditional block of its own. persist.gammaos.azahar_nano.jit_cond_ldr_pc = 1 turns it
+    // on; default off everywhere (measured neutral on Kirby, 51.9 to 52.2 against 51.7 to 52.6).
+    static const bool cond_ldr_pc =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_cond_ldr_pc", false);
+    config.cond_ldr_pc_terminal = cond_ldr_pc;
+
+    // GammaOS: ARM state unconditional forward B followed while translating (superblocks: the
+    // target code joins the block, one block arrival less; Kirby spent 12.7 percent of the
+    // emulation thread on the first instruction of blocks).
+    // persist.gammaos.azahar_nano.jit_superblock = 1 turns it on; default off (measured neutral
+    // on Kirby: 52.1 to 52.5 fps against 52.2 to 53.0, frame CPU 14.22 against 14.33 ms).
+    static const bool superblock =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_superblock", false);
+    config.superblock_forward_b = superblock;
+
     // GammaOS: return stack buffer push and pop emitted in an order that hides the RSB index
     // load latency (same instructions). persist.gammaos.azahar_nano.jit_rsb_sched = 1 / 0
     // forces it on / off; default on for the Mali devices only.
     static const bool rsb_sched =
         Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_rsb_sched");
     config.rsb_scheduled = rsb_sched;
+
+    // GammaOS: block link fall-backs (store the guest PC, return to the dispatcher) out of the
+    // block bodies into their cold code; the unlinked slot branches there. Hot Kirby blocks
+    // carried 10 percent of such instructions that never run once linked.
+    // persist.gammaos.azahar_nano.jit_link_stubs = 1 / 0 forces it on / off; default Mali only.
+    static const bool link_stubs =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_link_stubs");
+    config.link_stubs = link_stubs;
     // GammaOS: fast dispatch table size, 2^bits entries (persist.gammaos.azahar_nano.jit_disp_bits).
     // Default 14 on the Mali devices (256 KiB, inside the Cortex-A55's L2: Kirby emulation thread
     // 13.1 to 13.4 ms a frame against 13.8 with 16), 16 elsewhere (dynarmic's 1 MiB table).

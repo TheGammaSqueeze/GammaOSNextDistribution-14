@@ -28,6 +28,8 @@ struct TranslatorVisitor final {
 
     A32::IREmitter ir;
     ConditionalState cond_state = ConditionalState::None;
+    // GammaOS: this block already absorbed the target of an unconditional branch (superblock).
+    bool followed_branch = false;
     TranslationOptions options;
 
     size_t current_instruction_size;

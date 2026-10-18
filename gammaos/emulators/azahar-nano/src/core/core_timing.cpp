@@ -177,10 +177,11 @@ void Timing::UnparkTimers(bool advanced) {
     park_lead_running = false;
 }
 
-void Timing::UnscheduleEvent(const TimingEventType* event_type, std::uintptr_t user_data) {
+bool Timing::UnscheduleEvent(const TimingEventType* event_type, std::uintptr_t user_data) {
     if (event_queue_locked) {
-        return;
+        return false;
     }
+    bool removed = false;
     for (auto& timer : timers) {
         auto itr = std::remove_if(
             timer->event_queue.begin(), timer->event_queue.end(),
@@ -190,9 +191,11 @@ void Timing::UnscheduleEvent(const TimingEventType* event_type, std::uintptr_t u
         if (itr != timer->event_queue.end()) {
             timer->event_queue.erase(itr, timer->event_queue.end());
             std::make_heap(timer->event_queue.begin(), timer->event_queue.end(), std::greater<>());
+            removed = true;
         }
     }
     // TODO:remove events from ts_queue
+    return removed;
 }
 
 void Timing::RemoveEvent(const TimingEventType* event_type) {

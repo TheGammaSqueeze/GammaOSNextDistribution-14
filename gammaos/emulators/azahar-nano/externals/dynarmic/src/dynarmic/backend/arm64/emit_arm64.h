@@ -96,6 +96,9 @@ enum class BlockRelocationType {
 struct BlockRelocation {
     std::ptrdiff_t code_offset;
     BlockRelocationType type;
+    // GammaOS: for a Branch relocation, the offset (from the block entry) of the cold code to
+    // branch to while the target block does not exist; 0 = fall through as before.
+    std::ptrdiff_t stub_offset = 0;
 };
 
 struct EmittedBlockInfo {
@@ -174,6 +177,11 @@ struct EmitConfig {
     // GammaOS: emit the return stack buffer push and pop with their independent instructions
     // (target constants, the guest PC load) between the RSB index load and its first use.
     bool rsb_scheduled = false;
+
+    // GammaOS: the block link terminals keep only the link slot (and its tick/halt check) in
+    // the block body; the fall-back (store the guest PC, return to the dispatcher) goes to the
+    // block's cold code and the unlinked slot branches there.
+    bool link_stubs = false;
 };
 
 /// far_offset: when not null, the deferred (cold) code of the block is written at this offset of

@@ -379,6 +379,10 @@ public:
     u32 thread_id;
 
     ThreadStatus status;
+    /// GammaOS: a wakeup event of this thread may still be scheduled (set when one is scheduled,
+    /// cleared when it fires or is removed). A context switch to the thread only scans the event
+    /// queues for one while this is set. Not serialized: set after a load (scan once).
+    bool wakeup_pending = true;
     VAddr entry_point;
     VAddr stack_top;
 

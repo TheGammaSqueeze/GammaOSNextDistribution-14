@@ -255,9 +255,24 @@ struct UserConfig {
     /// being split around it.
     bool cond_select_mov = false;
 
+    /// GammaOS (translation, ARM state): a conditional LDR into the PC without writeback (the
+    /// compiled switch: cmp, ldrlo pc, [pc, rX, lsl #2]) after other instructions loads through
+    /// an address selected on the condition and ends the block with an If terminal, instead of
+    /// becoming a conditional block of its own.
+    bool cond_ldr_pc_terminal = false;
+
+    /// GammaOS (translation, ARM state): an unconditional forward B outside a conditional block
+    /// is followed while translating (once per block, within 32 KiB), so the target joins the
+    /// block instead of being entered through a link.
+    bool superblock_forward_b = false;
+
     /// GammaOS (arm64 backend): the return stack buffer push and pop sequences are emitted
     /// with their independent instructions moved into the load latency of the RSB index.
     bool rsb_scheduled = false;
+
+    /// GammaOS (arm64 backend): block link terminals keep only the link slot in the block body;
+    /// the fall-back to the dispatcher is a stub in the block's cold code.
+    bool link_stubs = false;
     /// GammaOS: fast dispatch table size as a power of two (default 16 = 64K entries, 1 MiB).
     /// Applied when the address space is built; the whole process shares one value.
     std::size_t fast_dispatch_bits = 16;

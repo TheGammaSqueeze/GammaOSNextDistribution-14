@@ -175,7 +175,7 @@ A32AddressSpace::A32AddressSpace(const A32::UserConfig& conf)
 }
 
 IR::Block A32AddressSpace::GenerateIR(IR::LocationDescriptor descriptor) const {
-    IR::Block ir_block = A32::Translate(A32::LocationDescriptor{descriptor}, conf.callbacks, {conf.arch_version, conf.define_unpredictable_behaviour, conf.hook_hint_instructions, conf.cond_branch_terminal, conf.cond_select_mov});
+    IR::Block ir_block = A32::Translate(A32::LocationDescriptor{descriptor}, conf.callbacks, {conf.arch_version, conf.define_unpredictable_behaviour, conf.hook_hint_instructions, conf.cond_branch_terminal, conf.cond_select_mov, conf.cond_ldr_pc_terminal, conf.superblock_forward_b});
 
     Optimization::PolyfillPass(ir_block, {});
     Optimization::NamingPass(ir_block);
@@ -458,6 +458,7 @@ EmitConfig A32AddressSpace::GetEmitConfig() {
         .very_verbose_debugging_output = conf.very_verbose_debugging_output,
 
         .rsb_scheduled = conf.rsb_scheduled,
+        .link_stubs = conf.link_stubs,
     };
 }
 

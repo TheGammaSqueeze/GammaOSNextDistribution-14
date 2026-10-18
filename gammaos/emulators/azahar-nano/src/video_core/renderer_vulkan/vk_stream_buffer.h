@@ -44,6 +44,11 @@ public:
 
     /// GammaOS: how many times the ring has wrapped. Data committed in the current lap stays
     /// in place (and readable by later draws) until the ring wraps again.
+    /// GammaOS: host writes need no explicit clean (deferred copies may land after Commit).
+    bool IsCoherent() const noexcept {
+        return is_coherent;
+    }
+
     u64 Lap() const noexcept {
         return lap;
     }

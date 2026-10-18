@@ -103,6 +103,7 @@ public:
 
 namespace GammaSnapshot {
 thread_local const Snapshot* t_active = nullptr;
+thread_local std::shared_ptr<const void> t_owner;
 }
 
 // Intervals a list's draws read, collected while the list is walked at submit.
@@ -114,6 +115,8 @@ struct GPU::DrawRanges {
 namespace {
 // True on the GPU worker thread (it never waits for itself).
 thread_local bool t_gpu_worker = false;
+// Diagnostics: P3D interrupts the worker raised (credited or not), per thread.
+thread_local u32 t_worker_p3d = 0;
 
 constexpr std::array<u32, 16> kMaskBytes = {
     0x00000000, 0x000000FF, 0x0000FF00, 0x0000FFFF, 0x00FF0000, 0x00FF00FF, 0x00FFFF00, 0x00FFFFFF,
@@ -403,9 +406,21 @@ void GPU::EagerSignal(Service::GSP::InterruptId id, u32 count) {
 // Mode 3: copies a command list the guest just submitted and counts the interrupts it will
 // raise (writes of the irq_request register: one P3D each, as HandleSpecialReg raises them).
 GPU::CmdListCopy GPU::CopyCmdList(PAddr addr, u32 size, u32& irqs, u32 depth,
-                                  DrawRanges* ranges) {
+                                  DrawRanges* ranges, u32* cb_parent,
+                                  std::vector<PAddr>* visited) {
     irqs = 0;
     CmdListCopy copy{addr, size, {}, {}, {}};
+    // Kirby's frame is a linked list of passes (launcher -> list in VRAM -> launcher -> ...,
+    // two levels per pass, the irq_request at the very end): the chain is followed as far as
+    // the worker follows it, with a loop guard instead of a depth of 4.
+    std::vector<PAddr> visited_local;
+    if (!visited) {
+        visited = &visited_local;
+    }
+    if (std::find(visited->begin(), visited->end(), addr) != visited->end()) {
+        return copy; // a cycle: the worker would spin too, nothing sane to copy
+    }
+    visited->push_back(addr);
     auto& words = copy.words;
     // Top level: the register shadow starts from the real registers when nothing is queued
     // (the worker is idle, nothing writes them), the draws' ranges are collected and copied.
@@ -432,10 +447,22 @@ GPU::CmdListCopy GPU::CopyCmdList(PAddr addr, u32 size, u32& irqs, u32 depth,
     constexpr u32 irq_request_id = 0x10;
     // Command buffer registers a list may write to start another list (size0 size1 addr0
     // addr1 trigger0 trigger1), seeded from the GSP writes the shadow saw.
+    // The GSP shadow is the GPU register file (the internal block sits past 0x400 in it); the
+    // command ids inside a list are internal register indices (trigger[0] = 0x23C). Comparing
+    // list ids against the GPU-file index never matched: chained lists were never copied nor
+    // credited, so the worker read them from guest memory the game had rewritten (garbage
+    // lists) and raised their interrupts without credit (the game's count drifted, and it
+    // stalled once the CacheFlush drain no longer hid it).
     constexpr u32 cb_first = GPU_REG_INDEX(internal.pipeline.command_buffer.size[0]);
-    constexpr u32 cb_trigger0 = GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[0]);
-    u32 cb[6] = {};
-    if (async && async->shadow) {
+    constexpr u32 cb_first_int = PICA_REG_INDEX(pipeline.command_buffer.size[0]);
+    constexpr u32 cb_trigger0_int = PICA_REG_INDEX(pipeline.command_buffer.trigger[0]);
+    // The command buffer registers are one state the chained lists share: a launcher writes
+    // addr[1]/size[1], the list it starts fires trigger[1] (Kirby: launcher -> list in VRAM ->
+    // 0x20-byte trailer that holds the irq_request). Re-seeding them per depth lost the
+    // trailer (address 0, never copied, its interrupt never credited).
+    u32 cb_local[6] = {};
+    u32* cb = cb_parent ? cb_parent : cb_local;
+    if (!cb_parent && async && async->shadow) {
         for (u32 k = 0; k < 6; k++) {
             cb[k] = async->shadow->reg_array[cb_first + k];
         }
@@ -491,28 +518,88 @@ GPU::CmdListCopy GPU::CopyCmdList(PAddr addr, u32 size, u32& irqs, u32 depth,
             ranges->total += dsize;
         }
     };
+    // GammaOS: the credit must equal what the worker will raise for this list, as
+    // HandleSpecialReg does: a P3D only when a byte of the written irq_request equals one of
+    // irq_compare, and the list stops there when irq_autostop is set (words past that point are
+    // never run, so they neither count nor contribute draws to the snapshot). Counting every
+    // irq_request word in the buffer (the old behaviour, async_gpu_exact_irq=0) credited
+    // interrupts the worker never raised and missed none it did, which let the credits drift
+    // against the game's own count once the CacheFlush drain no longer resynchronised them.
+    static const bool exact_irq = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_gpu_exact_irq", v);
+        return v[0] != '0';
+    }();
+    // async_gpu_chain_copy=1: chained lists are copied and counted at submit. Default off:
+    // Kirby's frame is a GPU command ring the game extends while the worker consumes it (900
+    // hops per launcher on average, addresses reused within one run), which no submit-time
+    // copy can capture; the worker reads chains live and the CacheFlush drain bounds its lag.
+    // Copying what exists at submit only costs the emulation thread (build 62: 47.7 fps
+    // against 51.5).
+    static const bool chain_copy = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_gpu_chain_copy", v);
+        return v[0] == '1';
+    }();
+    bool stop = false;
+    const auto any_byte_match = [](u32 a, u32 b) {
+        return ((a & 0xFF) == (b & 0xFF)) || (((a >> 8) & 0xFF) == ((b >> 8) & 0xFF)) ||
+               (((a >> 16) & 0xFF) == ((b >> 16) & 0xFF)) ||
+               (((a >> 24) & 0xFF) == ((b >> 24) & 0xFF));
+    };
     const auto on_write = [&](u32 id, u32 value, u32 mask) {
+        if (stop) {
+            return;
+        }
         if (id < Pica::RegsInternal::NUM_REGS) {
             const u32 m = kMaskBytes[mask & 0xF];
             sh.reg_array[id] = (sh.reg_array[id] & ~m) | (value & m);
         }
         if (id == irq_request_id) {
-            irqs++;
+            if (!exact_irq) {
+                irqs++;
+            } else if (any_byte_match(sh.reg_array[id], sh.irq_compare)) {
+                irqs++;
+                if (sh.irq_autostop) {
+                    stop = true;
+                }
+            } else if (GxLogOn()) {
+                LOG_INFO(HW_GPU, "gx irq_request {:08X} (mask {:X}) no match with compare {:08X}",
+                         sh.reg_array[id], mask, sh.irq_compare);
+            }
         } else if (id == draw_id || id == draw_indexed_id) {
             on_draw(id == draw_indexed_id);
-        } else if (id >= cb_first && id < cb_first + 6) {
-            cb[id - cb_first] = value;
-            if ((id == cb_trigger0 || id == cb_trigger0 + 1) && value != 0 && depth < 4) {
-                const u32 slot = id - cb_trigger0;
+        } else if (id >= cb_first_int && id < cb_first_int + 6) {
+            cb[id - cb_first_int] = value;
+            // PicaCore::HandleSpecialReg moves its cursor to the named list on ANY write of a
+            // trigger register (no value check): an empty or null target ends processing there.
+            // The replay mirrors that: the parent's remaining words never run, and a target
+            // with no size is the end of the chain.
+            if ((id == cb_trigger0_int || id == cb_trigger0_int + 1) && exact_irq) {
+                const u32 slot = id - cb_trigger0_int;
                 const PAddr caddr = cb[2 + slot] << 3;
                 const u32 csize = cb[slot] << 3;
-                // async_gpu_chain_copy=0: chained lists are neither copied nor counted (the
-                // worker reads them from guest memory, build 14 behaviour).
-                static const bool chain_copy = [] {
-                    char v[PROP_VALUE_MAX] = {};
-                    __system_property_get("persist.gammaos.azahar_nano.async_gpu_chain_copy", v);
-                    return v[0] != '0';
-                }();
+                if (GxLogOn()) {
+                    LOG_INFO(HW_GPU, "gx chain depth {} slot {} value {} -> {:08X}/{:X}", depth,
+                             slot, value, caddr, csize);
+                }
+                stop = true;
+                if (caddr != 0 && csize != 0 && depth < 64 && chain_copy) {
+                    u32 cirqs = 0;
+                    copy.chained.push_back(CopyCmdList(caddr, csize, cirqs, depth + 1, ranges, cb, visited));
+                    irqs += cirqs;
+                }
+                return;
+            }
+            if ((id == cb_trigger0_int || id == cb_trigger0_int + 1) && value != 0 && depth < 64) {
+                const u32 slot = id - cb_trigger0_int;
+                const PAddr caddr = cb[2 + slot] << 3;
+                const u32 csize = cb[slot] << 3;
+                if (GxLogOn()) {
+                    const auto [cp, cavail] = impl->memory.GetPhysicalSpan(caddr);
+                    LOG_INFO(HW_GPU, "gx chain depth {} slot {} {:08X}/{:X} span {} avail {:X}",
+                             depth, slot, caddr, csize, cp != nullptr, cavail);
+                }
                 if (caddr != 0 && csize != 0 && chain_copy) {
                     // async_gpu_chain_credit=0: a chained list is copied but its interrupt
                     // waits for the worker (build 14 behaviour, 53 fps on Kirby).
@@ -522,16 +609,30 @@ GPU::CmdListCopy GPU::CopyCmdList(PAddr addr, u32 size, u32& irqs, u32 depth,
                         return v[0] != '0';
                     }();
                     u32 cirqs = 0;
-                    copy.chained.push_back(CopyCmdList(caddr, csize, cirqs, depth + 1, ranges));
+                    copy.chained.push_back(CopyCmdList(caddr, csize, cirqs, depth + 1, ranges, cb, visited));
+                    if (GxLogOn()) {
+                        const auto& cw = copy.chained.back().words;
+                        std::string w;
+                        for (std::size_t k = 0; k < cw.size() && k < 16; k++) {
+                            w += fmt::format(" {:08X}", cw[k]);
+                        }
+                        LOG_INFO(HW_GPU, "gx chain copied {:08X}: {} words, {} irqs, compare {:08X}:{}",
+                                 caddr, cw.size(), cirqs, sh.irq_compare, w);
+                    }
                     if (chain_credit) {
                         irqs += cirqs;
                     }
+                }
+                // The trigger replaces the running list (PicaCore resets its cursor to the
+                // chained one): the words after it never run.
+                if (exact_irq) {
+                    stop = true;
                 }
             }
         }
     };
     u32 i = 0;
-    while (i + 1 < n) {
+    while (i + 1 < n && !stop) {
         if (i % 2 != 0) {
             i++;
             continue;
@@ -595,6 +696,18 @@ const u32* GPU::ChainedCopyFor(PAddr addr, u32& size) const {
     if (!cur) {
         return nullptr;
     }
+    // Mode 3: a chained list the submit-time replay did not copy is never read from guest
+    // memory. The game already has the list's interrupt and reuses its buffers (Kirby DMAs
+    // the next pass's lists into the same VRAM ring right after submitting): the worker then
+    // ran overwritten lists, looped through a ring of 0x60-byte lists tens of thousands of
+    // times and raised interrupts the game never asked for. An empty list ends the chain
+    // where the replay ended it instead.
+    static const bool live_chains = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_gpu_live_chains", v);
+        return v[0] != '0'; // default: a chain without a copy is read from guest memory
+    }();
+    static constexpr u32 kEmpty[2] = {0, 0};
     // Depth-first over the copies of this submit (no allocation: this runs at every chain
     // trigger): the chained list the worker reaches is the one whose address matches.
     struct Walk {
@@ -611,7 +724,17 @@ const u32* GPU::ChainedCopyFor(PAddr addr, u32& size) const {
             return nullptr;
         }
     };
-    return Walk::Find(*cur, addr, size);
+    if (const u32* w = Walk::Find(*cur, addr, size)) {
+        return w;
+    }
+    if (live_chains || !async || !async->eager) {
+        return nullptr;
+    }
+    if (GxLogOn()) {
+        LOG_INFO(HW_GPU, "gx worker chain {:08X}/{:X} has no copy: chain ends here", addr, size);
+    }
+    size = 0;
+    return kEmpty;
 }
 
 // The worker runs a list from its copy only when the registers still name that list (a list
@@ -735,6 +858,9 @@ void GPU::SetInterruptHandler(Service::GSP::InterruptHandler handler) {
         Async* a = async.get();
         impl->signal_interrupt = [a, handler](Service::GSP::InterruptId id, u64 delay) {
             if (t_gpu_worker) {
+                if (id == Service::GSP::InterruptId::P3D) {
+                    t_worker_p3d++;
+                }
                 if (a->eager) {
                     auto& c = a->credit[static_cast<std::size_t>(id)];
                     int have = c.load(std::memory_order_acquire);
@@ -860,8 +986,10 @@ void GPU::Execute(const Service::GSP::Command& command) {
             cmdbuffer.trigger[0] = 1;
             impl->cmd_copy = held.get();
             GammaSnapshot::t_active = &held->data;
+            GammaSnapshot::t_owner = held;
             SubmitCmdList(0);
             GammaSnapshot::t_active = nullptr;
+            GammaSnapshot::t_owner.reset();
             impl->cmd_copy = nullptr;
         });
         return;
@@ -1180,8 +1308,10 @@ void GPU::WriteRegMasked(VAddr addr, u32 value, u32 mask) {
         async->Enqueue([this, addr, value, mask, held] {
             impl->cmd_copy = held.get();
             GammaSnapshot::t_active = &held->data;
+            GammaSnapshot::t_owner = held;
             WriteRegNow(addr, (ReadRegNow(addr) & ~mask) | (value & mask));
             GammaSnapshot::t_active = nullptr;
+            GammaSnapshot::t_owner.reset();
             impl->cmd_copy = nullptr;
         });
         return;
@@ -1282,8 +1412,10 @@ void GPU::WriteReg(VAddr addr, u32 data) {
                 async->Enqueue([this, addr, data, held] {
                     impl->cmd_copy = held.get();
                     GammaSnapshot::t_active = &held->data;
+                    GammaSnapshot::t_owner = held;
                     WriteRegNow(addr, data);
                     GammaSnapshot::t_active = nullptr;
+                    GammaSnapshot::t_owner.reset();
                     impl->cmd_copy = nullptr;
                 });
                 return;
@@ -1401,8 +1533,13 @@ void GPU::SubmitCmdList(u32 index) {
     u32 size = config.GetSize(index);
     const u32* words = CopyFor(addr, size); // the copy's length when one applies
     const bool allow = right_eye_disabler->ShouldAllowCmdQueueTrigger(addr, size, words);
+    const u32 raised_before = t_worker_p3d;
     impl->pica.ProcessCmdList(addr, size, !allow, words);
     config.trigger[index] = 0;
+    if (t_gpu_worker && GxLogOn()) {
+        LOG_INFO(HW_GPU, "gx worker list {:08X} size {:X} raised {} copy {} blocked {}", addr, size,
+                 t_worker_p3d - raised_before, words != nullptr, !allow);
+    }
 }
 
 void GPU::MemoryFill(u32 index, u32 intr_index) {
