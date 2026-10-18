@@ -10141,6 +10141,8 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
             if (v < mn) v = mn; if (v > mx) v = mx;
             return ps3FormatNum(v, scale);   // normalised numeric (trims stored float noise)
         }
+        // Settings stores "never" for the screen timeout as INT_MAX; the list says -1
+        if (!strcmp(b->key, "screen_off_timeout") && cur == "2147483647") cur = "-1";
         for (const auto& o : parseListOptions(b->options)) if (ps3OptMatch(cur, o.value)) return o.label;
         return cur.empty() ? std::string("-") : cur;
     }

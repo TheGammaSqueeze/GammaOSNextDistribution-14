@@ -121,6 +121,31 @@ std::string wrapText(const Pane* p, const std::string& text) {
     return utf8;
 }
 
+// Wraps `text` into a text box and, when the block comes out taller than the box, shrinks the
+// font (and the line spacing with it) in 5 percent steps, down to half size, until it fits.
+// base / baseLineSpace are the box's own metrics: the pane's are overwritten here, so every
+// text starts from them again (a long notice shrinks, the next short message does not).
+std::string fitTextBlock(Pane* p, const std::string& text, const float base[2], float baseLineSpace) {
+    if (!p || !p->font) return text;
+    const Font& f = *p->font;
+    const double room = p->size[1] + p->growH;
+    std::string wrapped;
+    for (int step = 0; step <= 10; step++) {
+        const float k = 1.0f - 0.05f * step;
+        p->fontSize[0] = base[0] * k;
+        p->fontSize[1] = base[1] * k;
+        p->lineSpace = baseLineSpace * k;
+        wrapped = wrapText(p, text);
+        int lines = 1;
+        for (char c : wrapped) if (c == '\n') lines++;
+        const double sy = f.height ? (double)p->fontSize[1] / f.height : 1.0;
+        const double height = lines * f.lineFeed * sy + (double)p->lineSpace * (lines - 1);
+        if (height <= room) break;
+    }
+    p->textRevision++;
+    return wrapped;
+}
+
 void setLabel(LayoutInstance* l, const char* pane, const std::string& text) {
     if (!l || !l->pane(pane)) return;
     l->setText(pane, text);
@@ -602,7 +627,8 @@ static float textExcess(const Pane* p) {
     return (float)std::max(0.0, widest - (p->size[0] + p->growW));
 }
 
-// A row label: it keeps its font size; one too wide for its box is clipped and scrolled (drawSlot).
+// A row label: one a little too wide for its box is narrowed to it like the console's labels
+// (fitText); one far too wide keeps its font size and is clipped and scrolled (drawSlot).
 void CtrPanel::label(Slot& s, LayoutInstance* l, const char* pane, const std::string& text) {
     Pane* p = l ? l->pane(pane) : nullptr;
     if (!p) return;
@@ -611,7 +637,10 @@ void CtrPanel::label(Slot& s, LayoutInstance* l, const char* pane, const std::st
     l->setText(pane, text);
     if (p->hasFontScale) { p->hasFontScale = false; p->textRevision++; }
     const float excess = textExcess(p);
-    if (excess > 0.5f) s.over.push_back({l, p, excess});
+    if (excess <= 0.5f) return;
+    // up to a quarter over: narrowed (still legible); beyond that the marquee
+    if (excess <= (p->size[0] + p->growW) * 0.25f) { fitText(p); return; }
+    s.over.push_back({l, p, excess});
 }
 
 // Marquee offset (panel.ts has none; the plate's bounce): hold at the start, glide to the end,
@@ -909,6 +938,11 @@ bool CtrDialog::load(int buttons) {
     if (mLay && mLayButtons == buttons) return true;
     mLay = A.create("dialog", kDlgLayouts[buttons]);
     mLayButtons = buttons;
+    if (Pane* body = mLay ? mLay->pane("TextBoxDialog") : nullptr) {
+        mBodyFont[0] = body->fontSize[0];
+        mBodyFont[1] = body->fontSize[1];
+        mBodyLineSpace = body->lineSpace;
+    }
     if (!mMaskTop) mMaskTop = A.create("dialogmask", "DlgMask_U_00");
     if (!mMaskBottom) mMaskBottom = A.create("dialogmask", "DlgMask_D_00");
     mText.clear();
@@ -922,7 +956,9 @@ void CtrDialog::set(const std::string& text, const std::vector<std::string>& but
     if (text != mText) {
         mText = text;
         Pane* body = mLay->pane("TextBoxDialog");
-        mLay->setText("TextBoxDialog", wrapText(body, text));
+        // a long notice (the IPTV and Internet Radio disclaimers) is shrunk to the box: it used
+        // to run off its top and bottom and under the buttons
+        mLay->setText("TextBoxDialog", fitTextBlock(body, text, mBodyFont, mBodyLineSpace));
         fitText(body);   // a word longer than the box is narrowed
     }
     if (buttons != mButtonText) {

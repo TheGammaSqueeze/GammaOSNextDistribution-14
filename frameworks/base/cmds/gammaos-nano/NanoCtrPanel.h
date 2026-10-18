@@ -178,6 +178,7 @@ public:
 private:
     enum Phase { Hidden, Opening, Shown, Closing };
     bool load(int buttons);
+    float mBodyFont[2] = {0, 0}, mBodyLineSpace = 0;   // the message box's own metrics (fitTextBlock)
     void placeProgress();
     bool barSpan(float* left, float* right, float* bottom, float* top) const;
     Assets& A;
