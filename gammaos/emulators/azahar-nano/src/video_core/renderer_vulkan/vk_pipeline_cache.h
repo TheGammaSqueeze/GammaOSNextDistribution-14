@@ -88,7 +88,8 @@ public:
 
     /// Binds a PICA decompiled vertex shader
     bool UseProgrammableVertexShader(const Pica::RegsInternal& regs, Pica::ShaderSetup& setup,
-                                     const VertexLayout& layout);
+                                     const VertexLayout& layout,
+                                     bool may_reuse = false);
 
     /// Binds a passthrough vertex shader
     void UseTrivialVertexShader();
@@ -100,7 +101,10 @@ public:
     void UseTrivialGeometryShader();
 
     /// Binds a fragment shader generated from PICA state
-    void UseFragmentShader(const Pica::RegsInternal& regs, const Pica::Shader::UserConfig& user);
+    /// GammaOS: may_reuse = no register the fragment shader config reads changed since the
+    /// previous draw, so the previous shader stands and the config is not rebuilt or hashed.
+    void UseFragmentShader(const Pica::RegsInternal& regs, const Pica::Shader::UserConfig& user,
+                           bool may_reuse = false);
 
     /// GammaOS: shader id of a fragment ubershader variant (never a real config hash).
     static constexpr u64 UberIdBase = 0x5542455246530000ULL; // "UBERFS"
@@ -241,6 +245,9 @@ private:
     u64 current_program_id{0};
     std::vector<std::shared_ptr<ShaderDiskCache>> disk_caches;
     std::shared_ptr<ShaderDiskCache> curr_disk_cache{};
+    // GammaOS: the current VS / FS came from a lookup on this disk cache (reuse allowed).
+    bool vs_valid = false;
+    bool fs_valid = false;
 };
 
 } // namespace Vulkan

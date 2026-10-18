@@ -456,10 +456,17 @@ bool RasterizerVulkan::SetupVertexArray() {
         // copying again (static meshes drawn every frame, like skinned characters whose
         // bones change only the uniforms).
         // persist.gammaos.azahar_nano.vtx_cache=0 turns it off.
+        // Off by default with the asynchronous GPU worker: there the hash costs more than the
+        // dedupe saves (Kirby +0.5 to 0.9 fps without it); vtx_cache=1 forces it on.
         static const bool vtx_cache = [] {
             char v[PROP_VALUE_MAX] = {};
             __system_property_get("persist.gammaos.azahar_nano.vtx_cache", v);
-            return v[0] != '0';
+            if (v[0] == '0' || v[0] == '1') {
+                return v[0] == '1';
+            }
+            char a[PROP_VALUE_MAX] = {};
+            GammaGameProp::Get("async_gpu", a);
+            return !(a[0] >= '1' && a[0] <= '3');
         }();
         constexpr u32 MinCachedBytes = 1024;
         u64 data_hash = 0;
@@ -646,8 +653,14 @@ void RasterizerVulkan::SetupFixedAttribs() {
 
 bool RasterizerVulkan::SetupVertexShader() {
     MICROPROFILE_SCOPE(Vulkan_VS);
-    return pipeline_cache.UseProgrammableVertexShader(regs, pica.vs_setup,
-                                                      pipeline_info.state.vertex_layout);
+    // GammaOS: the previous vertex shader stands when no geometry/vertex shader register
+    // (0x200 to 0x2ff: attributes, program and swizzle uploads, configs) changed since the
+    // previous draw.
+    static const bool shader_reuse =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.shader_reuse", false);
+    return pipeline_cache.UseProgrammableVertexShader(
+        regs, pica.vs_setup, pipeline_info.state.vertex_layout,
+        shader_reuse && !pica.dirty_regs.AnyInRange(0x200, 0x2ff));
 }
 
 bool RasterizerVulkan::SetupGeometryShader() {
@@ -1081,6 +1094,11 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         if (r.framebuffer.output_merger.alphablend_enable) GammaStats::Add(GammaStats::DrawsBlend);
     }
     MICROPROFILE_SCOPE(Vulkan_Drawing);
+    // GammaOS shader reuse: decided before SyncDrawState, whose uniform sync resets the dirty
+    // register table (deciding after it reused a stale fragment shader for every draw).
+    static const bool shader_reuse =
+        Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.shader_reuse", false);
+    const bool fs_may_reuse = shader_reuse && !pica.dirty_regs.AnyInRange(0x40, 0x1ff);
     SyncDrawState();
 
     const bool shadow_rendering = regs.framebuffer.IsShadowRendering();
@@ -1141,10 +1159,13 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         SyncUtilityTextures(framebuffer);
     }
 
-    // Sync and bind the shader
+    // Sync and bind the shader. GammaOS: when no register the fragment shader config reads
+    // (rasterizer, texturing, framebuffer, lighting: 0x40 to 0x1ff) changed since the previous
+    // draw, the previous shader stands (persist.gammaos.azahar_nano.shader_reuse=1; off by default:
+    // measured neutral on Kirby, 48.7 against 49.2 plain and 52.3 against 52.1 with the worker).
     {
         SlowStep t{"UseFragmentShader"};
-        pipeline_cache.UseFragmentShader(regs, user_config);
+        pipeline_cache.UseFragmentShader(regs, user_config, fs_may_reuse);
     }
 
     // Sync the LUTs within the texture buffer

@@ -1689,6 +1689,9 @@ namespace {
 // GammaOS debug (svc_stats): SleepThread durations, logged with the svc stats.
 bool g_svc_stats_on = false;
 std::array<u32, 7> g_sleep_hist{}; // 0 ns alone, 0 ns yield, <10 us, <100 us, <1 ms, <10 ms, more
+// GammaOS debug: sleeps while no other thread of the core is ready (a run loop pass that only
+// idles until the wake), and how many of those end before the core's next timer event.
+u32 g_sleep_alone = 0, g_sleep_alone_short = 0;
 } // namespace
 
 void SVC::SleepThread(s64 nanoseconds) {
@@ -1702,6 +1705,13 @@ void SVC::SleepThread(s64 nanoseconds) {
             : nanoseconds < 10000000 ? 5
                                      : 6;
         g_sleep_hist[b]++;
+        if (nanoseconds > 0 && !kernel.GetCurrentThreadManager().HaveReadyThreads()) {
+            g_sleep_alone++;
+            const s64 cycles = nsToCycles(static_cast<u64>(nanoseconds));
+            if (cycles < system.GetRunningCore().GetTimer().GetDowncount()) {
+                g_sleep_alone_short++;
+            }
+        }
     }
 
     ThreadManager& thread_manager = kernel.GetCurrentThreadManager();
@@ -2531,11 +2541,12 @@ void SVC::CallSVC(u32 immediate) {
                 }
                 counts.fill(0);
                 line += fmt::format(" | sleeps 0ns-alone {} 0ns-yield {} <10us {} <100us {} <1ms {} "
-                                    "<10ms {} longer {}",
+                                    "<10ms {} longer {} | alone {} (before next event {})",
                                     g_sleep_hist[0], g_sleep_hist[1], g_sleep_hist[2],
                                     g_sleep_hist[3], g_sleep_hist[4], g_sleep_hist[5],
-                                    g_sleep_hist[6]);
+                                    g_sleep_hist[6], g_sleep_alone, g_sleep_alone_short);
                 g_sleep_hist.fill(0);
+                g_sleep_alone = g_sleep_alone_short = 0;
                 LOG_INFO(Kernel_SVC, "svc stats (2 s):{}", line);
             }
         }

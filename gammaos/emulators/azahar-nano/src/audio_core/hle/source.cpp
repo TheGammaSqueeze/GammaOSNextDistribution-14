@@ -467,7 +467,17 @@ bool Source::DequeueBuffer() {
 
     // This physical address masking occurs due to how the DSP DMA hardware is configured by the
     // firmware.
-    const u8* const memory = memory_system->GetPhysicalPointer(buf.physical_address & 0xFFFFFFFC);
+    // GammaOS: bounded. A buffer that reaches past the physical region (seen right after a save
+    // state load: a stale queue entry while the memory is swapped) is skipped, not decoded from
+    // unmapped pages. GetPhysicalSpan reports the room left in the backing.
+    const auto [span_ptr, span_avail] =
+        memory_system->GetPhysicalSpan(buf.physical_address & 0xFFFFFFFC);
+    const u8* memory = span_ptr;
+    if (memory && span_avail < static_cast<std::size_t>(buf.length) * 4) {
+        LOG_WARNING(Audio_DSP, "source_id={} buffer_id={} length={}: buffer {:#010x} reaches past memory, skipped",
+                    source_id, buf.buffer_id, buf.length, buf.physical_address);
+        memory = nullptr;
+    }
     if (memory) {
         const unsigned num_channels = buf.mono_or_stereo == MonoOrStereo::Stereo ? 2 : 1;
         switch (buf.format) {

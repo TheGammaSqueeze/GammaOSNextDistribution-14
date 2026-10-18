@@ -49,8 +49,10 @@ public:
         u64 location = ~u64{0};
         CodePtr code_ptr = nullptr;
     };
-    static constexpr size_t fast_dispatch_bits = 16;
-    static constexpr u64 FastDispatchIndex(u64 location) {
+    // GammaOS: table size as a power of two, settable once before the first address space
+    // (16 = 64K entries, 1 MiB; smaller tables fit the L2 at the price of more collisions).
+    static inline size_t fast_dispatch_bits = 16;
+    static u64 FastDispatchIndex(u64 location) {
         return ((location ^ (location >> 32)) >> 1) & ((u64{1} << fast_dispatch_bits) - 1);
     }
     FastDispatchEntry* FastDispatchTable() { return fast_dispatch_table.get(); }
@@ -159,7 +161,7 @@ protected:
     // A IR::LocationDescriptor will have one current CodePtr.
     // However, there can be multiple other CodePtrs which are older, previously invalidated blocks.
     std::unique_ptr<FastDispatchEntry[]> fast_dispatch_table{
-        new FastDispatchEntry[size_t{1} << fast_dispatch_bits]};
+        new FastDispatchEntry[size_t{1} << fast_dispatch_bits]};  // sized by the current bits
     tsl::robin_map<IR::LocationDescriptor, CodePtr> block_entries;
     std::vector<u64> emit_order;   // first-compile order (may hold invalidated entries)
     std::uint64_t clear_generation = 1;   // bumped by every ClearCache

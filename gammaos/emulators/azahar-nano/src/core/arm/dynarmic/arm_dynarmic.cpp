@@ -469,6 +469,17 @@ std::unique_ptr<Dynarmic::A32::Jit> ARM_Dynarmic::MakeJit() {
     static const bool rsb_sched =
         Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.jit_rsb_sched");
     config.rsb_scheduled = rsb_sched;
+    // GammaOS: fast dispatch table size, 2^bits entries (persist.gammaos.azahar_nano.jit_disp_bits).
+    // Default 14 on the Mali devices (256 KiB, inside the Cortex-A55's L2: Kirby emulation thread
+    // 13.1 to 13.4 ms a frame against 13.8 with 16), 16 elsewhere (dynarmic's 1 MiB table).
+    {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.jit_disp_bits", v);
+        const int bits = v[0] ? atoi(v) : (Common::GammaOS::IsMaliDevice() ? 14 : 16);
+        if (bits >= 10 && bits <= 20) {
+            config.fast_dispatch_bits = static_cast<std::size_t>(bits);
+        }
+    }
 
     // Multi-process state
     config.processor_id = GetID();

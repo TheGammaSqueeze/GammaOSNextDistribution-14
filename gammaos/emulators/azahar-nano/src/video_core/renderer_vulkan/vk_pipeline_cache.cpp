@@ -479,6 +479,7 @@ void PipelineCache::SwitchDiskCache(u64 title_id, const std::atomic_bool& stop_l
     bool prev_applet = curr_disk_cache ? is_applet(curr_disk_cache->GetProgramID()) : false;
     bool new_applet = is_applet(disk_caches[new_pos]->GetProgramID());
     curr_disk_cache = disk_caches[new_pos];
+    vs_valid = fs_valid = false;
 
     if (prev_applet) {
         // If we came from an applet, clean up all other applets
@@ -734,22 +735,28 @@ ExtraVSConfig PipelineCache::CalcExtraConfig(const PicaVSConfig& config) {
 
 bool PipelineCache::UseProgrammableVertexShader(const Pica::RegsInternal& regs,
                                                 Pica::ShaderSetup& setup,
-                                                const VertexLayout& layout) {
+                                                const VertexLayout& layout, bool may_reuse) {
+    if (may_reuse && vs_valid) {
+        return true;
+    }
 
     auto res = curr_disk_cache->UseProgrammableVertexShader(regs, setup, layout);
 
     if (res.has_value()) {
         current_shaders[ProgramType::VS] = (*res).second;
         shader_hashes[ProgramType::VS] = (*res).first;
+        vs_valid = true;
         return true;
     }
 
+    vs_valid = false;
     return false;
 }
 
 void PipelineCache::UseTrivialVertexShader() {
     current_shaders[ProgramType::VS] = &trivial_vertex_shader;
     shader_hashes[ProgramType::VS] = 0;
+    vs_valid = false;
 }
 
 bool PipelineCache::UseFixedGeometryShader(const Pica::RegsInternal& regs) {
@@ -771,7 +778,10 @@ void PipelineCache::UseTrivialGeometryShader() {
 }
 
 void PipelineCache::UseFragmentShader(const Pica::RegsInternal& regs,
-                                      const Pica::Shader::UserConfig& user) {
+                                      const Pica::Shader::UserConfig& user, bool may_reuse) {
+    if (may_reuse && fs_valid && !GammaDump::d.active) {
+        return;
+    }
     if (GammaDump::d.active) {
         // Frame dump: remember the config and write its GLSL once, for reading.
         const Pica::Shader::FSConfig cfg{regs};
@@ -789,6 +799,7 @@ void PipelineCache::UseFragmentShader(const Pica::RegsInternal& regs,
 
     auto res = curr_disk_cache->UseFragmentShader(regs, user);
 
+    fs_valid = res.has_value();
     if (res.has_value()) {
         current_shaders[ProgramType::FS] = (*res).second;
         shader_hashes[ProgramType::FS] = (*res).first;

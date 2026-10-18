@@ -156,8 +156,19 @@ static void* EmitExclusiveWriteCallTrampoline(oaknut::CodeGenerator& code, const
     return target;
 }
 
+namespace {
+// GammaOS: the table size is a static of AddressSpace read by its member initializer, so it is
+// set on the way into the base constructor.
+size_t ApplyFastDispatchBits(const A32::UserConfig& conf) {
+    if (conf.fast_dispatch_bits >= 10 && conf.fast_dispatch_bits <= 20) {
+        AddressSpace::fast_dispatch_bits = conf.fast_dispatch_bits;
+    }
+    return conf.code_cache_size;
+}
+}  // namespace
+
 A32AddressSpace::A32AddressSpace(const A32::UserConfig& conf)
-        : AddressSpace(conf.code_cache_size)
+        : AddressSpace(ApplyFastDispatchBits(conf))
         , conf(conf) {
     EmitPrelude();
     far_code = conf.far_code;

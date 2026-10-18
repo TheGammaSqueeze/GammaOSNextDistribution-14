@@ -50,6 +50,23 @@ union DirtyRegs {
     void SetAllDirty() {
         qwords.fill(UINT64_MAX);
     }
+    /// GammaOS: any register in [first, last] written since the last reset.
+    bool AnyInRange(u32 first, u32 last) const {
+        const u32 fw = first >> 6, lw = last >> 6;
+        for (u32 w = fw; w <= lw; w++) {
+            u64 mask = ~0ULL;
+            if (w == fw) {
+                mask &= ~0ULL << (first & 0x3f);
+            }
+            if (w == lw && (last & 0x3f) != 63) {
+                mask &= (1ULL << ((last & 0x3f) + 1)) - 1ULL;
+            }
+            if (qwords[w] & mask) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     void Reset() {
         qwords.fill(0ULL);

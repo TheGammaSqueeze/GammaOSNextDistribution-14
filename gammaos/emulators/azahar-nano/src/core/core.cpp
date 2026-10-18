@@ -277,6 +277,12 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         const u32 slot = save_state_slot;
         save_state_request_status = SaveStateStatus::NONE;
         LOG_INFO(Core, "Begin load of slot {}", slot);
+        // GammaOS async GPU: the worker must be done with the old memory before the state
+        // replaces it (its lists read guest memory; a list still running across the swap read
+        // wild vertex pointers: Kirby crashed at about one load in six).
+        if (gpu) {
+            gpu->AsyncDrain();
+        }
         try {
 #ifdef ANDROID
             GammaRtPause rt_pause;

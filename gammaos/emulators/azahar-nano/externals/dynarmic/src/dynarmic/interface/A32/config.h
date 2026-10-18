@@ -258,6 +258,9 @@ struct UserConfig {
     /// GammaOS (arm64 backend): the return stack buffer push and pop sequences are emitted
     /// with their independent instructions moved into the load latency of the RSB index.
     bool rsb_scheduled = false;
+    /// GammaOS: fast dispatch table size as a power of two (default 16 = 64K entries, 1 MiB).
+    /// Applied when the address space is built; the whole process shares one value.
+    std::size_t fast_dispatch_bits = 16;
 
     /// This option relates to the CPSR.E flag. Enabling this option disables modification
     /// of CPSR.E by the emulated program, forcing it to 0.
