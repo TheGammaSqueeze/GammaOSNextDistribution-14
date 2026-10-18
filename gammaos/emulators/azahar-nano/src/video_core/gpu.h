@@ -67,6 +67,7 @@ public:
     /// GammaOS GPU worker split (persist.gammaos.azahar_nano.gpu_split=1 with an async GPU
     /// mode): the command list walker and the draws run on two threads; decided at start.
     static bool SplitWanted();
+    static int AsyncModeFromProps();
 
     /// Sets the function to call for signalling GSP interrupts.
     void SetInterruptHandler(Service::GSP::InterruptHandler handler);

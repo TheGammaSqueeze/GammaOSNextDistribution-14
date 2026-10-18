@@ -794,19 +794,14 @@ GPU::GPU(Core::System& system, Frontend::EmuWindow& emu_window,
     // Bind the rasterizer to the PICA GPU
     impl->pica.BindRasterizer(impl->rasterizer);
 
-    // persist.gammaos.azahar_nano.async_gpu: 0 off (default), 1 lists only, 2 every GSP write and
-    // command queued, 3 = 2 with the interrupts raised at submit. Mode 3 gave Kirby: Planet Robobot
-    // 50 to 53.4 fps on the RG DS, but an interrupt before the list ran lets the game reuse the
-    // vertex and index buffers the worker still reads (wild fetch addresses: 3D Land crashes at
-    // launch), so it stays an experiment until those reads come from a snapshot taken at submit.
-    // Per game: the frontend publishes the override value as sys.gammaos.azahar_nano.async_gpu
-    // (GammaGameProp), the persist prop is the fallback.
-    char v[PROP_VALUE_MAX] = {};
-    GammaGameProp::Get("async_gpu", v);
-    int mode = 0;
-    if (v[0] >= '1' && v[0] <= '3') {
-        mode = v[0] - '0';
-    }
+    // persist.gammaos.azahar_nano.async_gpu: 0 off, 1 lists only, 2 every GSP write and command
+    // queued, 3 = 2 with the interrupts raised at submit. Unset: 3 on the Mali devices (the RG DS
+    // family), off elsewhere until those devices are regressed with it. Mode 3 is what took Kirby:
+    // Planet Robobot from 46 to 52 fps on the RG DS; the vertex and index snapshot taken at submit,
+    // the exact interrupt credits and the bounded chain reads made it safe for the other titles
+    // (3D Land, Mario Kart 7 clean on build 76). Per game: the frontend publishes the override
+    // value as sys.gammaos.azahar_nano.async_gpu (GammaGameProp), the persist prop is the fallback.
+    const int mode = AsyncModeFromProps();
     if (mode != 0) {
         async = std::make_unique<Async>();
         async->mode = mode;
@@ -1139,10 +1134,15 @@ void GPU::RunDraw(DrawJob& job) {
     GammaSnapshot::t_owner.reset();
 }
 
-static int AsyncModeFromProps() {
+/// The async GPU mode the properties ask for: 0 to 3 when set, else 3 on the Mali devices and 0
+/// elsewhere.
+int GPU::AsyncModeFromProps() {
     char v[PROP_VALUE_MAX] = {};
     GammaGameProp::Get("async_gpu", v);
-    return (v[0] >= '1' && v[0] <= '3') ? v[0] - '0' : 0;
+    if (v[0] >= '0' && v[0] <= '3') {
+        return v[0] - '0';
+    }
+    return Common::GammaOS::IsMaliDevice() ? 3 : 0;
 }
 
 bool GPU::SplitWanted() {
