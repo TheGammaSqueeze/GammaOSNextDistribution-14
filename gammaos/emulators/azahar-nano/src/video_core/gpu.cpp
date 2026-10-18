@@ -2,10 +2,14 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <dlfcn.h>
+#include <sched.h>
 #include <sys/resource.h>
 #include <sys/system_properties.h>
 #include <unistd.h>
 #include <algorithm>
+#include <cerrno>
+#include <cstring>
 #include <atomic>
 #include <chrono>
 #include <string>
@@ -15,6 +19,7 @@
 #include <thread>
 #include <vector>
 #include "common/archives.h"
+#include "common/gammaos_tweak.h"
 #include "common/hacks/hack_manager.h"
 #include "common/microprofile.h"
 #include "core/core.h"
@@ -29,6 +34,7 @@
 #include "video_core/pica/pica_core.h"
 #include "video_core/pica/regs_lcd.h"
 #include "video_core/renderer_base.h"
+#include "video_core/renderer_vulkan/vk_gammaos_game_prop.h"
 #include "video_core/renderer_software/sw_blitter.h"
 #include "video_core/right_eye_disabler.h"
 #include "video_core/video_core.h"
@@ -95,15 +101,58 @@ public:
     }
 };
 
+namespace GammaSnapshot {
+thread_local const Snapshot* t_active = nullptr;
+}
+
+// Intervals a list's draws read, collected while the list is walked at submit.
+struct GPU::DrawRanges {
+    std::vector<std::pair<PAddr, u32>> intervals;
+    u64 total = 0;
+};
+
 namespace {
 // True on the GPU worker thread (it never waits for itself).
 thread_local bool t_gpu_worker = false;
+
+constexpr std::array<u32, 16> kMaskBytes = {
+    0x00000000, 0x000000FF, 0x0000FF00, 0x0000FFFF, 0x00FF0000, 0x00FF00FF, 0x00FFFF00, 0x00FFFFFF,
+    0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF, 0xFFFF0000, 0xFFFF00FF, 0xFFFFFF00, 0xFFFFFFFF,
+};
+constexpr u64 kSnapshotCap = 16u * 1024 * 1024; // per list, bytes
+
+// Diagnostics: sys.gammaos.azahar_nano.gx_log=1 (polled every 256 calls) logs the GSP command
+// stream as the emulation thread issues it, and the worker's uncredited interrupts.
+bool GxLogOn() {
+    // async_gpu_nolog=1: the switch is never polled (cost measurement).
+    static const bool never = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_gpu_nolog", v);
+        return v[0] == '1';
+    }();
+    if (never) {
+        return false;
+    }
+    static std::atomic<bool> on{false};
+    static std::atomic<u32> polls{0};
+    if ((polls.fetch_add(1) & 0xF) == 0) {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("sys.gammaos.azahar_nano.gx_log", v);
+        on.store(v[0] == '1');
+    }
+    return on.load();
+}
 // The GPU whose worker AsyncGpuDrain waits for (one emulated system per process).
 std::atomic<GPU*> s_async_gpu{nullptr};
 } // Anonymous namespace
 
-// GammaOS async GPU worker: a FIFO of command list jobs run on one thread, and the interrupts
-// those jobs raise, held for the emulation thread.
+// GammaOS async GPU worker: a FIFO of GPU jobs run on one thread, and the interrupts those
+// jobs raise, held for the emulation thread. Mode 1 (persist.gammaos.azahar_nano.async_gpu=1)
+// queues command lists only and every other GPU access waits for the worker first; mode 2
+// (async_gpu=2) queues every GSP register write and GPU command as well, in order, so a game
+// that writes the next list's registers while the previous list runs (Kirby: Planet Robobot,
+// 8 lists a frame submitted through WriteHWRegs) no longer waits for that list at each write.
+// Only reads of GPU state, CPU accesses to GPU memory and the vblank wait for the worker.
 struct GPU::Async {
     std::thread thread;
     std::mutex mutex;
@@ -112,7 +161,21 @@ struct GPU::Async {
     std::deque<std::function<void()>> jobs;
     bool busy = false;
     bool stop = false;
+    int mode = 1;
+    // Mode 3: the interrupts of a queued list, fill or transfer are raised when the guest
+    // submits it (the guest goes on while the worker draws); each one is a credit that drops
+    // the same interrupt when the worker raises it. The lists are copied at submit time, and
+    // shadow holds the GSP register writes as the emulation thread issued them (the worker
+    // applies them later), for the addresses and sizes those decisions need.
+    bool eager = false;
+    std::array<std::atomic<int>, static_cast<std::size_t>(Service::GSP::InterruptId::COUNT)>
+        credit{};
+    std::unique_ptr<Pica::PicaCore::Regs> shadow;
+    // The PICA internal registers as the submitted lists leave them (replayed at submit),
+    // seeded from the real ones whenever the queue is empty.
+    std::unique_ptr<Pica::RegsInternal> shadow_internal;
     std::atomic<int> pending{0};
+    std::atomic<u64> done{0}; // jobs finished, for the progress wait
 
     std::mutex interrupt_mutex;
     std::vector<std::pair<Service::GSP::InterruptId, u64>> interrupts;
@@ -124,6 +187,21 @@ struct GPU::Async {
         pthread_setname_np(pthread_self(), "AzaharGpu");
         // Same priority as the emulation thread: the two run side by side.
         setpriority(PRIO_PROCESS, static_cast<id_t>(gettid()), -10);
+#ifdef ANDROID
+        // With a real-time emulation thread (emu_rt) a normal worker it wakes often queues on
+        // its own core; one priority below it, the worker goes to a free core at once (as the
+        // VulkanWorker does).
+        {
+            const int emu_prio = Common::GammaOS::EmuRtPriority();
+            if (emu_prio > 1) {
+                sched_param sp{};
+                sp.sched_priority = emu_prio - 1;
+                if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0) {
+                    LOG_WARNING(HW_GPU, "async GPU worker: SCHED_FIFO refused ({})", errno);
+                }
+            }
+        }
+#endif
         std::unique_lock lock{mutex};
         while (true) {
             work_cv.wait(lock, [this] { return stop || !jobs.empty(); });
@@ -138,10 +216,22 @@ struct GPU::Async {
             lock.lock();
             busy = false;
             pending.fetch_sub(1, std::memory_order_release);
-            if (jobs.empty()) {
-                idle_cv.notify_all();
-            }
+            done.fetch_add(1, std::memory_order_release);
+            // Every finished job wakes a progress wait; an empty queue wakes a drain.
+            idle_cv.notify_all();
         }
+    }
+
+    // Waits until the worker finished at least one more job (or ran dry), then returns: the
+    // emulation thread idles with every emulated thread waiting on a GPU interrupt, and the
+    // interrupt of the job that just finished may be what one of them waits for.
+    void WaitProgress() {
+        const u64 seen = done.load(std::memory_order_acquire);
+        std::unique_lock lock{mutex};
+        idle_cv.wait(lock, [&] {
+            return (jobs.empty() && !busy) || done.load(std::memory_order_acquire) != seen ||
+                   interrupt_count.load(std::memory_order_acquire) != 0;
+        });
     }
 
     void Enqueue(std::function<void()> job) {
@@ -158,9 +248,16 @@ struct GPU::Async {
         idle_cv.wait(lock, [this] { return jobs.empty() && !busy; });
     }
 
-    void Deliver() {
+    // Waits until at most n jobs are queued or running.
+    void WaitPendingAtMost(int n) {
+        std::unique_lock lock{mutex};
+        idle_cv.wait(lock, [this, n] { return pending.load(std::memory_order_acquire) <= n; });
+    }
+
+    // Returns how many interrupts it delivered.
+    std::size_t Deliver() {
         if (interrupt_count.load(std::memory_order_acquire) == 0) {
-            return;
+            return 0;
         }
         std::vector<std::pair<Service::GSP::InterruptId, u64>> ready;
         {
@@ -172,7 +269,11 @@ struct GPU::Async {
             if (deliver) {
                 deliver(id, delay);
             }
+            if (GxLogOn()) {
+                LOG_INFO(HW_GPU, "gx delivered worker interrupt {}", static_cast<int>(id));
+            }
         }
+        return ready.size();
     }
 };
 
@@ -222,7 +323,17 @@ void GPU::AsyncDrain(void* caller) {
                 s_wait_log_last = t1;
                 std::string line;
                 for (const auto& w : s_wait_sites) {
-                    line += fmt::format(" {}:{}x/{:.1f}ms", w.site, w.count, w.ms);
+                    Dl_info info{};
+                    if (dladdr(w.site, &info) && info.dli_fbase) {
+                        line += fmt::format(
+                            " {}+{:#x}:{}x/{:.1f}ms", info.dli_sname ? info.dli_sname : "lib",
+                            reinterpret_cast<uintptr_t>(w.site) -
+                                reinterpret_cast<uintptr_t>(info.dli_sname ? info.dli_saddr
+                                                                           : info.dli_fbase),
+                            w.count, w.ms);
+                    } else {
+                        line += fmt::format(" {}:{}x/{:.1f}ms", w.site, w.count, w.ms);
+                    }
                 }
                 LOG_INFO(HW_GPU, "async GPU waits:{}", line);
                 s_wait_sites.clear();
@@ -239,6 +350,293 @@ void GPU::AsyncPoll() {
         return;
     }
     async->Deliver();
+}
+
+bool GPU::AsyncWaitProgress() {
+    if (!async || t_gpu_worker) {
+        return false;
+    }
+    // Mode 3: the guest already has the interrupts of everything queued, so an idle run loop
+    // is a real idle (the clock may skip ahead); waiting for the worker's current job here
+    // cost Kirby 7 ms a frame (an idle after every SleepThread storm, each up to a list long).
+    if (async->eager) {
+        return async->Deliver() != 0;
+    }
+    if (async->pending.load(std::memory_order_acquire) != 0) {
+        if (async->mode >= 2) {
+            async->WaitProgress();
+        } else {
+            async->WaitIdle();
+        }
+    }
+    return async->Deliver() != 0;
+}
+
+bool GPU::AsyncQueued() const {
+    return async && async->mode >= 2 && !t_gpu_worker;
+}
+
+// Mode 3: raise an interrupt now for work just queued; the worker's own one is dropped.
+void GPU::EagerSignal(Service::GSP::InterruptId id, u32 count) {
+    // Raised from inside the guest's GSP call: on hardware no interrupt can land before that
+    // call returns, and Kirby: Planet Robobot crawled at 1 fps when one did (a wait of a second
+    // per frame). A short emulated delay puts it after the return.
+    // persist.gammaos.azahar_nano.async_gpu_irq_us: that delay in microseconds (default 50).
+    static const u64 delay_ns = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_gpu_irq_us", v);
+        return (v[0] ? static_cast<u64>(atoi(v)) : 50u) * 1000u;
+    }();
+    // The GSP drops interrupt delays unless 3DS GPU timings are simulated, so the delay is a
+    // core timing event of the GPU's own.
+    for (u32 i = 0; i < count; i++) {
+        async->credit[static_cast<std::size_t>(id)].fetch_add(1, std::memory_order_acq_rel);
+        if (delay_ns == 0 || !impl->eager_event) {
+            impl->signal_interrupt(id, 0);
+        } else {
+            impl->Timing().ScheduleEvent(nsToCycles(static_cast<s64>(delay_ns)), impl->eager_event,
+                                         static_cast<uintptr_t>(id));
+        }
+    }
+}
+
+// Mode 3: copies a command list the guest just submitted and counts the interrupts it will
+// raise (writes of the irq_request register: one P3D each, as HandleSpecialReg raises them).
+GPU::CmdListCopy GPU::CopyCmdList(PAddr addr, u32 size, u32& irqs, u32 depth,
+                                  DrawRanges* ranges) {
+    irqs = 0;
+    CmdListCopy copy{addr, size, {}, {}, {}};
+    auto& words = copy.words;
+    // Top level: the register shadow starts from the real registers when nothing is queued
+    // (the worker is idle, nothing writes them), the draws' ranges are collected and copied.
+    DrawRanges local;
+    const bool top = ranges == nullptr;
+    if (top) {
+        ranges = &local;
+        if (async && async->eager && async->pending.load(std::memory_order_acquire) == 0) {
+            std::memcpy(async->shadow_internal.get(), &impl->pica.regs.internal,
+                        sizeof(Pica::RegsInternal));
+        }
+    }
+    Pica::RegsInternal& sh = *async->shadow_internal;
+    // The declared size is the buffer, not the list: it may run past the end of the physical
+    // region (clamped here). A list can hold several irq_requests without autostop (Kirby:
+    // Planet Robobot froze when the copy ended at the first one), so the whole buffer is
+    // copied and every irq_request counted.
+    const auto [src, avail] = impl->memory.GetPhysicalSpan(addr);
+    if (!src || size == 0 || avail < sizeof(u32)) {
+        return copy;
+    }
+    const u32 n = static_cast<u32>(std::min<std::size_t>(size, avail) / sizeof(u32));
+    const u32* in = reinterpret_cast<const u32*>(src);
+    constexpr u32 irq_request_id = 0x10;
+    // Command buffer registers a list may write to start another list (size0 size1 addr0
+    // addr1 trigger0 trigger1), seeded from the GSP writes the shadow saw.
+    constexpr u32 cb_first = GPU_REG_INDEX(internal.pipeline.command_buffer.size[0]);
+    constexpr u32 cb_trigger0 = GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[0]);
+    u32 cb[6] = {};
+    if (async && async->shadow) {
+        for (u32 k = 0; k < 6; k++) {
+            cb[k] = async->shadow->reg_array[cb_first + k];
+        }
+    }
+    constexpr u32 draw_id = PICA_REG_INDEX(pipeline.trigger_draw);
+    constexpr u32 draw_indexed_id = PICA_REG_INDEX(pipeline.trigger_draw_indexed);
+    const auto on_draw = [&](bool indexed) {
+        if (ranges->total >= kSnapshotCap) {
+            return;
+        }
+        const auto& va = sh.pipeline.vertex_attributes;
+        const PAddr base = va.GetPhysicalBaseAddress();
+        const u32 count = sh.pipeline.num_vertices;
+        if (base == 0 || count == 0) {
+            return;
+        }
+        u32 vmin, vmax;
+        if (indexed) {
+            const u32 isize = sh.pipeline.index_array.format != 0 ? 2 : 1;
+            const PAddr iaddr = base + sh.pipeline.index_array.offset;
+            const auto [ip, avail] = impl->memory.GetPhysicalSpan(iaddr);
+            if (!ip || avail < static_cast<std::size_t>(count) * isize) {
+                return;
+            }
+            ranges->intervals.emplace_back(iaddr, count * isize);
+            ranges->total += count * isize;
+            vmin = 0xFFFF;
+            vmax = 0;
+            if (isize == 2) {
+                const u16* p16 = reinterpret_cast<const u16*>(ip);
+                for (u32 i = 0; i < count; i++) {
+                    vmin = std::min<u32>(vmin, p16[i]);
+                    vmax = std::max<u32>(vmax, p16[i]);
+                }
+            } else {
+                for (u32 i = 0; i < count; i++) {
+                    vmin = std::min<u32>(vmin, ip[i]);
+                    vmax = std::max<u32>(vmax, ip[i]);
+                }
+            }
+        } else {
+            vmin = sh.pipeline.vertex_offset;
+            vmax = sh.pipeline.vertex_offset + count - 1;
+        }
+        const u32 vnum = vmax - vmin + 1;
+        for (const auto& loader : va.attribute_loaders) {
+            if (loader.component_count == 0 || loader.byte_count == 0) {
+                continue;
+            }
+            const PAddr daddr = base + loader.data_offset + vmin * loader.byte_count;
+            const u32 dsize = loader.byte_count * vnum;
+            ranges->intervals.emplace_back(daddr, dsize);
+            ranges->total += dsize;
+        }
+    };
+    const auto on_write = [&](u32 id, u32 value, u32 mask) {
+        if (id < Pica::RegsInternal::NUM_REGS) {
+            const u32 m = kMaskBytes[mask & 0xF];
+            sh.reg_array[id] = (sh.reg_array[id] & ~m) | (value & m);
+        }
+        if (id == irq_request_id) {
+            irqs++;
+        } else if (id == draw_id || id == draw_indexed_id) {
+            on_draw(id == draw_indexed_id);
+        } else if (id >= cb_first && id < cb_first + 6) {
+            cb[id - cb_first] = value;
+            if ((id == cb_trigger0 || id == cb_trigger0 + 1) && value != 0 && depth < 4) {
+                const u32 slot = id - cb_trigger0;
+                const PAddr caddr = cb[2 + slot] << 3;
+                const u32 csize = cb[slot] << 3;
+                // async_gpu_chain_copy=0: chained lists are neither copied nor counted (the
+                // worker reads them from guest memory, build 14 behaviour).
+                static const bool chain_copy = [] {
+                    char v[PROP_VALUE_MAX] = {};
+                    __system_property_get("persist.gammaos.azahar_nano.async_gpu_chain_copy", v);
+                    return v[0] != '0';
+                }();
+                if (caddr != 0 && csize != 0 && chain_copy) {
+                    // async_gpu_chain_credit=0: a chained list is copied but its interrupt
+                    // waits for the worker (build 14 behaviour, 53 fps on Kirby).
+                    static const bool chain_credit = [] {
+                        char v[PROP_VALUE_MAX] = {};
+                        __system_property_get("persist.gammaos.azahar_nano.async_gpu_chain_credit", v);
+                        return v[0] != '0';
+                    }();
+                    u32 cirqs = 0;
+                    copy.chained.push_back(CopyCmdList(caddr, csize, cirqs, depth + 1, ranges));
+                    if (chain_credit) {
+                        irqs += cirqs;
+                    }
+                }
+            }
+        }
+    };
+    u32 i = 0;
+    while (i + 1 < n) {
+        if (i % 2 != 0) {
+            i++;
+            continue;
+        }
+        const u32 value = in[i];
+        const u32 header = in[i + 1];
+        const u32 id = header & 0xFFFF;
+        const u32 mask = (header >> 16) & 0xF;
+        const u32 extra = (header >> 20) & 0xFF;
+        const bool group = (header >> 31) != 0;
+        on_write(id, value, mask);
+        for (u32 k = 0; k < extra && i + 2 + k < n; k++) {
+            on_write(group ? id + 1 + k : id, in[i + 2 + k], mask);
+        }
+        i += 2 + extra;
+    }
+    words.resize(n);
+    std::memcpy(words.data(), in, n * sizeof(u32));
+    if (top) {
+        TakeSnapshot(copy, local);
+    }
+    return copy;
+}
+
+// Merges the draws' intervals and copies them from guest memory (valid now: the guest has not
+// had the list's interrupt yet).
+void GPU::TakeSnapshot(CmdListCopy& copy, DrawRanges& ranges) {
+    auto& iv = ranges.intervals;
+    if (iv.empty()) {
+        return;
+    }
+    std::sort(iv.begin(), iv.end());
+    std::vector<std::pair<PAddr, u32>> merged;
+    for (const auto& [a, s] : iv) {
+        if (!merged.empty() &&
+            static_cast<u64>(a) <= static_cast<u64>(merged.back().first) + merged.back().second) {
+            const u64 end = std::max<u64>(static_cast<u64>(merged.back().first) + merged.back().second,
+                                          static_cast<u64>(a) + s);
+            merged.back().second = static_cast<u32>(end - merged.back().first);
+        } else {
+            merged.emplace_back(a, s);
+        }
+    }
+    copy.data.ranges.reserve(merged.size());
+    for (const auto& [a, s] : merged) {
+        const auto [src, avail] = impl->memory.GetPhysicalSpan(a);
+        if (!src || avail == 0) {
+            continue;
+        }
+        const u32 n = static_cast<u32>(std::min<std::size_t>(s, avail));
+        GammaSnapshot::Range r{a, n, {}};
+        r.bytes.resize(n);
+        std::memcpy(r.bytes.data(), src, n);
+        copy.data.ranges.push_back(std::move(r));
+    }
+}
+
+// The chained copy lookup the PICA core calls from a list's command buffer trigger (worker).
+const u32* GPU::ChainedCopyFor(PAddr addr, u32& size) const {
+    const CmdListCopy* cur = impl->cmd_copy;
+    if (!cur) {
+        return nullptr;
+    }
+    // Depth-first over the copies of this submit (no allocation: this runs at every chain
+    // trigger): the chained list the worker reaches is the one whose address matches.
+    struct Walk {
+        static const u32* Find(const CmdListCopy& c, PAddr addr, u32& size) {
+            for (const auto& ch : c.chained) {
+                if (ch.addr == addr && ch.size == size && !ch.words.empty()) {
+                    size = static_cast<u32>(ch.words.size() * sizeof(u32));
+                    return ch.words.data();
+                }
+                if (const u32* w = Find(ch, addr, size)) {
+                    return w;
+                }
+            }
+            return nullptr;
+        }
+    };
+    return Walk::Find(*cur, addr, size);
+}
+
+// The worker runs a list from its copy only when the registers still name that list (a list
+// or a GSP command can set the command buffer registers behind the shadow's back); otherwise
+// it reads guest memory as the synchronous path does.
+const u32* GPU::CopyFor(PAddr addr, u32& size) const {
+    if (!impl->cmd_copy || impl->cmd_copy->words.empty()) {
+        return nullptr;
+    }
+    if (impl->cmd_copy->addr != addr || impl->cmd_copy->size != size) {
+        static std::atomic<u32> mismatches{0};
+        if (mismatches.fetch_add(1) < 8) {
+            LOG_WARNING(HW_GPU, "async GPU: list copy {:08X}/{} does not match registers {:08X}/{}",
+                        impl->cmd_copy->addr, impl->cmd_copy->size, addr, size);
+        }
+        return nullptr;
+    }
+    size = static_cast<u32>(impl->cmd_copy->words.size() * sizeof(u32));
+    return impl->cmd_copy->words.data();
+}
+
+void GPU::SyncShadow() {
+    if (async && async->eager) {
+        *async->shadow = impl->pica.regs;
+    }
 }
 
 bool GPU::AsyncPending() const {
@@ -261,13 +659,34 @@ GPU::GPU(Core::System& system, Frontend::EmuWindow& emu_window,
     // Bind the rasterizer to the PICA GPU
     impl->pica.BindRasterizer(impl->rasterizer);
 
+    // persist.gammaos.azahar_nano.async_gpu: 0 off (default), 1 lists only, 2 every GSP write and
+    // command queued, 3 = 2 with the interrupts raised at submit. Mode 3 gave Kirby: Planet Robobot
+    // 50 to 53.4 fps on the RG DS, but an interrupt before the list ran lets the game reuse the
+    // vertex and index buffers the worker still reads (wild fetch addresses: 3D Land crashes at
+    // launch), so it stays an experiment until those reads come from a snapshot taken at submit.
+    // Per game: the frontend publishes the override value as sys.gammaos.azahar_nano.async_gpu
+    // (GammaGameProp), the persist prop is the fallback.
     char v[PROP_VALUE_MAX] = {};
-    __system_property_get("persist.gammaos.azahar_nano.async_gpu", v);
-    if (v[0] == '1') {
+    GammaGameProp::Get("async_gpu", v);
+    int mode = 0;
+    if (v[0] >= '1' && v[0] <= '3') {
+        mode = v[0] - '0';
+    }
+    if (mode != 0) {
         async = std::make_unique<Async>();
+        async->mode = mode;
+        async->eager = async->mode >= 3;
+        async->shadow = std::make_unique<Pica::PicaCore::Regs>();
+        std::memset(async->shadow.get(), 0, sizeof(Pica::PicaCore::Regs));
+        async->shadow_internal = std::make_unique<Pica::RegsInternal>();
+        std::memset(async->shadow_internal.get(), 0, sizeof(Pica::RegsInternal));
         async->thread = std::thread([a = async.get()] { a->Run(); });
         s_async_gpu.store(this, std::memory_order_release);
-        LOG_INFO(HW_GPU, "async GPU: command lists on a worker thread");
+        impl->pica.SetChainedCopyLookup(
+            [this](PAddr a, u32& sz) { return ChainedCopyFor(a, sz); });
+        LOG_INFO(HW_GPU, "async GPU mode {}: {} on a worker thread{}", async->mode,
+                 async->mode >= 2 ? "GPU register writes and commands" : "command lists",
+                 async->eager ? ", interrupts raised at submit" : "");
     }
 }
 
@@ -316,6 +735,19 @@ void GPU::SetInterruptHandler(Service::GSP::InterruptHandler handler) {
         Async* a = async.get();
         impl->signal_interrupt = [a, handler](Service::GSP::InterruptId id, u64 delay) {
             if (t_gpu_worker) {
+                if (a->eager) {
+                    auto& c = a->credit[static_cast<std::size_t>(id)];
+                    int have = c.load(std::memory_order_acquire);
+                    while (have > 0) {
+                        if (c.compare_exchange_weak(have, have - 1, std::memory_order_acq_rel)) {
+                            return; // raised already, when the guest submitted the work
+                        }
+                    }
+                }
+                if (a->eager && GxLogOn()) {
+                    LOG_INFO(HW_GPU, "gx worker interrupt {} without credit (pending {})",
+                             static_cast<int>(id), a->pending.load());
+                }
                 std::scoped_lock lock{a->interrupt_mutex};
                 a->interrupts.emplace_back(id, delay);
                 a->interrupt_count.fetch_add(1, std::memory_order_release);
@@ -330,6 +762,8 @@ void GPU::SetInterruptHandler(Service::GSP::InterruptHandler handler) {
 }
 
 void GPU::CpuAccess(PAddr addr, u32 size, bool read, bool write) {
+    // The dead work tracker is also fed by the worker's fills, transfers and draws.
+    AsyncDrain();
     if (read) {
         impl->pica.dead_work.OnCpuRead(addr, size);
     }
@@ -353,10 +787,21 @@ void GPU::RegisterVBlank() {
         "GPU::VBlankCallback",
         [this](uintptr_t user_data, s64 cycles_late) { VBlankCallback(user_data, cycles_late); });
     impl->Timing().ScheduleEvent(FRAME_TICKS, impl->vblank_event);
+    // Async GPU mode 3: the interrupt of queued work, raised a little after the guest's call.
+    impl->eager_event = impl->Timing().RegisterEvent(
+        "GPU::EagerInterrupt", [this](uintptr_t user_data, s64) {
+            impl->signal_interrupt(static_cast<Service::GSP::InterruptId>(user_data), 0);
+        });
 }
 
 void GPU::ResetForLoad() {
     AsyncDrain();
+    if (async) {
+        for (auto& c : async->credit) {
+            c.store(0, std::memory_order_relaxed);
+        }
+    }
+    SyncShadow();
     // The emulated system around the GPU was rebuilt: its vblank event goes on the new timing
     // (the loaded state then replaces the event queue), every cached surface is dropped
     // without a flush (the loaded memory replaces what it holds), and the state the PICA core
@@ -373,24 +818,176 @@ void GPU::ClearAll(bool flush) {
 
 void GPU::Execute(const Service::GSP::Command& command) {
     using Service::GSP::CommandId;
-    auto& regs = impl->pica.regs;
 
     // Async GPU: a command list goes to the worker (its registers are written there, in
-    // order); every other command touches GPU state here and waits for the worker first.
+    // order); in mode 2 the fills and transfers go the same way, so the queue keeps the GSP
+    // order. Every other command touches GPU state here and waits for the worker first.
     if (async && command.id == CommandId::SubmitCmdList) {
         const auto& params = command.submit_gpu_cmdlist;
         const u32 paddr = VirtualToPhysicalAddress(params.address);
         const u32 size = params.size;
-        async->Enqueue([this, paddr, size] {
+        CmdListCopy copy{};
+        if (async->eager) {
+            auto& sh = async->shadow->internal.pipeline.command_buffer;
+            sh.addr[0].Assign(paddr >> 3);
+            sh.size[0].Assign(size >> 3);
+            u32 irqs = 0;
+            copy = CopyCmdList(paddr, size, irqs);
+            EagerSignal(Service::GSP::InterruptId::P3D, irqs);
+            if (GxLogOn()) {
+                if (copy.words.size() <= 16) {
+                    std::string w;
+                    for (u32 x : copy.words) {
+                        w += fmt::format(" {:08X}", x);
+                    }
+                    LOG_INFO(HW_GPU, "gx list words:{}", w);
+                }
+                LOG_INFO(HW_GPU, "gx list {:08X} size {:X} irqs {} credits P3D {} PPF {} PSC {}/{} DMA {} queued {}",
+                         paddr, size, irqs,
+                         async->credit[static_cast<std::size_t>(Service::GSP::InterruptId::P3D)].load(),
+                         async->credit[static_cast<std::size_t>(Service::GSP::InterruptId::PPF)].load(),
+                         async->credit[static_cast<std::size_t>(Service::GSP::InterruptId::PSC0)].load(),
+                         async->credit[static_cast<std::size_t>(Service::GSP::InterruptId::PSC1)].load(),
+                         async->credit[static_cast<std::size_t>(Service::GSP::InterruptId::DMA)].load(),
+                         async->pending.load());
+            }
+        }
+        auto held = std::make_shared<CmdListCopy>(std::move(copy));
+        async->Enqueue([this, paddr, size, held] {
             auto& cmdbuffer = impl->pica.regs.internal.pipeline.command_buffer;
             cmdbuffer.addr[0].Assign(paddr >> 3);
             cmdbuffer.size[0].Assign(size >> 3);
             cmdbuffer.trigger[0] = 1;
+            impl->cmd_copy = held.get();
+            GammaSnapshot::t_active = &held->data;
             SubmitCmdList(0);
+            GammaSnapshot::t_active = nullptr;
+            impl->cmd_copy = nullptr;
         });
         return;
     }
+    // Diagnostics: persist.gammaos.azahar_nano.async_gpu_flush=0 makes CacheFlush wait for the
+    // worker again, async_gpu_dma=0 runs RequestDma on the emulation thread after a wait.
+    // The drain at CacheFlush is load bearing with interrupts raised at submit (Kirby crawls at
+    // 1 fps or the worker runs garbage lists without it): async_gpu_flush=1 removes it, for tests.
+    static const bool flush_free = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_gpu_flush", v);
+        return v[0] == '1';
+    }();
+    // A queued DMA (async_gpu_dma=1) breaks the submit-time snapshot: a list submitted after
+    // the DMA has its vertex data copied before the DMA ran (3D Land: wild index buffers). The
+    // DMA runs on the emulation thread after a drain unless that switch is set.
+    static const bool dma_queued = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_gpu_dma", v);
+        return v[0] == '1';
+    }();
+    // Diagnostics (async_gpu_log=1): what the guest flushes and what the queued GPU work
+    // writes, to find what the CPU reads back after a CacheFlush.
+    if (GxLogOn() && AsyncQueued()) {
+        {
+            switch (command.id) {
+            case CommandId::CacheFlush: {
+                const auto& r = command.cache_flush.regions;
+                LOG_INFO(HW_GPU, "gx flush {:08X}/{:X} {:08X}/{:X} {:08X}/{:X}",
+                         VirtualToPhysicalAddress(r[0].address), r[0].size,
+                         VirtualToPhysicalAddress(r[1].address), r[1].size,
+                         VirtualToPhysicalAddress(r[2].address), r[2].size);
+                break;
+            }
+            case CommandId::MemoryFill:
+                LOG_INFO(HW_GPU, "gx fill {:08X}-{:08X} {:08X}-{:08X}",
+                         VirtualToPhysicalAddress(command.memory_fill.start1),
+                         VirtualToPhysicalAddress(command.memory_fill.end1),
+                         VirtualToPhysicalAddress(command.memory_fill.start2),
+                         VirtualToPhysicalAddress(command.memory_fill.end2));
+                break;
+            case CommandId::DisplayTransfer:
+                LOG_INFO(HW_GPU, "gx transfer {:08X} -> {:08X} out {:X}",
+                         VirtualToPhysicalAddress(command.display_transfer.in_buffer_address),
+                         VirtualToPhysicalAddress(command.display_transfer.out_buffer_address),
+                         command.display_transfer.out_buffer_size);
+                break;
+            case CommandId::TextureCopy:
+                LOG_INFO(HW_GPU, "gx texcopy {:08X} -> {:08X} size {:X}",
+                         VirtualToPhysicalAddress(command.texture_copy.in_buffer_address),
+                         VirtualToPhysicalAddress(command.texture_copy.out_buffer_address),
+                         command.texture_copy.size);
+                break;
+            case CommandId::RequestDma:
+                LOG_INFO(HW_GPU, "gx dma {:08X} -> {:08X} size {:X}",
+                         VirtualToPhysicalAddress(command.dma_request.source_address),
+                         VirtualToPhysicalAddress(command.dma_request.dest_address),
+                         command.dma_request.size);
+                break;
+            case CommandId::SubmitCmdList:
+                LOG_INFO(HW_GPU, "gx list {:08X} size {:X}",
+                         VirtualToPhysicalAddress(command.submit_gpu_cmdlist.address),
+                         command.submit_gpu_cmdlist.size);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    if (AsyncQueued() && command.id == CommandId::CacheFlush && flush_free) {
+        return; // nothing to do, and nothing to wait for
+    }
+    // persist.gammaos.azahar_nano.async_gpu_flush_lag=N: CacheFlush lets N jobs stay in flight
+    // instead of waiting for the whole queue (0 = wait for everything, the safe default).
+    static const int flush_lag = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.async_gpu_flush_lag", v);
+        return v[0] ? atoi(v) : 0;
+    }();
+    if (AsyncQueued() && command.id == CommandId::CacheFlush && flush_lag > 0) {
+        if (async->pending.load(std::memory_order_acquire) > flush_lag) {
+            async->WaitPendingAtMost(flush_lag);
+        }
+        async->Deliver();
+        return;
+    }
+    if (AsyncQueued() &&
+        (command.id == CommandId::MemoryFill || command.id == CommandId::DisplayTransfer ||
+         command.id == CommandId::TextureCopy ||
+         (command.id == CommandId::RequestDma && async->eager && dma_queued))) {
+        if (async->eager) {
+            if (command.id == CommandId::MemoryFill) {
+                const auto& params = command.memory_fill;
+                const bool both = params.start1 != 0 && params.start2 != 0;
+                if (params.start1 != 0 && !both) {
+                    EagerSignal(Service::GSP::InterruptId::PSC0);
+                }
+                if (params.start2 != 0) {
+                    EagerSignal(both ? Service::GSP::InterruptId::PSC0
+                                     : Service::GSP::InterruptId::PSC1);
+                }
+            } else if (command.id == CommandId::RequestDma) {
+                // The copy runs in queue order on the worker (its destination is GPU memory
+                // a queued list may read or write); the guest gets the interrupt now.
+                EagerSignal(Service::GSP::InterruptId::DMA);
+            } else {
+                EagerSignal(Service::GSP::InterruptId::PPF);
+            }
+        }
+        // The DMA copies through the requesting process's address space: taken here, the
+        // kernel's current process is the emulation thread's to read.
+        std::shared_ptr<Kernel::Process> process;
+        if (command.id == CommandId::RequestDma) {
+            process = impl->system.Kernel().GetCurrentProcess();
+        }
+        async->Enqueue([this, command, process] { ExecuteCommand(command, process); });
+        return;
+    }
     AsyncDrain();
+    ExecuteCommand(command, nullptr);
+}
+
+void GPU::ExecuteCommand(const Service::GSP::Command& command,
+                         std::shared_ptr<Kernel::Process> dma_process) {
+    using Service::GSP::CommandId;
+    auto& regs = impl->pica.regs;
 
     switch (command.id) {
     case CommandId::RequestDma: {
@@ -402,7 +999,8 @@ void GPU::Execute(const Service::GSP::Command& command) {
 
         // TODO(Subv): These memory accesses should not go through the application's memory mapping.
         // They should go through the GSP module's memory mapping.
-        const auto process = impl->system.Kernel().GetCurrentProcess();
+        const auto process =
+            dma_process ? dma_process : impl->system.Kernel().GetCurrentProcess();
         impl->memory.CopyBlock(*process, command.dma_request.dest_address,
                                command.dma_request.source_address, command.dma_request.size);
 
@@ -503,7 +1101,22 @@ void GPU::Execute(const Service::GSP::Command& command) {
 }
 
 void GPU::SetBufferSwap(u32 screen_id, const Service::GSP::FrameBufferInfo& info) {
+    if (AsyncQueued()) {
+        // The framebuffer registers change in queue order with the transfers that fill them;
+        // the frame counter stays on the emulation thread.
+        if (screen_id == 0) {
+            MicroProfileFlip();
+            impl->system.perf_stats->EndGameFrame();
+        }
+        async->Enqueue([this, screen_id, info] { SetBufferSwapNow(screen_id, info, false); });
+        return;
+    }
     AsyncDrain();
+    SetBufferSwapNow(screen_id, info, true);
+}
+
+void GPU::SetBufferSwapNow(u32 screen_id, const Service::GSP::FrameBufferInfo& info,
+                           bool count_frame) {
     const PAddr phys_address_left = VirtualToPhysicalAddress(info.address_left);
     const PAddr phys_address_right = VirtualToPhysicalAddress(info.address_right);
 
@@ -527,8 +1140,10 @@ void GPU::SetBufferSwap(u32 screen_id, const Service::GSP::FrameBufferInfo& info
     }
 
     if (screen_id == 0) {
-        MicroProfileFlip();
-        impl->system.perf_stats->EndGameFrame();
+        if (count_frame) {
+            MicroProfileFlip();
+            impl->system.perf_stats->EndGameFrame();
+        }
         right_eye_disabler->ReportEndFrame();
     }
 }
@@ -541,6 +1156,97 @@ void GPU::SetColorFill(const Pica::ColorFill& fill) {
 
 u32 GPU::ReadReg(VAddr addr) {
     AsyncDrain();
+    const u32 v = ReadRegNow(addr);
+    if (GxLogOn()) {
+        LOG_INFO(HW_GPU, "gx readreg {:08X} = {:08X}", addr, v);
+    }
+    return v;
+}
+
+void GPU::WriteRegMasked(VAddr addr, u32 value, u32 mask) {
+    if (AsyncQueued()) {
+        CmdListCopy copy{};
+        if (async->eager && (addr & 0xFFFFF000) != VADDR_LCD) {
+            // The shadow only sees GSP writes (a list may have changed the register since), so
+            // it decides the interrupt and the copy; the read-modify-write itself runs on the
+            // worker, in order, against the real register.
+            const u32 index = (addr - VADDR_GPU) / sizeof(u32);
+            if (index < Pica::PicaCore::Regs::NUM_REGS) {
+                const u32 eff = (async->shadow->reg_array[index] & ~mask) | (value & mask);
+                copy = EagerRegWrite(index, eff);
+            }
+        }
+        auto held = std::make_shared<CmdListCopy>(std::move(copy));
+        async->Enqueue([this, addr, value, mask, held] {
+            impl->cmd_copy = held.get();
+            GammaSnapshot::t_active = &held->data;
+            WriteRegNow(addr, (ReadRegNow(addr) & ~mask) | (value & mask));
+            GammaSnapshot::t_active = nullptr;
+            impl->cmd_copy = nullptr;
+        });
+        return;
+    }
+    WriteReg(addr, (ReadReg(addr) & ~mask) | (value & mask));
+}
+
+// Mode 3, emulation thread: records a GSP register write in the shadow and, for a trigger
+// register, raises the interrupt now and copies the list it starts.
+GPU::CmdListCopy GPU::EagerRegWrite(u32 index, u32 data) {
+    const bool gx_log_regs = GxLogOn();
+    auto& sh = *async->shadow;
+    sh.reg_array[index] = data;
+    CmdListCopy copy{};
+    switch (index) {
+    case GPU_REG_INDEX(memory_fill_config[0].trigger):
+    case GPU_REG_INDEX(memory_fill_config[1].trigger): {
+        const u32 i = index == GPU_REG_INDEX(memory_fill_config[0].trigger) ? 0 : 1;
+        if ((data & 1) && sh.memory_fill_config[i].GetStartAddress() != 0) {
+            EagerSignal(i == 0 ? Service::GSP::InterruptId::PSC0 : Service::GSP::InterruptId::PSC1);
+            static u32 logged = 0;
+            if (gx_log_regs && logged++ < 100000) {
+                LOG_INFO(HW_GPU, "gx reg fill{} {:08X}-{:08X}", i,
+                         sh.memory_fill_config[i].GetStartAddress(),
+                         sh.memory_fill_config[i].GetEndAddress());
+            }
+        }
+        break;
+    }
+    case GPU_REG_INDEX(display_transfer_config.trigger):
+        if (data & 1) {
+            EagerSignal(Service::GSP::InterruptId::PPF);
+            static u32 logged = 0;
+            if (gx_log_regs && logged++ < 100000) {
+                const auto& dt = sh.display_transfer_config;
+                LOG_INFO(HW_GPU, "gx reg transfer {:08X} -> {:08X} {}x{} copy {} size {:X}",
+                         dt.GetPhysicalInputAddress(), dt.GetPhysicalOutputAddress(),
+                         dt.output_width.Value(), dt.output_height.Value(),
+                         dt.is_texture_copy.Value(), dt.texture_copy.size);
+            }
+        }
+        break;
+    case GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[0]):
+    case GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[1]): {
+        const u32 i = index == GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[0]) ? 0 : 1;
+        if (data != 0) {
+            const auto& cb = sh.internal.pipeline.command_buffer;
+            u32 irqs = 0;
+            copy = CopyCmdList(cb.GetPhysicalAddress(i), cb.GetSize(i), irqs);
+            EagerSignal(Service::GSP::InterruptId::P3D, irqs);
+            static u32 logged = 0;
+            if (gx_log_regs && logged++ < 100000) {
+                LOG_INFO(HW_GPU, "gx reg list {:08X} size {:X} irqs {}", cb.GetPhysicalAddress(i),
+                         cb.GetSize(i), irqs);
+            }
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    return copy;
+}
+
+u32 GPU::ReadRegNow(VAddr addr) {
     switch (addr & 0xFFFFF000) {
     case VADDR_LCD: {
         const u32 offset = addr - VADDR_LCD;
@@ -563,7 +1269,34 @@ u32 GPU::ReadReg(VAddr addr) {
 }
 
 void GPU::WriteReg(VAddr addr, u32 data) {
+    const bool gx_log_regs = GxLogOn();
+    if (gx_log_regs) {
+        LOG_INFO(HW_GPU, "gx writereg {:08X} = {:08X}", addr, data);
+    }
+    if (AsyncQueued()) {
+        if (async->eager && (addr & 0xFFFFF000) != VADDR_LCD) {
+            const u32 index = (addr - VADDR_GPU) / sizeof(u32);
+            if (index < Pica::PicaCore::Regs::NUM_REGS) {
+                CmdListCopy copy = EagerRegWrite(index, data);
+                auto held = std::make_shared<CmdListCopy>(std::move(copy));
+                async->Enqueue([this, addr, data, held] {
+                    impl->cmd_copy = held.get();
+                    GammaSnapshot::t_active = &held->data;
+                    WriteRegNow(addr, data);
+                    GammaSnapshot::t_active = nullptr;
+                    impl->cmd_copy = nullptr;
+                });
+                return;
+            }
+        }
+        async->Enqueue([this, addr, data] { WriteRegNow(addr, data); });
+        return;
+    }
     AsyncDrain();
+    WriteRegNow(addr, data);
+}
+
+void GPU::WriteRegNow(VAddr addr, u32 data) {
     switch (addr & 0xFFFFF000) {
     case VADDR_LCD: {
         const u32 offset = addr - VADDR_LCD;
@@ -594,14 +1327,14 @@ void GPU::WriteReg(VAddr addr, u32 data) {
             MemoryTransfer();
             break;
         case GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[0]):
-            if (async) {
+            if (async && !t_gpu_worker) {
                 async->Enqueue([this] { SubmitCmdList(0); });
             } else {
                 SubmitCmdList(0);
             }
             break;
         case GPU_REG_INDEX(internal.pipeline.command_buffer.trigger[1]):
-            if (async) {
+            if (async && !t_gpu_worker) {
                 async->Enqueue([this] { SubmitCmdList(1); });
             } else {
                 SubmitCmdList(1);
@@ -665,9 +1398,10 @@ void GPU::SubmitCmdList(u32 index) {
 
     // Forward command list processing to the PICA core.
     const PAddr addr = config.GetPhysicalAddress(index);
-    const u32 size = config.GetSize(index);
-    impl->pica.ProcessCmdList(addr, size,
-                              !right_eye_disabler->ShouldAllowCmdQueueTrigger(addr, size));
+    u32 size = config.GetSize(index);
+    const u32* words = CopyFor(addr, size); // the copy's length when one applies
+    const bool allow = right_eye_disabler->ShouldAllowCmdQueueTrigger(addr, size, words);
+    impl->pica.ProcessCmdList(addr, size, !allow, words);
     config.trigger[index] = 0;
 }
 
@@ -820,6 +1554,9 @@ template <class Archive>
 void GPU::serialize(Archive& ar, const u32 file_version) {
     AsyncDrain();
     ar & impl->pica;
+    if (Archive::is_loading::value) {
+        SyncShadow();
+    }
 }
 
 SERIALIZE_IMPL(GPU)

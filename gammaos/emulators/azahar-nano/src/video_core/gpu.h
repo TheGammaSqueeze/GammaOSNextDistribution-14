@@ -6,9 +6,11 @@
 
 #include <functional>
 #include <memory>
+#include <vector>
 #include <boost/serialization/access.hpp>
 
 #include "core/hle/service/gsp/gsp_interrupt.h"
+#include "video_core/gammaos_snapshot.h"
 
 namespace Service::GSP {
 struct Command;
@@ -28,6 +30,10 @@ union ColorFill;
 
 namespace Frontend {
 class EmuWindow;
+}
+
+namespace Kernel {
+class Process;
 }
 
 namespace VideoCore {
@@ -87,6 +93,10 @@ public:
     /// Writes the provided value to the GPU virtual address.
     void WriteReg(VAddr addr, u32 data);
 
+    /// GammaOS: writes the mask bits of value to the register (WriteHWRegsWithMask), as one
+    /// read-modify-write in the GPU's own order.
+    void WriteRegMasked(VAddr addr, u32 value, u32 mask);
+
     /// Returns a mutable reference to the renderer.
     [[nodiscard]] VideoCore::RendererBase& Renderer();
 
@@ -119,12 +129,44 @@ public:
     void AsyncDrain(void* site = nullptr);
     /// Delivers the interrupts of command lists the worker has finished, without waiting.
     void AsyncPoll();
+    /// Waits until the worker finished one more job (mode 2) or ran dry, then delivers its
+    /// interrupts: for the run loop with every emulated thread waiting. True when it delivered
+    /// an interrupt (a thread may be ready now: the emulated clock should not skip ahead).
+    bool AsyncWaitProgress();
     /// True while command lists are queued or being processed.
     bool AsyncPending() const;
     /// GammaOS: the async command list worker is in use.
     bool AsyncActive() const;
+    /// Mode 2 and called from the emulation thread: register writes and commands are queued.
+    bool AsyncQueued() const;
 
 private:
+    void EagerSignal(Service::GSP::InterruptId id, u32 count = 1);
+    struct CmdListCopy {
+        PAddr addr;
+        u32 size;
+        std::vector<u32> words;
+        // Lists this one starts (command buffer trigger inside the list), copied as well.
+        std::vector<CmdListCopy> chained;
+        // The vertex and index data every draw of this list (and its chains) reads, as it was
+        // at submit (top-level copy only).
+        GammaSnapshot::Snapshot data;
+    };
+    struct DrawRanges;
+    CmdListCopy CopyCmdList(PAddr addr, u32 size, u32& irqs, u32 depth = 0,
+                            DrawRanges* ranges = nullptr);
+    void TakeSnapshot(CmdListCopy& copy, DrawRanges& ranges);
+    const u32* CopyFor(PAddr addr, u32& size) const;
+    const u32* ChainedCopyFor(PAddr addr, u32& size) const;
+    CmdListCopy EagerRegWrite(u32 index, u32 data);
+    void SyncShadow();
+    void ExecuteCommand(const Service::GSP::Command& command,
+                        std::shared_ptr<Kernel::Process> dma_process);
+    void SetBufferSwapNow(u32 screen_id, const Service::GSP::FrameBufferInfo& info,
+                          bool count_frame);
+    u32 ReadRegNow(VAddr addr);
+    void WriteRegNow(VAddr addr, u32 data);
+
     void SubmitCmdList(u32 index);
 
     // Interrupt index must be 0 or 1 to signal the relative PSC interrupt.

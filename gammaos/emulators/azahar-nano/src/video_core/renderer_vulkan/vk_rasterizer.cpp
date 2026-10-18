@@ -24,6 +24,7 @@
 #include "common/scope_exit.h"
 #include <cstring>
 #include "video_core/gpu.h"
+#include "video_core/gammaos_snapshot.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/renderer_vulkan/vk_gammaos_stats.h"
 #include "video_core/renderer_vulkan/vk_gammaos_gpu_timer.h"
@@ -361,7 +362,7 @@ void RasterizerVulkan::SyncDrawState() {
     pipeline_info.state.depth_stencil.depth_write_enable.Assign(write_enable);
 }
 
-void RasterizerVulkan::SetupVertexArray() {
+bool RasterizerVulkan::SetupVertexArray() {
     const auto [vs_input_index_min, vs_input_index_max, vs_input_size] = vertex_info;
     auto [array_ptr, array_offset, invalidate] = stream_buffer.Map(vs_input_size, 16);
 
@@ -428,12 +429,19 @@ void RasterizerVulkan::SetupVertexArray() {
         res_cache.FlushRegion(data_addr, data_size);
 
         // GammaOS: the raw span (same pointer and size as a MemoryRef, without its reference
-        // count traffic for every loader of every draw).
-        const auto [src_raw, src_size] = memory.GetPhysicalSpan(data_addr);
+        // count traffic for every loader of every draw); async GPU mode 3 reads the bytes
+        // snapshotted when the list was submitted.
+        auto [src_raw, src_size] = memory.GetPhysicalSpan(data_addr);
+        const u8* src_span_raw = src_raw;
+        if (const u8* snap = VideoCore::GammaSnapshot::Find(data_addr, data_size)) {
+            src_raw = const_cast<u8*>(snap);
+            src_size = data_size;
+        }
         if (src_size < data_size) {
             LOG_ERROR(Render_Vulkan,
                       "Vertex buffer size {} exceeds available space {} at address {:#016X}",
                       data_size, src_size, data_addr);
+            return false; // GammaOS: the draw is skipped instead of reading past the region
         }
 
         const u8* src_ptr = src_raw;
@@ -469,15 +477,19 @@ void RasterizerVulkan::SetupVertexArray() {
             // runs during a command list). 3D Land hashes a third of its vertex bytes twice.
             // persist.gammaos.azahar_nano.vtx_memo=0 hashes every time; default Mali only, and
             // off with the asynchronous GPU worker (the guest runs during its command lists).
-            static const bool vtx_memo = [] {
+            static const bool async_worker = [] {
                 char v[PROP_VALUE_MAX] = {};
-                __system_property_get("persist.gammaos.azahar_nano.async_gpu", v);
-                return v[0] != '1' &&
-                       Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.vtx_memo");
+                GammaGameProp::Get("async_gpu", v);
+                return v[0] >= '1' && v[0] <= '3';
             }();
+            static const bool vtx_memo =
+                Common::GammaOS::TweakEnabled("persist.gammaos.azahar_nano.vtx_memo");
+            // With the worker the guest runs during a list, so the memo only holds for bytes
+            // that came from the submit-time snapshot (mode 3), which cannot change.
+            const bool memo_ok = vtx_memo && (!async_worker || src_raw != src_span_raw);
             const u64 list_serial = pica.CmdListSerial();
             const u64 guest_writes = res_cache.GuestWrites();
-            if (vtx_memo && it != vertex_cache.end() && it->second.cmd_list == list_serial &&
+            if (memo_ok && it != vertex_cache.end() && it->second.cmd_list == list_serial &&
                 it->second.guest_writes == guest_writes && it->second.addr == data_addr &&
                 it->second.size == data_size && it->second.stride == aligned_stride) {
                 data_hash = it->second.hash;
@@ -568,6 +580,7 @@ void RasterizerVulkan::SetupVertexArray() {
 
     // Assign the rest of the attributes to the last binding
     SetupFixedAttribs();
+    return true;
 }
 
 void RasterizerVulkan::SetupFixedAttribs() {
@@ -703,7 +716,9 @@ bool RasterizerVulkan::AccelerateDrawBatch(bool is_indexed) {
                           (is_indexed ? regs.pipeline.num_vertices * 2 + 2 : 0) + 64);
     {
         SlowStep t{"SetupVertexArray"};
-        SetupVertexArray();
+        if (!SetupVertexArray()) {
+            return true; // skipped: a buffer outside memory
+        }
     }
 
     bool vs_ok;
@@ -722,8 +737,8 @@ bool RasterizerVulkan::AccelerateDrawBatch(bool is_indexed) {
 }
 
 bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
-    if (is_indexed) {
-        SetupIndexArray();
+    if (is_indexed && !SetupIndexArray()) {
+        return true; // skipped: an index buffer outside memory
     }
 
     // GammaOS: persist.gammaos.azahar_nano.async_small=1 also skips small (6 vertices or
@@ -856,15 +871,27 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
     return true;
 }
 
-void RasterizerVulkan::SetupIndexArray() {
+bool RasterizerVulkan::SetupIndexArray() {
     const bool index_u8 = regs.pipeline.index_array.format == 0;
     const bool native_u8 = index_u8 && instance.IsIndexTypeUint8Supported();
     const u32 index_buffer_size = regs.pipeline.num_vertices * (native_u8 ? 1 : 2);
     const vk::IndexType index_type = native_u8 ? vk::IndexType::eUint8EXT : vk::IndexType::eUint16;
 
-    const u8* index_data =
-        memory.GetPhysicalPointer(regs.pipeline.vertex_attributes.GetPhysicalBaseAddress() +
-                                  regs.pipeline.index_array.offset);
+    const PAddr index_addr = regs.pipeline.vertex_attributes.GetPhysicalBaseAddress() +
+                             regs.pipeline.index_array.offset;
+    const u32 index_bytes = regs.pipeline.num_vertices * (index_u8 ? 1 : 2);
+    const u8* index_data = VideoCore::GammaSnapshot::Find(index_addr, index_bytes);
+    if (!index_data) {
+        // GammaOS: bounded (a game, or a list run after its buffer was reused, can name an
+        // index buffer outside mapped memory; the sync path crashed on it too).
+        const auto [p, avail] = memory.GetPhysicalSpan(index_addr);
+        if (!p || avail < index_bytes) {
+            LOG_WARNING(Render_Vulkan, "index buffer {:08X}+{:X} outside memory, draw skipped",
+                        index_addr, index_bytes);
+            return false;
+        }
+        index_data = p;
+    }
 
     auto [index_ptr, index_offset, _] = stream_buffer.Map(index_buffer_size, 2);
 
@@ -883,6 +910,7 @@ void RasterizerVulkan::SetupIndexArray() {
         [this, index_offset = index_offset, index_type = index_type](vk::CommandBuffer cmdbuf) {
             cmdbuf.bindIndexBuffer(stream_buffer.Handle(), index_offset, index_type);
         });
+    return true;
 }
 
 void RasterizerVulkan::DrawTriangles() {

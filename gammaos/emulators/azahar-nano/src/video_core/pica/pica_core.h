@@ -131,7 +131,17 @@ public:
 
     void SetInterruptHandler(Service::GSP::InterruptHandler& signal_interrupt);
 
-    void ProcessCmdList(PAddr list, u32 size, bool ignore_list);
+    /// GammaOS: words, when given, is a copy of the list made when the guest submitted it
+    /// (the async GPU worker may run it after the guest reused the memory).
+    void ProcessCmdList(PAddr list, u32 size, bool ignore_list, const u32* words = nullptr);
+
+    /// GammaOS async GPU: a list that starts another list (command buffer trigger inside a
+    /// list) asks here for a copy of that list made at submit time; size is set to the copied
+    /// length when one is returned.
+    using ChainedCopyLookup = std::function<const u32*(PAddr addr, u32& size)>;
+    void SetChainedCopyLookup(ChainedCopyLookup lookup) {
+        chained_copy_lookup = std::move(lookup);
+    }
 
 private:
     void InitializeRegs();
@@ -420,7 +430,9 @@ public:
         bool paddr_found = false;
     };
 
-    RenderPropertiesGuess GuessCmdRenderProperties(PAddr list, u32 size);
+    /// GammaOS: words is the submit-time copy of the list when the async GPU worker runs it.
+    RenderPropertiesGuess GuessCmdRenderProperties(PAddr list, u32 size,
+                                                   const u32* words = nullptr);
 
     /// GammaOS: true when the command list (and the lists it chains to) draws, and every draw
     /// happens with a viewport of vp_height. The right eye disabler blocks only such lists:
@@ -443,6 +455,7 @@ private:
     PrimitiveAssembler primitive_assembler;
     CommandList cmd_list;
     u64 cmd_list_serial = 0;
+    ChainedCopyLookup chained_copy_lookup;
     std::unique_ptr<ShaderEngine> shader_engine;
     // GammaOS stereo twins (persist.gammaos.azahar_nano.stereo_twin, on by default).
     bool twin_scan_ok = false;

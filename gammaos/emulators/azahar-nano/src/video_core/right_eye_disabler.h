@@ -13,7 +13,7 @@ class RightEyeDisabler {
 public:
     RightEyeDisabler(GPU& gpu) : gpu{gpu} {}
 
-    bool ShouldAllowCmdQueueTrigger(PAddr addr, u32 size);
+    bool ShouldAllowCmdQueueTrigger(PAddr addr, u32 size, const u32* words = nullptr);
     bool ShouldAllowDisplayTransfer(PAddr src_address, size_t size);
 
     void ReportEndFrame();

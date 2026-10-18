@@ -33,7 +33,10 @@ struct GPU::Impl {
     RasterizerInterface* rasterizer;
     std::unique_ptr<SwRenderer::SwBlitter> sw_blitter;
     Core::TimingEventType* vblank_event;
+    Core::TimingEventType* eager_event = nullptr;
     Service::GSP::InterruptHandler signal_interrupt;
+    /// GammaOS async GPU mode 3: the copy of the command list the worker's current job runs.
+    const GPU::CmdListCopy* cmd_copy = nullptr;
 
     explicit Impl(Core::System& system, Frontend::EmuWindow& emu_window,
                   Frontend::EmuWindow* secondary_window)

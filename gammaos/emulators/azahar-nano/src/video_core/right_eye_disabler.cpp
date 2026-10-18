@@ -9,7 +9,7 @@
 #include "video_core/renderer_vulkan/vk_gammaos_stats.h"
 
 namespace VideoCore {
-bool RightEyeDisabler::ShouldAllowCmdQueueTrigger(PAddr addr, u32 size) {
+bool RightEyeDisabler::ShouldAllowCmdQueueTrigger(PAddr addr, u32 size, const u32* words) {
     namespace GS = Vulkan::GammaStats;
     GS::Add(GS::CmdLists);
     if (!enabled || !enable_for_frame)
@@ -23,7 +23,7 @@ bool RightEyeDisabler::ShouldAllowCmdQueueTrigger(PAddr addr, u32 size) {
     }
     cmd_queue_trigger_happened = true;
 
-    auto guess = gpu.impl->pica.GuessCmdRenderProperties(addr, size);
+    auto guess = gpu.impl->pica.GuessCmdRenderProperties(addr, size, words);
     if (guess.vp_height == top_screen_size) GS::Add(GS::CmdListsTop);
     if (guess.vp_height == top_screen_size && !top_screen_blocked) {
         if (top_screen_buf == 0) {

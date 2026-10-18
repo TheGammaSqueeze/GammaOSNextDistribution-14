@@ -7,6 +7,7 @@
 #include "core/memory.h"
 #include "video_core/pica/pica_core.h"
 #include "common/settings.h"
+#include "video_core/gammaos_snapshot.h"
 #include "video_core/rasterizer_accelerated.h"
 
 namespace VideoCore {
@@ -99,20 +100,25 @@ RasterizerAccelerated::VertexArrayInfo RasterizerAccelerated::AnalyzeVertexArray
     if (is_indexed) {
         const auto& index_info = regs.pipeline.index_array;
         const PAddr address = vertex_attributes.GetPhysicalBaseAddress() + index_info.offset;
-        const u8* index_address_8 = memory.GetPhysicalPointer(address);
+        const bool index_u16 = index_info.format != 0;
+        const u32 count = regs.pipeline.num_vertices;
+        const u32 index_size = index_u16 ? 2 : 1;
+        const u32 size = count * index_size;
+        // GammaOS async GPU: the indices as they were when the list was submitted, if snapshotted.
+        const u8* index_address_8 = VideoCore::GammaSnapshot::Find(address, size);
+        if (index_address_8 == nullptr) {
+            const auto [p, avail] = memory.GetPhysicalSpan(address);
+            index_address_8 = (p && avail >= size) ? p : nullptr;
+        }
         if (index_address_8 == nullptr) {
             // Mario & Luigi: Superstar Saga sets an invalid base address
             // for the vertex attributes. Return early if that is the case.
             return {0, 0, 0};
         }
         const u16* index_address_16 = reinterpret_cast<const u16*>(index_address_8);
-        const bool index_u16 = index_info.format != 0;
 
         vertex_min = 0xFFFF;
         vertex_max = 0;
-        const u32 count = regs.pipeline.num_vertices;
-        const u32 index_size = index_u16 ? 2 : 1;
-        const u32 size = count * index_size;
         FlushRegion(address, size);
 
         if (index_u16) {

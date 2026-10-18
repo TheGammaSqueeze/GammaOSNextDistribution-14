@@ -142,10 +142,10 @@ private:
     bool AccelerateDrawBatchInternal(bool is_indexed);
 
     /// Setup index array for AccelerateDrawBatch
-    void SetupIndexArray();
+    bool SetupIndexArray();
 
     /// Setup vertex array for AccelerateDrawBatch
-    void SetupVertexArray();
+    bool SetupVertexArray();
 
     /// Setup the fixed attribute emulation in vulkan
     void SetupFixedAttribs();

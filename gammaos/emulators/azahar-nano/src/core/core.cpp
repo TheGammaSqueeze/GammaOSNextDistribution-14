@@ -373,10 +373,11 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         // instead advance to the next event and try to yield to the next thread
         if (kernel->GetCurrentThreadManager().GetCurrentThread() == nullptr) {
             LOG_TRACE(Core_ARM11, "Core {} idling", cpu_core->GetID());
-            if (gpu && gpu->AsyncPending()) {
-                gpu->AsyncDrain();
+            // GammaOS async GPU: the wait for the host worker is not emulated time; when it
+            // delivered an interrupt a thread may be ready, so the clock does not skip ahead.
+            if (!(gpu && gpu->AsyncPending() && gpu->AsyncWaitProgress())) {
+                cpu_core->GetTimer().Idle();
             }
-            cpu_core->GetTimer().Idle();
             PrepareReschedule();
         } else {
             // In the rare case the break flag is set (due to exception thrown)
@@ -398,7 +399,13 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
                 timing->SetParkLeadRunning(false);
             }
             if (gamma_pc_sampling) {
-                const u64 key = (u64{cpu_core->GetPC()} << 32) | cpu_core->GetReg(14);
+                u32 lr = cpu_core->GetReg(14);
+                // Second level: when lr is a known wrapper (sys.gammaos.azahar_nano.pc2_lr, hex),
+                // report the return address it saved at [sp + pc2_off] instead.
+                if (gamma_pc2_lr != 0 && lr == gamma_pc2_lr) {
+                    lr = memory->Read32(cpu_core->GetReg(13) + gamma_pc2_off);
+                }
+                const u64 key = (u64{cpu_core->GetPC()} << 32) | lr;
                 gamma_pc_samples[key]++;
             }
             if (gamma_pc_sampling) {
@@ -504,10 +511,9 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             LOG_TRACE(Core_ARM11, "Core {} idling", current_core_to_execute->GetID());
             // GammaOS async GPU: nothing to run is usually a thread waiting for the GPU; let
             // the worker finish (and its interrupts arrive) instead of skipping time ahead.
-            if (gpu && gpu->AsyncPending()) {
-                gpu->AsyncDrain();
+            if (!(gpu && gpu->AsyncPending() && gpu->AsyncWaitProgress())) {
+                current_core_to_execute->GetTimer().Idle();
             }
-            current_core_to_execute->GetTimer().Idle();
             PrepareReschedule();
         } else {
             if (tight_loop) {
@@ -568,6 +574,33 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             __system_property_get("sys.gammaos.azahar_nano.svc_stats", v);
             enabled = v[0] == '1';
             gamma_pc_sampling = enabled;
+            {
+                char w[PROP_VALUE_MAX] = {};
+                __system_property_get("sys.gammaos.azahar_nano.pc2_lr", w);
+                gamma_pc2_lr = static_cast<u32>(strtoul(w, nullptr, 16));
+                __system_property_get("sys.gammaos.azahar_nano.pc2_off", w);
+                gamma_pc2_off = static_cast<u32>(strtoul(w, nullptr, 16));
+            }
+            // GammaOS debug: sys.gammaos.azahar_nano.memdump=<hex vaddr>:<hex len>:<path> writes
+            // that guest memory (current process) to the file once, then clears the property.
+            char d[PROP_VALUE_MAX] = {};
+            __system_property_get("sys.gammaos.azahar_nano.memdump", d);
+            if (d[0]) {
+                unsigned long addr = 0, len = 0;
+                char path[PROP_VALUE_MAX] = {};
+                if (sscanf(d, "%lx:%lx:%91s", &addr, &len, path) == 3 && len > 0 &&
+                    len <= 16u * 1024 * 1024) {
+                    std::vector<u8> buf(len);
+                    memory->ReadBlock(*kernel->GetCurrentProcess(), static_cast<VAddr>(addr),
+                                      buf.data(), len);
+                    if (FILE* f = fopen(path, "wb")) {
+                        fwrite(buf.data(), 1, buf.size(), f);
+                        fclose(f);
+                        LOG_INFO(Core, "memdump {:08X}+{:X} -> {}", addr, len, path);
+                    }
+                }
+                __system_property_set("sys.gammaos.azahar_nano.memdump", "");
+            }
         }
         const auto now = enabled ? std::chrono::steady_clock::now() : last;
         if (enabled && now - last > std::chrono::seconds(2)) {

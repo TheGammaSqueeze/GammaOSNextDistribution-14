@@ -8,6 +8,7 @@
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
+#include <sys/system_properties.h>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -286,6 +287,25 @@ void ThreadManager::ThreadWakeupCallback(u64 thread_id, s64 cycles_late) {
         thread->status == ThreadStatus::WaitSynchAll || thread->status == ThreadStatus::WaitArb ||
         thread->status == ThreadStatus::WaitHleEvent) {
 
+        // GammaOS diagnostics (sys.gammaos.azahar_nano.gx_log=1): a wait that timed out, with
+        // what it waited for.
+        {
+            static bool on = false;
+            static u32 polls = 0;
+            if ((polls++ & 0xF) == 0) {
+                char v[92] = {};
+                __system_property_get("sys.gammaos.azahar_nano.gx_log", v);
+                on = v[0] == '1';
+            }
+            if (on) {
+                std::string objs;
+                for (auto& object : thread->wait_objects) {
+                    objs += " " + object->GetTypeName() + ":" + object->GetName();
+                }
+                LOG_INFO(Kernel, "gx wait timeout: thread {} ({}) status {} on{}", thread->GetName(),
+                         thread->GetObjectId(), static_cast<int>(thread->status), objs);
+            }
+        }
         // Invoke the wakeup callback before clearing the wait objects
         if (thread->wakeup_callback)
             thread->wakeup_callback->WakeUp(ThreadWakeupReason::Timeout, thread, nullptr);
@@ -310,7 +330,38 @@ void Thread::WakeAfterDelay(s64 nanoseconds, bool thread_safe_mode) {
                                                core, thread_safe_mode);
 }
 
+// GammaOS diagnostics: sys.gammaos.azahar_nano.gx_log=1 (polled).
+bool GammaWaitLogOn() {
+    static bool on = false;
+    static u32 polls = 0;
+    if ((polls++ & 0xF) == 0) {
+        char v[92] = {};
+        __system_property_get("sys.gammaos.azahar_nano.gx_log", v);
+        on = v[0] == '1';
+    }
+    return on;
+}
+
+void Thread::GammaWaitBegin(const std::string& what) {
+    if (GammaWaitLogOn()) {
+        gamma_wait_t0 = std::chrono::steady_clock::now();
+        gamma_wait_what = what;
+    } else {
+        gamma_wait_t0 = {};
+    }
+}
+
 void Thread::ResumeFromWait() {
+    if (gamma_wait_t0.time_since_epoch().count() != 0) {
+        const auto ms = std::chrono::duration<double, std::milli>(
+                            std::chrono::steady_clock::now() - gamma_wait_t0)
+                            .count();
+        if (ms > 100.0 && GammaWaitLogOn()) {
+            LOG_INFO(Kernel, "gx long wait: thread {} waited {:.0f} ms on {}", GetName(), ms,
+                     gamma_wait_what);
+        }
+        gamma_wait_t0 = {};
+    }
     ASSERT_MSG(wait_objects.empty(), "Thread is waking up while waiting for objects");
 
     switch (status) {

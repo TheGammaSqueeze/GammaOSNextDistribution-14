@@ -116,6 +116,7 @@ std::shared_ptr<Event> HLERequestContext::SleepClientThread(
 
     auto event = kernel.CreateEvent(Kernel::ResetType::OneShot, "HLE Pause Event: " + reason);
     thread->status = ThreadStatus::WaitHleEvent;
+    thread->GammaWaitBegin("HLE:" + reason);
     thread->wait_objects = {event};
     event->AddWaitingThread(thread);
 

@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <span>
+#include <chrono>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -305,6 +306,7 @@ public:
      * Resumes a thread from waiting
      */
     void ResumeFromWait();
+    void GammaWaitBegin(const std::string& what);
 
     /**
      * Schedules an event to wake up the specified thread after the specified delay
@@ -402,6 +404,11 @@ public:
     /// Objects that the thread is waiting on, in the same order as they were
     /// passed to WaitSynchronization1/N.
     std::vector<std::shared_ptr<WaitObject>> wait_objects{};
+
+    /// GammaOS diagnostics (sys.gammaos.azahar_nano.gx_log): when this wait began (host time)
+    /// and what it waits for, logged at wake-up when the wait took more than 100 ms.
+    std::chrono::steady_clock::time_point gamma_wait_t0{};
+    std::string gamma_wait_what;
 
     VAddr wait_address; ///< If waiting on an AddressArbiter, this is the arbitration address
 

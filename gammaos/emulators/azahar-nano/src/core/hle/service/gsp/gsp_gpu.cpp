@@ -203,15 +203,13 @@ static Result WriteHWRegsWithMask(u32 base_address, u32 size_in_bytes, std::span
     std::size_t offset = 0;
     while (size_in_bytes > 0) {
         const u32 reg_address = base_address + REGS_BEGIN;
-        u32 reg_value = gpu.ReadReg(reg_address);
 
         u32 value, mask;
         std::memcpy(&value, &data[offset], sizeof(u32));
         std::memcpy(&mask, &masks[offset], sizeof(u32));
 
         // Update the current value of the register only for set mask bits
-        reg_value = (reg_value & ~mask) | (value & mask);
-        gpu.WriteReg(reg_address, reg_value);
+        gpu.WriteRegMasked(reg_address, value, mask);
 
         size_in_bytes -= 4;
         offset += 4;

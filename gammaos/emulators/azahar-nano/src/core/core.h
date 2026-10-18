@@ -501,6 +501,8 @@ private:
     std::array<u64, 4> gamma_core_host_ns{};
     std::array<u64, 4> gamma_core_runs{};
     bool gamma_pc_sampling = false;
+    u32 gamma_pc2_lr = 0;  // second level pc sampling: wrapper return address
+    u32 gamma_pc2_off = 0; // offset of the saved return address from sp
     std::unordered_map<u64, u64> gamma_pc_samples;
     std::vector<std::vector<u64>> gamma_jit_pending;
     std::vector<std::size_t> gamma_jit_pending_pos;

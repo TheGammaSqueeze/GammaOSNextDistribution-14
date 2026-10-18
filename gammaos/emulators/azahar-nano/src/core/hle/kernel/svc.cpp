@@ -830,7 +830,23 @@ private:
 
 /// Wait for a handle to synchronize, timeout after the specified nanoseconds
 Result SVC::WaitSynchronization1(Handle handle, s64 nano_seconds) {
-    auto object = kernel.GetCurrentProcess()->handle_table.Get<WaitObject>(handle);
+
+    // GammaOS diagnostics (sys.gammaos.azahar_nano.gx_log=1): long waits with a timeout.
+    if (nano_seconds >= 100000000 && nano_seconds < 20000000000LL) {
+        static bool on = false;
+        static u32 polls = 0;
+        if ((polls++ & 0xF) == 0) {
+            char v[92] = {};
+            __system_property_get("sys.gammaos.azahar_nano.gx_log", v);
+            on = v[0] == '1';
+        }
+        if (on && nano_seconds >= 100000000 && nano_seconds < 20000000000LL) {
+            auto obj = kernel.GetCurrentProcess()->handle_table.Get<WaitObject>(handle);
+            LOG_INFO(Kernel_SVC, "gx waitsync1 {} ms on {}:{} by thread {}", nano_seconds / 1000000,
+                     obj ? obj->GetTypeName() : "?", obj ? obj->GetName() : "?",
+                     kernel.GetCurrentThreadManager().GetCurrentThread()->GetName());
+        }
+    }    auto object = kernel.GetCurrentProcess()->handle_table.Get<WaitObject>(handle);
     Thread* thread = kernel.GetCurrentThreadManager().GetCurrentThread();
     R_UNLESS(object, ResultInvalidHandle);
 
@@ -843,6 +859,7 @@ Result SVC::WaitSynchronization1(Handle handle, s64 nano_seconds) {
         thread->wait_objects = {object};
         object->AddWaitingThread(SharedFrom(thread));
         thread->status = ThreadStatus::WaitSynchAny;
+        thread->GammaWaitBegin(object->GetTypeName() + ":" + object->GetName());
 
         // Create an event to wake the thread up after the specified nanosecond delay has passed
         thread->WakeAfterDelay(nano_seconds);
@@ -906,6 +923,7 @@ Result SVC::WaitSynchronizationN(s32* out, VAddr handles_address, s32 handle_cou
 
         // Put the thread to sleep
         thread->status = ThreadStatus::WaitSynchAll;
+        thread->GammaWaitBegin("all:" + (objects.empty() ? std::string("?") : objects.front()->GetTypeName() + ":" + objects.front()->GetName()));
 
         // Add the thread to each of the objects' waiting threads.
         for (auto& object : objects) {
@@ -948,6 +966,7 @@ Result SVC::WaitSynchronizationN(s32* out, VAddr handles_address, s32 handle_cou
 
         // Put the thread to sleep
         thread->status = ThreadStatus::WaitSynchAny;
+        thread->GammaWaitBegin("any:" + (objects.empty() ? std::string("?") : objects.front()->GetTypeName() + ":" + objects.front()->GetName()));
 
         // Add the thread to each of the objects' waiting threads.
         for (std::size_t i = 0; i < objects.size(); ++i) {

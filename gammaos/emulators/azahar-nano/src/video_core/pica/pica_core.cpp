@@ -259,13 +259,13 @@ static constexpr std::array<u32, 16> ExpandBitsToBytes = {
  * On the other hand, if PICA debugging is enabled we should avoid optimizations
  * that would make debugging more complicated.
  */
-void PicaCore::ProcessCmdList(PAddr list, u32 size, bool ignore_list) [[hot]] {
+void PicaCore::ProcessCmdList(PAddr list, u32 size, bool ignore_list, const u32* words) [[hot]] {
     if (ignore_list) {
         signal_interrupt(Service::GSP::InterruptId::P3D, delay_generator.CalculateAndResetDelay());
         return;
     }
 
-    const u8* head = memory.GetPhysicalPointer(list);
+    const u8* head = words ? reinterpret_cast<const u8*>(words) : memory.GetPhysicalPointer(list);
     cmd_list.Reset(list, head, size);
     ++cmd_list_serial;
 
@@ -654,8 +654,9 @@ void PicaCore::HandleSpecialReg(u32 id, u32 value, bool& stop_requested) {
     case PICA_REG_INDEX(pipeline.command_buffer.trigger[1]): {
         const u32 index = static_cast<u32>(id - PICA_REG_INDEX(pipeline.command_buffer.trigger[0]));
         const PAddr addr = regs.internal.pipeline.command_buffer.GetPhysicalAddress(index);
-        const u32 size = regs.internal.pipeline.command_buffer.GetSize(index);
-        const u8* head = memory.GetPhysicalPointer(addr);
+        u32 size = regs.internal.pipeline.command_buffer.GetSize(index);
+        const u32* copy = chained_copy_lookup ? chained_copy_lookup(addr, size) : nullptr;
+        const u8* head = copy ? reinterpret_cast<const u8*>(copy) : memory.GetPhysicalPointer(addr);
         cmd_list.Reset(addr, head, size);
         break;
     }
@@ -1478,9 +1479,10 @@ void PicaCore::LoadVertices(bool is_indexed) {
     }
 }
 
-PicaCore::RenderPropertiesGuess PicaCore::GuessCmdRenderProperties(PAddr list, u32 size) {
+PicaCore::RenderPropertiesGuess PicaCore::GuessCmdRenderProperties(PAddr list, u32 size,
+                                                                     const u32* words) {
     // Initialize command list tracking.
-    const u8* head = memory.GetPhysicalPointer(list);
+    const u8* head = words ? reinterpret_cast<const u8*>(words) : memory.GetPhysicalPointer(list);
     cmd_list.Reset(list, head, size);
 
     constexpr size_t max_iterations = 0x100;
@@ -1505,8 +1507,10 @@ PicaCore::RenderPropertiesGuess PicaCore::GuessCmdRenderProperties(PAddr list, u
             const u32 index =
                 static_cast<u32>(cmd_id - PICA_REG_INDEX(pipeline.command_buffer.trigger[0]));
             const PAddr addr = regs.internal.pipeline.command_buffer.GetPhysicalAddress(index);
-            const u32 size = regs.internal.pipeline.command_buffer.GetSize(index);
-            const u8* head = memory.GetPhysicalPointer(addr);
+            u32 size = regs.internal.pipeline.command_buffer.GetSize(index);
+            const u32* copy = chained_copy_lookup ? chained_copy_lookup(addr, size) : nullptr;
+            const u8* head =
+                copy ? reinterpret_cast<const u8*>(copy) : memory.GetPhysicalPointer(addr);
             cmd_list.Reset(addr, head, size);
             break;
         }
