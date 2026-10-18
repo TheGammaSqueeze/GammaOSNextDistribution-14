@@ -24,6 +24,7 @@ class RendererBase;
 
 std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,
                                              Frontend::EmuWindow* secondary_window,
-                                             Pica::PicaCore& pica, Core::System& system);
+                                             Pica::PicaCore& pica, Core::System& system,
+                                             Pica::PicaCore* draw_pica = nullptr);
 
 } // namespace VideoCore

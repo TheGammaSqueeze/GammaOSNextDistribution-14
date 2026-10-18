@@ -28,6 +28,9 @@ struct GPU::Impl {
     Memory::MemorySystem& memory;
     std::shared_ptr<Pica::DebugContext> debug_context;
     Pica::PicaCore pica;
+    /// GammaOS GPU worker split (persist.gammaos.azahar_nano.gpu_split): the core the draw
+    /// stage draws from; the walker mirrors pica's state into it at every draw.
+    std::unique_ptr<Pica::PicaCore> pica_draw;
     GraphicsDebugger gpu_debugger;
     std::unique_ptr<RendererBase> renderer;
     RasterizerInterface* rasterizer;
@@ -42,7 +45,10 @@ struct GPU::Impl {
                   Frontend::EmuWindow* secondary_window)
         : system{system}, memory{system.Memory()},
           debug_context{Pica::g_debug_context}, pica{memory, debug_context},
-          renderer{VideoCore::CreateRenderer(emu_window, secondary_window, pica, system)},
+          pica_draw{GPU::SplitWanted() ? std::make_unique<Pica::PicaCore>(memory, debug_context)
+                                       : nullptr},
+          renderer{VideoCore::CreateRenderer(emu_window, secondary_window, pica, system,
+                                             pica_draw.get())},
           rasterizer{renderer->Rasterizer()},
           sw_blitter{std::make_unique<SwRenderer::SwBlitter>(memory, rasterizer)} {}
     ~Impl() = default;

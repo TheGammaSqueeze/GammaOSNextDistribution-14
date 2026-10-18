@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <functional>
 #include "common/common_types.h"
 #include "core/hle/service/gsp/gsp_interrupt.h"
 #include "video_core/pica/dead_work.h"
@@ -116,6 +117,42 @@ public:
     ~PicaCore();
 
     void BindRasterizer(VideoCore::RasterizerInterface* rasterizer);
+
+    /// GammaOS GPU worker split: when set, a draw trigger goes to the sink instead of drawing
+    /// here (the GPU mirrors this core's state into the draw stage's core and draws there).
+    void SetDrawSink(std::function<void(bool)> sink) {
+        draw_sink = std::move(sink);
+    }
+    void SetCmdListSerial(u64 serial) {
+        cmd_list_serial = serial;
+    }
+    /// GammaOS GPU worker split: the draw stage's core draws with the state the walker mirrored.
+    void DrawMirrored(bool is_indexed) {
+        DrawArrays(is_indexed);
+    }
+    /// GammaOS GPU worker split: an immediate mode vertex the walker completed, drawn here.
+    void DrawImmediateMirrored(const AttributeBuffer& vertex, bool reset_geometry_pipeline) {
+        immediate.input_vertex = vertex;
+        immediate.reset_geometry_pipeline = reset_geometry_pipeline;
+        DrawImmediate();
+    }
+    /// GammaOS GPU worker split: the primitive assembler follows the mirrored topology register
+    /// (the walker handled the register write, this core never saw it).
+    void SyncPrimitiveAssembler() {
+        const auto topology = regs.internal.pipeline.triangle_topology.Value();
+        if (primitive_assembler.GetTopology() != topology) {
+            primitive_assembler.Reconfigure(topology);
+        }
+    }
+    /// GammaOS GPU worker split: when set, a completed immediate mode vertex goes to the sink
+    /// (with the pending geometry pipeline reset) instead of being drawn here.
+    void SetImmediateSink(std::function<void(const AttributeBuffer&, bool)> sink) {
+        immediate_sink = std::move(sink);
+    }
+    /// GammaOS: bumped at every vertex or geometry shader program or swizzle write, so the
+    /// draw stage copies the program only when it changed.
+    u32 vs_program_gen = 0;
+    u32 gs_program_gen = 0;
 
     /// GammaOS: skips GPU work whose result is never displayed (see DeadWork).
     DeadWork dead_work;
@@ -456,6 +493,14 @@ private:
     CommandList cmd_list;
     u64 cmd_list_serial = 0;
     ChainedCopyLookup chained_copy_lookup;
+    std::function<void(bool)> draw_sink;
+    /// GammaOS: a chained list read from guest memory is copied with a consistency check
+    /// (the game rewrites its ring launchers in place while the GPU follows them); two
+    /// buffers, since the copy of the next list is made while the current one is running.
+    std::array<std::vector<u8>, 2> chain_live{};
+    u32 chain_live_next = 0;
+    const u8* LiveChainCopy(PAddr addr, u32& size);
+    std::function<void(const AttributeBuffer&, bool)> immediate_sink;
     std::unique_ptr<ShaderEngine> shader_engine;
     // GammaOS stereo twins (persist.gammaos.azahar_nano.stereo_twin, on by default).
     bool twin_scan_ok = false;

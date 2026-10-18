@@ -115,6 +115,8 @@ struct GPU::DrawRanges {
 namespace {
 // True on the GPU worker thread (it never waits for itself).
 thread_local bool t_gpu_worker = false;
+// True on the draw stage's thread (GPU worker split).
+thread_local bool t_draw_stage = false;
 // Diagnostics: P3D interrupts the worker raised (credited or not), per thread.
 thread_local u32 t_worker_p3d = 0;
 
@@ -185,9 +187,10 @@ struct GPU::Async {
     std::atomic<int> interrupt_count{0};  // lets the per-slice poll skip the lock
     Service::GSP::InterruptHandler deliver;
 
-    void Run() {
+    void Run(const char* name = "AzaharGpu", bool draw_stage = false) {
         t_gpu_worker = true;
-        pthread_setname_np(pthread_self(), "AzaharGpu");
+        t_draw_stage = draw_stage;
+        pthread_setname_np(pthread_self(), name);
         // Same priority as the emulation thread: the two run side by side.
         setpriority(PRIO_PROCESS, static_cast<id_t>(gettid()), -10);
 #ifdef ANDROID
@@ -311,6 +314,9 @@ void GPU::AsyncDrain(void* caller) {
         if (log) {
             const auto t0 = std::chrono::steady_clock::now();
             async->WaitIdle();
+            if (draw) {
+                draw->WaitIdle();
+            }
             const auto t1 = std::chrono::steady_clock::now();
             void* site = caller ? caller : __builtin_return_address(0);
             const double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
@@ -343,6 +349,9 @@ void GPU::AsyncDrain(void* caller) {
             }
         } else {
             async->WaitIdle();
+            if (draw) {
+                draw->WaitIdle();
+            }
         }
     }
     async->Deliver();
@@ -370,6 +379,9 @@ bool GPU::AsyncWaitProgress() {
             async->WaitProgress();
         } else {
             async->WaitIdle();
+            if (draw) {
+                draw->WaitIdle();
+            }
         }
     }
     return async->Deliver() != 0;
@@ -763,7 +775,7 @@ void GPU::SyncShadow() {
 }
 
 bool GPU::AsyncPending() const {
-    return async && async->pending.load(std::memory_order_acquire) != 0;
+    return (async && async->pending.load(std::memory_order_acquire) != 0) || (draw && draw->pending.load(std::memory_order_acquire) != 0);
 }
 
 bool GPU::AsyncActive() const {
@@ -810,7 +822,336 @@ GPU::GPU(Core::System& system, Frontend::EmuWindow& emu_window,
         LOG_INFO(HW_GPU, "async GPU mode {}: {} on a worker thread{}", async->mode,
                  async->mode >= 2 ? "GPU register writes and commands" : "command lists",
                  async->eager ? ", interrupts raised at submit" : "");
+        if (impl->pica_draw) {
+            // GPU worker split: the walker (this worker) parses lists and writes registers;
+            // every draw, fill, transfer and interrupt goes down a second queue to the draw
+            // stage, which owns the rasterizer and draws from pica_draw, a mirror of the
+            // walker's PICA state taken at each draw.
+            draw = std::make_unique<Async>();
+            draw->mode = async->mode;
+            draw->eager = async->eager;
+            impl->pica_draw->BindRasterizer(impl->rasterizer);
+            impl->pica.SetDrawSink([this](bool is_indexed) { EnqueueDraw(is_indexed); });
+            impl->pica.SetImmediateSink([this](const Pica::AttributeBuffer& vertex, bool reset) {
+                EnqueueDraw(false, &vertex, reset);
+            });
+            draw->thread = std::thread([d = draw.get()] { d->Run("AzaharDraw", true); });
+            LOG_INFO(HW_GPU, "GPU worker split: draws on a second thread");
+        }
     }
+}
+
+// GammaOS GPU worker split: the per-draw state handed from the walker to the draw stage.
+struct GPU::DrawJob {
+    Pica::RegsInternal regs;
+    Pica::DirtyRegs dirty;
+    Pica::Uniforms vs_uniforms;
+    Pica::Uniforms gs_uniforms;
+    bool vs_uniforms_dirty = false, gs_uniforms_dirty = false;
+    u32 vs_lo = 0, vs_hi = 0, gs_lo = 0, gs_hi = 0;
+    bool vs_bi = false, gs_bi = false;
+    bool has_vs_program = false, has_gs_program = false;
+    Pica::ProgramCode vs_program, gs_program;
+    Pica::SwizzleData vs_swizzle, gs_swizzle;
+    u32 vs_prog_size = 0, vs_swz_size = 0, gs_prog_size = 0, gs_swz_size = 0;
+    u32 lighting_dirty = 0;
+    std::array<std::array<Pica::PicaCore::Lighting::LutEntry, 256>, 24> luts;
+    bool fog_dirty = false;
+    std::array<Pica::PicaCore::Fog::LutEntry, 128> fog;
+    u8 proctex_dirty = 0;
+    decltype(Pica::PicaCore::ProcTex::noise_table) noise_table;
+    decltype(Pica::PicaCore::ProcTex::color_map_table) color_map_table;
+    decltype(Pica::PicaCore::ProcTex::alpha_map_table) alpha_map_table;
+    decltype(Pica::PicaCore::ProcTex::color_table) color_table;
+    decltype(Pica::PicaCore::ProcTex::color_diff_table) color_diff_table;
+    Pica::AttributeBuffer default_attributes;
+    bool has_default_attributes = false;
+    bool has_gs = false;
+    u64 serial = 0;
+    bool indexed = false;
+    bool immediate = false;
+    bool reset_geometry_pipeline = false;
+    Pica::AttributeBuffer vertex;
+    std::shared_ptr<const void> snap_owner;
+    const GammaSnapshot::Snapshot* snap = nullptr;
+};
+
+Pica::DeadWork& GPU::Dead() {
+    return impl->pica_draw ? impl->pica_draw->dead_work : impl->pica.dead_work;
+}
+
+// On the walker: mirrors what the rasterizer reads into a job and queues the draw.
+void GPU::EnqueueDraw(bool is_indexed, const void* immediate_vertex, bool reset_geometry_pipeline) {
+    std::unique_ptr<DrawJob> job;
+    {
+        std::scoped_lock lock{job_pool_mutex};
+        if (!job_pool.empty()) {
+            job = std::move(job_pool.back());
+            job_pool.pop_back();
+        }
+    }
+    if (!job) {
+        job = std::make_unique<DrawJob>();
+    }
+    auto& p = impl->pica;
+    const bool full = force_full_job;
+    force_full_job = false;
+    // Only the 64-register chunks with a dirty bit travel (the draw stage keeps the rest from
+    // earlier jobs); the mirror was a third of both stages when the whole file went each draw.
+    job->dirty = p.dirty_regs;
+    if (full) {
+        job->dirty.SetAllDirty();
+    }
+    for (std::size_t w = 0; w < job->dirty.qwords.size(); w++) {
+        if (job->dirty.qwords[w] != 0) {
+            const std::size_t first = w * 64;
+            const std::size_t count = std::min<std::size_t>(64, Pica::RegsInternal::NUM_REGS - first);
+            std::memcpy(&job->regs.reg_array[first], &p.regs.internal.reg_array[first],
+                        count * sizeof(u32));
+        }
+    }
+    p.dirty_regs.Reset();
+    const auto take_setup = [full](Pica::ShaderSetup& setup, Pica::Uniforms& uniforms, bool& dirty,
+                                   u32& lo, u32& hi, bool& bi) {
+        dirty = setup.uniforms_dirty || full;
+        lo = full ? 0 : std::min<u32>(setup.dirty_f_lo, 96);
+        hi = full ? 96 : std::min<u32>(setup.dirty_f_hi, 96);
+        bi = setup.dirty_bi || full;
+        if (dirty && lo < hi) {
+            std::copy(setup.uniforms.f.begin() + lo, setup.uniforms.f.begin() + hi,
+                      uniforms.f.begin() + lo);
+        }
+        if (bi) {
+            uniforms.b = setup.uniforms.b;
+            uniforms.i = setup.uniforms.i;
+        }
+        setup.uniforms_dirty = false;
+        setup.dirty_f_lo = static_cast<u32>(setup.uniforms.f.size());
+        setup.dirty_f_hi = 0;
+        setup.dirty_bi = false;
+    };
+    take_setup(p.vs_setup, job->vs_uniforms, job->vs_uniforms_dirty, job->vs_lo, job->vs_hi,
+               job->vs_bi);
+    job->has_gs = full || p.regs.internal.pipeline.use_gs != Pica::PipelineRegs::UseGS::No;
+    if (job->has_gs) {
+        take_setup(p.gs_setup, job->gs_uniforms, job->gs_uniforms_dirty, job->gs_lo, job->gs_hi,
+                   job->gs_bi);
+    } else {
+        job->gs_uniforms_dirty = false;
+    }
+    // The program goes down only when its content changed (the game re-uploads identical
+    // code; GetProgramCodeHash is cached while nothing was written).
+    const u64 vs_hash = p.vs_setup.GetProgramCodeHash() ^ (p.vs_setup.GetSwizzleDataHash() * 31);
+    job->has_vs_program = full || vs_hash != last_vs_hash;
+    if (job->has_vs_program) {
+        last_vs_hash = vs_hash;
+        job->vs_program = p.vs_setup.GetProgramCode();
+        job->vs_swizzle = p.vs_setup.GetSwizzleData();
+        job->vs_prog_size = p.vs_setup.GetBiggestProgramSize();
+        job->vs_swz_size = p.vs_setup.GetBiggestSwizzleSize();
+    }
+    const u64 gs_hash = p.gs_setup.GetProgramCodeHash() ^ (p.gs_setup.GetSwizzleDataHash() * 31);
+    job->has_gs_program = job->has_gs && (full || gs_hash != last_gs_hash);
+    if (job->has_gs_program) {
+        last_gs_hash = gs_hash;
+        job->gs_program = p.gs_setup.GetProgramCode();
+        job->gs_swizzle = p.gs_setup.GetSwizzleData();
+        job->gs_prog_size = p.gs_setup.GetBiggestProgramSize();
+        job->gs_swz_size = p.gs_setup.GetBiggestSwizzleSize();
+    }
+    job->lighting_dirty = p.lighting.lut_dirty | (full ? Pica::PicaCore::Lighting::LutAllDirty : 0);
+    if (job->lighting_dirty) {
+        for (u32 i = 0; i < 24; i++) {
+            if (job->lighting_dirty & (1u << i)) {
+                job->luts[i] = p.lighting.luts[i];
+            }
+        }
+        p.lighting.lut_dirty = 0;
+    }
+    job->fog_dirty = p.fog.lut_dirty || full;
+    if (job->fog_dirty) {
+        job->fog = p.fog.lut;
+        p.fog.lut_dirty = false;
+    }
+    job->proctex_dirty = p.proctex.table_dirty | (full ? Pica::PicaCore::ProcTex::TableAllDirty : 0);
+    if (job->proctex_dirty) {
+        job->noise_table = p.proctex.noise_table;
+        job->color_map_table = p.proctex.color_map_table;
+        job->alpha_map_table = p.proctex.alpha_map_table;
+        job->color_table = p.proctex.color_table;
+        job->color_diff_table = p.proctex.color_diff_table;
+        p.proctex.table_dirty = 0;
+    }
+    static_assert(sizeof(Pica::AttributeBuffer) == sizeof(last_default_attributes));
+    job->has_default_attributes =
+        full || std::memcmp(last_default_attributes.data(), &p.input_default_attributes,
+                            sizeof(Pica::AttributeBuffer)) != 0;
+    if (job->has_default_attributes) {
+        job->default_attributes = p.input_default_attributes;
+        std::memcpy(last_default_attributes.data(), &p.input_default_attributes,
+                    sizeof(Pica::AttributeBuffer));
+    }
+    if (GxLogOn()) {
+        static u32 logged = 0;
+        if (logged++ < 12) {
+            LOG_INFO(HW_GPU, "gx draw job {}: indexed {} verts {} base {:08X} topo {} fb {:08X} full {} vsprog {}",
+                     logged, is_indexed, p.regs.internal.pipeline.num_vertices,
+                     p.regs.internal.pipeline.vertex_attributes.GetPhysicalBaseAddress(),
+                     static_cast<int>(p.regs.internal.pipeline.triangle_topology.Value()),
+                     p.regs.internal.framebuffer.framebuffer.GetColorBufferPhysicalAddress(), full,
+                     job->has_vs_program);
+        }
+    }
+    job->serial = p.CmdListSerial();
+    job->indexed = is_indexed;
+    job->immediate = immediate_vertex != nullptr;
+    job->reset_geometry_pipeline = reset_geometry_pipeline;
+    if (immediate_vertex) {
+        job->vertex = *static_cast<const Pica::AttributeBuffer*>(immediate_vertex);
+    }
+    job->snap_owner = GammaSnapshot::t_owner;
+    job->snap = GammaSnapshot::t_active;
+    DrawJob* raw = job.release();
+    draw->Enqueue([this, raw] {
+        std::unique_ptr<DrawJob> owned{raw};
+        RunDraw(*owned);
+        owned->snap_owner.reset();
+        std::scoped_lock lock{job_pool_mutex};
+        if (job_pool.size() < 1024) {
+            job_pool.push_back(std::move(owned));
+        }
+    });
+}
+
+// On the draw stage: installs the job's state into the draw core and draws.
+void GPU::RunDraw(DrawJob& job) {
+    auto& p = *impl->pica_draw;
+    for (std::size_t w = 0; w < job.dirty.qwords.size(); w++) {
+        if (job.dirty.qwords[w] != 0) {
+            const std::size_t first = w * 64;
+            const std::size_t count = std::min<std::size_t>(64, Pica::RegsInternal::NUM_REGS - first);
+            std::memcpy(&p.regs.internal.reg_array[first], &job.regs.reg_array[first],
+                        count * sizeof(u32));
+        }
+    }
+    p.dirty_regs.Merge(job.dirty);
+    const auto put_setup = [](Pica::ShaderSetup& setup, const Pica::Uniforms& uniforms, bool dirty,
+                              u32 lo, u32 hi, bool bi) {
+        if (!dirty) {
+            return;
+        }
+        if (lo < hi) {
+            std::copy(uniforms.f.begin() + lo, uniforms.f.begin() + hi, setup.uniforms.f.begin() + lo);
+        }
+        if (bi) {
+            setup.uniforms.b = uniforms.b;
+            setup.uniforms.i = uniforms.i;
+        }
+        setup.uniforms_dirty = true;
+        setup.dirty_f_lo = std::min(setup.dirty_f_lo, lo);
+        setup.dirty_f_hi = std::max(setup.dirty_f_hi, hi);
+        setup.dirty_bi = setup.dirty_bi || bi;
+    };
+    put_setup(p.vs_setup, job.vs_uniforms, job.vs_uniforms_dirty, job.vs_lo, job.vs_hi, job.vs_bi);
+    if (job.has_gs) {
+        put_setup(p.gs_setup, job.gs_uniforms, job.gs_uniforms_dirty, job.gs_lo, job.gs_hi,
+                  job.gs_bi);
+    }
+    if (job.has_vs_program) {
+        p.vs_setup.UpdateProgramCode(job.vs_program, job.vs_prog_size);
+        p.vs_setup.UpdateSwizzleData(job.vs_swizzle, job.vs_swz_size);
+    }
+    if (job.has_gs_program) {
+        p.gs_setup.UpdateProgramCode(job.gs_program, job.gs_prog_size);
+        p.gs_setup.UpdateSwizzleData(job.gs_swizzle, job.gs_swz_size);
+    }
+    if (job.lighting_dirty) {
+        for (u32 i = 0; i < 24; i++) {
+            if (job.lighting_dirty & (1u << i)) {
+                p.lighting.luts[i] = job.luts[i];
+            }
+        }
+        p.lighting.lut_dirty |= job.lighting_dirty;
+    }
+    if (job.fog_dirty) {
+        p.fog.lut = job.fog;
+        p.fog.lut_dirty = true;
+    }
+    if (job.proctex_dirty) {
+        p.proctex.noise_table = job.noise_table;
+        p.proctex.color_map_table = job.color_map_table;
+        p.proctex.alpha_map_table = job.alpha_map_table;
+        p.proctex.color_table = job.color_table;
+        p.proctex.color_diff_table = job.color_diff_table;
+        p.proctex.table_dirty |= job.proctex_dirty;
+    }
+    if (job.has_default_attributes) {
+        p.input_default_attributes = job.default_attributes;
+    }
+    p.SetCmdListSerial(job.serial);
+    p.SyncPrimitiveAssembler();
+    // Diagnostics: a snapshot whose ranges do not hold their bytes would hand the rasterizer a
+    // guest address as a host pointer (the first split crash: FindMinMax at 0x184C9DCC).
+    if (job.snap) {
+        bool sane = job.snap_owner != nullptr;
+        for (const auto& r : job.snap->ranges) {
+            if (r.bytes.size() != r.size) {
+                sane = false;
+                break;
+            }
+        }
+        if (!sane) {
+            static u32 logged = 0;
+            if (logged++ < 20) {
+                LOG_ERROR(HW_GPU, "draw stage: snapshot {} with {} ranges owner {} is not sane",
+                          static_cast<const void*>(job.snap), job.snap->ranges.size(),
+                          job.snap_owner != nullptr);
+            }
+            job.snap = nullptr;
+        }
+    }
+    // split_snap=0: the draw stage reads vertex and index data live instead of from the
+    // list's submit-time snapshot (isolates the snapshot's lifetime in the split).
+    static const bool use_snap = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.split_snap", v);
+        return v[0] != '0';
+    }();
+    GammaSnapshot::t_active = use_snap ? job.snap : nullptr;
+    GammaSnapshot::t_owner = job.snap_owner;
+    if (GxLogOn()) {
+        static u32 logged = 0;
+        if (logged++ < 12) {
+            LOG_INFO(HW_GPU, "gx draw run {}: indexed {} verts {} base {:08X} topo {} fb {:08X} immediate {} hw_shader {}",
+                     logged, job.indexed, p.regs.internal.pipeline.num_vertices,
+                     p.regs.internal.pipeline.vertex_attributes.GetPhysicalBaseAddress(),
+                     static_cast<int>(p.regs.internal.pipeline.triangle_topology.Value()),
+                     p.regs.internal.framebuffer.framebuffer.GetColorBufferPhysicalAddress(),
+                     job.immediate, Settings::values.use_hw_shader.GetValue());
+        }
+    }
+    if (job.immediate) {
+        p.DrawImmediateMirrored(job.vertex, job.reset_geometry_pipeline);
+    } else {
+        p.DrawMirrored(job.indexed);
+    }
+    GammaSnapshot::t_active = nullptr;
+    GammaSnapshot::t_owner.reset();
+}
+
+static int AsyncModeFromProps() {
+    char v[PROP_VALUE_MAX] = {};
+    GammaGameProp::Get("async_gpu", v);
+    return (v[0] >= '1' && v[0] <= '3') ? v[0] - '0' : 0;
+}
+
+bool GPU::SplitWanted() {
+    static const bool on = [] {
+        char v[PROP_VALUE_MAX] = {};
+        __system_property_get("persist.gammaos.azahar_nano.gpu_split", v);
+        return v[0] == '1';
+    }();
+    return on && AsyncModeFromProps() >= 1;
 }
 
 GPU::~GPU() {
@@ -823,6 +1164,14 @@ GPU::~GPU() {
         }
         async->work_cv.notify_all();
         async->thread.join();
+        if (draw) {
+            {
+                std::scoped_lock lock{draw->mutex};
+                draw->stop = true;
+            }
+            draw->work_cv.notify_all();
+            draw->thread.join();
+        }
     }
 }
 
@@ -856,8 +1205,14 @@ void GPU::SetInterruptHandler(Service::GSP::InterruptHandler handler) {
         // core timing live there).
         async->deliver = handler;
         Async* a = async.get();
-        impl->signal_interrupt = [a, handler](Service::GSP::InterruptId id, u64 delay) {
+        impl->signal_interrupt = [this, a, handler](Service::GSP::InterruptId id, u64 delay) {
             if (t_gpu_worker) {
+                // GPU worker split: a list's interrupt is complete when the draw stage has run
+                // the draws before it, so the walker hands it down the draw queue.
+                if (draw && !t_draw_stage) {
+                    draw->Enqueue([this, id, delay] { impl->signal_interrupt(id, delay); });
+                    return;
+                }
                 if (id == Service::GSP::InterruptId::P3D) {
                     t_worker_p3d++;
                 }
@@ -885,16 +1240,19 @@ void GPU::SetInterruptHandler(Service::GSP::InterruptHandler handler) {
         impl->signal_interrupt = handler;
     }
     impl->pica.SetInterruptHandler(impl->signal_interrupt);
+    if (impl->pica_draw) {
+        impl->pica_draw->SetInterruptHandler(impl->signal_interrupt);
+    }
 }
 
 void GPU::CpuAccess(PAddr addr, u32 size, bool read, bool write) {
     // The dead work tracker is also fed by the worker's fills, transfers and draws.
     AsyncDrain();
     if (read) {
-        impl->pica.dead_work.OnCpuRead(addr, size);
+        Dead().OnCpuRead(addr, size);
     }
     if (write) {
-        impl->pica.dead_work.OnCpuWrite(addr, size);
+        Dead().OnCpuWrite(addr, size);
     }
 }
 
@@ -935,6 +1293,10 @@ void GPU::ResetForLoad() {
     RegisterVBlank();
     impl->rasterizer->ResetForLoad();
     impl->pica.ResetForLoad();
+    if (impl->pica_draw) {
+        impl->pica_draw->ResetForLoad();
+        force_full_job = true;
+    }
 }
 
 void GPU::ClearAll(bool flush) {
@@ -1548,9 +1910,25 @@ void GPU::MemoryFill(u32 index, u32 intr_index) {
     if (!config.trigger) {
         return;
     }
+    // GPU worker split: the fill runs on the draw stage, in order with the draws; the
+    // registers show it finished now (the guest reads them after a drain anyway).
+    if (draw && !t_draw_stage) {
+        const Pica::MemoryFillConfig copy = config;
+        config.trigger.Assign(0);
+        config.finished.Assign(1);
+        draw->Enqueue([this, copy, intr_index] { ExecuteFill(copy, intr_index); });
+        return;
+    }
+    ExecuteFill(config, intr_index);
+    // Reset "trigger" flag and set the "finish" flag
+    // This was confirmed to happen on hardware even if "address_start" is zero.
+    config.trigger.Assign(0);
+    config.finished.Assign(1);
+}
 
+void GPU::ExecuteFill(const Pica::MemoryFillConfig& config, u32 intr_index) {
     // Perform memory fill (unless nothing ever reads it, see Pica::DeadWork).
-    if (!impl->pica.dead_work.OnFill(config) && !impl->rasterizer->AccelerateFill(config)) {
+    if (!Dead().OnFill(config) && !impl->rasterizer->AccelerateFill(config)) {
         impl->sw_blitter->MemoryFill(config);
     }
 
@@ -1568,11 +1946,6 @@ void GPU::MemoryFill(u32 index, u32 intr_index) {
             impl->signal_interrupt(Service::GSP::InterruptId::PSC1, delay);
         }
     }
-
-    // Reset "trigger" flag and set the "finish" flag
-    // This was confirmed to happen on hardware even if "address_start" is zero.
-    config.trigger.Assign(0);
-    config.finished.Assign(1);
 }
 
 void GPU::MemoryTransfer() {
@@ -1581,7 +1954,18 @@ void GPU::MemoryTransfer() {
     if (!config.trigger.Value()) {
         return;
     }
+    // GPU worker split: the transfer runs on the draw stage, in order with the draws.
+    if (draw && !t_draw_stage) {
+        const Pica::DisplayTransferConfig copy = config;
+        config.trigger.Assign(0);
+        draw->Enqueue([this, copy] { ExecuteTransfer(copy); });
+        return;
+    }
+    ExecuteTransfer(config);
+    config.trigger.Assign(0);
+}
 
+void GPU::ExecuteTransfer(Pica::DisplayTransferConfig config) {
     MICROPROFILE_SCOPE(GPU_DisplayTransfer);
 
     // Notify debugger about the display transfer.
@@ -1591,7 +1975,7 @@ void GPU::MemoryTransfer() {
 
     u64 delay{};
     // Perform memory transfer (unless nothing ever reads it, see Pica::DeadWork).
-    const bool dead = impl->pica.dead_work.OnTransfer(config);
+    const bool dead = Dead().OnTransfer(config);
     if (dead) {
         delay = DelayGenerator::CalculateDelayNanoseconds(
             DelayGenerator::GetCopyMode(config.IsInputVRAM(), config.IsOutputVRAM()), true,
@@ -1618,7 +2002,6 @@ void GPU::MemoryTransfer() {
     }
 
     // Complete transfer.
-    config.trigger.Assign(0);
     impl->signal_interrupt(Service::GSP::InterruptId::PPF, delay);
 }
 
@@ -1629,7 +2012,7 @@ void GPU::VBlankCallback(std::uintptr_t user_data, s64 cycles_late) {
     impl->signal_interrupt(Service::GSP::InterruptId::PDC0, 0);
     impl->signal_interrupt(Service::GSP::InterruptId::PDC1, 0);
 
-    impl->pica.dead_work.OnVBlank(impl->pica.regs.framebuffer_config[0],
+    Dead().OnVBlank(impl->pica.regs.framebuffer_config[0],
                                   impl->pica.regs.framebuffer_config[1]);
     // Present renderered frame.
     impl->renderer->SwapBuffers();
@@ -1647,6 +2030,9 @@ void GPU::RecreateRenderer(Frontend::EmuWindow& emu_window, Frontend::EmuWindow*
     impl->renderer =
         VideoCore::CreateRenderer(emu_window, secondary_window, impl->pica, impl->system);
     impl->rasterizer = impl->renderer->Rasterizer();
+    if (impl->pica_draw) {
+        impl->pica_draw->BindRasterizer(impl->rasterizer);
+    }
 
     // Rebind the rasterizer to the PICA GPU
     impl->pica.BindRasterizer(impl->rasterizer);

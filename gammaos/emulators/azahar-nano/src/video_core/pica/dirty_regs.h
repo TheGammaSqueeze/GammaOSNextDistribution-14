@@ -71,6 +71,12 @@ union DirtyRegs {
     void Reset() {
         qwords.fill(0ULL);
     }
+    /// GammaOS: adds another table's bits (the draw stage merges what the walker marked).
+    void Merge(const DirtyRegs& other) {
+        for (std::size_t i = 0; i < qwords.size(); i++) {
+            qwords[i] |= other.qwords[i];
+        }
+    }
 
     bool CheckClipping() const {
         // Checks if GPUREG_FRAGOP_CLIP or GPUREG_FRAGOP_CLIP_DATAi are dirty

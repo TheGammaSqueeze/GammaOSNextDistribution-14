@@ -24,7 +24,8 @@ namespace VideoCore {
 
 std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,
                                              Frontend::EmuWindow* secondary_window,
-                                             Pica::PicaCore& pica, Core::System& system) {
+                                             Pica::PicaCore& pica, Core::System& system,
+                                             Pica::PicaCore* draw_pica) {
     const auto graphics_api = Settings::GetWorkingGraphicsAPI();
     switch (graphics_api) {
 #ifdef ENABLE_SOFTWARE_RENDERER
@@ -39,7 +40,8 @@ std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,
             SDL_Init(SDL_INIT_VIDEO);
         }
 #endif // ENABLE_SDL2
-        return std::make_unique<Vulkan::RendererVulkan>(system, pica, emu_window, secondary_window);
+        return std::make_unique<Vulkan::RendererVulkan>(system, pica, emu_window,
+                                                        secondary_window, draw_pica);
 #endif
 #ifdef ENABLE_OPENGL
     case Settings::GraphicsAPI::OpenGL:
@@ -52,7 +54,8 @@ std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,
 #ifdef ENABLE_OPENGL
         return std::make_unique<OpenGL::RendererOpenGL>(system, pica, emu_window, secondary_window);
 #elif ENABLE_VULKAN
-        return std::make_unique<Vulkan::RendererVulkan>(system, pica, emu_window, secondary_window);
+        return std::make_unique<Vulkan::RendererVulkan>(system, pica, emu_window,
+                                                        secondary_window, draw_pica);
 #elif ENABLE_SOFTWARE_RENDERER
         return std::make_unique<SwRenderer::RendererSoftware>(system, pica, emu_window);
 #else

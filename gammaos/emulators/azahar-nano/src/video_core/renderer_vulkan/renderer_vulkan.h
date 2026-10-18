@@ -77,7 +77,8 @@ class RendererVulkan : public VideoCore::RendererBase {
 
 public:
     explicit RendererVulkan(Core::System& system, Pica::PicaCore& pica, Frontend::EmuWindow& window,
-                            Frontend::EmuWindow* secondary_window);
+                            Frontend::EmuWindow* secondary_window,
+                            Pica::PicaCore* draw_pica = nullptr);
     ~RendererVulkan() override;
 
     [[nodiscard]] VideoCore::RasterizerInterface* Rasterizer() override {
@@ -140,6 +141,8 @@ private:
 private:
     Memory::MemorySystem& memory;
     Pica::PicaCore& pica;
+    /// GammaOS GPU worker split: the core the rasterizer draws from (pica when not split).
+    Pica::PicaCore& draw_pica;
 
 #ifdef HAVE_LIBRETRO
     LibRetroVKInstance instance;

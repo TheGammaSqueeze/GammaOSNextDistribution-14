@@ -111,15 +111,17 @@ static bool IsLowRefreshRate() {
 } // Anonymous namespace
 
 RendererVulkan::RendererVulkan(Core::System& system, Pica::PicaCore& pica_,
-                               Frontend::EmuWindow& window, Frontend::EmuWindow* secondary_window)
+                               Frontend::EmuWindow& window, Frontend::EmuWindow* secondary_window,
+                               Pica::PicaCore* draw_pica_)
     : RendererBase{system, window, secondary_window}, memory{system.Memory()}, pica{pica_},
+      draw_pica{draw_pica_ ? *draw_pica_ : pica_},
       instance{window, Settings::values.physical_device.GetValue()}, scheduler{instance},
       renderpass_cache{instance, scheduler},
       main_present_window{window, instance, scheduler, IsLowRefreshRate()},
       vertex_buffer{instance, scheduler, vk::BufferUsageFlagBits::eVertexBuffer,
                     VERTEX_BUFFER_SIZE},
       update_queue{instance}, rasterizer{memory,
-                                         pica,
+                                         draw_pica,
                                          system.CustomTexManager(),
                                          *this,
                                          render_window,
@@ -1694,7 +1696,7 @@ void RendererVulkan::SwapBuffers() {
         }();
         const u32 skipped = rasterizer.TakeSkippedDraws();
         // A frame that shows the result of skipped GPU work (Pica::DeadWork) is held back too.
-        const bool tainted = pica.dead_work.TakePresentTainted();
+        const bool tainted = draw_pica.dead_work.TakePresentTainted();
         hold_present = (skipped > 0 || tainted) && held_incomplete < max_hold &&
                        !Settings::values.gammaos_fast_forward;
         held_incomplete = hold_present ? held_incomplete + 1 : 0;

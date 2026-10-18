@@ -4,8 +4,10 @@
 
 #pragma once
 
+#include <array>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <vector>
 #include <boost/serialization/access.hpp>
 
@@ -26,6 +28,9 @@ class DebugContext;
 class PicaCore;
 struct RegsLcd;
 union ColorFill;
+struct MemoryFillConfig;
+struct DisplayTransferConfig;
+class DeadWork;
 } // namespace Pica
 
 namespace Frontend {
@@ -58,6 +63,10 @@ public:
     explicit GPU(Core::System& system, Frontend::EmuWindow& emu_window,
                  Frontend::EmuWindow* secondary_window);
     ~GPU();
+
+    /// GammaOS GPU worker split (persist.gammaos.azahar_nano.gpu_split=1 with an async GPU
+    /// mode): the command list walker and the draws run on two threads; decided at start.
+    static bool SplitWanted();
 
     /// Sets the function to call for signalling GSP interrupts.
     void SetInterruptHandler(Service::GSP::InterruptHandler handler);
@@ -186,6 +195,21 @@ private:
     std::unique_ptr<RightEyeDisabler> right_eye_disabler;
     struct Async;
     std::unique_ptr<Async> async;
+    // GammaOS GPU worker split: the draw stage (second worker) and the per-draw state it gets.
+    struct DrawJob;
+    std::unique_ptr<Async> draw;
+    std::vector<std::unique_ptr<DrawJob>> job_pool;
+    std::mutex job_pool_mutex;
+    bool force_full_job = true;
+    u64 last_vs_hash = 0;
+    u64 last_gs_hash = 0;
+    std::array<u32, 64> last_default_attributes{}; // the default attribute buffer last mirrored
+    void EnqueueDraw(bool is_indexed, const void* immediate_vertex = nullptr,
+                     bool reset_geometry_pipeline = false);
+    void RunDraw(DrawJob& job);
+    void ExecuteFill(const Pica::MemoryFillConfig& config, u32 intr_index);
+    void ExecuteTransfer(Pica::DisplayTransferConfig config);
+    Pica::DeadWork& Dead();
 
 private:
     friend class RightEyeDisabler;

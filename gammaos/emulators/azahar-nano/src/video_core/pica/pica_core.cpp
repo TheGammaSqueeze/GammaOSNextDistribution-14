@@ -137,6 +137,31 @@ void PicaCore::BindRasterizer(VideoCore::RasterizerInterface* rasterizer) {
     this->rasterizer = rasterizer;
 }
 
+// GammaOS: a chained list the submit-time replay did not copy, read from guest memory into a
+// private buffer. The game may be rewriting the list (its ring launchers are patched in place
+// to point at the next piece), so the bytes are read until two reads agree; a list outside
+// memory ends the chain (size 0). The two buffers alternate: the copy of the next list is
+// taken while the current list (possibly the other buffer) is still being processed.
+const u8* PicaCore::LiveChainCopy(PAddr addr, u32& size) {
+    const auto [src, avail] = memory.GetPhysicalSpan(addr);
+    if (!src || avail == 0) {
+        size = 0;
+        return nullptr;
+    }
+    size = static_cast<u32>(std::min<std::size_t>(size, avail));
+    auto& buf = chain_live[chain_live_next];
+    chain_live_next ^= 1;
+    buf.resize(size);
+    std::memcpy(buf.data(), src, size);
+    for (int tries = 0; tries < 8; tries++) {
+        if (std::memcmp(buf.data(), src, size) == 0) {
+            break;
+        }
+        std::memcpy(buf.data(), src, size);
+    }
+    return buf.data();
+}
+
 void PicaCore::SetInterruptHandler(Service::GSP::InterruptHandler& signal_interrupt) {
     this->signal_interrupt = signal_interrupt;
 }
@@ -420,6 +445,7 @@ void PicaCore::HandleSpecialRegBatch(u32 id, const u32* values, u32 count) {
             LOG_ERROR(HW_GPU, "Invalid GS program offset {} count {}", offset, count);
         } else {
             gs_setup.UpdateProgramCodeRange(offset, values, count);
+            gs_program_gen++;
             offset += count;
         }
         break;
@@ -437,6 +463,7 @@ void PicaCore::HandleSpecialRegBatch(u32 id, const u32* values, u32 count) {
             LOG_ERROR(HW_GPU, "Invalid GS swizzle pattern offset {} count {}", offset, count);
         } else {
             gs_setup.UpdateSwizzleDataRange(offset, values, count);
+            gs_program_gen++;
             offset += count;
         }
         break;
@@ -472,9 +499,11 @@ void PicaCore::HandleSpecialRegBatch(u32 id, const u32* values, u32 count) {
             LOG_ERROR(HW_GPU, "Invalid VS program offset {} count {}", offset, count);
         } else {
             vs_setup.UpdateProgramCodeRange(offset, values, count);
+            vs_program_gen++;
             if (!regs.internal.pipeline.gs_unit_exclusive_configuration &&
                 regs.internal.pipeline.use_gs == PipelineRegs::UseGS::No) {
                 gs_setup.UpdateProgramCodeRange(offset, values, count);
+                gs_program_gen++;
             }
             offset += count;
         }
@@ -493,9 +522,11 @@ void PicaCore::HandleSpecialRegBatch(u32 id, const u32* values, u32 count) {
             LOG_ERROR(HW_GPU, "Invalid VS swizzle pattern offset {} count {}", offset, count);
         } else {
             vs_setup.UpdateSwizzleDataRange(offset, values, count);
+            vs_program_gen++;
             if (!regs.internal.pipeline.gs_unit_exclusive_configuration &&
                 regs.internal.pipeline.use_gs == PipelineRegs::UseGS::No) {
                 gs_setup.UpdateSwizzleDataRange(offset, values, count);
+                gs_program_gen++;
             }
             offset += count;
         }
@@ -656,7 +687,23 @@ void PicaCore::HandleSpecialReg(u32 id, u32 value, bool& stop_requested) {
         const PAddr addr = regs.internal.pipeline.command_buffer.GetPhysicalAddress(index);
         u32 size = regs.internal.pipeline.command_buffer.GetSize(index);
         const u32* copy = chained_copy_lookup ? chained_copy_lookup(addr, size) : nullptr;
-        const u8* head = copy ? reinterpret_cast<const u8*>(copy) : memory.GetPhysicalPointer(addr);
+        // The consistency-checked copy is for the GPU worker split, where the walker runs ahead
+        // of the game's writes (it copies and compares every chained list: about 1 ms a frame of
+        // worker time on Kirby, 1.7 fps with the single worker, which reads chains in place as it
+        // always did). persist.gammaos.azahar_nano.async_gpu_live_copy=1 forces it on.
+        static const bool live_copy_prop = [] {
+            char v[PROP_VALUE_MAX] = {};
+            __system_property_get("persist.gammaos.azahar_nano.async_gpu_live_copy", v);
+            return v[0] == '1';
+        }();
+        const bool consistent = static_cast<bool>(draw_sink) || live_copy_prop;
+        // A self-triggering list is the game's ring tail waiting for the CPU to link the next
+        // piece: give the CPU the core instead of spinning at full speed.
+        if (consistent && addr == cmd_list.addr && !copy) {
+            sched_yield();
+        }
+        const u8* head = copy ? reinterpret_cast<const u8*>(copy)
+                        : consistent ? LiveChainCopy(addr, size) : memory.GetPhysicalPointer(addr);
         // GammaOS diagnostics (sys.gammaos.azahar_nano.gx_log=1, polled): the chain the worker
         // follows, to compare with the submit-time replay.
         {
@@ -680,7 +727,11 @@ void PicaCore::HandleSpecialReg(u32 id, u32 value, bool& stop_requested) {
     case PICA_REG_INDEX(pipeline.trigger_draw):
     case PICA_REG_INDEX(pipeline.trigger_draw_indexed): {
         const bool is_indexed = (id == PICA_REG_INDEX(pipeline.trigger_draw_indexed));
-        DrawArrays(is_indexed);
+        if (draw_sink) {
+            draw_sink(is_indexed);
+        } else {
+            DrawArrays(is_indexed);
+        }
         break;
     }
 
@@ -722,6 +773,7 @@ void PicaCore::HandleSpecialReg(u32 id, u32 value, bool& stop_requested) {
             LOG_ERROR(HW_GPU, "Invalid GS program offset {}", offset);
         } else {
             gs_setup.UpdateProgramCode(offset, value);
+            gs_program_gen++;
             offset++;
         }
         break;
@@ -740,6 +792,7 @@ void PicaCore::HandleSpecialReg(u32 id, u32 value, bool& stop_requested) {
             LOG_ERROR(HW_GPU, "Invalid GS swizzle pattern offset {}", offset);
         } else {
             gs_setup.UpdateSwizzleData(offset, value);
+            gs_program_gen++;
             offset++;
         }
         break;
@@ -802,9 +855,11 @@ void PicaCore::HandleSpecialReg(u32 id, u32 value, bool& stop_requested) {
             LOG_ERROR(HW_GPU, "Invalid VS program offset {}", offset);
         } else {
             vs_setup.UpdateProgramCode(offset, value);
+            vs_program_gen++;
             if (!regs.internal.pipeline.gs_unit_exclusive_configuration &&
                 regs.internal.pipeline.use_gs == PipelineRegs::UseGS::No) {
                 gs_setup.UpdateProgramCode(offset, value);
+                gs_program_gen++;
             }
             offset++;
         }
@@ -824,9 +879,11 @@ void PicaCore::HandleSpecialReg(u32 id, u32 value, bool& stop_requested) {
             LOG_ERROR(HW_GPU, "Invalid VS swizzle pattern offset {}", offset);
         } else {
             vs_setup.UpdateSwizzleData(offset, value);
+            vs_program_gen++;
             if (!regs.internal.pipeline.gs_unit_exclusive_configuration &&
                 regs.internal.pipeline.use_gs == PipelineRegs::UseGS::No) {
                 gs_setup.UpdateSwizzleData(offset, value);
+                gs_program_gen++;
             }
             offset++;
         }
@@ -1057,6 +1114,12 @@ void PicaCore::SubmitImmediate(u32 value) {
     }
 
     // We formed a vertex, flush.
+    if (immediate_sink) {
+        immediate_sink(immediate.input_vertex, immediate.reset_geometry_pipeline);
+        immediate.reset_geometry_pipeline = false;
+        immediate.current_attribute = 0;
+        return;
+    }
     DrawImmediate();
 }
 
@@ -1524,8 +1587,8 @@ PicaCore::RenderPropertiesGuess PicaCore::GuessCmdRenderProperties(PAddr list, u
             const PAddr addr = regs.internal.pipeline.command_buffer.GetPhysicalAddress(index);
             u32 size = regs.internal.pipeline.command_buffer.GetSize(index);
             const u32* copy = chained_copy_lookup ? chained_copy_lookup(addr, size) : nullptr;
-            const u8* head =
-                copy ? reinterpret_cast<const u8*>(copy) : memory.GetPhysicalPointer(addr);
+            const u8* head = copy ? reinterpret_cast<const u8*>(copy)
+                             : draw_sink ? LiveChainCopy(addr, size) : memory.GetPhysicalPointer(addr);
             cmd_list.Reset(addr, head, size);
             break;
         }
