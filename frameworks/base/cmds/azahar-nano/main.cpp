@@ -763,7 +763,7 @@ int main(int argc, char** argv) {
         // sys.gammaos.azahar_nano.<key> first and the persist prop second, so the override
         // value (or the global one when the override has no line) is published per launch
         // without touching the global persist props.
-        for (const char* key : {"light_max", "no_shadow_map"}) {
+        for (const char* key : {"light_max", "no_shadow_map", "async_gpu"}) {
             const std::string v = prop((std::string("persist.gammaos.azahar_nano.") + key).c_str(), "");
             property_set((std::string("sys.gammaos.azahar_nano.") + key).c_str(), v.c_str());
         }
