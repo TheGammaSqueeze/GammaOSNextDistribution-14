@@ -198,6 +198,10 @@ public:
     // re-sampled blit (renderTopScreen / renderBottomScreen).
     bool renderSlotShaded(int which, unsigned int targetFbo,
                           int vx, int vy, int vw, int vh);
+    // Start of a presented frame on the per-slot shader path: the next renderSlotShaded call
+    // takes the emulator's newest frame, the calls after it reuse the same one, so every
+    // screen of a presented frame comes from the same emulated frame.
+    void beginShadedFrame() { mSlotNeedUpload = true; }
 
     // Push the DRM rotation matrix (same 2x2 that NanoMenu uses for
     // its own shaders). Mirrors LibretroRunner::setRotationMatrix.
@@ -408,6 +412,12 @@ public:
     // Mailbox presenting: the offset after the primary's vblank at which emulated frames should
     // finish (the PRIME offset steer's target when sys pace_offset_target_us is unset), -1 off.
     void setOffsetAutoTarget(int targetUs);
+    // Finish lock (mailbox and pickup presenting): move the emulator's frame grid by usec (positive = later).
+    // Applied by the emulator thread at its next frame wait, to drastic's limiter deadline and
+    // that wait together, so the shift persists and no frame is emulated twice or dropped.
+    void nudgeEmuTiming(int usec);
+    // Worst frame lateness (us) over the last `frames` emulated frames, stalls past 40 ms excluded.
+    int32_t frameLatenessMaxUs(int frames);
     bool lastWaitWasImmediate() const { return mLastWaitImmediate; }
     void reportFrameMiss(int source);
     bool waitProducerFrame(int timeoutUs);
@@ -542,6 +552,7 @@ public:
     void probeUpload();
     void dumpUploadProbe();
     int64_t lastUploadFrameDoneUs();
+    uint32_t lastUploadProducer();   // producer count of the frame the last upload took
     void noteKernelLateFlip(int64_t gpuToVblankUs);
 
     // DS ARM9 Data TCM (16 KB). Some RetroAchievements DS sets read DTCM (the
@@ -945,6 +956,7 @@ private:
     int mSlotShadeW = -1;
     int mSlotShadeH = -1;
     unsigned int mSlotShadeFbo = 0;
+    bool mSlotNeedUpload = true;
 
     // Dedicated VBO for renderSlotShaded so the shared mFxVbo (used by the
     // RG DS / offscreen path) is never re-bound or re-laid-out. Same 24-pos +

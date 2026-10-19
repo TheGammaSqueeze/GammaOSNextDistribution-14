@@ -2992,6 +2992,22 @@ static inline int64_t t3dNowUs() {
     struct timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
     return (int64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
 }
+// Frame order trace (sys.gammaos.drastic_nano.frame_order_trace=1, read at launch): per emulated
+// frame, times after the limiter wake of the first compose chunk, its 3D wait, the slot flip hook
+// and the next limiter wait, to see where the 3D kick-to-use window falls inside the burst.
+static int sFoTrace = -1;
+static int64_t sFoWakeUs = 0, sFoCompUs = -1, sFoCompWaitUs = 0, sFoFlipUs = -1;
+static uint8_t* sFoRender = nullptr;   // threaded 3D state (render+0x34ec78 work, +0x34ec79 busy)
+static uint32_t sFoWakeState = 0;
+static uint32_t foState() {   // work | busy << 1 | bands done << 8
+    if (!sFoRender) return 0xffffffffu;
+    return (uint32_t)(sFoRender[0x34ec78] ? 1 : 0) | (uint32_t)(sFoRender[0x34ec79] ? 2 : 0) |
+           ((uint32_t)__builtin_popcount(__atomic_load_n(&gT3dBandMaskStorage, __ATOMIC_ACQUIRE)) << 8);
+}
+static inline bool foOn() {
+    if (sFoTrace < 0) sFoTrace = property_get_int32("sys.gammaos.drastic_nano.frame_order_trace", 0);
+    return sFoTrace > 0;
+}
 extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
     if (last > 191 || !gT3dBase) return;                       // vblank-issued compose
     uint8_t* render = engA - 0x2e78;
@@ -3013,6 +3029,9 @@ extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
         volatile uint8_t* busy = render + 0x34ec79;
         const int64_t t0 = t3dNowUs();
         gT3dPipe.chunks++;
+        if (sFoTrace > 0) sFoRender = render;
+        struct FoScope { int64_t t0; bool on; ~FoScope() { if (on) { const int64_t t = t3dNowUs(); if (sFoCompUs < 0) sFoCompUs = t0 - sFoWakeUs; sFoCompWaitUs += t - t0; } } }
+            foScope{ t0, sFoTrace > 0 && sFoWakeUs > 0 };
         // Wait for the worker to take this frame's kick before trusting the target pointer.
         { bool w = false;
           while (*work) { w = true; if (t3dNowUs() - t0 > 40000) { gT3dPipe.timeouts++; break; } sched_yield(); }
@@ -3366,6 +3385,130 @@ extern "C" uint64_t ffCapHook(uint32_t cap, uint32_t flag, uint8_t* hm) {
 // gap's position relative to the press and the engine state are logged.
 static int64_t gFlipRing[16]; static int gFlipRingN = 0;
 std::atomic<int64_t> gLastInputChangeUs{0};
+
+// Frame barcode probe (sys.gammaos.drastic_nano.bar_trace=1, read at launch). The nds-synctest
+// ROM draws its frame number as a 24-bit barcode (rows 60..63, 8 px cells from x 32, low 20
+// bits of the frame plus a 4-bit nibble XOR check). For every emulated frame BARHOOK logs the
+// frame in the slot drastic just finished and BARUP the frame in the slot the presenter
+// uploads, each with the ROM's live counter (the frame it is preparing). With FLIPLOG
+// (lat_log=2, landed flips by producer count) this shows where frames wait between the
+// emulator and the panels.
+static std::atomic<uint8_t*> gBarBss{nullptr};
+static std::atomic<uint8_t*> gBarMainRam{nullptr};
+static bool barTraceOn() {
+    static int s = -1;
+    if (s < 0) s = property_get_int32("sys.gammaos.drastic_nano.bar_trace", 0);
+    return s > 0;
+}
+// -1 when the cells do not decode (not the test ROM, or a picture torn mid-write).
+static int32_t barDecode(const uint8_t* img, int scale) {
+    if (!img) return -1;
+    const size_t w = (size_t)256 * scale, y = (size_t)61 * scale + scale / 2;
+    uint32_t code = 0;
+    for (int i = 0; i < 24; i++) {
+        const uint8_t* p = img + (y * w + (size_t)(36 + 8 * i) * scale) * 4;
+        code = (code << 1) | ((p[0] + p[1] + p[2] > 384) ? 1u : 0u);
+    }
+    const uint32_t f = code >> 4;
+    const uint32_t check = (f ^ (f >> 4) ^ (f >> 8) ^ (f >> 12) ^ (f >> 16)) & 0xF;
+    return (code & 0xF) == check ? (int32_t)f : -1;
+}
+// Frames in slot `idx` (0/1) for the top and bottom screens, -1 where unreadable.
+static void barSlot(uint8_t* bss, int idx, int32_t out[2]) {
+    out[0] = out[1] = -1;
+    uint8_t* slot = *reinterpret_cast<uint8_t**>(bss + 8 * idx);
+    if (!slot || *reinterpret_cast<int32_t*>(bss + 0x95c) == 0x10) return;   // RGB565: not decoded
+    for (int s = 0; s < 2; s++) {
+        const int32_t hr = *reinterpret_cast<int32_t*>(bss + 0x968 + 4 * s);
+        if (hr < 0 || hr > 1) continue;
+        out[s] = barDecode(slot + (size_t)s * 0xC0000, hr + 1);
+    }
+}
+static uint32_t barDsFrame() {
+    uint8_t* m = gBarMainRam.load(std::memory_order_relaxed);
+    return m ? *reinterpret_cast<volatile uint32_t*>(m + 0x30001c) : 0;
+}
+static void barLog(const char* what, uint8_t* bss, uint32_t producer) {
+    const int32_t cur = *reinterpret_cast<int32_t*>(bss + 0x958);
+    const int front = ((~cur) & 1) ? 1 : 0;
+    int32_t f[2], b[2];
+    barSlot(bss, front, f);
+    barSlot(bss, front ^ 1, b);
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000;
+    ALOGI("%s t=%lld producer=%u ds=%u front=%d,%d back=%d,%d", what, (long long)now, producer,
+          barDsFrame(), f[0], f[1], b[0], b[1]);
+}
+
+extern std::atomic<uint8_t*> gLimiterHm;
+// Frame lateness (mailbox lock): per emulated frame, how much later than one limiter period after
+// the last on-time frame it finished. Unlike a slack difference this is not wrapped at half a
+// period, so a frame 10 ms late reads 10 ms, not 6.7 ms early. Stalls past 40 ms (loads) are kept
+// out. A frame within 0.5 ms of the grid becomes the new reference, which also follows the small
+// per-frame timing nudges.
+// Emulator wake bookkeeping (unpaced limiter wait, drasticVWait): when it asked to wake and when it did.
+std::atomic<int64_t> gEmuWakeTargetUs{0}, gEmuWakeUs{0};
+static constexpr int kLateRing = 2048;
+static std::atomic<int32_t> gLateRing[kLateRing];
+static std::atomic<uint32_t> gLateRingN{0};
+static void noteFrameLateness(int64_t nowUs) {
+    // Lateness = how late the emulator woke against the wake it asked for + how much longer this
+    // frame's emulation took than usual (10th percentile of the last 120 frames, refreshed every
+    // 30). Both come from the emulator thread itself, so moving its timing (the presenters' locks)
+    // never reads as lateness. Paced mode (no unpaced wake recorded) falls back to the slack to the
+    // primary's next vblank against the slack on-time frames have.
+    const int64_t wake = gEmuWakeUs.load(std::memory_order_relaxed);
+    const int64_t want = gEmuWakeTargetUs.load(std::memory_order_relaxed);
+    const bool own = wake > 0 && nowUs > wake && nowUs - wake < 100000;
+    int32_t sample, wakeLate = 0;
+    const int per = (int)android::drmPanelPeriodUs(0);
+    if (own) {
+        sample = (int32_t)(nowUs - wake);                                // emulation time of this frame
+        wakeLate = want > 0 ? (int32_t)std::max<int64_t>(0, wake - want) : 0;
+    } else {
+        const int64_t v = android::drmPredictVblankUs(0, nowUs);
+        if (v <= 0 || per < 10000) return;
+        sample = (int32_t)(v - nowUs);                                   // slack to the next vblank
+    }
+    static int32_t sSlack[120]; static int sN = 0, sPos = 0, sSince = 0; static int32_t sBase = -1;
+    static bool sOwn = false;
+    if (own != sOwn) { sOwn = own; sN = 0; sPos = 0; sBase = -1; }
+    sSlack[sPos] = sample; sPos = (sPos + 1) % 120; if (sN < 120) sN++;
+    if (++sSince >= 30 && sN >= 60) {
+        sSince = 0;
+        int32_t t[120]; std::copy(sSlack, sSlack + sN, t);
+        const int q = own ? sN / 10 : sN * 9 / 10;
+        std::nth_element(t, t + q, t + sN);
+        sBase = t[q];
+    }
+    if (sBase < 0) return;
+    int32_t dev;
+    if (own) dev = wakeLate + std::max<int32_t>(0, sample - sBase);
+    else {
+        dev = (sBase - sample) % per; if (dev < 0) dev += per;   // a frame past the vblank wraps correctly
+        if (dev > per - 2000) dev = 0;                             // early (more slack than usual), not late
+    }
+    if (dev > 40000) return;
+    const uint32_t i = gLateRingN.fetch_add(1, std::memory_order_relaxed);
+    gLateRing[i % kLateRing].store((int32_t)(dev > 0 ? dev : 0), std::memory_order_relaxed);
+    // lat_log >= 1: lateness percentiles every 600 frames (10 s).
+    static int sLog = -1;
+    if (sLog < 0) sLog = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+    if (sLog > 0 && (i + 1) % 600 == 0) {
+        int32_t v[600];
+        for (int k = 0; k < 600; k++) v[k] = gLateRing[(i - k) % kLateRing].load(std::memory_order_relaxed);
+        std::sort(v, v + 600);
+        ALOGI("LATENESS 10 s: p50 %d p90 %d p99 %d p99.8 %d max %d us, over 4 ms %d, over 8 ms %d",
+              v[300], v[540], v[594], v[598], v[599],
+              (int)(v + 600 - std::upper_bound(v, v + 600, 4000)), (int)(v + 600 - std::upper_bound(v, v + 600, 8000)));
+    }
+}
+int32_t frameLatenessMaxUsImpl(int frames) {
+    const uint32_t n = gLateRingN.load(std::memory_order_relaxed);
+    const uint32_t m = std::min<uint32_t>(n, (uint32_t)std::min(frames, kLateRing));
+    int32_t mx = 0;
+    for (uint32_t k = 0; k < m; k++) mx = std::max(mx, gLateRing[(n - 1 - k) % kLateRing].load(std::memory_order_relaxed));
+    return mx;
+}
 extern "C" void drasticSlotFlipHook() {
     // A parked run-ahead load presents the restored frame through this hook
     // too; that flip is not an emulated frame, so the producer count skips it
@@ -3390,6 +3533,7 @@ extern "C" void drasticSlotFlipHook() {
     const bool hidden = gRaBurst.load(std::memory_order_acquire);
     const bool afterBurst = (int32_t)(gVblSeq.load() - gRaBurstUntilSeq.load()) < 0;
     gProducerDoneUs.store(now);
+    if (!hidden && !afterBurst) noteFrameLateness(now);
     {
         static int sTr = -1; static uint32_t n = 0;
         if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
@@ -3427,6 +3571,11 @@ extern "C" void drasticSlotFlipHook() {
     if (hidden && gRaLibBase) { const int64_t j0 = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); raJoin3dWorker(gRaLibBase);
         const int64_t j = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - j0;
         const int64_t e = gRaHiddenJoinUs.load(); gRaHiddenJoinUs.store(e > 0 ? (e * 3 + j) / 4 : j); }
+    if (!hidden && sFoTrace > 0 && sFoWakeUs > 0 && sFoFlipUs < 0) sFoFlipUs = t3dNowUs() - sFoWakeUs;
+    if (!hidden && barTraceOn()) {
+        uint8_t* bb = gBarBss.load(std::memory_order_relaxed);
+        if (bb) barLog("BARHOOK", bb, gFlipHookCount.load());
+    }
     if (!hidden && gZcBss) {
         const int32_t cur = *reinterpret_cast<int32_t*>(gZcBss + 0x958);
         const int front = ((~cur) & 1) ? 1 : 0;
@@ -3486,6 +3635,95 @@ static inline void threadRu(long& nvcsw, long& nivcsw, long& majflt) {
     struct rusage ru; getrusage(RUSAGE_THREAD, &ru);
     nvcsw = ru.ru_nvcsw; nivcsw = ru.ru_nivcsw; majflt = ru.ru_majflt;
 }
+// Emulator frame trace (sys.gammaos.drastic_nano.emu_trace=1, unpaced limiter only): for every
+// emulated frame, the wall and CPU time of its emulation, the time it sat runnable but not
+// running (schedstat run delay), its context switches and major faults, the CPU it ran on and
+// that CPU's clock, and the sleep the limiter asked for against the sleep it got. Frames that
+// arrive late (interval over the period by emu_trace_late_us, default 3000) are logged one by
+// one; a summary of the interval spread and of where late frames lost their time is logged
+// every 10 s. Off by default; the read of the property is the only cost then.
+static int sEmuTrace = -1;
+static int64_t sEtLastEntryUs = 0, sEtLastWokeUs = 0, sEtWokeCpu = 0, sEtWokeDelayNs = 0;
+static long sEtNv = 0, sEtNiv = 0, sEtMf = 0;
+static int64_t sEtReqUs = 0, sEtSumLogUs = 0;
+static int sEtSchedFd = -1, sEtFreqFd[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+static int sEtLateUs = 3000;
+static uint32_t sEtFrames = 0, sEtLate = 0, sEtLateSched = 0, sEtLateCpu = 0, sEtLateSleep = 0;
+static uint32_t sEtHist[8] = {};   // interval minus period: <-2, -2..0, 0..1, 1..2, 2..3, 3..5, 5..8, >8 ms
+static int64_t etSchedDelayNs() {
+    if (sEtSchedFd < 0) {
+        char p[64]; snprintf(p, sizeof(p), "/proc/self/task/%d/schedstat", (int)syscall(__NR_gettid));
+        sEtSchedFd = open(p, O_RDONLY | O_CLOEXEC);
+        if (sEtSchedFd < 0) return 0;
+    }
+    char b[96]; const ssize_t n = pread(sEtSchedFd, b, sizeof(b) - 1, 0);
+    if (n <= 0) return 0;
+    b[n] = 0; long long run = 0, wait = 0; sscanf(b, "%lld %lld", &run, &wait);
+    return (int64_t)wait;
+}
+static int etCpuKhz(int cpu) {
+    if (cpu < 0 || cpu > 7) return 0;
+    if (sEtFreqFd[cpu] < 0) {
+        char p[80]; snprintf(p, sizeof(p), "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_cur_freq", cpu);
+        sEtFreqFd[cpu] = open(p, O_RDONLY | O_CLOEXEC);
+        if (sEtFreqFd[cpu] < 0) return 0;
+    }
+    char b[24]; const ssize_t n = pread(sEtFreqFd[cpu], b, sizeof(b) - 1, 0);
+    if (n <= 0) return 0;
+    b[n] = 0; return atoi(b);
+}
+static void emuTraceFrame(int64_t nowUs, unsigned usec) {
+    if (sEmuTrace < 0 || (sEtFrames & 255) == 0) {
+        sEmuTrace = property_get_int32("sys.gammaos.drastic_nano.emu_trace", 0);
+        sEtLateUs = property_get_int32("sys.gammaos.drastic_nano.emu_trace_late_us", 3000);
+    }
+    if (sEmuTrace <= 0) { sEtLastEntryUs = 0; sEtFrames++; return; }
+    const int64_t cpuNow = threadCpuUs(), delayNow = etSchedDelayNs();
+    long nv = 0, niv = 0, mf = 0; threadRu(nv, niv, mf);
+    const int cpu = sched_getcpu();
+    sEtFrames++;
+    if (sEtLastEntryUs > 0 && sEtLastWokeUs > 0) {
+        const int64_t per = gVblankPeriodUs.load() > 0 ? gVblankPeriodUs.load() : 16667;
+        const int64_t interval = nowUs - sEtLastEntryUs;
+        const int64_t slept = sEtLastWokeUs - sEtLastEntryUs;           // previous park, actual
+        const int64_t emuWall = nowUs - sEtLastWokeUs, emuCpu = cpuNow - sEtWokeCpu;
+        const int64_t runDelay = (delayNow - sEtWokeDelayNs) / 1000;   // runnable, not running
+        const int64_t over = interval - per;
+        const int b = over < -2000 ? 0 : over < 0 ? 1 : over < 1000 ? 2 : over < 2000 ? 3 :
+                      over < 3000 ? 4 : over < 5000 ? 5 : over < 8000 ? 6 : 7;
+        sEtHist[b]++;
+        if (over > sEtLateUs) {
+            sEtLate++;
+            // Where did the frame lose its time: a sleep longer than asked, time spent runnable
+            // but not running, or emulation that simply took that long on the CPU.
+            const int64_t sleepOver = slept - sEtReqUs;
+            const char* why = sleepOver > over / 2 ? "SLEEP-OVERSHOOT" : runDelay > over / 2 ? "PREEMPTED" : "ON-CPU";
+            if (why[0] == 'S') sEtLateSleep++; else if (why[0] == 'P') sEtLateSched++; else sEtLateCpu++;
+            ALOGW("EMUTRACE late +%lld us: interval %lld, slept %lld (asked %lld), emu wall %lld cpu %lld runnable %lld, nvcsw %ld nivcsw %ld majflt %ld, cpu%d %d kHz -> %s",
+                  (long long)over, (long long)interval, (long long)slept, (long long)sEtReqUs, (long long)emuWall,
+                  (long long)emuCpu, (long long)runDelay, nv - sEtNv, niv - sEtNiv, mf - sEtMf, cpu, etCpuKhz(cpu), why);
+        }
+    }
+    if (sEtSumLogUs == 0) sEtSumLogUs = nowUs;
+    if (nowUs - sEtSumLogUs >= 10000000) {
+        ALOGW("EMUTRACE 10 s: %u frames, interval-period histogram <-2:%u -2..0:%u 0..1:%u 1..2:%u 2..3:%u 3..5:%u 5..8:%u >8:%u ms; late %u (sleep overshoot %u, preempted %u, on-CPU %u)",
+              sEtFrames, sEtHist[0], sEtHist[1], sEtHist[2], sEtHist[3], sEtHist[4], sEtHist[5], sEtHist[6], sEtHist[7],
+              sEtLate, sEtLateSleep, sEtLateSched, sEtLateCpu);
+        memset(sEtHist, 0, sizeof(sEtHist)); sEtLate = sEtLateSleep = sEtLateSched = sEtLateCpu = 0; sEtFrames = 1; sEtSumLogUs = nowUs;
+    }
+    sEtLastEntryUs = nowUs; sEtReqUs = usec > 50000 ? 50000 : usec;
+    sEtNv = nv; sEtNiv = niv; sEtMf = mf;
+}
+static void emuTraceWoke() {
+    if (sEmuTrace <= 0) return;
+    sEtLastWokeUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+    sEtWokeCpu = threadCpuUs(); sEtWokeDelayNs = etSchedDelayNs();
+}
+// Finish lock nudges (see DrasticRunner::nudgeEmuTiming): pending shift in us and drastic's
+// heap master, whose +0x3b2f908 holds the limiter deadline in 1/3 us units.
+std::atomic<int> gEmuNudgeUs{0};
+std::atomic<uint8_t*> gLimiterHm{nullptr};
 extern "C" void drasticVWait(unsigned usec) {
     gVWaitCount.fetch_add(1, std::memory_order_relaxed);
     const int64_t nowUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
@@ -3514,7 +3752,59 @@ extern "C" void drasticVWait(unsigned usec) {
         // deadline from the other time base (seen once after a burst load
         // that raced a lock/bypass switch) asked for a sleep of minutes and
         // froze the emulator; nothing legitimate waits more than a frame or two.
-        usleep(usec > 50000 ? 50000 : usec);
+        if (foOn() && sFoWakeUs > 0) {
+            const uint32_t st = foState();
+            ALOGI("FRAMEORDER compose0 %lld wait3d %lld flip %lld vwait %lld sleep %u us; 3D at wake work %u busy %u bands %u, at vwait work %u busy %u bands %u",
+                  (long long)sFoCompUs, (long long)sFoCompWaitUs, (long long)sFoFlipUs, (long long)(t3dNowUs() - sFoWakeUs), usec,
+                  sFoWakeState & 1, (sFoWakeState >> 1) & 1, sFoWakeState >> 8, st & 1, (st >> 1) & 1, st >> 8);
+        }
+        emuTraceFrame(nowUs, usec);
+        int64_t sleepUs = usec > 50000 ? 50000 : usec;
+        // Finish lock: lengthen or shorten the NEXT emulated frame by up to 300 us (one frame's limiter
+        // period, heap master +0x8aae4 in 1/3 us units, 0 = 50000), restoring the period a frame later.
+        // The limiter keeps its own copy of the deadline, so writing the deadline or sleeping longer here
+        // moves nothing: the next wait just comes back shorter. The period is what it schedules from.
+        {
+            static int sTestLeft = 0, sTestUs = 0; static int64_t sTestReadUs = 0;
+            if (nowUs - sTestReadUs > 500000) {   // diagnostic: nudge_test="us frames"
+                sTestReadUs = nowUs;
+                char v[PROPERTY_VALUE_MAX] = {};
+                property_get("sys.gammaos.drastic_nano.nudge_test", v, "");
+                int us = 0, n = 0;
+                if (v[0] && sscanf(v, "%d %d", &us, &n) == 2 && n > 0) {
+                    sTestUs = us; sTestLeft = n; property_set("sys.gammaos.drastic_nano.nudge_test", "");
+                    if (!gLimiterHm.load() && gRaLibBase) gLimiterHm.store(*reinterpret_cast<uint8_t**>(gRaLibBase + 0x14c000));
+                    ALOGI("NUDGETEST %d us x %d frames (limiter %p, period %u)", us, n, gLimiterHm.load(),
+                          gLimiterHm.load() ? *reinterpret_cast<volatile uint32_t*>(gLimiterHm.load() + 0x8aae4) : 0u);
+                }
+            }
+            if (sTestLeft > 0) { gEmuNudgeUs.fetch_add(sTestUs, std::memory_order_relaxed); sTestLeft--; }
+            static bool sTrimmed = false; static uint32_t sBase = 0;
+            uint8_t* hm = gLimiterHm.load(std::memory_order_relaxed);
+            if (hm) {
+                volatile uint32_t* per = reinterpret_cast<volatile uint32_t*>(hm + 0x8aae4);
+                if (sTrimmed) { *per = sBase; sTrimmed = false; }
+                int pend = gEmuNudgeUs.load(std::memory_order_relaxed);
+                if (pend != 0) {
+                    const int step = pend > 300 ? 300 : (pend < -300 ? -300 : pend);
+                    gEmuNudgeUs.fetch_sub(step, std::memory_order_relaxed);
+                    sBase = *per;
+                    const uint32_t base = sBase ? sBase : 50000u;
+                    *per = base + (uint32_t)(step * 3);
+                    sTrimmed = true;
+                }
+            }
+        }
+        {
+            const int64_t t0 = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch()).count();
+            gEmuWakeTargetUs.store(t0 + sleepUs, std::memory_order_relaxed);
+        }
+        usleep((useconds_t)sleepUs);
+        gEmuWakeUs.store((int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count(), std::memory_order_relaxed);
+        if (sFoTrace > 0) { sFoWakeUs = t3dNowUs(); sFoCompUs = -1; sFoCompWaitUs = 0; sFoFlipUs = -1; sFoWakeState = foState(); }
+        emuTraceWoke();
         return;
     }
     std::unique_lock<std::mutex> lk(gPaceMu);
@@ -6422,6 +6712,12 @@ std::atomic<uint32_t> gAudioLeadExtra{0}, gAudioLeadTopUps{0}, gAudioLeadHolds{0
 
 static std::atomic<int> gOffsetAutoTarget{-1};
 void DrasticRunner::setOffsetAutoTarget(int targetUs) { gOffsetAutoTarget.store(targetUs, std::memory_order_relaxed); }
+int32_t DrasticRunner::frameLatenessMaxUs(int frames) { return frameLatenessMaxUsImpl(frames); }
+void DrasticRunner::nudgeEmuTiming(int usec) {
+    if (!mArm64Base) return;
+    gLimiterHm.store(*reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000), std::memory_order_relaxed);
+    gEmuNudgeUs.fetch_add(usec, std::memory_order_relaxed);
+}
 void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
     if (vblankUs <= 0) return;
     applyCpuPlacement();
@@ -6443,6 +6739,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         const bool want = !gPaceOn.load() && !mFastForwardOn && mPanelHz > 1.0 && (sRt >= 0 ? sRt > 0 : sPersist > 0);
         volatile uint32_t* period = reinterpret_cast<volatile uint32_t*>(mArm64Base + 0x14c000);
         uint8_t* hm = *reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000);
+        if (hm) gLimiterHm.store(hm, std::memory_order_relaxed);
         if (hm) {
             period = reinterpret_cast<volatile uint32_t*>(hm + 0x8aae4);
             const uint32_t units = (uint32_t)llround(3000000.0 / mPanelHz);
@@ -7736,11 +8033,18 @@ uint32_t DrasticRunner::dsFrameCounter() {
 }
 static int64_t sUploadDoneUs = 0;
 int64_t DrasticRunner::lastUploadFrameDoneUs() { return sUploadDoneUs; }
+uint32_t DrasticRunner::lastUploadProducer() { return sUploadRingN ? sUploadRing[(sUploadRingN - 1) % 16].producer : 0; }
 void DrasticRunner::probeUpload() {
     sUploadDoneUs = gProducerDoneUs.load();
     UploadProbe& u = sUploadRing[sUploadRingN++ % 16];
     u.producer = producerFrameCount(); u.dsFrame = dsFrameCounter(); u.flip = drmAhbFlipCount();
     u.hostUs = elapsedRealtimeNano() / 1000;
+    if (barTraceOn() && mArm64Base) {
+        uint8_t* bss = mArm64Base + 0x3f2d1f8;
+        gBarBss.store(bss, std::memory_order_relaxed);
+        gBarMainRam.store(dsMainRam().base, std::memory_order_relaxed);
+        barLog("BARUP", bss, u.producer);
+    }
 }
 void DrasticRunner::dumpUploadProbe() {
     const uint32_t n = sUploadRingN < 16 ? sUploadRingN : 16;
@@ -8101,6 +8405,28 @@ bool DrasticRunner::renderSlotShaded(int which, unsigned int targetFbo,
         mSlotShadeFbo = targetFbo;
     }
 
+    // Take the frame once per presented frame. With the fast upload drastic's own copies in
+    // fxRender (glTexSubImage2D of BOTH screens on every call, four 768 KB copies a frame at
+    // hi-res 3D on this per-screen path) are patched out and the DS textures sample its front
+    // slot directly (zero-copy dma-buf) or get one copy; without it every call uploads as
+    // before. Either way the screens of one presented frame now come from one emulated frame.
+    if (mSlotNeedUpload) {
+        mSlotNeedUpload = false;
+        if (!mFastUploadOn && !mFastUploadTried && mArm64Base && mDsTexW > 0 &&
+            android::drastic_settings::getBool("persist.gammaos.drastic_nano.fast_upload", true)) {
+            mFastUploadTried = true;
+            if (setupDsAhbTextures(mDsTexW, mDsTexH)) {
+                patchFxUpload(true);
+                mFastUploadOn = mFxUploadPatched;
+            }
+            ALOGW("DrasticRunner: fast upload %s (per-slot shader path)", mFastUploadOn ? "on" : "off");
+        }
+        probeUpload();
+        // Run-ahead without zero-copy slots: upload only a fresh visible frame (as renderDsToOffscreen).
+        if (mFastUploadOn && (gRaMode.load() != 2 || gZcSwapState.load() == 2 || gRaFreshVisible.exchange(false)))
+            fastUploadFrame();
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, targetFbo);
     glBindBuffer(GL_ARRAY_BUFFER, mSlotVbo);
     while (glGetError() != GL_NO_ERROR) {}
@@ -8112,7 +8438,6 @@ bool DrasticRunner::renderSlotShaded(int which, unsigned int targetFbo,
     // the bottom quad sampling mDsBotTex -- so firstTop=0/firstBot=6 yields the
     // top screen alone, and firstTop=6/firstBot=0 yields the bottom alone.
     if (which == 0) {
-    probeUpload();
         mFxRender(mFakeEnv, mFakeCls, (int)mDsTopTex, (int)mDsBotTex,
                   0, 6, 18, vx, vy, vw, vh, 0);
     } else {

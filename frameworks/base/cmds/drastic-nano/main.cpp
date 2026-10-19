@@ -1323,6 +1323,35 @@ static bool shotRequested() {
 // difference from the frame captured at the press. The first frame whose
 // difference jumps is where the press became visible: compare the frame
 // index with run-ahead off and on to see the frame(s) run-ahead removes.
+// Emulator finish lock shared by the presenters: holds the point where emulated frames finish at
+// a wanted distance before the primary's next vblank, nudging the emulator by a tenth of the
+// smoothed error per frame (at most 300 us, DrasticRunner::nudgeEmuTiming lengthens or shortens
+// one limiter period), so the grid follows within a second and panel-rate drift never walks it.
+struct FinishLock {
+    double ema = -1.0; int64_t lastDone = 0; int64_t nudgeSum = 0;
+    static double wrap(double d, int per) { if (d > per / 2) d -= per; if (d < -per / 2) d += per; return d; }
+    // done: the presented frame's frame-done time; targetSlack: wanted time from frame done to the
+    // primary's next vblank, in (0, period]. Returns the smoothed slack, or -1 before it is known.
+    double step(android::DrasticRunner* dr, int64_t done, int per, int targetSlack) {
+        if (done <= 0 || done == lastDone || per < 10000) return ema;
+        const int64_t v = android::drmPredictVblankUs(0, done);
+        if (v <= 0) return ema;
+        lastDone = done;
+        const double slack = (double)(v - done);
+        if (ema < 0) ema = slack;
+        else {
+            ema += wrap(slack - ema, per) / 8.0;
+            if (ema < 0) ema += per;
+            if (ema >= per) ema -= per;
+        }
+        if (targetSlack > 0) {
+            int n = (int)(wrap(ema - targetSlack, per) * 0.1);   // > 0: finishing earlier than wanted
+            n = std::max(-300, std::min(300, n));
+            if (n != 0) { dr->nudgeEmuTiming(n); nudgeSum += n; }
+        }
+        return ema;
+    }
+};
 static int64_t gSlotFrameDoneUs[8] = {0};       // per ring slot: frame-done time of the frame it holds
 static uint32_t gSlotProducer[8] = {0};         // per ring slot: producer frame count it holds (hitch probe)
 static std::atomic<bool> gLatPressEdge{false};   // set by the scripted input on a 0 -> 1 press
@@ -2071,6 +2100,22 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     std::atomic<bool> fastReapplyPrefs{false};
     bool fastPrevOverlayOpen = false;
     const bool fastDirectLayout = !drmSingleLayout;
+    // Fast forwarding outside Low Latency Mode (persist.gammaos.drastic_nano.fast_input_always,
+    // sys override of the same name; the RP Duo Lite ships it on): drastic otherwise applies input
+    // once per presenter iteration, measured 1.5 to 12 ms after the evdev event there, so a press
+    // that arrives just after an apply waits most of a frame before the game can read it. The
+    // thread costs nothing per frame (it sleeps in poll). Two-panel touch is forwarded only for
+    // the panel showing the DS touch screen with the screens not swapped; a swapped layout needs
+    // the render loop's rescale, so the render loop keeps ownership then.
+    const bool fastAlways = property_get_int32("sys.gammaos.drastic_nano.fast_input_always",
+            property_get_int32("persist.gammaos.drastic_nano.fast_input_always", 0)) > 0;
+    std::atomic<bool> fastSwapped{false};
+    auto fastOwns = [&](bool ovOpen, bool cursorMode) -> bool {
+        if (ovOpen || cursorMode || !fastDirectLayout) return false;
+        if (hasDualDisplay && fastSwapped.load(std::memory_order_relaxed)) return false;
+        if (!android::sDrmLowLatency && !fastAlways) return false;
+        return property_get_bool("sys.gammaos.drastic_nano.fast_input", true);
+    };
     std::thread fastInputThread([&]() {
         pthread_setname_np(pthread_self(), "dn-fastin");
         {
@@ -2113,12 +2158,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // Forward only the DS gameplay state; edge actions (menu, sleep,
             // quick save/load, etc.) stay owned by the render loop, which sees
             // the same events on its own fds.
-            if (android::sDrmLowLatency && !ovOpen && !fin.cursorMode &&
-                    fastDirectLayout && !gRaTestInputActive.load() && !dr->probeOwnsInput() &&
-                    property_get_bool("sys.gammaos.drastic_nano.fast_input", true)) {
+            if (fastOwns(ovOpen, fin.cursorMode) && !gRaTestInputActive.load() && !dr->probeOwnsInput()) {
+                // Two panels with a digitizer each (RP Duo Lite): a touch on the top panel is not a
+                // DS touch while the screens are not swapped (the render loop drops it the same way).
+                const bool held = fa.touchHeld && !(hasDualDisplay && !fa.touchDirect && fa.touchTop);
                 std::lock_guard<std::mutex> lk(inputFwdMutex);
-                dr->setInputWithTouch(fa.dsBtnMask, fa.touchX, fa.touchY,
-                                      fa.touchHeld);
+                dr->setInputWithTouch(fa.dsBtnMask, fa.touchX, fa.touchY, held);
             }
         }
     });
@@ -2564,9 +2609,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // iteration and is several milliseconds stale by now, so a press the
         // fast thread already delivered (a d-pad edge while A and B are held)
         // got overwritten every frame and reached the game only sporadically.
-        const bool fastOwnsInput = android::sDrmLowLatency && !overlay.isOpen() &&
-                                   !input.cursorMode && fastDirectLayout &&
-                                   property_get_bool("sys.gammaos.drastic_nano.fast_input", true);
+        fastSwapped.store(screensSwapped, std::memory_order_relaxed);
+        const bool fastOwnsInput = fastOwns(overlay.isOpen(), input.cursorMode);
         // Run-ahead test input (sys.gammaos.drastic_nano.ra_test_input = period
         // in frames, 0 off): hold A for 8 frames once per period, written
         // regardless of who owns forwarding, so bursts can be exercised and
@@ -2833,6 +2877,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             directArmed = true;
         }
         const int64_t sRdT0 = android::elapsedRealtimeNano();
+        static int64_t sRdMonoUs = 0, sRdCpuEndMonoUs = 0;   // MBTRACE split: render start, render submitted
+        sRdMonoUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
         gpu3dPresenterTimerBegin();   // presenter GPU share probe (sys gpu3d_gputime): the DS render and both panel passes
         sGpuTimer.frameBegin();
         sGpuTimer.beginPass(0);
@@ -3090,6 +3136,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 }
             };
 
+            if (renderDs) dr->beginShadedFrame();
             // --- secondary panel (bottom unless swapped) ---
             {
                 const bool secTurned = (android::sDrmRotationDegSecondary == 90 ||
@@ -3131,6 +3178,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
                 bool sharedOffscreenFilled = false;
+                dr->beginShadedFrame();
                 for (int i = 0; i < plan.count; i++) {
                     const drastic_nano::SlotPlan& s = plan.slots[i];
                     const int vx = (int)s.rect.x;
@@ -3564,8 +3612,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             }
             // Frame-done time of the emulated frame this slot holds (VISLAT probe):
             // the slot is presented `age` iterations later, not this one.
+            sRdCpuEndMonoUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
             gSlotFrameDoneUs[renderIdx % 8] = dr->lastUploadFrameDoneUs();
-            gSlotProducer[renderIdx % 8] = dr->producerFrameCount();
+            // The frame the upload took: drastic can finish the next one while this renders.
+            gSlotProducer[renderIdx % 8] = dr->lastUploadProducer();
             sMbLastRendered = gSlotProducer[renderIdx % 8];
             android::sRingRenderIdx =
                     (renderIdx + 1) % ringDepth;
@@ -3675,33 +3725,150 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         android::drmWaitSlotFence(presentIdx);
                         android::drmPollFlipEvents();   // flips that landed during the render
                         const int64_t nowF = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
-                        // Emulator offset: with the emulator at exactly the primary's rate its frames
-                        // finish at a fixed point in the period, and if that point plus render and GPU
-                        // time sits at the vblank, frames alternately make and miss it (or queue a
-                        // period late for minutes). Steer the emulator, by rate trims of a few hundred
-                        // ppm, to finish render-and-GPU time (98th percentile) plus a guard ahead of
-                        // the primary's vblank. sys.gammaos.drastic_nano.mailbox_steer=0 disables.
+                        // Auto mode (mailbox=2), per panel: queued (each frame lands one period after the
+                        // vblank it could make: about the vblank-paced latency, but any emulator lateness up
+                        // to a period is absorbed without a hitch) or fast (each frame on the very next
+                        // vblank). A panel goes fast only by skipping one frame, and only while the lead
+                        // that holds it (render-to-GPU p99 + finish jitter p99.9 + guard) fits in a period
+                        // and no frame has been late on it for mailbox_calm_ms; a late frame returns it to
+                        // queued at the cost of that one repeat, never a repeat and skip pair.
+                        static int sMbFast[2] = {0, 0}; static int64_t sMbLateUs[2] = {0, 0};
+                        static bool sMbFastOk = false, sMbFastOkP = false, sMbFastOkS = false; static int sMbCalmMs = -1, sMbExitRoomy = -1;
+                        static uint32_t sMbToFast[2] = {0, 0}, sMbToQueued[2] = {0, 0};
+                        if (sMbCalmMs < 0) {
+                            sMbCalmMs = property_get_int32("sys.gammaos.drastic_nano.mailbox_calm_ms", 15000);
+                            sMbExitRoomy = property_get_int32("sys.gammaos.drastic_nano.mailbox_fast_frames", 30);
+                        }
+                        // Emulator finish lock (sys.gammaos.drastic_nano.mailbox_lock, default 1): hold the
+                        // point where emulated frames finish at a lead ahead of the primary's next vblank,
+                        // lead = render-to-GPU-done p99 + emulator finish jitter p99.5 + mailbox_guard_us,
+                        // all measured live over the last 10 s. Each frame nudges drastic's limiter
+                        // deadline by a tenth of the smoothed error (at most 300 us), so the grid follows
+                        // within a second and the panel-rate drift never walks frames onto the vblank.
+                        // 0 restores the older rate-trim target (period - render p98 - guard).
                         {
-                            static int sSteer = -1, sGuard = -1;
-                            if (sSteer < 0) {
-                                sSteer = property_get_int32("sys.gammaos.drastic_nano.mailbox_steer", 1);
-                                sGuard = property_get_int32("sys.gammaos.drastic_nano.mailbox_guard_us", 3000);
+                            static int sLock = -1, sGuard = -1, sGuardS = -1;
+                            if (sLock < 0) {
+                                sLock = property_get_int32("sys.gammaos.drastic_nano.mailbox_lock", 1);
+                                sGuard = property_get_int32("sys.gammaos.drastic_nano.mailbox_guard_us", sLock > 0 ? 2500 : 3000);
+                                sGuardS = property_get_int32("sys.gammaos.drastic_nano.mailbox_guard_secondary_us", 1500);
                             }
-                            static int32_t sNeed[120] = {}; static int sNeedN = 0, sNeedPos = 0; static int64_t sTgtUs = 0;
                             const int64_t done = gSlotFrameDoneUs[presentIdx % 8];
-                            if (done > 0 && nowF > done && nowF - done < 50000) {
-                                sNeed[sNeedPos] = (int32_t)(nowF - done); sNeedPos = (sNeedPos + 1) % 120;
-                                if (sNeedN < 120) sNeedN++;
-                            }
-                            if (sSteer > 0 && sNeedN >= 60 && nowF - sTgtUs > 1000000) {
-                                sTgtUs = nowF;
-                                int32_t tmp[120]; std::copy(sNeed, sNeed + sNeedN, tmp);
-                                const int q = sNeedN * 98 / 100;
-                                std::nth_element(tmp, tmp + q, tmp + sNeedN);
-                                const int per = (int)android::drmPanelPeriodUs(0);
-                                int t = per - (tmp[q] + sGuard);
-                                if (t < 0) t = 0;
-                                dr->setOffsetAutoTarget(t);
+                            const int per = (int)android::drmPanelPeriodUs(0);
+                            if (sLock > 0) {
+                                constexpr int kWin = 1800;   // 30 s
+                                static int32_t sNeedR[kWin], sDevR[kWin]; static int sN = 0, sPos = 0;
+                                static double sEma = -1.0; static int64_t sLastDone = 0, sTgtUs = 0, sLogUs = 0;
+                                static int sTarget = -1, sLead = 0, sLeadS = -1; static int64_t sNudgeSum = 0;
+                                static bool sOffsetOff = false;
+                                if (!sOffsetOff) { dr->setOffsetAutoTarget(-1); sOffsetOff = true; }
+                                const int64_t v = done > 0 ? android::drmPredictVblankUs(0, done) : 0;
+                                if (done > 0 && done != sLastDone && v > 0 && per > 10000 && nowF > done && nowF - done < 50000) {
+                                    sLastDone = done;
+                                    const double slack = (double)(v - done);   // (0, period]
+                                    int32_t dev = 0;
+                                    if (sEma < 0) sEma = slack;
+                                    else {
+                                        double d = slack - sEma;
+                                        if (d > per / 2) d -= per;
+                                        if (d < -per / 2) d += per;
+                                        dev = (int32_t)(-d);                   // > 0: finished later than usual
+                                        sEma += d / 8.0;
+                                        if (sEma < 0) sEma += per;
+                                        if (sEma >= per) sEma -= per;
+                                    }
+                                    sNeedR[sPos] = (int32_t)(nowF - done); sDevR[sPos] = dev;
+                                    sPos = (sPos + 1) % kWin; if (sN < kWin) sN++;
+                                    if (sN >= 120 && nowF - sTgtUs > 1000000) {
+                                        sTgtUs = nowF;
+                                        int32_t a[kWin], b[kWin];
+                                        std::copy(sNeedR, sNeedR + sN, a); std::copy(sDevR, sDevR + sN, b);
+                                        const int qa = sN * 99 / 100;
+                                        std::nth_element(a, a + qa, a + sN);
+                                        // Finish jitter: the worst frame lateness of the last 30 s, measured by the
+                                        // emulator thread (stalls past 40 ms, loads, excluded: they hitch whatever
+                                        // the presenter does). A percentile let through enough late frames that
+                                        // each fast spell ended in a hold.
+                                        const int32_t jit = dr->frameLatenessMaxUs(kWin);
+                                        b[0] = jit; const int qb = 0;
+                                        // Lead L from frame done to the vblank it lands on: render-to-GPU p99 +
+                                        // guard + the worst finish jitter, so every frame lands on its vblank.
+                                        // Past a period the frame simply lands a period later (the lock holds
+                                        // the finish L - period ahead of the grid); under a period it lands on
+                                        // the next vblank, which a queued panel reaches by skipping one frame.
+                                        // Each panel lands on its first vblank at least render-to-GPU p99 + its
+                                        // guard + the worst lateness after the frame is done. One finish point
+                                        // serves both panels, whose vblanks sit a fixed offset apart (the DP runs at
+                                        // the DSI's rate), so pick the finish point that minimises the two leads
+                                        // together: one panel then lands right at its bound, the other pays the
+                                        // shorter way round the offset. A lead past a period means that panel shows
+                                        // each frame a period later, which the queue keeps steady.
+                                        const int reqP = a[qa] + jit + sGuard, reqS = a[qa] + jit + sGuardS;
+                                        const int64_t vp = android::drmPredictVblankUs(0, nowF), vs = android::drmPredictVblankUs(1, nowF);
+                                        const int perS = (int)android::drmPanelPeriodUs(1);
+                                        auto leadFor = [&](int64_t slack, int req) -> int64_t {
+                                            int64_t l = slack;
+                                            while (l < req) l += per;
+                                            return l;
+                                        };
+                                        int bestSlack = std::max(1, std::min(per, reqP)), bestLeadP = 0, bestLeadS = -1;
+                                        if (vp > 0 && vs > 0 && perS > 10000 && std::abs(perS - per) < 200) {
+                                            int64_t off = (vs - vp) % per; if (off < 0) off += per;   // S vblank this long after P's
+                                            int64_t bestCost = INT64_MAX;
+                                            for (int sl = 250; sl <= per; sl += 250) {
+                                                int64_t slS = (sl + off) % per; if (slS == 0) slS = per;
+                                                const int64_t lp = leadFor(sl, reqP), ls = leadFor(slS, reqS);
+                                                const int64_t cost = lp + ls;
+                                                if (cost < bestCost) { bestCost = cost; bestSlack = sl; bestLeadP = (int)lp; bestLeadS = (int)ls; }
+                                            }
+                                        } else {
+                                            bestLeadP = (int)leadFor(bestSlack, reqP);
+                                        }
+                                        int lead = std::min(bestLeadP, 2 * per - 1000);
+                                        int t = bestSlack;
+                                        if (sMailbox != 2) { lead = std::min(reqP, per - 500); t = lead; }
+                                        if (sMailbox == 2) {
+                                            sMbFastOkP = bestLeadP <= per && nowF - sMbLateUs[0] > (int64_t)sMbCalmMs * 1000;
+                                            sMbFastOkS = bestLeadS >= 0 && bestLeadS <= per && nowF - sMbLateUs[1] > (int64_t)sMbCalmMs * 1000;
+                                            sMbFastOk = sMbFastOkP;
+                                        }
+                                        sLead = lead; sLeadS = bestLeadS;
+                                        sTarget = t;
+                                        if (nowF - sLogUs >= 10000000) {
+                                            sLogUs = nowF;
+                                            ALOGI("drastic-nano: mailbox lock: leads %d/%d us (render-to-GPU p99 %d, finish lateness max %d, guards %d/%d), finish target %d us, now %.0f us, nudged %lld us in 10 s; panels %s/%s, to fast %u/%u, to queued %u/%u",
+                                                  sLead, sLeadS, a[qa], b[qb], sGuard, sGuardS, t, sEma, (long long)sNudgeSum,
+                                                  sMbFast[0] ? "fast" : "queued", sMbFast[1] ? "fast" : "queued",
+                                                  sMbToFast[0], sMbToFast[1], sMbToQueued[0], sMbToQueued[1]);
+                                            sMbToFast[0] = sMbToFast[1] = sMbToQueued[0] = sMbToQueued[1] = 0;
+                                            sNudgeSum = 0;
+                                        }
+                                    }
+                                    if (sTarget > 0) {
+                                        double e = sEma - sTarget;             // > 0: finishing earlier than wanted
+                                        if (e > per / 2) e -= per;
+                                        if (e < -per / 2) e += per;
+                                        if (sMailbox == 2 && (e < -500 || e > 500)) sMbFastOk = sMbFastOkP = sMbFastOkS = false;   // lead not there yet
+                                        int n = (int)(e * 0.1);
+                                        n = std::max(-300, std::min(300, n));
+                                        if (n != 0) { dr->nudgeEmuTiming(n); sNudgeSum += n; }
+                                    }
+                                }
+                            } else {
+                                static int32_t sNeed[120] = {}; static int sNeedN = 0, sNeedPos = 0; static int64_t sTgtUs = 0;
+                                if (done > 0 && nowF > done && nowF - done < 50000) {
+                                    sNeed[sNeedPos] = (int32_t)(nowF - done); sNeedPos = (sNeedPos + 1) % 120;
+                                    if (sNeedN < 120) sNeedN++;
+                                }
+                                if (sNeedN >= 60 && nowF - sTgtUs > 1000000) {
+                                    sTgtUs = nowF;
+                                    int32_t tmp[120]; std::copy(sNeed, sNeed + sNeedN, tmp);
+                                    const int q = sNeedN * 98 / 100;
+                                    std::nth_element(tmp, tmp + q, tmp + sNeedN);
+                                    int t = per - (tmp[q] + sGuard);
+                                    if (t < 0) t = 0;
+                                    dr->setOffsetAutoTarget(t);
+                                }
                             }
                         }
                         // The primary's vblank from the tracked grid: an event's receive time is late by
@@ -3730,6 +3897,16 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                                     }
                                 }
                             }
+                            if (sMailbox == 2) {
+                                if (sMbFast[k]) {
+                                    // Fast and the previous flip is still in flight: this frame is late.
+                                    sMbFast[k] = 0; sMbLateUs[k] = nowF; sMbToQueued[k]++; roomy = 0;
+                                } else if ((k ? sMbFastOkS : sMbFastOkP) && roomy >= sMbExitRoomy && nowF - sMbLateUs[k] > (int64_t)sMbCalmMs * 1000) {
+                                    roomy = 0; exits++; want = -1; sMbFast[k] = 1; sMbToFast[k]++; return;
+                                }
+                                want = presentIdx; queued++;
+                                return;
+                            }
                             const int exitFrames = k ? sMbExitFramesS : sMbExitFramesP;
                             if (exitFrames > 0 && roomy >= exitFrames) { roomy = 0; exits++; want = -1; return; }
                             want = presentIdx; queued++;
@@ -3737,8 +3914,9 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         {
                             static int sTl = -1; if (sTl < 0) sTl = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
                             if (sTl >= 3)
-                                ALOGW("MBTRACE frame %u rendered t=%lld done_age=%lld pendP=%d pendS=%d vP=%+lld vS=%+lld",
+                                ALOGW("MBTRACE frame %u rendered t=%lld done_age=%lld (pickup %lld cpu %lld gpu %lld) pendP=%d pendS=%d vP=%+lld vS=%+lld",
                                       gSlotProducer[presentIdx % 8], (long long)nowF, (long long)(nowF - gSlotFrameDoneUs[presentIdx % 8]),
+                                      (long long)(sRdMonoUs - gSlotFrameDoneUs[presentIdx % 8]), (long long)(sRdCpuEndMonoUs - sRdMonoUs), (long long)(nowF - sRdCpuEndMonoUs),
                                       android::drmPanelFlipPending(0) ? 1 : 0, android::drmPanelFlipPending(1) ? 1 : 0,
                                       (long long)(android::drmPredictVblankUs(0, nowF) - nowF), (long long)(android::drmPredictVblankUs(1, nowF) - nowF));
                         }
@@ -3797,6 +3975,53 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         sPrevLatchUs = v;
                     }
                     dr->vblankTick(android::sDrmLastVblankUs, android::drmLastGpuDoneUs());
+                    // Pickup lock (sys.gammaos.drastic_nano.pickup_lock): this presenter takes the newest
+                    // frame right after the primary's vblank, so a frame waits from its finish to that
+                    // pickup, a random 0 to 16.7 ms that the launch decides (VISLAT 24.9 one launch,
+                    // 26.7 the next). Hold the finish M before the pickup instead, M = the worst frame
+                    // lateness of the last 30 s minus what the late-frame wait catches, at least 1 ms and
+                    // at most a period minus 6.5 ms: light scenes get the shortest wait, heavy ones keep
+                    // their slack, and a frame that emulates faster than usual still never finishes
+                    // before the previous pickup (that read as a skip and a repeat, 8.7 a minute, at 13.7).
+                    {
+                        static int sPickOn = -1, sPickWait = -1, sPickFixedM = -1; static FinishLock sPick;
+                        static double sPickOff = -1.0; static int64_t sPickLogUs = 0; static int sPickM = 0;
+                        if (sPickOn < 0) {
+                            // Default on where the device presents at age 0 with the late-frame wait (the
+                            // RP Duo Lite's vendor default): measured there, Sonic Rush with hi-res 3D 23-26 ms
+                            // frame-done-to-visible on the DSI with 0-1 hitches a minute (free-running 22-27 ms
+                            // and 0-7 bottom-panel hitches a minute by launch), a light ROM 19.1 ms (22.2).
+                            const int ageDef = property_get_int32("persist.gammaos.drastic_nano.present_age_default", -1);
+                            sPickOn = property_get_int32("sys.gammaos.drastic_nano.pickup_lock",
+                                      property_get_int32("persist.gammaos.drastic_nano.pickup_lock", ageDef == 0 ? 1 : 0));
+                            sPickWait = property_get_int32("sys.gammaos.drastic_nano.frame_wait_us", ageDef == 0 ? 6000 : 0);
+                            sPickFixedM = property_get_int32("sys.gammaos.drastic_nano.pickup_lock_us", -1);
+                        }
+                        const int per = (int)android::drmPanelPeriodUs(0);
+                        if (sPickOn > 0 && age == 0 && !vblPace && !android::sDrmLowLatency && per > 10000) {
+                            const int64_t vb = android::drmVblankAtOrBeforeUs(0, sRdMonoUs);
+                            if (vb > 0 && sRdMonoUs - vb < per / 2) {
+                                const double off = (double)(sRdMonoUs - vb);
+                                sPickOff = sPickOff < 0 ? off : sPickOff + (off - sPickOff) / 16.0;
+                            }
+                            if (sPickOff >= 0) {
+                                const int32_t jit = dr->frameLatenessMaxUs(1800);
+                                const int m = sPickFixedM >= 0 ? sPickFixedM
+                                                              : std::max(1000, std::min(per - 6500, (int)jit - sPickWait + 1000));
+                                sPickM = m;
+                                int t = m - (int)sPickOff;                 // finish this long before the vblank
+                                while (t <= 0) t += per;                   // or after it, before the pickup
+                                const double ema = sPick.step(dr, gSlotFrameDoneUs[presentIdx % 8], per, t);
+                                const int64_t nowP = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                                if (sLatLog && nowP - sPickLogUs >= 10000000) {
+                                    sPickLogUs = nowP;
+                                    ALOGI("drastic-nano: pickup lock: finish %d us before the pickup (lateness max %d, late-frame wait %d), pickup %.0f us after the vblank, slack to the vblank %.0f us (target %d), nudged %lld us in 10 s",
+                                          sPickM, jit, sPickWait, sPickOff, ema, t, (long long)sPick.nudgeSum);
+                                    sPick.nudgeSum = 0;
+                                }
+                            }
+                        }
+                    }
                     const int64_t flipNs = android::elapsedRealtimeNano() - flipT0;
                     if (flipNs > sStgFlipMaxNs) sStgFlipMaxNs = flipNs;
                     android::sRingPresentIdx = presentIdx;
@@ -4538,6 +4763,7 @@ RunLoopResult runLoopSf(drastic_nano::IDisplayBackend* backend,
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             bool sharedOffscreenFilled = false;
+            dr->beginShadedFrame();
             for (int i = 0; i < plan.count; i++) {
                 const drastic_nano::SlotPlan& s = plan.slots[i];
                 const int vx = (int)s.rect.x;

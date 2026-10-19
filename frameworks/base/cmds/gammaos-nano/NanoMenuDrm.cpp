@@ -249,6 +249,8 @@ static DrmVblTrack sDrmVbl[2];
 // Commit-latency probe (sys.gammaos.drastic_nano.lat_log=2): when each panel's last flip was
 // issued and the vblank predicted for it, logged against the landed time as LANDLOG.
 static int64_t sDrmIssueUs[2] = {0, 0}, sDrmIssuePredUs[2] = {0, 0};
+static int64_t sDrmIssueOtherSinceUs[2] = {-1, -1}; static int sDrmIssueOtherPending[2] = {0, 0};
+bool drmPanelFlipPending(int k);
 static void drmNoteFlipIssued(int k);
 static double drmModePeriodUs(int k);
 static void drmVblNote(int k, int64_t t) {
@@ -276,13 +278,18 @@ static void drmNoteFlipIssued(int k) {
     const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
     sDrmIssueUs[k] = now;
     sDrmIssuePredUs[k] = drmPredictVblankUs(k, now);
+    // Where the other panel is: time since its last vblank (tracked grid) and whether a flip is in flight.
+    const int o = 1 - k;
+    const int64_t on = drmPredictVblankUs(o, now);
+    sDrmIssueOtherSinceUs[k] = on > 0 ? now - (on - (int64_t)llround(sDrmVbl[o].perUs)) : -1;
+    sDrmIssueOtherPending[k] = drmPanelFlipPending(o) ? 1 : 0;
 }
 int64_t drmLastLandedUs(int k) { return (k == 0 || k == 1) ? sDrmVbl[k].lastNoteUs : 0; }
 static void drmNoteFlipLandedProbe(int k, int64_t t) {
     if (drmLatLogLevel() < 2 || sDrmIssueUs[k] <= 0) return;
-    ALOGW("LANDLOG %c next_vbl=%lld landed=%lld us after issue", k ? 'S' : 'P',
+    ALOGW("LANDLOG %c next_vbl=%lld landed=%lld us after issue, other panel vblank %lld us before, other flip in flight %d", k ? 'S' : 'P',
           (long long)(sDrmIssuePredUs[k] > 0 ? sDrmIssuePredUs[k] - sDrmIssueUs[k] : -1),
-          (long long)(t - sDrmIssueUs[k]));
+          (long long)(t - sDrmIssueUs[k]), (long long)sDrmIssueOtherSinceUs[k], sDrmIssueOtherPending[k]);
     sDrmIssueUs[k] = 0;
 }
 // The first vblank of panel k strictly after afterUs, or 0 while it is not tracked yet.
