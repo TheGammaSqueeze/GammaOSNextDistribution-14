@@ -12242,6 +12242,7 @@ void DrasticRunner::redimDsTextures() {
              mOffscreenW, mOffscreenH);
     patchFinalPassFbo();
 
+    mShaderGen.fetch_add(1, std::memory_order_relaxed);
     mShaderSwapInFlight.store(false);
 }
 
@@ -12423,6 +12424,7 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
     if (!wasPaused && mPauseSystem) {
         mPauseSystem(mFakeEnv, mFakeCls, 0);
     }
+    mShaderGen.fetch_add(1, std::memory_order_relaxed);
     mShaderSwapInFlight.store(false);
     return true;
 }

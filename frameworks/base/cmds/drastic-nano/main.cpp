@@ -1352,6 +1352,51 @@ struct FinishLock {
         return ema;
     }
 };
+// Bottom panel hold (independent DSI + DP, free-running presenter): the DP's vblank drifts slowly
+// against the DSI's (one period per ~94 min on the RP Duo Lite), so for long stretches the bottom flip
+// goes out just before the DP vblank and frame-to-frame jitter (late-frame waits, render time) makes
+// it land on that vblank or the next one alternately: a dropped frame each time (14.6 hold and skip
+// pairs a minute measured in such a stretch). While the closest 1% of bottom flips come within 3.5 ms
+// of the DP vblank, the bottom flip of a frame goes out at the top of the next presenter iteration
+// instead (right after the DSI's vblank, which is then well clear of the DP's), so it always lands on
+// the same DP vblank; back to flipping at once when the closest 1% are 6.5 ms clear. The presenter
+// never waits for it (a version that slept to the DP vblank cost the top panel 3 hitches a minute).
+// Opt-in (sys.gammaos.drastic_nano.sec_hold=1) until a drift window shows it pays: in the windows
+// measured since, the bottom panel stayed at 0.5 hitches a minute with it on and off alike.
+static bool gSecHold = false;
+static int gSecHeldIdx = -1;   // slot whose bottom flip waits for the next iteration
+static void flushSecHold() {
+    if (gSecHeldIdx >= 0) { android::drmFlipSecondaryOnly(gSecHeldIdx); gSecHeldIdx = -1; }
+}
+static void flipRingSlotSecHold(int idx) {
+    static int sOn = -1;
+    if (sOn < 0) sOn = property_get_int32("sys.gammaos.drastic_nano.sec_hold", 0);
+    if (sOn <= 0 || android::sDrmDisplays.size() < 2) { flushSecHold(); android::drmFlipRingSlot(idx, false); return; }
+    flushSecHold();
+    android::drmFlipRingSlot(idx, true);   // the primary first (this waits on the frame's GPU fence)
+    // The bottom flip would go out now: where is the DP's next vblank?
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    const int64_t vs = android::drmPredictVblankUs(1, now);
+    if (vs <= 0) { android::drmFlipSecondaryOnly(idx); return; }
+    static int32_t sSlack[300]; static int sN = 0, sPos = 0, sSince = 0;
+    sSlack[sPos] = (int32_t)(vs - now); sPos = (sPos + 1) % 300; if (sN < 300) sN++;
+    if (++sSince >= 60 && sN >= 120) {
+        sSince = 0;
+        int32_t t[300]; std::copy(sSlack, sSlack + sN, t);
+        const int q = sN / 100;
+        std::nth_element(t, t + q, t + sN);
+        const bool was = gSecHold;
+        if (!gSecHold && t[q] < 3500) gSecHold = true;
+        else if (gSecHold && t[q] > 6500) gSecHold = false;
+        if (was != gSecHold)
+            ALOGI("drastic-nano: bottom panel %s (closest 1%% of flips %d us before the DP vblank)",
+                  gSecHold ? "flips at the next iteration" : "flips at once again", t[q]);
+    }
+    if (gSecHold) gSecHeldIdx = idx;
+    else android::drmFlipSecondaryOnly(idx);
+}
+
+static int gRenderFitAge = 0;                     // age 1 while the measured render does not fit a period
 static int64_t gSlotFrameDoneUs[8] = {0};       // per ring slot: frame-done time of the frame it holds
 static uint32_t gSlotProducer[8] = {0};         // per ring slot: producer frame count it holds (hitch probe)
 static std::atomic<bool> gLatPressEdge{false};   // set by the scripted input on a 0 -> 1 press
@@ -2817,6 +2862,24 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 sMbFrames = 0; sMbQueuedP = 0; sMbQueuedS = 0; sMbExitsP = 0; sMbExitsS = 0; sMbStalls = 0; sMbLogUs = t0;
             }
         }
+        // Early flip at age 1 (render budget fallback, see the age choice below): the slot
+        // presented now was rendered one iteration ago and is normally finished, so flip it right
+        // after the vblank instead of after this iteration's late-frame wait and render. A flip
+        // issued up to ~9 ms after the vblank missed the DP's next vblank often enough to cost
+        // the bottom panel 6 dropped frames a minute. Not finished yet: the usual flip after the
+        // render (it waits on the fence) does it.
+        flushSecHold();   // a bottom flip held from the last iteration goes out now, after the DSI's vblank
+        int earlyFlipIdx = -1;
+        if (gRenderFitAge == 1 && !mailbox && !vblPace && !android::sDrmLowLatency && !flipFirst &&
+            tripleBuffer && android::sRingPrimedCount >= 2) {
+            const int idx = (android::sRingRenderIdx - 1 + ringDepth) % ringDepth;
+            if (android::drmSlotFenceReady(idx)) {
+                android::drmNotePresentFrameDone(gSlotFrameDoneUs[idx % 8]);
+                android::drmNotePresentProducer(gSlotProducer[idx % 8]);
+                flipRingSlotSecHold(idx);
+                earlyFlipIdx = idx;
+            }
+        }
         // Late-frame wait (free-running mode at present age 0, the RP Duo Lite default): the
         // presenter samples the newest emulated frame right after the vblank. When the emulator
         // runs at exactly the panel rate its frames can finish a moment after that instant for
@@ -3147,6 +3210,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 panelPass(which, secTgt, (GLsizei)secTgt.w, (GLsizei)secTgt.h,
                           rotSecDual ? rot180Sec : secMat, secLW, secLH);
             }
+            // Hand the secondary panel's passes to the GPU now: it works on them while this thread
+            // builds the primary's, instead of waiting for the whole frame's submission (with a .dfx
+            // shader the GPU part is most of the frame: 11.4 ms of 14 with 2xPrescaleFast_LCD).
+            glFlush();
             // --- primary panel (top unless swapped) ---
             {
                 const GLsizei vpW = android::sDrmGlRotation ? (GLsizei)primTgt.w : (GLsizei)dpy->width;
@@ -3670,6 +3737,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         static int sAgeDefault = -2;
                         if (sAgeDefault == -2) sAgeDefault = property_get_int32("persist.gammaos.drastic_nano.present_age_default", -1);
                         if (!android::sDrmLowLatency && sAgeDefault >= 0 && sAgeDefault < D) age = sAgeDefault;
+                        // Render budget (age 0 devices): a frame rendered after the vblank must be on the
+                        // GPU-done side of the next one with the guard to spare. An expensive shader does
+                        // not fit (2xPrescaleFast_LCD on the RP Duo Lite: 13.7 ms render-to-GPU-done, p99
+                        // 18, 12 to 118 hold and skip pairs a minute), so when the measured p99 does not
+                        // fit, present the frame rendered one vblank earlier (age 1, a whole extra period
+                        // for the GPU) until the shader or the texture size changes.
+                        if (!android::sDrmLowLatency && sAgeDefault == 0 && age == 0 && gRenderFitAge > 0) age = gRenderFitAge;
                         int a = property_get_int32(
                                 "sys.gammaos.drastic_nano.present_age", -1);
                         if (a >= 0 && a < D) age = a;
@@ -3695,7 +3769,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         age = 1; sFenceFallbacks++;
                         static uint32_t n = 0; if (n++ < 10) ALOGW("drastic-nano: fence not ready at flip, presenting the previous slot (fallback %u)", sFenceFallbacks);
                     }
-                    const int presentIdx = (renderIdx - age + 2 * D) % D;
+                    if (earlyFlipIdx >= 0) age = 1;
+                    const int presentIdx = earlyFlipIdx >= 0 ? earlyFlipIdx : (renderIdx - age + 2 * D) % D;
                     const int64_t flipT0 = android::elapsedRealtimeNano();
                     if (sStgPrevEndNs != 0) {
                         const int64_t w = flipT0 - sStgPrevEndNs;
@@ -3811,11 +3886,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                                             while (l < req) l += per;
                                             return l;
                                         };
-                                        int bestSlack = std::max(1, std::min(per, reqP)), bestLeadP = 0, bestLeadS = -1;
+                                        int bestSlack = std::max(1500, std::min(per - 1500, reqP)), bestLeadP = 0, bestLeadS = -1;
                                         if (vp > 0 && vs > 0 && perS > 10000 && std::abs(perS - per) < 200) {
                                             int64_t off = (vs - vp) % per; if (off < 0) off += per;   // S vblank this long after P's
                                             int64_t bestCost = INT64_MAX;
-                                            for (int sl = 250; sl <= per; sl += 250) {
+                                            // Finish points within 1.5 ms of a vblank are left out: there the smoothed
+                                            // slack flips between 0 and a period and the lock chases its own wrap.
+                                            for (int sl = 1500; sl <= per - 1500; sl += 250) {
                                                 int64_t slS = (sl + off) % per; if (slS == 0) slS = per;
                                                 const int64_t lp = leadFor(sl, reqP), ls = leadFor(slS, reqS);
                                                 const int64_t cost = lp + ls;
@@ -3933,7 +4010,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         if (flipNs > sStgFlipMaxNs) sStgFlipMaxNs = flipNs;
                         continue;
                     }
-                    android::drmFlipRingSlot(presentIdx, sSkipSec == 1);
+                    if (earlyFlipIdx < 0) {
+                        if (sSkipSec == 1) android::drmFlipRingSlot(presentIdx, true);
+                        else flipRingSlotSecHold(presentIdx);
+                    }
                     gpu3dNotePresent();
                     if (gLatCount > age) gLatFlipUs[(gLatCount - 1 - age) % kLatFrames] = android::elapsedRealtimeNano() / 1000;
                     // The flip returned on the vblank that latched it. A gap of
@@ -3998,7 +4078,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                             sPickFixedM = property_get_int32("sys.gammaos.drastic_nano.pickup_lock_us", -1);
                         }
                         const int per = (int)android::drmPanelPeriodUs(0);
-                        if (sPickOn > 0 && age == 0 && !vblPace && !android::sDrmLowLatency && per > 10000) {
+                        if (sPickOn > 0 && age <= 1 && !vblPace && !android::sDrmLowLatency && per > 10000) {
                             const int64_t vb = android::drmVblankAtOrBeforeUs(0, sRdMonoUs);
                             if (vb > 0 && sRdMonoUs - vb < per / 2) {
                                 const double off = (double)(sRdMonoUs - vb);
@@ -4018,6 +4098,31 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                                     ALOGI("drastic-nano: pickup lock: finish %d us before the pickup (lateness max %d, late-frame wait %d), pickup %.0f us after the vblank, slack to the vblank %.0f us (target %d), nudged %lld us in 10 s",
                                           sPickM, jit, sPickWait, sPickOff, ema, t, (long long)sPick.nudgeSum);
                                     sPick.nudgeSum = 0;
+                                }
+                            }
+                        }
+                    }
+                    {   // Render budget measurement (see the age choice above): at age 0 the flip waited
+                        // on this frame's GPU fence, so GPU done minus render start is its render cost.
+                        static uint32_t sFitGen = 0xffffffffu; static int32_t sFitN[240]; static int sFitCount = 0;
+                        const uint32_t gen = dr->shaderGeneration();
+                        if (gen != sFitGen) {
+                            if (gRenderFitAge != 0) ALOGI("drastic-nano: render budget: shader or texture size changed, back to age 0");
+                            sFitGen = gen; gRenderFitAge = 0; sFitCount = 0;
+                        }
+                        const int64_t gd = android::drmLastGpuDoneUs();
+                        const int perF = (int)android::drmPanelPeriodUs(0);
+                        if (age == 0 && gRenderFitAge == 0 && gd > sRdMonoUs && gd - sRdMonoUs < 100000 && perF > 10000) {
+                            sFitN[sFitCount % 240] = (int32_t)(gd - sRdMonoUs);
+                            if (++sFitCount >= 240 && sFitCount % 60 == 0) {
+                                int32_t t[240]; std::copy(sFitN, sFitN + 240, t);
+                                std::nth_element(t, t + 237, t + 240);
+                                const int64_t vb = android::drmVblankAtOrBeforeUs(0, sRdMonoUs);
+                                const int off = vb > 0 && sRdMonoUs - vb < perF / 2 ? (int)(sRdMonoUs - vb) : 0;
+                                if (t[237] + off + 2500 > perF) {
+                                    gRenderFitAge = 1;
+                                    ALOGI("drastic-nano: render budget: render-to-GPU-done p99 %d us does not fit the period (%d us after the vblank, 2500 guard): presenting at age 1",
+                                          t[237], off);
                                 }
                             }
                         }

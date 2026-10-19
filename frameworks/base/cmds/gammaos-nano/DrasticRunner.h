@@ -416,6 +416,8 @@ public:
     // Applied by the emulator thread at its next frame wait, to drastic's limiter deadline and
     // that wait together, so the shift persists and no frame is emulated twice or dropped.
     void nudgeEmuTiming(int usec);
+    // Bumped whenever the shader or the DS texture size changes (the presenter's render cost changes).
+    uint32_t shaderGeneration() const { return mShaderGen.load(std::memory_order_relaxed); }
     // Worst frame lateness (us) over the last `frames` emulated frames, stalls past 40 ms excluded.
     int32_t frameLatenessMaxUs(int frames);
     bool lastWaitWasImmediate() const { return mLastWaitImmediate; }
@@ -957,6 +959,7 @@ private:
     int mSlotShadeH = -1;
     unsigned int mSlotShadeFbo = 0;
     bool mSlotNeedUpload = true;
+    std::atomic<uint32_t> mShaderGen{0};
 
     // Dedicated VBO for renderSlotShaded so the shared mFxVbo (used by the
     // RG DS / offscreen path) is never re-bound or re-laid-out. Same 24-pos +
