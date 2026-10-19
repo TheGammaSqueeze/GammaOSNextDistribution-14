@@ -121,6 +121,9 @@ struct DrmPanel {
     bool geometrySet = false;
     uint32_t srcW = 0, srcH = 0;
     uint64_t latCount = 0;
+    // Frame-ready (GPU fence signalled) -> scanout wait of each shown frame since the last
+    // takeReadyWaits(), for the frontend's timing steer. Guarded by mu.
+    std::shared_ptr<std::vector<int32_t>> readyWaitsUs = std::make_shared<std::vector<int32_t>>();
 };
 
 class DrmWindows {
@@ -153,6 +156,9 @@ public:
     bool isPortrait(int idx) const { return mPanels[idx].height > mPanels[idx].width; }
     // Page flips shown on a panel so far (the on-screen BLIT rate is its derivative).
     uint64_t flipCount(int idx) const { return mPanels[idx].flips; }
+    uint64_t longGapCount(int idx) const { return mPanels[idx].longGaps; }
+    // Moves out the ready -> scanout waits (us) recorded for panel idx since the last call.
+    void takeReadyWaits(int idx, std::vector<int32_t>& out);
     double refreshHz(int idx) const { return mPanels[idx].refreshHz; }
     float renderScale(int idx) const { return mPanels[idx].renderScale; }
     // GammaOS tweak "native output": before create(), ask for game buffers whose

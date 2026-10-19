@@ -1304,12 +1304,75 @@ int main(int argc, char** argv) {
             // per vblank, so no frame is dropped or repeated every few seconds.
             if (sDrm && sPaceToPanel) {
                 const double periodNs = sDrm->measuredPeriodNs(0);
+                // Timing steer (persist.gammaos.azahar_nano.pace_offset, default off): the rate
+                // match above keeps one emulated frame per vblank but leaves the vblank offset where it
+                // happens to be, so a finished frame waited 0 to 16 ms (8 to 11 ms median) for
+                // its vblank. Trim the scale by at most pace_offset_max_ppm (3000 = 3 ms of offset
+                // a second) until the median ready -> scanout wait sits at the target. A wait
+                // over one period means the frame missed its vblank: count it as too tight
+                // (wrap the error) and raise the target by 1 ms when more than 3% miss; relax
+                // it 0.5 ms after 30 clean seconds.
+                static int sOffsetOn = -1, sMaxPpm = 3000;
+                static double sTargetUs = -1.0;
+                static int sCleanSecs = 0;
+                static std::vector<int32_t> sWaits;
+                if (sOffsetOn < 0) {
+                    sOffsetOn = prop("persist.gammaos.azahar_nano.pace_offset", "0") == "1" ? 1 : 0;
+                    sMaxPpm = atoi(prop("persist.gammaos.azahar_nano.pace_offset_max_ppm", "3000").c_str());
+                    sTargetUs = atof(prop("persist.gammaos.azahar_nano.pace_offset_target_us", "8000").c_str());
+                }
+                double steer = 0.0;
+                sDrm->takeReadyWaits(0, sWaits);
+                const int fixedPpmNow = atoi(prop("sys.gammaos.azahar_nano.pace_offset_fixed_ppm", "0").c_str());
+                if ((sOffsetOn || fixedPpmNow != 0) && periodNs > 0.0 && sWaits.size() >= 30) {
+                    // Measured on the RP Duo Lite (Kirby, fixed drift sweep): the wait is a
+                    // sawtooth over the vblank offset, falling steadily from ~28 ms to a floor of ~4.5 ms
+                    // (the presenter keeps one commit in flight) and jumping back up past it.
+                    // Above ~16 ms the frame sits just beyond that edge, so the short way back
+                    // is earlier; below it, later lowers the wait to the target. The target
+                    // rises 1 ms when the fastest frames (p10) get within 5 ms (edge risk) and
+                    // relaxes 0.5 ms after 30 clean seconds.
+                    const double perUs = periodNs / 1000.0;
+                    std::sort(sWaits.begin(), sWaits.end());
+                    const double med = sWaits[sWaits.size() / 2];
+                    const double p10 = sWaits[sWaits.size() / 10];
+                    size_t miss = 0;
+                    for (int32_t w : sWaits) if (w > perUs) miss++;
+                    if (sTargetUs < 0) sTargetUs = 8000.0;
+                    if (med < perUs && p10 < 5000.0) {
+                        if (sTargetUs < 12000.0) sTargetUs += 1000.0;
+                        sCleanSecs = 0;
+                    } else if (++sCleanSecs >= 30) {
+                        sCleanSecs = 0;
+                        if (sTargetUs > 7000.0) sTargetUs -= 500.0;
+                    }
+                    double err;
+                    if (med > perUs) err = -(med - sTargetUs);   // past the edge: back to it, earlier
+                    else err = med - sTargetUs;                    // > 0 later, < 0 earlier
+                    steer = err / 2.0 / 1e6;
+                    const double lim = sMaxPpm / 1e6;
+                    if (steer > lim) steer = lim;
+                    if (steer < -lim) steer = -lim;
+                    // Sweep diagnostic: a fixed drift walks the offset through whole periods.
+                    const int fixedPpm = atoi(prop("sys.gammaos.azahar_nano.pace_offset_fixed_ppm", "0").c_str());
+                    if (fixedPpm != 0) steer = fixedPpm / 1e6;
+                    else if (!sOffsetOn) steer = 0.0;
+                    static uint64_t sLastGaps = 0;
+                    const uint64_t gaps = sDrm->longGapCount(0);
+                    static int sLog = 0;
+                    if (fixedPpm != 0 || sLog++ < 30 || sLog % 30 == 0)
+                        ALOGI("pace offset: ready->scanout p10 %d p50 %.0f p90 %d us (n=%zu, missed %zu, gaps %llu), target %.0f, steer %+.0f ppm",
+                              sWaits[sWaits.size() / 10], med, sWaits[sWaits.size() * 9 / 10], sWaits.size(), miss,
+                              (unsigned long long)(gaps - sLastGaps), sTargetUs, steer * 1e6);
+                    sLastGaps = gaps;
+                }
                 if (periodNs > 0.0) {
-                    const double scale = periodNs / (1e9 / 60.0);
-                    if (std::fabs(scale - sPaceScale) > 2e-5) {
+                    const double scale = periodNs / (1e9 / 60.0) * (1.0 + steer);
+                    if (std::fabs(scale - sPaceScale) > 2e-6) {
+                        const bool logIt = steer == 0.0;
                         sPaceScale = scale;
                         gCore.set_pace_scale(scale);
-                        ALOGI("pace: top panel %.3f Hz measured, scale %.5f", 1e9 / periodNs, scale);
+                        if (logIt) ALOGI("pace: top panel %.3f Hz measured, scale %.5f", 1e9 / periodNs, scale);
                     }
                 }
             }
