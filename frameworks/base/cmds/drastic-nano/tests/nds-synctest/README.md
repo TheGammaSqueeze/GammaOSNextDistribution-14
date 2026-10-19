@@ -26,6 +26,9 @@ match. Film both panels with a high speed camera and compare the digits to see a
 - `missed vblanks` counts frames the drawing loop did not finish in time (measured with a free
   running timer), so a slow frame cannot hide behind a counter that simply stopped.
 - `arm7 ok` means the ARM7 is running and publishing the touch and X/Y state.
+- The same counter in the four corners of each screen: on high speed video their change
+  order and timing show how each panel scans (direction, duration) and whether a bridge
+  holds or turns the image.
 
 Filming the panel together with the hand or stylus gives the input to display latency directly:
 the frame number shown when the finger lands, against the frame number `KEY`/`TOUCH` latches.

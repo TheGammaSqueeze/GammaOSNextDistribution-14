@@ -94,11 +94,16 @@ static void clear(u16 c) {
     const u32 cc = (u32)c | ((u32)c << 16);
     for (int i = 0; i < 256 * 192 / 2; i++) p[i] = cc;
 }
-static void pix(int x, int y, u16 c) {
-    if ((unsigned)x < 256 && (unsigned)y < 192) gBuf[y * 256 + x] = c;
-}
 static void rect(int x, int y, int w, int h, u16 c) {
-    for (int j = 0; j < h; j++) for (int i = 0; i < w; i++) pix(x + i, y + j, c);
+    if (x < 0) { w += x; x = 0; }
+    if (y < 0) { h += y; y = 0; }
+    if (x + w > 256) w = 256 - x;
+    if (y + h > 192) h = 192 - y;
+    if (w <= 0 || h <= 0) return;
+    for (int j = 0; j < h; j++) {
+        u16* row = gBuf + (y + j) * 256 + x;
+        for (int i = 0; i < w; i++) row[i] = c;
+    }
 }
 
 /* Character at pixel (x, y), each font pixel drawn as a scale x scale block. */
@@ -153,12 +158,12 @@ typedef struct {
     u32 missedBefore;    /* missed vblanks at the time of the event */
 } Event;
 
-static void drawScreen(int bottom, u32 frame, u32 missed, u16 bgc, const Event* key, const Event* touch,
+static void drawScreen(u32 frame, u32 missed, u16 bgc, const Event* key, const Event* touch,
                        u16 keysHeld, const char* lastKey, const volatile SyncCtrl* c, u32 arm7ok) {
     const u16 white = RGB(31, 31, 31), grey = RGB(20, 20, 22), dim = RGB(12, 12, 14),
               red = RGB(31, 10, 10), green = RGB(12, 31, 12), gold = RGB(31, 26, 8);
     clear(bgc);
-    puts(0, 0, bottom ? "GammaOS DS sync test   BOTTOM" : "GammaOS DS sync test   TOP", 1, grey);
+    puts(0, 0, "GammaOS DS sync test", 1, grey);
 
     /* The counter: six digits at 5x, 240 px wide. */
     dec(8, 16, frame % 1000000, 6, 5, white);
@@ -190,7 +195,20 @@ static void drawScreen(int bottom, u32 frame, u32 missed, u16 bgc, const Event* 
     puts(0, 176, "any button: red   touch: green", 1, dim);
     puts(0, 184, "back to normal after 5 s idle", 1, dim);
 
-    if (bottom && c->penDown) {
+    /* Corner counters (6 digits at 2x, 96x16, on a dark box): filmed together they show each
+     * panel's scan order and timing, and so where a frame store or a turned image sits. */
+    {
+        static const int cx[4] = { 0, 160, 0, 160 }, cy[4] = { 0, 0, 176, 176 };
+        for (int i = 0; i < 4; i++) {
+            rect(cx[i], cy[i], 96, 16, RGB(0, 0, 0));
+            dec(cx[i], cy[i], frame % 1000000, 6, 2, white);
+        }
+    }
+}
+
+static void drawMarker(const volatile SyncCtrl* c) {
+    const u16 green = RGB(12, 31, 12);
+    if (c->penDown) {
         /* Crude raw-to-screen mapping of the touch position: a marker, not a calibration. */
         int px = ((int)c->rawX - 256) * 256 / 3584, py = ((int)c->rawY - 256) * 192 / 3584;
         if (px < 0) px = 0;
@@ -203,7 +221,37 @@ static void drawScreen(int bottom, u32 frame, u32 missed, u16 bgc, const Event* 
     }
 }
 
+/* Protection unit + caches: drawing two full screens a frame from uncached main RAM did not
+ * fit in a vblank. Region 0: everything, uncached. Region 1: main RAM, cached write-through
+ * (so the DMA copies to VRAM always read current data). Region 2: the block the ARM7 writes,
+ * uncached (a higher region wins). */
+static void enableCaches(void) {
+    const u32 r0 = 0x00000000u | (31u << 1) | 1u;   /* 4 GB */
+    const u32 r1 = 0x02000000u | (21u << 1) | 1u;   /* 4 MB main RAM */
+    const u32 r2 = 0x02300000u | (11u << 1) | 1u;   /* 4 KB shared block */
+    __asm__ volatile(
+        "mcr p15, 0, %0, c6, c0, 0\n"
+        "mcr p15, 0, %1, c6, c1, 0\n"
+        "mcr p15, 0, %2, c6, c2, 0\n"
+        "mcr p15, 0, %3, c2, c0, 0\n"   /* data cacheable: region 1 */
+        "mcr p15, 0, %3, c2, c0, 1\n"   /* instruction cacheable: region 1 */
+        "mcr p15, 0, %4, c3, c0, 0\n"   /* write buffer: none (write-through) */
+        "mcr p15, 0, %5, c5, c0, 2\n"   /* data access: RW for regions 0-2 */
+        "mcr p15, 0, %5, c5, c0, 3\n"   /* instruction access: RW for regions 0-2 */
+        "mov r0, #0\n"
+        "mcr p15, 0, r0, c7, c5, 0\n"   /* invalidate instruction cache */
+        "mcr p15, 0, r0, c7, c6, 0\n"   /* invalidate data cache */
+        "mrc p15, 0, r0, c1, c0, 0\n"
+        "orr r0, r0, #0x1000\n"         /* instruction cache */
+        "orr r0, r0, #0x0005\n"         /* data cache + protection unit */
+        "mcr p15, 0, r0, c1, c0, 0\n"
+        :
+        : "r"(r0), "r"(r1), "r"(r2), "r"(0x02u), "r"(0u), "r"(0x333u)
+        : "r0", "memory");
+}
+
 void main9(void) {
+    enableCaches();
     WRAMCNT = 3;                 /* shared WRAM to the ARM7 */
     POWCNT1 = 0x8203;            /* LCDs, engine A (top) and engine B (bottom) on */
     VRAMCNT_A = 0x81;            /* bank A: engine A BG VRAM at 0x06000000 */
@@ -257,10 +305,13 @@ void main9(void) {
         const int keyOn = frame < key.until, touchOn = frame < touch.until;
         const u16 bgc = keyOn && touchOn ? bgBoth : keyOn ? bgKey : touchOn ? bgTouch : bgNormal;
 
+        /* Both screens show the same picture (apart from the touch marker): draw it once and
+         * copy it, which keeps the frame inside the ARM9's budget with the corner counters. */
         gBuf = gTop;
-        drawScreen(0, frame, missed, bgc, &key, &touch, keys, lastKey, c, arm7ok);
+        drawScreen(frame, missed, bgc, &key, &touch, keys, lastKey, c, arm7ok);
+        dmaCopy(gTop, gBottom, sizeof(gTop));
         gBuf = gBottom;
-        drawScreen(1, frame, missed, bgc, &key, &touch, keys, lastKey, c, arm7ok);
+        drawMarker(c);
 
         waitVblank();
         dmaCopy(gTop, FB_TOP, sizeof(gTop));
