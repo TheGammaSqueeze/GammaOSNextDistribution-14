@@ -21,6 +21,7 @@
 #include <mutex>
 #include <atomic>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 #include <initializer_list>
 #include <thread>
@@ -236,7 +237,73 @@ int drmPanelMountRotationDeg(int port) {
     return 0;
 }
 int64_t sDrmLastVblankUs = 0;   // CLOCK_MONOTONIC us of the latest primary flip-complete
-static int64_t sDrmVblankPeriodUs = 16667;   // learned from consecutive primary flip timestamps
+int64_t sDrmVblankPeriodUs = 16667;   // learned from consecutive primary flip timestamps
+static int64_t sDrmPrimLandedUs = 0;   // the primary's own latest flip-complete (sDrmLastVblankUs takes either CRTC)
+// Per-panel vblank prediction (0 primary, 1 secondary). The RP Duo Lite's flip events carry a
+// frozen timestamp, so the event's receive time stands in for the vblank there, and a receive
+// time is only ever late. The period is exact from the mode (clock, htotal, vtotal); the timing
+// follows the earliest arrivals at once and later ones only slowly, so a late read never drags
+// the prediction behind the real vblank.
+struct DrmVblTrack { double perUs = 0; double refUs = 0; int64_t lastNoteUs = 0; uint32_t notes = 0; };
+static DrmVblTrack sDrmVbl[2];
+// Commit-latency probe (sys.gammaos.drastic_nano.lat_log=2): when each panel's last flip was
+// issued and the vblank predicted for it, logged against the landed time as LANDLOG.
+static int64_t sDrmIssueUs[2] = {0, 0}, sDrmIssuePredUs[2] = {0, 0};
+static void drmNoteFlipIssued(int k);
+static double drmModePeriodUs(int k);
+static void drmVblNote(int k, int64_t t) {
+    if (k < 0 || k > 1 || t <= 0) return;
+    DrmVblTrack& v = sDrmVbl[k];
+    if (v.perUs <= 0) v.perUs = drmModePeriodUs(k);
+    if (v.refUs == 0 || t - v.lastNoteUs > 500000 || t < v.lastNoteUs) {
+        v.refUs = (double)t; v.lastNoteUs = t; v.notes = 1;   // first event or a gap: restart from this one
+        return;
+    }
+    const double d = (double)t - v.refUs;
+    const double n = floor(d / v.perUs + 0.5);
+    const double r = d - n * v.perUs;            // within half a period of the predicted vblank
+    v.refUs += n * v.perUs + (r < 0 ? r : r / 64.0);
+    v.lastNoteUs = t; v.notes++;
+}
+static int drmLatLogLevel() {
+    static int sLvl = -1;
+    if (sLvl < 0) sLvl = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+    return sLvl;
+}
+int64_t drmPredictVblankUs(int k, int64_t afterUs);
+static void drmNoteFlipIssued(int k) {
+    if (drmLatLogLevel() < 2) return;
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    sDrmIssueUs[k] = now;
+    sDrmIssuePredUs[k] = drmPredictVblankUs(k, now);
+}
+int64_t drmLastLandedUs(int k) { return (k == 0 || k == 1) ? sDrmVbl[k].lastNoteUs : 0; }
+static void drmNoteFlipLandedProbe(int k, int64_t t) {
+    if (drmLatLogLevel() < 2 || sDrmIssueUs[k] <= 0) return;
+    ALOGW("LANDLOG %c next_vbl=%lld landed=%lld us after issue", k ? 'S' : 'P',
+          (long long)(sDrmIssuePredUs[k] > 0 ? sDrmIssuePredUs[k] - sDrmIssueUs[k] : -1),
+          (long long)(t - sDrmIssueUs[k]));
+    sDrmIssueUs[k] = 0;
+}
+// The first vblank of panel k strictly after afterUs, or 0 while it is not tracked yet.
+int64_t drmPredictVblankUs(int k, int64_t afterUs) {
+    if (k < 0 || k > 1) return 0;
+    const DrmVblTrack& v = sDrmVbl[k];
+    if (v.refUs == 0 || v.notes < 8 || afterUs - v.lastNoteUs > 1000000) return 0;
+    const double n = floor(((double)afterUs - v.refUs) / v.perUs) + 1.0;
+    return (int64_t)(v.refUs + n * v.perUs);
+}
+// Panel k's latest vblank at or before atUs on the tracked grid (not an event's receive time,
+// which can be late by however long the reader was busy), 0 while untracked.
+int64_t drmVblankAtOrBeforeUs(int k, int64_t atUs) {
+    const int64_t next = drmPredictVblankUs(k, atUs);
+    if (next <= 0) return 0;
+    return next - (int64_t)llround(sDrmVbl[k].perUs);
+}
+double drmPanelPeriodUs(int k) {
+    if (k < 0 || k > 1) return 0;
+    return sDrmVbl[k].perUs > 0 ? sDrmVbl[k].perUs : drmModePeriodUs(k);
+}
 static int sDrmLastFenceFd = -1; // in-fence of the last AFBC commit (GPU completion probe)
 static int sDrmPrevFenceFd = -1; // in-fence of the commit before that (the one just drained)
 // Deferred drain (AFBC low-latency path): the atomic commit returns at once
@@ -369,6 +436,20 @@ int sRingPresentIdx = 0;
 int sRingPrimedCount = 0;
 
 int sDrmPrimaryIdx = 0;
+// Panel k's (0 primary, 1 the other display) frame period from its mode, 60 Hz when unknown.
+static double drmModePeriodUs(int k) {
+    int idx = -1;
+    if (k == 0) idx = sDrmPrimaryIdx;
+    else for (size_t j = 0; j < sDrmDisplays.size(); j++) if ((int)j != sDrmPrimaryIdx) { idx = (int)j; break; }
+    if (idx >= 0 && (size_t)idx < sDrmDisplays.size()) {
+        const drm_mode_modeinfo& m = sDrmDisplays[idx].mode;
+        if (m.clock > 0 && m.htotal > 0 && m.vtotal > 0) {
+            const double p = (double)m.htotal * (double)m.vtotal * 1000.0 / (double)m.clock;
+            if (p > 4000.0 && p < 50000.0) return p;
+        }
+    }
+    return 1000000.0 / 60.0;
+}
 int64_t sDrmRescanDeadlineNs = 0;
 
 // ---------------------------------------------------------------------------
@@ -497,6 +578,7 @@ static void drmHitchNote(int k, uint32_t shown, int64_t nowUs) {
     static int sOn = -1;
     if (sOn < 0) sOn = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
     if (!sOn || shown == 0) return;
+    if (sOn >= 2) ALOGW("FLIPLOG %c %u %lld", k ? 'S' : 'P', shown, (long long)nowUs);   // every landed flip
     HitchStat& h = sHitch[k];
     if (h.firstUs == 0) { h.firstUs = nowUs; h.prod0 = shown; h.prev = shown; h.lastUs = nowUs; return; }
     const int32_t d = (int32_t)(shown - h.prev);
@@ -2527,6 +2609,12 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
     return ret;
 }
 
+// Block until ring slot idx's GPU work is done (bounded at 100 ms).
+void drmWaitSlotFence(int idx) {
+    if (idx < 0 || idx >= AHB_RING_DEPTH) return;
+    if (sAhbRingSyncPrimary[idx] == EGL_NO_SYNC_KHR || !sEglClientWaitSyncKHR || sRingEglDpy == EGL_NO_DISPLAY) return;
+    sEglClientWaitSyncKHR(sRingEglDpy, sAhbRingSyncPrimary[idx], EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, 100000000);
+}
 bool drmSlotFenceReady(int idx) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return false;
     if (sAhbRingSyncPrimary[idx] == EGL_NO_SYNC_KHR || !sEglClientWaitSyncKHR || sRingEglDpy == EGL_NO_DISPLAY) return true;
@@ -2571,6 +2659,7 @@ static bool drmIndepFlipSecondary(int slot) {
     flip.user_data = sDrmCommitSeq;
     flip.flags = DRM_MODE_PAGE_FLIP_EVENT;
     if (ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip) != 0) return false;
+    drmNoteFlipIssued(1);
     const int cs = drmCrtcSlot(sSecCrtcId);
     if (cs >= 0) sCrtcPending[cs]++;
     sPendingFlipEvents++;
@@ -2593,6 +2682,45 @@ static void drmIndepSecondaryLanded() {
 }
 bool drmRingSlotBusy(int slot) {
     return sIndepFlip == 1 && (slot == sSecScanIdx || slot == sSecPendIdx);
+}
+
+// Independent mode: flip only the secondary to ring slot idx, at the caller's chosen moment
+// (drastic-nano's late latch gives the DP its own deadline). Waits for the slot's GPU work,
+// stamps the commit sequence for the latency probes and leaves the primary untouched. Returns
+// false when the secondary still has a flip in flight or the slot cannot be scanned.
+bool drmPanelFlipPending(int k) {
+    if (k < 0 || k > 1 || sDrmPrimaryIdx < 0 || (size_t)sDrmPrimaryIdx >= sDrmDisplays.size()) return false;
+    uint32_t crtc = 0;
+    if (k == 0) crtc = sDrmDisplays[sDrmPrimaryIdx].crtcId;
+    else for (size_t j = 0; j < sDrmDisplays.size(); j++) if ((int)j != sDrmPrimaryIdx) { crtc = sDrmDisplays[j].crtcId; break; }
+    const int cs = crtc ? drmCrtcSlot(crtc) : -1;
+    return cs >= 0 && sCrtcPending[cs] > 0;
+}
+bool drmFlipSecondaryOnly(int idx) {
+    if (idx < 0 || idx >= AHB_RING_DEPTH || !drmIndepFlipOn() || sSecCrtcId == 0 || sDrmSecondaryTurned) return false;
+    AhbRenderTarget& sec = sAhbRingSecondary[idx];
+    if (!sec.ahb || sec.drmFbId == 0) return false;
+    const int cs = drmCrtcSlot(sSecCrtcId);
+    if (cs >= 0 && sCrtcPending[cs] > 0) {
+        sDrainNonBlocking = true;
+        drmDrainPageFlipEvents();
+        sDrainNonBlocking = false;
+        if (sCrtcPending[cs] > 0) return false;
+    }
+    if (sAhbRingSyncPrimary[idx] != EGL_NO_SYNC_KHR && sEglClientWaitSyncKHR && sRingEglDpy != EGL_NO_DISPLAY)
+        sEglClientWaitSyncKHR(sRingEglDpy, sAhbRingSyncPrimary[idx], EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, 100000000);
+    sDrmCommitSeq++;
+    sSeqFrameDoneUs[sDrmCommitSeq % 32] = sPresentFrameDoneUs;
+    sSeqProducer[sDrmCommitSeq % 32] = sPresentProducer;
+    if (!drmIndepFlipSecondary(idx)) return false;
+    sSecWantIdx = -1;
+    // The renderer's next slot must not be the one the secondary scans or has in flight.
+    if (drmRingSlotBusy(sRingRenderIdx)) {
+        sDrainForSlot = true;
+        drmDrainPageFlipEvents();
+        sDrainForSlot = false;
+    }
+    return true;
 }
 
 void drmFlipRingSlot(int idx, bool skipNonPrimary) {
@@ -3295,6 +3423,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         }
         int flipRc = ioctl(sDrmFd, DRM_IOCTL_MODE_PAGE_FLIP, &flip);
         if (flipRc == 0) {
+            drmNoteFlipIssued(isPrimary ? 0 : 1);
             if (i < 8) sEbusyStreak[i] = 0;
             if (wantEvent) {
                 sPendingFlipEvents++;
@@ -3471,6 +3600,14 @@ bool drmAnyCrtcPending() {
     return false;
 }
 
+// Read whatever flip events have already arrived, without waiting.
+void drmPollFlipEvents() {
+    if (sDrmFd < 0 || !(sPendingFlipEvents > 0 || drmAnyCrtcPending())) return;
+    sDrainNonBlocking = true;
+    drmDrainPageFlipEvents();
+    sDrainNonBlocking = false;
+}
+
 void drmDrainPageFlipEvents() {
     if (sDrmFd < 0) return;
     if (sPendingFlipEvents <= 0 && !drmAnyCrtcPending()) return;
@@ -3508,7 +3645,9 @@ void drmDrainPageFlipEvents() {
         // Stop condition. async-secondary: return once the PRIMARY CRTC's flip has
         // landed (leave the secondary pending; it drains opportunistically on a
         // later poll). Otherwise: wait for every submitted CRTC as before.
-        if (sDrainForSlot) {
+        if (sDrainNonBlocking) {
+            if (!(sPendingFlipEvents > 0 || drmAnyCrtcPending())) break;
+        } else if (sDrainForSlot) {
             if (!drmRingSlotBusy(sRingRenderIdx) || !drmAnyCrtcPending()) break;
         } else if (asyncSec && primSlot >= 0) {
             if (primSlot >= sCrtcTrackCount || sCrtcPending[primSlot] <= 0) break;
@@ -3576,9 +3715,10 @@ void drmDrainPageFlipEvents() {
                         vb->crtc_id == sDrmDisplays[sDrmPrimaryIdx].crtcId)
                         {
                             const int64_t nv = (int64_t)vb->tv_sec * 1000000LL + vb->tv_usec;
-                            const int64_t d = nv - sDrmLastVblankUs;
-                            if (sDrmLastVblankUs > 0 && d > 15000 && d < 18000)
+                            const int64_t d = nv - sDrmPrimLandedUs;
+                            if (sDrmPrimLandedUs > 0 && d > 15000 && d < 18000)
                                 sDrmVblankPeriodUs = (sDrmVblankPeriodUs * 15 + d + 8) / 16;
+                            sDrmPrimLandedUs = nv;
                         }
                     {
                         // The RP Duo Lite's flip events carry a frozen timestamp; the
@@ -3595,6 +3735,12 @@ void drmDrainPageFlipEvents() {
                                   (long long)evUs, (long long)nowUs);
                         }
                         sDrmLastVblankUs = bogus ? nowUs : evUs;
+                        {
+                            const int kv = (sDrmPrimaryIdx >= 0 && (size_t)sDrmPrimaryIdx < sDrmDisplays.size() &&
+                                            vb->crtc_id == sDrmDisplays[sDrmPrimaryIdx].crtcId) ? 0 : 1;
+                            drmNoteFlipLandedProbe(kv, sDrmLastVblankUs);
+                            drmVblNote(kv, sDrmLastVblankUs);
+                        }
                         // Emulated frame done -> this flip landed, per panel (0 primary, 1 secondary).
                         {
                             const bool prim = sDrmPrimaryIdx >= 0 && (size_t)sDrmPrimaryIdx < sDrmDisplays.size() &&

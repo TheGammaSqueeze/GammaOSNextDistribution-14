@@ -6420,6 +6420,8 @@ std::atomic<int> gQFillTarget{0};   // armed before a state load: fill the sink 
 std::atomic<int> gAudioLeadDebt{0};
 std::atomic<uint32_t> gAudioLeadExtra{0}, gAudioLeadTopUps{0}, gAudioLeadHolds{0};
 
+static std::atomic<int> gOffsetAutoTarget{-1};
+void DrasticRunner::setOffsetAutoTarget(int targetUs) { gOffsetAutoTarget.store(targetUs, std::memory_order_relaxed); }
 void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
     if (vblankUs <= 0) return;
     applyCpuPlacement();
@@ -6474,7 +6476,11 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                 const int64_t per = gVblankPeriodUs.load();
                 const int64_t pd = gProducerDoneUs.load();
                 static double sPh = -1.0; static int64_t sLastLogUs = 0, sLastPd = 0;
-                if (sOn == 1 && per > 0 && pd > 0 && pd != sLastPd) {
+                // drastic-nano's mailbox mode sets the target itself (render and GPU time ahead of
+                // the primary's vblank); the props still override it.
+                const int autoTgt = gOffsetAutoTarget.load(std::memory_order_relaxed);
+                const int tgtUs = sTgt >= 0 ? sTgt : autoTgt;
+                if ((sOn == 1 || autoTgt >= 0) && per > 0 && pd > 0 && pd != sLastPd) {
                     sLastPd = pd;
                     int64_t ph = (pd - vblankUs) % per; if (ph < 0) ph += per;
                     if (sPh < 0) sPh = (double)ph;
@@ -6485,8 +6491,8 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                     }
                     int64_t steer = 0;
                     if (sSweep != 0) steer = sSweep;
-                    else if (sTgt >= 0) {
-                        double err = sPh - (double)sTgt;           // > 0: finishing later than wanted -> run faster
+                    else if (tgtUs >= 0) {
+                        double err = sPh - (double)tgtUs;          // > 0: finishing later than wanted -> run faster
                         if (err > per / 2) err -= per; if (err < -per / 2) err += per;
                         steer = (int64_t)(err * 0.1);              // 1 ms off -> 100 ppm
                         if (steer > sMaxP) steer = sMaxP; if (steer < -sMaxP) steer = -sMaxP;
@@ -6497,7 +6503,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                     gBypassSteerPpm.store((int)steer, std::memory_order_relaxed);
                     if (sLog && vblankUs - sLastLogUs >= 1000000) {
                         sLastLogUs = vblankUs;
-                        ALOGW("OFFSET finish %.0f us after vblank (raw %lld), target %d, steer %lld ppm", sPh, (long long)ph, sTgt, (long long)steer);
+                        ALOGW("OFFSET finish %.0f us after vblank (raw %lld), target %d, steer %lld ppm", sPh, (long long)ph, tgtUs, (long long)steer);
                     }
                 }
             }
@@ -7146,6 +7152,16 @@ void DrasticRunner::pacerThread() {
 // of one frame. If nothing arrives within the window the old content is
 // presented as is; that is an emulator stall, not a pacing miss, so it
 // returns true.
+bool DrasticRunner::waitFrameAfter(uint32_t since, int64_t untilUs) {
+    if (gFlipHookCount.load() != since) return true;
+    std::unique_lock<std::mutex> lk(gFlipMu);
+    for (;;) {
+        if (gFlipHookCount.load() != since) return true;
+        const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+        if (now >= untilUs) return false;
+        gFlipCv.wait_for(lk, std::chrono::microseconds(untilUs - now));
+    }
+}
 bool DrasticRunner::waitProducerFrame(int timeoutUs) {
     if (!mArm64Base) return false;
     volatile uint8_t* mask = mArm64Base + 0x3f2db80;

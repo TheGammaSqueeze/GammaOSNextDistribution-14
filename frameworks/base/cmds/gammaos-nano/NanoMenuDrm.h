@@ -181,6 +181,14 @@ extern bool sDrmLowLatency;
 extern bool sDrmAfbcMode;
 extern bool sDrmAfbcClient;      // drastic-nano opts into the AFBC combined-buffer path before setupDisplay()
 extern int64_t sDrmLastVblankUs;
+extern int64_t sDrmVblankPeriodUs;   // primary frame period learned from its flip events
+// Per-panel vblank prediction (0 primary, 1 secondary): the first vblank after afterUs, 0 while
+// the panel is not tracked yet.
+int64_t drmPredictVblankUs(int k, int64_t afterUs);
+double drmPanelPeriodUs(int k);
+int64_t drmVblankAtOrBeforeUs(int k, int64_t atUs);   // latest tracked vblank <= atUs, 0 untracked
+void drmPollFlipEvents();            // read the flip events that have already arrived, no wait
+int64_t drmLastLandedUs(int k);      // receive time of panel k's latest flip-complete
 extern uint32_t sDrmSeamRotCrtc;
 extern int sDrmSecondaryRotDeg;      // physical mount rotation of the VOP port 1 panel (persist.gsf.rot.1 / persist.gsf.sec_rot)
 extern int sDrmVp1DisplayIdx;
@@ -277,10 +285,13 @@ void blitAhbToDrmBuffer(const void* ahbPtr, uint32_t ahbStride,
                          uint32_t dstW, uint32_t dstH,
                          int blitRotation);
 void drmFlipRingSlot(int idx, bool skipNonPrimary = false);
+bool drmPanelFlipPending(int k);     // panel k (0 primary) has a flip in flight
+bool drmFlipSecondaryOnly(int idx);   // independent mode: flip only the secondary to slot idx now
 // True when the slot's GPU fence has signalled (or there is no fence): a
 // zero-timeout probe, so a caller can present an older slot instead of
 // blocking on this one.
 bool drmSlotFenceReady(int idx);
+void drmWaitSlotFence(int idx);   // block until the slot's GPU work is done
 void drmFlipAll();
 int drmAhbFlipCount();
 void drmNotePresentFrameDone(int64_t us);

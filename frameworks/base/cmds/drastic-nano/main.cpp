@@ -85,6 +85,7 @@
 #include <aidl/android/hardware/light/LightType.h>
 #include <android/hardware/light/2.0/ILight.h>   // HIDL fallback (Brick backlight)
 #include <android/binder_manager.h>
+#include <utils/Timers.h>
 #include <cutils/properties.h>
 #include <system/thread_defs.h>
 #include <utils/Log.h>
@@ -2698,6 +2699,80 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 dr->reportFrameMiss(1); // producer wait timed out
         }
         gItProdUs = android::elapsedRealtimeNano() / 1000;
+        // Mailbox presenting (sys.gammaos.drastic_nano.mailbox, independent PRIME panels such as
+        // the RP Duo Lite's DSI + DP): render each emulated frame the moment the emulator finishes
+        // it and flip every panel to it at once, so each panel shows it on its own next vblank.
+        // The vblank-paced loop sampled the newest frame right after the primary's vblank instead,
+        // so a frame sat up to a whole period before its render and then a full period more until
+        // the primary's next vblank, and the DP took whichever of its own vblanks followed that
+        // commit. A panel whose previous flip is still in flight gets the newest frame queued for
+        // the moment that flip lands, so neither panel ever waits for the other. While idle the
+        // thread sleeps on the producer and wakes at each panel's predicted vblank to read its flip
+        // event, which keeps the event times (the vblank predictions) and the queued flips exact.
+        static int sMailbox = -1;
+        if (sMailbox < 0) {
+            sMailbox = property_get_int32("sys.gammaos.drastic_nano.mailbox",
+                                          property_get_int32("persist.gammaos.drastic_nano.mailbox", 0));
+        }
+        static uint32_t sMbLastRendered = 0;
+        static int sMbWantP = -1, sMbWantS = -1;   // newest slot queued behind an in-flight flip
+        static uint32_t sMbQueuedP = 0, sMbQueuedS = 0, sMbStalls = 0, sMbFrames = 0, sMbExitsP = 0, sMbExitsS = 0;
+        static int sMbRoomyP = 0, sMbRoomyS = 0;   // consecutive queued frames that had room before the vblank
+        static int sMbExitUs = -1, sMbExitFramesP = -1, sMbExitFramesS = -1;
+        if (sMbExitUs < 0) {
+            sMbExitUs = property_get_int32("sys.gammaos.drastic_nano.mailbox_exit_us", 1000);
+            // Per panel: 0 never skips a frame to leave the queue (that panel then keeps the
+            // smooth one-period-later cadence after the first late frame).
+            const int both = property_get_int32("sys.gammaos.drastic_nano.mailbox_exit_frames", 1);
+            sMbExitFramesP = property_get_int32("sys.gammaos.drastic_nano.mailbox_exit_frames_primary", both);
+            sMbExitFramesS = property_get_int32("sys.gammaos.drastic_nano.mailbox_exit_frames_secondary", both);
+        }
+        static int64_t sMbLogUs = 0;
+        const bool mailbox = sMailbox > 0 && !vblPace && !android::sDrmLowLatency && !overlay.isOpen() &&
+                             tripleBuffer && !flipFirst && hasDualDisplay && !android::sDrmAfbcMode &&
+                             android::sRingPrimedCount >= 2;
+        // Issue the queued flips of panels whose previous flip has landed.
+        auto mbFlushQueued = [&]() {
+            if (sMbWantP >= 0 && !android::drmPanelFlipPending(0)) {
+                android::drmNotePresentFrameDone(gSlotFrameDoneUs[sMbWantP % 8]);
+                android::drmNotePresentProducer(gSlotProducer[sMbWantP % 8]);
+                android::drmFlipRingSlot(sMbWantP, true);
+                sMbWantP = -1;
+            }
+            if (sMbWantS >= 0 && !android::drmPanelFlipPending(1)) {
+                android::drmNotePresentFrameDone(gSlotFrameDoneUs[sMbWantS % 8]);
+                android::drmNotePresentProducer(gSlotProducer[sMbWantS % 8]);
+                if (android::drmFlipSecondaryOnly(sMbWantS)) sMbWantS = -1;
+            }
+        };
+        if (mailbox) {
+            const int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+            const int64_t giveUp = t0 + 50000;   // emulator stalled: present the current frame anyway
+            for (;;) {
+                android::drmPollFlipEvents();
+                mbFlushQueued();
+                const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                if (dr->producerFrameCount() != sMbLastRendered) break;
+                if (now >= giveUp) { sMbStalls++; break; }
+                // Wake for the next flip event of a panel with a flip in flight (its vblank plus
+                // the event's delivery), or for the frame, whichever comes first.
+                int64_t until = giveUp;
+                for (int k = 0; k < 2; k++) {
+                    if (!android::drmPanelFlipPending(k)) continue;
+                    const int64_t v = android::drmPredictVblankUs(k, now - 300);
+                    if (v > 0) until = std::min(until, v + 300);
+                }
+                if (until <= now) until = now + 500;   // overdue event: look again shortly
+                dr->waitFrameAfter(sMbLastRendered, until);
+            }
+            sMbFrames++;
+            if (sMbLogUs == 0) sMbLogUs = t0;
+            if (t0 - sMbLogUs >= 60000000) {
+                ALOGI("drastic-nano: mailbox: %u frames, queued behind a flip in flight: primary %u, secondary %u; one-frame exits: primary %u, secondary %u; %u stalls in the last minute",
+                      sMbFrames, sMbQueuedP, sMbQueuedS, sMbExitsP, sMbExitsS, sMbStalls);
+                sMbFrames = 0; sMbQueuedP = 0; sMbQueuedS = 0; sMbExitsP = 0; sMbExitsS = 0; sMbStalls = 0; sMbLogUs = t0;
+            }
+        }
         // Late-frame wait (free-running mode at present age 0, the RP Duo Lite default): the
         // presenter samples the newest emulated frame right after the vblank. When the emulator
         // runs at exactly the panel rate its frames can finish a moment after that instant for
@@ -2710,7 +2785,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             if (sAgeDef == -2) sAgeDef = property_get_int32("persist.gammaos.drastic_nano.present_age_default", -1);
             if (sWaitUs < 0) sWaitUs = property_get_int32("sys.gammaos.drastic_nano.frame_wait_us", sAgeDef == 0 ? 6000 : 0);
             static uint32_t sLastShown = 0; static uint32_t sWaits = 0, sCaught = 0; static int64_t sWaitLogUs = 0;
-            if (sWaitUs > 0 && !vblPace && !android::sDrmLowLatency && !overlay.isOpen() && tripleBuffer && !flipFirst) {
+            if (sWaitUs > 0 && !mailbox && !vblPace && !android::sDrmLowLatency && !overlay.isOpen() && tripleBuffer && !flipFirst) {
                 uint32_t pc = dr->producerFrameCount();
                 if (pc == sLastShown && pc != 0) {
                     sWaits++;
@@ -3491,6 +3566,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // the slot is presented `age` iterations later, not this one.
             gSlotFrameDoneUs[renderIdx % 8] = dr->lastUploadFrameDoneUs();
             gSlotProducer[renderIdx % 8] = dr->producerFrameCount();
+            sMbLastRendered = gSlotProducer[renderIdx % 8];
             android::sRingRenderIdx =
                     (renderIdx + 1) % ringDepth;
             // Bootstrap: first two iterations render only, don't
@@ -3547,6 +3623,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         int a = property_get_int32(
                                 "sys.gammaos.drastic_nano.present_age", -1);
                         if (a >= 0 && a < D) age = a;
+                        if (mailbox) age = 0;   // the frame just rendered, on each panel's next vblank
                     }
                     // Low Latency Mode (age 0) without the stall: if this
                     // frame's GPU fence has not signalled yet, flip the previous
@@ -3581,6 +3658,103 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     if (sSkipSec < 0) sSkipSec = property_get_int32("sys.gammaos.drastic_nano.skip_secondary", 0);
                     android::drmNotePresentFrameDone(gSlotFrameDoneUs[presentIdx % 8]);
                     android::drmNotePresentProducer(gSlotProducer[presentIdx % 8]);
+                    if (mailbox) {
+                        // Each panel takes this frame now, or as soon as its in-flight flip lands
+                        // (a newer frame replaces an older one still queued). A queued flip is issued
+                        // right at a vblank and lands a whole period later, so the next frame finds
+                        // the panel busy again: once queued, every frame stays a period late. This
+                        // starts with one emulated frame finishing late (it misses its vblank, the
+                        // repeat is unavoidable). When a queued frame was finished more than
+                        // mailbox_exit_us before the vblank the in-flight flip lands on (it would
+                        // have made it on a free panel; mailbox_exit_frames such frames in a row),
+                        // skip queuing it: the next one finds the panel free and the period is gone
+                        // for that single frame, the skip that follows a late frame anyway. Frames
+                        // finishing right at the vblank keep the queue (smooth) instead of skipping
+                        // again and again.
+                        // The flip goes out once the GPU is done: measure the slack to the vblank from there.
+                        android::drmWaitSlotFence(presentIdx);
+                        android::drmPollFlipEvents();   // flips that landed during the render
+                        const int64_t nowF = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                        // Emulator offset: with the emulator at exactly the primary's rate its frames
+                        // finish at a fixed point in the period, and if that point plus render and GPU
+                        // time sits at the vblank, frames alternately make and miss it (or queue a
+                        // period late for minutes). Steer the emulator, by rate trims of a few hundred
+                        // ppm, to finish render-and-GPU time (98th percentile) plus a guard ahead of
+                        // the primary's vblank. sys.gammaos.drastic_nano.mailbox_steer=0 disables.
+                        {
+                            static int sSteer = -1, sGuard = -1;
+                            if (sSteer < 0) {
+                                sSteer = property_get_int32("sys.gammaos.drastic_nano.mailbox_steer", 1);
+                                sGuard = property_get_int32("sys.gammaos.drastic_nano.mailbox_guard_us", 3000);
+                            }
+                            static int32_t sNeed[120] = {}; static int sNeedN = 0, sNeedPos = 0; static int64_t sTgtUs = 0;
+                            const int64_t done = gSlotFrameDoneUs[presentIdx % 8];
+                            if (done > 0 && nowF > done && nowF - done < 50000) {
+                                sNeed[sNeedPos] = (int32_t)(nowF - done); sNeedPos = (sNeedPos + 1) % 120;
+                                if (sNeedN < 120) sNeedN++;
+                            }
+                            if (sSteer > 0 && sNeedN >= 60 && nowF - sTgtUs > 1000000) {
+                                sTgtUs = nowF;
+                                int32_t tmp[120]; std::copy(sNeed, sNeed + sNeedN, tmp);
+                                const int q = sNeedN * 98 / 100;
+                                std::nth_element(tmp, tmp + q, tmp + sNeedN);
+                                const int per = (int)android::drmPanelPeriodUs(0);
+                                int t = per - (tmp[q] + sGuard);
+                                if (t < 0) t = 0;
+                                dr->setOffsetAutoTarget(t);
+                            }
+                        }
+                        // The primary's vblank from the tracked grid: an event's receive time is late by
+                        // however long this thread was busy, which made the offset steer chase noise.
+                        {
+                            const int64_t vg = android::drmVblankAtOrBeforeUs(0, nowF);
+                            dr->vblankTick(vg > 0 ? vg : android::drmLastLandedUs(0), android::drmLastGpuDoneUs());
+                        }
+                        auto queueOrExit = [&](int k, int& want, int& roomy, uint32_t& queued, uint32_t& exits) {
+                            const int64_t vn = android::drmPredictVblankUs(k, nowF);
+                            roomy = (vn > 0 && vn - nowF > sMbExitUs) ? roomy + 1 : 0;
+                            {
+                                // Probe (lat_log=2): where in the period frames get queued.
+                                static uint32_t sHist[2][18] = {}; static int64_t sHistUs = 0;
+                                static int sHl = -1; if (sHl < 0) sHl = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+                                if (sHl >= 2 && vn > 0) {
+                                    sHist[k][std::min<int64_t>(17, std::max<int64_t>(0, (vn - nowF) / 1000))]++;
+                                    if (sHistUs == 0) sHistUs = nowF;
+                                    if (nowF - sHistUs > 10000000) {
+                                        for (int q = 0; q < 2; q++) {
+                                            char b[256]; int o = 0;
+                                            for (int i = 0; i < 18; i++) o += snprintf(b + o, sizeof(b) - o, " %u", sHist[q][i]);
+                                            ALOGW("MBQHIST %c ms-to-vblank 0..17:%s", q ? 'S' : 'P', b);
+                                        }
+                                        memset(sHist, 0, sizeof(sHist)); sHistUs = nowF;
+                                    }
+                                }
+                            }
+                            const int exitFrames = k ? sMbExitFramesS : sMbExitFramesP;
+                            if (exitFrames > 0 && roomy >= exitFrames) { roomy = 0; exits++; want = -1; return; }
+                            want = presentIdx; queued++;
+                        };
+                        {
+                            static int sTl = -1; if (sTl < 0) sTl = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+                            if (sTl >= 3)
+                                ALOGW("MBTRACE frame %u rendered t=%lld done_age=%lld pendP=%d pendS=%d vP=%+lld vS=%+lld",
+                                      gSlotProducer[presentIdx % 8], (long long)nowF, (long long)(nowF - gSlotFrameDoneUs[presentIdx % 8]),
+                                      android::drmPanelFlipPending(0) ? 1 : 0, android::drmPanelFlipPending(1) ? 1 : 0,
+                                      (long long)(android::drmPredictVblankUs(0, nowF) - nowF), (long long)(android::drmPredictVblankUs(1, nowF) - nowF));
+                        }
+                        if (android::drmPanelFlipPending(0)) queueOrExit(0, sMbWantP, sMbRoomyP, sMbQueuedP, sMbExitsP);
+                        else { android::drmFlipRingSlot(presentIdx, true); sMbWantP = -1; sMbRoomyP = 0; }
+                        if (sSkipSec != 1) {
+                            if (!android::drmPanelFlipPending(1) && android::drmFlipSecondaryOnly(presentIdx)) { sMbWantS = -1; sMbRoomyS = 0; }
+                            else queueOrExit(1, sMbWantS, sMbRoomyS, sMbQueuedS, sMbExitsS);
+                        }
+                        android::sRingPresentIdx = presentIdx;
+                        gpu3dNotePresent();
+                        if (gLatCount > age) gLatFlipUs[(gLatCount - 1 - age) % kLatFrames] = android::elapsedRealtimeNano() / 1000;
+                        const int64_t flipNs = android::elapsedRealtimeNano() - flipT0;
+                        if (flipNs > sStgFlipMaxNs) sStgFlipMaxNs = flipNs;
+                        continue;
+                    }
                     android::drmFlipRingSlot(presentIdx, sSkipSec == 1);
                     gpu3dNotePresent();
                     if (gLatCount > age) gLatFlipUs[(gLatCount - 1 - age) % kLatFrames] = android::elapsedRealtimeNano() / 1000;
@@ -3660,7 +3834,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // Deferred drain (AFBC low latency): the flip event is collected by
         // drmFlipRingSlot right before the next commit, after the next frame
         // has been rendered, so the GPU overlaps the scanout wait.
-        if (!flipFirst && !android::drmDeferDrainActive()) {
+        // Mailbox mode reads the flip events while it waits for the next frame.
+        if (!flipFirst && !android::drmDeferDrainActive() && !mailbox) {
             const int64_t drainT0 = android::elapsedRealtimeNano();
             android::drmDrainPageFlipEvents();
             const int64_t drainNs = android::elapsedRealtimeNano() - drainT0;

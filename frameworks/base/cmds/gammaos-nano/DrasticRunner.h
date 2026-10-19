@@ -405,9 +405,15 @@ public:
     // the next expected vblank, so its frame completes as the vblank arrives
     // and the render plus GPU fence fit before the one after.
     void vblankTick(int64_t vblankUs, int64_t gpuDoneUs = 0);
+    // Mailbox presenting: the offset after the primary's vblank at which emulated frames should
+    // finish (the PRIME offset steer's target when sys pace_offset_target_us is unset), -1 off.
+    void setOffsetAutoTarget(int targetUs);
     bool lastWaitWasImmediate() const { return mLastWaitImmediate; }
     void reportFrameMiss(int source);
     bool waitProducerFrame(int timeoutUs);
+    // Mailbox presenting: sleep until the producer has finished a frame newer than `since`, or
+    // until the CLOCK_MONOTONIC time untilUs. True when a newer frame is there.
+    bool waitFrameAfter(uint32_t since, int64_t untilUs);
     bool vblankPacingInstalled() const { return mPaceInstalled; }
 
     // Fast DS texture upload: the two DS textures are backed by CPU-writable
