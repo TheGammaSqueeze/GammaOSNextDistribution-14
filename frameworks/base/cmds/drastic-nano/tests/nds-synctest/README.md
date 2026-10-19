@@ -26,6 +26,9 @@ match. Film both panels with a high speed camera and compare the digits to see a
 - `missed vblanks` counts frames the drawing loop did not finish in time (measured with a free
   running timer), so a slow frame cannot hide behind a counter that simply stopped.
 - `arm7 ok` means the ARM7 is running and publishing the touch and X/Y state.
+- `work` is how long the previous frame's drawing and copies took and `vblank copy` how long
+  the bottom screen copy inside the vblank took, both in ms (hardware timings; an emulator does
+  not model them). Work has to stay under one frame (16.7 ms) for `missed vblanks` to stay 0.
 - The same counter in the four corners of each screen: on high speed video their change
   order and timing show how each panel scans (direction, duration) and whether a bridge
   holds or turns the image.
@@ -37,8 +40,12 @@ the frame number shown when the finger lands, against the frame number `KEY`/`TO
 
 Both 2D engines run mode 5 with BG2 as a 256x256 direct colour bitmap (engine A in VRAM bank A
 for the top screen, engine B in bank C for the bottom). Pixels carry bit 15, the alpha bit of a
-direct colour bitmap; without it the whole layer is transparent. The ARM9 draws into two main
-RAM back buffers and copies both with DMA3 right after the vblank starts. The ARM7 polls the
+direct colour bitmap; without it the whole layer is transparent. The ARM9 draws straight into
+VRAM (main RAM is far too slow on hardware for a full redraw every frame): the top screen flips
+between banks A and B, the bottom picture is built in bank D and copied to bank C with DMA3 right
+after the vblank starts, so both screens change in the same vblank. Text pixels are opaque and
+everything else is transparent, so the background is the backdrop colour (BG palette entry 0),
+set in the same vblank; only the rows carrying text are cleared each frame. The stacks live in DTCM. The ARM7 polls the
 pen-down line (KEYXY bit 6) and the X/Y buttons as fast as it can, reads the touch position from
 the TSC2046 while the pen is down, and bumps a sequence number on every pen-down edge so a tap
 shorter than a frame still counts. The shared block is `SyncCtrl` at `0x02300000`.

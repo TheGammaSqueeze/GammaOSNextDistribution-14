@@ -25,12 +25,20 @@ _start:
     mov   r0, #0
     mcr   p15, 0, r0, c7, c5, 0   @ invalidate instruction cache
     mcr   p15, 0, r0, c7, c6, 0   @ invalidate data cache
+    @ Stacks in 16 KB of data TCM at 0x0b000000: main RAM is slow on hardware and every push
+    @ and pop of a stack there costs a bus access.
+    ldr   r0, =0x0b00000a         @ DTCM base 0x0b000000, size 16 KB
+    mcr   p15, 0, r0, c9, c1, 0
+    mrc   p15, 0, r0, c1, c0, 0
+    orr   r0, r0, #0x10000        @ DTCM on
+    bic   r0, r0, #0x20000        @ DTCM normal (not load) mode
+    mcr   p15, 0, r0, c1, c0, 0
     msr   cpsr_c, #0xd2          @ IRQ mode
-    ldr   sp, =0x0237e000
+    ldr   sp, =0x0b003c00
     msr   cpsr_c, #0xd3          @ SVC mode
-    ldr   sp, =0x0237f000
+    ldr   sp, =0x0b003e00
     msr   cpsr_c, #0xdf          @ SYS mode
-    ldr   sp, =0x02380000
+    ldr   sp, =0x0b003b00
     ldr   r0, =__bss_start
     ldr   r1, =__bss_end
     mov   r2, #0
