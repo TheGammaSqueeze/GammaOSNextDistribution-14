@@ -480,7 +480,39 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
 struct DrmSyncFenceInfo { char obj_name[32]; char driver_name[32]; int32_t status; uint32_t flags; uint64_t timestamp_ns; };
 struct DrmSyncFileInfo { char name[32]; int32_t status; uint32_t flags; uint32_t num_fences; uint32_t pad; uint64_t sync_fence_info; };
 #define DRM_SYNC_IOC_FILE_INFO _IOWR('>', 4, struct DrmSyncFileInfo)
+static int64_t sPrimeGpuDoneUs = 0;
+static int64_t sPresentFrameDoneUs = 0;        // emulated frame-done time of the slot about to be flipped
+static int64_t sSeqFrameDoneUs[32] = {0};      // by commit sequence, read back at the flip event
+static int64_t sVisUs2[2][1024]; static int sVisN2[2] = {0, 0}; static int64_t sVisLogUs2[2] = {0, 0};
+void drmNotePresentFrameDone(int64_t us) { sPresentFrameDoneUs = us; }
+static uint32_t sPresentProducer = 0;
+static uint32_t sSeqProducer[32] = {0};
+void drmNotePresentProducer(uint32_t f) { sPresentProducer = f; }
+// Hitch probe (lat_log): per panel, the emulated frame each landed flip shows. A delta of 0
+// is a repeated frame, 2+ a skipped one; also each panel's measured refresh and the
+// emulator's frame rate over the same window.
+struct HitchStat { uint32_t prev = 0; int64_t firstUs = 0, lastUs = 0; uint32_t flips = 0, rep = 0, skip = 0, prod0 = 0, prod1 = 0; };
+static HitchStat sHitch[2];
+static void drmHitchNote(int k, uint32_t shown, int64_t nowUs) {
+    static int sOn = -1;
+    if (sOn < 0) sOn = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+    if (!sOn || shown == 0) return;
+    HitchStat& h = sHitch[k];
+    if (h.firstUs == 0) { h.firstUs = nowUs; h.prod0 = shown; h.prev = shown; h.lastUs = nowUs; return; }
+    const int32_t d = (int32_t)(shown - h.prev);
+    h.flips++;
+    if (d == 0) { h.rep++; ALOGW("HITCH %s repeat frame %u at %lld us (gap %lld us)", k ? "secondary" : "primary", shown, (long long)nowUs, (long long)(nowUs - h.lastUs)); }
+    else if (d >= 2) { h.skip++; ALOGW("HITCH %s skip %d frame(s) to %u at %lld us (gap %lld us)", k ? "secondary" : "primary", d - 1, shown, (long long)nowUs, (long long)(nowUs - h.lastUs)); }
+    h.prev = shown; h.lastUs = nowUs; h.prod1 = shown;
+    if (nowUs - h.firstUs >= 60000000) {
+        const double secs = (nowUs - h.firstUs) / 1e6;
+        ALOGW("HITCHSUM %s 60 s: panel %.4f Hz, shown frames %.4f/s, repeats %u, skips %u",
+              k ? "secondary" : "primary", h.flips / secs, (h.prod1 - h.prod0) / secs, h.rep, h.skip);
+        h = HitchStat(); h.firstUs = nowUs; h.prev = shown; h.prod0 = shown; h.lastUs = nowUs;
+    }
+}   // PRIME path: the CPU-side fence wait returned (GPU finished the slot)
 int64_t drmLastGpuDoneUs() {
+    if (!sDrmAfbcMode) return sPrimeGpuDoneUs;
     return drmFenceDoneUs(drmDeferDrainOn() ? sDrmPrevFenceFd : sDrmLastFenceFd);
 }
 static int64_t drmFenceDoneUs(int probeFd) {
@@ -2221,6 +2253,7 @@ static std::condition_variable sFlipCv;
 static bool sFlipBusy = false, sFlipThreadStarted = false;
 static FlipJob sFlipJob;
 static int sFlipResult = 0, sFlipErrno = 0;
+static int sAhbFlipCountPublic = 0;
 static int sFlipGuardHolds = 0;
 static int sPresLogCount = 0, sPairLogCount = 0;   // flip_pair_log caps, re-armed when the prop toggles
 static std::atomic<bool> sPairLogOnFlipThread{false};
@@ -2518,6 +2551,7 @@ static uint32_t sSecCrtcId = 0;
 static uint32_t sIndepDeferred = 0, sIndepWaits = 0, sIndepDropped = 0;
 static bool sDrainForSlot = false;        // drain stop condition: the next render slot is free
 static bool sDrainNonBlocking = false;    // drain only what has already arrived (no wait)
+static bool sSecIssuedEarly = false;      // this frame's secondary was issued (or queued) before the drain
 static bool drmIndepFlipOn() {
     if (sIndepFlip < 0)
         sIndepFlip = property_get_bool("persist.gammaos.nano.drm_indep_flip", false) ? 1 : 0;
@@ -2656,6 +2690,45 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     // commit itself waits for the previous flip, which would make the fence
     // look fast and flap the mode.
     const int64_t enterUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    // Early secondary flip (independent mode, Low Latency): the blocking drain
+    // below returns at the PRIMARY's vblank, and the secondary was only committed
+    // after it. Under the vblank lock the frame is finished well before that, so
+    // the DP (whose commit completes a whole period after issue on the RP Duo
+    // Lite) sat idle until the DSI vblank and then needed another period:
+    // measured 26-30 ms frame-done-to-visible on the DP against 15-20 ms on the
+    // DSI. Issue the secondary now, as soon as the slot's GPU work is done; if
+    // its previous flip is still in flight, queue this slot for the moment it
+    // lands (handled in the drain). sys.gammaos.nano.drm_sec_early=0 disables.
+    sSecIssuedEarly = false;
+    {
+        static int sEarly = -1;
+        if (sEarly < 0) sEarly = property_get_int32("sys.gammaos.nano.drm_sec_early", 1);
+        if (sEarly == 1 && sDrmLowLatency && !skipNonPrimary && drmIndepFlipOn() &&
+            sSecCrtcId != 0 && sec.ahb && sec.drmFbId != 0 && prim.drmFbId != 0) {
+            const int cs = drmCrtcSlot(sSecCrtcId);
+            if (cs >= 0 && sCrtcPending[cs] > 0) {
+                sDrainNonBlocking = true;
+                drmDrainPageFlipEvents();
+                sDrainNonBlocking = false;
+            }
+            if (sAhbRingSyncPrimary[idx] != EGL_NO_SYNC_KHR && sEglClientWaitSyncKHR && sRingEglDpy != EGL_NO_DISPLAY)
+                sEglClientWaitSyncKHR(sRingEglDpy, sAhbRingSyncPrimary[idx], EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, 100000000);
+            // The commit below takes sequence sDrmCommitSeq + 1: stamp it now so the
+            // early flip's event maps back to this frame.
+            sSeqFrameDoneUs[(sDrmCommitSeq + 1) % 32] = sPresentFrameDoneUs;
+            sSeqProducer[(sDrmCommitSeq + 1) % 32] = sPresentProducer;
+            if (cs >= 0 && sCrtcPending[cs] > 0) {
+                // Still in flight: leave it to the per-display loop's drop / defer
+                // policy (queueing every frame behind the previous flip chains the
+                // DP a period behind for good).
+            } else {
+                sDrmCommitSeq++;
+                const bool ok = drmIndepFlipSecondary(idx);
+                sDrmCommitSeq--;
+                if (ok) { sSecWantIdx = -1; sSecIssuedEarly = true; }
+            }
+        }
+    }
     if (sPendingFlipEvents > 0 || drmAnyCrtcPending()) {
         drmFlipThreadWaitIdle();   // blocking commit returned: the flip has landed
         drmDrainPageFlipEvents();
@@ -2719,6 +2792,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     }
 
     static int sFlipCount = 0;
+    sAhbFlipCountPublic = sFlipCount;
     // Log timing for the first 5 flips (boot window) then once per
     // second thereafter so we can observe steady-state latency
     // without flooding logcat. A "slow" flip (total > 10 ms) also
@@ -2728,6 +2802,8 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     bool verbose = true; // always capture timing; filter at print time
     int64_t t0 = (systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL);
     sDrmCommitSeq++;
+    sSeqFrameDoneUs[sDrmCommitSeq % 32] = sPresentFrameDoneUs;
+    sSeqProducer[sDrmCommitSeq % 32] = sPresentProducer;
     // Pair diagnostic (sys flip_pair_log): commit time here, each CRTC's flip-complete time in
     // drmDrainPageFlipEvents. The caps re-arm every time the prop is switched off and on again
     // so a session can be sampled more than once.
@@ -2813,6 +2889,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
                                   sAhbRingSyncPrimary[idx],
                                   EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
                                   100000000);  // 100 ms timeout
+            sPrimeGpuDoneUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
             fenceUsed = true;
         } else {
             primaryFenceFd = sEglDupNativeFenceFDANDROID(
@@ -2904,7 +2981,16 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     // lag without Frame Sync's added frame of latency. Only the dual-DSI PRIME
     // path; falls back to the legacy per-CRTC loop below on any failure.
     bool atomicFlipDone = false;
-    if (android::sDrmLowLatency && primeActive && !skipNonPrimary &&
+    // Independent-flip panels (the RP Duo Lite's DSI + DP on unlocked clocks) skip
+    // the dual atomic commit: it ties the DP, whose commit completes a whole
+    // period after issue, to the DSI's cadence (26-30 ms frame-done-to-visible on
+    // the DP against 18-20 ms with separate flips). Each panel then flips on its
+    // own, the secondary from the early path above.
+    // sys.gammaos.nano.drm_ll_dual_atomic=1 restores the dual commit there.
+    static int sLlDual = -1;
+    if (sLlDual < 0) sLlDual = property_get_bool("sys.gammaos.nano.drm_ll_dual_atomic", false) ? 1 : 0;
+    const bool indepSkipDual = !sDrmAfbcMode && drmIndepFlipOn() && sLlDual == 0;
+    if (android::sDrmLowLatency && primeActive && !skipNonPrimary && !indepSkipDual &&
         sDrmDisplays.size() == 2 && sDrmFd >= 0 && prim.drmFbId != 0) {
         // The secondary (bottom) VP latches/scans one frame AHEAD of the
         // primary on this VOP2, so putting the same-slot buffer on both makes
@@ -3012,9 +3098,19 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         // to the real display index so primary lands in the final
         // slot of the loop.
         size_t i;
+        // Independent-flip panels (RP Duo Lite) flip the primary first
+        // (sys.gammaos.nano.drm_primary_first, default on there): with the DP
+        // submitted first its secondary was still in flight at the next frame
+        // ~3.5 times as often (2,900 vs 840 deferred DP flips per 3 min of Sonic
+        // Rush, each a frame the DP shows one period after the DSI); latency and
+        // the late DSI flips are unchanged either way.
+        static int sPrimFirst = -1;
+        if (sPrimFirst < 0) sPrimFirst = property_get_int32("sys.gammaos.nano.drm_primary_first", drmIndepFlipOn() ? 1 : 0);
+        const size_t slot = (sPrimFirst == 1 && sDrmDisplays.size() > 1)
+                ? (outer == 0 ? sDrmDisplays.size() - 1 : outer - 1) : outer;
         if (sDrmDisplays.size() == 1) {
             i = outer;
-        } else if ((int)outer == (int)sDrmDisplays.size() - 1) {
+        } else if ((int)slot == (int)sDrmDisplays.size() - 1) {
             i = (size_t)sDrmPrimaryIdx;
         } else {
             // Pick the next non-primary index in order.
@@ -3022,7 +3118,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
             i = 0;
             for (size_t j = 0; j < sDrmDisplays.size(); j++) {
                 if ((int)j == sDrmPrimaryIdx) continue;
-                if (count == outer) { i = j; break; }
+                if (count == slot) { i = j; break; }
                 count++;
             }
         }
@@ -3144,6 +3240,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         int crtcSlot = wantEvent ? drmCrtcSlot(d.crtcId) : -1;
         const bool indepSec = !isPrimary && primePath && useSecondaryAhb && drmIndepFlipOn();
         if (indepSec) sSecCrtcId = d.crtcId;
+        if (indepSec && sSecIssuedEarly) continue;   // already flipped (or queued) before the drain
         // Independent mode: the drain returns as soon as the PRIMARY's flip lands,
         // so the secondary's completion (its own vblank, usually a few ms later)
         // is still sitting unread in the DRM fd when the next frame gets here.
@@ -3343,6 +3440,8 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
 // Legacy single-buffered path. Preserves XMB behavior and default QR flow
 // (triple_buffer=0). Flips slot 0, which is exactly what every non-ring
 // caller was doing before the ring landed.
+int drmAhbFlipCount() { return sAhbFlipCountPublic; }
+
 void drmFlipAll() {
     drmFlipRingSlot(0);
 }
@@ -3481,7 +3580,44 @@ void drmDrainPageFlipEvents() {
                             if (sDrmLastVblankUs > 0 && d > 15000 && d < 18000)
                                 sDrmVblankPeriodUs = (sDrmVblankPeriodUs * 15 + d + 8) / 16;
                         }
-                        sDrmLastVblankUs = (int64_t)vb->tv_sec * 1000000LL + vb->tv_usec;
+                    {
+                        // The RP Duo Lite's flip events carry a frozen timestamp; the
+                        // pacer and the present-age logic need a real vblank time, so
+                        // fall back to the event's receive time when the stamp is not
+                        // within half a second of now.
+                        const int64_t evUs = (int64_t)vb->tv_sec * 1000000LL + vb->tv_usec;
+                        const int64_t nowUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+                        const bool bogus = evUs <= 0 || evUs > nowUs + 500000 || evUs < nowUs - 500000;
+                        static bool sBogusLogged = false;
+                        if (bogus && !sBogusLogged) {
+                            sBogusLogged = true;
+                            ALOGW("NanoMenu DRM: flip event timestamp %lld us vs now %lld us, using receive time for vblank",
+                                  (long long)evUs, (long long)nowUs);
+                        }
+                        sDrmLastVblankUs = bogus ? nowUs : evUs;
+                        // Emulated frame done -> this flip landed, per panel (0 primary, 1 secondary).
+                        {
+                            const bool prim = sDrmPrimaryIdx >= 0 && (size_t)sDrmPrimaryIdx < sDrmDisplays.size() &&
+                                              vb->crtc_id == sDrmDisplays[sDrmPrimaryIdx].crtcId;
+                            const int k = prim ? 0 : 1;
+                            drmHitchNote(k, sSeqProducer[vb->user_data % 32], nowUs);
+                            const int64_t done = sSeqFrameDoneUs[vb->user_data % 32];
+                            if (done > 0 && nowUs > done && nowUs - done < 200000) {
+                                if (sVisN2[k] < 1024) sVisUs2[k][sVisN2[k]++] = nowUs - done;
+                                if (sVisLogUs2[k] == 0) sVisLogUs2[k] = nowUs;
+                                static int sVisLog = -1;
+                                if (sVisLog < 0) sVisLog = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+                                if (nowUs - sVisLogUs2[k] >= (sVisLog ? 10000000 : 60000000) && sVisN2[k] > 0) {
+                                    int64_t* v = sVisUs2[k]; const int n = sVisN2[k];
+                                    std::sort(v, v + n);
+                                    ALOGW("VISLAT frame-done -> %s flip landed: n=%d p10=%lld p50=%lld p90=%lld max=%lld us",
+                                          prim ? "primary" : "secondary", n, (long long)v[n / 10], (long long)v[n / 2],
+                                          (long long)v[n * 9 / 10], (long long)v[n - 1]);
+                                    sVisN2[k] = 0; sVisLogUs2[k] = nowUs;
+                                }
+                            }
+                        }
+                    }
                     if (property_get_bool(
                                 "sys.gammaos.drastic_nano.flip_pair_log", false)) {
                         int& sPairLog = sPairLogCount;

@@ -282,6 +282,9 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary = false);
 // blocking on this one.
 bool drmSlotFenceReady(int idx);
 void drmFlipAll();
+int drmAhbFlipCount();
+void drmNotePresentFrameDone(int64_t us);
+void drmNotePresentProducer(uint32_t frame);   // emulated frame number of the frame being presented (hitch probe)   // emulated frame-done time of the frame being presented (VISLAT probe)   // presented-frame counter of the AHB flip path (latency probes)
 bool drmAnyCrtcPending();
 void drmDrainPageFlipEvents();
 

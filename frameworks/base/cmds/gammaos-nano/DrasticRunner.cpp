@@ -2940,6 +2940,7 @@ std::atomic<int64_t>  gLeadCreepFloor{-6000};  // never creep below: last miss +
 std::atomic<uint32_t> gSteadyFrames{0};        // fresh emulated frames consumed since the emulator last went quiet
 std::atomic<int64_t>  gLastFrameUs{0};         // time of the last fresh emulated frame
 std::atomic<bool>     gMarginOk{true};         // GPU finished >= comfy margin before the vblank (last 20 frames)
+std::atomic<bool>     gPaceCatchUp{false};      // presenter fell a frame behind: tick the emulator once right away
 std::atomic<int64_t>  gProducerDoneUs{0};      // emulator frame completion (its limiter entering the vblank wait)
 std::atomic<int64_t>  gLastTickUs{0};          // last pacer tick
 std::atomic<int64_t>  gLeadFloorRelaxAt{0};    // vblank seq at which the floor relaxes
@@ -5058,15 +5059,27 @@ void DrasticRunner::reportFrameMiss(int source) {
     gMissCount.fetch_add(1);
     const int64_t at = gLeadUs.load();
     const uint32_t seq = gVblSeq.load();
-    int64_t l = at + 1000;
-    if (l > 12000) l = 12000;
+    // pace_miss_step_us / pace_lead_max_us / pace_miss_pin_floor: how hard a
+    // miss backs the lead off, the lead it may never exceed, and whether two
+    // misses pin the creep floor (the RP Duo Lite's DSI lands a flip late a
+    // few times a minute on its own; pinning the floor there parks the lead
+    // at a value with no latency benefit).
+    static int64_t sStep = -1, sMax = -1; static int sPin = -1;
+    if (sStep < 0) {
+        const bool prime = !android::sDrmAfbcMode;
+        sStep = property_get_int32("sys.gammaos.drastic_nano.pace_miss_step_us", prime ? 500 : 1000);
+        sMax = property_get_int32("sys.gammaos.drastic_nano.pace_lead_max_us", prime ? 9000 : 12000);
+        sPin = property_get_int32("sys.gammaos.drastic_nano.pace_miss_pin_floor", prime ? 0 : 1);
+    }
+    int64_t l = at + sStep;
+    if (l > sMax) l = sMax;
     gLeadUs.store(l);
     gLeadHoldUntil.store(seq + 120);
     // A single miss is a hiccup (autosave, decompression burst): back off,
     // hold, creep again. Two misses within ten seconds mark this lead as the
     // edge and pin the creep floor just above it.
     static uint32_t sPrevMissSeq = 0;
-    if (sPrevMissSeq && seq - sPrevMissSeq < 600) {
+    if (sPin && sPrevMissSeq && seq - sPrevMissSeq < 600) {
         if (at + 500 > gLeadCreepFloor.load()) gLeadCreepFloor.store(at + 500);
         gLeadFloorRelaxAt.store(seq + 3600);
     }
@@ -5077,6 +5090,14 @@ void DrasticRunner::reportFrameMiss(int source) {
 // bitmasks: emu_cpus for the emulator (startGame) thread, worker_cpus for
 // drastic's other CPU-heavy threads (its rasterizer workers), render_cpus for
 // this render thread. Applied every second so late-spawned workers get it.
+void DrasticRunner::noteKernelLateFlip(int64_t gpuToVblankUs) {
+    static uint32_t n = 0;
+    n++;
+    if (n <= 5 || n % 100 == 0)
+        ALOGW("PACE late flip with the GPU done %lld us before it: kernel skipped a vblank (%u so far), lead kept at %lld",
+              (long long)gpuToVblankUs, n, (long long)gLeadUs.load());
+}
+
 void DrasticRunner::applyCpuPlacement() {
     static int64_t sLastUs = 0;
     const int64_t now = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
@@ -6427,7 +6448,60 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             // it; if the GPU then finishes just before the vblank every flip lands late. Nudge the period by a
             // few hundred ppm until the GPU margin sits near bypass_margin_us, then hold the exact rate.
             static int64_t sEma = 0, sTarget = 11000, sGain = 80, sMax = 400; static uint32_t sCur = 0;
-            if (gpuDoneUs > 0 && want && gBypassPeriodSet.load()) {
+            // The PRIME path's GPU-done time (RP Duo Lite) is taken after the drain of the
+            // previous vblank, so this steer's margin means something else there: it chased
+            // a wrong target and moved the deadline 3-5 ms in one step in clusters every
+            // ~57 s, each a repeated frame on both panels. AFBC only unless asked for.
+            static int sSteerPrime = -1;
+            if (sSteerPrime < 0) sSteerPrime = property_get_int32("sys.gammaos.drastic_nano.bypass_steer_prime", 0);
+            // PRIME offset keeping (RP Duo Lite, opt-in; the presenter's short frame wait replaced it): the emulator runs at the panel rate, so
+            // where in the vblank period its frames finish drifts only slowly; at present age 0 a
+            // finish point sitting at the flip deadline makes frames alternately miss their vblank
+            // (repeat + skip pairs on both panels, in clusters). Measure that point from the
+            // emulator's own frame-done time and trim the rate by at most pace_offset_max_ppm to hold
+            // it at pace_offset_target_us after the vblank. Rate trims only: no deadline jumps.
+            // pace_offset_sweep_ppm (diagnostic) drifts at a fixed rate instead.
+            if (!android::sDrmAfbcMode && sSteerPrime != 1 && want && gBypassPeriodSet.load()) {
+                static int sOn = -1, sTgt = -1, sMaxP = 500, sSweep = 0, sLog = 0; static int64_t sRd = 0;
+                if (sOn < 0 || vblankUs - sRd > 1000000) {
+                    sRd = vblankUs;
+                    sOn = property_get_int32("sys.gammaos.drastic_nano.pace_offset", 0);
+                    sTgt = property_get_int32("sys.gammaos.drastic_nano.pace_offset_target_us", -1);
+                    sMaxP = property_get_int32("sys.gammaos.drastic_nano.pace_offset_max_ppm", 500);
+                    sSweep = property_get_int32("sys.gammaos.drastic_nano.pace_offset_sweep_ppm", 0);
+                    sLog = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+                }
+                const int64_t per = gVblankPeriodUs.load();
+                const int64_t pd = gProducerDoneUs.load();
+                static double sPh = -1.0; static int64_t sLastLogUs = 0, sLastPd = 0;
+                if (sOn == 1 && per > 0 && pd > 0 && pd != sLastPd) {
+                    sLastPd = pd;
+                    int64_t ph = (pd - vblankUs) % per; if (ph < 0) ph += per;
+                    if (sPh < 0) sPh = (double)ph;
+                    else {
+                        double d = (double)ph - sPh;
+                        if (d > per / 2) d -= per; if (d < -per / 2) d += per;
+                        sPh += d / 16.0; if (sPh < 0) sPh += per; if (sPh >= per) sPh -= per;
+                    }
+                    int64_t steer = 0;
+                    if (sSweep != 0) steer = sSweep;
+                    else if (sTgt >= 0) {
+                        double err = sPh - (double)sTgt;           // > 0: finishing later than wanted -> run faster
+                        if (err > per / 2) err -= per; if (err < -per / 2) err += per;
+                        steer = (int64_t)(err * 0.1);              // 1 ms off -> 100 ppm
+                        if (steer > sMaxP) steer = sMaxP; if (steer < -sMaxP) steer = -sMaxP;
+                        if (steer > -10 && steer < 10) steer = 0;
+                    }
+                    const uint32_t v = (uint32_t)llround((double)units * (1000000.0 - (double)steer) / 1000000.0);
+                    if (v != sCur && *period == sCur) { *period = v; sCur = v; }
+                    gBypassSteerPpm.store((int)steer, std::memory_order_relaxed);
+                    if (sLog && vblankUs - sLastLogUs >= 1000000) {
+                        sLastLogUs = vblankUs;
+                        ALOGW("OFFSET finish %.0f us after vblank (raw %lld), target %d, steer %lld ppm", sPh, (long long)ph, sTgt, (long long)steer);
+                    }
+                }
+            }
+            if (gpuDoneUs > 0 && want && gBypassPeriodSet.load() && (android::sDrmAfbcMode || sSteerPrime == 1)) {
                 const int64_t per = gVblankPeriodUs.load();
                 int64_t m = vblankUs - gpuDoneUs; while (m < 0) m += per; while (m >= per) m -= per;
                 sEma = sEma == 0 ? m : (sEma * 15 + m) / 16;
@@ -6517,6 +6591,30 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             sBypassUs = property_get_int32("sys.gammaos.drastic_nano.pace_bypass_us", 12500);
         }
         const int64_t emu = gEmuDurUs.load();
+        // Optional: drop a lock whose lead the GPU margin keeps at
+        // pace_lead_useless_us or more for 5 s, with a backoff before probing
+        // again (60 s, doubling to 10 min). Off by default (the threshold sits
+        // above the lead cap): on the RP Duo Lite Sonic Rush measured 16 to 19 ms
+        // frame-done-to-visible locked at the 9 ms cap against 18 to 22 ms in
+        // the panel-rate bypass, so even the capped lock was the better state.
+        static int64_t sLeadHighSinceUs = 0, sUselessUntilUs = 0, sUselessBackoffUs = 60000000;
+        {
+            const int64_t useless = property_get_int32("sys.gammaos.drastic_nano.pace_lead_useless_us", 12000);
+            if (gPaceOn.load() && !gPaceBypass.load() && gLeadUs.load() >= useless) {
+                if (sLeadHighSinceUs == 0) sLeadHighSinceUs = vblankUs;
+                if (vblankUs - sLeadHighSinceUs > 5000000) {
+                    ALOGW("PACE bypass: lead %lld us for 5 s buys nothing over the free-running path, next probe in %lld s",
+                          (long long)gLeadUs.load(), (long long)(sUselessBackoffUs / 1000000));
+                    gPaceBypass.store(true); sBypassSinceUs = vblankUs; sProbeSinceUs = 0;
+                    sUselessUntilUs = vblankUs + sUselessBackoffUs;
+                    if (sUselessBackoffUs < 600000000) sUselessBackoffUs *= 2;
+                    sLeadHighSinceUs = 0;
+                    setVblankPacing(mPaceWanted);
+                }
+            } else {
+                sLeadHighSinceUs = 0;
+            }
+        }
         // The bypass stays immediate (a lock that cannot hold costs presented
         // frames: White 2 measured 54 fps locked vs 59.8 bypassed); scenes
         // that merely hiccuped recover through the run-ahead retry below.
@@ -6542,7 +6640,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         // title screen that misses every other vblank reaches the trip in a third of a second
         // instead of up to a second later.
         if (vblankUs - sMissWindowUs > 1000000) {
-            sMissTripN = property_get_int32("sys.gammaos.drastic_nano.pace_miss_trip", 5);
+            sMissTripN = property_get_int32("sys.gammaos.drastic_nano.pace_miss_trip", android::sDrmAfbcMode ? 5 : 12);
             sMissBase = gMissCount.load(); sMissWindowUs = vblankUs;
         }
         if (!sMissTrip && gPaceOn.load() && !gPaceBypass.load()) {
@@ -6581,7 +6679,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
                 ALOGW("PACE bypass: emulator %lld us per frame", (long long)emu);
                 setVblankPacing(mPaceWanted);
             }
-        } else if (sProbeSinceUs == 0 && vblankUs - sBypassSinceUs > 3000000 &&
+        } else if (sProbeSinceUs == 0 && vblankUs - sBypassSinceUs > 3000000 && vblankUs >= sUselessUntilUs &&
                    ((gEmuCpuLightSecs.load() >= 3 && (!sLastDropMiss || vblankUs - sBypassSinceUs > sRaRetryUs)) ||
                     // run-ahead needs the lock: retry with exponential backoff
                     // (4, 8, 16 .. 64 s), but only while the emulator's average
@@ -6613,6 +6711,11 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             gPaceBypass.store(false); sProbeSinceUs = vblankUs;
             gEmuDurUs.store(6000);
             gEmuCpuLightSecs.store(0);
+            // Start the lock from its defaults again: the lead and floor the
+            // miss cascade ratcheted up before the bypass make every frame
+            // stale at the first wake and fail the probe on the spot.
+            gLeadUs.store(6500);
+            gLeadCreepFloor.store(property_get_int32("sys.gammaos.drastic_nano.pace_lead_min_us", -6000));
             ALOGW("PACE probe: emulator thread at %d%% of a core, trying the lock", gEmuCpuPct.load());
             setVblankPacing(mPaceWanted);
         } else if (sProbeSinceUs != 0) {
@@ -6629,7 +6732,11 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
     // comfortably before the vblank, back it off as soon as it gets tight.
     // Runs only while the emulator is producing frames.
     if (gpuDoneUs > 0 && gSteadyFrames.load() >= 120) {
-        const int64_t margin = vblankUs - gpuDoneUs;
+        // PRIME path: the GPU-done time is the fence wait that follows the
+        // drain of the previous vblank, so it lies past vblankUs; the commit
+        // it precedes targets the next vblank, which is the margin that matters.
+        int64_t margin = vblankUs - gpuDoneUs;
+        if (margin < 0 && !android::sDrmAfbcMode) margin += gVblankPeriodUs.load();
         static int64_t sMinMargin = 1 << 30; static int nMargin = 0;
         if (margin < sMinMargin) sMinMargin = margin;
         if (++nMargin >= 20) {
@@ -6638,7 +6745,9 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             if (sMinMargin < tight) {
                 const int64_t at = gLeadUs.load();
                 gLeadUs.store(at + 500);
-                if (at + 250 > gLeadCreepFloor.load()) gLeadCreepFloor.store(at + 250);
+                static int sPinM = -1;
+                if (sPinM < 0) sPinM = property_get_int32("sys.gammaos.drastic_nano.pace_miss_pin_floor", android::sDrmAfbcMode ? 1 : 0);
+                if (sPinM && at + 250 > gLeadCreepFloor.load()) gLeadCreepFloor.store(at + 250);
                 gLeadFloorRelaxAt.store(gVblSeq.load() + 3600);
                 ALOGW("PACE tight margin %lld us at lead %lld", (long long)sMinMargin, (long long)at);
             }
@@ -6728,6 +6837,25 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             const int64_t p = gVblankPeriodUs.load();
             gVblankPeriodUs.store((p * 15 + d + 8) / 16);
         }
+    }
+    // Filtered vblank clock (default on the PRIME path, where the only vblank
+    // time is the flip event's receive time). A flip that landed a vblank late
+    // used to become the new vblank time, which moved the tick grid by a whole frame
+    // and chained the next frames into producer-wait timeouts and more late
+    // flips. Keep the grid: advance by whole periods, correct the offset a
+    // little from on-time events, ignore outliers.
+    static int sPll = -1;
+    if (sPll < 0) sPll = property_get_int32("sys.gammaos.drastic_nano.pace_vbl_pll", android::sDrmAfbcMode ? 0 : 1);
+    if (sPll && prev > 0) {
+        const int64_t per = gVblankPeriodUs.load();
+        int64_t k = (vblankUs - prev + per / 2) / per;
+        if (k < 1) k = 1;
+        int64_t pred = prev + k * per;
+        const int64_t err = vblankUs - pred;
+        if (err > -3000 && err < 3000) pred += err / 8;
+        else if (err > 10 * per || err < -10 * per) pred = vblankUs;   // clock jump (resume): resync
+        gLastVblankUs.store(pred);
+        return;
     }
     gLastVblankUs.store(vblankUs);
 }
@@ -6954,6 +7082,7 @@ void DrasticRunner::pacerThread() {
         // Never tick sooner than one period after the previous tick, even if
         // a late-reported vblank pulls the alignment earlier.
         if (nextTick > 0 && target < nextTick + period - 500) target = nextTick + period - 500;
+        if (gPaceCatchUp.exchange(false)) target = now;   // catch-up tick: the presenter is a frame behind
         { static int sTr = -1; static uint32_t n = 0; if (sTr < 0) sTr = property_get_bool("sys.gammaos.drastic_nano.ra_debug", false) ? 1 : 0;
           if (sTr && nextTick > 0 && target - nextTick > period + period / 2 && n++ < 40)
               ALOGW("RATRACE pacer skipped a period: previous tick %lld us ago, next in %lld us (burst %d); since last tick: poke-burst %lld, tick %lld, audio-extra %lld us",
@@ -7061,15 +7190,21 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
     // not judge it stale (that would drop it and creep the lead).
     const bool afterBurst = (int32_t)(gVblSeq.load() - gRaBurstUntilSeq.load()) < 0;
     mLastWaitImmediate = (*mask != 0);
+    // A frame is stale when it is older than the age the lead itself produces
+    // (lead minus the emulation time) by more than a third of a period. The
+    // fixed 8 ms test dropped every frame once a miss cascade had pushed the
+    // lead past ~11 ms (RP Duo Lite, 2.7 ms emulation), which then counted as
+    // more misses and tripped the bypass.
+    const int64_t staleUs = std::max<int64_t>(8000, gLeadUs.load() - gEmuDurUs.load() + 6000);
     if (mLastWaitImmediate && !afterBurst && gSteadyFrames.load() >= 120 &&
-        nowUs - gProducerDoneUs.load() > 8000) {
+        nowUs - gProducerDoneUs.load() > staleUs) {
         // The producer sets the mask a few microseconds before the flip
         // call that stamps the time: give a fresh frame that instant to
         // land before judging the mask stale.
         usleep(300);
     }
     if (mLastWaitImmediate && !afterBurst && gSteadyFrames.load() >= 120 &&
-        nowUs - gProducerDoneUs.load() > 8000) {
+        nowUs - gProducerDoneUs.load() > staleUs) {
         *mask = 0;
         dropped = true;
         mLastWaitImmediate = false;
@@ -7095,6 +7230,22 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         // The hook fires after the producer's slot toggle; if the mask was
         // already set at entry we may be ahead of the toggle by microseconds.
         for (int i = 0; i < 40 && gProducerDoneUs.load() < nowUs - 1500; i++) usleep(50);
+        // Waited into the next period: the frame meant for this vblank was
+        // gone (a hiccup consumed it) and we just took the next vblank's, so
+        // every following flip would land a vblank late for as long as the
+        // lock holds. Have the pacer tick once more right away so the
+        // emulator is a frame ahead again at the next wake.
+        {
+            const int64_t waited = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch()).count() - nowUs;
+            static int64_t sLastCatchUpUs = 0;
+            if (gPaceOn.load() && waited > gVblankPeriodUs.load() / 2 && nowUs - sLastCatchUpUs > 200000) {
+                sLastCatchUpUs = nowUs;
+                gPaceCatchUp.store(true);
+                static uint32_t n = 0;
+                if (n++ < 20) ALOGW("PACE resync: waited %lld us for the next period's frame, extra tick", (long long)waited);
+            }
+        }
     } else {
         while (*mask == 0) {
             if (std::chrono::duration_cast<std::chrono::microseconds>(
@@ -7558,6 +7709,31 @@ void DrasticRunner::fastUploadFrame() {
     }
 }
 
+// Latency probe: which ROM frame (nds-synctest exports its counter at DS 0x0230001c) the
+// emulator has reached when the presenter uploads a slot, against the producer count.
+struct UploadProbe { uint32_t producer, dsFrame; int flip; int64_t hostUs; };
+static UploadProbe sUploadRing[16]; static uint32_t sUploadRingN = 0;
+uint32_t DrasticRunner::dsFrameCounter() {
+    DsMainRam m = dsMainRam();
+    if (!m.valid()) return 0;
+    return *reinterpret_cast<volatile uint32_t*>(m.base + 0x30001c);
+}
+static int64_t sUploadDoneUs = 0;
+int64_t DrasticRunner::lastUploadFrameDoneUs() { return sUploadDoneUs; }
+void DrasticRunner::probeUpload() {
+    sUploadDoneUs = gProducerDoneUs.load();
+    UploadProbe& u = sUploadRing[sUploadRingN++ % 16];
+    u.producer = producerFrameCount(); u.dsFrame = dsFrameCounter(); u.flip = drmAhbFlipCount();
+    u.hostUs = elapsedRealtimeNano() / 1000;
+}
+void DrasticRunner::dumpUploadProbe() {
+    const uint32_t n = sUploadRingN < 16 ? sUploadRingN : 16;
+    for (uint32_t i = 0; i < n; i++) {
+        const UploadProbe& u = sUploadRing[(sUploadRingN - n + i) % 16];
+        ALOGI("touchlat: upload[-%u] producer=%u ds=%u flip=%d host=%lld us", n - 1 - i, u.producer, u.dsFrame, u.flip, (long long)u.hostUs);
+    }
+}
+
 void DrasticRunner::renderDsToOffscreen() {
     if (!mSurfaceReady || !mUseRenderFrame) return;
 
@@ -7816,6 +7992,7 @@ void DrasticRunner::renderDsToOffscreen() {
             fastUploadFrame();
         const int fxOutW = (direct && mDirectW > 0) ? mDirectW : mOffscreenW;
         const int fxOutH = (direct && mDirectH > 0) ? mDirectH : mOffscreenH;
+        probeUpload();
         mFxRender(mFakeEnv, mFakeCls,
                   (int)mDsTopTex, (int)mDsBotTex,
                   0, 6, 18,
@@ -7919,6 +8096,7 @@ bool DrasticRunner::renderSlotShaded(int which, unsigned int targetFbo,
     // the bottom quad sampling mDsBotTex -- so firstTop=0/firstBot=6 yields the
     // top screen alone, and firstTop=6/firstBot=0 yields the bottom alone.
     if (which == 0) {
+    probeUpload();
         mFxRender(mFakeEnv, mFakeCls, (int)mDsTopTex, (int)mDsBotTex,
                   0, 6, 18, vx, vy, vw, vh, 0);
     } else {
@@ -8162,6 +8340,17 @@ void DrasticRunner::setInputWithTouch(int bitmask, int touchX, int touchY,
     }
     sLastWritten = fullBitmask;
     { static int sPrevStamped = -1; if (fullBitmask != sPrevStamped) { sPrevStamped = fullBitmask; gLastInputChangeUs.store((int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count()); } }
+    {
+        static int sPrevProbe = 0;
+        const int probe = (fullBitmask & (int)kDsBtnA) | (touchHeld ? 0x80000000 : 0);
+        static int sLatLog = -1;
+        if (sLatLog < 0) sLatLog = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+        if (sLatLog && (probe & ~sPrevProbe) != 0)
+            ALOGI("touchlat: apply A=%d touch=%d producer=%u flip=%d host=%lld us",
+                  (fullBitmask & (int)kDsBtnA) ? 1 : 0, touchHeld ? 1 : 0, producerFrameCount(),
+                  drmAhbFlipCount(), (long long)(elapsedRealtimeNano() / 1000));
+        sPrevProbe = probe;
+    }
     mUpdateInput(mFakeEnv, mFakeCls, fullBitmask, touchPacked, 0);
     // Live input latch (live_input, default on): drastic copies the JNI input
     // words into the block the emulated KEYINPUT/touch reads come from

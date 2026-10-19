@@ -532,6 +532,11 @@ public:
         bool valid() const { return base != nullptr; }
     };
     DsMainRam dsMainRam();
+    uint32_t dsFrameCounter();
+    void probeUpload();
+    void dumpUploadProbe();
+    int64_t lastUploadFrameDoneUs();
+    void noteKernelLateFlip(int64_t gpuToVblankUs);
 
     // DS ARM9 Data TCM (16 KB). Some RetroAchievements DS sets read DTCM (the
     // RetroAchievements address space flattens it to 0x1000000..0x1003FFF).

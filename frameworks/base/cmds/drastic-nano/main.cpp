@@ -1322,6 +1322,8 @@ static bool shotRequested() {
 // difference from the frame captured at the press. The first frame whose
 // difference jumps is where the press became visible: compare the frame
 // index with run-ahead off and on to see the frame(s) run-ahead removes.
+static int64_t gSlotFrameDoneUs[8] = {0};       // per ring slot: frame-done time of the frame it holds
+static uint32_t gSlotProducer[8] = {0};         // per ring slot: producer frame count it holds (hitch probe)
 static std::atomic<bool> gLatPressEdge{false};   // set by the scripted input on a 0 -> 1 press
 static int gLatCount = 0;                        // captures taken since arming (rolling)
 static int gLatPressIdx = -1;                    // capture index of the press frame
@@ -2675,8 +2677,14 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // With pacing on, the emulator started this frame at our last flip's
         // vblank; wait (bounded) for it to finish so the upload below carries
         // the frame it just produced instead of the one before.
-        const bool vblPace = android::sDrmLowLatency && android::sDrmAfbcMode &&
+        // pace_prime=1 extends the lock to the PRIME ring path (Duo Lite): the
+        // pacer hooks install there too, only the producer wait was AFBC-gated.
+        static int sPacePrime = -1;
+        if (sPacePrime < 0) sPacePrime = property_get_int32("sys.gammaos.drastic_nano.pace_prime", hasDualDisplay ? 1 : 0);
+        const bool vblPace = android::sDrmLowLatency && (android::sDrmAfbcMode || sPacePrime) &&
                              tripleBuffer && !flipFirst;
+        static int64_t gItWakeUs = 0, gItProdUs = 0;   // step times of this iteration (miss diagnostics)
+        gItWakeUs = android::elapsedRealtimeNano() / 1000;
         dr->setVblankPacing(vblPace);
         // With the overlay menu open the emulator is paused and produces nothing:
         // waiting here burned the whole timeout every frame and held the menu at
@@ -2688,6 +2696,39 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             if (!dr->waitProducerFrame(property_get_int32(
                         "sys.gammaos.drastic_nano.pace_wait_us", 10000)))
                 dr->reportFrameMiss(1); // producer wait timed out
+        }
+        gItProdUs = android::elapsedRealtimeNano() / 1000;
+        // Late-frame wait (free-running mode at present age 0, the RP Duo Lite default): the
+        // presenter samples the newest emulated frame right after the vblank. When the emulator
+        // runs at exactly the panel rate its frames can finish a moment after that instant for
+        // tens of seconds, so frames alternately re-show the old one and then skip (repeat + skip
+        // pairs on both panels). If nothing new has arrived since the last present, wait up to
+        // frame_wait_us for it: render, GPU and commit still fit before the next vblank. In
+        // steady state a new frame is always there and nothing waits.
+        {
+            static int sAgeDef = -2, sWaitUs = -1;
+            if (sAgeDef == -2) sAgeDef = property_get_int32("persist.gammaos.drastic_nano.present_age_default", -1);
+            if (sWaitUs < 0) sWaitUs = property_get_int32("sys.gammaos.drastic_nano.frame_wait_us", sAgeDef == 0 ? 6000 : 0);
+            static uint32_t sLastShown = 0; static uint32_t sWaits = 0, sCaught = 0; static int64_t sWaitLogUs = 0;
+            if (sWaitUs > 0 && !vblPace && !android::sDrmLowLatency && !overlay.isOpen() && tripleBuffer && !flipFirst) {
+                uint32_t pc = dr->producerFrameCount();
+                if (pc == sLastShown && pc != 0) {
+                    sWaits++;
+                    const int64_t t0 = android::elapsedRealtimeNano() / 1000;
+                    while (android::elapsedRealtimeNano() / 1000 - t0 < sWaitUs) {
+                        usleep(200);
+                        pc = dr->producerFrameCount();
+                        if (pc != sLastShown) { sCaught++; break; }
+                    }
+                }
+                sLastShown = pc;
+                const int64_t nowW = android::elapsedRealtimeNano() / 1000;
+                if (sWaitLogUs == 0) sWaitLogUs = nowW;
+                if (nowW - sWaitLogUs >= 60000000) {
+                    ALOGI("drastic-nano: late-frame wait: %u waits, %u frames caught in the last minute", sWaits, sCaught);
+                    sWaits = 0; sCaught = 0; sWaitLogUs = nowW;
+                }
+            }
         }
         const int renderIdx =
                 tripleBuffer ? android::sRingRenderIdx : 0;
@@ -3263,6 +3304,11 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // pass below, then clear the request. This way a single shot grabs both
         // DS panels, including the on-screen keyboard on the bottom screen.
         const bool wantShot = shotRequested();
+        static int sLatLog = -1;
+        if (sLatLog < 0) sLatLog = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+        if (wantShot && sLatLog)
+            ALOGI("touchlat: shot host=%lld us flip=%d producer=%u ds=%u", (long long)(android::elapsedRealtimeNano() / 1000), android::drmAhbFlipCount(), dr->producerFrameCount(), dr->dsFrameCounter());
+        if (wantShot && sLatLog) dr->dumpUploadProbe();
         if (wantShot)
             captureFboToPpm((int)primTgt.w, (int)primTgt.h,
                             "/data/drastic_nano_shot.ppm");
@@ -3441,6 +3487,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             } else {
                 glFlush();
             }
+            // Frame-done time of the emulated frame this slot holds (VISLAT probe):
+            // the slot is presented `age` iterations later, not this one.
+            gSlotFrameDoneUs[renderIdx % 8] = dr->lastUploadFrameDoneUs();
+            gSlotProducer[renderIdx % 8] = dr->producerFrameCount();
             android::sRingRenderIdx =
                     (renderIdx + 1) % ringDepth;
             // Bootstrap: first two iterations render only, don't
@@ -3486,7 +3536,14 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     int age = android::sDrmLowLatency ? 0 : (sAdaptOn ? sAdaptAge : 2);
                     {
                         // present_age overrides for experiments; -1/unset
-                        // keeps the default.
+                        // keeps the default. persist present_age_default sets a
+                        // device default outside Low Latency Mode (RP Duo Lite: 0,
+                        // measured 20 ms less on the DSI and 10-13 ms less on the
+                        // DP than age 1, with the same smoothness in Sonic Rush
+                        // and Zelda; the vblank lock itself stutters there).
+                        static int sAgeDefault = -2;
+                        if (sAgeDefault == -2) sAgeDefault = property_get_int32("persist.gammaos.drastic_nano.present_age_default", -1);
+                        if (!android::sDrmLowLatency && sAgeDefault >= 0 && sAgeDefault < D) age = sAgeDefault;
                         int a = property_get_int32(
                                 "sys.gammaos.drastic_nano.present_age", -1);
                         if (a >= 0 && a < D) age = a;
@@ -3518,7 +3575,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         if (w > sStgWorkMaxNs) sStgWorkMaxNs = w;
                     }
                     android::drmSetPacerLocked(dr->vblankPacingActive());
-                    android::drmFlipRingSlot(presentIdx, false);
+                    // Diagnostic: sys.gammaos.drastic_nano.skip_secondary=1 leaves the
+                    // secondary CRTC untouched, to tell whether its commit delays the primary's.
+                    static int sSkipSec = -1;
+                    if (sSkipSec < 0) sSkipSec = property_get_int32("sys.gammaos.drastic_nano.skip_secondary", 0);
+                    android::drmNotePresentFrameDone(gSlotFrameDoneUs[presentIdx % 8]);
+                    android::drmNotePresentProducer(gSlotProducer[presentIdx % 8]);
+                    android::drmFlipRingSlot(presentIdx, sSkipSec == 1);
                     gpu3dNotePresent();
                     if (gLatCount > age) gLatFlipUs[(gLatCount - 1 - age) % kLatFrames] = android::elapsedRealtimeNano() / 1000;
                     // The flip returned on the vblank that latched it. A gap of
@@ -3528,9 +3591,31 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         static int64_t sPrevLatchUs = 0;
                         const int64_t v = android::sDrmLastVblankUs;
                         if (sPrevLatchUs > 0 && v - sPrevLatchUs > 25000) {
-                            dr->reportFrameMiss(2); // flip landed a vblank late
-                            if (sAdaptAge == 1) { static uint32_t n = 0; if (n++ < 20) ALOGW("drastic-nano: present age 1 -> 2 (flip missed a vblank)"); }
-                            sAdaptAge = 2; sCleanFlips = 0;
+                            // GPU done more than a period before the vblank this flip landed
+                            // on: the commit was in time and the kernel skipped a vblank. Not
+                            // the pacer's doing, so it must not back the lead off for it.
+                            const int64_t gd = android::drmLastGpuDoneUs();
+                            {
+                                static uint32_t n = 0;
+                                if (sLatLog && n++ < 30) ALOGW("PACE miss detail (us after the previous latch %lld): wake=%lld producer=%lld render=%lld gpudone=%lld landed=%lld",
+                                                    (long long)sPrevLatchUs, (long long)(gItWakeUs - sPrevLatchUs), (long long)(gItProdUs - sPrevLatchUs),
+                                                    (long long)(flipT0 / 1000 - sPrevLatchUs), (long long)(gd - sPrevLatchUs), (long long)(v - sPrevLatchUs));
+                            }
+                            if (gd > 0 && v - gd > 18000) dr->noteKernelLateFlip(v - gd);
+                            else dr->reportFrameMiss(2); // flip landed a vblank late
+                            // One isolated late flip must not change the depth: going to
+                            // age 2 repeats a frame and coming back 3 s later skips one,
+                            // two visible hitches for a single kernel-late flip (RP Duo
+                            // Lite, a few a minute). Step back only on a second late flip
+                            // within 10 s.
+                            static int64_t sPrevLateUs = 0;
+                            const bool repeated = sPrevLateUs > 0 && v - sPrevLateUs < 10000000;
+                            sPrevLateUs = v;
+                            if (repeated) {
+                                if (sAdaptAge == 1) { static uint32_t n = 0; if (n++ < 20) ALOGW("drastic-nano: present age 1 -> 2 (two late flips within 10 s)"); }
+                                sAdaptAge = 2;
+                            }
+                            sCleanFlips = 0;
                         } else if (sAdaptAge == 2 && ++sCleanFlips >= 180) {
                             sAdaptAge = 1; sCleanFlips = 0;
                             { static uint32_t n = 0; if (n++ < 20) ALOGW("drastic-nano: present age 2 -> 1 (180 clean flips)"); }

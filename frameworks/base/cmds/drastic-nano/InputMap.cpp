@@ -22,6 +22,7 @@
 #include <utils/SystemClock.h>
 
 #include "DrasticRunner.h"
+#include "NanoMenuDrm.h"
 #include "DrasticSettings.h"
 
 namespace android {
@@ -268,6 +269,12 @@ void drainTouch(InputState* st) {
     const int nodeH = ti < st->touchNodeH.size() ? st->touchNodeH[ti] : st->touchPanelH;
     while (read(touchFd, &ev, sizeof(ev)) == sizeof(ev)) {
         if (ev.type == EV_KEY && ev.code == BTN_TOUCH) {
+            static int sLatLog = -1;
+            if (sLatLog < 0) sLatLog = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+            if (ev.value != 0 && sLatLog)
+                ALOGI("touchlat: BTN_TOUCH down kernel=%lld us drained=%lld us flip=%d",
+                      (long long)ev.time.tv_sec * 1000000LL + ev.time.tv_usec,
+                      (long long)(android::elapsedRealtimeNano() / 1000), android::drmAhbFlipCount());
             st->touchHeld = (ev.value != 0);
             st->touchReal = (ev.value != 0);
             if (ev.value != 0) sUserInputSeen.store(true, std::memory_order_relaxed);
@@ -683,7 +690,11 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         else         st->dsBtnMask &= ~mask;
                     };
                     switch (ev.code) {
-                    case BTN_SOUTH:  bit(DrasticRunner::kDsBtnA);     break;
+                    case BTN_SOUTH:
+                        if (ev.value && property_get_int32("sys.gammaos.drastic_nano.lat_log", 0)) ALOGI("touchlat: BTN_SOUTH down kernel=%lld us drained=%lld us flip=%d",
+                                            (long long)ev.time.tv_sec * 1000000LL + ev.time.tv_usec,
+                                            (long long)(android::elapsedRealtimeNano() / 1000), android::drmAhbFlipCount());
+                        bit(DrasticRunner::kDsBtnA);     break;
                     case BTN_EAST:   bit(DrasticRunner::kDsBtnB);     break;
                     case BTN_NORTH:  bit(DrasticRunner::kDsBtnX);     break;
                     case BTN_WEST:   bit(DrasticRunner::kDsBtnY);     break;
