@@ -4104,7 +4104,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     }
                     {   // Render budget measurement (see the age choice above): at age 0 the flip waited
                         // on this frame's GPU fence, so GPU done minus render start is its render cost.
-                        static uint32_t sFitGen = 0xffffffffu; static int32_t sFitN[240]; static int sFitCount = 0;
+                        static uint32_t sFitGen = 0xffffffffu; static int32_t sFitN[240], sFitOff[240]; static int sFitCount = 0;
                         const uint32_t gen = dr->shaderGeneration();
                         if (gen != sFitGen) {
                             if (gRenderFitAge != 0) ALOGI("drastic-nano: render budget: shader or texture size changed, back to age 0");
@@ -4113,12 +4113,18 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                         const int64_t gd = android::drmLastGpuDoneUs();
                         const int perF = (int)android::drmPanelPeriodUs(0);
                         if (age == 0 && gRenderFitAge == 0 && gd > sRdMonoUs && gd - sRdMonoUs < 100000 && perF > 10000) {
+                            // Render start after the vblank: the usual pickup point, not one delayed by a
+                            // late-frame wait (one such sample read 6.5 ms and sent a Black 2 session
+                            // without a shader to age 1 for nothing): the 10th percentile of the window.
+                            const int64_t vb = android::drmVblankAtOrBeforeUs(0, sRdMonoUs);
                             sFitN[sFitCount % 240] = (int32_t)(gd - sRdMonoUs);
+                            sFitOff[sFitCount % 240] = vb > 0 && sRdMonoUs - vb < perF / 2 ? (int32_t)(sRdMonoUs - vb) : 0;
                             if (++sFitCount >= 240 && sFitCount % 60 == 0) {
                                 int32_t t[240]; std::copy(sFitN, sFitN + 240, t);
                                 std::nth_element(t, t + 237, t + 240);
-                                const int64_t vb = android::drmVblankAtOrBeforeUs(0, sRdMonoUs);
-                                const int off = vb > 0 && sRdMonoUs - vb < perF / 2 ? (int)(sRdMonoUs - vb) : 0;
+                                int32_t o[240]; std::copy(sFitOff, sFitOff + 240, o);
+                                std::nth_element(o, o + 24, o + 240);
+                                const int off = o[24];
                                 if (t[237] + off + 2500 > perF) {
                                     gRenderFitAge = 1;
                                     ALOGI("drastic-nano: render budget: render-to-GPU-done p99 %d us does not fit the period (%d us after the vblank, 2500 guard): presenting at age 1",
