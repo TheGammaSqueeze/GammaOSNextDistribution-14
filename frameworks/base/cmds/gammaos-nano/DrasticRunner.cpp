@@ -3488,6 +3488,8 @@ static void noteFrameLateness(int64_t nowUs) {
         if (dev > per - 2000) dev = 0;                             // early (more slack than usual), not late
     }
     if (dev > 40000) return;
+    static int32_t sMaxWake = 0, sMaxEmu = 0;   // the two parts of the worst lateness, for the LATENESS log
+    if (own) { sMaxWake = std::max(sMaxWake, wakeLate); sMaxEmu = std::max(sMaxEmu, std::max<int32_t>(0, sample - sBase)); }
     const uint32_t i = gLateRingN.fetch_add(1, std::memory_order_relaxed);
     gLateRing[i % kLateRing].store((int32_t)(dev > 0 ? dev : 0), std::memory_order_relaxed);
     // lat_log >= 1: lateness percentiles every 600 frames (10 s).
@@ -3497,9 +3499,11 @@ static void noteFrameLateness(int64_t nowUs) {
         int32_t v[600];
         for (int k = 0; k < 600; k++) v[k] = gLateRing[(i - k) % kLateRing].load(std::memory_order_relaxed);
         std::sort(v, v + 600);
-        ALOGI("LATENESS 10 s: p50 %d p90 %d p99 %d p99.8 %d max %d us, over 4 ms %d, over 8 ms %d",
+        ALOGI("LATENESS 10 s: p50 %d p90 %d p99 %d p99.8 %d max %d us, over 4 ms %d, over 8 ms %d; worst late wake %d us, worst extra emulation %d us",
               v[300], v[540], v[594], v[598], v[599],
-              (int)(v + 600 - std::upper_bound(v, v + 600, 4000)), (int)(v + 600 - std::upper_bound(v, v + 600, 8000)));
+              (int)(v + 600 - std::upper_bound(v, v + 600, 4000)), (int)(v + 600 - std::upper_bound(v, v + 600, 8000)),
+              sMaxWake, sMaxEmu);
+        sMaxWake = 0; sMaxEmu = 0;
     }
 }
 int32_t frameLatenessMaxUsImpl(int frames) {
