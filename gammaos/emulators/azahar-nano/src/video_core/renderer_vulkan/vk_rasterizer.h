@@ -198,6 +198,15 @@ private:
     u32 stereo_right_w = 0, stereo_right_h = 0; // size of the right eye target        // GammaOS: last surface transferred to a left framebuffer
     bool eye_draws_after_left = false;
     bool RightEyeSkipAllowed() const;
+    /// GammaOS: memory a display transfer to the bottom screen read lately. Games often redraw
+    /// the bottom screen only when it changes, so a draw left out there stays missing.
+    struct ScreenSource {
+        PAddr start = 0, end = 0;
+        u32 frame = 0;
+    };
+    std::array<ScreenSource, 4> bottom_sources{};
+    void NoteBottomScreenSource(const Pica::DisplayTransferConfig& config);
+    bool DrawFeedsBottomScreen() const;
     bool OnDisplayTransferEye(const Pica::DisplayTransferConfig& config);   // false = skip it
     TextureRuntime runtime;
     RasterizerCache res_cache;

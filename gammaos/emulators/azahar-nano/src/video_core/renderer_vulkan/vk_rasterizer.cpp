@@ -819,6 +819,16 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                 const u32 verts = regs.pipeline.num_vertices;
                 bool sw_ready = pipeline_cache.BindPipeline(sw_info, false);
                 hybrid_baked = false;
+                // A draw for the bottom screen is never left out (see DrawFeedsBottomScreen): it
+                // waits for the software path pipeline (a trivial vertex shader, much quicker to
+                // build than the full one, which keeps building in the background) and is not
+                // held back by the vertex budget.
+                const bool over_budget = fallback_vertices_this_frame + verts > budget;
+                const bool keep = (!sw_ready || over_budget) && DrawFeedsBottomScreen();
+                if (keep && !sw_ready) {
+                    SlowStep t{"BindPipeline sw wait (bottom screen)"};
+                    sw_ready = pipeline_cache.BindPipeline(sw_info, true);
+                }
                 if (!sw_ready) {
                     // A precompiled baked shader (combiner compiled in, the rest dynamic)
                     // can draw this now; its pipeline for a new state builds quickly.
@@ -845,7 +855,7 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
                     }
                 }
                 bool skip = !sw_ready || (HybridDebugBits() & 16384);
-                if (!skip && fallback_vertices_this_frame + verts > budget) {
+                if (!skip && !keep && over_budget) {
                     // Over budget: hold this pipeline back. The budget is strict by default:
                     // forcing held draws through after a few frames (fallback_hold=N) let a
                     // cold cache burst stretch frames to 40 fps for ~20 s, while a strict
@@ -876,7 +886,8 @@ bool RasterizerVulkan::AccelerateDrawBatchInternal(bool is_indexed) {
     } else {
         const bool wait_built =
             !async_shaders || (!async_small && regs.pipeline.num_vertices <= 6);
-        if (!pipeline_cache.BindPipeline(pipeline_info, wait_built)) {
+        if (!pipeline_cache.BindPipeline(pipeline_info, wait_built) &&
+            !(DrawFeedsBottomScreen() && pipeline_cache.BindPipeline(pipeline_info, true))) {
             return true;
         }
     }
@@ -1352,7 +1363,8 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         } else if (!Settings::values.gammaos_hybrid_uber) {
             // Skip mode: draw once the fast software path pipeline is built (it builds in
             // the background, about 55 ms); until then this draw is left out.
-            if (!pipeline_cache.BindPipeline(pipeline_info, false)) {
+            if (!pipeline_cache.BindPipeline(pipeline_info, false) &&
+                !(DrawFeedsBottomScreen() && pipeline_cache.BindPipeline(pipeline_info, true))) {
                 if (hybrid_baked) {
                     u32 variant_key = 0;
                     std::array<u32, 16> pack{};
@@ -1805,7 +1817,72 @@ bool RasterizerVulkan::OnDisplayTransferEye(const Pica::DisplayTransferConfig& c
     return true;
 }
 
+void RasterizerVulkan::NoteBottomScreenSource(const Pica::DisplayTransferConfig& config) {
+    if (config.output_width.Value() != 240 || config.output_height.Value() != 320) {
+        return;
+    }
+    const PAddr start = config.GetPhysicalInputAddress();
+    const PAddr end = start + config.input_width.Value() * config.output_height.Value() *
+                                  Pica::BytesPerPixel(config.input_format);
+    ScreenSource* slot = &bottom_sources[0];
+    for (auto& src : bottom_sources) {
+        if (src.start == start && src.end == end) {
+            slot = &src;
+            break;
+        }
+        if (src.frame < slot->frame) {
+            slot = &src;
+        }
+    }
+    *slot = {start, end, frame_index};
+}
+
+// GammaOS: a draw whose viewport lies inside memory a recent display transfer to the bottom screen
+// read from. Such a draw is never left out while its pipeline compiles: Kirby: Planet Robobot draws
+// its bottom screen into the lower part of the target its 3D scene uses and redraws it only when it
+// changes, so with a cold cache the last update before it went static could miss its draws and the
+// bottom screen kept the 3D scene under it until the next change. The scene's own full-target pass
+// is not inside that memory and keeps the fallback. Waiting only costs when the pipeline is new.
+bool RasterizerVulkan::DrawFeedsBottomScreen() const {
+    const auto& config = regs.framebuffer.framebuffer;
+    const PAddr color = config.GetColorBufferPhysicalAddress();
+    if (color == 0) {
+        return false;
+    }
+    bool any = false;
+    for (const auto& src : bottom_sources) {
+        any |= src.end != 0 && frame_index - src.frame < 600;
+    }
+    if (!any) {
+        return false;
+    }
+    const s32 width = config.GetWidth(), height = config.GetHeight();
+    const auto vp = regs.rasterizer.GetViewportRect();
+    VideoCore::SurfaceParams params;
+    params.is_tiled = true;
+    params.width = width;
+    params.height = height;
+    params.addr = color;
+    params.pixel_format = VideoCore::PixelFormatFromColorFormat(config.color_format);
+    params.UpdateParams();
+    const auto interval = params.GetSubRectInterval({
+        static_cast<u32>(std::clamp(vp.left, 0, width)),
+        static_cast<u32>(std::clamp(vp.top, 0, height)),
+        static_cast<u32>(std::clamp(vp.right, 0, width)),
+        static_cast<u32>(std::clamp(vp.bottom, 0, height)),
+    });
+    const PAddr first = static_cast<PAddr>(boost::icl::first(interval));
+    const PAddr last = first + static_cast<PAddr>(boost::icl::length(interval));
+    for (const auto& src : bottom_sources) {
+        if (src.end != 0 && frame_index - src.frame < 600 && first >= src.start && last <= src.end) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool RasterizerVulkan::AccelerateDisplayTransfer(const Pica::DisplayTransferConfig& config) {
+    NoteBottomScreenSource(config);
     if (!OnDisplayTransferEye(config)) {
         return true;
     }
