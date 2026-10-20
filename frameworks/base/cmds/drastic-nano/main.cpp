@@ -1361,8 +1361,9 @@ struct FinishLock {
 // instead (right after the DSI's vblank, which is then well clear of the DP's), so it always lands on
 // the same DP vblank; back to flipping at once when the closest 1% are 6.5 ms clear. The presenter
 // never waits for it (a version that slept to the DP vblank cost the top panel 3 hitches a minute).
-// Opt-in (sys.gammaos.drastic_nano.sec_hold=1) until a drift window shows it pays: in the windows
-// measured since, the bottom panel stayed at 0.5 hitches a minute with it on and off alike.
+// Measured in such a window (White 2 title): bottom panel 23.8 holds and 25.3 skips a minute off,
+// 0 and 1.0 on, top panel unchanged; outside those windows it does not engage.
+// sys.gammaos.drastic_nano.sec_hold=0 disables it.
 static bool gSecHold = false;
 static int gSecHeldIdx = -1;   // slot whose bottom flip waits for the next iteration
 static void flushSecHold() {
@@ -1370,7 +1371,13 @@ static void flushSecHold() {
 }
 static void flipRingSlotSecHold(int idx) {
     static int sOn = -1;
-    if (sOn < 0) sOn = property_get_int32("sys.gammaos.drastic_nano.sec_hold", 0);
+    if (sOn < 0) {
+        // Independent DSI + DP flips only (the RP Duo Lite's PRIME path, vendor present_age_default 0):
+        // on the RG DS line's AFBC path both panels flip together, and splitting them there left
+        // every flip EBUSY.
+        const int ageDef = property_get_int32("persist.gammaos.drastic_nano.present_age_default", -1);
+        sOn = (android::sDrmAfbcMode || ageDef != 0) ? 0 : property_get_int32("sys.gammaos.drastic_nano.sec_hold", 1);
+    }
     if (sOn <= 0 || android::sDrmDisplays.size() < 2) { flushSecHold(); android::drmFlipRingSlot(idx, false); return; }
     flushSecHold();
     android::drmFlipRingSlot(idx, true);   // the primary first (this waits on the frame's GPU fence)

@@ -3008,6 +3008,22 @@ static inline bool foOn() {
     if (sFoTrace < 0) sFoTrace = property_get_int32("sys.gammaos.drastic_nano.frame_order_trace", 0);
     return sFoTrace > 0;
 }
+// Waiting for 3D bands: spinning on sched_yield kept the emulator on its big core for the whole wait,
+// and during the late frames of Pokemon White 2's title the rasterizer workers sat runnable 5 to 18 ms
+// each while the other big cores were idle 1.6 cores' worth (sched trace, RP Duo Lite). The wait now
+// sleeps sys.gammaos.drastic_nano.t3d_wait_sleep_us per poll, which gives the core up so the workers
+// get it: White 2's title p99 frame lateness 21.5 -> 6.2 ms on the Duo Lite. Default 50 there; on the
+// RG DS Plus (four A55 cores, all busy) it halved White 2's holds but made Sonic Rush's worse (mean 51
+// against 29 a minute over three pairs), so the RG DS line keeps the sched_yield spin (0).
+static inline void t3dWaitPause() {
+    static int sSleepUs = -1, sDefault = -1; static uint32_t sReads = 0;
+    if (sDefault < 0)   // the RP Duo Lite (vendor present_age_default 0); the RG DS Plus measured worse with it
+        sDefault = property_get_int32("persist.gammaos.drastic_nano.present_age_default", -1) == 0 ? 50 : 0;
+    if (sSleepUs < 0 || (++sReads & 1023) == 0)
+        sSleepUs = property_get_int32("sys.gammaos.drastic_nano.t3d_wait_sleep_us", sDefault);
+    if (sSleepUs > 0) usleep((useconds_t)sSleepUs);
+    else sched_yield();
+}
 extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
     if (last > 191 || !gT3dBase) return;                       // vblank-issued compose
     uint8_t* render = engA - 0x2e78;
@@ -3054,7 +3070,7 @@ extern "C" void t3dComposeHook(uint8_t* engA, unsigned first, unsigned last) {
             if (!*work && !*busy && !__atomic_load_n(&gGpu3dPendingStorage, __ATOMIC_ACQUIRE)) { if (!waited) gT3dPipe.idleSkips++; break; }
             waited = true;
             if (t3dNowUs() - t0 > 40000) { gT3dPipe.timeouts++; gpu3dStallReport(__atomic_load_n(&gT3dBandMaskStorage, __ATOMIC_ACQUIRE), __atomic_load_n(&gGpu3dPendingStorage, __ATOMIC_ACQUIRE)); break; }
-            sched_yield();
+            t3dWaitPause();
         }
         if (waited) {
             const int64_t w = t3dNowUs() - t0;
