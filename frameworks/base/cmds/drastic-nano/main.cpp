@@ -659,6 +659,48 @@ void setRtThrottleForFf(bool ffActive) {
     }
 }
 
+// Qualcomm core_ctl pauses cores of a cluster it judges idle (down to min_cpus). On the RP
+// Duo Lite it kept 2 of the 4 big cores paused most of the time during play, and the emulator
+// then sat runnable 5-11 ms behind the 3D workers: 16-21 ms late frames on the Pokemon White 2
+// title. For the session every cluster keeps all its cores (min_cpus = max_cpus), like deep
+// idle above; the prior values come back on exit and around sleep.
+// sys.gammaos.drastic_nano.core_ctl_hold=0 leaves core_ctl alone.
+static int sSavedCoreCtlMin[kMaxCpus];
+static bool sCoreCtlHeld = false;
+
+static void holdClusterCores() {
+    if (sCoreCtlHeld || property_get_int32("sys.gammaos.drastic_nano.core_ctl_hold", 1) <= 0) return;
+    int held = 0;
+    for (int cpu = 0; cpu < kMaxCpus; cpu++) {
+        sSavedCoreCtlMin[cpu] = -1;
+        char minPath[80], maxPath[80];
+        snprintf(minPath, sizeof(minPath), "/sys/devices/system/cpu/cpu%d/core_ctl/min_cpus", cpu);
+        snprintf(maxPath, sizeof(maxPath), "/sys/devices/system/cpu/cpu%d/core_ctl/max_cpus", cpu);
+        const long mn = readLongFile(minPath, -1), mx = readLongFile(maxPath, -1);
+        if (mn < 0 || mx <= mn) continue;   // no core_ctl on this cpu, or nothing to hold
+        if (!writeLongFile(minPath, mx)) {
+            ALOGW("drastic-nano: core_ctl cpu%d min_cpus write failed: %s", cpu, strerror(errno));
+            continue;
+        }
+        sSavedCoreCtlMin[cpu] = (int)mn;
+        held++;
+        ALOGI("drastic-nano: core_ctl cluster of cpu%d keeps all %ld cores (min_cpus %ld -> %ld)", cpu, mx, mn, mx);
+    }
+    sCoreCtlHeld = held > 0;
+}
+
+static void releaseClusterCores() {
+    if (!sCoreCtlHeld) return;
+    for (int cpu = 0; cpu < kMaxCpus; cpu++) {
+        if (sSavedCoreCtlMin[cpu] < 0) continue;
+        char minPath[80];
+        snprintf(minPath, sizeof(minPath), "/sys/devices/system/cpu/cpu%d/core_ctl/min_cpus", cpu);
+        writeLongFile(minPath, sSavedCoreCtlMin[cpu]);
+        sSavedCoreCtlMin[cpu] = -1;
+    }
+    sCoreCtlHeld = false;
+}
+
 // Disable the deep cpu-sleep idle state (state1) on every CPU so
 // that thread migrations do not pay the ~220 us wake latency. The
 // shallow WFI state (state0, 1 us) stays enabled. Saves the prior
@@ -694,12 +736,14 @@ void disableDeepCpuIdle() {
     }
     ALOGI("drastic-nano: cpu-sleep disabled on %d core(s)",
           sSavedCpuCount);
+    holdClusterCores();
 }
 
 // Restore cpu-sleep to whatever it was before disableDeepCpuIdle()
 // ran. Called from the exit path so leaving the binary doesn't
 // permanently kill deep idle (battery impact in the menu).
 void restoreDeepCpuIdle() {
+    releaseClusterCores();
     for (int cpu = 0; cpu < sSavedCpuCount; cpu++) {
         char path[96];
         snprintf(path, sizeof(path),
