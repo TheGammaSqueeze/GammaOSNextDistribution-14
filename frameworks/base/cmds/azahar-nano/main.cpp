@@ -54,6 +54,7 @@
 #include "Hud.h"
 #include "Brightness.h"
 #include "../gammaos-nano/NanoBacklight.h"
+#include "NanoSessionHw.h"
 #include <sys/system_properties.h>
 #include "GpuDriverPkg.h"
 
@@ -237,6 +238,8 @@ struct sigaction gPrevCrashAction[NSIG];
 void crashCleanup(int sig, siginfo_t* info, void* ctx) {
     ALOGE("crash signal %d (code %d, addr %p) on thread %d, returning to the home", sig,
           info ? info->si_code : 0, info ? info->si_addr : nullptr, gettid());
+    android::nano_session_hw::releaseClusterCores();
+    android::nano_session_hw::dpClkRestore();
     sessionDone();
     // Hand the original signal to debuggerd's handler so the tombstone shows the
     // real fault (re-raising would record our own tgkill instead).
@@ -775,7 +778,11 @@ int main(int argc, char** argv) {
           backend.c_str());
 
     retriggerPowerProfile();
+    // Every core online for the session (NanoSessionHw.h): with 2 of the 4 big cores paused by
+    // core_ctl the emulation thread waited behind its own workers.
+    android::nano_session_hw::holdClusterCores("sys.gammaos.azahar_nano.core_ctl_hold");
     if (!loadCore(coreLib)) {
+        android::nano_session_hw::releaseClusterCores();
         sessionDone();
         return 1;
     }
@@ -789,6 +796,7 @@ int main(int argc, char** argv) {
     mkdir(userDir.c_str(), 0775);
     if (gCore.init(userDir.c_str(), &cb) != AZN_OK) {
         ALOGE("core init failed");
+        android::nano_session_hw::releaseClusterCores();
         sessionDone();
         return 1;
     }
@@ -908,6 +916,7 @@ int main(int argc, char** argv) {
     const bool drmActive = useDrm && drm.count() > 0;
     if (panels == 0) {
         ALOGE("no panels");
+        android::nano_session_hw::releaseClusterCores();
         sessionDone();
         return 1;
     }
@@ -1213,11 +1222,14 @@ int main(int argc, char** argv) {
                         prop("persist.gammaos.azahar_nano.sleep_sink_swap", "0") == "1";
                 if (sinkSwapped) gCore.sleep(true);
                 android::nanobl::nanoBacklightSet(0);
+                android::nano_session_hw::releaseClusterCores();   // the cores may sleep with the device
+                android::nano_session_hw::dpClkRestore();
                 ALOGI("sleep: screen off, core %s, backlights off",
                       pausedForSleep ? "paused" : "left as the menu has it");
             } else if (!off && asleep) {
                 asleep = false;
                 android::nanobl::nanoBacklightSet(azahar_nano::brightnessLevel());
+                android::nano_session_hw::holdClusterCores("sys.gammaos.azahar_nano.core_ctl_hold");
                 if (sinkSwapped) gCore.sleep(false);
                 sinkSwapped = false;
                 if (pausedForSleep) {
@@ -1304,51 +1316,130 @@ int main(int argc, char** argv) {
             // per vblank, so no frame is dropped or repeated every few seconds.
             if (sDrm && sPaceToPanel) {
                 const double periodNs = sDrm->measuredPeriodNs(0);
-                // Timing steer (persist.gammaos.azahar_nano.pace_offset, default off): the rate
+                // Timing steer (persist.gammaos.azahar_nano.pace_offset, off unless the device turns it
+                // on: the RP Duo Lite vendor sets 1): the rate
                 // match above keeps one emulated frame per vblank but leaves the vblank offset where it
                 // happens to be, so a finished frame waited 0 to 16 ms (8 to 11 ms median) for
-                // its vblank. Trim the scale by at most pace_offset_max_ppm (3000 = 3 ms of offset
-                // a second) until the median ready -> scanout wait sits at the target. A wait
-                // over one period means the frame missed its vblank: count it as too tight
-                // (wrap the error) and raise the target by 1 ms when more than 3% miss; relax
-                // it 0.5 ms after 30 clean seconds.
-                static int sOffsetOn = -1, sMaxPpm = 3000;
+                // its vblank. Trim the scale by at most pace_offset_max_ppm (10000 = 10 ms of offset
+                // a second, quick enough to win back a stall within 2 s; audio stretching covers the
+                // brief speed change) until the median ready -> scanout wait sits at the target
+                // (pace_offset_target_us, 7000 to start, adapted below).
+                static int sOffsetOn = -1, sMaxPpm = 10000;
                 static double sTargetUs = -1.0;
                 static int sCleanSecs = 0;
                 static std::vector<int32_t> sWaits;
                 if (sOffsetOn < 0) {
                     sOffsetOn = prop("persist.gammaos.azahar_nano.pace_offset", "0") == "1" ? 1 : 0;
-                    sMaxPpm = atoi(prop("persist.gammaos.azahar_nano.pace_offset_max_ppm", "3000").c_str());
-                    sTargetUs = atof(prop("persist.gammaos.azahar_nano.pace_offset_target_us", "8000").c_str());
+                    sMaxPpm = atoi(prop("persist.gammaos.azahar_nano.pace_offset_max_ppm", "10000").c_str());
+                    sTargetUs = atof(prop("persist.gammaos.azahar_nano.pace_offset_target_us", "7000").c_str());
                 }
                 double steer = 0.0;
                 sDrm->takeReadyWaits(0, sWaits);
+                static std::vector<int32_t> sWaits1;   // the bottom panel's, this second
+                {
+                    // Every 10 s per panel: how long shown frames waited between their GPU fence and
+                    // the scanout (p10/p50/p90, the frame-ready-to-visible latency the presenter adds)
+                    // and the flip gaps over 20 ms (a repeated frame).
+                    static std::vector<int32_t> sWin[2];
+                    static uint64_t sWinGaps[2] = {0, 0};
+                    static int sWinSecs = 0;
+                    sWin[0].insert(sWin[0].end(), sWaits.begin(), sWaits.end());
+                    if (sDrm->count() > 1) {
+                        sWaits1.clear();
+                        sDrm->takeReadyWaits(1, sWaits1);
+                        sWin[1].insert(sWin[1].end(), sWaits1.begin(), sWaits1.end());
+                    }
+                    if (++sWinSecs >= 10) {
+                        sWinSecs = 0;
+                        for (int k = 0; k < sDrm->count() && k < 2; k++) {
+                            std::vector<int32_t>& w = sWin[k];
+                            const uint64_t gaps = sDrm->longGapCount(k);
+                            if (!w.empty()) {
+                                std::sort(w.begin(), w.end());
+                                ALOGI("latency: panel %d ready->scanout p10 %d p50 %d p90 %d us (n=%zu), flip gaps over 20 ms %llu in 10 s",
+                                      k, w[w.size() / 10], w[w.size() / 2], w[w.size() * 9 / 10], w.size(),
+                                      (unsigned long long)(gaps - sWinGaps[k]));
+                            }
+                            sWinGaps[k] = gaps;
+                            w.clear();
+                        }
+                    }
+                }
+                {
+                    // DP phase lock (RP Duo Lite, NanoSessionHw.h): each panel flips a frame as soon as
+                    // it is ready, so a panel's ready -> scanout wait is set by where its vblank sits
+                    // after the frames finish. The DP's vblank drifts freely against the DSI's, which
+                    // put the bottom panel anywhere from level with the top to a whole period behind.
+                    // Trim the DP pixel clock until the bottom panel's median wait matches the top's:
+                    // both panels then show each frame together and the timing steer (pace_offset) shortens
+                    // both. A wait over a period is never wrapped, as in the timing steer: the bottom
+                    // panel is then a whole frame behind (each frame waits for the previous flip), and
+                    // only an earlier DP vblank carries it out of that (the wrapped version slowed the
+                    // DP instead and took ~40 s to settle on Mario Kart 7).
+                    // sys.gammaos.azahar_nano.dp_phase_lock=0 disables it.
+                    static int sDpLock = -1;
+                    namespace hw = android::nano_session_hw;
+                    if (sDpLock < 0 && sDrm->count() > 1) {
+                        sDpLock = prop("sys.gammaos.azahar_nano.dp_phase_lock", "1") == "1" && hw::dpClkReady() ? 1 : 0;
+                        if (sDpLock) ALOGI("DP phase lock on (DP pixel clock base %ld kHz)", hw::gDpClkBase);
+                    }
+                    if (sDpLock > 0 && periodNs > 0.0 && sWaits.size() >= 30 && sWaits1.size() >= 30) {
+                        std::vector<int32_t> top(sWaits), bot(sWaits1);
+                        std::nth_element(top.begin(), top.begin() + top.size() / 2, top.end());
+                        std::nth_element(bot.begin(), bot.begin() + bot.size() / 2, bot.end());
+                        const int t = top[top.size() / 2], b = bot[bot.size() / 2];
+                        const int err = b - t;   // > 0: the DP vblank must come earlier
+                        static hw::DpClkLock sClk;
+                        const int trim = sClk.step(err);
+                        hw::dpClkTrim(trim);
+                        static int sDpLog = 0;
+                        if (sDpLog++ % 10 == 0)
+                            ALOGI("DP phase lock: ready -> scanout median top %d bottom %d us, trim %+d kHz (clock %ld)",
+                                  t, b, trim, hw::gDpClkSet);
+                    }
+                }
                 const int fixedPpmNow = atoi(prop("sys.gammaos.azahar_nano.pace_offset_fixed_ppm", "0").c_str());
                 if ((sOffsetOn || fixedPpmNow != 0) && periodNs > 0.0 && sWaits.size() >= 30) {
                     // Measured on the RP Duo Lite (Kirby, fixed drift sweep): the wait is a
                     // sawtooth over the vblank offset, falling steadily from ~28 ms to a floor of ~4.5 ms
                     // (the presenter keeps one commit in flight) and jumping back up past it.
-                    // Above ~16 ms the frame sits just beyond that edge, so the short way back
-                    // is earlier; below it, later lowers the wait to the target. The target
-                    // rises 1 ms when the fastest frames (p10) get within 5 ms (edge risk) and
-                    // relaxes 0.5 ms after 30 clean seconds.
+                    // Later always lowers the wait: below a period straight to the target, above
+                    // it through one repeated frame (see the error below). The target
+                    // adapts to misses (below).
                     const double perUs = periodNs / 1000.0;
                     std::sort(sWaits.begin(), sWaits.end());
                     const double med = sWaits[sWaits.size() / 2];
-                    const double p10 = sWaits[sWaits.size() / 10];
                     size_t miss = 0;
                     for (int32_t w : sWaits) if (w > perUs) miss++;
-                    if (sTargetUs < 0) sTargetUs = 8000.0;
-                    if (med < perUs && p10 < 5000.0) {
+                    if (sTargetUs < 0) sTargetUs = 7000.0;
+                    // Misses decide the margin. A second with more than 2 frames past a period while the
+                    // lock holds (median within 1.5 ms of the target), or straight after a locked second
+                    // (the first miss puts every later frame a period behind, so that second no longer
+                    // reads as locked), means the tail crosses the edge: the target rises 1 ms, to 12 ms
+                    // at most. 60 clean locked seconds lower it 0.5 ms, to 6 ms at least. Seconds spent
+                    // steering (after a load or an emulator stall) say nothing about the margin, and
+                    // neither do the fastest frames: the shortest wait the panel allows is ~4.5-5 ms, so a
+                    // held lock always has a p10 near it (the older p10 < 5 ms rule pinned the target at
+                    // 12.5 ms). Measured on Mario Kart 7: at a fixed 6 ms target, GPU jitter crossed the
+                    // edge several times a minute, each a repeated frame.
+                    static bool sWasLocked = false;
+                    const bool locked = std::fabs(med - sTargetUs) < 1500.0;
+                    const bool tailMiss = miss > 2 && (locked || sWasLocked);
+                    sWasLocked = locked && miss <= 2;
+                    if (tailMiss) {
                         if (sTargetUs < 12000.0) sTargetUs += 1000.0;
                         sCleanSecs = 0;
-                    } else if (++sCleanSecs >= 30) {
+                    } else if (locked && miss == 0 && ++sCleanSecs >= 60) {
                         sCleanSecs = 0;
-                        if (sTargetUs > 7000.0) sTargetUs -= 500.0;
+                        if (sTargetUs > 6000.0) sTargetUs -= 500.0;
                     }
-                    double err;
-                    if (med > perUs) err = -(med - sTargetUs);   // past the edge: back to it, earlier
-                    else err = med - sTargetUs;                    // > 0 later, < 0 earlier
+                    // > 0: later, < 0: earlier. A wait over a period is never wrapped: it is a frame that
+                    // became ready while the previous flip was still in flight (one frame just missed its
+                    // vblank), and from then on every frame does the same, a whole period of extra latency
+                    // at any offset. Moving earlier keeps that state; moving later carries the frames past
+                    // the vblank, one repeated frame drops the extra period, and the wait then settles on
+                    // the target (the older wrap held Kirby at 20-31 ms waits, missed 60 of 60).
+                    const double err = med - sTargetUs;
                     steer = err / 2.0 / 1e6;
                     const double lim = sMaxPpm / 1e6;
                     if (steer > lim) steer = lim;
@@ -1360,14 +1451,20 @@ int main(int argc, char** argv) {
                     static uint64_t sLastGaps = 0;
                     const uint64_t gaps = sDrm->longGapCount(0);
                     static int sLog = 0;
-                    if (fixedPpm != 0 || sLog++ < 30 || sLog % 30 == 0)
+                    if (fixedPpm != 0 || sLog++ % 5 == 0)
                         ALOGI("pace offset: ready->scanout p10 %d p50 %.0f p90 %d us (n=%zu, missed %zu, gaps %llu), target %.0f, steer %+.0f ppm",
                               sWaits[sWaits.size() / 10], med, sWaits[sWaits.size() * 9 / 10], sWaits.size(), miss,
                               (unsigned long long)(gaps - sLastGaps), sTargetUs, steer * 1e6);
                     sLastGaps = gaps;
                 }
                 if (periodNs > 0.0) {
-                    const double scale = periodNs / (1e9 / 60.0) * (1.0 + steer);
+                    // The emulated frame is the 3DS's, 4481136 ARM11 cycles at 268111856 Hz (59.8261
+                    // a second), not a 60th of a second: scaling by the panel period over 1/60 s left
+                    // the emulator at 59.83 frames a second on a 60.000 Hz panel, a repeated frame
+                    // every ~6 s (10-14 flip gaps a minute in Kirby and Mario Kart 7 on the RP Duo
+                    // Lite). Audio stretching absorbs the 0.29% speed-up.
+                    constexpr double k3dsFrameNs = 1e9 * 4481136.0 / 268111856.0;
+                    const double scale = periodNs / k3dsFrameNs * (1.0 + steer);
                     if (std::fabs(scale - sPaceScale) > 2e-6) {
                         const bool logIt = steer == 0.0;
                         sPaceScale = scale;
@@ -1537,6 +1634,8 @@ int main(int argc, char** argv) {
     if (drmActive) drm.teardown();
     else sf.teardown();
     azahar_nano::settings::flush();
+    android::nano_session_hw::releaseClusterCores();
+    android::nano_session_hw::dpClkRestore();
     sessionDone();
     // Leave without running static destructors: a library thread can still be running at
     // this point (the core's audio backend, log and worker threads), and destroying a
