@@ -1139,6 +1139,39 @@ void DrmWindows::captureAll() {
 bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
     const uint32_t fb = importFb(p, item.mGraphicBuffer);
     if (!fb) return false;
+    {
+        // Debug: sys.gammaos.azahar_nano.probe_panel=<index> logs the mean colour of a 16x16 sample
+        // grid of every frame flipped to that panel (waits for the frame's fence and reads it on the
+        // CPU, so only for chasing a one-frame glitch).
+        static int sProbe = -1;
+        static int64_t sProbeRead = 0;
+        const int64_t nowNs = systemTime(SYSTEM_TIME_MONOTONIC);
+        if (nowNs - sProbeRead > 1000000000LL) {
+            sProbeRead = nowNs;
+            sProbe = property_get_int32("sys.gammaos.azahar_nano.probe_panel", -1);
+        }
+        if (sProbe >= 0 && sProbe < (int)mPanels.size() && &mPanels[sProbe] == &p) {
+            if (item.mFence != nullptr && item.mFence->isValid()) item.mFence->wait(100);
+            void* ptr = nullptr;
+            const sp<GraphicBuffer>& gb = item.mGraphicBuffer;
+            if (gb->lock(GRALLOC_USAGE_SW_READ_OFTEN, &ptr) == OK && ptr) {
+                const uint32_t w = gb->getWidth(), h = gb->getHeight(), stride = gb->getStride();
+                uint64_t sum[3] = {0, 0, 0};
+                for (uint32_t gy = 0; gy < 16; gy++) {
+                    for (uint32_t gx = 0; gx < 16; gx++) {
+                        const uint8_t* px = (const uint8_t*)ptr +
+                                ((size_t)(h * (2 * gy + 1) / 32) * stride + w * (2 * gx + 1) / 32) * 4;
+                        sum[0] += px[0]; sum[1] += px[1]; sum[2] += px[2];
+                    }
+                }
+                gb->unlock();
+                static uint64_t sN = 0;
+                ALOGI("probe: panel %d frame %llu buffer %" PRIu64 " mean %llu %llu %llu", sProbe,
+                      (unsigned long long)sN++, gb->getId(), (unsigned long long)(sum[0] / 256),
+                      (unsigned long long)(sum[1] / 256), (unsigned long long)(sum[2] / 256));
+            }
+        }
+    }
     drmModeAtomicReqPtr req = drmModeAtomicAlloc();
     const uint32_t w = item.mGraphicBuffer->getWidth();
     const uint32_t h = item.mGraphicBuffer->getHeight();
