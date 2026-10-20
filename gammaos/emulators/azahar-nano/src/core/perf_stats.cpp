@@ -291,13 +291,21 @@ void FrameLimiter::PaceBeforePresent(microseconds current_system_time_us) {
         g_pace_trace.sleeps++;
         g_pace_trace.sleep_us += duration_cast<microseconds>(Clock::now() - sleep_start).count();
     } else if (now > next_deadline + 2 * period) {
-        // Hopelessly behind (a load stall, a long frame): carry at most one period
-        // of debt so the following fast frames catch up without a sleep instead of
-        // dropping the time (which ran the game a few percent slow).
+        // Hopelessly behind (a load stall, a long frame; a frame or two late still catches
+        // up without a sleep above, since dropping that time ran the game a few percent slow):
+        // present this frame on the schedule's next slot and go on from there, with no carried
+        // debt, so the schedule keeps its offset against the display's vblank. Restarting the
+        // schedule from now and presenting the late frame at once put a frame in front of the
+        // presenter at a random point of the vblank period; when it missed its vblank, the next
+        // frame arrived with that flip still in flight and every frame after it waited a whole
+        // extra period until the frontend's timing steer won the offset back. Kirby on the RP
+        // Duo Lite (64-265 ms frames): frame ready to scanout p90 16.1-16.8 ms -> 13.6-13.8 ms.
+        // The skipped time is dropped (a few tens of ms per stall, absorbed by audio stretching).
         g_pace_trace.resets++;
-        g_pace_trace.dropped_us +=
-            duration_cast<microseconds>(now - period - next_deadline).count();
-        next_deadline = now - period;
+        const auto periods = (now - next_deadline) / period + 1;
+        g_pace_trace.dropped_us += duration_cast<microseconds>(periods * period).count();
+        next_deadline += periods * period;
+        std::this_thread::sleep_until(next_deadline);
     }
 }
 
