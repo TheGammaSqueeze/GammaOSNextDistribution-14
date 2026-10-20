@@ -62,6 +62,46 @@ bool processAlive(const char* comm) {
     return found;
 }
 
+// The pid of a running process with this comm, or -1 (one /proc walk).
+int findProcess(const char* comm) {
+    DIR* d = opendir("/proc");
+    if (!d) return -1;
+    int pid = -1;
+    struct dirent* e;
+    char path[64], buf[64];
+    while (pid < 0 && (e = readdir(d)) != nullptr) {
+        if (e->d_name[0] < '0' || e->d_name[0] > '9') continue;
+        snprintf(path, sizeof(path), "/proc/%s/comm", e->d_name);
+        FILE* f = fopen(path, "r");
+        if (!f) continue;
+        if (fgets(buf, sizeof(buf), f)) {
+            size_t n = strlen(buf);
+            while (n && (buf[n - 1] == '\n' || buf[n - 1] == '\r')) buf[--n] = 0;
+            if (strcmp(buf, comm) == 0) pid = atoi(e->d_name);
+        }
+        fclose(f);
+    }
+    closedir(d);
+    return pid;
+}
+
+// True while that pid still runs a process with this comm (a single /proc read).
+bool pidAlive(int pid, const char* comm) {
+    if (pid <= 0) return false;
+    char path[64], buf[64];
+    snprintf(path, sizeof(path), "/proc/%d/comm", pid);
+    FILE* f = fopen(path, "r");
+    if (!f) return false;
+    bool same = false;
+    if (fgets(buf, sizeof(buf), f)) {
+        size_t n = strlen(buf);
+        while (n && (buf[n - 1] == '\n' || buf[n - 1] == '\r')) buf[--n] = 0;
+        same = strcmp(buf, comm) == 0;
+    }
+    fclose(f);
+    return same;
+}
+
 // Block until the property holds `want` (or the timeout passes). Uses the
 // property serial wait so the parked render thread costs nothing while the
 // game runs.
@@ -197,12 +237,18 @@ bool NanoMenu::drasticParkSession() {
     if (!started) {
         ALOGE("NanoMenu: drastic-nano never asserted its session; waking the home");
     } else {
+        // The liveness check runs once a second for the whole session: walking all of /proc for it
+        // took 3-4 ms on a big core at this thread's SCHED_FIFO 80, preempting the emulator (seen in
+        // a scheduler trace of a Pokemon White 2 session on the RP Duo Lite). Find the pid once and
+        // then read only that pid's comm.
+        int gamePid = findProcess("drastic-nano");
         for (;;) {
             if (waitPropEquals("sys.gammaos.drastic_nano.session", "0", 1000)) {
                 ALOGI("NanoMenu: drastic-nano session ended (session_done)");
                 break;
             }
-            if (!processAlive("drastic-nano")) {
+            if (gamePid <= 0) gamePid = findProcess("drastic-nano");
+            if (!pidAlive(gamePid, "drastic-nano")) {
                 ALOGE("NanoMenu: drastic-nano is gone without session_done (killed); waking the home");
                 // Mirror what drastic-nano.rc does on session_done so a later
                 // launch starts from a clean slate.
