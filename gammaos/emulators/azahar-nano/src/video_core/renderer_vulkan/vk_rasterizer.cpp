@@ -1100,9 +1100,29 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
         vertex_batch.clear();
         return true;
     }
+    // Games render every screen into one target: Super Mario 3D Land draws the bottom screen into
+    // the lower 320 rows of the eyes' 240x400 target, now and then between the left and the right
+    // eye, and transfers it out from there. Only a draw with a viewport of the left-eye pass can be
+    // the right eye; any other is another screen's and is drawn (skipped, the bottom screen showed
+    // the bare clear colour for a frame, a blue flash, every time the skip relearned).
+    const auto& rr = regs.rasterizer;
+    const u64 vp_key = (u64(rr.viewport_size_x.Value()) << 40) ^ (u64(rr.viewport_size_y.Value()) << 16) ^
+                       (u64(rr.viewport_corner.x.Value()) << 10) ^ u64(rr.viewport_corner.y.Value());
+    if (RightEyeSkipAllowed()) {
+        const PAddr rt = regs.framebuffer.framebuffer.GetColorBufferPhysicalAddress();
+        const std::pair<PAddr, u64> e{rt, vp_key};
+        if (frame_viewports.size() < 64 &&
+            std::find(frame_viewports.begin(), frame_viewports.end(), e) == frame_viewports.end()) {
+            frame_viewports.push_back(e);
+        }
+    }
     if (eye_phase != EyePhase::Idle) {
         const PAddr rt = regs.framebuffer.framebuffer.GetColorBufferPhysicalAddress();
-        if (eye_phase == EyePhase::AfterLeft && rt == eye_rt) {
+        const bool eye_viewport =
+            std::find(eye_viewports.begin(), eye_viewports.end(), vp_key) != eye_viewports.end();
+        if (rt == eye_rt && !eye_viewport) {
+            // Another screen's pass in the eye target: draw it (its transfer ends the prediction).
+        } else if (eye_phase == EyePhase::AfterLeft && rt == eye_rt) {
             eye_draws_after_left = true;
             if (eye_learned && RightEyeSkipAllowed()) {
                 eye_phase = EyePhase::Skipping;
@@ -1663,6 +1683,15 @@ bool RasterizerVulkan::OnDisplayTransferEye(const Pica::DisplayTransferConfig& c
         stereo_right_rt = 0;
         return true;
     }
+    // The viewports of the pass this transfer ends (the draws into its source since the previous
+    // transfer); for the left eye they become the right eye's (see Draw).
+    std::vector<u64> pass_viewports;
+    for (const auto& [target, key] : frame_viewports) {
+        if (target == config.GetPhysicalInputAddress()) {
+            pass_viewports.push_back(key);
+        }
+    }
+    frame_viewports.clear();
     {
         // Debug: persist.gammaos.azahar_nano.transfer_log=1 logs every display transfer.
         static const bool tlog = [] {
@@ -1737,6 +1766,9 @@ bool RasterizerVulkan::OnDisplayTransferEye(const Pica::DisplayTransferConfig& c
     const bool is_top = config.output_width.Value() == 240 && config.output_height.Value() == 400;
     const bool pair_of_left = is_top && in == eye_rt &&
                               static_cast<s64>(out) == static_cast<s64>(eye_left_out) + d1;
+    if (eye_phase == EyePhase::Skipping && !is_top) {
+        return true;   // the other screen's image (drawn, see Draw) inside a right eye: keep skipping
+    }
     if (eye_phase == EyePhase::Skipping) {
         eye_phase = EyePhase::Idle;
         if (pair_of_left) {
@@ -1763,7 +1795,11 @@ bool RasterizerVulkan::OnDisplayTransferEye(const Pica::DisplayTransferConfig& c
         eye_rt = in;
         eye_left_out = out;
         eye_draws_after_left = false;
+        eye_viewports = std::move(pass_viewports);   // the left-eye pass
     } else {
+        // Another screen's image after the left eye: Super Mario 3D Land then draws no right eye
+        // in that frame, so the next eye-sized draws are the next frame's left eye. Stop predicting
+        // until the next left eye (waiting on skipped the left eye and flickered the top screen).
         eye_phase = EyePhase::Idle;
     }
     return true;

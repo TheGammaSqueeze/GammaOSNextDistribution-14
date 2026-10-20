@@ -188,6 +188,10 @@ private:
     std::unordered_map<u64, u32> budget_held_since; ///< pipeline hash -> first held frame ///< GammaOS: this software draw replaces a declined hw draw
     PAddr eye_rt = 0;               // render target of the left-eye transfer
     PAddr eye_left_out = 0;         // where the left-eye image went
+    /// GammaOS: viewports of the draws since the last display transfer, (target, viewport key)
+    /// pairs, and those of the left-eye pass: only a draw with one of them can be the right eye.
+    std::vector<std::pair<PAddr, u64>> frame_viewports;
+    std::vector<u64> eye_viewports;
     bool eye_learned = false;       // the pattern was seen in a previous frame
     PAddr stereo_right_rt = 0;      // GammaOS: right eye target of interleaved stereo games
     PAddr last_left_src = 0;
