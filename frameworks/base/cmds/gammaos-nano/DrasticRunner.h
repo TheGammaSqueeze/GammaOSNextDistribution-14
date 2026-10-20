@@ -419,7 +419,8 @@ public:
     // Bumped whenever the shader or the DS texture size changes (the presenter's render cost changes).
     uint32_t shaderGeneration() const { return mShaderGen.load(std::memory_order_relaxed); }
     // Worst frame lateness (us) over the last `frames` emulated frames, stalls past 40 ms excluded.
-    int32_t frameLatenessMaxUs(int frames);
+    // Samples above `ceilingUs` are left out (lateness no margin up to that ceiling could absorb).
+    int32_t frameLatenessMaxUs(int frames, int32_t ceilingUs = INT32_MAX);
     bool lastWaitWasImmediate() const { return mLastWaitImmediate; }
     void reportFrameMiss(int source);
     bool waitProducerFrame(int timeoutUs);

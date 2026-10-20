@@ -4071,7 +4071,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     // their slack, and a frame that emulates faster than usual still never finishes
                     // before the previous pickup (that read as a skip and a repeat, 8.7 a minute, at 13.7).
                     {
-                        static int sPickOn = -1, sPickWait = -1, sPickFixedM = -1; static FinishLock sPick;
+                        static int sPickOn = -1, sPickWait = -1, sPickFixedM = -1, sPickCeil = -1; static FinishLock sPick;
                         static double sPickOff = -1.0; static int64_t sPickLogUs = 0; static int sPickM = 0;
                         if (sPickOn < 0) {
                             // Default on where the device presents at age 0 with the late-frame wait (the
@@ -4083,6 +4083,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                                       property_get_int32("persist.gammaos.drastic_nano.pickup_lock", ageDef == 0 ? 1 : 0));
                             sPickWait = property_get_int32("sys.gammaos.drastic_nano.frame_wait_us", ageDef == 0 ? 6000 : 0);
                             sPickFixedM = property_get_int32("sys.gammaos.drastic_nano.pickup_lock_us", -1);
+                            sPickCeil = property_get_int32("sys.gammaos.drastic_nano.pickup_ceiling", 1);
                         }
                         const int per = (int)android::drmPanelPeriodUs(0);
                         if (sPickOn > 0 && age <= 1 && !vblPace && !android::sDrmLowLatency && per > 10000) {
@@ -4092,9 +4093,16 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                                 sPickOff = sPickOff < 0 ? off : sPickOff + (off - sPickOff) / 16.0;
                             }
                             if (sPickOff >= 0) {
-                                const int32_t jit = dr->frameLatenessMaxUs(1800);
+                                // A frame later than the capped margin plus the late-frame wait can absorb
+                                // misses its pickup whatever the margin is, so it is left out of the worst
+                                // case: one 17-35 ms frame on the Pokemon White 2 title otherwise held the
+                                // margin at its cap for the next 30 s (frames finishing ~9 ms earlier than
+                                // the 6-7 ms the other frames needed) without saving a single pickup.
+                                const int cap = per - 6500;
+                                const int32_t ceiling = sPickCeil > 0 ? cap + sPickWait - 1000 : INT32_MAX;
+                                const int32_t jit = dr->frameLatenessMaxUs(1800, ceiling);
                                 const int m = sPickFixedM >= 0 ? sPickFixedM
-                                                              : std::max(1000, std::min(per - 6500, (int)jit - sPickWait + 1000));
+                                                              : std::max(1000, std::min(cap, (int)jit - sPickWait + 1000));
                                 sPickM = m;
                                 int t = m - (int)sPickOff;                 // finish this long before the vblank
                                 while (t <= 0) t += per;                   // or after it, before the pickup

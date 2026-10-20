@@ -3522,11 +3522,14 @@ static void noteFrameLateness(int64_t nowUs) {
         sMaxWake = 0; sMaxEmu = 0;
     }
 }
-int32_t frameLatenessMaxUsImpl(int frames) {
+int32_t frameLatenessMaxUsImpl(int frames, int32_t ceilingUs) {
     const uint32_t n = gLateRingN.load(std::memory_order_relaxed);
     const uint32_t m = std::min<uint32_t>(n, (uint32_t)std::min(frames, kLateRing));
     int32_t mx = 0;
-    for (uint32_t k = 0; k < m; k++) mx = std::max(mx, gLateRing[(n - 1 - k) % kLateRing].load(std::memory_order_relaxed));
+    for (uint32_t k = 0; k < m; k++) {
+        const int32_t v = gLateRing[(n - 1 - k) % kLateRing].load(std::memory_order_relaxed);
+        if (v <= ceilingUs) mx = std::max(mx, v);
+    }
     return mx;
 }
 extern "C" void drasticSlotFlipHook() {
@@ -6732,7 +6735,7 @@ std::atomic<uint32_t> gAudioLeadExtra{0}, gAudioLeadTopUps{0}, gAudioLeadHolds{0
 
 static std::atomic<int> gOffsetAutoTarget{-1};
 void DrasticRunner::setOffsetAutoTarget(int targetUs) { gOffsetAutoTarget.store(targetUs, std::memory_order_relaxed); }
-int32_t DrasticRunner::frameLatenessMaxUs(int frames) { return frameLatenessMaxUsImpl(frames); }
+int32_t DrasticRunner::frameLatenessMaxUs(int frames, int32_t ceilingUs) { return frameLatenessMaxUsImpl(frames, ceilingUs); }
 void DrasticRunner::nudgeEmuTiming(int usec) {
     if (!mArm64Base) return;
     gLimiterHm.store(*reinterpret_cast<uint8_t**>(mArm64Base + 0x14c000), std::memory_order_relaxed);
