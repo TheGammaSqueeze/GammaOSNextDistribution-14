@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "name": "malisx2 Mali-G52 f76dbc9",
+  "description": "malisx2 Mesa Vulkan driver for Arm Mali GPUs over kbase, built from github.com/bmdhacks/malisx2 main, commit f76dbc9 (Mali-G52, Bifrost v7)",
+  "author": "bmdhacks, TheGammaSqueeze",
+  "packageVersion": "f76dbc9",
+  "vendor": "Mesa",
+  "driverVersion": "malisx2-g52-f76dbc9",
+  "minApi": 29,
+  "libraryName": "libvulkan_malisx2.so"
+}

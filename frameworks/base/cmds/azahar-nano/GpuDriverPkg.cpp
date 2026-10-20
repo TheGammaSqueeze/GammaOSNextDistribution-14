@@ -177,14 +177,18 @@ std::string bundledRoot() {
 
 std::string defaultPackage() {
     // The driver built for the chip, bundled with the system: GammaOS Turnip on the
-    // Adreno 610 (faster than the vendor driver on the 3DS core's heavy passes).
+    // Adreno 610 and malisx2 on the Mali-G52 (each faster than the vendor driver on
+    // the 3DS core's heavy passes). The model comes from KGSL's gpu_model, or from the
+    // Mali kbase gpuinfo line ("Mali-G52 1 cores r1p0 0x07040002").
     std::string model = readFile("/sys/class/kgsl/kgsl-3d0/gpu_model");
+    if (model.empty()) model = readFile("/sys/class/misc/mali0/device/gpuinfo");
     struct Entry {
         const char* modelPrefix;
         const char* package;
     };
     static constexpr Entry kDefaults[] = {
         {"Adreno610", "gammaos-turnip-adreno-610"},
+        {"Mali-G52 ", "malisx2-g52"},
     };
     for (const Entry& e : kDefaults) {
         if (model.rfind(e.modelPrefix, 0) != 0) continue;

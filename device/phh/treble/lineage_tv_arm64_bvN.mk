@@ -156,7 +156,8 @@ PRODUCT_COPY_FILES += \
 # the azahar-nano Soong binary; its user data lives in /data/system/azahar-nano (private
 # root: config, nand, system files, shader cache) and /sdcard/azahar-nano (saves, states).
 # The GammaOS Turnip Vulkan driver (github.com/TheGammaSqueeze/gammaos-turnip, adreno-610)
-# ships as a bundled adrenotools package, the default on the Adreno 610 (GpuDriverPkg.h).
+# ships as a bundled adrenotools package, the default on the Adreno 610 (GpuDriverPkg.h), and
+# malisx2 (github.com/bmdhacks/malisx2) the same way, the default on the Mali-G52.
 PRODUCT_PACKAGES += azahar-nano
 PRODUCT_COPY_FILES += \
     gammaos/emulators/azahar-nano-lib/libazahar-nano-core.so:system/lib64/libazahar-nano-core.so \
@@ -166,7 +167,9 @@ PRODUCT_COPY_FILES += \
     gammaos/emulators/azahar-nano-lib/libgsl_alloc_hook.so:system/lib64/libgsl_alloc_hook.so \
     gammaos/emulators/azahar-nano-lib/libhook_impl.so:system/lib64/libhook_impl.so \
     gammaos/emulators/azahar-nano-lib/gpu_drivers/gammaos-turnip-adreno-610/meta.json:system/etc/azahar-nano/gpu_drivers/gammaos-turnip-adreno-610/meta.json \
-    gammaos/emulators/azahar-nano-lib/gpu_drivers/gammaos-turnip-adreno-610/vulkan.gammaos.so:system/etc/azahar-nano/gpu_drivers/gammaos-turnip-adreno-610/vulkan.gammaos.so
+    gammaos/emulators/azahar-nano-lib/gpu_drivers/gammaos-turnip-adreno-610/vulkan.gammaos.so:system/etc/azahar-nano/gpu_drivers/gammaos-turnip-adreno-610/vulkan.gammaos.so \
+    gammaos/emulators/azahar-nano-lib/gpu_drivers/malisx2-g52/meta.json:system/etc/azahar-nano/gpu_drivers/malisx2-g52/meta.json \
+    gammaos/emulators/azahar-nano-lib/gpu_drivers/malisx2-g52/libvulkan_malisx2.so:system/etc/azahar-nano/gpu_drivers/malisx2-g52/libvulkan_malisx2.so
 
 # GammaOS first-boot setup: data-driven app list for setup.sh, pre-installed helper apps
 # (dex-preopted at build time), the zstd decompressor for the setup payloads, and the
