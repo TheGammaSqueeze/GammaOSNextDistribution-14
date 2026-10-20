@@ -55,6 +55,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
+#include <sys/mount.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -701,6 +702,42 @@ static void releaseClusterCores() {
     sCoreCtlHeld = false;
 }
 
+// Bottom panel (DP) pixel clock trim for the DP phase lock (see flipRingSlotSecHold). The RP Duo
+// Lite's DP pixel clock source takes a new rate live through debugfs (kHz, no modeset, no blank),
+// which moves the DP's vblank against the DSI's. The untrimmed rate is kept in a property so a
+// session that died with a trim applied still finds the real base next time; restored on exit and
+// around sleep.
+static constexpr const char* kDpClkPath = "/sys/kernel/debug/clk/disp_cc_mdss_dp_pixel_clk_src/clk_rate";
+static long gDpClkBase = -1, gDpClkSet = -1;
+
+static bool dpClkReady() {
+    if (gDpClkBase > 0) return true;
+    if (access(kDpClkPath, W_OK) != 0) {
+        mount("debugfs", "/sys/kernel/debug", "debugfs", 0, nullptr);
+        if (access(kDpClkPath, W_OK) != 0) return false;
+    }
+    const long cur = readLongFile(kDpClkPath, -1);
+    if (cur <= 0) return false;
+    // A rate within the trim range of the recorded base is a trim left behind; anything else is a
+    // new base (another DP mode was set since).
+    const long rec = property_get_int32("sys.gammaos.drastic_nano.dp_clk_base", -1);
+    const long base = rec > 0 && std::abs(cur - rec) <= 100 ? rec : cur;
+    property_set("sys.gammaos.drastic_nano.dp_clk_base", std::to_string(base).c_str());
+    gDpClkBase = base; gDpClkSet = cur;
+    return true;
+}
+
+static void dpClkTrim(int khz) {
+    if (gDpClkBase <= 0) return;
+    const long want = gDpClkBase + khz;
+    if (want == gDpClkSet) return;
+    if (writeLongFile(kDpClkPath, want)) gDpClkSet = want;
+}
+
+static void dpClkRestore() {
+    if (gDpClkBase > 0 && gDpClkSet != gDpClkBase && writeLongFile(kDpClkPath, gDpClkBase)) gDpClkSet = gDpClkBase;
+}
+
 // Disable the deep cpu-sleep idle state (state1) on every CPU so
 // that thread migrations do not pay the ~220 us wake latency. The
 // shallow WFI state (state0, 1 us) stays enabled. Saves the prior
@@ -744,6 +781,7 @@ void disableDeepCpuIdle() {
 // permanently kill deep idle (battery impact in the menu).
 void restoreDeepCpuIdle() {
     releaseClusterCores();
+    dpClkRestore();
     for (int cpu = 0; cpu < sSavedCpuCount; cpu++) {
         char path[96];
         snprintf(path, sizeof(path),
@@ -1431,6 +1469,45 @@ static void flipRingSlotSecHold(int idx) {
     if (vs <= 0) { android::drmFlipSecondaryOnly(idx); return; }
     static int32_t sSlack[300]; static int sN = 0, sPos = 0, sSince = 0;
     sSlack[sPos] = (int32_t)(vs - now); sPos = (sPos + 1) % 300; if (sN < 300) sN++;
+    // DP phase lock: rather than dodge a DP vblank that sits too close after the bottom flips (the
+    // hold below), move the DP's vblank to just after them, so every bottom flip lands on the first
+    // DP vblank it can make with ~2 ms to spare. Once a second the closest of the last 60 bottom
+    // flips is compared with that target and the DP pixel clock is trimmed in proportion (85 kHz,
+    // 0.1%, moves the DP vblank ~1 ms a second; 0.3 ms deadband at the untrimmed clock, where the
+    // two panels drift ~3 us a second). A flip just after the DP vblank reads as a slack of almost a
+    // period and counts as negative. sys.gammaos.drastic_nano.dp_phase_lock=0 disables it.
+    static int sLock = -1;
+    if (sLock < 0) {
+        sLock = property_get_int32("sys.gammaos.drastic_nano.dp_phase_lock", 1) > 0 && dpClkReady() ? 1 : 0;
+        if (sLock) ALOGI("drastic-nano: DP phase lock on (DP pixel clock base %ld kHz)", gDpClkBase);
+    }
+    if (sLock) {
+        static int sLockSince = 0; static int64_t sLockLogUs = 0;
+        gSecHold = false;
+        if (++sLockSince >= 60 && sN >= 60) {
+            sLockSince = 0;
+            const int per = (int)android::drmPanelPeriodUs(1);
+            int32_t mn = INT32_MAX;
+            for (int k = 1; k <= 60; k++) {
+                int32_t v = sSlack[(sPos - k + 300) % 300];
+                if (per > 10000 && v > per - 4000) v -= per;   // just after the DP vblank
+                mn = std::min(mn, v);
+            }
+            static int sTarget = -1;
+            if (sTarget < 0) sTarget = property_get_int32("sys.gammaos.drastic_nano.dp_phase_target_us", 2000);
+            const int err = mn - sTarget;           // > 0: the DP vblank comes too long after the flips
+            const int trim = std::abs(err) <= 300 ? 0 : std::max(-85, std::min(85, err / 24));
+            dpClkTrim(trim);   // no write unless the rate changes (also re-applies it after a sleep restored the base)
+            static int sLat = -1; if (sLat < 0) sLat = property_get_int32("sys.gammaos.drastic_nano.lat_log", 0);
+            if (sLat > 0 && now - sLockLogUs >= 10000000) {
+                sLockLogUs = now;
+                ALOGI("drastic-nano: DP phase lock: closest bottom flip %d us before the DP vblank (target %d), trim %+d kHz (clock %ld)",
+                      mn, sTarget, trim, gDpClkSet);
+            }
+        }
+        android::drmFlipSecondaryOnly(idx);
+        return;
+    }
     if (++sSince >= 60 && sN >= 120) {
         sSince = 0;
         int32_t t[300]; std::copy(sSlack, sSlack + sN, t);
