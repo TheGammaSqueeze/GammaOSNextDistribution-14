@@ -49,8 +49,10 @@ public:
     // Draws with the given model view and projection (column major), into the bound target with
     // depth testing. face / side: linear RGB colours of the faces and the walls; light: direction
     // the light travels, in view space.
+    // hueMat: a 3x3 (column major) rotating the colours' hue, null for none; glass: a translucent
+    // glass body (blended over what is already drawn) instead of the opaque solid.
     void draw(const float modelView[16], const float projection[16], const float face[3], const float side[3],
-              const float light[3]);
+              const float light[3], const float* hueMat = nullptr, bool glass = false);
     void releaseGl();
     bool ok() const { return mVbo != 0; }
     static void releaseProgram();   // the shared program (context loss, park)
@@ -60,7 +62,7 @@ private:
     float mColorMap[4] = {1, 0, 1, 0};   // face uv -> colour texture uv (scale, offset per axis)
     int mSideIndices = 0, mCapIndices = 0;   // sides first, then the two caps
     static GLuint sProgram;
-    static GLint sMv, sProj, sNm, sFace, sSide, sLight, sCap, sHasColor, sColorMap;
+    static GLint sMv, sProj, sNm, sFace, sSide, sLight, sCap, sHasColor, sColorMap, sHue, sGlass;
 };
 
 }  // namespace ctr

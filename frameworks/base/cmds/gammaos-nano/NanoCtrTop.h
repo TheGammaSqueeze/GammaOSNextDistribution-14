@@ -212,6 +212,7 @@ private:
         std::shared_ptr<std::atomic<bool>> done;
     };
     std::vector<GlyphJob> mGlyphJobs;
+    static bool bodyBox(const ModelResource& res, V3* centre, V3* size, int* bone);
     bool startGlyphJob(const std::string& key, unsigned texture, int w, int h, float boxW, float boxH, float cx, float cy,
                        float depth, bool colour);
     void pollGlyphJobs();

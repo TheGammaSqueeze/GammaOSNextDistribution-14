@@ -5153,6 +5153,11 @@ private:
     GLuint loadPs3NmapTex(const char* file);             // RGBA normal-map loader
     // Draw an icon with the glass shader (device px coords, like drawIconTex).
     // Refraction samples the live wave (ps3bg work texture) behind the icon.
+    // An XMB glass icon baked into a square texture of `size` px (RGBA, premultiplied, rows as GL
+    // reads them): a drop shadow of the flat icon, then the normal-map glass in `tint` refracting a
+    // flat `bg` colour. For themes that draw the icon as a still picture (the 3DS home's system
+    // icons). 0 when the glass pipeline is not up. The caller owns the texture.
+    GLuint bakeGlassIcon(GLuint nmapTex, GLuint flatTex, const float tint[3], const float bg[3], int size);
     void drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,
                        float cr, float cg, float cb, float alpha, float rot = 0.0f);
 

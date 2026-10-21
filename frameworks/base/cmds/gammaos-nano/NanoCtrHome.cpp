@@ -728,6 +728,7 @@ struct CtrHome::Impl {
     void drawIcons(Renderer& r, const Grid& g, const Box* clip);
     void stamp(Renderer& r, IconTemplate& t, float x, float y, float scale = 1);
     void stampInvertedTile(Renderer& r, float x, float y);
+    void drawGlyphShadow(Renderer& r, const HomeItem& it, float x, float y, float size);
     void drawInstance(Renderer& r, LayoutInstance* l) {
         if (!l) return;
         l->layout().calculate();
@@ -2193,8 +2194,19 @@ void CtrHome::Impl::updateChrome() {
                 // icon as a solid on the top screen instead of the folder
                 int gw = 0, gh = 0;
                 CtrHomeHost::IconArt art;
-                const GLuint gl = host->titleIconTexture(*it, &gw, &gh, &art);
-                if (gl && art.mono) {
+                const GLuint raw = host->systemGlyphTexture(*it, &gw, &gh);
+                const GLuint gl = raw ? raw : host->titleIconTexture(*it, &gw, &gh, &art);
+                if (raw) {
+                    // the plain white glyph (the grid's picture of it is a bake): the host's icon
+                    // keeps the glyph in its luminance over an opaque tile, so the solid is built
+                    // from the darkened copy, whose alpha is the glyph
+                    if (TexturePtr t = tintedCopy(raw, gw, gh, 80 / 255.0f)) {
+                        f.glyph = t->id;
+                        f.glyphW = t->texWidth > 0 ? t->texWidth : t->width;
+                        f.glyphH = t->texHeight > 0 ? t->texHeight : t->height;
+                        f.glyphTinted = host->itemTint(*it, f.glyphTint);
+                    }
+                } else if (gl && art.mono) {
                     if (TexturePtr t = titleTextureOwn(*it)) {
                         f.glyph = t->id;
                         f.glyphW = t->texWidth > 0 ? t->texWidth : t->width;
@@ -3412,6 +3424,17 @@ TexturePtr CtrHome::Impl::titleTextureOwn(const HomeItem& it) {
                 // a title drawn in the folder colours (the Quick Menu's Power): its glyph white on
                 // the coloured body, not the category's ink (orange on orange)
                 if (it.inverted) { rgb[0] = rgb[1] = rgb[2] = 1.0f; coloured = true; }
+                // a folder shown as its icon alone (a game system): the system's own tint when it
+                // has one, else the theme's folder colour (the category's when one is shown), so
+                // it reads against the grid like the folders did
+                if (it.kind == HomeItemKind::Folder && it.glyphOnly) {
+                    if (!host->itemTint(it, rgb)) {
+                        if (folderColorsOn) memcpy(rgb, folderMain, sizeof(rgb));
+                        else { rgb[0] = 0.45f; rgb[1] = 0.78f; rgb[2] = 0.93f; }   // the console's folder blue
+                        if (darkFolders()) for (float& c : rgb) c = c + (1 - c) * 0.5f;   // lifted on dark themes
+                    }
+                    coloured = true;
+                }
                 // on dark folders (the Black theme, a dark folder colour) a light glyph instead
                 const float grey = (darkFolders() ? 232 : 80) / 255.0f;
                 if (TexturePtr t = tintedCopy(gl, w, h, grey, 0, false, false, coloured ? rgb : nullptr)) return t;
@@ -3531,6 +3554,24 @@ void CtrHome::Impl::drawFolderFaceSized(Renderer& r, const HomeItem& it, float x
     r.drawLayout(letter->layout());
 }
 
+// The drop shadow under a system icon shown alone: the glyph (its luminance as alpha) a shade
+// darker than the tile it sits on, offset down and to the right (the icon material ignores the
+// pane alpha, so the shade carries the softness).
+void CtrHome::Impl::drawGlyphShadow(Renderer& r, const HomeItem& it, float x, float y, float size) {
+    int gw = 0, gh = 0;
+    const GLuint raw = host ? host->systemGlyphTexture(it, &gw, &gh) : 0;
+    if (!raw) return;
+    float tile[3];
+    self->tileColor(tile);
+    const float lum = 0.2126f * tile[0] + 0.7152f * tile[1] + 0.0722f * tile[2];
+    TexturePtr t = tintedCopy(raw, gw, gh, std::max(0.08f, lum * 0.82f));   // a faint shade
+    Pane* ip = icon.layout->pane("P_Icon_00");
+    if (!t || !ip) return;
+    icon.layout->replaceTexture("P_Icon_00", t);
+    ip->size[0] = ip->size[1] = size;
+    stamp(r, icon, x + size * 0.02f, y - size * 0.025f, 1);   // down and right, a short fall
+}
+
 // A title's art on the icon template at `size` (icons.ts drawTitle).
 void CtrHome::Impl::drawTitleArt(Renderer& r, const HomeItem& it, float x, float y, float size, float scale) {
     TexturePtr tex = titleTexture(it);
@@ -3614,6 +3655,18 @@ void CtrHome::Impl::drawIcons(Renderer& r, const Grid& g, const Box* clip) {
                 Pane* root_ = folderOpenB.layout ? folderOpenB.layout->pane("N_FolderRoot_00") : nullptr;
                 Pane* tile_ = folderOpenB.layout ? folderOpenB.layout->pane("P_Icon_00") : nullptr;
                 if (root_ && tile_) drawFolderFaceSized(r, *it, p.x, p.y + root_->translate[1] + tile_->translate[1], tile_->size[0]);
+                continue;
+            }
+            if (it->glyphOnly) {
+                // a game system / root list: on the title tile (the theme's white block with its
+                // shadow, as a game's), its icon as the host's glass bake at the title art size
+                if (themeFileLarge && themeFileSmall) {
+                    const int z = g.blending ? (g.t < 0.5f ? g.from.zoom : g.to.zoom) : g.zoom();
+                    tile.layout->replaceTexture("P_Btn_10", z >= SMALL_ICON_ZOOM ? themeFileSmall : themeFileLarge);
+                }
+                stamp(r, tile, p.x, p.y);
+                // (the bake is fitted to its square and carries the icon's drop shadow)
+                drawTitleArt(r, *it, p.x, p.y, zoomTable(ICON_SIZE, zoom) * 0.96f, 1);
                 continue;
             }
             folderIcon.layout->setVisible("N_Had_02", it->folderFilled);
@@ -4484,6 +4537,32 @@ void CtrHome::setFolderColors(const float* dark, const float* main) {
         memcpy(I.folderMain, main, sizeof(I.folderMain));
     }
     applyFolderColors();
+}
+
+void CtrHome::folderMainColor(float rgb[3]) const {
+    const Impl& I = *mImpl;
+    rgb[0] = 0.45f; rgb[1] = 0.78f; rgb[2] = 0.93f;   // the console's folder blue
+    if (I.folderColorsOn) {
+        memcpy(rgb, I.folderMain, sizeof(float) * 3);
+    } else if (mThemeBody && mThemeBody->blocks[TB_FOLDER].present) {
+        if (const auto* m = mThemeBody->blocks[TB_FOLDER].field("main"))
+            for (int k = 0; k < 3; k++) rgb[k] = (*m)[k] / 255.0f;
+    }
+    if (I.darkFolders()) for (int k = 0; k < 3; k++) rgb[k] = rgb[k] + (1 - rgb[k]) * 0.5f;
+}
+
+void CtrHome::bottomColor(float rgb[3]) const {
+    rgb[0] = rgb[1] = rgb[2] = 0.91f;   // the console's bottom grey
+    if (mThemeBody && mThemeBody->blocks[TB_BOTTOM_SOLID].present)
+        if (const auto* m = mThemeBody->blocks[TB_BOTTOM_SOLID].field("main"))
+            for (int k = 0; k < 3; k++) rgb[k] = (*m)[k] / 255.0f;
+}
+
+void CtrHome::tileColor(float rgb[3]) const {
+    rgb[0] = rgb[1] = rgb[2] = 0.96f;
+    if (mThemeBody && mThemeBody->blocks[TB_FILE].present)
+        if (const auto* m = mThemeBody->blocks[TB_FILE].field("main"))
+            for (int k = 0; k < 3; k++) rgb[k] = (*m)[k] / 255.0f;
 }
 
 // The folder block the screens use: the theme's with the category's dark / main / light.

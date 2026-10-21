@@ -43,6 +43,8 @@ struct HomeItem {
     bool folderFilled = true;  // folders: something inside (the icon shows its contents tab)
     bool monoIcon = false;     // the art is a white glyph (nano system icons): drawn dark
     bool inverted = false;     // titles: the tile body in the folder colours (the Quick Menu's Power)
+    bool glyphOnly = false;    // folders: drawn as the host's icon alone, no folder body (game systems,
+                               // Recently Played, Applications...), in the folder colours or its tint
 };
 
 struct HomeStatus {
@@ -72,6 +74,10 @@ public:
     // pixelArt: a pixel icon (a DS cartridge's 32x32) drawn with nearest neighbour, never blurred.
     struct IconArt { bool mono = false; float coverAspect = 0; bool pixelArt = false; };
     // Asked every frame for the titles on screen: art that arrives later replaces the glyph.
+    // The plain monochrome icon of a folder shown as its icon (a game system), for the top
+    // screen's solid glyph: the grid may show a baked picture of it instead (titleIconTexture),
+    // which is no source for the glyph. 0 = use titleIconTexture.
+    virtual GLuint systemGlyphTexture(const HomeItem& item, int* w, int* h) { (void)item; (void)w; (void)h; return 0; }
     virtual GLuint titleIconTexture(const HomeItem& item, int* w, int* h, IconArt* art) {
         (void)item; (void)w; (void)h; (void)art; return 0;
     }
@@ -245,6 +251,12 @@ public:
     // Folder colours of the content shown (0..1 RGB, a category's), in place of the theme's
     // folder block on both screens; null brings the theme's back.
     void setFolderColors(const float* dark, const float* main);
+    // The folder main colour the grid shows (the category's when set, else the theme's, else the
+    // console's blue), lifted towards white on a dark theme; and the bottom screen's solid
+    // background colour (the theme's, else the console's grey). For art the host bakes to match.
+    void folderMainColor(float rgb[3]) const;
+    void bottomColor(float rgb[3]) const;
+    void tileColor(float rgb[3]) const;     // the title tile body (the theme's file block, else white)
     // Applet bar button 1..5 shows the host's pictogram (RGBA, rows top first, its alpha the shape)
     // on a rounded button, the ink in `ink` (and `inkLight` where the console lightens it).
     void setBarIcon(int button, const uint8_t* rgba, int w, int h, const float ink[3], const float inkLight[3]);

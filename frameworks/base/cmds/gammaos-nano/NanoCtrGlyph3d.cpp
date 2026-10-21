@@ -15,7 +15,8 @@ namespace ctr {
 
 GLuint GlyphMesh::sProgram = 0;
 GLint GlyphMesh::sMv = -1, GlyphMesh::sProj = -1, GlyphMesh::sNm = -1, GlyphMesh::sFace = -1, GlyphMesh::sSide = -1,
-      GlyphMesh::sLight = -1, GlyphMesh::sCap = -1, GlyphMesh::sHasColor = -1, GlyphMesh::sColorMap = -1;
+      GlyphMesh::sLight = -1, GlyphMesh::sCap = -1, GlyphMesh::sHasColor = -1, GlyphMesh::sColorMap = -1,
+      GlyphMesh::sHue = -1, GlyphMesh::sGlass = -1;
 
 namespace {
 
@@ -57,6 +58,8 @@ uniform vec4 u_colorMap;
 uniform vec3 u_face;
 uniform vec3 u_side;
 uniform vec3 u_light;
+uniform mat3 u_hue;      // hue rotation of the glass tint (the banner's turn angle)
+uniform float u_glass;   // 0: the opaque solid, 1: glass
 varying vec3 v_n;
 varying vec2 v_uv;
 varying vec3 v_p;
@@ -73,7 +76,27 @@ void main() {
         vec2 c = vec2(v_uv.x * u_colorMap.x + u_colorMap.y, v_uv.y * u_colorMap.z + u_colorMap.w);
         base *= texture2D(u_color, c).rgb;
     }
-    gl_FragColor = vec4(base * (0.55 + 0.5 * diffuse) + vec3(0.16) * spec, 1.0);
+    if (u_glass < 0.5) {
+        gl_FragColor = vec4(base * (0.55 + 0.5 * diffuse) + vec3(0.16) * spec, 1.0);
+        return;
+    }
+    // Glass, as the applet cubes read: a translucent tinted body whose colour leans towards the
+    // view angle (a cheap stand-in for refraction, one dot product), a bright fresnel rim, a sharp
+    // highlight, and the walls a shade denser than the faces. Blended over the wall behind, so
+    // the transmission is the real background; no scene sampling, no extra pass.
+    float facing = max(dot(n, v), 0.0);
+    float fresnel = pow(1.0 - facing, 2.5);
+    vec3 tint = clamp(u_hue * base, 0.0, 1.0);
+    // the colour bends with the view angle (the refraction's look) and gets denser at grazing
+    // angles (absorption through more glass): saturated edges, a lighter see-through centre
+    vec3 shifted = mix(tint, tint.gbr * 0.9 + tint * 0.1, 0.3 * (1.0 - facing));
+    // frosted: a milky body that lets little through, a soft broad highlight instead of a hard one
+    vec3 milky = mix(shifted, vec3(1.0), 0.18);
+    vec3 body = mix(milky * (0.78 + 0.22 * diffuse), shifted * shifted * 0.95, fresnel * 0.8);
+    float gloss = pow(max(dot(n, h), 0.0), 24.0);
+    vec3 rgb = body + vec3(0.35) * gloss + vec3(0.1) * spec;
+    float alpha = (u_cap > 0.5 ? 0.82 : 0.9) + 0.18 * fresnel;
+    gl_FragColor = vec4(rgb, min(alpha, 1.0));
 }
 )";
 
@@ -536,8 +559,10 @@ bool GlyphMesh::finish(const Built& b) {
 }
 
 void GlyphMesh::draw(const float modelView[16], const float projection[16], const float face[3], const float side[3],
-                     const float light[3]) {
+                     const float light[3], const float* hueMat, bool glass) {
     if (!mVbo) return;
+    static const float kIdentity3[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    if (!hueMat) hueMat = kIdentity3;
     if (!sProgram) {
         GLuint vs = compile(GL_VERTEX_SHADER, kVs), fs = compile(GL_FRAGMENT_SHADER, kFs);
         if (!vs || !fs) return;
@@ -566,6 +591,8 @@ void GlyphMesh::draw(const float modelView[16], const float projection[16], cons
         sCap = glGetUniformLocation(sProgram, "u_cap");
         sHasColor = glGetUniformLocation(sProgram, "u_hasColor");
         sColorMap = glGetUniformLocation(sProgram, "u_colorMap");
+        sHue = glGetUniformLocation(sProgram, "u_hue");
+        sGlass = glGetUniformLocation(sProgram, "u_glass");
         glUseProgram(sProgram);
         glUniform1i(glGetUniformLocation(sProgram, "u_sdf"), 0);
         glUniform1i(glGetUniformLocation(sProgram, "u_color"), 1);
@@ -581,6 +608,8 @@ void GlyphMesh::draw(const float modelView[16], const float projection[16], cons
     glUniform3fv(sLight, 1, light);
     glUniform1f(sHasColor, mColor ? 1.0f : 0.0f);
     glUniform4fv(sColorMap, 1, mColorMap);
+    glUniformMatrix3fv(sHue, 1, GL_FALSE, hueMat);
+    glUniform1f(sGlass, glass ? 1.0f : 0.0f);
     if (mColor) {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, mColor);
@@ -588,7 +617,14 @@ void GlyphMesh::draw(const float modelView[16], const float projection[16], cons
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDepthMask(GL_TRUE);
-    glDisable(GL_BLEND);
+    // glass blends over the wall behind it; the walls draw before the caps (sides first below)
+    // so the front face lands over the body
+    if (glass) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        glDisable(GL_BLEND);
+    }
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_CULL_FACE);
     glActiveTexture(GL_TEXTURE0);
@@ -606,6 +642,7 @@ void GlyphMesh::draw(const float modelView[16], const float projection[16], cons
     for (int a = 0; a < 3; a++) glDisableVertexAttribArray(a);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    if (glass) glDisable(GL_BLEND);
     if (mColor) {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, 0);

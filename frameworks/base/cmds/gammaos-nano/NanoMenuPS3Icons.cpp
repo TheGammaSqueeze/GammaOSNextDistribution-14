@@ -27,6 +27,7 @@
 
 #define LOG_TAG "GammaOSNano"
 
+#include <cutils/properties.h>
 #include "NanoMenu.h"
 #include "NanoMenuPS3.h"
 #include "NanoMenuPS3Bg.h"
@@ -1439,6 +1440,167 @@ static bool glassScratchEnsure(int w, int h) {
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) { sGlassScratchW = sGlassScratchH = 0; return false; }
     sGlassScratchW = nw; sGlassScratchH = nh;
     return true;
+}
+
+GLuint NanoMenu::bakeGlassIcon(GLuint nmapTex, GLuint flatTex, const float tint[3], const float bg[3], int size) {
+    if (!mIconGlassReady || nmapTex == 0 || size < 8) return 0;
+    GLint prevFbo = 0, prevVp[4];
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+    glGetIntegerv(GL_VIEWPORT, prevVp);
+    GLboolean blendWas = glIsEnabled(GL_BLEND);
+    // the background the glass refracts: one flat texel of the grid's colour
+    GLuint bgTex = 0;
+    glGenTextures(1, &bgTex);
+    glBindTexture(GL_TEXTURE_2D, bgTex);
+    const uint8_t px[4] = {(uint8_t)(bg[0] * 255), (uint8_t)(bg[1] * 255), (uint8_t)(bg[2] * 255), 255};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, px);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // the target
+    GLuint tex = 0, fbo = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+        glDeleteFramebuffers(1, &fbo);
+        glDeleteTextures(1, &tex);
+        glDeleteTextures(1, &bgTex);
+        return 0;
+    }
+    glViewport(0, 0, size, size);
+    glDisable(GL_SCISSOR_TEST);
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    // the icon fills 78% of the square (the drop shadow is the caller's: drawIconTex would apply
+    // the panel rotation here)
+    (void)flatTex;
+    const float inset = size * 0.11f;
+    // the glass: the program's whole uniform set (the per-frame block may hold the panel rotation)
+    static float light1[3], light2[3];
+    static bool lightReady = false;
+    if (!lightReady) { angleLight(-32.4f, 22.8f, light1); angleLight(135.0f, 60.0f, light2); lightReady = true; }
+    glUseProgram(mIconGlassProgram);
+    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, nmapTex);
+    glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, mIconGlassAmbTex);
+    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, mIconGlassEnvTex);
+    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, bgTex);
+    static const GLfloat kIdentityRot[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    glUniformMatrix2fv(mIconGlassLocRot, 1, GL_FALSE, kIdentityRot);
+    glUniform1i(mIconGlassLocNormal, 0);
+    glUniform1i(mIconGlassLocAmb, 1);
+    glUniform1i(mIconGlassLocEnv, 2);
+    glUniform1i(mIconGlassLocBg, 3);
+    glUniform3fv(mIconGlassLocLight1, 1, light1);
+    glUniform3fv(mIconGlassLocLight2, 1, light2);
+    glUniform3fv(mIconGlassLocAmbient, 1, kIconAmbient);
+    glUniform4fv(mIconGlassLocSpec, 1, kIconSpec);
+    glUniform3fv(mIconGlassLocRefr, 1, kIconRefr);
+    glUniform1f(mIconGlassLocRefrScl, kIconRefrScl);
+    glUniform2fv(mIconGlassLocAttn, 1, kIconAttnDiffEnv);
+    glUniform1f(mIconGlassLocBgExp, kBgExposure);
+    glUniform4f(mIconGlassLocChanging, tint[0], tint[1], tint[2], 1.0f);
+    glUniform2f(mIconGlassLocBgRad, 0.5f, 0.5f);
+    glUniform1f(mIconGlassLocWpLift, 1.0f);   // over a still background: the more opaque, lighter glass
+    mGlassUniformsSet = false;                 // the next on-screen icon re-sends its own block
+    // the whole target, as the half resolution scratch path draws it (the picture's size on the
+    // grid is the caller's); the icon rows flipped: the texture is read top row first by the layouts
+    (void)inset;
+    static const GLfloat pos[] = {-1.f, -1.f, 1.f, -1.f, 1.f, 1.f, 1.f, 1.f, -1.f, 1.f, -1.f, -1.f};
+    static const GLfloat iuv[] = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
+    static const GLfloat buv[] = {0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0};
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(mIconGlassLocPos, 2, GL_FLOAT, GL_FALSE, 0, pos);
+    glEnableVertexAttribArray(mIconGlassLocPos);
+    glVertexAttribPointer(mIconGlassLocIconUV, 2, GL_FLOAT, GL_FALSE, 0, iuv);
+    glEnableVertexAttribArray(mIconGlassLocIconUV);
+    glVertexAttribPointer(mIconGlassLocBgUV, 2, GL_FLOAT, GL_FALSE, 0, buv);
+    glEnableVertexAttribArray(mIconGlassLocBgUV);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);   // premultiplied, as the direct path
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    // Fit: the normal maps carry their own padding, so the glyph is measured from this first
+    // draw and drawn again scaled and centred to fill the square (94% of it), uniformly.
+    {
+        std::vector<unsigned char> px((size_t)size * size * 4);
+        glReadPixels(0, 0, size, size, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+        int x0 = size, y0 = size, x1 = -1, y1 = -1;
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+                if (px[((size_t)y * size + x) * 4 + 3] > 8) {
+                    x0 = std::min(x0, x); x1 = std::max(x1, x);
+                    y0 = std::min(y0, y); y1 = std::max(y1, y);
+                }
+        if (x1 > x0 && y1 > y0) {
+            const float bw = (float)(x1 - x0 + 1), bh = (float)(y1 - y0 + 1);
+            const float sc = size * 0.94f / std::max(bw, bh);
+            const float cx = ((x0 + x1 + 1) * 0.5f / size) * 2.0f - 1.0f, cy = ((y0 + y1 + 1) * 0.5f / size) * 2.0f - 1.0f;
+            GLfloat fit[12];
+            for (int k = 0; k < 6; k++) {
+                fit[k * 2] = (pos[k * 2] - cx) * sc;
+                fit[k * 2 + 1] = (pos[k * 2 + 1] - cy) * sc;
+            }
+            glClear(GL_COLOR_BUFFER_BIT);
+            // the drop shadow first: the same fitted silhouette, a shade darker than the tile,
+            // a touch down and to the right (the texture reads top row first: +y is down)
+            {
+                const float tl = 0.2126f * bg[0] + 0.7152f * bg[1] + 0.0722f * bg[2];
+                const float sh = std::max(0.06f, tl * 0.7f);
+                GLfloat shadow[12];
+                for (int k = 0; k < 6; k++) { shadow[k * 2] = fit[k * 2] + 0.035f; shadow[k * 2 + 1] = fit[k * 2 + 1] + 0.045f; }
+                glUniform4f(mIconGlassLocChanging, sh, sh, sh, 0.5f);
+                glVertexAttribPointer(mIconGlassLocPos, 2, GL_FLOAT, GL_FALSE, 0, shadow);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                glUniform4f(mIconGlassLocChanging, tint[0], tint[1], tint[2], 1.0f);
+            }
+            glVertexAttribPointer(mIconGlassLocPos, 2, GL_FLOAT, GL_FALSE, 0, fit);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
+    }
+    glDisableVertexAttribArray(mIconGlassLocPos);
+    glDisableVertexAttribArray(mIconGlassLocIconUV);
+    glDisableVertexAttribArray(mIconGlassLocBgUV);
+    glActiveTexture(GL_TEXTURE0);
+    // debug: sys.gammaos.nano.bake_dump=<path> writes this bake as a PPM (rows as GL reads them)
+    {
+        char dump[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.bake_dump", dump, "");
+        if (dump[0]) {
+            std::vector<unsigned char> px((size_t)size * size * 4);
+            glReadPixels(0, 0, size, size, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+            if (FILE* f = fopen(dump, "wb")) {
+                fprintf(f, "P6\n%d %d\n255\n", size, size);
+                for (int y = 0; y < size; y++)
+                    for (int x = 0; x < size; x++) {
+                        const unsigned char* p = &px[((size_t)y * size + x) * 4];
+                        // alpha shown as a checker so the shape reads
+                        const int chk = ((x / 8 + y / 8) & 1) ? 90 : 60;
+                        const unsigned char o[3] = {(unsigned char)(p[0] + chk * (255 - p[3]) / 255),
+                                                    (unsigned char)(p[1] + chk * (255 - p[3]) / 255),
+                                                    (unsigned char)(p[2] + chk * (255 - p[3]) / 255)};
+                        fwrite(o, 1, 3, f);
+                    }
+                fclose(f);
+            }
+            property_set("sys.gammaos.nano.bake_dump", "");
+        }
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    glViewport(prevVp[0], prevVp[1], prevVp[2], prevVp[3]);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (!blendWas) glDisable(GL_BLEND);
+    glDeleteFramebuffers(1, &fbo);
+    glDeleteTextures(1, &bgTex);
+    return tex;
 }
 
 void NanoMenu::drawGlassIcon(GLuint nmapTex, float x, float y, float w, float h,

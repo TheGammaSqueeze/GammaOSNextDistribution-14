@@ -34,6 +34,9 @@ const int TURN_FRAMES = 600;
 const float SPIN_GAIN = 0.15f;
 // The most frames a banner waits for its folder glyph before showing anyway (the build is ~5).
 const int GLYPH_WAIT_FRAMES = 30;
+// The glyph solids a third thinner than the folder body they stand in for (2.6 units): glass.
+const float GLYPH_DEPTH_SCALE = 2.0f / 3.0f;
+const float GLYPH_DEPTH_FOLDER = 2.6f * GLYPH_DEPTH_SCALE;
 const float SCALE_BASE = 0.8f, SCALE_STEP = 0.25f * 0.2f;
 const int SCALE_STEPS = 4;
 const float TOP_CLEAR[3] = {232 / 255.0f, 232 / 255.0f, 238 / 255.0f};
@@ -315,9 +318,42 @@ void CtrTop::focus(const TopFocus& f) {
     if (spec.type == FolderT && f.glyph) {
         const std::string gk = f.key + "|" + std::to_string(f.glyph) + (f.glyphColor ? "c" : "");
         if (!mGlyphs.count(gk) &&
-            startGlyphJob(gk, f.glyph, f.glyphW, f.glyphH, 11.0f, 9.6f, 0.0f, 2.9f, 2.6f, f.glyphColor))
+            startGlyphJob(gk, f.glyph, f.glyphW, f.glyphH, 11.0f, 9.6f, 0.0f, 2.9f, GLYPH_DEPTH_FOLDER, f.glyphColor))
             mPendingGlyphKey = gk;
     }
+    // the same for an applet banner with nano's icon (the bar buttons): the console's applet
+    // object (the Game Notes pencil) used to show for a moment first
+    if (f.kind == TopFocus::Bar && f.glyph && !spec.model.empty()) {
+        if (auto res = resource(spec.model)) {
+            V3 centre{0, 0, 0}, size{0, 0, 0};
+            int bone = -1;
+            if (bodyBox(*res, &centre, &size, &bone) && bone >= 0 && size[0] > 0 && size[1] > 0) {
+                const float box = std::max(size[0], size[1]) * 0.8f;
+                const float depth = std::max(0.8f, std::min(size[2] * 0.6f, box * 0.22f)) * GLYPH_DEPTH_SCALE;
+                const std::string gk = "bar|" + std::to_string(f.glyph) + "|" + spec.model;
+                if (!mGlyphs.count(gk) &&
+                    startGlyphJob(gk, f.glyph, f.glyphW, f.glyphH, box, box, centre[0], centre[1], depth, false))
+                    mPendingGlyphKey = gk;
+            }
+        }
+    }
+}
+
+// The applet object's bounds (mt_Body) and the bone that carries it: where its glyph stands in.
+bool CtrTop::bodyBox(const ModelResource& res, V3* centre, V3* size, int* bone) {
+    for (const auto& p : res.primitives) {
+        if (p.mesh < 0 || p.mesh >= (int)res.meshes.size()) continue;
+        const auto& me = res.meshes[p.mesh];
+        if (me.material < 0 || me.material >= (int)res.materials.size() || res.materials[me.material].name != "mt_Body")
+            continue;
+        *bone = p.bone;
+        if (me.shape >= 0 && me.shape < (int)res.shapeCenters.size()) {
+            *centre = res.shapeCenters[me.shape];
+            *size = res.shapeSizes[me.shape];
+        }
+        return true;
+    }
+    return false;
 }
 
 // nametex.ts: black cbf_std glyphs centred on a white 256x64 plate, stored upside down.
@@ -593,7 +629,7 @@ void CtrTop::attach() {
             b->glyphHide = b->model->hiddenMeshes;
             b->model->hiddenMeshes.clear();
             if (startGlyphJob(gk, mPendingFocus.glyph, mPendingFocus.glyphW, mPendingFocus.glyphH, 11.0f, 9.6f, 0.0f, 2.9f,
-                              2.6f, mPendingFocus.glyphColor))
+                              GLYPH_DEPTH_FOLDER, mPendingFocus.glyphColor))
                 b->glyphKey = gk;
         }
         b->tinted = mPendingFocus.glyphTinted;
@@ -626,7 +662,7 @@ void CtrTop::attach() {
         if (b->glyphBone >= 0 && size[0] > 0 && size[1] > 0) {
             // about the size of the object it replaces (its long side: Game Notes is a thin tilted pad)
             const float box = std::max(size[0], size[1]) * 0.8f;
-            const float depth = std::max(0.8f, std::min(size[2] * 0.6f, box * 0.22f));
+            const float depth = std::max(0.8f, std::min(size[2] * 0.6f, box * 0.22f)) * GLYPH_DEPTH_SCALE;
             const std::string gk = "bar|" + std::to_string(mPendingFocus.glyph) + "|" + b->spec.model;
             auto it = mGlyphs.find(gk);
             if (it != mGlyphs.end()) {
@@ -786,16 +822,39 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
         // a dark body (the Black theme, a dark folder colour) would hide a glyph in its own
         // colours: light faces and mid grey walls instead
         if (!b.glyph->coloured() && 0.2126f * face[0] + 0.7152f * face[1] + 0.0722f * face[2] < 0.4f) {
+            // the colour itself lifted towards white (not a neutral grey: the glass's hue sway
+            // needs a hue to turn), the walls a denser shade of it
             for (int i = 0; i < 3; i++) {
-                face[i] = 0.92f;
-                side[i] = 0.58f;
+                face[i] = face[i] + (1.0f - face[i]) * 0.6f;
+                side[i] = face[i] * 0.62f;
             }
         }
         // the folder model's light (Light_Folder_00: straight down and away), in view space
         const float lw[3] = {0, -0.7071f, -0.7071f};
         float light[3];
         for (int r = 0; r < 3; r++) light[r] = cam.view.m[r] * lw[0] + cam.view.m[4 + r] * lw[1] + cam.view.m[8 + r] * lw[2];
-        b.glyph->draw(mv.m, cam.projection.m, face, side, light);
+        // Glass: the tint's hue sways with the turn, up to 35 degrees either side of the theme's
+        // colour over a turn (a rotation about the grey axis, built once per frame; the shader
+        // applies the matrix), so the colour stays the theme's. A full colour icon (PICO-8)
+        // keeps its own pixels, so no hue shift there.
+        float hue[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+        if (!b.glyph->coloured() && !b.tinted) {
+            // an achromatic theme colour (the Black theme's greys) gives the sway no hue to turn:
+            // the console's folder blue stands in as the glass colour
+            const float mx = std::max({face[0], face[1], face[2]}), mn = std::min({face[0], face[1], face[2]});
+            if (mx - mn < 0.12f) {
+                face[0] = 0.45f; face[1] = 0.78f; face[2] = 0.93f;
+                for (int i = 0; i < 3; i++) side[i] = face[i] * 0.62f;
+            }
+        }
+        if (b.spec.turn && !b.glyph->coloured() && !b.tinted) {   // a system's own colour stays its own
+            const float a = sinf(b.turnFrame * (float)M_PI * 2 / TURN_FRAMES) * (35.0f * (float)M_PI / 180.0f);
+            const float c = cosf(a), s = sinf(a), k = (1 - c) / 3.0f, t = s / sqrtf(3.0f);
+            // rotation of (r, g, b) about (1, 1, 1): a hue shift that keeps luminance roughly
+            const float m[9] = {c + k, k + t, k - t, k - t, c + k, k + t, k + t, k - t, c + k};
+            memcpy(hue, m, sizeof(hue));
+        }
+        b.glyph->draw(mv.m, cam.projection.m, face, side, light, hue, true);
     };
     for (auto& b : mLeaving) one(*b);
     if (mBanner) one(*mBanner);

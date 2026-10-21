@@ -55,6 +55,9 @@ public:
 
     // Identity of a container: the Ps3Item that opens it, by id.
     std::map<std::string, NanoMenu::Ps3Item> mFolders;
+    // XMB glass bakes of the system icons shown alone on the grid: icon|nmap|tint|background -> texture
+    std::map<std::string, GLuint> mGlassBaked;
+    static constexpr int kGlassBakeSize = 160;
     std::map<std::string, NanoMenu::Ps3Item> mTitles;
 
     static bool isContainer(int kind) {
@@ -106,6 +109,14 @@ public:
             h.kind = ctr::HomeItemKind::Folder;
             // PICO-8's is the one system icon kept in its own colours (initIconTextures)
             h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint && it.iconTex != mMenu->mIconTextures[14];
+            // a game system and the root's lists show their icon alone on the grid, no folder body
+            switch (it.kind) {
+                case NanoMenu::PS3_SYSTEM: case NanoMenu::PS3_RECENT_LIST: case NanoMenu::PS3_APP_LIST:
+                case NanoMenu::PS3_PINNED_APPS_LIST: case NanoMenu::PS3_COLLECTIONS_LIST: case NanoMenu::PS3_FAVORITES_LIST:
+                    h.glyphOnly = it.iconTex != 0;
+                    break;
+                default: break;
+            }
             mFolders[h.id] = it;
         } else {
             h.kind = ctr::HomeItemKind::Title;
@@ -693,6 +704,74 @@ public:
 
     // A title's own art: the SMDH icon of a 3DS ROM, the banner icon of a DS ROM, else the
     // scraped cover (when Boxart is on); other entries nano's system glyph.
+    // A colour of its own for each system / root list shown as an icon, made on the device from
+    // the systems present (nothing is baked into the image: a system the user adds gets one too).
+    // The wheel is cut into as many even slots as there are names; each name (in name order)
+    // takes the free slot nearest its hash hue, so the set is as spread out as it can be and a
+    // name keeps its place as long as the wheel is not re-cut around it. Neighbouring slots
+    // alternate between two lightness levels so near hues still read apart. The lightness and
+    // saturation suit the tile the icon sits on: deep tones on a light tile, bright ones on dark.
+    void nameColor(const std::string& name, float tileLum, float rgb[3]) {
+        std::vector<std::string> names;
+        for (const auto& f : mFolders) {
+            switch (f.second.kind) {
+                case NanoMenu::PS3_SYSTEM: case NanoMenu::PS3_RECENT_LIST: case NanoMenu::PS3_APP_LIST:
+                case NanoMenu::PS3_PINNED_APPS_LIST: case NanoMenu::PS3_COLLECTIONS_LIST: case NanoMenu::PS3_FAVORITES_LIST:
+                    names.push_back(f.second.label);
+                    break;
+                default: break;
+            }
+        }
+        std::sort(names.begin(), names.end());
+        names.erase(std::unique(names.begin(), names.end()), names.end());
+        if (std::find(names.begin(), names.end(), name) == names.end()) names.push_back(name);
+        auto hashHue = [](const std::string& nm) {
+            uint32_t h = 2166136261u;
+            for (unsigned char c : nm) { h ^= c; h *= 16777619u; }
+            h ^= h >> 16; h *= 0x85ebca6bu; h ^= h >> 13; h *= 0xc2b2ae35u; h ^= h >> 16;
+            return (float)(h % 3600) / 10.0f;
+        };
+        const int slots = std::max(12, (int)names.size());   // never coarser than 30 degrees
+        const float step = 360.0f / slots;
+        std::vector<bool> taken(slots, false);
+        int mine = 0;
+        for (const std::string& nm : names) {
+            const float hd = hashHue(nm);
+            int best = -1;
+            float bestDist = 1e9f;
+            for (int i = 0; i < slots; i++) {
+                if (taken[i]) continue;
+                const float d = fabsf(hd - i * step), dist = std::min(d, 360.0f - d);
+                if (dist < bestDist) { bestDist = dist; best = i; }
+            }
+            if (best < 0) best = 0;
+            taken[best] = true;
+            if (nm == name) { mine = best; break; }
+        }
+        const float hue = (mine * step) / 60.0f;
+        const bool dark = tileLum <= 0.5f;
+        const float s = dark ? 0.78f : 0.72f;
+        const float l = (dark ? 0.66f : 0.36f) + ((mine & 1) ? 0.07f : -0.05f);
+        const float c = (1 - fabsf(2 * l - 1)) * s, x = c * (1 - fabsf(fmodf(hue, 2.0f) - 1)), m = l - c / 2;
+        float r = 0, g = 0, b = 0;
+        switch ((int)hue) {
+            case 0: r = c; g = x; break;
+            case 1: r = x; g = c; break;
+            case 2: g = c; b = x; break;
+            case 3: g = x; b = c; break;
+            case 4: r = x; b = c; break;
+            default: r = c; b = x; break;
+        }
+        rgb[0] = r + m; rgb[1] = g + m; rgb[2] = b + m;
+    }
+    // the raw white system glyph for the top screen's solid (the grid shows a glass bake of it)
+    GLuint systemGlyphTexture(const ctr::HomeItem& item, int* w, int* h) override {
+        if (!item.glyphOnly || !item.monoIcon) return 0;   // a full colour icon (PICO-8) keeps its own path
+        auto f = mFolders.find(item.id);
+        if (f == mFolders.end() || !f->second.iconTex) return 0;
+        *w = *h = 48;
+        return f->second.iconTex;
+    }
     GLuint titleIconTexture(const ctr::HomeItem& item, int* w, int* h, IconArt* art) override {
         auto t = mTitles.find(item.id);
         if (t == mTitles.end()) {
@@ -714,6 +793,40 @@ public:
                     break;
                 default:
                     return 0;   // a ROM folder, a user folder or an album keeps the folder look
+            }
+            // shown as the icon alone: the XMB's glass (normal map relit, the system's tint or the
+            // folder colour, a drop shadow) baked once per icon, tint and background
+            // (a full colour icon, PICO-8, is shown as it is: never relit or recoloured)
+            if (item.glyphOnly && item.monoIcon && f->second.nmapTex && mMenu->mIconGlassReady && mMenu->mCtrHome) {
+                float tint[3], bg[3];
+                mMenu->mCtrHome->tileColor(bg);   // the title tile the icon sits on
+                // a system's own colour when it has one, else a colour of its own from its name
+                // (the same every boot), so the grid is not one tone
+                const float tileLum = 0.2126f * bg[0] + 0.7152f * bg[1] + 0.0722f * bg[2];
+                if (itemTint(item, tint)) {
+                    // high contrast against the tile: the tint's luminance is pushed well away
+                    // from the tile's (dark on a light tile, light on a dark one), its hue kept
+                    const float lum = 0.2126f * tint[0] + 0.7152f * tint[1] + 0.0722f * tint[2];
+                    const float want = tileLum > 0.5f ? 0.3f : 0.85f;
+                    if (lum > 0.01f && ((tileLum > 0.5f && lum > 0.45f) || (tileLum <= 0.5f && lum < 0.6f)))
+                        for (float& c : tint) c = std::min(1.0f, c * want / lum);
+                } else {
+                    nameColor(item.name, tileLum, tint);   // made for this tile's lightness
+                }
+                char key[96];
+                snprintf(key, sizeof(key), "%u|%u|%02x%02x%02x|%02x%02x%02x", f->second.iconTex, f->second.nmapTex,
+                         (int)(tint[0] * 255), (int)(tint[1] * 255), (int)(tint[2] * 255),
+                         (int)(bg[0] * 255), (int)(bg[1] * 255), (int)(bg[2] * 255));
+                auto b = mGlassBaked.find(key);
+                if (b == mGlassBaked.end()) {
+                    const GLuint baked = mMenu->bakeGlassIcon(f->second.nmapTex, f->second.iconTex, tint, bg, kGlassBakeSize);
+                    b = mGlassBaked.emplace(key, baked).first;
+                }
+                if (b->second) {
+                    *w = *h = kGlassBakeSize;
+                    art->mono = false;
+                    return b->second;
+                }
             }
             *w = *h = 48;
             art->mono = item.monoIcon;
