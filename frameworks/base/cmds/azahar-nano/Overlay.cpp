@@ -1133,14 +1133,25 @@ void Overlay::render() {
         // text() takes the top of the glyph box (verified by capture).
         if (sel) mGfx.fillRect(px + 16 * scale, y - 6 * scale, panelW - 32 * scale,
                                mGfx.fontLineH() * rowScale + 8 * scale, rgba(0.2f, 0.35f, 0.7f, 0.9f));
-        mGfx.text(r.label.c_str(), px + 40 * scale, y, rowScale, rgba(1, 1, 1, 1));
         std::string v;
         if (r.kind == ROW_CHOICE && !r.choices.empty()) v = "<  " + r.choices[r.sel].label + "  >";
         else if (r.kind == ROW_PAGE) v = ">";
+        float vw = 0;
         if (!v.empty()) {
-            const float tw = mGfx.measure(v.c_str(), rowScale);
-            mGfx.text(v.c_str(), px + panelW - 40 * scale - tw, y, rowScale, rgba(0.85f, 0.9f, 1.0f, 1));
+            vw = mGfx.measure(v.c_str(), rowScale);
+            mGfx.text(v.c_str(), px + panelW - 40 * scale - vw, y, rowScale, rgba(0.85f, 0.9f, 1.0f, 1));
         }
+        // a label too long for the space left of its value (cheat names) ends in an ellipsis
+        std::string label = r.label;
+        const float labelAvail = panelW - 80 * scale - vw - (vw > 0 ? 24 * scale : 0);
+        if (mGfx.measure(label.c_str(), rowScale) > labelAvail) {
+            while (!label.empty() && mGfx.measure((label + "...").c_str(), rowScale) > labelAvail) {
+                label.pop_back();
+                while (!label.empty() && ((unsigned char)label.back() & 0xC0) == 0x80) label.pop_back();
+            }
+            label += "...";
+        }
+        mGfx.text(label.c_str(), px + 40 * scale, y, rowScale, rgba(1, 1, 1, 1));
         y += rowH;
     }
     // The help line's box runs from the left margin to the position counter (or the right
