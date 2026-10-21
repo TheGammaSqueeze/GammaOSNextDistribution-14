@@ -1660,6 +1660,12 @@ bool NanoMenu::ctrQuickSubmenu(const Ps3Item& it, Ps3Level* out) {
     return false;
 }
 
+// The Quick Menu's Power entry: on the 3DS home a tile like the other Quick Menu options (its
+// submenu opens as the panel), drawn in the folder colours, rather than a folder.
+bool NanoMenu::ctrQuickIsPower(const Ps3Item& it) const {
+    return it.kind == PS3_QUICK && it.a == QA_POWER_SUBMENU;
+}
+
 void NanoMenu::buildPs3Cats() {
     mPs3Cats.clear();
     int gameCatRuntimeIdx = -1;
@@ -1689,9 +1695,11 @@ void NanoMenu::buildPs3Cats() {
             it.iconR = it.iconG = it.iconB = 1.0f;
             q.items.push_back(it);
         };
+        // Power first: the default landing of the Quick Menu in every theme.
+        qItem("Power",               QA_POWER_SUBMENU, 54);
         // Resume Audio Player: only present while music is playing in the background
         // (minimized). musicTick rebuilds the cats when audio starts/stops so it
-        // appears/disappears. Always the first item so it is the default landing.
+        // appears/disappears. Right after Power so it is one step away.
         if (mMusicResumeShown) qItem("Resume Audio Player", QA_RESUME_AUDIO, 3);
         qItem("Screen Brightness",   QA_BRIGHTNESS,    73);
         qItem("Performance Mode",    QA_PERFORMANCE,   81);
@@ -1724,7 +1732,6 @@ void NanoMenu::buildPs3Cats() {
             it.iconTex = iconTexForIcon(8); it.nmapTex = nmapForIcon(8); it.iconR = it.iconG = it.iconB = 1.0f;
             q.items.push_back(it);
         }
-        qItem("Power",               QA_POWER_SUBMENU, 54);
         // Seed the cached Performance Mode row value from the persisted governor prop.
         { char pm[PROPERTY_VALUE_MAX]; property_get("persist.gammaos.performance_mode", pm, "stock");
           mPs3PerfModeLabel = !strcmp(pm, "max") ? "Max Performance"

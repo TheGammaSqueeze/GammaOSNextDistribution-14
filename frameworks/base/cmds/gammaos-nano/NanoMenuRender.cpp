@@ -5483,6 +5483,21 @@ void NanoMenu::hideControlCenterLayer() {
 // Render
 // ---------------------------------------------------------------------------
 
+// Where the keyboard is: the secondary passes draw renderOsk on the bottom panel whenever one is
+// up (the DSi, Minima, 3DS and ES-DE dual-panel branches), and the primary pass skips it then
+// (oskOnSecondary below); setup blanks the bottom panel and keeps the keyboard on the primary.
+bool NanoMenu::oskOnSecondaryPanel(int* w, int* h) {
+    const bool setupBlankDual = mSetupWizardActive && !mPs3BootActive && hasSecondaryDisplay();
+    const bool on = mPs3Xmb && !setupBlankDual &&
+                    (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty()) &&
+                    sAhbTargetSecondary.w > 0 && sAhbTargetSecondary.h > 0;
+    if (on) {
+        *w = sAhbTargetSecondary.w;
+        *h = sAhbTargetSecondary.h;
+    }
+    return on;
+}
+
 // GammaOS Nano debug capture: when sys.gammaos.nano.shot is set, read the
 // just-composited frame straight out of the bound framebuffer and write it as a
 // binary PPM. This is the only capture that works on the DRM-direct path, where

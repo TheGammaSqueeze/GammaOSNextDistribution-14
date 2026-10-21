@@ -1130,10 +1130,18 @@ void NanoMenu::oskTouchFrame() {
     if (mOskTouchFlipY) ny = 1.0f - ny;
     if (nx < 0.0f) nx = 0.0f; else if (nx > 1.0f) nx = 1.0f;
     if (ny < 0.0f) ny = 0.0f; else if (ny > 1.0f) ny = 1.0f;
+    // the keys are laid out (oskLayoutBox) in the dims of the panel the keyboard is drawn on:
+    // the bottom panel's on a dual-panel device, not the primary's (taps landed on the wrong
+    // key there, the 3DS theme's search keyboard typed "?")
+    const int sw = mWidth, sh = mHeight;
+    int w2 = 0, h2 = 0;
+    const bool secondary = oskOnSecondaryPanel(&w2, &h2);
+    if (secondary) { mWidth = w2; mHeight = h2; }
     float px = nx * (float)mWidth;
     float py = ny * (float)mHeight;
     bool tap = (mTouchDown && !mTouchWasDown);   // press edge only presses a key
     if (mTouchDown) oskTouchAt(px, py, tap);
+    if (secondary) { mWidth = sw; mHeight = sh; }
     mTouchWasDown = mTouchDown;
 }
 

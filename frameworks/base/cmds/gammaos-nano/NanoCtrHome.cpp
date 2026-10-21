@@ -173,7 +173,9 @@ struct Scroller {
     State state = Idle;
     float delta = 0, velocity = 0, last = 0, accumulated = 0, remaining = 0;
     bool claimed = true;
+    int stillFrames = 0;          // frames the finger has not moved while dragging
     const float dragStart = 11, fling = 1, decay = 0.95f, stopSpeed = 4.5f, moveSpeed = 4.275f;
+    static constexpr int STILL_KEEP = 3;   // samples missed before a held finger is a stop
 
     bool active() const { return state != Idle; }
     void press(float pos, bool claim = true) {
@@ -181,6 +183,7 @@ struct Scroller {
         state = coasting ? Dragging : Pressed;
         last = pos;
         accumulated = velocity = delta = 0;
+        stillFrames = 0;
         claimed = claim;
     }
     bool move(float pos) {
@@ -194,6 +197,15 @@ struct Scroller {
             return true;
         }
         if (state == Dragging) {
+            // scroller.ts move(position, moving): a frame without a new finger sample keeps the
+            // speed for the fling (the digitizer reports slower than the frames); only a finger
+            // that stays put for several frames comes to a stop
+            if (pos == last) {
+                if (++stillFrames <= STILL_KEEP) return false;
+                velocity = 0;
+                return false;
+            }
+            stillFrames = 0;
             velocity = pos - last;
             delta = velocity;
             last = pos;
@@ -715,6 +727,7 @@ struct CtrHome::Impl {
     // draw
     void drawIcons(Renderer& r, const Grid& g, const Box* clip);
     void stamp(Renderer& r, IconTemplate& t, float x, float y, float scale = 1);
+    void stampInvertedTile(Renderer& r, float x, float y);
     void drawInstance(Renderer& r, LayoutInstance* l) {
         if (!l) return;
         l->layout().calculate();
@@ -942,7 +955,10 @@ void CtrHome::Impl::tick() {
                               balloon.get(), top.get(), hud.get(), fadeTop.get(), fadeBottom.get()})
         if (l) l->update(1);
     for (Trail& t : trail) if (t.active && t.layout) t.layout->update(1);
-    if (top3d) top3d->update();
+    if (top3d) {
+        top3d->setScroll(scroller.velocity);   // a flicked grid spins the top banner faster
+        top3d->update();
+    }
     if (makerSlot >= 0 && maker) {
         maker->update(1);
         if (++makerFrame >= 16) {   // MAKE_FRAMES
@@ -3392,7 +3408,10 @@ TexturePtr CtrHome::Impl::titleTextureOwn(const HomeItem& it) {
                 // darkened copy (the icon material ignores vertex colour)
                 // a title the host colours (a category's): its glyph in that colour
                 float rgb[3];
-                const bool coloured = it.kind == HomeItemKind::Title && host->itemTint(it, rgb);
+                bool coloured = it.kind == HomeItemKind::Title && host->itemTint(it, rgb);
+                // a title drawn in the folder colours (the Quick Menu's Power): its glyph white on
+                // the coloured body, not the category's ink (orange on orange)
+                if (it.inverted) { rgb[0] = rgb[1] = rgb[2] = 1.0f; coloured = true; }
                 // on dark folders (the Black theme, a dark folder colour) a light glyph instead
                 const float grey = (darkFolders() ? 232 : 80) / 255.0f;
                 if (TexturePtr t = tintedCopy(gl, w, h, grey, 0, false, false, coloured ? rgb : nullptr)) return t;
@@ -3427,6 +3446,44 @@ void CtrHome::Impl::stamp(Renderer& r, IconTemplate& t, float x, float y, float 
     root_->scale[0] = root_->scale[1] = scale;
     t.layout->layout().calculate();
     r.drawLayout(t.layout->layout());
+}
+
+// A title drawn in the folder colours (the Quick Menu's Power): the tile's body panes take dark /
+// main / light in the vertex slots the theme writes for a folder (P_Btn_* as P_Folder_*), and the
+// colour body shows even when the theme has a file picture. The glyph over it reads as on a folder.
+void CtrHome::Impl::stampInvertedTile(Renderer& r, float x, float y) {
+    static const char* const kPanes[4] = {"P_Btn_00", "P_Btn_01", "P_Btn_02", "P_Btn_03"};
+    float dark[3], main[3];
+    if (folderColorsOn) {
+        memcpy(dark, folderDark, sizeof(dark));
+        memcpy(main, folderMain, sizeof(main));
+    } else {   // the console's folder blue
+        dark[0] = 0.25f; dark[1] = 0.55f; dark[2] = 0.75f;
+        main[0] = 0.45f; main[1] = 0.78f; main[2] = 0.93f;
+    }
+    // dark to main only: the folder's lit edge (main halfway to white) read as a white band here
+    const float light[3] = {main[0], main[1], main[2]};
+    Pane* panes[4] = {nullptr, nullptr, nullptr, nullptr};
+    std::array<Rgba, 4> saved[4];
+    for (int i = 0; i < 4; i++) {
+        panes[i] = tile.layout->pane(kPanes[i]);
+        if (!panes[i]) continue;
+        saved[i] = panes[i]->vertexColors;
+        auto put = [&](int slot, const float* c) {
+            Rgba& v = panes[i]->vertexColors[slot];
+            v[0] = c[0] * 255;
+            v[1] = c[1] * 255;
+            v[2] = c[2] * 255;   // the alpha stays
+        };
+        put(0, dark);
+        put(2, main);
+        put(1, light);
+    }
+    const bool picture = themeFileLarge != nullptr;
+    if (picture) tile.setPicture(false);
+    stamp(r, tile, x, y);
+    if (picture) tile.setPicture(true);
+    for (int i = 0; i < 4; i++) if (panes[i]) panes[i]->vertexColors = saved[i];
 }
 
 // Letter tile size and y offset per zoom (icons.ts, after LncIconFolderPickUp_00_Scale P_Icon_00).
@@ -3569,7 +3626,8 @@ void CtrHome::Impl::drawIcons(Renderer& r, const Grid& g, const Box* clip) {
             const int z = g.blending ? (g.t < 0.5f ? g.from.zoom : g.to.zoom) : g.zoom();
             tile.layout->replaceTexture("P_Btn_10", z >= SMALL_ICON_ZOOM ? themeFileSmall : themeFileLarge);
         }
-        stamp(r, tile, p.x, p.y);
+        if (it->inverted) stampInvertedTile(r, p.x, p.y);   // Power: a tile in the folder colours
+        else stamp(r, tile, p.x, p.y);
         drawTitleArt(r, *it, p.x, p.y, zoomTable(ICON_SIZE, zoom), 1);
     }
     if (clip) r.setScissor(false);
@@ -4690,9 +4748,11 @@ void CtrHome::setCornerIcons(const CornerIcon& settings, const CornerIcon& big, 
                     tm.minF = GL_LINEAR_MIPMAP_LINEAR;   // drawn at a fraction of its size
                 }
     // the size buttons: the console mirrors one 8x8 cell over the pane (uv 0..2); ours are
-    // whole pictures, so their panes map 0..1 and clamp
+    // whole pictures, so their panes map 0..1 and clamp. P_Up_20 is zoomIn (SE_CTR_HOME_LINE_INC:
+    // more lines, smaller icons) and takes the four squares; P_Dw_20 is zoomOut (fewer lines,
+    // bigger icons) and takes the one big square.
     struct Slot { const char* pane; const TexturePtr& t; };
-    for (const Slot& sl : {Slot{"P_Up_20", bg}, Slot{"P_Dw_20", fr}}) {
+    for (const Slot& sl : {Slot{"P_Up_20", fr}, Slot{"P_Dw_20", bg}}) {
         if (!sl.t) continue;
         Pane* p = mImpl->base->pane(sl.pane);
         if (!p || p->material < 0 || p->material >= (int)lay.materials.size()) continue;

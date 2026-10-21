@@ -151,14 +151,21 @@ public:
     struct Light { bool present = false; V3 direction{0, 0, -1}; V3 ambient{}, diffuse{}, specular0{}, specular1{}; } light;
     struct Primitive {
         int mesh = 0, material = 0, bone = -1;
-        GLuint buffers[6] = {0, 0, 0, 0, 0, 0};   // position normal color uv0 uv1 uv2
-        GLenum types[6] = {0, 0, 0, 0, 0, 0};
-        int components[6] = {0, 0, 0, 0, 0, 0};
+        // position normal color uv0 uv1 uv2, then joints and weights (skinned primitives only)
+        GLuint buffers[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        GLenum types[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        int components[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        int skin = -1;   // blended over several joints: skinned on the GPU from `skins[skin]`
         GLuint index = 0;
         GLenum indexType = GL_UNSIGNED_SHORT;
         int indexCount = 0;
     };
     std::vector<Primitive> primitives;
+    // A glTF skin: its joints as bone indices and their inverse bind matrices (a character banner's
+    // rig; a mesh bound whole to one joint rides that bone instead, Primitive::bone).
+    struct Skin { std::vector<int> bones; std::vector<M4> invBind; };
+    std::vector<Skin> skins;
+    static constexpr int kMaxSkinJoints = 16;
     std::map<std::string, std::shared_ptr<GpuTex>> textures;
     std::map<std::string, int> lutRows;
     GLuint lutTexture = 0;

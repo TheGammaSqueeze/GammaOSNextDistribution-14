@@ -64,6 +64,10 @@ public:
     // first) and its ink colour.
     void setDefaultIcon(int button, unsigned texture, int w, int h, const float ink[3]);
     void update();            // one 60 Hz frame
+    // The bottom grid's scroll speed this frame (layout units a frame, signed, 0 at rest): a
+    // turning banner (the empty slot's cubes, a folder, an applet) spins faster the harder the
+    // grid was flicked and settles as the grid does, like the console's.
+    void setScroll(float velocity) { mScrollVelocity = velocity; }
     // Draws the scene into the top screen rectangle of the bound framebuffer. `proj` maps the
     // 400x240 layout space (as for the layouts); vp is the GL viewport it targets.
     void draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width = 400, float height = 240);
@@ -143,10 +147,14 @@ private:
         float tint[3] = {1, 1, 1};
         bool shown = true;
         int scaleStep = 4;
-        int turnFrame = 0;
+        float turnFrame = 0;   // 0..TURN_FRAMES, advanced by `turnStep` a frame (1 at rest)
         bool gone() const { return !shown && scaleStep == 0; }
-        void update();
+        void update(float turnStep);
     };
+    float mScrollVelocity = 0;
+    // A game system's folder glyph still building for the pending banner (mGlyphJobs): attach
+    // waits for it so the console's folder, with its placeholder texture, is never shown first.
+    std::string mPendingGlyphKey;
     std::shared_ptr<ModelResource> resource(const std::string& name);
     std::shared_ptr<ModelResource> romResource(const std::shared_ptr<const RomBanner>& b);
     std::shared_ptr<ModelResource> packResource(const std::vector<uint8_t>& bytes, const std::string& what);

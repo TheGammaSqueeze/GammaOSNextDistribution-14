@@ -42,6 +42,7 @@ struct HomeItem {
     int slot = -1;             // explicit grid slot (empty slots before it), -1 = the next slot
     bool folderFilled = true;  // folders: something inside (the icon shows its contents tab)
     bool monoIcon = false;     // the art is a white glyph (nano system icons): drawn dark
+    bool inverted = false;     // titles: the tile body in the folder colours (the Quick Menu's Power)
 };
 
 struct HomeStatus {

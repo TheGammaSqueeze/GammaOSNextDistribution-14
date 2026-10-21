@@ -29,6 +29,11 @@ const float WALL_PHASE = 2;
 // the wall texture that receives the suspended title's upper screen (mt_BG texture 0)
 const char* const APP_TEXTURE = "BG_DmyApp_00";
 const int TURN_FRAMES = 600;
+// How much a turning banner's spin picks up with the grid's scroll speed (layout units a frame):
+// a hard flick of ~30 a frame spins it ~5x, settling with the inertia.
+const float SPIN_GAIN = 0.15f;
+// The most frames a banner waits for its folder glyph before showing anyway (the build is ~5).
+const int GLYPH_WAIT_FRAMES = 30;
 const float SCALE_BASE = 0.8f, SCALE_STEP = 0.25f * 0.2f;
 const int SCALE_STEPS = 4;
 const float TOP_CLEAR[3] = {232 / 255.0f, 232 / 255.0f, 238 / 255.0f};
@@ -67,7 +72,7 @@ GLuint compileBlit(GLenum type, const char* src) {
 
 }  // namespace
 
-void CtrTop::Banner::update() {
+void CtrTop::Banner::update(float turnStep) {
     if (spec.still) {
         model->visible = shown;
         scaleStep = shown ? SCALE_STEPS : 0;
@@ -82,7 +87,7 @@ void CtrTop::Banner::update() {
         step = scaleStep;
     }
     model->visible = shown || scaleStep > 0;
-    turnFrame = (turnFrame + 1) % TURN_FRAMES;
+    turnFrame = fmodf(turnFrame + turnStep, (float)TURN_FRAMES);
     const float angle = spec.turn ? -turnFrame * (float)M_PI * 2 / TURN_FRAMES : 0.0f;
     const float scale = SCALE_BASE + step * SCALE_STEP;
     mat4Transform(model->transform, {scale, scale, scale}, {0, angle, 0}, {0, 0, 0});
@@ -298,11 +303,21 @@ void CtrTop::focus(const TopFocus& f) {
         mLeaving.push_back(std::move(mBanner));
     }
     mHasPending = show;
+    mPendingGlyphKey.clear();
     if (!show) return;
     mPendingFocus = f;
     mPendingSpec = spec;
     const bool boot = !mAttachedOnce;
     mPendingLeft = boot ? BOOT_DELAY : (spec.type == TitleT ? SHOW_DELAY_TITLE : SHOW_DELAY_MENU);
+    // A game system's folder shows its icon as a solid in place of the folder. Start building it
+    // now, during the show delay, and let attach wait for it (update): on a first visit the
+    // console's folder, with its placeholder texture, used to show until the glyph landed.
+    if (spec.type == FolderT && f.glyph) {
+        const std::string gk = f.key + "|" + std::to_string(f.glyph) + (f.glyphColor ? "c" : "");
+        if (!mGlyphs.count(gk) &&
+            startGlyphJob(gk, f.glyph, f.glyphW, f.glyphH, 11.0f, 9.6f, 0.0f, 2.9f, 2.6f, f.glyphColor))
+            mPendingGlyphKey = gk;
+    }
 }
 
 // nametex.ts: black cbf_std glyphs centred on a white 256x64 plate, stored upside down.
@@ -499,6 +514,7 @@ std::shared_ptr<ModelResource> CtrTop::romResource(const std::shared_ptr<const R
 
 void CtrTop::attach() {
     mHasPending = false;
+    mPendingGlyphKey.clear();
     auto res = mPendingFocus.cbmd ? romResource(mPendingFocus.cbmd) : resource(mPendingSpec.model);
     if (!res) return;
     if (mPendingFocus.icon && res->hasTexture("DmyIcon_00")) {
@@ -550,7 +566,13 @@ void CtrTop::attach() {
             m->reset();
         }
     }
-    for (const std::string& a : b->spec.animations) b->model->play(a, b->spec.loop ? 1 : -1, b->spec.paused ? 0.0f : 1.0f);
+    bool played = false;
+    for (const std::string& a : b->spec.animations)
+        played |= b->model->play(a, b->spec.loop ? 1 : -1, b->spec.paused ? 0.0f : 1.0f);
+    // A title's CBMD that carries no animation at all (Mario Kart 7: a still model in the file)
+    // turns on the console like the menu's own banners; one with a COMMON animation plays it
+    // facing the camera (titlebanner.ts only models the latter).
+    if (b->spec.type == TitleT && !played) b->spec.turn = true;
     if (!b->spec.meshes.empty()) {
         for (size_t i = 0; i < res->meshes.size(); i++)
             if (std::find(b->spec.meshes.begin(), b->spec.meshes.end(), res->meshes[i].node) == b->spec.meshes.end())
@@ -828,7 +850,12 @@ void CtrTop::pollGlyphJobs() {
 
 void CtrTop::update() {
     pollGlyphJobs();
-    if (mHasPending && --mPendingLeft <= 0) attach();
+    if (mHasPending && --mPendingLeft <= 0) {
+        // a game system's folder whose glyph is still building: hold the banner for it (bounded)
+        // rather than show the folder itself first
+        const bool glyphReady = mPendingGlyphKey.empty() || mGlyphs.count(mPendingGlyphKey) > 0;
+        if (glyphReady || mPendingLeft <= -GLYPH_WAIT_FRAMES) attach();
+    }
     updatePlate();
     if (mWall) mWall->update(1);
     if (!mAppEnding.empty() && mWall && !mWall->isPlaying(mAppEnding)) {
@@ -836,8 +863,11 @@ void CtrTop::update() {
         for (const char* n : {"BannerBG_AppPause", "BannerBG_AppRestart", "BannerBG_AppQuit"}) mWall->stop(n);
         mAppEnding.clear();
     }
-    for (auto& b : mLeaving) { b->update(); b->model->update(1); if (b->extra) b->extra->update(1); }
-    if (mBanner) { mBanner->update(); mBanner->model->update(1); if (mBanner->extra) mBanner->extra->update(1); }
+    // the turn: one frame a frame at rest, faster the harder the grid is being flicked, easing
+    // back as the grid's inertia dies (the velocity is the scroller's, decaying 5% a frame)
+    const float turnStep = 1.0f + SPIN_GAIN * fabsf(mScrollVelocity);
+    for (auto& b : mLeaving) { b->update(turnStep); b->model->update(1); if (b->extra) b->extra->update(1); }
+    if (mBanner) { mBanner->update(turnStep); mBanner->model->update(1); if (mBanner->extra) mBanner->extra->update(1); }
     mLeaving.erase(std::remove_if(mLeaving.begin(), mLeaving.end(), [](const std::unique_ptr<Banner>& b) { return b->gone(); }),
                    mLeaving.end());
 }

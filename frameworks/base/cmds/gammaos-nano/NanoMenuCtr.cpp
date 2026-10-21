@@ -485,6 +485,7 @@ public:
             mFolders[h.id] = it;
         } else {
             h.kind = ctr::HomeItemKind::Title;
+            h.inverted = mMenu->ctrQuickIsPower(it);   // Power: a tile in the folder colours
             mTitles[h.id] = it;
             mTitleLevel[h.id] = level;
         }
@@ -1105,7 +1106,8 @@ bool NanoMenu::ctrMediaFolder(const Ps3Item& it) {
         case PS3_IPTV_GROUP: case PS3_IPTV_COUNTRY: case PS3_RADIO_GROUP: case PS3_RADIO_BUCKET:
             return true;
         case PS3_QUICK:
-            return ctrQuickSubmenu(it, nullptr);
+            // Power stays a tile (its submenu opens as the panel when launched)
+            return !ctrQuickIsPower(it) && ctrQuickSubmenu(it, nullptr);
         case PS3_DATA_LEAF:
             if (it.label == "Playlists")
                 return mCtrCat == CTR_CAT_MUSIC || mCtrCat == CTR_CAT_VIDEO || mCtrCat == CTR_CAT_PHOTO;
@@ -1786,10 +1788,11 @@ void NanoMenu::ctrUpdateWallpapers() {
 
 // ---------------------------------------------------------------------------- lists and dialogs
 
-// The global search results (the query keyboard closed) as the 3DS panel.
+// The global search results as the 3DS panel: switched off. Nano's own search results (the ones
+// every other theme draws, ctrRenderOverlays) stay up over the 3DS screens instead: the panel
+// version drew a second results list next to them and dismissed the results on a search.
 bool NanoMenu::ctrSearchThemed() const {
-    return mCtrTheme && mGSearchActive && !mOskActive && !mSetupWizardActive && !mPs3BootActive &&
-           mCtrHome && mCtrHome->loaded();
+    return false;
 }
 
 bool NanoMenu::ctrWizThemed() const {

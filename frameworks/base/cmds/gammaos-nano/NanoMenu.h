@@ -1010,6 +1010,10 @@ private:
     void pollDualScreenDetect();
     // True on a physical dual-screen device (e.g. RG DS): physical display count > 1, cached.
     bool hasSecondaryDisplay();
+    // The keyboard is drawn on the bottom (secondary) panel of a dual-panel device (the secondary
+    // passes in render()), except during setup: true with that panel's dims, so the touch side
+    // maps the digitizer into the same space the keys are laid out in (NanoMenuRender.cpp).
+    bool oskOnSecondaryPanel(int* w, int* h);
     std::string mLastOrientToken;                 // last force_orientation we wrote
     std::map<std::string,std::string> mAppOrient; // package -> orientation override
     bool mAppOrientLoaded = false;
@@ -1655,6 +1659,7 @@ private:
     void ctrMediaLevel(const Ps3Item& it, Ps3Level& out);
     void ctrOpenInLevel(const std::string& title, const std::vector<Ps3Item>& items, int sel);
     bool ctrQuickSubmenu(const Ps3Item& it, Ps3Level* out);   // Power, Screen Orientation (NanoMenuPS3Menu.cpp)
+    bool ctrQuickIsPower(const Ps3Item& it) const;             // the Power entry: a tile, not a folder, on the 3DS home
     // Test hook (sys.gammaos.nano.ctr.keys = "RIGHT,RIGHT,A"): each button held 6 frames, 6 apart.
     std::vector<uint32_t> mCtrScript;
     int mCtrScriptFrame = 0;

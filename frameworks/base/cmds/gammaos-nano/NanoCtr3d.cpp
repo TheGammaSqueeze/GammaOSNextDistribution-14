@@ -536,6 +536,31 @@ bool ModelResource::load(Pack& pack, Pack* shared) {
     std::map<uint32_t, uint32_t> parentOf;
     for (uint32_t i = 0; i < nodes.size(); i++)
         for (BjValue c : nodes[i]["children"]) parentOf[(uint32_t)c.asInt()] = i;
+    // the skins: joints as bone indices with their inverse bind matrices (the identity when the
+    // file has none)
+    skins.clear();
+    for (BjValue sk : g["skins"]) {
+        Skin s;
+        BjValue joints = sk["joints"];
+        const uint8_t* ib = nullptr;
+        size_t ibLen = 0;
+        if (sk["inverseBindMatrices"].isNumber()) {
+            BjValue acc = g["accessors"][(uint32_t)sk["inverseBindMatrices"].asInt()];
+            BjValue view = g["bufferViews"][(uint32_t)acc["bufferView"].asInt()];
+            const auto& bin = bins[(size_t)view["buffer"].asInt()];
+            const size_t start = (size_t)view["byteOffset"].asInt() + (size_t)acc["byteOffset"].asInt();
+            if (bin.first && start + joints.size() * 64 <= bin.second) { ib = bin.first + start; ibLen = joints.size() * 64; }
+        }
+        for (uint32_t j = 0; j < joints.size() && j < (uint32_t)kMaxSkinJoints; j++) {
+            const uint32_t ni = (uint32_t)joints[j].asInt();
+            auto bit = ni < nodes.size() ? boneByName.find(nodes[ni]["name"].str()) : boneByName.end();
+            s.bones.push_back(bit != boneByName.end() ? bit->second : -1);
+            M4 m = M4::identity();
+            if (ib && (size_t)(j + 1) * 64 <= ibLen) memcpy(m.m, ib + j * 64, 64);
+            s.invBind.push_back(m);
+        }
+        skins.push_back(std::move(s));
+    }
     auto makeBuffer = [&](uint32_t accessorIndex, GLenum target, GLenum* type, int* comps, int* count) -> GLuint {
         BjValue acc = g["accessors"][accessorIndex];
         BjValue view = g["bufferViews"][(uint32_t)acc["bufferView"].asInt()];
@@ -581,16 +606,77 @@ bool ModelResource::load(Pack& pack, Pack* shared) {
             auto bit = boneByName.find(nodes[pit->second]["name"].str());
             if (bit != boneByName.end()) boneIndex = bit->second;
         }
+        // The one joint a skinned primitive is bound to whole (every vertex's first joint the
+        // same), -1 when it blends several. The renderer has no skinning, so such a primitive
+        // rides that joint's bone instead of its node's: a banner's globe turning on its own bone
+        // (Metroid: Samus Returns) stayed still otherwise.
+        auto uniformJoint = [&](uint32_t accessorIndex) -> int {
+            BjValue acc = g["accessors"][accessorIndex];
+            BjValue view = g["bufferViews"][(uint32_t)acc["bufferView"].asInt()];
+            const auto& bin = bins[(size_t)view["buffer"].asInt()];
+            if (!bin.first) return -1;
+            const int type = acc["componentType"].asInt();
+            const size_t compSize = type == 5121 ? 1 : type == 5123 ? 2 : 0;   // ubyte / ushort
+            if (!compSize) return -1;
+            const size_t count = (size_t)acc["count"].asInt();
+            const size_t stride = view["byteStride"].isNumber() ? (size_t)view["byteStride"].asInt() : compSize * 4;
+            const size_t start = (size_t)view["byteOffset"].asInt() + (size_t)acc["byteOffset"].asInt();
+            if (!count || start + (count - 1) * stride + compSize > bin.second) return -1;
+            int joint = -1;
+            for (size_t v = 0; v < count; v++) {
+                const uint8_t* p = bin.first + start + v * stride;
+                const int j = compSize == 1 ? p[0] : (p[0] | p[1] << 8);
+                if (joint < 0) joint = j;
+                else if (j != joint) return -1;
+            }
+            return joint;
+        };
         for (BjValue prim : g["meshes"][(uint32_t)node["mesh"].asInt()]["primitives"]) {
             Primitive pr;
             pr.mesh = meshIndex;
             pr.material = meshes[meshIndex].material;
             pr.bone = boneIndex;
+            if (node["skin"].isNumber() && prim["attributes"]["JOINTS_0"].isNumber()) {
+                const int joint = uniformJoint((uint32_t)prim["attributes"]["JOINTS_0"].asInt());
+                BjValue skin = g["skins"][(uint32_t)node["skin"].asInt()];
+                BjValue joints = skin["joints"];
+                // riding the bone is exact only when the joint's bind pose is the identity (the
+                // vertices are in model space; a real bind offset would be applied twice)
+                auto identityBind = [&](int j) -> bool {
+                    if (!skin["inverseBindMatrices"].isNumber()) return true;
+                    BjValue acc = g["accessors"][(uint32_t)skin["inverseBindMatrices"].asInt()];
+                    BjValue view = g["bufferViews"][(uint32_t)acc["bufferView"].asInt()];
+                    const auto& bin = bins[(size_t)view["buffer"].asInt()];
+                    const size_t at = (size_t)view["byteOffset"].asInt() + (size_t)acc["byteOffset"].asInt() + (size_t)j * 64;
+                    if (!bin.first || at + 64 > bin.second) return false;
+                    for (int k = 0; k < 16; k++) {
+                        float f;
+                        memcpy(&f, bin.first + at + k * 4, 4);
+                        if (fabsf(f - (k % 5 == 0 ? 1.0f : 0.0f)) > 1e-4f) return false;
+                    }
+                    return true;
+                };
+                if (joint >= 0 && (uint32_t)joint < joints.size() && identityBind(joint)) {
+                    auto bit = boneByName.find(nodes[(uint32_t)joints[(uint32_t)joint].asInt()]["name"].str());
+                    if (bit != boneByName.end()) pr.bone = bit->second;
+                }
+            }
             static const char* kAttr[6] = {"POSITION", "NORMAL", "COLOR_0", "TEXCOORD_0", "TEXCOORD_1", "TEXCOORD_2"};
             for (int a = 0; a < 6; a++) {
                 BjValue ai = prim["attributes"][kAttr[a]];
                 if (!ai.isNumber()) continue;
                 pr.buffers[a] = makeBuffer((uint32_t)ai.asInt(), GL_ARRAY_BUFFER, &pr.types[a], &pr.components[a], nullptr);
+            }
+            // a primitive blended over several joints (a character's body, Senran Kagura): skinned
+            // on the GPU with its joints and weights and the skin's palette
+            if (node["skin"].isNumber() && pr.bone == boneIndex && prim["attributes"]["JOINTS_0"].isNumber() &&
+                prim["attributes"]["WEIGHTS_0"].isNumber()) {
+                const int si = node["skin"].asInt();
+                if (si >= 0 && si < (int)skins.size() && !skins[si].bones.empty()) {
+                    pr.buffers[6] = makeBuffer((uint32_t)prim["attributes"]["JOINTS_0"].asInt(), GL_ARRAY_BUFFER, &pr.types[6], &pr.components[6], nullptr);
+                    pr.buffers[7] = makeBuffer((uint32_t)prim["attributes"]["WEIGHTS_0"].asInt(), GL_ARRAY_BUFFER, &pr.types[7], &pr.components[7], nullptr);
+                    if (pr.buffers[6] && pr.buffers[7]) pr.skin = si;
+                }
             }
             if (prim["indices"].isNumber()) {
                 pr.index = makeBuffer((uint32_t)prim["indices"].asInt(), GL_ELEMENT_ARRAY_BUFFER, &pr.indexType, nullptr, &pr.indexCount);
@@ -786,9 +872,15 @@ attribute vec4 a_color;
 attribute vec2 a_uv0;
 attribute vec2 a_uv1;
 attribute vec2 a_uv2;
+attribute vec4 a_joints;
+attribute vec4 a_weights;
 uniform mat4 u_modelView;
 uniform mat4 u_projection;
 uniform mat3 u_normalMatrix;
+// skinning: the skin's palette (bone world x inverse bind, the instance transform included),
+// u_modelView is then the view alone
+uniform mat4 u_bones[16];
+uniform float u_skinned;
 uniform vec4 u_texMatrix[6];
 uniform vec3 u_texSource;
 varying vec3 v_viewPosition;
@@ -809,8 +901,16 @@ vec2 coord(int unit, float source, vec3 normal) {
   return vec2(dot(u_texMatrix[unit * 2], p), dot(u_texMatrix[unit * 2 + 1], p));
 }
 void main() {
-  vec4 viewPosition = u_modelView * vec4(a_position, 1.0);
-  vec3 normal = normalize(u_normalMatrix * a_normal);
+  vec4 position = vec4(a_position, 1.0);
+  vec3 modelNormal = a_normal;
+  if (u_skinned > 0.5) {
+    mat4 skin = a_weights.x * u_bones[int(a_joints.x)] + a_weights.y * u_bones[int(a_joints.y)] +
+                a_weights.z * u_bones[int(a_joints.z)] + a_weights.w * u_bones[int(a_joints.w)];
+    position = skin * position;
+    modelNormal = mat3(skin) * a_normal;
+  }
+  vec4 viewPosition = u_modelView * position;
+  vec3 normal = normalize(u_normalMatrix * modelNormal);
   v_viewPosition = viewPosition.xyz;
   v_viewNormal = normal;
   v_color = a_color;
@@ -1039,8 +1139,8 @@ Renderer3d::Program* Renderer3d::program(const CgfxMaterialDef& m) {
     auto it = mPrograms.find(m.shaderKey);
     if (it != mPrograms.end()) return it->second.get();
     auto p = std::make_unique<Program>();
-    static const char* const kA[6] = {"a_position", "a_normal", "a_color", "a_uv0", "a_uv1", "a_uv2"};
-    p->id = buildProgram(kVertex3d, fragment3d(m), kA, 6);
+    static const char* const kA[8] = {"a_position", "a_normal", "a_color", "a_uv0", "a_uv1", "a_uv2", "a_joints", "a_weights"};
+    p->id = buildProgram(kVertex3d, fragment3d(m), kA, 8);
     {
         if (!p->id) {
             ALOGE("3d program failed (%s)", m.name.c_str());
@@ -1185,9 +1285,26 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
         glUseProgram(prog->id);
         ModelResource& r = *it.model->resource;
         M4 mv;
-        mat4Mul(mv, cam.view, it.model->boneMatrix(it.prim->bone));
-        if (it.prim->bone >= 0 && it.prim->bone < (int)r.bones.size() && r.bones[it.prim->bone].billboard)
-            billboard(mv, r.bones[it.prim->bone].billboard);
+        const bool skinned = it.prim->skin >= 0 && it.prim->skin < (int)r.skins.size();
+        if (skinned) {
+            // the palette carries the bones (and the instance transform): the view alone here
+            const ModelResource::Skin& sk = r.skins[it.prim->skin];
+            float palette[ModelResource::kMaxSkinJoints * 16];
+            const int n = std::min((int)sk.bones.size(), ModelResource::kMaxSkinJoints);
+            for (int j = 0; j < n; j++) {
+                M4 pm;
+                mat4Mul(pm, it.model->boneMatrix(sk.bones[j]), sk.invBind[j]);
+                memcpy(&palette[j * 16], pm.m, sizeof(pm.m));
+            }
+            glUniformMatrix4fv(prog->loc("u_bones"), n, GL_FALSE, palette);
+            glUniform1f(prog->loc("u_skinned"), 1.0f);
+            mv = cam.view;
+        } else {
+            mat4Mul(mv, cam.view, it.model->boneMatrix(it.prim->bone));
+            if (it.prim->bone >= 0 && it.prim->bone < (int)r.bones.size() && r.bones[it.prim->bone].billboard)
+                billboard(mv, r.bones[it.prim->bone].billboard);
+            glUniform1f(prog->loc("u_skinned"), 0.0f);
+        }
         glUniformMatrix4fv(prog->loc("u_modelView"), 1, GL_FALSE, mv.m);
         glUniformMatrix4fv(prog->loc("u_projection"), 1, GL_FALSE, cam.projection.m);
         float nm[9];
@@ -1276,8 +1393,8 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
         } else glDisable(GL_STENCIL_TEST);
         // geometry
         const auto& p = *it.prim;
-        for (int a = 0; a < 6; a++) {
-            if (p.buffers[a]) {
+        for (int a = 0; a < 8; a++) {
+            if (p.buffers[a] && (a < 6 || skinned)) {
                 glBindBuffer(GL_ARRAY_BUFFER, p.buffers[a]);
                 glEnableVertexAttribArray(a);
                 glVertexAttribPointer(a, p.components[a], p.types[a], GL_FALSE, 0, nullptr);
@@ -1285,6 +1402,7 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
                 glDisableVertexAttribArray(a);
                 if (a == 1) glVertexAttrib3f(1, 0, 0, 1);
                 else if (a == 2) glVertexAttrib4f(2, 1, 1, 1, 1);
+                else if (a == 7) glVertexAttrib4f(7, 1, 0, 0, 0);   // weights: joint 0 whole
                 else glVertexAttrib4f(a, 0, 0, 0, 1);
             }
         }
