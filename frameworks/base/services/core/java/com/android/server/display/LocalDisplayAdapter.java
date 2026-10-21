@@ -1976,7 +1976,21 @@ final class LocalDisplayAdapter extends DisplayAdapter {
         // off for sleep (RP Duo Lite: the bottom panel stayed lit behind a sleeping device in
         // every SurfaceFlinger app). Turn the node off with the display and put the level back
         // when it comes on, unless something already relit it.
+        //
+        // At boot nobody has written the node at all: the RP Duo Lite's sec-bl-uart driver
+        // registers the bottom backlight at 0 and skips its initial update, so in the launcher
+        // (SurfaceFlinger) mode the bottom panel came up dark after every reboot and only lit
+        // once the secondary home happened to run its own sleep/wake restore. When the panel
+        // turns ON with the node still at 0 and nothing saved, mirror the primary panel's level
+        // (one slider drives both panels with split brightness off). The primary is lit by the
+        // lights HAL a little after its own ON, and at boot it sits at the boot animation's
+        // full level until the HAL applies the user's setting a few seconds later, so keep
+        // following the primary for a few seconds rather than copying it once (a copy taken
+        // during the boot animation left the bottom panel at 255 against a top at 27).
         private int mGammaSecondaryBlSaved = -1;
+        private int mGammaSecondaryBlRetries;
+        private static final int GAMMA_SECONDARY_BL_RETRIES = 120;   // x 500 ms = 60 s
+        private static final long GAMMA_SECONDARY_BL_RETRY_MS = 500;
 
         private void gammaSecondaryBacklightOnPower(int state) {
             final String dir = android.os.SystemProperties.get(
@@ -1985,20 +1999,98 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             final java.io.File node = new java.io.File(dir, "brightness");
             try {
                 if (state == Display.STATE_OFF || state == Display.STATE_DOZE_SUSPEND) {
-                    final int cur = Integer.parseInt(
-                            android.os.FileUtils.readTextFile(node, 16, null).trim());
+                    mGammaSecondaryBlRetries = 0;
+                    mGammaSecondaryBlFollowed = -1;
+                    final int cur = gammaReadSysfsInt(node);
                     if (cur > 0) mGammaSecondaryBlSaved = cur;
                     android.os.FileUtils.stringToFile(node, "0");
-                } else if (state == Display.STATE_ON && mGammaSecondaryBlSaved > 0) {
-                    final int cur = Integer.parseInt(
-                            android.os.FileUtils.readTextFile(node, 16, null).trim());
-                    if (cur == 0) {
-                        android.os.FileUtils.stringToFile(node,
-                                Integer.toString(mGammaSecondaryBlSaved));
-                    }
+                } else if (state == Display.STATE_ON) {
+                    mGammaSecondaryBlRetries = GAMMA_SECONDARY_BL_RETRIES;
+                    gammaSecondaryBacklightLight(node);
                 }
             } catch (Exception e) {
                 Slog.w(TAG, "GammaOS: secondary backlight " + node + ": " + e.getMessage());
+            }
+        }
+
+        private int mGammaSecondaryBlFollowed = -1;   // level this code wrote while following
+
+        private void gammaSecondaryBacklightLight(java.io.File node) {
+            if (mLastPowerState != Display.STATE_ON) return;
+            try {
+                final int cur = gammaReadSysfsInt(node);
+                if (mGammaSecondaryBlSaved > 0) {
+                    // Wake from sleep: put the pre-sleep level back once, unless already lit.
+                    if (cur == 0) {
+                        android.os.FileUtils.stringToFile(node,
+                                Integer.toString(mGammaSecondaryBlSaved));
+                        Slog.i(TAG, "GammaOS: secondary backlight " + node + " restored to "
+                                + mGammaSecondaryBlSaved);
+                    }
+                    return;
+                }
+                // Boot: nothing saved. Follow the primary while the window lasts, but only
+                // over a node that is still 0 or holds the level this code wrote last, so a
+                // slider drag is never overridden. A node that went back to 0 while the
+                // primary stayed where we matched it was turned off on purpose (the secondary
+                // home's idle dim): leave it. Once the primary has left its full boot level
+                // the user's setting has been applied and the follow is complete.
+                final int level = gammaPrimaryBacklightLevel(node);
+                if (cur == 0 && mGammaSecondaryBlFollowed > 0 && level == mGammaSecondaryBlFollowed) {
+                    return;
+                }
+                if (cur != 0 && cur != mGammaSecondaryBlFollowed) {
+                    return;   // someone else owns the level now
+                }
+                if (level > 0 && level != cur) {
+                    android.os.FileUtils.stringToFile(node, Integer.toString(level));
+                    mGammaSecondaryBlFollowed = level;
+                    Slog.i(TAG, "GammaOS: secondary backlight " + node + " lit at " + level);
+                }
+                if (level > 0 && !gammaPrimaryAtMax()) return;   // settled on the user's level
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS: secondary backlight " + node + ": " + e.getMessage());
+                return;
+            }
+            if (--mGammaSecondaryBlRetries > 0) {
+                com.android.internal.os.BackgroundThread.getHandler().postDelayed(
+                        () -> gammaSecondaryBacklightLight(node), GAMMA_SECONDARY_BL_RETRY_MS);
+            } else if (gammaReadSysfsInt(node) == 0) {
+                Slog.w(TAG, "GammaOS: secondary backlight " + node
+                        + " still 0 and the primary never lit, giving up");
+            }
+        }
+
+        /** The primary panel's current level, rescaled to the secondary node's range; 0 if dark. */
+        private int gammaPrimaryBacklightLevel(java.io.File secondaryNode) {
+            final String d0 = android.os.SystemProperties.get(
+                    "persist.gammaos.multidisplay.split_brightness.d0.path", "");
+            if (d0.isEmpty()) return 0;
+            final int cur = gammaReadSysfsInt(new java.io.File(d0, "brightness"));
+            if (cur <= 0) return 0;
+            final int max0 = gammaReadSysfsInt(new java.io.File(d0, "max_brightness"));
+            final int max1 = gammaReadSysfsInt(
+                    new java.io.File(secondaryNode.getParentFile(), "max_brightness"));
+            if (max0 <= 0 || max1 <= 0 || max0 == max1) return cur;
+            return Math.max(1, Math.round(cur * (float) max1 / max0));
+        }
+
+        /** True while the primary panel still sits at its full (boot animation) level. */
+        private boolean gammaPrimaryAtMax() {
+            final String d0 = android.os.SystemProperties.get(
+                    "persist.gammaos.multidisplay.split_brightness.d0.path", "");
+            if (d0.isEmpty()) return false;
+            final int cur = gammaReadSysfsInt(new java.io.File(d0, "brightness"));
+            final int max0 = gammaReadSysfsInt(new java.io.File(d0, "max_brightness"));
+            return cur > 0 && cur == max0;
+        }
+
+        private static int gammaReadSysfsInt(java.io.File node) {
+            try {
+                return Integer.parseInt(
+                        android.os.FileUtils.readTextFile(node, 16, null).trim());
+            } catch (Exception e) {
+                return -1;
             }
         }
 
