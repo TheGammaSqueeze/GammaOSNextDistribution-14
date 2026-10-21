@@ -1932,7 +1932,7 @@ int NanoMenu::ctrModalKind() const {
     const bool other = mVidActive || mMpActive || mPvActive ||
                        mPhotoMultiActive ||
                        mPvPlChooserActive || mVidPlChooserActive || mMpPlChooserActive ||
-                       ps3TopScreenKind() == PHOTO_GRID;
+                       ps3TopScreenKind() == PHOTO_GRID || ps3TopScreenKind() == GS_ICONGRID;
     if (other) return CTR_MODAL_FALLBACK;
     if (mPs3DlgActive || mPs3OptActive || mPs3TzActive || mPs3LangActive || mPs3BrightSlider || !mPs3Stack.empty())
         return CTR_MODAL_PANEL;

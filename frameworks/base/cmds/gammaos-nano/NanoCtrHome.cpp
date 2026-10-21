@@ -1869,9 +1869,11 @@ bool CtrHome::Impl::appUpdate() {
 
 void CtrHome::Impl::cursorPose(const Grid& g, float* x, float* y, float* frame) {
     if (g.onBar) {
+        // the anchor's place on screen (its parents' offsets and the widescreen shift included),
+        // not its local translate: the cursor sat above the bar buttons
         Pane* a = base->pane(BAR_ANCHORS[g.barButton]);
-        *x = a ? a->translate[0] : 0;
-        *y = a ? a->translate[1] : 0;
+        *x = a ? a->global.m[12] : 0;
+        *y = a ? a->global.m[13] : 0;
         *frame = g.barButton == BarSettings ? 10.0f : g.barButton >= BarZoomOut ? 12.0f : 11.0f;
         return;
     }
