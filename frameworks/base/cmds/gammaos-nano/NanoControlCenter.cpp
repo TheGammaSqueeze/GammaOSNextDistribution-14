@@ -1388,7 +1388,10 @@ bool NanoMenu::ccPollTopTapDown() {
 }
 
 // Drain the gamepad key device (RG DS: "Xbox Wireless Controller"; override persist.gammaos.nano.cc.keydev)
-// and report whether KEY_ALL_APPLICATIONS was pressed this poll. The park loop toggles mCcForceVisible on a
+// and report whether KEY_ALL_APPLICATIONS, or the device's own toggle key (persist.gammaos.nano.cc.keycode,
+// an evdev code: the RP Duo Lite's BTN_MODE 316), was pressed this poll. The device's own key only counts
+// while an app runs on the bottom screen (the Control Center shown over it, hidden again on the next
+// press); otherwise the press stays the game's, and PhoneWindowManager swallows it for the app only then. The park loop toggles mCcForceVisible on a
 // down-edge to summon/dismiss the Control Center over any running app (a dual-stack app or a grid-launched
 // bottom app). nano holds its own un-grabbed fd, so this peek does not steal the key from the framework -
 // and code 204 is unmapped in the keylayouts, so the framework does nothing with it regardless. Non-blocking;
@@ -1400,10 +1403,14 @@ bool NanoMenu::ccPollAllAppsKey() {
     for (const auto& kv : mInputFdNames) if (kv.second == dev) { kfd = kv.first; break; }
     if (kfd < 0) return false;
     static const int kAllApps = 204;   // KEY_ALL_APPLICATIONS (may be absent from older input headers)
+    static int sToggleKey = -1;
+    if (sToggleKey < 0) sToggleKey = property_get_int32("persist.gammaos.nano.cc.keycode", 0);
     bool pressed = false;
     struct input_event ev;
     while (read(kfd, &ev, sizeof(ev)) == sizeof(ev)) {
-        if (ev.type == EV_KEY && ev.code == kAllApps && ev.value == 1) pressed = true;
+        if (ev.type != EV_KEY || ev.value != 1) continue;
+        if (ev.code == kAllApps) pressed = true;
+        else if (sToggleKey > 0 && ev.code == sToggleKey && !mCcBottomApp.empty()) pressed = true;
     }
     return pressed;
 }

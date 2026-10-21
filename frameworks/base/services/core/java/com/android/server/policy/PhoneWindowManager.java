@@ -5222,6 +5222,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     logKeyboardSystemsEvent(event, KeyboardLogEvent.ALL_APPS);
                 }
                 return true;
+            case KeyEvent.KEYCODE_BUTTON_MODE:
+                // GammaOS: a device whose Control Center toggle is the pad's mode button
+                // (persist.gammaos.nano.cc.keycode=316, the RP Duo Lite) keeps it from the app
+                // while an app runs on the bottom screen: nano reads the press itself from the
+                // pad device and shows or hides the Control Center over that app (RetroArch
+                // would otherwise open its menu on the same press). With nothing on the bottom
+                // screen the press goes to the game as usual.
+                if (SystemProperties.getInt("persist.gammaos.nano.cc.keycode", 0) == 316
+                        && !SystemProperties.get("sys.gammaos.nano.cc.bottomapp", "").isEmpty()) {
+                    return true;
+                }
+                break;
             case KeyEvent.KEYCODE_NOTIFICATION:
                 if (!down) {
                     toggleNotificationPanel();
