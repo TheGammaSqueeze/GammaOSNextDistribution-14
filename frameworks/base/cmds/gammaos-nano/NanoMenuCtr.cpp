@@ -2210,7 +2210,9 @@ void NanoMenu::ctrWizUpdate() {
     CtrWizView v;
     ctrWizView(&v);
     const bool list = v.kind == CtrWizView::List;
-    mCtrHome->setTopBannerHidden(list);
+    // a dialog page of the wizard opens over whatever panel was up (the Network Settings
+    // list it was started from), as the console's dialogs do, with the top screen kept
+    mCtrHome->setTopBannerHidden(list || mCtrPanelWasShown);
     if (list) {
         std::vector<ctr::PanelRow> rows;
         for (const auto& w : v.rows) {
@@ -2224,9 +2226,8 @@ void NanoMenu::ctrWizUpdate() {
         mCtrPanel->set(v.title, rows, v.sel, ctrLevelId(7, (size_t)mPs3WizId, v.title, rows.size()));
         mCtrPanel->show();
         mCtrPanelWasShown = true;
-    } else {
+    } else if (!mCtrPanelWasShown) {
         mCtrPanel->hide();
-        mCtrPanelWasShown = false;
     }
     if (v.kind == CtrWizView::Dialog || v.kind == CtrWizView::Wait) {
         mCtrDialog->setProgress(std::string(), -1);

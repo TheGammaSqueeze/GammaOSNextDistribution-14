@@ -638,8 +638,9 @@ void CtrPanel::label(Slot& s, LayoutInstance* l, const char* pane, const std::st
     if (p->hasFontScale) { p->hasFontScale = false; p->textRevision++; }
     const float excess = textExcess(p);
     if (excess <= 0.5f) return;
-    // up to a quarter over: narrowed (still legible); beyond that the marquee
-    if (excess <= (p->size[0] + p->growW) * 0.25f) { fitText(p); return; }
+    // up to 45% over: narrowed (still legible, a long button label fits at rest); beyond
+    // that the marquee
+    if (excess <= (p->size[0] + p->growW) * 0.45f) { fitText(p); return; }
     s.over.push_back({l, p, excess});
 }
 

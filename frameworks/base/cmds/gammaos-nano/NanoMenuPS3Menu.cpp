@@ -52,6 +52,7 @@
 #include <time.h>
 #include <thread>
 #include <dirent.h>
+#include <sys/statvfs.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -9980,6 +9981,8 @@ void NanoMenu::openBoundChooser(const Ps3SettingBinding* b) {
     } else {
         mPs3DlgSlider = false;
         std::vector<SettingListOption> opts = parseListOptions(b->options);
+        // the stay-awake mask: any charger set is On (see resolvePs3ItemValue)
+        if (!strcmp(b->key, "stay_on_while_plugged_in") && !cur.empty() && cur != "0") cur = "7";
         int sel = 0;
         for (int i = 0; i < (int)opts.size(); i++) {
             mPs3DlgOptions.push_back(opts[i].label); mPs3DlgSwatch.push_back(-1);
@@ -10001,6 +10004,37 @@ void NanoMenu::refreshBoundValuesInStack() {
     for (auto& lvl : mPs3Stack) refresh(lvl.items);
     if (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size())
         refresh(mPs3Cats[mPs3CatIdx].items);
+}
+
+// "Internal storage: 12.3 GB free of 57.9 GB" and the same for every SD card under /storage
+// (a mounted volume named by its UUID); a volume that cannot be read is left out.
+std::string NanoMenu::storageSummaryText() {
+    auto gb = [](unsigned long long bytes) {
+        char b[32];
+        snprintf(b, sizeof(b), bytes >= 10ull << 30 ? "%.0f GB" : "%.1f GB", bytes / 1073741824.0);
+        return std::string(b);
+    };
+    auto line = [&](const char* label, const char* path, std::string* out) {
+        struct statvfs st;
+        if (statvfs(path, &st) != 0 || st.f_blocks == 0) return;
+        const unsigned long long total = (unsigned long long)st.f_blocks * st.f_frsize;
+        const unsigned long long avail = (unsigned long long)st.f_bavail * st.f_frsize;
+        if (!out->empty()) *out += "\n\n";
+        *out += std::string(label) + "\n" + gb(avail) + " free of " + gb(total) + " (" +
+                std::to_string((int)((total - avail) * 100 / total)) + "% used)";
+    };
+    std::string out;
+    line("Internal storage", "/data", &out);
+    if (DIR* d = opendir("/storage")) {
+        while (struct dirent* e = readdir(d)) {
+            const std::string name = e->d_name;
+            if (name == "." || name == ".." || name == "emulated" || name == "self") continue;
+            line(("SD card " + name).c_str(), ("/storage/" + name).c_str(), &out);
+        }
+        closedir(d);
+    }
+    if (out.empty()) out = "No storage information is available.";
+    return out;
 }
 
 std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
@@ -10150,6 +10184,9 @@ std::string NanoMenu::resolvePs3ItemValue(const Ps3Item& it) {
         }
         // Settings stores "never" for the screen timeout as INT_MAX; the list says -1
         if (!strcmp(b->key, "screen_off_timeout") && cur == "2147483647") cur = "-1";
+        // the stay-awake mask holds every charger type the framework knows (15 on Android 14,
+        // 7 on older ones); any charger set at all is On
+        if (!strcmp(b->key, "stay_on_while_plugged_in") && !cur.empty() && cur != "0") cur = "7";
         for (const auto& o : parseListOptions(b->options)) if (ps3OptMatch(cur, o.value)) return o.label;
         return cur.empty() ? std::string("-") : cur;
     }
@@ -10785,6 +10822,12 @@ void NanoMenu::openPs3Dialog(const Ps3Item& it) {
             if (tpl->notice) mPs3DlgNotice = tpl->notice;
             for (const char* o : tpl->options) { if (!o) break; mPs3DlgOptions.push_back(o); }
             mPs3DlgSel = tpl->defaultSel;
+        } else if (n == "Storage") {
+            // System Settings > Storage: the space used and free on the internal storage and on
+            // any mounted SD card, read live from the file systems.
+            mPs3DlgType = 0;
+            mPs3DlgBody = storageSummaryText();
+            mPs3DlgSel = 0;
         } else {
             // Unknown action='dialog' leaf -> generic info page (matches web fallback).
             mPs3DlgType = 0;

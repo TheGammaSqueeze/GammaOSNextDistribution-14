@@ -2736,7 +2736,8 @@ private:
     void   previewThemeSetting(int themeKey, int sel);   // apply live (no persist)
     void   applyThemeSetting(int themeKey, int sel);     // persist + apply
     void   loadPs3ThemeSettings();
-    std::string resolvePs3ItemValue(const Ps3Item& it);  // live theme value for a row, else it.value
+    std::string resolvePs3ItemValue(const Ps3Item& it);
+    std::string storageSummaryText();   // System Settings > Storage body  // live theme value for a row, else it.value
     // Re-resolve the frozen it.value snapshot for every bound row in the open levels after a
     // settings change committed in place. The XMB carousel re-resolves live each frame, but the
     // DSi/Minima list draws the snapshot, so without this a changed value keeps showing the old
