@@ -3008,6 +3008,24 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(JOB_SCHEDULER_SERVICE_CLASS);
             t.traceEnd();
 
+            // GammaOS Nano: NetworkTimeUpdateService must run in minimal boot too. It is the only
+            // thing that sets the clock from the network (NTP on every network connect, then
+            // daily) and so the only thing that ever writes the RTC. Without it the clock drifts
+            // uncorrected, nothing survives a flat battery or a dead RTC, and a boot with a bad
+            // RTC settles at the image's build date, which TLS certificate checks reject.
+            // Full boot starts it inside the !minimalBoot block below; add a minimal-boot copy
+            // here without disturbing the full-boot ordering (same pattern as TrustManager above).
+            if (minimalBoot && !isWatch && !disableNetworkTime) {
+                t.traceBegin("StartNetworkTimeUpdateService");
+                try {
+                    networkTimeUpdater = new NetworkTimeUpdateService(context);
+                    ServiceManager.addService("network_time_update_service", networkTimeUpdater);
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: NetworkTimeUpdate failed", e);
+                }
+                t.traceEnd();
+            }
+
             if (!minimalBoot) { // GammaOS Nano: skip ColorDisplay through MediaSession
             t.traceBegin("StartColorDisplay");
             mSystemServiceManager.startService(ColorDisplayService.class);
@@ -3989,6 +4007,17 @@ public final class SystemServer implements Dumpable {
             }
             t.traceEnd();
             } // !minimalBoot: CountryDetector + NetworkTimeUpdate
+            if (minimalBoot) { // GammaOS Nano: the minimal-boot NetworkTimeUpdateService (see above)
+                t.traceBegin("MakeNetworkTimeUpdateReady");
+                try {
+                    if (networkTimeUpdaterF != null) {
+                        networkTimeUpdaterF.systemRunning();
+                    }
+                } catch (Throwable e) {
+                    Slog.w(TAG, "GammaOS Nano: NetworkTimeUpdate systemRunning failed", e);
+                }
+                t.traceEnd();
+            }
             t.traceBegin("MakeInputManagerServiceReady");
             try {
                 // TODO(BT) Pass parameter to input manager
