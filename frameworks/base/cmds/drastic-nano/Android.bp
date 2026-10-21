@@ -118,6 +118,12 @@ filegroup {
     srcs: ["OverlayGfx.cpp"],
 }
 
+// The overlay's on-screen keyboard, shared with azahar-nano (its cheat search and entry).
+filegroup {
+    name: "drastic_nano_osk_srcs",
+    srcs: ["DrasticOsk.cpp"],
+}
+
 cc_library_headers {
     name: "drastic_nano_overlay_headers",
     export_include_dirs: ["."],

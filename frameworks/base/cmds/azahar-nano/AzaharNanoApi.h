@@ -189,6 +189,17 @@ void azn_load_state(int slot);
 
 void azn_get_perf_stats(struct azn_perf_stats* out);
 uint64_t azn_running_title_id(void);
+// The title id of a ROM file without booting it (0 when unreadable). Optional (newer cores).
+uint64_t azn_rom_title_id(const char* rom_path);
+
+// Cheats: the core's list for the running title (file order of <user>/cheats/<TID>.txt).
+// Optional (newer cores).
+int azn_cheat_count(void);
+bool azn_cheat_get(int index, char* name, int name_cap, char* comments, int comments_cap,
+                   bool* enabled);
+void azn_cheat_set_enabled(int index, bool enabled);
+void azn_cheats_save(void);
+void azn_cheats_reload(void);
 
 // Temporary frame limit override for fast forward (percent, 0 = unlimited).
 void azn_set_temporary_frame_limit(int percent);

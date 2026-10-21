@@ -580,6 +580,16 @@ prebuilt_etc {
 // FakeJNI shim from gammaos-nano; wrapping them in a filegroup lets
 // Soong compile them into drastic-nano without moving the files out
 // of their canonical location here.
+// The shared UI translations (trDyn) and their JSON reader, for the keyboard azahar-nano
+// takes from drastic-nano.
+filegroup {
+    name: "nano_i18n_srcs",
+    srcs: [
+        "NanoJson.cpp",
+        "NanoI18n.cpp",
+    ],
+}
+
 filegroup {
     name: "drastic_nano_shared_srcs",
     srcs: [

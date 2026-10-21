@@ -27,7 +27,13 @@ cc_binary {
         "GpuDriverPkg.cpp",
         "Brightness.cpp",
         "AzaharSettings.cpp",
+        "CheatDb.cpp",
         ":drastic_nano_overlay_gfx_srcs",
+        ":drastic_nano_osk_srcs",
+        ":nano_i18n_srcs",
+    ],
+    include_dirs: [
+        "frameworks/base/cmds/gammaos-nano",
     ],
 
     header_libs: [
@@ -56,4 +62,13 @@ cc_binary {
     ],
 
     init_rc: ["azahar-nano.rc"],
+}
+
+// The 3DS cheat database (CTRPF, 60FPS and Sharkive Action Replay codes), built by
+// tools/make_cheat_db.py; merged with the user's own cheat files when a game starts.
+prebuilt_etc {
+    name: "azahar-nano-cheats",
+    src: "assets/cheats3ds.zip",
+    filename: "cheats3ds.zip",
+    sub_dir: "azahar-nano",
 }

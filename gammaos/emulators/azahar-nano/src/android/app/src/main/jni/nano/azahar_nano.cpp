@@ -4,6 +4,7 @@
 // and multiplayer pieces replaced by the core defaults.
 
 #include <algorithm>
+#include <cstring>
 #include <atomic>
 #include <condition_variable>
 #include <memory>
@@ -30,6 +31,8 @@
 #include "common/settings.h"
 #include "audio_core/dsp_interface.h"
 #include "audio_core/sink_details.h"
+#include "core/cheats/cheat_base.h"
+#include "core/cheats/cheats.h"
 #include "core/core.h"
 #include "core/perf_stats.h"
 #include "core/frontend/applets/default_applets.h"
@@ -796,6 +799,63 @@ uint64_t azn_running_title_id(void) {
         core.GetAppLoader().ReadProgramId(id);
     }
     return id;
+}
+
+uint64_t azn_rom_title_id(const char* rom_path) {
+    if (!rom_path || !*rom_path) return 0;
+    u64 id{};
+    // the file layer's rule (azn_run): an absolute path is marked native with '!'
+    std::string path = rom_path;
+    if (path[0] == '/') path = "!" + path;
+    std::unique_ptr<Loader::AppLoader> loader = Loader::GetLoader(path);
+    if (!loader || loader->ReadProgramId(id) != Loader::ResultStatus::Success) return 0;
+    return id;
+}
+
+int azn_cheat_count(void) {
+    auto& core = Core::System::GetInstance();
+    if (!core.IsPoweredOn()) return 0;
+    return (int)core.CheatEngine().GetCheats().size();
+}
+
+static void azn_copy_out(char* dst, int cap, const std::string& src) {
+    if (!dst || cap <= 0) return;
+    const size_t n = std::min<size_t>(src.size(), (size_t)cap - 1);
+    memcpy(dst, src.data(), n);
+    dst[n] = 0;
+}
+
+bool azn_cheat_get(int index, char* name, int name_cap, char* comments, int comments_cap,
+                   bool* enabled) {
+    auto& core = Core::System::GetInstance();
+    if (!core.IsPoweredOn()) return false;
+    const auto cheats = core.CheatEngine().GetCheats();
+    if (index < 0 || index >= (int)cheats.size()) return false;
+    const auto& c = cheats[index];
+    azn_copy_out(name, name_cap, c->GetName());
+    azn_copy_out(comments, comments_cap, c->GetComments());
+    if (enabled) *enabled = c->IsEnabled();
+    return true;
+}
+
+void azn_cheat_set_enabled(int index, bool enabled) {
+    auto& core = Core::System::GetInstance();
+    if (!core.IsPoweredOn()) return;
+    const auto cheats = core.CheatEngine().GetCheats();
+    if (index < 0 || index >= (int)cheats.size()) return;
+    cheats[index]->SetEnabled(enabled);
+}
+
+void azn_cheats_save(void) {
+    auto& core = Core::System::GetInstance();
+    if (!core.IsPoweredOn()) return;
+    core.CheatEngine().SaveCheatFile(azn_running_title_id());
+}
+
+void azn_cheats_reload(void) {
+    auto& core = Core::System::GetInstance();
+    if (!core.IsPoweredOn()) return;
+    core.CheatEngine().LoadCheatFile(azn_running_title_id());
 }
 
 void azn_set_temporary_frame_limit(int percent) {

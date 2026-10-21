@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "OverlayGfx.h"
+#include "DrasticOsk.h"
 
 struct ANativeWindow;
 
@@ -47,6 +48,20 @@ struct OverlayActions {
     // override), and the hook run after an override was created or deleted.
     std::function<std::string(const char* section, const char* key)> getGlobalConfig;
     std::function<void()> overrideChanged;
+    // Cheats (CheatDb.h + the core's list): count and entries by the core's index, toggling,
+    // saving the enabled marks, the user's own cheats (the first customCount entries) added
+    // and removed through the custom file, and the paths shown on the Cheat files row.
+    std::function<int()> cheatCount;
+    std::function<bool(int index, std::string* name, std::string* comments, bool* enabled)> cheatGet;
+    std::function<void(int index, bool enabled)> cheatSetEnabled;
+    std::function<void()> cheatsSave;
+    std::function<int()> cheatCustomCount;
+    std::function<bool(const std::string& name, const std::string& code, std::string* err)> cheatAddCustom;
+    std::function<bool(int customIndex)> cheatRemoveCustom;
+    std::function<std::string()> cheatFilesHint;
+    // The bottom panel shows the keyboard while one is open (its overlay source is switched
+    // on and off around it); without a bottom window the keyboard draws over the menu.
+    std::function<void(bool on)> setBottomOverlay;
 };
 
 class Overlay {
@@ -55,6 +70,9 @@ public:
     // is mounted upside down and the plane cannot turn it, so the menu is drawn turned.
     bool init(ANativeWindow* win, int bufW, int bufH, bool upright, const OverlayActions& a,
               const std::string& dataDir, bool turn180 = false);
+    // The bottom panel's overlay window: the keyboard is drawn there (touchable), as the
+    // drastic-nano menu does, with the page staying on the top panel.
+    bool initBottom(ANativeWindow* win, int bufW, int bufH, bool upright, bool turn180 = false);
     void shutdown();
 
     void open();
@@ -63,6 +81,9 @@ public:
 
     // AZN_* button codes; returns true when consumed (always while open).
     bool onButton(int button, bool pressed);
+    // A touch on a panel as a fraction of it: the keyboard on the bottom panel takes it (a press
+    // presses the key under the finger, a move slides the focus). Returns true when consumed.
+    bool onTouch(int panel, float nx, float ny, bool pressed);
 
     // Draws the current state and presents it (any thread; the EGL context is
     // bound for the call and released after).
@@ -111,6 +132,10 @@ private:
                      std::function<void()> onYes);
     void createPerGameOverride();
     void deletePerGameOverride();
+    // The Cheats page (search, show filter, add / remove custom, one toggle row per cheat)
+    // and the Remove Custom Cheat page, rebuilt from the core's list.
+    void buildCheatPages();
+    void startAddCheat();
     bool makeCurrent();
 
     OverlayActions mA;
@@ -124,6 +149,13 @@ private:
     std::atomic<bool> mOpen{false};
     bool mRebuildPages = false;
     bool mRebuildTop = false;            // rebuild and return to the top page (override rows)
+    bool mRebuildCheats = false;         // rebuild the cheat pages in place (filter, add, remove)
+    int mReturnPage = -1;                // after a full rebuild, come back to this page
+    // Cheats page state and the on-screen keyboard (search text, new cheat name and code)
+    android::drastic_overlay::DrasticOsk mOsk;
+    std::string mCheatFilter;            // lower case substring of the name
+    int mCheatShow = 0;                  // 0 all, 1 enabled, 2 disabled, 3 built-in, 4 custom
+    bool mCheatsDirty = false;           // enabled marks changed: saved when the menu closes
     // Every user-facing setting the pages hold, for the override snapshot: property short
     // keys and config.ini (section, key) pairs, collected while the pages are built.
     std::vector<std::string> mPropKeys;
@@ -137,6 +169,14 @@ private:
     EGLContext mCtx = EGL_NO_CONTEXT;
     android::drastic_gfx::OverlayGfx mGfx;
     bool mGfxReady = false;
+    // the bottom panel (keyboard) surface, drawn with the same context
+    EGLSurface mSurfBottom = EGL_NO_SURFACE;
+    android::drastic_gfx::OverlayGfx mGfxBottom;
+    bool mGfxBottomReady = false;
+    int mBufWBottom = 0, mBufHBottom = 0;
+    bool mOskShown = false;              // the bottom overlay is on for the keyboard
+    void renderBottom();
+    void syncOskPanel();
 
     // Rendering, input and open/close run on several threads (input, prop hooks, the marquee
     // ticker): one lock for the page state and the EGL context. Recursive because a menu

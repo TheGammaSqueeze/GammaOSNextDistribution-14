@@ -29,7 +29,13 @@ namespace azahar_nano {
 
 namespace {
 constexpr int kPageTop = 0, kPageVideo = 1, kPageAudio = 2, kPageSystem = 3, kPageControls = 4,
-              kPageDrivers = 5, kPageConfirm = 6;
+              kPageDrivers = 5, kPageConfirm = 6, kPageCheats = 7, kPageCheatRemove = 8;
+constexpr int kPageCount = 9;
+
+std::string lowerCase(std::string s) {
+    for (char& c : s) c = (char)tolower((unsigned char)c);
+    return s;
+}
 }
 
 bool Overlay::init(ANativeWindow* win, int bufW, int bufH, bool upright, const OverlayActions& a,
@@ -91,6 +97,78 @@ bool Overlay::makeCurrent() {
         ALOGE("overlay: eglMakeCurrent failed 0x%x", eglGetError());
         return false;
     }
+    return true;
+}
+
+bool Overlay::initBottom(ANativeWindow* win, int bufW, int bufH, bool upright, bool turn180) {
+    std::lock_guard<std::recursive_mutex> lock(mMu);
+    if (!win || mDpy == EGL_NO_DISPLAY || mCtx == EGL_NO_CONTEXT) return false;
+    const EGLint cfgAttrs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE,
+                               EGL_OPENGL_ES2_BIT, EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8,
+                               EGL_BLUE_SIZE, 8, EGL_ALPHA_SIZE, 8, EGL_NONE};
+    EGLConfig cfg;
+    EGLint n = 0;
+    if (!eglChooseConfig(mDpy, cfgAttrs, &cfg, 1, &n) || n < 1) return false;
+    mSurfBottom = eglCreateWindowSurface(mDpy, cfg, (EGLNativeWindowType)win, nullptr);
+    if (mSurfBottom == EGL_NO_SURFACE) {
+        ALOGE("overlay: bottom EGL surface failed 0x%x", eglGetError());
+        return false;
+    }
+    if (!eglMakeCurrent(mDpy, mSurfBottom, mSurfBottom, mCtx)) {
+        ALOGE("overlay: bottom eglMakeCurrent failed 0x%x", eglGetError());
+        return false;
+    }
+    mBufWBottom = bufW;
+    mBufHBottom = bufH;
+    const int logicalW = upright ? bufH : bufW;
+    const int logicalH = upright ? bufW : bufH;
+    float rot[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    if (upright) { rot[0] = 0.0f; rot[1] = 1.0f; rot[2] = -1.0f; rot[3] = 0.0f; }
+    if (turn180) { for (float& v : rot) v = -v; }
+    mGfxBottomReady = mGfxBottom.init(logicalW, logicalH, rot);
+    eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (!mGfxBottomReady) ALOGE("overlay: bottom OverlayGfx init failed");
+    else ALOGI("overlay: bottom panel %dx%d upright=%d turn180=%d (keyboard)", bufW, bufH, upright, turn180);
+    return mGfxBottomReady;
+}
+
+// The keyboard's panel follows the keyboard: the bottom overlay source goes on when one opens
+// and off when it closes (the bottom panel shows the paused game again).
+void Overlay::syncOskPanel() {
+    const bool want = mOsk.active() && mGfxBottomReady && mOpen;
+    if (want == mOskShown) return;
+    mOskShown = want;
+    if (mA.setBottomOverlay) mA.setBottomOverlay(want);
+}
+
+void Overlay::renderBottom() {
+    if (!mGfxBottomReady || !mOskShown) return;
+    if (!eglMakeCurrent(mDpy, mSurfBottom, mSurfBottom, mCtx)) return;
+    glViewport(0, 0, mBufWBottom, mBufHBottom);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    mGfxBottom.beginFrame();
+    // a scrim over the paused game so the keyboard reads clearly (as drastic-nano's)
+    mGfxBottom.fillRect(0, 0, (float)mGfxBottom.viewportW(), (float)mGfxBottom.viewportH(), rgba(0, 0, 0, 0.72f));
+    mOsk.render(mGfxBottom);
+    mGfxBottom.endFrame();
+    if (!eglSwapBuffers(mDpy, mSurfBottom)) ALOGE("overlay: bottom eglSwapBuffers failed 0x%x", eglGetError());
+    eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+}
+
+bool Overlay::onTouch(int panel, float nx, float ny, bool pressed) {
+    std::lock_guard<std::recursive_mutex> lock(mMu);
+    if (!mOpen) return false;
+    if (!mOsk.active() || !mOskShown || panel != 1) return true;   // the menu swallows touches
+    if (pressed) mOsk.touchTap(nx, ny);
+    else mOsk.touchMove(nx, ny);
+    if (mRebuildCheats) {
+        mRebuildCheats = false;
+        const std::string banner = mBanner;
+        buildCheatPages();
+        mBanner = banner;
+    }
+    syncOskPanel();
     return true;
 }
 
@@ -219,7 +297,13 @@ void Overlay::shutdown() {
         mGfx.shutdown();
         mGfxReady = false;
     }
+    if (mGfxBottomReady && eglMakeCurrent(mDpy, mSurfBottom, mSurfBottom, mCtx)) {
+        mGfxBottom.shutdown();
+        mGfxBottomReady = false;
+    }
     eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (mSurfBottom != EGL_NO_SURFACE) eglDestroySurface(mDpy, mSurfBottom);
+    mSurfBottom = EGL_NO_SURFACE;
     if (mSurf != EGL_NO_SURFACE) eglDestroySurface(mDpy, mSurf);
     if (mCtx != EGL_NO_CONTEXT) eglDestroyContext(mDpy, mCtx);
     mSurf = EGL_NO_SURFACE;
@@ -284,7 +368,7 @@ Overlay::Row Overlay::propChoice(const char* label, const char* prop, const char
 
 void Overlay::buildPages() {
     mPages.clear();
-    mPages.resize(7);
+    mPages.resize(kPageCount);
     mPropKeys.clear();
     mConfigKeys.clear();
     mPropKeys.push_back("gpu_driver");   // its row is built by hand below
@@ -372,6 +456,10 @@ void Overlay::buildPages() {
         pg.rows.push_back(pageRow("Audio", kPageAudio, "Volume, stretching, audio emulation"));
         pg.rows.push_back(pageRow("System", kPageSystem, "New 3DS mode, region, CPU clock"));
         pg.rows.push_back(pageRow("Controls", kPageControls, "Button layout"));
+        if (mA.cheatCount) {
+            pg.rows.push_back(pageRow("Cheats", kPageCheats,
+                "Action Replay codes: the built-in database, search, your own cheats"));
+        }
 
         // Per-game settings override (AzaharSettings.h). Create snapshots the current
         // settings into <user folder>/overrides/<rom>.cfg and makes that file the source of
@@ -633,6 +721,148 @@ void Overlay::buildPages() {
             pg.rows.push_back(r);
         }
     }
+    buildCheatPages();
+}
+
+void Overlay::buildCheatPages() {
+    Page& pg = mPages[kPageCheats];
+    const int cursor = pg.cursor;
+    pg = Page();
+    pg.title = "Cheats";
+    Page& rm = mPages[kPageCheatRemove];
+    const int rmCursor = rm.cursor;
+    rm = Page();
+    rm.title = "Remove Custom Cheat";
+    if (!mA.cheatCount) return;
+    const int count = mA.cheatCount();
+    const int customCount = mA.cheatCustomCount ? std::min(mA.cheatCustomCount(), count) : 0;
+
+    Row r;
+    r.label = mCheatFilter.empty() ? "Search" : "Search: " + mCheatFilter;
+    r.hint = mCheatFilter.empty() ? "Type part of a cheat name to filter the list"
+                                  : "Filtering by name; search again with nothing typed to show all";
+    r.activate = [this] {
+        mOsk.open("Search cheats", mCheatFilter, android::drastic_overlay::DrasticOsk::Mode::Text,
+                  [this](const std::string& text) {
+                      mCheatFilter = lowerCase(text);
+                      mRebuildCheats = true;
+                  });
+    };
+    pg.rows.push_back(r);
+
+    r = Row();
+    r.label = "Show";
+    r.kind = ROW_CHOICE;
+    r.choices = {{"All", "0"}, {"Enabled", "1"}, {"Disabled", "2"}, {"Built-in", "3"}, {"Custom", "4"}};
+    r.sel = mCheatShow;
+    r.hint = "Which cheats the list shows";
+    r.change = [this](int i) {
+        mCheatShow = i;
+        mRebuildCheats = true;
+    };
+    pg.rows.push_back(r);
+
+    r = Row();
+    r.label = "Add Custom Cheat";
+    r.hint = "Type a name, then the code as pairs of 8 hex digits; it is kept in your custom cheat file";
+    r.activate = [this] { startAddCheat(); };
+    pg.rows.push_back(r);
+
+    if (customCount > 0) {
+        r = Row();
+        r.label = "Remove Custom Cheat";
+        r.kind = ROW_PAGE;
+        r.page = kPageCheatRemove;
+        r.hint = "Delete one of your own cheats from the custom file";
+        pg.rows.push_back(r);
+    }
+
+    r = Row();
+    r.label = "Cheat files";
+    r.hint = mA.cheatFilesHint ? mA.cheatFilesHint() : std::string();
+    r.activate = [] {};
+    pg.rows.push_back(r);
+
+    int listed = 0;
+    for (int i = 0; i < count; i++) {
+        std::string name, comments;
+        bool enabled = false;
+        if (!mA.cheatGet || !mA.cheatGet(i, &name, &comments, &enabled)) continue;
+        const bool custom = i < customCount;
+        if (mCheatShow == 1 && !enabled) continue;
+        if (mCheatShow == 2 && enabled) continue;
+        if (mCheatShow == 3 && custom) continue;
+        if (mCheatShow == 4 && !custom) continue;
+        if (!mCheatFilter.empty() && lowerCase(name).find(mCheatFilter) == std::string::npos) continue;
+        Row c;
+        c.label = custom ? name + " (custom)" : name;
+        c.kind = ROW_CHOICE;
+        c.choices = {{"Off", "0"}, {"On", "1"}};
+        c.sel = enabled ? 1 : 0;
+        std::string hint;
+        for (char ch : comments) hint += ch == '\n' ? ' ' : ch;
+        c.hint = hint.empty() ? std::string("A turns the cheat on or off; ZL and ZR skip ten rows") : hint;
+        c.change = [this, i](int sel) {
+            if (mA.cheatSetEnabled) mA.cheatSetEnabled(i, sel == 1);
+            mCheatsDirty = true;
+        };
+        pg.rows.push_back(c);
+        listed++;
+        if (custom) {
+            Row d;
+            d.label = name;
+            d.hint = hint.empty() ? "Remove this cheat from your custom file" : hint;
+            const int customIndex = i;
+            d.activate = [this, customIndex, name] {
+                openConfirm("Remove " + name + "?", "Delete it from your custom cheat file",
+                            [this, customIndex, name] {
+                                if (mA.cheatRemoveCustom && mA.cheatRemoveCustom(customIndex)) {
+                                    mBanner = "Removed " + name;
+                                } else {
+                                    mBanner = "Could not remove " + name;
+                                }
+                                mReturnPage = kPageCheats;
+                            });
+            };
+            rm.rows.push_back(d);
+        }
+    }
+    if (listed == 0) {
+        r = Row();
+        r.label = count == 0 ? "No cheats for this title" : "No cheat matches";
+        r.hint = count == 0 ? "Add your own above, or drop a file in the custom cheat folder"
+                            : "Change the search or the Show filter";
+        r.activate = [] {};
+        pg.rows.push_back(r);
+    }
+    if (rm.rows.empty()) {
+        Row d;
+        d.label = "No custom cheats";
+        d.activate = [] {};
+        rm.rows.push_back(d);
+    }
+    pg.cursor = std::min(std::max(cursor, 0), (int)pg.rows.size() - 1);
+    rm.cursor = std::min(std::max(rmCursor, 0), (int)rm.rows.size() - 1);
+}
+
+void Overlay::startAddCheat() {
+    using android::drastic_overlay::DrasticOsk;
+    mOsk.open("New cheat name", "", DrasticOsk::Mode::Text, [this](const std::string& name) {
+        if (name.empty()) {
+            mBanner = "Not added: the cheat needs a name";
+            return;
+        }
+        mOsk.open("Code (hex pairs, e.g. D3000000 14000000)", "", DrasticOsk::Mode::Hex,
+                  [this, name](const std::string& code) {
+                      std::string err;
+                      if (mA.cheatAddCustom && mA.cheatAddCustom(name, code, &err)) {
+                          mBanner = "Added " + name;
+                      } else {
+                          mBanner = "Not added: " + (err.empty() ? std::string("no cheat support") : err);
+                      }
+                      mRebuildCheats = true;
+                  });
+    });
 }
 
 void Overlay::openConfirm(const std::string& question, const std::string& detail,
@@ -708,6 +938,12 @@ void Overlay::open() {
 
 void Overlay::close() {
     std::lock_guard<std::recursive_mutex> lock(mMu);
+    if (mOsk.active()) mOsk.close();
+    syncOskPanel();
+    if (mCheatsDirty) {
+        mCheatsDirty = false;
+        if (mA.cheatsSave) mA.cheatsSave();
+    }
     mOpen = false;
     mMarquee = false;
 }
@@ -717,11 +953,45 @@ bool Overlay::onButton(int button, bool pressed) {
     if (!mOpen) return false;
     if (!pressed) return true;
     if (mStack.empty()) mStack.assign(1, kPageTop);
+    if (mOsk.active()) {
+        // The keyboard: the d-pad moves the focus, A presses the key, X deletes, B dismisses,
+        // Start commits; L and R are Shift and the symbol page (as the home menu keyboard).
+        mBanner.clear();
+        switch (button) {
+        case AZN_DPAD_UP:    mOsk.moveCursor(0, -1); break;
+        case AZN_DPAD_DOWN:  mOsk.moveCursor(0, +1); break;
+        case AZN_DPAD_LEFT:  mOsk.moveCursor(-1, 0); break;
+        case AZN_DPAD_RIGHT: mOsk.moveCursor(+1, 0); break;
+        case AZN_BUTTON_A:   mOsk.activate(); break;
+        case AZN_BUTTON_X:   mOsk.onBackspace(); break;
+        case AZN_BUTTON_B:   mOsk.close(); break;
+        case AZN_BUTTON_START: mOsk.submit(); break;
+        case AZN_TRIGGER_L:  mOsk.toggleShift(); break;
+        case AZN_TRIGGER_R:  mOsk.toggleSym(); break;
+        default: break;
+        }
+        if (mRebuildCheats) {
+            // a search or an added cheat changed the list under the keyboard
+            mRebuildCheats = false;
+            const std::string banner = mBanner;
+            buildCheatPages();
+            mBanner = banner;
+        }
+        syncOskPanel();
+        return true;
+    }
     Page& pg = mPages[mStack.back()];
     if (pg.rows.empty()) return true;
     Row& row = pg.rows[pg.cursor];
     mBanner.clear();
     switch (button) {
+    case AZN_BUTTON_ZL:
+    case AZN_BUTTON_ZR: {
+        // ten rows at a time through a long list (the cheats)
+        const int n = (int)pg.rows.size();
+        pg.cursor = std::min(n - 1, std::max(0, pg.cursor + (button == AZN_BUTTON_ZL ? -10 : 10)));
+        break;
+    }
     case AZN_DPAD_UP:
         pg.cursor = (pg.cursor + (int)pg.rows.size() - 1) % (int)pg.rows.size();
         break;
@@ -756,10 +1026,15 @@ bool Overlay::onButton(int button, bool pressed) {
                 buildPages();
                 mBanner = banner;
                 mStack.assign(1, kPageTop);
-                Page& top = mPages[kPageTop];
-                for (size_t i = 0; i < top.rows.size(); i++) {
-                    if (top.rows[i].label.find("Per-Game Override") != std::string::npos) top.cursor = (int)i;
+                if (mReturnPage > kPageTop && mReturnPage < (int)mPages.size()) {
+                    mStack.push_back(mReturnPage);
+                } else {
+                    Page& top = mPages[kPageTop];
+                    for (size_t i = 0; i < top.rows.size(); i++) {
+                        if (top.rows[i].label.find("Per-Game Override") != std::string::npos) top.cursor = (int)i;
+                    }
                 }
+                mReturnPage = -1;
                 render();
                 return true;
             }
@@ -788,6 +1063,15 @@ bool Overlay::onButton(int button, bool pressed) {
     default:
         break;
     }
+    if (mRebuildCheats) {
+        // the Show filter changed or the keyboard opened from a row: the pages are rebuilt in
+        // place, the cursor stays where it was
+        mRebuildCheats = false;
+        const std::string banner = mBanner;
+        buildCheatPages();
+        mBanner = banner;
+    }
+    syncOskPanel();
     return true;
 }
 
@@ -888,10 +1172,13 @@ void Overlay::render() {
         mMarquee = false;
         mGfx.text(hint.c_str(), hintX, hintY, hintScale, rgba(0.7f, 0.75f, 0.8f, 1));
     }
+    // the keyboard: on the bottom panel when there is one, else over the page
+    if (mOsk.active() && !mOskShown) mOsk.render(mGfx);
     mGfx.endFrame();
     if (!eglSwapBuffers(mDpy, mSurf)) ALOGE("overlay: eglSwapBuffers failed 0x%x", eglGetError());
     // Any thread may render next (input thread or main), so leave the context free.
     eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    renderBottom();
 }
 
 void Overlay::renderLoading(const char* title, const char* detail, float frac, const char* note,

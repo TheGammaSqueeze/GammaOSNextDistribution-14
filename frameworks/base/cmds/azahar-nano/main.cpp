@@ -47,6 +47,7 @@
 
 #include "AzaharNanoApi.h"
 #include "AzaharSettings.h"
+#include "CheatDb.h"
 #include "NanoInput.h"
 #include "SfWindows.h"
 #include "DrmWindows.h"
@@ -98,6 +99,13 @@ struct CoreApi {
     void (*set_tweak)(const char*, int) = nullptr;
     void (*skip_preload)() = nullptr;   // optional (newer cores)
     int (*compiles_pending)() = nullptr;   // optional (newer cores)
+    // cheats (optional, newer cores): see CheatDb.h for the files around them
+    uint64_t (*rom_title_id)(const char*) = nullptr;
+    int (*cheat_count)() = nullptr;
+    bool (*cheat_get)(int, char*, int, char*, int, bool*) = nullptr;
+    void (*cheat_set_enabled)(int, bool) = nullptr;
+    void (*cheats_save)() = nullptr;
+    void (*cheats_reload)() = nullptr;
     void (*set_fast_forward)(int) = nullptr;   // optional (newer cores)
     void (*set_lcd_shader)(int, int) = nullptr;  // optional (newer cores)
     void (*windows_resized)() = nullptr;          // optional (newer cores)
@@ -120,6 +128,8 @@ std::atomic<bool> sHudSlow{false};
 std::atomic<bool> sFastForward{false};   // R3 fast forward state
 std::atomic<float> sHudSpeed{100.0f};    // emulation speed in percent of real time
 std::string gUserDir;                     // config.ini folder, for readers outside main()
+uint64_t gCheatTitleId = 0;               // the running ROM's title id (cheat files)
+int gCheatCustomCount = 0;                // the user's own cheats lead the merged cheat file
 
 // Dynamic resolution (persist.gammaos.azahar_nano.dynres=1): run at the configured
 // resolution and drop to 1x with Sharp Bilinear + AA on both screens while the game cannot
@@ -166,6 +176,12 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.pause, "azn_pause");
     sym(gCore.sleep, "azn_sleep");   // optional: an older core keeps its stream through the sleep
     sym(gCore.setShellOpen, "azn_set_shell_open");   // optional: lid -> emulated shell state
+    sym(gCore.rom_title_id, "azn_rom_title_id");     // optional: cheats (newer cores)
+    sym(gCore.cheat_count, "azn_cheat_count");
+    sym(gCore.cheat_get, "azn_cheat_get");
+    sym(gCore.cheat_set_enabled, "azn_cheat_set_enabled");
+    sym(gCore.cheats_save, "azn_cheats_save");
+    sym(gCore.cheats_reload, "azn_cheats_reload");
     ok &= sym(gCore.is_running, "azn_is_running");
     ok &= sym(gCore.button, "azn_button");
     ok &= sym(gCore.joystick, "azn_joystick");
@@ -1048,6 +1064,50 @@ int main(int argc, char** argv) {
         };
         oa.setNintendoLayout = [](bool on) { if (sInput) sInput->setNintendoLayout(on); };
         oa.setStickDpadSwap = [](bool on) { if (sInput) sInput->setStickDpadSwap(on); };
+        oa.setBottomOverlay = [](bool on) { gSetOverlayActive(1, on); };
+        // Cheats: the core keeps the list; the files around it are CheatDb's (the user's own
+        // cheats come first in the merged file, so the first customCount indices are theirs).
+        static std::string sDataDir;
+        sDataDir = dataDir;
+        if (gCore.cheat_count && gCore.cheat_get && gCore.cheat_set_enabled && gCore.cheats_save &&
+            gCore.cheats_reload) {
+            oa.cheatCount = [] { return gCore.cheat_count(); };
+            oa.cheatGet = [](int i, std::string* name, std::string* comments, bool* enabled) {
+                char n[256] = {}, c[1024] = {};
+                bool en = false;
+                if (!gCore.cheat_get(i, n, sizeof(n), c, sizeof(c), &en)) return false;
+                *name = n;
+                *comments = c;
+                *enabled = en;
+                return true;
+            };
+            oa.cheatSetEnabled = [](int i, bool on) { gCore.cheat_set_enabled(i, on); };
+            oa.cheatsSave = [] { gCore.cheats_save(); };
+            oa.cheatCustomCount = [] { return gCheatCustomCount; };
+            oa.cheatAddCustom = [](const std::string& name, const std::string& code, std::string* err) {
+                // the core's enabled marks go to the file first, so the re-merge keeps them
+                gCore.cheats_save();
+                if (!azahar_nano::cheatdb::addCustom(sDataDir, gCheatTitleId, name, code, err)) return false;
+                gCheatCustomCount = azahar_nano::cheatdb::prepare(sDataDir, gCheatTitleId);
+                gCore.cheats_reload();
+                return true;
+            };
+            oa.cheatRemoveCustom = [](int customIndex) {
+                gCore.cheats_save();
+                if (!azahar_nano::cheatdb::removeCustom(sDataDir, gCheatTitleId, customIndex)) return false;
+                gCheatCustomCount = azahar_nano::cheatdb::prepare(sDataDir, gCheatTitleId);
+                gCore.cheats_reload();
+                return true;
+            };
+            oa.cheatFilesHint = [] {
+                char tid[24];
+                snprintf(tid, sizeof(tid), "%016llX", (unsigned long long)gCheatTitleId);
+                return "Title " + std::string(tid) + ": your cheats in " +
+                       azahar_nano::cheatdb::customFile(sDataDir, gCheatTitleId) + ", the merged list in " +
+                       azahar_nano::cheatdb::cheatFile(sDataDir, gCheatTitleId) + ", the database " +
+                       azahar_nano::cheatdb::databasePath();
+            };
+        }
         oa.setScreenAa = [](bool on) {
             if (gCore.set_screen_aa) gCore.set_screen_aa(on ? 1 : 0);
         };
@@ -1070,6 +1130,14 @@ int main(int argc, char** argv) {
         sOverlayReady = ovWin && overlay.init(ovWin, (int)widthAt(0), (int)heightAt(0), upright, oa, dataDir,
                                               turn180);
         if (!sOverlayReady) ALOGE("overlay unavailable");
+        // the keyboard's panel: the bottom one, when the device has it
+        const bool haveBottom = drmActive ? drm.count() > 1 : sf.count() > 1;
+        if (sOverlayReady && haveBottom) {
+            ANativeWindow* botWin = drmActive ? drm.overlayWindow(1) : sf.overlayWindow(1);
+            const bool botUpright = drmActive && drm.isPortrait(1);
+            const bool botTurn = drmActive && drm.mountRotationDeg(1) == 180;
+            if (botWin) overlay.initBottom(botWin, (int)widthAt(1), (int)heightAt(1), botUpright, botTurn);
+        }
         if (sOverlayReady && prop("persist.gammaos.azahar_nano.loading_screen", "1") == "1") {
             gLoadOverlay = &overlay;
         }
@@ -1132,11 +1200,20 @@ int main(int argc, char** argv) {
         y *= sPanelH[panel] * k;
     };
     icb.touch = [](int panel, float x, float y, bool p) {
+        if (overlay.isOpen()) {
+            // the menu's keyboard on the bottom panel takes touches; the page ignores them
+            if (overlay.onTouch(panel, x, y, p) && overlay.isOpen()) overlay.render();
+            return;
+        }
         toWindow(panel, x, y);
         if (panel == 1) gCore.secondary_touch(x, y, p);
         else gCore.touch(x, y, p);
     };
     icb.touchMoved = [](int panel, float x, float y) {
+        if (overlay.isOpen()) {
+            if (overlay.onTouch(panel, x, y, false) && overlay.isOpen()) overlay.render();
+            return;
+        }
         toWindow(panel, x, y);
         if (panel == 1) gCore.secondary_touch_moved(x, y);
         else gCore.touch_moved(x, y);
@@ -1621,6 +1698,12 @@ int main(int argc, char** argv) {
     if (setpriority(PRIO_PROCESS, 0, -10) != 0) ALOGW("setpriority failed: %s", strerror(errno));
     ALOGI("running %s on %d panel(s) via %s", rom.c_str(), panels, drmActive ? "drm" : "sf");
     pushConfigOverrides();
+    // The cheat file the core loads at boot: the user's own cheats + the database.
+    if (gCore.rom_title_id) {
+        gCheatTitleId = gCore.rom_title_id(rom.c_str());
+        if (gCheatTitleId) gCheatCustomCount = azahar_nano::cheatdb::prepare(dataDir, gCheatTitleId);
+        else ALOGW("cheats: no title id for %s", rom.c_str());
+    }
     const int result = gCore.run(rom.c_str());
     gExitRequested = true;
     perfThread.join();
