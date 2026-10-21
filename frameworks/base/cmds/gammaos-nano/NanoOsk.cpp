@@ -1122,23 +1122,21 @@ void NanoMenu::oskTick() {
 // ---------------------------------------------------------------------------
 void NanoMenu::oskTouchFrame() {
     if (!mOskActive) return;
-    if (mTouchMaxX <= mTouchMinX || mTouchMaxY <= mTouchMinY || mTouchRawX < 0) return;
-    float nx = (float)(mTouchRawX - mTouchMinX) / (float)(mTouchMaxX - mTouchMinX);
-    float ny = (float)(mTouchRawY - mTouchMinY) / (float)(mTouchMaxY - mTouchMinY);
-    if (mOskTouchSwap)  { float t = nx; nx = ny; ny = t; }
-    if (mOskTouchFlipX) nx = 1.0f - nx;
-    if (mOskTouchFlipY) ny = 1.0f - ny;
-    if (nx < 0.0f) nx = 0.0f; else if (nx > 1.0f) nx = 1.0f;
-    if (ny < 0.0f) ny = 0.0f; else if (ny > 1.0f) ny = 1.0f;
+    // the shared mapper: it knows which digitizer the finger is on (the bottom panel's has its
+    // own calibration, cc.touch_*; the osk_touch_* props are the primary's) and any rotation
+    float px = 0, py = 0;
+    if (!touchMapRaw(mTouchRawX, mTouchRawY, px, py)) return;
     // the keys are laid out (oskLayoutBox) in the dims of the panel the keyboard is drawn on:
     // the bottom panel's on a dual-panel device, not the primary's (taps landed on the wrong
     // key there, the 3DS theme's search keyboard typed "?")
     const int sw = mWidth, sh = mHeight;
     int w2 = 0, h2 = 0;
     const bool secondary = oskOnSecondaryPanel(&w2, &h2);
-    if (secondary) { mWidth = w2; mHeight = h2; }
-    float px = nx * (float)mWidth;
-    float py = ny * (float)mHeight;
+    if (secondary) {
+        px = px / (float)mWidth * (float)w2;
+        py = py / (float)mHeight * (float)h2;
+        mWidth = w2; mHeight = h2;
+    }
     bool tap = (mTouchDown && !mTouchWasDown);   // press edge only presses a key
     if (mTouchDown) oskTouchAt(px, py, tap);
     if (secondary) { mWidth = sw; mHeight = sh; }
