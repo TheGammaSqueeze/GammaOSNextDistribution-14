@@ -39,6 +39,7 @@ struct TopFocus {
     int glyphW = 0, glyphH = 0;
     bool glyphColor = false;    // a full colour icon: the solid's faces and walls keep its colours
     bool glyphTinted = false;   // the glyph's own colour (a system's tint), else the folder colours
+    bool glyphNamed = false;    // that colour is the grid's name colour: the glass sways from it
     float glyphTint[3] = {1, 1, 1};
 };
 
@@ -144,6 +145,7 @@ private:
         std::set<int> glyphHide;                 // the meshes the glyph stands in for, hidden once it lands
         int glyphBone = -1;
         bool tinted = false;
+        bool named = false;    // the tint is the grid's name colour: the glass sways from it
         float tint[3] = {1, 1, 1};
         bool shown = true;
         int scaleStep = 4;

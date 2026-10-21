@@ -633,6 +633,7 @@ void CtrTop::attach() {
                 b->glyphKey = gk;
         }
         b->tinted = mPendingFocus.glyphTinted;
+        b->named = mPendingFocus.glyphNamed;
         for (int i = 0; i < 3; i++) b->tint[i] = mPendingFocus.glyphTint[i];
     }
     // an applet banner with nano's icon: the applet object (mt_Body) and its white backing plate
@@ -679,6 +680,7 @@ void CtrTop::attach() {
             b->model->hiddenMeshes.clear();   // nothing built (yet): the console's object after all
         }
         b->tinted = mPendingFocus.glyphTinted;
+        b->named = mPendingFocus.glyphNamed;
         for (int i = 0; i < 3; i++) b->tint[i] = mPendingFocus.glyphTint[i];
     }
     // the language slot's own model, its animations in repeat mode like COMMON
@@ -808,7 +810,8 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
                 side[i] = 0.62f;
             }
         } else if (b.tinted) {
-            // the system's own colour (Game Systems tint): faces in it, walls a darker shade
+            // the system's own colour (Game Systems tint, or the grid's name colour: the same
+            // colour the bottom icon starts from): faces in it, walls a darker shade
             for (int i = 0; i < 3; i++) {
                 face[i] = b.tint[i];
                 side[i] = b.tint[i] * 0.55f;
@@ -821,7 +824,7 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
         }
         // a dark body (the Black theme, a dark folder colour) would hide a glyph in its own
         // colours: light faces and mid grey walls instead
-        if (!b.glyph->coloured() && 0.2126f * face[0] + 0.7152f * face[1] + 0.0722f * face[2] < 0.4f) {
+        if (!b.glyph->coloured() && !b.named && 0.2126f * face[0] + 0.7152f * face[1] + 0.0722f * face[2] < 0.4f) {
             // the colour itself lifted towards white (not a neutral grey: the glass's hue sway
             // needs a hue to turn), the walls a denser shade of it
             for (int i = 0; i < 3; i++) {
@@ -847,7 +850,7 @@ void CtrTop::drawGlyphs(const Camera3d& cam) {
                 for (int i = 0; i < 3; i++) side[i] = face[i] * 0.62f;
             }
         }
-        if (b.spec.turn && !b.glyph->coloured() && !b.tinted) {   // a system's own colour stays its own
+        if (b.spec.turn && !b.glyph->coloured() && (!b.tinted || b.named)) {   // a system's own colour stays its own
             const float a = sinf(b.turnFrame * (float)M_PI * 2 / TURN_FRAMES) * (35.0f * (float)M_PI / 180.0f);
             const float c = cosf(a), s = sinf(a), k = (1 - c) / 3.0f, t = s / sqrtf(3.0f);
             // rotation of (r, g, b) about (1, 1, 1): a hue shift that keeps luminance roughly

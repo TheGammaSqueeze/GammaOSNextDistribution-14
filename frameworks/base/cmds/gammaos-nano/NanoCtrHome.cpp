@@ -2205,6 +2205,7 @@ void CtrHome::Impl::updateChrome() {
                         f.glyphW = t->texWidth > 0 ? t->texWidth : t->width;
                         f.glyphH = t->texHeight > 0 ? t->texHeight : t->height;
                         f.glyphTinted = host->itemTint(*it, f.glyphTint);
+                        if (!f.glyphTinted && host->itemNameColor(*it, f.glyphTint)) f.glyphTinted = f.glyphNamed = true;
                     }
                 } else if (gl && art.mono) {
                     if (TexturePtr t = titleTextureOwn(*it)) {
@@ -2212,6 +2213,7 @@ void CtrHome::Impl::updateChrome() {
                         f.glyphW = t->texWidth > 0 ? t->texWidth : t->width;
                         f.glyphH = t->texHeight > 0 ? t->texHeight : t->height;
                         f.glyphTinted = host->itemTint(*it, f.glyphTint);
+                        if (!f.glyphTinted && host->itemNameColor(*it, f.glyphTint)) f.glyphTinted = f.glyphNamed = true;
                     }
                 } else if (gl && art.coverAspect <= 0 && !art.pixelArt) {
                     // a full colour icon (PICO-8's blocks): the solid keeps its own colours

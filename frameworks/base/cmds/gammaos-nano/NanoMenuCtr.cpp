@@ -989,6 +989,16 @@ public:
         rgb[2] = it.iconB;
         return true;
     }
+    // The grid's colour for a system shown as an icon alone (nameColor for the tile it sits on),
+    // so the top screen's glass starts from the same colour the bottom icon has.
+    bool itemNameColor(const ctr::HomeItem& item, float rgb[3]) override {
+        if (!item.glyphOnly || !item.monoIcon || !mMenu->mCtrHome) return false;
+        float tint[3], bg[3];
+        if (itemTint(item, tint)) return false;   // its own colour: itemTint already gives it
+        mMenu->mCtrHome->tileColor(bg);
+        nameColor(item.name, 0.2126f * bg[0] + 0.7152f * bg[1] + 0.0722f * bg[2], rgb);
+        return true;
+    }
     // Enlarge / Shrink Icons: kept for the next session (ctrEnsure applies them)
     void zoomChanged(bool folder, int zoom) override {
         property_set(folder ? "persist.gammaos.nano.ctr.folder_zoom" : "persist.gammaos.nano.ctr.zoom",

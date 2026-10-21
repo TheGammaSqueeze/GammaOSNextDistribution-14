@@ -140,6 +140,9 @@ public:
     // the top screen takes it instead of the theme's folder colours. A title's (a category's): its
     // monochrome glyph is drawn in it instead of grey. False: no colour of its own.
     virtual bool itemTint(const HomeItem& item, float rgb[3]) { (void)item; (void)rgb; return false; }
+    // the colour the grid gave a system shown as an icon alone (made from its name, see the
+    // host): the top screen's glass starts from it; false when the item has none
+    virtual bool itemNameColor(const HomeItem& item, float rgb[3]) { (void)item; (void)rgb; return false; }
     // L / R on the grid: the next or the previous of the host's categories (the host calls
     // showCategory once it switched).
     virtual void stepCategory(int dir) { (void)dir; }
