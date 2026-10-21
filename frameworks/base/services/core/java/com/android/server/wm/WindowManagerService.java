@@ -1868,6 +1868,7 @@ public class WindowManagerService extends IWindowManager.Stub
             win.mSession.onWindowAdded(win);
             mWindowMap.put(client.asBinder(), win);
             win.initAppOpsState();
+            gammaPresentationWindowChanged(win, true);
 
             final boolean suspended = mPmInternal.isPackageSuspended(win.getOwningPackage(),
                     UserHandle.getUserId(win.getOwningUid()));
@@ -2120,9 +2121,40 @@ public class WindowManagerService extends IWindowManager.Stub
      * figure-out a good way to have all parents of a WindowState doing the same thing without
      * forgetting to add the wiring when a new parent of WindowState is added.
      */
+    // GammaOS: which app presents on a secondary display. A dual screen app (drastic, seedless
+    // DS, ...) puts a Presentation window on the bottom panel over the resting home activity,
+    // which stays resumed underneath and cannot tell: its idle timer dimmed the panel's
+    // backlight to 0 in the middle of a game. Published as sys.gammaos.presentation.<displayId>
+    // = owning package (empty when none) for the secondary home and the mode button.
+    private final SparseArray<java.util.ArrayList<WindowState>> mGammaPresentations =
+            new SparseArray<>();
+
+    private void gammaPresentationWindowChanged(WindowState win, boolean added) {
+        if (win.mAttrs.type != TYPE_PRESENTATION && win.mAttrs.type != TYPE_PRIVATE_PRESENTATION) {
+            return;
+        }
+        final int displayId = win.getDisplayId();
+        if (displayId == DEFAULT_DISPLAY) return;
+        java.util.ArrayList<WindowState> list = mGammaPresentations.get(displayId);
+        if (list == null) {
+            list = new java.util.ArrayList<>();
+            mGammaPresentations.put(displayId, list);
+        }
+        if (added) list.add(win);
+        else list.remove(win);
+        final String pkg = list.isEmpty() ? "" : list.get(list.size() - 1).getOwningPackage();
+        final String prop = "sys.gammaos.presentation." + displayId;
+        if (!pkg.equals(SystemProperties.get(prop, ""))) {
+            SystemProperties.set(prop, pkg);
+            Slog.i(TAG, "GammaOS: presentation on display " + displayId + ": "
+                    + (pkg.isEmpty() ? "none" : pkg));
+        }
+    }
+
     void postWindowRemoveCleanupLocked(WindowState win) {
         ProtoLog.v(WM_DEBUG_ADD_REMOVE, "postWindowRemoveCleanupLocked: %s", win);
         mWindowMap.remove(win.mClient.asBinder());
+        gammaPresentationWindowChanged(win, false);
 
         final DisplayContent dc = win.getDisplayContent();
         dc.getDisplayRotation().markForSeamlessRotation(win, false /* seamlesslyRotated */);

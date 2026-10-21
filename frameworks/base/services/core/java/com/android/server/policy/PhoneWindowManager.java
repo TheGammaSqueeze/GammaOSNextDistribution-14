@@ -9315,8 +9315,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // it is told apart by package. Tasks come top first.
     private long mGammaModeButtonUpMs = 0;
     private static final String GAMMA_SECONDARY_HOME_PKG = "com.gammaos.secondaryhome";
-    private static final String GAMMA_SECONDARY_HOME_ACT =
-            "com.gammaos.secondaryhome.SecondaryHomeActivity";
+    private static final String GAMMA_SECONDARY_HOME_SVC =
+            "com.gammaos.secondaryhome.OverlayService";
+    private static final String GAMMA_SECONDARY_HOME_TOGGLE =
+            "com.gammaos.secondaryhome.TOGGLE_OVERLAY";
 
     private int gammaBottomDisplayId() {
         return SystemProperties.getInt("persist.gammaos.nano.cc.bottomdisplay", -1);
@@ -9338,8 +9340,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 || GAMMA_SECONDARY_HOME_PKG.equals(t.topActivity.getPackageName());
     }
 
-    // An app (anything but the home) runs on the bottom screen, in front of the home or behind it.
+    // A dual screen app presenting on the bottom screen from the top one (WM publishes it).
+    private boolean gammaBottomPresentation() {
+        final int disp = gammaBottomDisplayId();
+        return disp >= 0 && !SystemProperties.get("sys.gammaos.presentation." + disp, "").isEmpty();
+    }
+
+    // An app (anything but the home) runs on the bottom screen, in front of the home or behind
+    // it, or presents on it from the top screen.
     private boolean gammaBottomAppPresent() {
+        if (gammaBottomPresentation()) return true;
         final java.util.List<ActivityTaskManager.RootTaskInfo> tasks = gammaBottomTasks();
         if (tasks == null) return false;
         for (ActivityTaskManager.RootTaskInfo t : tasks) {
@@ -9361,7 +9371,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (top == null) top = tasks.get(0);
         final ActivityOptions opts = ActivityOptions.makeBasic();
         opts.setLaunchDisplayId(disp);
-        if (gammaIsBottomHome(top)) {
+        // A presentation sits above every activity on the display: the only way to show the
+        // centre over it is the overlay window, whatever task is in front underneath.
+        if (gammaIsBottomHome(top) && !gammaBottomPresentation()) {
             for (ActivityTaskManager.RootTaskInfo t : tasks) {
                 if (gammaIsBottomHome(t)) continue;
                 Slog.i(TAG, "GammaOS: mode button, bottom app " + t.topActivity.getPackageName()
@@ -9376,15 +9388,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             return;
         }
-        Slog.i(TAG, "GammaOS: mode button, launcher over bottom app "
+        // The control centre as an overlay WINDOW over the app, not an activity on top of it:
+        // an activity would pause the app (SmartTube stopped its video), the window leaves it
+        // resumed and unaware. The same button toggles it off again.
+        Slog.i(TAG, "GammaOS: mode button, control centre over bottom app "
                 + top.topActivity.getPackageName() + " on display " + disp);
-        final Intent home = new Intent(Intent.ACTION_MAIN)
-                .setComponent(new ComponentName(GAMMA_SECONDARY_HOME_PKG, GAMMA_SECONDARY_HOME_ACT))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        final Intent overlay = new Intent(GAMMA_SECONDARY_HOME_TOGGLE)
+                .setComponent(new ComponentName(GAMMA_SECONDARY_HOME_PKG, GAMMA_SECONDARY_HOME_SVC));
         try {
-            mContext.startActivityAsUser(home, opts.toBundle(), UserHandle.CURRENT);
+            mContext.startServiceAsUser(overlay, UserHandle.CURRENT);
         } catch (Exception e) {
-            Slog.w(TAG, "GammaOS: mode button, launcher start failed", e);
+            Slog.w(TAG, "GammaOS: mode button, overlay service start failed", e);
         }
     }
 
