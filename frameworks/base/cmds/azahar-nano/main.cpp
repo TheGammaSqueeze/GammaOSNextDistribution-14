@@ -559,6 +559,9 @@ bool shaderCacheRebuilding() {
 const char* kRebuildNote =
     "This game's saved shaders no longer match the emulator (it was updated),\n"
     "so they are being rebuilt. This happens once per game.";
+const char* kStartNote =
+    "The game builds its first shaders as it starts; after a shader cache clear\n"
+    "this takes longer. They are saved, so later starts are quick.";
 const char* kFirstUseNote =
     "This scene needs shaders this game has not used before.\n"
     "They are saved, so this only happens the first time.";
@@ -1591,6 +1594,7 @@ int main(int argc, char** argv) {
         uint64_t lastSeq = ~0ull;
         float toast = 0.0f, spin = 0.0f;
         int64_t stallSinceNs = 0;
+        bool gameFrameSeen = false;   // the game has drawn a frame since it started
         int64_t idleSinceNs = 0;
         int64_t lastNs = 0;
         int propTick = 0;
@@ -1614,17 +1618,23 @@ int main(int argc, char** argv) {
             // reaches the panel with game frames, so the toast and the frame counter would just
             // freeze; the overlay plane presents on its own. Opens after 1.5 s of that and only
             // while jobs are queued; closes as soon as emulation runs again.
+            // Start screen: until the game has drawn its first frame the panels show black
+            // (the presenter flips the core's empty frames while the game boots and its first
+            // shaders build, up to half a minute after a cache clear), so the same screen
+            // covers that window too, whether or not the core counts compile jobs yet.
             {
                 const int jobs = gCore.compiles_pending ? gCore.compiles_pending() : 0;
+                if (sHudGameFps.load() > 0.5f) gameFrameSeen = true;
+                const bool starting = live && !gameFrameSeen;
                 const bool emuStopped = sSystemFps.load() < 0.5f;
-                if (live && !gSleepPaused && emuStopped && (jobs > 0 || gStallScreenOn)) {
+                if (live && !gSleepPaused && ((emuStopped && (jobs > 0 || gStallScreenOn)) || starting)) {
                     if (stallSinceNs == 0) stallSinceNs = now;
                 } else {
                     stallSinceNs = 0;
                 }
                 if (stallPreview && live && stallSinceNs == 0) stallSinceNs = now - 1500000000LL;
                 const bool wantStall = stallSinceNs && now - stallSinceNs >= 1500000000LL &&
-                                       (jobs > 0 || gStallScreenOn || stallPreview) &&
+                                       (jobs > 0 || gStallScreenOn || stallPreview || starting) &&
                                        sOverlayReady && gLoadOverlay && gSetOverlayActive;
                 if (wantStall && !overlay.isOpen() && !gLoadScreenOn) {
                     if (!gStallScreenOn.exchange(true)) {
@@ -1635,10 +1645,17 @@ int main(int argc, char** argv) {
                     const bool rebuild = shaderCacheRebuilding();
                     const int secs = (int)((now - stallSinceNs) / 1000000000LL);
                     char detail[96];
-                    snprintf(detail, sizeof(detail), "%d compiling    %d:%02d    the game continues by itself",
-                             jobs, secs / 60, secs % 60);
-                    gLoadOverlay->renderLoading(rebuild ? "Rebuilding shader cache" : "Compiling shaders",
-                                                detail, -1.0f, rebuild ? kRebuildNote : kFirstUseNote,
+                    if (starting && jobs == 0) {
+                        snprintf(detail, sizeof(detail), "%d:%02d    the game continues by itself",
+                                 secs / 60, secs % 60);
+                    } else {
+                        snprintf(detail, sizeof(detail), "%d compiling    %d:%02d    the game continues by itself",
+                                 jobs, secs / 60, secs % 60);
+                    }
+                    gLoadOverlay->renderLoading(rebuild ? "Rebuilding shader cache"
+                                                : starting && jobs == 0 ? "Starting the game" : "Compiling shaders",
+                                                detail, -1.0f,
+                                                rebuild ? kRebuildNote : starting ? kStartNote : kFirstUseNote,
                                                 (float)((now / 1000000LL) % 1600) / 1600.0f);
                 } else if (!wantStall && gStallScreenOn.exchange(false)) {
                     if (!overlay.isOpen() && !gLoadScreenOn) gSetOverlayActive(0, false);
