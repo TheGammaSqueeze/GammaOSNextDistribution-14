@@ -854,6 +854,9 @@ public class ZygoteProcess {
      * only under mLock; never calls back into the caller's locks.
      */
     public void stopSecondaryZygote() {
+        // Before taking mLock: WebViewZygote holds its own lock while it starts a child zygote
+        // through this class, so the lock order is its lock first, mLock second.
+        android.webkit.WebViewZygote.onSecondaryZygoteStopping();
         synchronized (mLock) {
             if (secondaryZygoteState != null) {
                 secondaryZygoteState.close();   // drop our session socket
