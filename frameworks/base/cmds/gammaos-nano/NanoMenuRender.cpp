@@ -393,15 +393,15 @@ std::string NanoMenu::ccContentScreencapArg() {
     const std::vector<PhysicalDisplayId> ids =
             SurfaceComposerClient::getPhysicalDisplayIds();
     if (ids.size() < 2) return "";                    // single physical screen: default is correct
-    const uint64_t defaultVal = ids.front().value;    // == the panel screencap grabs with no -d (the CC)
+    const uint64_t defaultVal = ids.front().value;    // the panel screencap grabs with no -d
     const int primaryPort = property_get_int32("persist.gammaos.nano.primary_display", 0);
     uint64_t target = 0; bool found = false;
-    // Prefer the display whose port holds the primary/XMB panel (where apps are pinned). Never pick
-    // the default (CC) panel here - that is the bug we are fixing.
+    // The display whose port holds the primary/XMB panel (where apps are pinned), whether or not
+    // it is screencap's default: on the RG DS the CC panel is the default and the content panel
+    // is not, on the RP Duo Lite the content (top DSI) panel IS the default and the CC's DP panel
+    // is the other one, so "the non-default display" picked the dashboard there.
     for (const PhysicalDisplayId& pid : ids)
-        if ((int)pid.getPort() == primaryPort && pid.value != defaultVal) {
-            target = pid.value; found = true; break;
-        }
+        if ((int)pid.getPort() == primaryPort) { target = pid.value; found = true; break; }
     // Fallback (primary_display unset/misconfigured): any physical display that is NOT the default.
     if (!found)
         for (const PhysicalDisplayId& pid : ids)

@@ -16,6 +16,7 @@
 
 package com.android.server.policy;
 
+import static android.app.WindowConfiguration.ACTIVITY_TYPE_HOME;
 import static android.Manifest.permission.INTERNAL_SYSTEM_WINDOW;
 import static android.Manifest.permission.OVERRIDE_SYSTEM_KEY_BEHAVIOR_IN_FOCUSED_WINDOW;
 import static android.Manifest.permission.SYSTEM_ALERT_WINDOW;
@@ -107,6 +108,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RecentTaskInfo;
 import android.app.ActivityManagerInternal;
+import android.app.ActivityOptions;
 import android.app.ActivityTaskManager;
 import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.AlarmManager;
@@ -5223,15 +5225,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
                 return true;
             case KeyEvent.KEYCODE_BUTTON_MODE:
-                // GammaOS: a device whose Control Center toggle is the pad's mode button
-                // (persist.gammaos.nano.cc.keycode=316, the RP Duo Lite) keeps it from the app
-                // while an app runs on the bottom screen: nano reads the press itself from the
-                // pad device and shows or hides the Control Center over that app (RetroArch
-                // would otherwise open its menu on the same press). With nothing on the bottom
-                // screen the press goes to the game as usual.
-                if (SystemProperties.getInt("persist.gammaos.nano.cc.keycode", 0) == 316
-                        && !SystemProperties.get("sys.gammaos.nano.cc.bottomapp", "").isEmpty()) {
-                    return true;
+                // GammaOS: a device whose bottom screen toggle is the pad's mode button
+                // (persist.gammaos.nano.cc.keycode=316, the RP Duo Lite). While an app runs on
+                // the bottom screen the press is kept from the apps, whichever screen has the
+                // focus (RetroArch would otherwise open its menu on the same press):
+                //  - nano mode: nano reads the press itself from the pad device and shows or
+                //    hides the Control Center over the bottom app;
+                //  - launcher mode: the launcher's secondary home is brought over the bottom
+                //    app, and the next press brings the app back in front of it.
+                // With nothing but the home on the bottom screen the press goes to the game.
+                if (SystemProperties.getInt("persist.gammaos.nano.cc.keycode", 0) == 316) {
+                    if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                        if (!SystemProperties.get("sys.gammaos.nano.cc.bottomapp", "").isEmpty()) {
+                            return true;
+                        }
+                    } else if (gammaBottomAppPresent()) {
+                        if (!down) gammaToggleBottomLauncher();
+                        return true;
+                    }
                 }
                 break;
             case KeyEvent.KEYCODE_NOTIFICATION:
@@ -9288,6 +9299,84 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // Start home on the resolved display.
         mActivityTaskManagerInternal.startHomeOnDisplay(userId, startReason,
                 targetDisplayId, true /* allowInstrumenting */, fromHomeKey);
+    }
+
+    // GammaOS dual screen, launcher mode: the bottom screen's logical display is named by
+    // persist.gammaos.nano.cc.bottomdisplay (the same id nano uses); its home is the GammaOS
+    // secondary home activity (vendor gammaos-sechome.sh places it there), an ordinary task, so
+    // it is told apart by package. Tasks come top first.
+    private static final String GAMMA_SECONDARY_HOME_PKG = "com.gammaos.secondaryhome";
+    private static final String GAMMA_SECONDARY_HOME_ACT =
+            "com.gammaos.secondaryhome.SecondaryHomeActivity";
+
+    private int gammaBottomDisplayId() {
+        return SystemProperties.getInt("persist.gammaos.nano.cc.bottomdisplay", -1);
+    }
+
+    private java.util.List<ActivityTaskManager.RootTaskInfo> gammaBottomTasks() {
+        final int disp = gammaBottomDisplayId();
+        if (disp < 0) return null;
+        try {
+            return ActivityTaskManager.getService().getAllRootTaskInfosOnDisplay(disp);
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    private static boolean gammaIsBottomHome(ActivityTaskManager.RootTaskInfo t) {
+        if (t.topActivity == null) return true;
+        return t.getActivityType() == ACTIVITY_TYPE_HOME
+                || GAMMA_SECONDARY_HOME_PKG.equals(t.topActivity.getPackageName());
+    }
+
+    // An app (anything but the home) runs on the bottom screen, in front of the home or behind it.
+    private boolean gammaBottomAppPresent() {
+        final java.util.List<ActivityTaskManager.RootTaskInfo> tasks = gammaBottomTasks();
+        if (tasks == null) return false;
+        for (ActivityTaskManager.RootTaskInfo t : tasks) {
+            if (!gammaIsBottomHome(t)) return true;
+        }
+        return false;
+    }
+
+    // The pad's mode button in launcher mode: the bottom app in front -> the secondary home over
+    // it; the home in front with an app behind -> that app back in front.
+    private void gammaToggleBottomLauncher() {
+        final int disp = gammaBottomDisplayId();
+        final java.util.List<ActivityTaskManager.RootTaskInfo> tasks = gammaBottomTasks();
+        if (disp < 0 || tasks == null || tasks.isEmpty()) return;
+        ActivityTaskManager.RootTaskInfo top = null;
+        for (ActivityTaskManager.RootTaskInfo t : tasks) {
+            if (t.topActivity != null && t.isVisible()) { top = t; break; }
+        }
+        if (top == null) top = tasks.get(0);
+        final ActivityOptions opts = ActivityOptions.makeBasic();
+        opts.setLaunchDisplayId(disp);
+        if (gammaIsBottomHome(top)) {
+            for (ActivityTaskManager.RootTaskInfo t : tasks) {
+                if (gammaIsBottomHome(t)) continue;
+                Slog.i(TAG, "GammaOS: mode button, bottom app " + t.topActivity.getPackageName()
+                        + " back over the launcher on display " + disp);
+                try {
+                    ActivityTaskManager.getService().moveTaskToFront(null, mContext.getPackageName(),
+                            t.taskId, 0, opts.toBundle());
+                } catch (RemoteException e) {
+                    Slog.w(TAG, "GammaOS: mode button, task to front failed", e);
+                }
+                return;
+            }
+            return;
+        }
+        Slog.i(TAG, "GammaOS: mode button, launcher over bottom app "
+                + top.topActivity.getPackageName() + " on display " + disp);
+        final Intent home = new Intent(Intent.ACTION_MAIN)
+                .setComponent(new ComponentName(GAMMA_SECONDARY_HOME_PKG, GAMMA_SECONDARY_HOME_ACT))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        try {
+            mContext.startActivityAsUser(home, opts.toBundle(), UserHandle.CURRENT);
+        } catch (Exception e) {
+            Slog.w(TAG, "GammaOS: mode button, launcher start failed", e);
+        }
     }
 
     void startDockOrHome(int displayId, boolean fromHomeKey, boolean awakenFromDreams) {
