@@ -5240,7 +5240,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             return true;
                         }
                     } else if (gammaBottomAppPresent()) {
-                        if (!down) gammaToggleBottomLauncher();
+                        // The press arrives twice (the pad's own device and gammapad's virtual
+                        // one both report it); only the first release within 400 ms toggles.
+                        if (!down) {
+                            final long nowMs = SystemClock.uptimeMillis();
+                            if (nowMs - mGammaModeButtonUpMs > 400) {
+                                mGammaModeButtonUpMs = nowMs;
+                                gammaToggleBottomLauncher();
+                            }
+                        }
                         return true;
                     }
                 }
@@ -9305,6 +9313,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // persist.gammaos.nano.cc.bottomdisplay (the same id nano uses); its home is the GammaOS
     // secondary home activity (vendor gammaos-sechome.sh places it there), an ordinary task, so
     // it is told apart by package. Tasks come top first.
+    private long mGammaModeButtonUpMs = 0;
     private static final String GAMMA_SECONDARY_HOME_PKG = "com.gammaos.secondaryhome";
     private static final String GAMMA_SECONDARY_HOME_ACT =
             "com.gammaos.secondaryhome.SecondaryHomeActivity";
