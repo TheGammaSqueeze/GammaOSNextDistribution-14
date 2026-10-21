@@ -532,6 +532,41 @@ bool DrmWindows::modeset() {
     return true;
 }
 
+// Re-light a panel whose flips are refused (after a device sleep): the CRTC active with its
+// mode, the connector on it, the plane with its whole state and this frame, in one blocking
+// commit that may modeset. The caller's flip bookkeeping is already cleared.
+bool DrmWindows::recoverPanel(DrmPanel& p, uint32_t fb, uint32_t w, uint32_t h) {
+    drmModeAtomicReqPtr req = drmModeAtomicAlloc();
+    drmModeAtomicAddProperty(req, p.crtcId, p.cActive, 1);
+    drmModeAtomicAddProperty(req, p.crtcId, p.cModeId, p.modeBlob);
+    drmModeAtomicAddProperty(req, p.connId, p.connCrtcId, p.crtcId);
+    drmModeAtomicAddProperty(req, p.planeId, p.pFbId, fb);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcId, p.crtcId);
+    drmModeAtomicAddProperty(req, p.planeId, p.pSrcX, 0);
+    drmModeAtomicAddProperty(req, p.planeId, p.pSrcY, 0);
+    drmModeAtomicAddProperty(req, p.planeId, p.pSrcW, (uint64_t)w << 16);
+    drmModeAtomicAddProperty(req, p.planeId, p.pSrcH, (uint64_t)h << 16);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcX, 0);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcY, 0);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcW, p.width);
+    drmModeAtomicAddProperty(req, p.planeId, p.pCrtcH, p.height);
+    if (p.pRotation && p.rotationValue) {
+        drmModeAtomicAddProperty(req, p.planeId, p.pRotation, p.rotationValue);
+    }
+    const int rc = drmModeAtomicCommit(mFd, req, DRM_MODE_ATOMIC_ALLOW_MODESET, nullptr);
+    const int err = errno;
+    drmModeAtomicFree(req);
+    if (rc != 0) {
+        ALOGE("DRM: re-light of crtc %u refused: %s", p.crtcId, strerror(err));
+        return false;
+    }
+    ALOGI("DRM: crtc %u re-lit after refused flips", p.crtcId);
+    p.geometrySet = true;
+    p.srcW = w;
+    p.srcH = h;
+    return true;
+}
+
 // Test-only atomic commit: can this panel's plane scan out a w x h buffer
 // stretched over the whole panel?
 bool DrmWindows::testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h, const DrmPanel* retire) {
@@ -1245,11 +1280,21 @@ bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
     if (fenceFd >= 0) close(fenceFd);
     if (rc != 0) {
         ALOGE("DRM: flip commit failed on crtc %u: %s", p.crtcId, strerror(err));
-        std::lock_guard<std::mutex> lk(*p.mu);
-        p.hasPending = false;
-        p.flipPending = false;
+        {
+            std::lock_guard<std::mutex> lk(*p.mu);
+            p.hasPending = false;
+            p.flipPending = false;
+        }
+        // A device sleep brings the CRTCs back with no plane attached (the VOP resumes
+        // without its windows), so a minimal flip (FB_ID alone) is refused on every frame
+        // and both panels stay black until something else changes the plane state: carry
+        // the whole plane state on the next flip, and when that is refused too, re-light the
+        // panel from scratch (the first commit's modeset) with this frame.
+        p.geometrySet = false;
+        if (++p.failedFlips >= 2 && recoverPanel(p, fb, w, h)) p.failedFlips = 0;
         return false;
     }
+    p.failedFlips = 0;
     p.geometrySet = true;
     p.retirePlaneId = 0;   // the old plane is off from this flip on
     p.srcW = w;

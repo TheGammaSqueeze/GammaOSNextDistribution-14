@@ -50,6 +50,7 @@ struct DrmPanel {
     uint64_t bufUsage = 0;
     bool loggedUbwc = false;
     uint32_t retirePlaneId = 0, retireFbProp = 0, retireCrtcProp = 0;   // plane to switch off
+    int failedFlips = 0;   // refused commits in a row (a re-light after the second)
     float renderScale = 1.0f;
     // Two verified game buffer sizes: plain, and the one used while an LCD shader is on
     // (at least 3 output pixels per emulated pixel). setLcdOutput() switches between them.
@@ -204,6 +205,7 @@ private:
     bool testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h, const DrmPanel* retire = nullptr);
     bool switchToScalingPlane(DrmPanel& p);
     bool flip(DrmPanel& p, android::BufferItem& item);
+    bool recoverPanel(DrmPanel& p, uint32_t fb, uint32_t w, uint32_t h);
     void eventLoop();
     void panelLoop(int idx);
     void onFlipDone(unsigned int crtcId, int64_t tsNs);
