@@ -4597,7 +4597,16 @@ if (sRingPrimedCount >= 2) {
             if (lr[0]) {
                 property_set("sys.gammaos.nano.azahar_launch_rom", "");
                 std::string rp = lr;
-                if (rp[0] != '/') rp = std::string("/sdcard/ROMs/3ds/") + rp;
+                if (rp[0] != '/') {
+                    // a bare file name: the first 3DS ROM folder that holds it (3ds, n3ds,
+                    // nintendo3ds, the folders the system scan looks in)
+                    std::string found;
+                    for (const char* d : {"3ds", "n3ds", "nintendo3ds"}) {
+                        const std::string cand = std::string("/sdcard/ROMs/") + d + "/" + rp;
+                        if (access(cand.c_str(), R_OK) == 0) { found = cand; break; }
+                    }
+                    rp = found.empty() ? std::string("/sdcard/ROMs/3ds/") + rp : found;
+                }
                 if (access(rp.c_str(), R_OK) == 0) {
                     setAzaharNanoRomPath(rp);
                     ALOGW("azahar nano: prop azahar_launch_rom -> %s", rp.c_str());

@@ -441,6 +441,47 @@ static int moveTree(const std::string& from, const std::string& to) {
     return moved;
 }
 
+// The data folder must not live inside a ROM folder (<volume>/ROMs/<system>/...): the
+// emulator's tree (sdmc, states, cheats, dumps, mods) would sit among the games and be
+// scanned, copied and deleted with them. When the setting points there, its contents move
+// to the default folder (newer copy wins, the other is kept as .bak), the setting is
+// cleared and the default folder is used from now on. Returns the folder to use.
+static std::string relocateDataFromRomFolder(const std::string& dataDir) {
+    std::string p = dataDir;
+    while (p.size() > 1 && p.back() == '/') p.pop_back();
+    auto lower = [](std::string s) { for (char& c : s) c = (char)tolower((unsigned char)c); return s; };
+    const std::string lp = lower(p);
+    const bool inRomFolder = lp.find("/roms/") != std::string::npos;
+    if (!inRomFolder || p == kDataDirDefault) return dataDir;
+    struct stat st{};
+    const bool hasTree = stat((p + "/sdmc").c_str(), &st) == 0 || stat((p + "/states").c_str(), &st) == 0 ||
+                         stat((p + "/cheats").c_str(), &st) == 0;
+    int moved = 0;
+    if (hasTree) {
+        mkdir(kDataDirDefault, 0775);   // the destination tree is built under it as the files move
+        // the user folder's own subfolders go to their place in the default folder
+        for (const char* sub : {"sdmc", "states", "cheats", "dump", "load", "overrides", "gpu_drivers", "mods"}) {
+            const std::string from = p + "/" + sub;
+            if (stat(from.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) continue;
+            moved += moveTree(from, std::string(kDataDirDefault) + "/" + sub);
+            rmdir(from.c_str());
+        }
+        // private root material an old test layout left there (the private root has its own
+        // copies) is parked under legacy/ rather than deleted: nothing of the user's is lost
+        for (const char* sub : {"nand", "sysdata", "config", "shaders", "log"}) {
+            const std::string from = p + "/" + sub;
+            if (stat(from.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) continue;
+            mkdir((std::string(kDataDirDefault) + "/legacy").c_str(), 0775);
+            moved += moveTree(from, std::string(kDataDirDefault) + "/legacy/" + sub);
+            rmdir(from.c_str());
+        }
+    }
+    property_set("persist.gammaos.azahar.data_dir", "");
+    ALOGW("data folder %s is inside a ROM folder: %d file(s) moved to %s, setting cleared", p.c_str(), moved,
+          kDataDirDefault);
+    return kDataDirDefault;
+}
+
 static void migrateStrandedUserFolder(const std::string& userDir, const std::string& dataDir) {
     if (dataDir.empty() || dataDir[0] != '/') return;
     std::string root = userDir;
@@ -761,7 +802,12 @@ int main(int argc, char** argv) {
     // Settings "Azahar Data Folder" row, persist.gammaos.azahar.data_dir); everything
     // else stays in the private root. When both point at the same place (a user who
     // keeps a whole Azahar user directory, e.g. the stock app's) nothing moves.
-    const std::string dataDir = prop("persist.gammaos.azahar.data_dir", kDataDirDefault);
+    std::string dataDir = prop("persist.gammaos.azahar.data_dir", kDataDirDefault);
+    // A user folder that was pointed at a ROM folder (early test builds kept their data in
+    // /sdcard/ROMs/3ds) is brought back to the default folder once: the files move, the
+    // setting is cleared. The ROM folder is for ROMs; a folder the user picks on purpose
+    // anywhere else is respected as it is.
+    dataDir = relocateDataFromRomFolder(dataDir);
     // Per-game settings override (AzaharSettings.h): <user folder>/overrides/<rom base>.cfg.
     // When it exists it is the source of truth for every setting it holds from here on;
     // the global properties and config.ini are neither read for those keys nor written.

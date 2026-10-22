@@ -2295,7 +2295,8 @@ bool NanoMenu::ctrStatusView(CtrStatusView* v) {
             running = mScrapeRunning; status = mScrapeStatus; err = mScrapeError;
         }
         const bool moving = mScrapeMoveMode;
-        const std::string title = trDyn(moving ? "Boxart Folder" : "Boxart Scraper");
+        const std::string title = !mFolderMoveWhat.empty() ? trDyn(mFolderMoveWhat.c_str())
+                                                           : trDyn(moving ? "Boxart Folder" : "Boxart Scraper");
         char line[256];
         if (!running && mScrapeDoneFlag) {
             if (!err.empty() && hits == 0) snprintf(line, sizeof(line), "%s", err.c_str());

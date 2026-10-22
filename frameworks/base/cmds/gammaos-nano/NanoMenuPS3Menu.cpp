@@ -5941,7 +5941,7 @@ void NanoMenu::ps3XmbSelect() {
             else if (mFolderPickTarget == 5) { mFolderPickTarget = 0; drasticDataFolderSelect(it.payloadStr); }
             else if (mFolderPickTarget == 7) { mFolderPickTarget = 0; boxartFolderSelect(it.payloadStr); }
             else if (mFolderPickTarget == 8) { mFolderPickTarget = 0; drasticCheatsFolderSelect(it.payloadStr); }
-            else if (mFolderPickTarget == 9) { mFolderPickTarget = 0; azaharDataFolderSelect(it.payloadStr); }
+            else if (mFolderPickTarget == 10) { mFolderPickTarget = 0; azaharDataFolderSelect(it.payloadStr); }
             else if (mFolderPickTarget == 6) { stFolderPathSelect(it.payloadStr); }   // Syncthing: new folder path
             else gsFolderSelect(it.payloadStr);
             return;
@@ -6151,11 +6151,13 @@ void NanoMenu::ps3XmbSelect() {
             // DraStic Cheats Folder: the user's cheat databases (persist.gammaos.drastic.cheats_dir),
             // folder browser target 8.
             // Azahar Data Folder: the 3DS core's saves/states/cheats/mods (persist.gammaos.azahar.data_dir),
-            // folder browser target 9.
+            // folder browser target 10.
             if (it.label == "Boxart Folder" || it.label == "DraStic Data Folder" || it.label == "DraStic Cheats Folder" ||
                 it.label == "Azahar Data Folder") {
+                // (10, not 9: 9 is the icon-import picker, which lists files and has no
+                // "Select This Folder" row, so the Azahar folder could not be chosen while it shared it)
                 mFolderPickTarget = (it.label == "Boxart Folder") ? 7 : (it.label == "DraStic Cheats Folder") ? 8
-                                  : (it.label == "Azahar Data Folder") ? 9 : 5;
+                                  : (it.label == "Azahar Data Folder") ? 10 : 5;
                 std::vector<Ps3Item> ps = ps3CurItems(); int pSel = ps3CurSel();
                 Ps3Level lvl; buildFolderBrowser("", lvl); mPs3Stack.push_back(lvl);
                 mPs3SubParentItems = ps; mPs3SubParentIdx = pSel; mPs3SubChildItems = mPs3Stack.back().items;

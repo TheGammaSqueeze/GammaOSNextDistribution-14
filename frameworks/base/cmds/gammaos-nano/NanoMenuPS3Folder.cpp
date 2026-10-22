@@ -406,7 +406,7 @@ void NanoMenu::buildFolderBrowser(const std::string& path, Ps3Level& out) {
         // #90 DraStic data-folder picker (target 5): offer a reset-to-default at the top of the roots,
         // since the roots pseudo-folder has no "Select This Folder". Selecting it clears the override.
         // Same for the Boxart Folder picker (target 7): "Use Default Folder" moves the art back to internal.
-        if (mFolderPickTarget == 5 || mFolderPickTarget == 7 || mFolderPickTarget == 8 || mFolderPickTarget == 9) {
+        if (mFolderPickTarget == 5 || mFolderPickTarget == 7 || mFolderPickTarget == 8 || mFolderPickTarget == 10) {
             Ps3Item it; it.label = "Use Default Folder"; it.kind = PS3_GS_SELFOLDER; it.payloadStr = "@default";
             it.iconTex = iconTexForIcon(22); it.nmapTex = nmapForIcon(22); it.iconR = it.iconG = it.iconB = 1.0f;
             out.items.push_back(it);
@@ -628,32 +628,100 @@ void NanoMenu::drasticCheatsFolderSelect(const std::string& path) {
 
 // The Azahar USER data folder (saves, save states, cheats, mods), persist.gammaos.azahar.data_dir,
 // read by azahar-nano at each 3DS launch (its private root /data/system/azahar-nano keeps config,
-// nand, system files and caches). Same rules as the DraStic folder; folder-picker target 9.
+// nand, system files and caches). Same rules as the DraStic folder; folder-picker target 10.
 void NanoMenu::azaharDataFolderSelect(const std::string& path) {
     drasticFolderSelect("persist.gammaos.azahar.data_dir", "Azahar data folder", path);
 }
 
-void NanoMenu::drasticFolderSelect(const char* prop, const char* what, const std::string& path) {
-    if (path.empty() || path == "@default") {
-        property_set(prop, "");
-        photoShowBanner(trDyn((std::string(what) + ": Default").c_str()));
-        ALOGI("ps3menu: %s reset to default", what);
-    } else {
-        std::string p = path;
-        while (p.size() > 1 && p.back() == '/') p.pop_back();
-        struct stat st = {};
-        if (stat(p.c_str(), &st) != 0) ::mkdir(p.c_str(), 0775);
-        if (stat(p.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || access(p.c_str(), W_OK) != 0) {
-            photoShowBanner(trDyn((std::string(what) + ": not writable").c_str()));
-            ALOGW("ps3menu: %s %s rejected: %s", what, p.c_str(), strerror(errno));
-        } else {
-            property_set(prop, p.c_str());
-            photoShowBanner(trDyn((std::string(what) + " set (next game launch)").c_str()));
-            ALOGI("ps3menu: %s -> %s", what, p.c_str());
-        }
+// The default folder of each relocatable data folder (what an empty property means); the
+// DraStic cheats folder follows the DraStic data folder.
+static std::string dataFolderDefault(const char* prop) {
+    const std::string n = prop;
+    if (n == "persist.gammaos.drastic.data_dir") return "/storage/emulated/0/drastic-nano";
+    if (n == "persist.gammaos.azahar.data_dir") return "/storage/emulated/0/azahar-nano";
+    if (n == "persist.gammaos.drastic.cheats_dir") {
+        char dd[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.drastic.data_dir", dd, "");
+        std::string d = dd[0] == '/' ? dd : "/storage/emulated/0/drastic-nano";
+        while (d.size() > 1 && d.back() == '/') d.pop_back();
+        return d + "/cheats";
     }
+    return std::string();
+}
+
+// /sdcard and /storage/emulated/0 are the same place: compare folders in one spelling.
+static std::string canonicalFolder(std::string p) {
+    while (p.size() > 1 && p.back() == '/') p.pop_back();
+    if (p == "/sdcard") return "/storage/emulated/0";
+    if (p.rfind("/sdcard/", 0) == 0) return "/storage/emulated/0/" + p.substr(8);
+    if (p.rfind("/data/media/0/", 0) == 0) return "/storage/emulated/0/" + p.substr(14);
+    return p;
+}
+
+static bool folderHasEntries(const std::string& p) {
+    DIR* d = opendir(p.c_str());
+    if (!d) return false;
+    bool any = false;
+    while (dirent* e = readdir(d)) {
+        if (!strcmp(e->d_name, ".") || !strcmp(e->d_name, "..")) continue;
+        any = true;
+        break;
+    }
+    closedir(d);
+    return any;
+}
+
+// A data folder setting: the folder is created if missing and must be writable; the current
+// folder's contents MOVE to it (the user asked for the data to live there, not for a fresh
+// empty folder) on a worker behind the progress modal, and the property is written once the
+// move is done. Empty / "@default" (the "Use Default Folder" row) moves everything back to the
+// default. A folder that is the current one, or inside it, is refused.
+void NanoMenu::drasticFolderSelect(const char* prop, const char* what, const std::string& path) {
     if (!mPs3Stack.empty() && mPs3Stack.back().screenKind == GS_FOLDERBROWSE) mPs3Stack.pop_back();
     mDisplayDirty = true;
+    const std::string def = dataFolderDefault(prop);
+    char cur[PROPERTY_VALUE_MAX] = {};
+    property_get(prop, cur, "");
+    const std::string src = canonicalFolder(cur[0] == '/' ? std::string(cur) : def);
+    const std::string dst = canonicalFolder((path.empty() || path == "@default") ? def : path);
+    if (dst == src) { photoShowBanner(trDyn((std::string(what) + " unchanged").c_str())); return; }
+    if (mScrapeRunning || !mScrapeMoveDst.empty() || !mFolderMoveProp.empty()) {
+        photoShowBanner(trDyn("A folder move is already running"));
+        return;
+    }
+    if (dst.compare(0, src.size() + 1, src + "/") == 0) {
+        photoShowBanner(trDyn((std::string(what) + ": cannot move into itself").c_str()));
+        return;
+    }
+    struct stat st = {};
+    if (stat(dst.c_str(), &st) != 0) ::mkdir(dst.c_str(), 0775);
+    if (stat(dst.c_str(), &st) != 0 || !S_ISDIR(st.st_mode) || access(dst.c_str(), W_OK) != 0) {
+        photoShowBanner(trDyn((std::string(what) + ": not writable").c_str()));
+        ALOGW("ps3menu: %s %s rejected: %s", what, dst.c_str(), strerror(errno));
+        return;
+    }
+    const bool defaultDst = dst == canonicalFolder(def);
+    if (!folderHasEntries(src)) {
+        // nothing to carry over (first use, or the old folder is on a card that is gone)
+        property_set(prop, defaultDst ? "" : dst.c_str());
+        photoShowBanner(trDyn((std::string(what) + (defaultDst ? ": Default" : " set (next game launch)")).c_str()));
+        ALOGI("ps3menu: %s -> %s (nothing to move from %s)", what, dst.c_str(), src.c_str());
+        return;
+    }
+    mFolderMoveProp = prop;
+    mFolderMoveWhat = what;
+    mFolderMoveDst = defaultDst ? "" : dst;
+    mFolderMoveDefault = canonicalFolder(def);
+    mScrapeMoveMode = true;
+    mScrapeProgActive = true;
+    mScrapeDoneFlag = false;
+    mScrapeCancel = false;
+    mScrapeError.clear();
+    mScrapeStatus.clear();
+    mScrapeDone = 0; mScrapeHits = 0; mScrapeFail = 0; mScrapeTotal = 0;
+    mScrapeRunning = true;
+    ALOGI("ps3menu: %s: moving %s -> %s", what, src.c_str(), dst.c_str());
+    std::thread(&NanoMenu::folderMoveThreadFunc, this, src, dst).detach();
 }
 
 } // namespace android

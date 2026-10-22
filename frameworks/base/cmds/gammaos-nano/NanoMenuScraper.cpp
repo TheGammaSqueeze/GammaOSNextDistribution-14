@@ -36,6 +36,7 @@
 #include <time.h>
 #include <string.h>
 #include <thread>
+#include <functional>
 #include <cmath>
 
 #include <cutils/properties.h>
@@ -965,6 +966,7 @@ void NanoMenu::boxartFolderSelect(const std::string& path) {
     for (const auto& e : entries) files += (int)!e.second.box.empty() + (int)!e.second.fan.empty();
     mScrapeMoveSrc = mScrapeCacheDir;
     mScrapeMoveDst = dst;
+    mFolderMoveWhat.clear();
     mScrapeMoveMode = true;
     mScrapeProgActive = true;
     mScrapeDoneFlag = false;
@@ -976,6 +978,67 @@ void NanoMenu::boxartFolderSelect(const std::string& path) {
     mScrapeRunning = true;
     ALOGI("scraper: moving %d files (%zu games) %s -> %s", files, entries.size(), mScrapeMoveSrc.c_str(), dst.c_str());
     std::thread(&NanoMenu::scrapeMoveThreadFunc, this, std::move(entries), mScrapeMoveSrc, dst).detach();
+}
+
+// A data folder relocation (drasticFolderSelect): every file under src moves to the same path
+// under dst (rename, else copy + unlink across filesystems), emptied folders are removed. The
+// count is taken first so the modal shows progress; a cancel stops between files, the files
+// already moved stay where they are and the property is still switched (the user can run the
+// move again to carry the rest).
+void NanoMenu::folderMoveThreadFunc(std::string src, std::string dst) {
+    std::vector<std::pair<std::string, std::string>> files;   // relative path, absolute source
+    std::function<void(const std::string&)> walk = [&](const std::string& rel) {
+        const std::string dir = rel.empty() ? src : src + "/" + rel;
+        DIR* d = opendir(dir.c_str());
+        if (!d) return;
+        while (dirent* e = readdir(d)) {
+            if (!strcmp(e->d_name, ".") || !strcmp(e->d_name, "..")) continue;
+            const std::string r = rel.empty() ? std::string(e->d_name) : rel + "/" + e->d_name;
+            struct stat st{};
+            if (lstat((src + "/" + r).c_str(), &st) != 0) continue;
+            if (S_ISDIR(st.st_mode)) walk(r);
+            else if (S_ISREG(st.st_mode)) files.emplace_back(r, src + "/" + r);
+        }
+        closedir(d);
+    };
+    walk("");
+    {
+        std::lock_guard<std::mutex> lk(mScrapeMutex);
+        mScrapeTotal = (int)files.size();
+    }
+    for (const auto& f : files) {
+        {
+            std::lock_guard<std::mutex> lk(mScrapeMutex);
+            if (mScrapeCancel) break;
+            mScrapeStatus = f.first;
+        }
+        const std::string np = dst + "/" + f.first;
+        // the destination's folders, one level at a time
+        for (size_t i = dst.size() + 1; (i = np.find('/', i)) != std::string::npos; i++) ::mkdir(np.substr(0, i).c_str(), 0775);
+        const bool ok = scraperMoveFile(f.second, np);
+        std::lock_guard<std::mutex> lk(mScrapeMutex);
+        mScrapeDone++;
+        if (ok) mScrapeHits++;
+        else { mScrapeFail++; if (mScrapeError.empty()) mScrapeError = trDyn("Some files could not be moved."); }
+    }
+    // the emptied folders go, deepest first (rmdir only takes empty ones)
+    std::vector<std::string> dirs;
+    std::function<void(const std::string&)> collect = [&](const std::string& dir) {
+        DIR* d = opendir(dir.c_str());
+        if (!d) return;
+        while (dirent* e = readdir(d)) {
+            if (!strcmp(e->d_name, ".") || !strcmp(e->d_name, "..")) continue;
+            struct stat st{};
+            const std::string p = dir + "/" + e->d_name;
+            if (lstat(p.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) { collect(p); dirs.push_back(p); }
+        }
+        closedir(d);
+    };
+    collect(src);
+    for (const auto& d : dirs) rmdir(d.c_str());
+    std::lock_guard<std::mutex> lk(mScrapeMutex);
+    mScrapeRunning = false;
+    mScrapeDoneFlag = true;
 }
 
 void NanoMenu::scrapeMoveThreadFunc(std::vector<std::pair<std::string, ScrapeEntry>> entries,
@@ -1170,6 +1233,7 @@ void NanoMenu::scrapeSystemsAsync(const std::vector<int>& sysIdxs) {
 
     // Show the modal regardless so the user gets feedback (incl. "set credentials").
     mScrapeMoveMode = false;
+    mFolderMoveWhat.clear();
     mScrapeProgActive = true;
     mScrapeDoneFlag = false;
     mScrapeCancel = false;
@@ -1265,6 +1329,7 @@ void NanoMenu::scrapeOneRom(int sysIdx, int romIdx, const std::string& queryOver
 
     // Show the modal regardless so the user gets feedback (incl. "set credentials").
     mScrapeMoveMode = false;
+    mFolderMoveWhat.clear();
     mScrapeProgActive = true;
     mScrapeDoneFlag = false;
     mScrapeCancel = false;
@@ -1349,6 +1414,18 @@ void NanoMenu::scraperDrainResults() {
         std::lock_guard<std::mutex> lk(mScrapeMutex);
         if (!mScrapePending.empty()) pending.swap(mScrapePending);
         done = mScrapeDoneFlag;
+    }
+    if (done && !mFolderMoveProp.empty()) {
+        // a data folder relocation finished: the property follows the files
+        property_set(mFolderMoveProp.c_str(), mFolderMoveDst.c_str());
+        ALOGI("ps3menu: %s -> %s (%d files moved, %d failed)", mFolderMoveWhat.c_str(),
+              mFolderMoveDst.empty() ? mFolderMoveDefault.c_str() : mFolderMoveDst.c_str(), mScrapeHits, mScrapeFail);
+        photoShowBanner(trDyn((mFolderMoveWhat + (mFolderMoveDst.empty() ? ": Default" : " set (next game launch)")).c_str()));
+        // (mFolderMoveWhat stays: the summary the modal shows until it is dismissed is titled by it)
+        mFolderMoveProp.clear(); mFolderMoveDst.clear(); mFolderMoveDefault.clear();
+        gsRefreshStackLevels();   // the row's value (Default / the path) follows the setting
+        mPs3CatsStale = true;
+        mDisplayDirty = true;
     }
     if (done && !mScrapeMoveDst.empty()) {
         // Relocation worker finished (or was cancelled part-way; every moved file already has its
@@ -1462,7 +1539,9 @@ void NanoMenu::renderScrapeProgress() {
 
     // The same modal fronts a Boxart Folder relocation (files moved instead of games scraped).
     const bool moving = mScrapeMoveMode;
-    const char* title = trDyn(moving ? "Boxart Folder" : "Boxart Scraper");
+    const std::string titleStr = !mFolderMoveWhat.empty() ? trDyn(mFolderMoveWhat.c_str())
+                                                          : trDyn(moving ? "Boxart Folder" : "Boxart Scraper");
+    const char* title = titleStr.c_str();
     centered(title, py + ph * 0.18f, 1.7f * sf, accR, accG, accB, 1.0f);   // title in the theme accent
 
     char line[256];
