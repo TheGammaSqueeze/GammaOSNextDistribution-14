@@ -69,6 +69,33 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
             "persist.gammaos.multidisplay.split_brightness.d1.display_id";
     private static final int DEFAULT_SECONDARY_DISPLAY_ID = 2;
 
+    /**
+     * GammaOS: the display the second (split) brightness slider drives. The property names it
+     * when a device needs to; otherwise the first display that is not the default one. The old
+     * fixed default of 2 never matched the RP Duo Lite, whose bottom panel is display 1, so the
+     * second bar never appeared there with split brightness on.
+     */
+    private int resolveSecondaryDisplayId() {
+        final int fromProp = SystemProperties.getInt(PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, -1);
+        if (fromProp >= 0) return fromProp;
+        final DisplayManager dm = mDisplayManager != null ? mDisplayManager
+                : (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
+        if (dm != null) {
+            for (android.view.Display d : dm.getDisplays()) {
+                if (d.getDisplayId() != android.view.Display.DEFAULT_DISPLAY
+                        && d.getType() == android.view.Display.TYPE_INTERNAL) {
+                    return d.getDisplayId();
+                }
+            }
+            for (android.view.Display d : dm.getDisplays()) {
+                if (d.getDisplayId() != android.view.Display.DEFAULT_DISPLAY) {
+                    return d.getDisplayId();
+                }
+            }
+        }
+        return DEFAULT_SECONDARY_DISPLAY_ID;
+    }
+
     private final QSCustomizerController mQsCustomizerController;
     private final QSTileRevealController.Factory mQsTileRevealControllerFactory;
     private final FalsingManager mFalsingManager;
@@ -98,8 +125,7 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
             final boolean enabled = SystemProperties.getBoolean(PROP_SPLIT_BRIGHTNESS, false);
             final int primaryDisplayId = SystemProperties.getInt(
                     PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID, getContext().getDisplayId());
-            final int secondaryDisplayId = SystemProperties.getInt(
-                    PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, DEFAULT_SECONDARY_DISPLAY_ID);
+            final int secondaryDisplayId = resolveSecondaryDisplayId();
             if (enabled != mSplitBrightnessEnabled
                     || primaryDisplayId != mPrimaryBrightnessDisplayId
                     || secondaryDisplayId != mSecondaryBrightnessDisplayId) {
@@ -150,8 +176,7 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
 
         mPrimaryBrightnessDisplayId = SystemProperties.getInt(
                 PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID, getContext().getDisplayId());
-        mSecondaryBrightnessDisplayId = SystemProperties.getInt(
-                PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, DEFAULT_SECONDARY_DISPLAY_ID);
+        mSecondaryBrightnessDisplayId = resolveSecondaryDisplayId();
 
         mBrightnessSliderController = brightnessSliderFactory.create(getContext(), mView);
         mSecondaryBrightnessSliderController = brightnessSliderFactory.create(getContext(), mView);
@@ -274,8 +299,7 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
 
         final int primaryDisplayId = SystemProperties.getInt(
                 PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID, getContext().getDisplayId());
-        final int secondaryDisplayId = SystemProperties.getInt(
-                PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, DEFAULT_SECONDARY_DISPLAY_ID);
+        final int secondaryDisplayId = resolveSecondaryDisplayId();
 
         mSplitBrightnessEnabled = enabled;
         mPrimaryBrightnessDisplayId = primaryDisplayId;
@@ -322,8 +346,7 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
 
         mPrimaryBrightnessDisplayId = SystemProperties.getInt(
                 PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID, getContext().getDisplayId());
-        mSecondaryBrightnessDisplayId = SystemProperties.getInt(
-                PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, DEFAULT_SECONDARY_DISPLAY_ID);
+        mSecondaryBrightnessDisplayId = resolveSecondaryDisplayId();
 
         mBrightnessSliderController =
                 mBrightnessSliderControllerFactory.create(getContext(), mView);

@@ -2649,6 +2649,31 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             } else if (mBacklight != null) {
                 mBacklight.setBrightness(backlight);
             }
+            if (mIsFirstDisplay) gammaMirrorToSecondary(backlight);
+        }
+
+        // GammaOS: with split brightness off, one slider drives both panels. The HAL and
+        // SurfaceControl paths above only reach the primary panel (the second panel of the RP
+        // Duo Lite has its own sysfs node that nothing else writes in normal Android mode, so
+        // the system slider moved the top screen alone). Mirror the primary's linear level to
+        // the second node, in that node's range. Display OFF/ON of the second panel is handled
+        // by gammaSecondaryBacklightOnPower.
+        private void gammaMirrorToSecondary(float backlight) {
+            final String dir = android.os.SystemProperties.get(
+                    "persist.gammaos.multidisplay.split_brightness.d1.path", "");
+            if (dir.isEmpty() || Float.isNaN(backlight)) return;
+            try {
+                final java.io.File node = new java.io.File(dir, "brightness");
+                int max = gammaReadSysfsInt(new java.io.File(dir, "max_brightness"));
+                if (max <= 0) max = 255;
+                int level = Math.round(Math.max(0f, Math.min(1f, backlight)) * max);
+                if (backlight > 0f && level < 1) level = 1;
+                if (gammaReadSysfsInt(node) != level) {
+                    android.os.FileUtils.stringToFile(node, Integer.toString(level));
+                }
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS: secondary backlight mirror: " + e.getMessage());
+            }
         }
 
         void setForceSurfaceControl(boolean forceSurfaceControl) {
