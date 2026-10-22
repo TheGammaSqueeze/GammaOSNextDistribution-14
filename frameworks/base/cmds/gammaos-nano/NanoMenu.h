@@ -1116,6 +1116,12 @@ private:
     sp<SurfaceComposerClient> mSession;
     int         mWidth;
     int         mHeight;
+    // Test hook (sys.gammaos.nano.screensize="WxH", read at start on the DRM zero-copy path): the
+    // home lays out for a W x H logical frame and draws it centred on the primary panel with
+    // black borders, so any theme can be checked at another size or aspect on one device.
+    bool        mTestVpActive = false;
+    int         mTestVp[4] = {0, 0, 0, 0};   // x, y, w, h in panel-native (AHB) pixels
+    void        testViewportFrame();          // black borders + the sub-rect viewport (render())
     EGLDisplay  mDisplay;
     EGLContext  mContext;
     EGLSurface  mSurface;
@@ -3665,6 +3671,11 @@ private:
     void scrapeMoveThreadFunc(std::vector<std::pair<std::string, ScrapeEntry>> entries,
                               std::string src, std::string dst);
     void gsOpenClearArtConfirm();          // Game Systems editor: Clear Boxart confirm (theme key 49)
+    // GammaOS Toolbox: the disclaimer dialog (theme key 61) in front of the submenu, every entry
+    void openToolboxDisclaimer();
+    const Ps3DataItem* mToolboxGateData = nullptr;   // the Toolbox node stashed while the dialog is up
+    std::string mToolboxGatePrefix;
+    int mToolboxLegacyNode = -1;                     // the classic settings list's node (key 62)
     void gsClearSystemArt(int sysIdx);     // delete the edited system's covers/fanart + manifest entries
     // Boxart icon textures: lazy per-ROM cover GL textures that replace the generic
     // cartridge icon, freed when leaving the Game category and on sleep/occlusion.

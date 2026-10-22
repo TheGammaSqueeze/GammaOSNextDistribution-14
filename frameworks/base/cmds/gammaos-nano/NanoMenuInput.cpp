@@ -307,7 +307,7 @@ void NanoMenu::handleBack() {
         if (mSetupWizardActive) mMenuState = MENU_SETUP_WIZARD;
         return;
     }
-    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeBack(); return; }
+    if (mMenuState == MENU_SETTINGS) { if (mPs3DlgActive) closePs3Dialog(false); else handleSettingsTreeBack(); return; }
     // Mirror handleSelect: route the setup-wizard WiFi/BT step's Back to
     // ps3XmbBack -> wizBack (mPs3Xmb is false during the setup wizard).
     if (mPs3Xmb || mPs3WizActive) {
@@ -368,7 +368,7 @@ void NanoMenu::handleSelect() {
     if (mWifiManageActive)           { wifiManageActivate();       return; }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenSelect();   return; }
     if (mMenuState == MENU_BT)       { handleBtScreenSelect();     return; }
-    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeSelect();  return; }
+    if (mMenuState == MENU_SETTINGS) { if (mPs3DlgActive) closePs3Dialog(true); else handleSettingsTreeSelect(); return; }
     // The PS3 net/BT wizard (mPs3WizActive) runs during the setup wizard's WiFi/
     // Bluetooth steps with mPs3Xmb=false (home XMB not up yet). Route its confirm
     // to ps3XmbSelect -> wizConfirm; otherwise it falls through to the legacy text
@@ -554,7 +554,7 @@ void NanoMenu::handleUp() {
     if (mWifiManageActive)           { wifiManageMove(-1);       return; }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenUp();     return; }
     if (mMenuState == MENU_BT)       { handleBtScreenUp();       return; }
-    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeUp();    return; }
+    if (mMenuState == MENU_SETTINGS) { if (mPs3DlgActive) ps3DlgNav(-1, false); else handleSettingsTreeUp(); return; }
     if (mPs3Xmb || mPs3WizActive) {
         // DSi stacked carousel: UP walks up to the parent level (the parent carousel is drawn
         // above the focused one). A modal keeps normal vertical list nav.
@@ -618,7 +618,7 @@ void NanoMenu::handleDown() {
     if (mWifiManageActive)           { wifiManageMove(+1);         return; }
     if (mMenuState == MENU_WIFI)     { handleWifiScreenDown();     return; }
     if (mMenuState == MENU_BT)       { handleBtScreenDown();       return; }
-    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeDown();    return; }
+    if (mMenuState == MENU_SETTINGS) { if (mPs3DlgActive) ps3DlgNav(+1, false); else handleSettingsTreeDown(); return; }
     if (mPs3Xmb || mPs3WizActive) {
         // DSi: a settings LIST level moves the selection down a row. Otherwise DOWN enters
         // the focused card: at the categories root it opens the selected category; deeper, a

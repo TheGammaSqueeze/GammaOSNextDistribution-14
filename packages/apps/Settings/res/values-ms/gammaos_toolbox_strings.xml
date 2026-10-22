@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Perisian)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Bar tugas telefon dengan Semua Apl</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Gantikan bar navigasi 3 butang standard dengan bar tugas yang menyertakan ikon Semua Apl. Digunakan secara masa nyata. Lumpuhkan untuk kembali ke navigasi AOSP 3 butang standard.</string>
+    <string name="gammaos_toolbox_disclaimer">Ini adalah tetapan sistem peringkat dalam. GammaOS memaparkan setiap pilihan yang terkandung dalam ROM asas, dan ROM yang sama berjalan pada banyak peranti, jadi bukan setiap pilihan terpakai pada peranti anda. Jangan jangka ciri seperti BFI berfungsi jika paparan anda sebenarnya bukan 120 Hz, dan jangan jangka keajaiban. Menukar tetapan yang salah boleh merosakkan sistem dengan sangat teruk. Anda menggunakan tetapan ini atas risiko sendiri: tiada sokongan diberikan dan tiada laporan pepijat diterima untuk masalah yang disebabkannya.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Saya faham</string>
 </resources>

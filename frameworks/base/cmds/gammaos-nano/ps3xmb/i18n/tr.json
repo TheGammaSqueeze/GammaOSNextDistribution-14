@@ -1902,5 +1902,7 @@
  "Show Game Folders": "Oyun Klasörlerini Göster",
  "Show the subfolders of a system's ROM folder as folders you can open, instead of one list of every game. A folder with only one game in it shows as that game. Needs Scan ROM Subfolders.": "Tüm oyunları tek bir listede göstermek yerine, bir sistemin ROM klasöründeki alt klasörleri açabileceğiniz klasörler olarak gösterir. İçinde yalnızca bir oyun olan klasör o oyun olarak görünür. ROM Alt Klasörlerini Tara gerekir.",
  "%d games": "%d oyun",
- "3DS Theme": "3DS Teması"
+ "3DS Theme": "3DS Teması",
+ "These are deep system settings. GammaOS exposes every option the underlying ROM contains, and the same ROM runs on many devices, so not every option applies to yours. Do not expect a feature such as BFI to work if your display is not actually 120 Hz, and do not expect miracles. Changing the wrong setting can break the system very badly. You use these settings at your own risk: no support is provided and no bug report is accepted for problems they cause.": "Bunlar derin sistem ayarlarıdır. GammaOS, alttaki ROM'un içerdiği her seçeneği gösterir ve aynı ROM birçok cihazda çalışır; bu yüzden her seçenek sizin cihazınıza uymaz. Ekranınız gerçekten 120 Hz değilse BFI gibi bir özelliğin çalışmasını beklemeyin, mucize de beklemeyin. Yanlış ayarı değiştirmek sistemi ciddi biçimde bozabilir. Bu ayarları kendi sorumluluğunuzda kullanırsınız: destek verilmez ve bunların yol açtığı sorunlar için hata bildirimi kabul edilmez.",
+ "I Understand": "Anladım"
 }

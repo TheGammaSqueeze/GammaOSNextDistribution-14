@@ -255,4 +255,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Isofthiwe)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Ibha yomsebenzi yefoni enezinhlelo Zonke</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Shintsha ibha yokuzulazula yamaqhosha ama-3 ejwayelekile ngebha yomsebenzi equkethe isithonjana sezinhlelo Zonke. Isebenza ngesikhathi sangempela. Khubaza ukuze ubuyele ekuzulazuleni kwe-AOSP yamaqhosha ama-3 ejwayelekile.</string>
+    <string name="gammaos_toolbox_disclaimer">Lezi yizilungiselelo zesistimu ezijulile. I-GammaOS ikhombisa yonke inketho equkethwe yi-ROM eyisisekelo, futhi i-ROM efanayo isebenza kumadivayisi amaningi, ngakho akuzona zonke izinketho ezisebenza kweyakho. Ungalindeli ukuthi isici esifana ne-BFI sisebenze uma isibonisi sakho singeyona i-120 Hz ngempela, futhi ungalindeli izimangaliso. Ukushintsha isilungiselelo esingalungile kungaphula isistimu kabi kakhulu. Usebenzisa lezi zilungiselelo ngobungozi bakho: akukho ukusekelwa okunikezwayo futhi awukho umbiko wephutha owamukelwayo ngezinkinga ezidalwa yizo.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Ngiyaqonda</string>
 </resources>

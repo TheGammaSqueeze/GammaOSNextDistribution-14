@@ -1748,26 +1748,39 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
         const char* body = trDyn(mPs3DlgBody.c_str());
         float fs = S(11.0f) / (float)FONT_CHAR_H;
         const float maxW = pw - S(28.0f);
-        std::vector<std::string> lines; std::string cur;
-        std::string src(body);
-        size_t i = 0;
-        auto flush = [&](){ if (!cur.empty()) { lines.push_back(cur); cur.clear(); } };
-        while (i < src.size()) {
-            size_t sp = src.find_first_of(" \n", i);
-            std::string word = src.substr(i, sp == std::string::npos ? std::string::npos : sp - i);
-            bool nl = (sp != std::string::npos && src[sp] == '\n');
-            std::string trial = cur.empty() ? word : cur + " " + word;
-            if (measureText(trial.c_str(), fs) > maxW && !cur.empty()) { flush(); cur = word; }
-            else cur = trial;
-            if (nl) flush();
-            i = (sp == std::string::npos) ? src.size() : sp + 1;
-        }
-        flush();
+        std::vector<std::string> lines;
+        const std::string src(body);
+        auto wrapBody = [&](float f) {
+            lines.clear(); std::string cur; size_t i = 0;
+            auto flush = [&](){ if (!cur.empty()) { lines.push_back(cur); cur.clear(); } };
+            while (i < src.size()) {
+                size_t sp = src.find_first_of(" \n", i);
+                std::string word = src.substr(i, sp == std::string::npos ? std::string::npos : sp - i);
+                bool nl = (sp != std::string::npos && src[sp] == '\n');
+                std::string trial = cur.empty() ? word : cur + " " + word;
+                if (measureText(trial.c_str(), f) > maxW && !cur.empty()) { flush(); cur = word; }
+                else cur = trial;
+                if (nl) flush();
+                i = (sp == std::string::npos) ? src.size() : sp + 1;
+            }
+            flush();
+        };
+        wrapBody(fs);
         float lineH = S(13.0f);
-        const int total = (int)lines.size();
         // Rows that fit between the title and the buttons (leave room for the page number).
         const float bodyTopY = Y(by + 50.0f), bodyBotY = Y(by + 100.0f);
         int maxVis = (int)((bodyBotY - bodyTopY) / lineH); if (maxVis < 1) maxVis = 1;
+        // A long confirm body (two buttons, no pager) first shrinks to 4/5 of the size inside the
+        // band under the title (by+52..by+112), then scrolls (below) if it still overflows.
+        const float bandTop = Y(by + 52.0f), bandBot = Y(by + 112.0f);
+        if (!infoStyle && (int)lines.size() > maxVis) {
+            const float fs0 = fs, lh0 = lineH;
+            while (lineH * (float)lines.size() > bandBot - bandTop + 0.5f && fs > fs0 * 0.8f) {
+                fs *= 0.95f; lineH = lh0 * (fs / fs0);
+                wrapBody(fs);
+            }
+        }
+        const int total = (int)lines.size();
         if (infoStyle && total > maxVis) {
             // paginate: top-anchored body, page number ABOVE the OK button, L/R pills in the
             // bottom corners (flanking the button).
@@ -1792,7 +1805,6 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
             // Long confirm-dialog body (Yes/No, e.g. the IPTV disclaimer): AUTO-SCROLL it as a
             // ping-pong marquee between the title and the buttons, scissor-clipped to the band, so
             // the whole message is readable instead of being truncated (user request 2026-07-11).
-            const float bandTop = Y(by + 46.0f), bandBot = Y(by + 112.0f);
             const float bandH = bandBot - bandTop;
             const float contentH = lineH * (float)total;
             float off = 0.0f;
@@ -4050,6 +4062,26 @@ void NanoMenu::blurGlassChain(GLuint srcTexIn, int srcWIn, int srcHIn,
 // renders into the panel-native AHB FBO while mWidth/mHeight stay logical.
 // Only valid during the main full-target pass (true for every caller); do not
 // call inside offscreen sub-viewport passes (blur/capture) without rework.
+// sys.gammaos.nano.screensize test hook: black the panel outside the logical frame's rectangle
+// (four scissored clears) and leave the viewport on that rectangle. The rotation matrix maps the
+// logical frame onto the viewport, so every theme lays out for mWidth x mHeight as on a panel of
+// that size. Called at the start of the primary pass and again before the capture/flip.
+void NanoMenu::testViewportFrame() {
+    const int tw = (int)sAhbTarget.w, th = (int)sAhbTarget.h;
+    const int x = mTestVp[0], y = mTestVp[1], w = mTestVp[2], h = mTestVp[3];
+    glViewport(0, 0, tw, th);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_SCISSOR_TEST);
+    const int bands[4][4] = { {0, 0, tw, y}, {0, y + h, tw, th - y - h}, {0, y, x, h}, {x + w, y, tw - x - w, h} };
+    for (const int* b : bands) {
+        if (b[2] <= 0 || b[3] <= 0) continue;
+        glScissor(b[0], b[1], b[2], b[3]);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    glDisable(GL_SCISSOR_TEST);
+    glViewport(x, y, w, h);
+}
+
 void NanoMenu::scissorLogicalRect(float x, float y, float w, float h) {
     float lx0 = (x / mWidth) * 2.0f - 1.0f;
     float lx1 = ((x + w) / mWidth) * 2.0f - 1.0f;
@@ -5532,7 +5564,8 @@ static void nanoScreenshotProp(const prop_info*& pi, uint32_t& ser, bool& have,
     std::vector<unsigned char> px((size_t)w * h * 4);
     GLint prevFbo = 0;
     if (scanFbo) { glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo); glBindFramebuffer(GL_FRAMEBUFFER, scanFbo); }
-    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+    // read the viewport's own rectangle (the screensize test hook places it off the origin)
+    glReadPixels(vp[0], vp[1], w, h, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
     if (scanFbo) glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
     const char* path = (val[0] == '1' && !val[1]) ? defPath : val;
     FILE* f = fopen(path, "wb");
@@ -6453,6 +6486,7 @@ void NanoMenu::render() {
     } else {
         glViewport(0, 0, mWidth, mHeight);
     }
+    if (mTestVpActive && sDrmZeroCopy) testViewportFrame();
     uploadRotationMatrices();
     // Overlay: show the FULL PS3 WALLPAPER (opaque) ONLY in launcher/no-app state
     // (mOverlayWallpaper). When there is a LIVE APP behind us (the in-game overlay),
@@ -7176,6 +7210,10 @@ void NanoMenu::render() {
     drawPointerCursor();
 
     glDisable(GL_BLEND);
+
+    // The screensize test hook: a full-target clear inside the pass paints the borders too, so
+    // black them again before the capture and the flip.
+    if (mTestVpActive && sDrmZeroCopy) testViewportFrame();
 
     // Debug frame capture (no-op unless sys.gammaos.nano.shot is set).
     maybeNanoScreenshot();

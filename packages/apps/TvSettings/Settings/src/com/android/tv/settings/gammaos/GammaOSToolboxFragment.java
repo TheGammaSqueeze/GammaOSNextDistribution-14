@@ -215,6 +215,36 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         bindSwapSize();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Every entry into the Toolbox goes through the disclaimer: these are deep settings
+        // and the same ROM serves many devices. Declining leaves the page.
+        if (!mDisclaimerShown) {
+            mDisclaimerShown = true;
+            showEntryDisclaimer();
+        }
+    }
+
+    private boolean mDisclaimerShown = false;
+
+    private void leaveToolbox() {
+        if (getFragmentManager() != null) getFragmentManager().popBackStack();
+    }
+
+    private void showEntryDisclaimer() {
+        if (getContext() == null) return;
+        AlertDialog dlg = new AlertDialog.Builder(getContext())
+                .setTitle(R.string.gammaos_toolbox_title)
+                .setMessage(R.string.gammaos_toolbox_disclaimer)
+                .setPositiveButton(R.string.gammaos_toolbox_disclaimer_accept, (d, w) -> d.dismiss())
+                .setNegativeButton(android.R.string.cancel, (d, w) -> leaveToolbox())
+                .setOnCancelListener(d -> leaveToolbox())
+                .create();
+        dlg.setCanceledOnTouchOutside(false);
+        dlg.show();
+    }
+
     /* ---- Virtual memory (swap): preset list + a "Custom..." numeric entry ---- */
 
     private static final String SWAP_KEY = "persist.gammaos.swap.size_mb";

@@ -80,6 +80,10 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 
 namespace android {
 
+// The GammaOS Toolbox disclaimer, shown on every entry (translated through trDyn by the dialog).
+static const char* const kToolboxDisclaimer =
+    "These are deep system settings. GammaOS exposes every option the underlying ROM contains, and the same ROM runs on many devices, so not every option applies to yours. Do not expect a feature such as BFI to work if your display is not actually 120 Hz, and do not expect miracles. Changing the wrong setting can break the system very badly. You use these settings at your own risk: no support is provided and no bug report is accepted for problems they cause.";
+
 // Forward declarations for the per-app sysprop-list helpers (defined lower in this file). The
 // dual-screen detect prompt (ps3XmbSelect / pollDualScreenDetect, higher up) reads and writes the
 // "don't ask again" list before the definitions appear.
@@ -5181,6 +5185,25 @@ void NanoMenu::gsOpenClearArtConfirm() {
     mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
 }
 
+// The GammaOS Toolbox disclaimer (dialog key 61): shown on every entry of the Toolbox submenu
+// in every theme. A fullscreen confirm like the IPTV disclaimer (a side-panel chooser never
+// shows its body): I Understand (sel 0) builds the stashed submenu, Cancel (sel 1, the default)
+// stays on the Settings list. The body is one translation key (ps3xmb/i18n/<code>.json).
+void NanoMenu::openToolboxDisclaimer() {
+    mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
+    mPs3DlgKind = 0; mPs3DlgType = 3; mPs3DlgThemeKey = 61; mPs3DlgBinding = nullptr;
+    mPs3DlgSlider = false; mPs3DlgAppInfo = false; mPs3DlgRomInfo = false;
+    mPs3DlgIllust = 0; mPs3DlgNotice.clear();
+    mPs3DlgTitle = "GammaOS Toolbox";
+    mPs3DlgBody = kToolboxDisclaimer;
+    mPs3DlgOptions.push_back("I Understand");    mPs3DlgSwatch.push_back(-1);
+    mPs3DlgOptions.push_back("Cancel");          mPs3DlgSwatch.push_back(-1);
+    mPs3DlgSel = 1; mPs3DlgOrigSel = 1;
+    mPs3DlgIconTex = 0; mPs3DlgIconNmap = nmapForIcon(22);
+    mPs3DlgIconR = mPs3DlgIconG = mPs3DlgIconB = 1.0f;
+    mPs3DlgActive = true; mPs3DlgAnim = 0.0f; mPs3DlgBlurValid = false;
+}
+
 void NanoMenu::gsOpenResetConfirm() {
     if (mGsEditIdx < 0 || mGsEditIdx >= (int)mXmbSystems.size()) return;
     mPs3DlgOptions.clear(); mPs3DlgSwatch.clear();
@@ -5844,6 +5867,15 @@ void NanoMenu::ps3XmbSelect() {
             mOskPasswordMode = false; mOskPlaintext = true;   // a collection name is plain text, not masked (#378)
             break;
         case PS3_DATA_SUBMENU: {
+            if (it.label == "GammaOS Toolbox") {
+                // Deep settings behind a disclaimer the user accepts on EVERY entry (every
+                // theme draws this dialog): the list is built from the stashed node once
+                // "I Understand" is chosen (dialog key 61); Cancel stays on the Settings list.
+                mToolboxGateData = it.data;
+                mToolboxGatePrefix = it.payloadStr;
+                openToolboxDisclaimer();
+                break;
+            }
             if (it.label == "GammaEQ") warmEqPreview();   // preload the clip before the user reaches Audio Preview
             Ps3Level lvl;
             if (it.label == "Gamepad Settings") {
@@ -11692,6 +11724,35 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
             if (sel == 1 && mGsEditIdx >= 0) gsClearSystemArt(mGsEditIdx);
             break;
         }
+        case 61: {  // GammaOS Toolbox disclaimer (sel 0 = I Understand: enter the stashed submenu)
+            if (sel == 0 && mToolboxGateData) {
+                // The same push + collapse animation ps3XmbSelect gives a PS3_DATA_SUBMENU row.
+                // The Settings row lives on the category column (empty stack) in the XMB, DSi
+                // and Minima homes and on a pushed level in the 3DS and ES-DE homes.
+                std::vector<Ps3Item> parentSnap = ps3CurItems();
+                const int parentSelSnap = ps3CurSel();
+                Ps3Level lvl;
+                const std::string childPrefix = mToolboxGatePrefix.empty() ? std::string() : (mToolboxGatePrefix + "/");
+                buildDataSubmenu(mToolboxGateData, lvl, childPrefix);
+                mPs3Stack.push_back(lvl);
+                mPs3SubParentItems = std::move(parentSnap);
+                mPs3SubParentIdx   = parentSelSnap;
+                mPs3SubChildItems  = mPs3Stack.back().items;
+                mPs3SubDir         = 1;
+                mPs3SubAnimStart   = mEffectTime;
+                mPs3SubAnim        = 0.0f;
+                mPs3AnimItem       = 0.0f;
+                mPs3ItemAnimStart  = -1.0f;
+            }
+            mToolboxGateData = nullptr;
+            mToolboxGatePrefix.clear();
+            break;
+        }
+        case 62: {  // GammaOS Toolbox disclaimer in the classic settings list (sel 0 = enter)
+            if (sel == 0 && mToolboxLegacyNode >= 0) settingsTreePushCategory(mToolboxLegacyNode);
+            mToolboxLegacyNode = -1;
+            break;
+        }
         case 45: {  // Scan Folders: remove-scan-source confirm (sel 1 = remove the stashed source)
             if (sel == 1 && mGsRemoveSrcIdx >= 0) gsRemoveScanSource(mGsRemoveSrcIdx);
             mGsRemoveSrcIdx = -1;
@@ -12249,7 +12310,7 @@ void NanoMenu::closePs3Dialog(bool apply) {
             // wifi-radio, delete-playlist).
             switch (committedKey) {
                 case 6: case 22: case 23: case 30: case 31: case 32:
-                case 36: case 43: case 44: case 45: case 46: case 47: case 48: case 49:
+                case 36: case 43: case 44: case 45: case 46: case 47: case 48: case 49: case 61: case 62:
                     break;                                   // confirm/action, not a setting
                 default:
                     photoShowBanner(trDyn("Setting changed"));

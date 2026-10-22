@@ -345,4 +345,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (mjukvara)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Aktivitetsfält med Alla appar</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Ersätt den vanliga 3-knappars navigationsfältet med ett aktivitetsfält som inkluderar en Alla appar-ikon. Tillämpas i realtid. Inaktivera för att återgå till standard AOSP 3-knappars navigering.</string>
+    <string name="gammaos_toolbox_disclaimer">Detta är djupa systeminställningar. GammaOS visar alla alternativ som den underliggande ROM:en innehåller, och samma ROM körs på många enheter, så alla alternativ gäller inte för din. Förvänta dig inte att en funktion som BFI fungerar om din skärm inte faktiskt är 120 Hz, och förvänta dig inga mirakel. Att ändra fel inställning kan förstöra systemet mycket allvarligt. Du använder dessa inställningar på egen risk: ingen support ges och inga felrapporter accepteras för problem de orsakar.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Jag förstår</string>
 </resources>

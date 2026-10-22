@@ -1918,5 +1918,7 @@
  "Show Game Folders": "顯示遊戲資料夾",
  "Show the subfolders of a system's ROM folder as folders you can open, instead of one list of every game. A folder with only one game in it shows as that game. Needs Scan ROM Subfolders.": "將系統 ROM 資料夾中的子資料夾顯示為可開啟的資料夾，而不是把所有遊戲放在一個清單裡。只有一個遊戲的資料夾會直接顯示為該遊戲。需要開啟掃描 ROM 子資料夾。",
  "%d games": "%d 個遊戲",
- "3DS Theme": "3DS 主題"
+ "3DS Theme": "3DS 主題",
+ "These are deep system settings. GammaOS exposes every option the underlying ROM contains, and the same ROM runs on many devices, so not every option applies to yours. Do not expect a feature such as BFI to work if your display is not actually 120 Hz, and do not expect miracles. Changing the wrong setting can break the system very badly. You use these settings at your own risk: no support is provided and no bug report is accepted for problems they cause.": "這些是深層系統設定。GammaOS 會顯示底層 ROM 包含的全部選項，而同一個 ROM 在許多裝置上使用，因此並非每個選項都適用於你的裝置。如果你的螢幕並非真正的 120 Hz，不要指望 BFI 之類的功能可用，也不要指望奇蹟。改錯設定可能把系統嚴重弄壞。使用這些設定風險自負：不提供支援，也不接受因此引起問題的錯誤回報。",
+ "I Understand": "我已了解"
 }

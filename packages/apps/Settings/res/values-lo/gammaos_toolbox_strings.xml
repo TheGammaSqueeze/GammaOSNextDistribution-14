@@ -255,4 +255,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (ຊອບແວ)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">ແdownloadຖບbar ໂທdownศัບ ກັdownload App ທັdownload້ງ່osedownload</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">ປ່omeນ ແdownloadຖບ navigation 3 ປุ່ม มาdownloadตรฐาน</string>
+    <string name="gammaos_toolbox_disclaimer">ນີ້ແມ່ນການຕັ້ງຄ່າລະບົບລະດັບເລິກ. GammaOS ສະແດງທຸກຕົວເລືອກທີ່ ROM ພື້ນຖານມີ, ແລະ ROM ດຽວກັນນີ້ເຮັດວຽກຢູ່ໃນຫຼາຍອຸປະກອນ, ດັ່ງນັ້ນບໍ່ແມ່ນທຸກຕົວເລືອກຈະໃຊ້ໄດ້ກັບອຸປະກອນຂອງທ່ານ. ຢ່າຄາດຫວັງວ່າຄຸນສົມບັດເຊັ່ນ BFI ຈະເຮັດວຽກ ຖ້າໜ້າຈໍຂອງທ່ານບໍ່ແມ່ນ 120 Hz ແທ້ໆ, ແລະຢ່າຄາດຫວັງປາດຕິຫານ. ການປ່ຽນການຕັ້ງຄ່າຜິດອາດເຮັດໃຫ້ລະບົບເສຍຫາຍຢ່າງຮ້າຍແຮງ. ທ່ານໃຊ້ການຕັ້ງຄ່າເຫຼົ່ານີ້ດ້ວຍຄວາມສ່ຽງຂອງທ່ານເອງ: ບໍ່ມີການສະໜັບສະໜູນ ແລະ ບໍ່ຮັບລາຍງານຂໍ້ຜິດພາດສຳລັບບັນຫາທີ່ມັນກໍ່ໃຫ້ເກີດ.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">ຂ້ອຍເຂົ້າໃຈ</string>
 </resources>

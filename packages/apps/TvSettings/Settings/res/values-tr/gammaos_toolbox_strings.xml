@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gammaos_toolbox_disclaimer">Bunlar derin sistem ayarlarıdır. GammaOS, alttaki ROM\'un içerdiği her seçeneği gösterir ve aynı ROM birçok cihazda çalışır; bu yüzden her seçenek sizin cihazınıza uymaz. Ekranınız gerçekten 120 Hz değilse BFI gibi bir özelliğin çalışmasını beklemeyin, mucize de beklemeyin. Yanlış ayarı değiştirmek sistemi ciddi biçimde bozabilir. Bu ayarları kendi sorumluluğunuzda kullanırsınız: destek verilmez ve bunların yol açtığı sorunlar için hata bildirimi kabul edilmez.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Anladım</string>
+</resources>

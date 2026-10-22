@@ -345,4 +345,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Szoftveres)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Tálca az Összes alkalmazással</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Cserélje le a hagyományos 3 gombos navigációs sávot egy tálcára, amely tartalmaz egy Összes alkalmazás ikont. Valós időben érvényesül. Tiltsa le a hagyományos AOSP 3 gombos navigációhoz való visszatéréshez.</string>
+    <string name="gammaos_toolbox_disclaimer">Ezek mély rendszerbeállítások. A GammaOS minden olyan beállítást megjelenít, amelyet az alapul szolgáló ROM tartalmaz, és ugyanez a ROM sok eszközön fut, így nem minden beállítás vonatkozik a tiédre. Ne várd el, hogy egy olyan funkció, mint a BFI, működjön, ha a kijelződ valójában nem 120 Hz-es, és ne várj csodákat. A rossz beállítás módosítása nagyon súlyosan tönkreteheti a rendszert. Ezeket a beállításokat saját felelősségedre használod: nincs támogatás, és az általuk okozott problémákról hibajelentést nem fogadunk el.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Megértettem</string>
 </resources>

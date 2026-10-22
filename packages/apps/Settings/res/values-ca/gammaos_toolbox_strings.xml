@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Programari)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Barra de tasques amb Totes les aplicacions</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Substitueix la barra de navegació de 3 botons per una barra de tasques amb una icona de Totes les aplicacions. S\u2019aplica en temps real. Desactiveu per tornar a la navegació AOSP de 3 botons.</string>
+    <string name="gammaos_toolbox_disclaimer">Aquests són paràmetres profunds del sistema. GammaOS mostra totes les opcions que conté la ROM subjacent, i la mateixa ROM s\'executa en molts dispositius, de manera que no totes les opcions s\'apliquen al vostre. No espereu que una funció com BFI funcioni si la vostra pantalla no és realment de 120 Hz, i no espereu miracles. Canviar el paràmetre equivocat pot trencar el sistema molt greument. Utilitzeu aquests paràmetres sota la vostra responsabilitat: no s\'ofereix suport i no s\'accepta cap informe d\'errors pels problemes que causin.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Ho entenc</string>
 </resources>

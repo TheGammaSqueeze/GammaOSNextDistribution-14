@@ -255,4 +255,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (సాఫ్ట్‌వేర్)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">అన্ని అ্ప্ల্తో ఫdownloadsोన্ Taskbar</string>
     <string name="gammaos_toolbox_taskbar_phone_summary"></string>
+    <string name="gammaos_toolbox_disclaimer">ఇవి లోతైన సిస్టమ్ సెట్టింగ్‌లు. GammaOS అంతర్లీన ROM లో ఉన్న ప్రతి ఎంపికను చూపుతుంది, మరియు అదే ROM అనేక పరికరాలలో నడుస్తుంది, కాబట్టి ప్రతి ఎంపిక మీ పరికరానికి వర్తించదు. మీ డిస్‌ప్లే నిజంగా 120 Hz కాకపోతే BFI వంటి ఫీచర్ పని చేస్తుందని ఆశించవద్దు, మరియు అద్భుతాలను ఆశించవద్దు. తప్పు సెట్టింగ్ మార్చడం వల్ల సిస్టమ్ చాలా తీవ్రంగా పాడవవచ్చు. మీరు ఈ సెట్టింగ్‌లను మీ స్వంత బాధ్యతతో ఉపయోగిస్తున్నారు: ఎటువంటి మద్దతు అందించబడదు మరియు వాటి వల్ల కలిగే సమస్యలకు ఎటువంటి బగ్ నివేదిక అంగీకరించబడదు.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">నాకు అర్థమైంది</string>
 </resources>

@@ -345,4 +345,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (برمجي)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">شريط المهام مع جميع التطبيقات</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">استبدل شريط التنقل ذو الأزرار الثلاثة بشريط مهام يتضمن رمز جميع التطبيقات. يُطبق في الوقت الفعلي. قم بالتعطيل للعودة إلى تنقل AOSP القياسي ذي الأزرار الثلاثة.</string>
+    <string name="gammaos_toolbox_disclaimer">هذه إعدادات نظام عميقة. يعرض GammaOS كل خيار يحتويه الروم الأساسي، والروم نفسه يعمل على أجهزة كثيرة، لذلك لا ينطبق كل خيار على جهازك. لا تتوقع أن تعمل ميزة مثل BFI إن لم تكن شاشتك 120 هرتز فعلاً، ولا تتوقع معجزات. تغيير الإعداد الخاطئ قد يعطل النظام بشدة. تستخدم هذه الإعدادات على مسؤوليتك: لا يُقدَّم أي دعم ولا تُقبل أي بلاغات أخطاء عن المشاكل التي تسببها.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">فهمت</string>
 </resources>

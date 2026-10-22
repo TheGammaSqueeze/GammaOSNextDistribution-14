@@ -345,4 +345,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Hugb\u00fana\u00f0ur)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Verkefnastika síma með Öllum forritum</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Skipta út venjulegri 3-hnappa yfirlitsstikunni fyrir verkefnastiku sem inniheldur Öll forrit tákn. Á við í rauntíma. Slökkva til að snúa aftur í venjulega AOSP 3-hnappa yfirlit.</string>
+    <string name="gammaos_toolbox_disclaimer">Þetta eru djúpar kerfisstillingar. GammaOS sýnir alla valkosti sem undirliggjandi ROM inniheldur, og sama ROM keyrir á mörgum tækjum, svo ekki allir valkostir eiga við þitt tæki. Ekki búast við að eiginleiki eins og BFI virki ef skjárinn þinn er ekki í raun 120 Hz, og ekki búast við kraftaverkum. Að breyta rangri stillingu getur skemmt kerfið mjög illa. Þú notar þessar stillingar á eigin ábyrgð: enginn stuðningur er veittur og engar villutilkynningar eru teknar við vegna vandamála sem þær valda.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Ég skil</string>
 </resources>

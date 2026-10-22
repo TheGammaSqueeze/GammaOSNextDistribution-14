@@ -345,4 +345,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (මෘදුකාංග)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">සම্බ্adෂද යedd্um্ සහෂ ඩdownloads্ම Taskbar</string>
     <string name="gammaos_toolbox_taskbar_phone_summary"></string>
+    <string name="gammaos_toolbox_disclaimer">මේවා ගැඹුරු පද්ධති සැකසුම් වේ. GammaOS යටින් ඇති ROM හි අඩංගු සෑම විකල්පයක්ම පෙන්වයි, සහ එම ROM එකම බොහෝ උපාංගවල ධාවනය වේ, එබැවින් සෑම විකල්පයක්ම ඔබේ උපාංගයට අදාළ නොවේ. ඔබේ තිරය සැබවින්ම 120 Hz නොවේ නම් BFI වැනි විශේෂාංගයක් ක්‍රියා කරනු ඇතැයි බලාපොරොත්තු නොවන්න, සහ ආශ්චර්යයන් බලාපොරොත්තු නොවන්න. වැරදි සැකසුමක් වෙනස් කිරීමෙන් පද්ධතිය ඉතා දරුණු ලෙස බිඳ වැටිය හැකිය. ඔබ මෙම සැකසුම් භාවිතා කරන්නේ ඔබේම අවදානමෙනි: සහාය ලබා නොදෙන අතර ඒවා නිසා ඇති වන ගැටලු සඳහා දෝෂ වාර්තා භාර නොගනී.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">මට තේරෙනවා</string>
 </resources>

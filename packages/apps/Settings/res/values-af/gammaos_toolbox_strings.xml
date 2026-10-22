@@ -255,4 +255,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Sagteware)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Foonwerkbalk met Alle Toepassings</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Vervang die standaard 3-knoppie navigasiebalk met \'n werkbalk wat \'n Alle Toepassings-ikoon insluit. Word intyds toegepas. Deaktiveer om terug te keer na standaard AOSP 3-knoppie navigasie.</string>
+    <string name="gammaos_toolbox_disclaimer">Dit is diep stelselinstellings. GammaOS wys elke opsie wat die onderliggende ROM bevat, en dieselfde ROM loop op baie toestelle, dus geld nie elke opsie vir joune nie. Moenie verwag dat \'n funksie soos BFI werk as jou skerm nie werklik 120 Hz is nie, en moenie wonderwerke verwag nie. Die verkeerde instelling kan die stelsel baie erg breek. Jy gebruik hierdie instellings op eie risiko: geen ondersteuning word gebied nie en geen foutverslag word aanvaar vir probleme wat dit veroorsaak nie.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Ek verstaan</string>
 </resources>

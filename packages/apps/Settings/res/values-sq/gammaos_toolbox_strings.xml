@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Softuerik)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Shiriti i detyrave me Të gjitha aplikacionet</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Zëvendësoni shiritin e navigimit me 3 butona me një shirit detyrash që përfshin një ikonë Të gjitha aplikacionet. Zbatohet në kohë reale. Çaktivizoni për t\u2019u kthyer te navigimi AOSP me 3 butona.</string>
+    <string name="gammaos_toolbox_disclaimer">Këto janë cilësime të thella të sistemit. GammaOS shfaq çdo opsion që përmban ROM-i bazë, dhe i njëjti ROM funksionon në shumë pajisje, kështu që jo çdo opsion vlen për tuajën. Mos prisni që një veçori si BFI të funksionojë nëse ekrani juaj nuk është në të vërtetë 120 Hz, dhe mos prisni mrekulli. Ndryshimi i cilësimit të gabuar mund ta prishë sistemin shumë rëndë. Ju i përdorni këto cilësime me rrezikun tuaj: nuk ofrohet mbështetje dhe nuk pranohet asnjë raport gabimi për problemet që shkaktojnë.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">E kuptoj</string>
 </resources>

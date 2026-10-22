@@ -185,6 +185,8 @@ void NanoMenu::renderSettingsTree() {
              mHeight - FONT_CHAR_H * footScale - 10.0f * sf,
              footScale, 0.50f, 0.50f, 0.55f, 0.85f);
 
+    // the shared dialog (the GammaOS Toolbox disclaimer) over the list
+    if (mPs3DlgActive || mPs3DlgClosing) renderPs3Dialog();
     // OSK (with its inline preview line) is drawn last in render() by renderOsk().
 }
 

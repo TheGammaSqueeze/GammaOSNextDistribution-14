@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (softver)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Traka zadataka s Sve aplikacije</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Zamijenite standardnu navigacijsku traku s 3 gumba trakom zadataka koja uključuje ikonu Sve aplikacije. Primjenjuje se u stvarnom vremenu. Onemogućite za povratak na standardnu AOSP navigaciju s 3 gumba.</string>
+    <string name="gammaos_toolbox_disclaimer">Ovo su duboke postavke sustava. GammaOS prikazuje svaku opciju koju sadrži osnovni ROM, a isti ROM radi na mnogim uređajima, pa se svaka opcija ne odnosi na vaš. Ne očekujte da će značajka poput BFI raditi ako vaš zaslon zapravo nije 120 Hz, i ne očekujte čuda. Promjena pogrešne postavke može vrlo ozbiljno pokvariti sustav. Ove postavke koristite na vlastitu odgovornost: podrška se ne pruža i ne prihvaća se nijedna prijava greške za probleme koje uzrokuju.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Razumijem</string>
 </resources>

@@ -1082,6 +1082,14 @@ void NanoMenu::handleSettingsTreeSelect() {
 
     switch (node.type) {
     case SettingNodeType::kCategory:
+        if (node.id == "gammaos") {
+            // GammaOS Toolbox: the disclaimer first, on every entry (dialog key 62; the
+            // category opens from closePs3Dialog once "I Understand" is chosen)
+            mToolboxLegacyNode = nodeIdx;
+            openToolboxDisclaimer();
+            mPs3DlgThemeKey = 62;
+            break;
+        }
         settingsTreePushCategory(nodeIdx);
         break;
     case SettingNodeType::kToggle:

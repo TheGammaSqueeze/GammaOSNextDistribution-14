@@ -371,4 +371,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Barra de tareas con Todas las apps</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Reemplaza la barra de navegación de 3 botones estándar con una barra de tareas que incluye un icono de Todas las aplicaciones. Se aplica en tiempo real. Desactiva para volver a la navegación AOSP de 3 botones.</string>
+    <string name="gammaos_toolbox_disclaimer">Estos son ajustes profundos del sistema. GammaOS expone todas las opciones que contiene la ROM subyacente, y la misma ROM se usa en muchos dispositivos, así que no todas las opciones se aplican al tuyo. No esperes que una función como BFI funcione si tu pantalla no es realmente de 120 Hz, y no esperes milagros. Cambiar el ajuste equivocado puede romper el sistema gravemente. Usas estos ajustes bajo tu propia responsabilidad: no se ofrece soporte y no se aceptan informes de errores por los problemas que causen.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Entendido</string>
 </resources>

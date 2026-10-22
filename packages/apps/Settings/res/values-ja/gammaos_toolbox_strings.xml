@@ -367,4 +367,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE（ソフトウェア）</string>
     <string name="gammaos_toolbox_taskbar_phone_title">全アプリ付きフォンタスクバー</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">標準の3ボタンナビゲーションバーを、全アプリアイコン付きのタスクバーに置き換えます。リアルタイムで適用されます。標準のAOSP 3ボタンナビゲーションに戻すには無効にしてください。</string>
+    <string name="gammaos_toolbox_disclaimer">これはシステムの深い設定です。GammaOS は基盤の ROM に含まれるすべての項目を表示し、同じ ROM が多くの機種で使われているため、すべての項目がお使いの機種に当てはまるわけではありません。画面が実際に 120 Hz でなければ BFI のような機能は動作しません。奇跡は起きません。誤った設定を変えるとシステムが深刻に壊れることがあります。これらの設定は自己責任で使用してください。サポートは提供されず、これらが原因の不具合報告は受け付けません。</string>
+    <string name="gammaos_toolbox_disclaimer_accept">理解しました</string>
 </resources>

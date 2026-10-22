@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gammaos_toolbox_disclaimer">这些是深层系统设置。GammaOS 会显示底层 ROM 包含的全部选项，而同一个 ROM 在许多设备上使用，因此并非每个选项都适用于你的设备。如果你的屏幕并非真正的 120 Hz，不要指望 BFI 之类的功能能用，也不要指望奇迹。改错设置可能把系统严重弄坏。使用这些设置风险自负：不提供支持，也不接受因此引起问题的错误报告。</string>
+    <string name="gammaos_toolbox_disclaimer_accept">我已了解</string>
+</resources>

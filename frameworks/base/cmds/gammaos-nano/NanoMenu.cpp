@@ -714,6 +714,22 @@ status_t NanoMenu::readyToRun() {
             mWidth = (int)prim.w;
             mHeight = (int)prim.h;
         }
+        {   // sys.gammaos.nano.screensize="WxH": lay out for a smaller logical frame (see NanoMenu.h)
+            char v[PROPERTY_VALUE_MAX] = {};
+            int tw = 0, th = 0;
+            property_get("sys.gammaos.nano.screensize", v, "");
+            if (sscanf(v, "%dx%d", &tw, &th) == 2 && tw > 0 && th > 0 && tw <= mWidth && th <= mHeight
+                && (tw < mWidth || th < mHeight)) {
+                const bool rot = (sDrmRotationDeg == 90 || sDrmRotationDeg == 270);
+                const int pw = (int)prim.w, ph = (int)prim.h;     // panel-native target size
+                const int vw = rot ? th : tw, vh = rot ? tw : th;  // the logical frame on the panel
+                mTestVp[0] = (pw - vw) / 2; mTestVp[1] = (ph - vh) / 2; mTestVp[2] = vw; mTestVp[3] = vh;
+                mTestVpActive = true;
+                mWidth = tw; mHeight = th;
+                ALOGI("screensize test hook: logical %dx%d in panel rect %d,%d %dx%d", tw, th,
+                      mTestVp[0], mTestVp[1], mTestVp[2], mTestVp[3]);
+            }
+        }
 
         EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
         eglInitialize(display, nullptr, nullptr);

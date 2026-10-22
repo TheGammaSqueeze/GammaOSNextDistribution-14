@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (ohjelmisto)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Puhelimen tehtäväpalkki ja Kaikki sovellukset</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Korvaa tavallisen 3-painikkeisen navigointipalkin tehtäväpalkilla, jossa on Kaikki sovellukset -kuvake. Otetaan käyttöön reaaliajassa. Poista käytöstä palataksesi AOSP:n 3-painikkeiseen navigointiin.</string>
+    <string name="gammaos_toolbox_disclaimer">Nämä ovat syviä järjestelmäasetuksia. GammaOS näyttää jokaisen vaihtoehdon, jonka taustalla oleva ROM sisältää, ja sama ROM toimii monissa laitteissa, joten kaikki vaihtoehdot eivät koske sinun laitettasi. Älä odota, että BFI:n kaltainen ominaisuus toimii, jos näyttösi ei todella ole 120 Hz, äläkä odota ihmeitä. Väärän asetuksen muuttaminen voi rikkoa järjestelmän erittäin pahasti. Käytät näitä asetuksia omalla vastuullasi: tukea ei tarjota eikä niiden aiheuttamista ongelmista oteta vastaan virheraportteja.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Ymmärrän</string>
 </resources>

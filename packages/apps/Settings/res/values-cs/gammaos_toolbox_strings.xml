@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Panel úloh s Všemi aplikacemi</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Nahradí standardní 3tlačítkovou navigační lištu panelem úloh s ikonou Všechny aplikace. Aplikuje se v reálném čase. Deaktivujte pro návrat ke standardní 3tlačítkové navigaci AOSP.</string>
+    <string name="gammaos_toolbox_disclaimer">Toto jsou hluboká systémová nastavení. GammaOS zobrazuje každou možnost, kterou podkladová ROM obsahuje, a stejná ROM běží na mnoha zařízeních, takže ne každá možnost platí pro to vaše. Neočekávejte, že funkce jako BFI bude fungovat, pokud váš displej skutečně nemá 120 Hz, a neočekávejte zázraky. Změna špatného nastavení může systém velmi vážně poškodit. Tato nastavení používáte na vlastní riziko: neposkytuje se žádná podpora a hlášení chyb způsobených těmito nastaveními se nepřijímají.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Rozumím</string>
 </resources>

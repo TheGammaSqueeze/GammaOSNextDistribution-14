@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gammaos_toolbox_disclaimer">이것은 깊은 시스템 설정입니다. GammaOS는 기반 ROM에 들어 있는 모든 옵션을 보여 주며, 같은 ROM이 여러 기기에서 쓰이므로 모든 옵션이 내 기기에 맞는 것은 아닙니다. 화면이 실제로 120 Hz가 아니면 BFI 같은 기능이 동작할 것이라 기대하지 마시고, 기적도 기대하지 마십시오. 잘못된 설정을 바꾸면 시스템이 심각하게 망가질 수 있습니다. 이 설정은 본인 책임으로 사용합니다. 지원은 제공되지 않으며, 이로 인한 문제의 버그 신고는 받지 않습니다.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">이해했습니다</string>
+</resources>

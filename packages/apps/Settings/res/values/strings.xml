@@ -13339,6 +13339,8 @@
     <string name="gammaos_toolbox_title">GammaOS Toolbox</string>
     <string name="gammaos_toolbox_summary">Advanced system property overrides</string>
     <string name="gammaos_toolbox_warning">Warning: These settings modify low-level system properties. Some options may not be applicable to your device or hardware. Changing values incorrectly can cause display glitches, performance issues, or instability. Proceed at your own risk.</string>
+    <string name="gammaos_toolbox_disclaimer">These are deep system settings. GammaOS exposes every option the underlying ROM contains, and the same ROM runs on many devices, so not every option applies to yours. Do not expect a feature such as BFI to work if your display is not actually 120 Hz, and do not expect miracles. Changing the wrong setting can break the system very badly. You use these settings at your own risk: no support is provided and no bug report is accepted for problems they cause.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">I Understand</string>
     <string name="gammaos_toolbox_restore_default">Restore default</string>
     <string name="gammaos_toolbox_value_not_set">Not set</string>
 

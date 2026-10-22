@@ -345,4 +345,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Dasturiy)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Barcha ilovalar bilan telefon vazifalar paneli</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Standart 3 tugmali navigatsiya panelini Barcha ilovalar belgisini oʻz ichiga olgan vazifalar paneli bilan almashtiring. Real vaqtda qoʻllaniladi. Standart AOSP 3 tugmali navigatsiyaga qaytish uchun oʻchiring.</string>
+    <string name="gammaos_toolbox_disclaimer">Bular chuqur tizim sozlamalari. GammaOS asosiy ROM tarkibidagi har bir variantni ko\'rsatadi va xuddi shu ROM ko\'plab qurilmalarda ishlaydi, shuning uchun har bir variant sizning qurilmangizga tegishli emas. Agar displeyingiz aslida 120 Hz bo\'lmasa, BFI kabi funksiya ishlashini kutmang va mo\'jizalar kutmang. Noto\'g\'ri sozlamani o\'zgartirish tizimni juda jiddiy buzishi mumkin. Siz bu sozlamalardan o\'z tavakkalingiz bilan foydalanasiz: qo\'llab-quvvatlash ko\'rsatilmaydi va ular keltirib chiqargan muammolar bo\'yicha xato hisobotlari qabul qilinmaydi.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Tushundim</string>
 </resources>

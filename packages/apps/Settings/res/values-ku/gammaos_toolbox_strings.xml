@@ -345,4 +345,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Nermalav)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Taskbar bi Hemû Sepanan</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Barê navîgasyonê yê standard ê 3-bişkojkan bi taskbarê ku îkona Hemû Sepanan tê de heye biguherîne. Di wextê rastîn de tê sepandin. Ji bo vegerîna navîgasyona AOSP ya standard a 3-bişkojkan neçalak bikin.</string>
+    <string name="gammaos_toolbox_disclaimer">Ev mîhengên kûr ên pergalê ne. GammaOS her vebijarka ku ROM-a bingehîn dihewîne nîşan dide, û heman ROM li ser gelek cîhazan dixebite, ji ber vê yekê her vebijark ji bo ya we nayê. Heke ekrana we bi rastî ne 120 Hz be, hêvî nekin ku taybetmendiyek wekî BFI bixebite, û hêviya mucîzeyan nekin. Guhertina mîhenga çewt dikare pergalê pir xirab bişkîne. Hûn van mîhengan bi berpirsiyariya xwe bikar tînin: piştgirî nayê dayîn û ji bo pirsgirêkên ku ew çêdikin tu raporek xeletiyê nayê qebûlkirin.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Ez fêm dikim</string>
 </resources>

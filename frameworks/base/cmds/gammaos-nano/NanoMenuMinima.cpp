@@ -773,6 +773,28 @@ void NanoMenu::renderMinimaDialog(float rx, float ry, float rw, float rh) {
 
     drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.55f * ap);   // scrim
     float pw = fminf(rw * 0.74f, rw - pad * 2.0f), ph = fminf(rh * 0.64f, rh - pad * 2.0f);
+    // A long confirm body (two buttons, no pager: the Toolbox / IPTV disclaimers) grows the panel
+    // to hold its lines, up to the screen less the margin, before the text has to shrink or scroll
+    // (on a square or a 4:3 screen the 64 percent panel held barely half the disclaimer).
+    if (!mPs3DlgBody.empty() && (int)mPs3DlgOptions.size() >= 2) {
+        const std::string body = trDyn(mPs3DlgBody.c_str());
+        const float fs = (15.0f * sc) / (float)FONT_CHAR_H, maxW = pw - pad * 2.0f, lineH = 18.0f * sc;
+        int lines = 0; std::string cur; size_t i = 0;
+        while (i < body.size()) {
+            size_t sp = body.find_first_of(" \n", i);
+            std::string word = body.substr(i, sp == std::string::npos ? std::string::npos : sp - i);
+            bool nl = (sp != std::string::npos && body[sp] == '\n');
+            std::string trial = cur.empty() ? word : cur + " " + word;
+            if (measureText(trial.c_str(), fs) > maxW && !cur.empty()) { lines++; cur = word; }
+            else cur = trial;
+            if (nl) { lines++; cur.clear(); }
+            i = (sp == std::string::npos) ? body.size() : sp + 1;
+        }
+        if (!cur.empty()) lines++;
+        const float titleH = mPs3DlgTitle.empty() ? 0.0f : rowH * 1.05f;
+        const float need = pad + 6.0f * sc + titleH + (float)lines * lineH + pad * 0.6f + rowH + pad;
+        if (need > ph) ph = fminf(need, rh - pad * 2.0f);
+    }
     float pxL = rx + (rw - pw) * 0.5f;
     float pyTgt = ry + (rh - ph) * 0.5f, pyOff = pyTgt + rh * 0.12f;
     float pyTop = pyOff + (pyTgt - pyOff) * ease;
@@ -800,21 +822,35 @@ void NanoMenu::renderMinimaDialog(float rx, float ry, float rw, float rh) {
         float btnTop = pyTop + ph - pad - rowH;      // the OK / option pill row
         float bodyTop = yy, bodyBot = btnTop - pad * 0.6f;
         // Wrap into lines, breaking on BOTH spaces and newlines.
-        std::vector<std::string> lines; std::string cur; size_t i = 0;
-        auto flush = [&]() { lines.push_back(cur); cur.clear(); };
-        while (i < body.size()) {
-            size_t sp = body.find_first_of(" \n", i);
-            std::string word = body.substr(i, sp == std::string::npos ? std::string::npos : sp - i);
-            bool nl = (sp != std::string::npos && body[sp] == '\n');
-            std::string trial = cur.empty() ? word : cur + " " + word;
-            if (measureText(trial.c_str(), fs) > maxW && !cur.empty()) { flush(); cur = word; }
-            else cur = trial;
-            if (nl) flush();
-            i = (sp == std::string::npos) ? body.size() : sp + 1;
-        }
-        if (!cur.empty()) flush();
-        const int total = (int)lines.size();
+        std::vector<std::string> lines;
+        auto wrapBody = [&](float f) {
+            lines.clear(); std::string cur; size_t i = 0;
+            auto flush = [&]() { lines.push_back(cur); cur.clear(); };
+            while (i < body.size()) {
+                size_t sp = body.find_first_of(" \n", i);
+                std::string word = body.substr(i, sp == std::string::npos ? std::string::npos : sp - i);
+                bool nl = (sp != std::string::npos && body[sp] == '\n');
+                std::string trial = cur.empty() ? word : cur + " " + word;
+                if (measureText(trial.c_str(), f) > maxW && !cur.empty()) { flush(); cur = word; }
+                else cur = trial;
+                if (nl) flush();
+                i = (sp == std::string::npos) ? body.size() : sp + 1;
+            }
+            if (!cur.empty()) flush();
+        };
+        wrapBody(fs);
         int maxVis = (int)((bodyBot - bodyTop) / lineH); if (maxVis < 1) maxVis = 1;
+        // A long confirm body (the IPTV / Toolbox disclaimers) has no pager (L/R pick the
+        // buttons), so shrink the text to fit, down to 3/4 of the size, before scrolling it.
+        if (!infoStyle && (int)lines.size() > maxVis) {
+            const float fs0 = fs, lh0 = lineH;
+            while ((int)lines.size() > maxVis && fs > fs0 * 0.75f) {
+                fs *= 0.94f; lineH = lh0 * (fs / fs0);
+                maxVis = (int)((bodyBot - bodyTop) / lineH); if (maxVis < 1) maxVis = 1;
+                wrapBody(fs);
+            }
+        }
+        const int total = (int)lines.size();
         if (infoStyle && total > maxVis) {
             int visRows = maxVis - 1; if (visRows < 1) visRows = 1;   // reserve a row for the pager
             int pages = (total + visRows - 1) / visRows; mNdsInfoPageCount = pages;
@@ -843,6 +879,30 @@ void NanoMenu::renderMinimaDialog(float rx, float ry, float rw, float rh) {
             };
             pill(pxL + pad,            "L", mNdsInfoPage > 0);
             pill(pxL + pw - pad - pwl, "R", mNdsInfoPage < pages - 1);
+        } else if (!infoStyle && total > maxVis) {
+            // Still too long at the smallest size: auto-scroll it as a ping-pong marquee between
+            // the title and the pills, clipped to the band, the way the DSi dialog reads its
+            // long confirm bodies.
+            const float bandH = bodyBot - bodyTop;
+            const float contentH = lineH * (float)total;
+            const float scrollRange = contentH - bandH;
+            const float scrollT = fmaxf(0.5f, scrollRange / (24.0f * sc));   // ~24 ref px/s
+            const float pause = 1.8f, cycle = 2.0f * (pause + scrollT);
+            float tt = fmodf((float)mEffectTime, cycle);
+            float off = (tt < pause) ? 0.0f
+                      : (tt < pause + scrollT) ? (tt - pause) / scrollT * scrollRange
+                      : (tt < 2.0f * pause + scrollT) ? scrollRange
+                      : scrollRange - (tt - 2.0f * pause - scrollT) / scrollT * scrollRange;
+            mDisplayDirty = true;   // keep the marquee animating
+            glEnable(GL_SCISSOR_TEST);
+            scissorLogicalRect(pxL, bodyTop, pw, bandH);
+            for (int k = 0; k < total; k++) {
+                float ty = bodyTop + (float)k * lineH - off;
+                if (ty > bodyBot || ty + lineH < bodyTop) continue;
+                float tw = measureText(lines[k].c_str(), fs);
+                drawText(lines[k].c_str(), cxC - tw * 0.5f, ty, fs, 0.90f, 0.90f, 0.92f, ap);
+            }
+            glDisable(GL_SCISSOR_TEST);
         } else {
             float ty = bodyTop;
             for (int k = 0; k < total && ty < bodyBot; k++) {

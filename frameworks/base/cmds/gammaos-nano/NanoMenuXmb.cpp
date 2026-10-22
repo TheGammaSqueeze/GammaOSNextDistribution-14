@@ -2596,7 +2596,7 @@ void NanoMenu::handleLeft() {
         return;
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
-    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeLeft(); return; }
+    if (mMenuState == MENU_SETTINGS) { if (mPs3DlgActive) ps3DlgNav(-1, true); else handleSettingsTreeLeft(); return; }
     if (mPs3Xmb || mPs3WizActive) {
         // DSi / Minima game Information page / paginated info dialog: LEFT turns to the previous page.
         if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(-1); return; }
@@ -2634,7 +2634,7 @@ void NanoMenu::handleRight() {
         return;
     }
     if (mMenuState == MENU_WIFI || mMenuState == MENU_BT) return;
-    if (mMenuState == MENU_SETTINGS) { handleSettingsTreeRight(); return; }
+    if (mMenuState == MENU_SETTINGS) { if (mPs3DlgActive) ps3DlgNav(+1, true); else handleSettingsTreeRight(); return; }
     if (mPs3Xmb || mPs3WizActive) {
         // DSi / Minima game Information page / paginated info dialog: RIGHT turns to the next page.
         if ((mNdsTheme || mMinimaTheme) && mPs3Xmb && (ndsGameInfoActive() || ndsDlgInfoPaged())) { ndsInfoPage(+1); return; }

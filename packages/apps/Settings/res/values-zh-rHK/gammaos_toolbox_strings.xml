@@ -255,4 +255,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE\uff08\u8edf\u4ef6\uff09</string>
     <string name="gammaos_toolbox_taskbar_phone_title">帶所有應用程式的手機工作列</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">將標準三鍵導覽列替換為包含所有應用程式圖示的工作列。即時生效。停用可恢復為標準 AOSP 三鍵導覽。</string>
+    <string name="gammaos_toolbox_disclaimer">這些是深層系統設定。GammaOS 會顯示底層 ROM 包含的每個選項，而同一個 ROM 會在許多裝置上運行，因此並非每個選項都適用於你的裝置。如果你的螢幕並非真正的 120 Hz，請勿期望 BFI 等功能會正常運作，也請勿期望奇蹟。更改錯誤的設定可能會嚴重損壞系統。你須自行承擔使用這些設定的風險：不提供任何支援，亦不接受因此引起問題的錯誤報告。</string>
+    <string name="gammaos_toolbox_disclaimer_accept">我明白</string>
 </resources>

@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Programski)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Opravilna vrstica z Vse aplikacije</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Zamenjajte standardno 3-gumbno navigacijsko vrstico z opravilno vrstico, ki vključuje ikono Vse aplikacije. Velja v realnem času. Onemogočite za vrnitev na standardno AOSP 3-gumbno navigacijo.</string>
+    <string name="gammaos_toolbox_disclaimer">To so globoke sistemske nastavitve. GammaOS prikazuje vsako možnost, ki jo vsebuje osnovni ROM, in isti ROM teče na mnogih napravah, zato vsaka možnost ne velja za vašo. Ne pričakujte, da bo funkcija, kot je BFI, delovala, če vaš zaslon dejansko ni 120 Hz, in ne pričakujte čudežev. Sprememba napačne nastavitve lahko zelo resno pokvari sistem. Te nastavitve uporabljate na lastno odgovornost: podpora ni na voljo in poročila o napakah za težave, ki jih povzročijo, se ne sprejemajo.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Razumem</string>
 </resources>

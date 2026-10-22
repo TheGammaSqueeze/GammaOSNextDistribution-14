@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gammaos_toolbox_disclaimer">Ce sont des réglages système profonds. GammaOS expose toutes les options que contient la ROM sous-jacente, et la même ROM est utilisée sur de nombreux appareils : toutes les options ne s\'appliquent donc pas au vôtre. N\'attendez pas qu\'une fonction comme le BFI fonctionne si votre écran n\'est pas réellement à 120 Hz, et n\'attendez pas de miracles. Modifier le mauvais réglage peut gravement casser le système. Vous utilisez ces réglages à vos risques et périls : aucune assistance n\'est fournie et aucun rapport de bug n\'est accepté pour les problèmes qu\'ils causent.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">J\'ai compris</string>
+</resources>

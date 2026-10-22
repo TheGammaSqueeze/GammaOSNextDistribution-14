@@ -345,4 +345,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (सफ्टवेयर)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">सबै एdownloadsपsसहdownloadsत फdownloadsोन Taskbar</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">स্token 3-बdownloadsटन नdownloadsव্हdownloadsगेशन बारdownloadsलdownloadsई सबdownloadsै एdownloadsपs आdownloadsइकdownloadsन भएकdownloadsो Taskbar ले बदdownloadsल্नुहdownloadsोस্।</string>
+    <string name="gammaos_toolbox_disclaimer">यी गहिरा प्रणाली सेटिङहरू हुन्। GammaOS ले आधारभूत ROM मा भएका सबै विकल्पहरू देखाउँछ, र उही ROM धेरै यन्त्रहरूमा चल्छ, त्यसैले सबै विकल्प तपाईंको यन्त्रमा लागू हुँदैनन्। तपाईंको डिस्प्ले वास्तवमा 120 Hz छैन भने BFI जस्तो सुविधा काम गर्छ भनेर आशा नगर्नुहोस्, र चमत्कारको आशा नगर्नुहोस्। गलत सेटिङ परिवर्तन गर्दा प्रणाली धेरै नराम्रोसँग बिग्रन सक्छ। तपाईं यी सेटिङहरू आफ्नै जोखिममा प्रयोग गर्नुहुन्छ: कुनै सहयोग दिइँदैन र तिनले निम्त्याउने समस्याका लागि कुनै बग रिपोर्ट स्वीकार गरिँदैन।</string>
+    <string name="gammaos_toolbox_disclaimer_accept">मैले बुझें</string>
 </resources>

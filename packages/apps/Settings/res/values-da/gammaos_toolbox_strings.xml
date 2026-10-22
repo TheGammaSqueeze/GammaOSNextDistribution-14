@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Proceslinjen med Alle apps</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Erstat den standard 3-knaps navigationslinje med en proceslinje, der indeholder et Alle apps-ikon. Anvendes i realtid. Deaktiver for at vende tilbage til standard AOSP 3-knaps navigation.</string>
+    <string name="gammaos_toolbox_disclaimer">Dette er dybe systemindstillinger. GammaOS viser alle de valgmuligheder, som den underliggende ROM indeholder, og den samme ROM kører på mange enheder, så ikke alle valgmuligheder gælder for din. Forvent ikke, at en funktion som BFI virker, hvis din skærm ikke reelt er 120 Hz, og forvent ikke mirakler. Ændring af den forkerte indstilling kan ødelægge systemet alvorligt. Du bruger disse indstillinger på eget ansvar: der ydes ingen support, og fejlrapporter om problemer, de forårsager, accepteres ikke.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Jeg forstår</string>
 </resources>

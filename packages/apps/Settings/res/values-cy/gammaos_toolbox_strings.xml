@@ -270,4 +270,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Meddalwedd)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Bar tasgau ffôn gyda Pob Ap</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Disodli\u2019r bar llywio 3 botwm safonol â bar tasgau sy\u2019n cynnwys eicon Pob Ap. Yn berthnasol mewn amser real. Analluogwch i ddychwelyd i lywio AOSP 3 botwm safonol.</string>
+    <string name="gammaos_toolbox_disclaimer">Gosodiadau system dwfn yw\'r rhain. Mae GammaOS yn dangos pob opsiwn sydd yn y ROM sylfaenol, ac mae\'r un ROM yn rhedeg ar lawer o ddyfeisiau, felly nid yw pob opsiwn yn berthnasol i\'ch un chi. Peidiwch â disgwyl i nodwedd fel BFI weithio os nad yw eich sgrin yn 120 Hz mewn gwirionedd, a pheidiwch â disgwyl gwyrthiau. Gall newid y gosodiad anghywir dorri\'r system yn ddifrifol iawn. Rydych yn defnyddio\'r gosodiadau hyn ar eich risg eich hun: ni ddarperir cymorth ac ni dderbynnir adroddiad nam am broblemau y maent yn eu hachosi.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Rwy\'n deall</string>
 </resources>

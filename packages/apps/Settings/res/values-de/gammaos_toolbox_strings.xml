@@ -371,4 +371,6 @@
     <string name="gammaos_toolbox_bfi_mode_re">RE (Software)</string>
     <string name="gammaos_toolbox_taskbar_phone_title">Telefon-Taskleiste mit Alle Apps</string>
     <string name="gammaos_toolbox_taskbar_phone_summary">Ersetzt die Standard-3-Tasten-Navigationsleiste durch eine Taskleiste mit Alle-Apps-Symbol. Wird in Echtzeit angewendet. Deaktivieren, um zur Standard-AOSP-3-Tasten-Navigation zurückzukehren.</string>
+    <string name="gammaos_toolbox_disclaimer">Dies sind tiefgreifende Systemeinstellungen. GammaOS zeigt jede Option, die die zugrunde liegende ROM enthält, und dieselbe ROM läuft auf vielen Geräten, daher gilt nicht jede Option für deines. Erwarte nicht, dass eine Funktion wie BFI funktioniert, wenn dein Display nicht wirklich 120 Hz hat, und erwarte keine Wunder. Die falsche Einstellung kann das System schwer beschädigen. Du verwendest diese Einstellungen auf eigenes Risiko: Es gibt keinen Support und keine Fehlermeldung zu dadurch verursachten Problemen wird angenommen.</string>
+    <string name="gammaos_toolbox_disclaimer_accept">Verstanden</string>
 </resources>
