@@ -85,9 +85,10 @@ final class CcPanel extends FrameLayout implements DashboardView.Host {
     private boolean mResumed;
 
     private final CcState mState;
-    private final CcPager mPager;
-    private final DashboardView mDashboard;
-    private final OptionsView mOptions;
+    // not final: the tick runnables below are field initializers that reference them
+    private CcPager mPager;
+    private DashboardView mDashboard;
+    private OptionsView mOptions;
     private RecyclerView mGrid;
     private GridLayoutManager mGridLayout;
     private final List<AppEntry> mApps = new ArrayList<>();

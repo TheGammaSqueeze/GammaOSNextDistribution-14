@@ -2140,14 +2140,65 @@ public class WindowManagerService extends IWindowManager.Stub
             list = new java.util.ArrayList<>();
             mGammaPresentations.put(displayId, list);
         }
-        if (added) list.add(win);
-        else list.remove(win);
-        final String pkg = list.isEmpty() ? "" : list.get(list.size() - 1).getOwningPackage();
+        if (added) {
+            list.add(win);
+            // The owning app may already be in the background when it adds the window.
+            final WindowProcessController wpc =
+                    mAtmService.mProcessMap.getProcess(win.getPid());
+            if (wpc != null && !wpc.hasVisibleActivities()) {
+                win.setGammaPresentationHidden(true);
+            }
+        } else {
+            list.remove(win);
+        }
+        gammaPublishPresentation(displayId);
+    }
+
+    /** The top presentation on the display that is not hidden, as a property for the home. */
+    private void gammaPublishPresentation(int displayId) {
+        final java.util.ArrayList<WindowState> list = mGammaPresentations.get(displayId);
+        String pkg = "";
+        if (list != null) {
+            for (int i = list.size() - 1; i >= 0; i--) {
+                final WindowState w = list.get(i);
+                if (!w.isGammaPresentationHidden()) {
+                    pkg = w.getOwningPackage();
+                    break;
+                }
+            }
+        }
         final String prop = "sys.gammaos.presentation." + displayId;
         if (!pkg.equals(SystemProperties.get(prop, ""))) {
             SystemProperties.set(prop, pkg);
             Slog.i(TAG, "GammaOS: presentation on display " + displayId + ": "
                     + (pkg.isEmpty() ? "none" : pkg));
+        }
+    }
+
+    /**
+     * GammaOS: a process lost or regained its visible activities (WindowProcessController).
+     * Its presentations on secondary displays follow: hidden while the app is in the
+     * background (a dual screen emulator otherwise leaves its last frame on the bottom panel
+     * until it is force stopped), shown again when it comes back.
+     */
+    private void gammaPresentationsFollowProcess(int uid, boolean visible) {
+        for (int d = 0; d < mGammaPresentations.size(); d++) {
+            final java.util.ArrayList<WindowState> list = mGammaPresentations.valueAt(d);
+            boolean changed = false;
+            for (int i = list.size() - 1; i >= 0; i--) {
+                final WindowState w = list.get(i);
+                if (w.getOwningUid() != uid) continue;
+                if (w.isGammaPresentationHidden() == !visible) continue;
+                w.setGammaPresentationHidden(!visible);
+                changed = true;
+            }
+            if (changed) {
+                Slog.i(TAG, "GammaOS: presentations of uid " + uid + " on display "
+                        + mGammaPresentations.keyAt(d) + (visible ? " shown" : " hidden"));
+                gammaPublishPresentation(mGammaPresentations.keyAt(d));
+                mWindowsChanged = true;
+                requestTraversal();
+            }
         }
     }
 
@@ -10555,6 +10606,7 @@ public class WindowManagerService extends IWindowManager.Stub
 
     void onProcessActivityVisibilityChanged(int uid, boolean visible) {
         mScreenRecordingCallbackController.onProcessActivityVisibilityChanged(uid, visible);
+        gammaPresentationsFollowProcess(uid, visible);
     }
 
     /**

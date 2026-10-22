@@ -2991,6 +2991,10 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
             // This is an alert window that is currently force hidden.
             return false;
         }
+        if (mGammaPresentationHidden) {
+            // GammaOS: a presentation whose app has no visible activity.
+            return false;
+        }
         if (DEBUG_VISIBILITY) Slog.v(TAG, "Policy visibility true: " + this);
         if (doAnimation) {
             if (DEBUG_VISIBILITY) Slog.v(TAG, "doAnimation: mPolicyVisibility="
@@ -3062,6 +3066,28 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
             mWmService.updateFocusedWindowLocked(UPDATE_FOCUS_NORMAL, false /* updateImWindows */);
         }
         return true;
+    }
+
+    // GammaOS: a dual screen app's Presentation on the second panel stays up, frozen on its last
+    // frame, after the app leaves the foreground on the first one (apps rarely dismiss it in
+    // onPause). It is hidden while the owning process has no visible activity and shown again
+    // when the app comes back, so the panel returns to whatever is underneath.
+    private boolean mGammaPresentationHidden;
+
+    boolean isGammaPresentationHidden() {
+        return mGammaPresentationHidden;
+    }
+
+    void setGammaPresentationHidden(boolean hidden) {
+        if (mGammaPresentationHidden == hidden) {
+            return;
+        }
+        mGammaPresentationHidden = hidden;
+        if (hidden) {
+            hide(true /* doAnimation */, true /* requestAnim */);
+        } else {
+            show(true /* doAnimation */, true /* requestAnim */);
+        }
     }
 
     void setForceHideNonSystemOverlayWindowIfNeeded(boolean forceHide) {
