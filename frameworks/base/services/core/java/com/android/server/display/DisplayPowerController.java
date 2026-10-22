@@ -648,7 +648,12 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
 
         mColorFadeEnabled = mInjector.isColorFadeEnabled()
                 && !resources.getBoolean(
-                  com.android.internal.R.bool.config_displayColorFadeDisabled);
+                  com.android.internal.R.bool.config_displayColorFadeDisabled)
+                // GammaOS Nano: the DRM-direct home owns the panels, so SurfaceFlinger never
+                // shows the screen-off fade and never consumes its buffers; drawing it blocked
+                // the PowerManagerService thread in dequeueBuffer at every sleep until the
+                // watchdog fired (and its all-CPU backtrace request then reset the device).
+                && !android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false);
         mColorFadeFadesConfig = resources.getBoolean(
                 R.bool.config_animateScreenLights);
 
