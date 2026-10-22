@@ -48,6 +48,8 @@
 // already carries. prop_info comes from <sys/system_properties.h> above.
 extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <utils/Log.h>
+#include <mutex>
+#include <condition_variable>
 #include <utils/SystemClock.h>
 
 #include <gui/DisplayCaptureArgs.h>
@@ -5716,11 +5718,150 @@ void nanoBootRecCapture(bool secondary) {
     }
 }
 
+// Debug frame recording of the primary panel in real time (sys.gammaos.nano.rec=<dir>,<W>x<H>[,<fps>]):
+// while the prop is set, the frames are written to <dir>/f_<uptime ms>.png, box filtered to W x H
+// (the centred rectangle of that aspect), at most <fps> a second (default 15). The clock is not
+// touched: the names carry the real time, so the frames make a video of what the panel showed.
+// Clearing the prop stops it. Off (no cost) unless the prop is set.
+static void nanoRecCapture(GLuint scanFbo) {
+    static const prop_info* pi = nullptr;
+    static uint32_t ser = 0;
+    static std::string dir;
+    static int ow = 0, oh = 0, fps = 15;
+    static int64_t lastMs = 0;
+    // the PPM is written by a worker so the render thread only reads the pixels and shrinks
+    // them; a frame that comes while the worker is still writing the previous one is skipped
+    static std::thread worker;
+    static std::mutex mu;
+    static std::condition_variable cv;
+    static std::vector<unsigned char> pending;   // the shrunk frame to write (empty: none)
+    static std::string pendingPath;
+    static int pendingW = 0, pendingH = 0;
+    static bool quit = false;
+    if (!pi) pi = __system_property_find("sys.gammaos.nano.rec");
+    if (!pi) return;
+    const uint32_t nowSer = __system_property_serial(pi);
+    if (nowSer != ser) {
+        ser = nowSer;
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.rec", v, "");
+        dir.clear();
+        ow = oh = 0; fps = 15;
+        if (v[0]) {
+            std::string spec(v);
+            const size_t c1 = spec.find(',');
+            dir = spec.substr(0, c1);
+            if (c1 != std::string::npos) {
+                int w = 0, h = 0, f = 15;
+                if (sscanf(spec.c_str() + c1 + 1, "%dx%d,%d", &w, &h, &f) >= 2 && w > 0 && h > 0) { ow = w; oh = h; }
+                if (f > 0) fps = f;
+            }
+            lastMs = 0;
+            ALOGI("nano: frame recording to %s (%dx%d, %d fps)", dir.c_str(), ow, oh, fps);
+            if (!worker.joinable()) {
+                worker = std::thread([] {
+                    for (;;) {
+                        std::vector<unsigned char> buf;
+                        std::string path;
+                        int w, h;
+                        {
+                            std::unique_lock<std::mutex> lk(mu);
+                            cv.wait(lk, [] { return quit || !pending.empty(); });
+                            if (quit) return;
+                            buf.swap(pending);
+                            path = pendingPath;
+                            w = pendingW; h = pendingH;
+                        }
+                        // PNG at the fastest level: a fifth of the raw size, so minutes of frames fit
+                        // the data partition and leave over adb without starving anything else
+                        FILE* f = fopen(path.c_str(), "wb");
+                        png_structp pw = f ? png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr) : nullptr;
+                        png_infop pi = pw ? png_create_info_struct(pw) : nullptr;
+                        if (pi && !setjmp(png_jmpbuf(pw))) {
+                            png_init_io(pw, f);
+                            png_set_compression_level(pw, 1);
+                            png_set_filter(pw, 0, PNG_FILTER_NONE);
+                            png_set_IHDR(pw, pi, w, h, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+                                         PNG_FILTER_TYPE_DEFAULT);
+                            png_write_info(pw, pi);
+                            for (int y = 0; y < h; y++) png_write_row(pw, buf.data() + (size_t)y * w * 3);
+                            png_write_end(pw, nullptr);
+                        } else if (!f) {
+                            ALOGE("nano: frame recording open failed: %s", path.c_str());
+                        }
+                        if (pw) png_destroy_write_struct(&pw, pi ? &pi : nullptr);
+                        if (f) fclose(f);
+                    }
+                });
+            }
+        }
+    }
+    if (dir.empty()) return;
+    const int64_t nowMs = android::uptimeMillis();
+    if (lastMs && nowMs - lastMs < 1000 / fps) return;
+    {
+        std::lock_guard<std::mutex> lk(mu);
+        if (!pending.empty()) return;   // the worker is still writing: skip this frame
+    }
+    lastMs = nowMs;
+    GLint vp[4] = {0, 0, 0, 0};
+    glGetIntegerv(GL_VIEWPORT, vp);
+    const int w = vp[2], h = vp[3];
+    if (w <= 1 || h <= 1) return;
+    static std::vector<unsigned char> px;
+    px.resize((size_t)w * h * 4);
+    GLint prevFbo = 0;
+    if (scanFbo) { glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo); glBindFramebuffer(GL_FRAMEBUFFER, scanFbo); }
+    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, px.data());
+    if (scanFbo) glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)prevFbo);
+    const int tw = ow > 0 ? ow : w / 2, th = oh > 0 ? oh : h / 2;
+    std::vector<unsigned char> out((size_t)tw * th * 3);
+    if (tw * 2 == w && th * 2 == h) {
+        // half size: a 2x2 box, the common case, kept cheap
+        for (int oy = 0; oy < th; oy++) {   // top row first; glReadPixels is bottom-up
+            const unsigned char* r0 = px.data() + (size_t)(h - 2 - oy * 2) * w * 4;
+            const unsigned char* r1 = r0 + (size_t)w * 4;
+            unsigned char* o = out.data() + (size_t)oy * tw * 3;
+            for (int x = 0; x < tw; x++, r0 += 8, r1 += 8, o += 3)
+                for (int c = 0; c < 3; c++) o[c] = (unsigned char)((r0[c] + r0[4 + c] + r1[c] + r1[4 + c] + 2) / 4);
+        }
+    } else {
+        int cw = w, ch = h;
+        if ((long)w * th > (long)h * tw) cw = (int)((long)h * tw / th); else ch = (int)((long)w * th / tw);
+        const int cx = (w - cw) / 2, cy = (h - ch) / 2;
+        for (int oy = 0; oy < th; oy++) {
+            const int sy0 = cy + ch - 1 - (int)((long)(oy + 1) * ch / th) + 1;
+            const int sy1 = std::max(sy0 + 1, cy + ch - (int)((long)oy * ch / th));
+            unsigned char* o = out.data() + (size_t)oy * tw * 3;
+            for (int ox = 0; ox < tw; ox++, o += 3) {
+                const int sx0 = cx + (int)((long)ox * cw / tw);
+                const int sx1 = std::max(sx0 + 1, cx + (int)((long)(ox + 1) * cw / tw));
+                int sum[3] = {0, 0, 0}, n = 0;
+                for (int sy = sy0; sy < sy1; sy++)
+                    for (int sx = sx0; sx < sx1; sx++) {
+                        const unsigned char* sp = px.data() + ((size_t)sy * w + sx) * 4;
+                        sum[0] += sp[0]; sum[1] += sp[1]; sum[2] += sp[2]; n++;
+                    }
+                for (int c = 0; c < 3; c++) o[c] = (unsigned char)((sum[c] + n / 2) / n);
+            }
+        }
+    }
+    char path[512];
+    snprintf(path, sizeof(path), "%s/f_%010lld.png", dir.c_str(), (long long)nowMs);
+    {
+        std::lock_guard<std::mutex> lk(mu);
+        pending.swap(out);
+        pendingPath = path;
+        pendingW = tw; pendingH = th;
+    }
+    cv.notify_one();
+}
+
 void maybeNanoScreenshot() {
     static const prop_info* pi = nullptr; static uint32_t ser = 0; static bool have = false;
-    nanoScreenshotProp(pi, ser, have,
-                       "sys.gammaos.nano.shot", "/data/local/tmp/nano_shot.ppm",
-                       (sDrmActive && sDrmZeroCopy) ? sAhbTarget.scanFbo : 0);
+    const GLuint scanFbo = (sDrmActive && sDrmZeroCopy) ? sAhbTarget.scanFbo : 0;
+    nanoScreenshotProp(pi, ser, have, "sys.gammaos.nano.shot", "/data/local/tmp/nano_shot.ppm", scanFbo);
+    nanoRecCapture(scanFbo);
 }
 
 // Background watchdog: if render() stops bumping mRenderHeartbeat for ~8s the

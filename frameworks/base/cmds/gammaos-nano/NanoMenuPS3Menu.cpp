@@ -15852,7 +15852,12 @@ std::string NanoMenu::validateWizField(int field, const std::string& val) {
 
 void NanoMenu::wizConfirm() {
     WizDesc d; wizDesc(mPs3WizId, d);
-    if (d.kind == WK_TEXT || d.kind == WK_PROGRESS) return;   // OSK owns text; progress auto-advances
+    if (d.kind == WK_TEXT) {
+        // the keyboard owns the text; confirm on the page with the keyboard away reopens it
+        if (!mOskActive) mPs3WizPendingTextField = d.field;
+        return;
+    }
+    if (d.kind == WK_PROGRESS) return;   // progress auto-advances
     // ---- Accessory: Bluetooth wizard selects ----
     if (mPs3WizId == WS_BT_MANAGE) {          // dynamic: [Turn On] | Register / Receive + bonded + Turn Off
         if (!mBtWizRadioOn) {                 // radio off: only "Turn Bluetooth On"
@@ -16321,7 +16326,12 @@ void NanoMenu::ctrWizView(CtrWizView* v) {
         return;
     }
     case WK_TEXT:
-        return;   // the keyboard alone (its prompt line names the field)
+        // the keyboard alone (its prompt line names the field); the field's name as the body
+        // for a host that explains the page beside the keyboard (the setup wizard)
+        // (one line: the keyboard's own prompt names the field; a key page names the network)
+        v->body = d.label && *d.label ? trDyn(d.label) : std::string();
+        if ((d.field == WF_WPA_KEY || d.field == WF_WEP_KEY) && !mPs3WizSsid.empty()) v->body = mPs3WizSsid;
+        return;
     case WK_CHOOSER: {
         v->kind = CtrWizView::List;
         std::vector<std::string> opts;

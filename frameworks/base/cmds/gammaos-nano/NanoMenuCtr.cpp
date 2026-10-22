@@ -47,6 +47,14 @@ static const char* kCtrAssetDirs[] = {
     "/system/etc/nano_ctr",
 };
 
+std::string NanoMenu::ctrAssetRoot(const char* probeFile) const {
+    for (const char* d : kCtrAssetDirs) {
+        struct stat st;
+        if (stat((std::string(d) + "/" + probeFile).c_str(), &st) == 0) return d;
+    }
+    return std::string();
+}
+
 // ---------------------------------------------------------------------------------------- host
 
 class NanoCtrHost : public ctr::CtrHomeHost, public ctr::MyMenuStore {
@@ -2206,13 +2214,22 @@ void NanoMenu::ctrModalUpdate() {
 // with the wiz* handlers; the wizard's state machine runs here so it also runs where nothing
 // else draws the wizard (one panel).
 void NanoMenu::ctrWizUpdate() {
+    std::string title;
+    ctrWizSync(mCtrPanel, mCtrDialog, &mCtrPanelWasShown, &title);
+}
+
+int NanoMenu::ctrWizSync(ctr::CtrPanel* panel, ctr::CtrDialog* dialog, bool* panelShown, std::string* title) {
     netWizardTick();
     CtrWizView v;
     ctrWizView(&v);
     const bool list = v.kind == CtrWizView::List;
+    if (title) *title = v.title;
     // a dialog page of the wizard opens over whatever panel was up (the Network Settings
     // list it was started from), as the console's dialogs do, with the top screen kept
-    mCtrHome->setTopBannerHidden(list || mCtrPanelWasShown);
+    if (mCtrHome && mCtrHome->loaded() && panel == mCtrPanel) mCtrHome->setTopBannerHidden(list || *panelShown);
+    ctr::CtrPanel* mCtrPanel = panel;      // the rest of this function addresses the given pair
+    ctr::CtrDialog* mCtrDialog = dialog;
+    bool& mCtrPanelWasShown = *panelShown;
     if (list) {
         std::vector<ctr::PanelRow> rows;
         for (const auto& w : v.rows) {
@@ -2243,6 +2260,7 @@ void NanoMenu::ctrWizUpdate() {
         mCtrDialog->setWait(std::string());
         mCtrDialog->hide(true);
     }
+    return (int)v.kind;
 }
 
 // The boxart scraper (and the boxart folder move) and the MTP screen as the console's dialogs:
@@ -2939,7 +2957,7 @@ bool NanoMenu::ctrDualPanel() const {
 
 // Layout width a screen gets in a rectangle: wider than its design width when the rectangle is
 // (widescreen adaptation, persist.gammaos.nano.ctr.widen, default on), capped at 2.4:1.
-static float ctrScreenWidth(bool top, float rw, float rh) {
+float ctrScreenWidth(bool top, float rw, float rh) {
     const float design = top ? 400.0f : 320.0f;
     if (rh <= 0 || !property_get_bool("persist.gammaos.nano.ctr.widen", true)) return design;
     return std::clamp(240.0f * rw / rh, design, 240.0f * 2.4f);
@@ -2948,7 +2966,7 @@ static float ctrScreenWidth(bool top, float rw, float rh) {
 // Layout height of the top screen in a rectangle: taller than its design 240 when the rectangle
 // is narrower than 5:3 (3:2, 4:3), up to 4:3. Beyond that the wall model's curved ends would show
 // at the top and bottom, so squarer and portrait panels letterbox the rest.
-static float ctrTopHeight(float rw, float rh) {
+float ctrTopHeight(float rw, float rh) {
     if (rw <= 0 || !property_get_bool("persist.gammaos.nano.ctr.widen", true)) return 240.0f;
     return std::clamp(400.0f * rh / rw, 240.0f, 300.0f);
 }
@@ -2990,7 +3008,7 @@ static void ctrTestTopRect(float W, float H, float* rx, float* ry, float* rw, fl
 }
 
 // Contain-fit a screen of lw x lh layout units into a rectangle (centred).
-static void ctrFit(float lw, float lh, float rx, float ry, float rw, float rh, float* ox, float* oy, float* ow, float* oh) {
+void ctrFit(float lw, float lh, float rx, float ry, float rw, float rh, float* ox, float* oy, float* ow, float* oh) {
     const float s = std::min(rw / lw, rh / lh);
     *ow = lw * s;
     *oh = lh * s;

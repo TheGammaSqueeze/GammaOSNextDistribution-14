@@ -60,6 +60,7 @@ static const char* VS_GLOBE =
 static const char* FS_GLOBE =
     "precision highp float;\n"
     "uniform vec2 uRes; uniform vec2 uCenter; uniform float uR; uniform float uLon; uniform float uLat;\n"
+    "uniform float uTransparent;\n"
     "uniform sampler2D uDay, uNight, uClouds;\n"
     "const float PI=3.14159265;\n"
     "mat3 rotY(float a){ float s=sin(a),c=cos(a); return mat3(c,0.,-s, 0.,1.,0., s,0.,c); }\n"
@@ -73,6 +74,7 @@ static const char* FS_GLOBE =
     "     float g=smoothstep(1.30,1.0,sqrt(r2));\n"
     "     float lit=clamp(dot(normalize(vec3(d.x,-d.y,0.001)),vec3(-0.7,0.4,0.))*0.5+0.5,0.,1.);\n"
     "     vec3 space=vec3(0.012,0.022,0.05);\n"
+    "     if(uTransparent>0.5){ gl_FragColor=vec4(vec3(0.27,0.5,0.92)*lit, g*0.85); return; }\n"
     "     gl_FragColor=vec4(space + vec3(0.27,0.5,0.92)*g*0.6*lit, 1.0); return;\n"
     "  }\n"
     "  float z=sqrt(max(0.,1.0-r2));\n"
@@ -108,7 +110,7 @@ static const char* FS_COMP =
     "varying vec2 vUV;\n"
     "uniform sampler2D uTex;\n"
     "uniform float uAlpha;\n"
-    "void main(){ gl_FragColor = vec4(texture2D(uTex, vUV).rgb, uAlpha); }\n";
+    "void main(){ vec4 t = texture2D(uTex, vUV); gl_FragColor = vec4(t.rgb, t.a * uAlpha); }\n";
 
 // ---------------------------------------------------------------------------
 // state
@@ -120,6 +122,12 @@ static bool   sReady = false;
 static GLuint sGlobeProg = 0;
 static GLint  sGPos = -1, sGRes = -1, sGCenter = -1, sGR = -1, sGLon = -1, sGLat = -1;
 static GLint  sGDay = -1, sGNight = -1, sGClouds = -1;
+static GLint  sGTransparent = -1;
+// The disc's place in the frame (fractions of the frame, radius of its height) and whether
+// the space around it is drawn (the XMB: opaque space) or only the atmosphere halo over the
+// caller's background (the 3DS wizard's light wall).
+static float  sPlaceX = 0.43f, sPlaceY = 0.49f, sPlaceR = 0.50f;
+static bool   sTransparent = false;
 
 static GLuint sCompProg = 0;
 static GLint  sCPos = -1, sCUV = -1, sCTex = -1, sCRot = -1, sCAlpha = -1;
@@ -290,6 +298,7 @@ bool init() {
             sGDay    = glGetUniformLocation(sGlobeProg, "uDay");
             sGNight  = glGetUniformLocation(sGlobeProg, "uNight");
             sGClouds = glGetUniformLocation(sGlobeProg, "uClouds");
+    sGTransparent = glGetUniformLocation(sGlobeProg, "uTransparent");
         }
         if (sCompProg) {
             sCPos   = glGetAttribLocation(sCompProg, "aPos");
@@ -345,6 +354,16 @@ void tick(float dt) {
     sLat += (sTgtLat - sLat) * k;
 }
 
+void setPlacement(float cx, float cy, float r, bool transparentSpace) {
+    sPlaceX = cx; sPlaceY = cy; sPlaceR = r;
+    sTransparent = transparentSpace;
+}
+
+void resetPlacement() {
+    sPlaceX = 0.43f; sPlaceY = 0.49f; sPlaceR = 0.50f;
+    sTransparent = false;
+}
+
 void render(int panelW, int panelH, const float rotMat2[4], float alpha) {
     if (!sReady && !init()) return;
     if (alpha <= 0.0f) return;
@@ -363,12 +382,14 @@ void render(int panelW, int panelH, const float rotMat2[4], float alpha) {
     glBindFramebuffer(GL_FRAMEBUFFER, sFbo);
     glViewport(0, 0, fw, fh);
     glDisable(GL_BLEND);
-    glClearColor(0.012f, 0.022f, 0.05f, 1.0f);   // web renderGlobe clear (index.html 10367)
+    if (sTransparent) glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    else glClearColor(0.012f, 0.022f, 0.05f, 1.0f);   // web renderGlobe clear (index.html 10367)
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(sGlobeProg);
     glUniform2f(sGRes, (float)fw, (float)fh);
-    glUniform2f(sGCenter, 0.43f * (float)fw, 0.49f * (float)fh);   // index.html 10372
-    glUniform1f(sGR, 0.50f * (float)fh);                            // index.html 10373
+    glUniform2f(sGCenter, sPlaceX * (float)fw, sPlaceY * (float)fh);   // index.html 10372 (0.43, 0.49)
+    glUniform1f(sGR, sPlaceR * (float)fh);                              // index.html 10373 (0.50)
+    if (sGTransparent >= 0) glUniform1f(sGTransparent, sTransparent ? 1.0f : 0.0f);
     glUniform1f(sGLon, sLon);
     glUniform1f(sGLat, sLat);
     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, sTexDay);    glUniform1i(sGDay, 0);

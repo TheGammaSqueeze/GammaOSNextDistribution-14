@@ -87,6 +87,8 @@ double lineWidth(const Pane* p, const std::u32string& text) {
 }
 
 // Word wraps `text` to the text box's width (message bodies; the console's dialogs wrap).
+}  // namespace
+
 std::string wrapText(const Pane* p, const std::string& text) {
     if (!p || !p->font) return text;
     const double room = p->size[0] + p->growW;
@@ -120,6 +122,8 @@ std::string wrapText(const Pane* p, const std::string& text) {
     }
     return utf8;
 }
+
+namespace {
 
 // Wraps `text` into a text box and, when the block comes out taller than the box, shrinks the
 // font (and the line spacing with it) in 5 percent steps, down to half size, until it fits.
@@ -840,14 +844,14 @@ void CtrPanel::drawBottom(Renderer& r) {
     assignSlots();
     auto probe = [&](const char* n) { if (CtrHome::perfMark) { r.flushNow(); CtrHome::perfMark(n); } };
     probe("p.mask");
-    r.drawLayout(mMask->layout());
+    if (!mBare) r.drawLayout(mMask->layout());
     probe("p.bg");
     Pane* scene0 = mBg->pane("N_Scene_00");
     Pane* scene1 = mBg->pane("N_Scene_01");
     Pane* wrp = mBg->pane("N_Wrp_00");
     Pane* slideHost = mBg->pane("N_SlideBar_00");
     Pane* closeHost = mBg->pane("N_PetitBtn_00");
-    if (scene0) r.drawPane(mBg->layout(), scene0);
+    if (scene0 && !mBare) r.drawPane(mBg->layout(), scene0);
     probe("p.rows");
     // rows, then the cursor, under the list wrapper
     for (std::vector<Slot>* pool : {&mButtons, &mToggles, &mValues, &mTexts})
@@ -879,8 +883,8 @@ void CtrPanel::drawBottom(Renderer& r) {
         mSlider->layout().calculate();
         r.drawLayout(mSlider->layout());
     }
-    if (scene1) r.drawPane(mBg->layout(), scene1);
-    if (closeHost) {
+    if (scene1 && !mBare) r.drawPane(mBg->layout(), scene1);
+    if (closeHost && !mCloseHidden && !mBare) {
         float cx, cy;
         paneOrigin(closeHost, &cx, &cy);
         Pane* root = mClose->layout().root;
@@ -959,7 +963,17 @@ void CtrDialog::set(const std::string& text, const std::vector<std::string>& but
         Pane* body = mLay->pane("TextBoxDialog");
         // a long notice (the IPTV and Internet Radio disclaimers) is shrunk to the box: it used
         // to run off its top and bottom and under the buttons
-        mLay->setText("TextBoxDialog", fitTextBlock(body, text, mBodyFont, mBodyLineSpace));
+        // a body of more than three lines at the console's size reads cramped on the wide
+        // card: it starts from 85 percent (and shrinks further only if it still overflows)
+        float base[2] = {mBodyFont[0], mBodyFont[1]};
+        float space = mBodyLineSpace;
+        {
+            body->fontSize[0] = base[0]; body->fontSize[1] = base[1]; body->lineSpace = space;
+            int lines = 1;
+            for (char c : wrapText(body, text)) if (c == '\n') lines++;
+            if (lines > 3) { base[0] *= 0.85f; base[1] *= 0.85f; space *= 0.85f; }
+        }
+        mLay->setText("TextBoxDialog", fitTextBlock(body, text, base, space));
         fitText(body);   // a word longer than the box is narrowed
     }
     if (buttons != mButtonText) {
@@ -995,6 +1009,9 @@ void CtrDialog::setProgress(const std::string& text, float fraction) {
         mBar = A.create("progbar", "ProgBar");
         mBarClip = nullptr;
         mProgText.clear();
+        if (Pane* body = mProg ? mProg->pane("T_00") : nullptr) {
+            mProgFont[0] = body->fontSize[0]; mProgFont[1] = body->fontSize[1]; mProgLineSpace = body->lineSpace;
+        }
         if (mBar) {
             PlayOptions o;
             o.loop = 0;
@@ -1007,7 +1024,7 @@ void CtrDialog::setProgress(const std::string& text, float fraction) {
     if (text != mProgText) {
         mProgText = text;
         Pane* body = mProg->pane("T_00");
-        mProg->setText("T_00", wrapText(body, text));
+        mProg->setText("T_00", fitTextBlock(body, text, mProgFont, mProgLineSpace));
         fitText(body);
     }
     if (fraction != mProgFrac) {
@@ -1027,6 +1044,9 @@ void CtrDialog::setWait(const std::string& text) {
         mWait = A.create("waiticon", "DlgWaitIcon_00");
         mWaitIcon = A.create("waiticon", "WaitIcon");
         mWaitText.clear();
+        if (Pane* body = mWait ? mWait->pane("T_00") : nullptr) {
+            mWaitFont[0] = body->fontSize[0]; mWaitFont[1] = body->fontSize[1]; mWaitLineSpace = body->lineSpace;
+        }
     }
     if (!mWait || !mWaitIcon) return;
     if (!mWaitOn) {
@@ -1040,7 +1060,8 @@ void CtrDialog::setWait(const std::string& text) {
     if (text != mWaitText) {
         mWaitText = text;
         Pane* body = mWait->pane("T_00");
-        mWait->setText("T_00", wrapText(body, text));
+        // a long line (a progress report) shrinks to the box instead of running off it
+        mWait->setText("T_00", fitTextBlock(body, text, mWaitFont, mWaitLineSpace));
         fitText(body);
     }
 }
@@ -1168,7 +1189,7 @@ int CtrDialog::touch(bool down, bool up, float x, float y) {
 
 void CtrDialog::drawBottom(Renderer& r) {
     if (mPhase == Hidden || !mLay) return;
-    if (mMaskBottom) {
+    if (mMaskBottom && !mMaskHidden) {
         mMaskBottom->layout().adaptWidth(mWidth, Layout::Adapt::Edge);
         r.drawLayout(mMaskBottom->layout());
     }

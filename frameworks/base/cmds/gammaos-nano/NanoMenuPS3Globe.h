@@ -71,6 +71,11 @@ void tick(float dt);
 // alpha (0 = invisible, 1 = fully opaque, fully covering whatever is behind).
 // The caller must have ps3::layoutCompute()'d for this panel first.
 void render(int panelW, int panelH, const float rotMat2[4], float alpha);
+// Where the disc sits in the frame (fractions of the frame width / height, radius as a fraction
+// of the height) and whether the space around it is left out (only the atmosphere halo is drawn,
+// over whatever the caller painted). resetPlacement() returns to the XMB's 0.43 / 0.49 / 0.50.
+void setPlacement(float cx, float cy, float r, bool transparentSpace);
+void resetPlacement();
 
 } // namespace ps3globe
 } // namespace android

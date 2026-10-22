@@ -89,6 +89,8 @@ cc_binary {
         "NanoCtrRom.cpp",          // 3DS theme: 3DS ROM parsing (SMDH icon, CBMD banner, sound)
         "NanoCtrArt.cpp",          // 3DS theme: per game art cache (worker + disk cache)
         "NanoMenuCtr.cpp",         // 3DS theme: nano adapter
+        "NanoMenuCtrSetup.cpp",    // 3DS theme: the first-run setup wizard in the console's layouts
+        "NanoCtrSetup.cpp",        // 3DS theme: the setup wizard's top screen scene
         "NanoEsdeTheme.cpp",
         "NanoThemeEngine.cpp",
         "NanoMenuEsdeMenu.cpp",

@@ -748,8 +748,10 @@ OskBox NanoMenu::oskLayoutBox() {
     // Field editors (Syncthing labels and IDs, system names, passwords) get their prompt on
     // its own line; the wizard draws the value into its dialog field and the search OSK keeps
     // its one-line "Search:" preview.
-    // (the 3DS theme's wizard has no field of its own: the keyboard shows the value there too)
-    const bool promptLine = (mOskPasswordCallback || mOskPasswordMode) && !(mPs3WizActive && !ctrWizThemed())
+    // (the 3DS theme's wizard and setup have no field of their own: the keyboard shows the
+    // value there too)
+    const bool promptLine = (mOskPasswordCallback || mOskPasswordMode)
+                            && !(mPs3WizActive && !ctrWizThemed() && !ctrSetupThemed())
                             && !mOskPasswordPrompt.empty();
     return oskComputeBox(mWidth, mHeight, actLabelPx, promptLine);
 }
@@ -1303,7 +1305,10 @@ void NanoMenu::closeOsk() {
     if (mOsk.miniOpen) { oskClosePopup(); mDisplayDirty = true; return; }
     if (mOsk.im) { mOsk.im->reset(); mOsk.candidates.clear(); }
     mOsk.closing = true;   // fade out (renderOsk finalizes mOskActive=false)
-    if (mOskPasswordMode) {
+    // A wizard text field is a field whether it masks (keys, passwords) or not (SSID, IP,
+    // host name): plaintext ones used to skip this and strand the wizard on a page whose
+    // only control was the keyboard that just left.
+    if (mOskPasswordMode || (mPs3WizActive && mOskPasswordCallback)) {
         mOskPasswordMode = false;
         mOskPlaintext = false;
         mOskPasswordPrompt.clear();
@@ -1396,7 +1401,10 @@ void NanoMenu::renderOsk() {
     // off here regardless of the caller's state.
     setGlyphAtlasAA(false);
     // Minima OSK: flat text (no shadow/outline) to match the theme; restored before every return.
-    const int oskPrevOutline = mTextOutlineMode; if (mMinimaTheme) mTextOutlineMode = 2;
+    // The 3DS look (the theme's network wizard and its first-run setup) draws the keyboard as a
+    // light card with ink glyphs, flat too.
+    const bool ctrSkin = mCtrTheme && (mSetupWizardActive ? ctrSetupThemed() : ctrWizThemed());
+    const int oskPrevOutline = mTextOutlineMode; if (mMinimaTheme || ctrSkin) mTextOutlineMode = 2;
     oskTick();   // long-press popup + animation clock (render runs every frame)
 
     // --- Show/hide fade ---
@@ -1441,6 +1449,16 @@ void NanoMenu::renderOsk() {
         kFocTxtR = 0.0f; kFocTxtG = 0.0f; kFocTxtB = 0.0f;  // black on the white focused cap
         accR = ar; accG = ag; accB = ab;
     }
+    // 3DS skin: the console's light grey keys, ink glyphs, its blue for the focused cap, the
+    // active shift and the action button (white glyphs on those).
+    const float kSoftR = 0.42f, kSoftG = 0.43f, kSoftB = 0.48f;   // prompt / footer on the card
+    if (ctrSkin) {
+        kBgR = 0.86f; kBgG = 0.87f; kBgB = 0.90f;
+        kTxtR = 0.23f; kTxtG = 0.23f; kTxtB = 0.27f;
+        kFocTxtR = 1.0f; kFocTxtG = 1.0f; kFocTxtB = 1.0f;
+        accR = 47.0f / 255.0f; accG = 138.0f / 255.0f; accB = 214.0f / 255.0f;
+        oskAtc = 1.0f;
+    }
 
     // --- Frosted-glass panel ---
     // The panel NEVER re-captures the framebuffer while open any more: the old
@@ -1455,7 +1473,13 @@ void NanoMenu::renderOsk() {
     // never refreshes that blur, so reusing it shows a green frost over a purple screen.
     // Exclude mMpActive so the player's OSK captures the current (purple) framebuffer
     // via the capture path below instead.
-    if (frostBufferSharedWithClock()) {
+    if (ctrSkin) {
+        // the card: a white sheet with a thin grey edge, no frost (the wall behind is plain)
+        drawRoundedRect(b.panelX - 1.5f * b.sf, b.panelY - 1.5f * b.sf, b.panelW + 3.0f * b.sf,
+                        b.panelH + 3.0f * b.sf, panelRad + 1.5f * b.sf, 0.72f, 0.73f, 0.78f, 0.9f * fade);
+        drawRoundedRect(b.panelX, b.panelY, b.panelW, b.panelH, panelRad, 0.98f, 0.98f, 0.99f, 0.98f * fade);
+        drewGlass = true;
+    } else if (frostBufferSharedWithClock()) {
         // Dual-screen BOTTOM panel with the PSP clock: the clock owns the shared mGlassBlurTex (it writes
         // its glow there each frame just before the OSK draws) and the visible panel scene includes the
         // clock itself, so neither reusing the blur nor a framebuffer capture yields a clean, stable
@@ -1522,7 +1546,7 @@ void NanoMenu::renderOsk() {
             if (sel)
                 drawRoundedRect(cx - 6.0f * b.sf, cy - 3.0f * b.sf,
                                 tw + 12.0f * b.sf, FONT_CHAR_H * chipScale + 6.0f * b.sf,
-                                7.0f * b.sf, 1.0f, 1.0f, 1.0f, 0.92f * fade);
+                                7.0f * b.sf, ctrSkin ? accR : 1.0f, ctrSkin ? accG : 1.0f, ctrSkin ? accB : 1.0f, 0.92f * fade);
             drawText(cand.c_str(), cx, cy, chipScale,
                      sel ? kFocTxtR : accR, sel ? kFocTxtG : accG,
                      sel ? kFocTxtB : accB, fade);
@@ -1538,14 +1562,14 @@ void NanoMenu::renderOsk() {
     // Game Systems editor) show the field name plus the CURRENT value the
     // opener prefilled, so editing starts from the existing text and the user
     // sees what they are modifying.
-    if (!(mOskPasswordCallback && mPs3WizActive && !ctrWizThemed())) {
+    if (!(mOskPasswordCallback && mPs3WizActive && !ctrWizThemed() && !ctrSetupThemed())) {
         std::string label, value;
         float pr, pg, pb;
         if (mOskPasswordCallback || mOskPasswordMode) {
             if (b.promptLine) {
                 // Guidance on its own line, the typed text alone on the next.
                 drawText(trDyn(mOskPasswordPrompt.c_str()), b.previewX, b.promptY, 1.5f * b.sf,
-                         1.0f, 0.78f, 0.40f, 0.9f * fade);
+                         ctrSkin ? kSoftR : 1.0f, ctrSkin ? kSoftG : 0.78f, ctrSkin ? kSoftB : 0.40f, 0.9f * fade);
                 label = "";
             } else {
                 label = std::string(mOskPasswordPrompt.empty() ? trDyn("Text") : trDyn(mOskPasswordPrompt.c_str())) + ": ";
@@ -1558,6 +1582,9 @@ void NanoMenu::renderOsk() {
             value = mOskQuery;
             pr = 0.45f; pg = 0.78f; pb = 1.0f;
         }
+        if (ctrSkin) { pr = kSoftR; pg = kSoftG; pb = kSoftB; }
+        // the typed value and its caret: white on the dark skins, ink on the 3DS card
+        const float vR = ctrSkin ? kTxtR : 1.0f, vG = ctrSkin ? kTxtG : 1.0f, vB = ctrSkin ? kTxtB : 1.0f;
         std::string composing = mOsk.im ? mOsk.im->composingText() : std::string();
         float ps = 2.0f * b.sf;
         float y = b.previewY;
@@ -1582,9 +1609,9 @@ void NanoMenu::renderOsk() {
             float minx = b.previewX + lw + 12.0f * b.sf;
             float vx = rightEdge - vw;
             if (vx < minx) vx = minx;
-            drawText(value.c_str(), vx, y, ps, 1.0f, 1.0f, 1.0f, fade);
+            drawText(value.c_str(), vx, y, ps, vR, vG, vB, fade);
             drawQuad(vx - 4.0f * b.sf, y, 2.0f * b.sf, FONT_CHAR_H * ps,
-                     1.0f, 1.0f, 1.0f, blink * fade);
+                     vR, vG, vB, blink * fade);
         } else if (nanoTextHasRtl(value.c_str())) {
             // LTR-first value with an embedded RTL run (e.g. a prefilled name
             // being edited): draw the WHOLE value in one call so drawText's
@@ -1592,14 +1619,14 @@ void NanoMenu::renderOsk() {
             // split+window path below would bidi-transform each half of the
             // value independently and garble the RTL run as the caret moves.
             float x = b.previewX + lw;
-            drawText(value.c_str(), x, y, ps, 1.0f, 1.0f, 1.0f, fade);
+            drawText(value.c_str(), x, y, ps, vR, vG, vB, fade);
             float vw = measureText(value.c_str(), ps);
             if (!composing.empty()) {
                 drawText(composing.c_str(), x + vw, y, ps, 0.6f, 0.9f, 1.0f, fade);
                 vw += measureText(composing.c_str(), ps);
             }
             drawQuad(x + vw + 2.0f * b.sf, y, 2.0f * b.sf, FONT_CHAR_H * ps,
-                     1.0f, 1.0f, 1.0f, blink * fade);
+                     vR, vG, vB, blink * fade);
         } else {
             int caret = mOsk.caret;
             if (caret < 0) caret = 0;
@@ -1629,7 +1656,7 @@ void NanoMenu::renderOsk() {
                                              (size_t)(winEnd - caret));
             float x = b.previewX + lw;
             if (!before.empty()) {
-                drawText(before.c_str(), x, y, ps, 1.0f, 1.0f, 1.0f, fade);
+                drawText(before.c_str(), x, y, ps, vR, vG, vB, fade);
                 x += measureText(before.c_str(), ps);
             }
             if (!composing.empty()) {
@@ -1638,9 +1665,9 @@ void NanoMenu::renderOsk() {
                 drawQuad(x, y + FONT_CHAR_H * ps, uw, 2.0f * b.sf, 0.6f, 0.9f, 1.0f, 0.9f * fade);
                 x += uw;
             }
-            drawQuad(x, y, 2.0f * b.sf, FONT_CHAR_H * ps, 1.0f, 1.0f, 1.0f, blink * fade);
+            drawQuad(x, y, 2.0f * b.sf, FONT_CHAR_H * ps, vR, vG, vB, blink * fade);
             if (!after.empty())
-                drawText(after.c_str(), x + 2.0f * b.sf, y, ps, 1.0f, 1.0f, 1.0f, fade);
+                drawText(after.c_str(), x + 2.0f * b.sf, y, ps, vR, vG, vB, fade);
         }
     }
 
@@ -1649,7 +1676,7 @@ void NanoMenu::renderOsk() {
         float ls = 1.5f * b.sf;
         float lw = measureText(mOsk.langLabel, ls);
         drawText(mOsk.langLabel, b.panelX + b.panelW - lw - 12.0f * b.sf,
-                 b.previewY, ls, 0.45f, 0.78f, 1.0f, 0.9f * fade);
+                 b.previewY, ls, ctrSkin ? accR : 0.45f, ctrSkin ? accG : 0.78f, ctrSkin ? accB : 1.0f, 0.9f * fade);
     }
 
     // Helper: draw a single key cap (rounded) + its label/glyph.
@@ -1659,7 +1686,8 @@ void NanoMenu::renderOsk() {
         bool isAccentShift = (key.code == OSK_SHIFT && mOsk.shift != SHIFT_OFF);
         // cap fill (remember the colour so the backspace icon's cut-out matches)
         float capR, capG, capB, capA;
-        if (focused)            { capR = 0.96f; capG = 0.97f; capB = 0.99f; capA = 0.97f; }
+        if (focused && ctrSkin) { capR = accR;  capG = accG;  capB = accB;  capA = 1.0f; }
+        else if (focused)       { capR = 0.96f; capG = 0.97f; capB = 0.99f; capA = 0.97f; }
         else if (isAccentShift) { capR = accR;  capG = accG;  capB = accB;  capA = 0.85f; }
         else                    { capR = kBgR;  capG = kBgG;  capB = kBgB;  capA = kBgA; }
         drawRoundedRect(bx, by, bw, bh, keyRad, capR, capG, capB, capA * dim * fade);
@@ -1713,8 +1741,8 @@ void NanoMenu::renderOsk() {
             float ss = 1.0f * b.sf;
             float sw = measureText(sup, ss);
             drawText(sup, bx + bw - sw - 4.0f * b.sf, by + 3.0f * b.sf, ss,
-                     focused ? kFocTxtR : 0.60f, focused ? kFocTxtG : 0.64f,
-                     focused ? kFocTxtB : 0.72f, 0.85f * dim * fade);
+                     focused ? kFocTxtR : (ctrSkin ? 0.45f : 0.60f), focused ? kFocTxtG : (ctrSkin ? 0.46f : 0.64f),
+                     focused ? kFocTxtB : (ctrSkin ? 0.52f : 0.72f), 0.85f * dim * fade);
         }
     };
 
@@ -1744,8 +1772,10 @@ void NanoMenu::renderOsk() {
             keyRect(b, fx, cell.fw, orow.fy, orow.fh, x, y, w, h);
             float bx = x + keyGap, by = y + keyGap, bw = w - 2 * keyGap, bh = h - 2 * keyGap;
             bool sel = (i == mOsk.miniFocus);
-            if (sel) drawRoundedRect(bx, by, bw, bh, keyRad, 0.96f, 0.97f, 0.99f, 0.97f * fade);
-            else     drawRoundedRect(bx, by, bw, bh, keyRad, 0.20f, 0.24f, 0.30f, 0.96f * fade);
+            if (sel && ctrSkin) drawRoundedRect(bx, by, bw, bh, keyRad, accR, accG, accB, fade);
+            else if (sel)       drawRoundedRect(bx, by, bw, bh, keyRad, 0.96f, 0.97f, 0.99f, 0.97f * fade);
+            else if (ctrSkin)   drawRoundedRect(bx, by, bw, bh, keyRad, 0.93f, 0.94f, 0.96f, fade);
+            else                drawRoundedRect(bx, by, bw, bh, keyRad, 0.20f, 0.24f, 0.30f, 0.96f * fade);
             std::string text = cell.label ? cell.label : "";
             if (cell.caseFoldable && mOsk.shift != SHIFT_OFF) text = utf8Upper(text);
             float scale = 1.85f * b.sf;
@@ -1763,10 +1793,12 @@ void NanoMenu::renderOsk() {
         const char* actLabel = trDyn(mOskPasswordCallback ? "Enter" : "Search");
         float scale = 1.6f * b.sf;
         bool foc = mOsk.inAction;
-        if (foc) drawRoundedRect(b.actX, b.actY, b.actW, b.actH, keyRad,
-                                 0.96f, 0.97f, 0.99f, 0.97f * fade);
-        else     drawRoundedRect(b.actX, b.actY, b.actW, b.actH, keyRad,
-                                 accR, accG, accB, 0.92f * fade);
+        if (foc && ctrSkin) drawRoundedRect(b.actX, b.actY, b.actW, b.actH, keyRad,
+                                            accR * 0.72f, accG * 0.72f, accB * 0.72f, fade);   // pressed: a deeper blue
+        else if (foc) drawRoundedRect(b.actX, b.actY, b.actW, b.actH, keyRad,
+                                      0.96f, 0.97f, 0.99f, 0.97f * fade);
+        else          drawRoundedRect(b.actX, b.actY, b.actW, b.actH, keyRad,
+                                      accR, accG, accB, 0.92f * fade);
         float tw = measureText(actLabel, scale);
         float th = FONT_CHAR_H * scale;
         if (foc) drawText(actLabel, b.actX + (b.actW - tw) / 2.0f, b.actY + (b.actH - th) / 2.0f,
@@ -1783,7 +1815,7 @@ void NanoMenu::renderOsk() {
             : "A:Key  X:Back  Y:Paste  L:Shift  R:Sym  Sel:Lang  Start:Search  B:Cancel");
         float fw = measureText(footer, fScale);
         drawText(footer, b.panelX + b.panelW / 2.0f - fw / 2.0f, b.footerY, fScale,
-                 0.58f, 0.60f, 0.68f, 0.80f * fade);
+                 ctrSkin ? kSoftR : 0.58f, ctrSkin ? kSoftG : 0.60f, ctrSkin ? kSoftB : 0.68f, (ctrSkin ? 1.0f : 0.80f) * fade);
     }
     mTextOutlineMode = oskPrevOutline;
 }

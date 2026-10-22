@@ -49,6 +49,9 @@ struct PanelHit {
 
 using SoundFn = std::function<void(const char*)>;
 
+// A text wrapped to a text pane's box at its font (word breaks, long words broken).
+std::string wrapText(const Pane* p, const std::string& text);
+
 class CtrPanel {
 public:
     CtrPanel(Assets& assets, SoundFn sound);
@@ -76,8 +79,15 @@ public:
     void drawBottom(Renderer& r);
     void drawTop(Renderer& r);
     void releaseGl();
+    // No close button (a list driven by the buttons alone, on a screen without touch).
+    void setCloseHidden(bool hidden) { mCloseHidden = hidden; }
+    // Bare: only the rows, the cursor and the slider, no window, mask or close button (the
+    // rows laid on another screen's background).
+    void setBare(bool bare) { mBare = bare; }
 
 private:
+    bool mCloseHidden = false;
+    bool mBare = false;
     struct Slot {
         std::unique_ptr<LayoutInstance> lay;
         std::unique_ptr<LayoutInstance> lay2;   // Value rows: the button under the header
@@ -163,6 +173,8 @@ public:
     // window's N_Obj_00. An empty text removes it.
     void setWait(const std::string& text);
     bool hasWait() const { return mWaitOn; }
+    // The window without the screen mask under it (a wait dialog beside other content).
+    void setMaskHidden(bool hidden) { mMaskHidden = hidden; }
     // A layout of the caller's (the My Menu thumbnails) hung under the window's N_Obj_00 and drawn
     // with it in place of the message; null removes it. The caller updates it.
     void setContent(LayoutInstance* content) { mContent = content; }
@@ -179,6 +191,8 @@ private:
     enum Phase { Hidden, Opening, Shown, Closing };
     bool load(int buttons);
     float mBodyFont[2] = {0, 0}, mBodyLineSpace = 0;   // the message box's own metrics (fitTextBlock)
+    float mWaitFont[2] = {0, 0}, mWaitLineSpace = 0;   // the wait body's
+    float mProgFont[2] = {0, 0}, mProgLineSpace = 0;   // the progress body's
     void placeProgress();
     bool barSpan(float* left, float* right, float* bottom, float* top) const;
     Assets& A;
@@ -195,6 +209,7 @@ private:
     LayoutInstance* mContent = nullptr;
     void placeWait();
     bool mProgDrag = false;
+    bool mMaskHidden = false;
     int mLayButtons = -1;
     std::string mText;
     std::vector<std::string> mButtonText;

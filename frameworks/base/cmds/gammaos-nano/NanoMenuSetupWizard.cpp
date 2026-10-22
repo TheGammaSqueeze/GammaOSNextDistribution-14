@@ -169,7 +169,7 @@ void NanoMenu::startSetupWizard() {
     mMenuState = MENU_SETUP_WIZARD;
     mLangSelected = 0;
     mLangScrollTop = 0;
-    mGreetingIndex = rand() % 14;
+    mGreetingIndex = rand() % 14;   // kGreetings (declared below) has 14 entries
     nanoInitLocaleFromSystem();
     mLangSelected = (int)nanoGetLocale();
     buildTimezoneList();
@@ -253,6 +253,7 @@ void NanoMenu::finishSetupWizard() {
     // here, the same way the cold-boot disclaimer path does, so audio survives
     // setup completion on a fresh (factory-reset) device.
     mSfxPlayer.init();
+    ctrSetupRelease();   // the 3DS wizard scene; the HOME Menu loads its own assets next
 
     ALOGI("NanoMenu: setup wizard finished, device provisioned");
 }
@@ -468,7 +469,8 @@ void NanoMenu::updateSetupTransition() {
     if (!mSetupTransitioning) return;
 
     bool forward = (int)mSetupTransitionTarget > (int)mSetupStep;
-    float speed = 0.08f;
+    // the 3DS look lets the console's 21 frame fade-outs finish before the next step comes up
+    float speed = ctrSetupThemed() ? 0.042f : 0.08f;
 
     mSetupTransitionAlpha -= speed;
     float slideDir = forward ? -1.0f : 1.0f;
@@ -542,7 +544,8 @@ void NanoMenu::handleSetupSelect() {
         advanceSetupStep();
         break;
     case SETUP_INSTALLING:
-        // Can't skip, wait for completion
+        // Can't skip; once done A continues like Start
+        if (mSetupScriptDone) advanceSetupStep();
         break;
     case SETUP_FINISH:
         finishSetupWizard();
@@ -730,26 +733,67 @@ void NanoMenu::renderSetupNdsBackdrop() {
     }
 }
 
-void NanoMenu::renderSetupWizard() {
-    updateSetupTransition();
-    // Debug/test hook: jump straight to a setup step for on-device 1:1 screenshot
-    // verification. `setprop sys.gammaos.nano.setup_step_jump <n>` (0=welcome ..
-    // installing/finish). Does NOT start setup.sh, so the installing screen shows
-    // the animated (running) progress bar. Self-clears; no effect when empty.
-    {
-        char sj[PROPERTY_VALUE_MAX] = {0};
-        if (property_get("sys.gammaos.nano.setup_step_jump", sj, "") > 0 && sj[0]) {
-            property_set("sys.gammaos.nano.setup_step_jump", "");
-            int s = atoi(sj);
-            if (s >= 0 && s < SETUP_STEP_COUNT) {
-                mSetupStep = (SetupWizardStep)s;
-                mSetupTransitioning = false;
-                mSetupTransitionAlpha = 1.0f;
-                mSetupSlideOffset = 0.0f;
-                mSetupScriptPending = false;
-            }
+// Debug/test hook: jump straight to a setup step for on-device 1:1 screenshot
+// verification. `setprop sys.gammaos.nano.setup_step_jump <n>` (0=welcome ..
+// installing/finish). Does NOT start setup.sh, so the installing screen shows
+// the animated (running) progress bar. Self-clears; no effect when empty.
+void NanoMenu::setupStepJumpHook() {
+    char sj[PROPERTY_VALUE_MAX] = {0};
+    if (property_get("sys.gammaos.nano.setup_step_jump", sj, "") > 0 && sj[0]) {
+        property_set("sys.gammaos.nano.setup_step_jump", "");
+        int s = atoi(sj);
+        if (s >= 0 && s < SETUP_STEP_COUNT) {
+            mSetupStep = (SetupWizardStep)s;
+            mSetupTransitioning = false;
+            mSetupTransitionAlpha = 1.0f;
+            mSetupSlideOffset = 0.0f;
+            mSetupScriptPending = false;
         }
     }
+}
+
+void NanoMenu::setupInstallTick() {
+    // Launch setup.sh only after the enter transition into the installing step has
+    // fully faded in AND settled for a short grace period. setup.sh saturates the CPU
+    // the instant it starts (dexopt, app installs, payload extraction); starting it
+    // during (or on the last frame of) the animation stutters it, so we wait until a
+    // few clean 60fps frames have been presented at the settled position.
+    if (mSetupStep == SETUP_INSTALLING && mSetupScriptPending &&
+            !mSetupTransitioning && mSetupTransitionAlpha >= 1.0f &&
+            mSetupSlideOffset == 0.0f) {
+        int64_t now = elapsedRealtime();
+        if (mSetupScriptReadyMs == 0) {
+            mSetupScriptReadyMs = now + 250;    // arm the grace timer
+        } else if (now >= mSetupScriptReadyMs) {
+            mSetupScriptPending = false;
+            mSetupScriptReadyMs = 0;
+            startSetupScript();
+        }
+    }
+
+    // Auto-advance: once setup.sh has finished, move on to the finish screen by itself after
+    // 10 s. The "Continue" footer hint with its Start glyph left people unsure what to press
+    // (reported 2026-09-27), and there is nothing left to decide on this screen. Pressing
+    // Start still continues at once.
+    if (mSetupStep == SETUP_INSTALLING && mSetupScriptDone && !mSetupTransitioning) {
+        const int64_t now = elapsedRealtime();
+        if (mSetupScriptDoneMs == 0) mSetupScriptDoneMs = now;
+        else if (now - mSetupScriptDoneMs >= 10000) {
+            ALOGI("NanoMenu: setup script finished 10 s ago, continuing to the finish screen");
+            mSetupScriptDoneMs = 0;
+            advanceSetupStep();
+        }
+    }
+}
+
+void NanoMenu::renderSetupWizard() {
+    // The 3DS theme draws the wizard with the console's layouts (NanoMenuCtrSetup.cpp)
+    if (mCtrTheme && ctrSetupEnsure() && ctrSetupThemed()) {
+        renderCtrSetup();
+        return;
+    }
+    updateSetupTransition();
+    setupStepJumpHook();
     // DSi theme: paint the DSi background + dim/blue behind the whole wizard first, so every
     // step (the XMB-forced Wi-Fi/Bluetooth net wizard, and the language/timezone/installing/
     // finish steps below) sits on the DSi backdrop instead of the PS3 wave. The net-wizard
@@ -810,37 +854,7 @@ void NanoMenu::renderSetupWizard() {
         }
     }
 
-    // Launch setup.sh only after the enter transition into the installing step has
-    // fully faded in AND settled for a short grace period. setup.sh saturates the CPU
-    // the instant it starts (dexopt, app installs, payload extraction); starting it
-    // during (or on the last frame of) the animation stutters it, so we wait until a
-    // few clean 60fps frames have been presented at the settled position.
-    if (mSetupStep == SETUP_INSTALLING && mSetupScriptPending &&
-            !mSetupTransitioning && mSetupTransitionAlpha >= 1.0f &&
-            mSetupSlideOffset == 0.0f) {
-        int64_t now = elapsedRealtime();
-        if (mSetupScriptReadyMs == 0) {
-            mSetupScriptReadyMs = now + 250;    // arm the grace timer
-        } else if (now >= mSetupScriptReadyMs) {
-            mSetupScriptPending = false;
-            mSetupScriptReadyMs = 0;
-            startSetupScript();
-        }
-    }
-
-    // Auto-advance: once setup.sh has finished, move on to the finish screen by itself after
-    // 10 s. The "Continue" footer hint with its Start glyph left people unsure what to press
-    // (reported 2026-09-27), and there is nothing left to decide on this screen. Pressing
-    // Start still continues at once.
-    if (mSetupStep == SETUP_INSTALLING && mSetupScriptDone && !mSetupTransitioning) {
-        const int64_t now = elapsedRealtime();
-        if (mSetupScriptDoneMs == 0) mSetupScriptDoneMs = now;
-        else if (now - mSetupScriptDoneMs >= 10000) {
-            ALOGI("NanoMenu: setup script finished 10 s ago, continuing to the finish screen");
-            mSetupScriptDoneMs = 0;
-            advanceSetupStep();
-        }
-    }
+    setupInstallTick();
 
     // Light dim over wallpaper (skip on welcome for clean iOS-style look; skip on
     // the timezone step too - the 3D globe is its own opaque backdrop, matching
@@ -900,45 +914,43 @@ void NanoMenu::drawSetupSkipHint() {
     mTextOutlineRatio = savedRatio;
 }
 
-void NanoMenu::renderSetupWelcome() {
-    // iOS-style greeting animation: large centered greeting word that
-    // cycles through languages with a smooth cross-fade + vertical slide.
-    // Hold ~3s, fade out ~0.5s, fade in next ~0.5s.
-    static const struct { const char* greeting; const char* lang; } kGreetings[] = {
-        {"Hello",
-         "English"},
-        {"Hola",
-         "Espa\xC3\xB1ol"},
-        {"Bonjour",
-         "Fran\xC3\xA7""ais"},
-        {"Hallo",
-         "Deutsch"},
-        {"Ciao",
-         "Italiano"},
-        {"Ol\xC3\xA1",
-         "Portugu\xC3\xAAs"},
-        {"Hallo",
-         "Nederlands"},
+// iOS-style greeting animation: large centered greeting word that
+// cycles through languages with a smooth cross-fade + vertical slide.
+// Hold ~3s, fade out ~0.5s, fade in next ~0.5s.
+static const struct { const char* greeting; const char* lang; const char* prompt; } kGreetings[] = {
+        {"Hello", "English", "Press A to begin"},
+        {"Hola", "Espa\xC3\xB1ol", "Pulsa A para empezar"},
+        {"Bonjour", "Fran\xC3\xA7""ais", "Appuyez sur A pour commencer"},
+        {"Hallo", "Deutsch", "Dr\xC3\xBC""cke A, um zu beginnen"},
+        {"Ciao", "Italiano", "Premi A per iniziare"},
+        {"Ol\xC3\xA1", "Portugu\xC3\xAAs", "Pressione A para come\xC3\xA7""ar"},
+        {"Hallo", "Nederlands", "Druk op A om te beginnen"},
         {"\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82",
-         "\xD0\xA0\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9"},
+         "\xD0\xA0\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9",
+         "\xD0\x9D\xD0\xB0\xD0\xB6\xD0\xBC\xD0\xB8\xD1\x82\xD0\xB5 A, \xD1\x87\xD1\x82\xD0\xBE\xD0\xB1\xD1\x8B \xD0\xBD\xD0\xB0\xD1\x87\xD0\xB0\xD1\x82\xD1\x8C"},
         {"\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF",
-         "\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E"},
+         "\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E",
+         "A\xE3\x83\x9C\xE3\x82\xBF\xE3\x83\xB3\xE3\x82\x92\xE6\x8A\xBC\xE3\x81\x97\xE3\x81\xA6\xE3\x81\x8F\xE3\x81\xA0\xE3\x81\x95\xE3\x81\x84"},
         {"\xEC\x95\x88\xEB\x85\x95\xED\x95\x98\xEC\x84\xB8\xEC\x9A\x94",
-         "\xED\x95\x9C\xEA\xB5\xAD\xEC\x96\xB4"},
+         "\xED\x95\x9C\xEA\xB5\xAD\xEC\x96\xB4",
+         "A \xEB\xB2\x84\xED\x8A\xBC\xEC\x9D\x84 \xEB\x88\x8C\xEB\x9F\xAC \xEC\x8B\x9C\xEC\x9E\x91\xED\x95\x98\xEC\x84\xB8\xEC\x9A\x94"},
         {"\xE4\xBD\xA0\xE5\xA5\xBD",
-         "\xE4\xB8\xAD\xE6\x96\x87"},
+         "\xE4\xB8\xAD\xE6\x96\x87",
+         "\xE6\x8C\x89 A \xE9\x94\xAE\xE5\xBC\x80\xE5\xA7\x8B"},
         {"\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7",
-         "\xD8\xA7\xD9\x84\xD8\xB9\xD8\xB1\xD8\xA8\xD9\x8A\xD8\xA9"},
-        {"Merhaba",
-         "T\xC3\xBCrk\xC3\xA7""e"},
-        {"Cze\xC5\x9B\xC4\x87",
-         "Polski"},
+         "\xD8\xA7\xD9\x84\xD8\xB9\xD8\xB1\xD8\xA8\xD9\x8A\xD8\xA9",
+         "\xD8\xA7\xD8\xB6\xD8\xBA\xD8\xB7 A \xD9\x84\xD9\x84\xD8\xA8\xD8\xAF\xD8\xA1"},
+        {"Merhaba", "T\xC3\xBCrk\xC3\xA7""e", "Ba\xC5\x9Flamak i\xC3\xA7in A'ya bas\xC4\xB1n"},
+        {"Cze\xC5\x9B\xC4\x87", "Polski", "Naci\xC5\x9Bnij A, aby rozpocz\xC4\x85\xC4\x87"},
     };
-    static const int kNumGreetings = sizeof(kGreetings) / sizeof(kGreetings[0]);
+static const int kNumGreetings = sizeof(kGreetings) / sizeof(kGreetings[0]);
 
+// One frame of the greeting cycle, shared by the XMB and 3DS welcome screens: the eased
+// visibility (0..1), the slide / zoom of the current transition type, and the word + language.
+void NanoMenu::setupGreetingTick(float* easeTOut, float* offXOut, float* offYOut, float* scaleMulOut,
+                                 const char** word, const char** lang, const char** prompt) {
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;
-    float alpha = mSetupTransitionAlpha;
 
     // Transition types:
     //   0 = slide up        1 = slide down
@@ -1010,9 +1022,26 @@ void NanoMenu::renderSetupWelcome() {
         else offsetX = (1.0f - easeT) * maxSlideX;
         break;
     }
+    if (mGreetingIndex < 0 || mGreetingIndex >= kNumGreetings) mGreetingIndex = 0;
+    *easeTOut = easeT;
+    *offXOut = offsetX;
+    *offYOut = offsetY;
+    *scaleMulOut = scaleMul;
+    *word = kGreetings[mGreetingIndex].greeting;
+    *lang = kGreetings[mGreetingIndex].lang;
+    if (prompt) *prompt = kGreetings[mGreetingIndex].prompt;
+}
+
+void NanoMenu::renderSetupWelcome() {
+    float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
+    if (sf < 0.5f) sf = 0.5f;
+    float alpha = mSetupTransitionAlpha;
+    float easeT, offsetX, offsetY, scaleMul;
+    const char* greeting = nullptr;
+    const char* langName = nullptr;
+    setupGreetingTick(&easeT, &offsetX, &offsetY, &scaleMul, &greeting, &langName);
 
     float greetScale = 6.0f * sf * scaleMul;
-    const char* greeting = kGreetings[mGreetingIndex].greeting;
     float greetW = measureText(greeting, greetScale);
     float greetX = ((float)mWidth - greetW) / 2.0f + offsetX;
     float greetY = (float)mHeight * 0.38f + offsetY;
@@ -1030,7 +1059,6 @@ void NanoMenu::renderSetupWelcome() {
 
     // Language label with matched transition
     float langScale = 1.6f * sf * fminf(scaleMul, 1.1f);
-    const char* langName = kGreetings[mGreetingIndex].lang;
     float langW = measureText(langName, langScale);
     float langX = ((float)mWidth - langW) / 2.0f + offsetX * 0.6f;
     float langY = greetY + FONT_CHAR_H * greetScale + 14.0f * sf + offsetY * 0.3f;

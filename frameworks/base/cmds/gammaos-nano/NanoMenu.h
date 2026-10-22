@@ -89,7 +89,14 @@ void nanoBootRecCapture(bool secondary);
 // 3DS theme test hook sys.gammaos.nano.ctr.screensize (NanoMenuCtr.cpp)
 bool ctrTestScreenRect(float W, float H, float* rx, float* ry, float* rw, float* rh);
 }
-namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; struct PanelRow; class RomArt; struct ThemeBody; class CtrBootSplash; } }   // ES-DE theme engine model (fourth home theme)
+namespace android { namespace ctr { class CtrHome; class CtrAudio; class CtrPanel; class CtrDialog; struct PanelRow; class RomArt; struct ThemeBody; class CtrBootSplash; class CtrSetupScene; } }
+namespace android {
+// the 3DS theme's screen geometry (NanoMenuCtr.cpp): the layout width of a screen drawn in a
+// rectangle of that aspect, the top screen's layout height, and the letterboxed fit
+float ctrScreenWidth(bool top, float rw, float rh);
+float ctrTopHeight(float rw, float rh);
+void ctrFit(float lw, float lh, float rx, float ry, float rw, float rh, float* ox, float* oy, float* ow, float* oh);
+}   // ES-DE theme engine model (fourth home theme)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -715,6 +722,12 @@ private:
     void startSetupWizard();
     void finishSetupWizard();
     void renderSetupWizard();
+    // Parts of the wizard frame shared by the themed painters (NanoMenuSetupWizard.cpp)
+    void setupStepJumpHook();        // sys.gammaos.nano.setup_step_jump test hook
+    void setupInstallTick();         // setup.sh launch grace + the automatic continue when it is done
+    // The welcome greeting's cycle: the eased visibility, its slide / zoom offsets and the word
+    void setupGreetingTick(float* easeT, float* offX, float* offY, float* scaleMul, const char** word,
+                           const char** lang, const char** prompt = nullptr);
     // Overlay a "Start: Skip" hint (top-right) on the Wireless / Bluetooth steps
     // so the user knows Start skips them. Drawn on top of the net/BT wizard.
     void drawSetupSkipHint();
@@ -1677,6 +1690,18 @@ private:
     void ctrBootNotice(float rx, float ry, float rw, float rh, bool touch);     // the notice to dismiss
     void ctrBootRelease();
     ctr::CtrBootSplash* mCtrBoot = nullptr;
+    // The first-run setup wizard in the 3DS look (NanoMenuCtrSetup.cpp, NanoCtrSetup): the
+    // console's layouts on the top screen only, from their own assets (the HOME Menu stays
+    // unloaded until setup finishes). renderSetupWizard dispatches here when it is up.
+    ctr::CtrSetupScene* mCtrSetup = nullptr;
+    bool mCtrSetupFailed = false;        // the assets are missing: the wizard keeps the shared chrome
+    int mCtrSetupLastStep = -1;
+    bool mCtrSetupPanelShown = false;    // the net wizard's list panel is up under its dialogs
+    bool ctrSetupThemed() const;
+    bool ctrSetupEnsure();
+    void ctrSetupRelease();
+    void renderCtrSetup();
+    std::string ctrAssetRoot(const char* probeFile) const;   // where the packs are ("" when absent)
     void ctrDrawScreen(bool top, float rx, float ry, float rw, float rh);
     bool ctrDualPanel() const;
     void ctrBottomRect(float& rx, float& ry, float& rw, float& rh) const;
@@ -5303,6 +5328,9 @@ private:
     struct CtrStatusView { std::string text; std::vector<std::string> buttons; float fraction = -1; bool wait = false; };
     bool ctrStatusView(CtrStatusView* v);
     void ctrWizUpdate();
+    // Feeds a panel and a dialog from the net wizard's view; returns the view kind (CtrWizView::Kind)
+    // and its title. `panelShown` tracks the list panel staying up under the wizard's dialogs.
+    int ctrWizSync(ctr::CtrPanel* panel, ctr::CtrDialog* dialog, bool* panelShown, std::string* title);
     bool ctrWizTouch(bool down, bool held, bool up, float x, float y);
     void ctrWizView(CtrWizView* v);
     // DSi-theme painter for the WiFi/Bluetooth setup wizard: renderNetWizard() runs the
