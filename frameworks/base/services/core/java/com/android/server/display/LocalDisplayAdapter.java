@@ -2628,6 +2628,13 @@ final class LocalDisplayAdapter extends DisplayAdapter {
 
         // Set backlight within min and max backlight values
         void setBacklight(float sdrBacklight, float sdrNits, float backlight, float nits) {
+            if (mIsFirstDisplay) {
+                mGammaLastSdr = sdrBacklight;
+                mGammaLastSdrNits = sdrNits;
+                mGammaLastBacklight = backlight;
+                mGammaLastNits = nits;
+                gammaScheduleBootProbe();
+            }
             // GammaOS split mode: bypass HAL and drive sysfs directly per display.
             if (GammaSplitBacklight.isEnabled()) {
                 // Split mode: always bypass SurfaceControl brightness and Lights HAL.
@@ -2650,6 +2657,85 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 mBacklight.setBrightness(backlight);
             }
             if (mIsFirstDisplay) gammaMirrorToSecondary(backlight);
+        }
+
+        // GammaOS: on the RP Duo Lite's first boot after a system flash the top panel's first
+        // mode set came 72 s into boot, while the DSI panel still ran the bootloader's splash
+        // configuration, and the kernel refused it as a mode switch on the first frame. From
+        // then on the panel driver rejected every backlight update (EINVAL on the sysfs node,
+        // NoResources from the composer): the top brightness was stuck until the first sleep
+        // and wake power-cycled the panel. Probe once a few seconds after the first brightness
+        // write by writing the node's own value back; if the kernel refuses it, do what the
+        // wake does: power the display off and on through SurfaceFlinger and reapply the level.
+        private float mGammaLastSdr, mGammaLastSdrNits, mGammaLastBacklight, mGammaLastNits;
+        private boolean mGammaBootProbeScheduled;
+        private boolean mGammaBootProbeDone;
+        private static final long GAMMA_BOOT_PROBE_DELAY_MS = 4000;
+        private static final int GAMMA_BOOT_PROBE_TRIES = 5;   // the node may read 0 before the HAL lands
+
+        private void gammaScheduleBootProbe() {
+            if (mGammaBootProbeDone || mGammaBootProbeScheduled) return;
+            final String dir = android.os.SystemProperties.get(
+                    "persist.gammaos.multidisplay.split_brightness.d0.path", "");
+            if (dir.isEmpty()) {
+                mGammaBootProbeDone = true;
+                return;
+            }
+            mGammaBootProbeScheduled = true;
+            com.android.internal.os.BackgroundThread.getHandler().postDelayed(
+                    () -> gammaBootProbe(new java.io.File(dir, "brightness"),
+                            GAMMA_BOOT_PROBE_TRIES), GAMMA_BOOT_PROBE_DELAY_MS);
+        }
+
+        private void gammaBootProbe(java.io.File node, int triesLeft) {
+            if (mGammaBootProbeDone) return;
+            if (mLastPowerState != Display.STATE_ON) {
+                // Not a verdict while the display is off; try again later.
+                if (triesLeft > 1) {
+                    com.android.internal.os.BackgroundThread.getHandler().postDelayed(
+                            () -> gammaBootProbe(node, triesLeft - 1), GAMMA_BOOT_PROBE_DELAY_MS);
+                } else {
+                    mGammaBootProbeDone = true;
+                }
+                return;
+            }
+            final int cur = gammaReadSysfsInt(node);
+            if (cur <= 0) {
+                if (triesLeft > 1) {
+                    com.android.internal.os.BackgroundThread.getHandler().postDelayed(
+                            () -> gammaBootProbe(node, triesLeft - 1), GAMMA_BOOT_PROBE_DELAY_MS);
+                } else {
+                    mGammaBootProbeDone = true;
+                }
+                return;
+            }
+            mGammaBootProbeDone = true;
+            try {
+                android.os.FileUtils.stringToFile(node, Integer.toString(cur));
+                Slog.i(TAG, "GammaOS: primary backlight probe ok at " + cur);
+                return;
+            } catch (java.io.IOException e) {
+                final String msg = String.valueOf(e.getMessage());
+                if (!msg.contains("EINVAL") && !msg.contains("Invalid argument")) {
+                    Slog.i(TAG, "GammaOS: primary backlight probe not possible: " + msg);
+                    return;
+                }
+                Slog.w(TAG, "GammaOS: primary backlight refuses updates after boot (" + msg
+                        + "), power-cycling the display once");
+            }
+            try {
+                mSurfaceControlProxy.setDisplayPowerMode(mDisplayToken, SurfaceControl.POWER_MODE_OFF);
+                android.os.SystemClock.sleep(300);
+                mSurfaceControlProxy.setDisplayPowerMode(mDisplayToken, SurfaceControl.POWER_MODE_NORMAL);
+                android.os.SystemClock.sleep(200);
+                setBacklight(mGammaLastSdr, mGammaLastSdrNits, mGammaLastBacklight, mGammaLastNits);
+                android.os.SystemClock.sleep(500);
+                android.os.FileUtils.stringToFile(node, Integer.toString(gammaReadSysfsInt(node)));
+                Slog.i(TAG, "GammaOS: primary backlight accepts updates after the power cycle");
+            } catch (Exception e) {
+                Slog.w(TAG, "GammaOS: primary backlight still refused after the power cycle: "
+                        + e.getMessage());
+            }
         }
 
         // GammaOS: with split brightness off, one slider drives both panels. The HAL and
