@@ -203,6 +203,13 @@ void drmResolveTurnedTargets(int idx);
 // panel's matrix. Call from the render thread, before the frame's passes. Identity (both) restores
 // the direct AHB rendering.
 void drmSetColorMatrix(const float top[12], const float bottom[12], bool identity);
+// The global shader (persist.gammaos.shader.*, see NanoGlobalShader): while on, both rings render
+// through the scratch and the resolve runs the effect over each panel before the blit.
+// `apply` post-processes one panel's scratch (panel, texture, w, h, install degrees) and returns
+// the texture to present (0 = unchanged); `release` drops its GL objects on DRM teardown.
+typedef GLuint (*DrmShaderApplyFn)(int, GLuint, int, int, int);
+typedef void (*DrmShaderReleaseFn)();
+void drmSetGlobalShader(bool on, DrmShaderApplyFn apply, DrmShaderReleaseFn release);
 // Physical mount rotation (degrees) of the panel on a display port, read from the
 // same props SurfaceFlinger applies as that display's physical orientation
 // (getPhysicalDisplayOrientation): persist.gsf.rot.<displayId> (a DSI panel's

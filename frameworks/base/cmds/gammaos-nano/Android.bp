@@ -59,6 +59,7 @@ cc_binary {
         "NanoMenuSettingsTree.cpp",
         "NanoScreenCal.cpp",
         "NanoColorMatrix.cpp",
+        "NanoGlobalShader.cpp",
         "NanoMenuSettingsRender.cpp",
         "NanoMenuRender.cpp",
         "NanoMenuOverlay.cpp",
@@ -200,6 +201,7 @@ cc_binary {
 
     init_rc: ["gammaos-nano.rc"],
     required: [
+        "nano_shaderc",
         "nano-ce-unlock.sh",
         "nano-pmdown.sh",
         "joypad_uevent_fixup.sh",
@@ -628,4 +630,27 @@ prebuilt_etc {
     name: "nano_ctr_sound",
     srcs: ["ctr3ds/sound/*.wav"],
     sub_dir: "nano_ctr/sound",
+}
+
+// The home's slang compiler (NanoShaderCompiler.cpp): glslang and SPIRV-Cross turn a RetroArch
+// .slang stage pair into GLSL ES for the DRM home's global shader chain. A separate program so
+// the compilers never sit in the home's locked memory and a failing shader cannot abort the home.
+cc_binary {
+    name: "nano_shaderc",
+    srcs: ["NanoShaderCompiler.cpp"],
+    cflags: [
+        "-Wall",
+        "-Wno-unused-parameter",
+        "-DSPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS",
+    ],
+    static_libs: [
+        "libglslang_ra",
+        "libspirv_cross_ra",
+    ],
+    include_dirs: [
+        "external/glslang",
+        "external/glslang/glslang/Public",
+        "external/glslang/SPIRV",
+        "external/spirv-cross",
+    ],
 }

@@ -75,6 +75,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "NanoCtrAudio.h"
 #include "NanoMenu.h"
 #include "NanoColorMatrix.h"
+#include "NanoGlobalShader.h"
 #include "NanoScreenCal.h"
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuStrings.h"  // NanoLocale / LocaleInfo / nanoGetLocaleInfo (DSi language picker)
@@ -6306,6 +6307,9 @@ void NanoMenu::render() {
             drmSetColorMatrix(top.m, bottom.m, top.identity && bottom.identity);
             sColorMatrixSet = true;
         }
+        // The global shader (CRT / LCD / blur-fill / RetroArch presets) over each panel, as
+        // SurfaceFlinger applies it to everything it composes.
+        drmSetGlobalShader(gshader::poll(), gshader::apply, gshader::releaseGl);
     }
 
     // Renders into sAhbTargetSecondary which drmFlipAll() will blit to every

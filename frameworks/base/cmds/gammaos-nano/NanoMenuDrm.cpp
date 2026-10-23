@@ -102,6 +102,12 @@ static GLint sTurnPosLoc = -1, sTurnUvLoc = -1, sTurnTexLoc = -1, sTurnCmLoc = -
 // non-identity matrix enables for both rings (the scratch render + one blit per panel, the
 // turned-panel path) instead of a readback of the AHB, which stalls the tiler.
 static float sDrmColorM[2][12] = {{1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}, {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}};   // primary, secondary ring
+static bool sDrmColorIdentity = true;
+static bool sDrmShaderOn = false;        // the global shader (NanoGlobalShader) runs over each panel
+// The home installs its post-process here (drmSetGlobalShader); drastic-nano, which shares this
+// file, never does and keeps its own screen shaders.
+static DrmShaderApplyFn sDrmShaderApply = nullptr;
+static DrmShaderReleaseFn sDrmShaderRelease = nullptr;
 static bool sDrmColorAttached = false;   // the rings' untouched slots render through the scratch
 
 static GLuint drmTurnCompile(GLenum type, const char* src) {
@@ -178,8 +184,8 @@ static void drmTurnAttach(AhbRenderTarget* t, TurnScratch* s, const char* label)
     t->glFbo = s->fbo;
 }
 
-static void drmTurnBlit(AhbRenderTarget& t, const TurnScratch& s, bool turn180, const float* colorM) {
-    if (!t.scanFbo || !s.tex || !sTurnProg) return;
+static void drmTurnBlit(AhbRenderTarget& t, GLuint srcTex, bool turn180, const float* colorM) {
+    if (!t.scanFbo || !srcTex || !sTurnProg) return;
     GLint prevFbo = 0, prevProg = 0, prevTex = 0, prevActive = 0, prevArray = 0, prevVp[4] = {0, 0, 0, 0};
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
     glGetIntegerv(GL_CURRENT_PROGRAM, &prevProg);
@@ -198,7 +204,7 @@ static void drmTurnBlit(AhbRenderTarget& t, const TurnScratch& s, bool turn180, 
     glViewport(0, 0, (GLsizei)t.w, (GLsizei)t.h);
     glDisable(GL_BLEND); glDisable(GL_SCISSOR_TEST); glDisable(GL_DEPTH_TEST); glDisable(GL_CULL_FACE);
     glUseProgram(sTurnProg);
-    glBindTexture(GL_TEXTURE_2D, s.tex);
+    glBindTexture(GL_TEXTURE_2D, srcTex);
     glUniform1i(sTurnTexLoc, 0);
     if (sTurnCmLoc >= 0) glUniformMatrix3fv(sTurnCmLoc, 1, GL_FALSE, colorM);
     if (sTurnCmOffLoc >= 0) glUniform3fv(sTurnCmOffLoc, 1, colorM + 9);
@@ -230,26 +236,38 @@ static void drmTurnBlit(AhbRenderTarget& t, const TurnScratch& s, bool turn180, 
 
 void drmResolveTurnedTargets(int idx) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return;
-    if (sDrmPrimaryTurned || sDrmColorAttached)
-        drmTurnBlit(sAhbRingPrimary[idx], sTurnPrimary, sDrmPrimaryTurned, sDrmColorM[0]);
-    if (sDrmSecondaryTurned || sDrmColorAttached)
-        drmTurnBlit(sAhbRingSecondary[idx], sTurnSecondary, sDrmSecondaryTurned, sDrmColorM[1]);
+    // The global shader runs over the scratch (the finished, untransformed panel frame) and the
+    // resolve blit then samples its output: turned and colour corrected into the scanout AHB.
+    if (sDrmPrimaryTurned || sDrmColorAttached) {
+        GLuint tex = sTurnPrimary.tex;
+        if (sDrmShaderOn && sDrmShaderApply && tex) {
+            const GLuint o = sDrmShaderApply(0, tex, (int)sTurnPrimary.w, (int)sTurnPrimary.h, sDrmRotationDeg);
+            if (o) tex = o;
+        }
+        drmTurnBlit(sAhbRingPrimary[idx], tex, sDrmPrimaryTurned, sDrmColorM[0]);
+    }
+    if (sDrmSecondaryTurned || sDrmColorAttached) {
+        GLuint tex = sTurnSecondary.tex;
+        if (sDrmShaderOn && sDrmShaderApply && tex) {
+            const GLuint o = sDrmShaderApply(1, tex, (int)sTurnSecondary.w, (int)sTurnSecondary.h, sDrmRotationDegSecondary);
+            if (o) tex = o;
+        }
+        drmTurnBlit(sAhbRingSecondary[idx], tex, sDrmSecondaryTurned, sDrmColorM[1]);
+    }
 }
 
-void drmSetColorMatrix(const float top[12], const float bottom[12], bool identity) {
-    // the primary ring scans the top panel, the secondary ring the bottom one
-    for (int i = 0; i < 12; i++) { sDrmColorM[0][i] = top[i]; sDrmColorM[1][i] = bottom[i]; }
-    if (!identity && !sDrmColorAttached) {
-        // Every slot of both rings renders through the scratch from now on (the turned ring
-        // already does); the resolve blit applies the matrix. GL context required.
+// Both post effects share the scratch: the rings render through it while either is active.
+static void drmPostUpdateAttach() {
+    const bool want = !sDrmColorIdentity || sDrmShaderOn;
+    if (want && !sDrmColorAttached) {
         for (int i = 0; i < AHB_RING_DEPTH; i++) {
             if (sAhbRingPrimary[i].glFbo)   drmTurnAttach(&sAhbRingPrimary[i],   &sTurnPrimary,   "primary");
             if (sAhbRingSecondary[i].glFbo) drmTurnAttach(&sAhbRingSecondary[i], &sTurnSecondary, "secondary");
         }
         sDrmColorAttached = true;
-        ALOGI("NanoMenu DRM: colour transform on, panels resolve through the scratch");
-    } else if (identity && sDrmColorAttached) {
-        // Back to rendering straight into the AHBs; a turned ring keeps its scratch.
+        ALOGI("NanoMenu DRM: post effects on (colour %s, shader %s), panels resolve through the scratch",
+              sDrmColorIdentity ? "identity" : "set", sDrmShaderOn ? "on" : "off");
+    } else if (!want && sDrmColorAttached) {
         for (int i = 0; i < AHB_RING_DEPTH; i++) {
             AhbRenderTarget& p = sAhbRingPrimary[i];
             if (!sDrmPrimaryTurned && p.scanFbo) { p.glFbo = p.scanFbo; p.scanFbo = 0; }
@@ -257,9 +275,25 @@ void drmSetColorMatrix(const float top[12], const float bottom[12], bool identit
             if (!sDrmSecondaryTurned && q.scanFbo) { q.glFbo = q.scanFbo; q.scanFbo = 0; }
         }
         sDrmColorAttached = false;
-        ALOGI("NanoMenu DRM: colour transform off");
+        ALOGI("NanoMenu DRM: post effects off");
     }
 }
+
+void drmSetGlobalShader(bool on, DrmShaderApplyFn apply, DrmShaderReleaseFn release) {
+    sDrmShaderApply = apply;
+    sDrmShaderRelease = release;
+    if (sDrmShaderOn == (on && apply != nullptr)) return;
+    sDrmShaderOn = on && apply != nullptr;
+    drmPostUpdateAttach();
+}
+
+void drmSetColorMatrix(const float top[12], const float bottom[12], bool identity) {
+    // the primary ring scans the top panel, the secondary ring the bottom one
+    for (int i = 0; i < 12; i++) { sDrmColorM[0][i] = top[i]; sDrmColorM[1][i] = bottom[i]; }
+    sDrmColorIdentity = identity;
+    drmPostUpdateAttach();
+}
+
 
 int drmPanelMountRotationDeg(int port) {
     if (port <= 0) return 0;   // port 0 is SurfaceFlinger's primary: ro.surface_flinger.primary_display_orientation
@@ -4038,6 +4072,8 @@ void drmStop() {
     // port 1 panel's physical orientation itself, so drop the DRM-only fold too.
     sDrmPrimaryTurned = sDrmSecondaryTurned = false;
     sDrmColorAttached = false;   // the rings go with the scratch; a new DRM session re-attaches
+    sDrmShaderOn = false;
+    if (sDrmShaderRelease) sDrmShaderRelease();
     for (TurnScratch* s : { &sTurnPrimary, &sTurnSecondary }) {
         if (s->fbo) glDeleteFramebuffers(1, &s->fbo);
         if (s->tex) glDeleteTextures(1, &s->tex);
