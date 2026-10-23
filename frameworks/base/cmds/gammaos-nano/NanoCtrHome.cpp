@@ -615,6 +615,7 @@ struct CtrHome::Impl {
     // nano's top hint bars (setTopHintArt / setCategoryCube): the hamburger on X at the left, the
     // category cube at the right where the console's camera pictogram was
     TexturePtr hintMenuTex, hintXTex;
+    int hintMenuW = 0, hintMenuH = 0, hintXW = 0, hintXH = 0;
     std::unique_ptr<CategoryCube> cube;
     // a hidden pane's place: its parent's laid out position plus its own offset (an invisible
     // pane is not laid out)
@@ -628,27 +629,38 @@ struct CtrHome::Impl {
     void drawTopHints(Renderer& r) {
         Pane* ip = icon.layout ? icon.layout->pane("P_Icon_00") : nullptr;
         if (!ip) return;
-        // the pictures are white ink: tinted with the theme's hint colour, read from the L glyph's
-        // material (the theme writes its "text" colour into the corner buttons' constant 0)
-        Rgba ink{255, 255, 255, 255};
+        // The pictures are white ink. The icon template's material takes no vertex colour, so
+        // the ink is baked into a copy of each picture (tintedCopy, one copy per colour, cached)
+        // in the theme's text colour: the theme binding (TB_TOP_CORNER_BUTTON, slot 0 = "text")
+        // writes it into the corner glyphs' material buffer colour, which the L and R glyphs are
+        // inked with, so the stamps match them under every theme and without one.
+        float ink[3] = {1, 1, 1};
         if (Pane* l = top->pane("P_PictL_00"))
             if (l->material >= 0 && l->material < (int)top->layout().materials.size()) {
-                ink = top->layout().materials[l->material].konst[0];
-                ink[3] = 255;
+                const Rgba& c = top->layout().materials[l->material].bufferColor;
+                for (int k = 0; k < 3; k++) ink[k] = std::clamp(c[k] / 255.0f, 0.0f, 1.0f);
             }
-        const std::array<Rgba, 4> saved = ip->vertexColors;
-        for (Rgba& v : ip->vertexColors) v = ink;
+        auto inked = [&](const TexturePtr& src, int w, int h) -> TexturePtr {
+            if (!src || w <= 0 || h <= 0) return nullptr;
+            TexturePtr t = tintedCopy(src->id, w, h, 1.0f, 0, false, false, ink);
+            if (t && !t->mipmapped) {   // stamped well under its size: sample through mipmaps
+                glBindTexture(GL_TEXTURE_2D, t->id);
+                glGenerateMipmap(GL_TEXTURE_2D);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                t->mipmapped = true;
+            }
+            return t;
+        };
         const float base = std::max(1.0f, ip->size[1]);
         float x, y;
-        if (hintMenuTex && panePlace(top.get(), "P_PictCam_01", &x, &y)) {
-            icon.layout->replaceTexture("P_Icon_00", hintMenuTex);
+        if (TexturePtr t = inked(hintMenuTex, hintMenuW, hintMenuH); t && panePlace(top.get(), "P_PictCam_01", &x, &y)) {
+            icon.layout->replaceTexture("P_Icon_00", t);
             stamp(r, icon, x, y, 16.0f / base);   // stamp places the picture's centre
         }
-        if (hintXTex && panePlace(top.get(), "P_PictL_01", &x, &y)) {
-            icon.layout->replaceTexture("P_Icon_00", hintXTex);
+        if (TexturePtr t = inked(hintXTex, hintXW, hintXH); t && panePlace(top.get(), "P_PictL_01", &x, &y)) {
+            icon.layout->replaceTexture("P_Icon_00", t);
             stamp(r, icon, x, y, 16.0f / base);
         }
-        ip->vertexColors = saved;
     }
     bool pctPlaced = false;
     static constexpr int kPctOutlines = 16;
@@ -4103,6 +4115,8 @@ void CtrHome::setTopHintArt(const CornerIcon& menu, const CornerIcon& xButton) {
     };
     I.hintMenuTex = tex(menu);
     I.hintXTex = tex(xButton);
+    I.hintMenuW = menu.w; I.hintMenuH = menu.h;
+    I.hintXW = xButton.w; I.hintXH = xButton.h;
     // the console's pictures leave: the capture pictogram and the Y button on the left, the
     // camera on the right (the cube's place); the L + R glyphs stay
     I.top->setVisible("P_PictCam_01", !I.hintMenuTex);
