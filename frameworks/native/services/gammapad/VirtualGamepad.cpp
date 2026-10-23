@@ -3,8 +3,10 @@
 #include "VirtualGamepad.h"
 
 #include <android-base/logging.h>
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -156,10 +158,36 @@ bool VirtualGamepad::createDevice(const std::set<int>& buttons,
 }
 
 void VirtualGamepad::destroy() {
-    if (mFd >= 0) {
-        ioctl(mFd, UI_DEV_DESTROY);
-        close(mFd);
-        mFd = -1;
+    if (mFd < 0) return;
+    // The node the kernel gave this device (/dev/input/eventN): a device created right after
+    // this one is destroyed lands on the same node, and the input server could open it before
+    // it had dropped the old one. It then kept both as halves of one input device, one of them
+    // dead, and gamepad aware apps stopped taking the buttons. So after the destroy, wait for
+    // ueventd to remove the node (and a little for the hang-up to be seen) before returning.
+    std::string node;
+    {
+        char sysname[64] = {};
+        if (ioctl(mFd, UI_GET_SYSNAME(sizeof(sysname)), sysname) >= 0 && sysname[0]) {
+            const std::string dir = std::string("/sys/class/input/") + sysname;
+            if (DIR* d = opendir(dir.c_str())) {
+                while (struct dirent* e = readdir(d)) {
+                    if (strncmp(e->d_name, "event", 5) == 0) { node = std::string("/dev/input/") + e->d_name; break; }
+                }
+                closedir(d);
+            }
+        }
+    }
+    ioctl(mFd, UI_DEV_DESTROY);
+    close(mFd);
+    mFd = -1;
+    if (!node.empty()) {
+        struct stat st;
+        int waited = 0;
+        while (stat(node.c_str(), &st) == 0 && waited < 500) { usleep(10000); waited += 10; }
+        usleep(30000);
+        LOG(INFO) << "Virtual gamepad destroyed (" << node << " gone after " << waited << " ms)";
+    } else {
+        usleep(50000);
         LOG(INFO) << "Virtual gamepad destroyed";
     }
 }
