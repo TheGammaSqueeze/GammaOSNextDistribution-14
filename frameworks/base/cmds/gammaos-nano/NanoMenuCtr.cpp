@@ -449,6 +449,72 @@ public:
         for (int i = 0; i < 3; i++)
             if (loadUiIcon(files[i], &px3[i], &ic[i].w, &ic[i].h)) ic[i].rgba = px3[i].data();
         mMenu->mCtrHome->setCornerIcons(ic[0], ic[1], ic[2]);
+        applyTopHints();
+    }
+    // The top screen's hint bars: the hamburger on X (nano's title options) at the left, the
+    // category cube at the right. The pictograms are drawn here from distance fields at 8 texels
+    // a layout unit, so they stay crisp at any panel size; ink as the console's hint pictograms.
+    static void rasterInk(int N, float K, const float ink[3], const std::function<float(float, float)>& sdf,
+                          std::vector<uint8_t>* out) {
+        out->assign((size_t)N * N * 4, 0);
+        for (int ty = 0; ty < N; ty++)
+            for (int tx = 0; tx < N; tx++) {
+                // 2 x 2 samples a texel over the analytic edge: smooth diagonals and round caps
+                float cover = 0;
+                for (int s = 0; s < 4; s++) {
+                    const float ux = (tx + 0.25f + 0.5f * (s & 1)) / K, uy = (ty + 0.25f + 0.5f * (s >> 1)) / K;
+                    cover += std::clamp(0.5f - sdf(ux, uy) * K, 0.0f, 1.0f);
+                }
+                cover *= 0.25f;
+                uint8_t* o = &(*out)[((size_t)ty * N + tx) * 4];
+                for (int c = 0; c < 3; c++) o[c] = (uint8_t)lroundf(ink[c] * 255);
+                o[3] = (uint8_t)lroundf(cover * 255);
+            }
+    }
+    static float segDist(float x, float y, float ax, float ay, float bx, float by) {
+        const float dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+        const float t = l2 > 0 ? std::clamp(((x - ax) * dx + (y - ay) * dy) / l2, 0.0f, 1.0f) : 0.0f;
+        return hypotf(x - (ax + dx * t), y - (ay + dy * t));
+    }
+    void applyTopHints() {
+        if (!mMenu->mCtrHome) return;
+        constexpr int K = 8, N = 16 * K;   // 16 x 16 layout units at 8 texels a unit
+        static const float kInk[3] = {1.0f, 1.0f, 1.0f};   // white: the home tints it with the theme's hint colour
+        // the hamburger: three bars with round ends
+        std::vector<uint8_t> menu, xbtn;
+        rasterInk(N, K, kInk, [](float x, float y) {
+            float d = 1e9f;
+            for (float cy : {4.4f, 8.0f, 11.6f}) d = std::min(d, segDist(x, y, 3.4f, cy, 12.6f, cy) - 0.95f);
+            return d;
+        }, &menu);
+        // the X button: a ring (as the console's Y hint) with the letter inside
+        rasterInk(N, K, kInk, [](float x, float y) {
+            const float ring = fabsf(hypotf(x - 8.0f, y - 8.0f) - 6.4f) - 0.7f;
+            const float s1 = segDist(x, y, 5.4f, 5.4f, 10.6f, 10.6f) - 0.72f;
+            const float s2 = segDist(x, y, 5.4f, 10.6f, 10.6f, 5.4f) - 0.72f;
+            return std::min(ring, std::min(s1, s2));
+        }, &xbtn);
+        ctr::CtrHome::CornerIcon mi, xi;
+        mi.rgba = menu.data(); mi.w = mi.h = N;
+        xi.rgba = xbtn.data(); xi.w = xi.h = N;
+        // the cube's faces: the categories' pictograms in their colours, the Games controller in
+        // the console's folder blue, Settings' wrench in grey on the sixth face
+        ctr::CategoryCube::Face faces[6];
+        std::vector<uint8_t> px[6];
+        static const float kGrey[3] = {0.55f, 0.57f, 0.62f};
+        for (int c = 0; c < 6; c++) {
+            int w = 0, h = 0;
+            bool ok = false;
+            const float* col = nullptr;
+            if (c == NanoMenu::CTR_CAT_GAMES) { ok = loadUiIcon("icons/xmb_icon_005.png", &px[c], &w, &h); col = catColors(NanoMenu::CTR_CAT_NETWORK) + 3; }
+            else if (c < NanoMenu::CTR_CAT_NETWORK) { ok = loadCatIcon(c, &px[c], &w, &h); col = catColors(c) + 3; }
+            else { ok = loadUiIcon("icons_ui/ctr_settings.png", &px[c], &w, &h); col = kGrey; }
+            if (ok) { faces[c].rgba = px[c].data(); faces[c].w = w; faces[c].h = h; }
+            memcpy(faces[c].color, col, sizeof(faces[c].color));
+        }
+        mMenu->mCtrHome->setCategoryCube(faces);
+        mMenu->mCtrHome->setCubeFace(mMenu->mCtrCat);
+        mMenu->mCtrHome->setTopHintArt(mi, xi);
     }
     static bool loadUiIcon(const char* f, std::vector<uint8_t>* rgba, int* w, int* h) {
         for (const char* dir : {"/data/system/nano_xmb/", "/system/etc/nano_xmb/"}) {
@@ -470,6 +536,7 @@ public:
         mMenu->mCtrHome->layoutState(&zoom, &cursor);
         mCatCursor[mMenu->mCtrCat] = cursor;
         mMenu->mCtrCat = c;
+        mMenu->mCtrHome->setCubeFace(c);   // the category cube turns to the new category
         mLevels.clear();
         mTitleLevel.clear();
         // nano's actions read the category they run in (Search for Media Servers, Playlists)
@@ -489,6 +556,10 @@ public:
         int c = mMenu->mCtrCat;
         for (int n = 0; n < NanoMenu::CTR_CAT_COUNT; n++) {
             c = (c + dir + NanoMenu::CTR_CAT_COUNT) % NanoMenu::CTR_CAT_COUNT;
+            // the last slot is the bar's Games button (catName "Game"), not a category of its
+            // own: stepping onto it showed the Games grid again, so L from Games looked dead
+            // and R from Photo took two presses
+            if (c == NanoMenu::CTR_CAT_NETWORK) continue;
             if (c == NanoMenu::CTR_CAT_GAMES || catIndex(c) >= 0) break;
         }
         setCategory(c);

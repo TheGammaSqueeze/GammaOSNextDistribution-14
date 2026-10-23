@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstring>
 #include <ctime>
+#include <unistd.h>
 #include <unordered_map>
 
 #include <log/log.h>
@@ -611,6 +612,44 @@ struct CtrHome::Impl {
     bool charging = false;
     float pctTextW = 0;
     void drawChargeBolt(Renderer& r);
+    // nano's top hint bars (setTopHintArt / setCategoryCube): the hamburger on X at the left, the
+    // category cube at the right where the console's camera pictogram was
+    TexturePtr hintMenuTex, hintXTex;
+    std::unique_ptr<CategoryCube> cube;
+    // a hidden pane's place: its parent's laid out position plus its own offset (an invisible
+    // pane is not laid out)
+    bool panePlace(LayoutInstance* L, const char* name, float* x, float* y) {
+        Pane* p = L ? L->pane(name) : nullptr;
+        if (!p || !p->parent) return false;
+        *x = p->parent->global.m[12] + p->translate[0] + p->shiftX;
+        *y = p->parent->global.m[13] + p->translate[1] + p->shiftY;
+        return true;
+    }
+    void drawTopHints(Renderer& r) {
+        Pane* ip = icon.layout ? icon.layout->pane("P_Icon_00") : nullptr;
+        if (!ip) return;
+        // the pictures are white ink: tinted with the theme's hint colour, read from the L glyph's
+        // material (the theme writes its "text" colour into the corner buttons' constant 0)
+        Rgba ink{255, 255, 255, 255};
+        if (Pane* l = top->pane("P_PictL_00"))
+            if (l->material >= 0 && l->material < (int)top->layout().materials.size()) {
+                ink = top->layout().materials[l->material].konst[0];
+                ink[3] = 255;
+            }
+        const std::array<Rgba, 4> saved = ip->vertexColors;
+        for (Rgba& v : ip->vertexColors) v = ink;
+        const float base = std::max(1.0f, ip->size[1]);
+        float x, y;
+        if (hintMenuTex && panePlace(top.get(), "P_PictCam_01", &x, &y)) {
+            icon.layout->replaceTexture("P_Icon_00", hintMenuTex);
+            stamp(r, icon, x, y, 16.0f / base);   // stamp places the picture's centre
+        }
+        if (hintXTex && panePlace(top.get(), "P_PictL_01", &x, &y)) {
+            icon.layout->replaceTexture("P_Icon_00", hintXTex);
+            stamp(r, icon, x, y, 16.0f / base);
+        }
+        ip->vertexColors = saved;
+    }
     bool pctPlaced = false;
     static constexpr int kPctOutlines = 16;
     Pane* pctOutline[kPctOutlines] = {};   // white copies of the number under it: the Hud font's border look
@@ -807,6 +846,19 @@ bool CtrHome::Impl::load() {
     top = make("launcher", "LncBase_U_00");
     hud = make("hud", "HudMenu_00");
     if (!base || !palette || !arrows || !buttons || !cursor || !folder || !balloon || !indicatorL || !top || !hud) return false;
+    if (getenv("CTR_DUMP_TOP") || access("/data/local/tmp/ctr_dump_top", F_OK) == 0) {   // dev: the top base layout's bottom bars, pane by pane
+        std::function<void(Pane*, int)> dump = [&](Pane* p, int depth) {
+            std::string tex, text;
+            if (p->material >= 0)
+                for (const auto& tm : top->layout().materials[p->material].texMaps) tex += tm.name + ",";
+            for (const auto& r : p->runs) for (char32_t c : r.text) text += c < 0x80 ? std::string(1, (char)c) : "<U+" + std::to_string((unsigned)c) + ">";
+            ALOGI("ctrdump %*s%s kind=%d size=%.0fx%.0f at %.1f,%.1f origin=%d,%d vis=%d a=%.0f tex=[%s] text='%s'", depth * 2, "",
+                  p->name.c_str(), (int)p->kind, p->size[0], p->size[1], p->translate[0], p->translate[1], p->originX, p->originY,
+                  (int)p->visible, p->alpha, tex.c_str(), text.c_str());
+            for (Pane* c : p->children) dump(c, depth + 1);
+        };
+        if (Pane* p = top->pane("N_Btm_00")) dump(p, 0);
+    }
     makeTemplate(blank, "LncIconSetSrc_00", 32, {"P_BtnShdw_00", "N_IconRoot_00"});
     makeTemplate(tile, "LncIconSetSrc_00", -32, {"N_Color_01", "N_Pic_01"});
     makeTemplate(folderIcon, "LncIconFolder_00", 0, {"N_PrizeBlank_00"});
@@ -2909,8 +2961,10 @@ void CtrHome::Impl::hudBuild() {
     hudBattery = hud->play("Bat", manual);
     hud->play("WalkCoin", groupsOpt());
     hud->setText("T_TimeC_00", ":");
-    // steps and coins: nano has no pedometer; the step count shows 0 and the coins stay hidden
+    // steps and coins: nano has no pedometer, so the step counter and the coins stay hidden
     hud->setText("T_Walk_00", "0");
+    hud->setVisible("P_Walk_00", false);
+    hud->setVisible("T_Walk_00", false);
     hud->setVisible("P_Coin_00", false);
     if (Animator* wc = hud->find("WalkCoin")) { wc->playing = false; wc->seek(0); }
     hudUpdate(true);
@@ -3111,8 +3165,7 @@ void CtrHome::Impl::hudPercent(const HomeStatus& st) {
         if (show) hud->setText(o->name, buf);
         o->visible = show;
     }
-    // the step counter (always 0: no pedometer) gives up its place when the date has to move far
-    if (Pane* walk = hud->pane("P_Walk_00")) walk->visible = shift < 20.0f;
+    // the step counter stays hidden (no pedometer); the date may move over its place freely
     if (shift != pctShift) {
         pctShift = shift;
         for (int i = 0; i < 4; i++)
@@ -3727,6 +3780,7 @@ void CtrHome::releaseGl() {
     if (mImpl) mImpl->hostTex.clear();
     if (mImpl && mImpl->tintProgram) { glDeleteProgram(mImpl->tintProgram); mImpl->tintProgram = 0; }
     if (mImpl && mImpl->top3d) mImpl->top3d->releaseGl();
+    if (mImpl) { mImpl->cube.reset(); mImpl->hintMenuTex.reset(); mImpl->hintXTex.reset(); }   // set again after the reload (applyBarIcons)
     if (mAssets) mAssets->releaseGl();
 }
 
@@ -4005,7 +4059,10 @@ void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) 
     r.setViewport(vpX, vpY, vpW, vpH);
     r.beginWith(proj);
     r.setClip(-mTopW / 2, -mTopH / 2, mTopW, mTopH);
-    if (!covered && !noChrome) I.drawInstance(r, I.top.get());
+    if (!covered && !noChrome) {
+        I.drawInstance(r, I.top.get());
+        if (!I.topBarsHidden) I.drawTopHints(r);
+    }
     if (mm) {
         I.myMenu->setScreens(mTopW, mTopH, mBotW);
         I.myMenu->drawTop(r);
@@ -4019,6 +4076,51 @@ void CtrHome::drawTop(const float proj[16], int vpX, int vpY, int vpW, int vpH) 
     if (overlay) overlay(r, true);
     if (I.fadeActive || I.state == StAppStart || I.state == StAppRunning) I.drawInstance(r, I.fadeTop.get());
     r.end();
+    // the category cube in the right hint bar, drawn with its own program once the pass is over
+    // (it blends over the bar like the pictogram it replaces)
+    if (I.cube && I.cube->ready() && !covered && !noChrome && !I.topBarsHidden && I.myMenuReturn <= 0 && !mm) {
+        float x, y;
+        if (I.panePlace(I.top.get(), "P_PictCam_00", &x, &y)) {
+            struct timespec ts;
+            clock_gettime(CLOCK_MONOTONIC, &ts);
+            // a shade smaller than the L / R rings, with their margin (the camera stood 2 units nearer the L)
+            I.cube->draw(proj, x + 1.0f, y, 13.5f, ts.tv_sec + ts.tv_nsec * 1e-9);
+        }
+    }
+}
+
+void CtrHome::setTopHintArt(const CornerIcon& menu, const CornerIcon& xButton) {
+    if (!mLoaded || !mImpl->top) return;
+    Impl& I = *mImpl;
+    auto tex = [&](const CornerIcon& ic) -> TexturePtr {
+        if (!ic.rgba || ic.w <= 0 || ic.h <= 0) return nullptr;
+        TexturePtr t = mAssets->rgbaTexture(ic.rgba, ic.w, ic.h);
+        glBindTexture(GL_TEXTURE_2D, t->id);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        t->mipmapped = true;
+        return t;
+    };
+    I.hintMenuTex = tex(menu);
+    I.hintXTex = tex(xButton);
+    // the console's pictures leave: the capture pictogram and the Y button on the left, the
+    // camera on the right (the cube's place); the L + R glyphs stay
+    I.top->setVisible("P_PictCam_01", !I.hintMenuTex);
+    I.top->setVisible("P_PictL_01", !I.hintXTex);
+    I.top->setVisible("P_PictCam_00", !I.cube);
+    gTextureEpoch++;
+}
+
+void CtrHome::setCategoryCube(const CategoryCube::Face faces[6]) {
+    if (!mLoaded) return;
+    Impl& I = *mImpl;
+    if (!I.cube) I.cube.reset(new CategoryCube());
+    I.cube->setFaces(*mAssets, faces);
+    if (I.top) I.top->setVisible("P_PictCam_00", false);
+}
+
+void CtrHome::setCubeFace(int face) {
+    if (mLoaded && mImpl->cube) mImpl->cube->setCurrent(face);
 }
 
 void CtrHome::drawBottom(const float proj[16], int vpX, int vpY, int vpW, int vpH) {

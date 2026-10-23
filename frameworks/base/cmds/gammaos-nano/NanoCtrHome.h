@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "NanoCtrCube.h"
 #include "NanoCtrLayout.h"
 #include "NanoCtrMyMenu.h"
 
@@ -271,6 +272,13 @@ public:
         int w = 0, h = 0;
     };
     void setCornerIcons(const CornerIcon& settings, const CornerIcon& big, const CornerIcon& four);
+    // The top screen's hint bars, nano's way: the left bar shows `menu` (the hamburger) on the X
+    // button (`xButton`, both RGBA whole pictures), the right bar's camera gives its place to the
+    // category cube (setCategoryCube) next to the console's L + R glyphs.
+    void setTopHintArt(const CornerIcon& menu, const CornerIcon& xButton);
+    // The category cube's six faces (NanoCtrCube.h) and the face of the category on the grid.
+    void setCategoryCube(const CategoryCube::Face faces[6]);
+    void setCubeFace(int face);
     // The bar button of the content shown (0 none): drawn inverted, the button in its ink colour.
     void setActiveBar(int button);
     // The status bar's charging bolt (RGBA, rows top first, its alpha the shape).

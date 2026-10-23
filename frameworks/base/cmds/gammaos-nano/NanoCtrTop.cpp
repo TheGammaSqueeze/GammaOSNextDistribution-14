@@ -937,10 +937,11 @@ void CtrTop::update() {
 void CtrTop::draw(const float proj[16], int vpX, int vpY, int vpW, int vpH, float width, float height) {
     (void)vpX; (void)vpY;
     if (!mWall) return;
-    // wider screens see more of the wall sideways (the aspect), taller ones more of it up and
-    // down: the vertical field of view grows with the height, the horizontal one is kept
+    // wider screens see more of the wall sideways (the aspect); a taller screen (4:3, portrait)
+    // keeps the console's vertical field of view, so the wall fills it top to bottom instead of
+    // showing its curved edges, and sees less of it sideways (zoomed to fill)
     const float aspect = width / height;
-    const float fov = 2 * atanf(tanf(mBaseFovY / 2) * height / 240.0f);
+    const float fov = mBaseFovY;
     if (fabsf(mCamera.aspect - aspect) > 1e-4f || fabsf(mCamera.fovY - fov) > 1e-6f) {
         mCamera.aspect = aspect;
         mCamera.fovY = fov;

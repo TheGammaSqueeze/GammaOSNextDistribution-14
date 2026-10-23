@@ -82,6 +82,7 @@ cc_binary {
         "NanoCtr3d.cpp",           // 3DS theme: top screen CGFX models
         "NanoCtrGlyph3d.cpp",      // 3DS theme: system icons as solids on the top screen
         "NanoCtrTop.cpp",          // 3DS theme: top screen scene (wall + banners)
+        "NanoCtrCube.cpp",         // 3DS theme: the category cube in the top screen's hint bar
         "NanoCtrAudio.cpp",        // 3DS theme: sound effects + BGM mixer
         "NanoCtrPanel.cpp",        // 3DS theme: settings panel + dialogs over nano's menus
         "NanoCtrMyMenu.cpp",       // 3DS theme: Save/Load Layout (My Menu)
