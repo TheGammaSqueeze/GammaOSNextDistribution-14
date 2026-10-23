@@ -39,7 +39,9 @@ bool RomArt::isCtrRom(const std::string& path) {
     if (dot == std::string::npos) return false;
     std::string ext = path.substr(dot + 1);
     for (char& c : ext) c = (char)tolower((unsigned char)c);
-    return ext == "3ds" || ext == "cci" || ext == "cxi" || ext == "cia";
+    // every container NanoCtrRom reads: plain, Azahar's Z3DS compressed, and 3DSX homebrew
+    return ext == "3ds" || ext == "cci" || ext == "cxi" || ext == "cia" || ext == "app"
+        || ext == "zcci" || ext == "zcxi" || ext == "3dsx" || ext == "z3dsx";
 }
 
 void RomArt::request(const std::string& rom, bool wantBanner) {

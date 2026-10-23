@@ -3,8 +3,9 @@
 // Port of the 3ds-web pipeline's title export (/work/3ds/web/pipeline/build_assets.py
 // export_title / export_banner and ctr/ncch.py, smdh.py, cbmd.py, lz.py, cgfx.py, texture.py,
 // gltf.py, audio.py) plus the model packer of tools/ctr_pack.py (pack_model, BjWriter,
-// write_pack). From a .3ds/.cci (NCSD), .cxi (NCCH) or .cia it reads only the headers and the
-// ExeFS `icon` (SMDH) and `banner` (CBMD) files, and produces:
+// write_pack). From a .3ds/.cci (NCSD), .cxi (NCCH), .cia or .3dsx (SMDH only, no banner),
+// plain or inside Azahar's Z3DS compressed container (.zcci/.zcxi/.z3dsx), it reads only the
+// headers and the ExeFS `icon` (SMDH) and `banner` (CBMD) files, and produces:
 //   - the SMDH titles of every language and the 48x48 / 24x24 icons as RGBA8,
 //   - the CBMD common CGFX as a model pack (CPK1 with cgfx / gltf / bin/0 / tex/<name>, the
 //     same entries and encodings pack_model writes) that ModelResource::load reads, with the

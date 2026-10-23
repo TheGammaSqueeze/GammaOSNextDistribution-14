@@ -9,4 +9,4 @@ g++ -std=c++17 -O1 -g -Wall -Wno-unused-function -DGL_GLEXT_PROTOTYPES -I. -I../
   -I/usr/include/freetype2 -lfreetype -lEGL -lGLESv2 -o out/ctrhost
 g++ -std=c++17 -O1 -g -Wall -Wno-unused-function -DGL_GLEXT_PROTOTYPES -DCTRHOST_NO_MAIN -I. -I../.. \
   homehost.cpp ctrhost.cpp ../../NanoCtrPack.cpp ../../NanoCtrLayout.cpp ../../NanoCtrRender.cpp ../../NanoCtrHome.cpp ../../NanoCtrTop.cpp ../../NanoCtr3d.cpp ../../NanoCtrPanel.cpp ../../NanoCtrMyMenu.cpp ../../NanoCtrTheme.cpp ../../NanoCtrArt.cpp ../../NanoCtrRom.cpp out/stbimpl.o \
-  -I/usr/include/freetype2 -lfreetype -lEGL -lGLESv2 -lz -o out/ctrhome
+  -I/usr/include/freetype2 -lfreetype -lEGL -lGLESv2 -lz -lzstd -o out/ctrhome

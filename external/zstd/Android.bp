@@ -105,6 +105,7 @@ cc_library {
         "//external/rsync:__subpackages__",
         "//external/squashfs-tools/squashfs-tools:__subpackages__",
         "//external/stg:__subpackages__",
+        "//frameworks/base/cmds/gammaos-nano",
         "//frameworks/libs/binary_translation/tools:__subpackages__",
         "//packages/modules/adb:__subpackages__",
         "//system/logging/logd:__subpackages__",

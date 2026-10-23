@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <zlib.h>
+#include <zstd.h>
 
 #include <algorithm>
 #include <array>
@@ -3266,16 +3267,25 @@ void buildModelPacks(const Blobs& model, const Blobs* slot, std::vector<uint8_t>
 
 // ================================================================== ROM containers (ncch.py)
 
-class RomFile {
+// Random access to a ROM's bytes: the plain file, or the content of an Azahar Z3DS container.
+class RomSource {
+public:
+    virtual ~RomSource() {}
+    virtual bool valid() const = 0;
+    virtual uint64_t size() const = 0;
+    virtual bool read(uint64_t off, void* dst, size_t n) const = 0;
+};
+
+class RomFile : public RomSource {
 public:
     explicit RomFile(const std::string& path) { mFd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC); }
-    ~RomFile() { if (mFd >= 0) ::close(mFd); }
-    bool valid() const { return mFd >= 0; }
-    uint64_t size() const {
+    ~RomFile() override { if (mFd >= 0) ::close(mFd); }
+    bool valid() const override { return mFd >= 0; }
+    uint64_t size() const override {
         struct stat st;
         return fstat(mFd, &st) == 0 ? (uint64_t)st.st_size : 0;
     }
-    bool read(uint64_t off, void* dst, size_t n) const {
+    bool read(uint64_t off, void* dst, size_t n) const override {
         uint8_t* p = (uint8_t*)dst;
         while (n) {
             const ssize_t got = pread(mFd, p, n, (off_t)off);
@@ -3291,10 +3301,119 @@ private:
     int mFd = -1;
 };
 
+// Azahar's compressed ROM container (.zcci / .zcxi / .z3dsx; src/common/file_derived.cpp
+// Z3DSReadIOFile): a 0x20 byte header ("Z3DS", the magic of the content, version 1, header
+// size, metadata size, compressed size, uncompressed size), the metadata, then the content as a
+// Zstandard seekable stream (contrib/seekable_format: independent frames followed by a seek
+// table in a skippable frame). Frames are decompressed on demand, one at a time, with the last
+// one kept, so the headers, the ExeFS table and the icon/banner cost a few frames, not the ROM.
+class Z3dsRomSource : public RomSource {
+public:
+    explicit Z3dsRomSource(const std::string& path) : mFile(path) {}
+    ~Z3dsRomSource() override { if (mDctx) ZSTD_freeDCtx(mDctx); }
+    static bool isZ3ds(const RomFile& f) {
+        uint8_t m[4];
+        return f.valid() && f.read(0, m, 4) && memcmp(m, "Z3DS", 4) == 0;
+    }
+    bool open(std::string* err) {
+        uint8_t h[0x20];
+        if (!mFile.valid() || !mFile.read(0, h, sizeof(h))) { *err = "Z3DS header is truncated"; return false; }
+        if (memcmp(h, "Z3DS", 4) != 0 || h[8] != 1) { *err = format("unsupported Z3DS version %u", h[8]); return false; }
+        const uint64_t headerSize = le16(h + 10), metadataSize = le32(h + 12);
+        const uint64_t compressedSize = le64(h + 16);
+        mUncompressed = le64(h + 24);
+        const uint64_t fileSize = mFile.size();
+        const uint64_t start = headerSize + metadataSize;
+        const uint64_t end = (compressedSize && start + compressedSize <= fileSize) ? start + compressedSize : fileSize;
+        if (end < start + 9 + 8) { *err = "Z3DS stream is truncated"; return false; }
+        // the seek table footer: frame count, descriptor, magic 0x8F92EAB1
+        uint8_t ft[9];
+        if (!mFile.read(end - 9, ft, 9) || le32(ft + 5) != 0x8F92EAB1u) { *err = "Z3DS has no zstd seek table"; return false; }
+        const uint32_t frames = le32(ft);
+        const bool checksums = (ft[4] & 0x80) != 0;
+        if (ft[4] & 0x7C) { *err = "zstd seek table uses reserved bits"; return false; }
+        const uint64_t entrySize = checksums ? 12 : 8;
+        const uint64_t tableBytes = (uint64_t)frames * entrySize + 9;
+        if (frames == 0 || frames > (1u << 24) || tableBytes + 8 > end - start) { *err = "zstd seek table is invalid"; return false; }
+        const uint64_t tableOff = end - tableBytes - 8;
+        uint8_t sh[8];
+        if (!mFile.read(tableOff, sh, 8) || le32(sh) != 0x184D2A5Eu || le32(sh + 4) != tableBytes) {
+            *err = "zstd seek table frame is invalid";
+            return false;
+        }
+        std::vector<uint8_t> table((size_t)frames * entrySize);
+        if (!mFile.read(tableOff + 8, table.data(), table.size())) { *err = "zstd seek table is truncated"; return false; }
+        mFrames.reserve(frames);
+        uint64_t cOff = start, dOff = 0;
+        for (uint32_t k = 0; k < frames; k++) {
+            const uint8_t* e = table.data() + (size_t)k * entrySize;
+            Frame fr;
+            fr.cOff = cOff; fr.dOff = dOff; fr.cSize = le32(e); fr.dSize = le32(e + 4);
+            if (cOff + fr.cSize > tableOff) { *err = "zstd seek table runs past the stream"; return false; }
+            cOff += fr.cSize; dOff += fr.dSize;
+            mFrames.push_back(fr);
+        }
+        if (mUncompressed == 0) mUncompressed = dOff;
+        if (dOff < mUncompressed) { *err = "Z3DS frames cover less than the uncompressed size"; return false; }
+        mDctx = ZSTD_createDCtx();
+        if (!mDctx) { *err = "zstd context allocation failed"; return false; }
+        return true;
+    }
+    bool valid() const override { return mDctx != nullptr; }
+    uint64_t size() const override { return mUncompressed; }
+    bool read(uint64_t off, void* dst, size_t n) const override {
+        uint8_t* p = (uint8_t*)dst;
+        while (n) {
+            if (off >= mUncompressed) return false;
+            // the frame holding off: the last frame whose decompressed start is <= off
+            size_t lo = 0, hi = mFrames.size();
+            while (hi - lo > 1) { const size_t mid = (lo + hi) / 2; if (mFrames[mid].dOff <= off) lo = mid; else hi = mid; }
+            const Frame& fr = mFrames[lo];
+            if (fr.dSize == 0 || off >= fr.dOff + fr.dSize) return false;   // a hole: an empty frame covers it
+            if (!ensureFrame(lo)) return false;
+            const size_t in = (size_t)(off - fr.dOff);
+            const size_t take = std::min(n, (size_t)fr.dSize - in);
+            memcpy(p, mCache.data() + in, take);
+            p += take; off += take; n -= take;
+        }
+        return true;
+    }
+private:
+    struct Frame { uint64_t cOff = 0, dOff = 0; uint32_t cSize = 0, dSize = 0; };
+    bool ensureFrame(size_t k) const {
+        if ((int64_t)k == mCached) return true;
+        const Frame& fr = mFrames[k];
+        if (fr.dSize > (256u << 20) || fr.cSize > (256u << 20)) return false;   // not a ROM frame
+        std::vector<uint8_t> in(fr.cSize);
+        if (!mFile.read(fr.cOff, in.data(), in.size())) return false;
+        mCache.resize(fr.dSize);
+        const size_t got = ZSTD_decompressDCtx(mDctx, mCache.data(), mCache.size(), in.data(), in.size());
+        if (ZSTD_isError(got) || got != fr.dSize) { mCached = -1; return false; }
+        mCached = (int64_t)k;
+        return true;
+    }
+    RomFile mFile;
+    uint64_t mUncompressed = 0;
+    std::vector<Frame> mFrames;
+    ZSTD_DCtx* mDctx = nullptr;
+    mutable std::vector<uint8_t> mCache;
+    mutable int64_t mCached = -1;
+};
+
+// The ROM's content: a Z3DS container is opened through its frames, anything else as is.
+std::unique_ptr<RomSource> openRomSource(const std::string& path, std::string* err) {
+    std::unique_ptr<RomFile> plain(new RomFile(path));
+    if (!plain->valid()) { *err = format("cannot open: %s", strerror(errno)); return nullptr; }
+    if (!Z3dsRomSource::isZ3ds(*plain)) return plain;
+    std::unique_ptr<Z3dsRomSource> z(new Z3dsRomSource(path));
+    if (!z->open(err)) return nullptr;
+    return z;
+}
+
 uint64_t align64(uint64_t v) { return (v + 63) & ~(uint64_t)63; }
 
 // The offset of the main NCCH: NCSD partition 0, a bare NCCH, or the first CIA content.
-bool locateNcch(const RomFile& f, uint64_t* ncch, std::string* err) {
+bool locateNcch(const RomSource& f, uint64_t* ncch, std::string* err) {
     uint8_t hdr[0x200];
     if (!f.read(0, hdr, sizeof(hdr))) { *err = "file is too short"; return false; }
     if (memcmp(hdr + 0x100, "NCSD", 4) == 0) {
@@ -3421,8 +3540,23 @@ bool readRomExeFs(const std::string& romPath, std::vector<uint8_t>* icon, std::v
                   uint64_t* programId, std::string* productCode, std::string* error) {
     icon->clear();
     banner->clear();
-    RomFile f(romPath);
-    if (!f.valid()) { *error = format("cannot open: %s", strerror(errno)); return false; }
+    std::unique_ptr<RomSource> src = openRomSource(romPath, error);
+    if (!src) return false;
+    const RomSource& f = *src;
+    // 3DSX homebrew (core/loader/3dsx.cpp): the SMDH sits where the header says, there is no
+    // banner and no program id. A 3DSX without an SMDH has no title data at all.
+    {
+        uint8_t h[0x30];
+        if (f.read(0, h, sizeof(h)) && memcmp(h, "3DSX", 4) == 0) {
+            const uint32_t smdhOff = le32(h + 0x20), smdhSize = le32(h + 0x24);
+            if (programId) *programId = 0;
+            if (productCode) productCode->clear();
+            if (!smdhOff || smdhSize < kSmdhSize || smdhSize > (1u << 20)) { *error = "3DSX has no SMDH"; return false; }
+            icon->resize(smdhSize);
+            if (!f.read(smdhOff, icon->data(), smdhSize)) { *error = "3DSX SMDH is truncated"; return false; }
+            return true;
+        }
+    }
     uint64_t ncch = 0;
     if (!locateNcch(f, &ncch, error)) return false;
     uint8_t hdr[0x200];

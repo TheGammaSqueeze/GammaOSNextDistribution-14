@@ -150,6 +150,7 @@ cc_binary {
         "liba52_nano",   // AC-3 decoder (no AC-3 codec on the device)
         "libtinyxml2",   // XML DOM parser for the ES-DE theme engine (NanoEsdeTheme)
         "libnanosvg_nano",   // SVG rasterizer for ES-DE theme logos (NanoThemeEngine)
+        "libzstd",           // Azahar Z3DS compressed 3DS ROMs (NanoCtrRom)
         // Share storage + credential encoding, shared with the gammaos-sharefs daemon so a share
         // added in the menu is written exactly as the daemon expects to read it.
         "libgammaos_sharecfg",

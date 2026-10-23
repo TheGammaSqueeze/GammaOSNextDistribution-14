@@ -279,7 +279,7 @@ static const SystemDef kXmbSystemDefs[] = {
     {"Nintendo 3DS",    "3DS",  "3ds",          "",
      "org.azahar_emu.azahar",
      "-n org.azahar_emu.azahar/org.citra.citra_emu.activities.EmulationActivity -a android.intent.action.VIEW -d {file.uri} --activity-clear-task --activity-clear-top",
-     0.80f, 0.10f, 0.10f, ".3ds,.cci,.cxi,.zcci,.zcxi,.3dsx"},
+     0.80f, 0.10f, 0.10f, ".3ds,.cci,.cxi,.zcci,.zcxi,.3dsx,.z3dsx,.app"},
 };
 static const int kNumXmbSystemDefs = sizeof(kXmbSystemDefs) / sizeof(kXmbSystemDefs[0]);
 
