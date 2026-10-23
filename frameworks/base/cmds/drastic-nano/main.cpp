@@ -98,6 +98,7 @@
 #include "InputMap.h"
 #include "NanoBacklight.h"
 #include "NanoMenuDrm.h"
+#include "NanoColorMatrix.h"
 #include "NanoI18n.h"
 #include "OverlayGfx.h"
 #include "OverlayMenu.h"
@@ -163,6 +164,9 @@ constexpr const char* kSessionDoneProp   = "sys.gammaos.drastic_nano.session_don
 static int64_t sStgPrevEndNs  = 0;   // timestamp at end of the previous iteration
 static int64_t sStgWorkMaxNs  = 0;   // max render-work span in the window
 static int64_t sStgFlipMaxNs  = 0;   // max drmFlipRingSlot span
+static bool sColorMatrixSet = false;   // the runner and overlay got the colour transform once
+static bool sColorMatrixIdentity = true;
+static float sColorTop[12] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}, sColorBottom[12] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
 static int64_t sStgDrainMaxNs = 0;   // max drmDrainPageFlipEvents span
 static int64_t sStgRdMaxNs    = 0;   // max renderDsToOffscreen span (DS upload+shade)
 static int64_t sStgPbMaxNs    = 0;   // max panel-blit span (half-res render to panels)
@@ -2983,8 +2987,26 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // Direct render (AFBC dual-panel, no half-res, no menu): drastic's
         // final shader pass lands straight in this iteration's ring target,
         // laid out and rotated per panel, so the copy pass below is skipped.
+        // The display colour transform (LiveDisplay calibration, reading mode, Night Light,
+        // saturation): nothing composes these panels on the DRM path, so the DS screen quads and
+        // the overlay apply the matrix the framework publishes, in their own shaders (no extra
+        // pass). Polled once a frame, a serial check when nothing changed. drastic's own final
+        // shader pass cannot take the matrix, so the direct path stands down while one is set.
+        {
+            android::colormatrix::Matrix top, bottom;
+            const bool t = android::colormatrix::pollScreen(android::colormatrix::kTop, &top);
+            const bool b = android::colormatrix::pollScreen(android::colormatrix::kBottom, &bottom);
+            if (t || b || !sColorMatrixSet) {
+                for (int i = 0; i < 12; i++) { sColorTop[i] = top.m[i]; sColorBottom[i] = bottom.m[i]; }
+                sColorMatrixSet = true;
+                sColorMatrixIdentity = top.identity && bottom.identity;
+            }
+            // the top panel is the primary target, the bottom panel the secondary (this slot's)
+            dr->setPanelColorMatrices(primTgt.glFbo, hasDualDisplay ? secTgt.glFbo : 0, sColorTop, sColorBottom);
+            gfx.setColorMatrix(sColorTop);
+        }
         bool directArmed = false;
-        if (hasDualDisplay && android::sDrmAfbcMode && !(drmHalfRes > 1) &&
+        if (hasDualDisplay && android::sDrmAfbcMode && !(drmHalfRes > 1) && sColorMatrixIdentity &&
             renderDs && !drmSingleLayout && primTgt.glFbo != 0 && !overlay.isOpen() &&
             property_get_bool("sys.gammaos.drastic_nano.direct_render", true)) {
             int rotCrtc = property_get_int32("sys.gammaos.drastic_nano.afbc_rot180_crtc", 0);
@@ -3404,11 +3426,13 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 gfx.setViewport((int)secTgt.w, (int)secTgt.h);
             }
             gfx.setRotationMatrix(ovRotSec ? ovSecRot180 : ovSecMat);
+            gfx.setColorMatrix(ovAfbc ? sColorTop : sColorBottom);   // the bottom panel's transform
         };
         // Back to the primary panel's overlay canvas (one panel) and matrix.
         auto endBottomPass = [&]() {
             gfx.setRotationMatrix(overlayRotMat);
             gfx.setViewport(overlayW, overlayH);
+            gfx.setColorMatrix(sColorTop);
         };
 
         // Composite the overlay onto the primary panel. Drawing

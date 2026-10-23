@@ -31,6 +31,7 @@ cc_binary {
         ":drastic_nano_overlay_gfx_srcs",
         ":drastic_nano_osk_srcs",
         ":nano_i18n_srcs",
+        ":nano_color_matrix_srcs",
     ],
     include_dirs: [
         "frameworks/base/cmds/gammaos-nano",

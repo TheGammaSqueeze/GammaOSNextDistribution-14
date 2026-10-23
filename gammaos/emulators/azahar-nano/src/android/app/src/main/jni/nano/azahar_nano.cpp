@@ -4,6 +4,7 @@
 // and multiplayer pieces replaced by the core defaults.
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <atomic>
 #include <condition_variable>
@@ -919,6 +920,24 @@ void azn_windows_resized() {
 void azn_set_screen_aa(int enabled) {
     if (Settings::values.gammaos_screen_aa == (enabled != 0)) return;
     Settings::values.gammaos_screen_aa = enabled != 0;
+    Core::PerfStats::game_frames_updated = true;
+}
+
+void azn_set_color_matrix(int window, const float* m, int count) {
+    if (window < 0 || window > 1) return;
+    std::array<float, 12> next{1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
+    if (m && count >= 12) {
+        std::copy_n(m, 12, next.begin());
+    }
+    if (Settings::values.gammaos_color_matrix[window] == next) return;
+    Settings::values.gammaos_color_matrix[window] = next;
+    bool identity = true;
+    for (const auto& w : Settings::values.gammaos_color_matrix)
+        for (int i = 0; i < 12; i++) {
+            const float want = (i == 0 || i == 4 || i == 8) ? 1.0f : 0.0f;
+            if (std::abs(w[i] - want) > 0.0005f) identity = false;
+        }
+    Settings::values.gammaos_color_matrix_identity = identity;
     Core::PerfStats::game_frames_updated = true;
 }
 

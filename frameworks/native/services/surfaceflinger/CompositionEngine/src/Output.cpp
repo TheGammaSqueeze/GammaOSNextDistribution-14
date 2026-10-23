@@ -15,6 +15,8 @@
  */
 
 #include <SurfaceFlingerProperties.sysprop.h>
+#include <mutex>
+
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 #include <compositionengine/CompositionEngine.h>
@@ -52,6 +54,9 @@
 #pragma clang diagnostic pop // ignored "-Wconversion"
 
 #include <android-base/properties.h>
+#include <sys/system_properties.h>
+
+extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <ui/DebugUtils.h>
 #include <ui/HdrCapabilities.h>
 #include <utils/Trace.h>
@@ -431,13 +436,70 @@ void Output::setLayerFilter(ui::LayerFilter filter) {
     dirtyEntireOutput();
 }
 
+// GammaOS Screen Calibration: the per-screen matrix nano publishes (twelve values, column-major
+// 3x3 then the offset column; empty = identity), read again only when the property changed.
+namespace {
+struct GammaScreenMatrixProp {
+    const char* name;
+    const prop_info* pi = nullptr;
+    uint32_t serial = 0;
+    bool have = false;
+    mat4 value;
+    bool poll() {
+        if (!pi) pi = __system_property_find(name);
+        if (!pi) return false;
+        const uint32_t ser = __system_property_serial(pi);
+        if (have && ser == serial) return false;
+        serial = ser;
+        have = true;
+        const std::string text = android::base::GetProperty(name, "");
+        mat4 m;
+        float v[12];
+        const char* p = text.c_str();
+        bool ok = !text.empty();
+        for (int i = 0; ok && i < 12; i++) {
+            char* end = nullptr;
+            v[i] = strtof(p, &end);
+            if (end == p) ok = false;
+            p = end;
+            if (*p == ',') p++;
+        }
+        if (ok) {
+            m = mat4(vec4{v[0], v[1], v[2], 0}, vec4{v[3], v[4], v[5], 0}, vec4{v[6], v[7], v[8], 0},
+                     vec4{v[9], v[10], v[11], 1});
+        }
+        value = m;
+        ALOGI("GammaOS screen matrix %s: %s", name, ok ? text.c_str() : "identity");
+        return true;
+    }
+};
+GammaScreenMatrixProp gGammaScreenMatrix[2] = {{"persist.gammaos.display.screen_matrix.top"},
+                                               {"persist.gammaos.display.screen_matrix.bottom"}};
+std::mutex gGammaScreenMatrixMutex;
+}  // namespace
+
 void Output::setColorTransform(const compositionengine::CompositionRefreshArgs& args) {
-    auto& colorTransformMatrix = editState().colorTransformMatrix;
-    if (!args.colorTransformMatrix || colorTransformMatrix == args.colorTransformMatrix) {
+    auto& state = editState();
+    auto& colorTransformMatrix = state.colorTransformMatrix;
+    mat4 screen;
+    if (state.gammaScreen >= 0) {
+        std::lock_guard<std::mutex> lock(gGammaScreenMatrixMutex);
+        gGammaScreenMatrix[state.gammaScreen].poll();
+        screen = gGammaScreenMatrix[state.gammaScreen].value;
+    }
+    const bool screenChanged = screen != state.gammaScreenMatrix;
+    if (!screenChanged && (!args.colorTransformMatrix || colorTransformMatrix == args.colorTransformMatrix)) {
         return;
     }
-
-    colorTransformMatrix = *args.colorTransformMatrix;
+    if (args.colorTransformMatrix) {
+        state.gammaGlobalMatrix = *args.colorTransformMatrix;
+        state.gammaGlobalMatrixSet = true;
+    }
+    state.gammaScreenMatrix = screen;
+    // the screen's own correction applied after the global transform
+    colorTransformMatrix = state.gammaGlobalMatrixSet ? screen * state.gammaGlobalMatrix : screen;
+    state.gammaColorTransformDirty = true;
+    ALOGI("GammaOS color transform for %s (screen %d) updated", mNamePlusId.c_str(), state.gammaScreen);
 
     dirtyEntireOutput();
 }

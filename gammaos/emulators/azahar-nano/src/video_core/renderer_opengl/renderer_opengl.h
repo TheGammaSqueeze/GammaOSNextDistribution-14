@@ -106,6 +106,8 @@ private:
     GLuint uniform_i_resolution;
     GLuint uniform_o_resolution;
     GLuint uniform_layer;
+    GLint uniform_color_matrix = -1;   // GammaOS display colour transform
+    GLint uniform_color_offset = -1;
 
     // Shader attribute input indices
     GLuint attrib_position;

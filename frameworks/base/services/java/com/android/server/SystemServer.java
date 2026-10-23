@@ -4690,12 +4690,14 @@ public final class SystemServer implements Dumpable {
         // these writes on this build (verified on device - only the initial sync ran), and the
         // menu needs the panel to follow the slider. Each pass is a handful of property reads and
         // only touches the provider when one of our values actually moved, so an idle system does
-        // no work beyond the reads.
+        // no work beyond the reads. Every 100 ms: the menu's sliders write their value as they
+        // move and the panels (the DRM-direct home included, through the published colour
+        // matrix) should follow within a step.
         sync.run();
         Thread t = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     return;
                 }

@@ -606,6 +606,13 @@ struct Values {
     std::array<int, 2> gammaos_lcd_shader{};
     // GammaOS: FXAA on the emulated screens in the present pass, on top of any screen shader.
     bool gammaos_screen_aa = false;
+    // GammaOS: the Android display colour transform (LiveDisplay calibration, reading mode,
+    // Night Light, saturation), applied in the present pass since the DRM-direct frontend never
+    // passes through SurfaceFlinger. Column-major 3x3 plus the offset column (azn_set_color_matrix).
+    // One per window: 0 the primary (top panel), 1 the secondary (bottom panel).
+    std::array<std::array<float, 12>, 2> gammaos_color_matrix{{{1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
+                                                               {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}}};
+    bool gammaos_color_matrix_identity = true;
     bool gammaos_vd_keep_fs_depth = false;   // debug: vertex z rewrite but FS still writes depth
     // GammaOS tweak: full-surface clears through a render pass with loadOp CLEAR
     // instead of vkCmdClearColorImage (tile-based GPUs clear in on-chip memory).

@@ -74,6 +74,8 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "DrasticRunner.h"
 #include "NanoCtrAudio.h"
 #include "NanoMenu.h"
+#include "NanoColorMatrix.h"
+#include "NanoScreenCal.h"
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoMenuStrings.h"  // NanoLocale / LocaleInfo / nanoGetLocaleInfo (DSi language picker)
 #include "NanoMenuDrm.h"
@@ -6285,6 +6287,27 @@ void NanoMenu::render() {
 
     // GammaOS: Secondary display pass — wallpaper only, no menu/icons/text.
     // Runs only in DRM direct mode when a secondary AHB was allocated.
+    // A second panel, once seen on either path, makes Screen Calibration show its Top / Bottom
+    // rows (the latch is sticky for the session, like mNdsHadSecondary).
+    if (sAhbTargetSecondary.glFbo != 0 || !mSecondaryEglSurfaces.empty()) {
+        mNdsHadSecondary = true;
+        screencal::setDualScreen(true);
+    }
+
+    // The display colour transform (LiveDisplay calibration, reading mode, Night Light,
+    // saturation): SurfaceFlinger is not in the DRM path, so the panels take the matrix the
+    // framework publishes through the resolve blit (NanoMenuDrm). A serial check per frame.
+    if (sDrmActive && sDrmZeroCopy) {
+        colormatrix::Matrix top, bottom;
+        static bool sColorMatrixSet = false;
+        const bool t = colormatrix::pollScreen(colormatrix::kTop, &top);
+        const bool b = colormatrix::pollScreen(colormatrix::kBottom, &bottom);
+        if (t || b || !sColorMatrixSet) {
+            drmSetColorMatrix(top.m, bottom.m, top.identity && bottom.identity);
+            sColorMatrixSet = true;
+        }
+    }
+
     // Renders into sAhbTargetSecondary which drmFlipAll() will blit to every
     // non-primary DRM display. This gives the secondary screen a clean
     // wallpaper view without paying for the menu geometry.

@@ -220,6 +220,11 @@ void azn_set_lcd_shader(int screen, int shader);
 /// Screen AA: FXAA on the emulated screens in the present pass, combined with whatever screen
 /// shader each screen has (0/1). Applies live.
 void azn_set_screen_aa(int enabled);
+/// The display colour transform for one window (0 the primary / top panel, 1 the secondary /
+/// bottom panel): LiveDisplay's matrix times that screen's calibration, twelve values,
+/// column-major 3x3 then the offset column, applied to every presented pixel. count < 12 (or
+/// null) restores the identity.
+void azn_set_color_matrix(int window, const float* m, int count);
 
 // The frontend changed a window's buffer size (same window): relayout and rebuild the
 // swapchain at the new size.

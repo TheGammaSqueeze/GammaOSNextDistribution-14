@@ -88,6 +88,8 @@ public:
     // Draws the current state and presents it (any thread; the EGL context is
     // bound for the call and released after).
     void render();
+    // The display colour transform for both overlay windows (DRM path).
+    void setColorMatrix(const float top[12], const float bottom[12]) { mGfx.setColorMatrix(top); mGfxBottom.setColorMatrix(bottom); }
     // Loading screen while the core prepares its shader cache: a title, a detail
     // line and a progress bar (frac 0..1, negative = no bar).
     // Full-panel progress screen: title, a bar (frac 0..1; frac < 0 draws an indeterminate bar

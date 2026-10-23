@@ -43,8 +43,15 @@ namespace screencal {
 
 constexpr const char* kPropPrefix = "persist.gammaos.nano.screencal.";
 
-// True on the RG DS and RG DS Plus (ro.gammaos.device), the only devices this applies to.
+// Every device: the RG DS and RG DS Plus in the display controller, every other device in
+// software (see the software backend in NanoScreenCal.cpp and NanoColorMatrix.h).
 bool supported();
+// True on the RG DS family (hardware correction after composition).
+bool hardware();
+// Whether the device has two screens (nano tells it once a second panel is seen); the
+// settings show one screen's rows otherwise.
+void setDualScreen(bool dual);
+bool dualScreen();
 
 // Apply the stored settings to both screens now (live), then mirror them into baseparameter
 // after a short quiet period. Cheap to call repeatedly; does nothing on other devices.

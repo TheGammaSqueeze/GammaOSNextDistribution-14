@@ -71,6 +71,7 @@ cc_binary {
         "DsScreenLayout.cpp",
         "SfDisplayBackend.cpp",
         ":drastic_nano_shared_srcs",
+        ":nano_color_matrix_srcs",
     ],
 
     header_libs: [

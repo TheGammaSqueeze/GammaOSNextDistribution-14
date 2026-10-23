@@ -197,6 +197,12 @@ extern bool sDrmSecondaryTurned;     // nano home: the secondary ring scans the 
 // Before a ring slot's fence is created / it is flipped: copy each turned target's
 // scratch image into its scanout AHB turned 180 degrees. No-op for untouched targets.
 void drmResolveTurnedTargets(int idx);
+// The display colour transform for the DRM-direct home (NanoColorMatrix: LiveDisplay's matrix
+// times each screen's calibration; column-major 3x3 then the offset), one per panel: a non-identity
+// pair makes both rings render through the turned-panel scratch, and the resolve blit applies the
+// panel's matrix. Call from the render thread, before the frame's passes. Identity (both) restores
+// the direct AHB rendering.
+void drmSetColorMatrix(const float top[12], const float bottom[12], bool identity);
 // Physical mount rotation (degrees) of the panel on a display port, read from the
 // same props SurfaceFlinger applies as that display's physical orientation
 // (getPhysicalDisplayOrientation): persist.gsf.rot.<displayId> (a DSI panel's

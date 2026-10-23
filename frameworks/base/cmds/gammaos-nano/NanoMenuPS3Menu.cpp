@@ -854,8 +854,11 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("Bottom Clock") || is("Bottom Clock FPS")) return mNdsHadSecondary && !mCtrTheme;
     // the 3DS home has a bottom screen on a single panel too (stacked)
     if (is("Bottom Wallpaper")) return mNdsHadSecondary || mCtrTheme;
-    // Screen Calibration drives the RK356x display controller of the RG DS and RG DS Plus.
+    // Screen Calibration: one screen's rows on a single-screen device, the Top / Bottom split
+    // (and the copy) once a second panel has been seen (hasSecondaryDisplay latches it).
     if (is("Screen Calibration")) return screencal::supported();
+    if (is("Screen")) return !screencal::dualScreen();
+    if (is("Top Screen") || is("Bottom Screen") || is("Copy Top Screen to Bottom")) return screencal::dualScreen();
     // The Control Centre lives on the dual-screen bottom panel, so its options only make sense there.
     if (is("Control Centre Double Tap") || is("Control Centre Timeout")) return mNdsHadSecondary;
     return true;
@@ -6164,9 +6167,9 @@ void NanoMenu::ps3XmbSelect() {
             // Display > Screen Calibration actions. The rows of the open level re-read their
             // values so the new calibration shows at once.
             if (it.label == "Copy Top Screen to Bottom" || it.label == "Reset Screen Calibration" ||
-                it.label == "Reset Top Screen" || it.label == "Reset Bottom Screen") {
+                it.label == "Reset Top Screen" || it.label == "Reset Bottom Screen" || it.label == "Reset Screen") {
                 if (it.label == "Reset Screen Calibration") screencal::resetAll();
-                else if (it.label == "Reset Top Screen") screencal::resetScreen(true);
+                else if (it.label == "Reset Top Screen" || it.label == "Reset Screen") screencal::resetScreen(true);
                 else if (it.label == "Reset Bottom Screen") screencal::resetScreen(false);
                 else screencal::copyTopToBottom();
                 mPs3BindCache.clear();
@@ -9233,6 +9236,14 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // Path-scoped labels ("<screen>/<row>"): the two screens' rows share display labels with each
     // other and with LiveDisplay, so they bind by their place in the tree (ps3BindingForItem).
     // writeSettingValue applies every change through NanoScreenCal; the slider previews live.
+    // the single-screen rows ("Screen/...") drive the top values
+    {"Screen/Brightness", SettingSource::kProp, "persist.gammaos.nano.screencal.top.brightness", "50", "slider:0:100:1:0"},
+    {"Screen/Contrast", SettingSource::kProp, "persist.gammaos.nano.screencal.top.contrast", "50", "slider:0:100:1:0"},
+    {"Screen/Saturation", SettingSource::kProp, "persist.gammaos.nano.screencal.top.saturation", "50", "slider:0:100:1:0"},
+    {"Screen/Hue", SettingSource::kProp, "persist.gammaos.nano.screencal.top.hue", "50", "slider:0:100:1:0"},
+    {"Screen/Red", SettingSource::kProp, "persist.gammaos.nano.screencal.top.red", "100", "slider:20:100:1:0"},
+    {"Screen/Green", SettingSource::kProp, "persist.gammaos.nano.screencal.top.green", "100", "slider:20:100:1:0"},
+    {"Screen/Blue", SettingSource::kProp, "persist.gammaos.nano.screencal.top.blue", "100", "slider:20:100:1:0"},
     {"Top Screen/Brightness", SettingSource::kProp, "persist.gammaos.nano.screencal.top.brightness", "50", "slider:0:100:1:0"},
     {"Top Screen/Contrast", SettingSource::kProp, "persist.gammaos.nano.screencal.top.contrast", "50", "slider:0:100:1:0"},
     {"Top Screen/Saturation", SettingSource::kProp, "persist.gammaos.nano.screencal.top.saturation", "50", "slider:0:100:1:0"},
@@ -12000,9 +12011,32 @@ void NanoMenu::applyThemeSetting(int themeKey, int sel) {
 
 // Live preview of a Screen Calibration slider on the panels (nothing is written until the dialog
 // is confirmed; cancel restores the stored calibration in closePs3Dialog).
+//
+// The LiveDisplay colour calibration sliders (persist.gammaos.nano.display.cal_r/g/b) preview the
+// same way, by writing their property as the slider moves: the framework's display bridge mirrors
+// it into LiveDisplay within 100 ms and publishes the resulting colour matrix, which the DRM-direct
+// home applies on its next frame. Cancel puts the value at open back.
+static const char* const kLiveDisplayCalPrefix = "persist.gammaos.nano.display.cal_";
+static std::string sLiveDispPrevKey, sLiveDispPrevOrig;   // the slider being previewed and its value at open
+static bool liveDisplayCalKey(const char* key) {
+    return key && !strncmp(key, kLiveDisplayCalPrefix, strlen(kLiveDisplayCalPrefix));
+}
+
 void NanoMenu::screenCalSliderPreview() {
-    if (!mPs3DlgBinding || !mPs3DlgSlider || !screencal::isCalibrationKey(mPs3DlgBinding->key)) return;
-    screencal::preview(mPs3DlgBinding->key, std::to_string((int)lroundf(mPs3DlgSldVal)));
+    if (!mPs3DlgBinding || !mPs3DlgSlider) return;
+    const std::string value = std::to_string((int)lroundf(mPs3DlgSldVal));
+    if (liveDisplayCalKey(mPs3DlgBinding->key)) {
+        if (sLiveDispPrevKey != mPs3DlgBinding->key) {
+            char cur[PROPERTY_VALUE_MAX] = {};
+            property_get(mPs3DlgBinding->key, cur, "");
+            sLiveDispPrevKey = mPs3DlgBinding->key;
+            sLiveDispPrevOrig = cur;
+        }
+        property_set(mPs3DlgBinding->key, value.c_str());
+        return;
+    }
+    if (!screencal::isCalibrationKey(mPs3DlgBinding->key)) return;
+    screencal::preview(mPs3DlgBinding->key, value);
 }
 
 void NanoMenu::closePs3Dialog(bool apply) {
@@ -12041,6 +12075,11 @@ void NanoMenu::closePs3Dialog(bool apply) {
         // Screen Calibration sliders preview on the panels as they move: cancel puts the
         // stored calibration back (confirm writes it, which applies it too).
         if (!apply && screencal::isCalibrationKey(b->key)) screencal::applyFromProps();
+        // LiveDisplay colour calibration slider: cancel restores the value the dialog opened with.
+        if (liveDisplayCalKey(b->key) && sLiveDispPrevKey == b->key) {
+            if (!apply) property_set(b->key, sLiveDispPrevOrig.c_str());
+            sLiveDispPrevKey.clear();
+        }
         if (apply) {
             if (!strcmp(b->options, "@rgbeffect")) {
                 // Off -> gammargb.control=off; any effect -> control=on + rgb.effect.

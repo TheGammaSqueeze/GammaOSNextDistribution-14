@@ -35,6 +35,8 @@ public:
     };
     // Draws the frame and presents it.
     void render(const Frame& f);
+    // The display colour transform for the HUD strip (DRM path, see OverlayGfx::setColorMatrix).
+    void setColorMatrix(const float m[12]) { mGfx.setColorMatrix(m); }
     bool ready() const { return mReady; }
 
 private:

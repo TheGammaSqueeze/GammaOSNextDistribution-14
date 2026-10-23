@@ -102,12 +102,16 @@ void Display::disconnect() {
 void Display::setColorTransform(const compositionengine::CompositionRefreshArgs& args) {
     Output::setColorTransform(args);
     const auto halDisplayId = HalDisplayId::tryCast(mId);
-    if (mIsDisconnected || !halDisplayId || CC_LIKELY(!args.colorTransformMatrix)) {
+    // GammaOS: the HWC gets the output's own matrix (the global transform times this screen's
+    // calibration), whenever either part changed.
+    auto& state = editState();
+    if (mIsDisconnected || !halDisplayId || CC_LIKELY(!state.gammaColorTransformDirty)) {
         return;
     }
+    state.gammaColorTransformDirty = false;
 
     auto& hwc = getCompositionEngine().getHwComposer();
-    status_t result = hwc.setColorTransform(*halDisplayId, *args.colorTransformMatrix);
+    status_t result = hwc.setColorTransform(*halDisplayId, state.colorTransformMatrix);
     ALOGE_IF(result != NO_ERROR, "Failed to set color transform on display \"%s\": %d",
              to_string(mId).c_str(), result);
 }

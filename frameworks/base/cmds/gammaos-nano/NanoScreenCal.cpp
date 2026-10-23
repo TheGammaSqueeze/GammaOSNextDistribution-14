@@ -17,6 +17,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoScreenCal.h"
+#include "NanoColorMatrix.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -33,6 +34,8 @@
 #include <thread>
 #include <vector>
 
+#include <binder/IServiceManager.h>
+#include <binder/Parcel.h>
 #include <cutils/properties.h>
 #include <utils/Log.h>
 #include <zlib.h>
@@ -302,7 +305,54 @@ bool commitLive(LiveState& st, const Cal cal[2]) {
     return ok;
 }
 
+// ---- software backend ----------------------------------------------------------------------
+//
+// Every device without the Rockchip colour blocks (the RG DS family) is corrected in software:
+// each screen's calibration becomes a matrix (NanoColorMatrix::fromCalibration) published as
+// persist.gammaos.display.screen_matrix.<top|bottom>. SurfaceFlinger applies it to that
+// display in Android, and the DRM-direct programs (this home, drastic-nano, azahar-nano) apply
+// it to that panel themselves. Nothing else is mirrored; the properties persist the settings.
+
+enum Backend { kRockchip, kSoftware };
+
+Backend backend() {
+    static int sBackend = -1;
+    if (sBackend < 0) {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        sBackend = (!strcmp(dev, "anbernicrgds") || !strcmp(dev, "anbernicrgdsplus")) ? kRockchip : kSoftware;
+    }
+    return (Backend)sBackend;
+}
+
+bool gDualScreen = false;
+
+void publishScreenMatrices(const Cal cal[2]) {
+    static const char* const kProps[2] = { colormatrix::kScreenPropTop, colormatrix::kScreenPropBottom };
+    bool changed = false;
+    for (int s = 0; s < 2; s++) {
+        colormatrix::Matrix m;
+        colormatrix::fromCalibration(cal[s].bri, cal[s].con, cal[s].sat, cal[s].hue, cal[s].r, cal[s].g, cal[s].b, &m);
+        char text[PROPERTY_VALUE_MAX] = {};
+        colormatrix::format(m, text, sizeof text);
+        char cur[PROPERTY_VALUE_MAX] = {};
+        property_get(kProps[s], cur, "");
+        if (strcmp(cur, text)) { property_set(kProps[s], text); changed = true; }
+    }
+    // SurfaceFlinger folds the matrices in on its next frame; a static Android screen has none
+    // coming, so ask it to repaint (the same debug transaction LiveDisplay uses).
+    if (changed) {
+        sp<IBinder> flinger = defaultServiceManager()->checkService(String16("SurfaceFlinger"));
+        if (flinger != nullptr) {
+            Parcel data;
+            data.writeInterfaceToken(String16("android.ui.ISurfaceComposer"));
+            flinger->transact(1004, data, nullptr, 0);
+        }
+    }
+}
+
 void submitLive(const Cal cal[2]) {
+    if (backend() == kSoftware) { publishScreenMatrices(cal); return; }
     std::lock_guard<std::mutex> lk(gWMu);
     gWCal[0] = cal[0]; gWCal[1] = cal[1];
     gWPending = true;
@@ -532,15 +582,12 @@ void mirrorComposerProps(const Cal cal[2]) {
 
 }  // namespace
 
-bool supported() {
-    static int sSupported = -1;
-    if (sSupported < 0) {
-        char dev[PROPERTY_VALUE_MAX] = {};
-        property_get("ro.gammaos.device", dev, "");
-        sSupported = (!strcmp(dev, "anbernicrgds") || !strcmp(dev, "anbernicrgdsplus")) ? 1 : 0;
-    }
-    return sSupported == 1;
-}
+bool supported() { return true; }
+
+bool hardware() { return backend() == kRockchip; }
+
+void setDualScreen(bool dual) { gDualScreen = dual; }
+bool dualScreen() { return gDualScreen; }
 
 bool isCalibrationKey(const std::string& key) {
     return key.compare(0, strlen(kPropPrefix), kPropPrefix) == 0;
@@ -550,7 +597,7 @@ void applyFromProps() {
     if (!supported()) return;
     Cal cal[2] = { load(kTop), load(kBottom) };
     submitLive(cal);
-    scheduleBaseparameter();
+    if (backend() == kRockchip) scheduleBaseparameter();
 }
 
 void preview(const std::string& key, const std::string& value) {

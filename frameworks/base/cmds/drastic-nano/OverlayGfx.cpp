@@ -46,11 +46,15 @@ const char kSolidVS[] =
     "  ndc.y = -ndc.y;\n"
     "  gl_Position = vec4(uRot * ndc, 0.0, 1.0);\n"
     "}\n";
+// Every fragment shader ends by putting its colour through the display colour transform
+// (setColorMatrix: the DRM path's share of LiveDisplay / Night Light; identity elsewhere).
 const char kSolidFS[] =
     "precision mediump float;\n"
     "varying vec4 vColor;\n"
+    "uniform mat3 uCm;\n"
+    "uniform vec3 uCmOff;\n"
     "void main() {\n"
-    "  gl_FragColor = vColor;\n"
+    "  gl_FragColor = vec4(clamp(uCm * vColor.rgb + uCmOff, 0.0, 1.0), vColor.a);\n"
     "}\n";
 
 // Text vertex shader: per-vertex UV.
@@ -72,9 +76,11 @@ const char kTextFS[] =
     "varying vec2 vUv;\n"
     "uniform sampler2D uTex;\n"
     "uniform vec4 uColor;\n"
+    "uniform mat3 uCm;\n"
+    "uniform vec3 uCmOff;\n"
     "void main() {\n"
     "  float a = texture2D(uTex, vUv).r;\n"
-    "  gl_FragColor = vec4(uColor.rgb, uColor.a * a);\n"
+    "  gl_FragColor = vec4(clamp(uCm * uColor.rgb + uCmOff, 0.0, 1.0), uColor.a * a);\n"
     "}\n";
 
 // RGBA image (achievement badge): same per-vertex UV vertex shader as text,
@@ -93,6 +99,8 @@ const char kImageFS[] =
     "uniform float uAlpha;\n"
     "uniform vec2 uTexSize;\n"
     "uniform vec2 uScale;\n"
+    "uniform mat3 uCm;\n"
+    "uniform vec3 uCmOff;\n"
     "void main() {\n"
     "  vec2 texel = vUv * uTexSize;\n"
     "  vec2 tFloor = floor(texel);\n"
@@ -102,7 +110,7 @@ const char kImageFS[] =
     "  vec2 f = (cd - clamp(cd, -region, region)) * uScale + 0.5;\n"
     "  vec2 uv = (tFloor + f) / uTexSize;\n"
     "  vec4 t = texture2D(uTex, uv);\n"
-    "  gl_FragColor = vec4(t.rgb, t.a * uAlpha);\n"
+    "  gl_FragColor = vec4(clamp(uCm * t.rgb + uCmOff, 0.0, 1.0), t.a * uAlpha);\n"
     "}\n";
 
 // Rounded-rect SDF, transcribed 1:1 from gammaos-nano's ROUND_FRAGMENT_SHADER
@@ -127,11 +135,13 @@ const char kRoundFS[] =
     "uniform vec2 uHalf;\n"
     "uniform float uRadius;\n"
     "uniform vec4 uColor;\n"
+    "uniform mat3 uCm;\n"
+    "uniform vec3 uCmOff;\n"
     "void main() {\n"
     "  vec2 d = abs(vLocal) - (uHalf - vec2(uRadius));\n"
     "  float dist = length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - uRadius;\n"
     "  float a = clamp(0.5 - dist, 0.0, 1.0);\n"
-    "  gl_FragColor = vec4(uColor.rgb, uColor.a * a);\n"
+    "  gl_FragColor = vec4(clamp(uCm * uColor.rgb + uCmOff, 0.0, 1.0), uColor.a * a);\n"
     "}\n";
 
 GLuint compile(GLenum type, const char* src) {
@@ -324,12 +334,34 @@ void OverlayGfx::setRotationMatrix(const float rot[4]) {
     for (int i = 0; i < 4; i++) mRot[i] = rot[i];
 }
 
+void OverlayGfx::setColorMatrix(const float m[12]) {
+    bool same = true;
+    for (int i = 0; i < 12 && same; i++) same = mColorMatrix[i] == m[i];
+    if (same) return;
+    for (int i = 0; i < 12; i++) mColorMatrix[i] = m[i];
+    mColorMatrixDirty = true;
+}
+
 void OverlayGfx::beginFrame() {
     // Save drastic's current program so endFrame can restore it.
     GLint cur = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
     mDrasticProgram = (GLuint)cur;
     mCurProgram = 0;   // drastic owned the binding since our last frame
+    // The colour transform is a per-program constant: uploaded to every program when it
+    // changed (the programs keep their uniforms between binds).
+    if (mColorMatrixDirty) {
+        const GLuint progs[4] = { mSolidProgram, mTextProgram, mRoundProgram, mImageProgram };
+        for (GLuint prog : progs) {
+            if (!prog) continue;
+            glUseProgram(prog);
+            const GLint lm = glGetUniformLocation(prog, "uCm");
+            const GLint lo = glGetUniformLocation(prog, "uCmOff");
+            if (lm >= 0) glUniformMatrix3fv(lm, 1, GL_FALSE, mColorMatrix);
+            if (lo >= 0) glUniform3fv(lo, 1, mColorMatrix + 9);
+        }
+        mColorMatrixDirty = false;
+    }
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

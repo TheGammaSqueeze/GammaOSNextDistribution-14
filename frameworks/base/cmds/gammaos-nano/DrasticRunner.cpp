@@ -1247,6 +1247,8 @@ static const char* kDrasticFs =
     "uniform sampler2D uTex;\n"
     "uniform float uSaturation;\n"  // 0=grayscale, 1=full color
     "uniform float uGradient;\n"    // 0=none, 1=strong dark gradient
+    "uniform mat3 uColorM;\n"       // the display colour transform (DRM path), identity otherwise
+    "uniform vec3 uColorOff;\n"
     "void main() {\n"
     "  vec4 c = texture2D(uTex, vUv);\n"
     "  vec3 rgb = c.rgb;\n"
@@ -1254,6 +1256,7 @@ static const char* kDrasticFs =
     "  rgb = mix(vec3(gray), rgb, uSaturation);\n"
     "  float fade = smoothstep(0.35, 0.85, vUv.y) * uGradient;\n"
     "  rgb *= (1.0 - fade);\n"
+    "  rgb = clamp(uColorM * rgb + uColorOff, 0.0, 1.0);\n"
     "  gl_FragColor = vec4(rgb, 1.0);\n"
     "}\n";
 
@@ -1270,6 +1273,8 @@ static const char* kDrasticFsBlend =
     "uniform float uBlend;\n"
     "uniform float uSaturation;\n"
     "uniform float uGradient;\n"
+    "uniform mat3 uColorM;\n"
+    "uniform vec3 uColorOff;\n"
     "void main() {\n"
     "  vec3 cur  = texture2D(uTex, vUv).rgb;\n"
     "  vec3 prev = texture2D(uPrevTex, vUv).rgb;\n"
@@ -1278,6 +1283,7 @@ static const char* kDrasticFsBlend =
     "  rgb = mix(vec3(gray), rgb, uSaturation);\n"
     "  float fade = smoothstep(0.35, 0.85, vUv.y) * uGradient;\n"
     "  rgb *= (1.0 - fade);\n"
+    "  rgb = clamp(uColorM * rgb + uColorOff, 0.0, 1.0);\n"
     "  gl_FragColor = vec4(rgb, 1.0);\n"
     "}\n";
 
@@ -1407,6 +1413,8 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
     mQuadTexLoc      = glGetAttribLocation(mQuadProgram, "aUv");
     mQuadSamplerLoc  = glGetUniformLocation(mQuadProgram, "uTex");
     mQuadSatLoc      = glGetUniformLocation(mQuadProgram, "uSaturation");
+    mQuadColorMLoc   = glGetUniformLocation(mQuadProgram, "uColorM");
+    mQuadColorOffLoc = glGetUniformLocation(mQuadProgram, "uColorOff");
     mQuadGradLoc     = glGetUniformLocation(mQuadProgram, "uGradient");
     mQuadRotLoc      = glGetUniformLocation(mQuadProgram, "uRotation");
     mQuadUvRectLoc   = glGetUniformLocation(mQuadProgram, "uUvRect");
@@ -1420,6 +1428,8 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
     mFfBlendPrevSamplerLoc = glGetUniformLocation(mFfBlendProgram, "uPrevTex");
     mFfBlendAmountLoc      = glGetUniformLocation(mFfBlendProgram, "uBlend");
     mFfBlendSatLoc         = glGetUniformLocation(mFfBlendProgram, "uSaturation");
+    mFfBlendColorMLoc      = glGetUniformLocation(mFfBlendProgram, "uColorM");
+    mFfBlendColorOffLoc    = glGetUniformLocation(mFfBlendProgram, "uColorOff");
     mFfBlendGradLoc        = glGetUniformLocation(mFfBlendProgram, "uGradient");
     mFfBlendRotLoc         = glGetUniformLocation(mFfBlendProgram, "uRotation");
     mFfBlendUvRectLoc      = glGetUniformLocation(mFfBlendProgram, "uUvRect");
@@ -8486,9 +8496,19 @@ void DrasticRunner::updatePixels() {
     }
 }
 
+const float* DrasticRunner::currentColorMatrix() const {
+    static const float kIdentity[12] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
+    GLint fbo = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+    for (int p = 0; p < 2; p++)
+        if (mPanelFbo[p] && (GLuint)fbo == mPanelFbo[p]) return mPanelMatrix[p];
+    return kIdentity;
+}
+
 void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
                                 float saturation, float gradient) {
     if (!mSurfaceReady) return;
+    const float* colorM = currentColorMatrix();
     // vMin/vMax are the UV Y range to sample from the source texture.
     // Full texture = (0, 1). For the fxRender path we pass the
     // shaded offscreen FBO (top + bot stacked) so renderTopScreen
@@ -8504,6 +8524,8 @@ void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
         if (mFfBlendRotLoc >= 0)
             glUniformMatrix2fv(mFfBlendRotLoc, 1, GL_FALSE, mRotationMatrix);
         if (mFfBlendSatLoc >= 0)  glUniform1f(mFfBlendSatLoc, saturation);
+        if (mFfBlendColorMLoc >= 0) glUniformMatrix3fv(mFfBlendColorMLoc, 1, GL_FALSE, colorM);
+        if (mFfBlendColorOffLoc >= 0) glUniform3fv(mFfBlendColorOffLoc, 1, colorM + 9);
         if (mFfBlendGradLoc >= 0) glUniform1f(mFfBlendGradLoc, gradient);
         if (mFfBlendAmountLoc >= 0) glUniform1f(mFfBlendAmountLoc, mFfBlendAlpha);
         if (mFfBlendSamplerLoc >= 0)     glUniform1i(mFfBlendSamplerLoc, 0);
@@ -8535,6 +8557,8 @@ void DrasticRunner::drawDsQuad(unsigned int tex, float vMin, float vMax,
     if (mQuadRotLoc >= 0)
         glUniformMatrix2fv(mQuadRotLoc, 1, GL_FALSE, mRotationMatrix);
     if (mQuadSatLoc >= 0) glUniform1f(mQuadSatLoc, saturation);
+    if (mQuadColorMLoc >= 0) glUniformMatrix3fv(mQuadColorMLoc, 1, GL_FALSE, colorM);
+    if (mQuadColorOffLoc >= 0) glUniform3fv(mQuadColorOffLoc, 1, colorM + 9);
     if (mQuadGradLoc >= 0) glUniform1f(mQuadGradLoc, gradient);
     if (mQuadSamplerLoc >= 0) glUniform1i(mQuadSamplerLoc, 0);
     if (mQuadUvRectLoc >= 0) {

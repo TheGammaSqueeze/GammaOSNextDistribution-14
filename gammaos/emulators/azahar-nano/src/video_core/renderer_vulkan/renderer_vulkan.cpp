@@ -26,6 +26,7 @@
 #include "video_core/host_shaders/vulkan_cursor_frag.h"
 #include "video_core/host_shaders/vulkan_cursor_vert.h"
 
+#include <cstring>
 #include <vk_mem_alloc.h>
 #if defined(__APPLE__) && !defined(HAVE_LIBRETRO)
 #include "common/apple_utils.h"
@@ -59,9 +60,35 @@ constexpr std::array<f32, 4 * 4> MakeOrthographicMatrix(u32 width, u32 height) {
     // clang-format on
 }
 
-constexpr static std::array<vk::DescriptorSetLayoutBinding, 1> PRESENT_BINDINGS = {{
+constexpr static std::array<vk::DescriptorSetLayoutBinding, 2> PRESENT_BINDINGS = {{
     {0, vk::DescriptorType::eCombinedImageSampler, 3, vk::ShaderStageFlagBits::eFragment},
+    {1, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment},
 }};
+
+// GammaOS: the display colour transform (LiveDisplay calibration, reading mode, Night Light,
+// saturation) in the present pass. Every present fragment shader is compiled with its own main
+// renamed (the preamble define) and this wrapper appended, which runs it and then puts the
+// written colour through the matrix. The matrix lives in a small uniform buffer: the push
+// constant block is already at the 128 byte floor.
+constexpr std::string_view COLOR_MATRIX_DEFINE = "#define main gammaos_src_main\n";
+constexpr std::string_view COLOR_MATRIX_WRAP = R"(
+#undef main
+layout (set = 0, binding = 1, std140) uniform GammaColorMatrix {
+    vec4 gammaos_cm[3];
+    vec4 gammaos_cm_offset;
+};
+void main() {
+    gammaos_src_main();
+    vec3 c = color.rgb;
+    color = vec4(clamp(gammaos_cm[0].xyz * c.r + gammaos_cm[1].xyz * c.g +
+                       gammaos_cm[2].xyz * c.b + gammaos_cm_offset.xyz, 0.0, 1.0), color.a);
+}
+)";
+struct ColorMatrixUbo {
+    std::array<float, 4> cm[3];
+    std::array<float, 4> offset;
+};
+constexpr u32 COLOR_BUFFER_SIZE = 256 * 64;
 
 namespace {
 static bool IsLowRefreshRate() {
@@ -120,6 +147,8 @@ RendererVulkan::RendererVulkan(Core::System& system, Pica::PicaCore& pica_,
       main_present_window{window, instance, scheduler, IsLowRefreshRate()},
       vertex_buffer{instance, scheduler, vk::BufferUsageFlagBits::eVertexBuffer,
                     VERTEX_BUFFER_SIZE},
+      color_buffer{instance, scheduler, vk::BufferUsageFlagBits::eUniformBuffer,
+                   COLOR_BUFFER_SIZE},
       update_queue{instance}, rasterizer{memory,
                                          draw_pica,
                                          system.CustomTexManager(),
@@ -205,9 +234,26 @@ void RendererVulkan::PrepareRendertarget() {
     }
 }
 
+vk::DescriptorSet RendererVulkan::CommitPresentSet() {
+    const auto set = present_heap.Commit();
+    ColorMatrixUbo ubo{};
+    const auto& m = Settings::values.gammaos_color_matrix[isSecondaryWindow ? 1 : 0];
+    for (int c = 0; c < 3; c++) {
+        ubo.cm[c] = {m[c * 3], m[c * 3 + 1], m[c * 3 + 2], 0.0f};
+    }
+    ubo.offset = {m[9], m[10], m[11], 0.0f};
+    const auto [ptr, offset, invalidate] =
+        color_buffer.Map(sizeof(ubo), instance.UniformMinAlignment());
+    std::memcpy(ptr, &ubo, sizeof(ubo));
+    color_buffer.Commit(sizeof(ubo));
+    update_queue.AddBuffer(set, 1, color_buffer.Handle(), offset, sizeof(ubo),
+                           vk::DescriptorType::eUniformBuffer);
+    return set;
+}
+
 void RendererVulkan::PrepareDraw(Frame* frame, const Layout::FramebufferLayout& layout) {
     const auto sampler = present_samplers[!Settings::values.filter_mode.GetValue()];
-    const auto present_set = present_heap.Commit();
+    const auto present_set = CommitPresentSet();
     for (u32 index = 0; index < screen_infos.size(); index++) {
         update_queue.AddImageSampler(present_set, 0, index, screen_infos[index].image_view,
                                      sampler);
@@ -218,7 +264,7 @@ void RendererVulkan::PrepareDraw(Frame* frame, const Layout::FramebufferLayout& 
     present_set_linear = present_set;
     if (Settings::values.gammaos_lcd_shader[0] > 0 || Settings::values.gammaos_lcd_shader[1] > 0) {
         if (sampler != present_samplers[0]) {
-            present_set_linear = present_heap.Commit();
+            present_set_linear = CommitPresentSet();
             for (u32 index = 0; index < screen_infos.size(); index++) {
                 update_queue.AddImageSampler(present_set_linear, 0, index,
                                              screen_infos[index].image_view, present_samplers[0]);
@@ -378,16 +424,19 @@ void RendererVulkan::LoadFBToScreenInfo(const Pica::FramebufferConfig& framebuff
 
 void RendererVulkan::CompileShaders() {
     const vk::Device device = instance.GetDevice();
-    const std::string_view preamble =
-        instance.IsImageArrayDynamicIndexSupported() ? "#define ARRAY_DYNAMIC_INDEX" : "";
+    std::string preamble =
+        instance.IsImageArrayDynamicIndexSupported() ? "#define ARRAY_DYNAMIC_INDEX\n" : "";
+    preamble += COLOR_MATRIX_DEFINE;
     present_vertex_shader =
         Compile(HostShaders::VULKAN_PRESENT_VERT, vk::ShaderStageFlagBits::eVertex, device);
-    present_shaders[0] = Compile(HostShaders::VULKAN_PRESENT_FRAG,
-                                 vk::ShaderStageFlagBits::eFragment, device, preamble);
-    present_shaders[1] = Compile(HostShaders::VULKAN_PRESENT_ANAGLYPH_FRAG,
-                                 vk::ShaderStageFlagBits::eFragment, device, preamble);
-    present_shaders[2] = Compile(HostShaders::VULKAN_PRESENT_INTERLACED_FRAG,
-                                 vk::ShaderStageFlagBits::eFragment, device, preamble);
+    const auto present_fragment = [&](std::string_view code) {
+        std::string wrapped{code};
+        wrapped += COLOR_MATRIX_WRAP;
+        return Compile(wrapped, vk::ShaderStageFlagBits::eFragment, device, preamble);
+    };
+    present_shaders[0] = present_fragment(HostShaders::VULKAN_PRESENT_FRAG);
+    present_shaders[1] = present_fragment(HostShaders::VULKAN_PRESENT_ANAGLYPH_FRAG);
+    present_shaders[2] = present_fragment(HostShaders::VULKAN_PRESENT_INTERLACED_FRAG);
 
     cursor_vertex_shader =
         Compile(HostShaders::VULKAN_CURSOR_VERT, vk::ShaderStageFlagBits::eVertex, device);
@@ -764,7 +813,7 @@ void RendererVulkan::RunScreenAa() {
             return;
         }
     }
-    const auto set = present_heap.Commit();
+    const auto set = CommitPresentSet();
     for (u32 i = 0; i < screen_infos.size(); i++) {
         update_queue.AddImageSampler(set, 0, i, sources[i], present_samplers[0]);
     }
@@ -854,11 +903,13 @@ vk::Pipeline RendererVulkan::ScreenPipeline(u32 screen_id, bool& user_sampler) {
         std::string preamble;
         if (instance.IsImageArrayDynamicIndexSupported()) preamble += "#define ARRAY_DYNAMIC_INDEX\n";
         if (aa) preamble += "#define SCREEN_AA\n";
+        preamble += COLOR_MATRIX_DEFINE;
         std::string code{GammaLcd::kCommon};
         if (lcd > 0 && static_cast<std::size_t>(lcd - 1) >= GammaLcd::kFirstSharp) {
             code += GammaLcd::kSharpCommon;
         }
         code += lcd == 0 ? GammaLcd::kPlainAa : GammaLcd::kShaders[lcd - 1];
+        code += COLOR_MATRIX_WRAP;
         lcd_shaders[i] = Compile(code, vk::ShaderStageFlagBits::eFragment, instance.GetDevice(),
                                  preamble);
         if (!lcd_shaders[i]) {

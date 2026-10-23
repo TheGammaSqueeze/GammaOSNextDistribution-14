@@ -406,7 +406,11 @@ void RendererOpenGL::InitOpenGLObjects() {
 
 void RendererOpenGL::ReloadShader(Settings::StereoRenderOption render_3d) {
     // Link shaders and get variable locations
-    std::string shader_data = fragment_shader_precision_OES;
+    // GammaOS: the builtin present shaders run with their main renamed and a wrapper that puts
+    // the written colour through the display colour transform (see gammaos_color_matrix). A
+    // user post-processing shader keeps its own output and gets no transform.
+    bool color_matrix = true;
+    std::string shader_data;
     if (render_3d == Settings::StereoRenderOption::Anaglyph) {
         if (Settings::values.anaglyph_shader_name.GetValue() == "Dubois (builtin)") {
             shader_data += HostShaders::OPENGL_PRESENT_ANAGLYPH_FRAG;
@@ -418,6 +422,7 @@ void RendererOpenGL::ReloadShader(Settings::StereoRenderOption render_3d) {
                 shader_data += HostShaders::OPENGL_PRESENT_ANAGLYPH_FRAG;
             } else {
                 shader_data += shader_text;
+                color_matrix = false;
             }
         }
     } else if (render_3d == Settings::StereoRenderOption::Interlaced ||
@@ -434,9 +439,22 @@ void RendererOpenGL::ReloadShader(Settings::StereoRenderOption render_3d) {
                 shader_data += HostShaders::OPENGL_PRESENT_FRAG;
             } else {
                 shader_data += shader_text;
+                color_matrix = false;
             }
         }
     }
+    if (color_matrix) {
+        shader_data = "#define main gammaos_src_main\n" + shader_data + R"(
+#undef main
+uniform mat3 gammaos_color_matrix;
+uniform vec3 gammaos_color_offset;
+void main() {
+    gammaos_src_main();
+    color = vec4(clamp(gammaos_color_matrix * color.rgb + gammaos_color_offset, 0.0, 1.0), color.a);
+}
+)";
+    }
+    shader_data = fragment_shader_precision_OES + shader_data;
     shader.Create(HostShaders::OPENGL_PRESENT_VERT, shader_data);
     state.draw.shader_program = shader.handle;
     state.Apply();
@@ -459,6 +477,8 @@ void RendererOpenGL::ReloadShader(Settings::StereoRenderOption render_3d) {
     uniform_i_resolution = glGetUniformLocation(shader.handle, "i_resolution");
     uniform_o_resolution = glGetUniformLocation(shader.handle, "o_resolution");
     uniform_layer = glGetUniformLocation(shader.handle, "layer");
+    uniform_color_matrix = glGetUniformLocation(shader.handle, "gammaos_color_matrix");
+    uniform_color_offset = glGetUniformLocation(shader.handle, "gammaos_color_offset");
     attrib_position = glGetAttribLocation(shader.handle, "vert_position");
     attrib_tex_coord = glGetAttribLocation(shader.handle, "vert_tex_coord");
 }
@@ -706,6 +726,13 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout, bool f
 
     // Bind texture in Texture Unit 0
     glUniform1i(uniform_color_texture, 0);
+
+    // GammaOS: the display colour transform (column-major 3x3 and the offset column).
+    {
+        const auto& m = Settings::values.gammaos_color_matrix[isSecondaryWindow ? 1 : 0];
+        glUniformMatrix3fv(uniform_color_matrix, 1, GL_FALSE, m.data());
+        glUniform3f(uniform_color_offset, m[9], m[10], m[11]);
+    }
 
     const bool stereo_single_screen =
         layout.render_3d_mode == Settings::StereoRenderOption::Anaglyph ||

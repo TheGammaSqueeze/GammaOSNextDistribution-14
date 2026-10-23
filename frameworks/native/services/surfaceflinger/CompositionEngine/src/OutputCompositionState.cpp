@@ -55,6 +55,7 @@ void OutputCompositionState::dump(std::string& out) const {
 
     out.append("\n   ");
     dumpVal(out, "colorTransformMatrix", colorTransformMatrix);
+    dumpVal(out, "gammaScreen", gammaScreen);
 
     out.append("\n   ");
     dumpVal(out, "displayBrightnessNits", displayBrightnessNits);

@@ -27,6 +27,8 @@
 #include <aidl/android/hardware/power/Boost.h>
 #include <android-base/parseint.h>
 #include <android-base/properties.h>
+#include <sys/system_properties.h>
+extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 #include <android/configuration.h>
@@ -3513,6 +3515,23 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         refreshArgs.colorTransformMatrix = mDrawingState.colorMatrix;
         mDrawingState.colorMatrixChanged = false;
     }
+    // GammaOS Screen Calibration: a changed per-screen matrix property re-runs each output's
+    // setColorTransform (which folds it in) even when the global transform did not move.
+    {
+        static const prop_info* sPi[2] = {nullptr, nullptr};
+        static uint32_t sSerial[2] = {0, 0};
+        static const char* const kNames[2] = {"persist.gammaos.display.screen_matrix.top",
+                                              "persist.gammaos.display.screen_matrix.bottom"};
+        for (int i = 0; i < 2; i++) {
+            if (!sPi[i]) sPi[i] = __system_property_find(kNames[i]);
+            if (!sPi[i]) continue;
+            const uint32_t ser = __system_property_serial(sPi[i]);
+            if (ser != sSerial[i]) {
+                sSerial[i] = ser;
+                if (!refreshArgs.colorTransformMatrix) refreshArgs.colorTransformMatrix = mDrawingState.colorMatrix;
+            }
+        }
+    }
 
     refreshArgs.devOptForceClientComposition = mDebugDisableHWC;
 
@@ -4996,6 +5015,14 @@ void SurfaceFlinger::processDisplayAdded(const wp<IBinder>& displayToken,
     builder.setPowerAdvisor(mPowerAdvisor.get());
     builder.setName(state.displayName);
     auto compositionDisplay = getCompositionEngine().createDisplay(builder.build());
+    // GammaOS Screen Calibration: the primary display takes the top screen's matrix, any other
+    // physical display the bottom screen's (a dual-screen handheld), virtual displays none.
+    if (state.physical) {
+        compositionDisplay->editState().gammaScreen =
+                (state.physical->id == getPrimaryDisplayIdLocked()) ? 0 : 1;
+        ALOGI("GammaOS screen calibration: display %s is screen %d", to_string(state.physical->id).c_str(),
+              compositionDisplay->getState().gammaScreen);
+    }
     compositionDisplay->setLayerCachingEnabled(mLayerCachingEnabled);
 
     sp<compositionengine::DisplaySurface> displaySurface;

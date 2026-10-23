@@ -153,6 +153,9 @@ private:
     RenderManager renderpass_cache;
     PresentWindow main_present_window;
     StreamBuffer vertex_buffer;
+    /// GammaOS: the display colour transform the present shaders apply (set 0, binding 1).
+    StreamBuffer color_buffer;
+    vk::DescriptorSet CommitPresentSet();
     DescriptorUpdateQueue update_queue;
     RasterizerVulkan rasterizer;
     /// GammaOS: this swap's frame misses draws whose pipeline is still compiling: keep the last

@@ -97,7 +97,12 @@ bool sDrmSecondaryTurned = false;  // nano home: the secondary ring's panel is t
 struct TurnScratch { GLuint fbo = 0, tex = 0; uint32_t w = 0, h = 0; };
 static TurnScratch sTurnPrimary, sTurnSecondary;
 static GLuint sTurnProg = 0;
-static GLint sTurnPosLoc = -1, sTurnUvLoc = -1, sTurnTexLoc = -1;
+static GLint sTurnPosLoc = -1, sTurnUvLoc = -1, sTurnTexLoc = -1, sTurnCmLoc = -1, sTurnCmOffLoc = -1;
+// The display colour transform (drmSetColorMatrix): applied by the resolve blit, which a
+// non-identity matrix enables for both rings (the scratch render + one blit per panel, the
+// turned-panel path) instead of a readback of the AHB, which stalls the tiler.
+static float sDrmColorM[2][12] = {{1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}, {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}};   // primary, secondary ring
+static bool sDrmColorAttached = false;   // the rings' untouched slots render through the scratch
 
 static GLuint drmTurnCompile(GLenum type, const char* src) {
     GLuint sh = glCreateShader(type);
@@ -116,7 +121,9 @@ static bool drmTurnEnsureProgram() {
         "void main() { gl_Position = vec4(aPos, 0.0, 1.0); vUv = aUv; }\n";
     static const char* kFs =
         "precision mediump float; varying vec2 vUv; uniform sampler2D uTex;\n"
-        "void main() { gl_FragColor = texture2D(uTex, vUv); }\n";
+        "uniform mat3 uCm; uniform vec3 uCmOff;\n"
+        "void main() { vec4 c = texture2D(uTex, vUv);\n"
+        "  gl_FragColor = vec4(clamp(uCm * c.rgb + uCmOff, 0.0, 1.0), c.a); }\n";
     GLuint vs = drmTurnCompile(GL_VERTEX_SHADER, kVs);
     GLuint fs = drmTurnCompile(GL_FRAGMENT_SHADER, kFs);
     if (!vs || !fs) { if (vs) glDeleteShader(vs); if (fs) glDeleteShader(fs); return false; }
@@ -131,6 +138,8 @@ static bool drmTurnEnsureProgram() {
     sTurnPosLoc = glGetAttribLocation(prog, "aPos");
     sTurnUvLoc  = glGetAttribLocation(prog, "aUv");
     sTurnTexLoc = glGetUniformLocation(prog, "uTex");
+    sTurnCmLoc = glGetUniformLocation(prog, "uCm");
+    sTurnCmOffLoc = glGetUniformLocation(prog, "uCmOff");
     return true;
 }
 
@@ -169,7 +178,7 @@ static void drmTurnAttach(AhbRenderTarget* t, TurnScratch* s, const char* label)
     t->glFbo = s->fbo;
 }
 
-static void drmTurnBlit(AhbRenderTarget& t, const TurnScratch& s) {
+static void drmTurnBlit(AhbRenderTarget& t, const TurnScratch& s, bool turn180, const float* colorM) {
     if (!t.scanFbo || !s.tex || !sTurnProg) return;
     GLint prevFbo = 0, prevProg = 0, prevTex = 0, prevActive = 0, prevArray = 0, prevVp[4] = {0, 0, 0, 0};
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
@@ -191,13 +200,17 @@ static void drmTurnBlit(AhbRenderTarget& t, const TurnScratch& s) {
     glUseProgram(sTurnProg);
     glBindTexture(GL_TEXTURE_2D, s.tex);
     glUniform1i(sTurnTexLoc, 0);
+    if (sTurnCmLoc >= 0) glUniformMatrix3fv(sTurnCmLoc, 1, GL_FALSE, colorM);
+    if (sTurnCmOffLoc >= 0) glUniform3fv(sTurnCmOffLoc, 1, colorM + 9);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // Fullscreen strip; texture coordinates turned 180 degrees (u,v) -> (1-u,1-v).
+    // Fullscreen strip; texture coordinates turned 180 degrees (u,v) -> (1-u,1-v) for a turned
+    // panel, straight for a panel that only takes the colour transform.
     static const GLfloat kPos[8] = { -1.f, -1.f,  1.f, -1.f,  -1.f, 1.f,  1.f, 1.f };
-    static const GLfloat kUv[8]  = {  1.f,  1.f,  0.f,  1.f,   1.f, 0.f,  0.f, 0.f };
+    static const GLfloat kUvTurn[8]     = {  1.f,  1.f,  0.f,  1.f,   1.f, 0.f,  0.f, 0.f };
+    static const GLfloat kUvStraight[8] = {  0.f,  0.f,  1.f,  0.f,   0.f, 1.f,  1.f, 1.f };
     glVertexAttribPointer((GLuint)sTurnPosLoc, 2, GL_FLOAT, GL_FALSE, 0, kPos);
     glEnableVertexAttribArray((GLuint)sTurnPosLoc);
-    glVertexAttribPointer((GLuint)sTurnUvLoc, 2, GL_FLOAT, GL_FALSE, 0, kUv);
+    glVertexAttribPointer((GLuint)sTurnUvLoc, 2, GL_FLOAT, GL_FALSE, 0, turn180 ? kUvTurn : kUvStraight);
     glEnableVertexAttribArray((GLuint)sTurnUvLoc);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -217,8 +230,35 @@ static void drmTurnBlit(AhbRenderTarget& t, const TurnScratch& s) {
 
 void drmResolveTurnedTargets(int idx) {
     if (idx < 0 || idx >= AHB_RING_DEPTH) return;
-    if (sDrmPrimaryTurned)   drmTurnBlit(sAhbRingPrimary[idx],   sTurnPrimary);
-    if (sDrmSecondaryTurned) drmTurnBlit(sAhbRingSecondary[idx], sTurnSecondary);
+    if (sDrmPrimaryTurned || sDrmColorAttached)
+        drmTurnBlit(sAhbRingPrimary[idx], sTurnPrimary, sDrmPrimaryTurned, sDrmColorM[0]);
+    if (sDrmSecondaryTurned || sDrmColorAttached)
+        drmTurnBlit(sAhbRingSecondary[idx], sTurnSecondary, sDrmSecondaryTurned, sDrmColorM[1]);
+}
+
+void drmSetColorMatrix(const float top[12], const float bottom[12], bool identity) {
+    // the primary ring scans the top panel, the secondary ring the bottom one
+    for (int i = 0; i < 12; i++) { sDrmColorM[0][i] = top[i]; sDrmColorM[1][i] = bottom[i]; }
+    if (!identity && !sDrmColorAttached) {
+        // Every slot of both rings renders through the scratch from now on (the turned ring
+        // already does); the resolve blit applies the matrix. GL context required.
+        for (int i = 0; i < AHB_RING_DEPTH; i++) {
+            if (sAhbRingPrimary[i].glFbo)   drmTurnAttach(&sAhbRingPrimary[i],   &sTurnPrimary,   "primary");
+            if (sAhbRingSecondary[i].glFbo) drmTurnAttach(&sAhbRingSecondary[i], &sTurnSecondary, "secondary");
+        }
+        sDrmColorAttached = true;
+        ALOGI("NanoMenu DRM: colour transform on, panels resolve through the scratch");
+    } else if (identity && sDrmColorAttached) {
+        // Back to rendering straight into the AHBs; a turned ring keeps its scratch.
+        for (int i = 0; i < AHB_RING_DEPTH; i++) {
+            AhbRenderTarget& p = sAhbRingPrimary[i];
+            if (!sDrmPrimaryTurned && p.scanFbo) { p.glFbo = p.scanFbo; p.scanFbo = 0; }
+            AhbRenderTarget& q = sAhbRingSecondary[i];
+            if (!sDrmSecondaryTurned && q.scanFbo) { q.glFbo = q.scanFbo; q.scanFbo = 0; }
+        }
+        sDrmColorAttached = false;
+        ALOGI("NanoMenu DRM: colour transform off");
+    }
 }
 
 int drmPanelMountRotationDeg(int port) {
@@ -3997,6 +4037,7 @@ void drmStop() {
     // Reset GL rotation to identity for the SF EGL path. SurfaceFlinger applies the
     // port 1 panel's physical orientation itself, so drop the DRM-only fold too.
     sDrmPrimaryTurned = sDrmSecondaryTurned = false;
+    sDrmColorAttached = false;   // the rings go with the scratch; a new DRM session re-attaches
     for (TurnScratch* s : { &sTurnPrimary, &sTurnSecondary }) {
         if (s->fbo) glDeleteFramebuffers(1, &s->fbo);
         if (s->tex) glDeleteTextures(1, &s->tex);

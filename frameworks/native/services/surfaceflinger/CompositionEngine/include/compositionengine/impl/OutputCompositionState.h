@@ -110,6 +110,18 @@ struct OutputCompositionState {
     // The color transform matrix to apply
     mat4 colorTransformMatrix;
 
+    // GammaOS Screen Calibration: which screen's matrix (persist.gammaos.display.screen_matrix.
+    // <top|bottom>) this output folds into its color transform: 0 top (the primary display),
+    // 1 bottom (any other physical display), -1 none (virtual displays).
+    int gammaScreen{-1};
+    // The screen matrix last folded in, so a change to it alone reapplies the transform, and
+    // the global transform SurfaceFlinger last handed in (the screen matrix multiplies it).
+    mat4 gammaScreenMatrix;
+    mat4 gammaGlobalMatrix;
+    bool gammaGlobalMatrixSet{false};
+    // Set when colorTransformMatrix changed; Display hands the new matrix to the HWC and clears it.
+    bool gammaColorTransformDirty{false};
+
     // Current active color mode
     ui::ColorMode colorMode{ui::ColorMode::NATIVE};
 

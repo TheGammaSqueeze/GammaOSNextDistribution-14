@@ -204,6 +204,13 @@ public:
     void beginShadedFrame() { mSlotNeedUpload = true; }
 
     // Push the DRM rotation matrix (same 2x2 that NanoMenu uses for
+    // The display colour transform per panel (DRM path): every quad drawn into the top
+    // panel's framebuffer takes `top`, into the bottom panel's `bottom`, anything else (the
+    // offscreens) none. The targets change with the ring slot, so set every frame.
+    void setPanelColorMatrices(unsigned int topFbo, unsigned int bottomFbo, const float top[12], const float bottom[12]) {
+        mPanelFbo[0] = topFbo; mPanelFbo[1] = bottomFbo;
+        for (int i = 0; i < 12; i++) { mPanelMatrix[0][i] = top[i]; mPanelMatrix[1][i] = bottom[i]; }
+    }
     // its own shaders). Mirrors LibretroRunner::setRotationMatrix.
     // Must be called before each render pass if the rotation changes.
     void setRotationMatrix(const float mat[4]) {
@@ -827,6 +834,7 @@ private:
     int  mQuadTexLoc = -1;
     int  mQuadSamplerLoc = -1;
     int  mQuadSatLoc = -1;
+    int  mQuadColorMLoc = -1, mQuadColorOffLoc = -1;
     int  mQuadGradLoc = -1;
     int  mQuadRotLoc = -1;
     int  mQuadUvRectLoc = -1;
@@ -850,6 +858,7 @@ private:
     int  mFfBlendPrevSamplerLoc = -1;
     int  mFfBlendAmountLoc = -1;
     int  mFfBlendSatLoc = -1;
+    int  mFfBlendColorMLoc = -1, mFfBlendColorOffLoc = -1;
     int  mFfBlendGradLoc = -1;
     int  mFfBlendRotLoc = -1;
     int  mFfBlendUvRectLoc = -1;
@@ -877,6 +886,12 @@ private:
 
     // 2x2 NDC rotation matrix (column-major, identity by default).
     float mRotationMatrix[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+    // The display colour transforms the DS screen quads apply (column-major 3x3 then the
+    // offset), per panel framebuffer: the DRM path's share of LiveDisplay and Screen
+    // Calibration; none on the SF path (SurfaceFlinger corrects those windows itself).
+    unsigned int mPanelFbo[2] = {0, 0};
+    float mPanelMatrix[2][12] = {{1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}, {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}};
+    const float* currentColorMatrix() const;
 
     // Internal: draw a quad from a source texture region into the
     // current viewport with saturation/gradient. vMin/vMax control

@@ -58,6 +58,7 @@ cc_binary {
         "NanoMenuSettings.cpp",
         "NanoMenuSettingsTree.cpp",
         "NanoScreenCal.cpp",
+        "NanoColorMatrix.cpp",
         "NanoMenuSettingsRender.cpp",
         "NanoMenuRender.cpp",
         "NanoMenuOverlay.cpp",
@@ -592,6 +593,13 @@ filegroup {
         "NanoJson.cpp",
         "NanoI18n.cpp",
     ],
+}
+
+// The display colour transform reader and GL pass (persist.gammaos.display.color_matrix), for
+// every DRM-direct program: nano itself, drastic-nano and azahar-nano.
+filegroup {
+    name: "nano_color_matrix_srcs",
+    srcs: ["NanoColorMatrix.cpp"],
 }
 
 filegroup {

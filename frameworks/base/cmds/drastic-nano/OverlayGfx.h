@@ -68,6 +68,11 @@ public:
     // DrasticRunner and handed in each frame.
     void setRestoreProgram(GLuint prog) { mDrasticProgram = prog; }
 
+    // The display colour transform every draw applies (column-major 3x3 then the offset):
+    // the DRM path's share of LiveDisplay / Night Light, which SurfaceFlinger would otherwise
+    // apply to this window. Identity by default; takes effect from the next beginFrame.
+    void setColorMatrix(const float m[12]);
+
     // Update rotation matrix (call whenever drastic's rotation changes).
     void setRotationMatrix(const float rot[4]);
 
@@ -161,6 +166,8 @@ private:
     GLuint mQuadVbo = 0;   // scratch VBO, refilled per-draw
     GLuint mTextVbo = 0;
     GLuint mDrasticProgram = 0;
+    float  mColorMatrix[12] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
+    bool   mColorMatrixDirty = true;   // uploaded on the first frame too (fresh programs)
 
     // FreeType glyph cache.
     void* mFtLibrary = nullptr;

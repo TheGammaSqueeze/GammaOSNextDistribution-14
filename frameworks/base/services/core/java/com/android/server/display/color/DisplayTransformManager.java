@@ -201,6 +201,7 @@ public class DisplayTransformManager {
      * Propagates the provided color transformation matrix to the SurfaceFlinger.
      */
     private static void applyColorMatrix(float[] m) {
+        publishColorMatrix(m);
         final Parcel data = Parcel.obtain();
         data.writeInterfaceToken("android.ui.ISurfaceComposer");
         if (m != null) {
@@ -217,6 +218,45 @@ public class DisplayTransformManager {
             Slog.e(TAG, "Failed to set color transform", ex);
         } finally {
             data.recycle();
+        }
+    }
+
+    /**
+     * GammaOS: the composed colour transform is also published as a property, so the programs
+     * that scan out to the panels without SurfaceFlinger (the gammaos-nano home, drastic-nano and
+     * azahar-nano on their DRM paths) can apply the same correction as every Android window:
+     * LiveDisplay's colour calibration and reading mode, Night Light, saturation and inversion
+     * all land here. The matrix is a 4x4 in column-major order, of which the first three rows
+     * matter for RGB (the 3x3 plus the translation column): twelve values, three decimals, so it
+     * fits a property value. Empty means the identity. It persists so a reboot shows the right
+     * colours from the first frame, before this service re-applies the transform.
+     */
+    private static final String COLOR_MATRIX_PROP = "persist.gammaos.display.color_matrix";
+    private static String sPublishedColorMatrix = null;
+
+    private static void publishColorMatrix(float[] m) {
+        String value = "";
+        if (m != null) {
+            final StringBuilder sb = new StringBuilder(96);
+            for (int c = 0; c < 4; c++) {
+                for (int r = 0; r < 3; r++) {
+                    if (sb.length() > 0) sb.append(',');
+                    sb.append(String.format(java.util.Locale.US, "%.3f", m[c * 4 + r]));
+                }
+            }
+            value = sb.toString();
+            if ("1.000,0.000,0.000,0.000,1.000,0.000,0.000,0.000,1.000,0.000,0.000,0.000".equals(value)) {
+                value = "";
+            }
+        }
+        if (value.equals(sPublishedColorMatrix)) return;
+        try {
+            if (!value.equals(SystemProperties.get(COLOR_MATRIX_PROP, ""))) {
+                SystemProperties.set(COLOR_MATRIX_PROP, value);
+            }
+            sPublishedColorMatrix = value;
+        } catch (RuntimeException e) {
+            Slog.w(TAG, "Failed to publish the color transform", e);
         }
     }
 
