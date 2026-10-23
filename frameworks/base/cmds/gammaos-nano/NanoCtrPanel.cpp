@@ -7,6 +7,7 @@
 #include <cstring>
 
 #include <log/log.h>
+#include <functional>
 
 #undef LOG_TAG
 #define LOG_TAG "NanoCtr"
@@ -943,6 +944,7 @@ bool CtrDialog::load(int buttons) {
     if (mLay && mLayButtons == buttons) return true;
     mLay = A.create("dialog", kDlgLayouts[buttons]);
     mLayButtons = buttons;
+    mButtonColors.clear();   // the colours belong to the panes of the layout just replaced
     if (Pane* body = mLay ? mLay->pane("TextBoxDialog") : nullptr) {
         mBodyFont[0] = body->fontSize[0];
         mBodyFont[1] = body->fontSize[1];
@@ -984,14 +986,26 @@ void CtrDialog::set(const std::string& text, const std::vector<std::string>& but
     }
     mSel = sel;
     if (mPhase == Shown && mSel != mShownSel && mLayButtons > 1) {
-        // the selected button holds the Select look (the console's touch press)
+        // both buttons keep the console's bright face and dark label; the active one is washed
+        // with a light green (the cursor's hue), so the choice the D-pad is on reads at a glance
+        // a button's face is its pieces P_Btn*_0i (the suffix is the button); the P_Wndw pieces
+        // carry the window's rim above the buttons and stay as they are
+        Layout& lay = mLay->layout();
         for (int i = 0; i < 2; i++) {
-            PlayOptions o;
-            o.groups = 2;
-            o.groupNames = {kDlgButtons[i].group};
-            o.loop = 0;
-            o.paused = true;
-            if (Animator* a = mLay->play(std::string(kDlgClip) + "Select", o)) a->seek(i == mSel ? 1e6f : 0);
+            const Rgba tint = i == mSel ? Rgba{205, 248, 220, 255} : Rgba{255, 255, 255, 255};
+            const std::string suffix = std::string("_0") + (char)('0' + i);
+            std::function<void(Pane*)> wash = [&](Pane* p) {
+                const bool piece = p->name.rfind("P_Btn", 0) == 0 && p->name.size() >= suffix.size() &&
+                                   p->name.compare(p->name.size() - suffix.size(), suffix.size(), suffix) == 0;
+                if (piece) {
+                    auto it = mButtonColors.find(p);
+                    if (it == mButtonColors.end()) it = mButtonColors.emplace(p, p->vertexColors).first;
+                    for (int k = 0; k < 4; k++)
+                        for (int c = 0; c < 3; c++) p->vertexColors[k][c] = it->second[k][c] * tint[c] / 255.0f;
+                }
+                for (Pane* c : p->children) wash(c);
+            };
+            if (lay.root) wash(lay.root);
         }
         mShownSel = mSel;
         mLay->refresh();

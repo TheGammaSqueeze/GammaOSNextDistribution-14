@@ -16,6 +16,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -214,6 +215,7 @@ private:
     std::string mText;
     std::vector<std::string> mButtonText;
     int mSel = -1, mShownSel = -2;
+    std::map<Pane*, std::array<Rgba, 4>> mButtonColors;   // the buttons' own vertex colours, washed for the active one
     Phase mPhase = Hidden;
     int mPhaseFrame = 0;
     int mTouched = -1;

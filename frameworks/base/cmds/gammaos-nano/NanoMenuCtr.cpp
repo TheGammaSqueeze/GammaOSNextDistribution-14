@@ -3410,7 +3410,40 @@ void NanoMenu::renderCtrSecondary() {
     if (sCtrPerf.mode == 3) sCtrGpu.mark("bottom");   // also ends the "rest of frame" span
     float x = 0, y = 0, w = (float)mWidth, h = (float)mHeight;
     if (ctrTestScreenRect(w, h, &x, &y, &w, &h)) drawQuad(0, 0, (float)mWidth, (float)mHeight, 0, 0, 0, 1);
-    ctrDrawScreen(false, x, y, w, h);
+    // A player on the top screen (video, music, photo viewer or slideshow): the bottom screen has
+    // nothing to say, so it goes black, and the backlight behind it fades out and back as the
+    // control centre's sleep does (persist.gammaos.nano.ctr.player_bottom: off = backlight off,
+    // blank = black only, on = keep the home).
+    const bool player = mVidActive || mMpActive || mPvActive || mPhotoMultiActive;
+    char pb[PROPERTY_VALUE_MAX] = {};
+    property_get("persist.gammaos.nano.ctr.player_bottom", pb, "off");
+    const bool blank = player && strcmp(pb, "on") != 0;
+    const bool lightsOut = blank && strcmp(pb, "off") == 0;
+    if (blank) drawQuad(x, y, w, h, 0, 0, 0, 1);
+    else ctrDrawScreen(false, x, y, w, h);
+    if (lightsOut && mCtrBotDir >= 0 && mCtrBotRamp > 0.0f) {
+        if (mCtrBotNode.empty()) {
+            char n[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.cc.bl_bottom", n, "backlight");   // the control centre's bottom node
+            mCtrBotNode = std::string("/sys/class/backlight/") + n + "/brightness";
+        }
+        if (mCtrBotDir == 0) {   // a fresh fade out: remember what to come back to (never an off value)
+            mCtrBotFromBri = readSysfsInt(mCtrBotNode.c_str(), 128);
+            if (mCtrBotFromBri < 8) mCtrBotFromBri = mBrightness * mMaxBrightness / 255;
+            if (mCtrBotFromBri < 8) mCtrBotFromBri = 128;
+        }
+        mCtrBotDir = -1;
+    } else if (!lightsOut && mCtrBotRamp < 1.0f && mCtrBotDir <= 0) {
+        mCtrBotDir = +1;
+    }
+    if (mCtrBotDir != 0) {
+        const float step = (mFrameDt > 0.0f ? mFrameDt : 0.016f) / 0.6f;   // ~0.6 s full ramp
+        mCtrBotRamp += (float)mCtrBotDir * step;
+        if (mCtrBotRamp <= 0.0f) { mCtrBotRamp = 0.0f; mCtrBotDir = 0; }
+        if (mCtrBotRamp >= 1.0f) { mCtrBotRamp = 1.0f; mCtrBotDir = 0; }
+        writeSysfsInt(mCtrBotNode.c_str(), (int)lroundf((float)mCtrBotFromBri * mCtrBotRamp));
+        mDisplayDirty = true;
+    }
     if (sCtrPerf.mode == 3) sCtrGpu.mark(nullptr);
     if (sCtrPerf.mode) sCtrPerf.bottom += CtrPerf::ms(t0, sCtrPerf.mark());
 }

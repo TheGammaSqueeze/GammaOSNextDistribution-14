@@ -2049,6 +2049,7 @@ void NanoMenu::pollInput() {
             // The User Guide, the same call its Settings row makes (test hook).
             else if (!strcmp(navbuf, "help"))  openHelpPage();
             else if (!strcmp(navbuf, "mymenu")) { if (mCtrHome) mCtrHome->openMyMenu(); }   // 3DS Save/Load Layout
+            else if (!strcmp(navbuf, "ctrsettings")) { if (mCtrTheme && mCtrHome) ctrAppletBar(0); }   // 3DS: the house button (Settings panel)
             // Quick Menu > System Settings, the same call its row makes (test hook for the hand-off path).
             else if (!strcmp(navbuf, "settings")) {
                 launchAndroidSettings();

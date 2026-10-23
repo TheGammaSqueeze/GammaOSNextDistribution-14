@@ -835,6 +835,7 @@ bool NanoMenu::themeSettingRowVisible(const char* name) const {
     if (is("Show Battery Percent")) return minima || mNdsTheme || mCtrTheme;
     // The DSi dual-screen layout + hinge gap only affect the DSi carousel home.
     if (is("Dual Screen") || is("Screen Gap")) return mNdsTheme;
+    if (is("Player Bottom Screen")) return mCtrTheme;
     // The DSi dark variant (mNdsDark, persist.gammaos.nano.nds.dark) only repaints the DSi
     // carousel; it does nothing on XMB or Minima (the system-wide Dark Theme in Display Settings
     // is the separate, always-shown control). This is the reported "dark theme does nothing in
@@ -9324,6 +9325,10 @@ static const Ps3SettingBinding kPs3Bindings[] = {
     // Gap (percent of panel height) between the stacked DS screens - read live by renderNds.
     {"Screen Gap", SettingSource::kProp, "persist.gammaos.nano.ndstheme.gap", "6",
      "0:None,3:Small,6:Medium,12:Large,20:Extra Large,30:Maximum"},
+    // 3DS theme: the bottom screen while a player (video, music, photos) has the top one -
+    // read live by renderCtrSecondary.
+    {"Player Bottom Screen", SettingSource::kProp, "persist.gammaos.nano.ctr.player_bottom", "off",
+     "off:Backlight Off,blank:Blank,on:Keep Home"},
     {"Freeze App Under Clock", SettingSource::kProp, "persist.gammaos.nano.pspclock.freezeapp", "0", "0:Off,1:On"},
     {"Clock Live Backdrop", SettingSource::kProp, "persist.gammaos.nano.pspclock.liveapp", "1", "0:Off,1:On"},
     // Friendly parallax rows. They do not bind tilt.cal directly (that raw "gain,rot,sx,sy" CSV is

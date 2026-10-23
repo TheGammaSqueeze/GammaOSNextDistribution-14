@@ -1751,6 +1751,13 @@ private:
     bool ctrInfoDialog() const;                        // the dialog is an information page
     bool ctrInfoActive() const;                        // and it is open
     int mCtrInfoNav = 0;                               // info page scroll steps waiting (lines)
+    // 3DS theme, a player (video / music / photo) on the top screen: the bottom screen goes blank
+    // and, with persist.gammaos.nano.ctr.player_bottom=off, its backlight fades out like the
+    // control centre's sleep (and back when the player leaves). The ramp is 1 lit, 0 off.
+    float mCtrBotRamp = 1.0f;
+    int   mCtrBotDir = 0;                              // -1 fading out, +1 fading back, 0 settled
+    int   mCtrBotFromBri = 0;                          // the bottom node's value to come back to
+    std::string mCtrBotNode;                           // its sysfs brightness path (resolved once)
     void ctrSliderSet(float frac);                     // set it to a fraction of its range (touch)
     bool mCtrSliderTap = false;                        // the touch on the slider dialog began off the bar
     bool ctrSetSwitch(int itemIndex, bool on);    // sets one through nano's own chooser
