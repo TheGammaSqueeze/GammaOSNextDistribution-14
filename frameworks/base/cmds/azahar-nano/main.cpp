@@ -565,6 +565,21 @@ void seedConfig(const std::string& userDir) {
         gCore.set_config_value("Renderer", "async_shader_compilation", "true");
         changed = true;
     }
+    // Skip duplicate frames, the disk shader cache and hardware vertex shaders are on
+    // unless the user turned them off (the Video page keeps all three switchable).
+    for (const char* key : {"use_skip_duplicate_frames", "use_disk_shader_cache", "use_hw_shader"}) {
+        if (configValue(userDir, "Renderer", key).empty()) {
+            gCore.set_config_value("Renderer", key, "true");
+            changed = true;
+        }
+    }
+    // Audio stretching and realtime audio likewise (the Audio page keeps both switchable).
+    for (const char* key : {"enable_audio_stretching", "enable_realtime_audio"}) {
+        if (configValue(userDir, "Audio", key).empty()) {
+            gCore.set_config_value("Audio", key, "true");
+            changed = true;
+        }
+    }
     if (changed) {
         ALOGI("seeded config.ini defaults in %s", userDir.c_str());
         gCore.reload_settings();

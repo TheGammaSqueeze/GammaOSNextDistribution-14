@@ -668,10 +668,24 @@ void Overlay::buildPages() {
             {{"Auto", "-1"}, {"Japan", "0"}, {"USA", "1"}, {"Europe", "2"}, {"Australia", "3"},
              {"China", "4"}, {"Korea", "5"}, {"Taiwan", "6"}},
             "Console region", true));
-        pg.rows.push_back(configChoice("CPU Clock", "Core", "cpu_clock_percentage",
-            {{"100%", "100"}, {"50%", "50"}, {"75%", "75"}, {"150%", "150"}, {"200%", "200"},
-             {"300%", "300"}, {"400%", "400"}},
-            "Emulated CPU speed (underclock for speed, overclock for stutter)"));
+        {
+            // An ordered ladder in 10 percent steps, so Left always lowers the clock by 10
+            // percent and Right raises it by 10 percent; 100 percent is the starting point
+            // when the config holds no value (the core's default). A value set outside the
+            // ladder (an old 75 percent) lands on its nearest step.
+            std::vector<Choice> c;
+            for (int v = 10; v <= 400; v += 10) c.push_back({std::to_string(v) + "%", std::to_string(v)});
+            Row r = configChoice("CPU Clock", "Core", "cpu_clock_percentage", c,
+                "Emulated CPU speed (underclock for speed, overclock for stutter)");
+            const std::string cur = mA.getConfig ? mA.getConfig("Core", "cpu_clock_percentage") : "";
+            const int want = cur.empty() ? 100 : atoi(cur.c_str());
+            int best = 0;
+            for (size_t i = 0; i < r.choices.size(); i++)
+                if (std::abs(atoi(r.choices[i].value.c_str()) - want) <
+                    std::abs(atoi(r.choices[best].value.c_str()) - want)) best = (int)i;
+            r.sel = best;
+            pg.rows.push_back(r);
+        }
         pg.rows.push_back(configToggle("CPU JIT", "Core", "use_cpu_jit",
             "Dynamic recompiler (turn off only for debugging)", true));
         pg.rows.push_back(configToggle("Plugin Loader", "System", "plugin_loader_enabled",
