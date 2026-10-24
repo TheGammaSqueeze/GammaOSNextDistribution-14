@@ -205,8 +205,16 @@ private:
         u32 frame = 0;
     };
     std::array<ScreenSource, 4> bottom_sources{};
-    void NoteBottomScreenSource(const Pica::DisplayTransferConfig& config);
+    std::array<ScreenSource, 4> top_sources{};
+    void NoteScreenSources(const Pica::DisplayTransferConfig& config);
+    bool DrawInterval(PAddr& first, PAddr& last) const;
     bool DrawFeedsBottomScreen() const;
+    /// GammaOS: the draw's colour target is outside everything the screens are read from: an
+    /// offscreen pass (a texture composed once at load) that is never redrawn, so never left out.
+    bool DrawIsOffscreen() const;
+    bool DrawNeverSkipped() const {
+        return DrawFeedsBottomScreen() || DrawIsOffscreen();
+    }
     bool OnDisplayTransferEye(const Pica::DisplayTransferConfig& config);   // false = skip it
     TextureRuntime runtime;
     RasterizerCache res_cache;
