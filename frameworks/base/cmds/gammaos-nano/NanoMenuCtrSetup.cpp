@@ -207,6 +207,17 @@ void NanoMenu::renderCtrSetup() {
         S.dialog().hide(false);
         S.panel().hide();
         S.hideHappy();
+    } else if (mSetupWifiWaitPending) {
+        // "Next" from the step before Wi-Fi while the system is still finishing its first boot:
+        // advanceSetupStep() holds the step (mSetupStep is still the previous one) and
+        // renderCtrSetup() enters Wi-Fi by itself at sys.boot_completed. The other themes show
+        // their boot-wait page here; this look shows the wait dialog with the same text, so the
+        // user sees the device is busy instead of a time zone list that no longer reacts.
+        title = tr(STR_SETUP_WIFI_TITLE);
+        S.dialog().setProgress(std::string(), -1);
+        S.dialog().set(std::string(), {}, 0);
+        S.dialog().setWait(tr(STR_SETUP_INSTALL_BOOT_WAIT));
+        wantDialog = true;
     } else {
         switch (mSetupStep) {
         case SETUP_WELCOME: {
