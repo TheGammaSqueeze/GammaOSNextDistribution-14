@@ -17,6 +17,9 @@
 #define LOG_TAG "HalDeathHandler"
 //#define LOG_NDEBUG 0
 
+#include <stdlib.h>
+#include <string.h>
+
 #include <utils/Log.h>
 
 #include <media/audiohal/hidl/HalDeathHandler.h>
@@ -52,6 +55,14 @@ void HalDeathHandler::serviceDied(uint64_t /*cookie*/, const wp<IBase>& /*who*/)
     std::lock_guard<std::mutex> guard(mHandlersLock);
     for (const auto& handler : mHandlers) {
         handler.second();
+    }
+    // GammaOS: this handler is built for audioserver, which is restarted by init and
+    // recovers by starting over. Other processes drive the HAL directly too (the nano
+    // home's boot chime); for them a HAL restart is not fatal, and exiting here took the
+    // home down with the HAL on first boots, with no tombstone to show for it.
+    if (strcmp(getprogname(), "audioserver") != 0) {
+        ALOGE("HAL server crashed; %s keeps running without it", getprogname());
+        return;
     }
     ALOGE("HAL server crashed, audio server is restarting");
     _exit(1);  // Avoid calling atexit handlers, as this code runs on a thread from RPC threadpool.
