@@ -373,6 +373,7 @@ void nanoSetOverlayRenderRotation(int rot);
 // legacy page flip then EBUSYs forever). Call once at the wake point, on
 // the render thread, before relighting the backlight.
 void drmResumeRecommit();
+void drmRecoverPanelsTick();   // sys.gammaos.nano.dp_recover=1: re-prepare the primary so the kernel re-powers the DP bridge, then re-commit the secondary
 // True once per completed kernel suspend cycle (/sys/power/suspend_stats/success
 // advanced since the last look; polled at most every 500 ms, so safe to call per
 // frame). A caller that ran its own sleep/wake path calls drmSuspendMarkSeen() on

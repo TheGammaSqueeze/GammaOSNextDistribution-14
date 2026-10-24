@@ -4291,6 +4291,144 @@ void drmSuspendMarkSeen() {
     sSuspendCheckUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
 }
 
+// GammaOS (RP Duo Lite): bring the bottom (DP) panel back after its WL818S bridge was
+// flashed mid-boot. The flash cycles the bridge under a live DP link; the kernel then
+// marks the DP "abnormally disconnected" and re-powers the bridge only from
+// dp_display_handle_primary_power_mode(true), which runs when the PRIMARY DSI panel is
+// prepared again (dsi_panel_pre_prepare). Stock reaches it because SurfaceFlinger
+// cycles the primary's power mode; the DRM-direct home never does. So, on request
+// (sys.gammaos.nano.dp_recover=1), switch the primary CRTC off and on again (a full
+// modeset, which re-prepares the DSI panel), wait for the DP connector to report
+// connected (the bridge takes a few seconds to come back), then re-commit the
+// secondary CRTC the same way so its link is trained again. Each step logs.
+static int drmAtomicCrtcOff(int fd, uint32_t crtcId, uint32_t connId) {
+    struct drm_set_client_cap cap = {};
+    cap.capability = DRM_CLIENT_CAP_UNIVERSAL_PLANES; cap.value = 1;
+    ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
+    cap.capability = DRM_CLIENT_CAP_ATOMIC; cap.value = 1;
+    ioctl(fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
+    auto findProp = [&](uint32_t objId, uint32_t objType, const char* name) -> uint32_t {
+        struct drm_mode_obj_get_properties p = {};
+        p.obj_id = objId; p.obj_type = objType;
+        ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p);
+        uint32_t pids[64]; uint64_t pvals[64];
+        struct drm_mode_obj_get_properties p2 = {};
+        p2.obj_id = objId; p2.obj_type = objType;
+        p2.count_props = p.count_props < 64 ? p.count_props : 64;
+        p2.props_ptr = (uint64_t)(uintptr_t)pids;
+        p2.prop_values_ptr = (uint64_t)(uintptr_t)pvals;
+        ioctl(fd, DRM_IOCTL_MODE_OBJ_GETPROPERTIES, &p2);
+        for (uint32_t i = 0; i < p2.count_props; i++) {
+            struct drm_mode_get_property gp = {};
+            gp.prop_id = pids[i];
+            ioctl(fd, DRM_IOCTL_MODE_GETPROPERTY, &gp);
+            if (strcmp(gp.name, name) == 0) return pids[i];
+        }
+        return 0;
+    };
+    std::vector<uint32_t> objs, counts, aprops; std::vector<uint64_t> values;
+    auto add = [&](uint32_t obj, std::initializer_list<std::pair<uint32_t, uint64_t>> pv) {
+        uint32_t n = 0;
+        for (const auto& e : pv) { if (!e.first) continue; aprops.push_back(e.first); values.push_back(e.second); n++; }
+        if (n) { objs.push_back(obj); counts.push_back(n); }
+    };
+    add(crtcId, { { findProp(crtcId, DRM_MODE_OBJECT_CRTC, "ACTIVE"), 0 } });
+    add(connId, { { findProp(connId, DRM_MODE_OBJECT_CONNECTOR, "CRTC_ID"), 0 } });
+    // every plane bound to this CRTC goes with it
+    struct drm_mode_get_plane_res pr = {};
+    ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr);
+    std::vector<uint32_t> planeIds(pr.count_planes);
+    pr.plane_id_ptr = (uint64_t)(uintptr_t)planeIds.data();
+    ioctl(fd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr);
+    for (uint32_t i = 0; i < pr.count_planes; i++) {
+        struct drm_mode_get_plane gp = {};
+        gp.plane_id = planeIds[i];
+        if (ioctl(fd, DRM_IOCTL_MODE_GETPLANE, &gp) != 0 || gp.crtc_id != crtcId) continue;
+        add(gp.plane_id, { { findProp(gp.plane_id, DRM_MODE_OBJECT_PLANE, "FB_ID"), 0 },
+                           { findProp(gp.plane_id, DRM_MODE_OBJECT_PLANE, "CRTC_ID"), 0 } });
+    }
+    struct drm_mode_atomic atomic = {};
+    atomic.flags = DRM_MODE_ATOMIC_ALLOW_MODESET;
+    atomic.count_objs = (uint32_t)objs.size();
+    atomic.objs_ptr = (uint64_t)(uintptr_t)objs.data();
+    atomic.count_props_ptr = (uint64_t)(uintptr_t)counts.data();
+    atomic.props_ptr = (uint64_t)(uintptr_t)aprops.data();
+    atomic.prop_values_ptr = (uint64_t)(uintptr_t)values.data();
+    return ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+}
+
+static void drmRecommitOne(size_t i) {
+    auto& d = sDrmDisplays[i];
+    const bool isPrimary = ((int)i == sDrmPrimaryIdx);
+    uint32_t fbId = 0;
+    if (sDrmZeroCopy && !sDrmAfbcMode) {
+        if (!isPrimary && sAhbRingSecondary[0].drmFbId != 0) fbId = sAhbRingSecondary[0].drmFbId;
+        else fbId = sAhbRingPrimary[0].drmFbId;
+    }
+    if (fbId == 0) fbId = d.buffers[d.activeBuffer].fbId;
+    if (sDrmAfbcMode) d.clConfigured = false;
+    struct drm_mode_crtc crtc = {};
+    crtc.crtc_id = d.crtcId;
+    crtc.fb_id = fbId;
+    crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
+    crtc.count_connectors = 1;
+    crtc.mode = d.mode;
+    crtc.mode_valid = 1;
+    int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+    if (rc != 0 && errno == EINVAL) rc = drmAtomicModesetFallback(sDrmFd, d.crtcId, d.connId, d.mode, fbId, d.w, d.h);
+    ALOGW("NanoMenu DRM panel recovery: crtc %u conn %u on -> %s", d.crtcId, d.connId, rc == 0 ? "OK" : strerror(errno));
+}
+
+static int sDpRecoverStep = 0;          // 0 idle, 1 waiting for the DP connector, 2 done
+static int64_t sDpRecoverT0 = 0;
+static std::string drmConnectorStatus(uint32_t connId) {
+    struct drm_mode_get_connector c = {};
+    c.connector_id = connId;
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_GETCONNECTOR, &c) != 0) return "?";
+    return c.connection == 1 ? "connected" : c.connection == 2 ? "disconnected" : "unknown";
+}
+
+void drmRecoverPanelsTick() {
+    static int64_t nextCheckUs = 0;
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    if (sDpRecoverStep == 0) {
+        if (now < nextCheckUs) return;
+        nextCheckUs = now + 250000;
+        char v[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.dp_recover", v, "");
+        if (v[0] != '1') return;
+        property_set("sys.gammaos.nano.dp_recover", "");
+        if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.size() < 2) {
+            ALOGW("NanoMenu DRM panel recovery: not on the DRM path with two panels; ignored");
+            return;
+        }
+        ioctl(sDrmFd, DRM_IOCTL_SET_MASTER, 0);
+        const auto& p = sDrmDisplays[sDrmPrimaryIdx];
+        int rc = drmAtomicCrtcOff(sDrmFd, p.crtcId, p.connId);
+        ALOGW("NanoMenu DRM panel recovery: primary crtc %u off -> %s", p.crtcId, rc == 0 ? "OK" : strerror(errno));
+        usleep(120000);
+        drmRecommitOne((size_t)sDrmPrimaryIdx);   // re-prepares the DSI panel: the kernel re-powers the bridge
+        sDpRecoverStep = 1;
+        sDpRecoverT0 = now;
+        return;
+    }
+    if (sDpRecoverStep == 1) {
+        size_t sec = 0;
+        for (size_t j = 0; j < sDrmDisplays.size(); j++) if ((int)j != sDrmPrimaryIdx) { sec = j; break; }
+        const std::string st = drmConnectorStatus(sDrmDisplays[sec].connId);
+        const bool timeout = now - sDpRecoverT0 > 12000000;
+        if (st != "connected" && !timeout) return;
+        ALOGW("NanoMenu DRM panel recovery: DP connector %u %s after %lld ms; re-committing the secondary",
+              sDrmDisplays[sec].connId, st.c_str(), (long long)((now - sDpRecoverT0) / 1000));
+        int rc = drmAtomicCrtcOff(sDrmFd, sDrmDisplays[sec].crtcId, sDrmDisplays[sec].connId);
+        ALOGW("NanoMenu DRM panel recovery: secondary crtc %u off -> %s", sDrmDisplays[sec].crtcId, rc == 0 ? "OK" : strerror(errno));
+        usleep(120000);
+        drmRecommitOne(sec);
+        sDpRecoverStep = 0;
+        property_set("sys.gammaos.nano.dp_recover_done", st.c_str());
+    }
+}
+
 void drmResumeRecommit() {
     if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return;
 

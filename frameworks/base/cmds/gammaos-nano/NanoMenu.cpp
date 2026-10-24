@@ -5793,6 +5793,7 @@ if (sRingPrimedCount >= 2) {
             // splash time gets a second chance here. Bounded to a 5-second boot
             // window by drmRescanDisplays itself. No-op post-boot (sDrmFd = -1).
             drmRescanDisplays();
+            drmRecoverPanelsTick();   // sys.gammaos.nano.dp_recover: bottom panel back after a bridge flash
             nanoApplyCpuMask();   // persist.gammaos.nano.cpu_mask (no-op when unset)
             // DRM-direct home: a kernel suspend/resume (deep-sleep tile, the sleep
             // script, the power key) brings the CRTCs back with no planes attached;
