@@ -218,7 +218,12 @@ void NanoMenu::renderCtrSetup() {
         S.dialog().set(std::string(), {}, 0);
         S.dialog().setWait(tr(STR_SETUP_INSTALL_BOOT_WAIT));
         wantDialog = true;
+        if (!mCtrSetupWaitShown) {
+            mCtrSetupWaitShown = true;
+            ALOGI("ctr setup: boot wait dialog up on step %d", (int)mSetupStep);
+        }
     } else {
+        mCtrSetupWaitShown = false;
         switch (mSetupStep) {
         case SETUP_WELCOME: {
             float easeT, offX, offY, scaleMul;
@@ -380,7 +385,11 @@ void NanoMenu::renderCtrSetup() {
         }
         default: break;
         }
-        // the widgets a step does not want leave; the ones it wants come up once the stage is clear
+    }
+    // the widgets a step does not want leave; the ones it wants come up once the stage is clear
+    // (for the boot hold before Wi-Fi too: it used to sit inside the step branch above, so the
+    // hold set its wait dialog up but the zone list never left and the dialog never came)
+    if (!leaving) {
         if (!wantPanel) S.panel().hide();
         if (!wantDialog) { S.dialog().setWait(std::string()); S.dialog().hide(false); }
         if (!wantHappy) S.hideHappy();

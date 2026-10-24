@@ -442,7 +442,12 @@ void NanoMenu::advanceSetupStep() {
     if (next == SETUP_WIFI) {
         char bd[PROPERTY_VALUE_MAX] = {0};
         property_get("sys.boot_completed", bd, "0");
-        if (bd[0] != '1') { mSetupWifiWaitPending = true; return; }
+        if (bd[0] != '1') {
+            if (!mSetupWifiWaitPending)
+                ALOGI("NanoMenu: setup wizard holds before Wi-Fi until the system finishes booting (sys.boot_completed=%s)", bd);
+            mSetupWifiWaitPending = true;
+            return;
+        }
     }
     mSetupWifiWaitPending = false;
 
@@ -519,6 +524,9 @@ void NanoMenu::updateSetupTransition() {
 
 void NanoMenu::handleSetupSelect() {
     if (mSetupTransitioning) return;
+    // holding before Wi-Fi for the boot: the step under the wait is not live (another A would
+    // apply the zone again and look like nothing happened)
+    if (mSetupWifiWaitPending) return;
 
     switch (mSetupStep) {
     case SETUP_LANGUAGE:
@@ -636,6 +644,7 @@ void NanoMenu::handleSetupDown() {
 
 void NanoMenu::handleSetupStart() {
     if (mSetupTransitioning) return;
+    if (mSetupWifiWaitPending) return;
 
     // Start button advances to next step (skip current)
     switch (mSetupStep) {

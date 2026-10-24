@@ -1702,6 +1702,7 @@ private:
     ctr::CtrSetupScene* mCtrSetup = nullptr;
     bool mCtrSetupFailed = false;        // the assets are missing: the wizard keeps the shared chrome
     int mCtrSetupLastStep = -1;
+    bool mCtrSetupWaitShown = false;     // the boot wait dialog before Wi-Fi is up (logged once)
     bool mCtrSetupPanelShown = false;    // the net wizard's list panel is up under its dialogs
     bool ctrSetupThemed() const;
     bool ctrSetupEnsure();
