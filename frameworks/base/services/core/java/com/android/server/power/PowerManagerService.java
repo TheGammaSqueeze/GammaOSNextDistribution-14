@@ -3748,6 +3748,10 @@ public final class PowerManagerService extends SystemService
         //      "drastic-nano is foreground" signal for the whole run, so it holds even in any
         //      window where app_launched (SF) or grab_input (DRM) is not yet/again asserted.
         if ("1".equals(SystemProperties.get("sys.gammaos.drastic_nano.session", "0"))) return true;
+        //  (g) An azahar-nano 3DS session (sys.gammaos.azahar_nano.session=1, set and cleared by
+        //      azahar-nano.rc around the service): the home hands off with app_launched=0, and the
+        //      game reads the pad itself, so without this only a stale menu_active pinned the panel.
+        if ("1".equals(SystemProperties.get("sys.gammaos.azahar_nano.session", "0"))) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.menu_active", "0"))) return true;
         //  (e) The resident overlay home is the visible menu when it has been raised
         //      (sys.gammaos.nano.show_overlay=1) with no app running
