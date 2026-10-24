@@ -1258,6 +1258,10 @@ bool NanoMenu::ctrLaunchItem(const Ps3Item& it) {
             mSearchActive = false;
             if (mOverlayMode) { overlayLaunchGame(); return true; }
             launchXmbGame();
+            // launchXmbGame refuses (ROM or emulator missing, busy) with a toast and arms nothing:
+            // the home must then stay instead of playing its launch fade into a black screen
+            // that nothing ever replaces (user: "emulator not installed, then it just stays black")
+            if (!mWaitForRelease && !mAzaharNanoPending && !mDrasticNanoPending) return false;
             // the 3DS fade already covers the screen: hand off once it is black (launchFadeHoldMs)
             if (mWaitForRelease && mLaunchFadeStart == 0) mLaunchFadeStart = uptimeMillis();
             return true;
