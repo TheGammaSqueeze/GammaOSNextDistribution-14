@@ -47,6 +47,9 @@ public:
     void setStickDpadSwap(bool on) { mSwapStickDpad = on; }
     // From a button callback: true when Back is held, and that Back press then no longer
     // opens the menu or fires its long press (it was used as a combo modifier).
+    // Device asleep: presses and touches are dropped (releases still go through so nothing
+    // stays held), and a Back held across the sleep neither exits nor opens the menu.
+    void setParked(bool on) { mParked.store(on); }
     bool consumeBackHeld() {
         if (mBackDownNs == 0) return false;
         if (mBackLongFired && !mBackCombo) return false;
@@ -84,6 +87,8 @@ private:
     std::vector<Node> mNodes;
     std::thread mThread;
     std::atomic<bool> mRun{false};
+    std::atomic<bool> mParked{false};
+    bool mParkedSeen = false;           // the loop's view of mParked (hold state cleared on park)
     int mInotify = -1;
     bool mDualPanel = false;
     int mDefaultPanel = 0;

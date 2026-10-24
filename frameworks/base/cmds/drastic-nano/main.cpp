@@ -1156,6 +1156,10 @@ void doSleep(android::drastic_input::InputState* input,
     }
     android::nanobl::nanoBacklightSet(0);
     setBacklightHal(0);
+    // and the pipes themselves off (the DSI panel sleeps, the DP bridge powers down): a
+    // blank frame still scanned, the last image showed under a bright light and a USB
+    // plug relit the bottom panel onto it
+    android::drmPanelsPowerOff();
 
     // Match the home XMB's clean pre-suspend state. The home suspends and
     // resumes reliably; drastic runs the session with deep CPU idle
@@ -1257,7 +1261,16 @@ void doSleep(android::drastic_input::InputState* input,
     // The ring cursors restart at 0, so the render loop's bootstrap
     // re-primes (renders 2 frames before the first flip) automatically.
     android::drmSuspendMarkSeen();   // this cycle was ours; the loop's external check skips it
-    android::drmResumeRecommit();
+    {
+        // the DP bridge needs a moment after its power-down: retry the CRTCs that refuse
+        const int64_t t0 = android::elapsedRealtime();
+        int left = android::drmResumeRecommit();
+        while (left > 0 && android::elapsedRealtime() - t0 < 3000) {
+            usleep(250000);
+            left = android::drmResumeRecommit();
+        }
+        if (left > 0) ALOGW("drastic-nano: %d panel(s) did not come back after the sleep", left);
+    }
 
     int level = property_get_int32("persist.gammaos.nano.brightness", 128);
     if (level < 1) level = 1;

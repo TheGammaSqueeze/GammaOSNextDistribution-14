@@ -1376,14 +1376,23 @@ int main(int argc, char** argv) {
                 sinkSwapped = gCore.sleep &&
                         prop("persist.gammaos.azahar_nano.sleep_sink_swap", "0") == "1";
                 if (sinkSwapped) gCore.sleep(true);
+                if (sInput) sInput->setParked(true);   // a Back held under the sleep must not exit
                 android::nanobl::nanoBacklightSet(0);
+                if (sDrm) sDrm->panelsOff();           // the pipes too: a blank frame still scans
                 android::nano_session_hw::releaseClusterCores();   // the cores may sleep with the device
                 android::nano_session_hw::dpClkRestore();
                 ALOGI("sleep: screen off, core %s, backlights off",
                       pausedForSleep ? "paused" : "left as the menu has it");
             } else if (!off && asleep) {
                 asleep = false;
+                if (sDrm && sDrm->panelsAreOff()) {
+                    // the DP bridge needs a moment after its power-down: retry for up to 3 s
+                    int tries = 12;   // 3 s at 250 ms
+                    while (!sDrm->panelsOn() && --tries > 0) usleep(250 * 1000);
+                    if (sDrm->panelsAreOff()) ALOGW("sleep: a panel did not come back after the sleep");
+                }
                 android::nanobl::nanoBacklightSet(azahar_nano::brightnessLevel());
+                if (sInput) sInput->setParked(false);
                 android::nano_session_hw::holdClusterCores("sys.gammaos.azahar_nano.core_ctl_hold");
                 if (sinkSwapped) gCore.sleep(false);
                 sinkSwapped = false;

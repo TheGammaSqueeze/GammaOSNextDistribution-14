@@ -184,6 +184,12 @@ public:
     // Live switch between the plain and LCD buffer sizes; true when the size changed (the
     // game's window must then be told it was resized).
     bool setLcdOutput(int idx, bool on);
+    // Device sleep: every CRTC off (the DSI panel sleeps, the DP bridge powers down) and no
+    // commits until panelsOn() re-lights them from the first commit's modeset. A blank frame
+    // with the backlight at 0 left both pipes scanning the last image.
+    void panelsOff();
+    bool panelsOn();   // false while a panel refused (the DP bridge needs a moment): call again
+    bool panelsAreOff() const { return mPanelsOff.load(); }
     // Mean interval between consecutive page flips (ns), 0 until measured.
     double measuredPeriodNs(int idx) const { return mPanels[idx].measuredPeriodNs->load(); }
 
@@ -225,6 +231,7 @@ private:
     bool mShowNewest = true;   // show the newest finished frame, drop older finished ones
     static constexpr size_t kMaxReady = 3;   // acquired, not yet flipped frames per panel
     std::vector<uint32_t> mBlackFbs;
+    std::atomic<bool> mPanelsOff{false};
     bool mMinimalFlips = true;
     bool mReserveScalerForFirst = false;   // two panels: the scaling pipe goes to the first (top)
     int mTraceLeft = 0;

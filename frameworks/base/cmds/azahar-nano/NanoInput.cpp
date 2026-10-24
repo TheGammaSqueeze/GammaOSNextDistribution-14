@@ -379,8 +379,18 @@ void NanoInput::loop() {
         for (auto& n : mNodes) fds.push_back({n.fd, POLLIN, 0});
         if (mInotify >= 0) fds.push_back({mInotify, POLLIN, 0});
         const int r = poll(fds.data(), fds.size(), 50);
+        const bool parked = mParked.load();
+        if (parked != mParkedSeen) {
+            mParkedSeen = parked;
+            // a Back down that crosses the sleep is forgotten either way: its release must not
+            // open the menu, and its hold must not exit the game
+            mBackDownNs = 0;
+            mBackLongFired = false;
+            mBackCombo = false;
+            ALOGI("azahar-nano: input %s", parked ? "parked for the sleep" : "live again");
+        }
         // Long press of the back key -> exit.
-        if (mBackDownNs && !mBackLongFired && nowNs() - mBackDownNs > mBackHoldNs.load()) {
+        if (!parked && mBackDownNs && !mBackLongFired && nowNs() - mBackDownNs > mBackHoldNs.load()) {
             mBackLongFired = true;
             if (mCb.exitRequest) mCb.exitRequest();
         }
@@ -405,6 +415,14 @@ void NanoInput::loop() {
             while ((got = read(n.fd, evs, sizeof(evs))) > 0) {
                 const size_t cnt = got / sizeof(input_event);
                 for (size_t k = 0; k < cnt; k++) {
+                    if (parked) {
+                        // only key releases pass while asleep (a button let go under the
+                        // sleep must not stay pressed); the lid still reaches the shell
+                        const bool release = evs[k].type == EV_KEY && evs[k].value == 0;
+                        if (!release && !(n.lid && evs[k].type == EV_SW)) continue;
+                        if (release && n.pad) handlePad(n, evs[k].type, evs[k].code, evs[k].value);
+                        if (release) continue;
+                    }
                     if (n.pad) handlePad(n, evs[k].type, evs[k].code, evs[k].value);
                     if (n.touch) handleTouch(n, evs[k].type, evs[k].code, evs[k].value);
                     if (n.lid && evs[k].type == EV_SW && evs[k].code == SW_LID) {

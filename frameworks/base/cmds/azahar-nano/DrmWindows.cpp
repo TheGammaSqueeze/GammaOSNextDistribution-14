@@ -567,6 +567,33 @@ bool DrmWindows::recoverPanel(DrmPanel& p, uint32_t fb, uint32_t w, uint32_t h) 
     return true;
 }
 
+void DrmWindows::panelsOff() {
+    mPanelsOff.store(true);
+    for (auto& p : mPanels) {
+        std::lock_guard<std::mutex> lk(*p.mu);
+        // the legacy disable (no framebuffer, no connectors) is what this driver takes; an
+        // atomic ACTIVE=0 request is refused with EINVAL
+        const int rc = drmModeSetCrtc(mFd, p.crtcId, 0, 0, 0, nullptr, 0, nullptr);
+        ALOGI("DRM: crtc %u off for the sleep -> %s", p.crtcId, rc == 0 ? "OK" : strerror(errno));
+        p.hasPending = false;
+        p.flipPending = false;
+    }
+}
+
+bool DrmWindows::panelsOn() {
+    bool ok = true;
+    for (size_t i = 0; i < mPanels.size(); i++) {
+        DrmPanel& p = mPanels[i];
+        const uint32_t fb = i < mBlackFbs.size() ? mBlackFbs[i] : 0;
+        std::lock_guard<std::mutex> lk(*p.mu);
+        if (!fb || !recoverPanel(p, fb, p.width, p.height)) { ok = false; continue; }
+        p.failedFlips = 0;
+        p.geometrySet = false;   // the next game frame carries its own geometry again
+    }
+    if (ok) mPanelsOff.store(false);
+    return ok;
+}
+
 // Test-only atomic commit: can this panel's plane scan out a w x h buffer
 // stretched over the whole panel?
 bool DrmWindows::testScaledScanout(DrmPanel& p, uint32_t w, uint32_t h, const DrmPanel* retire) {
@@ -1172,6 +1199,7 @@ void DrmWindows::captureAll() {
 }
 
 bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
+    if (mPanelsOff.load()) return false;   // asleep: the frame goes back, nothing is committed
     const uint32_t fb = importFb(p, item.mGraphicBuffer);
     if (!fb) return false;
     {
@@ -1291,6 +1319,7 @@ bool DrmWindows::flip(DrmPanel& p, BufferItem& item) {
         // the whole plane state on the next flip, and when that is refused too, re-light the
         // panel from scratch (the first commit's modeset) with this frame.
         p.geometrySet = false;
+        if (mPanelsOff.load()) return false;   // a commit that crossed the sleep: no re-light now
         if (++p.failedFlips >= 2 && recoverPanel(p, fb, w, h)) p.failedFlips = 0;
         return false;
     }
