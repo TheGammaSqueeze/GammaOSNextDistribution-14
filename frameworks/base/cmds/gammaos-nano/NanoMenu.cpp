@@ -5317,7 +5317,11 @@ if (sRingPrimedCount >= 2) {
                     drmFrameEnd(mDisplay, mSurface);
                     nanobl::nanoBacklightSet(0);
                     setBrightnessViaHal(0);
-                    ALOGI("NanoMenu: framework screen off at the DRM home -> panels blanked");
+                    // and the pipes themselves off: a blank frame still scans (the last image
+                    // shows under a bright light, a USB plug relights the bottom onto it)
+                    drmPanelsPowerOff();
+                    mDrmPanelsParked.store(true, std::memory_order_relaxed);
+                    ALOGI("NanoMenu: framework screen off at the DRM home -> panels blanked and switched off");
                 }
                 nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true;
                 mCtrSleepStartMs = (int64_t)uptimeMillis();
@@ -5326,6 +5330,18 @@ if (sRingPrimedCount >= 2) {
                 property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false;
                 ctrShuffleEvent(false, (int64_t)uptimeMillis() - mCtrSleepStartMs);   // 3DS theme Shuffle
                 if (sDrmActive) {
+                    // the CRTCs first (the DP bridge needs a moment after its power-down:
+                    // retry the ones that refuse for up to 3 s), then the backlights
+                    if (drmPanelsAreOff()) {
+                        const int64_t t0 = (int64_t)uptimeMillis();
+                        int left = drmResumeRecommit();
+                        while (left > 0 && (int64_t)uptimeMillis() - t0 < 3000) {
+                            usleep(250000);
+                            left = drmResumeRecommit();
+                        }
+                        if (left > 0) ALOGW("NanoMenu: %d panel(s) did not come back after the screen off", left);
+                    }
+                    mDrmPanelsParked.store(false, std::memory_order_relaxed);
                     int sysfs_val = mBrightness * mMaxBrightness / 255;
                     if (sysfs_val < 1) sysfs_val = 1;
                     nanobl::nanoBacklightSet(mBrightness);

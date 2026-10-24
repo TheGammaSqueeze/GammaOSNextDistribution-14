@@ -372,7 +372,12 @@ void nanoSetOverlayRenderRotation(int rot);
 // suspend/resume cycle (resume re-enables the CRTCs with no planes; every
 // legacy page flip then EBUSYs forever). Call once at the wake point, on
 // the render thread, before relighting the backlight.
-void drmResumeRecommit();
+// Returns the number of CRTCs that did not come back (the DP bridge can take a moment).
+int drmResumeRecommit();
+// Screen off on the DRM home: every CRTC off (panels asleep, bridge down); returns the
+// number that refused. drmResumeRecommit turns them back on.
+int drmPanelsPowerOff();
+bool drmPanelsAreOff();
 void drmRecoverPanelsTick();   // sys.gammaos.nano.dp_recover=1: re-prepare the primary so the kernel re-powers the DP bridge, then re-commit the secondary
 // True once per completed kernel suspend cycle (/sys/power/suspend_stats/success
 // advanced since the last look; polled at most every 500 ms, so safe to call per

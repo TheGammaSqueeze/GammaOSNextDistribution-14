@@ -1891,6 +1891,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void backLongPress() {
+        // GammaOS: a Back held while the device sleeps is not a gesture. The single key
+        // detector still reports the long press when the display is off, and at the DRM
+        // home the regular behaviour below (haptic + GO_HOME) ran against a dark screen and
+        // was replayed on wake; the in-app branch would send ESC into a sleeping game.
+        if (!mDefaultDisplayPolicy.isAwake()) {
+            Slog.i(TAG, "GammaOS: Back long press while asleep ignored");
+            return;
+        }
         // GammaOS Nano: in nano mode, long-press back handles app exit.
         // RetroArch / DraStic: send ESC (save state, close gracefully).
         // Standalone emulators: force-stop and restart nano menu.

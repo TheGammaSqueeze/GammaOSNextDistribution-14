@@ -4429,8 +4429,37 @@ void drmRecoverPanelsTick() {
     }
 }
 
-void drmResumeRecommit() {
-    if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return;
+// Screen off on a DRM-direct home: a black frame and backlight 0 leave both pipes scanning
+// (the last frame stays visible under a bright light, the bottom backlight comes back on
+// a frozen frame when a USB plug touches it). Switch every CRTC off instead, the way the
+// composer does for SurfaceFlinger (the DSI panel goes to sleep, the DP bridge powers
+// down); drmResumeRecommit brings them back on wake.
+static bool sDrmPanelsOff = false;
+int drmPanelsPowerOff() {
+    if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return 0;
+    ioctl(sDrmFd, DRM_IOCTL_SET_MASTER, 0);
+    int failed = 0;
+    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+        const auto& d = sDrmDisplays[i];
+        // the legacy disable (no framebuffer, no connectors) is what this driver takes; the
+        // atomic ACTIVE=0 request it refuses with EINVAL (kept as the fallback)
+        struct drm_mode_crtc crtc = {};
+        crtc.crtc_id = d.crtcId;
+        int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+        const char* how = "legacy";
+        if (rc != 0) { rc = drmAtomicCrtcOff(sDrmFd, d.crtcId, d.connId); how = "atomic"; }
+        if (rc != 0) failed++;
+        ALOGW("NanoMenu DRM screen off: crtc %u conn %u off (%s) -> %s", d.crtcId, d.connId, how, rc == 0 ? "OK" : strerror(errno));
+    }
+    sDrmPanelsOff = true;
+    return failed;
+}
+bool drmPanelsAreOff() { return sDrmPanelsOff; }
+
+int drmResumeRecommit() {
+    if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return 0;
+    sDrmPanelsOff = false;
+    int failed = 0;
 
     ioctl(sDrmFd, DRM_IOCTL_SET_MASTER, 0);
 
@@ -4481,9 +4510,11 @@ void drmResumeRecommit() {
             rc = drmAtomicModesetFallback(sDrmFd, d.crtcId, d.connId, d.mode,
                                           fbId, d.w, d.h);
         }
+        if (rc != 0) failed++;
         ALOGW("NanoMenu DRM resume recommit: crtc %u conn %u fb %u -> %s",
               d.crtcId, d.connId, fbId, rc == 0 ? "OK" : strerror(errno));
     }
+    return failed;
 }
 
 } // namespace android

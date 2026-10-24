@@ -2476,6 +2476,7 @@ private:
     // watchdog must skip its stall check or it would abort the whole process (which
     // also kills background music) on every power-button sleep.
     std::atomic<bool> mInDrmSleep{false};
+    std::atomic<bool> mDrmPanelsParked{false};   // framework screen off at the DRM home: CRTCs off, pad not live
     // Idle sleep after the Android Screen Timeout (Settings.System screen_off_timeout).
     // PowerManager pins the panel on while the nano menu is visible (menu_active: the
     // framework never sees nano's pad input), so nano times the idle itself, the boot

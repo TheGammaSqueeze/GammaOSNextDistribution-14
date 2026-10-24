@@ -1098,6 +1098,7 @@ bool NanoMenu::enterDrmSleep() {
     drmFrameEnd(mDisplay, mSurface);
     nanobl::nanoBacklightSet(0);
     setBrightnessViaHal(0);
+    drmPanelsPowerOff();   // the pipes too, not only a blank frame (see the framework path)
     // Drop to the powersave governor (lowest clocks) while the screen is off - audio
     // decode + the 1Hz poll run comfortably there. Restored on wake. Publish the
     // screen-off state so the BT stability monitor reverts to powersave (not the
@@ -1310,7 +1311,16 @@ bool NanoMenu::enterDrmSleep() {
     // showing content. pollInput runs on the render thread, which owns all
     // DRM/GL state, so this is race-free. Idempotent and harmless on the
     // legacy pre-boot_completed path that never suspended.
-    drmResumeRecommit();
+    {
+        // the DP bridge needs a moment after its power-down: retry the CRTCs that refuse
+        const int64_t t0 = android::uptimeMillis();
+        int left = drmResumeRecommit();
+        while (left > 0 && android::uptimeMillis() - t0 < 3000) {
+            usleep(250000);
+            left = drmResumeRecommit();
+        }
+        if (left > 0) ALOGW("NanoMenu: %d panel(s) did not come back after the sleep", left);
+    }
     {
         int sysfs_val = mBrightness * mMaxBrightness / 255;
         if (sysfs_val < 1) sysfs_val = 1;
@@ -2267,6 +2277,12 @@ void NanoMenu::pollInput() {
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+            // The framework blanked the DRM home (panels off): the pad is not live, only the
+            // framework's wake keys are. A held Back used to keep navigating (and buzzing) a
+            // menu nobody could see.
+            if (mDrmPanelsParked.load(std::memory_order_relaxed)
+                && !(ev.type == EV_KEY && ev.code == KEY_POWER) && ev.type != EV_SW && ev.type != EV_SYN)
+                continue;
             mCurrentInputFd = fd;   // which device this event came from (Control Center touch routing)
             // Any button edge counts as user activity for the idle frame-rate
             // timer. EV_KEY only fires on real state changes, so this cannot
