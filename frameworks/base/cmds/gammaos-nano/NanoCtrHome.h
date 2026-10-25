@@ -43,6 +43,7 @@ struct HomeItem {
     int slot = -1;             // explicit grid slot (empty slots before it), -1 = the next slot
     bool folderFilled = true;  // folders: something inside (the icon shows its contents tab)
     bool monoIcon = false;     // the art is a white glyph (nano system icons): drawn dark
+    bool preview = false;      // titles: a tap moves the cursor onto it first (its banner shows), the next opens
     bool inverted = false;     // titles: the tile body in the folder colours (the Quick Menu's Power)
     bool glyphOnly = false;    // folders: drawn as the host's icon alone, no folder body (game systems,
                                // Recently Played, Applications...), in the folder colours or its tint

@@ -129,6 +129,10 @@ public:
         } else {
             h.kind = ctr::HomeItemKind::Title;
             h.monoIcon = it.nmapTex != 0 && !it.flatOwnTint;
+            // a game or an app previews on the first tap (its banner on the top screen) and
+            // launches on the next; the other tiles open on the tap that lands on them
+            h.preview = it.kind == NanoMenu::PS3_ROM || it.kind == NanoMenu::PS3_RECENT ||
+                        it.kind == NanoMenu::PS3_APP || it.kind == NanoMenu::PS3_LAUNCH_PKG;
             mTitles[h.id] = it;
             if (it.kind == NanoMenu::PS3_ROM && it.a >= 0 && it.a < (int)mMenu->mXmbSystems.size())
                 h.publisher = mMenu->mXmbSystems[it.a].name;
@@ -1210,7 +1214,9 @@ bool NanoMenu::ctrEnsure() {
     // the home just loaded: the user's zoom, then back on the title the last session launched
     mCtrHome->setZooms(property_get_int32("persist.gammaos.nano.ctr.zoom", 0),
                        property_get_int32("persist.gammaos.nano.ctr.folder_zoom", 2));
-    ctrRestoreReturn(mCtrHome);
+    // the overlay helper (an in-game process) loads the same home: only the real home takes
+    // the saved return, else the folder the title was launched from is not restored
+    if (!mOverlayMode) ctrRestoreReturn(mCtrHome);
     mCtrHost->applyCatColors();
     mCtrHost->applyBarIcons();
     if (!mCtrPanel) {

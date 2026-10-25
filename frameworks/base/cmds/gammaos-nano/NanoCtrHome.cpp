@@ -1995,7 +1995,12 @@ void CtrHome::Impl::setArrow(int side, bool visible) {
     if (arrowShown[side] == visible) return;
     arrowShown[side] = visible;
     arrows->setVisible(side == 0 ? "N_arwL_00" : "N_arwR_00", true);
-    arrows->play(visible ? "Appear" : "DisAppear", namedGroups({side == 0 ? "G_SceneL_00" : "G_SceneR_00"}));
+    // one animator per side: play() replaces the animator with the same id, and the default id
+    // is the file, so setting both arrows in one frame (a return into a scrolled folder) used
+    // to cut the right one off at its first frame and leave it invisible
+    PlayOptions o = namedGroups({side == 0 ? "G_SceneL_00" : "G_SceneR_00"});
+    o.id = side == 0 ? "scene:L" : "scene:R";
+    arrows->play(visible ? "Appear" : "DisAppear", o);
 }
 
 void CtrHome::Impl::updateArrows() {
@@ -2460,7 +2465,7 @@ void CtrHome::Impl::edgeScroll(float x, float y, bool touching) {
             mover.scrollFrom = g.scroll;
             mover.scrollTo = g.scrollFor(first);
             mover.scrollFrame = 0;
-            arrows->play("Repeat", namedGroups({mover.edge == 0 ? "G_arwL_00" : "G_arwR_00"}));
+            { PlayOptions o = namedGroups({mover.edge == 0 ? "G_arwL_00" : "G_arwR_00"}); o.id = mover.edge == 0 ? "arw:L" : "arw:R"; arrows->play("Repeat", o); }
         }
     }
     if (mover.scrollFrame >= PAGE_FRAMES) return;
@@ -2858,7 +2863,7 @@ void CtrHome::Impl::touchBegin(float x, float y) {
         if (hit) {
             tKind = TArrow;
             tSide = side;
-            arrows->play("Select", namedGroups({side == 0 ? "G_arwL_00" : "G_arwR_00"}));
+            { PlayOptions o = namedGroups({side == 0 ? "G_arwL_00" : "G_arwR_00"}); o.id = side == 0 ? "arw:L" : "arw:R"; arrows->play("Select", o); }
             return;
         }
     }
@@ -2919,7 +2924,7 @@ void CtrHome::Impl::touchEnd(float x, float y) {
             if (hitPane(base.get(), BAR_TOUCH[tBar], x, y)) tapBar(tBar);
             return;
         case TArrow:
-            arrows->play("Decide", namedGroups({tSide == 0 ? "G_arwL_00" : "G_arwR_00"}));
+            { PlayOptions o = namedGroups({tSide == 0 ? "G_arwL_00" : "G_arwR_00"}); o.id = tSide == 0 ? "arw:L" : "arw:R"; arrows->play("Decide", o); }
             scrollPage(tSide == 1 ? 1 : -1);
             return;
         case TGrid: {
@@ -2944,7 +2949,13 @@ void CtrHome::Impl::tapSlot(int slot, float x, float y) {
         moveCursorTo([&]() { g.onBar = false; g.barReturnColumn = -1; g.cursor = slot; }, false);
         return;
     }
-    if (g.onBar || g.cursor != slot) moveCursorTo([&]() { g.onBar = false; g.barReturnColumn = -1; g.cursor = slot; }, false);
+    // A game or an app takes two taps as on the console: the first moves the cursor onto it so
+    // its banner shows on the top screen, the next (or Open) launches it. Systems, lists and
+    // folders still open on the tap that lands on them.
+    if (g.onBar || g.cursor != slot) {
+        moveCursorTo([&]() { g.onBar = false; g.barReturnColumn = -1; g.cursor = slot; }, false);
+        if (g.item(slot)->preview) { sound("SE_CTR_HOME_TOUCH"); return; }
+    }
     cursor->play("Decide", groupsOpt());
     activate(1);
 }
