@@ -98,6 +98,11 @@ void IR_RST::UpdateCallback(std::uintptr_t user_data, s64 cycles_late) {
         constexpr int MAX_CSTICK_RADIUS = 0x9C; // Max value for a c-stick radius
         c_stick_x = static_cast<s16>(c_stick_x_f * MAX_CSTICK_RADIUS);
         c_stick_y = static_cast<s16>(c_stick_y_f * MAX_CSTICK_RADIUS);
+        // GammaOS: evidence for the right-stick path (every 60th update with the stick off centre)
+        static u32 rst_log = 0;
+        if ((c_stick_x != 0 || c_stick_y != 0) && (rst_log++ % 60) == 0) {
+            LOG_INFO(Service_IR, "ir:rst update: c-stick {} {}", c_stick_x, c_stick_y);
+        }
 
         system.Movie().HandleIrRst(state, c_stick_x, c_stick_y);
 
@@ -166,7 +171,7 @@ void IR_RST::Initialize(Kernel::HLERequestContext& ctx) {
     IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
     rb.Push(ResultSuccess);
 
-    LOG_DEBUG(Service_IR, "called. update_period={}, raw_c_stick={}", update_period, raw_c_stick);
+    LOG_INFO(Service_IR, "ir:rst (New 3DS C-stick) initialised by the title: update_period={}, raw_c_stick={}", update_period, raw_c_stick);
 }
 
 void IR_RST::Shutdown(Kernel::HLERequestContext& ctx) {

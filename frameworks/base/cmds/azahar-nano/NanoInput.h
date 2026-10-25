@@ -78,6 +78,7 @@ private:
     void handleTouch(Node& n, uint16_t type, uint16_t code, int32_t value);
     enum Dir { kLeft, kRight, kUp, kDown };
     bool swapActive();
+    void logCStick();
     void physicalDpad(Dir d, bool pressed);
     void leftStick();
     void sendDir(Dir d, bool pressed);

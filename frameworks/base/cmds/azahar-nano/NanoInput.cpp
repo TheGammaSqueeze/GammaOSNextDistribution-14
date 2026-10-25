@@ -239,6 +239,16 @@ void NanoInput::leftStick() {
     }
 }
 
+// sys.gammaos.azahar_nano.log_input=1: every 20th right-stick sample, to see the C-stick leave
+// the frontend (a tester's Circle Pad Pro did nothing in Resident Evil Revelations).
+void NanoInput::logCStick() {
+    static int n = 0;
+    if ((n++ % 20) != 0) return;
+    char v[PROPERTY_VALUE_MAX] = {};
+    if (azahar_nano::settings::get("sys.gammaos.azahar_nano.log_input", v, "") > 0 && v[0] == '1')
+        ALOGI("input: right stick -> C-stick %.2f %.2f", mRx, -mRy);
+}
+
 void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) {
     if (type == EV_KEY) {
         const bool pressed = value != 0;
@@ -302,14 +312,14 @@ void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) 
             if (mCb.analogButton) mCb.analogButton(AZN_BUTTON_ZL, unit);
             break;
         }
-        mRx = norm; if (mCb.joystick) mCb.joystick(AZN_STICK_C, mRx, -mRy); break;
+        mRx = norm; logCStick(); if (mCb.joystick) mCb.joystick(AZN_STICK_C, mRx, -mRy); break;
     case ABS_RY:
     case ABS_RZ:
         if (code == ABS_RZ && !n.hasAbs[ABS_RY] && n.absMin[ABS_RZ] >= 0) {
             if (mCb.analogButton) mCb.analogButton(AZN_BUTTON_ZR, unit);
             break;
         }
-        mRy = norm; if (mCb.joystick) mCb.joystick(AZN_STICK_C, mRx, -mRy); break;
+        mRy = norm; logCStick(); if (mCb.joystick) mCb.joystick(AZN_STICK_C, mRx, -mRy); break;
     case ABS_BRAKE: if (mCb.analogButton) mCb.analogButton(AZN_BUTTON_ZL, unit); break;
     case ABS_GAS: if (mCb.analogButton) mCb.analogButton(AZN_BUTTON_ZR, unit); break;
     case ABS_HAT0X:

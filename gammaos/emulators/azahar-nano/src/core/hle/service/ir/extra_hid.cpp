@@ -158,7 +158,9 @@ ExtraHID::~ExtraHID() {
     OnDisconnect();
 }
 
-void ExtraHID::OnConnect() {}
+void ExtraHID::OnConnect() {
+    LOG_INFO(Service_IR, "Circle Pad Pro connected by the title");
+}
 
 void ExtraHID::OnDisconnect() {
     timing.UnscheduleEvent(hid_polling_callback_id, 0);
@@ -262,6 +264,11 @@ void ExtraHID::SendHIDStatus() {
     } else {
         float x, y;
         std::tie(x, y) = c_stick->GetStatus();
+        // GammaOS: evidence for the right-stick path (every 60th poll with the stick off centre)
+        static u32 poll_log = 0;
+        if ((x != 0.0f || y != 0.0f) && (poll_log++ % 60) == 0) {
+            LOG_INFO(Service_IR, "Circle Pad Pro poll: c-stick {:.2f} {:.2f}", x, y);
+        }
 
         response.c_stick.header.Assign(static_cast<u8>(ResponseID::PollHID));
         response.c_stick.c_stick_x.Assign(static_cast<u32>(C_STICK_CENTER + C_STICK_RADIUS * x));
