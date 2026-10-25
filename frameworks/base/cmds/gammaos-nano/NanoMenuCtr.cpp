@@ -625,13 +625,17 @@ public:
         }
         // The saved layout places the titles (where the user dragged them). A sort order
         // other than the default (Y on the grid, as on the XMB) lays them out in the list's
-        // order instead: the titles as the category sorted them, the folders after.
+        // order instead: the titles as the category sorted them (Applications first, then
+        // Recently Played), the folders after. The list tiles keep a slot the user dragged
+        // them to in every mode.
         const bool sorted = mMenu->mGameSortMode != 0;
         std::map<std::string, int> slotOf;
         std::set<int> used;
-        if (!sorted)
-            for (const auto& r : mLayout.root)
-                if (have.count(r.second) && !slotOf.count(r.second)) { slotOf[r.second] = r.first; used.insert(r.first); }
+        for (const auto& r : mLayout.root) {
+            if (!have.count(r.second) || slotOf.count(r.second)) continue;
+            if (sorted && r.second.rfind("list:", 0) != 0) continue;
+            slotOf[r.second] = r.first; used.insert(r.first);
+        }
         int next = 0;
         for (auto& h : out) {
             auto s = slotOf.find(h.id);

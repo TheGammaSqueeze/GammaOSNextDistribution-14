@@ -1839,14 +1839,15 @@ void NanoMenu::buildPs3Cats() {
     if (gameCatRuntimeIdx >= 0) {
         Ps3Cat& game = mPs3Cats[gameCatRuntimeIdx];
         std::vector<Ps3Item> nano;
+        // Applications always leads, Recently Played follows, whatever the game sort mode
+        { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
+          it.iconTex = mIconTextures[19]; it.nmapTex = bevelForIconIdx(19);   // 4-square grid (index 19), distinct from Pinned Apps
+          it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
         if (!mXmbRecent.empty()) {
             Ps3Item it; it.label = "Recently Played"; it.kind = PS3_RECENT_LIST;
             it.iconTex = mIconTextures[15]; it.nmapTex = bevelForIconIdx(15);
             it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it);
         }
-        { Ps3Item it; it.label = "Applications"; it.kind = PS3_APP_LIST;
-          it.iconTex = mIconTextures[19]; it.nmapTex = bevelForIconIdx(19);   // 4-square grid (index 19), distinct from Pinned Apps
-          it.iconR = it.iconG = it.iconB = 1.0f; nano.push_back(it); }
         // Pinned Apps: a shortcut list of user-chosen apps, shown once at least one app is pinned
         // (via an app's "Pin to Home" option or the Y shortcut). Uses the push-pin glyph (index 20)
         // so it is visually distinct from the Applications 4-square grid. Package-keyed (pinned_pkgs).
