@@ -128,6 +128,10 @@ void azn_set_user_folder(const char* dir);
 // and saved there. username is UTF-8, at most 10 UTF-16 units kept; month/day 0 = leave.
 void azn_set_profile(const char* username, int birth_month, int birth_day);
 
+// The console's system language (Service::CFG::SystemLanguage, 0 JP .. 11 TW; -1 leaves the
+// config savegame as it is): applied with the profile once the title has loaded.
+void azn_set_language(int language);
+
 // Frame limiter mode: 1 = pace every emulated frame onto a fixed wall-clock
 // schedule (even swap cadence for a scanout presenter), 0 = stock limiter.
 void azn_set_deadline_pacing(int enabled);

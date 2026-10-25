@@ -716,6 +716,14 @@ void Overlay::buildPages() {
             pg.rows.push_back(propChoice("Birthday Day", "persist.gammaos.azahar_nano.birth_day", "0", days,
                                          "Applies when the game restarts"));
         }
+        // The console's system language (Service::CFG::SystemLanguage order): games that ship
+        // several languages pick theirs from it. "Default" leaves the config savegame as it is.
+        pg.rows.push_back(propChoice("System Language", "persist.gammaos.azahar_nano.language", "-1",
+                                     {{"Default", "-1"}, {"Japanese", "0"}, {"English", "1"}, {"French", "2"},
+                                      {"German", "3"}, {"Italian", "4"}, {"Spanish", "5"},
+                                      {"Simplified Chinese", "6"}, {"Korean", "7"}, {"Dutch", "8"},
+                                      {"Portuguese", "9"}, {"Russian", "10"}, {"Traditional Chinese", "11"}},
+                                     "Applies when the game restarts"));
     }
 
     // ---- Controls ----

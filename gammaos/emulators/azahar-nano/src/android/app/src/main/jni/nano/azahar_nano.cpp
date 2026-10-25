@@ -177,17 +177,19 @@ static void LoadConfig() {
 static std::mutex s_profile_mutex;
 static std::string s_profile_name;
 static int s_profile_month = 0, s_profile_day = 0;
+static int s_profile_language = -1;
 static bool s_profile_pending = false;
 
 static void ApplyPendingProfile() {
     std::string name;
-    int month = 0, day = 0;
+    int month = 0, day = 0, language = -1;
     {
         std::lock_guard<std::mutex> lock(s_profile_mutex);
         if (!s_profile_pending) return;
         name = s_profile_name;
         month = s_profile_month;
         day = s_profile_day;
+        language = s_profile_language;
     }
     auto cfg = Service::CFG::GetModule(Core::System::GetInstance());
     if (!cfg) {
@@ -210,9 +212,16 @@ static void ApplyPendingProfile() {
             changed = true;
         }
     }
+    if (language >= Service::CFG::LANGUAGE_JP && language <= Service::CFG::LANGUAGE_TW) {
+        const auto wanted = static_cast<Service::CFG::SystemLanguage>(language);
+        if (cfg->GetSystemLanguage() != wanted) {
+            cfg->SetSystemLanguage(wanted);
+            changed = true;
+        }
+    }
     if (changed) {
         cfg->UpdateConfigNANDSavegame();
-        LOG_INFO(Frontend, "profile: user name / birthday applied to the config savegame");
+        LOG_INFO(Frontend, "profile: user name / birthday / language applied to the config savegame");
     }
 }
 
@@ -600,12 +609,23 @@ void azn_set_windows(struct ANativeWindow* primary, struct ANativeWindow* second
     }
 }
 
+static void UpdateProfilePending() {
+    s_profile_pending = !s_profile_name.empty() || (s_profile_month > 0 && s_profile_day > 0) ||
+                        s_profile_language >= 0;
+}
+
 void azn_set_profile(const char* username, int birth_month, int birth_day) {
     std::lock_guard<std::mutex> lock(s_profile_mutex);
     s_profile_name = username ? username : "";
     s_profile_month = birth_month;
     s_profile_day = birth_day;
-    s_profile_pending = !s_profile_name.empty() || (birth_month > 0 && birth_day > 0);
+    UpdateProfilePending();
+}
+
+void azn_set_language(int language) {
+    std::lock_guard<std::mutex> lock(s_profile_mutex);
+    s_profile_language = language;
+    UpdateProfilePending();
 }
 
 int azn_run(const char* rom_path) {

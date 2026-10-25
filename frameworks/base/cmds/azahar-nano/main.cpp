@@ -117,6 +117,7 @@ struct CoreApi {
     void (*set_color_matrix)(int, const float*, int) = nullptr;   // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
     void (*set_profile)(const char*, int, int) = nullptr;   // optional (older cores)
+    void (*set_language)(int) = nullptr;                  // optional (older cores)
     void (*set_config_overrides)(const char*) = nullptr;   // optional (older cores)
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -230,6 +231,7 @@ bool loadCore(const std::string& path) {
         reinterpret_cast<void (*)(const char*)>(dlsym(gCore.handle, "azn_set_config_overrides"));
     gCore.set_profile =
         reinterpret_cast<void (*)(const char*, int, int)>(dlsym(gCore.handle, "azn_set_profile"));
+    gCore.set_language = reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_language"));
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
         ALOGE("core ABI %d, expected %d", gCore.abi_version(), AZN_ABI_VERSION);
         ok = false;
@@ -1845,6 +1847,11 @@ int main(int argc, char** argv) {
         const int month = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.birth_month", 0);
         const int day = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.birth_day", 0);
         if (name[0] || (month > 0 && day > 0)) gCore.set_profile(name, month, day);
+    }
+    // The console's system language (the System page): -1 leaves the config savegame alone.
+    if (gCore.set_language) {
+        const int language = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.language", -1);
+        if (language >= 0) gCore.set_language(language);
     }
     const int result = gCore.run(rom.c_str());
     gExitRequested = true;
