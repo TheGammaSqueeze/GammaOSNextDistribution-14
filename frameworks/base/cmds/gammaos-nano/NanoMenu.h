@@ -4658,6 +4658,8 @@ private:
     // ROM file name. Read at startup and on the settings toggle; drives applyRomNameOverrides.
     bool mShowDisplayNames = true;
     std::string gameSortLabelCur() const;        // banner label for the current mode
+    bool xmbHideWhenEmpty(const XmbSystem& sys);
+    bool xmbSourceCoveredByDefaults(const XmbSystem& sys, const std::string& path) const;   // no games and ours (seeded or auto-added)
     void ctrGameSortCycle();                     // 3DS home: Y on the Games grid
     std::string systemManufacturer(const XmbSystem& s) const;  // best-effort maker for grouping
 

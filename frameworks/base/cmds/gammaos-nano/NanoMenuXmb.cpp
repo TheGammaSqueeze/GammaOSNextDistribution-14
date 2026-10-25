@@ -741,6 +741,28 @@ bool NanoMenu::loadSystemsConfig() {
     }
     if (mXmbSystems.empty()) return false;
 
+    // Configs written by the earlier card auto-add carry the card folder as a scan source on
+    // built-ins, which turned the onboard folder off (sources are authoritative). Drop every
+    // source the defaults cover; the card folder is still scanned as a default alias.
+    {
+        bool dropped = false;
+        for (auto& sys : mXmbSystems) {
+            std::vector<ScanSource> kept;
+            for (const auto& src : sys.scanSources) {
+                if (src.type == 0 && xmbSourceCoveredByDefaults(sys, src.value)) {
+                    ALOGI("NanoMenu: %s: scan source %s is a default folder, dropping it",
+                          sys.id.c_str(), src.value.c_str());
+                    unlink(xmbCachePath(sys).c_str()); sys.scanned = false;
+                    dropped = true;
+                    continue;
+                }
+                kept.push_back(src);
+            }
+            sys.scanSources.swap(kept);
+        }
+        if (dropped) saveSystemsConfig();
+    }
+
     // Built-in systems added after this config was written (the 3DS entry) are
     // appended at the end, enabled, so existing installs see them without a reset.
     {
@@ -975,6 +997,19 @@ static std::vector<std::string> getRomFolderAliases(const std::string& romDir) {
     return out;
 }
 
+// A system with no games stays off the lists when it is one of ours: seeded (builtin) or added
+// by the ROM-folder auto-add from the emulator catalog (its id is a catalog platform id, e.g.
+// "cps2" found on a card that has since been taken out and rescanned without). Only a system
+// the user created by hand keeps its empty tile, so it can be set up before any ROMs land.
+bool NanoMenu::xmbHideWhenEmpty(const XmbSystem& sys) {
+    if (!sys.roms.empty()) return false;
+    if (sys.builtin) return true;
+    if (mEmuCatalog.empty()) loadEmuCatalog();   // parsed once, lazily like the auto-add
+    for (const auto& c : mEmuCatalog)
+        if (strcasecmp(c.platformId.c_str(), sys.id.c_str()) == 0) return true;
+    return false;
+}
+
 // ---- ES-DE-style bulk auto-add (scan a ROMs root, add every recognised system folder) ----
 // Defined in NanoMenuPS3Folder.cpp.
 int nano_makeUniqueSystem(std::vector<NanoMenu::XmbSystem>& systems, const std::string& name,
@@ -1147,7 +1182,11 @@ void NanoMenu::gsAutoAddTick() {
             bool dup = false;
             for (const auto& src : s.scanSources) if (src.value == full) { dup = true; break; }
             if (dup) continue;
-            ScanSource src; src.type = 0; src.value = full; s.scanSources.push_back(src);
+            // a folder the default scan already finds is just rescanned, never stored as a
+            // source (sources replace the defaults and would drop the onboard folder)
+            if (!xmbSourceCoveredByDefaults(s, full)) {
+                ScanSource src; src.type = 0; src.value = full; s.scanSources.push_back(src);
+            }
             unlink(xmbCachePath(s).c_str()); s.scanned = false;
             linked++;
             if (s.isStandalone() ? !packageInstalled(s.launchPkg) : !coreSoExists(s.coreSo)) needEmu++;
@@ -1190,6 +1229,37 @@ void NanoMenu::gsAutoAddTick() {
             l2 = "Scanning for games now...";
         showXmbMessage(l1, l2, 340);
     }
+}
+
+// True when a raw folder is one the default scan already covers for this system: a romDir alias
+// under the internal ROMs folder, under <volume>/ROMs or at a volume root (/storage/<name> and
+// /mnt/media_rw/<uuid>, matched by name so a card that is out right now still counts). Such a
+// folder must never be stored as a scan source: sources replace the defaults, so linking a card
+// folder to a built-in would silently stop its onboard folder being scanned.
+bool NanoMenu::xmbSourceCoveredByDefaults(const XmbSystem& sys, const std::string& path) const {
+    std::vector<std::string> parts;
+    { std::string t; for (char c : path) { if (c == '/') { if (!t.empty()) parts.push_back(autoAddLower(t)); t.clear(); } else t += c; }
+      if (!t.empty()) parts.push_back(autoAddLower(t)); }
+    if (parts.size() < 2) return false;
+    const std::string leaf = parts.back();
+    bool alias = false;
+    for (const auto& a : getRomFolderAliases(sys.romDir)) if (autoAddLower(a) == leaf) { alias = true; break; }
+    if (!alias) return false;
+    for (const auto& d : sys.disabledDefaultFolders) if (d == leaf) return false;   // the user turned it off
+    const size_t n = parts.size();
+    auto is = [&](size_t i, const char* v) { return i < n && parts[i] == v; };
+    // /sdcard/ROMs/<a>, /storage/emulated/0/ROMs/<a>, /data/media/0/ROMs/<a>
+    if (n == 3 && is(0, "sdcard") && is(1, "roms")) return true;
+    if (n == 5 && is(0, "storage") && is(1, "emulated") && is(3, "roms")) return true;
+    if (n == 5 && is(0, "data") && is(1, "media") && is(3, "roms")) return true;
+    // /storage/<vol>/[ROMs/]<a>, /mnt/media_rw/<vol>/[ROMs/]<a>
+    const bool volStorage = is(0, "storage") && !is(1, "emulated") && !is(1, "self");
+    const bool volMedia = is(0, "mnt") && is(1, "media_rw");
+    const size_t base = volStorage ? 2 : (volMedia ? 3 : 0);
+    if (!base) return false;
+    if (n == base + 1) return true;
+    if (n == base + 2 && is(base, "roms")) return true;
+    return false;
 }
 
 // Build the ordered, de-duplicated list of directories to scan for a system's

@@ -740,6 +740,39 @@ public:
         saveLayout();
     }
 
+    // Titles gone from the library (a game deleted, a system without games any more, a card the
+    // user rescanned without) leave their slots: drop their layout entries and close the gaps,
+    // keeping the order, on the root and inside every user folder. Returns true when something
+    // moved, so the caller can animate the re-listing. A title only resolve() cannot find is
+    // gone for the library's purposes: an automatic scan never drops a card's games (its
+    // guards keep the lists while the card is away), so this only follows real removals.
+    bool compactLayout() {
+        bool changed = false;
+        // the systems the Games category lists now ("sys:<id>" entries resolve through it, not
+        // through resolve(), which knows titles and apps)
+        std::set<std::string> live;
+        const int gc = gameCat();
+        if (gc >= 0)
+            for (const auto& h : fromLevel(mMenu->mPs3Cats[gc].items)) live.insert(h.id);
+        auto compact = [&](std::map<int, std::string>& slots, bool folderIds) {
+            std::vector<std::string> kept;
+            for (const auto& e : slots) {
+                NanoMenu::Ps3Item it;
+                const bool present = (folderIds && mLayout.folders.count(e.second)) || live.count(e.second)
+                                     || resolve(e.second, &it);
+                if (!present) { changed = true; continue; }
+                kept.push_back(e.second);
+            }
+            std::map<int, std::string> packed;
+            for (size_t i = 0; i < kept.size(); i++) packed[(int)i] = kept[i];
+            if (packed != slots) { changed = true; slots = packed; }
+        };
+        compact(mLayout.root, true);
+        for (auto& f : mLayout.folders) compact(f.second.slots, false);
+        if (changed) saveLayout();
+        return changed;
+    }
+
     // The folder's titles go back onto free root slots (the console empties a deleted folder).
     void deleteFolder(const std::string& id) {
         auto u = mLayout.folders.find(id);
@@ -3261,7 +3294,10 @@ void NanoMenu::renderCtrPrimary() {
         const uint64_t sig = ctrModelSignature();
         if (sig != mCtrModelSig) {
             mCtrModelSig = sig;
-            mCtrHome->reloadItems();
+            // the library changed: titles that are gone leave the layout and the grid closes
+            // their gaps, every icon gliding to its new slot (a plain reload otherwise)
+            if (mCtrHost && mCtrHost->compactLayout()) mCtrHome->reorderItems();
+            else mCtrHome->reloadItems();
         }
     }
     // input for this frame: held buttons (+ the circle pad as the D-pad), then the 60 Hz ticks

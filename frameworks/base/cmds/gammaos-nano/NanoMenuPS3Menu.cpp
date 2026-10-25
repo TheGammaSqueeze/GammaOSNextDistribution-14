@@ -1882,10 +1882,10 @@ void NanoMenu::buildPs3Cats() {
         for (size_t s = 0; s < mXmbSystems.size(); s++) {
             const XmbSystem& sys = mXmbSystems[s];
             if (!sys.enabled) continue;
-            // Builtin systems stay hidden until ROMs are found (keeps the column to what the
-            // user actually has). User-added systems always show: the user explicitly created
-            // them and needs to see the tile (and its 0 count) before any ROMs land.
-            if (sys.roms.empty() && sys.builtin) continue;
+            // Systems stay hidden until ROMs are found (keeps the column to what the user
+            // actually has); only a system the user created by hand shows its empty tile, so it
+            // can be set up before any ROMs land (xmbHideWhenEmpty).
+            if (xmbHideWhenEmpty(sys)) continue;
             order.push_back((int)s);
         }
         auto nameLess = [&](int a, int b){
@@ -3731,7 +3731,7 @@ void NanoMenu::buildBootToSubmenu(Ps3Level& out) {
     for (size_t s = 0; s < mXmbSystems.size(); s++) {
         const XmbSystem& sys = mXmbSystems[s];
         if (!sys.enabled) continue;
-        if (sys.roms.empty() && sys.builtin) continue;
+        if (xmbHideWhenEmpty(sys)) continue;
         Ps3Item it; it.kind = PS3_QUICK; it.a = QA_BOOTTO_SET;
         it.value = std::string("sys:") + sys.id; it.label = sys.name;
         resolveSystemIcon(sys.iconRef, &it.iconTex, &it.nmapTex);
