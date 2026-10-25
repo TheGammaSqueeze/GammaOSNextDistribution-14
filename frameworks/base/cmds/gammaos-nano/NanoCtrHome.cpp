@@ -772,7 +772,7 @@ struct CtrHome::Impl {
     void bottomUpdate();
     std::string bottomSetFor();
     void updateBalloon();
-    void balloonShow(const std::string& text, bool label, float x, float y, float zoom);
+    void balloonShow(const std::string& text, bool label, float x, float y, float zoom, bool centred = false);
     void balloonHide();
     void updateSheet(LayoutInstance* l, const Grid& g, float extra);
     // touch
@@ -2166,13 +2166,19 @@ static std::string balloonLines(const Pane* p, const std::string& name, const st
     return out;
 }
 
-void CtrHome::Impl::balloonShow(const std::string& text, bool label, float x, float y, float zoom) {
+void CtrHome::Impl::balloonShow(const std::string& text, bool label, float x, float y, float zoom,
+                                bool centred) {
     if (Pane* base_ = balloon->pane("N_Base_00")) {
         Pane* box = balloon->pane("N_LR_00");
         const float limit = 160 + sExtraWidth * 0.5f - 136 - 16;
         base_->translate[0] = x;
         base_->translate[1] = y + zoomTable(TOUCH_BOX, zoom) / 2 + 5;
-        if (box) box->translate[0] = std::clamp(x, -limit, limit) - x;
+        // a notice is a banner across the top of the screen: the box sits on the screen's
+        // centre line whatever slot the cursor is on, and the stem that points at the cursor
+        // is dropped; a name stays by its icon, held on screen
+        if (box) box->translate[0] = (centred ? 0.0f : std::clamp(x, -limit, limit)) - x;
+        for (const char* n : {"P_Pnt_00", "P_PntShdw_00"})
+            if (Pane* pnt = balloon->pane(n)) pnt->visible = !centred;
     }
     const std::string key = (label ? "#" : "") + text;
     if (key != balloonText) {
@@ -2206,7 +2212,7 @@ void CtrHome::Impl::updateBalloon() {
         const float kBalloonH = 60;
         if (top + kBalloonH > 120) y -= top + kBalloonH - 120;
         balloonItem.clear();
-        balloonShow(noticeText, false, x, y, zoom);
+        balloonShow(noticeText, false, x, y, zoom, true);
         return;
     }
     const bool blocked = state == StZoom || state == StAppStart || cursorHidden();
