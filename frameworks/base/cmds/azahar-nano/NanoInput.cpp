@@ -293,15 +293,19 @@ void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) 
     case ABS_Y: mLy = norm; leftStick(); break;
     case ABS_RX:
     case ABS_Z:
-        if (code == ABS_Z && !n.hasAbs[ABS_RX]) {
-            // Some pads report the left trigger on ABS_Z.
+        // Some pads report the left trigger on ABS_Z; the Xbox layout (the gammapad virtual
+        // pad on the RP Duo Lite: X, Y, Z, RZ, GAS, BRAKE) puts the right stick there with the
+        // triggers on GAS / BRAKE. A trigger runs 0..max, a stick axis is signed: a signed
+        // ABS_Z is the right stick (the C-stick, and the Circle Pad Pro the core emulates from
+        // it), whatever other axes the pad has.
+        if (code == ABS_Z && !n.hasAbs[ABS_RX] && n.absMin[ABS_Z] >= 0) {
             if (mCb.analogButton) mCb.analogButton(AZN_BUTTON_ZL, unit);
             break;
         }
         mRx = norm; if (mCb.joystick) mCb.joystick(AZN_STICK_C, mRx, -mRy); break;
     case ABS_RY:
     case ABS_RZ:
-        if (code == ABS_RZ && !n.hasAbs[ABS_RY]) {
+        if (code == ABS_RZ && !n.hasAbs[ABS_RY] && n.absMin[ABS_RZ] >= 0) {
             if (mCb.analogButton) mCb.analogButton(AZN_BUTTON_ZR, unit);
             break;
         }

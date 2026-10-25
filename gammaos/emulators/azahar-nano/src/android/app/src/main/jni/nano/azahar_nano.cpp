@@ -35,6 +35,8 @@
 #include "core/cheats/cheat_base.h"
 #include "core/cheats/cheats.h"
 #include "core/core.h"
+#include "core/hle/service/cfg/cfg.h"
+#include "common/string_util.h"
 #include "core/perf_stats.h"
 #include "core/frontend/applets/default_applets.h"
 #include "core/hle/service/am/am.h"
@@ -171,6 +173,49 @@ static void LoadConfig() {
 }
 
 
+// The user profile the host asked for (azn_set_profile), applied once the title has loaded.
+static std::mutex s_profile_mutex;
+static std::string s_profile_name;
+static int s_profile_month = 0, s_profile_day = 0;
+static bool s_profile_pending = false;
+
+static void ApplyPendingProfile() {
+    std::string name;
+    int month = 0, day = 0;
+    {
+        std::lock_guard<std::mutex> lock(s_profile_mutex);
+        if (!s_profile_pending) return;
+        name = s_profile_name;
+        month = s_profile_month;
+        day = s_profile_day;
+    }
+    auto cfg = Service::CFG::GetModule(Core::System::GetInstance());
+    if (!cfg) {
+        LOG_WARNING(Frontend, "profile: no CFG module, nothing applied");
+        return;
+    }
+    bool changed = false;
+    if (!name.empty()) {
+        std::u16string wanted = Common::UTF8ToUTF16(name);
+        if (wanted.size() > 10) wanted.resize(10);
+        if (!wanted.empty() && cfg->GetUsername() != wanted) {
+            cfg->SetUsername(wanted);
+            changed = true;
+        }
+    }
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        const auto [cur_month, cur_day] = cfg->GetBirthday();
+        if (cur_month != month || cur_day != day) {
+            cfg->SetBirthday(static_cast<u8>(month), static_cast<u8>(day));
+            changed = true;
+        }
+    }
+    if (changed) {
+        cfg->UpdateConfigNANDSavegame();
+        LOG_INFO(Frontend, "profile: user name / birthday applied to the config savegame");
+    }
+}
+
 Core::System::ResultStatus RunCore(const std::string& filepath) {
     std::scoped_lock lock(running_mutex);
     LOG_INFO(Frontend, "azahar-nano core starting...");
@@ -257,6 +302,8 @@ Core::System::ResultStatus RunCore(const std::string& filepath) {
 
     stop_run = false;
     pause_emulation = false;
+
+    ApplyPendingProfile();
 
     LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0, "");
     system.GPU().ApplyPerProgramSettings(program_id);
@@ -551,6 +598,14 @@ void azn_set_windows(struct ANativeWindow* primary, struct ANativeWindow* second
             }
         }
     }
+}
+
+void azn_set_profile(const char* username, int birth_month, int birth_day) {
+    std::lock_guard<std::mutex> lock(s_profile_mutex);
+    s_profile_name = username ? username : "";
+    s_profile_month = birth_month;
+    s_profile_day = birth_day;
+    s_profile_pending = !s_profile_name.empty() || (birth_month > 0 && birth_day > 0);
 }
 
 int azn_run(const char* rom_path) {

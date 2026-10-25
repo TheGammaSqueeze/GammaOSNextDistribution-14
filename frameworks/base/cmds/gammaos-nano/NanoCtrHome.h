@@ -249,6 +249,11 @@ public:
     void resumeSuspended();         // HOME from the host (power, Back at the top level)
     // Items changed (rescan): rebuild the grids, keeping the cursor on the same item.
     void reloadItems();
+    // Items re-listed in another order (a sort): every icon glides from its old slot to its new one.
+    void reorderItems();
+    bool idleAtRoot() const;   // the root grid at rest: no folder, no flight, no title suspended
+    // A short message in the cursor's balloon in place of the title's name, `frames` long.
+    void showNotice(const std::string& text, int frames);
     // The host switched the root grid to other content (nano's categories, L / R and the applet
     // bar): open folders close, then the root grid is built again with the cursor on `cursor`.
     void showCategory(int cursor);

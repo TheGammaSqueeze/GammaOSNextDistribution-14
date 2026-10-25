@@ -284,6 +284,11 @@ struct Grid {
     // moving.ts slot markers: the held item's hole, a slot not drawn (an icon flying to it),
     // the glow under the slot the held icon would land on, the folder about to take it
     int hiddenSlot = -1, skipSlot = -1, hoverSlot = -1, openSlot = -1;
+    // a re-listing in another order (a sort): each slot's icon glides from where its item sat
+    // (flyFrom, grid coordinates) to the slot over the flight, 0..1, settled at 1
+    std::vector<Point> flyFrom;
+    std::vector<char> flyValid;
+    float flyT = 1;
 
     bool isFolder() const { return !folderId.empty(); }
     int zoom() const { return metrics.zoom; }
@@ -305,9 +310,14 @@ struct Grid {
     }
 
     Point slotPosition(int slot) const {
-        if (!blending) return slotPos(metrics, slot);
-        Point a = slotPos(from, slot), b = slotPos(to, slot);
-        return {lerpf(a.x, b.x, t), lerpf(a.y, b.y, t)};
+        Point p;
+        if (!blending) p = slotPos(metrics, slot);
+        else { Point a = slotPos(from, slot), b = slotPos(to, slot); p = {lerpf(a.x, b.x, t), lerpf(a.y, b.y, t)}; }
+        if (flyT < 1 && slot >= 0 && slot < (int)flyValid.size() && flyValid[slot]) {
+            const float e = 1 - (1 - flyT) * (1 - flyT) * (1 - flyT);   // ease out
+            p = {lerpf(flyFrom[slot].x, p.x, e), lerpf(flyFrom[slot].y, p.y, e)};
+        }
+        return p;
     }
     Point slotOnScreen(int slot) const {
         Point p = slotPosition(slot);
@@ -593,6 +603,9 @@ struct CtrHome::Impl {
     std::string balloonText;
     std::string balloonItem, balloonName, balloonWrapped;
     bool balloonVisible = false;
+    // a short message in the cursor's balloon in place of the name (the sort order chosen)
+    std::string noticeText;
+    int noticeFrames = 0;
     // palette sheets
     float sheetMargin = 10, sheetShadowExtra = 0, folderShadowExtra = 0;
     // icon textures
@@ -1015,6 +1028,13 @@ void CtrHome::Impl::tick() {
     }
     if (entered) mainUpdate();
     else updateChrome();
+    // a sort's flight: half a second, then the markers go
+    for (Grid& g_ : grids) {
+        if (g_.flyT >= 1) continue;
+        g_.flyT = std::min(1.0f, g_.flyT + 1.0f / 30.0f);
+        if (g_.flyT >= 1) { g_.flyFrom.clear(); g_.flyValid.clear(); }
+    }
+    if (noticeFrames > 0) noticeFrames--;
     // animation pass (every drawable of both screens)
     for (LayoutInstance* l : {base.get(), palette.get(), arrows.get(), buttons.get(), cursor.get(), folder.get(),
                               balloon.get(), top.get(), hud.get(), fadeTop.get(), fadeBottom.get()})
@@ -2175,6 +2195,20 @@ void CtrHome::Impl::balloonHide() {
 
 void CtrHome::Impl::updateBalloon() {
     Grid& g = grid();
+    if (noticeFrames > 0 && !cursorHidden()) {
+        // the notice takes the balloon; the name re-wraps when it comes back. The balloon
+        // sits above the icon: on the top row that is off the screen, so it is held down to
+        // where its box still shows (the stem then just points at the row).
+        float x, y, f;
+        cursorPose(g, &x, &y, &f);
+        const float zoom = g.zoomValue();
+        const float top = y + zoomTable(TOUCH_BOX, zoom) / 2 + 5;
+        const float kBalloonH = 60;
+        if (top + kBalloonH > 120) y -= top + kBalloonH - 120;
+        balloonItem.clear();
+        balloonShow(noticeText, false, x, y, zoom);
+        return;
+    }
     const bool blocked = state == StZoom || state == StAppStart || cursorHidden();
     const bool zoomed = g.zoom() != 0 || (g.blending && g.to.zoom != 0);
     if (blocked || zoomed || g.onBar || !showNameBalloon) { balloonHide(); return; }
@@ -3674,7 +3708,7 @@ uint64_t CtrHome::Impl::bottomSignature(const float* proj, int vx, int vy, int v
     mix(state == StFolderOpen || state == StFolderClose ? (uint64_t)stateFrame : 0);
     mix(closingFolder);
     auto grid_ = [&](const Grid& g) {
-        mixf(g.scroll); mixf(g.zoomValue()); mix(g.blending); mixf(g.t);
+        mixf(g.scroll); mixf(g.zoomValue()); mix(g.blending); mixf(g.t); mixf(g.flyT);
         mix((uint64_t)g.slots); mix((uint64_t)g.zoom());
         mix((uint64_t)(g.hiddenSlot + 2)); mix((uint64_t)(g.skipSlot + 2));
         mix((uint64_t)(g.hoverSlot + 2)); mix((uint64_t)(g.openSlot + 2));
@@ -4997,6 +5031,44 @@ void CtrHome::Impl::dropIconTex() {
     }
     iconTex.clear();
     if (top3d) top3d->refocus();
+}
+
+// A re-listing in another order: the icons glide from their old slots to the new ones.
+void CtrHome::reorderItems() {
+    if (!mLoaded) return;
+    Impl& I = *mImpl;
+    Grid& g = I.grids.front();
+    std::map<std::string, Point> was;
+    for (int s = 0; s < (int)g.slotItem.size(); s++)
+        if (const HomeItem* it = g.item(s)) was[it->id] = g.slotPosition(s);
+    reloadItems();
+    g.flyFrom.assign(g.slots, Point{});
+    g.flyValid.assign(g.slots, 0);
+    bool any = false;
+    for (int s = 0; s < (int)g.slotItem.size() && s < g.slots; s++) {
+        const HomeItem* it = g.item(s);
+        if (!it) continue;
+        auto w = was.find(it->id);
+        if (w == was.end()) continue;
+        const Point now = slotPos(g.metrics, s);
+        if (fabsf(now.x - w->second.x) < 0.5f && fabsf(now.y - w->second.y) < 0.5f) continue;
+        g.flyFrom[s] = w->second;
+        g.flyValid[s] = 1;
+        any = true;
+    }
+    g.flyT = any ? 0.0f : 1.0f;
+}
+
+bool CtrHome::idleAtRoot() const {
+    if (!mLoaded) return false;
+    const Impl& I = *mImpl;
+    return I.state == StIdle && !I.inFolder() && !appSuspended() && I.grids.front().flyT >= 1;
+}
+
+void CtrHome::showNotice(const std::string& text, int frames) {
+    if (!mLoaded) return;
+    mImpl->noticeText = text;
+    mImpl->noticeFrames = frames;
 }
 
 void CtrHome::reloadItems() {

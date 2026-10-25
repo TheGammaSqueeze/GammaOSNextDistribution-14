@@ -138,6 +138,8 @@ private:
     // and the Remove Custom Cheat page, rebuilt from the core's list.
     void buildCheatPages();
     void startAddCheat();
+    void editUserName();                // System page: the console's user name (keyboard)
+    int mPageSystemUserRow = -1;        // its row, relabelled after an edit
     bool makeCurrent();
 
     OverlayActions mA;

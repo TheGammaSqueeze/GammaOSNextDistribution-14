@@ -123,6 +123,11 @@ void azn_set_present_mode(int vsync, int swapchain_extra_images);
 // after azn_init and before azn_run; the subfolders are created.
 void azn_set_user_folder(const char* dir);
 
+// The emulated console's user profile (the name games greet the player with, the
+// birthday): applied to the config savegame once the title has loaded, before it runs,
+// and saved there. username is UTF-8, at most 10 UTF-16 units kept; month/day 0 = leave.
+void azn_set_profile(const char* username, int birth_month, int birth_day);
+
 // Frame limiter mode: 1 = pace every emulated frame onto a fixed wall-clock
 // schedule (even swap cadence for a scanout presenter), 0 = stock limiter.
 void azn_set_deadline_pacing(int enabled);

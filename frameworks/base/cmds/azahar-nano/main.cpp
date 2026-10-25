@@ -116,6 +116,7 @@ struct CoreApi {
     void (*set_screen_aa)(int) = nullptr;         // optional (newer cores)
     void (*set_color_matrix)(int, const float*, int) = nullptr;   // optional (newer cores)
     void (*set_user_folder)(const char*) = nullptr;
+    void (*set_profile)(const char*, int, int) = nullptr;   // optional (older cores)
     void (*set_config_overrides)(const char*) = nullptr;   // optional (older cores)
     int (*set_config_value)(const char*, const char*, const char*) = nullptr;
 };
@@ -227,6 +228,8 @@ bool loadCore(const std::string& path) {
     ok &= sym(gCore.set_config_value, "azn_set_config_value");
     gCore.set_config_overrides =
         reinterpret_cast<void (*)(const char*)>(dlsym(gCore.handle, "azn_set_config_overrides"));
+    gCore.set_profile =
+        reinterpret_cast<void (*)(const char*, int, int)>(dlsym(gCore.handle, "azn_set_profile"));
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
         ALOGE("core ABI %d, expected %d", gCore.abi_version(), AZN_ABI_VERSION);
         ok = false;
@@ -609,6 +612,7 @@ std::atomic<bool> gLoadScreenOn{false};
 std::atomic<bool> gStallScreenOn{false};
 // The core is paused for a device sleep (the menu pause is overlay.isOpen()).
 std::atomic<bool> gSleepPaused{false};
+std::atomic<int64_t> gSavingSinceNs{0};   // a save state was requested at this time (HUD "Saving" notice)
 
 bool shaderCacheRebuilding() {
     return gCore.shader_cache_rebuilding && gCore.shader_cache_rebuilding() != 0;
@@ -1082,6 +1086,7 @@ int main(int argc, char** argv) {
             gDynResSettle = 5;
         };
         oa.saveState = [](int slot) {
+            gSavingSinceNs.store(monoNs());   // the HUD's "Saving" notice
             backupStateSlot(slot);
             // The request is processed by the emulation loop, so unpause first.
             overlay.close();
@@ -1457,6 +1462,7 @@ int main(int argc, char** argv) {
                     property_set("sys.gammaos.azahar_nano.save_state", "");
                     const int slot = atoi(sv.c_str());
                     if (slot > 0 && sOa.saveState) { ALOGI("hook: save state %d", slot); sOa.saveState(slot); }
+                    else if (slot > 0 && gCore.save_state) { gSavingSinceNs.store(monoNs()); gCore.save_state(slot); }
                 }
                 // sys.gammaos.azahar_nano.pause=1/0: freeze the game for screenshot
                 // comparisons (no menu drawn).
@@ -1769,13 +1775,26 @@ int main(int argc, char** argv) {
             toast = target > toast ? std::min(target, toast + step) : std::max(target, toast - step);
             if (toast > 0.0f) spin += dt * 1.1f;
             else spin = 0.0f;
+            // "Saving": up from the save state request for 1.2 s (the write and its frame drop
+            // happen right then), then the same 250 ms fade as the shader notice
+            float saving = 0.0f;
+            {
+                const int64_t since = gSavingSinceNs.load();
+                if (since > 0 && live) {
+                    const int64_t age = now - since;
+                    if (age < 1200000000LL) saving = 1.0f;
+                    else if (age < 1450000000LL) saving = 1.0f - (float)(age - 1200000000LL) / 250000000.0f;
+                    else gSavingSinceNs.store(0);
+                }
+                if (saving > 0.0f && toast <= 0.0f) spin += dt * 1.1f;
+            }
             const bool fps = live && wantFps;
             const bool ff = live && sFastForward.load();
-            const bool want = fps || ff || toast > 0.0f;
+            const bool want = fps || ff || toast > 0.0f || saving > 0.0f;
             const uint32_t regions = (fps || ff ? azahar_nano::kHudTop : 0u) |
-                                     (toast > 0.0f ? azahar_nano::kHudBottom : 0u);
+                                     (toast > 0.0f || saving > 0.0f ? azahar_nano::kHudBottom : 0u);
             const uint64_t seq = sHudStatsSeq.load();
-            const bool animating = toast > 0.0f;
+            const bool animating = toast > 0.0f || saving > 0.0f;
             if (want && (animating || seq != lastSeq || regions != lastRegions || !hudOn)) {
                 azahar_nano::Hud::Frame f;
                 f.fps = fps;
@@ -1785,6 +1804,7 @@ int main(int argc, char** argv) {
                 f.ff = ff;
                 f.speedPct = sHudSpeed.load();
                 f.toastAlpha = toast;
+                f.saveAlpha = saving;
                 f.spin = spin;
                 hud.render(f);
                 if (sDrm) {
@@ -1816,6 +1836,15 @@ int main(int argc, char** argv) {
         gCheatTitleId = gCore.rom_title_id(rom.c_str());
         if (gCheatTitleId) gCheatCustomCount = azahar_nano::cheatdb::prepare(dataDir, gCheatTitleId);
         else ALOGW("cheats: no title id for %s", rom.c_str());
+    }
+    // The console's user profile (the in-game menu's System page): the name games greet the
+    // player with and the birthday, applied to the config savegame once the title loads.
+    if (gCore.set_profile) {
+        char name[PROPERTY_VALUE_MAX] = {};
+        azahar_nano::settings::get("persist.gammaos.azahar_nano.username", name, "");
+        const int month = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.birth_month", 0);
+        const int day = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.birth_day", 0);
+        if (name[0] || (month > 0 && day > 0)) gCore.set_profile(name, month, day);
     }
     const int result = gCore.run(rom.c_str());
     gExitRequested = true;

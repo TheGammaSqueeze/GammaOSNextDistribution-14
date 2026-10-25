@@ -623,10 +623,15 @@ public:
             out.push_back(h);
             have.insert(h.id);
         }
+        // The saved layout places the titles (where the user dragged them). A sort order
+        // other than the default (Y on the grid, as on the XMB) lays them out in the list's
+        // order instead: the titles as the category sorted them, the folders after.
+        const bool sorted = mMenu->mGameSortMode != 0;
         std::map<std::string, int> slotOf;
         std::set<int> used;
-        for (const auto& r : mLayout.root)
-            if (have.count(r.second) && !slotOf.count(r.second)) { slotOf[r.second] = r.first; used.insert(r.first); }
+        if (!sorted)
+            for (const auto& r : mLayout.root)
+                if (have.count(r.second) && !slotOf.count(r.second)) { slotOf[r.second] = r.first; used.insert(r.first); }
         int next = 0;
         for (auto& h : out) {
             auto s = slotOf.find(h.id);
@@ -1247,6 +1252,21 @@ static void ctrRestoreReturn(ctr::CtrHome* home) {
     }
 }
 
+// Y on the Games grid: the next sort order (persisted like the XMB's), the category rebuilt in
+// it, the grid re-listed with the icons gliding to their new slots, the order named in the
+// cursor's balloon.
+void NanoMenu::ctrGameSortCycle() {
+    mGameSortMode = (mGameSortMode + 1) % 4;
+    property_set("persist.gammaos.nano.gamesort", std::to_string(mGameSortMode).c_str());
+    buildPs3Cats();
+    if (mCtrHome) {
+        mCtrHome->reorderItems();
+        mCtrHome->showNotice(gameSortLabelCur(), 110);
+    }
+    mDisplayDirty = true;
+    ALOGI("NanoMenu: 3DS grid sort -> %d", mGameSortMode);
+}
+
 bool NanoMenu::ctrLaunchItem(const Ps3Item& it) {
     switch (it.kind) {
         case PS3_ROM:
@@ -1439,7 +1459,14 @@ bool NanoMenu::ctrInputEvent(int type, int code, int value) {
                 // keeps X: the console's close prompt)
                 if (on && !mCtrHome->appSuspended() && ctrOpenOptions()) return taken();
                 return taken();
-            case BTN_WEST: setBit(ctr::CTR_Y, on); return taken();
+            case BTN_WEST:
+                // Y on the Games grid steps the sort order, as on the XMB: the icons glide to
+                // their new slots and the balloon names the order
+                if (on && mCtrCat == CTR_CAT_GAMES && !mCtrHome->appSuspended() && mCtrHome->idleAtRoot()) {
+                    ctrGameSortCycle();
+                    return taken();
+                }
+                setBit(ctr::CTR_Y, on); return taken();
             case BTN_TL: case KEY_L: setBit(ctr::CTR_L, on); return taken();
             case BTN_TR: case KEY_R: setBit(ctr::CTR_R, on); return taken();
             case BTN_TL2: setBit(ctr::CTR_ZL, on); return taken();

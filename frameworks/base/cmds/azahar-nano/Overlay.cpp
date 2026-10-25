@@ -690,6 +690,32 @@ void Overlay::buildPages() {
             "Dynamic recompiler (turn off only for debugging)", true));
         pg.rows.push_back(configToggle("Plugin Loader", "System", "plugin_loader_enabled",
             "Load 3GX plugins", true));
+        // The console's user profile, as drastic-nano's System page offers the DS one: the
+        // name games greet the player with (the core's default is AZAHAR) and the birthday.
+        // Applied to the config savegame when a title starts (azn_set_profile).
+        {
+            const std::string name = mA.getProp ? mA.getProp("persist.gammaos.azahar_nano.username", "") : "";
+            Row r;
+            r.label = "User Name: " + (name.empty() ? std::string("AZAHAR") : name);
+            r.kind = ROW_ACTION;
+            r.hint = "The name games call you (10 characters); applies when the game restarts";
+            r.activate = [this]() { editUserName(); };
+            mPageSystemUserRow = (int)pg.rows.size();
+            pg.rows.push_back(std::move(r));
+            mPropKeys.push_back("username");
+        }
+        {
+            std::vector<Choice> months = {{"Not set", "0"}};
+            static const char* const kMonths[12] = {"January", "February", "March", "April", "May", "June",
+                                                    "July", "August", "September", "October", "November", "December"};
+            for (int m = 1; m <= 12; m++) months.push_back({kMonths[m - 1], std::to_string(m)});
+            pg.rows.push_back(propChoice("Birthday Month", "persist.gammaos.azahar_nano.birth_month", "0", months,
+                                         "Applies when the game restarts"));
+            std::vector<Choice> days = {{"Not set", "0"}};
+            for (int d = 1; d <= 31; d++) days.push_back({std::to_string(d), std::to_string(d)});
+            pg.rows.push_back(propChoice("Birthday Day", "persist.gammaos.azahar_nano.birth_day", "0", days,
+                                         "Applies when the game restarts"));
+        }
     }
 
     // ---- Controls ----
@@ -857,6 +883,30 @@ void Overlay::buildCheatPages() {
     }
     pg.cursor = std::min(std::max(cursor, 0), (int)pg.rows.size() - 1);
     rm.cursor = std::min(std::max(rmCursor, 0), (int)rm.rows.size() - 1);
+}
+
+// The user name through the keyboard: trimmed, at most 10 characters (the console keeps 10
+// UTF-16 units), empty means the core's default.
+void Overlay::editUserName() {
+    using android::drastic_overlay::DrasticOsk;
+    const std::string cur = mA.getProp ? mA.getProp("persist.gammaos.azahar_nano.username", "") : "";
+    mOsk.open("User Name", cur, DrasticOsk::Mode::Text, [this](const std::string& text) {
+        size_t a = text.find_first_not_of(' ');
+        size_t b = text.find_last_not_of(' ');
+        std::string t = a == std::string::npos ? std::string() : text.substr(a, b - a + 1);
+        // 10 code points, never split inside a UTF-8 sequence
+        size_t cps = 0, cut = t.size();
+        for (size_t i = 0; i < t.size(); i++) {
+            if (((unsigned char)t[i] & 0xC0) == 0x80) continue;
+            if (cps == 10) { cut = i; break; }
+            cps++;
+        }
+        if (cut < t.size()) { t.resize(cut); mBanner = "Name shortened to 10 characters"; }
+        else mBanner = t.empty() ? "User name back to the default" : "Applies when the game restarts";
+        if (mA.setProp) mA.setProp("persist.gammaos.azahar_nano.username", t.c_str());
+        if (mPageSystemUserRow >= 0 && mPageSystemUserRow < (int)mPages[kPageSystem].rows.size())
+            mPages[kPageSystem].rows[mPageSystemUserRow].label = "User Name: " + (t.empty() ? std::string("AZAHAR") : t);
+    });
 }
 
 void Overlay::startAddCheat() {
