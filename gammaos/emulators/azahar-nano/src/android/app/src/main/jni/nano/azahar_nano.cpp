@@ -78,6 +78,7 @@ ANativeWindow* s_secondary_surface{};
 
 std::atomic<bool> stop_run{true};
 std::atomic<bool> pause_emulation{false};
+std::atomic<bool> reset_requested{false};   // azn_reset: the core loop reloads the title
 std::atomic<bool> sleep_audio_off{false};   // azn_sleep: the DSP sink is the null sink
 std::mutex paused_mutex;
 std::mutex running_mutex;
@@ -212,12 +213,11 @@ static void ApplyPendingProfile() {
             changed = true;
         }
     }
+    // Always written: with the region on Auto the module corrects a language that does not
+    // fit the region in memory only, so the savegame on disk would otherwise keep a stale one.
     if (language >= Service::CFG::LANGUAGE_JP && language <= Service::CFG::LANGUAGE_TW) {
-        const auto wanted = static_cast<Service::CFG::SystemLanguage>(language);
-        if (cfg->GetSystemLanguage() != wanted) {
-            cfg->SetSystemLanguage(wanted);
-            changed = true;
-        }
+        cfg->SetSystemLanguage(static_cast<Service::CFG::SystemLanguage>(language));
+        changed = true;
     }
     if (changed) {
         cfg->UpdateConfigNANDSavegame();
@@ -312,14 +312,19 @@ Core::System::ResultStatus RunCore(const std::string& filepath) {
     stop_run = false;
     pause_emulation = false;
 
-    ApplyPendingProfile();
-
-    LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0, "");
-    system.GPU().ApplyPerProgramSettings(program_id);
-    system.GPU().Renderer().Rasterizer()->LoadDefaultDiskResources(stop_run,
-                                                                   &LoadDiskCacheProgress);
-    LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Complete, 0, 0, "");
-    system.GammaJitWarm();
+    // What a freshly loaded system needs before it runs: the user profile, the per-title GPU
+    // settings, the shader disk cache and the JIT warm-up. Done again after a restart, which
+    // shuts the system down and loads the title anew.
+    auto afterLoad = [&]() {
+        ApplyPendingProfile();
+        LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0, "");
+        system.GPU().ApplyPerProgramSettings(program_id);
+        system.GPU().Renderer().Rasterizer()->LoadDefaultDiskResources(stop_run,
+                                                                       &LoadDiskCacheProgress);
+        LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Complete, 0, 0, "");
+        system.GammaJitWarm();
+    };
+    afterLoad();
 
     SCOPE_EXIT({ TryShutdown(); });
     SCOPE_EXIT({ system.GammaJitSave(); });
@@ -329,6 +334,17 @@ Core::System::ResultStatus RunCore(const std::string& filepath) {
 
     while (!stop_run) {
         if (!pause_emulation) {
+            if (reset_requested.exchange(false)) {
+                LOG_INFO(Frontend, "restart: reloading the title");
+                system.GammaJitSave(true);
+                {
+                    std::lock_guard<std::mutex> lock(s_profile_mutex);
+                    s_profile_pending = true;   // the new system gets the profile again
+                }
+                system.Reset();
+                afterLoad();
+                continue;
+            }
             const auto result = system.RunLoop();
             // Debug: sys.gammaos.azahar_nano.dump_threads=1 logs every emulated thread (state,
             // pc, lr, what it waits on), to see what a stuck game is waiting for.
@@ -645,6 +661,12 @@ int azn_run(const char* rom_path) {
         g_cb.on_shutdown(g_cb.user, ToAznResult(result));
     }
     return ToAznResult(result);
+}
+
+void azn_reset(void) {
+    if (stop_run) return;
+    reset_requested = true;
+    running_cv.notify_all();
 }
 
 void azn_stop(void) {

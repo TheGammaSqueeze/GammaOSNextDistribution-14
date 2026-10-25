@@ -159,6 +159,9 @@ int azn_shader_cache_rebuilding(void);
 // until azn_stop or a shutdown request. Returns an azn_result.
 int azn_run(const char* rom_path);
 void azn_stop(void);
+// Restarts the running title from scratch (shutdown and reload on the core thread), as the
+// console's power-cycle would; the user profile is applied to the fresh system again.
+void azn_reset(void);
 void azn_pause(bool paused);
 // Physical lid state -> emulated 3DS shell (ptm:u GetShellState). 1 = open.
 void azn_set_shell_open(int open);

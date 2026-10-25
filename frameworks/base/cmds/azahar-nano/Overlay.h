@@ -32,6 +32,7 @@ struct OverlayActions {
     std::function<void()> resume;                       // close the menu, unpause
     std::function<void(int slot)> saveState;
     std::function<void(int slot)> loadState;
+    std::function<void()> restartGame;   // reload the title from scratch (absent on an older core)
     std::function<void()> exitGame;
     // config.ini access + live reload (azn_set_config_value / azn_reload_settings)
     std::function<std::string(const char* section, const char* key)> getConfig;

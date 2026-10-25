@@ -497,6 +497,13 @@ void Overlay::buildPages() {
             pg.rows.push_back(r);
         }
 
+        if (mA.restartGame) {
+            r = Row();
+            r.label = "Restart Game";
+            r.activate = [this] { if (mA.restartGame) mA.restartGame(); };
+            r.hint = "Start the game again from its title screen";
+            pg.rows.push_back(r);
+        }
         r = Row();
         r.label = "Exit Game";
         r.activate = [this] { if (mA.exitGame) mA.exitGame(); };
@@ -717,9 +724,9 @@ void Overlay::buildPages() {
                                          "Applies when the game restarts"));
         }
         // The console's system language (Service::CFG::SystemLanguage order): games that ship
-        // several languages pick theirs from it. "Default" leaves the config savegame as it is.
-        pg.rows.push_back(propChoice("System Language", "persist.gammaos.azahar_nano.language", "-1",
-                                     {{"Default", "-1"}, {"Japanese", "0"}, {"English", "1"}, {"French", "2"},
+        // several languages pick theirs from it. English unless the user picks another.
+        pg.rows.push_back(propChoice("System Language", "persist.gammaos.azahar_nano.language", "1",
+                                     {{"Japanese", "0"}, {"English", "1"}, {"French", "2"},
                                       {"German", "3"}, {"Italian", "4"}, {"Spanish", "5"},
                                       {"Simplified Chinese", "6"}, {"Korean", "7"}, {"Dutch", "8"},
                                       {"Portuguese", "9"}, {"Russian", "10"}, {"Traditional Chinese", "11"}},

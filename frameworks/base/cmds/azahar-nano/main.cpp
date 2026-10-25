@@ -90,6 +90,7 @@ struct CoreApi {
     void (*secondary_touch_moved)(float, float) = nullptr;
     void (*save_state)(int) = nullptr;
     void (*load_state)(int) = nullptr;
+    void (*reset)() = nullptr;                    // optional (older cores)
     void (*get_perf_stats)(azn_perf_stats*) = nullptr;
     void (*reload_settings)() = nullptr;
     void (*set_upright)(int) = nullptr;
@@ -232,6 +233,7 @@ bool loadCore(const std::string& path) {
     gCore.set_profile =
         reinterpret_cast<void (*)(const char*, int, int)>(dlsym(gCore.handle, "azn_set_profile"));
     gCore.set_language = reinterpret_cast<void (*)(int)>(dlsym(gCore.handle, "azn_set_language"));
+    gCore.reset = reinterpret_cast<void (*)()>(dlsym(gCore.handle, "azn_reset"));
     if (ok && gCore.abi_version() != AZN_ABI_VERSION) {
         ALOGE("core ABI %d, expected %d", gCore.abi_version(), AZN_ABI_VERSION);
         ok = false;
@@ -589,6 +591,12 @@ void seedConfig(const std::string& userDir) {
             gCore.set_config_value("Audio", key, "true");
             changed = true;
         }
+    }
+    // New 3DS mode is on unless the user turned it off (the System page keeps it switchable):
+    // the titles that use the extra CPU power expect it on a device this fast.
+    if (configValue(userDir, "System", "is_new_3ds").empty()) {
+        gCore.set_config_value("System", "is_new_3ds", "true");
+        changed = true;
     }
     if (changed) {
         ALOGI("seeded config.ini defaults in %s", userDir.c_str());
@@ -1104,6 +1112,16 @@ int main(int argc, char** argv) {
             gDynResSettle = 5;
             gCore.load_state(slot);
             gDynResSettle = 5;
+        };
+        oa.restartGame = [] {
+            if (!gCore.reset) return;
+            ALOGI("restart requested from the menu");
+            // The request is processed by the emulation loop, so unpause first.
+            overlay.close();
+            gSetOverlayActive(0, false);
+            gCore.pause(false);
+            gDynResSettle = 5;
+            gCore.reset();
         };
         oa.exitGame = [] {
             ALOGI("exit requested from the menu");
@@ -1848,9 +1866,9 @@ int main(int argc, char** argv) {
         const int day = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.birth_day", 0);
         if (name[0] || (month > 0 && day > 0)) gCore.set_profile(name, month, day);
     }
-    // The console's system language (the System page): -1 leaves the config savegame alone.
+    // The console's system language (the System page), English unless the user picked another.
     if (gCore.set_language) {
-        const int language = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.language", -1);
+        const int language = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.language", 1);
         if (language >= 0) gCore.set_language(language);
     }
     const int result = gCore.run(rom.c_str());
