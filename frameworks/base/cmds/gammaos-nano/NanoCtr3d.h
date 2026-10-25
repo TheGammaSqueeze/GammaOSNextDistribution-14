@@ -95,6 +95,7 @@ struct CgfxMaterialDef {
     std::string texCoordConfig;
     int translucency = 0;     // 0 opaque 1 translucent 2 subtractive 3 additive
     V4 colors[11];            // emission ambient diffuse specular0 specular1 constant0..5
+    int lightSet = -1;        // environment light set this material is lit by (-1: the first light)
     int cull = 0;             // 0 none 1 back 2 front
     int depthFlags = 0;
     GLenum depthFunc = GL_ALWAYS;
@@ -148,7 +149,14 @@ public:
     std::vector<Mesh> meshes;
     std::vector<V3> shapeCenters, shapeSizes;   // bounding boxes of the shapes
     std::vector<CgfxAnimation> skeletal, material;
-    struct Light { bool present = false; V3 direction{0, 0, -1}; V3 ambient{}, diffuse{}, specular0{}, specular1{}; } light;
+    // The scene's lights and the environment's light sets: a material is lit by the first light
+    // of the set its lightSetIndex names (NSMB2 lights Mario and Luigi with a dim set of their
+    // own and the coins with a bright one; one light for everything blew the characters out).
+    struct Light { bool present = false; std::string name; V3 direction{0, 0, -1}; V3 ambient{}, diffuse{}, specular0{}, specular1{}; };
+    std::vector<Light> lights;                      // the enabled lights, in file order
+    std::vector<std::vector<std::string>> lightSets;   // environment light sets: light names
+    Light light;                                    // the first enabled light (the fallback)
+    const Light& lightFor(int lightSet) const;
     struct Primitive {
         int mesh = 0, material = 0, bone = -1;
         // position normal color uv0 uv1 uv2, then joints and weights (skinned primitives only)

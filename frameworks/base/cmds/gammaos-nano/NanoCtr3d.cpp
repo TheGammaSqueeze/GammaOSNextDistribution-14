@@ -282,6 +282,7 @@ static CgfxMaterialDef parseMaterial(const BjValue& j) {
     std::string_view tr = j["translucency"].asString();
     m.translucency = tr == "translucent" ? 1 : tr == "subtractive" ? 2 : tr == "additive" ? 3 : 0;
     for (int i = 0; i < 11; i++) m.colors[i] = v4(j["colors"][kColorNames[i]]);
+    m.lightSet = j["lightSetIndex"].asInt(-1);
     std::string_view cull = j["rasterization"]["cullMode"].asString();
     m.cull = cull == "none" ? 0 : cull == "front" ? 2 : 1;
     BjValue fo = j["fragmentOperation"];
@@ -424,6 +425,13 @@ static std::shared_ptr<GpuTex> uploadPng(const uint8_t* d, size_t n) {
     return t;
 }
 
+const ModelResource::Light& ModelResource::lightFor(int lightSet) const {
+    if (lightSet >= 0 && lightSet < (int)lightSets.size())
+        for (const std::string& n : lightSets[lightSet])
+            for (const Light& l : lights) if (l.name == n) return l;
+    return light;
+}
+
 bool ModelResource::load(Pack& pack, Pack* shared) {
     const BjDoc* doc = pack.doc("cgfx");
     if (!doc) return false;
@@ -433,15 +441,26 @@ bool ModelResource::load(Pack& pack, Pack* shared) {
     for (BjValue a : root["materialAnimations"]) material.push_back(parseAnimation(a));
     for (BjValue l : root["lights"]) {
         if (!l["isEnabled"].asBool()) continue;
-        light.present = true;
-        light.direction = v3(l["direction"], {0, 0, -1});
+        Light li;
+        li.present = true;
+        li.name = l["name"].isString() ? l["name"].str() : std::string();
+        li.direction = v3(l["direction"], {0, 0, -1});
         V4 a = v4(l["colors"]["ambient"]), d = v4(l["colors"]["diffuse"]);
         V4 s0 = v4(l["colors"]["specular0"]), s1 = v4(l["colors"]["specular1"]);
-        light.ambient = {a[0], a[1], a[2]};
-        light.diffuse = {d[0], d[1], d[2]};
-        light.specular0 = {s0[0], s0[1], s0[2]};
-        light.specular1 = {s1[0], s1[1], s1[2]};
-        break;
+        li.ambient = {a[0], a[1], a[2]};
+        li.diffuse = {d[0], d[1], d[2]};
+        li.specular0 = {s0[0], s0[1], s0[2]};
+        li.specular1 = {s1[0], s1[1], s1[2]};
+        if (!light.present) light = li;
+        lights.push_back(std::move(li));
+    }
+    {
+        BjValue env = root["environments"][0u];   // the scene environment (one per banner)
+        for (BjValue set : env["lightSets"]) {
+            std::vector<std::string> names;
+            for (BjValue ref : set["lights"]) if (ref["name"].isString()) names.push_back(ref["name"].str());
+            lightSets.push_back(std::move(names));
+        }
     }
     if (!model.isObject()) return true;   // a camera or texture-only file
     name = model["name"].str();
@@ -1346,7 +1365,7 @@ GLuint Renderer3d::render(const Camera3d& cam, const std::vector<ModelInstance*>
         glUniform4fv(prog->loc("u_bufferColor"), 1, m.bufferColor.data());
         glUniform1f(prog->loc("u_alphaReference"), m.alphaReference);
         // lighting
-        const auto& light = r.light;
+        const auto& light = r.lightFor(m.lightSet);
         const V3 dir = light.present ? light.direction : V3{0, 0, -1};
         const float* v = cam.view.m;
         float lv[3];
