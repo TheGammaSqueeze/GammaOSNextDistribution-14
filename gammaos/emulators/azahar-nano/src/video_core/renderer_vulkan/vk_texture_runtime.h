@@ -139,6 +139,10 @@ public:
 
     /// GammaOS: keeps an image a surface replaced alive until the GPU is done with it.
     void Retire(Handle&& handle);
+    /// GammaOS: a framebuffer the rasterizer cache dropped. The scheduler records on its own
+    /// thread, so the Vulkan framebuffer must outlive every render pass already recorded or
+    /// still to be recorded with it: destroyed once the GPU has finished the current tick.
+    void RetireFramebuffer(vk::Framebuffer framebuffer);
 
     /// GammaOS: surfaces at this address needed storage usage before (see Surface::EnsureStorage);
     /// the next ones created there get it up front instead of being recreated.
@@ -191,6 +195,11 @@ private:
         Handle handle;
     };
     std::vector<RetiredHandle> retired; ///< GammaOS: see Retire
+    struct RetiredFramebuffer {
+        u64 tick;
+        vk::Framebuffer framebuffer;
+    };
+    std::vector<RetiredFramebuffer> retired_framebuffers; ///< GammaOS: see RetireFramebuffer
     std::unordered_set<PAddr> storage_addrs; ///< GammaOS: see NeedsStorageAt
     BlitHelper blit_helper;
     StreamBuffer upload_buffer;
@@ -332,6 +341,7 @@ public:
 
     Framebuffer(Framebuffer&& other) noexcept
         : VideoCore::FramebufferParams(std::move(other)), instance(other.instance),
+          runtime(std::exchange(other.runtime, nullptr)),
           images(std::exchange(other.images, {})),
           image_views(std::exchange(other.image_views, {})),
           framebuffer(std::exchange(other.framebuffer, VK_NULL_HANDLE)),
@@ -345,6 +355,7 @@ public:
 
     Framebuffer& operator=(Framebuffer&& other) noexcept {
         VideoCore::FramebufferParams::operator=(std::move(other));
+        runtime = std::exchange(other.runtime, nullptr);
         images = std::exchange(other.images, {});
         image_views = std::exchange(other.image_views, {});
         framebuffer = std::exchange(other.framebuffer, VK_NULL_HANDLE);
@@ -398,6 +409,7 @@ public:
 
 private:
     const Instance& instance;
+    TextureRuntime* runtime = nullptr; ///< GammaOS: retires the framebuffer (see RetireFramebuffer)
     std::array<vk::Image, 2> images{};
     std::array<vk::ImageView, 2> image_views{};
     vk::Framebuffer framebuffer{};

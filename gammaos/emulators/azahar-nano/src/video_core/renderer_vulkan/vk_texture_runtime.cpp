@@ -309,6 +309,24 @@ TextureRuntime::TextureRuntime(const Instance& instance, Scheduler& scheduler,
 
 TextureRuntime::~TextureRuntime() {
     g_pending_clear_owner = nullptr;
+    const auto device = instance.GetDevice();
+    for (const RetiredFramebuffer& r : retired_framebuffers) {
+        device.destroyFramebuffer(r.framebuffer);
+    }
+    retired_framebuffers.clear();
+}
+
+void TextureRuntime::RetireFramebuffer(vk::Framebuffer framebuffer) {
+    const auto device = instance.GetDevice();
+    const u64 done = scheduler.GetMasterSemaphore()->KnownGpuTick();
+    std::erase_if(retired_framebuffers, [&](const RetiredFramebuffer& r) {
+        if (r.tick > done) {
+            return false;
+        }
+        device.destroyFramebuffer(r.framebuffer);
+        return true;
+    });
+    retired_framebuffers.push_back(RetiredFramebuffer{scheduler.CurrentTick(), framebuffer});
 }
 
 VideoCore::StagingData TextureRuntime::FindStaging(u32 size, bool upload) {
@@ -1670,7 +1688,7 @@ void Surface::BlitScale(const VideoCore::TextureBlit& blit, bool up_scale) {
 
 Framebuffer::Framebuffer(TextureRuntime& runtime, const VideoCore::FramebufferParams& params,
                          Surface* color, Surface* depth)
-    : VideoCore::FramebufferParams{params}, instance{runtime.GetInstance()},
+    : VideoCore::FramebufferParams{params}, instance{runtime.GetInstance()}, runtime{&runtime},
       res_scale{color ? color->res_scale : (depth ? depth->res_scale : 1u)} {
     auto& renderpass_cache = runtime.GetRenderpassCache();
     if (shadow_rendering && !color) {
@@ -1725,7 +1743,16 @@ Framebuffer::Framebuffer(TextureRuntime& runtime, const VideoCore::FramebufferPa
 }
 
 Framebuffer::~Framebuffer() {
-    if (framebuffer) {
+    if (!framebuffer) {
+        return;
+    }
+    // A framebuffer dropped by the cache (a surface recreated with storage usage, see
+    // Surface::EnsureStorage) may still be referenced by render passes the scheduler has not
+    // recorded or the GPU has not run: destroying it here crashed the driver on the worker
+    // thread inside the next pass that used it (Monster Hunter 3 Ultimate after creating data).
+    if (runtime) {
+        runtime->RetireFramebuffer(framebuffer);
+    } else {
         instance.GetDevice().destroyFramebuffer(framebuffer);
     }
 }
