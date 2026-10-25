@@ -1113,12 +1113,16 @@ static std::string fragment3d(const CgfxMaterialDef& m) {
         "HP float lutAt(HP float row, HP float i) {\n"
         "  HP vec4 t = texture2D(u_lut, vec2((i + 0.5) / 256.0, (row + 0.5) / u_lutRows));\n"
         "  return (t.r * 255.0 * 256.0 + t.g * 255.0) / 65535.0;\n}\n"
+        // PICA signed lookup (the mode the home menu's materials use): inputs 0..1 read
+        // entries 0..127 and -1..0 wrap to 128..255, as the hardware and Citra index the
+        // table. Offsetting by 128 instead swapped the halves, so a rim light meant for
+        // grazing angles lit every face-on pixel and the fresnel term ran backwards.
         "HP float lut(HP float row, HP float scale, HP float x) {\n"
         "  HP float position = clamp(x, -1.0, 1.0) * 128.0;\n"
         "  HP float index = clamp(floor(position), -128.0, 127.0);\n"
         "  HP float delta = position - index;\n"
-        "  HP float i = index + 128.0;\n"
-        "  HP float next = min(i + 1.0, 255.0);\n"
+        "  HP float i = index < 0.0 ? index + 256.0 : index;\n"
+        "  HP float next = (i == 127.0 || i == 255.0) ? i : i + 1.0;\n"
 
         "  return mix(lutAt(row, i), lutAt(row, next), delta) * scale;\n}\n"
         "void main() {\n" + L + "  gl_FragColor = previous;\n}\n";
