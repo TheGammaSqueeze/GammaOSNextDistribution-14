@@ -46,3 +46,27 @@ A run that prints `== OK (0 failures) ==` means the parser resolved the theme ex
 its XML intends. This is a fast regression guard for the theme-resolution code in
 `NanoEsdeTheme.cpp`; it does not exercise the GLES2 renderer (`NanoThemeEngine.cpp`), which
 is verified on-device against the control unit.
+
+## Launch readiness
+
+`launch_readiness_check.cpp` exercises the same `NanoLaunchReadiness.h` used by
+the launcher. It checks volume aliases, missing mounts and tmpfs placeholders,
+internal paths, asynchronous polling, single dispatch, cancellation and stale
+worker results. A mounted volume passes even if the ROM is missing, leaving
+the existing launcher's file check responsible for that error.
+
+From the repo root:
+
+```sh
+c++ -std=c++17 -pthread -Wall -Wextra -Werror \
+    -I frameworks/base/cmds/gammaos-nano \
+    frameworks/base/cmds/gammaos-nano/test/launch_readiness_check.cpp \
+    -o /tmp/launch_readiness_check
+/tmp/launch_readiness_check
+```
+
+Build with assertions enabled (no `-DNDEBUG`). This needs no Android build or
+device. It does not validate Android's mount
+namespace, system properties or the UI dispatch wiring. On-device validation
+should include touch/button launches with the input released before storage is
+ready, touch/button Back during the wait, and a missing ROM on a mounted card.
