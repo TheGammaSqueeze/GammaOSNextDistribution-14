@@ -1991,6 +1991,7 @@ void GPU::ExecuteTransfer(Pica::DisplayTransferConfig config) {
             config.texture_copy.size);
     } else {
         if (right_eye_disabler->ShouldAllowDisplayTransfer(config.GetPhysicalInputAddress(),
+                                                           config.GetPhysicalOutputAddress(),
                                                            config.input_height)) {
             if (!impl->rasterizer->AccelerateDisplayTransfer(config)) {
                 impl->sw_blitter->DisplayTransfer(config);
