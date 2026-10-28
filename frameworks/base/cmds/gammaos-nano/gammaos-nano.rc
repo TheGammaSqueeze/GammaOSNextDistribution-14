@@ -194,6 +194,25 @@ service nano-pmdown /system/bin/nano-pmdown.sh
     oneshot
     seclabel u:r:su:s0
 
+# Return the codec to its normal power-down delay after the setup wizard. Keeping the
+# amplifier powered indefinitely makes the RG DS speakers hiss at idle and wastes power;
+# the long delay is only needed while the first-run wizard may sit between audio events.
+service nano-pmdown-reset /system/bin/nano-pmdown.sh 5000
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:su:s0
+
+# Already-provisioned boots do not run the Nano setup wizard, so restore the normal delay
+# as soon as Android is ready. On a first boot this is intentionally skipped until the wizard
+# clears setup_active, preserving the protection for the long setup idle.
+on property:sys.boot_completed=1 && property:persist.gammaos.nano.setup_done=1
+    start nano-pmdown-reset
+
+on property:sys.gammaos.nano.setup_active=0
+    start nano-pmdown-reset
+
 # GammaOS Nano: re-emit input subsystem uevents after apexd has finished
 # its activation flood. On the Brick (and similar devices since the
 # boot-speed work in 2026-05-13), trimui_inputd creates the TRIMUI
