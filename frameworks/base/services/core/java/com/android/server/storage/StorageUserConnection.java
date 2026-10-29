@@ -29,6 +29,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -68,7 +69,7 @@ import java.util.function.Consumer;
 public final class StorageUserConnection {
     private static final String TAG = "StorageUserConnection";
 
-    private static final int DEFAULT_REMOTE_TIMEOUT_SECONDS = 20;
+    private static final int DEFAULT_REMOTE_TIMEOUT_SECONDS = 20 * Build.HW_TIMEOUT_MULTIPLIER;
 
     private final Object mSessionsLock = new Object();
     private final Context mContext;
