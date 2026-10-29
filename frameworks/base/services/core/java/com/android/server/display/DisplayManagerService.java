@@ -681,14 +681,16 @@ public final class DisplayManagerService extends SystemService {
     }
 
     /**
-     * GammaOS: apply a power state to all INTERNAL logical displays, so secondary
-     * internal panels sleep/wake in lock-step with the primary.
-     * NOTE: we call requestDisplayStateInternal() directly (not via DisplayBlanker)
-     * to avoid re-entering the blanker; brightness values are passed through.
+     * GammaOS: collect the INTERNAL logical displays that need a power state change, so
+     * secondary internal panels sleep/wake in lock-step with the primary.
+     * The caller applies the state with requestDisplayStateInternal() (not via DisplayBlanker,
+     * to avoid re-entering the blanker) after releasing mSyncRoot, because the panel power
+     * transition can take hundreds of milliseconds.
      */
-    private void gammaosApplyStateToAllInternalDisplaysLocked(int state,
+    private IntArray gammaosInternalDisplaysToMirrorLocked(int state,
             float brightness, float sdrBrightness) {
         // This method MUST be called while holding mSyncRoot.
+        final IntArray ids = new IntArray();
         final int count = mDisplayStates.size();
         for (int i = 0; i < count; i++) {
             final int id = mDisplayStates.keyAt(i);
@@ -704,9 +706,9 @@ public final class DisplayManagerService extends SystemService {
             final boolean sameBrightness = (bp != null
                     && bp.brightness == brightness && bp.sdrBrightness == sdrBrightness);
             if (sameState && sameBrightness) continue;
-            // Issue the per-display request
-            requestDisplayStateInternal(id, state, brightness, sdrBrightness);
+            ids.add(id);
         }
+        return ids;
     }
 
     /** {@link DisplayBlanker} used by all {@link DisplayPowerController}s. */
@@ -762,11 +764,20 @@ public final class DisplayManagerService extends SystemService {
                 // mirror it to all INTERNAL displays so secondaries sleep/wake in lock-step.
                 // Avoid doing this for targeted per-display blanking (e.g. disable-display).
                 if (gammaosPropagateToAllInternalDisplays) {
+                    // GammaOS: the panel power transitions run outside mSyncRoot.
+                    final IntArray ids;
                     synchronized (mSyncRoot) {
-                        gammaosApplyStateToAllInternalDisplaysLocked(
+                        ids = gammaosInternalDisplaysToMirrorLocked(
                                 Display.STATE_OFF,
                                 PowerManager.BRIGHTNESS_INVALID_FLOAT,
                                 PowerManager.BRIGHTNESS_INVALID_FLOAT);
+                    }
+                    for (int i = 0; i < ids.size(); i++) {
+                        requestDisplayStateInternal(ids.get(i), Display.STATE_OFF,
+                                PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                                PowerManager.BRIGHTNESS_INVALID_FLOAT);
+                    }
+                    synchronized (mSyncRoot) {
                         // GammaOS: the summary above was taken before the mirror turned the
                         // other internal displays off, so it said "not all off". Their own
                         // OFF requests then found nothing to change and never reported, and
@@ -793,9 +804,13 @@ public final class DisplayManagerService extends SystemService {
                 // GammaOS: When the DEFAULT_DISPLAY (primary internal) changes power state,
                 // mirror it to all INTERNAL displays so they wake/sleep together.
                 if (gammaosPropagateToAllInternalDisplays) {
+                    final IntArray ids;
                     synchronized (mSyncRoot) {
-                        gammaosApplyStateToAllInternalDisplaysLocked(
+                        ids = gammaosInternalDisplaysToMirrorLocked(
                                 state, brightness, sdrBrightness);
+                    }
+                    for (int i = 0; i < ids.size(); i++) {
+                        requestDisplayStateInternal(ids.get(i), state, brightness, sdrBrightness);
                     }
                 }
             }
