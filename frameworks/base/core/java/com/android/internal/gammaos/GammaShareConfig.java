@@ -16,6 +16,7 @@
 package com.android.internal.gammaos;
 
 import android.os.SystemProperties;
+import android.util.Log;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,7 +60,12 @@ public final class GammaShareConfig {
     public static final String TYPE_WEBDAV = "webdav";
     public static final String TYPE_FTP = "ftp";
 
+    private static final String TAG = "GammaShareConfig";
+
     private static final String PREFIX = "persist.gammaos.share.";
+
+    /** Longest value SystemProperties.set accepts, in UTF-8 bytes (PROP_VALUE_MAX). */
+    public static final int MAX_VALUE_BYTES = 91;
 
     private GammaShareConfig() {}
 
@@ -209,12 +215,39 @@ public final class GammaShareConfig {
         return out;
     }
 
+    private static boolean fits(String v) {
+        return v == null || v.getBytes(StandardCharsets.UTF_8).length <= MAX_VALUE_BYTES;
+    }
+
+    /**
+     * The first field of this share that is too long to store in a property, as its name
+     * ("name", "host", "path", "user", "domain" or "pass"), or null when all of them fit. The
+     * password counts at its stored size, which is twice its UTF-8 length.
+     */
+    public static String tooLongField(Share s) {
+        if (!fits(s.name)) return "name";
+        if (!fits(s.host)) return "host";
+        if (!fits(s.path)) return "path";
+        if (!fits(s.user)) return "user";
+        if (!fits(s.domain)) return "domain";
+        if (!fits(encryptSecret(s.password))) return "pass";
+        return null;
+    }
+
     /**
      * Writes a share into its slot, encrypting the password. Does not change the enabled flag, so
      * editing a running share does not silently restart it; use {@link #setEnabled}.
+     *
+     * @return false when nothing was written because the slot is invalid or a field is too long
+     *         for a property; true otherwise
      */
-    public static void save(Share s) {
-        if (s == null || s.slot < 1 || s.slot > MAX_SHARES) return;
+    public static boolean save(Share s) {
+        if (s == null || s.slot < 1 || s.slot > MAX_SHARES) return false;
+        final String tooLong = tooLongField(s);
+        if (tooLong != null) {
+            Log.w(TAG, "Share field too long to save: " + tooLong);
+            return false;
+        }
         setProp(s.slot, "name", s.name);
         setProp(s.slot, "type", s.type);
         setProp(s.slot, "host", s.host);
@@ -226,6 +259,7 @@ public final class GammaShareConfig {
         setProp(s.slot, "ro", s.readOnly ? "1" : "0");
         setProp(s.slot, "tls", s.useTls ? "1" : "0");
         setProp(s.slot, "insecure", s.allowSelfSigned ? "1" : "0");
+        return true;
     }
 
     /** Starts or stops the mount by setting the flag init watches. */

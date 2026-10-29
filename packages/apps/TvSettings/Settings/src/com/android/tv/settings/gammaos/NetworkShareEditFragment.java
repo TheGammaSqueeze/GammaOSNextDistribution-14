@@ -101,11 +101,18 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
                     String name = v.replace('/', '_').trim();
                     if (name.isEmpty() || name.equals(".") || name.equals("..")) return;
                     if (name.equals(s.name)) return;
+                    if (name.getBytes(java.nio.charset.StandardCharsets.UTF_8).length
+                            > GammaShareConfig.MAX_VALUE_BYTES) {
+                        android.widget.Toast.makeText(getContext(),
+                                R.string.network_shares_too_long,
+                                android.widget.Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     // The mount point comes from the name, so a rename has to take the old mount
                     // down; the user switches it back on and it returns under the new folder.
                     if (s.enabled) GammaShareConfig.setEnabled(mSlot, false);
                     s.name = name;
-                    GammaShareConfig.save(s);
+                    saveOrWarn(s);
                 });
 
         ListPreference type = new ListPreference(getContext());
@@ -123,7 +130,7 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
             s.type = want;
             // A port that was the old protocol's default means nothing under the new one.
             s.port = 0;
-            GammaShareConfig.save(s);
+            saveOrWarn(s);
             // Changing the protocol of a live mount would leave it serving the old one until
             // something restarted it, so take it down.
             if (s.enabled) GammaShareConfig.setEnabled(mSlot, false);
@@ -135,7 +142,7 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
         addText(screen, "share_host", R.string.network_shares_server, s.host,
                 InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI, v -> {
                     s.host = v.trim();
-                    GammaShareConfig.save(s);
+                    saveOrWarn(s);
                 });
 
         // No port field for NFS: the client asks the server's portmapper where nfsd and
@@ -153,7 +160,7 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
                         // Anything outside a real port number means "use the protocol default" rather
                         // than storing a value that could only ever fail to connect.
                         s.port = (p > 0 && p <= 65535) ? p : 0;
-                        GammaShareConfig.save(s);
+                        saveOrWarn(s);
                     });
             if (s.port <= 0) {
                 port.setSummary(getString(R.string.network_shares_port_default,
@@ -164,14 +171,14 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
         addText(screen, "share_path", pathTitle(s.type), s.path,
                 InputType.TYPE_CLASS_TEXT, v -> {
                     s.path = v.trim();
-                    GammaShareConfig.save(s);
+                    saveOrWarn(s);
                 });
 
         if (s.usesCredentials()) {
             addText(screen, "share_user", R.string.network_shares_user, s.user,
                     InputType.TYPE_CLASS_TEXT, v -> {
                         s.user = v;
-                        GammaShareConfig.save(s);
+                        saveOrWarn(s);
                     });
 
             // Never show the stored password back, not even masked: a stray edit of a masked field
@@ -188,7 +195,7 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
                     InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
             pass.setOnPreferenceChangeListener((p, v) -> {
                 s.password = (String) v;
-                GammaShareConfig.save(s);
+                saveOrWarn(s);
                 refresh();
                 return true;
             });
@@ -198,7 +205,7 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
                 addText(screen, "share_domain", R.string.network_shares_workgroup, s.domain,
                         InputType.TYPE_CLASS_TEXT, v -> {
                             s.domain = v.trim();
-                            GammaShareConfig.save(s);
+                            saveOrWarn(s);
                         });
             }
         } else {
@@ -223,7 +230,7 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
             tls.setChecked(s.useTls);
             tls.setOnPreferenceChangeListener((p, v) -> {
                 s.useTls = (Boolean) v;
-                GammaShareConfig.save(s);
+                saveOrWarn(s);
                 // The scheme is chosen when the connection is made, so a live mount has to be
                 // restarted to pick this up.
                 if (s.enabled && GammaShareConfig.isMounted(s.name)) {
@@ -243,7 +250,7 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
                 self.setChecked(s.allowSelfSigned);
                 self.setOnPreferenceChangeListener((p, v) -> {
                     s.allowSelfSigned = (Boolean) v;
-                    GammaShareConfig.save(s);
+                    saveOrWarn(s);
                     // Certificate checks happen when the connection is made, as with the scheme.
                     if (s.enabled && GammaShareConfig.isMounted(s.name)) {
                         GammaShareConfig.setEnabled(mSlot, false);
@@ -263,7 +270,7 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
         ro.setChecked(s.readOnly);
         ro.setOnPreferenceChangeListener((p, v) -> {
             s.readOnly = (Boolean) v;
-            GammaShareConfig.save(s);
+            saveOrWarn(s);
             // The flag is applied at mount time, so a running share has to be restarted to pick it
             // up. Do that only when it is actually up.
             if (s.enabled && GammaShareConfig.isMounted(s.name)) {
@@ -290,6 +297,13 @@ public class NetworkShareEditFragment extends SettingsPreferenceFragment {
             return true;
         });
         screen.addPreference(remove);
+    }
+
+    private void saveOrWarn(GammaShareConfig.Share s) {
+        if (!GammaShareConfig.save(s)) {
+            android.widget.Toast.makeText(getContext(), R.string.network_shares_too_long,
+                    android.widget.Toast.LENGTH_LONG).show();
+        }
     }
 
     /** What each protocol calls the thing that goes in the path field. */

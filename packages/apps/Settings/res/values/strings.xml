@@ -13094,6 +13094,7 @@
     <string name="network_shares_remote_folder">Remote folder</string>
     <string name="network_shares_user">Username</string>
     <string name="network_shares_password">Password</string>
+    <string name="network_shares_too_long">Too long to save. Passwords can have at most 45 characters, other fields at most 91.</string>
     <string name="network_shares_password_none">Not set</string>
     <string name="network_shares_password_set">Saved</string>
     <string name="network_shares_workgroup">Workgroup</string>
