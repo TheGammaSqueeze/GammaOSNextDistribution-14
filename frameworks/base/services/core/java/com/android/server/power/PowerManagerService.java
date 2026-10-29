@@ -795,6 +795,9 @@ public final class PowerManagerService extends SystemService
         @Override
         public void onDisplayGroupAdded(int groupId) {
             synchronized (mLock) {
+                if (groupId == Display.INVALID_DISPLAY_GROUP) {
+                    return;
+                }
                 if (mPowerGroups.contains(groupId)) {
                     Slog.e(TAG, "Tried to add already existing group:" + groupId);
                     return;
@@ -5151,6 +5154,14 @@ public final class PowerManagerService extends SystemService
 
         for (int i = 0; i < displayGroupIds.size(); i++) {
             int displayGroupId = displayGroupIds.get(i);
+            if (displayGroupId == Display.INVALID_DISPLAY_GROUP) {
+                // GammaOS: a display left without a display group (the second internal panel,
+                // pinned by LogicalDisplayMapper) has no group to power. A PowerGroup(-1) would
+                // drive nothing (requestPowerState(-1) is a no-op) but would keep global
+                // wakefulness Awake and the display suspend blocker held after the default group
+                // sleeps, and -1 already means "all groups" for wakelocks.
+                continue;
+            }
             if (displayGroupId == Display.DEFAULT_DISPLAY_GROUP) {
                 // Power group for the default display group is already added.
                 continue;
@@ -6668,7 +6679,9 @@ public final class PowerManagerService extends SystemService
             IntArray groupIds;
 
             if (displayId == Display.INVALID_DISPLAY) {
-                groupIds = mDisplayManagerInternal.getDisplayGroupIds();
+                // GammaOS: DMS also lists INVALID_DISPLAY_GROUP for a display without a group,
+                // which has no PowerGroup and would make goToSleepInternal throw.
+                groupIds = gammaAllPowerGroupIds();
             } else {
                 DisplayInfo displayInfo = mDisplayManagerInternal.getDisplayInfo(displayId);
                 Preconditions.checkArgument(displayInfo != null, "display ID(%d) doesn't exist",
