@@ -453,6 +453,7 @@ status_t NanoMenu::readyToRun() {
     {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+        property_set("sys.gammaos.nano.keep_audio", "0");   // PowerManagerService's ULP park reads it
         // Likewise the OTA guard's lock and screen-on flag (otaSleepGuardTick): no update flow
         // is running yet.
         wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
@@ -5237,6 +5238,7 @@ if (sRingPrimedCount >= 2) {
                 if (!sOvlAudioWake) {
                     int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
                     if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                    property_set("sys.gammaos.nano.keep_audio", "1");
                     sOvlAudioWake = true;
                 }
                 // audio-only auto-advance (no GL; mirrors musicTick's gate)
@@ -5252,6 +5254,7 @@ if (sRingPrimedCount >= 2) {
             if (sOvlAudioWake) {   // screen back on, or audio stopped / queue ended -> release
                 int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
                 if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                property_set("sys.gammaos.nano.keep_audio", "0");
                 sOvlAudioWake = false;
             }
             if (screenOff) {
@@ -5361,6 +5364,7 @@ if (sRingPrimedCount >= 2) {
                 if (!sSfAudioWake) {
                     int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
                     if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                    property_set("sys.gammaos.nano.keep_audio", "1");
                     sSfAudioWake = true;
                 }
                 if (mMpAdvancing && !mMusicPlayer.ended()) mMpAdvancing = false;
@@ -5375,6 +5379,7 @@ if (sRingPrimedCount >= 2) {
             if (sSfAudioWake) {    // screen back on, or audio stopped / queue ended -> release
                 int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
                 if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                property_set("sys.gammaos.nano.keep_audio", "0");
                 sSfAudioWake = false;
             }
             if (screenOff) {

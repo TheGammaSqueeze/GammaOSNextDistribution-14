@@ -1120,6 +1120,8 @@ bool NanoMenu::enterDrmSleep() {
     // the lights HAL re-asserts the backlight and the panel never actually turns off.
     bool pmSleep = property_get_bool("sys.boot_completed", false);
     if (keepAudio) {
+        // PowerManagerService's ULP sleep leaves audio running while this is set.
+        property_set("sys.gammaos.nano.keep_audio", "1");
         int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
         ssize_t n = (wl >= 0) ? write(wl, "nano_music", 10) : -1;
         if (wl >= 0) close(wl);
@@ -1292,6 +1294,7 @@ bool NanoMenu::enterDrmSleep() {
                 if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
                 ALOGI("NanoMenu: music finished -> releasing wakelock, system sleep");
                 keepAudio = false;
+                property_set("sys.gammaos.nano.keep_audio", "0");
                 pmSleep = property_get_bool("sys.boot_completed", false);
                 if (pmSleep) { property_set("sys.gammaos.nano.dosleep", "1"); releaseBtLpm(); }
                 sleepStart = android::uptimeMillis();   // restart the legacy 60s budget if PM is unavailable
@@ -1315,6 +1318,7 @@ bool NanoMenu::enterDrmSleep() {
     if (keepAudio) {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+        property_set("sys.gammaos.nano.keep_audio", "0");
     }
     // Restore BT LPM to the boot state we found it in, so BT-enable behaviour is
     // byte-identical to shipping outside of nano's suspend window.

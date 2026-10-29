@@ -2550,7 +2550,13 @@ public final class PowerManagerService extends SystemService
                     && wakefulness != WAKEFULNESS_DREAMING) {
                 return;
             }
-            gammaUlpParkHardware(true);
+            // GammaOS Nano: the home deliberately keeps music playing with the screen off (it holds
+            // the nano_music wakelock and publishes sys.gammaos.nano.keep_audio). A suspended
+            // playback thread keeps mixing but writes nothing, so parking audio would silently
+            // play through the queue. Leave audio running then.
+            final boolean keepAudio =
+                    "1".equals(SystemProperties.get("sys.gammaos.nano.keep_audio", "0"));
+            gammaUlpParkHardware(true, !keepAudio);
             freezeNonSystemApps();
         }
     };
@@ -2561,11 +2567,13 @@ public final class PowerManagerService extends SystemService
     // restricted mode disables every active sensor while keeping the registrations, and
     // "enable" re-enables them on wake. Both are the framework's own pause paths, so no app
     // loses its session.
-    private void gammaUlpParkHardware(boolean park) {
-        try {
-            android.media.AudioSystem.setParameters("gammaos_ulp_sleep=" + (park ? "1" : "0"));
-        } catch (Throwable t) {
-            Slog.w(TAG, "GammaOS ULP: audio park " + park + " failed", t);
+    private void gammaUlpParkHardware(boolean park, boolean audio) {
+        if (audio) {
+            try {
+                android.media.AudioSystem.setParameters("gammaos_ulp_sleep=" + (park ? "1" : "0"));
+            } catch (Throwable t) {
+                Slog.w(TAG, "GammaOS ULP: audio park " + park + " failed", t);
+            }
         }
         try {
             final IBinder sensors = android.os.ServiceManager.getService("sensorservice");
@@ -2579,7 +2587,8 @@ public final class PowerManagerService extends SystemService
         } catch (Throwable t) {
             Slog.w(TAG, "GammaOS ULP: sensor park " + park + " failed", t);
         }
-        Slog.i(TAG, "GammaOS ULP: hardware " + (park ? "parked" : "restored"));
+        Slog.i(TAG, "GammaOS ULP: hardware " + (park ? "parked" : "restored")
+                + (audio ? "" : " (audio left running)"));
     }
 
     private void scheduleUltraPowerFreeze() {
@@ -2681,7 +2690,7 @@ public final class PowerManagerService extends SystemService
                     // Cancel any pending freeze and unfreeze immediately on wake
                     mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
                     unfreezeNonSystemApps();
-                    gammaUlpParkHardware(false);
+                    gammaUlpParkHardware(false, true);
                 }
                 mLastGlobalWakeTime = eventTime;
                 mLastGlobalWakeReason = reason;
