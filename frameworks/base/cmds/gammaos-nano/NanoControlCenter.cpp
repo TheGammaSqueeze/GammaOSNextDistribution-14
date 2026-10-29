@@ -29,6 +29,8 @@
 #include <time.h>
 #include <linux/input.h>
 #include <map>
+#include <mutex>
+#include <string>
 #include <thread>
 #include <atomic>
 #include <utils/Log.h>
@@ -334,6 +336,45 @@ void ccReadWifi() {
 
 } // namespace
 
+namespace {
+// CC shell writes (volume/map/brightness/screenshot/wifi) fork a shell plus a binder round-trip,
+// measured 0.1-0.9 s on the RG DS Plus. They run on a per-key worker, never on the render/park thread.
+// A burst collapses to the LATEST command for the slot, so the last value wins, as before.
+std::atomic<int> gCcShellInflight{0};   // slots currently running; gates the volume/wifi re-read
+struct CcShellSlot { std::mutex mu; std::string pending; bool running = false; };
+// Heap-allocated and never freed, so no static destructor runs under a detached worker at exit.
+CcShellSlot& gCcVolSlot  = *new CcShellSlot;
+CcShellSlot& gCcMapSlot  = *new CcShellSlot;
+CcShellSlot& gCcBriSlot  = *new CcShellSlot;
+CcShellSlot& gCcShotSlot = *new CcShellSlot;
+CcShellSlot& gCcWifiSlot = *new CcShellSlot;
+void ccShellAsync(CcShellSlot& slot, std::string cmd) {
+    CcShellSlot* s = &slot;
+    std::lock_guard<std::mutex> lk(s->mu);
+    s->pending = std::move(cmd);
+    if (s->running) return;
+    s->running = true;
+    gCcShellInflight.fetch_add(1, std::memory_order_acq_rel);
+    std::thread([s] {
+        nanoThreadNormalPriority();   // never fork at the render thread's FIFO 80 / nice -20
+        for (;;) {
+            std::string c;
+            {
+                std::lock_guard<std::mutex> lk2(s->mu);
+                if (s->pending.empty()) {
+                    s->running = false;
+                    gCcShellInflight.fetch_sub(1, std::memory_order_acq_rel);
+                    return;
+                }
+                c.swap(s->pending);
+            }
+            FILE* f = popen(c.c_str(), "r");
+            if (f) pclose(f);
+        }
+    }).detach();
+}
+} // namespace
+
 void NanoMenu::pollControlCenterStats() {
     int64_t t = nowMs();
     if (sCc.primed && t - sCc.lastPollMs < 500) return;
@@ -363,8 +404,10 @@ void NanoMenu::pollControlCenterStats() {
     // one, so the publish below never reads sVol* while a fresh worker is writing them. Combined with
     // volBusy (test-and-set, render-thread-only) this keeps exactly one producer's staging live at a
     // time, so there is no data race on the non-atomic staging ints. The volBusy.exchange is the last
-    // term so it only runs (and only latches) when a spawn will actually happen.
+    // term so it only runs (and only latches) when a spawn will actually happen. No read starts while a
+    // CC shell write is still in flight, or it would publish the old volume/Wi-Fi state after a release.
     if ((!sCc.primed || t - sCc.lastVolMs > 2000) && mCcHeldSlider < 0 &&
+        gCcShellInflight.load(std::memory_order_acquire) == 0 &&
         !sCc.volFresh.load(std::memory_order_acquire) && !sCc.volBusy.exchange(true)) {
         std::thread([]{
             ccReadVolume();     // popen off the render thread -> sVol*
@@ -1514,13 +1557,6 @@ void NanoMenu::drawFocusRing(float t01) {
 // ---------------------------------------------------------------------------
 // Interactivity: bottom-panel touch, tile actions, and the graceful sleep ramp.
 // ---------------------------------------------------------------------------
-namespace {
-// writeSysfsInt is an existing NanoMenu member (NanoMenuSystem.cpp) - reused for backlight writes.
-void shellCmd(const char* cmd) {
-    FILE* f = popen(cmd, "r");
-    if (f) pclose(f);
-}
-} // namespace
 
 // Read the BOTTOM digitizer (RG DS: gt9xx-0 by default; override with
 // persist.gammaos.nano.cc.touchdev) and dispatch each SYN frame. Called from the park loop so
@@ -1707,7 +1743,7 @@ void NanoMenu::ccTouchFrame() {
                 property_set("persist.gammaos.nano.brightness", pb);
                 snprintf(c, sizeof(c), "settings put system screen_brightness %d 2>/dev/null", lvl);
             }
-            shellCmd(c);
+            ccShellAsync(gCcBriSlot, c);
         }
         mCcHeldSlider = -1;
         sWokeThisTouch = false;
@@ -1853,11 +1889,11 @@ void NanoMenu::ccOnTap(float px, float py) {
                         std::string cmd =
                             "mkdir -p /sdcard/Pictures/Screenshots 2>/dev/null; screencap " + darg +
                             "-p /sdcard/Pictures/Screenshots/Screenshot_$(date +%Y%m%d_%H%M%S).png 2>/dev/null";
-                        shellCmd(cmd.c_str());
+                        ccShellAsync(gCcShotSlot, std::move(cmd));
                     }
                     break;
                 case A_WIFI:
-                    shellCmd(sCc.wifiOn ? "svc wifi disable" : "svc wifi enable");
+                    ccShellAsync(gCcWifiSlot, sCc.wifiOn ? "svc wifi disable" : "svc wifi enable");
                     sCc.wifiOn = !sCc.wifiOn;
                     break;
             }
@@ -1884,13 +1920,14 @@ int NanoMenu::ccSliderAt(float px, float py) {
 }
 
 // Push a media_session volume --set. This forks a shell + does a binder round-trip to system_server
-// (tens of ms), so callers DEBOUNCE it; the on-screen fill is driven by sCc.volCur separately and the
-// final value is always flushed on touch release. Honors a non-zero stream floor (volMin).
+// (runs on a background worker, 0.1-0.9 s measured), so callers DEBOUNCE it; the on-screen fill is
+// driven by sCc.volCur separately and the final value is always flushed on touch release. Honors a
+// non-zero stream floor (volMin).
 void NanoMenu::ccSendVolume(int v) {
     if (v < sCc.volMin) v = sCc.volMin;
     if (v > sCc.volMax) v = sCc.volMax;
     char c[96]; snprintf(c, sizeof(c), "cmd media_session volume --stream 3 --set %d 2>/dev/null", v);
-    shellCmd(c);
+    ccShellAsync(gCcVolSlot, c);
     mCcVolLastSet = v; mCcVolLastSetMs = nowMs();
 }
 
@@ -1905,7 +1942,7 @@ void NanoMenu::ccSetDisplayVolMap(int bot, int top) {
     snprintf(c, sizeof(c),
              "settings put global gammaos_audio_display_volume_map '%d=%d;%d=%d' 2>/dev/null",
              ccBottomDisplayId(), bot, ccTopDisplayId(), top);
-    shellCmd(c);
+    ccShellAsync(gCcMapSlot, c);
     mCcMapLastBot = bot; mCcMapLastTop = top; mCcMapLastSetMs = nowMs();
 }
 
