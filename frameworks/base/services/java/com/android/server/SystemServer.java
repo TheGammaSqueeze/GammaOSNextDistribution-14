@@ -1981,9 +1981,11 @@ public final class SystemServer implements Dumpable {
         // app was ever dexopted on a nano device (no install-time dexopt, no background
         // dexopt job, and `pm compile` refused with "ART Service is not ready"), so every
         // cold app start verified and interpreted its dex straight from the APK. It only
-        // registers the manager and schedules the background job on LOCKED_BOOT_COMPLETED;
-        // JobScheduler runs in minimal boot (StartJobScheduler_Nano), and the job keeps its
-        // idle + charging constraints so it never competes with a running game.
+        // registers the manager and schedules the background job; minimal boot skips
+        // LOCKED_BOOT_COMPLETED, so there the job is scheduled on USER_UNLOCKED instead (see
+        // DexOptHelper.initializeArtManagerLocal). JobScheduler runs in minimal boot
+        // (StartJobScheduler_Nano), and the job keeps its idle + charging constraints so it
+        // never competes with a running game.
         t.traceBegin("ArtManagerLocal");
         DexOptHelper.initializeArtManagerLocal(context, mPackageManagerService);
         t.traceEnd();

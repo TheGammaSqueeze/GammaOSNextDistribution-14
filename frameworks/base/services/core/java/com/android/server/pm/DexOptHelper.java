@@ -1047,13 +1047,24 @@ public final class DexOptHelper {
 
         // Schedule the background job when boot is complete. This decouples us from when
         // JobSchedulerService is initialized.
+        final IntentFilter bootFilter = new IntentFilter(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        // GammaOS Nano: minimal boot skips LOCKED_BOOT_COMPLETED (UserController), so wait for
+        // USER_UNLOCKED there, which is still sent. Without this the job was never scheduled.
+        if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            bootFilter.addAction(Intent.ACTION_USER_UNLOCKED);
+        }
         systemContext.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 context.unregisterReceiver(this);
-                artManager.scheduleBackgroundDexoptJob();
+                try {
+                    artManager.scheduleBackgroundDexoptJob();
+                } catch (RuntimeException e) {
+                    // GammaOS Nano: do not crash system_server if JobScheduler is unavailable.
+                    Slog.w(TAG, "Failed to schedule the background dexopt job", e);
+                }
             }
-        }, new IntentFilter(Intent.ACTION_LOCKED_BOOT_COMPLETED));
+        }, bootFilter);
     }
 
     /**
